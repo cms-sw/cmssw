@@ -6,6 +6,7 @@
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 #include "DataFormats/HcalDigi/interface/HcalCalibDataFrame.h"
 #include "DataFormats/HcalDigi/interface/ZDCDataFrame.h"
+#include "DataFormats/HcalDigi/interface/HcalUpgradeDataFrame.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 
 /** \class HcalCoder
@@ -13,8 +14,8 @@
     Abstract interface of a coder/decoder which converts ADC values to
     and from femtocolumbs of collected charge.
 
-   $Date: 2006/01/06 17:52:24 $
-   $Revision: 1.4 $
+   $Date: 2011/01/21 22:24:37 $
+   $Revision: 1.5.6.1 $
 */
 class HcalCoder {
 public:
@@ -23,11 +24,13 @@ public:
   virtual void adc2fC(const HFDataFrame& df, CaloSamples& lf) const = 0;
   virtual void adc2fC(const ZDCDataFrame& df, CaloSamples& lf) const = 0;
   virtual void adc2fC(const HcalCalibDataFrame& df, CaloSamples& lf) const = 0;
+  virtual void adc2fC(const HcalUpgradeDataFrame& df, CaloSamples& lf) const = 0;
   virtual void fC2adc(const CaloSamples& clf, HBHEDataFrame& df, int fCapIdOffset) const = 0;
   virtual void fC2adc(const CaloSamples& clf, HFDataFrame& df, int fCapIdOffset) const = 0;
   virtual void fC2adc(const CaloSamples& clf, HODataFrame& df, int fCapIdOffset) const = 0;
   virtual void fC2adc(const CaloSamples& clf, ZDCDataFrame& df, int fCapIdOffset) const = 0;
   virtual void fC2adc(const CaloSamples& clf, HcalCalibDataFrame& df, int fCapIdOffset) const = 0;
+  virtual void fC2adc(const CaloSamples& clf, HcalUpgradeDataFrame& df, int fCapIdOffset) const = 0;
 };
 
 #endif

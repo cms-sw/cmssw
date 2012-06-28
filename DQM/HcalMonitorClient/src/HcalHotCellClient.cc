@@ -11,8 +11,8 @@
 /*
  * \file HcalHotCellClient.cc
  * 
- * $Date: 2010/11/10 20:01:34 $
- * $Revision: 1.75 $
+ * $Date: 2010/11/17 19:17:42 $
+ * $Revision: 1.76 $
  * \author J. Temple
  * \brief Hot Cell Client class
  */
@@ -45,6 +45,8 @@ HcalHotCellClient::HcalHotCellClient(std::string myname, const edm::ParameterSet
 						   ps.getUntrackedParameter<double>("minerrorrate",0.25));
   minevents_    = ps.getUntrackedParameter<int>("HotCell_minevents",
 						ps.getUntrackedParameter<int>("minevents",100));
+  Online_                = ps.getUntrackedParameter<bool>("online",false);
+
   ProblemCellsByDepth=0;
   ProblemCells=0;
 }

@@ -1,3 +1,5 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "RecoParticleFlow/PFProducer/interface/PFAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"  //PFMuons
 #include "RecoParticleFlow/PFProducer/interface/PFElectronAlgo.h"  
@@ -855,11 +857,29 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	(*pfCandidates_)[tmpi[0]].addElementInBlock( blockref, kTrack[0] );
 	continue;
       }
-      
+          
       // Look for closest ECAL cluster
       unsigned thisEcal = ecalElems.begin()->second;
       reco::PFClusterRef clusterRef = elements[thisEcal].clusterRef();
       if ( debug_ ) std::cout << " is associated to " << elements[thisEcal] << std::endl;
+
+      // Set ECAL energy for muons
+      if ( thisIsAMuon ) { 
+	(*pfCandidates_)[tmpi[0]].setEcalEnergy( clusterRef->energy(),
+						 std::min(clusterRef->energy(), muonECAL_[0]) );
+	(*pfCandidates_)[tmpi[0]].setHcalEnergy( 0., 0. );
+	(*pfCandidates_)[tmpi[0]].setPs1Energy( 0 );
+	(*pfCandidates_)[tmpi[0]].setPs2Energy( 0 );
+	(*pfCandidates_)[tmpi[0]].addElementInBlock( blockref, kTrack[0] );
+      }
+      
+      double slopeEcal = 1.;
+      bool connectedToEcal = false;
+      unsigned iEcal = 99999;
+      double calibEcal = 0.;
+      double calibHcal = 0.;
+      double totalEcal = thisIsAMuon ? -muonECAL_[0] : 0.;
+      double totalHcal = 0.;
 
       // Consider charged particles closest to the same ECAL cluster
       std::multimap<double, unsigned> sortedTracks;
@@ -867,7 +887,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				sortedTracks,
 				reco::PFBlockElement::TRACK,
 				reco::PFBlock::LINKTEST_ALL );
-
+    
       for(IE ie = sortedTracks.begin(); ie != sortedTracks.end(); ++ie ) {
 	unsigned jTrack = ie->second;
 
@@ -887,10 +907,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				  reco::PFBlock::LINKTEST_ALL );
 	if ( sortedECAL.begin()->second != thisEcal ) continue;
 
+	// Check if this track is a muon
+	bool thatIsAMuon = PFMuonAlgo::isMuon(elements[jTrack]);
+
 	// Check if this track is not a fake
 	bool rejectFake = false;
 	reco::TrackRef trackRef = elements[jTrack].trackRef();
-	if ( trackRef->ptError() > ptError_) { 
+	if ( !thatIsAMuon && trackRef->ptError() > ptError_) { 
 	  double deficit = trackMomentum + trackRef->p() - clusterRef->energy();
 	  double resol = nSigmaTRACK_*neutralHadronEnergyResolution(trackMomentum+trackRef->p(),
 								    clusterRef->positionREP().Eta());
@@ -911,12 +934,17 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	// Otherwise, add this track momentum to the total track momentum
 	/* */
 	// reco::TrackRef trackRef = elements[jTrack].trackRef();
-	if ( debug_ ) 
-	  std::cout << "Track momentum increased from " << trackMomentum << " GeV "; 
-	trackMomentum += trackRef->p();
-	if ( debug_ ) {
-	  std::cout << "to " << trackMomentum << " GeV." << std::endl; 
-	  std::cout << "with " << elements[jTrack] << std::endl;
+	if ( !thatIsAMuon ) {	
+	  if ( debug_ ) 
+	    std::cout << "Track momentum increased from " << trackMomentum << " GeV "; 
+	  trackMomentum += trackRef->p();
+	  if ( debug_ ) {
+	    std::cout << "to " << trackMomentum << " GeV." << std::endl; 
+	    std::cout << "with " << elements[jTrack] << std::endl;
+	  }
+	} else { 
+	  totalEcal -= muonECAL_[0];
+	  totalEcal = std::max(totalEcal, 0.);
 	}
 
 	// And create a charged particle candidate !
@@ -924,15 +952,16 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	kTrack.push_back(jTrack);
 	active[jTrack] = false;
 
+	if ( thatIsAMuon ) { 
+	  (*pfCandidates_)[tmpi.back()].setEcalEnergy(clusterRef->energy(),
+						      std::min(clusterRef->energy(),muonECAL_[0]));
+	  (*pfCandidates_)[tmpi.back()].setHcalEnergy( 0., 0. );
+	  (*pfCandidates_)[tmpi.back()].setPs1Energy( 0 );
+	  (*pfCandidates_)[tmpi.back()].setPs2Energy( 0 );
+	  (*pfCandidates_)[tmpi.back()].addElementInBlock( blockref, kTrack.back() );
+	}
       }
 
-      double slopeEcal = 1.;
-      bool connectedToEcal = false;
-      unsigned iEcal = 99999;
-      double calibEcal = 0.;
-      double calibHcal = 0.;
-      double totalEcal = thisIsAMuon ? -muonECAL_[0] : 0.;
-      double totalHcal = 0.;
 
       if ( debug_ ) std::cout << "Loop over all associated ECAL clusters" << std::endl; 
       // Loop over all ECAL linked clusters ordered by increasing distance.
@@ -1051,7 +1080,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 
       } // Loop ecal elements
-
+    
       bool bNeutralProduced = false;
   
       // Create a photon if the ecal energy is too large
@@ -1109,18 +1138,16 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    (*pfCandidates_)[tmpj].addElementInBlock( blockref, kTrack[ic] ); 
 	} // End neutral energy
 
-	for (unsigned ic=0; ic<tmpi.size();++ic) { 
+	// Set elements in blocks and ECAL energies to all tracks
+      	for (unsigned ic=0; ic<tmpi.size();++ic) { 
 	  
-	  double fraction = (*pfCandidates_)[tmpi[ic]].trackRef()->p()/trackMomentum;
-	  
-	  
-	  double ecalCal = trackMomentum*fraction;
-	  double ecalRaw = trackMomentum*fraction;
+	  // Skip muons
+	  if ( (*pfCandidates_)[tmpi[ic]].particleId() == reco::PFCandidate::mu ) continue; 
 
-	  if (!bNeutralProduced){
-	    ecalCal = calibEcal*fraction;
-	    ecalRaw = totalEcal*fraction;
-	  }
+	  double fraction = (*pfCandidates_)[tmpi[ic]].trackRef()->p()/trackMomentum;
+	  double ecalCal = bNeutralProduced ? 
+	    (calibEcal-neutralEnergy*slopeEcal)*fraction : calibEcal*fraction;
+	  double ecalRaw = totalEcal*fraction;
 
 	  if (debug_) cout << "The fraction after photon supression is " << fraction << " calibrated ecal = " << ecalCal << endl;
 
@@ -1132,7 +1159,17 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	}
 
       } // End connected ECAL
-      
+
+      // Fill the element_in_block for tracks that are eventually linked to no ECAL clusters at all.
+      for (unsigned ic=0; ic<tmpi.size();++ic) { 
+	const PFCandidate& pfc = (*pfCandidates_)[tmpi[ic]];
+	const PFCandidate::ElementsInBlocks& eleInBlocks = pfc.elementsInBlocks();
+	if ( eleInBlocks.size() == 0 ) { 
+	  if ( debug_ )std::cout << "Single track / Fill element in block! " << std::endl;
+	  (*pfCandidates_)[tmpi[ic]].addElementInBlock( blockref, kTrack[ic] );
+	}
+      }
+
     }
 
 
@@ -1436,14 +1473,17 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	bool letMuonEatCaloEnergy = false;
 
 	if(thisIsAnIsolatedMuon){
-	  double totalCaloEnergy = totalHcal;
+	  // The factor 1.3 is the e/pi factor in HCAL...
+	  double totalCaloEnergy = totalHcal / 1.30;
 	  unsigned iEcal = 0;
 	  if( !sortedEcals.empty() ) { 
 	    iEcal = sortedEcals.begin()->second; 
 	    PFClusterRef eclusterref = elements[iEcal].clusterRef();
 	    totalCaloEnergy += eclusterref->energy();
 	  }
-	  if(muonRef->pt() > totalCaloEnergy) letMuonEatCaloEnergy = true;
+	  // std::cout << "muon p / total calo = " << muonRef->p() << " "  << (pfCandidates_->back()).p() << " " << totalCaloEnergy << std::endl;
+	  //if(muonRef->p() > totalCaloEnergy ) letMuonEatCaloEnergy = true;
+	  if( (pfCandidates_->back()).p() > totalCaloEnergy ) letMuonEatCaloEnergy = true;
 	}
 
 	if(letMuonEatCaloEnergy) muonHcal = totalHcal;
@@ -2582,7 +2622,6 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
   // Except if it is a muon, of course ! 
   bool thisIsAMuon = PFMuonAlgo::isMuon(elt);
   bool thisIsAnIsolatedMuon = PFMuonAlgo::isIsolatedMuon(elt);
-
   bool thisIsAGlobalTightMuon = PFMuonAlgo::isGlobalTightMuon(elt);
   bool thisIsATrackerTightMuon = PFMuonAlgo::isTrackerTightMuon(elt);
 
@@ -3161,7 +3200,7 @@ PFAlgo::postCleaning() {
       for(unsigned j=0; j<pfCandidatesToBeRemoved.size(); ++j) {
 	std::cout << "Removed : " << (*pfCandidates_)[pfCandidatesToBeRemoved[j]] << std::endl;
 	pfCleanedCandidates_->push_back( (*pfCandidates_)[ pfCandidatesToBeRemoved[j] ] );
-	(*pfCandidates_)[pfCandidatesToBeRemoved[j]].rescaleMomentum(0.);
+	(*pfCandidates_)[pfCandidatesToBeRemoved[j]].rescaleMomentum(1E-6);
 	//reco::PFCandidate::ParticleType unknown = reco::PFCandidate::X;
 	//(*pfCandidates_)[pfCandidatesToBeRemoved[j]].setParticleType(unknown);
       }
@@ -3353,7 +3392,7 @@ PFAlgo::postMuonCleaning( const edm::Handle<reco::MuonCollection>& muonh,
       metX -= pfc.px();
       metY -= pfc.py();
       sumet -= pfc.pt();
-      (*pfCandidates_)[imu->second].rescaleMomentum(0.);
+      (*pfCandidates_)[imu->second].rescaleMomentum(1E-6);
     }
     met2 = metX*metX+metY*metY;
     if ( printout ) 
@@ -3388,7 +3427,7 @@ PFAlgo::postMuonCleaning( const edm::Handle<reco::MuonCollection>& muonh,
 	  std::cout << "Muon cleaned (NO-bad) " << sumetNO << std::endl;
 	  std::cout << "sumet NO " << sumetNO << std::endl;
 	}
-	(*pfCandidates_)[imu->second].rescaleMomentum(0.);
+	(*pfCandidates_)[imu->second].rescaleMomentum(1E-6);
 	if ( printout ) 
 	  std::cout << "MEX,MEY,MET            " << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
 	metX = metXNO;
@@ -3490,70 +3529,83 @@ PFAlgo::postMuonCleaning( const edm::Handle<reco::MuonCollection>& muonh,
 	
 	// Find the block of the muon
 	const PFCandidate::ElementsInBlocks& eleInBlocks = pfc.elementsInBlocks();
-	PFBlockRef blockRefMuon = eleInBlocks[0].first;
-	unsigned indexMuon = eleInBlocks[0].second;
-	for ( unsigned iele = 1; iele < eleInBlocks.size(); ++iele ) { 
-	  indexMuon = eleInBlocks[iele].second;
-	  break;
-	}
-	
-	// Check if the muon gave rise to a neutral hadron
-	double iHad = 1E9;
-	bool hadron = false;
-	for ( unsigned i = imu->second+1; i < pfCandidates_->size(); ++i ) { 
-	  const PFCandidate& pfcn = (*pfCandidates_)[i];
-	  const PFCandidate::ElementsInBlocks& ele = pfcn.elementsInBlocks();
-	  PFBlockRef blockRefHadron = ele[0].first;
-	  unsigned indexHadron = ele[0].second;
-	  // We are out of the block -> exit the loop
-	  if ( blockRefHadron.key() != blockRefMuon.key() ) break;
-	  // Check that this particle is a neutral hadron
-	  if ( indexHadron == indexMuon && 
-	       pfcn.particleId() == reco::PFCandidate::h0 ) {
-	    iHad = i;
-	    hadron = true;
+	if ( !eleInBlocks.size() ) { 
+	  ostringstream err;
+	  err<<"A muon has no associated elements in block. Cannot proceed with postMuonCleaning()";
+	  edm::LogError("PFAlgo")<<err.str()<<endl;
+	} else { 
+	  PFBlockRef blockRefMuon = eleInBlocks[0].first;
+	  unsigned indexMuon = eleInBlocks[0].second;
+	  for ( unsigned iele = 1; iele < eleInBlocks.size(); ++iele ) { 
+	    indexMuon = eleInBlocks[iele].second;
+	    break;
 	  }
-	  if ( hadron ) break;
-	}
-
-	if ( hadron ) { 
-	  const PFCandidate& pfch = (*pfCandidates_)[iHad];
-	  pfPunchThroughMuonCleanedCandidates_->push_back(pfc);
-	  pfPunchThroughHadronCleanedCandidates_->push_back(pfch);
-	  //std::cout << pfc << std::endl;
-	  //std::cout << "Raw ecal/hcal : " << pfc.rawEcalEnergy() << " " << pfc.rawHcalEnergy() << std::endl;
-	  //std::cout << "Hadron: " << (*pfCandidates_)[iHad] << std::endl;
-	  double rescaleFactor = (*pfCandidates_)[iHad].p()/(*pfCandidates_)[imu->second].p();
-	  metX -=  (*pfCandidates_)[imu->second].px() + (*pfCandidates_)[iHad].px();
-	  metY -=  (*pfCandidates_)[imu->second].py() + (*pfCandidates_)[iHad].py();
-	  (*pfCandidates_)[imu->second].rescaleMomentum(rescaleFactor);
-	  (*pfCandidates_)[iHad].rescaleMomentum(0);
-	  (*pfCandidates_)[imu->second].setParticleType(reco::PFCandidate::h);
-	  if ( printout ) 
-	    std::cout << "MEX,MEY,MET Before " << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
-	  metX +=  (*pfCandidates_)[imu->second].px();
-	  metY +=  (*pfCandidates_)[imu->second].py();	  
-	  met2 = metX*metX + metY*metY;
-	  if ( printout ) {
-	    std::cout << "Muon changed to charged hadron" << std::endl;
-	    std::cout << "MEX,MEY,MET Now (NO)" << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
+	  
+	  // Check if the muon gave rise to a neutral hadron
+	  double iHad = 1E9;
+	  bool hadron = false;
+	  for ( unsigned i = imu->second+1; i < pfCandidates_->size(); ++i ) { 
+	    const PFCandidate& pfcn = (*pfCandidates_)[i];
+	    const PFCandidate::ElementsInBlocks& ele = pfcn.elementsInBlocks();
+	    if ( !ele.size() ) { 
+	      ostringstream err2;
+	      err2<<"A pfCandidate has no associated elements in block. Cannot proceed with postMuonCleaning()";
+	      edm::LogError("PFAlgo")<<err2.str()<<endl;
+	      continue;
+	    }
+	    PFBlockRef blockRefHadron = ele[0].first;
+	    unsigned indexHadron = ele[0].second;
+	    // We are out of the block -> exit the loop
+	    if ( blockRefHadron.key() != blockRefMuon.key() ) break;
+	    // Check that this particle is a neutral hadron
+	    if ( indexHadron == indexMuon && 
+		 pfcn.particleId() == reco::PFCandidate::h0 ) {
+	      iHad = i;
+	      hadron = true;
+	    }
+	    if ( hadron ) break;
 	  }
-	} else if ( punchthrough1 || fake ) {
-	  const PFCandidate& pfc = (*pfCandidates_)[imu->second];
-	  pfFakeMuonCleanedCandidates_->push_back(pfc);
-	  if ( printout ) 
-	    std::cout << "MEX,MEY,MET Before " << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
-	  metX -=  (*pfCandidates_)[imu->second].px();
-	  metY -=  (*pfCandidates_)[imu->second].py();	  
-	  met2 = metX*metX + metY*metY;
-	  (*pfCandidates_)[imu->second].rescaleMomentum(0.);
-	  if ( printout ) {
-	    std::cout << "Muon cleaned (NO)" << std::endl;
-	    std::cout << "MEX,MEY,MET Now (NO)" << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
+	  
+	  if ( hadron ) { 
+	    const PFCandidate& pfch = (*pfCandidates_)[iHad];
+	    pfPunchThroughMuonCleanedCandidates_->push_back(pfc);
+	    pfPunchThroughHadronCleanedCandidates_->push_back(pfch);
+	    if ( printout ) {
+	      std::cout << pfc << std::endl;
+	      std::cout << "Raw ecal/hcal : " << pfc.rawEcalEnergy() << " " << pfc.rawHcalEnergy() << std::endl;
+	      std::cout << "Hadron: " << (*pfCandidates_)[iHad] << std::endl;
+	    }
+	    double rescaleFactor = (*pfCandidates_)[iHad].p()/(*pfCandidates_)[imu->second].p();
+	    metX -=  (*pfCandidates_)[imu->second].px() + (*pfCandidates_)[iHad].px();
+	    metY -=  (*pfCandidates_)[imu->second].py() + (*pfCandidates_)[iHad].py();
+	    (*pfCandidates_)[imu->second].rescaleMomentum(rescaleFactor);
+	    (*pfCandidates_)[iHad].rescaleMomentum(1E-6);
+	    (*pfCandidates_)[imu->second].setParticleType(reco::PFCandidate::h);
+	    if ( printout ) 
+	      std::cout << "MEX,MEY,MET Before " << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
+	    metX +=  (*pfCandidates_)[imu->second].px();
+	    metY +=  (*pfCandidates_)[imu->second].py();	  
+	    met2 = metX*metX + metY*metY;
+	    if ( printout ) {
+	      std::cout << "Muon changed to charged hadron" << std::endl;
+	      std::cout << "MEX,MEY,MET Now (NO)" << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
+	    }
+	  } else if ( punchthrough1 || fake ) {
+	    const PFCandidate& pfc = (*pfCandidates_)[imu->second];
+	    pfFakeMuonCleanedCandidates_->push_back(pfc);
+	    if ( printout ) 
+	      std::cout << "MEX,MEY,MET Before " << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
+	    metX -=  (*pfCandidates_)[imu->second].px();
+	    metY -=  (*pfCandidates_)[imu->second].py();	  
+	    met2 = metX*metX + metY*metY;
+	    (*pfCandidates_)[imu->second].rescaleMomentum(1E-6);
+	    if ( printout ) {
+	      std::cout << "Muon cleaned (NO)" << std::endl;
+	      std::cout << "MEX,MEY,MET Now (NO)" << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
+	    }
 	  }
 	}
       }
-
       /*
       if ( !fixed ) { 
 	std::cout << "TK Muon px,py,pt: " << trackerMu->px() << " " << trackerMu->py() << " " << trackerMu->pt() << " " << std::endl;
@@ -3582,13 +3634,48 @@ PFAlgo::postMuonCleaning( const edm::Handle<reco::MuonCollection>& muonh,
     unsigned iHad = 1E9;
     for(unsigned i=0; i<pfCandidates_->size(); i++) {
       const PFCandidate& pfc = (*pfCandidates_)[i];
+      if ( !pfc.trackRef().isNonnull() ) continue;
+
       if ( pfc.trackRef().isNonnull() && pfc.trackRef() == trackerMu ) { 
 	hadron = true;
 	iHad = i;
       }
-      if ( !pfc.muonRef().isNonnull() || pfc.muonRef() != muonRef ) continue;
-      used = true;
-      if ( used ) break;
+
+      // The pf candidate is not associated to a muon
+      // if ( !pfc.muonRef().isNonnull() || pfc.muonRef() != muonRef ) continue; ! This test is buggy !     
+      if ( !pfc.muonRef().isNonnull() ) continue;
+      
+      // Check if the muon is used... 
+      if ( pfc.muonRef()->track() == trackerMu || pfc.muonRef()->combinedMuon() == combinedMu ) {
+	if ( printout ) { 
+	  std::cout << "This muon is already used ..." << std::endl;
+	  std::cout << pfc << std::endl;
+	  std::cout << muonRef->p() << " " << muonRef->pt() << " " << muonRef->eta() << " " << muonRef->phi() << std::endl;
+	}
+	used = true;
+      } 
+      else {
+	// Check if the stand-alone muon is not a spurious copy of an existing muon 
+	// (Protection needed for HLT)
+	if ( pfc.muonRef()->isStandAloneMuon() && muonRef->isStandAloneMuon() ) { 
+	  double dEta = pfc.muonRef()->standAloneMuon()->eta() - standAloneMu->eta();
+	  double dPhi = pfc.muonRef()->standAloneMuon()->phi() - standAloneMu->phi();
+	  double dR = sqrt(dEta*dEta + dPhi*dPhi);
+	  if ( printout ) { 
+	    std::cout << "StandAlone to be added ? " << std::endl;
+	    std::cout << " eta = " << pfc.muonRef()->standAloneMuon()->eta() << " " << standAloneMu->eta() << std::endl;
+	    std::cout << " phi = " << pfc.muonRef()->standAloneMuon()->phi() << " " << standAloneMu->phi() << std::endl;
+	    std::cout << " pt = " << pfc.muonRef()->standAloneMuon()->pt() << " " << standAloneMu->pt() << std::endl;
+	    std::cout << " Delta R = " << dR << std::endl;
+	  }
+	  if ( dR < 0.005 ) { 
+	    used = true;
+	    if ( printout ) std::cout << "Not removed !" << std::endl;
+	  }
+	}
+      } 
+      if ( used ) break; 
+
     }
 
     if ( used ) continue;

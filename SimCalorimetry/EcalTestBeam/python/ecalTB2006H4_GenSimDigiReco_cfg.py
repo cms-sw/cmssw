@@ -102,8 +102,7 @@ process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 process.load("Geometry.EcalMapping.EcalMapping_cfi")
 process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
-process.CaloGeometryBuilder.SelectedCalos = ['EcalBarrel']
-#, 'EcalEndcap']
+process.CaloGeometryBuilder.SelectedCalos = ['EcalBarrel', 'EcalEndcap']
 
 
 # No magnetic field
@@ -133,7 +132,7 @@ from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
 # this module takes input in the units of *cm* and *radian*!!!
 #
 
-process.VtxSmeared = cms.EDProducer("BeamProfileVtxGenerator",
+process.VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
     process.common_beam_direction_parameters,
     VtxSmearedCommon,
 #    BeamSigmaX = cms.double(2.4),
@@ -206,15 +205,13 @@ process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 
 process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetrieverTB_cfi")
 
-process.load("CalibCalorimetry.EcalTrivialCondModules.ESTrivialCondRetriever_cfi")
-
 # Test beam unsuppressed digis
 
 process.load("SimCalorimetry.EcalTestBeam.ecaldigi_testbeam_cfi")
 
 # local reco
 process.load("Configuration.EcalTB.localReco_tbsim_cff")
- 
+
 # ntuplizer for TB data format
 #process.treeProducerCalibSimul = cms.EDFilter("TreeProducerCalibSimul",
 #    rootfile = cms.untracked.string("treeTB_"+myNameTag+".root"),

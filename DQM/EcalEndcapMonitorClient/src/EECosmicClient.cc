@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2010/08/04 08:20:13 $
- * $Revision: 1.71 $
+ * $Date: 2011/08/30 09:29:44 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -16,6 +16,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
@@ -155,27 +156,22 @@ void EECosmicClient::analyze(void) {
     if ( debug_ ) std::cout << "EECosmicClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
-  char histo[200];
-
   MonitorElement* me;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_ + "/EECosmicTask/Sel/EECT energy sel %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EECosmicTask/Sel/EECT energy sel " + Numbers::sEE(ism) );
+    h01_[ism-1] = UtilsClient::getHisto( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    sprintf(histo, (prefixME_ + "/EECosmicTask/Spectrum/EECT 1x1 energy spectrum %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    h02_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h02_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EECosmicTask/Spectrum/EECT 1x1 energy spectrum " + Numbers::sEE(ism) );
+    h02_[ism-1] = UtilsClient::getHisto( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
-    sprintf(histo, (prefixME_ + "/EECosmicTask/Spectrum/EECT 3x3 energy spectrum %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    h03_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EECosmicTask/Spectrum/EECT 3x3 energy spectrum " + Numbers::sEE(ism) );
+    h03_[ism-1] = UtilsClient::getHisto( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 
   }

@@ -123,10 +123,10 @@ void DQMMessageLogger::beginJob() {
     }
 
     // HOW MANY BINS SHOULD THE ERROR HIST HAVE?
-    int nbins = 10;
-    total_warnings = theDbe->book1D("total warnings","Total warnings per event",nbins,0,nbins);
+    int nbins = 11;
+    total_warnings = theDbe->book1D("total_warnings","Total warnings per event",nbins,-0.5,nbins+0.5);
     theDbe->setCurrentFolder(directoryName + "/Errors"); 
-    total_errors = theDbe->book1D("total_errors", "Total errors per event", nbins, 0, nbins);
+    total_errors = theDbe->book1D("total_errors", "Total errors per event", nbins, -0.5, nbins+0.5);
     
     for(int i=0; i<nbins; ++i){
       stringstream out;
@@ -198,7 +198,9 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
 	    categories_errors->Fill((*it).second - 1, (*errors)[i].count);
 	  }
 	}
-      
+	//	if (categoryECount.size()<=40)
+	//	  categoryECount[(*errors)[i].category]+=(*errors)[i].count;
+
 	if(modules_errors!=NULL){
 	  // remove the first part of the module string, what is before ":"
 	  string s = (*errors)[i].module;
@@ -219,7 +221,10 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
 	    categories_warnings->Fill((*it).second - 1, (*errors)[i].count);
 	  }
 	}
-      
+
+	//	if (categoryWCount.size()<=40)
+	//	  categoryWCount[(*errors)[i].category]+=(*errors)[i].count;
+	
 	if(modules_warnings!=NULL){
 	  // remove the first part of the module string, what is before ":"
 	  string s = (*errors)[i].module;
@@ -236,6 +241,39 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
   }
 }
 
+void DQMMessageLogger::endRun(const edm::Run & , const edm::EventSetup & ){
+  /*
+  theDbe = Service<DQMStore>().operator->();
+  if(theDbe!=NULL){
+    std::map<std::string,int>::iterator it;
+    uint i=0;
+    theDbe->setCurrentFolder(directoryName + "/Errors");
+    if (categoryECount.empty()){
+      MonitorElement * catECount = theDbe->book1D("categoryCount_errors","Errors per Category",1,0,1);
+      catECount->setBinLabel(1,"No Errors");
+    }else{
+      MonitorElement * catECount = theDbe->book1D("categoryCount_errors","Errors per Category",categoryECount.size(),0,categoryECount.size());
+      for (i=1,it=categoryECount.begin();it!=categoryECount.end();++it,++i){
+	catECount->setBinLabel(i,it->first);
+	catECount->setBinContent(i,it->second);
+      }
+    }
+    theDbe->setCurrentFolder(directoryName + "/Warnings");
+    if (categoryWCount.empty()){
+      MonitorElement * catWCount = theDbe->book1D("categoryCount_warnings","Warnings per Category",categoryWCount.size(),0,categoryWCount.size());
+      catWCount->setBinLabel(1,"No Warnings");
+    }else{
+      MonitorElement * catWCount = theDbe->book1D("categoryCount_warnings","Warnings per Category",categoryWCount.size(),0,categoryWCount.size());
+      for (i=1,it=categoryWCount.begin();it!=categoryWCount.end();++it,++i){
+	catWCount->setBinLabel(i,it->first);
+	catWCount->setBinContent(i,it->second);
+      }
+    }
+  }
+  categoryWCount.clear();
+  categoryECount.clear();
+  */
+}
 
 void DQMMessageLogger::endJob(void) {
   LogTrace(metname)<<"[DQMMessageLogger] EndJob";

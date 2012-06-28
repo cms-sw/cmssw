@@ -1,15 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 #Trigger bit requirement
-import HLTrigger.HLTfilters.triggerResultsFilter_cfi as hlt
-HSCPSD = hlt.triggerResultsFilter.clone()
-HSCPSD.triggerConditions = cms.vstring(
+import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
+HSCPSD = hlt.hltHighLevel.clone()
+HSCPSD.TriggerResultsTag = cms.InputTag( "TriggerResults", "", "HLT" )
+HSCPSD.HLTPaths = cms.vstring(
     "HLT_StoppedHSCP*",
-#    "HLT_JetE*_NoBPTX_*",
-#    "HLT_JetE*_NoBPTX_NoHalo_*",
-#    "HLT_JetE*_NoBPTX3BX_NoHalo_*")
-HSCPSD.hltResults = cms.InputTag( "TriggerResults", "", "HLT" )
-HSCPSD.l1tResults = cms.InputTag("")
+    "HLT_JetE*_NoBPTX*")
+HSCPSD.andOr = cms.bool( True )
 HSCPSD.throw = cms.bool( False )
-
 

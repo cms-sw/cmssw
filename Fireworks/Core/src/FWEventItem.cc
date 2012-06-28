@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.52 2010/08/18 10:30:10 amraktad Exp $
+// $Id: FWEventItem.cc,v 1.57 2011/08/20 03:48:40 amraktad Exp $
 //
 
 // system include files
@@ -22,12 +22,12 @@
 #include "DataFormats/FWLite/interface/Event.h"
 // Needed to test edm::Event access
 // #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWItemAccessorBase.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
+#include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
 #include "Fireworks/Core/src/FWGenericHandle.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
@@ -35,18 +35,6 @@
 //
 // static data member definitions
 //
-static
-const std::vector<std::pair<std::string,std::string> >&
-defaultMemberFunctionNames()
-{
-   static std::vector<std::pair<std::string,std::string> > s_names;
-   if(s_names.empty()){
-      s_names.push_back(std::pair<std::string,std::string>("pt","GeV"));
-      s_names.push_back(std::pair<std::string,std::string>("et","GeV"));
-      s_names.push_back(std::pair<std::string,std::string>("energy","GeV"));
-   }
-   return s_names;
-}
 
 int FWEventItem::minLayerValue()
 {
@@ -65,7 +53,7 @@ int FWEventItem::maxLayerValue()
 FWEventItem::FWEventItem(fireworks::Context* iContext,
                          unsigned int iId,
                          boost::shared_ptr<FWItemAccessorBase> iAccessor,
-                         const FWPhysicsObjectDesc& iDesc) :
+                         const FWPhysicsObjectDesc& iDesc,  const FWConfiguration* pbc) :
    m_context(iContext),
    m_id(iId),
    m_name(iDesc.name()),
@@ -78,11 +66,11 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
    m_productInstanceLabel(iDesc.productInstanceLabel()),
    m_processName(iDesc.processName()),
    m_event(0),
-   m_interestingValueGetter(ROOT::Reflex::Type::ByTypeInfo(*(m_accessor->modelType()->GetTypeInfo())),
-                            defaultMemberFunctionNames()),
+   m_interestingValueGetter(ROOT::Reflex::Type::ByTypeInfo(*(m_accessor->modelType()->GetTypeInfo())), m_purpose),
    m_filter(iDesc.filterExpression(),""),
    m_printedErrorThisEvent(false),
-   m_isSelected(false)
+   m_isSelected(false),
+   m_proxyBuilderConfig(0)
 {
    //assert(m_type->GetTypeInfo());
    //ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*(m_type->GetTypeInfo())));
@@ -102,16 +90,18 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
       m_itemInfos.reserve(1);
    }
    m_filter.setClassName(modelType()->GetName());
+   m_proxyBuilderConfig = new FWProxyBuilderConfiguration(pbc, this);
 }
 // FWEventItem::FWEventItem(const FWEventItem& rhs)
 // {
 //    // do actual copying here;
 // }
-/*
-   FWEventItem::~FWEventItem()
-   {
-   }
- */
+
+FWEventItem::~FWEventItem()
+{
+  delete m_proxyBuilderConfig;
+}
+ 
 //
 // assignment operators
 //
@@ -323,7 +313,7 @@ FWEventItem::moveToFront()
    assert(0!=m_context->eventItemsManager());
    int largest = layer();
    for(FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
-                                           itEnd = m_context->eventItemsManager()->end();
+          itEnd = m_context->eventItemsManager()->end();
        it != itEnd;
        ++it) {
       if ((*it) && (*it != this) && (*it)->layer() > largest) {
@@ -373,6 +363,16 @@ FWEventItem::moveToLayer(int layer)
    m_itemInfos.clear();
    m_accessor->reset();
    handleChange();
+}
+
+void
+FWEventItem::proxyConfigChanged()
+{
+   m_itemInfos.clear();
+   m_accessor->reset();
+   if (m_context->eventItemsManager())
+      handleChange();
+
 }
 
 void 
@@ -587,21 +587,15 @@ FWEventItem::modelName(int iIndex) const
 bool
 FWEventItem::haveInterestingValue() const
 {
-   return m_interestingValueGetter.isValid();
+   return true; //m_interestingValueGetter.isValid();
 }
 
-double
-FWEventItem::modelInterestingValue(int iIndex) const
-{
-   getPrimaryData();
-   return m_interestingValueGetter.valueFor(m_accessor->modelData(iIndex));
-}
-
+ 
 const std::string&
 FWEventItem::modelInterestingValueAsString(int iIndex) const
 {
    getPrimaryData();
-   return m_interestingValueGetter.stringValueFor(m_accessor->modelData(iIndex));
+   return m_interestingValueGetter.getToolTip(m_accessor->modelData(iIndex));
 }
 
 

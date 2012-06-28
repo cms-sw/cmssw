@@ -224,7 +224,7 @@ FWRecoGeometryESProducer::addRPCGeometry( void )
       fillShapeAndPlacement( current, roll );
 
       const StripTopology& topo = roll->specificTopology();
-      m_fwGeometry->idToName[current].topology[0] = roll->nstrips();
+      m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
       m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
       m_fwGeometry->idToName[current].topology[2] = topo.pitch();
     }
@@ -375,9 +375,8 @@ unsigned int
 FWRecoGeometryESProducer::insert_id( unsigned int rawid )
 {
   ++m_current;
-  m_fwGeometry->idToName[m_current].id = rawid;
-  // assert( m_current >= 0 ); m_current >= 0, since m_current is unsigned
-  assert( m_current < 260000 );
+  m_fwGeometry->idToName.push_back(FWRecoGeom::Info());
+  m_fwGeometry->idToName.back().id = rawid;
   
   return m_current;
 }
@@ -388,7 +387,7 @@ FWRecoGeometryESProducer::fillPoints( unsigned int id, std::vector<GlobalPoint>:
   unsigned int index( 0 );
   for( std::vector<GlobalPoint>::const_iterator i = begin; i != end; ++i )
   {
-    assert( index < 24 );
+    assert( index < 23 );
     m_fwGeometry->idToName[id].points[index] = i->x();
     m_fwGeometry->idToName[id].points[++index] = i->y();
     m_fwGeometry->idToName[id].points[++index] = i->z();

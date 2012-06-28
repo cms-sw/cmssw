@@ -13,7 +13,7 @@
 # include <map>
 # include <set>
 
-namespace edm { class DQMHttpSource; class ParameterSet; }
+namespace edm { class DQMHttpSource; class ParameterSet; class ActivityRegistry;}
 namespace lat { class Regexp; }
 
 class MonitorElement;
@@ -49,6 +49,7 @@ public:
   
   //-------------------------------------------------------------------------
   // ---------------------- Constructors ------------------------------------
+  DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry&);
   DQMStore(const edm::ParameterSet &pset);
   ~DQMStore(void);
 
@@ -356,7 +357,9 @@ public:
 private:
 
   // ---------------- Miscellaneous -----------------------------
+  void        initializeFrom(const edm::ParameterSet&);
   void				reset(void);
+  void        forceReset(void);
 
   bool				extract(TObject *obj, const std::string &dir, bool overwrite);
 
@@ -398,9 +401,6 @@ private:
   // --- Operations on MEs that are normally reset at end of monitoring cycle ---
   void				setAccumulate(MonitorElement *me, bool flag);
 
-  // ----------------------- singleton admin -----------------------------------
-  static DQMStore *		instance(void);
-
   // ----------------------- Unavailable ---------------------------------------
   DQMStore(const DQMStore&);
   const DQMStore& operator=(const DQMStore&);
@@ -428,9 +428,9 @@ private:
   QTestSpecs			qtestspecs_;
 
   friend class edm::DQMHttpSource;
-  friend class DQMOldReceiver;
   friend class DQMService;
   friend class DQMNet;
+  friend class DQMArchiver;
   friend class DQMStoreExample; // for get{All,Matching}Contents -- sole user of this method!
 };
 

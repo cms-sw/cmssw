@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jul  2 16:11:42 CEST 2010
-// $Id: TGeoMgrFromDdd.cc,v 1.9 2010/12/13 15:20:34 yana Exp $
+// $Id: TGeoMgrFromDdd.cc,v 1.12 2012/03/21 14:40:24 yana Exp $
 //
 
 #include "Fireworks/Geometry/interface/TGeoMgrFromDdd.h"
@@ -17,6 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -221,11 +222,16 @@ TGeoShape*
 TGeoMgrFromDdd::createShape(const std::string& iName,
 			    const DDSolid&     iSolid)
 {
+   LogDebug("TGeoMgrFromDdd::createShape") << "with name: " << iName << " and solid: " << iSolid;
+
+   DDBase<DDName, DDI::Solid*>::def_type defined( iSolid.isDefined());
+   if( !defined.first ) throw cms::Exception("TGeoMgrFromDdd::createShape * solid " + iName + " is not declared * " );
+   if( !defined.second ) throw cms::Exception("TGeoMgrFromDdd::createShape * solid " + defined.first->name() + " is not defined *" );
+   
    TGeoShape* rSolid= nameToShape_[iName];
    if (rSolid == 0)
    {
       const std::vector<double>& params = iSolid.parameters();
-      //      std::cout <<"  shape "<<iSolid<<std::endl;
       switch(iSolid.shape())
       {
 	 case ddbox:
@@ -335,7 +341,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    {
 	       x = pt.x2(); // tubs radius
 	    }
-	    double openingAngle = 2. * asin( x / abs( r ))/deg;
+	    double halfOpeningAngle = asin( x / abs( r ))/deg;
 	    double displacement = 0;
 	    double startPhi = 0;
 	    /* calculate the displacement of the tubs w.r.t. to the trap,
@@ -350,12 +356,12 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	      if( atMinusZ )
 	      {
 		displacement = - pt.halfZ() - delta; 
-		startPhi = 270. - openingAngle/2.;
+		startPhi = 90. - halfOpeningAngle;
 	      }
 	      else
 	      {
 		displacement =   pt.halfZ() + delta;
-		startPhi = 90. - openingAngle/2.;
+		startPhi = -90.- halfOpeningAngle;
 	      }
 	    }
 	    else if( r > 0 && abs( r ) >= x )
@@ -363,19 +369,19 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	      if( atMinusZ )
 	      {
 		displacement = - pt.halfZ() + delta;
-		startPhi = 270. - openingAngle/2.;
+		startPhi = 270.- halfOpeningAngle;
 		h = pt.y1();
 	      }
 	      else
 	      {
 		displacement =   pt.halfZ() - delta; 
-		startPhi = 90. - openingAngle/2.;
+		startPhi = 90. - halfOpeningAngle;
 		h = pt.y2();
 	      }    
 	    }
 	    else
 	    {
-	      throw DDException( "Check parameters of the PseudoTrap! name=" + pt.name().name());   
+	      throw cms::Exception( "Check parameters of the PseudoTrap! name=" + pt.name().name());   
 	    }
 
 	    std::auto_ptr<TGeoShape> trap( new TGeoTrd2( pt.name().name().c_str(),
@@ -387,19 +393,19 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	      
 	    std::auto_ptr<TGeoShape> tubs( new TGeoTubeSeg( pt.name().name().c_str(),
 							    0.,
-							    r/cm,
+							    abs(r)/cm, // radius cannot be negative!!!
 							    h/cm,
 							    startPhi,
-							    startPhi + openingAngle ));
+							    startPhi + halfOpeningAngle * 2. ));
 	    if( intersec )
 	    {
-	      TGeoSubtraction* sub = new TGeoSubtraction( trap.release(),
-							  tubs.release(),
-							  0,
-							  createPlacement( s_rot,
-									   DDTranslation( 0.,
-											  0.,
-											  displacement )));
+ 	      TGeoSubtraction* sub = new TGeoSubtraction( trap.release(),
+ 							  tubs.release(),
+ 							  0,
+ 							  createPlacement( s_rot,
+ 									   DDTranslation( 0.,
+ 											  0.,
+ 											  displacement )));
 	      rSolid = new TGeoCompositeShape( iName.c_str(),
 					       sub );
 	    }
@@ -486,17 +492,17 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    if( rIn <= 0 || rOut <=0 || cutAtStart <=0 || cutAtDelta <= 0 )
 	    {
 	      std::string s = "TruncTubs " + std::string( tt.name().fullname()) + ": 0 <= rIn,cutAtStart,rOut,cutAtDelta,rOut violated!";
-	      throw DDException( s );
+	      throw cms::Exception( s );
 	    }
 	    if( rIn >= rOut )
 	    {
 	      std::string s = "TruncTubs " + std::string( tt.name().fullname()) + ": rIn<rOut violated!";
-	      throw DDException(s);
+	      throw cms::Exception(s);
 	    }
 	    if( startPhi != 0. )
 	    {
 	      std::string s= "TruncTubs " + std::string( tt.name().fullname()) + ": startPhi != 0 not supported!";
-	      throw DDException( s );
+	      throw cms::Exception( s );
 	    }
 	    
 	    startPhi = 0.;
@@ -602,6 +608,9 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
    {
       std::cerr <<"COULD NOT MAKE "<<iName<<" of a shape "<<iSolid<<std::endl;
    }
+
+   LogDebug("TGeoMgrFromDdd::createShape") << "solid " << iName << " has been created.";
+
    return rSolid;
 }
 

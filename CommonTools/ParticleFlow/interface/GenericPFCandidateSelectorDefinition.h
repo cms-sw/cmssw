@@ -1,12 +1,12 @@
-#ifndef PhysicsTools_PFCandProducer_GenericPFCandidateSelectorDefinition
-#define PhysicsTools_PFCandProducer_GenericPFCandidateSelectorDefinition
+#ifndef CommonTools_ParticleFlow_GenericPFCandidateSelectorDefinition
+#define CommonTools_ParticleFlow_GenericPFCandidateSelectorDefinition
 
 /**
    \class    pf2pat::GenericPFCandidateSelectorDefinition GenericPFCandidateSelectorDefinition.h "CommonTools/ParticleFlow/interface/GenericPFCandidateSelectorDefinition.h"
    \brief    Selects PFCandidates basing on cuts provided with string cut parser
 
    \author   Giovanni Petrucciani
-   \version  $Id: GenericPFCandidateSelectorDefinition.h,v 1.1 2010/08/09 10:47:20 mbluj Exp $
+   \version  $Id: GenericPFCandidateSelectorDefinition.h,v 1.1 2011/01/28 20:56:44 srappocc Exp $
 */
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"

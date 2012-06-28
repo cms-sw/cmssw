@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamFitter.h,v 1.47 2011/02/23 15:36:29 friis Exp $
+ version $Id: BeamFitter.h,v 1.48 2011/03/18 14:06:38 friis Exp $
 
  ________________________________________________________________**/
 
@@ -63,7 +63,7 @@ class BeamFitter {
 
   void resetPVFitter() { MyPVFitter->resetAll(); }
 
-  //ssc
+  //---these are added to fasciliate BeamMonitor stuff for DIP
   std::size_t  getPVvectorSize() {return (MyPVFitter->getpvStore()).size(); }
   //sc
   void resizeBSvector(unsigned int nsize){
@@ -75,6 +75,13 @@ class BeamFitter {
        MyPVFitter->resizepvStore(npvsize);
    }
 
+ //ssc
+  void SetPVInfo(std::vector<float> v1_){
+     ForDIPPV_.clear();
+     ForDIPPV_.assign( v1_.begin(), v1_.end() );
+    }
+
+//----------------
 
   void dumpTxtFile(std::string &,bool);
   void dumpBWTxtFile(std::string &);
@@ -160,6 +167,10 @@ class BeamFitter {
   bool isMuon_;
   bool fitted_;
   bool ffilename_changed;
+   
+  //ssc
+  std::vector<float> ForDIPPV_; 
+  
 
   // ntuple
   TH1F* h1z;

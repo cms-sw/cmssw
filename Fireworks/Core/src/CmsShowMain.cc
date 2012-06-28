@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.187 2011/02/22 16:22:33 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.200 2012/03/16 21:40:00 amraktad Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@
 #include "TEveLine.h"
 #include "TEveManager.h"
 #include "TFile.h"
+#include "TGClient.h"
 
 #include "Fireworks/Core/src/CmsShowMain.h"
 
@@ -62,6 +63,8 @@
 
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 
+#include "TGX11.h" // !!!! AMT has to be at the end to pass build
+
 //
 // constants, enums and typedefs
 //
@@ -72,14 +75,14 @@ static const char* const kConfigFileOpt        = "config-file";
 static const char* const kConfigFileCommandOpt = "config-file,c";
 static const char* const kGeomFileOpt          = "geom-file";
 static const char* const kGeomFileCommandOpt   = "geom-file,g";
+static const char* const kSimGeomFileOpt       = "sim-geom-file";
+static const char* const kSimGeomFileCommandOpt= "sim-geom-file";
 static const char* const kNoConfigFileOpt      = "noconfig";
 static const char* const kNoConfigFileCommandOpt = "noconfig,n";
 static const char* const kPlayOpt              = "play";
 static const char* const kPlayCommandOpt       = "play,p";
 static const char* const kLoopOpt              = "loop";
 static const char* const kLoopCommandOpt       = "loop";
-static const char* const kDebugOpt             = "debug";
-static const char* const kDebugCommandOpt      = "debug,d";
 static const char* const kLogLevelCommandOpt   = "log";
 static const char* const kLogLevelOpt          = "log";
 static const char* const kEveOpt               = "eve";
@@ -99,6 +102,7 @@ static const char* const kFreePaletteCommandOpt = "free-palette";
 static const char* const kAutoSaveAllViews = "auto-save-all-views";
 static const char* const kEnableFPE        = "enable-fpe";
 static const char* const kZeroWinOffsets   = "zero-window-offsets";
+static const char* const kNoVersionCheck   = "no-version-check";
 
 
 //
@@ -118,15 +122,15 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
      m_live(false),
      m_liveTimer(new SignalTimer()),
      m_liveTimeout(600000),
-     m_lastPointerPositionX(-999),
-     m_lastPointerPositionY(-999)
+     m_lastXEventSerial(0),
+     m_noVersionCheck(false)
 {
    try {
       TGLWidget* w = TGLWidget::Create(gClient->GetDefaultRoot(), kTRUE, kTRUE, 0, 10, 10);
       delete w;
    }
    catch (std::exception& iException) {
-      std::cerr << "Failed creating an OpenGL window: " << iException.what() << "\n"
+      fwLog(fwlog::kError) << "Failed creating an OpenGL window: " << iException.what() << "\n"
          "Things to check:\n"
          "- Is DISPLAY environment variable set?\n"
          "- Are OpenGL libraries installed?\n"
@@ -154,7 +158,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       (kLoopCommandOpt,                                   "Loop events in play mode")
       (kPlainRootCommandOpt,                              "Plain ROOT without event display")
       (kRootInteractiveCommandOpt,                        "Enable root interactive prompt")
-      (kDebugCommandOpt,                                  "Start the display from a debugger and produce a crash report")
       (kEnableFPE,                                        "Enable detection of floating-point exceptions")
       (kLogLevelCommandOpt, po::value<unsigned int>(),    "Set log level starting from 0 to 4 : kDebug, kInfo, kWarning, kError")
       (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality       (anti-alias etc)")
@@ -165,6 +168,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       (kFreePaletteCommandOpt,                            "Allow free color selection (requires special configuration!)")
       (kAutoSaveAllViews, po::value<std::string>(),       "Auto-save all views with given prefix (run_event_lumi_view.png is appended)")
       (kZeroWinOffsets,                                   "Disable auto-detection of window position offsets.")
+      (kNoVersionCheck,                                   "No file version check.")
+      (kSimGeomFileCommandOpt,po::value<std::string>(),   "Set simulation geometry file to browse")
       (kHelpCommandOpt,                                   "Display help message");
    po::positional_options_description p;
    p.add(kInputFilesOpt, -1);
@@ -174,9 +179,21 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    po::variables_map vm;
    //po::store(po::parse_command_line(newArgc, newArgv, desc), vm);
    //po::notify(vm);
-   po::store(po::command_line_parser(newArgc, newArgv).
-             options(desc).positional(p).run(), vm);
-   po::notify(vm);
+   try{ 
+      po::store(po::command_line_parser(newArgc, newArgv).
+                options(desc).positional(p).run(), vm);
+
+      po::notify(vm);
+   }
+   catch ( const std::exception& e)
+   {
+      // Return with exit status 0 to avoid generating crash reports
+
+      fwLog(fwlog::kError) <<  e.what() << std::endl;
+      std::cout << desc <<std::endl;
+      exit(0); 
+   }
+
    if(vm.count(kHelpOpt)) {
       std::cout << desc <<std::endl;
       exit(0);
@@ -215,7 +232,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       if (access(configFilename(), R_OK) == -1)
       {
          fwLog(fwlog::kError) << "Specified configuration file does not exist. Quitting.\n";
-         exit(1);
+         exit(0);
       }
    } else {
       if (vm.count(kNoConfigFileOpt)) {
@@ -230,11 +247,16 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    if (vm.count(kGeomFileOpt)) {
       setGeometryFilename(vm[kGeomFileOpt].as<std::string>());
    } else {
-      fwLog(fwlog::kInfo) << "No geom file name.  Choosing default.\n";
+      //  fwLog(fwlog::kInfo) << "No geom file name.  Choosing default.\n";
       setGeometryFilename("cmsGeom10.root");
    }
-   fwLog(fwlog::kInfo) << "Geom " << geometryFilename() << std::endl;
+   fwLog(fwlog::kInfo) << "Geometry file " << geometryFilename() << "\n";
 
+   if (vm.count(kSimGeomFileOpt)) {
+      setSimGeometryFilename(vm[kSimGeomFileOpt].as<std::string>());
+   } else {
+      setSimGeometryFilename("cmsSimGeom-14.root");
+   }
    // Free-palette palette
    if (vm.count(kFreePaletteCommandOpt)) {
       FWColorPopup::EnableFreePalette();
@@ -308,8 +330,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    }
    if(vm.count(kAutoSaveAllViews)) {
       std::string fmt = vm[kAutoSaveAllViews].as<std::string>();
-      fmt += "%d_%d_%d_%s.png";
+      fmt += "%u_%u_%u_%s.png";
       setAutoSaveAllViewsFormat(fmt);
+   }
+   if(vm.count(kNoVersionCheck)) {
+      m_noVersionCheck=true;
    }
    if(vm.count(kEnableFPE)) {
       gSystem->SetFPEMask();
@@ -328,7 +353,10 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
 //
 
 CmsShowMain::~CmsShowMain()
-{}
+{
+   //avoids a seg fault from eve which happens if eve is terminated after the GUI is gone
+   selectionManager()->clearSelection();
+}
 
 class DieTimer : public TTimer
 {
@@ -475,6 +503,7 @@ CmsShowMain::openDataViaURL()
    if(!chosenFile.empty()) {
       guiManager()->updateStatus("loading file ...");
       if(m_navigator->openFile(chosenFile.c_str())) {
+         m_loadedAnyInputFile = true;
          m_navigator->firstEvent();
          checkPosition();
          draw();
@@ -595,7 +624,6 @@ CmsShowMain::setupDataHandling()
       if (!m_navigator->appendFile(fname, false, false))
       {
          guiManager()->updateStatus("failed to load data file");
-         openData();
       }
       else
       {
@@ -610,8 +638,13 @@ CmsShowMain::setupDataHandling()
       checkPosition();
       draw();
    }
-   else if (m_monitor.get() == 0)
-      openData();
+   else if (m_monitor.get() == 0 && (eiManager()->begin() != eiManager()->end()) )
+   {
+      if (m_inputFiles.empty())
+         openDataViaURL();
+      else
+         openData();
+   }
 }
 
 void
@@ -781,26 +814,15 @@ CmsShowMain::checkLiveMode()
 {
    m_liveTimer->TurnOff();
 
-   Window_t rootw, childw;
-   Int_t root_x, root_y, win_x, win_y;
-   UInt_t mask;
-   gVirtualX->QueryPointer(gClient->GetDefaultRoot()->GetId(),
-                           rootw, childw,
-                           root_x, root_y,
-                           win_x, win_y,
-                           mask);
+   TGX11 *x11 = dynamic_cast<TGX11*>(gVirtualX);
+   if (x11) {
+      XAnyEvent *ev = (XAnyEvent*) x11->GetNativeEvent();
+      // printf("serial %d \n",(int)ev->serial );
 
-
-   if ( !isPlaying() &&
-        m_lastPointerPositionX == root_x && 
-        m_lastPointerPositionY == root_y )
-   {
-      guiManager()->playEventsAction()->switchMode();
+      if ( !isPlaying() && m_lastXEventSerial == ev->serial )
+         guiManager()->playEventsAction()->switchMode();
+      m_lastXEventSerial = ev->serial;
    }
-
-   m_lastPointerPositionX = root_x;
-   m_lastPointerPositionY = root_y;
-
 
    m_liveTimer->SetTime((Long_t)(m_liveTimeout));
    m_liveTimer->Reset();

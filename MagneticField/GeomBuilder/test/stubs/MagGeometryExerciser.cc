@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/04/20 09:56:19 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/04/23 14:11:40 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -62,19 +62,22 @@ void MagGeometryExerciser::testFindVolume(int ntry){
 //----------------------------------------------------------------------
 // Check if findVolume succeeds for the given point.
 bool MagGeometryExerciser::testFindVolume(const GlobalPoint & gp){
+
+  bool reportSuccess = false; // printouts for succeeding calls
+
   float tolerance = 0.;
   //  float tolerance = 0.03;  // Note: findVolume should handle tolerance himself.
   MagVolume6Faces* vol = (MagVolume6Faces*) theGeometry->findVolume(gp, tolerance);
   bool ok = (vol!=0);
 
-  if (vol==0) {
-    cout << "ERROR no volume found! " 
-	 << gp << " " << gp.z() << " " << gp.perp()
-	 << " isBarrel: " << theGeometry->inBarrel(gp) 
+  if (reportSuccess || !ok) {
+    cout << gp << " "
+	 << (vol !=0 ? vol->name : "ERROR no volume found! ")
 	 << endl;
-  
+  }
 
-    // Try with a linear search
+  // If it fails, try with a linear search
+  if (vol==0) {
     vol =  (MagVolume6Faces*) theGeometry->findVolume1(gp,tolerance);
     cout << "Was in volume: "
 	 << (vol !=0 ? vol->name : "none")

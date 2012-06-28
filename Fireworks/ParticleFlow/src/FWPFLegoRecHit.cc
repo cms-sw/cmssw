@@ -1,14 +1,14 @@
 #include "Fireworks/ParticleFlow/interface/FWPFLegoRecHit.h"
-#include "Fireworks/ParticleFlow/plugins/FWPFEcalRecHitLegoProxyBuilder.h"
+#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 
 //______________________________________________________________________________
-FWPFLegoRecHit::FWPFLegoRecHit( const std::vector<TEveVector> &corners, TEveElement *comp, FWPFEcalRecHitLegoProxyBuilder *pb,
+FWPFLegoRecHit::FWPFLegoRecHit( const std::vector<TEveVector> &corners, TEveElement *comp, FWProxyBuilderBase*pb,
                                 const FWViewContext *vc, float e, float et )
-   : m_builder(pb), m_energy(e), m_et(et), m_isTallest(false)
+   : m_energy(e), m_et(et), m_isTallest(false)
 {
    buildTower( corners, vc );
    buildLineSet( corners, vc );
-   
+
    pb->setupAddElement( m_tower, comp );
    pb->setupAddElement( m_ls, comp );
 }
@@ -69,7 +69,7 @@ FWPFLegoRecHit::buildLineSet( const std::vector<TEveVector> &corners, const FWVi
 
 //______________________________________________________________________________
 void
-FWPFLegoRecHit::updateScale( const FWViewContext *vc )
+FWPFLegoRecHit::updateScale( const FWViewContext *vc, float maxLogVal )
 {
    FWViewEnergyScale *caloScale = vc->getEnergyScale();
    float val = caloScale->getPlotEt() ? m_et : m_energy;
@@ -93,7 +93,7 @@ FWPFLegoRecHit::updateScale( const FWViewContext *vc )
    }
    c *= 0.25;
    // Scale lineset 
-   float s = log( 1 + val ) / m_builder->getMaxValLog(caloScale->getPlotEt());
+   float s = log( 1 + val ) / maxLogVal;
    float d = 0.5 * ( m_tower->GetVertex(1)[0]  -m_tower->GetVertex(0)[0]);
    d *= s;
    float z =  scale * 1.001;

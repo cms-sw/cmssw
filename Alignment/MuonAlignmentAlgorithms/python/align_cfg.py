@@ -17,8 +17,6 @@ station4params = os.environ["ALIGNMENT_STATION4PARAMS"]
 cscparams = os.environ["ALIGNMENT_CSCPARAMS"]
 minTrackPt = float(os.environ["ALIGNMENT_MINTRACKPT"])
 maxTrackPt = float(os.environ["ALIGNMENT_MAXTRACKPT"])
-minTrackP = float(os.environ["ALIGNMENT_MINTRACKP"])
-maxTrackP = float(os.environ["ALIGNMENT_MAXTRACKP"])
 minTrackerHits = int(os.environ["ALIGNMENT_MINTRACKERHITS"])
 maxTrackerRedChi2 = float(os.environ["ALIGNMENT_MAXTRACKERREDCHI2"])
 allowTIDTEC = (os.environ["ALIGNMENT_ALLOWTIDTEC"] == "True")
@@ -39,8 +37,6 @@ process.looper.algoConfig.reportFileName = cms.string("MuonAlignmentFromReferenc
 process.looper.ParameterBuilder.Selector.alignParams = cms.vstring("MuonDTChambers,%s,stations123" % station123params, "MuonDTChambers,%s,station4" % station4params, "MuonCSCChambers,%s" % cscparams)
 process.looper.algoConfig.minTrackPt = minTrackPt
 process.looper.algoConfig.maxTrackPt = maxTrackPt
-process.looper.algoConfig.minTrackP = minTrackP
-process.looper.algoConfig.maxTrackP = maxTrackP
 process.looper.algoConfig.minTrackerHits = minTrackerHits
 process.looper.algoConfig.maxTrackerRedChi2 = maxTrackerRedChi2
 process.looper.algoConfig.allowTIDTEC = allowTIDTEC

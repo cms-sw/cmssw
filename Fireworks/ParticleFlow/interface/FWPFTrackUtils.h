@@ -19,7 +19,7 @@
 #include "TEveStraightLineSet.h"
 
 // User include files
-#include "Fireworks/ParticleFlow/interface/FWPFUtils.h"
+#include "Fireworks/ParticleFlow/interface/FWPFGeom.h"
 #include "Fireworks/ParticleFlow/interface/FWPFMaths.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 #include "Fireworks/Tracks/interface/estimate_field.h"

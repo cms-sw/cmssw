@@ -4,17 +4,24 @@ from RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi import *
 from RecoJets.Configuration.CaloTowersRec_cff import *
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitECAL_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHCAL_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHCALUpgrade_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHO_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitPS_cfi import *
+
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterECAL_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHCAL_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterHCALUpgrade_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterHO_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterPS_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHFEM_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHFHAD_cfi import *
 
 pfClusteringECAL = cms.Sequence(particleFlowRecHitECAL*particleFlowClusterECAL)
 #pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*particleFlowClusterHCAL)
-pfClusteringHCALall = cms.Sequence(particleFlowClusterHCAL+particleFlowClusterHFHAD+particleFlowClusterHFEM)
-pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*pfClusteringHCALall)
+pfClusteringHCALall = cms.Sequence(particleFlowClusterHCAL+particleFlowClusterHCALUpgrade+particleFlowClusterHFHAD+particleFlowClusterHFEM)
+pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*particleFlowRecHitHCALUpgrade*pfClusteringHCALall)
+pfClusteringHO = cms.Sequence(particleFlowRecHitHO*particleFlowClusterHO)
+
 #pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*particleFlowClusterHCAL*particleFlowClusterHFHAD*particleFlowClusterHFEM)
 pfClusteringPS = cms.Sequence(particleFlowRecHitPS*particleFlowClusterPS)
 
@@ -22,7 +29,7 @@ pfClusteringPS = cms.Sequence(particleFlowRecHitPS*particleFlowClusterPS)
 towerMakerPF = calotowermaker.clone()
 
 # Changed values
-# Don't use (yet) HO
+# Don't use calotowers for HO, instead we use RecHits directly, and perform the links with tracks and HCAL clusters.
 towerMakerPF.UseHO = False
 # Energy threshold for HB Cell inclusion
 towerMakerPF.HBThreshold = 0.4
@@ -32,11 +39,11 @@ towerMakerPF.HEDThreshold = 0.4
 
 # Default values
 # Energy threshold for HO cell inclusion [GeV]
-towerMakerPF.HOThreshold0 = 1.1
-towerMakerPF.HOThresholdPlus1 = 1.1
-towerMakerPF.HOThresholdMinus1 = 1.1
-towerMakerPF.HOThresholdPlus2 = 1.1
-towerMakerPF.HOThresholdMinus2 = 1.1
+towerMakerPF.HOThreshold0 = 0.2
+towerMakerPF.HOThresholdPlus1 = 0.8
+towerMakerPF.HOThresholdMinus1 = 0.8
+towerMakerPF.HOThresholdPlus2 = 0.8
+towerMakerPF.HOThresholdMinus2 = 0.8
 # Weighting factor for HO 
 towerMakerPF.HOWeight = 1.0
 towerMakerPF.HOWeights = (1.0, 1.0, 1.0, 1.0, 1.0)
@@ -71,11 +78,21 @@ towerMakerPF.UseHcalRecoveredHits = True
 # flag to allow/disallow missing inputs
 towerMakerPF.AllowMissingInputs = False
 
-particleFlowCluster = cms.Sequence(
+particleFlowClusterWithoutHO = cms.Sequence(
     #caloTowersRec*
     towerMakerPF*
     pfClusteringECAL*
     pfClusteringHCAL*
     pfClusteringPS
 )
+
+particleFlowCluster = cms.Sequence(
+    #caloTowersRec*
+    towerMakerPF*
+    pfClusteringECAL*
+    pfClusteringHCAL*
+    pfClusteringHO*
+    pfClusteringPS
+)
+
 

@@ -17,7 +17,7 @@ TrackerMaterialBlock = cms.PSet(
         # Beam Pipe
         BeamPipeThickness = cms.vdouble(0.0038, 0.00265, 0.00265, 0.00265, 0.00240 ),
         # Pixel Barrel Layers 1-3
-        PXBThickness = cms.vdouble(0.0222, 0.0217, 0.0217, 0.0217, 0.0217), 
+        PXBThickness = cms.vdouble(0.0222, 0.0217, 0.0217, 0.0217, 0.017134), 
         # Pixel Barrel services at the end of layers 1-3
         PXB1CablesThickness = cms.vdouble(0.1, 0.042, 0.042, 0.000, 0.000), 
         PXB2CablesThickness = cms.vdouble(0.04, 0.042, 0.042, 0.000, 0.000),
@@ -26,10 +26,10 @@ TrackerMaterialBlock = cms.PSet(
         PXBOutCables1Thickness = cms.vdouble(0.04, 0.04, 0.04, 0.04, 0.04), 
         PXBOutCables2Thickness = cms.vdouble(0.025, 0.015, 0.015, 0.012, 0.012),
         # Pixel Disks 1-2
-        PXDThickness = cms.vdouble(0.044, 0.058, 0.058, 0.058, 0.058),
+        PXDThickness = cms.vdouble(0.044, 0.058, 0.058, 0.058, 0.02055),
         # Pixel Endcap outside cables
-        PXDOutCables1Thickness = cms.vdouble(0.023, 0.034, 0.034, 0.050, 0.050),
-        PXDOutCables2Thickness = cms.vdouble(0.085, 0.185, 0.250, 0.250, 0.250),
+        PXDOutCables1Thickness = cms.vdouble(0.023, 0.034, 0.034, 0.050, 0.058431),
+        PXDOutCables2Thickness = cms.vdouble(0.085, 0.185, 0.250, 0.250, 0.265),
         # Tracker Inner barrel layers 1-4
         TIBLayer1Thickness = cms.vdouble(0.06, 0.053, 0.053, 0.053, 0.053),
         TIBLayer2Thickness = cms.vdouble(0.047, 0.053, 0.053, 0.053, 0.053),
@@ -67,7 +67,7 @@ TrackerMaterialBlock = cms.PSet(
         # Position of dead material layers (cables, services, etc.)
         #**********************************************************************
         # Beam pipe
-        BeamPipeRadius = cms.vdouble(3.0, 3.0, 3.0, 3.0, 3.0),
+        BeamPipeRadius = cms.vdouble(3.0, 3.0, 3.0, 3.0, 2.44),
         BeamPipeLength = cms.vdouble(26.4, 28.3, 28.3, 28.3, 28.3),
         # Cables and Services at the end of PIXB1,2,3 ("disk")
         PXB1CablesInnerRadius = cms.vdouble(3.6, 3.7, 3.7, 3.7, 3.7),
@@ -81,11 +81,11 @@ TrackerMaterialBlock = cms.PSet(
         PXBOutCables2OuterRadius = cms.vdouble(16.5, 16.5, 16.5, 16.5, 16.5),
         PXBOutCables2ZPosition = cms.vdouble(28.0, 28.8, 28.8, 28.8, 28.8),
         # Pixel Outside walls and cables (barrel and endcap)
-        PixelOutCablesRadius = cms.vdouble(17.1, 17.5, 17.5, 17.5, 17.5), 
-        PixelOutCablesLength = cms.vdouble(64.8, 72.0, 72.0, 65.0, 65.0),
+        PixelOutCablesRadius = cms.vdouble(17.1, 17.5, 17.5, 17.5, 19.5), ## was 17.5
+        PixelOutCablesLength = cms.vdouble(64.8, 72.0, 72.0, 65.0, 65.0), ## was 65.0
         PixelOutCablesInnerRadius = cms.vdouble(3.0, 3.0, 7.197, 7.2, 6.5),
-        PixelOutCablesOuterRadius = cms.vdouble(17.3, 17.61, 17.61, 17.61, 17.61),
-        PixelOutCablesZPosition = cms.vdouble(64.9, 72.1, 72.1, 65.1, 65.1),
+        PixelOutCablesOuterRadius = cms.vdouble(17.3, 17.61, 17.61, 17.61, 19.61), ## was 17.61
+        PixelOutCablesZPosition = cms.vdouble(64.9, 72.1, 72.1, 65.1, 65.1),      ## was 65.1
         # Tracker Inner Barrel Outside Cables and walls (endcap)
         TIBOutCables1InnerRadius = cms.vdouble(22.5, 22.5, 22.5, 22.5, 22.5),
         TIBOutCables1OuterRadius = cms.vdouble(53.9, 53.9, 53.9, 53.9, 53.9),
@@ -220,7 +220,7 @@ TrackerMaterialBlock = cms.PSet(
       	10.0,  # Pixel Barrel services 
       	11.0,  # Pixel Barrel services
 	 0.0,  # Pixel Wall 
-	27.5,  # Pixel Wall 
+	29.0,  # Pixel Wall 
 	 0.0,  # Pixel endcap services
 	10.0,  # Pixel endcap services
 	16.0,  # Pixel endcap services
@@ -309,8 +309,8 @@ TrackerMaterialBlock = cms.PSet(
       	 10.0,  # Pixel Barrel services 
       	 11.0,  # Pixel Barrel services
        	 11.9,  # Pixel Barrel services 
-	 27.5,  # Pixel Wall 
-	 32.0,  # Pixel Wall 
+	 29.0,  # Pixel Wall 
+	 33.5,  # Pixel Wall 
 	 10.0,  # Pixel endcap services
 	 11.0,  # Pixel endcap services
 	 18.0,  # Pixel endcap services

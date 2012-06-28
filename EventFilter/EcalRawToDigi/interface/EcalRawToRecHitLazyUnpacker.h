@@ -32,8 +32,6 @@ class EcalRawToRecHitLazyUnpacker : public edm::LazyUnpacker<EcalRecHit> {
 
   const EcalUnpackerWorkerBase* worker_;
 
-  //cache
-  std::map<uint32_t, std::auto_ptr<EcalRecHitCollection> > cachedRecHits;
 };
 
 

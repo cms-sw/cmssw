@@ -21,6 +21,8 @@ EmDQMPostProcessor::EmDQMPostProcessor(const edm::ParameterSet& pset)
 
   dataSet_ = pset.getUntrackedParameter<std::string>("dataSet","unknown");
 
+  noPhiPlots = pset.getUntrackedParameter<bool>("noPhiPlots", true);
+
   normalizeToReco = pset.getUntrackedParameter<bool>("normalizeToReco",false);
 }
 
@@ -79,40 +81,64 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
   dqm->book1D("DataSetNameHistogram",dataSet_,1,0,1);
 
   std::vector<std::string> subdirectories = dqm->getSubdirs();
-  for(std::vector<std::string>::iterator dir = subdirectories.begin() ;dir!= subdirectories.end(); dir++ ){
-    dqm->cd(*dir);
+  ////////////////////////////////////////////////////////
+  // Do everything twice: once for mc-matched histos,   //
+  // once for unmatched histos                          //
+  ////////////////////////////////////////////////////////
 
+  std::vector<std::string> postfixes;
+  postfixes.push_back("");   //unmatched histograms
+  postfixes.push_back("_RECO_matched"); // for data
+  // we put this on the list even when we're running on 
+  // data (where there is no generator information).
+  // The first test in the loop will then fail and
+  // the iteration is skipped.
+  postfixes.push_back("_MC_matched"); 
 
-    ////////////////////////////////////////////////////////
-    // Do everything twice: once for mc-matched histos,   //
-    // once for unmatched histos                          //
-    ////////////////////////////////////////////////////////
+  std::vector<TProfile *> allElePaths;
+  int nEle = 0;
+  int nPhoton = 0;
 
-    std::vector<std::string> postfixes;
-    postfixes.push_back("");   //unmatched histograms
-    postfixes.push_back("_RECO_matched"); // for data
+  // find the number of electron and photon paths
+  for(std::vector<std::string>::iterator dir = subdirectories.begin() ;dir!= subdirectories.end(); ++dir) {
+    if (dir->find("HLT_Ele") != std::string::npos || dir->find("HLT_DoubleEle") != std::string::npos || dir->find("HLT_TripleEle") != std::string::npos) ++nEle;
+    else if (dir->find("HLT_Photon") != std::string::npos || dir->find("HLT_DoublePhoton") != std::string::npos) ++nPhoton;
+  }
 
-    // we put this on the list even when we're running on 
-    // data (where there is no generator information).
-    // The first test in the loop will then fail and
-    // the iteration is skipped.
-    postfixes.push_back("_MC_matched"); 
+  std::vector<TProfile *> allPhotonPaths;
+  for(std::vector<std::string>::iterator postfix=postfixes.begin(); postfix!=postfixes.end();postfix++){
+    bool pop = false;
+    int elePos = 1;
+    int photonPos = 1;
 
-    for(std::vector<std::string>::iterator postfix=postfixes.begin(); postfix!=postfixes.end();postfix++){
-      
-      /////////////////////////////////////
-      // computer per-event efficiencies //
-      /////////////////////////////////////
-      
-      std::string histoName="efficiency_by_step"+ *postfix;
-      std::string baseName = "total_eff"+ *postfix;
+    /////////////////////////////////////
+    // computer per-event efficiencies //
+    /////////////////////////////////////
+    
+    std::string histoName = "efficiency_by_step" + *postfix;
+    std::string baseName = "total_eff" + *postfix;
+
+    std::string allEleHistoName = "EfficiencyByPath_Ele" + *postfix;
+    std::string allEleHistoLabel = "Efficiency_for_each_validated_electron_path" + *postfix;
+    allElePaths.push_back(new TProfile(allEleHistoName.c_str(), allEleHistoLabel.c_str(), nEle, 0., (double)nEle, 0., 1.2));
+    std::string allPhotonHistoName = "EfficiencyByPath_Photon" + *postfix;
+    std::string allPhotonHistoLabel = "Efficiency_for_each_validated_photon_path" + *postfix;
+    allPhotonPaths.push_back(new TProfile(allPhotonHistoName.c_str(), allPhotonHistoLabel.c_str(), nPhoton, 0., (double)nPhoton, 0., 1.2));
+
+    for(std::vector<std::string>::iterator dir = subdirectories.begin(); dir!= subdirectories.end(); dir++) {
+      dqm->cd(*dir);
 
       TH1F* basehist = getHistogram(dqm, dqm->pwd() + "/" + baseName);
       if (basehist == NULL)
 	{
-	  //edm::LogWarning("EmDQMPostProcessor") << "histogram " << (dqm->pwd() + "/" + baseName) << " does not exist, skipping postfix '" << *postfix << "'"; 
+	  //edm::LogWarning("EmDQMPostProcessor") << "histogram " << (dqm->pwd() + "/" + baseName) << " does not exist, skipping postfix '" << *postfix << "'";
+          pop = true;
+          dqm->goUp();
 	  continue;
 	}
+      // at least one histogram with postfix was found
+      pop = false;
+          
       TProfile* total = dqm->bookProfile(histoName,histoName,basehist->GetXaxis()->GetNbins(),basehist->GetXaxis()->GetXmin(),basehist->GetXaxis()->GetXmax(),0.,1.2)->getTProfile();
       total->GetXaxis()->SetBinLabel(1,basehist->GetXaxis()->GetBinLabel(1));
       
@@ -181,9 +207,9 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
       ///////////////////////////////////////////
       //MonitorElement *eff, *num, *denom, *genPlot, *effVsGen, *effL1VsGen;
       std::vector<std::string> varNames; 
-      varNames.push_back("eta"); 
-      varNames.push_back("phi"); 
       varNames.push_back("et");
+      varNames.push_back("eta"); 
+      if (!noPhiPlots) varNames.push_back("phi"); 
 
       std::string filterName;
       std::string filterName2;
@@ -238,9 +264,41 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
 
 	} // loop over variables
       } // loop over monitoring modules within path
-    } // loop over postfixes 
-    dqm->goUp();
-  }
+
+      dqm->goUp();
+
+      // fill overall efficiency histograms
+      std::string trigName = dir->substr(dir->rfind("/") + 1);
+      trigName = trigName.replace(trigName.rfind("_DQM"),4,"");
+      double totCont = total->GetBinContent(total->GetNbinsX());
+      double totErr = total->GetBinError(total->GetNbinsX());
+      if (trigName.find("HLT_Ele") != std::string::npos || trigName.find("HLT_DoubleEle") != std::string::npos || trigName.find("HLT_TripleEle") != std::string::npos) {
+        allElePaths.back()->SetBinContent(elePos, totCont);
+        allElePaths.back()->SetBinEntries(elePos, 1);
+        allElePaths.back()->SetBinError(elePos, sqrt(totCont * totCont + totErr * totErr));
+        allElePaths.back()->GetXaxis()->SetBinLabel(elePos, trigName.c_str());
+        ++elePos;
+      }
+      else if (trigName.find("HLT_Photon") != std::string::npos || trigName.find("HLT_DoublePhoton") != std::string::npos) {
+        allPhotonPaths.back()->SetBinContent(photonPos, totCont);
+        allPhotonPaths.back()->SetBinEntries(photonPos, 1);
+        allPhotonPaths.back()->SetBinError(photonPos, sqrt(totCont * totCont + totErr * totErr));
+        allPhotonPaths.back()->GetXaxis()->SetBinLabel(photonPos, trigName.c_str());
+        ++photonPos;
+      }
+
+    } // loop over dirs
+    if (pop) {
+      allElePaths.pop_back();
+      allPhotonPaths.pop_back();
+    } 
+    else {
+      allElePaths.back()->GetXaxis()->SetLabelSize(0.03);
+      allPhotonPaths.back()->GetXaxis()->SetLabelSize(0.03);
+      dqm->bookProfile(allEleHistoName, allElePaths.back())->getTProfile();
+      dqm->bookProfile(allPhotonHistoName, allPhotonPaths.back())->getTProfile();
+    }
+  } // loop over postfixes
   
 }
 

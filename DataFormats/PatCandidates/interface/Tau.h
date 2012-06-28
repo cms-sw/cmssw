@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.27 2010/02/22 14:10:03 mbluj Exp $
+// $Id: Tau.h,v 1.28 2011/03/11 17:45:34 veelken Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Tau.h,v 1.27 2010/02/22 14:10:03 mbluj Exp $
+  \version  $Id: Tau.h,v 1.28 2011/03/11 17:45:34 veelken Exp $
 */
 
 
@@ -40,6 +40,10 @@ namespace pat {
   typedef edm::RefVector<TauCollection> TauRefVector; 
 }
 
+namespace reco {
+  /// pipe operator (introduced to use pat::Tau with PFTopProjectors)
+  std::ostream& operator<<(std::ostream& out, const pat::Tau& obj);
+}
 
 // Class definition
 namespace pat {
@@ -256,6 +260,9 @@ namespace pat {
       /// Store multiple tau ID values, discarding existing ones
       /// The first one in the list becomes the 'default' tau id 
       void setTauIDs(const std::vector<IdPair> & ids) { tauIDs_ = ids; }
+
+      /// pipe operator (introduced to use pat::Tau with PFTopProjectors)
+      friend std::ostream& reco::operator<<(std::ostream& out, const Tau& obj);
 
     protected:
 

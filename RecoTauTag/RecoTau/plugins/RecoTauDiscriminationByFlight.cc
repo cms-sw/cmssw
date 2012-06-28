@@ -118,13 +118,7 @@ double PFRecoTauDiscriminationByFlight::discriminate(
     // the true parameter indicates include PV errors
     Measurement1D svDist = reco::SecondaryVertex::computeDist2d(
         pv, sv, direction, true);
-    double significance = svDist.significance();
-    // Make sure it is a sane value
-    if (significance > 40)
-      significance = 40;
-    if (significance < -20)
-      significance = -20;
-    return significance;
+    return svDist.significance();
   } else  {
     // Weird two prong or something
     return prediscriminantFailValue_;

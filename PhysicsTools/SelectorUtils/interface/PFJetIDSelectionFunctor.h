@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: PFJetIDSelectionFunctor.h,v 1.18 2010/12/01 20:02:41 rwolf Exp $
+  \version  $Id: PFJetIDSelectionFunctor.h,v 1.19 2011/03/24 14:51:20 srappocc Exp $
 */
 
 
@@ -82,6 +82,8 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     if ( params.exists("NCH") ) set("NCH", params.getParameter<int>   ("NCH") );
     if ( params.exists("nConstuents") ) set("nConstituents", params.getParameter<int> ("nConstituents") );
 
+    if ( params.exists("cutsToIgnore") )
+      setIgnoredCuts( params.getParameter<std::vector<std::string> >("cutsToIgnore") );
 
 
     indexNConstituents_ = index_type (&bits_, "nConstituents");

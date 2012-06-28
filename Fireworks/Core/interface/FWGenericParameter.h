@@ -15,7 +15,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:34 EST 2008
-// $Id: FWGenericParameter.h,v 1.1 2010/02/12 15:36:46 eulisse Exp $
+// $Id: FWGenericParameter.h,v 1.2.24.1 2012/02/18 01:58:25 matevz Exp $
 //
 
 // system include files
@@ -34,31 +34,34 @@ class FWGenericParameter : public FWParameterBase
 public:
    typedef T value_type;
 
-   FWGenericParameter()
-   : FWParameterBase(0, "invalid")
+   FWGenericParameter() :
+      FWParameterBase(0, "invalid")
    {}
 
    FWGenericParameter(FWParameterizable* iParent,
                       const std::string& iName,
-                      const T &iDefault=T())
-   : FWParameterBase(iParent,iName),
-     m_value(iDefault)
+                      const T &iDefault=T()) :
+      FWParameterBase(iParent,iName),
+      m_value(iDefault)
    {}
-   //virtual ~FWBoolParameter();
+
    template <class K>
    FWGenericParameter(FWParameterizable* iParent,
                       const std::string& iName,
                       K iCallback,
-                      const T &iDefault=T())
-   : FWParameterBase(iParent,iName),
-     m_value(iDefault)
+                      const T &iDefault=T()) :
+      FWParameterBase(iParent,iName),
+      m_value(iDefault)
    {
       changed_.connect(iCallback);
    }
+
+   //virtual ~FWBoolParameter();
+
+
    // ---------- const member functions ---------------------
-   T value() const {
-      return m_value;
-   }
+
+   T value() const { return m_value; }
 
    virtual void addTo(FWConfiguration& iTo) const 
    {
@@ -70,8 +73,11 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   virtual void setFrom(const FWConfiguration&iFrom) {
-      if (const FWConfiguration* config = iFrom.valueForKey(name()) ) {
+
+   virtual void setFrom(const FWConfiguration&iFrom)
+   {
+      if (const FWConfiguration* config = iFrom.valueForKey(name()))
+      {
          std::istringstream s(config->value());
          s>>m_value;
       }
@@ -87,11 +93,11 @@ public:
    sigc::signal<void,T> changed_;
 
 private:
-   FWGenericParameter(const FWGenericParameter&);   // stop default
-
-   const FWGenericParameter& operator=(const FWGenericParameter&);   // stop default
+   FWGenericParameter(const FWGenericParameter&);                  // stop default
+   const FWGenericParameter& operator=(const FWGenericParameter&); // stop default
 
    // ---------- member data --------------------------------
+
    T m_value;
 };
 

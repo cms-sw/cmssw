@@ -10,7 +10,7 @@ namespace edmtest
 
 
 void
-  MLexampleModule_1::analyze( edm::Event      const & e
+  MLexampleModule_1::analyze( edm::Event      const & /*unused*/
                            , edm::EventSetup const & /*unused*/
                               )
 {

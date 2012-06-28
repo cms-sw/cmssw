@@ -13,9 +13,6 @@
 #include "TString.h"
 
 #include "TGButton.h"
-#include "TGWidget.h"
-#include "TGToolTip.h"
-#include "TGResourcePool.h"
 #include "TGCanvas.h"
 #include "TGWindow.h"
 #include "TGMenu.h"
@@ -24,7 +21,6 @@
 #include "TGLayout.h"
 #include "TGFont.h"
 
-#include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaObject.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParEcal.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNumbering.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaHistos.h"
@@ -35,180 +31,13 @@
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParCout.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaRead.h"
 
-
-///-----------------------------------------------------------
-///   TEcnaGui.h
-///   Update: 14/02/2011
-///   Author:    B.Fabbro (bernard.fabbro@cea.fr)
-///              DSM/IRFU/SPP CEA-Saclay
-///   Copyright: Those valid for CEA sofware
-///
-///   ECNA web page:
-///     http://cms-fabbro.web.cern.ch/cms-fabbro/
-///     cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
-///-----------------------------------------------------------
-///
-/// This class provides a dialog box for ECNA (Ecal Correlated Noise Analysis)
-/// in the framework of ROOT Graphical User Interface (GUI)
-///
-///   In the following, "Stin", "Stex", "Stas" means:
-///
-///                 "Stin" = "Tower"  if the subdetector is "EB"  
-///                        = "SC"     if the subdetector is "EE"
-///
-///                 "Stex" = "SM"     if the subdetector is "EB"
-///                        = "Dee"    if the subdetector is "EE"
-///
-///                 "Stas" = "EB"     if the subdetector is "EB"
-///                        = "EE"     if the subdetector is "EE"  
-///
-///
-///==================== GUI DIALOG BOX PRESENTATION ==================
-/// 
-/// line# 
-///   
-///
-///   1      Analysis                      (button + input widget)
-///          First requested event number  (button + input widget)
-///          Run number                    (button + input widget)
-///
-///   2      Number of samples             (button + input widget)
-///          Last requested event number   (button + input widget)
-///          Clean                         (menu)
-///          Submit                        (menu)
-///
-///   3      Stex number                   (button + input widget)
-///          Requested number of events    (button + input widget)
-///
-///   4      Stex Stin numbering           (button)
-///          Nb of events for calculations (button + input widget)
-///          Calculations                  (menu)
-///
-///........................................................................
-///
-///   5      Number of events                  (menu)
-///   6      Pedestals                         (menu) 
-///   7      Total noise                       (menu) 
-///   8      Low  frequency noise              (menu)
-///   9      High frequency noise              (menu)
-///  10      Mean cor(s,s')                    (menu)
-///  11      Sigma of cor(s,s')                (menu)
-///  12      GeoView LF,HF Cor(c,c') (expert)  (menu)
-///  13      Mean LF |Cor(c,c')| in (tow,tow') (menu)
-///  14      Mean LH |Cor(c,c')| in (tow,tow') (menu)
-///
-///........................................................................
-///
-///  15      Stin                            (button + input widget)
-///          Stin'                           (button + input widget)
-///  16      Stin Xtal Numbering             (button) 
-///  17      GeoView Cor(s,s') (expert)      (menu)
-///
-///  18      Low  Frequency Cor(Xtal Stin, Xtal Stin')   (menu)
-///  19      High Frequency Cor(Xtal Stin, Xtal Stin')   (menu)
-///
-///...........................................................................
-///
-///  20      Channel number in Stin        (button + input widget)
-///          Sample number                 (button + input widget)
-///
-///
-///  21      Correlations between samples        (menu)
-///  22      Covariances between samples         (menu)
-///  23      Sample means                        (menu)
-///  24      Sample sigmas                       (menu)
-///
-///  25      ADC sample values for (Xtal,Sample) (menu)
-///
-///............................................................................
-///
-///  26      List of run file name for history plots     (button + input widget)
-///
-///  27      Menu for history plots                      (menu)         
-///............................................................................
-///
-///  28      LOG X          (check button: OFF: LIN scale / ON: LOG scale) 
-///          LOG Y          (check button: OFF: LIN scale / ON: LOG scale) 
-///          Y projection   (check button: OFF: X = variable
-///                                             Y = quantity
-///                                        ON : X = quantity
-///                                             Y = distribution of the variable)
-///............................................................................
-///
-///  29      General Title for Plots  (button + input widget)
-///
-///  30      Colors         (check button: ON = Rainbow,   OFF = ECNAColor )
-///          Exit                 (button)
-///
-///  31      Clone Last Canvas    (button)
-///          ROOT version         (button)
-///          Help                 (button)
-///
-///===============================================================================
-///     
-///            Example of main program using the class TEcnaGui:
-///
-///%~%~%~%~%~%~%~%~%~%~%~%~%~~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~
-///
-///     #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaGui.h"
-///     #include <cstdlib>
-///     
-///     #include "Riostream.h"
-///     #include "TROOT.h"
-///     #include "TGApplication.h"
-///     #include "TGClient.h"
-///     #include "TRint.h"
-///     
-///     #include <stdlib.h>
-///     #include <string>
-///     #include "TSystem.h"
-///     #include "TObject.h"
-///     #include "TGWindow.h"
-///     
-///     #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParPaths.h"
-///     
-///     extern void InitGui();
-///     VoidFuncPtr_t initfuncs[] = { InitGui, 0 };
-///     TROOT root("GUI","GUI test environnement", initfuncs);
-///     
-///     using namespace std;
-///     
-///     int main(int argc, char **argv)
-///     {
-///       TEcnaObject* MyEcnaObjectManager = new TEcnaObject();
-///       TEcnaParPaths* pCnaParPaths = new TEcnaParPaths(MyEcnaObjectManager);
-///       if( pCnaParPaths->GetPaths() == kTRUE )
-///         {
-///           cout << "*EcnaGuiEB> Starting ROOT session" << endl;
-///           TRint theApp("App", &argc, argv);
-///           
-///           cout << "*EcnaGuiEB> Starting ECNA session" << endl;
-///           TEcnaGui* mainWin = new TEcnaGui(MyEcnaObjectManager, "EB", gClient->GetRoot(), 395, 710);
-///           mainWin->DialogBox();
-///           Bool_t retVal = kTRUE;
-///           theApp.Run(retVal);
-///           cout << "*EcnaGuiEB> End of ECNA session." << endl;
-///           delete mainWin;
-///     
-///           cout << "*EcnaGuiEB> End of ROOT session." << endl;
-///           theApp.Terminate(0);
-///           cout << "*EcnaGuiEB> Exiting main program." << endl;
-///           exit(0);
-///         }
-///     }
-///     
-///
-///%~%~%~%~%~%~%~%~%~%~%~%~%~~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~
-///
-///...........................................................................
-///
-///   Location of the ECNA web page:
-///
-///   http://cms-fabbro.web.cern.ch/cms-fabbro/cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
-///
-///   For questions or comments, please send e-mail to: bernard.fabbro@cea.fr 
-///
-///---------------------------------------------------------------------------------
+//------------------------ TEcnaGui.h -----------------
+//
+//   For questions or comments, please send e-mail to:
+//
+//   Bernard Fabbro             
+//   fabbro@hep.saclay.cea.fr 
+//--------------------------------------------------------
 
 class TEcnaGui : public TGMainFrame {
 
@@ -238,7 +67,7 @@ class TEcnaGui : public TGMainFrame {
   TString            fStexName, fStinName;
 
   //------------------------------------------------------------------------------------
-  TEcnaObject*        fObjectManager;
+
   TEcnaHistos*        fHistos;
   TEcnaParHistos*     fCnaParHistos;
   TEcnaParPaths*      fCnaParPaths;
@@ -246,7 +75,7 @@ class TEcnaGui : public TGMainFrame {
   TEcnaParEcal*       fEcal;
   TEcnaNumbering*     fEcalNumbering;
   TEcnaWrite*         fCnaWrite;
-  //TEcnaRead*          fMyRootFile;
+  TEcnaRead*          fMyRootFile;
 
   //------------------- General frame, void frame, standard layout
   TGLayoutHints      *fLayoutGeneral,     *fLayoutBottLeft,     *fLayoutBottRight;
@@ -256,6 +85,18 @@ class TEcnaGui : public TGMainFrame {
   TGCompositeFrame   *fVoidFrame;
 
   //===================== 1rst PART: SUBMIT, CALCULATIONS =======================================
+
+  //++++++++++++++++++++++++++++++++++++++++++ Horizontal frame Pyf (-> python source file)
+  //TGCompositeFrame   *fPyfSubmitFrame;
+  //TGLayoutHints      *fLayoutPyfSubmitFrame;
+  //--------------------------------- Sub-Frame: Pyf-python (Pyf) (Button + EntryField)
+  //TGCompositeFrame   *fPyfFrame;
+  //TGTextButton       *fPyfBut;
+  //TGLayoutHints      *fLayoutPyfBut;
+  //TGTextEntry        *fPyfText;
+  //TGTextBuffer       *fEntryPyfNumber;
+  //TGLayoutHints      *fLayoutPyfFieldText;
+  //TGLayoutHints      *fLayoutPyfFieldFrame;
 
   //++++++++++++++++++++++++++++++ Horizontal frame Analysis + First requested evt number + Run number
   TGCompositeFrame   *fAnaNorsRunFrame;
@@ -517,7 +358,7 @@ class TEcnaGui : public TGMainFrame {
 
   TGLayoutHints      *fLayoutVmmD_HFN_ChNbFrame;
 
-  //--------------------------------------------------- (MEAN CORSS)
+  //--------------------------------------------------- (MEAN OF CORSS)
   TGCompositeFrame   *fVmmD_MCs_ChNbFrame;
 
   TGCompositeFrame   *fVmaxD_MCs_ChNbFrame;
@@ -686,11 +527,11 @@ class TEcnaGui : public TGMainFrame {
   //............................ Menus Stin_A
   TGPopupMenu        *fMenuCorssAll;
   TGMenuBar          *fMenuBarCorssAll;
-  Int_t               fMenuCorssAllColzC, fMenuCovssAllColzC;
+  Int_t               fMenuCorssAllColzC;
 
-  //TGPopupMenu        *fMenuCovssAll;
-  //TGMenuBar          *fMenuBarCovssAll;
-  //Int_t               fMenuCovssAllColzC;
+  TGPopupMenu        *fMenuCovssAll;
+  TGMenuBar          *fMenuBarCovssAll;
+  Int_t               fMenuCovssAllColzC;
 
   TGLayoutHints      *fLayoutTxSubFrame;
 
@@ -749,25 +590,13 @@ class TEcnaGui : public TGMainFrame {
   Int_t               fMenuCovssSurf1C, fMenuCovssSurf2C, fMenuCovssSurf3C, fMenuCovssSurf4C;
   Int_t               fMenuCovssAsciiFileC;
 
-  TGPopupMenu        *fMenuD_MSp_SpNb;
-  TGMenuBar          *fMenuBarD_MSp_SpNb;
-  Int_t               fMenuD_MSp_SpNbLineFullC,    fMenuD_MSp_SpNbLineSameC,
-                      fMenuD_MSp_SpNbLineAllStinC;
+  TGPopupMenu        *fMenuD_MSp_Samp;
+  TGMenuBar          *fMenuBarD_MSp_Samp;
+  Int_t               fMenuD_MSp_SampLineFullC,  fMenuD_MSp_SampLineSameC;
 
-  TGPopupMenu        *fMenuD_MSp_SpDs;
-  TGMenuBar          *fMenuBarD_MSp_SpDs;
-  Int_t               fMenuD_MSp_SpDsLineFullC,    fMenuD_MSp_SpDsLineSameC,
-                      fMenuD_MSp_SpDsLineAllStinC;
-
-  TGPopupMenu        *fMenuD_SSp_SpNb;
-  TGMenuBar          *fMenuBarD_SSp_SpNb; 
-  Int_t               fMenuD_SSp_SpNbLineFullC, fMenuD_SSp_SpNbLineSameC,
-                      fMenuD_SSp_SpNbLineAllStinC;
-
-  TGPopupMenu        *fMenuD_SSp_SpDs;
-  TGMenuBar          *fMenuBarD_SSp_SpDs; 
-  Int_t               fMenuD_SSp_SpDsLineFullC, fMenuD_SSp_SpDsLineSameC,
-                      fMenuD_SSp_SpDsLineAllStinC;
+  TGPopupMenu        *fMenuD_SSp_Samp;
+  TGMenuBar          *fMenuBarD_SSp_Samp; 
+  Int_t               fMenuD_SSp_SampLineFullC, fMenuD_SSp_SampLineSameC;
 
   TGLayoutHints      *fLayoutChSubFrame;
 
@@ -794,8 +623,11 @@ class TEcnaGui : public TGMainFrame {
   TGPopupMenu        *fMenuAdcProj;
   TGMenuBar          *fMenuBarAdcProj;
   TGLayoutHints      *fLayoutMenuBarAdcProj;
-  Int_t               fMenuAdcProjLineLinyFullC, fMenuAdcProjLineLinySameC;
-  Int_t               fMenuAdcProjSampLineFullC, fMenuAdcProjSampLineSameC;
+  Int_t               fMenuAdcProjLineLinyFullC;
+  Int_t               fMenuAdcProjLineLinySameC;
+
+  Int_t               fMenuAdcProjSampLineFullC;
+  Int_t               fMenuAdcProjSampLineSameC;
 
  //========================= 5th PART: HISTORY PLOTS ================================================
 
@@ -959,20 +791,13 @@ class TEcnaGui : public TGMainFrame {
   TString  fOptPlotFull;
   TString  fOptPlotSame;
   TString  fOptPlotSameP;
-  TString  fOptPlotSameInStin;
   TString  fOptAscii;
 
   //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
  public:
-  TEcnaGui();
-  TEcnaGui(TEcnaObject*, const TString, const TGWindow *, UInt_t, UInt_t);
-
-  // TEcnaGui(const TString, const TGWindow *, UInt_t, UInt_t);
+           TEcnaGui(const TGWindow *, UInt_t, UInt_t, const TString);
   virtual  ~TEcnaGui();
-
-  void Init();
-  void DialogBox();
 
   void InitKeys();
 
@@ -981,6 +806,7 @@ class TEcnaGui : public TGMainFrame {
   void DisplayInEntryField(TGTextEntry*, const TString);
 
   void DoButtonAna();
+  //void DoButtonPyf();
 
   void DoButtonNors();
   void DoButtonRun();
@@ -1070,7 +896,7 @@ class TEcnaGui : public TGMainFrame {
   void ViewSorSNumberOfEvents();             // SorS = Stas or Stex
   void ViewSorSPedestals();
   void ViewSorSTotalNoise();
-  void ViewSorSMeanCorss();
+  void ViewSorSMeanOfCorss();
   void ViewSorSLowFrequencyNoise();
   void ViewSorSHighFrequencyNoise();
   void ViewSorSSigmaOfCorss();
@@ -1089,8 +915,8 @@ class TEcnaGui : public TGMainFrame {
   void ViewHistoSorSPedestalsDistribution(const TString);
   void ViewHistoSorSTotalNoiseOfCrystals(const TString);
   void ViewHistoSorSTotalNoiseDistribution(const TString);
-  void ViewHistoSorSMeanCorssOfCrystals(const TString);
-  void ViewHistoSorSMeanCorssDistribution(const TString);
+  void ViewHistoSorSMeanOfCorssOfCrystals(const TString);
+  void ViewHistoSorSMeanOfCorssDistribution(const TString);
   void ViewHistoSorSLowFrequencyNoiseOfCrystals(const TString);
   void ViewHistoSorSLowFrequencyNoiseDistribution(const TString);
   void ViewHistoSorSHighFrequencyNoiseOfCrystals(const TString);
@@ -1099,25 +925,23 @@ class TEcnaGui : public TGMainFrame {
   void ViewHistoSorSSigmaOfCorssDistribution(const TString);
 
   void ViewHistoCrystalSampleMeans(const Int_t&, const Int_t&, const TString);
-  void ViewHistoCrystalSampleMeansDistribution(const Int_t&, const Int_t&, const TString);
-  void ViewHistoCrystalSampleSigmas(const Int_t&, const Int_t&, const TString);
-  void ViewHistoCrystalSampleSigmasDistribution(const Int_t&, const Int_t&, const TString);
-
+  void ViewHistoCrystalSigmasOfSamples(const Int_t&, const Int_t&, const TString);
   void ViewHistoCrystalSampleValues(const Int_t&, const Int_t&, const Int_t&, const TString);
+
   void ViewHistoSampleEventDistribution(const Int_t&, const Int_t&, const Int_t&, const TString);
 
   void ViewHistimeCrystalPedestals(const TString, const Int_t&, const Int_t&, const TString);
   void ViewHistimeCrystalTotalNoise(const TString, const Int_t&, const Int_t&, const TString);
   void ViewHistimeCrystalLowFrequencyNoise(const TString, const Int_t&, const Int_t&, const TString);
   void ViewHistimeCrystalHighFrequencyNoise(const TString, const Int_t&, const Int_t&, const TString);
-  void ViewHistimeCrystalMeanCorss(const TString, const Int_t&, const Int_t&, const TString);
+  void ViewHistimeCrystalMeanOfCorss(const TString, const Int_t&, const Int_t&, const TString);
   void ViewHistimeCrystalSigmaOfCorss(const TString, const Int_t&, const Int_t&, const TString);
 
   void ViewHistimeCrystalPedestalsRuns(const TString, const Int_t&, const Int_t&, const TString);
   void ViewHistimeCrystalTotalNoiseRuns(const TString, const Int_t&, const Int_t&, const TString);
   void ViewHistimeCrystalLowFrequencyNoiseRuns(const TString, const Int_t&, const Int_t&, const TString);
   void ViewHistimeCrystalHighFrequencyNoiseRuns(const TString, const Int_t&, const Int_t&, const TString);
-  void ViewHistimeCrystalMeanCorssRuns(const TString, const Int_t&, const Int_t&, const TString);
+  void ViewHistimeCrystalMeanOfCorssRuns(const TString, const Int_t&, const Int_t&, const TString);
   void ViewHistimeCrystalSigmaOfCorssRuns(const TString, const Int_t&, const Int_t&, const TString);
 
   void MessageCnaCommandReplyA(const TString);

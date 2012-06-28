@@ -40,8 +40,10 @@ PixelCPEGenericESProducer = cms.ESProducer("PixelCPEGenericESProducer",
     LoadTemplatesFromDB = cms.bool(True),                                       
 
     # petar, for clusterProbability() from TTRHs
-    ClusterProbComputationFlag = cms.int32(0)         
+    ClusterProbComputationFlag = cms.int32(0),         
 
+    Upgrade = cms.bool(False),
+    SmallPitch = cms.bool(False)
                                            
 )
 

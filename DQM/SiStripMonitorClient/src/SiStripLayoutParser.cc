@@ -21,7 +21,7 @@ SiStripLayoutParser::~SiStripLayoutParser() {
 // -- Get list of Layouts for ME groups
 //
 bool SiStripLayoutParser::getAllLayouts(std::map<std::string, std::vector< std::string > >& layouts){
-  if (!doc) {
+  if (!doc()) {
     std::cout << " SiStripLayoutParser::Configuration File is not set!!! " << std::endl;
     return false;
   }
@@ -29,7 +29,7 @@ bool SiStripLayoutParser::getAllLayouts(std::map<std::string, std::vector< std::
   layouts.clear();
 
   xercesc::DOMNodeList * layoutList 
-		  = doc->getElementsByTagName(qtxml::_toDOMS("layout"));
+    = doc()->getElementsByTagName(qtxml::_toDOMS("layout"));
 
   unsigned int nlayout = layoutList->getLength();
   if (nlayout == 0) return false;

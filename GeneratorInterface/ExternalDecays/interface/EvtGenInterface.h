@@ -79,11 +79,6 @@ namespace gen {
       int nPythia;
       bool usePythia;
       // std::vector<std::string> pythia_params;  // Pythia stuff
-
-      // Adding parameters for polarization of spin-1/2 particles
-      std::vector<int> polarize_ids;
-      std::vector<double> polarize_pol;
-      std::map<int, float> polarizations;
       
       int nlist; 
       HepMC::GenParticle *listp[10]; 

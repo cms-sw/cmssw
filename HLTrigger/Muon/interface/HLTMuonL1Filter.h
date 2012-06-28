@@ -22,16 +22,11 @@
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 
-namespace edm {
-   class ConfigurationDescriptions;
-}
-
 class HLTMuonL1Filter : public HLTFilter {
 
   public:
     explicit HLTMuonL1Filter(const edm::ParameterSet&);
     ~HLTMuonL1Filter();
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     virtual bool filter(edm::Event&, const edm::EventSetup&);
 
   private:

@@ -1619,7 +1619,7 @@ void SiPixelActionExecutor::createMaps(DQMStore* bei, std::string type, std::str
 
 	MonitorElement* meB[NLayer];
 	//	TH2F* histB[NLayer];
-	MonitorElement* meE[NLayer];
+	MonitorElement* meE[NCyl];
 	//	TH2F* histE[NCyl];
 	bei->setCurrentFolder("Pixel/Barrel");
 	prephistosB(meB, bei, mapB, name, min, max);

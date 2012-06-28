@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForMonitorable.h,v 1.14 2010/02/22 14:10:22 wto Exp $
+// Last commit: $Id: ConstantsForMonitorable.h,v 1.13 2010/02/03 18:28:43 dstrom Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForMonitorable_H
 #define DataFormats_SiStripCommon_ConstantsForMonitorable_H
@@ -93,9 +93,7 @@ namespace sistrip {
   static const char noiseGausAllStrips_[]   = "StripNoiseGaus";
   static const char noiseBin84AllStrips_[]  = "StripNoiseBin84";
   static const char noiseRMSAllStrips_[]  	= "StripNoiseRMS";
-  static const char noiseSignif_[]  				= "StripNoiseSignif";
-  static const char deadStripNum_[]            = "DeadStripNum";
-  static const char noisyStripNum_[]           = "NoisyStripNum";
+  static const char noiseSignif_[]  		= "StripNoiseSignif";
   
   // Fine Delay
   static const char fineDelayPos_[]       = "FineDelayPosition";
@@ -199,9 +197,7 @@ namespace sistrip {
 		     NOISE_BIN_84_ALL_STRIPS= 217,
 		     NOISE_CHI2_ALL_STRIPS 	= 218,
 		     NOISE_SIGNIF_ALL_STRIPS= 219,
-         NOISE_RMS_ALL_STRIPS 	= 220,
-		     DEAD_STRIP_NUM					= 221,
-         NOISY_STRIP_NUM			 	= 222,
+             NOISE_RMS_ALL_STRIPS 	= 220,
 		     FINE_DELAY_POS 		= 601,
 		     FINE_DELAY_ERROR 		= 602,
 

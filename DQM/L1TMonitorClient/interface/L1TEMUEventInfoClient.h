@@ -1,149 +1,108 @@
 #ifndef DQM_L1TMONITORCLIENT_L1TEMUEventInfoClient_H
 #define DQM_L1TMONITORCLIENT_L1TEMUEventInfoClient_H
 
-/**
- * \class L1TEMUEventInfoClient
- *
- *
- * Description: fill L1 report summary for emulator DQM.
- *
- * Implementation:
- *    <TODO: enter implementation details>
- *
- * \author: Vasile Mihai Ghete   - HEPHY Vienna
- *
- *    Re-designed and fully rewritten class.
- *    Original version and authors: see CVS history
- *
- * $Date$
- * $Revision$
- *
- */
-
-// system include files
-#include <memory>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-
-// user include files
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-// forward declarations
+#include <memory>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <map>
+#include <TH1F.h>
+#include <TH2F.h>
+#include <TProfile2D.h>
+
 class DQMStore;
 
-// class declaration
 class L1TEMUEventInfoClient: public edm::EDAnalyzer {
 
 public:
 
-    /// Constructor
-    L1TEMUEventInfoClient(const edm::ParameterSet&);
+  /// Constructor
+  L1TEMUEventInfoClient(const edm::ParameterSet& ps);
+  
+  /// Destructor
+  virtual ~L1TEMUEventInfoClient();
+ 
+protected:
 
-    /// Destructor
-    virtual ~L1TEMUEventInfoClient();
+  /// BeginJob
+  void beginJob(void);
+
+  /// BeginRun
+  void beginRun(const edm::Run& r, const edm::EventSetup& c);
+
+  /// Fake Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
+
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+                            const edm::EventSetup& context) ;
+
+  /// DQM Client Diagnostic
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+                          const edm::EventSetup& c);
+
+  /// EndRun
+  void endRun(const edm::Run& r, const edm::EventSetup& c);
+
+  /// Endjob
+  void endJob();
 
 private:
 
-    /// begin job
-    void beginJob();
+  void initialize();
+  TH1F * get1DHisto(std::string meName, DQMStore * dbi);
+  TH2F * get2DHisto(std::string meName, DQMStore * dbi);
+  TProfile2D * get2DProfile(std::string meName, DQMStore * dbi);
+  TProfile * get1DProfile(std::string meName, DQMStore * dbi);
+  edm::ParameterSet parameters_;
+  std::string StringToUpper(std::string strToConvert);
 
-    /// begin run
-    void beginRun(const edm::Run&, const edm::EventSetup&);
+  DQMStore* dbe_;  
+  std::string monitorDir_;
+  bool verbose_;
+  int counterLS_;      ///counter
+  int counterEvt_;     ///counter
+  int prescaleLS_;     ///units of lumi sections
+  int prescaleEvt_;    ///prescale on number of events
+  int nChannels;
 
-    /// analyze
-    void analyze(const edm::Event&, const edm::EventSetup&);
+  enum DataValue { data_empty, data_all, data_gt, data_muons, 
+		   data_jets, data_taujets, data_isoem, 
+		   data_nonisoem, data_met };
+  enum EmulValue { emul_empty, emul_all, emul_gt, emul_dtf, 
+		   emul_dtp, emul_ctf, emul_ctp, emul_rpc, 
+		   emul_gmt, emul_etp, emul_htp, emul_rct, 
+		   emul_gct, emul_glt };
 
-    /// begin luminosity block
-    void beginLuminosityBlock(const edm::LuminosityBlock&,
-            const edm::EventSetup&);
+  std::map<std::string, DataValue> s_mapDataValues;
+  std::map<std::string, EmulValue> s_mapEmulValues;
+  std::map<int, int> emulatorMap;
 
-    /// end luminosity block
-    void
-    endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+  Float_t setSummary(MonitorElement*);
+  static const int nsys_=18;
+  static const int nsysmon_=11;
 
-    /// end run
-    void endRun(const edm::Run&, const edm::EventSetup&);
+  Float_t reportSummary;
+  Float_t summarySum;
+  Float_t summaryContent[nsys_];
+  std::vector<std::string> dataMask;
+  std::vector<std::string> emulMask;
+  std::string syslabel_   [nsysmon_];
+  std::string syslabelext_[nsysmon_];
+  bool sysmask_[nsysmon_];
 
-    /// end job
-    void endJob();
+  // -------- member data --------
 
-private:
+  MonitorElement * reportSummary_;
+  MonitorElement * reportSummaryContent_[nsys_];
+  MonitorElement * reportSummaryMap_;
 
-    /// input parameters
-
-    bool m_verbose;
-    std::string m_monitorDir;
-    int m_prescaleLS; /// units of lumi sections
-    int m_prescaleEvt; /// prescale on number of events
-    std::vector<edm::ParameterSet> m_l1Systems;
-    std::vector<edm::ParameterSet> m_l1Objects;
-    std::vector<std::string> m_maskL1Systems;
-    std::vector<std::string> m_maskL1Objects;
-
-    /// private methods
-
-    /// initialize properly all elements
-    void initialize();
-
-    /// dump the content of the monitoring elements defined in this module
-    void dumpContentMonitorElements();
-
-    /// number of L1 trigger systems
-    size_t m_nrL1Systems;
-
-    /// number of L1 trigger objects
-    size_t m_nrL1Objects;
-
-    /// total number of quality tests enabled for summary report for L1 trigger systems
-    /// and L1 trigger objects
-    size_t m_totalNrQtSummaryEnabled;
-
-    std::vector<std::string> m_systemLabel;
-    std::vector<std::string> m_systemLabelExt;
-    std::vector<int> m_systemMask;
-    std::vector<std::string> m_systemFolder;
-
-    std::vector<std::vector<std::string> > m_systemQualityTestName;
-    std::vector<std::vector<std::string> > m_systemQualityTestHist;
-    std::vector<std::vector<unsigned int> > m_systemQtSummaryEnabled;
-
-    std::vector<int> m_objectMask;
-    std::vector<std::string> m_objectLabel;
-    std::vector<std::string> m_objectFolder;
-
-    std::vector<std::vector<std::string> > m_objectQualityTestName;
-    std::vector<std::vector<std::string> > m_objectQualityTestHist;
-    std::vector<std::vector<unsigned int> > m_objectQtSummaryEnabled;
-
-    /// summary report
-
-    Float_t m_reportSummary;
-    Float_t m_summarySum;
-    std::vector<int> m_summaryContent;
-
-
-    /// a summary report
-    MonitorElement* m_meReportSummary;
-
-    /// monitor elements to report content for all quality tests
-    std::vector<MonitorElement*> m_meReportSummaryContent;
-
-    /// report summary map
-    MonitorElement* m_meReportSummaryMap;
-
-    //
-
-    DQMStore* m_dbe;
-
-    int m_counterLS; ///counter
-    int m_counterEvt; ///counter
 
 };
 

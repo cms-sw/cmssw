@@ -34,5 +34,3 @@
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="DataFormats/EgammaReco"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-</export>
