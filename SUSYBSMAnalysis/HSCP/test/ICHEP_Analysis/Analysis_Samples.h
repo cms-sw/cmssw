@@ -101,7 +101,7 @@ double               IntegratedLuminosity = 4976; //3168; //2410;//2125; //2080;
 double               IntegratedLuminosityBeforeTriggerChange = 355.227; //353.494; // Total luminosity taken before RPC L1 trigger change (went into effect on run 165970)
 #else
 int                  RunningPeriods = 1;
-double               IntegratedLuminosity = 500;
+double               IntegratedLuminosity = 2900;
 double               IntegratedLuminosityBeforeTriggerChange = 0;
 #endif
 
@@ -129,7 +129,7 @@ class stSignal{
 
 
 void GetSignalDefinition(std::vector<stSignal>& signals, bool TkOnly=true){
-#ifdef ANALYSIS2011
+  //#ifdef ANALYSIS2011
   //2011 7TeV Signals
   signals.push_back(stSignal(-1,"Gluino", "Gluino300", "Gluino300"    , "MC - #tilde{g} 300 GeV/#font[12]{c}^{2}"                 , 300,  1, 1,  65.800000) ); //NLO
   signals.push_back(stSignal(-1,"Gluino", "Gluino400", "Gluino400"    , "MC - #tilde{g} 400 GeV/#font[12]{c}^{2}"                 , 400,  1, 1,   11.20000) ); //NLO
@@ -272,33 +272,32 @@ void GetSignalDefinition(std::vector<stSignal>& signals, bool TkOnly=true){
   signals.push_back(stSignal(-1,"DCRho08HyperK" , "DCRho08HyperK420" , "DCRho08HyperK420"    , "DICHAMP #tilde{K} 420 GeV/#font[12]{c}^{2}"  , 420,  1, 1,   0.003500) ); //LO
   signals.push_back(stSignal(-1,"DCRho08HyperK" , "DCRho08HyperK500" , "DCRho08HyperK500"    , "DICHAMP #tilde{K} 500 GeV/#font[12]{c}^{2}"  , 500,  1, 1,   0.0002849) ); //LO
   
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK100" , "DCRho12HyperK100"  , "DICHAMP #tilde{K} 100 GeV/#font[12]{c}^{2}"  , 100,  1, 1, 0.8339415992) ); //LO        
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK182" , "DCRho12HyperK182"  , "DICHAMP #tilde{K} 182 GeV/#font[12]{c}^{2}"  , 182,  1, 1, 0.168096952140) ); //LO 
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK302" , "DCRho12HyperK302"  , "DICHAMP #tilde{K} 302 GeV/#font[12]{c}^{2}"  , 302,  1, 1, 0.079554948387) ); //LO      
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK500" , "DCRho12HyperK500"  , "DICHAMP #tilde{K} 500 GeV/#font[12]{c}^{2}"  , 500,  1, 1, 0.063996737) ); //LO         
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK530" , "DCRho12HyperK530"  , "DICHAMP #tilde{K} 530 GeV/#font[12]{c}^{2}"  , 530,  1, 1, 0.064943882) ); //LO         
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK570" , "DCRho12HyperK570"  , "DICHAMP #tilde{K} 570 GeV/#font[12]{c}^{2}"  , 570,  1, 1, 0.0662920530) ); //LO        
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK590" , "DCRho12HyperK590"  , "DICHAMP #tilde{K} 590 GeV/#font[12]{c}^{2}"  , 590,  1, 1, 0.060748383) ); //LO         
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK595" , "DCRho12HyperK595"  , "DICHAMP #tilde{K} 595 GeV/#font[12]{c}^{2}"  , 595,  1, 1, 0.04968409) ); //LO          
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK600" , "DCRho12HyperK600"  , "DICHAMP #tilde{K} 600 GeV/#font[12]{c}^{2}"  , 600,  1, 1, 0.0026232721237) ); //LO     
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK610" , "DCRho12HyperK610"  , "DICHAMP #tilde{K} 610 GeV/#font[12]{c}^{2}"  , 610,  1, 1, 0.00127431) ); //LO          
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK620" , "DCRho12HyperK620"  , "DICHAMP #tilde{K} 620 GeV/#font[12]{c}^{2}"  , 620,  1, 1, 0.00056965104319) ); //LO    
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK700" , "DCRho12HyperK700"  , "DICHAMP #tilde{K} 700 GeV/#font[12]{c}^{2}"  , 700,  1, 1, 0.00006122886211) ); //LO     
-
-  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK100" , "DCRho16HyperK100"  , "DICHAMP #tilde{K} 100 GeV/#font[12]{c}^{2}"  , 100,  1, 1, 0.711518686800) ); //LO       
-  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK182" , "DCRho16HyperK182"  , "DICHAMP #tilde{K} 182 GeV/#font[12]{c}^{2}"  , 182,  1, 1, 0.089726059780) ); //LO       
-  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK302" , "DCRho16HyperK302"  , "DICHAMP #tilde{K} 302 GeV/#font[12]{c}^{2}"  , 302,  1, 1, 0.019769637301) ); //LO       
-  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK500" , "DCRho16HyperK500"  , "DICHAMP #tilde{K} 500 GeV/#font[12]{c}^{2}"  , 500,  1, 1, 0.0063302286576) ); //LO      
-  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK700" , "DCRho16HyperK700"  , "DICHAMP #tilde{K} 700 GeV/#font[12]{c}^{2}"  , 700,  1, 1, 0.002536779850) ); //LO       
+  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK100" , "DCRho12HyperK100"  , "DICHAMP #tilde{K} 100 GeV/#font[12]{c}^{2}"  , 100,  1, 1, 0.8339415992) ); //LO
+  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK182" , "DCRho12HyperK182"  , "DICHAMP #tilde{K} 182 GeV/#font[12]{c}^{2}"  , 182,  1, 1, 0.168096952140) ); //LO
+  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK302" , "DCRho12HyperK302"  , "DICHAMP #tilde{K} 302 GeV/#font[12]{c}^{2}"  , 302,  1, 1, 0.079554948387) ); //LO 
+  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK500" , "DCRho12HyperK500"  , "DICHAMP #tilde{K} 500 GeV/#font[12]{c}^{2}"  , 500,  1, 1, 0.063996737) ); //LO    
+  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK530" , "DCRho12HyperK530"  , "DICHAMP #tilde{K} 530 GeV/#font[12]{c}^{2}"  , 530,  1, 1, 0.064943882) ); //LO    
+  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK570" , "DCRho12HyperK570"  , "DICHAMP #tilde{K} 570 GeV/#font[12]{c}^{2}"  , 570,  1, 1, 0.0662920530) ); //LO    
+  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK590" , "DCRho12HyperK590"  , "DICHAMP #tilde{K} 590 GeV/#font[12]{c}^{2}"  , 590,  1, 1, 0.060748383) ); //LO    
+  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK595" , "DCRho12HyperK595"  , "DICHAMP #tilde{K} 595 GeV/#font[12]{c}^{2}"  , 595,  1, 1, 0.04968409) ); //LO     
+  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK600" , "DCRho12HyperK600"  , "DICHAMP #tilde{K} 600 GeV/#font[12]{c}^{2}"  , 600,  1, 1, 0.0026232721237) ); //LO 
+  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK610" , "DCRho12HyperK610"  , "DICHAMP #tilde{K} 610 GeV/#font[12]{c}^{2}"  , 610,  1, 1, 0.00127431) ); //LO      
+  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK620" , "DCRho12HyperK620"  , "DICHAMP #tilde{K} 620 GeV/#font[12]{c}^{2}"  , 620,  1, 1, 0.00056965104319) ); //LO
+  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK700" , "DCRho12HyperK700"  , "DICHAMP #tilde{K} 700 GeV/#font[12]{c}^{2}"  , 700,  1, 1, 0.00006122886211) ); //LO
+  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK100" , "DCRho16HyperK100"  , "DICHAMP #tilde{K} 100 GeV/#font[12]{c}^{2}"  , 100,  1, 1, 0.711518686800) ); //LO 
+  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK182" , "DCRho16HyperK182"  , "DICHAMP #tilde{K} 182 GeV/#font[12]{c}^{2}"  , 182,  1, 1, 0.089726059780) ); //LO  
+  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK302" , "DCRho16HyperK302"  , "DICHAMP #tilde{K} 302 GeV/#font[12]{c}^{2}"  , 302,  1, 1, 0.019769637301) ); //LO 
+  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK500" , "DCRho16HyperK500"  , "DICHAMP #tilde{K} 500 GeV/#font[12]{c}^{2}"  , 500,  1, 1, 0.0063302286576) ); //LO 
+  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK700" , "DCRho16HyperK700"  , "DICHAMP #tilde{K} 700 GeV/#font[12]{c}^{2}"  , 700,  1, 1, 0.002536779850) ); //LO  
   signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK730" , "DCRho16HyperK730"  , "DICHAMP #tilde{K} 730 GeV/#font[12]{c}^{2}"  , 730,  1, 1, 0.00213454921) ); //LO
   signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK770" , "DCRho16HyperK770"  , "DICHAMP #tilde{K} 770 GeV/#font[12]{c}^{2}"  , 770,  1, 1, 0.001737551) ); //LO 
   signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK790" , "DCRho16HyperK790"  , "DICHAMP #tilde{K} 790 GeV/#font[12]{c}^{2}"  , 790,  1, 1, 0.00161578593) ); //LO
   signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK795" , "DCRho16HyperK795"  , "DICHAMP #tilde{K} 795 GeV/#font[12]{c}^{2}"  , 795,  1, 1, 0.00153513713) ); //LO
   signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK800" , "DCRho16HyperK800"  , "DICHAMP #tilde{K} 800 GeV/#font[12]{c}^{2}"  , 800,  1, 1, 0.000256086965) ); //LO
   signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK810" , "DCRho16HyperK810"  , "DICHAMP #tilde{K} 810 GeV/#font[12]{c}^{2}"  , 810,  1, 1, 0.000140664) ); //LO 
-  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK820" , "DCRho16HyperK820"  , "DICHAMP #tilde{K} 820 GeV/#font[12]{c}^{2}"  , 820,  1, 1, 0.000097929923655) ); //LO 
-  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK900" , "DCRho16HyperK900"  , "DICHAMP #tilde{K} 900 GeV/#font[12]{c}^{2}"  , 900,  1, 1, 0.000013146066) ); //LO       
-#endif
+  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK820" , "DCRho16HyperK820"  , "DICHAMP #tilde{K} 820 GeV/#font[12]{c}^{2}"  , 820,  1, 1, 0.000097929923655));//LO 
+  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK900" , "DCRho16HyperK900"  , "DICHAMP #tilde{K} 900 GeV/#font[12]{c}^{2}"  , 900,  1, 1, 0.000013146066)); //LO
+//#endif
 }
 
 struct stMC{
@@ -353,9 +352,12 @@ void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName,
   //std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/jchen/11_09_13_HSCP2011EDM/";
   //std::string BaseDirectory = "/uscmst1b_scratch/lpc1/lpcphys/jchen/HSCPEDM_11_01_11/";
 //  std::string BaseDirectory = "root://eoscms//eos/cms/store/cmst3/user/querten/12_04_17_HSCP_EDM/";
-  std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_11_01/";
+  //std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_11_01/";
+  //std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/venkat12/2012Data/";
+  std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/farrell3/2012HSCPEDMFiles/";
    if(SampleName=="Data"){
 #ifdef ANALYSIS2011
+     std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/farrell3/NewDTError26Dec2011/";
      inputFiles.push_back(BaseDirectory + "Data_RunA_160404_163869.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_165001_166033.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_166034_166500.root");
@@ -378,8 +380,26 @@ void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName,
      inputFiles.push_back(BaseDirectory + "Data_RunA_178420_179411.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_179434_180252.root");
 #else
-     inputFiles.push_back(BaseDirectory + "Data_190XXX.root");
-     inputFiles.push_back(BaseDirectory + "Data_191XXX.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunA_190645-191100.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunA_191101-191246.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunA_191247.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunA_191248-191300.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunA_191301-191800.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunA_191801-192000.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunA_193001-193336.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunA_193338-193557.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunA_193558-193686.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunB_193752-194050.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunB_194051-194108.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunB_194109-194150.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunB_194151-194223.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunB_194224-194424.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunB_194425-194479.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunB_194480-194686.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunB_194687-194712.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunB_194713-194912.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunB_194913-195147.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunB_195148-195396.root");
 #endif
    }else if(SampleName.find("MC_",0)<std::string::npos){
      inputFiles.push_back(BaseDirectory + SampleName + ".root");

@@ -206,16 +206,16 @@ elif sys.argv[1]=='2':
         LaunchOnCondor.Jobs_RunHere = 1
         LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)
 
-        ComputeLimits('Analysis_Step6', '"Results/dedxASmi/combined/Eta15/PtMin45/Type0/"', '""')
-#        ComputeLimits('Analysis_Step6shape', '"Results/dedxASmi/combined/Eta15/PtMin45/Type0/"', '""')
+#        ComputeLimits('Analysis_Step6', '"Results/dedxASmi/combined/Eta15/PtMin50/Type0/"', '""')
+        ComputeLimits('Analysis_Step6shape', '"Results/dedxASmi/combined/Eta15/PtMin45/Type0/"', '""')
 
         LaunchOnCondor.SendCluster_Submit()
 
 
 elif sys.argv[1]=='3':
         print 'EXCLUSION'
-        os.system('sh Analysis_Step6.sh')
-#        os.system('sh Analysis_Step6shape.sh')
+#        os.system('sh Analysis_Step6.sh')
+        os.system('sh Analysis_Step6shape.sh')
 else:
 	print 'Unknwon case: use an other argument or no argument to get help'
 

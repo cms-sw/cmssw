@@ -69,7 +69,7 @@ void DrawPreliminary(double Lumi, double X=0.40, double Y=0.995, double W=0.82, 
    TPaveText* T = new TPaveText(X,Y,W,H, "NDC");
    T->SetFillColor(0);
    T->SetTextAlign(22);
-   if(Lumi<0 )T->AddText("CMS Preliminary   #sqrt{s} = 7 TeV");
+   if(Lumi<0 )T->AddText("CMS Preliminary   #sqrt{s} = 8 TeV");
 
    if(Lumi>0 ){
       char tmp[2048];
@@ -80,7 +80,7 @@ void DrawPreliminary(double Lumi, double X=0.40, double Y=0.995, double W=0.82, 
 //      sprintf(tmp,"CMS Preliminary 2010   #sqrt{s} = 7TeV   %4.2f pb ^{-1}",Lumi*1.0); //USED FOR PAS
 //      sprintf(tmp,"CMS 2010   #sqrt{s} = 7 TeV   %4.2f pb ^{-1}",Lumi*1.0);
 //      sprintf(tmp,"CMS   #sqrt{s} = 7 TeV   %4.2f pb ^{-1}",Lumi*1.0);
-      sprintf(tmp,"CMS Preliminary   #sqrt{s} = 7 TeV   %1.1f fb ^{-1}",Lumi*0.001);
+      sprintf(tmp,"CMS Preliminary   #sqrt{s} = 8 TeV   %1.1f fb ^{-1}",Lumi*0.001);
 
       T->AddText(tmp);
    }

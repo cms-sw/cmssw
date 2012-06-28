@@ -75,16 +75,16 @@ void Analysis_Step5()
 
    InputDir = "Results/dedxASmi/combined/Eta15/PtMin50/Type0/";   CutIndex = 4; //on set of cuts from the array, 0 means no cut
    MassPrediction(InputDir, CutIndex, "Mass");
-   //PredictionAndControlPlot(InputDir, CutIndex);
-   CutFlow(InputDir);
+   PredictionAndControlPlot(InputDir, CutIndex);
+   //CutFlow(InputDir);
    SelectionPlot(InputDir, CutIndex, 0);
    
    InputDir = "Results/dedxASmi/combined/Eta15/PtMin50/Type2/";   CutIndex = 16;
    MassPrediction(InputDir, CutIndex, "Mass");
-   CutFlow(InputDir);
+   //CutFlow(InputDir);
    SelectionPlot(InputDir, CutIndex, 0);
-   //GetSystematicOnPrediction(InputDir);
-   //PredictionAndControlPlot(InputDir, CutIndex);
+   GetSystematicOnPrediction(InputDir);
+   PredictionAndControlPlot(InputDir, CutIndex);
 
 // #don't thin this is still used, but keep there just in case
 //   InputDir = "Results/dedxASmi/combined/Eta15/PtMin45/Type0/";   CutIndex = 11;/*65;*//*39;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
@@ -424,7 +424,7 @@ void GetSystematicOnPrediction(string InputPattern){
       graph_sum->GetXaxis()->SetTitle(Title.c_str());
       
       graph_sum->Draw("AC*");
-      graph_sum->GetYaxis()->SetRangeUser(0,0.25);
+      graph_sum->GetYaxis()->SetRangeUser(0,0.5);
 
       if(p==2){
          TGraph* graph_sum2 = new TGraph(ArrN[p+1],ArrPt[p+1],ArrSum[p+1]);
@@ -686,23 +686,28 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex, unsigned int Glui
    string SavePath  = InputPattern;
    MakeDirectories(SavePath);
 
-  // TFile* InputFile = new TFile(Input.c_str()); //signal
+   TFile* InputFile = new TFile(Input.c_str()); //signal
    TFile* InputFileData = new TFile((InputPattern + "Histos_Data.root").c_str());
    TFile* InputFileData11 = new TFile((InputPattern + "Histos_Data11.root").c_str());
    TFile* InputFileMC   = new TFile((InputPattern + "Histos_MC.root").c_str());
- 
-   stPlots DataPlots, DataPlots11, MCTrPlots;// SignPlots[signals.size()];
+
+   //string Dir2011 = "/uscms_data/d2/farrell3/WorkArea/CMSSW_4_2_8_patch7/src/SUSYBSMAnalysis/HSCP/test/ICHEP_Analysis/Results/dedxASmi/combined/Eta15/PtMin50/Type2/";
+   //TFile* InputFileData11 = new TFile((Dir2011 + "Histos_Data.root").c_str());
+   //TFile* InputFileMC   = new TFile((Dir2011 + "Histos_MC.root").c_str());
+
+
+   stPlots DataPlots, DataPlots11, MCTrPlots, SignPlots[signals.size()];
    stPlots_InitFromFile(InputFileData, DataPlots,"Data", InputFileData);DataPlots.Name="Data12";
    stPlots_InitFromFile(InputFileData11, DataPlots11,"Data", InputFileData11);DataPlots11.Name ="Data11";
    stPlots_InitFromFile(InputFileMC, MCTrPlots,"MCTr", InputFileMC);
 
-  /* for(unsigned int s=0;s<signals.size();s++){
-      if (signals[s].Name!="Gluino300" && signals[s].Name!="Gluino600" && signals[s].Name!="Gluino800" && signals[s].Name!="GMStau247" && signals[s].Name!="GMStau370" && signals[s].Name!="GMStau494") continue;
-      stPlots_InitFromFile(InputFile, SignPlots[s],signals[s].Name, InputFile);
-      if(!signals[s].MakePlot)continue;
+   for(unsigned int s=0;s<signals.size();s++){
+     if (signals[s].Name!="Gluino300" && signals[s].Name!="Gluino600" && signals[s].Name!="Gluino800" && signals[s].Name!="GMStau247" && signals[s].Name!="GMStau370" && signals[s].Name!="GMStau494") continue;
+     stPlots_InitFromFile(InputFile, SignPlots[s],signals[s].Name, InputFile);
+     if(!signals[s].MakePlot)continue;
 //      stPlots_Draw(SignPlots[s], SavePath + "/Selection_" +  signals[s].Name, LegendTitle, CutIndex);
    }
-*/
+
    stPlots_Draw(DataPlots, SavePath + "/Selection_Data12", LegendTitle, CutIndex);
    stPlots_Draw(DataPlots11, SavePath + "/Selection_Data11", LegendTitle, CutIndex);
    stPlots_Draw(MCTrPlots, SavePath + "/Selection_MCTr", LegendTitle, CutIndex);
@@ -713,9 +718,12 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex, unsigned int Glui
 //   stPlots_Draw(SignPlots[SID_ST300N], SavePath + "/Selection_" +  signals[SID_ST300N].Name, LegendTitle);
 //   stPlots_Draw(SignPlots[SID_GS126 ], SavePath + "/Selection_" +  signals[SID_GS126 ].Name, LegendTitle);
 
+
    stPlots_DrawComparison(SavePath + "/Selection_Comp_Data" , LegendTitle, CutIndex, &DataPlots, &DataPlots11, &MCTrPlots);
-  /* stPlots_DrawComparison(SavePath + "/Selection_Comp_Data" , LegendTitle, CutIndex, &DataPlots, &MCTrPlots);
    stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, GluinoCutIndex, &DataPlots, &MCTrPlots, &SignPlots[0], &SignPlots[3], &SignPlots[5]);
+
+
+   /*
   //stPlots_DrawComparison(SavePath + "/Selection_Comp_DCStau" , LegendTitle, CutIndex, &DataPlots, &SignPlots[SID_D12K182 ], &SignPlots[SID_D12K595 ], &SignPlots[SID_D12K700 ]);
 //   stPlots_DrawComparison(SavePath + "/Selection_Comp_Stop"   , LegendTitle, CutIndex, &DataPlots, &SignPlots[24]);
    stPlots_DrawComparison(SavePath + "/Selection_Comp_GMStau" , LegendTitle, CutIndex, &DataPlots, &MCTrPlots, &SignPlots[40], &SignPlots[42], &SignPlots[44]);
@@ -793,15 +801,20 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    TH1D* CtrlIs_S3_TOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlIs_S3_TOF"); CtrlIs_S3_TOF->Rebin(1);
    TH1D* CtrlIs_S4_TOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlIs_S4_TOF"); CtrlIs_S4_TOF->Rebin(1);
 
+   TH1D* CtrlIm_S1_TOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlIm_S1_TOF"); CtrlIm_S1_TOF->Rebin(1);
+   TH1D* CtrlIm_S2_TOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlIm_S2_TOF"); CtrlIm_S2_TOF->Rebin(1);
+   TH1D* CtrlIm_S3_TOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlIm_S3_TOF"); CtrlIm_S3_TOF->Rebin(1);
+   TH1D* CtrlIm_S4_TOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlIm_S4_TOF"); CtrlIm_S4_TOF->Rebin(1);
+
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    if(CtrlPt_S1_Is->Integral()>0)CtrlPt_S1_Is->Scale(1/CtrlPt_S1_Is->Integral());
    if(CtrlPt_S2_Is->Integral()>0)CtrlPt_S2_Is->Scale(1/CtrlPt_S2_Is->Integral());
    if(CtrlPt_S3_Is->Integral()>0)CtrlPt_S3_Is->Scale(1/CtrlPt_S3_Is->Integral());
    if(CtrlPt_S4_Is->Integral()>0)CtrlPt_S4_Is->Scale(1/CtrlPt_S4_Is->Integral());
-// Histos[0] = CtrlPt_S1_Is;                     legend.push_back(" 25<p_{T}< 35 GeV");
-   Histos[0] = CtrlPt_S2_Is;                     legend.push_back(" 45<p_{T}< 50 GeV");
-   Histos[1] = CtrlPt_S3_Is;                     legend.push_back(" 50<p_{T}<100 GeV");
-   Histos[2] = CtrlPt_S4_Is;                     legend.push_back("100<p_{T}");
+   Histos[0] = CtrlPt_S1_Is;                     legend.push_back(" 50<p_{T}< 60 GeV");
+   Histos[1] = CtrlPt_S2_Is;                     legend.push_back(" 60<p_{T}< 80 GeV");
+   Histos[2] = CtrlPt_S3_Is;                     legend.push_back(" 80<p_{T}<100 GeV");
+   Histos[3] = CtrlPt_S4_Is;                     legend.push_back("100<p_{T}");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend, "arbitrary units", 0,0.5, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
@@ -811,15 +824,15 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
 
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
- if(CtrlPt_S1_Im->Integral()>0)CtrlPt_S1_Im->Scale(1/CtrlPt_S1_Im->Integral());
+   if(CtrlPt_S1_Im->Integral()>0)CtrlPt_S1_Im->Scale(1/CtrlPt_S1_Im->Integral());
    if(CtrlPt_S2_Im->Integral()>0)CtrlPt_S2_Im->Scale(1/CtrlPt_S2_Im->Integral());
    if(CtrlPt_S3_Im->Integral()>0)CtrlPt_S3_Im->Scale(1/CtrlPt_S3_Im->Integral());
    if(CtrlPt_S4_Im->Integral()>0)CtrlPt_S4_Im->Scale(1/CtrlPt_S4_Im->Integral());
-// Histos[0] = CtrlPt_S1_Im;                     legend.push_back(" 25<p_{T}< 35 GeV");
-   Histos[0] = CtrlPt_S2_Im;                     legend.push_back(" 45<p_{T}< 50 GeV");
-   Histos[1] = CtrlPt_S3_Im;                     legend.push_back(" 50<p_{T}<100 GeV");
-   Histos[2] = CtrlPt_S4_Im;                     legend.push_back("100<p_{T}");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxM_Legend, "arbitrary units", 3.0,10, 0,0);
+   Histos[0] = CtrlPt_S1_Im;                     legend.push_back(" 50<p_{T}< 60 GeV");
+   Histos[1] = CtrlPt_S2_Im;                     legend.push_back(" 60<p_{T}< 80 GeV");
+   Histos[2] = CtrlPt_S3_Im;                     legend.push_back(" 80<p_{T}<100 GeV");
+   Histos[3] = CtrlPt_S4_Im;                     legend.push_back("100<p_{T}");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxM_Legend, "arbitrary units", 3.0,5, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
@@ -832,11 +845,11 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    if(CtrlPt_S2_TOF->Integral()>0)CtrlPt_S2_TOF->Scale(1/CtrlPt_S2_TOF->Integral());
    if(CtrlPt_S3_TOF->Integral()>0)CtrlPt_S3_TOF->Scale(1/CtrlPt_S3_TOF->Integral());
    if(CtrlPt_S4_TOF->Integral()>0)CtrlPt_S4_TOF->Scale(1/CtrlPt_S4_TOF->Integral());
-// Histos[0] = CtrlPt_S1_TOF;                    legend.push_back(" 25<p_{T}< 35 GeV");
-   Histos[0] = CtrlPt_S2_TOF;                    legend.push_back(" 45<p_{T}< 50 GeV");
-   Histos[1] = CtrlPt_S3_TOF;                    legend.push_back(" 50<p_{T}<100 GeV");
-   Histos[2] = CtrlPt_S4_TOF;                    legend.push_back("100<p_{T}");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,1.4, 0,0); 
+   Histos[0] = CtrlPt_S1_TOF;                    legend.push_back(" 50<p_{T}< 60 GeV");
+   Histos[1] = CtrlPt_S2_TOF;                    legend.push_back(" 60<p_{T}< 80 GeV");
+   Histos[2] = CtrlPt_S3_TOF;                    legend.push_back(" 80<p_{T}<100 GeV");
+   Histos[3] = CtrlPt_S4_TOF;                    legend.push_back("100<p_{T}");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,2, 0,0); 
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
@@ -848,15 +861,35 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    if(CtrlIs_S2_TOF->Integral()>0)CtrlIs_S2_TOF->Scale(1/CtrlIs_S2_TOF->Integral());
    if(CtrlIs_S3_TOF->Integral()>0)CtrlIs_S3_TOF->Scale(1/CtrlIs_S3_TOF->Integral());
    if(CtrlIs_S4_TOF->Integral()>0)CtrlIs_S4_TOF->Scale(1/CtrlIs_S4_TOF->Integral());
-   Histos[0] = CtrlIs_S1_TOF;                     legend.push_back("0.0<I_{as}<0.1");
-   Histos[1] = CtrlIs_S2_TOF;                     legend.push_back("0.1<I_{as}<0.2");
-   Histos[2] = CtrlIs_S3_TOF;                     legend.push_back("0.2<I_{as}<0.3");
-//   Histos[3] = CtrlIs_S4_TOF;                     legend.push_back("0.3<I_{as}");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,1.2, 0,0);
+   Histos[0] = CtrlIs_S1_TOF;                     legend.push_back("0.0<I_{as}<0.05");
+   Histos[1] = CtrlIs_S2_TOF;                     legend.push_back("0.05<I_{as}<0.1");
+   Histos[2] = CtrlIs_S3_TOF;                     legend.push_back("0.1<I_{as}<0.2");
+   Histos[3] = CtrlIs_S4_TOF;                     legend.push_back("0.2<I_{as}");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,1.7, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
-   c1->SetLogy(true);
+   c1->SetLogy(false);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"ControlIs_TOFSpectrum");
+
+   c1->SetLogy(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"ControlIs_TOFSpectrumLog");
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   if(CtrlIm_S1_TOF->Integral()>0)CtrlIm_S1_TOF->Scale(1/CtrlIm_S1_TOF->Integral());
+   if(CtrlIm_S2_TOF->Integral()>0)CtrlIm_S2_TOF->Scale(1/CtrlIm_S2_TOF->Integral());
+   if(CtrlIm_S3_TOF->Integral()>0)CtrlIm_S3_TOF->Scale(1/CtrlIm_S3_TOF->Integral());
+   if(CtrlIm_S4_TOF->Integral()>0)CtrlIm_S4_TOF->Scale(1/CtrlIm_S4_TOF->Integral());
+   Histos[0] = CtrlIm_S1_TOF;                     legend.push_back("3.5<I_{as}<3.8");
+   Histos[1] = CtrlIm_S2_TOF;                     legend.push_back("3.8<I_{as}<4.1");
+   Histos[2] = CtrlIm_S3_TOF;                     legend.push_back("4.1<I_{as}<4.4");
+   //Histos[3] = CtrlIm_S4_TOF;                     legend.push_back("0.3<I_{as}");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,1.7, 0,0);
+   DrawLegend(Histos,legend,LegendTitle,"P");
+   c1->SetLogy(false);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"ControlIm_TOFSpectrum");
    delete c1;
 
 /*
@@ -1382,7 +1415,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    if(!InputFile_Data || InputFile_Data->IsZombie() || !InputFile_Data->IsOpen() || InputFile_Data->TestBit(TFile::kRecovered) )return;
    TH1D* Pred     = ((TH2D*)GetObjectFromPath(InputFile_Data, string("Pred_") + HistoSuffix   ))->ProjectionY("TmpPredMass"    ,CutIndex+1,CutIndex+1,"o");
    TH1D* Data     = ((TH2D*)GetObjectFromPath(InputFile_Data, string("Data/") + HistoSuffix   ))->ProjectionY("TmpDataMass"    ,CutIndex+1,CutIndex+1,"o");
-
+   /*
    TFile* InputFile_Data11 = new TFile((InputPattern+"/Histos_Data11.root").c_str());
    if(!InputFile_Data11 || InputFile_Data11->IsZombie() || !InputFile_Data11->IsOpen() || InputFile_Data11->TestBit(TFile::kRecovered) ){printf("problem with file %s\n", (InputPattern+"/Histos_Data11.root").c_str());return;}
    TH1D* Pred11     = ((TH2D*)GetObjectFromPath(InputFile_Data11, string("Pred_") + HistoSuffix   ))->ProjectionY("TmpPred11Mass"    ,CutIndex+1,CutIndex+1,"o");
@@ -1395,7 +1428,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    TFile* InputFile_MC = new TFile((InputPattern+"/Histos_MC.root").c_str());
    TH1D* MC     = ((TH2D*)GetObjectFromPath(InputFile_MC, string("MCTr/") + HistoSuffix   ))->ProjectionY("TmpMCMass"    ,CutIndex+1,CutIndex+1,"o");
    TH1D* MCPred = ((TH2D*)GetObjectFromPath(InputFile_MC, string("Pred_") + HistoSuffix   ))->ProjectionY("TmpMCPred"    ,CutIndex+1,CutIndex+1,"o");
-
+   */
    TH1D*  H_A            = (TH1D*)GetObjectFromPath(InputFile_Data, "H_A");
    TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile_Data, "H_B");
    TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile_Data, "H_C");
@@ -1411,14 +1444,14 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
 
    //MCPred->Scale(H_P->GetBinContent(CutIndex+1)/MC->Integral());
    //MC    ->Scale(H_P->GetBinContent(CutIndex+1)/MC->Integral());
-
+   /*
    MC    ->Scale(H_P->GetBinContent(CutIndex+1)/MCPred->Integral());
    MCPred->Scale(H_P->GetBinContent(CutIndex+1)/MCPred->Integral());
 
    //rescale 2011 data to 2012 predicted yield 
    Data11->Scale(H_P->GetBinContent(CutIndex+1)/Pred11->Integral());
    Pred11->Scale(H_P->GetBinContent(CutIndex+1)/Pred11->Integral());
-
+   */
 
 
    for(double M=0;M<=1000;M+=200){
@@ -1427,31 +1460,35 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       P = Pred->Integral( Pred->GetXaxis()->FindBin(M),  Pred->GetXaxis()->FindBin(2000.0));
       Perr = 0; for(int i=Pred->GetXaxis()->FindBin(M);i<Pred->GetXaxis()->FindBin(2000.0);i++){ Perr += pow(Pred->GetBinError(i),2); }  Perr = sqrt(Perr);
       double MD,MDerr, MP,MPerr;
+      /*
       MD = MC->Integral( MC->GetXaxis()->FindBin(M),  MC->GetXaxis()->FindBin(2000.0));
       MP = MCPred->Integral( MCPred->GetXaxis()->FindBin(M),  MCPred->GetXaxis()->FindBin(2000.0));
       MDerr = 0; for(int i=MC->GetXaxis()->FindBin(M);i<MC->GetXaxis()->FindBin(2000.0);i++){ MDerr += pow(MC->GetBinError(i),2); }  MDerr = sqrt(MDerr);
-      MPerr = 0; for(int i=MCPred->GetXaxis()->FindBin(M);i<MCPred->GetXaxis()->FindBin(2000.0);i++){ MPerr += pow(MCPred->GetBinError(i),2); }  MPerr = sqrt(MPerr);
+      MPerr = 0; for(int i=MCPred->GetXaxis()->FindBin(M);i<MCPred->GetXaxis()->FindBin(2000.0);i++){MPerr += pow(MCPred->GetBinError(i),2); }  MPerr = sqrt(MPerr);
       printf("%4.0f<M<2000 --> Obs=%9.3f Data-Pred = %9.3f +- %8.3f(syst+stat) %9.3f (syst) %9.3f (stat) MC=%9.3f+-%8.3f   MC-Pred = %8.3f +- %9.3f (syst+stat) %9.3f (syst) %9.3f (stat)\n", M, D, P, sqrt(Perr*Perr + pow(P*(2*RMS),2)), P*(2*RMS), Perr, MD, MDerr, MP, sqrt(MPerr*MPerr + pow(MP*(2*RMS),2)), MP*(2*RMS), MPerr );
+      */
    }
    printf("FullSpectrum --> D=%9.3f P = %9.3f +- %6.3f(stat) +- %6.3f(syst) (=%6.3f)\n", Data->Integral(), Pred->Integral(), 0.0, 0.0, 0.0 );
+   printf("UnderFlow = %6.2f OverFlow = %6.2f\n", Data->GetBinContent(0), Data->GetBinContent(Data->GetNbinsX()+1) );
    printf("UnderFlow = %6.2f OverFlow = %6.2f\n", Pred->GetBinContent(0), Pred->GetBinContent(Pred->GetNbinsX()+1) );
 
-   Pred->Rebin(4);
-   Data->Rebin(4);
+   Pred->Rebin(2);
+   Data->Rebin(2);
+   /*
    TH1D* Signal = Gluino600;
    if(!IsTkOnly)Signal = GMStau156;
-   Signal->Rebin(4);
-   MC->Rebin(4);
-   MCPred->Rebin(4);
+   Signal->Rebin(2);
+   MC->Rebin(2);
+   MCPred->Rebin(2);
 
 
-   Pred11->Rebin(4);
-   Data11->Rebin(4);
+   Pred11->Rebin(2);
+   Data11->Rebin(2);
+   */
 
 
-
-
-   double Max = 2.0 * std::max(std::max(Data->GetMaximum(), Pred->GetMaximum()), Signal->GetMaximum());
+   double Max = 2.0 * std::max(Data->GetMaximum(), Pred->GetMaximum());
+   //double Max = 2.0 * std::max(std::max(Data->GetMaximum(), Pred->GetMaximum()), Signal->GetMaximum());
    double Min = 0.01;// 0.1 * std::min(0.01,Pred->GetMaximum());
 
    TLegend* leg;
@@ -1461,22 +1498,22 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    sprintf(YAxisLegend,"Tracks / %2.0f GeV/#font[12]{c}^{2}",Data->GetXaxis()->GetBinWidth(1));
 
    TH1D* PredErr = (TH1D*) Pred->Clone("PredErr");
-   TH1D* PredErr11 = (TH1D*) Pred->Clone("PredErr11");
-   TH1D* MCPredErr = (TH1D*) MCPred->Clone("MCPredErr");
+   //TH1D* PredErr11 = (TH1D*) Pred->Clone("PredErr11");
+   //TH1D* MCPredErr = (TH1D*) MCPred->Clone("MCPredErr");
    for(unsigned int i=0;i<(unsigned int)Pred->GetNbinsX();i++){
       double error = sqrt(pow(PredErr->GetBinError(i),2) + pow(PredErr->GetBinContent(i)*2*RMS,2));
       PredErr->SetBinError(i,error);       
       if(PredErr->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)PredErr->GetNbinsX();j++)PredErr->SetBinContent(j,0);}
 
 
-      error = sqrt(pow(PredErr11->GetBinError(i),2) + pow(PredErr11->GetBinContent(i)*2*RMS,2));
-      PredErr11->SetBinError(i,error);
-      if(PredErr11->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)PredErr11->GetNbinsX();j++)PredErr11->SetBinContent(j,0);}
+      //error = sqrt(pow(PredErr11->GetBinError(i),2) + pow(PredErr11->GetBinContent(i)*2*RMS,2));
+      //PredErr11->SetBinError(i,error);
+      //if(PredErr11->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)PredErr11->GetNbinsX();j++)PredErr11->SetBinContent(j,0);}
 
 
-      error = sqrt(pow(MCPredErr->GetBinError(i),2) + pow(MCPredErr->GetBinContent(i)*2*RMS,2));
-      MCPredErr->SetBinError(i,error);
-      if(MCPredErr->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)MCPredErr->GetNbinsX();j++)MCPredErr->SetBinContent(j,0);}
+      //error = sqrt(pow(MCPredErr->GetBinError(i),2) + pow(MCPredErr->GetBinContent(i)*2*RMS,2));
+      //MCPredErr->SetBinError(i,error);
+      //if(MCPredErr->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)MCPredErr->GetNbinsX();j++)MCPredErr->SetBinContent(j,0);}
    }
    PredErr->SetLineColor(5);
    PredErr->SetFillColor(5);
@@ -1494,13 +1531,13 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    PredErr->SetMinimum(Min);
    PredErr->SetAxisRange(0,1400,"X");
    PredErr->Draw("AXIS");
-
+   /*
    Signal->SetMarkerStyle(21);
    Signal->SetMarkerColor(5);
    Signal->SetMarkerSize(1.5);
    Signal->SetLineColor(3);
    Signal->SetFillColor(3);
-   Signal->Draw("same HIST");
+   //Signal->Draw("same HIST");
 
    MCPredErr->SetLineColor(7);
    MCPredErr->SetFillColor(7);
@@ -1508,14 +1545,14 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    MCPredErr->SetMarkerStyle(23);
    MCPredErr->SetMarkerColor(7);
    MCPredErr->SetMarkerSize(1.0);
-   MCPredErr->Draw("same E5");
+   //MCPredErr->Draw("same E5");
 
    MCPred->SetMarkerStyle(23);
    MCPred->SetMarkerColor(4);
    MCPred->SetMarkerSize(1.5);
    MCPred->SetLineColor(4);
    MCPred->SetFillColor(0);
-   MCPred->Draw("same HIST P");
+   //MCPred->Draw("same HIST P");
 
    //MC->SetFillStyle(3002);
    //MC->SetLineColor(22);
@@ -1529,21 +1566,21 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    PredErr11->SetMarkerStyle(23);
    PredErr11->SetMarkerColor(7);
    PredErr11->SetMarkerSize(1.0);
-   PredErr11->Draw("same E5");
+   //PredErr11->Draw("same E5");
 
    Pred11->SetMarkerStyle(23);
    Pred11->SetMarkerColor(4);
    Pred11->SetMarkerSize(1.5);
    Pred11->SetLineColor(4);
    Pred11->SetFillColor(0);
-   Pred11->Draw("same HIST P");
+   //Pred11->Draw("same HIST P");
 
    Data11->SetFillStyle(3002);
    Data11->SetLineColor(22);
    Data11->SetFillColor(11);
    Data11->SetMarkerStyle(0);
-   Data11->Draw("same HIST E1");
-
+   //Data11->Draw("same HIST E1");
+   */
 
 
 
@@ -1585,20 +1622,20 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
 //   MCPredLeg->SetFillStyle(MCPredErr->GetFillStyle());
 //   leg->AddEntry(MCPredLeg, "SM prediction (MC)"  ,"PF");
 
-   leg->AddEntry(Data11, "Data11"  ,"LF");
-   TH1D* Pred11Leg = (TH1D*) Pred11->Clone("RescPred11Leg");
-   Pred11Leg->SetFillColor(PredErr11->GetFillColor());
-   Pred11Leg->SetFillStyle(PredErr11->GetFillStyle());
-   leg->AddEntry(Pred11Leg, "Data-based SM prediction11"  ,"PF");
-   if(IsTkOnly)leg->AddEntry(Signal, "MC - Gluino (M=600 GeV/#font[12]{c}^{2})"        ,"F");
-   else        leg->AddEntry(Signal, "MC - Stau (M=156 GeV/#font[12]{c}^{2})"        ,"F");
+   //leg->AddEntry(Data11, "Data11"  ,"LF");
+   //TH1D* Pred11Leg = (TH1D*) Pred11->Clone("RescPred11Leg");
+   //Pred11Leg->SetFillColor(PredErr11->GetFillColor());
+   //Pred11Leg->SetFillStyle(PredErr11->GetFillStyle());
+   //leg->AddEntry(Pred11Leg, "Data-based SM prediction11"  ,"PF");
+   //if(IsTkOnly)leg->AddEntry(Signal, "MC - Gluino (M=600 GeV/#font[12]{c}^{2})"        ,"F");
+   //else        leg->AddEntry(Signal, "MC - Stau (M=156 GeV/#font[12]{c}^{2})"        ,"F");
    leg->Draw();
 
    DrawPreliminary(IntegratedLuminosity);
    c1->SetLogy(true);
    SaveCanvas(c1, outpath, string("Rescale_") + HistoSuffix);
    delete c1;
-   InputFile->Close();
+   //InputFile->Close();
 }
 
 void MassPredictionTight(string InputPattern, unsigned int CutIndex, string HistoSuffix)
