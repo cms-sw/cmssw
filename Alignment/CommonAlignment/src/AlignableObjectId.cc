@@ -5,112 +5,130 @@
 
 using namespace align;
 
-//__________________________________________________________________________________________________
-AlignableObjectId::AlignableObjectId()
-{
+namespace {
+  struct entry {
+    StructureType type; 
+    const char* name;
+  };
 
-  // Names are defined here!
+  constexpr entry entries[]{
+    { invalid         , "invalid"},
+    { AlignableDetUnit, "DetUnit"},
+    { AlignableDet    , "Det"},
 
-  theMap.clear();
-  theReverseMap.clear();
+    {TPBModule      , "TPBModule"},
+    {TPBLadder      , "TPBLadder"},
+    {TPBLayer       , "TPBLayer"},
+    {TPBHalfBarrel  , "TPBHalfBarrel"},
+    {TPBBarrel      , "TPBBarrel"},
 
-  theMap.insert( PairEnumType( invalid         , "invalid" ) );
-  theMap.insert( PairEnumType( AlignableDetUnit, "DetUnit" ) );
-  theMap.insert( PairEnumType( AlignableDet    , "Det"     ) );
+    {TPEModule      , "TPEModule"},
+    {TPEPanel       , "TPEPanel"},
+    {TPEBlade       , "TPEBlade"},
+    {TPEHalfDisk    , "TPEHalfDisk"},
+    {TPEHalfCylinder, "TPEHalfCylinder"},
+    {TPEEndcap      , "TPEEndcap"},
 
-  theMap.insert( PairEnumType(TPBModule      , "TPBModule"      ) );
-  theMap.insert( PairEnumType(TPBLadder      , "TPBLadder"      ) );
-  theMap.insert( PairEnumType(TPBLayer       , "TPBLayer"       ) );
-  theMap.insert( PairEnumType(TPBHalfBarrel  , "TPBHalfBarrel"  ) );
-  theMap.insert( PairEnumType(TPBBarrel      , "TPBBarrel"      ) );
+    {TIBModule      , "TIBModule"},
+    {TIBString      , "TIBString"},
+    {TIBSurface     , "TIBSurface"},
+    {TIBHalfShell   , "TIBHalfShell"},
+    {TIBLayer       , "TIBLayer"},
+    {TIBHalfBarrel  , "TIBHalfBarrel"},
+    {TIBBarrel      , "TIBBarrel"},
 
-  theMap.insert( PairEnumType(TPEModule      , "TPEModule"      ) );
-  theMap.insert( PairEnumType(TPEPanel       , "TPEPanel"       ) );
-  theMap.insert( PairEnumType(TPEBlade       , "TPEBlade"       ) );
-  theMap.insert( PairEnumType(TPEHalfDisk    , "TPEHalfDisk"    ) );
-  theMap.insert( PairEnumType(TPEHalfCylinder, "TPEHalfCylinder") );
-  theMap.insert( PairEnumType(TPEEndcap      , "TPEEndcap"      ) );
+    {TIDModule      , "TIDModule"},
+    {TIDSide        , "TIDSide"},
+    {TIDRing        , "TIDRing"},
+    {TIDDisk        , "TIDDisk"},
+    {TIDEndcap      , "TIDEndcap"},
 
-  theMap.insert( PairEnumType(TIBModule      , "TIBModule"      ) );
-  theMap.insert( PairEnumType(TIBString      , "TIBString"      ) );
-  theMap.insert( PairEnumType(TIBSurface     , "TIBSurface"     ) );
-  theMap.insert( PairEnumType(TIBHalfShell   , "TIBHalfShell"   ) );
-  theMap.insert( PairEnumType(TIBLayer       , "TIBLayer"       ) );
-  theMap.insert( PairEnumType(TIBHalfBarrel  , "TIBHalfBarrel"  ) );
-  theMap.insert( PairEnumType(TIBBarrel      , "TIBBarrel"      ) );
+    {TOBModule      , "TOBModule"},
+    {TOBRod         , "TOBRod"},
+    {TOBLayer       , "TOBLayer"},
+    {TOBHalfBarrel  , "TOBHalfBarrel"},
+    {TOBBarrel      , "TOBBarrel"},
 
-  theMap.insert( PairEnumType(TIDModule      , "TIDModule"      ) );
-  theMap.insert( PairEnumType(TIDSide        , "TIDSide"        ) );
-  theMap.insert( PairEnumType(TIDRing        , "TIDRing"        ) );
-  theMap.insert( PairEnumType(TIDDisk        , "TIDDisk"        ) );
-  theMap.insert( PairEnumType(TIDEndcap      , "TIDEndcap"      ) );
+    {TECModule      , "TECModule"},
+    {TECRing        , "TECRing"},
+    {TECPetal       , "TECPetal"},
+    {TECSide        , "TECSide"},
+    {TECDisk        , "TECDisk"},
+    {TECEndcap      , "TECEndcap"},
 
-  theMap.insert( PairEnumType(TOBModule      , "TOBModule"      ) );
-  theMap.insert( PairEnumType(TOBRod         , "TOBRod"         ) );
-  theMap.insert( PairEnumType(TOBLayer       , "TOBLayer"       ) );
-  theMap.insert( PairEnumType(TOBHalfBarrel  , "TOBHalfBarrel"  ) );
-  theMap.insert( PairEnumType(TOBBarrel      , "TOBBarrel"      ) );
+    {Pixel          , "Pixel"},
+    {Strip          , "Strip"},
+    {Tracker        , "Tracker"},
 
-  theMap.insert( PairEnumType(TECModule      , "TECModule"      ) );
-  theMap.insert( PairEnumType(TECRing        , "TECRing"        ) );
-  theMap.insert( PairEnumType(TECPetal       , "TECPetal"       ) );
-  theMap.insert( PairEnumType(TECSide        , "TECSide"        ) );
-  theMap.insert( PairEnumType(TECDisk        , "TECDisk"        ) );
-  theMap.insert( PairEnumType(TECEndcap      , "TECEndcap"      ) );
+    { AlignableDTBarrel    ,  "DTBarrel"},
+    { AlignableDTWheel     ,  "DTWheel"},
+    { AlignableDTStation   ,  "DTStation"},
+    { AlignableDTChamber   ,  "DTChamber"},
+    { AlignableDTSuperLayer,  "DTSuperLayer"},
+    { AlignableDTLayer     ,  "DTLayer"},
+    { AlignableCSCEndcap   ,  "CSCEndcap"},
+    { AlignableCSCStation  ,  "CSCStation"},
+    { AlignableCSCRing     ,  "CSCRing"},
+    { AlignableCSCChamber  ,  "CSCChamber"},
+    { AlignableCSCLayer    ,  "CSCLayer"},
+    { AlignableMuon        ,  "Muon"},
 
-  theMap.insert( PairEnumType(Pixel          , "Pixel"          ) );
-  theMap.insert( PairEnumType(Strip          , "Strip"          ) );
-  theMap.insert( PairEnumType(Tracker        , "Tracker"        ) );
+    { BeamSpot, "BeamSpot"},
+    {notfound, 0}
+  };
 
-  theMap.insert( PairEnumType( AlignableDTBarrel    ,  "DTBarrel"     ) );
-  theMap.insert( PairEnumType( AlignableDTWheel     ,  "DTWheel"      ) );
-  theMap.insert( PairEnumType( AlignableDTStation   ,  "DTStation"    ) );
-  theMap.insert( PairEnumType( AlignableDTChamber   ,  "DTChamber"    ) );
-  theMap.insert( PairEnumType( AlignableDTSuperLayer,  "DTSuperLayer" ) );
-  theMap.insert( PairEnumType( AlignableDTLayer     ,  "DTLayer"      ) );
-  theMap.insert( PairEnumType( AlignableCSCEndcap   ,  "CSCEndcap"    ) );
-  theMap.insert( PairEnumType( AlignableCSCStation  ,  "CSCStation"   ) );
-  theMap.insert( PairEnumType( AlignableCSCRing     ,  "CSCRing"      ) );
-  theMap.insert( PairEnumType( AlignableCSCChamber  ,  "CSCChamber"   ) );
-  theMap.insert( PairEnumType( AlignableCSCLayer    ,  "CSCLayer"     ) );
-  theMap.insert( PairEnumType( AlignableMuon        ,  "Muon"         ) );
+  constexpr bool same(char const *x, char const *y) {
+    return !*x && !*y ? true : (*x == *y && same(x+1, y+1));
+  }
+  
+  constexpr char const *objectIdToString(StructureType type,  entry const *entries) {
+    return !entries->name ?  0 :
+            entries->type == type ? entries->name :
+                                    objectIdToString(type, entries+1);
+  }
 
-  theMap.insert( PairEnumType( BeamSpot, "BeamSpot" ) );
-
-  // Create the reverse map
-  std::transform( theMap.begin(), theMap.end(),
-		  std::inserter( theReverseMap, theReverseMap.begin() ),
-		  reverse_pair() );
-
+  constexpr enum StructureType stringToObjectId(char const *name,  entry const *entries) {
+    return !entries->name             ? invalid :
+            same(entries->name, name) ? entries->type :
+                                        stringToObjectId(name, entries+1);
+  }
 }
-
 
 //__________________________________________________________________________________________________
 StructureType
-AlignableObjectId::nameToType( const std::string& name ) const
+AlignableObjectId::nameToType( const std::string &name) const
 {
-  ReverseMapEnumType::const_iterator n = theReverseMap.find(name);
-
-  if (theReverseMap.end() == n)
-  {
-    throw cms::Exception("AlignableObjectIdError")
-      << "Unknown alignableObjectId " << name;
-  }
-
-  return n->second;
+  return alignableObjectStringToId(name.c_str());
 }
 
 
 //__________________________________________________________________________________________________
-const std::string& AlignableObjectId::typeToName( StructureType type ) const
+std::string AlignableObjectId::typeToName( StructureType type ) const
 {
-  MapEnumType::const_iterator t = theMap.find(type);
+  return alignableObjecIdToString(type);
+}
 
-  if (theMap.end() == t)
+const char *alignableObjecIdToString(align::StructureType type)
+{
+  const char *result = objectIdToString(type, entries);
+
+  if (result == 0)
   {
     throw cms::Exception("AlignableObjectIdError")
       << "Unknown alignableObjectId " << type;
   }
 
-  return t->second;
+  return result;
+}
+
+align::StructureType alignableObjectStringToId(const char *name)
+{
+  StructureType result = stringToObjectId(name, entries);
+  if (result == -1)
+  {
+    throw cms::Exception("AlignableObjectIdError")
+      << "Unknown alignableObjectId " << name;
+  }
+
+  return result;
 }
