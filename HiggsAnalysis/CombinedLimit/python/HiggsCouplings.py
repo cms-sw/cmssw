@@ -50,7 +50,7 @@ class CvCfHiggs(SMLikeHiggsModel):
         #      ignoring b quark contributions
         # Taylor series around MH=125 including terms up to O(MH-125)^2 in Horner polynomial form
         CF = self.modelBuilder.out.function('CF')
-        CF.setVal(0.5)
+        CF.setVal(1.0)
         self.modelBuilder.factory_('expr::CvCf_cgammaSq("\
         @0*@0*(1.524292518396496 + (0.005166702799572456 - 0.00003355715038472727*@2)*@2) + \
         @1*(@1*(0.07244520735564258 + (0.0008318872718720393 - 6.16997610275555e-6*@2)*@2) + \

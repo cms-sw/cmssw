@@ -264,8 +264,10 @@ class RvRfXSHiggs(SMLikeHiggsModel):
         self.setup()
 
     def getHiggsSignalYieldScale(self,production,decay, energy):
-        if production in ['ggH', 'ttH']: return 'RF'
-        if production in ['qqH', 'WH', 'ZH', 'VH']: return 'RV'
+        if production in ['ggH', 'ttH']:
+            return 'RF'
+        if production in ['qqH', 'WH', 'ZH', 'VH']:
+            return 'RV'
         raise RuntimeError, "Unknown production mode '%s'" % production
 
 
