@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/06/18 16:52:41 $
- *  $Revision: 1.19 $
+ *  $Date: 2012/06/19 10:13:04 $
+ *  $Revision: 1.20 $
  *  \author Valentina Gori, University of Firenze
  */
 
@@ -53,8 +53,8 @@ EwkDQM::EwkDQM(const ParameterSet& parameters) {
 
   // riguardare questa sintassi 
   // Get parameters from configuration file
-  theElecTriggerPathToPass_   = parameters.getParameter<string>("elecTriggerPathToPass");
-  theMuonTriggerPathToPass_    = parameters.getParameter<string>("muonTriggerPathToPass");
+  theElecTriggerPathToPass_   = parameters.getParameter< std::vector<string> >("elecTriggerPathToPass");
+  theMuonTriggerPathToPass_    = parameters.getParameter<std::vector<string> >("muonTriggerPathToPass");
   //eleTrigPathNames_ = parameters.getUntrackedParameter< std::vector<std::string> >("eleTrigPathNames");
   //muTrigPathNames_ = parameters.getUntrackedParameter< std::vector<std::string> >("muTrigPathNames");
   theTriggerResultsCollection_ = parameters.getParameter<InputTag>("triggerResultsCollection");
@@ -67,7 +67,6 @@ EwkDQM::EwkDQM(const ParameterSet& parameters) {
   // just to initialize
   isValidHltConfig_ = false;
 
-  // coverity says.. (cos'e` questo?? che variabili sono???)
   h_vertex_number = 0;
   h_vertex_chi2 = 0;
   h_vertex_numTrks = 0;
@@ -76,8 +75,8 @@ EwkDQM::EwkDQM(const ParameterSet& parameters) {
 
   h_jet_count = 0;
   h_jet_et = 0;
-  h_jet_pt = 0;   // prova
-  h_jet_eta = 0;  // aggiunto il 23 maggio 
+  h_jet_pt = 0;   
+  h_jet_eta = 0;   
   h_jet_phi = 0;
   h_jet2_et = 0;
   //h_jet2_pt = 0;
@@ -208,7 +207,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   // short-circuit if hlt problems
   if( ! isValidHltConfig_ ) return;
 
-  // non mi e` chiaro come faccia a "ciclare" sugli eventi
+  
   LogTrace(logTraceName)<<"Analysis of event # ";
   // Did it pass certain HLT path?
   Handle<TriggerResults> HLTresults;
@@ -220,8 +219,10 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   // a temporary, until we have a list of triggers of interest
   std::vector<std::string> eleTrigPathNames;
   std::vector<std::string> muTrigPathNames;
-  eleTrigPathNames.push_back(theElecTriggerPathToPass_);
-  muTrigPathNames.push_back(theMuonTriggerPathToPass_);
+ 
+
+  //eleTrigPathNames.push_back(theElecTriggerPathToPass_);
+  //muTrigPathNames.push_back(theMuonTriggerPathToPass_);
   // end of temporary
 
   bool passed_electron_HLT = false;
@@ -229,16 +230,18 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   for (unsigned int i=0; i<HLTresults->size(); i++) {
     const std::string trigName = trigNames.triggerName(i);
     // check if triggerName matches electronPath
-    for(unsigned int index=0; index<eleTrigPathNames.size() && !passed_electron_HLT; index++) {
-      size_t trigPath = trigName.find(eleTrigPathNames[index]); // 0 if found, pos if not
+    for(unsigned int index=0; index<theElecTriggerPathToPass_.size() && !passed_electron_HLT; index++) {
+      size_t trigPath = trigName.find(theElecTriggerPathToPass_[index]); // 0 if found, pos if not
       if (trigPath==0) {
+	cout << "MuonTrigger passed (=trigName): " << trigName <<endl;	
 	passed_electron_HLT = HLTresults->accept(i);
       }
     }
     // check if triggerName matches muonPath
-    for(unsigned int index=0; index<muTrigPathNames.size() && !passed_muon_HLT; index++) {
-      size_t trigPath = trigName.find(muTrigPathNames[index]); // 0 if found, pos if not
+    for(unsigned int index=0; index<theMuonTriggerPathToPass_.size() && !passed_muon_HLT; index++) {
+      size_t trigPath = trigName.find(theMuonTriggerPathToPass_[index]); // 0 if found, pos if not
       if (trigPath==0) {
+	cout << "MuonTrigger passed (=trigName): " << trigName <<endl;
 	passed_muon_HLT = HLTresults->accept(i);
       }
     }

@@ -6,8 +6,8 @@
  *
  *  DQM offline for SMP V+Jets
  *
- *  $Date: 2012/06/18 16:52:41 $
- *  $Revision: 1.19 $
+ *  $Date: 2012/06/19 10:13:04 $
+ *  $Revision: 1.11 $
  *  \author Valentina Gori, University of Firenze
  */
 
@@ -60,8 +60,8 @@ class EwkDQM : public edm::EDAnalyzer {
 
 
   // Variables from config file
-  std::string   theElecTriggerPathToPass_;
-  std::string   theMuonTriggerPathToPass_;
+  std::vector<std::string>   theElecTriggerPathToPass_;
+  std::vector<std::string>   theMuonTriggerPathToPass_;
   //std::vector<std::string> eleTrigPathNames_;
   //std::vector<std::string> muTrigPathNames_;
   edm::InputTag theTriggerResultsCollection_;
