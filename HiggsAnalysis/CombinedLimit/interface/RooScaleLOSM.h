@@ -41,14 +41,15 @@ class RooScaleHGamGamLOSM: public RooScaleLOSM
 {
   public:
     RooScaleHGamGamLOSM(){};
-    RooScaleHGamGamLOSM(const char *name, const char *title, RooAbsReal &mH, RooAbsReal &ct, RooAbsReal &cW, RooAbsReal &mb, RooAbsReal &cb);
+    RooScaleHGamGamLOSM(const char *name, const char *title,
+    		RooAbsReal &mH, RooAbsReal &ct, RooAbsReal &cW, RooAbsReal &mb, RooAbsReal &cb);
     ~RooScaleHGamGamLOSM(){};
 
     TObject* clone(const char *newname) const;
 
   protected:
       Double_t evaluate() const;
-      RooRealProxy ct_, cb_, cW_, mb_;
+      RooRealProxy ct_, cW_, mb_, cb_;
 
   private:
 
@@ -59,18 +60,57 @@ class RooScaleHGluGluLOSM: public RooScaleLOSM
 {
   public:
     RooScaleHGluGluLOSM(){};
-    RooScaleHGluGluLOSM(const char *name, const char *title, RooAbsReal &mH, RooAbsReal &ct, RooAbsReal &mb, RooAbsReal &cb);
+    RooScaleHGluGluLOSM(const char *name, const char *title,
+    		RooAbsReal &mH, RooAbsReal &ct, RooAbsReal &mb, RooAbsReal &cb);
     ~RooScaleHGluGluLOSM(){};
 
     TObject* clone(const char *newname) const;
 
   protected:
       Double_t evaluate() const;
-      RooRealProxy ct_, cb_, mb_;
+      RooRealProxy ct_, mb_, cb_;
 
   private:
 
     ClassDef(RooScaleHGluGluLOSM,1)
+};
+
+class RooScaleHGamGamLOSMPlusX: public RooScaleHGamGamLOSM
+{
+  public:
+    RooScaleHGamGamLOSMPlusX(){};
+    RooScaleHGamGamLOSMPlusX(const char *name, const char *title,
+    		RooAbsReal &mH, RooAbsReal &ct, RooAbsReal &cW, RooAbsReal &mb, RooAbsReal &cb, RooAbsReal &X);
+    ~RooScaleHGamGamLOSMPlusX(){};
+
+    TObject* clone(const char *newname) const;
+
+  protected:
+      Double_t evaluate() const;
+      RooRealProxy X_;
+
+  private:
+
+    ClassDef(RooScaleHGamGamLOSMPlusX,1)
+};
+
+class RooScaleHGluGluLOSMPlusX: public RooScaleHGluGluLOSM
+{
+  public:
+    RooScaleHGluGluLOSMPlusX(){};
+    RooScaleHGluGluLOSMPlusX(const char *name, const char *title,
+    		RooAbsReal &mH, RooAbsReal &ct, RooAbsReal &mb, RooAbsReal &cb, RooAbsReal &X);
+    ~RooScaleHGluGluLOSMPlusX(){};
+
+    TObject* clone(const char *newname) const;
+
+  protected:
+      Double_t evaluate() const;
+      RooRealProxy X_;
+
+  private:
+
+    ClassDef(RooScaleHGluGluLOSMPlusX,1)
 };
 
 #endif
