@@ -13,7 +13,7 @@
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: OccupancyPlotter.cc,v 1.18 2012/05/23 13:09:14 halil Exp $
+// $Id: OccupancyPlotter.cc,v 1.19 2012/06/18 13:04:11 halil Exp $
 //
 //
 
@@ -104,6 +104,7 @@ class OccupancyPlotter : public edm::EDAnalyzer {
   bool dcs[25];
   bool thisiLumiValue;
   bool _muonsGood;
+  bool _theRestGood;
 
   // counters
   int cntevt;
@@ -221,11 +222,20 @@ OccupancyPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       // check DCS status
       bool highVoltageOK = checkDcsInfo ( iEvent );
 //highVoltageOK=false;
+//_theRestGood=false;
+//_theRestGood=true;
+//_muonsGood=false;
+//_muonsGood=true;
       bool histoMuons = _muonsGood && ( datasetNames[iPD] == "SingleMu" || 
                                         datasetNames[iPD] == "DoubleMu" ||
                                         datasetNames[iPD] == "DoubleMuParked");
-      //std::cout << "HV=" << highVoltageOK << ", muons good?=" << histoMuons << ", pd=" << datasetNames[iPD] << "\n";
-      if (!highVoltageOK && !histoMuons) {
+      bool histoTheRest = _theRestGood && ( datasetNames[iPD] != "SingleMu" &&
+                                            datasetNames[iPD] != "DoubleMu" &&
+                                            datasetNames[iPD] != "DoubleMuParked");
+  //    std::cout << "HV=" << highVoltageOK << ", muons good?=" << _muonsGood 
+  //              << ", therestgood?=" << _theRestGood  
+  //              << ", pd=" << datasetNames[iPD] << "\n";
+      if ( !highVoltageOK && (!histoMuons && !histoTheRest) ) {
          if (debugPrint) std::cout << "Skipping PD: DCS problem\n";
          ++cntBadHV;
          continue; 
@@ -554,6 +564,7 @@ bool OccupancyPlotter::checkDcsInfo (const edm::Event & jEvent) {
   // initialize all to "true"
   for (int i=0; i<24; i++) dcs[i]=true;
   _muonsGood=true;
+  _theRestGood=true;
   for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); 
        dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) 
     {
@@ -565,25 +576,25 @@ bool OccupancyPlotter::checkDcsInfo (const edm::Event & jEvent) {
       if (!dcsStatusItr->ready(DcsStatus::DT0))    {dcs[2]=false;_muonsGood=false;}
       if (!dcsStatusItr->ready(DcsStatus::DTp))    {dcs[3]=false;_muonsGood=false;}
       if (!dcsStatusItr->ready(DcsStatus::DTm))    {dcs[4]=false;_muonsGood=false;}
-      if (!dcsStatusItr->ready(DcsStatus::EBp))    dcs[5]=false;
-      if (!dcsStatusItr->ready(DcsStatus::EBm))    dcs[6]=false;
-      if (!dcsStatusItr->ready(DcsStatus::EEp))    dcs[7]=false;
-      if (!dcsStatusItr->ready(DcsStatus::EEm))    dcs[8]=false;
-      if (!dcsStatusItr->ready(DcsStatus::ESp))    dcs[9]=false;
-      if (!dcsStatusItr->ready(DcsStatus::ESm))    dcs[10]=false; 
-      if (!dcsStatusItr->ready(DcsStatus::HBHEa))  dcs[11]=false;
-      if (!dcsStatusItr->ready(DcsStatus::HBHEb))  dcs[12]=false;
-      if (!dcsStatusItr->ready(DcsStatus::HBHEc))  dcs[13]=false; 
-      if (!dcsStatusItr->ready(DcsStatus::HF))     dcs[14]=false;
-//      if (!dcsStatusItr->ready(DcsStatus::HO))     dcs[15]=false; // ignore HO
-      if (!dcsStatusItr->ready(DcsStatus::BPIX))   dcs[16]=false;
-      if (!dcsStatusItr->ready(DcsStatus::FPIX))   dcs[17]=false;
+      if (!dcsStatusItr->ready(DcsStatus::EBp))    {dcs[5]=false;_theRestGood=false;}
+      if (!dcsStatusItr->ready(DcsStatus::EBm))    {dcs[6]=false;_theRestGood=false;}
+      if (!dcsStatusItr->ready(DcsStatus::EEp))    {dcs[7]=false;_theRestGood=false;}
+      if (!dcsStatusItr->ready(DcsStatus::EEm))    {dcs[8]=false;_theRestGood=false;}
+      if (!dcsStatusItr->ready(DcsStatus::ESp))    {dcs[9]=false;_theRestGood=false;}
+      if (!dcsStatusItr->ready(DcsStatus::ESm))    {dcs[10]=false;_theRestGood=false;}
+      if (!dcsStatusItr->ready(DcsStatus::HBHEa))  {dcs[11]=false;_theRestGood=false;}
+      if (!dcsStatusItr->ready(DcsStatus::HBHEb))  {dcs[12]=false;_theRestGood=false;}
+      if (!dcsStatusItr->ready(DcsStatus::HBHEc))  {dcs[13]=false;_theRestGood=false;}
+      if (!dcsStatusItr->ready(DcsStatus::HF))     {dcs[14]=false;_theRestGood=false;}
+//      if (!dcsStatusItr->ready(DcsStatus::HO))     {dcs[15]=false;_theRestGood=false;} // ignore HO
+      if (!dcsStatusItr->ready(DcsStatus::BPIX))   {dcs[16]=false;_theRestGood=false;}
+      if (!dcsStatusItr->ready(DcsStatus::FPIX))   {dcs[17]=false;_theRestGood=false;}
       if (!dcsStatusItr->ready(DcsStatus::RPC))    {dcs[18]=false;_muonsGood=false;}
-      if (!dcsStatusItr->ready(DcsStatus::TIBTID)) dcs[19]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TOB))    dcs[20]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TECp))   dcs[21]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TECm))   dcs[22]=false;
-//      if (!dcsStatusItr->ready(DcsStatus::CASTOR)) dcs[23]=false; // ignore CASTOR
+      if (!dcsStatusItr->ready(DcsStatus::TIBTID)) {dcs[19]=false;_theRestGood=false;}
+      if (!dcsStatusItr->ready(DcsStatus::TOB))    {dcs[20]=false;_theRestGood=false;}
+      if (!dcsStatusItr->ready(DcsStatus::TECp))   {dcs[21]=false;_theRestGood=false;}
+      if (!dcsStatusItr->ready(DcsStatus::TECm))   {dcs[22]=false;_theRestGood=false;}
+//      if (!dcsStatusItr->ready(DcsStatus::CASTOR)) {dcs[23]=false;_theRestGood=false;} // ignore CASTOR
     }
 
 
