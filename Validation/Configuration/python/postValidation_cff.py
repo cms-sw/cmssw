@@ -38,7 +38,7 @@ postValidation_fastsim = cms.Sequence(
       recoMuonPostProcessorsFastSim
     + postProcessorTrack
     + MuIsoValPostProcessor
-    + photonPostProcessor
+    + fastSimPhotonPostProcessor
 )
 
  
