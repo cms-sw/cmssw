@@ -464,22 +464,41 @@ namespace evf{
     LOG4CPLUS_WARN(log_,"FUEventProcessor::stopEventProcessor.1 state "
 		   << evtProcessor_->stateName(st));
     edm::EventProcessor::StatusCode rc = edm::EventProcessor::epSuccess;
-    if(!(st==edm::event_processor::sStopping || st==edm::event_processor::sJobReady
-	 || st==edm::event_processor::sDone)){
-      ::sleep(1);
+
+    //total stopping time allowed before epTimeout/epOther
+    unsigned int stopTimeLeft = (timeoutOnStop_.value_+1)*1000000;
+    if (timeoutOnStop_.value_==0) stopTimeLeft=1500000;
+ 
+    while (!(st==edm::event_processor::sStopping || st==edm::event_processor::sJobReady
+			             || st==edm::event_processor::sDone)) {
+      usleep(100000);
       st = evtProcessor_->getState();
-      if(st!=edm::event_processor::sStopping) {
-	LOG4CPLUS_WARN(log_,
-		       "FUEventProcessor::stopEventProcessor.2 After 1s - state: "
-		       << evtProcessor_->stateName(st)); 
-	return edm::EventProcessor::epOther;
-	}
+      if (stopTimeLeft<500000) {
+        break;
+      }
+      stopTimeLeft-=100000;
+    }
+    //if already in stopped state
+    if (st==edm::event_processor::sJobReady || st==edm::event_processor::sDone) 
+      return edm::EventProcessor::epSuccess;
+
+    //if not even in stopping state
+    if(st!=edm::event_processor::sStopping) {
+      LOG4CPLUS_WARN(log_,
+	  "FUEventProcessor::stopEventProcessor.2 After 1s - state: "
+	  << evtProcessor_->stateName(st)); 
+      return edm::EventProcessor::epOther;
     }
     LOG4CPLUS_WARN(log_,"FUEventProcessor::stopEventProcessor.3 state "
-		   << evtProcessor_->stateName(st));
+	<< evtProcessor_->stateName(st));
+
+    //use remaining time left for the framework timeout
+    if (stopTimeLeft<1000000) stopTimeLeft=1000000;
+    stopTimeLeft/=1000000;
+    if (timeoutOnStop_.value_==0) stopTimeLeft=0;
 
     try  {
-      rc = evtProcessor_->waitTillDoneAsync(timeoutOnStop_.value_);
+      rc = evtProcessor_->waitTillDoneAsync(stopTimeLeft);
       watching_ = false;
     }
     catch(cms::Exception &e) {
