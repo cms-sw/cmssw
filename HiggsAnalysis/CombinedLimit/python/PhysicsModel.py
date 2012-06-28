@@ -183,8 +183,8 @@ class FloatingXSHiggs(SMLikeHiggsModel):
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
         # --- Signal Strength as only POI --- 
-        if "ggH" in self.modes: self.modelBuilder.doVar("r_ggH[1,0,5]");
-        if "qqH" in self.modes: self.modelBuilder.doVar("r_qqH[1,0,20]");
+        if "ggH" in self.modes: self.modelBuilder.doVar("r_ggH[1,0,4]");
+        if "qqH" in self.modes: self.modelBuilder.doVar("r_qqH[1,0,10]");
         if "VH"  in self.modes: self.modelBuilder.doVar("r_VH[1,0,20]");
         if "ttH" in self.modes: self.modelBuilder.doVar("r_ttH[1,0,20]");
         poi = ",".join(["r_"+m for m in self.modes])
