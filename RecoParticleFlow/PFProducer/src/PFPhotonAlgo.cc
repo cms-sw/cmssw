@@ -1370,12 +1370,12 @@ void PFPhotonAlgo::EarlyConversion(
     {
       //      bool matched=false;
       int mh=ec->gsfTrackRef()->trackerExpectedHitsInner().numberOfLostHits();
-      if(mh==0)continue;//Case where missing hits greater than zero
+      //if(mh==0)continue;//Case where missing hits greater than zero
       
       reco::GsfTrackRef gsf=ec->gsfTrackRef();
       //some hoopla to get Electron SC ref
       
-      if(gsf->extra().isAvailable() && gsf->extra()->seedRef().isAvailable()) 
+      if(gsf->extra().isAvailable() && gsf->extra()->seedRef().isAvailable() && mh>0) 
 	{
 	  reco::ElectronSeedRef seedRef=  gsf->extra()->seedRef().castTo<reco::ElectronSeedRef>();
 	  if(seedRef.isAvailable() && seedRef->isEcalDriven()) 
