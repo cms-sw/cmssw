@@ -142,6 +142,7 @@ class FloatingHiggsMass(SMLikeHiggsModel):
     def __init__(self):
         SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.mHRange = ['115','135'] # default
+        self.rMode   = 'poi'
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
             if po.startswith("higgsMassRange="):
@@ -151,16 +152,25 @@ class FloatingHiggsMass(SMLikeHiggsModel):
                     raise RuntimeError, "Higgs mass range definition requires two extrema"
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
                     raise RuntimeError, "Extrama for Higgs mass range defined with inverterd order. Second must be larger the first"
+            if po.startswith("signalStrengthMode="): 
+                self.rMode = po.replace("signalStrengthMode=","")
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         # --- Signal Strength as only POI --- 
-        self.modelBuilder.doVar("r[1,0,20]")
+        POIs="MH"
+        if self.rMode.startswith("fixed,"):
+            self.modelBuilder.doVar("r[%s]" % self.rMode.replace("fixed,",""))
+        else:
+            self.modelBuilder.doVar("r[1,0,10]")
+            if   self.rMode == "poi": POIs = "r,MH"
+            elif self.rMode == "nuisance":  self.modelBuilder.out.var("r").setAttribute("flatParam")
+            else: raise RuntimeError, "FloatingHiggsMass: the signal strength must be set to 'poi'(default), 'nuisance' or 'fixed,<value>'"
         if self.modelBuilder.out.var("MH"):
             self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
             self.modelBuilder.out.var("MH").setConstant(False)
         else:
             self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1])) 
-        self.modelBuilder.doSet("POI",'r,MH')
+        self.modelBuilder.doSet("POI",POIs)
     def getHiggsSignalYieldScale(self,production,decay, energy):
             return "r"
 
