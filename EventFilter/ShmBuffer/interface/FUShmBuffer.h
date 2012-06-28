@@ -107,7 +107,7 @@ namespace evf {
     void           writeDqmEmptyEvent();
     
     void           scheduleRawEmptyCellForDiscard();
-    void           scheduleRawEmptyCellForDiscard(FUShmRawCell* cell);
+    bool           scheduleRawEmptyCellForDiscard(FUShmRawCell* cell, bool &pidstatus);
     void           scheduleRawEmptyCellForDiscardServerSide(FUShmRawCell* cell);
     
     bool           writeRecoInitMsg(unsigned int   outModId,
