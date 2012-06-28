@@ -24,48 +24,40 @@ using namespace edm;
 
 TrackerGeometricDetESModule::TrackerGeometricDetESModule( const edm::ParameterSet & p ) 
   : fromDDD_( p.getParameter<bool>( "fromDDD" )),
-    layerNumberPXB_( 16 ), // 18 for SLHC p.getParameter<unsigned int>( "layerNumberPXB" )),
-    totalBlade_( 24 ) 	   // 56 for SLHC p.getParameter<unsigned int>( "totalBlade" ))
+    layerNumberPXB_( p.exists( "layerNumberPXB" ) ? p.getParameter<unsigned int>( "layerNumberPXB" ) : 16U ),// 16 for current, 18 for SLHC 
+    totalBlade_( p.exists( "totalBlade" ) ? p.getParameter<unsigned int>( "totalBlade" ) : 24U )             // 24 for current, 56 for SLHC 
 {
-  const edm::ParameterSet tkGeomConsts( p.getParameter<edm::ParameterSet>( "pixelGeometryConstants" ));
-  layerNumberPXB_ = tkGeomConsts.getParameter<unsigned int>( "layerNumberPXB" );
-  totalBlade_ = tkGeomConsts.getParameter<unsigned int>( "totalBlade" );
-  
   setWhatProduced( this );
 }
 
 TrackerGeometricDetESModule::~TrackerGeometricDetESModule( void ) {}
 
 void
-TrackerGeometricDetESModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
+TrackerGeometricDetESModule::fillDescriptions( edm::ConfigurationDescriptions & descriptions )
 {
-  edm::ParameterSetDescription descPixelGeometryConstants;
-  descPixelGeometryConstants.add<unsigned int>("layerNumberPXB", 16U);
-  descPixelGeometryConstants.add<unsigned int>("totalBlade", 24U);
-
-  edm::ParameterSetDescription descPixelSLHCGeometryConstants;
-  descPixelSLHCGeometryConstants.add<unsigned int>("layerNumberPXB", 18U);
-  descPixelSLHCGeometryConstants.add<unsigned int>("totalBlade", 56U);
-
   edm::ParameterSetDescription descDB;
-  descDB.add<bool>("fromDDD", false);
-  descDB.addOptional<edm::ParameterSetDescription>("pixelGeometryConstants", descPixelGeometryConstants);
-  descriptions.add("trackerNumberingGeometryDB", descDB);
+  descDB.add<bool>( "fromDDD", false );
+  descDB.addOptional<unsigned int>( "layerNumberPXB", 16U );
+  descDB.addOptional<unsigned int>( "totalBlade", 24U );
+  descriptions.add( "trackerNumberingGeometryDB", descDB );
 
   edm::ParameterSetDescription descSLHCDB;
-  descSLHCDB.add<bool>("fromDDD", false);
-  descSLHCDB.addOptional<edm::ParameterSetDescription>("pixelGeometryConstants", descPixelSLHCGeometryConstants);
-  descriptions.add("trackerNumberingSLHCGeometryDB", descSLHCDB);
+  descSLHCDB.add<bool>( "fromDDD", false );
+  descSLHCDB.addOptional<unsigned int>( "layerNumberPXB", 18U );
+  descSLHCDB.addOptional<unsigned int>( "totalBlade", 56U );
+  descriptions.add( "trackerNumberingSLHCGeometryDB", descSLHCDB );
 
   edm::ParameterSetDescription desc;
-  desc.add<bool>("fromDDD", true);
-  desc.addOptional<edm::ParameterSetDescription>("pixelGeometryConstants", descPixelGeometryConstants);
-  descriptions.add("trackerNumberingGeometry", desc);
+  desc.add<bool>( "fromDDD", true );
+  desc.addOptional<unsigned int>( "layerNumberPXB", 16U );
+  desc.addOptional<unsigned int>( "totalBlade", 24U );
+  descriptions.add( "trackerNumberingGeometry", desc );
 
   edm::ParameterSetDescription descSLHC;
-  descSLHC.add<bool>("fromDDD", true);
-  descSLHC.addOptional<edm::ParameterSetDescription>("pixelGeometryConstants", descPixelSLHCGeometryConstants);
-  descriptions.add("trackerNumberingSLHCGeometryDB", descSLHC);
+  descSLHC.add<bool>( "fromDDD", true );
+  descSLHC.addOptional<unsigned int>( "layerNumberPXB", 18U );
+  descSLHC.addOptional<unsigned int>( "totalBlade", 56U );
+  descriptions.add( "trackerNumberingSLHCGeometryDB", descSLHC );
 }
 
 std::auto_ptr<GeometricDet> 

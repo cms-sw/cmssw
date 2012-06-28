@@ -11,9 +11,9 @@ from Configuration.StandardSequences.GeometryDB_cff import *
 
 # The tracker geometry left-over (for aligned/misaligned geometry)
 # The goemetry used for reconstruction must not be misaligned.
-TrackerDigiGeometryESModule.applyAlignment = False
+trackerGeometryDB.applyAlignment = False
 # Create a misaligned geometry for simulation
-misalignedTrackerGeometry = Geometry.TrackerGeometryBuilder.trackerGeometryDB_cfi.TrackerDigiGeometryESModule.clone()
+misalignedTrackerGeometry = Geometry.TrackerGeometryBuilder.trackerGeometryDB_cfi.trackerGeometryDB.clone()
 # The misalignment is not applied by default
 misalignedTrackerGeometry.applyAlignment = False
 # Label of the produced TrackerGeometry:
