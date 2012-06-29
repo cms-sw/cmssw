@@ -35,6 +35,7 @@ protected:
   static float       rebinFactor_;
   static std::string signalPdfNames_, backgroundPdfNames_;
   static bool        saveNormalizations_;
+  static bool		 saveWorkspace_;
   static bool        reuseParams_;
   int currentToy_, nToys;
   int fitStatus_, numbadnll_;

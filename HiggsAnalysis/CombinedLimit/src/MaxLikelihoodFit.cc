@@ -31,6 +31,7 @@ std::string MaxLikelihoodFit::name_ = "";
 std::string MaxLikelihoodFit::minos_ = "poi";
 std::string MaxLikelihoodFit::out_ = ".";
 bool        MaxLikelihoodFit::makePlots_ = false;
+bool        MaxLikelihoodFit::saveWorkspace_ = false;
 float       MaxLikelihoodFit::rebinFactor_ = 1.0;
 std::string MaxLikelihoodFit::signalPdfNames_     = "shapeSig*";
 std::string MaxLikelihoodFit::backgroundPdfNames_ = "shapeBkg*";
@@ -51,6 +52,7 @@ MaxLikelihoodFit::MaxLikelihoodFit() :
         ("signalPdfNames",     boost::program_options::value<std::string>(&signalPdfNames_)->default_value(signalPdfNames_), "Names of signal pdfs in plots (separated by ,)")
         ("backgroundPdfNames", boost::program_options::value<std::string>(&backgroundPdfNames_)->default_value(backgroundPdfNames_), "Names of background pdfs in plots (separated by ',')")
         ("saveNormalizations",  "Save post-fit normalizations of all components of the pdfs")
+//        ("saveWorkspace",       "Save post-fit pdfs and data to MaxLikelihoodFitResults.root")
         ("justFit",  "Just do the S+B fit, don't do the B-only one, don't save output file")
         ("noErrors",  "Don't compute uncertainties on the best fit value")
         ("initFromBonly",  "Use the vlaues of the nuisance parameters from the background only fit as the starting point for the s+b fit")
@@ -78,6 +80,7 @@ void MaxLikelihoodFit::applyOptions(const boost::program_options::variables_map 
     makePlots_ = vm.count("plots");
     name_ = vm["name"].defaulted() ?  std::string() : vm["name"].as<std::string>();
     saveNormalizations_  = vm.count("saveNormalizations");
+    saveWorkspace_ = vm.count("saveWorkspace");
     justFit_  = vm.count("justFit");
     noErrors_ = vm.count("noErrors");
     reuseParams_ = vm.count("initFromBonly");
@@ -348,6 +351,13 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   bool fitreturn = (res_s!=0);
   delete res_s;
 
+  if(saveWorkspace_){
+	  RooWorkspace *ws = new RooWorkspace("MaxLikelihoodFitResult");
+	  ws->import(*mc_s->GetPdf());
+	  ws->import(data);
+	  std::cout << "Saving pdfs and data to MaxLikelihoodFitResult.root" << std::endl;
+	  ws->writeToFile("MaxLikelihoodFitResult.root");
+  }
   std::cout << "nll S+B -> "<<nll_sb_ << "  nll B -> " << nll_bonly_ <<std::endl;
   return fitreturn;
 }
