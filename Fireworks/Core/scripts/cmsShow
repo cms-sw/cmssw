@@ -10,17 +10,23 @@ checkOS()
        arch=`sysctl hw | grep 64bit | awk '{print $2;}'`
        if [ $arch -eq 0 ]; then
            echo "###################################"
-           echo "Only 64-bit OSX-10.6 is supported!"
+           echo "Only 64-bit OSX is supported!"
            echo "###################################"
            exit 1;
        fi
-       osv=`sw_vers -productVersion` 
-       osvt=`echo $osv | awk '{if ( $1 >= 10.6 ) print "$osv";}'`
-       if [ "$osvt" == "" ]; then
+       osv=`sw_vers -productVersion |awk '{split($0,a,"\."); print a[1]a[2];}' `
+       if [ "$osv" -lt "106" ]; then
            echo "#######################################"
            echo "Only version 10.6 or greater supported!"
            echo "#######################################"
-   	exit 1;
+   	   exit 1;
+       fi
+       support_106=`awk -F', '   '{ if ($1 ~/CMSSW_[0-5]_[0-2]_/ ) print $1 }' $CMSSW_BASE/src/Fireworks/Core/data/version.txt`
+       if [ "$osv" == "106" ] && [ -z $support_106 ]; then
+           echo "#######################################"
+           echo "Only version 10.7 supported!"
+           echo "#######################################"
+           exit 1
        fi
    else
        arch=`uname -m`
@@ -96,13 +102,14 @@ setupEnv()
      export CMSSW_SEARCH_PATH="."
      export CMSSW_DATA_PATH="."
      export ROOTSYS=$CMSSW_BASE/external/root 
-     export LD_LIBRARY_PATH=${CMSSW_BASE}/lib:${CMSSW_BASE}/external/gcc/lib64:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib:$LD_LIBRARY_PATH
+     export LD_LIBRARY_PATH=${CMSSW_BASE}/external/gcc/lib64:${ROOTSYS}/lib:${CMSSW_BASE}/external/lib:${CMSSW_BASE}/lib:$LD_LIBRARY_PATH
      export DYLD_FALLBACK_LIBRARY_PATH=${LD_LIBRARY_PATH}
+
      if [ -n "$DYLD_LIBRARY_PATH" ]; then
         echo "Warning: DYLD_LIBRARY_PATH not empty. Unsetting DYLD_LIBRARY_PATH." 
         unset DYLD_LIBRARY_PATH
      fi
-     DYLD_LIBRARY_PATH=$CMSSW_BASE/external/gcc/lib64
+     export  DYLD_LIBRARY_PATH=$CMSSW_BASE/external/gcc/lib64
      export PATH=${ROOTSYS}/bin:$PATH
      # move cmsShow.exe to libexec
      SHELLDIR=$SHELLDIR/libexec
@@ -161,8 +168,10 @@ errorPrint()
 # Main body of script starts here
 ################################################################################
 
-checkOS
 setupEnv
+if [ -z "$FROM_RELEASE" ]; then 
+   checkOS
+fi
 checkRemoteConnection
 parseOptions $@
 
