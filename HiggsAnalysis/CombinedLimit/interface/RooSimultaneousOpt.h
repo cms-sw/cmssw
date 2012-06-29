@@ -7,6 +7,7 @@
 
 class RooSimultaneousOpt : public RooSimultaneous {
 public:
+	RooSimultaneousOpt(){};
   RooSimultaneousOpt(const char* name, const char* title, RooAbsCategoryLValue& indexCat) :
         RooSimultaneous(name, title, indexCat) {}
   RooSimultaneousOpt(const RooSimultaneous &any, const char* name=0) :
