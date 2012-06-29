@@ -2,6 +2,7 @@
 
 	* tag V00-02-03
 	* event time *= number of EP instances
+	* reading /proc/cpustat info from reports
 
 2012-06-29 Srecko Morovic <srecko.morovic@cern.ch>
 

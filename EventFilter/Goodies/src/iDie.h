@@ -154,10 +154,10 @@ namespace evf {
     void initFramework();
     void deleteFramework();
     void initMonitorElements();
-    void fillDQMStatHist(int nbsIdx, unsigned int lsid, float rate, float time, float busy, float rateErr, float timeErr);
+    void fillDQMStatHist(int nbsIdx, unsigned int lsid, float rate, float time, float busy, float busyCPU, float rateErr, float timeErr);
     void fillDQMModFractionHist(int nbsIdx, unsigned int lsid, unsigned int nonIdle,
 		                 std::vector<std::pair<unsigned int, unsigned int>> offenders);
-    void updateRollingHistos(unsigned int lsid,unsigned int rate, float ms, float busy, unsigned int nbsIdx);
+    void updateRollingHistos(unsigned int lsid,unsigned int rate, float ms, float busy, float busyCPU,unsigned int nbsIdx);
     void doFlush();
     void perLumiFileSaver(unsigned int lsid);
     //
@@ -212,9 +212,7 @@ namespace evf {
     //DQM histogram statistics
     std::vector<unsigned int> epInstances;
     std::vector<unsigned int> epMax;
-    std::vector<float> epThreshold;
-    std::vector<float> epThresholdTheor;
-    std::vector<float> HTInveff;
+    std::vector<float> HTscaling;
     std::vector<unsigned int> nbMachines;
 
     class commonLsStat {
@@ -222,27 +220,36 @@ namespace evf {
       public:
       unsigned int ls_;
       std::vector<float> busyVec_;
+      std::vector<float> busyCPUVec_;
       std::vector<float> busyVecTheor_;
+      std::vector<float> busyCPUVecTheor_;
       std::vector<unsigned int> nbMachines;
       commonLsStat(unsigned int lsid,unsigned int classes) {
         for (size_t i=0;i<classes;i++) {
 	  busyVec_.push_back(0.);
+	  busyCPUVec_.push_back(0.);
 	  busyVecTheor_.push_back(0.);
+	  busyCPUVecTheor_.push_back(0.);
 	  nbMachines.push_back(0);
 	}
 	ls_=lsid;
       }
-      void setBusyForClass(unsigned int classIdx,float busy,float busyTheor, unsigned int nMachineReports) {
+      void setBusyForClass(unsigned int classIdx,float busy,float busyTheor, float busyCPU, float busyCPUTheor, unsigned int nMachineReports) {
 	busyVec_[classIdx]=busy;
+	busyCPUVec_[classIdx]=busyCPU;
 	busyVecTheor_[classIdx]=busyTheor;
+	busyCPUVecTheor_[classIdx]=busyCPUTheor;
 	nbMachines[classIdx]=nMachineReports;
       }
 
-      float getBusyTotalFrac() {
+      float getBusyTotalFrac(bool procstat) {
 	float sum=0;
 	float sumMachines=0;
 	for (size_t i=0;i<busyVec_.size();i++) {
-	  sum+=nbMachines.at(i)*busyVec_[i];
+	  if (!procstat)
+	    sum+=nbMachines.at(i)*busyVec_[i];
+	  else
+	    sum+=nbMachines.at(i)*busyCPUVec_[i];
 	  sumMachines+=nbMachines.at(i);
 	}
 	if (sumMachines>0)
@@ -250,12 +257,16 @@ namespace evf {
 	else return 0.;
       }
 
-      float getBusyTotalFracTheor(std::vector<unsigned int> &epInstances, std::vector<unsigned int> &epMax) {
+      float getBusyTotalFracTheor(bool procstat,std::vector<unsigned int> &epInstances, std::vector<unsigned int> &epMax) {
 	float sum=0;
 	float sumMachines=0;
 	for (size_t i=0;i<busyVecTheor_.size() && i<nbMachines.size();i++) {
-	  if (epMax[i])
-	    sum+=((float)epInstances[i]/epMax[i])*nbMachines.at(i)*busyVecTheor_[i];
+	  if (epMax[i]) {
+	    if (!procstat)
+	      sum+=((float)epInstances[i]/epMax[i])*nbMachines.at(i)*busyVecTheor_[i];
+	    else
+	      sum+=((float)epInstances[i]/epMax[i])*nbMachines.at(i)*busyCPUVecTheor_[i];
+	  }
 	  sumMachines+=nbMachines.at(i);
 	}
 	if (sumMachines>0)
@@ -275,6 +286,7 @@ namespace evf {
       unsigned int nSampledIdle2_;
       unsigned int nProc_;
       unsigned int nProc2_;
+      unsigned int nCPUBusy_;
       unsigned int nReports_;
       unsigned int nMaxReports_;
       double rateAvg;
@@ -282,13 +294,14 @@ namespace evf {
       double evtTimeAvg;
       double evtTimeErr;
       double fracWaitingAvg;
+      double fracCPUBusy_;
       unsigned int nmodulenames_;
       std::pair<unsigned int,unsigned int> *moduleSamplingSums;
 
       lsStat(unsigned int ls, unsigned int nbSubs,unsigned int maxreps,unsigned int nmodulenames):
 	ls_(ls),updated_(false),nbSubs_(nbSubs),
 	nSampledNonIdle_(0),nSampledNonIdle2_(0),nSampledIdle_(0),nSampledIdle2_(0),
-	nProc_(0),nProc2_(0),nReports_(0),nMaxReports_(maxreps),nmodulenames_(nmodulenames)
+	nProc_(0),nProc2_(0),nCPUBusy_(0),nReports_(0),nMaxReports_(maxreps),nmodulenames_(nmodulenames)
       {
         moduleSamplingSums = new std::pair<unsigned int,unsigned int>[nmodulenames_];
 	for (unsigned int i=0;i<nmodulenames_;i++) {
@@ -297,7 +310,7 @@ namespace evf {
 	}
       }
 
-      void update(unsigned int nSampledNonIdle,unsigned int nSampledIdle, unsigned int nProc) {
+      void update(unsigned int nSampledNonIdle,unsigned int nSampledIdle, unsigned int nProc,unsigned int ncpubusy) {
 	nReports_++;
 	nSampledNonIdle_+=nSampledNonIdle;
 	nSampledNonIdle2_+=pow(nSampledNonIdle,2);
@@ -305,6 +318,7 @@ namespace evf {
 	nSampledIdle2_+=pow(nSampledIdle,2);
 	nProc_+=nProc;
 	nProc2_+=pow(nProc,2);
+	nCPUBusy_+=ncpubusy;
 	updated_=true;
       }
 
@@ -337,6 +351,8 @@ namespace evf {
 	    evtTimeErr = nbSubs_ * ((fracWaitingAvg*rateErr)/pow(rateAvg,2) + fracWaitingAvgErr/rateAvg);
 	  }
 	}
+	if (nReports_) fracCPUBusy_=nCPUBusy_/(nReports_*1000.);
+	else fracCPUBusy_=0.;
 	updated_=false;
       }
 
@@ -368,6 +384,11 @@ namespace evf {
       float getFracBusy() {
 	if (updated_) calcStat();
 	return 1.-fracWaitingAvg;
+      }
+
+      float getFracCPUBusy() {
+	if (updated_) calcStat();
+	return fracCPUBusy_;
       }
 
       std::vector<std::pair<unsigned int, unsigned int>> getOffendersVector() {
@@ -409,6 +430,7 @@ namespace evf {
     MonitorElement * rateSummary_;
     MonitorElement * timingSummary_;
     MonitorElement * busySummary_;
+    MonitorElement * busySummary2_;
     MonitorElement * daqBusySummary_;
     unsigned int summaryLastLs_;
     std::map<unsigned int, unsigned int> occupancyNameMap;
