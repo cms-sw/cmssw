@@ -3,27 +3,18 @@
 #define HcalSimAlgos_HcalSiPMHitResponse_h
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMRecovery.h"
 
 #include <map>
 #include <set>
 
 class HcalSiPM;
 
-class CaloHitTimeAndEnergy {
-public:
-  CaloHitTimeAndEnergy(float theTime, float theEnergy) : myTime(theTime), myEnergy(theEnergy) {}
-  float time() const {return myTime;}
-  float energy() const {return myEnergy;}
-private:
-  float myTime;
-  float myEnergy;
-};
-
 class PCaloHitCompareTimes {
 public:
-  bool operator()(const CaloHitTimeAndEnergy& a, 
-		  const CaloHitTimeAndEnergy& b) const {
-    return a.time()<b.time();
+  bool operator()(const PCaloHit * a, 
+		  const PCaloHit * b) const {
+    return a->time()<b->time();
   }
 };
 
@@ -48,14 +39,14 @@ public:
   virtual void setRandomEngine(CLHEP::HepRandomEngine & engine);
 
  private:
-  typedef std::multiset <CaloHitTimeAndEnergy, PCaloHitCompareTimes> SortedHitSet;
+  typedef std::multiset <PCaloHit, PCaloHitCompareTimes> SortedHitSet;
 
-  virtual CaloSamples makeSiPMSignal(const DetId& id, const CaloHitTimeAndEnergy & hit, int & integral) const;
+  virtual CaloSamples makeSiPMSignal(const DetId& id, const PCaloHit& hit, int & integral) const;
 
   HcalSiPM * theSiPM;
   double theRecoveryTime;
 
-  std::map< DetId, SortedHitSet > sortedhits;
+  std::map< DetId, HcalSiPMRecovery > pixelHistory;
 };
 
 #endif //HcalSimAlgos_HcalSiPMHitResponse_h

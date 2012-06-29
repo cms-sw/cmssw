@@ -1,6 +1,5 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMHitResponse.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPM.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMRecovery.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameters.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShapes.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -33,19 +32,32 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit) {
     if (!isnan(hit.time()) &&
 	((theHitFilter == 0) || (theHitFilter->accepts(hit)))) {
       DetId id(hit.id());
-      if (sortedhits.find(id)==sortedhits.end()) {
-	sortedhits.insert(std::pair<DetId, SortedHitSet>(id, SortedHitSet()));
+      if (pixelHistory.find(id)==pixelHistory.end()) {
+	pixelHistory.insert(std::pair<DetId, HcalSiPMRecovery>(id, HcalSiPMRecovery(theRecoveryTime)));
       }
-      if (theHitCorrection != 0) {
-        sortedhits[id].insert(CaloHitTimeAndEnergy(hit.time() + theHitCorrection->delay(hit), hit.energy()));
-      } else {
-        sortedhits[id].insert(CaloHitTimeAndEnergy(hit.time(), hit.energy()));
-      }
+      int pixelIntegral = pixelHistory[id].getIntegral(hit.time());
+      int oldIntegral = pixelIntegral;
+      CaloSamples signal(makeSiPMSignal(id, hit, pixelIntegral));
+      pixelHistory[id].addToHistory(hit.time(), pixelIntegral-oldIntegral);
+      add(signal);
     }
 }
 
 void HcalSiPMHitResponse::run(MixCollection<PCaloHit> & hits) {
+  typedef std::multiset <const PCaloHit *, PCaloHitCompareTimes> SortedHitSet;
 
+  std::map< DetId, SortedHitSet > sortedhits;
+  for (MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
+       hitItr != hits.end(); ++hitItr) {
+    if (!((hitItr.bunch() < theMinBunch) || (hitItr.bunch() > theMaxBunch)) &&
+        !(isnan(hitItr->time())) &&
+        ((theHitFilter == 0) || (theHitFilter->accepts(*hitItr)))) {
+      DetId id(hitItr->id());
+      if (sortedhits.find(id)==sortedhits.end())
+        sortedhits.insert(std::pair<DetId, SortedHitSet>(id, SortedHitSet()));
+      sortedhits[id].insert(&(*hitItr));
+    }
+  }
   int pixelIntegral, oldIntegral;
   HcalSiPMRecovery pixelHistory(theRecoveryTime);
   for (std::map<DetId, SortedHitSet>::iterator i = sortedhits.begin(); 
@@ -53,7 +65,7 @@ void HcalSiPMHitResponse::run(MixCollection<PCaloHit> & hits) {
     pixelHistory.clearHistory();
     for (SortedHitSet::iterator itr = i->second.begin(); 
 	 itr != i->second.end(); ++itr) {
-      const CaloHitTimeAndEnergy& hit = *itr;
+      const PCaloHit& hit = **itr;
       pixelIntegral = pixelHistory.getIntegral(hit.time());
       oldIntegral = pixelIntegral;
       CaloSamples signal(makeSiPMSignal(i->first, hit, pixelIntegral));
@@ -72,8 +84,14 @@ void HcalSiPMHitResponse::setRandomEngine(CLHEP::HepRandomEngine & engine)
 
 
 CaloSamples HcalSiPMHitResponse::makeSiPMSignal(const DetId & id,
-                                                const CaloHitTimeAndEnergy & hit, 
+                                                const PCaloHit & inHit, 
 						int & integral ) const {
+  
+  PCaloHit hit = inHit;
+  if (theHitCorrection != 0) {
+    hit.setTime(hit.time() + theHitCorrection->delay(hit));
+  }
+
   const HcalSimParameters& pars = dynamic_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));
   theSiPM->setNCells(pars.pixels());
 
