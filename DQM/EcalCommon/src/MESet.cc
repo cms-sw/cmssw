@@ -3,7 +3,6 @@
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 #include "TString.h"
 #include "TPRegexp.h"
