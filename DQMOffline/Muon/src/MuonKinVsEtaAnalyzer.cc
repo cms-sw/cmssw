@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/05/22 18:17:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2011/07/14 13:27:35 $
+ *  $Revision: 1.3 $
  *  \author S. Goy Lopez, CIEMAT 
  */
 
@@ -20,6 +20,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
+#include <TMath.h>
 using namespace std;
 using namespace edm;
 
@@ -54,6 +55,13 @@ void MuonKinVsEtaAnalyzer::beginJob(DQMStore * dbe) {
   ptBin = parameters.getParameter<int>("ptBin");
   ptMin = parameters.getParameter<double>("ptMin");
   ptMax = parameters.getParameter<double>("ptMax");
+
+  chiBin = parameters.getParameter<int>("chiBin");
+  chiMin = parameters.getParameter<double>("chiMin");
+  chiMax = parameters.getParameter<double>("chiMax");
+  chiprobMin = parameters.getParameter<double>("chiprobMin");
+  chiprobMax = parameters.getParameter<double>("chiprobMax");
+
 
   etaBMin = parameters.getParameter<double>("etaBMin");
   etaBMax = parameters.getParameter<double>("etaBMax");
@@ -92,7 +100,9 @@ void MuonKinVsEtaAnalyzer::beginJob(DQMStore * dbe) {
     ptTrack.push_back(dbe->book1D("TkMuon_pt_"+EtaName, "pt_{TK} "+EtaName, ptBin, ptMin, ptMax));
     ptStaTrack.push_back(dbe->book1D("StaMuon_pt_"+EtaName, "pt_{STA} "+EtaName, ptBin, ptMin, pMax));
     ptTightTrack.push_back(dbe->book1D("TightMuon_pt_"+EtaName, "pt_{Tight} "+EtaName, ptBin, ptMin, ptMax));
-  }
+    chi2TightTrack.push_back(dbe->book1D("TightMuon_chi2_"+EtaName, "#chi^{2}_{tight} " + EtaName, chiBin, chiMin, chiMax));
+    chi2probTightTrack.push_back(dbe->book1D("TightMuon_chi2prob_"+EtaName, "#chi^{2}_{tight} " + EtaName, chiBin, chiprobMin, chiprobMax));
+ }
 }
 
 
@@ -158,6 +168,8 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	phiTightTrack[iEtaRegion]->Fill(recoTightTrack->phi());
 	pTightTrack[iEtaRegion]->Fill(recoTightTrack->p());
 	ptTightTrack[iEtaRegion]->Fill(recoTightTrack->pt());
+	chi2TightTrack[iEtaRegion]->Fill(recoTightTrack->normalizedChi2());
+	chi2probTightTrack[iEtaRegion]->Fill(TMath::Prob(recoTightTrack->normalizedChi2(),recoTightTrack->ndof()));
       }
     }
   }

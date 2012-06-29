@@ -350,14 +350,13 @@ void MuonIsolationDQM::InitStatics(){
   cout << "InitStatistics(): names 2D DONE " << endl;
 #endif
   
-  names_NVtxs[0] = "pfNeutralPt_R04";
-  names_NVtxs[1] = "pfNeutralPt_R04";
-  names_NVtxs[2] = "pfNeutralPt_R04";
-  names_NVtxs[3] = "pfPhotonPt_R04";
-  names_NVtxs[4] = "pfPhotonPt_R04";
-  names_NVtxs[5] = "pfPhotonPt_R04";
-  
-  
+  names_NVtxs[0] = "pfNeutralPt_R04_PV0to15";
+  names_NVtxs[1] = "pfNeutralPt_R04_PV15to30";
+  names_NVtxs[2] = "pfNeutralPt_R04_PV30toInf";
+  names_NVtxs[3] = "pfPhotonPt_R04_PV0to15";
+  names_NVtxs[4] = "pfPhotonPt_R04_PV15to30";
+  names_NVtxs[5] = "pfPhotonPt_R04_PV30toInf";
+    
   //----------Parameters for binning of histograms---------
   //param[var][0] is the number of bins
   //param[var][1] is the low edge of the low bin

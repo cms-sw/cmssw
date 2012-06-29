@@ -35,8 +35,8 @@ class DiMuonHistograms : public MuonAnalyzerBase {
   /* Operations */ 
   void beginJob (DQMStore *dbe);
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
-  
- protected:
+
+   protected:
   edm::ParameterSet parameters;
   
   // Switch for verbosity

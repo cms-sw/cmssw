@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for muon reco track
  *
- *  $Date: 2011/05/22 18:17:52 $
- *  $Revision: 1.2 $
+ *  $Date: 2011/07/14 13:27:43 $
+ *  $Revision: 1.3 $
  *  \author S. Goy Lopez, CIEMAT
  */
 
@@ -67,6 +67,13 @@ class MuonKinVsEtaAnalyzer : public MuonAnalyzerBase {
   double phiMin;
   double phiMax;
 
+  int chiBin;
+  double chiMin;
+  double chiMax;
+
+  double chiprobMin;
+  double chiprobMax;
+
   //Defining relevant eta regions
   double EtaCutMin;
   double EtaCutMax;
@@ -76,7 +83,7 @@ class MuonKinVsEtaAnalyzer : public MuonAnalyzerBase {
   double etaECMax;
   double etaOvlpMin;
   double etaOvlpMax;
- 
+
   //the histos
   // global muon
   std::vector<MonitorElement*> etaGlbTrack;
@@ -101,6 +108,8 @@ class MuonKinVsEtaAnalyzer : public MuonAnalyzerBase {
   std::vector<MonitorElement*> phiTightTrack;
   std::vector<MonitorElement*> pTightTrack;
   std::vector<MonitorElement*> ptTightTrack;
+  std::vector<MonitorElement*> chi2TightTrack;
+  std::vector<MonitorElement*> chi2probTightTrack;
 
 };
 #endif
