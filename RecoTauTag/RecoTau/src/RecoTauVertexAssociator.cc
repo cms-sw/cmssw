@@ -30,7 +30,7 @@ namespace reco { namespace tau {
   std::vector<PFCandidatePtr> tracks;
   //PJ filtering of tracks 
 #ifdef EDM_ML_DEBUG
-  nTracks->Fill(allTracks.size());
+  if(makeHisto) nTracks->Fill(allTracks.size());
   lead_removed = false;
 #endif
   if (!allTracks.size()){
@@ -38,7 +38,10 @@ namespace reco { namespace tau {
     return reco::TrackBaseRef();
   }
   if(vxTrkFiltering) tracks = qcuts_.filterRefs(allTracks);
-  else tracks = allTracks;
+  else{ 
+    tracks = allTracks;
+    LogDebug("VxTrkAssocInfo") << " No quality cuts applied. All tracks passing.";
+  }
   PFCandidatePtr cand;
   if (!tracks.size()){
     if(!recoverLeadingTrk){
@@ -55,9 +58,12 @@ namespace reco { namespace tau {
    LogDebug("VxTrkAssocInfo") << " We started from " << allTracks.size() <<" tracks and " << allTracks.size()-tracks.size() <<  " tracks have been rejected by filtering." ;
   else LogDebug("VxTrkAssocInfo") << " All " << allTracks.size() << " tracks passed the filter.";
   if(cand!=allTracks[0]){ LogTrace("VxTrkAssocInfo") << "Leading track rejected!"; lead_removed = true;}
+  if(!recoverLeadingTrk) LogTrace("VxTrkAssocInfo") << "No effort to recover leading track!";
+  if(makeHisto){
   filteredTracks->Fill(tracks.size());
   removedTracks->Fill(allTracks.size()-tracks.size());
   leadingRemoved->Fill(cand!=allTracks[0]);
+  }
 #endif
 
   if (cand->trackRef().isNonnull())
@@ -125,7 +131,8 @@ RecoTauVertexAssociator::RecoTauVertexAssociator(
      }else{
        vxTrkFiltering = pset.getParameter<bool>("vertexTrackFiltering");
      }
-  LogDebug("TauVxAssociatorInfo") << " Using " << algorithm << " algorithm to select vertex.";
+  
+  LogDebug("TauVxAssociatorInfo") << " ----> Using " << algorithm << " algorithm to select vertex.";
   if (algorithm == "highestPtInEvent") {
     algo_ = kHighestPtInEvent;
   } else if (algorithm == "closestInDeltaZ") {
@@ -144,8 +151,16 @@ RecoTauVertexAssociator::RecoTauVertexAssociator(
       <<  " or combined." << std::endl;
   }
   recoverLeadingTrk = pset.exists("recoverLeadingTrk") ? pset.getParameter<bool>("recoverLeadingTrk") : false;
-  //histograms
 #ifdef EDM_ML_DEBUG
+  if(vxTrkFiltering)LogTrace("TauVxAssociatorInfo") << " ----> Quality criteria will be applied to tracks";
+  else LogTrace("TauVxAssociatorInfo") << " ----> No quality cuts will be applied to tracks";
+
+  if(recoverLeadingTrk) LogTrace("TauVxAssociatorInfo") << " ----> Leading track will be recovered if no tracks will be left after filtering";
+  else LogTrace("TauVxAssociatorInfo") << " ----> No effort to recover leading track in case no tracks pass quality";
+ 
+  //histograms
+  makeHisto = pset.exists("makeHisto") ? pset.getParameter<bool>("makeHisto") : false; 
+  if(makeHisto){
   edm::Service<TFileService> fs;
   nTracks = fs->make<TH1D>("nTracks" , "Number of all tracks" , 100 , -0.5 , 99.5 );
   filteredTracks = fs->make<TH1D>("filteredTracks" , "Number of filtered tracks" , 100 , -0.5 , 99.5 );
@@ -156,6 +171,7 @@ RecoTauVertexAssociator::RecoTauVertexAssociator(
   Vx_id_LR = fs->make<TH1D>("Vx_id_LR","associated Vx ID for jets where leading track was removed", 51,-1.5,49.5);
   h_dz=fs->make<TH1D>("h_dz","DZ of lead track and associated vertex",100,0.0,10.0);
   h_dz_assoc=fs->make<TH1D>("h_dz_assoc","DZ of lead track and associated vertex (combined algo)",100,0.0,10.0);
+  }
 #endif
  }
 
@@ -176,7 +192,7 @@ void RecoTauVertexAssociator::setEvent(const edm::Event& evt) {
       else JetToVertexAssociation->clear();
       myEventNumber = currentEvent;
 #ifdef EDM_ML_DEBUG
-      nVertex->Fill(vertices_.size());
+      if(makeHisto) nVertex->Fill(vertices_.size());
 #endif
     }
 }
@@ -206,6 +222,8 @@ RecoTauVertexAssociator::associatedVertex(const PFJet& jet) const {
 #ifdef EDM_ML_DEBUG
    int iVx = 0; 
    int Vxid=0;
+   if(algo_==kCombined) LogTrace("VxTrkAssocInfo") << "Using combined algorithm";
+   else if(algo_ ==kHighestWeigtForLeadTrack) LogTrace("VxTrkAssocInfo") << "Using weight algorithm";
 #endif
    reco::TrackBaseRef leadTrack;
   if (algo_ == kHighestPtInEvent) {
@@ -242,9 +260,11 @@ RecoTauVertexAssociator::associatedVertex(const PFJet& jet) const {
 #endif
     }
 #ifdef EDM_ML_DEBUG
-    Vx_id->Fill(Vxid);
-    h_dz_assoc->Fill(closestDistance);
-    if(lead_removed) Vx_id_LR->Fill(Vxid);
+    if(makeHisto){
+      Vx_id->Fill(Vxid);
+      h_dz_assoc->Fill(closestDistance);
+      if(lead_removed) Vx_id_LR->Fill(Vxid);
+    }
 #endif
   } else if (algo_ == kHighestWeigtForLeadTrack || algo_ == kCombined) {
     leadTrack = getLeadTrack(jet);
@@ -284,7 +304,7 @@ RecoTauVertexAssociator::associatedVertex(const PFJet& jet) const {
       iVx = 0;
       double dz = dzComputer(output);
       LogTrace("VxTrkAssocInfo") << "The dZ of the leading track and associated vx is " << dz;
-      h_dz->Fill(dz);
+      if(makeHisto) h_dz->Fill(dz);
 #endif
       double closestDistance = std::numeric_limits<double>::infinity();
       BOOST_FOREACH(const reco::VertexRef& vtx, vertices_) {
@@ -304,12 +324,14 @@ RecoTauVertexAssociator::associatedVertex(const PFJet& jet) const {
 #endif
       }
 #ifdef EDM_ML_DEBUG
+      if(makeHisto){
       Vx_id->Fill(Vxid);
       if(lead_removed) Vx_id_LR->Fill(Vxid);
-      h_dz_assoc->Fill(closestDistance);
+      h_dz_assoc->Fill(closestDistance);}
     }else{
+      if(makeHisto){
       Vx_id->Fill(Vxid);
-      if(lead_removed) Vx_id_LR->Fill(Vxid);
+      if(lead_removed) Vx_id_LR->Fill(Vxid);}
 #endif
     }
   }

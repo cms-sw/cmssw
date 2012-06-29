@@ -73,6 +73,7 @@ class RecoTauVertexAssociator {
     //PJ adding quality cuts
     RecoTauQualityCuts qcuts_;
     bool recoverLeadingTrk;
+    bool makeHisto;
 
     // histograms
 #ifdef EDM_ML_DEBUG
