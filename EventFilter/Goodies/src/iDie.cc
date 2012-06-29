@@ -1013,7 +1013,7 @@ void iDie::fillDQMStatHist(int nbsIdx,unsigned int lsid,float rate, float time, 
   if (!evtProcessor_) return;
   meVecRate_[nbsIdx]->setBinContent(lsid,rate);
   meVecRate_[nbsIdx]->setBinError(lsid,rateErr);
-  meVecTime_[nbsIdx]->setBinContent(lsid,time*1000);//msec
+  meVecTime_[nbsIdx]->setBinContent(lsid,epInstances[nbsIdx]*time*1000);//msec
   meVecTime_[nbsIdx]->setBinError(lsid,timeErr*1000);//msec
   updateRollingHistos(lsid,rate,time*1000,busy,nbsIdx);
 }
