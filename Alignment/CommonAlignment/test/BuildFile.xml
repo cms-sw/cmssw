@@ -1,0 +1,3 @@
+<bin file="test_AlignableObjectId.cc">
+  <use name="Alignment/CommonAlignment"/>
+</bin>
