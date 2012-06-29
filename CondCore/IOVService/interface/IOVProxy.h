@@ -119,7 +119,10 @@ namespace cond {
     }
     
     const_iterator end() const {
-      return  boost::make_transform_iterator(boost::counting_iterator<int>(m_high),
+      // returns: 0 if not inizialized (m_low=m_high=-1)
+      //          m_high + 1 = m_low + size elsewhere (since size = m_high - m_low + 1)
+      int index = m_high + 1;
+      return  boost::make_transform_iterator(boost::counting_iterator<int>(index),
 					     IterHelp(*m_iov));
     }
     
