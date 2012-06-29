@@ -287,6 +287,9 @@ void CosmicClusterAlgo::makeCluster(
    Point position;
    position = posCalculator_.Calculate_Location(current_v25Sup,recHits_, geometry, geometryES);
    
+   //don't write empty clusters
+   if (energy == 0 && position == Point(0,0,0)) return;
+
    chi2 /= energy;
    if (verbosity < pINFO)
    { 
