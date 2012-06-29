@@ -476,6 +476,8 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 {
   nbTotalDQM_ = 0;
   scalersUpdates_ = 0;
+  idleProcStats_ = 0;
+  allProcStats_ = 0;
 //   std::cout << "values " << ((nbSubProcesses_.value_!=0) ? 0x10 : 0) << " "
 // 	    << ((instance_.value_==0) ? 0x8 : 0) << " "
 // 	    << (hasServiceWebRegistry_.value_ ? 0x4 : 0) << " "
@@ -1666,6 +1668,16 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
   //  cpustat_->printStat();
   if(iDieStatisticsGathering_.value_){
     try{
+      unsigned long long idleTmp=idleProcStats_;
+      unsigned long long allPSTmp=allProcStats_;
+
+      utils::procCpuStat(idleProcStats_,allProcStats_);
+      if (allPSTmp!=0 && idleTmp!=0 && allProcStats_!=allPSTmp) {
+	cpustat_->setCPUStat(1000 - ((idleProcStats_-idleTmp)*1000)/(allProcStats_-allPSTmp));
+	//std::cout << " got proc/stat result of " << 1000-((idleProcStats_-idleTmp)*1000)/(allProcStats_-allPSTmp) << " of 1000 " << std::endl;
+      }
+      else cpustat_->setCPUStat(0);
+
       TriggerReportStatic *trsp = evtProcessor_.getPackedTriggerReportAsStruct();
       cpustat_ ->setNproc(trsp->eventSummary.totalEvents);
       cpustat_ ->sendStat(evtProcessor_.getLumiSectionReferenceIndex());
@@ -2566,7 +2578,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.147 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.148 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
