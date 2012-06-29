@@ -76,9 +76,13 @@ private:
   //  void doPFIsoPlots(MuonIterator muon); //Fills Histograms with PF info from single muo (only for GLB)
   void InitHistos();//adds title, bin information to member histograms
   void FillHistos(int);//Fills histograms with data
+  void FillNVtxHistos(int);
   void NormalizeHistos(); //Normalize to number of muons
+
+  //----- helper methods
+  int  GetNVtxBin(int); 
   TH1* GetTH1FromMonitorElement(MonitorElement* me);
-  
+
   //----------Static Variables---------------
   
   //Collection labels
@@ -96,8 +100,10 @@ private:
   //  std::string subDirName;
 
   //Histogram parameters
-  static const int NUM_VARS    = 42; // looking at R03 and R05.  Total of 48 histos.
-  static const int NUM_VARS_2D = 10; // looking only at R03.  Total of 8 TH2F. 
+  static const int NUM_VARS      = 42; // looking at R03 and R05.  Total of 48 histos.
+  static const int NUM_VARS_2D   = 10; // looking only at R03.  Total of 8 TH2F. 
+  static const int NUM_VARS_NVTX = 6 ;
+  
   double L_BIN_WIDTH;//large bins
   double S_BIN_WIDTH;//small bins
   int LOG_BINNING_ENABLED;//pseudo log binning for profile plots
@@ -117,9 +123,12 @@ private:
   std::vector< std::vector<double> > param;//[NUM_VARS][3]
   std::vector<int> isContinuous;//[NUM_VARS]
   
-  std::vector<std::string> titles_2D;//[NUM_VARS]
+  std::vector<std::string> titles_2D;     //[NUM_VARS]
   std::vector<std::string> names_2D;      //[NUM_VARS]
-  
+
+  std::vector<std::string> main_titles_NVtxs;
+  std::vector<std::string> names_NVtxs;
+  std::vector<std::string> axis_titles_NVtxs;
   //---------------Dynamic Variables---------------------
   
   //MonitorElement
@@ -129,11 +138,13 @@ private:
   int theMuonData;//[number of muons]
   double theData[NUM_VARS];
   double theData2D[NUM_VARS_2D];
-  
+  double theDataNVtx[NUM_VARS_NVTX];
+
   //Histograms
   MonitorElement* h_nMuons;
-  std::vector<MonitorElement*> h_1D;//[NUM_VARS]
-  std::vector<MonitorElement*> h_2D;//[NUM_VARS_2D]
+  std::vector<MonitorElement*> h_1D;     //[NUM_VARS]
+  std::vector<MonitorElement*> h_2D;     //[NUM_VARS_2D]
+  std::vector<MonitorElement*> h_1D_NVTX;//[NUM_VARS_NVTX]
   MonitorElement* h_PU;
   
   //  std::vector<MonitorElement*> cd_plots;//[NUM_VARS]

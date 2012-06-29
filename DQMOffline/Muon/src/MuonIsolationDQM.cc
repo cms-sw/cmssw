@@ -84,7 +84,8 @@ MuonIsolationDQM::MuonIsolationDQM(const edm::ParameterSet& iConfig){
   
   h_1D.resize(NUM_VARS);
   h_2D.resize(NUM_VARS_2D);
-  
+  h_1D_NVTX.resize(NUM_VARS_NVTX);
+
   dbe->cd();
 }
 
@@ -131,6 +132,11 @@ void MuonIsolationDQM::InitStatics(){
  
   titles_2D.resize(NUM_VARS_2D);
   names_2D.resize(NUM_VARS_2D);
+
+  main_titles_NVtxs.resize(NUM_VARS_NVTX);
+  axis_titles_NVtxs.resize(NUM_VARS_NVTX);
+  names_NVtxs.resize(NUM_VARS_NVTX);
+
 #ifdef DEBUG
   cout << "InitStatistics(): vectors resized " << endl;
 #endif
@@ -194,12 +200,20 @@ void MuonIsolationDQM::InitStatics(){
   titles_2D[1] = "Total EM Cal Energy, #Delta R = 0.3";
   titles_2D[2] = "Total Had Cal Energy, #Delta R = 0.3";
   titles_2D[3] = "Total HO Cal Energy, #Delta R = 0.3";
-  titles_2D[4] = "Sum PF Charged Hadron Pt, #Delta R = 0.3";
-  titles_2D[5] = "Sum PF Neutral Hadron Pt, #Delta R = 0.3";
-  titles_2D[6] = "Sum PF Photon Et, #Delta R = 0.3";
-  titles_2D[7] = "Sum PF Charged Pt Not from PV, #Delta R = 0.3";
-  titles_2D[8] = "Relative Detector-Based Isolation, #Delta R = 0.3";
-  titles_2D[9] = "Relative PF Isolation, #Delta R = 0.3";
+  titles_2D[4] = "Sum PF Charged Hadron Pt, #Delta R = 0.4";
+  titles_2D[5] = "Sum PF Neutral Hadron Pt, #Delta R = 0.4";
+  titles_2D[6] = "Sum PF Photon Et, #Delta R = 0.4";
+  titles_2D[7] = "Sum PF Charged Pt Not from PV, #Delta R = 0.4";
+  titles_2D[8] = "Relative Detector-Based Isolation, #Delta R = 0.4";
+  titles_2D[9] = "Relative PF Isolation, #Delta R = 0.4";
+
+
+  main_titles_NVtxs[0] = "Sum PF Neutral Hadron Pt, #DeltaR = 0.4 ( 0 < N_{Vtx} < 15)";
+  main_titles_NVtxs[1] = "Sum PF Neutral Hadron Pt, #DeltaR = 0.4 (15 < N_{Vtx} < 30)";
+  main_titles_NVtxs[2] = "Sum PF Neutral Hadron Pt, #DeltaR = 0.4 (30 < N_{Vtx})";
+  main_titles_NVtxs[3] = "Sum PF Photon Et, #DeltaR = 0.4 ( 0 < N_{Vtx} < 15)";
+  main_titles_NVtxs[4] = "Sum PF Photon Et, #DeltaR = 0.4 (15 < N_{Vtx} < 30)";
+  main_titles_NVtxs[5] = "Sum PF Photon Et, #DeltaR = 0.4 (30 < N_{Vtx})";
 
 #ifdef DEBUG
   cout << "InitStatistics(): main titles 2D DONE " << endl;
@@ -254,6 +268,14 @@ void MuonIsolationDQM::InitStatics(){
   axis_titles[39] = "(#Sigma PFCharged p_{T} + #Sigma PFNeutral p_{T} + #Sigma PFPhoton p_{T}) Mu p_{T}  (GeV)";
   axis_titles[40] = "(#Sigma PFCharged p_{T} + #Sigma PFNeutral p_{T} + #Sigma PFPhoton p_{T}) Mu p_{T}  (GeV)";
   axis_titles[41] = "(#Sigma PFCharged p_{T} + #Sigma PFNeutral p_{T} + #Sigma PFPhoton p_{T}) Mu p_{T}  (GeV)";
+
+
+  axis_titles_NVtxs[0] = "#Sigma PFNeutral p_{T}";
+  axis_titles_NVtxs[1] = "#Sigma PFNeutral p_{T}";
+  axis_titles_NVtxs[2] = "#Sigma PFNeutral p_{T}";
+  axis_titles_NVtxs[3] = "#Sigma PFPhoton p_{T}";
+  axis_titles_NVtxs[4] = "#Sigma PFPhoton p_{T}";
+  axis_titles_NVtxs[5] = "#Sigma PFPhoton p_{T}";
   
 #ifdef DEBUG
   cout << "InitStatistics(): main titles 1D DONE " << endl;
@@ -317,17 +339,25 @@ void MuonIsolationDQM::InitStatics(){
   names_2D[1] = "emEt_R03"          ;
   names_2D[2] = "hadEt_R03"         ;
   names_2D[3] = "hoEt_R03"          ;
-  names_2D[4] = "pfChargedPt_R03"   ;
-  names_2D[5] = "pfNeutralPt_R03"   ;
-  names_2D[6] = "pfPhotonPt_R03"    ;
-  names_2D[7] = "pfChargedPUPt_R03" ;
+  names_2D[4] = "pfChargedPt_R04"   ;
+  names_2D[5] = "pfNeutralPt_R04"   ;
+  names_2D[6] = "pfPhotonPt_R04"    ;
+  names_2D[7] = "pfChargedPUPt_R04" ;
   names_2D[8] = "relDetIso_R03"     ;
-  names_2D[9] = "relPFIso_R03"      ;
+  names_2D[9] = "relPFIso_R04"      ;
   
 #ifdef DEBUG
   cout << "InitStatistics(): names 2D DONE " << endl;
 #endif
-
+  
+  names_NVtxs[0] = "pfNeutralPt_R04";
+  names_NVtxs[1] = "pfNeutralPt_R04";
+  names_NVtxs[2] = "pfNeutralPt_R04";
+  names_NVtxs[3] = "pfPhotonPt_R04";
+  names_NVtxs[4] = "pfPhotonPt_R04";
+  names_NVtxs[5] = "pfPhotonPt_R04";
+  
+  
   //----------Parameters for binning of histograms---------
   //param[var][0] is the number of bins
   //param[var][1] is the low edge of the low bin
@@ -490,6 +520,7 @@ void MuonIsolationDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       ++nGLBMuons;
       RecordData(muon);
       FillHistos(_numPV);
+      FillNVtxHistos(_numPV);
     }
   }
   dbe->cd();
@@ -568,13 +599,23 @@ void MuonIsolationDQM::RecordData(MuonIterator muon){
   theData2D[2] = muon->isolationR03().hadEt;
   theData2D[3] = muon->isolationR03().hoEt;
   
-  theData2D[4] = muon->pfIsolationR03().sumChargedHadronPt;
-  theData2D[5] = muon->pfIsolationR03().sumNeutralHadronEt;
-  theData2D[6] = muon->pfIsolationR03().sumPhotonEt;
-  theData2D[7] = muon->pfIsolationR03().sumPUPt;
+  theData2D[4] = muon->pfIsolationR04().sumChargedHadronPt;
+  theData2D[5] = muon->pfIsolationR04().sumNeutralHadronEt;
+  theData2D[6] = muon->pfIsolationR04().sumPhotonEt;
+  theData2D[7] = muon->pfIsolationR04().sumPUPt;
   
   theData2D[8] = theData2D[0] + theData2D[1] + theData2D[2] + theData2D[3] / MuPt; //Det RelIso;
   theData2D[9] = theData2D[4] + theData2D[5] + theData2D[6]                / MuPt; //PF  RelIso;
+
+
+  //-----------Filling the NVTX 1D HISTOS DATA ------------- // 
+  theDataNVtx[0] = muon->pfIsolationR04().sumNeutralHadronEt;
+  theDataNVtx[1] = theDataNVtx[0];
+  theDataNVtx[2] = theDataNVtx[0];
+  
+  theDataNVtx[3] = muon->pfIsolationR04().sumPhotonEt;
+  theDataNVtx[4] = theDataNVtx[3];
+  theDataNVtx[5] = theDataNVtx[3];
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -634,7 +675,13 @@ void MuonIsolationDQM::InitHistos(){
     h_2D[var]->setAxisTitle(titles_2D[var] + " (GeV)" ,YAXIS);
     h_2D[var]->getTH1()->Sumw2();
   }
-
+  
+  //-----Initialise PU-Binned histograms
+  for (int var=0; var<NUM_VARS_NVTX; var++){
+    h_1D_NVTX[var] = dbe->book1D(names_NVtxs[var], main_titles_NVtxs[var], 50, 0.0, 10.0);
+    h_1D_NVTX[var]->setAxisTitle(axis_titles_NVtxs[var],XAXIS);
+    GetTH1FromMonitorElement(h_1D_NVTX[var])->Sumw2();
+  }
   //-----Initialize PU profile
   h_PU = dbe->book1D("NPV","Number of PV",50, 0.5, 50.5);
   
@@ -677,6 +724,11 @@ void MuonIsolationDQM::FillHistos(int numPV){
   cout << "FillHistos( "<< numPV <<" ): DONE"<< endl;
 #endif
 
+}
+void MuonIsolationDQM::FillNVtxHistos(int PV){
+  if (PV <  15.)              {  h_1D_NVTX[0]->Fill(theDataNVtx[0]);    h_1D_NVTX[3]->Fill(theDataNVtx[3]); }
+  if (PV >= 15. && PV < 30.)  {  h_1D_NVTX[1]->Fill(theDataNVtx[1]);    h_1D_NVTX[4]->Fill(theDataNVtx[4]); }
+  if (PV >= 30.)              {  h_1D_NVTX[2]->Fill(theDataNVtx[2]);    h_1D_NVTX[5]->Fill(theDataNVtx[5]); }
 }
 
 TH1* MuonIsolationDQM::GetTH1FromMonitorElement(MonitorElement* me) {

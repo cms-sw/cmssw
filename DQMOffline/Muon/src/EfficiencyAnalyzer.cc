@@ -109,11 +109,11 @@ void EfficiencyAnalyzer::beginJob(DQMStore * dbe) {
   h_passProbes_EE_pfIsoTightMu_pt = dbe->book1D("passProbes_EE_pfIsoTightMu_pt","Endcap: pfIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
 
   h_passProbes_detIsoTightMu_nVtx    = dbe->book1D("passProbes_detIsoTightMu_nVtx",    "detIsoTightMu Passing Probes nVtx (R03)",  vtxBin_, vtxMin_, vtxMax_);
-  h_passProbes_pfIsoTightMu_nVtx     = dbe->book1D("passProbes_pfIsoTightMu_nVtx",    "pfIsoTightMu Passing Probes nVtx (R03)",  vtxBin_, vtxMin_, vtxMax_);
+  h_passProbes_pfIsoTightMu_nVtx     = dbe->book1D("passProbes_pfIsoTightMu_nVtx",    "pfIsoTightMu Passing Probes nVtx (R04)",  vtxBin_, vtxMin_, vtxMax_);
   h_passProbes_EB_detIsoTightMu_nVtx = dbe->book1D("passProbes_EB_detIsoTightMu_nVtx","Barrel: detIsoTightMu Passing Probes nVtx (R03)",  vtxBin_, vtxMin_, vtxMax_);
   h_passProbes_EE_detIsoTightMu_nVtx = dbe->book1D("passProbes_EE_detIsoTightMu_nVtx","Endcap: detIsoTightMu Passing Probes nVtx (R03)",  vtxBin_, vtxMin_, vtxMax_);
-  h_passProbes_EB_pfIsoTightMu_nVtx  = dbe->book1D("passProbes_EB_pfIsoTightMu_nVtx", "Barrel: pfIsoTightMu Passing Probes nVtx (R03)",  vtxBin_, vtxMin_, vtxMax_);
-  h_passProbes_EE_pfIsoTightMu_nVtx  = dbe->book1D("passProbes_EE_pfIsoTightMu_nVtx", "Endcap: pfIsoTightMu Passing Probes nVtx (R03)",  vtxBin_, vtxMin_, vtxMax_);
+  h_passProbes_EB_pfIsoTightMu_nVtx  = dbe->book1D("passProbes_EB_pfIsoTightMu_nVtx", "Barrel: pfIsoTightMu Passing Probes nVtx (R04)",  vtxBin_, vtxMin_, vtxMax_);
+  h_passProbes_EE_pfIsoTightMu_nVtx  = dbe->book1D("passProbes_EE_pfIsoTightMu_nVtx", "Endcap: pfIsoTightMu Passing Probes nVtx (R04)",  vtxBin_, vtxMin_, vtxMax_);
 
   
 
@@ -208,13 +208,15 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
     
     //--- Define if it is a tight muon
     if (!recoMu1->isGlobalMuon())                                           continue;
-    if (!recoMu1->isTrackerMuon())                                          continue;
+    if (!recoMu1->isPFMuon())                                               continue;
     if (recoMu1->combinedMuon()->normalizedChi2() > 10.)                    continue;
+    if (recoMu1->numberOfMatchedStations() < 1)                             continue;
     if (recoMu1->combinedMuon()->hitPattern().numberOfValidMuonHits() < 1)  continue;
     if (fabs(recoMu1->combinedMuon()->dxy(beamSpot.position())) > 0.2)      continue;
+    if (fabs(recoMu1->innerTrack()->dz(beamSpot.position())) > 0.5)         continue;
     if (recoMu1->combinedMuon()->hitPattern().numberOfValidPixelHits() < 1) continue;
-    if (recoMu1->numberOfMatches() < 2)                                     continue;
-    
+    if (recoMu1->track()->hitPattern().trackerLayersWithMeasurement() <= 5) continue;
+  
     //-- is isolated muon
     if (muPt1 <= 15)          continue;
     if (combIso/muPt1 > 0.1 ) continue;
@@ -247,13 +249,15 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
       
       // Probes passing the tight muon criteria 
       if (!recoMu2->isGlobalMuon())                                           continue;
-      if (!recoMu2->isTrackerMuon())                                          continue;
+      if (!recoMu2->isPFMuon())                                               continue;
       if (recoMu2->combinedMuon()->normalizedChi2() > 10.)                    continue;
+      if (recoMu2->numberOfMatchedStations() < 1)                             continue;
       if (recoMu2->combinedMuon()->hitPattern().numberOfValidMuonHits() < 1)  continue;
       if (fabs(recoMu2->combinedMuon()->dxy(beamSpot.position())) > 0.2)      continue;
+      if (fabs(recoMu2->innerTrack()->dz(beamSpot.position())) > 0.5)         continue;
       if (recoMu2->combinedMuon()->hitPattern().numberOfValidPixelHits() < 1) continue;
-      if (recoMu2->numberOfMatches() < 2)                                     continue;
-      
+      if (recoMu2->track()->hitPattern().trackerLayersWithMeasurement() <= 5) continue;
+     
       h_passProbes_TightMu_pt->Fill(recoMu2->pt());
       h_passProbes_TightMu_eta->Fill(recoMu2->eta());
       h_passProbes_TightMu_phi->Fill(recoMu2->phi());
@@ -288,9 +292,9 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
       }
       
       //-- Define PF relative isolation
-      float chargedIso = recoMu2->pfIsolationR03().sumChargedHadronPt;
-      float neutralIso = recoMu2->pfIsolationR03().sumNeutralHadronEt;
-      float photonIso = recoMu2->pfIsolationR03().sumPhotonEt;
+      float chargedIso = recoMu2->pfIsolationR04().sumChargedHadronPt;
+      float neutralIso = recoMu2->pfIsolationR04().sumNeutralHadronEt;
+      float photonIso = recoMu2->pfIsolationR04().sumPhotonEt;
       float relPFIso = (chargedIso + neutralIso + photonIso) /  (recoMu2->pt()); 
       
       if (relPFIso < 0.15 ) { 

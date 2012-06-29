@@ -133,12 +133,25 @@ void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& 
 	  }
 	}
 	// Also Tight-Tight Muon Selection
-	if (recoMu1->isGlobalMuon() && recoMu1->isTrackerMuon() && recoMu1->combinedMuon()->normalizedChi2()<10. 
-	    && recoMu1->combinedMuon()->hitPattern().numberOfValidMuonHits()>0 && fabs(recoMu1->combinedMuon()->dxy(beamSpot.position()))<0.2 
-	    && recoMu1->combinedMuon()->hitPattern().numberOfValidPixelHits()>0 && recoMu1->numberOfMatches() > 1   
-	    && recoMu2->isGlobalMuon() && recoMu2->isTrackerMuon() && recoMu2->combinedMuon()->normalizedChi2()<10. 
-	    && recoMu2->combinedMuon()->hitPattern().numberOfValidMuonHits()>0 && fabs(recoMu2->combinedMuon()->dxy(beamSpot.position()))<0.2 
-	    && recoMu2->combinedMuon()->hitPattern().numberOfValidPixelHits()>0 && recoMu2->numberOfMatches() > 1) {
+	if (recoMu1->isGlobalMuon() && 
+	    recoMu1->isPFMuon()     && 
+	    recoMu1->combinedMuon()->normalizedChi2()<10. && 
+	    recoMu1->numberOfMatchedStations() > 1 &&
+	    recoMu1->combinedMuon()->hitPattern().numberOfValidMuonHits()>0 && 
+	    fabs(recoMu1->combinedMuon()->dxy(beamSpot.position()))<0.2  &&
+	    fabs(recoMu1->innerTrack()->dz(beamSpot.position())) < 0.5 &&
+	    recoMu1->combinedMuon()->hitPattern().numberOfValidPixelHits()>0 && 
+	    recoMu1->track()->hitPattern().trackerLayersWithMeasurement() > 5 &&
+	    recoMu2->isGlobalMuon() && 
+	    recoMu2->isPFMuon()     && 
+	    recoMu2->combinedMuon()->normalizedChi2()<10. && 
+	    recoMu2->numberOfMatchedStations() > 1 &&
+	    recoMu2->combinedMuon()->hitPattern().numberOfValidMuonHits()>0 && 
+	    fabs(recoMu2->combinedMuon()->dxy(beamSpot.position()))<0.2  &&
+	    fabs(recoMu2->innerTrack()->dz(beamSpot.position())) < 0.5  &&
+	    recoMu2->combinedMuon()->hitPattern().numberOfValidPixelHits()>0 && 
+	    recoMu2->track()->hitPattern().trackerLayersWithMeasurement() > 5) {
+	  
 	  LogTrace(metname)<<"[DiMuonHistograms] Tight-Tight pair"<<endl;
 	  for (unsigned int iEtaRegion=0; iEtaRegion<3; iEtaRegion++){
 	    if (iEtaRegion==0) {EtaCutMin= 0.;         EtaCutMax=2.4;       }
