@@ -68,9 +68,20 @@ HcalRecHitMonitor::~HcalRecHitMonitor()
 
 void HcalRecHitMonitor::setup()
 {
+
   if (setupDone_)
+  {
+    // Always do a zeroing/resetting so that empty histograms/counter
+    // will always appear.
+  
+    // clear all counters, reset histograms
+    this->zeroCounters();
+    this->reset();
     return;
-  setupDone_=true;
+  }
+  else
+    setupDone_=true;
+
   HcalBaseDQMonitor::setup();
 
 
@@ -478,10 +489,6 @@ void HcalRecHitMonitor::setup()
   h_HFTime=dbe_->book1D("HF_time","HF RecHit Time",
 			int(RECHITMON_TIME_MAX-RECHITMON_TIME_MIN),RECHITMON_TIME_MIN,RECHITMON_TIME_MAX);
   h_HFOccupancy=dbe_->book1D("HF_occupancy","HF RecHit Occupancy",173,-0.5,1729.5);
-
-  // clear all counters, reset histograms
-  this->zeroCounters();
-  this->reset();
 
   return;
 } //void HcalRecHitMonitor::setup(...)

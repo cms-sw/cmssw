@@ -74,10 +74,18 @@ HcalDeadCellMonitor::~HcalDeadCellMonitor()
 void HcalDeadCellMonitor::setup()
 {
   if (setupDone_)
+  {
+    // Always do a zeroing/resetting so that empty histograms/counter
+    // will always appear.
+    zeroCounters(1); // make sure arrays are set up
+    this->reset();
+
     return;
-  setupDone_=true;
+  }
+  else
+    setupDone_=true;
+  
   HcalBaseDQMonitor::setup();
-  zeroCounters(1); // make sure arrays are set up
   if (debug_>0)
     std::cout <<"<HcalDeadCellMonitor::setup>  Setting up histograms"<<std::endl;
 
@@ -368,7 +376,6 @@ void HcalDeadCellMonitor::setup()
       HFDeadVsEvent=dbe_->book1D("HFDeadVsEvent","HF Total Dead Cells Vs Event", NLumiBlocks_/10,-0.5,NLumiBlocks_-0.5);
     }
 
-  this->reset();
   return;
 
 } // void HcalDeadCellMonitor::setup(...)
