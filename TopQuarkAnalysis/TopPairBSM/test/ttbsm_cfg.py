@@ -98,9 +98,9 @@ import sys
 # 4.2.x or 52x configuration
 fileTag = "52x"
 if options.useData :
-	process.GlobalTag.globaltag = cms.string( 'GR_R_52_V9B::All' )
+	process.GlobalTag.globaltag = cms.string( 'GR_R_52_V9D::All' )
 else :
-	process.GlobalTag.globaltag = cms.string( 'START52_V11B::All' )
+	process.GlobalTag.globaltag = cms.string( 'START52_V11C::All' )
 
 
 # require scraping filter
