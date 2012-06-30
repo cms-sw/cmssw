@@ -84,10 +84,9 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg) :
 	_weightByIdFile = cfg.getUntrackedParameter< std::string > ("weightByIdFile");
 	
 	//setting the levels being used in the geometry comparator
-	AlignableObjectId dummy;
 	edm::LogInfo("TrackerGeometryCompare") << "levels: " << levels.size();
 	for (unsigned int l = 0; l < levels.size(); ++l){
-		theLevels.push_back( dummy.nameToType(levels[l]));
+		theLevels.push_back(AlignableObjectId::stringToId(levels[l]));
 		edm::LogInfo("TrackerGeometryCompare") << "level: " << levels[l];
 	}
 	
@@ -415,8 +414,7 @@ void TrackerGeometryCompare::setCommonTrackerSystem(){
 
 	edm::LogInfo("TrackerGeometryCompare") << "Setting Common Tracker System....";
 	
-	AlignableObjectId dummy;
-	_commonTrackerLevel = dummy.nameToType(_setCommonTrackerSystem);
+	_commonTrackerLevel = AlignableObjectId::stringToId(_setCommonTrackerSystem);
 		
 	diffCommonTrackerSystem(referenceTracker, currentTracker);
 	
