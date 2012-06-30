@@ -19,7 +19,7 @@ process.MessageLogger = cms.Service("MessageLogger")
 
 process.jecAnalyzer = cms.EDAnalyzer("WrappedEDAnalysisTasksAnalyzerJEC",
   Jets = cms.InputTag("cleanPatJets"), 
-  jecLevel=cms.string("L3"),
+  jecLevel=cms.string("L3Absolute"),
   patJetCorrFactors= cms.string('CorrFactors'),
   help=cms.bool(False),
   outputFileName=cms.string("jecAnalyzerOutput")
