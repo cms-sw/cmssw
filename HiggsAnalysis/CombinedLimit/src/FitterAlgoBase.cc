@@ -93,7 +93,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooRealVar
 
 RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooArgList &rs, const RooCmdArg &constrain, bool doHesse, int ndim, bool reuseNLL) {
     RooFitResult *ret = 0;
-    if (reuseNLL) nll->setData(data);	// reuse nll but swap out the data
+    if (reuseNLL && nll.get() != 0) nll->setData(data);	// reuse nll but swap out the data
     else nll.reset(pdf.createNLL(data, constrain, RooFit::Extended(pdf.canBeExtended()))); // make a new nll
 
     double nll0 = nll->getVal();

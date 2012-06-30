@@ -91,7 +91,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
  
     // start with a best fit
     const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooFit::NumCPU(1);
-    std::auto_ptr<RooFitResult> res(doFit(pdf, data, (algo_ == Singles ? poiList_ : RooArgList()), constrainCmdArg)); 
+    std::auto_ptr<RooFitResult> res(doFit(pdf, data, (algo_ == Singles ? poiList_ : RooArgList()), constrainCmdArg, false, 1, true)); 
     if (res.get() || keepFailures_) {
         for (int i = 0, n = poi_.size(); i < n; ++i) {
             poiVals_[i] = poiVars_[i]->getVal();
@@ -312,6 +312,8 @@ void MultiDimFit::doContour2D(RooAbsReal &nll)
     // ===== Get relative min/max of x for several fixed y values =====
     yv->setConstant(true);
     for (unsigned int j = 0; j <= points_; ++j) {
+        if (j < firstPoint_) continue;
+        if (j > lastPoint_)  break;
         // take points uniformly spaced in polar angle in the case of a perfect circle
         double yc = 0.5*(yMax + yMin), yr = 0.5*(yMax - yMin);
         yv->setVal( yc + yr * std::cos(j*M_PI/double(points_)) );

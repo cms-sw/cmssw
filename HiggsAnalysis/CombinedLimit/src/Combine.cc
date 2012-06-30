@@ -481,11 +481,13 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       if (toysFrequentist_) {
           if (mc->GetGlobalObservables() == 0) throw std::logic_error("Cannot use toysFrequentist with no global observables");
           w->saveSnapshot("reallyClean", w->allVars());
+          utils::setAllConstant(*mc->GetParametersOfInterest(), true); 
           {
               if (dobs == 0) throw std::logic_error("Cannot use toysFrequentist with no input dataset");
               CloseCoutSentry sentry(verbose < 3);
               genPdf->fitTo(*dobs, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::Constrain(*(expectSignal_ ?mc:mc_bonly)->GetNuisanceParameters()));
           }
+          utils::setAllConstant(*mc->GetParametersOfInterest(), false); 
           w->saveSnapshot("clean", w->allVars());
           systDs = nuisancePdf->generate(*mc->GetGlobalObservables(), nToys);
       } else {
@@ -499,11 +501,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       RooAbsData *absdata_toy = 0;
       if (readToysFromHere == 0) {
 	w->loadSnapshot("clean");
-	if (verbose > 3) utils::printPdf(*mc_bonly);
+	if (verbose > 3) utils::printPdf(genPdf);
 	if (withSystematics && !toysNoSystematics_) {
 	  *vars = *systDs->get(iToy-1);
           if (toysFrequentist_) w->saveSnapshot("clean", w->allVars());
-	  if (verbose > 3) utils::printPdf(*mc_bonly);
+	  if (verbose > 3) utils::printPdf(genPdf);
 	}
         if (expectSignal_) ((RooRealVar*)POI->first())->setVal(expectSignal_);
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
