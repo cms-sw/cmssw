@@ -78,12 +78,8 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(const edm::ParameterSet& cfg):
   theEventPrescale = cfg.getParameter<int>("eventPrescale");
   theCurrentPrescale = theEventPrescale;
 	
-  AlignableObjectId dummy;
-	
-  const std::vector<std::string>& levels = cfg.getUntrackedParameter<std::vector<std::string> >("surveyResiduals");
-	
-  for (unsigned int l = 0; l < levels.size(); ++l) {
-    theLevels.push_back( dummy.nameToType(levels[l]) );
+  for (std::string &s : cfg.getUntrackedParameter<std::vector<std::string> >("surveyResiduals")) {
+    theLevels.push_back(AlignableObjectId::stringToId(s) );
   }
 	
   edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] constructed.";
