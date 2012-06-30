@@ -38,7 +38,6 @@ class PatTriggerAnalyzerPrescale : public edm::EDAnalyzer {
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DataFormats/PatCandidates/interface/TriggerEvent.h"
-#include <iostream>
 
 
 using namespace pat;
