@@ -9,7 +9,7 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/user/vadler/cms/PatTutorial/CMSSW_4_4_2/data/patTrigger_dataFromRAW.root'
+        '/store/user/vadler/cms/PatTutorial/CMSSW_5_2_5/data/patTrigger_dataFromRAW.root'
     )
 )
 process.maxEvents = cms.untracked.PSet(

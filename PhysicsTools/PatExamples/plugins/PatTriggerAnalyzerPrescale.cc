@@ -16,11 +16,11 @@ class PatTriggerAnalyzerPrescale : public edm::EDAnalyzer {
   ~PatTriggerAnalyzerPrescale(){};
 
  private:
-  /// everythin that needs to be done before the event loop
+  /// everything that needs to be done before the event loop
   virtual void beginJob();
-  /// everythin that needs to be done during the event loop
+  /// everything that needs to be done during the event loop
   virtual void analyze( const edm::Event & iEvent, const edm::EventSetup & iSetup );
-  /// everythin that needs to be done after the event loop
+  /// everything that needs to be done after the event loop
   virtual void endJob(){};
 
   /// histogram
