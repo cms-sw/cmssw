@@ -75,10 +75,9 @@ MuonGeometryArrange::MuonGeometryArrange(const edm::ParameterSet& cfg) :
 	_ring    = cfg.getUntrackedParameter<int> ("ringNumber");
 	
 	//setting the levels being used in the geometry comparator
-	AlignableObjectId dummy;
 	edm::LogInfo("MuonGeometryArrange") << "levels: " << levels.size();
 	for (unsigned int l = 0; l < levels.size(); ++l){
-		theLevels.push_back( dummy.nameToType(levels[l]));
+		theLevels.push_back( AlignableObjectId::stringToId(levels[l]));
 		edm::LogInfo("MuonGeometryArrange") << "level: " << levels[l];
 	}
 	

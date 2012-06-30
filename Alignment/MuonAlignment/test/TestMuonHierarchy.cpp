@@ -105,12 +105,11 @@ void TestMuonHierarchy::printInfo( const Alignable* alignable,
                                       unsigned int idau )
 {
   
-  static AlignableObjectId converter;
   int width = kLEAD_WIDTH-leaders_.length();
 
   std::ostringstream name,pos,rot;
 
-  name << converter.typeToName( alignable->alignableObjectId() ) << idau;
+  name << AlignableObjectId::idToString( alignable->alignableObjectId() ) << idau;
 
   // Position
   pos.setf(std::ios::fixed);

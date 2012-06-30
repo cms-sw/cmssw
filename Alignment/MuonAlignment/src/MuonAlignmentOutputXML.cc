@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Mar 14 18:02:33 CDT 2008
-// $Id: MuonAlignmentOutputXML.cc,v 1.8 2010/05/14 21:07:59 pivarski Exp $
+// $Id: MuonAlignmentOutputXML.cc,v 1.9 2011/06/07 19:38:24 khotilov Exp $
 //
 
 // system include files
@@ -181,8 +181,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables, alig
 
 	 if (DT) {
 	    if (m_rawIds  &&  rawId != 0) {
-	       static AlignableObjectId converter;
-	       std::string typeName = converter.typeToName(alignableObjectId);
+	       std::string typeName = AlignableObjectId::idToString(alignableObjectId);
 	       if (alignableObjectId == align::AlignableDTSuperLayer) typeName = std::string("DTSuperLayer");
 	       if (alignableObjectId == align::AlignableDetUnit) typeName = std::string("DTLayer");
 	       outputFile << "  <" << typeName << " rawId=\"" << rawId << "\" />" << std::endl;
@@ -220,8 +219,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables, alig
 
 	 else { // CSC
 	    if (m_rawIds  &&  rawId != 0) {
-	       static AlignableObjectId converter;
-	       std::string typeName = converter.typeToName(alignableObjectId);
+	       std::string typeName = AlignableObjectId::idToString(alignableObjectId);
 	       if (alignableObjectId == align::AlignableDetUnit) typeName = std::string("CSCLayer");
 	       outputFile << "  <" << typeName << " rawId=\"" << rawId << "\" />" << std::endl;
 	    }
