@@ -69,17 +69,15 @@ unsigned int AlignableBuilder::index( unsigned int level, align::ID id ) const
 void AlignableBuilder::build( unsigned int level, align::StructureType dauType,
                               AlignSetup<align::Alignables>& setup ) const
 {
-  AlignableObjectId objId;
-
   const LevelInfo& momInfo = theLevelInfos[level];
 
   align::StructureType momType = momInfo.type_;
 
-  const align::Alignables& daus = setup.find( objId.typeToName(dauType) );
+  const align::Alignables& daus = setup.find( AlignableObjectId::idToString(dauType) );
 
   unsigned int nDau = daus.size();
 
-  align::Alignables& moms = setup.get( objId.typeToName(momType) );
+  align::Alignables& moms = setup.get( AlignableObjectId::idToString(momType) );
 
   moms.reserve(nDau);
 

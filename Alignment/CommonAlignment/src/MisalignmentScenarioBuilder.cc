@@ -1,9 +1,9 @@
 /// \file
 ///
-/// $Date: 2009/03/20 17:27:42 $
-/// $Revision: 1.10 $
+/// $Date: 2010/11/29 20:41:55 $
+/// $Revision: 1.11 $
 ///
-/// $Author: flucke $
+/// $Author: wmtan $
 /// \author Frederic Ronga - CERN-PH-CMG
 
 #include <string>
@@ -29,7 +29,7 @@ void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet &pSet
   typedef std::map<std::string, std::vector<Alignable*> > AlignablesMap;
   AlignablesMap alisMap;
   for (std::vector<Alignable*>::const_iterator iA = alignables.begin(); iA != alignables.end(); ++iA) {
-    const std::string &levelName = theAlignableObjectId.typeToName((*iA)->alignableObjectId());
+    const std::string &levelName = AlignableObjectId::idToString((*iA)->alignableObjectId());
     alisMap[levelName].push_back(*iA); // either first entry of new level or add to an old one
   }
 
@@ -189,7 +189,7 @@ void MisalignmentScenarioBuilder::propagateParameters_( const edm::ParameterSet&
                                         << " - skipping PSet " << (*it) 
 					<< " not fitting into global " << globalName << std::endl;
 
-      } else if ( theAlignableObjectId.nameToType( rootName ) == align::invalid ) {
+      } else if ( AlignableObjectId::stringToId( rootName ) == align::invalid ) {
         // Parameter is not known!
         throw cms::Exception("BadConfig") << "Unknown parameter set name " << rootName;
       } else {

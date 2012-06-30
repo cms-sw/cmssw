@@ -18,6 +18,7 @@ public:
   std::string typeToName( align::StructureType type ) const;
   static const char *idToString(align::StructureType type);
   static align::StructureType stringToId(const char *);
+  static align::StructureType stringToId(const std::string &s) { return stringToId(s.c_str()); };
 };
 
 

@@ -7,13 +7,13 @@ using namespace align;
 //__________________________________________________________________________________________________
 Counter Counters::get(StructureType type) const
 {
-  std::map<StructureType, Counter>::const_iterator n = theCounters.find(type);
+  auto n = theCounters.find(type);
 
   if (theCounters.end() == n)
     {
       throw cms::Exception("SetupError")
         << "Cannot find counter corresponding to the structure "
-        << AlignableObjectId().typeToName(type);
+        << AlignableObjectId::idToString(type);
     }
 
   return n->second;
