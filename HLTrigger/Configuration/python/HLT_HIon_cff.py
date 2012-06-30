@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/HIon/V169 (CMSSW_5_2_6)
+# /dev/CMSSW_5_2_1/HIon/V170 (CMSSW_5_2_6)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V169')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V170')
 )
 
 streams = cms.PSet( 
@@ -3273,7 +3273,7 @@ hltMet = cms.EDProducer( "METProducer",
     pt_max = cms.double( 100.0 ),
     radius = cms.double( 130.0 ),
     nhits_tight_min = cms.double( 9.0 ),
-    beamSpotInputTag = cms.InputTag( "offlineBeamSpot" ),
+    beamSpotInputTag = cms.InputTag( "unused" ),
     dupDCotTh = cms.double( 6.0E-4 ),
     usedeltaRRejection = cms.bool( False ),
     trackInputTag = cms.InputTag( "generalTracks" ),
@@ -4797,7 +4797,7 @@ hltHIL3TrajSeedOIHit = cms.EDProducer( "TSGFromL2Muon",
       L3TkCollectionA = cms.InputTag( "hltHIL3MuonsOIState" ),
       iterativeTSG = cms.PSet( 
         ErrorRescaling = cms.double( 3.0 ),
-        beamSpot = cms.InputTag( "offlineBeamSpot" ),
+        beamSpot = cms.InputTag( "unused" ),
         MaxChi2 = cms.double( 40.0 ),
         errorMatrixPset = cms.PSet( 
           atIP = cms.bool( True ),
@@ -6757,7 +6757,7 @@ hltMetForHf = cms.EDProducer( "METProducer",
     pt_max = cms.double( 100.0 ),
     radius = cms.double( 130.0 ),
     nhits_tight_min = cms.double( 9.0 ),
-    beamSpotInputTag = cms.InputTag( "offlineBeamSpot" ),
+    beamSpotInputTag = cms.InputTag( "unused" ),
     dupDCotTh = cms.double( 6.0E-4 ),
     usedeltaRRejection = cms.bool( False ),
     trackInputTag = cms.InputTag( "generalTracks" ),

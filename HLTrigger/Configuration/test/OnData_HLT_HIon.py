@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V169 (CMSSW_5_2_6)
+# /dev/CMSSW_5_2_1/HIon/V170 (CMSSW_5_2_6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V169')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V170')
 )
 
 process.streams = cms.PSet( 
@@ -3055,6 +3055,17 @@ process.siStripLorentzAngleDepESProducer = cms.ESProducer( "SiStripLorentzAngleD
 )
 process.sistripconn = cms.ESProducer( "SiStripConnectivity" )
 
+process.FastTimerService = cms.Service( "FastTimerService",
+    dqmPath = cms.untracked.string( "HLT/TimerService" ),
+    useRealTimeClock = cms.untracked.bool( True ),
+    dqmTimeResolution = cms.untracked.double( 1.0 ),
+    enableDQMbyLumi = cms.untracked.bool( False ),
+    enableTimingPaths = cms.untracked.bool( True ),
+    enableTimingModules = cms.untracked.bool( True ),
+    enableDQM = cms.untracked.bool( True ),
+    dqmTimeRange = cms.untracked.double( 500.0 ),
+    enableTimingSummary = cms.untracked.bool( True )
+)
 process.DQM = cms.Service( "DQM",
     publishFrequency = cms.untracked.double( 5.0 ),
     debug = cms.untracked.bool( False ),
@@ -3125,11 +3136,15 @@ process.MessageLogger = cms.Service( "MessageLogger",
       FwkJob = cms.untracked.PSet(  limit = cms.untracked.int32( 10000000 ) )
     ),
     suppressWarning = cms.untracked.vstring( 'hltOnlineBeamSpot',
+      'hltCtf3HitL1SeededWithMaterialTracks',
       'hltL3MuonsOIState',
       'hltPixelTracksForHighMult',
       'hltHITPixelTracksHE',
       'hltHITPixelTracksHB',
+      'hltCtfL1SeededWithMaterialTracks',
+      'hltRegionalTracksForL3MuonIsolation',
       'hltSiPixelClusters',
+      'hltActivityStartUpElectronPixelSeeds',
       'hltLightPFTracks',
       'hltPixelVertices3DbbPhi',
       'hltL3MuonsIOHit',
@@ -3169,6 +3184,7 @@ process.MessageLogger = cms.Service( "MessageLogger",
     suppressError = cms.untracked.vstring( 'hltOnlineBeamSpot',
       'hltL3MuonCandidates',
       'hltL3TkTracksFromL2OIState',
+      'hltPFJetCtfWithMaterialTracks',
       'hltL3TkTracksFromL2IOHit',
       'hltL3TkTracksFromL2OIHit' )
 )
@@ -3939,7 +3955,7 @@ process.hltMet = cms.EDProducer( "METProducer",
     pt_max = cms.double( 100.0 ),
     radius = cms.double( 130.0 ),
     nhits_tight_min = cms.double( 9.0 ),
-    beamSpotInputTag = cms.InputTag( "offlineBeamSpot" ),
+    beamSpotInputTag = cms.InputTag( "unused" ),
     dupDCotTh = cms.double( 6.0E-4 ),
     usedeltaRRejection = cms.bool( False ),
     trackInputTag = cms.InputTag( "generalTracks" ),
@@ -5463,7 +5479,7 @@ process.hltHIL3TrajSeedOIHit = cms.EDProducer( "TSGFromL2Muon",
       L3TkCollectionA = cms.InputTag( "hltHIL3MuonsOIState" ),
       iterativeTSG = cms.PSet( 
         ErrorRescaling = cms.double( 3.0 ),
-        beamSpot = cms.InputTag( "offlineBeamSpot" ),
+        beamSpot = cms.InputTag( "unused" ),
         MaxChi2 = cms.double( 40.0 ),
         errorMatrixPset = cms.PSet( 
           atIP = cms.bool( True ),
@@ -7423,7 +7439,7 @@ process.hltMetForHf = cms.EDProducer( "METProducer",
     pt_max = cms.double( 100.0 ),
     radius = cms.double( 130.0 ),
     nhits_tight_min = cms.double( 9.0 ),
-    beamSpotInputTag = cms.InputTag( "offlineBeamSpot" ),
+    beamSpotInputTag = cms.InputTag( "unused" ),
     dupDCotTh = cms.double( 6.0E-4 ),
     usedeltaRRejection = cms.bool( False ),
     trackInputTag = cms.InputTag( "generalTracks" ),
