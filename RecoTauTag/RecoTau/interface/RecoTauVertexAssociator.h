@@ -22,11 +22,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 
-// histograms
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "TH1.h"
-
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include <map>
@@ -73,20 +68,6 @@ class RecoTauVertexAssociator {
     //PJ adding quality cuts
     RecoTauQualityCuts qcuts_;
     bool recoverLeadingTrk;
-    bool makeHisto;
-
-    // histograms
-#ifdef EDM_ML_DEBUG
-    TH1D* nTracks;
-    TH1D* filteredTracks;
-    TH1D* removedTracks;
-    TH1D* leadingRemoved;
-    TH1D* nVertex;
-    TH1D* Vx_id;
-    TH1D* Vx_id_LR;
-    TH1D* h_dz;
-    TH1D* h_dz_assoc;
-#endif
 
 };
 
