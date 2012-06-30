@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.30 $
- *  $Date: 2010/09/10 13:31:54 $
+ *  $Revision: 1.31 $
+ *  $Date: 2011/02/16 13:11:57 $
  *  (last update by $Author: mussgill $)
  */
 
@@ -446,10 +446,9 @@ unsigned int PedeSteerer::hierarchyConstraints(const std::vector<Alignable*> &al
        iA != iEnd; ++iA) {
     aliDaughts.clear();
     if (!(*iA)->firstCompsWithParams(aliDaughts)) {
-      static AlignableObjectId objId; // static since costly constructor FIXME?
       edm::LogWarning("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
 				   << "Some but not all daughters of "
-				   << objId. typeToName((*iA)->alignableObjectId())
+				   << AlignableObjectId::idToString((*iA)->alignableObjectId())
 				   << " with params!";
     }
 //     edm::LogInfo("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
@@ -513,9 +512,8 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
       // FIXME: multiply by cmsToPedeFactor(subcomponent)/cmsToPedeFactor(mother) (or vice a versa?)
       aConstr << paramLabel << "    " << factors[iParam];
       if (myIsSteerFileDebug) { // debug
-	AlignableObjectId objId; // costly constructor, but only debug here...
 	aConstr << "   ! for param " << compParNum << " of a " 
-		<< objId.typeToName(aliSubComp->alignableObjectId()) << " at " 
+		<< AlignableObjectId::idToString(aliSubComp->alignableObjectId()) << " at " 
 		<< aliSubComp->globalPosition() << ", r=" << aliSubComp->globalPosition().perp();
       }
       aConstr << "\n";
@@ -525,9 +523,8 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
     // 
     if (nParPerConstr && nParPerConstr >= theMinHieraParPerConstr) { // Enough to make sense?
       if (myIsSteerFileDebug) { //debug
-	AlignableObjectId objId; // costly constructor, but only debug here...
 	file << "\n* Nr. " << iConstr << " of a '"
-	     << objId.typeToName(ali->alignableObjectId()) << "' (label "
+	     << AlignableObjectId::idToString(ali->alignableObjectId()) << "' (label "
 	     << myLabels->alignableLabel(const_cast<Alignable*>(ali)) // ugly cast: FIXME!
 	     << "), position " << ali->globalPosition()
 	     << ", r = " << ali->globalPosition().perp();
@@ -574,7 +571,7 @@ unsigned int PedeSteerer::presigmas(const std::vector<edm::ParameterSet> &cffPre
             throw cms::Exception("BadConfig")
               << "[PedeSteerer::presigmas]: Try to set pre-sigma " << presigma << ", but already "
               << "set " << presigmas[iParam] << " (for a " 
-              << AlignableObjectId().typeToName(alis[iAli]->alignableObjectId()) << ").";
+              << AlignableObjectId::idToString(alis[iAli]->alignableObjectId()) << ").";
           }
           presigmas[iParam] = presigma;
         } // end if selected for presigma
@@ -594,7 +591,6 @@ unsigned int PedeSteerer::presigmasFile(const std::string &fileName,
   // Check if 'alis' are in aliPresiMap, 
   // if yes apply presigma - but NOT if parameter is fixed!
   std::ofstream *filePtr = 0;
-  const AlignableObjectId aliObjId;
 
   unsigned int nPresiParam = 0;
   for (std::vector<Alignable*>::const_iterator iAli = alis.begin(), iAliE = alis.end();
@@ -624,7 +620,7 @@ unsigned int PedeSteerer::presigmasFile(const std::string &fileName,
       (*filePtr) << myLabels->parameterLabel(aliLabel, iParam) << "   0.   " 
                  << presigmas[iParam] * fabs(this->cmsToPedeFactor(iParam));
       if (myIsSteerFileDebug) {
-	(*filePtr) << "  ! for a " << aliObjId.typeToName((*iAli)->alignableObjectId());
+	(*filePtr) << "  ! for a " << AlignableObjectId::idToString((*iAli)->alignableObjectId());
       }
       (*filePtr) << '\n';
 
