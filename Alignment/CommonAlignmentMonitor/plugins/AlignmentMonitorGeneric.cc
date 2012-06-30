@@ -14,8 +14,6 @@ AlignmentMonitorGeneric::AlignmentMonitorGeneric(const edm::ParameterSet& cfg):
 
 void AlignmentMonitorGeneric::book()
 {
-  static AlignableObjectId idMap;
-
   std::vector<std::string> residNames; // names of residual histograms
 
   residNames.push_back("x hit residuals pos track");
@@ -44,12 +42,12 @@ void AlignmentMonitorGeneric::book()
       const std::string& name = residNames[n];
 
       TString histName(name.c_str());
-      histName += Form("_%s_%d", idMap.typeToName(type).c_str(), id);
+      histName += Form("_%s_%d", AlignableObjectId::idToString(type), id);
       histName.ReplaceAll(" ", "");
 
       TString histTitle(name.c_str());
       histTitle += Form(" for %s with ID %d (subdet %d)",
-			idMap.typeToName(type).c_str(),
+			AlignableObjectId::idToString(type),
 			id, DetId(id).subdetId());
 
       hists[n] = book1D(std::string("/iterN/") + std::string(name) + std::string("/"), std::string(histName), std::string(histTitle), nBin_, -5., 5.);

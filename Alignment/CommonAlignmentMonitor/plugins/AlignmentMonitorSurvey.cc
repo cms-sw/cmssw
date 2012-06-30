@@ -7,13 +7,11 @@
 AlignmentMonitorSurvey::AlignmentMonitorSurvey(const edm::ParameterSet& cfg)
   :AlignmentMonitorBase(cfg, "AlignmentMonitorSurvey")
 {
-  static AlignableObjectId dummy;
-
   const std::vector<std::string>& levels = cfg.getUntrackedParameter< std::vector<std::string> >("surveyResiduals");
 
   for (unsigned int l = 0; l < levels.size(); ++l)
   {
-    theLevels.push_back( dummy.nameToType(levels[l]) );
+    theLevels.push_back(AlignableObjectId::stringToId(levels[l]) );
   }
 }
 
