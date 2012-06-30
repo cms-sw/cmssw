@@ -134,14 +134,12 @@ void AlignableTracker::detsToAlignables( const TrackingGeometry::DetContainer& d
 //__________________________________________________________________________________________________
 void AlignableTracker::buildBarrel(const std::string& subDet)
 {
-  AlignableObjectId objId;
-
   align::Alignables& halfBarrels = alignableLists_.find(subDet + "HalfBarrel");
 
   const std::string barrelName(subDet + "Barrel");
   align::Alignables &barrel = alignableLists_.get(barrelName);
   barrel.reserve(1);
-  barrel.push_back(new AlignableComposite(halfBarrels[0]->id(), objId.nameToType(barrelName),
+  barrel.push_back(new AlignableComposite(halfBarrels[0]->id(),AlignableObjectId::stringToId(barrelName),
 					  RotationType()));
   barrel[0]->addComponent(halfBarrels[0]);
   barrel[0]->addComponent(halfBarrels[1]);

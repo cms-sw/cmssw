@@ -9,7 +9,7 @@
 //
 // Original Author:  Frederic Ronga
 //         Created:  March 16, 2006
-//         $Id$
+//         $Id: TestTrackerHierarchy.cpp,v 1.5 2008/04/29 18:57:49 flucke Exp $
 
 
 // system include files
@@ -114,13 +114,11 @@ void TestTrackerHierarchy::dumpAlignable( const Alignable* alignable,
 void TestTrackerHierarchy::printInfo( const Alignable* alignable,
                                       unsigned int idau )
 {
-  
-  static AlignableObjectId converter;
   int width = kLEAD_WIDTH-leaders_.length();
 
   std::ostringstream name,pos,rot;
 
-  name << converter.typeToName( alignable->alignableObjectId() ) << idau;
+  name << AlignableObjectId::idToString( alignable->alignableObjectId() ) << idau;
 
   // Position
   pos.setf(std::ios::fixed);
