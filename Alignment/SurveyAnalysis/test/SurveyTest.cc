@@ -16,13 +16,11 @@ SurveyTest::SurveyTest(const edm::ParameterSet& cfg):
 {
   typedef std::vector<std::string> Strings;
 
-  static AlignableObjectId dummy;
-
   const Strings& hierarchy = cfg.getParameter<Strings>("hierarch");
 
   for (unsigned int l = 0; l < hierarchy.size(); ++l)
   {
-    theHierarchy.push_back( dummy.nameToType(hierarchy[l]) );
+    theHierarchy.push_back(AlignableObjectId::stringToId(hierarchy[l]) );
   }
 }
 

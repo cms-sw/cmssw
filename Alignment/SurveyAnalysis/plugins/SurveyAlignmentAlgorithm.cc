@@ -19,13 +19,11 @@ void SurveyAlignmentAlgorithm::initialize(const edm::EventSetup&,
 					  AlignableExtras*,
 					  AlignmentParameterStore* store)
 {
-  static AlignableObjectId dummy;
-
   std::vector<align::StructureType> levels;
 
   for (unsigned int l = 0; l < theLevels.size(); ++l)
   {
-    levels.push_back(dummy.nameToType(theLevels[l]));
+    levels.push_back(AlignableObjectId::stringToId(theLevels[l].c_str()));
   }
 
   SurveyAlignmentSensor align(store->alignables(), levels);

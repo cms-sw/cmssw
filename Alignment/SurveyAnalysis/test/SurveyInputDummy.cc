@@ -15,8 +15,6 @@ SurveyInputDummy::SurveyInputDummy(const edm::ParameterSet& cfg):
 {
   typedef std::vector<edm::ParameterSet> ParameterSets;
  
-  static AlignableObjectId idMap;
-
   const ParameterSets& errors = cfg.getParameter<ParameterSets>("errors");
 
   unsigned int nError = errors.size();
@@ -25,7 +23,7 @@ SurveyInputDummy::SurveyInputDummy(const edm::ParameterSet& cfg):
   {
     const edm::ParameterSet& error = errors[i];
 
-    theErrors[idMap.nameToType( error.getParameter<std::string>("level") )]
+    theErrors[AlignableObjectId::stringToId( error.getParameter<std::string>("level") )]
       = error.getParameter<double>("value");
   }
 }

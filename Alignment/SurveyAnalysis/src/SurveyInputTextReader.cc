@@ -15,8 +15,6 @@ void SurveyInputTextReader::readFile( const std::string& textFileName )
   if ( !myfile.is_open() )
         throw cms::Exception("FileAccess") << "Unable to open input text file";
 
-  static AlignableObjectId alignObjId;
-	
   while ( !myfile.eof() && myfile.good() )
     {
       align::Scalars m_inputs;
@@ -35,7 +33,7 @@ void SurveyInputTextReader::readFile( const std::string& textFileName )
 	myfile >> firststring >> structure;
 	std::string endofline;
 	getline(myfile,endofline);
-	m_uId.second = alignObjId.nameToType(structure);
+	m_uId.second = AlignableObjectId::stringToId(structure.c_str());
       }
       else{
 	myfile >> m_uId.first;
