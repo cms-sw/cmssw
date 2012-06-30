@@ -20,7 +20,7 @@ class PhysicsModel:
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
         # --- Signal Strength as only POI --- 
-        self.modelBuilder.doVar("r[0,20]");
+        self.modelBuilder.doVar("r[1,0,20]");
         self.modelBuilder.doSet("POI","r")
         # --- Higgs Mass as other parameter ----
         if self.options.mass != 0:
