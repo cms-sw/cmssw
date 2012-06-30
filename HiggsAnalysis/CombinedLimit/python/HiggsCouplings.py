@@ -201,24 +201,14 @@ class RzwHiggs(SMLikeHiggsModel):
     def setup(self):
         for d in [ "hww", "hzz" ]:
             self.SMH.makeBR(d)
-        self.modelBuilder.doVar("Rw[1,0,10]")
-        self.modelBuilder.factory_('expr::Rz("@0*@1", Rw, Rzw)')
-            
-        ## total witdhs, normalized to the SM one
-        self.modelBuilder.factory_('expr::Rzw_Gscal_tot("@0*@1 + @2*@3 + (1.0-@1-@3)", \
-                                   Rw, SM_BR_hww, Rz, SM_BR_hzz)')
-        ## BRs, normalized to the SM ones: they scale as (partial/partial_SM) / (total/total_SM) 
-        self.modelBuilder.factory_('expr::Rzw_BRscal_hww("@0/@1", Rw, Rzw_Gscal_tot)')
-        self.modelBuilder.factory_('expr::Rzw_BRscal_hzz("@0/@1", Rz, Rzw_Gscal_tot)')
-               
+        self.modelBuilder.doVar("Rhww[1,0,10]")
+        self.modelBuilder.factory_('expr::Rhzz("@0*@1", Rhww, Rzw)')               
         
     def getHiggsSignalYieldScale(self,production,decay,energy):
         if decay not in ['hww', 'hzz']:
             return 0
-        if production not in ['ggH']:
-            return 1
         else:
-            return 'Rzw_BRscal_%s' % decay
+            return 'R%s' % decay
 
 class RwzHiggs(SMLikeHiggsModel):
     "scale WW by mu and ZZ by cZW^2 * mu"
@@ -259,24 +249,15 @@ class RwzHiggs(SMLikeHiggsModel):
     def setup(self):
         for d in [ "hww", "hzz" ]:
             self.SMH.makeBR(d)
-        self.modelBuilder.doVar("Rz[1,0,10]")
-        self.modelBuilder.factory_('expr::Rw("@0*@1", Rz, Rwz)')
-            
-        ## total witdhs, normalized to the SM one
-        self.modelBuilder.factory_('expr::Rwz_Gscal_tot("@0*@1 + @2*@3 + (1.0-@1-@3)", \
-                                   Rw, SM_BR_hww, Rz, SM_BR_hzz)')
-        ## BRs, normalized to the SM ones: they scale as (partial/partial_SM) / (total/total_SM) 
-        self.modelBuilder.factory_('expr::Rwz_BRscal_hww("@0/@1", Rw, Rwz_Gscal_tot)')
-        self.modelBuilder.factory_('expr::Rwz_BRscal_hzz("@0/@1", Rz, Rwz_Gscal_tot)')
+        self.modelBuilder.doVar("Rhzz[1,0,10]")
+        self.modelBuilder.factory_('expr::Rhww("@0*@1", Rhzz, Rwz)')
                
         
     def getHiggsSignalYieldScale(self,production,decay,energy):
         if decay not in ['hww', 'hzz']:
             return 0
-        if production not in ['ggH']:
-            return 1
         else:
-            return 'Rwz_BRscal_%s' % decay
+            return 'R%s' % decay
 
 
 
