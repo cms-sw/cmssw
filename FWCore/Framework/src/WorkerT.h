@@ -92,6 +92,7 @@ namespace edm {
   }
 
   template<typename T>
+  inline
   bool 
   WorkerT<T>::implDoBegin(EventPrincipal& ep, EventSetup const& c, CurrentProcessingContext const* cpc) {
     UnscheduledHandlerSentry s(ep.unscheduledHandler().get(), cpc);
@@ -100,84 +101,98 @@ namespace edm {
   }
 
   template<typename T>
+  inline
   bool 
   WorkerT<T>::implDoEnd(EventPrincipal&, EventSetup const&, CurrentProcessingContext const*) {
     return false;
   }
 
   template<typename T>
+  inline
   bool
   WorkerT<T>::implDoBegin(RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc) {
     return module_->doBeginRun(rp, c, cpc);
   }
 
   template<typename T>
+  inline
   bool
   WorkerT<T>::implDoEnd(RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc) {
     return module_->doEndRun(rp, c, cpc);
   }
 
   template<typename T>
+  inline
   bool
   WorkerT<T>::implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc) {
     return module_->doBeginLuminosityBlock(lbp, c, cpc);
   }
 
   template<typename T>
+  inline
   bool
   WorkerT<T>::implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc) {
     return module_->doEndLuminosityBlock(lbp, c, cpc);
   }
 
   template<typename T>
+  inline
   std::string
   WorkerT<T>::workerType() const {
     return module_->workerType();
   }
 
   template<typename T>
+  inline
   void
   WorkerT<T>::implBeginJob() {
     module_->doBeginJob();
   }
 
   template<typename T>
+  inline
   void
   WorkerT<T>::implEndJob() {
     module_->doEndJob();
   }
 
   template<typename T>
+  inline
   void
   WorkerT<T>::implRespondToOpenInputFile(FileBlock const& fb) {
     module_->doRespondToOpenInputFile(fb);
   }
 
   template<typename T>
+  inline
   void
   WorkerT<T>::implRespondToCloseInputFile(FileBlock const& fb) {
     module_->doRespondToCloseInputFile(fb);
   }
 
   template<typename T>
+  inline
   void
   WorkerT<T>::implRespondToOpenOutputFiles(FileBlock const& fb) {
     module_->doRespondToOpenOutputFiles(fb);
   }
 
   template<typename T>
+  inline
   void
   WorkerT<T>::implRespondToCloseOutputFiles(FileBlock const& fb) {
     module_->doRespondToCloseOutputFiles(fb);
   }
 
   template<typename T>
+  inline
   void 
   WorkerT<T>::implPreForkReleaseResources() {
     module_->doPreForkReleaseResources();
   }
 
   template<typename T>
+  inline
   void 
   WorkerT<T>::implPostForkReacquireResources(unsigned int iChildIndex, 
                                             unsigned int iNumberOfChildren) {
