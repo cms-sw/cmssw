@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.51 2011/07/27 15:45:48 wanx Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.52 2011/09/15 08:06:07 mussgill Exp $
 //
 //
 
@@ -201,12 +201,10 @@ private:
   virtual void checkBookHists(const edm::EventSetup& setup);
 
   void bookGlobalHists(DirectoryWrapper& tfd);
-  void bookDirHists(DirectoryWrapper& tfd, const Alignable& ali, const AlignableObjectId& aliobjid);
-  void bookHists(DirectoryWrapper& tfd, const Alignable& ali, align::StructureType type, int i, 
-		 const AlignableObjectId& aliobjid);
+  void bookDirHists(DirectoryWrapper& tfd, const Alignable& ali);
+  void bookHists(DirectoryWrapper& tfd, const Alignable& ali, align::StructureType type, int i); 
  
   void collateSummaryHists( DirectoryWrapper& tfd, const Alignable& ali, int i, 
-			    const AlignableObjectId& aliobjid, 
 			    std::vector<TrackerOfflineValidation::SummaryContainer>& vLevelProfiles);
   
   void fillTree(TTree& tree, const std::map<int, TrackerOfflineValidation::ModuleHistos>& moduleHist_, 
@@ -214,8 +212,7 @@ private:
   
   TrackerOfflineValidation::SummaryContainer bookSummaryHists(DirectoryWrapper& tfd, 
 							      const Alignable& ali, 
-							      align::StructureType type, int i, 
-							      const AlignableObjectId& aliobjid); 
+							      align::StructureType type, int i); 
 
   ModuleHistos& getHistStructFromMap(const DetId& detid); 
 
@@ -391,8 +388,6 @@ TrackerOfflineValidation::checkBookHists(const edm::EventSetup& es)
   if (newBareTkGeomPtr == bareTkGeomPtr_) return; // already booked hists, nothing changed
 
   if (!bareTkGeomPtr_) { // pointer not yet set: called the first time => book hists
-    AlignableObjectId aliobjid;
-    
     // construct alignable tracker to get access to alignable hierarchy 
     AlignableTracker aliTracker(&(*tkGeom_));
     
@@ -408,7 +403,7 @@ TrackerOfflineValidation::checkBookHists(const edm::EventSetup& es)
     
     // recursively book histogramms on lowest level
     DirectoryWrapper tfdw("",moduleDirectory_,dqmMode_);
-    this->bookDirHists(tfdw, aliTracker, aliobjid);
+    this->bookDirHists(tfdw, aliTracker);
   }
   else { // histograms booked, but changed TrackerGeometry?
     edm::LogWarning("GeometryChange") << "@SUB=checkBookHists"
@@ -592,11 +587,11 @@ TrackerOfflineValidation::bookGlobalHists(DirectoryWrapper& tfd )
 
 
 void
-TrackerOfflineValidation::bookDirHists(DirectoryWrapper& tfd, const Alignable& ali, const AlignableObjectId& aliobjid)
+TrackerOfflineValidation::bookDirHists(DirectoryWrapper& tfd, const Alignable& ali)
 {
   std::vector<Alignable*> alivec(ali.components());
   for(int i=0, iEnd = ali.components().size();i < iEnd; ++i) {
-    std::string structurename  = aliobjid.typeToName((alivec)[i]->alignableObjectId());
+    std::string structurename  = AlignableObjectId::idToString((alivec)[i]->alignableObjectId());
     LogDebug("TrackerOfflineValidation") << "StructureName = " << structurename;
     std::stringstream dirname;
     dirname << structurename;
@@ -605,22 +600,22 @@ TrackerOfflineValidation::bookDirHists(DirectoryWrapper& tfd, const Alignable& a
 
     if (structurename.find("Endcap",0) != std::string::npos ) {
       DirectoryWrapper f(tfd,dirname.str(),moduleDirectory_,dqmMode_);
-      bookHists(f, *(alivec)[i], ali.alignableObjectId() , i, aliobjid);
-      bookDirHists( f, *(alivec)[i], aliobjid);
+      bookHists(f, *(alivec)[i], ali.alignableObjectId() , i);
+      bookDirHists( f, *(alivec)[i]);
     } else if( !(this->isDetOrDetUnit( (alivec)[i]->alignableObjectId()) )
 	      || alivec[i]->components().size() > 1) {      
       DirectoryWrapper f(tfd,dirname.str(),moduleDirectory_,dqmMode_);
-      bookHists(tfd, *(alivec)[i], ali.alignableObjectId() , i, aliobjid);
-      bookDirHists( f, *(alivec)[i], aliobjid);
+      bookHists(tfd, *(alivec)[i], ali.alignableObjectId() , i);
+      bookDirHists( f, *(alivec)[i]);
     } else {
-      bookHists(tfd, *(alivec)[i], ali.alignableObjectId() , i, aliobjid);
+      bookHists(tfd, *(alivec)[i], ali.alignableObjectId() , i);
     }
   }
 }
 
 
 void 
-TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali, align::StructureType type, int i, const AlignableObjectId& aliobjid)
+TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali, align::StructureType type, int i)
 {
   TrackerAlignableId aliid;
   const DetId id = ali.id();
@@ -1205,8 +1200,6 @@ TrackerOfflineValidation::endJob()
 
   AlignableTracker aliTracker(&(*tkGeom_));
   
-  AlignableObjectId aliobjid;
-  
   static const int kappadiffindex = this->GetIndex(vTrackHistos_,"h_diff_curvature");
   vTrackHistos_[kappadiffindex]->Add(vTrackHistos_[this->GetIndex(vTrackHistos_,"h_curvature_neg")],
 				     vTrackHistos_[this->GetIndex(vTrackHistos_,"h_curvature_pos")],-1,1);
@@ -1215,7 +1208,7 @@ TrackerOfflineValidation::endJob()
   // create summary histogramms recursively
   std::vector<TrackerOfflineValidation::SummaryContainer> vTrackerprofiles;
   DirectoryWrapper f("",moduleDirectory_,dqmMode_);
-  this->collateSummaryHists(f,(aliTracker), 0, aliobjid, vTrackerprofiles);
+  this->collateSummaryHists(f,(aliTracker), 0, vTrackerprofiles);
   
   if (dqmMode_) return;
   // Should be excluded in dqmMode, since TTree is not usable
@@ -1243,7 +1236,6 @@ TrackerOfflineValidation::endJob()
 
 void
 TrackerOfflineValidation::collateSummaryHists( DirectoryWrapper& tfd, const Alignable& ali, int i, 
-					       const AlignableObjectId& aliobjid, 
 					       std::vector<TrackerOfflineValidation::SummaryContainer>& vLevelProfiles)
 {
   std::vector<Alignable*> alivec(ali.components());
@@ -1251,7 +1243,7 @@ TrackerOfflineValidation::collateSummaryHists( DirectoryWrapper& tfd, const Alig
   
   for(int iComp=0, iCompEnd = ali.components().size();iComp < iCompEnd; ++iComp) {
     std::vector< TrackerOfflineValidation::SummaryContainer > vProfiles;        
-    std::string structurename  = aliobjid.typeToName((alivec)[iComp]->alignableObjectId());
+    std::string structurename  = AlignableObjectId::idToString((alivec)[iComp]->alignableObjectId());
     
     LogDebug("TrackerOfflineValidation") << "StructureName = " << structurename;
     std::stringstream dirname;
@@ -1263,8 +1255,8 @@ TrackerOfflineValidation::collateSummaryHists( DirectoryWrapper& tfd, const Alig
     if(  !(this->isDetOrDetUnit( (alivec)[iComp]->alignableObjectId()) )
 	 || (alivec)[0]->components().size() > 1 ) {
       DirectoryWrapper f(tfd,dirname.str(),moduleDirectory_,dqmMode_);
-      this->collateSummaryHists( f, *(alivec)[iComp], i, aliobjid, vProfiles);
-      vLevelProfiles.push_back(this->bookSummaryHists(tfd, *(alivec[iComp]), ali.alignableObjectId(), iComp+1, aliobjid));
+      this->collateSummaryHists( f, *(alivec)[iComp], i, vProfiles);
+      vLevelProfiles.push_back(this->bookSummaryHists(tfd, *(alivec[iComp]), ali.alignableObjectId(), iComp+1));
       TH1 *hY = vLevelProfiles[iComp].sumYResiduals_;
       TH1 *hNormY = vLevelProfiles[iComp].sumNormYResiduals_;
       for(uint n = 0; n < vProfiles.size(); ++n) {
@@ -1290,15 +1282,14 @@ TrackerOfflineValidation::collateSummaryHists( DirectoryWrapper& tfd, const Alig
 
 TrackerOfflineValidation::SummaryContainer 
 TrackerOfflineValidation::bookSummaryHists(DirectoryWrapper& tfd, const Alignable& ali, 
-					   align::StructureType type, int i, 
-					   const AlignableObjectId& aliobjid)
+					   align::StructureType type, int i) 
 {
   const uint aliSize = ali.components().size();
   const align::StructureType alitype = ali.alignableObjectId();
   const align::StructureType subtype = ali.components()[0]->alignableObjectId();
-  const char *aliTypeName = aliobjid.typeToName(alitype).c_str(); // lifetime of char* OK
-  const char *aliSubtypeName = aliobjid.typeToName(subtype).c_str();
-  const char *typeName = aliobjid.typeToName(type).c_str();
+  const char *aliTypeName = AlignableObjectId::idToString(alitype); // lifetime of char* OK
+  const char *aliSubtypeName = AlignableObjectId::idToString(subtype);
+  const char *typeName = AlignableObjectId::idToString(type);
 
   const DetId aliDetId = ali.id(); 
   // y residuals only if pixel or specially requested for strip:
@@ -1338,7 +1329,7 @@ TrackerOfflineValidation::bookSummaryHists(DirectoryWrapper& tfd, const Alignabl
     }
     // title contains x-title
     const TString title(Form("Summary for substructures in %s %d;%s;", aliTypeName, i,
-			     aliobjid.typeToName(ali.components()[0]->components()[0]->alignableObjectId()).c_str()));
+			     AlignableObjectId::idToString(ali.components()[0]->components()[0]->alignableObjectId())));
     
     sumContainer.summaryXResiduals_ 
       = tfd.make<TH1F>(Form("h_summaryX%s_%d", aliTypeName, i), 

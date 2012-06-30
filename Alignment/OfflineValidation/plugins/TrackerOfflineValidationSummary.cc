@@ -13,7 +13,7 @@
 //
 // Original Author:  Johannes Hauk
 //         Created:  Sat Aug 22 10:31:34 CEST 2009
-// $Id: TrackerOfflineValidationSummary.cc,v 1.5 2009/12/11 19:10:32 hauk Exp $
+// $Id: TrackerOfflineValidationSummary.cc,v 1.6 2011/12/20 15:11:41 mussgill Exp $
 //
 //
 
@@ -210,7 +210,6 @@ void
 TrackerOfflineValidationSummary::endJob()
 {
   AlignableTracker aliTracker(&(*tkGeom_));
-  AlignableObjectId aliobjid;
   
   TTree* tree = new TTree("TkOffVal","TkOffVal");
   
