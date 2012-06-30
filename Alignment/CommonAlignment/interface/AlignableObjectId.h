@@ -16,9 +16,9 @@ public:
 
   /// Convert type to name
   std::string typeToName( align::StructureType type ) const;
+  static const char *idToString(align::StructureType type);
+  static align::StructureType stringToId(const char *);
 };
 
-const char *alignableObjecIdToString(align::StructureType type);
-align::StructureType alignableObjectStringToId(const char *);
 
 #endif

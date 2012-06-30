@@ -98,17 +98,17 @@ namespace {
 StructureType
 AlignableObjectId::nameToType( const std::string &name) const
 {
-  return alignableObjectStringToId(name.c_str());
+  return stringToId(name.c_str());
 }
 
 
 //__________________________________________________________________________________________________
 std::string AlignableObjectId::typeToName( StructureType type ) const
 {
-  return alignableObjecIdToString(type);
+  return idToString(type);
 }
 
-const char *alignableObjecIdToString(align::StructureType type)
+const char *AlignableObjectId::idToString(align::StructureType type)
 {
   const char *result = objectIdToString(type, entries);
 
@@ -121,7 +121,7 @@ const char *alignableObjecIdToString(align::StructureType type)
   return result;
 }
 
-align::StructureType alignableObjectStringToId(const char *name)
+align::StructureType AlignableObjectId::stringToId(const char *name)
 {
   StructureType result = stringToObjectId(name, entries);
   if (result == -1)
