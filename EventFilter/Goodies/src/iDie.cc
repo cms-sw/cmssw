@@ -15,6 +15,9 @@
 #include <algorithm>
 
 #include <sys/time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+//#include <sys/dir.h>
 #include <time.h>
 
 #include "cgicc/CgiDefs.h"
@@ -87,7 +90,6 @@ iDie::iDie(xdaq::ApplicationStub *s)
   hostname_=getApplicationDescriptor()->getContextDescriptor()->getURL();
   getApplicationDescriptor()->setAttribute("icon", "/evf/images/idieapp.jpg");
 
-  
   //soap interface
   xoap::bind(this,&evf::iDie::fsmCallback,"Configure",XDAQ_NS_URI);
   xoap::bind(this,&evf::iDie::fsmCallback,"Enable",   XDAQ_NS_URI);
@@ -1208,20 +1210,37 @@ void iDie::perLumiFileSaver(unsigned int lsid)
 {
  
   if (dqmSaveDir_.value_=="") return;
+  //try to create directory if not there
 
   if (savedForLs_==0)
   {
+    struct stat st;
+    if (stat((dqmSaveDir_.value_+"/output").c_str(),&st) != 0) {
+      if (mkdir((dqmSaveDir_.value_+"/output").c_str(), 0776) != 0) {
+        LOG4CPLUS_ERROR(getApplicationLogger(),"iDie could not find nor create DQM \"output\" directory. DQM archiving -> Off.");
+	dqmSaveDir_.value_="";//reset parameter
+        return;
+      }
+    }
+    if (stat((dqmSaveDir_.value_+"/done").c_str(),&st) != 0) {
+      if (mkdir((dqmSaveDir_.value_+"/done").c_str(), 0776) != 0) {
+        LOG4CPLUS_WARN(getApplicationLogger(),"iDie could not find nor create DQM \"done\" directory. DQM archiving might fail.");
+      }
+    }
     //static filename part
     char version[8];
     sprintf(version, "_V%04d_", int(1));
     version[7]='\0';
-    fileBaseName_ = dqmSaveDir_.value_ + "DQM" + version;
+    std::string sDir = dqmSaveDir_.value_;
+    if (sDir[sDir.size()-1]!='/') sDir+="/";
+    sDir+="output/";
+    fileBaseName_ = sDir + "DQM" + version;
 
     //checking if directory is there
-    if ( access( dqmSaveDir_.value_.c_str(), 0 ) == 0 )
+    if ( access( sDir.c_str(), 0 ) == 0 )
     {
       struct stat status;
-      stat( dqmSaveDir_.value_.c_str(), &status );
+      stat( sDir.c_str(), &status );
 
       if ( status.st_mode & S_IFDIR ) writeDirectoryPresent_=true;
       else writeDirectoryPresent_=false;
