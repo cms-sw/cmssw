@@ -156,7 +156,9 @@ namespace evf{
    
     void procCpuStat(unsigned long long &idleJiffies,unsigned long long &allJiffies) {
       //read one
-      input = fopen("/proc/stat", "r");
+      if (input==NULL)
+        input = fopen("/proc/stat", "r");
+      if (input==NULL) return;
       char cpu[10];
       readstr(cpu);
       int count=0;
@@ -167,6 +169,8 @@ namespace evf{
         allJiffies+=last;
       }
       while (last && count++<20);
+      fclose(input);
+      input=NULL;
     }
 
     void procStat(std::ostringstream *out) {
