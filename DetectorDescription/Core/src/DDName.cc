@@ -86,7 +86,7 @@ void DDName::defineId(const std::pair<std::string,std::string> & nm, DDName::id_
 
 const std::string & DDName::name() const 
 {
-  constexpr char const *ano_ = "anonymous";
+  static std::string ano_("anonymous");
   const std::string * result;
   if (id_ < 0) {
       result = &ano_;
@@ -100,7 +100,7 @@ const std::string & DDName::name() const
 
 const std::string & DDName::ns() const
 {
-  constexpr char const *ano_ = "anonymous";
+  static std::string ano_("anonymous");
   const std::string * result;
   if (id_ < 0) {
       result = &ano_;
