@@ -11,7 +11,6 @@
 #include <iostream>
 
 #include <cmath>
-using namespace std;
 
 /*****************************************************************************/
 #define nCharges 2
@@ -188,18 +187,18 @@ void Histograms::declareHistograms()
   for(pt = 16; pt < 32 - small; pt += 2.  ) ptBins.push_back(pt);
   for(pt = 32; pt < 64 - small; pt += 4.  ) ptBins.push_back(pt);
 
-  static float ratMin   = 0.5;
-  static float ratMax   = 1.5;
-  static float ratWidth = 1./200;
+  constexpr float ratMin   = 0.5;
+  constexpr float ratMax   = 1.5;
+  constexpr float ratWidth = 1./200;
 
   for(double rat = ratMin; rat < ratMax + ratWidth/2; rat += ratWidth)
     ratBins.push_back(rat);
 
   /////////////////////////////
   // Eta (-3,3)
-  static float etaMin   = -3.0;
-  static float etaMax   =  3.0;
-  static float etaWidth =  0.2;
+  constexpr float etaMin   = -3.0;
+  constexpr float etaMax   =  3.0;
+  constexpr float etaWidth =  0.2;
 
   for(double eta = etaMin; eta < etaMax + etaWidth/2; eta += etaWidth)
     etaBins.push_back(eta);
@@ -208,22 +207,22 @@ void Histograms::declareHistograms()
   for(double eta = etaMin; eta < etaMax + etaWidth/2; eta += etaWidth/5)
     metaBins.push_back(eta);
 
-  static float zMin   = -20.;
-  static float zMax   =  20.;
-//  static float zWidth =  0.1;
-  static float zWidth =  0.2;
+  constexpr float zMin   = -20.;
+  constexpr float zMax   =  20.;
+//  constexpr float zWidth =  0.1;
+  constexpr float zWidth =  0.2;
 
   for(double z = zMin; z < zMax + zWidth/2; z += zWidth)
     zBins.push_back(z);
 
   /////////////////////////////
   // Number of recontructed tracks
-  static float ntrkMin   =  0.5;
+  constexpr float ntrkMin   =  0.5;
 // FIXME
-//  static float ntrkMax   = 200.;
-//  static float ntrkWidth =   5.;
-  static float ntrkMax   = 1000.;
-  static float ntrkWidth =   10.;
+//  constexpr float ntrkMax   = 200.;
+//  constexpr float ntrkWidth =   5.;
+  constexpr float ntrkMax   = 1000.;
+  constexpr float ntrkWidth =   10.;
   
   for(double ntrk = ntrkMin; ntrk < ntrkMax + ntrkWidth; ntrk += ntrkWidth)
     ntrkBins.push_back(ntrk);
@@ -359,15 +358,15 @@ void Histograms::declareHistograms()
 
   ///////////////////
   // EnergyLoss
-  static float lpMin   = -3; // 50 MeV
-  static float lpMax   =  2; // 7.4 GeV
-  static float lpWidth = (lpMax - lpMin)/100;
+  constexpr float lpMin   = -3; // 50 MeV
+  constexpr float lpMax   =  2; // 7.4 GeV
+  constexpr float lpWidth = (lpMax - lpMin)/100;
   for(double lp = lpMin; lp < lpMax + lpWidth/2; lp += lpWidth)
     lpBins.push_back(lp);
 
-  static float ldeMin   = log(1);
-  static float ldeMax   = log(100);
-  static float ldeWidth = (ldeMax - ldeMin)/250;
+  constexpr float ldeMin   = log(1);
+  constexpr float ldeMax   = log(100);
+  constexpr float ldeWidth = (ldeMax - ldeMin)/250;
   for(double lde = ldeMin; lde < ldeMax + ldeWidth/2; lde += ldeWidth)
     ldeBins.push_back(lde);
 
@@ -426,9 +425,9 @@ void Histograms::declareHistograms()
 
   ///////////////////
   // Invariant mass
-  static float rhoMin   = 0.;
-  static float rhoMax   = 5.;
-  static float rhoWidth = 0.2; 
+  constexpr float rhoMin   = 0.;
+  constexpr float rhoMax   = 5.;
+  constexpr float rhoWidth = 0.2; 
   for(double rho_ = rhoMin; rho_ < rhoMax + rhoWidth/2; rho_ += rhoWidth)
     rhoBins.push_back(rho_);
 
