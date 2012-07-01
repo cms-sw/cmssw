@@ -432,6 +432,7 @@ namespace evf {
     boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets_;
     edm::ServiceToken               serviceToken_;
     edm::EventProcessor             *evtProcessor_;
+    bool                            meInitialized_;
     DQMService                      *dqmService_;
     DQMStore                        *dqmStore_;
     std::string                     configString_;

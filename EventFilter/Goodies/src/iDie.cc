@@ -71,6 +71,7 @@ iDie::iDie(xdaq::ApplicationStub *s)
   , nModuleHistoMessageReceived_(0)
   , nPathHistoMessageReceived_(0)
   , evtProcessor_(0)
+  , meInitialized_(false)
   , dqmDisabled_(false)
   , saveLsInterval_(10)
   , ilumiprev_(0)
@@ -221,7 +222,12 @@ xoap::MessageReference iDie::fsmCallback(xoap::MessageReference msg)
     if(commandName == "Configure") state = "Ready";
     else if(commandName == "Enable") state = "Enabled";
     else if(commandName == "Stop") {
-      initMonitorElements();
+      //remove histograms
+      dqmStore_->setCurrentFolder("DAQ/EventInfo/");
+      dqmStore_->removeContents();
+      dqmStore_->setCurrentFolder("DAQ/Layouts/");
+      dqmStore_->removeContents();
+      meInitialized_=false;
       doFlush(); 
       state = "Ready";
     }
@@ -421,6 +427,7 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
 {
 
   if (!evtProcessor_ && !dqmDisabled_) initFramework();
+  else if (evtProcessor_ && !meInitialized_) initMonitorElements();
 
   timeval tv;
   gettimeofday(&tv,0);
@@ -594,8 +601,10 @@ void iDie::reset()
     {delete datap_; datap_ = 0;}
   b_=0; b1_=0; b2_=0; b3_=0; b4_=0;
 
-  if (!evtProcessor_ && !dqmDisabled_) initFramework();
-  initMonitorElements();
+  if (!evtProcessor_ && !dqmDisabled_) {
+    initFramework();
+  }
+  else if (evtProcessor_) initMonitorElements();
   doFlush();
 
 }
@@ -1016,6 +1025,8 @@ void iDie::initMonitorElements()
     lsHistory[i]=std::queue<lsStat>();
     commonLsHistory=std::queue<commonLsStat>();
   }
+
+  meInitialized_=true;
 
 }
 
