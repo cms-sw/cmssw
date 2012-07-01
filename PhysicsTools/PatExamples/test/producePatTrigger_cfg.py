@@ -15,7 +15,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 process.maxEvents.input     = 1000 # reduce number of events for testing.
 process.options.wantSummary = False # to suppress the long output at the end of the job
 # specific
-process.selectedPatMuons.cut = 'isPFMuon && isGlobalMuon && pt > 26. && abs(eta) < 2.1 && globalTrack.normalizedChi2 < 10. && track.hitPattern.trackerLayersWithMeasurement > 5 && globalTrack.hitPattern.numberOfValidMuonHits > 0 && abs(dB) < 0.2 && innerTrack.hitPattern.numberOfValidPixelHits > 0 && numberOfMatchedStations > 1 && (trackIso+caloIso)/pt<0.2'
+process.selectedPatMuons.cut = 'isGlobalMuon && pt > 26. && abs(eta) < 2.1 && globalTrack.normalizedChi2 < 10. && track.hitPattern.trackerLayersWithMeasurement > 5 && globalTrack.hitPattern.numberOfValidMuonHits > 0 && abs(dB) < 0.2 && innerTrack.hitPattern.numberOfValidPixelHits > 0 && numberOfMatchedStations > 1 && (trackIso+caloIso)/pt<0.2'
 
 ## ---
 ## Define the path
