@@ -55,30 +55,3 @@ process.btagAnalyzer = cms.EDAnalyzer("WrappedEDAnalysisTasksAnalyzerBTag",
 #process.p.replace(process.jecAnalyzer, process.jecAnalyzer * process.btagAnalyzer * process.btagAnalyzerTCHP)
 
 
-#################
-#               #
-# EXERCISE 3    #
-#               #
-#################
-
-## This tool needs some more things to be there:
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = cms.string( autoCond[ 'startup' ] )
-process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
-
-
-from PhysicsTools.PatUtils.tools.metUncertaintyTools import runMEtUncertainties
-runMEtUncertainties(process)
-
-#process.shiftedPatJets=process.shiftedPatJetsEnUp.clone(src = cms.InputTag("cleanPatJets"),shiftBy=cms.double(1))
-
-#process.jecAnalyzerEnUp=process.jecAnalyzer.clone(Jets = cms.InputTag("shiftedPatJets"))
-#process.p.replace(process.jecAnalyzer,  process.shiftedPatJets * process.jecAnalyzerEnUp)
-
-
-
-
-
