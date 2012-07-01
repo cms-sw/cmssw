@@ -4,6 +4,7 @@
 	* bugfixes in cpu accounting, bin and axis names, event timing
 	* resetting histograms on stop (should disconnect from server?)
 	* flush after histo reset
+	* automaticlly create DQM output and done subdirectories
 
 2012-06-30 Srecko Morovic <srecko.morovic@cern.ch>
 
