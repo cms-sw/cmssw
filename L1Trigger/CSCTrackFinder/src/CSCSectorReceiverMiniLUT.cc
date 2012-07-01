@@ -24,7 +24,7 @@ lclphidat CSCSectorReceiverMiniLUT::calcLocalPhiMini(unsigned theadd)
   
   lclphidat data;
   
-  static int maxPhiL = 1<<CSCBitWidths::kLocalPhiDataBitWidth;
+  constexpr int maxPhiL = 1<<CSCBitWidths::kLocalPhiDataBitWidth;
   unsigned short int pattern = ((theadd >> 8) & 0xf);
   unsigned short int strip   = (theadd & 0xff);
   
