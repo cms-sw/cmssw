@@ -1670,6 +1670,7 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
     try{
       unsigned long long idleTmp=idleProcStats_;
       unsigned long long allPSTmp=allProcStats_;
+      idleProcStats_=allProcStats_=0;
 
       utils::procCpuStat(idleProcStats_,allProcStats_);
       if (allPSTmp!=0 && idleTmp!=0 && allProcStats_!=allPSTmp) {
@@ -2578,7 +2579,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.148 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.149 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

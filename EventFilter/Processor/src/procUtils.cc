@@ -165,7 +165,7 @@ namespace evf{
       long long last=0;
       do {
         readone(&last);
-        if (count<3) idleJiffies+=last;
+        if (count==3) idleJiffies+=last;
         allJiffies+=last;
       }
       while (last && count++<20);
