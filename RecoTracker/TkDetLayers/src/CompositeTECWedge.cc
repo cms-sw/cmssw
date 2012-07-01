@@ -22,13 +22,15 @@ using namespace std;
 typedef GeometricSearchDet::DetWithState DetWithState;
 
 // --------- Temporary solution. DetSorting.h has to be used.
-class DetPhiLess {
-public:
-  bool operator()(const GeomDet* a,const GeomDet* b) 
-  {
-    return Geom::phiLess(a->surface(), b->surface());
-  } 
-};
+namespace {
+  class DetPhiLess {
+  public:
+    bool operator()(const GeomDet* a,const GeomDet* b) 
+    {
+      return Geom::phiLess(a->surface(), b->surface());
+    } 
+  };
+}
 // ---------------------
 
 CompositeTECWedge::CompositeTECWedge(vector<const GeomDet*>& innerDets,
