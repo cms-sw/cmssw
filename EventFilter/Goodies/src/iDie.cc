@@ -141,10 +141,12 @@ iDie::iDie(xdaq::ApplicationStub *s)
   configString_+="  verbose = cms.untracked.bool(False))\n";
   configString_+="process.p = cms.Path()\n";
 
-  epInstances = {7,8, 12, 16, 22,     24, 32};
-  epMax       = {8,8, 24, 32, 24,     24, 32};
-  HTscaling   = {1,1, 0.4,0.5,0.4,    0.4,0.5};
-  nbMachines  = {0,0,0,  0,  0,      0,   0};
+  epInstances   =     {7,    8,     12,  16,  22,  24,  32};
+  epMax         =     {8,    8,     24,  32,  24,  24,  32};
+  HTscaling     =     {1,    1,   0.28,0.28,0.28,0.28,0.28};
+  nbMachines    =     {0,    0,      0,   0,   0,   0,   0};
+  machineWeight =     {91.6, 91.6, 253, 352, 253, 253, 352};
+  machineWeightInst = {80.15,91.6, 196, 352, 237, 253, 352};
 
   for (unsigned int i=0;i<epInstances.size();i++) {
     currentLs_.push_back(0);
@@ -975,8 +977,8 @@ void iDie::initMonitorElements()
     meVecOffenders_[i]->Fill(0,1);
   }
   occupancyNameMap.clear();
-  rateSummary_   = dqmStore_->book2D("00_RATE_SUMMARY","Rate Summary",20,0,20,epInstances.size()+1,0,epInstances.size()+1);
-  timingSummary_ = dqmStore_->book2D("01_TIMING_SUMMARY","Event Time Summary",20,0,20,epInstances.size()+1,0,epInstances.size()+1);
+  rateSummary_   = dqmStore_->book2D("00_RATE_SUMMARY","Rate Summary (Hz)",20,0,20,epInstances.size()+1,0,epInstances.size()+1);
+  timingSummary_ = dqmStore_->book2D("01_TIMING_SUMMARY","Event Time Summary (ms)",20,0,20,epInstances.size()+1,0,epInstances.size()+1);
   busySummary_ = dqmStore_->book2D("02_BUSY_SUMMARY","Busy fraction ",20,0,20,epInstances.size()+2,0,epInstances.size()+2);
   busySummary2_ = dqmStore_->book2D("02_BUSY_SUMMARY_PROCSTAT","Busy fraction from /proc/stat",20,0,20,epInstances.size()+2,0,epInstances.size()+2);
   dqmStore_->setCurrentFolder("DAQ/EventInfo/");
@@ -1000,10 +1002,10 @@ void iDie::initMonitorElements()
   }
   rateSummary_->setBinLabel(epInstances.size()+1,"All",2);
   //timingSummary_->setBinLabel(i,"Avg",2);
-  busySummary_->setBinLabel(epInstances.size()+1,"All",2);
-  busySummary_->setBinLabel(epInstances.size()+2,"All(v2)",2);
-  busySummary2_->setBinLabel(epInstances.size()+1,"All",2);
-  busySummary2_->setBinLabel(epInstances.size()+2,"All(v2)",2);
+  busySummary_->setBinLabel(epInstances.size()+1,"%Conf",2);
+  busySummary_->setBinLabel(epInstances.size()+2,"%Max",2);
+  busySummary2_->setBinLabel(epInstances.size()+1,"%Conf",2);
+  busySummary2_->setBinLabel(epInstances.size()+2,"%Max",2);
 
   for (size_t i=0;i<epInstances.size();i++) {
     lsHistory[i]=std::queue<lsStat>();
@@ -1031,15 +1033,17 @@ void iDie::updateRollingHistos(unsigned int lsid,unsigned int rate, float ms, fl
   unsigned int lsidBin;
   if (lsid>20) {
     if (lsid!=summaryLastLs_) {//see if plots aren't up to date
-      for (unsigned int i=1;i<20;i++) {
-        for (unsigned int j=1;j<=epInstances.size()+1;j++) {
-	  rateSummary_->setBinContent(i,j,rateSummary_->getBinContent(i+1,j));
-	  timingSummary_->setBinContent(i,j,timingSummary_->getBinContent(i+1,j));
-	  busySummary_->setBinContent(i,j,busySummary_->getBinContent(i+1,j));
-	  busySummary2_->setBinContent(i,j,busySummary2_->getBinContent(i+1,j));
-        }
-	busySummary_->setBinContent(i,epInstances.size()+2,busySummary2_->getBinContent(i+1,epInstances.size()+2));
-	busySummary2_->setBinContent(i,epInstances.size()+2,busySummary2_->getBinContent(i+1,epInstances.size()+2));
+      for (unsigned int i=1;i<=20;i++) {
+	if (i<20) {
+          for (unsigned int j=1;j<=epInstances.size()+1;j++) {
+	    rateSummary_->setBinContent(i,j,rateSummary_->getBinContent(i+1,j));
+	    timingSummary_->setBinContent(i,j,timingSummary_->getBinContent(i+1,j));
+	    busySummary_->setBinContent(i,j,busySummary_->getBinContent(i+1,j));
+	    busySummary2_->setBinContent(i,j,busySummary2_->getBinContent(i+1,j));
+          }
+	  busySummary_->setBinContent(i,epInstances.size()+2,busySummary2_->getBinContent(i+1,epInstances.size()+2));
+	  busySummary2_->setBinContent(i,epInstances.size()+2,busySummary2_->getBinContent(i+1,epInstances.size()+2));
+	}
 
 	std::ostringstream ostr;
 	ostr << lsid-20+i;
@@ -1057,10 +1061,13 @@ void iDie::updateRollingHistos(unsigned int lsid,unsigned int rate, float ms, fl
   rateSummary_->setBinContent(lsidBin,nbsIdx+1,rate);
   timingSummary_->setBinContent(lsidBin,nbsIdx+1,epInstances[nbsIdx]*ms);
 
+  //float epMaxInv=1/epMax[nbsIdx];
   float busyCorr = busy * (float)epInstances[nbsIdx]/epMax[nbsIdx];//really how busy is machine (uncorrected)
-  //will probably not work for less than physical N of CPUs configured
-  float fracMax  = 0.5 + (std::max(epInstances[nbsIdx]-epMax[nbsIdx]/2.,0.)/epMax[nbsIdx]) *HTscaling[nbsIdx];//max based on HT eff
+  busyCPU *= (float)epInstances[nbsIdx]/epMax[nbsIdx];
+  //max based on how much is configured and max possible
+  float fracMax  = 0.5 + (std::max(epInstances[nbsIdx]-epMax[nbsIdx]/2.,0.)/(epMax[nbsIdx])) *HTscaling[nbsIdx];
 
+  //std::cout << "busy:" << busy << " busyCorr:" << busyCorr << " fracMax:" << fracMax << " ht scaling:" << HTscaling[nbsIdx] << std::endl; 
   float busyFr=0;
   float busyCPUFr=0;
   float busyFrTheor=0;
@@ -1068,23 +1075,24 @@ void iDie::updateRollingHistos(unsigned int lsid,unsigned int rate, float ms, fl
   if (busyCorr>0.5) {//take into account HT scaling for the busy fraction
     busyFr=(0.5 + (busyCorr-0.5)*HTscaling[nbsIdx])/fracMax;
     busyCPUFr=(0.5 + (busyCPU-0.5)*HTscaling[nbsIdx])/fracMax;
-    busyFrTheor = (0.5+(busyCorr-0.5)*HTscaling[nbsIdx])/ (0.5+0.5*HTscaling[nbsIdx]);
-    busyFrCPUTheor = (0.5+(busyCPU-0.5)*HTscaling[nbsIdx])/ (0.5+0.5*HTscaling[nbsIdx]);
+    busyFrTheor = (0.5+(busyCorr-0.5)*HTscaling[nbsIdx])/ (0.5+HTscaling[nbsIdx]);
+    busyFrCPUTheor = (0.5+(busyCPU-0.5)*HTscaling[nbsIdx])/ (0.5+HTscaling[nbsIdx]);
   }
   else {//below the HT threshold
     busyFr=busyCorr / fracMax;
     busyCPUFr=busyCPU / fracMax;
-    busyFrTheor = busyCorr / (0.5+0.5*HTscaling[nbsIdx]);
-    busyFrCPUTheor = busyCPU / (0.5+0.5*HTscaling[nbsIdx]);
+    busyFrTheor = busyCorr / (0.5+HTscaling[nbsIdx]);
+    busyFrCPUTheor = busyCPU / (0.5+HTscaling[nbsIdx]);
   }
   busySummary_->setBinContent(lsidBin,nbsIdx+1,busyFr);//"corrected" cpu busy fraction
   busySummary2_->setBinContent(lsidBin,nbsIdx+1,busyCPUFr);//"corrected" cpu busy fraction
+  //std::cout << " b: " << busyFr << " " << busyFrTheor << " " << nbMachines[nbsIdx] << std::endl;
   commonLsHistory.back().setBusyForClass(nbsIdx,busyFr,busyFrTheor,busyCPUFr,busyFrCPUTheor,nbMachines[nbsIdx]);
   rateSummary_->Fill(lsid,epInstances.size()+1,rate);
-  busySummary_->setBinContent(lsid,epInstances.size()+1,commonLsHistory.back().getBusyTotalFrac(false));
-  busySummary2_->setBinContent(lsid,epInstances.size()+1,commonLsHistory.back().getBusyTotalFrac(true));
-  busySummary_->setBinContent(lsid,epInstances.size()+2,commonLsHistory.back().getBusyTotalFracTheor(false,epInstances,epMax));
-  busySummary2_->setBinContent(lsid,epInstances.size()+2,commonLsHistory.back().getBusyTotalFracTheor(true,epInstances,epMax));
+  busySummary_->setBinContent(lsid,epInstances.size()+1,commonLsHistory.back().getBusyTotalFrac(false,machineWeightInst));
+  busySummary2_->setBinContent(lsid,epInstances.size()+1,commonLsHistory.back().getBusyTotalFrac(true,machineWeightInst));
+  busySummary_->setBinContent(lsid,epInstances.size()+2,commonLsHistory.back().getBusyTotalFracTheor(false,machineWeight));
+  busySummary2_->setBinContent(lsid,epInstances.size()+2,commonLsHistory.back().getBusyTotalFracTheor(true,machineWeight));
   daqBusySummary_->setBinContent(lsid,busyFr*100);
   daqBusySummary_->setBinError(lsid,0);
 

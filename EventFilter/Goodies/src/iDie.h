@@ -214,6 +214,8 @@ namespace evf {
     std::vector<unsigned int> epMax;
     std::vector<float> HTscaling;
     std::vector<unsigned int> nbMachines;
+    std::vector<float> machineWeight;
+    std::vector<float> machineWeightInst;
 
     class commonLsStat {
       
@@ -242,32 +244,30 @@ namespace evf {
 	nbMachines[classIdx]=nMachineReports;
       }
 
-      float getBusyTotalFrac(bool procstat) {
+      float getBusyTotalFrac(bool procstat,std::vector<float> & machineWeightInst) {
 	float sum=0;
 	float sumMachines=0;
 	for (size_t i=0;i<busyVec_.size();i++) {
 	  if (!procstat)
-	    sum+=nbMachines.at(i)*busyVec_[i];
+	    sum+=machineWeightInst[i]*nbMachines.at(i)*busyVec_[i];
 	  else
-	    sum+=nbMachines.at(i)*busyCPUVec_[i];
-	  sumMachines+=nbMachines.at(i);
+	    sum+=machineWeightInst[i]*nbMachines.at(i)*busyCPUVec_[i];
+	  sumMachines+=machineWeightInst[i]*nbMachines.at(i);
 	}
 	if (sumMachines>0)
 	  return sum/sumMachines;
 	else return 0.;
       }
 
-      float getBusyTotalFracTheor(bool procstat,std::vector<unsigned int> &epInstances, std::vector<unsigned int> &epMax) {
+      float getBusyTotalFracTheor(bool procstat,std::vector<float> & machineWeight) {
 	float sum=0;
 	float sumMachines=0;
 	for (size_t i=0;i<busyVecTheor_.size() && i<nbMachines.size();i++) {
-	  if (epMax[i]) {
-	    if (!procstat)
-	      sum+=((float)epInstances[i]/epMax[i])*nbMachines.at(i)*busyVecTheor_[i];
-	    else
-	      sum+=((float)epInstances[i]/epMax[i])*nbMachines.at(i)*busyCPUVecTheor_[i];
-	  }
-	  sumMachines+=nbMachines.at(i);
+	  if (!procstat)
+	    sum+=machineWeight[i]*nbMachines.at(i)*busyVecTheor_[i];
+	  else
+	    sum+=machineWeight[i]*nbMachines.at(i)*busyCPUVecTheor_[i];
+	  sumMachines+=machineWeight[i]*nbMachines.at(i);
 	}
 	if (sumMachines>0)
 	  return sum/sumMachines;
@@ -336,19 +336,26 @@ namespace evf {
       {
 	if (!updated_) return;
 	rateAvg=nProc_ / 23.;
-	rateErr=sqrt(fabs(nProc2_ - pow(nProc_,2))) / 23.;
+	rateErr=sqrt(fabs(nProc2_ - pow(nProc_,2)))/23.;
 	if (rateAvg==0.) {rateErr=0.;evtTimeAvg=0.;evtTimeErr=0.;fracWaitingAvg=0;}
 	else {
 	  if (nSampledNonIdle_+nSampledIdle_!=0) {
-	    fracWaitingAvg= nSampledIdle_/(1.0*nSampledNonIdle_+nSampledIdle_);
+	    float nAllInv = 1./(nSampledNonIdle_+nSampledIdle_);
+	    fracWaitingAvg= nSampledIdle_*nAllInv;
 	    double nSampledIdleErr2=fabs(nSampledIdle2_ - pow(nSampledIdle_,2));
 	    double nSampledNonIdleErr2=fabs(nSampledNonIdle2_ - pow(nSampledNonIdle_,2));
 	    double fracWaitingAvgErr= sqrt(
 			            (pow(nSampledIdle_,2)*nSampledNonIdleErr2
-				     + pow(nSampledNonIdle_,2)*nSampledIdleErr2)
-				    / pow(nSampledNonIdle_+nSampledIdle_,2));
-	    evtTimeAvg=nbSubs_* fracWaitingAvg / rateAvg;
-	    evtTimeErr = nbSubs_ * ((fracWaitingAvg*rateErr)/pow(rateAvg,2) + fracWaitingAvgErr/rateAvg);
+				     + pow(nSampledNonIdle_,2)*nSampledIdleErr2))*pow(nAllInv,2);
+	    if (rateAvg) {
+	      float rateAvgInv=1./rateAvg;
+	      evtTimeAvg=nbSubs_* fracWaitingAvg*rateAvgInv;
+	      evtTimeErr = nbSubs_ * (fracWaitingAvg*rateErr*pow(rateAvgInv,2) + fracWaitingAvgErr*rateAvgInv);
+	    }
+	    else {
+              evtTimeAvg=0;
+	      evtTimeErr=0;
+	    }
 	  }
 	}
 	if (nReports_) fracCPUBusy_=nCPUBusy_/(nReports_*1000.);
