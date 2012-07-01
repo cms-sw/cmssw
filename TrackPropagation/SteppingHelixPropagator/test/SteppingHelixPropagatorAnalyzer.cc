@@ -17,7 +17,7 @@
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.21 2010/04/20 13:45:33 elmer Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.22 2010/10/03 17:23:11 elmer Exp $
 //
 //
 
@@ -233,7 +233,8 @@ SteppingHelixPropagatorAnalyzer::~SteppingHelixPropagatorAnalyzer()
 void
 SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  static std::string metname = "SteppingHelixPropagatorAnalyzer";
+  constexpr char const*metname = "SteppingHelixPropagatorAnalyzer";
+  (void)metname;
   using namespace edm;
   ESHandle<MagneticField> bField;
   iSetup.get<IdealMagneticFieldRecord>().get(bField);
