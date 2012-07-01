@@ -1,3 +1,8 @@
+2012-07-01 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-16
+	* fixed closing /proc/stat
+
 2012-06-29 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V02-05-15
