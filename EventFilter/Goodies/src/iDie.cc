@@ -1092,8 +1092,8 @@ void iDie::updateRollingHistos(unsigned int lsid,unsigned int rate, float ms, fl
   busySummary_->setBinContent(lsidBin,nbsIdx+1,busyFr);//"corrected" cpu busy fraction
   busySummary2_->setBinContent(lsidBin,nbsIdx+1,busyCPUFr);//"corrected" cpu busy fraction
   //std::cout << " b: " << busyFr << " " << busyFrTheor << " " << nbMachines[nbsIdx] << std::endl;
-  commonLsHistory.back().setBusyForClass(nbsIdx,busyFr,busyFrTheor,busyCPUFr,busyFrCPUTheor,nbMachines[nbsIdx]);
-  rateSummary_->Fill(lsid,epInstances.size()+1,rate);
+  commonLsHistory.back().setBusyForClass(nbsIdx,rate,busyFr,busyFrTheor,busyCPUFr,busyFrCPUTheor,nbMachines[nbsIdx]);
+  rateSummary_->Fill(lsid,epInstances.size()+1,commonLsHistory.back().getTotalRate());
   busySummary_->setBinContent(lsid,epInstances.size()+1,commonLsHistory.back().getBusyTotalFrac(false,machineWeightInst));
   busySummary2_->setBinContent(lsid,epInstances.size()+1,commonLsHistory.back().getBusyTotalFrac(true,machineWeightInst));
   busySummary_->setBinContent(lsid,epInstances.size()+2,commonLsHistory.back().getBusyTotalFracTheor(false,machineWeight));

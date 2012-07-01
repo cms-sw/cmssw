@@ -221,6 +221,7 @@ namespace evf {
       
       public:
       unsigned int ls_;
+      std::vector<unsigned int> rateVec_;
       std::vector<float> busyVec_;
       std::vector<float> busyCPUVec_;
       std::vector<float> busyVecTheor_;
@@ -228,6 +229,7 @@ namespace evf {
       std::vector<unsigned int> nbMachines;
       commonLsStat(unsigned int lsid,unsigned int classes) {
         for (size_t i=0;i<classes;i++) {
+	  rateVec_.push_back(0.);
 	  busyVec_.push_back(0.);
 	  busyCPUVec_.push_back(0.);
 	  busyVecTheor_.push_back(0.);
@@ -236,13 +238,20 @@ namespace evf {
 	}
 	ls_=lsid;
       }
-      void setBusyForClass(unsigned int classIdx,float busy,float busyTheor, float busyCPU, float busyCPUTheor, unsigned int nMachineReports) {
+      void setBusyForClass(unsigned int classIdx,unsigned int rate,float busy,float busyTheor, float busyCPU, float busyCPUTheor, unsigned int nMachineReports) {
+	rateVec_[classIdx]=rate;
 	busyVec_[classIdx]=busy;
 	busyCPUVec_[classIdx]=busyCPU;
 	busyVecTheor_[classIdx]=busyTheor;
 	busyCPUVecTheor_[classIdx]=busyCPUTheor;
 	nbMachines[classIdx]=nMachineReports;
       }
+
+      unsigned int getTotalRate() {
+	unsigned int totRate=0;
+	for (size_t i=0;i<rateVec_.size();i++) totRate+=rateVec_[i];
+	return totRate;
+      } 
 
       float getBusyTotalFrac(bool procstat,std::vector<float> & machineWeightInst) {
 	float sum=0;
