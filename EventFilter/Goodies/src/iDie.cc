@@ -1063,7 +1063,7 @@ void iDie::updateRollingHistos(unsigned int lsid,unsigned int rate, float ms, fl
 
   //float epMaxInv=1/epMax[nbsIdx];
   float busyCorr = busy * (float)epInstances[nbsIdx]/epMax[nbsIdx];//really how busy is machine (uncorrected)
-  busyCPU *= (float)epInstances[nbsIdx]/epMax[nbsIdx];
+  ///busyCPU *= (float)epInstances[nbsIdx]/epMax[nbsIdx];
   //max based on how much is configured and max possible
   float fracMax  = 0.5 + (std::max(epInstances[nbsIdx]-epMax[nbsIdx]/2.,0.)/(epMax[nbsIdx])) *HTscaling[nbsIdx];
 
