@@ -8,4 +8,5 @@
 </bin>
 <bin   file="clhepToROOTMath.cpp">
 </bin>
-
+<bin   file="test_DDRotation.cpp">
+</bin>

@@ -46,14 +46,12 @@ DDRotation::DDRotation() : DDBase<DDName,DDRotationMatrix*>()
   //if (onlyOnce) {
   //  static DDRotationMatrix* rm_ = new DDRotationMatrix;
   //  prep_ = StoreT::instance().create(DDName("",""), rm_ );
-  static std::string baseName("DdBlNa");
+  constexpr char const* baseName = "DdBlNa";
   static int countBlank;
-  static std::ostringstream ostr;
-  ostr << countBlank++;
-  prep_ = StoreT::instance().create(DDName(baseName+ostr.str(),baseName), new DDRotationMatrix );
-  //  std::cout << "making a BLANK " << baseName+ostr.str() << " named rotation, " << prep_->second << std::endl;
-  ostr.clear();
-  ostr.str("");
+  char buf[64];
+  snprintf(buf, 64, "%s%i", baseName, countBlank++);
+  prep_ = StoreT::instance().create(DDName(buf,baseName), new DDRotationMatrix );
+  //  std::cout << "making a BLANK " << buf << " named rotation, " << prep_->second << std::endl;
 }
 
 
