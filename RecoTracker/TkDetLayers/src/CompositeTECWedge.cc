@@ -255,7 +255,7 @@ void CompositeTECWedge::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 int
 CompositeTECWedge::findClosestDet( const GlobalPoint& startPos,int sectorId) const
 {
-  vector<const GeomDet*> myDets = sectorId==0 ? theFrontDets : theBackDets;
+  vector<const GeomDet*> const & myDets = sectorId==0 ? theFrontDets : theBackDets;
 
   int close = 0;
   float closeDist = fabs( (myDets.front()->toLocal(startPos)).x());
