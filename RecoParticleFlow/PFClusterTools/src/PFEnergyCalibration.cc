@@ -518,7 +518,7 @@ PFEnergyCalibration::minimum(double a,double b){
 double
 PFEnergyCalibration::dCrackPhi(double phi, double eta){
 
-  static double pi= M_PI;// 3.14159265358979323846;
+  constexpr double pi= M_PI;// 3.14159265358979323846;
   
   //Location of the 18 phi-cracks
   static std::vector<double> cPhi;
@@ -530,7 +530,7 @@ PFEnergyCalibration::dCrackPhi(double phi, double eta){
     }
 
   //Shift of this location if eta<0
-  static double delta_cPhi=0.00638;
+  constexpr double delta_cPhi=0.00638;
 
   double m; //the result
 
@@ -571,17 +571,17 @@ double
 PFEnergyCalibration::CorrPhi(double phi, double eta) {
 
   // we use 3 gaussians to correct the phi-cracks effect
-  static double p1=   5.59379e-01;
-  static double p2=   -1.26607e-03;
-  static double p3=  9.61133e-04;
+  constexpr double p1=   5.59379e-01;
+  constexpr double p2=   -1.26607e-03;
+  constexpr double p3=  9.61133e-04;
 
-  static double p4=   1.81691e-01;
-  static double p5=   -4.97535e-03;
-  static double p6=   1.31006e-03;
+  constexpr double p4=   1.81691e-01;
+  constexpr double p5=   -4.97535e-03;
+  constexpr double p6=   1.31006e-03;
 
-  static double p7=   1.38498e-01;
-  static double p8=   1.18599e-04;
-  static double p9= 2.01858e-03;
+  constexpr double p7=   1.38498e-01;
+  constexpr double p8=   1.18599e-04;
+  constexpr double p9= 2.01858e-03;
   
 
   double dminphi = dCrackPhi(phi,eta);
@@ -597,23 +597,14 @@ double
 PFEnergyCalibration::CorrEta(double eta){
   
   // we use a gaussian with a screwness for each of the 5 |eta|-cracks
-  static std::vector<double> a;  //amplitude
-  static std::vector<double> m;  //mean
-  static std::vector<double> s;  //sigma
-  static std::vector<double> sa; // screwness amplitude
-  static std::vector<double> ss; // screwness sigma
+  constexpr double a[] = {6.13349e-01, 5.08146e-01, 4.44480e-01, 3.3487e-01, 7.65627e-01}; // amplitude
+  constexpr double m[] = {-1.79514e-02, 4.44747e-01, 7.92824e-01, 1.14090e+00, 1.47464e+00}; // mean
+  constexpr double s[] = {7.92382e-03, 3.06028e-03, 3.36139e-03, 3.94521e-03, 8.63950e-04}; // sigma
+  constexpr double sa[] = {1.27228e+01, 3.81517e-02, 1.63507e-01, -6.56480e-02, 1.87160e-01}; // screwness amplitude
+  constexpr double ss[] = {5.48753e-02, -1.00223e-02, 2.22866e-03, 4.26288e-04, 2.67937e-03}; // screwness sigma
+  double result = 1;
 
-  if(a.size()==0)
-    {
-      a.push_back(6.13349e-01) ;a.push_back(5.08146e-01)  ;a.push_back(4.44480e-01) ;a.push_back(3.3487e-01)   ;a.push_back(7.65627e-01) ;
-      m.push_back(-1.79514e-02);m.push_back(4.44747e-01)  ;m.push_back(7.92824e-01) ;m.push_back(1.14090e+00)  ;m.push_back(1.47464e+00) ;
-      s.push_back(7.92382e-03) ;s.push_back(3.06028e-03)  ;s.push_back(3.36139e-03) ;s.push_back(3.94521e-03)  ;s.push_back(8.63950e-04) ;
-      sa.push_back(1.27228e+01);sa.push_back(3.81517e-02) ;sa.push_back(1.63507e-01);sa.push_back(-6.56480e-02);sa.push_back(1.87160e-01);
-      ss.push_back(5.48753e-02);ss.push_back(-1.00223e-02);ss.push_back(2.22866e-03);ss.push_back(4.26288e-04) ;ss.push_back(2.67937e-03);
-    }
- double result = 1;
-
- for(unsigned i=0;i<=4;i++) result+=a[i]*TMath::Gaus(eta,m[i],s[i])*(1+sa[i]*TMath::Sign(1.,eta-m[i])*TMath::Exp(-TMath::Abs(eta-m[i])/ss[i]));
+  for(unsigned i=0;i<=4;i++) result+=a[i]*TMath::Gaus(eta,m[i],s[i])*(1+sa[i]*TMath::Sign(1.,eta-m[i])*TMath::Exp(-TMath::Abs(eta-m[i])/ss[i]));
 
   return result;
 }
@@ -626,25 +617,25 @@ PFEnergyCalibration::CorrBarrel(double E, double eta) {
   //Energy dependency
   /*
   //YM Parameters 52XX:
-  static double p0=1.00000e+00;
-  static double p1=3.27753e+01;
-  static double p2=2.28552e-02;
-  static double p3=3.06139e+00;
-  static double p4=2.25135e-01;
-  static double p5=1.47824e+00;
-  static double p6=1.09e-02;
-  static double p7=4.19343e+01;
+  constexpr double p0=1.00000e+00;
+  constexpr double p1=3.27753e+01;
+  constexpr double p2=2.28552e-02;
+  constexpr double p3=3.06139e+00;
+  constexpr double p4=2.25135e-01;
+  constexpr double p5=1.47824e+00;
+  constexpr double p6=1.09e-02;
+  constexpr double p7=4.19343e+01;
   */
-  static double p0 = 0.9944;
-  static double p1 = 9.827;
-  static double p2 = 1.503;
-  static double p3 = 1.196;
-  static double p4 = 0.3349;
-  static double p5 = 0.89;
-  static double p6 = 0.004361;
-  static double p7 = 51.51;
+  constexpr double p0 = 0.9944;
+  constexpr double p1 = 9.827;
+  constexpr double p2 = 1.503;
+  constexpr double p3 = 1.196;
+  constexpr double p4 = 0.3349;
+  constexpr double p5 = 0.89;
+  constexpr double p6 = 0.004361;
+  constexpr double p7 = 51.51;
   //Eta dependency
-  static double p8=2.705593e-03;
+  constexpr double p8=2.705593e-03;
   
   double result = (p0+1/(p1+p2*TMath::Power(E,p3))+p4*TMath::Exp(-E/p5)+p6*TMath::Exp(-E*E/(p7*p7)))*(1+p8*eta*eta);
 
@@ -670,14 +661,14 @@ double
 PFEnergyCalibration::Alpha(double eta) {
 
   //Energy dependency
-  static double p0 = 5.97621e-01;
+  constexpr double p0 = 5.97621e-01;
 
   //Eta dependency
-  static double p1 =-1.86407e-01;
-  static double p2 = 3.85197e-01; 
+  constexpr double p1 =-1.86407e-01;
+  constexpr double p2 = 3.85197e-01; 
 
   //so that <feta()> = 1
-  static double norm = (p1+p2*(2.6+1.656)/2);
+  constexpr double norm = (p1+p2*(2.6+1.656)/2);
 
   double result = p0*(p1+p2*eta)/norm;
 
@@ -688,17 +679,17 @@ double
 PFEnergyCalibration::Beta(double E, double eta) {
 
  //Energy dependency
-  static double p0 = 0.032;
-  static double p1 = 9.70394e-02;
-  static double p2 = 2.23072e+01;
-  static double p3 = 100;
+  constexpr double p0 = 0.032;
+  constexpr double p1 = 9.70394e-02;
+  constexpr double p2 = 2.23072e+01;
+  constexpr double p3 = 100;
 
   //Eta dependency
-  static double p4 = 1.02496e+00 ;
-  static double p5 = -4.40176e-03 ;
+  constexpr double p4 = 1.02496e+00 ;
+  constexpr double p5 = -4.40176e-03 ;
 
   //so that <feta()> = 1
-  static double norm = (p4+p5*(2.6+1.656)/2);
+  constexpr double norm = (p4+p5*(2.6+1.656)/2);
 
   double result = (1.0012+p0*TMath::Exp(-E/p3)+p1*TMath::Exp(-E/p2))*(p4+p5*eta)/norm;			  
   return result;
@@ -709,14 +700,14 @@ double
 PFEnergyCalibration::Gamma(double etaEcal) {
 
  //Energy dependency
-  static double p0 = 2.49752e-02;
+  constexpr double p0 = 2.49752e-02;
 
   //Eta dependency
-  static double p1 = 6.48816e-02;
-  static double p2 = -1.59517e-02; 
+  constexpr double p1 = 6.48816e-02;
+  constexpr double p2 = -1.59517e-02; 
  
   //so that <feta()> = 1
-  static double norm = (p1+p2*(2.6+1.656)/2);
+  constexpr double norm = (p1+p2*(2.6+1.656)/2);
 
   double result = p0*(p1+p2*etaEcal)/norm;					  
 
@@ -751,19 +742,19 @@ double
 PFEnergyCalibration::EcorrZoneBeforePS(double E, double eta){
 
  //Energy dependency
-  static double p0 =1; 
-  static double p1 =0.18;
-  static double p2 =8.;
+  constexpr double p0 =1; 
+  constexpr double p1 =0.18;
+  constexpr double p2 =8.;
 
   //Eta dependency
-  static double p3 =0.3;
-  static double p4 =1.11;
-  static double p5 =0.025;
-  static double p6 =1.49;
-  static double p7 =0.6;
+  constexpr double p3 =0.3;
+  constexpr double p4 =1.11;
+  constexpr double p5 =0.025;
+  constexpr double p6 =1.49;
+  constexpr double p7 =0.6;
 
   //so that <feta()> = 1
-  static double norm = 1.21;
+  constexpr double norm = 1.21;
 
   double result = E*(p0+p1*TMath::Exp(-E/p2))*(p3+p4*TMath::Gaus(eta,p6,p5)+p7*eta)/norm;
 
@@ -780,11 +771,11 @@ PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal
   double E = Beta(1.0155*eEcal+0.025*(ePS1+0.5976*ePS2)/9e-5,etaEcal)*eEcal+Gamma(etaEcal)*(ePS1+Alpha(etaEcal)*ePS2)/9e-5 ;
 
   //Correction of the residual energy dependency
-  static double p0 = 1.00;
-  static double p1 = 2.18;
-  static double p2 =1.94;
-  static double p3 =4.13;
-  static double p4 =1.127;
+  constexpr double p0 = 1.00;
+  constexpr double p1 = 2.18;
+  constexpr double p2 =1.94;
+  constexpr double p3 =4.13;
+  constexpr double p4 =1.127;
 
   double result = E*(p0+p1*TMath::Exp(-E/p2)-p3*TMath::Exp(-E/p4));
 
@@ -803,11 +794,11 @@ PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal
   double E = Beta(1.0155*eEcal+0.025*(ePS1+0.5976*ePS2)/9e-5,etaEcal)*eEcal+outputPS1+outputPS2;
 
   //Correction of the residual energy dependency
-  static double p0 = 1.00;
-  static double p1 = 2.18;
-  static double p2 =1.94;
-  static double p3 =4.13;
-  static double p4 =1.127;
+  constexpr double p0 = 1.00;
+  constexpr double p1 = 2.18;
+  constexpr double p2 =1.94;
+  constexpr double p3 =4.13;
+  constexpr double p4 =1.127;
   
   double corrfac=(p0+p1*TMath::Exp(-E/p2)-p3*TMath::Exp(-E/p4));
   outputPS1*=corrfac;
@@ -824,17 +815,17 @@ double
 PFEnergyCalibration::EcorrPS_ePSNil(double eEcal,double eta){
 
   //Energy dependency
-  static double p0= 1.02;
-  static double p1= 0.165;
-  static double p2= 6.5 ;
-  static double p3=  2.1 ;
+  constexpr double p0= 1.02;
+  constexpr double p1= 0.165;
+  constexpr double p2= 6.5 ;
+  constexpr double p3=  2.1 ;
 
   //Eta dependency
-  static double p4 = 1.02496e+00 ;
-  static double p5 = -4.40176e-03 ;
+  constexpr double p4 = 1.02496e+00 ;
+  constexpr double p5 = -4.40176e-03 ;
 
   //so that <feta()> = 1
-  static double norm = (p4+p5*(2.6+1.656)/2);
+  constexpr double norm = (p4+p5*(2.6+1.656)/2);
 
   double result = eEcal*(p0+p1*TMath::Exp(-TMath::Abs(eEcal-p3)/p2))*(p4+p5*eta)/norm;
 		  
@@ -847,25 +838,25 @@ double
 PFEnergyCalibration::EcorrZoneAfterPS(double E, double eta){
 
   //Energy dependency
-  static double p0 =1; 
-  static double p1 = 0.058;
-  static double p2 =12.5;
-  static double p3 =-1.05444e+00;
-  static double p4 =-5.39557e+00;
-  static double p5 =8.38444e+00;
-  static double p6 = 6.10998e-01  ;
+  constexpr double p0 =1; 
+  constexpr double p1 = 0.058;
+  constexpr double p2 =12.5;
+  constexpr double p3 =-1.05444e+00;
+  constexpr double p4 =-5.39557e+00;
+  constexpr double p5 =8.38444e+00;
+  constexpr double p6 = 6.10998e-01  ;
 
   //Eta dependency
-  static double p7 =1.06161e+00;
-  static double p8 = 0.41;
-  static double p9 =2.918;
-  static double p10 =0.0181;
-  static double p11= 2.05;
-  static double p12 =2.99;
-  static double p13=0.0287;
+  constexpr double p7 =1.06161e+00;
+  constexpr double p8 = 0.41;
+  constexpr double p9 =2.918;
+  constexpr double p10 =0.0181;
+  constexpr double p11= 2.05;
+  constexpr double p12 =2.99;
+  constexpr double p13=0.0287;
 
   //so that <feta()> = 1
-  static double norm=1.045;
+  constexpr double norm=1.045;
 
   double result = E*(p0+p1*TMath::Exp(-(E-p3)/p2)+1/(p4+p5*TMath::Power(E,p6)))*(p7+p8*TMath::Gaus(eta,p9,p10)+p11*TMath::Gaus(eta,p12,p13))/norm;
   return result;
@@ -881,10 +872,10 @@ PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,
 			   double eta,double phi,
 			   bool crackCorrection ) {
 
-  static double endBarrel=1.48;
-  static double beginingPS=1.65;
-  static double endPS=2.6;
-  static double endEndCap=2.98;
+  constexpr double endBarrel=1.48;
+  constexpr double beginingPS=1.65;
+  constexpr double endPS=2.6;
+  constexpr double endEndCap=2.98;
  
   double result=0;
 
@@ -909,10 +900,10 @@ PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,
 double
 PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi,double& ps1,double&ps2,bool crackCorrection)  {
 
-  static double endBarrel=1.48;
-  static double beginingPS=1.65;
-  static double endPS=2.6;
-  static double endEndCap=2.98;
+  constexpr double endBarrel=1.48;
+  constexpr double beginingPS=1.65;
+  constexpr double endPS=2.6;
+  constexpr double endEndCap=2.98;
  
   double result=0;
 
