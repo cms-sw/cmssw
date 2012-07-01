@@ -349,7 +349,7 @@ namespace evf {
 				     + pow(nSampledNonIdle_,2)*nSampledIdleErr2))*pow(nAllInv,2);
 	    if (rateAvg) {
 	      float rateAvgInv=1./rateAvg;
-	      evtTimeAvg=nbSubs_* fracWaitingAvg*rateAvgInv;
+	      evtTimeAvg=nbSubs_* (1.-fracWaitingAvg)*rateAvgInv;
 	      evtTimeErr = nbSubs_ * (fracWaitingAvg*rateErr*pow(rateAvgInv,2) + fracWaitingAvgErr*rateAvgInv);
 	    }
 	    else {

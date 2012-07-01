@@ -1,7 +1,9 @@
 2012-07-01 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V00-02-04
-	* bugfixes in cpu accounting, bin and axis names
+	* bugfixes in cpu accounting, bin and axis names, event timing
+	* resetting histograms on stop (should disconnect from server?)
+	* flush after histo reset
 
 2012-06-30 Srecko Morovic <srecko.morovic@cern.ch>
 

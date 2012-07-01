@@ -220,7 +220,11 @@ xoap::MessageReference iDie::fsmCallback(xoap::MessageReference msg)
     // generate correct return state string
     if(commandName == "Configure") state = "Ready";
     else if(commandName == "Enable") state = "Enabled";
-    else if(commandName == "Stop") state = "Ready";
+    else if(commandName == "Stop") {
+      initMonitorElements();
+      doFlush(); 
+      state = "Ready";
+    }
     else if(commandName == "Halt") state = "Halted";
     else state = "BOH";
 
@@ -592,6 +596,7 @@ void iDie::reset()
 
   if (!evtProcessor_ && !dqmDisabled_) initFramework();
   initMonitorElements();
+  doFlush();
 
 }
 
