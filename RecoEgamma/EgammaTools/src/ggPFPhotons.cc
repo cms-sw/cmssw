@@ -368,6 +368,7 @@ std::pair<double, double>ggPFPhotons::SuperClusterSize(
   EcalRecHitCollection::const_iterator ee;
   double MaxEta=-99;
   double MaxPhi=-99;
+  double MaxR=-99;
   for(;cit!=recoSC->clustersEnd();++cit){
     std::vector< std::pair<DetId, float> >bcCells=(*cit)->hitsAndFractions();
     if(phot.isEB()){
@@ -392,22 +393,19 @@ std::pair<double, double>ggPFPhotons::SuperClusterSize(
     }
     else{
       for(unsigned int i=0; i<bcCells.size(); ++i){
-	for(ee=EEReducedRecHits_->begin();ee!= EEReducedRecHits_->end();++ee){
+     	for(ee=EEReducedRecHits_->begin();ee!= EEReducedRecHits_->end();++ee){
 	  if(ee->id().rawId()==bcCells[i].first.rawId()){
 	    DetId id=bcCells[i].first;
 	    float eta=geomEnd_->getGeometry(id)->getPosition().eta();
-	    float dEta = fabs(seedeta-eta);
-	    if(dEta>MaxEta){
-	      MaxEta=dEta;
-	    }
 	    float phi=geomEnd_->getGeometry(id)->getPosition().phi();
-	    float dPhi = acos(cos(seedphi-phi));
-	    if(dPhi>MaxPhi){
-	      MaxPhi=dPhi;
+	    float dR=deltaR(eta, phi, seedeta, seedphi);
+	    if(dR>MaxR){
+	      MaxR=dR;
+	      MaxEta=fabs(seedeta-eta);
+	      MaxPhi= acos(cos(seedphi-phi));
 	    }
 	  }
 	}
-	
       }
     }
   }
@@ -475,6 +473,7 @@ std::pair<double, double>ggPFPhotons::SuperClusterSize(reco::SuperCluster sc,
   EcalRecHitCollection::const_iterator ee;
   double MaxEta=-99;
   double MaxPhi=-99;
+  double MaxR=-99;
   for(;cit!=sc.clustersEnd();++cit){
     std::vector< std::pair<DetId, float> >bcCells=(*cit)->hitsAndFractions();
     DetId seedXtalId = bcCells[0].first ;
@@ -541,6 +540,7 @@ void ggPFPhotons::PhotonPFCandMatch(
   std::pair<double, double>scSize=SuperClusterSize(matchedPhot_);
   double etabound=scSize.first;
   double phibound=scSize.second;
+  double dRbound=sqrt(etabound*etabound+phibound*phibound);
   double seedEta=sc.eta();
   double seedPhi=sc.phi();
   for(PFCandidateCollection::const_iterator pfParticle =pfCandidates->begin(); pfParticle!=pfCandidates->end(); pfParticle++){
@@ -553,7 +553,15 @@ void ggPFPhotons::PhotonPFCandMatch(
     seedPhi=photon_directionWrtVtx.Phi();
     double dphi=acos(cos(seedPhi-pfParticle->momentum().Phi()));
     double deta=fabs(seedEta-pfParticle->momentum().Eta());
-    if(deta<etabound && dphi<phibound){
+    if(deta<etabound && dphi<phibound && matchedPhot_.isEB()){
+      reco::PFCandidatePtr pfRef(pfCandidates,index);
+      insideBox.push_back(pfRef); //Fill PFCandidates in a box around SC
+      if(pfParticle->pdgId()==22)PFPho.push_back(pfRef);
+      if(abs(pfParticle->pdgId())==211)ChgHad.push_back(pfRef);
+    }
+    double dR=deltaR(seedEta,seedPhi, pfParticle->momentum().Eta(), pfParticle->momentum().Phi());
+    if(matchedPhot_.isEE() && dR<dRbound){
+      //if(dR<0.4){
       reco::PFCandidatePtr pfRef(pfCandidates,index);
       insideBox.push_back(pfRef); //Fill PFCandidates in a box around SC
       if(pfParticle->pdgId()==22)PFPho.push_back(pfRef);
@@ -561,56 +569,11 @@ void ggPFPhotons::PhotonPFCandMatch(
     }
   }
   
-  if(PFPho.size()==0 && ChgHad.size()==0){
-    //cout<<"Nothing in Box "<<endl;
-    //cout<<"bounds "<<etabound<<", "<<phibound<<endl;
-    for(PFCandidateCollection::const_iterator pfParticle =pfCandidates->begin(); pfParticle!=pfCandidates->end(); pfParticle++){
-      if(pfParticle->pdgId()==130)continue;
-      math::XYZVector photon_directionWrtVtx(sc.x() - pfParticle->vx(),
-					     sc.y() - pfParticle->vy(),
-					     sc.z() - pfParticle->vz());
-      seedEta= photon_directionWrtVtx.Eta();
-      seedPhi=photon_directionWrtVtx.Phi();
-      unsigned int index=pfParticle - pfCandidates->begin();
-      double dphi=acos(cos(seedPhi-pfParticle->momentum().Phi()));
-      double deta=fabs(seedEta-pfParticle->momentum().Eta());
-      if(deta<0.1 && dphi<0.5){
-	reco::PFCandidatePtr pfRef(pfCandidates,index);
-	insideBox.push_back(pfRef);
-	if(pfParticle->pdgId()==22 || abs(pfParticle->pdgId())==11)PFPho.push_back(pfRef);
-	if(abs(pfParticle->pdgId())==211)ChgHad.push_back(pfRef);
-	//cout<<"Fill Empty Box "<<endl;
-      }
-    }
-  }
-  if(PFPho.size()==0 && ChgHad.size()==0){
-    cout<<"Nothing in Box "<<endl;
-    cout<<"bounds "<<etabound<<", "<<phibound<<endl;
-  }
   ggPFClusters PFClusterCollection(EBReducedRecHits_, EEReducedRecHits_, geomBar_,   geomEnd_);
   //Link PFCandidates to Basic Clusters
   std::vector<reco::PFCandidatePtr>copy=insideBox;
   
   PFClusterCollection.BasicClusterPFCandLink(sc, insideBox);
-  /*
-  if(insideBox.size()==0 && sc.clustersSize()<3){
-    //    cout<<"Nothing Linked "<<endl;
-    for(unsigned int i=0; i<copy.size(); ++i){
-      
-      math::XYZVector photon_directionWrtVtx(sc.x() - copy[i]->vx(),
-					     sc.y() - copy[i]->vy(),
-					     sc.z() - copy[i]->vz());
-      seedEta= photon_directionWrtVtx.Eta();
-      seedPhi=photon_directionWrtVtx.Phi();
-      double dphi=acos(cos(seedPhi-copy[i]->momentum().Phi()));
-      double deta=fabs(seedEta-copy[i]->momentum().Eta());
-      if(deta<0.15 && dphi<0.5){
-	insideBox.push_back(copy[i]);
-      }
-
-    }
-  }
-  */
   PFPho.clear();
   ChgHad.clear();
   for(unsigned int i=0; i<insideBox.size(); ++i){
