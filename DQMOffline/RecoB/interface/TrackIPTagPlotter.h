@@ -69,8 +69,10 @@ class TrackIPTagPlotter : public BaseTagInfoPlotter {
 
   TrackIPHistograms<float> * tkcntHistosProb3D[5];
   TrackIPHistograms<float> * tkcntHistosProb2D[5];
-  TrackIPHistograms<double> *ghostTrackWeightHisto;
-  TrackIPHistograms<double> *ghostTrackDistanceValuHisto, *ghostTrackDistanceSignHisto;
+  TrackIPHistograms<float> * tkcntHistosTkProbIPneg2D, * tkcntHistosTkProbIPpos2D;
+  TrackIPHistograms<float> * tkcntHistosTkProbIPneg3D, * tkcntHistosTkProbIPpos3D;
+  TrackIPHistograms<double> * ghostTrackWeightHisto;
+  TrackIPHistograms<double> * ghostTrackDistanceValuHisto, * ghostTrackDistanceSignHisto;
 
   FlavourHistograms<int> * trackQualHisto;
   FlavourHistograms<int> * selectedTrackQualHisto;
