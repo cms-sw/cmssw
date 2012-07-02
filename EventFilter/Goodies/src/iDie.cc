@@ -158,6 +158,8 @@ iDie::iDie(xdaq::ApplicationStub *s)
   }
   nbSubsClasses = epInstances.size();
   lsHistory = new std::queue<lsStat>[nbSubsClasses];
+  //mask for permissions of created files
+  umask(000);
 
 }
 
@@ -1216,14 +1218,14 @@ void iDie::perLumiFileSaver(unsigned int lsid)
   {
     struct stat st;
     if (stat((dqmSaveDir_.value_+"/output").c_str(),&st) != 0) {
-      if (mkdir((dqmSaveDir_.value_+"/output").c_str(), 0776) != 0) {
+      if (mkdir((dqmSaveDir_.value_+"/output").c_str(), 0777) != 0) {
         LOG4CPLUS_ERROR(getApplicationLogger(),"iDie could not find nor create DQM \"output\" directory. DQM archiving -> Off.");
 	dqmSaveDir_.value_="";//reset parameter
         return;
       }
     }
     if (stat((dqmSaveDir_.value_+"/done").c_str(),&st) != 0) {
-      if (mkdir((dqmSaveDir_.value_+"/done").c_str(), 0776) != 0) {
+      if (mkdir((dqmSaveDir_.value_+"/done").c_str(), 0777) != 0) {
         LOG4CPLUS_WARN(getApplicationLogger(),"iDie could not find nor create DQM \"done\" directory. DQM archiving might fail.");
       }
     }
@@ -1259,13 +1261,19 @@ void iDie::perLumiFileSaver(unsigned int lsid)
 
     for (size_t i = 0, e = systems.size(); i != e; ++i) {
       std::string filename = fileBaseName_ + systems[i] + suffix + ".root";
-      dqmStore_->save(filename, systems[i] , "^(Reference/)?([^/]+)",
-	  rewrite, (DQMStore::SaveReferenceTag) DQMStore::SaveWithReference, dqm::qstatus::STATUS_OK);
-      pastSavedFiles_.push_back(filename);
-      if (pastSavedFiles_.size() > 500)
-      {
-	remove(pastSavedFiles_.front().c_str());
-	pastSavedFiles_.pop_front();
+      try {
+	dqmStore_->save(filename, systems[i] , "^(Reference/)?([^/]+)",
+	    rewrite, (DQMStore::SaveReferenceTag) DQMStore::SaveWithReference, dqm::qstatus::STATUS_OK);
+	pastSavedFiles_.push_back(filename);
+	chmod(filename.c_str(),0777);//allow deletion by dqm script?
+	//if (pastSavedFiles_.size() > 500)
+	//{
+	  //remove(pastSavedFiles_.front().c_str());
+	  //pastSavedFiles_.pop_front();
+	//}
+      }
+      catch (...) {
+	LOG4CPLUS_ERROR(getApplicationLogger(),"iDie could not create root file");
       }
     }
 

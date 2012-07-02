@@ -1,3 +1,11 @@
+2012-07-02 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-02-05
+	* 0777 file permissions for output directories
+	* catch file creation failures
+	* disable removal of past root files
+	* chmod output files to 0777
+
 2012-07-01 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V00-02-04
