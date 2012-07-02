@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2012/04/20 06:20:35 $
- * $Revision: 1.78.2.2 $
+ * $Date: 2012/04/27 13:46:15 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  *
 */
@@ -119,6 +119,9 @@ void EELaserTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
   Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
+
+  ievt_ = 0;
+  nEmpty_ = 0;
 
 }
 
@@ -824,7 +827,9 @@ void EELaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    if(!enable) return;
+    if(!enable && (ievt_ < 4000 || double(nEmpty_++) / double(ievt_) < 0.7)) return;
+
+    std::cout << "EE nEmpty / ievt = " << nEmpty_ << " / " << ievt_ << " (" << (double(nEmpty_) / double(ievt_)) << ")" << std::endl;
 
     int need = digis->size();
     LogDebug("EELaserTask") << "event " << ievt_ << " digi collection size " << need;

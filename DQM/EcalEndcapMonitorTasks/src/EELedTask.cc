@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2012/04/29 14:20:12 $
- * $Revision: 1.72 $
+ * $Date: 2012/05/15 11:12:27 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  *
 */
@@ -97,6 +97,9 @@ void EELedTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
   Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
+
+  ievt_ = 0;
+  nEmpty_ = 0;
 
 }
 
@@ -498,7 +501,7 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    if(!enable) return;
+    if(!enable && double(nEmpty_++) / double(ievt_) < 0.1) return;
 
     int need = digis->size();
     LogDebug("EELedTask") << "event " << ievt_ << " digi collection size " << need;

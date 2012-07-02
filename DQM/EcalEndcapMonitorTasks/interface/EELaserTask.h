@@ -4,8 +4,8 @@
 /*
  * \file EELaserTask.h
  *
- * $Date: 2011/08/12 16:01:44 $
- * $Revision: 1.15 $
+ * $Date: 2012/04/27 13:46:13 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -113,6 +113,8 @@ MonitorElement* mePnPedMapG16L4_[18];
  MonitorElement* meAmplSummaryMapL4_[2];
 
 bool init_;
+
+ int nEmpty_;
 
 };
 
