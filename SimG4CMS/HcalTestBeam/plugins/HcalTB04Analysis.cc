@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: HcalTB04Analysis.cc,v 1.10 2009/05/24 15:31:15 fabiocos Exp $
+// $Id: HcalTB04Analysis.cc,v 1.11 2011/10/11 20:40:20 sunanda Exp $
 //
   
 // system include files
@@ -22,6 +22,7 @@
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
 // to retreive hits
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -37,6 +38,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -1036,3 +1039,5 @@ double HcalTB04Analysis::timeOfFlight(int det, int layer, double eta) {
 #endif
   return tmp;
 }
+ 
+DEFINE_SIMWATCHER (HcalTB04Analysis);

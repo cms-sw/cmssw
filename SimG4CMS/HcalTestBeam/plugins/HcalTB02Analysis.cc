@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun May 21 10:14:34 CEST 2006
-// $Id: HcalTB02Analysis.cc,v 1.4 2007/10/22 14:44:50 sunanda Exp $
+// $Id: HcalTB02Analysis.cc,v 1.5 2009/05/24 15:31:15 fabiocos Exp $
 //
   
 // system include files
@@ -24,10 +24,13 @@
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB02HcalNumberingScheme.h"
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB02XtalNumberingScheme.h"
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -465,3 +468,5 @@ void HcalTB02Analysis::finish() {
   oFile.close(); 
   */
 }
+ 
+DEFINE_SIMWATCHER (HcalTB02Analysis);
