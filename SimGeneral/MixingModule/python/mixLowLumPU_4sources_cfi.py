@@ -10,8 +10,26 @@ import FWCore.ParameterSet.Config as cms
 # or you can replace the type by "none" for a source you dont want
 # please note that the names of the input sources are fixed: 'input', 'cosmics', 'beamhalo_minus', 'beamhalo_plus'
 #
+from SimGeneral.MixingModule.aliases_cfi import *
 from SimGeneral.MixingModule.mixObjects_cfi import *
 mix = cms.EDProducer("MixingModule",
+    digitizers = cms.PSet(
+      pixel = cms.PSet(
+        pixelDigitizer
+      ),
+      strip = cms.PSet(
+        stripDigitizer
+      ),
+      ecal = cms.PSet(
+        ecalDigitizer
+      ),
+      hcal = cms.PSet(
+        hcalDigitizer
+      ),
+      castor  = cms.PSet(
+        castorDigitizer
+      )
+    ),
     LabelPlayback = cms.string(''),
     maxBunch = cms.int32(3),
     minBunch = cms.int32(-5), ## in units of 25 nsec

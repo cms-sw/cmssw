@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 # configuration to model pileup for initial physics phase
-from SimGeneral.MixingModule.aliases_cfi import * 
-from SimGeneral.MixingModule.mixObjects_cfi import * 
-from SimGeneral.MixingModule.mixPoolSource_cfi import * 
+from SimGeneral.MixingModule.aliases_cfi import *
+from SimGeneral.MixingModule.mixObjects_cfi import *
+from SimGeneral.MixingModule.mixPoolSource_cfi import *
 from SimGeneral.MixingModule.pixelDigitizer_cfi import *
 from SimGeneral.MixingModule.stripDigitizer_cfi import *
 from SimGeneral.MixingModule.ecalDigitizer_cfi import *
@@ -39,7 +39,7 @@ mix = cms.EDProducer("MixingModule",
 
     playback = cms.untracked.bool(False),
     useCurrentProcessOnly = cms.bool(False),
-                   
+
     input = cms.SecSource("PoolSource",
         type = cms.string('probFunction'),
         nbPileupEvents = cms.PSet(
@@ -107,7 +107,7 @@ mix = cms.EDProducer("MixingModule",
                                   2.047E-08),
           histoFileName = cms.untracked.string('histProbFunction.root'),
         ),
-	sequential = cms.untracked.bool(False),                          
+	sequential = cms.untracked.bool(False),
         manage_OOT = cms.untracked.bool(True),  ## manage out-of-time pileup
         ## setting this to True means that the out-of-time pileup
         ## will have a different distribution than in-time, given
@@ -115,7 +115,7 @@ mix = cms.EDProducer("MixingModule",
         OOT_type = cms.untracked.string('Poisson'),  ## generate OOT with a Poisson matching the number chosen for in-time
         #OOT_type = cms.untracked.string('fixed'),  ## generate OOT with a fixed distribution
         #intFixed_OOT = cms.untracked.int32(2),
-        fileNames = FileNames 
+        fileNames = FileNames
     ),
     mixObjects = cms.PSet(
         mixCH = cms.PSet(

@@ -12,10 +12,33 @@ import FWCore.ParameterSet.Config as cms
 #
 # we have put minbias files for all the sources, just as an example
 #
-from SimGeneral.MixingModule.mixObjects_cfi import * 
-from SimGeneral.MixingModule.mixPoolSource_cfi import * 
+from SimGeneral.MixingModule.aliases_cfi import *
+from SimGeneral.MixingModule.mixObjects_cfi import *
+from SimGeneral.MixingModule.mixPoolSource_cfi import *
+from SimGeneral.MixingModule.pixelDigitizer_cfi import *
+from SimGeneral.MixingModule.stripDigitizer_cfi import *
+from SimGeneral.MixingModule.ecalDigitizer_cfi import *
+from SimGeneral.MixingModule.hcalDigitizer_cfi import *
+from SimGeneral.MixingModule.castorDigitizer_cfi import *
 
 mix = cms.EDProducer("MixingModule",
+    digitizers = cms.PSet(
+      pixel = cms.PSet(
+        pixelDigitizer
+      ),
+      strip = cms.PSet(
+        stripDigitizer
+      ),
+      ecal = cms.PSet(
+        ecalDigitizer
+      ),
+      hcal = cms.PSet(
+        hcalDigitizer
+      ),
+      castor  = cms.PSet(
+        castorDigitizer
+      )
+    ),
     LabelPlayback = cms.string(''),
     maxBunch = cms.int32(3),
     minBunch = cms.int32(-5), ## in units of 25 nsec
@@ -81,7 +104,7 @@ mix = cms.EDProducer("MixingModule",
         '/store/relval/CMSSW_2_1_10/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0000/600D1E6A-5F99-DD11-A7D5-000423D9890C.root',
         '/store/relval/CMSSW_2_1_10/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0000/68ECAE92-5F99-DD11-ACAB-000423D98E6C.root',
         '/store/relval/CMSSW_2_1_10/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0000/8802D325-5E99-DD11-B858-000423D98A44.root')
-                                          
+
     ),
     mixObjects = cms.PSet(
         mixCH = cms.PSet(

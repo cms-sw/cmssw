@@ -1,10 +1,33 @@
 import FWCore.ParameterSet.Config as cms
 
 # configuration to model pileup for initial physics phase
-from SimGeneral.MixingModule.mixObjects_cfi import * 
-from SimGeneral.MixingModule.mixPoolSource_cfi import * 
+from SimGeneral.MixingModule.aliases_cfi import *
+from SimGeneral.MixingModule.mixObjects_cfi import *
+from SimGeneral.MixingModule.mixPoolSource_cfi import *
+from SimGeneral.MixingModule.pixelDigitizer_cfi import *
+from SimGeneral.MixingModule.stripDigitizer_cfi import *
+from SimGeneral.MixingModule.ecalDigitizer_cfi import *
+from SimGeneral.MixingModule.hcalDigitizer_cfi import *
+from SimGeneral.MixingModule.castorDigitizer_cfi import *
 
 mix = cms.EDProducer("MixingModule",
+    digitizers = cms.PSet(
+      pixel = cms.PSet(
+        pixelDigitizer
+      ),
+      strip = cms.PSet(
+        stripDigitizer
+      ),
+      ecal = cms.PSet(
+        ecalDigitizer
+      ),
+      hcal = cms.PSet(
+        hcalDigitizer
+      ),
+      castor  = cms.PSet(
+        castorDigitizer
+      )
+    ),
     LabelPlayback = cms.string(''),
     maxBunch = cms.int32(5),
     minBunch = cms.int32(-3), ## in terms of 25 nsec
@@ -15,7 +38,7 @@ mix = cms.EDProducer("MixingModule",
 
     playback = cms.untracked.bool(False),
     useCurrentProcessOnly = cms.bool(False),
-                   
+
     input = cms.SecSource("PoolSource",
         type = cms.string('probFunction'),
         nbPileupEvents = cms.PSet(
@@ -23,7 +46,7 @@ mix = cms.EDProducer("MixingModule",
           probValue = cms.vdouble(0.0698146584,0.0698146584,0.0698146584,0.0698146584,0.0698146584,0.0698146584,0.0698146584,0.0698146584,0.0698146584,0.0698146584,0.0698146584,0.0630151648,0.0526654164,0.0402754482,0.0292988928,0.0194384503,0.0122016783,0.007207042,0.004003637,0.0020278322,0.0010739954,0.0004595759,0.0002229748,0.0001028162,4.58337152809607E-05),
           histoFileName = cms.untracked.string('histProbFunction.root'),
         ),
-	sequential = cms.untracked.bool(False),                          
+	sequential = cms.untracked.bool(False),
         manage_OOT = cms.untracked.bool(True),  ## manage out-of-time pileup
         ## setting this to True means that the out-of-time pileup
         ## will have a different distribution than in-time, given
@@ -31,7 +54,7 @@ mix = cms.EDProducer("MixingModule",
         OOT_type = cms.untracked.string('Poisson'),  ## generate OOT with a Poisson matching the number chosen for in-time
         #OOT_type = cms.untracked.string('fixed'),  ## generate OOT with a fixed distribution
         #intFixed_OOT = cms.untracked.int32(2),
-        fileNames = FileNames 
+        fileNames = FileNames
     ),
     mixObjects = cms.PSet(
         mixCH = cms.PSet(
