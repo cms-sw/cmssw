@@ -78,7 +78,7 @@ TrackIPTagPlotter::TrackIPTagPlotter(const std::string & tagName,
 	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
 
   tkcntHistosSig2D[3] = new TrackIPHistograms<double>
-       ("ips4" + theExtensionString, "2D IP significance 4.trk",
+       ("ips4_2D" + theExtensionString, "2D IP significance 4.trk",
 	nBinsIPS, lowerIPSBound, upperIPSBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
 
   // IP value
@@ -249,7 +249,7 @@ TrackIPTagPlotter::TrackIPTagPlotter(const std::string & tagName,
   tkcntHistosJetDistVal3D[3] = new TrackIPHistograms<double>
        ("jetDist4_3D" + theExtensionString, "JetDistance 3D 4.trk",
 	50, -0.1, 0.0, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
-
+  /* // the jet distance significance return always 0 => disabled
   tkcntHistosJetDistSign2D[4] = new TrackIPHistograms<double>
        ("jetDistSig_2D" + theExtensionString, "JetDistance Sign 2D",
 	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
@@ -289,7 +289,7 @@ TrackIPTagPlotter::TrackIPTagPlotter(const std::string & tagName,
   tkcntHistosJetDistSign3D[3] = new TrackIPHistograms<double>
        ("jetDistSig4_3D" + theExtensionString, "JetDistance Sign 3D 4.trk",
 	100, -0.001, 0.001, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
-
+  */
   // track chi-squared
   tkcntHistosTkNChiSqr2D[4] = new TrackIPHistograms<double>
        ("tkNChiSqr_2D" + theExtensionString, "Normalized Chi Squared 2D",
@@ -457,44 +457,59 @@ TrackIPTagPlotter::TrackIPTagPlotter(const std::string & tagName,
   // probability
   tkcntHistosProb3D[4] = new TrackIPHistograms<float>
        ("prob_3D" + theExtensionString, "3D IP probability",
-	50, -1.1, 1.1, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	50, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
 
   tkcntHistosProb3D[0] = new TrackIPHistograms<float>
        ("prob1_3D" + theExtensionString, "3D IP probability 1.trk",
-	50, -1.1, 1.1, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
 
   tkcntHistosProb3D[1] = new TrackIPHistograms<float>
        ("prob2_3D" + theExtensionString, "3D IP probability 2.trk",
-	50, -1.1, 1.1, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
 
   tkcntHistosProb3D[2] = new TrackIPHistograms<float>
        ("prob3_3D" + theExtensionString, "3D IP probability 3.trk",
-	50, -1.1, 1.1, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
 
   tkcntHistosProb3D[3] = new TrackIPHistograms<float>
        ("prob4_3D" + theExtensionString, "3D IP probability 4.trk",
-	50, -1.1, 1.1, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
 
   tkcntHistosProb2D[4] = new TrackIPHistograms<float>
        ("prob_2D" + theExtensionString, "2D IP probability",
-	50, -1.1, 1.1, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
 
   tkcntHistosProb2D[0] = new TrackIPHistograms<float>
        ("prob1_2D" + theExtensionString, "2D IP probability 1.trk",
-	50, -1.1, 1.1, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
 
   tkcntHistosProb2D[1] = new TrackIPHistograms<float>
        ("prob2_2D" + theExtensionString, "2D IP probability 2.trk",
-	50, -1.1, 1.1, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
 
   tkcntHistosProb2D[2] = new TrackIPHistograms<float>
        ("prob3_2D" + theExtensionString, "2D IP probability 3.trk",
-	50, -1.1, 1.1, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
 
   tkcntHistosProb2D[3] = new TrackIPHistograms<float>
-       ("prob4" + theExtensionString, "2D IP probability 4.trk",
-	50, -1.1, 1.1, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+       ("prob4_2D" + theExtensionString, "2D IP probability 4.trk",
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
 
+  //probability for tracks with IP value < 0 or IP value > 0
+  tkcntHistosTkProbIPneg2D = new TrackIPHistograms<float>
+       ("probIPneg_2D" + theExtensionString, "2D negative IP probability",
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+  tkcntHistosTkProbIPpos2D = new TrackIPHistograms<float>
+       ("probIPpos_2D" + theExtensionString, "2D positive IP probability",
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+  tkcntHistosTkProbIPneg3D = new TrackIPHistograms<float>
+       ("probIPneg_3D" + theExtensionString, "3D negative IP probability",
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+  tkcntHistosTkProbIPpos3D = new TrackIPHistograms<float>
+       ("probIPpos_3D" + theExtensionString, "3D positive IP probability",
+	52, -1.04, 1.04, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
+
+  //ghost Tracks and others
   ghostTrackDistanceValuHisto = new TrackIPHistograms<double>
        ("ghostTrackDist" + theExtensionString, "GhostTrackDistance",
 	50, 0.0, 0.1, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_);
@@ -531,6 +546,10 @@ TrackIPTagPlotter::~TrackIPTagPlotter ()
 
   delete trkNbr3D;
   delete trkNbr2D;
+  delete tkcntHistosTkProbIPneg2D;
+  delete tkcntHistosTkProbIPpos2D;
+  delete tkcntHistosTkProbIPneg3D;
+  delete tkcntHistosTkProbIPpos3D;
   delete ghostTrackDistanceValuHisto;
   delete ghostTrackDistanceSignHisto;
   delete ghostTrackWeightHisto;
@@ -550,8 +569,8 @@ TrackIPTagPlotter::~TrackIPTagPlotter ()
     delete tkcntHistosDecayLengthVal3D[n];
     delete tkcntHistosJetDistVal2D[n];
     delete tkcntHistosJetDistVal3D[n];
-    delete tkcntHistosJetDistSign2D[n];
-    delete tkcntHistosJetDistSign3D[n];
+    //delete tkcntHistosJetDistSign2D[n];
+    //delete tkcntHistosJetDistSign3D[n];
     delete tkcntHistosTkNChiSqr2D[n];
     delete tkcntHistosTkNChiSqr3D[n];
     delete tkcntHistosTkPt2D[n];
@@ -604,7 +623,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     double decayLength = (ip[sortedIndices[n]].closestToJetAxis - pv).mag();
     double jetDistance = ip[sortedIndices[n]].distanceToJetAxis.value();
     if(decayLength > minDecayLength && decayLength < maxDecayLength &&
-       fabs(jetDistance) > minJetDistance && fabs(jetDistance) < maxJetDistance ) {
+       fabs(jetDistance) >= minJetDistance && fabs(jetDistance) < maxJetDistance ) {
       selectedIndices.push_back(sortedIndices[n]);
       selectedTracks.push_back(sortedTracks[n]);
     }
@@ -621,7 +640,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     const double& decayLen = (ip[selectedIndices[n]].closestToJetAxis - pv).mag();
     tkcntHistosDecayLengthVal2D[4]->fill(jetFlavour, trackQual, decayLen, true,w);
     tkcntHistosJetDistVal2D[4]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToJetAxis.value(), true,w);
-    tkcntHistosJetDistSign2D[4]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToJetAxis.significance(), true,w);
+    //tkcntHistosJetDistSign2D[4]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToJetAxis.significance(), true,w);
     tkcntHistosTkNChiSqr2D[4]->fill(jetFlavour, trackQual, track->normalizedChi2(), true,w);
     tkcntHistosTkPt2D[4]->fill(jetFlavour, trackQual, track->pt(), true,w);
     tkcntHistosTkNHits2D[4]->fill(jetFlavour, trackQual, track->found(), true,w);
@@ -632,7 +651,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     tkcntHistosErr2D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip2d.error(), true,w);
     tkcntHistosDecayLengthVal2D[n]->fill(jetFlavour, trackQual, decayLen, true,w);
     tkcntHistosJetDistVal2D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToJetAxis.value(), true,w);
-    tkcntHistosJetDistSign2D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToJetAxis.significance(), true,w);
+    //tkcntHistosJetDistSign2D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToJetAxis.significance(), true,w);
     tkcntHistosTkNChiSqr2D[n]->fill(jetFlavour, trackQual, track->normalizedChi2(), true,w);
     tkcntHistosTkPt2D[n]->fill(jetFlavour, trackQual, track->pt(), true,w);
     tkcntHistosTkNHits2D[n]->fill(jetFlavour, trackQual, track->found(), true,w);
@@ -646,7 +665,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     double decayLength = (ip[sortedIndices[n]].closestToJetAxis - pv).mag();
     double jetDistance = ip[sortedIndices[n]].distanceToJetAxis.value();
     if(decayLength > minDecayLength && decayLength < maxDecayLength &&
-       fabs(jetDistance) > minJetDistance && fabs(jetDistance) < maxJetDistance ) {
+       fabs(jetDistance) >= minJetDistance && fabs(jetDistance) < maxJetDistance ) {
       selectedIndices.push_back(sortedIndices[n]);
       selectedTracks.push_back(sortedTracks[n]);
     }
@@ -654,7 +673,9 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
   for(unsigned int n=0; n != selectedIndices.size(); ++n) {
     const reco::TrackRef& track = selectedTracks[n];
     const reco::TrackBase::TrackQuality& trackQual = highestTrackQual(track);
-    tkcntHistosProb2D[4]->fill(jetFlavour, trackQual, prob2d[n], true,w);
+    tkcntHistosProb2D[4]->fill(jetFlavour, trackQual, prob2d[selectedIndices[n]], true,w);
+    if(ip[selectedIndices[n]].ip2d.value() < 0) tkcntHistosTkProbIPneg2D->fill(jetFlavour, trackQual, prob2d[selectedIndices[n]], true,w);
+    else tkcntHistosTkProbIPpos2D->fill(jetFlavour, trackQual, prob2d[selectedIndices[n]], true,w);
     if(n >= 4) continue;
     tkcntHistosProb2D[n]->fill(jetFlavour, trackQual, prob2d[selectedIndices[n]], true,w);
   }
@@ -672,7 +693,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     double decayLength = (ip[sortedIndices[n]].closestToJetAxis - pv).mag();
     double jetDistance = ip[sortedIndices[n]].distanceToJetAxis.value();
     if(decayLength > minDecayLength && decayLength < maxDecayLength &&
-       fabs(jetDistance) > minJetDistance && fabs(jetDistance) < maxJetDistance ) {
+       fabs(jetDistance) >= minJetDistance && fabs(jetDistance) < maxJetDistance ) {
       selectedIndices.push_back(sortedIndices[n]);
       selectedTracks.push_back(sortedTracks[n]);
     }
@@ -690,7 +711,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     const double& decayLen = (ip[selectedIndices[n]].closestToJetAxis - pv).mag();
     tkcntHistosDecayLengthVal3D[4]->fill(jetFlavour, trackQual, decayLen, true,w);
     tkcntHistosJetDistVal3D[4]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToJetAxis.value(), true,w);
-    tkcntHistosJetDistSign3D[4]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToJetAxis.significance(), true,w);
+    //tkcntHistosJetDistSign3D[4]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToJetAxis.significance(), true,w);
     tkcntHistosTkNChiSqr3D[4]->fill(jetFlavour, trackQual, track->normalizedChi2(), true,w);
     tkcntHistosTkPt3D[4]->fill(jetFlavour, trackQual, track->pt(), true,w);
     tkcntHistosTkNHits3D[4]->fill(jetFlavour, trackQual, track->found(), true,w);
@@ -706,7 +727,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     tkcntHistosErr3D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip3d.error(), true,w);
     tkcntHistosDecayLengthVal3D[n]->fill(jetFlavour, trackQual, decayLen, true,w);
     tkcntHistosJetDistVal3D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToJetAxis.value(), true,w);
-    tkcntHistosJetDistSign3D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToJetAxis.significance(), true,w);
+    //tkcntHistosJetDistSign3D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToJetAxis.significance(), true,w);
     tkcntHistosTkNChiSqr3D[n]->fill(jetFlavour, trackQual, track->normalizedChi2(), true,w);
     tkcntHistosTkPt3D[n]->fill(jetFlavour, trackQual, track->pt(), true,w);
     tkcntHistosTkNHits3D[n]->fill(jetFlavour, trackQual, track->found(), true,w);
@@ -720,7 +741,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     double decayLength = (ip[sortedIndices[n]].closestToJetAxis - pv).mag();
     double jetDistance = ip[sortedIndices[n]].distanceToJetAxis.value();
     if(decayLength > minDecayLength && decayLength < maxDecayLength &&
-       fabs(jetDistance) > minJetDistance && fabs(jetDistance) < maxJetDistance ) {
+       fabs(jetDistance) >= minJetDistance && fabs(jetDistance) < maxJetDistance ) {
       selectedIndices.push_back(sortedIndices[n]);
       selectedTracks.push_back(sortedTracks[n]);
     }
@@ -728,7 +749,9 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
   for(unsigned int n=0; n != selectedIndices.size(); ++n) {
     const reco::TrackRef& track = selectedTracks[n];
     const reco::TrackBase::TrackQuality& trackQual = highestTrackQual(track);
-    tkcntHistosProb3D[4]->fill(jetFlavour, trackQual, prob3d[n], true,w);
+    tkcntHistosProb3D[4]->fill(jetFlavour, trackQual, prob3d[selectedIndices[n]], true,w);
+    if(ip[selectedIndices[n]].ip3d.value() < 0) tkcntHistosTkProbIPneg3D->fill(jetFlavour, trackQual, prob3d[selectedIndices[n]], true,w);
+    else tkcntHistosTkProbIPpos3D->fill(jetFlavour, trackQual, prob3d[selectedIndices[n]], true,w);
     if(n >= 4) continue;
     tkcntHistosProb3D[n]->fill(jetFlavour, trackQual, prob3d[selectedIndices[n]], true,w);
   }
@@ -881,6 +904,10 @@ void TrackIPTagPlotter::epsPlot(const std::string & name)
 {
   trkNbr2D->epsPlot(name);
   trkNbr3D->epsPlot(name);
+  tkcntHistosTkProbIPneg2D->epsPlot(name);
+  tkcntHistosTkProbIPpos2D->epsPlot(name);
+  tkcntHistosTkProbIPneg3D->epsPlot(name);
+  tkcntHistosTkProbIPpos3D->epsPlot(name);
   ghostTrackDistanceValuHisto->epsPlot(name);
   ghostTrackDistanceSignHisto->epsPlot(name);
   ghostTrackWeightHisto->epsPlot(name);
@@ -897,8 +924,8 @@ void TrackIPTagPlotter::epsPlot(const std::string & name)
     tkcntHistosDecayLengthVal3D[n]->epsPlot(name);
     tkcntHistosJetDistVal2D[n]->epsPlot(name);
     tkcntHistosJetDistVal3D[n]->epsPlot(name);
-    tkcntHistosJetDistSign2D[n]->epsPlot(name);
-    tkcntHistosJetDistSign3D[n]->epsPlot(name);
+    //tkcntHistosJetDistSign2D[n]->epsPlot(name);
+    //tkcntHistosJetDistSign3D[n]->epsPlot(name);
     tkcntHistosTkNChiSqr2D[n]->epsPlot(name);
     tkcntHistosTkNChiSqr3D[n]->epsPlot(name);
     tkcntHistosTkPt2D[n]->epsPlot(name);
