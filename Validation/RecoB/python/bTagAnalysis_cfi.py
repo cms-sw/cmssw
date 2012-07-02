@@ -115,6 +115,6 @@ bTagValidation = cms.EDAnalyzer("BTagPerformanceAnalyzerMC",
         )
     ),
     mcPlots = cms.bool(True),
-    differentialPlots = cms.bool(True),
+    differentialPlots = cms.bool(False), #not needed in validation procedure, put True to produce them  
     leptonPlots = cms.uint32(0)
 )
