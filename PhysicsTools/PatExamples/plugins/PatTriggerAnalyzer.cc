@@ -183,10 +183,10 @@ void PatTriggerAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSet
     mean pt
   */
 
-  // loop over all trigger match objects from minID to maxID; have
+  // loop over all trigger objects from minID to maxID; have
   // a look to DataFormats/HLTReco/interface/TriggerTypeDefs.h to
-  // know more about the available trrigger object id's
-  for ( unsigned id=minID_; id<=maxID_; ++id ) {
+  // know more about the available trrigger object IDs
+  for ( unsigned id = minID_; id <= maxID_; ++id ) {
     // vector of all objects for a given object id
     const TriggerObjectRefVector objRefs( triggerEvent->objects( id ) );
     // buffer the number of objects
@@ -213,7 +213,7 @@ void PatTriggerAnalyzer::endJob()
 
   // normalize the entries for the mean pt plot
   for(unsigned id=minID_; id<=maxID_; ++id){
-    if( sumN_[ id ]!=0 ) histos1D_[ "ptMean" ]->Fill( id, sumPt_[ id ]/sumN_[ id ] );
+    if( sumN_[ id ] != 0 ) histos1D_[ "ptMean" ]->Fill( id, sumPt_[ id ] / sumN_[ id ] );
   }
 }
 
