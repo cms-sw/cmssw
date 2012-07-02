@@ -106,4 +106,20 @@ private:
 };
 
 
+inline
+TOBDetId::TOBDetId() : SiStripDetId() {
+}
+inline
+TOBDetId::TOBDetId(uint32_t rawid) : SiStripDetId(rawid) {
+}
+inline
+TOBDetId::TOBDetId(const DetId& id) : SiStripDetId(id.rawId()) {
+}
+inline
+bool TOBDetId::isDoubleSide() const {
+  // Double Side: only layers 1 and 2
+  return this->glued() == 0 && ( this->layer() == 1 || this->layer() == 2 );
+}
+
+
 #endif

@@ -127,6 +127,24 @@ private:
 };
 
 
+inline
+TIDDetId::TIDDetId() : SiStripDetId() {
+}
+inline
+TIDDetId::TIDDetId(uint32_t rawid) : SiStripDetId(rawid) {
+}
+inline
+TIDDetId::TIDDetId(const DetId& id) : SiStripDetId(id.rawId()) {
+}
+inline
+bool TIDDetId::isDoubleSide() const {
+  // Double Side: only rings 1 and 2
+  return this->glued() == 0 && ( this->ring() == 1 || this->ring() == 2 );
+}
+
+
+
+
 #endif
 
 

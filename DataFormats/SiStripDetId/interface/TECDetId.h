@@ -138,4 +138,21 @@ private:
 };
 
 
+inline
+TECDetId::TECDetId() : SiStripDetId() {
+}
+inline
+TECDetId::TECDetId(uint32_t rawid) : SiStripDetId(rawid) {
+}
+inline
+TECDetId::TECDetId(const DetId& id) : SiStripDetId(id.rawId()){
+}
+
+inline
+bool TECDetId::isDoubleSide() const {
+  // Double Side: only rings 1, 2 and 5
+  return this->glued() == 0 && ( this->ring() == 1 || this->ring() == 2 || this->ring() == 5 ) ;
+}
+
+
 #endif

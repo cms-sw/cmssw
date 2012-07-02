@@ -127,4 +127,20 @@ private:
 };
 
 
+inline
+TIBDetId::TIBDetId() : SiStripDetId(){
+}
+inline
+TIBDetId::TIBDetId(uint32_t rawid) : SiStripDetId(rawid){
+}
+inline
+TIBDetId::TIBDetId(const DetId& id) : SiStripDetId(id.rawId()){
+}
+inline
+bool TIBDetId::isDoubleSide() const {
+  // Double Side: only layers 1 and 2
+  return this->glued() == 0 && ( this->layer() == 1 || this->layer() == 2 );
+}
+
+
 #endif

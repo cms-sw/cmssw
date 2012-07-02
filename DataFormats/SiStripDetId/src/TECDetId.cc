@@ -2,23 +2,6 @@
 
 #include <iostream>
 
-TECDetId::TECDetId() : SiStripDetId() {
-}
-
-TECDetId::TECDetId(uint32_t rawid) : SiStripDetId(rawid) {
-}
-TECDetId::TECDetId(const DetId& id) : SiStripDetId(id.rawId()){
-}
-
-
-bool TECDetId::isDoubleSide() const {
-  // Double Side: only rings 1, 2 and 5
-  if( this->glued() == 0 && ( this->ring() == 1 || this->ring() == 2 || this->ring() == 5 ) ) {
-    return true;
-  } else {
-    return false;
-  }
-}
 
 std::ostream& operator<<(std::ostream& os,const TECDetId& id) {
   unsigned int              theWheel  = id.wheel();
