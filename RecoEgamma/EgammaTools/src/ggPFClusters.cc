@@ -655,9 +655,10 @@ double ggPFClusters::LocalEnergyCorrection(const GBRForest *ReaderLCEB, const GB
   return PFClustCorr;
 }
 void ggPFClusters::BasicClusterPFCandLink(	     
-				      reco::SuperCluster sc, 
-				      std::vector<reco::PFCandidatePtr>&insideBox
-				      ){
+					  reco::SuperCluster sc, 
+					  std::vector<reco::PFCandidatePtr>&insideBox,
+					  std::vector<DetId>& MatchedRH
+					  ){
   std::vector<reco::PFCandidatePtr>Linked;
   for(unsigned int p=0; p<insideBox.size(); ++p){
     math::XYZPointF position_ = insideBox[p]->positionAtECALEntrance();
@@ -719,6 +720,7 @@ void ggPFClusters::BasicClusterPFCandLink(
 	     if(fabs(etacry)<0.6 && fabs(phicry)<0.6){
 	       Linked.push_back(insideBox[p]);
 	       matchBC=true;
+	       MatchedRH.push_back(crystals_vector[icry].first);
 	       break;
 	       
 	     }
@@ -740,6 +742,7 @@ void ggPFClusters::BasicClusterPFCandLink(
 	    double ycry = (Y-YCentr)/YWidth;  
 	    if(fabs(xcry)<0.6 && fabs(ycry)<0.6){
 	      Linked.push_back(insideBox[p]);
+	      MatchedRH.push_back(crystals_vector[icry].first);
 	      matchBC=true;
 	      break;
 	    }
@@ -755,7 +758,9 @@ void ggPFClusters::BasicClusterPFCandLink(
       float deta=999;
       float dphi=999;
       reco::CaloCluster_iterator cit=sc.clustersBegin();
+      DetId seedCrystal=(*cit)->hitsAndFractions()[0].first;
       for(; cit!=sc.clustersEnd(); ++cit){
+	DetId crystals_vector_seed=(*cit)->hitsAndFractions()[0].first;
 	math::XYZVector photon_directionWrtVtx((*cit)->position().x()-insideBox[p]->vx(), 
 					       (*cit)->position().y()-insideBox[p]->vy(),
 					       (*cit)->position().z()-insideBox[p]->vz()
@@ -766,10 +771,12 @@ void ggPFClusters::BasicClusterPFCandLink(
 	  drmin=dR;
 	  deta=fabs(photon_directionWrtVtx.eta()-position_.eta());
 	  dphi=acos(cos(photon_directionWrtVtx.phi()- position_.phi()));
+	  seedCrystal=crystals_vector_seed;
 	}
       }
       if(deta<0.05 && dphi<0.07){
 	Linked.push_back(insideBox[p]);
+	MatchedRH.push_back(seedCrystal);
       }
     }
     

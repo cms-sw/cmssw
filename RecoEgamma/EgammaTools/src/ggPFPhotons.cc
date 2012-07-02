@@ -532,7 +532,8 @@ void ggPFPhotons::PhotonPFCandMatch(
 				     reco::SuperCluster sc, 		
 				     std::vector<reco::PFCandidatePtr>&insideBox, 
 				     edm::Handle<PFCandidateCollection>& pfCandidates,
-				     vector<reco::CaloCluster> &PFClust
+				     vector<reco::CaloCluster> &PFClust,
+				     std::vector<DetId>& MatchedRH
 				     )
 {
   std::vector<reco::PFCandidatePtr>ChgHad;
@@ -573,7 +574,7 @@ void ggPFPhotons::PhotonPFCandMatch(
   //Link PFCandidates to Basic Clusters
   std::vector<reco::PFCandidatePtr>copy=insideBox;
   
-  PFClusterCollection.BasicClusterPFCandLink(sc, insideBox);
+  PFClusterCollection.BasicClusterPFCandLink(sc, insideBox, MatchedRH);
   PFPho.clear();
   ChgHad.clear();
   for(unsigned int i=0; i<insideBox.size(); ++i){

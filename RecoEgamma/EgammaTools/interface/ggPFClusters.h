@@ -57,7 +57,9 @@ class ggPFClusters  {
   
   void BasicClusterPFCandLink(
 				      reco::SuperCluster sc, 
-				      std::vector<reco::PFCandidatePtr>&insideBox
+				      std::vector<reco::PFCandidatePtr>&insideBox,
+				      std::vector<DetId>& MatchedRH
+				      
 				      );
   
   // virtual std::pair<float, float>ClusterShape(reco::CaloCluster PFClust);

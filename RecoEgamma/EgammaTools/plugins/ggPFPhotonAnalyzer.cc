@@ -117,7 +117,8 @@ void ggPFPhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
       isMatch_=0;
       std::vector<reco::CaloCluster>PFC;
       std::vector<reco::PFCandidatePtr>insideBox;
-      ggPFPhoton.PhotonPFCandMatch(*(iPho->superCluster()), insideBox,PFParticles,PFC);  
+      std::vector<DetId>MatchedRH;
+      ggPFPhoton.PhotonPFCandMatch(*(iPho->superCluster()), insideBox,PFParticles,PFC, MatchedRH);  
       recoPFEnergy_=0;
       //cout<<"Inside Box "<<insideBox.size()<<endl;
       for(unsigned int i=0; i<PFC.size(); ++i)recoPFEnergy_=recoPFEnergy_+PFC[i].energy();

@@ -82,7 +82,8 @@ class ggPFPhotons  {
 			  reco::SuperCluster sc, 		
 			  std::vector<reco::PFCandidatePtr>&insideBox, 
 			  edm::Handle<PFCandidateCollection>& pfCandidates,
-			  vector<reco::CaloCluster> &PFClust
+			  vector<reco::CaloCluster> &PFClust,
+			  std::vector<DetId>& MatchedRH
 			  );
   //for filling PFCluster Variables
  private:
