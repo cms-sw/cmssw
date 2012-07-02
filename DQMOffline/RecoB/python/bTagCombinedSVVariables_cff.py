@@ -5,7 +5,7 @@ combinedSVRecoVertexVariables = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
         max = cms.double(10.0),
-        min = cms.double(0.01)
+        min = cms.double(0.0)
     ),
     flightDistance3dSig = cms.PSet(
         logScale = cms.bool(True),
@@ -17,7 +17,7 @@ combinedSVRecoVertexVariables = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
         max = cms.double(2.5),
-        min = cms.double(0.01)
+        min = cms.double(0.0)
     ),
     flightDistance2dSig = cms.PSet(
         logScale = cms.bool(True),
