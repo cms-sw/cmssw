@@ -725,9 +725,9 @@ void MuonIsolationDQM::FillHistos(int numPV){
 
 }
 void MuonIsolationDQM::FillNVtxHistos(int PV){
-  if (PV <  15.)              {  h_1D_NVTX[0]->Fill(theDataNVtx[0]);    h_1D_NVTX[3]->Fill(theDataNVtx[3]); }
-  if (PV >= 15. && PV < 30.)  {  h_1D_NVTX[1]->Fill(theDataNVtx[1]);    h_1D_NVTX[4]->Fill(theDataNVtx[4]); }
-  if (PV >= 30.)              {  h_1D_NVTX[2]->Fill(theDataNVtx[2]);    h_1D_NVTX[5]->Fill(theDataNVtx[5]); }
+  if (PV <  15)             {  h_1D_NVTX[0]->Fill(theDataNVtx[0]);    h_1D_NVTX[3]->Fill(theDataNVtx[3]); }
+  if (PV >= 15 && PV < 30)  {  h_1D_NVTX[1]->Fill(theDataNVtx[1]);    h_1D_NVTX[4]->Fill(theDataNVtx[4]); }
+  if (PV >= 30)             {  h_1D_NVTX[2]->Fill(theDataNVtx[2]);    h_1D_NVTX[5]->Fill(theDataNVtx[5]); }
 }
 
 TH1* MuonIsolationDQM::GetTH1FromMonitorElement(MonitorElement* me) {
