@@ -1633,7 +1633,7 @@ bool FUShmBuffer::rawCellReadyForDiscard(unsigned int index) {
 	pcount += index;
 	lock();
 	stringstream details2;
-	details2 << "*pcount>0 assertion failed! Value at pcount is " << *pcount;
+	details2 << "*pcount>0 assertion failed! Value at pcount is " << *pcount << " for cell index " << index;
 	XCEPT_ASSERT(*pcount > 0, evf::Exception, details2.str());
 	--(*pcount);
 	bool result = (*pcount == 0);
