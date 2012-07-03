@@ -176,17 +176,18 @@ from TrackingTools.TrackAssociator.default_cfi import *
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi import *
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi import *
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
-from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
-from Geometry.CaloEventSetup.CaloGeometry_cff import *
-from Geometry.CaloEventSetup.CaloTopology_cfi import *
-from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
-from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
-from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
-from Geometry.DTGeometry.dtGeometry_cfi import *
-from Geometry.RPCGeometry.rpcGeometry_cfi import *
-from Geometry.CSCGeometry.cscGeometry_cfi import *
-from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
+#remove to avoid geometry loader conflict --> geometry should be loaded from the main cfg
+#from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
+#from Geometry.CaloEventSetup.CaloGeometry_cff import *
+#from Geometry.CaloEventSetup.CaloTopology_cfi import *
+#from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
+#from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
+#from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
+#from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
+#from Geometry.DTGeometry.dtGeometry_cfi import *
+#from Geometry.RPCGeometry.rpcGeometry_cfi import *
+#from Geometry.CSCGeometry.cscGeometry_cfi import *
+#from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
 
 
 from SUSYBSMAnalysis.HSCP.HSCPSelections_cff import *
