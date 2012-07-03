@@ -12,7 +12,7 @@
               Use the HcalNoiseSummary to make cuts on an event-by-event basis
 */
 //
-// Original Author:  John Paul Chou (Brown)
+// Original Author:  John Paul Chou (Brown/Rutgers)
 //
 //
 
