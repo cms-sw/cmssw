@@ -38,6 +38,11 @@ class HBHENoiseFilter : public edm::EDFilter {
       int minNumIsolatedNoiseChannels_;
       double minIsolatedNoiseSumE_, minIsolatedNoiseSumEt_;
       bool useTS4TS5_;
+
+      bool IgnoreTS4TS5ifJetInLowBVRegion_;
+      edm::InputTag jetlabel_;
+      int maxjetindex_;
+      double maxNHF_;
 };
 
 #endif
