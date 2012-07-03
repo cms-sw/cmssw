@@ -159,8 +159,12 @@ public:
     return (( m_upgradeGeometry )?(false):(( ixbin == 79 ) || ( ixbin == 80 )));
   } 
   virtual bool isItBigPixelInY( const int iybin ) const {
-    int iybin0 = iybin%52;
-    return (( m_upgradeGeometry )?(false):(( iybin0 == 0 ) || ( iybin0 == 51 )));
+      if( m_upgradeGeometry ) return false;
+      else
+      {
+	int iybin0 = iybin%52;
+	return(( iybin0 == 0 ) || ( iybin0 == 51 ));
+      }
   }
   
   //-------------------------------------------------------------

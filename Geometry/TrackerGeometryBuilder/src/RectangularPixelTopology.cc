@@ -439,28 +439,26 @@ RectangularPixelTopology::measurementError( const LocalPoint& lp,
 bool
 RectangularPixelTopology::containsBigPixelInX( const int& ixmin, const int& ixmax ) const
 {
-  bool big = false;
   if( !m_upgradeGeometry ) 
   {    
-    for(int i = ixmin; i != ixmax+1; i++)
+    for(int i = ixmax+1, iend = ixmin; i != iend; i--)
     {
-      if( isItBigPixelInX( i ) && big == false) big = true;
+      if( isItBigPixelInX( i )) return true;
     }
   }
   
-  return big;
+  return false;
 }
 
 bool
 RectangularPixelTopology::containsBigPixelInY( const int& iymin, const int& iymax ) const
 {
-  bool big = false;
   if( !m_upgradeGeometry ) 
   {    
-    for( int i = iymin; i != iymax+1; i++ )
+    for( int i = iymin, iend = iymax+1; i != iend; i++ )
     {
-      if( isItBigPixelInY( i ) && big == false ) big = true;
+      if( isItBigPixelInY( i )) return true;
     }
   }
-  return big;
+  return false;
 }
