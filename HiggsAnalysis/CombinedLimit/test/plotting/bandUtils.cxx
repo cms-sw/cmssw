@@ -498,6 +498,24 @@ void significanceToPVal(TDirectory *bands, TString inName, TString outName) {
     b2->SetName(outName);
     bands->WriteTObject(b2, outName);
 }
+void pvalToSignificance(TDirectory *bands, TString inName, TString outName) {
+    TGraphAsymmErrors *b1 = (TGraphAsymmErrors *) bands->Get(inName);
+    if (b1 == 0 || b1->GetN() == 0) return;
+    int n = b1->GetN();
+    TGraphAsymmErrors *b2 = new TGraphAsymmErrors(n);
+    for (int i = 0; i < n; ++i) {
+        double x = b1->GetX()[i], s = b1->GetY()[i];
+        double slo = s - b1->GetErrorYlow(i), shi = s + b1->GetErrorYhigh(i);
+        double pval = ROOT::Math::normal_quantile_c(s,   1.0);
+        double phi  = ROOT::Math::normal_quantile_c(slo, 1.0);
+        double plo  = ROOT::Math::normal_quantile_c(shi, 1.0);
+        b2->SetPoint(i, x, pval);
+        b2->SetPointError(i, b1->GetErrorXlow(i), b1->GetErrorXhigh(i), pval - plo, phi - pval);
+    }
+    b2->SetName(outName);
+    bands->WriteTObject(b2, outName);
+}
+
 void testStatToPVal(TDirectory *bands, TString inName, TString outName) {
     TGraphAsymmErrors *b1 = (TGraphAsymmErrors *) bands->Get(inName);
     if (b1 == 0 || b1->GetN() == 0) return;
@@ -644,6 +662,49 @@ void combineBands(TDirectory *in, TString band1, TString band2, TString comb) {
     combineBand(in, band1+"_nosyst_asimov",    band2+"_nosyst_asimov",    comb+"_nosyst_asimov");
     combineBand(in, band1+"_nosyst_ntoys",    band2+"_nosyst_ntoys",    comb+"_nosyst_ntoys");
 }
+
+
+void mergeBand(TDirectory *in, TString band1, TString band2, TString comb) {
+    TGraphAsymmErrors *b1 = (TGraphAsymmErrors *) in->Get(band1);
+    TGraphAsymmErrors *b2 = (TGraphAsymmErrors *) in->Get(band2);
+    if (b1 == 0 || b1->GetN() == 0) return;
+    if (b2 == 0 || b2->GetN() == 0) return;
+    int n = b1->GetN(), m = b2->GetN();
+    TGraphAsymmErrors *bc = new TGraphAsymmErrors(n);
+    bc->SetName(comb); 
+    int k = 0;
+    for (int i = 0; i < n; ++i, ++k) {
+        bc->SetPoint(k, b1->GetX()[i], b1->GetY()[i]);
+        bc->SetPointError(k, b1->GetErrorXlow(i), b1->GetErrorXhigh(i), 
+                             b1->GetErrorYlow(i), b1->GetErrorYhigh(i));
+    }
+    for (int i = 0; i < m; ++i) {
+        if (findBin(b1, b2->GetX()[i], 0.001) != -1) continue;
+        bc->Set(k);
+        bc->SetPoint(k, b2->GetX()[i], b2->GetY()[i]);
+        bc->SetPointError(k, b2->GetErrorXlow(i), b2->GetErrorXhigh(i), 
+                             b2->GetErrorYlow(i), b2->GetErrorYhigh(i));
+    }
+    bc->Sort();
+    bc->SetName(comb);
+    in->WriteTObject(bc, comb, "Overwrite");
+}
+void mergeBands(TDirectory *in, TString band1, TString band2, TString comb) {
+    mergeBand(in, band1+"_mean",   band2+"_mean",   comb+"_mean");
+    mergeBand(in, band1+"_median", band2+"_median", comb+"_median");
+    mergeBand(in, band1+"_mean_95",   band2+"_mean_95",   comb+"_mean_95");
+    mergeBand(in, band1+"_median_95", band2+"_median_95", comb+"_median_95");
+    mergeBand(in, band1+"_asimov",    band2+"_asimov",    comb+"_asimov");
+    mergeBand(in, band1+"_ntoys",    band2+"_ntoys",    comb+"_ntoys");
+
+    mergeBand(in, band1+"_nosyst_mean",   band2+"_nosyst_mean",   comb+"_nosyst_mean");
+    mergeBand(in, band1+"_nosyst_median", band2+"_nosyst_median", comb+"_nosyst_median");
+    mergeBand(in, band1+"_nosyst_mean_95",   band2+"_nosyst_mean_95",   comb+"_nosyst_mean_95");
+    mergeBand(in, band1+"_nosyst_median_95", band2+"_nosyst_median_95", comb+"_nosyst_median_95");
+    mergeBand(in, band1+"_nosyst_asimov",    band2+"_nosyst_asimov",    comb+"_nosyst_asimov");
+    mergeBand(in, band1+"_nosyst_ntoys",    band2+"_nosyst_ntoys",    comb+"_nosyst_ntoys");
+}
+
 
 void pasteBand(TDirectory *in, TString band1, TString band2, TString comb) {
     TGraphAsymmErrors *b1 = (TGraphAsymmErrors *) in->Get(band1);
