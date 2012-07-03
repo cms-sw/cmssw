@@ -85,14 +85,14 @@ double DDI::Trap::volume() const
     V = H/3. * ( A*B + 0.5 * ( A*b + B*a ) + a*b ) <-- this is wrong ..
     V = H/3 * ( A*B + sqrt( A*B*a*b ) + a*b )
  */ 
-  double A = 2.*p_[3];
-  double B = p_[4] + p_[5];
-  double a = 2.*p_[7];
-  double b = p_[8] + p_[9];
+//   double A = 2.*p_[3];
+//   double B = p_[4] + p_[5];
+//   double a = 2.*p_[7];
+//   double b = p_[8] + p_[9];
   
 
-  double volu_alt = 2.*p_[0]/3. * ( A*B + sqrt ( A*b*B*a ) + a*b );
-  DCOUT('V', "alternative-volume=" << volu_alt/m3 << std::endl);
+//   double volu_alt = 2.*p_[0]/3. * ( A*B + sqrt ( A*b*B*a ) + a*b );
+//   DCOUT('V', "alternative-volume=" << volu_alt/m3 << std::endl);
   
   //DCOUT_V('C',"DC: solid=" << this->ddname() << " vol=" << volume << " vol_a=" << volu_alt << " d=" << (volume-volu_alt)/volume*100. << "%");
   return volume;

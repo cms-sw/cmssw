@@ -15,7 +15,8 @@ void DDI::Ellipsoid::stream(std::ostream & os) const
 double DDI::Ellipsoid::halfVol(double dz, double maxz)  const {
   double volume(0.);
   double z(0.);
-  double x(p_[0]), y(p_[1]);
+  double x;
+  double y;
   double c2 = p_[2] * p_[2];
   for (;z <= maxz; z=z+dz) {
     // what is x here? what is y?  This assumes a TRIANGLE approximation 
