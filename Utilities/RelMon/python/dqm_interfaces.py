@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: dpiparo $
-# $Date: 2012/06/12 12:25:27 $
-# $Revision: 1.1 $
+# $Date: 2012/06/13 07:25:01 $
+# $Revision: 1.2 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -21,8 +21,12 @@ from threading import Thread,activeCount
 from time import sleep
 from urllib2  import Request,build_opener,urlopen
 
+import sys
+argv=sys.argv
 from ROOT import *
 import ROOT
+sys.argv=argv
+
 gROOT.SetBatch(True)
 
 from authentication import X509CertOpen

@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: dpiparo $
-# $Date: 2012/03/09 13:55:23 $
-# $Revision: 1.5 $
+# $Date: 2012/06/12 12:25:27 $
+# $Revision: 1.1 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -16,7 +16,10 @@ from copy import deepcopy
 from os import chdir,getcwd,listdir,makedirs,rmdir
 from os.path import exists,join
 
+import sys
+argv=sys.argv
 from ROOT import *
+sys.argv=argv
 
 from definitions import *
 from utils import setTDRStyle

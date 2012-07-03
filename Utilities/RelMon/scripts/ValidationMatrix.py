@@ -4,8 +4,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: dpiparo $
-# $Date: 2012/06/12 12:25:27 $
-# $Revision: 1.1 $
+# $Date: 2012/06/13 06:48:45 $
+# $Revision: 1.2 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -21,6 +21,9 @@ from re import search
 from subprocess import Popen,PIPE
 from sys import exit
 
+import sys
+argv=sys.argv
+sys.argv=[]
 if os.environ.has_key("RELMON_SA"):
   import definitions as definitions
   from dqm_interfaces import DirWalkerFile,string2blacklist,DirWalkerFile_thread_wrapper
@@ -33,6 +36,7 @@ else:
   from Utilities.RelMon.dirstructure import Directory
   from Utilities.RelMon.directories2html import directory2html,make_summary_table
   from Utilities.RelMon.utils import ask_ok,unpickler
+sys.argv=argv
 
 #-------------------------------------------------------------------------------
 
