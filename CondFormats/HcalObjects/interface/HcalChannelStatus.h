@@ -22,8 +22,9 @@ class HcalChannelStatus
     HcalCellHot=6,             // 1=Hcal cell is hot (from DQM algo)
     HcalCellStabErr=7,         // 1=Hcal cell has stability error
     HcalCellTimErr=8,          // 1=Hcal cell has timing error
-    HcalCellExcludeFromHBHENoiseSummary = 9, // 1 = block Hcal cell from contributing to HBHENoiseSummary result.  Bit usage not yet implemented, as of March 2012 -- decision on how to block from noise summary (whether to block rechit completely, or only to block it from certain summary tests) still needs to be made.  
-
+    HcalCellExcludeFromHBHENoiseSummary = 9, //1=cell is completely excluded from all HBHENoiseSummary computations 
+    HcalCellExcludeFromHBHENoiseSummaryR45 = 10, //1=cell's rechit is excluded when calculating the TS4TS5 ratio only in the HBHE Noise Summary
+    HcalBadLaserSignal = 11,  //1 = channel does not receive good laser calibration signal
     // Trigger Bits
     HcalCellTrigMask=15,       // 1=cell is masked from the Trigger 
     // CaloTower Bits
