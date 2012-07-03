@@ -4,8 +4,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: dpiparo $
-# $Date: 2011/07/07 09:40:05 $
-# $Revision: 1.4 $
+# $Date: 2012/06/12 12:25:28 $
+# $Revision: 1.1 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -23,6 +23,7 @@ from re import search
 from sys import exit
 from urllib2  import Request,build_opener,urlopen
 
+import os
 if os.environ.has_key("RELMON_SA"):
   from authentication import X509CertOpen
   from definitions import server
