@@ -170,10 +170,20 @@ namespace lumi{
     nq->defineOutput(nqout);
     coral::ICursor& nqcursor=nq->execute();
     while( nqcursor.next() ){
-      minls=nqcursor.currentRow()["minls"].data<unsigned int>();
-      maxls=nqcursor.currentRow()["maxls"].data<unsigned int>();
+      if(!nqcursor.currentRow()["minls"].isNull()){
+	minls=nqcursor.currentRow()["minls"].data<unsigned int>();
+      }
+      if(!nqcursor.currentRow()["maxls"].isNull()){
+	maxls=nqcursor.currentRow()["maxls"].data<unsigned int>();
+      }
     }
     delete nq;
+    if(maxls==0 && minls==0){
+      std::cout<<"[WARNING] There's no hlt data"<<std::endl;
+      srcsession->transaction().commit();
+      delete srcsession;
+      return 0;
+    }
     //std::cout<<"nls "<<nls<<std::endl; 
     HltResult hltresult;
     nls=maxls-minls+1;
