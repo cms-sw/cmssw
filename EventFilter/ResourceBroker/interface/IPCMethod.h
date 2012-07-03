@@ -28,13 +28,14 @@
 #include <semaphore.h>
 //#include <pthread.h>
 #include <mutex>
+#include <atomic>
 
 namespace evf {
 
 /**
  * Base class for methods (types) of IPC. Subclasses: FUResourceTable, FUResourceQueue.
  *
- * $Author: aspataru $
+ * $Author: smorovic $
  *
  */
 
@@ -219,7 +220,7 @@ public:
 	UInt_t nbPendingSMDiscards() const {
 		return nbPendingSMDiscards_;
 	}
-	UInt_t nbPendingSMDqmDiscards() const {
+	int    nbPendingSMDqmDiscards() const {
 		return nbPendingSMDqmDiscards_;
 	}
 	UInt_t nbDiscarded() const {
@@ -357,7 +358,7 @@ protected:
 	UInt_t nbSentError_;
 	UInt_t nbSentDqm_;
 	UInt_t nbPendingSMDiscards_;
-	UInt_t nbPendingSMDqmDiscards_;
+	std::atomic<int> nbPendingSMDqmDiscards_;
 	UInt_t nbDiscarded_;
 	UInt_t nbLost_;
 	// UPDATED

@@ -417,8 +417,11 @@ void FUResourceBroker::actionPerformed(xdata::Event& e) {
 			res_->nbSentEvents_ = res_->resourceStructure_->nbSent();
 			res_->nbSentDqmEvents_ = res_->resourceStructure_->nbSentDqm();
 			res_->nbSentErrorEvents_ = res_->resourceStructure_->nbSentError();
-			res_->nbPendingSMDiscards_
-					= res_->resourceStructure_->nbPendingSMDiscards();
+
+			int nbPSMD = res_->resourceStructure_->nbPendingSMDiscards();
+			if (nbPSMD>=0) res_->nbPendingSMDiscards_=(unsigned int)nbPSMD;
+			else res_->nbPendingSMDiscards_=0;
+
 			res_->nbPendingSMDqmDiscards_
 					= res_->resourceStructure_->nbPendingSMDqmDiscards();
 			res_->nbDiscardedEvents_ = res_->resourceStructure_->nbDiscarded();

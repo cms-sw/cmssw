@@ -25,6 +25,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "xdata/InfoSpace.h"
+#include "xdata/Integer32.h"
 #include "xdata/UnsignedInteger32.h"
 #include "xdata/Integer.h"
 #include "xdata/Double.h"

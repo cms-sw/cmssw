@@ -221,8 +221,6 @@ void IPCMethod::sendDqmEvent(UInt_t fuDqmId, UInt_t runNumber,
 	if (0 == sm_) {
 		LOG4CPLUS_WARN(log_, "No StorageManager, DROP DQM EVENT.");
 	} else {
-		sm_->sendDqmEvent(fuDqmId, runNumber, evtAtUpdate, folderId,
-				fuProcessId, fuGuid, data, dataSize);
 
 		nbPendingSMDqmDiscards_++;
 
@@ -235,6 +233,8 @@ void IPCMethod::sendDqmEvent(UInt_t fuDqmId, UInt_t runNumber,
 							<< folderId << " process " << fuProcessId
 							<< " guid " << fuGuid);
 		nbSentDqm_++;
+		sm_->sendDqmEvent(fuDqmId, runNumber, evtAtUpdate, folderId,
+				fuProcessId, fuGuid, data, dataSize);
 	}
 }
 

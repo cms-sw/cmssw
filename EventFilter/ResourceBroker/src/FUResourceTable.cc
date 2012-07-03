@@ -783,9 +783,7 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef) {
 	}
 	if (acceptSMDqmDiscard_[dqmIndex] > 0) {
 		acceptSMDqmDiscard_[dqmIndex]--;
-		if (nbPendingSMDqmDiscards_ > 0) {
-			nbPendingSMDqmDiscards_--;
-		} else {
+		if (--nbPendingSMDqmDiscards_ < 0) {
 			LOG4CPLUS_WARN(
 					log_,
 					"Spurious??? DQM discard by StorageManager, index "
@@ -848,9 +846,7 @@ bool FUResourceTable::discardDqmEventWhileHalting(MemRef_t* bufRef) {
 	}
 	if (acceptSMDqmDiscard_[dqmIndex] > 0) {
 		acceptSMDqmDiscard_[dqmIndex]--;
-		if (nbPendingSMDqmDiscards_ > 0) {
-			nbPendingSMDqmDiscards_--;
-		} else {
+		if (--nbPendingSMDqmDiscards_ < 0) {
 			try {
 				LOG4CPLUS_WARN(
 						log_,
