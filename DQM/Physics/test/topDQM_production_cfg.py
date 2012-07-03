@@ -16,22 +16,23 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 ##
 ## For more details have a look at: WGuideFrontierConditions
 ## --------------------------------------------------------------------
-##process.GlobalTag.globaltag = 'START38_V12::All'
-process.GlobalTag.globaltag = 'GR_R_42_V14::All' 
-##process.GlobalTag.globaltag   = 'START42_V12::All'
+##process.GlobalTag.globaltag = 'GR_R_42_V14::All' 
+process.GlobalTag.globaltag = 'GR_R_52_V7::All'
+
 
 ## input file(s) for testing
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-     #'/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-RECO/START42_V12-v2/0062/728877FF-717B-E011-9989-00261894395B.root'
-     #'/store/data/Run2011A/SingleMu/AOD/PromptReco-v4/000/165/999/A2B8A207-838B-E011-B1F5-000423D94908.root'
-    '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-RECO/MC_42_V12-v2/0062/60815BF5-387B-E011-805B-0018F3D0970C.root'
+     "/store/data/Run2012A/SingleMu/RECO/PromptReco-v1/000/193/116/0AB80D76-FA95-E111-8C46-5404A63886B9.root",
+     #"/store/data/Run2012A/SingleMu/RECO/PromptReco-v1/000/193/116/0EDA5C6F-FA95-E111-8681-002481E0E56C.root",      
+     #'/store/data/Run2012A/SingleElectron/RECO/PromptReco-v1/000/190/456/1412AF9C-0681-E111-AF6F-003048D2BBF0.root'
+     #'/store/relval/CMSSW_5_2_3_patch3/RelValTTbarLepton/GEN-SIM-RECO/START52_V9_special_120410-v1/0122/2C3473C4-1583-E111-8CE8-002618943870.root'
      )
 )
 
 ## number of events
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(500)
+  input = cms.untracked.int32(-1)
 )
 
 ## apply VBTF electronID (needed for the current implementation
@@ -83,12 +84,15 @@ process.MEtoEDMConverter.deleteAfterCopy = cms.untracked.bool(False)  ## line ad
 process.p      = cms.Path(
    #process.content *
     process.simpleEleId70cIso          *
-#    process.topDiLeptonOfflineDQM      +
-#    process.topSingleLeptonDQM         +
-#    process.topSingleMuonLooseDQM      +    
-    process.topSingleMuonMediumDQM     #+
-#    process.topSingleElectronLooseDQM  +    
-#    process.topSingleElectronMediumDQM
+    process.topDiLeptonOfflineDQM      +
+    process.DiMuonDQM                  +
+    process.DiElectronDQM              +
+    process.ElecMuonDQM                +
+    process.topSingleLeptonDQM         +
+    process.topSingleMuonLooseDQM      +
+    process.topSingleMuonMediumDQM     +
+    process.topSingleElectronLooseDQM  +
+    process.topSingleElectronMediumDQM
 )
 process.endjob = cms.Path(
     process.endOfProcess
