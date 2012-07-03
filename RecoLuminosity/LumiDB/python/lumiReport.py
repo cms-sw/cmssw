@@ -342,6 +342,8 @@ def toScreenLumiByLS(lumidata,resultlines,scalefactor,isverbose):
             recordedlumi=lsdata[6]
             if cmslsnum!=0:               
                 result.append([str(run)+':'+str(fillnum),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,'%.1f'%begev,(deliveredlumi),(recordedlumi)])
+            else:
+                result.append([str(run)+':'+str(fillnum),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,'%.1f'%begev,(deliveredlumi),0])
             totalDelivered+=deliveredlumi
             totalRecorded+=recordedlumi
             totalDeliveredLS+=1
@@ -404,6 +406,8 @@ def toCSVLumiByLS(lumidata,filename,resultlines,scalefactor,isverbose):
             recordedlumi=lsdata[6]
             if cmslsnum!=0:
                 result.append([str(run)+':'+str(fillnum),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,begev,deliveredlumi*scalefactor,recordedlumi*scalefactor])
+            else:
+                result.append([str(run)+':'+str(fillnum),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,begev,deliveredlumi*scalefactor,0.])
     sortedresult=sorted(result,key=lambda x : int(str(x[0]).split(':')[0]))
     assert(filename)
     if filename.upper()=='STDOUT':
