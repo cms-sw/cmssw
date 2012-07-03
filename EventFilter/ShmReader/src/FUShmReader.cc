@@ -47,7 +47,7 @@ FUShmReader::~FUShmReader()
     if (lastCellIndex_<0xffffffff) {
       edm::LogWarning("FUShmReader") << "Class destructor called without received STOP event!"<<endl;
       if (lastCellIndex_<0xfffffffe)//not sending lumi cell to the error stream
-        shmBuffer_->writeErrorEventData(runNumber_,getpid(),lastCellIndex_);
+        shmBuffer_->writeErrorEventData(runNumber_,getpid(),lastCellIndex_,true);
       bool success = shmBuffer_->removeClientPrcId(getpid());
       if (!success)
         edm::LogWarning("ShmMissingPID")<<"Destructor: did not find pid in shared memory index"<<endl;
