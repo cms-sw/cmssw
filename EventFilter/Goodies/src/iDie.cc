@@ -80,6 +80,7 @@ iDie::iDie(xdaq::ApplicationStub *s)
   , ilumiprev_(0)
   , dqmSaveDir_("")
   , dqmFilesWritable_(false)
+  , topLevelFolder_("DAQ")
   , savedForLs_(0)
 {
   // initialize application info
@@ -119,6 +120,7 @@ iDie::iDie(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("saveLsInterval",           &saveLsInterval_          );
   ispace->fireItemAvailable("dqmSaveDir",               &dqmSaveDir_              );
   ispace->fireItemAvailable("dqmFilesWritableByAll",    &dqmFilesWritable_        );
+  ispace->fireItemAvailable("dqmTopLevelFolder",        &topLevelFolder_          );
       //
   // timestamps
   lastModuleLegendaMessageTimeStamp_.tv_sec=0;
@@ -229,9 +231,9 @@ xoap::MessageReference iDie::fsmCallback(xoap::MessageReference msg)
     else if(commandName == "Enable") state = "Enabled";
     else if(commandName == "Stop") {
       //remove histograms
-      dqmStore_->setCurrentFolder("DAQ/EventInfo/");
+      dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
       dqmStore_->removeContents();
-      dqmStore_->setCurrentFolder("DAQ/Layouts/");
+      dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/");
       dqmStore_->removeContents();
       meInitialized_=false;
       doFlush(); 
@@ -980,7 +982,7 @@ void iDie::initMonitorElements()
   savedForLs_=0;
   pastSavedFiles_.clear();
  
-  dqmStore_->setCurrentFolder("DAQ/Layouts/");
+  dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/");
   for (unsigned int i=0;i<nbSubsClasses;i++) {
     std::ostringstream str;
     str << nbSubsListInv[i];
@@ -1001,7 +1003,7 @@ void iDie::initMonitorElements()
   timingSummary_ = dqmStore_->book2D("01_TIMING_SUMMARY","Event Time Summary (ms)",20,0,20,epInstances.size()+1,0,epInstances.size()+1);
   busySummary_ = dqmStore_->book2D("02_BUSY_SUMMARY","Busy fraction ",20,0,20,epInstances.size()+2,0,epInstances.size()+2);
   busySummary2_ = dqmStore_->book2D("02_BUSY_SUMMARY_PROCSTAT","Busy fraction from /proc/stat",20,0,20,epInstances.size()+2,0,epInstances.size()+2);
-  dqmStore_->setCurrentFolder("DAQ/EventInfo/");
+  dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
   daqBusySummary_ = dqmStore_->book1D("reportSummaryMap","DAQ HLT Farm busy (%)",4000,1,4001.);
   summaryLastLs_ = 0;
   for (size_t i=1;i<=20;i++) {
@@ -1259,7 +1261,7 @@ void iDie::perLumiFileSaver(unsigned int lsid)
     sprintf(suffix, "_R%09d_L%06d", runNumber_.value_, lsid);
     sprintf(rewrite, "\\1Run %d/\\2/By Lumi Section %d-%d", runNumber_.value_, ilumiprev_, lsid);
 
-    std::vector<std::string> systems = {"DAQ"};
+    std::vector<std::string> systems = {topLevelFolder_.value_};
 
     for (size_t i = 0, e = systems.size(); i != e; ++i) {
       std::string filename = fileBaseName_ + systems[i] + suffix + ".root";

@@ -463,6 +463,7 @@ namespace evf {
     std::list<std::string> pastSavedFiles_;
     xdata::String dqmSaveDir_;
     xdata::Boolean dqmFilesWritable_;
+    xdata::String topLevelFolder_;
     unsigned int savedForLs_;
     std::string fileBaseName_;
     bool writeDirectoryPresent_;
