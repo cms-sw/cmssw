@@ -6,6 +6,7 @@
 
 #include "xdata/String.h"
 #include "xdata/UnsignedInteger32.h"
+#include "xdata/Boolean.h"
 #include "xdata/ActionListener.h"
 
 #include "xoap/MessageReference.h"
@@ -461,6 +462,7 @@ namespace evf {
     unsigned int ilumiprev_;
     std::list<std::string> pastSavedFiles_;
     xdata::String dqmSaveDir_;
+    xdata::Boolean dqmFilesWritable_;
     unsigned int savedForLs_;
     std::string fileBaseName_;
     bool writeDirectoryPresent_;

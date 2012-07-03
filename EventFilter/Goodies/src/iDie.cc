@@ -79,6 +79,7 @@ iDie::iDie(xdaq::ApplicationStub *s)
   , saveLsInterval_(10)
   , ilumiprev_(0)
   , dqmSaveDir_("")
+  , dqmFilesWritable_(false)
   , savedForLs_(0)
 {
   // initialize application info
@@ -117,6 +118,7 @@ iDie::iDie(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("dqmCollectorPort",         &dqmCollectorPort_        );
   ispace->fireItemAvailable("saveLsInterval",           &saveLsInterval_          );
   ispace->fireItemAvailable("dqmSaveDir",               &dqmSaveDir_              );
+  ispace->fireItemAvailable("dqmFilesWritableByAll",    &dqmFilesWritable_        );
       //
   // timestamps
   lastModuleLegendaMessageTimeStamp_.tv_sec=0;
@@ -1265,7 +1267,8 @@ void iDie::perLumiFileSaver(unsigned int lsid)
 	dqmStore_->save(filename, systems[i] , "^(Reference/)?([^/]+)",
 	    rewrite, (DQMStore::SaveReferenceTag) DQMStore::SaveWithReference, dqm::qstatus::STATUS_OK);
 	pastSavedFiles_.push_back(filename);
-	chmod(filename.c_str(),0777);//allow deletion by dqm script?
+	if (dqmFilesWritable_.value_)
+	  chmod(filename.c_str(),0777);//allow deletion by dqm script
 	//if (pastSavedFiles_.size() > 500)
 	//{
 	  //remove(pastSavedFiles_.front().c_str());
