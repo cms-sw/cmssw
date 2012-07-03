@@ -129,9 +129,9 @@ namespace TopSingleLepton {
     /// to be determined from the cfg  
     bool includeBTag_;
     /// btag discriminator labels
-    edm::InputTag btagEff_, btagPur_, btagVtx_;
+    edm::InputTag btagEff_, btagPur_, btagVtx_, btagCSV_;
     /// btag working points
-    double btagEffWP_, btagPurWP_, btagVtxWP_;
+    double btagEffWP_, btagPurWP_, btagVtxWP_, btagCSVWP_;
     /// mass window upper and lower edge
     double lowerEdge_, upperEdge_;
 
