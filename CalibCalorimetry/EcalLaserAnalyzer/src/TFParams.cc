@@ -737,7 +737,10 @@ void TFParams::print_mat(matrice M)
 {
   int i,j ;
   if( M.coeff == NULL) 
+  {
     printf(" erreur : affichage d'une matrice vide \n") ;
+    return;
+  }
   printf(" m_nli %d M_ncol %d \n",M.nb_lignes,M.nb_colonnes) ;
   for(i=0 ; i< M.nb_lignes; i++) {
     for(j=0 ; j< M.nb_colonnes ; j++) 
