@@ -20,7 +20,6 @@
 
 // system include files
 
-#include "Reflex/Type.h"
 #include "TROOT.h"
 #include "TBranch.h"
 #include "TClass.h"
@@ -165,28 +164,15 @@ BareRootProductGetter::createNewBuffer(edm::ProductID const& iID) const {
   }
   //find the class type
   std::string const fullName = edm::wrappedClassName(bdesc.className());
-  Reflex::Type classType = Reflex::Type::ByName(fullName);
-  if(classType == Reflex::Type()) {
+  edm::TypeID classType(edm::TypeID::byName(fullName));
+  if(!bool(classType)) {
     cms::Exception("MissingDictionary")
        << "could not find dictionary for type '" << fullName << "'"
        << "\n Please make sure all the necessary libraries are available.";
     return 0;
   }
 
-  //We can't use reflex to create the instance since Reflex uses 'malloc' instead of new
-  /*
-  //use reflex to create an instance of it
-  Reflex::Object wrapperObj = classType.Construct();
-  if(0 == wrapperObj.Address()) {
-    cms::Exception("FailedToCreate") << "could not create an instance of '" << fullName << "'";
-    return 0;
-  }
-
-  Reflex::Object edProdObj = wrapperObj.CastObject(Reflex::Type::ByName("edm::WrapperHolder"));
-
-  edm::WrapperHolder* prod = reinterpret_cast<edm::WrapperHolder*>(edProdObj.Address());
-  */
-  TClass* rootClassType = TClass::GetClass(classType.TypeInfo());
+  TClass* rootClassType = TClass::GetClass(classType.typeInfo());
   if(0 == rootClassType) {
     throw cms::Exception("MissingRootDictionary")
     << "could not find a ROOT dictionary for type '" << fullName << "'"
