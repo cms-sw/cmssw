@@ -16,8 +16,8 @@
 /*
  * \file HcalRawDataClient.cc
  * 
- * $Date: 2011/06/08 21:18:47 $
- * $Revision: 1.12 $
+ * $Date: 2012/06/18 08:23:10 $
+ * $Revision: 1.13 $
  * \author J. St. John
  * \brief Hcal Raw Data Client class
  */
@@ -419,7 +419,7 @@ void HcalRawDataClient::fillProblemCountArray(void){
   bool CheckLRBDataCorruptionIndicators_       = false;
   bool CheckHalfHTRDataCorruptionIndicators_   = false;
   bool CheckChannSumm_DataIntegrityCheck_      = false;
-  bool CheckChann_DataIntegrityCheck_[NUMDCCS] ; 
+  bool CheckChann_DataIntegrityCheck_[NUMDCCS] = {false}; 
 
   if (meCDFErrorFound_!=0)                  CheckmeCDFErrorFound_                   = true;
   if (meDCCEventFormatError_!=0)            CheckmeDCCEventFormatError_             = true;
