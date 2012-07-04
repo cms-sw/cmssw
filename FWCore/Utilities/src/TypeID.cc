@@ -23,6 +23,8 @@ namespace edm {
 
 namespace {
 
+  TypeID const nullTypeID;
+
   std::string typeToClassName(std::type_info const& iType) {
     Reflex::Type t = Reflex::Type::ByTypeInfo(iType);
     if (!bool(t)) {
@@ -34,7 +36,7 @@ namespace {
         return result;
       } catch (cms::Exception const& e) {
         edm::Exception theError(errors::DictionaryNotFound,"NoMatch");
-        theError << "TypeID::className: No dictionary for class " << iType.name() << '\n';
+        theError << "TypeID::typeToClassName: No dictionary for class " << iType.name() << '\n';
         theError.append(e);
         throw theError;
       }
@@ -45,7 +47,21 @@ namespace {
     }
     return t.Name(Reflex::SCOPED);
   }
+
+  std::type_info const* classNameToType(std::string const& className) {
+    Reflex::Type t = Reflex::Type::ByName(className);
+    if (!bool(t)) {
+      return 0;
+    }
+    return &t.TypeInfo();
+  }
 }
+
+  TypeID
+  TypeID::byName(std::string const& className) {
+    std::type_info const* t = classNameToType(className);
+    return(t != 0 ? TypeID(*t) : TypeID());
+  }
 
   std::string
   TypeID::className() const {
@@ -115,6 +131,17 @@ namespace {
   TypeID::hasDictionary() const {
     return bool(Reflex::Type::ByTypeInfo(typeInfo()));
   }
+
+  bool
+  TypeID::isComplete() const {
+    Reflex::Type t = Reflex::Type::ByTypeInfo(typeInfo());
+    return bool(t) && t.IsComplete();
+  }
+
+  TypeID::operator bool() const {
+    return !(*this == nullTypeID);
+  }
+
 
   std::ostream&
   operator<<(std::ostream& os, TypeID const& id) {

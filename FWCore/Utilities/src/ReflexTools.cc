@@ -1,10 +1,12 @@
 #include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 
 #include "Api.h" // for G__ClassInfo
 #include "Reflex/Base.h"
 #include "Reflex/Member.h"
+#include "Reflex/Type.h"
 #include "Reflex/TypeTemplate.h"
 
 #include "TROOT.h"
@@ -15,31 +17,22 @@
 #include <algorithm>
 #include <sstream>
 
-using Reflex::Base;
-using Reflex::FINAL;
-using Reflex::Member;
-using Reflex::Object;
-using Reflex::SCOPED;
-using Reflex::Type;
-using Reflex::TypeTemplate;
-using Reflex::Type_Iterator;
-
 namespace edm {
 
   static StringSet foundTypes_;
   static StringSet missingTypes_;
 
-  Type get_final_type(Type t) {
+  TypeID get_final_type(Reflex::Type t) {
     while(t.IsTypedef()) t = t.ToType();
-    return t;
+    return TypeID(t.TypeInfo());
   }
 
   bool
   find_nested_type_named(std::string const& nested_type,
-                         Type const& type_to_search,
-                         Type& found_type) {
+                         Reflex::Type const& type_to_search,
+                         TypeID& found_type) {
     // Look for a sub-type named 'nested_type'
-    for(Type_Iterator
+    for(Reflex::Type_Iterator
            i = type_to_search.SubType_Begin(),
            e = type_to_search.SubType_End();
            i != e;
@@ -53,12 +46,21 @@ namespace edm {
   }
 
   bool
-  is_RefVector(Reflex::Type const& possible_ref_vector,
-               Reflex::Type& value_type) {
+  find_nested_type_named(std::string const& nested_type,
+                         TypeID const& typeToSearch,
+                         TypeID& found_type) {
+    Reflex::Type type_to_search(Reflex::Type::ByTypeInfo(typeToSearch.typeInfo()));
+    return find_nested_type_named(nested_type, type_to_search, found_type);
+  }
 
-    static TypeTemplate ref_vector_template_id(TypeTemplate::ByName("edm::RefVector", 3));
+  bool
+  is_RefVector(TypeID const& possibleRefVector,
+               TypeID& value_type) {
+
+    static Reflex::TypeTemplate ref_vector_template_id(Reflex::TypeTemplate::ByName("edm::RefVector", 3));
     static std::string member_type("member_type");
-    TypeTemplate primary_template_id(possible_ref_vector.TemplateFamily());
+    Reflex::Type possible_ref_vector(Reflex::Type::ByTypeInfo(possibleRefVector.typeInfo()));
+    Reflex::TypeTemplate primary_template_id(possible_ref_vector.TemplateFamily());
     if(primary_template_id == ref_vector_template_id) {
       return find_nested_type_named(member_type, possible_ref_vector, value_type);
     }
@@ -66,15 +68,16 @@ namespace edm {
   }
 
   bool
-  is_PtrVector(Reflex::Type const& possible_ref_vector,
-               Reflex::Type& value_type) {
+  is_PtrVector(TypeID const& possibleRefVector,
+               TypeID& value_type) {
 
-    static TypeTemplate ref_vector_template_id(TypeTemplate::ByName("edm::PtrVector", 1));
+    static Reflex::TypeTemplate ref_vector_template_id(Reflex::TypeTemplate::ByName("edm::PtrVector", 1));
     static std::string member_type("member_type");
     static std::string val_type("value_type");
-    TypeTemplate primary_template_id(possible_ref_vector.TemplateFamily());
+    Reflex::Type possible_ref_vector(Reflex::Type::ByTypeInfo(possibleRefVector.typeInfo()));
+    Reflex::TypeTemplate primary_template_id(possible_ref_vector.TemplateFamily());
     if(primary_template_id == ref_vector_template_id) {
-      Reflex::Type ptrType;
+      TypeID ptrType;
       if(find_nested_type_named(val_type, possible_ref_vector, ptrType)) {
         return find_nested_type_named(val_type, ptrType, value_type);
       }
@@ -83,12 +86,13 @@ namespace edm {
   }
 
   bool
-  is_RefToBaseVector(Reflex::Type const& possible_ref_vector,
-                     Reflex::Type& value_type) {
+  is_RefToBaseVector(TypeID const& possibleRefVector,
+                     TypeID& value_type) {
 
-    static TypeTemplate ref_vector_template_id(TypeTemplate::ByName("edm::RefToBaseVector", 1));
+    static Reflex::TypeTemplate ref_vector_template_id(Reflex::TypeTemplate::ByName("edm::RefToBaseVector", 1));
     static std::string member_type("member_type");
-    TypeTemplate primary_template_id(possible_ref_vector.TemplateFamily());
+    Reflex::Type possible_ref_vector(Reflex::Type::ByTypeInfo(possibleRefVector.typeInfo()));
+    Reflex::TypeTemplate primary_template_id(possible_ref_vector.TemplateFamily());
     if(primary_template_id == ref_vector_template_id) {
       return find_nested_type_named(member_type, possible_ref_vector, value_type);
     }
@@ -120,20 +124,20 @@ namespace edm {
         return(ci.get() && ci->IsLoaded());
     }
 
-    // Checks if there is a Reflex dictionary for the Type t.
+    // Checks if there is a Reflex dictionary for the Reflex::Type t.
     // If noComponents is false, checks members and base classes recursively.
-    // If noComponents is true, checks Type t only.
+    // If noComponents is true, checks Reflex::Type t only.
     void
-    checkType(Type t, bool noComponents = false) {
+    checkType(Reflex::Type t, bool noComponents = false) {
 
       // ToType strips const, volatile, array, pointer, reference, etc.,
       // and also translates typedefs.
       // To be safe, we do this recursively until we either get a null type
       // or the same type.
-      Type null;
-      for(Type x = t.ToType(); x != null && x != t; t = x, x = t.ToType()) {}
+      Reflex::Type null;
+      for(Reflex::Type x = t.ToType(); x != null && x != t; t = x, x = t.ToType()) {}
 
-      std::string name = t.Name(SCOPED);
+      std::string name = t.Name(Reflex::SCOPED);
       boost::trim(name);
 
       if(foundTypes().end() != foundTypes().find(name) || missingTypes().end() != missingTypes().find(name)) {
@@ -174,7 +178,7 @@ namespace edm {
       } else {
         int mcnt = t.DataMemberSize();
         for(int i = 0; i < mcnt; ++i) {
-          Member m = t.DataMemberAt(i);
+          Reflex::Member m = t.DataMemberAt(i);
           if(m.IsTransient() || m.IsStatic()) continue;
           checkType(m.TypeOf());
         }
@@ -197,13 +201,13 @@ namespace edm {
   }
 
   void checkDictionaries(std::string const& name, bool noComponents) {
-    Type null;
-    Type t = Type::ByName(name);
+    Reflex::Type null;
+    Reflex::Type t = Reflex::Type::ByName(name);
     if(t == null) {
       missingTypes().insert(name);
       return;
     }
-    checkType(Type::ByName(name), noComponents);
+    checkType(Reflex::Type::ByName(name), noComponents);
   }
 
   void throwMissingDictionariesException() {
@@ -254,23 +258,21 @@ namespace edm {
     throwMissingDictionariesException();
   }
 
-  void public_base_classes(Type const& type,
-                           std::vector<Type>& baseTypes) {
+  void public_base_classes(TypeID const& typeID,
+                           std::vector<TypeID>& baseTypes) {
 
+    Reflex::Type type(Reflex::Type::ByTypeInfo(typeID.typeInfo()));
     if(type.IsClass() || type.IsStruct()) {
 
       int nBase = type.BaseSize();
       for(int i = 0; i < nBase; ++i) {
 
-        Base base = type.BaseAt(i);
+       Reflex::Base base = type.BaseAt(i);
         if(base.IsPublic()) {
 
-          Type baseType = type.BaseAt(i).ToType();
-          if(bool(baseType)) {
-
-            while(baseType.IsTypedef() == true) {
-              baseType = baseType.ToType();
-            }
+          Reflex::Type baseRflxType = type.BaseAt(i).ToType();
+          if(bool(baseRflxType)) {
+            TypeID baseType(get_final_type(baseRflxType)); 
 
             // Check to make sure this base appears only once in the
             // inheritance heirarchy.
@@ -303,13 +305,5 @@ namespace edm {
         }
       }
     }
-  }
-
-  void const*
-  reflex_pointer_adjust(void* raw,
-                        Type const& dynamicType,
-                        std::type_info const& toType) {
-    Object obj(dynamicType, raw);
-    return obj.CastObject(Type::ByTypeInfo(toType)).Address();
   }
 }

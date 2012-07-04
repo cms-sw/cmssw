@@ -28,7 +28,10 @@ namespace edm {
     explicit TypeID(T const& t) : TypeIDBase(typeid(t)) {
     }
 
-    // Print out the name of the type, using the reflection class name.
+    static TypeID
+    byName(std::string const& className);
+
+    // Print out the name of the type, using the dictionary class name.
     void print(std::ostream& os) const;
 
     std::string className() const;
@@ -38,6 +41,12 @@ namespace edm {
     std::string friendlyClassName() const;
 
     bool hasDictionary() const;
+
+    bool isComplete() const;
+
+#ifndef __GCCXML__
+    explicit operator bool() const;
+#endif
     
     using TypeIDBase::name;
 
@@ -45,7 +54,6 @@ namespace edm {
 
     bool operator==(TypeID const& b) const {return this->TypeIDBase::operator==(b);}
 
-  protected:
     using TypeIDBase::typeInfo;
 
   private:
