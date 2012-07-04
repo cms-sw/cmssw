@@ -416,13 +416,13 @@ void DSPtoIEEE32(short DSPmantissa, short DSPexp, float *f)
 void IEEE32toDSP(float f, short *DSPmantissa, short *DSPexp)
 {
   //long *pl, lm;
-  uint32_t *pl = 0;
+  uint32_t pl;
   uint32_t lm;
 
   //101104 SV convert float to int in safe way
   union { float f; uint32_t i; } u;
   u.f = f;
-  *pl = u.i;
+  pl = u.i;
 
   bool sign=false;
   if( f==0.0 )
@@ -434,12 +434,12 @@ void IEEE32toDSP(float f, short *DSPmantissa, short *DSPexp)
   {
     //pl = reinterpret_cast<uint32_t*> (&f);
     //pl = (long*) (&f);
-    if((*pl & 0x80000000)!=0)
+    if((pl & 0x80000000)!=0)
       sign=true;
-    lm =( 0x800000 | (*pl & 0x7FFFFF)); // [1][23bit mantissa]
+    lm =( 0x800000 | (pl & 0x7FFFFF)); // [1][23bit mantissa]
     lm >>= 9; //reduce to 15bits
     lm &= 0x7FFF;
-    *DSPexp = ((*pl>>23)&0xFF)-126;
+    *DSPexp = ((pl>>23)&0xFF)-126;
     *DSPmantissa = (short)lm;
     if(sign)
       *DSPmantissa = - *DSPmantissa; // convert negative value in 2.s
