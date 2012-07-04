@@ -25,7 +25,7 @@
 
 
 #include <vector>
-#include <queue>
+#include <deque>
 
 #include <sys/time.h>
 
@@ -146,6 +146,8 @@ namespace evf {
     //
     // private member functions
     //
+    class lsStat;
+    class commonLsStat;
     
     void reset();
     void parseModuleLegenda(std::string);
@@ -155,10 +157,11 @@ namespace evf {
     void initFramework();
     void deleteFramework();
     void initMonitorElements();
-    void fillDQMStatHist(int nbsIdx, unsigned int lsid, float rate, float time, float busy, float busyCPU, float rateErr, float timeErr);
-    void fillDQMModFractionHist(int nbsIdx, unsigned int lsid, unsigned int nonIdle,
+    void fillDQMStatHist(unsigned int nbsIdx, unsigned int lsid);
+    void fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsigned int nonIdle,
 		                 std::vector<std::pair<unsigned int, unsigned int>> offenders);
-    void updateRollingHistos(unsigned int lsid,unsigned int rate, float ms, float busy, float busyCPU,unsigned int nbsIdx);
+ 
+    void updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat & lst, commonLsStat & clst, bool roll);
     void doFlush();
     void perLumiFileSaver(unsigned int lsid);
     //
@@ -167,7 +170,7 @@ namespace evf {
 
     // message logger
     Logger                          log_;
-		
+    std::string                     dqmState_;		
     // monitored parameters
     xdata::String                   url_;
     xdata::String                   class_;
@@ -255,8 +258,8 @@ namespace evf {
       } 
 
       float getBusyTotalFrac(bool procstat,std::vector<float> & machineWeightInst) {
-	float sum=0;
-	float sumMachines=0;
+	double sum=0;
+	double sumMachines=0;
 	for (size_t i=0;i<busyVec_.size();i++) {
 	  if (!procstat)
 	    sum+=machineWeightInst[i]*nbMachines.at(i)*busyVec_[i];
@@ -265,7 +268,7 @@ namespace evf {
 	  sumMachines+=machineWeightInst[i]*nbMachines.at(i);
 	}
 	if (sumMachines>0)
-	  return sum/sumMachines;
+	  return float(sum/sumMachines);
 	else return 0.;
       }
 
@@ -274,14 +277,28 @@ namespace evf {
 	float sumMachines=0;
 	for (size_t i=0;i<busyVecTheor_.size() && i<nbMachines.size();i++) {
 	  if (!procstat)
-	    sum+=machineWeight[i]*nbMachines.at(i)*busyVecTheor_[i];
+	    sum+=machineWeight[i]*nbMachines[i]*busyVecTheor_[i];
 	  else
-	    sum+=machineWeight[i]*nbMachines.at(i)*busyCPUVecTheor_[i];
-	  sumMachines+=machineWeight[i]*nbMachines.at(i);
+	    sum+=machineWeight[i]*nbMachines[i]*busyCPUVecTheor_[i];
+	  sumMachines+=machineWeight[i]*nbMachines[i];
 	}
 	if (sumMachines>0)
 	  return sum/sumMachines;
 	else return 0.;
+      }
+
+      unsigned int getNReports() {
+        unsigned int sum=0;
+	for (size_t i=0;i<nbMachines.size();i++) sum+=nbMachines[i];
+	return sum;
+      }
+
+      std::string printInfo() {
+	std::ostringstream info;
+	for (size_t i=0;i<rateVec_.size();i++) {
+	  info << i << "/r:" << rateVec_[i] <<"/b:"<<busyVec_[i]<<"/n:"<<nbMachines[i]<<"; ";
+	}
+	return info.str();
       }
     };
 
@@ -359,8 +376,8 @@ namespace evf {
 				     + pow(nSampledNonIdle_,2)*nSampledIdleErr2))*pow(nAllInv,2);
 	    if (rateAvg) {
 	      float rateAvgInv=1./rateAvg;
-	      evtTimeAvg=nbSubs_* (1.-fracWaitingAvg)*rateAvgInv;
-	      evtTimeErr = nbSubs_ * (fracWaitingAvg*rateErr*pow(rateAvgInv,2) + fracWaitingAvgErr*rateAvgInv);
+	      evtTimeAvg=nbSubs_ * nReports_ * (1.-fracWaitingAvg)*rateAvgInv;
+	      evtTimeErr = nbSubs_ * nReports_ * (fracWaitingAvg*rateErr*pow(rateAvgInv,2) + fracWaitingAvgErr*rateAvgInv);
 	    }
 	    else {
               evtTimeAvg=0;
@@ -408,6 +425,10 @@ namespace evf {
 	return fracCPUBusy_;
       }
 
+      unsigned int getReports() {
+        return nReports_;
+      }
+
       std::vector<std::pair<unsigned int, unsigned int>> getOffendersVector() {
         std::vector<std::pair<unsigned int, unsigned int>> ret;
 	if (updated_) calcStat();
@@ -449,12 +470,13 @@ namespace evf {
     MonitorElement * timingSummary_;
     MonitorElement * busySummary_;
     MonitorElement * busySummary2_;
+    MonitorElement * fuReportsSummary_;
     MonitorElement * daqBusySummary_;
     unsigned int summaryLastLs_;
-    std::map<unsigned int, unsigned int> occupancyNameMap;
+    std::vector<std::map<unsigned int, unsigned int> > occupancyNameMap;
     //1 queue per number of subProcesses (and one common)
-    std::queue<commonLsStat> commonLsHistory;
-    std::queue<lsStat> *lsHistory;
+    std::deque<commonLsStat> commonLsHistory;
+    std::deque<lsStat> *lsHistory;
 
     std::vector<unsigned int> currentLs_;
 
