@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDetKey.cc,v 1.10 2009/07/31 09:56:31 lowette Exp $
+// Last commit: $Id: SiStripDetKey.cc,v 1.11 2009/12/10 08:44:16 elmer Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripDetKey.h"
 #include "DataFormats/SiStripCommon/interface/Constants.h" 
@@ -103,8 +103,7 @@ SiStripDetKey::SiStripDetKey( const SiStripKey& input ) :
   apvPairNumber_(sistrip::invalid_), 
   apvWithinPair_(sistrip::invalid_)
 {
-  SiStripKey& temp = const_cast<SiStripKey&>(input);
-  SiStripDetKey& det_key = dynamic_cast<SiStripDetKey&>(temp);
+  const SiStripDetKey& det_key = dynamic_cast<const SiStripDetKey&>(input);
   if ( (&det_key) ) {
     key(det_key.key());
     path(det_key.path());
@@ -124,8 +123,7 @@ SiStripDetKey::SiStripDetKey( const SiStripKey& input,
   apvPairNumber_(0),
   apvWithinPair_(0)
 {
-  SiStripKey& temp = const_cast<SiStripKey&>(input);
-  SiStripDetKey& det_key = dynamic_cast<SiStripDetKey&>(temp);
+  const SiStripDetKey& det_key = dynamic_cast<const SiStripDetKey&>(input);
   if ( (&det_key) ) {
 
     if ( gran == sistrip::PARTITION ) {
@@ -153,8 +151,7 @@ SiStripDetKey::SiStripDetKey() :
 // -----------------------------------------------------------------------------
 // 
 bool SiStripDetKey::isEqual( const SiStripKey& key ) const {
-  SiStripKey& temp = const_cast<SiStripKey&>(key);
-  SiStripDetKey& input = dynamic_cast<SiStripDetKey&>(temp);
+  const SiStripDetKey& input = dynamic_cast<const SiStripDetKey&>(key);
   if ( !(&input) ) { return false; }
   if ( partition_ == input.partition() &&
        apvPairNumber_ == input.apvPairNumber() &&
@@ -166,8 +163,7 @@ bool SiStripDetKey::isEqual( const SiStripKey& key ) const {
 // -----------------------------------------------------------------------------
 // 
 bool SiStripDetKey::isConsistent( const SiStripKey& key ) const {
-  SiStripKey& temp = const_cast<SiStripKey&>(key);
-  SiStripDetKey& input = dynamic_cast<SiStripDetKey&>(temp);
+  const SiStripDetKey& input = dynamic_cast<const SiStripDetKey&>(key);
   if ( !(&input) ) { return false; }
   if ( isEqual(input) ) { return false; }
   else if ( ( partition_ == 0 || input.partition() == 0 ) &&

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedKey.cc,v 1.15 2009/02/10 21:45:54 lowette Exp $
+// Last commit: $Id: SiStripFedKey.cc,v 1.16 2009/10/23 13:07:17 lowette Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/Constants.h" 
@@ -82,8 +82,7 @@ SiStripFedKey::SiStripFedKey( const SiStripKey& input ) :
   feChan_(sistrip::invalid_),
   fedApv_(sistrip::invalid_)
 {
-  SiStripKey& temp = const_cast<SiStripKey&>(input);
-  SiStripFedKey& fed_key = dynamic_cast<SiStripFedKey&>(temp);
+  const SiStripFedKey& fed_key = dynamic_cast<const SiStripFedKey&>(input);
   if ( (&fed_key) ) {
     key(fed_key.key());
     path(fed_key.path());
@@ -149,8 +148,7 @@ uint32_t SiStripFedKey::fedIndex( const uint16_t& fed_id,
 // -----------------------------------------------------------------------------
 // 
 bool SiStripFedKey::isEqual( const SiStripKey& key ) const {
-  SiStripKey& temp = const_cast<SiStripKey&>(key);
-  SiStripFedKey& input = dynamic_cast<SiStripFedKey&>(temp);
+  const SiStripFedKey& input = dynamic_cast<const SiStripFedKey&>(key);
   if ( !(&input) ) { return false; }
   if ( fedId_ == input.fedId() &&
        feUnit_ == input.feUnit() &&
@@ -163,8 +161,7 @@ bool SiStripFedKey::isEqual( const SiStripKey& key ) const {
 // -----------------------------------------------------------------------------
 // 
 bool SiStripFedKey::isConsistent( const SiStripKey& key ) const {
-  SiStripKey& temp = const_cast<SiStripKey&>(key);
-  SiStripFedKey& input = dynamic_cast<SiStripFedKey&>(temp);
+  const SiStripFedKey& input = dynamic_cast<const SiStripFedKey&>(key);
   if ( !(&input) ) { return false; }
   if ( isEqual(input) ) { return true; }
   else if ( ( fedId_ == 0 || input.fedId() == 0 ) &&

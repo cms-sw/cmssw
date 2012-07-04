@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripHistoTitle.cc,v 1.6 2007/07/31 15:20:25 ratnik Exp $
+// Last commit: $Id: SiStripHistoTitle.cc,v 1.7 2009/02/10 21:45:54 lowette Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripKey.h"
@@ -24,10 +24,9 @@ SiStripHistoTitle::SiStripHistoTitle( const sistrip::HistoType& histo_type,
     channel_(sistrip::invalid_),
     extraInfo_(extra_info)
 {
-  SiStripKey& temp = const_cast<SiStripKey&>(key_object);
-  if ( &dynamic_cast<SiStripFedKey&>(temp) ) {
+  if ( &dynamic_cast<const SiStripFedKey&>(key_object) ) {
     keyType_ = sistrip::FED_KEY;
-  } else if ( &dynamic_cast<SiStripFecKey&>(temp) ) {
+  } else if ( &dynamic_cast<const SiStripFecKey&>(key_object) ) {
     keyType_ = sistrip::FEC_KEY;
   } else {
     keyType_ = sistrip::UNKNOWN_KEY;
