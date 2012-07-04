@@ -81,6 +81,8 @@ void HcaluLUTTPGCoder::update(const char* filename, bool appendMSB){
 
    // Get upper/lower ranges for ieta/iphi/depth
    size_t nCol = subdet.size();
+   assert(nCol > 0);
+
    std::vector<int> ietaU;
    std::vector<int> ietaL;
    std::vector<int> iphiU;
