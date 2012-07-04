@@ -10,7 +10,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: VarProcessor.cc,v 1.8 2011/03/11 20:33:54 kukartse Exp $
+// $Id: VarProcessor.cc,v 1.9 2011/04/15 17:07:13 wmtan Exp $
 //
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -133,7 +133,9 @@ void VarProcessor::deriv(double *input, int *conf, double *output,
 	unsigned int size = 0;
 	while(iter)
 		size += (iter++).size();
-	unsigned int out = matrix.empty() ? 0 : (matrix.size() / size);
+        bool empty = matrix.empty();
+        assert(size != 0 || empty);
+	unsigned int out = empty ? 0 : (matrix.size() / size);
 
 	if (matrix.size() != out * size ||
 	    (out > 1 && (int)out != outConf[out_] - outConf[0]))
