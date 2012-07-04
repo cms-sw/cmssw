@@ -40,7 +40,6 @@ protected:
   const TrajectoryFactoryBase *bzeroFactory() const;
 
   double theMass;
-  //  double theMomentumEstimateFieldOff;
   bool   theUseBzeroIfFieldOff;
   mutable const TrajectoryFactoryBase *theBzeroFactory;
 };
@@ -52,7 +51,6 @@ protected:
 ReferenceTrajectoryFactory::ReferenceTrajectoryFactory( const edm::ParameterSet & config ) :
   TrajectoryFactoryBase( config ),
   theMass(config.getParameter<double>("ParticleMass")),
-  //  theMomentumEstimateFieldOff(config.getParameter<double>("MomentumEstimateFieldOff")),
   theUseBzeroIfFieldOff(config.getParameter<bool>("UseBzeroIfFieldOff")),
   theBzeroFactory(0)
 {
@@ -172,22 +170,19 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
   return trajectories;
 }
 
-#include "DataFormats/Provenance/interface/ParameterSetID.h" // FIXME: for 51X!
 const TrajectoryFactoryBase *ReferenceTrajectoryFactory::bzeroFactory() const
 {
   if (!theBzeroFactory) {
     const edm::ParameterSet &myPset = this->configuration();
     edm::LogInfo("Alignment") << "@SUB=ReferenceTrajectoryFactory::bzeroFactory"
 			      << "Using BzeroReferenceTrajectoryFactory for some (all?) events.";
+    // We take the config of this factory, copy it, replace its name and add 
+    // the momentum parameter as expected by BzeroReferenceTrajectoryFactory and create it:
     edm::ParameterSet pset;
-    // FIXME: not in 51X: pset.copyForModify(myPset); // workaround follows
-    pset = myPset;
-    pset.setID(edm::ParameterSetID());
-    // end workaround
-    // next two lines not needed, but may help to understand log file:
+    pset.copyForModify(myPset);
+    // next two lines not needed, but may help to better understand log file:
     pset.eraseSimpleParameter("TrajectoryFactoryName");
     pset.addParameter("TrajectoryFactoryName", std::string("BzeroReferenceTrajectoryFactory"));
-    // add the relevant new parameter:
     pset.addParameter("MomentumEstimate", myPset.getParameter<double>("MomentumEstimateFieldOff"));
     theBzeroFactory = new BzeroReferenceTrajectoryFactory(pset);
   }
