@@ -1,3 +1,6 @@
+// Local include from plugins directory...:
+#include "BzeroReferenceTrajectoryFactory.h"
+
 #include "Alignment/ReferenceTrajectories/interface/BzeroReferenceTrajectory.h" 
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 
@@ -14,48 +17,21 @@
 /// given TrajTrackPairCollection.
 
 
-class BzeroReferenceTrajectoryFactory : public TrajectoryFactoryBase
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+
+BzeroReferenceTrajectoryFactory::BzeroReferenceTrajectoryFactory(const edm::ParameterSet &config) :
+  TrajectoryFactoryBase(config),
+  theMass(config.getParameter<double>("ParticleMass")), 
+  theMomentumEstimate(config.getParameter<double>("MomentumEstimate"))
 {
-public:
-
-  BzeroReferenceTrajectoryFactory(const edm::ParameterSet &config);
-  virtual ~BzeroReferenceTrajectoryFactory();
-
-  /// Produce the reference trajectories.
-  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
-							   const ConstTrajTrackPairCollection &tracks,
-							   const reco::BeamSpot &beamSpot) const;
-
-  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
-							   const ConstTrajTrackPairCollection &tracks,
-							   const ExternalPredictionCollection &external,
-							   const reco::BeamSpot &beamSpot) const;
-
-  virtual BzeroReferenceTrajectoryFactory* clone() const { return new BzeroReferenceTrajectoryFactory( *this ); }
-
-private:
-
-  double theMass;
-  double theMomentumEstimate;
-};
-
-
-/////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////
-
-BzeroReferenceTrajectoryFactory::BzeroReferenceTrajectoryFactory( const edm::ParameterSet & config ) :
-  TrajectoryFactoryBase( config )
-{
-  theMass = config.getParameter< double >( "ParticleMass" );
-  theMomentumEstimate = config.getParameter< double >( "MomentumEstimate" );
-  theUseBeamSpot = config.getParameter< bool >( "UseBeamSpot" );
 }
-
 
 BzeroReferenceTrajectoryFactory::~BzeroReferenceTrajectoryFactory( void ) {}
 
 
+/////////////////////////////////////////////////////////////////////
 const BzeroReferenceTrajectoryFactory::ReferenceTrajectoryCollection
 BzeroReferenceTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 					      const ConstTrajTrackPairCollection &tracks,
@@ -80,7 +56,7 @@ BzeroReferenceTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 										 materialEffects(),
 										 propagationDirection(),
 										 theMass, theMomentumEstimate,
-										 theUseBeamSpot, beamSpot)));
+                                                                                 theUseBeamSpot, beamSpot)));
     }
 
     ++itTracks;
@@ -90,6 +66,7 @@ BzeroReferenceTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 }
 
 
+/////////////////////////////////////////////////////////////////////
 const BzeroReferenceTrajectoryFactory::ReferenceTrajectoryCollection
 BzeroReferenceTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 					      const ConstTrajTrackPairCollection &tracks,
