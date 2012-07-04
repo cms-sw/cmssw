@@ -21,3 +21,17 @@ DEFINE_FWK_MODULE (WValidation);
 
 #include "Validation/EventGenerator/interface/TauValidation.h"
 DEFINE_FWK_MODULE (TauValidation);
+
+#include "Validation/EventGenerator/interface/TTbar_GenJetAnalyzer.h"
+DEFINE_FWK_MODULE(TTbar_GenJetAnalyzer);
+
+#include "Validation/EventGenerator/interface/TTbar_GenLepAnalyzer.h"
+DEFINE_FWK_MODULE(TTbar_GenLepAnalyzer);
+
+#include "Validation/EventGenerator/interface/TTbar_Kinematics.h"
+
+#include "Validation/EventGenerator/interface/TTbar_Kinematics.h"
+DEFINE_FWK_MODULE(TTbar_Kinematics);
+
+#include "Validation/EventGenerator/interface/TTbar_P4Violation.h"
+DEFINE_FWK_MODULE(TTbar_P4Violation);

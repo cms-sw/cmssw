@@ -4,6 +4,7 @@
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="Validation/EventGenerator"/>
+<use   name="AnalysisDataFormats/TopObjects"/>
 <use   name="hepmc"/>
 <use   name="clhep"/>
 <use   name="root"/>
