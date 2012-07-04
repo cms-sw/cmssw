@@ -10,6 +10,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 #include <sstream>
@@ -17,7 +18,6 @@
 
 #include "Cintex/Cintex.h"
 #include "G__ci.h"
-#include "Reflex/Type.h"
 #include "TROOT.h"
 #include "TError.h"
 #include "TFile.h"
@@ -239,8 +239,8 @@ namespace edm {
       setRefCoreStreamer();
       setStreamedProductStreamer();
 
-      // Load the library containing dictionaries for std:: classes (e.g. std::vector<int>)
-      if (ROOT::Reflex::Type()== Reflex::Type::ByName("std::vector<std::vector<unsigned int> >")) {
+      // Load the library containing dictionaries for std:: classes, if not already loaded.
+      if (!TypeID(typeid(std::vector<std::vector<unsigned int> >)).hasDictionary()) {
          edmplugin::PluginCapabilities::get()->load("LCGReflex/std::vector<std::vector<unsigned int> >");
       }
     }

@@ -15,6 +15,7 @@
 
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
 // system include files

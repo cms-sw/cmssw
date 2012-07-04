@@ -53,7 +53,7 @@ public:
              "'.\n Please check spelling or that a module uses this type in the job.");
            }
            if(type_.IsTypedef()){
-              //For a 'Reflex::Typedef' the 'toType' method returns the actual type
+              //For a 'Typedef' the 'toType' method returns the actual type
               // this is needed since you are now allowed to 'invoke' methods of a 'Typedef'
               // only for a 'real' class
               type_ = type_.ToType();
@@ -67,7 +67,7 @@ public:
             Exception::throwThis(errors::NotFound, "Handle<GenericObject> given an invalid Reflex::Type");
          }
          if(type_.IsTypedef()){
-            //For a 'Reflex::Typedef' the 'toType' method returns the actual type
+            //For a 'Typedef' the 'toType' method returns the actual type
             // this is needed since you are now allowed to 'invoke' methods of a 'Typedef'
             // only for a 'real' class
             type_ = type_.ToType();

@@ -24,10 +24,10 @@
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
 
-#include "Reflex/Type.h"
 #include "Cintex/Cintex.h"
 #include "TClass.h"
 
@@ -106,12 +106,8 @@ namespace edm {
           //give ROOT a name for the file we are loading
           RootLoadFileSentry sentry;
           if(edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix + classname)) {
-            Reflex::Type t = Reflex::Type::ByName(classname);
-            if (Reflex::Type() == t) {
-              //would be nice to issue a warning here
-              return false;
-            }
-            if(!t.IsComplete()) {
+            TypeID t(TypeID::byName(classname));
+            if(!t.isComplete()) {
               //would be nice to issue a warning here.  Not sure the remainder of this comment is correct.
               // this message happens too often (too many false positives) to be useful plus ROOT will complain about a missing dictionary
               //std::cerr << "Warning: Reflex knows about type '" << classname << "' but has no dictionary for it." << std::endl;
@@ -125,10 +121,10 @@ namespace edm {
               // Too many false positives on built-in types here.
               return false;
             }
-            Reflex::Type t = Reflex::Type::ByName(name);
-            if (Reflex::Type() == t) {
-              t = Reflex::Type::ByName(classname);
-              if (Reflex::Type() == t) {
+            TypeID t(TypeID::byName(name));
+            if (!bool(t)) {
+              TypeID t2(TypeID::byName(name));
+              if (!bool(t2)) {
                 //would be nice to issue a warning here
                 return false;
               }
@@ -158,7 +154,7 @@ namespace edm {
         // if a CMS library has an incomplete set of Reflex dictionaries where
         // the remaining dictionaries can be found by Cint.  If the library with
         // the Reflex dictionaries is loaded first, then the Cint library then any
-        // requests for a Reflex::Type from the Reflex library will fail because for
+        // requests for a Type from the Reflex library will fail because for
         // some reason the loading of the Cint library causes Reflex to forget about
         // what types it already loaded from the Reflex library.  This problem was
         // seen for libDataFormatsMath and libMathCore.  I do not print an error message
@@ -266,20 +262,20 @@ namespace edm {
           if(specialsToLib[classNameForRoot(itSpecial->second)].size()) {
             //std::cout << "&&&&& found special case " << itSpecial->first << std::endl;
             std::string name = itSpecial->second;
-            Reflex::Type t = Reflex::Type::ByName(name);
+            TypeID t(TypeID::byName(name));
 
-            if((Reflex::Type() == t) and
+            if(!bool(t) and
                 (not edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix + name))) {
               std::cout << "failed to load plugin for " << cPrefix + name << std::endl;
               continue;
             } else {
               //need to construct the Class ourselves
-              Reflex::Type t = Reflex::Type::ByName(name);
-              if(Reflex::Type() == t) {
+              TypeID t(TypeID::byName(name));
+              if(!bool(t)) {
                 std::cout << "reflex did not build " << name << std::endl;
                 continue;
               }
-              TClass* reflexNamedClass = TClass::GetClass(t.TypeInfo());
+              TClass* reflexNamedClass = TClass::GetClass(t.typeInfo());
               if(0 == reflexNamedClass) {
                 std::cout << "failed to get TClass by typeid for " << name << std::endl;
                 continue;

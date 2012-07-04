@@ -37,7 +37,7 @@ void convert_handle(BasicHandle const& orig,
     throw edm::Exception(edm::errors::LogicError)<<"GenericObject could not find 'obj' member";
   }
   if(product.TypeOf().IsTypedef()){
-    //For a 'Reflex::Typedef' the 'ToType' method returns the actual type
+    //For a 'Typedef' the 'ToType' method returns the actual type
     // this is needed since you are now allowed to 'invoke' methods of a 'Typedef'
     // only for a 'real' class
     product = Reflex::Object(product.TypeOf().ToType(), product.Address());
