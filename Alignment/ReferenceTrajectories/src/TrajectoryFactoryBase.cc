@@ -7,7 +7,8 @@
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
 
 
-TrajectoryFactoryBase::TrajectoryFactoryBase( const edm::ParameterSet & config )
+TrajectoryFactoryBase::TrajectoryFactoryBase( const edm::ParameterSet & config ) : 
+  theConfig(config)
 {
   const std::string strMaterialEffects = config.getParameter< std::string >( "MaterialEffects" );
   theMaterialEffects = this->materialEffects( strMaterialEffects );
