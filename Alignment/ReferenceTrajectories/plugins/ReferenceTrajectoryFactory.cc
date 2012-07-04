@@ -42,7 +42,6 @@ protected:
   double theMass;
   //  double theMomentumEstimateFieldOff;
   bool   theUseBzeroIfFieldOff;
-  // not 'const TrajectoryFactoryBase *': we want a non-const pointer to a const factory:
   mutable const TrajectoryFactoryBase *theBzeroFactory;
 };
 
@@ -57,6 +56,10 @@ ReferenceTrajectoryFactory::ReferenceTrajectoryFactory( const edm::ParameterSet 
   theUseBzeroIfFieldOff(config.getParameter<bool>("UseBzeroIfFieldOff")),
   theBzeroFactory(0)
 {
+  edm::LogInfo("Alignment") << "@SUB=ReferenceTrajectoryFactory"
+                            << "mass: " << theMass
+                            << "\nusing Bzero if |B| = 0: " 
+                            << (theUseBzeroIfFieldOff ? "yes" : "no");
 }
 
 ReferenceTrajectoryFactory::ReferenceTrajectoryFactory(const ReferenceTrajectoryFactory &other) :
@@ -83,7 +86,6 @@ ReferenceTrajectoryFactory::trajectories(const edm::EventSetup &setup,
   if (theUseBzeroIfFieldOff && magneticField->inTesla(GlobalPoint(0.,0.,0.)).mag2() < 1.e-6) {
     return this->bzeroFactory()->trajectories(setup, tracks, beamSpot);
   }
-  
 
   ReferenceTrajectoryCollection trajectories;
 
@@ -171,23 +173,23 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 }
 
 #include "DataFormats/Provenance/interface/ParameterSetID.h" // FIXME: for 51X!
-
 const TrajectoryFactoryBase *ReferenceTrajectoryFactory::bzeroFactory() const
 {
   if (!theBzeroFactory) {
-    edm::LogInfo("Alignment") << "@SUB=ReferenceTrajectoryFactory::bzeroFactory"
-			      << "Using BzeroReferenceTrajectoryFactory for some events.";
-    // const edm::ParameterSet &pset = this->configuration();
-    // const double momentumEstimate = pset.getParameter<double>("MomentumEstimateFieldOff");
-    // theBzeroFactory = new BzeroReferenceTrajectoryFactory(pset, momentumEstimate);
     const edm::ParameterSet &myPset = this->configuration();
+    edm::LogInfo("Alignment") << "@SUB=ReferenceTrajectoryFactory::bzeroFactory"
+			      << "Using BzeroReferenceTrajectoryFactory for some (all?) events.";
     edm::ParameterSet pset;
     // FIXME: not in 51X: pset.copyForModify(myPset); // workaround follows
     pset = myPset;
     pset.setID(edm::ParameterSetID());
     // end workaround
+    // next two lines not needed, but may help to understand log file:
+    pset.eraseSimpleParameter("TrajectoryFactoryName");
+    pset.addParameter("TrajectoryFactoryName", std::string("BzeroReferenceTrajectoryFactory"));
+    // add the relevant new parameter:
     pset.addParameter("MomentumEstimate", myPset.getParameter<double>("MomentumEstimateFieldOff"));
-    theBzeroFactory = new BzeroReferenceTrajectoryFactory(pset);//, momentumEstimate);
+    theBzeroFactory = new BzeroReferenceTrajectoryFactory(pset);
   }
   return theBzeroFactory;
 }
