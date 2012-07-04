@@ -20,6 +20,16 @@ TrajectoryFactoryBase::TrajectoryFactoryBase( const edm::ParameterSet & config )
   theUseInvalidHits = config.getParameter< bool >( "UseInvalidHits" );
   theUseProjectedHits = config.getParameter< bool >( "UseProjectedHits" );
   theUseBeamSpot = config.getParameter< bool >( "UseBeamSpot" );
+
+  edm::LogInfo("Alignment") << "@SUB=TrajectoryFactoryBase"
+                            << "TrajectoryFactory '" << config.getParameter<std::string>("TrajectoryFactoryName")
+                            << "' with following settings:"
+                            << "\nmaterial effects: " << strMaterialEffects
+                            << "\npropagation: " << strPropagationDirection
+                            << "\nuse hits without det: " << (theUseWithoutDet ? "yes" : "no")
+                            << "\nuse invalid hits: " << (theUseInvalidHits ? "yes" : "no")
+                            << "\nuse projected hits: " << (theUseProjectedHits ? "yes" : "no")
+                            << "\nuse beamspot: " << (theUseBeamSpot ? "yes" : "no");
 }
 
 

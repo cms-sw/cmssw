@@ -26,6 +26,9 @@ BzeroReferenceTrajectoryFactory::BzeroReferenceTrajectoryFactory(const edm::Para
   theMass(config.getParameter<double>("ParticleMass")), 
   theMomentumEstimate(config.getParameter<double>("MomentumEstimate"))
 {
+  edm::LogInfo("Alignment") << "@SUB=BzeroReferenceTrajectoryFactory"
+                            << "mass: " << theMass
+                            << "\nmomentum: " << theMomentumEstimate;
 }
 
 BzeroReferenceTrajectoryFactory::~BzeroReferenceTrajectoryFactory( void ) {}
