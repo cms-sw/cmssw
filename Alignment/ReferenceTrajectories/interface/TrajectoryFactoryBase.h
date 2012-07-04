@@ -8,6 +8,8 @@
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 /// Base class for factories producing reference trajectories, i.e. instances of classes deriving from
 /// ReferenceTrajectoryBase, from a TrajTrackPairCollection.
 
@@ -43,6 +45,7 @@ public:
 
   inline MaterialEffects materialEffects( void ) const { return theMaterialEffects; }
   inline PropagationDirection propagationDirection( void ) const { return thePropDir; }
+  inline const edm::ParameterSet &configuration() const { return theConfig; }
 
 protected:
 
@@ -58,6 +61,7 @@ private:
 
   MaterialEffects theMaterialEffects;
   PropagationDirection thePropDir;
+  const edm::ParameterSet theConfig; // need to keep for possible re-use after constructor... :-(
 
   bool theUseWithoutDet;
   bool theUseInvalidHits;
