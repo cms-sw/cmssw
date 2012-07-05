@@ -58,7 +58,8 @@ if whichJets=="ak5PFnoPU":
     applyPostfix(process,"patJetCorrFactors",postfix).payload = cms.string('AK5PFchs')
     process.pfPileUpPF2PAT.Vertices = cms.InputTag('goodOfflinePrimaryVertices')
     process.pfPileUpPF2PAT.checkClosestZVertex = cms.bool(False)
-    #process.selectedPatJetsPF2PAT.cut = JetCut
+    from DQMOffline.RecoB.bTagSequences_cff import JetCut
+    process.selectedPatJetsPF2PAT.cut = JetCut
     process.JECAlgo = cms.Sequence( getattr(process,"patPF2PATSequence"+postfix) )
     newjetID=cms.InputTag("selectedPatJetsPF2PAT")
 elif whichJets=="ak5PFJEC":
