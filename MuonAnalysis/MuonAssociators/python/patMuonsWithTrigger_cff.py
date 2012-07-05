@@ -66,8 +66,12 @@ addL1UserData(patMuonsWithoutTrigger, "muonL1Info")
 ##   
 
 ### ==== Unpack trigger, and match ====
-from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import patTrigger
-patTrigger.onlyStandAlone = True
+from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import patTrigger as patTriggerFull
+patTriggerFull.onlyStandAlone = True
+patTrigger = cms.EDFilter("PATTriggerObjectStandAloneSelector",
+    src = cms.InputTag("patTriggerFull"),
+    cut = cms.string('coll("hltL1extraParticles") || coll("hltL2MuonCandidates") || coll("hltL3MuonCandidates") || coll("hltGlbTrkMuonCands") || coll("hltMuTrackJpsiCtfTrackCands") || coll("hltMuTrackJpsiEffCtfTrackCands") || coll("hltMuTkMuJpsiTrackerMuonCands")'),
+) 
 
 ### ==== Then perform a match for all HLT triggers of interest
 muonTriggerMatchHLT = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR",
@@ -138,7 +142,7 @@ patMuonsWithTrigger.matches += patTriggerMatchers2MuInputTags
 
 ## ==== Trigger Sequence ====
 patTriggerMatching = cms.Sequence(
-    patTrigger * 
+    patTriggerFull * patTrigger * 
     patTriggerMatchers1Mu *
     patTriggerMatchers2Mu *
     patMuonsWithTrigger
