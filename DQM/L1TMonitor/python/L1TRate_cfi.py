@@ -24,8 +24,8 @@ l1tRate = cms.EDAnalyzer("L1TRate",
   useHFDeadTimeNormalization = cms.untracked.bool(False),
   
   # Plot Parameters
-  minInstantLuminosity = cms.double (100),
-  maxInstantLuminosity = cms.double(5000),
+  minInstantLuminosity = cms.double ( 100),
+  maxInstantLuminosity = cms.double(10000),
   
   # Index for the prescale set to be used as reference
   refPrescaleSet = cms.int32(0), 
