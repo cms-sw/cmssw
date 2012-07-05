@@ -20,9 +20,6 @@
 #include "clang/Basic/SourceManager.h"
 #include "clang/StaticAnalyzer/Core/BugReporter/BugReporter.h"
 
-using namespace clang;
-
-
 namespace clangcms {
 
 class CmsException {
@@ -30,15 +27,15 @@ public:
 	CmsException() ;
 	~CmsException();
 
-	bool reportGlobalStaticForType( QualType const& t,
+	bool reportGlobalStaticForType( clang::QualType const& t,
 				clang::ento::PathDiagnosticLocation const& path,
 				clang::ento::BugReporter & BR  ) const;
 
-	bool reportGlobalStatic( QualType const& t,
+	bool reportGlobalStatic( clang::QualType const& t,
 				clang::ento::PathDiagnosticLocation const& path,
 				clang::ento::BugReporter & BR  ) const;	
 
-	bool reportMutableMember( QualType const& t,
+	bool reportMutableMember( clang::QualType const& t,
 				clang::ento::PathDiagnosticLocation const& path,
 				clang::ento::BugReporter & BR  ) const;	
 
