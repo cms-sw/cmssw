@@ -93,6 +93,11 @@ class Alignment:
         
         self.color = config.get(section,"color")
         self.style = config.get(section,"style")
+        if "compare" in self.mode:
+            if config.has_option(section,"rungeomcomp"):
+                self.runGeomComp = config.get(section,"rungeomcomp")
+            else:
+                raise StandardError, "in alignment:%s you have to provide rungeomcomp in compare mode."%(name)
         self.compareTo = {}
         for option in config.options( section ):
             if option.startswith("compare|"):
@@ -131,7 +136,8 @@ class Alignment:
             "tag": self.tag,
             "errortag": self.errortag,
             "color": self.color,
-            "style": self.style
+            "style": self.style,
+            "runGeomComp": self.runGeomComp
             }
         return result  
 
