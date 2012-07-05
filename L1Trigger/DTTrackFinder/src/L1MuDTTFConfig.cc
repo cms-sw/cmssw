@@ -5,8 +5,8 @@
 //   Description: DTTrackFinder parameters for L1MuDTTrackFinder
 //
 //
-//   $Date: 2008/02/25 16:35:32 $
-//   $Revision: 1.7 $
+//   $Date: 2008/05/09 15:02:00 $
+//   $Revision: 1.8 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -85,6 +85,9 @@ void L1MuDTTFConfig::setDefaults() {
   // set switch for eta track finder usage
   m_etaTF = m_ps->getUntrackedParameter<bool>("EtaTrackFinder",true);
 
+  // set switch for etaFlag cancellation of CSC segments
+  m_etacanc = m_ps->getUntrackedParameter<bool>("CSC_Eta_Cancellation",false);
+
   // set Filter for Out-of-time Track Segments
   m_TSOutOfTimeFilter = m_ps->getUntrackedParameter<bool>("OutOfTime_Filter",false);
   m_TSOutOfTimeWindow = m_ps->getUntrackedParameter<int>("OutOfTime_Filter_Window",1);
@@ -146,6 +149,13 @@ void L1MuDTTFConfig::setDefaults() {
     cout << "L1 barrel Track Finder : Eta Track Finder : off" << endl;
   }
 
+  if ( Debug(1) && m_etacanc ) {
+    cout << "L1 barrel Track Finder : CSC etaFlag cancellation : on" << endl;
+  }
+  if ( Debug(1) && !m_etacanc ) {
+    cout << "L1 barrel Track Finder : CSC etaFlag cancellation : off" << endl;
+  }
+
   if ( Debug(1) && m_TSOutOfTimeFilter ) {
     cout << "L1 barrel Track Finder : out-of-time TS filter : on" << endl;
     cout << "L1 barrel Track Finder : out-of-time TS filter window : " << m_TSOutOfTimeWindow << endl;
@@ -178,6 +188,7 @@ int  L1MuDTTFConfig::m_extTSFilter  = 1;
 bool L1MuDTTFConfig::m_openLUTs  = false;
 bool L1MuDTTFConfig::m_useEX21 = false;
 bool L1MuDTTFConfig::m_etaTF = true;
+bool L1MuDTTFConfig::m_etacanc = false;
 bool L1MuDTTFConfig::m_TSOutOfTimeFilter = false;
 int  L1MuDTTFConfig::m_TSOutOfTimeWindow = 1;
 int  L1MuDTTFConfig::m_NbitsExtPhi  = 8; 
