@@ -49,7 +49,9 @@ process.ZeroAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
 process.es_prefer_ZeroAPE = cms.ESPrefer("PoolDBESSource", "ZeroAPE")
 
 
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource",
+    firstRun=cms.untracked.uint32(.oO[runGeomComp]Oo.)
+    )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
