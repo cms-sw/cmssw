@@ -101,7 +101,11 @@ struct boostFuture {
   boost::xtime xt;
 
   boostFuture(int i) {
+#if BOOST_VERSION >= 105000
+    boost::xtime_get(&xt, boost::TIME_UTC_);
+#else
     boost::xtime_get(&xt, boost::TIME_UTC);
+#endif
     xt.sec += i;
   }
   
