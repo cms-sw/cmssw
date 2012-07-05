@@ -99,10 +99,10 @@ class PFPhotonAlgo {
 		tempElectronCandidates
 		);
     int ind=0;
-    bool matched=false;
     int matches=match_ind.size();
     
     for ( std::vector<reco::PFCandidate>::const_iterator ec=tempElectronCandidates.begin();   ec != tempElectronCandidates.end(); ++ec){
+      bool matched=false;
       for(int i=0; i<matches; i++)
 	{
 	  if(ind==match_ind[i])
