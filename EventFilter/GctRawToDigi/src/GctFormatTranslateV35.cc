@@ -747,7 +747,7 @@ void GctFormatTranslateV35::blockToGctInternEmCand(const unsigned char * d, cons
   unsigned int upperIsoPairBound = internEmIsoBounds()[id].second;
 
   // Re-interpret pointer to 16 bits so it sees one candidate at a time.
-  uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
+  const uint16_t * p = reinterpret_cast<const uint16_t *>(d);
 
   // Loop over timesamples (i.e. bunch crossings)
   for(unsigned int bx=0; bx < nSamples; ++bx)
@@ -782,7 +782,7 @@ void GctFormatTranslateV35::blockToRctEmCand(const unsigned char * d, const GctB
   unsigned int length = hdr.blockLength();
 
   // re-interpret pointer
-  uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
+  const uint16_t * p = reinterpret_cast<const uint16_t *>(d);
 
   // arrays of source card data
   uint16_t sfp[2][4]; // [ cycle ] [ SFP ]
@@ -842,7 +842,7 @@ void GctFormatTranslateV35::blockToRctCaloRegions(const unsigned char * d, const
   unsigned int crate=rctJetCrateMap()[id];
 
   // re-interpret pointer
-  uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
+  const uint16_t * p = reinterpret_cast<const uint16_t *>(d);
   
   // eta and phi
   unsigned int ieta; 
@@ -888,7 +888,7 @@ void GctFormatTranslateV35::blockToFibres(const unsigned char * d, const GctBloc
   unsigned int length = hdr.blockLength();
 
   // re-interpret pointer
-  uint32_t * p = reinterpret_cast<uint32_t *>(const_cast<unsigned char *>(d));
+  const uint32_t * p = reinterpret_cast<const uint32_t *>(d);
 
   for (unsigned int i=0; i<length; ++i) {
     for (unsigned int bx=0; bx<nSamples; ++bx) {
@@ -915,7 +915,7 @@ void GctFormatTranslateV35::blockToGctInternEtSums(const unsigned char * d, cons
   unsigned int length = hdr.blockLength();
 
   // Re-interpret pointer to 32 bits 
-  uint32_t * p = reinterpret_cast<uint32_t *>(const_cast<unsigned char *>(d));
+  const uint32_t * p = reinterpret_cast<const uint32_t *>(d);
 
   for (unsigned int i=0; i<length; ++i) {
     // Loop over timesamples (i.e. bunch crossings)                                                                                                                            
@@ -936,7 +936,7 @@ void GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster(const unsigned c
   unsigned int length = hdr.blockLength();
 
   // Re-interpret pointer to 32 bits 
-  uint32_t * p = reinterpret_cast<uint32_t *>(const_cast<unsigned char *>(d));
+  const uint32_t * p = reinterpret_cast<const uint32_t *>(d);
 
   for (unsigned int i=0; i<length; ++i) {
     // Loop over timesamples (i.e. bunch crossings)
@@ -962,7 +962,7 @@ void GctFormatTranslateV35::blockToGctTrigObjects(const unsigned char * d, const
   unsigned int length = hdr.blockLength();
 
   // Re-interpret pointer to 16 bits so it sees one candidate at a time.
-  uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
+  const uint16_t * p = reinterpret_cast<const uint16_t *>(d);
 
   for (unsigned int i=0; i<length; ++i) {
     // Loop over timesamples (i.e. bunch crossings)
@@ -985,7 +985,7 @@ void GctFormatTranslateV35::blockToGctJetClusterMinimal(const unsigned char * d,
   unsigned int length = hdr.blockLength();
 
   // Re-interpret pointer to 16 bits so it sees one candidate at a time.
-  uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
+  const uint16_t * p = reinterpret_cast<const uint16_t *>(d);
 
   for (unsigned int i=0; i<length; ++i) {
     // Loop over timesamples (i.e. bunch crossings)
@@ -1008,7 +1008,7 @@ void GctFormatTranslateV35::blockToGctJetPreCluster(const unsigned char * d, con
   unsigned int length = hdr.blockLength();
 
   // Re-interpret pointer to 16 bits so it sees one candidate at a time.
-  uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
+  const uint16_t * p = reinterpret_cast<const uint16_t *>(d);
 
   for (unsigned int i=0; i<length; ++i) {
     // Loop over timesamples (i.e. bunch crossings)
@@ -1031,7 +1031,7 @@ void GctFormatTranslateV35::blockToGctInternRingSums(const unsigned char * d, co
   unsigned int length = hdr.blockLength();
 
   // Re-interpret pointer to 32 bits 
-  uint32_t * p = reinterpret_cast<uint32_t *>(const_cast<unsigned char *>(d));
+  const uint32_t * p = reinterpret_cast<const uint32_t *>(d);
 
   for (unsigned int i=0; i<length/2; ++i) {
     // Loop over timesamples (i.e. bunch crossings)
@@ -1056,7 +1056,7 @@ void GctFormatTranslateV35::blockToGctWheelInputInternEtAndRingSums(const unsign
   unsigned int length = hdr.blockLength();
 
   // Re-interpret pointer to 32 bits 
-  uint32_t * p = reinterpret_cast<uint32_t *>(const_cast<unsigned char *>(d));
+  const uint32_t * p = reinterpret_cast<const uint32_t *>(d);
 
   for (unsigned int i=0; i<length; ++i) {
     // Loop over timesamples (i.e. bunch crossings)
@@ -1085,7 +1085,7 @@ void GctFormatTranslateV35::blockToGctWheelOutputInternEtAndRingSums(const unsig
   unsigned int length = hdr.blockLength();
 
   // Re-interpret pointer to 32 bits 
-  uint32_t * p = reinterpret_cast<uint32_t *>(const_cast<unsigned char *>(d));
+  const uint32_t * p = reinterpret_cast<const uint32_t *>(d);
 
   for (unsigned int i=0; i<length; ++i) {
     // Loop over timesamples (i.e. bunch crossings)
