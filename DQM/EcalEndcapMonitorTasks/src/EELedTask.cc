@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2012/05/15 11:12:27 $
- * $Revision: 1.73 $
+ * $Date: 2012/07/02 19:39:30 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  *
 */
@@ -501,7 +501,7 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    if(!enable && double(nEmpty_++) / double(ievt_) < 0.1) return;
+    if(!enable && (ievt_ < 4000 || double(nEmpty_++) / double(ievt_) < 0.7)) return;
 
     int need = digis->size();
     LogDebug("EELedTask") << "event " << ievt_ << " digi collection size " << need;
