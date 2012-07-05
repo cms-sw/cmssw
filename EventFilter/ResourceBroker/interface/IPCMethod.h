@@ -310,7 +310,7 @@ public:
 		//lock_.give();
 		sem_post(&lock_);
 	}
-
+        #ifdef linux
 	std::unique_lock<std::timed_mutex> lockCrashHandler() {
 		std::unique_lock<std::timed_mutex> lk(crashHandlerLock_);
 		return lk;
@@ -320,7 +320,7 @@ public:
 		std::unique_lock<std::timed_mutex> lk(crashHandlerLock_,std::chrono::seconds(seconds));
 		return lk;
 	}
-
+        #endif
 	/**
 	 * Has to be implemented by subclasses, according to IPC type.
 	 */
@@ -379,7 +379,9 @@ protected:
 	UInt_t runNumber_;
 
 	sem_t lock_;
+        #ifdef linux
 	std::timed_mutex crashHandlerLock_;
+        #endif
 	EvffedFillerRB *frb_;
 	xdaq::Application *app_;
 

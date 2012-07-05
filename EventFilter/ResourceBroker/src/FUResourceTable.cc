@@ -990,7 +990,11 @@ void FUResourceTable::shutDownClients() {
 					!= 0) {
 				checks++;
 				{
+                                        #ifdef linux
 					auto lk = lockCrashHandlerTimed(10);
+                                        #else
+                                        bool lk=true;
+                                        #endif
 					if (lk) {
 						vector < pid_t > prcids = clientPrcIds();
 						for (UInt_t i = 0; i < prcids.size(); i++) {

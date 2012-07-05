@@ -138,7 +138,11 @@ void Stopping::emergencyStop() const {
 	// they are re-allowed after a new enable
 	res->allowI2ODiscards_ = false;
 	{
+                #ifdef linux
 		auto lk = resourceStructure->lockCrashHandlerTimed(10);
+                #else
+                bool lk=true;
+                #endif
 		if (lk) { 
 			vector < pid_t > client_prc_ids = resourceStructure->clientPrcIds();
 			for (UInt_t i = 0; i < client_prc_ids.size(); i++) {
