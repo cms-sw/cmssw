@@ -15,7 +15,7 @@ public:
 
   GeomTopologyBuilder();
 
-  PixelTopology* buildPixel( const Bounds* , double , double , double , double ,std::string,
+  PixelTopology* buildPixel( const Bounds*, std::string,
 			     bool upgradeGeometry,
 			     int ROWS_PER_ROC, // Num of Rows per ROC
 			     int COLS_PER_ROC, // Num of Cols per ROC

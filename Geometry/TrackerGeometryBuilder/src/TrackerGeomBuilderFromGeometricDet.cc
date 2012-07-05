@@ -41,12 +41,8 @@ namespace {
 }
 
 TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, bool upgradeGeometry,
-							    int ROWS_PER_ROC,
-							    int COLS_PER_ROC,
 							    int BIG_PIX_PER_ROC_X,
-							    int BIG_PIX_PER_ROC_Y,
-							    int ROCS_X, int ROCS_Y){
-
+							    int BIG_PIX_PER_ROC_Y){
   thePixelDetTypeMap.clear();
   theStripDetTypeMap.clear();
    
@@ -68,18 +64,12 @@ TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* 
   // this order is VERY IMPORTANT!!!!!
   buildPixel(pixB,tracker,theDetIdToEnum.type(1), "barrel",
 	     upgradeGeometry,
-	     ROWS_PER_ROC,
-	     COLS_PER_ROC,
 	     BIG_PIX_PER_ROC_X,
-	     BIG_PIX_PER_ROC_Y,
-	     ROCS_X, ROCS_Y ); //"PixelBarrel" 
+	     BIG_PIX_PER_ROC_Y); //"PixelBarrel" 
   buildPixel(pixF,tracker,theDetIdToEnum.type(2), "endcap",
 	     upgradeGeometry,
-	     ROWS_PER_ROC,
-	     COLS_PER_ROC,
 	     BIG_PIX_PER_ROC_X,
-	     BIG_PIX_PER_ROC_Y,
-	     ROCS_X, ROCS_Y  ); //"PixelEndcap" 
+	     BIG_PIX_PER_ROC_Y); //"PixelEndcap" 
   buildSilicon(tib,tracker,theDetIdToEnum.type(3), "barrel");// "TIB"	
   buildSilicon(tid,tracker,theDetIdToEnum.type(4), "endcap");//"TID" 
   buildSilicon(tob,tracker,theDetIdToEnum.type(5), "barrel");//"TOB"	
@@ -96,11 +86,8 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
 						    GeomDetType::SubDetector det,
 						    const std::string& part,
 						    bool upgradeGeometry,
-						    int ROWS_PER_ROC, // Num of Rows per ROC
-						    int COLS_PER_ROC, // Num of Cols per ROC
 						    int BIG_PIX_PER_ROC_X, // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
-						    int BIG_PIX_PER_ROC_Y, // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
-						    int ROCS_X, int ROCS_Y ) 
+						    int BIG_PIX_PER_ROC_Y) // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
 {
   tracker->setOffsetDU(det);
 
@@ -111,17 +98,13 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
       std::auto_ptr<const Bounds> bounds(gdv[i]->bounds());
       PixelTopology* t = 
 	theTopologyBuilder->buildPixel(&*bounds,
-				       gdv[i]->pixROCRows(),
-				       gdv[i]->pixROCCols(),
-				       gdv[i]->pixROCx(),
-				       gdv[i]->pixROCy(),
 				       part,
 				       upgradeGeometry,
-				       ROWS_PER_ROC,
-				       COLS_PER_ROC,
+				       gdv[i]->pixROCRows(),
+				       gdv[i]->pixROCCols(),
 				       BIG_PIX_PER_ROC_X,
 				       BIG_PIX_PER_ROC_Y,
-				       ROCS_X, ROCS_Y );
+				       gdv[i]->pixROCx(), gdv[i]->pixROCy());
       
       thePixelDetTypeMap[detName] = new PixelGeomDetType(t,detName,det);
       tracker->addType(thePixelDetTypeMap[detName]);

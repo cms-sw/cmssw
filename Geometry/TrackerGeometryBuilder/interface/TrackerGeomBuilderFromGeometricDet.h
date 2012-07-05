@@ -18,22 +18,15 @@ class TrackerGeomBuilderFromGeometricDet {
 public:
 
   TrackerGeometry* build(const GeometricDet* gd, bool upgradeGeometry,
-			 int ROWS_PER_ROC,
-			 int COLS_PER_ROC,
 			 int BIG_PIX_PER_ROC_X,
-			 int BIG_PIX_PER_ROC_Y,
-			 int ROCS_X, int ROCS_Y);
-
+			 int BIG_PIX_PER_ROC_Y);
 private:
 
   void buildPixel(std::vector<const GeometricDet*> const &,
 		  TrackerGeometry*,GeomDetType::SubDetector det, const std::string& part,
 		  bool upgradeGeometry,
-		  int ROWS_PER_ROC,
-		  int COLS_PER_ROC,
 		  int BIG_PIX_PER_ROC_X,
-		  int BIG_PIX_PER_ROC_Y,
-		  int ROCS_X, int ROCS_Y ); 
+		  int BIG_PIX_PER_ROC_Y);
   void buildSilicon(std::vector<const GeometricDet*> const &,
 		    TrackerGeometry*,GeomDetType::SubDetector det, const std::string& part);
   void buildGeomDet(TrackerGeometry*);

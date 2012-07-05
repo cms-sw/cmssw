@@ -18,9 +18,9 @@
 ///
 ///  \author    : Andreas Mussgiller
 ///  date       : December 2010
-///  $Revision: 1.5 $
-///  $Date: 2012/04/26 17:28:55 $
-///  (last update by $Author: innocent $)
+///  $Revision: 1.6 $
+///  $Date: 2012/06/06 09:51:13 $
+///  (last update by $Author: yana $)
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
@@ -70,6 +70,8 @@ public:
   virtual int rocsX() const { return specificTopology().rocsX(); } 	 
   virtual int rowsperroc() const { return specificTopology().rowsperroc(); } 	 
   virtual int colsperroc() const { return specificTopology().colsperroc(); }
+  virtual int bigPixPerRocY() const { return specificTopology().bigPixPerRocY(); }
+  virtual int bigPixPerRocX() const { return specificTopology().bigPixPerRocX(); }
   virtual float localX( const float mpX ) const;
   virtual float localX( const float mpX, const Topology::LocalTrackPred &trkPred ) const;
   virtual float localY( const float mpY ) const;

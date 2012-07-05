@@ -130,11 +130,8 @@ TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord)
   
   TrackerGeomBuilderFromGeometricDet builder;
   _tracker  = boost::shared_ptr<TrackerGeometry>(builder.build(&(*gD), m_upgradeGeometry,
-							       m_ROWS_PER_ROC,
-							       m_COLS_PER_ROC,
 							       m_BIG_PIX_PER_ROC_X,
-							       m_BIG_PIX_PER_ROC_Y,
-							       m_ROCS_X, m_ROCS_Y ));
+							       m_BIG_PIX_PER_ROC_Y));
 
   if (applyAlignment_) {
     // Since fake is fully working when checking for 'empty', we should get rid of applyAlignment_!
