@@ -28,11 +28,13 @@
 
 class CaloTopology;
 class CaloGeometry;
+class CaloSubdetectorTopology;
 
 class EcalClusterLazyTools {
         public:
        EcalClusterLazyTools( const edm::Event &ev, const edm::EventSetup &es, edm::InputTag redEBRecHits, edm::InputTag redEERecHits,const edm::ParameterSet& config );
        EcalClusterLazyTools( const edm::Event &ev, const edm::EventSetup &es, edm::InputTag redEBRecHits, edm::InputTag redEERecHits);
+       EcalClusterLazyTools( const edm::Event &ev, const edm::EventSetup &es, edm::InputTag redEBRecHits, edm::InputTag redEERecHits, edm::InputTag redESRecHits);
 
                 ~EcalClusterLazyTools();
 
@@ -159,6 +161,17 @@ class EcalClusterLazyTools {
 		// get BasicClusterTime of the seed basic cluser of the supercluster
 		float SuperClusterTime(const reco::SuperCluster &cluster, const edm::Event &ev);
 
+		// mapping for preshower rechits
+		std::map<DetId, EcalRecHit> rechits_map_;
+		// get Preshower hit array
+		std::vector<float> getESHits(double X, double Y, double Z, std::map<DetId, EcalRecHit> rechits_map, const CaloGeometry* geometry, CaloSubdetectorTopology *topology_p, int row=0, int plane=1);
+		// get Preshower hit shape
+		float getESShape(std::vector<float> ESHits0);
+		// get Preshower effective sigmaRR
+		float eseffsirir( const reco::SuperCluster &cluster );
+		float eseffsixix( const reco::SuperCluster &cluster );
+		float eseffsiyiy( const reco::SuperCluster &cluster );
+
 //  std::vector<int> flagsexcl_;
   //std::vector<int> severitiesexcl_;
  // const EcalSeverityLevelAlgo *sevLv;
@@ -168,12 +181,14 @@ class EcalClusterLazyTools {
                 void getTopology( const edm::EventSetup &es );
                 void getEBRecHits( const edm::Event &ev, edm::InputTag redEBRecHits );
                 void getEERecHits( const edm::Event &ev, edm::InputTag redEERecHits );
+                void getESRecHits( const edm::Event &ev, edm::InputTag redESRecHits );
                 const EcalRecHitCollection * getEcalRecHitCollection( const reco::BasicCluster &cluster );
 
                 const CaloGeometry *geometry_;
                 const CaloTopology *topology_;
                 const EcalRecHitCollection *ebRecHits_;
                 const EcalRecHitCollection *eeRecHits_;
+                const EcalRecHitCollection *esRecHits_;
 		
 		//const EcalIntercalibConstantMap& icalMap;
 		edm::ESHandle<EcalIntercalibConstants> ical;

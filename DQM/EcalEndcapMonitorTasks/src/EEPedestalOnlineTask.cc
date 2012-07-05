@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2012/03/29 13:49:36 $
- * $Revision: 1.34.2.1 $
+ * $Date: 2010/08/08 08:46:09 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
 */
@@ -32,8 +32,6 @@ EEPedestalOnlineTask::EEPedestalOnlineTask(const edm::ParameterSet& ps){
   dqmStore_ = edm::Service<DQMStore>().operator->();
 
   prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
-
-  subfolder_ = ps.getUntrackedParameter<std::string>("subfolder", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -87,16 +85,11 @@ void EEPedestalOnlineTask::setup(void){
   init_ = true;
 
   std::string name;
-  std::string dir;
 
   if ( dqmStore_ ) {
-    dir = prefixME_ + "/EEPedestalOnlineTask";
-    if(subfolder_.size())
-      dir += "/" + subfolder_;
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalOnlineTask");
 
-    dqmStore_->setCurrentFolder(dir);
-
-    dqmStore_->setCurrentFolder(dir + "/Gain12");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalOnlineTask/Gain12");
     for (int i = 0; i < 18; i++) {
       name = "EEPOT pedestal " + Numbers::sEE(i+1) + " G12";
       mePedMapG12_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
@@ -115,13 +108,9 @@ void EEPedestalOnlineTask::cleanup(void){
   if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
-    std::string dir = prefixME_ + "/EEPedestalOnlineTask";
-    if(subfolder_.size())
-      dir += "/" + subfolder_;
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalOnlineTask");
 
-    dqmStore_->setCurrentFolder(dir);
-
-    dqmStore_->setCurrentFolder(dir + "/Gain12");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalOnlineTask/Gain12");
     for ( int i = 0; i < 18; i++ ) {
       if ( mePedMapG12_[i] ) dqmStore_->removeElement( mePedMapG12_[i]->getName() );
       mePedMapG12_[i] = 0;

@@ -5,7 +5,10 @@
  */
 
 #include "CondTools/RPC/interface/RPCTempSH.h"
-#include<sstream>
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include<iostream>
 
 popcon::RpcDataT::RpcDataT(const edm::ParameterSet& pset) :
@@ -13,9 +16,8 @@ popcon::RpcDataT::RpcDataT(const edm::ParameterSet& pset) :
   host(pset.getUntrackedParameter<std::string>("host", "source db host")),
   user(pset.getUntrackedParameter<std::string>("user", "source username")),
   passw(pset.getUntrackedParameter<std::string>("passw", "source password")),
-  m_first(pset.getUntrackedParameter<bool>("first",false)),
-  m_since(pset.getUntrackedParameter<unsigned long long>("since",1)),
-  m_range(pset.getUntrackedParameter<unsigned long long>("range",72000)){
+  m_since(pset.getUntrackedParameter<unsigned long long>("since",5)),
+  m_till(pset.getUntrackedParameter<unsigned long long>("till",0)){
 }
 
 popcon::RpcDataT::~RpcDataT()
@@ -33,59 +35,56 @@ void popcon::RpcDataT::getNewObjects() {
   std::cout << " ------ last entry info regarding the payload (if existing): " 
 	    << logDBEntry().usertext << "last record with the correct tag has been written in the db: "
 	    << logDBEntry().destinationDB << std::endl; 
-
-  // Get from the logDBEntry the till unix time query and the number of values stored
-  std::stringstream is;
-  std::string a = logDBEntry().usertext;
-  unsigned int l = a.find('>');
-  unsigned int preTill;
-
-  if (l < a.size()){
-    is <<a.substr(l+3,a.npos);
-    std::string b1,b2; 
-    unsigned int nVals;
-    is >>b1>>nVals>>b2>>preTill;
-    std::cout <<" Unix Time of the Prev Till "<<preTill<<std::endl;
-  }else{
-    std::cout <<" No infos from usertext in logDB"<<std::endl;
-  }
-
-  if (!m_first) {
-    m_since = preTill;
-  }
-  unsigned int m_till = m_since + m_range;  
+  
+  //  snc = tagInfo().lastInterval.first;
   
   std::cout << std::endl << "=============================================" << std::endl;
   std::cout << std::endl << "================  TEMPERATURE  ==============" << std::endl;
   std::cout << std::endl << "=============================================" << std::endl << std::endl;
-  std::cout << ">> Range mode [" << m_since << ", " << m_till << "]" << std::endl;
+  snc = m_since;
+  std::cout << ">> Range mode [" << snc << ", " << m_till << "]" << std::endl;
   std::cout << std::endl << "=============================================" << std::endl << std::endl;
+  
   
   RPCFw caen ( host, user, passw );
   std::vector<RPCObTemp::T_Item> Tcheck;
-    
-  Tcheck = caen.createT(m_since, m_till);  
+  
+  
+  Tcheck = caen.createT(snc, m_till);  
   Tdata = new RPCObTemp();
   RPCObTemp::T_Item Tfill;
   std::vector<RPCObTemp::T_Item>::iterator Tit;
-  for(Tit = Tcheck.begin(); Tit != Tcheck.end(); Tit++){
-    Tfill = *(Tit);
-    Tdata->ObTemp_rpc.push_back(Tfill);
-  }
+  for(Tit = Tcheck.begin(); Tit != Tcheck.end(); Tit++)
+    {
+      Tfill = *(Tit);
+      Tdata->ObTemp_rpc.push_back(Tfill);
+    }
   std::cout << " >> Final object size: " << Tdata->ObTemp_rpc.size() << std::endl;
   
-  if (Tdata->ObTemp_rpc.size() == 0) {
+  if (Tdata->ObTemp_rpc.size() > 0) {
+    niov = snc;
+  } else {
+    niov = snc;
     std::cout << "NO DATA TO BE STORED" << std::endl;
   }
   
+  ::timeval tv;
+  tv.tv_sec = niov;
+  tv.tv_usec = 0;
+  edm::Timestamp tmstamp((unsigned long long)tv.tv_sec*1000000+(unsigned long long)tv.tv_usec);
+  std::cout << "UNIX time = " << tmstamp.value() << std::endl;
+  
   edm::TimeValue_t daqtime=0LL;
-  daqtime=m_since;
-  daqtime=(daqtime<<32);
-
-  std::cout << "===> New IOV: since is = " << daqtime << std::endl;  
-  m_to_transfer.push_back(std::make_pair((RPCObTemp*)Tdata,daqtime));
-  std::stringstream os;
-  os<<"\n-->> NumberOfValue "<<Tdata->ObTemp_rpc.size()<<" until "<<m_till;
-  m_userTextLog=os.str();
+  daqtime=tv.tv_sec;
+  daqtime=(daqtime<<32)+tv.tv_usec;
+  edm::Timestamp daqstamp(daqtime);
+  edm::TimeValue_t dtime = daqstamp.value();
+  std::cout<<"DAQ time = " << dtime <<std::endl;
+  
+  niov = dtime;
+  
+  std::cout << "===> New IOV: since is = " << niov << std::endl;
+  
+  m_to_transfer.push_back(std::make_pair((RPCObTemp*)Tdata,niov));
 }
 

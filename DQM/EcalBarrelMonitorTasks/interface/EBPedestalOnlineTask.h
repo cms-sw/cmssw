@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineTask.h
  *
- * $Date: 2012/03/29 13:49:28 $
- * $Revision: 1.19.18.1 $
+ * $Date: 2008/05/11 09:35:08 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -60,8 +60,6 @@ int ievt_;
 DQMStore* dqmStore_;
 
 std::string prefixME_;
-
- std::string subfolder_;
 
 bool enableCleanup_;
 

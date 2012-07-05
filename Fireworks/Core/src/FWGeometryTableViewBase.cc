@@ -162,6 +162,10 @@ FWGeometryTableViewBase::FWGeometryTableViewBase(TEveWindowSlot* iParent,FWViewT
      m_topNodeIdx(this, "TopNodeIndex", -1l, 0, 1e7),
      m_autoExpand(this,"ExpandList:", 1l, 0l, 100l),
      m_enableHighlight(this,"EnableHighlight", true),
+     m_parentTransparencyFactor(this, "ParentTransparencyFactor", 1l, 0l, 100l),
+     m_leafTransparencyFactor(this, "LeafTransparencyFactor", 1l, 0l, 100l),
+     m_minParentTransparency(this, "MinParentTransparency", 90l, 0l, 100l),
+     m_minLeafTransparency(this, "MinLeafTransparency", 0l, 0l, 100l),
      m_colorManager(colMng),
      m_colorPopup(0),
      m_eveWindow(0),
@@ -180,6 +184,11 @@ FWGeometryTableViewBase::FWGeometryTableViewBase(TEveWindowSlot* iParent,FWViewT
    m_frame = new FWGeometryVF(xf, this);
 
    xf->AddFrame(m_frame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));  
+   
+   m_parentTransparencyFactor.changed_.connect(boost::bind(&FWGeometryTableViewBase::refreshTable3D,this));
+   m_leafTransparencyFactor.changed_.connect(boost::bind(&FWGeometryTableViewBase::refreshTable3D,this));
+   m_minParentTransparency.changed_.connect(boost::bind(&FWGeometryTableViewBase::refreshTable3D,this));
+   m_minLeafTransparency.changed_.connect(boost::bind(&FWGeometryTableViewBase::refreshTable3D,this));
  
 }
 
@@ -425,13 +434,13 @@ FWGeometryTableViewBase::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, I
       else if (iColumn == 3)
       {
          // vis self
-         ni.switchBit(FWGeometryTableManagerBase::kVisNodeSelf);
+         getTableManager()->setVisibility(ni, !getTableManager()->getVisibility(ni));
          elementChanged = true;
       }
       else if (iColumn == 4)
       { 
          // vis children
-         ni.switchBit(FWGeometryTableManagerBase::kVisNodeChld); 
+         getTableManager()->setVisibilityChld(ni, !getTableManager()->getVisibilityChld(ni));
          elementChanged = true;
       }
       else if (iColumn == 6)
@@ -482,7 +491,7 @@ void FWGeometryTableViewBase::nodeColorChangeRequested(Color_t col)
    if (m_tableRowIndexForColorPopup >= 0) {
       FWGeometryTableManagerBase::NodeInfo& ni = getTableManager()->refEntries()[m_tableRowIndexForColorPopup];
       ni.m_color = col;
-      // ni.m_node->GetVolume()->SetLineColor(col);
+      ni.m_node->GetVolume()->SetLineColor(col);
       refreshTable3D();
       m_tableRowIndexForColorPopup = -1;
    }
@@ -576,7 +585,7 @@ void FWGeometryTableViewBase::refreshTable3D()
       if (gEve->GetHighlight()->HasChild(m_eveTopNode))
          gEve->GetHighlight()->RemoveElement(m_eveTopNode);
 
-      m_eveTopNode->fSceneJebo->PadPaint(m_eveTopNode->fSceneJebo->GetPad());
+      m_eveTopNode->m_scene->PadPaint(m_eveTopNode->m_scene->GetPad());
       gEve->Redraw3D(); 
 
       getTableManager()->redrawTable();
@@ -597,7 +606,7 @@ void FWGeometryTableViewBase::addTo(FWConfiguration& iTo) const
       for (TEveElement::List_i eit = (*k)->BeginChildren(); eit != (*k)->EndChildren(); ++eit )
       {
          TEveScene* s = ((TEveSceneInfo*)*eit)->GetScene();
-         if (s->GetGLScene() == m_eveTopNode->fSceneJebo)
+         if (s->GetGLScene() == m_eveTopNode->m_scene)
          {
             viewers.addKeyValue( (*k)->GetElementName(), tempArea);
             break;
@@ -607,24 +616,24 @@ void FWGeometryTableViewBase::addTo(FWConfiguration& iTo) const
 
    iTo.addKeyValue("Viewers", viewers, true);
 }
- 
+
 //______________________________________________________________________________
 
-void FWGeometryTableViewBase::setFrom(const FWConfiguration& iFrom)
-{ 
-   m_enableRedraw = false;
-   for(const_iterator it =begin(), itEnd = end();
-       it != itEnd;
-       ++it) {
+void FWGeometryTableViewBase::setTopNodePathFromConfig(const FWConfiguration& iFrom)
+{
+   int tn;
+   const FWConfiguration* value = iFrom.valueForKey( m_topNodeIdx.name() );
+   if (!value) return;
 
-      //      printf("set from %s \n",(*it)->name().c_str() );
-      (*it)->setFrom(iFrom);
-
-   }  
-   m_viewersConfig = iFrom.valueForKey("Viewers");
-
-   m_enableRedraw = true;
-   refreshTable3D();
+   std::istringstream s(value->value());
+   s>> tn;
+   int lastIdx = getTableManager()->refEntries().size() -1;
+   if (tn >= lastIdx) { 
+      fwLog(fwlog::kWarning) << Form("Ignoring node path from confugration file -- %s value larger than number of nodes \n", m_topNodeIdx.name().c_str());
+      return;
+   }
+   //   std::cerr << "set top node " << ;
+   m_topNodeIdx.set(tn);
 }
 
 //______________________________________________________________________________
@@ -640,11 +649,18 @@ void FWGeometryTableViewBase::reloadColors()
    refreshTable3D();
 }
 
+
 //______________________________________________________________________________
 
 void FWGeometryTableViewBase::populateController(ViewerParameterGUI& gui) const
 {
-   gui.requestTab("Style").separator();
+   gui.requestTab("Style").
+   separator().
+   //addParam(&m_parentTransparencyFactor).
+  // addParam(&m_leafTransparencyFactor).
+   addParam(&m_minParentTransparency).
+   addParam(&m_minLeafTransparency).
+   separator();
    TGTextButton* butt = new TGTextButton(gui.getTabContainer(), "ReloadColors");
    gui.getTabContainer()->AddFrame(butt);
    butt->Connect("Clicked()", "FWGeometryTableViewBase", (FWGeometryTableViewBase*)this, "reloadColors()");

@@ -1,8 +1,8 @@
 /*
  * \file EEDaqInfoTask.cc
  *
- * $Date: 2011/08/30 09:28:42 $
- * $Revision: 1.15 $
+ * $Date: 2011/06/27 12:16:03 $
+ * $Revision: 1.13.4.1 $
  * \author E. Di Marco
  *
 */

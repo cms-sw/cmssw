@@ -22,6 +22,7 @@
 <use   name="MagneticField/Records"/>
 <use   name="RecoTracker/Record"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="SimDataFormats/CrossingFrame"/>
 <use   name="FastSimDataFormats/NuclearInteractions"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <flags   EDM_PLUGIN="1"/>
