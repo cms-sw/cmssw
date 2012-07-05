@@ -94,12 +94,12 @@ def customiseL1Menu(process):
 
     if l1MenuSource == 'sqlFile' :
         # the menu will be read from the SQL file instead of the global tag
-        useSqlFile = '/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v0/sqlFile/L1Menu_Collisions2012_v0_mc.db'
-        menuDbTag = 'L1GtTriggerMenu_L1Menu_Collisions2012_v0_mc'
+        useSqlFile = '/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v2/sqlFile/L1Menu_Collisions2012_v2_mc.db'
+        menuDbTag = 'L1GtTriggerMenu_L1Menu_Collisions2012_v2_mc'
     elif l1MenuSource == 'xmlFile' :
         # the menu will be read from an XML file instead of the global tag - must copy the file in luminosityDirectory
         luminosityDirectory = "startup"
-        useXmlFile = 'L1Menu_Collisions2012_v0_L1T_Scales_20101224_Imp0_0x1027.xml'
+        useXmlFile = 'L1Menu_Collisions2012_v2_L1T_Scales_20101224_Imp0_0x102a.xml'
 
     else :
         print '   Using default L1 trigger menu from Global Tag '

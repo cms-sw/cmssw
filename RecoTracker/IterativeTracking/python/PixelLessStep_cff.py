@@ -11,7 +11,6 @@ pixelLessStepClusters = cms.EDProducer("TrackClusterRemover",
     trajectories = cms.InputTag("mixedTripletStepTracks"),
     overrideTrkQuals = cms.InputTag('mixedTripletStep'),
     TrackQuality = cms.string('highPurity'),
-    minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
     Common = cms.PSet(
@@ -94,28 +93,21 @@ pixelLessStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuil
     minNrOfHitsForRebuild = 4,
     maxCand = 2,
     alwaysUseInvalidHits = False,
-    estimator = cms.string('pixelLessStepChi2Est'),
-    maxDPhiForLooperReconstruction = cms.double(2.0),
-    maxPtForLooperReconstruction = cms.double(0.7) 
+    estimator = cms.string('pixelLessStepChi2Est')
     )
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 pixelLessStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('pixelLessStepSeeds'),
-    ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    #onlyPixelHitsForSeedCleaner = cms.bool(True),
-
     TrajectoryBuilder = 'pixelLessStepTrajectoryBuilder'
-)
+    )
 
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 pixelLessStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'pixelLessStepTrackCandidates',
-    AlgorithmName = cms.string('iter5'),
-    Fitter = cms.string('FlexibleKFFittingSmoother')
+    AlgorithmName = cms.string('iter5')
     )
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

@@ -4,8 +4,8 @@
 /*
  * \file EETrendTask.h
  *
- * $Date: 2010/03/28 09:13:49 $
- * $Revision: 1.6 $
+ * $Date: 2010/03/22 04:45:45 $
+ * $Revision: 1.5 $
  * \author Dongwook Jang, Soon Yung Jun
  *
  */
@@ -102,7 +102,8 @@ class EETrendTask: public edm::EDAnalyzer{
   MonitorElement* nSuperClusterMinutely_;
   MonitorElement* nSuperClusterSizeMinutely_;
   MonitorElement* nIntegrityErrorMinutely_;
-  MonitorElement* nFEDEERawDataMinutely_;
+  MonitorElement* nFEDEEminusRawDataMinutely_;
+  MonitorElement* nFEDEEplusRawDataMinutely_;
   MonitorElement* nEESRFlagMinutely_;
 
   MonitorElement* nEEDigiHourly_;
@@ -114,7 +115,8 @@ class EETrendTask: public edm::EDAnalyzer{
   MonitorElement* nSuperClusterHourly_;
   MonitorElement* nSuperClusterSizeHourly_;
   MonitorElement* nIntegrityErrorHourly_;
-  MonitorElement* nFEDEERawDataHourly_;
+  MonitorElement* nFEDEEminusRawDataHourly_;
+  MonitorElement* nFEDEEplusRawDataHourly_;
   MonitorElement* nEESRFlagHourly_;
 
   bool init_;

@@ -892,11 +892,13 @@ inline mathSSE::Vec4D operator/(mathSSE::Vec4D a, mathSSE::Vec4D b) {
 
 
 inline mathSSE::Vec4D min(mathSSE::Vec4D a, mathSSE::Vec4D b) {
-  return  mathSSE::Vec4D(::min(a.vec[0],b.vec[0]),::min(a.vec[1],b.vec[1]) );
+  using namespace mathSSE;
+  return  mathSSE::Vec4D(::min(Vec2D(a.vec[0]),Vec2D(b.vec[0])),::min(Vec2D(a.vec[1]),Vec2D(b.vec[1])) );
 }
 
 inline mathSSE::Vec4D max(mathSSE::Vec4D a, mathSSE::Vec4D b) {
-  return  mathSSE::Vec4D(::max(a.vec[0],b.vec[0]),::max(a.vec[1],b.vec[1]) );
+  using namespace mathSSE;
+  return  mathSSE::Vec4D(::max(Vec2D(a.vec[0]),Vec2D(b.vec[0])),::max(Vec2D(a.vec[1]),Vec2D(b.vec[1])) );
 }
 
 inline mathSSE::Vec4D operator*(double a, mathSSE::Vec4D b) {

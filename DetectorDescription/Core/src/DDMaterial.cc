@@ -1,7 +1,10 @@
+
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/src/Material.h"
+#include "DetectorDescription/Base/interface/DDException.h"
+
 
 using DDI::Material;
 
@@ -72,7 +75,10 @@ DDMaterial::DDMaterial(const DDName & name, double density)
 int DDMaterial::addMaterial(const DDMaterial & m, double fm)
 {  
   if (m.ddname() == ddname()) {
-    throw cms::Exception("DDException") << "DDMaterial::addMaterial(..): name-clash\n        trying to add material " << m << " to itself! ";
+    std::string s = std::string("DDMaterial::addMaterial(..): name-clash ") 
+	     + std::string("\n        trying to add material ") + m.toString() 
+	     + std::string(" to itself! ");
+    throw DDException( s );
   }  
   rep().addMaterial(m,fm);
   DCOUT('c', std::string(" -> ADDED MATERIAL=") + m.toString() );

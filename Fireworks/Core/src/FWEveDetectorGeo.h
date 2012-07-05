@@ -6,21 +6,10 @@
 #include <Rtypes.h>
 
 class FWGeometryTableManagerBase;
-
+class TGLViewer;
 class FWEveDetectorGeo : public FWGeoTopNode
 {
 public:
-
-   enum MenuOptions {
-      kGeoSetTopNode,
-      kGeoSetTopNodeCam,
-      kGeoVisOn,
-      kGeoVisOff,
-      kGeoInspectMaterial,
-      kGeoInspectShape,
-      kGeoCamera
-   };
-
    FWEveDetectorGeo(FWGeometryTableView* v); 
    virtual ~FWEveDetectorGeo() {}
 
@@ -29,10 +18,19 @@ public:
    virtual TString     GetHighlightTooltip();
 
    virtual FWGeometryTableManagerBase* tableManager();
-   virtual void popupMenu(int x, int y);
+   virtual FWGeometryTableViewBase* browser();
+
+   virtual void popupMenu(int x, int y, TGLViewer*);
+   
+#ifndef __CINT__
+  // virtual void paintShape(bool visLevel, FWGeometryTableManagerBase::NodeInfo& data,  Int_t tableIndex, const TGeoHMatrix& nm, bool volumeColor);
+#endif
+   
+protected:   
+
 private:
 #ifndef __CINT__
-   void paintChildNodesRecurse(FWGeometryTableManagerBase::Entries_i pIt, Int_t idx,  const TGeoHMatrix& mtx);
+   bool paintChildNodesRecurse(FWGeometryTableManagerBase::Entries_i pIt, Int_t idx,  const TGeoHMatrix& mtx);
 #endif
    FWGeometryTableView       *m_browser;
    int m_maxLevel;

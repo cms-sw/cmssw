@@ -43,7 +43,7 @@ namespace {
   const bool TP_DEBUG = false; // print flag
 }
 
-class RectangularPixelTopology GCC11_FINAL : public PixelTopology {
+class RectangularPixelTopology : public PixelTopology {
  private:
   // This is temporary before we find a better way
   static const int ROWS_PER_ROC = 80;     // Num of cols per ROC

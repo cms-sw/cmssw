@@ -18,7 +18,7 @@ std::string const TrackBase::algoNames[] = { "undefAlgorithm", "ctf", "rs", "cos
 std::string const TrackBase::qualityNames[] = { "loose", "tight", "highPurity", "confirmed", "goodIterative", "looseSetWithPV", "highPuritySetWithPV"};
 
 TrackBase::TrackBase() :
-  chi2_(0), vertex_(0,0,0), momentum_(0,0,0), ndof_(0), charge_(0), algorithm_(undefAlgorithm), quality_(0), nLoops_(0) {
+  chi2_(0), ndof_(0), vertex_(0,0,0), momentum_(0,0,0), charge_(0), algorithm_(undefAlgorithm), quality_(0) {
   index idx = 0;
   for( index i = 0; i < dimension; ++ i )
     for( index j = 0; j <= i; ++ j )
@@ -27,8 +27,8 @@ TrackBase::TrackBase() :
 
 TrackBase::TrackBase( double chi2, double ndof, const Point & vertex, const Vector & momentum, int charge,
 		      const CovarianceMatrix & cov,
-		      TrackAlgorithm algorithm , TrackQuality quality,signed char nloops) :
-  chi2_( chi2 ), vertex_( vertex ), momentum_( momentum ), ndof_( ndof ), charge_( charge ), algorithm_(algorithm), quality_(0), nLoops_(nloops) {
+		      TrackAlgorithm algorithm , TrackQuality quality) :
+  chi2_( chi2 ), ndof_( ndof ), vertex_( vertex ), momentum_( momentum ), charge_( charge ), algorithm_(algorithm), quality_(0) {
   index idx = 0;
   for( index i = 0; i < dimension; ++ i )
     for( index j = 0; j <= i; ++ j )

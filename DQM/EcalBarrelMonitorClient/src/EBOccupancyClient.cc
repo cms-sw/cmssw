@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2011/09/02 13:55:01 $
- * $Revision: 1.44 $
+ * $Date: 2011/08/30 09:33:51 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -48,6 +48,7 @@ EBOccupancyClient::EBOccupancyClient(const edm::ParameterSet& ps) {
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   // vector of selected Super Modules (Defaults to all 36).
+  superModules_.reserve(36);
   for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
@@ -68,10 +69,6 @@ EBOccupancyClient::EBOccupancyClient(const edm::ParameterSet& ps) {
     h02ProjEta_[i] = 0;
     h02ProjPhi_[i] = 0;
   }
-
-  ievt_ = 0;
-  jevt_ = 0;
-  dqmStore_ = 0;
 
 }
 
@@ -282,46 +279,46 @@ void EBOccupancyClient::analyze(void) {
   me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT digi occupancy" );
   h01_[0] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h01_[0] );
 
-  me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT digi occupancy eta" );
+  me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT digi occupancy projection eta" );
   h01ProjEta_[0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjEta_[0] );
 
-  me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT digi occupancy phi" );
+  me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT digi occupancy projection phi" );
   h01ProjPhi_[0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjPhi_[0] );
 
   me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT rec hit occupancy" );
   h01_[1] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h01_[1] );
 
-  me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT rec hit occupancy eta" );
+  me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT rec hit occupancy projection eta" );
   h01ProjEta_[1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjEta_[1] );
 
-  me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT rec hit occupancy phi" );
+  me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT rec hit occupancy projection phi" );
   h01ProjPhi_[1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjPhi_[1] );
 
   me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT TP digi occupancy" );
   h01_[2] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h01_[2] );
 
-  me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT TP digi occupancy eta" );
+  me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT TP digi occupancy projection eta" );
   h01ProjEta_[2] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjEta_[2] );
 
-  me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT TP digi occupancy phi" );
+  me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT TP digi occupancy projection phi" );
   h01ProjPhi_[2] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjPhi_[2] );
 
   me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT rec hit thr occupancy" );
   h02_[0] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h02_[0] );
 
-  me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT rec hit thr occupancy eta" );
+  me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT rec hit thr occupancy projection eta" );
   h02ProjEta_[0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjEta_[0] );
 
-  me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT rec hit thr occupancy phi" );
+  me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT rec hit thr occupancy projection phi" );
   h02ProjPhi_[0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjPhi_[0] );
 
   me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT TP digi thr occupancy" );
   h02_[1] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h02_[1] );
 
-  me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT TP digi thr occupancy eta" );
+  me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT TP digi thr occupancy projection eta" );
   h02ProjEta_[1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjEta_[1] );
 
-  me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT TP digi thr occupancy phi" );
+  me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT TP digi thr occupancy projection phi" );
   h02ProjPhi_[1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjPhi_[1] );
 
 }

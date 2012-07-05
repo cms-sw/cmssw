@@ -1,16 +1,15 @@
-// $Id: Numbers.cc,v 1.81 2011/09/15 21:01:27 yiiyama Exp $
+// $Id: Numbers.cc,v 1.80 2011/08/30 09:06:13 yiiyama Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.81 $
-  \date $Date: 2011/09/15 21:01:27 $
+  \version $Revision: 1.80 $
+  \date $Date: 2011/08/30 09:06:13 $
 */
 
 #include <sstream>
 #include <iomanip>
-#include <set>
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -592,7 +591,7 @@ Numbers::crystals( const EcalTrigTowerDetId& id )
 
   unsigned index = 100*(itcc-1) + (itt-1);
 
-  if( index >= crystalsTCCArraySize_ ) throw cms::Exception("InvalidParameter") << "TCC index " << index;
+  if( index > crystalsTCCArraySize_ ) throw cms::Exception("InvalidParameter") << "TCC index " << index;
 
   if ( Numbers::crystalsTCC_[index].size() == 0 ) {
     Numbers::crystalsTCC_[index] = Numbers::map->ttConstituents( itcc, itt );
@@ -869,50 +868,6 @@ Numbers::validEESc( const unsigned ism, const unsigned ix, const unsigned iy )
   }
 
   return false;
-}
-
-unsigned
-Numbers::nCCUs(const unsigned ism)
-{
-  switch(ism){
-  case 8:
-  case 17:
-    return 41;
-  case 1:
-  case 6:
-  case 10:
-  case 15:
-    return 34;
-  case 3:
-  case 12:
-  case 4:
-  case 13:
-  case 7:
-  case 16:
-  case 9:
-  case 18:
-    return 33;
-  case 2:
-  case 11:
-  case 5:
-  case 14:
-    return 32;
-  default:
-    return 0;
-  }
-}
-
-unsigned
-Numbers::nTTs(const unsigned itcc)
-{
-  using namespace std;
-  vector<DetId> crystals(map->tccConstituents(itcc));
-
-  set<int> itts;
-  for(vector<DetId>::iterator cItr(crystals.begin()); cItr != crystals.end(); ++cItr)
-    itts.insert(map->iTT(mapTT->towerOf(*cItr)));
-
-  return itts.size();
 }
 
 const EcalElectronicsMapping *

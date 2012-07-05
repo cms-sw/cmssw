@@ -14,17 +14,6 @@
   </class>
   <class name="std::vector<reco::PFRecHitFraction>"/>
 
-  <class name="reco::RecoPFClusterRefCandidateBase">
-    <field name="p4Polar_" transient="true"/>
-    <field name="p4Cartesian_" transient="true"/>
-    <field name="cachePolarFixed_" transient="true"/>
-    <field name="cacheCartesianFixed_" transient="true"/>
-  </class>
-
-  <class name="reco::RecoPFClusterRefCandidate"  ClassVersion="10">
-   <version ClassVersion="10" checksum="3428152128"/>
-  </class>
-
   <class name="reco::PFRecHit" ClassVersion="10">
    <version ClassVersion="10" checksum="1807687081"/>
     <field name="posrep_" transient="true"/>
@@ -290,19 +279,6 @@
     <field name="isValid" transient="true"/>
     <field name="linkedClusters" transient="true"/>
   </class>
-
-  <class name="std::vector<reco::RecoPFClusterRefCandidate>"/>
-  <class name="edm::Wrapper<std::vector<reco::RecoPFClusterRefCandidate> >"/>
-  <class name="edm::Ref<std::vector<reco::RecoPFClusterRefCandidate>,reco::RecoPFClusterRefCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoPFClusterRefCandidate>,reco::RecoPFClusterRefCandidate> >"/>
-  <class name="edm::RefProd<std::vector<reco::RecoPFClusterRefCandidate> >"/>
-  <class name="edm::RefVector<std::vector<reco::RecoPFClusterRefCandidate>,reco::RecoPFClusterRefCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoPFClusterRefCandidate>,reco::RecoPFClusterRefCandidate> >"/>
-
-  <class name="edm::reftobase::Holder<reco::Candidate, reco::RecoPFClusterRefCandidateRef>" />
-  <class name="edm::reftobase::RefHolder<reco::RecoPFClusterRefCandidateRef>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::RecoPFClusterRefCandidateRefVector>" />
-  <class name="edm::reftobase::RefVectorHolder<reco::RecoPFClusterRefCandidateRefVector>" />
-
-  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::RecoPFClusterRefCandidate>,reco::RecoPFClusterRefCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoPFClusterRefCandidate>,reco::RecoPFClusterRefCandidate> > >" />
 
 </selection>
 <exclusion>

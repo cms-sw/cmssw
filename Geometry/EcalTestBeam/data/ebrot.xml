@@ -1,30 +1,40 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
-    <!-- B. Heltsley, Feb. 2, 2007
-         
-         The first two variables eta and phi are the polar and
-         azimuthal angles, respectively, of the H4 beam with respect
-         to the supermodule.
-         
-         Please do not modify the other elements in this table.
-         
-         -->
-    <ConstantsSection label="ebrot.xml" eval="true">
-        <Constant name="eta" value="1.3"/>
-        <Constant name="phi" value="9*deg"/>
-        <!-- DO NOT TOUCH THE NUMBERS FROM HERE ON DOWN -->
-        <Constant name="theta" value="2*atan(exp(-[eta]))"/>
-        <Constant name="BarRotX" value="0"/>
-        <Constant name="BarRotY" value="1"/>
-        <Constant name="BarRotZ" value="0"/>
-        <Constant name="BarRotA" value="-90*deg"/>
-        <Constant name="BarRot2X" value="1"/>
-        <Constant name="BarRot2Y" value="0"/>
-        <Constant name="BarRot2Z" value="0"/>
-        <Constant name="BarRot2A" value="[phi]"/>
-        <Constant name="BarRot3X" value="0"/>
-        <Constant name="BarRot3Y" value="1"/>
-        <Constant name="BarRot3Z" value="0"/>
-        <Constant name="BarRot3A" value="90*deg-[theta]"/>
-    </ConstantsSection>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
+
+
+<!-- B. Heltsley, Feb. 2, 2007
+
+     The first two variables eta and phi are the polar and
+     azimuthal angles, respectively, of the H4 beam with respect
+     to the supermodule.
+
+     Please do not modify the other elements in this table.
+
+-->
+
+<ConstantsSection  label="ebrot.xml" eval="true" >
+
+<Constant name="eta"        value="1.3"/>
+<Constant name="phi"        value="9*deg"/>
+
+
+<!-- DO NOT TOUCH THE NUMBERS FROM HERE ON DOWN -->
+
+<Constant name="theta"     value="2*atan(exp(-[eta]))"/>
+<Constant name="BarRotX"   value="0"/>
+<Constant name="BarRotY"   value="1"/>
+<Constant name="BarRotZ"   value="0"/>
+<Constant name="BarRotA"   value="-90*deg"/>
+<Constant name="BarRot2X"   value="1"/>
+<Constant name="BarRot2Y"   value="0"/>
+<Constant name="BarRot2Z"   value="0"/>
+<Constant name="BarRot2A"   value="[phi]"/>
+<Constant name="BarRot3X"   value="0"/>
+<Constant name="BarRot3Y"   value="1"/>
+<Constant name="BarRot3Z"   value="0"/>
+<Constant name="BarRot3A"   value="90*deg-[theta]"/>
+
+</ConstantsSection>
+
 </DDDefinition>
+

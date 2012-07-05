@@ -7,7 +7,7 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.h,v 1.9 2011/04/13 20:45:17 chrjones Exp $
+// $Id: Memory.h,v 1.11 2012/04/25 19:53:23 wdd Exp $
 //
 // Change Log
 //
@@ -22,6 +22,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "FWCore/Services/src/ProcInfoFetcher.h"
+
 #include <cstdio>
 
 namespace edm {
@@ -33,22 +35,6 @@ namespace edm {
   class ConfigurationDescriptions;
 
   namespace service {
-    struct procInfo
-    {
-      procInfo():vsize(),rss() {}
-      procInfo(double sz, double rss_sz): vsize(sz),rss(rss_sz) {}
-	
-      bool operator==(const procInfo& p) const
-      { return vsize==p.vsize && rss==p.rss; }
-
-      bool operator>(const procInfo& p) const
-      { return vsize>p.vsize || rss>p.rss; }
-
-      // see proc(4) man pages for units and a description
-      double vsize;   // in MB (used to be in pages?)
-      double rss;     // in MB (used to be in pages?)
-    };
-
     struct smapsInfo
     {
       smapsInfo():private_(),pss_() {}
@@ -93,7 +79,7 @@ namespace edm {
 
       void postFork(unsigned int, unsigned int);
     private:
-      procInfo fetch();
+      ProcInfo fetch();
       smapsInfo fetchSmaps();
       double pageSize() const { return pg_size_; }
       double averageGrowthRate(double current, double past, int count);
@@ -105,23 +91,22 @@ namespace edm {
                         const std::string& mdlabel, const std::string& mdname);
       void openFiles();
       
-      procInfo a_;
-      procInfo b_;
-      procInfo max_;
-      procInfo* current_;
-      procInfo* previous_;
+      ProcInfo a_;
+      ProcInfo b_;
+      ProcInfo max_;
+      ProcInfo* current_;
+      ProcInfo* previous_;
       
       smapsInfo currentSmaps_;
       
-      char buf_[500];
-      int fd_;
-      std::string fname_;
+      ProcInfoFetcher piFetcher_;
       double pg_size_;
       int num_to_skip_;
       //options
       bool showMallocInfo_;
       bool oncePerEventMode_;
       bool jobReportOutputOnly_;
+      bool monitorPssAndPrivate_;
       int count_;
 
       //smaps
@@ -141,11 +126,12 @@ namespace edm {
         double deltaVsize;
         double rss;
         double deltaRss;
+        bool monitorPssAndPrivate;
         double privateSize;
         double pss;
         edm::EventID event;
         SignificantEvent() : count(0), vsize(0), deltaVsize(0), 
-        rss(0), deltaRss(0), privateSize(0), pss(0),event() {}
+          rss(0), deltaRss(0), monitorPssAndPrivate(false), privateSize(0), pss(0),event() {}
         void set (double deltaV, double deltaR, 
                   edm::EventID const & e, SimpleMemoryCheck *t)
         { count = t->count_;
@@ -153,8 +139,11 @@ namespace edm {
           deltaVsize = deltaV;
           rss = t->current_->rss;
           deltaRss = deltaR;
-          privateSize = t->currentSmaps_.private_;
-          pss = t->currentSmaps_.pss_;
+          monitorPssAndPrivate = t->monitorPssAndPrivate_;
+          if (monitorPssAndPrivate) {
+            privateSize = t->currentSmaps_.private_;
+            pss = t->currentSmaps_.pss_;
+          }
           event = e;
         }
       }; // SignificantEvent

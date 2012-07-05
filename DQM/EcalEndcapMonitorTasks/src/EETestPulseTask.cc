@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2011/10/28 14:15:47 $
- * $Revision: 1.60 $
+ * $Date: 2011/08/30 09:28:42 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  *
 */
@@ -47,13 +47,13 @@ EETestPulseTask::EETestPulseTask(const edm::ParameterSet& ps){
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
+  MGPAGains_.reserve(3);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGains_.push_back(i);
   MGPAGains_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGains", MGPAGains_);
 
+  MGPAGainsPN_.reserve(2);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGainsPN_.push_back(i);
   MGPAGainsPN_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGainsPN", MGPAGainsPN_);
-
-  meOccupancy_[0] = meOccupancy_[1] = 0;
 
   for (int i = 0; i < 18; i++) {
     meShapeMapG01_[i] = 0;
@@ -68,7 +68,6 @@ EETestPulseTask::EETestPulseTask(const edm::ParameterSet& ps){
     mePnPedMapG16_[i] = 0;
   }
 
-  ievt_ = 0;
 }
 
 EETestPulseTask::~EETestPulseTask(){
@@ -80,8 +79,8 @@ void EETestPulseTask::beginJob(void){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse");
-    dqmStore_->rmdir(prefixME_ + "/TestPulse");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask");
+    dqmStore_->rmdir(prefixME_ + "/EETestPulseTask");
   }
 
 }
@@ -99,9 +98,6 @@ void EETestPulseTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 }
 
 void EETestPulseTask::reset(void) {
-
-  for(int i(0); i < 2; i++)
-    if(meOccupancy_[i]) meOccupancy_[i]->Reset();
 
   for (int i = 0; i < 18; i++) {
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
@@ -136,16 +132,7 @@ void EETestPulseTask::setup(void){
   std::stringstream GainN, GN;
 
   if ( dqmStore_ ) {
-    std::string subdet[] = {"EE-", "EE+"};
-
-    dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse");
-
-    for(int i(0); i < 2; i++){
-      name = "TestPulseTask occupancy " + subdet[i];
-      meOccupancy_[i] = dqmStore_->book2D(name, name, 20, 0., 100., 20, 0., 100.);
-      meOccupancy_[i]->setAxisTitle("ix", 1);
-      meOccupancy_[i]->setAxisTitle("iy", 2);
-    }
+    dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask");
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
 
@@ -154,20 +141,16 @@ void EETestPulseTask::setup(void){
       GN.str("");
       GN << "G" << std::setw(2) << std::setfill('0') << 1;
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/" + GainN.str());
-      dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/" + GainN.str() + "/Shape");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/" + GainN.str());
       for (int i = 0; i < 18; i++) {
-	name = "TestPulseTask shape " + GN.str() + " " + Numbers::sEE(i+1);
-        meShapeMapG01_[i] = dqmStore_->bookProfile2D(name, name, Numbers::nCCUs(i+1), 0., Numbers::nCCUs(i+1), 10, 0., 10., 4096, 0., 4096., "s");
+	name = "EETPT shape " + Numbers::sEE(i+1) + " " + GN.str();
+        meShapeMapG01_[i] = dqmStore_->bookProfile2D(name, name, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
         meShapeMapG01_[i]->setAxisTitle("channel", 1);
         meShapeMapG01_[i]->setAxisTitle("sample", 2);
         meShapeMapG01_[i]->setAxisTitle("amplitude", 3);
         dqmStore_->tag(meShapeMapG01_[i], i+1);
-      }
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/" + GainN.str() + "/Amplitude");
-      for (int i = 0; i < 18; i++) {
-	name = "TestPulseTask amplitude " + GN.str() + " " + Numbers::sEE(i+1);
+	name = "EETPT amplitude " + Numbers::sEE(i+1) + " " + GN.str();
         meAmplMapG01_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
         meAmplMapG01_[i]->setAxisTitle("ix", 1);
         if ( i+1 >= 1 && i+1 <= 9 ) meAmplMapG01_[i]->setAxisTitle("101-ix", 1);
@@ -184,20 +167,16 @@ void EETestPulseTask::setup(void){
       GN.str("");
       GN << "G" << std::setw(2) << std::setfill('0') << 6;
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/" + GainN.str());
-      dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/" + GainN.str() + "/Shape");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/" + GainN.str());
       for (int i = 0; i < 18; i++) {
-	name = "TestPulseTask shape " + GN.str() + " " + Numbers::sEE(i+1);
-        meShapeMapG06_[i] = dqmStore_->bookProfile2D(name, name, Numbers::nCCUs(i+1), 0., Numbers::nCCUs(i+1), 10, 0., 10., 4096, 0., 4096., "s");
+	name = "EETPT shape " + Numbers::sEE(i+1) + " " + GN.str();
+        meShapeMapG06_[i] = dqmStore_->bookProfile2D(name, name, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
         meShapeMapG06_[i]->setAxisTitle("channel", 1);
         meShapeMapG06_[i]->setAxisTitle("sample", 2);
         meShapeMapG06_[i]->setAxisTitle("amplitude", 3);
         dqmStore_->tag(meShapeMapG06_[i], i+1);
-      }
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/" + GainN.str() + "/Amplitude");
-      for (int i = 0; i < 18; i++) {
-	name = "TestPulseTask amplitude " + GN.str() + " " + Numbers::sEE(i+1);
+	name = "EETPT amplitude " + Numbers::sEE(i+1) + " " + GN.str();
         meAmplMapG06_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
         meAmplMapG06_[i]->setAxisTitle("ix", 1);
         if ( i+1 >= 1 && i+1 <= 9 ) meAmplMapG06_[i]->setAxisTitle("101-ix", 1);
@@ -214,20 +193,16 @@ void EETestPulseTask::setup(void){
       GN.str("");
       GN << "G" << std::setw(2) << std::setfill('0') << 12;
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/" + GainN.str());
-      dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/" + GainN.str() + "/Shape");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/" + GainN.str());
       for (int i = 0; i < 18; i++) {
-	name = "TestPulseTask shape " + GN.str() + " " + Numbers::sEE(i+1);
-        meShapeMapG12_[i] = dqmStore_->bookProfile2D(name, name, Numbers::nCCUs(i+1), 0., Numbers::nCCUs(i+1), 10, 0., 10., 4096, 0., 4096., "s");
+	name = "EETPT shape " + Numbers::sEE(i+1) + " " + GN.str();
+        meShapeMapG12_[i] = dqmStore_->bookProfile2D(name, name, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
         meShapeMapG12_[i]->setAxisTitle("channel", 1);
         meShapeMapG12_[i]->setAxisTitle("sample", 2);
         meShapeMapG12_[i]->setAxisTitle("amplitude", 3);
         dqmStore_->tag(meShapeMapG12_[i], i+1);
-      }
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/" + GainN.str() + "/Amplitude");
-      for (int i = 0; i < 18; i++) {
-	name = "TestPulseTask amplitude " + GN.str() + " " + Numbers::sEE(i+1);
+	name = "EETPT amplitude " + Numbers::sEE(i+1) + " " + GN.str();
         meAmplMapG12_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
         meAmplMapG12_[i]->setAxisTitle("ix", 1);
         if ( i+1 >= 1 && i+1 <= 9 ) meAmplMapG12_[i]->setAxisTitle("101-ix", 1);
@@ -237,7 +212,7 @@ void EETestPulseTask::setup(void){
 
     }
 
-    dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/PN");
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
 
@@ -246,19 +221,14 @@ void EETestPulseTask::setup(void){
       GN.str("");
       GN << "G" << std::setw(2) << std::setfill('0') << 1;
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/PN/" + GainN.str());
-      dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/PN/" + GainN.str() + "/Amplitude");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/PN/" + GainN.str());
       for (int i = 0; i < 18; i++) {
-	name = "TestPulseTask PN amplitude " + GN.str() + " " + Numbers::sEE(i+1);
+	name = "EETPT PNs amplitude " + Numbers::sEE(i+1) + " " + GN.str();
         mePnAmplMapG01_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnAmplMapG01_[i]->setAxisTitle("channel", 1);
         mePnAmplMapG01_[i]->setAxisTitle("amplitude", 2);
         dqmStore_->tag(mePnAmplMapG01_[i], i+1);
-      }
-
-      dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/PN/" + GainN.str() + "/Presample");
-      for (int i = 0; i < 18; i++) {
-	name = "TestPulseTask PN presample " + GN.str() + " " + Numbers::sEE(i+1);
+	name = "EETPT PNs pedestal " + Numbers::sEE(i+1) + " " + GN.str();
         mePnPedMapG01_[i] =  dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG01_[i]->setAxisTitle("channel", 1);
         mePnPedMapG01_[i]->setAxisTitle("pedestal", 2);
@@ -274,19 +244,14 @@ void EETestPulseTask::setup(void){
       GN.str("");
       GN << "G" << std::setw(2) << std::setfill('0') << 16;
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/PN/" + GainN.str());
-      dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/PN/" + GainN.str() + "/Amplitude");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/PN/" + GainN.str());
       for (int i = 0; i < 18; i++) {
-	name = "TestPulseTask PN amplitude " + GN.str() + " " + Numbers::sEE(i+1);
+	name = "EETPT PNs amplitude " + Numbers::sEE(i+1) + " " + GN.str();
         mePnAmplMapG16_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnAmplMapG16_[i]->setAxisTitle("channel", 1);
         mePnAmplMapG16_[i]->setAxisTitle("amplitude", 2);
         dqmStore_->tag(mePnAmplMapG16_[i], i+1);
-      }
-
-      dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/PN/" + GainN.str() + "/Presample");
-      for (int i = 0; i < 18; i++) {
-	name = "TestPulseTask PN presample " + GN.str() + " " + Numbers::sEE(i+1);
+	name = "EETPT PNs pedestal " + Numbers::sEE(i+1) + " " + GN.str();
         mePnPedMapG16_[i] =  dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG16_[i]->setAxisTitle("channel", 1);
         mePnPedMapG16_[i]->setAxisTitle("pedestal", 2);
@@ -304,15 +269,15 @@ void EETestPulseTask::cleanup(void){
   if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask");
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/Gain01");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/Gain01");
       for (int i = 0; i < 18; i++) {
-        if ( meShapeMapG01_[i] ) dqmStore_->removeElement( meShapeMapG01_[i]->getFullname() );
+        if ( meShapeMapG01_[i] ) dqmStore_->removeElement( meShapeMapG01_[i]->getName() );
         meShapeMapG01_[i] = 0;
-        if ( meAmplMapG01_[i] ) dqmStore_->removeElement( meAmplMapG01_[i]->getFullname() );
+        if ( meAmplMapG01_[i] ) dqmStore_->removeElement( meAmplMapG01_[i]->getName() );
         meAmplMapG01_[i] = 0;
       }
 
@@ -320,11 +285,11 @@ void EETestPulseTask::cleanup(void){
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/Gain06");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/Gain06");
       for (int i = 0; i < 18; i++) {
-        if ( meShapeMapG06_[i] ) dqmStore_->removeElement( meShapeMapG06_[i]->getFullname() );
+        if ( meShapeMapG06_[i] ) dqmStore_->removeElement( meShapeMapG06_[i]->getName() );
         meShapeMapG06_[i] = 0;
-        if ( meAmplMapG06_[i] ) dqmStore_->removeElement( meAmplMapG06_[i]->getFullname() );
+        if ( meAmplMapG06_[i] ) dqmStore_->removeElement( meAmplMapG06_[i]->getName() );
         meAmplMapG06_[i] = 0;
       }
 
@@ -332,25 +297,25 @@ void EETestPulseTask::cleanup(void){
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/Gain12");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/Gain12");
       for (int i = 0; i < 18; i++) {
-        if ( meShapeMapG12_[i] ) dqmStore_->removeElement( meShapeMapG12_[i]->getFullname() );
+        if ( meShapeMapG12_[i] ) dqmStore_->removeElement( meShapeMapG12_[i]->getName() );
         meShapeMapG12_[i] = 0;
-        if ( meAmplMapG12_[i] ) dqmStore_->removeElement( meAmplMapG12_[i]->getFullname() );
+        if ( meAmplMapG12_[i] ) dqmStore_->removeElement( meAmplMapG12_[i]->getName() );
         meAmplMapG12_[i] = 0;
       }
 
     }
 
-    dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/PN");
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/PN/Gain01");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/PN/Gain01");
       for (int i = 0; i < 18; i++) {
-        if ( mePnAmplMapG01_[i] ) dqmStore_->removeElement( mePnAmplMapG01_[i]->getFullname() );
+        if ( mePnAmplMapG01_[i] ) dqmStore_->removeElement( mePnAmplMapG01_[i]->getName() );
         mePnAmplMapG01_[i] = 0;
-        if ( mePnPedMapG01_[i] ) dqmStore_->removeElement( mePnPedMapG01_[i]->getFullname() );
+        if ( mePnPedMapG01_[i] ) dqmStore_->removeElement( mePnPedMapG01_[i]->getName() );
         mePnPedMapG01_[i] = 0;
       }
 
@@ -358,11 +323,11 @@ void EETestPulseTask::cleanup(void){
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/TestPulse/PN/Gain16");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/PN/Gain16");
       for (int i = 0; i < 18; i++) {
-        if ( mePnAmplMapG16_[i] ) dqmStore_->removeElement( mePnAmplMapG16_[i]->getFullname() );
+        if ( mePnAmplMapG16_[i] ) dqmStore_->removeElement( mePnAmplMapG16_[i]->getName() );
         mePnAmplMapG16_[i] = 0;
-        if ( mePnPedMapG16_[i] ) dqmStore_->removeElement( mePnPedMapG16_[i]->getFullname() );
+        if ( mePnPedMapG16_[i] ) dqmStore_->removeElement( mePnPedMapG16_[i]->getName() );
         mePnPedMapG16_[i] = 0;
       }
 
@@ -433,9 +398,6 @@ void EETestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       int ix = id.ix();
       int iy = id.iy();
-
-      int iz = id.zside() < 0 ? 0 : 1;
-      if(meOccupancy_[iz]) meOccupancy_[iz]->Fill(ix - 0.5, iy - 0.5);
 
       int ism = Numbers::iSM( id );
 

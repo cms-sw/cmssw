@@ -51,7 +51,6 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   muonl2phi = new float[kMaxMuonL2];
   muonl2eta = new float[kMaxMuonL2];
   muonl2dr = new float[kMaxMuonL2];
-  muonl2drsign = new float[kMaxMuonL2];
   muonl2dz = new float[kMaxMuonL2];
   muonl2vtxz = new float[kMaxMuonL2];
   muonl2chg = new int[kMaxMuonL2];
@@ -60,7 +59,6 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   muonl2nhits = new int[kMaxMuonL2];
   muonl2nchambers = new int[kMaxMuonL2]; 
   muonl2nstat = new int[kMaxMuonL2]; 
-  muonl2ndtcscstat = new int[kMaxMuonL2]; 
   muonl21idx = new int[kMaxMuonL2];
   const int kMaxMuonL3 = 500;
   muonl3pt = new float[kMaxMuonL3];
@@ -75,7 +73,6 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   muonl3trk10iso = new int[kMaxMuonL3];
   muonl3nhits = new int[kMaxMuonL3];
   muonl3normchi2 = new float[kMaxMuonL3];
-  muonl3npixelhits = new int[kMaxMuonL3];
   muonl3ntrackerhits = new int[kMaxMuonL3];
   muonl3nmuonhits = new int[kMaxMuonL3];
   muonl32idx = new int[kMaxMuonL3];
@@ -83,7 +80,6 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   muonl3globaleta = new float[kMaxMuonL3];
   muonl3globalphi = new float[kMaxMuonL3];
   muonl3globaldr = new float[kMaxMuonL3];
-  muonl3globaldrsign = new float[kMaxMuonL3];
   muonl3globaldz = new float[kMaxMuonL3];
   muonl3globalvtxz = new float[kMaxMuonL3];
   muonl3globalchg = new int[kMaxMuonL3];
@@ -117,14 +113,11 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   muonl2novtxphi = new float[kMaxMuonL2NoVtx]; 
   muonl2novtxeta = new float[kMaxMuonL2NoVtx]; 
   muonl2novtxdr = new float[kMaxMuonL2NoVtx]; 
-  muonl2novtxdrsign = new float[kMaxMuonL2NoVtx]; 
   muonl2novtxdz = new float[kMaxMuonL2NoVtx]; 
   muonl2novtxchg = new int[kMaxMuonL2NoVtx]; 
   muonl2novtxpterr = new float[kMaxMuonL2NoVtx]; 
   muonl2novtxnhits = new int[kMaxMuonL2NoVtx];
   muonl2novtxnchambers = new int[kMaxMuonL2NoVtx];
-  muonl2novtxnstat = new int[kMaxMuonL2NoVtx];
-  muonl2novtxndtcscstat = new int[kMaxMuonL2NoVtx];
   muonl2novtx1idx = new int[kMaxMuonL2NoVtx]; 
   const int kMaxDiMu = 500;
   dimudca = new float[kMaxDiMu];
@@ -177,13 +170,11 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("ohMuL2PtErr",muonl2pterr,"ohMuL2PtErr[NohMuL2]/F");
   HltTree->Branch("ohMuL2Iso",muonl2iso,"ohMuL2Iso[NohMuL2]/I");
   HltTree->Branch("ohMuL2Dr",muonl2dr,"ohMuL2Dr[NohMuL2]/F");
-  HltTree->Branch("ohMuL2DrSign",muonl2drsign,"ohMuL2DrSign[NohMuL2]/F");
   HltTree->Branch("ohMuL2Dz",muonl2dz,"ohMuL2Dz[NohMuL2]/F");
   HltTree->Branch("ohMuL2VtxZ",muonl2vtxz,"ohMuL2VtxZ[NohMuL2]/F");
   HltTree->Branch("ohMuL2Nhits",muonl2nhits,"ohMuL2Nhits[NohMuL2]/I");
   HltTree->Branch("ohMuL2Nchambers",muonl2nchambers,"ohMuL2Nchambers[NohMuL2]/I");   
   HltTree->Branch("ohMuL2Nstat",muonl2nstat,"ohMuL2Nstat[NohMuL2]/I");   
-  HltTree->Branch("ohMuL2NDtCscStat",muonl2ndtcscstat,"ohMuL2NDtCscStat[NohMuL2]/I");   
   HltTree->Branch("ohMuL2L1idx",muonl21idx,"ohMuL2L1idx[NohMuL2]/I");   
   HltTree->Branch("NohMuL3",&nmu3cand,"NohMuL3/I");
   HltTree->Branch("ohMuL3Pt",muonl3pt,"ohMuL3Pt[NohMuL3]/F");
@@ -198,7 +189,6 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("ohMuL3VtxZ",muonl3vtxz,"ohMuL3VtxZ[NohMuL3]/F");
   HltTree->Branch("ohMuL3Nhits",muonl3nhits,"ohMuL3Nhits[NohMuL3]/I");    
   HltTree->Branch("ohMuL3NormChi2", muonl3normchi2, "ohMuL3NormChi2[NohMuL3]/F");
-  HltTree->Branch("ohMuL3Npixelhits", muonl3npixelhits, "ohMuL3Npixelhits[NohMuL3]/I"); 
   HltTree->Branch("ohMuL3Ntrackerhits", muonl3ntrackerhits, "ohMuL3Ntrackerhits[NohMuL3]/I"); 
   HltTree->Branch("ohMuL3Nmuonhits", muonl3nmuonhits, "ohMuL3Nmuonhits[NohMuL3]/I"); 
   HltTree->Branch("ohMuL3L2idx",muonl32idx,"ohMuL3L2idx[NohMuL3]/I");
@@ -206,9 +196,8 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("ohMuL3globalEta",muonl3globaleta,"ohMuL3globalEta[NohMuL3]/F");
   HltTree->Branch("ohMuL3globalPhi",muonl3globalphi,"ohMuL3globalPhi[NohMuL3]/F");
   HltTree->Branch("ohMuL3globalDr",muonl3globaldr,"ohMuL3globalDr[NohMuL3]/F");
-  HltTree->Branch("ohMuL3globalDrSign",muonl3globaldrsign,"ohMuL3globalDrSign[NohMuL3]/F");
   HltTree->Branch("ohMuL3globalDz",muonl3globaldz,"ohMuL3globalDz[NohMuL3]/F");
-  HltTree->Branch("ohMuL3globalVtxZ",muonl3globalvtxz,"ohMuL3globalVtxZ[NohMuL3]/F");
+  HltTree->Branch("ohMuL3globalVtxZ",muonl3vtxz,"ohMuL3globalVtxZ[NohMuL3]/F");
   HltTree->Branch("ohMuL3globalL2idx",muonl3global2idx,"ohMuL3globalL2idx[NohMuL3]/I");
 
   HltTree->Branch("NohOniaPixel",&nOniaPixelCand,"NohOniaPixel/I");
@@ -236,12 +225,9 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("ohMuL2NoVtxChg",muonl2novtxchg,"ohMuL2NoVtxChg[NohMuL2NoVtx]/I"); 
   HltTree->Branch("ohMuL2NoVtxPtErr",muonl2novtxpterr,"ohMuL2NoVtxPtErr[NohMuL2NoVtx]/F"); 
   HltTree->Branch("ohMuL2NoVtxDr",muonl2novtxdr,"ohMuL2NoVtxDr[NohMuL2NoVtx]/F"); 
-  HltTree->Branch("ohMuL2NoVtxDrSign",muonl2novtxdrsign,"ohMuL2NoVtxDrSign[NohMuL2NoVtx]/F"); 
   HltTree->Branch("ohMuL2NoVtxDz",muonl2novtxdz,"ohMuL2NoVtxDz[NohMuL2NoVtx]/F"); 
   HltTree->Branch("ohMuL2NoVtxNhits",muonl2novtxnhits,"ohMuL2NoVtxNhits[NohMuL2NoVtx]/I");
   HltTree->Branch("ohMuL2NoVtxNchambers",muonl2novtxnchambers,"ohMuL2NoVtxNchambers[NohMuL2NoVtx]/I");  
-  HltTree->Branch("ohMuL2NoVtxNstat",muonl2novtxnstat,"ohMuL2NoVtxNstat[NohMuL2NoVtx]/I");  
-  HltTree->Branch("ohMuL2NoVtxNDtCscStat",muonl2novtxndtcscstat,"ohMuL2NoVtxNDtCscStat[NohMuL2NoVtx]/I");  
   HltTree->Branch("ohMuL2NoVtxL1idx",muonl2novtx1idx,"ohMuL2NoVtxL1idx[NohMuL2NoVtx]/I");   
   HltTree->Branch("NohDiMu",&nDiMu,"NohDiMu/I");    
   HltTree->Branch("ohDiMuDCA",dimudca,"ohDiMuDCA[NohDiMu]/F");    
@@ -374,7 +360,6 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
       // For baseline triggers, we do no cut at L2 (|dr|<9999 cm)
       // However, we use |dr|<200 microns at L3, which it probably too tough for LHC startup
       muonl2dr[imu2c] = fabs(tk->dxy(BSPosition));
-      muonl2drsign[imu2c] = ( tk->dxyError() > 0. ? muonl2dr[imu2c] / tk->dxyError() : 999. );
 
       // Dz (longitudinal distance to z=0 when at minimum transverse distance)
       // For baseline triggers, we do no cut (|dz|<9999 cm), neither at L2 nor at L3
@@ -383,7 +368,6 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
       muonl2nhits[imu2c] = tk->numberOfValidHits();
       muonl2nchambers[imu2c] = validChambers(tk);
       muonl2nstat[imu2c] = tk->hitPattern().muonStationsWithAnyHits();
-      muonl2ndtcscstat[imu2c] = tk->hitPattern().dtStationsWithAnyHits() + tk->hitPattern().cscStationsWithAnyHits();
 
       // At present we do not cut on this, but on a 90% CL value "ptLx" defined here below
       // We should change this in the future and cut directly on "pt", to avoid unnecessary complications and risks
@@ -487,20 +471,12 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
       //       // Dr (transverse distance to (0,0,0))
       //       // For baseline triggers, we do no cut at L2 (|dr|<9999 cm)
       //       // However, we use |dr|<300 microns at L3, which it probably too tough for LHC startup
-      muonl3dr[imu3c] = fabs( (- (candref->vx()-BSPosition.x()) * candref->py() + (candref->vy()-BSPosition.y()) * candref->px() ) / candref->pt() );
-      muonl3globaldr[imu3c] = fabs(tk->dxy(BSPosition));
-      muonl3globaldrsign[imu3c] = ( tk->dxyError() > 0. ? muonl3globaldr[imu3c] / tk->dxyError() : -999. );
+      muonl3dr[imu3c] = fabs(tk->dxy(BSPosition));
 
       //       // Dz (longitudinal distance to z=0 when at minimum transverse distance)
       //       // For baseline triggers, we do no cut (|dz|<9999 cm), neither at L2 nor at L3
-      muonl3dz[imu3c] = (candref->vz()-BSPosition.z()) - ((candref->vx()-BSPosition.x())*candref->px()+(candref->vy()-BSPosition.y())*candref->py())/candref->pt() * candref->pz()/candref->pt();
-      muonl3globaldz[imu3c] = tk->dz(BSPosition);
-
-      muonl3vtxz[imu3c] = candref->vz() - ( candref->vx()*candref->px() + candref->vy()*candref->py() )/candref->pt() * candref->pz()/candref->pt();
-      muonl3globalvtxz[imu3c] = tk->dz();
-      //muonl3vtxz[imu3c] = candref->vz();
-      //muonl3globalvtxz[imu3c] = tk->vz();
-
+      muonl3dz[imu3c] = tk->dz(BSPosition);
+      muonl3vtxz[imu3c] = tk->dz();
       muonl3nhits[imu3c] = tk->numberOfValidHits();  
 
       //       // At present we do not cut on this, but on a 90% CL value "ptLx" defined here below
@@ -528,7 +504,6 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
       muonl3chg[imu3c] = candref->charge();
 
       muonl3normchi2[imu3c] = tk->normalizedChi2();
-      muonl3npixelhits[imu3c] = tk->hitPattern().numberOfValidPixelHits();
       muonl3ntrackerhits[imu3c] = tk->hitPattern().numberOfValidTrackerHits();
       muonl3nmuonhits[imu3c] = tk->hitPattern().numberOfValidMuonHits();
 
@@ -649,12 +624,9 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
       muonl2novtxeta[imu2c] = tk->eta();
       muonl2novtxphi[imu2c] = tk->phi();
       muonl2novtxdr[imu2c] = fabs(tk->dxy(BSPosition));
-      muonl2novtxdrsign[imu2c] = ( tk->dxyError() > 0. ? muonl2novtxdr[imu2c] / tk->dxyError() : 999. );
       muonl2novtxdz[imu2c] = tk->dz(BSPosition);
       muonl2novtxnhits[imu2c] = tk->numberOfValidHits();
       muonl2novtxnchambers[imu2c] = validChambers(tk);
-      muonl2novtxnstat[imu2c] = tk->hitPattern().muonStationsWithAnyHits();
-      muonl2novtxndtcscstat[imu2c] = tk->hitPattern().dtStationsWithAnyHits() + tk->hitPattern().cscStationsWithAnyHits();
 
       double l2_err0 = tk->error(0); // error on q/p
       double l2_abspar0 = fabs(tk->parameter(0)); // |q/p|

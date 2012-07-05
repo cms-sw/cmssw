@@ -192,6 +192,12 @@ class TagCollector(object):
 		Optionally, filter by name."""
 		return self._openjson('py_getIBs', {'filt': filt, 'limit': limit})
 	
+        def deprecateReleases(self, *releases):
+                """ Deprecate releases"""
+                if not self.login:
+		        raise Exception("Error: Not logged in?!")
+                self._open('deprecateReleases', {"releases": ",".join(releases)})
+                  
 	def createRelease(self, base_release_name, new_release_name, new_state, new_private, new_type, new_description, release_managers, copy_queues, tags):
 		"""Create a new release.
 		Requirement: Signed in as a release manager."""

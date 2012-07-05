@@ -4,9 +4,9 @@
 #include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
 #include "EventFilter/Utilities/interface/ServiceWebRegistry.h"
 #include "EventFilter/Utilities/interface/ServiceWeb.h"
-#include "EventFilter/Utilities/interface/ShmOutputModuleRegistry.h"
 #include "EventFilter/Utilities/interface/MicroStateService.h"
 #include "EventFilter/Utilities/interface/TimeProfilerService.h"
+#include "EventFilter/Modules/interface/ShmOutputModuleRegistry.h"
 
 #include "EventFilter/Modules/src/FUShmOutputModule.h"
 
@@ -88,6 +88,8 @@ namespace evf{
     , rcms_(0)
     , instance_(instance)
     , waitingForLs_(false)
+    , mwrRef_(nullptr)
+    , sorRef_(nullptr)
   {
     //list of variables for scalers flashlist
     names_.push_back("lumiSectionIndex");
@@ -102,7 +104,7 @@ namespace evf{
     pthread_mutex_init(&ep_guard_lock_,0);
   }
 
-  FWEPWrapper::~FWEPWrapper() {delete evtProcessor_; evtProcessor_=0;}
+  FWEPWrapper::~FWEPWrapper() {if (0!=evtProcessor_) delete evtProcessor_; evtProcessor_=0;}
 
   void FWEPWrapper::publishConfigAndMonitorItems(bool multi)
   {
@@ -202,7 +204,16 @@ namespace evf{
       
     LOG4CPLUS_INFO(log_,"Initialize CMSSW EventProcessor.");
     LOG4CPLUS_INFO(log_,"CMSSW_BASE:"<<getenv("CMSSW_BASE"));
-  
+ 
+    //end job of previous EP instance
+    if (0!=evtProcessor_) {
+	edm::event_processor::State st = evtProcessor_->getState();
+	if(st == edm::event_processor::sJobReady || st == edm::event_processor::sDone) {
+	  evtProcessor_->endJob();
+	}
+        delete evtProcessor_;
+	evtProcessor_=0;
+    }
 
     // job configuration string
     ParameterSetRetriever pr(configString_);
@@ -221,6 +232,7 @@ namespace evf{
     else
       pdesc = boost::shared_ptr<edm::ProcessDesc>(new edm::ProcessDesc(configuration_));
     pServiceSets = pdesc->getServicesPSets();
+
     // add default set of services
     if(!servicesDone_) {
       //DQMStore should not be created in the Master (MP case) since this poses problems in the slave
@@ -285,6 +297,7 @@ namespace evf{
       LOG4CPLUS_INFO(log_,
 		     "exception when trying to get service ModuleWebRegistry");
     }
+    mwrRef_=mwr;
 
     if(mwr) mwr->clear(); // in case we are coming from stop we need to clear the mwr
 
@@ -297,7 +310,6 @@ namespace evf{
       LOG4CPLUS_INFO(log_,
 		     "exception when trying to get service ModuleWebRegistry");
     }
-
     ShmOutputModuleRegistry *sor = 0;
     try{
       if(edm::Service<ShmOutputModuleRegistry>().isAvailable())
@@ -307,6 +319,7 @@ namespace evf{
       LOG4CPLUS_INFO(log_,
 		     "exception when trying to get service ShmOutputModuleRegistry");
     }
+    sorRef_=sor;
 
     if(sor) sor->clear();
     //  if(swr) swr->clear(); // in case we are coming from stop we need to clear the swr
@@ -321,7 +334,6 @@ namespace evf{
     defaultServices.push_back("JobReportService");
     pdesc->addServices(defaultServices, forcedServices);
     pthread_mutex_lock(&ep_guard_lock_);
-    if (0!=evtProcessor_) delete evtProcessor_;
     
     evtProcessor_ = new edm::EventProcessor(pdesc,
 					    serviceToken_,
@@ -435,7 +447,14 @@ namespace evf{
   {
     edm::ServiceRegistry::Operate operate(serviceToken_);
   }
-    
+ 
+  ModuleWebRegistry * FWEPWrapper::getModuleWebRegistry() {
+    return mwrRef_;
+  }
+
+  ShmOutputModuleRegistry * FWEPWrapper::getShmOutputModuleRegistry() {
+    return sorRef_;
+  }
 
   //______________________________________________________________________________
   edm::EventProcessor::StatusCode FWEPWrapper::stop()
@@ -515,7 +534,6 @@ namespace evf{
     watching_ = false;
     if(rc != edm::EventProcessor::epTimedOut)
       {
-	
 	if(st == edm::event_processor::sJobReady || st == edm::event_processor::sDone)
 	  evtProcessor_->endJob();
 	pthread_mutex_lock(&ep_guard_lock_);
@@ -640,8 +658,8 @@ namespace evf{
     if(useLock) {
       gettimeofday(&tv,0);
       //      std::cout << getpid() << " calling openBackdoor " << std::endl;
-      waitingForLs_ = true;
-      mwr->openBackDoor("DaqSource",lsTimeOut_);
+      //waitingForLs_ = true;//moving this behind mutex lock
+      mwr->openBackDoor("DaqSource",lsTimeOut_,&waitingForLs_);
       //      std::cout << getpid() << " opened Backdoor " << std::endl;
     }
 

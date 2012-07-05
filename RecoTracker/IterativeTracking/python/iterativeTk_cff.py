@@ -9,7 +9,6 @@ from RecoTracker.IterativeTracking.PixelLessStep_cff import *
 from RecoTracker.IterativeTracking.TobTecStep_cff import *
 from RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff import *
 from RecoTracker.ConversionSeedGenerators.ConversionStep_cff import *
-from RecoTracker.TrackProducer.extraFromSeeds_cfi import *
 
 iterTracking = cms.Sequence(InitialStep*
                             LowPtTripletStep*
@@ -19,7 +18,6 @@ iterTracking = cms.Sequence(InitialStep*
                             PixelLessStep*
                             TobTecStep*
                             generalTracks*
-                            extraFromSeeds*
                             ConvStep*
                             conversionStepTracks
                             )
