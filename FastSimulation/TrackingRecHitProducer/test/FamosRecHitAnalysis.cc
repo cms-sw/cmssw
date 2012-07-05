@@ -819,39 +819,21 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
           
           // Get the topology of the pixel module
           const PixelGeomDetUnit* detUnit = dynamic_cast<const PixelGeomDetUnit*>(geometry->idToDetUnit(DetId(detUnitId)));
-	  assert( detUnit );
-	  bool upgradeGeometry = false;
-	  if( _pset.exists( "trackerGeometryConstants" ))
-	  {
-	    const edm::ParameterSet tkGeomConsts( _pset.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
-	    upgradeGeometry = tkGeomConsts.getParameter<bool>( "upgradeGeometry" );
-	  }
-	  const PixelTopology* theSpecificTopology = &(detUnit->specificTopology());
-	  RectangularPixelTopology rectPixelTopology(theSpecificTopology->nrows(),
-						     theSpecificTopology->ncolumns(),
-						     theSpecificTopology->pitch().first,
-						     theSpecificTopology->pitch().second,
-						     upgradeGeometry,
-						     theSpecificTopology->rowsperroc(),
-						     theSpecificTopology->colsperroc(),
-						     theSpecificTopology->bigPixPerRocX(),
-						     theSpecificTopology->bigPixPerRocY(),
-						     theSpecificTopology->rocsX(),
-						     theSpecificTopology->rocsY());
+	  const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(&(detUnit->specificType().specificTopology()));
           
           // Get the rows and columns of entry and exit points
           // FIXME - these are not guaranteed to be the same as the cluster limits (as they should be)
-          const int firstPixelInX = int(rectPixelTopology.pixel(simHit->entryPoint()).first);
-          const int firstPixelInY = int(rectPixelTopology.pixel(simHit->entryPoint()).second);
-          const int lastPixelInX = int(rectPixelTopology.pixel(simHit->exitPoint()).first);
-          const int lastPixelInY = int(rectPixelTopology.pixel(simHit->exitPoint()).second);
+          const int firstPixelInX = int(rectPixelTopology->pixel(simHit->entryPoint()).first);
+          const int firstPixelInY = int(rectPixelTopology->pixel(simHit->entryPoint()).second);
+          const int lastPixelInX = int(rectPixelTopology->pixel(simHit->exitPoint()).first);
+          const int lastPixelInY = int(rectPixelTopology->pixel(simHit->exitPoint()).second);
            
           // Check if there is a big pixel inside and set hasBigPixelInX and hasBigPixelInY accordingly
           // This function only works if first <= last
-          if(rectPixelTopology.containsBigPixelInX(firstPixelInX < lastPixelInX ? firstPixelInX : lastPixelInX,
+          if(rectPixelTopology->containsBigPixelInX(firstPixelInX < lastPixelInX ? firstPixelInX : lastPixelInX,
                                                    firstPixelInX > lastPixelInX ? firstPixelInX : lastPixelInX))
             hasBigPixelInX = true;
-          if(rectPixelTopology.containsBigPixelInY(firstPixelInY < lastPixelInY ? firstPixelInY : lastPixelInY,
+          if(rectPixelTopology->containsBigPixelInY(firstPixelInY < lastPixelInY ? firstPixelInY : lastPixelInY,
                                                    firstPixelInY > lastPixelInY ? firstPixelInY : lastPixelInY))
             hasBigPixelInY = true;
 #ifdef rrDEBUG

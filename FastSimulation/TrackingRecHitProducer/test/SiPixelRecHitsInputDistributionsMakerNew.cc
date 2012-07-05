@@ -413,38 +413,20 @@ void SiPixelRecHitsInputDistributionsMakerNew::fillBarrel(const SiPixelRecHit& r
   icotbeta  = icotbeta < 0 ? 0 : icotbeta;
   icotbeta  = icotbeta > (cotBetaBinsBarrel_-1 ) ? cotBetaBinsBarrel_-1 : icotbeta;
 
-  bool upgradeGeometry = false;
-  if( conf_.exists( "trackerGeometryConstants" ))
-  {
-    const edm::ParameterSet tkGeomConsts( conf_.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
-    upgradeGeometry = tkGeomConsts.getParameter<bool>( "upgradeGeometry" );
-  }
-  
-// Use this definition if you want to consider an ideal topology
-  const PixelTopology* theSpecificTopology = &(theGeomDet->specificTopology());
-  RectangularPixelTopology rectPixelTopology(theSpecificTopology->nrows(),
-					     theSpecificTopology->ncolumns(),
-					     theSpecificTopology->pitch().first,
-					     theSpecificTopology->pitch().second,
-					     upgradeGeometry,
-					     theSpecificTopology->rowsperroc(),
-					     theSpecificTopology->colsperroc(),
-					     theSpecificTopology->bigPixPerRocX(),
-					     theSpecificTopology->bigPixPerRocY(),
-					     theSpecificTopology->rocsX(),
-					     theSpecificTopology->rocsY());
+// Use this definition if you want to consider an ideal topology 
+  const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(&(theGeomDet->specificType().specificTopology()));
 // Use the following instead of the previous line if you want the real topology that will take care of the 
 // module deformations when mapping from ideal to real coordinates:
 //  PixelTopology const & rectPixelTopology = theGeomDet->specificTopology();
 
   bool edgex = 
-       ( rectPixelTopology.isItEdgePixelInX( firstPixelInX ) || rectPixelTopology.isItEdgePixelInX( lastPixelInX ) );
+       ( rectPixelTopology->isItEdgePixelInX( firstPixelInX ) || rectPixelTopology->isItEdgePixelInX( lastPixelInX ) );
   bool edgey = 
-       ( rectPixelTopology.isItEdgePixelInY( firstPixelInY ) || rectPixelTopology.isItEdgePixelInY( lastPixelInY ) );
-  bool bigx =  ( rectPixelTopology.isItBigPixelInX( firstPixelInX ) || 
-		 rectPixelTopology.isItBigPixelInX( lastPixelInX ) );
-  bool bigy =  ( rectPixelTopology.isItBigPixelInY( firstPixelInY ) ||
-                 rectPixelTopology.isItBigPixelInY( lastPixelInY ) );
+       ( rectPixelTopology->isItEdgePixelInY( firstPixelInY ) || rectPixelTopology->isItEdgePixelInY( lastPixelInY ) );
+  bool bigx =  ( rectPixelTopology->isItBigPixelInX( firstPixelInX ) || 
+		 rectPixelTopology->isItBigPixelInX( lastPixelInX ) );
+  bool bigy =  ( rectPixelTopology->isItBigPixelInY( firstPixelInY ) ||
+                 rectPixelTopology->isItBigPixelInY( lastPixelInY ) );
 //  bool bigx =  ( RectangularPixelTopology::isItBigPixelInX( firstPixelInX ) || 
 //	 	 RectangularPixelTopology::isItBigPixelInX( lastPixelInX ) );
 //  bool bigy =  ( RectangularPixelTopology::isItBigPixelInY( firstPixelInY ) ||
@@ -583,30 +565,13 @@ void SiPixelRecHitsInputDistributionsMakerNew::fillForward(const SiPixelRecHit &
   int lastPixelInX = (*clust).maxPixelRow();
   int firstPixelInY = (*clust).minPixelCol();
   int lastPixelInY = (*clust).maxPixelCol();
-  bool upgradeGeometry = false;
-  if( conf_.exists( "trackerGeometryConstants" ))
-  {
-    const edm::ParameterSet tkGeomConsts( conf_.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
-    upgradeGeometry = tkGeomConsts.getParameter<bool>( "upgradeGeometry" );
-  }
-  const PixelTopology* theSpecificTopology = &(theGeomDet->specificTopology());
-  RectangularPixelTopology rectPixelTopology(theSpecificTopology->nrows(),
-					     theSpecificTopology->ncolumns(),
-					     theSpecificTopology->pitch().first,
-					     theSpecificTopology->pitch().second,
-					     upgradeGeometry,
-					     theSpecificTopology->rowsperroc(),
-					     theSpecificTopology->colsperroc(),
-					     theSpecificTopology->bigPixPerRocX(),
-					     theSpecificTopology->bigPixPerRocY(),
-					     theSpecificTopology->rocsX(),
-					     theSpecificTopology->rocsY());
-  bool hasBigPixelInX = rectPixelTopology.containsBigPixelInX(firstPixelInX,lastPixelInX);
-  bool hasBigPixelInY = rectPixelTopology.containsBigPixelInY(firstPixelInY,lastPixelInY);
+  const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(&(theGeomDet->specificType().specificTopology()));
+  bool hasBigPixelInX = rectPixelTopology->containsBigPixelInX(firstPixelInX,lastPixelInX);
+  bool hasBigPixelInY = rectPixelTopology->containsBigPixelInY(firstPixelInY,lastPixelInY);
   bool edgex =
-         ( rectPixelTopology.isItEdgePixelInX( firstPixelInX ) || rectPixelTopology.isItEdgePixelInX( lastPixelInX ) );
+         ( rectPixelTopology->isItEdgePixelInX( firstPixelInX ) || rectPixelTopology->isItEdgePixelInX( lastPixelInX ) );
   bool edgey = 
-  	( rectPixelTopology.isItEdgePixelInY( firstPixelInY ) || rectPixelTopology.isItEdgePixelInY( lastPixelInY  ) );
+  	( rectPixelTopology->isItEdgePixelInY( firstPixelInY ) || rectPixelTopology->isItEdgePixelInY( lastPixelInY  ) );
 
   bool edge = edgex || edgey;
   int icotalpha = int ( ( cotalpha - cotAlphaLowEdgeForward_ ) / cotAlphaBinWidthForward_ );
