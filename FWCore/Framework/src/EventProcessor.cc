@@ -1430,7 +1430,12 @@ namespace edm {
   EventProcessor::waitForAsyncCompletion(unsigned int timeout_seconds) {
     bool rc = true;
     boost::xtime timeout;
+
+#if BOOST_VERSION >= 105000
+    boost::xtime_get(&timeout, boost::TIME_UTC_);
+#else
     boost::xtime_get(&timeout, boost::TIME_UTC);
+#endif
     timeout.sec += timeout_seconds;
 
     // make sure to include a timeout here so we don't wait forever
@@ -1557,7 +1562,11 @@ namespace edm {
       last_rc_ = epSuccess; // forget the last value!
       event_loop_.reset(new boost::thread(boost::bind(EventProcessor::asyncRun, this)));
       boost::xtime timeout;
+#if BOOST_VERSION >= 105000
+      boost::xtime_get(&timeout, boost::TIME_UTC_);
+#else
       boost::xtime_get(&timeout, boost::TIME_UTC);
+#endif
       timeout.sec += 60; // 60 seconds to start!!!!
       if(starter_.timed_wait(sl, timeout) == false) {
           // yikes - the thread did not start
