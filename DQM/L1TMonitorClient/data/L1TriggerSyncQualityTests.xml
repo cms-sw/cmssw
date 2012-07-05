@@ -4,8 +4,8 @@
     <TYPE>ContentsYRange</TYPE> 
     <PARAM name="error">0.0</PARAM>
     <PARAM name="warning">0.0</PARAM>
-    <PARAM name="ymin">0.95</PARAM>
-    <PARAM name="ymax">1.05</PARAM>
+    <PARAM name="ymin">0.80</PARAM>
+    <PARAM name="ymax">1.20</PARAM>
     <PARAM name="useEmptyBins">1</PARAM>
   </QTEST>
 
