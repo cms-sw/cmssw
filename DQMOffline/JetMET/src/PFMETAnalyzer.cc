@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/04/20 14:37:48 $
- *  $Revision: 1.47 $
+ *  $Date: 2012/05/20 13:12:05 $
+ *  $Revision: 1.50 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -97,9 +97,9 @@ void PFMETAnalyzer::beginJob(DQMStore * dbe) {
   _doHLTPhysicsOn = theCleaningParameters.getParameter<bool>("doHLTPhysicsOn");
   _hlt_PhysDec    = theCleaningParameters.getParameter<std::string>("HLT_PhysDec");
 
-  _tightBHFiltering     = theCleaningParameters.getParameter<bool>("tightBHFiltering");
-  _tightJetIDFiltering  = theCleaningParameters.getParameter<int>("tightJetIDFiltering");
-  _tightHcalFiltering   = theCleaningParameters.getParameter<bool>("tightHcalFiltering");
+  _tightBHFiltering    = theCleaningParameters.getParameter<bool>("tightBHFiltering");
+  _tightJetIDFiltering = theCleaningParameters.getParameter<int>("tightJetIDFiltering");
+
 
   // ==========================================================
   //DCS information
@@ -128,8 +128,8 @@ void PFMETAnalyzer::beginJob(DQMStore * dbe) {
   theJetCollectionLabel       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
   PFCandidatesTag             = parameters.getParameter<edm::InputTag>("PFCandidates");
   HcalNoiseRBXCollectionTag   = parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection");
-  HcalNoiseSummaryTag         = parameters.getParameter<edm::InputTag>("HcalNoiseSummary");
   BeamHaloSummaryTag          = parameters.getParameter<edm::InputTag>("BeamHaloSummaryLabel");
+  HBHENoiseFilterResultTag    = parameters.getParameter<edm::InputTag>("HBHENoiseFilterResultLabel");
 
   // misc
   _verbose     = parameters.getParameter<int>("verbose");
@@ -138,10 +138,9 @@ void PFMETAnalyzer::beginJob(DQMStore * dbe) {
   _allSelection= parameters.getParameter<bool>("allSelection");  // Plot with all sets of event selection
   _cleanupSelection= parameters.getParameter<bool>("cleanupSelection");  // Plot with all sets of event selection
 
-  _highPtPFJetThreshold = parameters.getParameter<double>("HighPtJetThreshold"); // High Pt Jet threshold
-  _lowPtPFJetThreshold  = parameters.getParameter<double>("LowPtJetThreshold");   // Low Pt Jet threshold
-  _highPFMETThreshold   = parameters.getParameter<double>("HighMETThreshold");     // High MET threshold
-  //  _lowPFMETThreshold    = parameters.getParameter<double>("LowMETThreshold");       // Low MET threshold
+  _highPtPFJetThreshold = parameters.getParameter<double>("HighPtJetThreshold");
+  _lowPtPFJetThreshold  = parameters.getParameter<double>("LowPtJetThreshold");
+  _highPFMETThreshold   = parameters.getParameter<double>("HighMETThreshold");
 
   //
   jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
@@ -160,7 +159,6 @@ void PFMETAnalyzer::beginJob(DQMStore * dbe) {
   _FolderNames.push_back("BasicCleanup");
   _FolderNames.push_back("ExtraCleanup");
   _FolderNames.push_back("HcalNoiseFilter");
-  _FolderNames.push_back("HcalNoiseFilterTight");
   _FolderNames.push_back("JetIDMinimal");
   _FolderNames.push_back("JetIDLoose");
   _FolderNames.push_back("JetIDTight");
@@ -178,7 +176,6 @@ void PFMETAnalyzer::beginJob(DQMStore * dbe) {
     }
     if (_allSelection){
       if (*ic=="HcalNoiseFilter")      bookMESet(DirName+"/"+*ic);
-      if (*ic=="HcalNoiseFilterTight") bookMESet(DirName+"/"+*ic);
       if (*ic=="JetIDMinimal")         bookMESet(DirName+"/"+*ic);
       if (*ic=="JetIDLoose")           bookMESet(DirName+"/"+*ic);
       if (*ic=="JetIDTight")           bookMESet(DirName+"/"+*ic);
@@ -228,11 +225,6 @@ void PFMETAnalyzer::bookMESet(std::string DirName)
     meTriggerName_HighMET = _dbe->bookString("triggerName_HighMET", highMETExpr_[0]);
   }
 
-  //  if ( _LowMETEventFlag->on() ) {
-  //    bookMonitorElement(DirName+"/"+"LowMET",false);
-  //    meTriggerName_LowMET = _dbe->bookString("triggerName_LowMET", lowMETExpr_[0]);
-  //  }
-
   if ( _EleEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"Ele",false);
     meTriggerName_Ele = _dbe->bookString("triggerName_Ele", elecExpr_[0]);
@@ -246,114 +238,140 @@ void PFMETAnalyzer::bookMESet(std::string DirName)
   }
 }
 
-// ***********************************************************
-void PFMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=false)
-{
-  if (_verbose) std::cout << "booMonitorElement " << DirName << std::endl;
 
+//------------------------------------------------------------------------------
+// bookMonitorElement
+//------------------------------------------------------------------------------
+void PFMETAnalyzer::bookMonitorElement(std::string DirName,
+				       bool        bLumiSecPlot = false)
+{
   _dbe->setCurrentFolder(DirName);
 
- 
-  mePfMEx        = _dbe->book1D("METTask_PfMEx",        "METTask_PfMEx",        200, -500,  500); 
-  mePfMEy        = _dbe->book1D("METTask_PfMEy",        "METTask_PfMEy",        200, -500,  500); 
-  mePfMET        = _dbe->book1D("METTask_PfMET",        "METTask_PfMET",        200,    0, 1000); 
-  mePfSumET      = _dbe->book1D("METTask_PfSumET",      "METTask_PfSumET",      400,    0, 4000); 
-  mePfMETSig     = _dbe->book1D("METTask_PfMETSig",     "METTask_PfMETSig",      51,    0,   51);
-  mePfMETPhi     = _dbe->book1D("METTask_PfMETPhi",     "METTask_PfMETPhi",      60, -3.2,  3.2);
-  mePfMET_logx   = _dbe->book1D("METTask_PfMET_logx",   "METTask_PfMET_logx",    40,   -1,    7);
-  mePfSumET_logx = _dbe->book1D("METTask_PfSumET_logx", "METTask_PfSumET_logx",  40,   -1,    7);
 
-  mePfMEx       ->setAxisTitle("MEx [GeV]",        1);
-  mePfMEy       ->setAxisTitle("MEy [GeV]",        1);
-  mePfMET       ->setAxisTitle("MET [GeV]",        1);
-  mePfSumET     ->setAxisTitle("SumET [GeV]",      1);
-  mePfMETSig    ->setAxisTitle("METSig",           1);
-  mePfMETPhi    ->setAxisTitle("METPhi [rad]",     1);
-  mePfMET_logx  ->setAxisTitle("log(MET) [GeV]",   1);
-  mePfSumET_logx->setAxisTitle("log(SumET) [GeV]", 1);
-
-  mePfNeutralEMFraction  = _dbe->book1D("METTask_PfNeutralEMFraction", "METTask_PfNeutralEMFraction" ,50,0.,1.);
-  mePfNeutralEMFraction->setAxisTitle("Pf Neutral EM Fraction",1);
-  mePfNeutralHadFraction = _dbe->book1D("METTask_PfNeutralHadFraction","METTask_PfNeutralHadFraction",50,0.,1.);
-  mePfNeutralHadFraction->setAxisTitle("Pf Neutral Had Fraction",1);
-  mePfChargedEMFraction  = _dbe->book1D("METTask_PfChargedEMFraction", "METTask_PfChargedEMFraction" ,50,0.,1.);
-  mePfChargedEMFraction->setAxisTitle("Pf Charged EM Fraction",1);
-  mePfChargedHadFraction = _dbe->book1D("METTask_PfChargedHadFraction","METTask_PfChargedHadFraction",50,0.,1.);
-  mePfChargedHadFraction->setAxisTitle("Pf Charged Had Fraction",1);
-  mePfMuonFraction       = _dbe->book1D("METTask_PfMuonFraction",      "METTask_PfMuonFraction"      ,50,0.,1.);
-  mePfMuonFraction->setAxisTitle("Pf Muon Fraction",1);
+  mePfMEx        = _dbe->book1D("METTask_PfMEx",        "pfmet.px()",           200, -500,  500); 
+  mePfMEy        = _dbe->book1D("METTask_PfMEy",        "pfmet.py()",           200, -500,  500); 
+  mePfMET        = _dbe->book1D("METTask_PfMET",        "pfmet.pt()",           200,    0, 1000); 
+  mePfSumET      = _dbe->book1D("METTask_PfSumET",      "pfmet.sumEt()",        400,    0, 4000); 
+  mePfMETSig     = _dbe->book1D("METTask_PfMETSig",     "pfmet.mEtSig()",        51,    0,   51);
+  mePfMETPhi     = _dbe->book1D("METTask_PfMETPhi",     "pfmet.phi()",           60, -3.2,  3.2);
+  mePfMET_logx   = _dbe->book1D("METTask_PfMET_logx",   "log10(pfmet.pt())",     40,   -1,    7);
+  mePfSumET_logx = _dbe->book1D("METTask_PfSumET_logx", "log10(pfmet.sumEt())",  40,   -1,    7);
 
 
-  if (_allhist){
-    if (bLumiSecPlot){
-      mePfMExLS              = _dbe->book2D("METTask_PfMEx_LS","METTask_PfMEx_LS",200,-200,200,50,0.,500.);
-      mePfMExLS->setAxisTitle("MEx [GeV]",1);
-      mePfMExLS->setAxisTitle("Lumi Section",2);
-      mePfMEyLS              = _dbe->book2D("METTask_PfMEy_LS","METTask_PfMEy_LS",200,-200,200,50,0.,500.);
-      mePfMEyLS->setAxisTitle("MEy [GeV]",1);
-      mePfMEyLS->setAxisTitle("Lumi Section",2);
+  mePhotonEtFraction        = _dbe->book1D("METTask_PfPhotonEtFraction",        "pfmet.photonEtFraction()",         50, 0,    1);
+  mePhotonEt                = _dbe->book1D("METTask_PfPhotonEt",                "pfmet.photonEt()",                100, 0, 1000);
+  meNeutralHadronEtFraction = _dbe->book1D("METTask_PfNeutralHadronEtFraction", "pfmet.neutralHadronEtFraction()",  50, 0,    1);
+  meNeutralHadronEt         = _dbe->book1D("METTask_PfNeutralHadronEt",         "pfmet.neutralHadronEt()",         100, 0, 1000);
+  meElectronEtFraction      = _dbe->book1D("METTask_PfElectronEtFraction",      "pfmet.electronEtFraction()",       50, 0,    1);
+  meElectronEt              = _dbe->book1D("METTask_PfElectronEt",              "pfmet.electronEt()",              100, 0, 1000);
+  meChargedHadronEtFraction = _dbe->book1D("METTask_PfChargedHadronEtFraction", "pfmet.chargedHadronEtFraction()",  50, 0,    1);
+  meChargedHadronEt         = _dbe->book1D("METTask_PfChargedHadronEt",         "pfmet.chargedHadronEt()",         100, 0, 1000);
+  meMuonEtFraction          = _dbe->book1D("METTask_PfMuonEtFraction",          "pfmet.muonEtFraction()",           50, 0,    1);
+  meMuonEt                  = _dbe->book1D("METTask_PfMuonEt",                  "pfmet.muonEt()",                  100, 0, 1000);
+  meHFHadronEtFraction      = _dbe->book1D("METTask_PfHFHadronEtFraction",      "pfmet.HFHadronEtFraction()",       50, 0,    1);    
+  meHFHadronEt              = _dbe->book1D("METTask_PfHFHadronEt",              "pfmet.HFHadronEt()",              100, 0, 1000);
+  meHFEMEtFraction          = _dbe->book1D("METTask_PfHFEMEtFraction",          "pfmet.HFEMEtFraction()",           50, 0,    1);
+  meHFEMEt                  = _dbe->book1D("METTask_PfHFEMEt",                  "pfmet.HFEMEt()",                  100, 0, 1000);
+
+
+  if (_allhist) {
+    if (bLumiSecPlot) {
+
+      mePfMExLS = _dbe->book2D("METTask_PfMEx_LS", "METTask_PfMEx_LS", 200, -200, 200, 50, 0, 500);
+      mePfMEyLS = _dbe->book2D("METTask_PfMEy_LS", "METTask_PfMEy_LS", 200, -200, 200, 50, 0, 500);
+
+      mePfMExLS->setAxisTitle("pfmet.px()", 1);
+      mePfMEyLS->setAxisTitle("pfmet.px()", 1);
+
+      mePfMExLS->setAxisTitle("event.luminosityBlock()", 2);
+      mePfMEyLS->setAxisTitle("event.luminosityBlock()", 2);
     }
   }
 
 
   // Book NPV profiles
   //----------------------------------------------------------------------------
-  mePfMEx_profile   = _dbe->bookProfile("METTask_PfMEx_profile",   "MEx [GeV]",   nbinsPV, PVlow, PVup, 200, -500,  500);
-  mePfMEy_profile   = _dbe->bookProfile("METTask_PfMEy_profile",   "MEy [GeV]",   nbinsPV, PVlow, PVup, 200, -500,  500); 
-  mePfMET_profile   = _dbe->bookProfile("METTask_PfMET_profile",   "MET [GeV]",   nbinsPV, PVlow, PVup, 200,    0, 1000); 
-  mePfSumET_profile = _dbe->bookProfile("METTask_PfSumET_profile", "SumET [GeV]", nbinsPV, PVlow, PVup, 400,    0, 4000); 
+  mePfMEx_profile   = _dbe->bookProfile("METTask_PfMEx_profile",   "pfmet.px()",    nbinsPV, PVlow, PVup, 200, -500,  500);
+  mePfMEy_profile   = _dbe->bookProfile("METTask_PfMEy_profile",   "pfmet.py()",    nbinsPV, PVlow, PVup, 200, -500,  500); 
+  mePfMET_profile   = _dbe->bookProfile("METTask_PfMET_profile",   "pfmet.pt()",    nbinsPV, PVlow, PVup, 200,    0, 1000); 
+  mePfSumET_profile = _dbe->bookProfile("METTask_PfSumET_profile", "pfmet.sumEt()", nbinsPV, PVlow, PVup, 400,    0, 4000); 
 
-  mePfNeutralEMFraction_profile  = _dbe->bookProfile("METTask_PfNeutralEMFraction_profile",  "PF neutral EM fraction",  nbinsPV, PVlow, PVup, 50, 0, 1);
-  mePfNeutralHadFraction_profile = _dbe->bookProfile("METTask_PfNeutralHadFraction_profile", "PF neutral HAD fraction", nbinsPV, PVlow, PVup, 50, 0, 1);
-  mePfChargedEMFraction_profile  = _dbe->bookProfile("METTask_PfChargedEMFraction_profile",  "PF charged EM fraction",  nbinsPV, PVlow, PVup, 50, 0, 1);
-  mePfChargedHadFraction_profile = _dbe->bookProfile("METTask_PfChargedHadFraction_profile", "PF charged HAD fraction", nbinsPV, PVlow, PVup, 50, 0, 1);
-  mePfMuonFraction_profile       = _dbe->bookProfile("METTask_PfMuonFraction_profile",       "PF muon fraction",        nbinsPV, PVlow, PVup, 50, 0, 1);
+  mePhotonEtFraction_profile        = _dbe->bookProfile("METTask_PfPhotonEtFraction_profile",        "pfmet.photonEtFraction()",        nbinsPV, PVlow, PVup,  50, 0,    1);
+  mePhotonEt_profile                = _dbe->bookProfile("METTask_PfPhotonEt_profile",                "pfmet.photonEt()",                nbinsPV, PVlow, PVup, 100, 0, 1000);
+  meNeutralHadronEtFraction_profile = _dbe->bookProfile("METTask_PfNeutralHadronEtFraction_profile", "pfmet.neutralHadronEtFraction()", nbinsPV, PVlow, PVup,  50, 0,    1);
+  meNeutralHadronEt_profile         = _dbe->bookProfile("METTask_PfNeutralHadronEt_profile",         "pfmet.neutralHadronEt()",         nbinsPV, PVlow, PVup, 100, 0, 1000);
+  meElectronEtFraction_profile      = _dbe->bookProfile("METTask_PfElectronEtFraction_profile",      "pfmet.electronEtFraction()",      nbinsPV, PVlow, PVup,  50, 0,    1);
+  meElectronEt_profile              = _dbe->bookProfile("METTask_PfElectronEt_profile",              "pfmet.electronEt()",              nbinsPV, PVlow, PVup, 100, 0, 1000);
+  meChargedHadronEtFraction_profile = _dbe->bookProfile("METTask_PfChargedHadronEtFraction_profile", "pfmet.chargedHadronEtFraction()", nbinsPV, PVlow, PVup,  50, 0,    1);
+  meChargedHadronEt_profile         = _dbe->bookProfile("METTask_PfChargedHadronEt_profile",         "pfmet.chargedHadronEt()",         nbinsPV, PVlow, PVup, 100, 0, 1000);
+  meMuonEtFraction_profile          = _dbe->bookProfile("METTask_PfMuonEtFraction_profile",          "pfmet.muonEtFraction()",          nbinsPV, PVlow, PVup,  50, 0,    1);
+  meMuonEt_profile                  = _dbe->bookProfile("METTask_PfMuonEt_profile",                  "pfmet.muonEt()",                  nbinsPV, PVlow, PVup, 100, 0, 1000);
+  meHFHadronEtFraction_profile      = _dbe->bookProfile("METTask_PfHFHadronEtFraction_profile",      "pfmet.HFHadronEtFraction()",      nbinsPV, PVlow, PVup,  50, 0,    1);    
+  meHFHadronEt_profile              = _dbe->bookProfile("METTask_PfHFHadronEt_profile",              "pfmet.HFHadronEt()",              nbinsPV, PVlow, PVup, 100, 0, 1000);
+  meHFEMEtFraction_profile          = _dbe->bookProfile("METTask_PfHFEMEtFraction_profile",          "pfmet.HFEMEtFraction()",          nbinsPV, PVlow, PVup,  50, 0,    1);
+  meHFEMEt_profile                  = _dbe->bookProfile("METTask_PfHFEMEt_profile",                  "pfmet.HFEMEt()",                  nbinsPV, PVlow, PVup, 100, 0, 1000);
 
 
   // Set NPV profiles x-axis title
   //----------------------------------------------------------------------------
-  mePfMEx_profile  ->setAxisTitle("nvtx",1);
-  mePfMEy_profile  ->setAxisTitle("nvtx",1);
-  mePfMET_profile  ->setAxisTitle("nvtx",1);
-  mePfSumET_profile->setAxisTitle("nvtx",1);
+  mePfMEx_profile  ->setAxisTitle("nvtx", 1);
+  mePfMEy_profile  ->setAxisTitle("nvtx", 1);
+  mePfMET_profile  ->setAxisTitle("nvtx", 1);
+  mePfSumET_profile->setAxisTitle("nvtx", 1);
 
-  mePfNeutralEMFraction_profile ->setAxisTitle("nvtx",1);
-  mePfNeutralHadFraction_profile->setAxisTitle("nvtx",1);
-  mePfChargedEMFraction_profile ->setAxisTitle("nvtx",1);
-  mePfChargedHadFraction_profile->setAxisTitle("nvtx",1);
-  mePfMuonFraction_profile      ->setAxisTitle("nvtx",1);
+  mePhotonEtFraction_profile       ->setAxisTitle("nvtx", 1);
+  mePhotonEt_profile               ->setAxisTitle("nvtx", 1);
+  meNeutralHadronEtFraction_profile->setAxisTitle("nvtx", 1);
+  meNeutralHadronEt_profile        ->setAxisTitle("nvtx", 1);
+  meElectronEtFraction_profile     ->setAxisTitle("nvtx", 1);
+  meElectronEt_profile             ->setAxisTitle("nvtx", 1);
+  meChargedHadronEtFraction_profile->setAxisTitle("nvtx", 1);
+  meChargedHadronEt_profile        ->setAxisTitle("nvtx", 1);
+  meMuonEtFraction_profile         ->setAxisTitle("nvtx", 1);
+  meMuonEt_profile                 ->setAxisTitle("nvtx", 1);
+  meHFHadronEtFraction_profile     ->setAxisTitle("nvtx", 1);    
+  meHFHadronEt_profile             ->setAxisTitle("nvtx", 1);
+  meHFEMEtFraction_profile         ->setAxisTitle("nvtx", 1);
+  meHFEMEt_profile                 ->setAxisTitle("nvtx", 1);
 }
 
 
-// ***********************************************************
-void PFMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+//------------------------------------------------------------------------------
+// beginRun
+//------------------------------------------------------------------------------
+void PFMETAnalyzer::beginRun(const edm::Run&        iRun,
+			     const edm::EventSetup& iSetup)
 {
-  if ( _HighPtJetEventFlag->on() ) _HighPtJetEventFlag->initRun( iRun, iSetup );
-  if ( _LowPtJetEventFlag ->on() ) _LowPtJetEventFlag ->initRun( iRun, iSetup );
-  if ( _MinBiasEventFlag  ->on() ) _MinBiasEventFlag  ->initRun( iRun, iSetup );
-  if ( _HighMETEventFlag  ->on() ) _HighMETEventFlag  ->initRun( iRun, iSetup );
-  //  if ( _LowMETEventFlag   ->on() ) _LowMETEventFlag   ->initRun( iRun, iSetup );
-  if ( _EleEventFlag      ->on() ) _EleEventFlag      ->initRun( iRun, iSetup );
-  if ( _MuonEventFlag     ->on() ) _MuonEventFlag     ->initRun( iRun, iSetup );
+  if (_HighPtJetEventFlag->on()) _HighPtJetEventFlag->initRun(iRun, iSetup);
+  if (_LowPtJetEventFlag ->on()) _LowPtJetEventFlag ->initRun(iRun, iSetup);
+  if (_MinBiasEventFlag  ->on()) _MinBiasEventFlag  ->initRun(iRun, iSetup);
+  if (_HighMETEventFlag  ->on()) _HighMETEventFlag  ->initRun(iRun, iSetup);
+  if (_EleEventFlag      ->on()) _EleEventFlag      ->initRun(iRun, iSetup);
+  if (_MuonEventFlag     ->on()) _MuonEventFlag     ->initRun(iRun, iSetup);
 
   if (_HighPtJetEventFlag->on() && _HighPtJetEventFlag->expressionsFromDB(_HighPtJetEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
     highPtJetExpr_ = _HighPtJetEventFlag->expressionsFromDB(_HighPtJetEventFlag->hltDBKey(), iSetup);
-  if (_LowPtJetEventFlag->on() && _LowPtJetEventFlag->expressionsFromDB(_LowPtJetEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
-    lowPtJetExpr_  = _LowPtJetEventFlag->expressionsFromDB(_LowPtJetEventFlag->hltDBKey(),   iSetup);
-  if (_HighMETEventFlag->on() && _HighMETEventFlag->expressionsFromDB(_HighMETEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
-    highMETExpr_   = _HighMETEventFlag->expressionsFromDB(_HighMETEventFlag->hltDBKey(),     iSetup);
-  //  if (_LowMETEventFlag->on() && _LowMETEventFlag->expressionsFromDB(_LowMETEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
-  //    lowMETExpr_    = _LowMETEventFlag->expressionsFromDB(_LowMETEventFlag->hltDBKey(),       iSetup);
-  if (_MuonEventFlag->on() && _MuonEventFlag->expressionsFromDB(_MuonEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
-    muonExpr_      = _MuonEventFlag->expressionsFromDB(_MuonEventFlag->hltDBKey(),           iSetup);
-  if (_EleEventFlag->on() && _EleEventFlag->expressionsFromDB(_EleEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
-    elecExpr_      = _EleEventFlag->expressionsFromDB(_EleEventFlag->hltDBKey(),             iSetup);
-  if (_MinBiasEventFlag->on() && _MinBiasEventFlag->expressionsFromDB(_MinBiasEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
-    minbiasExpr_   = _MinBiasEventFlag->expressionsFromDB(_MinBiasEventFlag->hltDBKey(),     iSetup);
 
+  if (_LowPtJetEventFlag->on() && _LowPtJetEventFlag->expressionsFromDB(_LowPtJetEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
+    lowPtJetExpr_ = _LowPtJetEventFlag->expressionsFromDB(_LowPtJetEventFlag->hltDBKey(), iSetup);
+
+  if (_HighMETEventFlag->on() && _HighMETEventFlag->expressionsFromDB(_HighMETEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
+    highMETExpr_ = _HighMETEventFlag->expressionsFromDB(_HighMETEventFlag->hltDBKey(), iSetup);
+
+  if (_MuonEventFlag->on() && _MuonEventFlag->expressionsFromDB(_MuonEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
+    muonExpr_ = _MuonEventFlag->expressionsFromDB(_MuonEventFlag->hltDBKey(), iSetup);
+
+  if (_EleEventFlag->on() && _EleEventFlag->expressionsFromDB(_EleEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
+    elecExpr_ = _EleEventFlag->expressionsFromDB(_EleEventFlag->hltDBKey(), iSetup);
+
+  if (_MinBiasEventFlag->on() && _MinBiasEventFlag->expressionsFromDB(_MinBiasEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
+    minbiasExpr_ = _MinBiasEventFlag->expressionsFromDB(_MinBiasEventFlag->hltDBKey(), iSetup);
 }
 
-// ***********************************************************
+
+//------------------------------------------------------------------------------
+// endRun
+//------------------------------------------------------------------------------
 void PFMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQMStore * dbe)
 {
   
@@ -398,29 +416,11 @@ void PFMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, 
 	makeRatePlot(DirName+"/"+"triggerName_MinBias",totltime);
       if ( _HighMETEventFlag->on() ) 
 	makeRatePlot(DirName+"/"+"triggerName_HighMET",totltime);
-      //      if ( _LowMETEventFlag->on() ) 
-      //	makeRatePlot(DirName+"/"+"triggerName_LowMET",totltime);
       if ( _EleEventFlag->on() ) 
 	makeRatePlot(DirName+"/"+"triggerName_Ele",totltime);
       if ( _MuonEventFlag->on() ) 
 	makeRatePlot(DirName+"/"+"triggerName_Muon",totltime);
     }
-
-
-  // Fit ME{x,y}
-  //------------------------------------------------------------------------
-  for (std::vector<std::string>::const_iterator ic = _FolderNames.begin();
-       ic != _FolderNames.end(); ic++) {
-
-    std::string DirName;
-    DirName = dirName+*ic;
-
-    mePfMEx = _dbe->get(DirName + "/METTask_PfMEx");
-    mePfMEy = _dbe->get(DirName + "/METTask_PfMEy");
-
-    if (mePfMEx && mePfMEx->kind() == MonitorElement::DQM_KIND_TH1F) mePfMEx->getTH1F()->Fit("gaus", "q");
-    if (mePfMEy && mePfMEy->kind() == MonitorElement::DQM_KIND_TH1F) mePfMEy->getTH1F()->Fit("gaus", "q");
-  }
 }
 
 
@@ -472,7 +472,6 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   _trig_LowPtJet=0;
   _trig_MinBias=0;
   _trig_HighMET=0;
-  //  _trig_LowMET=0;
   _trig_Ele=0;
   _trig_Muon=0;
   _trig_PhysDec=0;
@@ -524,29 +523,6 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     // for empty input vectors (n==0), take all HLT triggers!
     if (HLTPathsJetMBByName_.size()==0) _trig_JetMB=triggerResults.size()-1;
 
-    //
-    /*
-      if ( _HighPtJetEventFlag->on() && _HighPtJetEventFlag->accept( iEvent, iSetup) )
-      _trig_HighPtJet=1;
-      
-      if ( _LowPtJetEventFlag->on() && _LowPtJetEventFlag->accept( iEvent, iSetup) )
-      _trig_LowPtJet=1;
-      
-      if ( _MinBiasEventFlag->on() && _MinBiasEventFlag->accept( iEvent, iSetup) )
-      _trig_MinBias=1;
-      
-      if ( _HighMETEventFlag->on() && _HighMETEventFlag->accept( iEvent, iSetup) )
-      _trig_HighMET=1;
-      
-      if ( _LowMETEventFlag->on() && _LowMETEventFlag->accept( iEvent, iSetup) )
-      _trig_LowMET=1;
-      
-      if ( _EleEventFlag->on() && _EleEventFlag->accept( iEvent, iSetup) )
-      _trig_Ele=1;
-      
-      if ( _MuonEventFlag->on() && _MuonEventFlag->accept( iEvent, iSetup) )
-      _trig_Muon=1;
-    */
     
     if (triggerNames.triggerIndex(_hlt_PhysDec)   != triggerNames.size() &&
 	triggerResults.accept(triggerNames.triggerIndex(_hlt_PhysDec)))   _trig_PhysDec=1;
@@ -582,13 +558,16 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     LogDebug("") << "PfMETAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
     if (_verbose) std::cout << "PfMETAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
   }
+
   
-  edm::Handle<HcalNoiseSummary> HNoiseSummary;
-  iEvent.getByLabel(HcalNoiseSummaryTag,HNoiseSummary);
-  if (!HNoiseSummary.isValid()) {
-    LogDebug("") << "PfMETAnalyzer: Could not find Hcal NoiseSummary product" << std::endl;
-    if (_verbose) std::cout << "PfMETAnalyzer: Could not find Hcal NoiseSummary product" << std::endl;
+  edm::Handle<bool> HBHENoiseFilterResultHandle;
+  iEvent.getByLabel(HBHENoiseFilterResultTag, HBHENoiseFilterResultHandle);
+  bool HBHENoiseFilterResult = *HBHENoiseFilterResultHandle;
+  if (!HBHENoiseFilterResultHandle.isValid()) {
+    LogDebug("") << "PFMETAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
+    if (_verbose) std::cout << "PFMETAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
   }
+
 
   edm::Handle<reco::CaloJetCollection> caloJets;
   iEvent.getByLabel(theJetCollectionLabel, caloJets);
@@ -714,8 +693,7 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   // ==========================================================
   // HCAL Noise filter
   
-  bool bHcalNoiseFilter      = HNoiseSummary->passLooseNoiseFilter();
-  bool bHcalNoiseFilterTight = HNoiseSummary->passTightNoiseFilter();
+  bool bHcalNoiseFilter = HBHENoiseFilterResult;
 
   // ==========================================================
   // Get BeamHaloSummary
@@ -840,7 +818,6 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   bool bPhysicsDeclared = true;
   if(_doHLTPhysicsOn) bPhysicsDeclared =_trig_PhysDec;
 
-  if      (_tightHcalFiltering)     bHcalNoise  = bHcalNoiseFilterTight;
   if      (_tightBHFiltering)       bBeamHaloID = bBeamHaloIDTightPass;
 
   if      (_tightJetIDFiltering==1)  bJetID      = bJetIDMinimal;
@@ -863,7 +840,6 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }
     if (_allSelection) {
       if (*ic=="HcalNoiseFilter"      && bHcalNoiseFilter )       fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
-      if (*ic=="HcalNoiseFilterTight" && bHcalNoiseFilterTight )  fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
       if (*ic=="JetIDMinimal"         && bJetIDMinimal)           fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
       if (*ic=="JetIDLoose"           && bJetIDLoose)             fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
       if (*ic=="JetIDTight"           && bJetIDTight)             fillMESet(iEvent, DirName+"/"+*ic, *pfmet);
@@ -945,97 +921,131 @@ void PFMETAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
     fillMonitorElement(iEvent,DirName,"MinBias",pfmet,false);
   if (_trig_HighMET)
     fillMonitorElement(iEvent,DirName,"HighMET",pfmet,false);
-  //  if (_trig_LowMET)
-  //    fillMonitorElement(iEvent,DirName,"LowMET",pfmet,false);
   if (_trig_Ele)
     fillMonitorElement(iEvent,DirName,"Ele",pfmet,false);
   if (_trig_Muon)
     fillMonitorElement(iEvent,DirName,"Muon",pfmet,false);
 }
 
-// ***********************************************************
-void PFMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirName, 
-				       std::string TriggerTypeName, 
-				       const reco::PFMET& pfmet, bool bLumiSecPlot)
-{
 
-  if (TriggerTypeName=="HighPtJet") {
+//------------------------------------------------------------------------------
+// fillMonitorElement
+//------------------------------------------------------------------------------
+void PFMETAnalyzer::fillMonitorElement(const edm::Event&  iEvent,
+				       std::string        DirName, 
+				       std::string        TriggerTypeName, 
+				       const reco::PFMET& pfmet,
+				       bool               bLumiSecPlot)
+{
+  if (TriggerTypeName == "HighPtJet") {
     if (!selectHighPtJetEvent(iEvent)) return;
   }
-  else if (TriggerTypeName=="LowPtJet") {
+  else if (TriggerTypeName == "LowPtJet") {
     if (!selectLowPtJetEvent(iEvent)) return;
   }
-  else if (TriggerTypeName=="HighMET") {
+  else if (TriggerTypeName == "HighMET") {
     if (pfmet.pt()<_highPFMETThreshold) return;
   }
-  //  else if (TriggerTypeName=="LowMET") {
-  //    if (pfmet.pt()<_lowPFMETThreshold) return;
-  //  }
-  else if (TriggerTypeName=="Ele") {
+  else if (TriggerTypeName == "Ele") {
     if (!selectWElectronEvent(iEvent)) return;
   }
-  else if (TriggerTypeName=="Muon") {
+  else if (TriggerTypeName == "Muon") {
     if (!selectWMuonEvent(iEvent)) return;
   }
-  
-  // Reconstructed MET Information
+
+  if (TriggerTypeName != "") DirName = DirName + "/" + TriggerTypeName;
+
+
+  // Reconstructed PFMET information
+  //----------------------------------------------------------------------------
   double pfSumET  = pfmet.sumEt();
   double pfMETSig = pfmet.mEtSig();
-  //double pfEz     = pfmet.e_longitudinal();
   double pfMET    = pfmet.pt();
   double pfMEx    = pfmet.px();
   double pfMEy    = pfmet.py();
   double pfMETPhi = pfmet.phi();
 
-  double pfNeutralEMFraction  = pfmet.NeutralEMFraction();
-  double pfNeutralHadFraction = pfmet.NeutralHadFraction();
-  double pfChargedEMFraction  = pfmet.ChargedEMFraction();
-  double pfChargedHadFraction = pfmet.ChargedHadFraction();
-  double pfMuonFraction       = pfmet.MuonFraction();
 
-  
-  //
-  int myLuminosityBlock;
-  //  myLuminosityBlock = (evtCounter++)/1000;
-  myLuminosityBlock = iEvent.luminosityBlock();
-  //
+  // PFMET getters
+  //----------------------------------------------------------------------------
+  double pfPhotonEtFraction        = pfmet.photonEtFraction();
+  double pfPhotonEt                = pfmet.photonEt();
+  double pfNeutralHadronEtFraction = pfmet.neutralHadronEtFraction();
+  double pfNeutralHadronEt         = pfmet.neutralHadronEt();
+  double pfElectronEtFraction      = pfmet.electronEtFraction();
+  double pfElectronEt              = pfmet.electronEt();
+  double pfChargedHadronEtFraction = pfmet.chargedHadronEtFraction();
+  double pfChargedHadronEt         = pfmet.chargedHadronEt();
+  double pfMuonEtFraction          = pfmet.muonEtFraction();
+  double pfMuonEt                  = pfmet.muonEt();
+  double pfHFHadronEtFraction      = pfmet.HFHadronEtFraction();
+  double pfHFHadronEt              = pfmet.HFHadronEt();
+  double pfHFEMEtFraction          = pfmet.HFEMEtFraction();
+  double pfHFEMEt                  = pfmet.HFEMEt();
 
-  if (TriggerTypeName!="") DirName = DirName +"/"+TriggerTypeName;
 
-  if (_verbose) std::cout << "_etThreshold = " << _etThreshold << std::endl;
-  if (pfSumET>_etThreshold){
+  if (pfSumET > _etThreshold) {
     
-    mePfMEx    = _dbe->get(DirName + "/METTask_PfMEx");    if (mePfMEx    && mePfMEx->getRootObject())    mePfMEx->Fill(pfMEx);
-    mePfMEy    = _dbe->get(DirName + "/METTask_PfMEy");    if (mePfMEy    && mePfMEy->getRootObject())    mePfMEy->Fill(pfMEy);
-    mePfMET    = _dbe->get(DirName + "/METTask_PfMET");    if (mePfMET    && mePfMET->getRootObject())    mePfMET->Fill(pfMET);
-    mePfMETPhi = _dbe->get(DirName + "/METTask_PfMETPhi"); if (mePfMETPhi && mePfMETPhi->getRootObject()) mePfMETPhi->Fill(pfMETPhi);
-    mePfSumET  = _dbe->get(DirName + "/METTask_PfSumET");  if (mePfSumET  && mePfSumET->getRootObject())  mePfSumET->Fill(pfSumET);
-    mePfMETSig = _dbe->get(DirName + "/METTask_PfMETSig"); if (mePfMETSig && mePfMETSig->getRootObject()) mePfMETSig->Fill(pfMETSig);
+    mePfMEx        = _dbe->get(DirName + "/METTask_PfMEx");
+    mePfMEy        = _dbe->get(DirName + "/METTask_PfMEy");
+    mePfMET        = _dbe->get(DirName + "/METTask_PfMET");
+    mePfMETPhi     = _dbe->get(DirName + "/METTask_PfMETPhi");
+    mePfSumET      = _dbe->get(DirName + "/METTask_PfSumET");
+    mePfMETSig     = _dbe->get(DirName + "/METTask_PfMETSig");
+    mePfMET_logx   = _dbe->get(DirName + "/METTask_PfMET_logx");
+    mePfSumET_logx = _dbe->get(DirName + "/METTask_PfSumET_logx");
 
-    mePfMET_logx    = _dbe->get(DirName+"/"+"METTask_PfMET_logx");    if (mePfMET_logx    && mePfMET_logx->getRootObject())    mePfMET_logx->Fill(log10(pfMET));
-    mePfSumET_logx  = _dbe->get(DirName+"/"+"METTask_PfSumET_logx");  if (mePfSumET_logx  && mePfSumET_logx->getRootObject())  mePfSumET_logx->Fill(log10(pfSumET));
+    if (mePfMEx        && mePfMEx       ->getRootObject()) mePfMEx       ->Fill(pfMEx);
+    if (mePfMEy        && mePfMEy       ->getRootObject()) mePfMEy       ->Fill(pfMEy);
+    if (mePfMET        && mePfMET       ->getRootObject()) mePfMET       ->Fill(pfMET);
+    if (mePfMETPhi     && mePfMETPhi    ->getRootObject()) mePfMETPhi    ->Fill(pfMETPhi);
+    if (mePfSumET      && mePfSumET     ->getRootObject()) mePfSumET     ->Fill(pfSumET);
+    if (mePfMETSig     && mePfMETSig    ->getRootObject()) mePfMETSig    ->Fill(pfMETSig);
+    if (mePfMET_logx   && mePfMET_logx  ->getRootObject()) mePfMET_logx  ->Fill(log10(pfMET));
+    if (mePfSumET_logx && mePfSumET_logx->getRootObject()) mePfSumET_logx->Fill(log10(pfSumET));
 
-    //mePfMETIonFeedbck = _dbe->get(DirName+"/"+"METTask_PfMETIonFeedbck");  if (mePfMETIonFeedbck && mePfMETIonFeedbck->getRootObject()) mePfMETIonFeedbck->Fill(pfMET);
-    //mePfMETHPDNoise   = _dbe->get(DirName+"/"+"METTask_PfMETHPDNoise");    if (mePfMETHPDNoise   && mePfMETHPDNoise->getRootObject())   mePfMETHPDNoise->Fill(pfMET);
-    //mePfMETRBXNoise   = _dbe->get(DirName+"/"+"METTask_PfMETRBXNoise");    if (mePfMETRBXNoise   && mePfMETRBXNoise->getRootObject())   mePfMETRBXNoise->Fill(pfMET);
-    
-    mePfNeutralEMFraction = _dbe->get(DirName+"/"+"METTask_PfNeutralEMFraction"); 
-    if (mePfNeutralEMFraction   && mePfNeutralEMFraction->getRootObject()) mePfNeutralEMFraction->Fill(pfNeutralEMFraction);
-    mePfNeutralHadFraction = _dbe->get(DirName+"/"+"METTask_PfNeutralHadFraction"); 
-    if (mePfNeutralHadFraction   && mePfNeutralHadFraction->getRootObject()) mePfNeutralHadFraction->Fill(pfNeutralHadFraction);
-    mePfChargedEMFraction = _dbe->get(DirName+"/"+"METTask_PfChargedEMFraction"); 
-    if (mePfChargedEMFraction   && mePfChargedEMFraction->getRootObject()) mePfChargedEMFraction->Fill(pfChargedEMFraction);
-    mePfChargedHadFraction = _dbe->get(DirName+"/"+"METTask_PfChargedHadFraction"); 
-    if (mePfChargedHadFraction   && mePfChargedHadFraction->getRootObject()) mePfChargedHadFraction->Fill(pfChargedHadFraction);
-    mePfMuonFraction = _dbe->get(DirName+"/"+"METTask_PfMuonFraction"); 
-    if (mePfMuonFraction   && mePfMuonFraction->getRootObject()) mePfMuonFraction->Fill(pfMuonFraction);
-    
-    if (_allhist){
-      if (bLumiSecPlot){
-	mePfMExLS = _dbe->get(DirName+"/"+"METTask_PfMExLS"); if (mePfMExLS && mePfMExLS->getRootObject()) mePfMExLS->Fill(pfMEx,myLuminosityBlock);
-	mePfMEyLS = _dbe->get(DirName+"/"+"METTask_PfMEyLS"); if (mePfMEyLS && mePfMEyLS->getRootObject()) mePfMEyLS->Fill(pfMEy,myLuminosityBlock);
+
+    mePhotonEtFraction        = _dbe->get(DirName + "/METTask_PfPhotonEtFraction");
+    mePhotonEt                = _dbe->get(DirName + "/METTask_PfPhotonEt");
+    meNeutralHadronEtFraction = _dbe->get(DirName + "/METTask_PfNeutralHadronEtFraction");
+    meNeutralHadronEt         = _dbe->get(DirName + "/METTask_PfNeutralHadronEt");
+    meElectronEtFraction      = _dbe->get(DirName + "/METTask_PfElectronEtFraction");
+    meElectronEt              = _dbe->get(DirName + "/METTask_PfElectronEt");
+    meChargedHadronEtFraction = _dbe->get(DirName + "/METTask_PfChargedHadronEtFraction");
+    meChargedHadronEt         = _dbe->get(DirName + "/METTask_PfChargedHadronEt");
+    meMuonEtFraction          = _dbe->get(DirName + "/METTask_PfMuonEtFraction");
+    meMuonEt                  = _dbe->get(DirName + "/METTask_PfMuonEt");
+    meHFHadronEtFraction      = _dbe->get(DirName + "/METTask_PfHFHadronEtFraction");
+    meHFHadronEt              = _dbe->get(DirName + "/METTask_PfHFHadronEt");
+    meHFEMEtFraction          = _dbe->get(DirName + "/METTask_PfHFEMEtFraction");
+    meHFEMEt                  = _dbe->get(DirName + "/METTask_PfHFEMEt");
+
+    if (mePhotonEtFraction        && mePhotonEtFraction       ->getRootObject()) mePhotonEtFraction       ->Fill(pfPhotonEtFraction);
+    if (mePhotonEt                && mePhotonEt               ->getRootObject()) mePhotonEt               ->Fill(pfPhotonEt);
+    if (meNeutralHadronEtFraction && meNeutralHadronEtFraction->getRootObject()) meNeutralHadronEtFraction->Fill(pfNeutralHadronEtFraction);
+    if (meNeutralHadronEt         && meNeutralHadronEt        ->getRootObject()) meNeutralHadronEt        ->Fill(pfNeutralHadronEt);
+    if (meElectronEtFraction      && meElectronEtFraction     ->getRootObject()) meElectronEtFraction     ->Fill(pfElectronEtFraction);
+    if (meElectronEt              && meElectronEt             ->getRootObject()) meElectronEt             ->Fill(pfElectronEt);   
+    if (meChargedHadronEtFraction && meChargedHadronEtFraction->getRootObject()) meChargedHadronEtFraction->Fill(pfChargedHadronEtFraction);
+    if (meChargedHadronEt         && meChargedHadronEt        ->getRootObject()) meChargedHadronEt        ->Fill(pfChargedHadronEt);
+    if (meMuonEtFraction          && meMuonEtFraction         ->getRootObject()) meMuonEtFraction         ->Fill(pfMuonEtFraction);      
+    if (meMuonEt                  && meMuonEt                 ->getRootObject()) meMuonEt                 ->Fill(pfMuonEt);       
+    if (meHFHadronEtFraction      && meHFHadronEtFraction     ->getRootObject()) meHFHadronEtFraction     ->Fill(pfHFHadronEtFraction);
+    if (meHFHadronEt              && meHFHadronEt             ->getRootObject()) meHFHadronEt             ->Fill(pfHFHadronEt);   
+    if (meHFEMEtFraction          && meHFEMEtFraction         ->getRootObject()) meHFEMEtFraction         ->Fill(pfHFEMEtFraction);
+    if (meHFEMEt                  && meHFEMEt                 ->getRootObject()) meHFEMEt                 ->Fill(pfHFEMEt);       
+
+
+    if (_allhist) {
+      if (bLumiSecPlot) {
+
+	mePfMExLS = _dbe->get(DirName + "/METTask_PfMExLS");
+	mePfMEyLS = _dbe->get(DirName + "/METTask_PfMEyLS");
+
+	if (mePfMExLS && mePfMExLS->getRootObject()) mePfMExLS->Fill(pfMEx, iEvent.luminosityBlock());
+	if (mePfMEyLS && mePfMEyLS->getRootObject()) mePfMEyLS->Fill(pfMEy, iEvent.luminosityBlock());
       }
-    } // _allhist
+    }
 
 
     // Fill NPV profiles
@@ -1050,22 +1060,43 @@ void PFMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string Dir
     if (mePfMET_profile   && mePfMET_profile  ->getRootObject()) mePfMET_profile  ->Fill(_numPV, pfMET);
     if (mePfSumET_profile && mePfSumET_profile->getRootObject()) mePfSumET_profile->Fill(_numPV, pfSumET);
 
-    mePfNeutralEMFraction_profile  = _dbe->get(DirName + "/METTask_PfNeutralEMFraction_profile");
-    mePfNeutralHadFraction_profile = _dbe->get(DirName + "/METTask_PfNeutralHadFraction_profile");
-    mePfChargedEMFraction_profile  = _dbe->get(DirName + "/METTask_PfChargedEMFraction_profile");
-    mePfChargedHadFraction_profile = _dbe->get(DirName + "/METTask_PfChargedHadFraction_profile");
-    mePfMuonFraction_profile       = _dbe->get(DirName + "/METTask_PfMuonFraction_profile");
 
-    if (mePfNeutralEMFraction_profile  && mePfNeutralEMFraction_profile ->getRootObject()) mePfNeutralEMFraction_profile ->Fill(_numPV, pfNeutralEMFraction);
-    if (mePfNeutralHadFraction_profile && mePfNeutralHadFraction_profile->getRootObject()) mePfNeutralHadFraction_profile->Fill(_numPV, pfNeutralHadFraction);
-    if (mePfChargedEMFraction_profile  && mePfChargedEMFraction_profile ->getRootObject()) mePfChargedEMFraction_profile ->Fill(_numPV, pfChargedEMFraction);
-    if (mePfChargedHadFraction_profile && mePfChargedHadFraction_profile->getRootObject()) mePfChargedHadFraction_profile->Fill(_numPV, pfChargedHadFraction);
-    if (mePfMuonFraction_profile       && mePfMuonFraction_profile      ->getRootObject()) mePfMuonFraction_profile      ->Fill(_numPV, pfMuonFraction);
+    mePhotonEtFraction_profile        = _dbe->get(DirName + "/METTask_PfPhotonEtFraction_profile");
+    mePhotonEt_profile                = _dbe->get(DirName + "/METTask_PfPhotonEt_profile");
+    meNeutralHadronEtFraction_profile = _dbe->get(DirName + "/METTask_PfNeutralHadronEtFraction_profile");
+    meNeutralHadronEt_profile         = _dbe->get(DirName + "/METTask_PfNeutralHadronEt_profile");
+    meElectronEtFraction_profile      = _dbe->get(DirName + "/METTask_PfElectronEtFraction_profile");
+    meElectronEt_profile              = _dbe->get(DirName + "/METTask_PfElectronEt_profile");
+    meChargedHadronEtFraction_profile = _dbe->get(DirName + "/METTask_PfChargedHadronEtFraction_profile");
+    meChargedHadronEt_profile         = _dbe->get(DirName + "/METTask_PfChargedHadronEt_profile");
+    meMuonEtFraction_profile          = _dbe->get(DirName + "/METTask_PfMuonEtFraction_profile");
+    meMuonEt_profile                  = _dbe->get(DirName + "/METTask_PfMuonEt_profile");
+    meHFHadronEtFraction_profile      = _dbe->get(DirName + "/METTask_PfHFHadronEtFraction_profile");
+    meHFHadronEt_profile              = _dbe->get(DirName + "/METTask_PfHFHadronEt_profile");
+    meHFEMEtFraction_profile          = _dbe->get(DirName + "/METTask_PfHFEMEtFraction_profile");
+    meHFEMEt_profile                  = _dbe->get(DirName + "/METTask_PfHFEMEt_profile");
 
-  } // ET threshold cut
+    if (mePhotonEtFraction_profile        && mePhotonEtFraction_profile       ->getRootObject()) mePhotonEtFraction_profile       ->Fill(_numPV, pfPhotonEtFraction);
+    if (mePhotonEt_profile                && mePhotonEt_profile               ->getRootObject()) mePhotonEt_profile               ->Fill(_numPV, pfPhotonEt);
+    if (meNeutralHadronEtFraction_profile && meNeutralHadronEtFraction_profile->getRootObject()) meNeutralHadronEtFraction_profile->Fill(_numPV, pfNeutralHadronEtFraction);
+    if (meNeutralHadronEt_profile         && meNeutralHadronEt_profile        ->getRootObject()) meNeutralHadronEt_profile        ->Fill(_numPV, pfNeutralHadronEt);
+    if (meElectronEtFraction_profile      && meElectronEtFraction_profile     ->getRootObject()) meElectronEtFraction_profile     ->Fill(_numPV, pfElectronEtFraction);
+    if (meElectronEt_profile              && meElectronEt_profile             ->getRootObject()) meElectronEt_profile             ->Fill(_numPV, pfElectronEt);   
+    if (meChargedHadronEtFraction_profile && meChargedHadronEtFraction_profile->getRootObject()) meChargedHadronEtFraction_profile->Fill(_numPV, pfChargedHadronEtFraction);
+    if (meChargedHadronEt_profile         && meChargedHadronEt_profile        ->getRootObject()) meChargedHadronEt_profile        ->Fill(_numPV, pfChargedHadronEt);
+    if (meMuonEtFraction_profile          && meMuonEtFraction_profile         ->getRootObject()) meMuonEtFraction_profile         ->Fill(_numPV, pfMuonEtFraction);      
+    if (meMuonEt_profile                  && meMuonEt_profile                 ->getRootObject()) meMuonEt_profile                 ->Fill(_numPV, pfMuonEt);       
+    if (meHFHadronEtFraction_profile      && meHFHadronEtFraction_profile     ->getRootObject()) meHFHadronEtFraction_profile     ->Fill(_numPV, pfHFHadronEtFraction);
+    if (meHFHadronEt_profile              && meHFHadronEt_profile             ->getRootObject()) meHFHadronEt_profile             ->Fill(_numPV, pfHFHadronEt);   
+    if (meHFEMEtFraction_profile          && meHFEMEtFraction_profile         ->getRootObject()) meHFEMEtFraction_profile         ->Fill(_numPV, pfHFEMEtFraction);
+    if (meHFEMEt_profile                  && meHFEMEt_profile                 ->getRootObject()) meHFEMEt_profile                 ->Fill(_numPV, pfHFEMEt);       
+  }
 }
 
-// ***********************************************************
+
+//------------------------------------------------------------------------------
+// selectHighPtJetEvent
+//------------------------------------------------------------------------------
 bool PFMETAnalyzer::selectHighPtJetEvent(const edm::Event& iEvent){
 
   bool return_value=false;

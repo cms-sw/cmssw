@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:38 CET 2012
-// $Id: FWGeometryTableView.h,v 1.7 2012/04/30 19:59:37 amraktad Exp $
+// $Id: FWGeometryTableView.h,v 1.10 2012/05/04 03:00:38 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
@@ -31,6 +31,7 @@ class FWGeometryTableView : public FWGeometryTableViewBase
 public:
    enum EMode          { kNode, kVolume };
    enum EProximityAlgo { kBBoxCenter, kBBoxSurface };
+   enum EFiterType     { kFilterMaterialName, kFilterMaterialTitle, kFilterShapeName, kFilterShapeClassName };
 
 public:
    FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager* colMng);
@@ -48,7 +49,7 @@ public:
    int  getVisLevel()        const { return m_visLevel.value(); }
    bool getIgnoreVisLevelWhenFilter() const { return m_visLevelFilter.value(); }
 
-   bool getFilterByName() const { return m_filterByName.value(); }
+   int getFilterType() const { return m_filterType.value(); }
 
    bool drawTopNode() const { return ! m_disableTopNode.value(); }
    void autoExpandCallback();
@@ -61,11 +62,6 @@ public:
    void checkRegionOfInterest();
    bool isSelectedByRegion() const { return m_selectRegion.value(); } 
    
-   long getParentTransparencyFactor() const { return m_parentTransparencyFactor.value(); }
-   long getLeafTransparencyFactor()   const { return m_leafTransparencyFactor.value(); }
-   long getMinParentTransparency() const { return m_minParentTransparency.value(); }
-   long getMinLeafTransparency()   const { return m_minLeafTransparency.value(); }
-
 protected:
    // virtual void initGeometry(TGeoNode* iGeoTopNode, TObjArray* iVolumes);
 
@@ -85,7 +81,7 @@ private:
    FWLongParameter         m_visLevel;
 
    FWStringParameter       m_filter; 
-   FWBoolParameter         m_filterByName;
+   FWEnumParameter         m_filterType;
    FWBoolParameter         m_visLevelFilter; 
    
    FWBoolParameter         m_selectRegion;
@@ -93,10 +89,7 @@ private:
    FWEnumParameter         m_proximityAlgo;
    
    
-   FWLongParameter         m_parentTransparencyFactor;
-   FWLongParameter         m_leafTransparencyFactor;
-   FWLongParameter         m_minParentTransparency;
-   FWLongParameter         m_minLeafTransparency;
+   boost::shared_ptr<FWParameterSetterBase> m_filterTypeSetter;
 
 #endif  
 

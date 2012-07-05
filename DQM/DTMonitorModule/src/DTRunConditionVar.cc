@@ -6,7 +6,7 @@
  *
  * \author : Paolo Bellan, Antonio Branca
  * $date   : 23/09/2011 15:42:04 CET $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  *
  * Modification:
  *
@@ -172,7 +172,7 @@ void DTRunConditionVar::analyze(const Event & event,
 
         float vDriftMed = (vDriftPhi1 + vDriftPhi2) / 2.;
 
-        segmentVDrift = vDriftMed*(1. + segmentVDrift);
+        segmentVDrift = vDriftMed*(1. - segmentVDrift);
 
         double segmentT0 = segment->phiSegment()->t0();
 

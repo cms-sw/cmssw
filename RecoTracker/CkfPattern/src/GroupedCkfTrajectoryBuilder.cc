@@ -451,11 +451,12 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
       }
     }
     
+    unsigned int maxCandidates = theMaxCand > 21 ? theMaxCand*2 : 42; //limit the number of returned segments
     TrajectorySegmentBuilder layerBuilder(theMeasurementTracker,
 					  theLayerMeasurements,
 					  **il,*propagator,
 					  *theUpdator,*theEstimator,
-					  theLockHits,theBestHitOnly);
+					  theLockHits,theBestHitOnly, maxCandidates);
 
     LogDebug("CkfPattern")<<whatIsTheStateToUse(stateAndLayers.first,stateToUse,*il);
     

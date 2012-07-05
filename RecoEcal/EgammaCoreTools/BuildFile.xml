@@ -6,6 +6,7 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>
+<use   name="Geometry/EcalAlgo"/>
 <use   name="RecoLocalCalo/EcalRecAlgos"/>
 <use   name="Geometry/Records"/>
 <use   name="CalibCalorimetry/EcalLaserCorrection"/>

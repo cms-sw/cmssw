@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/03/23 09:43:55 $
- *  $Revision: 1.80 $
+ *  $Date: 2012/03/23 11:36:14 $
+ *  $Revision: 1.81 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -207,7 +207,6 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   _doHLTPhysicsOn     = theCleaningParameters.getParameter<bool>("doHLTPhysicsOn");
 
   _tightBHFiltering   = theCleaningParameters.getParameter<bool>("tightBHFiltering");
-  _tightHcalFiltering = theCleaningParameters.getParameter<bool>("tightHcalFiltering");
 
   _theVertexLabel     = theCleaningParameters.getParameter<edm::InputTag>("vertexLabel");
   _theGTLabel         = theCleaningParameters.getParameter<edm::InputTag>("gtLabel");

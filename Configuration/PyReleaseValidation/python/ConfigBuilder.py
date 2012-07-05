@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.380 $"
-__source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
+__version__ = "$Revision: 1.381.2.1 $"
+__source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module
@@ -66,6 +66,7 @@ defaultOptions.restoreRNDSeeds = False
 defaultOptions.donotDropOnInput = ''
 defaultOptions.python_filename =''
 defaultOptions.io=None
+defaultOptions.lumiToProcess=None
 
 # some helper routines
 def dumpPython(process,name):
@@ -402,6 +403,10 @@ class ConfigBuilder(object):
 		if not self._options.dropDescendant:
 			self.process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
 
+	if self._options.lumiToProcess:
+		import FWCore.PythonUtilities.LumiList as LumiList
+		self.process.source.eventsToProcess=cms.untracked.VEventRange( LumiList.LumiList(self._options.lumiToProcess).getCMSSWString().split(',') )
+
 		
         if 'GEN' in self.stepMap.keys() or (not self._options.filein and hasattr(self._options, "evt_type")):
             if self.process.source is None:
@@ -623,11 +628,6 @@ class ConfigBuilder(object):
 	if len(self.stepMap):
 		self.loadAndRemember(self.magFieldCFF)
 
-	if self._options.restoreRNDSeeds:
-		self.executeAndRemember('process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")')
-		if not self._options.inputCommands:			self._options.inputCommands='keep *_randomEngineStateProducer_*_*,'     
-		else:		self._options.inputCommands+='keep *_randomEngineStateProducer_*_*,'
-
         # what steps are provided by this class?
         stepList = [re.sub(r'^prepare_', '', methodName) for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
 
@@ -657,6 +657,19 @@ class ConfigBuilder(object):
 
             else:
                 raise ValueError("Step definition "+step+" invalid")
+
+	if self._options.restoreRNDSeeds!=False:
+		#it is either True, or a process name
+		if self._options.restoreRNDSeeds==True:
+			self.executeAndRemember('process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")')
+		else:
+			self.executeAndRemember('process.RandomNumberGeneratorService.restoreStateTag=cms.untracked.InputTag("randomEngineStateProducer","","%s")'%(self._options.restoreRNDSeeds))
+		if self._options.inputEventContent or self._options.inputCommands:
+			if self._options.inputCommands:
+				self._options.inputCommands+='keep *_randomEngineStateProducer_*_*,'
+			else:
+				self._options.inputCommands='keep *_randomEngineStateProducer_*_*,'
+					
 
     def addConditions(self):
         """Add conditions to the process"""
@@ -1349,28 +1362,37 @@ class ConfigBuilder(object):
         if not sequence:
                 print "no specification of the hlt menu has been given, should never happen"
                 raise  Exception('no HLT sequence provided')
-        else:
-                if ',' in sequence:
-                        #case where HLT:something:something was provided
-                        self.executeAndRemember('import HLTrigger.Configuration.Utilities')
-                        optionsForHLT = {}
-                        if self._options.scenario == 'HeavyIons':
-                          optionsForHLT['type'] = 'HIon'
-                        else:
-                          optionsForHLT['type'] = 'GRun'
-                        optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.iteritems())
-                        self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
-                else:
-                        if 'FASTSIM' in self.stepMap:
-                            self.loadAndRemember('HLTrigger/Configuration/HLT_%s_Famos_cff' % sequence)
-                        else:
-                            self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
 
-	if self._options.name!='HLT':
+        if ',' in sequence:
+                #case where HLT:something:something was provided
+                self.executeAndRemember('import HLTrigger.Configuration.Utilities')
+                optionsForHLT = {}
+                if self._options.scenario == 'HeavyIons':
+                  optionsForHLT['type'] = 'HIon'
+                else:
+                  optionsForHLT['type'] = 'GRun'
+                optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.iteritems())
+                self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
+        else:
+                if 'FASTSIM' in self.stepMap:
+                    self.loadAndRemember('HLTrigger/Configuration/HLT_%s_Famos_cff' % sequence)
+                else:
+                    self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
+
+        if self._options.isMC:
+                self.additionalCommands.append('# customise the HLT menu for running on MC')
+                self.additionalCommands.append('from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC')
+                self.additionalCommands.append('process = customizeHLTforMC(process)')
+                self.additionalCommands.append('')
+                from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
+                self.process = customizeHLTforMC(self.process)
+
+	if self._options.name != 'HLT':
 		self.additionalCommands.append('from HLTrigger.Configuration.CustomConfigs import ProcessName')
-		self.additionalCommands.append('process=ProcessName(process)')
+		self.additionalCommands.append('process = ProcessName(process)')
+                self.additionalCommands.append('')
 		from HLTrigger.Configuration.CustomConfigs import ProcessName
-		self.process=ProcessName(self.process)
+		self.process = ProcessName(self.process)
 		
         self.schedule.append(self.process.HLTSchedule)
         [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
@@ -1489,8 +1511,10 @@ class ConfigBuilder(object):
                             prevalSeqName=''
                             valSeqName=sequence
 
-            if not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap:
-                    self.loadAndRemember('Configuration.StandardSequences.ReMixingSeeds_cff')
+            if not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap and not valSeqName.startswith('genvalid'):
+		    if self._options.restoreRNDSeeds==False and not self._options.restoreRNDSeeds==True:
+			    self._options.restoreRNDSeeds=True
+
             #rename the HLT process in validation steps
 	    if ('HLT' in self.stepMap and not 'FASTSIM' in self.stepMap) or self._options.hltProcess:
 		    self.renameHLTprocessInSequence(valSeqName)
@@ -1500,11 +1524,11 @@ class ConfigBuilder(object):
             if prevalSeqName:
                     self.process.prevalidation_step = cms.Path( getattr(self.process, prevalSeqName ) )
                     self.schedule.append(self.process.prevalidation_step)
-            if valSeqName.startswith('genvalid'):
-                    self.loadAndRemember("IOMC.RandomEngine.IOMC_cff")
-                    self.process.validation_step = cms.Path( getattr(self.process,valSeqName ) )
-            else:
-                    self.process.validation_step = cms.EndPath( getattr(self.process,valSeqName ) )
+
+	    if valSeqName.startswith('genvalid'):
+		    self.process.validation_step = cms.Path( getattr(self.process,valSeqName ) )
+	    else:
+		    self.process.validation_step = cms.EndPath( getattr(self.process,valSeqName ) )
             self.schedule.append(self.process.validation_step)
 
 	    if not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap:
@@ -1759,7 +1783,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.380 $"),
+                                            (version=cms.untracked.string("$Revision: 1.381.2.1 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )

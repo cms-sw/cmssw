@@ -19,20 +19,20 @@ process.clusterSummaryProducer = cms.EDProducer('ClusterSummaryProducer',
                                         pixelClusters=cms.InputTag("siPixelClusters"),
                                         #Module=cms.string('TOB, TIB, TID, TEC, TIB_1, TOB_4, TECM, TECP, TIDM, TIDP, TECM_1, TECP_2, TIDM_3, TIDP_1'),
                                         #Module=cms.string( TOB, TIB, TID, TEC, TRACKER')
-                                        stripModule=cms.string('TOB,TIB'),        
+                                        stripModule=cms.string('TOB,TIB,TID,TEC,TRACKER'),        
                                         #Module=cms.string('TECP,TECP_1,TECP_2,TECP_3,TECP_4,TECP_5,TECP_6,TECP_7,TECP_8,TECP_9'),
                                         #Module=cms.string('TOB, TECPR_2, TIDMR_2'),
                                         stripVariables=cms.string('cHits,cSize,cCharge'),
                                         #pixelModule=cms.string('BPIX,FPIX,FPIXM,FPIXP,PIXEL'),        
-                                        #pixelModule=cms.string('BPIX,FPIX'),        
+                                        pixelModule=cms.string('BPIX,FPIX,PIXEL'),        
                                         #pixelModule=cms.string('BPIX,BPIX_1,BPIX_2,BPIX_3'),        
-                                        pixelModule=cms.string('FPIX,FPIX_1,FPIXM_1,FPIXP_1,FPIX_2,FPIXM_2,FPIXP_2,FPIX_3,FPIXM_3,FPIXP_3'),        
+                                        #pixelModule=cms.string('FPIX,FPIX_1,FPIXM_1,FPIXP_1,FPIX_2,FPIXM_2,FPIXP_2,FPIX_3,FPIXM_3,FPIXP_3'),        
                                         pixelVariables=cms.string('pHits,pSize,pCharge'),
                                         #pixelModule=cms.string('FPIXM,FPIXM_1,FPIXM_2,FPIXM_3,FPIXP,FPIXP_1,FPIXP_2,FPIXP_3'),        
                                         #pixelModule=cms.string('FPIX,FPIX_1,FPIXM_1,FPIXP_1,FPIX_2,FPIXM_2,FPIXP_2,FPIX_3,FPIXM_3,FPIXP_3'),        
-                                        doStrips=cms.bool(False),
+                                        doStrips=cms.bool(True),
                                         doPixels=cms.bool(True),
-                                        verbose=cms.bool(True)
+                                        verbose=cms.bool(False)
                                         )
 
 process.out = cms.OutputModule("PoolOutputModule",

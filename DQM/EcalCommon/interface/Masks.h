@@ -5,8 +5,8 @@
   \file Masks.h
   \brief channel masking
   \author G. Della Ricca
-  \version $Revision: 1.8 $
-  \date $Date: 2012/02/28 16:38:13 $
+  \version $Revision: 1.7 $
+  \date $Date: 2010/08/20 19:09:03 $
 */
 
 #include <string>

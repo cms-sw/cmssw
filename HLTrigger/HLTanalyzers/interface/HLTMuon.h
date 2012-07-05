@@ -99,16 +99,16 @@ private:
   // Tree variables
   float *muonpt, *muonphi, *muoneta, *muonet, *muone, *muonchi2NDF, *muoncharge,
   *muonTrkIsoR03, *muonECalIsoR03, *muonHCalIsoR03, *muonD0;
-  float *pfmuonpt, *pfmuonphi, *pfmuoneta, *pfmuonet, *pfmuone, *pfmuoncharge;
+ float *pfmuonpt, *pfmuonphi, *pfmuoneta, *pfmuonet, *pfmuone, *pfmuoncharge;
   int *muontype, *muonNValidTrkHits, *muonNValidMuonHits;
-  float *muonl2pt, *muonl2eta, *muonl2phi, *muonl2dr, *muonl2drsign, *muonl2dz, *muonl2vtxz;
+  float *muonl2pt, *muonl2eta, *muonl2phi, *muonl2dr, *muonl2dz, *muonl2vtxz;
   float *muonl3pt, *muonl3eta, *muonl3phi, *muonl3dr, *muonl3dz, *muonl3vtxz, *muonl3normchi2; 
-  float *muonl3globalpt, *muonl3globaleta, *muonl3globalphi, *muonl3globaldr, *muonl3globaldrsign, *muonl3globaldz, *muonl3globalvtxz;
-  float *muonl2novtxpt, *muonl2novtxeta, *muonl2novtxphi, *muonl2novtxdr, *muonl2novtxdrsign, *muonl2novtxdz; 
+  float *muonl3globalpt, *muonl3globaleta, *muonl3globalphi, *muonl3globaldr, *muonl3globaldz, *muonl3globalvtxz;
+  float *muonl2novtxpt, *muonl2novtxeta, *muonl2novtxphi, *muonl2novtxdr, *muonl2novtxdz; 
   float *muonl2pterr, *muonl3pterr, *muonl2novtxpterr;
   int nmuon, nmu2cand, nmu3cand, nmu2novtxcand, ntrackermuoncand, npfmuon;
-  int *muonl2chg, *muonl2iso, *muonl2nhits, *muonl2nchambers, *muonl2nstat, *muonl2ndtcscstat, *muonl3chg, *muonl3iso, *muonl32idx, *muonl3nhits, *muonl21idx, *muonl2novtxchg, *muonl2novtxiso, *muonl2novtx1idx, *muonl2novtxnhits, *muonl2novtxnchambers, *muonl2novtxnstat, *muonl2novtxndtcscstat, *muonl3global2idx, *muonl3globalchg;
-  int *muonl3npixelhits, *muonl3ntrackerhits, *muonl3nmuonhits, *muonl3trk10iso;
+  int *muonl2chg, *muonl2iso, *muonl2nhits, *muonl2nchambers, *muonl2nstat, *muonl3chg, *muonl3iso, *muonl32idx, *muonl3nhits, *muonl21idx, *muonl2novtxchg, *muonl2novtxiso, *muonl2novtx1idx, *muonl2novtxnhits, *muonl2novtxnchambers, *muonl3global2idx, *muonl3globalchg;
+  int *muonl3ntrackerhits, *muonl3nmuonhits, *muonl3trk10iso;
   float *trackermuonpt, *trackermuonphi, *trackermuoneta;
   int *trackermuonchg, *trackermuonnhits;
 

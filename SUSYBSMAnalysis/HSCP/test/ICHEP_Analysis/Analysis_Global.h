@@ -35,9 +35,9 @@ double             GlobalMaxTOFErr =   0.07;
 double             GlobalMaxPterr=   0.25;
 double             GlobalMaxTIsol = 50;
 double             GlobalMaxEIsol = 0.30;
-double             GlobalMinPt   =   50.00;
+double             GlobalMinPt   =   45.00;
 double             GlobalMinIs   =   0.0;
-double             GlobalMinIm   =   3.5;
+double             GlobalMinIm   =   3.0;
 double             GlobalMinTOF  =   1.0;
 float              GlobalMaxEta  =  1.5; 
 
@@ -45,7 +45,7 @@ double		   MinCandidateMass = 100;
 
 char		   TypeMode         = 0; //0 = All Candidates
 					 //1 = Muon Candidates	
-std::string        MODE="COMPILE";         
+
 
 
 void InitdEdx(std::string dEdxS_Label_){

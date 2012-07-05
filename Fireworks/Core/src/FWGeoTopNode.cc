@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel  
 //         Created:  Thu Jun 23 01:24:51 CEST 2011
-// $Id: FWGeoTopNode.cc,v 1.22 2012/04/25 06:09:33 amraktad Exp $
+// $Id: FWGeoTopNode.cc,v 1.24 2012/05/04 00:22:05 amraktad Exp $
 //
 
 // system include files
@@ -107,7 +107,7 @@ void FWGeoTopNode::ProcessSelection(TGLSelectRecord& rec, std::set<TGLPhysicalSh
 {
    // printf("FWGeoTopNode::ProcessSelection ===============================\n");
 
-   fSceneJebo->BeginUpdate();
+   m_scene->BeginUpdate();
 
    if (sset.empty())
    {
@@ -164,14 +164,14 @@ void FWGeoTopNode::ProcessSelection(TGLSelectRecord& rec, std::set<TGLPhysicalSh
 
    if (rec.GetSecSelResult() != TGLSelectRecord::kNone)
    {
-      fSceneJebo->EndUpdate(kTRUE, kFALSE, kTRUE);
+      m_scene->EndUpdate(kTRUE, kFALSE, kTRUE);
       gEve->Redraw3D();
 
       tableManager()->dataChanged();
    }
    else
    {
-      fSceneJebo->EndUpdate(kFALSE, kFALSE, kFALSE);
+      m_scene->EndUpdate(kFALSE, kFALSE, kFALSE);
    }
 }
 
@@ -180,7 +180,7 @@ bool FWGeoTopNode::selectPhysicalFromTable( int tableIndex)
 {
    //   printf("FWGeoTopNode::selectPhysicalFromTable 
 
-   TGLPhysicalShape* ps = fSceneJebo->FindPhysical(phyID(tableIndex));
+   TGLPhysicalShape* ps = m_scene->FindPhysical(phyID(tableIndex));
    if (ps) {
       fSted.insert(ps);
       ps->Select(1);
@@ -244,25 +244,30 @@ void FWGeoTopNode::setupBuffMtx(TBuffer3D& buff, const TGeoHMatrix& mat)
 }
 
 // ______________________________________________________________________
-void FWGeoTopNode::paintShape(FWGeometryTableManagerBase::NodeInfo& data,  Int_t tableIndex, const TGeoHMatrix& nm, bool volumeColor)
+void FWGeoTopNode::paintShape( Int_t tableIndex, const TGeoHMatrix& nm, bool volumeColor, bool isParentNode)
 {
    static const TEveException eh("FWGeoTopNode::paintShape ");
  
-   //  printf("paint sahpe %s idx %d\n", data.m_node->GetVolume()->GetName(), tableIndex );
+  // printf("paint sahpe id %d\n", tableIndex );
 
+   FWGeometryTableManagerBase::NodeInfo& data = tableManager()->refEntries().at(tableIndex);
+   UChar_t transparency = wrapTransparency(data, isParentNode);
+   // printf("trans %d \n", transparency );
+   if (transparency >= 100) return;
+   
    TGeoShape* shape = data.m_node->GetVolume()->GetShape();
    
    TGeoCompositeShape* compositeShape = dynamic_cast<TGeoCompositeShape*>(shape);
    if (compositeShape)
    {
-      // fSceneJebo->fNextCompositeID = phyID(tableIndex);
+      // m_scene->fNextCompositeID = phyID(tableIndex);
 
       Double_t halfLengths[3] = { compositeShape->GetDX(), compositeShape->GetDY(), compositeShape->GetDZ() };
 
       TBuffer3D buff(TBuffer3DTypes::kComposite);
       buff.fID           = data.m_node->GetVolume();
       buff.fColor        = volumeColor ? data.m_node->GetVolume()->GetLineColor() : data.m_color ;
-      buff.fTransparency = data.m_transparency;// data.m_node->GetVolume()->GetTransparency(); 
+      buff.fTransparency = transparency;// data.m_node->GetVolume()->GetTransparency(); 
 
       nm.GetHomogenousMatrix(buff.fLocalMaster);  
       buff.fLocalFrame   = kTRUE; // Always enforce local frame (no geo manager).
@@ -272,7 +277,7 @@ void FWGeoTopNode::paintShape(FWGeometryTableManagerBase::NodeInfo& data,  Int_t
       Bool_t paintComponents = kTRUE;
       // Start a composite shape, identified by this buffer
       if (TBuffer3D::GetCSLevel() == 0) {
-         paintComponents = fSceneJebo->OpenCompositeWithPhyID(phyID(tableIndex), buff);
+         paintComponents = m_scene->OpenCompositeWithPhyID(phyID(tableIndex), buff);
       }
 
       TBuffer3D::IncCSLevel();
@@ -289,7 +294,7 @@ void FWGeoTopNode::paintShape(FWGeometryTableManagerBase::NodeInfo& data,  Int_t
          gPad->GetViewer3D()->CloseComposite();
 
 
-      //  fSceneJebo->fNextCompositeID = 0;
+      //  m_scene->fNextCompositeID = 0;
    }
    else
    {
@@ -297,7 +302,7 @@ void FWGeoTopNode::paintShape(FWGeometryTableManagerBase::NodeInfo& data,  Int_t
       setupBuffMtx(buff, nm);
       buff.fID           = data.m_node->GetVolume();
       buff.fColor        = volumeColor ? data.m_node->GetVolume()->GetLineColor() : data.m_color ;
-      buff.fTransparency = data.m_transparency;// data.m_node->GetVolume()->GetTransparency(); 
+      buff.fTransparency = transparency;// data.m_node->GetVolume()->GetTransparency(); 
 
 
       nm.GetHomogenousMatrix(buff.fLocalMaster);
@@ -324,7 +329,7 @@ void FWGeoTopNode::paintShape(FWGeometryTableManagerBase::NodeInfo& data,  Int_t
 // ______________________________________________________________________
 void FWGeoTopNode::Paint(Option_t* opt)
 {
-   static const TEveException eh("TEveTopNodeJebo::Paint ");
+   static const TEveException eh("FWGeoTopNode::Paint ");
 
    TBuffer3D buff(TBuffer3DTypes::kGeneric);
 
@@ -404,4 +409,17 @@ FWPopupMenu* FWGeoTopNode::setPopupMenu(int iX, int iY, TGLViewer* v, bool overl
    
    nodePopup->PlaceMenu(iX, iY,true,true);
    return nodePopup;
+}
+
+
+UChar_t FWGeoTopNode::wrapTransparency(FWGeometryTableManagerBase::NodeInfo& data, bool isParentNode)
+{
+   if (isParentNode)
+   {
+      return TMath::Max((Char_t)browser()->getMinParentTransparency(), data.m_transparency) * browser()->getParentTransparencyFactor();
+   }
+   else 
+   {
+      return TMath::Max((Char_t)browser()->getMinLeafTransparency(), data.m_transparency) * browser()->getLeafTransparencyFactor();
+   }   
 }

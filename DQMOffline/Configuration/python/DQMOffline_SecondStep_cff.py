@@ -66,6 +66,7 @@ DQMOffline_SecondStepPOGMC = cms.Sequence( dqmRefHistoRootFileGetter *
 
 
 DQMHarvestCommon = cms.Sequence( dqmRefHistoRootFileGetter *
+                                 DQMMessageLoggerClientSeq *
                                  dqmDcsInfoClient *
                                  SiStripOfflineDQMClient *
                                  PixelOfflineDQMClientNoDataCertification *
@@ -77,6 +78,7 @@ DQMHarvestCommon = cms.Sequence( dqmRefHistoRootFileGetter *
                                  runTauEff
                                 )
 DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
+                                               DQMMessageLoggerClientSeq *
                                                dqmDcsInfoClient *
                                                SiStripOfflineDQMClient *
                                                PixelOfflineDQMClientNoDataCertification *
@@ -99,4 +101,5 @@ DQMHarvestEcal = cms.Sequence( ecal_dqm_client_offline *
 DQMHarvestHcal = cms.Sequence( hcalOfflineDQMClient )
 
 DQMHarvestJetMET = cms.Sequence( SusyPostProcessorSequence )
-                                             
+
+DQMHarvestEGamma = cms.Sequence( photonOfflineClient )                                             

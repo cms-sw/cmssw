@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 CondDBCommon = cms.PSet(
     DBParameters = cms.PSet(
-        authenticationPath = cms.untracked.string('.'),
+        authenticationPath = cms.untracked.string(''),
+        authenticationSystem = cms.untracked.int32(0),
         connectionRetrialPeriod = cms.untracked.int32(10),
         idleConnectionCleanupPeriod = cms.untracked.int32(10),
         messageLevel = cms.untracked.int32(0),

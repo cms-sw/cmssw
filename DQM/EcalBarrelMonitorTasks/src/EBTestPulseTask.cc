@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2011/10/28 14:15:46 $
- * $Revision: 1.118 $
+ * $Date: 2011/08/30 09:30:33 $
+ * $Revision: 1.117 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *

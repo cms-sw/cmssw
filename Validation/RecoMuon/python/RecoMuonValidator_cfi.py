@@ -21,6 +21,10 @@ recoMuonValidator = cms.EDAnalyzer("RecoMuonValidator",
     #string cut selection
     selection = cms.string("isTrackerMuon && muonID('TMLastStationAngTight')"),
 
+    wantTightMuon = cms.bool(False),
+    beamSpot = cms.InputTag("offlineBeamSpot"),
+    primaryVertex = cms.InputTag('offlinePrimaryVertices'),
+
     #
     # Histogram dimensions     #
     #

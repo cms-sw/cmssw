@@ -5,25 +5,20 @@
 
  <class name="RunSummary" class_version="0"/>
  
- <class name="RunInfo::Triplet"/>
- <class name="RunInfo::RunSession"/>
- <class name="RunInfo::RunSessionDelimiter"/>
- <class name="std::vector<RunInfo::Triplet>" />
- <class name="std::vector<std::pair<unsigned long long, float> >" />
- <class name="std::vector<RunInfo::RunSession>" />
- <class name="RunInfo::SubdetectorSpecs" />
- <class name="RunInfo" class_version="0">
- 	<field name="m_sessions" mapping="blob" />
- </class>
+ <class name="RunInfo" class_version="0"/>
  
  <class name="L1TriggerScaler::Lumi"/>
  <class name="std::vector<L1TriggerScaler::Lumi>"/>
  <class name="L1TriggerScaler" class_version="0"/>
-
- <class name="MixingModuleConfig" class_version="0"> 
-        <field name="configs_" mapping="blob" />
- </class>
-
- <class name="MixingInputConfig" class_version="0"/> 
+ <class name="MixingModuleConfig" class_version="0">
+            <field name="configs_" mapping="blob" />
+     </class>
+    
+ <class name="MixingInputConfig" class_version="0"/>
  <class name="std::vector<MixingInputConfig>"/> 
+ 
+ <class name="FillInfo" class_version="0">
+   <field name="m_bunchConfiguration1" mapping="blob"/>
+   <field name="m_bunchConfiguration2" mapping="blob"/>
+ </class>  
 </lcgdict>  

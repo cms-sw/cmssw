@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:06:35 CET 2012
-// $Id: FWOverlapTableView.cc,v 1.8 2012/03/23 22:40:13 amraktad Exp $
+// $Id: FWOverlapTableView.cc,v 1.11 2012/05/08 02:32:50 amraktad Exp $
 //
 
 // system include files
@@ -129,8 +129,8 @@ FWOverlapTableView::FWOverlapTableView(TEveWindowSlot* iParent, FWColorManager* 
    m_eveTopNode->SetPickable(true);
    m_eveScene->AddElement(m_eveTopNode);
 
-   gls->fTopNodeJebo = m_eveTopNode;
-   m_eveTopNode->fSceneJebo   = gls;
+   gls->m_eveTopNode = m_eveTopNode;
+   m_eveTopNode->m_scene   = gls;
 
    m_marker = new TEvePointSet();
    m_marker->SetMarkerSize(5);
@@ -205,18 +205,20 @@ void FWOverlapTableView::recalculate()
 //______________________________________________________________________________
 void FWOverlapTableView::setFrom(const FWConfiguration& iFrom)
 {
-  m_enableRedraw = false;
-   for(const_iterator it =begin(), itEnd = end();
-       it != itEnd;
-       ++it) {
-      (*it)->setFrom(iFrom);
+   m_enableRedraw = false;
 
+   for (const_iterator it =begin(), itEnd = end(); it != itEnd; ++it)
+   { 
+      if ((*it)->name() == m_topNodeIdx.name()  )
+         setTopNodePathFromConfig(iFrom);
+      else 
+         (*it)->setFrom(iFrom);
    }  
+
    m_viewersConfig = iFrom.valueForKey("Viewers");
    m_numEntry->SetNumber(m_precision.value());
   
-  
-//  refreshTable3D();
+   //  refreshTable3D();
    m_enableRedraw = true;
    recalculate();
 }
@@ -232,6 +234,8 @@ void FWOverlapTableView::populateController(ViewerParameterGUI& gui) const
       separator().
       addParam(&m_drawPoints).
       addParam(&m_pointSize);
+   
+   FWGeometryTableViewBase::populateController(gui);
 }
 
 //______________________________________________________________________________
