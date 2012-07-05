@@ -422,9 +422,26 @@ void SiPixelRecHitsInputDistributionsMaker::fillBarrel(const SiPixelRecHit& recH
   int lastPixelInX = (*clust).maxPixelRow();
   int firstPixelInY = (*clust).minPixelCol();
   int lastPixelInY = (*clust).maxPixelCol();
-  const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
-  bool hasBigPixelInX = rectPixelTopology->containsBigPixelInX(firstPixelInX,lastPixelInX);
-  bool hasBigPixelInY = rectPixelTopology->containsBigPixelInY(firstPixelInY,lastPixelInY);
+  bool upgradeGeometry = false;
+  if( conf_.exists( "trackerGeometryConstants" ))
+  {
+    const edm::ParameterSet tkGeomConsts( conf_.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
+    upgradeGeometry = tkGeomConsts.getParameter<bool>( "upgradeGeometry" );
+  }
+  const PixelTopology* theSpecificTopology = &(theGeomDet->specificTopology());
+  RectangularPixelTopology rectPixelTopology(theSpecificTopology->nrows(),
+					     theSpecificTopology->ncolumns(),
+					     theSpecificTopology->pitch().first,
+					     theSpecificTopology->pitch().second,
+					     upgradeGeometry,
+					     theSpecificTopology->rowsperroc(),
+					     theSpecificTopology->colsperroc(),
+					     theSpecificTopology->bigPixPerRocX(),
+					     theSpecificTopology->bigPixPerRocY(),
+					     theSpecificTopology->rocsX(),
+					     theSpecificTopology->rocsY());
+  bool hasBigPixelInX = rectPixelTopology.containsBigPixelInX(firstPixelInX,lastPixelInX);
+  bool hasBigPixelInY = rectPixelTopology.containsBigPixelInY(firstPixelInY,lastPixelInY);
 
 #ifdef MUONSONLY
   if(abs(simHit.particleType()) == 13)
@@ -593,9 +610,26 @@ void SiPixelRecHitsInputDistributionsMaker::fillForward(const SiPixelRecHit & re
   int lastPixelInX = (*clust).maxPixelRow();
   int firstPixelInY = (*clust).minPixelCol();
   int lastPixelInY = (*clust).maxPixelCol();
-  const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
-  bool hasBigPixelInX = rectPixelTopology->containsBigPixelInX(firstPixelInX,lastPixelInX);
-  bool hasBigPixelInY = rectPixelTopology->containsBigPixelInY(firstPixelInY,lastPixelInY);
+  bool upgradeGeometry = false;
+  if( conf_.exists( "trackerGeometryConstants" ))
+  {
+    const edm::ParameterSet tkGeomConsts( conf_.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
+    upgradeGeometry = tkGeomConsts.getParameter<bool>( "upgradeGeometry" );
+  }
+  const PixelTopology* theSpecificTopology = &(theGeomDet->specificTopology());
+  RectangularPixelTopology rectPixelTopology(theSpecificTopology->nrows(),
+					     theSpecificTopology->ncolumns(),
+					     theSpecificTopology->pitch().first,
+					     theSpecificTopology->pitch().second,
+					     upgradeGeometry,
+					     theSpecificTopology->rowsperroc(),
+					     theSpecificTopology->colsperroc(),
+					     theSpecificTopology->bigPixPerRocX(),
+					     theSpecificTopology->bigPixPerRocY(),
+					     theSpecificTopology->rocsX(),
+					     theSpecificTopology->rocsY());
+  bool hasBigPixelInX = rectPixelTopology.containsBigPixelInX(firstPixelInX,lastPixelInX);
+  bool hasBigPixelInY = rectPixelTopology.containsBigPixelInY(firstPixelInY,lastPixelInY);
 
 #ifdef MUONSONLY
   if(abs(simHit.particleType()) == 13) 
