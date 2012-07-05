@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremy Andrea/Andrea Rizzi
 //         Created:  Mon Aug  6 16:10:38 CEST 2007
-// $Id: ImpactParameterCalibration.cc,v 1.13 2010/01/22 08:56:41 arizzi Exp $
+// $Id: ImpactParameterCalibration.cc,v 1.14 2010/02/11 00:13:30 wmtan Exp $
 //
 //
 // system include files
@@ -393,7 +393,7 @@ ImpactParameterCalibration::endJob() {
     if(maxLoop == 1 ){
       std::ofstream of2("2d.xml");
       TBufferXML b2(TBuffer::kWrite);
-      of2 << b2.ConvertToXML(const_cast<void*>(static_cast<const void*>(m_calibration[1])),
+      of2 << b2.ConvertToXML(static_cast<void*>(m_calibration[1]),
 			     TClass::GetClass("TrackProbabilityCalibration"),
 			     kTRUE, kFALSE);
       of2.close();
@@ -401,7 +401,7 @@ ImpactParameterCalibration::endJob() {
     if(minLoop == 0 ){
       std::ofstream of3("3d.xml");
       TBufferXML b3(TBuffer::kWrite);
-      of3 << b3.ConvertToXML(const_cast<void*>(static_cast<const void*>(m_calibration[0])),
+      of3 << b3.ConvertToXML(static_cast<void*>(m_calibration[0]),
 			     TClass::GetClass("TrackProbabilityCalibration"),
 			     kTRUE, kFALSE);
       of3.close();
@@ -415,7 +415,7 @@ ImpactParameterCalibration::endJob() {
       
       std::ofstream ofile("2d.dat");
       TBufferFile buffer(TBuffer::kWrite);
-      buffer.StreamObject(const_cast<void*>(static_cast<const void*>(m_calibration[1])),
+      buffer.StreamObject(static_cast<void*>(m_calibration[1]),
 			  TClass::GetClass("TrackProbabilityCalibration"));
       Int_t size = buffer.Length();
       ofile.write(buffer.Buffer(),size);
@@ -424,7 +424,7 @@ ImpactParameterCalibration::endJob() {
     if(minLoop == 0 ){
       std::ofstream ofile3("3d.dat");
       TBufferFile buffer3(TBuffer::kWrite);
-      buffer3.StreamObject(const_cast<void*>(static_cast<const void*>(m_calibration[0])),
+      buffer3.StreamObject(static_cast<void*>(m_calibration[0]),
 			   TClass::GetClass("TrackProbabilityCalibration"));
       Int_t size3 = buffer3.Length();
       ofile3.write(buffer3.Buffer(),size3);
