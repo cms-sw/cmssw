@@ -328,7 +328,7 @@ DTBtiCard::loadBTI(const DTDigiCollection dtDigis) {
   	//DTBtiId _id = DTBtiId(sid, sln, nbti); 
 
 	DTDigi* pdigi = new DTDigi((*digiIt).wire(),tdrift);
-	_digis.push_back(const_cast<DTDigi*>(pdigi) );
+	_digis.push_back(pdigi);
 	
 	
 	switch(layn) {
@@ -552,7 +552,7 @@ DTBtiCard::localPosition(const DTTrigData* tr) const {
 LocalPoint 
 DTBtiCard::localPosition(const DTTrigData* tr) const {
 //NEWGEO!!!
- DTBtiTrigData* trig = dynamic_cast<DTBtiTrigData*>(const_cast<DTTrigData*>(tr));
+ const DTBtiTrigData* trig = dynamic_cast<const DTBtiTrigData*>(tr);
  if(!trig) {
     std::cout << "DTBtiCard::localPosition called with wrong argument!" << std::endl;
     return LocalPoint(0,0,0);
@@ -599,7 +599,7 @@ DTBtiCard::localPosition(const DTTrigData* tr) const {
 LocalVector
 DTBtiCard::localDirection(const DTTrigData* tr) const {
 //NEWGEO
- DTBtiTrigData* trig = dynamic_cast<DTBtiTrigData*>(const_cast<DTTrigData*>(tr));
+ const DTBtiTrigData* trig = dynamic_cast<const DTBtiTrigData*>(tr);
  //this method is only for check purpose
   if(!trig) {
     std::cout << "DTBtiCard::localDirection called with wrong argument!" << std::endl;
