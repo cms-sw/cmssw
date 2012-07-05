@@ -431,6 +431,8 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 	  
 	  TransverseImpactPointExtrapolator extrapolator;
 	  stateToUse = extrapolator.extrapolate(stateToUse, target, *propagator);
+	  if (!stateToUse.isValid()) continue; //SK: consider trying the original? probably not
+
 	  //dPhiCacheForLoopersReconstruction = fabs(target1.phi()-target2.phi())*2.;
 	  dPhiCacheForLoopersReconstruction = fabs(tmpDphi);
 	  traj.incrementLoops();
