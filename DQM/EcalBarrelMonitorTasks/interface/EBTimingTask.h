@@ -4,8 +4,8 @@
 /*
  * \file EBTimingTask.h
  *
- * $Date: 2011/09/15 21:54:51 $
- * $Revision: 1.21 $
+ * $Date: 2011/09/15 20:59:51 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */

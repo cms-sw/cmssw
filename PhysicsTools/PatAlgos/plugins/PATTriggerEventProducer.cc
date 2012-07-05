@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerEventProducer.cc,v 1.16 2011/11/30 12:23:31 vadler Exp $
+// $Id: PATTriggerEventProducer.cc,v 1.17 2011/11/30 12:36:40 vadler Exp $
 //
 
 
@@ -174,9 +174,6 @@ void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
   iEvent.getByLabel( tagTriggerProducer_, handleTriggerFilters );
   Handle< TriggerObjectCollection > handleTriggerObjects;
   iEvent.getByLabel( tagTriggerProducer_, handleTriggerObjects );
-  Handle< TriggerObjectStandAloneCollection > handleTriggerObjectsStandAlone;
-  iEvent.getByLabel( tagTriggerProducer_, handleTriggerObjectsStandAlone );
-  assert( handleTriggerObjects->size() == handleTriggerObjectsStandAlone->size() );
 
   bool physDecl( false );
   if ( iEvent.isRealData() && ! tagL1Gt_.label().empty() ) {

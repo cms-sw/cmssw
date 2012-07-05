@@ -13,7 +13,7 @@
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: GeneralHLTOffline.cc,v 1.1 2012/02/10 17:08:14 bjk Exp $
+// $Id: GeneralHLTOffline.cc,v 1.2 2012/02/20 16:41:43 bjk Exp $
 //
 //
 
@@ -274,18 +274,22 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 // ------------ method called once each job just before starting event loop  ------------
 void 
 GeneralHLTOffline::beginJob()
-{
+{using namespace edm;
+ using std::string;
 
+
+  
   if (debugPrint) std::cout << "Inside begin job" << std::endl; 
 
   dbe = Service<DQMStore>().operator->();
-
-  if (dbe) {
+ 
+ if (dbe) {
 
     dbe->setCurrentFolder(plotDirectoryName);
-
+    
   }
 
+    
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -374,11 +378,17 @@ std::string h_title_1dPhiPath;
 std::string pathName;
 std::string PD_Folder;
 std::string Path_Folder;
+std::string HLTMenu;
 
 PD_Folder = TString("HLT/GeneralHLTOffline");
 if (label != "SingleMu" && label != "SingleElectron" && label != "Jet")  PD_Folder = TString("HLT/GeneralHLTOffline/"+label); 
 
 dbe->setCurrentFolder(PD_Folder.c_str());
+HLTMenu = hltConfig_.tableName();
+dbe->bookString("hltMenuName",HLTMenu.c_str());
+
+
+
 
 h_name = "HLT_"+label+"_EtaVsPhi";
 h_title = "HLT_"+label+"_EtaVsPhi";

@@ -73,8 +73,7 @@ class EventTimeDistribution : public edm::EDAnalyzer {
   const bool _wantbxincyclevsbx;
   const bool _wantorbitvsbxincycle;
   unsigned int _nevents;
-  const unsigned int m_maxLS;
-  const unsigned int m_LSfrac;
+  const double _binsize;
 
   RunHistogramManager _rhm;
 
@@ -109,8 +108,7 @@ EventTimeDistribution::EventTimeDistribution(const edm::ParameterSet& iConfig):
   _wantbxincyclevsbx(iConfig.getUntrackedParameter<bool>("wantBXincyclevsBX",false)),
   _wantorbitvsbxincycle(iConfig.getUntrackedParameter<bool>("wantOrbitvsBXincycle",false)),
   _nevents(0),
-  m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin",100)),
-  m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction",4)),
+  _binsize(iConfig.getUntrackedParameter<double>("minBinSizeInSec",1.)),
   _rhm(),
   _dbxvsbxincycle(0),   _dbxvsbx(0),   _bxincyclevsbx(0),   _orbitvsbxincycle(0)
 {
@@ -119,11 +117,11 @@ EventTimeDistribution::EventTimeDistribution(const edm::ParameterSet& iConfig):
   _dbx = _rhm.makeTH1F("dbx","dbx",1000,-0.5,999.5);
   _bx = _rhm.makeTH1F("bx","BX number",3564,-0.5,3563.5);
   _bxincycle = _rhm.makeTH1F("bxcycle","bxcycle",70,-0.5,69.5);
-  _orbit = _rhm.makeTH1F("orbit","orbit",m_LSfrac*m_maxLS,0,m_maxLS*262144);
+  _orbit = _rhm.makeTH1F("orbit","orbit",3600,0,11223*_binsize*3600);
   if(_wantdbxvsbxincycle) _dbxvsbxincycle = _rhm.makeTH2F("dbxvsbxincycle","dbxvsbxincycle",70,-0.5,69.5,1000,-0.5,999.5);
   if(_wantdbxvsbx) _dbxvsbx = _rhm.makeTH2F("dbxvsbx","dbxvsbx",3564,-0.5,3563.5,1000,-0.5,999.5);
   if(_wantbxincyclevsbx) _bxincyclevsbx = _rhm.makeTH2F("bxincyclevsbx","bxincyclevsbx",3564,-0.5,3563.5,70,-0.5,69.5);
-  if(_wantorbitvsbxincycle) _orbitvsbxincycle = _rhm.makeTH2F("orbitvsbxincycle","orbitvsbxincycle",70,-0.5,69.5,m_maxLS,0,m_maxLS*262144);
+  if(_wantorbitvsbxincycle) _orbitvsbxincycle = _rhm.makeTH2F("orbitvsbxincycle","orbitvsbxincycle",70,-0.5,69.5,3600,0,11223*_binsize*3600);
 
   edm::LogInfo("UsedAPVCyclePhaseCollection") << " APVCyclePhaseCollection " << _apvphasecoll << " used";
 

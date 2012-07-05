@@ -7,73 +7,68 @@ HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.vertexCollect
 HiTrackingRegionFactoryFromSTAMuonsBlock.MuonSrc= cms.InputTag("standAloneMuons","UpdatedAtVtx")
 
 HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.UseVertex      = True
+
 HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.UseFixedRegion = True
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Phi_fixed      = 0.3
+HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Phi_fixed      = 0.2
 HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Eta_fixed      = 0.2
 
 
 ###################################  
-from RecoHI.HiTracking.hiRegitInitialStep_cff import *
-
-
+from RecoTracker.IterativeTracking.InitialStep_cff import *
 
 # seeding
-hiRegitMuInitialStepSeeds     =  RecoHI.HiTracking.hiRegitInitialStep_cff.hiRegitInitialStepSeeds.clone()
+hiRegitMuInitialStepSeeds     = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.clone()
 hiRegitMuInitialStepSeeds.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromSTAMuonsBlock.clone()
 hiRegitMuInitialStepSeeds.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
-hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.EscapePt        = 3.0
-hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 0.5 # default = 0.2
-hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ_Region   = 1. # this give you the length 
-hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 20. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
-hiRegitMuInitialStepSeeds.skipClusters = cms.InputTag('hiRegitInitialStepClusters')
+hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.EscapePt        = 1.5
+hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 0.03 # default = 0.2
+hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ_Region   = 0. # this give you the length 
+hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
+
 
 # building: feed the new-named seeds
-hiRegitMuInitialStepTrajectoryFilter =  RecoHI.HiTracking.hiRegitInitialStep_cff.hiRegitInitialStepTrajectoryFilter.clone(
+hiRegitMuInitialStepTrajectoryFilter = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryFilter.clone(
     ComponentName = 'hiRegitMuInitialStepTrajectoryFilter'
     )
-hiRegitMuInitialStepTrajectoryFilter.filterPset.minPt              = 2.5 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
+hiRegitMuInitialStepTrajectoryFilter.filterPset.minPt              = 1.4 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
 
 
-hiRegitMuInitialStepTrajectoryBuilder =  RecoHI.HiTracking.hiRegitInitialStep_cff.hiRegitInitialStepTrajectoryBuilder.clone(
+hiRegitMuInitialStepTrajectoryBuilder = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryBuilder.clone(
     ComponentName        = 'hiRegitMuInitialStepTrajectoryBuilder',
-    trajectoryFilterName = 'hiRegitMuInitialStepTrajectoryFilter',
-    clustersToSkip       = cms.InputTag('hiRegitInitialStepClusters')
+    trajectoryFilterName = 'hiRegitMuInitialStepTrajectoryFilter'
 )
 
 # track candidates
-hiRegitMuInitialStepTrackCandidates        =   RecoHI.HiTracking.hiRegitInitialStep_cff.hiRegitInitialStepTrackCandidates.clone(
+hiRegitMuInitialStepTrackCandidates        =  RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuInitialStepSeeds'),
-    TrajectoryBuilder = 'hiRegitMuInitialStepTrajectoryBuilder',
-    maxNSeeds         = cms.uint32(1000000)
+    TrajectoryBuilder = 'hiRegitMuInitialStepTrajectoryBuilder'
     )
 
 # fitting: feed new-names
-hiRegitMuInitialStepTracks                 =  RecoHI.HiTracking.hiRegitInitialStep_cff.hiRegitInitialStepTracks.clone(
+hiRegitMuInitialStepTracks                 = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTracks.clone(
     src                 = 'hiRegitMuInitialStepTrackCandidates'
 )
 
 
-hiRegitMuInitialStepSelector               =  RecoHI.HiTracking.hiRegitInitialStep_cff.hiRegitInitialStepSelector.clone( 
+hiRegitMuInitialStepSelector               = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSelector.clone( 
     src                 ='hiRegitMuInitialStepTracks',
+    vertices            = cms.InputTag("hiSelectedVertex"),
     trackSelectors= cms.VPSet(
-        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'hiRegitMuInitialStepLoose',
             ), #end of pset
-        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'hiRegitMuInitialStepTight',
             preFilterName = 'hiRegitMuInitialStepLoose',
             ),
-        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'hiRegitMuInitialStep',
             preFilterName = 'hiRegitMuInitialStepTight',
-#            minNumberLayers = 10
             ),
         ) #end of vpset
     )
 
-hiRegitMuonInitialStep = cms.Sequence(hiGeneralTrackFilter*
-                                      hiRegitInitialStepClusters*
-                                      hiRegitMuInitialStepSeeds*
+hiRegitMuonInitialStep = cms.Sequence(hiRegitMuInitialStepSeeds*
                                       hiRegitMuInitialStepTrackCandidates*
                                       hiRegitMuInitialStepTracks*
                                       hiRegitMuInitialStepSelector)

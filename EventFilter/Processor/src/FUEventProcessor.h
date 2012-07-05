@@ -35,6 +35,8 @@
 
 #include <sys/time.h>
 #include <pthread.h>
+#include <sys/resource.h>
+#include <signal.h>
 
 #include <list>
 #include <vector>
@@ -106,6 +108,7 @@ namespace evf
       css_.css(in,out);
     }
 
+    void getSlavePids(xgi::Input  *in, xgi::Output *out);
     void subWeb(xgi::Input *in,xgi::Output *out);
     void moduleWeb(xgi::Input *in,xgi::Output *out){evtProcessor_.moduleWeb(in,out);}
     void serviceWeb(xgi::Input *in,xgi::Output *out){evtProcessor_.serviceWeb(in,out);}
@@ -115,6 +118,7 @@ namespace evf
     void sendMessageOverMonitorQueue(MsgBuf &);
 
     static void forkProcessFromEDM_helper(void * addr);
+    void handleSignalSlave(int sig, siginfo_t* info, void* c);
 
   private:
 
@@ -145,6 +149,9 @@ namespace evf
     bool receiving(toolbox::task::WorkLoop* wl);
     bool receivingAndMonitor(toolbox::task::WorkLoop* wl);
     bool supervisor(toolbox::task::WorkLoop* wl);
+    void startSignalMonitorWorkLoop() throw (evf::Exception);
+    bool sigmon(toolbox::task::WorkLoop* wl);
+
     bool enableCommon();
     bool enableClassic();
     //    void enableMPEPMaster();
@@ -230,6 +237,10 @@ namespace evf
     toolbox::task::WorkLoop         *wlSupervising_;      
     toolbox::task::ActionSignature  *asSupervisor_;
     bool                             supervising_;
+    toolbox::task::WorkLoop         *wlSignalMonitor_;      
+    toolbox::task::ActionSignature  *asSignalMonitor_;
+    bool                             signalMonitorActive_;
+
 
     xdata::InfoSpace*                monitorInfoSpace_;
     xdata::InfoSpace*                monitorLegendaInfoSpace_;
@@ -277,6 +288,13 @@ namespace evf
     moduleweb::ForkInfoObj           *forkInfoObj_;
     pthread_mutex_t                  forkObjLock_;
     bool                             edm_init_done_;
+
+    unsigned int                     crashesThisRun_;
+    bool                             rlimit_coresize_changed_;
+    rlimit                           rlimit_coresize_default_;
+    xdata::UnsignedInteger32         crashesToDump_;
+    sem_t                            *sigmon_sem_;
+    timeval                          lastCrashTime_;
   };
   
 } // namespace evf

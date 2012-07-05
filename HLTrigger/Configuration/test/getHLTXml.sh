@@ -76,8 +76,8 @@ function getConfigForOnline() {
   local CONFIG="$1"
   local NAME="$2"
 # local L1T="tag[,connect]" - record is hardwired as L1GtTriggerMenuRcd
-# local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2012_v0_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v0/sqlFile/L1Menu_Collisions2012_v0_mc.db"
-  local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2012_v0_mc"
+# local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v1/sqlFile/L1Menu_Collisions2012_v1_mc.db"
+  local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc"
 # local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_CollisionsHeavyIons2011_v0/sqlFile/L1Menu_CollisionsHeavyIons2011_v0_mc.db"
   local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc"
 
@@ -122,8 +122,10 @@ echo
 
 # for things now also in CMSSW CVS:
 echo "Extracting full configurations"
-rm -f OnData_HLT_*.py
-rm -f OnLine_HLT_*.py
+rm -f OnData_HLT_GRun_*.py
+rm -f OnData_HLT_HIon_*.py
+rm -f OnLine_HLT_GRun_*.py
+rm -f OnLine_HLT_HIon_*.py
 for TABLE in $TABLES; do
   getConfigForOnline $(eval echo $TARGET) $TABLE
 done

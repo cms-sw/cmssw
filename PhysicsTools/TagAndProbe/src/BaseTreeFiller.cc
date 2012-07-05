@@ -59,11 +59,6 @@ tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet iC
     if (weightMode_ != None) {
         tree_->Branch("weight", &weight_, "weight/F");
     }
-    storePUweight_ = iConfig.existsAs<edm::InputTag>("PUWeightSrc") ? true: false;
-    if(storePUweight_) {
-      PUweightSrc_   = iConfig.getParameter<edm::InputTag>("PUWeightSrc"); 
-      tree_->Branch("PUweight", &PUweight_, "PUweight/F");
-    }
 
     addRunLumiInfo_ = iConfig.existsAs<bool>("addRunLumiInfo") ? iConfig.getParameter<bool>("addRunLumiInfo") : false;
     if (addRunLumiInfo_) {
@@ -157,15 +152,6 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
         iEvent.getByLabel(weightSrc_, weight);
         weight_ = *weight;
     }
-
-
-    ///// ********** Pileup weight: needed for MC re-weighting for PU ************* 
-     edm::Handle<std::vector<float> > weightPU;
-     if(storePUweight_) {
-       bool isPresent = iEvent.getByLabel(PUweightSrc_, weightPU);
-       if(isPresent) PUweight_ = (*weightPU).at(0);
-       else PUweight_ = 1.0;
-     }
 
     if (addEventVariablesInfo_) {
         /// *********** store some event variables: MET, SumET ******

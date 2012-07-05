@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2012/03/29 13:49:29 $
- * $Revision: 1.47.2.1 $
+ * $Date: 2011/08/23 00:25:32 $
+ * $Revision: 1.46.4.1 $
  * \author G. Della Ricca
  *
 */
@@ -32,8 +32,6 @@ EBPedestalOnlineTask::EBPedestalOnlineTask(const edm::ParameterSet& ps){
   dqmStore_ = edm::Service<DQMStore>().operator->();
 
   prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
-
-  subfolder_ = ps.getUntrackedParameter<std::string>("subfolder", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -87,16 +85,11 @@ void EBPedestalOnlineTask::setup(void){
   init_ = true;
 
   std::string name;
-  std::string dir;
 
   if ( dqmStore_ ) {
-    dir = prefixME_ + "/EBPedestalOnlineTask";
-    if(subfolder_.size())
-      dir += "/" + subfolder_;
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalOnlineTask");
 
-    dqmStore_->setCurrentFolder(dir);
-
-    dqmStore_->setCurrentFolder(dir + "/Gain12");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalOnlineTask/Gain12");
     for (int i = 0; i < 36; i++) {
       name = "EBPOT pedestal " + Numbers::sEB(i+1) + " G12";
       mePedMapG12_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
@@ -114,13 +107,9 @@ void EBPedestalOnlineTask::cleanup(void){
   if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
-    std::string dir = prefixME_ + "/EBPedestalOnlineTask";
-    if(subfolder_.size())
-      dir += "/" + subfolder_;
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalOnlineTask");
 
-    dqmStore_->setCurrentFolder(dir);
-
-    dqmStore_->setCurrentFolder(dir + "/Gain12");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalOnlineTask/Gain12");
     for ( int i = 0; i < 36; i++ ) {
       if ( mePedMapG12_[i] ) dqmStore_->removeElement( mePedMapG12_[i]->getName() );
       mePedMapG12_[i] = 0;

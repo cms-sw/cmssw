@@ -116,7 +116,7 @@ FUShmBuffer::FUShmBuffer(bool segmentationMode, unsigned int nRawCells,
 	addr = (void*) ((unsigned long) this + clientPrcIdOffset_);
 	new (addr) pid_t[nClientsMax_];
 
-	rawCellOffset_ = dqmStateOffset_ + nClientsMax_ * sizeof(pid_t);
+	rawCellOffset_ = clientPrcIdOffset_ + nClientsMax_ * sizeof(pid_t);
 
 	if (segmentationMode_) {
 		recoCellOffset_ = rawCellOffset_ + nRawCells_ * sizeof(key_t);
@@ -442,12 +442,11 @@ void FUShmBuffer::scheduleRawCellForDiscard(unsigned int iCell) {
 		evt::State_t state = evtState(iCell);
 		stringstream details;
 		details
-				<< "state==evt::PROCESSING||state==evt::SENT||state==evt::EMPTY||state==evt::STOP||state==evt::LUMISECTION assertion failed! Actual state is "
-				<< state << ", iCell = " << iCell;
-		XCEPT_ASSERT(
-				state == evt::PROCESSING || state == evt::SENT || state
-						== evt::EMPTY || state == evt::STOP || state
-						== evt::LUMISECTION, evf::Exception, details.str());
+			<< "state==evt::PROCESSING||state==evt::SENT||state==evt::EMPTY||state==evt::STOP||state==evt::LUMISECTION assertion failed! Actual state is "
+			<< state << ", iCell = " << iCell;
+		XCEPT_ASSERT(  state == evt::PROCESSING || state == evt::SENT 
+				|| state == evt::EMPTY || state == evt::STOP
+				|| state == evt::LUMISECTION, evf::Exception, details.str());
 		if (state == evt::PROCESSING)
 			setEvtState(iCell, evt::PROCESSED);
 		if (state == evt::LUMISECTION)
@@ -464,8 +463,8 @@ void FUShmBuffer::scheduleRawCellForDiscardServerSide(unsigned int iCell) {
 		rawDiscardIndex_ = iCell;
 		evt::State_t state = evtState(iCell);
 		// UPDATE: aspataru
-		if (state != evt::LUMISECTION && state != evt::EMPTY && state
-				!= evt::USEDLS && state != evt::STOP)
+		if (state != evt::LUMISECTION && state != evt::EMPTY 
+		    && state != evt::USEDLS && state != evt::STOP)
 			setEvtState(iCell, evt::PROCESSED);
 		if (state == evt::LUMISECTION)
 			setEvtState(iCell, evt::USEDLS);
@@ -584,6 +583,7 @@ void FUShmBuffer::writeRawLumiSectionEvent(unsigned int ls) {
 	details << "state==evt::RAWWRITING assertion failed! Actual state is "
 			<< state << ", index = " << cell->index();
 	XCEPT_ASSERT(state == evt::RAWWRITING, evf::Exception, details.str());
+        setEvtNumber(cell->index(),0xffffffff);
 	setEvtState(cell->index(), evt::LUMISECTION);
 	cell->setEventTypeEol();
 	postRawIndexToRead(cell->index());
@@ -701,9 +701,9 @@ bool FUShmBuffer::writeRecoEventData(unsigned int runNumber,
 	}
 
 	waitRecoWrite();
+	unsigned int rawCellIndex = indexForEvtNumber(evtNumber);
 	unsigned int iCell = nextRecoWriteIndex();
 	FUShmRecoCell* cell = recoCell(iCell);
-	unsigned int rawCellIndex = indexForEvtNumber(evtNumber);
 	//evt::State_t state=evtState(rawCellIndex);
 	//XCEPT_ASSERT(state==evt::PROCESSING||state==evt::RECOWRITING||state==evt::SENT, evf::Exception, "state==evt::PROCESSING||state==evt::RECOWRITING||state==evt::SENT assertion failed!");
 	setEvtState(rawCellIndex, evt::RECOWRITING);
@@ -1319,6 +1319,17 @@ unsigned int FUShmBuffer::indexForEvtNumber(unsigned int evtNumber) {
 			+ evtNumberOffset_);
 	for (unsigned int i = 0; i < nRawCells_; i++) {
 		if ((*pevt++) == evtNumber)
+			return i;
+	}
+	XCEPT_ASSERT(false, evf::Exception, "This point should not be reached!");
+	return 0xffffffff;
+}
+
+//______________________________________________________________________________
+unsigned int FUShmBuffer::indexForEvtPrcId(pid_t prcid) {
+	pid_t *pevt = (pid_t*) ((unsigned long) this + evtPrcIdOffset_);
+	for (unsigned int i = 0; i < nRawCells_; i++) {
+		if ((*pevt++) == prcid)
 			return i;
 	}
 	XCEPT_ASSERT(false, evf::Exception, "This point should not be reached!");

@@ -17,6 +17,8 @@
 <use   name="DataFormats/HcalDetId"/>
 <use   name="DataFormats/HcalDigi"/>
 <use   name="DataFormats/HcalRecHit"/>
+<use   name="DataFormats/CSCRecHit"/>
+<use   name="DataFormats/DTRecHit"/>
 <use   name="Geometry/EcalMapping"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>

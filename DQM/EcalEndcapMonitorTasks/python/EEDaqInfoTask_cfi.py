@@ -5,5 +5,3 @@ ecalEndcapDaqInfoTask = cms.EDAnalyzer("EEDaqInfoTask",
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),
 )
-
-# ecalEndcapDaqInfoTask = cms.Sequence()
