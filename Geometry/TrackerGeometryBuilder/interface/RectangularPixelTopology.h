@@ -184,14 +184,6 @@ public:
     return m_COLS_PER_ROC; 	 
   }
 
-  virtual int bigPixPerRocY() const {
-    return m_BIG_PIX_PER_ROC_Y;
-  }
-    
-  virtual int bigPixPerRocX() const {
-    return m_BIG_PIX_PER_ROC_X;
-  }
-
 private:
   float m_pitchx;
   float m_pitchy;

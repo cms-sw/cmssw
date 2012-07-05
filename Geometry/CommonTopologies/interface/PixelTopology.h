@@ -33,8 +33,6 @@ class PixelTopology : public Topology {
   virtual int rocsX() const = 0; 	 
   virtual int rowsperroc() const = 0; 	 
   virtual int colsperroc() const = 0; 	 
-  virtual int bigPixPerRocY() const = 0;
-  virtual int bigPixPerRocX() const = 0;
     
   virtual float localX(const float mpX) const = 0;
   virtual float localY(const float mpY) const = 0;
