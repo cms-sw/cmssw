@@ -145,7 +145,6 @@ private:
   std::vector<MonitorElement*> h_1D;     //[NUM_VARS]
   std::vector<MonitorElement*> h_2D;     //[NUM_VARS_2D]
   std::vector<MonitorElement*> h_1D_NVTX;//[NUM_VARS_NVTX]
-  MonitorElement* h_PU;
   
   //  std::vector<MonitorElement*> cd_plots;//[NUM_VARS]
   

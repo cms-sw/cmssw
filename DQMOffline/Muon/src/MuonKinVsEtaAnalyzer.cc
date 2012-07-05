@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/07/14 13:27:35 $
- *  $Revision: 1.3 $
+ *  $Date: 2012/06/29 16:51:20 $
+ *  $Revision: 1.4 $
  *  \author S. Goy Lopez, CIEMAT 
  */
 
@@ -72,10 +72,10 @@ void MuonKinVsEtaAnalyzer::beginJob(DQMStore * dbe) {
 
   std::string EtaName;
   for(unsigned int iEtaRegion=0;iEtaRegion<4;iEtaRegion++){
-    if (iEtaRegion==0) EtaName = "Barrel_";   
-    if (iEtaRegion==1) EtaName = "EndCap_";   
-    if (iEtaRegion==2) EtaName = "Overlap_";
-    if (iEtaRegion==3) EtaName = "_";
+    if (iEtaRegion==0) EtaName = "Barrel";   
+    if (iEtaRegion==1) EtaName = "EndCap";   
+    if (iEtaRegion==2) EtaName = "Overlap";
+    if (iEtaRegion==3) EtaName = "";
 
     // monitoring of eta parameter
     etaGlbTrack.push_back(dbe->book1D("GlbMuon_eta_"+EtaName, "#eta_{GLB} "+EtaName, etaBin, etaMin, etaMax));
@@ -101,7 +101,7 @@ void MuonKinVsEtaAnalyzer::beginJob(DQMStore * dbe) {
     ptStaTrack.push_back(dbe->book1D("StaMuon_pt_"+EtaName, "pt_{STA} "+EtaName, ptBin, ptMin, pMax));
     ptTightTrack.push_back(dbe->book1D("TightMuon_pt_"+EtaName, "pt_{Tight} "+EtaName, ptBin, ptMin, ptMax));
     chi2TightTrack.push_back(dbe->book1D("TightMuon_chi2_"+EtaName, "#chi^{2}_{tight} " + EtaName, chiBin, chiMin, chiMax));
-    chi2probTightTrack.push_back(dbe->book1D("TightMuon_chi2prob_"+EtaName, "#chi^{2}_{tight} " + EtaName, chiBin, chiprobMin, chiprobMax));
+    chi2probTightTrack.push_back(dbe->book1D("TightMuon_chi2prob_"+EtaName, "#chi^{2}_{tight} prob." + EtaName, chiBin, chiprobMin, chiprobMax));
  }
 }
 
