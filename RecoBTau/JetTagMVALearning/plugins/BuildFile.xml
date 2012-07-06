@@ -3,7 +3,7 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
 
-<library file="module.cc" name="RecoBTauJetTagMVALearningPlugins">
+<library file="*.cc" name="RecoBTauJetTagMVALearningPlugins">
    <use name="CondFormats/DataRecord"/>
    <use name="PhysicsTools/MVATrainer"/>
    <use name="RecoBTau/JetTagMVALearning"/>
