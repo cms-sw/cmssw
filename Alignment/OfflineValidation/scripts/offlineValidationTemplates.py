@@ -226,6 +226,8 @@ LorentzAngleTemplate = "#use lorentz angle from global tag"
 ######################################################################
 ######################################################################
 TrackSelectionTemplate = """
+.oO[kinksAndBows]Oo.
+
 #####default for MC tracks with now further corrections etc.
 
 process.AlignmentTrackSelector.applyBasicCuts = True

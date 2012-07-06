@@ -80,7 +80,7 @@ class Alignment:
         self.dbpath = config.get(section, "dbpath")
         self.__testDbExist( self.dbpath )
  
-        self.errordbpath = "frontier://FrontierProd/CMS_COND_21X_ALIGNMENT"
+        self.errordbpath = "frontier://FrontierProd/CMS_COND_31X_FROM21X"
         self.errortag = "TrackerIdealGeometryErrors210_mc"
         if config.has_option(section,"errordbpath") and config.has_option(section,"errortag"):
             self.errordbpath = config.get(section, "errordbpath")
@@ -98,6 +98,19 @@ class Alignment:
                 self.runGeomComp = config.get(section,"rungeomcomp")
             else:
                 raise StandardError, "in alignment:%s you have to provide rungeomcomp in compare mode."%(name)
+
+        self.kinksAndBows = ""
+        self.kbdbpath = ""
+        self.kbtag = ""
+        if config.has_option(section,"kbdbpath") and config.has_option(section,"kbtag"):
+            self.kinksAndBows = configTemplates.kinksAndBowsTemplate
+            self.kbdbpath = config.get(section, "kbdbpath")
+            self.__testDbExist( self.kbdbpath )
+            self.kbtag = config.get(section,"kbtag")
+        else:
+            if config.has_option(section,"kbdbpath") or config.has_option(section,"kbtag"):
+                raise StandardError, "in alignment:%s you have to provide either both kbdbpath _and_ kbtag or none of both."%name
+
         self.compareTo = {}
         for option in config.options( section ):
             if option.startswith("compare|"):
@@ -137,7 +150,10 @@ class Alignment:
             "errortag": self.errortag,
             "color": self.color,
             "style": self.style,
-            "runGeomComp": self.runGeomComp
+            "runGeomComp": self.runGeomComp,
+            "kinksAndBows": self.kinksAndBows,
+            "kbdbpath": self.kbdbpath,
+            "kbtag": self.kbtag
             }
         return result  
 
