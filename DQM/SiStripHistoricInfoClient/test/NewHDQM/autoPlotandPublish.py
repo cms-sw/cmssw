@@ -1,95 +1,150 @@
 #!/usr/bin/python
-
+import os
 import re
 import subprocess
 
 ##Setting variables:
 webDir = '/data/users/event_display/HDQM/Current/'
-Epochs = ['Run2012','Run2012A','Run2012B']
-Recos  = ['Prompt']           ##other examples: 08Nov2011
-PDs    = ['MinimumBias','Cosmics']      ##other examples: 'SingleMu','DoubleMu'
+webDir = '/data/users/event_display/HDQM/dev2/'
+#Epochs = ['Run2012A','Run2012B','Run2012']
+Epochs = ['Run2012B']
+Recos  = ['Prompt']
+PDs    = ['MinimumBias']      ##other examples: 'SingleMu','DoubleMu'
+jsonFile  = subprocess.Popen("ls -1tr /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions12/8TeV/Prompt/Cert_*_8TeV_PromptReco_Collisions12_JSON.txt", shell=True, stdout=subprocess.PIPE).stdout.readlines()[-1][:-1]
+lastwkfile= '/afs/cern.ch/user/c/cctrack/LastWeekRuns_SLlist.txt'
 
 ##Internally set vars
 pwDir  = subprocess.Popen("pwd", shell=True, stdout=subprocess.PIPE).stdout.readline()[:-1]+'/'
+YEAR=20100
+if YEAR==2010:
+    jsonFile = subprocess.Popen("ls -1tr /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions10/7TeV/Reprocessing/Cert_136033-149442_7TeV_Apr21ReReco_Collisions10_JSON.txt", shell=True, stdout=subprocess.PIPE).stdout.readlines()[-1][:-1]
+    Epochs = ['Run2010','Run2010A','Run2010B']
+    Epochs = ['Run2010B']
+    Recos  = ['Dec22ReReco']
+if YEAR==2011:
+    jsonFile = subprocess.Popen("ls -1tr /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions11/7TeV/Reprocessing/Cert_160404-180252_7TeV_ReRecoNov08_Collisions11_JSON_v2.txt", shell=True, stdout=subprocess.PIPE).stdout.readlines()[-1][:-1]
+    Epochs = ['Run2011','Run2011A','Run2011B']
+    Recos  = ['08Nov2011-v','19Nov2011-v']
+    Recos  = ['Nov2011-v']
 
-jsonFile = subprocess.Popen("ls -1tr /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions12/8TeV/Prompt/Cert_*_8TeV_PromptReco_Collisions12_JSON.txt", shell=True, stdout=subprocess.PIPE).stdout.readlines()[-1][:-1]
+#Cleaning up areas of last night's plots
+#Tomislav: don't do that here since yu just want to rm those dir which you produce
+#rmCmd='rm -rf  '+webDir+'fig/'
+#subprocess.Popen(rmCmd, shell=True).wait()
 
-subprocess.Popen("rm -rf fig/*", shell=True)
+
+subprocess.Popen("rm -rf fig/*", shell=True).wait()
 #copy over strip mode map
 subprocess.Popen("cp /data/users/cctrack/DQMdata/StripMode/StripReadoutMode4Cosmics.txt ./", shell=True).wait()
-
 ##Internally set vars
 pwDir  = subprocess.Popen("pwd", shell=True, stdout=subprocess.PIPE).stdout.readline()[:-1]+'/'
-Plots  = ['cfg/trendPlotsTracking.ini', 'cfg/trendPlotsPixel_General.ini','cfg/trendPlotsStrip_APVShots.ini', 'cfg/trendPlotsStrip_General.ini',
-          'cfg/trendPlotsStrip_TEC.ini','cfg/trendPlotsStrip_TIB.ini',    'cfg/trendPlotsStrip_TID.ini',      'cfg/trendPlotsStrip_TOB.ini']
-addplots=''
-for i in range(0,len(Plots)): addplots+= " -C "+Plots[i]
 
+addplots=''
+Plots=[' -C cfg/trendPlotsTracking.ini ',' -C cfg/trendPlotsPixel_General.ini',' -C cfg/trendPlotsStrip_APVShots.ini -C cfg/trendPlotsStrip_General.ini -C cfg/trendPlotsStrip_TEC.ini -C cfg/trendPlotsStrip_TIB.ini -C cfg/trendPlotsStrip_TID.ini -C cfg/trendPlotsStrip_TOB.ini -C cfg/trendPlotsStrip_Clusters.ini', ' -C cfg/trendPlotsRECOErrors.ini']
+#Plots=[' -C cfg/trendPlotsTracking.ini ',' -C cfg/trendPlotsPixel_General.ini',' -C cfg/trendPlotsStrip_APVShots.ini']
+title=['Tracking_plots','Pixel_plots','Strip_plots','RECOError_plots']
+indexOut=['index_tracker.htm','index_pixel.htm','index_strip.htm','index_reco.htm']
+cosType='ALL'
 ##Loop hDQM with xxx PDs
 for epoch in Epochs:
+    epochOut = epoch
     for reco in Recos:
         for pd in PDs:
-            #run_hDQM_cmd = './trendPlots.py -r "run > 194050" -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +" -J "+jsonFile
-            if 'Cosmics' in pd:
-                run_hDQM_cmd = './trendPlots.py  -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +" -s PEAK" 
-                run_hDQM_cmd = './trendPlots.py  -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +" -s DECO" 
+          for i in range(0,len(Plots)):
+            addplots=Plots[i]
+            #if 'Cosmics' in pd:
+   	    if (('Cosmics' in pd) or ('StreamExpressCosmics' in pd)):
+		for icos in range(0,2):
+                  ##Running both PEAK + DECO mode...
+		  if int(icos)==int(0): cosType='PEAK'
+		  if int(icos)==int(1): cosType='DECO'
+        	  if 'StreamExpressCosmics' in pd: reco='Express'
+		  run_hDQM_cmd = './trendPlots.py  -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +" -s "+cosType
+		  if 'LastWeek' in epoch:
+                        epoch='Run2012C'
+                        reco='Prompt'
+                        epochOut='LastWeek'
+                        run_hDQM_cmd = './trendPlots.py  -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +' -s '+cosType + ' -L '+lastwkfile
+		  print 'RUN:',run_hDQM_cmd, icos
+                  ##Define local output directory
+		  figDir=pwDir+'fig/'+reco+'/'+epoch+'/'+pd+'/'+cosType+'/'
+                  ##Run trendplots
+		  subprocess.Popen(run_hDQM_cmd, shell=True).wait()
+                  ##Define web directory
+		  outPath=webDir+'fig/'+reco+'/'+epoch+'/'+pd+'/'+cosType+'/'+title[i]+'/'
+		  if 'LastWeek' in epochOut:
+                        outPath=webDir+'fig/'+reco+'/'+epochOut+'/'+pd+'/'+cosType+'/'+title[i]+'/'
+                  rmCmd='rm -r  '+ outPath
+		  subprocess.Popen(rmCmd, shell=True)
+                  ##Make web directory if it doesn't exist
+                  if not os.path.exists(outPath): 
+			os.makedirs(outPath)
+		  else:
+                  	subprocess.Popen("rm -r "+outPath, shell=True).wait()
+			os.makedirs(outPath)
+                  ##Copy all files to output directory
+		  mvCmd="cp "+figDir+"*.png  "+outPath
+		  print "MOVE:", mvCmd
+		  subprocess.Popen(mvCmd, shell=True).wait()
+                  ##Merge rootfiles for associated plots into one directory
+		  inoneCmd="python test/get_all_plots_in_single_file.py "+figDir+ "  "+outPath+title[i]+"_all_plots.root"
+		  subprocess.Popen(inoneCmd, shell=True).wait()
+                  ##Finally, make ratios if RECO is in title[i]...
+                  if 'RECO' in title[i]:
+                      ##remove all current pngs in web dir...
+                      subprocess.Popen("rm -f "+outPath+"*.png", shell=True).wait()
+                      ##make ratio plots for reco errors
+                      subprocess.Popen("python test/makeRecoErrRatios.py "+outPath+" -b", shell=True).wait()
+                  subprocess.Popen("rm "+figDir+"* -f", shell=True).wait()
+		  if 'LastWeek' in epochOut:
+                        epoch='LastWeek'
             else :
                 run_hDQM_cmd = './trendPlots.py  -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +" -J "+jsonFile
-            print "Running ",run_hDQM_cmd
-            subprocess.Popen(run_hDQM_cmd, shell=True).wait()
+                ##Define web directory
+		outPath=webDir+'fig/'+reco+'/'+epoch+'/'+pd+'/'+title[i]+'/'
+    #        run_hDQM_cmd+='  -r \"run > 190644 and run < 191047\"'
+                if 'LastWeek' in epoch:
+                        epoch='Run2012C'
+                        reco='Prompt'
+                        epochOut='LastWeek'
+                        outPath=webDir+'fig/'+reco+'/'+epochOut+'/'+pd+'/'+title[i]+'/'
+                        print 'outPath22:',outPath
+                        run_hDQM_cmd = './trendPlots.py  -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +' -L '+lastwkfile
+            	print "Running ",run_hDQM_cmd
+	        print "pwDir",pwDir
+                ##Define local output directory
+                figDir=pwDir+'fig/'+reco+'/'+epoch+'/'+pd+'/' 
+                print "figDir",figDir
+                ##run trendplots
+                subprocess.Popen(run_hDQM_cmd, shell=True).wait()
+                print 'outPath',outPath
+                ##Make web directory if it doesn't exist
+                if not os.path.exists(outPath): 
+			os.makedirs(outPath) 
+		else:
+			subprocess.Popen("rm -r "+outPath, shell=True).wait()
+                        os.makedirs(outPath)
+                mvCmd="cp "+figDir+"*.png  "+outPath
+                print 'mvCmd',mvCmd
+                subprocess.Popen(mvCmd, shell=True).wait()
+                ##Merge rootfiles for associated plots into one directory
+                inoneCmd="python test/get_all_plots_in_single_file.py "+figDir+ "  "+outPath+title[i]+"_all_plots.root"
+                print 'inoneCmd',inoneCmd
+                subprocess.Popen(inoneCmd, shell=True).wait()
+                if 'RECO' in title[i]:
+                    ##remove all current pngs in web dir...
+                    subprocess.Popen("rm -f "+outPath+"*.png", shell=True).wait()
+                    ##make ratio plots for reco errors
+                    subprocess.Popen("python test/makeRecoErrRatios.py "+outPath+ " -b", shell=True).wait()
+                ##Next, make indices for all of the output plots
+                subprocess.Popen("rm "+figDir+"* -f", shell=True).wait()
+                perlCmd = "perl "+pwDir+"test/diowroot2.pl -c 2 -t "+title[i] +" -D "+outPath +" -o "+webDir +indexOut[i]
+                print "perlCmd:", perlCmd
+                #subprocess.Popen(perlCmd, shell=True).wait()
+		if (('MinimumBias' in pd) and ('2012B' in epoch)):
+                    subprocess.Popen(perlCmd, shell=True).wait()
+		if 'LastWeek' in epochOut:
+                        epoch='LastWeek'
 
-####Build individual indices for each PD set of plots, and parent directories
-epochDirs  = subprocess.Popen("ls -d1 ./fig/*", shell=True, stdout=subprocess.PIPE).stdout.readlines()
-epochIndex = ''
-
-for edir in epochDirs:
-    epochIndex += '<LI><A href="'+re.split('/',edir[:-1])[-1]+'">'+re.split('/',edir[:-1])[-1]+'<\\/a>\\n'
-    subprocess.Popen("rm "+edir[:-1]+"/index.html", shell=True).wait()
-    recoDirs  = subprocess.Popen("ls -d1 "+edir[:-1]+"/*", shell=True, stdout=subprocess.PIPE).stdout.readlines()
-    recoIndex = ''
-    for rdir in recoDirs:
-        recoIndex += '<LI><A href="'+re.split('/',rdir[:-1])[-1]+'">'+re.split('/',rdir[:-1])[-1]+'<\\/a>\\n'
-        subprocess.Popen("rm "+rdir[:-1]+"/index.html", shell=True).wait()
-        pdDirs     = subprocess.Popen("ls -d1 "+rdir[:-1]+"/*", shell=True, stdout=subprocess.PIPE).stdout.readlines()
-        pdIndex    = ''
-        for pdir in pdDirs:
-            if 'Cosmics' in pdir: continue
-            ##First setup title (PD,Epoch,Reco)
-            title = re.split('/',pdir[:-1])[-1]+'_'+re.split('/',edir[:-1])[-1]+'-'+re.split('/',rdir[:-1])[-1]
-            ##To run, I must be in the directory with all pngs...#
-            subprocess.Popen("rm "+pdir[:-1]+"/index.html", shell=True).wait()
-            subprocess.Popen("rm "+pdir[:-1]+"/*small*", shell=True).wait()
-            perlCmd = "perl "+pwDir+"test/diowroot.pl -c 2 -t "+title            
-            print perlCmd
-            dir = pwDir+pdir[:-1]
-            subprocess.Popen(perlCmd, shell=True).wait()
-            subprocess.Popen(perlCmd, cwd=dir, shell=True).wait()
-            pdIndex += '<LI><A href="'+re.split('/',pdir[:-1])[-1]+'">'+re.split('/',pdir[:-1])[-1]+'<\\/a>\\n'
-        mytitle    = "hDQM "+re.split('/',edir[:-1])[-1]+'-'+re.split('/',rdir[:-1])[-1]
-        mycontents = "hDQM Trend Plots "+re.split('/',edir[:-1])[-1]+'-'+re.split('/',rdir[:-1])[-1]
-        subprocess.Popen("cp ./test/Template_Index.html "+rdir[:-1]+"/index.html", shell=True).wait()
-        subprocess.Popen("sed -i 's/MYTITLE/"+mycontents+"/g' "+rdir[:-1]+"/index.html", shell=True).wait()
-        subprocess.Popen("sed -i 's/MYCONTENTS/"+mytitle+"/g' "+rdir[:-1]+"/index.html", shell=True).wait()
-        subprocess.Popen("sed -i 's/MYLINK/"+pdIndex+"/g' "+rdir[:-1]+"/index.html", shell=True).wait()
-    #print recoIndex
-    ##make index in epoch for all reco versions
-    mytitle    = "hDQM "+re.split('/',edir[:-1])[-1]
-    mycontents = "hDQM Trend Plots "+re.split('/',edir[:-1])[-1]
-    subprocess.Popen("cp ./test/Template_Index.html "+edir[:-1]+"/index.html", shell=True).wait()
-    subprocess.Popen("sed -i 's/MYTITLE/"+mycontents+"/g' "+edir[:-1]+"/index.html", shell=True).wait()
-    subprocess.Popen("sed -i 's/MYCONTENTS/"+mytitle+"/g' "+edir[:-1]+"/index.html", shell=True).wait()
-    subprocess.Popen("sed -i 's/MYLINK/"+recoIndex+"/g' "+edir[:-1]+"/index.html", shell=True).wait()
-#print epochIndex
-subprocess.Popen("cp ./test/Template_Index.html fig/index.html", shell=True).wait()
-subprocess.Popen("sed -i 's/MYTITLE/hDQM/g' fig/index.html", shell=True).wait()
-subprocess.Popen("sed -i 's/MYCONTENTS/hDQM Trend Plots/g' fig/index.html", shell=True).wait()
-subprocess.Popen("sed -i 's/MYLINK/"+epochIndex+"/g' fig/index.html", shell=True).wait()
-####Make generic index containing all PDs for PD generation:
-##To do this, I can loop over all PDs in each dir for fig/
-
-print epochIndex
-
-##Copy directory structure w/figures to web area
-for epoch in Epochs:
-    subprocess.Popen("rm -rf "+webDir+epoch+"/*", shell=True).wait()
-subprocess.Popen("cp -r fig/* "+webDir, shell=True).wait()
+                ##Finally, cp generic hDQM index for basic plots
+                ####Need to get that file from Tomislav
