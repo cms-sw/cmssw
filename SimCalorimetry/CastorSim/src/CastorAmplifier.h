@@ -2,14 +2,14 @@
 #define CastorSim_CastorAmplifier_h
   
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
+#include "SimCalorimetry/CastorSim/src/CastorSimParameterMap.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
 class CastorDbService;
 
 class CastorAmplifier {
 public:
-  CastorAmplifier(const CaloVSimParameterMap * parameters, bool addNoise);
+  CastorAmplifier(const CastorSimParameterMap * parameters, bool addNoise);
   virtual ~CastorAmplifier(){ delete theRandGaussQ; }
 
   /// the Producer will probably update this every event
@@ -26,7 +26,7 @@ public:
 private:
   const CastorDbService * theDbService;
   CLHEP::RandGaussQ * theRandGaussQ;
-  const CaloVSimParameterMap * theParameterMap;
+  const CastorSimParameterMap * theParameterMap;
 
   unsigned theStartingCapId;
   bool addNoise_;

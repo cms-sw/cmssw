@@ -11,7 +11,7 @@
 
 #include<iostream>
 
-CastorAmplifier::CastorAmplifier(const CaloVSimParameterMap * parameters, bool addNoise) :
+CastorAmplifier::CastorAmplifier(const CastorSimParameterMap * parameters, bool addNoise) :
   theDbService(0), 
   theRandGaussQ(0),
   theParameterMap(parameters),
@@ -27,7 +27,7 @@ void CastorAmplifier::setRandomEngine(CLHEP::HepRandomEngine & engine)
 }
 
 void CastorAmplifier::amplify(CaloSamples & frame) const {
-  const CaloSimParameters & parameters = theParameterMap->simParameters(frame.id());
+  const CastorSimParameters & parameters = theParameterMap->castorParameters();
   assert(theDbService != 0);
   HcalGenericDetId hcalGenDetId(frame.id());
   const CastorPedestal* peds = theDbService->getPedestal(hcalGenDetId);
@@ -39,7 +39,7 @@ void CastorAmplifier::amplify(CaloSamples & frame) const {
 
   double gauss [32]; //big enough
   double noise [32]; //big enough
-  double fCperPE = parameters.photoelectronsToAnalog();
+  double fCperPE = parameters.photoelectronsToAnalog(frame.id());
 
   for (int i = 0; i < frame.size(); i++) gauss[i] = theRandGaussQ->fire(0., 1.);
   pwidths->makeNoise (frame.size(), gauss, noise);
