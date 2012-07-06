@@ -48,6 +48,7 @@ process.ZeroAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
 								)
 process.es_prefer_ZeroAPE = cms.ESPrefer("PoolDBESSource", "ZeroAPE")
 
+.oO[kinksAndBows]Oo.
 
 process.source = cms.Source("EmptySource",
     firstRun=cms.untracked.uint32(.oO[runGeomComp]Oo.)
