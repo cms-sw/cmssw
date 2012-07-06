@@ -41,6 +41,7 @@
 #include "DQMServices/Core/src/DQMService.h"
 using namespace evf;
 
+#define ROLL 20
 
 ////////////////////////////////////////////////////////////////////////////////
 // construction/destruction
@@ -76,7 +77,9 @@ iDie::iDie(xdaq::ApplicationStub *s)
   , nPathHistoMessageReceived_(0)
   , evtProcessor_(0)
   , meInitialized_(false)
-  , dqmDisabled_(false)
+  , dqmService_(nullptr)
+  , dqmStore_(nullptr)
+  , dqmEnabled_(true)
   , saveLsInterval_(10)
   , ilumiprev_(0)
   , dqmSaveDir_("")
@@ -122,7 +125,8 @@ iDie::iDie(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("dqmSaveDir",               &dqmSaveDir_              );
   ispace->fireItemAvailable("dqmFilesWritableByAll",    &dqmFilesWritable_        );
   ispace->fireItemAvailable("dqmTopLevelFolder",        &topLevelFolder_          );
-      //
+  ispace->fireItemAvailable("dqmEnabled",               &dqmEnabled_              );
+
   // timestamps
   lastModuleLegendaMessageTimeStamp_.tv_sec=0;
   lastModuleLegendaMessageTimeStamp_.tv_usec=0;
@@ -234,14 +238,16 @@ xoap::MessageReference iDie::fsmCallback(xoap::MessageReference msg)
     else if(commandName == "Enable") {dqmState_ = "Enabled"; state = "Enabled";}
     else if(commandName == "Stop") {
       //remove histograms
-      sleep(1);
-      dqmState_ = "Removed";
-      meInitialized_=false;
-      dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
-      dqmStore_->removeContents();
-      dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/");
-      dqmStore_->removeContents();
-      doFlush(); 
+      if (meInitialized_) {
+        sleep(1);
+        dqmState_ = "Removed";
+        meInitialized_=false;
+        dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
+        dqmStore_->removeContents();
+        dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/");
+        dqmStore_->removeContents();
+        doFlush(); 
+      }
       state = "Ready";
     }
     else if(commandName == "Halt") state = "Halted";
@@ -439,7 +445,7 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
   throw (xgi::exception::Exception)
 {
 
-  if (!evtProcessor_ && !dqmDisabled_) initFramework();
+  if (!evtProcessor_ && dqmEnabled_.value_) initFramework();
   else if (evtProcessor_ && !meInitialized_) {
     if (dqmState_!="Removed")
 	  initMonitorElements();
@@ -617,11 +623,13 @@ void iDie::reset()
     {delete datap_; datap_ = 0;}
   b_=0; b1_=0; b2_=0; b3_=0; b4_=0;
 
-  if (!evtProcessor_ && !dqmDisabled_) {
-    initFramework();
+  if (dqmEnabled_.value_) { 
+    if (!evtProcessor_) {
+      initFramework();
+    }
+    else if (evtProcessor_) initMonitorElements();
+    doFlush();
   }
-  else if (evtProcessor_) initMonitorElements();
-  doFlush();
 
 }
 
@@ -703,8 +711,8 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
       if (!commonLsHistory.size() || commonLsHistory.back().ls_<lsid)
         commonLsHistory.push_back(commonLsStat(lsid,epInstances.size()));
         lsHistory[nbsIdx].push_back(lsStat(lsid,nbsubs_,nModuleLegendaMessageReceived_,nstates_));
-	if (commonLsHistory.size()>20) commonLsHistory.pop_front();
-	if (lsHistory[nbsIdx].size()>20) lsHistory[nbsIdx].pop_front();
+	if (commonLsHistory.size()>ROLL) commonLsHistory.pop_front();
+	if (lsHistory[nbsIdx].size()>ROLL) lsHistory[nbsIdx].pop_front();
     }
     if (currentLs_[nbsIdx]==lsid-1) { // late update
       unsigned int qsize=lsHistory[nbsIdx].size();
@@ -918,8 +926,8 @@ void iDie::initFramework()
 
   //ParameterSetRetriever pr(configString_);
   //std::string configuration_ = pr.getAsString();
-  if (!dqmCollectorHost_.value_.size() || !dqmCollectorPort_.value_.size()) {
-    dqmDisabled_=true;
+  if (!dqmEnabled_.value_ || !dqmCollectorHost_.value_.size() || !dqmCollectorPort_.value_.size()) {
+    dqmEnabled_.value_=false;
     std::cout << " DQM connection parameters not present. Disabling DQM histograms" << std::endl;
     return;
   }
@@ -964,8 +972,10 @@ void iDie::initFramework()
   try {
   serviceToken_ = edm::ServiceRegistry::createSet(*pServiceSets_);
   }
-  catch (...) {std::cout << "Failed creation of service token "<<std::endl;
-}
+  catch (...) {
+    std::cout << "Failed creation of service token "<<std::endl;
+    dqmEnabled_.value_=false;
+  }
   edm::ServiceRegistry::Operate operate(serviceToken_);
 
   evtProcessor_ = new edm::EventProcessor(pdesc,
@@ -978,13 +988,15 @@ void iDie::initFramework()
   }
   catch(...) {
     LOG4CPLUS_WARN(getApplicationLogger(),"exception when trying to get service DQMStore");
+    dqmEnabled_.value_=false;
   }
   try{
     if(edm::Service<DQMService>().isAvailable())
       dqmService_ = edm::Service<DQMService>().operator->();
   }
   catch(...) {
-    LOG4CPLUS_WARN(getApplicationLogger(),"exception when trying to get service DQMServic");
+    LOG4CPLUS_WARN(getApplicationLogger(),"exception when trying to get service DQMService");
+    dqmEnabled_.value_=false;
   }
   if (dqmState_!="Removed")
     initMonitorElements();
@@ -1024,17 +1036,17 @@ void iDie::initMonitorElements()
     meVecOffenders_[i]->Fill(0,1);
     occupancyNameMap[i].clear();
   }
-  rateSummary_   = dqmStore_->book2D("00_RATE_SUMMARY","Rate Summary (Hz)",20,0,20,epInstances.size()+1,0,epInstances.size()+1);
-  timingSummary_ = dqmStore_->book2D("01_TIMING_SUMMARY","Event Time Summary (ms)",20,0,20,epInstances.size()+1,0,epInstances.size()+1);
-  busySummary_ = dqmStore_->book2D("02_BUSY_SUMMARY","Busy fraction ",20,0,20,epInstances.size()+2,0,epInstances.size()+2);
-  busySummary2_ = dqmStore_->book2D("03_BUSY_SUMMARY_PROCSTAT","Busy fraction from /proc/stat",20,0,20,epInstances.size()+2,0,epInstances.size()+2);
-  fuReportsSummary_ = dqmStore_->book2D("04_EP_REPORTS_SUMMARY","Number of reports received",20,0,20.,epInstances.size()+1,0,epInstances.size()+1);
+  rateSummary_   = dqmStore_->book2D("00_RATE_SUMMARY","Rate Summary (Hz)",ROLL,0,ROLL,epInstances.size()+1,0,epInstances.size()+1);
+  timingSummary_ = dqmStore_->book2D("01_TIMING_SUMMARY","Event Time Summary (ms)",ROLL,0,ROLL,epInstances.size()+1,0,epInstances.size()+1);
+  busySummary_ = dqmStore_->book2D("02_BUSY_SUMMARY","Busy fraction ",ROLL,0,ROLL,epInstances.size()+2,0,epInstances.size()+2);
+  busySummary2_ = dqmStore_->book2D("03_BUSY_SUMMARY_PROCSTAT","Busy fraction from /proc/stat",ROLL,0,ROLL,epInstances.size()+2,0,epInstances.size()+2);
+  fuReportsSummary_ = dqmStore_->book2D("04_EP_REPORTS_SUMMARY","Number of reports received",ROLL,0,ROLL,epInstances.size()+1,0,epInstances.size()+1);
 
   dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
   daqBusySummary_ = dqmStore_->book1D("reportSummaryMap","DAQ HLT Farm busy (%)",4000,1,4001.);
 
   summaryLastLs_ = 0;
-  for (size_t i=1;i<=20;i++) {
+  for (size_t i=1;i<=ROLL;i++) {
     std::ostringstream ostr;
     ostr << i;
     rateSummary_->setBinLabel(i,ostr.str(),1);
@@ -1083,8 +1095,8 @@ void iDie::fillDQMStatHist(unsigned int nbsIdx, unsigned int lsid)
 
   meVecRate_[nbsIdx]->setBinContent(lsid,lst.getRate());
   meVecRate_[nbsIdx]->setBinError(lsid,lst.getRateErr());
-  meVecTime_[nbsIdx]->setBinContent(lsid,lst.getEvtTime()*1000);//msec
-  meVecTime_[nbsIdx]->setBinError(lsid,lst.getEvtTimeErr()*1000);//msec
+  meVecTime_[nbsIdx]->setBinContent(lsid>2? lsid:0,lst.getEvtTime()*1000);//msec
+  meVecTime_[nbsIdx]->setBinError(lsid>2? lsid:0,lst.getEvtTimeErr()*1000);//msec
   updateRollingHistos(nbsIdx, lsid,lst,clst,true);
 
   
@@ -1095,8 +1107,8 @@ void iDie::fillDQMStatHist(unsigned int nbsIdx, unsigned int lsid)
 
       meVecRate_[nbsIdx]->setBinContent(lsid-1,prevLst.getRate());
       meVecRate_[nbsIdx]->setBinError(lsid-1,prevLst.getRateErr());
-      meVecTime_[nbsIdx]->setBinContent(lsid-1,prevLst.getEvtTime()*1000);//msec
-      meVecTime_[nbsIdx]->setBinError(lsid-1,prevLst.getEvtTimeErr()*1000);//msec
+      meVecTime_[nbsIdx]->setBinContent(lsid-1>2 ? lsid-1:0,prevLst.getEvtTime()*1000);//msec
+      meVecTime_[nbsIdx]->setBinError(lsid-1>2 ? lsid-1:0,prevLst.getEvtTimeErr()*1000);//msec
       updateRollingHistos(nbsIdx, lsid-1,prevLst, prevClst, false);
     }
   }
@@ -1106,23 +1118,27 @@ void iDie::fillDQMStatHist(unsigned int nbsIdx, unsigned int lsid)
 void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat & lst, commonLsStat  & clst, bool roll) {
   unsigned int lsidBin;
   if (roll) {
-  if (lsid>20) {
-    if (lsid!=summaryLastLs_) {//see if plots aren't up to date
-      for (unsigned int i=1;i<=20;i++) {
-	if (i<20) {
+  if (lsid>ROLL) {
+    lsidBin=ROLL;
+    if (lsid>summaryLastLs_) { //see if plots aren't up to date
+      unsigned int lsdiff = lsid-summaryLastLs_;
+      for (unsigned int i=1;i<=ROLL;i++) {
+	if (i<ROLL) {
+	  bool emptyBin=false;
+	  if (i<=ROLL-lsdiff) emptyBin=true;
           for (unsigned int j=1;j<=epInstances.size()+1;j++) {
-	    rateSummary_->setBinContent(i,j,rateSummary_->getBinContent(i+1,j));
-	    timingSummary_->setBinContent(i,j,timingSummary_->getBinContent(i+1,j));
-	    busySummary_->setBinContent(i,j,busySummary_->getBinContent(i+1,j));
-	    busySummary2_->setBinContent(i,j,busySummary2_->getBinContent(i+1,j));
-	    fuReportsSummary_->setBinContent(i,j,fuReportsSummary_->getBinContent(i+1,j));
+	    rateSummary_->setBinContent(i,j,emptyBin? 0 : rateSummary_->getBinContent(i+lsdiff,j));
+	    timingSummary_->setBinContent(i,j,emptyBin ? 0 : timingSummary_->getBinContent(i+lsdiff,j));
+	    busySummary_->setBinContent(i,j,emptyBin ? 0 : busySummary_->getBinContent(i+lsdiff,j));
+	    busySummary2_->setBinContent(i,j,emptyBin ? 0 : busySummary2_->getBinContent(i+lsdiff,j));
+	    fuReportsSummary_->setBinContent(i,j,emptyBin ? 0 : fuReportsSummary_->getBinContent(i+lsdiff,j));
           }
-	  busySummary_->setBinContent(i,epInstances.size()+2,busySummary2_->getBinContent(i+1,epInstances.size()+2));
-	  busySummary2_->setBinContent(i,epInstances.size()+2,busySummary2_->getBinContent(i+1,epInstances.size()+2));
+	  busySummary_->setBinContent(i,epInstances.size()+2,emptyBin ? 0 : busySummary2_->getBinContent(i+lsdiff,epInstances.size()+2));
+	  busySummary2_->setBinContent(i,epInstances.size()+2,emptyBin ? 0 : busySummary2_->getBinContent(i+lsdiff,epInstances.size()+2));
 	}
 
 	std::ostringstream ostr;
-	ostr << lsid-20+i;
+	ostr << lsid-ROLL+i;
 	rateSummary_->setBinLabel(i,ostr.str(),1);
 	timingSummary_->setBinLabel(i,ostr.str(),1);
 	busySummary_->setBinLabel(i,ostr.str(),1);
@@ -1130,13 +1146,17 @@ void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat & 
 	fuReportsSummary_->setBinLabel(i,ostr.str(),1);
 
       }
+      summaryLastLs_=lsid;
     }
-    lsidBin=20;
+    else if (lsid<summaryLastLs_) {
+      if (summaryLastLs_-lsid>=ROLL) return;//very old
+      lsidBin=ROLL-(summaryLastLs_-lsid);
+    }
   }
   else if (lsid) {lsidBin=lsid;} else return;
   }
   else {// previous lumisection updates
-    lsidBin=lsid>19 ? 19:lsid;
+    lsidBin=lsid>ROLL-1 ? ROLL-1:lsid;
   }
 
   rateSummary_->setBinContent(lsidBin,nbsIdx+1,lst.getRate());
@@ -1269,7 +1289,8 @@ void iDie::fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsign
 }
 
 void iDie::doFlush() {
-    dqmService_->flushStandalone();
+    if (dqmEnabled_.value_)
+      dqmService_->flushStandalone();
 }
 
 void iDie::perLumiFileSaver(unsigned int lsid)

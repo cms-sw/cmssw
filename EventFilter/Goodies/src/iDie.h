@@ -377,7 +377,7 @@ namespace evf {
 	    if (rateAvg) {
 	      float rateAvgInv=1./rateAvg;
 	      evtTimeAvg=nbSubs_ * nReports_ * (1.-fracWaitingAvg)*rateAvgInv;
-	      evtTimeErr = nbSubs_ * nReports_ * (fracWaitingAvg*rateErr*pow(rateAvgInv,2) + fracWaitingAvgErr*rateAvgInv);
+	      evtTimeErr = nbSubs_ * nReports_ * sqrt(pow(fracWaitingAvg*rateErr*pow(rateAvgInv,2),2) + pow(fracWaitingAvgErr*rateAvgInv,2));
 	    }
 	    else {
               evtTimeAvg=0;
@@ -458,7 +458,7 @@ namespace evf {
     DQMService                      *dqmService_;
     DQMStore                        *dqmStore_;
     std::string                     configString_;
-    bool                            dqmDisabled_;
+    xdata::Boolean                  dqmEnabled_;
 
     std::map<unsigned int,int> nbSubsList;
     std::map<int,unsigned int> nbSubsListInv;
