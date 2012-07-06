@@ -9,6 +9,8 @@ namespace l1slhc
 	mIphi( 0 ), 
 	mE( 0 ), 
 	mCentral( true ),
+	mAsymEta(0),
+	mAsymPhi(0),
 	mJetSize( 12 ),
 	mJetShapeType( square ),
 	mJetArea( 144 )
@@ -20,6 +22,8 @@ namespace l1slhc
 	mIphi( 0 ), 
 	mE( 0 ), 
 	mCentral( true ),
+	mAsymEta(0),
+	mAsymPhi(0),
 	mJetSize( aJetSize ),
 	mJetShapeType( aJetShapeType ),
 	mJetArea( aJetArea )
@@ -31,6 +35,8 @@ namespace l1slhc
 	mIphi( iPhi ), 
 	mE( 0 ), 
 	mCentral( true ),
+	mAsymEta(0),
+	mAsymPhi(0),
 	mJetSize( aJetSize ),
 	mJetShapeType( aJetShapeType ),
 	mJetArea( aJetArea )
@@ -75,6 +81,21 @@ namespace l1slhc
 	{
 		return mE;
 	}
+
+
+
+	const int& L1TowerJet::AsymEta(  ) const
+	{
+		return mAsymEta;
+	}
+
+	const int& L1TowerJet::AsymPhi(  ) const
+	{
+		return mAsymPhi;
+	}
+
+
+
 
 	const bool & L1TowerJet::central(  ) const
 	{
@@ -216,22 +237,81 @@ namespace l1slhc
 		}
 
 
-
 	void L1TowerJet::addConstituent( const L1CaloTowerRef & Tower )
-	{
-		mE += Tower->E(  );
-		mE += Tower->H(  );
+	{  
+
+		int lHalfJetSize( mJetSize >> 1 );
+		int lTowerEnergy( Tower->E(  ) + Tower->H(  ) );
+
+		mE += lTowerEnergy;
 		mConstituents.push_back( Tower );
-	}
+
+		//when add a tower, also add the asymmetry terms
+		//positive asym: top RH corner of jet
+
+		if( mJetSize % 2 == 0 ){ //even jet size
+			
+			if(Tower->iEta(  ) == iEta() ) mAsymEta += 0; //do nothing 
+			else if( Tower->iEta(  ) >= iEta() + lHalfJetSize ) mAsymEta +=  lTowerEnergy;		
+			else /*if( Tower->iEta(  ) <  iEta() + lHalfJetSize )*/ mAsymEta -= lTowerEnergy;
+			
+			if( Tower->iPhi(  ) == iPhi() ) mAsymEta += 0; //do nothing
+			else if( Tower->iPhi(  ) <= iPhi() + lHalfJetSize ) mAsymPhi += lTowerEnergy;				
+			else /*if( Tower->iPhi(  ) > iPhi() + lHalfJetSize )*/  mAsymPhi -= lTowerEnergy;
+
+		}else{ //odd jet size: miss out central towers
+			
+			if( Tower->iEta(  ) == iEta() ) mAsymEta += 0; //do nothing
+			else if( Tower->iEta(  ) > iEta() + lHalfJetSize ) mAsymEta +=  lTowerEnergy;		
+			else /*if( Tower->iEta(  ) <  iEta() + lHalfJetSize )*/ mAsymEta -= lTowerEnergy;
+			// else it is in the middle so does not contribute to the asymmetry
+
+			if( Tower->iPhi(  ) == iPhi() )  mAsymEta += 0; //do nothing
+			else if( Tower->iPhi(  ) < iPhi() + lHalfJetSize ) mAsymPhi += lTowerEnergy;				
+			else /*if( Tower->iPhi(  ) > iPhi() + lHalfJetSize )*/  mAsymPhi -= lTowerEnergy;
+			// else it is in the middle so does not contribute to the asymmetry
+
+		}
+
+
+	}		
 
 	void L1TowerJet::removeConstituent( const int &eta, const int &phi )
 	{
 		L1CaloTowerRefVector::iterator lConstituent = getConstituent( eta, phi );
 		if ( lConstituent != mConstituents.end() )
 		{
-			mE -= (**lConstituent).E(  );
-			mE -= (**lConstituent).H(  );
+			
+			int lHalfJetSize( mJetSize >> 1 );
+			int lTowerEnergy( (**lConstituent).E(  ) + (**lConstituent).H(  ) );
+
+			mE -= lTowerEnergy;
 			mConstituents.erase( lConstituent );
+
+			//asymmetry: flip asym increments
+			if( mJetSize % 2 == 0 ){ //even jet size
+				//eta
+			 	if( eta >= iEta() + lHalfJetSize ) mAsymEta -= lTowerEnergy;				// eta on RH side of jet is +ve Asym
+				else if( eta <  iEta() + lHalfJetSize ) mAsymEta += lTowerEnergy;
+
+				//phi
+			   if( phi <= iPhi() + lHalfJetSize ) mAsymPhi -= lTowerEnergy;				// phi on more neg. or TOP side of jet is +ve Asym
+				else if( phi > iPhi() + lHalfJetSize ) mAsymPhi += lTowerEnergy;
+
+			}else{ //odd jet size: miss out central towers
+				//eta
+				if( eta > iEta() + lHalfJetSize ) mAsymEta -=  lTowerEnergy;				// eta on RH side of jet is +ve Asym
+				else if(eta <  iEta() + lHalfJetSize ) mAsymEta += lTowerEnergy;
+				// else it is in the middle so does not contribute to the asymmetry
+
+				//phi
+				if( phi < iPhi() + lHalfJetSize ) mAsymPhi -=lTowerEnergy;				// phi on more neg. or TOP side of jet is +ve Asym
+				else if( phi > iPhi() + lHalfJetSize )  mAsymPhi += lTowerEnergy;
+				// else it is in the middle so does not contribute to the asymmetry
+
+			}
+
+
 		}
 	}
 
