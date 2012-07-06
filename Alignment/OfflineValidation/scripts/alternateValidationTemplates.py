@@ -493,6 +493,8 @@ process.p = cms.Path(process.offlineBeamSpot*process.AliMomConstraint1*process.T
 ######################################################################
 ######################################################################
 TrackSelectionCosmicsDuringCollisions = """
+.oO[kinksAndBows]Oo.
+
 ##### For Tracks:
 process.AlignmentTrackSelector.applyBasicCuts = True
 # Note that pMin is overridden and set to zero in
@@ -563,6 +565,8 @@ process.triggerSelection=cms.Sequence(process.L1T1*process.hltHighLevel)
 ######################################################################
 ######################################################################
 TrackSelectionCosmicsData = """
+.oO[kinksAndBows]Oo.
+
 ##### For Tracks:
 process.AlignmentTrackSelector.applyBasicCuts = True
 # Note that pMin is overridden and set to zero in
@@ -616,6 +620,8 @@ process.triggerSelection=cms.Sequence(process.hltPhysicsDeclared)
 ######################################################################
 ######################################################################
 TrackSelectionCosmicsDataBPIX = """
+.oO[kinksAndBows]Oo.
+
 ##### For Tracks:
 process.AlignmentTrackSelector.applyBasicCuts = True
 # Note that pMin is overridden and set to zero in
@@ -687,6 +693,8 @@ process.triggerSelection=cms.Sequence(process.hltPhysicsDeclared)
 ######################################################################
 ######################################################################
 TrackSelectionCosmicsDataFPIXplus = """
+.oO[kinksAndBows]Oo.
+
 ##### For Tracks:
 process.AlignmentTrackSelector.applyBasicCuts = True
 # Note that pMin is overridden and set to zero in
@@ -758,6 +766,8 @@ process.triggerSelection=cms.Sequence(process.hltPhysicsDeclared)
 ######################################################################
 ######################################################################
 TrackSelectionCosmicsDataFPIXminus = """
+.oO[kinksAndBows]Oo.
+
 ##### For Tracks:
 process.AlignmentTrackSelector.applyBasicCuts = True
 # Note that pMin is overridden and set to zero in
@@ -829,8 +839,9 @@ process.triggerSelection=cms.Sequence(process.hltPhysicsDeclared)
 ######################################################################
 ######################################################################
 TrackSelectionMinBiasData = """
-##### For Tracks:collisions taken in deco mode
+.oO[kinksAndBows]Oo.
 
+##### For Tracks:collisions taken in deco mode
 process.AlignmentTrackSelector.applyBasicCuts = True
 # Note that pMin is overridden and set to zero in
 # the offlineTemplate0T
@@ -892,6 +903,8 @@ process.triggerSelection=cms.Sequence(process.oneGoodVertexFilter)
 ######################################################################
 ######################################################################
 TrackSelectionIsolatedMuons = """
+.oO[kinksAndBows]Oo.
+
 ##### For Tracks:collisions taken in deco mode
 
 process.AlignmentTrackSelector.applyBasicCuts = True
@@ -1101,16 +1114,18 @@ process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.Trac
 ######################################################################
 ######################################################################
 TrackSelectionCosmicsDataDef = """
-import CalibTracker.Configuration.Common.PoolDBESSource_cfi
-process.trackerBowedSensors = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-     connect = cms.string('.oO[dbpath]Oo.'),
+.oO[kinksAndBows]Oo.
+
+# import CalibTracker.Configuration.Common.PoolDBESSource_cfi
+# process.trackerBowedSensors = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
+#      connect = cms.string('.oO[dbpath]Oo.'),
  
-    toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
-                               tag = cms.string('Deformations')
-                               )
-                      )
-    )
-process.prefer_trackerBowedSensors = cms.ESPrefer("PoolDBESSource", "trackerBowedSensors")
+#     toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
+#                                tag = cms.string('Deformations')
+#                                )
+#                       )
+#     )
+# process.prefer_trackerBowedSensors = cms.ESPrefer("PoolDBESSource", "trackerBowedSensors")
 ##### For Tracks:
 process.AlignmentTrackSelector.applyBasicCuts = True
 # Note that pMin is overridden and set to zero in
@@ -1164,18 +1179,20 @@ process.triggerSelection=cms.Sequence(process.hltPhysicsDeclared)
 ######################################################################
 ######################################################################
 TrackSelectionCosmicsInterfillLADef = """
-#LA
-import CalibTracker.Configuration.Common.PoolDBESSource_cfi
-process.trackerBowedSensors = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-     connect = cms.string('.oO[dbpath]Oo.'),
- 
-    toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
-                               tag = cms.string('Deformations')
-                               )
-                      )
-    )
-process.prefer_trackerBowedSensors = cms.ESPrefer("PoolDBESSource", "trackerBowedSensors")
+.oO[kinksAndBows]Oo.
 
+# import CalibTracker.Configuration.Common.PoolDBESSource_cfi
+# process.trackerBowedSensors = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
+#      connect = cms.string('.oO[dbpath]Oo.'),
+ 
+#     toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
+#                                tag = cms.string('Deformations')
+#                                )
+#                       )
+#     )
+# process.prefer_trackerBowedSensors = cms.ESPrefer("PoolDBESSource", "trackerBowedSensors")
+
+#LA
 process.myLA = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
         connect = cms.string ('frontier://PromptProd/CMS_COND_31X_STRIP'),
         toGet = cms.VPSet(cms.PSet(
@@ -1259,18 +1276,20 @@ process.triggerSelection=cms.Sequence(process.L1T1*process.hltHighLevel)
 ######################################################################
 ######################################################################
 TrackSelectionMinBiasDataDef = """
-##### For Tracks:collisions taken in deco mode
-import CalibTracker.Configuration.Common.PoolDBESSource_cfi
-process.trackerBowedSensors = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-     connect = cms.string('.oO[dbpath]Oo.'),
- 
-    toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
-                               tag = cms.string('Deformations')
-                               )
-                      )
-    )
-process.prefer_trackerBowedSensors = cms.ESPrefer("PoolDBESSource", "trackerBowedSensors")
+.oO[kinksAndBows]Oo.
 
+# import CalibTracker.Configuration.Common.PoolDBESSource_cfi
+# process.trackerBowedSensors = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
+#      connect = cms.string('.oO[dbpath]Oo.'),
+ 
+#     toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
+#                                tag = cms.string('Deformations')
+#                                )
+#                       )
+#     )
+# process.prefer_trackerBowedSensors = cms.ESPrefer("PoolDBESSource", "trackerBowedSensors")
+
+##### For Tracks:collisions taken in deco mode
 process.AlignmentTrackSelector.applyBasicCuts = True
 # Note that pMin is overridden and set to zero in
 # the offlineTemplate0T
@@ -1332,18 +1351,19 @@ process.triggerSelection=cms.Sequence(process.oneGoodVertexFilter)
 ######################################################################
 ######################################################################
 TrackSelectionIsolatedMuonsDef = """
-##### For Tracks:collisions taken in deco mode
+.oO[kinksAndBows]Oo.
 
-import CalibTracker.Configuration.Common.PoolDBESSource_cfi
-process.trackerBowedSensors = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-     connect = cms.string('.oO[dbpath]Oo.'),
+##### For Tracks:collisions taken in deco mode
+# import CalibTracker.Configuration.Common.PoolDBESSource_cfi
+# process.trackerBowedSensors = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
+#      connect = cms.string('.oO[dbpath]Oo.'),
  
-    toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
-                               tag = cms.string('Deformations')
-                               )
-                      )
-    )
-process.prefer_trackerBowedSensors = cms.ESPrefer("PoolDBESSource", "trackerBowedSensors")
+#     toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
+#                                tag = cms.string('Deformations')
+#                                )
+#                       )
+#     )
+# process.prefer_trackerBowedSensors = cms.ESPrefer("PoolDBESSource", "trackerBowedSensors")
 
 
 process.AlignmentTrackSelector.applyBasicCuts = True
