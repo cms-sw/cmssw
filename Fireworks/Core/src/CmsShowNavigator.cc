@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.111 2011/09/12 20:30:58 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.112 2011/10/29 17:33:22 gowdy Exp $
 //
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -475,7 +475,8 @@ CmsShowNavigator::updateFileFilters()
    if (nSelected)
    {
       // go to the nearest selected event/file
-      if (!(*m_currentFile)->isEventSelected(m_currentEvent))
+      bool changeCurrentEvent = !(*m_currentFile)->isEventSelected(m_currentEvent);
+      if (changeCurrentEvent)
       {
          if (!nextSelectedEvent())
             previousSelectedEvent();
@@ -484,7 +485,7 @@ CmsShowNavigator::updateFileFilters()
       if (m_filterState == kWithdrawn)
          resumeFilter();
 
-      postFiltering_.emit();
+      postFiltering_.emit(changeCurrentEvent);
    }
    else
    {
@@ -904,7 +905,7 @@ CmsShowNavigator::setFrom(const FWConfiguration& iFrom)
       if  (m_filterState == kOn)
          updateFileFilters();
       else
-         postFiltering_.emit();
+         postFiltering_.emit(true);
    }
    // update CmsShowMainFrame checkBoxIcon and button text
    if (oldFilterState != m_filterState)
