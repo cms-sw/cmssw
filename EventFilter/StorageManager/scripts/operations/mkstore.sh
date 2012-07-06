@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: mkstore.sh,v 1.8 2010/01/29 16:15:35 babar Exp $
+# $Id: mkstore.sh,v 1.9 2010/04/27 01:59:51 gbauer Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh
@@ -37,13 +37,19 @@ for i in emulator global; do
 done
 
 
+set -- `ls -d $store/sata* 2>/dev/null`
+if [ $# = 1 ]; then
+    echo "Faking multiple disks"
+    set -- $1 $1 $1 $1
+fi
 
-set counter=0
-for i in `ls -d $store/sata* 2>/dev/null`; do
+let counter=0
+for i in "$@"; do
     cd $store
     tmount=`mount | grep $i | cut -d" " -f3`
     if test "$i" != "$tmount"; then
 	echo "Warning: Omitting not mounted directory $i";
+        continue;
     fi
     lname=`printf "%02d" $counter`
     counter=`expr $counter + 1`
