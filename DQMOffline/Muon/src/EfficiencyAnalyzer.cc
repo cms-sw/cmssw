@@ -281,7 +281,7 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
       float hadIso = recoMu2->isolationR03().hadEt + recoMu2->isolationR03().hoEt;
       float relDetIso = (tkIso + emIso + hadIso) /  (recoMu2->pt()); 
  
-      if (relDetIso < 0.15 ) { 
+      if (relDetIso < 0.05 ) { 
 	h_passProbes_detIsoTightMu_pt->Fill(recoMu2->pt());
 	if (isMB) h_passProbes_EB_detIsoTightMu_pt->Fill(recoMu2->pt());
 	if (isME) h_passProbes_EE_detIsoTightMu_pt->Fill(recoMu2->pt());
@@ -297,7 +297,7 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
       float photonIso = recoMu2->pfIsolationR04().sumPhotonEt;
       float relPFIso = (chargedIso + neutralIso + photonIso) /  (recoMu2->pt()); 
       
-      if (relPFIso < 0.15 ) { 
+      if (relPFIso < 0.12 ) { 
 	h_passProbes_pfIsoTightMu_pt->Fill(recoMu2->pt());
 	if (isMB) h_passProbes_EB_pfIsoTightMu_pt->Fill(recoMu2->pt());
 	if (isME) h_passProbes_EE_pfIsoTightMu_pt->Fill(recoMu2->pt());
