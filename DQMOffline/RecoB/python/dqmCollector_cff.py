@@ -1,8 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoBTag.Configuration.RecoBTag_cff import *
-import DQMOffline.RecoB.bTagAnalysisData_cfi
-bTagCollector = DQMOffline.RecoB.bTagAnalysisData_cfi.bTagAnalysis.clone()
+
+from DQMOffline.RecoB.dqmAnalyzer_cff import *
+bTagCollector = pfbTagAnalysis.clone()
+
 # module execution
 bTagCollectorSequence = cms.Sequence(bTagCollector)
 bTagCollector.finalizePlots = True
