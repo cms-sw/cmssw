@@ -19,12 +19,12 @@ double compute(double params[7][6], double x, double y)
 	}
 
 	double xs[5];
-	xs[0] = x * x;
-	xs[1] = xs[0] * xs[0];
-	xs[2] = xs[1] * xs[0];
-	xs[3] = xs[1] * xs[1];
-	xs[4] = xs[2] * xs[1];
-	xs[5] = xs[2] * xs[2];
+	xs[0] = x * x; //x^2
+	xs[1] = xs[0] * xs[0]; //x^4
+	xs[2] = xs[1] * xs[0]; //x^6
+	xs[3] = xs[1] * xs[1]; //x^8
+	xs[4] = xs[2] * xs[1]; //x^10
+	xs[5] = xs[2] * xs[2]; //x^12
 
 	return facs[0] +
 	       facs[1] * (2 * xs[0] - 1) +
@@ -36,8 +36,9 @@ double compute(double params[7][6], double x, double y)
 }
 
 int main(int argc, char **argv)
-{
-	assert(argc == 2 || argc == 3);
+{ 
+	// one or two input files
+	assert(argc == 2 || argc == 3); // if not one or two input files -> abort
 
 	std::auto_ptr<TFile> inFile(new TFile(argv[1]));
 	assert(inFile.get());
@@ -51,12 +52,19 @@ int main(int argc, char **argv)
 		TH2D *th2b = dynamic_cast<TH2D*>(inFile2->Get("jets"));
 		assert(th2b);
 		th2b->Sumw2();
-		th2->Divide(th2b);
+		th2->SetName("jets_ratio");
+		th2->Divide(th2b); // if there is a second input file, divide the histogram of the b jet pt/eta through the histogram of the non-b jet pt/eta
 	}
 
-	TH1D *th1 = new TH1D("slice", "slice", 50, -1.0, +1.0);
-	th1->SetDirectory(0);
+	TFile g("out.root", "RECREATE"); //rootfile with control plots
+	//create histogram that will contain the eta values of the jets for a certain ptbin (the real value of eta is transformed between -1 and 1 because the Chebychev polynominial is only defined on that range)
+	TH1D *th1[th2->GetNbinsY()];
+	for(int i = 0; i < th2->GetNbinsY(); i++) {
+		th1[i] = new TH1D(Form("ptslice%d", i), "slice",th2->GetNbinsX(), -1.0, +1.0); //number of bins related to number of etabins in histoJetEtaPt.C 
+		th1[i]->SetDirectory(0); 
+	}
 
+///////////////// define the fitfunction for the eta distribution in a certain pt slice
 	TF1 *cheb = new TF1("ChebS8", "[0] +"
 	                              "[1] * (2 * (x^2) - 1) + "
 	                              "[2] * (8 * (x^4) - 8 * (x^2) + 1) + "
@@ -67,31 +75,42 @@ int main(int argc, char **argv)
 	                    -1.0, +1.0);
 	cheb->SetParLimits(0, 0.0, 100000.0);
 
-	static const int max = 38;
-
+///////////////// fit the etadistributions for each ptslice and fill the distributions of the fitcoefficients for the different pt slices
 	TH1D *coeffs[7];
 	for(int i = 0; i < 7; i++) {
-		coeffs[i] = new TH1D(Form("coeff%d", i), "coeffs", max, 0.5, max + 0.5);
+		coeffs[i] = new TH1D(Form("coeff%d", i), "coeffs", th2->GetNbinsY()-2, 0.5, th2->GetNbinsY()-2 + 0.5); //for each coefficient create a histogram with the number of ptbins
 		coeffs[i]->SetDirectory(0);
 	}
+	
+	std::cout << "number of ptbins: " << th2->GetNbinsY() << std::endl;
+	std::cout << "number of etabins: " << th2->GetNbinsX() << std::endl;
 
-	for(int y = 1; y <= max; y++) {
-		for(int x = 1; x <= 50; x++)
-			th1->SetBinContent(x, th2->GetBinContent(x, y));
-		th1->Fit(cheb, "QRNB");
+	for(int y = 1; y <= th2->GetNbinsY()-2; y++) { //loop over ptbins
+		for(int x = 1; x <= th2->GetNbinsX(); x++) //loop over etabins 
+		{
+			th1[y]->SetBinContent(x, th2->GetBinContent(x, y)); // weight!
+		}
+		th1[y]->SetDirectory(&g);
+		th1[y]->Fit(cheb, "QRNB"); // fit the new histogram with the crazy fitfunction!
+		th1[y]->Write();
+		cheb->SetName(Form("cheb%d", y));
+		cheb->Write();
+		
 		for(int i = 0; i < 7; i++) {
 			coeffs[i]->SetBinContent(y, cheb->GetParameter(i));
 			coeffs[i]->SetBinError(y, cheb->GetParError(i));
 		}
 	}
 
+///////////////// fit the coefficients as function of pt
 	double params[7][6];
-
+	TF1 *pol[7];
 	for(int i = 0; i < 7; i++) {
-		coeffs[i]->Fit("expo", "Q0");
+		//the following piece of code is not relevant: expo, arg and f1 not used afterwards and coeffs[i] is refitted with pol5
+		/*coeffs[i]->Fit("expo", "Q0");
 		TF1 *f1 = coeffs[i]->GetFunction("expo");
 		double expo, arg;
-		if (f1->GetParameter(0) >= -100000.0) {
+		if (f1->GetParameter(0) >= -100000.0) { 
 			expo = std::exp(f1->GetParameter(0));
 			arg = f1->GetParameter(1);
 		} else {
@@ -101,21 +120,27 @@ int main(int argc, char **argv)
 			expo = -std::exp(f1->GetParameter(0));
 			arg = f1->GetParameter(1);
 			coeffs[i]->Scale(-1.0);
-		}
+		}*/
 		coeffs[i]->Fit("pol5", "0B");
-		TF1 *pol = coeffs[i]->GetFunction("pol5");
+		pol[i] = coeffs[i]->GetFunction("pol5");
+		pol[i]->SetName(Form("pol%d", i));
+		pol[i]->Write();
 		for(int j = 0; j < 6; j++)
-			params[i][j] = pol->GetParameter(j);
+			params[i][j] = pol[i]->GetParameter(j);
 	}
 
+///////////////// store the fit"function" in the histogram and calculate the chi2
 	double chi2 = 0.0;
 	int ndf = 0;
 	TH2D *th2c = new TH2D(*th2);
 	th2c->SetName("fit");
-	for(int y = 1; y <= 40; y++) {
-		int ry = y > 36 ? 36 : y;
-		for(int x = 1; x <= 50; x++) {
-			double val = compute(params, (x - 0.5) / 25.0 - 1.0, ry);
+	for(int y = 1; y <= th2->GetNbinsY(); y++) { // ptbins
+		int ry = y > th2->GetNbinsY()-4 ? th2->GetNbinsY()-4 : y;
+		for(int x = 1; x <= th2->GetNbinsX(); x++) { // etabins
+			//std::cout << "original histo, now in ptbin y: " << y << " (ry: " << ry <<") and etabin x: " << x << std::endl;
+			//using the coefficients of the fitted functions, the value is calculated (this value will be close to the original value in case 1 rootfile is given and will the close to the original value of the divided histograms if 2 rootfiles are given)
+			double val = compute(params, (x - 0.5) /(0.5*(float) th2->GetNbinsX()) - 1.0, ry);
+			//std::cout << "val " << val << " for " << (x - 0.5) / 25.0 - 1.0 << " and for ry: " << ry  << std::endl;
 			if (val < 0)
 				val = 0;
 			double error = th2->GetBinError(x, y);
@@ -124,18 +149,26 @@ int main(int argc, char **argv)
 				chi2 += chi * chi / val;
 				ndf++;
 			}
-			th2c->SetBinContent(x, y, val); // - th2->GetBinContent(x, y));
+			th2c->SetBinContent(x, y, val); 
 		}
 	}
 	std::cout << "chi2/ndf(" << ndf << "): " << (chi2 / ndf) << std::endl;
 
-	TFile g("out.root", "RECREATE");
+
+
+///////////////// writing histos
+	for(int i = 0; i < 7; i++)
+	{
+		coeffs[i]->SetDirectory(&g);
+		coeffs[i]->Write();
+	}
 	th2->SetDirectory(&g);
-	th2->Write();
+	th2->Write(); //write the original histogram (or the result of the two histograms divided by eachother)
 	th2c->SetDirectory(&g);
-	th2c->Write();
+	th2c->Write(); //write the histogram with the new weights
 	g.Close();
 
+///////////////// writing relevant parameters for reweighting
 	std::ofstream of("out.txt");
 	of << std::setprecision(16);
 	for(int i = 0; i < 7; i++)
