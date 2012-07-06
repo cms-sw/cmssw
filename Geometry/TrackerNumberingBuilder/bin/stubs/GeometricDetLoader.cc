@@ -15,7 +15,6 @@
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/GeomDetTypeIdToEnum.h"
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
 
 #include <iostream>
