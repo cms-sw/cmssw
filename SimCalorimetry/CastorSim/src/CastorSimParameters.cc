@@ -15,20 +15,6 @@ CastorSimParameters::CastorSimParameters(double simHitToPhotoelectrons, double p
 {
 }
 
-/* 
-CastorSimParameters::CastorSimParameters(double simHitToPhotoelectrons, double photoelectronsToAnalog,
-                double samplingFactor, double timePhase,
-                int readoutFrameSize, int binOfMaximum,
-                bool doPhotostatistics, bool syncPhase,
-                int firstRing, const std::vector<double> & samplingFactors)
- : CaloSimParameters(simHitToPhotoelectrons, photoelectronsToAnalog, samplingFactor, timePhase,
-                   readoutFrameSize, binOfMaximum, doPhotostatistics, syncPhase),
- theDbService(0),
- theFirstRing(firstRing),
- theSamplingFactors(samplingFactors)
-{
-}
-*/
 
 CastorSimParameters::CastorSimParameters(const edm::ParameterSet & p)
 :  CaloSimParameters(p),
@@ -36,14 +22,6 @@ CastorSimParameters::CastorSimParameters(const edm::ParameterSet & p)
    theSamplingFactor( p.getParameter<double>("samplingFactor") )
 {
 }
-/*
-: CaloSimParameters(p),
-  theDbService(0),
-  theFirstRing( p.getParameter<int>("firstRing") ),
-  theSamplingFactors( p.getParameter<std::vector<double> >("samplingFactors") )
-{
-}
-*/
 
 /*
 double CastorSimParameters::simHitToPhotoelectrons(const DetId & detId) const 
@@ -62,8 +40,9 @@ double CastorSimParameters::simHitToPhotoelectrons(const DetId & detId) const
 
 double CastorSimParameters::photoelectronsToAnalog(const DetId & detId) const
 {
-  // pe/fC = pe/GeV * GeV/fC  = (0.24 pe/GeV * 6 for photomult * 0.2146GeV/fC)
-  return 1./(theSamplingFactor * simHitToPhotoelectrons(detId) * fCtoGeV(detId));
+  // calculate factor (PMT gain) using sampling factor value & available electron gain
+  //std::cout << " sampling factor = " << theSamplingFactor << " fCtoGeV = " << fCtoGeV(detId) << " and photoelectronsToAnalog = " << theSamplingFactor/fCtoGeV(detId) << std::endl;
+  return theSamplingFactor/fCtoGeV(detId);
 }
 
 
