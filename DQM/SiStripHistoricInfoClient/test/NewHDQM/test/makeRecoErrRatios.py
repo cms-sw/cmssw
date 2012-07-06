@@ -38,14 +38,14 @@ if len(bot) ==1 and bplot.GetEntries() > 0:
             C.SetFrameLineColor(2)
         print ratio.Integral(int((ratio.GetNbinsX()*3)/4), ratio.GetNbinsX())/ratio.Integral(1, ratio.GetNbinsX())
         ##Now temporarily change the bins shown on X axis...
-        for i in range(1,pfTrackElec_Ratio->GetNbinsX()+1):
+        for i in range(1,ratio.GetNbinsX()+1):
             if i%int(145*0.03) !=  0: ratio.GetXaxis().SetBinLabel(i,"")
         C.cd()
         ratio.Draw()
         C.SaveAs(dir+t.split("_")[1]+"_Ratio.png")
         C.Close()
         ##Now change bin labels back
-        for i in range(1,pfTrackElec_Ratio->GetNbinsX()+1): ratio.GetXaxis().SetBinLabel(i,bplot.GetXaxis().GetBinLabel(i))
+        for i in range(1,ratio.GetNbinsX()+1): ratio.GetXaxis().SetBinLabel(i,bplot.GetXaxis().GetBinLabel(i))
         file.cd()
         ratio.Write()
 file.Close()
