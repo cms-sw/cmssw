@@ -6,7 +6,7 @@ process = cms.Process("L1Tproducer")
 
 # Number of events to be generated
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(1)
 )
 
 process.load("L1Trigger.L1ExtraFromDigis.l1extraParticles_cff")
@@ -45,13 +45,16 @@ process.L1CaloTriggerSetup.InputXMLFile=cms.FileInPath('SLHCUpgradeSimulations/L
 #-------------------------------------------------------------------------------------------------------------------------
 # To automatically add all permutations of the Ring-Subtraction and Tower-Jet algorithms, uncomment these lines
 #-------------------------------------------------------------------------------------------------------------------------
-from SLHCUpgradeSimulations.L1CaloTrigger.AllTowerJetPermutations import *
-process.AllTowerJetPermutations = CreateAllTowerJetPermutations( process )	#We are taking advantage of the fact that the config files are python
+#from SLHCUpgradeSimulations.L1CaloTrigger.AllTowerJetPermutations import *
+#process.AllTowerJetPermutations = CreateAllTowerJetPermutations( process )	#We are taking advantage of the fact that the config files are python
 #-------------------------------------------------------------------------------------------------------------------------
 
 
 process.p1 = cms.Path(
 				process.L1CaloTowerProducer+
+#				process.L1RingSubtractionProducer+
+                process.L1TowerJetProducer+
+                process.L1TowerJetFilter1D
 #-------------------------------------------------------------------------------------------------------------------------
 # To use manually added Ring-subtraction and Tower-Jet algorithms, uncomment these lines
 #-------------------------------------------------------------------------------------------------------------------------
@@ -60,13 +63,12 @@ process.p1 = cms.Path(
 #-------------------------------------------------------------------------------------------------------------------------
 # To use the automatically generated permutations of the Ring-subtraction and Tower-Jet algorithms, uncomment these lines
 #-------------------------------------------------------------------------------------------------------------------------
-				process.AllTowerJetPermutations
-
+#				process.AllTowerJetPermutations
 			)
 
 process.source = cms.Source("PoolSource",
                                 fileNames = cms.untracked.vstring(
-                                        'file:EventData.root'
+                                        'file:/vols/cms04/rel08/EventData.root'
                                 )
                         )
 

@@ -145,6 +145,9 @@ void L1RingSubtractionProducer::produce( edm::Event & aEvent,
 		for( l1slhc::L1CaloTowerCollection::const_iterator lInputIt = mInputCollection->begin() ; lInputIt != mInputCollection->end() ; ++lInputIt ){
 			lEcals[ lInputIt->iEta() ].push_back( lInputIt->E() );
 			lHcals[ lInputIt->iEta() ].push_back( lInputIt->H() );
+
+			//std::cout<<"ECal energy: "<<lInputIt->E()<<std::endl;
+			//std::cout<<"HCal energy: "<<lInputIt->H()<<std::endl;
 		}
 
 		std::map< int , double > lMedianEcal , lMedianHcal;
@@ -153,8 +156,8 @@ void L1RingSubtractionProducer::produce( edm::Event & aEvent,
 		for( std::map< int , std::deque<int> >::iterator lIt = lEcals.begin() ; lIt != lEcals.end() ; ++lIt ){
 			lIt->second.resize( 72 , 0 );
 			std::sort( lIt->second.begin() , lIt->second.end() );
-			lMedianEcal[ lIt->first ] = (lIt->second.at( 35 ) + lIt->second.at( 36 )) / 2.0;
-		}
+			lMedianEcal[ lIt->first ] = (lIt->second.at( 35 ) + lIt->second.at( 36 )) / 2.0;		
+	}
 
 
 		//Empty towers are assumed to have zero energy contribution
@@ -162,7 +165,8 @@ void L1RingSubtractionProducer::produce( edm::Event & aEvent,
 			lIt->second.resize( 72 , 0 );
 			std::sort( lIt->second.begin() , lIt->second.end() );
 			lMedianHcal[ lIt->first ] = (lIt->second.at( 35 ) + lIt->second.at( 36 )) / 2.0;
-		}
+	
+	}
 
 
 		for( l1slhc::L1CaloTowerCollection::const_iterator lInputIt = mInputCollection->begin() ; lInputIt != mInputCollection->end() ; ++lInputIt ){
