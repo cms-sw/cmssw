@@ -51,6 +51,22 @@ process.es_prefer_APE = cms.ESPrefer("PoolDBESSource", "APE")
 
 ######################################################################
 ######################################################################
+kinksAndBowsTemplate="""
+import CalibTracker.Configuration.Common.PoolDBESSource_cfi
+process.trackerBowedSensors = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
+     connect = cms.string('.oO[kbdbpath]Oo.'),
+ 
+    toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
+                               tag = cms.string('.oO[kbtag]Oo.')
+                               )
+                      )
+    )
+process.prefer_trackerBowedSensors = cms.ESPrefer("PoolDBESSource", "trackerBowedSensors")
+"""
+
+
+######################################################################
+######################################################################
 #batch job execution
 scriptTemplate="""
 #!/bin/bash
