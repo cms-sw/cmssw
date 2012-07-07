@@ -98,7 +98,7 @@ HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v*     
 #HLT_Mu20_eta2p1_CentralPFNoPUJet30_BTagIPIter_v*                                               # sr #127305, removed by sr #128283
 #HLT_Mu20_eta2p1_TriCentralPFNoPUJet30_v*                                                       # sr #127305, removed by sr #128283
 #HLT_Mu20_eta2p1_TriCentralPFNoPUJet50_40_30_v*                                                 # sr #127305, removed by sr #128283
-HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_DiCentralPFNoPUJet30_v*                            # sr #129852
+HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_DiCentralPFNoPUJet30_v*				# sr #129852
 
 HLT_IsoMu17_eta2p1_CentralPFNoPUJet30_v*                                                        # sr #128283
 HLT_IsoMu17_eta2p1_CentralPFNoPUJet30_BTagIPIter_v*                                             # sr #128283
@@ -219,7 +219,6 @@ HLT_Mu14_Ele14_CaloIdT_TrkIdVL_Mass8_PFMET50_v*                                 
 HLT_Photon20_CaloIdVL_v*                                                                        # sr #127372
 HLT_Photon20_CaloIdVL_IsoL_v*                                                                   # sr #126304
 #HLT_Photon30_CaloIdVL_IsoL_v*                                                                  # sr #126304, removed in sr129852
-#HLT_Photon50_CaloIdVL_IsoL_v*                                                                  # sr #126304, removed in sr129852
 #HLT_Photon75_CaloIdVL_IsoL_v*                                                                  # sr #126304, removed in sr129852
 #HLT_Photon90_CaloIdVL_IsoL_v*                                                                  # sr #126304, removed in sr129852
 HLT_TripleEle10_CaloIdL_TrkIdVL_v*                                                              # sr #126304
@@ -583,7 +582,7 @@ HLT_Mu12_eta2p1_L1Mu10erJetC12WdEtaPhi1DiJetsC_v*                               
 HLT_Mu15_eta2p1_TriCentral_40_20_20_DiBTagIP3D1stTrack_v*                                       # sr #126638, removed L1FastJet from name, sr #129583
 HLT_Mu15_eta2p1_TriCentral_40_20_20_BTagIP3D1stTrack_v*                                         # sr #126638, removed L1FastJet from name, sr #129583
 HLT_Mu15_eta2p1_TriCentral_40_20_20_v*                                                          # sr #126638, removed L1FastJet from name, sr #129583
-HLT_Mu12_eta2p1_L1Mu10erJetC12WdEtaPhi1DiJetsC_v*                                               # sr #129583
+HLT_Mu15_eta2p1_L1Mu10erJetC12WdEtaPhi1DiJetsC_v*                                               # sr #129583
 
 #HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_RsqMR45_Rsq0p04_MR200_v*                          # sr #127259, removed by sr #128235
 #HLT_Mu12_RsqMR45_Rsq0p04_MR200_v*                                                              # sr #127259, removed by sr #128235
