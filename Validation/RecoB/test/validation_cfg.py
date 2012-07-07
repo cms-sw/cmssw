@@ -17,7 +17,7 @@ options.parseArguments()
 whichJets  = options.jets 
 useTrigger = False
 runOnMC    = True
-tag =  'START53_V5::All'
+tag =  'START60_V1::All'
 
 ###prints###
 print "jet collcetion asked : ", whichJets
@@ -82,9 +82,9 @@ if runOnMC:
     process.bTagValidation.allHistograms = True 
     #process.bTagValidation.fastMC = True
     process.bTagValidation.applyPtHatWeight = False
+    process.bTagValidation.mcPlots = 1 #0=no flavour histogram; 1=b, c, udsg and ni; 2=all flavour histograms
 else:
-    process.load("DQMOffline.RecoB.dqmAnalyzer_cff")
-    process.load("DQMOffline.RecoB.dqmCollector_cff")
+    process.load("DQMOffline.RecoB.bTagAnalysisData_cfi")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -101,7 +101,7 @@ else:
 if runOnMC:
     process.dqmSeq = cms.Sequence(process.flavourSeq * process.bTagValidation * process.dqmSaver)
 else:
-    process.dqmSeq = cms.Sequence(process.bTagPlots * process.bTagCollectorSequence * process.dqmSaver)
+    process.dqmSeq = cms.Sequence(process.bTagAnalysis * process.dqmSaver)
 
 if useTrigger:
     process.plots = cms.Path(process.bTagHLT * process.jetSequences * process.dqmSeq)
