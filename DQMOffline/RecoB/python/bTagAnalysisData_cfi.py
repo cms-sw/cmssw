@@ -96,7 +96,7 @@ bTagAnalysis = cms.EDAnalyzer("BTagPerformanceAnalyzerOnData",
             folder = cms.string("SMTPt")
         ) 
     ),
-    mcPlots = cms.bool(False)
+    mcPlots = cms.uint32(0)
 )
 
 
