@@ -8,7 +8,7 @@ using namespace RecoBTag;
 
 
 JetTagPlotter::JetTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
-		       const edm::ParameterSet& pSet, const bool& mc, const bool& update, const bool& wf) :
+		       const edm::ParameterSet& pSet, const unsigned int& mc, const bool& update, const bool& wf) :
 		       BaseBTagPlotter(tagName, etaPtBin), discrBins(400),
                        discrStart_(pSet.getParameter<double>("discriminatorStart")), 
                        discrEnd_(pSet.getParameter<double>("discriminatorEnd")),
@@ -22,11 +22,13 @@ JetTagPlotter::JetTagPlotter (const std::string & tagName, const EtaPtBin & etaP
   const std::string jetTagDir(es.substr(1));
 
   //added to count the number of jets by event : 0=DATA or NI, 1to5=quarks u,d,s,c,b , 6=gluon
-  nJets = new int [7];
-  for(int i = 0; i < 7; i++){
+  int nFl = 1;
+  if(mcPlots_) nFl = 7;
+  nJets = new int [nFl];
+  for(int i = 0; i < nFl; i++){
     nJets[i]=0;
   }
-
+  
   if (mcPlots_){
     // jet flavour
     dJetFlav = new FlavourHistograms<int>
@@ -192,14 +194,20 @@ void JetTagPlotter::analyzeTag(const float& w)
   if (mcPlots_) {
   //to use with MC
     int totNJets = 0;
+    int udsNJets = 0;
+    int udsgNJets = 0;
     for(int i = 0; i < 7; i++){
       totNJets += nJets[i];
+      if(i > 0 && i < 4) udsNJets += nJets[i];
+      if((i > 0 && i < 4) || i == 6) udsgNJets += nJets[i];
       if(i <= 5 && i >= 1) JetMultiplicity->fill(i, nJets[i], w);
       else if (i==6) JetMultiplicity->fill(21, nJets[i], w);
       else JetMultiplicity->fill(0, nJets[i], w);
       nJets[i] = 0; //reset to 0 before the next event
     }
     JetMultiplicity->fill(-1, totNJets, w); //total number of jets in the event
+    JetMultiplicity->fill(123, udsNJets, w);
+    JetMultiplicity->fill(12321, udsgNJets, w);
   }
   else 
     {
