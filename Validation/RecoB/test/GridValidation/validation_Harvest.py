@@ -4,6 +4,8 @@
 
 import FWCore.ParameterSet.Config as cms
 
+runOnMC = True
+
 process = cms.Process("harvest")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
@@ -14,13 +16,6 @@ process.load("DQMServices.Core.DQM_cfg")
 
 process.load("RecoBTag.Configuration.RecoBTag_cff")
 
-
-process.load("PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi")  
-
-process.load("Validation.RecoB.bTagAnalysis_harvesting_cfi")
-process.bTagValidationHarvest.jetMCSrc = 'AK5byValAlgo'
-process.bTagValidationHarvest.allHistograms = True 
-
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
@@ -28,11 +23,15 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring()
 )
 
+process.load("Validation.RecoB.bTagAnalysis_harvesting_cfi")
+if runOnMC:
+    process.dqmSeq = cms.Sequence(process.bTagValidationHarvest * process.dqmSaver)
+else:
+    process.dqmSeq = cms.Sequence(process.bTagValidationHarvestData * process.dqmSaver)
+
 process.load("DQMServices.Components.EDMtoMEConverter_cfi")
+process.plots = cms.Path(process.EDMtoMEConverter * process.dqmSeq)
 
-
-process.plots = cms.Path(process.EDMtoMEConverter* process.bTagValidationHarvest*process.dqmSaver)
-#process.plots = cms.Path(process.EDMtoMEConverter*process.dqmSaver)
 process.dqmEnv.subSystemFolder = 'BTAG'
 process.dqmSaver.producer = 'DQM'
 process.dqmSaver.workflow = '/POG/BTAG/BJET'
@@ -53,6 +52,5 @@ process.PoolSource.fileNames = [
     'file:MEtoEDMConverter_9.root',
     'file:MEtoEDMConverter_10.root',
     'file:MEtoEDMConverter_11.root'
-
-    ]
+]
 
