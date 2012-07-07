@@ -193,7 +193,7 @@ pfbTagAnalysis = bTagAnalysis.clone(
 pfbTagAnalysis.finalizePlots = False
 pfbTagAnalysis.finalizeOnly = False
 
-bTagPlotsDATA = cms.Sequence(pfbTagAnalysis)
+bTagPlots = cms.Sequence(pfbTagAnalysis)
 
 # Module execution for MC
 from Validation.RecoB.bTagAnalysis_cfi import *
@@ -279,4 +279,4 @@ pfbTagValidation.finalizePlots = False
 pfbTagValidation.finalizeOnly = False
 pfbTagValidation.jetMCSrc = 'AK5byValAlgo'
 
-bTagPlots = cms.Sequence(myPartons*AK5Flavour*pfbTagValidation)
+bTagPlotsMC = cms.Sequence(myPartons*AK5Flavour*pfbTagValidation)
