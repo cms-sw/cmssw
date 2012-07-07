@@ -10,7 +10,7 @@ class TagInfoPlotterFactory  {
  public:
    BaseTagInfoPlotter* buildPlotter(const std::string& dataFormatType, const std::string & tagName,
 	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, 
-        const std::string& folderName, const bool& update, const bool& mc,
+        const std::string& folderName, const bool& update, const unsigned int& mc,
         const bool& wf);
 };
 

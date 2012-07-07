@@ -15,7 +15,7 @@ class TrackProbabilityTagPlotter : public BaseTagInfoPlotter {
  public:
 
   TrackProbabilityTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
-	const edm::ParameterSet& pSet, const bool& update, const bool& mc, const bool& wf);
+	const edm::ParameterSet& pSet, const bool& update, const unsigned int& mc, const bool& wf);
 
   ~TrackProbabilityTagPlotter () ;
 
@@ -39,7 +39,8 @@ class TrackProbabilityTagPlotter : public BaseTagInfoPlotter {
   FlavourHistograms<double> * tkcntHistosSig2D[5];
   EffPurFromHistos * effPurFromHistos[4] ;
   bool finalized;
-  bool mcPlots_;  bool willFinalize_;
+  unsigned int mcPlots_;  
+  bool willFinalize_;
 
 } ;
 

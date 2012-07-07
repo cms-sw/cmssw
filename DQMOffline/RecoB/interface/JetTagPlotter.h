@@ -17,7 +17,7 @@ class JetTagPlotter : public BaseBTagPlotter {
  public:
 
   JetTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
-		 const edm::ParameterSet& pSet, const bool& mc , const bool& update, const bool& willFinalize);
+		 const edm::ParameterSet& pSet, const unsigned int& mc , const bool& update, const bool& willFinalize);
 
   virtual ~JetTagPlotter () ;
 
@@ -36,7 +36,7 @@ class JetTagPlotter : public BaseBTagPlotter {
   EffPurFromHistos * getEffPurFromHistos () { return effPurFromHistos ; }
 
 
-    void epsPlot(const std::string & name);
+  void epsPlot(const std::string & name);
 
   void psPlot(const std::string & name);
 
@@ -56,7 +56,7 @@ class JetTagPlotter : public BaseBTagPlotter {
   double endEffPur_ ; 
 
   bool finalized;
-  bool mcPlots_;
+  unsigned int mcPlots_;
   bool willFinalize_;
 
   int *nJets;

@@ -18,11 +18,11 @@ class EffPurFromHistos {
 
   EffPurFromHistos ( const std::string & ext, TH1F * h_d, TH1F * h_u,
 	TH1F * h_s, TH1F * h_c, TH1F * h_b, TH1F * h_g,	TH1F * h_ni,
-		     TH1F * h_dus, TH1F * h_dusg, const std::string& label, const bool& mc,
+		     TH1F * h_dus, TH1F * h_dusg, const std::string& label, const unsigned int& mc,
 	int nBin = 100 , double startO = 0.005 , double endO = 1.005 ) ;
 	// defaults reasonable for lifetime based tags
 
-  EffPurFromHistos (const FlavourHistograms<double> * dDiscriminatorFC, const std::string& label, const bool& mc,
+  EffPurFromHistos (const FlavourHistograms<double> * dDiscriminatorFC, const std::string& label, const unsigned int& mc,
 	int nBin = 100 , double startO = 0.005 , double endO = 1.005 ) ;
 	// defaults reasonable for lifetime based tags
 
@@ -93,7 +93,7 @@ class EffPurFromHistos {
   double startOutput ;
   double endOutput ;
 
-  bool mcPlots_;
+  unsigned int mcPlots_;
 
 
   MonitorElement * EffFlavVsBEff_d    ;

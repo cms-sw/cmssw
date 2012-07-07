@@ -15,7 +15,7 @@ class TrackIPTagPlotter : public BaseTagInfoPlotter {
  public:
 
   TrackIPTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
-	const edm::ParameterSet& pSet, const bool& update, const bool& mc, const bool& wf);
+	const edm::ParameterSet& pSet, const bool& update, const unsigned int& mc, const bool& wf);
 
   ~TrackIPTagPlotter () ;
 
@@ -36,7 +36,7 @@ class TrackIPTagPlotter : public BaseTagInfoPlotter {
   int	nBinEffPur_ ;
   double startEffPur_ ; 
   double endEffPur_ ; 
-  bool mcPlots_;
+  unsigned int mcPlots_;
   bool willFinalize_;
   bool makeQualityPlots_;
 
