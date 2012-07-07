@@ -6,7 +6,7 @@
 #include "DQMOffline/RecoB/interface/TrackIPTagPlotter.h"
 
 TrackIPTagPlotter::TrackIPTagPlotter(const std::string & tagName,
-	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, const bool& update, const bool& mc, const bool& wf) :
+	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, const bool& update, const unsigned int& mc, const bool& wf) :
   BaseTagInfoPlotter(tagName, etaPtBin),
   nBinEffPur_(pSet.getParameter<int>("nBinEffPur")),
   startEffPur_(pSet.getParameter<double>("startEffPur")),

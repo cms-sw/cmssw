@@ -11,7 +11,7 @@ using namespace RecoBTag;
 static const string ordinal[9] = { "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th" };
 
 SoftLeptonTagPlotter::SoftLeptonTagPlotter(const std::string & tagName,
-	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, const bool& mc, const bool& update) :
+	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, const unsigned int& mc, const bool& update) :
     BaseTagInfoPlotter(tagName, etaPtBin), mcPlots_(mc)
 {
   const std::string softLepDir(theExtensionString.substr(1));

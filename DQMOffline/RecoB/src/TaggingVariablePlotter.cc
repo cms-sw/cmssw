@@ -6,7 +6,7 @@ using namespace reco;
 
 TaggingVariablePlotter::VariableConfig::VariableConfig(
 		const string &name, const ParameterSet &pSet, const bool& update,
-		const string &category, const string& label, const bool& mc) :
+		const string &category, const string& label, const unsigned int& mc) :
 	var(getTaggingVariableName(name)),
 	nBins(pSet.getParameter<unsigned int>("nBins")),
 	min(pSet.getParameter<double>("min")),
@@ -44,7 +44,7 @@ TaggingVariablePlotter::VariableConfig::VariableConfig(
 
 TaggingVariablePlotter::TaggingVariablePlotter(const std::string &tagName,
 					       const EtaPtBin &etaPtBin, const ParameterSet &pSet, const bool& update,
-					       const bool& mc,
+					       const unsigned int& mc,
 					       const string &category) : BaseTagInfoPlotter(tagName, etaPtBin), mcPlots_(mc)
 {
   const std::string tagVarDir(theExtensionString.substr(1));
