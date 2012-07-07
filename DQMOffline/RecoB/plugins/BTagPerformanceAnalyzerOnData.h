@@ -78,7 +78,7 @@ class BTagPerformanceAnalyzerOnData : public edm::EDAnalyzer {
   std::vector<edm::ParameterSet> moduleConfig;
   std::map<BaseTagInfoPlotter*, size_t> binTagInfoPlottersToModuleConfig;
 
-  bool mcPlots_;
+  unsigned int mcPlots_;
 
 };
 

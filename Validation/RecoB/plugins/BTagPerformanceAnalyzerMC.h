@@ -101,7 +101,8 @@ typedef std::map<edm::RefToBase<reco::Jet>, reco::JetFlavour::Leptons, JetRefCom
   std::vector<edm::ParameterSet> moduleConfig;
   std::map<BaseTagInfoPlotter*, size_t> binTagInfoPlottersToModuleConfig;
 
-  bool mcPlots_, makeDiffPlots_;
+  unsigned int  mcPlots_;
+  bool  makeDiffPlots_;
 
   CorrectJet jetCorrector;
   MatchJet jetMatcher;
