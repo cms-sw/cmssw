@@ -1,8 +1,18 @@
+<<<<<<< ChangeLog
+2012-07-08 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-00-22
+	* gcc 4.7.0 strict aligment compiler fix
+	* reduce number of warnings when discard is received before
+	  DQM cell ready-to-discard has finished
+
+=======
 2012-07-05 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V01-00-22
 	* OSX version doesn't support std::timed_mutex yet
 
+>>>>>>> 1.116
 2012-07-02 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V01-00-21

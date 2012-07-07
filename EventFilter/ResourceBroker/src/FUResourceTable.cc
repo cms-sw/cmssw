@@ -763,6 +763,7 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef) {
 	unsigned int ntries = 0;
 	try {
 		while (shmBuffer_->dqmState(dqmIndex) != dqm::SENT) {
+			if (ntries)//tolerate one attempt
 			LOG4CPLUS_WARN(
 					log_,
 					"DQM discard for cell " << dqmIndex
@@ -825,6 +826,7 @@ bool FUResourceTable::discardDqmEventWhileHalting(MemRef_t* bufRef) {
 	unsigned int ntries = 0;
 	try {
 		while (shmBuffer_->dqmState(dqmIndex) != dqm::SENT) {
+			if (ntries)//tolerate one attempt
 			LOG4CPLUS_WARN(
 					log_,
 					"DQM discard for cell " << dqmIndex

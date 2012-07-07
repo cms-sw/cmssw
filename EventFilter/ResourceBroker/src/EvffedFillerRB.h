@@ -51,7 +51,7 @@ public:
 				hostid += strtol(p, 0, 16);
 			hostid_ = hostid;
 		}
-		*reinterpret_cast<uint32_t *>(payload_.asBytes + fedinterface::EVFFED_RBIDENT_OFFSET)
+		*(payload_.asHWords + (fedinterface::EVFFED_RBIDENT_OFFSET/sizeof(uint32_t)))
 				= ((hostid_ & fedinterface::EVFFED_RBPCIDE_MASK)
 						<< fedinterface::EVFFED_RBPCIDE_SHIFT)
 						+ ((rb->instanceNumber()
@@ -68,31 +68,30 @@ public:
 	void putHeader(unsigned int l1id, unsigned int bxid) {
 		*(payload_.asHWords) = FED_SOID_INSERT(fedinterface::EVFFED_ID)
 				+ FED_VERSION_INSERT(fedinterface::EVFFED_VERSION);
-		*reinterpret_cast<uint32_t *>(payload_.asBytes + evtn::SLINK_HALFWORD_SIZE)
+		*(payload_.asHWords + (evtn::SLINK_HALFWORD_SIZE/sizeof(uint32_t)))
 				= FED_HCTRLID_INSERT + FED_EVTY_INSERT(0x1)
 						+ FED_LVL1_INSERT(l1id) + FED_BXID_INSERT(bxid);
 
 	}
 	// this function MUST be called again after filling is complete (hence again in EP!!!)
 	void putTrailer() {
-		unsigned char *fedtr_p = payload_.asBytes
-				+ fedinterface::EVFFED_TOTALSIZE - evtn::FED_TRAILER_SIZE;
-		*(uint32_t*) (fedtr_p + evtn::SLINK_HALFWORD_SIZE) = FED_TCTRLID_INSERT
+		uint32_t *fedtr_p = payload_.asHWords
+				+ ((fedinterface::EVFFED_TOTALSIZE - evtn::FED_TRAILER_SIZE)/sizeof(uint32_t));
+		*(fedtr_p + (evtn::SLINK_HALFWORD_SIZE/sizeof(uint32_t))) = FED_TCTRLID_INSERT
 				+ FED_EVSZ_INSERT(fedinterface::EVFFED_LENGTH);
-		*(uint32_t*) (fedtr_p)
-				= FED_CRCS_INSERT(compute_crc(payload_.asBytes,fedinterface::EVFFED_TOTALSIZE));
+		*(fedtr_p) = FED_CRCS_INSERT(compute_crc(payload_.asBytes,fedinterface::EVFFED_TOTALSIZE));
 	}
 	void setRBTimeStamp(uint64_t ts) {
-		*reinterpret_cast<uint64_t *>(payload_.asBytes + fedinterface::EVFFED_RBWCTIM_OFFSET)
+		*(payload_.asWords + (fedinterface::EVFFED_RBWCTIM_OFFSET/sizeof(uint64_t)))
 				= ts;
 	}
 	void setRBEventCount(uint32_t evtcnt) {
-		*reinterpret_cast<uint32_t *>(payload_.asBytes + fedinterface::EVFFED_RBEVCNT_OFFSET)
+		*(payload_.asHWords + (fedinterface::EVFFED_RBEVCNT_OFFSET/sizeof(uint32_t)))
 				= evtcnt;
 	}
 
 	void setEPProcessId(pid_t pid) {
-		*reinterpret_cast<uint32_t *>(payload_.asBytes + fedinterface::EVFFED_EPIDENT_OFFSET)
+		*(payload_.asHWords + (fedinterface::EVFFED_EPIDENT_OFFSET/sizeof(uint32_t)))
 				= (pid & fedinterface::EVFFED_EPPCIDE_MASK)
 						<< fedinterface::EVFFED_EPPCIDE_SHIFT;
 	}
