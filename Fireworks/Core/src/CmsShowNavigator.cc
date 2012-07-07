@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.112 2011/10/29 17:33:22 gowdy Exp $
+// $Id: CmsShowNavigator.cc,v 1.113 2012/07/06 23:33:29 amraktad Exp $
 //
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -192,7 +192,11 @@ void CmsShowNavigator::setCurrentFile(FileQueue_i fi)
       
       fwLog(fwlog::kDebug) << "CmsShowNavigator::setCurrentFile [" << (*fi)->file()->GetName() << "] file idx in chain [" << cnt << "/" << m_files.size() -1 << "]" << std::endl;
    }
-   
+   else
+   {
+      fwLog(fwlog::kInfo) << "Set current file to "<< (*fi)->file()->GetName() << ".\n";
+   }
+
    m_currentFile = fi;
    fileChanged_.emit((*m_currentFile)->file());
 }
