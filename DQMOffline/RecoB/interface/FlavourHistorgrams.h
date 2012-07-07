@@ -32,7 +32,7 @@ public:
   FlavourHistograms (const std::string& baseNameTitle_ , const std::string& baseNameDescription_ ,
 		     const int& nBins_ , const double& lowerBound_ , const double& upperBound_ ,
 		     const bool& statistics_ , const bool& plotLog_ , const bool& plotNormalized_ ,
-		     const std::string& plotFirst_ , const bool& update, const std::string& folder, const bool& mc) ;
+		     const std::string& plotFirst_ , const bool& update, const std::string& folder, const unsigned int& mc) ;
 
   virtual ~FlavourHistograms () ;
 
@@ -138,7 +138,7 @@ protected:
   private:
   FlavourHistograms(){}
 
-  bool mcPlots_;
+  unsigned int mcPlots_;
 
 } ;
 
@@ -146,7 +146,7 @@ template <class T>
 FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_ , const std::string& baseNameDescription_ ,
 					 const int& nBins_ , const double& lowerBound_ , const double& upperBound_ ,
 					 const bool& statistics_ , const bool& plotLog_ , const bool& plotNormalized_ ,
-					 const std::string& plotFirst_, const bool& update, const std::string& folder, const bool& mc) :
+					 const std::string& plotFirst_, const bool& update, const std::string& folder, const unsigned int& mc) :
   // BaseFlavourHistograms () ,
   // theVariable ( variable_ ) ,
   theMaxDimension(-1), theIndexToPlot(-1), theBaseNameTitle ( baseNameTitle_ ) , theBaseNameDescription ( baseNameDescription_ ) ,
@@ -172,15 +172,24 @@ FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_ , con
     // book histos
     HistoProviderDQM prov("Btag",folder);
     theHisto_all   = (prov.book1D( theBaseNameTitle + "ALL"  , theBaseNameDescription + " all jets"  , theNBins , theLowerBound , theUpperBound )) ; 
-    if (mcPlots_) {  
-      theHisto_d     = (prov.book1D ( theBaseNameTitle + "D"    , theBaseNameDescription + " d-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
-      theHisto_u     = (prov.book1D ( theBaseNameTitle + "U"    , theBaseNameDescription + " u-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
-      theHisto_s     = (prov.book1D ( theBaseNameTitle + "S"    , theBaseNameDescription + " s-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
+    if (mcPlots_) {
+      if(mcPlots_>1) {
+	theHisto_d     = (prov.book1D ( theBaseNameTitle + "D"    , theBaseNameDescription + " d-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
+	theHisto_u     = (prov.book1D ( theBaseNameTitle + "U"    , theBaseNameDescription + " u-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
+	theHisto_s     = (prov.book1D ( theBaseNameTitle + "S"    , theBaseNameDescription + " s-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
+	theHisto_g     = (prov.book1D ( theBaseNameTitle + "G"    , theBaseNameDescription + " g-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
+	theHisto_dus   = (prov.book1D ( theBaseNameTitle + "DUS"  , theBaseNameDescription + " dus-jets"  , theNBins , theLowerBound , theUpperBound )) ; 
+      }
+      else{
+	theHisto_d = 0;
+	theHisto_u = 0;
+	theHisto_s = 0;
+	theHisto_g = 0;
+	theHisto_dus = 0;
+      }
       theHisto_c     = (prov.book1D ( theBaseNameTitle + "C"    , theBaseNameDescription + " c-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
       theHisto_b     = (prov.book1D ( theBaseNameTitle + "B"    , theBaseNameDescription + " b-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
-      theHisto_g     = (prov.book1D ( theBaseNameTitle + "G"    , theBaseNameDescription + " g-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
       theHisto_ni    = (prov.book1D ( theBaseNameTitle + "NI"   , theBaseNameDescription + " ni-jets"   , theNBins , theLowerBound , theUpperBound )) ; 
-      theHisto_dus   = (prov.book1D ( theBaseNameTitle + "DUS"  , theBaseNameDescription + " dus-jets"  , theNBins , theLowerBound , theUpperBound )) ; 
       theHisto_dusg  = (prov.book1D ( theBaseNameTitle + "DUSG" , theBaseNameDescription + " dusg-jets" , theNBins , theLowerBound , theUpperBound )) ;
     }else{
       theHisto_d = 0;
@@ -197,15 +206,16 @@ FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_ , con
     if ( theStatistics ) {
       theHisto_all ->getTH1F()->Sumw2() ; 
       if (mcPlots_ ) {  
-	
-	theHisto_d   ->getTH1F()->Sumw2() ; 
-	theHisto_u   ->getTH1F()->Sumw2() ; 
-	theHisto_s   ->getTH1F()->Sumw2() ; 
+	if (mcPlots_>1 ) {
+	  theHisto_d   ->getTH1F()->Sumw2() ; 
+	  theHisto_u   ->getTH1F()->Sumw2() ; 
+	  theHisto_s   ->getTH1F()->Sumw2() ;
+	  theHisto_g   ->getTH1F()->Sumw2() ; 
+	  theHisto_dus ->getTH1F()->Sumw2() ; 
+	} 
 	theHisto_c   ->getTH1F()->Sumw2() ; 
 	theHisto_b   ->getTH1F()->Sumw2() ; 
-	theHisto_g   ->getTH1F()->Sumw2() ; 
 	theHisto_ni  ->getTH1F()->Sumw2() ; 
-	theHisto_dus ->getTH1F()->Sumw2() ; 
 	theHisto_dusg->getTH1F()->Sumw2() ;
       }
     }
@@ -213,16 +223,17 @@ FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_ , con
     HistoProviderDQM prov("Btag",folder);
     theHisto_all   = prov.access(theBaseNameTitle + "ALL" ) ; 
     if (mcPlots_) {  
-      
-      theHisto_d     = prov.access(theBaseNameTitle + "D"   ) ; 
-      theHisto_u     = prov.access(theBaseNameTitle + "U"   ) ; 
-      theHisto_s     = prov.access(theBaseNameTitle + "S"   ) ; 
+      if (mcPlots_>1 ) {
+	theHisto_d     = prov.access(theBaseNameTitle + "D"   ) ; 
+	theHisto_u     = prov.access(theBaseNameTitle + "U"   ) ; 
+	theHisto_s     = prov.access(theBaseNameTitle + "S"   ) ;
+	theHisto_g     = prov.access(theBaseNameTitle + "G"   ) ; 
+	theHisto_dus   = prov.access(theBaseNameTitle + "DUS" ) ; 
+      } 
       theHisto_c     = prov.access(theBaseNameTitle + "C"   ) ; 
-      theHisto_b     =prov.access(theBaseNameTitle + "B"   ) ; 
-      theHisto_g     =prov.access(theBaseNameTitle + "G"   ) ; 
-      theHisto_ni    =prov.access(theBaseNameTitle + "NI"  ) ; 
-      theHisto_dus   =prov.access(theBaseNameTitle + "DUS" ) ; 
-      theHisto_dusg  =prov.access(theBaseNameTitle + "DUSG") ;
+      theHisto_b     = prov.access(theBaseNameTitle + "B"   ) ; 
+      theHisto_ni    = prov.access(theBaseNameTitle + "NI"  ) ; 
+      theHisto_dusg  = prov.access(theBaseNameTitle + "DUSG") ;
     }
   }
 
@@ -293,15 +304,16 @@ template <class T>
 void FlavourHistograms<T>::settitle(const char* title) {
  if(theHisto_all) theHisto_all ->setAxisTitle(title) ;
     if (mcPlots_) {  
-      
-      theHisto_d   ->setAxisTitle(title) ;
-      theHisto_u   ->setAxisTitle(title) ;
-      theHisto_s   ->setAxisTitle(title) ;
+      if (mcPlots_>1 ) {
+	theHisto_d   ->setAxisTitle(title) ;
+	theHisto_u   ->setAxisTitle(title) ;
+	theHisto_s   ->setAxisTitle(title) ;
+	theHisto_g   ->setAxisTitle(title) ;
+	theHisto_dus ->setAxisTitle(title) ;
+      }
       theHisto_c   ->setAxisTitle(title) ;
       theHisto_b   ->setAxisTitle(title) ;
-      theHisto_g   ->setAxisTitle(title) ;
       theHisto_ni  ->setAxisTitle(title) ;
-      theHisto_dus ->setAxisTitle(title) ;
       theHisto_dusg->setAxisTitle(title) ;
     }
 }
@@ -464,15 +476,17 @@ void FlavourHistograms<T>::divide ( const FlavourHistograms<T> & bHD ) const {
   //            involved in this operation have been constructed with the statistics option switched on!!
   //
   theHisto_all  ->getTH1F()-> Divide ( theHisto_all->getTH1F()  , bHD.histo_all () , 1.0 , 1.0 , "b" ) ;    
-    if (mcPlots_) {  
-      theHisto_d    ->getTH1F()-> Divide ( theHisto_d ->getTH1F()   , bHD.histo_d   () , 1.0 , 1.0 , "b" ) ;    
-      theHisto_u    ->getTH1F()-> Divide ( theHisto_u ->getTH1F()   , bHD.histo_u   () , 1.0 , 1.0 , "b" ) ;
-      theHisto_s    ->getTH1F()-> Divide ( theHisto_s ->getTH1F()   , bHD.histo_s   () , 1.0 , 1.0 , "b" ) ;
+    if (mcPlots_) {
+      if (mcPlots_>1 ) {
+	theHisto_d    ->getTH1F()-> Divide ( theHisto_d ->getTH1F()   , bHD.histo_d   () , 1.0 , 1.0 , "b" ) ;    
+	theHisto_u    ->getTH1F()-> Divide ( theHisto_u ->getTH1F()   , bHD.histo_u   () , 1.0 , 1.0 , "b" ) ;
+	theHisto_s    ->getTH1F()-> Divide ( theHisto_s ->getTH1F()   , bHD.histo_s   () , 1.0 , 1.0 , "b" ) ;
+	theHisto_g    ->getTH1F()-> Divide ( theHisto_g  ->getTH1F()  , bHD.histo_g   () , 1.0 , 1.0 , "b" ) ;
+	theHisto_dus  ->getTH1F()-> Divide ( theHisto_dus->getTH1F()  , bHD.histo_dus () , 1.0 , 1.0 , "b" ) ;
+      }
       theHisto_c    ->getTH1F()-> Divide ( theHisto_c ->getTH1F()   , bHD.histo_c   () , 1.0 , 1.0 , "b" ) ;
       theHisto_b    ->getTH1F()-> Divide ( theHisto_b ->getTH1F()   , bHD.histo_b   () , 1.0 , 1.0 , "b" ) ;
-      theHisto_g    ->getTH1F()-> Divide ( theHisto_g  ->getTH1F()  , bHD.histo_g   () , 1.0 , 1.0 , "b" ) ;
       theHisto_ni   ->getTH1F()-> Divide ( theHisto_ni->getTH1F()   , bHD.histo_ni  () , 1.0 , 1.0 , "b" ) ;
-      theHisto_dus  ->getTH1F()-> Divide ( theHisto_dus->getTH1F()  , bHD.histo_dus () , 1.0 , 1.0 , "b" ) ;
       theHisto_dusg ->getTH1F()-> Divide ( theHisto_dusg->getTH1F() , bHD.histo_dusg() , 1.0 , 1.0 , "b" ) ;
     }
 }
@@ -487,19 +501,25 @@ void FlavourHistograms<T>::fillVariable ( const int & flavour , const T & var , 
 
   switch(flavour) {
     case 1:
-      theHisto_d->Fill( var ,w);
-      theHisto_dus->Fill( var ,w);
-      theHisto_dusg->Fill( var ,w);
+      if (mcPlots_>1 ) {
+	theHisto_d->Fill( var ,w);
+	if(theBaseNameDescription != "Jet Multiplicity") theHisto_dus->Fill( var ,w);
+      }
+      if(theBaseNameDescription != "Jet Multiplicity") theHisto_dusg->Fill( var ,w);
       return;
     case 2:
-      theHisto_u->Fill( var ,w);
-      theHisto_dus->Fill( var ,w);
-      theHisto_dusg->Fill( var ,w);
+      if (mcPlots_>1 ) {
+	theHisto_u->Fill( var ,w);
+	if(theBaseNameDescription != "Jet Multiplicity") theHisto_dus->Fill( var ,w);
+      }
+      if(theBaseNameDescription != "Jet Multiplicity") theHisto_dusg->Fill( var ,w);
       return;
     case 3:
-      theHisto_s->Fill( var ,w);
-      theHisto_dus->Fill( var ,w);
-      theHisto_dusg->Fill( var ,w);
+      if (mcPlots_>1 ) {
+	theHisto_s->Fill( var ,w);
+	if(theBaseNameDescription != "Jet Multiplicity") theHisto_dus->Fill( var ,w);
+      }
+      if(theBaseNameDescription != "Jet Multiplicity") theHisto_dusg->Fill( var ,w);
       return;
     case 4:
       theHisto_c->Fill( var ,w);
@@ -508,8 +528,14 @@ void FlavourHistograms<T>::fillVariable ( const int & flavour , const T & var , 
       theHisto_b->Fill( var ,w);
       return;
     case 21:
-      theHisto_g->Fill( var ,w);
-      theHisto_dusg->Fill( var ,w);
+      if (mcPlots_>1 ) theHisto_g->Fill( var ,w);
+      if(theBaseNameDescription != "Jet Multiplicity") theHisto_dusg->Fill( var ,w);
+      return;
+    case 123:
+      if (mcPlots_>1 && theBaseNameDescription == "Jet Multiplicity") theHisto_dus->Fill( var ,w);
+      return;
+    case 12321:
+      if (theBaseNameDescription == "Jet Multiplicity") theHisto_dusg->Fill( var ,w);
       return;
     default:
       theHisto_ni->Fill( var ,w);
@@ -523,14 +549,16 @@ std::vector<TH1F*> FlavourHistograms<T>::getHistoVector() const
   std::vector<TH1F*> histoVector;
   histoVector.push_back ( theHisto_all->getTH1F() );
     if (mcPlots_) {  
-      histoVector.push_back ( theHisto_d->getTH1F()   );
-      histoVector.push_back ( theHisto_u->getTH1F()   );
-      histoVector.push_back ( theHisto_s->getTH1F()   );
+      if (mcPlots_>1 ) {
+	histoVector.push_back ( theHisto_d->getTH1F()   );
+	histoVector.push_back ( theHisto_u->getTH1F()   );
+	histoVector.push_back ( theHisto_s->getTH1F()   );
+	histoVector.push_back ( theHisto_g ->getTH1F()  );
+	histoVector.push_back ( theHisto_dus->getTH1F() );
+      }
       histoVector.push_back ( theHisto_c->getTH1F()   );
       histoVector.push_back ( theHisto_b->getTH1F()   );
-      histoVector.push_back ( theHisto_g ->getTH1F()  );
       histoVector.push_back ( theHisto_ni->getTH1F()  );
-      histoVector.push_back ( theHisto_dus->getTH1F() );
       histoVector.push_back ( theHisto_dusg->getTH1F());
     }
   return histoVector;
