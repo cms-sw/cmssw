@@ -10,4 +10,7 @@ bTagCollectorSequence = cms.Sequence(bTagCollector)
 bTagCollector.finalizePlots = True
 bTagCollector.finalizeOnly = True
 
-
+bTagCollectorMC = pfbTagValidation.clone()
+bTagCollectorSequenceMC = cms.Sequence(bTagCollectorMC)
+bTagCollectorMC.finalizePlots = True
+bTagCollectorMC.finalizeOnly = True
