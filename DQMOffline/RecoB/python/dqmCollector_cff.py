@@ -15,8 +15,11 @@ bTagCollectorSequenceDATA = cms.Sequence(bTagCollectorDATA)
 bTagCollectorDATA.finalizePlots = True
 bTagCollectorDATA.finalizeOnly = True
 
-bTagCollectorMC = pfbTagValidation.clone()
+bTagCollectorMC = pfbTagAnalysis.clone(
+    finalizePlots = True,
+    finalizeOnly = True,
+    mcPlots = 1,
+)
 # module execution
 bTagCollectorSequenceMC = cms.Sequence(bTagCollectorMC)
-bTagCollectorMC.finalizePlots = True
-bTagCollectorMC.finalizeOnly = True
+#### end ####
