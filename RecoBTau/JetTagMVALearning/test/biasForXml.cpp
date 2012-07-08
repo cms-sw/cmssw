@@ -12,14 +12,17 @@ using namespace std;
 
 // define name Tree in calcEntries()
 
-void calcEntries(string  flavour, string category, vector<float> & entries, string dir);
+void calcEntries(string  flavour, string category, vector<float> & entries, string dir, string fix);
 
 int main(int argc, char **argv){
 
 	string dir = "./";
-	if(argc == 2) dir = argv[1];
+	string fix = "CombinedSV";
+
+	if(argc == 2 || argc == 3) dir = argv[1];
+	if(argc == 3) fix = argv[2];
 		
-	cout << "reading rootfiles from dir " << dir << endl;
+	cout << "calculate bias from rootfiles in dir " << dir << endl;
 
 	string flavour[3] = {"B", "C", "DUSG"};
 	string cat[3] = {"NoVertex", "PseudoVertex", "RecoVertex"};
@@ -30,21 +33,27 @@ int main(int argc, char **argv){
 
 	for(int j=0; j<3; j++){//loop on categories
 		for(int i =0; i<3; i++){//loop on flavours
-			calcEntries(flavour[i], cat[j], entries[nIter], dir);
+			calcEntries(flavour[i], cat[j], entries[nIter], dir, fix);
 			//for(int k =0 ; k<entries[nIter].size(); k++) cout<<flavour[i]<<"   "<<cat[j]<<"  "<<entries[nIter][k]<<endl; 
 			nIter++;
 		}
 	}
 
+  ofstream myfile;
+	string filename = "";
 	for(int j=0; j<3; j++){//loop on categories	
 		for(int k=1; k<3; k++){//loop on C and light
 			cout<<"***************   "<<cat[j]<<"_B_"<<flavour[k]<<"   ***************"<<endl;
-			for(int l = 0; l<15; l++ ){// loop on pt/eta bins defined in xml
+			filename = cat[j]+"_B_"+flavour[k]+".txt";
+  		myfile.open (filename.c_str());
+ 			for(int l = 0; l<15; l++ ){// loop on pt/eta bins defined in xml
 				int index = j*3;
 				int indexb = k+j*3;
 				float bias = (float)((entries[index][l]/(entries[0][l]+entries[3][l]+entries[6][l]))/((entries[indexb][l]/(entries[k][l]+entries[k+3][l]+entries[k+6][l]))));
+  			myfile << "<bias>"<<bias<<"</bias>\n";
 				cout<<"<bias>"<<bias<<"</bias>"<<endl; 
 			}
+			myfile.close();
 		}
 	}
 	
@@ -52,10 +61,8 @@ int main(int argc, char **argv){
 }
 
 
-void calcEntries(string flavour, string  category,  vector<float> & entries, string dir){	
-	string fix = "CombinedSV";
-
-	TFile * f = TFile::Open((dir+fix+category+"_"+flavour+".root").c_str());
+void calcEntries(string flavour, string  category,  vector<float> & entries, string dir, string fix){	
+	TFile * f = TFile::Open((dir+"/"+fix+category+"_"+flavour+".root").c_str());
      
 	f->cd();
 	TTree * t =(TTree*)f->Get((fix+category).c_str());
