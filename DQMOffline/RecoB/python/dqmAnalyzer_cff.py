@@ -1,5 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
+from DQMOffline.RecoB.bTagAnalysisData_cfi import *
+calobTagAnalysis = bTagAnalysis.clone()
+bTagPlots = cms.Sequence(calobTagAnalysis)
+calobTagAnalysis.finalizePlots = False
+calobTagAnalysis.finalizeOnly = False
+
 #collection of good vertices
 from PhysicsTools.SelectorUtils.pvSelector_cfi import pvSelector
 goodOfflinePrimaryVertices = cms.EDFilter(
@@ -106,12 +112,8 @@ pfbtagging = cms.Sequence(
 #preSeq
 prebTagSequence = cms.Sequence(goodOfflinePrimaryVertices*ak5PFJetsJEC*PFJetsFilter*pfAk5JetTracksAssociatorAtVertex*pfbtagging)
 
-#Matching
-from PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi import *
-AK5byRef.jets = jetID
-
 # Module execution for data
-from DQMOffline.RecoB.bTagAnalysisData_cfi import *
+#from DQMOffline.RecoB.bTagAnalysisData_cfi import *
 pfbTagAnalysis = bTagAnalysis.clone(
     tagConfig = cms.VPSet(
        cms.PSet(
@@ -193,7 +195,13 @@ pfbTagAnalysis = bTagAnalysis.clone(
 pfbTagAnalysis.finalizePlots = False
 pfbTagAnalysis.finalizeOnly = False
 
-bTagPlots = cms.Sequence(pfbTagAnalysis)
+bTagPlotsDATA = cms.Sequence(pfbTagAnalysis)
+
+
+########## MC ############
+#Matching
+from PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi import *
+AK5byRef.jets = jetID
 
 # Module execution for MC
 from Validation.RecoB.bTagAnalysis_cfi import *
