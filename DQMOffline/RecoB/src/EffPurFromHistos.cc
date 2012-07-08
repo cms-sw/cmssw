@@ -472,6 +472,13 @@ void EffPurFromHistos::compute ()
     EffFlavVsBEff_g    = (prov.book1D ( hB + "G"    + hE , hB + "G"    + hE , nBinOutput , startOutput , endOutput )) ;
     EffFlavVsBEff_dus  = (prov.book1D ( hB + "DUS"  + hE , hB + "DUS"  + hE , nBinOutput , startOutput , endOutput )) ;
   }
+  else {
+    EffFlavVsBEff_d = 0;
+    EffFlavVsBEff_u = 0;
+    EffFlavVsBEff_s = 0;
+    EffFlavVsBEff_g = 0;
+    EffFlavVsBEff_dus = 0;
+  }
   EffFlavVsBEff_c    = (prov.book1D ( hB + "C"    + hE , hB + "C"    + hE , nBinOutput , startOutput , endOutput )) ;
   EffFlavVsBEff_b    = (prov.book1D ( hB + "B"    + hE , hB + "B"    + hE , nBinOutput , startOutput , endOutput )) ;
   EffFlavVsBEff_ni   = (prov.book1D ( hB + "NI"   + hE , hB + "NI"   + hE , nBinOutput , startOutput , endOutput )) ;
