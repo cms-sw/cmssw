@@ -434,12 +434,12 @@ void HcalSummaryClient::analyze(int LS)
       it=subdetCells_.find("HB");
       totalcells+=it->second;
       status_HB_= 1-(status_HB_/it->second);
-      status_HB_=std::max(1.0, status_HB_+ignoreShortDeadRate_HB);
+      status_HB_=std::min(1.0, status_HB_+ignoreShortDeadRate_HB);
       for (unsigned int i=0;i<clients_.size();++i)
 	{
 	  localHB[i]=1-(1.*localHB[i]/it->second);
 	  if(clients_[i]->name()=="DeadCellMonitor") // correct the rate, removing the effect of short RBX losses
-	    localHB[i]=std::max(1.0, localHB[i]+ignoreShortDeadRate_HB);
+	    localHB[i]=std::min(1.0, localHB[i]+ignoreShortDeadRate_HB);
 	  localHB[i]=std::max(0.,localHB[i]);
 	}
       status_HB_=std::max(0.,status_HB_); // converts fraction of bad channels to good fraction
@@ -452,12 +452,12 @@ void HcalSummaryClient::analyze(int LS)
       it=subdetCells_.find("HE");
       totalcells+=it->second;
       status_HE_= 1-(status_HE_/it->second);
-      status_HE_=std::max(1.0, status_HE_+ignoreShortDeadRate_HE);
+      status_HE_=std::min(1.0, status_HE_+ignoreShortDeadRate_HE);
       for (unsigned int i=0;i<clients_.size();++i)
 	{
 	  localHE[i]=1-(1.*localHE[i]/it->second);
 	  if(clients_[i]->name()=="DeadCellMonitor") // correct the rate, removing the effect of short RBX losses
-	    localHE[i]=std::max(1.0, localHE[i]+ignoreShortDeadRate_HE);
+	    localHE[i]=std::min(1.0, localHE[i]+ignoreShortDeadRate_HE);
 	  localHE[i]=std::max(0.,localHE[i]);
 	}
       status_HE_=std::max(0.,status_HE_); // converts fraction of bad channels to good fraction
