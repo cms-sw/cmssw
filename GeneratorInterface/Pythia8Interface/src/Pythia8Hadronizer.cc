@@ -26,6 +26,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
@@ -188,6 +189,13 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   pythia->setRndmEnginePtr(RP8);
   decayer->setRndmEnginePtr(RP8);
     
+  if( params.exists( "SLHAFileForPythia8" ) ) {
+    std::string slhafilenameshort = params.getParameter<string>("SLHAFileForPythia8");
+    edm::FileInPath f1( slhafilenameshort );
+    std::string slhafilename = f1.fullPath();
+    std::string pythiacommandslha = std::string("SLHA:file = ") + slhafilename;
+    pythia->readString(pythiacommandslha);
+  }
 
   // Reweight user hook
   //
