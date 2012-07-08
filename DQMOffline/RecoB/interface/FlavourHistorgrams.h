@@ -497,7 +497,7 @@ void FlavourHistograms<T>::fillVariable ( const int & flavour , const T & var , 
   // all, except for the Jet Multiplicity which is not filled for each jets but for each events  
   if(theBaseNameDescription != "Jet Multiplicity" || flavour == -1) theHisto_all                ->Fill ( var ,w) ;
   // flavour specific
-  if (!mcPlots_) return;
+  if (!mcPlots_ || (theBaseNameDescription == "Jet Multiplicity" && flavour == -1)) return;
 
   switch(flavour) {
     case 1:
