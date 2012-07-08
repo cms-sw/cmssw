@@ -1354,7 +1354,7 @@ void FUResourceTable::resetIPC() {
 		  std::cout << ostr.str() << std::endl;
 		}
 		//resetting shm buffer
-		shmBuffer_->reset();
+		shmBuffer_->reset(false);
 		LOG4CPLUS_INFO(log_, "ShmBuffer was reset!");
 	}
 }
