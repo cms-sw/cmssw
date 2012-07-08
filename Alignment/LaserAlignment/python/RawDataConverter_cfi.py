@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from Alignment.LaserAlignment.LaserAlignmentDefs_cff import *
 
 RawDataConverter = cms.EDAnalyzer(
     "RawDataConverter",
@@ -39,15 +38,6 @@ RawDataConverter = cms.EDAnalyzer(
     ProductInstanceLabels = cms.vstring(
         'ZeroSuppressed',
         'VirginRaw'
-        ),
-    DetIds = cms.VPSet()
+        )
     )
 
-RawDataConverter.DetIds.extend(DETIDS_TECP_R4)
-RawDataConverter.DetIds.extend(DETIDS_TECP_R6)
-RawDataConverter.DetIds.extend(DETIDS_TECM_R4)
-RawDataConverter.DetIds.extend(DETIDS_TECM_R6)
-RawDataConverter.DetIds.extend(DETIDS_TIB)
-RawDataConverter.DetIds.extend(DETIDS_TOB)
-RawDataConverter.DetIds.extend(DETIDS_TECP_AT)
-RawDataConverter.DetIds.extend(DETIDS_TECM_AT)

@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.51 2011/03/04 14:43:15 chamont Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.50 2010/10/19 17:34:56 wmtan Exp $
 //
 //
 
@@ -34,9 +34,6 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <iostream>
@@ -66,10 +63,7 @@ GsfElectronMCAnalyzer::GsfElectronMCAnalyzer(const edm::ParameterSet& conf)
   matchingMotherIDs_ = conf.getParameter<std::vector<int> >("MatchingMotherID");
   edm::ParameterSet pset =
    conf.getParameter<edm::ParameterSet>("HistosConfigurationMC") ;
-  superClusterErrorFunction
-    = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyUncertainty",conf) ;
 
-  
   etamin=pset.getParameter<double>("Etamin");
   etamax=pset.getParameter<double>("Etamax");
   phimin=pset.getParameter<double>("Phimin");
@@ -445,7 +439,7 @@ void GsfElectronMCAnalyzer::beginJob(){
   histSclE5x5_eg_barrel_->Sumw2();
   histSclE5x5_eg_endcaps_ =  new TH1F("h_scl_E5x5_eg_endcaps","ele supercluster energy in 5x5, ecal driven endcaps",nbinp,0.,pmax);
   histSclE5x5_eg_endcaps_->Sumw2();
-  
+
   histSclEoEtruePfVsEg = new TH2F("h_scl_EoEtruePfVsEg","ele supercluster energy / gen energy pflow vs eg",75,-0.1,1.4, 75, -0.1, 1.4);
 
   // matched electron, gsf tracks
@@ -1759,8 +1753,6 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByLabel(mcTruthCollection_, genParticles);
 
   histNum_->Fill((*gsfElectrons).size());
- 
-  superClusterErrorFunction->init(iSetup);
 
   // all rec electrons
   for (reco::GsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin();
@@ -2087,11 +2079,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	if (!bestGsfElectron.superCluster().isNull()) egEnergy = bestGsfElectron.superCluster()->energy();
 	if (!bestGsfElectron.pflowSuperCluster().isNull()) pfEnergy = bestGsfElectron.pflowSuperCluster()->energy();
 	histSclEoEtruePfVsEg->Fill(egEnergy/mcIter->p(),pfEnergy/mcIter->p());
-        double egEnergyError=999., pfEnergyError=999.;
-	if (!bestGsfElectron.superCluster().isNull()) egEnergyError = superClusterErrorFunction->getValue(*(bestGsfElectron.superCluster()),0) ;
-        if (!bestGsfElectron.pflowSuperCluster().isNull()) pfEnergyError = superClusterErrorFunction->getValue(*(bestGsfElectron.pflowSuperCluster()),0) ;
-	std::cout << "egEnergy " << egEnergy << " error " << egEnergyError << " pfEnergy " << pfEnergy << " error " << pfEnergyError << std::endl;
-	 
+
 	// track related distributions
 	h_ele_ambiguousTracks     -> Fill( bestGsfElectron.ambiguousGsfTracksSize() );
 	h_ele_ambiguousTracksVsEta     -> Fill( bestGsfElectron.eta(), bestGsfElectron.ambiguousGsfTracksSize() );

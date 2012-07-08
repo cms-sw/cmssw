@@ -179,6 +179,7 @@ static std::vector<DetId> matrixDetId( const CaloTopology* topology, DetId id, i
 		//AA
 		//Take into account the severities and flags
                 static float matrixEnergy( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
+		static float getFraction( const std::vector< std::pair<DetId, float> > &v_id, DetId id);
                 // get the DetId and the energy of the maximum energy crystal in a vector of DetId
                 static std::pair<DetId, float> getMaximum( const std::vector< std::pair<DetId, float> > &v_id, const EcalRecHitCollection *recHits);
 static std::pair<DetId, float> getMaximum( const std::vector< std::pair<DetId, float> > &v_id, const EcalRecHitCollection *recHits, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv);

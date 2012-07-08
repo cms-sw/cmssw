@@ -80,6 +80,7 @@ addMixingScenario("2012_lumiLevel_15_20_50ns_PoissonOOTPU",{'file': 'SimGeneral.
 addMixingScenario("2012_peak11_25ns_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2012_peak11_25ns_PoissonOOTPU_cfi'})
 addMixingScenario("2012_peak26_50ns_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2012_peak26_50ns_PoissonOOTPU_cfi'})
 addMixingScenario("2012_Startup_50ns_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2012_Startup_50ns_PoissonOOTPU_cfi'})
+addMixingScenario("2012_Summer_50ns_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2012_Summer_50ns_PoissonOOTPU_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 
 ##fastsim section
@@ -99,7 +100,7 @@ addMixingScenario("SLHC_LowLumiPileUp_Phase1_R34F16_smpx",{'file':'SLHCUpgradeSi
 addMixingScenario("SLHC_LowLumiPileUp_stdgeom",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_stdgeom_cff'})
 addMixingScenario("SLHC_LowLumiPileUp_Phase1_R39F16_HCal",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_HCal_cff'})
 
-MixingDefaultKey = '2012_Startup_50ns_PoissonOOTPU'
+MixingDefaultKey = '2012_Summer_50ns_PoissonOOTPU'
 MixingFSDefaultKey = '2012_Startup_inTimeOnly'
 
 def printMe():

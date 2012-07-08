@@ -360,6 +360,7 @@ cond::service::PoolDBOutputService::queryLog()const{
 
 void 
 cond::service::PoolDBOutputService::tagInfo(const std::string& recordName,cond::TagInfo& result ){
+  //
   Record& record = lookUpRecord(recordName);
   result.name=record.m_tag;
   result.token=record.m_iovtoken;
@@ -368,8 +369,7 @@ cond::service::PoolDBOutputService::tagInfo(const std::string& recordName,cond::
   result.size=iov.size();
   if (result.size>0) {
     // get last object
-    iov.tail(1);
-    cond::IOVElementProxy last = *iov.begin();
+    cond::IOVElementProxy last = *(--iov.end());
     result.lastInterval = cond::ValidityInterval(last.since(), last.till());
     result.lastPayloadToken=last.token();
   }

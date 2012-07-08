@@ -353,7 +353,9 @@ namespace fwlite {
     edm::WrapperHolder
     DataGetterHelper::getByProductID(edm::ProductID const& iID, Long_t index) const
     {
-        std::map<edm::ProductID,boost::shared_ptr<internal::Data> >::const_iterator itFound = idToData_.find(iID);
+        typedef std::pair<edm::ProductID,edm::BranchListIndexes> IDPair;
+        IDPair theID = std::make_pair(iID, branchMap_->branchListIndexes());
+        std::map<IDPair,boost::shared_ptr<internal::Data> >::const_iterator itFound = idToData_.find(theID);
         if(itFound == idToData_.end()) {
             edm::BranchDescription const& bDesc = branchMap_->productToBranch(iID);
 
@@ -392,7 +394,7 @@ namespace fwlite {
                 assert(itData != data_.end());
                 assert(holder.wrapper() == itData->second->obj_.Address());
             }
-            itFound = idToData_.insert(std::make_pair(iID,itData->second)).first;
+            itFound = idToData_.insert(std::make_pair(theID,itData->second)).first;
         }
         if(index != itFound->second->lastProduct_) {
             //haven't gotten the data for this event

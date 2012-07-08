@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 20:34:22 CET 2012
-// $Id: FWGeometryTableManager.h,v 1.7 2012/04/29 06:07:38 matevz Exp $
+// $Id: FWGeometryTableManager.h,v 1.9 2012/05/04 03:00:38 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableManagerBase.h"
@@ -67,15 +67,15 @@ public:
    void checkHierarchy();
 
    // signal callbacks
-   void updateFilter(bool);
+   void updateFilter(int);
    void printMaterials();
 
    virtual void setDaughtersSelfVisibility(int i, bool v);
    virtual void setVisibility(NodeInfo& nodeInfo, bool );
    virtual void setVisibilityChld(NodeInfo& nodeInfo, bool);
 
-   bool getVisibilityChld(const NodeInfo& nodeInfo) const;
-   bool getVisibility (const NodeInfo& nodeInfo) const;
+   virtual bool getVisibilityChld(const NodeInfo& nodeInfo) const;
+   virtual bool getVisibility (const NodeInfo& nodeInfo) const;
 
    void assertNodeFilterCache(NodeInfo& data);
  

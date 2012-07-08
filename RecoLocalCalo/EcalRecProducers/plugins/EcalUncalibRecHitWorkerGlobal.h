@@ -1,15 +1,16 @@
 #ifndef RecoLocalCalo_EcalRecProducers_EcalUncalibRecHitRecWorkerGlobal_hh
 #define RecoLocalCalo_EcalRecProducers_EcalUncalibRecHitRecWorkerGlobal_hh
 
-/** \class EcalUncalibRecHitRecGlobalAlgo
-  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
-  *  using a weights method
-  *
-  *  $Id: EcalUncalibRecHitWorkerGlobal.h,v 1.19 2010/12/16 17:50:43 franzoni Exp $
-  *  $Date: 2010/12/16 17:50:43 $
-  *  $Revision: 1.19 $
-  *  \author R. Bruneliere - A. Zabi
-  */
+/** \class EcalUncalibRecHitRecGlobalAlgo                                                                                                                                           
+ *  Template used to compute amplitude, pedestal using a weights method                                                                                                            
+ *                           time using a ratio method                                                                                                                             
+ *                           chi2 using express method  
+ *
+ *  $Id: EcalUncalibRecHitWorkerGlobal.h,v 1.20 2011/05/16 14:15:42 franzoni Exp $
+ *  $Date: 2011/05/16 14:15:42 $
+ *  $Revision: 1.20 $
+ *  \author R. Bruneliere - A. Zabi
+ */
 
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerBaseClass.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecWeightsAlgo.h"
@@ -23,6 +24,7 @@
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
+#include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
 
@@ -65,6 +67,9 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
                 EcalUncalibRecHitRecWeightsAlgo<EEDataFrame> weightsMethod_endcap_;
                 const EEShape testbeamEEShape; // used in the chi2
                 const EBShape testbeamEBShape; // can be replaced by simple shape arrays of float in the future
+
+                // determie which of the samples must actually be used by ECAL local reco
+		edm::ESHandle<EcalSampleMask> sampleMaskHand_;
 
                 // ratio method
                 std::vector<double> EBtimeFitParameters_; 

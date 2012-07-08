@@ -4,6 +4,8 @@
 <use   name="SimDataFormats/PileupSummaryInfo"/>
 <use   name="rootrflx"/>
 <use   name="roofit"/>
+<use   name="rootcore"/>
+<use   name="root"/>
 <use   name="boost"/>
 <export>
   <lib   name="1"/>

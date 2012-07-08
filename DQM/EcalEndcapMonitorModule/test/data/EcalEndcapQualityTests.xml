@@ -493,4 +493,17 @@
         <TestName activate="true">EE_Led_L2_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
+<QTEST name="EE_Global_Errors">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="ymin">0</PARAM>
+        <PARAM name="ymax">0.01</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">1.00</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EESummaryClient/EE global summary errors">
+        <TestName activate="true">EE_Global_Errors</TestName>
+</LINK>
+
 </TESTSCONFIGURATION>

@@ -160,8 +160,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   TH1F *METRate_JetIDTight           = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/HcalNoiseFilter/METTask_%sMETRate",cprefix,METName.c_str(),METClass.c_str());
   TH1F *METRate_HcalNoiseFilter      = (TH1F*) _file->Get(ctitle);    //
-  sprintf(ctitle,"%s/MET/%s/HcalNoiseFilterTight/METTask_%sMETRate",cprefix,METName.c_str(),METClass.c_str());
-  TH1F *METRate_HcalNoiseFilterTight = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/BeamHaloIDLoosePass/METTask_%sMETRate",cprefix,METName.c_str(),METClass.c_str());
   TH1F *METRate_BeamHaloIDLoosePass  = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/BeamHaloIDTightPass/METTask_%sMETRate",cprefix,METName.c_str(),METClass.c_str());
@@ -216,7 +214,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   METRate_JetIDTight->SetLineColor(9);
   METRate_JetIDTight->SetLineStyle(2);
   METRate_HcalNoiseFilter->SetLineColor(4);
-  METRate_HcalNoiseFilterTight->SetLineColor(6);
   METRate_BeamHaloIDLoosePass->SetLineColor(3);
   METRate_BeamHaloIDTightPass->SetLineColor(11);
   METRate_TechTrigs->SetLineColor(14);
@@ -233,7 +230,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   METRate_JetID->Draw("same");
   METRate_JetIDTight->Draw("same");
   METRate_HcalNoiseFilter->Draw("same");
-  METRate_HcalNoiseFilterTight->Draw("same");
   METRate_BeamHaloIDTightPass->Draw("same");
   METRate_BeamHaloIDLoosePass->Draw("same");
   METRate_TechTrigs->Draw("same");
@@ -248,7 +244,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   tl_METRate->AddEntry(METRate_JetID,"JetID cuts Minimal","l");
   tl_METRate->AddEntry(METRate_JetIDTight,"JetID cuts Tight","l");
   tl_METRate->AddEntry(METRate_HcalNoiseFilter,"Hcal Noise Filter","l");
-  tl_METRate->AddEntry(METRate_HcalNoiseFilterTight,"Hcal Noise Filter Tight","l");
   tl_METRate->AddEntry(METRate_BeamHaloIDLoosePass,"BeamHalo ID Loose Pass","l");
   tl_METRate->AddEntry(METRate_BeamHaloIDTightPass,"BeamHalo ID Tight Pass","l");
   tl_METRate->AddEntry(METRate_TechTrigs,"Technical Triggers (0 & (40 or 41) & ~(36 or 37 or 28 or 39)","l");
@@ -282,8 +277,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   TH1F *MET_JetIDTight           = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/HcalNoiseFilter/METTask_%sMET",cprefix,METName.c_str(),METClass.c_str());
   TH1F *MET_HcalNoiseFilter      = (TH1F*) _file->Get(ctitle);    //
-  sprintf(ctitle,"%s/MET/%s/HcalNoiseFilterTight/METTask_%sMET",cprefix,METName.c_str(),METClass.c_str());
-  TH1F *MET_HcalNoiseFilterTight = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/BeamHaloIDLoosePass/METTask_%sMET",cprefix,METName.c_str(),METClass.c_str());
   TH1F *MET_BeamHaloIDLoosePass  = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/BeamHaloIDTightPass/METTask_%sMET",cprefix,METName.c_str(),METClass.c_str());
@@ -326,8 +319,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   MET_JetIDTight->SetLineWidth(2);
   MET_HcalNoiseFilter->SetLineColor(4);
   MET_HcalNoiseFilter->SetLineWidth(2);
-  MET_HcalNoiseFilterTight->SetLineColor(6);
-  MET_HcalNoiseFilterTight->SetLineWidth(2);
   MET_BeamHaloIDLoosePass->SetLineColor(2);
   MET_BeamHaloIDTightPass->SetLineColor(9);
   MET_BeamHaloIDLoosePass->SetLineWidth(2);
@@ -350,7 +341,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   //MET_JetID->Draw("same");
   //MET_JetIDTight->Draw("same");
   //MET_HcalNoiseFilter->Draw("same");
-  //MET_HcalNoiseFilterTight->Draw("same");
   //MET_BeamHaloIDTightPass->Draw("same");
   //MET_BeamHaloIDLoosePass->Draw("same");
   //MET_TechTrigs->Draw("same");
@@ -374,7 +364,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   //tl_MET->AddEntry(MET_JetID,"JetID cuts Minimal","l");
   //tl_MET->AddEntry(MET_JetIDTight,"JetID cuts Tight","l");
   //tl_MET->AddEntry(MET_HcalNoiseFilter,"Hcal Noise Filter","l");
-  //tl_MET->AddEntry(MET_HcalNoiseFilterTight,"Hcal Noise Filter Tight","l");
   //tl_MET->AddEntry(MET_BeamHaloIDLoosePass,"BeamHalo ID Loose Pass","l");
   //tl_MET->AddEntry(MET_BeamHaloIDTightPass,"BeamHalo ID Tight Pass","l");
   //tl_MET->AddEntry(MET_TechTrigs,"Technical Triggers (0 & (40 or 41) & ~(36 or 37 or 28 or 39)","l");
@@ -408,8 +397,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   TH1F *MET_JetIDTight_logx           = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/HcalNoiseFilter/METTask_%sMET_logx",cprefix,METName.c_str(),METClass.c_str());
   TH1F *MET_HcalNoiseFilter_logx      = (TH1F*) _file->Get(ctitle);    //
-  sprintf(ctitle,"%s/MET/%s/HcalNoiseFilterTight/METTask_%sMET_logx",cprefix,METName.c_str(),METClass.c_str());
-  TH1F *MET_HcalNoiseFilterTight_logx = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/BeamHaloIDLoosePass/METTask_%sMET_logx",cprefix,METName.c_str(),METClass.c_str());
   TH1F *MET_BeamHaloIDLoosePass_logx  = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/BeamHaloIDTightPass/METTask_%sMET_logx",cprefix,METName.c_str(),METClass.c_str());
@@ -443,7 +430,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   MET_JetID_logx->SetLineWidth(3);
   MET_JetIDTight_logx->SetLineColor(9);
   MET_HcalNoiseFilter_logx->SetLineColor(4);
-  MET_HcalNoiseFilterTight_logx->SetLineColor(6);
   MET_BasicCleanup_logx->SetLineColor(8);
   MET_ExtraCleanup_logx->SetLineColor(4);
   MET_BeamHaloIDLoosePass_logx->SetLineColor(2);
@@ -464,7 +450,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   //MET_JetID_logx->Draw("same");
   //MET_JetIDTight_logx->Draw("same");
   //MET_HcalNoiseFilter_logx->Draw("same");
-  //MET_HcalNoiseFilterTight_logx->Draw("same");
   //MET_BeamHaloIDTightPass_logx->Draw("same");
   //MET_BeamHaloIDLoosePass_logx->Draw("same");
   //MET_TechTrigs_logx->Draw("same");
@@ -488,7 +473,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   //tl_MET_logx->AddEntry(MET_JetID_logx,"JetID cuts Minimal","l");
   //tl_MET_logx->AddEntry(MET_JetIDTight_logx,"JetID cuts Tight","l");
   //tl_MET_logx->AddEntry(MET_HcalNoiseFilter_logx,"Hcal Noise Filter","l");
-  //tl_MET_logx->AddEntry(MET_HcalNoiseFilterTight_logx,"Hcal Noise Filter Tight","l");
   //tl_MET_logx->AddEntry(MET_BeamHaloIDLoosePass_logx,"BeamHalo ID Loose Pass","l");
   //tl_MET_logx->AddEntry(MET_BeamHaloIDTightPass_logx,"BeamHalo ID Tight Pass","l");
   //tl_MET_logx->AddEntry(MET_TechTrigs_logx,"Technical Triggers (0 & (40 or 41) & ~(36 or 37 or 28 or 39)","l");
@@ -523,8 +507,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   TH1F *SumET_JetIDTight           = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/HcalNoiseFilter/METTask_%sSumET",cprefix,METName.c_str(),METClass.c_str());
   TH1F *SumET_HcalNoiseFilter      = (TH1F*) _file->Get(ctitle);    //
-  sprintf(ctitle,"%s/MET/%s/HcalNoiseFilterTight/METTask_%sSumET",cprefix,METName.c_str(),METClass.c_str());
-  TH1F *SumET_HcalNoiseFilterTight = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/BeamHaloIDLoosePass/METTask_%sSumET",cprefix,METName.c_str(),METClass.c_str());
   TH1F *SumET_BeamHaloIDLoosePass  = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/BeamHaloIDTightPass/METTask_%sSumET",cprefix,METName.c_str(),METClass.c_str());
@@ -558,7 +540,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   SumET_JetID->SetLineWidth(3);
   SumET_JetIDTight->SetLineColor(9);
   SumET_HcalNoiseFilter->SetLineColor(4);
-  SumET_HcalNoiseFilterTight->SetLineColor(6);
   SumET_BeamHaloIDLoosePass->SetLineColor(2);
   SumET_BeamHaloIDTightPass->SetLineColor(9);
   SumET_BeamHaloIDLoosePass->SetLineWidth(2);
@@ -579,7 +560,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   //SumET_JetID->Draw("same");
   //SumET_JetIDTight->Draw("same");
   //SumET_HcalNoiseFilter->Draw("same");
-  //SumET_HcalNoiseFilterTight->Draw("same");
   //SumET_BeamHaloIDTightPass->Draw("same");
   //SumET_BeamHaloIDLoosePass->Draw("same");
   //SumET_TechTrigs->DrawCopy("same");
@@ -603,7 +583,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   //tl_SumET->AddEntry(SumET_JetID,"JetID cuts Minimal","l");
   //tl_SumET->AddEntry(SumET_JetIDTight,"JetID cuts Tight","l");
   //tl_SumET->AddEntry(SumET_HcalNoiseFilter,"Hcal Noise Filter","l");
-  //tl_SumET->AddEntry(SumET_HcalNoiseFilterTight,"Hcal Noise Filter Tight","l");
   //tl_SumET->AddEntry(SumET_BeamHaloIDLoosePass,"BeamHalo ID Loose Pass","l");
   //tl_SumET->AddEntry(SumET_BeamHaloIDTightPass,"BeamHalo ID Tight Pass","l");
   //tl_SumET->AddEntry(SumET_TechTrigs,"Technical Triggers (0 & (40 or 41) & ~(36 or 37 or 28 or 39)","l");
@@ -637,8 +616,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   TH1F *SumET_JetIDTight_logx           = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/HcalNoiseFilter/METTask_%sSumET_logx",cprefix,METName.c_str(),METClass.c_str());
   TH1F *SumET_HcalNoiseFilter_logx      = (TH1F*) _file->Get(ctitle);    //
-  sprintf(ctitle,"%s/MET/%s/HcalNoiseFilterTight/METTask_%sSumET_logx",cprefix,METName.c_str(),METClass.c_str());
-  TH1F *SumET_HcalNoiseFilterTight_logx = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/BeamHaloIDLoosePass/METTask_%sSumET_logx",cprefix,METName.c_str(),METClass.c_str());
   TH1F *SumET_BeamHaloIDLoosePass_logx  = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/BeamHaloIDTightPass/METTask_%sSumET_logx",cprefix,METName.c_str(),METClass.c_str());
@@ -672,7 +649,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   SumET_JetID_logx->SetLineWidth(3);
   SumET_JetIDTight_logx->SetLineColor(9);
   SumET_HcalNoiseFilter_logx->SetLineColor(4);
-  SumET_HcalNoiseFilterTight_logx->SetLineColor(6);
   SumET_BasicCleanup_logx->SetLineColor(8);
   SumET_ExtraCleanup_logx->SetLineColor(4);
   SumET_BeamHaloIDLoosePass_logx->SetLineColor(2);
@@ -693,7 +669,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   //SumET_JetID_logx->Draw("same");
   //SumET_JetIDTight_logx->Draw("same");
   //SumET_HcalNoiseFilter_logx->Draw("same");
-  //SumET_HcalNoiseFilterTight_logx->Draw("same");
   //SumET_BeamHaloIDTightPass_logx->Draw("same");
   //SumET_BeamHaloIDLoosePass_logx->Draw("same");
   //SumET_TechTrigs_logx->Draw("same");
@@ -717,7 +692,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   //tl_SumET_logx->AddEntry(SumET_JetID_logx,"JetID cuts Minimal","l");
   //tl_SumET_logx->AddEntry(SumET_JetIDTight_logx,"JetID cuts Tight","l");
   //tl_SumET_logx->AddEntry(SumET_HcalNoiseFilter_logx,"Hcal Noise Filter","l");
-  //tl_SumET_logx->AddEntry(SumET_HcalNoiseFilterTight_logx,"Hcal Noise Filter Tight","l");
   //tl_SumET_logx->AddEntry(SumET_BeamHaloIDLoosePass_logx,"BeamHalo ID Loose Pass","l");
   //tl_SumET_logx->AddEntry(SumET_BeamHaloIDTightPass_logx,"BeamHalo ID Tight Pass","l");
   //tl_SumET_logx->AddEntry(SumET_TechTrigs_logx,"Technical Triggers (0 & (40 or 41) & ~(36 or 37 or 28 or 39)","l");
@@ -752,8 +726,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   TH1F *MEx_JetIDTight           = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/HcalNoiseFilter/METTask_%sMEx",cprefix,METName.c_str(),METClass.c_str());
   TH1F *MEx_HcalNoiseFilter      = (TH1F*) _file->Get(ctitle);    //
-  sprintf(ctitle,"%s/MET/%s/HcalNoiseFilterTight/METTask_%sMEx",cprefix,METName.c_str(),METClass.c_str());
-  TH1F *MEx_HcalNoiseFilterTight = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/BeamHaloIDLoosePass/METTask_%sMEx",cprefix,METName.c_str(),METClass.c_str());
   TH1F *MEx_BeamHaloIDLoosePass  = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/BeamHaloIDTightPass/METTask_%sMEx",cprefix,METName.c_str(),METClass.c_str());
@@ -787,7 +759,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   MEx_JetID->SetLineWidth(3);
   MEx_JetIDTight->SetLineColor(9);
   MEx_HcalNoiseFilter->SetLineColor(4);
-  MEx_HcalNoiseFilterTight->SetLineColor(6);
   MEx_BasicCleanup->SetLineColor(8);
   MEx_ExtraCleanup->SetLineColor(4);
   MEx_BeamHaloIDLoosePass->SetLineColor(2);
@@ -808,7 +779,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   //MEx_JetID->Draw("same");
   //MEx_JetIDTight->Draw("same");
   //MEx_HcalNoiseFilter->Draw("same");
-  //MEx_HcalNoiseFilterTight->Draw("same");
   //MEx_BeamHaloIDTightPass->Draw("same");
   //MEx_BeamHaloIDLoosePass->Draw("same");
   //MEx_TechTrigs->Draw("same");
@@ -832,7 +802,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   //tl_MEx->AddEntry(MEx_JetID,"JetID cuts Minimal","l");
   //tl_MEx->AddEntry(MEx_JetIDTight,"JetID cuts Tight","l");
   //tl_MEx->AddEntry(MEx_HcalNoiseFilter,"Hcal Noise Filter","l");
-  //tl_MEx->AddEntry(MEx_HcalNoiseFilterTight,"Hcal Noise Filter Tight","l");
   //tl_MEx->AddEntry(MEx_BeamHaloIDLoosePass,"BeamHalo ID Loose Pass","l");
   //tl_MEx->AddEntry(MEx_BeamHaloIDTightPass,"BeamHalo ID Tight Pass","l");
   //tl_MEx->AddEntry(MEx_TechTrigs,"Technical Triggers (0 & (40 or 41) & ~(36 or 37 or 28 or 39)","l");
@@ -866,8 +835,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   TH1F *MEy_JetIDTight           = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/HcalNoiseFilter/METTask_%sMEy",cprefix,METName.c_str(),METClass.c_str());
   TH1F *MEy_HcalNoiseFilter      = (TH1F*) _file->Get(ctitle);    //
-  sprintf(ctitle,"%s/MET/%s/HcalNoiseFilterTight/METTask_%sMEy",cprefix,METName.c_str(),METClass.c_str());
-  TH1F *MEy_HcalNoiseFilterTight = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/BeamHaloIDLoosePass/METTask_%sMEy",cprefix,METName.c_str(),METClass.c_str());
   TH1F *MEy_BeamHaloIDLoosePass  = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/BeamHaloIDTightPass/METTask_%sMEy",cprefix,METName.c_str(),METClass.c_str());
@@ -901,7 +868,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   MEy_JetID->SetLineWidth(3);
   MEy_JetIDTight->SetLineColor(9);
   MEy_HcalNoiseFilter->SetLineColor(4);
-  MEy_HcalNoiseFilterTight->SetLineColor(6);
   MEy_BasicCleanup->SetLineColor(8);
   MEy_ExtraCleanup->SetLineColor(4);
   MEy_BeamHaloIDLoosePass->SetLineColor(2);
@@ -922,7 +888,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   //MEy_JetID->Draw("same");
   //MEy_JetIDTight->Draw("same");
   //MEy_HcalNoiseFilter->Draw("same");
-  //MEy_HcalNoiseFilterTight->Draw("same");
   //MEy_BeamHaloIDTightPass->Draw("same");
   //MEy_BeamHaloIDLoosePass->Draw("same");
   //MEy_TechTrigs->Draw("same");
@@ -946,7 +911,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   //tl_MEy->AddEntry(MEy_JetID,"JetID cuts Minimal","l");
   //tl_MEy->AddEntry(MEy_JetIDTight,"JetID cuts Tight","l");
   //tl_MEy->AddEntry(MEy_HcalNoiseFilter,"Hcal Noise Filter","l");
-  //tl_MEy->AddEntry(MEy_HcalNoiseFilterTight,"Hcal Noise Filter Tight","l");
   //tl_MEy->AddEntry(MEy_BeamHaloIDLoosePass,"BeamHalo ID Loose Pass","l");
   //tl_MEy->AddEntry(MEy_BeamHaloIDTightPass,"BeamHalo ID Tight Pass","l");
   //tl_MEy->AddEntry(MEy_TechTrigs,"Technical Triggers (0 & (40 or 41) & ~(36 or 37 or 28 or 39)","l");
@@ -1019,8 +983,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   TH1F *METPhi_JetIDTight           = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/HcalNoiseFilter/METTask_%sMETPhi",cprefix,METName.c_str(),METClass.c_str());
   TH1F *METPhi_HcalNoiseFilter      = (TH1F*) _file->Get(ctitle);    //
-  sprintf(ctitle,"%s/MET/%s/HcalNoiseFilterTight/METTask_%sMETPhi",cprefix,METName.c_str(),METClass.c_str());
-  TH1F *METPhi_HcalNoiseFilterTight = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/BeamHaloIDLoosePass/METTask_%sMETPhi",cprefix,METName.c_str(),METClass.c_str());
   TH1F *METPhi_BeamHaloIDLoosePass  = (TH1F*) _file->Get(ctitle);    //
   sprintf(ctitle,"%s/MET/%s/BeamHaloIDTightPass/METTask_%sMETPhi",cprefix,METName.c_str(),METClass.c_str());
@@ -1054,7 +1016,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   METPhi_JetID->SetLineWidth(3);
   METPhi_JetIDTight->SetLineColor(9);
   METPhi_HcalNoiseFilter->SetLineColor(4);
-  METPhi_HcalNoiseFilterTight->SetLineColor(6);
   METPhi_BasicCleanup->SetLineColor(8);
   METPhi_ExtraCleanup->SetLineColor(4);
   METPhi_BeamHaloIDLoosePass->SetLineColor(2);
@@ -1075,7 +1036,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   //METPhi_JetID->Draw("same");
   //METPhi_JetIDTight->Draw("same");
   //METPhi_HcalNoiseFilter->Draw("same");
-  //METPhi_HcalNoiseFilterTight->Draw("same");
   //METPhi_BeamHaloIDTightPass->Draw("same");
   //METPhi_BeamHaloIDLoosePass->Draw("same");
   //METPhi_TechTrigs->Draw("same");
@@ -1099,7 +1059,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
   //tl_METPhi->AddEntry(METPhi_JetID,"JetID cuts Minimal","l");
   //tl_METPhi->AddEntry(METPhi_JetIDTight,"JetID cuts Tight","l");
   //tl_METPhi->AddEntry(METPhi_HcalNoiseFilter,"Hcal Noise Filter","l");
-  //tl_METPhi->AddEntry(METPhi_HcalNoiseFilterTight,"Hcal Noise Filter Tight","l");
   //tl_METPhi->AddEntry(METPhi_BeamHaloIDLoosePass,"BeamHalo ID Loose Pass","l");
   //tl_METPhi->AddEntry(METPhi_BeamHaloIDTightPass,"BeamHalo ID Tight Pass","l");
   //tl_METPhi->AddEntry(METPhi_TechTrigs,"Technical Triggers (0 & (40 or 41) & ~(36 or 37 or 28 or 39)","l");
@@ -1135,8 +1094,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     TH1F *METPhi002_JetIDTight           = (TH1F*) _file->Get(ctitle);    //
     sprintf(ctitle,"%s/MET/%s/HcalNoiseFilter/METTask_%sMETPhi002",cprefix,METName.c_str(),METClass.c_str());
     TH1F *METPhi002_HcalNoiseFilter      = (TH1F*) _file->Get(ctitle);    //
-    sprintf(ctitle,"%s/MET/%s/HcalNoiseFilterTight/METTask_%sMETPhi002",cprefix,METName.c_str(),METClass.c_str());
-    TH1F *METPhi002_HcalNoiseFilterTight = (TH1F*) _file->Get(ctitle);    //
     sprintf(ctitle,"%s/MET/%s/BeamHaloIDLoosePass/METTask_%sMETPhi002",cprefix,METName.c_str(),METClass.c_str());
     TH1F *METPhi002_BeamHaloIDLoosePass  = (TH1F*) _file->Get(ctitle);    //
     sprintf(ctitle,"%s/MET/%s/BeamHaloIDTightPass/METTask_%sMETPhi002",cprefix,METName.c_str(),METClass.c_str());
@@ -1170,7 +1127,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     METPhi002_JetID->SetLineWidth(3);
     METPhi002_JetIDTight->SetLineColor(9);
     METPhi002_HcalNoiseFilter->SetLineColor(4);
-    METPhi002_HcalNoiseFilterTight->SetLineColor(6);
     METPhi002_BasicCleanup->SetLineColor(8);
     METPhi002_ExtraCleanup->SetLineColor(4);
     METPhi002_BeamHaloIDLoosePass->SetLineColor(2);
@@ -1191,7 +1147,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     //METPhi002_JetID->Draw("same");
     //METPhi002_JetIDTight->Draw("same");
     //METPhi002_HcalNoiseFilter->Draw("same");
-    //METPhi002_HcalNoiseFilterTight->Draw("same");
     //METPhi002_BeamHaloIDTightPass->Draw("same");
     //METPhi002_BeamHaloIDLoosePass->Draw("same");
     //METPhi002_TechTrigs->Draw("same");
@@ -1215,7 +1170,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     //tl_METPhi002->AddEntry(METPhi002_JetID,"JetID cuts Minimal","l");
     //tl_METPhi002->AddEntry(METPhi002_JetIDTight,"JetID cuts Tight","l");
     //tl_METPhi002->AddEntry(METPhi002_HcalNoiseFilter,"Hcal Noise Filter","l");
-    //tl_METPhi002->AddEntry(METPhi002_HcalNoiseFilterTight,"Hcal Noise Filter Tight","l");
     //tl_METPhi002->AddEntry(METPhi002_BeamHaloIDLoosePass,"BeamHalo ID Loose Pass","l");
     //tl_METPhi002->AddEntry(METPhi002_BeamHaloIDTightPass,"BeamHalo ID Tight Pass","l");
     //tl_METPhi002->AddEntry(METPhi002_TechTrigs,"Technical Triggers (0 & (40 or 41) & ~(36 or 37 or 28 or 39)","l");
@@ -1249,8 +1203,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     TH1F *METPhi010_JetIDTight           = (TH1F*) _file->Get(ctitle);    //
     sprintf(ctitle,"%s/MET/%s/HcalNoiseFilter/METTask_%sMETPhi010",cprefix,METName.c_str(),METClass.c_str());
     TH1F *METPhi010_HcalNoiseFilter      = (TH1F*) _file->Get(ctitle);    //
-    sprintf(ctitle,"%s/MET/%s/HcalNoiseFilterTight/METTask_%sMETPhi010",cprefix,METName.c_str(),METClass.c_str());
-    TH1F *METPhi010_HcalNoiseFilterTight = (TH1F*) _file->Get(ctitle);    //
     sprintf(ctitle,"%s/MET/%s/BeamHaloIDLoosePass/METTask_%sMETPhi010",cprefix,METName.c_str(),METClass.c_str());
     TH1F *METPhi010_BeamHaloIDLoosePass  = (TH1F*) _file->Get(ctitle);    //
     sprintf(ctitle,"%s/MET/%s/BeamHaloIDTightPass/METTask_%sMETPhi010",cprefix,METName.c_str(),METClass.c_str());
@@ -1284,7 +1236,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     METPhi010_JetID->SetLineWidth(3);
     METPhi010_JetIDTight->SetLineColor(9);
     METPhi010_HcalNoiseFilter->SetLineColor(4);
-    METPhi010_HcalNoiseFilterTight->SetLineColor(6);
     METPhi010_BasicCleanup->SetLineColor(8);
     METPhi010_ExtraCleanup->SetLineColor(4);
     METPhi010_BeamHaloIDLoosePass->SetLineColor(2);
@@ -1305,7 +1256,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     //METPhi010_JetID->Draw("same");
     //METPhi010_JetIDTight->Draw("same");
     //METPhi010_HcalNoiseFilter->Draw("same");
-    //METPhi010_HcalNoiseFilterTight->Draw("same");
     //METPhi010_BeamHaloIDTightPass->Draw("same");
     //METPhi010_BeamHaloIDLoosePass->Draw("same");
     //METPhi010_TechTrigs->Draw("same");
@@ -1329,7 +1279,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     //tl_METPhi010->AddEntry(METPhi010_JetID,"JetID cuts Minimal","l");
     //tl_METPhi010->AddEntry(METPhi010_JetIDTight,"JetID cuts Tight","l");
     //tl_METPhi010->AddEntry(METPhi010_HcalNoiseFilter,"Hcal Noise Filter","l");
-    //tl_METPhi010->AddEntry(METPhi010_HcalNoiseFilterTight,"Hcal Noise Filter Tight","l");
     //tl_METPhi010->AddEntry(METPhi010_BeamHaloIDLoosePass,"BeamHalo ID Loose Pass","l");
     //tl_METPhi010->AddEntry(METPhi010_BeamHaloIDTightPass,"BeamHalo ID Tight Pass","l");
     //tl_METPhi010->AddEntry(METPhi010_TechTrigs,"Technical Triggers (0 & (40 or 41) & ~(36 or 37 or 28 or 39)","l");
@@ -1363,8 +1312,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     TH1F *METPhi020_JetIDTight           = (TH1F*) _file->Get(ctitle);    //
     sprintf(ctitle,"%s/MET/%s/HcalNoiseFilter/METTask_%sMETPhi020",cprefix,METName.c_str(),METClass.c_str());
     TH1F *METPhi020_HcalNoiseFilter      = (TH1F*) _file->Get(ctitle);    //
-    sprintf(ctitle,"%s/MET/%s/HcalNoiseFilterTight/METTask_%sMETPhi020",cprefix,METName.c_str(),METClass.c_str());
-    TH1F *METPhi020_HcalNoiseFilterTight = (TH1F*) _file->Get(ctitle);    //
     sprintf(ctitle,"%s/MET/%s/BeamHaloIDLoosePass/METTask_%sMETPhi020",cprefix,METName.c_str(),METClass.c_str());
     TH1F *METPhi020_BeamHaloIDLoosePass  = (TH1F*) _file->Get(ctitle);    //
     sprintf(ctitle,"%s/MET/%s/BeamHaloIDTightPass/METTask_%sMETPhi020",cprefix,METName.c_str(),METClass.c_str());
@@ -1398,7 +1345,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     METPhi020_JetID->SetLineWidth(3);
     METPhi020_JetIDTight->SetLineColor(9);
     METPhi020_HcalNoiseFilter->SetLineColor(4);
-    METPhi020_HcalNoiseFilterTight->SetLineColor(6);
     METPhi020_BasicCleanup->SetLineColor(8);
     METPhi020_ExtraCleanup->SetLineColor(4);
     METPhi020_BeamHaloIDLoosePass->SetLineColor(2);
@@ -1419,7 +1365,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     //METPhi020_JetID->Draw("same");
     //METPhi020_JetIDTight->Draw("same");
     //METPhi020_HcalNoiseFilter->Draw("same");
-    //METPhi020_HcalNoiseFilterTight->Draw("same");
     //METPhi020_BeamHaloIDTightPass->Draw("same");
     //METPhi020_BeamHaloIDLoosePass->Draw("same");
     //METPhi020_TechTrigs->Draw("same");
@@ -1443,7 +1388,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     //tl_METPhi020->AddEntry(METPhi020_JetID,"JetID cuts Minimal","l");
     //tl_METPhi020->AddEntry(METPhi020_JetIDTight,"JetID cuts Tight","l");
     //tl_METPhi020->AddEntry(METPhi020_HcalNoiseFilter,"Hcal Noise Filter","l");
-    //tl_METPhi020->AddEntry(METPhi020_HcalNoiseFilterTight,"Hcal Noise Filter Tight","l");
     //tl_METPhi020->AddEntry(METPhi020_BeamHaloIDLoosePass,"BeamHalo ID Loose Pass","l");
     //tl_METPhi020->AddEntry(METPhi020_BeamHaloIDTightPass,"BeamHalo ID Tight Pass","l");
     //tl_METPhi020->AddEntry(METPhi020_TechTrigs,"Technical Triggers (0 & (40 or 41) & ~(36 or 37 or 28 or 39)","l");
@@ -1481,8 +1425,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     TH1F *EmEtFraction_JetIDTight           = (TH1F*) _file->Get(ctitle);    //
     sprintf(ctitle,"%s/MET/%s/HcalNoiseFilter/METTask_%sEmEtFraction",cprefix,METName.c_str(),METClass.c_str());
     TH1F *EmEtFraction_HcalNoiseFilter      = (TH1F*) _file->Get(ctitle);    //
-    sprintf(ctitle,"%s/MET/%s/HcalNoiseFilterTight/METTask_%sEmEtFraction",cprefix,METName.c_str(),METClass.c_str());
-    TH1F *EmEtFraction_HcalNoiseFilterTight = (TH1F*) _file->Get(ctitle);    //
     sprintf(ctitle,"%s/MET/%s/BeamHaloIDLoosePass/METTask_%sEmEtFraction",cprefix,METName.c_str(),METClass.c_str());
     TH1F *EmEtFraction_BeamHaloIDLoosePass  = (TH1F*) _file->Get(ctitle);    //
     sprintf(ctitle,"%s/MET/%s/BeamHaloIDTightPass/METTask_%sEmEtFraction",cprefix,METName.c_str(),METClass.c_str());
@@ -1516,7 +1458,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     EmEtFraction_JetID->SetLineWidth(3);
     EmEtFraction_JetIDTight->SetLineColor(9);
     EmEtFraction_HcalNoiseFilter->SetLineColor(4);
-    EmEtFraction_HcalNoiseFilterTight->SetLineColor(6);
     EmEtFraction_BasicCleanup->SetLineColor(8);
     EmEtFraction_ExtraCleanup->SetLineColor(4);
     EmEtFraction_BeamHaloIDLoosePass->SetLineColor(2);
@@ -1537,7 +1478,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     //EmEtFraction_JetID->Draw("same");
     //EmEtFraction_JetIDTight->Draw("same");
     //EmEtFraction_HcalNoiseFilter->Draw("same");
-    //EmEtFraction_HcalNoiseFilterTight->Draw("same");
     //EmEtFraction_BeamHaloIDTightPass->Draw("same");
     //EmEtFraction_BeamHaloIDLoosePass->Draw("same");
     //EmEtFraction_TechTrigs->Draw("same");
@@ -1562,7 +1502,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     //tl_EmEtFraction->AddEntry(EmEtFraction_JetID,"JetID cuts Minimal","l");
     //tl_EmEtFraction->AddEntry(EmEtFraction_JetIDTight,"JetID cuts Tight","l");
     //tl_EmEtFraction->AddEntry(EmEtFraction_HcalNoiseFilter,"Hcal Noise Filter","l");
-    //tl_EmEtFraction->AddEntry(EmEtFraction_HcalNoiseFilterTight,"Hcal Noise Filter Tight","l");
     //tl_EmEtFraction->AddEntry(EmEtFraction_BeamHaloIDLoosePass,"BeamHalo ID Loose Pass","l");
     //tl_EmEtFraction->AddEntry(EmEtFraction_BeamHaloIDTightPass,"BeamHalo ID Tight Pass","l");
     //tl_EmEtFraction->AddEntry(EmEtFraction_TechTrigs,"Technical Triggers (0 & (40 or 41) & ~(36 or 37 or 28 or 39)","l");
@@ -1596,8 +1535,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     TH1F *EmEtFraction002_JetIDTight           = (TH1F*) _file->Get(ctitle);    //
     sprintf(ctitle,"%s/MET/%s/HcalNoiseFilter/METTask_%sEmEtFraction002",cprefix,METName.c_str(),METClass.c_str());
     TH1F *EmEtFraction002_HcalNoiseFilter      = (TH1F*) _file->Get(ctitle);    //
-    sprintf(ctitle,"%s/MET/%s/HcalNoiseFilterTight/METTask_%sEmEtFraction002",cprefix,METName.c_str(),METClass.c_str());
-    TH1F *EmEtFraction002_HcalNoiseFilterTight = (TH1F*) _file->Get(ctitle);    //
     sprintf(ctitle,"%s/MET/%s/BeamHaloIDLoosePass/METTask_%sEmEtFraction002",cprefix,METName.c_str(),METClass.c_str());
     TH1F *EmEtFraction002_BeamHaloIDLoosePass  = (TH1F*) _file->Get(ctitle);    //
     sprintf(ctitle,"%s/MET/%s/BeamHaloIDTightPass/METTask_%sEmEtFraction002",cprefix,METName.c_str(),METClass.c_str());
@@ -1631,7 +1568,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     EmEtFraction002_JetID->SetLineWidth(3);
     EmEtFraction002_JetIDTight->SetLineColor(9);
     EmEtFraction002_HcalNoiseFilter->SetLineColor(4);
-    EmEtFraction002_HcalNoiseFilterTight->SetLineColor(6);
     EmEtFraction002_BasicCleanup->SetLineColor(8);
     EmEtFraction002_ExtraCleanup->SetLineColor(4);
     EmEtFraction002_BeamHaloIDLoosePass->SetLineColor(2);
@@ -1652,7 +1588,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     //EmEtFraction002_JetID->Draw("same");
     //EmEtFraction002_JetIDTight->Draw("same");
     //EmEtFraction002_HcalNoiseFilter->Draw("same");
-    //EmEtFraction002_HcalNoiseFilterTight->Draw("same");
     //EmEtFraction002_BeamHaloIDTightPass->Draw("same");
     //EmEtFraction002_BeamHaloIDLoosePass->Draw("same");
     //EmEtFraction002_TechTrigs->Draw("same");
@@ -1676,7 +1611,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     //tl_EmEtFraction002->AddEntry(EmEtFraction002_JetID,"JetID cuts Minimal","l");
     //tl_EmEtFraction002->AddEntry(EmEtFraction002_JetIDTight,"JetID cuts Tight","l");
     //tl_EmEtFraction002->AddEntry(EmEtFraction002_HcalNoiseFilter,"Hcal Noise Filter","l");
-    //tl_EmEtFraction002->AddEntry(EmEtFraction002_HcalNoiseFilterTight,"Hcal Noise Filter Tight","l");
     //tl_EmEtFraction002->AddEntry(EmEtFraction002_BeamHaloIDLoosePass,"BeamHalo ID Loose Pass","l");
     //tl_EmEtFraction002->AddEntry(EmEtFraction002_BeamHaloIDTightPass,"BeamHalo ID Tight Pass","l");
     //tl_EmEtFraction002->AddEntry(EmEtFraction002_TechTrigs,"Technical Triggers (0 & (40 or 41) & ~(36 or 37 or 28 or 39)","l");
@@ -1710,8 +1644,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     TH1F *EmEtFraction010_JetIDTight           = (TH1F*) _file->Get(ctitle);    //
     sprintf(ctitle,"%s/MET/%s/HcalNoiseFilter/METTask_%sEmEtFraction010",cprefix,METName.c_str(),METClass.c_str());
     TH1F *EmEtFraction010_HcalNoiseFilter      = (TH1F*) _file->Get(ctitle);    //
-    sprintf(ctitle,"%s/MET/%s/HcalNoiseFilterTight/METTask_%sEmEtFraction010",cprefix,METName.c_str(),METClass.c_str());
-    TH1F *EmEtFraction010_HcalNoiseFilterTight = (TH1F*) _file->Get(ctitle);    //
     sprintf(ctitle,"%s/MET/%s/BeamHaloIDLoosePass/METTask_%sEmEtFraction010",cprefix,METName.c_str(),METClass.c_str());
     TH1F *EmEtFraction010_BeamHaloIDLoosePass  = (TH1F*) _file->Get(ctitle);    //
     sprintf(ctitle,"%s/MET/%s/BeamHaloIDTightPass/METTask_%sEmEtFraction010",cprefix,METName.c_str(),METClass.c_str());
@@ -1745,7 +1677,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     EmEtFraction010_JetID->SetLineWidth(3);
     EmEtFraction010_JetIDTight->SetLineColor(9);
     EmEtFraction010_HcalNoiseFilter->SetLineColor(4);
-    EmEtFraction010_HcalNoiseFilterTight->SetLineColor(6);
     EmEtFraction010_BasicCleanup->SetLineColor(8);
     EmEtFraction010_ExtraCleanup->SetLineColor(4);
     EmEtFraction010_BeamHaloIDLoosePass->SetLineColor(2);
@@ -1766,7 +1697,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     //EmEtFraction010_JetID->Draw("same");
     //EmEtFraction010_JetIDTight->Draw("same");
     //EmEtFraction010_HcalNoiseFilter->Draw("same");
-    //EmEtFraction010_HcalNoiseFilterTight->Draw("same");
     //EmEtFraction010_BeamHaloIDTightPass->Draw("same");
     //EmEtFraction010_BeamHaloIDLoosePass->Draw("same");
     //EmEtFraction010_TechTrigs->Draw("same");
@@ -1790,7 +1720,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     //tl_EmEtFraction010->AddEntry(EmEtFraction010_JetID,"JetID cuts Minimal","l");
     //tl_EmEtFraction010->AddEntry(EmEtFraction010_JetIDTight,"JetID cuts Tight","l");
     //tl_EmEtFraction010->AddEntry(EmEtFraction010_HcalNoiseFilter,"Hcal Noise Filter","l");
-    //tl_EmEtFraction010->AddEntry(EmEtFraction010_HcalNoiseFilterTight,"Hcal Noise Filter Tight","l");
     //tl_EmEtFraction010->AddEntry(EmEtFraction010_BeamHaloIDLoosePass,"BeamHalo ID Loose Pass","l");
     //tl_EmEtFraction010->AddEntry(EmEtFraction010_BeamHaloIDTightPass,"BeamHalo ID Tight Pass","l");
     //tl_EmEtFraction010->AddEntry(EmEtFraction010_TechTrigs,"Technical Triggers (0 & (40 or 41) & ~(36 or 37 or 28 or 39)","l");
@@ -1824,8 +1753,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     TH1F *EmEtFraction020_JetIDTight           = (TH1F*) _file->Get(ctitle);    //
     sprintf(ctitle,"%s/MET/%s/HcalNoiseFilter/METTask_%sEmEtFraction020",cprefix,METName.c_str(),METClass.c_str());
     TH1F *EmEtFraction020_HcalNoiseFilter      = (TH1F*) _file->Get(ctitle);    //
-    sprintf(ctitle,"%s/MET/%s/HcalNoiseFilterTight/METTask_%sEmEtFraction020",cprefix,METName.c_str(),METClass.c_str());
-    TH1F *EmEtFraction020_HcalNoiseFilterTight = (TH1F*) _file->Get(ctitle);    //
     sprintf(ctitle,"%s/MET/%s/BeamHaloIDLoosePass/METTask_%sEmEtFraction020",cprefix,METName.c_str(),METClass.c_str());
     TH1F *EmEtFraction020_BeamHaloIDLoosePass  = (TH1F*) _file->Get(ctitle);    //
     sprintf(ctitle,"%s/MET/%s/BeamHaloIDTightPass/METTask_%sEmEtFraction020",cprefix,METName.c_str(),METClass.c_str());
@@ -1859,7 +1786,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     EmEtFraction020_JetID->SetLineWidth(3);
     EmEtFraction020_JetIDTight->SetLineColor(9);
     EmEtFraction020_HcalNoiseFilter->SetLineColor(4);
-    EmEtFraction020_HcalNoiseFilterTight->SetLineColor(6);
     EmEtFraction020_BasicCleanup->SetLineColor(8);
     EmEtFraction020_ExtraCleanup->SetLineColor(4);
     EmEtFraction020_BeamHaloIDLoosePass->SetLineColor(2);
@@ -1880,7 +1806,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     //EmEtFraction020_JetID->Draw("same");
     //EmEtFraction020_JetIDTight->Draw("same");
     //EmEtFraction020_HcalNoiseFilter->Draw("same");
-    //EmEtFraction020_HcalNoiseFilterTight->Draw("same");
     //EmEtFraction020_BeamHaloIDTightPass->Draw("same");
     //EmEtFraction020_BeamHaloIDLoosePass->Draw("same");
     //EmEtFraction020_TechTrigs->Draw("same");
@@ -1904,7 +1829,6 @@ void plot_METDQM(std::string filename, std::string reffile, int run, std::string
     //tl_EmEtFraction020->AddEntry(EmEtFraction020_JetID,"JetID cuts Minimal","l");
     //tl_EmEtFraction020->AddEntry(EmEtFraction020_JetIDTight,"JetID cuts Tight","l");
     //tl_EmEtFraction020->AddEntry(EmEtFraction020_HcalNoiseFilter,"Hcal Noise Filter","l");
-    //tl_EmEtFraction020->AddEntry(EmEtFraction020_HcalNoiseFilterTight,"Hcal Noise Filter Tight","l");
     //tl_EmEtFraction020->AddEntry(EmEtFraction020_BeamHaloIDLoosePass,"BeamHalo ID Loose Pass","l");
     //tl_EmEtFraction020->AddEntry(EmEtFraction020_BeamHaloIDTightPass,"BeamHalo ID Tight Pass","l");
     //tl_EmEtFraction020->AddEntry(EmEtFraction020_TechTrigs,"Technical Triggers (0 & (40 or 41) & ~(36 or 37 or 28 or 39)","l");

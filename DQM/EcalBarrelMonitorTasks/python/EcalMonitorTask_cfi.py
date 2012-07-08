@@ -63,6 +63,7 @@ ecalMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
     mePaths = dqmpaths("Ecal", ecalMonitorTaskPaths),
     collectionTags = ecalDQMCollectionTags,
     allowMissingCollections = cms.untracked.bool(False),
-    verbosity = cms.untracked.int32(0)
+    verbosity = cms.untracked.int32(0),
+    evaluateTime = cms.untracked.bool(False)
 )
 
