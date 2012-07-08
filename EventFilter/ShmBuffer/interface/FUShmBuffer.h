@@ -59,7 +59,7 @@ namespace evf {
     // public member functions
     //
     void           initialize(unsigned int shmid,unsigned int semid);
-    void           reset();
+    void           reset(bool);
     
     unsigned int   nRawCells()   const { return nRawCells_;  }
     unsigned int   nRecoCells()  const { return nRecoCells_; }

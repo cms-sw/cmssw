@@ -1,3 +1,9 @@
+2012-07-08 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-08-22
+	* removing reset of lumi and cell type on shmbuffer connection
+	  (only relevant for stop and lumi messages)
+
 2012-07-03 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V00-08-21

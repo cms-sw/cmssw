@@ -194,33 +194,35 @@ void FUShmBuffer::initialize(unsigned int shmid, unsigned int semid) {
 		}
 	}
 
+	reset(true);
+}
+
+//______________________________________________________________________________
+void FUShmBuffer::reset(bool shm_detach) {
+	nClients_ = 0;
+
+
 	for (unsigned int i = 0; i < nRawCells_; i++) {
 		FUShmRawCell* cell = rawCell(i);
 		cell->initialize(i);
-		if (segmentationMode_)
+		if (segmentationMode_ && shm_detach)
 			shmdt(cell);
 	}
 
 	for (unsigned int i = 0; i < nRecoCells_; i++) {
 		FUShmRecoCell* cell = recoCell(i);
 		cell->initialize(i);
-		if (segmentationMode_)
+		if (segmentationMode_ && shm_detach)
 			shmdt(cell);
 	}
 
 	for (unsigned int i = 0; i < nDqmCells_; i++) {
 		FUShmDqmCell* cell = dqmCell(i);
 		cell->initialize(i);
-		if (segmentationMode_)
+		if (segmentationMode_ && shm_detach)
 			shmdt(cell);
 	}
 
-	reset();
-}
-
-//______________________________________________________________________________
-void FUShmBuffer::reset() {
-	nClients_ = 0;
 
 	// setup ipc semaphores
 	sem_init(0, 1); // lock (binary)
@@ -584,7 +586,7 @@ void FUShmBuffer::writeRawLumiSectionEvent(unsigned int ls) {
 	details << "state==evt::RAWWRITING assertion failed! Actual state is "
 			<< state << ", index = " << cell->index();
 	XCEPT_ASSERT(state == evt::RAWWRITING, evf::Exception, details.str());
-        setEvtNumber(cell->index(),0xffffffff);
+        setEvtNumber(cell->index(),0xfffffffe);
 	setEvtState(cell->index(), evt::LUMISECTION);
 	cell->setEventTypeEol();
 	postRawIndexToRead(cell->index());
@@ -989,7 +991,6 @@ FUShmBuffer* FUShmBuffer::getShmBuffer() {
 				shmid) << endl;
 		return 0;
 	}
-
 	FUShmBuffer* buffer = new (shmAddr) FUShmBuffer(segmentationMode,
 			nRawCells, nRecoCells, nDqmCells, rawCellSize, recoCellSize,
 			dqmCellSize);
