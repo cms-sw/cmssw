@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<MVATrainer>
+	<general>
+		<!--
+			called with arguments
+				1. name
+				2. additional name info
+				3. file suffix
+			%n$s retrieves the n'th argument
+		-->
+		<option name="trainfiles">train_No_%1$s%2$s.%3$s</option>
+		<option name="id">CombinedSVNoVertex</option>
+	</general>
+	<input id="input">
+		<var name="jetPt" multiple="false" optional="false"/>
+		<var name="jetEta" multiple="false" optional="false"/>
+		<var name="vertexCategory" multiple="false" optional="false"/>
+		<var name="trackSip2dSig" multiple="true" optional="true"/>
+		<var name="trackSip3dSig" multiple="true" optional="true"/>
+		<var name="trackSip2dVal" multiple="true" optional="true"/>
+		<var name="trackSip3dVal" multiple="true" optional="true"/>
+		<var name="trackMomentum" multiple="true" optional="true"/>
+		<var name="trackEta" multiple="true" optional="true"/>
+		<var name="trackPtRel" multiple="true" optional="true"/>
+		<var name="trackPPar" multiple="true" optional="true"/>
+		<var name="trackEtaRel" multiple="true" optional="true"/>
+		<var name="trackDeltaR" multiple="true" optional="true"/>
+		<var name="trackPtRatio" multiple="true" optional="true"/>
+		<var name="trackPParRatio" multiple="true" optional="true"/>
+		<var name="trackDecayLenSig" multiple="true" optional="true"/>
+		<var name="trackJetDist" multiple="true" optional="true"/>
+		<var name="trackFirstTrackDist" multiple="true" optional="true"/>
+		<var name="trackDecayLenVal" multiple="true" optional="true"/>
+		<var name="trackSip2dSigAboveCharm" multiple="false" optional="false"/>
+		<var name="trackSip3dSigAboveCharm" multiple="false" optional="false"/>
+		<var name="trackSumJetEtRatio" multiple="false" optional="false"/>
+		<var name="trackSumJetDeltaR" multiple="false" optional="false"/>
+		<var name="nTracks" multiple="false" optional="false"/>
+		<var name="category" multiple="false" optional="false"/>
+	</input>
+ <processor id="proc1" name="ProcCategory">
+                <input>
+                        <var source="input" name="jetPt"/>
+                        <var source="input" name="jetEta"/>
+                </input>
+                <config>
+                        <group><box><range max="40"/><range min="-1.2" max="1.2"/></box></group>
+                        <group><box><range max="40"/><range min="-2.1" max="2.1"/></box></group>
+                        <group><box><range max="40"/><range/></box></group>
+                        <group><box><range min="40" max="60"/><range min="-1.2" max="1.2"/></box></group>
+                        <group><box><range min="40" max="60"/><range min="-2.1" max="2.1"/></box></group>
+                        <group><box><range min="40" max="60"/><range/></box></group>
+                        <group><box><range min="60" max="90"/><range min="-1.2" max="1.2"/></box></group>
+                        <group><box><range min="60" max="90"/><range min="-2.1" max="2.1"/></box></group>
+                        <group><box><range min="60" max="90"/><range/></box></group>
+                        <group><box><range min="90" max="150"/><range min="-1.2" max="1.2"/></box></group>
+                        <group><box><range min="90" max="150"/><range min="-2.1" max="2.1"/></box></group>
+                        <group><box><range min="90" max="150"/><range/></box></group>
+                        <group><box><range/><range min="-1.2" max="1.2"/></box></group>
+                        <group><box><range/><range min="-2.1" max="2.1"/></box></group>
+                        <!-- FILL ME -->
+                </config>
+                <output>
+                        <var name="var1"/>
+                </output>
+        </processor>
+        <processor id="proc2" name="ProcCount">
+                <input>
+                        <var source="input" name="trackSip2dSig"/>
+                </input>
+                <config>
+                        <!-- FILL ME -->
+                </config>
+                <output>
+                        <var name="var1"/>
+                </output>
+        </processor>
+        <processor id="proc7" name="ProcNormalize">
+                <input>
+                        <var source="input" name="jetPt"/>
+                        <var source="input" name="jetEta"/>
+                        <var source="input" name="trackSip2dSig"/>
+                        <var source="input" name="trackSip3dSig"/>
+                        <var source="input" name="trackSip2dVal"/>
+                        <var source="input" name="trackSip3dVal"/>
+                        <var source="input" name="trackMomentum"/>
+                        <var source="input" name="trackEtaRel"/>
+                        <var source="input" name="trackDeltaR"/>
+                        <var source="input" name="trackPtRatio"/>
+                        <var source="input" name="trackJetDist"/>
+                        <var source="input" name="trackDecayLenVal"/>
+                        <var source="input" name="trackSip2dSigAboveCharm"/>
+                        <var source="input" name="trackSip3dSigAboveCharm"/>
+                        <var source="input" name="trackSumJetEtRatio"/>
+                </input>
+                <config>
+                        <pdf/>
+                        <pdf/>
+                        <pdf smooth="1" lower="-80" upper="150"/>
+                        <pdf smooth="1" lower="-80" upper="150"/>
+                        <pdf smooth="1" lower="-0.2" upper="0.2"/>
+                        <pdf smooth="1" lower="-3" upper="3"/>
+                        <pdf smooth="1" lower="0" upper="250"/>
+                        <pdf smooth="1" lower="1.2" upper="8.5" />
+                        <pdf smooth="2" lower="0" upper="0.5"/>     <!-- trackDeltaR -->
+                        <pdf smooth="1" lower="0.0" upper="0.3"/>   <!-- trackPtRatio -->
+                        <pdf smooth="1" lower="-0.07" upper="0.0"/> <!-- trackJetDist -->
+                        <pdf smooth="1" lower="0" upper="40"/>      <!-- trackDecayLenVal -->
+                        <pdf smooth="1" lower="-50" upper="80"/>    
+                        <pdf smooth="1" lower="-50" upper="80"/>
+                        <pdf smooth="1" lower="0.0" upper="5.0"/>   <!-- trackSumJetEtRatio -->
+                </config>
+                <output>
+                        <var name="var1"/>
+                        <var name="var2"/>
+                        <var name="var3"/>
+                        <var name="var4"/>
+                        <var name="var5"/>
+                        <var name="var6"/>
+                        <var name="var7"/>
+                        <var name="var8"/>
+                        <var name="vartrackDeltaR"/>
+                        <var name="vartrackPtRatio"/>
+                        <var name="vartrackJetDist"/>
+                        <var name="vartrackDecayLenVal"/>
+                        <var name="var11"/>
+                        <var name="var12"/>
+                        <var name="vartrackSumJetEtRatio"/>
+                </output>
+        </processor>
+        <processor id="proc8" name="ProcSplitter">
+                <input>
+                        <var source="proc7" name="var4"/>
+                </input>
+                <config>
+                        <select first="3"/>
+                        <!-- FILL ME -->
+                </config>
+                <output>
+                        <var name="var1"/>
+                        <var name="var2"/>
+                        <var name="var3"/>
+                        <var name="var4"/>
+                </output>
+        </processor>
+        <processor id="proc9" name="ProcLikelihood">
+                <input>
+                        <var source="proc1" name="var1"/>
+			<var source="proc7" name="vartrackDeltaR"/>
+			<var source="proc7" name="vartrackPtRatio"/>
+			<var source="proc7" name="vartrackJetDist"/>
+			<var source="proc7" name="vartrackDecayLenVal"/>
+			<var source="proc7" name="vartrackSumJetEtRatio"/>
+                        <var source="proc8" name="var1"/>
+                        <var source="proc8" name="var2"/>
+                        <var source="proc8" name="var3"/>
+                        <var source="proc8" name="var4"/>
+                </input>
+                <config>
+                        <general/>
+                        <category count="15"/>
+                        <sigbkg smooth="3"/> <!-- trackDeltaR -->
+                        <sigbkg smooth="3"/> <!-- trackPtRatio -->
+                        <sigbkg smooth="3"/> <!-- trackJetDist -->
+                        <sigbkg smooth="3"/> <!-- trackDecayLenVal -->
+                        <sigbkg smooth="3"/> <!-- trackSumJetEtRatio -->
+                        <sigbkg smooth="3"/> <!-- FIXME -->
+                        <sigbkg smooth="3"/> <!-- FIXME -->
+                        <sigbkg smooth="3"/> <!-- FIXME -->
+                        <sigbkg smooth="3"/> <!-- FIXME -->
+                </config>
+                <output>
+                        <var name="var1"/>
+                </output>
+        </processor>
+        <processor id="proc10" name="ProcNormalize">
+                <input>
+                        <var source="proc9" name="var1"/>
+                </input>
+                <config>
+                        <pdf lower="-0.5" upper="1.5" size="200" smooth="1"/>
+                </config>
+                <output>
+                        <var name="var1"/>
+                </output>
+        </processor>
+        <processor id="proc12" name="ProcLikelihood">
+                <input>
+                        <var source="proc1" name="var1"/>
+                        <var source="proc10" name="var1"/>
+                </input>
+                <config>
+                        <bias_table>
+                                <bias>0.68134</bias>
+				<bias>0.74779</bias>
+				<bias>0.822418</bias>
+				<bias>0.445611</bias>
+				<bias>0.51504</bias>
+				<bias>0.627904</bias>
+				<bias>0.35771</bias>
+				<bias>0.429451</bias>
+				<bias>0.55269</bias>
+				<bias>0.324465</bias>
+				<bias>0.40044</bias>
+				<bias>0.53543</bias>
+				<bias>0.41276</bias>
+				<bias>0.472191</bias>
+				<bias>0.602347</bias>
+                        </bias_table>
+        	        <category count="15"/>
+	                <sigbkg lower="0" upper="1" size="200" smooth="1"/>
+                </config>
+                <output>
+                        <var name="var1"/>
+                </output>
+        </processor>
+
+	<output>
+		<var source="proc12" name="var1"/>
+	</output>
+</MVATrainer>
+
