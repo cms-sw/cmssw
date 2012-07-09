@@ -400,8 +400,8 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 
       //match sim hit to rec hit
       unsigned int matchedSimHits = 0;
-      PSimHit* simHit = NULL;
-      PSimHit* simHitStereoPatch = NULL;
+      const PSimHit* simHit = NULL;
+      const PSimHit* simHitStereoPatch = NULL;
       int numpartners=0;
       for (MixCollection<PSimHit>::iterator isim=(*allTrackerHits).begin(); isim!= (*allTrackerHits).end(); isim++) {
 	//	std::cout<<" looping over simhits " << std::endl;
@@ -413,7 +413,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 	  {
 	    matchedSimHits++;
 	    numpartners++;
-	    simHit = const_cast<PSimHit*>(&(*isim));
+	    simHit = &*isim;
 	    
 	    /*
 	    std::cout << "\tRecHit pos = " << rechit.localPosition() << "\tin Det " << detid.rawId() << "\tsimtkID = " << (*iterrechit).simtrackId() << std::endl;
@@ -439,7 +439,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 		//		std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
 		matchedSimHits++;
 		numpartners++;
-		simHit = const_cast<PSimHit*>(&(*isim));
+		simHit = &(*isim);
 		
 		/*
 		std::cout << "\tRecHit pos = " << rechit.localPosition() << "\tin Det " << detid.rawId() << "\tsimtkID = " << (*iterrechit).simtrackId() << std::endl;
@@ -452,7 +452,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 		numpartners++;
 		//std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
 		// 	matchedSimHits++;
-		simHitStereoPatch = const_cast<PSimHit*>(&(*isim));
+		simHitStereoPatch = &(*isim);
 		
 		/*
 		std::cout << "\tRecHit pos = " << rechit.localPosition() << "\tin Det " << detid.rawId() << "\tsimtkID = " << (*iterrechit).simtrackId() << std::endl;
@@ -536,14 +536,14 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 
 	      // search the associated original PSimHit
 	      unsigned int matchedSimHits = 0;
-	      PSimHit* simHit = NULL;
-	      PSimHit* simHitStereoPatch = NULL;
+	      const PSimHit* simHit = NULL;
+	      const PSimHit* simHitStereoPatch = NULL;
 	      int numpartners=0;
 
 	      for (MixCollection<PSimHit>::iterator isim=(*allTrackerHits).begin(); isim!= (*allTrackerHits).end(); isim++) {
 		if( (int) detid.rawId() == (int) (*isim).detUnitId() && 
 		    (int) rechit->simtrackId() == (int) (*isim).trackId()){
-		  simHit = const_cast<PSimHit*>(&(*isim));
+		  simHit = &(*isim);
 		  matchedSimHits++;
 		  /*
 		  std::cout << "\tRecHit pos = " << rechit->localPosition() << "\tin Det " << detid.rawId() << "\tsimtkID = " << rechit->simtrackId() << std::endl;
@@ -569,7 +569,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 			//std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
 			matchedSimHits++;
 			numpartners++;
-			simHit = const_cast<PSimHit*>(&(*isim));
+			simHit = &(*isim);
 		
 
 		      }
@@ -579,7 +579,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 			numpartners++;
 			//std::cout<<"    ***  found matched matched hit ! ***"<< std::endl;
 			// 	matchedSimHits++;
-			simHitStereoPatch = const_cast<PSimHit*>(&(*isim));
+			simHitStereoPatch = &(*isim);
 			
 
 		      }
@@ -701,7 +701,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 
 
 //------------------------------------------------------
-void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D * rechit, PSimHit * simHit, int numpartners){
+void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D * rechit, const PSimHit * simHit, int numpartners){
   //  std::cout<< "making plots" << std::endl;
 
   DetId adetid = rechit->geographicalId();

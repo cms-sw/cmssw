@@ -43,7 +43,7 @@ class FastTrackAnalyzer : public edm::EDAnalyzer {
   virtual void beginRun(edm::Run const& , edm::EventSetup const& );
   virtual void endJob();
  private:
-  void makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D * rechit, PSimHit * simHit, int numpartners);
+  void makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D * rechit, const PSimHit * simHit, int numpartners);
   
   std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,
 						const BoundPlane& plane, int thesign) ;
