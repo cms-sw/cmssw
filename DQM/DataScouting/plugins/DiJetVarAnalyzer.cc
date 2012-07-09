@@ -190,6 +190,7 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
       
       // 2D histograms
       m_DetajjVsMjjWide->Fill(MJJWide,DeltaEtaJJWide);            
+      m_DetajjVsMjjWide_rebin->Fill(MJJWide,DeltaEtaJJWide);
     }
   
 
@@ -356,6 +357,13 @@ void DiJetVarAnalyzer::bookMEs(){
 				      100,0.,5.,
 				      "M_{jj} WideJets [GeV]",
 				      "#Delta#eta_{jj} WideJets");
+
+  m_DetajjVsMjjWide_rebin = bookH2withSumw2("h2_DetajjVsMjjWide_rebin",
+					    "#Delta#eta_{jj} vs M_{jj} WideJets",
+					    400,0.,8000.,
+					    50,0.,5.,
+					    "M_{jj} WideJets [GeV]",
+					    "#Delta#eta_{jj} WideJets");
 
 }
 

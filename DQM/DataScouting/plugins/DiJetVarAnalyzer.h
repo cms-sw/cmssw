@@ -60,6 +60,7 @@ class DiJetVarAnalyzer : public ScoutingAnalyzerBase
 
     //2D histograms
     MonitorElement * m_DetajjVsMjjWide;
+    MonitorElement * m_DetajjVsMjjWide_rebin;
  } ;
 
 #endif
