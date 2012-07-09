@@ -6,9 +6,9 @@
 #include <map>
 #include <string>
 #include "Geometry/TrackerGeometryBuilder/interface/PlaneBuilderFromGeometricDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GeomDetTypeIdToEnum.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GeomTopologyBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 class TrackerGeometry;
 class PixelGeomDetType;
@@ -37,7 +37,6 @@ private:
   PlaneBuilderFromGeometricDet::ResultType
   buildPlaneWithMaterial(const GeometricDet* gd,double scaleFactor=1.) const;
 
-  GeomDetTypeIdToEnum theDetIdToEnum;
   GeomTopologyBuilder* theTopologyBuilder;
 
   std::map<std::string,PixelGeomDetType*> thePixelDetTypeMap;

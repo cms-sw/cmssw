@@ -1,15 +1,8 @@
-/// clhep
-
-//#include "DetectorDescription/Core/interface/DDExpandedView.h"
-//temporary
-//#include "DetectorDescription/Core/interface/DDSolid.h"
-//
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PlaneBuilderForGluedDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
@@ -62,18 +55,18 @@ TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* 
     dets[comp[i]->geographicalID().subdetId()-1].push_back(comp[i]);
   
   // this order is VERY IMPORTANT!!!!!
-  buildPixel(pixB,tracker,theDetIdToEnum.type(1), "barrel",
+  buildPixel(pixB,tracker,GeomDetEnumerators::SubDetector::PixelBarrel, "barrel",
 	     upgradeGeometry,
 	     BIG_PIX_PER_ROC_X,
 	     BIG_PIX_PER_ROC_Y); //"PixelBarrel" 
-  buildPixel(pixF,tracker,theDetIdToEnum.type(2), "endcap",
+  buildPixel(pixF,tracker,GeomDetEnumerators::SubDetector::PixelEndcap, "endcap",
 	     upgradeGeometry,
 	     BIG_PIX_PER_ROC_X,
 	     BIG_PIX_PER_ROC_Y); //"PixelEndcap" 
-  buildSilicon(tib,tracker,theDetIdToEnum.type(3), "barrel");// "TIB"	
-  buildSilicon(tid,tracker,theDetIdToEnum.type(4), "endcap");//"TID" 
-  buildSilicon(tob,tracker,theDetIdToEnum.type(5), "barrel");//"TOB"	
-  buildSilicon(tec,tracker,theDetIdToEnum.type(6), "endcap");//"TEC"        
+  buildSilicon(tib,tracker,GeomDetEnumerators::SubDetector::TIB, "barrel");//"TIB"	
+  buildSilicon(tid,tracker,GeomDetEnumerators::SubDetector::TID, "endcap");//"TID" 
+  buildSilicon(tob,tracker,GeomDetEnumerators::SubDetector::TOB, "barrel");//"TOB"	
+  buildSilicon(tec,tracker,GeomDetEnumerators::SubDetector::TEC, "endcap");//"TEC"        
   buildGeomDet(tracker);//"GeomDet"
 
   verifyDUinTG(*tracker);
@@ -96,6 +89,11 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
     std::string const & detName = gdv[i]->name().fullname();
     if (thePixelDetTypeMap.find(detName) == thePixelDetTypeMap.end()) {
       std::auto_ptr<const Bounds> bounds(gdv[i]->bounds());
+      LogDebug( "TrackerGeomBuilderFromGeometricDet" ) << "pixROCRows " << gdv[i]->pixROCRows() << " == 80; "
+						       << "pixROCCols " << gdv[i]->pixROCCols() << " == 52;  "
+						       << "pixROCx " << gdv[i]->pixROCx() << " == 0; "
+						       << "pixROCy " << gdv[i]->pixROCy() << " == 0\n";
+      
       PixelTopology* t = 
 	theTopologyBuilder->buildPixel(&*bounds,
 				       part,
