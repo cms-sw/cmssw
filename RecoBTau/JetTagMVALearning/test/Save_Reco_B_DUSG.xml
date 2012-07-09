@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+Vertex<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <MVATrainer>
 	<general>
 		<!--
@@ -8,7 +8,7 @@
 				3. file suffix
 			%n$s retrieves the n'th argument
 		-->
-		<option name="trainfiles">train_Reco_B_DUSG_%1$s%2$s.%3$s</option>
+		<option name="trainfiles">train_RecoVertex_B_DUSG_%1$s%2$s.%3$s</option>
 		<option name="id">CombinedSVRecoVertex</option>
 	</general>
 	<input id="input">
