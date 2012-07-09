@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.59 2012/05/20 20:12:25 rwolf Exp $
+// $Id: PATElectronProducer.cc,v 1.60.2.1 2012/07/09 16:40:54 tjkim Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
 
@@ -58,6 +58,9 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   pfCandidateMap_ = iConfig.getParameter<edm::InputTag>( "pfCandidateMap" );
   useParticleFlow_ = iConfig.getParameter<bool>( "useParticleFlow" );
   embedPFCandidate_ = iConfig.getParameter<bool>( "embedPFCandidate" );
+  // mva input variables
+  reducedBarrelRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection");
+  reducedEndcapRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection");
   // MC matching configurables (scheduled mode)
   addGenMatch_ = iConfig.getParameter<bool>( "addGenMatch" );
   if (addGenMatch_) {
@@ -171,7 +174,8 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   // for additional mva variables
   edm::InputTag  reducedEBRecHitCollection(string("reducedEcalRecHitsEB"));
   edm::InputTag  reducedEERecHitCollection(string("reducedEcalRecHitsEE"));
-  EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollection, reducedEERecHitCollection);
+  //EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollection, reducedEERecHitCollection);
+  EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedBarrelRecHitCollection_, reducedEndcapRecHitCollection_);
 
   // for conversion veto selection
   edm::Handle<reco::ConversionCollection> hConversions;
@@ -638,9 +642,14 @@ void PATElectronProducer::fillElectron(Electron& anElectron,
     else
       if(pfId){
         anElectron.setIsolation(isolationValueLabels_[j].first,(*isolationValues[j])[elecRef]);
-      }else{
-        anElectron.setIsolation(isolationValueLabelsNoPFId_[j].first,(*isolationValuesNoPFId[j])[elecRef]);
       }
+  }
+
+  //for electrons not identified as PF electrons
+  for (size_t j = 0; j<isolationValuesNoPFId.size(); ++j) {
+    if( !pfId) {
+      anElectron.setIsolation(isolationValueLabelsNoPFId_[j].first,(*isolationValuesNoPFId[j])[elecRef]);
+    }
   }
 
 }

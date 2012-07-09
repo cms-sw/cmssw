@@ -29,7 +29,7 @@ usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix
 # to use GsfElectrons instead of PF electrons
 # this will destory the feature of top projection which solves the ambiguity between leptons and jets because
 # there will be overlap between non-PF electrons and jets even though top projection is ON!
-useGsfElectrons(process,postfix)
+useGsfElectrons(process,postfix,"03") # to change isolation cone size to 0.3 as it is recommended by EGM POG, use "04" for cone size 0.4
 
 # Let it run
 process.p = cms.Path(

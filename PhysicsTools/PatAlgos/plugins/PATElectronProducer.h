@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.25.6.1 2012/03/29 12:36:38 cbern Exp $
+// $Id: PATElectronProducer.h,v 1.26.2.1 2012/07/09 16:40:54 tjkim Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::GsfElectron.
 
   \author   Steven Lowette, James Lamb\
-  \version  $Id: PATElectronProducer.h,v 1.25.6.1 2012/03/29 12:36:38 cbern Exp $
+  \version  $Id: PATElectronProducer.h,v 1.26.2.1 2012/07/09 16:40:54 tjkim Exp $
 */
 
 
@@ -80,6 +80,10 @@ namespace pat {
       edm::InputTag pfElecSrc_;
       edm::InputTag pfCandidateMap_;
       bool          embedPFCandidate_;
+
+      /// mva input variables
+      edm::InputTag reducedBarrelRecHitCollection_;
+      edm::InputTag reducedEndcapRecHitCollection_;
  
       /// embed high level selection variables?
       bool          embedHighLevelSelection_;
