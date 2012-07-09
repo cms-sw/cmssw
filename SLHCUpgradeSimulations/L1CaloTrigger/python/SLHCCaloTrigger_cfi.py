@@ -63,6 +63,11 @@ L1TowerJetFilter1D = cms.EDProducer("L1TowerJetFilter1D",
 	NumOfOutputJets = cms.uint32(4)
 )
 
+L1TowerJetFilter2D = cms.EDProducer("L1TowerJetFilter2D",
+    src = cms.InputTag("L1TowerJetFilter1D"),
+	ComparisonDirection = cms.string("phi"), # "eta" or "phi"
+	NumOfOutputJets = cms.uint32(12)
+)
 
 rawSLHCL1ExtraParticles = cms.EDProducer("L1ExtraTranslator",
                                   Clusters = cms.InputTag("L1CaloClusterIsolator"),
