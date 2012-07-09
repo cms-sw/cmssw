@@ -1,0 +1,4 @@
+<use   name="HLTriggerOffline/Top"/>
+<library   file="*.cc" name="HLTriggerOfflineTopPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>
