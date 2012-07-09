@@ -24,7 +24,7 @@ import RecoTracker.TrackProducer.TrackProducer_cfi
 ctfWithMaterialTracksCosmics = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'ckfTrackCandidatesP5',
     Fitter = 'FittingSmootherRKP5',
-    TTRHBuilder = 'WithTrackAngle',
+    #TTRHBuilder = 'WithTrackAngle',
     AlgorithmName = cms.string('ctf')
 )
 
