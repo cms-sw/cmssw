@@ -10,12 +10,13 @@
 
 
 DigiInvestigatorHistogramMaker::DigiInvestigatorHistogramMaker():
-  _hitname(), _nbins(500), m_maxLS(100), _scalefact(), _runHisto(true), _binmax(), _labels(), _nmultvsorbrun(), _nmult() { }
+  _hitname(), _nbins(500), m_maxLS(100), m_LSfrac(4), _scalefact(), _runHisto(true), _binmax(), _labels(), _nmultvsorbrun(), _nmult() { }
 
 DigiInvestigatorHistogramMaker::DigiInvestigatorHistogramMaker(const edm::ParameterSet& iConfig):
   _hitname(iConfig.getUntrackedParameter<std::string>("hitName","digi")),
   _nbins(iConfig.getUntrackedParameter<int>("numberOfBins",500)),
   m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin",100)),
+  m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction",4)),
   _scalefact(iConfig.getUntrackedParameter<int>("scaleFactor",5)),
   _runHisto(iConfig.getUntrackedParameter<bool>("runHisto",true)),
   _labels(), _rhm(), _nmultvsorbrun(), _nmult(), _subdirs() 
@@ -62,6 +63,7 @@ void DigiInvestigatorHistogramMaker::book(const std::string dirname) {
   
   edm::LogInfo("NumberOfBins") << "Number of Bins: " << _nbins;
   edm::LogInfo("NumberOfMaxLS") << "Max number of LS before rebinning: " << m_maxLS;
+  edm::LogInfo("StartingLSFrac") << "Fraction of LS in one bin before rebinning: " << m_LSfrac;
   edm::LogInfo("ScaleFactors") << "x-axis range scale factor: " << _scalefact;
   edm::LogInfo("BinMaxValue") << "Setting bin max values";
 
@@ -97,7 +99,7 @@ void DigiInvestigatorHistogramMaker::book(const std::string dirname) {
       if(_runHisto) {
 	sprintf(name,"n%sdigivsorbrun",slab.c_str());
 	sprintf(title,"%s %s mean multiplicity vs orbit",slab.c_str(),_hitname.c_str());
-	_nmultvsorbrun[i] = _rhm.makeTProfile(name,title,4*m_maxLS,0.5,m_maxLS*262144+0.5);
+	_nmultvsorbrun[i] = _rhm.makeTProfile(name,title,m_LSfrac*m_maxLS,0,m_maxLS*262144);
       }
 
     }

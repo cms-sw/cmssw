@@ -21,6 +21,7 @@ spclusmultinvestigator = cms.EDAnalyzer('MultiplicityInvestigator',
                                          multiplicityMap = cms.InputTag("spclustermultprod"),
                                          numberOfBins = cms.untracked.int32(500),
                                          maxLSBeforeRebin = cms.untracked.uint32(100),
+                                         startingLSFraction = cms.untracked.uint32(4),
                                          scaleFactor = cms.untracked.int32(100),
                                       )
 
