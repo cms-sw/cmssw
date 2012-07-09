@@ -1,8 +1,11 @@
+read -p "PARALLEL PROCESSING: how many cores can you afford? " answer
+
 echo "do the training, make sure you extracted the variables first using cmsRun VariableExtractor_LR_cfg.py (usually QCD events are used)"
 
 #!/bin/sh
-path_to_rootfiles=/user/pvmulder/NewEraOfDataAnalysis/BTagServiceWork/CMSSW_4_4_4_development/src/BTagging/RootFilesPetra
+path_to_rootfiles=/user/pvmulder/NewEraOfDataAnalysis/BTagServiceWork/CMSSW_4_4_4_development/src/BTagging/RootFilesAlexis
 prefix=CombinedSV
+Combinations="NoVertex_B_DUSG NoVertex_B_C PseudoVertex_B_DUSG PseudoVertex_B_C RecoVertex_B_DUSG RecoVertex_B_C"
 
 CAT="Reco Pseudo No"
 for i in $CAT ; do
@@ -42,21 +45,28 @@ done
 
 for j in $( ls ../Save_*xml ) ; do cp $j . ; done
 for j in $( ls Save*xml ) ; do
-	sed -i 's@CombinedSV@'$prefix'@g#' $j # change the path of the input rootfiles
+	sed -i 's@CombinedSV@'$prefix'@g#' $j # change the name of the tag in the file
 done
 
-cmsRun MVATrainer_No_B_DUSG_cfg.py
-cmsRun MVATrainer_No_B_C_cfg.py
-cmsRun MVATrainer_Pseudo_B_DUSG_cfg.py
-cmsRun MVATrainer_Pseudo_B_C_cfg.py
-cmsRun MVATrainer_Reco_B_DUSG_cfg.py
-cmsRun MVATrainer_Reco_B_C_cfg.py
+files=("MVATrainer_No_B_DUSG_cfg.py" "MVATrainer_No_B_C_cfg.py" "MVATrainer_Pseudo_B_DUSG_cfg.py" "MVATrainer_Pseudo_B_C_cfg.py" "MVATrainer_Reco_B_DUSG_cfg.py" "MVATrainer_Reco_B_C_cfg.py")
+l=0
+while [ $l -lt 6 ]
+do
+	jobsrunning=0
+	while [ $jobsrunning -lt $answer ]
+	do
+		nohup cmsRun ${files[l]} &
+		let jobsrunning=$jobsrunning+1
+		let l=$l+1
+	done
+	wait
+done
+
 
 g++ ../biasForXml.cpp `root-config --cflags --glibs` -o bias
 ./bias $path_to_rootfiles $prefix
 echo "ARE YOU SURE THAT YOU HAVE ENOUGH STATISTICS TO DETERMINE THE BIAS ACCURATELY?"
 
-Combinations="NoVertex_B_DUSG NoVertex_B_C PseudoVertex_B_DUSG PseudoVertex_B_C RecoVertex_B_DUSG RecoVertex_B_C"
 for i in $Combinations ; do
 	sed -n -i '/<bias_table>/{p; :a; N; /<\/bias_table>/!ba; s/.*\n//}; p' Train_${i}.xml # remove bias table in file
 	for line in $( cat ${i}.txt ) ; do 
@@ -79,23 +89,45 @@ for k in $Vertex ; do
 	done
 done
 
-for j in $Combinations ; do
- echo Processing $j
- mkdir tmp$j
- cd tmp$j
- mvaTreeTrainer ../Train_$j.xml tmp.mva ../train_${}_save.root 
- cd ..
+CombinationsArray=("NoVertex_B_DUSG" "NoVertex_B_C" "PseudoVertex_B_DUSG" "PseudoVertex_B_C" "RecoVertex_B_DUSG" "RecoVertex_B_C")
+l=0
+while [ $l -lt 6 ]
+do
+	jobsrunning=0
+	while [[ $jobsrunning -lt $answer && $jobsrunning -lt 6 ]] 
+	do
+		echo Processing ${CombinationsArray[l]}
+ 		mkdir tmp${CombinationsArray[l]}
+ 		cd tmp${CombinationsArray[l]}
+ 		#echo Train_${CombinationsArray[l]}.xml
+		#echo train_${CombinationsArray[l]}_save.root
+		nohup mvaTreeTrainer ../Train_${CombinationsArray[l]}.xml tmp.mva ../train_${CombinationsArray[l]}_save.root &
+		cd ..
+		let jobsrunning=$jobsrunning+1
+		let l=$l+1
+	done
+	wait
 done
 
-cp tmpRecoVertex_B_*/*.xml .
-mvaTreeTrainer -l Train_RecoVertex.xml ${prefix}RecoVertex.mva train_Reco_B_DUSG_save.root train_Reco_B_C_save.root
-cp tmpPseudoVertex_B_*/*.xml .
-mvaTreeTrainer -l Train_PseudoVertex.xml ${prefix}PseudoVertex.mva train_Pseudo_B_DUSG_save.root train_Pseudo_B_C_save.root
-cp tmpNoVertex_B_*/*.xml .
-mvaTreeTrainer -l Train_NoVertex.xml ${prefix}NoVertex.mva train_No_B_DUSG_save.root train_No_B_C_save.root
+VertexCategory=("NoVertex" "PseudoVertex" "RecoVertex")
+l=0
+while [ $l -lt 3 ]
+do
+	jobsrunning=0
+	while [[ $jobsrunning -lt $answer  && $jobsrunning -lt 3 ]] 
+	do
+		#echo tmp${VertexCategory[l]}_B_*/*.xml
+		cp tmp${VertexCategory[l]}_B_*/*.xml .
+ 		nohup mvaTreeTrainer -l Train_${VertexCategory[l]}.xml ${prefix}${VertexCategory[l]}.mva train_${VertexCategory[l]}_B_DUSG_save.root train_${VertexCategory[l]}_B_C_save.root &
+		let jobsrunning=$jobsrunning+1
+		let l=$l+1
+	done
+	wait
+done
 
-
+#
 echo "do cmsRun ../copyMVAToSQLite_cfg.py to copy the mva training output to sqlite format"
 echo "run the validation from Validation/RecoB/test/ -> usually on ttbar events"
+
 #cmsRun ../copyMVAToSQLite_cfg.py
 #cmsRun reco_validationNEW_CSVMVA_categories_cfg.py
