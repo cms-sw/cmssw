@@ -203,10 +203,10 @@ void JPTJetAnalyzer::analyze(const edm::Event&      event,
   
   //make corrected jets 
   /* */
-  const double factorZSP = jptJet.getZSPCor();  
+  //  const double factorZSP = jptJet.getZSPCor();  
   const reco::Jet& rawJet = *jptJet.getCaloJetRef();
   /* */ 
-  const double factorZSPJPT = jptJet.energy()/rawJet.energy(); 
+  //  const double factorZSPJPT = jptJet.energy()/rawJet.energy(); 
   
   //check jet is correctable by JPT
   if ( fabs(rawJet.eta()) > 2.1) return;
@@ -250,8 +250,8 @@ void JPTJetAnalyzer::analyze(const edm::Event&      event,
   fillHistogram(JetResEMF_,jetID_->restrictedEMF());  
   fillHistogram(JetfRBX_,jetID_->fRBX());  */
   if (idPassed) {
-    const double deltaEta = jptJet.eta() - rawJet.eta();
-    const double deltaPhi = jptJet.phi() - rawJet.phi();
+    //    const double deltaEta = jptJet.eta() - rawJet.eta();
+    //    const double deltaPhi = jptJet.phi() - rawJet.phi();
     if (jptJet.pt() > correctedPtMin_) {
       fillHistogram(JetE_,jptJet.energy());
       fillHistogram(JetEt_,jptJet.et());
@@ -283,7 +283,7 @@ void JPTJetAnalyzer::analyze(const edm::Event&      event,
       /*      fillHistogram(JPTCorrFactorHisto_,factorJPT);
       fillHistogram(JPTCorrFactorVsJetEtHisto_,rawJet.et(),factorJPT);
       fillHistogram(JPTCorrFactorVsJetEtaHisto_,rawJet.eta(),factorJPT);  */
-      const double ptFractionInCone = findPtFractionInCone(pionsInVertexInCalo,pionsInVertexOutCalo);
+      //      const double ptFractionInCone = findPtFractionInCone(pionsInVertexInCalo,pionsInVertexOutCalo);
       /*      fillHistogram(PtFractionInConeHisto_,ptFractionInCone);
       fillHistogram(PtFractionInConeVsJetRawEtHisto_,rawJet.et(),ptFractionInCone);
       fillHistogram(PtFractionInConeVsJetEtaHisto_,rawJet.eta(),ptFractionInCone); */
@@ -548,10 +548,10 @@ void JPTJetAnalyzer::fillTrackHistograms(TrackHistograms& histos, const reco::Tr
     const double pt = track.pt();
     const double phi = track.phi();
     const double eta = track.eta();
-    const unsigned int nHits = track.found();
-    const unsigned int nLayers = track.hitPattern().trackerLayersWithMeasurement();
-    const double dz = track.dz();
-    const double dxy = track.dxy();  
+    //    const unsigned int nHits = track.found();
+    //    const unsigned int nLayers = track.hitPattern().trackerLayersWithMeasurement();
+    //    const double dz = track.dz();
+    //    const double dxy = track.dxy();  
     fillHistogram(histos.ptHisto,pt);
     fillHistogram(histos.phiHisto,phi);
     fillHistogram(histos.etaHisto,eta);
@@ -625,7 +625,7 @@ void JPTJetAnalyzer::fillSiStripHitSoNForSingleHit(const SiStripRecHit2D& hit)
     return;
   }
   //calculate signal to noise for cluster
-  const double sOverN = (*sOverNCalculator_)(*cluster,hit.geographicalId());
+  //  const double sOverN = (*sOverNCalculator_)(*cluster,hit.geographicalId());
   //fill histogram
   /*  fillHistogram(TrackSiStripHitStoNHisto_,sOverN);  */
 }
