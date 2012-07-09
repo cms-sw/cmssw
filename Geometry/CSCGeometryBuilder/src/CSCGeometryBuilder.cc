@@ -175,7 +175,7 @@ void CSCGeometryBuilder::buildChamber (
 		   << " upar[" << fupar.size()-1 << "]=" << fupar[fupar.size()-1];
 
 
-  CSCChamber* chamber = const_cast<CSCChamber*>(theGeometry->chamber( chamberId ));
+  const CSCChamber* chamber = theGeometry->chamber( chamberId );
   if ( chamber ){
   }
   else { // this chamber not yet built/stored
