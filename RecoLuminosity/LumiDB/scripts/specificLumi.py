@@ -255,7 +255,6 @@ def getSpecificLumi(schema,fillnum,inputdir,xingMinLum=0.0,norm='pp7TeV',withcor
         finecorrections=lumiCorrections.correctionsForRangeV2(schema,runlist,cterms)#constant+nonlinear corrections
         driftcorrections=lumiCorrections.driftcorrectionsForRange(schema,runlist,cterms)
     lumidetails=lumiCalcAPI.instCalibratedLumiForRange(schema,irunlsdict,beamstatus=None,amodetag=amodetag,withBXInfo=True,withBeamIntensity=True,bxAlgo=bxAlgo,xingMinLum=xingMinLum,norm=norm,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=True)
-    session.transaction().commit()
     #
     #output: {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),calibratedlumi(5),calibratedlumierr(6),startorbit(7),numorbit(8),(bxvalues,bxerrs)(9),(bxidx,b1intensities,b2intensities)(10)]}}
     #
@@ -434,10 +433,10 @@ if __name__ == '__main__':
     print '====='
     withcorrection=not options.withoutFineCorrection
     filldata={}
-    session.transaction().start(True)
     for fillnum in fillstoprocess:# process per fill
+        session.transaction().start(True)
         filldata=getSpecificLumi(session.nominalSchema(),fillnum,options.inputdir,xingMinLum=options.xingMinLum,norm=options.normfactor,withcorrection=withcorrection,amodetag=options.amodetag,bxAlgo=options.bxAlgo)
         specificlumiTofile(fillnum,filldata,options.outputdir)
-    session.transaction().commit()
+        session.transaction().commit()
 
 
