@@ -721,3 +721,42 @@ bool muon::isTightMuon(const reco::Muon& muon, const reco::Vertex& vtx){
   
   return muID && hits && ip;
 }
+
+
+bool muon::isLooseMuon(const reco::Muon& muon){
+  return muon.isPFMuon() && ( muon.isGlobalMuon() || muon.isTrackerMuon());
+}
+
+
+bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx){
+
+  bool muID = muon::isGoodMuon(muon, TMOneStationTight);
+
+  if(!muID) return false;
+  
+  bool layers = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
+    muon.innerTrack()->hitPattern().pixelLayersWithMeasurement() > 1;
+
+  bool chi2 = muon.innerTrack()->normalizedChi2() < 1.8;  
+  
+  bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 3. && fabs(muon.innerTrack()->dz(vtx.position())) < 30.;
+  
+  return muID && layers && ip && chi2 ;
+}
+
+
+
+bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx){
+  bool muID =  isGoodMuon(muon,GlobalMuonPromptTight) && (muon.numberOfMatchedStations() > 1);
+
+  if(!(muon.isTrackerMuon()&&muon.isGlobalMuon()))
+    return false;
+
+  bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 8 &&
+    muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
+
+  bool ip = fabs(muon.muonBestTrack()->dxy(vtx.position())) < 0.2 && fabs(muon.bestTrack()->dz(vtx.position())) < 0.5;
+  
+  return muID && hits && ip;
+
+}
