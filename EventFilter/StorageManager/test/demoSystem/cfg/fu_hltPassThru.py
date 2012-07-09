@@ -13,7 +13,7 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True),
 
 process.MessageLogger = cms.Service("MessageLogger",
                                     destinations = cms.untracked.vstring('cout','log4cplus'),
-                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING')),
+                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('ERROR')),
                                     log4cplus = cms.untracked.PSet(INFO = cms.untracked.PSet(reportEvery = cms.untracked.int32(250)),
                                                                    threshold = cms.untracked.string('INFO')
                                                                    )
@@ -21,8 +21,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.source = cms.Source("DaqSource",
                             readerPluginName = cms.untracked.string('FUShmReader'),
-                            evtsPerLS = cms.untracked.uint32(200),
-                            calculateFakeLumiSection = cms.untracked.bool(True)
+                            evtsPerLS = cms.untracked.uint32(10000000)
                             )
 
 process.pre1 = cms.EDFilter("Prescaler",
@@ -38,3 +37,10 @@ process.hltOutputDQM = cms.OutputModule("ShmStreamConsumer",
                                         )
 
 process.e = cms.EndPath(process.hltOutputDQM)
+
+process.FUShmDQMOutputService = cms.Service("FUShmDQMOutputService",
+                                            initialMessageBufferSize = cms.untracked.int32(1000000),
+                                            lumiSectionsPerUpdate = cms.double(1.0),
+                                            useCompression = cms.bool(True),
+                                            compressionLevel = cms.int32(1)
+                                            )

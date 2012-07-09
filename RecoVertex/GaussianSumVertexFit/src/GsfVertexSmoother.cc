@@ -19,7 +19,7 @@ GsfVertexSmoother::smooth(const CachingVertex<5> & vertex) const
 
   // Initial vertex for ascending fit
   GlobalPoint priorVertexPosition = tracks[0]->linearizedTrack()->linearizationPoint();
-  AlgebraicSymMatrix33 we = ROOT::Math::SMatrixIdentity();
+  AlgebraicSymMatrix we(3,1);
   GlobalError priorVertexError(we*10000);
 
   std::vector<RefCountedVertexTrack> initialTracks;

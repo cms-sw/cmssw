@@ -272,12 +272,23 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   }
 
   // compute the smallest interval (assume all objects have the same timetype....)
-  cond::ValidityInterval recordValidity(0,cond::TIMELIMIT);
+  cond::ValidityInterval recordValidity(1,cond::TIMELIMIT);
   cond::TimeType timetype;
   bool userTime=true;
   for (ProxyMap::const_iterator p=b;p!=e;++p) {
+
+    timetype = (*p).second->proxy()->timetype();
+    
+    cond::Time_t abtime = cond::fromIOVSyncValue(iTime,timetype);
+    userTime = (0==abtime);
+    
+    //std::cout<<"abtime "<<abtime<<std::endl;
+
+    if (userTime) return;  //  oInterval invalid to avoid that make is called...
+
     // refresh if required...
     if (doRefresh)  { 
+      LogDebug ("CondDBESSource") << "Refresh " << recordname << " " << iTime.eventID() << std::endl; 
       stats.nActualRefresh += (*p).second->proxy()->refresh(); 
       stats.nRefresh++;
     }
@@ -291,20 +302,14 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     }
     
     
-    timetype = (*p).second->proxy()->timetype();
-    
-    cond::Time_t abtime = cond::fromIOVSyncValue(iTime,timetype);
-    userTime = (0==abtime);
-    
-    //std::cout<<"abtime "<<abtime<<std::endl;
-    
     //query the IOVSequence
     cond::ValidityInterval validity = (*p).second->proxy()->setIntervalFor(abtime);
     
     recordValidity.first = std::max(recordValidity.first,validity.first);
     recordValidity.second = std::min(recordValidity.second,validity.second);
  
-   //std::cout<<"setting validity "<<recordValidity.first<<" "<<recordValidity.second<<" for ibtime "<<abtime<< std::endl;
+    LogDebug ("CondDBESSource") <<"setting validity " << recordname << " " 
+                                <<recordValidity.first<<" "<<recordValidity.second<<" for ibtime "<<abtime<< std::endl;
  
   }      
    

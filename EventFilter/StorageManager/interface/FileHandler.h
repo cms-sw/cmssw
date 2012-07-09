@@ -1,4 +1,4 @@
-// $Id: FileHandler.h,v 1.16.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: FileHandler.h,v 1.19 2011/07/05 13:25:43 mommsen Exp $
 /// @file: FileHandler.h 
 
 #ifndef EventFilter_StorageManager_FileHandler_h
@@ -25,8 +25,8 @@ namespace stor {
    * Abstract representation of a physical file
    *
    * $Author: mommsen $
-   * $Revision: 1.16.4.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.19 $
+   * $Date: 2011/07/05 13:25:43 $
    */
 
   class FileHandler
@@ -97,27 +97,11 @@ namespace stor {
      * Write the I2OChain to the file
      */
     virtual void do_writeEvent(const I2OChain& event) = 0;
-
-    
-    ////////////////////////////
-    // File parameter setters //
-    ////////////////////////////
-
-    /**
-     * Set the adler checksum for the file
-     */
-    inline void setAdler(uint32_t s)
-    { adler_ = s; }
     
     
     //////////////////////
     // File bookkeeping //
     //////////////////////
-    
-    /**
-     * Write summary information in file catalog
-     */
-    void writeToSummaryCatalog() const;
 
     /**
      * Write command to update the file information in the CMS_STOMGR.TIER0_INJECTION table
@@ -165,6 +149,11 @@ namespace stor {
     void makeFileReadOnly(const std::string& fileName) const;
 
     /**
+     * Compare Adler32 checksum of file with calculated one
+     */
+    void checkAdler32(const std::string& fileName) const;
+    
+    /**
      * Rename the file
      */
     void renameFile(const std::string& openFileName, const std::string& closedFileName) const;
@@ -210,8 +199,6 @@ namespace stor {
     const std::string  logPath_;                    // log path
     const std::string  logFile_;                    // log file including path
     std::string  cmsver_;                           // CMSSW version string
-
-    uint32_t adler_;                                // adler32 checksum for streamer file
   };
   
 } // stor namespace

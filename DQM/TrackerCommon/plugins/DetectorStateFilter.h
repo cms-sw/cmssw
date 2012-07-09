@@ -15,7 +15,7 @@ class DetectorStateFilter : public edm::EDFilter {
   bool verbose_;
   bool detectorOn_;
   std::string detectorType_;
-
+  edm:: InputTag dcsStatusLabel_;
 };
 
 #endif

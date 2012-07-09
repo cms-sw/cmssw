@@ -53,7 +53,32 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   theSiZeroSuppress = new SiStripFedZeroSuppression(theFedAlgo);
   theFlatDistribution = new CLHEP::RandFlat(rndEngine, 0., 1.);    
 
-  
+  if(inefficiency == 20) {  // simulate 20% (random) data loss in TIB 1 and 2
+    theStripInefficiency_[0] = 0.2;
+    theStripInefficiency_[1] = 0.2;
+    theStripInefficiency_[2] = 0.;
+    theStripInefficiency_[3] = 0.;
+  } else if(inefficiency == 30) {  // simulate 50% (random) data loss in TIB 1 and 2
+    theStripInefficiency_[0] = 0.5;
+    theStripInefficiency_[1] = 0.5;
+    theStripInefficiency_[2] = 0.;
+    theStripInefficiency_[3] = 0.;
+  } else if(inefficiency == 40) {  // simulate 99% (random) data loss in TIB 1 and 2
+    theStripInefficiency_[0] = 0.99;
+    theStripInefficiency_[1] = 0.99;
+    theStripInefficiency_[2] = 0.;
+    theStripInefficiency_[3] = 0.;
+  } else {
+    theStripInefficiency_[0] = inefficiency;
+    theStripInefficiency_[1] = inefficiency;
+    theStripInefficiency_[2] = inefficiency;
+    theStripInefficiency_[3] = inefficiency;
+  }
+  edm::LogInfo("SiStripDigitizer")<< " strip digis setup with inefficiency = " << inefficiency 
+            << " theStripInefficiency_ = " << theStripInefficiency_[0] << " "
+            << " " << theStripInefficiency_[1] << " "
+            << " " << theStripInefficiency_[2] << " "
+            << " " << theStripInefficiency_[3];  
 }
 
 SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
@@ -101,9 +126,9 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 
      
   // local amplitude of detector channels (from processed PSimHit)
-  locAmpl.clear();
+//  locAmpl.clear();
   detAmpl.clear();
-  locAmpl.insert(locAmpl.begin(),numStrips,0.);
+//  locAmpl.insert(locAmpl.begin(),numStrips,0.);
   // total amplitude of detector channels
   detAmpl.insert(detAmpl.begin(),numStrips,0.);
 
@@ -113,8 +138,29 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
   // First: loop on the SimHits
   std::vector<std::pair<const PSimHit*, int > >::const_iterator simHitIter = input.begin();
   std::vector<std::pair<const PSimHit*, int > >::const_iterator simHitIterEnd = input.end();
-  if(theFlatDistribution->fire()>inefficiency) {
-    for (;simHitIter != simHitIterEnd; ++simHitIter) {
+
+  // simulate inefficiency simhit by simhit, so throw random number for each simhit if needed
+  // default is no inefficiency simulation
+  unsigned int subdetId = det->geographicalId().subdetId();
+  bool do_inefficiency = false;
+  float inefficiency2use = 0.;
+  if(inefficiency == 20 || inefficiency == 30 || inefficiency == 40) {
+    if (subdetId == StripSubdetector::TIB) { // special case for TIB-only inefficency
+      TIBDetId tibid(det->geographicalId().rawId());
+      int layerNumber = tibid.layer();
+      inefficiency2use = theStripInefficiency_[layerNumber-1];
+      if(inefficiency2use > 0) do_inefficiency = true;
+    }
+  } else if(inefficiency > 0. ) {  // global inefficiency for all strip layers
+    do_inefficiency = true;
+    inefficiency2use = inefficiency; // TODO cannot be right as inefficiency is an integer assume percent?
+  }
+
+  //if(theFlatDistribution->fire()>inefficiency) {
+  for (;simHitIter != simHitIterEnd; ++simHitIter) {
+    if(!do_inefficiency || (do_inefficiency && theFlatDistribution->fire()>inefficiency2use) ) {
+      locAmpl.clear();
+      locAmpl.insert(locAmpl.begin(),numStrips,0.);
       // check TOF
       if ( std::fabs( ((*simHitIter).first)->tof() - cosmicShift - det->surface().toGlobal(((*simHitIter).first)->localPosition()).mag()/30.) < tofCut && ((*simHitIter).first)->energyLoss()>0) {
         localFirstChannel = numStrips;
@@ -171,7 +217,7 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
   
   if(zeroSuppression){
     if(noise){
-	  int RefStrip = 0; //int(numStrips/2.);
+	  int RefStrip = int(numStrips/2.);
 	  while(RefStrip<numStrips&&badChannels[RefStrip]){ //if the refstrip is bad, I move up to when I don't find it
 	  	RefStrip++;
 	  }

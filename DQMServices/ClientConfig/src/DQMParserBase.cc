@@ -7,8 +7,8 @@
  *
  *  Implementation of DQMParserBase
  *
- *  $Date: 2010/01/26 20:56:08 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/01/27 13:33:38 $
+ *  $Revision: 1.7 $
  *  \author Ilaria Segoni
  */
 
@@ -17,7 +17,6 @@ using namespace xercesc;
 
 DQMParserBase::DQMParserBase(){
 	parser=0; 
-	doc=0; 
 }
 
 DQMParserBase::~DQMParserBase(){
@@ -40,14 +39,12 @@ void DQMParserBase::getDocument(std::string configFile, bool UseDB){
     else{
       parser->parse(configFile.c_str()); 
     }
-    doc = parser->getDocument();
+    xercesc::DOMDocument* doc = parser->getDocument();
     assert(doc);
 
 }
 
 void DQMParserBase::getNewDocument(std::string configFile, bool UseDB){
-	//delete doc;
-	//doc =0;
   parser->resetDocumentPool();
   if(UseDB){
     std::cout<<"=== This is config file from getNewDocument ==== "<<std::endl;
@@ -58,12 +55,12 @@ void DQMParserBase::getNewDocument(std::string configFile, bool UseDB){
   else{
     parser->parse(configFile.c_str()); 
   }
-  doc = parser->getDocument();
+  xercesc::DOMDocument* doc = parser->getDocument();
   assert(doc);
 
 }
 int DQMParserBase::countNodes(std::string tagName){
 	unsigned int tagsNum  = 
- 	   doc->getElementsByTagName(qtxml::_toDOMS(tagName))->getLength();
+	  parser->getDocument()->getElementsByTagName(qtxml::_toDOMS(tagName))->getLength();
 	return tagsNum;
 }

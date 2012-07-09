@@ -210,10 +210,10 @@ void HcalRecHitMonitor::setup()
 
   h_LumiPlot_LS_MinBiasEvents=dbe_->book1D("MinBiasEventsPerLS",
 					   "Number of MinBias Events vs LS (HT cut and HFM-HFP time cut)",
-					   NLumiBlocks_,0.5,NLumiBlocks_+0.5); 
+					   NLumiBlocks_/10,0.5,NLumiBlocks_+0.5); 
   h_LumiPlot_LS_MinBiasEvents_notimecut=dbe_->book1D("MinBiasEventsPerLS_notimecut",
 						     "Number of Events with MinBias vs LS (HFM,HFP HT>1,no time cut)",
-						     NLumiBlocks_,0.5,NLumiBlocks_+0.5); 
+						     NLumiBlocks_/10,0.5,NLumiBlocks_+0.5); 
 
   h_LumiPlot_SumHT_HFPlus_vs_HFMinus = dbe_->book2D("SumHT_plus_minus",
 						    "HF+ Sum HT vs HF- Sum HT",60,0,30,60,0,30);
@@ -277,10 +277,10 @@ void HcalRecHitMonitor::setup()
 						       3600,0,3600);
   h_LumiPlot_LS_HcalHLTEvents=dbe_->book1D("HcalHLTEventsPerLS",
 					   "Number of HcalHLT Events vs LS (HT cut and HFM-HFP time cut)",
-					   NLumiBlocks_,0.5,NLumiBlocks_+0.5); 
+					   NLumiBlocks_/10,0.5,NLumiBlocks_+0.5); 
   h_LumiPlot_LS_HcalHLTEvents_notimecut=dbe_->book1D("HcalHLTEventsPerLS_notimecut",
 						     "Number of Events with HcalHLT vs LS (HFM,HFP HT>1,no time cut)",
-						     NLumiBlocks_,0.5,NLumiBlocks_+0.5); 
+						     NLumiBlocks_/10,0.5,NLumiBlocks_+0.5); 
   
 
   dbe_->setCurrentFolder(subdir_+"Distributions_PassedHcalHLTriggers/");
@@ -303,16 +303,16 @@ void HcalRecHitMonitor::setup()
 
   h_HFLongShort_vs_LS=dbe_->book1D("HFLongShort_vs_LS",
 				   "HFLongShort Flags vs Lumi Section",
-				   NLumiBlocks_,0.5,0.5+NLumiBlocks_);
+				   NLumiBlocks_/10,0.5,0.5+NLumiBlocks_);
   h_HFDigiTime_vs_LS=dbe_->book1D("HFDigiTime_vs_LS",
 				  "HFDigiTime Flags vs Lumi Section",
-				  NLumiBlocks_,0.5,0.5+NLumiBlocks_);
+				  NLumiBlocks_/10,0.5,0.5+NLumiBlocks_);
   h_HBHEHPDMult_vs_LS=dbe_->book1D("HBHEHPDMult_vs_LS",
 				   "HBHEHPDMult Flags vs Lumi Section",
-				   NLumiBlocks_,0.5,0.5+NLumiBlocks_);
+				   NLumiBlocks_/10,0.5,0.5+NLumiBlocks_);
   h_HBHEPulseShape_vs_LS=dbe_->book1D("HBHEPulseShape_vs_LS",
 				      "HBHEPulseShape Flags vs Lumi Section",
-				      NLumiBlocks_,0.5,0.5+NLumiBlocks_);
+				      NLumiBlocks_/10,0.5,0.5+NLumiBlocks_);
 
   h_HF_FlagCorr=dbe_->book2D("HF_FlagCorrelation",
 			     "HF LongShort vs. DigiTime flags; DigiTime; LongShort", 
@@ -642,8 +642,8 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	  // trigger decision is based on 'OR' of any specified trigger names
 	  for (unsigned int k=0;k<HcalHLTBits_.size();++k)
 	    {
-	      // std::cout<<triggerNames.triggerName(i)<<std::endl;
-	      if (triggerNames.triggerName(i)==HcalHLTBits_[k] && hltRes->accept(i))
+	      // if (triggerNames.triggerName(i)==HcalHLTBits_[k] && hltRes->accept(i))
+	      if (triggerNames.triggerName(i).find(HcalHLTBits_[k])!=std::string::npos && hltRes->accept(i))
 		{ 
 		  passedHcalHLT=true;
 		  break;
@@ -652,7 +652,8 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	  // repeat for minbias triggers
 	  for (unsigned int k=0;k<MinBiasHLTBits_.size();++k)
 	    {
-	      if (triggerNames.triggerName(i)==MinBiasHLTBits_[k] && hltRes->accept(i))
+	      // if (triggerNames.triggerName(i)==MinBiasHLTBits_[k] && hltRes->accept(i))		
+	      if (triggerNames.triggerName(i).find(MinBiasHLTBits_[k])!=std::string::npos && hltRes->accept(i))
 		{ 
 		  passedMinBiasHLT=true;
 		  break;
@@ -1453,19 +1454,19 @@ void HcalRecHitMonitor::zeroCounters(void)
   // occupancy
   for (int i=0;i<865;++i)
     {
-      if (i<=260)
+      if (i<260)
 	{
 	  HB_occupancy_[i]=0;
 	  HE_occupancy_[i]=0;
 	  HB_occupancy_thresh_[i]=0;
 	  HE_occupancy_thresh_[i]=0;
 	}
-      if (i<=217)
+      if (i<218)
 	{
 	  HO_occupancy_[i]=0;
 	  HO_occupancy_thresh_[i]=0;
 	}
-      if (i<=173)
+      if (i<174)
 	{
 	  HF_occupancy_[i]=0;
 	  HF_occupancy_thresh_[i]=0;

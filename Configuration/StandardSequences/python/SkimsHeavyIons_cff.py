@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 def documentSkims():
-    import Configuration.StandardSequences.SkimsHeavyIons_cff as Skims
+    import Configuration.StandardSequences.Skims_cff as Skims
 
     listOfOptions=[]
     for skim in Skims.__dict__:

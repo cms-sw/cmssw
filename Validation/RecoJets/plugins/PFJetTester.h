@@ -4,13 +4,12 @@
 // Producer for validation histograms for PFJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by Chiyoung.Jeong Feb 2, 2010
-// $Id: PFJetTester.h,v 1.7 2010/04/21 16:33:57 chjeong Exp $
+// $Id: PFJetTester.h,v 1.5 2009/12/18 20:45:14 wmtan Exp $
 
 #include <string>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 namespace reco {
   class PFJet;
@@ -73,21 +72,6 @@ private:
   MonitorElement* mHadTiming;
   MonitorElement* mEmTiming;
 
-  //Corr jets
-  MonitorElement* mCorrJetPt;
-  MonitorElement* mCorrJetPt_80;
-  MonitorElement* mCorrJetPt_3000;
-  MonitorElement* mCorrJetEta;
-  MonitorElement* mCorrJetPhi;
-  MonitorElement* mpTRatio;
-  MonitorElement* mpTRatioB_d;
-  MonitorElement* mpTRatioE_d;
-  MonitorElement* mpTRatioF_d;
-  MonitorElement* mpTRatio_60_120_d;
-  MonitorElement* mpTRatio_200_300_d;
-  MonitorElement* mpTRatio_600_900_d;
-  MonitorElement* mpTRatio_2700_3500_d;
-
   // Leading Jet Parameters
   MonitorElement* mEtaFirst;
   MonitorElement* mPhiFirst;
@@ -128,9 +112,7 @@ private:
   //  MonitorElement* mMaxEInHadTowers;
   //  MonitorElement* mHadEnergyInHO;
   //  MonitorElement* mHadEnergyInHB;
-  MonitorElement* mHadEnergyInHF;
-  MonitorElement* mHadEnergyInHF_80;
-  MonitorElement* mHadEnergyInHF_3000;
+  //  MonitorElement* mHadEnergyInHF;
   //  MonitorElement* mHadEnergyInHE;
   //  MonitorElement* mHadEnergyInHO_80;
   //  MonitorElement* mHadEnergyInHB_80;
@@ -140,9 +122,7 @@ private:
   //  MonitorElement* mHadEnergyInHE_3000;
   //  MonitorElement* mEmEnergyInEB;
   //  MonitorElement* mEmEnergyInEE;
-  MonitorElement* mEmEnergyInHF;
-  MonitorElement* mEmEnergyInHF_80;
-  MonitorElement* mEmEnergyInHF_3000;
+  //  MonitorElement* mEmEnergyInHF;
   //  MonitorElement* mEmEnergyInEB_80;
   //  MonitorElement* mEmEnergyInEE_80;
   //  MonitorElement* mEmEnergyInEB_3000;
@@ -159,16 +139,6 @@ private:
   //  MonitorElement* mHFShort_80;
   //  MonitorElement* mHFShort_3000;
   //  MonitorElement* mN90;
-
-  MonitorElement* mElectronEnergy;
-  MonitorElement* mElectronEnergy_80;
-  MonitorElement* mElectronEnergy_3000;
-  MonitorElement* mMuonEnergy;
-  MonitorElement* mMuonEnergy_80;
-  MonitorElement* mMuonEnergy_3000;
-  MonitorElement* mPhotonEnergy;
-  MonitorElement* mPhotonEnergy_80;
-  MonitorElement* mPhotonEnergy_3000;
 
   // pthat
   MonitorElement* mPthat_80;
@@ -245,8 +215,6 @@ private:
   double mGenEnergyFractionThreshold;
   double mReverseEnergyFractionThreshold;
   double mRThreshold;
-
-  std::string JetCorrectionService;
 
   // Switch on/off unimportant histogram
   std::string  mTurnOnEverything;

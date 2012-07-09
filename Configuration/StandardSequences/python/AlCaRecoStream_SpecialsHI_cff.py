@@ -6,8 +6,8 @@
 
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2010/11/18 09:19:15 $ by $Author: argiro $
-# $Id: AlCaRecoStream_SpecialsHI_cff.py,v 1.4 2010/11/18 09:19:15 argiro Exp $
+# last update: $Date: 2010/11/10 10:27:41 $ by $Author: argiro $
+# $Id$
 
 # ECAL calibration with eta
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalEtaCalib_cff import *
@@ -27,7 +27,7 @@ ALCARECOStreamEcalCalEtaCalib = cms.FilteredStream(
         )
 
 
-# last update: $Date: 2010/11/18 09:19:15 $ by $Author: argiro $
+# last update: $Date: 2010/11/10 10:27:41 $ by $Author: argiro $
 
 # ECAL calibration with pi0
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPi0Calib_cff import *
@@ -79,7 +79,7 @@ ALCARECOStreamHcalCalMinBias = cms.FilteredStream(
         responsible = 'Grigory Safronov',
         name = 'ALCARECOHcalCalMinBias',
         paths  = (pathALCARECOHcalCalMinBias),
-        content = OutALCARECOHcalCalMinBiasHI.outputCommands,
-        selectEvents = OutALCARECOHcalCalMinBiasHI.SelectEvents,
+        content = OutALCARECOHcalCalMinBias.outputCommands,
+        selectEvents = OutALCARECOHcalCalMinBias.SelectEvents,
         dataTier = cms.untracked.string('ALCARECO')
         )

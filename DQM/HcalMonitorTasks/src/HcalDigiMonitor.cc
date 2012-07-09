@@ -40,6 +40,7 @@ HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps)
   hltresultsLabel_       = ps.getUntrackedParameter<edm::InputTag>("HLTResultsLabel");
   MinBiasHLTBits_        = ps.getUntrackedParameter<std::vector<std::string> >("MinBiasHLTBits");
   excludeHORing2_       = ps.getUntrackedParameter<bool>("excludeHORing2",false);
+  excludeHO1P02_        = ps.getUntrackedParameter<bool>("excludeHO1P02",false);
 
   if (debug_>0)
     std::cout <<"<HcalDigiMonitor> Digi shape ADC threshold set to: >" << shapeThresh_ <<" counts above nominal pedestal (3*10)"<< std::endl;
@@ -50,14 +51,27 @@ HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps)
   digi_checkdigisize_  = ps.getUntrackedParameter<bool>("checkDigiSize",true);
   digi_checkadcsum_    = ps.getUntrackedParameter<bool>("checkADCsum",true);
   digi_checkdverr_     = ps.getUntrackedParameter<bool>("checkDVerr",true);
-  mindigisize_ = ps.getUntrackedParameter<int>("minDigiSize",10);
-  maxdigisize_ = ps.getUntrackedParameter<int>("maxDigiSize",10);
+  mindigisizeHBHE_     = ps.getUntrackedParameter<int>("minDigiSizeHBHE",1);
+  maxdigisizeHBHE_     = ps.getUntrackedParameter<int>("maxDigiSizeHBHE",10);
+  mindigisizeHO_       = ps.getUntrackedParameter<int>("minDigiSizeHO",1);
+  maxdigisizeHO_       = ps.getUntrackedParameter<int>("maxDigiSizeHO",10);
+  mindigisizeHF_       = ps.getUntrackedParameter<int>("minDigiSizeHF",1);
+  maxdigisizeHF_       = ps.getUntrackedParameter<int>("maxDigiSizeHF",10);
 
+
+  badChannelStatusMask_   = ps.getUntrackedParameter<int>("BadChannelStatusMask",
+                                                          ps.getUntrackedParameter<int>("BadChannelStatusMask",
+											(1<<HcalChannelStatus::HcalCellDead)));  // identify channel status values to mask
   if (debug_>1)
     {
       std::cout <<"<HcalDigiMonitor> Checking for the following problems:"<<std::endl; 
       if (digi_checkcapid_) std::cout <<"\tChecking that cap ID rotation is correct;"<<std::endl;
-      if (digi_checkdigisize_) std::cout <<"\tChecking that digi size is between ["<<mindigisize_<<" - "<<maxdigisize_<<"];"<<std::endl;
+      if (digi_checkdigisize_)
+	{
+	  std::cout <<"\tChecking that HBHE digi size is between ["<<mindigisizeHBHE_<<" - "<<maxdigisizeHBHE_<<"];"<<std::endl;
+	  std::cout <<"\tChecking that HO digi size is between ["<<mindigisizeHO_<<" - "<<maxdigisizeHO_<<"];"<<std::endl;
+	  std::cout <<"\tChecking that HF digi size is between ["<<mindigisizeHF_<<" - "<<maxdigisizeHF_<<"];"<<std::endl;
+	}
       if (digi_checkadcsum_) std::cout <<"\tChecking that ADC sum of digi is greater than 0;"<<std::endl; 
       if (digi_checkdverr_) std::cout <<"\tChecking that data valid bit is true and digi error bit is false;\n"<<std::endl;
     }
@@ -335,6 +349,31 @@ void HcalDigiMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
   if (tevt_==0) this->setup(); // create all histograms; not necessary if merging runs together
   if (mergeRuns_==false) this->reset(); // call reset at start of all runs
+  delete chanquality;
+
+  // Get known dead cells for this run
+  KnownBadCells_.clear();
+  if (badChannelStatusMask_>0)
+    {
+      edm::ESHandle<HcalChannelQuality> p;
+      c.get<HcalChannelQualityRcd>().get(p);
+      HcalChannelQuality* chanquality= new HcalChannelQuality(*p.product());
+      std::vector<DetId> mydetids = chanquality->getAllChannels();
+      for (std::vector<DetId>::const_iterator i = mydetids.begin();
+	   i!=mydetids.end();
+	   ++i)
+	{
+	  if (i->det()!=DetId::Hcal) continue; // not an hcal cell
+	  HcalDetId id=HcalDetId(*i);
+	  int status=(chanquality->getValues(id))->getValue();
+	  if ((status & badChannelStatusMask_))
+	    {
+	      KnownBadCells_[id.rawId()]=status;
+	    }
+	} 
+        delete chanquality;
+    } // if (badChannelStatusMask_>0)
+
 } // void HcalDigiMonitor::beginRun()
 
 
@@ -404,7 +443,8 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 	  // repeat for minbias triggers
 	  for (unsigned int k=0;k<MinBiasHLTBits_.size();++k)
 	    {
-	      if (triggerNames.triggerName(i)==MinBiasHLTBits_[k] && hltRes->accept(i))
+	      // if (triggerNames.triggerName(i)==MinBiasHLTBits_[k] && hltRes->accept(i))
+	      if (triggerNames.triggerName(i).find(MinBiasHLTBits_[k])!=std::string::npos && hltRes->accept(i))
 		{ 
 		  passedMinBiasHLT_=true;
 		  break;
@@ -473,7 +513,7 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   // Digi collection was grabbed successfully; process the Event
   processEvent(*hbhe_digi, *ho_digi, *hf_digi, *conditions_,
 	       *report, e.orbitNumber(),e.bunchCrossing());
-
+  
 } //void HcalDigiMonitor::analyze(...)
 
 void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
@@ -510,25 +550,22 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   
   h_valid_digis->Fill(0);
 
-  hbHists.count_bad=0;
-  hbHists.count_good=0;
-  heHists.count_bad=0;
-  heHists.count_good=0;
-  hoHists.count_bad=0;
-  hoHists.count_good=0;
-  hfHists.count_bad=0;
-  hfHists.count_good=0;
+  // hbHists.count_bad=0;
+  // hbHists.count_good=0;
+  // heHists.count_bad=0;
+  // heHists.count_good=0;
+  // hoHists.count_bad=0;
+  // hoHists.count_good=0;
+  // hfHists.count_bad=0;
+  // hfHists.count_good=0;
 
-  int HO0bad=0;
-  int HO12bad=0;
-  int HFlumibad=0;
+  // int HO0bad=0;
+  // int HO12bad=0;
+  // int HFlumibad=0;
 
   // Check unpacker report for bad digis
 
   typedef std::vector<DetId> DetIdVector;
-
-  DetIdVector::const_iterator dummy = report.bad_quality_begin();
-  DetIdVector::const_iterator dumm2 = report.bad_quality_end();
 
   for ( DetIdVector::const_iterator baddigi_iter=report.bad_quality_begin(); 
 	baddigi_iter != report.bad_quality_end();
@@ -553,6 +590,11 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  if (excludeHORing2_==true && rDepth==4)
 	    if (abs(rEta)>=11 && abs(rEta)<=15 && !isSiPM(rEta,rPhi,rDepth)) continue;
 
+	  if (excludeHO1P02_==true)
+	    if( (rEta>4 && rEta<10) && (rPhi<=10 || rPhi>70) ) continue;
+	  
+	  if (KnownBadCells_.find(id)!=KnownBadCells_.end()) continue;
+
 	  ++hoHists.count_bad;
 	  if (abs(rEta)<5) ++HO0bad;
 	  else ++HO12bad;
@@ -567,7 +609,6 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  ++badunpackerreport[binEta][rPhi-1][rDepth-1];
 	  ++baddigis[binEta][rPhi-1][rDepth-1];  
 	}
-
     }
 
  ///////////////////////////////////////// Loop over HBHE
@@ -584,19 +625,20 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	if (digi.id().subdet()==HcalBarrel)
 	  {
 	    if (!HBpresent_) continue;
+	    if (KnownBadCells_.find(digi.id())!=KnownBadCells_.end()) continue;
+	  
 	    process_Digi(digi, hbHists, firsthbcap);
 	  }
 	else if (digi.id().subdet()==HcalEndcap)
 	  {
 	    if (!HEpresent_) continue;
 	    process_Digi(digi, heHists,firsthecap);
-	  }
-	
+	  }	
     }
 
-  // Fill good digis vs lumi block; also fill bad errors?
-  HBocc_vs_LB->Fill(currentLS,hbHists.count_good);
-  HEocc_vs_LB->Fill(currentLS,heHists.count_good);
+  // // Fill good digis vs lumi block; also fill bad errors?
+  // HBocc_vs_LB->Fill(currentLS,hbHists.count_good);
+  // HEocc_vs_LB->Fill(currentLS,heHists.count_good);
 
   // Calculate number of bad quality cells and bad quality fraction
   if (HBpresent_ && (hbHists.count_good>0 || hbHists.count_bad>0))
@@ -607,6 +649,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       float counter2 = (1.*hbHists.count_bad)/(hbHists.count_bad+hbHists.count_good)*(DIGI_BQ_FRAC_NBINS-1);
       if (counter2<DIGI_SUBDET_NUM) ++hbHists.count_BQFrac[(int)counter2];
     }
+
   if (HEpresent_ && (heHists.count_good>0 || heHists.count_bad>0))
     {
       int counter=heHists.count_bad;
@@ -622,9 +665,20 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); ++j)
 	{
 	  const HODataFrame digi = (const HODataFrame)(*j);
+	  // Mark HORing+/-2 channels as present, HO/YB+/-2 has HV off (at 100V).
+	  if (excludeHORing2_==true && digi.id().depth()==4)
+	    if (abs(digi.id().ieta())>=11 && abs(digi.id().ieta())<=15 && 
+		!isSiPM(digi.id().ieta(),digi.id().iphi(),digi.id().depth())) continue;
+	  
+	  if (excludeHO1P02_==true)	  
+	    if( (digi.id().ieta()>4 && digi.id().ieta()<10) 
+		&& (digi.id().iphi()<=10 || digi.id().iphi()>70) ) continue;
+
+	  if (KnownBadCells_.find(digi.id())!=KnownBadCells_.end()) continue;
+	  
 	  process_Digi(digi, hoHists, firsthocap);
 	} // for (HODigiCollection)
-   
+      
       if (hoHists.count_bad>0 || hoHists.count_good>0)
 	{
 	  int counter=hoHists.count_bad;
@@ -657,7 +711,6 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       HFocc_vs_LB->Fill(currentLS,hfHists.count_good);
     } // if (HFpresent_)
   
-
   // This only counts digis that are present but bad somehow; it does not count digis that are missing
   int count_good=hbHists.count_good+heHists.count_good+hoHists.count_good+hfHists.count_good;
   int count_bad=hbHists.count_bad+heHists.count_bad+hoHists.count_bad+hfHists.count_bad;
@@ -710,23 +763,23 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   DigiOccupancySpigot->update();
   DigiSize->update();
 
-  // Fill problems vs. lumi block plots
-  ProblemsVsLB->Fill(currentLS,count_bad);
-  ProblemsVsLB_HB->Fill(currentLS,hbHists.count_bad);
-  ProblemsVsLB_HE->Fill(currentLS,heHists.count_bad);
-  ProblemsVsLB_HO->Fill(currentLS,hoHists.count_bad);
-  ProblemsVsLB_HF->Fill(currentLS,hfHists.count_bad);
-  ProblemsVsLB_HBHEHF->Fill(currentLS,hbHists.count_bad+heHists.count_bad+hfHists.count_bad);
+  // // Fill problems vs. lumi block plots
+  // ProblemsVsLB->Fill(currentLS,count_bad);
+  // ProblemsVsLB_HB->Fill(currentLS,hbHists.count_bad);
+  // ProblemsVsLB_HE->Fill(currentLS,heHists.count_bad);
+  // ProblemsVsLB_HO->Fill(currentLS,hoHists.count_bad);
+  // ProblemsVsLB_HF->Fill(currentLS,hfHists.count_bad);
+  // ProblemsVsLB_HBHEHF->Fill(currentLS,hbHists.count_bad+heHists.count_bad+hfHists.count_bad);
 
-  // Fill the number of problem digis in each channel
-  ProblemsCurrentLB->Fill(-1,-1,1);  // event counter
-  ProblemsCurrentLB->Fill(0,0,hbHists.count_bad);
-  ProblemsCurrentLB->Fill(1,0,heHists.count_bad);
-  ProblemsCurrentLB->Fill(2,0,hoHists.count_bad);
-  ProblemsCurrentLB->Fill(3,0,hfHists.count_bad);
-  ProblemsCurrentLB->Fill(4,0,HO0bad);
-  ProblemsCurrentLB->Fill(5,0,HO12bad);
-  ProblemsCurrentLB->Fill(6,0,HFlumibad);
+  // // Fill the number of problem digis in each channel
+  // ProblemsCurrentLB->Fill(-1,-1,1);  // event counter
+  // ProblemsCurrentLB->Fill(0,0,hbHists.count_bad);
+  // ProblemsCurrentLB->Fill(1,0,heHists.count_bad);
+  // ProblemsCurrentLB->Fill(2,0,hoHists.count_bad);
+  // ProblemsCurrentLB->Fill(3,0,hfHists.count_bad);
+  // ProblemsCurrentLB->Fill(4,0,HO0bad);
+  // ProblemsCurrentLB->Fill(5,0,HO12bad);
+  // ProblemsCurrentLB->Fill(6,0,HFlumibad);
 
   // Call fill method every checkNevents
   //fill_Nevents();
@@ -742,24 +795,43 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
   int err=0x0;
   bool bitUp = false;
   int ADCcount=0;
-  
+
   int shapeThresh=0;
-  if (digi.id().subdet()==HcalBarrel)
-      shapeThresh=shapeThreshHB_;
-  else if (digi.id().subdet()==HcalEndcap)
-      shapeThresh=shapeThreshHE_;
-  else if (digi.id().subdet()==HcalOuter)
-      shapeThresh=shapeThreshHO_;
-  else if (digi.id().subdet()==HcalForward)
-      shapeThresh=shapeThreshHF_;
   
+  int mindigisize=1;
+  int maxdigisize=10;
+
+  if (digi.id().subdet()==HcalBarrel)
+    {
+      shapeThresh=shapeThreshHB_;
+      mindigisize=mindigisizeHBHE_;
+      maxdigisize=maxdigisizeHBHE_;
+    }
+  else if (digi.id().subdet()==HcalEndcap)
+    {
+      shapeThresh=shapeThreshHE_;
+      mindigisize=mindigisizeHBHE_;
+      maxdigisize=maxdigisizeHBHE_;
+    }
+  else if (digi.id().subdet()==HcalOuter)
+    {
+      shapeThresh=shapeThreshHO_;
+      mindigisize=mindigisizeHO_;
+      maxdigisize=maxdigisizeHO_;
+    }
+  else if (digi.id().subdet()==HcalForward)
+    {
+      shapeThresh=shapeThreshHF_;
+      mindigisize=mindigisizeHF_;
+      maxdigisize=maxdigisizeHF_;
+    }
   int iEta = digi.id().ieta();
   int iPhi = digi.id().iphi();
   int iDepth = digi.id().depth();
   int calcEta = CalcEtaBin(digi.id().subdet(),iEta,iDepth);
-	  
+
   // Check that digi size is correct
-  if (digi.size()<mindigisize_ || digi.size()>maxdigisize_)
+  if (digi.size()<mindigisize || digi.size()>maxdigisize)
     {
       if (digi_checkdigisize_) err|=0x1;
       ++baddigisize[calcEta][iPhi-1][iDepth-1];
@@ -878,6 +950,7 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
       ++baddigis[calcEta][iPhi-1][iDepth-1];
       ++errorVME[static_cast<int>(2*(digi.elecId().htrSlot()+0.5*digi.elecId().htrTopBottom()))][static_cast<int>(digi.elecId().readoutVMECrateId())];
       ++errorSpigot[static_cast<int>(digi.elecId().spigot())][static_cast<int>(digi.elecId().dccid())];
+
       return err;
     }
 
@@ -973,7 +1046,15 @@ void HcalDigiMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 					   const edm::EventSetup& c)
 {
   if (LumiInOrder(lumiSeg.luminosityBlock())==false) return;
+
+  // Reset current LS histogram
+  if (ProblemsCurrentLB)
+    ProblemsCurrentLB->Reset();
+  
   fill_Nevents();
+
+  zeroCounters(); // reset counters of good/bad digis
+ 
   return;
 }
 
@@ -983,6 +1064,27 @@ void HcalDigiMonitor::fill_Nevents()
     std::cout <<"<HcalDigiMonitor> Calling fill_Nevents for event  "<<tevt_<< " (processed events = "<<ievt_<<")"<<std::endl;
   int iPhi, iEta, iDepth;
   bool valid=false;
+
+  // Fill problems vs. lumi block plots
+  ProblemsVsLB->Fill(currentLS,hbHists.count_bad+heHists.count_bad+hoHists.count_bad+hfHists.count_bad);
+  ProblemsVsLB_HB->Fill(currentLS,hbHists.count_bad);
+  ProblemsVsLB_HE->Fill(currentLS,heHists.count_bad);
+  ProblemsVsLB_HO->Fill(currentLS,hoHists.count_bad);
+  ProblemsVsLB_HF->Fill(currentLS,hfHists.count_bad);
+  ProblemsVsLB_HBHEHF->Fill(currentLS,hbHists.count_bad+heHists.count_bad+hfHists.count_bad);
+  
+  // Fill the number of problem digis in each channel
+  if (ProblemsCurrentLB)
+    {      
+      ProblemsCurrentLB->Fill(-1,-1,1);  // event counter
+      ProblemsCurrentLB->Fill(0,0,hbHists.count_bad);
+      ProblemsCurrentLB->Fill(1,0,heHists.count_bad);
+      ProblemsCurrentLB->Fill(2,0,hoHists.count_bad);
+      ProblemsCurrentLB->Fill(3,0,hfHists.count_bad);
+      ProblemsCurrentLB->Fill(4,0,HO0bad);
+      ProblemsCurrentLB->Fill(5,0,HO12bad);
+      ProblemsCurrentLB->Fill(6,0,HFlumibad);
+    }
 
   // Fill plots of sums of adjacent digi samples
   for (int i=0;i<10;++i)
@@ -1277,7 +1379,7 @@ void HcalDigiMonitor::fill_Nevents()
   FillUnphysicalHEHFBins(DigiErrorsBadFibBCNOff);
   FillUnphysicalHEHFBins(DigiErrorsUnpacker);
 
-  zeroCounters(); // reset counters of good/bad digis
+  //  zeroCounters(); // reset counters of good/bad digis
  
   return;
 } // void HcalDigiMonitor::fill_Nevents()
@@ -1290,6 +1392,20 @@ void HcalDigiMonitor::zeroCounters()
 
   /******** Zero all counters *******/
   
+
+  hbHists.count_bad=0;
+  hbHists.count_good=0;
+  heHists.count_bad=0;
+  heHists.count_good=0;
+  hoHists.count_bad=0;
+  hoHists.count_good=0;
+  hfHists.count_bad=0;
+  hfHists.count_good=0;
+
+  HO0bad=0;
+  HO12bad=0;
+  HFlumibad=0;
+
   for (int i=0;i<85;++i)
     {
       occupancyEta[i]=0;

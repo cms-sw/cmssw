@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2010/06/04 12:27:55 $
- * $Revision: 1.74 $
+ * $Date: 2011/06/08 18:15:04 $
+ * $Revision: 1.75.8.1 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -161,8 +161,8 @@ void EETriggerTowerTask::setup(void){
   }
 }
 
-void EETriggerTowerTask::setup( const char* nameext,
-                                const char* folder,
+void EETriggerTowerTask::setup( std::string const &nameext,
+                                std::string const &folder,
                                 bool emulated ) {
 
   array1*  meEtMap = &meEtMapReal_;
@@ -175,108 +175,108 @@ void EETriggerTowerTask::setup( const char* nameext,
 
   dqmStore_->setCurrentFolder(folder);
 
-  char histo[200];
+  std::string name;
 
   if (!emulated) {
-    sprintf(histo, "EETTT Et spectrum %s EE -", nameext);
-    meEtSpectrumReal_[0] = dqmStore_->book1D(histo, histo, 256, 0., 256.);
+    name = "EETTT Et spectrum " + nameext + " EE -";
+    meEtSpectrumReal_[0] = dqmStore_->book1D(name, name, 256, 0., 256.);
     meEtSpectrumReal_[0]->setAxisTitle("energy (ADC)", 1);
 
-    sprintf(histo, "EETTT Et spectrum %s EE +", nameext);
-    meEtSpectrumReal_[1] = dqmStore_->book1D(histo, histo, 256, 0., 256.);
+    name = "EETTT Et spectrum " + nameext + " EE +";
+    meEtSpectrumReal_[1] = dqmStore_->book1D(name, name, 256, 0., 256.);
     meEtSpectrumReal_[1]->setAxisTitle("energy (ADC)", 1);
 
-    sprintf(histo, "EETTT TP matching index EE -");
-    meEmulMatchIndex1D_[0] = dqmStore_->book1D(histo, histo, 7, -1., 6.);
+    name = "EETTT TP matching index EE -";
+    meEmulMatchIndex1D_[0] = dqmStore_->book1D(name, name, 7, -1., 6.);
     meEmulMatchIndex1D_[0]->setAxisTitle("TP data matching emulator", 1);
 
-    sprintf(histo, "EETTT TP matching index EE +");
-    meEmulMatchIndex1D_[1] = dqmStore_->book1D(histo, histo, 7, -1., 6.);
+    name = "EETTT TP matching index EE +";
+    meEmulMatchIndex1D_[1] = dqmStore_->book1D(name, name, 7, -1., 6.);
     meEmulMatchIndex1D_[1]->setAxisTitle("TP data matching emulator", 1);
 
-    sprintf(histo, "EETTT max TP matching index EE -");
-    meEmulMatchMaxIndex1D_[0] = dqmStore_->book1D(histo, histo, 7, -1., 6.);
+    name = "EETTT max TP matching index EE -";
+    meEmulMatchMaxIndex1D_[0] = dqmStore_->book1D(name, name, 7, -1., 6.);
     meEmulMatchMaxIndex1D_[0]->setAxisTitle("Max TP data matching emulator", 1);
 
-    sprintf(histo, "EETTT max TP matching index EE +");
-    meEmulMatchMaxIndex1D_[1] = dqmStore_->book1D(histo, histo, 7, -1., 6.);
+    name = "EETTT max TP matching index EE +";
+    meEmulMatchMaxIndex1D_[1] = dqmStore_->book1D(name, name, 7, -1., 6.);
     meEmulMatchMaxIndex1D_[1]->setAxisTitle("Max TP data matching emulator", 1);
 
     double xbins[51];
     for ( int i=0; i<=11; i++ ) xbins[i] = i-1;  // begin of orbit
     // abort gap in presence of calibration: [3381-3500]
     // abort gap in absence of calibration: [3444-3500]
-    // uing the wider abort gap always, start finer binning at bx=3371
+    // using the wider abort gap always, start finer binning at bx=3371
     for ( int i=12; i<=22; i++) xbins[i] = 3371+i-12;
     // use 29 bins for the abort gap
-    for ( int i=23; i<=51; i++) xbins[i] = 3382+(i-23)*6;
+    for ( int i=23; i<=50; i++) xbins[i] = 3382+(i-23)*6;
 
-    sprintf(histo, "EETTT Et vs bx %s EE -", nameext);
-    meEtBxReal_[0] = dqmStore_->bookProfile(histo, histo, 50, xbins, 256, 0, 256);
+    name = "EETTT Et vs bx " + nameext + " EE -";
+    meEtBxReal_[0] = dqmStore_->bookProfile(name, name, 50, xbins, 256, 0, 256);
     meEtBxReal_[0]->setAxisTitle("bunch crossing", 1);
     meEtBxReal_[0]->setAxisTitle("energy (ADC)", 2);
 
-    sprintf(histo, "EETTT Et vs bx %s EE +", nameext);
-    meEtBxReal_[1] = dqmStore_->bookProfile(histo, histo, 50, xbins, 256, 0, 256);
+    name = "EETTT Et vs bx " + nameext + " EE +";
+    meEtBxReal_[1] = dqmStore_->bookProfile(name, name, 50, xbins, 256, 0, 256);
     meEtBxReal_[1]->setAxisTitle("bunch crossing", 1);
     meEtBxReal_[1]->setAxisTitle("energy (ADC)", 2);
 
-    sprintf(histo, "EETTT TP occupancy vs bx %s EE -", nameext);
-    meOccupancyBxReal_[0] = dqmStore_->bookProfile(histo, histo, 50, xbins, 2448, 0, 2448);
+    name = "EETTT TP occupancy vs bx " + nameext + " EE -";
+    meOccupancyBxReal_[0] = dqmStore_->bookProfile(name, name, 50, xbins, 2448, 0, 2448);
     meOccupancyBxReal_[0]->setAxisTitle("bunch crossing", 1);
     meOccupancyBxReal_[0]->setAxisTitle("TP number", 2);
 
-    sprintf(histo, "EETTT TP occupancy vs bx %s EE +", nameext);
-    meOccupancyBxReal_[1] = dqmStore_->bookProfile(histo, histo, 50, xbins, 2448, 0, 2448);
+    name = "EETTT TP occupancy vs bx " + nameext + " EE +";
+    meOccupancyBxReal_[1] = dqmStore_->bookProfile(name, name, 50, xbins, 2448, 0, 2448);
     meOccupancyBxReal_[1]->setAxisTitle("bunch crossing", 1);
     meOccupancyBxReal_[1]->setAxisTitle("TP number", 2);
 
     if ( HLTCaloHLTBit_ != "" ) {
-      sprintf(histo, "EETTT TCC timing calo triggers %s EE -", nameext);
-      meTCCTimingCalo_[0] = dqmStore_->book2D(histo, histo, 36, 1, 37, 7, -1., 6.);
+      name = "EETTT TCC timing calo triggers " + nameext + " EE -";
+      meTCCTimingCalo_[0] = dqmStore_->book2D(name, name, 36, 1, 37, 7, -1., 6.);
       meTCCTimingCalo_[0]->setAxisTitle("nTCC", 1);
       meTCCTimingCalo_[0]->setAxisTitle("TP data matching emulator", 2);
 
-      sprintf(histo, "EETTT TCC timing calo triggers %s EE +", nameext);
-      meTCCTimingCalo_[1] = dqmStore_->book2D(histo, histo, 36, 73, 109, 7, -1., 6.);
+      name = "EETTT TCC timing calo triggers " + nameext + " EE +";
+      meTCCTimingCalo_[1] = dqmStore_->book2D(name, name, 36, 73, 109, 7, -1., 6.);
       meTCCTimingCalo_[1]->setAxisTitle("nTCC", 1);
       meTCCTimingCalo_[1]->setAxisTitle("TP data matching emulator", 2);
     }
 
     if ( HLTMuonHLTBit_ != "" ) {
-      sprintf(histo, "EETTT TCC timing muon triggers %s EE -", nameext);
-      meTCCTimingMuon_[0] = dqmStore_->book2D(histo, histo, 36, 1, 37, 7, -1., 6.);
+      name = "EETTT TCC timing muon triggers " + nameext + " EE -";
+      meTCCTimingMuon_[0] = dqmStore_->book2D(name, name, 36, 1, 37, 7, -1., 6.);
       meTCCTimingMuon_[0]->setAxisTitle("nTCC", 1);
       meTCCTimingMuon_[0]->setAxisTitle("TP data matching emulator", 2);
 
-      sprintf(histo, "EETTT TCC timing muon triggers %s EE +", nameext);
-      meTCCTimingMuon_[1] = dqmStore_->book2D(histo, histo, 36, 73, 109, 7, -1., 6.);
+      name = "EETTT TCC timing muon triggers " + nameext + " EE +";
+      meTCCTimingMuon_[1] = dqmStore_->book2D(name, name, 36, 73, 109, 7, -1., 6.);
       meTCCTimingMuon_[1]->setAxisTitle("nTCC", 1);
       meTCCTimingMuon_[1]->setAxisTitle("TP data matching emulator", 2);
     }
 
   } else {
-    sprintf(histo, "EETTT Et spectrum %s EE -", nameext);
-    meEtSpectrumEmul_[0] = dqmStore_->book1D(histo, histo, 256, 0., 256.);
+    name = "EETTT Et spectrum " + nameext + " EE -";
+    meEtSpectrumEmul_[0] = dqmStore_->book1D(name, name, 256, 0., 256.);
     meEtSpectrumEmul_[0]->setAxisTitle("energy (ADC)", 1);
 
-    sprintf(histo, "EETTT Et spectrum %s EE +", nameext);
-    meEtSpectrumEmul_[1] = dqmStore_->book1D(histo, histo, 256, 0., 256.);
+    name = "EETTT Et spectrum " + nameext + " EE +";
+    meEtSpectrumEmul_[1] = dqmStore_->book1D(name, name, 256, 0., 256.);
     meEtSpectrumEmul_[1]->setAxisTitle("energy (ADC)", 1);
 
-    sprintf(histo, "EETTT Et spectrum %s max EE -", nameext);
-    meEtSpectrumEmulMax_[0] = dqmStore_->book1D(histo, histo, 256, 0., 256.);
+    name = "EETTT Et spectrum " + nameext + " max EE -";
+    meEtSpectrumEmulMax_[0] = dqmStore_->book1D(name, name, 256, 0., 256.);
     meEtSpectrumEmulMax_[0]->setAxisTitle("energy (ADC)", 1);
 
-    sprintf(histo, "EETTT Et spectrum %s max EE +", nameext);
-    meEtSpectrumEmulMax_[1] = dqmStore_->book1D(histo, histo, 256, 0., 256.);
+    name = "EETTT Et spectrum " + nameext + " max EE +";
+    meEtSpectrumEmulMax_[1] = dqmStore_->book1D(name, name, 256, 0., 256.);
     meEtSpectrumEmulMax_[1]->setAxisTitle("energy (ADC)", 1);
   }
 
   for (int i = 0; i < 18; i++) {
 
-    sprintf(histo, "EETTT Et map %s %s", nameext, Numbers::sEE(i+1).c_str());
-    (*meEtMap)[i] = dqmStore_->bookProfile2D(histo, histo,
+    name = "EETTT Et map " + nameext + " " + Numbers::sEE(i+1);
+    (*meEtMap)[i] = dqmStore_->bookProfile2D(name, name,
                                              50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                              50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
                                              256, 0, 256.);
@@ -287,8 +287,8 @@ void EETriggerTowerTask::setup( const char* nameext,
 
     if (!emulated) {
 
-      sprintf(histo, "EETTT EmulError %s", Numbers::sEE(i+1).c_str());
-      meEmulError_[i] = dqmStore_->book2D(histo, histo,
+      name = "EETTT EmulError " + Numbers::sEE(i+1);
+      meEmulError_[i] = dqmStore_->book2D(name, name,
                                           50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                           50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50. );
       meEmulError_[i]->setAxisTitle("ix", 1);
@@ -296,8 +296,8 @@ void EETriggerTowerTask::setup( const char* nameext,
       meEmulError_[i]->setAxisTitle("iy", 2);
       dqmStore_->tag(meEmulError_[i], i+1);
 
-      sprintf(histo, "EETTT EmulMatch %s", Numbers::sEE(i+1).c_str());
-      meEmulMatch_[i] = dqmStore_->book3D(histo, histo,
+      name = "EETTT EmulMatch " + Numbers::sEE(i+1);
+      meEmulMatch_[i] = dqmStore_->book3D(name, name,
                                           50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                           50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
                                           6, 0., 6.);
@@ -306,8 +306,8 @@ void EETriggerTowerTask::setup( const char* nameext,
       meEmulMatch_[i]->setAxisTitle("iy", 2);
       dqmStore_->tag(meEmulMatch_[i], i+1);
 
-      sprintf(histo, "EETTT EmulFineGrainVetoError %s", Numbers::sEE(i+1).c_str());
-      meVetoEmulError_[i] = dqmStore_->book2D(histo, histo,
+      name = "EETTT EmulFineGrainVetoError " + Numbers::sEE(i+1);
+      meVetoEmulError_[i] = dqmStore_->book2D(name, name,
                                               50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                               50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       meVetoEmulError_[i]->setAxisTitle("ix", 1);

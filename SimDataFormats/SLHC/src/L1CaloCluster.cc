@@ -17,13 +17,10 @@ L1CaloCluster::L1CaloCluster()
   innerPhi_=0;
   isoClustersEG_=0;
   isoClustersTau_=0;
-
   isoEG_=false;
   isoTau_=false;
   central_=false;
-  for(size_t i=0;i<4;++i)
-    towerE_.push_back(0);
-
+  E_=0;
   p4_ = math::PtEtaPhiMLorentzVector(0.001,0,0,0.);
 
 }
@@ -32,7 +29,7 @@ L1CaloCluster::L1CaloCluster(int iEta, int iPhi)
 {
   iEta_ = iEta;
   iPhi_ = iPhi;
-
+  E_=0;
   fg_=false;
   eGamma_=false;
   eGammaValue_ = 0;
@@ -42,14 +39,8 @@ L1CaloCluster::L1CaloCluster(int iEta, int iPhi)
   central_=false;
   innerEta_=0;
   innerPhi_=0;
-
   isoClustersEG_=0;
   isoClustersTau_=0;
-
-
-  for(size_t i=0;i<4;++i)
-    towerE_.push_back(0);
-
   p4_ = math::PtEtaPhiMLorentzVector(0.001,0,0,0.);
 }
 
@@ -87,12 +78,7 @@ L1CaloCluster::innerPhi() const
 int
 L1CaloCluster::E() const
 {
-  int E=0;
-
-  for(int i=0;i<4;++i)
-    E+=towerE_[i];
-
-  return E;
+  return E_;
 }
 
 
@@ -109,7 +95,7 @@ L1CaloCluster::eGamma() const
 }
 
 bool
-L1CaloCluster::hasLeadTowerTau() const
+L1CaloCluster::hasLeadTower() const
 {
   return leadTowerTau_;
 }
@@ -165,37 +151,37 @@ L1CaloCluster::isIsoEGamma() const
 }
 
 bool
+L1CaloCluster::isIsoTau() const
+{
+  return hasLeadTower()&&isoTau()&& isCentral(); 
+}
+
+bool
 L1CaloCluster::isTau() const
 {
-  return hasLeadTowerTau()&&isoTau()&& isCentral(); 
-}
-
-
-int 
-L1CaloCluster::towerE(int i) const
-{
-  return towerE_[i];
-
-}
-
-int 
-L1CaloCluster::seedTowerE() const
-{
-  int max = 0;
-  for(unsigned int i=0;i<4;i++)
-    if(towerE(i)>max)
-      max=towerE(i);
-
- return max;
-
+  return hasLeadTower() && isCentral(); 
 }
 
 
 void 
-L1CaloCluster::setTower(int i,int Et)
+L1CaloCluster::setE(int E )
 {
-  towerE_[i] = Et;
+  E_ = E;
 }
+
+
+void 
+L1CaloCluster::setConstituents(const L1CaloTowerRefVector& cons)
+{
+  constituents_ = cons;
+}
+
+L1CaloTowerRefVector
+L1CaloCluster::getConstituents() const 
+{
+  return constituents_;
+}  
+
 
 void 
 L1CaloCluster::setFg(bool fg)
@@ -211,7 +197,7 @@ L1CaloCluster::setEGamma(bool eg)
 }
 
 void 
-L1CaloCluster::setLeadTowerTau(bool eg)
+L1CaloCluster::setLeadTower(bool eg)
 {
   leadTowerTau_ = eg;
 }
@@ -264,6 +250,50 @@ L1CaloCluster::setLorentzVector(const math::PtEtaPhiMLorentzVector& v)
 }
 
 
+void 
+L1CaloCluster::addConstituent(const L1CaloTowerRef& tower)
+{
+  E_+=tower->E();
+  E_+=tower->H();
+  constituents_.push_back(tower);
+}
+
+int  
+L1CaloCluster::hasConstituent(int eta,int phi)
+{
+  int pos=-1;
+  for(unsigned int i=0;i<constituents_.size();++i) {
+    L1CaloTowerRef tower = constituents_.at(i);
+    if(tower->iEta()==iEta_+eta && tower->iPhi()==iPhi_+phi) {
+      pos = i;
+    }
+  }
+  return pos;
+}
+
+
+L1CaloTowerRef
+L1CaloCluster::getConstituent(int pos)
+{
+  return constituents_.at(pos);
+}
+
+
+
+void  
+L1CaloCluster::removeConstituent(int eta, int phi)
+{
+
+  int pos = hasConstituent(eta,phi);
+
+  if(pos!=-1) {
+    E_=E_-constituents_.at(pos)->E(); 
+    E_=E_-constituents_.at(pos)->H(); 
+    constituents_.erase(constituents_.begin()+pos);
+  }
+}
+
+
 
 math::PtEtaPhiMLorentzVector 
 L1CaloCluster::p4() const
@@ -271,3 +301,12 @@ L1CaloCluster::p4() const
   return p4_;
 }
 
+// pretty print
+std::ostream& operator<<(std::ostream& s, const L1CaloCluster& cand) {
+  s << "L1CaloCluster ";
+  s << "iEta=" << cand.iEta() << "iPhi="<<cand.iPhi() <<" E"<<cand.E()<< "eta "<< cand.p4().eta() <<"phi "<< cand.p4().phi() <<"pt "<<cand.p4().pt() << "egamma " <<cand.eGammaValue() <<"central "<<cand.isCentral()<< "fg"<< cand.fg() << "\n";
+  s << "Constituents"<< "\n";
+  for(unsigned int i=0;i<cand.getConstituents().size();++i)
+    s << "---------iEta=" << cand.getConstituents().at(i)->iEta() << "iPhi="<<cand.getConstituents().at(i)->iPhi() <<"ET="<<cand.getConstituents().at(i)->E()<<"\n";
+  return s;
+}

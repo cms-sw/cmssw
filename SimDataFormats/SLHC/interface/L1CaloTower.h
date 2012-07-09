@@ -10,7 +10,6 @@ University of Wisconsin-Madison
 #ifndef L1CaloTower_h
 #define L1CaloTower_h
 
-#include <vector>
 
 namespace l1slhc {
 
@@ -44,7 +43,6 @@ private:
 
 };
 
- typedef std::vector<L1CaloTower> L1CaloTowerCollection;
 }
 #endif
 

@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -18,7 +18,7 @@
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
-#include "PhysicsTools/RecoAlgos/interface/TrackingParticleSelector.h"
+#include "CommonTools/RecoAlgos/interface/TrackingParticleSelector.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 
 class TTree;
@@ -30,7 +30,8 @@ class TPNtuplizer : public edm::EDAnalyzer
   
   explicit TPNtuplizer(const edm::ParameterSet& conf);
   virtual ~TPNtuplizer();
-  virtual void beginJob(const edm::EventSetup& es);
+  /// Method called before the event loop
+  void beginRun(edm::Run const&, edm::EventSetup const&);
   virtual void endJob();
   virtual void analyze(const edm::Event& e, const edm::EventSetup& es);
 

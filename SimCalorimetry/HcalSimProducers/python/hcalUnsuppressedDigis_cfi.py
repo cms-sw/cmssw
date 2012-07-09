@@ -30,7 +30,13 @@ hcalSimBlock = cms.PSet(
     doTimeSlew = cms.bool(True),
     doHFWindow = cms.bool(True),
     hitsProducer = cms.string('g4SimHits'),
-    injectTestHits = cms.bool(False)
+    injectTestHits = cms.bool(False),
+    RelabelHits = cms.untracked.bool(False),
+    RelabelRules = cms.untracked.PSet(
+        # Eta1 = cms.untracked.vint32(1,1,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4),
+        Eta1 = cms.untracked.vint32(1,2,2,2,2,3,3,3,3,4,4,4,4,4,4,4,4,5,5),
+        Eta17 = cms.untracked.vint32(1,1,1,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4)
+        )
 )
 
 #es_cholesky = cms.ESSource("PoolDBESSource",
@@ -60,6 +66,3 @@ hcalSimBlock = cms.PSet(
 simHcalUnsuppressedDigis = cms.EDProducer("HcalDigiProducer",
     hcalSimBlock
 )
-
-
-

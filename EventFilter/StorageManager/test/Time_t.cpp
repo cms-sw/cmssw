@@ -11,7 +11,7 @@
 
 using namespace stor;
 
-class testTime :  public CppUnit::TestFixture
+class testTime : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE(testTime);
   CPPUNIT_TEST(testDifference);

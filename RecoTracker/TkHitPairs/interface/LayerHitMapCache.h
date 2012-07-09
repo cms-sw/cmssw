@@ -60,7 +60,11 @@ private:
     const RecHitsSortedInPhi * lhm = theCache->get(key);
     if (lhm==0) {
       lhm=new RecHitsSortedInPhi (region.hits(iEvent,iSetup,layer));
+      LogDebug("LayerHitMapCache")<<" I got"<< lhm->all().second-lhm->all().first<<" hits in the cache for: "<<layer->detLayer();
       theCache->add( key, lhm); 
+    }
+    else{
+      LogDebug("LayerHitMapCache")<<" I got"<< lhm->all().second-lhm->all().first<<" hits FROM THE cache for: "<<layer->detLayer();
     }
     return *lhm;
   }

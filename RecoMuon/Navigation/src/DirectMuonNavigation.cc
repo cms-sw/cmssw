@@ -2,8 +2,8 @@
 
 /** \file DirectMuonNavigation
  *
- *  $Date: 2010/09/09 22:01:22 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/10/13 23:45:29 $
+ *  $Revision: 1.14 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -237,30 +237,7 @@ bool DirectMuonNavigation::checkCompatible(const FreeTrajectoryState& fts,const 
   float z = bd.position().z();
 
   float r1 = slope*(z - z0) + r0;
-
-  //SK: this is a kludge, leave it look like it
-  //here we are deciding for the user that this muon is traversing
-  GlobalPoint pos0 = fts.position();
-  GlobalPoint pos = bd.position();
-
-  // are there separate muon hits in 2 different hemispheres
-  GlobalVector deltaPos(pos - pos0);
-  bool isTraversing = true;
-  if ( deltaPos.mag() < 100.0 ) isTraversing = false;
-  if ( fabs(deltaPos.z() ) > 500.0 ) isTraversing = true;
-  if ( deltaPos.perp() > 350.0 ) isTraversing = true;
-  GlobalPoint middle((pos.x()+pos0.x())/2,
-                     (pos.y()+pos0.y())/2,
-                     (pos.z()+pos0.z())/2);
-
-  isTraversing = ( (middle.perp() < pos.perp()) && (middle.perp() < pos0.perp()) );
-  //end of the kludge
-
-  if (isTraversing) {
-    return (fabs(r1) >= inRadius-epsilon_ && fabs(r1) <= outRadius+epsilon_);
-  } else {
-    return (r1 >= inRadius-epsilon_ && r1 <= outRadius+epsilon_);
-  }
+  return (r1 >= inRadius-epsilon_ && r1 <= outRadius+epsilon_);
 
 }
 

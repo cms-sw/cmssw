@@ -1,6 +1,6 @@
 #include "DQMOffline/RecoB/interface/EffPurFromHistos.h"
 #include "DQMOffline/RecoB/interface/Tools.h"
-#include "FWCore/Utilities/interface/CodedException.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "TStyle.h"
 #include "TCanvas.h"
 

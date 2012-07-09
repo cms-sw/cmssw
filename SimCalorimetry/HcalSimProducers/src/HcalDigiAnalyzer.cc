@@ -9,6 +9,7 @@ HcalDigiAnalyzer::HcalDigiAnalyzer(edm::ParameterSet const& conf)
   simParameterMap_(),
   hbheFilter_(),
   hoFilter_(),
+//Change by Wetzel - added "true" to hfFilter
   hfFilter_(true),
   hbheHitAnalyzer_("HBHEDigi", 1., &simParameterMap_, &hbheFilter_),
   hoHitAnalyzer_("HODigi", 1., &simParameterMap_, &hoFilter_),

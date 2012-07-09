@@ -1,20 +1,13 @@
 //----------Author's Name:F.X. Gentit + modifs by B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright:Those valid for CEA sofware
-//----------Modified:24/03/2011
+//----------Modified:17/03/2010
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNArrayD.h"
 #include "Riostream.h"
 
-//--------------------------------------
-//  TEcnaNArrayD.cc
-//  Class creation: 03 Dec 2002
-//  Documentation: see TEcnaNArrayD.h
-//--------------------------------------
-
 ClassImp(TEcnaNArrayD)
 //______________________________________________________________________________
 //
-
 // TEcnaNArrayD  ROOT class for multidimensional arrays of Double_t
 //
 //   up to dimension 6
@@ -46,13 +39,10 @@ TEcnaNArrayD::TEcnaNArrayD(const TEcnaNArrayD &orig) {
   fA  = new Double_t [fNL];
   for (Int_t i=0;i<fNL;i++) fA[i] = orig.fA[i];
 }
-TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1) {
+TEcnaNArrayD::TEcnaNArrayD(Int_t n1) {
 //constructor for a 1 dimensional array of size n1. Array is put to 0
 
  // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
-
-  Long_t i_this = (Long_t)this;
-  pObjectManager->RegisterPointer("TEcnaNArrayD", i_this);
 
   const Double_t zero = 0.0;
   Init();
@@ -62,13 +52,10 @@ TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1) {
   fA   = new Double_t [fNL];
   for (Int_t i=0;i<fNL;i++) fA[i] = zero;
 }
-TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2) {
+TEcnaNArrayD::TEcnaNArrayD(Int_t n1,Int_t n2) {
 //constructor for a 2 dimensional array of sizes n1,n2. Array is put to 0
 
  // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
-
-  Long_t i_this = (Long_t)this;
-  pObjectManager->RegisterPointer("TEcnaNArrayD", i_this);
 
   const Double_t zero = 0.0;
   Init();
@@ -79,13 +66,10 @@ TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2) {
   fA  = new Double_t [fNL];
   for (Int_t i=0;i<fNL;i++) fA[i] = zero;
 }
-TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2,Int_t n3) {
+TEcnaNArrayD::TEcnaNArrayD(Int_t n1,Int_t n2,Int_t n3) {
 //constructor 3 dimensional array of sizes n1,n2,n3. Array is put to 0
 
  // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
-
-  Long_t i_this = (Long_t)this;
-  pObjectManager->RegisterPointer("TEcnaNArrayD", i_this);
 
   const Double_t zero = 0.0;
   Init();
@@ -97,13 +81,10 @@ TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2,Int_t 
   fA   = new Double_t [fNL];
   for (Int_t i=0;i<fNL;i++) fA[i] = zero;
 }
-TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2,Int_t n3,Int_t n4) {
+TEcnaNArrayD::TEcnaNArrayD(Int_t n1,Int_t n2,Int_t n3,Int_t n4) {
 //constructor for a 4 dimensional array of sizes n1,n2,n3,n4. Array is put to 0
 
  // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
-
-  Long_t i_this = (Long_t)this;
-  pObjectManager->RegisterPointer("TEcnaNArrayD", i_this);
 
   const Double_t zero = 0.0;
   Init();
@@ -116,13 +97,10 @@ TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2,Int_t 
   fA   = new Double_t [fNL];
   for (Int_t i=0;i<fNL;i++) fA[i] = zero;
 }
-TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2,Int_t n3,Int_t n4,Int_t n5) {
+TEcnaNArrayD::TEcnaNArrayD(Int_t n1,Int_t n2,Int_t n3,Int_t n4,Int_t n5) {
 //constructor for a 5 dimensional array of sizes n1,n2,n3,n4,n5. Array is put to 0
 
  // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
-
-  Long_t i_this = (Long_t)this;
-  pObjectManager->RegisterPointer("TEcnaNArrayD", i_this);
 
   const Double_t zero = 0.0;
   Init();
@@ -136,13 +114,10 @@ TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2,Int_t 
   fA   = new Double_t [fNL];
   for (Int_t i=0;i<fNL;i++) fA[i] = zero;
 }
-TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2,Int_t n3,Int_t n4,Int_t n5,Int_t n6) {
+TEcnaNArrayD::TEcnaNArrayD(Int_t n1,Int_t n2,Int_t n3,Int_t n4,Int_t n5,Int_t n6) {
 //constructor for a 6 dimensional array of sizes n1,n2,n3,n4,n5,n6. Array is put to 0
 
  // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
-
-  Long_t i_this = (Long_t)this;
-  pObjectManager->RegisterPointer("TEcnaNArrayD", i_this);
 
   const Double_t zero = 0.0;
   Init();
@@ -157,7 +132,6 @@ TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2,Int_t 
   fA   = new Double_t [fNL];
   for (Int_t i=0;i<fNL;i++) fA[i] = zero;
 }
-
 TEcnaNArrayD::~TEcnaNArrayD() {
 //destructor
 
@@ -165,9 +139,6 @@ TEcnaNArrayD::~TEcnaNArrayD() {
 
   Clean();
 }
-
-//------------------------------------- methods
-
 void TEcnaNArrayD::Clean() {
 //
   if (fA) delete [] fA;

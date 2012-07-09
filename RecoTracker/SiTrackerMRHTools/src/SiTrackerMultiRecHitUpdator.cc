@@ -114,11 +114,10 @@ TransientTrackingRecHit::RecHitPointer  SiTrackerMultiRecHitUpdator::update( Tra
       LogTrace("SiTrackerMultiRecHitUpdator")<<"MultiRecHitUpdator::update: W not valid!"<<std::endl;
       LogTrace("SiTrackerMultiRecHitUpdator")<<"V: "<<V<<" AnnealingFactor: "<<annealing<<std::endl;
     }
-    double denom= (2.*M_PI*sqrt(det));
     double Chi2 =  ROOT::Math::Similarity(r,W);// Chi2 = r.T()*W*r
-    double a_i = exp(-0.5*Chi2)/denom;
+    double a_i = exp(-0.5*Chi2)/(2.*M_PI*sqrt(det));
     mymap.push_back(std::pair<const TrackingRecHit*, float>((*ihit)->hit(), a_i));
-    double c_i = exp(-0.5*theChi2Cut/annealing)/denom;
+    double c_i = exp(-0.5*theChi2Cut/annealing)/(2.*M_PI*sqrt(det));
     a_sum += a_i;
     c_sum += c_i;   
   }

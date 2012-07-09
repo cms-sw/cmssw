@@ -159,9 +159,10 @@ namespace cscdqm {
       Summary summary;
 
       std::map<uint32_t, uint32_t> L1ANumbers;
+      std::map<uint32_t, bool> fNotFirstEvent;
       uint32_t L1ANumber;
       uint32_t BXN;
-      bool fFirstEvent;
+      // bool fFirstEvent;
       bool fCloseL1As; // Close L1A bit from DDU Trailer
       bool EmuEventDisplayWasReset;
       

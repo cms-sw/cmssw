@@ -12,6 +12,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
+#include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
+
 #include "DataFormats/GeometryVector/interface/Pi.h"
 
 using pixelrecoutilities::LongitudinalBendingCorrection;
@@ -31,8 +34,23 @@ PixelTripletHLTGenerator:: PixelTripletHLTGenerator(const edm::ParameterSet& cfg
 {
   theMaxElement=cfg.getParameter<unsigned int>("maxElement");
   dphi =  (useFixedPreFiltering) ?  cfg.getParameter<double>("phiPreFiltering") : 0;
+
+  if (cfg.exists("SeedComparitorPSet")){
+  edm::ParameterSet comparitorPSet =
+    cfg.getParameter<edm::ParameterSet>("SeedComparitorPSet");
+  std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
+  theComparitor = (comparitorName == "none") ?
+    0 :  SeedComparitorFactory::get()->create( comparitorName, comparitorPSet);
+  }
+  else
+    theComparitor=0;
 }
 
+PixelTripletHLTGenerator::~PixelTripletHLTGenerator()
+  
+{ delete thePairGenerator;
+  delete theComparitor;
+}
 
 void PixelTripletHLTGenerator::init( const HitPairGenerator & pairs,
       const std::vector<SeedingLayer> & layers,
@@ -183,8 +201,17 @@ void PixelTripletHLTGenerator::hitTriplets(
           Range rangeRPhi = predictionRPhi(p3_r, icharge);
           correction.correctRPhiRange(rangeRPhi);
           if (checkPhiInRange(p3_phi, rangeRPhi.first/p3_r-phiErr, rangeRPhi.second/p3_r+phiErr)) {
-            result.push_back( OrderedHitTriplet( (*ip).inner(), (*ip).outer(), hit)); 
-            break;
+	    // insert here check with comparitor
+	    OrderedHitTriplet hittriplet( (*ip).inner(), (*ip).outer(), hit);
+	    if(!theComparitor  || theComparitor->compatible(hittriplet,es) ) {
+	      result.push_back( hittriplet );
+	    } else {
+	      LogDebug("RejectedTriplet") << "rejected triplet from comparitor "
+					  << hittriplet.outer()->globalPosition().x() << " "
+					  << hittriplet.outer()->globalPosition().y() << " "
+					  << hittriplet.outer()->globalPosition().z();
+	    }
+	    break;
           } 
         }
       } 

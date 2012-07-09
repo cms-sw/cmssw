@@ -1,9 +1,12 @@
 #ifndef FUSHMRAWCELL_H
 #define FUSHMRAWCELL_H 1
 
+#include <assert.h>
 
 namespace evf {
-
+  namespace evt {
+    enum Type_t { NOP, STOPPER, EOL, DATA};
+  }
   class FUShmRawCell
   {
   public:
@@ -51,6 +54,19 @@ namespace evf {
     bool           markSuperFrag(unsigned int i,unsigned int size,unsigned char*addr);
 
     void           setLumiSection(unsigned int);
+    void           setEventTypeData()
+    {assert(eventType_ == evt::NOP);
+      eventType_ = evt::DATA;
+    }
+    void           setEventTypeEol()
+    {assert(eventType_ == evt::NOP);
+      eventType_ = evt::EOL;
+    }
+    void           setEventTypeStopper()
+    {assert(eventType_ == evt::NOP);
+      eventType_ = evt::STOPPER;
+    }
+    unsigned int   getEventType()   const {return eventType_;}
     unsigned int   getLumiSection() const {return lumiSection_;}
     //
     // static member functions
@@ -70,6 +86,7 @@ namespace evf {
     unsigned int nFed_;
     unsigned int nSuperFrag_;
     unsigned int lumiSection_;
+    unsigned int eventType_;
     unsigned int fedSizeOffset_;
     unsigned int fedOffset_;
     unsigned int superFragSizeOffset_;

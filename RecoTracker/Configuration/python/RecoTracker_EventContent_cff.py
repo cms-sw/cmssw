@@ -18,7 +18,7 @@ RecoTrackerFEVT = cms.PSet(
         'keep TrackingRecHitsOwned_rsWithMaterialTracks_*_*',
         'keep *_ctfPixelLess_*_*', 
         'keep *_dedxTruncated40_*_*',
-        'keep *_dedxMedian_*_*',
+        'keep *_dedxDiscrimASmi_*_*',
         'keep *_dedxHarmonic2_*_*',
         'keep *_trackExtrapolator_*_*',                                           
     )
@@ -39,7 +39,7 @@ RecoTrackerRECO = cms.PSet(
         'keep TrackingRecHitsOwned_rsWithMaterialTracks_*_*',
         'keep *_ctfPixelLess_*_*', 
         'keep *_dedxTruncated40_*_*',
-        'keep *_dedxMedian_*_*',
+        'keep *_dedxDiscrimASmi_*_*',
         'keep *_dedxHarmonic2_*_*',
         'keep *_trackExtrapolator_*_*'                                           
     )
@@ -52,6 +52,7 @@ RecoTrackerAOD = cms.PSet(
         'keep recoTracks_regionalCosmicTracks_*_*',
         'keep recoTracks_ctfPixelLess_*_*', 
         'keep *_dedxHarmonic2_*_*',
+        'keep *_dedxDiscrimASmi_*_*',
         'keep *_trackExtrapolator_*_*'                                           
     )
 )

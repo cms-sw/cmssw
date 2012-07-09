@@ -35,7 +35,7 @@ namespace edm {
     poissonDistribution_(0),
     playback_(playback),
     sequential_(pset.getUntrackedParameter<bool>("sequential", false)),
-    seed_(pset.getParameter<edm::ParameterSet>("nbPileupEvents").getUntrackedParameter<int>("seed",1234))
+    seed_(pset.getParameter<edm::ParameterSet>("nbPileupEvents").getUntrackedParameter<int>("seed",0))
    {
 
     
@@ -52,8 +52,13 @@ namespace edm {
     
     // Get seed for the case when using user histogram or probability function
     if (histoDistribution_ || probFunctionDistribution_){ 
-      gRandom->SetSeed(seed_);
-      LogInfo("MixingModule") << " Change seed for " << type_ << " mode. The seed is set to " << seed_;
+      if(seed_ !=0) {
+	gRandom->SetSeed(seed_);
+	LogInfo("MixingModule") << " Change seed for " << type_ << " mode. The seed is set to " << seed_;
+      }
+      else {
+	gRandom->SetSeed(engine.getSeed());
+      }
     } 
      
         
@@ -100,7 +105,7 @@ namespace edm {
   }
 
   void
-  PileUp::readPileUp(std::vector<EventPrincipalVector> & result,std::vector<std::vector<edm::EventID> > &ids) {
+  PileUp::readPileUp(std::vector<EventPrincipalVector> & result,std::vector<std::vector<edm::EventID> > &ids, std::vector< float > &TrueNumInteractions ) {
 
     // set up vector of event counts for each bunch crossing ahead of time, so that we can
     // allow for an arbitrary distribution for out-of-time vs. in-time pileup
@@ -111,6 +116,7 @@ namespace edm {
     // crossing zero first, save it for later.
 
     int nzero_crossing = -1;
+    double Fnzero_crossing = -1;
 
     if(manage_OOT_) {
       if (none_){
@@ -122,7 +128,7 @@ namespace edm {
       }else if (histoDistribution_ || probFunctionDistribution_){
 	double d = histo_->GetRandom();
 	//n = (int) floor(d + 0.5);  // incorrect for bins with integer edges
-	nzero_crossing =  int(d);
+	Fnzero_crossing =  d;
       }
     }
             
@@ -133,29 +139,39 @@ namespace edm {
       //} else if (sequential_) {  // just read many sequentially... why specify?
       // For now, the use case for sequential read reads only one event at a time.
       // nint.push_back( 1 );
+	TrueNumInteractions.push_back( ids[i-minBunch_].size() );
       } 
       else if(manage_OOT_) {
-	if(i==0 && !poisson_OOT_) nint.push_back(nzero_crossing);
+	if(i==0 && !poisson_OOT_) { 
+	  nint.push_back(nzero_crossing);
+	  TrueNumInteractions.push_back( nzero_crossing );
+	}
 	else{
 	  if(poisson_OOT_) {
-	    nint.push_back( poissonDistr_OOT_->fire(float(nzero_crossing)) );
+	    nint.push_back( poissonDistr_OOT_->fire(Fnzero_crossing) );
+	    TrueNumInteractions.push_back( Fnzero_crossing );
 	  }
 	  else {
 	    nint.push_back( intFixed_OOT_ );
+	    TrueNumInteractions.push_back( intFixed_OOT_ );
 	  }	  
 	}
       } 
       else {	
 	if (none_){
 	  nint.push_back(0);
+	  TrueNumInteractions.push_back( 0. );
 	}else if (poisson_){
 	  nint.push_back( poissonDistribution_->fire() );
+          TrueNumInteractions.push_back( averageNumber_ );
 	}else if (fixed_){
 	  nint.push_back( intAverage_ );
+          TrueNumInteractions.push_back( intAverage_ );
 	}else if (histoDistribution_ || probFunctionDistribution_){
 	  double d = histo_->GetRandom();
 	  //n = (int) floor(d + 0.5);  // incorrect for bins with integer edges
 	  nint.push_back( int(d) );
+          TrueNumInteractions.push_back( d );
 	}
 
       }

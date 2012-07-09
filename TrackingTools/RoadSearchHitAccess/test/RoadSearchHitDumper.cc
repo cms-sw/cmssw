@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gpetrucc $
-// $Date: 2008/10/31 11:32:09 $
-// $Revision: 1.4 $
+// $Author: gutsche $
+// $Date: 2007/03/07 22:07:33 $
+// $Revision: 1.3 $
 //
 
 #include <sstream>
@@ -70,9 +70,11 @@ void RoadSearchHitDumper::analyze(const edm::Event& e, const edm::EventSetup& es
   }
   catch (edm::Exception const& x) {
     if ( x.categoryCode() == edm::errors::ProductNotFound ) {
+      if ( x.history().size() == 1 ) {
 	static const SiPixelRecHitCollection s_empty;
 	pixelRecHits = &s_empty;
 	edm::LogWarning("RoadSearch") << "Collection SiPixelRecHitCollection with InputTag " << pixelRecHitsInputTag_ << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without Pixel RecHits.";
+      }
     }
   }
 

@@ -65,13 +65,20 @@ namespace egHLT {
       float invEInvP;
     };
     
+  public:
+    //helper struct to store event-wide variables
+    struct EventData {
+      int NVertex;
+    };
+
   private:
     const reco::GsfElectron* gsfEle_; //pointers to the underlying electron (we do not own this)
 
     ClusShapeData clusShapeData_;
     IsolData isolData_;
     HLTData hltData_;
-    
+    EventData eventData_;
+
     //these are bit-packed words telling me which cuts the electron fail (ie 0x0 is passed all cuts)
     int cutCode_;
     int looseCutCode_;
@@ -86,12 +93,14 @@ namespace egHLT {
     
   public:
     
-    OffEle(const reco::GsfElectron& ele,const ClusShapeData& shapeData,const IsolData& isolData,const HLTData& hltData):
-      gsfEle_(&ele),clusShapeData_(shapeData),isolData_(isolData),hltData_(hltData),
+    OffEle(const reco::GsfElectron& ele,const ClusShapeData& shapeData,const IsolData& isolData,const HLTData& hltData,const EventData& eventData):
+      gsfEle_(&ele),clusShapeData_(shapeData),isolData_(isolData),hltData_(hltData),eventData_(eventData),
       cutCode_(int(EgCutCodes::INVALID)),looseCutCode_(int(EgCutCodes::INVALID)){}
     ~OffEle(){}
     
+
     //modifiers  
+    int NVertex()const{return eventData_.NVertex;}
     void setCutCode(int code){cutCode_=code;}
     void setLooseCutCode(int code){looseCutCode_=code;} 
     //slightly inefficient way, think I can afford it and its a lot easier to just make the sorted vector outside the class

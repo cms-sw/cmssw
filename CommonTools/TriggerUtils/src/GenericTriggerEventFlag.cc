@@ -1,5 +1,5 @@
 //
-// $Id: GenericTriggerEventFlag.cc,v 1.3 2010/07/16 12:35:58 vadler Exp $
+// $Id: GenericTriggerEventFlag.cc,v 1.5 2010/07/19 14:43:33 vadler Exp $
 //
 
 
@@ -19,14 +19,24 @@
 /// To be called from the ED module's c'tor
 GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & config )
   : watchDB_( 0 )
+  , hltConfigInit_( false )
+  , andOr_( false )
   , dbLabel_( "" )
   , verbose_( 0 )
+  , andOrDcs_( false )
+  , errorReplyDcs_( false )
+  , andOrGt_( false )
   , gtInputTag_( "" )
   , gtEvmInputTag_( "" )
   , gtDBKey_( "" )
+  , errorReplyGt_( false )
+  , andOrL1_( false )
   , l1BeforeMask_( true )
   , l1DBKey_( "" )
+  , errorReplyL1_( false )
+  , andOrHlt_( false )
   , hltDBKey_( "" )
+  , errorReplyHlt_( false )
   , on_( true )
   , onDcs_( true )
   , onGt_( true )
@@ -84,7 +94,7 @@ GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & conf
     } else {
       onHlt_ = false;
     }
-    if ( ! onDcs_ && ! onGt_ && ! onL1_ && ! onHlt_ ) on_      = false;
+    if ( ! onDcs_ && ! onGt_ && ! onL1_ && ! onHlt_ ) on_ = false;
     else {
       if ( config.exists( "dbLabel" ) ) dbLabel_ = config.getParameter< std::string >( "dbLabel" );
       watchDB_ = new edm::ESWatcher< AlCaRecoTriggerBitsRcd >;
@@ -103,7 +113,7 @@ GenericTriggerEventFlag::~GenericTriggerEventFlag()
 }
 
 
-/// To be called from beginedm::Run() methods
+/// To be called from beginRun() methods
 void GenericTriggerEventFlag::initRun( const edm::Run & run, const edm::EventSetup & setup )
 {
 

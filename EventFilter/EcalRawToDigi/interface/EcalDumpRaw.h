@@ -1,5 +1,5 @@
 /*
- * $Id: EcalDumpRaw.h,v 1.2 2010/06/30 09:10:57 pgras Exp $
+ * $Id: EcalDumpRaw.h,v 1.1 2010/06/30 08:47:29 pgras Exp $
  *
  * Author: Ph Gras. CEA/IRFU - Saclay
  */
@@ -108,7 +108,6 @@ private:
   double amplCut_;
   bool dump_;
   bool dumpAdc_;
-  bool l1aHistory_;
   //  bool doHisto_;
   int maxEvt_;
   int profileFedId_;
@@ -158,7 +157,6 @@ private:
   std::vector<std::vector<uint32_t> > orbits_;
   std::vector<std::vector<int> > tpg_;
   std::vector<int> nTpgs_;
-  std::vector<int> dccChStatus_;
   int iRu_;
   int srpL1a_;
   int tccL1a_;

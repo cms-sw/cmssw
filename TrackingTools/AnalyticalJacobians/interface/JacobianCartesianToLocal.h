@@ -1,7 +1,7 @@
 #ifndef JacobianCartesianToLocal_H
 #define JacobianCartesianToLocal_H
 
-#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 class Surface;
 class LocalTrajectoryParameters;
@@ -25,7 +25,8 @@ class JacobianCartesianToLocal {
   /** Access to Jacobian.
    */
   
-  const AlgebraicMatrix56& jacobian() const {  return theJacobian;}
+  const AlgebraicMatrix56& jacobian() const;
+  const AlgebraicMatrix jacobian_old() const;
 
 
  private:

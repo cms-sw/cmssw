@@ -80,7 +80,8 @@ SiPixelDataQuality::SiPixelDataQuality(bool offlineXMLfile) : offlineXMLfile_(of
   allmodsVec=0;
   errmodsVec=0;
   goodmodsVec=0;
-  
+  for (int i = 0; i < 40; ++i)
+    {lastallmods_[i] = 0; lasterrmods_[i] = 0;}
   timeoutCounter_=0;
   lastLS_=-1;
 }
@@ -674,8 +675,13 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
     count6=0;
     modCounter_=0;
   if(!Tier0Flag){
-  cout<<"RESETS"<<endl;
+    cout<<"RESETS"<<endl;
+    //The plots that these Vecs are integrated throughout a run
+    //So at each lumi section I save their last values (lastmods)
+    //And then subtract them out later when filling the SummaryMap
     for(int j=1; j!=41; j++){
+      if(allmodsVec) lastallmods_[j-1] = allmodsVec->GetBinContent(j);
+      if(errmodsVec) lasterrmods_[j-1] = errmodsVec->GetBinContent(j);
       if(allmodsVec) allmodsVec->SetBinContent(j,0.);
       if(errmodsVec) errmodsVec->SetBinContent(j,0.);
       if(goodmodsVec) goodmodsVec->SetBinContent(j,0.);
@@ -951,7 +957,9 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
 	    MonitorElement * me = bei->get(fedplot);
 	    if(me) NErrors = NErrors + me->getIntValue();
 	  }
-	  if(NErrors>0){ errmodsVec->Fill(i,NErrors); } 
+	  //If I fill, then I end up majorly overcounting the numbers of errors...
+	  //if(NErrors>0){ errmodsVec->Fill(i,NErrors); } 
+	  if(NErrors>0){ errmodsVec->SetBinContent(i,NErrors); } 
 	}
         SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
         if(SummaryReportMap){ 
@@ -960,11 +968,17 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
 	  if(me) nevents = me->getIntValue();
           float contents=0.;
           for(int i=1; i!=41; i++){
-            if((allmodsVec->GetBinContent(i)) + (errmodsVec->GetBinContent(i)) > 0){
-              contents = (allmodsVec->GetBinContent(i))/((allmodsVec->GetBinContent(i))+(errmodsVec->GetBinContent(i)));
-	      //cout<<"Fed: "<<i-1<<" , nevents: "<<nevents<<" , ndigis: "<<(allmodsVec->GetBinContent(i))<<" , nerrors: "<<errmodsVec->GetBinContent(i)<<endl;
+	    //Dynamically subtracting previous (integrated) lumi section values
+	    //in order to only show current lumi section's numbers
+	    float mydigis = allmodsVec->GetBinContent(i) - lastallmods_[i-1];
+            float myerrs  = errmodsVec->GetBinContent(i) - lasterrmods_[i-1];
+	    if ((mydigis + myerrs) > 0.){
+	      contents = mydigis/(mydigis + myerrs);
+	      //std::cout<<"Fed: "<<i-1<<" , nevents: "<<nevents<<" , ndigis: "<< mydigis <<" , nerrors: "<< myerrs << " , contents: " << contents << std::endl;
             }else{
-              contents = -1.;
+	      //Changed so that dynamic zooming will still
+	      //advance over these bins(in renderplugins)
+              contents = -0.5;
             }
             SummaryReportMap->setBinContent(lumisec+1,i,contents);
           }//end for loop over summaryReportMap bins

@@ -40,7 +40,9 @@
 //********** Date  : 03.03.2010 (first version) ******// 
 //***************************************************//
 ////---- pulse shape monitor + digi occupancy and quality
-////---- last revision: 01.06.2010 
+////---- revision: 01.06.2010 (Dima Volyanskyy) 
+////----- last revision: 31.05.2011 (Panos Katsas)  
+
 
 //==================================================================//
 //======================= Constructor ==============================//
@@ -261,7 +263,10 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
 		  ////---- fill pulse shape vs BX number 
 		  castorDigiHists.meDigi_pulseBX->Fill(static_cast<double>(bxTS),(bunch_it->tsfC[ts])/224.);
 		  ////---- fill pulse shape in sectors 
-                  PSsector[bunch_it->detid.sector()-1]->Fill(10*(bunch_it->detid.module()-1)+ts, bunch_it->tsfC[ts]/double(ievt_)); 
+
+		  // PK: do not normalize histograms
+		  //  PSsector[bunch_it->detid.sector()-1]->Fill(10*(bunch_it->detid.module()-1)+ts, bunch_it->tsfC[ts]/double(ievt_)); 
+                  PSsector[bunch_it->detid.sector()-1]->Fill(10*(bunch_it->detid.module()-1)+ts, bunch_it->tsfC[ts]);
  
                   ////---- sum the signal over all TS in fC
                   sumDigi +=  bunch_it->tsfC[ts]; //std::cout<< " signal(fC) in TS:"<<ts << " =" << bunch_it->tsfC[ts] << std::endl; 	   
@@ -303,7 +308,9 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
   ////--------------------------------------------------------------------
  ////---- define and update digi based reportSummarymap every 500 events
  ////--------------------------------------------------------------------
- if( ievt_ == 25 || ievt_ % 500 == 0 ) {
+
+
+	// if( ievt_ == 25 || ievt_ % 500 == 0 ) {  // no event selection - get all events
 
     numOK = 0;
 
@@ -368,9 +375,7 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
     fraction=double(numOK)/224;
     overallStatus->Fill(fraction); reportSummary->Fill(fraction); 
 
-  } //-- end of if for the number of events
-
-
+    //  } //-- end of if for the number of events // update ( PK ):   
 
 
     ////---- set 99 for these (space used for the legend)
