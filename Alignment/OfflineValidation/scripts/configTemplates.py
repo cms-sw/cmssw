@@ -76,7 +76,8 @@ scriptTemplate="""
 source /afs/cern.ch/cms/caf/setup.sh
 # source /afs/cern.ch/cms/sw/cmsset_default.sh
 cd .oO[CMSSW_BASE]Oo./src
-export SCRAM_ARCH=slc5_amd64_gcc462
+# export SCRAM_ARCH=slc5_amd64_gcc462
+export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
 eval `scramv1 ru -sh`
 rfmkdir -p .oO[workdir]Oo.
 rfmkdir -p .oO[datadir]Oo.
@@ -115,7 +116,8 @@ mergeTemplate="""
 export STAGE_SVCCLASS=cmscafuser
 # source /afs/cern.ch/cms/sw/cmsset_default.sh
 cd .oO[CMSSW_BASE]Oo./src
-export SCRAM_ARCH=slc5_amd64_gcc462
+# export SCRAM_ARCH=slc5_amd64_gcc462
+export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
 eval `scramv1 ru -sh`
 rfmkdir -p .oO[workdir]Oo.
 cd .oO[workdir]Oo.
