@@ -173,7 +173,7 @@
         </processor>
         <processor id="normlkh1" name="ProcNormalize">
                 <input>
-                        <var source="lkh1" name="var1"/>
+                        <var source="lkh1" name="discr1"/>
                 </input>
                 <config>
                         <pdf lower="-0.5" upper="1.5" size="200" smooth="1"/>
