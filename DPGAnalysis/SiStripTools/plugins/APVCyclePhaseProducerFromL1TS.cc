@@ -30,9 +30,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -48,6 +45,8 @@
 
 #include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
 #include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
+
+#include "DPGAnalysis/SiStripTools/interface/RunHistogramManager.h"
 
 //
 // class decleration
@@ -78,16 +77,18 @@ private:
   const unsigned int m_maxLS;
   const unsigned int m_LSfrac;
 
-  TH1F* _hsize;
-  TH1F* _hlresync;
-  TH1F* _hlOC0;
-  TH1F* _hlTE;
-  TH1F* _hlEC0;
-  TH1F* _hlstart;
-  TH1F* _hlHR;
+  RunHistogramManager m_rhm;
 
-  TH1F* _hdlec0lresync;
-  TH1F* _hdlresynclHR;
+  TH1F** _hsize;
+  TH1F** _hlresync;
+  TH1F** _hlOC0;
+  TH1F** _hlTE;
+  TH1F** _hlstart;
+  TH1F** _hlEC0;
+  TH1F** _hlHR;
+
+  TH1F** _hdlec0lresync;
+  TH1F** _hdlresynclHR;
 
   std::vector<std::pair<unsigned int, unsigned int> > m_badruns;
   
@@ -122,6 +123,8 @@ APVCyclePhaseProducerFromL1TS::APVCyclePhaseProducerFromL1TS(const edm::Paramete
   _magicOffset(iConfig.getUntrackedParameter<int>("magicOffset",8)),
   m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin",250)),
   m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction",16)),
+  m_rhm(),
+  _hsize(0),_hlresync(0),_hlOC0(0),_hlTE(0),_hlstart(0),_hlEC0(0),_hlHR(0),_hdlec0lresync(0),_hdlresynclHR(0),
   m_badruns(),
   _lastResync(-1),_lastHardReset(-1),_lastStart(-1),
   _lastEventCounter0(-1),_lastOrbitCounter0(-1),_lastTestEnable(-1)
@@ -133,6 +136,21 @@ APVCyclePhaseProducerFromL1TS::APVCyclePhaseProducerFromL1TS(const edm::Paramete
   m_badruns.push_back(std::pair<unsigned int, unsigned int>(193150,193733));
 
    //now do what ever other initialization is needed
+
+  if(_wantHistos) {
+    _hsize = m_rhm.makeTH1F("size","Level1TriggerScalers Collection size",20,-0.5,19.5);
+
+    _hlresync = m_rhm.makeTH1F("lresync","Orbit of last resync",m_LSfrac*m_maxLS,0,m_maxLS*262144);
+    _hlOC0 = m_rhm.makeTH1F("lOC0","Orbit of last OC0",m_LSfrac*m_maxLS,0,m_maxLS*262144);
+    _hlTE = m_rhm.makeTH1F("lTE","Orbit of last TestEnable",m_LSfrac*m_maxLS,0,m_maxLS*262144);
+    _hlstart = m_rhm.makeTH1F("lstart","Orbit of last Start",m_LSfrac*m_maxLS,0,m_maxLS*262144);
+    _hlEC0 = m_rhm.makeTH1F("lEC0","Orbit of last EC0",m_LSfrac*m_maxLS,0,m_maxLS*262144);
+    _hlHR = m_rhm.makeTH1F("lHR","Orbit of last HardReset",m_LSfrac*m_maxLS,0,m_maxLS*262144);
+    _hdlec0lresync = m_rhm.makeTH1F("dlec0lresync","Orbit difference EC0-Resync",4000,-1999.5,2000.5);
+    _hdlresynclHR = m_rhm.makeTH1F("dlresynclHR","Orbit difference Resync-HR",4000,-1999.5,2000.5);
+
+  }
+
 
 }
 
@@ -160,43 +178,45 @@ APVCyclePhaseProducerFromL1TS::beginRun(edm::Run& iRun, const edm::EventSetup& i
 
   if(_wantHistos) {
 
-    edm::Service<TFileService> tfserv;
+    m_rhm.beginRun(iRun);
 
-    char dirname[300];
-    sprintf(dirname,"run_%d",iRun.run());
-    TFileDirectory subrun = tfserv->mkdir(dirname);
+    if(_hlresync && *_hlresync) {
+      (*_hlresync)->GetXaxis()->SetTitle("Orbit");     (*_hlresync)->GetYaxis()->SetTitle("Events");
+      (*_hlresync)->SetBit(TH1::kCanRebin);
+    }
 
-    _hsize = subrun.make<TH1F>("size","Level1TriggerScalers Collection size",20,-0.5,19.5);
+    if(_hlOC0 && *_hlOC0) {
+      (*_hlOC0)->GetXaxis()->SetTitle("Orbit");     (*_hlOC0)->GetYaxis()->SetTitle("Events");
+      (*_hlOC0)->SetBit(TH1::kCanRebin);
+    }
 
-    _hlresync = subrun.make<TH1F>("lresync","Orbit of last resync",m_LSfrac*m_maxLS,0,m_maxLS*262144);
-    _hlresync->GetXaxis()->SetTitle("Orbit");     _hlresync->GetYaxis()->SetTitle("Events");
-    _hlresync->SetBit(TH1::kCanRebin);
+    if(_hlTE && *_hlTE) {
+      (*_hlTE)->GetXaxis()->SetTitle("Orbit");     (*_hlTE)->GetYaxis()->SetTitle("Events");
+      (*_hlTE)->SetBit(TH1::kCanRebin);
+    }
 
-    _hlOC0 = subrun.make<TH1F>("lOC0","Orbit of last OC0",m_LSfrac*m_maxLS,0,m_maxLS*262144);
-    _hlOC0->GetXaxis()->SetTitle("Orbit");     _hlOC0->GetYaxis()->SetTitle("Events");
-    _hlOC0->SetBit(TH1::kCanRebin);
+    if(_hlstart && *_hlstart) {
+      (*_hlstart)->GetXaxis()->SetTitle("Orbit");     (*_hlstart)->GetYaxis()->SetTitle("Events");
+      (*_hlstart)->SetBit(TH1::kCanRebin);
+    }
 
-    _hlTE = subrun.make<TH1F>("lTE","Orbit of last TestEnable",m_LSfrac*m_maxLS,0,m_maxLS*262144);
-    _hlTE->GetXaxis()->SetTitle("Orbit");     _hlTE->GetYaxis()->SetTitle("Events");
-    _hlTE->SetBit(TH1::kCanRebin);
+    if(_hlEC0 && *_hlEC0) {
+      (*_hlEC0)->GetXaxis()->SetTitle("Orbit");     (*_hlEC0)->GetYaxis()->SetTitle("Events");
+      (*_hlEC0)->SetBit(TH1::kCanRebin);
+    }
 
-    _hlstart = subrun.make<TH1F>("lstart","Orbit of last Start",m_LSfrac*m_maxLS,0,m_maxLS*262144);
-    _hlstart->GetXaxis()->SetTitle("Orbit");     _hlstart->GetYaxis()->SetTitle("Events");
-    _hlstart->SetBit(TH1::kCanRebin);
+    if(_hlHR && *_hlHR) {
+      (*_hlHR)->GetXaxis()->SetTitle("Orbit");     (*_hlHR)->GetYaxis()->SetTitle("Events");
+      (*_hlHR)->SetBit(TH1::kCanRebin);
+    }
+    
+    if(_hdlec0lresync && *_hdlec0lresync) {
+      (*_hdlec0lresync)->GetXaxis()->SetTitle("lastEC0-lastResync"); 
+    }
 
-    _hlEC0 = subrun.make<TH1F>("lEC0","Orbit of last EC0",m_LSfrac*m_maxLS,0,m_maxLS*262144);
-    _hlEC0->GetXaxis()->SetTitle("Orbit");     _hlEC0->GetYaxis()->SetTitle("Events");
-    _hlEC0->SetBit(TH1::kCanRebin);
-
-    _hlHR = subrun.make<TH1F>("lHR","Orbit of last HardReset",m_LSfrac*m_maxLS,0,m_maxLS*262144);
-    _hlHR->GetXaxis()->SetTitle("Orbit");     _hlHR->GetYaxis()->SetTitle("Events");
-    _hlHR->SetBit(TH1::kCanRebin);
-
-    _hdlec0lresync = subrun.make<TH1F>("dlec0lresync","Orbit difference EC0-Resync",4000,-1999.5,2000.5);
-    _hdlec0lresync->GetXaxis()->SetTitle("lastEC0-lastResync"); 
-
-    _hdlresynclHR = subrun.make<TH1F>("dlresynclHR","Orbit difference Resync-HR",4000,-1999.5,2000.5);
-    _hdlresynclHR->GetXaxis()->SetTitle("lastEC0-lastResync"); 
+    if(_hdlresynclHR && *_hdlresynclHR) {
+      (*_hdlresynclHR)->GetXaxis()->SetTitle("lastEC0-lastResync"); 
+    }
 
   }
 
@@ -233,7 +253,7 @@ APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::EventSetup
   Handle<Level1TriggerScalersCollection> l1ts;
   iEvent.getByLabel(_l1tscollection,l1ts);
   
-  if(_wantHistos) _hsize->Fill(l1ts->size());
+  if(_wantHistos && _hsize && *_hsize) (*_hsize)->Fill(l1ts->size());
   
   // offset computation
   
@@ -246,22 +266,22 @@ APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::EventSetup
     }
     
     if(_wantHistos) {
-      _hlresync->Fill((*l1ts)[0].lastResync());
-      _hlOC0->Fill((*l1ts)[0].lastOrbitCounter0());
-      _hlTE->Fill((*l1ts)[0].lastTestEnable());
-      _hlstart->Fill((*l1ts)[0].lastStart());
-      _hlEC0->Fill((*l1ts)[0].lastEventCounter0());
-      _hlHR->Fill((*l1ts)[0].lastHardReset());
+      if(_hlresync && *_hlresync) (*_hlresync)->Fill((*l1ts)[0].lastResync());
+      if(_hlOC0 && *_hlOC0) (*_hlOC0)->Fill((*l1ts)[0].lastOrbitCounter0());
+      if(_hlTE && *_hlTE) (*_hlTE)->Fill((*l1ts)[0].lastTestEnable());
+      if(_hlstart && *_hlstart) (*_hlstart)->Fill((*l1ts)[0].lastStart());
+      if(_hlEC0 && *_hlEC0) (*_hlEC0)->Fill((*l1ts)[0].lastEventCounter0());
+      if(_hlHR && *_hlHR) (*_hlHR)->Fill((*l1ts)[0].lastHardReset());
     }
     
     if(_lastResync != (*l1ts)[0].lastResync()) {
       _lastResync = (*l1ts)[0].lastResync();
-      if(_wantHistos) _hdlec0lresync->Fill((*l1ts)[0].lastEventCounter0()-(*l1ts)[0].lastResync());
+      if(_wantHistos && _hdlec0lresync && *_hdlec0lresync) (*_hdlec0lresync)->Fill((*l1ts)[0].lastEventCounter0()-(*l1ts)[0].lastResync());
       LogDebug("TTCSignalReceived") << "New Resync at orbit " << _lastResync ;
     }
     if(_lastHardReset != (*l1ts)[0].lastHardReset()) {
       _lastHardReset = (*l1ts)[0].lastHardReset();
-      if(_wantHistos) _hdlresynclHR->Fill((*l1ts)[0].lastResync()-(*l1ts)[0].lastHardReset());
+      if(_wantHistos && _hdlresynclHR && *_hdlresynclHR) (*_hdlresynclHR)->Fill((*l1ts)[0].lastResync()-(*l1ts)[0].lastHardReset());
       LogDebug("TTCSignalReceived") << "New HardReset at orbit " << _lastHardReset ;
     }
     if(_lastTestEnable != (*l1ts)[0].lastTestEnable()) {
