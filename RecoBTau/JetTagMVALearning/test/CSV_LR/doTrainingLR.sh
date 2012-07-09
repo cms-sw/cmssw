@@ -1,11 +1,16 @@
+echo "BEFORE RUNNING THIS OUT OF THE BOX, CHECK THE INSTRUCTIONS"
+echo "https://twiki.cern.ch/twiki/bin/view/CMS/BTagSoftwareMVATrainer"
+
 read -p "PARALLEL PROCESSING: how many cores can you afford? " answer
 
-echo "do the training, make sure you extracted the variables first using cmsRun VariableExtractor_LR_cfg.py (usually QCD events are used)"
+echo "start the training, make sure you extracted the variables first using cmsRun VariableExtractor_LR_cfg.py (usually QCD events are used)"
 
 #!/bin/sh
 path_to_rootfiles=/user/pvmulder/NewEraOfDataAnalysis/BTagServiceWork/CMSSW_4_4_4_development/src/BTagging/RootFilesAlexis
 prefix=CombinedSV
 Combinations="NoVertex_B_DUSG NoVertex_B_C PseudoVertex_B_DUSG PseudoVertex_B_C RecoVertex_B_DUSG RecoVertex_B_C"
+
+echo "Merging the rootfiles\n" 
 
 CAT="Reco Pseudo No"
 for i in $CAT ; do
@@ -14,8 +19,12 @@ for i in $CAT ; do
 	hadd $path_to_rootfiles/${prefix}${i}Vertex_B_C.root $path_to_rootfiles/${prefix}${i}Vertex_C.root $path_to_rootfiles/${prefix}${i}Vertex_B.root
 done
 
+echo "Filling the 2D pt/eta histograms\n" 
+
 g++ ../histoJetEtaPt.cpp `root-config --cflags --glibs` -o histos
 ./histos $path_to_rootfiles $prefix
+
+echo "Calculating the pt/eta weights\n"
 
 g++ ../fitJetEtaPt.cpp `root-config --cflags --glibs` -o fitter
 mkdir weights
@@ -48,6 +57,8 @@ for j in $( ls Save*xml ) ; do
 	sed -i 's@CombinedSV@'$prefix'@g#' $j # change the name of the tag in the file
 done
 
+echo "Reweighting the trees according to the pt/eta weights and saving the relevant variables \n" 
+
 files=("MVATrainer_No_B_DUSG_cfg.py" "MVATrainer_No_B_C_cfg.py" "MVATrainer_Pseudo_B_DUSG_cfg.py" "MVATrainer_Pseudo_B_C_cfg.py" "MVATrainer_Reco_B_DUSG_cfg.py" "MVATrainer_Reco_B_C_cfg.py")
 l=0
 while [ $l -lt 6 ]
@@ -62,11 +73,15 @@ do
 	wait
 done
 
+echo "I will run the default CSV LR, therefore removing some variables from the Train*xml files!!!\n"
+root -l -q ../SelectVars.C
 
+echo "Calculating the bias: ARE YOU SURE THAT YOU HAVE ENOUGH STATISTICS TO DETERMINE THE BIAS ACCURATELY?\n"
 g++ ../biasForXml.cpp `root-config --cflags --glibs` -o bias
 ./bias $path_to_rootfiles $prefix
 echo "ARE YOU SURE THAT YOU HAVE ENOUGH STATISTICS TO DETERMINE THE BIAS ACCURATELY?"
 
+echo "Replacing the bias tables in the Train*xml files \n"
 for i in $Combinations ; do
 	sed -n -i '/<bias_table>/{p; :a; N; /<\/bias_table>/!ba; s/.*\n//}; p' Train_${i}.xml # remove bias table in file
 	for line in $( cat ${i}.txt ) ; do 
@@ -89,6 +104,8 @@ for k in $Vertex ; do
 	done
 done
 
+echo "Do the actual training B versus DUSG and B versus C \n"
+
 CombinationsArray=("NoVertex_B_DUSG" "NoVertex_B_C" "PseudoVertex_B_DUSG" "PseudoVertex_B_C" "RecoVertex_B_DUSG" "RecoVertex_B_C")
 l=0
 while [ $l -lt 6 ]
@@ -109,6 +126,8 @@ do
 	wait
 done
 
+echo "Combine the B versus DUSG and B versus C training \n"
+
 VertexCategory=("NoVertex" "PseudoVertex" "RecoVertex")
 l=0
 while [ $l -lt 3 ]
@@ -126,8 +145,9 @@ do
 done
 
 #
-echo "do cmsRun ../copyMVAToSQLite_cfg.py to copy the mva training output to sqlite format"
-echo "run the validation from Validation/RecoB/test/ -> usually on ttbar events"
+echo "do now manually cmsRun ../copyMVAToSQLite_cfg.py to copy the mva training output to sqlite format"
+echo "run the validation from Validation/RecoB/test/ afterwards -> usually on ttbar events, make sure you read in the *db file produced in the previous step"
+echo "----> an example of how to do it can be found in UserCode/PetraVanMulders/BTagging/CSVLR_default/reco_validationNEW_CSVMVA_categories_cfg.py"
 
 #cmsRun ../copyMVAToSQLite_cfg.py
 #cmsRun reco_validationNEW_CSVMVA_categories_cfg.py
