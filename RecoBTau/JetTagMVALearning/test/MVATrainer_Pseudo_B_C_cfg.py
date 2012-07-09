@@ -24,11 +24,11 @@ process.combinedSVTrainer = cms.EDAnalyzer("JetTagMVATreeTrainer",
 		"./CombinedSVPseudoVertex_B.root",
 		"./CombinedSVPseudoVertex_C.root"
 	),
-	weightFile = cms.string("weight/CombinedSVPseudoVertex_BC_histo.txt"),
+	weightFile = cms.string("weights/CombinedSVPseudoVertex_BC_histo.txt"),
 	biasFiles = cms.vstring(
 		"-",
 		"*",
-		"weight/CombinedSVPseudoVertex_B_C_ratio.txt"
+		"weights/CombinedSVPseudoVertex_B_C_ratio.txt"
 	)
 )
 
