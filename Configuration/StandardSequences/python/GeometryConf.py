@@ -20,5 +20,6 @@ GeometryConf={
     'ECALHCAL'    : 'Configuration.Geometry.GeometrySimECALHCAL_cff,Configuration.Geometry.GeometryRecoECALHCAL_cff',
     'TrackerOnly' : 'Configuration.Geometry.GeometrySimTracker_cff,Configuration.Geometry.GeometryRecoTracker_cff',
     'HCal'        : 'Configuration.Geometry.GeometrySimHCAL_cff,Configuration.Geometry.GeometryRecoHCAL_cff',
-    'IdealAPD1'   : 'Configuration/StandardSequences/GeometryIdealAPD1_cff,Configuration/StandardSequences/GeometryIdeal_cff'
+    'IdealAPD1'   : 'Configuration/StandardSequences/GeometryIdealAPD1_cff,Configuration/StandardSequences/GeometryIdeal_cff',
+    'SLHC'        : 'Configuration.Geometry.GeometrySLHCSimIdeal_cff,Configuration.Geometry.GeometrySLHCReco_cff'
     }
