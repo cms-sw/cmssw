@@ -8,7 +8,7 @@
 				3. file suffix
 			%n$s retrieves the n'th argument
 		-->
-		<option name="trainfiles">train_Pseudo_%1$s%2$s.%3$s</option>
+		<option name="trainfiles">train_PseudoVertex_%1$s%2$s.%3$s</option>
 		<option name="id">CombinedSVPseudoVertex</option>
 	</general>
 	<input id="input">

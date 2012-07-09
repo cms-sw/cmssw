@@ -3,7 +3,7 @@
 	<!-- Warning: Auto-generated file from MVA calibration extractor. -->
 	<!--          This trainer configuration is incomplete! -->
 	<general>
-		<option name="trainfiles">train_Reco_%1$s%2$s.%3$s</option>
+		<option name="trainfiles">train_RecoVertex_%1$s%2$s.%3$s</option>
 	</general>
 	<input id="input">
 		<var name="jetPt" multiple="true" optional="true"/>
@@ -21,7 +21,7 @@
 		<var name="trackDeltaR" multiple="true" optional="true"/>
 		<var name="trackPtRatio" multiple="true" optional="true"/>
 		<var name="trackPParRatio" multiple="true" optional="true"/>
-		<var name="trackDecayLenSig" multiple="true" optional="true"/>
+		<!--<var name="trackDecayLenSig" multiple="true" optional="true"/>-->
 		<var name="trackJetDist" multiple="true" optional="true"/>
 		<var name="trackFirstTrackDist" multiple="true" optional="true"/>
 		<var name="trackDecayLenVal" multiple="true" optional="true"/>
