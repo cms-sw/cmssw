@@ -229,6 +229,7 @@ cmsRun %(cfgFile)s
 %(postProcess)s """,
                 "GlobalTag": self.__general["globaltag"],
                 "CMSSW_BASE": os.environ['CMSSW_BASE'],
+                "SCRAM_ARCH": os.environ['SCRAM_ARCH'],
                 "alignmentName": alignment.name,
                 "offlineModuleLevelHistsTransient":  self.__general["offlineModuleLevelHistsTransient"]
                 })

@@ -252,7 +252,8 @@ echo  Job started at `date`
 echo  -----------------------
 
 cd .oO[CMSSW_BASE]Oo./src
-export SCRAM_ARCH=slc5_amd64_gcc462
+# export SCRAM_ARCH=slc5_amd64_gcc462
+export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
 eval `scram runtime -sh`
 
 rfmkdir -p .oO[datadir]Oo.
