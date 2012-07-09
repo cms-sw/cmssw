@@ -26,7 +26,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.12 $'),
+    version = cms.untracked.string('$Revision: 1.13 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -171,7 +171,6 @@ process.DigiToRaw.remove(process.castorRawData)
 
 ## removing large memory usage module if we don't need it
 process.pdigi.remove(process.mergedtruth)
-process.pdigi.remove(process.addPileupInfo)
 
 # Path and EndPath definitions
 process.digitisation_step = cms.Path(process.pdigi)

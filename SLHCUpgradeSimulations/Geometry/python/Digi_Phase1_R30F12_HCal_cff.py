@@ -74,7 +74,7 @@ HcalReLabel.RelabelRules = cms.untracked.PSet(
 
 #
 doAllDigi = cms.Sequence(trDigi+calDigi+muonDigi)
-pdigi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*trackingParticles)
+pdigi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*trackingParticles*addPileupInfo)
 pdigi.remove(simHcalTriggerPrimitiveDigis)
 pdigi.remove(simHcalTTPDigis)
 pdigi.remove(simCastorDigis)
