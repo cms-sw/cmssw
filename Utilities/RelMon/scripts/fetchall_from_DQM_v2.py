@@ -62,7 +62,7 @@ def auth_wget(url, chunk_size=1048576):
         print '%d. Exsits on disk. Skipping.' % (file_id +1)
         return
 
-    print '%d. Downloading...' % (file_id +1),
+    print '%d. Downloading...' % (file_id +1)
     file = open(filename, 'wb')
     # progress = 0
     chunk = url_file.read(chunk_size)
