@@ -747,10 +747,8 @@ bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx){
 
 
 bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx){
-  bool muID =  isGoodMuon(muon,GlobalMuonPromptTight) && (muon.numberOfMatchedStations() > 1);
-
-  if(!(muon.isTrackerMuon()&&muon.isGlobalMuon()))
-    return false;
+  bool muID =   muon.isGlobalMuon() && muon.globalTrack()->hitPattern().numberOfValidMuonHits() >0 && (muon.numberOfMatchedStations() > 1);
+  if(!muID) return false;
 
   bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 8 &&
     muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
