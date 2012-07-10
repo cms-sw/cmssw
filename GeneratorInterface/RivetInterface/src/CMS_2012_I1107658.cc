@@ -10,12 +10,12 @@
 namespace Rivet {
 
 
-  class CMS_QCD_11_012 : public Analysis {
+  class CMS_2012_I1107658 : public Analysis {
   public:
 
     /// Constructor
-    CMS_QCD_11_012()
-      : Analysis("CMS_QCD_11_012")
+    CMS_2012_I1107658()
+      : Analysis("CMS_2012_I1107658")
     {
       /// @todo Set whether your finalize method needs the generator cross section
       setNeedsCrossSection(false);
@@ -242,7 +242,7 @@ namespace Rivet {
 
 
   // This global object acts as a hook for the plugin system
-  AnalysisBuilder<CMS_QCD_11_012> plugin_CMS_QCD_11_012;
+  AnalysisBuilder<CMS_2012_I1107658> plugin_CMS_2012_I1107658;
 
 
 }
