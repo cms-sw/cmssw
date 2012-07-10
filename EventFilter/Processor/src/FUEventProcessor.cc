@@ -720,13 +720,15 @@ bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
   vulture_->stop();
 
   if (forkInEDM_.value_) {
+    //shared memory was already disconnected in master
     bool tmpHasShMem_=hasShMem_;
     hasShMem_=false;
-    bool stop_status = stopClassic();
+    stopClassic();
     hasShMem_=tmpHasShMem_;
-    return stop_status;
+    return false;
   }
-  return stopClassic();
+  stopClassic();
+  return false;
 }
 
 
@@ -2307,6 +2309,7 @@ bool FUEventProcessor::enableMPEPSlave()
 
 bool FUEventProcessor::stopClassic()
 {
+  bool failed=false;
   try {
     LOG4CPLUS_INFO(getApplicationLogger(),"Start stopping :) ...");
     edm::EventProcessor::StatusCode rc = evtProcessor_.stop();
@@ -2314,6 +2317,7 @@ bool FUEventProcessor::stopClassic()
       fsm_.fireEvent("StopDone",this);
     else
       {
+	failed=true;
 	//	epMState_ = evtProcessor_->currentStateName();
 	if(rc == edm::EventProcessor::epTimedOut)
 	  reasonForFailedState_ = "EventProcessor stop timed out";
@@ -2322,13 +2326,33 @@ bool FUEventProcessor::stopClassic()
 	fsm_.fireFailed(reasonForFailedState_,this);
 	localLog(reasonForFailedState_);
       }
+
+    if (failed) LOG4CPLUS_WARN(getApplicationLogger(),"STOP failed: try detaching from Shm");
+
+    //detaching from shared memory
     if(hasShMem_) detachDqmFromShm();
+
+    if (failed) LOG4CPLUS_WARN(getApplicationLogger(),"STOP failed: detached from Shm");
   }
   catch (xcept::Exception &e) {
+    failed=true;
     reasonForFailedState_ = "stopping FAILED: " + (std::string)e.what();
+  }
+  catch (edm::Exception &e) {
+    failed=true;
+    reasonForFailedState_ = "stopping FAILED: " + (std::string)e.what();
+  }
+  catch (...) {
+    failed=true;
+    reasonForFailedState_= "STOP failed: unknown exception";
+  }
+
+  if (failed) {
+    LOG4CPLUS_WARN(getApplicationLogger(),"STOP failed: return point of the stopping call reached. pid:" << getpid());
     localLog(reasonForFailedState_);
     fsm_.fireFailed(reasonForFailedState_,this);
   }
+
   LOG4CPLUS_INFO(getApplicationLogger(),"Finished stopping!");
   localLog("-I- Stop completed");
   return false;
@@ -2579,7 +2603,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.149 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.150 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

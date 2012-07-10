@@ -1,3 +1,8 @@
+2012-07-10 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-17
+	* improved logging of EP slave failures
+
 2012-07-01 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V02-05-16
