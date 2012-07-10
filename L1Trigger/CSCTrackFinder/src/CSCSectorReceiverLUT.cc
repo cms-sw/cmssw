@@ -275,8 +275,8 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
   gblphidat result(0);
   CSCTriggerGeomManager* thegeom = CSCTriggerGeometry::get();
   CSCChamber* thechamber = NULL;
-  CSCLayer* thelayer = NULL;
-  CSCLayerGeometry* layergeom = NULL;
+  const CSCLayer* thelayer = NULL;
+  const CSCLayerGeometry* layergeom = NULL;
   int cscid = address.cscid;
   unsigned wire_group = address.wire_group;
   unsigned local_phi = address.phi_local;
@@ -341,13 +341,13 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 	{
 	  if(isTMB07)
 	    {
-	      layergeom = const_cast<CSCLayerGeometry*>(thechamber->layer(CSCConstants::KEY_CLCT_LAYER)->geometry());
-	      thelayer = const_cast<CSCLayer*>(thechamber->layer(CSCConstants::KEY_CLCT_LAYER));
+	      layergeom = thechamber->layer(CSCConstants::KEY_CLCT_LAYER)->geometry();
+	      thelayer = thechamber->layer(CSCConstants::KEY_CLCT_LAYER);
 	    }
 	  else
 	    {
-	      layergeom = const_cast<CSCLayerGeometry*>(thechamber->layer(CSCConstants::KEY_CLCT_LAYER_PRE_TMB07)->geometry());
-	      thelayer = const_cast<CSCLayer*>(thechamber->layer(CSCConstants::KEY_CLCT_LAYER_PRE_TMB07));
+	      layergeom = thechamber->layer(CSCConstants::KEY_CLCT_LAYER_PRE_TMB07)->geometry();
+	      thelayer = thechamber->layer(CSCConstants::KEY_CLCT_LAYER_PRE_TMB07);
 	    }
 	  const int nStrips = layergeom->numberOfStrips();
 	  // PhiL is the strip number converted into some units between 0 and
