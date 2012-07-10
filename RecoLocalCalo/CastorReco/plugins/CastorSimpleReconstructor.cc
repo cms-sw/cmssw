@@ -68,13 +68,8 @@ void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& ev
   const CastorQIEShape* shape = conditions->getCastorShape (); // this one is generic
   
   CastorCalibrations calibrations;
+
   
-   edm::ESHandle<CastorChannelQuality> p;
-   eventSetup.get<CastorChannelQualityRcd>().get(p);
-   CastorChannelQuality* myqual = new CastorChannelQuality(*p.product());
-  
-  
-//  if (det_==DetId::Hcal) {
      if (det_==DetId::Calo && subdet_==HcalCastorDetId::SubdetectorId) {
     edm::Handle<CastorDigiCollection> digi;
     e.getByLabel(inputLabel_,digi);
@@ -88,17 +83,6 @@ void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& ev
       DetId detcell=(DetId)cell;	  
  const CastorCalibrations& calibrations=conditions->getCastorCalibrations(cell);
 
-	// now check the channelquality of this rechit
-	bool ok = true;
-	std::vector<DetId> channels = myqual->getAllChannels();
-	for (std::vector<DetId>::iterator channel = channels.begin();channel !=  channels.end();channel++) {	
-		if (channel->rawId() == detcell.rawId()) {
-			const CastorChannelStatus* mydigistatus=myqual->getValues(*channel);
-			if (mydigistatus->getValue() == 2989) ok = false; // 2989 = BAD
-		}
-	}
-
-//conditions->makeCastorCalibration (cell, &calibrations);
       
       if (tsFromDB_) {
 	  const CastorRecoParam* param_ts = paramTS_->getValues(detcell.rawId());
@@ -108,13 +92,11 @@ void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& ev
       }          
       const CastorQIECoder* channelCoder = conditions->getCastorCoder (cell);
       CastorCoderDb coder (*channelCoder, *shape);
-      if (ok) {
-	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
-	if (setSaturationFlag_) reco_.checkADCSaturation(rec->back(),*i,maxADCvalue_);
-      }
+      
+      rec->push_back(reco_.reconstruct(*i,coder,calibrations));
+     if (setSaturationFlag_) reco_.checkADCSaturation(rec->back(),*i,maxADCvalue_);
     }
     // return result
     e.put(rec);     
-//     }
   }
 }

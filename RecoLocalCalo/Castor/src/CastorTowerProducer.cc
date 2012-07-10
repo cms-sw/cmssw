@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorTowerProducer.cc,v 1.7 2010/07/03 19:24:25 hvanhaev Exp $
+// $Id: CastorTowerProducer.cc,v 1.9 2011/02/24 09:43:20 hvanhaev Exp $
 //
 //
 
@@ -30,6 +30,8 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
@@ -37,6 +39,11 @@
 #include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 #include "DataFormats/CastorReco/interface/CastorTower.h"
+
+// Channel quality
+#include "CondFormats/CastorObjects/interface/CastorChannelQuality.h"
+#include "CondFormats/CastorObjects/interface/CastorChannelStatus.h"
+#include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h"
 
 //
 // class declaration
@@ -82,7 +89,7 @@ const double MYR2D = 180/M_PI;
 
 CastorTowerProducer::CastorTowerProducer(const edm::ParameterSet& iConfig) :
   input_(iConfig.getUntrackedParameter<std::string>("inputprocess","castorreco")),
-  towercut_(iConfig.getUntrackedParameter<double>("towercut",1.)),
+  towercut_(iConfig.getUntrackedParameter<double>("towercut",0.65)),
   mintime_(iConfig.getUntrackedParameter<double>("mintime",-999)),
   maxtime_(iConfig.getUntrackedParameter<double>("maxtime",999))
 {
@@ -147,14 +154,33 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     negcastortowerarray[1][j] = 0.;
     negcastortowerarray[2][j] = 0.;
   }
+  
+  // retrieve the channel quality lists from database
+  edm::ESHandle<CastorChannelQuality> p;
+  iSetup.get<CastorChannelQualityRcd>().get(p);
+  CastorChannelQuality* myqual = new CastorChannelQuality(*p.product());
 
   // loop over rechits to build castortowerarray[4][16] and castorusedrechits[16] 
   for (unsigned int i = 0; i < InputRecHits->size(); i++) {
     
     edm::Ref<CastorRecHitCollection> rechit_p = edm::Ref<CastorRecHitCollection>(InputRecHits, i);
     
-    double Erechit = rechit_p->energy();
     HcalCastorDetId id = rechit_p->id();
+    DetId genericID=(DetId)id;
+    
+    // first check if the rechit is in the BAD channel list
+    bool bad = false;
+    std::vector<DetId> channels = myqual->getAllChannels();
+    for (std::vector<DetId>::iterator channel = channels.begin();channel !=  channels.end();channel++) {	
+    	if (channel->rawId() == genericID.rawId()) {
+		// if the rechit is found in the list, set it bad
+		bad = true;
+    	}
+    }
+    // if bad, continue the loop to the next rechit
+    if (bad) continue;
+    
+    double Erechit = rechit_p->energy();
     int module = id.module();
     int sector = id.sector();
     double zrechit = 0;
@@ -201,8 +227,8 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     Ehot = 0;
     depth = 0;
 
-    // select the positive towers with E > Ecut
-    if (poscastortowerarray[0][k] > towercut_) {
+    // select the positive towers with E > sqrt(Nusedrechits)*Ecut
+    if (poscastortowerarray[0][k] > sqrt(poscastorusedrechits[k].size())*towercut_) {
       
       fem = poscastortowerarray[1][k]/poscastortowerarray[0][k];
       CastorRecHitRefVector usedRecHits = poscastorusedrechits[k];
@@ -219,8 +245,8 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       OutputTowers->push_back(newtower);
     } // end select the positive towers with E > Ecut
     
-    // select the negative towers with E > Ecut
-    if (negcastortowerarray[0][k] > towercut_) {
+    // select the negative towers with E > sqrt(Nusedrechits)*Ecut
+    if (negcastortowerarray[0][k] > sqrt(negcastorusedrechits[k].size())*towercut_) {
       
       fem = negcastortowerarray[1][k]/negcastortowerarray[0][k];
       CastorRecHitRefVector usedRecHits = negcastorusedrechits[k];
