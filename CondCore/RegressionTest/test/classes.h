@@ -1,5 +1,6 @@
 
 #include "CondCore/RegressionTest/interface/TestPayloadClass.h"
+#include "CondCore/RegressionTest/interface/RegressionTestPayload.h"
 namespace {
 	struct dictionary {
 	  std::vector<double>::iterator dummy1;
@@ -17,6 +18,7 @@ namespace {
 	  //std::deque<std::string> dummy18;
 	  
 	  //__gnu_cxx::crope dummy19;
+          std::pair<const int,Param> d00;
 
 	};
 }

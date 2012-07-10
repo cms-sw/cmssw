@@ -36,6 +36,7 @@
 		</sequence>
 		<final>
 			<command exec ="$TTEST/setupDB -D -A $TAUTH -C $TMAINDB" env ="ref"></command>
+			<command exec ="$TTEST/setupDB -D -A $TAUTH -C $TAUXDB" env ="ref"></command>
 		</final>
 	</test>
 </xml>
