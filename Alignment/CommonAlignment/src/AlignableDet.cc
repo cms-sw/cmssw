@@ -141,7 +141,7 @@ AlignmentErrors* AlignableDet::alignmentErrors( void ) const
   uint32_t detId = this->geomDetId().rawId();
   CLHEP::HepSymMatrix clhepSymMatrix(3,0);
   if ( theAlignmentPositionError ) // Might not be set
-    clhepSymMatrix= asHepMatrix(theAlignmentPositionError->globalError().matrix());
+    clhepSymMatrix= theAlignmentPositionError->globalError().matrix();
   AlignTransformError transformError( clhepSymMatrix, detId );
   m_alignmentErrors->m_alignError.push_back( transformError );
 

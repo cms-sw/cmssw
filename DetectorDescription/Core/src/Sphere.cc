@@ -1,6 +1,8 @@
 #include "DetectorDescription/Core/src/Sphere.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <DataFormats/GeometryVector/interface/Pi.h>
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 #include <cmath>
 #include <ostream>

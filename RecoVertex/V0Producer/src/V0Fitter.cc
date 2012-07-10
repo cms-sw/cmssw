@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.52 2010/10/26 04:42:37 wmtan Exp $
+// $Id: V0Fitter.cc,v 1.49 2010/08/05 22:01:19 wmtan Exp $
 //
 //
 
@@ -291,7 +291,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 			      theBeamSpotHandle->position().y(),
 			      theBeamSpotHandle->position().z());
 
-      SMatrixSym3D totalCov = theBeamSpotHandle->rotatedCovariance3D() + theVtx.covariance();
+      SMatrixSym3D totalCov = theBeamSpotHandle->covariance3D() + theVtx.covariance();
       SVector3 distanceVector(vtxPos.x() - beamSpotPos.x(),
 			      vtxPos.y() - beamSpotPos.y(),
 			      0.);//so that we get radial values only, 

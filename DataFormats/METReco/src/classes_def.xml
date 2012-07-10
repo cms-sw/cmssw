@@ -18,9 +18,6 @@
   <class name="edm::Wrapper<std::vector<reco::MET> >"/>
   <class name="std::vector<reco::MET>"/>
 
-  <class name="std::vector<edm::Ref<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> > >"/>
-  <class name="std::vector<edm::Ref<std::vector<reco::MET>,reco::MET,edm::refhelper::FindUsingAdvance<std::vector<reco::MET>,reco::MET> > >"/>
-
   <class name="reco::CaloMET"/>
   <class name="edm::Wrapper<reco::CaloMET>"/>
   <class name="edm::Wrapper<std::vector<reco::CaloMET> >"/>

@@ -56,7 +56,7 @@ HcalDetDiagTimingMonitor::HcalDetDiagTimingMonitor(const edm::ParameterSet& ps)
     subdir_.append("/");
   subdir_=prefixME_+subdir_;
   AllowedCalibTypes_     = ps.getUntrackedParameter<std::vector<int> > ("AllowedCalibTypes");
-  skipOutOfOrderLS_      = ps.getUntrackedParameter<bool>("skipOutOfOrderLS","false");
+  skipOutOfOrderLS_      = ps.getUntrackedParameter<bool>("skipOutOfOrderLS",false);
   NLumiBlocks_           = ps.getUntrackedParameter<int>("NLumiBlocks",4000);
   makeDiagnostics_       = ps.getUntrackedParameter<bool>("makeDiagnostics",false);
 

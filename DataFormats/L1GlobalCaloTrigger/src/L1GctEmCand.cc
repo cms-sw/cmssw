@@ -86,7 +86,10 @@ string L1GctEmCand::name() const {
   return (isolated() ? "iso EM" : "non iso EM" ); 
 }
 
-
+// was a candidate found
+bool L1GctEmCand::empty() const { 
+  return (rank() == 0); 
+}
 
 // return region object
 L1CaloRegionDetId L1GctEmCand::regionId() const {
@@ -115,5 +118,9 @@ ostream& operator<<(ostream& s, const L1GctEmCand& cand) {
   s << hex << " cap block=" << cand.capBlock() << dec << ", index=" << cand.capIndex() << ", BX=" << cand.bx();
   return s;
 }
+
+unsigned L1GctEmCand::phiIndex() const { return (m_data>>10) & 0x1f; } 
+unsigned L1GctEmCand::etaIndex() const { return (m_data>>6) & 0xf; } 
+unsigned L1GctEmCand::rank() const { return m_data & 0x3f; }
 
 

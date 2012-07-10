@@ -258,7 +258,7 @@ def main(argv) :
     import getopt
     
     try:
-        opts, args = getopt.getopt(argv, "j", ["nproc=", 'uploadDir=', 'noRun'])
+        opts, args = getopt.getopt(argv, "j:", ["nproc=", 'uploadDir=', 'noRun'])
     except getopt.GetoptError, e:
         print "unknown option", str(e)
         sys.exit(2)
@@ -271,7 +271,7 @@ def main(argv) :
     runTests  = True
     for opt, arg in opts :
         if opt in ('-j', "--nproc" ):
-            np=arg
+            np=int(arg)
         if opt in ("--uploadDir", ):
             uploadDir = arg
         if opt in ('--noRun', ):

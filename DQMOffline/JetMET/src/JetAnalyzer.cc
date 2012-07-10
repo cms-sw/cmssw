@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/10/15 13:49:55 $
- *  $Revision: 1.22 $
+ *  $Date: 2010/04/03 14:36:22 $
+ *  $Revision: 1.21 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -26,8 +26,6 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet) {
   _JetLoPass   = 0;
   _JetHiPass   = 0;
   _ptThreshold = 5.;
-  _asymmetryThirdJetCut = 30.;
-  _balanceThirdJetCut   = 0.2; 
   _n90HitsMin =0;
   _fHPDMax=1.;
   _resEMFMin=0.;
@@ -91,8 +89,6 @@ void JetAnalyzer::beginJob(DQMStore * dbe) {
 
   //
   _ptThreshold = parameters.getParameter<double>("ptThreshold");
-  _asymmetryThirdJetCut = parameters.getParameter<double>("asymmetryThirdJetCut");
-  _balanceThirdJetCut   = parameters.getParameter<double>("balanceThirdJetCut");
   _n90HitsMin = parameters.getParameter<int>("n90HitsMin");
   _fHPDMax = parameters.getParameter<double>("fHPDMax");
   _resEMFMin = parameters.getParameter<double>("resEMFMin");
@@ -251,8 +247,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   bool emfcleanTight=true;
   if(makedijetselection==1){
     //Dijet selection - careful: the pT is uncorrected!
-    //if(makedijetselection==1 && caloJets.size()>=2){
-    if(caloJets.size()>=2){
+    if(makedijetselection==1 && caloJets.size()>=2){
       double  dphiDJ = -999. ;
       bool emfcleanLooseFirstJet=true;
       bool emfcleanLooseSecondJet=true;
@@ -277,7 +272,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    emfcleanTightFirstJet=true;
 	    emfcleanLooseSecondJet=true;
 	    emfcleanTightSecondJet=true;
-	    //jetID for first jet
 	    jetID->calculate(iEvent, (caloJets.at(0)));
 	    if(jetID->restrictedEMF()<_resEMFMinLoose && fabs((caloJets.at(0)).eta())<2.6) emfcleanLooseFirstJet=false;
 	    if(jetID->restrictedEMF()<_resEMFMinTight && fabs((caloJets.at(0)).eta())<2.6) emfcleanTightFirstJet=false;
@@ -288,8 +282,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    if (mfHPD)            mfHPD->Fill (jetID->fHPD());
 	    if (mresEMF)         mresEMF->Fill (jetID->restrictedEMF());
 	    if (mfRBX)            mfRBX->Fill (jetID->fRBX());
-
-	    //jetID for second jet
 	    jetID->calculate(iEvent, (caloJets.at(1)));
 	    if(jetID->restrictedEMF()<_resEMFMinLoose && fabs((caloJets.at(1)).eta())<2.6) emfcleanLooseSecondJet=false;
 	    if(jetID->restrictedEMF()<_resEMFMinTight && fabs((caloJets.at(1)).eta())<2.6) emfcleanTightSecondJet=false;
@@ -300,7 +292,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    if (mfHPD)            mfHPD->Fill (jetID->fHPD());
 	    if (mresEMF)         mresEMF->Fill (jetID->restrictedEMF());
 	    if (mfRBX)            mfRBX->Fill (jetID->fRBX());
-
 	    if(LoosecleanedFirstJet && LoosecleanedSecondJet) { //only if both jets are (loose) cleaned
 	      //fill histos for first jet
 	      if (mPt)   mPt->Fill ((caloJets.at(0)).pt());
@@ -375,81 +366,11 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      }
 
 	    }//if fillJIDPassFrac
-	  }// FABS DPHI < 2.1
-	}// fabs eta < 3
-      }// pt jets > threshold
-      //now do the dijet balance and asymmetry calculations
-      if (fabs(caloJets.at(0).eta() < 1.4)) {
-	double pt_dijet = (caloJets.at(0).eta() + caloJets.at(1).eta())/2;
-	
-	double dPhi = fabs((caloJets.at(0)).phi()-(caloJets.at(1)).phi());
-	if (dPhi > 3.14) dPhi=fabs(dPhi -6.28 );
-	
-	if (dPhi > 2.7) {
-	  double pt_probe;
-	  double pt_barrel;
-	  int jet1, jet2;
-
-	  srand( time(NULL));
-	  int randJet = rand() % 2;
-
-	  if (fabs(caloJets.at(1).eta() < 1.4)) {
-	    if (randJet) {
-	      jet1 = 0;
-	      jet2 = 1;
-	    }
-	    else {
-	      jet1 = 1;
-	      jet2 = 0;
-	    }
-	  
-	    /***Di-Jet Asymmetry****
-	     * leading jets eta < 1.4
-	     * leading jets dphi > 2.7
-	     * pt_third jet < threshold
-	     * A = (pt_1 - pt_2)/(pt_1 + pt_2)
-	     * jets 1 and two are randomly ordered
-	     */
-	    bool thirdJetCut = true;
-	    for (unsigned int third = 2; third < caloJets.size(); ++third) 
-	      if (caloJets.at(third).pt() > _asymmetryThirdJetCut) 
-		thirdJetCut = false;
-	    if (thirdJetCut) {
-	      double dijetAsymmetry = (caloJets.at(jet1).pt() - caloJets.at(jet2).pt()) / (caloJets.at(jet1).pt() + caloJets.at(jet2).pt());
-	      mDijetAsymmetry->Fill(dijetAsymmetry);
-	    }// end restriction on third jet pt in asymmetry calculation
-	      
 	  }
-	  else {
-	    jet1 = 0;
-	    jet2 = 1;
-	  }
-	  
-	  pt_barrel = caloJets.at(jet1).pt();
-	  pt_probe  = caloJets.at(jet2).pt();
-	  
-	  //dijet balance cuts
-	  /***Di-Jet Balance****
-	   * pt_dijet = (pt_probe+pt_barrel)/2
-	   * leading jets dphi > 2.7
-	   * reject evnets where pt_third/pt_dijet > 0.2
-	   * pv selection
-	   * B = (pt_probe - pt_barrel)/pt_dijet
-	   * select probe randomly from 2 jets if both leading jets are in the barrel
-	   */
-	  bool thirdJetCut = true;
-	  for (unsigned int third = 2; third < caloJets.size(); ++third) 
-	    if (caloJets.at(third).pt()/pt_dijet > _balanceThirdJetCut) 
-	      thirdJetCut = false;
-	  if (thirdJetCut) {
-	    double dijetBalance = (pt_probe - pt_barrel) / pt_dijet;
-	    mDijetBalance->Fill(dijetBalance);
-	  }// end restriction on third jet pt ratio in balance calculation
-	}// dPhi > 2.7
-      }// leading jet eta cut for asymmetry and balance calculations
-    }//jet size >= 2
-  }// do dijet selection
-  else {
+	}
+      }
+    }
+  } else {
     for (reco::CaloJetCollection::const_iterator jet = caloJets.begin(); jet!=caloJets.end(); ++jet) {
       LogTrace(jetname)<<"[JetAnalyzer] Analyze Calo Jet";
       Loosecleaned=false;

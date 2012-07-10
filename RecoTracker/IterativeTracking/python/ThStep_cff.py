@@ -4,17 +4,15 @@ import FWCore.ParameterSet.Config as cms
 # Large impact parameter Tracking using mixed-pair seeding #
 ############################################################
 
-# REMOVE HITS ASSIGNED TO GOOD TRACKS FROM PREVIOUS ITERATIONS
-secfilter = cms.EDProducer("QualityFilter",
-    TrackQuality = cms.string('highPurity'),
-    recTracks = cms.InputTag("secStep")
-)
 
 thClusters = cms.EDProducer("TrackClusterRemover",
+    clusterLessSolution = cms.bool(True),
     oldClusterRemovalInfo = cms.InputTag("secClusters"),
-    trajectories = cms.InputTag("secfilter"),
-    pixelClusters = cms.InputTag("secClusters"),
-    stripClusters = cms.InputTag("secClusters"),
+    TrackQuality = cms.string('highPurity'),
+    trajectories = cms.InputTag("secWithMaterialTracks"),
+    overrideTrkQuals = cms.InputTag('secStep'),                         
+    pixelClusters = cms.InputTag("siPixelClusters"),
+    stripClusters = cms.InputTag("siStripClusters"),
     Common = cms.PSet(
         maxChi2 = cms.double(30.0)
     )
@@ -30,14 +28,14 @@ thClusters = cms.EDProducer("TrackClusterRemover",
 )
 
 # TRACKER HITS
-import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
-thPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone(
-    src = 'thClusters'
-    )
-import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
-thStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
-    ClusterProducer = 'thClusters'
-    )
+#import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
+#thPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone(
+#    src = 'thClusters'
+#    )
+#import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
+#thStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
+#    ClusterProducer = 'thClusters'
+#    )
 
 # Propagator taking into account momentum uncertainty in multiple scattering calculation.
 
@@ -63,7 +61,8 @@ thlayertripletsa = cms.ESProducer("SeedingLayersESProducer",
         'FPix2_pos+TID3_pos+TEC1_pos', 'FPix2_neg+TID3_neg+TEC1_neg',
         'FPix2_pos+TEC2_pos+TEC3_pos', 'FPix2_neg+TEC2_neg+TEC3_neg'),
     TEC = cms.PSet(
-        matchedRecHits = cms.InputTag("thStripRecHits","matchedRecHit"),
+        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        skipClusters = cms.InputTag('thClusters'),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(1),
@@ -73,11 +72,13 @@ thlayertripletsa = cms.ESProducer("SeedingLayersESProducer",
         useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0051),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
-        HitProducer = cms.string('thPixelRecHits'),
+        HitProducer = cms.string('siPixelRecHits'),
+        skipClusters = cms.InputTag('thClusters'),
         hitErrorRZ = cms.double(0.0036)
     ),
     TID = cms.PSet(
-        matchedRecHits = cms.InputTag("thStripRecHits","matchedRecHit"),
+        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        skipClusters = cms.InputTag('thClusters'),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(1),
@@ -87,7 +88,8 @@ thlayertripletsa = cms.ESProducer("SeedingLayersESProducer",
         useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0027),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
-        HitProducer = cms.string('thPixelRecHits'),
+        HitProducer = cms.string('siPixelRecHits'),
+        skipClusters = cms.InputTag('thClusters'),
         hitErrorRZ = cms.double(0.006)
     )
 )
@@ -105,8 +107,8 @@ thTripletsA.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyC
 thTripletsA.RegionFactoryPSet.RegionPSet.ptMin = 0.25
 thTripletsA.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
 thTripletsA.RegionFactoryPSet.RegionPSet.originRadius = 2.0
-thTripletsA.ClusterCheckPSet.PixelClusterCollectionLabel = 'thClusters'
-thTripletsA.ClusterCheckPSet.ClusterCollectionLabel = 'thClusters'
+thTripletsA.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClusters'
+thTripletsA.ClusterCheckPSet.ClusterCollectionLabel = 'siStripClusters'
       
 
 thlayertripletsb = cms.ESProducer("SeedingLayersESProducer",
@@ -117,11 +119,13 @@ thlayertripletsb = cms.ESProducer("SeedingLayersESProducer",
         useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0027),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
-        HitProducer = cms.string('thPixelRecHits'),
+        HitProducer = cms.string('siPixelRecHits'),
+        skipClusters = cms.InputTag('thClusters'),
         hitErrorRZ = cms.double(0.006)
     ),
     TIB = cms.PSet(
-        matchedRecHits = cms.InputTag("thStripRecHits","matchedRecHit"),
+        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        skipClusters = cms.InputTag('thClusters'),
         TTRHBuilder = cms.string('WithTrackAngle')
     )
 )
@@ -139,8 +143,8 @@ thTripletsB.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyC
 thTripletsB.RegionFactoryPSet.RegionPSet.ptMin = 0.35
 thTripletsB.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
 thTripletsB.RegionFactoryPSet.RegionPSet.originRadius = 2.0
-thTripletsB.ClusterCheckPSet.PixelClusterCollectionLabel = 'thClusters'
-thTripletsB.ClusterCheckPSet.ClusterCollectionLabel = 'thClusters'
+thTripletsB.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClusters'
+thTripletsB.ClusterCheckPSet.ClusterCollectionLabel = 'siStripClusters'
 
 import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi
 thTriplets = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()
@@ -154,8 +158,9 @@ thTriplets.seedCollections = cms.VInputTag(
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 thMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
     ComponentName = 'thMeasurementTracker',
-    pixelClusterProducer = 'thClusters',
-    stripClusterProducer = 'thClusters'
+    pixelClusterProducer = 'siPixelClusters',
+    stripClusterProducer = 'siStripClusters',
+    skipClusters = cms.InputTag('thClusters')
     )
 
 # QUALITY CUTS DURING TRACK BUILDING
@@ -173,7 +178,8 @@ thCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProd
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
 thCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
     ComponentName = 'thCkfTrajectoryBuilder',
-    MeasurementTrackerName = 'thMeasurementTracker',
+    MeasurementTrackerName = '',
+    clustersToSkip = cms.InputTag('thClusters'),
     trajectoryFilterName = 'thCkfTrajectoryFilter',
     propagatorAlong = cms.string('PropagatorWithMaterialPtMin01'),
     propagatorOpposite = cms.string('PropagatorWithMaterialOppositePtMin01')
@@ -192,125 +198,111 @@ import RecoTracker.TrackProducer.TrackProducer_cfi
 thWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     AlgorithmName = cms.string('iter3'),
     src = 'thTrackCandidates',
-    clusterRemovalInfo = 'thClusters',
 )
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
-import RecoTracker.FinalTrackSelectors.selectLoose_cfi
-import RecoTracker.FinalTrackSelectors.selectTight_cfi
-import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
-import RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+thSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+    src='thWithMaterialTracks',
+    trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'thStepVtxLoose',
+            chi2n_par = 1.2,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 3,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 2,
+            d0_par1 = ( 1.2, 3.0 ),
+            dz_par1 = ( 1.2, 3.0 ),
+            d0_par2 = ( 1.3, 3.0 ),
+            dz_par2 = ( 1.3, 3.0 )
+            ), #end of pset for thStepVtxLoose
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'thStepTrkLoose',
+            chi2n_par = 0.6,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 4,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 1.2, 4.0 ),
+            dz_par1 = ( 1.2, 4.0 ),
+            d0_par2 = ( 1.2, 4.0 ),
+            dz_par2 = ( 1.2, 4.0 )
+            ), #end of pset for thStepTrkLoose
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'thStepVtxTight',
+            preFilterName = 'thStepVtxLoose',
+            chi2n_par = 0.6,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 3,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 1.1, 3.0 ),
+            dz_par1 = ( 1.1, 3.0 ),
+            d0_par2 = ( 1.2, 3.0 ),
+            dz_par2 = ( 1.2, 3.0 )
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'thStepTrkTight',
+            preFilterName = 'thStepTrkLoose',
+            chi2n_par = 0.4,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 5,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 4,
+            d0_par1 = ( 1.1, 4.0 ),
+            dz_par1 = ( 1.1, 4.0 ),
+            d0_par2 = ( 1.1, 4.0 ),
+            dz_par2 = ( 1.1, 4.0 )
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'thStepVtx',
+            preFilterName = 'thStepVtxTight',
+            chi2n_par = 0.4,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 3,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 1.1, 3.0 ),
+            dz_par1 = ( 1.1, 3.0 ),
+            d0_par2 = ( 1.2, 3.0 ),
+            dz_par2 = ( 1.2, 3.0 )
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'thStepTrk',
+            preFilterName = 'thStepTrkTight',
+            chi2n_par = 0.3,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 5,
+            maxNumberLostLayers = 0,
+            minNumber3DLayers = 4,
+            d0_par1 = ( 0.9, 4.0 ),
+            dz_par1 = ( 0.9, 4.0 ),
+            d0_par2 = ( 0.9, 4.0 ),
+            dz_par2 = ( 0.9, 4.0 )
+            )
+        ) #end of vpset
+    ) #end of clone
 
-thStepVtxLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
-    src = 'thWithMaterialTracks',
-    keepAllTracks = False,
-    copyExtras = False,
-    copyTrajectories = True,
-    chi2n_par = 1.2,
-    res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 3,
-    maxNumberLostLayers = 1,
-    minNumber3DLayers = 2,
-    d0_par1 = ( 1.2, 3.0 ),
-    dz_par1 = ( 1.2, 3.0 ),
-    d0_par2 = ( 1.3, 3.0 ),
-    dz_par2 = ( 1.3, 3.0 )
-    )
 
-thStepTrkLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
-    src = 'thWithMaterialTracks',
-    keepAllTracks = False,
-    copyExtras = False,
-    copyTrajectories = True,
-    chi2n_par = 0.6,
-    res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 4,
-    maxNumberLostLayers = 1,
-    minNumber3DLayers = 3,
-    d0_par1 = ( 1.2, 4.0 ),
-    dz_par1 = ( 1.2, 4.0 ),
-    d0_par2 = ( 1.2, 4.0 ),
-    dz_par2 = ( 1.2, 4.0 )
-    )
+import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
+thStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+    TrackProducers = cms.VInputTag(cms.InputTag('thWithMaterialTracks'),cms.InputTag('thWithMaterialTracks')),
+    hasSelector=cms.vint32(1,1),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag("thSelector","thStepVtx"),cms.InputTag("thSelector","thStepTrk")),
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(True) )),
+    writeOnlyTrkQuals=cms.bool(True)
+)                        
+
+#import RecoTracker.FinalTrackSelectors.trackQualMerger_cfi
+#thQualMerger = RecoTracker.FinalTrackSelectors.trackQualMerger_cfi.trackQualMerger.clone(
+#    src=cms.InputTag('thWithMaterialTracks'),
+#    trackSelectors=cms.VInputTag(cms.InputTag("thSelector","thStepVtx"),cms.InputTag("thSelector","thStepTrk"))
+#    )
 
 
-thStepVtxTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone(
-    src = 'thStepVtxLoose',
-    keepAllTracks = True,
-    copyExtras = False,
-    copyTrajectories = True,
-    chi2n_par = 0.6,
-    res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 3,
-    maxNumberLostLayers = 1,
-    minNumber3DLayers = 3,
-    d0_par1 = ( 1.1, 3.0 ),
-    dz_par1 = ( 1.1, 3.0 ),
-    d0_par2 = ( 1.2, 3.0 ),
-    dz_par2 = ( 1.2, 3.0 )
-    )
-
-thStepTrkTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone(
-    src = 'thStepTrkLoose',
-    keepAllTracks = True,
-    copyExtras = False,
-    copyTrajectories = True,
-    chi2n_par = 0.4,
-    res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 5,
-    maxNumberLostLayers = 1,
-    minNumber3DLayers = 4,
-    d0_par1 = ( 1.1, 4.0 ),
-    dz_par1 = ( 1.1, 4.0 ),
-    d0_par2 = ( 1.1, 4.0 ),
-    dz_par2 = ( 1.1, 4.0 )
-)
-
-
-thStepVtx = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
-    src = 'thStepVtxTight',
-    keepAllTracks = True,
-    copyExtras = False,
-    copyTrajectories = True,
-    chi2n_par = 0.4,
-    res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 3,
-    maxNumberLostLayers = 1,
-    minNumber3DLayers = 3,
-    d0_par1 = ( 1.1, 3.0 ),
-    dz_par1 = ( 1.1, 3.0 ),
-    d0_par2 = ( 1.2, 3.0 ),
-    dz_par2 = ( 1.2, 3.0 )
-)
-
-thStepTrk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
-    src = 'thStepTrkTight',
-    keepAllTracks = True,
-    copyExtras = False,
-    copyTrajectories = True,
-    chi2n_par = 0.3,
-    res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 5,
-    maxNumberLostLayers = 0,
-    minNumber3DLayers = 4,
-    d0_par1 = ( 0.9, 4.0 ),
-    dz_par1 = ( 0.9, 4.0 ),
-    d0_par2 = ( 0.9, 4.0 ),
-    dz_par2 = ( 0.9, 4.0 )
-    )
-
-thStep = RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi.simpleTrackListMerger.clone(
-    TrackProducer1 = 'thStepVtx',
-    TrackProducer2 = 'thStepTrk',
-    promoteTrackQuality = True
-    )
-
-thirdStep = cms.Sequence(secfilter*
-                         thClusters*
-                         thPixelRecHits*thStripRecHits*
+thirdStep = cms.Sequence(thClusters*
                          thTripletsA*thTripletsB*thTriplets*
                          thTrackCandidates*
                          thWithMaterialTracks*
-                         thStepVtxLoose*thStepTrkLoose*
-                         thStepVtxTight*thStepTrkTight*
-                         thStepVtx*thStepTrk*thStep)
+                         thSelector*thStep)

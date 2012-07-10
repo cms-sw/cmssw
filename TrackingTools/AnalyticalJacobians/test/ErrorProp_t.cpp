@@ -62,156 +62,71 @@ int main(int argc, char** argv) {
   GlobalPoint zero(0.,0.,0.); 
   std::cout << std::endl;
 
-  {
-    double totalStep(0.);
-    double singleStep(1.);
-    edm::HRTimeType timeFull=0;
-    edm::HRTimeType timeInf=0;
-    for (int i=0; i<10;++i) {
-      double s = singleStep;
-      totalStep += singleStep;
-      
-      GlobalVector h = tpg.magneticFieldInInverseGeV(tpg.position());
-      Surface::RotationType rot(Basic3DVector<float>(h),0);
-      Plane lplane(zero,rot);
-      HelixForwardPlaneCrossing::PositionType  a(lplane.toLocal(tpg.position()));
-      HelixForwardPlaneCrossing::DirectionType p(lplane.toLocal(tpg.momentum()));
-      double lcurv =   -h.mag()/p.perp()*tpg.charge();
-      std::cout << lcurv << " " <<  p.mag() << std::endl;
-      HelixForwardPlaneCrossing prop(a, p, lcurv);
-      LocalPoint x(prop.position(s));
-      LocalVector dir(prop.direction(s));
-      std::cout <<  dir.mag() << std::endl;
-      
-      GlobalTrajectoryParameters tpg2( lplane.toGlobal(x), 
-				       (p.mag()/dir.mag())*lplane.toGlobal(dir), 
-				       tpg.charge(), &m);
-      
-      std::cout << tpg2.position() << " " << tpg2.momentum() << std::endl;
-      AnalyticalCurvilinearJacobian full;
-      AnalyticalCurvilinearJacobian delta;
-      edm::HRTimeType sf= edm::hrRealTime();
-      full.computeFullJacobian(tpg,tpg2.position(),tpg2.momentum(),h,s);
-      timeFull +=(edm::hrRealTime()-sf);
-      edm::HRTimeType si= edm::hrRealTime();
-      delta.computeInfinitesimalJacobian(tpg,tpg2.position(),tpg2.momentum(),h,s);
-      timeInf +=(edm::hrRealTime()-si);
-      std::cout <<  full.jacobian() << std::endl;
-      std::cout << std::endl;
-      std::cout << delta.jacobian() << std::endl;
-      std::cout << std::endl;
-      tpg = tpg2;
-      fullJacobian *=full.jacobian();
-      deltaJacobian *=delta.jacobian();
-    }
+  double totalStep(0.);
+  double singleStep(1.);
+  for (int i=0; i<10;++i) {
+    double s = singleStep;
+    totalStep += singleStep;
 
-    std::cout << "---------------------------" << std::endl;
-    std::cout << std::endl;
-    std::cout << std::endl;
-    std::cout << "fullJacobian " << timeFull << std::endl;
-    std::cout <<  fullJacobian << std::endl;
-    std::cout << std::endl;
-    std::cout << "deltaJacobian " << timeInf << std::endl;
-    std::cout << deltaJacobian << std::endl;
-    std::cout << std::endl;
+    GlobalVector h = tpg.magneticFieldInInverseGeV(tpg.position());
+    Surface::RotationType rot(Basic3DVector<float>(h),0);
+    Plane lplane(zero,rot);
+    HelixForwardPlaneCrossing::PositionType  a(lplane.toLocal(tpg.position()));
+    HelixForwardPlaneCrossing::DirectionType p(lplane.toLocal(tpg.momentum()));
+    double lcurv =   -h.mag()/p.perp()*tpg.charge();
+    std::cout << lcurv << " " <<  p.mag() << std::endl;
+    HelixForwardPlaneCrossing prop(a, p, lcurv);
+    LocalPoint x(prop.position(s));
+    LocalVector dir(prop.direction(s));
+    std::cout <<  dir.mag() << std::endl;
 
- 
+    GlobalTrajectoryParameters tpg2( lplane.toGlobal(x), 
+				     (p.mag()/dir.mag())*lplane.toGlobal(dir), 
+				     tpg.charge(), &m);
+
+    std::cout << tpg2.position() << " " << tpg2.momentum() << std::endl;
     AnalyticalCurvilinearJacobian full;
-    GlobalVector h = tpg0.magneticFieldInInverseGeV(tpg0.position());
-    edm::HRTimeType s= edm::hrRealTime();
-    full.computeFullJacobian(tpg0,tpg.position(),tpg.momentum(),h,totalStep);
-    edm::HRTimeType e = edm::hrRealTime();
-    std::cout << "one step fullJacobian " << e-s << std::endl;
+    AnalyticalCurvilinearJacobian delta;
+    full.computeFullJacobian(tpg,tpg2.position(),tpg2.momentum(),h,s);
     std::cout <<  full.jacobian() << std::endl;
     std::cout << std::endl;
-    
-    std::cout << "---------------------------" << std::endl;
-
-    AlgebraicMatrix55 div;
-    for ( unsigned int i=0; i<5; ++i ) {
-      for ( unsigned int j=0; j<5; ++j ) {
-	//       div(i,j) = fabs(full.jacobian()(i,j))>1.e-20 ? fullJacobian(i,j)/full.jacobian()(i,j)-1 : 0;
-	div(i,j) = fullJacobian(i,j)-full.jacobian()(i,j);
-      }
-    }
-    std::cout << "Full relative" << std::endl << div << std::endl;
-    for ( unsigned int i=0; i<5; ++i ) {
-      for ( unsigned int j=0; j<5; ++j ) {
-	//       div(i,j) = fabs(full.jacobian()(i,j))>1.e-20 ? deltaJacobian(i,j)/full.jacobian()(i,j)-1 : 0;
-	div(i,j) = deltaJacobian(i,j)-full.jacobian()(i,j);
-      }
-    }
-    std::cout << "Delta relative" << std::endl << div << std::endl;
-
+    delta.computeInfinitesimalJacobian(tpg,tpg2.position(),tpg2.momentum(),h,s);
+    std::cout << delta.jacobian() << std::endl;
+    std::cout << std::endl;
+    tpg = tpg2;
+    fullJacobian *=full.jacobian();
+    deltaJacobian *=delta.jacobian();
   }
+  std::cout << "---------------------------" << std::endl;
+  std::cout << std::endl;
+  std::cout << std::endl;
+  std::cout <<  fullJacobian << std::endl;
+  std::cout << std::endl;
+  std::cout << deltaJacobian << std::endl;
+  std::cout << std::endl;
+  AnalyticalCurvilinearJacobian full;
+  GlobalVector h = tpg0.magneticFieldInInverseGeV(tpg0.position());
+  full.computeFullJacobian(tpg0,tpg.position(),tpg.momentum(),h,totalStep);
+  std::cout <<  full.jacobian() << std::endl;
+  std::cout << std::endl;
 
-  // for timing no printout
+  std::cout << "---------------------------" << std::endl;
 
-  fullJacobian = AlgebraicMatrixID();
-  deltaJacobian = AlgebraicMatrixID();
-  tpg = tpg0;
-  {
-    double totalStep(0.);
-    double singleStep(1.);
-    edm::HRTimeType timeFull=0;
-    edm::HRTimeType timeInf=0;
-    for (int i=0; i<10;++i) {
-      double s = singleStep;
-      totalStep += singleStep;
-      
-      GlobalVector h = tpg.magneticFieldInInverseGeV(tpg.position());
-      Surface::RotationType rot(Basic3DVector<float>(h),0);
-      Plane lplane(zero,rot);
-      HelixForwardPlaneCrossing::PositionType  a(lplane.toLocal(tpg.position()));
-      HelixForwardPlaneCrossing::DirectionType p(lplane.toLocal(tpg.momentum()));
-      double lcurv =   -h.mag()/p.perp()*tpg.charge();
-      HelixForwardPlaneCrossing prop(a, p, lcurv);
-      LocalPoint x(prop.position(s));
-      LocalVector dir(prop.direction(s));
-      
-      GlobalTrajectoryParameters tpg2( lplane.toGlobal(x), 
-				       (p.mag()/dir.mag())*lplane.toGlobal(dir), 
-				       tpg.charge(), &m);
-      
-      AnalyticalCurvilinearJacobian full;
-      AnalyticalCurvilinearJacobian delta;
-      edm::HRTimeType sf= edm::hrRealTime();
-      full.computeFullJacobian(tpg,tpg2.position(),tpg2.momentum(),h,s);
-      timeFull +=(edm::hrRealTime()-sf);
-      edm::HRTimeType si= edm::hrRealTime();
-      delta.computeInfinitesimalJacobian(tpg,tpg2.position(),tpg2.momentum(),h,s);
-      timeInf +=(edm::hrRealTime()-si);
-      tpg = tpg2;
-      fullJacobian *=full.jacobian();
-      deltaJacobian *=delta.jacobian();
+  AlgebraicMatrix55 div;
+  for ( unsigned int i=0; i<5; ++i ) {
+    for ( unsigned int j=0; j<5; ++j ) {
+//       div(i,j) = fabs(full.jacobian()(i,j))>1.e-20 ? fullJacobian(i,j)/full.jacobian()(i,j)-1 : 0;
+      div(i,j) = fullJacobian(i,j)-full.jacobian()(i,j);
     }
- 
-    AnalyticalCurvilinearJacobian full;
-    GlobalVector h = tpg0.magneticFieldInInverseGeV(tpg0.position());
-    edm::HRTimeType s= edm::hrRealTime();
-    full.computeFullJacobian(tpg0,tpg.position(),tpg.momentum(),h,totalStep);
-    edm::HRTimeType e = edm::hrRealTime();
- 
-    std::cout << "---------------------------" << std::endl;
-    std::cout << std::endl;
-    std::cout << std::endl;
-    std::cout << "fullJacobian " << timeFull << std::endl;
-    std::cout <<  fullJacobian << std::endl;
-    std::cout << std::endl;
-    std::cout << "deltaJacobian " << timeInf << std::endl;
-    std::cout << deltaJacobian << std::endl;
-    std::cout << std::endl;
-
- 
-    std::cout << "one step fullJacobian " << e-s << std::endl;
-    std::cout <<  full.jacobian() << std::endl;
-    std::cout << std::endl;
-
-    std::cout << "---------------------------" << std::endl;
-
   }
-
-
+  std::cout << "Full relative" << std::endl << div << std::endl;
+  for ( unsigned int i=0; i<5; ++i ) {
+    for ( unsigned int j=0; j<5; ++j ) {
+//       div(i,j) = fabs(full.jacobian()(i,j))>1.e-20 ? deltaJacobian(i,j)/full.jacobian()(i,j)-1 : 0;
+      div(i,j) = deltaJacobian(i,j)-full.jacobian()(i,j);
+    }
+  }
+  std::cout << "Delta relative" << std::endl << div << std::endl;
 
 
 

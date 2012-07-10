@@ -67,11 +67,6 @@ SiPixelRawDataErrorModule::SiPixelRawDataErrorModule() :
   nrows_(160) 
 { 
   _debug_ = false;
-  for(int i=0; i!=40; i++) for(int j=0; j!=37; j++){
-    FedChNErrArray[i][j]=0; 
-    FedChLErrArray[i][j]=0; 
-    if(j<21) FedETypeNErrArray[i][j]=0;
-  }
 }
 //
 SiPixelRawDataErrorModule::SiPixelRawDataErrorModule(const uint32_t& id) : 
@@ -80,11 +75,6 @@ SiPixelRawDataErrorModule::SiPixelRawDataErrorModule(const uint32_t& id) :
   nrows_(160)
 { 
   _debug_ = false;
-  for(int i=0; i!=40; i++) for(int j=0; j!=37; j++){
-    FedChNErrArray[i][j]=0; 
-    FedChLErrArray[i][j]=0; 
-    if(j<21) FedETypeNErrArray[i][j]=0;
-  }
 }
 //
 SiPixelRawDataErrorModule::SiPixelRawDataErrorModule(const uint32_t& id, const int& ncols, const int& nrows) : 
@@ -93,11 +83,6 @@ SiPixelRawDataErrorModule::SiPixelRawDataErrorModule(const uint32_t& id, const i
   nrows_(nrows)
 { 
   _debug_ = false;
-  for(int i=0; i!=40; i++) for(int j=0; j!=37; j++){
-    FedChNErrArray[i][j]=0; 
-    FedChLErrArray[i][j]=0; 
-    if(j<21) FedETypeNErrArray[i][j]=0;
-  }
 } 
 //
 // Destructor
@@ -206,7 +191,7 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
 	  if(errorType == 34) evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
         } else {
 	  uint32_t errorWord = di->getWord32();      // for 32-bit error words
-	  chanNmbr = (errorWord >> LINK_shift) & LINK_mask;
+	  chanNmbr = (errorWord >> LINK_shift) & LINK_mask; // default way to get channel number.  Only different for case 29 below.
 	  switch(errorType) {  // fill in the appropriate monitorables based on the information stored in the error word
 	  case(28) : {
 	    int NFa = (errorWord >> DB0_shift) & DataBit_mask;
@@ -223,7 +208,22 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
 	    if (NFe==1) fullType = 5; (meFullType_)->Fill((int)fullType);
 	    if (NF2==1) fullType = 6; (meFullType_)->Fill((int)fullType);
 	    if (L1A==1) fullType = 7; (meFullType_)->Fill((int)fullType);
-	    chanNmbr = 0;
+	    chanNmbr = 0;  // signifies channel not known
+	    break; }
+	  case(29) : {
+	    int CH1 = (errorWord >> DB0_shift) & DataBit_mask;
+	    int CH2 = (errorWord >> DB1_shift) & DataBit_mask;
+	    int CH3 = (errorWord >> DB2_shift) & DataBit_mask;
+	    int CH4 = (errorWord >> DB3_shift) & DataBit_mask;
+	    int CH5 = (errorWord >> DB4_shift) & DataBit_mask;
+	    int BLOCK_bits      = 3;
+	    int BLOCK_shift     = 8;
+	    uint32_t BLOCK_mask = ~(~uint32_t(0) << BLOCK_bits);
+	    int BLOCK = (errorWord >> BLOCK_shift) & BLOCK_mask;
+	    int localCH = 1*CH1+2*CH2+3*CH3+4*CH4+5*CH5;
+	    if (BLOCK%2==0) chanNmbr=(BLOCK/2)*9+localCH;
+	    else chanNmbr = ((BLOCK-1)/2)*9+4+localCH;
+	    if ((chanNmbr<1)||(chanNmbr>36)) chanNmbr=0;  // signifies unexpected result
 	    break; }
 	  case(30) : {
 	    int T0 = (errorWord >> DB0_shift) & DataBit_mask;
@@ -307,6 +307,21 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
 	    if (L1A==1) fullType = 7; (meFullType_)->Fill((int)fullType);
 	    chanNmbr = 0;
 	    break; }
+	  case(29) : {
+	    int CH1 = (errorWord >> DB0_shift) & DataBit_mask;
+	    int CH2 = (errorWord >> DB1_shift) & DataBit_mask;
+	    int CH3 = (errorWord >> DB2_shift) & DataBit_mask;
+	    int CH4 = (errorWord >> DB3_shift) & DataBit_mask;
+	    int CH5 = (errorWord >> DB4_shift) & DataBit_mask;
+	    int BLOCK_bits      = 3;
+	    int BLOCK_shift     = 8;
+	    uint32_t BLOCK_mask = ~(~uint32_t(0) << BLOCK_bits);
+	    int BLOCK = (errorWord >> BLOCK_shift) & BLOCK_mask;
+	    int localCH = 1*CH1+2*CH2+3*CH3+4*CH4+5*CH5;
+	    if (BLOCK%2==0) chanNmbr=(BLOCK/2)*9+localCH;
+	    else chanNmbr = ((BLOCK-1)/2)*9+4+localCH;
+	    if ((chanNmbr<1)||(chanNmbr>36)) chanNmbr=0;  // signifies unexpected result
+	    break; }
 	  case(30) : {
 	    int T0 = (errorWord >> DB0_shift) & DataBit_mask;
 	    int T1 = (errorWord >> DB1_shift) & DataBit_mask;
@@ -388,6 +403,21 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
 	    if (L1A==1) fullType = 7; (meFullType_)->Fill((int)fullType);
 	    chanNmbr = 0;
 	    break; }
+	  case(29) : {
+	    int CH1 = (errorWord >> DB0_shift) & DataBit_mask;
+	    int CH2 = (errorWord >> DB1_shift) & DataBit_mask;
+	    int CH3 = (errorWord >> DB2_shift) & DataBit_mask;
+	    int CH4 = (errorWord >> DB3_shift) & DataBit_mask;
+	    int CH5 = (errorWord >> DB4_shift) & DataBit_mask;
+	    int BLOCK_bits      = 3;
+	    int BLOCK_shift     = 8;
+	    uint32_t BLOCK_mask = ~(~uint32_t(0) << BLOCK_bits);
+	    int BLOCK = (errorWord >> BLOCK_shift) & BLOCK_mask;
+	    int localCH = 1*CH1+2*CH2+3*CH3+4*CH4+5*CH5;
+	    if (BLOCK%2==0) chanNmbr=(BLOCK/2)*9+localCH;
+	    else chanNmbr = ((BLOCK-1)/2)*9+4+localCH;
+	    if ((chanNmbr<1)||(chanNmbr>36)) chanNmbr=0;  // signifies unexpected result
+	    break; }
 	  case(30) : {
 	    int T0 = (errorWord >> DB0_shift) & DataBit_mask;
 	    int T1 = (errorWord >> DB1_shift) & DataBit_mask;
@@ -443,23 +473,44 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
 	}
       }//end if bladeon
       
-      if(!(errorType==30) || notReset){
-        if(!(FedId==38&&chanNmbr==7)){ // mask slow channel that spits out lots of EventNumber errors even when in STDBY!
-          numberOfSeriousErrors++;
-          FedChNErrArray[FedId][chanNmbr]++;
-          FedChLErrArray[FedId][chanNmbr] = errorType;
-          if(errorType<30) FedETypeNErrArray[FedId][errorType-25]++;
-          else if(errorType>30) FedETypeNErrArray[FedId][errorType-19]++;
-          else if(errorType==30 && TBMMessage==0) FedETypeNErrArray[FedId][errorType-25]++;
-          else if(errorType==30 && TBMMessage==1) FedETypeNErrArray[FedId][errorType-24]++;
-          else if(errorType==30 && (TBMMessage==2 || TBMMessage==3 || TBMMessage==4)) FedETypeNErrArray[FedId][errorType-23]++;
-          else if(errorType==30 && TBMMessage==7) FedETypeNErrArray[FedId][errorType-22]++;
-          else if(errorType==30 && TBMType==1) FedETypeNErrArray[FedId][errorType-21]++;
-          else if(errorType==30 && TBMType==2) FedETypeNErrArray[FedId][errorType-20]++;
-          else if(errorType==30 && TBMType==3) FedETypeNErrArray[FedId][errorType-19]++;
-	}
-      }
       if(!(FedId==38&&chanNmbr==7)){ // mask slow channel that spits out lots of EventNumber errors even when in STDBY!
+        if(!(errorType==30) || notReset){
+          std::string hid;
+          static const char chNfmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedChNErrArray_%d";
+          char chNbuf[sizeof(chNfmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
+          sprintf(chNbuf, chNfmt, FedId, chanNmbr);
+          hid = chNbuf;
+          meFedChNErrArray_[chanNmbr] = theDMBE->get(hid);
+          if(meFedChNErrArray_[chanNmbr]) meFedChNErrArray_[chanNmbr]->Fill(meFedChNErrArray_[chanNmbr]->getIntValue()+1);
+
+          static const char chLfmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedChLErrArray_%d";
+          char chLbuf[sizeof(chLfmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
+          sprintf(chLbuf, chLfmt, FedId, chanNmbr);
+          hid = chLbuf;
+          meFedChLErrArray_[chanNmbr] = theDMBE->get(hid); 
+          if(meFedChLErrArray_[chanNmbr]) meFedChLErrArray_[chanNmbr]->Fill(errorType); 
+
+          numberOfSeriousErrors++;
+          int messageType = 99;
+          if(errorType<30) messageType = errorType-25;
+          else if(errorType>30) messageType = errorType-19;
+          else if(errorType==30 && TBMMessage==0) messageType = errorType-25;
+          else if(errorType==30 && TBMMessage==1) messageType = errorType-24;
+          else if(errorType==30 && (TBMMessage==2 || TBMMessage==3 || TBMMessage==4)) messageType = errorType-23;
+          else if(errorType==30 && TBMMessage==7) messageType = errorType-22;
+          else if(errorType==30 && TBMType==1) messageType = errorType-21;
+          else if(errorType==30 && TBMType==2) messageType = errorType-20;
+          else if(errorType==30 && TBMType==3) messageType = errorType-19;
+          if(messageType<=20){
+            static const char fmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedETypeNErrArray_%d";
+            char buf[sizeof(fmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
+            sprintf(buf, fmt, FedId, messageType);
+            hid = buf;
+            meFedETypeNErrArray_[messageType] = theDMBE->get(hid); 
+            if(meFedETypeNErrArray_[messageType]) meFedETypeNErrArray_[messageType]->Fill(meFedETypeNErrArray_[messageType]->getIntValue()+1); 
+          }
+	}
+
         std::string currDir = theDMBE->pwd();
         static const char buf[] = "Pixel/AdditionalPixelErrors/FED_%d";
         char feddir[sizeof(buf)+2]; 
@@ -503,44 +554,15 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
         if(me) me->Fill((int)evtSize);
         theDMBE->cd(currDir);
       }
-    }//for loop
-    
-    std::string hid;
-    for(int i=0; i!=40; i++){
-      for(int j=0; j!=37; j++){
-        if(FedChNErrArray[i][j]>0){
-          static const char fmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedChNErrArray_%d";
-          char buf[sizeof(fmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
-          sprintf(buf, fmt, i, j);
-          hid = buf;
-          meFedChNErrArray_[j] = theDMBE->get(hid); 
-          if(meFedChNErrArray_[j]) meFedChNErrArray_[j]->Fill(FedChNErrArray[i][j]); 
-        }
-        if(FedChLErrArray[i][j]>0){
-          static const char fmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedChLErrArray_%d";
-          char buf[sizeof(fmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
-          sprintf(buf, fmt, i, j);
-          hid = buf;
-          meFedChLErrArray_[j] = theDMBE->get(hid); 
-          if(meFedChLErrArray_[j]) meFedChLErrArray_[j]->Fill(FedChLErrArray[i][j]); 
-        }
-        if(j<=20 && FedETypeNErrArray[i][j]>0){
-          static const char fmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedETypeNErrArray_%d";
-          char buf[sizeof(fmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
-          sprintf(buf, fmt, i, j);
-          hid = buf;
-          meFedETypeNErrArray_[j] = theDMBE->get(hid); 
-          if(meFedETypeNErrArray_[j]) meFedETypeNErrArray_[j]->Fill(FedETypeNErrArray[i][j]); 
-        }
-      }//end for j
-    }//end for i
+    }//end for loop over all errors on module
   }//end if not an empty iterator
-  
+
   return numberOfSeriousErrors;
 }
 
 int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataError>& input) {
   //std::cout<<"Entering   SiPixelRawDataErrorModule::fillFED: "<<static_cast<int>(id_)<<std::endl;
+  DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   unsigned int numberOfSeriousErrors = 0;
   
   edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = input.find(0xffffffff); // search  errors of detid
@@ -667,57 +689,47 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
 
 	if(!(errorType==30) || notReset){
           if(!(FedId==38&&chanNmbr==7)){ // mask slow channel that spits out lots of EventNumber errors even when in STDBY!
-	    numberOfSeriousErrors++;
-	    FedChNErrArray[FedId][chanNmbr]++;
-	    FedChLErrArray[FedId][chanNmbr] = errorType;
-	    if(errorType<30) FedETypeNErrArray[FedId][errorType-25]++;
-	    else if(errorType>30) FedETypeNErrArray[FedId][errorType-19]++;
-	    else if(errorType==30 && TBMMessage==0) FedETypeNErrArray[FedId][errorType-25]++;
-	    else if(errorType==30 && TBMMessage==1) FedETypeNErrArray[FedId][errorType-24]++;
-	    else if(errorType==30 && (TBMMessage==2 || TBMMessage==3 || TBMMessage==4)) FedETypeNErrArray[FedId][errorType-23]++;
-	    else if(errorType==30 && TBMMessage==7) FedETypeNErrArray[FedId][errorType-22]++;
-	    else if(errorType==30 && TBMType==1) FedETypeNErrArray[FedId][errorType-21]++;
-	    else if(errorType==30 && TBMType==2) FedETypeNErrArray[FedId][errorType-20]++;
-	    else if(errorType==30 && TBMType==3) FedETypeNErrArray[FedId][errorType-19]++;
-	  }
-	}
-      }// end if FedId
-    }// end for loop over all error words
-    
-    if(numberOfSeriousErrors>0) (meNErrors_)->Fill((float)numberOfSeriousErrors);
-    std::string hid;
-    // Get DQM interface
-    DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
-    for(int i=0; i!=40; i++){
-      if(static_cast<int>(id_) == i){
-	for(int j=0; j!=37; j++){
-          if(FedChNErrArray[i][j]>0){
-            static const char fmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedChNErrArray_%d";
-            char buf[sizeof(fmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
-            sprintf(buf, fmt, i, j);
-            hid = buf;
-            meFedChNErrArray_[j] = theDMBE->get(hid); 
-	    if(meFedChNErrArray_[j]) meFedChNErrArray_[j]->Fill(FedChNErrArray[i][j]); 
-          }
-          if(FedChLErrArray[i][j]>0){
-            static const char fmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedChLErrArray_%d";
-            char buf[sizeof(fmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
-            sprintf(buf, fmt, i, j);
-            hid = buf;
-            meFedChLErrArray_[j] = theDMBE->get(hid); 
-	    if(meFedChLErrArray_[j]) meFedChLErrArray_[j]->Fill(FedChLErrArray[i][j]); 
-          }
-          if(j<=20 && FedETypeNErrArray[i][j]>0){
-            static const char fmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedETypeNErrArray_%d";
-            char buf[sizeof(fmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
-            sprintf(buf, fmt, i, j);
-            hid = buf;
-	    meFedETypeNErrArray_[j] = theDMBE->get(hid); 
-            if(meFedETypeNErrArray_[j]) meFedETypeNErrArray_[j]->Fill(FedETypeNErrArray[i][j]); 
-          }
-        }//end for
+            std::string hid;
+
+            static const char chNfmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedChNErrArray_%d";
+            char chNbuf[sizeof(chNfmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
+            sprintf(chNbuf, chNfmt, FedId, chanNmbr);
+            hid = chNbuf;
+            meFedChNErrArray_[chanNmbr] = theDMBE->get(hid);
+            if(meFedChNErrArray_[chanNmbr]) meFedChNErrArray_[chanNmbr]->Fill(meFedChNErrArray_[chanNmbr]->getIntValue()+1);
+
+            static const char chLfmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedChLErrArray_%d";
+            char chLbuf[sizeof(chLfmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
+            sprintf(chLbuf, chLfmt, FedId, chanNmbr);
+            hid = chLbuf;
+            meFedChLErrArray_[chanNmbr] = theDMBE->get(hid); 
+            if(meFedChLErrArray_[chanNmbr]) meFedChLErrArray_[chanNmbr]->Fill(errorType); 
+
+            numberOfSeriousErrors++;
+            int messageType = 99;
+            if(errorType<30) messageType = errorType-25;
+            else if(errorType>30) messageType = errorType-19;
+            else if(errorType==30 && TBMMessage==0) messageType = errorType-25;
+            else if(errorType==30 && TBMMessage==1) messageType = errorType-24;
+            else if(errorType==30 && (TBMMessage==2 || TBMMessage==3 || TBMMessage==4)) messageType = errorType-23;
+            else if(errorType==30 && TBMMessage==7) messageType = errorType-22;
+            else if(errorType==30 && TBMType==1) messageType = errorType-21;
+            else if(errorType==30 && TBMType==2) messageType = errorType-20;
+            else if(errorType==30 && TBMType==3) messageType = errorType-19;
+            if(messageType<=20){
+              static const char fmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedETypeNErrArray_%d";
+              char buf[sizeof(fmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
+              sprintf(buf, fmt, FedId, messageType);
+              hid = buf;
+              meFedETypeNErrArray_[messageType] = theDMBE->get(hid); 
+              if(meFedETypeNErrArray_[messageType]) meFedETypeNErrArray_[messageType]->Fill(meFedETypeNErrArray_[messageType]->getIntValue()+1);
+            }
+	  }//end if bad channel
+        }//end if not 30 || notReset
       }//end if
     }//end for
+    if(numberOfSeriousErrors>0) (meNErrors_)->Fill((float)numberOfSeriousErrors);
+
   }// end if not an empty iterator
   
 //std::cout<<"...leaving   SiPixelRawDataErrorModule::fillFED. "<<std::endl;

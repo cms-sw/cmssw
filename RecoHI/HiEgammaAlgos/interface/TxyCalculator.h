@@ -27,10 +27,8 @@ class TxyCalculator
 public:  
    TxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel);
    double getTxy(const reco::SuperClusterRef p, double x, double y);
-   double getHollSxy(const reco::SuperClusterRef p, double thePtCut, double outerR, double innerR);
    int getNumAllTracks(double ptCut);
    int getNumLocalTracks(const reco::SuperClusterRef p, double detaCut, double ptCut);
-
    
 private:
 

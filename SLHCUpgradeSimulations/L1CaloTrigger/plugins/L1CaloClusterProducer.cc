@@ -1,99 +1,131 @@
-/* L1CaloClusterProducer
-Performs Clustering in Calorimeter
-and produces a Cluster Collection
+#include "SLHCUpgradeSimulations/L1CaloTrigger/interface/L1CaloAlgoBase.h"
 
-M.Bachtis,S.Dasu
-University of Wisconsin-Madison
-*/
+#include "SimDataFormats/SLHC/interface/L1CaloTower.h"
+#include "SimDataFormats/SLHC/interface/L1CaloCluster.h"
+#include "SimDataFormats/SLHC/interface/L1CaloTowerFwd.h"
+#include "SimDataFormats/SLHC/interface/L1CaloClusterFwd.h"
 
 
-// system include files
-#include <memory>
 
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SLHCUpgradeSimulations/L1CaloTrigger/interface/ClusteringModule.h"
-#include "SimDataFormats/SLHC/interface/L1CaloTriggerSetup.h"
-#include "SimDataFormats/SLHC/interface/L1CaloTriggerSetupRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+class L1CaloClusterProducer:public L1CaloAlgoBase < l1slhc::L1CaloTowerCollection, l1slhc::L1CaloClusterCollection >
+{
+  public:
+    L1CaloClusterProducer( const edm::ParameterSet & );
+    ~L1CaloClusterProducer(  );
 
-class L1CaloClusterProducer : public edm::EDProducer {
-   public:
-      explicit L1CaloClusterProducer(const edm::ParameterSet&);
-      ~L1CaloClusterProducer();
+    void initialize(  );
 
-   private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      /*INPUTS*/
+    void algorithm( const int &, const int & );
 
-      //Calorimeter Digis
-      edm::InputTag towers_;
-      bool verbosity_;
-      ClusteringModule module;
+  private:
+    int mElectronThrA, mElectronThrB;
+
 };
 
 
-   using namespace edm;
-   using namespace std;
-
-   using namespace l1slhc;
 
 
-L1CaloClusterProducer::L1CaloClusterProducer(const edm::ParameterSet& iConfig):
-  towers_(iConfig.getParameter<edm::InputTag>("src")),
-  verbosity_(iConfig.getUntrackedParameter<bool>("verbosity",false))
+
+
+
+L1CaloClusterProducer::L1CaloClusterProducer( const edm::ParameterSet & aConfig ):
+  L1CaloAlgoBase < l1slhc::L1CaloTowerCollection, l1slhc::L1CaloClusterCollection > ( aConfig )
 {
-  //Register Product
-  produces<l1slhc::L1CaloClusterCollection>();
 }
 
 
-L1CaloClusterProducer::~L1CaloClusterProducer()
+L1CaloClusterProducer::~L1CaloClusterProducer(  )
 {
+}
+
+
+void L1CaloClusterProducer::initialize(  )
+{
+  // these values are constant within an event, so do not recalculate them every time...
+  mElectronThrA = int ( double ( mCaloTriggerSetup->electronThr( 2 ) ) / 10. );
+  mElectronThrB = mCaloTriggerSetup->electronThr( 0 ) + ( mElectronThrA * mCaloTriggerSetup->electronThr( 1 ) );
+}
+
+
+void L1CaloClusterProducer::algorithm( const int &aEta, const int &aPhi )
+{
+  int lClusterIndex = mCaloTriggerSetup->getBin( aEta, aPhi );
+  std::pair < int, int >lClusterEtaPhi = mCaloTriggerSetup->getTowerEtaPhi( lClusterIndex );
+
+  l1slhc::L1CaloCluster lCaloCluster( lClusterEtaPhi.first, lClusterEtaPhi.second );
+
+  bool lFineGrain = false;
+  int lClusterEcalE = 0;
+  int lClusterTotalE = 0;
+  int lLeadTower = 0;
+
+  for ( int lTowerEta = aEta; lTowerEta <= aEta + 1; ++lTowerEta )
+  {
+    for ( int lTowerPhi = aPhi; lTowerPhi <= aPhi + 1; ++lTowerPhi )
+    {
+
+      // ---------- new way ------------
+      l1slhc::L1CaloTowerCollection::const_iterator lTowerItr = fetch( lTowerEta, lTowerPhi );
+      if ( lTowerItr != mInputCollection->end(  ) )
+      {
+        int lTowerTotalE = lTowerItr->E(  ) + lTowerItr->H(  );
+        // this is no longer done in filling map, so do it here
+        if ( lTowerTotalE > 0 )
+        {
+          // Skip over fine grain bit calculation if desired
+          if ( mCaloTriggerSetup->fineGrainPass(  ) == 1 )
+          {
+            lFineGrain = false;
+          }
+          else
+          {
+            lFineGrain = lFineGrain || lTowerItr->EcalFG(  );
+          }
+
+          lClusterTotalE += lTowerTotalE;
+          lClusterEcalE += lTowerItr->E(  );
+
+          l1slhc::L1CaloTowerRef lRef( mInputCollection, lTowerItr - mInputCollection->begin(  ) );
+          lCaloCluster.addConstituent( lRef );
+
+          if ( lTowerTotalE > lLeadTower )
+            lLeadTower = lTowerTotalE;
+        }
+      }
+      // ---------- new way ------------
+
+    }
+  }
+
+  // we only register the Cluster into the event if this condition is satisfied....
+  if ( lCaloCluster.E(  ) > 0 )
+  {
+    // Calculate Electron Cut and Save it in the Cluster
+    int lElectronValue = ( int )( 100. * ( ( double )lClusterEcalE ) / ( ( double )lClusterTotalE ) );
+    lCaloCluster.setEGammaValue( lElectronValue );
+
+    lCaloCluster.setLeadTower( lLeadTower >= mCaloTriggerSetup->seedTowerThr(  ) );
+
+    // Electron Bit Decision
+    bool lLowPtElectron = lCaloCluster.E(  ) <= mCaloTriggerSetup->electronThr( 1 ) && lElectronValue > mCaloTriggerSetup->electronThr( 0 );
+
+    bool lHighPtElectron = lCaloCluster.E(  ) > mCaloTriggerSetup->electronThr( 1 ) && lElectronValue > ( mElectronThrB - ( mElectronThrA * lCaloCluster.E(  ) ) );
+
+    lCaloCluster.setEGamma( lLowPtElectron || lHighPtElectron );
+
+    // FineGrain bit
+    lCaloCluster.setFg( lFineGrain );
+
+    mOutputCollection->insert( lClusterEtaPhi.first, lClusterEtaPhi.second , lCaloCluster );
+  }
 
 }
 
 
 
-void
-L1CaloClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-
-  edm::LogInfo("ClusterProducer") << "Starting Clustering Algorithm" << endl;
-
-  ESHandle<L1CaloTriggerSetup> setup;
-  iSetup.get<L1CaloTriggerSetupRcd>().get(setup);
-  module = ClusteringModule(*setup);
-  
-  //Get ECAL + HCAL Digits from the EVent
-  edm::Handle<L1CaloTowerCollection> towers;
-  iEvent.getByLabel(towers_,towers);
-  
-  //Book the Collection
-   std::auto_ptr<L1CaloClusterCollection> clusters (new L1CaloClusterCollection);
-   module.clusterize(*clusters,towers);
-   
-
-   //Put Clusters to file
-   edm::LogInfo("ClusterProducer") << "Saving " << clusters->size() <<" Clusters"<< endl;
-
-   if(verbosity_) {
-     printf("RAW Clusters---------------\n\n");
-     for(unsigned int i=0;i<clusters->size();++i)
-       std::cout << clusters->at(i)<<std::endl;
-   }
 
 
-   iEvent.put(clusters);
-}
 
 
-//#define DEFINE_ANOTHER_FWK_MODULE(type) DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
-DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<L1CaloClusterProducer>,"L1CaloClusterProducer"); DEFINE_FWK_PSET_DESC_FILLER(L1CaloClusterProducer);
-//DEFINE_ANOTHER_FWK_MODULE(L1CaloClusterProducer);
+DEFINE_EDM_PLUGIN( edm::MakerPluginFactory, edm::WorkerMaker < L1CaloClusterProducer >, "L1CaloClusterProducer" );
+DEFINE_FWK_PSET_DESC_FILLER( L1CaloClusterProducer );

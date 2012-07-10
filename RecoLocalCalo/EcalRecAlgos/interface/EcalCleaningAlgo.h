@@ -3,7 +3,7 @@
    Declaration of class EcalCleaningAlgo
 
    \author Stefano Argiro
-   \version $Id: EcalCleaningAlgo.h,v 1.2 2011/01/31 15:03:56 argiro Exp $
+   \version $Id: EcalCleaningAlgo.h,v 1.4 2011/05/12 19:00:34 vlimant Exp $
    \date 20 Dec 2010
 */
 
@@ -33,7 +33,7 @@ public:
   EcalRecHit::Flags checkTopology(const DetId& id,
 				  const EcalRecHitCollection& rhs);
 
-
+  void setFlags(EcalRecHitCollection& rhs);
   
 private:
   
@@ -50,7 +50,9 @@ private:
              | | |               */
   float e6e2 (const DetId& id, const EcalRecHitCollection& rhs);
 
-  float recHitE( const DetId id, const EcalRecHitCollection &recHits );
+  float recHitE( const DetId id, 
+		 const EcalRecHitCollection &recHits,
+		 bool  useTimingInfo);
   
   /// in EB, check if we are near a crack
   bool isNearCrack(const DetId& detid);

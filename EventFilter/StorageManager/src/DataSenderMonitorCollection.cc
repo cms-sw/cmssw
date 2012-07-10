@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.cc,v 1.16.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: DataSenderMonitorCollection.cc,v 1.17 2011/03/07 15:31:32 mommsen Exp $
 /// @file: DataSenderMonitorCollection.cc
 
 #include <string>
@@ -539,6 +539,7 @@ namespace stor {
       rbRecordPtr->dataDiscardCount.getStats(dataDiscardStats);
       localMissingDataDiscardCount += rbRecordPtr->initMsgCount + eventStats.getSampleCount() +
         errorEventStats.getSampleCount() - dataDiscardStats.getSampleCount();
+      localEPCount -= errorEventStats.getSampleCount();
       
       MonitoredQuantity::Stats dqmEventStats;
       MonitoredQuantity::Stats dqmDiscardStats;

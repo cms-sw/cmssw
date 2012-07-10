@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.39 2010/09/16 20:30:51 amraktad Exp $
+// $Id: FWEventItemsManager.cc,v 1.40 2010/10/27 16:27:23 amraktad Exp $
 //
 
 // system include files
@@ -203,7 +203,9 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
 
    clearItems();
    const FWConfiguration::KeyValues* keyValues =  iFrom.keyValues();
-   assert(0!=keyValues);
+
+   if (keyValues == 0) return;
+
    for (FWConfiguration::KeyValues::const_iterator it = keyValues->begin();
         it != keyValues->end();
         ++it)

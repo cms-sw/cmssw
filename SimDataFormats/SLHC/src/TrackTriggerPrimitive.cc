@@ -1,3 +1,4 @@
+#ifdef SLHC_DT_TRK_DFENABLE
 
 #include "SimDataFormats/SLHC/interface/TrackTriggerPrimitive.h"
 
@@ -14,13 +15,13 @@ TrackTriggerPrimitive::TrackTriggerPrimitive(const TrackTriggerHit& h)
 
 // ctor from two hits
 TrackTriggerPrimitive::TrackTriggerPrimitive(const TrackTriggerHit& h1, const TrackTriggerHit& h2)
-{ 
+{
   hits_.push_back(h1);
   hits_.push_back(h2);
 }
 
-// dtor 
-TrackTriggerPrimitive::~TrackTriggerPrimitive() { } 
+// dtor
+TrackTriggerPrimitive::~TrackTriggerPrimitive() { }
 
 /// get all hits
 std::vector< TrackTriggerHit > TrackTriggerPrimitive::getHits() const {
@@ -45,3 +46,4 @@ std::ostream& operator << (std::ostream& os, const TrackTriggerPrimitive& tp) {
   return os;
 }
 
+#endif

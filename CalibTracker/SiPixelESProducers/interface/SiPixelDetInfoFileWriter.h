@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  Mon Nov 20 10:04:31 CET 2006
-// $Id: SiPixelDetInfoFileWriter.h,v 1.1 2007/08/08 16:22:28 chiochia Exp $
+// $Id: SiPixelDetInfoFileWriter.h,v 1.2.2.1 2010/06/25 16:41:53 hcheung Exp $
 //
 //
 
@@ -43,6 +43,7 @@ private:
   std::ofstream outputFile_; 
   std::string filePath_;
 
+  bool writeROCInfo_;
 
 };
 #endif

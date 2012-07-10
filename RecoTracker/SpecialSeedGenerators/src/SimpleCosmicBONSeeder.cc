@@ -6,10 +6,8 @@
 // to seed Cosmics with B != 0
 
 #include "RecoTracker/SpecialSeedGenerators/interface/SimpleCosmicBONSeeder.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "RecoTracker/TkSeedGenerator/interface/FastLine.h"
 typedef TransientTrackingRecHit::ConstRecHitPointer SeedingHit;
 
 #include <numeric>

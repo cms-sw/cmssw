@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.h,v 1.11.10.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: StreamsMonitorCollection.h,v 1.15 2011/06/20 15:55:52 mommsen Exp $
 /// @file: StreamsMonitorCollection.h 
 
 #ifndef EventFilter_StorageManager_StreamsMonitorCollection_h
@@ -28,8 +28,8 @@ namespace stor {
    * A collection of MonitoredQuantities of output streams
    *
    * $Author: mommsen $
-   * $Revision: 1.11.10.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.15 $
+   * $Date: 2011/06/20 15:55:52 $
    */
   
   class StreamsMonitorCollection : public MonitorCollection
@@ -54,7 +54,7 @@ namespace stor {
 
       void incrementFileCount(const uint32_t lumiSection);
       void addSizeInBytes(double);
-      void reportLumiSectionInfo
+      bool reportLumiSectionInfo
       (
         const uint32_t& lumiSection,
         std::string& str
@@ -78,13 +78,32 @@ namespace stor {
     typedef std::vector<StreamRecordPtr> StreamRecordList;
 
 
+    struct EndOfRunReport
+    {
+      EndOfRunReport() { reset(); }
+
+      void reset()
+      { latestLumiSectionWritten = eolsCount = lsCountWithFiles = 0; }
+
+      void updateLatestWrittenLumiSection(uint32_t ls)
+      {
+        if (ls > latestLumiSectionWritten) latestLumiSectionWritten = ls;
+      }
+
+      uint32_t latestLumiSectionWritten;
+      unsigned int eolsCount;
+      unsigned int lsCountWithFiles;
+    };
+    typedef boost::shared_ptr<EndOfRunReport> EndOfRunReportPtr;
+
+
     explicit StreamsMonitorCollection(const utils::Duration_t& updateInterval);
 
-    const StreamRecordPtr getNewStreamRecord();
+    StreamRecordPtr getNewStreamRecord();
 
-    const StreamRecordList& getStreamRecordsMQ() const {
-      return streamRecords_;
-    }
+    void getStreamRecords(StreamRecordList&) const;
+
+    bool streamRecordsExist() const;
 
     const MonitoredQuantity& getAllStreamsFileCountMQ() const {
       return allStreamsFileCount_;
@@ -107,7 +126,7 @@ namespace stor {
       return allStreamsBandwidth_;
     }
 
-    void reportAllLumiSectionInfos(DbFileHandlerPtr);
+    void reportAllLumiSectionInfos(DbFileHandlerPtr, EndOfRunReportPtr);
 
 
   private:

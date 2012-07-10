@@ -29,7 +29,7 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-
+#include "TrackingTools/KalmanUpdators/interface/EtaPhiMeasurementEstimator.h"
 
 template <class T> T sqr( T t) {return t*t;}
 
@@ -289,14 +289,6 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
 
   const DetLayer * detLayer = layer->detLayer();
   OuterEstimator * est = 0;
-  if (detLayer->location() == GeomDetEnumerators::barrel) {
-    const BarrelDetLayer& bl = dynamic_cast<const BarrelDetLayer&>(*detLayer);
-    est = estimator(&bl,es);
-  } else {
-    const ForwardDetLayer& fl = dynamic_cast<const ForwardDetLayer&>(*detLayer);
-    est = estimator(&fl,es);
-  }
-  if (!est) return result;
 
   bool measurementMethod = false;
   if ( theMeasurementTrackerUsage > 0.5) measurementMethod = true;
@@ -310,7 +302,26 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
   const MagneticField * magField = field.product();
 
   const GlobalPoint vtx = origin();
-  GlobalVector dir = est->center() - vtx;
+  GlobalVector dir = direction();
+  
+  if (detLayer->subDetector() == GeomDetEnumerators::PixelBarrel || (!theUseEtaPhi  && detLayer->location() == GeomDetEnumerators::barrel)){
+    const BarrelDetLayer& bl = dynamic_cast<const BarrelDetLayer&>(*detLayer);
+    est = estimator(&bl,es);
+  } else if (detLayer->subDetector() == GeomDetEnumerators::PixelEndcap || (!theUseEtaPhi  && detLayer->location() == GeomDetEnumerators::endcap)) {
+    const ForwardDetLayer& fl = dynamic_cast<const ForwardDetLayer&>(*detLayer);
+    est = estimator(&fl,es);
+  }
+  
+  EtaPhiMeasurementEstimator etaPhiEstimator ((theEtaRange.second-theEtaRange.first)/2.,
+					      (thePhiMargin.left()+thePhiMargin.right())/2.);
+  MeasurementEstimator & findDetAndHits = etaPhiEstimator;
+  if (est){
+    LogDebug("RectangularEtaPhiTrackingRegion")<<"use pixel specific estimator.";
+    findDetAndHits =*est;
+  }
+  else{
+    LogDebug("RectangularEtaPhiTrackingRegion")<<"use generic etat phi estimator.";
+  }
    
   // TSOS
   float phi = dir.phi();
@@ -334,16 +345,28 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
 
   LayerMeasurements lm(measurementTracker);
    
-  vector<TrajectoryMeasurement> meas = lm.measurements(*detLayer, tsos, prop, *est);
+  vector<TrajectoryMeasurement> meas = lm.measurements(*detLayer, tsos, prop, findDetAndHits);
   typedef vector<TrajectoryMeasurement>::const_iterator IM;
   for (IM im = meas.begin(); im != meas.end(); im++) {
     TrajectoryMeasurement::ConstRecHitPointer ptrHit = im->recHit();
     if (ptrHit->isValid())  result.push_back( ptrHit );
   }
+
+  LogDebug("RectangularEtaPhiTrackingRegion")<<" found "<< meas.size()<<" minus one measurements on layer: "<<detLayer->subDetector();
+
   } else {
   //
   // temporary solution 
   //
+  if (detLayer->location() == GeomDetEnumerators::barrel) {
+    const BarrelDetLayer& bl = dynamic_cast<const BarrelDetLayer&>(*detLayer);
+    est = estimator(&bl,es);
+  } else {
+    const ForwardDetLayer& fl = dynamic_cast<const ForwardDetLayer&>(*detLayer);
+    est = estimator(&fl,es);
+  }
+  if (!est) return result;
+
   TrackingRegion::Hits layerHits = layer->hits(ev,es);
   for (TrackingRegion::Hits::const_iterator ih= layerHits.begin(); ih != layerHits.end(); ih++) {
     const TrackingRecHit * hit = (*ih)->hit();

@@ -16,104 +16,136 @@
 Definition of the event content (the packages where the contents are defined are listed \ref Configuration_EventContent "here")
 
 \htmlonly
-<table class="doctable" style="width: 70%; margin:0 auto;">
-<tbody>
-<tr valign="top">
-<th class="domain">Domain</th><th>Purpose</th><th class="contact">Contact</th>
+<table class="doctable">
+<caption>
+</caption>
+<tr valign=top><th class="domain">Domain</th><th>Purpose</th><th class="contact">Contact</th></tr>
+<tr>
+  <td> <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideRecoDataTable"> RECO Data </a> </td>
+  <td>Reconstruction output</td>
+  <td class="contact">
+    <a href="mailto:">Luca Lista</a>
+    <a href="mailto:">Tommaso Boccali</a>
+  </td>
 </tr>
-<tr class="odd">
-	<td>Gen<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEventGeneration">[Twiki]</a></td>
-	<td>Generators</td>
-	<td class="contact"> generatorsFabian Stoeckli, Fabio Cossutti </td>
+<tr>
+  <td><a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideAodDataTable"> AOD Data  </a> </td>
+  <td>Analysis input</td>
+  <td class="contact">
+    <a href="mailto:">Luca Lista</a>
+    <a href="mailto:">Tommaso Boccali</a>
+  </td>
 </tr>
-
-<tr class="even">
-	<td> Fullsim <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideSimulation">[Twiki]</a></td>
-	<td> Simulation </td>
-	<td class="contact"> Sunanda Banerjee, Mike Hildreth </td>
+<tr>
+  <td>  \endhtmlonly \ref SimData "SIM Data"  \htmlonly  </td>
+  <td>Simulation output and Monte Carlo truth</td>
+  <td class="contact">
+    <a href="mailto:">Filippo Ambroglini</a>,
+    <a href="mailto:">Fabio Cossutti</a>
+  </td>
 </tr>
-<tr class="odd">
-	<td> Fastsim <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFastSimulation">[Twiki]</a></td>
-	<td> Fast Simulation </td>
-	<td class="contact"> Andrea Perrotta, Salavat Abdouliine </td>
+<!-- still missing!
+<tr>
+  <td>  \endhtmlonly \ref CondData "COND Data"  \htmlonly  </td>
+  <td>Conditions data, including calibrations and alignments</td>
+  <td class="contact">
+  </td>
 </tr>
-<tr class="even">
-	<td> L1 <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideL1Trigger">[Twiki]</a></td>
-	<td> L1 </td>
-	<td class="contact"> Vasile Ghete, Eric Conte </td>
-</tr>
-<tr class="odd">
-	<td>HLT<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideHighLevelTrigger">[Twiki]</a></td>
-	<td > TSG </td>
-	<td class="contact"> Andrea Bocci, Martin Gruenewald </td>
-</tr>
-<tr class="even">
-	<td> Reco <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideReco">[Twiki]</a></td>
-	<td> Reconstruction </td>
-	<td class="contact"> David Lange, Jean-Roch Vlimant </td>
-</tr>
-<tr class="odd">
-	<td> Core <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrameWork">[Twiki]</a></td>
-	<td>CoreSW</td>
-	<td class="contact"> Peter Elmer, Chris Jones, Andreas Pfeiffer </td>
-</tr>
-<tr class="even">
-	<td> Dqm <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideDQM">[Twiki]</a></td>
-	<td>DQM</td>
-	<td class="contact"> Andreas Meyer, Giuseppe Della Ricca, Ilaria Segoni, Jan Olzem </td>
-</tr>
-<tr class="odd">
-	<td> Database <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCondDB">[Twiki]</a></td>
-	<td > DB </td>
-	<td class="contact"> Francesca Cavallari, Pigi Paolucci, Vincenzo Innocente, Frank Glege </td>
-</tr>
-<tr class="even">
-	<td> Calib/Alignement <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCalAli">[Twiki]</a></td>
-	<td> Calibration &amp; Alignment </td>
-	<td class="contact"> Rainer Mankel, Gianluca Cerminara, Stephanie Beauceron, Stefano Argiro </td>
-</tr>
-<tr class="odd">
-	<td> Analysis <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCrab">[Twiki]</a></td>
-	<td > Analysis Tools </td>
-	<td class="contact"> Benedikt Hegner, Salvatore Rappoccio </td>
-</tr>
-<tr class="even">
-	<td> Geometry <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideDetectorDescription">[Twiki]</a></td>
-	<td> Simulation </td>
-	<td class="contact"> Ianna Osborne, (S.Banerjee, M.Hildreth) </td>
-</tr>
-<tr class="odd">
-	<td> Documentation <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuide">[Twiki]</a></td>
-	<td > Documentation </td>
-	<td class="contact"> Kati Lassila Perini </td>
-</tr>
-<tr class="even">
-	<td> Daq <a href="https://twiki.cern.ch/twiki/bin/view/CMS/TriDASWikiHome">[Twiki]</a></td>
-	<td> Tridas </td>
-	<td class="contact"> Emilio Meschi </td>
-</tr>
-<tr class="odd">
-	<td> Visualization <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideVisualization">[Twiki]</a></td>
-	<td > Core SW </td>
-	<td class="contact"> Giulio Eulisse (iSpy), Dmytro Kovalsky, Chris Jones (FireWorks) </td>
-</tr>
-<tr class="even">
-	<td> Operations </td>
-	<td> DM/WM + L2s of reco, sim, fastsim, generators, analysis tools </td>
-	<td class="contact"> all the relevant conveners </td>
-</tr>
+-->
 </table>
+\endhtmlonly
 
-<!--
-\section datav Data View
-Definition of the event content (the packages where the contents are defined are listed \ref Configuration_EventContent "here")
 
 \section funcv Functional View
 Definition of packages according to the different functionalities.
 
+\htmlonly
+<table class="doctable">
+<caption>
+</caption>
+<tr valign=top><th class="domain">Domain</th><th>Purpose</th><th class="contact">Contact</th></tr>
+<tr>
+  <td>  \endhtmlonly \ref Framework "Framework and EDM"   \htmlonly  </td>
+  <td>Core Framework and Event Data Model components</td>
+  <td class="contact">
+    <a href="mailto:">Liz Sexton Kennedy</a>
+    <a href="mailto:">Peter Elmer</a>
+  </td>
+</tr>
+<tr>
+  <td>  \endhtmlonly \ref Reconstruction "Reconstruction"   \htmlonly  </td>
+  <td>Reconstruction sofware</td>
+  <td class="contact">
+    <a href="mailto:">Andrea Rizzi</a>
+    <a href="mailto:">Shahram Rahatlou</a>
+  </td>
+</tr>
+<tr>
+  <td>  \endhtmlonly \ref Simulation "Simulation" \htmlonly  </td>
+  <td>Simulation Software</td>
+  <td class="contact">
+    <a href="mailto:">Filipp Ambroglini</a>,
+    <a href="mailto:">Fabio Cossutti</a>
+  </td>
+</tr>
+<tr>
+  <td>  \endhtmlonly \ref PhysicsTools "Physics Tools" \htmlonly  </td>
+  <td>Physics Analysis Softare Tools</td>
+  <td class="contact">
+     <a href="mailto:">Luca Lista</a>
+     <a href="mailto:">Petar Maksimovic</a>
+  </td>
+</tr>
+<tr>
+  <td>  \endhtmlonly \ref Conditions "Conditions" \htmlonly  </td>
+  <td>Conditions services including calibrations and alignments</td>
+  <td class="contact">
+  </td>
+</tr>
+<tr>
+  <td>  \endhtmlonly \ref Services "Services" \htmlonly  </td>
+  <td>Common services</td>
+  <td class="contact">
+  </td>
+</tr>
+<tr>
+  <td>  \endhtmlonly \ref Iguana "Iguana" \htmlonly  </td>
+  <td>Visualization</td>
+  <td class="contact"> <a href="mailto:">Ianna Osborne</a>
+  </td>
+</tr>
+</table>
+\endhtmlonly
+
+
 \section detv Detector View
 Definition of packages by detector.
--->
+
+\htmlonly
+<table class="doctable">
+<caption>
+</caption>
+<tr valign=top><th class="domain">Domain</th><th>Purpose</th><th class="contact">Contact</th></tr>
+<tr>
+  <td>  \endhtmlonly \ref TrackerPackages "Tracker"   \htmlonly  </td>
+  <td>Tracker related simulation and reconstruction</td>
+  <td class="contact"><a href="mailto:Marcel.Vos@cern.ch">Marcel Vos</a>, <a href="mailto:Ian.Tomalin@cern.ch">Ian Tomalin</a>
+</tr>
+<tr>
+  <td>  \endhtmlonly \ref CaloPackages "Calorimetry" \htmlonly  </td>
+  <td>Software for the calorimeters: ECAL, HCAL</td>
+  <td class="contact"><a href="mailto:Paolo.Meridiani@cern.ch">Paolo Meridiani</a>,
+   <a href="mailto:Jeremy.Mans@cern.ch">Jeremiah Mans</a>
+  </td>
+</tr>
+<tr>
+  <td>  \endhtmlonly \ref MuonPackages "Muon"   \htmlonly  </td>
+  <td>Muon related simulation and reconstruction</td>
+  <td class="contact"><a href="mailto:">Nicola Amapane</a>,
+       <a href="mailto:">Tim Cox</a>
+  </td>
+</tr>
+</table>
 \endhtmlonly
 
 <br><br>

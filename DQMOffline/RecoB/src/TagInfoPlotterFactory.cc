@@ -5,7 +5,7 @@
 #include "DQMOffline/RecoB/interface/TrackIPTagPlotter.h"
 #include "DQMOffline/RecoB/interface/TaggingVariablePlotter.h"
 #include "DQMOffline/RecoB/interface/MVAJetTagPlotter.h"
-#include "FWCore/Utilities/interface/CodedException.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;
 

@@ -1,93 +1,173 @@
-/* L1CaloJetFilter
-Performs Clustering in Calorimeter
-and produces a Cluster Collection
 
-M.Bachtis,S.Dasu
-University of Wisconsin-Madison
-*/
+#include "SLHCUpgradeSimulations/L1CaloTrigger/interface/L1CaloAlgoBase.h"
 
+#include "SimDataFormats/SLHC/interface/L1CaloJet.h"
+#include "SimDataFormats/SLHC/interface/L1CaloJetFwd.h"
 
-// system include files
-#include <memory>
+class L1CaloJetFilter:
+public L1CaloAlgoBase < l1slhc::L1CaloJetCollection, l1slhc::L1CaloJetCollection >
+{
+  public:
+	L1CaloJetFilter( const edm::ParameterSet & );
+	 ~L1CaloJetFilter(  );
 
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SLHCUpgradeSimulations/L1CaloTrigger/interface/JetFilteringModule.h"
-#include "SimDataFormats/SLHC/interface/L1CaloTriggerSetup.h"
-#include "SimDataFormats/SLHC/interface/L1CaloTriggerSetupRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+	// void initialize( );
 
-class L1CaloJetFilter : public edm::EDProducer {
-   public:
-      explicit L1CaloJetFilter(const edm::ParameterSet&);
-      ~L1CaloJetFilter();
+	void algorithm( const int &, const int & );
 
-   private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      /*INPUTS*/
+  private:
 
-      //Calorimeter Digis
-      edm::InputTag jets_;
-      bool verbosity_;
-      JetFilteringModule filteringModule;
 };
 
-
-   using namespace edm;
-   using namespace std;
-
-   using namespace l1slhc;
-
-
-L1CaloJetFilter::L1CaloJetFilter(const edm::ParameterSet& iConfig):
-  jets_(iConfig.getParameter<edm::InputTag>("src")),
-  verbosity_(iConfig.getUntrackedParameter<bool>("verbosity",false))
+L1CaloJetFilter::L1CaloJetFilter( const edm::ParameterSet & aConfig ):L1CaloAlgoBase < l1slhc::L1CaloJetCollection, l1slhc::L1CaloJetCollection > ( aConfig )
 {
-  //Register Product
-  produces<l1slhc::L1CaloJetCollection>();
+	// mPhiOffset = 0;
+	mEtaOffset = -3;
+	mPhiIncrement = 4;
+	mEtaIncrement = 4;
 }
 
-
-L1CaloJetFilter::~L1CaloJetFilter()
+L1CaloJetFilter::~L1CaloJetFilter(  )
 {
+}
+
+/* 
+   void L1CaloJetFilter::initialize( ) { } */
+
+void L1CaloJetFilter::algorithm( const int &aEta, const int &aPhi )
+{
+
+	// Look if there is a cluster here
+	l1slhc::L1CaloJetCollection::const_iterator lJetItr = fetch( aEta, aPhi );
+	if ( lJetItr != mInputCollection->end(  ) )
+	{
+		l1slhc::L1CaloJet lFilteredJet( *lJetItr );
+
+		// Set lCentralFlag bit
+		bool lCentralFlag = true;
+
+		// right
+		l1slhc::L1CaloJetCollection::const_iterator lNeighbourItr = fetch( aEta + 4, aPhi );
+		// If lNeighbourItr exists
+		if ( lNeighbourItr != mInputCollection->end(  ) )
+		{
+			// Compare the energies and prune if the lNeighbourItr has higher Et
+			if ( lJetItr->E(  ) <= lNeighbourItr->E(  ) )
+			{
+				lFilteredJet.removeConstituent( 4, 0 );
+				lFilteredJet.removeConstituent( 4, 4 );
+				lCentralFlag = false;
+			}
+		}
+
+		// right-down
+		lNeighbourItr = fetch( aEta + 4, aPhi + 4 );
+		// If lNeighbourItr exists
+		if ( lNeighbourItr != mInputCollection->end(  ) )
+		{
+			// Compare the energies and prune if the lNeighbourItr has higher Et
+			if ( lJetItr->E(  ) <= lNeighbourItr->E(  ) )
+			{
+				lFilteredJet.removeConstituent( 4, 4 );
+				lCentralFlag = false;
+			}
+		}
+
+		// down
+		lNeighbourItr = fetch( aEta, aPhi + 4 );
+		// If lNeighbourItr exists
+		if ( lNeighbourItr != mInputCollection->end(  ) )
+		{
+			// Compare the energies and prune if the lNeighbourItr has higher Et
+			if ( lJetItr->E(  ) <= lNeighbourItr->E(  ) )
+			{
+
+				lFilteredJet.removeConstituent( 0, 4 );
+				lFilteredJet.removeConstituent( 4, 4 );
+				lCentralFlag = false;
+			}
+		}
+
+		// down-left
+		lNeighbourItr = fetch( aEta - 4, aPhi + 4 );
+		// If lNeighbourItr exists
+		if ( lNeighbourItr != mInputCollection->end(  ) )
+		{
+			// Compare the energies and prune if the lNeighbourItr has higher Et
+			if ( lJetItr->E(  ) <= lNeighbourItr->E(  ) )
+			{
+				lFilteredJet.removeConstituent( 0, 4 );
+				lCentralFlag = false;
+			}
+		}
+
+		// left
+		lNeighbourItr = fetch( aEta - 4, aPhi );
+		// If lNeighbourItr exists
+		if ( lNeighbourItr != mInputCollection->end(  ) )
+		{
+			// Compare the energies and prune if the lNeighbourItr has higher Et
+			if ( lJetItr->E(  ) < lNeighbourItr->E(  ) )
+			{
+				lFilteredJet.removeConstituent( 0, 0 );
+				lFilteredJet.removeConstituent( 0, 4 );
+				lCentralFlag = false;
+			}
+		}
+
+		// left-up
+		lNeighbourItr = fetch( aEta - 4, aPhi - 4 );
+		// If lNeighbourItr exists
+		if ( lNeighbourItr != mInputCollection->end(  ) )
+		{
+			// Compare the energies and prune if the lNeighbourItr has higher Et
+			if ( lJetItr->E(  ) < lNeighbourItr->E(  ) )
+			{
+				lFilteredJet.removeConstituent( aEta, aPhi );
+				lCentralFlag = false;
+			}
+		}
+
+		// up
+		lNeighbourItr = fetch( aEta, aPhi - 4 );
+		// If lNeighbourItr exists
+		if ( lNeighbourItr != mInputCollection->end(  ) )
+		{
+			// Compare the energies and prune if the lNeighbourItr has higher Et
+			if ( lJetItr->E(  ) < lNeighbourItr->E(  ) )
+			{
+				lFilteredJet.removeConstituent( 0, 0 );
+				lFilteredJet.removeConstituent( 4, 0 );
+				lCentralFlag = false;
+			}
+		}
+
+		// up-right
+		lNeighbourItr = fetch( aEta + 4, aPhi - 4 );
+		// If lNeighbourItr exists
+		if ( lNeighbourItr != mInputCollection->end(  ) )
+		{
+			// Compare the energies and prune if the lNeighbourItr has higher Et
+			if ( lJetItr->E(  ) < lNeighbourItr->E(  ) )
+			{
+				lFilteredJet.removeConstituent( 4, 0 );
+				lCentralFlag = false;
+			}
+		}
+
+		//std::cout << "original E = " << lJetItr->E(  ) << " original size = " << lJetItr->getConstituents().size() << "\tnew E = " << lFilteredJet.E(  ) << " new size = " << lFilteredJet.getConstituents().size() << std::endl;
+		// Check if the jet is over threshold
+		if ( lFilteredJet.E(  ) >= mCaloTriggerSetup->minJetET(  ) )
+		{
+			lFilteredJet.setCentral( lCentralFlag );
+
+			int lIndex = mCaloTriggerSetup->getBin( aEta, aPhi );
+			std::pair < int, int >lEtaPhi = mCaloTriggerSetup->getTowerEtaPhi( lIndex );
+			mOutputCollection->insert( lEtaPhi.first, lEtaPhi.second, lFilteredJet );
+		}
+	}
 
 }
 
-
-
-void
-L1CaloJetFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-
-  ESHandle<L1CaloTriggerSetup> setup;
-  iSetup.get<L1CaloTriggerSetupRcd>().get(setup);
-
-  filteringModule = JetFilteringModule(*setup);
-  
-  //Get ECAL + HCAL Digits from the EVent
-  edm::Handle<L1CaloJetCollection> ijets;
-  iEvent.getByLabel(jets_,ijets);
-  
-  //Book the Collection
-   std::auto_ptr<L1CaloJetCollection> jets (new L1CaloJetCollection);
-
-   filteringModule.cleanClusters(ijets,*jets);
-
-   if(verbosity_) {
-     printf("Filtered Jets---------------\n\n");
-     for(unsigned int i=0;i<jets->size();++i)
-       std::cout << jets->at(i)<<std::endl;
-   }
-
-
-   iEvent.put(jets);
-}
-//#define DEFINE_ANOTHER_FWK_MODULE(type) DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
-DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<L1CaloJetFilter>,"L1CaloJetFilter"); DEFINE_FWK_PSET_DESC_FILLER(L1CaloJetFilter);
-//DEFINE_ANOTHER_FWK_MODULE(L1CaloJetFilter);
+DEFINE_EDM_PLUGIN( edm::MakerPluginFactory, edm::WorkerMaker < L1CaloJetFilter >, "L1CaloJetFilter" );
+DEFINE_FWK_PSET_DESC_FILLER( L1CaloJetFilter );

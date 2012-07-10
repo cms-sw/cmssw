@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: MockApplication.h,v 1.5.10.1 2011/03/07 11:33:07 mommsen Exp $
+// $Id: MockApplication.h,v 1.6 2011/03/07 15:31:32 mommsen Exp $
 
 #ifndef MOCKAPPLICATION_H
 #define MOCKAPPLICATION_H
@@ -45,6 +45,7 @@ namespace stor
           new xdaq::ContextDescriptor( "none" ),
           "MockApplication", 0, "UnitTests"
         );
+      ((xdaq::ApplicationDescriptorImpl*)appDescriptor_)->setInstance(1);
       
       ispace_ = new xdata::InfoSpace("MockApplication");
     }

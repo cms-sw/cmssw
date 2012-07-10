@@ -3,6 +3,4 @@
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/TrackingRecHit"/>
-<export>
-  <lib   name="1"/>
-</export>
+

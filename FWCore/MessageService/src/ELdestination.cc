@@ -75,7 +75,7 @@ ELdestination::~ELdestination()  {
 // Methods invoked by the ELadministrator:
 // ----------------------------------------------------------------------
 
-bool ELdestination::log( const edm::ErrorObj & msg )  { return false; }
+bool ELdestination::log( const edm::ErrorObj &)  { return false; }
 
 
 // ----------------------------------------------------------------------
@@ -171,7 +171,7 @@ void ELdestination::summary( ELstring & s, const ELstring & title )  {
 
 }  // summary()
 
-void ELdestination::summaryForJobReport(std::map<std::string, double> & sm) { }
+void ELdestination::summaryForJobReport(std::map<std::string, double> &) { }
 
 void ELdestination::finish() {  }
 
@@ -180,7 +180,7 @@ void ELdestination::setTableLimit( int n )  { limits.setTableLimit( n ); }
 
 void ELdestination::summarization(
   const ELstring & title
-, const ELstring & sumLines )  {
+, const ELstring & /*sumLines*/ )  {
 
   edm::ErrorObj  msg( ELwarning2, noSummarizationMsg );
   msg << hereMsg << newline << title;
@@ -192,7 +192,7 @@ std::map<ELextendedID , StatsCount> ELdestination::statisticsMap() const {
   return std::map<ELextendedID , StatsCount> ();
 }
 
-void ELdestination::changeFile (std::ostream & os) {
+void ELdestination::changeFile (std::ostream & /*unused*/) {
   edm::ErrorObj  msg( ELwarning2, noosMsg );
   msg << notELoutputMsg;
   log( msg );

@@ -11,8 +11,8 @@
 /*
  * \file HcalDetDiagTimingClient.cc
  * 
- * $Date: 2010/03/25 11:02:25 $
- * $Revision: 1.2 $
+ * $Date: 2010/03/25 21:24:52 $
+ * $Revision: 1.3 $
  * \author J. Temple
  * \brief Hcal DetDiagTiming Client class
  */
@@ -44,6 +44,8 @@ HcalDetDiagTimingClient::HcalDetDiagTimingClient(std::string myname, const edm::
 						   ps.getUntrackedParameter<double>("minerrorrate",0.05));
   minevents_    = ps.getUntrackedParameter<int>("DetDiagTiming_minevents",
 						ps.getUntrackedParameter<int>("minevents",1));
+  Online_                = ps.getUntrackedParameter<bool>("online",false);
+
   ProblemCells=0;
   ProblemCellsByDepth=0;
 }

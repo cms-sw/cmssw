@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/12/04 00:52:39 $
- *  $Revision: 1.54 $
+ *  $Date: 2011/04/02 13:52:48 $
+ *  $Revision: 1.54.6.1 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -504,6 +504,9 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   _trig_MinBias=0;
   _trig_HighMET=0;
   _trig_LowMET=0;
+  _trig_Ele=0;
+  _trig_Muon=0;
+  _trig_PhysDec=0;
   if(&triggerResults) {   
     
     /////////// Analyzing HLT Trigger Results (TriggerResults) //////////

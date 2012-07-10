@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2011/02/28 16:44:29 $
- * $Revision: 1.70 $
+ * $Date: 2011/03/13 20:33:36 $
+ * $Revision: 1.71 $
  */
 
 
@@ -35,6 +35,9 @@ V00-03-25
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include <numeric>
 #include <math.h>
 #include <TMath.h>
@@ -53,10 +56,10 @@ const char * BeamMonitor::formatFitTime( const time_t & t )  {
   ptm = gmtime ( &t );
   int year = ptm->tm_year;
   if (year < 1995) {
-    edm::LogError("BadTimeStamp") << "year reported is " << year << "!! resetting to 2010..." << std::endl;
-    year = 2010;
+    edm::LogError("BadTimeStamp") << "year reported is " << year << "!! resetting to 2011..." << std::endl;
+    year = 2011;
   }
-  sprintf( ts, "%4d-%02d-%02d %02d:%02d:%02d", 2010,ptm->tm_mon+1,ptm->tm_mday,(ptm->tm_hour+CEST)%24, ptm->tm_min, ptm->tm_sec);
+  sprintf( ts, "%4d-%02d-%02d %02d:%02d:%02d", year,ptm->tm_mon+1,ptm->tm_mday,(ptm->tm_hour+CEST)%24, ptm->tm_min, ptm->tm_sec);
 
 #ifdef STRIP_TRAILING_BLANKS_IN_TIMEZONE
   unsigned int b = strlen(ts);
@@ -78,6 +81,7 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   monitorName_    = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
   bsSrc_          = parameters_.getUntrackedParameter<InputTag>("beamSpot");
   pvSrc_          = parameters_.getUntrackedParameter<InputTag>("primaryVertex");
+  hltSrc_         = parameters_.getParameter<InputTag>("hltResults");
   intervalInSec_  = parameters_.getUntrackedParameter<int>("timeInterval",920);//40 LS X 23"
   fitNLumi_       = parameters_.getUntrackedParameter<int>("fitEveryNLumi",-1);
   resetFitNLumi_  = parameters_.getUntrackedParameter<int>("resetEveryNLumi",-1);
@@ -86,6 +90,7 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   deltaSigCut_    = parameters_.getUntrackedParameter<double>("deltaSignificanceCut",15);
   debug_          = parameters_.getUntrackedParameter<bool>("Debug");
   onlineMode_     = parameters_.getUntrackedParameter<bool>("OnlineMode");
+  jetTrigger_     = parameters_.getUntrackedParameter<std::vector<std::string> >("jetTrigger");
   tracksLabel_    = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<InputTag>("TrackCollection");
   min_Ntrks_      = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<int>("MinimumInputTracks");
   maxZ_           = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<double>("MaximumZ");
@@ -312,8 +317,12 @@ void BeamMonitor::beginJob() {
   // Histos of PrimaryVertices:
   dbe_->setCurrentFolder(monitorName_+"PrimaryVertex");
 
-  h_nVtx = dbe_->book1D("vtxNbr","Reconstructed Vertices in Event",20,-0.5,19.5);
+  h_nVtx = dbe_->book1D("vtxNbr","Reconstructed Vertices(non-fake) in all Event",20,-0.5,19.5);
   h_nVtx->setAxisTitle("Num. of reco. vertices",1);
+  
+  //For one Trigger only
+  h_nVtx_st = dbe_->book1D("vtxNbr_SelectedTriggers","Reconstructed Vertices(non-fake) in Events",20,-0.5,19.5);
+  //h_nVtx_st->setAxisTitle("Num. of reco. vertices for Un-Prescaled Jet Trigger",1);
 
   // Monitor only the PV with highest sum pt of assoc. trks:
   h_PVx[0] = dbe_->book1D("PVX","x coordinate of Primary Vtx",50,-0.01,0.01);
@@ -568,7 +577,7 @@ void BeamMonitor::analyze(const Event& iEvent,
       cutFlowTable->setBinLabel(n+1,tmphisto->GetXaxis()->GetBinLabel(n+1),1);
   cutFlowTable = dbe_->book1D(cutFlowTableName, tmphisto);
 
-  //----Reco tracks -----Independent of BeamSpotProducer----------------------------
+  //----Reco tracks -------------------------------------
   Handle<reco::TrackCollection> TrackCollection;
   iEvent.getByLabel(tracksLabel_, TrackCollection);
   const reco::TrackCollection *tracks = TrackCollection.product();
@@ -578,15 +587,45 @@ void BeamMonitor::analyze(const Event& iEvent,
     h_trkVz->Fill(track->vz());
   }
 
+   //-------HLT Trigger --------------------------------
+   edm::Handle<TriggerResults> triggerResults;
+   bool JetTrigPass= false;
+  if(iEvent.getByLabel(hltSrc_, triggerResults)){
+     const edm::TriggerNames & trigNames = iEvent.triggerNames(*triggerResults); 
+      for (unsigned int i=0; i< triggerResults->size(); i++){
+           std::string trigName = trigNames.triggerName(i);
+
+         if(JetTrigPass) continue;
+
+        for(size_t t=0; t <jetTrigger_.size(); ++t){
+  
+         if(JetTrigPass) continue;
+
+          string string_search (jetTrigger_[t]);
+          size_t found = trigName.find(string_search); 
+
+          if(found != string::npos){
+             int thisTrigger_ = trigNames.triggerIndex(trigName);
+             if(triggerResults->accept(thisTrigger_))JetTrigPass = true;
+             }//if trigger found
+        }//for(t=0;..)
+      }//for(i=0; ..)
+   }//if trigger colleciton exist)
+
   //------ Primary Vertices-------
   edm::Handle< reco::VertexCollection > PVCollection;
 
   if (iEvent.getByLabel(pvSrc_, PVCollection )) {
     int nPVcount = 0;
+    int nPVcount_ST =0;   //For Single Trigger(hence ST)
+
     for (reco::VertexCollection::const_iterator pv = PVCollection->begin(); pv != PVCollection->end(); ++pv) {
       //--- vertex selection
       if (pv->isFake() || pv->tracksSize()==0)  continue;
-      nPVcount++; // count non fake pv
+      nPVcount++; // count non fake pv:
+
+      if(JetTrigPass)nPVcount_ST++; //non-fake pv with a specific trigger
+
       if (pv->ndof() < minVtxNdf_ || (pv->ndof()+3.)/pv->tracksSize() < 2*minVtxWgt_)  continue;
 
       //Fill this map to store xyx for pv so that later we can remove the first one for run aver
@@ -601,13 +640,20 @@ void BeamMonitor::analyze(const Event& iEvent,
         h_PVxz->Fill(pv->z(),pv->x());
         h_PVyz->Fill(pv->z(),pv->y());
       }//for first N LiS
+     else{
       h_PVxz->Fill(pv->z(),pv->x());
-      h_PVyz->Fill(pv->z(),pv->y());
+      h_PVyz->Fill(pv->z(),pv->y());}
 
     }//loop over pvs
-    if (nPVcount>0 ) h_nVtx->Fill(nPVcount*1.); //no need to change it for average BS
 
-  }//pv collection
+
+    if (nPVcount> 0 )h_nVtx->Fill(nPVcount*1.); //no need to change it for average BS
+
+    mapNPV[countLumi_].push_back((nPVcount_ST));
+
+    if(!StartAverage_){ if (nPVcount_ST>0 ) h_nVtx_st->Fill(nPVcount_ST*1.);}
+
+  }//if pv collection is availaable
 
 
   if(StartAverage_)
@@ -616,11 +662,15 @@ void BeamMonitor::analyze(const Event& iEvent,
     map<int, std::vector<float> >::iterator itpvy=mapPVy.begin();
     map<int, std::vector<float> >::iterator itpvz=mapPVz.begin();
 
+    map<int, std::vector<int> >::iterator itbspvinfo=mapNPV.begin();
+
     if( (int)mapPVx.size() > resetFitNLumi_){  //sometimes the events is not there but LS is there!
       mapPVx.erase(itpvx);
       mapPVy.erase(itpvy);
       mapPVz.erase(itpvz);
+      mapNPV.erase(itbspvinfo);
     }//loop over Last N lumi collected
+
   }//StartAverage==true
 
   processed_ = true;
@@ -675,21 +725,68 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
 
 
       //lets filt the PV for GUI here: It was in analyzer in preivous versiton but moved here due to absence of event in some lumis, works OK
+      bool resetHistoFlag_=false;
       if((int)mapPVx.size() >= resetFitNLumi_ && (StartAverage_)){
       h_PVx[0]->Reset();
       h_PVy[0]->Reset();
-      h_PVz[0]->Reset();}
+      h_PVz[0]->Reset();
+      h_nVtx_st->Reset();
+      resetHistoFlag_ = true;
+      }
+
+      int MaxPVs = 0;
+      int countEvtLastNLS_=0;
+      int countTotPV_= 0;      
+
+      std::map< int, std::vector<int> >::iterator mnpv=mapNPV.begin();
       std::map< int, std::vector<float> >::iterator mpv2=mapPVy.begin();
       std::map< int, std::vector<float> >::iterator mpv3=mapPVz.begin();
-     for(std::map< int, std::vector<float> >::iterator mpv1=mapPVx.begin(); mpv1 != mapPVx.end(); ++mpv1, ++mpv2, ++mpv3){
+
+     for(std::map< int, std::vector<float> >::iterator mpv1=mapPVx.begin(); mpv1 != mapPVx.end(); ++mpv1, ++mpv2, ++mpv3, ++mnpv)
+     {
         std::vector<float>::iterator mpvs2 = (mpv2->second).begin();
         std::vector<float>::iterator mpvs3 = (mpv3->second).begin();
       for(std::vector<float>::iterator mpvs1=(mpv1->second).begin(); mpvs1 !=(mpv1->second).end(); ++mpvs1, ++mpvs2, ++mpvs3){
-        h_PVx[0]->Fill( *mpvs1 ); //these histogram are reset after StartAverage_ flag is ON
-        h_PVy[0]->Fill( *mpvs2 );
-        h_PVz[0]->Fill( *mpvs3 );
-       }
+        if(resetHistoFlag_)
+            {h_PVx[0]->Fill( *mpvs1 ); //these histogram are reset after StartAverage_ flag is ON
+             h_PVy[0]->Fill( *mpvs2 );
+             h_PVz[0]->Fill( *mpvs3 );
+            }
+        }//loop over second 
+   
+       //Do the same here for nPV distr.
+      for(std::vector<int>::iterator mnpvs = (mnpv->second).begin(); mnpvs != (mnpv->second).end(); ++mnpvs){
+        if((*mnpvs > 0) && (resetHistoFlag_) )h_nVtx_st->Fill( (*mnpvs)*(1.0) );
+         countEvtLastNLS_++;
+         countTotPV_ += (*mnpvs);  
+        if((*mnpvs) > MaxPVs) MaxPVs =  (*mnpvs);
+       }//loop over second of mapNPV
+
      }//loop over last N lumis
+
+     char tmpTitlePV[100];               
+     sprintf(tmpTitlePV,"%s %i %s %i","Num. of reco. vertices for LS: ",beginLumiOfPVFit_," to ",endLumiOfPVFit_);   
+     h_nVtx_st->setAxisTitle(tmpTitlePV,1);
+
+     std::vector<float> DipPVInfo_;
+     DipPVInfo_.clear();
+
+   if(countTotPV_ != 0 ){
+     DipPVInfo_.push_back((float)countEvtLastNLS_);
+     DipPVInfo_.push_back(h_nVtx_st->getMean());
+     DipPVInfo_.push_back(h_nVtx_st->getMeanError());
+     DipPVInfo_.push_back(h_nVtx_st->getRMS());
+     DipPVInfo_.push_back(h_nVtx_st->getRMSError());
+     DipPVInfo_.push_back((float)MaxPVs);
+     DipPVInfo_.push_back((float)countTotPV_);
+     MaxPVs =0;
+    }
+   else{ for(size_t i= 0; i < 7; i++){if(i>0)DipPVInfo_.push_back(0.);
+                                      else DipPVInfo_.push_back((float)countEvtLastNLS_);}
+       }
+     theBeamFitter->SetPVInfo(DipPVInfo_);      
+     countEvtLastNLS_=0;
+
 
 
   if (onlineMode_) { // filling LS gap
@@ -1225,6 +1322,7 @@ void BeamMonitor::RestartFitting(){
                                                 mapPVx.clear();
                                                 mapPVy.clear();
                                                 mapPVz.clear();
+                                                mapNPV.clear();
                                                 mapBeginBSLS.clear();
                                                 mapBeginPVLS.clear();
                                                 mapBeginBSTime.clear();
@@ -1243,6 +1341,7 @@ if(debug_)edm::LogInfo("BeamMonitor") << "endRun:: Clearing all the Maps "<<endl
 mapPVx.clear();
 mapPVy.clear();
 mapPVz.clear();
+mapNPV.clear();
 mapBeginBSLS.clear();
 mapBeginPVLS.clear();
 mapBeginBSTime.clear();

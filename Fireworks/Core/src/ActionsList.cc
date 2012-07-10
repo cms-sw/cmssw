@@ -35,7 +35,6 @@ const std::string cmsshow::sShowEventDisplayInsp = "Show Collection Controller";
 const std::string cmsshow::sShowMainViewCtl      = "Show View Controller";
 const std::string cmsshow::sShowAddCollection    = "Show Add Collection";
 const std::string cmsshow::sShowInvMassDialog    = "Show Invariant Mass Dialog";
-const std::string cmsshow::sShowGeometryTable    = "Show Geometry Table";
 
 const std::string cmsshow::sHelp                 = "CmsShow Online Help";
 const std::string cmsshow::sKeyboardShort        = "CmsShow Shortcuts";

@@ -17,7 +17,6 @@ mix = cms.EDProducer("MixingModule",
     useCurrentProcessOnly = cms.bool(False),
                    
     input = cms.SecSource("PoolSource",
-        seed = cms.int32(1234567),
         type = cms.string('probFunction'),
         nbPileupEvents = cms.PSet(
           probFunctionVariable = cms.vint32(0,1,2,3,4,5,6,7,8,9,10),

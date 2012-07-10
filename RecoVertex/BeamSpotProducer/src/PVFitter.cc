@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
-   version $Id: PVFitter.cc,v 1.16 2010/11/03 13:44:17 friis Exp $
+   version $Id: PVFitter.cc,v 1.17.4.1 2011/05/24 19:03:53 burkett Exp $
 
 ________________________________________________________________**/
 
@@ -382,12 +382,15 @@ bool PVFitter::runFitter() {
       minuitx.SetParameter(0,"x",0.,0.02,-10.,10.);
       minuitx.SetParameter(1,"y",0.,0.02,-10.,10.);
       minuitx.SetParameter(2,"z",0.,0.20,-30.,30.);
-      minuitx.SetParameter(3,"ex",0.015,0.01,0.,10.);
+      //minuitx.SetParameter(3,"ex",0.015,0.01,0.,10.);
+      minuitx.SetParameter(3,"ex",0.015,0.01,0.0001,10.);
       minuitx.SetParameter(4,"corrxy",0.,0.02,-1.,1.);
-      minuitx.SetParameter(5,"ey",0.015,0.01,0.,10.);
+      //minuitx.SetParameter(5,"ey",0.015,0.01,0.,10.);
+      minuitx.SetParameter(5,"ey",0.015,0.01,0.0001,10.);
       minuitx.SetParameter(6,"dxdz",0.,0.0002,-0.1,0.1);
       minuitx.SetParameter(7,"dydz",0.,0.0002,-0.1,0.1);
-      minuitx.SetParameter(8,"ez",1.,0.1,0.,30.);
+      //minuitx.SetParameter(8,"ez",1.,0.1,0.,30.);
+      minuitx.SetParameter(8,"ez",1.,0.1,1.0,30.);
       minuitx.SetParameter(9,"scale",errorScale_,errorScale_/10.,errorScale_/2.,errorScale_*2.);
       //
       // first iteration without correlations
@@ -444,6 +447,12 @@ bool PVFitter::runFitter() {
       fwidthYerr = minuitx.GetParError(5);
       fwidthZerr = minuitx.GetParError(8);
 
+      // check errors on widths and sigmaZ for nan
+      if ( isnan(fwidthXerr) || isnan(fwidthYerr) || isnan(fwidthZerr) ) {
+          edm::LogWarning("PVFitter") << "3D beam spot fit returns nan in 3rd iteration" << std::endl;
+          return false;
+      }
+
       reco::BeamSpot::CovarianceMatrix matrix;
       // need to get the full cov matrix
       matrix(0,0) = pow( minuitx.GetParError(0), 2);
@@ -463,6 +472,7 @@ bool PVFitter::runFitter() {
       fbeamspot.setBeamWidthY( fwidthY );
       fbeamspot.setType(reco::BeamSpot::Tracker);
     }
+
     return true; //FIXME: Need to add quality test for the fit results!
 }
 

@@ -5,8 +5,8 @@
  *
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2011/03/23 16:14:34 $
- *  $Revision: 1.29 $
+ *  $Date: 2010/08/03 10:51:59 $
+ *  $Revision: 1.25 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -81,10 +81,8 @@ public:
   static double massResolution( const lorentzVector & mu1, const lorentzVector & mu2, double* parval );
 
   static double massProb( const double & mass, const double & rapidity, const int ires, const double & massResol );
-  /* static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, const std::vector<double> & parval, const bool doUseBkgrWindow = false ); */
-  /* static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, double * parval, const bool doUseBkgrWindow = false ); */
-  static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, const std::vector<double> & parval, const bool doUseBkgrWindow, const double & eta1, const double & eta2 );
-  static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, double * parval, const bool doUseBkgrWindow, const double & eta1, const double & eta2 );
+  static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, const std::vector<double> & parval, const bool doUseBkgrWindow = false );
+  static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, double * parval, const bool doUseBkgrWindow = false );
   static double computeWeight( const double & mass, const int iev, const bool doUseBkgrWindow = false );
 
   static double deltaPhi( const double & phi1, const double & phi2 )
@@ -170,9 +168,6 @@ public:
   static std::vector<double> parSmear;
   static std::vector<double> parBias;
   static std::vector<double> parResol;
-  static std::vector<double> parResolStep;
-  static std::vector<double> parResolMin;
-  static std::vector<double> parResolMax;
   static std::vector<double> parScale;
   static std::vector<double> parCrossSection;
   static std::vector<double> parBgr;
@@ -230,15 +225,12 @@ public:
   static bool useProbsFile_;
 
   // Cuts on the muons to use in the fit
-  static bool separateRanges_;
   static double minMuonPt_;
   static double maxMuonPt_;
   static double minMuonEtaFirstRange_;
   static double maxMuonEtaFirstRange_;
   static double minMuonEtaSecondRange_;
   static double maxMuonEtaSecondRange_;
-  static double deltaPhiMinCut_;
-  static double deltaPhiMaxCut_;
 
   static bool debugMassResol_;
   static struct massResolComponentsStruct

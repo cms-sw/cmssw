@@ -352,15 +352,23 @@ namespace cscdqm {
         }
 
         bool isCSCError = false;
+        bool fillBC = getCSCHisto(h::CSC_BINCHECK_ERRORSTAT_TABLE, crateID, dmbSlot, mo);
 
-        if (getCSCHisto(h::CSC_BINCHECK_ERRORSTAT_TABLE, crateID, dmbSlot, mo)) {
-          for (int bit = 5; bit < 24; bit++) {
-            if (chErr & (1 << bit) ) {
-              isCSCError = true;
+        for (int bit = 5; bit < 24; bit++) {
+
+          if (chErr & (1 << bit) ) {
+            isCSCError = true;
+            if (fillBC) {
               mo->Fill(0., bit - 5);
+            } else {
+              break;
             }
+          }
+
+          if (fillBC) {
             mo->SetEntries(config->getChamberCounterValue(DMB_EVENTS, crateID , dmbSlot));
           }
+
         }
 
         if (isCSCError) {

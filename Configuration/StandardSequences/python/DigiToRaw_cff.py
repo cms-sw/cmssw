@@ -17,8 +17,8 @@ from EventFilter.DTRawToDigi.dtPacker_cfi import *
 from EventFilter.RPCRawToDigi.rpcPacker_cfi import *
 from EventFilter.CastorRawToDigi.CastorDigiToRaw_cfi import *
 from EventFilter.RawDataCollector.rawDataCollector_cfi import *
-DigiToRaw = cms.Sequence(csctfpacker*dttfpacker*gctDigiToRaw*l1GtPack*l1GtEvmPack*siPixelRawData*SiStripDigiToRaw*ecalPacker*esDigiToRaw*hcalRawData*cscpacker*dtpacker*rpcpacker*rawDataCollector)
-#DigiToRaw = cms.Sequence(csctfpacker*dttfpacker*gctDigiToRaw*l1GtPack*l1GtEvmPack*siPixelRawData*SiStripDigiToRaw*ecalPacker*esDigiToRaw*hcalRawData*cscpacker*dtpacker*rpcpacker*castorRawData*rawDataCollector)
+#DigiToRaw = cms.Sequence(csctfpacker*dttfpacker*gctDigiToRaw*l1GtPack*l1GtEvmPack*siPixelRawData*SiStripDigiToRaw*ecalPacker*esDigiToRaw*hcalRawData*cscpacker*dtpacker*rpcpacker*rawDataCollector)
+DigiToRaw = cms.Sequence(csctfpacker*dttfpacker*gctDigiToRaw*l1GtPack*l1GtEvmPack*siPixelRawData*SiStripDigiToRaw*ecalPacker*esDigiToRaw*hcalRawData*cscpacker*dtpacker*rpcpacker*castorRawData*rawDataCollector)
 csctfpacker.lctProducer = "simCscTriggerPrimitiveDigis:MPCSORTED"
 csctfpacker.trackProducer = 'simCsctfTrackDigis'
 dttfpacker.DTDigi_Source = 'simDtTriggerPrimitiveDigis'

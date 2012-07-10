@@ -58,8 +58,6 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   wei_conf_id_=0;
   fgr_conf_id_=0;
   sli_conf_id_=0;
-  spi_conf_id_=0; //modif-alex 21/01/11
-  del_conf_id_=0; //modif-alex 21/01/11
   bxt_conf_id_=0;
   btt_conf_id_=0;
   tag_="";
@@ -71,17 +69,15 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   m_write_wei=1;
   m_write_fgr=1;
   m_write_sli=1;
-  m_write_spi=1; //modif-alex 21/01/11
-  m_write_del=1; //modif-alex 21/01/11
   m_write_bxt=1;
   m_write_btt=1;
 
   writeToDB_  = pSet.getParameter<bool>("writeToDB") ;
   DBEE_ = pSet.getParameter<bool>("allowDBEE") ;
-  string DBsid    = pSet.getParameter<std::string>("DBsid") ;
-  string DBuser   = pSet.getParameter<std::string>("DBuser") ;
-  string DBpass   = pSet.getParameter<std::string>("DBpass") ;
-  //uint32_t DBport = pSet.getParameter<unsigned int>("DBport") ;
+  std::string DBsid    = pSet.getParameter<std::string>("DBsid") ;
+  std::string DBuser   = pSet.getParameter<std::string>("DBuser") ;
+  std::string DBpass   = pSet.getParameter<std::string>("DBpass") ;
+  //unsigned int32_t DBport = pSet.getParameter<unsigned int>("DBport") ;
   
   tag_   = pSet.getParameter<std::string>("TPGtag") ;
   version_ = pSet.getParameter<unsigned int>("TPGversion") ;
@@ -92,21 +88,21 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   m_write_wei = pSet.getParameter<unsigned int>("TPGWriteWei") ;
   m_write_fgr = pSet.getParameter<unsigned int>("TPGWriteFgr") ;
   m_write_sli = pSet.getParameter<unsigned int>("TPGWriteSli") ;
-  m_write_spi = pSet.getParameter<unsigned int>("TPGWriteSpi") ; //modif-alex 21/01/11
-  m_write_del = pSet.getParameter<unsigned int>("TPGWriteDel") ; //modif-alex 21/01/11
   m_write_bxt = pSet.getParameter<unsigned int>("TPGWriteBxt") ;
   m_write_btt = pSet.getParameter<unsigned int>("TPGWriteBtt") ;
 
   btt_conf_id_=m_write_btt;
   bxt_conf_id_=m_write_bxt;
  
-  try {
-    if (writeToDB_) std::cout << "data will be saved with tag and version="<< tag_<< ".version"<<version_<< endl;
-    db_ = new EcalTPGDBApp(DBsid, DBuser, DBpass) ;
-  } catch (exception &e) {
-    cout << "ERROR:  " << e.what() << endl;
-  } catch (...) {
-    cout << "Unknown error caught" << endl;
+  if (writeToDB_) {
+    try {
+      std::cout << "data will be saved with tag and version="<< tag_<< ".version"<<version_<< std::endl;
+      db_ = new EcalTPGDBApp(DBsid, DBuser, DBpass) ;
+    } catch (std::exception &e) {
+      std::cout << "ERROR:  " << e.what() << std::endl;
+    } catch (...) {
+      std::cout << "Unknown error caught" << std::endl;
+    }
   }
 
   writeToFiles_ =  pSet.getParameter<bool>("writeToFiles") ;
@@ -154,163 +150,9 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   FG_lut_tower_EE_ = pSet.getParameter<unsigned int>("FG_lut_tower_EE") ;
   SFGVB_Threshold_ = pSet.getParameter<unsigned int>("SFGVB_Threshold") ;
   SFGVB_lut_ = pSet.getParameter<unsigned int>("SFGVB_lut") ;
-  SFGVB_SpikeKillingThreshold_ = pSet.getParameter<int>("SFGVB_SpikeKillingThreshold") ; //modif-alex 21/01/11
   pedestal_offset_ = pSet.getParameter<unsigned int>("pedestal_offset") ;
 
   useInterCalibration_  = pSet.getParameter<bool>("useInterCalibration") ;
-  H2_ = pSet.getUntrackedParameter<bool>("H2",false) ;
-
-  //modif-alex-23/02/2011
-  //convert the spike killing first from GeV to ADC (10 bits)                                                                                                                                                    
-  //depending on the saturation scale: Et_sat_EB_                                                                                                                                                                
-  if(SFGVB_SpikeKillingThreshold_ == -1 || (SFGVB_SpikeKillingThreshold_ > Et_sat_EB_)) 
-    SFGVB_SpikeKillingThreshold_ = 1023; //nokilling
-  else
-    SFGVB_SpikeKillingThreshold_ = int(SFGVB_SpikeKillingThreshold_ * 1024/Et_sat_EB_);    
-  std::cout << "INFO:SPIKE KILLING THRESHOLD (ADC)=" << SFGVB_SpikeKillingThreshold_ << std::endl;
-
-  //modif-alex-02/02/11
-  //TIMING information 
-  TimingDelays_EB_ = pSet.getParameter<std::string>("timing_delays_EB") ;
-  TimingDelays_EE_ = pSet.getParameter<std::string>("timing_delays_EE") ;
-  TimingPhases_EB_ = pSet.getParameter<std::string>("timing_phases_EB") ;
-  TimingPhases_EE_ = pSet.getParameter<std::string>("timing_phases_EE") ;
-
-  std::cout << "INFO: READING timing files" << std::endl;
-  std::ifstream delay_eb(TimingDelays_EB_.c_str()); 
-  if(!delay_eb) std::cout << "ERROR: File " << TimingDelays_EB_.c_str() << " could not be opened" << std::endl;
-  std::ifstream delay_ee(TimingDelays_EE_.c_str());
-  if(!delay_ee) std::cout << "ERROR: File " << TimingDelays_EE_.c_str() << " could not be opened" << std::endl;
-  std::ifstream phase_eb(TimingPhases_EB_.c_str());
-  if(!phase_eb) std::cout << "ERROR: File " << TimingPhases_EB_.c_str() << " could not be opened" << std::endl;
-  std::ifstream phase_ee(TimingPhases_EE_.c_str());
-  if(!phase_ee) std::cout << "ERROR: File " << TimingPhases_EE_.c_str() << " could not be opened" << std::endl;
-  
-  char buf[1024];
-  //READING DELAYS EB
-  delay_eb.getline(buf,sizeof(buf),'\n');
-  while( delay_eb ) {
-    std::stringstream sin(buf);
-
-    int tcc; 
-    sin >> tcc;
-
-    vector<int> vec_delays_eb;
-    for(int ieb=0; ieb<68; ++ieb){
-      int time_delay = -1;
-      sin >> time_delay;
-      vec_delays_eb.push_back(time_delay);
-      if(time_delay==-1)  std::cout << "ERROR:Barrel timing delay -1, check file" << std::endl;
-    }
-
-    if(vec_delays_eb.size()!=68)
-      std::cout << "ERROR:Barrel timing delay wrong, not enough towers, check file" << std::endl;
-
-    if (delays_EB_.find(tcc) == delays_EB_.end())
-      delays_EB_.insert(make_pair(tcc,vec_delays_eb));
-
-    cout << tcc << " "; 
-    for(unsigned int ieb=0; ieb<vec_delays_eb.size(); ++ieb)
-      cout << vec_delays_eb[ieb] << " ";
-    cout << endl;
-
-    delay_eb.getline(buf,sizeof(buf),'\n');
-  }//loop delay file EB
-  delay_eb.close();
-
-  //READING PHASES EB
-  phase_eb.getline(buf,sizeof(buf),'\n');
-  while( phase_eb ) {
-    std::stringstream sin(buf);
-    int tcc;
-    sin >> tcc;
-
-    vector<int> vec_phases_eb;
-    for(unsigned int ieb=0; ieb<68; ++ieb){
-      int time_phase = -1;
-      sin >> time_phase;
-      vec_phases_eb.push_back(time_phase);
-      if(time_phase==-1)  std::cout << "ERROR:Barrel timing phase -1, check file" << std::endl;
-    }
-
-    if(vec_phases_eb.size()!=68)
-      std::cout << "ERROR:Barrel timing phase wrong, not enough towers, check file" << std::endl;
-
-    if (phases_EB_.find(tcc) == phases_EB_.end())
-      phases_EB_.insert(make_pair(tcc,vec_phases_eb));
-
-    cout << tcc << " ";
-    for(unsigned int ieb=0; ieb<vec_phases_eb.size(); ++ieb)
-      cout << vec_phases_eb[ieb] << " ";
-    cout << endl;
-
-    phase_eb.getline(buf,sizeof(buf),'\n');
-  }//loop phase file EB
-  phase_eb.close();
-
-  //READING DELAYS EE//------------------------------------------------
-  delay_ee.getline(buf,sizeof(buf),'\n');
-  while( delay_ee ) {
-    std::stringstream sin(buf);
-    int tcc; 
-    sin >> tcc;
-
-    vector<int> vec_delays_ee;
-    for(unsigned int iee=0; iee<48; ++iee){
-      int time_delay = -1;
-      sin >> time_delay;
-      vec_delays_ee.push_back(time_delay);
-      if(time_delay==-1)  std::cout << "ERROR:EE timing delay -1, check file" << std::endl;
-    }
-
-    if(vec_delays_ee.size()!=48)
-      std::cout << "ERROR:EE timing delay wrong, not enough towers, check file" << std::endl;
-
-    if (delays_EE_.find(tcc) == delays_EE_.end())
-      delays_EE_.insert(make_pair(tcc,vec_delays_ee));
-
-    cout << tcc << " "; 
-    for(unsigned int iee=0; iee<vec_delays_ee.size(); ++iee)
-      cout << vec_delays_ee[iee] << " ";
-    cout << endl;
-
-    delay_ee.getline(buf,sizeof(buf),'\n');
-  }//loop delay file EE
-  delay_ee.close();
-
-
-  //READING PHASES EE
-  phase_ee.getline(buf,sizeof(buf),'\n');
-  while( phase_ee ) {
-    std::stringstream sin(buf);
-    int tcc;
-    sin >> tcc;
-
-    vector<int> vec_phases_ee;
-    for(unsigned int iee=0; iee<48; ++iee){
-      int time_phase = -1;
-      sin >> time_phase;
-      vec_phases_ee.push_back(time_phase);
-      if(time_phase==-1)  std::cout << "ERROR:EE timing phase -1, check file" << std::endl;
-    }
-
-    if(vec_phases_ee.size()!=48)
-      std::cout << "ERROR:EE timing phase wrong, not enough towers, check file" << std::endl;
-
-    if (phases_EE_.find(tcc) == phases_EE_.end())
-      phases_EE_.insert(make_pair(tcc,vec_phases_ee));
-
-    cout << tcc << " ";
-    for(unsigned int iee=0; iee<vec_phases_ee.size(); ++iee)
-      cout << vec_phases_ee[iee] << " ";
-    cout << endl;
-
-    phase_ee.getline(buf,sizeof(buf),'\n');
-  }//loop phase file EE
-  phase_ee.close();
-
-  std::cout << "INFO: DONE reading timing files for EB and EE" << std::endl;
-
 }
 
 EcalTPGParamBuilder::~EcalTPGParamBuilder()
@@ -405,12 +247,12 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   TH1F * hshapeEE = new TH1F("shapeEE", "shapeEE", 250, 0., 10.) ;
 
   TTree * ntuple = new TTree("tpgmap","TPG geometry map") ;
-  const std::string branchFloat[26] = {"fed","tcc","tower","stripInTower","xtalInStrip",
-				       "CCU","VFE","xtalInVFE","xtalInCCU","ieta","iphi",
-				       "ix","iy","iz","hashedId","ic","cmsswId","dbId","ietaTT","iphiTT",
-				       "TCCch","TCCslot","SLBch","SLBslot","ietaGCT","iphiGCT"} ;
-  ntupleInts_ = new Int_t[26] ;
-  for (int i=0 ; i<26 ; i++) ntuple->Branch(branchFloat[i].c_str(),&ntupleInts_[i],(branchFloat[i]+string("/I")).c_str()) ;
+  const char * branchFloat[24] = {"fed","tcc","tower","stripInTower","xtalInStrip",
+			    "CCU","VFE","xtalInVFE","xtalInCCU","ieta","iphi",
+			    "ix","iy","iz","hashedId","ic","ietaTT","iphiTT",
+			    "TCCch","TCCslot","SLBch","SLBslot","ietaGCT","iphiGCT"} ;
+  ntupleFloats_ = new Float_t[24] ;
+  for (int i=0 ; i<24 ; i++) ntuple->Branch(branchFloat[i],&ntupleFloats_[i],branchFloat[i]) ;
   ntuple->Branch("det",ntupleDet_,"det/C") ;
   ntuple->Branch("crate",ntupleCrate_,"crate/C") ;
 
@@ -429,12 +271,12 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   list<uint32_t> stripListEE ;
   list<uint32_t>::iterator itList ;
   
-  map<int, uint32_t> stripMapEB ; // <EcalLogicId.hashed, strip elec id>
-  map<uint32_t, uint32_t> stripMapEBsintheta ; // <strip elec id, sintheta>
+  std::map<int, uint32_t> stripMapEB ; // <EcalLogicId.hashed, strip elec id>
+  std::map<uint32_t, uint32_t> stripMapEBsintheta ; // <strip elec id, sintheta>
 
 
   // Pedestals
-  std::cout <<"Getting the pedestals from offline DB..."<<endl;
+  std::cout <<"Getting the pedestals from offline DB..."<<std::endl;
   ESHandle<EcalPedestals> pedHandle;
   evtSetup.get<EcalPedestalsRcd>().get( pedHandle );
   const EcalPedestalsMap & pedMap = pedHandle.product()->getMap() ;
@@ -448,7 +290,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
 
   // Intercalib constants
-  std::cout <<"Getting intercalib from offline DB..."<<endl;
+  std::cout <<"Getting intercalib from offline DB..."<<std::endl;
   ESHandle<EcalIntercalibConstants> pIntercalib ;
   evtSetup.get<EcalIntercalibConstantsRcd>().get(pIntercalib) ;
   const EcalIntercalibConstants * intercalib = pIntercalib.product() ;
@@ -459,27 +301,10 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     std::cout<<(*calIter)<<std::endl ;
   }  
   std::cout<<"...\n"<<std::endl ;
-  float calibvec[1700] ;
-  if (H2_) {
-    std::cout<<"H2: overwriting IC coef with file"<<std::endl ;
-    std::ifstream calibfile("calib_sm36.txt", std::ios::out) ;  
-    int idata, icry ; 
-    float fdata, fcali ;
-    std::string strdata ;
-    if (calibfile.is_open()) {
-      calibfile >> strdata >>  strdata >>  strdata >>  strdata >>  strdata ;
-      while(!calibfile.eof()) {
-	calibfile >> idata >> icry >> fcali >> fdata >> fdata ;
-	calibvec[icry-1] = fcali ;
-	if(calibfile.eof()){
-	  break ; // avoid last line duplication
-	}
-      }
-    }
-  }    
+
 
   // Gain Ratios
-  std::cout <<"Getting the gain ratios from offline DB..."<<endl;
+  std::cout <<"Getting the gain ratios from offline DB..."<<std::endl;
   ESHandle<EcalGainRatios> pRatio;
   evtSetup.get<EcalGainRatiosRcd>().get(pRatio);
   const EcalGainRatioMap & gainMap = pRatio.product()->getMap();
@@ -493,7 +318,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
 
   // ADCtoGeV
-  std::cout <<"Getting the ADC to GEV from offline DB..."<<endl;
+  std::cout <<"Getting the ADC to GEV from offline DB..."<<std::endl;
   ESHandle<EcalADCToGeVConstant> pADCToGeV ;
   evtSetup.get<EcalADCToGeVConstantRcd>().get(pADCToGeV) ;
   const EcalADCToGeVConstant * ADCToGeV = pADCToGeV.product() ;
@@ -504,102 +329,85 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   std::cout<<std::endl ;  
 
   
-  vector<EcalLogicID> my_EcalLogicId;
-  vector<EcalLogicID> my_TTEcalLogicId;
-  vector<EcalLogicID> my_StripEcalLogicId;
+  std::vector<EcalLogicID> my_EcalLogicId;
+  std::vector<EcalLogicID> my_TTEcalLogicId;
+  std::vector<EcalLogicID> my_StripEcalLogicId;
   EcalLogicID my_EcalLogicId_EB;
     // Endcap identifiers
   EcalLogicID my_EcalLogicId_EE;
-  vector<EcalLogicID> my_TTEcalLogicId_EE;
-  vector<EcalLogicID> my_RTEcalLogicId_EE;
-  vector<EcalLogicID> my_StripEcalLogicId1_EE;
-  vector<EcalLogicID> my_StripEcalLogicId2_EE;
-  vector<EcalLogicID> my_CrystalEcalLogicId_EE;
-  vector<EcalLogicID> my_TTEcalLogicId_EB_by_TCC;
-  vector<EcalLogicID> my_StripEcalLogicId_EE_strips_by_TCC;
+  std::vector<EcalLogicID> my_TTEcalLogicId_EE;
+  std::vector<EcalLogicID> my_RTEcalLogicId_EE;
+  std::vector<EcalLogicID> my_StripEcalLogicId1_EE;
+  std::vector<EcalLogicID> my_StripEcalLogicId2_EE;
+  std::vector<EcalLogicID> my_CrystalEcalLogicId_EE;
 
+  if (writeToDB_){
+    std::cout<<"going to get the ecal logic id set"<< std::endl;
 
-  std::cout<<"going to get the ecal logic id set"<< endl;
-  my_EcalLogicId_EB = db_->getEcalLogicID( "EB",EcalLogicID::NULLID,EcalLogicID::NULLID,EcalLogicID::NULLID,"EB");
-  my_EcalLogicId_EE = db_->getEcalLogicID( "EE",EcalLogicID::NULLID,EcalLogicID::NULLID,EcalLogicID::NULLID,"EE");
-  my_EcalLogicId = db_->getEcalLogicIDSetOrdered( "EB_crystal_number",
-						  1, 36,
-						  1, 1700,
-						  EcalLogicID::NULLID,EcalLogicID::NULLID,
-						  "EB_crystal_number",12 );
-  my_TTEcalLogicId = db_->getEcalLogicIDSetOrdered( "EB_trigger_tower",
+    my_EcalLogicId_EB = db_->getEcalLogicID( "EB",EcalLogicID::NULLID,EcalLogicID::NULLID,EcalLogicID::NULLID,"EB");
+    my_EcalLogicId_EE = db_->getEcalLogicID( "EE",EcalLogicID::NULLID,EcalLogicID::NULLID,EcalLogicID::NULLID,"EE");
+
+    my_EcalLogicId = db_->getEcalLogicIDSetOrdered( "EB_crystal_number",
+						    1, 36,
+						    1, 1700,
+						    EcalLogicID::NULLID,EcalLogicID::NULLID,
+						    "EB_crystal_number",12 );
+    my_TTEcalLogicId = db_->getEcalLogicIDSetOrdered( "EB_trigger_tower",
 						    1, 36,
 						    1, 68,
 						    EcalLogicID::NULLID,EcalLogicID::NULLID,
 						    "EB_trigger_tower",12 );
-  my_StripEcalLogicId = db_->getEcalLogicIDSetOrdered( "EB_VFE",   1, 36,   1, 68,   1,5 ,  "EB_VFE",123 ); //last digi means ordered 1st by SM,then TT, then strip 
-  std::cout<<"got the 3 ecal barrel logic id set"<< endl;
+    my_StripEcalLogicId = db_->getEcalLogicIDSetOrdered( "EB_VFE",   1, 36,   1, 68,   1,5 ,  "EB_VFE",123 ); //last digi means ordered 1st by SM,then TT, then strip 
+    std::cout<<"got the 3 ecal barrel logic id set"<< std::endl;
 
-  // EE crystals identifiers
-  my_CrystalEcalLogicId_EE = db_->getEcalLogicIDSetOrdered("EE_crystal_number",
-							   -1, 1,
-							   0, 200,
-							   0, 200,
-							   "EE_crystal_number",123 );
-  
-  // EE Strip identifiers
-  // DCC=601-609 TT = ~40 EEstrip = 5
-  my_StripEcalLogicId1_EE = db_->getEcalLogicIDSetOrdered( "ECAL_readout_strip",   
-							   601, 609,   
-							   1, 100,   
-							   0,5 ,  
-							   "ECAL_readout_strip",123 );
-  // EE Strip identifiers
-  // DCC=646-654 TT = ~40 EEstrip = 5
-  my_StripEcalLogicId2_EE = db_->getEcalLogicIDSetOrdered( "ECAL_readout_strip",   
-							   646, 654,   
-							   1, 100,   
-							   0,5 ,  
-							   "ECAL_readout_strip",123 );
-  // ----> modif here 31/1/2011   
-  // EE Strip identifiers by TCC tower strip
-  // TCC=1-108 TT = ~40 EEstrip = 1-5
-  my_StripEcalLogicId_EE_strips_by_TCC = db_->getEcalLogicIDSetOrdered( "EE_trigger_strip",   
-							   1, 108,   
-							   1, 100,   
-							   1,5 ,  
-							   "EE_trigger_strip",123 );
+    // EE crystals identifiers
+    // EE crystals identifiers
+    my_CrystalEcalLogicId_EE = db_->getEcalLogicIDSetOrdered("EE_crystal_number",
+    						    -1, 1,
+						    0, 200,
+						    0, 200,
+						    "EE_crystal_number",123 );
 
-  
-  // ----> modif here 31/1/2011
-  // ECAL Barrel trigger towers by TCC/tower identifiers
-  // TTC=38-72 TT = 1-68
-  my_TTEcalLogicId_EB_by_TCC = db_->getEcalLogicIDSetOrdered( "ECAL_trigger_tower",
-						       1, 108,
-						       1, 68,
-						       EcalLogicID::NULLID,EcalLogicID::NULLID,
-						       "ECAL_trigger_tower",12 );
-  
-  // EE TT identifiers
-  // TTC=72 TT = 1440
-  my_TTEcalLogicId_EE = db_->getEcalLogicIDSetOrdered( "EE_trigger_tower",
-						       1, 108,
-						       1, 40,
-						       EcalLogicID::NULLID,EcalLogicID::NULLID,
-						       "EE_trigger_tower",12 );
-  
-  // EE TT identifiers    
-  // TTC=72 TT = 1440
-  my_RTEcalLogicId_EE = db_->getEcalLogicIDSetOrdered( "EE_readout_tower",
-						       1, 1000,
-						       1, 100,
-						       EcalLogicID::NULLID,EcalLogicID::NULLID,
-						       "EE_readout_tower",12 );
-  
-  std::cout<<"got the end cap logic id set"<< endl;
+						    
+    // EE Strip identifiers
+    // DCC=601-609 TT = ~40 EEstrip = 5
+    my_StripEcalLogicId1_EE = db_->getEcalLogicIDSetOrdered( "ECAL_readout_strip",   
+    							601, 609,   
+							1, 100,   
+							0,5 ,  
+							"ECAL_readout_strip",123 );
+						    
+    // EE Strip identifiers
+    // DCC=646-654 TT = ~40 EEstrip = 5
+    my_StripEcalLogicId2_EE = db_->getEcalLogicIDSetOrdered( "ECAL_readout_strip",   
+    							646, 654,   
+							1, 100,   
+							0,5 ,  
+							"ECAL_readout_strip",123 );
+    
+    // TTC=72 TT = 1440
+    my_TTEcalLogicId_EE = db_->getEcalLogicIDSetOrdered( "EE_trigger_tower",
+						    1, 108,
+						    1, 40,
+						    EcalLogicID::NULLID,EcalLogicID::NULLID,
+						    "EE_trigger_tower",12 );
 
-  if (writeToDB_) {
-    std::cout<<"Getting the latest ids for this tag (latest version) "<< endl;
+    
+    // TTC=72 TT = 1440
+    my_RTEcalLogicId_EE = db_->getEcalLogicIDSetOrdered( "EE_readout_tower",
+						    1, 1000,
+						    1, 100,
+						    EcalLogicID::NULLID,EcalLogicID::NULLID,
+						    "EE_readout_tower",12 );
+
+    std::cout<<"got the end cap logic id set"<< std::endl;
+    std::cout<<"now just get the latest ids for this tag (latest version) "<< std::endl;
+
 
     FEConfigMainInfo fe_main_info;
     fe_main_info.setConfigTag(tag_);
     try {
-      std::cout << "trying to read previous tag if it exists tag="<< tag_<< ".version"<<version_<< endl;
+      std::cout << "trying to read previous tag if it exists tag="<< tag_<< ".version"<<version_<< std::endl;
 
       db_-> fetchConfigSet(&fe_main_info);
       ped_conf_id_=fe_main_info.getPedId();
@@ -608,19 +416,17 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       wei_conf_id_=fe_main_info.getWeiId();
       fgr_conf_id_=fe_main_info.getFgrId();
       sli_conf_id_=fe_main_info.getSliId();
-      spi_conf_id_=fe_main_info.getSpiId(); //modif-alex 21/01/11
-      del_conf_id_=fe_main_info.getTimId(); //modif-alex 21/01/11
       if(fe_main_info.getBxtId()>0) bxt_conf_id_=fe_main_info.getBxtId();
       if(fe_main_info.getBttId()>0 && btt_conf_id_==0 ) btt_conf_id_=fe_main_info.getBttId();
       // those that are not written specifically in this program are propagated
       // from the previous record with the same tag and the highest version
 
-      std::cout<<"got it "<< endl;
+      std::cout<<"got it "<< std::endl;
 
     } catch (exception &e) {
-      cout << " tag did not exist a new tag will be created " << endl;
+      std::cout << " tag did not exist a new tag will be created " << std::endl;
     } catch (...) {
-      cout << "Unknown error caught" << endl;
+      std::cout << "Unknown error caught" << std::endl;
     }
 
   }
@@ -629,14 +435,14 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   // Compute linearization coeff section //
   /////////////////////////////////////////
 
-  map<EcalLogicID, FEConfigPedDat> pedset ;
-  map<EcalLogicID, FEConfigLinDat> linset ;
-  map<EcalLogicID, FEConfigLinParamDat> linparamset ;
-  map<EcalLogicID, FEConfigLUTParamDat> lutparamset ;
-  map<EcalLogicID, FEConfigFgrParamDat> fgrparamset ;
+  std::map<EcalLogicID, FEConfigPedDat> pedset ;
+  std::map<EcalLogicID, FEConfigLinDat> linset ;
+  std::map<EcalLogicID, FEConfigLinParamDat> linparamset ;
+  std::map<EcalLogicID, FEConfigLUTParamDat> lutparamset ;
+  std::map<EcalLogicID, FEConfigFgrParamDat> fgrparamset ;
 
-  map<int, linStruc> linEtaSlice ;
-  map< vector<int>, linStruc > linMap ;
+  std::map<int, linStruc> linEtaSlice ;
+  std::map <std::vector<int>, linStruc > linMap ;
 
   // count number of strip per tower
   int NbOfStripPerTCC[108][68] ; 
@@ -645,7 +451,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       NbOfStripPerTCC[i][j] = 0 ;
   const std::vector<DetId> & ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
   const std::vector<DetId> & eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
-  for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
+  for (std::vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
     EBDetId id(*it) ;
     const EcalTrigTowerDetId towid= id.tower();
     const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;
@@ -654,7 +460,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int stripInTower = elId.pseudoStripId() ;  
     if (stripInTower>NbOfStripPerTCC[tccNb-1][towerInTCC-1]) NbOfStripPerTCC[tccNb-1][towerInTCC-1] = stripInTower ;
   }
-  for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
+  for (std::vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
     EEDetId id(*it) ;
     const EcalTrigTowerDetId towid= (*eTTmap_).towerOf(id) ;
     const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;
@@ -670,7 +476,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   if (writeToFiles_) (*out_file_)<<"COMMENT ====== barrel crystals ====== "<<std::endl ;
 
   // special case of eta slices
-  for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
+  for (std::vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
     EBDetId id(*it) ;
     double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
     if (!useTransverseEnergy_) theta = acos(0.) ;
@@ -692,22 +498,21 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 		<<" CCUid = "<<CCUid<<" VFEid = "<<VFEid<<" xtalInVFE = "<<xtalInVFE
 		<<" xtalWithinCCUid = "<<xtalWithinCCUid<<" ieta = "<<id.ieta()<<" iphi = "<<id.iphi()
 		<<" xtalhashedId = "<<id.hashedIndex()<<" xtalNb = "<<id.ic()
-		<<" ietaTT = "<<towid.ieta()<<" iphiTT = "<<towid.iphi()<<endl ;
+		<<" ietaTT = "<<towid.ieta()<<" iphiTT = "<<towid.iphi()<<std::endl ;
 
     int TCCch = towerInTCC ;
     int SLBslot = int((towerInTCC-1)/8.) + 1 ;
     int SLBch = (towerInTCC-1)%8 + 1 ;
-    int cmsswId = id.rawId() ;
-    int ixtal=(id.ism()-1)*1700+(id.ic()-1);
-    EcalLogicID logicId =my_EcalLogicId[ixtal];
-    int dbId = logicId.getLogicID() ;
-    int val[] = {dccNb+600,tccNb,towerInTCC,stripInTower,
-		 xtalInStrip,CCUid,VFEid,xtalInVFE,xtalWithinCCUid,id.ieta(),id.iphi(),
-		 -999,-999,towid.ieta()/abs(towid.ieta()),id.hashedIndex(),
-		 id.ic(), cmsswId, dbId, 
-		 towid.ieta(),towid.iphi(), TCCch, getCrate(tccNb).second, SLBch, SLBslot, 
-		 getGCTRegionEta(towid.ieta()),getGCTRegionPhi(towid.iphi())} ;
-    for (int i=0 ; i<26 ; i++) ntupleInts_[i] = val[i] ;
+    float val[] = {float(dccNb+600),float(tccNb),float(towerInTCC),float(stripInTower),
+		   float(xtalInStrip),float(CCUid),float(VFEid),float(xtalInVFE),
+		   float(xtalWithinCCUid),float(id.ieta()),float(id.iphi()),
+		   -999.,-999.,float(towid.ieta())/float(abs(towid.ieta())),
+		   float(id.hashedIndex()),
+		   float(id.ic()),float(towid.ieta()),float(towid.iphi()), 
+		   float(TCCch), float(getCrate(tccNb).second), 
+		   float(SLBch), float(SLBslot), 
+		   float(getGCTRegionEta(towid.ieta())),float(getGCTRegionPhi(towid.iphi()))} ;
+    for (int i=0 ; i<24 ; i++) ntupleFloats_[i] = val[i] ;
     
     sprintf(ntupleDet_,getDet(tccNb).c_str()) ;
     sprintf(ntupleCrate_,getCrate(tccNb).first.c_str()) ;
@@ -740,7 +545,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   }    
 
   // general case
-  for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
+  for (std::vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
     EBDetId id(*it) ;
     double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
     if (!useTransverseEnergy_) theta = acos(0.) ;
@@ -765,18 +570,6 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     stripMapEB[hashedStripLogicID] = elId.rawId() & 0xfffffff8 ;
     stripMapEBsintheta[elId.rawId() & 0xfffffff8] = SFGVB_Threshold_ + abs(int(sin(theta)*pedestal_offset_)) ;
 
-    //modif-debug
-    /*
-    FEConfigFgrEEStripDat stripdebug;
-    EcalLogicID thestrip_debug = my_StripEcalLogicId[hashedStripLogicID] ;
-    if(towid.ieta() == 6 && towid.iphi() == 7){
-      std::cout << "xtal info=" << id << " VFE=" << VFEid << std::endl;
-      std::cout << "TOWER DEBUG ieta=" << towid.ieta() << " iphi=" << towid.iphi() << " SFGVB=" << SFGVB_Threshold_ + abs(int(sin(theta)*pedestal_offset_)) 
-		<< " dbId=" << (elId.rawId() & 0xfffffff8) << " " << hashedStripLogicID << " " << thestrip_debug.getLogicID() << std::endl;  //modif-debug
-    }//EB+3 TT24
-    */
-    //std::cout<<std::dec<<SFGVB_Threshold_ + abs(int(sin(theta)*pedestal_offset_))<<" "<<SFGVB_Threshold_<<" "<<abs(int(sin(theta)*pedestal_offset_))<<std::endl ;
-
     FEConfigPedDat pedDB ;
     FEConfigLinDat linDB ;
     if (writeToFiles_) (*out_file_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
@@ -784,13 +577,12 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
     coeffStruc coeff ;
     getCoeff(coeff, calibMap, id.rawId()) ;
-    if (H2_) coeff.calibCoeff_ = calibvec[id.ic()-1] ;
     getCoeff(coeff, gainMap, id.rawId()) ;
     getCoeff(coeff, pedMap, id.rawId()) ;
     ICEB->Fill(id.iphi(), id.ieta(), coeff.calibCoeff_) ;  
     IC->Fill(theBarrelGeometry_->getGeometry(id)->getPosition().phi(), theBarrelGeometry_->getGeometry(id)->getPosition().eta(), coeff.calibCoeff_) ;  
 
-    vector<int> xtalCCU ;
+    std::vector<int> xtalCCU ;
     xtalCCU.push_back(dccNb+600) ; 
     xtalCCU.push_back(CCUid) ; 
     xtalCCU.push_back(xtalWithinCCUid) ;
@@ -799,7 +591,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     // compute and fill linearization parameters
     // case of eta slice
     if (forceEtaSlice_) {
-      map<int, linStruc>::const_iterator itLin = linEtaSlice.find(etaSlice);
+      std::map<int, linStruc>::const_iterator itLin = linEtaSlice.find(etaSlice);
       if (itLin != linEtaSlice.end()) {
 	linMap[xtalCCU] = itLin->second ;
 	if (writeToFiles_) {
@@ -839,7 +631,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	  //PP end
 	  double base = coeff.pedestals_[i] ;
 	  if (forcedPedestalValue_ == -3 && i==0) {
-	    double G = mult*pow(2,-(shift+2)) ;
+	    double G = mult*pow(2.,-(shift+2)) ;
 	    double g = G/sin(theta) ;
 	    // int pedestal = coeff.pedestals_[i] ;
 	    base = double(coeff.pedestals_[i]) - pedestal_offset_/g ;
@@ -849,14 +641,6 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	  lin.pedestal_[i] = coeff.pedestals_[i] ;
 	  lin.mult_[i] = mult ;
 	  lin.shift_[i] = shift ;
-
-// 	  if (xtalWithinCCUid != 14) {
-// 	    forceBase12 = 0 ;
-// 	    lin.pedestal_[i] = 0 ; 
-// 	    lin.mult_[i] = 0 ;
-// 	    lin.shift_[i] = 0 ;
-// 	  }
-
 	}
       }
 
@@ -878,9 +662,10 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	  tpgFactor->Fill(theBarrelGeometry_->getGeometry(id)->getPosition().phi(), 
 			  theBarrelGeometry_->getGeometry(id)->getPosition().eta(), factor) ;			    
 	}
-	double G = lin.mult_[i]*pow(2,-(lin.shift_[i]+2)) ;
+	double G = lin.mult_[i]*pow(2.,-(lin.shift_[i]+2)) ;
 	double g = G/sin(theta) ;
-	float val[] = {i,theta,G,g,coeff.pedestals_[i],lin.pedestal_[i]} ;// first arg = gainId (0 means gain12)
+	float val[] = {float(i),float(theta),float(G),float(g),
+		       float(coeff.pedestals_[i]),float(lin.pedestal_[i])} ;// first arg = gainId (0 means gain12)
 	ntupleSpike->Fill(val) ;
       }
       linMap[xtalCCU] = lin ;
@@ -921,7 +706,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   if (writeToFiles_) (*out_file_)<<"COMMENT ====== endcap crystals ====== "<<std::endl ;
   
   // special case of eta slices
-  for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
+  for (std::vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
     EEDetId id(*it) ;
     double theta = theEndcapGeometry_->getGeometry(id)->getPosition().theta() ;
     if (!useTransverseEnergy_) theta = acos(0.) ;
@@ -943,7 +728,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 		<<" CCUid = "<<CCUid<<" VFEid = "<<VFEid<<" xtalInVFE = "<<xtalInVFE
 		<<" xtalWithinCCUid = "<<xtalWithinCCUid<<" ix = "<<id.ix()<<" iy = "<<id.iy()
 		<<" xtalhashedId = "<<id.hashedIndex()<<" xtalNb = "<<id.isc()
-		<<" ietaTT = "<<towid.ieta()<<" iphiTT = "<<towid.iphi()<<endl ;
+		<<" ietaTT = "<<towid.ieta()<<" iphiTT = "<<towid.iphi()<<std::endl ;
 
     int TCCch = stripInTower ;
     int SLBslot, SLBch ;
@@ -956,26 +741,16 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       SLBch = (towerInTCC-5)%8 + 1 ;
     } 
     for (int j=0 ; j<towerInTCC-1 ; j++) TCCch += NbOfStripPerTCC[tccNb-1][j] ;
-
-    int cmsswId = id.rawId() ;
-    EcalLogicID logicId ;
-    int iz = id.positiveZ() ;
-    if (iz ==0) iz = -1 ;
-    for (int k=0; k<(int)my_CrystalEcalLogicId_EE.size(); k++) {
-      int z= my_CrystalEcalLogicId_EE[k].getID1() ;
-      int x= my_CrystalEcalLogicId_EE[k].getID2() ;
-      int y= my_CrystalEcalLogicId_EE[k].getID3() ;
-      if (id.ix()==x && id.iy()==y && iz==z) logicId=my_CrystalEcalLogicId_EE[k];
-    }
-    int dbId = logicId.getLogicID() ;
-    
-    int val[] = {dccNb+600,tccNb,towerInTCC,stripInTower,
-		 xtalInStrip,CCUid,VFEid,xtalInVFE,xtalWithinCCUid,-999,-999,
-		 id.ix(),id.iy(),towid.ieta()/abs(towid.ieta()),id.hashedIndex(),
-		 id.ic(),cmsswId, dbId, 
-		 towid.ieta(),towid.iphi(),TCCch, getCrate(tccNb).second, SLBch, SLBslot, 
-		 getGCTRegionEta(towid.ieta()),getGCTRegionPhi(towid.iphi())} ;
-    for (int i=0 ; i<26 ; i++) ntupleInts_[i] = val[i] ;
+    float val[] = {float(dccNb+600),float(tccNb),float(towerInTCC),float(stripInTower),
+		   float(xtalInStrip),float(CCUid),float(VFEid),float(xtalInVFE),
+		   float(xtalWithinCCUid),-999.,-999.,
+		   float(id.ix()),float(id.iy()),float(towid.ieta())/float(abs(towid.ieta())),
+		   float(id.hashedIndex()),
+		   float(id.ic()),float(towid.ieta()),float(towid.iphi()),float(TCCch), 
+		   float(getCrate(tccNb).second),
+		   float(SLBch), float(SLBslot), 
+		   float(getGCTRegionEta(towid.ieta())),float(getGCTRegionPhi(towid.iphi()))} ;
+    for (int i=0 ; i<24 ; i++) ntupleFloats_[i] = val[i] ;
     sprintf(ntupleDet_,getDet(tccNb).c_str()) ;
     sprintf(ntupleCrate_,getCrate(tccNb).first.c_str()) ;
     ntuple->Fill() ;
@@ -1007,7 +782,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   }
 
   // general case
-  for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
+  for (std::vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
     EEDetId id(*it);
     double theta = theEndcapGeometry_->getGeometry(id)->getPosition().theta() ;
     if (!useTransverseEnergy_) theta = acos(0.) ;
@@ -1038,13 +813,21 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     if (writeToFiles_) (*out_file_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
     if (writeToDB_ && DBEE_) {
       int iz = id.positiveZ() ;
-      if (iz ==0) iz = -1 ;      
-      for (int k=0; k<(int)my_CrystalEcalLogicId_EE.size(); k++) {
+      if (iz ==0) iz = -1 ;
+      
+      for(int k=0; k<(int)my_CrystalEcalLogicId_EE.size(); k++) {
+
 	int z= my_CrystalEcalLogicId_EE[k].getID1() ;
 	int x= my_CrystalEcalLogicId_EE[k].getID2() ;
-	int y= my_CrystalEcalLogicId_EE[k].getID3() ;	
-	if (id.ix()==x && id.iy()==y && iz==z) logicId=my_CrystalEcalLogicId_EE[k];
+	int y= my_CrystalEcalLogicId_EE[k].getID3() ;
+
+	if(id.ix()==x && id.iy()==y && iz==z) {
+
+  	logicId=my_CrystalEcalLogicId_EE[k];
+
+	}
       }
+       
     }
     
     coeffStruc coeff ;
@@ -1055,7 +838,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     else ICEEMinus->Fill(id.ix(), id.iy(), coeff.calibCoeff_) ;  
     IC->Fill(theEndcapGeometry_->getGeometry(id)->getPosition().phi(), theEndcapGeometry_->getGeometry(id)->getPosition().eta(), coeff.calibCoeff_) ;  
   
-    vector<int> xtalCCU ;
+    std::vector<int> xtalCCU ;
     xtalCCU.push_back(dccNb+600) ; 
     xtalCCU.push_back(CCUid) ; 
     xtalCCU.push_back(xtalWithinCCUid) ;
@@ -1064,7 +847,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     // compute and fill linearization parameters
     // case of eta slice
     if (forceEtaSlice_) {
-      map<int, linStruc>::const_iterator itLin = linEtaSlice.find(etaSlice);
+      std::map<int, linStruc>::const_iterator itLin = linEtaSlice.find(etaSlice);
       if (itLin != linEtaSlice.end()) {
 	linMap[xtalCCU] = itLin->second ;
 	if (writeToFiles_) {
@@ -1152,7 +935,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     ostringstream ltag;
     ltag.str("EB_"); ltag<<Et_sat_EB_<<"_EE_"<<Et_sat_EE_;
     std::string lin_tag=ltag.str();
-    std::cout<< " LIN tag "<<lin_tag<<endl;
+    std::cout<< " LIN tag "<<lin_tag<<std::endl;
 
     if(m_write_ped==1) ped_conf_id_=db_->writeToConfDB_TPGPedestals(pedset, 1, "from_OfflineDB") ;
     if(m_write_lin==1) lin_conf_id_=db_->writeToConfDB_TPGLinearCoef(linset,linparamset, 1, lin_tag) ;
@@ -1162,22 +945,22 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   // Evgueni interface
   ////////////////////
   std::ofstream evgueni("TPG_hardcoded.hh", std::ios::out) ;  
-  evgueni<<"void getLinParamTPG_hardcoded(int fed, int ccu, int xtal,"<<endl ;
-  evgueni<<"                        int & mult12, int & shift12, int & base12,"<<endl ;
-  evgueni<<"                        int & mult6, int & shift6, int & base6,"<<endl ;
-  evgueni<<"                        int & mult1, int & shift1, int & base1)"<<endl ;
-  evgueni<<"{"<<endl;
-  evgueni<<"  mult12 = 0 ; shift12 = 0 ; base12 = 0 ; mult6 = 0 ; shift6 = 0 ; base6 = 0 ; mult1 = 0 ; shift1 = 0 ; base1 = 0 ;"<<endl ;
-  map< vector<int>, linStruc>::const_iterator itLinMap ;
+  evgueni<<"void getLinParamTPG_hardcoded(int fed, int ccu, int xtal,"<<std::endl ;
+  evgueni<<"                        int & mult12, int & shift12, int & base12,"<<std::endl ;
+  evgueni<<"                        int & mult6, int & shift6, int & base6,"<<std::endl ;
+  evgueni<<"                        int & mult1, int & shift1, int & base1)"<<std::endl ;
+  evgueni<<"{"<<std::endl;
+  evgueni<<"  mult12 = 0 ; shift12 = 0 ; base12 = 0 ; mult6 = 0 ; shift6 = 0 ; base6 = 0 ; mult1 = 0 ; shift1 = 0 ; base1 = 0 ;"<<std::endl ;
+  std::map <std::vector<int>, linStruc>::const_iterator itLinMap ;
   for (itLinMap = linMap.begin() ; itLinMap != linMap.end() ; itLinMap++) {
-    vector<int> xtalInCCU = itLinMap->first ;
+    std::vector<int> xtalInCCU = itLinMap->first ;
     evgueni<<"  if (fed=="<<xtalInCCU[0]<<" && ccu=="<<xtalInCCU[1]<<" && xtal=="<<xtalInCCU[2]<<") {" ;
     evgueni<<"  mult12 = "<<itLinMap->second.mult_[0]<<" ; shift12 = "<<itLinMap->second.shift_[0]<<" ; base12 = "<<itLinMap->second.pedestal_[0]<<" ; " ;
     evgueni<<"  mult6 = "<<itLinMap->second.mult_[1]<<" ; shift6 = "<<itLinMap->second.shift_[1]<<" ; base6 = "<<itLinMap->second.pedestal_[1]<<" ; " ;
     evgueni<<"  mult1 = "<<itLinMap->second.mult_[2]<<" ; shift1 = "<<itLinMap->second.shift_[2]<<" ; base1 = "<<itLinMap->second.pedestal_[2]<<" ; " ;
-    evgueni<<"  return ;}" <<endl ;
+    evgueni<<"  return ;}" <<std::endl ;
   }
-  evgueni<<"}" <<endl ;
+  evgueni<<"}" <<std::endl ;
   evgueni.close() ;
 
 
@@ -1204,7 +987,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   weights[1] = weights[0] ;
 #endif
 
-  map<EcalLogicID, FEConfigWeightGroupDat> dataset;
+  std::map<EcalLogicID, FEConfigWeightGroupDat> dataset;
 
   for (int igrp=0 ; igrp<NWEIGROUPS ; igrp++) {
 
@@ -1212,13 +995,13 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
       if (writeToFiles_) {
 	(*out_file_) <<std::endl ;
-	(*out_file_) <<"WEIGHT "<<igrp<<endl ;
-	for (uint sample=0 ; sample<5 ; sample++) (*out_file_) << "0x" <<hex<<weights[igrp][sample]<<" " ;
+	(*out_file_) <<"WEIGHT "<<igrp<<std::endl ;
+	for (unsigned int sample=0 ; sample<5 ; sample++) (*out_file_) << "0x" <<hex<<weights[igrp][sample]<<" " ;
 	(*out_file_)<<std::endl ; 
 	(*out_file_) <<std::endl ;
       }
       if (writeToDB_) {
-	std::cout<<"going to write the weights for groupe:"<<igrp<<endl;
+	std::cout<<"going to write the weights for groupe:"<<igrp<<std::endl;
 	FEConfigWeightGroupDat gut;
 	gut.setWeightGroupId(igrp);
 	//PP WARNING: weights order is reverted when stored in the DB 
@@ -1237,7 +1020,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   if (writeToDB_) {
 
     // now we store in the DB the correspondence btw channels and groups 
-    map<EcalLogicID, FEConfigWeightDat> dataset2;
+    std::map<EcalLogicID, FEConfigWeightDat> dataset2;
 
     // EB loop
     for (int ich=0; ich<(int)my_StripEcalLogicId.size() ; ich++){
@@ -1268,7 +1051,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     ostringstream wtag;
     wtag.str(""); wtag<<"Shape_NGroups_"<<NWEIGROUPS;
     std::string weight_tag=wtag.str();
-    std::cout<< " weight tag "<<weight_tag<<endl; 
+    std::cout<< " weight tag "<<weight_tag<<std::endl; 
     if (m_write_wei==1) wei_conf_id_=db_->writeToConfDB_TPGWeight(dataset, dataset2, NWEIGROUPS, weight_tag) ;
   }      
 
@@ -1278,7 +1061,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   /////////////////////////
 
   // barrel
-  uint lowRatio, highRatio, lowThreshold, highThreshold, lutFG ;
+  unsigned int lowRatio, highRatio, lowThreshold, highThreshold, lutFG ;
   computeFineGrainEBParameters(lowRatio, highRatio, lowThreshold, highThreshold, lutFG) ;
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
@@ -1289,16 +1072,16 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   }
 
   // endcap
-  uint threshold, lut_tower ;
-  uint lut_strip;
+  unsigned int threshold, lut_tower ;
+  unsigned int lut_strip;
   computeFineGrainEEParameters(threshold, lut_strip, lut_tower) ; 
 
   // and here we store the fgr part
 
   
   if (writeToDB_) {
-    std::cout<<"going to write the fgr "<< endl;
-      map<EcalLogicID, FEConfigFgrGroupDat> dataset;
+    std::cout<<"going to write the fgr "<< std::endl;
+      std::map<EcalLogicID, FEConfigFgrGroupDat> dataset;
       // we create 1 group
       int NFGRGROUPS =1; 
       for (int ich=0; ich<NFGRGROUPS; ich++){
@@ -1315,7 +1098,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       }
       
       // now we store in the DB the correspondence btw channels and groups 
-      map<EcalLogicID, FEConfigFgrDat> dataset2;
+      std::map<EcalLogicID, FEConfigFgrDat> dataset2;
       // in this case I decide in a stupid way which channel belongs to which group 
       for (int ich=0; ich<(int)my_TTEcalLogicId.size() ; ich++){
 	FEConfigFgrDat wut;
@@ -1340,7 +1123,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       }
 
       // endcap TT loop for the FEfgr EE Tower
-      map<EcalLogicID, FEConfigFgrEETowerDat> dataset3;
+      std::map<EcalLogicID, FEConfigFgrEETowerDat> dataset3;
       for (int ich=0; ich<(int)my_TTEcalLogicId_EE.size() ; ich++){
 	FEConfigFgrEETowerDat fgreett;
 	fgreett.setLutValue(lut_tower);
@@ -1349,7 +1132,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
       // endcap strip loop for the FEfgr EE strip
       // and barrel strip loop for the spike parameters (same structure than EE FGr)
-      map<EcalLogicID, FEConfigFgrEEStripDat> dataset4;
+      std::map<EcalLogicID, FEConfigFgrEEStripDat> dataset4;
       for (int ich=0; ich<(int)my_StripEcalLogicId1_EE.size() ; ich++){
 	FEConfigFgrEEStripDat zut;
 	zut.setThreshold(threshold);
@@ -1371,8 +1154,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	map<uint32_t, uint32_t>::const_iterator it = stripMapEBsintheta.find(elStripId) ;
 	if (it != stripMapEBsintheta.end()) zut.setThreshold(it->second);
 	else {
-	  cout<<"ERROR: strip SFGVB threshold parameter not found for that strip:"<<thestrip.getID1()<<" "<<thestrip.getID3()<<" "<<thestrip.getID3()<<endl ; 
-	  cout<<" using value = "<<SFGVB_Threshold_+pedestal_offset_<<endl ;
+	  std::cout<<"ERROR: strip SFGVB threshold parameter not found for that strip:"<<thestrip.getID1()<<" "<<thestrip.getID3()<<" "<<thestrip.getID3()<<std::endl ; 
+	  std::cout<<" using value = "<<SFGVB_Threshold_+pedestal_offset_<<std::endl ;
 	  zut.setThreshold(SFGVB_Threshold_+pedestal_offset_) ;
 	}
 	zut.setLutFgr(SFGVB_lut_);
@@ -1384,141 +1167,13 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       ostringstream wtag;
       wtag.str(""); wtag<<"FGR_"<<lutFG<<"_N_"<<NFGRGROUPS<<"_eb_"<<FG_lowThreshold_EB_<<"_EB_"<<FG_highThreshold_EB_;
       std::string weight_tag=wtag.str();
-      std::cout<< " weight tag "<<weight_tag<<endl; 
+      std::cout<< " weight tag "<<weight_tag<<std::endl; 
       if(m_write_fgr==1) fgr_conf_id_=db_->writeToConfDB_TPGFgr(dataset, dataset2,  fgrparamset,dataset3, dataset4, NFGRGROUPS, weight_tag) ;
-
-      //modif-alex 21/01/11
-      map<EcalLogicID, FEConfigSpikeDat> datasetspike; //loob EB TT
-      for (int ich=0; ich<(int)my_TTEcalLogicId.size() ; ich++){
-        FEConfigSpikeDat spiketh;
-        spiketh.setSpikeThreshold(SFGVB_SpikeKillingThreshold_);
-        datasetspike[my_TTEcalLogicId[ich]] = spiketh;
-      }//loop EB TT towers    
-
-      //modif-alex 21/01/11
-      ostringstream stag;
-      stag.str(""); stag<<"SpikeTh"<<SFGVB_SpikeKillingThreshold_;
-      std::string spike_tag=stag.str();
-      std::cout<< " spike tag "<<spike_tag<<endl;
-      if(m_write_spi==1) spi_conf_id_=db_->writeToConfDB_Spike(datasetspike, spike_tag) ; //modif-alex 21/01/11
-
-      //modif-alex 31/01/11
-      //DELAYS EB
-      map<EcalLogicID, FEConfigTimingDat> datasetdelay; // the loop goes from TCC 38 to 72 and throught the towers from 1 to 68 
-      for (int ich=0; ich<(int)my_TTEcalLogicId_EB_by_TCC.size() ; ich++){
-        FEConfigTimingDat delay;
-
-	EcalLogicID logiciddelay = my_TTEcalLogicId_EB_by_TCC[ich] ;
-	int id1_tcc=my_TTEcalLogicId_EB_by_TCC[ich].getID1(); // the TCC
-	int id2_tt =my_TTEcalLogicId_EB_by_TCC[ich].getID2(); // the tower
-	std::map<int, vector<int> >::const_iterator ittEB  = delays_EB_.find(id1_tcc); 
-	std::vector<int> TimingDelaysEB = ittEB->second;
-
-	if (ittEB != delays_EB_.end()){
-	  if(TimingDelaysEB[id2_tt-1] == -1){
-	      std::cout << "ERROR: Barrel timing delay not specified, check file, putting default value 1" << std::endl;
-	      delay.setTimingPar1(1); 
-	    }
-	  else delay.setTimingPar1(TimingDelaysEB[id2_tt-1]);
-	} else {
-	  std::cout << "ERROR:Barrel Could not find delay parameter for that trigger tower " << std::endl;
-	  std::cout << "Using default value = 1" << std::endl;
-	  delay.setTimingPar1(1);
-	}
-
-	std::map<int, vector<int> >::const_iterator ittpEB  = phases_EB_.find(id1_tcc);
-	std::vector<int> TimingPhasesEB = ittpEB->second;
-
-        if (ittpEB != phases_EB_.end()){
-          if(TimingPhasesEB[id2_tt-1] == -1){
-	    std::cout << "ERROR: Barrel timing phase not specified, check file, putting default value 0" << std::endl;
-	    delay.setTimingPar2(0);
-	  }
-          else delay.setTimingPar2(TimingPhasesEB[id2_tt-1]);
-        } else {
-	  std::cout << "ERROR:Barrel Could not find phase parameter for that trigger tower " << std::endl;
-	  std::cout << "Using default value = 0" << std::endl;
-          delay.setTimingPar2(0);
-        }
-
-	std::cout << ich << " tcc=" << id1_tcc << " TT=" << id2_tt << " logicId=" << logiciddelay.getLogicID() 
-		  << " delay=" << TimingDelaysEB[id2_tt-1] << " phase=" << TimingPhasesEB[id2_tt-1] <<  std::endl; 
-	
-        //delay.setTimingPar1(1);
-        //delay.setTimingPar2(2);
-        datasetdelay[my_TTEcalLogicId_EB_by_TCC[ich]] = delay;
-      }//loop EB TT towers
-
-      //DELAYS EE
-      int stripindex = 0;
-      int tccin = 1;
-      for (int ich=0; ich<(int)my_StripEcalLogicId_EE_strips_by_TCC.size() ; ich++){
-        FEConfigTimingDat delay;
-	//int id1_strip=my_StripEcalLogicId_EE_strips_by_TCC[ich].getID1(); // the TCC
-	//int id2_strip=my_StripEcalLogicId_EE_strips_by_TCC[ich].getID2(); // the Tower
-	//int id3_strip=my_StripEcalLogicId_EE_strips_by_TCC[ich].getID3(); // the strip
-
-        EcalLogicID logiciddelay = my_StripEcalLogicId_EE_strips_by_TCC[ich] ;
-        int id1_tcc=my_StripEcalLogicId_EE_strips_by_TCC[ich].getID1(); // the TCC
-        int id2_tt =my_StripEcalLogicId_EE_strips_by_TCC[ich].getID2(); // the tower
-        int id3_st =my_StripEcalLogicId_EE_strips_by_TCC[ich].getID3(); // the strip
-
-	//reset strip counter
-	if(id1_tcc != tccin) {tccin = id1_tcc; stripindex=0;}
-
-	std::map<int, vector<int> >::const_iterator ittEE  = delays_EE_.find(id1_tcc);
-	std::vector<int> TimingDelaysEE = ittEE->second;
-
-        if (ittEE != delays_EE_.end()){
-          if(TimingDelaysEE[stripindex] == -1){
-	    std::cout << "ERROR: Endcap timing delay not specified, check file, putting default value 1" << std::endl;
-	    delay.setTimingPar1(1);
-	  }
-          else delay.setTimingPar1(TimingDelaysEE[stripindex]);
-        } else {
-	  std::cout << "ERROR:Endcap Could not find delay parameter for that trigger tower " << std::endl;
-	  std::cout << "Using default value = 1" << std::endl;
-          delay.setTimingPar1(1);
-        }
-
-	std::map<int, vector<int> >::const_iterator ittpEE  = phases_EE_.find(id1_tcc);
-	std::vector<int> TimingPhasesEE = ittpEE->second;
-
-	if (ittpEE != phases_EE_.end()){
-          if(TimingPhasesEE[stripindex] == -1){
-	    std::cout << "ERROR: Endcap timing phase not specified, check file, putting default value 0" << std::endl;
-            delay.setTimingPar2(0);
-          }
-          else delay.setTimingPar2(TimingPhasesEE[stripindex]);
-        } else {
-	  std::cout << "ERROR:Endcap Could not find phase parameter for that trigger tower " << std::endl;
-	  std::cout << "Using default value = 0" << std::endl;
-          delay.setTimingPar2(0);
-        }
-
-	std::cout << ich << " stripindex=" << stripindex << " tcc=" << id1_tcc << " TT=" << id2_tt << " id3_st=" << id3_st 
-		  << " logicId=" << logiciddelay.getLogicID()
-                  << " delay=" << TimingDelaysEE[stripindex] << " phase=" << TimingPhasesEE[stripindex] <<  std::endl;
-
-
-        //delay.setTimingPar1(1);
-        //delay.setTimingPar2(2);
-        datasetdelay[my_StripEcalLogicId_EE_strips_by_TCC[ich]] = delay;
-	stripindex++;
-      }//loop EE strip towers
-
-      ostringstream de_tag;
-      de_tag.str(""); de_tag<<"DelaysFromFile";
-      std::string delay_tag=de_tag.str();
-      std::cout<< " delay tag "<<delay_tag<<endl;
-      if(m_write_del==1) del_conf_id_=db_->writeToConfDB_Delay(datasetdelay, delay_tag) ; //modif-alex 31/01/11   
-
-
-  } //write to DB
+  }
 
   if (writeToDB_) {
-    std::cout<<"going to write the sliding "<< endl;
-      map<EcalLogicID, FEConfigSlidingDat> dataset;
+    std::cout<<"going to write the sliding "<< std::endl;
+      std::map<EcalLogicID, FEConfigSlidingDat> dataset;
       // in this case I decide in a stupid way which channel belongs to which group 
       for (int ich=0; ich<(int)my_StripEcalLogicId.size() ; ich++){
 	FEConfigSlidingDat wut;
@@ -1552,7 +1207,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       ostringstream wtag;
       wtag.str(""); wtag<<"Sliding_"<<sliding_;
       std::string justatag=wtag.str();
-      std::cout<< " sliding tag "<<justatag<<endl;
+      std::cout<< " sliding tag "<<justatag<<std::endl;
       int iov_id=0; // just a parameter ... 
       if(m_write_sli==1) sli_conf_id_=db_->writeToConfDB_TPGSliding(dataset,iov_id, justatag) ;
   }
@@ -1572,8 +1227,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
     (*out_file_) <<"LUT 0"<<std::endl ;
-    for (int i=0 ; i<1024 ; i++) (*out_file_)<<"0x"<<hex<<lut_EB[i]<<endl ;
-    (*out_file_)<<endl ;
+    for (int i=0 ; i<1024 ; i++) (*out_file_)<<"0x"<<hex<<lut_EB[i]<<std::endl ;
+    (*out_file_)<<std::endl ;
   }
   
   // endcap
@@ -1584,8 +1239,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   if (newLUT && writeToFiles_) { 
     (*out_file_) <<std::endl ;
     (*out_file_) <<"LUT 1"<<std::endl ;
-    for (int i=0 ; i<1024 ; i++) (*out_file_)<<"0x"<<hex<<lut_EE[i]<<endl ;
-    (*out_file_)<<endl ;
+    for (int i=0 ; i<1024 ; i++) (*out_file_)<<"0x"<<hex<<lut_EE[i]<<std::endl ;
+    (*out_file_)<<std::endl ;
   }
 
 
@@ -1594,7 +1249,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
 
 
-    map<EcalLogicID, FEConfigLUTGroupDat> dataset;
+    std::map<EcalLogicID, FEConfigLUTGroupDat> dataset;
     // we create 1 LUT group
     int NLUTGROUPS =0; 
     int ich=0;
@@ -1623,7 +1278,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       NLUTGROUPS=ich;
 
     // now we store in the DB the correspondence btw channels and LUT groups 
-    map<EcalLogicID, FEConfigLUTDat> dataset2;
+    std::map<EcalLogicID, FEConfigLUTDat> dataset2;
     // in this case I decide in a stupid way which channel belongs to which group 
     for (int ich=0; ich<(int)my_TTEcalLogicId.size() ; ich++){
       FEConfigLUTDat lut;
@@ -1648,7 +1303,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     ostringstream ltag;
     ltag.str(""); ltag<<LUT_option_<<"_NGroups_"<<NLUTGROUPS;
     std::string lut_tag=ltag.str();
-    std::cout<< " LUT tag "<<lut_tag<<endl; 
+    std::cout<< " LUT tag "<<lut_tag<<std::endl; 
     if(m_write_lut==1) lut_conf_id_=db_->writeToConfDB_TPGLUT(dataset, dataset2,lutparamset, NLUTGROUPS, lut_tag) ;
 
   }
@@ -1656,10 +1311,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   // last we insert the FE_CONFIG_MAIN table 
  if (writeToDB_) {
    
-   //int conf_id_=db_->writeToConfDB_TPGMain(ped_conf_id_,lin_conf_id_, lut_conf_id_, fgr_conf_id_, 
-   //				sli_conf_id_, wei_conf_id_, bxt_conf_id_, btt_conf_id_, tag_, version_) ;
    int conf_id_=db_->writeToConfDB_TPGMain(ped_conf_id_,lin_conf_id_, lut_conf_id_, fgr_conf_id_, 
-					   sli_conf_id_, wei_conf_id_, spi_conf_id_, del_conf_id_, bxt_conf_id_, btt_conf_id_, tag_, version_) ; //modif-alex 21/01/11
+					sli_conf_id_, wei_conf_id_, bxt_conf_id_, btt_conf_id_, tag_, version_) ;
    
    std::cout << "\n Conf ID = " << conf_id_ << std::endl;
 
@@ -1673,11 +1326,11 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   // Barrel
   stripListEB.sort() ;
   stripListEB.unique() ;
-  cout<<"Number of EB strips="<<dec<<stripListEB.size()<<endl ;
+  std::cout<<"Number of EB strips="<<dec<<stripListEB.size()<<std::endl ;
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
     for (itList = stripListEB.begin(); itList != stripListEB.end(); itList++ ) {
-      (*out_file_) <<"STRIP_EB "<<dec<<(*itList)<<endl ;
+      (*out_file_) <<"STRIP_EB "<<dec<<(*itList)<<std::endl ;
       (*out_file_) << hex << "0x" <<sliding_<<std::endl ;
       (*out_file_) <<"0" <<std::endl ;
       (*out_file_) <<"0x"<<stripMapEBsintheta[(*itList)] << " 0x" << SFGVB_lut_ <<std::endl ;
@@ -1687,11 +1340,11 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   // Endcap
   stripListEE.sort() ;
   stripListEE.unique() ;
-  cout<<"Number of EE strips="<<dec<<stripListEE.size()<<endl ;
+  std::cout<<"Number of EE strips="<<dec<<stripListEE.size()<<std::endl ;
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
     for (itList = stripListEE.begin(); itList != stripListEE.end(); itList++ ) {
-      (*out_file_) <<"STRIP_EE "<<dec<<(*itList)<<endl ;
+      (*out_file_) <<"STRIP_EE "<<dec<<(*itList)<<std::endl ;
       (*out_file_) << hex << "0x" <<sliding_<<std::endl ;
       (*out_file_) <<" 0" << std::endl ;
       (*out_file_)<<hex<<"0x"<<threshold<<" 0x"<<lut_strip<<std::endl ;  
@@ -1706,24 +1359,23 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   // Barrel
   towerListEB.sort() ;
   towerListEB.unique() ;
-  cout<<"Number of EB towers="<<dec<<towerListEB.size()<<endl ;
+  std::cout<<"Number of EB towers="<<dec<<towerListEB.size()<<std::endl ;
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
     for (itList = towerListEB.begin(); itList != towerListEB.end(); itList++ ) {
-      (*out_file_) <<"TOWER_EB "<<dec<<(*itList)<<endl ;
+      (*out_file_) <<"TOWER_EB "<<dec<<(*itList)<<std::endl ;
       (*out_file_) <<" 0\n 0\n" ;
-      (*out_file_) <<" " <<  SFGVB_SpikeKillingThreshold_ << std::endl; //modif-alex
     }
   }
 
   // Endcap
   towerListEE.sort() ;
   towerListEE.unique() ;
-  cout<<"Number of EE towers="<<dec<<towerListEE.size()<<endl ;
+  std::cout<<"Number of EE towers="<<dec<<towerListEE.size()<<std::endl ;
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
     for (itList = towerListEE.begin(); itList != towerListEE.end(); itList++ ) {
-      (*out_file_) <<"TOWER_EE "<<dec<<(*itList)<<endl ;
+      (*out_file_) <<"TOWER_EE "<<dec<<(*itList)<<std::endl ;
       if (newLUT) (*out_file_) <<" 1\n" ;
       else  (*out_file_) <<" 0\n" ;
       (*out_file_)<<hex<<"0x"<<lut_tower<<std::endl ;
@@ -1756,7 +1408,7 @@ void EcalTPGParamBuilder::beginJob()
   using namespace edm;
   using namespace std;
 
-  std::cout<<"we are in beginJob"<<endl;
+  std::cout<<"we are in beginJob"<<std::endl;
 
   create_header() ; 
 
@@ -1768,7 +1420,6 @@ void EcalTPGParamBuilder::beginJob()
     (*out_file_)<<Et_sat_EB_<<" "<<TTF_lowThreshold_EB_<<" "<<TTF_highThreshold_EB_<<std::endl ;
     (*out_file_)<<FG_lowThreshold_EB_<<" "<<FG_highThreshold_EB_<<" "
 		  <<FG_lowRatio_EB_<<" "<<FG_highRatio_EB_<<std::endl ;
-    //(*out_file_) << SFGVB_SpikeKillingThreshold_ << std::endl; //modif-alex02/02/2011
     (*out_file_) <<std::endl ;
 
     (*out_file_)<<"PHYSICS_EE "<<dec<<ee.rawId()<<std::endl ;
@@ -1822,7 +1473,7 @@ bool EcalTPGParamBuilder::computeLinearizerParam(double theta, double gainRatio,
     factor *= 2 ; 
     mult = (int)(factor+0.5) ;
   }
-  std::cout << "too bad we did not manage to calculate the factor for calib="<<calibCoeff<<endl;
+  std::cout << "too bad we did not manage to calculate the factor for calib="<<calibCoeff<<std::endl;
   return false ;
 }
 
@@ -1836,7 +1487,6 @@ void EcalTPGParamBuilder::create_header()
   (*out_file_) <<"COMMENT"<<std::endl ;
   (*out_file_) <<"COMMENT  EtSaturation (GeV), ttf_threshold_Low (GeV), ttf_threshold_High (GeV)"<<std::endl ;
   (*out_file_) <<"COMMENT  FG_lowThreshold (GeV), FG_highThreshold (GeV), FG_lowRatio, FG_highRatio"<<std::endl ;
-  //(*out_file_) <<"COMMENT  SFGVB_SpikeKillingThreshold (GeV)"<<std::endl ; //modif-alex-02/02/2011
   (*out_file_) <<"COMMENT ================================="<<std::endl ;
   (*out_file_) <<"COMMENT"<<std::endl ;
 
@@ -1880,7 +1530,6 @@ void EcalTPGParamBuilder::create_header()
   (*out_file_) <<"COMMENT"<<std::endl ;
   (*out_file_) <<"COMMENT  LUTGroupId"<<std::endl ;
   (*out_file_) <<"COMMENT  FgGroupId"<<std::endl ;
-  (*out_file_) <<"COMMENT  spike_killing_threshold"<<std::endl ;//modif alex
   (*out_file_) <<"COMMENT ================================="<<std::endl ;
   (*out_file_) <<"COMMENT"<<std::endl ;
 
@@ -1923,7 +1572,7 @@ void EcalTPGParamBuilder::create_header()
 int EcalTPGParamBuilder::uncodeWeight(double weight, int complement2)
 {
   int iweight ;
-  uint max = (uint)(pow(2.,complement2)-1) ;
+  unsigned int max = (unsigned int)(pow(2.,complement2)-1) ;
   if (weight>0) iweight=int((1<<6)*weight+0.5) ; // +0.5 for rounding pb
   else iweight= max - int(-weight*(1<<6)+0.5) +1 ;
   iweight = iweight & max ;
@@ -1954,7 +1603,7 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
 
   double sumf = 0. ;
   double sumf2 = 0. ;
-  for (uint sample = 0 ; sample<nSample_ ; sample++) {
+  for (unsigned int sample = 0 ; sample<nSample_ ; sample++) {
     double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
     time -= weight_timeShift_ ;
     sumf += shape(time)/max ;
@@ -1964,7 +1613,7 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
   double lambda = 1./(sumf2-sumf*sumf/nSample_) ;
   double gamma = -lambda*sumf/nSample_ ;
   double * weight = new double[nSample_] ;
-  for (uint sample = 0 ; sample<nSample_ ; sample++) {
+  for (unsigned int sample = 0 ; sample<nSample_ ; sample++) {
     double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
     time -= weight_timeShift_ ;
     weight[sample] = lambda*shape(time)/max + gamma ;
@@ -1972,17 +1621,17 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
 
 
   int * iweight = new int[nSample_] ;
-  for (uint sample = 0 ; sample<nSample_ ; sample++)   iweight[sample] = uncodeWeight(weight[sample], complement2_) ;
+  for (unsigned int sample = 0 ; sample<nSample_ ; sample++)   iweight[sample] = uncodeWeight(weight[sample], complement2_) ;
 
   // Let's check:  
   int isumw  = 0 ;  
-  for (uint sample = 0 ; sample<nSample_ ; sample++) isumw  += iweight[sample] ;
-  uint imax = (uint)(pow(2.,int(complement2_))-1) ;
+  for (unsigned int sample = 0 ; sample<nSample_ ; sample++) isumw  += iweight[sample] ;
+  unsigned int imax = (unsigned int)(pow(2.,int(complement2_))-1) ;
   isumw = (isumw & imax ) ;
 
   double ampl = 0. ;
   double sumw = 0. ;
-  for (uint sample = 0 ; sample<nSample_ ; sample++) {
+  for (unsigned int sample = 0 ; sample<nSample_ ; sample++) {
      double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
      time -= weight_timeShift_ ;
      ampl += weight[sample]*shape(time) ;
@@ -1999,11 +1648,11 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
     int count = 0 ;
     while (isumw != 0 && count<10) {
       double min = 99. ;
-      uint index = 0 ;
+      unsigned int index = 0 ;
       if ( (isumw & (1<<(complement2_-1))) != 0) {
 	// add 1:
 	std::cout<<"Correcting for bias: adding 1"<<std::endl ;
-	for (uint sample = 0 ; sample<nSample_ ; sample++) {
+	for (unsigned int sample = 0 ; sample<nSample_ ; sample++) {
 	  int new_iweight = iweight[sample]+1 ; 
 	  double new_weight = uncodeWeight(new_iweight, complement2_) ;
 	  if (fabs(new_weight-weight[sample])<min) {
@@ -2015,7 +1664,7 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
       } else {
 	// Sub 1:
 	std::cout<<"Correcting for bias: subtracting 1"<<std::endl ;
-	for (uint sample = 0 ; sample<nSample_ ; sample++) {
+	for (unsigned int sample = 0 ; sample<nSample_ ; sample++) {
 	  int new_iweight = iweight[sample]-1 ;    
 	  double new_weight = uncodeWeight(new_iweight, complement2_) ;
 	  if (fabs(new_weight-weight[sample])<min) {
@@ -2026,8 +1675,8 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
 	iweight[index] -- ; 
       } 
       isumw  = 0 ;  
-      for (uint sample = 0 ; sample<nSample_ ; sample++) isumw  += iweight[sample] ; 
-      imax = (uint)(pow(2.,int(complement2_))-1) ;
+      for (unsigned int sample = 0 ; sample<nSample_ ; sample++) isumw  += iweight[sample] ; 
+      imax = (unsigned int)(pow(2.,int(complement2_))-1) ;
       isumw = (isumw & imax ) ;
       std::cout<<"Correcting weight number: "<<index<<" sum weights = "<<isumw<<std::endl ;
       count ++ ;
@@ -2036,11 +1685,11 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
   
   // let's check again
   isumw  = 0 ;  
-  for (uint sample = 0 ; sample<nSample_ ; sample++) isumw  += iweight[sample] ;
-  imax = (uint)(pow(2.,int(complement2_))-1) ;
+  for (unsigned int sample = 0 ; sample<nSample_ ; sample++) isumw  += iweight[sample] ;
+  imax = (unsigned int)(pow(2.,int(complement2_))-1) ;
   isumw = (isumw & imax ) ;
   ampl = 0. ;
-  for (uint sample = 0 ; sample<nSample_ ; sample++) {
+  for (unsigned int sample = 0 ; sample<nSample_ ; sample++) {
      double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
      time -= weight_timeShift_ ;
      double new_weight = uncodeWeight(iweight[sample], complement2_) ;
@@ -2054,7 +1703,7 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
 
 
   std::vector<unsigned int> theWeights ;
-  for (uint sample = 0 ; sample<nSample_ ; sample++) theWeights.push_back(iweight[sample]) ;
+  for (unsigned int sample = 0 ; sample<nSample_ ; sample++) theWeights.push_back(iweight[sample]) ;
   std::cout<<std::endl ;
 
   delete weight ;
@@ -2092,8 +1741,7 @@ void EcalTPGParamBuilder::computeLUT(int * lut, std::string det)
     int mylut = 0 ;
     for (int i=0 ; i<1024 ; i++) {
       lut[i] = mylut ;
-      if ((i+1)%4 == 0 ) mylut++ ; 
-      //if ((i+1)%8 == 0 ) mylut++ ;//modif-alex 16/12/2010 LSB==500MeV ONLY USED FOR BEAMV4 key 
+      if ((i+1)%4 == 0 ) mylut++ ;
     }
   }
 
@@ -2121,7 +1769,7 @@ void EcalTPGParamBuilder::computeLUT(int * lut, std::string det)
 
 }
 
-void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, uint rawId)
+void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, unsigned int rawId)
 {
   // get current intercalibration coeff
   coeff.calibCoeff_ = 1. ;
@@ -2131,7 +1779,7 @@ void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalIntercalibConst
   else std::cout<<"getCoeff: "<<rawId<<" not found in EcalIntercalibConstantMap"<<std::endl ;
 }
 
-void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalGainRatioMap & gainMap, uint rawId)
+void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalGainRatioMap & gainMap, unsigned int rawId)
 {
   // get current gain ratio
   coeff.gainRatio_[0]  = 1. ;
@@ -2146,7 +1794,7 @@ void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalGainRatioMap & 
   else std::cout<<"getCoeff: "<<rawId<<" not found in EcalGainRatioMap"<<std::endl ;
 }
 
-void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalPedestalsMap & pedMap, uint rawId)
+void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalPedestalsMap & pedMap, unsigned int rawId)
 {
   coeff.pedestals_[0] = 0 ;
   coeff.pedestals_[1] = 0 ;
@@ -2170,14 +1818,14 @@ void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalPedestalsMap & 
   else std::cout<<"getCoeff: "<<rawId<<" not found in EcalPedestalsMap"<<std::endl ;
 }
 
-void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const map<EcalLogicID, MonPedestalsDat> & pedMap, const EcalLogicID & logicId)
+void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const std::map<EcalLogicID, MonPedestalsDat> & pedMap, const EcalLogicID & logicId)
 {
   // get current pedestal
   coeff.pedestals_[0] = 0 ;
   coeff.pedestals_[1] = 0 ;
   coeff.pedestals_[2] = 0 ;
 
-  map<EcalLogicID, MonPedestalsDat>::const_iterator it =  pedMap.find(logicId);
+  std::map<EcalLogicID, MonPedestalsDat>::const_iterator it =  pedMap.find(logicId);
   if (it != pedMap.end()) {
     MonPedestalsDat ped = it->second ;
     coeff.pedestals_[0] = int(ped.getPedMeanG12() + 0.5) ; 
@@ -2185,11 +1833,11 @@ void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const map<EcalLogicID, Mo
     coeff.pedestals_[2] = int(ped.getPedMeanG1() + 0.5) ; 
   } 
   else std::cout<<"getCoeff: "<<logicId.getID1()<<", "<<logicId.getID2()<<", "<<logicId.getID3()
-		<<" not found in map<EcalLogicID, MonPedestalsDat>"<<std::endl ;
+		<<" not found in std::map<EcalLogicID, MonPedestalsDat>"<<std::endl ;
 }
 
-void EcalTPGParamBuilder::computeFineGrainEBParameters(uint & lowRatio, uint & highRatio,
-						       uint & lowThreshold, uint & highThreshold, uint & lut)
+void EcalTPGParamBuilder::computeFineGrainEBParameters(unsigned int & lowRatio, unsigned int & highRatio,
+						       unsigned int & lowThreshold, unsigned int & highThreshold, unsigned int & lut)
 {
   lowRatio = int(0x80*FG_lowRatio_EB_ + 0.5) ;
   if (lowRatio>0x7f) lowRatio = 0x7f ;
@@ -2214,7 +1862,7 @@ void EcalTPGParamBuilder::computeFineGrainEBParameters(uint & lowRatio, uint & h
   else lut = FG_lut_EB_ ; // let's use the users value (hope he/she knows what he/she does!)
 }
 
-void EcalTPGParamBuilder::computeFineGrainEEParameters(uint & threshold, uint & lut_strip, uint & lut_tower) 
+void EcalTPGParamBuilder::computeFineGrainEEParameters(unsigned int & threshold, unsigned int & lut_strip, unsigned int & lut_tower) 
 {
   // lsb for EE:
   double lsb_FG = Et_sat_EE_/1024. ; // FIXME is it true????
@@ -2226,19 +1874,16 @@ void EcalTPGParamBuilder::computeFineGrainEEParameters(uint & threshold, uint & 
 bool EcalTPGParamBuilder::realignBaseline(linStruc & lin, float forceBase12)
 {
   bool ok(true) ;
-  float base[3] = {forceBase12, lin.pedestal_[1], lin.pedestal_[2]} ;
-  for (int i=1 ; i<3 ; i++) {
-    if (lin.mult_[i]>0) {
-      base[i] = float(lin.pedestal_[i]) - 
-	float(lin.mult_[0])/float(lin.mult_[i])*pow(2., -(lin.shift_[0]-lin.shift_[i]))*(lin.pedestal_[0]-base[0]) ;
-    } else base[i] = 0 ;
-  }
+  float base[3] = {forceBase12, float(lin.pedestal_[1]), float(lin.pedestal_[2])} ;
+  for (int i=1 ; i<3 ; i++)
+    base[i] = float(lin.pedestal_[i]) - 
+      float(lin.mult_[0])/float(lin.mult_[i])*pow(2., -(lin.shift_[0]-lin.shift_[i]))*(lin.pedestal_[0]-base[0]) ;
 
   for (int i=0 ; i<3 ; i++) {
+    //std::cout<<lin.pedestal_[i]<<" "<<base[i]<<std::endl ;
     lin.pedestal_[i] = base[i] ;
-    //cout<<lin.pedestal_[i]<<" "<<base[i]<<endl ;
-    if (base[i]<0 || lin.pedestal_[i]>1000) {
-      cout<<"WARNING: base= "<<base[i]<<", "<<lin.pedestal_[i]<<" for gainId[0-2]="<<i<<" ==> forcing at 0"<<endl ;
+    if (base[i]<0) {
+      std::cout<<"WARNING: base= "<<base[i]<<" for gainId[0-2]="<<i<<" ==> forcing at 0"<<std::endl ;
       lin.pedestal_[i] = 0 ; 
       ok = false ;
     }
