@@ -1,3 +1,8 @@
+//==                                                                     --==//
+//
+// by Thomas Hauth [ Thomas.Hauth@cern.ch ] 
+//
+//===----------------------------------------------------------------------===//
 
 
 
@@ -8,10 +13,13 @@
 #include "MutableMemberChecker.h"
 
 
-#include "clang/StaticAnalyzer/Core/CheckerRegistry.h"
+#include <clang/StaticAnalyzer/Core/CheckerRegistry.h>
 
+// register all custom checkers with clang
+// add new entries here if you want to create a new checker
 extern "C" 
-void clang_registerCheckers ( CheckerRegistry &registry) { 
+void clang_registerCheckers ( CheckerRegistry &registry) 
+{ 
 
 	registry.addChecker< clangcms::ConstCastAwayChecker>( "threadsafety.ConstCastAway",  "Checks for casts which remove const qualifier and might result in thread-unsafe code" );
 	registry.addChecker< clangcms::ConstCastChecker>( "threadsafety.ConstCast", "Checks for casts which remove const qualifier and might result in thread-unsafe code" );
