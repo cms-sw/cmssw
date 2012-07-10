@@ -16,6 +16,13 @@ mixedTripletStepClusters.trajectories = cms.InputTag("pixelPairStepTracks")
 mixedTripletStepClusters.overrideTrkQuals = cms.InputTag('pixelPairStepSelector','pixelPairStep')
 mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.originRadius = 0.02
 mixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.originRadius = 0.02
+## switch off SeedB the easy way
+mixedTripletStepSeedLayersB.layerList = cms.vstring('BPix1+BPix2+BPix3')
+## increased the max track candidates 
+#process.load("RecoTracker.CkfPattern.CkfTrackCandidates_cff")
+#process.ckfTrackCandidates.maxNSeeds = cms.uint32(500000)
+mixedTripletStepTrackCandidates.maxNSeeds = cms.uint32(150000)
+pixelPairStepTrackCandidates.maxNSeeds = cms.uint32(150000)
 
 generalTracks.TrackProducers = (cms.InputTag('initialStepTracks'),
                       cms.InputTag('lowPtTripletStepTracks'),
