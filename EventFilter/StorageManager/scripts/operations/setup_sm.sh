@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.54 2010/06/01 14:33:59 babar Exp $
+# $Id: setup_sm.sh,v 1.55 2010/10/18 11:14:26 babar Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh
@@ -21,22 +21,8 @@ fi
 cmhost=srv-C2C06-20
 
 hname=`hostname | cut -d. -f1`
-nname="node"`echo $hname | cut -d- -f3` 
-case $hname in
-    cmsdisk0)
-        nname="nottobeused"
-        ;;
-    srv-S2C17-01)
-        nname=node_cms-tier0-stage
-        ;;
-    srv-C2D05-02)
-        nname=node_cmsdisk1
-        ;;
-    *)
-        ;;
-esac
 
-t0control="~cmsprod/$nname/t0_control.sh"
+t0control="~cmsprod/TransferTest/T0/t0_control.sh"
 if test -e "/opt/copyworker/t0_control.sh"; then
     t0control="/opt/copyworker/t0_control.sh"
 fi
@@ -95,19 +81,19 @@ mountByLabel () {
     # If the previous mount failed, it's most likely because it found a disk
     # inside the multipath, instead of the multipath one, so try manually
     if mount | grep -q $sn; then
-	echo "Mounted $1 using label"
+        echo "Mounted $1 using label"
     else
         device=''
         for dev in /dev/mapper/mpath*; do
-            xfs_admin -l $dev | grep -q 'label = "'$sn'"' && device=$dev
+            (xfs_admin -l $dev || e2label $dev) | grep -q 'label = "'$sn'"' && device=$dev
         done
         if [ -b "$device" ]; then
             echo "Attempting to mount $1 from $device"
             if mount $device $1; then
-		echo "Mounted $1 manually from $device"
-	    else
-		echo "Could not mount $1 from $device!"
-	    fi
+                echo "Mounted $1 manually from $device"
+            else
+                echo "Could not mount $1 from $device!"
+            fi
         else
             echo "Could not mount $1: no device in /dev/mapper/mpath* with label $sn"
         fi
@@ -267,6 +253,7 @@ startcopymanager () {
 }
 
 start () {
+    nbmount=0
     case $hname in
         cmsdisk0)
             echo "cmsdisk0 needs manual treatment"
@@ -275,78 +262,49 @@ start () {
         srv-S2C17-01)
             ;;
         srv-C2D05-02)
-            echo "doing  srv-C2D05-02..."
-            for i in $store/satacmsdisk*; do 
-                sn=`basename $i`
-                if mount | grep -q $sn; then
-                    echo "$sn is already mounted"
-                else
-                    echo "Attempting to mount $i by LABEL"
-                    mount -L $sn $i
-		    if mount | grep -q $sn; then
-			echo "Mounted $i using label"
-		    else
-		    #if label mount failed, do it the hard way:
-			device=''
-			for dev in /dev/mapper/mpath*p*; do
-			    /sbin/e2label  $dev | grep -q "$sn" && device=$dev
-			done
-			if [ -b "$device" ]; then
-			    echo "Attempting to mount $1 from $device"
-			    if mount $device $i; then
-				echo "Mounted $i manually from $device"
-			    else
-				echo "Could not mount $i from $device!"
-			    fi
-			else
-			    echo "Could not mount $i from $device!"
-			fi
-		    fi
-                fi
-            done
+            nbmount=1
+            ;;
+        dvsrv-b1a02-30-01)
+            nbmount=3
             ;;
         srv-c2c07-* | srv-C2C07-* | srv-c2c06-* | srv-C2C06-* | dvsrv-C2F37-*)
-
-            if test -x "/sbin/multipath"; then
-                echo "Refresh multipath devices"
-                /sbin/multipath
-            fi
-
-            mounts=(/store/sata*a*v*)
-            case ${#mounts[@]} in
-            1)
-		if [ "$mounts" = "/store/sata*a*v*" ]; then
-		    echo "No mountpoint define, assuming install needed, calling make_all.sh"
-		    ( cd ~smpro/sm_scripts_cvs/operations/ && ./makeall.sh )
-		    for i in /store/sata*a*v*; do
-			mountByLabel $i
-		    done
-		else
-		    echo -e "\e[33mWARNING: Odd number of mount points: ${#mounts[@]}. Skipping mounts\e[0m"
-		fi
-            ;;
-            4)
-                for i in ${mounts[@]}; do
-                    mountByLabel $i
-                done
-            ;;
-            *)
-                echo -e "\e[33mWARNING: Odd number of mount points: ${#mounts[@]}. Skipping mounts\e[0m"
-            ;;
-            esac
-
-            if test -x "/sbin/multipath"; then
-                echo "Flushing unused multipath devices"
-                /sbin/multipath -F
-            fi
-
-            modifykparams
+            nbmount=4
             ;;
         *)
             echo "Unknown host: $hname"
             return 1
             ;;
     esac
+
+    if test -x "/sbin/multipath"; then
+        echo "Refresh multipath devices"
+        /sbin/multipath
+    fi
+
+    mounts=(/store/sata*)
+    if [ "$mounts" = "/store/sata*" ]; then
+        echo "No mountpoint define, assuming install needed, calling make_all.sh"
+        ( cd ~smpro/sm_scripts_cvs/operations/ && ./makeall.sh )
+        mounts=(/store/sata*)
+    fi
+
+    case ${#mounts[@]} in
+    $nbmount)   # We have as much as we should
+        for i in ${mounts[@]}; do
+            mountByLabel $i
+        done
+    ;;
+    *)
+        echo -e "\e[33mWARNING: Odd number of mount points: ${#mounts[@]} (should be $nbmount). Skipping mounts\e[0m"
+    ;;
+    esac
+
+    if test -x "/sbin/multipath"; then
+        echo "Flushing unused multipath devices"
+        /sbin/multipath -F
+    fi
+
+    modifykparams
 
     if test -n "$SM_LA_NFS" -a "$SM_LA_NFS" != "local"; then
         if test -z "`mount | grep $lookarea`"; then
@@ -366,10 +324,10 @@ start () {
         fi
     fi
 
-    startcopymanager
-    startcopyworker
-    startinjectworker
-    startnotifyworker
+    /sbin/service copymanager start
+    /sbin/service copyworker start
+    /sbin/service injectworker start
+    /sbin/service notifyworker start
 
     return 0
 }
@@ -380,14 +338,19 @@ stopcopyworker () {
     counter=1
     while [ $counter -le 10 ]; do
         if pgrep -u cmsprod CopyWorker.pl >/dev/null; then
-            sleep 6
+            echo -n .
+            sleep 2
         else
             break
         fi
         counter=`expr $counter + 1`
     done
-
-    pkill rfcp
+    if [ $counter -ge 10 ]; then
+        pkill -9 -u cmsprod CopyWorker.pl
+        pkill    -u cmsprod rfcp
+        echo -n 'Killed! '
+    fi
+    return 0
 }
 
 stopinjectworker () {
@@ -408,9 +371,10 @@ stopcopymanager () {
 }
 
 stopworkers () {
-    stopinjectworker
-    stopcopyworker
-    stopcopymanager
+    /sbin/service notifyworker stop
+    /sbin/service injectworker stop
+    /sbin/service copyworker stop
+    /sbin/service copymanager stop
 }
 
 stop () {
@@ -422,7 +386,7 @@ stop () {
         srv-S2C17-01)
             stopworkers
             ;;
-        srv-C2D05-02)
+        srv-C2D05-02 | dvsrv-b1a02-30-01)
             stopworkers
             for i in $store/satacmsdisk*; do 
                 sn=`basename $i`
@@ -482,7 +446,7 @@ status () {
             ;;
         srv-S2C17-01)
             ;;
-        srv-C2D05-02)
+        srv-C2D05-02 | dvsrv-b1a02-30-01)
             for i in $store/satacmsdisk*; do 
                 sn=`basename $i`
                 printmstat $i $sn
