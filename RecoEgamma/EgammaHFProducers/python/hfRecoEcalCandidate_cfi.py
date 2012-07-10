@@ -5,15 +5,15 @@ import FWCore.ParameterSet.Config as cms
 hfRecoEcalCandidate = cms.EDProducer("HFRecoEcalCandidateProducer",
                                      e9e25Cut = cms.double(0.94),
                                      hfclusters = cms.InputTag("hfEMClusters"),
-                                     VertexCollection = cms.untracked.InputTag("offlinePrimaryVertices"),
+                                     VertexCollection = cms.InputTag("offlinePrimaryVertices"),
                                      intercept2DCut = cms.double(0.815),
                                      intercept2DSlope = cms.double(0.475),
                                      Correct = cms.bool(True),
                                      e1e9Cut= cms.vdouble(-1,99),
                                      eCOREe9Cut= cms.vdouble(-1,99),
                                      eSeLCut= cms.vdouble(-1,99),
-                                     HFDBversion= cms.untracked.int32(1),
-                                     HFDBvector=cms.untracked.vdouble(
+                                     HFDBversion= cms.int32(1),
+                                     HFDBvector=cms.vdouble(
                                                                       #energy corrections
                                                                     
                                                                       1.000,

@@ -30,9 +30,9 @@
 
 HFRecoEcalCandidateProducer::HFRecoEcalCandidateProducer(edm::ParameterSet const& conf):
   hfclusters_(conf.getParameter<edm::InputTag>("hfclusters")),
-  vertices_(conf.getUntrackedParameter<edm::InputTag>("VertexCollection",(edm::InputTag)"offlinePrimaryVertices")),
-  HFDBversion_(conf.getUntrackedParameter<int>("HFDBversion",99)),//do nothing
-  HFDBvector_(conf.getUntrackedParameter<std::vector<double> >("HFDBvector",defaultDB_)),
+  vertices_(conf.existsAs<bool>("VertexCollection") ? conf.getParameter<edm::InputTag>("VertexCollection"):(edm::InputTag)"offlinePrimaryVertices"),
+  HFDBversion_(conf.existsAs<bool>("HFDBversion") ? conf.getParameter<int>("HFDBversion"):99),//do nothing
+  HFDBvector_(conf.existsAs<bool>("HFDBvector") ? conf.getParameter<std::vector<double> >("HFDBvector"):defaultDB_),
   Cut2D_(conf.getParameter<double>("intercept2DCut")),
   defaultSlope2D_((Cut2D_<=0.83)?(0.475):((Cut2D_>0.83 && Cut2D_<=0.9)?(0.275):(0.2))),//fix for hlt unable to add slope variable now
   hfvars_(HFDBversion_,HFDBvector_),
