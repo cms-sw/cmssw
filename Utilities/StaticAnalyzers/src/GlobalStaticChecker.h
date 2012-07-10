@@ -1,37 +1,30 @@
-//== GlobalStaticChecker.cpp - Checks for non-const global statics --------------*- C++ -*--==//
-//
-//                     The LLVM Compiler Infrastructure
-//
-// This file is distributed under the University of Illinois Open Source
-// License. See LICENSE.TXT for details.
-//
-//===----------------------------------------------------------------------===//
+//== GlobalStaticChecker.h - Checks for non-const global statics --------------*- C++ -*--==//
 //
 // by Thomas Hauth [ Thomas.Hauth@cern.ch ]
 //
 //===----------------------------------------------------------------------===//
-#pragma once
+#ifndef Utilities_StaticAnalyzers_GlobalStaticChecker_h
+#define Utilities_StaticAnalyzers_GlobalStaticChecker_h
 
-#include "clang/StaticAnalyzer/Core/Checker.h"
-#include "clang/StaticAnalyzer/Core/PathSensitive/CheckerContext.h"
-#include "clang/StaticAnalyzer/Core/BugReporter/BugType.h"
+#include <clang/StaticAnalyzer/Core/Checker.h>
+#include <clang/StaticAnalyzer/Core/PathSensitive/CheckerContext.h>
+#include <clang/StaticAnalyzer/Core/BugReporter/BugType.h>
+
 #include "CmsException.h"
 
-using namespace clang;
-using namespace ento;
 
 namespace clangcms {
-class GlobalStaticChecker : public Checker< check::ASTDecl<VarDecl> > {
-  mutable OwningPtr<BuiltinBug> BT;
+class GlobalStaticChecker : public clang::ento::Checker< clang::ento::check::ASTDecl< clang::VarDecl> > {
+  mutable clang::OwningPtr< clang::ento::BuiltinBug> BT;
 
 public:
-  void checkASTDecl(const VarDecl *D,
-                      AnalysisManager &Mgr,
-                      BugReporter &BR) const;
+  void checkASTDecl(const clang::VarDecl *D,
+                      clang::ento::AnalysisManager &Mgr,
+                      clang::ento::BugReporter &BR) const;
 private:
   CmsException m_exception;
 };  
 
-} // end anonymous namespace
+} 
 
-
+#endif

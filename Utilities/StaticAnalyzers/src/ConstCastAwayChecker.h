@@ -1,38 +1,26 @@
-//== ConstCastAwayChecker.cpp - Checks for removed const qualfiers --------------*- C++ -*--==//
-//
-//                     The LLVM Compiler Infrastructure
-//
-// This file is distributed under the University of Illinois Open Source
-// License. See LICENSE.TXT for details.
-//
-//===----------------------------------------------------------------------===//
+//== ConstCastAwayChecker.h - Checks for removed const qualfiers --------------*- C++ -*--==//
 //
 // Check in a generic way if an explicit cast removes a const qualifier.
 //
 // by Thomas Hauth [ Thomas.Hauth@cern.ch ]
 //
 //===----------------------------------------------------------------------===//
-#pragma once
+#ifndef Utilities_StaticAnalyzers_ConstCastAwayChecker_h
+#define Utilities_StaticAnalyzers_ConstCastAwayChecker_h
 
-#include "clang/StaticAnalyzer/Core/Checker.h"
-#include "clang/StaticAnalyzer/Core/PathSensitive/CheckerContext.h"
-#include "clang/StaticAnalyzer/Core/BugReporter/BugType.h"
-
-#include "ClangCheckerPluginDef.h"
-
-using namespace clang;
-using namespace ento;
+#include <clang/StaticAnalyzer/Core/Checker.h>
+#include <clang/StaticAnalyzer/Core/PathSensitive/CheckerContext.h>
+#include <clang/StaticAnalyzer/Core/BugReporter/BugType.h>
 
 namespace clangcms {
 
-
-class ConstCastAwayChecker: public Checker<check::PreStmt<ExplicitCastExpr> > {
+class ConstCastAwayChecker: public clang::ento::Checker< clang::ento::check::PreStmt< clang::ExplicitCastExpr> > {
 public:
-	mutable OwningPtr<BugType> BT;
-	void checkPreStmt(const ExplicitCastExpr *CE, CheckerContext &C) const;
+	mutable clang::OwningPtr< clang::ento::BugType> BT;
+	void checkPreStmt(const clang::ExplicitCastExpr *CE, 
+					  clang::ento::CheckerContext &C) const;
 };
 
 } 
 
-
-
+#endif

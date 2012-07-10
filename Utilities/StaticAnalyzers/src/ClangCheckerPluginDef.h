@@ -1,4 +1,0 @@
-#pragma once
-
-#define DEF_CLANG_CHECKER_PLUGIN( CLASSNAME, NAME, DESCRIPTION ) \
-

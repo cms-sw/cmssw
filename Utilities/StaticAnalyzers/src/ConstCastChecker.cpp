@@ -1,12 +1,5 @@
 //== ConstCastChecker.cpp - Checks for const_cast<> --------------*- C++ -*--==//
 //
-//                     The LLVM Compiler Infrastructure
-//
-// This file is distributed under the University of Illinois Open Source
-// License. See LICENSE.TXT for details.
-//
-//===----------------------------------------------------------------------===//
-//
 // by Thomas Hauth [ Thomas.Hauth@cern.ch ]
 //
 //===----------------------------------------------------------------------===//
@@ -16,15 +9,15 @@
 
 namespace clangcms {
 
-void ConstCastChecker::checkPreStmt(const CXXConstCastExpr *CE,
-		CheckerContext &C) const
+void ConstCastChecker::checkPreStmt(const clang::CXXConstCastExpr *CE,
+		clang::ento::CheckerContext &C) const
 {
-	if (ExplodedNode *errorNode = C.generateSink()) {
+	if (clang::ento::ExplodedNode *errorNode = C.generateSink()) {
 		if (!BT)
 			BT.reset(
-					new BugType("const_cast used",
+					new clang::ento::BugType("const_cast used",
 							"ThreadSafety"));
-		BugReport *R = new BugReport(*BT, "const_cast was used, this may result in thread-unsafe code.", errorNode);
+		clang::ento::BugReport *R = new clang::ento::BugReport(*BT, "const_cast was used, this may result in thread-unsafe code.", errorNode);
 		R->addRange(CE->getSourceRange());
 
 		C.EmitReport(R);

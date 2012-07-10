@@ -1,37 +1,29 @@
-//== MutableMemberChecker.cpp - Checks for mutable members --------------*- C++ -*--==//
-//
-//                     The LLVM Compiler Infrastructure
-//
-// This file is distributed under the University of Illinois Open Source
-// License. See LICENSE.TXT for details.
-//
-//===----------------------------------------------------------------------===//
+//== MutableMemberChecker.h - Checks for mutable members --------------*- C++ -*--==//
 //
 // by Thomas Hauth [ Thomas.Hauth@cern.ch ]
 //
 //===----------------------------------------------------------------------===//
 
-#pragma once
+#ifndef Utilities_StaticAnalyzers_MutableMemberChecker_h
+#define Utilities_StaticAnalyzers_MutableMemberChecker_h
 
-#include "clang/StaticAnalyzer/Core/Checker.h"
-#include "clang/StaticAnalyzer/Core/PathSensitive/CheckerContext.h"
-#include "clang/StaticAnalyzer/Core/BugReporter/BugType.h"
+#include <clang/StaticAnalyzer/Core/Checker.h>
+#include <clang/StaticAnalyzer/Core/PathSensitive/CheckerContext.h>
+#include <clang/StaticAnalyzer/Core/BugReporter/BugType.h>
 
 #include "CmsException.h"
 
-using namespace clang;
-using namespace ento;
-
 namespace clangcms {
-class MutableMemberChecker : public Checker< check::ASTDecl<FieldDecl> > {
-  mutable OwningPtr<BuiltinBug> BT;
+class MutableMemberChecker : public clang::ento::Checker< clang::ento::check::ASTDecl< clang::FieldDecl> > {
+  mutable clang::OwningPtr< clang::ento::BuiltinBug> BT;
 
 public:
-  void checkASTDecl(const FieldDecl *D,
-                      AnalysisManager &Mgr,
-                      BugReporter &BR) const;
+  void checkASTDecl(const clang::FieldDecl *D,
+                      clang::ento::AnalysisManager &Mgr,
+                      clang::ento::BugReporter &BR) const;
 private:
   CmsException m_exception;
 };  
 }
 
+#endif

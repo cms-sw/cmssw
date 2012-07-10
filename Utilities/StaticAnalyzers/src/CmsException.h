@@ -1,11 +1,4 @@
-//===--- ClangCheckers.h - Provides builtin checkers ------------*- C++ -*-===//
-//
-//                     The LLVM Compiler Infrastructure
-//
-// This file is distributed under the University of Illinois Open Source
-// License. See LICENSE.TXT for details.
-//
-//===----------------------------------------------------------------------===//
+//===--- CmsException.h - exceptions for bug reports ------------*- C++ -*-===//
 //
 // by Thomas Hauth [ Thomas.Hauth@cern.ch ] and Patrick Gartung
 //
@@ -14,19 +7,16 @@
 #ifndef LLVM_CLANG_STATICANALYZER_CMS_CMSEXCEPTION_H
 #define LLVM_CLANG_STATICANALYZER_CMS_CMSEXCEPTION_H
 
-#include "llvm/Support/Regex.h"
+#include <llvm/Support/Regex.h>
 
-#include "clang/AST/Type.h"
-#include "clang/Basic/SourceManager.h"
-#include "clang/StaticAnalyzer/Core/BugReporter/BugReporter.h"
+#include <clang/AST/Type.h>
+#include <clang/Basic/SourceManager.h>
+#include <clang/StaticAnalyzer/Core/BugReporter/BugReporter.h>
 
 namespace clangcms {
 
 class CmsException {
 public:
-	CmsException() ;
-	~CmsException();
-
 	bool reportGlobalStaticForType( clang::QualType const& t,
 				clang::ento::PathDiagnosticLocation const& path,
 				clang::ento::BugReporter & BR  ) const;

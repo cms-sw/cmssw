@@ -1,33 +1,24 @@
-//== ConstCastChecker.cpp - Checks for const_cast<> --------------*- C++ -*--==//
-//
-//                     The LLVM Compiler Infrastructure
-//
-// This file is distributed under the University of Illinois Open Source
-// License. See LICENSE.TXT for details.
-//
-//===----------------------------------------------------------------------===//
+//== ConstCastChecker.h - Checks for const_cast<> --------------*- C++ -*--==//
 //
 // by Thomas Hauth [ Thomas.Hauth@cern.ch ]
 //
 //===----------------------------------------------------------------------===//
 
-#pragma once
+#ifndef Utilities_StaticAnalyzers_ConstCastChecker_h
+#define Utilities_StaticAnalyzers_ConstCastChecker_h
 
-#include "clang/StaticAnalyzer/Core/Checker.h"
-#include "clang/StaticAnalyzer/Core/PathSensitive/CheckerContext.h"
-#include "clang/StaticAnalyzer/Core/BugReporter/BugType.h"
+#include <clang/StaticAnalyzer/Core/Checker.h>
+#include <clang/StaticAnalyzer/Core/PathSensitive/CheckerContext.h>
+#include <clang/StaticAnalyzer/Core/BugReporter/BugType.h>
 
-
-using namespace clang;
-using namespace ento;
 
 namespace clangcms {
 
-class ConstCastChecker: public Checker<check::PreStmt<CXXConstCastExpr> > {
+class ConstCastChecker: public clang::ento::Checker< clang::ento::check::PreStmt< clang::CXXConstCastExpr> > {
 public:
-	mutable OwningPtr<BugType> BT;
-	void checkPreStmt(const CXXConstCastExpr *CE, CheckerContext &C) const;
+	mutable clang::OwningPtr<clang::ento::BugType> BT;
+	void checkPreStmt(const clang::CXXConstCastExpr *CE, clang::ento::CheckerContext &C) const;
 };
 } 
 
-
+#endif
