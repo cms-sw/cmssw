@@ -133,6 +133,17 @@ class HcalNoiseSummary
 
   bool HasBadRBXTS4TS5(void) const;
 
+  // Get charge only in TS45
+  int GetCalibCountTS45(void) const;  // get number of HBHE calibration channels
+  int GetCalibgt15CountTS45(void) const; // get number of HBHE calib channels > 15 fC
+  double GetCalibChargeTS45(void) const; // get Calib charge
+  double GetCalibgt15ChargeTS45(void) const; // get charge from all channels gt 15 fC
+
+  int GetHitsInNonLaserRegion(void) const; // get number of channels in HBHE regions with no laser
+  int GetHitsInLaserRegion(void) const; // get number of channels in HBHE region where laser pulses are seen
+  double GetEnergyInNonLaserRegion(void) const; // get energy in region with no laser
+  double GetEnergyInLaserRegion(void) const; // get energy in non-laser region
+  
   // reference to problematic jets
   edm::RefVector<reco::CaloJetCollection> problematicJets(void) const;
 
@@ -173,6 +184,16 @@ class HcalNoiseSummary
   double calibCharge_;
 
   bool hasBadRBXTS4TS5_;
+
+  int calibCountTS45_;
+  int calibCountgt15TS45_;
+  double calibChargeTS45_;
+  double calibChargegt15TS45_;
+
+  int hitsInLaserRegion_;
+  int hitsInNonLaserRegion_;
+  double energyInLaserRegion_;
+  double energyInNonLaserRegion_;
 
   edm::RefVector<reco::CaloJetCollection> problemjets_;
 

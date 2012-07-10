@@ -27,7 +27,15 @@ HcalNoiseSummary::HcalNoiseSummary()
     ntrianglenoise_(0), trianglenoisee_(0), trianglenoiseet_(0),
     nts4ts5noise_(0), ts4ts5noisee_(0), ts4ts5noiseet_(0),
     rechitCount_(0), rechitCount15_(0), rechitEnergy_(0), rechitEnergy15_(0), calibCharge_(0),
-    hasBadRBXTS4TS5_(false)
+    hasBadRBXTS4TS5_(false),
+    calibCountTS45_(0),
+    calibCountgt15TS45_(0),
+    calibChargeTS45_(0.),
+    calibChargegt15TS45_(0.),
+    hitsInLaserRegion_(0),
+    hitsInNonLaserRegion_(0),
+    energyInLaserRegion_(0.),
+    energyInNonLaserRegion_(0.)
 {
 }
 
@@ -299,6 +307,46 @@ double HcalNoiseSummary::GetTotalCalibCharge(void) const
 bool HcalNoiseSummary::HasBadRBXTS4TS5(void) const
 {
    return hasBadRBXTS4TS5_;
+}
+
+int HcalNoiseSummary::GetCalibCountTS45(void) const
+{
+  return calibCountTS45_;
+}
+
+int HcalNoiseSummary::GetCalibgt15CountTS45(void) const
+{
+  return calibCountgt15TS45_;
+}
+
+double HcalNoiseSummary::GetCalibChargeTS45(void) const
+{
+  return calibChargeTS45_;
+}
+
+double HcalNoiseSummary::GetCalibgt15ChargeTS45(void) const
+{
+  return calibChargegt15TS45_;
+}
+
+int HcalNoiseSummary::GetHitsInNonLaserRegion(void) const
+{
+  return hitsInNonLaserRegion_;
+}
+
+double HcalNoiseSummary::GetEnergyInNonLaserRegion(void) const
+{
+  return energyInNonLaserRegion_;
+}
+
+int HcalNoiseSummary::GetHitsInLaserRegion(void) const
+{
+  return hitsInLaserRegion_;
+}
+
+double HcalNoiseSummary::GetEnergyInLaserRegion(void) const
+{
+  return energyInLaserRegion_;
 }
 
 edm::RefVector<reco::CaloJetCollection> HcalNoiseSummary::problematicJets(void) const
