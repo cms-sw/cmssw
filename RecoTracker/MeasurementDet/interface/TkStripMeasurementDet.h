@@ -15,14 +15,13 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class TransientTrackingRecHit;
 
 class TkStripMeasurementDet : public MeasurementDet {
 public:
 
-  //  typedef SiStripClusterCollection::Range                ClusterRange;
-  //  typedef SiStripClusterCollection::ContainerIterator    ClusterIterator;
   typedef StripClusterParameterEstimator::LocalValues    LocalValues;
   typedef StripClusterParameterEstimator::VLocalValues    VLocalValues;
 
@@ -54,9 +53,9 @@ public:
   void update( std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end, 
 	       const edm::Handle<edm::LazyGetter<SiStripCluster> > h,
 	       unsigned int id ) { 
-    beginCluster = begin;
-    endCluster   = end;
     regionalHandle_ = h;
+    beginClusterI_ = begin - regionalHandle_->begin_record();
+    endClusterI_ = end - regionalHandle_->begin_record();
     id_ = id;
     empty = false;
     activeThisEvent_ = true;
@@ -103,7 +102,7 @@ public:
 
 
   const detset& theSet() {return detSet_;}
-  int  size() {return endCluster - beginCluster ; }
+  int  size() const {return endClusterI_ - beginClusterI_ ; }
 
   /** \brief Turn on/off the module for reconstruction, for the full run or lumi (using info from DB, usually).
              This also resets the 'setActiveThisEvent' to true */
@@ -169,9 +168,8 @@ private:
 
   // --- regional unpacking
   edm::Handle<edm::LazyGetter<SiStripCluster> > regionalHandle_;
-  std::vector<SiStripCluster>::const_iterator beginCluster;
-  std::vector<SiStripCluster>::const_iterator endCluster;
-  // regional unpacking ---
+  uint beginClusterI_;
+  uint endClusterI_;
 
   inline bool isMasked(const SiStripCluster &cluster) const {
       if ( bad128Strip_[cluster.firstStrip() >> 7] ) {

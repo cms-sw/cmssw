@@ -1,5 +1,5 @@
 //
-// $Id: Photon.cc,v 1.16 2008/11/17 22:41:51 askew Exp $
+// $Id: Photon.cc,v 1.17 2008/11/28 19:02:15 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
@@ -14,7 +14,6 @@ Photon::Photon() :
     embeddedSuperCluster_(false)
 {
 }
-
 
 /// constructor from reco::Photon
 Photon::Photon(const reco::Photon & aPhoton) :
@@ -41,6 +40,22 @@ Photon::Photon(const edm::Ptr<reco::Photon> & aPhotonRef) :
 Photon::~Photon() {
 }
 
+std::ostream& 
+reco::operator<<(std::ostream& out, const pat::Photon& obj) 
+{
+  if(!out) return out;
+  
+  out << "\tpat::Photon: ";
+  out << std::setiosflags(std::ios::right);
+  out << std::setiosflags(std::ios::fixed);
+  out << std::setprecision(3);
+  out << " E/pT/eta/phi " 
+      << obj.energy()<<"/"
+      << obj.pt()<<"/"
+      << obj.eta()<<"/"
+      << obj.phi();
+  return out; 
+}
 
 /// override the superCluster method from CaloJet, to access the internal storage of the supercluster
 /// this returns a transient Ref which *should never be persisted*!

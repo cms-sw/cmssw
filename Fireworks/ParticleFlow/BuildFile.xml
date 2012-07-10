@@ -1,9 +1,8 @@
-<use name="Fireworks/Core"/>
-<use name="Fireworks/Tracks"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
-<use name="rootcore"/>
+<use name="Fireworks/Core"/>
+<use name="Fireworks/Candidates"/>
+<use name="Fireworks/Tracks"/>
 <lib name="Eve"/>
-<lib name="Geom"/>
 <export>
   <lib name="1"/>
 </export>

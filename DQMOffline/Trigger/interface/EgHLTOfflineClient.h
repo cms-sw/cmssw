@@ -41,8 +41,10 @@ class EgHLTOfflineClient : public edm::EDAnalyzer {
   std::string dirName_;
   
   std::vector<std::string> eleHLTFilterNames_;//names of the filters monitored using electrons to make plots for
+  std::vector<std::string> eleHLTFilterNames2Leg_;
   std::vector<std::string> eleTightLooseTrigNames_;
   std::vector<std::string> phoHLTFilterNames_;//names of the filters monitored using photons to make plots for
+  std::vector<std::string> phoHLTFilterNames2Leg_;
   std::vector<std::string> phoTightLooseTrigNames_;
   
 
@@ -89,13 +91,17 @@ class EgHLTOfflineClient : public edm::EDAnalyzer {
   virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c);
 
   //at somepoint these all may migrate to a helper class
-  void createN1EffHists(const std::string& baseName,const std::string& region,const std::vector<std::string>& varNames);
-  void createSingleEffHists(const std::string& baseName,const std::string& region,const std::vector<std::string>& varNames);
+  void createN1EffHists(const std::string& filterName,const std::string& baseName,const std::string& region,const std::vector<std::string>& varNames);
+  void createSingleEffHists(const std::string& filterName,const std::string& baseName,const std::string& region,const std::vector<std::string>& varNames);
   void createLooseTightTrigEff(const std::vector<std::string>&  tightLooseTrigNames,const std::string& region,const std::vector<std::string>& vsVarNames,const std::string& objName);
   void createTrigTagProbeEffHists(const std::string& filterName,const std::string& region,const std::vector<std::string>& vsVarNames,const std::string& objName);
+  void createTrigTagProbeEffHistsNewAlgo(const std::string& filterName,const std::string& region,const std::vector<std::string>& vsVarNames,const std::string& objName);
+  void createTrigTagProbeEffHists2Leg(const std::string& filterNameLeg1,const std::string& filterNameLeg2,const std::string& region,const std::vector<std::string>& vsVarNames,const std::string& objName);
   
-  MonitorElement* makeEffMonElemFromPassAndAll(const std::string& name,const std::string& title,const MonitorElement* pass,const MonitorElement* all);
-  MonitorElement* makeEffMonElemFromPassAndFail(const std::string& name,const std::string& title,const MonitorElement* pass,const MonitorElement* fail);
+  MonitorElement* makeEffMonElemFromPassAndAll(const std::string& filterName,const std::string& name,const std::string& title,const MonitorElement* pass,const MonitorElement* all);
+  MonitorElement* makeEffMonElemFromPassAndFail(const std::string& filterName,const std::string& name,const std::string& title,const MonitorElement* pass,const MonitorElement* fail);
+  MonitorElement* makeEffMonElemFromPassAndFailAndTagTag(const std::string& filter,const std::string& name,const std::string& title,const MonitorElement* pass,const MonitorElement* fail, const MonitorElement* tagtag);
+  MonitorElement* makeEffMonElem2Leg(const std::string& filter,const std::string& name,const std::string& title,const MonitorElement* Leg1Eff,const MonitorElement* Leg2NotLeg1Source, const MonitorElement* all);
 
 private:
   void runClient_(); //master function which runs the client

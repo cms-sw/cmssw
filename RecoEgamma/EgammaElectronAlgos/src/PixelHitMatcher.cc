@@ -1,18 +1,13 @@
 
-#include "DataFormats/Math/interface/Point3D.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchNextLayers.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/PerpendicularBoundPlaneBuilder.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <typeinfo>

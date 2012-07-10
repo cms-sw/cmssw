@@ -307,7 +307,6 @@ void writeEEGeom( int iz )
 	  int isc   = MEEEGeom::sc( iX, iY );
 	  assert( isc>0 );
 	  
-	  
 	  int ilmmod = MEEEGeom::lmmod( iX, iY );
 	  assert( ilmmod>0 );
 	  
@@ -632,72 +631,95 @@ int main(int argc, char **argv)
   //
   // Test that the geometry corresponds to that of EEDetId
   //
-    for( int iz=+1; iz>=-1; iz-=2 )
-      {
-        for( int ix=1; ix<=100; ix++ )
-  	{
-  	  for( int iy=1; iy<=100; iy++ )
-  	    {
-  	      //	      bool ok = EEDetId::validDetId( ix, iy, iz ); 
-  	      int icr = MEEEGeom::crystal( ix, iy );
-  	      bool ok = icr>=0;
-  	      if( !ok ) 
-  		{
-  		  //		  assert( icr<0 );
-  		  continue;
-  		}
-	      //EEDetId id( ix, iy, iz );
-	      //EEDetId id_sc( id.isc(), id.ic(), iz, 1 );
+  //   for( int iz=+1; iz>=-1; iz-=2 )
+  //     {
+  //       for( int ix=1; ix<=100; ix++ )
+  // 	{
+  // 	  for( int iy=1; iy<=100; iy++ )
+  // 	    {
+  // 	      //	      bool ok = EEDetId::validDetId( ix, iy, iz ); 
+  // 	      int icr = MEEEGeom::crystal( ix, iy );
+  // 	      bool ok = icr>=0;
+  // 	      if( !ok ) 
+  // 		{
+  // 		  //		  assert( icr<0 );
+  // 		  continue;
+  // 		}
+  // 	      //	      EEDetId id( ix, iy, iz );
+  // 	      //	      EEDetId id_sc( id.isc(), id.ic(), iz, 1 );
 
-  	      int icr_in_sc = MEEEGeom::crystal_in_sc( ix, iy );
+  // 	      int icr_in_sc = MEEEGeom::crystal_in_sc( ix, iy );
 		  
-  	      int iX = (ix-1)/5+1;
-  	      int iY = (iy-1)/5+1;
+  // 	      int iX = (ix-1)/5+1;
+  // 	      int iY = (iy-1)/5+1;
 
-  	      int isect = MEEEGeom::sector( iX, iY );
-  	      assert( isect!=0 );
-  	      if( isect<0 ) continue;
+  // 	      int isect = MEEEGeom::sector( iX, iY );
+  // 	      assert( isect!=0 );
+  // 	      if( isect<0 ) continue;
 
-  	      int iquad = MEEEGeom::quadrant( iX, iY );
-	      int idee  = MEEEGeom::dee( iX, iY, iz );
-  	      int isc   = MEEEGeom::sc( iX, iY );
-  	      assert( isc>0 );
+  // 	      int iquad = MEEEGeom::quadrant( iX, iY );
+  // 	      //	      int idee  = MEEEGeom::dee( iX, iY, iz );
+  // 	      int isc   = MEEEGeom::sc( iX, iY );
+  // 	      assert( isc>0 );
 
-	      int isc2   = MEEEGeom::sc_in_quad( iX, iY );
-	      assert( isc2>0 );
-  	      int ilmmod = MEEEGeom::lmmod( iX, iY );
-  	      assert( ilmmod>0 );
+  // 	      int ilmmod = MEEEGeom::lmmod( iX, iY );
+  // 	      assert( ilmmod>0 );
 
-  	      int idcc= MEEEGeom::dcc( iX, iY, iz );
-  	      assert( idcc>0 );
+  // 	      int idcc= MEEEGeom::dcc( iX, iY, iz );
+  // 	      assert( idcc>0 );
 
-  	      int ilmr= MEEEGeom::lmr( iX, iY, iz );
-  	      assert( ilmr>0 );
+  // 	      int ilmr= MEEEGeom::lmr( iX, iY, iz );
+  // 	      assert( ilmr>0 );
 
+  // 	      o << "ix=" << id.ix();
+  // 	      o << "\tiy=" << id.iy();
+  // 	      o << "\tiz=" << id.zside();
+  // 	      o << "\tisc=" << id.isc();
+  // 	      o << "\tic=" << id.ic();
+  // 	      o << "\tiquad=" << id.iquadrant();
+  // 	      o << endl;
+  // 	      o << "ix=" << id_sc.ix();
+  // 	      o << "\tiy=" << id_sc.iy();
+  // 	      o << "\tiz=" << id_sc.zside();
+  // 	      o << "\tisc=" << id_sc.isc();
+  // 	      o << "\tic=" << id_sc.ic();
+  // 	      o << "\tiquad=" << id_sc.iquadrant();
+  // 	      o << endl;
 
-  	      cout  << " x=" << ix;
-  	      cout  << "\t y=" << iy;
-  	      cout  << "\t z=" << iz;
-  	      cout  << "\t sc=" << isc;
-  	      cout  << "\t sc2=" << isc2;
-  	      cout  << "\t c=" << icr_in_sc;		  
-  	      cout  << "\tdee=" << idee;
-  	      cout  << "\tquad=" << iquad;
-  	      cout  << "\tsect=" << isect;
-  	      cout  << "\tlmmod=" << ilmmod;
-  	      cout  << "\tdcc=" << idcc;
-  	      cout  << "\tlmr=" << ilmr;
-  	      //cout  << "\icry=" << (isc-1)*25+c;
-  	      cout  << endl;
-  	    }
-  	}      
-     }
+  // 	      assert( id.ix()==id_sc.ix() );
+  // 	      assert( id.iy()==id_sc.iy() );
+  // 	      assert( id.zside()==id_sc.zside() );
+  // 	      assert( id.isc()==id_sc.isc() );
+  // 	      assert( id.ic()==id_sc.ic() );
+  // 	      assert( id.iquadrant()==id_sc.iquadrant() );
+  // 	      assert( ix==id.ix() );
+  // 	      assert( iy==id.iy() );
+  // 	      assert( iz==id.zside() );
+  // 	      assert( isc==id.isc() );
+  // 	      assert( icr_in_sc==id.ic() );
+  // 	      assert( iquad==id.iquadrant() );
 
- //  writeEEGeom( -1 );
-//   writeEBGeom();
-//   writeEEGeom( +1 );
-//   writeEEGeom();
-//   writeGeom();
+  // 	      o << " x=" << ix;
+  // 	      o << "\t y=" << iy;
+  // 	      o << "\t z=" << iz;
+  // 	      o << "\t sc=" << isc;
+  // 	      o << "\t c=" << icr_in_sc;		  
+  // 	      o << "\tdee=" << idee;
+  // 	      o << "\tquad=" << iquad;
+  // 	      o << "\tsect=" << isect;
+  // 	      o << "\tlmmod=" << ilmmod;
+  // 	      o << "\tdcc=" << idcc;
+  // 	      o << "\tlmr=" << ilmr;
+  // 	      o << endl;
+  //	    }
+  //	}      
+  //    }
+
+  writeEEGeom( -1 );
+  writeEBGeom();
+  writeEEGeom( +1 );
+  writeEEGeom();
+  writeGeom();
 
   //   const int nlmregions      =  92;
 

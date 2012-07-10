@@ -47,11 +47,7 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
       else if ( curSet == "Tauola" )
       {
          fTauolaInterface = new gen::TauolaInterface(pset.getUntrackedParameter< ParameterSet >(curSet));
-	 //
 	 // in the future, here it should be something like:
-	 //
-	 // fTauolaInterface = TauolaInterface::getInstance();
-	 // fTauolaInterface->setPSet( pset.getUntrackedParameter< ParameterSet >(curSet) );
 	 // fPhotosInterface = new gen::PhotosInterface();
 	 // fPhotosInterface->avoidTauLeptonicDecays();
       }

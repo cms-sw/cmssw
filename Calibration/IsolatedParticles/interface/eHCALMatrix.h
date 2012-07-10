@@ -1,3 +1,4 @@
+// -*- C++ -*
 /* 
 Functions to return total energy contained in NxN (3x3/5x5/7x7)
 Hcal towers aroud a given DetId. 

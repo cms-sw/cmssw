@@ -9,9 +9,6 @@ std::auto_ptr<StripClusterizerAlgorithm> StripClusterizerAlgorithmFactory::
 create(const edm::ParameterSet& conf) {
   std::string algorithm = conf.getParameter<std::string>("Algorithm");
 
-  bool setDetId=false;
-  if (conf.exists("setDetId"))
-    setDetId = conf.getParameter<bool>("setDetId");
   if(algorithm == "ThreeThresholdAlgorithm") {
     return std::auto_ptr<StripClusterizerAlgorithm>(
 	   new ThreeThresholdAlgorithm(
@@ -21,8 +18,7 @@ create(const edm::ParameterSet& conf) {
 	       conf.getParameter<unsigned>("MaxSequentialHoles"),
 	       conf.getParameter<unsigned>("MaxSequentialBad"),
 	       conf.getParameter<unsigned>("MaxAdjacentBad"),
-	       conf.getParameter<std::string>("QualityLabel"),
-	       setDetId));
+	       conf.getParameter<std::string>("QualityLabel") ));
   }
 
   if(algorithm == "OldThreeThresholdAlgorithm") {
@@ -32,8 +28,7 @@ create(const edm::ParameterSet& conf) {
 	       conf.getParameter<double>("SeedThreshold"),
 	       conf.getParameter<double>("ClusterThreshold"),
 	       conf.getParameter<unsigned>("MaxSequentialHoles"),
-	       conf.getParameter<std::string>("QualityLabel"),
-	       setDetId));
+	       conf.getParameter<std::string>("QualityLabel") ));
   }
 
   throw cms::Exception("[StripClusterizerAlgorithmFactory] Unregistered Algorithm")

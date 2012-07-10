@@ -1,5 +1,5 @@
 //
-// $Id: PATObject.h,v 1.32 2011/02/07 19:51:23 vadler Exp $
+// $Id: PATObject.h,v 1.36 2011/05/31 09:16:03 vadler Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PATObject_h
@@ -15,7 +15,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Volker Adler, Sal Rappoccio
-  \version  $Id: PATObject.h,v 1.32 2011/02/07 19:51:23 vadler Exp $
+  \version  $Id: PATObject.h,v 1.36 2011/05/31 09:16:03 vadler Exp $
 */
 
 
@@ -24,6 +24,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include <vector>
 #include <string>
+#include <iosfwd>
 
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/LookupTableRecord.h"
@@ -54,8 +55,8 @@ namespace pat {
       PATObject(const edm::Ptr<ObjectType> & ref);
       /// destructor
       virtual ~PATObject() {}
-    // returns a clone                                  // NO: ObjectType can be an abstract type like reco::Candidate
-    //  virtual PATObject<ObjectType> * clone() const ; //     for which the clone() can't be defined
+      // returns a clone                                  // NO: ObjectType can be an abstract type like reco::Candidate
+      // virtual PATObject<ObjectType> * clone() const ;  //     for which the clone() can't be defined
 
       /// access to the original object; returns zero for null Ref and throws for unavailable collection
       const reco::Candidate * originalObject() const;
@@ -158,36 +159,40 @@ namespace pat {
         return triggerObjectMatchByFilter( std::string( labelFilter ), idx );
       };
       /// get all matched HLT objects used in a certain HLT path;
-      /// if 'pathLastFilterAccepted' is set to 'true' (default), only objects used in the finalfilter of succeeding path are considered
-      /// ("firing" objects)
-      const TriggerObjectStandAloneCollection triggerObjectMatchesByPath( const std::string & namePath, const bool pathLastFilterAccepted = true ) const;
+      /// if 'pathLastFilterAccepted' is set to 'true' (default), only objects used in the final filter of a succeeding path are considered
+      /// ("firing" objects old style only valid for single object triggers);
+      /// if 'pathL3FilterAccepted' is set to 'true' (default), only objects used in L3 filters (identified by the "saveTags" parameter being 'true')
+      /// of a succeeding path are considered ("firing" objects old style only valid for single object triggers)
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByPath( const std::string & namePath, const bool pathLastFilterAccepted = false, const bool pathL3FilterAccepted = true ) const;
       // for RooT command line
-      const TriggerObjectStandAloneCollection triggerObjectMatchesByPath( const char * namePath, const bool pathLastFilterAccepted = true ) const {
-        return triggerObjectMatchesByPath( std::string( namePath ), pathLastFilterAccepted );
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByPath( const char * namePath, const bool pathLastFilterAccepted = false, const bool pathL3FilterAccepted = true ) const {
+        return triggerObjectMatchesByPath( std::string( namePath ), pathLastFilterAccepted, pathL3FilterAccepted );
       };
       // for the cut string parser
-      const TriggerObjectStandAloneCollection triggerObjectMatchesByPath( const std::string & namePath, const unsigned pathLastFilterAccepted ) const {
-        return triggerObjectMatchesByPath( namePath, bool( pathLastFilterAccepted ) );
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByPath( const std::string & namePath, const unsigned pathLastFilterAccepted, const unsigned pathL3FilterAccepted = 1 ) const {
+        return triggerObjectMatchesByPath( namePath, bool( pathLastFilterAccepted ), bool( pathL3FilterAccepted ) );
       };
       // for RooT command line and the cut string parser
-      const TriggerObjectStandAloneCollection triggerObjectMatchesByPath( const char * namePath, const unsigned pathLastFilterAccepted ) const {
-        return triggerObjectMatchesByPath( std::string( namePath ), bool( pathLastFilterAccepted ) );
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByPath( const char * namePath, const unsigned pathLastFilterAccepted, const unsigned pathL3FilterAccepted = 1 ) const {
+        return triggerObjectMatchesByPath( std::string( namePath ), bool( pathLastFilterAccepted ), bool( pathL3FilterAccepted ) );
       };
       /// get one matched HLT object used in a certain HLT path by index;
-      /// if 'pathLastFilterAccepted' is set to 'true' (default), only objects used in the finalfilter of succeeding path are considered
-      /// ("firing" objects)
-      const TriggerObjectStandAlone * triggerObjectMatchByPath( const std::string & namePath, const bool pathLastFilterAccepted = true, const size_t idx = 0 ) const;
+      /// if 'pathLastFilterAccepted' is set to 'true' (default), only objects used in the final filter of a succeeding path are considered
+      /// ("firing" objects, old style only valid for single object triggers);
+      /// if 'pathL3FilterAccepted' is set to 'true' (default), only objects used in L3 filters (identified by the "saveTags" parameter being 'true')
+      /// of a succeeding path are considered ("firing" objects also valid for x-triggers)
+      const TriggerObjectStandAlone * triggerObjectMatchByPath( const std::string & namePath, const bool pathLastFilterAccepted = false, const bool pathL3FilterAccepted = true, const size_t idx = 0 ) const;
       // for RooT command line
-      const TriggerObjectStandAlone * triggerObjectMatchByPath( const char * namePath, const bool pathLastFilterAccepted = true, const size_t idx = 0 ) const {
-        return triggerObjectMatchByPath( std::string( namePath ), pathLastFilterAccepted, idx );
+      const TriggerObjectStandAlone * triggerObjectMatchByPath( const char * namePath, const bool pathLastFilterAccepted = false, const bool pathL3FilterAccepted = true, const size_t idx = 0 ) const {
+        return triggerObjectMatchByPath( std::string( namePath ), pathLastFilterAccepted, pathL3FilterAccepted, idx );
       };
       // for the cut string parser
-      const TriggerObjectStandAlone * triggerObjectMatchByPath( const std::string & namePath, const unsigned pathLastFilterAccepted, const size_t idx = 0 ) const {
-        return triggerObjectMatchByPath( namePath, bool( pathLastFilterAccepted ), idx );
+      const TriggerObjectStandAlone * triggerObjectMatchByPath( const std::string & namePath, const unsigned pathLastFilterAccepted, const unsigned pathL3FilterAccepted = 1, const size_t idx = 0 ) const {
+        return triggerObjectMatchByPath( namePath, bool( pathLastFilterAccepted ), bool( pathL3FilterAccepted ), idx );
       };
       // for RooT command line and the cut string parser
-      const TriggerObjectStandAlone * triggerObjectMatchByPath( const char * namePath, const unsigned pathLastFilterAccepted, const size_t idx = 0 ) const {
-        return triggerObjectMatchByPath( std::string( namePath ), bool( pathLastFilterAccepted ), idx );
+      const TriggerObjectStandAlone * triggerObjectMatchByPath( const char * namePath, const unsigned pathLastFilterAccepted, const unsigned pathL3FilterAccepted = 1, const size_t idx = 0 ) const {
+        return triggerObjectMatchByPath( std::string( namePath ), bool( pathLastFilterAccepted ), bool( pathL3FilterAccepted ), idx );
       };
       /// add a trigger match
       void addTriggerObjectMatch( const TriggerObjectStandAlone & trigObj ) { triggerObjectMatchesEmbedded_.push_back( trigObj ); };
@@ -455,7 +460,6 @@ namespace pat {
     refToOrig_(ref) {
   }
 
-
   template <class ObjectType> const reco::Candidate * PATObject<ObjectType>::originalObject() const {
     if (refToOrig_.isNull()) {
       // this object was not produced from a reference, so no link to the
@@ -581,19 +585,19 @@ namespace pat {
   }
 
   template <class ObjectType>
-  const TriggerObjectStandAloneCollection PATObject<ObjectType>::triggerObjectMatchesByPath( const std::string & namePath, const bool pathLastFilterAccepted ) const {
+  const TriggerObjectStandAloneCollection PATObject<ObjectType>::triggerObjectMatchesByPath( const std::string & namePath, const bool pathLastFilterAccepted, const bool pathL3FilterAccepted ) const {
     TriggerObjectStandAloneCollection matches;
     for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
-      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasPathName( namePath, pathLastFilterAccepted ) ) matches.push_back( *( triggerObjectMatch( i ) ) );
+      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasPathName( namePath, pathLastFilterAccepted, pathL3FilterAccepted ) ) matches.push_back( *( triggerObjectMatch( i ) ) );
     }
     return matches;
   }
 
   template <class ObjectType>
-  const TriggerObjectStandAlone * PATObject<ObjectType>::triggerObjectMatchByPath( const std::string & namePath, const bool pathLastFilterAccepted, const size_t idx ) const {
+  const TriggerObjectStandAlone * PATObject<ObjectType>::triggerObjectMatchByPath( const std::string & namePath, const bool pathLastFilterAccepted, const bool pathL3FilterAccepted, const size_t idx ) const {
     std::vector< size_t > refs;
     for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
-      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasPathName( namePath, pathLastFilterAccepted ) ) refs.push_back( i );
+      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasPathName( namePath, pathLastFilterAccepted, pathL3FilterAccepted ) ) refs.push_back( i );
     }
     if ( idx >= refs.size() ) return 0;
     TriggerObjectStandAloneRef ref( &triggerObjectMatchesEmbedded_, refs.at( idx ) );

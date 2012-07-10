@@ -46,7 +46,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
@@ -159,44 +159,7 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
       //unsigned int detType=detId.det();    // det type, tracker=1
 
       const GeomDet* geomDet( theGeometry->idToDet(detId) );
-
-      unsigned int subdetId = detId.subdetId();
-      int layerNumber=0;
-      int ringNumber = 0;
-      int stereo = 0;
-      if ( subdetId == StripSubdetector::TIB) {
-        detname = "TIB";
-	TIBDetId tibid(detId.rawId());
-	layerNumber = tibid.layer();
-	stereo = tibid.stereo();
-      } else if ( subdetId ==  StripSubdetector::TOB ) {
-        detname = "TOB";
-	TOBDetId tobid(detId.rawId());
-	layerNumber = tobid.layer();
-	stereo = tobid.stereo();
-      } else if ( subdetId ==  StripSubdetector::TID) {
-        detname = "TID";
-	TIDDetId tidid(detId.rawId());
-	layerNumber = tidid.wheel();
-	ringNumber = tidid.ring();
-	stereo = tidid.stereo();
-      } else if ( subdetId ==  StripSubdetector::TEC ) {
-        detname = "TEC";
-	TECDetId tecid(detId.rawId());
-	layerNumber = tecid.wheel();
-	ringNumber = tecid.ring();
-	stereo = tecid.stereo();
-      } else if ( subdetId ==  PixelSubdetector::PixelBarrel ) {
-        detname = "PXB";
-	PXBDetId pxbid(detId.rawId());
-	layerNumber = pxbid.layer();
-	stereo = 1;
-      } else if ( subdetId ==  PixelSubdetector::PixelEndcap ) {
-        detname = "PXF";
-	PXFDetId pxfid(detId.rawId());
-	layerNumber = pxfid.disk();
-	stereo = 1;
-      }
+      
       // Loop over rechits for this detid
       SiPixelRecHitCollection::DetSet::const_iterator rechitRangeIteratorBegin = detset.begin();
       SiPixelRecHitCollection::DetSet::const_iterator rechitRangeIteratorEnd   = detset.end();
@@ -233,7 +196,45 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
           closest_simhit = closestit;
         } // end matched emtpy
 /////comment out begin
-/*
+	/*
+	unsigned int subdetId = detId.subdetId();
+	int layerNumber=0;
+	int ringNumber = 0;
+	int stereo = 0;
+	if ( subdetId == StripSubdetector::TIB) {
+	  detname = "TIB";
+	  TIBDetId tibid(detId.rawId());
+	  layerNumber = tibid.layer();
+	  stereo = tibid.stereo();
+	} else if ( subdetId ==  StripSubdetector::TOB ) {
+	  detname = "TOB";
+	  TOBDetId tobid(detId.rawId());
+	  layerNumber = tobid.layer();
+	  stereo = tobid.stereo();
+	} else if ( subdetId ==  StripSubdetector::TID) {
+	  detname = "TID";
+	  TIDDetId tidid(detId.rawId());
+	  layerNumber = tidid.wheel();
+	  ringNumber = tidid.ring();
+	  stereo = tidid.stereo();
+	} else if ( subdetId ==  StripSubdetector::TEC ) {
+	  detname = "TEC";
+	  TECDetId tecid(detId.rawId());
+	  layerNumber = tecid.wheel();
+	  ringNumber = tecid.ring();
+	  stereo = tecid.stereo();
+	} else if ( subdetId ==  PixelSubdetector::PixelBarrel ) {
+	  detname = "PXB";
+	  PXBDetId pxbid(detId.rawId());
+	  layerNumber = pxbid.layer();
+	  stereo = 1;
+	} else if ( subdetId ==  PixelSubdetector::PixelEndcap ) {
+	  detname = "PXF";
+	  PXFDetId pxfid(detId.rawId());
+	  layerNumber = pxfid.disk();
+	  stereo = 1;
+	}
+	
         std::cout << "Found SiPixelRecHit in " << detname << " from detid " << detId.rawId()
                   << " subdet = " << subdetId
                   << " layer = " << layerNumber
@@ -306,6 +307,8 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
         const DetId& detId =  hit->geographicalId();
         const GeomDet* geomDet( theGeometry->idToDet(detId) );
 
+/////comment out begin
+/*
         unsigned int subdetId = detId.subdetId();
         int layerNumber=0;
         int ringNumber = 0;
@@ -344,7 +347,7 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
           layerNumber = pxfid.disk();
           stereo = 1;
         }
-/////comment out begin
+*/
 //        std::cout << "RecHit in " << detname << " from detid " << detId.rawId()
 //                  << " subdet = " << subdetId
 //                  << " layer = " << layerNumber
@@ -376,6 +379,7 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 */
           }
         }
+	delete hit;
       } //end of loop on tracking rechits
   } // end of loop on recotracks
 
@@ -413,43 +417,6 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 //      const DetId& detId =  iterRecHit->geographicalId();
       const GeomDet* geomDet( theGeometry->idToDet(detId) );
 
-      unsigned int subdetId = detId.subdetId();
-      int layerNumber=0;
-      int ringNumber = 0;
-      int stereo = 0;
-      if ( subdetId == StripSubdetector::TIB) {
-        detname = "TIB";
-	TIBDetId tibid(detId.rawId());
-	layerNumber = tibid.layer();
-	stereo = tibid.stereo();
-      } else if ( subdetId ==  StripSubdetector::TOB ) {
-        detname = "TOB";
-	TOBDetId tobid(detId.rawId());
-	layerNumber = tobid.layer();
-	stereo = tobid.stereo();
-      } else if ( subdetId ==  StripSubdetector::TID) {
-        detname = "TID";
-	TIDDetId tidid(detId.rawId());
-	layerNumber = tidid.wheel();
-	ringNumber = tidid.ring();
-	stereo = tidid.stereo();
-      } else if ( subdetId ==  StripSubdetector::TEC ) {
-        detname = "TEC";
-	TECDetId tecid(detId.rawId());
-	layerNumber = tecid.wheel();
-	ringNumber = tecid.ring();
-	stereo = tecid.stereo();
-      } else if ( subdetId ==  PixelSubdetector::PixelBarrel ) {
-        detname = "PXB";
-	PXBDetId pxbid(detId.rawId());
-	layerNumber = pxbid.layer();
-	stereo = 1;
-      } else if ( subdetId ==  PixelSubdetector::PixelEndcap ) {
-        detname = "PXF";
-	PXFDetId pxfid(detId.rawId());
-	layerNumber = pxfid.disk();
-	stereo = 1;
-      }
       // Loop over rechits for this detid
       SiStripRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorBegin = detset.begin();
       SiStripRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorEnd   = detset.end();
@@ -458,6 +425,45 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
            iterRecHit != rechitRangeIteratorEnd; ++iterRecHit) {
 
 /////comment out begin
+/*
+	unsigned int subdetId = detId.subdetId();
+	int layerNumber=0;
+	int ringNumber = 0;
+	int stereo = 0;
+	if ( subdetId == StripSubdetector::TIB) {
+	  detname = "TIB";
+	  TIBDetId tibid(detId.rawId());
+	  layerNumber = tibid.layer();
+	  stereo = tibid.stereo();
+	} else if ( subdetId ==  StripSubdetector::TOB ) {
+	  detname = "TOB";
+	  TOBDetId tobid(detId.rawId());
+	  layerNumber = tobid.layer();
+	  stereo = tobid.stereo();
+	} else if ( subdetId ==  StripSubdetector::TID) {
+	  detname = "TID";
+	  TIDDetId tidid(detId.rawId());
+	  layerNumber = tidid.wheel();
+	  ringNumber = tidid.ring();
+	  stereo = tidid.stereo();
+	} else if ( subdetId ==  StripSubdetector::TEC ) {
+	  detname = "TEC";
+	  TECDetId tecid(detId.rawId());
+	  layerNumber = tecid.wheel();
+	  ringNumber = tecid.ring();
+	  stereo = tecid.stereo();
+	} else if ( subdetId ==  PixelSubdetector::PixelBarrel ) {
+	  detname = "PXB";
+	  PXBDetId pxbid(detId.rawId());
+	  layerNumber = pxbid.layer();
+	  stereo = 1;
+	} else if ( subdetId ==  PixelSubdetector::PixelEndcap ) {
+	  detname = "PXF";
+	  PXFDetId pxfid(detId.rawId());
+	  layerNumber = pxfid.disk();
+	  stereo = 1;
+	}
+*/	
 //      std::cout << "Found SiStripRPhiRecHit in " << detname << " from detid " << detId.rawId()
 //                << " subdet = " << subdetId
 //                << " layer = " << layerNumber
@@ -501,43 +507,6 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 //      const DetId& detId =  iterRecHit->geographicalId();
       const GeomDet* geomDet( theGeometry->idToDet(detId) );
 
-      unsigned int subdetId = detId.subdetId();
-      int layerNumber=0;
-      int ringNumber = 0;
-      int stereo = 0;
-      if ( subdetId == StripSubdetector::TIB) {
-        detname = "TIB";
-	TIBDetId tibid(detId.rawId());
-	layerNumber = tibid.layer();
-	stereo = tibid.stereo();
-      } else if ( subdetId ==  StripSubdetector::TOB ) {
-        detname = "TOB";
-	TOBDetId tobid(detId.rawId());
-	layerNumber = tobid.layer();
-	stereo = tobid.stereo();
-      } else if ( subdetId ==  StripSubdetector::TID) {
-        detname = "TID";
-	TIDDetId tidid(detId.rawId());
-	layerNumber = tidid.wheel();
-	ringNumber = tidid.ring();
-	stereo = tidid.stereo();
-      } else if ( subdetId ==  StripSubdetector::TEC ) {
-        detname = "TEC";
-	TECDetId tecid(detId.rawId());
-	layerNumber = tecid.wheel();
-	ringNumber = tecid.ring();
-	stereo = tecid.stereo();
-      } else if ( subdetId ==  PixelSubdetector::PixelBarrel ) {
-        detname = "PXB";
-	PXBDetId pxbid(detId.rawId());
-	layerNumber = pxbid.layer();
-	stereo = 1;
-      } else if ( subdetId ==  PixelSubdetector::PixelEndcap ) {
-        detname = "PXF";
-	PXFDetId pxfid(detId.rawId());
-	layerNumber = pxfid.disk();
-	stereo = 1;
-      }
       // Loop over rechits for this detid
       SiStripRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorBegin = detset.begin();
       SiStripRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorEnd   = detset.end();
@@ -545,6 +514,45 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
       for ( iterRecHit = rechitRangeIteratorBegin;
            iterRecHit != rechitRangeIteratorEnd; ++iterRecHit) {
 /////comment out begin
+
+/*	unsigned int subdetId = detId.subdetId();
+	int layerNumber=0;
+	int ringNumber = 0;
+	int stereo = 0;
+	if ( subdetId == StripSubdetector::TIB) {
+	  detname = "TIB";
+	  TIBDetId tibid(detId.rawId());
+	  layerNumber = tibid.layer();
+	  stereo = tibid.stereo();
+	} else if ( subdetId ==  StripSubdetector::TOB ) {
+	  detname = "TOB";
+	  TOBDetId tobid(detId.rawId());
+	  layerNumber = tobid.layer();
+	  stereo = tobid.stereo();
+	} else if ( subdetId ==  StripSubdetector::TID) {
+	  detname = "TID";
+	  TIDDetId tidid(detId.rawId());
+	  layerNumber = tidid.wheel();
+	  ringNumber = tidid.ring();
+	  stereo = tidid.stereo();
+	} else if ( subdetId ==  StripSubdetector::TEC ) {
+	  detname = "TEC";
+	  TECDetId tecid(detId.rawId());
+	  layerNumber = tecid.wheel();
+	  ringNumber = tecid.ring();
+	  stereo = tecid.stereo();
+	} else if ( subdetId ==  PixelSubdetector::PixelBarrel ) {
+	  detname = "PXB";
+	  PXBDetId pxbid(detId.rawId());
+	  layerNumber = pxbid.layer();
+	  stereo = 1;
+	} else if ( subdetId ==  PixelSubdetector::PixelEndcap ) {
+	  detname = "PXF";
+	  PXFDetId pxfid(detId.rawId());
+	  layerNumber = pxfid.disk();
+	  stereo = 1;
+	}
+*/
 //      std::cout << "Found SiStripStereoRecHit in " << detname << " from detid " << detId.rawId()
 //                << " subdet = " << subdetId
 //                << " layer = " << layerNumber
@@ -589,43 +597,6 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 //      const DetId& detId =  iterRecHit->geographicalId();
       const GeomDet* geomDet( theGeometry->idToDet(detId) );
 
-      unsigned int subdetId = detId.subdetId();
-      int layerNumber=0;
-      int ringNumber = 0;
-      int stereo = 0;
-      if ( subdetId == StripSubdetector::TIB) {
-        detname = "TIB";
-	TIBDetId tibid(detId.rawId());
-	layerNumber = tibid.layer();
-	stereo = tibid.stereo();
-      } else if ( subdetId ==  StripSubdetector::TOB ) {
-        detname = "TOB";
-	TOBDetId tobid(detId.rawId());
-	layerNumber = tobid.layer();
-	stereo = tobid.stereo();
-      } else if ( subdetId ==  StripSubdetector::TID) {
-        detname = "TID";
-	TIDDetId tidid(detId.rawId());
-	layerNumber = tidid.wheel();
-	ringNumber = tidid.ring();
-	stereo = tidid.stereo();
-      } else if ( subdetId ==  StripSubdetector::TEC ) {
-        detname = "TEC";
-	TECDetId tecid(detId.rawId());
-	layerNumber = tecid.wheel();
-	ringNumber = tecid.ring();
-	stereo = tecid.stereo();
-      } else if ( subdetId ==  PixelSubdetector::PixelBarrel ) {
-        detname = "PXB";
-	PXBDetId pxbid(detId.rawId());
-	layerNumber = pxbid.layer();
-	stereo = 1;
-      } else if ( subdetId ==  PixelSubdetector::PixelEndcap ) {
-        detname = "PXF";
-	PXFDetId pxfid(detId.rawId());
-	layerNumber = pxfid.disk();
-	stereo = 1;
-      }
       // Loop over rechits for this detid
       SiStripMatchedRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorBegin = detset.begin();
       SiStripMatchedRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorEnd   = detset.end();
@@ -633,6 +604,46 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
       for ( iterRecHit = rechitRangeIteratorBegin;
            iterRecHit != rechitRangeIteratorEnd; ++iterRecHit) {
 /////comment out begin
+/*
+	unsigned int subdetId = detId.subdetId();
+	int layerNumber=0;
+	int ringNumber = 0;
+	int stereo = 0;
+	if ( subdetId == StripSubdetector::TIB) {
+	  detname = "TIB";
+	  TIBDetId tibid(detId.rawId());
+	  layerNumber = tibid.layer();
+	  stereo = tibid.stereo();
+	} else if ( subdetId ==  StripSubdetector::TOB ) {
+	  detname = "TOB";
+	  TOBDetId tobid(detId.rawId());
+	  layerNumber = tobid.layer();
+	  stereo = tobid.stereo();
+	} else if ( subdetId ==  StripSubdetector::TID) {
+	  detname = "TID";
+	  TIDDetId tidid(detId.rawId());
+	  layerNumber = tidid.wheel();
+	  ringNumber = tidid.ring();
+	  stereo = tidid.stereo();
+	} else if ( subdetId ==  StripSubdetector::TEC ) {
+	  detname = "TEC";
+	  TECDetId tecid(detId.rawId());
+	  layerNumber = tecid.wheel();
+	  ringNumber = tecid.ring();
+	  stereo = tecid.stereo();
+	} else if ( subdetId ==  PixelSubdetector::PixelBarrel ) {
+	  detname = "PXB";
+	  PXBDetId pxbid(detId.rawId());
+	  layerNumber = pxbid.layer();
+	  stereo = 1;
+	} else if ( subdetId ==  PixelSubdetector::PixelEndcap ) {
+	  detname = "PXF";
+	  PXFDetId pxfid(detId.rawId());
+	  layerNumber = pxfid.disk();
+	  stereo = 1;
+	}
+	
+*/
 //      std::cout << "Found SiStripMatchedRecHit in " << detname << " from detid " << detId.rawId()
 //                << " subdet = " << subdetId
 //                << " layer = " << layerNumber
@@ -772,6 +783,7 @@ void StdHitNtuplizer::fillPRecHit(const int subid,
   recHit_.gx = GP.x();
   recHit_.gy = GP.y();
   recHit_.gz = GP.z();
+  delete pixeliter;
   recHit_.subid = subid;
 }
 

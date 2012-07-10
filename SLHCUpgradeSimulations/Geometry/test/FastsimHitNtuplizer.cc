@@ -121,6 +121,7 @@ void FastsimHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es
   if(theGSRecHits->size() == 0) return;
 
 //For each SiTrackerGSRecHit2D*
+  
   SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theGSRecHits->begin();
   SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theGSRecHits->end();
   SiTrackerGSRecHit2DCollection::const_iterator iterRecHit;
@@ -132,7 +133,7 @@ void FastsimHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es
 
        const DetId& detId =  iterRecHit->geographicalId();
        const GeomDet* geomDet( theGeometry->idToDet(detId) );
-
+       /*
        unsigned int subdetId = detId.subdetId();
        int layerNumber=0;
        int ringNumber = 0;
@@ -170,11 +171,11 @@ void FastsimHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es
 	  layerNumber = pxfid.disk();
 	  stereo = 1;
        }
-/*
+
        std::cout << "Found RecHit in " << detname << " from detid " << detId.rawId()
 		<< " subdet = " << subdetId
-		<< " layer = " << layerNumber
-		<< " ring = " << ringNumber
+		//<< " layer = " << layerNumber
+		//<< " ring = " << ringNumber
 		<< " Stereo = " << stereo
 		<< std::endl;
        std::cout << "Rechit global x/y/z/r : "

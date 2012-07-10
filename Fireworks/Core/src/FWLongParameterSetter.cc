@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:32 CDT 2008
-// $Id: FWLongParameterSetter.cc,v 1.6 2011/02/11 19:56:36 amraktad Exp $
+// $Id: FWLongParameterSetter.cc,v 1.7.4.1 2012/02/18 01:58:27 matevz Exp $
 //
 
 // system include files
@@ -82,7 +82,8 @@ FWLongParameterSetter::build(TGFrame* iParent, bool labelBack)
       ( m_param->min() > m_param->max() ? TGNumberFormat::kNELLimitMin : TGNumberFormat::kNELLimitMinMax);
    double min = 0;
    double max = 1;
-   if(m_param->min()!=m_param->max()) {
+   if (m_param->min()!=m_param->max())
+   {
       min=m_param->min();
       max=m_param->max();
    }
@@ -103,11 +104,11 @@ FWLongParameterSetter::build(TGFrame* iParent, bool labelBack)
    if (labelBack)
    {
       frame->AddFrame(m_widget, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,6,2,2));
-      frame->AddFrame(label, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2, 2, 0, 0));
+      frame->AddFrame(label,    new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,2,0,0));
    }
    else
    {
-      frame->AddFrame(label, new TGLayoutHints(kLHintsLeft|kLHintsCenterY) );
+      frame->AddFrame(label,    new TGLayoutHints(kLHintsLeft|kLHintsCenterY));
       frame->AddFrame(m_widget, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,8,2,2));
    }
 
@@ -118,12 +119,25 @@ void
 FWLongParameterSetter::doUpdate(Long_t)
 {
    //std::cout <<"doUpdate called"<<std::endl;
+
+   // Idiotic TGNumberEntry arrow buttons can send several events and if
+   // individual event processing takes longer it can happen that the widget
+   // gets detroyed in the meantime. So, process all events from arrows as
+   // soon as possible.
+   static bool in_update = false;
+   if (in_update)
+      return;
+   in_update = true;
+   gClient->ProcessEventsFor((TGWindow*)gTQSender);
+   in_update = false;
+      
    assert(0!=m_param);
    assert(0!=m_widget);
    //std::cout <<m_widget->GetNumberEntry()->GetNumber()<<std::endl;
    m_param->set(m_widget->GetNumberEntry()->GetIntNumber());
    update();
 }
+
 //
 // const member functions
 //

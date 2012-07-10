@@ -6,6 +6,7 @@
 #include "RecoVertex/VertexPrimitives/interface/RefittedTrackState.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include "Math/SMatrix.h"
+#include "DataFormats/CLHEP/interface/Migration.h"
 
 /** Track information relative to a track-to-vertex association. 
  *  The track weight corresponds to the distance 

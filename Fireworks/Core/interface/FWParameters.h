@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:34 EST 2008
-// $Id: FWLongParameter.h,v 1.3 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWParameters.h,v 1.1.24.1 2012/02/18 01:58:26 matevz Exp $
 //
 
 // user include files
@@ -27,15 +27,15 @@
 
 struct FWParameters
 {
-  typedef FWGenericParameterWithRange<long> Long;
+  typedef FWGenericParameterWithRange<long>   Long;
   typedef FWGenericParameterWithRange<double> Double;
-  typedef FWGenericParameter<std::string> String;
-  typedef FWGenericParameter<bool> Bool;
+  typedef FWGenericParameter<std::string>     String;
+  typedef FWGenericParameter<bool>            Bool;
 };
 
-typedef FWParameters::Long FWLongParameter;
+typedef FWParameters::Long   FWLongParameter;
 typedef FWParameters::Double FWDoubleParameter;
 typedef FWParameters::String FWStringParameter;
-typedef FWParameters::Bool FWBoolParameter;
+typedef FWParameters::Bool   FWBoolParameter;
 
 #endif

@@ -127,8 +127,10 @@ class CalorimetryManager{
   double pulledPadSurvivalProbability_;
   double crackPadSurvivalProbability_;
   double spotFraction_;
-  double radiusFactor_;
+  //  double radiusFactor_;
+  double radiusFactorEB_ , radiusFactorEE_;
   std::vector<double> radiusPreshowerCorrections_;
+  double aTerm, bTerm;
   std::vector<double> mipValues_;
   int gridSize_;
   std::vector<double> theCoreIntervals_,theTailIntervals_;

@@ -32,11 +32,11 @@ process.maxEvents = cms.untracked.PSet(
 process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
 
     #### inputs/ouputs control ####
-    writeToDB  = cms.bool(True),
+    writeToDB  = cms.bool(False),
     allowDBEE  = cms.bool(True),
 
-    DBsid   = cms.string('cms_testbeam'),
-    DBuser  = cms.string('cms_ecal_h2_conf'),
+    DBsid   = cms.string('cms_omds_lb'),
+    DBuser  = cms.string('cms_ecal_conf'),
     DBpass  = cms.string('0r4cms_3c4lc0nf'),
     DBport  = cms.uint32(10121),
 
@@ -54,7 +54,6 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
    #### TPG config tag and version (if not given it will be automatically given ) ####
     TPGtag = cms.string('H2'),
     TPGversion = cms.uint32(1),
-    H2 = cms.untracked.bool(True), 
                                         
    #### TPG calculation parameters ####
     useTransverseEnergy = cms.bool(False),   ## true when TPG computes transverse energy, false for energy
@@ -78,7 +77,7 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
     SFGVB_Threshold = cms.uint32(0),         ## used with option forcedPedestalValue = -3
     SFGVB_lut = cms.uint32(0),               ## used with option forcedPedestalValue = -3                                
 
-    forceEtaSlice = cms.bool(False),        ## when true, same linearization coeff for all crystals belonging to a given eta slice (tower)
+    forceEtaSlice = cms.bool(True),        ## when true, same linearization coeff for all crystals belonging to a given eta slice (tower)
 
     LUT_option = cms.string('Linear'),      ## compressed LUT option can be: "Identity", "Linear", "EcalResolution"
     LUT_threshold_EB = cms.double(0.250),   ## All Trigger Primitives <= threshold (in GeV) will be set to 0 

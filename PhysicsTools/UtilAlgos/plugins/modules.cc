@@ -34,7 +34,3 @@ DEFINE_EDM_PLUGIN(VariableComputerFactory, VariableComputerTest, "VariableComput
 #include "PhysicsTools/UtilAlgos/interface/Plotter.h"
 DEFINE_EDM_PLUGIN(PlotterFactory, VariablePlotter, "VariablePlotter");
 
-#include "PhysicsTools/UtilAlgos/interface/BasicMuonAnalyzer.h"
-#include "PhysicsTools/UtilAlgos/interface/EDAnalyzerWrapper.h"
-typedef edm::AnalyzerWrapper<BasicMuonAnalyzer> WrappedEDMuonAnalyzer;
-DEFINE_FWK_MODULE(WrappedEDMuonAnalyzer);

@@ -4,7 +4,6 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
 using namespace reco ;
 

@@ -12,28 +12,31 @@ if [[ $1 == "-help" || $1 == "--help" || $# == 0 ]]; then
 
     echo
     echo "Usage:              "
-    echo "   cmsrel CMSSW_3_X_Y"
-    echo "   cd CMSSW_3_X_Y/src"
+    echo "   cmsrel CMSSW_4_X_Y"
+    echo "   cd CMSSW_4_X_Y/src"
     echo "   cmsenv"
     echo "   addpkg L1Trigger/Configuration"  
     echo "   cd L1Trigger/Configuration/test"  
-    echo "   ./L1EmulatorFromRaw.sh Global_Tag EventSampleType"
+    echo "   ./L1EmulatorFromRaw.sh EventSampleType Global_Tag"
+    echo
+
+    echo "Event sample type follow the cmsDriver convention: " 
+    echo "   data"
+    echo "   mc"
+    echo
 
     echo "Global tag must be given in one of the following formats: " 
     echo "   auto:mc"
     echo "   auto:startup"
     echo "   auto:com10"
-    echo "   MC_3XY_V22" 
-    echo "   START3X_V22" 
-    echo "   GR10_P_V3" 
+    echo "   MC_42_V13" 
+    echo "   START42_V13" 
+    echo "   GR_R_42_V18" 
     echo
-    echo "Default: auto:com10"
+    echo "Default:"
+    echo "   data: auto:com10"
+    echo "   mc: auto:mc"
     echo
-    
-    echo "Event sample type follow the cmsDriver convention: " 
-    echo "   data"
-    echo "   mc"
-    echo "   empty string default to mc"  
 
     if [[ $# < ${NR_ARG} ]]; then
       echo -e "\n $# arguments available, while ${NR_ARG} are required. \n Check command again."
@@ -42,47 +45,69 @@ if [[ $1 == "-help" || $1 == "--help" || $# == 0 ]]; then
     exit 1    
 fi
 
-GlobalTag=$1
-EventSampleType=$2
-
-# global tag manipulation
-if [[ ${GlobalTag} == '' ]]; then
-    GlobalTag='auto:com10'
-    echo "No global tag given. Using by default: ${GlobalTag}"
-fi
-
-      
-if [[ `echo ${GlobalTag} | grep auto` ]]; then
-    gTag=${GlobalTag}
-else
-    gTag=FrontierConditions_GlobalTag,${GlobalTag}::All
-fi
+EventSampleType=$1
+GlobalTag=$2
 
 #
 
 if [[ ${EventSampleType} == "data" ]]; then
+
+    if [[ ${GlobalTag} == '' ]]; then
+        GlobalTag='auto:com10'
+        echo "No global tag given. Using by default: ${GlobalTag}"
+    fi
+
+    if [[ `echo ${GlobalTag} | grep auto` ]]; then
+        gTag=${GlobalTag}
+    else
+        gTag=FrontierConditions_GlobalTag,${GlobalTag}::All
+    fi
+
     cmsDriver.py l1EmulatorFromRaw -s RAW2DIGI,L1 -n 100 \
         --conditions ${gTag} \
         --datatier 'DIGI-RECO' \
         --eventcontent FEVTDEBUGHLT \
         --data \
-        --filein '/store/data/Commissioning10/Cosmics/RAW/v3/000/127/715/FCB12D5F-6C18-DF11-AB4B-000423D174FE.root' \
+        --filein /store/data/Run2011A/MinimumBias/RAW/v1/000/165/514/28C65E11-E584-E011-AED9-0030487CD700.root,/store/data/Run2011A/MinimumBias/RAW/v1/000/165/514/44C0FC26-EE84-E011-B657-003048F1C424.root \
         --customise=L1Trigger/Configuration/customise_l1EmulatorFromRaw \
         --processName='L1EmulRaw' \
         --no_exec
 
         exit 0   
-else
+        
+elif [[ ${EventSampleType} == "mc" ]]; then
+
+    if [[ ${GlobalTag} == '' ]]; then
+        GlobalTag='auto:mc'
+        echo "No global tag given. Using by default: ${GlobalTag}"
+    fi
+
+    if [[ `echo ${GlobalTag} | grep auto` ]]; then
+        gTag=${GlobalTag}
+    else
+        gTag=FrontierConditions_GlobalTag,${GlobalTag}::All
+    fi
+
     cmsDriver.py l1EmulatorFromRaw -s RAW2DIGI,L1 -n 100 \
         --conditions ${gTag} \
         --datatier 'DIGI-RECO' \
         --eventcontent FEVTDEBUGHLT \
-        --filein '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/DAA27EF5-5069-DF11-9B53-002618943982.root' \
+        --filein /store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0068/BC61B16D-647C-E011-9972-0030486791BA.root,/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0063/FE440F3F-847B-E011-8E8F-0018F3D096CA.root \
         --customise=L1Trigger/Configuration/customise_l1EmulatorFromRaw \
         --processName='L1EmulRaw' \
         --no_exec
 
         exit 0   
+        
+else
+
+    echo "Option for sample type ${EventSampleType} not valid."
+    echo "Valid options:"
+    echo "   data"
+    echo "   mc"
+    
+    exit 1
+
 fi
 
 

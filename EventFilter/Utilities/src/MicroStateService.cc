@@ -5,8 +5,14 @@
 
 namespace evf{
 
+
   MicroStateService::MicroStateService(const edm::ParameterSet& iPS, 
-				       edm::ActivityRegistry& reg)
+				       edm::ActivityRegistry& reg) : 
+    init("INIT")
+    ,done("done")
+    ,input("INPUT")
+    ,fwkovh("FWKOVH")
+    ,microstate2_(&init)
   {
   
     reg.watchPostBeginJob(this,&MicroStateService::postBeginJob);
@@ -20,8 +26,6 @@ namespace evf{
     reg.watchPreModule(this,&MicroStateService::preModule);
     reg.watchPostModule(this,&MicroStateService::postModule);
     microstate1_ = "BJ";
-    microstate2_ = "INIT";
-
   }
 
 
@@ -39,7 +43,7 @@ namespace evf{
   {
     boost::mutex::scoped_lock sl(lock_);
     microstate1_ = "EJ";
-    microstate2_ = "done";
+    microstate2_ = &done;
   }
 
   void MicroStateService::preEventProcessing(const edm::EventID& iID,
@@ -52,30 +56,30 @@ namespace evf{
   void MicroStateService::postEventProcessing(const edm::Event& e, const edm::EventSetup&)
   {
     boost::mutex::scoped_lock sl(lock_);
-    microstate2_ = "INPUT";
+    microstate2_ = &input;
   }
   void MicroStateService::preSource()
   {
     boost::mutex::scoped_lock sl(lock_);
-    microstate2_ = "INPUT";
+    microstate2_ = &input;
   }
 
   void MicroStateService::postSource()
   {
     boost::mutex::scoped_lock sl(lock_);
-    microstate2_ = "FWKOVH";
+    microstate2_ = &fwkovh;
   }
 
   void MicroStateService::preModule(const edm::ModuleDescription& desc)
   {
     boost::mutex::scoped_lock sl(lock_);
-    microstate2_ = desc.moduleLabel();
+    microstate2_ = &(desc.moduleLabel());
   }
 
   void MicroStateService::postModule(const edm::ModuleDescription& desc)
   {
     boost::mutex::scoped_lock sl(lock_);
-    microstate2_ = "FWKOVH";
+    microstate2_ = &fwkovh;
   }
   
   std::string MicroStateService::getMicroState1()
@@ -84,13 +88,13 @@ namespace evf{
 	return microstate1_;
   }
 
-  std::string MicroStateService::getMicroState2()
+  std::string const &MicroStateService::getMicroState2()
   { 
 	boost::mutex::scoped_lock sl(lock_);
-	return microstate2_;
+	return *microstate2_;
   }
 
-  void MicroStateService::setMicroState(std::string &in)
+  void MicroStateService::setMicroState(std::string const *in)
   {
     	boost::mutex::scoped_lock sl(lock_);
 	microstate2_ = in;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  Fri Apr 27 12:31:25 CEST 2007
-// $Id: SiPixelFakeGainOfflineESSource.cc,v 1.1 2008/02/11 15:23:41 friis Exp $
+// $Id: SiPixelFakeGainOfflineESSource.cc,v 1.2.2.1 2010/06/25 16:41:54 hcheung Exp $
 //
 //
 
@@ -47,12 +47,15 @@ SiPixelFakeGainOfflineESSource::~SiPixelFakeGainOfflineESSource()
 
 std::auto_ptr<SiPixelGainCalibrationOffline> SiPixelFakeGainOfflineESSource::produce(const SiPixelGainCalibrationOfflineRcd & )
 {
+  using namespace edm::es;
+  //  edm::ESHandle<TrackerGeometry> pDD;
+  // iSetup.get<TrackerDigiGeometryRecord>().get( pDD );     
 
-   using namespace edm::es;
    unsigned int nmodules = 0;
    uint32_t nchannels = 0;
    SiPixelGainCalibrationOffline * obj = new SiPixelGainCalibrationOffline(25.,30., 2.,3.);
-   SiPixelDetInfoFileReader reader(fp_.fullPath());
+   SiPixelDetInfoFileReader reader(fp_.fullPath(), true); //Get ROC rows
+
    const std::vector<uint32_t> DetIds = reader.getAllDetIds();
 
    // Loop over detectors
@@ -60,6 +63,10 @@ std::auto_ptr<SiPixelGainCalibrationOffline> SiPixelFakeGainOfflineESSource::pro
      nmodules++;
      std::vector<char> theSiPixelGainCalibrationOffline;
      const std::pair<int, int> & detUnitDimensions = reader.getDetUnitDimensions(*detit);
+     const int ROCRows = reader.getROCRows(*detit);
+     //   const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>(PDD->idToDetUnit(*detit));
+     //  const PixelTopology & topol = pixDet->specificTopology();       
+     //  int rowsPerROC=topol.rowsperroc();
 
      // Loop over columns and rows
      for(int i=0; i<detUnitDimensions.first; i++) {
@@ -71,10 +78,10 @@ std::auto_ptr<SiPixelGainCalibrationOffline> SiPixelFakeGainOfflineESSource::pro
 	 float ped  = 28.2;	 
          totalEntries += 1.0;
 	 obj->setDataPedestal(ped, theSiPixelGainCalibrationOffline);	 
-         if ((j + 1) % 80 == 0) //compute the gain average after each ROC
+         if ((j + 1) % ROCRows == 0) //compute the gain average after each ROC
          {
             float gain = totalGain/totalEntries;
-            obj->setDataGain(gain, 80, theSiPixelGainCalibrationOffline);
+            obj->setDataGain(gain, ROCRows, theSiPixelGainCalibrationOffline);
             totalGain    = 0;
             totalEntries = 0.0;
          }
@@ -85,7 +92,7 @@ std::auto_ptr<SiPixelGainCalibrationOffline> SiPixelFakeGainOfflineESSource::pro
 
      SiPixelGainCalibrationOffline::Range range(theSiPixelGainCalibrationOffline.begin(),theSiPixelGainCalibrationOffline.end());
      // the 80 in the line below represents the number of columns averaged over.  
-     if( !obj->put(*detit,range,detUnitDimensions.first) )
+     if( !obj->put(*detit,range,detUnitDimensions.first, ROCRows) )
        edm::LogError("SiPixelFakeGainOfflineESSource")<<"[SiPixelFakeGainOfflineESSource::produce] detid already exists"<<std::endl;
    }
 

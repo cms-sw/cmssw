@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2010/04/21 16:58:00 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/11/04 12:56:32 $
+ *  $Revision: 1.11 $
  *  \author  J. Klukas, M. Vander Donckt, J. Alcaraz
  */
 
@@ -54,7 +54,6 @@
 
 
 const unsigned int kNull = (unsigned int) -1;
-TPRegexp kLooseL1Requirement("HLT_Mu3|Double|NoFilters");
 
 
 

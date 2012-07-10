@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 22 15:54:29 EST 2008
-// $Id: FWConfiguration.cc,v 1.5 2010/04/06 20:27:04 chrjones Exp $
+// $Id: FWConfiguration.cc,v 1.6 2010/04/23 08:57:26 eulisse Exp $
 //
 
 // system include files
@@ -49,7 +49,7 @@ FWConfiguration::~FWConfiguration()
 //
 // assignment operators
 //
-const FWConfiguration& FWConfiguration::operator=(const FWConfiguration& rhs)
+FWConfiguration& FWConfiguration::operator=(const FWConfiguration& rhs)
 {
    //An exception safe implementation is
    FWConfiguration temp(rhs);

@@ -9,7 +9,8 @@ hbheprereco = cms.EDProducer("HcalSimpleReconstructor",
     dropZSmarkedPassed = cms.bool(True),
     firstSample = cms.int32(4),
     samplesToAdd = cms.int32(4),
-    tsFromDB = cms.bool(True)
+    tsFromDB = cms.bool(True),
+    firstDepthWeight = cms.double(1.0)
 )
 
 

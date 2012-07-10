@@ -19,7 +19,7 @@ hcalClient = cms.EDAnalyzer("HcalMonitorClient",
                             # Specify whether LS-by-LS certification should be created
                             saveByLumiSection = cms.untracked.bool(False),
 
-
+                            online = cms.untracked.bool(False),  # set to true only for online DQM running
                             # When enabled, this checks for NaN values in the channel status, and counts any such channels as errors in the reportSummary:
                             UseBadChannelStatusInSummary = cms.untracked.bool(False),
                             
@@ -35,6 +35,7 @@ hcalClient = cms.EDAnalyzer("HcalMonitorClient",
                             # online running -- require only 1 event (offline will require more)
                             minevents            = cms.untracked.int32(250),
                             # minerrorrate         = cms.untracked.double(0.05),
+                            Beam_minLS           = cms.untracked.int32(1),
 
                             # dead cell min events controlled by task in online running
                             DeadCell_minerrorrate = cms.untracked.double(0.05),

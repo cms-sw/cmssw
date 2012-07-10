@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/18 16:01:06 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2010/05/14 11:43:02 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -89,19 +89,27 @@ int DTConfigPluginHandler::get( const DTKeyedConfigListRcd& keyRecord,
     obj = cBrick.second;
     cacheFound = true;
   }
-  if ( cacheFound && !cacheAge ) return 0;
-  std::map<int,DTKeyedConfig*> ageMap;
-  while ( cache_iter != cache_iend ) {
-    std::pair<const int,counted_brick>& entry = *cache_iter++;
-    counted_brick& cBrick = entry.second;
-    int& brickAge = cBrick.first;
-    if ( brickAge < cacheAge ) brickAge++;
-    if ( entry.first == cfgId ) brickAge = 0;
-    ageMap.insert( std::pair<int,DTKeyedConfig*>( 
-                   brickAge, new DTKeyedConfig( *cBrick.second ) ) );
-  }
 
-  if ( cacheFound ) return 0;
+  std::map<int,const DTKeyedConfig*> ageMap;
+  if ( cacheFound ) {
+    if ( !cacheAge ) return 0;
+    while ( cache_iter != cache_iend ) {
+      std::pair<const int,counted_brick>& entry = *cache_iter++;
+      counted_brick& cBrick = entry.second;
+      int& brickAge = cBrick.first;
+      if ( brickAge < cacheAge ) brickAge++;
+      if ( entry.first == cfgId ) brickAge = 0;
+    }
+    return 0;
+  }
+  else {
+    while ( cache_iter != cache_iend ) {
+      std::pair<const int,counted_brick>& entry = *cache_iter++;
+      counted_brick& cBrick = entry.second;
+      ageMap.insert( std::pair<int,const DTKeyedConfig*>( 
+                     ++cBrick.first, entry.second.second ) );
+    }
+  }
 
 // get dummy brick list
   edm::ESHandle<cond::KeyList> klh;
@@ -130,7 +138,7 @@ int DTConfigPluginHandler::get( const DTKeyedConfigListRcd& keyRecord,
     cachedStringNumber += ( d_iend - d_iter );
     while ( d_iter != d_iend ) cachedByteNumber += ( *d_iter++ ).size();
   }
-  std::map<int,DTKeyedConfig*>::reverse_iterator iter = ageMap.rbegin();
+  std::map<int,const DTKeyedConfig*>::reverse_iterator iter = ageMap.rbegin();
   while ( ( cachedBrickNumber  > maxBrickNumber  ) ||
           ( cachedStringNumber > maxStringNumber ) ||
           ( cachedByteNumber   > maxByteNumber   ) ) {

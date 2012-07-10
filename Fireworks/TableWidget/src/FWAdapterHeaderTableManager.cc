@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:44:45 EST 2009
-// $Id: FWAdapterHeaderTableManager.cc,v 1.1 2009/02/03 20:33:03 chrjones Exp $
+// $Id: FWAdapterHeaderTableManager.cc,v 1.2 2009/03/04 15:34:41 chrjones Exp $
 //
 
 // system include files
@@ -16,7 +16,6 @@
 // user include files
 #include "Fireworks/TableWidget/src/FWAdapterHeaderTableManager.h"
 #include "Fireworks/TableWidget/interface/FWColumnLabelCellRenderer.h"
-
 //
 // constants, enums and typedefs
 //
@@ -30,7 +29,7 @@
 //
 FWAdapterHeaderTableManager::FWAdapterHeaderTableManager(const FWTableManagerBase* iTable) :
 m_table(iTable), 
-m_renderer(new FWColumnLabelCellRenderer), 
+m_renderer(new FWColumnLabelCellRenderer(&(FWTextTableCellRenderer::getDefaultGC()), iTable->cellDataIsSortable())), 
 m_sortedColumn(-1),
 m_descendingSort(true) 
 {}

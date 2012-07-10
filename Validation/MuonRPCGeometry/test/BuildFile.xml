@@ -1,8 +1,0 @@
-<use   name="root"/>
-<use   name="rootgraphics"/>
-<use   name="Validation/MuonRPCGeometry"/>
-<use   name="L1Trigger/RPCTrigger"/>
-<bin   file="RPCHistos.cc">
-</bin>
-<bin   file="RPCHistos2.cc">
-</bin>

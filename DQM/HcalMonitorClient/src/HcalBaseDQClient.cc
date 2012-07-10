@@ -15,6 +15,8 @@ HcalBaseDQClient::HcalBaseDQClient(std::string s, const edm::ParameterSet& ps)
     prefixME_.append("/");
 
   validHtmlOutput_       = ps.getUntrackedParameter<bool>("validHtmlOutput",true);
+  Online_                = ps.getUntrackedParameter<bool>("online",false);
+
   subdir_="HcalInfo/";
   subdir_=prefixME_+subdir_;
 

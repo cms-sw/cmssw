@@ -24,13 +24,17 @@ public:
    *  along the helix from the starting point to the closest approach. 
    *  to the point. The starting point is given in the constructor.
    */
-  virtual std::pair<bool,double> pathLength (const GlobalPoint& point) const;
+  virtual std::pair<bool,double> pathLength (const GlobalPoint& point) const {
+    return genericPathLength(point);
+  }
 
   /** Propagation status (true if valid) and (signed) path length 
    *  along the helix from the starting point to the closest approach
    *  to the line. The starting point is given in the constructor.
    */
-  virtual std::pair<bool,double> pathLength (const Line& line) const;
+  virtual std::pair<bool,double> pathLength (const Line& line) const {
+    return genericPathLength(line);
+  }
 
   /** Position at pathlength s from the starting point.
    */

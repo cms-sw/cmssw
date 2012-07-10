@@ -27,7 +27,7 @@ void expand_node( TEveElement * element )
 {
    // force a TEveGeoNode to load all its children
    if (TEveGeoNode * node = dynamic_cast<TEveGeoNode *>( element )) {
-      if (node->NumChildren() == 0 && node->GetNode()->GetVolume()->GetNdaughters() > 0) {
+      if (node->NumChildren() == 0 && node->GetNode()->GetVolume()->GetNdaughters() != 0) {
          TIter next(node->GetNode()->GetVolume()->GetNodes());
          TGeoNode* dnode;
          while ((dnode = (TGeoNode*) next()) != 0) {

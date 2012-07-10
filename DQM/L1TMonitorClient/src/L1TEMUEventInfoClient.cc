@@ -1,835 +1,547 @@
-/**
- * \class L1TEMUEventInfoClient
- *
- *
- * Description: see header file.
- *
- *
- * \author: Vasile Mihai Ghete   - HEPHY Vienna
- *
- * $Date$
- * $Revision$
- *
- */
-
-// this class header
 #include "DQM/L1TMonitorClient/interface/L1TEMUEventInfoClient.h"
 
-// system include files
-#include <stdio.h>
-#include <sstream>
-#include <fstream>
-#include <iostream>
-#include <iomanip>
-
-#include <math.h>
-#include <memory>
-
-#include <vector>
-#include <string>
-
-// user include files
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
 #include "DQMServices/Core/interface/QReport.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-# include "DQMServices/Core/interface/DQMDefinitions.h"
-
-#include <TH2F.h>
+#include "TRandom.h"
+#include <TF1.h>
+#include <stdio.h>
+#include <sstream>
+#include <math.h>
+#include <TProfile.h>
+#include <TProfile2D.h>
+#include <memory>
+#include <iostream>
+#include <vector>
+#include <iomanip>
+#include <string>
+#include <fstream>
 #include "TROOT.h"
 
-// constructor
-L1TEMUEventInfoClient::L1TEMUEventInfoClient(const edm::ParameterSet& parSet) :
-            m_verbose(parSet.getUntrackedParameter<bool>("verbose", false)),
-            m_monitorDir(parSet.getUntrackedParameter<std::string>("monitorDir", "")),
-            m_prescaleLS(parSet.getUntrackedParameter<int>("prescaleLS", -1)),
-            m_prescaleEvt(parSet.getUntrackedParameter<int>("prescaleEvt", -1)),
-            m_l1Systems(parSet.getParameter<std::vector<edm::ParameterSet> >("L1Systems")),
-            m_l1Objects(parSet.getParameter<std::vector<edm::ParameterSet> >("L1Objects")),
-            m_maskL1Systems(parSet.getParameter<std::vector<std::string> >("MaskL1Systems")),
-            m_maskL1Objects(parSet.getParameter<std::vector<std::string> >("MaskL1Objects")),
-            m_nrL1Systems(0),
-            m_nrL1Objects(0),
-            m_totalNrQtSummaryEnabled(0) {
+using namespace edm;
+using namespace std;
 
-    initialize();
+L1TEMUEventInfoClient::L1TEMUEventInfoClient(const edm::ParameterSet& ps)
+{
+  parameters_=ps;
+  initialize();
 }
 
-// destructor
-L1TEMUEventInfoClient::~L1TEMUEventInfoClient() {
-
-    //empty
-
+L1TEMUEventInfoClient::~L1TEMUEventInfoClient(){
+ if(verbose_) cout <<"[TriggerDQM]: ending... " << endl;
 }
 
-void L1TEMUEventInfoClient::initialize() {
-
-    m_counterLS = 0;
-    m_counterEvt = 0;
-
-    // get back-end interface
-    m_dbe = edm::Service<DQMStore>().operator->();
-
-    if (m_verbose) {
-        std::cout << "\nMonitor directory =             " << m_monitorDir
-                << std::endl;
-        std::cout << "DQM luminosity section prescale = " << m_prescaleLS
-                << " lumi section(s)" << std::endl;
-        std::cout << "DQM event prescale =              " << m_prescaleEvt
-                << " events(s)\n" << std::endl;
-    }
-
-    //
-
-    m_nrL1Systems = m_l1Systems.size();
-
-    m_systemLabel.reserve(m_nrL1Systems);
-    m_systemLabelExt.reserve(m_nrL1Systems);
-    m_systemMask.reserve(m_nrL1Systems);
-    m_systemFolder.reserve(m_nrL1Systems);
-
-    // on average two quality test per system - just a best guess
-    m_systemQualityTestName.reserve(2*m_nrL1Systems);
-    m_systemQualityTestHist.reserve(2*m_nrL1Systems);
-    m_systemQtSummaryEnabled.reserve(2*m_nrL1Systems);
-
-    int indexSys = 0;
-
-    int totalNrQualityTests = 0;
-
-    for (std::vector<edm::ParameterSet>::const_iterator itSystem =
-            m_l1Systems.begin(); itSystem != m_l1Systems.end(); ++itSystem) {
-
-        m_systemLabel.push_back(itSystem->getParameter<std::string>(
-                "SystemLabel"));
-
-        m_systemLabelExt.push_back(itSystem->getParameter<std::string>(
-                "HwValLabel"));
-
-        m_systemMask.push_back(itSystem->getParameter<unsigned int>(
-                "SystemMask"));
-        // check the additional mask from m_maskL1Systems
-        for (std::vector<std::string>::const_iterator itSys =
-                m_maskL1Systems.begin(); itSys != m_maskL1Systems.end(); ++itSys) {
-
-            if (*itSys == m_systemLabel[indexSys]) {
-                m_systemMask[indexSys] = 1;
-
-            }
-        }
-
-        //
-        std::string sysFolder = itSystem->getParameter<std::string> (
-                "SystemFolder");
-        m_systemFolder.push_back(sysFolder);
-
-        //
-        std::vector<std::string> qtNames = itSystem->getParameter<
-                std::vector<std::string> >("QualityTestName");
-        m_systemQualityTestName.push_back(qtNames);
-
-        totalNrQualityTests = totalNrQualityTests + qtNames.size();
-
-        //
-        std::vector<std::string> qtHists = itSystem->getParameter<
-                std::vector<std::string> > ("QualityTestHist");
-
-        std::vector<std::string> qtFullPathHists;
-        qtFullPathHists.reserve(qtHists.size());
-
-        for (std::vector<std::string>::const_iterator itQtHist =
-                qtHists.begin(); itQtHist != qtHists.end(); ++itQtHist) {
-
-            std::string hist = *itQtHist;
-
-            if (sysFolder == "") {
-                hist = "L1TEMU/" + m_systemLabel[indexSys] + "/" + hist;
-            } else {
-                hist = sysFolder + hist;
-            }
-
-            qtFullPathHists.push_back(hist);
-        }
-
-        m_systemQualityTestHist.push_back(qtFullPathHists);
-
-         //
-        std::vector<unsigned int> qtSumEnabled = itSystem->getParameter<
-                std::vector<unsigned int> >("QualityTestSummaryEnabled");
-        m_systemQtSummaryEnabled.push_back(qtSumEnabled);
-
-        for (std::vector<unsigned int>::const_iterator itQtSumEnabled =
-                qtSumEnabled.begin(); itQtSumEnabled != qtSumEnabled.end(); ++itQtSumEnabled) {
-
-            m_totalNrQtSummaryEnabled++;
-        }
-
-        // consistency check - throw exception, it will crash anyway if not consistent
-        if (
-                (qtNames.size() != qtHists.size()) ||
-                (qtNames.size() != qtSumEnabled.size()) ||
-                (qtHists.size() != qtSumEnabled.size())) {
-
-            throw cms::Exception("FailModule")
-                    << "\nError: inconsistent size of input vector parameters"
-                    << "\n  QualityTestName, QualityTestHistQuality, TestSummaryEnabled"
-                    << "\nfor system " << m_systemLabel[indexSys]
-                    << "\n They must have equal size.\n"
-                    << std::endl;
-        }
-
-
-        indexSys++;
-
-    }
-
-    // L1 objects
-
-    //
-    m_nrL1Objects = m_l1Objects.size();
-
-    m_objectLabel.reserve(m_nrL1Objects);
-    m_objectMask.reserve(m_nrL1Objects);
-    m_objectFolder.reserve(m_nrL1Objects);
-
-    // on average two quality test per object - just a best guess
-    m_objectQualityTestName.reserve(2*m_nrL1Objects);
-    m_objectQualityTestHist.reserve(2*m_nrL1Objects);
-    m_objectQtSummaryEnabled.reserve(2*m_nrL1Objects);
-
-    int indexObj = 0;
-
-    for (std::vector<edm::ParameterSet>::const_iterator itObject =
-            m_l1Objects.begin(); itObject != m_l1Objects.end(); ++itObject) {
-
-        m_objectLabel.push_back(itObject->getParameter<std::string>(
-                "ObjectLabel"));
-
-        m_objectMask.push_back(itObject->getParameter<unsigned int>(
-                "ObjectMask"));
-        // check the additional mask from m_maskL1Objects
-        for (std::vector<std::string>::const_iterator itObj =
-                m_maskL1Objects.begin(); itObj != m_maskL1Objects.end(); ++itObj) {
-
-            if (*itObj == m_objectLabel[indexObj]) {
-                m_objectMask[indexObj] = 1;
-
-            }
-        }
-
-        //
-        std::string objFolder = itObject->getParameter<std::string> (
-                "ObjectFolder");
-        m_objectFolder.push_back(objFolder);
-
-        //
-        std::vector<std::string> qtNames = itObject->getParameter<
-                std::vector<std::string> >("QualityTestName");
-        m_objectQualityTestName.push_back(qtNames);
-
-        totalNrQualityTests = totalNrQualityTests + qtNames.size();
-
-        //
-        std::vector<std::string> qtHists = itObject->getParameter<
-                std::vector<std::string> > ("QualityTestHist");
-
-        std::vector<std::string> qtFullPathHists;
-        qtFullPathHists.reserve(qtHists.size());
-
-        for (std::vector<std::string>::const_iterator itQtHist =
-                qtHists.begin(); itQtHist != qtHists.end(); ++itQtHist) {
-
-            std::string hist = *itQtHist;
-
-            if (objFolder == "") {
-                hist = "L1TEMU/" + m_objectLabel[indexObj] + "/" + hist;
-            } else {
-                hist = objFolder + hist;
-            }
-
-            qtFullPathHists.push_back(hist);
-        }
-
-        m_objectQualityTestHist.push_back(qtFullPathHists);
-
-         //
-        std::vector<unsigned int> qtSumEnabled = itObject->getParameter<
-                std::vector<unsigned int> >("QualityTestSummaryEnabled");
-        m_objectQtSummaryEnabled.push_back(qtSumEnabled);
-
-        for (std::vector<unsigned int>::const_iterator itQtSumEnabled =
-                qtSumEnabled.begin(); itQtSumEnabled != qtSumEnabled.end(); ++itQtSumEnabled) {
-
-            m_totalNrQtSummaryEnabled++;
-        }
-
-        // consistency check - throw exception, it will crash anyway if not consistent
-        if (
-                (qtNames.size() != qtHists.size()) ||
-                (qtNames.size() != qtSumEnabled.size()) ||
-                (qtHists.size() != qtSumEnabled.size())) {
-
-            throw cms::Exception("FailModule")
-                    << "\nError: inconsistent size of input vector parameters"
-                    << "\n  QualityTestName, QualityTestHistQuality, TestSummaryEnabled"
-                    << "\nfor object " << m_objectLabel[indexObj]
-                    << "\nThe three vectors must have equal size.\n"
-                    << std::endl;
-        }
-
-
-
-
-        indexObj++;
-
-    }
-
-    m_summaryContent.reserve(m_nrL1Systems + m_nrL1Objects);
-    m_meReportSummaryContent.reserve(totalNrQualityTests);
+//--------------------------------------------------------
+void L1TEMUEventInfoClient::initialize(){ 
+
+  counterLS_=0; 
+  counterEvt_=0; 
+  
+  // get back-end interface
+  dbe_ = Service<DQMStore>().operator->();
+  
+  // base folder for the contents of this job
+  verbose_ = parameters_.getUntrackedParameter<bool>("verbose", false);
+  
+  monitorDir_ = parameters_.getUntrackedParameter<string>("monitorDir","");
+  if(verbose_) cout << "Monitor dir = " << monitorDir_ << endl;
+    
+  prescaleLS_ = parameters_.getUntrackedParameter<int>("prescaleLS", -1);
+  if(verbose_) cout << "DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< endl;
+  
+  prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
+  if(verbose_) cout << "DQM event prescale = " << prescaleEvt_ << " events(s)"<< endl;
+  
+  //tbd should revert to regular order as defined in hardwarevalidation
+  // + use std labels defined in traits therein
+  std::string syslabel   [nsysmon_]=
+    {"DTTF","DTTPG","CSCTF","CSCTPG","RPC","GMT", "ECAL","HCAL","RCT","GCT","GT"};
+  std::string syslabelext[nsysmon_]=
+    {"DTF","DTP","CTF","CTP","RPC","GMT", "ETP","HTP","RCT","GCT","GLT"};
+  std::vector<unsigned int> sysmask(0,nsysmon_); 
+  sysmask = parameters_.getUntrackedParameter<std::vector<unsigned int> >("maskedSystems", sysmask);
+
+  for(int i=0; i<nsysmon_; i++) {
+    syslabel_[i] = syslabel[i];
+    syslabelext_[i] = syslabelext[i];
+    sysmask_[i] = sysmask[i];
+  }
+
+  std::vector<string> emptyMask;
+
+  dataMask = parameters_.getUntrackedParameter<std::vector<string> >("dataMaskedSystems", emptyMask);
+  emulMask = parameters_.getUntrackedParameter<std::vector<string> >("emulatorMaskedSystems", emptyMask);
+
+  s_mapDataValues["EMPTY"]    = data_empty;
+  s_mapDataValues["ALL"]      = data_all;
+  s_mapDataValues["GT"]       = data_gt;
+  s_mapDataValues["MUONS"]    = data_muons;
+  s_mapDataValues["JETS"]     = data_jets;
+  s_mapDataValues["TAUJETS"]  = data_taujets;
+  s_mapDataValues["ISOEM"]    = data_isoem;
+  s_mapDataValues["NONISOEM"] = data_nonisoem;
+  s_mapDataValues["MET"]      = data_met;
+
+  s_mapEmulValues["EMPTY"]  = emul_empty;
+  s_mapEmulValues["ALL"]    = emul_all;
+  s_mapEmulValues["DTTF"]   = emul_dtf;
+  s_mapEmulValues["DTTPG"]  = emul_dtp;
+  s_mapEmulValues["CSCTF"]  = emul_ctf;
+  s_mapEmulValues["CSCTPG"] = emul_ctp;
+  s_mapEmulValues["RPC"]    = emul_rpc;
+  s_mapEmulValues["GMT"]    = emul_gmt;
+  s_mapEmulValues["ECAL"]   = emul_etp;
+  s_mapEmulValues["HCAL"]   = emul_htp;
+  s_mapEmulValues["RCT"]    = emul_rct;
+  s_mapEmulValues["GCT"]    = emul_gct;
+  s_mapEmulValues["GLT"]    = emul_glt;
+
+  emulatorMap[0]  = 13;
+  emulatorMap[1]  = 12;
+  emulatorMap[2]  = 11;
+  emulatorMap[3]  = 10;
+  emulatorMap[4]  = 9;
+  emulatorMap[5]  = 8;
+  emulatorMap[6]  = 15;
+  emulatorMap[7]  = 14;
+  emulatorMap[8]  = 17;
+  emulatorMap[9]  = 16;
+  emulatorMap[10] = 7;
 
 }
 
+//--------------------------------------------------------
+void L1TEMUEventInfoClient::beginJob(void){
 
-void L1TEMUEventInfoClient::beginJob() {
+  if(verbose_) cout <<"[TriggerDQM]: Begin Job" << endl;
+  // get backendinterface  
+  dbe_ = Service<DQMStore>().operator->();
 
+  dbe_->setCurrentFolder("L1TEMU/EventInfo");
 
-    // get backend interface
-    m_dbe = edm::Service<DQMStore>().operator->();
-    m_dbe->setCurrentFolder("L1TEMU/EventInfo");
+//  sprintf(histo, "reportSummary");
+  if( (reportSummary_ = dbe_->get("L1TEMU/EventInfo/reportSumamry")) ){
+    dbe_->removeElement(reportSummary_->getName()); 
+   }
+  
+  reportSummary_ = dbe_->bookFloat("reportSummary");
 
-    // remove m_meReportSummary if it exists
-    if ((m_meReportSummary = m_dbe->get("L1TEMU/EventInfo/reportSummary"))) {
-        m_dbe->removeElement(m_meReportSummary->getName());
-    }
+  //initialize reportSummary to 1
+  if (reportSummary_) reportSummary_->Fill(1);
 
-    // ...and book it again
-    m_meReportSummary = m_dbe->bookFloat("reportSummary");
+  dbe_->setCurrentFolder("L1TEMU/EventInfo/reportSummaryContents");
 
-    // initialize reportSummary to 1
+  
+  char histo[100];
+  
+  for (int n = 0; n < nsys_; n++) {    
 
-    if (m_meReportSummary) {
-        m_meReportSummary->Fill(1);
-    }
+    switch(n){
+    case 0 :   sprintf(histo,"L1T_MET");      break;
+    case 1 :   sprintf(histo,"L1T_NonIsoEM"); break;
+    case 2 :   sprintf(histo,"L1T_IsoEM");    break;
+    case 3 :   sprintf(histo,"L1T_TauJets");  break;
+    case 4 :   sprintf(histo,"L1T_Jets");     break;
+    case 5 :   sprintf(histo,"L1T_Muons");    break;
+    case 6 :   sprintf(histo,"L1T_GT");       break;
+    case 7 :   sprintf(histo,"L1TEMU_GLT");   break;
+    case 8 :   sprintf(histo,"L1TEMU_GMT");   break;
+    case 9 :   sprintf(histo,"L1TEMU_RPC");   break;
+    case 10:   sprintf(histo,"L1TEMU_CTP");   break;
+    case 11:   sprintf(histo,"L1TEMU_CTF");   break;
+    case 12:   sprintf(histo,"L1TEMU_DTP");   break;
+    case 13:   sprintf(histo,"L1TEMU_DTF");   break;
+    case 14:   sprintf(histo,"L1TEMU_HTP");   break;
+    case 15:   sprintf(histo,"L1TEMU_ETP");   break;
+    case 16:   sprintf(histo,"L1TEMU_GCT");   break;
+    case 17:   sprintf(histo,"L1TEMU_RCT");   break;
+    }  
+    
+    reportSummaryContent_[n] = dbe_->bookFloat(histo);
+  }
 
-    // define float histograms for reportSummaryContents (one histogram per quality test),
-    // initialize them to zero
-    // initialize also m_summaryContent to dqm::qstatus::DISABLED
-
-    m_dbe->setCurrentFolder("L1TEMU/EventInfo/reportSummaryContents");
-
-    char histoQT[100];
-
-    // general counters:
-    //   iAllQTest: all quality tests for all systems and objects
-    //   iAllMon:   all monitored systems and objects
-    int iAllQTest = 0;
-    int iAllMon = 0;
-
-    for (unsigned int iMon = 0; iMon < m_nrL1Systems; ++iMon) {
-
-        m_summaryContent.push_back(dqm::qstatus::DISABLED);
-
-        const std::vector<std::string>& sysQtName =
-                m_systemQualityTestName[iMon];
-
-        for (std::vector<std::string>::const_iterator itQtName =
-                sysQtName.begin(); itQtName != sysQtName.end(); ++itQtName) {
-
-            const std::string hStr = "L1TEMU_L1Sys_" +m_systemLabel[iMon] + "_" + (*itQtName);
-
-            const char* cStr = hStr.c_str();
-            sprintf(histoQT, cStr);
-
-            m_meReportSummaryContent.push_back(m_dbe->bookFloat(histoQT));
-            m_meReportSummaryContent[iAllQTest]->Fill(0.);
-
-            iAllQTest++;
-        }
-
-        iAllMon++;
-    }
+  //initialize reportSummaryContents to 0
+  for (int k = 0; k < nsys_; k++) {
+    summaryContent[k] = 0;
+    reportSummaryContent_[k]->Fill(0.);
+  }  
 
 
-    for (unsigned int iMon = 0; iMon < m_nrL1Objects; ++iMon) {
+  dbe_->setCurrentFolder("L1TEMU/EventInfo");
 
-        m_summaryContent.push_back(dqm::qstatus::DISABLED);
+  if( (reportSummaryMap_ = dbe_->get("L1TEMU/EventInfo/reportSummaryMap")) ){
+    dbe_->removeElement(reportSummaryMap_->getName());
+  }
 
-        const std::vector<std::string>& objQtName =
-                m_objectQualityTestName[iMon];
+  reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 2, 1, 3, 11, 1, 12);
+  reportSummaryMap_->setAxisTitle("", 1);
+  reportSummaryMap_->setAxisTitle("", 2);
 
-        for (std::vector<std::string>::const_iterator itQtName =
-                objQtName.begin(); itQtName != objQtName.end(); ++itQtName) {
+  reportSummaryMap_->setBinLabel(1," ",1);
+  reportSummaryMap_->setBinLabel(2," ",1);
 
-            const std::string hStr = "L1TEMU_L1Obj_" + m_objectLabel[iMon] + "_"
-                    + (*itQtName);
+  reportSummaryMap_->setBinLabel(1," ",2);
+  reportSummaryMap_->setBinLabel(2," ",2);
+  reportSummaryMap_->setBinLabel(3," ",2);
+  reportSummaryMap_->setBinLabel(4," ",2);
+  reportSummaryMap_->setBinLabel(5," ",2);
+  reportSummaryMap_->setBinLabel(6," ",2);
+  reportSummaryMap_->setBinLabel(7," ",2);
+  reportSummaryMap_->setBinLabel(8," ",2);
+  reportSummaryMap_->setBinLabel(9," ",2);
+  reportSummaryMap_->setBinLabel(10," ",2);
+  reportSummaryMap_->setBinLabel(11," ",2);
 
-            const char* cStr = hStr.c_str();
-            sprintf(histoQT, cStr);
-
-            m_meReportSummaryContent.push_back(m_dbe->bookFloat(histoQT));
-            m_meReportSummaryContent[iAllQTest]->Fill(0.);
-
-            iAllQTest++;
-        }
-
-        iAllMon++;
-
-    }
-
-    m_dbe->setCurrentFolder("L1TEMU/EventInfo");
-
-    if ((m_meReportSummaryMap = m_dbe->get("L1TEMU/EventInfo/reportSummaryMap"))) {
-        m_dbe->removeElement(m_meReportSummaryMap->getName());
-    }
-
-    // define a histogram with two bins on X and maximum of m_nrL1Systems, m_nrL1Objects on Y
-
-    int nBinsY = std::max(m_nrL1Systems, m_nrL1Objects);
-
-    m_meReportSummaryMap = m_dbe->book2D("reportSummaryMap",
-            "reportSummaryMap", 2, 1, 3, nBinsY, 1, nBinsY + 1);
-
-    m_meReportSummaryMap->setAxisTitle("", 1);
-    m_meReportSummaryMap->setAxisTitle("", 2);
-
-    m_meReportSummaryMap->setBinLabel(1, " ", 1);
-    m_meReportSummaryMap->setBinLabel(2, " ", 1);
-
-    for (int iBin = 0; iBin < nBinsY; ++iBin) {
-
-        m_meReportSummaryMap->setBinLabel(iBin + 1, " ", 2);
-    }
 
 }
 
-
-void L1TEMUEventInfoClient::beginRun(const edm::Run& run,
-        const edm::EventSetup& evSetup) {
-
-    // empty
+//--------------------------------------------------------
+void L1TEMUEventInfoClient::beginRun(const Run& r, const EventSetup& context) {
 }
 
-
-void L1TEMUEventInfoClient::beginLuminosityBlock(
-        const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& evSetup) {
-
+//--------------------------------------------------------
+void L1TEMUEventInfoClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
+   // optionally reset histograms here
 }
 
-void L1TEMUEventInfoClient::endLuminosityBlock(
-        const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& evSetup) {
+void L1TEMUEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+                          const edm::EventSetup& c){
 
-    // initialize summary content, summary sum and ReportSummaryContent float histograms
-    // for all L1 systems and L1 objects
 
-    for (std::vector<int>::iterator it = m_summaryContent.begin(); it
-            != m_summaryContent.end(); ++it) {
+  for (int k = 0; k < nsys_; k++) {
+    summaryContent[k] = 0;
+    reportSummaryContent_[k]->Fill(0.);
+  }
+  summarySum = 0;
 
-        (*it) = dqm::qstatus::DISABLED;
 
+  //
+  // Apply masks for data and emulator
+  //
+
+  //  Data Mask
+  unsigned int NumDataMask = dataMask.size();
+  std::vector<string> maskedData;
+  for( unsigned int i=0; i<NumDataMask; i++ ){
+    std::string mask_sys_tmp  = dataMask[i];
+    std::string mask_sys = StringToUpper(mask_sys_tmp);
+    switch(s_mapDataValues[mask_sys])
+      {
+      case data_empty:
+	break;
+      case data_all:
+	for( int m=0; m<7; m++ ) summaryContent[m] = -1;
+	maskedData.push_back(mask_sys_tmp);
+	break;
+      case data_gt:
+	summaryContent[6]=-1;
+	maskedData.push_back(mask_sys_tmp);
+	break;
+      case data_muons:
+	summaryContent[5]=-1;
+	maskedData.push_back(mask_sys_tmp);
+	break;
+      case data_jets:
+	summaryContent[4]=-1;
+	maskedData.push_back(mask_sys_tmp);
+	break;
+      case data_taujets:
+	summaryContent[3]=-1;
+	maskedData.push_back(mask_sys_tmp);
+	break;
+      case data_isoem:
+	summaryContent[2]=-1;
+	maskedData.push_back(mask_sys_tmp);
+	break;
+      case data_nonisoem:
+	summaryContent[1]=-1;
+	maskedData.push_back(mask_sys_tmp);
+	break;
+      case data_met:
+	summaryContent[0]=-1;
+	maskedData.push_back(mask_sys_tmp);
+	break;
+      default:
+	if( verbose_ ) cout << "   User input mask '" << mask_sys_tmp << "' is not recognized." << endl;
+	break;
+      }
+  }
+
+  //  Emulator Mask
+  unsigned int NumEmulMask = emulMask.size();
+  std::vector<string> maskedEmul;
+  for( unsigned int i=0; i<NumEmulMask; i++ ){
+    std::string mask_sys_tmp  = emulMask[i];
+    std::string mask_sys = StringToUpper(mask_sys_tmp);
+    switch(s_mapEmulValues[mask_sys])
+      {
+      case emul_empty:
+	break;
+      case emul_all:
+	for( int m=7; m<18; m++ ) summaryContent[m] = -1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_glt:
+	summaryContent[7]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_gmt:
+	summaryContent[8]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_rpc:
+	summaryContent[9]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_ctp:
+	summaryContent[10]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_ctf:
+	summaryContent[11]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_dtp:
+	summaryContent[12]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_dtf:
+	summaryContent[13]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_htp:
+	summaryContent[14]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_etp:
+	summaryContent[15]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_gct:
+	summaryContent[16]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_rct:
+	summaryContent[17]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      default:
+	if( verbose_ ) cout << "   User input mask '" << mask_sys_tmp << "' is not recognized." << endl;
+	break;
+      }
+  }
+
+  for( int i=0; i<nsysmon_; i++ ){
+    if( summaryContent[emulatorMap[i]]==-1 ) sysmask_[i] = 1;
+  }
+
+
+  MonitorElement* QHist[nsysmon_];   
+  std::string lbl("");  
+  for(int i=0; i<nsysmon_; i++) {
+    lbl.clear();
+    lbl+="L1TEMU/"; lbl+=syslabel_[i]; lbl+="/"; 
+    lbl+=syslabelext_[i]; lbl+="ErrorFlag";
+    QHist[i]=dbe_->get(lbl.data());
+    float pv = -1.;
+    if(!sysmask_[i]){
+      pv = setSummary(QHist[i]);
+    }
+    summaryContent[emulatorMap[i]] = pv;
+  }
+
+
+
+  int numUnMaskedSystems = 0;
+  for( int m=0; m<nsys_; m++ ){
+    if( summaryContent[m]!=-1){
+      if( m>6 ){
+	summarySum += summaryContent[m];
+	numUnMaskedSystems++;
+      }
+
+      reportSummaryContent_[m]->Fill( summaryContent[m] );
+    }
+  }
+
+
+
+  // For now, only use L1TEMU for reportSummary value
+  reportSummary = summarySum/float(numUnMaskedSystems);
+  if (reportSummary_) reportSummary_->Fill(reportSummary);
+  
+
+  //L1T summary map
+  reportSummaryMap_->setBinContent(1,11,summaryContent[6]); // GT
+  reportSummaryMap_->setBinContent(1,10,summaryContent[5]); // Muons
+  reportSummaryMap_->setBinContent(1,9, summaryContent[4]); // Jets
+  reportSummaryMap_->setBinContent(1,8, summaryContent[3]); // TauJets
+  reportSummaryMap_->setBinContent(1,7, summaryContent[2]); // IsoEM
+  reportSummaryMap_->setBinContent(1,6, summaryContent[1]); // NonIsoEM
+  reportSummaryMap_->setBinContent(1,5, summaryContent[0]); // MET
+
+  //L1TEMU summary map
+  reportSummaryMap_->setBinContent(2,11,summaryContent[7]); // GLT
+  reportSummaryMap_->setBinContent(2,10,summaryContent[8]); // GMT
+  reportSummaryMap_->setBinContent(2,9, summaryContent[9]); // RPC
+  reportSummaryMap_->setBinContent(2,8, summaryContent[10]);// CTP
+  reportSummaryMap_->setBinContent(2,7, summaryContent[11]);// CTF
+  reportSummaryMap_->setBinContent(2,6, summaryContent[12]);// DTP
+  reportSummaryMap_->setBinContent(2,5, summaryContent[13]);// DTF
+  reportSummaryMap_->setBinContent(2,4, summaryContent[14]);// HTP
+  reportSummaryMap_->setBinContent(2,3, summaryContent[15]);// ETP
+  reportSummaryMap_->setBinContent(2,2, summaryContent[16]);// GCT
+  reportSummaryMap_->setBinContent(2,1, summaryContent[17]);// RCT
+
+
+  if( verbose_ ){
+    if( maskedData.size()>0 ){
+      std::cout << "  Masked Data Systems = ";
+      for( unsigned int i=0; i<maskedData.size(); i++ ){
+	if( i!=maskedData.size()-1 ){
+	  std::cout << maskedData[i] << ", ";
+	}
+	else {
+	  std::cout << maskedData[i] << std::endl;
+	}
+      }
+    }
+    if( maskedEmul.size()>0 ){
+      std::cout << "  Masked Emul Systems = ";
+      for( unsigned int i=0; i<maskedEmul.size(); i++ ){
+	if( i!=maskedEmul.size()-1 ){
+	  std::cout << maskedEmul[i] << ", ";
+	}
+	else {
+	  std::cout << maskedEmul[i] << std::endl;
+	}
+      }
     }
 
-    m_summarySum = 0.;
+    std::cout << "  L1T " << std::endl;
+    std::cout << "     summaryContent[0]  = MET      = " << summaryContent[0] << std::endl;
+    std::cout << "     summaryContent[1]  = NonIsoEM = " << summaryContent[1] << std::endl;
+    std::cout << "     summaryContent[2]  = IsoEM    = " << summaryContent[2] << std::endl;
+    std::cout << "     summaryContent[3]  = TauJets  = " << summaryContent[3] << std::endl;
+    std::cout << "     summaryContent[4]  = Jets     = " << summaryContent[4] << std::endl;
+    std::cout << "     summaryContent[5]  = Muons    = " << summaryContent[5] << std::endl;
+    std::cout << "     summaryContent[6]  = GT       = " << summaryContent[6] << std::endl;
+    std::cout << "  L1T EMU" << std::endl;
+    std::cout << "     summaryContent[7]  = GLT      = " << summaryContent[7] << std::endl;
+    std::cout << "     summaryContent[8]  = GMT      = " << summaryContent[8] << std::endl;
+    std::cout << "     summaryContent[9]  = RPC      = " << summaryContent[9] << std::endl;
+    std::cout << "     summaryContent[10] = CTP      = " << summaryContent[10] << std::endl;
+    std::cout << "     summaryContent[11] = CTF      = " << summaryContent[11] << std::endl;
+    std::cout << "     summaryContent[12] = DTP      = " << summaryContent[12] << std::endl;
+    std::cout << "     summaryContent[13] = DTF      = " << summaryContent[13] << std::endl;
+    std::cout << "     summaryContent[14] = HTP      = " << summaryContent[14] << std::endl;
+    std::cout << "     summaryContent[15] = ETP      = " << summaryContent[15] << std::endl;
+    std::cout << "     summaryContent[16] = GCT      = " << summaryContent[16] << std::endl;
+    std::cout << "     summaryContent[17] = RCT      = " << summaryContent[17] << std::endl;
+  }
 
-    for (std::vector<MonitorElement*>::iterator itME =
-            m_meReportSummaryContent.begin(); itME
-            != m_meReportSummaryContent.end(); ++itME) {
-
-        (*itME)->Fill(0.);
-
-    }
-
-
-    // general counters:
-    //   iAllQTest: all quality tests for all systems and objects
-    //   iAllMon:   all monitored systems and objects
-    int iAllQTest = 0;
-    int iAllMon = 0;
-
-
-    // quality tests for the luminosity section for all L1 systems
-
-    for (unsigned int iSys = 0; iSys < m_nrL1Systems; ++iSys) {
-
-        // get the reports for each quality test
-
-        const std::vector<std::string>& sysQtName =
-                m_systemQualityTestName[iSys];
-        const std::vector<std::string>& sysQtHist =
-                m_systemQualityTestHist[iSys];
-        const std::vector<unsigned int>& sysQtSummaryEnabled =
-                m_systemQtSummaryEnabled[iSys];
-
-        // pro system counter for quality tests
-        int iSysQTest = 0;
-
-        for (std::vector<std::string>::const_iterator itQtName =
-                sysQtName.begin(); itQtName != sysQtName.end(); ++itQtName) {
-
-            // get results, status and message
-
-            MonitorElement* qHist = m_dbe->get(sysQtHist[iSysQTest]);
-
-            if (qHist) {
-                const std::vector<QReport*> qtVec = qHist->getQReports();
-                const std::string hName = qHist->getName();
-
-                if (m_verbose) {
-
-                    std::cout << "\nNumber of quality tests "
-                            << " for histogram " << sysQtHist[iSysQTest]
-                            << ": " << qtVec.size() << "\n" << std::endl;
-                }
-
-                const QReport* sysQReport = qHist->getQReport(*itQtName);
-                if (sysQReport) {
-                    const float sysQtResult = sysQReport->getQTresult();
-                    const int sysQtStatus = sysQReport->getStatus();
-                    const std::string& sysQtMessage = sysQReport->getMessage();
-
-                    if (m_verbose) {
-                        std::cout << "\n" << (*itQtName) << " quality test:"
-                                << "\n  result:  " << sysQtResult
-                                << "\n  status:  " << sysQtStatus
-                                << "\n  message: " << sysQtMessage << "\n"
-                                << "\nFilling m_meReportSummaryContent["
-                                << iAllQTest << "] with value "
-                                << sysQtResult << "\n" << std::endl;
-                    }
-
-                    m_meReportSummaryContent[iAllQTest]->Fill(sysQtResult);
-
-                    // for the summary map, keep the highest status value ("ERROR") of all tests
-                    // which are considered for the summary plot
-                    if (sysQtSummaryEnabled[iSysQTest]) {
-
-                        if (sysQtStatus > m_summaryContent[iAllMon]) {
-                            m_summaryContent[iAllMon] = sysQtStatus;
-                        }
-
-                        m_summarySum += sysQtResult;
-                    }
-
-                    //std::cout << "\n CRASH HERE\n" << std::endl;
-
-                } else {
-
-                    // for the summary map, if the test was not found but it is assumed to be
-                    // considered for the summary plot, set it to dqm::qstatus::INVALID
-
-                    int sysQtStatus = dqm::qstatus::INVALID;
-
-                    if (sysQtSummaryEnabled[iSysQTest]) {
-
-                        if (sysQtStatus > m_summaryContent[iAllMon]) {
-                            m_summaryContent[iAllMon] = sysQtStatus;
-                        }
-                    }
-
-                    m_meReportSummaryContent[iAllQTest]->Fill(0.);
-
-                    if (m_verbose) {
-
-                        std::cout << "\n" << (*itQtName)
-                                << " quality test not found\n" << std::endl;
-                    }
-                }
-
-            } else {
-                // for the summary map, if the histogram was not found but it is assumed
-                // to have a test be considered for the summary plot, set it to dqm::qstatus::INVALID
-
-                int sysQtStatus = dqm::qstatus::INVALID;
-
-                if (sysQtSummaryEnabled[iSysQTest]) {
-
-                    if (sysQtStatus > m_summaryContent[iAllMon]) {
-                        m_summaryContent[iAllMon] = sysQtStatus;
-                    }
-                }
-
-                m_meReportSummaryContent[iAllQTest]->Fill(0.);
-
-                if (m_verbose) {
-
-                    std::cout << "\nHistogram " << sysQtHist[iSysQTest]
-                            << " not found\n" << std::endl;
-                }
-
-            }
-
-            // increase counters for quality tests
-            iSysQTest++;
-            iAllQTest++;
-
-        }
-
-        iAllMon++;
-
-    }
-
-    // quality tests for the luminosity section for all L1 objects
-
-    for (unsigned int iObj = 0; iObj < m_nrL1Objects; ++iObj) {
-
-        // get the reports for each quality test
-
-        const std::vector<std::string>& objQtName =
-                m_objectQualityTestName[iObj];
-        const std::vector<std::string>& objQtHist =
-                m_objectQualityTestHist[iObj];
-        const std::vector<unsigned int>& objQtSummaryEnabled =
-                m_objectQtSummaryEnabled[iObj];
-
-        // pro object counter for quality tests
-        int iObjQTest = 0;
-
-        for (std::vector<std::string>::const_iterator itQtName =
-                objQtName.begin(); itQtName != objQtName.end(); ++itQtName) {
-
-            // get results, status and message
-
-            MonitorElement* qHist = m_dbe->get(objQtHist[iObjQTest]);
-
-            if (qHist) {
-                const std::vector<QReport*> qtVec = qHist->getQReports();
-                const std::string hName = qHist->getName();
-
-                if (m_verbose) {
-
-                    std::cout << "\nNumber of quality tests "
-                            << " for histogram " << objQtHist[iObjQTest]
-                            << ": " << qtVec.size() << "\n" << std::endl;
-                }
-
-                const QReport* objQReport = qHist->getQReport(*itQtName);
-                if (objQReport) {
-                    const float objQtResult = objQReport->getQTresult();
-                    const int objQtStatus = objQReport->getStatus();
-                    const std::string& objQtMessage = objQReport->getMessage();
-
-                    if (m_verbose) {
-                        std::cout << "\n" << (*itQtName) << " quality test:"
-                                << "\n  result:  " << objQtResult
-                                << "\n  status:  " << objQtStatus
-                                << "\n  message: " << objQtMessage << "\n"
-                                << "\nFilling m_meReportSummaryContent["
-                                << iAllQTest << "] with value "
-                                << objQtResult << "\n" << std::endl;
-                    }
-
-                    m_meReportSummaryContent[iAllQTest]->Fill(objQtResult);
-
-                    // for the summary map, keep the highest status value ("ERROR") of all tests
-                    // which are considered for the summary plot
-                    if (objQtSummaryEnabled[iObjQTest]) {
-
-                        if (objQtStatus > m_summaryContent[iAllMon]) {
-                            m_summaryContent[iAllMon] = objQtStatus;
-                        }
-
-                        m_summarySum += objQtResult;
-                    }
-
-                } else {
-
-                    // for the summary map, if the test was not found but it is assumed to be
-                    // considered for the summary plot, set it to dqm::qstatus::INVALID
-
-                    int objQtStatus = dqm::qstatus::INVALID;
-
-                    if (objQtSummaryEnabled[iObjQTest]) {
-
-                        if (objQtStatus > m_summaryContent[iAllMon]) {
-                            m_summaryContent[iAllMon] = objQtStatus;
-                        }
-                    }
-
-                    m_meReportSummaryContent[iAllQTest]->Fill(0.);
-
-                    if (m_verbose) {
-
-                        std::cout << "\n" << (*itQtName)
-                                << " quality test not found\n" << std::endl;
-                    }
-
-                }
-
-            } else {
-                // for the summary map, if the histogram was not found but it is assumed
-                // to have a test be considered for the summary plot, set it to dqm::qstatus::INVALID
-
-                int objQtStatus = dqm::qstatus::INVALID;
-
-                if (objQtSummaryEnabled[iObjQTest]) {
-
-                    if (objQtStatus > m_summaryContent[iAllMon]) {
-                        m_summaryContent[iAllMon] = objQtStatus;
-                    }
-                }
-
-                m_meReportSummaryContent[iAllQTest]->Fill(0.);
-
-                if (m_verbose) {
-                    std::cout << "\nHistogram " << objQtHist[iObjQTest]
-                            << " not found\n" << std::endl;
-                }
-
-            }
-
-            // increase counters for quality tests
-            iObjQTest++;
-            iAllQTest++;
-        }
-
-        iAllMon++;
-
-    }
-
-
-
-    // reportSummary value
-    m_reportSummary = m_summarySum / float(m_totalNrQtSummaryEnabled);
-    if (m_meReportSummary) {
-        m_meReportSummary->Fill(m_reportSummary);
-    }
-
-    // fill the ReportSummaryMap for L1 systems (bin 1 on X)
-    for (unsigned int iSys = 0; iSys < m_nrL1Systems; ++iSys) {
-
-        double summCont = static_cast<double>(m_summaryContent[iSys]);
-        m_meReportSummaryMap->setBinContent(1, iSys + 1, summCont);
-    }
-
-    // fill the ReportSummaryMap for L1 objects (bin 2 on X)
-    for (unsigned int iMon = m_nrL1Systems; iMon < m_nrL1Systems
-            + m_nrL1Objects; ++iMon) {
-
-        double summCont = static_cast<double>(m_summaryContent[iMon]);
-        m_meReportSummaryMap->setBinContent(2, iMon - m_nrL1Systems + 1, summCont);
-
-    }
-
-
-    if (m_verbose) {
-
-        std::cout << "\n  L1TEMUEventInfoClient::endLuminosityBlock\n"
-                << std::endl;
-        dumpContentMonitorElements();
-    }
-}
-
-
-void L1TEMUEventInfoClient::analyze(const edm::Event& iEvent,
-        const edm::EventSetup& evSetup) {
-
-    m_counterEvt++;
-
-    if (m_prescaleEvt < 1) {
-        return;
-    }
-
-    if ((m_prescaleEvt > 0) && (m_counterEvt % m_prescaleEvt != 0)) {
-        return;
-    }
 
 }
 
+//--------------------------------------------------------
+void L1TEMUEventInfoClient::analyze(const Event& e, const EventSetup& context){
+   
+   counterEvt_++;
+   if (prescaleEvt_<1) return;
+   if (prescaleEvt_>0 && counterEvt_%prescaleEvt_ != 0) return;
 
-void L1TEMUEventInfoClient::endRun(const edm::Run& run,
-        const edm::EventSetup& evSetup) {
-    //empty
+   if(verbose_) cout << "L1TEMUEventInfoClient::analyze" << endl;
 }
 
-void L1TEMUEventInfoClient::endJob() {
-    //empty
+//--------------------------------------------------------
+void L1TEMUEventInfoClient::endRun(const Run& r, const EventSetup& context){
 }
 
-void L1TEMUEventInfoClient::dumpContentMonitorElements() {
+//--------------------------------------------------------
+void L1TEMUEventInfoClient::endJob(){
+}
 
-    std::cout << "\nSummary report " << std::endl;
+//set subsystem pv in summary map
+Float_t L1TEMUEventInfoClient::setSummary(MonitorElement* QHist) {
+  bool isempty = QHist->getEntries()==0;
+  //errflag bins: agree, loc agree, loc disagree, data only, emul only
+  if(!isempty)
+    for(int i=1; i<5; i++) 
+      if(QHist->getBinContent(i)>0) 
+	{isempty=false;continue;}
+  return isempty ? -1. : 
+    (QHist->getBinContent(1)) / (QHist->getEntries());
+}
 
-    // summary content
+TH1F * L1TEMUEventInfoClient::get1DHisto(string meName, DQMStore * dbi)
+{
 
-    MonitorElement* me = m_dbe->get(m_meReportSummaryMap->getName());
+  MonitorElement * me_ = dbi->get(meName);
 
-    std::cout
-            << "\nSummary content per system and object as filled in histogram\n  "
-            << m_meReportSummaryMap->getName() << std::endl;
+  if (!me_) { 
+    if(verbose_) cout << "ME NOT FOUND." << endl;
+    return NULL;
+  }
 
-    if (!me) {
+  return me_->getTH1F();
+}
 
-        std::cout << "\nNo histogram " << m_meReportSummaryMap->getName()
-                << "\nNo summary content per system and object as filled in histogram.\n  "
-                << std::endl;
-        return;
+TH2F * L1TEMUEventInfoClient::get2DHisto(string meName, DQMStore * dbi)
+{
 
-    }
 
-    TH2F* hist = me->getTH2F();
+  MonitorElement * me_ = dbi->get(meName);
 
-    const int nBinsX = hist->GetNbinsX();
-    const int nBinsY = hist->GetNbinsY();
-    std::cout << nBinsX << " " << nBinsY;
+  if (!me_) { 
+    if(verbose_) cout << "ME NOT FOUND." << endl;
+    return NULL;
+  }
 
-    std::vector<std::vector<int> > meReportSummaryMap(nBinsX, std::vector<int>(
-            nBinsY));
+  return me_->getTH2F();
+}
 
-//    for (int iBinX = 0; iBinX < nBinsX; iBinX++) {
-//        for (int iBinY = 0; iBinY < nBinsY; iBinY++) {
-//            meReportSummaryMap[iBinX][iBinY]
-//                    = static_cast<int>(me->GetBinContent(iBinX + 1, iBinY + 1));
-//        }
-//    }
 
-    std::cout << "\nL1 systems: " << m_nrL1Systems << " systems included\n"
-            << "\n Summary content size: " << (m_summaryContent.size())
-            << std::endl;
 
-    for (unsigned int iSys = 0; iSys < m_nrL1Systems; ++iSys) {
+TProfile2D *  L1TEMUEventInfoClient::get2DProfile(string meName, DQMStore * dbi)
+{
 
-        std::cout << std::setw(10) << m_systemLabel[iSys] << std::setw(10)
-                << m_systemLabelExt[iSys] << " \t" << m_systemMask[iSys]
-                << " \t" << std::setw(25) << " m_summaryContent["
-                << std::setw(2) << iSys << "] = " << meReportSummaryMap[0][iSys]
-                << std::endl;
-    }
 
-    std::cout << "\n L1 trigger objects: " << m_nrL1Objects
-            << " objects included\n" << std::endl;
+  MonitorElement * me_ = dbi->get(meName);
 
-    for (unsigned int iMon = m_nrL1Systems; iMon < m_nrL1Systems
-            + m_nrL1Objects; ++iMon) {
+  if (!me_) { 
+     if(verbose_) cout << "ME NOT FOUND." << endl;
+   return NULL;
+  }
 
-        std::cout << std::setw(20) << m_objectLabel[iMon - m_nrL1Systems]
-                << " \t" << m_objectMask[iMon - m_nrL1Systems] << " \t"
-                << std::setw(25) << " m_summaryContent[" << std::setw(2)
-                << iMon << "] = \t" << m_summaryContent[iMon] << std::endl;
-    }
+  return me_->getTProfile2D();
+}
 
-    std::cout << std::endl;
 
-    // quality tests
+TProfile *  L1TEMUEventInfoClient::get1DProfile(string meName, DQMStore * dbi)
+{
 
-    std::cout << "\nQuality test results as filled in "
-            << "\n  L1TEMU/EventInfo/reportSummaryContents\n"
-            << "\n  Total number of quality tests: "
-            << (m_meReportSummaryContent.size()) << "\n" << std::endl;
 
-    for (std::vector<MonitorElement*>::const_iterator itME =
-            m_meReportSummaryContent.begin(); itME
-            != m_meReportSummaryContent.end(); ++itME) {
+  MonitorElement * me_ = dbi->get(meName);
 
-        std::cout << std::setw(50) << (*itME)->getName() << " \t"
-                << std::setw(25) << (*itME)->getFloatValue() << std::endl;
+  if (!me_) { 
+    if(verbose_) cout << "ME NOT FOUND." << endl;
+    return NULL;
+  }
 
-    }
+  return me_->getTProfile();
+}
 
-    std::cout << std::endl;
-
+string L1TEMUEventInfoClient::StringToUpper(string strToConvert)
+{//change each element of the string to upper case
+   for(unsigned int i=0;i<strToConvert.length();i++)
+   {
+      strToConvert[i] = toupper(strToConvert[i]);
+   }
+   return strToConvert;//return the converted string
 }
 
 

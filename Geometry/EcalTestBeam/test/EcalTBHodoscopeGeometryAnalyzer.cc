@@ -82,14 +82,16 @@ EcalTBHodoscopeGeometryAnalyzer::EcalTBHodoscopeGeometryAnalyzer( const edm::Par
   phi_ = iConfig.getUntrackedParameter<double>("phi",0.115052);
 
   fromCMStoTB_ = fromCMStoTB( eta_ , phi_ );
+
 }
 
 
 EcalTBHodoscopeGeometryAnalyzer::~EcalTBHodoscopeGeometryAnalyzer()
 {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-  delete fromCMStoTB_;
+ 
+   // do anything here that needs to be done at desctruction time
+   // (e.g. close files, deallocate resources etc.)
+
 }
 
 

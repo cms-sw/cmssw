@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2010/10/04 10:54:02 $
- * $Revision: 1.32 $
+ * $Date: 2011/08/23 00:25:32 $
+ * $Revision: 1.33.4.1 $
  * \author G. Della Ricca
  *
 */
@@ -102,15 +102,15 @@ void EBStatusFlagsTask::setup(void){
 
   init_ = true;
 
-  char histo[200];
+  std::string name;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBStatusFlagsTask");
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EBStatusFlagsTask/EvtType");
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBSFT EVTTYPE %s", Numbers::sEB(i+1).c_str());
-      meEvtType_[i] = dqmStore_->book1D(histo, histo, 31, -1., 30.);
+      name = "EBSFT EVTTYPE " + Numbers::sEB(i+1);
+      meEvtType_[i] = dqmStore_->book1D(name, name, 31, -1., 30.);
       meEvtType_[i]->setBinLabel(1, "UNKNOWN", 1);
       meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
       meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::BEAMH4, "BEAMH4", 1);
@@ -140,20 +140,20 @@ void EBStatusFlagsTask::setup(void){
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EBStatusFlagsTask/FEStatus");
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBSFT front-end status %s", Numbers::sEB(i+1).c_str());
-      meFEchErrors_[i][0] = dqmStore_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+      name = "EBSFT front-end status " + Numbers::sEB(i+1);
+      meFEchErrors_[i][0] = dqmStore_->book2D(name, name, 17, 0., 17., 4, 0., 4.);
       meFEchErrors_[i][0]->setAxisTitle("ieta'", 1);
       meFEchErrors_[i][0]->setAxisTitle("iphi'", 2);
       dqmStore_->tag(meFEchErrors_[i][0], i+1);
 
-      sprintf(histo, "EBSFT MEM front-end status %s", Numbers::sEB(i+1).c_str());
-      meFEchErrors_[i][1] = dqmStore_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      name = "EBSFT MEM front-end status " + Numbers::sEB(i+1);
+      meFEchErrors_[i][1] = dqmStore_->book2D(name, name, 2, 0., 2., 1, 0., 1.);
       meFEchErrors_[i][1]->setAxisTitle("pseudo-strip", 1);
       meFEchErrors_[i][1]->setAxisTitle("channel", 2);
       dqmStore_->tag(meFEchErrors_[i][1], i+1);
 
-      sprintf(histo, "EBSFT front-end status bits %s", Numbers::sEB(i+1).c_str());
-      meFEchErrors_[i][2] = dqmStore_->book1D(histo, histo, 16, 0., 16.);
+      name = "EBSFT front-end status bits " + Numbers::sEB(i+1);
+      meFEchErrors_[i][2] = dqmStore_->book1D(name, name, 16, 0., 16.);
       meFEchErrors_[i][2]->setBinLabel(1+0, "ACTIVE", 1);
       meFEchErrors_[i][2]->setBinLabel(1+1, "DISABLED", 1);
       meFEchErrors_[i][2]->setBinLabel(1+2, "TIMEOUT", 1);
@@ -176,11 +176,11 @@ void EBStatusFlagsTask::setup(void){
     // checking the number of front-end errors in each DCC for each lumi
     // tower error is weighted by 1/68
     // bin 0 contains the number of processed events in the lumi (for normalization)
-    sprintf(histo, "EBSFT weighted frontend errors by lumi");
-    meFEchErrorsByLumi_ = dqmStore_->book1D(histo, histo, 36, 1., 37.);
+    name = "EBSFT weighted frontend errors by lumi";
+    meFEchErrorsByLumi_ = dqmStore_->book1D(name, name, 36, 1., 37.);
     meFEchErrorsByLumi_->setLumiFlag();
     for (int i = 0; i < 36; i++) {
-      meFEchErrorsByLumi_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+      meFEchErrorsByLumi_->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
   }
