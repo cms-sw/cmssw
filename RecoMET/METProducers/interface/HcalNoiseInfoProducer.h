@@ -60,7 +60,7 @@ namespace reco {
     // filldigis() depends on fillrechits() being called first
     //
     void fillrechits(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&, HcalNoiseSummary&) const;
-    void filldigis(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&);
+    void filldigis(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&, HcalNoiseSummary&);
     void fillcalotwrs(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&, HcalNoiseSummary&) const;
     void filltracks(edm::Event&, const edm::EventSetup&, HcalNoiseSummary&) const;
 
