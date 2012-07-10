@@ -17,11 +17,14 @@ scoutingDiJetVarAnalyzer = cms.EDAnalyzer("DiJetVarAnalyzer",
                                           jetCollectionTag = cms.untracked.InputTag("selectedCaloJets"),
                                           #dijetVarCollectionTag = cms.untracked.InputTag("scoutingDiJetVariables","dijetvariables"),
                                           widejetsCollectionTag = cms.untracked.InputTag("scoutingDiJetVariables","widejets"),
+                                          hltInputTag = cms.untracked.InputTag('TriggerResults','','HLT'),
                                           numwidejets = cms.uint32(2),
-                                          etawidejets = cms.double(2.4),
+                                          etawidejets = cms.double(2.5),
                                           ptwidejets = cms.double(30),
                                           detawidejets = cms.double(1.3),
-                                          dphiwidejets = cms.double(1.0471),# pi/3                                          
+                                          dphiwidejets = cms.double(1.0471),# pi/3
+                                          HLTpathMain = cms.string("DST_HT250_v1"),
+                                          HLTpathMonitor = cms.string("DST_L1HTT_Or_L1MultiJet_v1"),
                                           )
 
 #this file contains the sequence for data scouting using the DiJet analysis
