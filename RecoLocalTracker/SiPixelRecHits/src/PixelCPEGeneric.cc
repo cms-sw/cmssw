@@ -3,6 +3,10 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
+
 // this is needed to get errors from templates
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
 
@@ -50,6 +54,9 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
   IrradiationBiasCorrection_ = conf.getParameter<bool>("IrradiationBiasCorrection");
   DoCosmics_                 = conf.getParameter<bool>("DoCosmics");
   LoadTemplatesFromDB_       = conf.getParameter<bool>("LoadTemplatesFromDB");
+
+  Upgrade_                   = conf.getParameter<bool>("Upgrade");
+  SmallPitch_                = conf.getParameter<bool>("SmallPitch");
 
   if ( !UseErrorsFromTemplates_ && ( TruncatePixelCharge_       || 
 				     IrradiationBiasCorrection_ || 
@@ -122,9 +129,9 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 {
   setTheDet( det, cluster );  //!< Initialize this det unit
   computeLorentzShifts();  //!< correctly compute lorentz shifts in X and Y
-  templID_ = templateDBobject_->getTemplateID(theDet->geographicalId().rawId());
   if ( UseErrorsFromTemplates_ )
     {
+      templID_ = templateDBobject_->getTemplateID(theDet->geographicalId().rawId());
       bool fpix;  //!< barrel(false) or forward(true)
       if ( thePart == GeomDetEnumerators::PixelBarrel )
 	fpix = false;    // no, it's not forward -- it's barrel
@@ -593,7 +600,84 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
   bool bigInX = theTopol->containsBigPixelInX( minPixelRow, maxPixelRow ); 	 
   bool bigInY = theTopol->containsBigPixelInY( minPixelCol, maxPixelCol );
 
-  if ( !with_track_angle && DoCosmics_ )
+  if( Upgrade_ )
+   {
+     //cout << " I'm in Upgrade!! " << endl;
+
+     DetId id = (det.geographicalId());
+     int layer = PXBDetId::PXBDetId(id).layer();
+     // cout << "layer " << layer << endl;
+     // ------------------------------------------------
+       if ( thePart == GeomDetEnumerators::PixelBarrel ) {
+         if( SmallPitch_ && layer == 1 )
+           {   // PXB Small Pitch
+             if  ( !edgex )
+                 {
+                   if      ( sizex == 1 ) xerr = 0.00104;      // Old 0.0015
+                   else if ( sizex == 2 ) xerr = 0.000691;     // Old 0.00089
+                   else if ( sizex == 3 ) xerr = 0.00122;      // Old 0.0014
+                   else                   xerr = 0.00321;      // Old 0.0046
+                 } // End of PXB Small Pitch X
+             if ( !edgey )
+                 {
+                   if      ( sizey == 1 ) yerr = 0.00199;      // Old 0.0022
+                   else if ( sizey == 2 ) yerr = 0.00136;      // Old 0.0015
+                   else if ( sizey == 3 ) yerr = 0.0015;       // Old 0.0017
+                   else if ( sizey == 4 ) yerr = 0.00153;      // Old 0.0018
+                   else if ( sizey == 5 ) yerr = 0.00152;      // Old 0.0019
+                   else if ( sizey == 6 ) yerr = 0.00171;      // Old 0.0020
+                   else if ( sizey == 7 ) yerr = 0.00154;      // Old 0.0021
+                   else if ( sizey == 8 ) yerr = 0.00157;      // Old 0.0021
+                   else if ( sizey == 9 ) yerr = 0.00154;      // Old 0.0021
+                   else                   yerr = 0.00164;      // Old 0.0029
+                 } // End of PXB Small Pitch Y
+           } // End of PXB Small Pitch
+         else
+           {   // PXB Reg Pitch
+             if  ( !edgex )
+                 {
+                   if      ( sizex == 1 ) xerr = 0.00114;      // Old 0.0016
+                   else if ( sizex == 2 ) xerr = 0.00104;      // Old 0.0012
+                   else if ( sizex == 3 ) xerr = 0.00214;      // Old 0.0024
+                   else                   xerr = 0.00425;      // Old 0.0048
+                 } // End of PXB Reg Pitch X
+             if ( !edgey )
+                 {
+                   if      ( sizey == 1 ) yerr = 0.00299;      // Old 0.0034
+                   else if ( sizey == 2 ) yerr = 0.00203;      // Old 0.0021
+                   else if ( sizey == 3 ) yerr = 0.0023;       // Old 0.0025
+                   else if ( sizey == 4 ) yerr = 0.00237;      // Old 0.0027
+                   else if ( sizey == 5 ) yerr = 0.00233;      // Old 0.0029
+                   else if ( sizey == 6 ) yerr = 0.00243;      // Old 0.0031
+                   else if ( sizey == 7 ) yerr = 0.00232;      // Old 0.0033
+                   else if ( sizey == 8 ) yerr = 0.00259;      // Old 0.0033
+                   else if ( sizey == 9 ) yerr = 0.00176;      // Old 0.0041
+                   else                   yerr = 0.00245;      // Old 0.0055
+                 } // End of PXB Reg Pitch Y
+           } // End of PXB Reg Pitch
+       } // End of PXB
+       else
+         { // FPix
+           if ( !edgex )
+              {
+                   if      ( sizex == 1 ) xerr = 0.00151;      // Old 0.0014
+                   else if ( sizex == 2 ) xerr = 0.000813;     // Old 0.00094
+                   else if ( sizex == 3 ) xerr = 0.00221;      // Old 0.0023
+                   else                   xerr = 0.00218;      // Old 0.0032 for >=4
+              } // End of FPix X
+           if ( !edgey )
+              {
+                   if      ( sizey == 1 ) yerr = 0.00261;      // Old 0.0029
+                   else if ( sizey == 2 ) yerr = 0.00107;      // Old 0.0013
+                   else if ( sizey == 3 ) yerr = 0.00264;      // Old 0.0032
+                   else                   yerr = 0.00357;      // Old 0.0040 for >=4
+              } // End of FPix Y
+          } // End FPix
+     // ------------------------------------------------
+     //cout << "Small " << SmallPitch_ << " " << thePart << " layer " << layer 
+     //     << " errors finally " << sizex << " " << xerr << " " << sizey << " " << yerr << endl;
+   } // end if Upgrade_
+  else if ( !with_track_angle && DoCosmics_ )
     {
       //cout << "Track angles are not known and we are processing cosmics." << endl; 
       //cout << "Default angle estimation which assumes track from PV (0,0,0) does not work." << endl;

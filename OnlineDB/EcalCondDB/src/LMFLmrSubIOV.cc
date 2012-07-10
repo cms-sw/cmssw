@@ -161,7 +161,7 @@ std::list<int> LMFLmrSubIOV::getIOVIDsLaterThan(const Tm &tmin, const Tm &tmax,
     try {
       DateHandler dh(m_env, m_conn);
       Statement *stmt = m_conn->createStatement();
-      stmt->setPrefetchRowCount(10000);
+      stmt->setPrefetchRowCount(131072);
       stmt->setSQL(sql);
       stmt->setDate(1, dh.tmToDate(tmin));
       if (tmax != tinf) {

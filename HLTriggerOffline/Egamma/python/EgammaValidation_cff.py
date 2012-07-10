@@ -41,25 +41,25 @@ if not use_new_method:
                   #'HLT_Ele15_SW_L1RDQM',
                   #'HLT_Ele10_LW_EleId_L1RDQM',
                   #'HLT_Ele15_SiStrip_L1RDQM'
-                  'HLT_Ele10_SW_EleId_HT70U_L1R_v2_DQM',
-                  'HLT_Ele10_SW_HT100U_L1R_v2_DQM',
-                  'HLT_Ele10_SW_HT70U_L1R_v2_DQM',
-                  'HLT_Ele10_SW_L1R_v2_DQM',
-                  'HLT_Ele12_SW_TighterEleId_L1R_v2_DQM',
-                  'HLT_Ele17_SW_Isol_L1R_v2_DQM',
-                  'HLT_Ele17_SW_L1R_v2_DQM',
-                  'HLT_Ele17_SW_TighterEleIdIsol_L1R_v3_DQM',
-                  'HLT_Ele22_SW_L1R_v2_DQM',
-                  'HLT_Ele22_SW_TighterCaloIdIsol_L1R_v2_DQM',
-                  'HLT_Ele22_SW_TighterEleId_L1R_v3_DQM',
-                  'HLT_Ele32_SW_TighterEleId_L1R_v2_DQM'
+                  #'HLT_Ele10_SW_EleId_HT70U_L1R_v2_DQM',
+                  #'HLT_Ele10_SW_HT100U_L1R_v2_DQM',
+                  #'HLT_Ele10_SW_HT70U_L1R_v2_DQM',
+                  #'HLT_Ele10_SW_L1R_v2_DQM',
+                  #'HLT_Ele12_SW_TighterEleId_L1R_v2_DQM',
+                  #'HLT_Ele17_SW_Isol_L1R_v2_DQM',
+                  #'HLT_Ele17_SW_L1R_v2_DQM',
+                  #'HLT_Ele17_SW_TighterEleIdIsol_L1R_v3_DQM',
+                  #'HLT_Ele22_SW_L1R_v2_DQM',
+                  #'HLT_Ele22_SW_TighterCaloIdIsol_L1R_v2_DQM',
+                  #'HLT_Ele22_SW_TighterEleId_L1R_v3_DQM',
+                  #'HLT_Ele32_SW_TighterEleId_L1R_v2_DQM'
                  ]
 
     paths.Zee = paths.Wenu + [#'HLT_DoubleEle5_SW_L1RDQM'
-                              'HLT_DoubleEle17_SW_L1R_v1_DQM',
-                              'HLT_DoubleEle4_SW_eeRes_L1R_v2_DQM',
-                              'HLT_DoubleEle5_SW_Upsilon_L1R_v2_DQM',
-                              'HLT_DoubleEle8_SW_HT70U_L1R_v1_DQM'
+                              #'HLT_DoubleEle17_SW_L1R_v1_DQM',
+                              #'HLT_DoubleEle4_SW_eeRes_L1R_v2_DQM',
+                              #'HLT_DoubleEle5_SW_Upsilon_L1R_v2_DQM',
+                              #'HLT_DoubleEle8_SW_HT70U_L1R_v1_DQM'
                              ]
 
     paths.GammaJet = [#'HLT_Photon10_L1R_DQM',
@@ -67,20 +67,20 @@ if not use_new_method:
                       #'HLT_Photon15_LooseEcalIso_L1R_DQM',
                       #'HLT_Photon20_Cleaned_L1R_DQM',
                       #'HLT_Photon25_LooseEcalIso_TrackIso_L1R_DQM'
-                      'HLT_Photon10_Cleaned_L1R_DQM',
-                      'HLT_Photon110_NoHE_Cleaned_L1R_v1_DQM',
-                      'HLT_Photon20_Cleaned_L1R_DQM',
-                      'HLT_Photon20_NoHE_L1R_DQM',
-                      'HLT_Photon30_Cleaned_L1R_DQM',
-                      'HLT_Photon40_CaloId_Cleaned_L1R_v1_DQM',
-                      'HLT_Photon50_Cleaned_L1R_v1_DQM',
-                      'HLT_Photon50_NoHE_L1R_DQM',
-                      'HLT_Photon70_Cleaned_L1R_v1_DQM'
+                      #'HLT_Photon10_Cleaned_L1R_DQM',
+                      #'HLT_Photon110_NoHE_Cleaned_L1R_v1_DQM',
+                      #'HLT_Photon20_Cleaned_L1R_DQM',
+                      #'HLT_Photon20_NoHE_L1R_DQM',
+                      #'HLT_Photon30_Cleaned_L1R_DQM',
+                      #'HLT_Photon40_CaloId_Cleaned_L1R_v1_DQM',
+                      #'HLT_Photon50_Cleaned_L1R_v1_DQM',
+                      #'HLT_Photon50_NoHE_L1R_DQM',
+                      #'HLT_Photon70_Cleaned_L1R_v1_DQM'
                      ]
 
     paths.DiGamma  = [#'HLT_Photon10_L1R_DQM','HLT_DoublePhoton10_L1R_DQM'
-                      'HLT_DoublePhoton22_L1R_v1_DQM',
-                      'HLT_DoublePhoton5_CEP_L1R_v3_DQM'
+                      #'HLT_DoublePhoton22_L1R_v1_DQM',
+                      #'HLT_DoublePhoton5_CEP_L1R_v3_DQM'
                      ]
 
     pathlumi = { 'HLT_Ele17_SW_TighterEleIdIsol_L1RDQM': '8e29',

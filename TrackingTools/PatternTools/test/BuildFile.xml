@@ -1,5 +1,0 @@
-<use   name="TrackingTools/PatternTools"/>
-<use   name="MagneticField/Engine"/>
-<use   name="boost"/>
-<bin   file="ClosestApproachInRPhi_t.cpp">
-</bin>

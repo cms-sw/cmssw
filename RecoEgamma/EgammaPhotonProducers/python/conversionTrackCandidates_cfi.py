@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 #  configuration for producer of converted photons
-#  $Id: conversionTrackCandidates_cfi.py,v 1.27 2011/02/26 14:59:32 nancy Exp $
+#  $Id: conversionTrackCandidates_cfi.py,v 1.28.2.2 2012/04/17 09:46:21 brownson Exp $
 #
 # stripCPE
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
@@ -36,6 +36,8 @@ conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
     inOutTrackCandidateSCAssociationCollection = cms.string('inOutTrackCandidateSCAssociationCollection'),
     inOutTrackCandidateCollection = cms.string('inOutTracksFromConversions'),
     outInTrackCandidateCollection = cms.string('outInTracksFromConversions'),
+    barrelEcalRecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsEB'),
+    endcapEcalRecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsEE'),
     MeasurementTrackerName = cms.string(''),
     OutInRedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
     InOutRedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
@@ -43,9 +45,33 @@ conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
     maxNumOfSeedsOutIn = cms.int32(50),
     maxNumOfSeedsInOut = cms.int32(50),                                       
     hcalTowers = cms.InputTag("towerMaker"),                                       
-    minSCEt = cms.double(10.0),
+    minSCEt = cms.double(20.0),
     hOverEConeSize = cms.double(0.15),
-    maxHOverE = cms.double(0.5),
+    maxHOverE = cms.double(0.15),
+    isoInnerConeR =  cms.double(3.5),
+    isoConeR =  cms.double(0.4),
+    isoEtaSlice =  cms.double(2.5),
+    isoEtMin = cms.double(0.0),
+    isoEMin = cms.double(0.08),
+    vetoClusteredHits  = cms.bool(False),
+    useNumXstals = cms.bool(True),
+    severityLevelCut = cms.int32(4),
+    ecalIsoCut_offset =  cms.double(999999999),
+    ecalIsoCut_slope  =  cms.double(0.),                                                   
+
+#    ecalIsoCut_offset =  cms.double(4.2),
+#    ecalIsoCut_slope =  cms.double(0.003),                                                   
+#
+      recHitFlagsToBeExcluded = cms.vstring(
+        'kFaultyHardware',
+        'kPoorCalib',
+#        ecalRecHitFlag_kSaturated,
+#        ecalRecHitFlag_kLeadingEdgeRecovered,
+#        ecalRecHitFlag_kNeighboursRecovered,
+        'kTowerRecovered',
+        'kDead'
+    ),
+                                        
     fractionShared = cms.double(0.5),
     TrajectoryBuilder = cms.string('TrajectoryBuilderForConversions'),
     TransientInitialStateEstimatorParameters = cms.PSet(
@@ -53,7 +79,10 @@ conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
         propagatorOppositeTISE = cms.string('oppositeToMomElePropagator'),
         numberMeasurementsForFit = cms.int32(4)
     ),
-    allowSharedFirstHit = cms.bool(False)
-)
+    allowSharedFirstHit = cms.bool(False),
+    ValidHitBonus = cms.double(999.0),
+    MissingHitPenalty = cms.double(0.0)
+
+ )
 
 

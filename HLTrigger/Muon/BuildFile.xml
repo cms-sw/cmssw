@@ -10,9 +10,7 @@
 <use   name="DataFormats/BeamSpot"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PluginManager"/>
-<use   name="FWCore/Utilities"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="RecoMuon/MuonIsolation"/>
 <use   name="L1Trigger/CSCTrackFinder"/>

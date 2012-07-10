@@ -4,16 +4,16 @@
 /** \class PyquenHadronizer
  *
  * Generates PYTHIA+PYQUEN ==> HepMC events
- * $Id: PyquenHadronizer.h,v 1.11 2011/02/17 20:53:49 yarba Exp $
+ * $Id: PyquenHadronizer.h,v 1.9 2010/02/20 20:59:39 wmtan Exp $
  *
  * Camelia Mironov                                  
  *   for the Generator Interface. March 2007
  ***************************************/
 
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
-#include "GeneratorInterface/HiGenCommon/interface/BaseHiGenEvtSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "GeneratorInterface/HiGenCommon/interface/BaseHiGenEvtSelector.h"
 #include <map>
 #include <string>
 #include "HepMC/GenEvent.h"
@@ -32,12 +32,11 @@ namespace gen
     bool hadronize();
     bool decay();
     bool residualDecay();
-    bool readSettings( int );
     bool initializeForExternalPartons();
     bool initializeForInternalPartons();
     bool declareStableParticles( const std::vector<int> );
     bool declareSpecialSettings( const std::vector<std::string> ) { return true; }
-    virtual bool select(HepMC::GenEvent* evtTry) const { return selector_->filter(evtTry); }
+
     void finalizeEvent();
     void statistics();
     const char* classname() const;
@@ -67,6 +66,8 @@ namespace gen
     bool             doIsospin_;              //! Run n&p with proper ratios; if false, only p+p collisions
     bool             embedding_;
     double           evtPlane_;
+    std::string      filterType_;
+    int              maxTries_;
     double           pfrac_;                  //! Proton fraction in the nucleus
 
     unsigned int     nquarkflavor_;           //! number of active quark flavors in qgp
@@ -82,9 +83,8 @@ namespace gen
     //    CLHEP::HepRandomEngine* fRandomEngine;
     edm::InputTag   src_;
     Pythia6Service* pythia6Service_;
-    std::string      filterType_;
     BaseHiGenEvtSelector* selector_;
-   };
+  };
 } /*end namespace*/ 
 
 #endif

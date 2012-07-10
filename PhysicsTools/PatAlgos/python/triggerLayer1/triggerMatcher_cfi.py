@@ -96,6 +96,28 @@ metTriggerMatchHLTMET100 = cms.EDProducer(
 , resolveByMatchQuality = cms.bool( True )        # take best match found per reco object: by DeltaR here (s. above)
 )
 
+# firing trigger objects used in succeeding HLT path 'HLT_Mu17_CentralJet30_v' (x-trigger)
+cleanMuonTriggerMatchHLTMu17CentralJet30 = cms.EDProducer(
+  "PATTriggerMatcherDRDPtLessByR"                 # match by DeltaR only, best match by DeltaR
+, src     = cms.InputTag( "cleanPatMuons" )
+, matched = cms.InputTag( "patTrigger" )          # default producer label as defined in PhysicsTools/PatAlgos/python/triggerLayer1/triggerProducer_cfi.py
+, matchedCuts = cms.string( 'type( "TriggerMuon" ) && path( "HLT_Mu17_CentralJet30_v*" )' )
+, maxDPtRel = cms.double( 0.5 )
+, maxDeltaR = cms.double( 0.5 )
+, resolveAmbiguities    = cms.bool( True )        # only one match per trigger object
+, resolveByMatchQuality = cms.bool( True )        # take best match found per reco object: by DeltaR here (s. above)
+)
+cleanJetTriggerMatchHLTMu17CentralJet30 = cms.EDProducer(
+  "PATTriggerMatcherDRDPtLessByR"                 # match by DeltaR only, best match by DeltaR
+, src     = cms.InputTag( "cleanPatJets" )
+, matched = cms.InputTag( "patTrigger" )          # default producer label as defined in PhysicsTools/PatAlgos/python/triggerLayer1/triggerProducer_cfi.py
+, matchedCuts = cms.string( 'type( "TriggerJet" ) && path( "HLT_Mu17_CentralJet30_v*" )' )
+, maxDPtRel = cms.double( 3.0 )
+, maxDeltaR = cms.double( 0.4 )
+, resolveAmbiguities    = cms.bool( True )        # only one match per trigger object
+, resolveByMatchQuality = cms.bool( True )        # take best match found per reco object: by DeltaR here (s. above)
+)
+
 
 triggerMatchingDefaultSequence = cms.Sequence(
   cleanMuonTriggerMatchHLTMu20
@@ -105,6 +127,8 @@ triggerMatchingDefaultSequence = cms.Sequence(
 + cleanTauTriggerMatchHLTDoubleIsoPFTau20Trk5
 + cleanJetTriggerMatchHLTJet240
 + metTriggerMatchHLTMET100
++ cleanMuonTriggerMatchHLTMu17CentralJet30
++ cleanJetTriggerMatchHLTMu17CentralJet30
 )
 
 
@@ -127,7 +151,7 @@ cleanMuonTriggerMatchTriggerMuon = cms.EDProducer(
   "PATTriggerMatcherDRDPtLessByR"           # match by DeltaR and DeltaPt, best match by DeltaR
 , src     = cms.InputTag( 'cleanPatMuons' )
 , matched = cms.InputTag( 'patTrigger' )    # default producer label as defined in PhysicsTools/PatAlgos/python/triggerLayer1/triggerProducer_cfi.py
-, matchedCuts = cms.string( 'type( "TriggerL1Mu" ) || type( "TriggerMu" )' )
+, matchedCuts = cms.string( 'type( "TriggerL1Mu" ) || type( "TriggerMuon" )' )
 , maxDPtRel = cms.double( 0.5 )
 , maxDeltaR = cms.double( 0.5 )
 , resolveAmbiguities    = cms.bool( True )  # only one match per trigger object

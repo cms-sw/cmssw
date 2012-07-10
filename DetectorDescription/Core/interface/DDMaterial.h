@@ -6,8 +6,12 @@
 #include <utility>
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDBase.h"
-
 namespace DDI { class Material; }
+
+class DDMaterial;
+
+
+std::ostream & operator<<(std::ostream &, const DDMaterial &);
 
 //! DDMaterial is used to define and access material information
 /**
@@ -40,11 +44,14 @@ namespace DDI { class Material; }
 */
 class DDMaterial : public DDBase<DDName,DDI::Material*>
 {
+  //typedef std::vector< pair<DDMaterial,double> > Fractions;
   friend std::ostream & operator<<(std::ostream &, const DDMaterial &);
+  
+  
+  //! For mixtures of material Fraction defines the fraction-masses of the mixture components
   
 public:
   typedef std::vector<std::pair<DDMaterial,double> > FractionV;
-  
   //! Creates a uninitialized reference-object (see DDLogicalPart documentation for details on reference objects)
   DDMaterial();
   
@@ -74,8 +81,12 @@ public:
   
   //! returns the density
   double density() const;
+  
+  //! clears the transient store
+/*   static void clear(); */
+  
+private:
+  //explicit DDMaterial(DDRedirect<DDMaterialImpl>* p, bool dummy);
 };
-
-std::ostream & operator<<(std::ostream &, const DDMaterial &);
 
 #endif

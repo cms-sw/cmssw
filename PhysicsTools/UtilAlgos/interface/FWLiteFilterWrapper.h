@@ -1,21 +1,25 @@
 #ifndef PhysicsTools_UtilAlgos_interface_FWLiteFilterWrapper_h
 #define PhysicsTools_UtilAlgos_interface_FWLiteFilterWrapper_h
 
+#include "FWCore/Common/interface/EventBase.h"
+#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <boost/shared_ptr.hpp>
+
 /**
   \class    FWLiteFilterWrapper FWLiteFilterWrapper.h "PhysicsTools/UtilAlgos/interface/FWLiteFilterWrapper.h"
   \brief    Implements a wrapper around an FWLite-friendly selector to "convert" it into a full EDFilter
 
+  Please Note: THIS FILE HAS BEEN DEPRECATED. IT HAS BEEN MOVED TO 
+               PhysicsTools/UtilsAlgos/interface/EDFilterWrapper.h
 
   \author Salvatore Rappoccio
-  \version  $Id: FWLiteFilterWrapper.h,v 1.1 2010/07/22 16:43:55 srappocc Exp $
+  \version  $Id: FWLiteFilterWrapper.h,v 1.2 2010/10/14 09:53:48 snaumann Exp $
 */
 
 
-#include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Common/interface/EventBase.h"
-
-#include <boost/shared_ptr.hpp>
 
 namespace edm {
 
@@ -27,6 +31,10 @@ class FWLiteFilterWrapper : public EDFilter {
   /// Pass the parameters to filter_
  FWLiteFilterWrapper(const edm::ParameterSet& pset)
   {
+    edm::LogWarning( "FWLiteFilterWrapper" )
+      << "Please Note: THIS FILE HAS BEEN DEPRECATED. IT HAS BEEN MOVED TO \n"
+      << "PhysicsTools/UtilsAlgos/interface/EDFilterWrapper.h";
+
     filter_  = boost::shared_ptr<T>( new T(pset) );
   }
 

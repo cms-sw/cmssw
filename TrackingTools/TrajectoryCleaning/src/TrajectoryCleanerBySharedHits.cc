@@ -106,12 +106,9 @@ void TrajectoryCleanerBySharedHits::clean( TrajectoryPointerContainer & tc) cons
 	    int nhit2 = (*imapp).first->foundHits();
 	    if( ((*imapp).second - innerHit) >= ( (min(nhit1, nhit2)-innerHit) * theFraction) ){
 	      Trajectory* badtraj;
-	      if (nhit1 != nhit2)
-		// remove the shortest trajectory
-		badtraj = (nhit1 > nhit2) ? (*imapp).first : *itt;
-	      else
-		// remove the trajectory with largest chi squared
-		badtraj = ((*imapp).first->chiSquared() > (*itt)->chiSquared()) ? (*imapp).first : *itt;
+	      double score1 = validHitBonus_*nhit1 - missingHitPenalty_*(*itt)->lostHits() - (*itt)->chiSquared();
+	      double score2 = validHitBonus_*nhit2 - missingHitPenalty_*(*imapp).first->lostHits() - (*imapp).first->chiSquared();
+	      badtraj = (score1 > score2) ? (*imapp).first : *itt;
 	      badtraj->invalidate();  // invalidate this trajectory
 	    }
 	  }

@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Mon Mar 22 12:08:40 CET 2010
-// $Id: FWViewType.h,v 1.15 2010/12/06 15:28:15 amraktad Exp $
+// $Id: FWViewType.h,v 1.20 2011/07/02 02:57:58 amraktad Exp $
 //
 #include <string>
 
@@ -31,9 +31,10 @@ public:
 
    static static_initializer init_statics;
    
-   enum EType { k3D, kRhoPhi, kRhoZ, kISpy, kLego, kLegoHF, kGlimpse,
+   enum EType { kRhoPhi, kRhoZ, k3D, kISpy, kLego, kLegoHF, kGlimpse,
                 kTable, kTableL1, kTableHLT,
                 kRhoPhiPF, kLegoPFECAL,
+                kGeometryTable,
                 kTypeSize };
    
    enum EBit
@@ -49,7 +50,8 @@ public:
       kGlimpseBit    = 1 << kGlimpse,
       kTableBit      = 1 << kTable,
       kTableHLTBit   = 1 << kTableHLT,
-      kTableL1Bit    = 1 << kTableL1
+      kTableL1Bit    = 1 << kTableL1,
+      kGeometryBit   = 1 << kGeometryTable
    };
 
    // shortcuts

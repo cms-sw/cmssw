@@ -31,7 +31,6 @@ void DDPixBarStackTrigLayerAlgo::initialize(const DDNumericArguments & nArgs,
 				   const DDStringVectorArguments & vsArgs) {
 
   idNameSpace = DDCurrentNamespace::ns();
-  DDName parentName = parent().name();
 
   genMat    = sArgs["GeneralMaterial"];
   number    = int(nArgs["Ladders"]);

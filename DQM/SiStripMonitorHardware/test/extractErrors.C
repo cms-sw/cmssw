@@ -18,7 +18,8 @@ int main(int argc, char** argv) {//main
 
   if (argc < 3){
     std::cout << "Usage: " << argv[0] 
-	      << " <file> <run number>"  
+	      << " <file> <run number>"
+	      << " <optional: local file>"
 	      << std::endl;
     return 0;
   }
@@ -26,6 +27,9 @@ int main(int argc, char** argv) {//main
 
   unsigned int run;
   std::istringstream(argv[2])>>run;
+
+  bool lLocal=0;
+  if (argc>3) std::istringstream(argv[3])>>lLocal;
 
   std::ofstream outfile;
   TString outName = "FEDChannelErrors_run";
@@ -51,9 +55,15 @@ int main(int argc, char** argv) {//main
     return 0;
   }
 
-  TString dirName = "DQMData/Run ";
-  dirName += run;
-  dirName += "/SiStrip/Run summary/ReadoutView/";
+  TString dirName = "DQMData/";
+  if (!lLocal) {
+    dirName += "Run ";
+    dirName += run;
+    dirName += "/";
+  }
+  dirName += "SiStrip/";
+  if (!lLocal) dirName += "Run summary/";
+  dirName += "ReadoutView/";
   std::cout << "Directory " << dirName << std::endl;
 
   if (!f->cd(dirName)) {
@@ -63,13 +73,13 @@ int main(int argc, char** argv) {//main
 
   //looking for object with name chNames etc...
   TString normDir = dirName;
-  normDir += "FedMonitoringSummary";
+  normDir += "FedSummary/";
   if (!f->cd(normDir)) {
     std::cerr << "Folder not found, please modify source code " << __FILE__ << ", line " << __LINE__ << std::endl;
     return 0;
   };
 
-  TH1F *hNorm = (TH1F*)gDirectory->Get("nFEDErrors");
+  TH1F *hNorm = (TH1F*)gDirectory->Get("FED/nFEDErrors");
   double norm = hNorm->GetEntries(); 
 
   outfile << " - File contains " << norm << " events." << std::endl
@@ -96,7 +106,7 @@ int main(int argc, char** argv) {//main
       TH1F *obj = (TH1F*)current->Get(objName);
 
       if (!obj) {
-	std::cout << "Error, histogram " << objName << " not found. Exiting..." << std::endl;
+	std::cout << "Warning, histogram " << objName << " not found..." << std::endl;
 	continue;//return 0;
       }
       else {

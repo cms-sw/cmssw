@@ -36,12 +36,12 @@ SiStripMonitorTrack = cms.EDAnalyzer(
     
     TH1nClustersOn = cms.PSet( Nbinx = cms.int32(100),
                              xmin  = cms.double(-0.5),
-                             xmax  = cms.double(499.5)
+                             xmax  = cms.double(1999.5)
                              ),   
 
-    TH1nClustersOff = cms.PSet( Nbinx = cms.int32(100),
+    TH1nClustersOff = cms.PSet( Nbinx = cms.int32(200),
                              xmin  = cms.double(-0.5),
-                             xmax  = cms.double(999.5)
+                             xmax  = cms.double(3999.5)
                              ),
     
     TH1ClusterCharge = cms.PSet( Nbinx = cms.int32(100),

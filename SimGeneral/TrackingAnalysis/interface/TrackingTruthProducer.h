@@ -131,6 +131,12 @@ private:
     );
 
     void addCloseGenVertexes(TrackingVertex &);
+
+    unsigned long long m_vertexCounter ;
+    unsigned long long m_noMatchVertexCounter ;
+
+    std::vector<std::size_t> m_trackingVertexBins[ 10 ] ;
+    double m_trackingVertexBinMins[ 10 ] ;
 };
 
 

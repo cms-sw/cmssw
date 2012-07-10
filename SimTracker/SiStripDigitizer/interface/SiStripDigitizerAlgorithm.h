@@ -95,6 +95,7 @@ class SiStripDigitizerAlgorithm {
   //double pedValue;
   double cosmicShift;
   double inefficiency;
+  double theStripInefficiency_[4]; // separate inefficiencies for TIB layers
   double pedOffset;
 
   size_t firstChannelWithSignal;

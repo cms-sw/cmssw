@@ -214,9 +214,6 @@ void go() {
 
 
 int main() {
-#ifdef CMS_USE_AVX
-  std::cout << "using AVX" << std::endl;
-#endif
   testBa();
   go<float>();
   go<double>();

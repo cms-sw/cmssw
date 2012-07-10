@@ -28,7 +28,7 @@ double EcalTPGScale::getTPGInGeV(const EcalTriggerPrimitiveDigi & tpDigi)
    return getTPGInGeV(ADC, towerId) ;
 }
 
-double EcalTPGScale::getTPGInGeV(uint ADC, const EcalTrigTowerDetId & towerId)
+double EcalTPGScale::getTPGInGeV(unsigned int ADC, const EcalTrigTowerDetId & towerId)
 { 
   // 1. get lsb
   edm::ESHandle<EcalTPGPhysicsConst> physHandle;
@@ -51,7 +51,7 @@ double EcalTPGScale::getTPGInGeV(uint ADC, const EcalTrigTowerDetId & towerId)
 
 }
 
-uint EcalTPGScale::getLinearizedTPG(uint ADC, const EcalTrigTowerDetId & towerId)
+unsigned int EcalTPGScale::getLinearizedTPG(unsigned int ADC, const EcalTrigTowerDetId & towerId)
 {
   int tpg10bits = 0 ;
  
@@ -69,7 +69,7 @@ uint EcalTPGScale::getLinearizedTPG(uint ADC, const EcalTrigTowerDetId & towerId
   EcalTPGLutIdMap::EcalTPGLutMapItr itLut = lutMap.find(lutGrp) ;
   if (itLut != lutMap.end()) {
     const unsigned int * lut = (itLut->second).getLut() ;
-    for (uint i=0 ; i<1024 ; i++)
+    for (unsigned int i=0 ; i<1024 ; i++)
       if (ADC == (0xff & lut[i])) {
 	tpg10bits = i ;
 	break ;
@@ -79,9 +79,9 @@ uint EcalTPGScale::getLinearizedTPG(uint ADC, const EcalTrigTowerDetId & towerId
   return tpg10bits ;
 }
 
-uint EcalTPGScale::getTPGInADC(double energy, const EcalTrigTowerDetId & towerId)
+unsigned int EcalTPGScale::getTPGInADC(double energy, const EcalTrigTowerDetId & towerId)
 {
-  uint tpgADC = 0 ;
+  unsigned int tpgADC = 0 ;
 
   // 1. get lsb
   edm::ESHandle<EcalTPGPhysicsConst> physHandle;

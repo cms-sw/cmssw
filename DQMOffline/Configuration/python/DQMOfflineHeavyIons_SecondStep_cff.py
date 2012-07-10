@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from CondTools.DQM.DQMReferenceHistogramRootFileEventSetupAnalyzer_cfi import *
-from DQMServices.Components.DQMMessageLoggerClient_cfi import *
+from DQMServices.Components.DQMMessageLoggerClient_cff import *
 from DQMServices.Components.DQMDcsInfoClient_cfi import *
 
 from DQMOffline.Ecal.ecal_dqm_client_offline_cff import *
@@ -28,7 +28,7 @@ DQMOfflineHeavyIons_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
 
 DQMOfflineHeavyIons_SecondStepDPG = cms.Sequence( dqmRefHistoRootFileGetter *
                                          DQMOfflineHeavyIons_SecondStep_PreDPG *
-                                         DQMMessageLoggerClient )
+                                         DQMMessageLoggerClientSeq )
 
 from DQMOffline.Muon.muonQualityTests_cff import *
 from DQMOffline.EGamma.photonOfflineDQMClient_cff import *
@@ -44,9 +44,9 @@ DQMOfflineHeavyIons_SecondStep_PrePOG = cms.Sequence( muonQualityTests
 
 DQMOfflineHeavyIons_SecondStepPOG = cms.Sequence( dqmRefHistoRootFileGetter *
                                                   DQMOfflineHeavyIons_SecondStep_PrePOG *
-                                                  DQMMessageLoggerClient )
+                                                  DQMMessageLoggerClientSeq )
 
 DQMOfflineHeavyIons_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
                                                DQMOfflineHeavyIons_SecondStep_PreDPG *
                                                DQMOfflineHeavyIons_SecondStep_PrePOG *
-                                               DQMMessageLoggerClient )
+                                               DQMMessageLoggerClientSeq )

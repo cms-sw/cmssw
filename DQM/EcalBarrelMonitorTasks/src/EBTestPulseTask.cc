@@ -1,15 +1,16 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2010/07/30 05:40:22 $
- * $Revision: 1.115 $
+ * $Date: 2011/08/23 00:30:59 $
+ * $Revision: 1.116.4.2 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
 */
 
 #include <iostream>
-#include <fstream>
+#include <sstream>
+#include <iomanip>
 #include <vector>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -129,23 +130,30 @@ void EBTestPulseTask::setup(void){
 
   init_ = true;
 
-  char histo[200];
+  std::string name;
+  std::stringstream GainN, GN;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask");
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/Gain01");
+      GainN.str("");
+      GainN << "Gain" << std::setw(2) << std::setfill('0') << 1;
+      GN.str("");
+      GN << "G" << std::setw(2) << std::setfill('0') << 1;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/" + GainN.str());
       for (int i = 0; i < 36; i++) {
-        sprintf(histo, "EBTPT shape %s G01", Numbers::sEB(i+1).c_str());
-        meShapeMapG01_[i] = dqmStore_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+	name = "EBTPT shape " + Numbers::sEB(i+1) + " " + GN.str();
+        meShapeMapG01_[i] = dqmStore_->bookProfile2D(name, name, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
         meShapeMapG01_[i]->setAxisTitle("channel", 1);
         meShapeMapG01_[i]->setAxisTitle("sample", 2);
         meShapeMapG01_[i]->setAxisTitle("amplitude", 3);
         dqmStore_->tag(meShapeMapG01_[i], i+1);
-        sprintf(histo, "EBTPT amplitude %s G01", Numbers::sEB(i+1).c_str());
-        meAmplMapG01_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
+
+	name = "EBTPT amplitude " + Numbers::sEB(i+1) + " " + GN.str(), 
+        meAmplMapG01_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
         meAmplMapG01_[i]->setAxisTitle("ieta", 1);
         meAmplMapG01_[i]->setAxisTitle("iphi", 2);
         dqmStore_->tag(meAmplMapG01_[i], i+1);
@@ -155,16 +163,22 @@ void EBTestPulseTask::setup(void){
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/Gain06");
+      GainN.str("");
+      GainN << "Gain" << std::setw(2) << std::setfill('0') << 6;
+      GN.str("");
+      GN << "G" << std::setw(2) << std::setfill('0') << 6;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/" + GainN.str());
       for (int i = 0; i < 36; i++) {
-        sprintf(histo, "EBTPT shape %s G06", Numbers::sEB(i+1).c_str());
-        meShapeMapG06_[i] = dqmStore_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+	name = "EBTPT shape " + Numbers::sEB(i+1) + " " + GN.str();
+        meShapeMapG06_[i] = dqmStore_->bookProfile2D(name, name, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
         meShapeMapG06_[i]->setAxisTitle("channel", 1);
         meShapeMapG06_[i]->setAxisTitle("sample", 2);
         meShapeMapG06_[i]->setAxisTitle("amplitude", 3);
         dqmStore_->tag(meShapeMapG06_[i], i+1);
-        sprintf(histo, "EBTPT amplitude %s G06", Numbers::sEB(i+1).c_str());
-        meAmplMapG06_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
+
+	name = "EBTPT amplitude " + Numbers::sEB(i+1) + " " + GN.str(), 
+        meAmplMapG06_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
         meAmplMapG06_[i]->setAxisTitle("ieta", 1);
         meAmplMapG06_[i]->setAxisTitle("iphi", 2);
         dqmStore_->tag(meAmplMapG06_[i], i+1);
@@ -174,16 +188,22 @@ void EBTestPulseTask::setup(void){
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/Gain12");
+      GainN.str("");
+      GainN << "Gain" << std::setw(2) << std::setfill('0') << 12;
+      GN.str("");
+      GN << "G" << std::setw(2) << std::setfill('0') << 12;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/" + GainN.str());
       for (int i = 0; i < 36; i++) {
-        sprintf(histo, "EBTPT shape %s G12", Numbers::sEB(i+1).c_str());
-        meShapeMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+	name = "EBTPT shape " + Numbers::sEB(i+1) + " " + GN.str();
+        meShapeMapG12_[i] = dqmStore_->bookProfile2D(name, name, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
         meShapeMapG12_[i]->setAxisTitle("channel", 1);
         meShapeMapG12_[i]->setAxisTitle("sample", 2);
         meShapeMapG12_[i]->setAxisTitle("amplitude", 3);
         dqmStore_->tag(meShapeMapG12_[i], i+1);
-        sprintf(histo, "EBTPT amplitude %s G12", Numbers::sEB(i+1).c_str());
-        meAmplMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
+
+	name = "EBTPT amplitude " + Numbers::sEB(i+1) + " " + GN.str(), 
+        meAmplMapG12_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
         meAmplMapG12_[i]->setAxisTitle("ieta", 1);
         meAmplMapG12_[i]->setAxisTitle("iphi", 2);
         dqmStore_->tag(meAmplMapG12_[i], i+1);
@@ -195,15 +215,21 @@ void EBTestPulseTask::setup(void){
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/PN/Gain01");
+      GainN.str("");
+      GainN << "Gain" << std::setw(2) << std::setfill('0') << 1;
+      GN.str("");
+      GN << "G" << std::setw(2) << std::setfill('0') << 1;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/PN/" + GainN.str());
       for (int i = 0; i < 36; i++) {
-        sprintf(histo, "EBTPT PNs amplitude %s G01", Numbers::sEB(i+1).c_str());
-        mePnAmplMapG01_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+        name = "EBTPT PNs amplitude " + Numbers::sEB(i+1) + " " + GN.str(); 
+        mePnAmplMapG01_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnAmplMapG01_[i]->setAxisTitle("channel", 1);
         mePnAmplMapG01_[i]->setAxisTitle("amplitude", 2);
         dqmStore_->tag(mePnAmplMapG01_[i], i+1);
-        sprintf(histo, "EBTPT PNs pedestal %s G01", Numbers::sEB(i+1).c_str());
-        mePnPedMapG01_[i] =  dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+
+	name = "EBTPT PNs pedestal " + Numbers::sEB(i+1) + " " + GN.str(); 
+        mePnPedMapG01_[i] =  dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG01_[i]->setAxisTitle("channel", 1);
         mePnPedMapG01_[i]->setAxisTitle("pedestal", 2);
         dqmStore_->tag(mePnPedMapG01_[i], i+1);
@@ -213,15 +239,21 @@ void EBTestPulseTask::setup(void){
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/PN/Gain16");
+      GainN.str("");
+      GainN << "Gain" << std::setw(2) << std::setfill('0') << 16;
+      GN.str("");
+      GN << "G" << std::setw(2) << std::setfill('0') << 16;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/PN/" + GainN.str());
       for (int i = 0; i < 36; i++) {
-        sprintf(histo, "EBTPT PNs amplitude %s G16", Numbers::sEB(i+1).c_str());
-        mePnAmplMapG16_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+        name = "EBTPT PNs amplitude " + Numbers::sEB(i+1) + " " + GN.str(); 
+        mePnAmplMapG16_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnAmplMapG16_[i]->setAxisTitle("channel", 1);
         mePnAmplMapG16_[i]->setAxisTitle("amplitude", 2);
         dqmStore_->tag(mePnAmplMapG16_[i], i+1);
-        sprintf(histo, "EBTPT PNs pedestal %s G16", Numbers::sEB(i+1).c_str());
-        mePnPedMapG16_[i] =  dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+
+	name = "EBTPT PNs pedestal " + Numbers::sEB(i+1) + " " + GN.str(); 
+        mePnPedMapG16_[i] =  dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG16_[i]->setAxisTitle("channel", 1);
         mePnPedMapG16_[i]->setAxisTitle("pedestal", 2);
         dqmStore_->tag(mePnPedMapG16_[i], i+1);

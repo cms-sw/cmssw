@@ -361,6 +361,13 @@ parser.add_option("--follow",
                   help="show output of cmsRun task (in addition to writing it to a log file)",
                   )
 
+parser.add_option("--data",
+                  dest="isData",
+                  default = False,
+                  action = "store_true",
+                  help="run on real data file (works only together with EmDQMFeeder at the moment)",
+                  )
+
 (options, ARGV) = parser.parse_args()
 
 sampleSpec = None
@@ -525,7 +532,6 @@ fout = open(absoluteOutputConfigFile,"w")
 # first copy all the lines of the original config file
 fout.write(open(absoluteInputConfigFile).read())
 
-
 print >> fout,"process.source.fileNames = " + str(FILES)
 print >> fout,"process.post.dataSet = cms.untracked.string('" + datasetToCheck +"')"
 
@@ -568,6 +574,16 @@ if options.num_events != None:
     print >> fout,"# maximum number of events specified"
     print >> fout,"#----------------------------------------"
     print >> fout,"process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(%d) )" % options.num_events
+    print >> fout,"#----------------------------------------"
+
+#----------------------------------------
+# run on real data with EmDQMFeeder
+if options.isData and absoluteInputConfigFile.find("testEmDQMFeeder_cfg.py") != -1:
+    print >> fout
+    print >> fout,"#----------------------------------------"
+    print >> fout,"# Running on real data sample"
+    print >> fout,"#----------------------------------------"
+    print >> fout,"process.dqmFeeder.isData = cms.bool(True)" 
     print >> fout,"#----------------------------------------"
 
 #----------------------------------------

@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.39.4.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.43 2011/04/21 14:00:05 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <stdio.h>
@@ -194,8 +194,15 @@ namespace stor {
     Stats stats;
     getStats(stats);
     
-    copyWorkers_ = static_cast<xdata::UnsignedInteger32>(stats.numberOfCopyWorkers);
-    injectWorkers_ = static_cast<xdata::UnsignedInteger32>(stats.numberOfInjectWorkers);
+    if (stats.numberOfCopyWorkers > 0)
+      copyWorkers_ = static_cast<xdata::UnsignedInteger32>(stats.numberOfCopyWorkers);
+    else
+      copyWorkers_ = 0;
+
+    if (stats.numberOfInjectWorkers > 0)
+      injectWorkers_ = static_cast<xdata::UnsignedInteger32>(stats.numberOfInjectWorkers);
+    else
+      injectWorkers_ = 0;
     
     sataBeastStatus_ = stats.sataBeastStatus;
     numberOfDisks_ = nLogicalDisks_;
@@ -516,8 +523,7 @@ namespace stor {
       std::ostringstream msg;
       msg << "Failed to connect to SATA controller "
         << sataBeast << hostSuffix 
-        << " with user name '" << rmParams_.sataUser_
-        << "': " << std::string(&content[0]);
+        << ": " << std::string(&content[0]);
       XCEPT_DECLARE(stor::exception::SataBeast, ex, msg.str());
       alarmHandler_->notifySentinel(AlarmHandler::WARNING, ex);
       

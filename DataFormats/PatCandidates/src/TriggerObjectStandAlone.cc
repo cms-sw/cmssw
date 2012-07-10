@@ -1,5 +1,5 @@
 //
-// $Id: TriggerObjectStandAlone.cc,v 1.9 2011/02/02 17:06:24 vadler Exp $
+// $Id: TriggerObjectStandAlone.cc,v 1.12 2011/06/21 23:27:27 vadler Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
@@ -15,6 +15,72 @@ using namespace pat;
 
 
 const char TriggerObjectStandAlone::wildcard_;
+
+
+// Constructors and Destructor
+
+
+// Default constructor
+TriggerObjectStandAlone::TriggerObjectStandAlone() :
+  TriggerObject()
+{
+  filterLabels_.clear();
+  pathNames_.clear();
+  pathLastFilterAccepted_.clear();
+  pathL3FilterAccepted_.clear();
+}
+
+
+// Constructor from pat::TriggerObject
+TriggerObjectStandAlone::TriggerObjectStandAlone( const TriggerObject & trigObj ) :
+  TriggerObject( trigObj )
+{
+  filterLabels_.clear();
+  pathNames_.clear();
+  pathLastFilterAccepted_.clear();
+  pathL3FilterAccepted_.clear();
+}
+
+
+// Constructor from trigger::TriggerObject
+TriggerObjectStandAlone::TriggerObjectStandAlone( const trigger::TriggerObject & trigObj ) :
+  TriggerObject( trigObj )
+{
+  filterLabels_.clear();
+  pathNames_.clear();
+  pathLastFilterAccepted_.clear();
+  pathL3FilterAccepted_.clear();
+}
+
+
+// Constructor from reco::Candidate
+TriggerObjectStandAlone::TriggerObjectStandAlone( const reco::LeafCandidate & leafCand ) :
+  TriggerObject( leafCand )
+{
+  filterLabels_.clear();
+  pathNames_.clear();
+  pathLastFilterAccepted_.clear();
+  pathL3FilterAccepted_.clear();
+}
+
+
+// Constructors from Lorentz-vectors and (optional) PDG ID
+TriggerObjectStandAlone::TriggerObjectStandAlone( const reco::Particle::LorentzVector & vec, int id ) :
+  TriggerObject( vec, id )
+{
+  filterLabels_.clear();
+  pathNames_.clear();
+  pathLastFilterAccepted_.clear();
+  pathL3FilterAccepted_.clear();
+}
+TriggerObjectStandAlone::TriggerObjectStandAlone( const reco::Particle::PolarLorentzVector & vec, int id ) :
+  TriggerObject( vec, id )
+{
+  filterLabels_.clear();
+  pathNames_.clear();
+  pathLastFilterAccepted_.clear();
+  pathL3FilterAccepted_.clear();
+}
 
 
 // Private methods
@@ -67,28 +133,42 @@ bool TriggerObjectStandAlone::hasAnyName( const std::string & name, const std::v
 
 
 // Adds a new HLT path or L1 algorithm name
-void TriggerObjectStandAlone::addPathOrAlgorithm( const std::string & name, bool firing )
+void TriggerObjectStandAlone::addPathOrAlgorithm( const std::string & name, bool pathLastFilterAccepted, bool pathL3FilterAccepted )
 {
   // Check, if path is already assigned
-  if ( ! hasPathOrAlgorithm( name, false ) ) {
+  if ( ! hasPathOrAlgorithm( name, false, false ) ) {
     // The path itself
     pathNames_.push_back( name );
     // The corresponding usage of the trigger objects
-    pathLastFilterAccepted_.push_back( firing );
+    pathLastFilterAccepted_.push_back( pathLastFilterAccepted );
+    pathL3FilterAccepted_.push_back( pathL3FilterAccepted );
+  } else if ( pathLastFilterAccepted || pathL3FilterAccepted ) {
+    unsigned index( 0 );
+    while ( index < pathNames_.size() ) {
+      if ( pathNames_.at( index ) == name ) break;
+      ++index;
+    }
+    if ( index < pathNames_.size() ) {
+      pathLastFilterAccepted_.at( index ) = pathLastFilterAccepted;
+      pathL3FilterAccepted_.at( index )   = pathL3FilterAccepted;
+    }
   }
 }
 
 
 // Gets all HLT path or L1 algorithm names
-std::vector< std::string > TriggerObjectStandAlone::pathsOrAlgorithms( bool firing ) const
+std::vector< std::string > TriggerObjectStandAlone::pathsOrAlgorithms( bool pathLastFilterAccepted, bool pathL3FilterAccepted ) const
 {
+  // Deal with older PAT-tuples, where trigger object usage is not available
+  if ( ! hasLastFilter() ) pathLastFilterAccepted = false;
+  if ( ! hasL3Filter() ) pathL3FilterAccepted = false;
   // All path names, if usage not restricted (not required or not available)
-  if ( ! firing || ! hasFiring() ) return pathNames_;
+  if ( ! pathLastFilterAccepted && ! pathL3FilterAccepted ) return pathNames_;
   // Temp vector of path names
   std::vector< std::string > paths;
   // Loop over usage vector and fill corresponding paths into temp vector
   for ( unsigned iPath = 0; iPath < pathNames_.size(); ++iPath ) {
-    if ( pathLastFilterAccepted_.at( iPath ) ) paths.push_back( pathNames_.at( iPath ) );
+    if ( ( ! pathLastFilterAccepted || pathLastFilterAccepted_.at( iPath ) ) && ( ! pathL3FilterAccepted || pathL3FilterAccepted_.at( iPath ) ) ) paths.push_back( pathNames_.at( iPath ) ); // order matters in order to protect from empty vectors in old data
   }
   // Return temp vector
   return paths;
@@ -106,18 +186,22 @@ bool TriggerObjectStandAlone::hasFilterOrCondition( const std::string & name ) c
 
 
 // Checks, if a certain path name is assigned
-bool TriggerObjectStandAlone::hasPathOrAlgorithm( const std::string & name, bool firing ) const
+bool TriggerObjectStandAlone::hasPathOrAlgorithm( const std::string & name, bool pathLastFilterAccepted, bool pathL3FilterAccepted ) const
 {
   // Move to wild-card parser, if needed
-  if ( name.find( wildcard_ ) != std::string::npos ) return hasAnyName( name, pathsOrAlgorithms( firing ) );
+  if ( name.find( wildcard_ ) != std::string::npos ) return hasAnyName( name, pathsOrAlgorithms( pathLastFilterAccepted, pathL3FilterAccepted ) );
   // Deal with older PAT-tuples, where trigger object usage is not available
-  if ( ! hasFiring() ) firing = false;
+  if ( ! hasLastFilter() ) pathLastFilterAccepted = false;
+  if ( ! hasL3Filter() ) pathL3FilterAccepted = false;
   // Check, if path name is assigned at all
   std::vector< std::string >::const_iterator match( std::find( pathNames_.begin(), pathNames_.end(), name ) );
   // False, if path name not assigned
   if ( match == pathNames_.end() ) return false;
+  if ( ! pathLastFilterAccepted && ! pathL3FilterAccepted ) return true;
+  bool foundLastFilter( pathLastFilterAccepted ? pathLastFilterAccepted_.at( match - pathNames_.begin() ) : true );
+  bool foundL3Filter( pathL3FilterAccepted ? pathL3FilterAccepted_.at( match - pathNames_.begin() ) : true );
   // Return for assigned path name, if trigger object usage meets requirement
-  return ( firing ? pathLastFilterAccepted_.at( match - pathNames_.begin() ) : true );
+  return ( foundLastFilter && foundL3Filter );
 }
 
 

@@ -5,7 +5,6 @@
 #include <stdint.h>
 
 class EcalTPGSlidingWindow;
-class EcalTPGStripStatus;
 
   /** 
     \class EcalFenixStripFormatEE
@@ -22,7 +21,7 @@ class EcalTPGStripStatus;
   int input_;
   uint32_t shift_;
   int fgvb_;
-  uint16_t stripStatus_;
+  //  int buffer_;
 
   int setInput(int input, int inputPeak, int fgvb);
   int process();
@@ -33,7 +32,7 @@ class EcalTPGStripStatus;
   virtual ~EcalFenixStripFormatEE();
 
   virtual void  process(std::vector<int>& ,std::vector<int>& , std::vector<int>&,std::vector<int>&) ;
-  void setParameters(uint32_t id, const EcalTPGSlidingWindow*&,const EcalTPGStripStatus *);
+  void setParameters(uint32_t id, const EcalTPGSlidingWindow*&);
 };
 
 #endif

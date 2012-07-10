@@ -55,6 +55,21 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
 
   HcalAcceptSeverityLevel_ = iConfig.getParameter<uint32_t>("HcalAcceptSeverityLevel");
 
+  TS4TS5EnergyThreshold_ = iConfig.getParameter<double>("TS4TS5EnergyThreshold");
+
+  std::vector<double> TS4TS5UpperThresholdTemp = iConfig.getParameter<std::vector<double> >("TS4TS5UpperThreshold");
+  std::vector<double> TS4TS5UpperCutTemp = iConfig.getParameter<std::vector<double> >("TS4TS5UpperCut");
+  std::vector<double> TS4TS5LowerThresholdTemp = iConfig.getParameter<std::vector<double> >("TS4TS5LowerThreshold");
+  std::vector<double> TS4TS5LowerCutTemp = iConfig.getParameter<std::vector<double> >("TS4TS5LowerCut");
+
+  for(int i = 0; i < (int)TS4TS5UpperThresholdTemp.size() && i < (int)TS4TS5UpperCutTemp.size(); i++)
+     TS4TS5UpperCut_.push_back(std::pair<double, double>(TS4TS5UpperThresholdTemp[i], TS4TS5UpperCutTemp[i]));
+  sort(TS4TS5UpperCut_.begin(), TS4TS5UpperCut_.end());
+
+  for(int i = 0; i < (int)TS4TS5LowerThresholdTemp.size() && i < (int)TS4TS5LowerCutTemp.size(); i++)
+     TS4TS5LowerCut_.push_back(std::pair<double, double>(TS4TS5LowerThresholdTemp[i], TS4TS5LowerCutTemp[i]));
+  sort(TS4TS5LowerCut_.begin(), TS4TS5LowerCut_.end());
+
   // if digis are filled, then rechits must also be filled
   if(fillDigis_ && !fillRecHits_) {
     fillRecHits_=true;
@@ -103,7 +118,8 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   bool maxwritten=false;
   for(HcalNoiseRBXArray::iterator rit = rbxarray.begin(); rit!=rbxarray.end(); ++rit) {
     HcalNoiseRBX &rbx=(*rit);
-    CommonHcalNoiseRBXData data(rbx, minRecHitE_, minLowHitE_, minHighHitE_);
+    CommonHcalNoiseRBXData data(rbx, minRecHitE_, minLowHitE_, minHighHitE_, TS4TS5EnergyThreshold_,
+      TS4TS5UpperCut_, TS4TS5LowerCut_);
 
     // find the highest energy rbx
     if(data.energy()>maxenergy) {
@@ -205,6 +221,10 @@ HcalNoiseInfoProducer::fillOtherSummaryVariables(HcalNoiseSummary& summary, cons
   if(data.numHPDNoOtherHits() > summary.maxHPDNoOtherHits()) {
     summary.maxhpdhitsnoother_ = data.numHPDNoOtherHits();
   }
+
+  // TS4TS5
+  if(data.PassTS4TS5() == false)
+     summary.hasBadRBXTS4TS5_ = true;
 
   // hit timing
   if(data.minLowEHitTime()<summary.min10GeVHitTime()) {
@@ -383,6 +403,10 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
     const DetId id = rechit.detid();
     uint32_t recHitFlag = rechit.flags();    
     uint32_t noisebitset = (1 << HcalCaloFlagLabels::HBHEIsolatedNoise);
+    uint32_t flatbitset = (1 << HcalCaloFlagLabels::HBHEFlatNoise);
+    uint32_t spikebitset = (1 << HcalCaloFlagLabels::HBHESpikeNoise);
+    uint32_t trianglebitset = (1 << HcalCaloFlagLabels::HBHETriangleNoise);
+    uint32_t ts4ts5bitset = (1 << HcalCaloFlagLabels::HBHETS4TS5Noise);
     recHitFlag = (recHitFlag & noisebitset) ? recHitFlag-noisebitset : recHitFlag;
     const uint32_t dbStatusFlag = dbHcalChStatus->getValues(id)->getValue();
     int severityLevel = hcalSevLvlComputer->getSeverityLevel(id, recHitFlag, dbStatusFlag);
@@ -391,11 +415,43 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
 
     // if it was ID'd as isolated noise, update the summary object
     if(rechit.flags() & noisebitset) {
-      ++summary.nisolnoise_;
+      summary.nisolnoise_++;
       summary.isolnoisee_ += rechit.energy();
       GlobalPoint gp = geo->getPosition(rechit.id());
       double et = rechit.energy()*gp.perp()/gp.mag();
       summary.isolnoiseet_ += et;
+    }
+
+    if(rechit.flags() & flatbitset) {
+      summary.nflatnoise_++;
+      summary.flatnoisee_ += rechit.energy();
+      GlobalPoint gp = geo->getPosition(rechit.id());
+      double et = rechit.energy()*gp.perp()/gp.mag();
+      summary.flatnoiseet_ += et;
+    }
+
+    if(rechit.flags() & spikebitset) {
+      summary.nspikenoise_++;
+      summary.spikenoisee_ += rechit.energy();
+      GlobalPoint gp = geo->getPosition(rechit.id());
+      double et = rechit.energy()*gp.perp()/gp.mag();
+      summary.spikenoiseet_ += et;
+    }
+
+    if(rechit.flags() & trianglebitset) {
+      summary.ntrianglenoise_++;
+      summary.trianglenoisee_ += rechit.energy();
+      GlobalPoint gp = geo->getPosition(rechit.id());
+      double et = rechit.energy()*gp.perp()/gp.mag();
+      summary.trianglenoiseet_ += et;
+    }
+
+    if(rechit.flags() & ts4ts5bitset) {
+      summary.nts4ts5noise_++;
+      summary.ts4ts5noisee_ += rechit.energy();
+      GlobalPoint gp = geo->getPosition(rechit.id());
+      double et = rechit.energy()*gp.perp()/gp.mag();
+      summary.ts4ts5noiseet_ += et;
     }
 
     // find the hpd that the rechit is in

@@ -5,19 +5,16 @@
 // Histogram managing class for analysis in HcalTest
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestHistoClass.h"
-
-// root objects
-#include "TROOT.h"
-#include "TSystem.h"
-#include "TFile.h"
-#include "TDirectory.h"
-#include "TTree.h"
-
+//#include "DataSvc/Ref.h"
+//#include "FileCatalog/IFileCatalog.h"
 #include <memory>
+
+//namespace pool {
+//  class IDataSvc;
+//}
+
 #include <string>
+class HcalTestHistoClass;
 
 class HcalTestHistoManager {
 
@@ -29,11 +26,12 @@ public:
   void fillTree(HcalTestHistoClass *  histos);
 
 private:
-
-  edm::Service<TFileService> fs;
-  TTree                     *tree;
-  HcalTestHistoClass        *h;
-  int                       kount;
+  //  pool::IFileCatalog            lcat;
+  //std::auto_ptr<pool::IDataSvc> svc;
+  
+  //pool::Placement               placeH;
+  //pool::Placement               placeVx;
+  //pool::Ref<HcalTestHistoClass> h;
  
 };
 

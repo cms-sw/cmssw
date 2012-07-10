@@ -10,9 +10,8 @@
   EcalFenixStripFormatEB::~EcalFenixStripFormatEB() {
   }
 
-  int EcalFenixStripFormatEB::setInput(int input, int inputPeak, int inputsFGVB) 
+  int EcalFenixStripFormatEB::setInput(int input, int inputPeak) 
   {
-    inputsFGVB_ = inputsFGVB;
     inputPeak_=inputPeak;
     input_=input;
     return 0;
@@ -22,23 +21,20 @@
   {
     //    buffer_=input_>>shift_;  //FIXME: buffer why?
 
-    if(inputPeak_==0) return ((inputsFGVB_&0x1)<<12);
+    if(inputPeak_==0) return 0;
     //    int output=buffer_;
     int output=input_>>shift_;
     if(output>0XFFF) output=0XFFF;   //ok: barrel saturates at 12 bits
-    // Add stripFGVB
-    output |= ((inputsFGVB_&0x1)<<12);
-   
     return output;    
   } 
 
-void EcalFenixStripFormatEB::process(std::vector<int> &sFGVBout, std::vector<int> &peakout, std::vector<int> &filtout, std::vector<int> & output)
+void EcalFenixStripFormatEB::process(std::vector<int> &peakout, std::vector<int> &filtout, std::vector<int> & output)
 {
-  if  (peakout.size()!=filtout.size() || sFGVBout.size()!=filtout.size()){
-    edm::LogWarning("EcalTPG")<<" problem in EcalFenixStripFormatEB: sfgvb_out, peak_out and filt_out don't have the same size";
+  if  (peakout.size()!=filtout.size()){
+    edm::LogWarning("EcalTPG")<<" problem in EcalFenixStripFormatEB: peak_out and filt_out don't have the same size";
   }
   for  (unsigned int i =0;i<filtout.size();i++){
-    setInput(filtout[i],peakout[i], sFGVBout[i]);
+    setInput(filtout[i],peakout[i]);
 
     output[i]=process();
   }
