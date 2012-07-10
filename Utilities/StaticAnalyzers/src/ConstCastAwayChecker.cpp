@@ -29,6 +29,8 @@ void ConstCastAwayChecker::checkPreStmt(const clang::ExplicitCastExpr *CE,
 			clang::ento::BugReport *R = new clang::ento::BugReport(*BT, 
 					"const qualifier was removed via a cast, this may result in thread-unsafe code.", errorNode);
 			R->addRange(CE->getSourceRange());
+		   	if ( ! m_exception.reportConstCastAway( *R, C ) )
+				return;
 			C.EmitReport(R);
 		}
 	}

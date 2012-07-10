@@ -18,6 +18,9 @@ class ConstCastChecker: public clang::ento::Checker< clang::ento::check::PreStmt
 public:
 	mutable clang::OwningPtr<clang::ento::BugType> BT;
 	void checkPreStmt(const clang::CXXConstCastExpr *CE, clang::ento::CheckerContext &C) const;
+
+private:
+  CmsException m_exception;
 };
 } 
 

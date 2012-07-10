@@ -40,6 +40,25 @@ bool CmsException::reportGeneral( clang::ento::PathDiagnosticLocation const& pat
 
 }
 
+bool CmsException::reportConstCast( const clang::ento::BugReport &R,
+		clang::ento::CheckerContext &C) const 
+{
+		clang::ento::BugReporter &BR = C.getBugReporter();
+          	const clang::SourceManager &SM = BR.getSourceManager();
+		clang::ento::PathDiagnosticLocation const& path = R.getLocation(SM);
+	 	return reportGeneral ( path, BR );
+}
+
+
+bool CmsException::reportConstCastAway( const clang::ento::BugReport &R,
+		clang::ento::CheckerContext &C) const 
+{
+		clang::ento::BugReporter & BR = C.getBugReporter();
+          	const clang::SourceManager &SM = BR.getSourceManager();
+		clang::ento::PathDiagnosticLocation const& path = R.getLocation(SM);
+	 	return reportGeneral ( path, BR );
+ 
+}
 
 bool CmsException::reportGlobalStatic( clang::QualType const& t,
 			clang::ento::PathDiagnosticLocation const& path,

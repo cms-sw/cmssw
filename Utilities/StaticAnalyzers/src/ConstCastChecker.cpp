@@ -19,7 +19,8 @@ void ConstCastChecker::checkPreStmt(const clang::CXXConstCastExpr *CE,
 							"ThreadSafety"));
 		clang::ento::BugReport *R = new clang::ento::BugReport(*BT, "const_cast was used, this may result in thread-unsafe code.", errorNode);
 		R->addRange(CE->getSourceRange());
-
+	   	if ( ! m_exception.reportConstCast( *R, C ) )
+			return;
 		C.EmitReport(R);
 	}
 
