@@ -49,6 +49,8 @@ class ProcLinear : public TrainProcessor {
 
 	std::auto_ptr<LeastSquares>	ls;
 	std::vector<double>		vars;
+	std::vector<double>		coefficients;
+	double theoffset;
 };
 
 static ProcLinear::Registry registry("ProcLinear");
@@ -67,15 +69,44 @@ ProcLinear::~ProcLinear()
 void ProcLinear::configure(DOMElement *elem)
 {
 	ls = std::auto_ptr<LeastSquares>(new LeastSquares(getInputs().size()));
+	
+	DOMNode *node = elem->getFirstChild();
+	while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
+		node = node->getNextSibling();
+
+	if (!node)
+		return;
+		
+	if (std::strcmp(XMLSimpleStr(node->getNodeName()), "coefficients") != 0)
+		throw cms::Exception("ProcLinear")
+				<< "Expected coefficients tag in config section."
+				<< std::endl;
+
+	elem = static_cast<DOMElement*>(node);
+
+	//if (XMLDocument::hasAttribute(elem, "offset")) 
+		theoffset= XMLDocument::readAttribute<double>(elem, "offset", 0.0);
+	if (XMLDocument::hasAttribute(elem, "coeff1"))
+		coefficients.push_back(XMLDocument::readAttribute<double>(elem, "coeff1", 1.0));
+	if (XMLDocument::hasAttribute(elem, "coeff2")) 
+		coefficients.push_back(XMLDocument::readAttribute<double>(elem, "coeff2", 1.0));
+	
 }
 
 Calibration::VarProcessor *ProcLinear::getCalibration() const
 {
 	Calibration::ProcLinear *calib = new Calibration::ProcLinear;
+	/*std::vector<double> a;
+        a.push_back(0.75);
+        a.push_back(0.25);
+  calib->coeffs = a;
+	calib->offset = 0.0;
+	*/
+	      calib->coeffs = coefficients;
+        calib->offset = theoffset;
 
-	calib->coeffs = ls->getWeights();
-	calib->offset = ls->getConstant();
-
+//	calib->coeffs = ls->getWeights();
+//	calib->offset = ls->getConstant();
 	return calib;
 }
 
