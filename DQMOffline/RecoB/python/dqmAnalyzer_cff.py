@@ -286,5 +286,7 @@ pfbTagValidation = bTagValidation.clone(
 pfbTagValidation.finalizePlots = False
 pfbTagValidation.finalizeOnly = False
 pfbTagValidation.jetMCSrc = 'AK5byValAlgo'
+pfbTagValidation.ptRanges = cms.vdouble(0.0)
+pfbTagValidation.etaRanges = cms.vdouble(0.0)
 
 bTagPlotsMC = cms.Sequence(myPartons*AK5Flavour*pfbTagValidation)

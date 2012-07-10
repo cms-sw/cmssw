@@ -19,6 +19,8 @@ bTagCollectorMC = pfbTagAnalysis.clone(
     finalizePlots = True,
     finalizeOnly = True,
     mcPlots = 1,
+    ptRanges = cms.vdouble(0.0),
+    etaRanges = cms.vdouble(0.0),
 )
 # module execution
 bTagCollectorSequenceMC = cms.Sequence(bTagCollectorMC)
