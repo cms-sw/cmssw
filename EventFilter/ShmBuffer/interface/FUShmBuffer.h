@@ -13,6 +13,7 @@
 #include <sys/sem.h>
 #include <errno.h>
 
+#include <string>
 
 namespace evf {
   
@@ -139,6 +140,7 @@ namespace evf {
 				     unsigned int   dataSize);
 				     
     void           sem_print();
+    std::string    sem_print_s();
     void           printEvtState(unsigned int index);
     void           printDqmState(unsigned int index);
     

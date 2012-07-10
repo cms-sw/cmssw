@@ -838,6 +838,20 @@ void FUShmBuffer::sem_print() {
 			GETVAL) << endl;
 }
 
+std::string FUShmBuffer::sem_print_s() {
+	ostringstream ostr;
+	ostr    << "--> current sem values:" << endl << " lock=" << semctl(semid(), 0,
+			GETVAL) << endl << " wraw=" << semctl(semid(), 1, GETVAL)
+		<< " rraw=" << semctl(semid(), 2, GETVAL) << endl << " wdsc="
+		<< semctl(semid(), 3, GETVAL) << " rdsc=" << semctl(semid(), 4,
+				GETVAL) << endl << " wrec=" << semctl(semid(), 5, GETVAL)
+		<< " rrec=" << semctl(semid(), 6, GETVAL) << endl << " wdqm="
+		<< semctl(semid(), 7, GETVAL) << " rdqm=" << semctl(semid(), 8,
+				GETVAL) << endl;
+	return ostr.str();
+
+}
+
 //______________________________________________________________________________
 void FUShmBuffer::printEvtState(unsigned int index) {
 	evt::State_t state = evtState(index);

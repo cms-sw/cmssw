@@ -1,3 +1,8 @@
+2012-07-10 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-08-23
+	* adding function for print semaphore status using logger
+
 2012-07-08 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V00-08-22
