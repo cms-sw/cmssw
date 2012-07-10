@@ -91,8 +91,8 @@ ora::PVectorHandler::size( const void* address ){
 
 size_t
 ora::PVectorHandler::startElementIndex( const void* address ){
-  void* persistentSizeAddress = static_cast<char*>(const_cast<void*>(address))+m_persistentSizeAttributeOffset;
-  size_t persistentSize = *static_cast<size_t*>(persistentSizeAddress);
+  const void* persistentSizeAddress = static_cast<const char *>(address) + m_persistentSizeAttributeOffset;
+  size_t persistentSize = *static_cast<const size_t*>(persistentSizeAddress);
   size_t transientSize = *(static_cast<size_t*>(m_collProxy->size_func(&m_collEnv)));
   size_t startElement = 0;
   if(persistentSize < transientSize) startElement = persistentSize;
@@ -100,8 +100,8 @@ ora::PVectorHandler::startElementIndex( const void* address ){
 }
 
 size_t ora::PVectorHandler::persistentSize( const void* address ){
-  void* persistentSizeAddress = static_cast<char*>(const_cast<void*>(address))+m_persistentSizeAttributeOffset;
-  size_t persistentSize = *static_cast<size_t*>(persistentSizeAddress);
+  const void* persistentSizeAddress = static_cast<const char *>(address) + m_persistentSizeAttributeOffset;
+  size_t persistentSize = *static_cast<const size_t*>(persistentSizeAddress);
   return persistentSize;
 }
 
