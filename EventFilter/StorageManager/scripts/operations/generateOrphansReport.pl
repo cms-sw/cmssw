@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 
 #Sample Call:
-#./generateOrphansReport.pl -user=CMS_STOMGR_W -pass=asdfgh -stopdeletedate=1-AUG-09 -contains='Transfer' -listfiles
+#./generateOrphansReport.pl -user=CMS_STOMGR_W -pass=xxxxx -stopdeletedate=1-AUG-09 -contains='Transfer' -listfiles
 
 use strict;
 use warnings;
