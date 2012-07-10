@@ -88,6 +88,8 @@ parser.add_option('-e', '--re', '--regexp', action='store', dest='regexp',
         '"cos,jet,^((?!2010).)*$".')
 parser.add_option('--mthreads', action='store', default='3', dest='mthreads',
                   help='Number of threads for file download. Default is 3.')
+parser.add_option('--dry', action='store_true', default=False, dest='dry_run',
+                  help='Show files matched by regular expresion, but do not download them.')
 ## Parse sys.argv
 (options, args) = parser.parse_args()
 
@@ -131,6 +133,7 @@ print 'Downloading files:'
 for i, name in enumerate(selected_files):
     print '%d. %s' % (i+1, name)
 
-print '\nProgress:'
-pool = Pool(options.mthreads)
-pool.map(auth_wget, [filedir_url + name for name in selected_files])
+if not options.dry_run:
+    print '\nProgress:'
+    pool = Pool(options.mthreads)
+    pool.map(auth_wget, [filedir_url + name for name in selected_files])

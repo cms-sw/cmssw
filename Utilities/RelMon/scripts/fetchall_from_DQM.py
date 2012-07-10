@@ -1,15 +1,15 @@
 #! /usr/bin/env python
 ################################################################################
-# RelMon: a tool for automatic Release Comparison                              
+# RelMon: a tool for automatic Release Comparison
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: dpiparo $
-# $Date: 2011/06/28 15:06:06 $
-# $Revision: 1.2 $
+# $Date: 2012/06/12 12:25:28 $
+# $Revision: 1.1 $
 #
-#                                                                              
-# Danilo Piparo CERN - danilo.piparo@cern.ch                                   
-#                                                                              
+#
+# Danilo Piparo CERN - danilo.piparo@cern.ch
+#
 ################################################################################
 
 import subprocess as sub
@@ -36,19 +36,19 @@ parser.add_option("--p1","--path1 ",
                   dest="path1",
                   default="",
                   help="Additional path to match in relvals")
-                  
+
 parser.add_option("--p2","--path2 ",
                   action="store",
                   dest="path2",
                   default="",
                   help="Additional path to match in relvals")
-                  
+
 (options, args) = parser.parse_args()
 
 #if len(args)!=1:
 #  print "Specify one and only one release!"
 #  print args
-#  sys.exit(2)  
+#  sys.exit(2)
 
 cmssw_release = args[0]
 
@@ -70,6 +70,7 @@ command='relmon_rootfiles_spy.py ROOT/%s/%s/ -u -g -p %s'%(relvaldir,releasedir,
 print command
 sub.call(command.split(" "))
 
-
+# Main tree:
+# https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/
 
 
