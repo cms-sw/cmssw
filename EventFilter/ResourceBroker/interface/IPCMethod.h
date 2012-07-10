@@ -136,6 +136,11 @@ public:
 	void dumpEvent(evf::FUShmRawCell* cell);
 
 	/**
+	 * Print debugging status.
+	 */
+	virtual std::string printStatus();
+
+	/**
 	 * Has to be implemented by subclasses, according to IPC type.
 	 */
 	virtual void shutDownClients() = 0;
@@ -220,7 +225,7 @@ public:
 	UInt_t nbPendingSMDiscards() const {
 		return nbPendingSMDiscards_;
 	}
-	int    nbPendingSMDqmDiscards() const {
+	int nbPendingSMDqmDiscards() const {
 		return nbPendingSMDqmDiscards_;
 	}
 	UInt_t nbDiscarded() const {

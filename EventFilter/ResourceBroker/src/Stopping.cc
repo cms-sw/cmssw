@@ -52,13 +52,23 @@ void Stopping::do_stateAction() const {
 						<< res->resourceStructureTimeout_.value_ / 10000
 						<< endl;
 				LOG4CPLUS_WARN(res->log_,
-						"Some Process did not detach - going to Emergency stop!");
+						"Some Process did not detach - going to Emergency stop! resource status:" 
+						<< res->resourceStructure_->printStatus() );
 
 				/**
 				 * EMERGENCY STOP IS TRIGGERED
 				 */
-				res->lockRSAccess();
+
+				//try to acquire RS lock
+				int count=5;
+				do {
+				  if (!res->tryLockRSAccess()) break;
+				  usleep(100000);
+				} while (--count);
+				if (!count) XCEPT_RAISE(evf::Exception,"Can not acquire RS lock for the emergency stop!");
+
 				emergencyStop();
+
 				res->unlockRSAccess();
 
 				break;
@@ -162,6 +172,7 @@ void Stopping::emergencyStop() const {
 			"Timed out accessing the EP Crash Handler in emergency stop. SM discards not arriving?");
 		}
 	}
+	LOG4CPLUS_WARN(res->log_, "in Emergency stop - running lastResort");
 	resourceStructure->lastResort();
 	::sleep(1);
 	if (!resourceStructure->isReadyToShutDown()) {

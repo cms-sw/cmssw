@@ -97,6 +97,12 @@ void IPCMethod::dumpEvent(FUShmRawCell* cell) {
 	fout.close();
 }
 
+//______________________________________________________________________________
+std::string IPCMethod::printStatus() {
+	std::string s = "Status not implemented";
+	return s;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of private member functions
 ////////////////////////////////////////////////////////////////////////////////

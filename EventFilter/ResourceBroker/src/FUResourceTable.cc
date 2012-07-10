@@ -16,6 +16,7 @@
 #include <sys/types.h>
 #include <signal.h>
 
+#include <thread>
 //#define DEBUG_RES_TAB
 
 using namespace evf;
@@ -106,7 +107,7 @@ bool FUResourceTable::sendData() {
 			rethrowShmBufferException(e,
 					"FUResourceTable:sendData:finishReadingRecoCell/discardRecoCell");
 		}
-	        shutdownStatus_|=1<<6;
+	        shutdownStatus_|=1<<7;
 		reschedule = false;
 	} else {
 		try {
@@ -226,7 +227,7 @@ bool FUResourceTable::sendDataWhileHalting() {
 			rethrowShmBufferException(e,
 					"FUResourceTable:sendDataWhileHalting:finishReadingRecoCell/discardRecoCell");
 		}
-	        shutdownStatus_|=1<<6;
+	        shutdownStatus_|=1<<8;
 		reschedule = false;
 	} else {
 		LOG4CPLUS_INFO(log_, "sendData: isHalting, discard recoCell.");
@@ -269,7 +270,7 @@ bool FUResourceTable::sendDqm() {
 			rethrowShmBufferException(e,
 					"FUResourceTable:sendDqm:finishReadingDqmCell/discardDqmCell");
 		}
-	        shutdownStatus_|=1<<7;
+	        shutdownStatus_|=1<<9;
 		reschedule = false;
 	} else {
 		try {
@@ -328,7 +329,7 @@ bool FUResourceTable::sendDqmWhileHalting() {
 			rethrowShmBufferException(e,
 					"FUResourceTable:sendDqmWhileHalting:finishReadingDqmCell/discardDqmCell");
 		}
-	        shutdownStatus_|=1<<7;
+	        shutdownStatus_|=1<<10;
 		reschedule = false;
 	} else {
 		UInt_t cellIndex = cell->index();
@@ -350,7 +351,7 @@ bool FUResourceTable::sendDqmWhileHalting() {
 //______________________________________________________________________________
 void FUResourceTable::discardNoReschedule() {
 	std::cout << " entered shutdown cycle " << std::endl;
-	shutdownStatus_|=1<<3;
+	shutdownStatus_|=1<<11;
 	try {
 		shmBuffer_->writeRecoEmptyEvent();
 	} catch (evf::Exception& e) {
@@ -364,7 +365,7 @@ void FUResourceTable::discardNoReschedule() {
 				<< FUShmBuffer::shm_nattch(shmBuffer_->shmid()) << std::endl;
 		if (shmBuffer_->nClients() == 0 && FUShmBuffer::shm_nattch(
 				shmBuffer_->shmid()) == 1) {
-	                shutdownStatus_|=1<<4;
+	                shutdownStatus_|=1<<12;
 			//isReadyToShutDown_ = true;
 			break;
 		} else {
@@ -408,7 +409,7 @@ void FUResourceTable::discardNoReschedule() {
 		}
 		shmBuffer_->unlock();
 	}
-	shutdownStatus_|=5;
+	shutdownStatus_|=1<<13;
 
 	std::cout << "Number of  pending discards before declaring ready to shut down: " << nbPendingSMDqmDiscards_ << std::endl;
 	if (nbPendingSMDqmDiscards_ != 0) {
@@ -711,12 +712,12 @@ bool FUResourceTable::discardDataEvent(MemRef_t* bufRef) {
 			rethrowShmBufferException(e,
 					"FUResourceTable:discardDataEvent:discardRecoCell");
 		}
-		bufRef->release();
 
 	} else {
 		LOG4CPLUS_ERROR(log_, "Spurious DATA discard by StorageManager, skip!");
 	}
 
+	bufRef->release();
 	return true;
 }
 
@@ -798,7 +799,6 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef) {
 			rethrowShmBufferException(e,
 					"FUResourceTable:discardDqmEvent:discardDqmCell");
 		}
-		bufRef->release();
 
 	} else {
 		LOG4CPLUS_ERROR(
@@ -807,6 +807,7 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef) {
 						<< " from StorageManager while cell is not accepting discards");
 	}
 
+	bufRef->release();
 	return true;
 }
 
@@ -957,11 +958,37 @@ bool FUResourceTable::handleCrashedEP(UInt_t runNumber, pid_t pid) {
 }
 
 //______________________________________________________________________________
+void FUResourceTable::shutdownWatchdog(unsigned int timeout)
+{
+	unsigned int timeoutUs=timeout*1000000+1;
+	bool warned=false;
+	while (!watchDogEnd_) {
+
+		usleep(50000);
+		timeoutUs-=50000;
+		if (timeoutUs<=50000) {
+			LOG4CPLUS_ERROR(log_,"Timeout in shutdownClients, status:"<< std::hex << shutdownStatus_);
+			XCEPT_RAISE(evf::Exception, "Failed (timed out) shutdown of clients");
+			break;
+		}
+		if (timeoutUs<=1000000*timeout/2 && !warned) {
+			warned=true;
+			LOG4CPLUS_WARN(log_,"Long shutdown of clients, status:" << std::hex << shutdownStatus_);
+		}
+	}
+}
+
+//______________________________________________________________________________
 void FUResourceTable::shutDownClients() {
 	nbClientsToShutDown_ = nbClients();
 	isReadyToShutDown_ = false;
 
 	shutdownStatus_=1;
+
+	//start watchdog thread
+	watchDogEnd_=false;
+	std::thread watch(&FUResourceTable::shutdownWatchdog,this,20);
+
 	if (nbClientsToShutDown_ == 0) {
 	        shutdownStatus_|=1<<1;
 		LOG4CPLUS_INFO(
@@ -990,6 +1017,7 @@ void FUResourceTable::shutDownClients() {
 		try {
 			while (shmBuffer_->nbRawCellsToWrite() < nbClients() && nbClients()
 					!= 0) {
+	        		shutdownStatus_|=1<<2;
 				checks++;
 				{
                                         #ifdef linux
@@ -1027,7 +1055,7 @@ void FUResourceTable::shutDownClients() {
 				}
 				::usleep(500000);
 			}
-	                shutdownStatus_|=1<<2;
+	                shutdownStatus_|=1<<3;
 
 		} catch (evf::Exception& e) {
 			rethrowShmBufferException(e,
@@ -1035,7 +1063,7 @@ void FUResourceTable::shutDownClients() {
 		}
 		nbClientsToShutDown_ = nbClients();
 		if (nbClientsToShutDown_ == 0) {
-	                shutdownStatus_|=1<<1;
+	                shutdownStatus_|=1<<4;
 			UInt_t n = nbResources();
 			for (UInt_t i = 0; i < n; i++) {
 				// initialize to a value to avoid warnings
@@ -1068,6 +1096,7 @@ void FUResourceTable::shutDownClients() {
 			}
 		}
 		UInt_t n = nbClientsToShutDown_;
+	        shutdownStatus_|=1<<5;
 		try {
 			for (UInt_t i = 0; i < n; ++i)
 				shmBuffer_->writeRawEmptyEvent();
@@ -1075,7 +1104,10 @@ void FUResourceTable::shutDownClients() {
 			rethrowShmBufferException(e,
 					"FUResourceTable:shutDownClients:writeRawEmptyEvent");
 		}
+	        shutdownStatus_|=1<<6;
 	}
+	watchDogEnd_=true;
+	watch.join();
 }
 
 //______________________________________________________________________________
@@ -1320,25 +1352,33 @@ vector<time_t> FUResourceTable::cellTimeStamps() const {
 
 void FUResourceTable::lastResort() {
 	try {
-		std::cout << "lastResort: " << shmBuffer_->nbRawCellsToRead()
-				<< " more rawcells to read " << std::endl;
+		ostringstream ost;
+		ost << "lastResort: " << shmBuffer_->nbRawCellsToRead()
+				<< " more rawcells to read ";
+		LOG4CPLUS_WARN(log_,ost.str());
+		std::cout << ost.str() << std::endl;
+
 		while (shmBuffer_->nbRawCellsToRead() != 0) {
 			FUShmRawCell* newCell = shmBuffer_->rawCellToRead();
 			std::cout << "lastResort: " << shmBuffer_->nbRawCellsToRead()
 					<< std::endl;
 			// UPDATED
+			LOG4CPLUS_WARN(log_,"lastResort: Scheduling raw cell (server side) "<< newCell->index());
 			shmBuffer_->scheduleRawCellForDiscardServerSide(newCell->index());
 
 			std::cout << "lastResort: schedule raw cell for discard "
 					<< newCell->index() << std::endl;
 		}
 		//trigger the shutdown (again?)
+		LOG4CPLUS_WARN(log_,"lastResort: scheduling empty raw cell (server side) ");
 		shmBuffer_->scheduleRawEmptyCellForDiscard();
+		LOG4CPLUS_WARN(log_,"lastResort: Finished. cells remaining: "	<< shmBuffer_->nbRawCellsToRead());
 	} catch (evf::Exception& e) {
 		rethrowShmBufferException(
 				e,
 				"FUResourceTable:lastResort:nbRawCellsToRead/scheduleRawCellForDiscardServerSide");
 	}
+		LOG4CPLUS_WARN(log_,"Last resort finished ");
 }
 
 void FUResourceTable::resetIPC() {
@@ -1357,6 +1397,11 @@ void FUResourceTable::resetIPC() {
 		shmBuffer_->reset(false);
 		LOG4CPLUS_INFO(log_, "ShmBuffer was reset!");
 	}
+}
+
+std::string FUResourceTable::printStatus() {
+	if (shmBuffer_) return shmBuffer_->sem_print_s();
+	else return std::string("ShmBuffer not initialized");
 }
 
 void FUResourceTable::rethrowShmBufferException(evf::Exception& e, string where) const

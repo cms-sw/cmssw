@@ -64,7 +64,7 @@ class Failed;
 /**
  * Class holding resources shared between FSM states.
  *
- * $Author: aspataru $
+ * $Author: smorovic $
  *
  */
 
@@ -122,6 +122,12 @@ public:
 			}
 		}
 	}
+
+	int tryLockRSAccess() {
+		if (sem_trywait(&accessToResourceStructureLock_)) return -1;
+		return 0;
+	}
+
 	void unlockRSAccess() {
 		sem_post(&accessToResourceStructureLock_);
 	}
