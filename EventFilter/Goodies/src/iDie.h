@@ -400,6 +400,20 @@ namespace evf {
 	return rateErr;
       }
 
+      float getRatePerMachine() {
+	if (updated_) calcStat();
+	if (nReports_)
+	return rateAvg/(1.*nReports_);
+	return 0.;
+      }
+
+      float getRateErrPerMachine() {
+	if (updated_) calcStat();
+	if (nReports_)
+	return rateErr/(1.*nReports_);
+	return 0.;
+      }
+
       float getEvtTime() {
 	if (updated_) calcStat();
 	return evtTimeAvg;

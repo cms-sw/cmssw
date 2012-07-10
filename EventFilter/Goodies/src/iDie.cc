@@ -1042,7 +1042,8 @@ void iDie::initMonitorElements()
   busySummary2_ = dqmStore_->book2D("03_BUSY_SUMMARY_PROCSTAT","Busy fraction from /proc/stat",ROLL,0,ROLL,epInstances.size()+2,0,epInstances.size()+2);
   fuReportsSummary_ = dqmStore_->book2D("04_EP_REPORTS_SUMMARY","Number of reports received",ROLL,0,ROLL,epInstances.size()+1,0,epInstances.size()+1);
 
-  dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
+  //everything goes into layouts folder
+  //dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
   daqBusySummary_ = dqmStore_->book1D("reportSummaryMap","DAQ HLT Farm busy (%)",4000,1,4001.);
 
   summaryLastLs_ = 0;
@@ -1093,8 +1094,8 @@ void iDie::fillDQMStatHist(unsigned int nbsIdx, unsigned int lsid)
   lsStat & lst = (lsHistory[nbsIdx])[qsize-1];
   commonLsStat & clst = commonLsHistory[qsize-1];
 
-  meVecRate_[nbsIdx]->setBinContent(lsid,lst.getRate());
-  meVecRate_[nbsIdx]->setBinError(lsid,lst.getRateErr());
+  meVecRate_[nbsIdx]->setBinContent(lsid,lst.getRatePerMachine());
+  meVecRate_[nbsIdx]->setBinError(lsid,lst.getRateErrPerMachine());
   meVecTime_[nbsIdx]->setBinContent(lsid>2? lsid:0,lst.getEvtTime()*1000);//msec
   meVecTime_[nbsIdx]->setBinError(lsid>2? lsid:0,lst.getEvtTimeErr()*1000);//msec
   updateRollingHistos(nbsIdx, lsid,lst,clst,true);
@@ -1105,8 +1106,8 @@ void iDie::fillDQMStatHist(unsigned int nbsIdx, unsigned int lsid)
     commonLsStat prevClst = commonLsHistory[qsize-2];
     if (prevLst.ls_==lsid-1) {
 
-      meVecRate_[nbsIdx]->setBinContent(lsid-1,prevLst.getRate());
-      meVecRate_[nbsIdx]->setBinError(lsid-1,prevLst.getRateErr());
+      meVecRate_[nbsIdx]->setBinContent(lsid-1,prevLst.getRatePerMachine());
+      meVecRate_[nbsIdx]->setBinError(lsid-1,prevLst.getRateErrPerMachine());
       meVecTime_[nbsIdx]->setBinContent(lsid-1>2 ? lsid-1:0,prevLst.getEvtTime()*1000);//msec
       meVecTime_[nbsIdx]->setBinError(lsid-1>2 ? lsid-1:0,prevLst.getEvtTimeErr()*1000);//msec
       updateRollingHistos(nbsIdx, lsid-1,prevLst, prevClst, false);

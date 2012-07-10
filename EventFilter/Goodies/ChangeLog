@@ -1,3 +1,9 @@
+2012-07-10 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-02-10
+	* rate plots per machine
+	* remove EventInfo for now (only Everything / Layouts will have DAQ)
+
 2012-07-06 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V00-02-09
