@@ -9,6 +9,12 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <cmath>
 
 //------------------------------------------------------------------------------
@@ -18,17 +24,36 @@ DiJetVarAnalyzer::DiJetVarAnalyzer( const edm::ParameterSet & conf ):
   jetCollectionTag_        (conf.getUntrackedParameter<edm::InputTag>("jetCollectionTag")),
   //dijetVarCollectionTag_   (conf.getUntrackedParameter<edm::InputTag>("dijetVarCollectionTag")),
   widejetsCollectionTag_   (conf.getUntrackedParameter<edm::InputTag>("widejetsCollectionTag")),
+  hltInputTag_             (conf.getUntrackedParameter<edm::InputTag>("hltInputTag")), 
   numwidejets_             (conf.getParameter<unsigned int>("numwidejets")),
   etawidejets_             (conf.getParameter<double>("etawidejets")),
   ptwidejets_              (conf.getParameter<double>("ptwidejets")),
   detawidejets_            (conf.getParameter<double>("detawidejets")),
-  dphiwidejets_            (conf.getParameter<double>("dphiwidejets"))
+  dphiwidejets_            (conf.getParameter<double>("dphiwidejets")),
+  HLTpathMain_             (conf.getParameter<std::string>("HLTpathMain")),
+  HLTpathMonitor_          (conf.getParameter<std::string>("HLTpathMonitor"))
 {
 }
 
 //------------------------------------------------------------------------------
 // Nothing to destroy: the DQM service thinks about everything
 DiJetVarAnalyzer::~DiJetVarAnalyzer(){}
+
+//------------------------------------------------------------------------------
+void DiJetVarAnalyzer::beginRun( const edm::Run & iRun, const edm::EventSetup & iSetup){
+
+  bool changed = true;
+  if (hltConfig.init(iRun, iSetup, hltInputTag_.process(), changed)) {
+    // if init returns TRUE, initialisation has succeeded!
+    edm::LogInfo("DiJetVarAnalyzer") << "HLT config with process name " << hltInputTag_.process() << " successfully extracted";
+  } else {
+    // if init returns FALSE, initialisation has NOT succeeded, which indicates a problem
+    // with the file and/or code and needs to be investigated!
+    edm::LogError("DiJetVarAnalyzer") << "Error! HLT config extraction with process name " << hltInputTag_.process() << " failed";
+    // In this case, all access methods will return empty values!
+  }  
+
+}
 
 //------------------------------------------------------------------------------
 // Usual analyze method
@@ -99,9 +124,16 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
   bool pass_deta=false;
   bool pass_JetIDtwojets=false;
   bool pass_dphi=false;
+  //--
+  bool pass_deta_L4=false;
+  bool pass_deta_L3=false;
+  bool pass_deta_L2=false;
 
-  bool pass_fullsel=false;
   bool pass_fullsel_NOdeta=false;
+  bool pass_fullsel_detaL4=false;
+  bool pass_fullsel_detaL3=false;
+  bool pass_fullsel_detaL2=false;
+  bool pass_fullsel=false;
 
   // No cut
   pass_nocut=true;
@@ -128,19 +160,38 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
       // Dphi cut
       if( DeltaPhiJJWide > dphiwidejets_ )
 	pass_dphi=true;
+
+      // Other Deta cuts
+      if( DeltaEtaJJWide < 4.0 )
+	pass_deta_L4=true;
+
+      if( DeltaEtaJJWide < 3.0 )
+	pass_deta_L3=true;
+
+      if( DeltaEtaJJWide < 2.0 )
+	pass_deta_L2=true;
+      
     }
 
   // Jet id two leading jets
   pass_JetIDtwojets=true;
 
-  // Full selection
-  if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_deta && pass_JetIDtwojets && pass_dphi )
-    pass_fullsel=true;
-
   // Full selection (no deta cut)
   if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_JetIDtwojets && pass_dphi )
     pass_fullsel_NOdeta=true;
 
+  // Full selection (various deta cuts)
+  if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_JetIDtwojets && pass_dphi && pass_deta_L4 )
+    pass_fullsel_detaL4=true;
+  if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_JetIDtwojets && pass_dphi && pass_deta_L3 )
+    pass_fullsel_detaL3=true;
+  if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_JetIDtwojets && pass_dphi && pass_deta_L2 )
+    pass_fullsel_detaL2=true;
+
+  // Full selection (default deta cut)
+  if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_deta && pass_JetIDtwojets && pass_dphi )
+    pass_fullsel=true;
+  
   // ## Fill Histograms 
 
   // Cut-flow plot
@@ -194,6 +245,109 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
     }
   
 
+  // ## Get Trigger Info
+  edm::Handle<edm::TriggerResults> triggerResults;
+  iEvent.getByLabel(hltInputTag_, triggerResults);
+
+  // HLT paths for DataScouting
+  //  DST_HT250_v1
+  //  DST_L1HTT_Or_L1MultiJet_v1
+  //  DST_Mu5_HT250_v1
+  //  DST_Ele8_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT250_v1
+
+  int HLTpathMain_fired = -1;
+  int HLTpathMonitor_fired = -1;
+  
+  if(triggerResults.isValid()) {
+    edm::LogInfo("DiJetVarAnalyzer") << "Successfully obtained " << hltInputTag_;
+
+    // Loop over HLT paths
+    // const edm::TriggerNames& names = iEvent.triggerNames(*triggerResults);
+    //     for (int i = 0; i < (int) triggerResults->size() ; ++i) 
+    //       {
+    // 	std::cout << names.triggerName(i) << " : " << triggerResults->accept(i) << std::endl;
+    //       }
+
+    unsigned int index_HLTpathMain = hltConfig.triggerIndex( HLTpathMain_ );
+    if( index_HLTpathMain < triggerResults->size() ) {
+      if( triggerResults->accept( index_HLTpathMain ) ) HLTpathMain_fired = 1; else HLTpathMain_fired = 0;
+    } else {
+      //edm::LogError("DiJetVarAnalyzer") << "Requested HLT path \"" << HLTpathMain_ << "\" does not exist" << std::endl;
+    }
+
+    unsigned int index_HLTpathMonitor = hltConfig.triggerIndex( HLTpathMonitor_ );
+    if( index_HLTpathMonitor < triggerResults->size() ) {
+      if( triggerResults->accept( index_HLTpathMonitor ) ) HLTpathMonitor_fired = 1; else HLTpathMonitor_fired = 0;
+    } else {
+      //edm::LogError("DiJetVarAnalyzer") << "Requested HLT path \"" << HLTpathMonitor_ << "\" does not exist" << std::endl;
+    }
+
+  }
+  // The OR of the two should always be "1"
+  //std::cout << HLTpathMain_ << ": " << HLTpathMain_fired << " -- " << HLTpathMonitor_ << ": " << HLTpathMonitor_fired << std::endl;
+  
+  // ## Trigger Efficiency Curves
+
+  //denominator - full sel NO deta cut
+  if( pass_fullsel_NOdeta && HLTpathMonitor_fired == 1 )
+    {
+      m_MjjWide_den_NOdeta->Fill(MJJWide);
+
+      //numerator  
+      if( HLTpathMain_fired == 1)
+	{
+	  m_MjjWide_num_NOdeta->Fill(MJJWide);
+	}
+    }
+
+  //denominator - full sel deta < 4.0
+  if( pass_fullsel_detaL4 && HLTpathMonitor_fired == 1 )
+    {
+      m_MjjWide_den_detaL4->Fill(MJJWide);
+
+      //numerator  
+      if( HLTpathMain_fired == 1)
+	{
+	  m_MjjWide_num_detaL4->Fill(MJJWide);
+	}
+    }
+
+  //denominator - full sel deta < 3.0
+  if( pass_fullsel_detaL3 && HLTpathMonitor_fired == 1 )
+    {
+      m_MjjWide_den_detaL3->Fill(MJJWide);
+
+      //numerator  
+      if( HLTpathMain_fired == 1)
+	{
+	  m_MjjWide_num_detaL3->Fill(MJJWide);
+	}
+    }
+
+  //denominator - full sel deta < 2.0
+  if( pass_fullsel_detaL2 && HLTpathMonitor_fired == 1 )
+    {
+      m_MjjWide_den_detaL2->Fill(MJJWide);
+
+      //numerator  
+      if( HLTpathMain_fired == 1)
+	{
+	  m_MjjWide_num_detaL2->Fill(MJJWide);
+	}
+    }
+  
+  //denominator - full sel default deta cut (typically 1.3)
+  if( pass_fullsel && HLTpathMonitor_fired == 1 )
+    {
+      m_MjjWide_den->Fill(MJJWide);
+
+      //numerator  
+      if( HLTpathMain_fired == 1)
+	{
+	  m_MjjWide_num->Fill(MJJWide);
+	}
+    }
+
 
 }
 
@@ -228,7 +382,6 @@ void DiJetVarAnalyzer::bookMEs(){
 					"M_{jj} WideJets [GeV]",
 					"Number of events"
 					);
-
 
   m_MjjWide_finalSel_varbin = bookH1withSumw2BinArray( "h1_MjjWide_finalSel_varbin",
 						       "M_{jj} WideJets (final selection)",
@@ -285,6 +438,76 @@ void DiJetVarAnalyzer::bookMEs(){
 					    "M_{jj} WideJets [GeV]",
 					    "Number of events"
 					    );
+
+  m_MjjWide_den_NOdeta = bookH1withSumw2( "h1_MjjWide_den_NOdeta",
+					  "HLT Efficiency Studies (no deta cut)",
+					  400,0.,2000.,
+					  "M_{jj} WideJets [GeV]",
+					  "Number of events"
+					  );
+  
+  m_MjjWide_num_NOdeta = bookH1withSumw2( "h1_MjjWide_num_NOdeta",
+					  "HLT Efficiency Studies (no deta cut)",
+					  400,0.,2000.,
+					  "M_{jj} WideJets [GeV]",
+					  "Number of events"
+					  );
+
+  m_MjjWide_den_detaL4 = bookH1withSumw2( "h1_MjjWide_den_detaL4",
+					  "HLT Efficiency Studies (deta cut < 4.0)",
+					  400,0.,2000.,
+					  "M_{jj} WideJets [GeV]",
+					  "Number of events"
+					  );
+  
+  m_MjjWide_num_detaL4 = bookH1withSumw2( "h1_MjjWide_num_detaL4",
+					  "HLT Efficiency Studies (deta cut < 4.0)",
+					  400,0.,2000.,
+					  "M_{jj} WideJets [GeV]",
+					  "Number of events"
+					  );
+
+  m_MjjWide_den_detaL3 = bookH1withSumw2( "h1_MjjWide_den_detaL3",
+					  "HLT Efficiency Studies (deta cut < 3.0)",
+					  400,0.,2000.,
+					  "M_{jj} WideJets [GeV]",
+					  "Number of events"
+					  );
+  
+  m_MjjWide_num_detaL3 = bookH1withSumw2( "h1_MjjWide_num_detaL3",
+					  "HLT Efficiency Studies (deta cut < 3.0)",
+					  400,0.,2000.,
+					  "M_{jj} WideJets [GeV]",
+					  "Number of events"
+					  );
+
+  m_MjjWide_den_detaL2 = bookH1withSumw2( "h1_MjjWide_den_detaL2",
+					  "HLT Efficiency Studies (deta cut < 2.0)",
+					  400,0.,2000.,
+					  "M_{jj} WideJets [GeV]",
+					  "Number of events"
+					  );
+  
+  m_MjjWide_num_detaL2 = bookH1withSumw2( "h1_MjjWide_num_detaL2",
+					  "HLT Efficiency Studies (deta cut < 2.0)",
+					  400,0.,2000.,
+					  "M_{jj} WideJets [GeV]",
+					  "Number of events"
+					  );
+
+  m_MjjWide_den = bookH1withSumw2( "h1_MjjWide_den",
+				   "HLT Efficiency Studies (default deta cut)",
+				   400,0.,2000.,
+				   "M_{jj} WideJets [GeV]",
+				   "Number of events"
+				   );
+
+  m_MjjWide_num = bookH1withSumw2( "h1_MjjWide_num",
+				   "HLT Efficiency Studies (default deta cut)",
+				   400,0.,2000.,
+				   "M_{jj} WideJets [GeV]",
+				   "Number of events"
+				   );
 
   m_DetajjWide_finalSel = bookH1withSumw2( "h1_DetajjWide_finalSel",
 					   "#Delta#eta_{jj} WideJets (final selection)",
@@ -349,6 +572,8 @@ void DiJetVarAnalyzer::bookMEs(){
 					  "towers area",
 					  "Number of events"
 					  );
+
+
 
   // 2D histograms
   m_DetajjVsMjjWide = bookH2withSumw2("h2_DetajjVsMjjWide",

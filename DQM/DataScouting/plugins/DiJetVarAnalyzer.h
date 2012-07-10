@@ -3,6 +3,7 @@
 
 
 #include "DQM/DataScouting/interface/ScoutingAnalyzerBase.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "TLorentzVector.h"
 #include <vector>
@@ -16,7 +17,7 @@ class DiJetVarAnalyzer : public ScoutingAnalyzerBase
     virtual ~DiJetVarAnalyzer() ;
 
     virtual void analyze( const edm::Event & , const edm::EventSetup &  );
-    
+    virtual void beginRun( const edm::Run &, const edm::EventSetup & );
     virtual void endRun( edm::Run const &, edm::EventSetup const & ) ;
 
     virtual void bookMEs();
@@ -26,6 +27,7 @@ class DiJetVarAnalyzer : public ScoutingAnalyzerBase
     edm::InputTag jetCollectionTag_;
     //edm::InputTag dijetVarCollectionTag_;
     edm::InputTag widejetsCollectionTag_;
+    edm::InputTag hltInputTag_;
 
     unsigned int     numwidejets_;    
     double  etawidejets_;
@@ -33,6 +35,11 @@ class DiJetVarAnalyzer : public ScoutingAnalyzerBase
     double  detawidejets_;
     double  dphiwidejets_;
 
+    std::string HLTpathMain_;
+    std::string HLTpathMonitor_;
+
+    HLTConfigProvider hltConfig;
+    
     //1D histograms
     MonitorElement * m_cutFlow;
 
@@ -57,6 +64,17 @@ class DiJetVarAnalyzer : public ScoutingAnalyzerBase
     MonitorElement * m_selJets_hadEnergyFraction;
     MonitorElement * m_selJets_emEnergyFraction;
     MonitorElement * m_selJets_towersArea;
+
+    MonitorElement * m_MjjWide_den_NOdeta;
+    MonitorElement * m_MjjWide_num_NOdeta;
+    MonitorElement * m_MjjWide_den_detaL4;
+    MonitorElement * m_MjjWide_num_detaL4;
+    MonitorElement * m_MjjWide_den_detaL3;
+    MonitorElement * m_MjjWide_num_detaL3;
+    MonitorElement * m_MjjWide_den_detaL2;
+    MonitorElement * m_MjjWide_num_detaL2;
+    MonitorElement * m_MjjWide_den;
+    MonitorElement * m_MjjWide_num;
 
     //2D histograms
     MonitorElement * m_DetajjVsMjjWide;
