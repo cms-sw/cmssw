@@ -69,7 +69,7 @@ void CocoaToDDLMgr::writeHeader( ALIstring filename)
 void CocoaToDDLMgr::writeMaterials()
 {
   newSectPre_ma("");
-  auto optolist = Model::OptOList();
+  auto &optolist = Model::OptOList();
   for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
     if( (*ite)->type() == "system" ) continue;
     CocoaMaterialElementary* mat = (*ite)->getMaterial();
@@ -87,7 +87,7 @@ void CocoaToDDLMgr::writeSolids()
 {
   newSectPre_so("");
   
-  auto optolist = Model::OptOList();
+  auto &optolist = Model::OptOList();
   for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
     bool alreadyWritten = false;
     for(auto ite2 = optolist.begin(); ite2 != ite; ite2++ ){
@@ -109,7 +109,7 @@ void CocoaToDDLMgr::writeLogicalVolumes()
 {
   newSectPre_lv("");
   
-  auto optolist = Model::OptOList();
+  auto &optolist = Model::OptOList();
   for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
     bool alreadyWritten = false;
     for(auto ite2 = optolist.begin(); ite2 != ite; ite2++ ){
@@ -129,7 +129,7 @@ void CocoaToDDLMgr::writePhysicalVolumes()
 {
   newSectPre_pv("");
   
-  auto optolist = Model::OptOList();
+  auto &optolist = Model::OptOList();
   for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
     if( (*ite)->type() == "system" ) continue;
     pv( *ite );
@@ -160,7 +160,7 @@ void CocoaToDDLMgr::writeSpecPars()
 {
   newSectPre_specPar("");
   
-  auto optolist = Model::OptOList();
+  auto &optolist = Model::OptOList();
   for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
     if( (*ite)->type() == "system" ) continue;
     specPar( *ite );
@@ -682,7 +682,7 @@ void CocoaToDDLMgr::measurementsAsSpecPars()
   std::vector<ALIstring>::iterator site;
   std::multimap<OpticalObject*,Measurement*> optoMeasMap;
   for( mite = measlist.begin(); mite != measlist.end(); mite++ ) {
-    auto optolist = (*mite)->OptOList();
+    auto &optolist = (*mite)->OptOList();
     OpticalObject* opto = optolist[optolist.size()-1];
     optoMeasMap.insert( std::multimap<OpticalObject*,Measurement*>::value_type(opto, *mite) );
   }
@@ -729,7 +729,7 @@ void CocoaToDDLMgr::writeSpecParsCocoa()
   file_ << "<!--    Define volumes as COCOA objects --> " << std::endl
 	<< "  <SpecPar name=\"COCOA\"> " << std::endl;
 
-  auto optolist = Model::OptOList();
+  auto &optolist = Model::OptOList();
   for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
     if( (*ite)->type() == "system" ) continue;
     file_ << "    <PartSelector path=\"/" << (*ite)->name() << "\"/> " << std::endl;
