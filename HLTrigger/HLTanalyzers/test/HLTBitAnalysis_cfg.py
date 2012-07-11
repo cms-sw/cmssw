@@ -22,8 +22,7 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-                                'rfio:/castor/cern.ch/user/h/hartl/0301-232138__hlt_hpu_skim_presc7e33/outputA.root'
-#         '/store/relval/CMSSW_4_2_0_pre8/RelValWE/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V7-v1/0045/167F1B19-E956-E011-BD41-002618943969.root'
+         '/store/relval/CMSSW_4_2_0_pre8/RelValWE/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V7-v1/0045/167F1B19-E956-E011-BD41-002618943969.root'
     )
 )
 
@@ -47,8 +46,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #   tag names to allow append IOV, and DT cabling map corresponding to 2009 configuration (10 FEDs).
 # Meanwhile...:
 #process.GlobalTag.globaltag = 'MC_31X_V9::All'
-#process.GlobalTag.globaltag = 'START42_V9::All'
-process.GlobalTag.globaltag = 'GR_R_52_V1::All'
+process.GlobalTag.globaltag = 'START42_V9::All'
 process.GlobalTag.pfnPrefix=cms.untracked.string('frontier://FrontierProd/')
 
 process.load('Configuration/StandardSequences/SimL1Emulator_cff')
@@ -65,7 +63,7 @@ process.DQMStore = cms.Service( "DQMStore",)
 
 # Define the analyzer modules
 process.load("HLTrigger.HLTanalyzers.HLTBitAnalyser_cfi")
-process.hltbitanalysis.hltresults = cms.InputTag( 'TriggerResults','','TEST' )
+process.hltbitanalysis.hltresults = cms.InputTag( 'TriggerResults','','HLT' )
 process.hltbitanalysis.RunParameters.HistogramFile=OUTPUT_HIST
 
 if (gtDigisExist):

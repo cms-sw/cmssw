@@ -12,8 +12,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include <vector>
-
 class CaloHitResponse;
 class HcalSimParameterMap;
 class HcalAmplifier;
@@ -24,8 +22,6 @@ class HcalHitCorrection;
 class HcalTimeSlewSim;
 class HcalBaseSignalGenerator;
 class HcalShapes;
-class PCaloHit;
-class PileUpEventPrincipal;
 
 class HcalDigitizer
 {
@@ -35,10 +31,7 @@ public:
   virtual ~HcalDigitizer();
 
   /**Produces the EDM products,*/
-  void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
-  void accumulate(edm::Event const& e, edm::EventSetup const& c);
-  void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c);
-  void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
+  void produce(edm::Event& e, const edm::EventSetup& c);
   void beginRun(const edm::EventSetup & es);
   void endRun();
   
@@ -48,8 +41,6 @@ public:
   void setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
 
 private:
-  void accumulateCaloHits(std::vector<PCaloHit> const& hcalHits, std::vector<PCaloHit> const& zdcHits, int bunchCrossing);
-
   /// some hits in each subdetector, just for testing purposes
   void fillFakeHits();
   /// make sure the digitizer has the correct list of all cells that

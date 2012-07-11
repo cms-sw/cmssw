@@ -1,16 +1,28 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
-## to run in scheduled mode uncomment the following lines
-#process.load("PhysicsTools.PatAlgos.patSequences_cff")
+
+## ------------------------------------------------------
+#  NOTE: you can use a bunch of core tools of PAT to
+#  taylor your PAT configuration; for a few examples
+#  uncomment the lines below
+## ------------------------------------------------------
+#from PhysicsTools.PatAlgos.tools.coreTools import *
+
+## remove MC matching from the default sequence
+# removeMCMatching(process, ['Muons'])
+# runOnData(process)
+
+## remove certain objects from the default sequence
+# removeAllPATObjectsBut(process, ['Muons'])
+# removeSpecificPATObjects(process, ['Electrons', 'Muons', 'Taus'])
+
+## run in scheduled mode
 #process.p = cms.Path(
 #    process.patDefaultSequence
 #    )
 
-## to run in un-scheduled mode uncomment the following lines
-process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
-process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
-
+## run in un-scheduled mode
 process.options.allowUnscheduled = cms.untracked.bool(True)
 #process.Tracer = cms.Service("Tracer")
 process.p = cms.Path(
@@ -25,7 +37,7 @@ process.p = cms.Path(
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
 #   process.source.fileNames = [          ##  (e.g. 'file:AOD.root')
-#     '/store/data/Run2012B/DoubleMu/AOD/PromptReco-v1/000/193/774/0CDC3936-889B-E111-9F82-001D09F25041.root'
+#    '/store/data/Run2012B/DoubleMu/AOD/PromptReco-v1/000/193/774/0CDC3936-889B-E111-9F82-001D09F25041.root'
 #    ]           
 #                                         ##
 process.maxEvents.input = 100

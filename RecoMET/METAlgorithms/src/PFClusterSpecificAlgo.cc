@@ -1,22 +1,26 @@
-// -*- C++ -*-
-//
-// Package:    METAlgorithms
-// Class:      PFClusterSpecificAlgo
-// 
-// Original Authors:  R. Remington (UF), R. Cavanaugh (UIC/Fermilab)
-//          Created:  October 27, 2008
-// $Id: GenSpecificAlgo.h,v 1.5 2012/06/10 21:54:11 sakuma Exp $
-//
-//
-//____________________________________________________________________________||
-#include "RecoMET/METAlgorithms/interface/PFClusterSpecificAlgo.h"
-#include "DataFormats/ParticleFlowReco/interface/RecoPFClusterRefCandidate.h"
+/*
+class: PFClusterSpecificAlgo.cc
+description:  MET made from Particle Flow candidates
+authors: R. Remington (UF), R. Cavanaugh (UIC/Fermilab)
+  date: 10/27/08
+*/
 
-//____________________________________________________________________________||
-reco::PFClusterMET PFClusterSpecificAlgo::addInfo(edm::Handle<edm::View<reco::Candidate> > PFClusterCandidates, CommonMETData met)
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "RecoMET/METAlgorithms/interface/PFClusterSpecificAlgo.h"
+#include "RecoMET/METAlgorithms/interface/significanceAlgo.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/ParticleFlowReco/interface/RecoPFClusterRefCandidate.h"
+using namespace reco;
+using namespace std;
+
+//--------------------------------------------------------------------------------------
+// This algorithm adds Particle Flow specific global event information to the MET object
+//--------------------------------------------------------------------------------------
+
+reco::PFClusterMET PFClusterSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFClusterCandidates, CommonMETData met)
 {  
   const LorentzVector p4(met.mex , met.mey, 0.0, met.met);
   const Point vtx(0.0,0.0,0.0);
-  reco::PFClusterMET pfClusterMET(met.sumet, p4, vtx);
-  return pfClusterMET;
+  PFClusterMET specificPFClusterMET( met.sumet, p4, vtx );
+  return specificPFClusterMET;
 }

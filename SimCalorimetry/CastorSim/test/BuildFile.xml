@@ -1,6 +1,7 @@
 <environment>
   <use   name="SimCalorimetry/CastorSim"/>
   <use   name="CalibCalorimetry/HcalTPGAlgos"/>
+  <use   name="SimDataFormats/CrossingFrame"/>
   <bin   file="CastorDigitizerTest.cpp">
   </bin>
 </environment>

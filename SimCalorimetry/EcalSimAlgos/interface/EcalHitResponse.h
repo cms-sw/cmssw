@@ -52,12 +52,6 @@ class EcalHitResponse
 
       void add( const EcalSamples* pSam ) ;
 
-      virtual void add( const PCaloHit&  hit ) ;
-
-      virtual void initializeHits() ;
-
-      virtual void finalizeHits() ;
-
       virtual void run( MixCollection<PCaloHit>& hits ) ;
 
       virtual unsigned int samplesSize() const = 0 ;
@@ -67,8 +61,6 @@ class EcalHitResponse
       virtual const EcalSamples* operator[]( unsigned int i ) const = 0;
 
       const EcalSamples* findDetId( const DetId& detId ) const ;
-
-      bool withinBunchRange(int bunchCrossing) const ;
 
    protected:
 
@@ -84,7 +76,7 @@ class EcalHitResponse
 
       EcalSamples* findSignal( const DetId& detId ) ;
 
-      double analogSignalAmplitude( const DetId& id, float energy ) const;
+      double analogSignalAmplitude( const PCaloHit& hit ) const;
 
       double timeOfFlight( const DetId& detId ) const ;
 

@@ -19,7 +19,7 @@
 
         2) If an enum value is used as a non-type template parameter, the demangled name cannot
         be used successfully to load the dictionary.  This is because the enumerator value name
-        (used by Reflex) is not available in the mangled name (on this platform).
+        is not available in the mangled name (on this platform).
 
 ********************************************************************/
 namespace {

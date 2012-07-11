@@ -51,7 +51,12 @@ using namespace gen;
 // random numbers.  This means FastSim needs take a Herwig6Instance
 // instance of its own instead of calling into Herwig directly.
 double gen::hwrgen_(int *idummy)
-{ return FortranInstance::getInstance<Herwig6Instance>()->randomEngine->flat(); }
+{ 
+  Herwig6Instance *instance = FortranInstance::getInstance<Herwig6Instance>();
+  assert(instance != 0);
+  assert(instance->randomEngine != 0);
+  return instance->randomEngine->flat();
+}
 
 void gen::cms_hwwarn_(char fn[6], int *code, int *exit)
 {
@@ -96,7 +101,12 @@ Herwig6Instance::~Herwig6Instance()
 // complicated topologies) getting caught in and endless loop :-(
 
 void Herwig6Instance::_timeout_sighandler(int signr)
-{ siglongjmp(*(sigjmp_buf*)FortranInstance::getInstance<Herwig6Instance>()->timeoutPrivate, 1); }
+{
+  Herwig6Instance *instance = FortranInstance::getInstance<Herwig6Instance>();
+  assert(instance != 0);
+  assert(instance->timeoutPrivate != 0);
+  siglongjmp(*(sigjmp_buf*)instance->timeoutPrivate, 1);
+}
 
 bool Herwig6Instance::timeout(unsigned int secs, void (*fn)())
 {

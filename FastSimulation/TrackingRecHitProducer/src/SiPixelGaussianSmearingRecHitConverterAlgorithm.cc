@@ -144,8 +144,8 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 	    << std::endl;
 #endif
   
-  const PixelTopology* theSpecificTopology = &(detUnit->specificTopology());
-  const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(&(detUnit->specificTopology()));
+  const PixelTopology* theSpecificTopology = &(detUnit->specificType().specificTopology());
+  const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(theSpecificTopology);
 
   const int nrows = theSpecificTopology->nrows();
   const int ncolumns = theSpecificTopology->ncolumns();

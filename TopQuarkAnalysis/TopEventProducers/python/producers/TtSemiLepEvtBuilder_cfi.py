@@ -26,13 +26,11 @@ ttSemiLepEvent = cms.EDProducer("TtSemiLepEvtBuilder",
     ## (this vector of strings can be modified using the functions
     ## addTtSemiLepHypotheses and removeTtSemiLepHypGenMatch in
     ## TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff)
-    hypotheses = cms.VInputTag("ttSemiLepHypGenMatch"),  # "ttSemiLepHypGeom"
-                                                         # "ttSemiLepHypWMassMaxSumPt"
-                                                         # "ttSemiLepHypWMassDeltaTopMass"
-                                                         # "ttSemiLepHypMaxSumPtWMass"
-                                                         # "ttSemiLepHypKinFit"
-                                                         # "ttSemiLepHypHitFit"                                
-                                                         # "ttSemiLepHypMVADisc"
+    hypotheses = cms.vstring("ttSemiLepHypGenMatch"),  # "ttSemiLepHypGeom"
+                                                       # "ttSemiLepHypWMassMaxSumPt"
+                                                       # "ttSemiLepHypMaxSumPtWMass"
+                                                       # "ttSemiLepHypKinFit"
+                                                       # "ttSemiLepHypMVADisc"
                                 
     ## add extra information on kinFit
     kinFit = cms.PSet(

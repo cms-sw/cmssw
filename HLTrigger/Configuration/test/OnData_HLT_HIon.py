@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V170 (CMSSW_5_2_6)
+# /dev/CMSSW_5_2_1/HIon/V157 (CMSSW_5_2_5_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V170')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V157')
 )
 
 process.streams = cms.PSet( 
@@ -622,7 +622,9 @@ process.TrackerDigiGeometryESModule = cms.ESProducer( "TrackerDigiGeometryESModu
   alignmentsLabel = cms.string( "" )
 )
 process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
-  fromDDD = cms.bool( False )
+  fromDDD = cms.bool( False ),
+  layerNumberPXB = cms.uint32( 16 ),
+  totalBlade = cms.uint32( 24 )
 )
 process.TransientTrackBuilderESProducer = cms.ESProducer( "TransientTrackBuilderESProducer",
   ComponentName = cms.string( "TransientTrackBuilder" )
@@ -869,18 +871,6 @@ process.hltESPAK5CaloL1L2L3 = cms.ESProducer( "JetCorrectionESChain",
 process.hltESPAK5CaloL2L3 = cms.ESProducer( "JetCorrectionESChain",
   correctors = cms.vstring( 'hltESPL2RelativeCorrectionESProducer',
     'hltESPL3AbsoluteCorrectionESProducer' ),
-  appendToDataLabel = cms.string( "" )
-)
-process.hltESPAK5PFL1L2L3 = cms.ESProducer( "JetCorrectionESChain",
-  correctors = cms.vstring( 'hltESPL1PFFastJetCorrectionESProducer',
-    'hltESPL2PFRelativeCorrectionESProducer',
-    'hltESPL3PFAbsoluteCorrectionESProducer' ),
-  appendToDataLabel = cms.string( "" )
-)
-process.hltESPAK5PFNoPUL1L2L3 = cms.ESProducer( "JetCorrectionESChain",
-  correctors = cms.vstring( 'hltESPL1PFNoPUFastJetCorrectionESProducer',
-    'hltESPL2PFNoPURelativeCorrectionESProducer',
-    'hltESPL3PFNoPUAbsoluteCorrectionESProducer' ),
   appendToDataLabel = cms.string( "" )
 )
 process.hltESPAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
@@ -1340,39 +1330,17 @@ process.hltESPKullbackLeiblerDistance5D = cms.ESProducer( "DistanceBetweenCompon
 process.hltESPL1FastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
   appendToDataLabel = cms.string( "" ),
   srcRho = cms.InputTag( 'hltKT6CaloJets','rho' ),
-  algorithm = cms.string( "AK5CaloHLT" ),
+  algorithm = cms.string( "AK5Calo" ),
   level = cms.string( "L1FastJet" )
-)
-process.hltESPL1PFFastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  srcRho = cms.InputTag( 'hltKT6PFJets','rho' ),
-  algorithm = cms.string( "AK5PFHLT" ),
-  level = cms.string( "L1FastJet" )
-)
-process.hltESPL1PFNoPUFastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  srcRho = cms.InputTag( 'hltKT6PFJets','rho' ),
-  algorithm = cms.string( "AK5PFchsHLT" ),
-  level = cms.string( "L1FastJet" )
-)
-process.hltESPL2PFNoPURelativeCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK5PFchsHLT" ),
-  level = cms.string( "L2Relative" )
-)
-process.hltESPL2PFRelativeCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK5PFHLT" ),
-  level = cms.string( "L2Relative" )
 )
 process.hltESPL2RelativeCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
   appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK5CaloHLT" ),
+  algorithm = cms.string( "AK5Calo" ),
   level = cms.string( "L2Relative" )
 )
 process.hltESPL3AbsoluteCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
   appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK5CaloHLT" ),
+  algorithm = cms.string( "AK5Calo" ),
   level = cms.string( "L3Absolute" )
 )
 process.hltESPL3MuKFTrajectoryFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
@@ -1382,16 +1350,6 @@ process.hltESPL3MuKFTrajectoryFitter = cms.ESProducer( "KFTrajectoryFitterESProd
   Updator = cms.string( "hltESPKFUpdator" ),
   Propagator = cms.string( "hltESPSmartPropagatorAny" ),
   RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" )
-)
-process.hltESPL3PFAbsoluteCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK5PFHLT" ),
-  level = cms.string( "L3Absolute" )
-)
-process.hltESPL3PFNoPUAbsoluteCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK5PFchsHLT" ),
-  level = cms.string( "L3Absolute" )
 )
 process.hltESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
   StripCPE = cms.string( "StripCPEfromTrackAngle" ),
@@ -3055,17 +3013,6 @@ process.siStripLorentzAngleDepESProducer = cms.ESProducer( "SiStripLorentzAngleD
 )
 process.sistripconn = cms.ESProducer( "SiStripConnectivity" )
 
-process.FastTimerService = cms.Service( "FastTimerService",
-    dqmPath = cms.untracked.string( "HLT/TimerService" ),
-    useRealTimeClock = cms.untracked.bool( True ),
-    dqmTimeResolution = cms.untracked.double( 1.0 ),
-    enableDQMbyLumi = cms.untracked.bool( False ),
-    enableTimingPaths = cms.untracked.bool( True ),
-    enableTimingModules = cms.untracked.bool( True ),
-    enableDQM = cms.untracked.bool( True ),
-    dqmTimeRange = cms.untracked.double( 500.0 ),
-    enableTimingSummary = cms.untracked.bool( True )
-)
 process.DQM = cms.Service( "DQM",
     publishFrequency = cms.untracked.double( 5.0 ),
     debug = cms.untracked.bool( False ),
@@ -3073,6 +3020,10 @@ process.DQM = cms.Service( "DQM",
     collectorHost = cms.untracked.string( "" )
 )
 process.DQMStore = cms.Service( "DQMStore",
+    verboseQT = cms.untracked.int32( 0 ),
+    referenceFileName = cms.untracked.string( "" ),
+    verbose = cms.untracked.int32( 0 ),
+    collateHistograms = cms.untracked.bool( False )
 )
 process.DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
     processingMode = cms.untracked.string( "HLT" ),
@@ -3136,15 +3087,11 @@ process.MessageLogger = cms.Service( "MessageLogger",
       FwkJob = cms.untracked.PSet(  limit = cms.untracked.int32( 10000000 ) )
     ),
     suppressWarning = cms.untracked.vstring( 'hltOnlineBeamSpot',
-      'hltCtf3HitL1SeededWithMaterialTracks',
       'hltL3MuonsOIState',
       'hltPixelTracksForHighMult',
       'hltHITPixelTracksHE',
       'hltHITPixelTracksHB',
-      'hltCtfL1SeededWithMaterialTracks',
-      'hltRegionalTracksForL3MuonIsolation',
       'hltSiPixelClusters',
-      'hltActivityStartUpElectronPixelSeeds',
       'hltLightPFTracks',
       'hltPixelVertices3DbbPhi',
       'hltL3MuonsIOHit',
@@ -3184,7 +3131,6 @@ process.MessageLogger = cms.Service( "MessageLogger",
     suppressError = cms.untracked.vstring( 'hltOnlineBeamSpot',
       'hltL3MuonCandidates',
       'hltL3TkTracksFromL2OIState',
-      'hltPFJetCtfWithMaterialTracks',
       'hltL3TkTracksFromL2IOHit',
       'hltL3TkTracksFromL2OIHit' )
 )
@@ -3955,7 +3901,7 @@ process.hltMet = cms.EDProducer( "METProducer",
     pt_max = cms.double( 100.0 ),
     radius = cms.double( 130.0 ),
     nhits_tight_min = cms.double( 9.0 ),
-    beamSpotInputTag = cms.InputTag( "unused" ),
+    beamSpotInputTag = cms.InputTag( "offlineBeamSpot" ),
     dupDCotTh = cms.double( 6.0E-4 ),
     usedeltaRRejection = cms.bool( False ),
     trackInputTag = cms.InputTag( "generalTracks" ),
@@ -5479,7 +5425,7 @@ process.hltHIL3TrajSeedOIHit = cms.EDProducer( "TSGFromL2Muon",
       L3TkCollectionA = cms.InputTag( "hltHIL3MuonsOIState" ),
       iterativeTSG = cms.PSet( 
         ErrorRescaling = cms.double( 3.0 ),
-        beamSpot = cms.InputTag( "unused" ),
+        beamSpot = cms.InputTag( "offlineBeamSpot" ),
         MaxChi2 = cms.double( 40.0 ),
         errorMatrixPset = cms.PSet( 
           atIP = cms.bool( True ),
@@ -6478,7 +6424,7 @@ process.hltIterativeCone5PileupSubtractionCaloJets = cms.EDProducer( "FastjetJet
     GhostArea = cms.double( 0.01 ),
     Rho_EtaMax = cms.double( 4.4 ),
     maxBadEcalCells = cms.uint32( 9999999 ),
-    useDeterministicSeed = cms.bool( True ),
+    useDeterministicSeed = cms.bool( False ),
     doPVCorrection = cms.bool( False ),
     maxRecoveredHcalCells = cms.uint32( 9999999 ),
     rParam = cms.double( 0.5 ),
@@ -6715,7 +6661,7 @@ process.hltStoppedHSCPIterativeCone5CaloJets = cms.EDProducer( "FastjetJetProduc
     GhostArea = cms.double( 0.01 ),
     Rho_EtaMax = cms.double( 4.4 ),
     maxBadEcalCells = cms.uint32( 9999999 ),
-    useDeterministicSeed = cms.bool( True ),
+    useDeterministicSeed = cms.bool( False ),
     doPVCorrection = cms.bool( False ),
     maxRecoveredHcalCells = cms.uint32( 9999999 ),
     rParam = cms.double( 0.5 ),
@@ -7439,7 +7385,7 @@ process.hltMetForHf = cms.EDProducer( "METProducer",
     pt_max = cms.double( 100.0 ),
     radius = cms.double( 130.0 ),
     nhits_tight_min = cms.double( 9.0 ),
-    beamSpotInputTag = cms.InputTag( "unused" ),
+    beamSpotInputTag = cms.InputTag( "offlineBeamSpot" ),
     dupDCotTh = cms.double( 6.0E-4 ),
     usedeltaRRejection = cms.bool( False ),
     trackInputTag = cms.InputTag( "generalTracks" ),
@@ -8526,31 +8472,4 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
     process.MessageLogger.categories.append('L1GtTrigReport')
     process.MessageLogger.categories.append('HLTrigReport')
-
-# load 5.2.x JECs
-if 'GlobalTag' in process.__dict__:
-    process.GlobalTag.toGet.append(
-        cms.PSet(
-            record  = cms.string( 'JetCorrectionsRecord' ),
-            tag     = cms.string( 'JetCorrectorParametersCollection_AK5Calo_2012_V8_hlt_mc' ),
-            label   = cms.untracked.string( 'AK5CaloHLT' ),
-            connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS' )
-        )
-    )
-    process.GlobalTag.toGet.append(
-        cms.PSet(
-            record  = cms.string( 'JetCorrectionsRecord' ),
-            tag     = cms.string( 'JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc' ),
-            label   = cms.untracked.string( 'AK5PFHLT' ),
-            connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS' )
-        )
-    )
-    process.GlobalTag.toGet.append(
-        cms.PSet(
-            record  = cms.string( 'JetCorrectionsRecord' ),
-            tag     = cms.string( 'JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc' ),
-            label   = cms.untracked.string( 'AK5PFchsHLT' ),
-            connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS' )
-        )
-    )
 

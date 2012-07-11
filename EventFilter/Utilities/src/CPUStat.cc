@@ -11,7 +11,7 @@ CPUStat::CPUStat(unsigned int nstates,
 				      , nproc_(nproc)
 				      , instance_(instance)
 				      , entries_(0)
-				      , mstat_(new int[nstates_+4])
+				      , mstat_(new int[nstates_+3])
 				      , chart_("busy fraction",50)
 {
   poster_ = new CurlPoster(iDieUrl_);
@@ -20,7 +20,6 @@ CPUStat::CPUStat(unsigned int nstates,
   mstat_[nstates_]=nproc_;
   mstat_[nstates_+1]=instance_;
   mstat_[nstates_+2]=0;
-  mstat_[nstates_+3]=0;
 }
 CPUStat::~CPUStat()
 {
@@ -31,7 +30,7 @@ CPUStat::~CPUStat()
   void CPUStat::sendStat(unsigned int lsid)
 {
   chart_.flip(lsid,float(entries_-mstat_[2])/float(entries_));
-  poster_->postBinary((unsigned char *)mstat_,(nstates_+5)*sizeof(int),lsid,"/postChoke");
+  poster_->postBinary((unsigned char *)mstat_,(nstates_+4)*sizeof(int),lsid,"/postChoke");
 }
 
 void CPUStat::sendLegenda(const std::vector<std::string> &mapmod)

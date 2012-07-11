@@ -4,7 +4,6 @@ from FastSimulation.Configuration.mixFastSimObjects_cfi import *
 #from FastSimulation.Configuration.mixOnlyGenParticles_cfi import *
 
 mixGenPU = cms.EDProducer("MixingModule",
-    digitizers = cms.PSet(),
     LabelPlayback = cms.string(''),
     maxBunch = cms.int32(0),
     minBunch = cms.int32(0),

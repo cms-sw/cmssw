@@ -22,9 +22,8 @@ namespace edm {
                                        ProductRegistry& iReg,
                                        bool iIsListener) {
     std::string const prefix("LCGReflex/");
-    Reflex::Type null;
     for(TypeLabelList::const_iterator p = iBegin; p != iEnd; ++p) {
-      if(null == Reflex::Type::ByName(p->typeID_.userClassName()) ) {
+      if(!p->typeID_.hasDictionary()) {
         //attempt to load
         edmplugin::PluginCapabilities::get()->tryToLoad(prefix + p->typeID_.userClassName());
       }

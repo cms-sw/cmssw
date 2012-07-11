@@ -1,14 +1,3 @@
-2012-05-29 Srecko Morovic <srecko.morovic@cern.ch>
-
-	* V01-19-35
-	* CPUStat sends cpu usage info from /proc/stat
-
-2012-05-29 Srecko Morovic <srecko.morovic@cern.ch>
-
-	* V01-19-34
-	* 5 seconds Curl post timeout 
-	* note: V01-19-33 contains "Use constexpr in place of static" fix
-
 2012-05-23 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* V01-19-32

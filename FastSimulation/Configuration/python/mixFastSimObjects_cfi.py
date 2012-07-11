@@ -6,10 +6,6 @@ mixSimHits = cms.PSet(
     subdets = cms.vstring('MuonCSCHits', 
         'MuonDTHits', 
         'MuonRPCHits', 
-        'TrackerHits'),
-    crossingFrames = cms.untracked.vstring('MuonCSCHits', 
-        'MuonDTHits', 
-        'MuonRPCHits', 
         'TrackerHits')
 )
 mixCaloHits = cms.PSet(
@@ -18,29 +14,21 @@ mixCaloHits = cms.PSet(
     subdets = cms.vstring('EcalHitsEB', 
         'EcalHitsEE', 
         'EcalHitsES', 
-        'HcalHits'),
-    crossingFrames = cms.untracked.vstring('EcalHitsEB', 
-        'EcalHitsEE', 
-        'EcalHitsES', 
         'HcalHits')
 )
 mixSimTracks = cms.PSet(
     input = cms.VInputTag(cms.InputTag("famosSimHits")),
-    makeCrossingFrame = cms.untracked.bool(True),
     type = cms.string('SimTrack')
 )
 mixMuonSimTracks = cms.PSet(
     input = cms.VInputTag(cms.InputTag("famosSimHits","MuonSimTracks")),
-    makeCrossingFrame = cms.untracked.bool(True),
     type = cms.string('SimTrack')
 )
 mixSimVertices = cms.PSet(
     input = cms.VInputTag(cms.InputTag("famosSimHits")),
-    makeCrossingFrame = cms.untracked.bool(True),
     type = cms.string('SimVertex')
 )
 mixHepMCProducts = cms.PSet(
-    makeCrossingFrame = cms.untracked.bool(True),
     input = cms.VInputTag(cms.InputTag("generator")),
     type = cms.string('HepMCProduct')
 )

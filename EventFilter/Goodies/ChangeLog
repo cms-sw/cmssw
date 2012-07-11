@@ -1,23 +1,4 @@
-2012-07-01 Srecko Morovic <srecko.morovic@cern.ch>
-
-	* tag V00-02-04
-	* bugfixes in cpu accounting, bin and axis names, event timing
-	* resetting histograms on stop (should disconnect from server?)
-	* flush after histo reset
-	* automaticlly create DQM output and done subdirectories
-
-2012-06-30 Srecko Morovic <srecko.morovic@cern.ch>
-
-	* tag V00-02-03
-	* event time *= number of EP instances
-	* reading /proc/cpustat info from reports
-
-2012-06-29 Srecko Morovic <srecko.morovic@cern.ch>
-
-	* tag V00-02-02
-	* DQM filterfarm statistics histograms
-
-2012-05-22 Srecko Morovic <srecko.morovic@cern.ch>
+2012-05-22 Srecko morovic <srecko.morovic@cern.ch>
 
 	* tag V00-02-01
 	* TTree deleted before TFile Close and delete

@@ -17,12 +17,8 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
@@ -44,8 +40,7 @@
 #include "CondFormats/DataRecord/interface/ESPedestalsRcd.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 
-EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params, edm::EDProducer& mixMod ) :
-   DigiAccumulatorMixMod(),
+EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params ) :
    m_APDShape         ( params.getParameter<double>( "apdShapeTstart" ) ,
 			params.getParameter<double>( "apdShapeTau"    )   )  ,
    m_EBShape          (   ) ,
@@ -133,17 +128,13 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params, edm::EDProd
    m_EBCorrNoise       (   ) ,
    m_EECorrNoise       (   ) 
 {
-   if(m_apdSeparateDigi) mixMod.produces<EBDigiCollection>(m_apdDigiTag);
-   mixMod.produces<EBDigiCollection>(m_EBdigiCollection);
-   mixMod.produces<EEDigiCollection>(m_EEdigiCollection);
-   mixMod.produces<ESDigiCollection>(m_ESdigiCollection);
-
    const std::vector<double> ebCorMatG12 = params.getParameter< std::vector<double> >("EBCorrNoiseMatrixG12");
    const std::vector<double> eeCorMatG12 = params.getParameter< std::vector<double> >("EECorrNoiseMatrixG12");
    const std::vector<double> ebCorMatG06 = params.getParameter< std::vector<double> >("EBCorrNoiseMatrixG06");
    const std::vector<double> eeCorMatG06 = params.getParameter< std::vector<double> >("EECorrNoiseMatrixG06");
    const std::vector<double> ebCorMatG01 = params.getParameter< std::vector<double> >("EBCorrNoiseMatrixG01");
    const std::vector<double> eeCorMatG01 = params.getParameter< std::vector<double> >("EECorrNoiseMatrixG01");
+
 
    const bool applyConstantTerm          = params.getParameter<bool>       ("applyConstantTerm");
    const double rmsConstantTerm          = params.getParameter<double>     ("ConstantTerm");
@@ -153,6 +144,11 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params, edm::EDProd
    const double cosmicsShift             = params.getParameter<double>     ("cosmicsShift");
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+   if( m_apdSeparateDigi ) produces<EBDigiCollection>( m_apdDigiTag ) ;
+   produces<EBDigiCollection>( m_EBdigiCollection ) ;
+   produces<EEDigiCollection>( m_EEdigiCollection ) ;
+   produces<ESDigiCollection>( m_ESdigiCollection ) ;
 
    // further phase for cosmics studies
    if( cosmicsPhase ) 
@@ -278,83 +274,71 @@ EcalDigiProducer::~EcalDigiProducer()
    delete m_ParameterMap         ;
 }
 
-void
-EcalDigiProducer::initializeEvent(edm::Event const&, edm::EventSetup const& eventSetup) {
+void 
+EcalDigiProducer::produce( edm::Event&            event      ,
+			   const edm::EventSetup& eventSetup   ) 
+{
+   // Step A: Get Inputs
+
    checkGeometry( eventSetup );
    checkCalibrations( eventSetup );
-   m_BarrelDigitizer->initializeHits();
-   if(m_apdSeparateDigi) {
-      m_APDDigitizer->initializeHits();
-   }
-   m_EndcapDigitizer->initializeHits();
-   if(m_doFastES) {
-      m_ESDigitizer->initializeHits();
-   } else {
-      m_ESOldDigitizer->initializeHits();
-   }
-}
 
-void
-EcalDigiProducer::accumulateCaloHits(HitsHandle const& ebHandle, HitsHandle const& eeHandle, HitsHandle const& esHandle, int bunchCrossing) {
-  if(ebHandle.isValid()) {
-    m_BarrelDigitizer->add(*ebHandle.product(), bunchCrossing);
+   // Get input
+   edm::Handle<CrossingFrame<PCaloHit> > crossingFrame;
 
-    if(m_apdSeparateDigi) {
-      m_APDDigitizer->add(*ebHandle.product(), bunchCrossing);
-    }
-  }
+   // test access to SimHits
+   const std::string barrelHitsName    ( m_hitsProducerTag + "EcalHitsEB" ) ;
+   const std::string endcapHitsName    ( m_hitsProducerTag + "EcalHitsEE" ) ;
+   const std::string preshowerHitsName ( m_hitsProducerTag + "EcalHitsES" ) ;
 
-  if(eeHandle.isValid()) {
-    m_EndcapDigitizer->add(*eeHandle.product(), bunchCrossing);
-  }
+   event.getByLabel( "mix",
+		     barrelHitsName ,
+		     crossingFrame    ) ;
 
-  if(esHandle.isValid()) {
-    if(m_doFastES) {
-      m_ESDigitizer->add(*esHandle.product(), bunchCrossing);
-    } else {
-      m_ESOldDigitizer->add(*esHandle.product(), bunchCrossing);
-    }
-  }
-}
+   MixCollection<PCaloHit>* EBHits (
+      !crossingFrame.isValid() ? 0 :
+      new MixCollection<PCaloHit>( crossingFrame.product() ) ) ;
 
-void
-EcalDigiProducer::accumulate(edm::Event const& e, edm::EventSetup const& eventSetup) {
-  // Step A: Get Inputs
-  edm::InputTag ebTag(m_hitsProducerTag, "EcalHitsEB");
-  edm::Handle<std::vector<PCaloHit> > ebHandle;
-  e.getByLabel(ebTag, ebHandle);
+   const bool isEB ( crossingFrame.isValid() &&
+		     0 != EBHits             &&
+		     EBHits->inRegistry()       ) ;
 
-  edm::InputTag eeTag(m_hitsProducerTag, "EcalHitsEE");
-  edm::Handle<std::vector<PCaloHit> > eeHandle;
-  e.getByLabel(eeTag, eeHandle);
+   if( !crossingFrame.isValid() )
+      edm::LogError("EcalDigiProducer") << "Error! can't get the product " 
+					<< barrelHitsName.c_str() ;
 
-  edm::InputTag esTag(m_hitsProducerTag, "EcalHitsES");
-  edm::Handle<std::vector<PCaloHit> > esHandle;
-  e.getByLabel(esTag, esHandle);
+   event.getByLabel( "mix",
+		     endcapHitsName ,
+		     crossingFrame    ) ;
 
-  accumulateCaloHits(ebHandle, eeHandle, esHandle, 0);
-}
+   MixCollection<PCaloHit>* EEHits (
+      !crossingFrame.isValid() ? 0 :
+      new MixCollection<PCaloHit>( crossingFrame.product() ) ) ;
 
-void
-EcalDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& eventSetup) {
-  // Step A: Get Inputs
-  edm::InputTag ebTag(m_hitsProducerTag, "EcalHitsEB");
-  edm::Handle<std::vector<PCaloHit> > ebHandle;
-  e.getByLabel(ebTag, ebHandle);
+   const bool isEE ( crossingFrame.isValid() &&
+		     0 != EEHits             &&
+		     EEHits->inRegistry()       ) ;
 
-  edm::InputTag eeTag(m_hitsProducerTag, "EcalHitsEE");
-  edm::Handle<std::vector<PCaloHit> > eeHandle;
-  e.getByLabel(eeTag, eeHandle);
+   if( !crossingFrame.isValid() ) 
+      edm::LogError("EcalDigiProducer") << "Error! can't get the product " 
+					<< endcapHitsName.c_str() ;
 
-  edm::InputTag esTag(m_hitsProducerTag, "EcalHitsES");
-  edm::Handle<std::vector<PCaloHit> > esHandle;
-  e.getByLabel(esTag, esHandle);
+   event.getByLabel( "mix",
+		     preshowerHitsName ,
+		     crossingFrame       ) ;
 
-  accumulateCaloHits(ebHandle, eeHandle, esHandle, e.bunchCrossing());
-}
+   MixCollection<PCaloHit>* ESHits (
+      !crossingFrame.isValid() ? 0 :
+      new MixCollection<PCaloHit>( crossingFrame.product() ) ) ;
 
-void 
-EcalDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const& eventSetup) {
+   const bool isES ( crossingFrame.isValid()   &&
+		     0 != ESHits               &&
+		     ESHits->inRegistry()          ) ;
+
+   if( !crossingFrame.isValid() ) 
+      edm::LogError("EcalDigiProducer") << "Error! can't get the product " 
+					<< preshowerHitsName.c_str() ;
+
    // Step B: Create empty output
    std::auto_ptr<EBDigiCollection> apdResult      ( !m_apdSeparateDigi ? 0 :
 						    new EBDigiCollection() ) ;
@@ -364,32 +348,52 @@ EcalDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const& eventS
    
    // run the algorithm
 
-   m_BarrelDigitizer->run( *barrelResult ) ;
-   cacheEBDigis( &*barrelResult ) ;
+   if( isEB )
+   {
+      std::auto_ptr<MixCollection<PCaloHit> >  barrelHits( EBHits ) ;
+      m_BarrelDigitizer->run( *barrelHits   , 
+			      *barrelResult   ) ;
+      cacheEBDigis( &*barrelResult ) ;
 
-   edm::LogInfo("DigiInfo") << "EB Digis: " << barrelResult->size() ;
+      edm::LogInfo("DigiInfo") << "EB Digis: " << barrelResult->size() ;
 
-   if( m_apdSeparateDigi ) {
-      m_APDDigitizer->run( *apdResult ) ;
-      edm::LogInfo("DigiInfo") << "APD Digis: " << apdResult->size() ;
+      if( m_apdSeparateDigi )
+      {
+	 m_APDDigitizer->run( *barrelHits , 
+			      *apdResult    ) ;
+
+	 edm::LogInfo("DigiInfo") << "APD Digis: " << apdResult->size() ;
+      }
    }
 
-   m_EndcapDigitizer->run( *endcapResult ) ;
-   edm::LogInfo("EcalDigi") << "EE Digis: " << endcapResult->size() ;
-   cacheEEDigis( &*endcapResult ) ;
-
-   if(m_doFastES) {
-      m_ESDigitizer->run( *preshowerResult ) ; 
-   } else {
-      m_ESOldDigitizer->run( *preshowerResult ) ; 
+   if( isEE )
+   {
+      std::auto_ptr<MixCollection<PCaloHit> >  endcapHits( EEHits ) ;
+      m_EndcapDigitizer->run( *endcapHits   ,
+			      *endcapResult   ) ;
+      edm::LogInfo("EcalDigi") << "EE Digis: " << endcapResult->size() ;
+      cacheEEDigis( &*endcapResult ) ;
    }
-   edm::LogInfo("EcalDigi") << "ES Digis: " << preshowerResult->size();
 
+   if( isES ) 
+   {
+      std::auto_ptr<MixCollection<PCaloHit> >  preshowerHits( ESHits ) ;
+      if (!m_doFastES) 
+      {
+	 m_ESOldDigitizer->run( *preshowerHits   , 
+				*preshowerResult   ) ; 
+      }
+      else
+      {
+	 m_ESDigitizer->run( *preshowerHits,
+			     *preshowerResult ) ; 
+      }
+      edm::LogInfo("EcalDigi") << "ES Digis: " << preshowerResult->size();
+   }
 
    // Step D: Put outputs into event
-   if( m_apdSeparateDigi ) {
+   if( m_apdSeparateDigi )
       event.put( apdResult,    m_apdDigiTag         ) ;
-   }
 
    event.put( barrelResult,    m_EBdigiCollection ) ;
    event.put( endcapResult,    m_EEdigiCollection ) ;

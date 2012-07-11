@@ -50,9 +50,7 @@ namespace edm {
         element_type const* address = GetProduct<product_type>::address( it );
         oPtr = address;
       } else {
-        using Reflex::Type;
-        using Reflex::Object;
-        static Type const s_type(Type::ByTypeInfo(typeid(element_type)));
+        static Reflex::Type const s_type(Reflex::Type::ByTypeInfo(typeid(element_type)));
 
         iter it = coll.begin();
         std::advance(it,iIndex);
@@ -62,8 +60,8 @@ namespace edm {
         // Object's constructor requires a pointer to
         // non-const void, although the implementation does not, of
         // course, modify the object to which the pointer points.
-        Object obj(s_type, const_cast<void*>(static_cast<void const*>(address)));
-        Object cast = obj.CastObject(Type::ByTypeInfo(iToType));
+        Reflex::Object obj(s_type, const_cast<void*>(static_cast<void const*>(address)));
+        Reflex::Object cast = obj.CastObject(Reflex::Type::ByTypeInfo(iToType));
         if(0 != cast.Address()) {
           oPtr = cast.Address(); // returns void*, after pointer adjustment
         } else {

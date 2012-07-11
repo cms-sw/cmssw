@@ -119,11 +119,10 @@ DDLParser::parseOneFile( const std::string& fullname ) //, const std::string& ur
   size_t foundFile = isFound(filename);
   if (!foundFile)
   {
-    int fIndex = foundFile;
     pair <std::string, std::string> pss;
     pss.first = filename;
     pss.second = absoluteFileName; //url+filename;
-    fIndex = nFiles_;
+    int fIndex = nFiles_;
     fileNames_[nFiles_] = pss;
     ++nFiles_;
     parsed_[fIndex]=false;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremy Andrea
 //         Created:  Wed Mar  5 19:17:38 CEST 2008
-// $Id: SumHistoCalibration.cc,v 1.7 2010/02/01 09:12:28 jandrea Exp $
+// $Id: SumHistoCalibration.cc,v 1.8 2010/02/11 00:13:31 wmtan Exp $
 //
 //
 // system include files
@@ -282,13 +282,13 @@ SumHistoCalibration::endJob() {
     {
       std::ofstream of2("2d.xml");
       TBufferXML b2(TBuffer::kWrite);
-      of2 << b2.ConvertToXML(const_cast<void*>(static_cast<const void*>(m_calibration[1])),
+      of2 << b2.ConvertToXML(static_cast<void*>(m_calibration[1]),
 			     TClass::GetClass("TrackProbabilityCalibration"),
 			     kTRUE, kFALSE);
       of2.close();
       std::ofstream of3("3d.xml");
       TBufferXML b3(TBuffer::kWrite);
-      of3 << b3.ConvertToXML(const_cast<void*>(static_cast<const void*>(m_calibration[0])),
+      of3 << b3.ConvertToXML(static_cast<void*>(m_calibration[0]),
 			     TClass::GetClass("TrackProbabilityCalibration"),
 			     kTRUE, kFALSE);
       of3.close();

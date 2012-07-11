@@ -211,10 +211,6 @@ if __name__=='__main__':
                         dest='debug',
                         action='store_true',
                         help='debug')
-    parser.add_argument('--without-png',
-                        dest='withoutpng',
-                        action='store_true',
-                        help='do not produce')
     parser.add_argument('action',
                         choices=allowedActions,
                         help='type of plots')
@@ -285,18 +281,21 @@ if __name__=='__main__':
     session.transaction().start(True)
     schema=session.nominalSchema()
     if options.action=='perday' or options.action=='instpeakperday':
-        maxDrawnDay=int(lut.StrToDatetime(begtime,customfm='%m/%d/%y %H:%M:%S').date().toordinal()) #default maxDrawnDay is begtime
-        if resultlines: #if there's old result lines
+        maxDrawnDay=int(lut.StrToDatetime(begtime,customfm='%m/%d/%y %H:%M:%S').date().toordinal())
+        if resultlines:
             for drawnDay in [ int(t[0]) for t in resultlines]:
-                if drawnDay>maxDrawnDay: #all required days are already drawn
+                if drawnDay>maxDrawnDay:
                     maxDrawnDay=drawnDay
-        newFirstDay=maxDrawnDay
+        #print maxDrawnDay
+        newFirstDay=maxDrawnDay+1
+        if options.lastpointfromdb:
+            newFirstDay=maxDrawnDay
         midnight=datetime.time()
         begT=datetime.datetime.combine(datetime.date.fromordinal(newFirstDay),midnight)
         begTStr=lut.DatetimeToStr(begT,customfm='%m/%d/%y %H:%M:%S')
         #find runs not in old plot
         runsnotdrawn=lumiCalcAPI.runList(schema,options.fillnum,runmin=None,runmax=None,startT=begTStr,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
-        print '[INFO] runstoredraw ',runsnotdrawn
+        
     if options.action=='run' or options.action=='time':
         lastDrawnRun=132000
         if resultlines:#if there's old plot, start to count runs only after that
@@ -507,7 +506,6 @@ if __name__=='__main__':
                     daymax_val=datatp[2]
                     daymax_run=datatp[0]
                     daymax_ls=datatp[1]
-            #print 'day ',day,' daymax_run ',daymax_run,' daymax_ls ',daymax_ls,' daymax_val ',daymax_val
             rawdata.setdefault('Delivered',[]).append((day,daymax_run,daymax_ls,daymax_val))
         if options.yscale=='linear':
             m.plotPeakPerday_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='linear',referenceLabel=referenceLabel)
@@ -547,23 +545,13 @@ if __name__=='__main__':
             m.drawInteractive()
             exit(0)
         else:
-            if not options.withoutpng:
-                m.drawPNG(outplotfilename+'.png')
-                exit(0)
+            m.drawPNG(outplotfilename+'.png')
     elif options.yscale=='log':
         if options.interactive:
             mlog.drawInteractive()
             exit(0)
         else:
-            if not options.withoutpng:
-                mlog.drawPNG(outplotfilename+'_log.png')
-                exit(0)
-    else:
-        if options.interactive:
-            print 'cannot draw both log and linear from interactive'
-            exit(0)
-        if not options.withoutpng:
-            m.drawPNG(outplotfilename+'.png')
             mlog.drawPNG(outplotfilename+'_log.png')
-            exit(0)
-        
+    else:
+        m.drawPNG(outplotfilename+'.png')            
+        mlog.drawPNG(outplotfilename+'_log.png')

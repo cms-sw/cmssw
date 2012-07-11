@@ -1,14 +1,8 @@
 <use   name="FWCore/Framework"/>
-<use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="FWCore/Utilities"/>
 <use   name="FWCore/Version"/>
-<use   name="DataFormats/BeamSpot"/>
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/Common"/>
-<use   name="DataFormats/Luminosity"/>
 <use   name="DataFormats/RecoCandidate"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/VertexReco"/>
@@ -16,7 +10,6 @@
 <use   name="SimDataFormats/Track"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="SimDataFormats/TrackerDigiSimLink"/>
-<use   name="SimDataFormats/PileupSummaryInfo"/>
 <use   name="DataFormats/SiStripDetId"/>
 <use   name="RecoTracker/TkSeedGenerator"/>
 <use   name="TrackingTools/TrackFitters"/>
@@ -32,8 +25,6 @@
 <use   name="SimTracker/TrackerHitAssociation"/>
 <use   name="SimTracker/TrackHistory"/>
 <use   name="CommonTools/Statistics"/>
-<use   name="CommonTools/TriggerUtils"/>
-<use   name="CommonTools/UtilAlgos"/>
 <use   name="clhep"/>
 <use   name="boost"/>
 <use   name="hepmc"/>
@@ -42,5 +33,4 @@
 <use   name="root"/>
 <use   name="gsl"/>
 <use   name="SimGeneral/HepPDTRecord"/>
-<use   name="DPGAnalysis/SiStripTools"/>
 <flags   EDM_PLUGIN="1"/>

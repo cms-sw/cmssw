@@ -31,12 +31,6 @@ class EBHitResponse : public EcalHitResponse
 
       const VecD& offsets() const { return m_timeOffVec ; }
 
-      virtual void add( const PCaloHit&  hit ) ;
-
-      virtual void initializeHits() ;
-
-      virtual void finalizeHits() ;
-
       virtual void run( MixCollection<PCaloHit>& hits ) ;
 
       virtual unsigned int samplesSize() const ;

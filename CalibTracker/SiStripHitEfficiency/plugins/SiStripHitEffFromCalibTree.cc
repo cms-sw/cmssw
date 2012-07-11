@@ -268,8 +268,8 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
           goodlayertotal[layer+3]++;
 	}
 	else if( ((id>>18)&0x3) == 2) {
-	  if(!badflag) goodlayerfound[layer+12]++;
-          goodlayertotal[layer+12]++;
+	  if(!badflag) goodlayerfound[layer+11]++;
+          goodlayertotal[layer+11]++;
 	}
       } 
     }

@@ -414,7 +414,7 @@ void SiPixelRecHitsInputDistributionsMakerNew::fillBarrel(const SiPixelRecHit& r
   icotbeta  = icotbeta > (cotBetaBinsBarrel_-1 ) ? cotBetaBinsBarrel_-1 : icotbeta;
 
 // Use this definition if you want to consider an ideal topology 
-  const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+  const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(&(theGeomDet->specificType().specificTopology()));
 // Use the following instead of the previous line if you want the real topology that will take care of the 
 // module deformations when mapping from ideal to real coordinates:
 //  PixelTopology const & rectPixelTopology = theGeomDet->specificTopology();
@@ -565,7 +565,7 @@ void SiPixelRecHitsInputDistributionsMakerNew::fillForward(const SiPixelRecHit &
   int lastPixelInX = (*clust).maxPixelRow();
   int firstPixelInY = (*clust).minPixelCol();
   int lastPixelInY = (*clust).maxPixelCol();
-  const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+  const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(&(theGeomDet->specificType().specificTopology()));
   bool hasBigPixelInX = rectPixelTopology->containsBigPixelInX(firstPixelInX,lastPixelInX);
   bool hasBigPixelInY = rectPixelTopology->containsBigPixelInY(firstPixelInY,lastPixelInY);
   bool edgex =

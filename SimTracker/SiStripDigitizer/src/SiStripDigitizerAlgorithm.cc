@@ -4,139 +4,131 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimTracker/SiStripDigitizer/interface/SiStripDigitizerAlgorithm.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "CalibTracker/Records/interface/SiStripDependentRecords.h"
-#include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
-#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
-#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
-#include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
-#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
-#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CLHEP/Random/RandFlat.h"
 
-SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine& eng):
-  lorentzAngleName(conf.getParameter<std::string>("LorentzAngle")),
-  theElectronPerADC(conf.getParameter<double>( peakMode ? "electronPerAdcPeak" : "electronPerAdcDec" )),
-  theThreshold(conf.getParameter<double>("NoiseSigmaThreshold")),
-  cmnRMStib(conf.getParameter<double>("cmnRMStib")),
-  cmnRMStob(conf.getParameter<double>("cmnRMStob")),
-  cmnRMStid(conf.getParameter<double>("cmnRMStid")),
-  cmnRMStec(conf.getParameter<double>("cmnRMStec")),
-  APVSaturationProb(conf.getParameter<double>("APVSaturationProb")),
-  makeDigiSimLinks_(conf.getUntrackedParameter<bool>("makeDigiSimLinks", false)),
-  peakMode(conf.getParameter<bool>("APVpeakmode")),
-  noise(conf.getParameter<bool>("Noise")),
-  RealPedestals(conf.getParameter<bool>("RealPedestals")), 
-  SingleStripNoise(conf.getParameter<bool>("SingleStripNoise")),
-  CommonModeNoise(conf.getParameter<bool>("CommonModeNoise")),
-  BaselineShift(conf.getParameter<bool>("BaselineShift")),
-  APVSaturationFromHIP(conf.getParameter<bool>("APVSaturationFromHIP")),
-  theFedAlgo(conf.getParameter<int>("FedAlgorithm")),
-  zeroSuppression(conf.getParameter<bool>("ZeroSuppression")),
-  theTOFCutForPeak(conf.getParameter<double>("TOFCutForPeak")),
-  theTOFCutForDeconvolution(conf.getParameter<double>("TOFCutForDeconvolution")),
-  tofCut(peakMode ? theTOFCutForPeak : theTOFCutForDeconvolution),
-  cosmicShift(conf.getUntrackedParameter<double>("CosmicDelayShift")),
-  inefficiency(conf.getParameter<double>("Inefficiency")),
-  pedOffset((unsigned int)conf.getParameter<double>("PedestalsOffset")),
-  theSiHitDigitizer(new SiHitDigitizer(conf, eng)),
-  theSiPileUpSignals(new SiPileUpSignals()),
-  theSiNoiseAdder(new SiGaussianTailNoiseAdder(theThreshold, eng)),
-  theSiDigitalConverter(new SiTrivialDigitalConverter(theElectronPerADC)),
-  theSiZeroSuppress(new SiStripFedZeroSuppression(theFedAlgo)),
-  theFlatDistribution(new CLHEP::RandFlat(eng, 0., 1.)) {
+#define CBOLTZ (1.38E-23)
+#define e_SI (1.6E-19)
 
+SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine& eng):
+  conf_(conf),rndEngine(eng){
+  theThreshold              = conf_.getParameter<double>("NoiseSigmaThreshold");
+  theFedAlgo                = conf_.getParameter<int>("FedAlgorithm");
+  peakMode                  = conf_.getParameter<bool>("APVpeakmode");
+  theElectronPerADC         = conf_.getParameter<double>( peakMode ? "electronPerAdcPeak" : "electronPerAdcDec" );
+  noise                     = conf_.getParameter<bool>("Noise");
+  zeroSuppression           = conf_.getParameter<bool>("ZeroSuppression");
+  theTOFCutForPeak          = conf_.getParameter<double>("TOFCutForPeak");
+  theTOFCutForDeconvolution = conf_.getParameter<double>("TOFCutForDeconvolution");
+  cosmicShift               = conf_.getUntrackedParameter<double>("CosmicDelayShift");
+  inefficiency              = conf_.getParameter<double>("Inefficiency");
+  RealPedestals             = conf_.getParameter<bool>("RealPedestals"); 
+  SingleStripNoise          = conf_.getParameter<bool>("SingleStripNoise");
+  CommonModeNoise           = conf_.getParameter<bool>("CommonModeNoise");
+  BaselineShift             = conf_.getParameter<bool>("BaselineShift");
+  APVSaturationFromHIP      = conf_.getParameter<bool>("APVSaturationFromHIP");
+  APVSaturationProb         = conf_.getParameter<double>("APVSaturationProb");
+  cmnRMStib                 = conf_.getParameter<double>("cmnRMStib");
+  cmnRMStob                 = conf_.getParameter<double>("cmnRMStob");
+  cmnRMStid                 = conf_.getParameter<double>("cmnRMStid");
+  cmnRMStec                 = conf_.getParameter<double>("cmnRMStec");
+  pedOffset                 = (unsigned int)conf_.getParameter<double>("PedestalsOffset");
   if (peakMode) {
+    tofCut=theTOFCutForPeak;
     LogDebug("StripDigiInfo")<<"APVs running in peak mode (poor time resolution)";
   } else {
+    tofCut=theTOFCutForDeconvolution;
     LogDebug("StripDigiInfo")<<"APVs running in deconvolution mode (good time resolution)";
   };
+  
+  theSiHitDigitizer = new SiHitDigitizer(conf_,rndEngine);
+  theSiPileUpSignals = new SiPileUpSignals();
+  theSiNoiseAdder = new SiGaussianTailNoiseAdder(theThreshold,rndEngine);
+  theSiDigitalConverter = new SiTrivialDigitalConverter(theElectronPerADC);
+  theSiZeroSuppress = new SiStripFedZeroSuppression(theFedAlgo);
+  theFlatDistribution = new CLHEP::RandFlat(rndEngine, 0., 1.);    
+
+  
 }
 
 SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
-}
-
-void
-SiStripDigitizerAlgorithm::initializeDetUnit(StripGeomDetUnit* det, const edm::EventSetup& iSetup) {
-  edm::ESHandle<SiStripBadStrip> deadChannelHandle;
-  iSetup.get<SiStripBadChannelRcd>().get(deadChannelHandle);
-
-  unsigned int detId = det->geographicalId().rawId();
-  int numStrips = (det->specificTopology()).nstrips();  
-
-  SiStripBadStrip::Range detBadStripRange = deadChannelHandle->getRange(detId);
-  //storing the bad strip of the the module. the module is not removed but just signal put to 0
-  std::vector<bool>& badChannels = allBadChannels[detId];
-  badChannels.clear();
-  badChannels.insert(badChannels.begin(), numStrips, false);
-  for(SiStripBadStrip::ContainerIterator it = detBadStripRange.first; it != detBadStripRange.second; ++it) {
-    SiStripBadStrip::data fs = deadChannelHandle->decode(*it);
-    for(int strip = fs.firstStrip; strip < fs.firstStrip + fs.range; ++strip) badChannels[strip] = true;
-  }
-  firstChannelsWithSignal[detId] = numStrips;
-  lastChannelsWithSignal[detId]= 0;
-}
-
-void
-SiStripDigitizerAlgorithm::initializeEvent(const edm::EventSetup& iSetup) {
-  theSiPileUpSignals->reset();
-
-  //get gain noise pedestal lorentzAngle from ES handle
-  edm::ESHandle<ParticleDataTable> pdt;
-  iSetup.getData(pdt);
-  setParticleDataTable(&*pdt);
-  iSetup.get<SiStripLorentzAngleSimRcd>().get(lorentzAngleName,lorentzAngleHandle);
+  delete theSiHitDigitizer;
+  delete theSiPileUpSignals;
+  delete theSiNoiseAdder;
+  delete theSiDigitalConverter;
+  delete theSiZeroSuppress;
+  delete theFlatDistribution;
+  //delete particle;
+  //delete pdt;
 }
 
 //  Run the algorithm for a given module
 //  ------------------------------------
 
-void
-SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterator inputBegin,
-                                             std::vector<PSimHit>::const_iterator inputEnd,
-                                             const StripGeomDetUnit* det,
-                                             const GlobalVector& bfield) {
-  // produce SignalPoints for all SimHits in detector
+void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
+				    edm::DetSet<SiStripRawDigi>& outrawdigi,
+				    const std::vector<std::pair<const PSimHit*, int > > &input,
+				    StripGeomDetUnit *det,
+				    GlobalVector bfield,float langle, 
+				    edm::ESHandle<SiStripGain> & gainHandle,
+				    edm::ESHandle<SiStripThreshold> & thresholdHandle,
+				    edm::ESHandle<SiStripNoises> & noiseHandle,
+				    edm::ESHandle<SiStripPedestals> & pedestalHandle,
+					edm::ESHandle<SiStripBadStrip> & deadChannelHandle
+				   ) {  
+  theSiPileUpSignals->reset();
   unsigned int detID = det->geographicalId().rawId();
-  int numStrips = (det->specificTopology()).nstrips();  
+  SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detID);
+  SiStripApvGain::Range detGainRange = gainHandle->getRange(detID);
+  SiStripPedestals::Range detPedestalRange = pedestalHandle->getRange(detID);
+  SiStripBadStrip::Range detBadStripRange = deadChannelHandle->getRange(detID);
+  numStrips = (det->specificTopology()).nstrips();  
+  
+  //stroing the bad stip of the the module. the module is not removed but just signal put to 0
+  std::vector<bool> badChannels;
+  badChannels.clear();
+  badChannels.insert(badChannels.begin(),numStrips,false);
+  SiStripBadStrip::data fs;
+  for(SiStripBadStrip::ContainerIterator it=detBadStripRange.first;it!=detBadStripRange.second;++it){
+  	fs=deadChannelHandle->decode(*it);
+    for(int strip = fs.firstStrip; strip <fs.firstStrip+fs.range; ++strip )badChannels[strip] = true;
+  }
 
-  std::vector<bool>& badChannels = allBadChannels[detID];
-  size_t thisFirstChannelWithSignal = numStrips;
-  size_t thisLastChannelWithSignal = numStrips;
+     
+  // local amplitude of detector channels (from processed PSimHit)
+//  locAmpl.clear();
+  detAmpl.clear();
+//  locAmpl.insert(locAmpl.begin(),numStrips,0.);
+  // total amplitude of detector channels
+  detAmpl.insert(detAmpl.begin(),numStrips,0.);
 
-  float langle = (lorentzAngleHandle.isValid()) ? lorentzAngleHandle->getLorentzAngle(detID) : 0.;
+  firstChannelWithSignal = numStrips;
+  lastChannelWithSignal  = 0;
 
-  std::vector<double> locAmpl(numStrips, 0.);
-
-  // Loop over hits
-
-  uint32_t detId = det->geographicalId().rawId();
   // First: loop on the SimHits
+  std::vector<std::pair<const PSimHit*, int > >::const_iterator simHitIter = input.begin();
+  std::vector<std::pair<const PSimHit*, int > >::const_iterator simHitIterEnd = input.end();
   if(theFlatDistribution->fire()>inefficiency) {
-    for (std::vector<PSimHit>::const_iterator simHitIter = inputBegin; simHitIter != inputEnd; ++simHitIter) {
-      // skip hits not in this detector.
-      if((*simHitIter).detUnitId() != detId) {
-        continue;
-      }
+    for (;simHitIter != simHitIterEnd; ++simHitIter) {
+      locAmpl.clear();
+      locAmpl.insert(locAmpl.begin(),numStrips,0.);
       // check TOF
-      if (std::fabs(simHitIter->tof() - cosmicShift - det->surface().toGlobal(simHitIter->localPosition()).mag()/30.) < tofCut && simHitIter->energyLoss()>0) {
-        size_t localFirstChannel = numStrips;
-        size_t localLastChannel  = 0;
+      if ( std::fabs( ((*simHitIter).first)->tof() - cosmicShift - det->surface().toGlobal(((*simHitIter).first)->localPosition()).mag()/30.) < tofCut && ((*simHitIter).first)->energyLoss()>0) {
+        localFirstChannel = numStrips;
+        localLastChannel  = 0;
         // process the hit
-        theSiHitDigitizer->processHit(&*simHitIter, *det, bfield, langle, locAmpl, localFirstChannel, localLastChannel);
+        theSiHitDigitizer->processHit(((*simHitIter).first),*det,bfield,langle, locAmpl, localFirstChannel, localLastChannel);
           
 		  //APV Killer to simulate HIP effect
 		  //------------------------------------------------------
 		  
 		  if(APVSaturationFromHIP&&!zeroSuppression){
-		    int pdg_id = simHitIter->particleType();
+		    int pdg_id = ((*simHitIter).first)->particleType();
 			particle = pdt->particle(pdg_id);
 			if(particle != NULL){
 				float charge = particle->charge();
@@ -147,63 +139,38 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
 				 		int LastAPV = localLastChannel/128;
 						std::cout << "-------------------HIP--------------" << std::endl;
 						std::cout << "Killing APVs " << FirstAPV << " - " <<LastAPV << " " << detID <<std::endl;
-				 		for(int strip = FirstAPV*128; strip < LastAPV*128 +128; ++strip) {
-							badChannels[strip] = true;
-						}
-						//doing like that I remove the signal information only after the 
-						//stip that got the HIP but it remains the signal of the previous
-						//one. I'll make a further loop to remove all signal
+				 		for(int strip = FirstAPV*128; strip < LastAPV*128 +128; ++strip) badChannels[strip] = true; //doing like that I remove the signal information only after the 
+																													//stip that got the HIP but it remains the signal of the previous
+																													//one. I'll make a further loop to remove all signal																										
+						
 			  		}
 				}
 			}
 	      }             
 		
+		
+		theSiPileUpSignals->add(locAmpl, localFirstChannel, localLastChannel, ((*simHitIter).first), (*simHitIter).second);
     
-        if(thisFirstChannelWithSignal > localFirstChannel) thisFirstChannelWithSignal = localFirstChannel;
-        if(thisLastChannelWithSignal < localLastChannel) thisLastChannelWithSignal = localLastChannel;
+		// sum signal on strips
+        for (size_t iChannel=localFirstChannel; iChannel<localLastChannel; iChannel++) {
+          if(locAmpl[iChannel]>0.) {
+		    //if(!badChannels[iChannel]) detAmpl[iChannel]+=locAmpl[iChannel];
+			//locAmpl[iChannel]=0;
+			detAmpl[iChannel]+=locAmpl[iChannel];
+           }
+        }
+        if(firstChannelWithSignal>localFirstChannel) firstChannelWithSignal=localFirstChannel;
+        if(lastChannelWithSignal<localLastChannel) lastChannelWithSignal=localLastChannel;
       }
-    } // end for
+	}
   }
-  theSiPileUpSignals->add(detID, locAmpl, thisFirstChannelWithSignal, thisLastChannelWithSignal);
-
-  if(firstChannelsWithSignal[detID] > thisFirstChannelWithSignal) firstChannelsWithSignal[detID] = thisFirstChannelWithSignal;
-  if(lastChannelsWithSignal[detID] < thisLastChannelWithSignal) lastChannelsWithSignal[detID] = thisLastChannelWithSignal;
-}
-
-void
-SiStripDigitizerAlgorithm::digitize(
-			   edm::DetSet<SiStripDigi>& outdigi,
-			   edm::DetSet<SiStripRawDigi>& outrawdigi,
-			   const StripGeomDetUnit *det,
-			   edm::ESHandle<SiStripGain> & gainHandle,
-			   edm::ESHandle<SiStripThreshold> & thresholdHandle,
-			   edm::ESHandle<SiStripNoises> & noiseHandle,
-			   edm::ESHandle<SiStripPedestals> & pedestalHandle) {
-  unsigned int detID = det->geographicalId().rawId();
-  int numStrips = (det->specificTopology()).nstrips();  
-
-  const SiPileUpSignals::SignalMapType* theSignal(theSiPileUpSignals->getSignal(detID));  
-
-  std::vector<double> detAmpl(numStrips, 0.);
-  if(theSignal) {
-    for(const auto& amp : *theSignal) {
-      detAmpl[amp.first] = amp.second;
-    }
-  }
-
+  
   //removing signal from the dead (and HIP effected) strips
-  std::vector<bool>& badChannels = allBadChannels[detID];
-  for(int strip =0; strip < numStrips; ++strip) if(badChannels[strip]) detAmpl[strip] = 0.;
-
-  SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detID);
-  SiStripApvGain::Range detGainRange = gainHandle->getRange(detID);
-  SiStripPedestals::Range detPedestalRange = pedestalHandle->getRange(detID);
-
-// -----------------------------------------------------------
-
-  auto& firstChannelWithSignal = firstChannelsWithSignal[detID];
-  auto& lastChannelWithSignal = lastChannelsWithSignal[detID];
-
+  for(int strip =0; strip < numStrips; ++strip) if(badChannels[strip]) detAmpl[strip] =0;
+  
+  const SiPileUpSignals::HitToDigisMapType& theLink(theSiPileUpSignals->dumpLink());  
+  const SiPileUpSignals::HitCounterToDigisMapType& theCounterLink(theSiPileUpSignals->dumpCounterLink());  
+  
   if(zeroSuppression){
     if(noise){
 	  int RefStrip = int(numStrips/2.);
@@ -216,8 +183,9 @@ SiStripDigitizerAlgorithm::digitize(
 		theSiNoiseAdder->addNoise(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,noiseRMS*theElectronPerADC/gainValue);
 	  }
 	}
-    DigitalVecType digis;
+    digis.clear();
     theSiZeroSuppress->suppress(theSiDigitalConverter->convert(detAmpl, gainHandle, detID), digis, detID,noiseHandle,thresholdHandle);
+    push_link(digis, theLink, theCounterLink, detAmpl,detID);
     outdigi.data = digis;
   }
   
@@ -317,9 +285,102 @@ SiStripDigitizerAlgorithm::digitize(
     //  edm::LogWarning("SiStripDigitizer")<<"You are running the digitizer without Noise generation and without applying Zero Suppression. ARE YOU SURE???";
     //}else{							 
     
-    DigitalRawVecType rawdigis = theSiDigitalConverter->convertRaw(detAmpl, gainHandle, detID);
+	rawdigis.clear();
+    rawdigis = theSiDigitalConverter->convertRaw(detAmpl, gainHandle, detID);
+    push_link_raw(rawdigis, theLink, theCounterLink, detAmpl,detID);
     outrawdigi.data = rawdigis;
 	
 	//}
+  }
+}
+
+void SiStripDigitizerAlgorithm::push_link(const DigitalVecType &digis,
+					  const HitToDigisMapType& htd,
+					  const HitCounterToDigisMapType& hctd,
+					  const std::vector<double>& afterNoise,
+					  unsigned int detID) {
+  link_coll.clear();  
+  for ( DigitalVecType::const_iterator i=digis.begin(); i!=digis.end(); i++) {
+    // Instead of checking the validity of the links against the digis,
+    //  let's loop over digis and push the corresponding link
+    HitToDigisMapType::const_iterator mi(htd.find(i->strip()));  
+    if (mi == htd.end()) continue;
+    HitCounterToDigisMapType::const_iterator cmi(hctd.find(i->strip()));  
+    std::map<const PSimHit *, Amplitude> totalAmplitudePerSimHit;
+    for (std::vector < std::pair < const PSimHit*, Amplitude > >::const_iterator simul = 
+	   (*mi).second.begin() ; simul != (*mi).second.end(); simul ++){
+      totalAmplitudePerSimHit[(*simul).first] += (*simul).second;
+    }
+    
+    //--- include the noise as well
+    double totalAmplitude1 = afterNoise[(*mi).first];
+    
+    //--- digisimlink
+    int sim_counter=0; 
+    for (std::map<const PSimHit *, Amplitude>::const_iterator iter = totalAmplitudePerSimHit.begin(); 
+	 iter != totalAmplitudePerSimHit.end(); iter++){
+      float threshold = 0.;
+      float fraction = (*iter).second/totalAmplitude1;
+      if ( fraction >= threshold) {
+	// Noise fluctuation could make fraction>1. Unphysical, set it by hand = 1.
+	if(fraction > 1.) fraction = 1.;
+	for (std::vector < std::pair < const PSimHit*, int > >::const_iterator 
+	       simcount = (*cmi).second.begin() ; simcount != (*cmi).second.end(); simcount ++){
+	  if((*iter).first == (*simcount).first) sim_counter = (*simcount).second;
+	}
+	link_coll.push_back(StripDigiSimLink( (*mi).first, //channel
+					      ((*iter).first)->trackId(), //simhit trackId
+					      sim_counter, //simhit counter
+					      ((*iter).first)->eventId(), //simhit eventId
+					      fraction)); //fraction
+      }
+    }
+  }
+}
+
+void SiStripDigitizerAlgorithm::push_link_raw(const DigitalRawVecType &digis,
+					      const HitToDigisMapType& htd,
+					      const HitCounterToDigisMapType& hctd,
+					      const std::vector<double>& afterNoise,
+					      unsigned int detID) {
+  link_coll.clear();  
+  int nstrip = -1;
+  for ( DigitalRawVecType::const_iterator i=digis.begin(); i!=digis.end(); i++) {
+    nstrip++;
+    // Instead of checking the validity of the links against the digis,
+    //  let's loop over digis and push the corresponding link
+    HitToDigisMapType::const_iterator mi(htd.find(nstrip));  
+    HitCounterToDigisMapType::const_iterator cmi(hctd.find(nstrip));  
+    if (mi == htd.end()) continue;
+    std::map<const PSimHit *, Amplitude> totalAmplitudePerSimHit;
+    for (std::vector < std::pair < const PSimHit*, Amplitude > >::const_iterator simul = 
+	   (*mi).second.begin() ; simul != (*mi).second.end(); simul ++){
+      totalAmplitudePerSimHit[(*simul).first] += (*simul).second;
+    }
+    
+    //--- include the noise as well
+    double totalAmplitude1 = afterNoise[(*mi).first];
+    
+    //--- digisimlink
+    int sim_counter_raw=0;
+    for (std::map<const PSimHit *, Amplitude>::const_iterator iter = totalAmplitudePerSimHit.begin(); 
+	 iter != totalAmplitudePerSimHit.end(); iter++){
+      float threshold = 0.;
+      float fraction = (*iter).second/totalAmplitude1;
+      if (fraction >= threshold) {
+	//Noise fluctuation could make fraction>1. Unphysical, set it by hand.
+	if(fraction >1.) fraction = 1.;
+	//add counter information
+	for (std::vector < std::pair < const PSimHit*, int > >::const_iterator 
+	       simcount = (*cmi).second.begin() ; simcount != (*cmi).second.end(); simcount ++){
+	  if((*iter).first == (*simcount).first) sim_counter_raw = (*simcount).second;
+	}
+	link_coll.push_back(StripDigiSimLink( (*mi).first, //channel
+					      ((*iter).first)->trackId(), //simhit trackId
+					      sim_counter_raw, //simhit counter
+					      ((*iter).first)->eventId(), //simhit eventId
+					      fraction)); //fraction
+      }
+    }
   }
 }

@@ -219,7 +219,7 @@ cmsswVersion = os.environ['CMSSW_VERSION']
     # manual override some parameters
     if self.config.type in ('GRun', ):
       self.data += """
-# Enable HF Noise filters in GRun menu
+# En-able HF Noise filters in GRun menu
 if 'hltHfreco' in %(dict)s:
     %(process)shltHfreco.setNoiseFlags = cms.bool( True )
 """
@@ -296,26 +296,16 @@ if 'hltHfreco' in %(dict)s:
       # request summary informations from the MessageLogger
       self.updateMessageLogger()
 
-      # load 5.2.x JECs, until they are in the GlobalTag
-      self.loadAdditionalConditions('load 5.2.x JECs',
-        {
-          'record'  : 'JetCorrectionsRecord',
-          'tag'     : 'JetCorrectorParametersCollection_AK5Calo_2012_V8_hlt_mc',
-          'label'   : 'AK5CaloHLT',
-          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
-        }, {
-          'record'  : 'JetCorrectionsRecord',
-          'tag'     : 'JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc',
-          'label'   : 'AK5PFHLT',
-          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
-        }, {
-          'record'  : 'JetCorrectionsRecord',
-          'tag'     : 'JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc',
-          'label'   : 'AK5PFchsHLT',
-          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
-        }
-      )
 
+#    # load 4.2.x JECs
+#    self.loadAdditionalConditions('load 4.2.x JECs',
+#      {
+#        'record'  : 'JetCorrectionsRecord',
+#        'tag'     : 'JetCorrectorParametersCollection_Jec11_V1_AK5Calo',
+#        'label'   : 'AK5Calo',
+#        'connect' : 'frontier://PromptProd/CMS_COND_31X_PHYSICSTOOLS'
+#      }
+#    )
 
   def addGlobalOptions(self):
     # add global options

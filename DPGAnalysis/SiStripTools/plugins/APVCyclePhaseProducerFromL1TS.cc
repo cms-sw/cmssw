@@ -40,7 +40,6 @@
 
 #include <map>
 #include <vector>
-#include <utility>
 #include <string>
 
 #include "TH1F.h"
@@ -64,8 +63,6 @@ private:
   virtual void endRun(edm::Run&, const edm::EventSetup&);
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
-
-  bool isBadRun(const unsigned int) const;
   
       // ----------member data ---------------------------
 
@@ -75,8 +72,6 @@ private:
   const bool _wantHistos;
   const bool _useEC0;
   const int _magicOffset;
-  const unsigned int m_maxLS;
-  const unsigned int m_LSfrac;
 
   TH1F* _hsize;
   TH1F* _hlresync;
@@ -89,7 +84,7 @@ private:
   TH1F* _hdlec0lresync;
   TH1F* _hdlresynclHR;
 
-  std::vector<std::pair<unsigned int, unsigned int> > m_badruns;
+  const unsigned int _firstgoodrun;
   
   long long _lastResync;
   long long _lastHardReset;
@@ -120,17 +115,12 @@ APVCyclePhaseProducerFromL1TS::APVCyclePhaseProducerFromL1TS(const edm::Paramete
   _wantHistos(iConfig.getUntrackedParameter<bool>("wantHistos",false)),
   _useEC0(iConfig.getUntrackedParameter<bool>("useEC0",false)),
   _magicOffset(iConfig.getUntrackedParameter<int>("magicOffset",8)),
-  m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin",250)),
-  m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction",16)),
-  m_badruns(),
+  _firstgoodrun(131768),
   _lastResync(-1),_lastHardReset(-1),_lastStart(-1),
   _lastEventCounter0(-1),_lastOrbitCounter0(-1),_lastTestEnable(-1)
 {
 
   produces<APVCyclePhaseCollection,edm::InEvent>();
-
-  m_badruns.push_back(std::pair<unsigned int, unsigned int>(0,131767));
-  m_badruns.push_back(std::pair<unsigned int, unsigned int>(193150,193733));
 
    //now do what ever other initialization is needed
 
@@ -168,27 +158,27 @@ APVCyclePhaseProducerFromL1TS::beginRun(edm::Run& iRun, const edm::EventSetup& i
 
     _hsize = subrun.make<TH1F>("size","Level1TriggerScalers Collection size",20,-0.5,19.5);
 
-    _hlresync = subrun.make<TH1F>("lresync","Orbit of last resync",m_LSfrac*m_maxLS,0,m_maxLS*262144);
+    _hlresync = subrun.make<TH1F>("lresync","Orbit of last resync",3600,0.,3600*11223);
     _hlresync->GetXaxis()->SetTitle("Orbit");     _hlresync->GetYaxis()->SetTitle("Events");
     _hlresync->SetBit(TH1::kCanRebin);
 
-    _hlOC0 = subrun.make<TH1F>("lOC0","Orbit of last OC0",m_LSfrac*m_maxLS,0,m_maxLS*262144);
+    _hlOC0 = subrun.make<TH1F>("lOC0","Orbit of last OC0",3600,0.,3600*11223);
     _hlOC0->GetXaxis()->SetTitle("Orbit");     _hlOC0->GetYaxis()->SetTitle("Events");
     _hlOC0->SetBit(TH1::kCanRebin);
 
-    _hlTE = subrun.make<TH1F>("lTE","Orbit of last TestEnable",m_LSfrac*m_maxLS,0,m_maxLS*262144);
+    _hlTE = subrun.make<TH1F>("lTE","Orbit of last TestEnable",3600,0.,3600*11223);
     _hlTE->GetXaxis()->SetTitle("Orbit");     _hlTE->GetYaxis()->SetTitle("Events");
     _hlTE->SetBit(TH1::kCanRebin);
 
-    _hlstart = subrun.make<TH1F>("lstart","Orbit of last Start",m_LSfrac*m_maxLS,0,m_maxLS*262144);
+    _hlstart = subrun.make<TH1F>("lstart","Orbit of last Start",3600,0.,3600*11223);
     _hlstart->GetXaxis()->SetTitle("Orbit");     _hlstart->GetYaxis()->SetTitle("Events");
     _hlstart->SetBit(TH1::kCanRebin);
 
-    _hlEC0 = subrun.make<TH1F>("lEC0","Orbit of last EC0",m_LSfrac*m_maxLS,0,m_maxLS*262144);
+    _hlEC0 = subrun.make<TH1F>("lEC0","Orbit of last EC0",3600,0.,3600*11223);
     _hlEC0->GetXaxis()->SetTitle("Orbit");     _hlEC0->GetYaxis()->SetTitle("Events");
     _hlEC0->SetBit(TH1::kCanRebin);
 
-    _hlHR = subrun.make<TH1F>("lHR","Orbit of last HardReset",m_LSfrac*m_maxLS,0,m_maxLS*262144);
+    _hlHR = subrun.make<TH1F>("lHR","Orbit of last HardReset",3600,0.,3600*11223);
     _hlHR->GetXaxis()->SetTitle("Orbit");     _hlHR->GetYaxis()->SetTitle("Events");
     _hlHR->SetBit(TH1::kCanRebin);
 
@@ -200,9 +190,9 @@ APVCyclePhaseProducerFromL1TS::beginRun(edm::Run& iRun, const edm::EventSetup& i
 
   }
 
-  if(isBadRun(iRun.run())) {
+  if(iRun.run() < _firstgoodrun) {
     LogDebug("UnreliableMissingL1TriggerScalers") << 
-      "In this run L1TriggerScalers is missing or unreliable for phase determination: invlid phase will be returned"; 
+      "In this run L1TriggerScalers is missing or unreliable for phase determination: default phases will be used"; 
   }
 
 }
@@ -223,74 +213,69 @@ APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::EventSetup
   std::auto_ptr<APVCyclePhaseCollection> apvphases(new APVCyclePhaseCollection() );
   
 
-  std::vector<int> phases(_defphases.size(),APVCyclePhaseCollection::invalid);
-
+  const std::vector<int>& phases = _defphases;
   const std::vector<std::string>& partnames = _defpartnames;
 
   int phasechange = 0;
 
+  if(iEvent.run() >= _firstgoodrun ) {
     
-  Handle<Level1TriggerScalersCollection> l1ts;
-  iEvent.getByLabel(_l1tscollection,l1ts);
-  
-  if(_wantHistos) _hsize->Fill(l1ts->size());
-  
-  // offset computation
-  
-  long long orbitoffset = 0;
-  
-  if(l1ts->size()>0) {
+    Handle<Level1TriggerScalersCollection> l1ts;
+    iEvent.getByLabel(_l1tscollection,l1ts);
     
-    if((*l1ts)[0].lastResync()!=0) {
-      orbitoffset = _useEC0 ? (*l1ts)[0].lastEventCounter0() + _magicOffset : (*l1ts)[0].lastResync() + _magicOffset;
-    }
+    if(_wantHistos) _hsize->Fill(l1ts->size());
+
+    // offset computation
     
-    if(_wantHistos) {
-      _hlresync->Fill((*l1ts)[0].lastResync());
-      _hlOC0->Fill((*l1ts)[0].lastOrbitCounter0());
-      _hlTE->Fill((*l1ts)[0].lastTestEnable());
-      _hlstart->Fill((*l1ts)[0].lastStart());
-      _hlEC0->Fill((*l1ts)[0].lastEventCounter0());
-      _hlHR->Fill((*l1ts)[0].lastHardReset());
-    }
-    
-    if(_lastResync != (*l1ts)[0].lastResync()) {
-      _lastResync = (*l1ts)[0].lastResync();
-      if(_wantHistos) _hdlec0lresync->Fill((*l1ts)[0].lastEventCounter0()-(*l1ts)[0].lastResync());
-      LogDebug("TTCSignalReceived") << "New Resync at orbit " << _lastResync ;
-    }
-    if(_lastHardReset != (*l1ts)[0].lastHardReset()) {
-      _lastHardReset = (*l1ts)[0].lastHardReset();
-      if(_wantHistos) _hdlresynclHR->Fill((*l1ts)[0].lastResync()-(*l1ts)[0].lastHardReset());
-      LogDebug("TTCSignalReceived") << "New HardReset at orbit " << _lastHardReset ;
-    }
-    if(_lastTestEnable != (*l1ts)[0].lastTestEnable()) {
-      _lastTestEnable = (*l1ts)[0].lastTestEnable();
-      //      LogDebug("TTCSignalReceived") << "New TestEnable at orbit " << _lastTestEnable ;
-    }
-    if(_lastOrbitCounter0 != (*l1ts)[0].lastOrbitCounter0()) {
-      _lastOrbitCounter0 = (*l1ts)[0].lastOrbitCounter0();
-      LogDebug("TTCSignalReceived") << "New OrbitCounter0 at orbit " << _lastOrbitCounter0 ;
-    }
-    if(_lastEventCounter0 != (*l1ts)[0].lastEventCounter0()) {
-      _lastEventCounter0 = (*l1ts)[0].lastEventCounter0();
-      LogDebug("TTCSignalReceived") << "New EventCounter0 at orbit " << _lastEventCounter0 ;
-    }
-    if(_lastStart != (*l1ts)[0].lastStart()) {
-      _lastStart = (*l1ts)[0].lastStart();
-      LogDebug("TTCSignalReceived") << "New Start at orbit " << _lastStart ;
-    }
-    
-    if(!isBadRun(iEvent.run())) {
-      phasechange = ((long long)(orbitoffset*3564))%70;
-      
-      for(unsigned int ipart=0;ipart<phases.size();++ipart) {
-	phases[ipart] = (_defphases[ipart]+phasechange)%70;
+    long long orbitoffset = 0;
+
+    if(l1ts->size()>0) {
+
+      if((*l1ts)[0].lastResync()!=0) {
+	orbitoffset = _useEC0 ? (*l1ts)[0].lastEventCounter0() + _magicOffset : (*l1ts)[0].lastResync() + _magicOffset;
       }
+      
+      if(_wantHistos) {
+	_hlresync->Fill((*l1ts)[0].lastResync());
+	_hlOC0->Fill((*l1ts)[0].lastOrbitCounter0());
+	_hlTE->Fill((*l1ts)[0].lastTestEnable());
+	_hlstart->Fill((*l1ts)[0].lastStart());
+	_hlEC0->Fill((*l1ts)[0].lastEventCounter0());
+	_hlHR->Fill((*l1ts)[0].lastHardReset());
+      }
+      
+      if(_lastResync != (*l1ts)[0].lastResync()) {
+	_lastResync = (*l1ts)[0].lastResync();
+	if(_wantHistos) _hdlec0lresync->Fill((*l1ts)[0].lastEventCounter0()-(*l1ts)[0].lastResync());
+	LogDebug("TTCSignalReceived") << "New Resync at orbit " << _lastResync ;
+      }
+      if(_lastHardReset != (*l1ts)[0].lastHardReset()) {
+	_lastHardReset = (*l1ts)[0].lastHardReset();
+	if(_wantHistos) _hdlresynclHR->Fill((*l1ts)[0].lastResync()-(*l1ts)[0].lastHardReset());
+	LogDebug("TTCSignalReceived") << "New HardReset at orbit " << _lastHardReset ;
+      }
+      if(_lastTestEnable != (*l1ts)[0].lastTestEnable()) {
+	_lastTestEnable = (*l1ts)[0].lastTestEnable();
+	//      LogDebug("TTCSignalReceived") << "New TestEnable at orbit " << _lastTestEnable ;
+      }
+      if(_lastOrbitCounter0 != (*l1ts)[0].lastOrbitCounter0()) {
+	_lastOrbitCounter0 = (*l1ts)[0].lastOrbitCounter0();
+	LogDebug("TTCSignalReceived") << "New OrbitCounter0 at orbit " << _lastOrbitCounter0 ;
+      }
+      if(_lastEventCounter0 != (*l1ts)[0].lastEventCounter0()) {
+	_lastEventCounter0 = (*l1ts)[0].lastEventCounter0();
+	LogDebug("TTCSignalReceived") << "New EventCounter0 at orbit " << _lastEventCounter0 ;
+      }
+      if(_lastStart != (*l1ts)[0].lastStart()) {
+	_lastStart = (*l1ts)[0].lastStart();
+	LogDebug("TTCSignalReceived") << "New Start at orbit " << _lastStart ;
+      }
+      
+      phasechange = ((long long)(orbitoffset*3564))%70;
       
     }
   }
-  
+    
 
   if(phases.size() < partnames.size() ) {
     // throw exception
@@ -300,11 +285,10 @@ APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::EventSetup
   }
 
   for(unsigned int ipart=0;ipart<partnames.size();++ipart) {
-    //    if(phases[ipart]>=0) {
-      //      apvphases->get()[partnames[ipart]] = (phases[ipart]+phasechange)%70;
-    apvphases->get()[partnames[ipart]] = phases[ipart];
+    if(phases[ipart]>=0) {
+      apvphases->get()[partnames[ipart]] = (phases[ipart]+phasechange)%70;
 
-      //    }
+    }
   }
 
 
@@ -321,17 +305,6 @@ APVCyclePhaseProducerFromL1TS::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 APVCyclePhaseProducerFromL1TS::endJob() {
-}
-
-bool 
-APVCyclePhaseProducerFromL1TS::isBadRun(const unsigned int run) const {
-
-  for(std::vector<std::pair<unsigned int, unsigned int> >::const_iterator runpair = m_badruns.begin();runpair!=m_badruns.end();++runpair) {
-    if( run >= runpair->first && run <= runpair->second) return true;
-  }
-
-  return false;
-
 }
 
 //define this as a plug-in

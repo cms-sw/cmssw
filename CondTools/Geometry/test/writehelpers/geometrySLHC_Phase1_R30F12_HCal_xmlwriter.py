@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GeometryXMLWriter")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.load('SLHCUpgradeSimulations.Geometry.Phase1_R30F12_HCal_cmsSimIdealGeometryXML_cff')
+process.load("SLHCUpgradeSimulations.Geometry.Phase1_cmsSimIdealGeometryXML_cfi")
 
 process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
                                                       fromDDD = cms.bool( True ),

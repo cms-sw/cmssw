@@ -1,8 +1,10 @@
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
-#include "SimTracker/SiStripDigitizer/interface/SiStripDigitizer.h"
-#include "SimTracker/SiStripDigitizer/interface/DigiSimLinkProducer.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
-DEFINE_DIGI_ACCUMULATOR(SiStripDigitizer);
-DEFINE_FWK_MODULE(DigiSimLinkProducer);
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "SimTracker/SiStripDigitizer/interface/SiStripDigitizer.h"
+
+
+DEFINE_FWK_MODULE(SiStripDigitizer);
+
 

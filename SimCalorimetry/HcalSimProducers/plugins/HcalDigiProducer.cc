@@ -1,41 +1,32 @@
 #include "SimCalorimetry/HcalSimProducers/plugins/HcalDigiProducer.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+using namespace std;
 
-HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const& pset, edm::EDProducer& mixMod) :
-    DigiAccumulatorMixMod(),
-    theDigitizer_(pset) {
-    mixMod.produces<HBHEDigiCollection>();
-    mixMod.produces<HODigiCollection>();
-    mixMod.produces<HFDigiCollection>();
-    mixMod.produces<ZDCDigiCollection>();
+
+HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps) 
+: theDigitizer(ps)
+{
+  produces<HBHEDigiCollection>();
+  produces<HODigiCollection>();
+  produces<HFDigiCollection>();
+  produces<ZDCDigiCollection>();
 }
 
-void
-HcalDigiProducer::initializeEvent(edm::Event const& event, edm::EventSetup const& es) {
-  theDigitizer_.initializeEvent(event, es);
+
+HcalDigiProducer::~HcalDigiProducer() {
 }
 
-void
-HcalDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const& es) {
-  theDigitizer_.finalizeEvent(event, es);
+
+void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
+  theDigitizer.produce(e, eventSetup);
 }
 
-void
-HcalDigiProducer::accumulate(edm::Event const& event, edm::EventSetup const& es) {
-  theDigitizer_.accumulate(event, es);
+void HcalDigiProducer::beginRun(edm::Run& run, edm::EventSetup const& es)
+{
+  theDigitizer.beginRun(es);
 }
 
-void
-HcalDigiProducer::accumulate(PileUpEventPrincipal const& event, edm::EventSetup const& es) {
-  theDigitizer_.accumulate(event, es);
+void HcalDigiProducer::endRun(edm::Run& run, edm::EventSetup const& es)
+{
+  theDigitizer.endRun();
 }
 
-void
-HcalDigiProducer::beginRun(edm::Run&, edm::EventSetup const& es) {
-  theDigitizer_.beginRun(es);
-}
-
-void
-HcalDigiProducer::endRun(edm::Run&, edm::EventSetup const&) {
-  theDigitizer_.endRun();
-}

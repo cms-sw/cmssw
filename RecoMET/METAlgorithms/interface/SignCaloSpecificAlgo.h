@@ -1,9 +1,11 @@
+#ifndef METProducers_SignCaloMETAlgo_h
+#define METProducers_SignCaloMETAlgo_h
 // -*- C++ -*-
 //
 // Package:    METAlgorithms
 // Class:      SignCaloSpecificAlgo
 // 
-/**\class SignCaloSpecificAlgo SignCaloSpecificAlgo.h RecoMET/METAlgorithms/interface/SignCaloSpecificAlgo.h
+/**\class METSignificance SignCaloSpecificAlgo.h RecoMET/METAlgorithms/include/SignCaloSpecificAlgo.h
 
  Description: <one line class summary>
 
@@ -11,36 +13,38 @@
      <Notes on implementation>
 */
 //
-// Original Authors:  Kyle Story, Freya Blekman (Cornell University)
-//          Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignCaloSpecificAlgo.h,v 1.5 2012/06/09 18:27:46 sakuma Exp $
+// Original Author:  Kyle Story, Freya Blekman (Cornell University)
+//         Created:  Fri Apr 18 11:58:33 CEST 2008
+// $Id: SignCaloSpecificAlgo.h,v 1.3 2009/10/21 11:27:11 fblekman Exp $
+//
 //
 // 
-#ifndef METProducers_SignCaloMETAlgo_h
-#define METProducers_SignCaloMETAlgo_h
-
-//____________________________________________________________________________||
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/METReco/interface/SpecificCaloMETData.h"
+#include "RecoMET/METAlgorithms/interface/SignAlgoResolutions.h"
 #include "RecoMET/METAlgorithms/interface/SigInputObj.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "TF1.h"
 #include "TMatrixD.h"
 
-namespace metsig {
-  class SignAlgoResolutions;
-}
 
-//____________________________________________________________________________||
-class SignCaloSpecificAlgo {
-
-public:
+class SignCaloSpecificAlgo 
+{
+ public:
 
   SignCaloSpecificAlgo();
   ~SignCaloSpecificAlgo();
 
+  
+  typedef math::XYZTLorentzVector LorentzVector;
+  typedef math::XYZPoint Point;
+  typedef std::vector <const reco::Candidate*> TowerCollection;
   void usePreviousSignif(const std::vector<double> &values);
-  void usePreviousSignif(const TMatrixD &matrix) { matrix_ = matrix; }
+  void usePreviousSignif(const TMatrixD &matrix){matrix_=matrix;}
   double getSignificance(){return significance_;}
   TMatrixD getSignificanceMatrix()const {return matrix_;}
 
@@ -54,6 +58,4 @@ public:
   TMatrixD matrix_;
 };
 
-
-//____________________________________________________________________________||
-#endif // METProducers_SignCaloMETAlgo_h
+#endif

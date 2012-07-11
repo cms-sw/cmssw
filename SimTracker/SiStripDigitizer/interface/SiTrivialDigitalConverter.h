@@ -17,10 +17,10 @@ class SiTrivialDigitalConverter: public SiDigitalConverter{
 
   int convert(float in){return truncate(in/electronperADC);}
   int convertRaw(float in){return truncateRaw(in/electronperADC);}
-  int truncate(float in_adc) const;
-  int truncateRaw(float in_adc) const;
+  int truncate(float in_adc);
+  int truncateRaw(float in_adc);
   
-  const float electronperADC;
+  float electronperADC;
   SiDigitalConverter::DigitalVecType _temp;
   SiDigitalConverter::DigitalRawVecType _tempRaw;
 

@@ -9,7 +9,6 @@
 #include <TString.h>
 #include "OHltRatePrinter.h"
 #include "OHltTree.h"
-#include "OHltPileupRateFitter.h"
 
 using namespace std;
 
@@ -30,8 +29,7 @@ void OHltRatePrinter::SetupAll(
       vector<float> tAverageRefPrescaleHLT,
       vector<float> tAverageRefPrescaleL1,
       vector< vector<int> > tCountPerLS,
-      vector<int> tTotalCountPerLS,
-      vector<double> tLumiPerLS)
+      vector<int> tTotalCountPerLS)
 {
    Rate = tRate;
    RateErr = tRateErr;
@@ -50,8 +48,7 @@ void OHltRatePrinter::SetupAll(
    averageRefPrescaleL1 = tAverageRefPrescaleL1;
    CountPerLS = tCountPerLS;
    totalCountPerLS = tTotalCountPerLS;
-   LumiPerLS = tLumiPerLS;
-
+     
    ReorderRunLS(); // reorder messed up runids/LS
 }
 
@@ -98,7 +95,7 @@ void OHltRatePrinter::printRatesASCII(OHltConfig *cfg, OHltMenu *menu)
             //cout<<it->first<<endl; 
             for (unsigned int j=0; j<it->second.size(); j++)
             {
-	      itmp.push_back(menu->GetL1Prescale((it->second)[j]));
+               itmp.push_back(menu->GetL1Prescale((it->second)[j]));
                //cout<<"\t"<<(it->second)[j]<<endl; 
             }
          }
@@ -120,10 +117,7 @@ void OHltRatePrinter::printRatesASCII(OHltConfig *cfg, OHltMenu *menu)
                   }
                   else
                   {
-		    // JH
-		    // l1PrescaleCorrection = averageRefPrescaleL1[k];
-		    l1PrescaleCorrection = 1.0;
-		    // end JH
+                     l1PrescaleCorrection = averageRefPrescaleL1[k];
                      tempTrigSeedPrescales += (itmp[j]*l1PrescaleCorrection);
                   }
                }
@@ -164,14 +158,9 @@ void OHltRatePrinter::printRatesASCII(OHltConfig *cfg, OHltMenu *menu)
       else
          hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);
 
-      //JH
-      //      hltPrescaleCorrection = 1.0;
-      // JH
-      
       cout<<setw(50)<<menu->GetTriggerName(i)<<" (" <<setw(8)
             <<(int)(menu->GetPrescale(i) * hltPrescaleCorrection)
-	  << "*" <<tempTrigSeedPrescales<<setw(8)<<")  "
-	//	  << "*" << " - "<<setw(5)<<")  "
+	    << "*" <<tempTrigSeedPrescales<<setw(5)<<")  "
             <<setw(8)<<Rate[i]<<" +- " <<setw(7)<<RateErr[i]<<" | " <<setw(8)
             <<spureRate[i]<<" | " <<setw(8)<<cumulRate <<endl;
    }
@@ -267,7 +256,7 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu)
             //cout<<it->first<<endl; 
             for (unsigned int j=0; j<it->second.size(); j++)
             {
-	      itmp.push_back(menu->GetL1Prescale((it->second)[j]));
+               itmp.push_back(menu->GetL1Prescale((it->second)[j]));
                //cout<<"\t"<<(it->second)[j]<<endl; 
             }
          }
@@ -289,10 +278,7 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu)
                   }
                   else
                   {
-		    // JH
-		    l1PrescaleCorrection = 1.0;
-                    // l1PrescaleCorrection = averageRefPrescaleL1[k];
-		    // end JH
+                     l1PrescaleCorrection = averageRefPrescaleL1[k];
                      tempTrigSeedPrescales += (itmp[j]*l1PrescaleCorrection);
                   }
                }
@@ -333,13 +319,8 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu)
       else
          hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);
 
-      // JH
-      //      hltPrescaleCorrection = 1.0;
-      // end JH
-
       outFile << "| !"<< menu->GetTriggerName(i) << " | !" << tempTrigSeeds
-	      << " | " << tempTrigSeedPrescales << " | "
-	//	      << " | " << "-" << " | "
+            << " | " << tempTrigSeedPrescales << " | "
             << (int)(menu->GetPrescale(i) * hltPrescaleCorrection) << " | "
             << Rate[i] << "+-" << RateErr[i] << " | " << cumulRate << " | "
             << menu->GetEventsize(i) << " | " << cuThru << " | " << endl;
@@ -471,7 +452,6 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu)
    TH2F *individualCountsPerLS = new TH2F("individualCountsPerLS","individualCountsPerLS",nTrig,1,nTrig+1,
 	 RunLSn,RunLSmin,RunLSmax);
    TH1F *totalCountsPerLS = new TH1F("totalCountsPerLS","totalCountsPerLS",RunLSn,RunLSmin,RunLSmax);
-   TH1F *instLumiPerLS = new TH1F("instLumiPerLS","instLumiPerLS",RunLSn,RunLSmin,RunLSmax);
 
    float cumulRate = 0.;
    float cumulRateErr = 0.;
@@ -520,8 +500,6 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu)
       totalPerLS->GetXaxis()->SetBinLabel(j+1, tstr);
       totalCountsPerLS->SetBinContent(j+1, totalCountPerLS[j]);
       totalCountsPerLS->GetXaxis()->SetBinLabel(j+1, tstr);
-      instLumiPerLS->SetBinContent(j+1, LumiPerLS[j]);
-      instLumiPerLS->GetXaxis()->SetBinLabel(j+1, tstr);
 
       // L1
       for (unsigned int k=0; k<menu->GetL1TriggerSize(); k++)
@@ -637,37 +615,8 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu)
    totalCountsPerLS->SetZTitle("Events selected");
    totalCountsPerLS->SetTitle("Total trigger counts vs Run/LumiSection");
    totalCountsPerLS->Write();
-   instLumiPerLS->SetStats(0);
-   instLumiPerLS->SetZTitle("Events selected");
-   instLumiPerLS->SetTitle("Instantaneous lumi vs Run/LumiSection");
-   instLumiPerLS->Write();
-
 
    fr->Close();
-}
-
-/* ********************************************** */
-// Call pileup fitting 
-/* ********************************************** */
-void OHltRatePrinter::fitRatesForPileup(OHltConfig *cfg, OHltMenu *menu)
-{
-  TString tableFileName = GetFileName(cfg, menu);
-
-  TFile *fr = new TFile(tableFileName+TString(".root"),"UPDATE");
-  fr->cd();
-
-  OHltPileupRateFitter* pileupfitter = new OHltPileupRateFitter();
-  pileupfitter->fitForPileup(
-			     cfg,
-			     menu,
-			     RatePerLS,
-			     totalRatePerLS,
-			     LumiPerLS,
-			     CountPerLS,
-			     totalCountPerLS,
-			     fr);
-
-  fr->Close();
 }
 
 /* ********************************************** */
@@ -805,10 +754,6 @@ void OHltRatePrinter::printL1RatesTex(OHltConfig *cfg, OHltMenu *menu)
          hltPrescaleCorrection = averageRefPrescaleHLT[i];
       else
          hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);
-
-      // JH
-      //      hltPrescaleCorrection = 1.0;
-      // JH
 
       outFile << "\\color{blue}" << tempTrigName << " & "
             << (int)(menu->GetPrescale(i) * hltPrescaleCorrection) << " & "
@@ -971,7 +916,7 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu)
             //cout<<it->first<<endl;
             for (unsigned int j=0; j<it->second.size(); j++)
             {
-	      itmp.push_back(menu->GetL1Prescale((it->second)[j]));
+               itmp.push_back(menu->GetL1Prescale((it->second)[j]));
                //cout<<"\t"<<(it->second)[j]<<endl;
             }
          }
@@ -1023,13 +968,8 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu)
       else
          hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);
 
-      // JH
-      //      hltPrescaleCorrection = 1.0;
-      // JH
-
       outFile << "\\color{blue}" << tempTrigName << " & " << tempTrigSeeds
-	      << " & " << tempTrigSeedPrescales << " & "
-	//	      << " & " << "-" << " & "
+            << " & " << tempTrigSeedPrescales << " & "
             << (int)(menu->GetPrescale(i) * hltPrescaleCorrection) << " & "
             << Rate[i] << " {$\\pm$ " << RateErr[i] << "} & " << cumulRate
             << " & " << menu->GetEventsize(i) << " & " << cuThru << "\\\\"
@@ -1120,10 +1060,6 @@ void OHltRatePrinter::printPrescalesCfg(OHltConfig *cfg, OHltMenu *menu)
          hltPrescaleCorrection = averageRefPrescaleHLT[i];
       else
          hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);
-
-      // JH
-      //      hltPrescaleCorrection = 1.0;
-      // JH
 
       outFile << "\tcms.PSet(  pathName = cms.string( \""
             << menu->GetTriggerName(i) << "\" )," << endl;
@@ -1219,10 +1155,6 @@ void OHltRatePrinter::printHLTDatasets(
                else
                   hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);
 
-	       // JH
-	       //	       hltPrescaleCorrection = 1.0;
-	       // JH
-
                if (DStriggerName.CompareTo(iMenuTriggerName)==0)
                {
                   printf(
@@ -1281,10 +1213,6 @@ void OHltRatePrinter::ReorderRunLS()
 	    CountPerLS[j] = CountPerLS[j+1];
 	    CountPerLS[j+1] = swap6;
 
-	    double swap7 = LumiPerLS[j];
-	    LumiPerLS[j] = LumiPerLS[j+1];
-	    LumiPerLS[j+1] = swap7;
-	    
             //cout<<"<<<<<< "<<runID[j]<<" "<<runID[j+1]<<" "<<endl;
             //cout<<"<<<<<< "<<lumiSection[j]<<" "<<lumiSection[j+1]<<" "<<endl;
          }

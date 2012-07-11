@@ -15,8 +15,6 @@ This description also applies to every product instance on the branch.
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
-#include "Reflex/Type.h"
-
 #include <iosfwd>
 #include <map>
 #include <set>
@@ -87,7 +85,7 @@ namespace edm {
     bool& dropped() const {return transient_.dropped_;}
     bool& onDemand() const {return transient_.onDemand_;}
     bool& transient() const {return transient_.transient_;}
-    Reflex::Type& type() const {return transient_.type_;}
+    TypeID& type() const {return transient_.type_;}
     TypeID& typeID() const {return transient_.typeID_;}
     int& splitLevel() const {return transient_.splitLevel_;}
     int& basketSize() const {return transient_.basketSize_;}
@@ -162,9 +160,8 @@ namespace edm {
       // in the data dictionary
       bool transient_;
 
-      // The Reflex Type of the wrapped object
-      // in the data dictionary
-      Reflex::Type type_;
+      // A TypeID object for the wrapped object
+      TypeID type_;
 
       // A TypeID object for the unwrapped object
       TypeID typeID_;

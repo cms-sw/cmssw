@@ -14,37 +14,35 @@
 #include <iostream>
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "RecoEgamma/EgammaHFProducers/interface/HFRecoEcalCandidateAlgo.h"
-#include "RecoEgamma/EgammaHFProducers/interface/HFEGammaSLCorrector.h"
+
 
 using namespace std;
 using namespace reco;
 
-HFRecoEcalCandidateAlgo::HFRecoEcalCandidateAlgo(bool correct,double e9e25Cut,double intercept2DCut,double intercept2DSlope,
+HFRecoEcalCandidateAlgo::HFRecoEcalCandidateAlgo(bool correct,double e9e25Cut,double intercept2DCut,
 						 const std::vector<double>& e1e9Cut,
 						 const std::vector<double>& eCOREe9Cut,
-						 const std::vector<double>& eSeLCut,
-						 reco::HFValueStruct hfvv				
+						 const std::vector<double>& eSeLCut				
 ) :
   
   m_correct(correct), 
   m_e9e25Cut(e9e25Cut),
   m_intercept2DCut(intercept2DCut),
-  m_intercept2DSlope(intercept2DSlope),
-  m_e1e9Cuthi(e1e9Cut[1]),
+    m_e1e9Cuthi(e1e9Cut[1]),
   m_eCOREe9Cuthi(eCOREe9Cut[1]),
   m_eSeLCuthi(eSeLCut[1]),
   m_e1e9Cutlo(e1e9Cut[0]),
   m_eCOREe9Cutlo(eCOREe9Cut[0]),
-  m_eSeLCutlo(eSeLCut[0]),
-  m_era(4), 
-  m_hfvv(hfvv)
+  m_eSeLCutlo(eSeLCut[0])
+ 
 {
   
 }
 
-RecoEcalCandidate HFRecoEcalCandidateAlgo::correctEPosition(const SuperCluster& original , const HFEMClusterShape& shape,int nvtx) {
- double corEta=original.eta();
-  //piece-wise log energy correction to eta
+RecoEcalCandidate HFRecoEcalCandidateAlgo::correctEPosition(const SuperCluster& original , const HFEMClusterShape& shape) {
+  
+  double corEta=original.eta();
+//piece-wise log energy correction to eta
   double logel=log(shape.eLong3x3()/100.0);
   double lowC= 0.00911;
   double hiC = 0.0193;
@@ -61,7 +59,7 @@ RecoEcalCandidate HFRecoEcalCandidateAlgo::correctEPosition(const SuperCluster& 
   double p3=-0.0506;
   double de= sgn*(p0+(p1*(shape.CellEta()))+(p2*(shape.CellEta()*shape.CellEta()))+(p3*(shape.CellEta()*shape.CellEta()*shape.CellEta())));
   corEta+=de;
- 
+
   double corPhi=original.phi();
   //poly-3 cell phi correction to phi (dp)
   p0= 0.0115;
@@ -70,23 +68,15 @@ RecoEcalCandidate HFRecoEcalCandidateAlgo::correctEPosition(const SuperCluster& 
   p3=-0.0335;
   double dp =p0+(p1*(shape.CellPhi()))+(p2*(shape.CellPhi()*shape.CellPhi()))+(p3*(shape.CellPhi()*shape.CellPhi()*shape.CellPhi()));
   corPhi+=dp;
-  
- 
+
   double corEnergy= original.energy();
   //energy corrections
   //flat correction for using only long fibers
   double energyCorrect=0.7397;
   corEnergy= corEnergy/energyCorrect; 
   //corection based on ieta for pileup and general 
-  //find ieta
-  int ieta=0;
-  double etabounds[30]={2.846,2.957,3.132,3.307,3.482,3.657,3.833,4.006,4.184,4.357,4.532,4.709,4.882,5.184};
-  for (int kk=0;kk<12;kk++){
-    if((fabs(corEta) < etabounds[kk+1])&&(fabs(corEta) > etabounds[kk])){
-      ieta = (corEta > 0)?(kk+29):(-kk-29);
-    }
-  }
-  corEnergy=(m_hfvv.PUSlope(ieta)*1.0*(nvtx-1)+m_hfvv.PUIntercept(ieta)*1.0)*corEnergy*1.0*m_hfvv.EnCor(ieta);
+  //not in this branch version!!
+
   //re-calculate the energy vector  
   double corPx=corEnergy*cos(corPhi)/cosh(corEta);
   double corPy=corEnergy*sin(corPhi)/cosh(corEta);
@@ -102,8 +92,7 @@ RecoEcalCandidate HFRecoEcalCandidateAlgo::correctEPosition(const SuperCluster& 
 
 void HFRecoEcalCandidateAlgo::produce(const edm::Handle<SuperClusterCollection>& SuperClusters,
 				      const HFEMClusterShapeAssociationCollection& AssocShapes,
-				      RecoEcalCandidateCollection& RecoECand,
-				      int nvtx) {
+				      RecoEcalCandidateCollection& RecoECand) {
   
   
   
@@ -124,12 +113,12 @@ void HFRecoEcalCandidateAlgo::produce(const edm::Handle<SuperClusterCollection>&
     
     // correct it?
     if (m_correct)
-      theCand=correctEPosition(supClus,clusShape,nvtx);
+      theCand=correctEPosition(supClus,clusShape);
 
     double e9e25=clusShape.eLong3x3()/clusShape.eLong5x5();
     double e1e9=clusShape.eLong1x1()/clusShape.eLong3x3();
-    double eSeL=hf_egamma::eSeLCorrected(clusShape.eShort3x3(),clusShape.eLong3x3(),4);
-    double var2d=(clusShape.eCOREe9()-(eSeL*m_intercept2DSlope));
+    double eSeL=clusShape.eShort3x3()/clusShape.eLong3x3();
+    double var2d=(clusShape.eCOREe9()-(eSeL*1.25));
  
     bool isAcceptable=true;
     isAcceptable=isAcceptable && (e9e25> m_e9e25Cut);
@@ -147,3 +136,5 @@ void HFRecoEcalCandidateAlgo::produce(const edm::Handle<SuperClusterCollection>&
   }
 }
  
+
+

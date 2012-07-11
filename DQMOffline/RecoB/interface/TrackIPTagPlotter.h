@@ -20,7 +20,6 @@ class TrackIPTagPlotter : public BaseTagInfoPlotter {
   ~TrackIPTagPlotter () ;
 
   void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const int & jetFlavour);
-  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const int & jetFlavour, const float & w);
 
   virtual void createPlotsForFinalize ();
   virtual void finalize ();
@@ -58,8 +57,6 @@ class TrackIPTagPlotter : public BaseTagInfoPlotter {
   TrackIPHistograms<double> * tkcntHistosTkPt3D[5];
   TrackIPHistograms<int> * tkcntHistosTkNHits2D[5];
   TrackIPHistograms<int> * tkcntHistosTkNHits3D[5];
-  TrackIPHistograms<int> * tkcntHistosTkNPixelHits2D[5];
-  TrackIPHistograms<int> * tkcntHistosTkNPixelHits3D[5];
   FlavourHistograms<int> * trkNbr3D, * trkNbr2D;
   double lowerIPSBound, upperIPSBound,lowerIPBound, upperIPBound,lowerIPEBound, upperIPEBound ;
   int nBinsIPS, nBinsIP, nBinsIPE;

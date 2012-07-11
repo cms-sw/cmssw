@@ -206,37 +206,30 @@ CaloHitRespoNew::run( MixCollection<PCaloHit>& hits )
    for( MixCollection<PCaloHit>::MixItr hitItr ( hits.begin() ) ;
 	hitItr != hits.end() ; ++hitItr )
    {
-      if(withinBunchRange(hitItr.bunch())) {
-        add(*hitItr);
-      }
-
+      const PCaloHit& hit ( *hitItr ) ;
+      const int bunch ( hitItr.bunch() ) ;
+      if( m_minBunch <= bunch  &&
+	  m_maxBunch >= bunch  &&
+	  !isnan( hit.time() ) &&
+	  ( 0 == m_hitFilter ||
+	    m_hitFilter->accepts( hit ) ) ) putAnalogSignal( hit ) ;
    }
 }
 
-void 
-CaloHitRespoNew::add( const PCaloHit& hit ) 
-{
-      if( !isnan( hit.time() ) &&
-	  ( 0 == m_hitFilter ||
-	    m_hitFilter->accepts( hit ) ) ) putAnalogSignal( hit ) ;
-}
-
 void
-CaloHitRespoNew::putAnalogSignal( const PCaloHit& hit )
+CaloHitRespoNew::putAnalogSignal( const PCaloHit& inputHit )
 {
+   PCaloHit hit ( inputHit ) ;
+
+   if( 0 != m_hitCorrection ) m_hitCorrection->correct( hit ) ;
+
    const DetId detId ( hit.id() ) ;
 
    const CaloSimParameters* parameters ( params( detId ) ) ;
 
-   const double signal ( analogSignalAmplitude( detId, hit.energy() ) ) ;
+   const double signal ( analogSignalAmplitude( hit ) ) ;
 
-   double time = hit.time();
-
-   if( m_hitCorrection ) {
-     time += m_hitCorrection->delay( hit ) ;
-   }
-
-   const double jitter ( time - timeOfFlight( detId ) ) ;
+   const double jitter ( hit.time() - timeOfFlight( detId ) ) ;
 
    const double tzero = ( shape()->timeToRise()
 			  + parameters->timePhase() 
@@ -265,14 +258,16 @@ CaloHitRespoNew::findSignal( const DetId& detId )
 }
 
 double 
-CaloHitRespoNew::analogSignalAmplitude( const DetId& detId, float energy ) const
+CaloHitRespoNew::analogSignalAmplitude( const PCaloHit& hit ) const
 {
+   const DetId& detId ( hit.id() ) ;
+
    const CaloSimParameters& parameters ( *params( detId ) ) ;
 
    // OK, the "energy" in the hit could be a real energy, deposited energy,
    // or pe count.  This factor converts to photoelectrons
 
-   double npe ( energy*parameters.simHitToPhotoelectrons( detId ) ) ;
+   double npe ( hit.energy()*parameters.simHitToPhotoelectrons( detId ) ) ;
 
    // do we need to doPoisson statistics for the photoelectrons?
    if( parameters.doPhotostatistics() ) npe = ranPois()->fire( npe ) ;

@@ -57,7 +57,7 @@ TrackerGeometricDetESModule::fillDescriptions( edm::ConfigurationDescriptions & 
   descSLHC.add<bool>( "fromDDD", true );
   descSLHC.addOptional<unsigned int>( "layerNumberPXB", 18U );
   descSLHC.addOptional<unsigned int>( "totalBlade", 56U );
-  descriptions.add( "trackerNumberingSLHCGeometryDB", descSLHC );
+  descriptions.add( "trackerNumberingSLHCGeometry", descSLHC );
 }
 
 std::auto_ptr<GeometricDet> 

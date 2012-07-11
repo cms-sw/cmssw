@@ -26,6 +26,7 @@
 
 #include "FWCore/FWLite/interface/setRefStreamer.h"
 
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -364,15 +365,15 @@ namespace fwlite {
             }
 
             //Calculate the key from the branch description
-            Reflex::Type type(Reflex::Type::ByName(edm::wrappedClassName(bDesc.fullClassName())));
-            assert(Reflex::Type() != type) ;
+            edm::TypeID type(edm::TypeID::byName(edm::wrappedClassName(bDesc.fullClassName())));
+            assert(bool(type)) ;
 
             //Only the product instance label may be empty
             char const* pIL = bDesc.productInstanceName().c_str();
             if(pIL[0] == 0) {
                 pIL = 0;
             }
-            internal::DataKey k(edm::TypeID(type.TypeInfo()),
+            internal::DataKey k(type,
                                 bDesc.moduleLabel().c_str(),
                                 pIL,
                                 bDesc.processName().c_str());
@@ -382,7 +383,7 @@ namespace fwlite {
             if(data_.end() == itData) {
                 //ask for the data
                 edm::WrapperHolder holder;
-                getByLabel(type.TypeInfo(),
+                getByLabel(type.typeInfo(),
                             k.module(),
                             k.product(),
                             k.process(),

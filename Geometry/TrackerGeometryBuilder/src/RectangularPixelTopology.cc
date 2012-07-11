@@ -24,6 +24,8 @@ RectangularPixelTopology::pixel( const LocalPoint& p ) const
   // location are passed here. They are cleaned later.
   
   std::ostringstream debugstr;
+  debugstr << "py = " << py << ", m_yoffset = " << m_yoffset
+	   << "px = " << px << ", m_xoffset = " << m_xoffset << "\n";
   
   if( py < m_yoffset ) // m_yoffset is negative 
   {
@@ -46,7 +48,8 @@ RectangularPixelTopology::pixel( const LocalPoint& p ) const
     px = -m_xoffset - EPSCM;
   }
   
-  LogDebug( "RectangularPixelTopology" ) << debugstr.str();
+  if( !debugstr.str().empty())
+      LogDebug( "RectangularPixelTopology" ) << debugstr.str();
     
 #endif // EDM_ML_DEBUG
 
@@ -204,7 +207,8 @@ RectangularPixelTopology::localPosition( const MeasurementPoint& mp ) const
     debugstr << " wrong mp x, fix " << mpx << " " << m_nrows << "\n";
     mpx = float(m_nrows) - EPS; // EPS is a small number
   }
-  LogDebug("RectangularPixelTopology") << debugstr.str();
+  if(! debugstr.str().empty())
+      LogDebug("RectangularPixelTopology") << debugstr.str();
 
 #endif // EDM_ML_DEBUG
 
@@ -439,28 +443,26 @@ RectangularPixelTopology::measurementError( const LocalPoint& lp,
 bool
 RectangularPixelTopology::containsBigPixelInX( const int& ixmin, const int& ixmax ) const
 {
-  bool big = false;
   if( !m_upgradeGeometry ) 
   {    
-    for(int i = ixmin; i != ixmax+1; i++)
+    for(int i = ixmax+1, iend = ixmin; i != iend; i--)
     {
-      if( isItBigPixelInX( i ) && big == false) big = true;
+      if( isItBigPixelInX( i )) return true;
     }
   }
   
-  return big;
+  return false;
 }
 
 bool
 RectangularPixelTopology::containsBigPixelInY( const int& iymin, const int& iymax ) const
 {
-  bool big = false;
   if( !m_upgradeGeometry ) 
   {    
-    for( int i = iymin; i != iymax+1; i++ )
+    for( int i = iymin, iend = iymax+1; i != iend; i++ )
     {
-      if( isItBigPixelInY( i ) && big == false ) big = true;
+      if( isItBigPixelInY( i )) return true;
     }
   }
-  return big;
+  return false;
 }

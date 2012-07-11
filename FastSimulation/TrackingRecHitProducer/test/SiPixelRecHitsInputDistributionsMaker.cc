@@ -422,7 +422,7 @@ void SiPixelRecHitsInputDistributionsMaker::fillBarrel(const SiPixelRecHit& recH
   int lastPixelInX = (*clust).maxPixelRow();
   int firstPixelInY = (*clust).minPixelCol();
   int lastPixelInY = (*clust).maxPixelCol();
-  const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+  const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(&(theGeomDet->specificType().specificTopology()));
   bool hasBigPixelInX = rectPixelTopology->containsBigPixelInX(firstPixelInX,lastPixelInX);
   bool hasBigPixelInY = rectPixelTopology->containsBigPixelInY(firstPixelInY,lastPixelInY);
 
@@ -593,7 +593,7 @@ void SiPixelRecHitsInputDistributionsMaker::fillForward(const SiPixelRecHit & re
   int lastPixelInX = (*clust).maxPixelRow();
   int firstPixelInY = (*clust).minPixelCol();
   int lastPixelInY = (*clust).maxPixelCol();
-  const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+  const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(&(theGeomDet->specificType().specificTopology()));
   bool hasBigPixelInX = rectPixelTopology->containsBigPixelInX(firstPixelInX,lastPixelInX);
   bool hasBigPixelInY = rectPixelTopology->containsBigPixelInY(firstPixelInY,lastPixelInY);
 

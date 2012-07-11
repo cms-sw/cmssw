@@ -26,8 +26,6 @@
 #include <vector>
 #include <queue>
 #include <semaphore.h>
-//#include <pthread.h>
-#include <mutex>
 
 namespace evf {
 
@@ -185,14 +183,6 @@ public:
 		isReadyToShutDown_ = readyValue;
 	}
 
-	UInt_t shutdownStatus() {
-		return shutdownStatus_;
-	}
-
-	void setStopFlag(bool status) {
-		stopFlag_=status;
-	}
-
 	// various counters
 	virtual UInt_t nbResources() const = 0; /* Implemented in subclass */
 	UInt_t nbFreeSlots() const {
@@ -310,16 +300,6 @@ public:
 		sem_post(&lock_);
 	}
 
-	std::unique_lock<std::timed_mutex> lockCrashHandler() {
-		std::unique_lock<std::timed_mutex> lk(crashHandlerLock_);
-		return lk;
-	}
-
-	std::unique_lock<std::timed_mutex> lockCrashHandlerTimed(unsigned int seconds) {
-		std::unique_lock<std::timed_mutex> lk(crashHandlerLock_,std::chrono::seconds(seconds));
-		return lk;
-	}
-
 	/**
 	 * Has to be implemented by subclasses, according to IPC type.
 	 */
@@ -378,14 +358,10 @@ protected:
 	UInt_t runNumber_;
 
 	sem_t lock_;
-	std::timed_mutex crashHandlerLock_;
 	EvffedFillerRB *frb_;
 	xdaq::Application *app_;
 
 	FUResourceVec_t resources_;
-
-	UInt_t shutdownStatus_;
-	bool stopFlag_;
 
 };
 

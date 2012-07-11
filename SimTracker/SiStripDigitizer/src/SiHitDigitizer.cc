@@ -8,24 +8,37 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#define CBOLTZ (1.38E-23)
-//#define e_SI (1.6E-19)
-static const double CBOLTZ_over_e_SI = 1.38E-23/1.6E-19;
-static const double noDiffusionMultiplier = 1.0e-3;
+#define CBOLTZ (1.38E-23)
+#define e_SI (1.6E-19)
 
-SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf, CLHEP::HepRandomEngine& eng) :
-  depletionVoltage(conf.getParameter<double>("DepletionVoltage")),
-  chargeMobility(conf.getParameter<double>("ChargeMobility")),
-  theSiChargeDivider(new SiLinearChargeDivider(conf, eng)),
-  theSiChargeCollectionDrifter(new SiLinearChargeCollectionDrifter(
-         CBOLTZ_over_e_SI * chargeMobility * conf.getParameter<double>("Temperature") * (conf.getParameter<bool>("noDiffusion") ? noDiffusionMultiplier : 1.0),
-         conf.getParameter<double>("ChargeDistributionRMS"),
-         depletionVoltage,
-         conf.getParameter<double>("AppliedVoltage"))),
-  theSiInduceChargeOnStrips(new SiTrivialInduceChargeOnStrips(conf, conf.getParameter<double>("GevPerElectron"))) {
+SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf,CLHEP::HepRandomEngine& eng ):conf_(conf),rndEngine(eng){
+  
+  // Construct default classes
+  depletionVoltage       = conf_.getParameter<double>("DepletionVoltage");
+  appliedVoltage         = conf_.getParameter<double>("AppliedVoltage");
+  chargeMobility         = conf_.getParameter<double>("ChargeMobility");
+  temperature            = conf_.getParameter<double>("Temperature");
+  gevperelectron         = conf_.getParameter<double>("GevPerElectron");
+  chargeDistributionRMS  = conf_.getParameter<double>("ChargeDistributionRMS");
+  noDiffusion            = conf_.getParameter<bool>("noDiffusion");
+  double diffusionConstant = CBOLTZ/e_SI * chargeMobility * temperature;
+  if (noDiffusion) diffusionConstant *= 1.0e-3;
+  
+  theSiChargeDivider = new SiLinearChargeDivider(conf_,rndEngine);
+  
+  theSiChargeCollectionDrifter = 
+    new SiLinearChargeCollectionDrifter(diffusionConstant,
+					chargeDistributionRMS,
+					depletionVoltage,
+					appliedVoltage);
+
+  theSiInduceChargeOnStrips = new SiTrivialInduceChargeOnStrips(conf,gevperelectron);
 }
 
 SiHitDigitizer::~SiHitDigitizer(){
+  delete theSiChargeDivider;
+  delete theSiChargeCollectionDrifter;
+  delete theSiInduceChargeOnStrips;
 }
 
 void 

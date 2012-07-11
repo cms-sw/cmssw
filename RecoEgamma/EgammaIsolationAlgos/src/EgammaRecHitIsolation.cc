@@ -138,7 +138,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
 	  
 	  
 	  //std::cout << "detid " << ((EcalRecHit*)(&*j))->detid() << std::endl;
-	  int severityFlag = ecalBarHits_ == 0 ? -1 : sevLevel_->severityLevel(((EcalRecHit*)(&*j))->detid(), *ecalBarHits_);
+	  int severityFlag = ecalBarHits_ == 0 ? -1 : sevLevel_->severityLevel(((const EcalRecHit*)(&*j))->detid(), *ecalBarHits_);
 	  std::vector<int>::const_iterator sit = std::find(severitiesexcl_.begin(), 
 							   severitiesexcl_.end(), 
 							   severityFlag);
@@ -148,7 +148,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
 	  
 	  std::vector<int>::const_iterator vit = std::find(flags_.begin(), 
 							   flags_.end(),
-							   ((EcalRecHit*)(&*j))->recoFlag());
+							   ((const EcalRecHit*)(&*j))->recoFlag());
 	  if (vit != flags_.end()) 
 	    continue;
 	  
@@ -239,7 +239,7 @@ double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc, bool returnE
 	  }  //end if removeClustered
 	  
 	  
-	  int severityFlag = sevLevel_->severityLevel(((EcalRecHit*)(&*j))->detid(), *ecalBarHits_);
+	  int severityFlag = sevLevel_->severityLevel(j->detid(), *ecalBarHits_);
 	  std::vector<int>::const_iterator sit = std::find(severitiesexcl_.begin(), 
 							   severitiesexcl_.end(), 
 							   severityFlag);

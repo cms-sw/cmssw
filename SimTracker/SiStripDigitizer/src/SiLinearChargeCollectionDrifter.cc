@@ -3,29 +3,31 @@
 SiLinearChargeCollectionDrifter::SiLinearChargeCollectionDrifter(double dc,
 								 double cdr,
 								 double dv,
-								 double av) :
+								 double av){
   // Everything which does not depend on the specific det
-  diffusionConstant(dc),
-  chargeDistributionRMS(cdr),
-  depletionVoltage(dv),
-  appliedVoltage(av)
-{
+  diffusionConstant = dc;
+  chargeDistributionRMS = cdr;
+  depletionVoltage = dv;
+  appliedVoltage = av;
 }
 
 SiChargeCollectionDrifter::collection_type SiLinearChargeCollectionDrifter::drift(const SiChargeCollectionDrifter::ionization_type ion, 
 										  const LocalVector& driftDir,double mt, double tn) {
+  // set some variables used in the main method
+  moduleThickness = mt;
+  timeNormalisation = tn;
   // prepare output
   collection_type _temp;
   _temp.resize(ion.size());
   // call the drift method for each deposit
   for (size_t i=0; i<ion.size(); i++){
-    _temp[i] = drift(ion[i], driftDir, mt, tn);
+    _temp[i] = drift(ion[i], driftDir);
   }
   return _temp;
 }
 
 SignalPoint SiLinearChargeCollectionDrifter::drift
-(const EnergyDepositUnit& edu, const LocalVector& drift, double moduleThickness, double timeNormalisation) {
+(const EnergyDepositUnit& edu, const LocalVector& drift) {
   // computes the fraction of the module the charge has to drift through,
   // ensuring it is bounded in [0,1]
   double depth = (moduleThickness/2.-edu.z());

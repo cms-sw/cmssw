@@ -49,16 +49,18 @@ namespace edm
         subdet_(std::string(" ")),
         label_(std::string(" ")),
         labelCF_(std::string(" ")),
-        maxNbSources_(5) {
+        maxNbSources_(5),
+        mixProdStep2_(false)
+	  {
 	    tag_=InputTag();
 	    tagSignal_=InputTag();
-	}
+	  }
 
       /*Normal constructor*/ 
       MixingWorker(int minBunch,int maxBunch, int bunchSpace,
 		   std::string subdet,std::string label,
 		   std::string labelCF,int maxNbSources, InputTag& tag,
-		   InputTag& tagCF):
+		   InputTag& tagCF, bool mixProdStep2):
 	MixingWorkerBase(),
 	minBunch_(minBunch),
 	maxBunch_(maxBunch),
@@ -70,6 +72,7 @@ namespace edm
 	tag_(tag),
 	tagSignal_(tagCF)
 	{
+          mixProdStep2_ = mixProdStep2;
 	}
 
       /**Default destructor*/
@@ -91,8 +94,14 @@ namespace edm
           bool got;
 	  InputTag t;
 	  edm::Handle<std::vector<T> >  result_t;
-	  got = e.getByLabel(tag_,result_t);
-	  t = InputTag(tag_.label(),tag_.instance());
+	  if (mixProdStep2_){   
+	     got = e.getByLabel(tagSignal_,result_t);
+	     t = InputTag(tagSignal_.label(),tagSignal_.instance());   
+	  }
+	  else{
+	     got = e.getByLabel(tag_,result_t);
+	     t = InputTag(tag_.label(),tag_.instance());
+	  }
 	  
 	  if (got)
 	       LogInfo("MixingModule") <<" Will create a CrossingFrame for "<< typeid(T).name() 
@@ -107,16 +116,28 @@ namespace edm
       }
            
       virtual void addSignals(const edm::Event &e){
-	edm::Handle<std::vector<T> > result_t;
-	bool got = e.getByLabel(tag_,result_t);
-	if (got) {
-	  LogDebug("MixingModule") <<" adding " << result_t.product()->size()<<" signal objects for "<<typeid(T).name()<<" with "<<tag_;
-	  crFrame_->addSignals(result_t.product(),e.id());
-	} else {
-          LogInfo("MixingModule") <<"!!!!!!! Did not get any signal data for "<<typeid(T).name()<<", with "<<tag_;
+	if (mixProdStep2_){	  
+          edm::Handle<std::vector<T> >  result_t;
+	  bool got = e.getByLabel(tagSignal_,result_t);
+	  if (got) {
+	    LogDebug("MixingModule") <<" adding " << result_t.product()->size()<<" signal objects for "<<typeid(T).name()<<" with "<<tagSignal_;
+	    crFrame_->addSignals(result_t.product(),e.id());
+	  }
+	  else	  LogInfo("MixingModule") <<"!!!!!!! Did not get any signal data for "<<typeid(T).name()<<", with "<<tagSignal_;
         }
-      }
+	else{
+	// Default version
+	  edm::Handle<std::vector<T> >  result_t;
+	  bool got = e.getByLabel(tag_,result_t);
+	  if (got) {
+	    LogDebug("MixingModule") <<" adding " << result_t.product()->size()<<" signal objects for "<<typeid(T).name()<<" with "<<tag_;
+	    crFrame_->addSignals(result_t.product(),e.id());
+	  }
+	  else	  LogInfo("MixingModule") <<"!!!!!!! Did not get any signal data for "<<typeid(T).name()<<", with "<<tag_;
 
+	}
+	
+      }
 
       virtual void addPileups(const int bcr, const EventPrincipal &ep, unsigned int eventNr,int vertexoffset);
 
@@ -127,8 +148,14 @@ namespace edm
 
       virtual void put(edm::Event &e) {	
         std::auto_ptr<CrossingFrame<T> > pOut(crFrame_);
-	e.put(pOut,label_);
-	LogDebug("MixingModule") <<" CF was put for type "<<typeid(T).name()<<" with "<<label_;
+	if (!mixProdStep2_){
+	  e.put(pOut,label_);
+	  LogDebug("MixingModule") <<" CF was put for type "<<typeid(T).name()<<" with "<<label_;
+	}
+	else {
+	  e.put(pOut,labelCF_);
+	  LogDebug("MixingModule") <<" CF was put for type "<<typeid(T).name()<<" with "<<labelCF_;
+	}
       }
 
 
@@ -146,16 +173,47 @@ namespace edm
       unsigned int const maxNbSources_;
       InputTag tag_;
       InputTag tagSignal_;
+      bool mixProdStep2_;
 
       CrossingFrame<T> * crFrame_;
       PCrossingFrame<T> * secSourceCF_;
     };
 
 //=============== template specializations ====================================================================================
-    
-template <>
-    void MixingWorker<PCaloHit>::addPileups(const int bcr, const EventPrincipal &ep, unsigned int eventNr,int vertexoffset);
+  template <class T>
+    void MixingWorker<T>::addPileups(const int bcr, const EventPrincipal &ep, unsigned int eventNr,int vertexoffset)
+    {
+      if (!mixProdStep2_){
+        // default version
+        // valid for CaloHits 
+        boost::shared_ptr<Wrapper<std::vector<T> > const> shPtr =
+	edm::getProductByTag<std::vector<T> >(ep, tag_);
 
+        if (shPtr) {
+	  LogDebug("MixingModule") <<shPtr->product()->size()<<"  pileup objects  added, eventNr "<<eventNr;
+	  crFrame_->setPileupPtr(shPtr);
+	  crFrame_->addPileups(bcr,const_cast< std::vector<T> * >(shPtr->product()),eventNr);
+        }
+	
+      }
+      else
+      {
+        boost::shared_ptr<Wrapper<PCrossingFrame<T> > const> shPtr = getProductByTag<PCrossingFrame<T> >(ep, tag_);
+     
+        if (shPtr){     	      	
+          crFrame_->setPileupPtr(shPtr);
+          secSourceCF_ = const_cast<PCrossingFrame<T> * >(shPtr->product());
+	  LogDebug("MixingModule") << "Add PCrossingFrame<T>  eventNr " << secSourceCF_->getEventID();
+
+	  copyPCrossingFrame(secSourceCF_);
+
+        }
+        else
+          LogDebug("MixingModule") << "Could not get the PCrossingFrame<T>!";
+      }
+    }
+
+    
 template <>
     void MixingWorker<PSimHit>::addPileups(const int bcr, const EventPrincipal &ep, unsigned int eventNr,int vertexoffset);
 

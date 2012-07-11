@@ -20,26 +20,11 @@ EcalTDigitizer<Traits>::~EcalTDigitizer()
 }
 
 template <class Traits>
-void
-EcalTDigitizer<Traits>::add(const std::vector<PCaloHit> & hits, int bunchCrossing) {
-  if(m_hitResponse->withinBunchRange(bunchCrossing)) {
-    for(std::vector<PCaloHit>::const_iterator it = hits.begin(), itEnd = hits.end(); it != itEnd; ++it) {
-      m_hitResponse->add(*it);
-    }
-  }
-}
-
-template <class Traits>
-void
-EcalTDigitizer<Traits>::initializeHits() {
-  m_hitResponse->initializeHits();
-}
-
-template <class Traits>
 void 
-EcalTDigitizer<Traits>::run( DigiCollection&          output   )
+EcalTDigitizer<Traits>::run( MixCollection<PCaloHit>& input  ,
+			     DigiCollection&          output   )
 {
-   m_hitResponse->finalizeHits()  ;
+   m_hitResponse->run( input )  ;
 
    m_electronicsSim->newEvent() ;
 

@@ -2,7 +2,6 @@
 <use   name="SimCalorimetry/CaloSimAlgos"/>
 <use   name="SimDataFormats/CrossingFrame"/>
 <use   name="SimDataFormats/EcalTestBeam"/>
-<use   name="SimGeneral/MixingModule"/>
 <use   name="CondFormats/HcalObjects"/>
 <use   name="CalibCalorimetry/HcalAlgos"/>
 <use   name="CalibFormats/HcalObjects"/>

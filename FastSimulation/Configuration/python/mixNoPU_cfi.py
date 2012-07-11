@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from FastSimulation.Configuration.mixFastSimObjects_cfi import *
 mix = cms.EDProducer("MixingModule",
-    digitizers = cms.PSet(),
     LabelPlayback = cms.string(''),
     maxBunch = cms.int32(0),
     minBunch = cms.int32(0),

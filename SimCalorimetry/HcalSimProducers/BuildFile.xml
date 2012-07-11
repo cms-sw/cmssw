@@ -1,7 +1,7 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="SimCalorimetry/HcalSimAlgos"/>
-<use   name="SimGeneral/MixingModule"/>
+<use   name="SimDataFormats/CrossingFrame"/>
 <export>
   <lib   name="1"/>
 </export>

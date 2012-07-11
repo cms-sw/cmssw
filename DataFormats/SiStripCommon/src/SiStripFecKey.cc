@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecKey.cc,v 1.21 2009/02/10 21:45:54 lowette Exp $
+// Last commit: $Id: SiStripFecKey.cc,v 1.22 2009/10/23 13:07:17 lowette Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
@@ -101,8 +101,7 @@ SiStripFecKey::SiStripFecKey( const SiStripKey& input ) :
   lldChan_(sistrip::invalid_),
   i2cAddr_(sistrip::invalid_)
 {
-  SiStripKey& temp = const_cast<SiStripKey&>(input);
-  SiStripFecKey& fec_key = dynamic_cast<SiStripFecKey&>(temp);
+  const SiStripFecKey& fec_key = dynamic_cast<const SiStripFecKey&>(input);
   if ( (&fec_key) ) {
     key(fec_key.key());
     path(fec_key.path());
@@ -130,8 +129,7 @@ SiStripFecKey::SiStripFecKey( const SiStripKey& input,
   lldChan_(0),
   i2cAddr_(0)
 {
-  SiStripKey& temp = const_cast<SiStripKey&>(input);
-  SiStripFecKey& fec_key = dynamic_cast<SiStripFecKey&>(temp);
+  const SiStripFecKey& fec_key = dynamic_cast<const SiStripFecKey&>(input);
   if ( (&fec_key) ) {
     
     if ( gran == sistrip::FEC_CRATE || gran == sistrip::FEC_SLOT ||
@@ -250,8 +248,7 @@ bool SiStripFecKey::firstApvOfPair( const uint16_t& i2c_addr ) {
 // -----------------------------------------------------------------------------
 // 
 bool SiStripFecKey::isEqual( const SiStripKey& key ) const {
-  SiStripKey& temp = const_cast<SiStripKey&>(key);
-  SiStripFecKey& input = dynamic_cast<SiStripFecKey&>(temp);
+  const SiStripFecKey& input = dynamic_cast<const SiStripFecKey&>(key);
   if ( !(&input) ) { return false; }
   if ( fecCrate_ == input.fecCrate() &&
        fecSlot_ == input.fecSlot() &&
@@ -267,8 +264,7 @@ bool SiStripFecKey::isEqual( const SiStripKey& key ) const {
 // -----------------------------------------------------------------------------
 // 
 bool SiStripFecKey::isConsistent( const SiStripKey& key ) const {
-  SiStripKey& temp = const_cast<SiStripKey&>(key);
-  SiStripFecKey& input = dynamic_cast<SiStripFecKey&>(temp);
+  const SiStripFecKey& input = dynamic_cast<const SiStripFecKey&>(key);
   if ( !(&input) ) { return false; }
   if ( isEqual(input) ) { return true; }
   else if ( ( fecCrate_ == 0 || input.fecCrate() == 0 ) &&

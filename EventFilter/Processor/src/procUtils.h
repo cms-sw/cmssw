@@ -5,7 +5,6 @@
 
 namespace evf{
   namespace utils{
-    void procCpuStat(unsigned long long &idleJiffies,unsigned long long &allJiffies);
     void procStat(std::ostringstream *);
     void uptime(std::ostringstream *);
     void mDiv(std::ostringstream *out, std::string name);

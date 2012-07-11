@@ -29,16 +29,8 @@ class EcalTDigitizer
 
       virtual ~EcalTDigitizer< Traits >() ;
 
-      void add(const std::vector<PCaloHit> & hits, int bunchCrossing);
-
-      virtual void initializeHits();
-
-      virtual void run(DigiCollection&          output  );
-
       virtual void run( MixCollection<PCaloHit>& input ,
-			DigiCollection&          output  ) {
-         assert(0);
-      }
+			DigiCollection&          output  ) ;
 
    protected:
 

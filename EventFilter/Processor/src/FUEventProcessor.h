@@ -295,11 +295,7 @@ namespace evf
     xdata::UnsignedInteger32         crashesToDump_;
     sem_t                            *sigmon_sem_;
     timeval                          lastCrashTime_;
-
-    unsigned long long               idleProcStats_;
-    unsigned long long               allProcStats_;
   };
-
   
 } // namespace evf
 

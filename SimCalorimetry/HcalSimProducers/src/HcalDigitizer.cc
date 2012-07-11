@@ -13,10 +13,8 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMHitResponse.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDIonFeedbackSim.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -34,18 +32,19 @@
 #include "CondFormats/HcalObjects/interface/HcalCholeskyMatrix.h"
 #include "CondFormats/HcalObjects/interface/HcalCholeskyMatrices.h"
 #include <boost/foreach.hpp>
+using namespace std;
 
 namespace HcalDigitizerImpl {
 
   template<typename SIPMDIGITIZER>
-  void fillSiPMCells(const std::vector<int> & siPMCells, SIPMDIGITIZER * siPMDigitizer)
+  void fillSiPMCells(const vector<int> & siPMCells, SIPMDIGITIZER * siPMDigitizer)
   {
     std::vector<DetId> siPMDetIds;
     siPMDetIds.reserve(siPMCells.size());
     for(std::vector<int>::const_iterator idItr = siPMCells.begin();
         idItr != siPMCells.end(); ++idItr)
     {
-      siPMDetIds.emplace_back(*idItr);
+      siPMDetIds.push_back(DetId(*idItr));
     }
     siPMDigitizer->setDetIds(siPMDetIds);
   }
@@ -53,7 +52,7 @@ namespace HcalDigitizerImpl {
   // if both exist, assume the SiPM one has cells filled, and
   // assign the rest to the HPD
   template<typename HPDDIGITIZER, typename SIPMDIGITIZER>
-  void fillCells(const std::vector<DetId>& allCells,
+  void fillCells(const vector<DetId>& allCells,
                  HPDDIGITIZER * hpdDigitizer,
                  SIPMDIGITIZER * siPMDigitizer)
   {
@@ -331,7 +330,8 @@ void HcalDigitizer::setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGe
   theZDCAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
 
-void HcalDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& eventSetup) {
+
+void HcalDigitizer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   // get the appropriate gains, noises, & widths for this event
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
@@ -346,7 +346,7 @@ void HcalDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& 
    edm::ESHandle<HcalCholeskyMatrices> refCholesky;
    eventSetup.get<HcalCholeskyMatricesRcd>().get(refCholesky);
    const HcalCholeskyMatrices * myCholesky = refCholesky.product();
-
+  
    edm::ESHandle<HcalPedestals> pedshandle;
    eventSetup.get<HcalPedestalsRcd>().get(pedshandle);
    const HcalPedestals *  myADCPedestals = pedshandle.product();
@@ -354,80 +354,42 @@ void HcalDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& 
   theHBHEAmplifier->setCholesky(myCholesky);
   theHFAmplifier->setCholesky(myCholesky);
   theHOAmplifier->setCholesky(myCholesky);
-
+  
   theHBHEAmplifier->setADCPeds(myADCPedestals);
   theHFAmplifier->setADCPeds(myADCPedestals);
   theHOAmplifier->setADCPeds(myADCPedestals);
 
-  if(theHitCorrection != 0) {
-    theHitCorrection->clear();
-  }
-}
 
-void HcalDigitizer::accumulateCaloHits(std::vector<PCaloHit> const& hcalHits, std::vector<PCaloHit> const& zdcHits, int bunchCrossing) {
-  // Step A: pass in inputs, and accumulate digirs
-  if(isHCAL) {
-    if(theHitCorrection != 0) {
-      theHitCorrection->fillChargeSums(hcalHits);
-    }
+  // Step A: Get Inputs
+  edm::Handle<CrossingFrame<PCaloHit> > cf, zdccf;
 
-    if(hbhegeo) {
-      if(theHBHEDigitizer) theHBHEDigitizer->add(hcalHits, bunchCrossing);
-      if(theHBHESiPMDigitizer) theHBHESiPMDigitizer->add(hcalHits, bunchCrossing);
-    }
-
-    if(hogeo) {
-      if(theHODigitizer) theHODigitizer->add(hcalHits, bunchCrossing);
-      if(theHOSiPMDigitizer) theHOSiPMDigitizer->add(hcalHits, bunchCrossing);
-    }
-
-    if(hfgeo) {
-      theHFDigitizer->add(hcalHits, bunchCrossing);
-    } 
-  } else {
-    edm::LogInfo("HcalDigitizer") << "We don't have HCAL hit collection available ";
-  }
-
-  if(isZDC) {
-    if(zdcgeo) {
-      theZDCDigitizer->add(zdcHits, bunchCrossing);
-    } 
-  } else {
+  // test access to SimHits for HcalHits and ZDC hits
+  const std::string zdcHitsName(hitsProducer_+"ZDCHITS");
+  e.getByLabel("mix", zdcHitsName , zdccf);
+  MixCollection<PCaloHit> * colzdc = 0 ;
+  if(zdccf.isValid()){
+    colzdc = new MixCollection<PCaloHit>(zdccf.product());
+  }else{
     edm::LogInfo("HcalDigitizer") << "We don't have ZDC hit collection available ";
+    isZDC = false;
   }
-}
 
-void HcalDigitizer::accumulate(edm::Event const& e, edm::EventSetup const& eventSetup) {
-  // Step A: Get Inputs
-  edm::InputTag zdcTag(hitsProducer_, "ZDCHITS");
-  edm::Handle<std::vector<PCaloHit> > zdcHandle;
-  e.getByLabel(zdcTag, zdcHandle);
-  isZDC = zdcHandle.isValid();
+  const std::string hcalHitsName(hitsProducer_+"HcalHits");
+  e.getByLabel("mix", hcalHitsName ,cf);
+  MixCollection<PCaloHit> * col = 0 ;
+  if(cf.isValid()){
+    col = new MixCollection<PCaloHit>(cf.product());
+  }else{
+    edm::LogInfo("HcalDigitizer") << "We don't have HCAL hit collection available ";
+    isHCAL = false;
+  }
 
-  edm::InputTag hcalTag(hitsProducer_, "HcalHits");
-  edm::Handle<std::vector<PCaloHit> > hcalHandle;
-  e.getByLabel(hcalTag, hcalHandle);
-  isHCAL = hcalHandle.isValid();
-
-  accumulateCaloHits(*hcalHandle.product(), *zdcHandle.product(), 0);
-}
-
-void HcalDigitizer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& eventSetup) {
-  // Step A: Get Inputs
-  edm::InputTag zdcTag(hitsProducer_, "ZDCHITS");
-  edm::Handle<std::vector<PCaloHit> > zdcHandle;
-  e.getByLabel(zdcTag, zdcHandle);
-  isZDC = zdcHandle.isValid();
-
-  edm::InputTag hcalTag(hitsProducer_, "HcalHits");
-  edm::Handle<std::vector<PCaloHit> > hcalHandle;
-  e.getByLabel(hcalTag, hcalHandle);
-  isHCAL = hcalHandle.isValid();
-
-  accumulateCaloHits(*hcalHandle.product(), *zdcHandle.product(), e.bunchCrossing());
-}
-
-void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSetup) {
+  if(theHitCorrection != 0)
+  {
+    theHitCorrection->clear();
+    if(isHCAL)
+      theHitCorrection->fillChargeSums(*col);
+  }
 
   // Step B: Create empty output
   std::auto_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection());
@@ -435,21 +397,21 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   std::auto_ptr<HFDigiCollection> hfResult(new HFDigiCollection());
   std::auto_ptr<ZDCDigiCollection> zdcResult(new ZDCDigiCollection());
 
-  // Step C: Invoke the algorithm, getting back outputs.
+  // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
   if(isHCAL&&hbhegeo)
   {
-    if(theHBHEDigitizer) theHBHEDigitizer->run(*hbheResult);
-    if(theHBHESiPMDigitizer) theHBHESiPMDigitizer->run(*hbheResult);
+    if(theHBHEDigitizer) theHBHEDigitizer->run(*col, *hbheResult);
+    if(theHBHESiPMDigitizer) theHBHESiPMDigitizer->run(*col, *hbheResult);
   }
   if(isHCAL&&hogeo)
   {
-    if(theHODigitizer) theHODigitizer->run(*hoResult);
-    if(theHOSiPMDigitizer) theHOSiPMDigitizer->run(*hoResult);
+    if(theHODigitizer) theHODigitizer->run(*col, *hoResult);
+    if(theHOSiPMDigitizer) theHOSiPMDigitizer->run(*col, *hoResult);
   }
   if(isHCAL&&hfgeo)
-    theHFDigitizer->run(*hfResult);  
+    theHFDigitizer->run(*col, *hfResult);  
   if(isZDC&&zdcgeo) 
-    theZDCDigitizer->run(*zdcResult);
+    theZDCDigitizer->run(*colzdc, *zdcResult);
   
   edm::LogInfo("HcalDigitizer") << "HCAL HBHE digis : " << hbheResult->size();
   edm::LogInfo("HcalDigitizer") << "HCAL HO digis   : " << hoResult->size();
@@ -502,13 +464,13 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup)
   theHFResponse->setGeometry(theGeometry);
   theZDCResponse->setGeometry(theGeometry);
 
-  const std::vector<DetId>& hbCells = theGeometry->getValidDetIds(DetId::Hcal, HcalBarrel);
-  const std::vector<DetId>& heCells = theGeometry->getValidDetIds(DetId::Hcal, HcalEndcap);
-  const std::vector<DetId>& hoCells = theGeometry->getValidDetIds(DetId::Hcal, HcalOuter);
-  const std::vector<DetId>& hfCells = theGeometry->getValidDetIds(DetId::Hcal, HcalForward);
-  const std::vector<DetId>& zdcCells = theGeometry->getValidDetIds(DetId::Calo, HcalZDCDetId::SubdetectorId);
-  //const std::vector<DetId>& hcalTrigCells = geometry->getValidDetIds(DetId::Hcal, HcalTriggerTower);
-  //const std::vector<DetId>& hcalCalib = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
+  const vector<DetId>& hbCells = theGeometry->getValidDetIds(DetId::Hcal, HcalBarrel);
+  const vector<DetId>& heCells = theGeometry->getValidDetIds(DetId::Hcal, HcalEndcap);
+  const vector<DetId>& hoCells = theGeometry->getValidDetIds(DetId::Hcal, HcalOuter);
+  const vector<DetId>& hfCells = theGeometry->getValidDetIds(DetId::Hcal, HcalForward);
+  const vector<DetId>& zdcCells = theGeometry->getValidDetIds(DetId::Calo, HcalZDCDetId::SubdetectorId);
+  //const vector<DetId>& hcalTrigCells = geometry->getValidDetIds(DetId::Hcal, HcalTriggerTower);
+  //const vector<DetId>& hcalCalib = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
   //std::cout<<"HcalDigitizer::CheckGeometry number of cells: "<<zdcCells.size()<<std::endl;
   if(zdcCells.empty()) zdcgeo = false;
   if(hbCells.empty() && heCells.empty()) hbhegeo = false;
@@ -549,13 +511,14 @@ void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells, const e
     for(std::vector<DetId>::const_iterator detItr = allCells.begin();
         detItr != allCells.end(); ++detItr)
     {
+      HcalDetId hcalId(*detItr);
       int shapeType = mcParams.getValues(*detItr)->signalShape();
       if(shapeType == HcalShapes::ZECOTEK) {
-        zecotekDetIds.emplace_back(*detItr);
+        zecotekDetIds.push_back(hcalId);
         theHOSiPMDetIds.push_back(*detItr);
       }
       else if(shapeType == HcalShapes::HAMAMATSU) {
-        hamamatsuDetIds.emplace_back(*detItr);
+        hamamatsuDetIds.push_back(hcalId);
         theHOSiPMDetIds.push_back(*detItr);
       }
       else {

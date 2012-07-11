@@ -681,11 +681,6 @@ void MuonIsolationDQM::InitHistos(){
     h_1D_NVTX[var]->setAxisTitle(axis_titles_NVtxs[var],XAXIS);
     GetTH1FromMonitorElement(h_1D_NVTX[var])->Sumw2();
   }
-  //-----Initialize PU profile
-  h_PU = dbe->book1D("NPV","Number of PV",50, 0.5, 50.5);
-  
-  h_PU->setAxisTitle("Number of PV", XAXIS);
-  h_PU->getTH1()->Sumw2();
 }
 
 void MuonIsolationDQM::NormalizeHistos() {
@@ -718,16 +713,15 @@ void MuonIsolationDQM::FillHistos(int numPV){
     h_2D[var]->Fill(numPV,theData2D[var]);
   }
   
-  h_PU->Fill(numPV);
 #ifdef DEBUG
   cout << "FillHistos( "<< numPV <<" ): DONE"<< endl;
 #endif
 
 }
 void MuonIsolationDQM::FillNVtxHistos(int PV){
-  if (PV <  15.)              {  h_1D_NVTX[0]->Fill(theDataNVtx[0]);    h_1D_NVTX[3]->Fill(theDataNVtx[3]); }
-  if (PV >= 15. && PV < 30.)  {  h_1D_NVTX[1]->Fill(theDataNVtx[1]);    h_1D_NVTX[4]->Fill(theDataNVtx[4]); }
-  if (PV >= 30.)              {  h_1D_NVTX[2]->Fill(theDataNVtx[2]);    h_1D_NVTX[5]->Fill(theDataNVtx[5]); }
+  if (PV <  15)             {  h_1D_NVTX[0]->Fill(theDataNVtx[0]);    h_1D_NVTX[3]->Fill(theDataNVtx[3]); }
+  if (PV >= 15 && PV < 30)  {  h_1D_NVTX[1]->Fill(theDataNVtx[1]);    h_1D_NVTX[4]->Fill(theDataNVtx[4]); }
+  if (PV >= 30)             {  h_1D_NVTX[2]->Fill(theDataNVtx[2]);    h_1D_NVTX[5]->Fill(theDataNVtx[5]); }
 }
 
 TH1* MuonIsolationDQM::GetTH1FromMonitorElement(MonitorElement* me) {

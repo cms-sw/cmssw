@@ -1,3 +1,5 @@
+#include "FWCore/PluginManager/interface/PluginManager.h"
+
 #include "SimCalorimetry/HcalTestBeam/interface/HcalTBDigiProducer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -10,10 +12,11 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
-#include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
-HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::EDProducer& mixMod) :
+HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps) :
   theParameterMap(new HcalTBSimParameterMap(ps)), 
   theHcalShape(new HcalShape()),
   theHcalIntegratedShape(new CaloShapeIntegrator(theHcalShape)),
@@ -22,9 +25,9 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::EDProdu
   theAmplifier(0), theCoderFactory(0), theElectronicsSim(0), 
   theHitCorrection(0), theHBHEDigitizer(0), theHODigitizer(0), theHBHEHits(),
   theHOHits(), thisPhaseShift(0) {
-  std::string const instance("simHcalDigis");
-  mixMod.produces<HBHEDigiCollection>(instance);
-  mixMod.produces<HODigiCollection>(instance);
+  
+  produces<HBHEDigiCollection>();
+  produces<HODigiCollection>();
 
   DetId detId(DetId::Hcal, 1);
   bool syncPhase = (theParameterMap->simParameters(detId)).syncPhase();
@@ -74,7 +77,8 @@ HcalTBDigiProducer::~HcalTBDigiProducer() {
 }
 
 
-void HcalTBDigiProducer::initializeEvent(edm::Event const& e, edm::EventSetup const& eventSetup) {
+void HcalTBDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
+
   // get the appropriate gains, noises, & widths for this event
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
@@ -86,6 +90,28 @@ void HcalTBDigiProducer::initializeEvent(edm::Event const& e, edm::EventSetup co
 
   theHBHEHits.clear();
   theHOHits.clear();
+
+  // Step A: Get Inputs
+  edm::Handle<CrossingFrame<PCaloHit> > cf;
+  // e.getByType(cf);
+
+  LogDebug("HcalSim") << "HcalTBDigiProducer::produce trying to ger SimHit";
+  // test access to SimHits
+  const std::string subdet("HcalHits");
+  // std::auto_ptr<MixCollection<PCaloHit> > col(new MixCollection<PCaloHit>(cf.product(), subdet));
+  e.getByLabel("mix", subdet, cf);
+  std::auto_ptr<MixCollection<PCaloHit> > col(new MixCollection<PCaloHit>(cf.product() ));
+
+  LogDebug("HcalSim") << "HcalTBDigiProducer::produce Collection of SimHit found";
+  if(theHitCorrection != 0) {
+    theHitCorrection->fillChargeSums(*col);
+  }
+  LogDebug("HcalSim") << "HcalTBDigiProducer::produce Hits corrected";
+
+  // Step B: Create empty output
+  std::auto_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection());
+  std::auto_ptr<HODigiCollection> hoResult(new HODigiCollection());
+  LogDebug("HcalSim") << "HcalTBDigiProducer::produce Empty collection created";
   if (doPhaseShift) {
     
     edm::Handle<PEcalTBInfo> theEcalTBInfo;
@@ -98,57 +124,15 @@ void HcalTBDigiProducer::initializeEvent(edm::Event const& e, edm::EventSetup co
     setPhaseShift(detIdHO);
   }
 
-  theHBHEDigitizer->initializeHits();
-  theHODigitizer->initializeHits();
-}
-
-void HcalTBDigiProducer::accumulateCaloHits(std::vector<PCaloHit> const& hits, int bunchCrossing) {
-
-  LogDebug("HcalSim") << "HcalTBDigiProducer::accumulate trying to get SimHit";
-
-  if(theHitCorrection != 0) {
-    theHitCorrection->fillChargeSums(hits);
-  }
-  LogDebug("HcalSim") << "HcalTBDigiProducer::accumulate Hits corrected";
-  theHBHEDigitizer->add(hits, bunchCrossing);
-  theHODigitizer->add(hits, bunchCrossing);
-}
-
-void HcalTBDigiProducer::accumulate(edm::Event const& e, edm::EventSetup const&) {
-  // Step A: Get Inputs, and accumulate digis
-
-  edm::InputTag hcalTag("g4SimHits", "HcalHits");
-  edm::Handle<std::vector<PCaloHit> > hcalHandle;
-  e.getByLabel(hcalTag, hcalHandle);
-
-  accumulateCaloHits(*hcalHandle.product(), 0);
-}
-
-void HcalTBDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const&) {
-  // Step A: Get Inputs, and accumulate digis
-
-  edm::InputTag hcalTag("g4SimHits", "HcalHits");
-  edm::Handle<std::vector<PCaloHit> > hcalHandle;
-  e.getByLabel(hcalTag, hcalHandle);
-
-  accumulateCaloHits(*hcalHandle.product(), e.bunchCrossing());
-}
-
-void HcalTBDigiProducer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSetup) {
-  // Step B: Create empty output
-  std::auto_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection());
-  std::auto_ptr<HODigiCollection> hoResult(new HODigiCollection());
-  LogDebug("HcalSim") << "HcalTBDigiProducer::produce Empty collection created";
-  // Step C: Invoke the algorithm, getting back outputs.
-  theHBHEDigitizer->run(*hbheResult);
+  // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
+  theHBHEDigitizer->run(*col, *hbheResult);
   edm::LogInfo("HcalSim") << "HcalTBDigiProducer: HBHE digis : " << hbheResult->size();
-  theHODigitizer->run(*hoResult);
+  theHODigitizer->run(*col, *hoResult);
   edm::LogInfo("HcalSim") << "HcalTBDigiProducer: HO digis   : " << hoResult->size();
 
   // Step D: Put outputs into event
-  std::string const instance("simHcalDigis");
-  e.put(hbheResult, instance);
-  e.put(hoResult, instance);
+  e.put(hbheResult);
+  e.put(hoResult);
 
 }
 

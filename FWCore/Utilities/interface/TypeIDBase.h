@@ -40,6 +40,10 @@ namespace edm {
          t_(&t)
       { }
             
+      explicit TypeIDBase(const std::type_info* t) :
+         t_(t == 0 ? &(typeid(Def)) : t)
+      { }
+            
       // ---------- const member functions ---------------------
       
       /** Returned C-style string owned by system; do not delete[] it.
@@ -49,7 +53,7 @@ namespace edm {
       
       bool operator<(const TypeIDBase& b) const { return t_->before(*(b.t_)); }
       bool operator==(const TypeIDBase& b) const { return (*t_) == *(b.t_); }
-      
+
     protected:
       const std::type_info& typeInfo() const {return *t_;}
 

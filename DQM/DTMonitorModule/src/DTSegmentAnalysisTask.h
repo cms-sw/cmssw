@@ -12,8 +12,8 @@
  *  All histos are produce per Chamber
  *
  *
- *  $Date: 2011/06/10 13:23:26 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/01/05 10:14:40 $
+ *  $Revision: 1.11 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -105,12 +105,9 @@ private:
   std::string topHistoFolder;
   // hlt DQM mode
   bool hltDQMMode;
-  // max phi angle of reconstructed segments 
-  double phiSegmCut;
-  // min # hits of segment used to validate a segment in WB+-2/SecX/MB1 
-  int nhitsCut; 
 
   MonitorElement* nEventMonitor;
+
 
 };
 #endif

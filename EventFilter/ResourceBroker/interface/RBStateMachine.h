@@ -130,6 +130,20 @@ public:
 	 * All states with special behavior must override these functions.
 	 */
 	/**
+	 * Base callback on TAKE message from BU
+	 */
+	virtual bool take(toolbox::mem::Reference* bufRef) const {
+		// output message handled in FUResourceBroker
+		return false;
+	}
+	/**
+	 * Base callback on end of lumisection message, received from EVM
+	 */
+	virtual bool evmLumisection(toolbox::mem::Reference* bufRef) const {
+		// output message handled in FUResourceBroker
+		return false;
+	}
+	/**
 	 * Base callback on process buffer received via I2O_SM_DATA_DISCARD message
 	 */
 	virtual bool discardDataEvent(MemRef_t* bufRef) const {
@@ -210,8 +224,6 @@ public:
 	 * Throws std::bad_cast if FSM is in transition (new state not constructed).
 	 */
 	BaseState const& getCurrentState() const throw (std::bad_cast);
-
-	BaseState & getCurrentStateNC() const throw (std::bad_cast);
 
 	inline SharedResourcesPtr_t getSharedResources() const {
 		return sharedResources_;
@@ -571,12 +583,13 @@ public:
 	virtual ~Running();
 
 	// I2O message handling capability of state
+	virtual bool take(toolbox::mem::Reference* bufRef) const;
+	virtual bool evmLumisection(toolbox::mem::Reference* bufRef) const;
 	virtual bool discardDataEvent(MemRef_t* bufRef) const;
 	virtual bool discardDqmEvent(MemRef_t* bufRef) const;
 
 	// state-dependent actions
 	virtual void do_stateNotify();
-	virtual void do_stateAction() const;
 	virtual int stateID() const {
 		return rb_statemachine::RUNNING;
 	}

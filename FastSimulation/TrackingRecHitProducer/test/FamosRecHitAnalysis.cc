@@ -819,7 +819,7 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
           
           // Get the topology of the pixel module
           const PixelGeomDetUnit* detUnit = dynamic_cast<const PixelGeomDetUnit*>(geometry->idToDetUnit(DetId(detUnitId)));
-	  const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(&(detUnit->specificTopology()));
+	  const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(&(detUnit->specificType().specificTopology()));
           
           // Get the rows and columns of entry and exit points
           // FIXME - these are not guaranteed to be the same as the cluster limits (as they should be)

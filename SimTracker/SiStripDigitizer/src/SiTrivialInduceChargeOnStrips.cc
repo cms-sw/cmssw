@@ -21,18 +21,6 @@ const  std::string
 SiTrivialInduceChargeOnStrips::
 type[Ntypes] = { "IB1", "IB2","OB1","OB2","W1a","W2a","W3a","W1b","W2b","W3b","W4","W5","W6","W7"};
 
-static 
-std::vector<std::vector<double> >
-fillSignalCoupling(const edm::ParameterSet& conf, int nTypes, const std::string* typeArray) {
-  std::vector<std::vector<double> > signalCoupling;
-  signalCoupling.reserve(nTypes);
-  std::string mode = conf.getParameter<bool>("APVpeakmode") ? "Peak" : "Dec";
-  for(int i=0; i<nTypes; ++i) {
-    signalCoupling.push_back(conf.getParameter<std::vector<double> >("CouplingConstant"+mode+typeArray[i]));
-  }
-  return signalCoupling;
-}
-
 inline unsigned int 
 SiTrivialInduceChargeOnStrips::
 indexOf(const std::string& t) { return std::find( type, type + Ntypes, t) - type;}
@@ -52,18 +40,21 @@ typeOf(const StripGeomDetUnit& det) {
 
 SiTrivialInduceChargeOnStrips::
 SiTrivialInduceChargeOnStrips(const edm::ParameterSet& conf,double g) 
-  : signalCoupling(fillSignalCoupling(conf, Ntypes, type)), Nsigma(3.), geVperElectron(g)  {
+  : Nsigma(3.), geVperElectron(g)  {
+  std::string mode = conf.getParameter<bool>("APVpeakmode") ? "Peak" : "Dec";
+  for(int i=0; i<Ntypes; i++)
+    signalCoupling.push_back(conf.getParameter<std::vector<double> >("CouplingConstant"+mode+type[i]));
 }
 
 void 
 SiTrivialInduceChargeOnStrips::
-induce(const SiChargeCollectionDrifter::collection_type& collection_points, 
+induce(SiChargeCollectionDrifter::collection_type collection_points, 
        const StripGeomDetUnit& det, 
        std::vector<double>& localAmplitudes, 
        size_t& recordMinAffectedStrip, 
-       size_t& recordMaxAffectedStrip) const {
+       size_t& recordMaxAffectedStrip) {
 
-  const std::vector<double>& coupling = signalCoupling.at(typeOf(det));
+  std::vector<double>& coupling = signalCoupling.at(typeOf(det));
   const StripTopology& topology = dynamic_cast<const StripTopology&>(det.specificTopology());
   size_t Nstrips =  topology.nstrips();
 

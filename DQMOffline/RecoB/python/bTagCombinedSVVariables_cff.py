@@ -19,20 +19,19 @@ combinedSVRecoVertexVariables = cms.PSet(
         max = cms.double(2.5),
         min = cms.double(0.01)
     ),
+    jetNSecondaryVertices = cms.PSet(
+        logScale = cms.bool(True),
+        nBins = cms.uint32(50),
+        max = cms.double(10.0),
+        min = cms.double(0.0)
+    ),
     flightDistance2dSig = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
         max = cms.double(80.0),
-        min = cms.double(0.0)
-    ),
-    jetNSecondaryVertices = cms.PSet(
-        logScale = cms.bool(True),
-        nBins = cms.uint32(11),
-        max = cms.double(10.5),
-        min = cms.double(-0.5)
+        min = cms.double(3.0)
     )
 )
-
 combinedSVPseudoVertexVariables = cms.PSet(
     vertexMass = cms.PSet(
         logScale = cms.bool(True),
@@ -42,9 +41,9 @@ combinedSVPseudoVertexVariables = cms.PSet(
     ),
     vertexNTracks = cms.PSet(
         logScale = cms.bool(True),
-        nBins = cms.uint32(21),
-        max = cms.double(20.5),
-        min = cms.double(-0.5)
+        nBins = cms.uint32(50),
+        max = cms.double(20.0),
+        min = cms.double(0.0)
     ),
     vertexJetDeltaR = cms.PSet(
         logScale = cms.bool(True),
@@ -63,7 +62,7 @@ combinedSVNoVertexVariables = cms.PSet(
     trackPPar = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
-        max = cms.double(200.0),
+        max = cms.double(250.0),
         indices = cms.vuint32(0, 1, 2, 3),
         min = cms.double(0.0)
     ),
@@ -84,8 +83,8 @@ combinedSVNoVertexVariables = cms.PSet(
     trackSip2dSigAboveCharm = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
-        max = cms.double(60.0),
-        min = cms.double(-40.0)
+        max = cms.double(80.0),
+        min = cms.double(-50.0)
     ),
     trackEtaRel = cms.PSet(
         logScale = cms.bool(True),
@@ -103,23 +102,23 @@ combinedSVNoVertexVariables = cms.PSet(
     trackSip2dSig = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
-        max = cms.double(60.0),
+        max = cms.double(80.0),
         indices = cms.vuint32(0, 1, 2, 3),
-        min = cms.double(-40.0)
+        min = cms.double(-50.0)
     ),
     trackDecayLenVal = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
-        max = cms.double(5.0),
+        max = cms.double(50.0),
         indices = cms.vuint32(0, 1, 2, 3),
         min = cms.double(0.0)
     ),
     trackSip3dVal = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
-        max = cms.double(1.0),
+        max = cms.double(3.0),
         indices = cms.vuint32(0, 1, 2, 3),
-        min = cms.double(-1.0)
+        min = cms.double(-3.0)
     ),
     trackSumJetDeltaR = cms.PSet(
         logScale = cms.bool(True),
@@ -129,10 +128,10 @@ combinedSVNoVertexVariables = cms.PSet(
     ),
     trackJetDist = cms.PSet(
         logScale = cms.bool(True),
-        nBins = cms.uint32(100),
+        nBins = cms.uint32(50),
         max = cms.double(0.0),
         indices = cms.vuint32(0, 1, 2, 3),
-        min = cms.double(-0.1)
+        min = cms.double(-10.0)
     ),
     trackSumJetEtRatio = cms.PSet(
         logScale = cms.bool(True),
@@ -143,7 +142,7 @@ combinedSVNoVertexVariables = cms.PSet(
     trackPtRel = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
-        max = cms.double(15.0),
+        max = cms.double(20.0),
         indices = cms.vuint32(0, 1, 2, 3),
         min = cms.double(0.0)
     ),
@@ -157,7 +156,7 @@ combinedSVNoVertexVariables = cms.PSet(
     trackMomentum = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
-        max = cms.double(200.0),
+        max = cms.double(250.0),
         indices = cms.vuint32(0, 1, 2, 3),
         min = cms.double(0.0)
     ),
@@ -171,15 +170,15 @@ combinedSVNoVertexVariables = cms.PSet(
     trackSip3dSig = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
-        max = cms.double(60.0),
+        max = cms.double(80.0),
         indices = cms.vuint32(0, 1, 2, 3),
-        min = cms.double(-40.0)
+        min = cms.double(-50.0)
     ),
     trackSip3dSigAboveCharm = cms.PSet(
         logScale = cms.bool(True),
         nBins = cms.uint32(50),
-        max = cms.double(60.0),
-        min = cms.double(-40.0)
+        max = cms.double(80.0),
+        min = cms.double(-50.0)
     )
 )
 

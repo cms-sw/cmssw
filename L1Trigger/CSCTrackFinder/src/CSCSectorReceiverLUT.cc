@@ -153,7 +153,7 @@ lclphidat CSCSectorReceiverLUT::calcLocalPhi(const lclphiadd& theadd) const
 {
   lclphidat data;
 
-  constexpr int maxPhiL = 1<<CSCBitWidths::kLocalPhiDataBitWidth;
+  static int maxPhiL = 1<<CSCBitWidths::kLocalPhiDataBitWidth;
   double binPhiL = static_cast<double>(maxPhiL)/(2.*CSCConstants::MAX_NUM_STRIPS);
 
   memset(&data,0,sizeof(lclphidat));
@@ -283,11 +283,11 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
   const double sectorOffset = (CSCTFConstants::SECTOR1_CENT_RAD-CSCTFConstants::SECTOR_RAD/2.) + (_sector-1)*M_PI/3.;
 
   //Number of global phi units per radian.
-  constexpr int maxPhiG = 1<<CSCBitWidths::kGlobalPhiDataBitWidth;
+  static int maxPhiG = 1<<CSCBitWidths::kGlobalPhiDataBitWidth;
   double binPhiG = static_cast<double>(maxPhiG)/CSCTFConstants::SECTOR_RAD;
 
   // We will use these to convert the local phi into radians.
-  constexpr unsigned int maxPhiL = 1<<CSCBitWidths::kLocalPhiDataBitWidth;
+  static unsigned int maxPhiL = 1<<CSCBitWidths::kLocalPhiDataBitWidth;
   const double binPhiL = static_cast<double>(maxPhiL)/(2.*CSCConstants::MAX_NUM_STRIPS);
 
   if(cscid < CSCTriggerNumbering::minTriggerCscId())

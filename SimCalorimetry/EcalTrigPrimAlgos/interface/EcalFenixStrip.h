@@ -225,13 +225,8 @@ class EcalFenixStrip {
  
 
       if (famos_) {
-      	
-	filt_out_[0]= 0;
-	filt_out_[1]= add_out_[1] - add_out_[0];
-	
-	peak_out_[0]= 0;
-	peak_out_[1]= add_out_[1] - add_out_[0];
-	
+	filt_out_[0]= add_out_[0];
+	peak_out_[0]= add_out_[0];
 	return;
       }else {
 	// call amplitudefilter

@@ -43,7 +43,6 @@ public:
   // fill entry
   // For single variables and arrays (for arrays only a single index can be filled)
   void fill ( const int & flavour,  const T & variable) const;
-  void fill ( const int & flavour,  const T & variable, const T & w) const;
 
   // For single variables and arrays
   void fill ( const int & flavour,  const T * variable) const;
@@ -94,7 +93,7 @@ public:
 
 protected:
 
-  void fillVariable ( const int & flavour , const T & var , const T & w) const;
+  void fillVariable ( const int & flavour , const T & var ) const;
   
   //
   // the data members
@@ -252,14 +251,7 @@ template <class T> void
 FlavourHistograms<T>::fill ( const int & flavour,  const T & variable) const 
 {
   // For single variables and arrays (for arrays only a single index can be filled)
-  fillVariable ( flavour , variable, 1.) ;
-}
-
-template <class T> void
-FlavourHistograms<T>::fill ( const int & flavour,  const T & variable, const T & w) const 
-{
-  // For single variables and arrays (for arrays only a single index can be filled)
-  fillVariable ( flavour , variable, w) ;
+  fillVariable ( flavour , variable ) ;
 }
 
 template <class T> void
@@ -267,7 +259,7 @@ FlavourHistograms<T>::fill ( const int & flavour,  const T * variable) const
 {
   if ( theArrayDimension == 0 ) {       
     // single variable
-    fillVariable ( flavour , *variable, 1.) ;
+    fillVariable ( flavour , *variable ) ;
   } else {
     // array      
     int iMax = (*theArrayDimension > theMaxDimension) ? theMaxDimension : *theArrayDimension ;
@@ -275,7 +267,7 @@ FlavourHistograms<T>::fill ( const int & flavour,  const T * variable) const
     for ( int i = 0 ; i != iMax ; ++i ) {
       // check if only one index to be plotted (<0: switched off -> plot all)
       if ( ( theIndexToPlot < 0 ) || ( i == theIndexToPlot ) ) { 
-	fillVariable ( flavour , *(variable+i) , 1.) ;
+	fillVariable ( flavour , *(variable+i) ) ;
       }
     }
 
@@ -283,7 +275,7 @@ FlavourHistograms<T>::fill ( const int & flavour,  const T * variable) const
     if ( theIndexToPlot >= iMax ) { 
       // cout << "==>> The index to be filled is too big -> fill 0.0 : " << theBaseNameTitle << " : " << theIndexToPlot << " >= " << iMax << endl ;
       const T& theZero = static_cast<T> ( 0.0 ) ;
-      fillVariable ( flavour , theZero , 1.) ;
+      fillVariable ( flavour , theZero ) ;
     }
   }
 } 
@@ -479,40 +471,40 @@ void FlavourHistograms<T>::divide ( const FlavourHistograms<T> & bHD ) const {
   
 
 template <class T>
-void FlavourHistograms<T>::fillVariable ( const int & flavour , const T & var , const T & w) const {
-  // all, except for the Jet Multiplicity which is not filled for each jets but for each events  
-  if(theBaseNameDescription != "Jet Multiplicity" || flavour == -1) theHisto_all                ->Fill ( var ,w) ;
+void FlavourHistograms<T>::fillVariable ( const int & flavour , const T & var ) const {
+  // all
+  theHisto_all                ->Fill ( var ) ;
   // flavour specific
   if (!mcPlots_) return;
 
   switch(flavour) {
     case 1:
-      theHisto_d->Fill( var ,w);
-      theHisto_dus->Fill( var ,w);
-      theHisto_dusg->Fill( var ,w);
+      theHisto_d->Fill( var );
+      theHisto_dus->Fill( var );
+      theHisto_dusg->Fill( var );
       return;
     case 2:
-      theHisto_u->Fill( var ,w);
-      theHisto_dus->Fill( var ,w);
-      theHisto_dusg->Fill( var ,w);
+      theHisto_u->Fill( var );
+      theHisto_dus->Fill( var );
+      theHisto_dusg->Fill( var );
       return;
     case 3:
-      theHisto_s->Fill( var ,w);
-      theHisto_dus->Fill( var ,w);
-      theHisto_dusg->Fill( var ,w);
+      theHisto_s->Fill( var );
+      theHisto_dus->Fill( var );
+      theHisto_dusg->Fill( var );
       return;
     case 4:
-      theHisto_c->Fill( var ,w);
+      theHisto_c->Fill( var );
       return;
     case 5:
-      theHisto_b->Fill( var ,w);
+      theHisto_b->Fill( var );
       return;
     case 21:
-      theHisto_g->Fill( var ,w);
-      theHisto_dusg->Fill( var ,w);
+      theHisto_g->Fill( var );
+      theHisto_dusg->Fill( var );
       return;
     default:
-      theHisto_ni->Fill( var ,w);
+      theHisto_ni->Fill( var );
       return;
   }
 }

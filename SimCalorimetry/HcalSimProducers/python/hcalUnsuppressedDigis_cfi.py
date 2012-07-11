@@ -56,3 +56,10 @@ hcalSimBlock = cms.PSet(
 #    ),
 #    appendToDataLabel = cms.string('reference')
 #)
+
+simHcalUnsuppressedDigis = cms.EDProducer("HcalDigiProducer",
+    hcalSimBlock
+)
+
+
+

@@ -157,9 +157,7 @@ namespace edm {
 
   void
   BranchDescription::initFromDictionary() const {
-    Reflex::Type null;
-
-    if(type() != null) {
+    if(bool(type())) {
       return;  // already initialized;
     }
 
@@ -167,21 +165,22 @@ namespace edm {
 
     wrappedName() = wrappedClassName(fullClassName());
 
-    Reflex::Type t = Reflex::Type::ByName(fullClassName());
-    if(t == null) {
+    // unwrapped type.
+    typeID() = TypeID::byName(fullClassName());
+    if(!bool(typeID())) {
       splitLevel() = invalidSplitLevel;
       basketSize() = invalidBasketSize;
       transient() = false;
       return;
     }
-    typeID() = TypeID(t.TypeInfo()); // unwrapped type.
-    type() = Reflex::Type::ByName(wrappedName());
-    if(type() == null) {
+
+    type() = TypeID::byName(wrappedName());
+    if(!bool(type())) {
       splitLevel() = invalidSplitLevel;
       basketSize() = invalidBasketSize;
       return;
     }
-    Reflex::PropertyList wp = type().Properties();
+    Reflex::PropertyList wp = Reflex::Type::ByTypeInfo(type().typeInfo()).Properties();
     transient() = (wp.HasProperty("persistent") ? wp.PropertyAsString("persistent") == std::string("false") : false);
     if(transient()) {
       splitLevel() = invalidSplitLevel;

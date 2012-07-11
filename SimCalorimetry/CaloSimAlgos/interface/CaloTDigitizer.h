@@ -12,7 +12,6 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include <cassert>
-#include <vector>
 
 template<class Traits>
 class CaloTDigitizer
@@ -59,32 +58,14 @@ public:
     theElectronicsSim->setRandomEngine(engine);
   }
 
-  void add(const std::vector<PCaloHit> & hits, int bunchCrossing) {
-    if(theHitResponse->withinBunchRange(bunchCrossing)) {
-      for(std::vector<PCaloHit>::const_iterator it = hits.begin(), itEnd = hits.end(); it != itEnd; ++it) {
-        theHitResponse->add(*it);
-      }
-    }
-  }
-
-  void initializeHits() {
-     theHitResponse->initializeHits();
-  }
-
   /// turns hits into digis
-  void run(MixCollection<PCaloHit> &, DigiCollection &) {
-    assert(0);
-  }
-
-  /// Collects the digis
-  void run(DigiCollection & output) {
-    theHitResponse->finalizeHits();
-
+  void run(MixCollection<PCaloHit> & input, DigiCollection & output) {
     assert(theDetIds->size() != 0);
 
     if(theNoiseHitGenerator != 0) addNoiseHits();
     if(theNoiseSignalGenerator != 0) addNoiseSignals();
 
+    theHitResponse->run(input);
     theElectronicsSim->newEvent();
 
     // reserve space for how many digis we expect
@@ -107,7 +88,7 @@ public:
        }
        if(analogSignal != 0) { 
          theElectronicsSim->analogToDigital(*analogSignal , digi);
-         output.push_back(std::move(digi));
+         output.push_back(digi);
          if(needToDeleteSignal) delete analogSignal;
       }
     }

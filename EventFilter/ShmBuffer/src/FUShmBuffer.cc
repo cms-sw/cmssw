@@ -442,12 +442,11 @@ void FUShmBuffer::scheduleRawCellForDiscard(unsigned int iCell) {
 		evt::State_t state = evtState(iCell);
 		stringstream details;
 		details
-			<< "state==evt::PROCESSING||state==evt::SENT||state==evt::EMPTY||"
-			<<"state==evt::STOP||state==evt::LUMISECTION||state==evt::RECOWRITTEN assertion failed! Actual state is "
+			<< "state==evt::PROCESSING||state==evt::SENT||state==evt::EMPTY||state==evt::STOP||state==evt::LUMISECTION assertion failed! Actual state is "
 			<< state << ", iCell = " << iCell;
 		XCEPT_ASSERT(  state == evt::PROCESSING || state == evt::SENT 
 				|| state == evt::EMPTY || state == evt::STOP
-				|| state == evt::LUMISECTION || state == evt::RECOWRITTEN, evf::Exception, details.str());
+				|| state == evt::LUMISECTION, evf::Exception, details.str());
 		if (state == evt::PROCESSING)
 			setEvtState(iCell, evt::PROCESSED);
 		if (state == evt::LUMISECTION)
@@ -632,7 +631,7 @@ void FUShmBuffer::scheduleRawEmptyCellForDiscard() {
 }
 
 //______________________________________________________________________________
-bool FUShmBuffer::scheduleRawEmptyCellForDiscard(FUShmRawCell* cell, bool & pidstatus) {
+void FUShmBuffer::scheduleRawEmptyCellForDiscard(FUShmRawCell* cell) {
 	waitRawDiscard();
 	if (rawCellReadyForDiscard(cell->index())) {
 		rawDiscardIndex_ = cell->index();
@@ -643,15 +642,12 @@ bool FUShmBuffer::scheduleRawEmptyCellForDiscard(FUShmRawCell* cell, bool & pids
 		//    setEvtNumber(cell->index(),0xffffffff);
 		//    setEvtPrcId(cell->index(),0);
 		//    setEvtTimeStamp(cell->index(),0);
-		pidstatus = removeClientPrcId(getpid());
+		removeClientPrcId(getpid());
 		if (segmentationMode_)
 			shmdt(cell);
 		postRawDiscarded();
-		return true;
-	} else {
+	} else
 		postRawDiscard();
-		return false;
-	}
 }
 
 //______________________________________________________________________________
@@ -1532,15 +1528,14 @@ bool FUShmBuffer::removeClientPrcId(pid_t prcId) {
 	lock();
 	pid_t *prcid = (pid_t*) ((unsigned long) this + clientPrcIdOffset_);
 	unsigned int iClient(0);
-	while (iClient < nClients_ && (*prcid) != prcId) {
+	while (iClient <= nClients_ && (*prcid) != prcId) {
 		prcid++;
 		iClient++;
 	}
-	if (iClient==nClients_) return false;
-	//stringstream details;
-	//details << "iClient!=nClients_ assertion failed! Actual iClient is "
-	//		<< iClient;
-	//XCEPT_ASSERT(iClient != nClients_, evf::Exception, details.str());
+	stringstream details;
+	details << "iClient!=nClients_ assertion failed! Actual iClient is "
+			<< iClient;
+	XCEPT_ASSERT(iClient != nClients_, evf::Exception, details.str());
 	pid_t* next = prcid;
 	next++;
 	while (iClient < nClients_ - 1) {

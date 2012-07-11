@@ -48,9 +48,9 @@ http://clang.llvm.org/get_started.html#build
 
 Stick to the directory structure suggested by this website, but run configure with the option --enable-optimized which will speed-up llvm/clang by some factors. Compile LLVM/clang and see if this is working. The root path of the LLVM subversion folder will in the following be aliased by . The folder where you built llvm is aliased
 
-Now, checkout the repository which contains the CMS extensions into the same folder as <llvm_src> resides (CERN account needed):
+Now, git clone the repository which contains the CMS extensions into the same folder as resides:
 
-svn co https://svn.cern.ch/reps/cmscoperformance/projects/clang_cms 
+git clone https://hauth.web.cern.ch/hauth/git/clang_cms/
 
 and run
 
@@ -61,17 +61,14 @@ inside the clang_cms folder. If you encounter problems with missing files or dir
 
 The CMS specific checkers have now been compiled into an external library in clang_cms/lib. 
 
-== Test on a small example (non-CMSSW) ==
-
+== Load the plugin in scan-build == 
 Export the path to the new clang binary ( Bash example ):
 
 export PATH=<llvm_bin>/Release+Asserts/bin/:$PATH
 
-
 To see a listing of all available checkers, also the CMS-specific ones, you can run the scan-build command:
 
 <llvm_src>/tools/clang/tools/scan-build/scan-build -load-plugin lib/ClangCms.so
-
 
 Test out the newly compiled and modified clang, cd into the clang_cms/test folder and run:
 
@@ -82,9 +79,24 @@ This wil produce a clang static analyzer html your can open in your favorite bro
 scan-build: 6 bugs found.
 scan-build: Run 'scan-view /tmp/scan-build-2012-04-26-13' to examine bug reports.
 
+You then call:
+
+firefox /tmp/scan-build-2012-04-26-13/index.html
+
+
+== Test on a small example (non-CMSSW) ==
+
+Test out the newly compiled plugin and cd into the clang_cms/test folder and run:
+
+<llvm_src>/tools/clang/tools/scan-build/scan-build -enable-checker threadsafety.ConstCast -enable-checker threadsafety.ConstCastAway -enable-checker threadsafety.GlobalStatic -enable-checker threadsafety.MutableMember -enable-checker threadsafety.StaticLocal make -B
+
+This will produce a clang static analyzer html your can open in your favorite browser. You can find the location in the output line, something along the lines:
+
+scan-build: 6 bugs found.
+scan-build: Run 'scan-view /tmp/scan-build-2012-04-26-13' to examine bug reports.
 
 You then call:
-firefox /tmp/scan-build-2012-04-26-13/index.html
+> firefox /tmp/scan-build-2012-04-26-13/index.html
 
 == Run within a SCRAM-based build ==
 
@@ -116,7 +128,5 @@ scan-view /tmp/scan-view-(date)-(##)
 You will need to include the paths to clang, scan-build and scan-view in your path
 
 export PATH=$PATH\:(llvm install path)/bin/\:(llvm src path)/tools/clang/tools/scan-build/\:(llvm src path)/tools/clang/tools/scan-view/
-
-If you also want to generate the reports for thread-safety, you also need to add the additional parameters to scan-build.
 
  

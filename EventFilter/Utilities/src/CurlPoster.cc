@@ -86,8 +86,6 @@ namespace evf{
     if(retval != 0) std::cout << "Error in formadd " << retval << std::endl;
     curl_easy_setopt(han, CURLOPT_HTTPPOST, post);
     curl_easy_setopt(han, CURLOPT_ERRORBUFFER, error);
-    curl_easy_setopt(han, CURLOPT_TIMEOUT, 5);
-    curl_easy_setopt(han, CURLOPT_CONNECTTIMEOUT, 5);
 	
     int success = curl_easy_perform(han);
     curl_formfree(post);
@@ -134,8 +132,6 @@ namespace evf{
     curl_easy_setopt(han, CURLOPT_WRITEFUNCTION, &write_data  );
     curl_easy_setopt(han, CURLOPT_WRITEDATA, &dummy           );
     curl_easy_setopt(han, CURLOPT_ERRORBUFFER, error          );
-    curl_easy_setopt(han, CURLOPT_TIMEOUT, 5                  );
-    curl_easy_setopt(han, CURLOPT_CONNECTTIMEOUT, 5           );
     int success = curl_easy_perform(han);
 
     curl_easy_cleanup(han);

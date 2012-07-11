@@ -138,7 +138,7 @@ EleIsoDetIdCollectionProducer::produce (edm::Event& iEvent, const edm::EventSetu
 		continue;  //dont fill if below ET noise value
 
 	      std::vector<int>::const_iterator sit;
-	      int severityFlag = sevLevel->severityLevel(((EcalRecHit*)(&*recIt))->detid(), *recHitsH);
+	      int severityFlag = sevLevel->severityLevel(recIt->detid(), *recHitsH);
 	      if (isBarrel) {
 		sit = std::find(severitiesexclEB_.begin(), severitiesexclEB_.end(), severityFlag);
 		if (sit != severitiesexclEB_.end())

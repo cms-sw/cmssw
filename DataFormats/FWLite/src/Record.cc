@@ -162,9 +162,8 @@ Record::get(const TypeID& iType,
    
    TBranch*& branch = m_branches[std::make_pair(iType,iLabel)];
    if(0==branch){
-      using namespace ROOT::Reflex;
-      Type t = Type::ByTypeInfo(iType.typeInfo());
-      if(t == Type()){
+      Reflex::Type t = Reflex::Type::ByTypeInfo(iType.typeInfo());
+      if(t == Reflex::Type()){
          returnValue = new cms::Exception("UnknownType");
          (*returnValue)<<"The type "
          <<iType.typeInfo().name()<<" was requested from Record "<<name()
@@ -172,13 +171,13 @@ Record::get(const TypeID& iType,
          return returnValue;
       }
       //build branch name
-      std::string branchName = fwlite::format_type_to_mangled(t.Name(ROOT::Reflex::SCOPED|ROOT::Reflex::FINAL))+"__"+iLabel;
+      std::string branchName = fwlite::format_type_to_mangled(t.Name(Reflex::SCOPED|Reflex::FINAL))+"__"+iLabel;
       branch = m_tree->FindBranch(branchName.c_str());
       
       if(0==branch){
          returnValue = new cms::Exception("NoDataAvailable");
          (*returnValue)<<"The data of type "
-                       <<t.Name(ROOT::Reflex::SCOPED|ROOT::Reflex::FINAL)
+                       <<t.Name(Reflex::SCOPED|Reflex::FINAL)
                        <<" with label '"<<iLabel<<"' for Record "<<name()<<" is not in this file.";
          return returnValue;
       }

@@ -63,20 +63,9 @@ class CaloHitRespoNew
 
       virtual void run( MixCollection<PCaloHit>& hits ) ;
 
-      virtual void add(const PCaloHit & hit);
-
       unsigned int samplesSize() const ;
 
       const CaloSamples& operator[]( unsigned int i ) const ;
-
-      virtual void initializeHits() {}
-
-      virtual void finalizeHits() {}
-
-      bool withinBunchRange(int bunchCrossing) const {
-        return(bunchCrossing >= m_minBunch && bunchCrossing <= m_maxBunch);
-      }
-
 
    protected:
 
@@ -84,7 +73,7 @@ class CaloHitRespoNew
 
       virtual void putAnalogSignal( const PCaloHit& inputHit) ;
 
-      double analogSignalAmplitude( const DetId& id, float energy ) const;
+      double analogSignalAmplitude( const PCaloHit& hit ) const;
 
       double timeOfFlight( const DetId& detId ) const ;
 

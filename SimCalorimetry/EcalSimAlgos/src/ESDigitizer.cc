@@ -163,7 +163,7 @@ ESDigitizer::setGain( const int gain )
 			const uint32_t off ( i2*histoBin2 ) ;
 			const uint32_t i1 ( ( thisBin - off )/histoBin1 ) ;
 			const uint32_t i0 ( thisBin - off - i1*histoBin1 ) ;
-			m_trip.emplace_back(i0, i1, i2) ;
+			m_trip.push_back( Triplet( i0, i1, i2 ) ) ;
 		     }
 		  }
 		  ++thisBin ;
@@ -186,7 +186,8 @@ ESDigitizer::setGain( const int gain )
 
 /// turns hits into digis
 void 
-ESDigitizer::run( ESDigiCollection&        output   )
+ESDigitizer::run( MixCollection<PCaloHit>& input  ,
+		  ESDigiCollection&        output   )
 {
     assert( 0 != m_detIds         &&
 	    0 != m_detIds->size() &&
@@ -199,7 +200,7 @@ ESDigitizer::run( ESDigiCollection&        output   )
     // reserve space for how many digis we expect, with some cushion
     output.reserve( 2*( (int) m_meanNoisy ) + hitResponse()->samplesSize() ) ;
 
-    EcalTDigitizer< ESDigitizerTraits >::run( output ) ;
+    EcalTDigitizer< ESDigitizerTraits >::run( input, output ) ;
 
     // random generation of channel above threshold
     std::vector<DetId> abThreshCh ;
@@ -224,7 +225,7 @@ ESDigitizer::run( ESDigiCollection&        output   )
 	     analogToDigital( analogSignal ,
 			      digi         ,
 			      true           ) ;	
-	  output.push_back( std::move(digi) ) ;  
+	  output.push_back( digi ) ;  
        }
     }
 }
@@ -253,6 +254,6 @@ ESDigitizer::createNoisyList( std::vector<DetId>& abThreshCh )
       }
       while( idItr != abThreshCh.end() ) ;
 
-      abThreshCh.push_back( std::move(id) ) ;
+      abThreshCh.push_back( id ) ;
    }
 }

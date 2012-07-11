@@ -17,6 +17,7 @@
 #include "CondFormats/CastorObjects/interface/CastorPedestalWidths.h"
 #include "CondFormats/CastorObjects/interface/CastorGains.h"
 #include "CondFormats/CastorObjects/interface/CastorGainWidths.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimCalorimetry/CastorSim/src/CastorDigitizerTraits.h"
 #include "SimCalorimetry/CastorSim/src/CastorHitCorrection.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -29,18 +30,19 @@
 using namespace std;
 using namespace cms;
 
-void testHitCorrection(CastorHitCorrection * correction, std::vector<PCaloHit> & hits)
+void testHitCorrection(CastorHitCorrection * correction, MixCollection<PCaloHit> & hits)
 {
   correction->fillChargeSums(hits);
-  for(PCaloHit& hit : hits)
+  for(MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
+      hitItr != hits.end(); ++hitItr)
     {
-      DetId detId(hit.id());
+      DetId detId((*hitItr).id());
       if (detId.det()==DetId::Calo && detId.subdetId()==HcalCastorDetId::SubdetectorId){
 	std::cout<<"Castor -- ";
     } 
-      std::cout << "HIT charge " << correction->charge(hit) << " delay " 
+      std::cout << "HIT charge " << correction->charge(*hitItr) << " delay " 
 		//<< correction->delay(*hitItr)
-		<< " Timebin " << correction->timeBin(hit) <<std::endl;
+		<< " Timebin " << correction->timeBin(*hitItr) <<std::endl;
     }
 }
 
@@ -99,6 +101,10 @@ int main() {
 
   vector<PCaloHit> pileups;
   pileups.push_back(castorPileup);
+  ///TODO fix once the new crossingframe is released
+  //crossingFrame.addPileupCaloHits(-3, hitsName, &pileups);
+  // -or -
+  // crossingFrame.addPileupCaloHits(-3, hitsName, &pileups, 0);
   CastorSimParameterMap parameterMap;
   CastorShape castorShape;
 
@@ -179,17 +185,15 @@ CastorDbService calibratorHandle(emptyPSet);
   cout << "setDetIds" << std::endl;
   auto_ptr<CastorDigiCollection> castorResult(new CastorDigiCollection);
   cout << "castorResult" << std::endl;
+//  MixCollection<PCaloHit> hitCollection(&crossingFrame, hitsName);
+  MixCollection<PCaloHit> hitCollection(&crossingFrame);
+
   cout << "test hit correction" << std::endl;
   //something breaks here!
-  testHitCorrection(&hitCorrection, hits);
-  castorDigitizer.add(hits, 0);
-  // TODO Add pileups
-  //testHitCorrection(&hitCorrection, pileups);
-  //castorDigitizer.add(pileups, -3);
- 
+  testHitCorrection(&hitCorrection, hitCollection);
 
   cout << "castordigitizer.run" << std::endl;
-  castorDigitizer.run(*castorResult);
+  castorDigitizer.run(hitCollection, *castorResult);
 
   cout << "Castor Frames" << std::endl;
   copy(castorResult->begin(), castorResult->end(), std::ostream_iterator<CastorDataFrame>(std::cout, "\n"));

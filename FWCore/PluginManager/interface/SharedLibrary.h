@@ -16,16 +16,18 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Apr  5 15:30:08 EDT 2007
-// $Id: SharedLibrary.h,v 1.2 2007/04/12 12:51:12 wmtan Exp $
 //
 
 // system include files
 #include <boost/filesystem/path.hpp>
 
 // user include files
-#include "FWCore/Utilities/interface/UseReflex.h"
 
 // forward declarations
+
+namespace Reflex {
+  class SharedLibrary;
+}
 
 namespace edmplugin {
 class SharedLibrary

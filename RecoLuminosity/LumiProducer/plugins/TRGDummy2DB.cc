@@ -25,7 +25,7 @@ namespace lumi{
   class TRGDummy2DB : public DataPipe{
   public:
     TRGDummy2DB(const std::string& dest);
-    virtual unsigned long long retrieveData( unsigned int );
+    virtual void retrieveData( unsigned int );
     virtual const std::string dataType() const;
     virtual const std::string sourceType() const;
     virtual ~TRGDummy2DB();
@@ -34,7 +34,7 @@ namespace lumi{
   //implementation
   //
   TRGDummy2DB::TRGDummy2DB(const std::string& dest):DataPipe(dest){}
-  unsigned long long TRGDummy2DB::retrieveData( unsigned int runnum){
+  void TRGDummy2DB::retrieveData( unsigned int runnum){
     //
     //generate dummy data of trg for the given run and write data to LumiDB
     //
@@ -108,7 +108,6 @@ namespace lumi{
     session->transaction().commit();
     delete session;
     delete svc;
-    return 0;
   }
   const std::string TRGDummy2DB::dataType() const{
     return "TRG";

@@ -13,59 +13,50 @@
  *
  ************************************************************/
 
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
-#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "SimTracker/SiPixelDigitizer/interface/SiPixelDigitizerAlgorithm.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+//#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLinkCollection.h"
 
 namespace CLHEP {
   class HepRandomEngine;
 }
 
-namespace edm {
-  class EDProducer;
-  class Event;
-  class EventSetup;
-  class ParameterSet;
-  template<typename T> class Handle;
-}
-
-class MagneticField;
-class PileUpEventPrincipal;
-class PixelGeomDetUnit;
-class PSimHit;
-class SiPixelDigitizerAlgorithm;
-class TrackerGeometry;
-
-namespace cms {
-  class SiPixelDigitizer : public DigiAccumulatorMixMod {
+namespace cms
+{
+  class SiPixelDigitizer : public edm::EDProducer 
+  {
   public:
 
-    explicit SiPixelDigitizer(const edm::ParameterSet& conf, edm::EDProducer& mixMod);
+    explicit SiPixelDigitizer(const edm::ParameterSet& conf);
 
     virtual ~SiPixelDigitizer();
 
-    virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
-    virtual void accumulate(edm::Event const& e, edm::EventSetup const& c);
-    virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c);
-    virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
     virtual void beginJob() {}
   private:
-    void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >);   
+    edm::ParameterSet conf_;
     bool first;
-    std::unique_ptr<SiPixelDigitizerAlgorithm>  _pixeldigialgo;
+    SiPixelDigitizerAlgorithm*  _pixeldigialgo;
     typedef std::vector<std::string> vstring;
-    const std::string hitsProducer;
-    const vstring trackerContainers;
-    const std::string geometryType;
-    edm::ESHandle<TrackerGeometry> pDD;
-    edm::ESHandle<MagneticField> pSetup;
-    std::map<unsigned int, PixelGeomDetUnit*> detectorUnits;
+    vstring trackerContainers;
+    typedef std::map<unsigned int, std::vector<PSimHit>,std::less<unsigned int> > simhit_map;
+    typedef simhit_map::iterator simhit_map_iterator;
+    simhit_map SimHitMap;
+    std::vector<edm::DetSet<PixelDigi> > theDigiVector;
+    std::vector<edm::DetSet<PixelDigiSimLink> > theDigiLinkVector;
+    std::string geometryType;
     CLHEP::HepRandomEngine* rndEngine;
+    //   std::vector<PixelDigiSimLink> linkcollector;
 
     // infrastructure to reject dead pixels as defined in db (added by F.Blekman)
   };

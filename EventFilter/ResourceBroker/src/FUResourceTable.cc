@@ -83,7 +83,6 @@ void FUResourceTable::initialize(bool segmentationMode, UInt_t nbRawCells,
 	acceptSMDqmDiscard_ = new int[nbDqmCells];
 
 	resetCounters();
-	stopFlag_=false;
 }
 
 //______________________________________________________________________________
@@ -106,7 +105,6 @@ bool FUResourceTable::sendData() {
 			rethrowShmBufferException(e,
 					"FUResourceTable:sendData:finishReadingRecoCell/discardRecoCell");
 		}
-	        shutdownStatus_|=1<<6;
 		reschedule = false;
 	} else {
 		try {
@@ -226,7 +224,6 @@ bool FUResourceTable::sendDataWhileHalting() {
 			rethrowShmBufferException(e,
 					"FUResourceTable:sendDataWhileHalting:finishReadingRecoCell/discardRecoCell");
 		}
-	        shutdownStatus_|=1<<6;
 		reschedule = false;
 	} else {
 		LOG4CPLUS_INFO(log_, "sendData: isHalting, discard recoCell.");
@@ -269,7 +266,6 @@ bool FUResourceTable::sendDqm() {
 			rethrowShmBufferException(e,
 					"FUResourceTable:sendDqm:finishReadingDqmCell/discardDqmCell");
 		}
-	        shutdownStatus_|=1<<7;
 		reschedule = false;
 	} else {
 		try {
@@ -328,7 +324,6 @@ bool FUResourceTable::sendDqmWhileHalting() {
 			rethrowShmBufferException(e,
 					"FUResourceTable:sendDqmWhileHalting:finishReadingDqmCell/discardDqmCell");
 		}
-	        shutdownStatus_|=1<<7;
 		reschedule = false;
 	} else {
 		UInt_t cellIndex = cell->index();
@@ -350,7 +345,6 @@ bool FUResourceTable::sendDqmWhileHalting() {
 //______________________________________________________________________________
 void FUResourceTable::discardNoReschedule() {
 	std::cout << " entered shutdown cycle " << std::endl;
-	shutdownStatus_|=1<<3;
 	try {
 		shmBuffer_->writeRecoEmptyEvent();
 	} catch (evf::Exception& e) {
@@ -364,7 +358,6 @@ void FUResourceTable::discardNoReschedule() {
 				<< FUShmBuffer::shm_nattch(shmBuffer_->shmid()) << std::endl;
 		if (shmBuffer_->nClients() == 0 && FUShmBuffer::shm_nattch(
 				shmBuffer_->shmid()) == 1) {
-	                shutdownStatus_|=1<<4;
 			//isReadyToShutDown_ = true;
 			break;
 		} else {
@@ -408,7 +401,6 @@ void FUResourceTable::discardNoReschedule() {
 		}
 		shmBuffer_->unlock();
 	}
-	shutdownStatus_|=5;
 
 	std::cout << "Number of  pending discards before declaring ready to shut down: " << nbPendingSMDqmDiscards_ << std::endl;
 	if (nbPendingSMDqmDiscards_ != 0) {
@@ -892,7 +884,6 @@ void FUResourceTable::postEndOfLumiSection(MemRef_t* bufRef) {
 
 	for (unsigned int i = 0; i < nbRawCells_; i++) {
 		// UPDATED
-		if (stopFlag_) break;
 		nbEolPosted_++;
 		try {
 			shmBuffer_->writeRawLumiSectionEvent(msg->lumiSection);
@@ -947,10 +938,7 @@ bool FUResourceTable::handleCrashedEP(UInt_t runNumber, pid_t pid) {
 		LOG4CPLUS_WARN(log_,
 				"No raw data to send to error stream for process " << pid);
 	try {
-		bool success = shmBuffer_->removeClientPrcId(pid);
-		if (!success)
-		  LOG4CPLUS_WARN(log_,
-				"removeClientPrcId: " << pid << " not in shared memory index, was in raw cell " << iRawCell);
+		shmBuffer_->removeClientPrcId(pid);
 	} catch (evf::Exception& e) {
 		rethrowShmBufferException(e,
 				"FUResourceTable:handleCrashedEP:removeClientPrcId");
@@ -963,9 +951,7 @@ void FUResourceTable::shutDownClients() {
 	nbClientsToShutDown_ = nbClients();
 	isReadyToShutDown_ = false;
 
-	shutdownStatus_=1;
 	if (nbClientsToShutDown_ == 0) {
-	        shutdownStatus_|=1<<1;
 		LOG4CPLUS_INFO(
 				log_,
 				"No clients to shut down. Checking if there are raw cells not assigned to any process yet");
@@ -993,24 +979,14 @@ void FUResourceTable::shutDownClients() {
 			while (shmBuffer_->nbRawCellsToWrite() < nbClients() && nbClients()
 					!= 0) {
 				checks++;
-				{
-					auto lk = lockCrashHandlerTimed(10);
-					if (lk) {
-						vector < pid_t > prcids = clientPrcIds();
-						for (UInt_t i = 0; i < prcids.size(); i++) {
-							pid_t pid = prcids[i];
-							int status = kill(pid, 0);
-							if (status != 0) {
-								LOG4CPLUS_ERROR(log_,
-										"EP prc " << pid << " completed with error.");
-								handleCrashedEP(runNumber_, pid);
-							}
-						}
-					}
-					else {
-						XCEPT_RAISE(evf::Exception, 
-							"Timed out access to the Crash Handler in stop. SM discards not arriving?");
-
+				vector < pid_t > prcids = clientPrcIds();
+				for (UInt_t i = 0; i < prcids.size(); i++) {
+					pid_t pid = prcids[i];
+					int status = kill(pid, 0);
+					if (status != 0) {
+						LOG4CPLUS_ERROR(log_,
+								"EP prc " << pid << " completed with error.");
+						handleCrashedEP(runNumber_, pid);
 					}
 				}
 
@@ -1025,15 +1001,12 @@ void FUResourceTable::shutDownClients() {
 				}
 				::usleep(500000);
 			}
-	                shutdownStatus_|=1<<2;
-
 		} catch (evf::Exception& e) {
 			rethrowShmBufferException(e,
 					"FUResourceTable:shutDownClients:nbRawCellsToWrite");
 		}
 		nbClientsToShutDown_ = nbClients();
 		if (nbClientsToShutDown_ == 0) {
-	                shutdownStatus_|=1<<1;
 			UInt_t n = nbResources();
 			for (UInt_t i = 0; i < n; i++) {
 				// initialize to a value to avoid warnings

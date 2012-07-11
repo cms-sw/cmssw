@@ -24,7 +24,8 @@ class ESDigitizer : public EcalTDigitizer< ESDigitizerTraits >
 
       virtual ~ESDigitizer() ;
 
-      virtual void run( ESDigiCollection& output ) ;
+      virtual void run( MixCollection<PCaloHit>& input ,
+			DigiCollection&          output  ) ;
 
       void setDetIds( const std::vector<DetId>& detIds ) ;
 

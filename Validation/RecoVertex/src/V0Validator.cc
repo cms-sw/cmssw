@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Wed Feb 18 17:21:04 MST 2009
-// $Id: V0Validator.cc,v 1.7 2010/03/18 13:30:11 drell Exp $
+// $Id: V0Validator.cc,v 1.8 2010/03/26 22:04:49 drell Exp $
 //
 //
 
@@ -883,7 +883,7 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   for(TrackingParticleCollection::size_type i = 0; i < tPCeff.size(); i++) {
     TrackingParticleRef tpr1(TPCollectionEff, i);
-    TrackingParticle* itp1 = const_cast<TrackingParticle*>(tpr1.get());
+    const TrackingParticle* itp1 = tpr1.get();
     if( (itp1->pdgId() == 211 || itp1->pdgId() == 2212)
 	&& itp1->parentVertex().isNonnull()
 	&& abs(itp1->momentum().eta()) < 2.4
@@ -902,7 +902,7 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		j < tPCeff.size();
 		j++) {
 	      TrackingParticleRef tpr2(TPCollectionEff, j);
-	      TrackingParticle* itp2 = const_cast<TrackingParticle*>(tpr2.get());
+	      const TrackingParticle* itp2 = tpr2.get();
 	      int particle2pdgId;
 	      if (isLambda) particle2pdgId = -211;
 	      else particle2pdgId = -2212;
@@ -1041,7 +1041,7 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //cout << "Starting Kshort efficiency" << endl;
   for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
     TrackingParticleRef tpr1(TPCollectionEff, i);
-    TrackingParticle* itp1=const_cast<TrackingParticle*>(tpr1.get());
+    const TrackingParticle* itp1 = tpr1.get();
     // only count the efficiency for pions with |eta|<2.4 and pT>0.9 GeV. First search for a suitable pi+
     if ( itp1->pdgId() == 211 
 	 && itp1->parentVertex().isNonnull() 
@@ -1057,7 +1057,7 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    //with a Ks mother found for the pi+, loop through trackingParticles again to find a pi-
 	    for (TrackingParticleCollection::size_type j=0; j<tPCeff.size(); j++){
 	      TrackingParticleRef tpr2(TPCollectionEff, j);
-	      TrackingParticle* itp2=const_cast<TrackingParticle*>(tpr2.get());
+	      const TrackingParticle* itp2 = tpr2.get();
 	      
 	      if ( itp2->pdgId() == -211 && itp2->parentVertex().isNonnull()  
 		   && abs(itp2->momentum().eta()) < 2.4 

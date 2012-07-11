@@ -1,6 +1,14 @@
+/*  
+ *  $Id: SealModule.cc,v 1.6 2010/02/25 00:33:46 wmtan Exp $
+ */
+
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
+
 #include "SimCalorimetry/EcalTestBeam/interface/EcalTBDigiProducer.h"
 
-DEFINE_DIGI_ACCUMULATOR(EcalTBDigiProducer);
+
+
+using edm::EDProducer;
+DEFINE_FWK_MODULE (EcalTBDigiProducer) ;
+
 

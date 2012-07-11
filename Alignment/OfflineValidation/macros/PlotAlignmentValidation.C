@@ -25,9 +25,9 @@
 #include "TPaveText.h"
 #include "TPaveStats.h"
 #include "TF1.h"
-
 // This line works only if we have a CMSSW environment...
 #include "Alignment/OfflineValidation/interface/TkOffTreeVariables.h"
+
 
 class TkOfflineVariables {
 public:
@@ -52,12 +52,12 @@ TkOfflineVariables::TkOfflineVariables(std::string fileName, std::string baseDir
 {
   lineColor = lColor;
   lineStyle = lStyle;
-  if (legName=="") {
+  if (legName==""){
     int start = 0;
     if (fileName.find('/') ) start =fileName.find_last_of('/')+1;
     int stop = fileName.find_last_of('.');
     legendName = fileName.substr(start,stop-start);
-  } else { 
+  }else{ 
     legendName = legName;
   }
 
@@ -65,20 +65,14 @@ TkOfflineVariables::TkOfflineVariables(std::string fileName, std::string baseDir
   file = TFile::Open( fileName.c_str() );
   TDirectoryFile *d = 0;
   if (file->Get( baseDir.c_str() ) )  {
-    d = (TDirectoryFile*)file->Get( baseDir.c_str() );
-    if ((*d).Get("TkOffVal")) {
-      tree = (TTree*)(*d).Get("TkOffVal");
-    } else {
-      std::cout<<"no tree named TkOffVal"<<endl;
-    }
-  } else {
-    std::cout<<"no directory named "<<baseDir.c_str()<<endl;
+    d=(TDirectoryFile*)file->Get( baseDir.c_str() );
+ 
+  if( (*d).Get("TkOffVal") ) tree = (TTree*)(*d).Get("TkOffVal");
+  else 	std::cout<<"no tree named TkOffVal"<<endl;
   }
+  else 	std::cout<<"no directory named "<<baseDir.c_str()<<endl;
 }
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
 
 class PlotAlignmentValidation {
 public:
@@ -93,13 +87,13 @@ public:
   void plotHitMaps();
   void setOutputDir( std::string dir );
   void setTreeBaseDir( std::string dir = "TrackerOfflineValidationStandalone");
-  
+
   TH1* addHists(const char *selection, const TString &residType = "xPrime", bool printModuleIds = false);//add hists fulfilling 'selection' on TTree; residType: xPrime,yPrime,xPrimeNorm,yPrimeNorm,x,y,xNorm; if (printModuleIds): cout DetIds
-  
+
 private : 
   TList getTreeList();
   std::string treeBaseDir;
-  
+
   std::pair<float,float> fitGauss(TH1 *hist,int color);
   //void plotBoxOverview(TCanvas &c1, TList &treeList,std::string plot_Var1a,std::string plot_Var1b, std::string plot_Var2, Int_t filenumber,Int_t minHits);
   //void plot1DDetailsSubDet(TCanvas &c1, TList &treeList, std::string plot_Var1a,std::string plot_Var1b, std::string plot_Var2, Int_t minHits);
@@ -110,7 +104,7 @@ private :
   void setNiceStyle();
   void setCanvasStyle( TCanvas& canv );
   void setLegendStyle( TLegend& leg );
-  
+
   TString outputFile;
   std::string outputDir;
   TList *sourcelist;
@@ -120,18 +114,16 @@ private :
   int fileCounter;	
 };
 
-//------------------------------------------------------------------------------
 PlotAlignmentValidation::PlotAlignmentValidation(const char *inputFile,std::string legendName, int lineColor, int lineStyle)
 {
   setOutputDir("$TMPDIR");
   setTreeBaseDir();
   sourcelist = NULL;
-  
+
   loadFileList( inputFile, legendName, lineColor, lineStyle);
   moreThanOneSource=false;
 }
 
-//------------------------------------------------------------------------------
 PlotAlignmentValidation::~PlotAlignmentValidation()
 {
   delete sourcelist;
@@ -143,7 +135,6 @@ PlotAlignmentValidation::~PlotAlignmentValidation()
 
 }
 
-//------------------------------------------------------------------------------
 void PlotAlignmentValidation::loadFileList(const char *inputFile, std::string legendName, int lineColor, int lineStyle)
 {
 
@@ -151,7 +142,6 @@ void PlotAlignmentValidation::loadFileList(const char *inputFile, std::string le
   
 }
 
-//------------------------------------------------------------------------------
 void PlotAlignmentValidation::useFitForDMRplots(bool usefit)
 {
 
@@ -159,7 +149,6 @@ void PlotAlignmentValidation::useFitForDMRplots(bool usefit)
   
 }
 
-//------------------------------------------------------------------------------
 void PlotAlignmentValidation::setOutputDir( std::string dir )
 {
   // we should check if this dir exsits...
@@ -167,7 +156,6 @@ void PlotAlignmentValidation::setOutputDir( std::string dir )
   outputDir = dir;
 }
 
-//------------------------------------------------------------------------------
 void PlotAlignmentValidation::plotSubDetResiduals(bool plotNormHisto,unsigned int subDetId)
 {
   setNiceStyle();
@@ -194,24 +182,25 @@ void PlotAlignmentValidation::plotSubDetResiduals(bool plotNormHisto,unsigned in
   int tmpcounter = 0;
   TH1 *sumHisto = 0;
   for(std::vector<TkOfflineVariables*>::iterator it = sourceList.begin();
-      it != sourceList.end(); ++it) {
-    if (tmpcounter == 0 ) {
+      it != sourceList.end(); ++it){
+    if (tmpcounter == 0 ){
       TFile *f= (*it)->getFile();
       sumHisto =(TH1*) f->FindKeyAny(histoName)->ReadObj();//FindObjectAny(histoName.Data());
       sumHisto->SetLineColor(tmpcounter+1);
       sumHisto->SetLineStyle(tmpcounter+1);
       sumHisto->GetFunction("tmp")->SetBit(TF1::kNotDraw);
       sumHisto->Draw();
-      
+  
       //get statistic box coordinate to plot all boxes one below the other
       //gStyle->SetStatY(0.91);
       //gStyle->SetStatW(0.15);
       //gStyle->SetStatBorderSize(1);
       //gStyle->SetStatH(0.10);
-      
+   
       
       tmpcounter++;
-    } else {
+    }
+    else{
       sumHisto = (TH1*) (*it)->getFile()->FindObjectAny(histoName);
       sumHisto->SetLineColor(tmpcounter+1);
       sumHisto->SetLineStyle(tmpcounter+1);
@@ -244,14 +233,16 @@ void PlotAlignmentValidation::plotSubDetResiduals(bool plotNormHisto,unsigned in
     
 }
 
-//------------------------------------------------------------------------------
+
 void PlotAlignmentValidation::plotHitMaps()
 {
+ 
   
   setNiceStyle(); 
   //gStyle->SetOptStat(0);
+ 
   
-  TCanvas *c = new TCanvas("c", "c", 1200,400);
+   TCanvas *c = new TCanvas("c", "c", 1200,400);
   setCanvasStyle( *c );
   c->Divide(3,1);
   //ps->NewPage();
@@ -267,7 +258,7 @@ void PlotAlignmentValidation::plotHitMaps()
   tree->Draw("entries:posY:posX","","COLZ2Prof");
   c->cd(3);
   tree->Draw("entries:posR:posPhi","","COLZ2Prof");
-  
+    
   char PlotName[100];
   sprintf( PlotName, "%s/%s.eps", outputDir.c_str(), histName_.c_str() );
   
@@ -275,12 +266,10 @@ void PlotAlignmentValidation::plotHitMaps()
   //   //c->Update();
   c->Close();  
   //----------------------------------------------------
-  
+
 }
 
-//------------------------------------------------------------------------------
-void PlotAlignmentValidation::plotOutlierModules(const char *outputFileName, string plotVariable,
-						 float plotVariable_cut ,int unsigned minHits)
+void PlotAlignmentValidation::plotOutlierModules(const char *outputFileName,string plotVariable, float plotVariable_cut ,int unsigned minHits)
 {
  
   Int_t counter=0;
@@ -289,7 +278,7 @@ void PlotAlignmentValidation::plotOutlierModules(const char *outputFileName, str
   gStyle->SetOptStat(111111);
   gStyle->SetStatY(0.9);
   //TList treelist=getTreeList();
-  
+ 
   TCanvas *c1 = new TCanvas("canv", "canv", 800, 500);
   //setCanvasStyle( *c1 );
   outputFile = outputDir +'/'+ outputFileName;   
@@ -304,7 +293,7 @@ void PlotAlignmentValidation::plotOutlierModules(const char *outputFileName, str
   
   
   Long64_t nentries =  tree->GetEntriesFast();
-  
+   
   for (Long64_t i = 0; i < nentries; i++){
     
     tree->GetEntry(i);
@@ -325,19 +314,19 @@ void PlotAlignmentValidation::plotOutlierModules(const char *outputFileName, str
     
     if (var > plotVariable_cut && treeMem->entries > minHits)
       {
-	
+
 	TFile *f=(*sourceList.begin())->getFile();//(TFile*)sourcelist->First();
 	
 	if(f->FindKeyAny(treeMem->histNameX.c_str())!=0){
 	  TH1 *h = (TH1*) f->FindKeyAny(treeMem->histNameX.c_str())->ReadObj();//f->FindObjectAny(treeMem->histNameX.c_str());
 	  gStyle->SetOptFit(0111);
 	  cout<<"hist name "<<h->GetName()<<endl;
-	  
+
 	  TString path =(char*)strstr( gDirectory->GetPath(), "TrackerOfflineValidation" );
 	  //cout<<"hist path "<<path<<endl;
 	  //cout<<"wrote text "<<endl;
 	  if(h) cout<<h->GetEntries()<<endl;
-	  
+
 	  //modules' location as title
 	  c1->cd(0);
 	  TPaveText * text=new TPaveText(0,0.95,0.99,0.99);
@@ -346,13 +335,13 @@ void PlotAlignmentValidation::plotOutlierModules(const char *outputFileName, str
 	  text->SetShadowColor(0);
 	  text->SetBorderSize( 0 );
 	  text->Draw();
-	  
+	
 	  //residual histogram
 	  c1->cd(1);
 	  TPad *subpad = (TPad*)c1->GetPad(1);
 	  subpad->SetPad(0,0,0.5,0.94);
 	  h->Draw();
-	  
+	
 	  //norm. residual histogram
 	  h = (TH1*) f->FindObjectAny(treeMem->histNameNormX.c_str());
 	  if(h) cout<<h->GetEntries()<<endl;
@@ -360,7 +349,7 @@ void PlotAlignmentValidation::plotOutlierModules(const char *outputFileName, str
 	  TPad *subpad2 = (TPad*)c1->GetPad(2);
 	  subpad2->SetPad(0.5,0,0.99,0.94);
 	  h->Draw();
-	  
+	
 	  c1->Print(outputFile);
 	  counter++;
 	}
@@ -374,7 +363,7 @@ void PlotAlignmentValidation::plotOutlierModules(const char *outputFileName, str
   }
   c1->Print( (outputFile+"]").Data() );
   if (counter == 0) cout<<"no bad modules found"<<endl;
-  
+ 
   
   //read the number of entries in the t3
   //TTree* tree=0;
@@ -382,18 +371,19 @@ void PlotAlignmentValidation::plotOutlierModules(const char *outputFileName, str
   
   
   //c1->Close();
-  
+ 
 }
 
-//------------------------------------------------------------------------------
+
+
 TList PlotAlignmentValidation::getTreeList()
 {
-  TList treeList = new TList();
+   TList treeList = new TList();
   TFile *first_source = (TFile*)sourcelist->First();
   std::cout<<first_source->GetName()<<std::endl;
   TDirectoryFile *d=(TDirectoryFile*)first_source->Get( treeBaseDir.c_str() ); 
   treeList.Add( (TTree*)(*d).Get("TkOffVal") );
-  
+ 
   if( moreThanOneSource ==true ){
     TFile *nextsource = (TFile*)sourcelist->After( first_source );
     while ( nextsource ) {
@@ -404,174 +394,162 @@ TList PlotAlignmentValidation::getTreeList()
       
       nextsource = (TFile*)sourcelist->After( nextsource );
     }
-  }
-  return treeList;
+  }return treeList;
 }
 
-//------------------------------------------------------------------------------
 void PlotAlignmentValidation::setTreeBaseDir( std::string dir )
 {
   treeBaseDir = dir;  
 }
 
-//------------------------------------------------------------------------------
 void  PlotAlignmentValidation::plotDMR(const std::string variable, Int_t minHits )
 {
-  setNiceStyle(); 
-  gStyle->SetOptStat(0);
+ setNiceStyle(); 
+ gStyle->SetOptStat(0);
 
-  // TList treeList=getTreeList();
-  
-  TCanvas *c = new TCanvas("canv", "canv", 600, 600);
-  setCanvasStyle( *c );
-  //loop over sub-detectors 
-  for (int i=1;i<7;++i) {
- 
-    int histo_Counter=1;
-    TLegend *leg_hist = new TLegend(0.17,0.8,0.85,0.88);
-    setLegendStyle(*leg_hist);
-    //loop over file list
-    //TTree *tree= (TTree*)treeList.First();
-    //binning
-    int nbinsX=100;
-    double xmin=0;
-    double xmax=0;
-    float maxY=0;
-    bool isHisto = false;
-    std::string plotVar=variable;
-    THStack *hstack=new THStack("hstack","hstack");
-    
-    for(std::vector<TkOfflineVariables*>::iterator it = sourceList.begin();
-	it != sourceList.end(); ++it){
-      //while ( tree ){
-      plotVar=variable;
-      TString subdet = "entries>=";
-      subdet+=minHits; 
-      subdet+=" && subDetId==";
-      subdet+=i;
-      
-      char binning [50]="";
-      sprintf (binning, ">>myhisto(%d,  %f , %f)", nbinsX, xmin, xmax);
-      TH1F *h = 0;
-      
-      if (histo_Counter==1&&plotVar=="meanX")(*it)->getTree()->Draw( (plotVar+=">>myhisto(50,-0.001,0.001)").c_str(),subdet,"goff");
-      else if (histo_Counter==1&&plotVar=="meanY")(*it)->getTree()->Draw( (plotVar+=">>myhisto(50,-0.005,0.005)").c_str(),subdet,"goff");
-      else if (histo_Counter==1&&plotVar=="medianX")(*it)->getTree()->Draw( (plotVar+=">>myhisto(50,-0.005,0.005)").c_str(),subdet,"goff");
-      else if (histo_Counter==1&&plotVar=="medianY")(*it)->getTree()->Draw( (plotVar+=">>myhisto(50,-0.005,0.005)").c_str(),subdet,"goff");
-      else if (histo_Counter==1&&plotVar=="meanNormX")(*it)->getTree()->Draw( (plotVar+=">>myhisto(100,-2,2)").c_str(),subdet,"goff");
-      else if (histo_Counter==1&&plotVar=="rmsX")(*it)->getTree()->Draw( (plotVar+=">>myhisto(100,0.,0.1)").c_str(),subdet,"goff");
-      else if (histo_Counter!=1)(*it)->getTree()->Draw( (plotVar+=binning).c_str(),subdet,"goff");
-      
-      if (gDirectory) gDirectory->GetObject("myhisto", h);
-      std::pair<float,float> fitResults(9999., 9999.);
-      if (h){
-	if (h->GetEntries()>0) {
-	  isHisto = true;
-	  h->SetDirectory(0);
-	  //general draw options
-	  h->SetLineWidth(2);
-	  //first histo only, setting optStat...
-	  if (histo_Counter==1)
-	    setHistStyle(*h,plotVar.c_str() ,"#modules", 1 ); //set color later
-	  
-	  h->SetLineColor( (*it)->getLineColor() );
-	  h->SetLineStyle( (*it)->getLineStyle() );
-	  //h->SetMarkerStyle(20+file_Counter);
-	  
-	  //draw options
-	  
-	  if (maxY<h->GetMaximum()){
-	    maxY=h->GetMaximum();
-	  }
-	  
-	  //fit histogram for median and mean
-	  if (variable=="medianX"||variable =="meanX") {
-	    fitResults=fitGauss(h, (*it)->getLineColor() );
-	  }
-	  
-	  if (histo_Counter==1){
-	    //get mean and sigma from fit: gauss for 2sigma range
-	    hstack->Add(h);
-	    nbinsX=h->GetXaxis()->GetNbins();
-	    xmin=h->GetXaxis()->GetXmin();
-	    xmax=h->GetXaxis()->GetXmax();
-	    
-	  } else if (histo_Counter!=1 &&  h->GetEntries()>0) {
-	    hstack->Add(h);
-	  }
+ // TList treeList=getTreeList();
 
-	  char legend [50]="";
-	  std::string legEntry = (*it)->getName();
-	  if ( (variable=="medianX"||variable =="meanX") && useFit_) {
-	    sprintf (legend, "%s: #mu = %4.2f#mum, #sigma = %4.2f#mum ",legEntry.c_str(),fitResults.first ,fitResults.second);
-	  }
-	  if ( (variable=="medianX"||variable =="meanX"||variable=="medianY"||variable =="meanY" )&&useFit_ == false) {
-	    sprintf (legend, "%s: #mu = %4.2f#mum, rms = %4.2f#mum ",legEntry.c_str(),h->GetMean(1)*10000 ,h->GetRMS(1)*10000);
-	  } else {
-	    sprintf (legend, "%s ",legEntry.c_str());
-	  }
-	  if(h)
-	    leg_hist->AddEntry(h,legend,"l");
-	  else
-	    std::cerr<< "histogram did not exist!";
-	}
-      }
-      
-      //     tree= (TTree*)treeList.After( tree );
-      //     file_Counter++;
-      histo_Counter++;
-      
-    }
-    
-    if (isHisto){
-      hstack->Draw("nostack");
-      hstack->SetMaximum(maxY*1.3);
-      setTitleStyle(*hstack,plotVar.c_str() ,"#modules",i);
-      setHistStyle(*hstack->GetHistogram(),plotVar.c_str() ,"#modules", 1 );
-      leg_hist->Draw(); 
-      
-      std::string histName="D";
-      if (variable=="medianX") histName+="medianR_";
-      else if (variable=="medianY") histName+="medianYR_";
-      else if (variable=="meanX") histName+="meanR_";
-      else if (variable=="meanY") histName+="meanYR_";
-      else if (variable=="rmsX") histName+="rmsR_";
-      std::string subDetector ="";
-      switch (i){
-      case 1 : subDetector+="TPB";break;
-      case 2 : subDetector+="TPE";break;
-      case 3 : subDetector+="TIB";break;
-      case 4 : subDetector+="TID";break;
-      case 5 : subDetector+="TOB";break;
-      case 6 : subDetector+="TEC";break;
-      }
+ TCanvas *c = new TCanvas("canv", "canv", 600, 600);
+ setCanvasStyle( *c );
+ //loop over sub-detectors 
+ for (int i=1;i<7;++i){
  
-      char PlotName[100];
-      sprintf( PlotName, "%s/%s%s.eps",outputDir.c_str(), histName.c_str(), subDetector.c_str() );
-      c->Update(); 
-      c->Print(PlotName);
-      //c->Update();
-      //c->Close();
+   int histo_Counter=1;
+   TLegend *leg_hist = new TLegend(0.17,0.8,0.85,0.88);
+   setLegendStyle(*leg_hist);
+   //loop over file list
+   //TTree *tree= (TTree*)treeList.First();
+   //binning
+   int nbinsX=100;
+   double xmin=0;
+   double xmax=0;
+   float maxY=0;
+   bool isHisto = false;
+   std::string plotVar=variable;
+   THStack *hstack=new THStack("hstack","hstack");
+
+   for(std::vector<TkOfflineVariables*>::iterator it = sourceList.begin();
+       it != sourceList.end(); ++it){
       
-    }
+     //while ( tree ){
+     plotVar=variable;
+     TString subdet = "entries>=";
+     subdet+=minHits; 
+     subdet+=" && subDetId==";
+     subdet+=i;
+      
+     char binning [50]="";
+     sprintf (binning, ">>myhisto(%d,  %f , %f)", nbinsX, xmin, xmax);
+     TH1F *h = 0;
+     
+     if (histo_Counter==1&&plotVar=="meanX")(*it)->getTree()->Draw( (plotVar+=">>myhisto(50,-0.001,0.001)").c_str(),subdet,"goff");
+     else if (histo_Counter==1&&plotVar=="meanY")(*it)->getTree()->Draw( (plotVar+=">>myhisto(50,-0.005,0.005)").c_str(),subdet,"goff");
+     else if (histo_Counter==1&&plotVar=="medianX")(*it)->getTree()->Draw( (plotVar+=">>myhisto(50,-0.005,0.005)").c_str(),subdet,"goff");
+     else if (histo_Counter==1&&plotVar=="medianY")(*it)->getTree()->Draw( (plotVar+=">>myhisto(50,-0.005,0.005)").c_str(),subdet,"goff");
+     else if (histo_Counter==1&&plotVar=="meanNormX")(*it)->getTree()->Draw( (plotVar+=">>myhisto(100,-2,2)").c_str(),subdet,"goff");
+     else if (histo_Counter==1&&plotVar=="rmsX")(*it)->getTree()->Draw( (plotVar+=">>myhisto(100,0.,0.1)").c_str(),subdet,"goff");
+     else if (histo_Counter!=1)(*it)->getTree()->Draw( (plotVar+=binning).c_str(),subdet,"goff");
+
+     if (gDirectory) gDirectory->GetObject("myhisto", h);
+     std::pair<float,float> fitResults(9999., 9999.);
+     if (h){
+       if (h->GetEntries()>0) {
+	 isHisto = true;
+	 h->SetDirectory(0);
+	 //general draw options
+	 h->SetLineWidth(2);
+	 //first histo only, setting optStat...
+	 if (histo_Counter==1)
+	   setHistStyle(*h,plotVar.c_str() ,"#modules", 1 ); //set color later
+
+	 h->SetLineColor( (*it)->getLineColor() );
+	 h->SetLineStyle( (*it)->getLineStyle() );
+	   //h->SetMarkerStyle(20+file_Counter);
+      
+	 //draw options
+	 
+	 if (maxY<h->GetMaximum()){
+	   maxY=h->GetMaximum();
+	 }
+      
+	 //fit histogram for median and mean
+	 if (variable=="medianX"||variable =="meanX")fitResults=fitGauss(h, (*it)->getLineColor() );
+
+	 if (histo_Counter==1){
+	   //get mean and sigma from fit: gauss for 2sigma range
+	   hstack->Add(h);
+	   nbinsX=h->GetXaxis()->GetNbins();
+	   xmin=h->GetXaxis()->GetXmin();
+	   xmax=h->GetXaxis()->GetXmax();
+	  
+	 }else if (histo_Counter!=1 &&  h->GetEntries()>0)hstack->Add(h);
+     
+	 char legend [50]="";
+	 std::string legEntry = (*it)->getName();
+	 if ( (variable=="medianX"||variable =="meanX") && useFit_)
+	   sprintf (legend, "%s: #mu = %4.2f#mum, #sigma = %4.2f#mum ",legEntry.c_str(),fitResults.first ,fitResults.second);
+	 if ( (variable=="medianX"||variable =="meanX"||variable=="medianY"||variable =="meanY" )&&useFit_ == false)
+	   sprintf (legend, "%s: #mu = %4.2f#mum, rms = %4.2f#mum ",legEntry.c_str(),h->GetMean(1)*10000 ,h->GetRMS(1)*10000);
+	 else sprintf (legend, "%s ",legEntry.c_str());
+	 if(h)
+	   leg_hist->AddEntry(h,legend,"l");
+	 else
+	   std::cerr<< "histogram did not exist!";
+       }
+     }
+     //     tree= (TTree*)treeList.After( tree );
+     //     file_Counter++;
+     histo_Counter++;
+        
+   }
     
-    delete hstack;
-    hstack=0; 
+   if (isHisto){
+     hstack->Draw("nostack");
+     hstack->SetMaximum(maxY*1.3);
+     setTitleStyle(*hstack,plotVar.c_str() ,"#modules",i);
+     setHistStyle(*hstack->GetHistogram(),plotVar.c_str() ,"#modules", 1 );
+     leg_hist->Draw(); 
+
+     std::string histName="D";
+     if (variable=="medianX") histName+="medianR_";
+     else if (variable=="medianY") histName+="medianYR_";
+     else if (variable=="meanX") histName+="meanR_";
+     else if (variable=="meanY") histName+="meanYR_";
+     else if (variable=="rmsX") histName+="rmsR_";
+     std::string subDetector ="";
+     switch (i){
+     case 1 : subDetector+="TPB";break;
+     case 2 : subDetector+="TPE";break;
+     case 3 : subDetector+="TIB";break;
+     case 4 : subDetector+="TID";break;
+     case 5 : subDetector+="TOB";break;
+     case 6 : subDetector+="TEC";break;
+     }
+ 
+     char PlotName[100];
+     sprintf( PlotName, "%s/%s%s.eps",outputDir.c_str(), histName.c_str(), subDetector.c_str() );
+     c->Update(); 
+     c->Print(PlotName);
+     //c->Update();
+     //c->Close();
     
-  }
+   }
+   delete hstack;
+   hstack=0; 
   
-  delete c;
-  c=0;
+ }
+ 
+ delete c;
+ c=0;
 }
 
-//------------------------------------------------------------------------------
 TH1* PlotAlignmentValidation::addHists(const char *selection, const TString &residType,
 				       bool printModuleIds)
 {
   enum ResidType {
     xPrimeRes, yPrimeRes, xPrimeNormRes, yPrimeNormRes, xRes, yRes, xNormRes, /*yResNorm*/
     ResXvsXProfile,  ResXvsYProfile, ResYvsXProfile, ResYvsYProfile
-  };
+ };
   ResidType rType = xPrimeRes;
   if (residType == "xPrime") rType = xPrimeRes;
   else if (residType == "yPrime") rType = yPrimeRes;
@@ -597,7 +575,7 @@ TH1* PlotAlignmentValidation::addHists(const char *selection, const TString &res
     std::cout << "PlotAlignmentValidation::addHists: no tree or no file" << std::endl;
     return 0;
   }
-  
+
   // first loop on tree to find out which entries (i.e. modules) fulfill the selection
   // 'Entry$' gives the entry number in the tree
   Long64_t nSel = tree->Draw("Entry$", selection, "goff");
@@ -616,7 +594,7 @@ TH1* PlotAlignmentValidation::addHists(const char *selection, const TString &res
 
   // second loop on tree:
   // for each selected entry get the hist from the file and merge
-  TkOffTreeVariables *treeMem = 0; // ROOT will initialise
+  TkOffTreeVariables *treeMem = 0; // ROOT will initilise
   tree->SetBranchAddress("TkOffTreeVariables", &treeMem);
   for (Long64_t i = 0; i < nentries; i++){
     if (i < *iterEnt - 0.1             // smaller index (with tolerance): skip
@@ -657,10 +635,10 @@ TH1* PlotAlignmentValidation::addHists(const char *selection, const TString &res
     if (!h) { // first hist: clone, but rename keeping only first part of name
       TString name(newHist->GetName());
       Ssiz_t pos_ = 0;
-      for (UInt_t i2 = 0; i2 < 3; ++i2) pos_ = name.Index("_", pos_+1);
+      for (UInt_t i = 0; i < 3; ++i) pos_ = name.Index("_", pos_+1);
       name = name(0, pos_); // only up to three '_'
 	h = static_cast<TH1*>(newHist->Clone("summed_"+name));
-	h->SetTitle(Form("%s: %lld modules", selection, nSel));
+	h->SetTitle(Form("%s: %d modules", selection, nSel));
     } else { // otherwise just add
       h->Add(newHist);
     }
@@ -672,7 +650,6 @@ TH1* PlotAlignmentValidation::addHists(const char *selection, const TString &res
   return h;
 }
 
-//------------------------------------------------------------------------------
 std::pair<float,float> 
 PlotAlignmentValidation::fitGauss(TH1 *hist,int color) 
 {
@@ -711,7 +688,6 @@ PlotAlignmentValidation::fitGauss(TH1 *hist,int color)
 }
 
 
-//------------------------------------------------------------------------------
 void  PlotAlignmentValidation::setCanvasStyle( TCanvas& canv )
 {
   canv.SetFillStyle   ( 4000 );
@@ -720,8 +696,6 @@ void  PlotAlignmentValidation::setCanvasStyle( TCanvas& canv )
   canv.SetBottomMargin( 0.15 );
   canv.SetTopMargin   ( 0.10 );
 }
-
-//------------------------------------------------------------------------------
 void  PlotAlignmentValidation::setLegendStyle( TLegend& leg )
 {
   leg.SetFillStyle ( 0 );
@@ -729,7 +703,6 @@ void  PlotAlignmentValidation::setLegendStyle( TLegend& leg )
   leg.SetBorderSize( 0 ); 
 }
 
-//------------------------------------------------------------------------------
 void  PlotAlignmentValidation::setNiceStyle() {
   TStyle *MyStyle = new TStyle ("MyStyle", "My style for nicer plots");
   
@@ -770,7 +743,7 @@ void  PlotAlignmentValidation::setNiceStyle() {
   MyStyle->cd();
 }
 
-//------------------------------------------------------------------------------
+
 void  PlotAlignmentValidation::setTitleStyle( TNamed &hist,const char* titleX, const char* titleY,int subDetId)
 {
   std::stringstream titel_Xaxis;
@@ -778,25 +751,27 @@ void  PlotAlignmentValidation::setTitleStyle( TNamed &hist,const char* titleX, c
   TString titelXAxis=titleX;
   TString titelYAxis=titleY;
   cout<<"plot "<<titelXAxis<<" vs "<<titelYAxis<<endl;
-  
-  if ( titelXAxis.Contains("medianX")||titelXAxis.Contains("medianY")||titelXAxis.Contains("meanX")||titelXAxis.Contains("rmsX")||titelXAxis.Contains("meanY") ){
+ 
+ if ( titelXAxis.Contains("medianX")||titelXAxis.Contains("medianY")||titelXAxis.Contains("meanX")||titelXAxis.Contains("rmsX")||titelXAxis.Contains("meanY") ){
     std::string histTitel="";
     if (titelXAxis.Contains("medianX")) histTitel="Distribution of the median of the residuals in ";
     if (titelXAxis.Contains("medianY")) histTitel="Distribution of the median of the y residuals in ";
     if (titelXAxis.Contains("meanX")) histTitel="Distribution of the mean of the residuals in ";
     if (titelXAxis.Contains("meanY")) histTitel="Distribution of the mean of the residuals in ";
     if (titelXAxis.Contains("rmsX")) histTitel="Distribution of the rms of the residuals in ";
-    
-    switch (subDetId) {
-    case 1: histTitel+="TPB";break;
-    case 2: histTitel+="TPE";break;
-    case 3: histTitel+="TIB";break;
-    case 4: histTitel+="TID";break;
-    case 5: histTitel+="TOB";break;
-    case 6: histTitel+="TEC";break;
-    }
+
+      switch (subDetId) {
+	case 1: histTitel+="TPB";break;
+	case 2: histTitel+="TPE";break;
+	case 3: histTitel+="TIB";break;
+	case 4: histTitel+="TID";break;
+	case 5: histTitel+="TOB";break;
+	case 6: histTitel+="TEC";break;
+      }
     hist.SetTitle(histTitel.c_str());
-  } else {
+  }
+  
+  else{
     switch (subDetId){
     case 1: hist.SetTitle("Pixel Barrel");break;
     case 2: hist.SetTitle("Pixel Endcap");break;
@@ -807,11 +782,10 @@ void  PlotAlignmentValidation::setTitleStyle( TNamed &hist,const char* titleX, c
       //default:hist.SetTitle();
     }    
   }
-  
+ 
 }
 
 
-//------------------------------------------------------------------------------
 void  PlotAlignmentValidation::setHistStyle( TH1& hist,const char* titleX, const char* titleY, int color)
 {
   std::stringstream titel_Xaxis;
@@ -821,7 +795,7 @@ void  PlotAlignmentValidation::setHistStyle( TH1& hist,const char* titleX, const
   
   if ( titelXAxis.Contains("Phi") )titel_Xaxis<<titleX<<"[rad]";
   else if( titelXAxis.Contains("meanX") )titel_Xaxis<<"#LTx'_{pred}-x'_{hit}#GT[cm]";
-  else if( titelXAxis.Contains("meanY") )titel_Xaxis<<"#LTy'_{pred}-y'_{hit}#GT[cm]";
+ else if( titelXAxis.Contains("meanY") )titel_Xaxis<<"#LTy'_{pred}-y'_{hit}#GT[cm]";
   else if( titelXAxis.Contains("rmsX") )titel_Xaxis<<"RMS(x'_{pred}-x'_{hit})[cm]";
   else if( titelXAxis.Contains("meanNormX") )titel_Xaxis<<"#LTx'_{pred}-x'_{hit}/#sigma#GT";
   else if( titelXAxis.Contains("rmsNormX") )titel_Xaxis<<"RMS(x'_{pred}-x'_{hit}/#sigma)";
@@ -839,8 +813,8 @@ void  PlotAlignmentValidation::setHistStyle( TH1& hist,const char* titleX, const
     hist.SetMarkerSize(0.8);
     hist.SetMarkerColor(color);
   }
-  
-  
+ 
+
   hist.GetXaxis()->SetTitle( (titel_Xaxis.str()).c_str() );
   hist.GetXaxis()->SetTitleSize  ( 0.05 );
   hist.GetXaxis()->SetTitleColor (    1 );
@@ -851,6 +825,8 @@ void  PlotAlignmentValidation::setHistStyle( TH1& hist,const char* titleX, const
   //hist.GetXaxis()->CenterTitle   (      );
   hist.GetXaxis()->SetNdivisions (  505 );
  
+  
+
   if /*( titelYAxis.Contains("meanX") )titel_Yaxis<<"#LTx'_{pred}-x'_{hit}#GT[cm]";
   else if ( titelYAxis.Contains("rmsX") )titel_Yaxis<<"RMS(x'_{pred}-x'_{hit})[cm]";
   else if( titelYAxis.Contains("meanNormX") )titel_Yaxis<<"#LTx'_{pred}-x'_{hit}/#sigma#GT";
@@ -864,6 +840,7 @@ void  PlotAlignmentValidation::setHistStyle( TH1& hist,const char* titleX, const
   else titel_Yaxis<<titleY<<"[cm]";
 
   
+
   hist.GetYaxis()->SetTitle( (titel_Yaxis.str()).c_str()  );
   //hist.SetMinimum(1);
   hist.GetYaxis()->SetTitleSize  ( 0.05 );
@@ -874,4 +851,5 @@ void  PlotAlignmentValidation::setHistStyle( TH1& hist,const char* titleX, const
   hist.GetYaxis()->SetLabelSize  ( 0.03 );
   hist.GetYaxis()->SetLabelFont  (   62 );
 
+ 
 }

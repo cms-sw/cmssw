@@ -1,5 +1,5 @@
-#ifndef SimDataFormats_TrackerDigiSimLink_StripDigiSimLink_h
-#define SimDataFormats_TrackerDigiSimLink_StripDigiSimLink_h
+#ifndef TRACKINGOBJECTS_STRIPDIGISIMLINK_H
+#define TRACKINGOBJECTS_STRIPDIGISIMLINK_H
 
 #include "boost/cstdint.hpp"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"

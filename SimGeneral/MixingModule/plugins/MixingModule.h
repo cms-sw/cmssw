@@ -31,19 +31,19 @@
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/Handle.h"
+
+#include "MixingWorkerBase.h"
+
 #include <vector>
 #include <string>
 
 class CrossingFramePlaybackInfoExtended;
-class DigiAccumulatorMixMod;
-class PileUpEventPrincipal;
-
-namespace edm {
-  class MixingWorkerBase;
-
-  class MixingModule : public BMixingModule {
+class MixingWorkerBase;
+namespace edm
+{
+  class MixingModule : public BMixingModule
+    {
     public:
-      typedef std::vector<DigiAccumulatorMixMod*> Accumulators;
 
       /** standard constructor*/
       explicit MixingModule(const edm::ParameterSet& ps);
@@ -52,23 +52,7 @@ namespace edm {
       virtual ~MixingModule();
 
       virtual void beginJob() {}
-
-      virtual void beginRun(Run& r1, EventSetup const& c);
-
-      virtual void endRun(Run& r1, EventSetup const& c);
-
-      virtual void beginLuminosityBlock(LuminosityBlock& l1, EventSetup const& c);
-
-      virtual void endLuminosityBlock(LuminosityBlock& l1, EventSetup const& c);
-
-      void initializeEvent(Event const& event, EventSetup const& setup);
-
-      void accumulateEvent(Event const& event, EventSetup const& setup);
-
-      void accumulateEvent(PileUpEventPrincipal const& event, EventSetup const& setup);
-
-      void finalizeEvent(Event& event, EventSetup const& setup);
-
+      
       virtual void reload(const edm::EventSetup &);
  
     private:
@@ -78,10 +62,8 @@ namespace edm {
       virtual void checkSignal(const edm::Event &e);
       virtual void addSignals(const edm::Event &e, const edm::EventSetup& es); 
       virtual void doPileUp(edm::Event &e, const edm::EventSetup& es);
-      void pileAllWorkers(EventPrincipal const& ep, int bcr, int id, int& offset,
-			  const edm::EventSetup& setup);
-      void createDigiAccumulators( const edm::ParameterSet& mixingPSet ) ;
-
+      //      void pileAllWorkers(EventPrincipal const& ep, int bcr, int& id, int& offset);
+      void pileAllWorkers(EventPrincipal const& ep, int bcr, int id, int& offset);
       std::string labelPlayback_;
       bool mixProdStep2_;
       bool mixProdStep1_;
@@ -93,11 +75,7 @@ namespace edm {
       std::vector<MixingWorkerBase *> workersObjects_;
       std::vector<std::string> wantedBranches_;
       bool useCurrentProcessOnly_;
-
-      // Digi-producing algorithms
-      Accumulators digiAccumulators_ ;
-
-  };
+    };
 }//edm
 
 #endif

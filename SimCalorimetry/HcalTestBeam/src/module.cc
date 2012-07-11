@@ -1,6 +1,7 @@
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "SimCalorimetry/HcalTestBeam/interface/HcalTBDigiProducer.h"
-#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
 
-DEFINE_DIGI_ACCUMULATOR(HcalTBDigiProducer);
+
+DEFINE_FWK_MODULE(HcalTBDigiProducer);
 
