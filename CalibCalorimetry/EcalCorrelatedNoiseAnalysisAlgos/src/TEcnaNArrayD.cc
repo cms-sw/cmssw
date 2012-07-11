@@ -325,58 +325,57 @@ void TEcnaNArrayD::ReSet(Int_t n1,Int_t n2,Int_t n3,Int_t n4,Int_t n5,Int_t n6) 
   fA   = new Double_t [fNL];
   for (Int_t i=0;i<fNL;i++) fA[i] = zero;
 }
-const Double_t &TEcnaNArrayD::operator()(Int_t i1) const {
+Double_t &TEcnaNArrayD::operator()(Int_t i1) {
   Int_t i;
   i = OneDim(i1);
   return fA[i];
 }
-const Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2) const {
+Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2) {
   Int_t i;
   i = OneDim(i1,i2);
   return fA[i];
 }
-const Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3) const {
+Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3) {
   Int_t i;
   i = OneDim(i1,i2,i3);
   return fA[i];
 }
-const Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4) const {
+Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4) {
   Int_t i;
   i = OneDim(i1,i2,i3,i4);
   return fA[i];
 }
-const Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5) const {
+Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5) {
   Int_t i;
   i = OneDim(i1,i2,i3,i4,i5);
   return fA[i];
 }
-const Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5,Int_t i6) const {
+Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5,Int_t i6) {
   Int_t i;
   i = OneDim(i1,i2,i3,i4,i5,i6);
   return fA[i];
 }
-Double_t &TEcnaNArrayD::operator()(Int_t i1)
+const Double_t &TEcnaNArrayD::operator()(Int_t i1) const
 {
-   return (Double_t&)((*(const TEcnaNArrayD *)this)(i1));
+   return (Double_t&)(this->operator()(i1));
 }
-Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2)
+const Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2) const
 {
-   return (Double_t&)((*(const TEcnaNArrayD *)this)(i1,i2));
+   return (Double_t&)(this->operator()(i1,i2));
 }
-Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3)
+const Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3) const
 {
-   return (Double_t&)((*(const TEcnaNArrayD *)this)(i1,i2,i3));
+   return (Double_t&)(this->operator()(i1,i2,i3));
 }
-Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4)
+const Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4) const
 {
-   return (Double_t&)((*(const TEcnaNArrayD *)this)(i1,i2,i3,i4));
+   return (Double_t&)(this->operator()(i1,i2,i3,i4));
 }
-Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5)
+const Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5) const
 {
-   return (Double_t&)((*(const TEcnaNArrayD *)this)(i1,i2,i3,i4,i5));
+   return (Double_t&)(this->operator()(i1,i2,i3,i4,i5));
 }
-Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5,Int_t i6)
+const Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5,Int_t i6) const
 {
-   return (Double_t&)((*(const TEcnaNArrayD *)this)(i1,i2,i3,i4,i5,i6));
+   return (Double_t&)(this->operator()(i1,i2,i3,i4,i5,i6));
 }
-

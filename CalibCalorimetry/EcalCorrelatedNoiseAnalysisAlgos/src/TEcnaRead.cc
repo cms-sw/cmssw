@@ -925,8 +925,6 @@ Bool_t TEcnaRead::LookAtRootFile()
 
   fLookAtRootFile = 0;          // set flag to zero before looking for the file
 
-  Bool_t ok_read = kFALSE;
-
   if(fReadyToReadRootFile == 1)
     {
       //------------ Call to ReadRootFileHeader
@@ -949,24 +947,24 @@ Bool_t TEcnaRead::LookAtRootFile()
 	    fT1d_StexStinFromIndex[i] = (Int_t)vec(i);}
 
 	  fTagStinNumbers[0] = 1;                fFileHeader->fStinNumbersCalc++;
-	  ok_read = kTRUE;
 	  
 	  fLookAtRootFile = 1;           // set flag
+	  return kTRUE;
 	}
       else
 	{
 	  cout << "!TEcnaRead::LookAtRootFile()> *** ERROR ***>"
 	       << " ROOT file not found " << fTTBELL << endl;
-	  ok_read = kFALSE; 
+	  return kFALSE; 
 	}
     }
   else
     {
       cout << "!TEcnaRead::LookAtRootFile()> *** ERROR ***>"
 	   << " FileParameters not called " << fTTBELL << endl;
-      ok_read = kFALSE;      
+      return kFALSE;      
     }
-  return ok_read;
+  return kFALSE;
 } //----------------- end of LookAtRootFile()
 //-------------------------------------------------------------------------
 //
@@ -998,7 +996,6 @@ Bool_t TEcnaRead::ReadRootFileHeader(const Int_t& i_print)
 			 << fCnaWrite->fRootFileNameShort.Data() << endl;}
 
   Bool_t ok_open = kFALSE;
-  Bool_t ok_read = kFALSE;
  
   TString FileNameLong = fCnaWrite->GetRootFileName(); 
   Bool_t allowed_to_read = kFALSE;
@@ -1069,11 +1066,11 @@ Bool_t TEcnaRead::ReadRootFileHeader(const Int_t& i_print)
       fFileHeader->fAvSigCorssCalc  = headerFile->fAvSigCorssCalc;
 	  
       if(i_print == 1){fFileHeader->Print();}
-      ok_read = kTRUE;
 
       CloseRootFile(file_name);
+      return kTRUE;
     }
-  return ok_read;
+  return kFALSE;
 }
 //-------------------------------------------------------------------------
 void  TEcnaRead::TestArrayDimH1(const TString CallingMethod, const TString MaxName,
@@ -1520,18 +1517,15 @@ TVectorD TEcnaRead::ReadSampleSigmas(const Int_t & n1StexStin, const Int_t & i0S
 
   Int_t i0StexEcha = fEcalNumbering->Get0StexEchaFrom1StexStinAnd0StinEcha(n1StexStin, i0StinEcha);
   
-  TVectorD vec(VecDim); for(Int_t i=0; i<VecDim; i++){vec(i)=(Double_t)0.;}
+  TVectorD vec(VecDim);
+  vec.Zero();
 
   CnaResultTyp typ = cTypSSp;
 
   const Text_t *file_name = (const Text_t *)fCnaWrite->fRootFileNameShort.Data();
   const Text_t *current_file_name = (const Text_t *)fCurrentlyOpenFileName.Data();
 
-  Bool_t ok_open = kFALSE;
-  Bool_t ok_read = kFALSE;
-
   TString FileNameLong = fCnaWrite->GetRootFileName();
-  Bool_t allowed_to_read = kFALSE;
      
   //if ( fOpenRootFile )
   //  {
@@ -1539,52 +1533,39 @@ TVectorD TEcnaRead::ReadSampleSigmas(const Int_t & n1StexStin, const Int_t & i0S
   //	   << "Reading on file already open." << fTTBELL << endl;
   //  }
 
-  if( FileNameLong == fCurrentlyOpenFileName )
+  if (FileNameLong != fCurrentlyOpenFileName)
     {
-      allowed_to_read = kTRUE;
-    }
-  else
-    {
-      if( fCurrentlyOpenFileName != fFlagNoFileOpen ){CloseRootFile(current_file_name);}
-      ok_open = OpenRootFile(file_name, "READ");
+      if( fCurrentlyOpenFileName != fFlagNoFileOpen )
+        CloseRootFile(current_file_name);
 
-      if(ok_open)
-	{
-	  allowed_to_read = kTRUE;
-	}
-      else
+      if(!(OpenRootFile(file_name, "READ")))
 	{
 	  cout << "!TEcnaRead::ReadSampleSigmas(...) *** ERROR ***> Open .root file failed for file: "
 	       << file_name << fTTBELL << endl;
-	  allowed_to_read = kFALSE;
-	  ok_read = kFALSE;
+          return vec;
 	}
     }
   
-  if( allowed_to_read == kTRUE )
+  Int_t i_zero = 0;
+  
+  if ( gCnaRootFile->ReadElement(typ, i_zero) )
     {
-      Int_t i_zero = 0;
-      ok_read = gCnaRootFile->ReadElement(typ, i_zero);
-      
-      if ( ok_read == kTRUE )
-	{
-	  fDataExist = kTRUE;
-	  for ( Int_t i_samp = 0; i_samp < VecDim; i_samp++)
-	    {
-	      vec(i_samp) = gCnaRootFile->fCnaIndivResult->fMatHis(i0StexEcha,i_samp);
-	    }   
-	}
-      else
-	{
-	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadSampleSigmas(...) *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
-	       << "                                                 -> quantity: <"
-	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
-	}
-      CloseRootFile(file_name);
+      fDataExist = kTRUE;
+      for ( Int_t i_samp = 0; i_samp < VecDim; i_samp++)
+        {
+          vec(i_samp) = gCnaRootFile->fCnaIndivResult->fMatHis(i0StexEcha,i_samp);
+        }   
     }
+  else
+    {
+      fDataExist = kFALSE;
+      cout << "!TEcnaRead::ReadSampleSigmas(...) *** ERROR ***> "
+           << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+           << "                                                 -> quantity: <"
+           << GetTypeOfQuantity(typ) << "> not available in file."
+           << fTTBELL << endl;
+    }
+  CloseRootFile(file_name);
   return vec;
 }
 //------------------------------------------------------------------------------------------------

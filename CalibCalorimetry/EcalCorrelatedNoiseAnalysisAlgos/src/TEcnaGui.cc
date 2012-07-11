@@ -3250,7 +3250,7 @@ void TEcnaGui::DialogBox()
 //// which are in the "source" sector of the python file
   
 //  //........................... get info from the entry field
-//  char* listchain = (char*)fPyfText->GetBuffer()->GetString();  
+//  const char* listchain = fPyfText->GetBuffer()->GetString();  
 //  fKeyPyf = listchain;
   
 //  fCnaCommand++;
@@ -3263,8 +3263,7 @@ void TEcnaGui::DoButtonAna()
 {
 //Registration of the type of the analysis
 
-  char* bufferchain;
-  bufferchain = (char*)fAnaText->GetBuffer()->GetString();
+  const char *bufferchain = fAnaText->GetBuffer()->GetString();
 
   fKeyAnaType = bufferchain;
   
@@ -3279,8 +3278,7 @@ void TEcnaGui::DoButtonNors()
 {
 //Registration of the number of samples (ROOT file)
 
-  char* bufferchain;
-  bufferchain = (char*)fNorsText->GetBuffer()->GetString();
+  const char *bufferchain = fNorsText->GetBuffer()->GetString();
   fKeyNbOfSamplesString = bufferchain;
   fKeyNbOfSamples = atoi(bufferchain);
 
@@ -3322,8 +3320,7 @@ void TEcnaGui::DoButtonNbSampForCalc()
 {
 //Registration of the number of samples (ROOT file)
 
-  char* bufferchain;
-  bufferchain = (char*)fNbSampForCalcText->GetBuffer()->GetString();
+  const char *bufferchain = fNbSampForCalcText->GetBuffer()->GetString();
   fKeyNbOfSampForCalcString = bufferchain;
   fKeyNbOfSampForCalc = atoi(bufferchain);
 
@@ -3350,7 +3347,7 @@ void TEcnaGui::DoButtonRun()
 //Register run number
   
   //........................... get info from the entry field
-  char* bufferchain = (char*)fRunText->GetBuffer()->GetString();
+  const char* bufferchain = fRunText->GetBuffer()->GetString();
   fKeyRunNumberString = bufferchain;
   fKeyRunNumber = atoi(bufferchain);
   fCnaCommand++;
@@ -3364,8 +3361,7 @@ void TEcnaGui::DoButtonFev()
 {
 //Registration of the first requested event number
 
-  char* bufferchain;
-  bufferchain = (char*)fFevText->GetBuffer()->GetString();
+  const char *bufferchain = fFevText->GetBuffer()->GetString();
   fKeyFirstReqEvtNumberString = bufferchain;
   fKeyFirstReqEvtNumber = atoi(bufferchain);
 
@@ -3388,8 +3384,7 @@ void TEcnaGui::DoButtonLev()
 {
 //Registration of the last requested event number
 
-  char* bufferchain;
-  bufferchain = (char*)fLevText->GetBuffer()->GetString();
+  const char *bufferchain = fLevText->GetBuffer()->GetString();
   fKeyLastReqEvtNumberString = bufferchain;
   fKeyLastReqEvtNumber = atoi(bufferchain);
 
@@ -3412,8 +3407,7 @@ void TEcnaGui::DoButtonRev()
 {
 //Registration of the nb ofrequested events
 
-  char* bufferchain;
-  bufferchain = (char*)fRevText->GetBuffer()->GetString();
+  const char *bufferchain = fRevText->GetBuffer()->GetString();
   fKeyReqNbOfEvtsString = bufferchain;
   fKeyReqNbOfEvts = atoi(bufferchain);
 
@@ -3449,8 +3443,7 @@ void TEcnaGui::DoButtonStex()
 {
 //Registration of the Stex number
 
-  char* bufferchain;
-  bufferchain = (char*)fStexText->GetBuffer()->GetString();
+  const char *bufferchain = fStexText->GetBuffer()->GetString();
   fKeyStexNumberString = bufferchain;
   fKeyStexNumber = atoi(bufferchain);
 
@@ -3525,8 +3518,7 @@ void TEcnaGui::DoButtonVminD_NOE_ChNb()
 {
 //Registration of Ymin for number of events
 
-  char* bufferchain;
-  bufferchain = (char*)fVminD_NOE_ChNbText->GetBuffer()->GetString();
+  const char *bufferchain = fVminD_NOE_ChNbText->GetBuffer()->GetString();
 
   fKeyVminD_NOE_ChNb = (Double_t)atof(bufferchain);
 
@@ -3541,8 +3533,7 @@ void TEcnaGui::DoButtonVmaxD_NOE_ChNb()
 {
 //Registration of Ymax for number of events
 
-  char* bufferchain;
-  bufferchain = (char*)fVmaxD_NOE_ChNbText->GetBuffer()->GetString();
+  const char *bufferchain = fVmaxD_NOE_ChNbText->GetBuffer()->GetString();
 
   fKeyVmaxD_NOE_ChNb = (Double_t)atof(bufferchain);
 
@@ -3557,8 +3548,7 @@ void TEcnaGui::DoButtonVminD_Ped_ChNb()
 {
 //Registration of Ymin for pedestals
 
-  char* bufferchain;
-  bufferchain = (char*)fVminD_Ped_ChNbText->GetBuffer()->GetString();
+  const char *bufferchain = fVminD_Ped_ChNbText->GetBuffer()->GetString();
 
   fKeyVminD_Ped_ChNb = (Double_t)atof(bufferchain);
 
@@ -3573,8 +3563,7 @@ void TEcnaGui::DoButtonVmaxD_Ped_ChNb()
 {
 //Registration of Ymax for pedestals
 
-  char* bufferchain;
-  bufferchain = (char*)fVmaxD_Ped_ChNbText->GetBuffer()->GetString();
+  const char *bufferchain = fVmaxD_Ped_ChNbText->GetBuffer()->GetString();
 
   fKeyVmaxD_Ped_ChNb = (Double_t)atof(bufferchain);
 
@@ -3589,8 +3578,7 @@ void TEcnaGui::DoButtonVminD_TNo_ChNb()
 {
 //Registration of Ymin for mean sample sigmas (noise)
 
-  char* bufferchain;
-  bufferchain = (char*)fVminD_TNo_ChNbText->GetBuffer()->GetString();
+  const char *bufferchain = fVminD_TNo_ChNbText->GetBuffer()->GetString();
 
   fKeyVminD_TNo_ChNb = (Double_t)atof(bufferchain);
 
@@ -3605,8 +3593,7 @@ void TEcnaGui::DoButtonVmaxD_TNo_ChNb()
 {
 //Registration of Ymax for mean sample sigmas (noise)
 
-  char* bufferchain;
-  bufferchain = (char*)fVmaxD_TNo_ChNbText->GetBuffer()->GetString();
+  const char *bufferchain = fVmaxD_TNo_ChNbText->GetBuffer()->GetString();
 
   fKeyVmaxD_TNo_ChNb = (Double_t)atof(bufferchain);
 
@@ -3621,8 +3608,7 @@ void TEcnaGui::DoButtonVminD_MCs_ChNb()
 {
 //Registration of Ymin for mean cor(s,s')
 
-  char* bufferchain;
-  bufferchain = (char*)fVminD_MCs_ChNbText->GetBuffer()->GetString();
+  const char *bufferchain = fVminD_MCs_ChNbText->GetBuffer()->GetString();
 
   fKeyVminD_MCs_ChNb = (Double_t)atof(bufferchain);
 
@@ -3637,8 +3623,7 @@ void TEcnaGui::DoButtonVmaxD_MCs_ChNb()
 {
 //Registration of Ymax for mean cor(s,s')
 
-  char* bufferchain;
-  bufferchain = (char*)fVmaxD_MCs_ChNbText->GetBuffer()->GetString();
+  const char *bufferchain = fVmaxD_MCs_ChNbText->GetBuffer()->GetString();
 
   fKeyVmaxD_MCs_ChNb = (Double_t)atof(bufferchain);
 
@@ -3654,8 +3639,7 @@ void TEcnaGui::DoButtonVminD_LFN_ChNb()
 {
 //Registration of Ymin for sigmas of sample means
 
-  char* bufferchain;
-  bufferchain = (char*)fVminD_LFN_ChNbText->GetBuffer()->GetString();
+  const char *bufferchain = fVminD_LFN_ChNbText->GetBuffer()->GetString();
 
   fKeyVminD_LFN_ChNb = (Double_t)atof(bufferchain);
 
@@ -3670,8 +3654,7 @@ void TEcnaGui::DoButtonVmaxD_LFN_ChNb()
 {
 //Registration of Ymax for sigmas of sample means 
 
-  char* bufferchain;
-  bufferchain = (char*)fVmaxD_LFN_ChNbText->GetBuffer()->GetString();
+  const char *bufferchain = fVmaxD_LFN_ChNbText->GetBuffer()->GetString();
 
   fKeyVmaxD_LFN_ChNb = (Double_t)atof(bufferchain);
 
@@ -3686,8 +3669,7 @@ void TEcnaGui::DoButtonVminD_HFN_ChNb()
 {
 //Registration of Ymin for sigmas of sample sigmas
 
-  char* bufferchain;
-  bufferchain = (char*)fVminD_HFN_ChNbText->GetBuffer()->GetString();
+  const char *bufferchain = fVminD_HFN_ChNbText->GetBuffer()->GetString();
 
   fKeyVminD_HFN_ChNb = (Double_t)atof(bufferchain);
 
@@ -3702,8 +3684,7 @@ void TEcnaGui::DoButtonVmaxD_HFN_ChNb()
 {
 //Registration of Ymax for sigmas of sample sigmas
 
-  char* bufferchain;
-  bufferchain = (char*)fVmaxD_HFN_ChNbText->GetBuffer()->GetString();
+  const char *bufferchain = fVmaxD_HFN_ChNbText->GetBuffer()->GetString();
 
   fKeyVmaxD_HFN_ChNb = (Double_t)atof(bufferchain);
 
@@ -3718,8 +3699,7 @@ void TEcnaGui::DoButtonVminD_SCs_ChNb()
 {
 //Registration of Ymin for sigmas of cor(s,s')
 
-  char* bufferchain;
-  bufferchain = (char*)fVminD_SCs_ChNbText->GetBuffer()->GetString();
+  const char *bufferchain = fVminD_SCs_ChNbText->GetBuffer()->GetString();
 
   fKeyVminD_SCs_ChNb = (Double_t)atof(bufferchain);
 
@@ -3734,8 +3714,7 @@ void TEcnaGui::DoButtonVmaxD_SCs_ChNb()
 {
 //Registration of Ymax for sigmas of cor(s,s')
 
-  char* bufferchain;
-  bufferchain = (char*)fVmaxD_SCs_ChNbText->GetBuffer()->GetString();
+  const char *bufferchain = (char*)fVmaxD_SCs_ChNbText->GetBuffer()->GetString();
 
   fKeyVmaxD_SCs_ChNb = (Double_t)atof(bufferchain);
 
@@ -3750,8 +3729,7 @@ void TEcnaGui::DoButtonVminLFccMos()
 {
 //Registration of Ymin for LF Mean Cor(c,c')
 
-  char* bufferchain;
-  bufferchain = (char*)fVminLFccMosText->GetBuffer()->GetString();
+  const char *bufferchain = fVminLFccMosText->GetBuffer()->GetString();
 
   fKeyVminLFccMos = (Double_t)atof(bufferchain);
 
@@ -3766,8 +3744,7 @@ void TEcnaGui::DoButtonVmaxLFccMos()
 {
 //Registration of Ymax for LF Mean Cor(c,c')
 
-  char* bufferchain;
-  bufferchain = (char*)fVmaxLFccMosText->GetBuffer()->GetString();
+  const char *bufferchain = fVmaxLFccMosText->GetBuffer()->GetString();
 
   fKeyVmaxLFccMos = (Double_t)atof(bufferchain);
 
@@ -3782,8 +3759,7 @@ void TEcnaGui::DoButtonVminHFccMos()
 {
 //Registration of Ymin for HF Mean Cor(c,c')
 
-  char* bufferchain;
-  bufferchain = (char*)fVminHFccMosText->GetBuffer()->GetString();
+  const char *bufferchain = fVminHFccMosText->GetBuffer()->GetString();
 
   fKeyVminHFccMos = (Double_t)atof(bufferchain);
 
@@ -3798,8 +3774,7 @@ void TEcnaGui::DoButtonVmaxHFccMos()
 {
 //Registration of Ymax for HF Mean Cor(c,c')
 
-  char* bufferchain;
-  bufferchain = (char*)fVmaxHFccMosText->GetBuffer()->GetString();
+  const char *bufferchain = fVmaxHFccMosText->GetBuffer()->GetString();
 
   fKeyVmaxHFccMos = (Double_t)atof(bufferchain);
 
@@ -3815,8 +3790,7 @@ void TEcnaGui::DoButtonVminLHFcc()
 {
 //Registration of Ymin for cov(c,c') in Stins
 
-  char* bufferchain;
-  bufferchain = (char*)fVminLHFccText->GetBuffer()->GetString();
+  const char *bufferchain = fVminLHFccText->GetBuffer()->GetString();
 
   fKeyVminLHFcc = (Double_t)atof(bufferchain);
 
@@ -3831,8 +3805,7 @@ void TEcnaGui::DoButtonVmaxLHFcc()
 {
 //Registration of Ymax for cov(c,c') in Stins
 
-  char* bufferchain;
-  bufferchain = (char*)fVmaxLHFccText->GetBuffer()->GetString();
+  const char *bufferchain = fVmaxLHFccText->GetBuffer()->GetString();
 
   fKeyVmaxLHFcc = (Double_t)atof(bufferchain);
 
@@ -3853,8 +3826,7 @@ void TEcnaGui::DoButtonStinA()
 {
 //Registration of the Stin A number (A = X coordinate for cor(c,c') plots)
 
-  char* bufferchain;
-  bufferchain = (char*)fStinAText->GetBuffer()->GetString();
+  const char *bufferchain = (char*)fStinAText->GetBuffer()->GetString();
 
   Int_t xReadStinANumberForCons = atoi(bufferchain);
 
@@ -3916,8 +3888,7 @@ void TEcnaGui::DoButtonStinB()
 {
 //Registration of the Stin B number (B = Y coordinate for cor(c,c') plots)
 
-  char* bufferchain;
-  bufferchain = (char*)fStinBText->GetBuffer()->GetString();
+  const char *bufferchain = fStinBText->GetBuffer()->GetString();
 
   Int_t xReadStinBNumberForCons = atoi(bufferchain);
 
@@ -3980,8 +3951,7 @@ void TEcnaGui::DoButtonChan()
 {
 //Registration of the channel number
 
-  char* bufferchain;
-  bufferchain = (char*)fChanText->GetBuffer()->GetString();
+  const char *bufferchain = fChanText->GetBuffer()->GetString();
   Int_t xReadNumber = atoi(bufferchain);
 
   Int_t Choffset = -1;
@@ -4011,8 +3981,7 @@ void TEcnaGui::DoButtonSamp()
 {
 //Registration of the sample number
 
-  char* bufferchain;
-  bufferchain = (char*)fSampText->GetBuffer()->GetString();
+  const char *bufferchain = fSampText->GetBuffer()->GetString();
   Int_t xKeySampNumber = atoi(bufferchain);
 
   fCnaCommand++;
