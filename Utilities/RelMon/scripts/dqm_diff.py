@@ -35,7 +35,6 @@ def dqm_diff(filename1, filename2):
 parser = OptionParser(usage='usage: %prog <root_file1> <root_file2>')
 (options, args) = parser.parse_args()
 if len(args) != 2:
-    print args
-    parser.error("You have to specify two root files. e.g. ``dqm_diff file1.root file2.root``.")
+    parser.error("You have to specify two root files. e.g. ``dqm_diff.py file1.root file2.root``.")
 
 dqm_diff(*args)
