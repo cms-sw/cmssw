@@ -33,6 +33,19 @@ class JetBProbabilityComputer : public JetTagComputer
 	 trackQualityType == "Any" || 
 	 trackQualityType == "ANY" ) m_useAllQualities = true;
 
+     useVariableJTA_    = parameters.getParameter<bool>("useVariableJTA");
+     if(useVariableJTA_) 
+       varJTApars = {
+	 parameters.getParameter<double>("a_dR"),
+	 parameters.getParameter<double>("b_dR"),
+	 parameters.getParameter<double>("a_pT"),
+	 parameters.getParameter<double>("b_pT"),
+	 parameters.getParameter<double>("min_pT"),  
+	 parameters.getParameter<double>("max_pT"),
+	 parameters.getParameter<double>("min_pT_dRcut"),  
+	 parameters.getParameter<double>("max_pT_dRcut"),
+	 parameters.getParameter<double>("max_pT_trackPTcut") };
+     
      uses("ipTagInfos");
   }
  
@@ -59,14 +72,22 @@ class JetBProbabilityComputer : public JetTagComputer
          {
     // Use only positive(or negative) tracks for B
            float p=fabs(*it);
-           if( m_deltaR < 0 || ROOT::Math::VectorUtil::DeltaR((*tkip.jet()).p4().Vect(), (*tracks[i]).momentum()) < m_deltaR)
-             {
-               //if(m_trackSign>0 || *it >0 ) probabilities.push_back(p); //Use all tracks for positive tagger and only negative for negative tagger
-               if(m_trackSign>0 || *it <0 ) probabilities.push_back(p); //Use all tracks for positive tagger and only negative for negative tagger
-
-               if(m_trackSign>0 && *it >=0){probabilitiesB.push_back(*it);} //Use only positive tracks for positive tagger
-               if(m_trackSign<0 && *it <=0){probabilitiesB.push_back(- *it);} //Use only negative tracks for negative tagger 
-             }
+	   if (useVariableJTA_) {
+	     if (tkip.variableJTA( varJTApars  )[i]) {
+	       if(m_trackSign>0 || *it <0 ) probabilities.push_back(p); //Use all tracks for positive tagger and only negative for negative tagger      
+	       if(m_trackSign>0 && *it >=0){probabilitiesB.push_back(*it);} //Use only positive tracks for positive tagger
+	       if(m_trackSign<0 && *it <=0){probabilitiesB.push_back(- *it);} //Use only negative tracks for negative tagger 
+	     }
+	   }
+	   else
+	     if( m_deltaR < 0 || ROOT::Math::VectorUtil::DeltaR((*tkip.jet()).p4().Vect(), (*tracks[i]).momentum()) < m_deltaR)
+	       {
+		 //if(m_trackSign>0 || *it >0 ) probabilities.push_back(p); //Use all tracks for positive tagger and only negative for negative tagger
+		 if(m_trackSign>0 || *it <0 ) probabilities.push_back(p); //Use all tracks for positive tagger and only negative for negative tagger
+		 
+		 if(m_trackSign>0 && *it >=0){probabilitiesB.push_back(*it);} //Use only positive tracks for positive tagger
+		 if(m_trackSign<0 && *it <=0){probabilitiesB.push_back(- *it);} //Use only negative tracks for negative tagger 
+	       }
          }
        }
 
@@ -114,6 +135,8 @@ double jetProbability( const std::vector<float> & v ) const
       return ProbJet;
   }
  private:
+ bool useVariableJTA_;
+ reco::TrackIPTagInfo::variableJTAParameters varJTApars;
    double m_minTrackProb;
    int m_ipType;
    double m_deltaR;

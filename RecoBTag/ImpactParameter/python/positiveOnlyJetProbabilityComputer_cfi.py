@@ -10,7 +10,8 @@ positiveOnlyJetProbability = cms.ESProducer("JetProbabilityESProducer",
 
     minimumProbability = cms.double(0.005),
     maximumDecayLength = cms.double(5.0),
-    trackQualityClass = cms.string("any")                                        
+    trackQualityClass = cms.string("any"),
+    useVariableJTA = cms.bool(False)
 )
 
 

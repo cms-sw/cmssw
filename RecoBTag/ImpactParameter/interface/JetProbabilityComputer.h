@@ -32,6 +32,19 @@ class JetProbabilityComputer : public JetTagComputer
 	 trackQualityType == "Any" || 
 	 trackQualityType == "ANY" ) m_useAllQualities = true;
 
+     useVariableJTA_    = parameters.getParameter<bool>("useVariableJTA");
+     if(useVariableJTA_) 
+       varJTApars = {
+	 parameters.getParameter<double>("a_dR"),
+	 parameters.getParameter<double>("b_dR"),
+	 parameters.getParameter<double>("a_pT"),
+	 parameters.getParameter<double>("b_pT"),
+	 parameters.getParameter<double>("min_pT"),  
+	 parameters.getParameter<double>("max_pT"),
+	 parameters.getParameter<double>("min_pT_dRcut"),  
+	 parameters.getParameter<double>("max_pT_dRcut"),
+	 parameters.getParameter<double>("max_pT_trackPTcut") };
+     
      uses("ipTagInfos");
   }
  
@@ -68,9 +81,14 @@ class JetProbabilityComputer : public JetTagComputer
           {
            if(*it <=0 ) p= -*it; else continue; 
           } 
-          if(m_deltaR <= 0  || ROOT::Math::VectorUtil::DeltaR((*tkip.jet()).p4().Vect(), (*tracks[i]).momentum()) < m_deltaR )
-            probabilities.push_back(p);
-         }
+	  if (useVariableJTA_) {
+	    if (tkip.variableJTA( varJTApars )[i])
+	      probabilities.push_back(p);
+	  }else{
+	    if(m_deltaR <= 0  || ROOT::Math::VectorUtil::DeltaR((*tkip.jet()).p4().Vect(), (*tracks[i]).momentum()) < m_deltaR )
+	      probabilities.push_back(p);
+	  }
+	 }
        }
       return jetProbability(probabilities); 
    }
@@ -111,6 +129,8 @@ double jetProbability( const std::vector<float> & v ) const
       return -log10(ProbJet)/4.;
   }
  private:
+ bool useVariableJTA_;
+ reco::TrackIPTagInfo::variableJTAParameters varJTApars;
    double m_minTrackProb;
    int m_ipType;
    double m_deltaR;

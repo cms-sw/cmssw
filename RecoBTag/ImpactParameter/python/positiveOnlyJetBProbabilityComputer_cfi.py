@@ -13,7 +13,8 @@ positiveOnlyJetBProbability = cms.ESProducer("JetBProbabilityESProducer",
     numberOfBTracks = cms.uint32(4),
     maximumDecayLength = cms.double(5.0),
 
-    trackQualityClass = cms.string("any")
+    trackQualityClass = cms.string("any"),
+    useVariableJTA = cms.bool(False)
 )
 
 
