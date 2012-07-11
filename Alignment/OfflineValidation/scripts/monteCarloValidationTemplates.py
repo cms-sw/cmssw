@@ -26,6 +26,11 @@ import CalibTracker.Configuration.Common.PoolDBESSource_cfi
 
 .oO[dbLoad]Oo.
 
+.oO[APE]Oo.
+
+.oO[kinksAndBows]Oo.
+
+
 ### validation-specific includes
 process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
 process.load("Validation.RecoTrack.cuts_cff")
