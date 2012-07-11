@@ -212,7 +212,7 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit,
 
             //Check based on flags to protect from recovered channels from non-read towers
             //Assumption is that v_chstatus_ is empty unless doFlagChecks() has been called
-            std::vector<int>::const_iterator vit = std::find( v_chstatus_.begin(), v_chstatus_.end(),  ((EcalRecHit*)(&*j))->recoFlag() );
+            std::vector<int>::const_iterator vit = std::find( v_chstatus_.begin(), v_chstatus_.end(),  ((const EcalRecHit*)(&*j))->recoFlag() );
             if ( vit != v_chstatus_.end() ) continue; // the recHit has to be excluded from the iso sum
 
 

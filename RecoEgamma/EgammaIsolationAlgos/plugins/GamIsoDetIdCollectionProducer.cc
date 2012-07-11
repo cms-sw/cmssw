@@ -133,7 +133,7 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
 		if (fabs(caloGeom->getPosition(recIt->detid()).eta() < 1.479)) 
 		  isBarrel = true;
 
-		int severityFlag = sevLevel->severityLevel(((EcalRecHit*)(&*recIt))->detid(), *recHitsH);
+		int severityFlag = sevLevel->severityLevel(recIt->detid(), *recHitsH);
 		std::vector<int>::const_iterator sit;
 		if (isBarrel) {
 		  sit = std::find(severitiesexclEB_.begin(), severitiesexclEB_.end(), severityFlag);
