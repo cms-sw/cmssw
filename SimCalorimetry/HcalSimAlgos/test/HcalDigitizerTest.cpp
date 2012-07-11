@@ -8,7 +8,6 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMHitResponse.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloShapeIntegrator.h"
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloShapes.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMShape.h"
@@ -144,11 +143,11 @@ int main() {
   HFShape hfShape;
   ZDCShape zdcShape;
 
-  CaloShapeIntegrator hcalShapeIntegrator(new HcalShape());
-  CaloShapeIntegrator sipmShapeIntegrator(new HcalSiPMShape());
-  CaloShapeIntegrator hfShapeIntegrator(new HFShape());
-  CaloShapeIntegrator zdcShapeIntegrator(new ZDCShape());
-  CaloShapes sipmShapes(&sipmShapeIntegrator);
+  CaloShapeIntegrator hcalShapeIntegrator(&hcalShape);
+  CaloShapeIntegrator sipmShapeIntegrator(&sipmShape);
+  CaloShapeIntegrator hfShapeIntegrator(&hfShape);
+  CaloShapeIntegrator zdcShapeIntegrator(&zdcShape);
+
 //for(float t = -25; t < 200; t += 5)
 //{
 //  std::cout <<  t << " " << hcalShape(t) << "  " << sipmShape(t) << "  " << hcalShapeIntegrator(t) << "  "<< sipmShapeIntegrator(t) << std::endl;
@@ -158,7 +157,7 @@ int main() {
   CaloHitResponse hoResponse(&parameterMap, &hcalShapeIntegrator);
   CaloHitResponse hfResponse(&parameterMap, &hfShapeIntegrator);
   CaloHitResponse zdcResponse(&parameterMap, &zdcShapeIntegrator);
-  HcalSiPMHitResponse hoSiPMResponse(&siPMParameterMap, &sipmShapes);
+  HcalSiPMHitResponse hoSiPMResponse(&siPMParameterMap, &sipmShapeIntegrator);
 
   HcalHitCorrection hitCorrection(&parameterMap);
   hbheResponse.setHitCorrection(&hitCorrection);

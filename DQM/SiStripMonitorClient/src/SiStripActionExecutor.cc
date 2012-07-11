@@ -148,12 +148,11 @@ void SiStripActionExecutor::createShiftReport(DQMStore * dqm_store){
 
   // Read layout configuration
   std::string localPath = std::string("DQM/SiStripMonitorClient/data/sistrip_plot_layout.xml");
-  SiStripLayoutParser* layout_parser = new SiStripLayoutParser();
-  layout_parser->getDocument(edm::FileInPath(localPath).fullPath());
+  SiStripLayoutParser layout_parser;
+  layout_parser.getDocument(edm::FileInPath(localPath).fullPath());
     
   std::map<std::string, std::vector<std::string> > layout_map;
-  if (!layout_parser->getAllLayouts(layout_map)) return;
-  delete layout_parser;
+  if (!layout_parser.getAllLayouts(layout_map)) return;
 
   
   std::ostringstream shift_summary;

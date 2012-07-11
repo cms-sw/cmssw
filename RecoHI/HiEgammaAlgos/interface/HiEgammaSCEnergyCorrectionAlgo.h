@@ -60,7 +60,7 @@ private:
   // 2sigma noise level
   int nCrystalsGT2Sigma(reco::BasicCluster const & seed, EcalRecHitCollection const &rhc) const;
     
-    float sigmaElectronicNoise_;
+  float sigmaElectronicNoise_;
   
    //  the verbosity level
   VerbosityLevel verbosity_;

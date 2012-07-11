@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxDiscriminatorProducer.cc,v 1.17 2010/05/25 14:40:08 querten Exp $
+// $Id: DeDxDiscriminatorProducer.cc,v 1.19 2010/06/30 09:47:57 querten Exp $
 //
 //
 
@@ -287,7 +287,6 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
             
 	     if(ClusterSaturatingStrip((sistripmatchedhit->monoHit()->cluster()).get())  >0)NClusterSaturating++;
              if(ClusterSaturatingStrip((sistripmatchedhit->stereoHit()->cluster()).get())>0)NClusterSaturating++;
-
          }else if(sistripsimple1dhit){ 
                 Prob = GetProbability((sistripsimple1dhit->cluster()).get(), trajState);
 	        if(shapetest && !(DeDxTools::shapeSelection(((sistripsimple1dhit->cluster()).get())->amplitudes()))) Prob=-1.0;

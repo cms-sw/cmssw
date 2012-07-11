@@ -5,7 +5,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "HitExtractor.h"
 
-#include "RecoTracker/MeasurementDet/interface/TkStripMeasurementDet.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
 #include <vector>
 class DetLayer;
@@ -16,6 +16,8 @@ namespace ctfseeding {
 class HitExtractorSTRP : public HitExtractor {
 
 public:
+  typedef SiStripRecHit2D::ClusterRef SiStripClusterRef;
+
   HitExtractorSTRP( const DetLayer* detLayer,  SeedingLayer::Side & side, int idLayer);
   virtual ~HitExtractorSTRP(){}
 
@@ -29,13 +31,13 @@ public:
   void useSimpleRphiHitsCleaner(bool use) {hasSimpleRphiHitsCleaner = use;}
 
   void cleanedOfClusters( const edm::Event& ev, HitExtractor::Hits & hits, bool matched) const;
-  bool skipThis(TransientTrackingRecHit::ConstRecHitPointer & ptr,edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > & stripClusterRefs,
+  bool skipThis(TransientTrackingRecHit::ConstRecHitPointer & ptr,edm::Handle<edmNew::DetSetVector<SiStripClusterRef> > & stripClusterRefs,
 		TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const;
-  bool skipThis(const SiStripRecHit2D * hit,edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > & stripClusterRefs) const;
+  bool skipThis(const SiStripRecHit2D * hit,edm::Handle<edmNew::DetSetVector<SiStripClusterRef> > & stripClusterRefs) const;
   void project(TransientTrackingRecHit::ConstRecHitPointer & ptr,
 	       const SiStripRecHit2D * hit,
 	       TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const;
-
+  void setNoProjection() const {failProjection=true;};
 private:
   bool ringRange(int ring) const;
 private:
@@ -48,6 +50,7 @@ private:
   bool hasStereoHits;  edm::InputTag theStereoHits;
   bool hasRingSelector; int theMinRing, theMaxRing; 
   bool hasSimpleRphiHitsCleaner;
+  mutable bool failProjection;
 };
 
 }

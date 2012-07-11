@@ -175,6 +175,8 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   // Pixel threshold in electron units.
   theThresholdInE_FPix=conf_.getParameter<double>("ThresholdInElectrons_FPix");
   theThresholdInE_BPix=conf_.getParameter<double>("ThresholdInElectrons_BPix");
+  //Carlotta" enables different threshold in layer 1 when we have smaller pixel pitch  //-CPC: someone change this line
+  theThresholdInE_BPix_L1=conf_.getParameter<double>("ThresholdInElectrons_BPix_L1");
 
   // Add threshold gaussian smearing:
   addThresholdSmearing = conf_.getParameter<bool>("AddThresholdSmearing");
@@ -234,6 +236,17 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   theOffsetSmearing=conf_.getParameter<double>("OffsetSmearing"); //sigma of the offset smearing
 
   //pixel inefficiency
+  if (thePixelLuminosity==-20){
+    thePixelColEfficiency[0] = conf_.getParameter<double>("thePixelColEfficiency_BPix1");
+    thePixelColEfficiency[1] = conf_.getParameter<double>("thePixelColEfficiency_BPix2");
+    thePixelColEfficiency[2] = conf_.getParameter<double>("thePixelColEfficiency_BPix3");
+    thePixelColEfficiency[3] = conf_.getParameter<double>("thePixelColEfficiency_FPix1");
+    thePixelColEfficiency[4] = conf_.getParameter<double>("thePixelColEfficiency_FPix2"); // Not used, but leave it in in case we want use it to later
+    cout<<"\nReading in custom Pixel efficiencies "<<thePixelColEfficiency[0]<<" , "<<thePixelColEfficiency[1]<<" , "
+                  <<thePixelColEfficiency[2]<<" , "<<thePixelColEfficiency[3]<<" , "<<thePixelColEfficiency[4]<<"\n";
+    if (thePixelColEfficiency[0]<=0.5) {cout <<"\n\nDid you mean to set the Pixel efficiency at "<<thePixelColEfficiency[0]
+                                             <<", or did you mean for this to be the inefficiency?\n\n\n";}
+    }
   // the first 3 settings [0],[1],[2] are for the barrel pixels
   // the next  3 settings [3],[4],[5] are for the endcaps (undecided how)  
 
@@ -299,7 +312,21 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
       thePixelColEfficiency[0] = 1.-0.034; // 3.4% for r=4 only
       thePixelEfficiency[0]    = 1.-0.015; // 1.5% for r=4
     }
-    
+    if(thePixelLuminosity==20) { // For 2e34 cm-2s-1 and 25ns bunch crossing
+      thePixelColEfficiency[0] = 1.-0.16;
+      thePixelColEfficiency[1] = 1.-0.058;
+      thePixelColEfficiency[2] = 1.-0.03;
+      thePixelColEfficiency[3] = 1.-0.03;
+      thePixelColEfficiency[4] = 1.-0.03;
+    }
+   if(thePixelLuminosity==30) { // For 2e34 cm-2s-1 and 50ns bunch crossing
+     thePixelColEfficiency[0] = 1.-0.50;
+     thePixelColEfficiency[1] = 1.-0.182;
+     thePixelColEfficiency[2] = 1.-0.093;
+     thePixelColEfficiency[3] = 1.-0.093;
+     thePixelColEfficiency[4] = 1.-0.093;
+   }
+
   } // end the pixel inefficiency part
 
   // Init the random number services  
@@ -320,6 +347,8 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
     if(addThresholdSmearing) {
       smearedThreshold_FPix_ = new CLHEP::RandGaussQ(rndEngine, theThresholdInE_FPix , theThresholdSmearing_FPix);
       smearedThreshold_BPix_ = new CLHEP::RandGaussQ(rndEngine, theThresholdInE_BPix , theThresholdSmearing_BPix);
+      //Carlotta //CPC--someone change
+      smearedThreshold_BPix_L1_ = new CLHEP::RandGaussQ(rndEngine, theThresholdInE_BPix_L1 , theThresholdSmearing_BPix);
     }
     } //end Init the random number services
 
@@ -437,6 +466,8 @@ SiPixelDigitizerAlgorithm::~SiPixelDigitizerAlgorithm() {
   if(addThresholdSmearing) {
     delete smearedThreshold_FPix_;
     delete smearedThreshold_BPix_;
+    //Carlotta
+    delete smearedThreshold_BPix_L1_;
   }
 
   if(addNoise) delete theNoiser;
@@ -501,14 +532,26 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
     // Find the threshold in noise units, needed for the noiser.
 
   unsigned int Sub_detid=DetId(detID).subdetId();
+  //Carlotta
+  int lay = 0;
+  lay = PXBDetId(detID).layer();
 
   if(theNoiseInElectrons>0.){
     if(Sub_detid == PixelSubdetector::PixelBarrel){ // Barrel modules
-      if(addThresholdSmearing) { 
-	thePixelThresholdInE = smearedThreshold_BPix_->fire(); // gaussian smearing 
+      if(addThresholdSmearing) {
+        //Start of Carlotta's addition  //-CPC: Someone's change
+        if (lay == 1)  { thePixelThresholdInE = smearedThreshold_BPix_L1_->fire(); } // gaussian smearing
+        else { thePixelThresholdInE = smearedThreshold_BPix_->fire(); } // gaussian smearing
       } else {
-	thePixelThresholdInE = theThresholdInE_BPix; // no smearing
+        if (lay == 1) { thePixelThresholdInE = theThresholdInE_BPix_L1; } //no smearing
+        else { thePixelThresholdInE = theThresholdInE_BPix; } // no smearing
+        //End of Carlotta's addition
       }
+      //if(addThresholdSmearing) { 
+      //  thePixelThresholdInE = smearedThreshold_BPix_->fire(); // gaussian smearing 
+      //} else {
+      //  thePixelThresholdInE = theThresholdInE_BPix; // no smearing
+      //}
       
       thePixelThreshold = thePixelThresholdInE/theNoiseInElectrons; 
       
@@ -722,9 +765,8 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
 #endif
 
   _collection_points.resize( _ionization_points.size()); // set size
-  float LorentzAng = SiPixelLorentzAngle_->getLorentzAngle(hit.detUnitId());
- 
-  LocalVector driftDir=DriftDirection(LorentzAng);  // get the charge drift direction
+  
+  LocalVector driftDir=DriftDirection();  // get the charge drift direction
   if(driftDir.z() ==0.) {
     LogWarning("Magnetic field") << " pxlx: drift in z is zero ";
     return;
@@ -1443,7 +1485,7 @@ float SiPixelDigitizerAlgorithm::missCalibrate(int col,int row,
 // Configurations for barrel and foward pixels possess different tanLorentzAngleperTesla 
 // parameter value
 
-LocalVector SiPixelDigitizerAlgorithm::DriftDirection(float LoAng){
+LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
   Frame detFrame(_detp->surface().position(),_detp->surface().rotation());
   LocalVector Bfield=detFrame.toLocal(_bfield);
   
@@ -1492,12 +1534,26 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(float LoAng){
   
   //Read Lorentz angle from DB:********************************************************************
   if(use_LorentzAngle_DB_){ 
-    alpha2 = LoAng * LoAng;
-    //      std::cout << "detID is: " << it->first << "The LA per tesla is: " << it->second << std::endl;
-    dir_x = -( LoAng * Bfield.y() + alpha2 * Bfield.z()* Bfield.x() );
-    dir_y = +( LoAng * Bfield.x() - alpha2 * Bfield.z()* Bfield.y() );
-    dir_z = -(1 + alpha2 * Bfield.z()*Bfield.z() );
-    scale = (1 + alpha2 * Bfield.z()*Bfield.z() );
+    std::map<unsigned int,float> detid_la= SiPixelLorentzAngle_->getLorentzAngles();
+    std::map<unsigned int,float>::const_iterator it;
+    
+    
+    for (it=detid_la.begin();it!=detid_la.end();it++)
+    {
+      if (detID==it->first) {
+	if (alpha2Order) {
+	  alpha2 = it->second * it->second;
+	}  
+	else {
+	  alpha2 = 0.0;
+	} 
+	//	std::cout << "detID is: " << it->first << "The LA per tesla is: " << it->second << std::endl;
+	dir_x = -( it->second * Bfield.y() + alpha2 * Bfield.z()* Bfield.x() );
+	dir_y = +( it->second * Bfield.x() - alpha2 * Bfield.z()* Bfield.y() );
+	dir_z = -(1 + alpha2 * Bfield.z()*Bfield.z() );
+	scale = (1 + alpha2 * Bfield.z()*Bfield.z() );
+      }
+    } 
   }// end: Read LA from DataBase.
   
   LocalVector theDriftDirection = LocalVector(dir_x/scale, dir_y/scale, dir_z/scale );  

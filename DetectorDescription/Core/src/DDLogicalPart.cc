@@ -1,48 +1,48 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/src/LogicalPart.h"
+#include "LogicalPart.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include <ostream>
 
+// Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-void
-DD_NC( const DDName & n )
-{
-  std::vector<DDName> & ns = LPNAMES::instance()[n.name()];
-  typedef std::vector<DDName>::iterator IT;
-  bool alreadyIn( false );
-  for( IT p = ns.begin(); p != ns.end(); ++p )
-  {
-    if( p->ns() == n.ns())
-    {
-      alreadyIn = true;
-      break;
-    } 
-  }
-  if( !alreadyIn )
-  {
-    ns.push_back( n );
-  }  
+//DDBase<DDName,LogicalPart*>::StoreT::pointer_type
+//  DDBase<DDName,LogicalPart*>::StoreT::instance_ = 0;
+
+// cache to check for unique names (vs. unique namespace:name)
+//LPNAMES::pointer_type LPNAMES::instance_ = 0;
+
+
+void DD_NC(const DDName & n) {
+ std::vector<DDName> & ns = LPNAMES::instance()[n.name()];
+ typedef std::vector<DDName>::iterator IT;
+ bool alreadyIn(false);
+ for(IT p = ns.begin(); p != ns.end() ; ++p) {
+   if ( p->ns() == n.ns()) {
+     alreadyIn = true;
+     break;
+   } 
+ }
+ if (!alreadyIn) {
+   ns.push_back(n);
+ }  
 }
-  
+    
+    
 std::ostream & 
-operator<<( std::ostream & os, const DDLogicalPart & part )
+operator<<(std::ostream & os, const DDLogicalPart & part)
 {
-  DDBase<DDName,DDI::LogicalPart*>::def_type defined( part.isDefined());
-  if( defined.first )
-  {
+  DDBase<DDName,DDI::LogicalPart*>::def_type defined(part.isDefined());
+  if (defined.first) {
     os << *(defined.first) << " ";
-    if( defined.second )
-    {
-      part.rep().stream( os ); 
+    if (defined.second) {
+      part.rep().stream(os); 
     }
-    else
-    {
+    else {
       os << "* logicalpart not defined * ";  
     }
   }  
-  else
-  {
+  else {
     os << "* logicalpart not declared * ";  
   }  
   return os;
@@ -96,11 +96,10 @@ operator<<( std::ostream & os, const DDLogicalPart & part )
        // both got  
        \endcode 
 */        
-DDLogicalPart::DDLogicalPart( const DDName & name )
-  : DDBase<DDName, DDI::LogicalPart*>()
+DDLogicalPart::DDLogicalPart(const DDName & name) : DDBase<DDName,DDI::LogicalPart*>()
 { 
-  prep_ = StoreT::instance().create( name );
-  DD_NC( name );
+  prep_ = StoreT::instance().create(name);
+  DD_NC(name);
 }
 
 /** 
@@ -251,6 +250,19 @@ bool DDLogicalPart::hasDDValue(const DDValue & v) const
 {
   return rep().hasDDValue(v);
 }
+// for internal use only
+/*
+const std::vector<DDSpecifics> & DDLogicalPart::specifics() const
+{
+  return rep().specifics();
+}
+*/
+// void DDLogicalPart::clear()
+// {
+//    StoreT::instance().clear();
+// }
+
+
 
 // finds out whether a DDLogicalPart is registered & already valid (initialized)
 // - returns (true,""), if so; result holds the corresponding DDLogicalPart
@@ -260,44 +272,39 @@ bool DDLogicalPart::hasDDValue(const DDValue & v) const
 #include <regex.h>
 #include <set>
 
-namespace
-{
-  struct Regex
-  {
-    explicit Regex( const std::string & s )
-      : m_ok( false ),
-	me( s )
-      {
-	size_t p = me.find(".");
-	m_ok = p != std::string::npos;
-	if( m_ok )
-	{
-	  if( p > 0 )
-	  {
-	    m_range.first = me.substr( 0, p );
-	    m_range.second = m_range.first + "{"; // '{' is 'z'+1
-	  }
-	  me = "^" + me + "$";
-	  regcomp( &m_regex, me.c_str(), 0 );
+namespace {
+
+  struct Regex {
+
+    explicit Regex(const std::string & s) : m_ok(false), me(s) {
+      size_t p = me.find(".");
+      m_ok = p!=std::string::npos;
+      if(m_ok) {
+	if (p>0) {
+	  m_range.first = me.substr(0,p);
+	  m_range.second = m_range.first+"{"; // '{' is 'z'+1
 	}
-      } 
+	me = "^" + me + "$";
+	regcomp(&m_regex,me.c_str(),0);
+      }
+    } 
 
-    ~Regex( void ) { if( m_ok ) regfree( &m_regex ); }
+    ~Regex() { if(m_ok) regfree(&m_regex); }
 
-    bool empty( void ) const { return me.empty(); }
+    bool empty() const { return me.empty();}
 
-    bool notRegex( void ) const { return !m_ok; }
+    bool notRegex() const { return !m_ok;}
 
-    const std::string & value( void ) const { return me;}
+    const std::string & value() const { return me;}
 
-    bool match( const std::string & s ) const {
-      if( m_ok )
-	return !regexec( &m_regex, s.c_str(), 0, 0, 0 );
+    bool match(const std::string & s) const {
+      if (m_ok)
+	return !regexec(&m_regex, s.c_str(), 0,0,0);
       else
-	return me == s;
+	return me==s;
     }
 
-    const std::pair< std::string, std::string> & range( void ) const { return m_range; }
+    const std::pair< std::string, std::string> & range() const { return m_range;}
   private:
     bool m_ok;
     regex_t m_regex;
@@ -305,21 +312,25 @@ namespace
     // range of me in a collating sequence
     std::pair<std::string, std::string> m_range;
   };
+
 }
 
-std::pair<bool, std::string>
-DDIsValid( const std::string & ns, const std::string & nm, std::vector<DDLogicalPart> & result, bool doRegex )
+std::pair<bool,std::string> DDIsValid(const std::string & ns, const std::string & nm, std::vector<DDLogicalPart> & result, bool doRegex)
 {
-  if( !doRegex )
-  {
-    DDName ddnm( nm, ns );
-    result.push_back( DDLogicalPart( ddnm ));
-    return std::make_pair( true, "" );
+  //return std::make_pair(true,"");      
+  if (!doRegex) {
+    DDName ddnm(nm,ns);
+    result.push_back(DDLogicalPart(ddnm));
+    return std::make_pair(true,"");
   }
   std::string status;
-  Regex aRegex( nm );
-  Regex aNsRegex( ns );
+  Regex aRegex(nm);
+  Regex aNsRegex(ns);
   bool emptyNs = aNsRegex.empty();
+    // std::cerr <<  "regex " << nm << " " << ns << std::endl;
+ 
+  //edm::LogInfo("DDLogicalPart") << " . emptyNs=" << emptyNs << std::endl;
+  //edm::LogInfo("DDLogicalPart") << " . qname=[" << ns << ":" << nm << "]" << std::endl;
   
   // THIS IS THE SLOW PART: I have to compare every namespace & name of every
   // logical part with a regex-comparison .... a linear search always through the
@@ -400,11 +411,20 @@ DDIsValid( const std::string & ns, const std::string & nm, std::vector<DDLogical
     message = "No regex-match for namespace=" + ns + "  name=" + nm + "\n";
   }
 
+
   return std::make_pair(flag,message);
 }
 
+
 const std::vector< std::pair<DDPartSelection*,DDsvalues_type*> > & 
-DDLogicalPart::attachedSpecifics( void ) const
+DDLogicalPart::attachedSpecifics() const
 {
   return rep().attachedSpecifics();
 }
+
+/*
+const std::vector<DDPartSelection*> & DDLogicalPart::partSelections(const DDValue & v) const
+{
+  return rep().partSelections(v);
+}
+*/

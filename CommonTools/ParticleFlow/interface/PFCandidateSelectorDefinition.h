@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_PFCandProducer_PFCandidateSelectorDefinition
-#define PhysicsTools_PFCandProducer_PFCandidateSelectorDefinition
+#ifndef CommonTools_ParticleFlow_PFCandidateSelectorDefinition
+#define CommonTools_ParticleFlow_PFCandidateSelectorDefinition
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"

@@ -77,7 +77,12 @@ namespace cscdqm {
     L1ANumber = L1ANumbers[dduID];
     /** LOG4CPLUS_DEBUG(logger_,dduTag << " Header L1A Number = " << std::dec << L1ANumber); */
     int L1A_inc = L1ANumber - L1ANumber_previous_event;
-    if (!fFirstEvent) {
+
+    /** Handle 24-bit L1A roll-over maximum value case **/
+    if ( L1A_inc < 0 ) L1A_inc = 0xFFFFFF + L1A_inc;
+
+    // if (!fFirstEvent) {
+    if (fNotFirstEvent[dduID]) {
       if (getDDUHisto(h::DDU_L1A_INCREMENT, dduID, mo)) mo->Fill(L1A_inc);
       if (getEMUHisto(h::EMU_ALL_DDUS_L1A_INCREMENT, mo)) {
         if      (L1A_inc > 100000){ L1A_inc = 19;}
@@ -251,7 +256,10 @@ namespace cscdqm {
   
     if (getDDUHisto(h::DDU_DMB_UNPACKED_VS_DAV, dduID, mo)) mo->Fill(dmb_active_header, nCSCs);
   
-    fFirstEvent = false;
+    // fFirstEvent = false;
+
+    /** First event per DDU **/
+    fNotFirstEvent[dduID] = true;
   
   }
   

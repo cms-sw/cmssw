@@ -22,8 +22,6 @@
 #include "HepMC/GenEvent.h"
 // #include "HepMC/PythiaWrapper6_2.h"
 
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
-
 //#define PYGIVE pygive_
 //extern "C" {
 //  void PYGIVE(const char*,int length);
@@ -61,22 +59,6 @@ EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
   edm::FileInPath pdt = pset.getParameter<edm::FileInPath>("particle_property_file");
   bool useDefault = pset.getUntrackedParameter<bool>("use_default_decay",true);
   usePythia = pset.getUntrackedParameter<bool>("use_internal_pythia",true);
-  polarize_ids = pset.getUntrackedParameter<std::vector<int> >("particles_to_polarize",
-							       std::vector<int>());
-  polarize_pol = pset.getUntrackedParameter<std::vector<double> >("particle_polarizations",
-								  std::vector<double>());
-  if (polarize_ids.size() != polarize_pol.size()) {
-      throw cms::Exception("Configuration")
-	  << "EvtGenProducer requires that the particles_to_polarize and particle_polarization\n"
-	  "vectors be the same size.  Please fix this in your configuration.";
-  }
-  for (unsigned int ndx = 0; ndx < polarize_ids.size(); ndx++) {
-      if (polarize_pol[ndx] < -1. || polarize_pol[ndx] > 1.) {
-	  throw cms::Exception("Configuration")
-	      << "EvtGenProducer error: particle polarizations must be in the range -1 < P < 1";
-      }
-      polarizations.insert(std::pair<int, float>(polarize_ids[ndx], polarize_pol[ndx]));
-  }
 
   edm::FileInPath user_decay = pset.getParameter<edm::FileInPath>("user_decay_file");
   std::string decay_table_s = decay_table.fullPath();
@@ -492,33 +474,7 @@ void EvtGenInterface::addToHepMC(HepMC::GenParticle* partHep, EvtId idEvt, HepMC
     HepMC::FourVector posHep = initVert->position();
     posEvt.set(posHep.t(),posHep.x(),posHep.y(),posHep.z());
     partEvt->init(idEvt,momEvt);
-    if (stype == EvtSpinType::DIRAC 
-	&& polarizations.find(partHep->pdg_id()) != polarizations.end()) {
-         // std::cout << "Polarize particle" << std::endl;
-	//Particle is spin 1/2, so we can polarize it.
-	//Check polarizations map for particle, grab its polarization if it exists
-	// and make the spin density matrix
-	float pol = polarizations.find(partHep->pdg_id())->second;
-	GlobalVector pPart(momHep.x(), momHep.y(), momHep.z());
-	//std::cout << "Polarizing particle with PDG ID "
-	//  << partHep->pdg_id()
-	//  << " at " << pol*100 << "%" << std::endl;
-	GlobalVector zHat(0., 0., 1.);
-	GlobalVector zCrossP = zHat.cross(pPart);
-	GlobalVector polVec = pol * zCrossP.unit();
-
-	EvtSpinDensity theSpinDensity;
-	theSpinDensity.SetDim(2);
-	theSpinDensity.Set(0, 0, EvtComplex(1./2. + polVec.z()/2., 0.));
-	theSpinDensity.Set(0, 1, EvtComplex(polVec.x()/2., -polVec.y()/2.));
-	theSpinDensity.Set(1, 0, EvtComplex(polVec.x()/2., polVec.y()/2.));
-	theSpinDensity.Set(1, 1, EvtComplex(1./2. - polVec.z()/2., 0.));
-
-	partEvt->setSpinDensityForwardHelicityBasis(theSpinDensity);
-
-    } else {
-	partEvt->setDiagonalSpinDensity();     
-    }
+    partEvt->setDiagonalSpinDensity();     
     partEvt->decay();
                        
     // extend the search of candidates to be forced to EvtGen decay products and delete their daughters  ** 
@@ -530,6 +486,15 @@ void EvtGenInterface::addToHepMC(HepMC::GenParticle* partHep, EvtId idEvt, HepMC
     
     evtstdhep.init();
     partEvt->makeStdHep(evtstdhep);
+
+    /* if (ntotal < 1000 && ntotal%10 == 0) {     // DEBUG
+    // if (evtstdhep.getStdHepID(0) == 521 || evtstdhep.getStdHepID(0) == 523) {     // DEBUG
+   
+      partEvt->printParticle();                
+      partEvt->printTree();
+      std::cout << evtstdhep << "\n"  <<
+      "--------------------------------------------" << std::endl;
+      } */
 
     ntotal++;
     partEvt->deleteTree();

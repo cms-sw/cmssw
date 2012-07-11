@@ -21,8 +21,8 @@ class GeometricSearchDet {
   typedef BoundSurface::RotationType        RotationType;
   typedef TrajectoryStateOnSurface          TrajectoryState;
   
-  GeometricSearchDet() : theCompatibilityChecker(){}
-  virtual ~GeometricSearchDet();
+  GeometricSearchDet() : theCompatibilityChecker(){};
+  virtual ~GeometricSearchDet() {};
   
   /// The surface of the GeometricSearchDet
   virtual const BoundSurface& surface() const = 0;
@@ -106,7 +106,6 @@ class GeometricSearchDet {
 
  protected:
   GeomDetCompatibilityChecker theCompatibilityChecker;
-
  
 };
 

@@ -7,19 +7,13 @@
 #include "TSystem.h"
 #include "Riostream.h"
 
-#include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaObject.h"
-
-///-----------------------------------------------------------
-///   TEcnaParPaths.h
-///   Update: 15/02/2011
-///   Author:    B.Fabbro (bernard.fabbro@cea.fr)
-///              DSM/IRFU/SPP CEA-Saclay
-///   Copyright: Those valid for CEA sofware
-///
-///   ECNA web page:
-///     http://cms-fabbro.web.cern.ch/cms-fabbro/
-///     cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
-///-----------------------------------------------------------
+//------------------------ TEcnaParPaths.h -----------------
+//
+//   For questions or comments, please send e-mail to:
+//
+//   Bernard Fabbro             
+//   fabbro@hep.saclay.cea.fr 
+//--------------------------------------------------------
 
 class TEcnaParPaths : public TObject {
 
@@ -36,6 +30,7 @@ class TEcnaParPaths : public TObject {
 
   Int_t   fCnaCommand,  fCnaError;
 
+
   ifstream fFcin_rr;          // stream for results root files 
   ifstream fFcin_ra;          // stream for results ascii files 
   ifstream fFcin_lor;         // stream for list of runs files
@@ -51,43 +46,51 @@ class TEcnaParPaths : public TObject {
   TString fCfgHistoryRunListFilePath;       // absolute path for the list-of-runs .ascii files (/afs/etc...)
   TString fFileForHistoryRunListFilePath;   // name of the file containing the list-of-run file path
 
-  TString fCfgCMSSWBase;           // CMSSW base user's directory
+  //  TString fCfgAnalyzerParametersFilePath;       // absolute path for the analyzer parameters files (/afs/etc...)
+  //  TString fFileForAnalyzerParametersFilePath;   // name of the file containing the user's parameters file path
+
+  TString fCfgCMSSWVersion;        // CMSSW version 
   TString fCfgCMSSWSubsystem;      // CMSSW subsystem name
-  TString fCfgSCRAMArch;           // SCRAM ARCHITECTURE
+  TString fCfgCMSSWSlc;            // CMSSW slc... name
   TString fFileForCMSSWParameters; // name of the file containing the CMSSW version, subsystem and slc
 
+
+
  public:
+
+  Bool_t fPathForResultsRootFiles;
+  Bool_t fPathForResultsAsciiFiles;
+  Bool_t fPathForHistoryRunListFiles;
 
   //..... Methods
 
            TEcnaParPaths();
-           TEcnaParPaths(TEcnaObject*);
   virtual  ~TEcnaParPaths();
 
-  void    Init();
+  void     Init();
 
-  Bool_t GetPathForResultsRootFiles();
-  Bool_t GetPathForResultsAsciiFiles();
-  Bool_t GetPathForHistoryRunListFiles();
-  void   GetCMSSWParameters();
+  void GetPathForResultsRootFiles();
+  void GetPathForResultsAsciiFiles();
+  void GetPathForHistoryRunListFiles();
+  //  void GetPathForAnalyzerParametersFiles();
+  void GetCMSSWParameters();
 
-  Bool_t GetPathForResultsRootFiles(const TString);
-  Bool_t GetPathForResultsAsciiFiles(const TString);
-  Bool_t GetPathForHistoryRunListFiles(const TString);
-  //  Bool_t GetCMSSWParameters(const TString);
-
-  Bool_t  GetPaths();
+  void GetPathForResultsRootFiles(const TString);
+  void GetPathForResultsAsciiFiles(const TString);
+  void GetPathForHistoryRunListFiles(const TString);
+  //  void GetPathForAnalyzerParametersFiles(const TString);
+  void GetCMSSWParameters(const TString);
 
   TString ResultsRootFilePath();
   TString ResultsAsciiFilePath();
   TString HistoryRunListFilePath();
-  TString CMSSWBase();
+  //TString AnalyzerParametersFilePath();
+  TString CMSSWVersion();
   TString CMSSWSubsystem();
-  TString SCRAMArch();
+  TString CMSSWSlc();
 
   void SetResultsRootFilePath(const TString);
   void SetResultsAsciiFilePath(const TString);
-  void SetHistoryRunListFilePath(const TString);
 
   void TruncateResultsRootFilePath(const Int_t&, const Int_t&);
   void TruncateResultsAsciiFilePath(const Int_t&, const Int_t&);
@@ -99,11 +102,11 @@ class TEcnaParPaths : public TObject {
   void AppendResultsAsciiFilePath(const Text_t *);
 
   TString PathModulesData();
-  TString PathTestScramArch();
+  TString PathTestSlc();
 
 
-ClassDef(TEcnaParPaths,1)// Parameter management for ECNA (Ecal Correlated Noises Analysis)
+ClassDef(TEcnaParPaths,1)// Parameter management for CNA (Correlated Noises Analysis)
 
 };
 
-#endif   //    ZTR_TEcnaParPaths
+#endif   //    ZTR_TEcnaParameter

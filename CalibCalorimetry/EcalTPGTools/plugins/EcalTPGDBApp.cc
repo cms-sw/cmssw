@@ -6,23 +6,23 @@
 using namespace std;
 using namespace oracle::occi;
 
-EcalTPGDBApp::EcalTPGDBApp(string host, string sid, string user, string pass, int port)
+EcalTPGDBApp::EcalTPGDBApp(std::string host, std::string sid, std::string user, std::string pass, int port)
   : EcalCondDBInterface( host, sid, user, pass, port )
 {}
  
-EcalTPGDBApp::EcalTPGDBApp(string sid, string user, string pass)
+EcalTPGDBApp::EcalTPGDBApp(std::string sid, std::string user, std::string pass)
   : EcalCondDBInterface(  sid, user, pass )
 {}
 
-int EcalTPGDBApp::writeToConfDB_TPGPedestals(const  map<EcalLogicID, FEConfigPedDat> & pedset, int iovId, string tag) {
+int EcalTPGDBApp::writeToConfDB_TPGPedestals(const  std::map<EcalLogicID, FEConfigPedDat> & pedset, int iovId, std::string tag) {
   
   int result=0;
 
-  cout << "*****************************************" << endl;
-  cout << "******** Inserting Peds in conf-OMDS*****" << endl;
-  cout << "*****************************************" << endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "******** Inserting Peds in conf-OMDS*****" << std::endl;
+  std::cout << "*****************************************" << std::endl;
   
-  cout << "creating fe record " <<endl;
+  std::cout << "creating fe record " <<std::endl;
   FEConfigPedInfo fe_ped_info ;
   fe_ped_info.setIOVId(iovId) ;
   fe_ped_info.setConfigTag(tag) ;
@@ -31,24 +31,24 @@ int EcalTPGDBApp::writeToConfDB_TPGPedestals(const  map<EcalLogicID, FEConfigPed
 
 
   // Insert the dataset, identifying by iov
-  cout << "*********about to insert peds *********" << endl;
-  cout << " map size = "<<pedset.size()<<endl ;
+  std::cout << "*********about to insert peds *********" << std::endl;
+  std::cout << " map size = "<<pedset.size()<<std::endl ;
   insertDataArraySet(&pedset, &fe_ped_info);
-  cout << "*********Done peds            *********" << endl;
+  std::cout << "*********Done peds            *********" << std::endl;
   
   return result;
 }
 
-int EcalTPGDBApp::writeToConfDB_TPGLinearCoef(const  map<EcalLogicID, FEConfigLinDat> & linset, 
-					      const  map<EcalLogicID, FEConfigLinParamDat> & linparamset, int iovId, string tag) {
+int EcalTPGDBApp::writeToConfDB_TPGLinearCoef(const  std::map<EcalLogicID, FEConfigLinDat> & linset, 
+					      const  std::map<EcalLogicID, FEConfigLinParamDat> & linparamset, int iovId, std::string tag) {
   
   int result=0;
 
-  cout << "*********************************************" << endl;
-  cout << "**Inserting Linarization coeff in conf-OMDS**" << endl;
-  cout << "*********************************************" << endl;
+  std::cout << "*********************************************" << std::endl;
+  std::cout << "**Inserting Linarization coeff in conf-OMDS**" << std::endl;
+  std::cout << "*********************************************" << std::endl;
   
-  cout << "creating fe record " <<endl;
+  std::cout << "creating fe record " <<std::endl;
   FEConfigLinInfo fe_lin_info ;
   fe_lin_info.setIOVId(iovId) ;
   fe_lin_info.setConfigTag(tag) ;
@@ -56,24 +56,24 @@ int EcalTPGDBApp::writeToConfDB_TPGLinearCoef(const  map<EcalLogicID, FEConfigLi
   result = fe_lin_info.getID() ;
   
   // Insert the dataset, identifying by iov
-  cout << "*********about to insert linearization coeff *********" << endl;
-  cout << " map size = "<<linset.size()<<endl ;
+  std::cout << "*********about to insert linearization coeff *********" << std::endl;
+  std::cout << " map size = "<<linset.size()<<std::endl ;
   insertDataArraySet(&linset, &fe_lin_info);
   insertDataArraySet(&linparamset, &fe_lin_info);
-  cout << "*********Done lineraization coeff            *********" << endl;
+  std::cout << "*********Done lineraization coeff            *********" << std::endl;
   
   return result;
 }
 
-int EcalTPGDBApp::writeToConfDB_TPGMain(int ped, int lin, int lut, int fgr, int sli, int wei, int spi, int tim, int bxt, int btt, string tag, int ver) {
+int EcalTPGDBApp::writeToConfDB_TPGMain(int ped, int lin, int lut, int fgr, int sli, int wei, int bxt, int btt, std::string tag, int ver) {
   
   int result=0;
 
-  cout << "*********************************************" << endl;
-  cout << "**Inserting Main FE table in conf-OMDS     **" << endl;
-  cout << "*********************************************" << endl;
+  std::cout << "*********************************************" << std::endl;
+  std::cout << "**Inserting Main FE table in conf-OMDS     **" << std::endl;
+  std::cout << "*********************************************" << std::endl;
   
-  cout << "creating fe record " <<endl;
+  std::cout << "creating fe record " <<std::endl;
 
   FEConfigMainInfo fe_main ;
   fe_main.setPedId(ped) ;
@@ -82,8 +82,6 @@ int EcalTPGDBApp::writeToConfDB_TPGMain(int ped, int lin, int lut, int fgr, int 
   fe_main.setFgrId(fgr) ;
   fe_main.setSliId(sli) ;
   fe_main.setWeiId(wei) ;
-  fe_main.setSpiId(spi) ;
-  fe_main.setTimId(tim) ;
   fe_main.setBxtId(bxt) ;
   fe_main.setBttId(btt) ;
   fe_main.setConfigTag(tag) ;
@@ -92,7 +90,7 @@ int EcalTPGDBApp::writeToConfDB_TPGMain(int ped, int lin, int lut, int fgr, int 
   insertConfigSet(&fe_main) ;
   result = fe_main.getId() ;
   
-  cout << "*********Done Main           *********" << endl;
+  std::cout << "*********Done Main           *********" << std::endl;
   
   return result;
 }
@@ -105,19 +103,19 @@ void EcalTPGDBApp::readFromConfDB_TPGPedestals(int iconf_req ) {
 
   // FC alternatively a config set can be retrieved by the tag and version
   
-  cout << "*****************************************" << endl;
-  cout << "test readinf fe_ped with id="<<iconf_req  << endl;
-  cout << "*****************************************" << endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "test readinf fe_ped with id="<<iconf_req  << std::endl;
+  std::cout << "*****************************************" << std::endl;
   
   FEConfigPedInfo fe_ped_info;
   fe_ped_info.setId(iconf_req);
 
   fetchConfigSet(&fe_ped_info);
 
-  map<EcalLogicID, FEConfigPedDat> dataset_ped;
+  std::map<EcalLogicID, FEConfigPedDat> dataset_ped;
   fetchDataSet(&dataset_ped, &fe_ped_info);
   
-  typedef map<EcalLogicID, FEConfigPedDat>::const_iterator CIfeped;
+  typedef std::map<EcalLogicID, FEConfigPedDat>::const_iterator CIfeped;
   EcalLogicID ecid_xt;
   FEConfigPedDat  rd_ped;
   
@@ -140,19 +138,19 @@ void EcalTPGDBApp::readFromConfDB_TPGPedestals(int iconf_req ) {
     ped_m1[xt_num]=rd_ped.getPedMeanG1();
   }
   
-  cout << "*****************************************" << endl;
-  cout << "test read done"<<iconf_req  << endl;
-  cout << "*****************************************" << endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "test read done"<<iconf_req  << std::endl;
+  std::cout << "*****************************************" << std::endl;
   
 }
 
 
-int EcalTPGDBApp::readFromCondDB_Pedestals(map<EcalLogicID, MonPedestalsDat> & dataset, int runNb) {
+int EcalTPGDBApp::readFromCondDB_Pedestals(std::map<EcalLogicID, MonPedestalsDat> & dataset, int runNb) {
 
 
   int iovId = 0 ;
   
-  cout << "Retrieving run list from DB from run nb ... "<< runNb << endl;
+  std::cout << "Retrieving run list from DB from run nb ... "<< runNb << std::endl;
   RunTag  my_runtag;
   LocationDef my_locdef;
   RunTypeDef my_rundef;
@@ -173,24 +171,24 @@ int EcalTPGDBApp::readFromCondDB_Pedestals(map<EcalLogicID, MonPedestalsDat> & d
   mon_list.setMonRunTag(montag);
   mon_list.setRunTag(my_runtag);
 
-  std::cout<<"we are in read ped from condDB and runNb is "<< runNb<<endl;
+  std::cout<<"we are in read ped from condDB and runNb is "<< runNb<<std::endl;
 
   mon_list = fetchMonRunListLastNRuns(my_runtag, montag, runNb , 10 );
 
-  std::cout<<"we are in read ped from condDB"<<endl;
+  std::cout<<"we are in read ped from condDB"<<std::endl;
 
   std::vector<MonRunIOV> mon_run_vec =  mon_list.getRuns();
-  cout <<"number of ped runs is : "<< mon_run_vec.size()<< endl;
+  std::cout <<"number of ped runs is : "<< mon_run_vec.size()<< std::endl;
   int mon_runs = mon_run_vec.size();  
   //int sm_num = 0;  
 
   if(mon_runs>0) {
-    for (int ii=0 ; ii<(int)mon_run_vec.size(); ii++) cout << "here is the run number: "<< mon_run_vec[ii].getRunIOV().getRunNumber() << endl;
+    for (int ii=0 ; ii<(int)mon_run_vec.size(); ii++) std::cout << "here is the run number: "<< mon_run_vec[ii].getRunIOV().getRunNumber() << std::endl;
     
     // for the first run of the list we retrieve the pedestals
     int run=0;
-    cout <<" retrieve the data for a given run"<< endl;
-    cout << "here is the run number: "<< mon_run_vec[run].getRunIOV().getRunNumber() << endl;
+    std::cout <<" retrieve the data for a given run"<< std::endl;
+    std::cout << "here is the run number: "<< mon_run_vec[run].getRunIOV().getRunNumber() << std::endl;
     iovId = mon_run_vec[run].getID();
     
     fetchDataSet(&dataset, &mon_run_vec[run]) ;   
@@ -199,11 +197,11 @@ int EcalTPGDBApp::readFromCondDB_Pedestals(map<EcalLogicID, MonPedestalsDat> & d
 }
 
 
-int EcalTPGDBApp::writeToConfDB_TPGSliding(const  map<EcalLogicID, FEConfigSlidingDat> & sliset, int iovId, string tag) 
+int EcalTPGDBApp::writeToConfDB_TPGSliding(const  std::map<EcalLogicID, FEConfigSlidingDat> & sliset, int iovId, std::string tag) 
 {
-  cout << "*****************************************" << endl;
-  cout << "************Inserting SLIDING************" << endl;
-  cout << "*****************************************" << endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "************Inserting SLIDING************" << std::endl;
+  std::cout << "*****************************************" << std::endl;
   int result=0; 
 
   FEConfigSlidingInfo fe_info ;
@@ -219,21 +217,20 @@ int EcalTPGDBApp::writeToConfDB_TPGSliding(const  map<EcalLogicID, FEConfigSlidi
 
   result=fe_info.getId();
 
-  cout << "*****************************************" << endl;
-  cout << "************SLI done*********************" << endl;
-  cout << "*****************************************" << endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "************SLI done*********************" << std::endl;
+  std::cout << "*****************************************" << std::endl;
   return result;
 
 }
 
-
-int EcalTPGDBApp::writeToConfDB_TPGLUT(const  map<EcalLogicID, FEConfigLUTGroupDat> & lutgroupset,
-					const  map<EcalLogicID, FEConfigLUTDat> & lutset, 
-				       const  map<EcalLogicID, FEConfigLUTParamDat> & lutparamset,int iovId, string tag) 
+int EcalTPGDBApp::writeToConfDB_TPGLUT(const  std::map<EcalLogicID, FEConfigLUTGroupDat> & lutgroupset,
+					const  std::map<EcalLogicID, FEConfigLUTDat> & lutset, 
+				       const  std::map<EcalLogicID, FEConfigLUTParamDat> & lutparamset,int iovId, std::string tag) 
 {
-  cout << "*****************************************" << endl;
-  cout << "************Inserting LUT************" << endl;
-  cout << "*****************************************" << endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "************Inserting LUT************" << std::endl;
+  std::cout << "*****************************************" << std::endl;
   int result=0; 
 
   FEConfigLUTInfo fe_lut_info ;
@@ -253,19 +250,19 @@ int EcalTPGDBApp::writeToConfDB_TPGLUT(const  map<EcalLogicID, FEConfigLUTGroupD
   
   result=fe_lut_info.getId();
 
-  cout << "*****************************************" << endl;
-  cout << "************LUT done*********************" << endl;
-  cout << "*****************************************" << endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "************LUT done*********************" << std::endl;
+  std::cout << "*****************************************" << std::endl;
   return result;
 
 }
 
-int EcalTPGDBApp::writeToConfDB_TPGWeight(const  map<EcalLogicID, FEConfigWeightGroupDat> & lutgroupset,
-					const  map<EcalLogicID, FEConfigWeightDat> & lutset, int ngr, string tag) 
+int EcalTPGDBApp::writeToConfDB_TPGWeight(const  std::map<EcalLogicID, FEConfigWeightGroupDat> & lutgroupset,
+					const  std::map<EcalLogicID, FEConfigWeightDat> & lutset, int ngr, std::string tag) 
 {  
-  cout << "*****************************************" << endl;
-  cout << "************Inserting weights************" << endl;
-  cout << "*****************************************" << endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "************Inserting weights************" << std::endl;
+  std::cout << "*****************************************" << std::endl;
   
   int result=0; 
 
@@ -284,25 +281,25 @@ int EcalTPGDBApp::writeToConfDB_TPGWeight(const  map<EcalLogicID, FEConfigWeight
   
   result=fe_wei_info.getId();
 
-  cout << "*****************************************" << endl;
-  cout << "************WEIGHT done******************" << endl;
-  cout << "*****************************************" << endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "************WEIGHT done******************" << std::endl;
+  std::cout << "*****************************************" << std::endl;
   return result;
 
   
 }
 
 
-int EcalTPGDBApp::writeToConfDB_TPGFgr(const  map<EcalLogicID, FEConfigFgrGroupDat> & fgrgroupset,
-				       const  map<EcalLogicID, FEConfigFgrDat> & fgrset,  
-				       const  map<EcalLogicID, FEConfigFgrParamDat> & fgrparamset,
-				       const  map<EcalLogicID, FEConfigFgrEETowerDat> & dataset3, 
-				       const  map<EcalLogicID, FEConfigFgrEEStripDat> & dataset4,
-				       int iovId, string tag) 
+int EcalTPGDBApp::writeToConfDB_TPGFgr(const  std::map<EcalLogicID, FEConfigFgrGroupDat> & fgrgroupset,
+				       const  std::map<EcalLogicID, FEConfigFgrDat> & fgrset,  
+				       const  std::map<EcalLogicID, FEConfigFgrParamDat> & fgrparamset,
+				       const  std::map<EcalLogicID, FEConfigFgrEETowerDat> & dataset3, 
+				       const  std::map<EcalLogicID, FEConfigFgrEEStripDat> & dataset4,
+				       int iovId, std::string tag) 
 {
-  cout << "*****************************************" << endl;
-  cout << "************Inserting Fgr************" << endl;
-  cout << "*****************************************" << endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "************Inserting Fgr************" << std::endl;
+  std::cout << "*****************************************" << std::endl;
   int result=0; 
 
   FEConfigFgrInfo fe_fgr_info ;
@@ -326,63 +323,9 @@ int EcalTPGDBApp::writeToConfDB_TPGFgr(const  map<EcalLogicID, FEConfigFgrGroupD
   
   result=fe_fgr_info.getId();
 
-  cout << "*****************************************" << endl;
-  cout << "************Fgr done*********************" << endl;
-  cout << "*****************************************" << endl;
-  return result;
-
-}
-
-int EcalTPGDBApp::writeToConfDB_Spike(const  map<EcalLogicID, FEConfigSpikeDat> & spikegroupset,
-				       string tag) 
-{
-  cout << "*****************************************" << endl;
-  cout << "************Inserting Spike************" << endl;
-  cout << "*****************************************" << endl;
-  int result=0; 
-
-  FEConfigSpikeInfo fe_spike_info ;
-  fe_spike_info.setConfigTag(tag);
-  insertConfigSet(&fe_spike_info);
-  
-  //  Tm tdb = fe_fgr_info.getDBTime();
-  //tdb.dumpTm();
-  
-  // Insert the dataset
-  insertDataArraySet(&spikegroupset, &fe_spike_info);
-  
-  result=fe_spike_info.getId();
-
-  cout << "*****************************************" << endl;
-  cout << "************Spike done*******************" << endl;
-  cout << "*****************************************" << endl;
-  return result;
-
-}
-
-int EcalTPGDBApp::writeToConfDB_Delay(const  map<EcalLogicID, FEConfigTimingDat> & timegroupset,
-				       string tag) 
-{
-  cout << "*****************************************" << endl;
-  cout << "************Inserting Delays************" << endl;
-  cout << "*****************************************" << endl;
-  int result=0; 
-
-  FEConfigTimingInfo fe_time_info ;
-  fe_time_info.setConfigTag(tag);
-  insertConfigSet(&fe_time_info);
-  
-  //  Tm tdb = fe_fgr_info.getDBTime();
-  //tdb.dumpTm();
-  
-  // Insert the dataset
-  insertDataArraySet(&timegroupset, &fe_time_info);
-  
-  result=fe_time_info.getId();
-
-  cout << "*****************************************" << endl;
-  cout << "************Delays done******************" << endl;
-  cout << "*****************************************" << endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "************Fgr done*********************" << std::endl;
+  std::cout << "*****************************************" << std::endl;
   return result;
 
 }
@@ -391,24 +334,24 @@ int EcalTPGDBApp::writeToConfDB_Delay(const  map<EcalLogicID, FEConfigTimingDat>
 
 void EcalTPGDBApp::printTag( const RunTag* tag) const
 {
-  cout << endl;
-  cout << "=============RunTag:" << endl;
-  cout << "GeneralTag:         " << tag->getGeneralTag() << endl;
-  cout << "Location:           " << tag->getLocationDef().getLocation() << endl;
-  cout << "Run Type:           " << tag->getRunTypeDef().getRunType() << endl;
-  cout << "====================" << endl;
+  std::cout << std::endl;
+  std::cout << "=============RunTag:" << std::endl;
+  std::cout << "GeneralTag:         " << tag->getGeneralTag() << std::endl;
+  std::cout << "Location:           " << tag->getLocationDef().getLocation() << std::endl;
+  std::cout << "Run Type:           " << tag->getRunTypeDef().getRunType() << std::endl;
+  std::cout << "====================" << std::endl;
 }
 
 void EcalTPGDBApp::printIOV( const RunIOV* iov) const
 {
-  cout << endl;
-  cout << "=============RunIOV:" << endl;
+  std::cout << std::endl;
+  std::cout << "=============RunIOV:" << std::endl;
   RunTag tag = iov->getRunTag();
   printTag(&tag);
-  cout << "Run Number:         " << iov->getRunNumber() << endl;
-  cout << "Run Start:          " << iov->getRunStart().str() << endl;
-  cout << "Run End:            " << iov->getRunEnd().str() << endl;
-  cout << "====================" << endl;
+  std::cout << "Run Number:         " << iov->getRunNumber() << std::endl;
+  std::cout << "Run Start:          " << iov->getRunStart().str() << std::endl;
+  std::cout << "Run End:            " << iov->getRunEnd().str() << std::endl;
+  std::cout << "====================" << std::endl;
 }
 
 

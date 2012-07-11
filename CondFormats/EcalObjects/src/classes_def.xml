@@ -20,6 +20,7 @@
 <class name="EcalIntercalibErrors"/>
 <class name="EcalIntercalibConstantsMC"/>
 
+<class name="EcalTimeOffsetConstant"/>
 <class name="EcalTimeCalibConstants"/>
 <class name="EcalTimeCalibErrors"/>
 
@@ -46,7 +47,9 @@
 <class name="EcalTPGCrystalStatus"/>
 <class name="EcalTPGCrystalStatusCode"/>
 
-<class name="EcalLaserAPDPNRatios"/>
+<class name="EcalLaserAPDPNRatios">
+   <field name="laser_map" mapping="blob" />
+</class>
 <class name="EcalLaserAPDPNRatios::EcalLaserTimeStamp"/>
 <class name="std::vector<EcalLaserAPDPNRatios::EcalLaserTimeStamp>"/>
 <class name="EcalLaserAPDPNRatios::EcalLaserAPDPNpair"/>

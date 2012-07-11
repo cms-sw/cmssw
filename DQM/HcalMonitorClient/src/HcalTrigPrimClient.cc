@@ -11,8 +11,8 @@
 /*
  * \file HcalTrigPrimClient.cc
  * 
- * $Date: 2010/05/11 18:06:59 $
- * $Revision: 1.19 $
+ * $Date: 2010/09/17 13:47:10 $
+ * $Revision: 1.20 $
  * \author J. Temple
  * \brief Hcal Trigger Primitive Client class
  */
@@ -44,6 +44,8 @@ HcalTrigPrimClient::HcalTrigPrimClient(std::string myname, const edm::ParameterS
 						   ps.getUntrackedParameter<double>("minerrorrate",0.01));
   minevents_    = ps.getUntrackedParameter<int>("TrigPrim_minevents",
 						ps.getUntrackedParameter<int>("minevents",1));
+  Online_                = ps.getUntrackedParameter<bool>("online",false);
+
   ProblemCells=0;
   ProblemCellsByDepth=0;
 }

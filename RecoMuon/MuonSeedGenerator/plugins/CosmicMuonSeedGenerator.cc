@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2009/04/20 10:19:10 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/01/26 04:18:05 $
+ *  $Revision: 1.3 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -311,8 +311,8 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const MuonRecHit
   // set the pt by hand
   double pt = 10.0;
 
-  // AlgebraicVector4 t;
-  AlgebraicSymMatrix mat(5,0);
+  AlgebraicVector t(4);
+  AlgebraicSymMatrix mat(5,0) ;
 
   // Fill the LocalTrajectoryParameters
   LocalPoint segPos=hit->localPosition();
@@ -343,7 +343,7 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const MuonRecHit
   float p_err = 0.2;
   mat[0][0]= p_err;
   
-  LocalTrajectoryError error(asSMatrix<5>(mat));
+  LocalTrajectoryError error(mat);
   
   // Create the TrajectoryStateOnSurface
   TrajectoryStateOnSurface tsos(param, error, hit->det()->surface(), &*theField);
@@ -497,7 +497,7 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const CosmicMuon
   if (pt < 10.01) p_err = 0.1; 
   mat[0][0]= p_err;
   
-  LocalTrajectoryError error(asSMatrix<5>(mat));
+  LocalTrajectoryError error(mat);
   
   // Create the TrajectoryStateOnSurface
   TrajectoryStateOnSurface tsos(param, error, hit->det()->surface(), &*theField);

@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 20:33:06 CET 2010
-// $Id: FWRPZViewGeometry.cc,v 1.16 2010/11/04 22:38:55 amraktad Exp $
+// $Id: FWRPZViewGeometry.cc,v 1.17 2010/12/16 16:40:56 yana Exp $
 //
 
 // system include files
@@ -79,7 +79,7 @@ FWRPZViewGeometry::getGeoElements(const FWViewType::EType type)
    {
       if ( !m_rhoZGeo)
       {
-         m_rhoZGeo = new TEveElementList("Geomtery RhoZ");
+         m_rhoZGeo = new TEveElementList("Geometry RhoZ");
          
          m_rhoZGeo->IncDenyDestroy();
          m_rhoZGeo->AddElement(makeMuonGeometryRhoZ());
@@ -91,7 +91,7 @@ FWRPZViewGeometry::getGeoElements(const FWViewType::EType type)
    {
       if ( !m_rhoPhiGeo)
       {
-         m_rhoPhiGeo = new TEveElementList("Geomtery RhoPhi");
+         m_rhoPhiGeo = new TEveElementList("Geometry RhoPhi");
          m_rhoPhiGeo->IncDenyDestroy();
          m_rhoPhiGeo->AddElement(makeMuonGeometryRhoPhi());
          m_rhoPhiGeo->AddElement(makeCaloOutlineRhoPhi());

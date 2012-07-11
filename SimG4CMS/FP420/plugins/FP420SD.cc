@@ -408,70 +408,67 @@ void FP420SD::EndOfEvent(G4HCofThisEvent* ) {
   //    LogDebug("FP420Sim") << "FP420SD: warning!!! Number of hits exceed 100 and =" << theHC->entries() << "\n";
   //  }
   //  for (int j=0; j<theHC->entries() && j<100; j++) {
-  int nhitsHPS240=0;
-  int nhitsFP420=0;
+  int nhits=0;
   for (int j=0; j<theHC->entries(); j++) {
     FP420G4Hit* aHit = (*theHC)[j];
-    if((fabs(aHit->getTof())> 780. && fabs(aHit->getTof())< 840.)) ++nhitsHPS240;
-    if((fabs(aHit->getTof())>1380. && fabs(aHit->getTof())<1450.)) ++nhitsFP420;
-    //    if(fabs(aHit->getTof()) < 1700.) {
-    if((fabs(aHit->getTof())>780. && fabs(aHit->getTof())<840. && nhitsHPS240<200.) || ( fabs(aHit->getTof())>1380. && fabs(aHit->getTof())<1450. && nhitsFP420<200.)) {
-      
-      
+    if(fabs(aHit->getTof()) < 1700.) {
+      ++nhits;
+      if(nhits<200.){
 #ifdef ddebug
-      //    LogDebug("FP420SD") << " FP420Hit " << j << " " << *aHit << std::endl;
-      LogDebug("FP420Sim") << "hit number" << j << "unit ID = "<<aHit->getUnitID()<< "\n";
-      LogDebug("FP420Sim") << "entry z " << aHit->getEntry().z()<< "\n";
-      LogDebug("FP420Sim") << "entr theta " << aHit->getThetaAtEntry()<< "\n";
+	//    LogDebug("FP420SD") << " FP420Hit " << j << " " << *aHit << std::endl;
+	LogDebug("FP420Sim") << "hit number" << j << "unit ID = "<<aHit->getUnitID()<< "\n";
+	LogDebug("FP420Sim") << "entry z " << aHit->getEntry().z()<< "\n";
+	LogDebug("FP420Sim") << "entr theta " << aHit->getThetaAtEntry()<< "\n";
 #endif
-      
-      //    Local3DPoint locExitPoint(0,0,0);
-      //  Local3DPoint locEntryPoint(aHit->getEntry().x(),
-      //	 aHit->getEntry().y(),
-      //	 aHit->getEntry().z());
-      Local3DPoint locExitPoint(aHit->getExitLocalP().x(),
-				aHit->getExitLocalP().y(),
-				aHit->getExitLocalP().z());
-      Local3DPoint locEntryPoint(aHit->getEntryLocalP().x(),
-				 aHit->getEntryLocalP().y(),
-				 aHit->getEntryLocalP().z());
-      // implicit conversion (slicing) to PSimHit!!!
-      slave->processHits(PSimHit(locEntryPoint,locExitPoint,//entryPoint(), exitPoint()  Local3DPoint
-				 aHit->getPabs(),// pabs()  float
-				 aHit->getTof(), // tof() float
-				 aHit->getEnergyLoss(), // energyLoss() float
-				 aHit->getParticleType(),// particleType()   int
-				 aHit->getUnitID(), // detUnitId() unsigned int 
-				 aHit->getTrackID(),// trackId() unsigned int 
-				 aHit->getThetaAtEntry(),//  thetaAtEntry()   float
-				 aHit->getPhiAtEntry())); //  phiAtEntry()   float  
-      
-      //PSimHit( const Local3DPoint& entry, const Local3DPoint& exit, 
-      //	   float pabs, float tof, float eloss, int particleType,
-      //	   unsigned int detId, unsigned int trackId,
-      //	   float theta, float phi, unsigned short processType=0) :
 	
-      //  LocalVector direction = hit.exitPoint() - hit.entryPoint(); 
-      //hit.energyLoss
-      
-      
-      /*      
-	      aHit->getEM(),               -
-	      aHit->getHadr(),             -
-	      aHit->getIncidentEnergy(),   -
-	      aHit->getTimeSlice(),       -
-	      aHit->getEntry(),     -
-	      aHit->getParentId(),     
-	      aHit->getEntryLocalP(),  -
-	      aHit->getExitLocalP(),   -
-	      aHit->getX(),    -
-	      aHit->getY(),   -
-	      aHit->getZ(),   -
-	      aHit->getVx(),  -
-	      aHit->getVy(),  -
-	      aHit->getVz()));  -
-      */
-    }//if Tof<1600. if nhits<100
+	//    Local3DPoint locExitPoint(0,0,0);
+	//  Local3DPoint locEntryPoint(aHit->getEntry().x(),
+	//	 aHit->getEntry().y(),
+	//	 aHit->getEntry().z());
+	Local3DPoint locExitPoint(aHit->getExitLocalP().x(),
+				  aHit->getExitLocalP().y(),
+				  aHit->getExitLocalP().z());
+	Local3DPoint locEntryPoint(aHit->getEntryLocalP().x(),
+				   aHit->getEntryLocalP().y(),
+				   aHit->getEntryLocalP().z());
+	// implicit conversion (slicing) to PSimHit!!!
+	slave->processHits(PSimHit(locEntryPoint,locExitPoint,//entryPoint(), exitPoint()  Local3DPoint
+				   aHit->getPabs(),// pabs()  float
+				   aHit->getTof(), // tof() float
+				   aHit->getEnergyLoss(), // energyLoss() float
+				   aHit->getParticleType(),// particleType()   int
+				   aHit->getUnitID(), // detUnitId() unsigned int 
+				   aHit->getTrackID(),// trackId() unsigned int 
+				   aHit->getThetaAtEntry(),//  thetaAtEntry()   float
+				   aHit->getPhiAtEntry())); //  phiAtEntry()   float  
+	
+	//PSimHit( const Local3DPoint& entry, const Local3DPoint& exit, 
+	//	   float pabs, float tof, float eloss, int particleType,
+	//	   unsigned int detId, unsigned int trackId,
+	//	   float theta, float phi, unsigned short processType=0) :
+	
+	//  LocalVector direction = hit.exitPoint() - hit.entryPoint(); 
+	//hit.energyLoss
+	
+	
+	/*      
+		aHit->getEM(),               -
+		aHit->getHadr(),             -
+		aHit->getIncidentEnergy(),   -
+		aHit->getTimeSlice(),       -
+		aHit->getEntry(),     -
+		aHit->getParentId(),     
+		aHit->getEntryLocalP(),  -
+		aHit->getExitLocalP(),   -
+		aHit->getX(),    -
+		aHit->getY(),   -
+		aHit->getZ(),   -
+		aHit->getVx(),  -
+		aHit->getVy(),  -
+		aHit->getVz()));  -
+	*/
+      }//if nhits<100
+    }//if Tof<1600.
   } // for loop on hits
   
   Summarize();

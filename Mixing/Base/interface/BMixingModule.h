@@ -79,6 +79,7 @@ namespace edm {
       const static unsigned int maxNbSources_;
       bool doit_[4];//FIXME
       std::vector<EventPrincipalVector> pileup_[4];//FIXME
+      std::vector< float > TrueNumInteractions_[4];
 
   private:
 

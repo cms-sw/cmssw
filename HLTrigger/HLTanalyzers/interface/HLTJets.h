@@ -74,7 +74,6 @@ public:
                  const edm::Handle<reco::METCollection>          & ht,                
                  const edm::Handle<reco::HLTTauCollection>       & myHLTTau,
                  const edm::Handle<reco::PFTauCollection>        & myHLTPFTau,
-                 const edm::Handle<reco::PFTauCollection>        & myHLTPFTauTightCone,
                  const edm::Handle<reco::PFJetCollection>        & myHLTPFJets,                
 		 const edm::Handle<reco::PFTauCollection>	 & myRecoPFTau,
 		 const edm::Handle<reco::PFTauDiscriminator>     & theRecoPFTauDiscrByTanCOnePercent,
@@ -112,10 +111,6 @@ private:
     int nohPFTau;
     float *ohpfTauEta,*ohpfTauPhi,*ohpfTauPt,*ohpfTauJetPt,*ohpfTauLeadTrackPt,*ohpfTauLeadPionPt;
     float *ohpfTauTrkIso, *ohpfTauGammaIso;
-    //PFTau with tight cone
-    int nohPFTauTightCone;
-    float *ohpfTauTightConeEta,*ohpfTauTightConePhi,*ohpfTauTightConePt,*ohpfTauTightConeJetPt,*ohpfTauTightConeLeadTrackPt,*ohpfTauTightConeLeadPionPt;
-    float *ohpfTauTightConeTrkIso, *ohpfTauTightConeGammaIso;
     //PFJets
     float pfMHT;    
     int nohPFJet;

@@ -1,4 +1,4 @@
-// $Id: DiscardManager.h,v 1.5.12.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: DiscardManager.h,v 1.6 2011/03/07 15:31:31 mommsen Exp $
 /// @file: DiscardManager.h 
 
 #ifndef EventFilter_StorageManager_DiscardManager_h
@@ -11,6 +11,9 @@
 #include "boost/shared_ptr.hpp"
 
 #include <map>
+#include <string>
+#include <utility>
+
 
 namespace stor {
 
@@ -23,8 +26,8 @@ namespace stor {
    * Handles the discard messages sent to the upstream Resource Brokers.
    *
    * $Author: mommsen $
-   * $Revision: 1.5.12.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.6 $
+   * $Date: 2011/03/07 15:31:31 $
    */
 
   class DiscardManager
@@ -41,20 +44,15 @@ namespace stor {
      * specified in the application descriptor.  The DiscardManager
      * will use the specified application context to send the messages.
      */
-    DiscardManager(xdaq::ApplicationContext* ctx,
-                   xdaq::ApplicationDescriptor* desc,
-                   DataSenderMonitorCollection& dsmc);
-
-    ~DiscardManager() {}
+    DiscardManager
+    (
+      xdaq::ApplicationContext*,
+      xdaq::ApplicationDescriptor*,
+      DataSenderMonitorCollection&
+    );
 
     /**
-     * Configures the discard manager.  Internally, this connects
-     * the DiscardManager to the buffer pool that it will use to store
-     * the discard messages.  This should be done at configuration time.
-     * (Application startup is too soon because the memory pool for
-     * TCP messages may not have been created yet.  Also, it's probably
-     * possible, in principle, for the configuration of resource brokers
-     * to change while the SM is in the Halted state.)
+     * Configures the discard manager.
      */
     void configure();
 
@@ -82,18 +80,25 @@ namespace stor {
      *         the appropriate resource broker can not be 
      *         determined.
      */
-    bool sendDiscardMessage(I2OChain const& i2oMessage);
+    bool sendDiscardMessage(I2OChain const&);
 
   private:
 
-    FUProxyPtr getProxyFromCache(std::string hltClassName,
-                                 unsigned int hltInstance);
-    FUProxyPtr makeNewFUProxy(std::string hltClassName,
-                              unsigned int hltInstance);
+    FUProxyPtr getProxyFromCache
+    (
+      std::string const& hltClassName,
+      unsigned int const& hltInstance
+    );
+    
+    FUProxyPtr makeNewFUProxy
+    (
+      std::string const& hltClassName,
+      unsigned int const& hltInstance
+    );
 
     xdaq::ApplicationContext* appContext_;
     xdaq::ApplicationDescriptor* appDescriptor_;
-    toolbox::mem::Pool* pool_;
+    toolbox::mem::Pool* msgPool_;
 
     FUProxyMap proxyCache_;
 

@@ -62,9 +62,19 @@ void RPCDcsInfoClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
   rpcHVStatus->setAxisTitle("Luminosity Section", 1);
   rpcHVStatus->setBinLabel(1,"",2);   
 
+  int lsCounter = 0;
   // fill
   for (unsigned int i = 0 ; i < nlsmax ; i++ )  {
     rpcHVStatus->setBinContent(i+1,1,DCS[i]);
+    lsCounter +=DCS[i];
   }
 
+  meName = dcsinfofolder_ + "/rpcHV";
+  MonitorElement* rpcHV = dbe_->get(meName);
+  if (rpcHV) dbe_->removeElement(rpcHVStatus->getName());
+  rpcHV = dbe_->bookInt("rpcHV");
+
+  rpcHV ->Fill(lsCounter);
+  
+  return;
 }

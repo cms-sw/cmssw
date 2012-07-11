@@ -37,6 +37,8 @@
 #include "GeneratorInterface/GenFilters/interface/XtoFFbarFilter.h"
 #include "GeneratorInterface/GenFilters/interface/HerwigMaxPtPartonFilter.h"
 #include "GeneratorInterface/GenFilters/interface/TwoVBGenFilter.h"
+#include "GeneratorInterface/GenFilters/interface/TotalKinematicsFilter.h"
+#include "GeneratorInterface/GenFilters/interface/Zto2lFilter.h"
 
 
   using cms::BHFilter;
@@ -77,6 +79,9 @@
   DEFINE_FWK_MODULE(XtoFFbarFilter);
   DEFINE_FWK_MODULE(HerwigMaxPtPartonFilter);
   DEFINE_FWK_MODULE(TwoVBGenFilter);
+  DEFINE_FWK_MODULE(TotalKinematicsFilter);
+  DEFINE_FWK_MODULE(Zto2lFilter);
+
 
 
 

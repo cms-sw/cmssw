@@ -11,15 +11,11 @@
 #include "OnlineDB/EcalCondDB/interface/all_monitoring_types.h"
 #include "OnlineDB/EcalCondDB/interface/all_fe_config_types.h"
 
-//#include "OnlineDB/EcalCondDB/interface/FEConfigSpikeDat.h"
-
-using namespace std;
-
 class EcalTPGDBApp : public EcalCondDBInterface {
  public:
   
-  EcalTPGDBApp(string host, string sid, string user, string pass, int port) ;
-  EcalTPGDBApp(string sid, string user, string pass) ;
+  EcalTPGDBApp(std::string host, std::string sid, std::string user, std::string pass, int port) ;
+  EcalTPGDBApp(std::string sid, std::string user, std::string pass) ;
   
   inline std::string to_string( char value[])
     {
@@ -28,27 +24,24 @@ class EcalTPGDBApp : public EcalCondDBInterface {
       return streamOut.str();    
     }
   
-  int  writeToConfDB_TPGPedestals(const  map<EcalLogicID, FEConfigPedDat> & pedset, int iovId, string tag) ;
-  int  writeToConfDB_TPGLinearCoef(const  map<EcalLogicID, FEConfigLinDat> & linset, 
-				   const  map<EcalLogicID, FEConfigLinParamDat> & linparamset, int iovId, string tag) ; 
-  int  writeToConfDB_TPGLUT(const  map<EcalLogicID, FEConfigLUTGroupDat> & lutgroup, const  map<EcalLogicID, FEConfigLUTDat> & lutdat, 
-			     const  map<EcalLogicID, FEConfigLUTParamDat> & lutparamset, int iovId, string tag) ;
-  int  writeToConfDB_TPGWeight(const  map<EcalLogicID, FEConfigWeightGroupDat> & lutgroup, const  map<EcalLogicID, FEConfigWeightDat> & lutdat, 
-			    int iovId, string tag) ;
-  int  writeToConfDB_TPGFgr(const  map<EcalLogicID, FEConfigFgrGroupDat> & lutgroup, const  map<EcalLogicID, FEConfigFgrDat> & lutdat, 
-			    const  map<EcalLogicID, FEConfigFgrParamDat> & fgrparamset,
-			    const  map<EcalLogicID, FEConfigFgrEETowerDat> & dataset3,  
-			    const  map<EcalLogicID, FEConfigFgrEEStripDat> & dataset4,
-			    int iovId, string tag) ;
-  int  writeToConfDB_Spike(const  map<EcalLogicID, FEConfigSpikeDat> & spikegroupset, string tag);
-  int  writeToConfDB_Delay(const  map<EcalLogicID, FEConfigTimingDat> & delaygroupset, string tag); // modif here 31/1/2011
-
-  int writeToConfDB_TPGSliding(const  map<EcalLogicID, FEConfigSlidingDat> & sliset, int iovId, string tag) ;
+  int  writeToConfDB_TPGPedestals(const  std::map<EcalLogicID, FEConfigPedDat> & pedset, int iovId, std::string tag) ;
+  int  writeToConfDB_TPGLinearCoef(const  std::map<EcalLogicID, FEConfigLinDat> & linset, 
+				   const  std::map<EcalLogicID, FEConfigLinParamDat> & linparamset, int iovId, std::string tag) ; 
+  int  writeToConfDB_TPGLUT(const  std::map<EcalLogicID, FEConfigLUTGroupDat> & lutgroup, const  std::map<EcalLogicID, FEConfigLUTDat> & lutdat, 
+			     const  std::map<EcalLogicID, FEConfigLUTParamDat> & lutparamset, int iovId, std::string tag) ;
+  int  writeToConfDB_TPGWeight(const  std::map<EcalLogicID, FEConfigWeightGroupDat> & lutgroup, const  std::map<EcalLogicID, FEConfigWeightDat> & lutdat, 
+			    int iovId, std::string tag) ;
+  int  writeToConfDB_TPGFgr(const  std::map<EcalLogicID, FEConfigFgrGroupDat> & lutgroup, const  std::map<EcalLogicID, FEConfigFgrDat> & lutdat, 
+			    const  std::map<EcalLogicID, FEConfigFgrParamDat> & fgrparamset,
+			    const  std::map<EcalLogicID, FEConfigFgrEETowerDat> & dataset3,  
+			    const  std::map<EcalLogicID, FEConfigFgrEEStripDat> & dataset4,
+			    int iovId, std::string tag) ;
+  int writeToConfDB_TPGSliding(const  std::map<EcalLogicID, FEConfigSlidingDat> & sliset, int iovId, std::string tag) ;
   
   void readFromConfDB_TPGPedestals(int iconf_req) ;
-  int readFromCondDB_Pedestals(map<EcalLogicID, MonPedestalsDat> & pedset, int runNb) ;
-  int writeToConfDB_TPGMain(int ped, int lin, int lut, int fgr, int sli, int wei, int spi, int tim, int bxt, int btt, string tag, int ver) ;
-
+  int readFromCondDB_Pedestals(std::map<EcalLogicID, MonPedestalsDat> & pedset, int runNb) ;
+  int writeToConfDB_TPGMain(int ped, int lin, int lut, int fgr, int sli, int wei, int bxt, int btt, std::string tag, int ver) ;
+  
   
  private:
   

@@ -50,7 +50,7 @@ public:
     bool offlineDQM_;
   int prescaleGlobalFactor_, minimumEvents_, numLumBlock_;
  
-  bool enableDQMClients_ , init_; 
+  bool useRollInfo_,enableDQMClients_ , init_; 
   std::string  prefixDir_;
   std::string  globalFolder_;
   std::vector<std::string>  clientList_;
