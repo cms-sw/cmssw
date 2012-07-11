@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: ak5JTA_cff.py,v 1.2 2010/02/17 17:47:49 wmtan Exp $
+# $Id: ak5JTA_cff.py,v 1.3 2012/01/13 21:11:04 srappocc Exp $
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi import * ##propagator
 
 from RecoJets.JetAssociationProducers.j2tParametersCALO_cfi import *
@@ -27,5 +27,6 @@ ak5JetExtender = cms.EDProducer("JetExtender",
     coneSize = cms.double(0.5)
 )
 
-ak5JTA = cms.Sequence(ak5JetTracksAssociatorAtVertex*ak5JetTracksAssociatorAtCaloFace*ak5JetTracksAssociatorExplicit*ak5JetExtender)
+ak5JTA = cms.Sequence(ak5JetTracksAssociatorAtVertex*ak5JetTracksAssociatorAtCaloFace*ak5JetExtender)
 
+ak5JTAExplicit = cms.Sequence(ak5JetTracksAssociatorExplicit)
