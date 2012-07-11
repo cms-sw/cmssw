@@ -141,6 +141,16 @@
   <use   name="boost_regex"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="EcalTPGLinearizationConstPyWrapper.cc" name="EcalTPGLinearizationConstPyInterface">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="CondTools/Ecal"/>
+  <use   name="boost"/>
+  <use   name="boost_filesystem"/>
+  <use   name="boost_python"/>
+  <use   name="boost_regex"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
 <library   file="EcalMappingElectronicsPyWrapper.cc" name="EcalMappingElectronicsPyInterface">
   <use   name="CondCore/Utilities"/>
   <use   name="CondFormats/EcalObjects"/>
