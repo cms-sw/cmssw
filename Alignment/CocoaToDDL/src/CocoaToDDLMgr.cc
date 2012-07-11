@@ -69,9 +69,8 @@ void CocoaToDDLMgr::writeHeader( ALIstring filename)
 void CocoaToDDLMgr::writeMaterials()
 {
   newSectPre_ma("");
-  static std::vector< OpticalObject* > optolist = Model::OptOList();
-  static std::vector< OpticalObject* >::const_iterator ite;
-  for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
+  auto optolist = Model::OptOList();
+  for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
     if( (*ite)->type() == "system" ) continue;
     CocoaMaterialElementary* mat = (*ite)->getMaterial();
     //-    std::cout << " mat of opto " << (*ite)->name() << " = " << mat->getName() << std::endl;
@@ -88,11 +87,10 @@ void CocoaToDDLMgr::writeSolids()
 {
   newSectPre_so("");
   
-  static std::vector< OpticalObject* > optolist = Model::OptOList();
-  static std::vector< OpticalObject* >::const_iterator ite,ite2;
-  for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
+  auto optolist = Model::OptOList();
+  for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
     bool alreadyWritten = false;
-    for(ite2 = optolist.begin(); ite2 != ite; ite2++ ){
+    for(auto ite2 = optolist.begin(); ite2 != ite; ite2++ ){
       if( (*ite)->shortName() == (*ite2)->shortName() ) {
 	alreadyWritten = true;
       }
@@ -111,11 +109,10 @@ void CocoaToDDLMgr::writeLogicalVolumes()
 {
   newSectPre_lv("");
   
-  static std::vector< OpticalObject* > optolist = Model::OptOList();
-  static std::vector< OpticalObject* >::const_iterator ite,ite2;
-  for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
+  auto optolist = Model::OptOList();
+  for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
     bool alreadyWritten = false;
-    for(ite2 = optolist.begin(); ite2 != ite; ite2++ ){
+    for(auto ite2 = optolist.begin(); ite2 != ite; ite2++ ){
       if( (*ite)->shortName() == (*ite2)->shortName() ) {
 	alreadyWritten = true;
       }
@@ -132,9 +129,8 @@ void CocoaToDDLMgr::writePhysicalVolumes()
 {
   newSectPre_pv("");
   
-  static std::vector< OpticalObject* > optolist = Model::OptOList();
-  static std::vector< OpticalObject* >::const_iterator ite;
-  for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
+  auto optolist = Model::OptOList();
+  for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
     if( (*ite)->type() == "system" ) continue;
     pv( *ite );
   }
@@ -164,9 +160,8 @@ void CocoaToDDLMgr::writeSpecPars()
 {
   newSectPre_specPar("");
   
-  static std::vector< OpticalObject* > optolist = Model::OptOList();
-  static std::vector< OpticalObject* >::const_iterator ite;
-  for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
+  auto optolist = Model::OptOList();
+  for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
     if( (*ite)->type() == "system" ) continue;
     specPar( *ite );
   }
@@ -687,7 +682,7 @@ void CocoaToDDLMgr::measurementsAsSpecPars()
   std::vector<ALIstring>::iterator site;
   std::multimap<OpticalObject*,Measurement*> optoMeasMap;
   for( mite = measlist.begin(); mite != measlist.end(); mite++ ) {
-    std::vector<OpticalObject*> optolist = (*mite)->OptOList();
+    auto optolist = (*mite)->OptOList();
     OpticalObject* opto = optolist[optolist.size()-1];
     optoMeasMap.insert( std::multimap<OpticalObject*,Measurement*>::value_type(opto, *mite) );
   }
@@ -734,9 +729,8 @@ void CocoaToDDLMgr::writeSpecParsCocoa()
   file_ << "<!--    Define volumes as COCOA objects --> " << std::endl
 	<< "  <SpecPar name=\"COCOA\"> " << std::endl;
 
-  static std::vector< OpticalObject* > optolist = Model::OptOList();
-  static std::vector< OpticalObject* >::const_iterator ite;
-  for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
+  auto optolist = Model::OptOList();
+  for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
     if( (*ite)->type() == "system" ) continue;
     file_ << "    <PartSelector path=\"/" << (*ite)->name() << "\"/> " << std::endl;
   }
