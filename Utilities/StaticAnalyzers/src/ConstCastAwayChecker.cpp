@@ -14,7 +14,8 @@ namespace clangcms
 
 
 void ConstCastAwayChecker::checkPreStmt(const clang::ExplicitCastExpr *CE,
-		clang::ento::CheckerContext &C) const {
+		clang::ento::CheckerContext &C) const 
+{
 	const clang::Expr *E = CE->getSubExpr();
 	clang::ASTContext &Ctx = C.getASTContext();
 	clang::QualType OrigTy = Ctx.getCanonicalType(E->getType());
