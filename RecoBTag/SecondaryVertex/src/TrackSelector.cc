@@ -28,7 +28,8 @@ TrackSelector::TrackSelector(const edm::ParameterSet &params) :
 	sip3dValMin(params.getParameter<double>("sip3dValMin")),
 	sip3dValMax(params.getParameter<double>("sip3dValMax")),
 	sip3dSigMin(params.getParameter<double>("sip3dSigMin")),
-	sip3dSigMax(params.getParameter<double>("sip3dSigMax"))
+	sip3dSigMax(params.getParameter<double>("sip3dSigMax")),
+	useVariableJTA_(params.getParameter<bool>("useVariableJTA"))
 {
 	std::string qualityClass =
 			params.getParameter<std::string>("qualityClass");
@@ -40,6 +41,16 @@ TrackSelector::TrackSelector(const edm::ParameterSet &params) :
 		selectQuality = true;
 		quality = reco::TrackBase::qualityByName(qualityClass);
 	}
+	varJTApars = {
+	  params.getParameter<double>("a_dR"),
+	  params.getParameter<double>("b_dR"),
+	  params.getParameter<double>("a_pT"),
+	  params.getParameter<double>("b_pT"),
+	  params.getParameter<double>("min_pT"),  
+	  params.getParameter<double>("max_pT"),
+	  params.getParameter<double>("min_pT_dRcut"),  
+	  params.getParameter<double>("max_pT_dRcut"),
+	  params.getParameter<double>("max_pT_trackPTcut") };
 }
 
 bool
@@ -48,23 +59,34 @@ TrackSelector::operator () (const Track &track,
                             const Jet &jet,
                             const GlobalPoint &pv) const
 {
-	return (!selectQuality || track.quality(quality)) &&
-	       (minPixelHits <= 0 ||
-	        track.hitPattern().numberOfValidPixelHits() >= (int)minPixelHits) &&
-	       (minTotalHits <= 0 ||
-	        track.hitPattern().numberOfValidHits() >= (int)minTotalHits) &&
-	       track.pt() >= minPt &&
-	       track.normalizedChi2() < maxNormChi2 &&
-	       VectorUtil::DeltaR(jet.momentum(),
-	                          track.momentum()) < maxJetDeltaR &&
-	       std::abs(ipData.distanceToJetAxis.value()) <= maxDistToAxis &&
-	       (ipData.closestToJetAxis - pv).mag() <= maxDecayLen &&
-	       ipData.ip2d.value()        >= sip2dValMin &&
-	       ipData.ip2d.value()        <= sip2dValMax &&
-	       ipData.ip2d.significance() >= sip2dSigMin &&
-	       ipData.ip2d.significance() <= sip2dSigMax &&
-	       ipData.ip3d.value()        >= sip3dValMin &&
-	       ipData.ip3d.value()        <= sip3dValMax &&
-	       ipData.ip3d.significance() >= sip3dSigMin &&
-	       ipData.ip3d.significance() <= sip3dSigMax;
+
+ 
+  bool jtaPassed = false;
+  if (useVariableJTA_) {
+    jtaPassed = TrackIPTagInfo::passVariableJTA( varJTApars,
+					jet.pt(),track.pt(),
+					VectorUtil::DeltaR(jet.momentum(),track.momentum()));
+  }
+  else  jtaPassed = true;
+
+  return (!selectQuality || track.quality(quality)) &&
+    (minPixelHits <= 0 ||
+     track.hitPattern().numberOfValidPixelHits() >= (int)minPixelHits) &&
+    (minTotalHits <= 0 ||
+     track.hitPattern().numberOfValidHits() >= (int)minTotalHits) &&
+    track.pt() >= minPt &&
+    track.normalizedChi2() < maxNormChi2 &&
+    VectorUtil::DeltaR(jet.momentum(),
+		       track.momentum()) < maxJetDeltaR &&
+    jtaPassed &&
+    std::abs(ipData.distanceToJetAxis.value()) <= maxDistToAxis &&
+    (ipData.closestToJetAxis - pv).mag() <= maxDecayLen &&
+    ipData.ip2d.value()        >= sip2dValMin &&
+    ipData.ip2d.value()        <= sip2dValMax &&
+    ipData.ip2d.significance() >= sip2dSigMin &&
+    ipData.ip2d.significance() <= sip2dSigMax &&
+    ipData.ip3d.value()        >= sip3dValMin &&
+    ipData.ip3d.value()        <= sip3dValMax &&
+    ipData.ip3d.significance() >= sip3dSigMin &&
+    ipData.ip3d.significance() <= sip3dSigMax;
 }
