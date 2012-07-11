@@ -137,3 +137,58 @@ if(mode == IP3DSig || mode == IP2DSig ||mode ==  IP3DValue || mode == IP2DValue)
  }
  return result;
 }
+
+bool TrackIPTagInfo::passVariableJTA(const variableJTAParameters &params, double jetpT, double trackpT, double jettrackdR) {
+
+  bool pass = false;
+
+  // intermediate pt range (between min_pT and max_pT), apply variable JTA !
+  if ( jetpT > params.min_pT && jetpT < params.max_pT ) {
+    double deltaRfunction_highpt = -jetpT * params.a_dR + params.b_dR;
+    double ptfunction_highpt = jetpT * params.a_pT + params.b_pT;
+    
+    if (jettrackdR < deltaRfunction_highpt
+	&&
+	trackpT > ptfunction_highpt) 
+      pass = true;
+    
+    //  cout << "TrackIPTagInfo: passVariableJTA: dR and TrackpT " << jettrackdR << " " << trackpT << endl;
+    
+    //high pt range, apply fixed default cuts
+  }else if (jetpT > params.max_pT ) {
+    if (jettrackdR < params.max_pT_dRcut
+	&&
+	trackpT > params.max_pT_trackPTcut)
+      pass = true;
+
+    // low pt range, apply fixed default cuts
+  }else {
+    if (jettrackdR < params.min_pT_dRcut)
+      pass = true;
+  }
+  
+  return pass;
+}
+
+std::vector<bool> TrackIPTagInfo::variableJTA(const variableJTAParameters &params) const{
+  
+  std::vector<bool> result;
+
+  //Jet parameters
+  double jetpT = jet()->pt();
+  math::XYZVector jetDir = jet()->momentum().Unit();
+
+  for(size_t  i = 0 ; i<  m_selectedTracks.size();  i++) {
+    
+    //Track parameters
+    TrackRef track = m_selectedTracks[i];    
+    double trackpT = track->pt();
+    math::XYZVector trackMom = track->momentum();
+
+    // do the math in passVariableJTA
+    result.push_back(passVariableJTA( params, jetpT, trackpT, ROOT::Math::VectorUtil::DeltaR(trackMom, jetDir)));
+
+  }  
+  
+  return result;
+}

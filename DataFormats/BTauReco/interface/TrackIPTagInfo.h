@@ -23,6 +23,12 @@ public:
     Measurement1D distanceToGhostTrack;
     float ghostTrackWeight;
   };
+  struct variableJTAParameters {
+    double a_dR, b_dR, a_pT, b_pT;
+    double min_pT,  max_pT;
+    double min_pT_dRcut,  max_pT_dRcut;
+    double max_pT_trackPTcut;
+  };
   
   TrackIPTagInfo(
     const std::vector<TrackIPData> & ipData,
@@ -81,6 +87,14 @@ public:
    (according to the specified mode)
   */
   std::vector<size_t> sortedIndexesWithCut(float cut, SortCriteria mode = IP3DSig) const;
+
+  /**
+   variable jet-to track association:
+   returns vector of bool, indicating for each track whether it passed 
+   the variable JTA.
+  */
+  std::vector<bool> variableJTA(const variableJTAParameters &params) const;
+  static bool passVariableJTA(const variableJTAParameters &params, double jetpt, double trackpt, double jettrackdr) ;
 
   /**
    Return the list of track index sorted by mode
