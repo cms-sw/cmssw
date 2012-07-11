@@ -23,7 +23,7 @@ add_definitions (-D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS)
 add_definitions (-D_GNU_SOURCE -DHAVE_CLANG_CONFIG_H)
 
 # omit reports for some CMS specific cases
-add_definitions ( -DTHREAD_CHECKS_USE_CMS_EXCPEPTIONS )
+add_definitions ( -DTHREAD_CHECKS_USE_CMS_EXCEPTIONS )
 
 # omit reports found in the system headers
 add_definitions ( -DTHREAD_CHECKS_NO_REPORT_SYSTEM )
@@ -37,6 +37,7 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-common -Woverloaded-virtual -Wcast
 
 set (CMAKE_MODULE_LINKER_FLAGS "-Wl,-flat_namespace -Wl,-undefined -Wl,suppress")
 
+# not used because they will be available anyhow if the plugin is loaded into a clang host application
 set (LLVM_LIBS
 #	LLVMJIT
 #	LLVMX86CodeGen
@@ -95,6 +96,7 @@ macro(add_clang_plugin name)
 		PREFIX "")
 endmacro(add_clang_plugin)
 
+# not used because they will be available anyhow if the plugin is loaded into a clang host application
 set (CLANG_LIBS
 #	clang
 #	clangFrontend
