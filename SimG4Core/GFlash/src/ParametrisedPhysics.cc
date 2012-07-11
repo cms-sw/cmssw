@@ -13,12 +13,16 @@
 
 
 ParametrisedPhysics::ParametrisedPhysics(std::string name, const edm::ParameterSet & p) :
-  G4VPhysicsConstructor(name), theParSet(p) {}
+  G4VPhysicsConstructor(name), theParSet(p) 
+{
+  theEMShowerModel = 0;
+  theHadronShowerModel = 0;
+}
 
 ParametrisedPhysics::~ParametrisedPhysics() {
-  if(theParSet.getParameter<bool>("GflashEMShowerModel") && theEMShowerModel) 
+  //if(theParSet.getParameter<bool>("GflashEMShowerModel") && theEMShowerModel) 
     delete theEMShowerModel;
-  if(theParSet.getParameter<bool>("GflashHadronShowerModel") && theHadronShowerModel) 
+    //if(theParSet.getParameter<bool>("GflashHadronShowerModel") && theHadronShowerModel) 
     delete theHadronShowerModel;
 }
 
@@ -47,24 +51,39 @@ void ParametrisedPhysics::ConstructProcess() {
   while ((*theParticleIterator)()) {
     G4ParticleDefinition * particle = theParticleIterator->value();
     G4ProcessManager * pmanager = particle->GetProcessManager();
-    pmanager->AddProcess(theFastSimulationManagerProcess, -1, -1, 1);
+    G4String pname = particle->GetParticleName();
+    if(pname == "e-" || pname == "e+") {
+      pmanager->AddProcess(theFastSimulationManagerProcess, -1, -1, 1);
+    }
   }
 
   // GflashEnvelop definition as CaloRegion which includes EcalRegion & HcalRegion
-  G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("CaloRegion");
+  G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("EcalRegion");
+  //  G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("CaloRegion");
   if(aRegion == 0){
     std::cout << "CaloRegion is not defined !!!" << std::endl;
     std::cout << "This means that GFlash will not be turned on." << std::endl;
     std::cout << "Take a look at cmsGflashGeometryXML.cfi if it includes gflashCaloProdCuts.xml." << std::endl;
+    
   }
 
   //Electromagnetic Shower Model
   if(theParSet.getParameter<bool>("GflashEMShowerModel")) {
-    theEMShowerModel  = new GflashEMShowerModel("GflashEMShowerModel",aRegion,theParSet);
+    theEMShowerModel = 
+      new GflashEMShowerModel("GflashEMShowerModel",aRegion,theParSet);
   }    
 
+  aRegion = G4RegionStore::GetInstance()->GetRegion("HcalRegion");
+  //  G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("CaloRegion");
+  if(aRegion == 0){
+    std::cout << "CaloRegion is not defined !!!" << std::endl;
+    std::cout << "This means that GFlash will not be turned on." << std::endl;
+    std::cout << "Take a look at cmsGflashGeometryXML.cfi if it includes gflashCaloProdCuts.xml." << std::endl;
+    
+  }
   //Hadronic Shower Model
   if(theParSet.getParameter<bool>("GflashHadronShowerModel")) {
-    theHadronShowerModel = new GflashHadronShowerModel("GflashHadronShowerModel",aRegion,theParSet);
+    theHadronShowerModel = 
+      new GflashHadronShowerModel("GflashHadronShowerModel",aRegion,theParSet);
   }
 }

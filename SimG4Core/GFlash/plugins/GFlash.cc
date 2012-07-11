@@ -3,6 +3,7 @@
 #include "SimG4Core/GFlash/interface/HadronPhysicsQGSP_WP.h"
 #include "SimG4Core/GFlash/interface/HadronPhysicsQGSP_BERT_WP.h"
 #include "SimG4Core/GFlash/interface/HadronPhysicsQGSPCMS_FTFP_BERT_WP.h"
+#include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSPCMS_FTFP_BERT.h"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics92.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -60,7 +61,18 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
 
     // Hadron Physics
     G4bool quasiElastic=true;
+    RegisterPhysics( new HadronPhysicsQGSPCMS_FTFP_BERT("hadron",quasiElastic));   
+    // Stopping Physics
+    RegisterPhysics( new G4QStoppingPhysics("stopping"));
 
+    // Ion Physics
+    RegisterPhysics( new G4IonPhysics("ion"));
+
+    // Neutron tracking cut
+    if (tracking) 
+      RegisterPhysics( new G4NeutronTrackingCut("Neutron tracking cut", ver));
+
+    /*
     if(hadronPhysics=="QGSP_FTFP_BERT") {
       RegisterPhysics( new HadronPhysicsQGSPCMS_FTFP_BERT_WP("hadron",quasiElastic)); 
     }
@@ -84,6 +96,7 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
     // Neutron tracking cut
     if (tracking) 
       RegisterPhysics( new G4NeutronTrackingCut("Neutron tracking cut", ver));
+    */
   }
 
   // Monopoles
