@@ -34,9 +34,8 @@ public:
   DOMDocument* createDocument();  
   void writeDocument(DOMDocument* doc, const char* xmlFile);
 
-  DOMElement* createElement(DOMDocument* doc, DOMElement* parent, char* name);
-  DOMElement* createElement(DOMDocument* doc, DOMElement* parent, char* name, char* value);
-  DOMElement* createElement(DOMDocument* doc, DOMElement* parent, char* name, const char* value);
+  DOMElement* createElement(DOMDocument* doc, DOMElement* parent, const char* name);
+  DOMElement* createElement(DOMDocument* doc, DOMElement* parent, const char* name, const char* value);
   DOMElement* createIOV(DOMDocument* doc, DOMElement*  parent,
 			unsigned long long fIovBegin, unsigned long long fIovEnd);
   DOMElement* createTag(DOMDocument* doc, DOMElement*  parent,
