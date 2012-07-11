@@ -17,17 +17,16 @@ MuonRpcFrameRotation::~MuonRpcFrameRotation(){
   delete g4numbering;
 }
 
-Local3DPoint MuonRpcFrameRotation::transformPoint(Local3DPoint & point,G4Step * aStep=0) const {
-  if (aStep) {
-    //check if endcap
-    MuonBaseNumber num = g4numbering->PhysicalVolumeToBaseNumber(aStep);
-    bool endcap_muon = (num.getSuperNo(theRegion)!=1);
-    if (endcap_muon){
-      return Local3DPoint(point.x(),point.z(),-point.y());
-    } else {
-      return point; 
-    }
+Local3DPoint MuonRpcFrameRotation::transformPoint(const Local3DPoint & point,const G4Step * aStep=0) const {
+  if (!aStep)
+    return Local3DPoint(0.,0.,0.);  
+
+  //check if endcap
+  MuonBaseNumber num = g4numbering->PhysicalVolumeToBaseNumber(aStep);
+  bool endcap_muon = (num.getSuperNo(theRegion)!=1);
+  if (endcap_muon){
+    return Local3DPoint(point.x(),point.z(),-point.y());
   } else {
-    return Local3DPoint(0.,0.,0.);
+    return point; 
   }
 }

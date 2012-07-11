@@ -18,7 +18,7 @@
 class MuonEndcapFrameRotation : public MuonFrameRotation {
  public:
   virtual ~MuonEndcapFrameRotation() {};
-  virtual Local3DPoint transformPoint(Local3DPoint &,G4Step *) const;
+  virtual Local3DPoint transformPoint(const Local3DPoint &,const G4Step *) const;
  private:
 };
 
