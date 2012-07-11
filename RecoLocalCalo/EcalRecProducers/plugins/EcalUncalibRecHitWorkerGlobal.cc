@@ -344,6 +344,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 				
                 } else {
                                 ratioMethod_barrel_.init( *itdg, pedVec, pedRMSVec, gainRatios );
+				ratioMethod_barrel_.fixMGPAslew(*itdg);
                                 ratioMethod_barrel_.computeTime( EBtimeFitParameters_, EBtimeFitLimits_, EBamplitudeFitParameters_ );
                                 ratioMethod_barrel_.computeAmplitude( EBamplitudeFitParameters_);
                                 EcalUncalibRecHitRatioMethodAlgo<EBDataFrame>::CalculatedRecHit crh = ratioMethod_barrel_.getCalculatedRecHit();

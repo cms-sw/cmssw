@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_PFCandProducer_ObjectSelector
-#define PhysicsTools_PFCandProducer_ObjectSelector
+#ifndef CommonTools_ParticleFlow_ObjectSelector
+#define CommonTools_ParticleFlow_ObjectSelector
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"

@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2011/01/24 14:23:01 $
- *  $Revision: 1.36 $
+ *  $Date: 2011/05/28 13:30:42 $
+ *  $Revision: 1.41 $
  *
  *  \author Martin Grunewald
  *
@@ -53,7 +53,7 @@ class HLTConfigProvider {
 
   /// process name
   const std::string& processName() const {
-    return processName_;
+    return hltConfigData_->processName();
   }
   /// initialised?
   const bool inited() const {
@@ -101,6 +101,12 @@ class HLTConfigProvider {
   const std::vector<std::string>& moduleLabels(const std::string& trigger) const {
     return hltConfigData_->moduleLabels(trigger);
   }
+  const std::vector<std::string>& saveTagsModules(unsigned int trigger) const {
+    return hltConfigData_->saveTagsModules(trigger);
+  }
+  const std::vector<std::string>& saveTagsModules(const std::string& trigger) const {
+    return hltConfigData_->saveTagsModules(trigger);
+  }
   const std::string& moduleLabel(unsigned int trigger, unsigned int module) const {
     return hltConfigData_->moduleLabel(trigger,module);
   }
@@ -134,6 +140,11 @@ class HLTConfigProvider {
   /// ParameterSet of module
   const edm::ParameterSet& modulePSet(const std::string& module) const {
     return hltConfigData_->modulePSet(module);
+  }
+
+  /// Is module an L3 filter (ie, tracked saveTags=true)
+  const bool saveTags(const std::string& module) const {
+    return hltConfigData_->saveTags(module);
   }
 
 
@@ -237,10 +248,14 @@ class HLTConfigProvider {
     return hltConfigData_->prescaleTable();
   }
 
+  /// regexp processing
+  static const std::vector<std::string> matched(const std::vector<std::string>& inputs, const std::string& pattern);
+  static const std::string removeVersion(const std::string& trigger);
+  static const std::vector<std::string> restoreVersion(const std::vector<std::string>& inputs, const std::string& trigger);
 
  private:
 
-  void getDataFrom(const edm::ParameterSetID& iID, const std::string& iProcessName );
+  void getDataFrom(const edm::ParameterSetID& iID);
   void init(const edm::ProcessHistory& iHistory, const std::string& processName);
   void init(const std::string& processName);
   void clear();

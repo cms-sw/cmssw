@@ -117,26 +117,6 @@ public:
 
  
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
-  TrajectoryMeasurement( TrajectoryMeasurement const & rh) :
-    theFwdPredictedState(rh.theFwdPredictedState),
-    theBwdPredictedState(rh.theBwdPredictedState),
-    theUpdatedState(rh.theUpdatedState),
-    theRecHit(rh.theRecHit),
-    theEstimate(rh.theEstimate), theLayer(rh.theLayer) {}
-                        
-  TrajectoryMeasurement & operator=( TrajectoryMeasurement const & rh) {   
-    theFwdPredictedState = rh.theFwdPredictedState;   
-    theBwdPredictedState = rh.theBwdPredictedState;
-    theUpdatedState = rh.theUpdatedState;
-    theRecHit = rh.theRecHit;
-    theEstimate=rh.theEstimate;
-    theLayer=rh.theLayer;
-
-    return *this;
-
-  }
-
-
   TrajectoryMeasurement( TrajectoryMeasurement && rh) :
     theFwdPredictedState(std::move(rh.theFwdPredictedState)),
     theBwdPredictedState(std::move(rh.theBwdPredictedState)),

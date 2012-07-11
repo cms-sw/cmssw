@@ -16,22 +16,19 @@
 //
 //
 
-
-// system include files
-#include <memory>
-#include <vector>
-#include <algorithm>
-
 // user include files
+#include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "DataFormats/Provenance/interface/EventID.h"
+
+// system include files
+#include <algorithm>
+#include <memory>
+#include <vector>
 
 //
 // class decleration
@@ -96,9 +93,9 @@ EventIDChecker::~EventIDChecker() {
 
 namespace {
    struct CompareWithoutLumi {
-      CompareWithoutLumi( const edm::EventID& iThis):
-      m_this(iThis) {}
-      bool operator()(const edm::EventID& iOther) {
+      CompareWithoutLumi(edm::EventID const& iThis) : m_this(iThis) {
+      }
+      bool operator()(edm::EventID const& iOther) {
          return m_this.run() == iOther.run() && m_this.event() == iOther.event();
       }
       edm::EventID m_this;
@@ -107,29 +104,28 @@ namespace {
 
 // ------------ method called to for each event  ------------
 void
-EventIDChecker::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-   if(mustSearch_) { 
-      if( 0 == numberOfEventsLeftBeforeSearch_) {
+EventIDChecker::analyze(edm::Event const& iEvent, edm::EventSetup const&) {
+   if(mustSearch_) {
+      if(0 == numberOfEventsLeftBeforeSearch_) {
          numberOfEventsLeftBeforeSearch_ = multiProcessSequentialEvents_;
          //the event must be after the last event in our list since multicore doesn't go backwards
-         std::vector<edm::EventID>::iterator itFind= std::find_if(ids_.begin()+index_,ids_.end(), CompareWithoutLumi(iEvent.id()));
+         std::vector<edm::EventID>::iterator itFind= std::find_if(ids_.begin()+index_, ids_.end(), CompareWithoutLumi(iEvent.id()));
          if(itFind == ids_.end()) {
             throw cms::Exception("MissedEvent") << "The event " << iEvent.id() << "is not in the list.\n";
          }
          index_ = itFind-ids_.begin();
-      } 
+      }
       --numberOfEventsLeftBeforeSearch_;
    }
 
    if(index_ >= ids_.size()) {
-      throw cms::Exception("TooManyEvents")<<"Was passes "<<ids_.size()<<" EventIDs but have processed more events than that\n";
+      throw cms::Exception("TooManyEvents") << "Was passes " << ids_.size() << " EventIDs but have processed more events than that\n";
    }
    if(iEvent.id().run() != ids_[index_].run() || iEvent.id().event() != ids_[index_].event()) {
       throw cms::Exception("WrongEvent") << "Was expecting event " << ids_[index_] << " but was given " << iEvent.id() << "\n";
    }
    ++index_;
 }
-
 
 // ------------ method called once each job just before starting event loop  ------------
 void
@@ -151,7 +147,7 @@ EventIDChecker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 }
 
 void
-EventIDChecker::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
+EventIDChecker::postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {
    mustSearch_ = true;
 }
 

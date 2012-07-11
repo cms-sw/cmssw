@@ -19,6 +19,8 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h" 
+#include "DataFormats/EgammaTrackReco/interface/ConversionTrack.h" 
+#include "DataFormats/EgammaTrackReco/interface/ConversionTrackFwd.h" 
 
 
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -44,7 +46,9 @@ namespace {
     reco::TrackCaloClusterPtrAssociation v10;
     edm::Wrapper<edm::ValueMap<reco::CaloClusterPtr> > m10;
 
-     
+    reco::ConversionTrack v11;
+    edm::Wrapper<reco::ConversionTrackCollection> m11;    
+    
   };
 }
 

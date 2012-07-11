@@ -345,10 +345,8 @@ void LMFCorrCoefDat::checkTriplets(int logic_id, const LMFSextuple &s,
     }
     */
   } else {
-    /* This check too must be updated
     std::cout << ":-( Can't find crystal " << logic_id << " in last map"
 	      << std::endl;
-    */
   }
 }
 
@@ -382,24 +380,20 @@ LMFCorrCoefDat::getCorrections(const Tm &t, const Tm &t2, int max) {
   std::string sql = "SELECT * FROM (SELECT LOGIC_ID, T1, T2, T3, P1, P2, P3, "
     "SEQ_ID FROM LMF_LMR_SUB_IOV JOIN LMF_CORR_COEF_DAT ON "  
     "LMF_CORR_COEF_DAT.LMR_SUB_IOV_ID = LMF_LMR_SUB_IOV.LMR_SUB_IOV_ID "
-    "WHERE T1 > TO_DATE(:1, 'YYYY-MM-DD HH24:MI:SS') AND "
-    "T1 <= TO_DATE(:2, 'YYYY-MM-DD HH24:MI:SS') ORDER BY T1) WHERE ROWNUM <= :3";
+    "WHERE T1 > :1 AND T1 <= :2 ORDER BY T1) WHERE ROWNUM <= :3";
   try {
     DateHandler dh(m_env, m_conn);
-    const int PREFETCH = 10000;
     oracle::occi::Statement * stmt = m_conn->createStatement();
     stmt->setSQL(sql);
-    int toFetch = (max * (61200 + 14648));
-    stmt->setString(1, t.str());
-    stmt->setString(2, t2.str());
+    int toFetch = max * (61200 + 14648);
+    stmt->setDate(1, dh.tmToDate(t));
+    stmt->setDate(2, dh.tmToDate(t2));
     stmt->setInt(3, toFetch);
-    stmt->setPrefetchRowCount(PREFETCH);
+    stmt->setPrefetchRowCount(toFetch);
     if (m_debug) {
       std::cout << "[LMFCorrCoefDat::getCorrections] executing query" 
 		<< std::endl << sql << std::endl 
-		<< "Parameters 1 = " << t.str() << " 2 = " 
-		<< t2.str() << " 3 = " << toFetch << std::endl
-		<< "Prefetching " << PREFETCH << " rows " 
+		<< "Prefetching " << toFetch << " rows " 
 		<< std::endl << std::flush;
     }
     oracle::occi::ResultSet *rset = stmt->executeQuery();

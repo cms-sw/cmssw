@@ -18,6 +18,7 @@
 #include <utility>
 #include <vector>
 
+class SeedComparitor;
 
 class PixelTripletHLTGenerator : public HitTripletGeneratorFromPairAndLayers {
 
@@ -26,7 +27,7 @@ typedef CombinedHitTripletGenerator::LayerCacheType       LayerCacheType;
 public:
   PixelTripletHLTGenerator( const edm::ParameterSet& cfg); 
 
-  virtual ~PixelTripletHLTGenerator() { delete thePairGenerator; }
+  virtual ~PixelTripletHLTGenerator();
 
   virtual void init( const HitPairGenerator & pairs,
       const std::vector<ctfseeding::SeedingLayer> & layers, LayerCacheType* layerCache);
@@ -53,6 +54,8 @@ private:
   bool useMScat;
   bool useBend;
   float dphi;
+  SeedComparitor * theComparitor;
+
 };
 #endif
 

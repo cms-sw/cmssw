@@ -24,6 +24,5 @@
 <use   name="TrackingTools/PatternTools"/>
 <use   name="boost"/>
 <use   name="CLHEP"/>
-<export>
-  <lib   name="DQMRPCMonitorDigi"/>
-</export>
+
+

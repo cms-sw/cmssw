@@ -4,7 +4,7 @@ import os
 usage="--list"
 parser = optparse.OptionParser(usage)
 parser.add_option("--GT")
-parser.add_option("--TLR",default="--customise Configuration/GlobalRuns/reco_TLR_%s")
+parser.add_option("--TLR",default="--customise Configuration/DataProcessing/RecoTLR")
 parser.add_option("--options",default="")
 parser.add_option("--output",default="RECO,AOD,DQM")
 parser.add_option("--rel",default="39X")
@@ -14,12 +14,12 @@ parser.add_option("--rel",default="39X")
 com='cmsDriver.py reco -s RAW2DIGI,L1Reco,RECO%s,DQM%s  --data --magField AutoFromDBCurrent --scenario %s --datatier %s --eventcontent %s %s%s --no_exec --python_filename=rereco_%s%s.py --conditions %s '+options.options
 
 #collision config no Alca
-os.system(com%('','','pp',options.output,options.output,options.TLR%(options.rel,),'.customisePPData','','pp',options.GT))
+os.system(com%('','','pp',options.output,options.output,options.TLR,'.customisePPData','','pp',options.GT))
 
 #cosmics config without Alca
-os.system(com%('','','cosmics',options.output,options.output,options.TLR%(options.rel,),'.customiseCosmicData','','cosmics',options.GT))
+os.system(com%('','','cosmics',options.output,options.output,options.TLR,'.customiseCosmicData','','cosmics',options.GT))
 
-from Configuration.PyReleaseValidation.autoAlca import autoAlca
+from Configuration.AlCa.autoAlca import autoAlca
 for PD in autoAlca:
     recoSpec=''
     scenario='pp'
@@ -33,6 +33,6 @@ for PD in autoAlca:
         recoSpec=':reconstruction_HcalNZS'
         output="RECO,DQM"
 
-    os.system(com%(recoSpec,',ALCA:'+autoAlca[PD],scenario,output,output,options.TLR%(options.rel,),customise,PD+'_',scenario,options.GT))
+    os.system(com%(recoSpec,',ALCA:'+autoAlca[PD],scenario,output,output,options.TLR,customise,PD+'_',scenario,options.GT))
 
 

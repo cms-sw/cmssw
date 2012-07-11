@@ -23,6 +23,7 @@ class L1TrackFit {
     GlobalVector resultMomentum;
     GlobalPoint resultVertex;
     GlobalPoint resultAxis;
+    std::vector<double> resultChi2;
 
   public:
     L1TrackFit() {
@@ -31,14 +32,16 @@ class L1TrackFit {
       resultMomentum = GlobalVector(0.,0.,0.);
       resultVertex = GlobalPoint(0.,0.,0.);
       resultAxis = GlobalPoint(0.,0.,0.);
+      resultChi2.clear();
     }
     
-    L1TrackFit(double aCharge, double aRadius, GlobalVector aMomentum, GlobalPoint aVertex, GlobalPoint aAxis) {
+    L1TrackFit(double aCharge, double aRadius, GlobalVector aMomentum, GlobalPoint aVertex, GlobalPoint aAxis, std::vector<double> aChi2) {
       resultCharge = aCharge;
       resultRadius = aRadius;
       resultMomentum = aMomentum;
       resultVertex = aVertex;
       resultAxis = aAxis;
+      resultChi2 = aChi2;
     }    
     
     double getCharge() const {
@@ -60,6 +63,23 @@ class L1TrackFit {
     GlobalPoint getAxis() const {
       return resultAxis;    
     }
+    
+    double getTransChi2() const {
+      return resultChi2.at(0);
+    }
+
+    double getNormTransChi2() const {
+      return resultChi2.at(1);
+    }
+
+    double getLongChi2() const {
+      return resultChi2.at(2);
+    }
+
+    double getNormLongChi2() const {
+      return resultChi2.at(3);
+    }
+
 };
 
 }

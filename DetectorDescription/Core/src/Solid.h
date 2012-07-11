@@ -3,12 +3,18 @@
 
 #include <iosfwd>
 #include <vector>
+// #include <utility>
+// #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
+
+// class DDSolid;
 
 namespace DDI {
   
   class Solid
   {
+  
+    //   friend class DDSolid;
   public:
   
     Solid() : shape_(dd_not_init) { }
@@ -23,6 +29,9 @@ namespace DDI {
     
     DDSolidShape shape() const { return shape_; }
     
+    // bool boolean() const { IMPLEMENTATION MISSING }
+    
+    // DDSolid::Composites comp IMPLEMENTATION MISSING
     virtual void stream(std::ostream &) const;
     
     void setParameters(std::vector<double> const & p) { p_ = p;}
@@ -31,6 +40,7 @@ namespace DDI {
     DDSolidShape shape_;
     std::vector<double> p_; 
   };
+  
 }
 
 #endif // DDI_Solid_h

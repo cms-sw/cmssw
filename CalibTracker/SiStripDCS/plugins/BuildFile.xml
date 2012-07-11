@@ -8,8 +8,6 @@
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/SiStripObjects"/>
-<use   name="DQM/SiStripCommon"/>
-<use   name="CommonTools/TrackerMap"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="OnlineDB/SiStripConfigDb"/>
 <use   name="CalibTracker/SiStripDCS"/>

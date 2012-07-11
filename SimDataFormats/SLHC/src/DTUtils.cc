@@ -1,3 +1,4 @@
+#ifdef SLHC_DT_TRK_DFENABLE
 #include <iostream>
 #include <sstream>
 #include <math.h>
@@ -44,3 +45,4 @@ char* biny (int Value, bool truncated_on_the_left , size_t wordSize) {
   return FinalText;
 }
 
+#endif

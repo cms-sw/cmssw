@@ -262,9 +262,13 @@ class SiPixelDigitizerAlgorithm  {
 
     float theThresholdInE_FPix;  // Pixel threshold in electrons FPix.
     float theThresholdInE_BPix;  // Pixel threshold in electrons BPix.
+    //Carlotta  //--CPC: someone change
+    float theThresholdInE_BPix_L1;
 
     double theThresholdSmearing_FPix;
     double theThresholdSmearing_BPix;
+    //Carlotta: inly if you also want different smearing il L1
+    //double theThresholdSmearing_BPix_L1;
 
     double electronsPerVCAL;          // for electrons - VCAL conversion
     double electronsPerVCAL_Offset;   // in misscalibrate()
@@ -379,7 +383,7 @@ class SiPixelDigitizerAlgorithm  {
        // access to the gain calibration payloads in the db. Only gets initialized if check_dead_pixels_ is set to true.
     SiPixelGainCalibrationOfflineSimService * theSiPixelGainCalibrationService_;    
     float missCalibrate(int col, int row, float amp) const;  
-    LocalVector DriftDirection(float LoAng);
+    LocalVector DriftDirection();
 
     void module_killing_conf(); // remove dead modules using the list in the configuration file PixelDigi_cfi.py
     void module_killing_DB();  // remove dead modules uisng the list in the DB
@@ -395,6 +399,8 @@ class SiPixelDigitizerAlgorithm  {
     // Threshold gaussian smearing:
     CLHEP::RandGaussQ *smearedThreshold_FPix_;
     CLHEP::RandGaussQ *smearedThreshold_BPix_;
+    //Carlotta
+    CLHEP::RandGaussQ *smearedThreshold_BPix_L1_;
     
     CLHEP::RandGaussQ *smearedChargeDistribution_ ;
     

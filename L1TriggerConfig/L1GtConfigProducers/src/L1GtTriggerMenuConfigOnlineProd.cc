@@ -961,8 +961,6 @@ L1GtConditionType L1GtTriggerMenuConfigOnlineProd::strToEnumCondType(const std::
         return Type2s;
     } else if (strType == "2wsc") {
         return Type2wsc;
-    } else if (strType == "2cor") {
-        return Type2cor;
     } else if (strType == "3s") {
         return Type3s;
     } else if (strType == "4s") {
@@ -1660,9 +1658,6 @@ void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCon
 
     correlationCond.setObjectType(objType);
 
-    // irrelevant, it is set for each subcondition
-    correlationCond.setCondGEq(condDB.condGEq);
-
     // get chip number list, eliminate duplicates
     std::list<int> chipList = listChipNumber(condDB.cond);
     chipList.sort();
@@ -1681,7 +1676,7 @@ void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCon
         // sub-conditions (all have the same condGEq as the correlation condition).
         switch (gtObj) {
             case Mu: {
-                subcondCategory[iObj] = CondMuon;
+                subcondCategory.push_back(CondMuon);
 
                 // temporary storage of the parameters
                 std::vector<L1GtMuonTemplate::ObjectParameter> objParameter(1);
@@ -1695,7 +1690,7 @@ void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCon
                     fillMuonObjectParameter(condDB.objectParameter2FK, objParameter[0]);
                 }
 
-                L1GtMuonTemplate::CorrelationParameter corrPar; //  dummy, not needed for correlation conditions
+                L1GtMuonTemplate::CorrelationParameter corrPar; //  dummy
 
                 L1GtMuonTemplate subcond(subcondName, Type1s);
                 subcond.setCondGEq(condDB.condGEq);
@@ -1708,11 +1703,11 @@ void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCon
 
                     subcond.setCondChipNr(*itChip);
 
-                    // no check for uniqueness - done by DB
-                    ( m_corMuonTemplate[*itChip] ).push_back(subcond);
-
                     // index
                     subcondIndex[iObj] = ( m_corMuonTemplate[*itChip] ).size() - 1;
+
+                    // no check for uniqueness - done by DB
+                    ( m_corMuonTemplate[*itChip] ).push_back(subcond);
 
                     if (m_isDebugEnabled) {
                         LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Adding condition "
@@ -1732,7 +1727,7 @@ void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCon
             case ForJet:
             case TauJet: {
 
-                subcondCategory[iObj] = CondCalo;
+                subcondCategory.push_back(CondCalo);
 
                 // temporary storage of the parameters
                 std::vector<L1GtCaloTemplate::ObjectParameter> objParameter(1);
@@ -1759,11 +1754,11 @@ void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCon
 
                     subcond.setCondChipNr(*itChip);
 
-                    // no check for uniqueness - done by DB
-                    ( m_corCaloTemplate[*itChip] ).push_back(subcond);
-
                     // index
                     subcondIndex[iObj] = ( m_corCaloTemplate[*itChip] ).size() - 1;
+
+                    // no check for uniqueness - done by DB
+                    ( m_corCaloTemplate[*itChip] ).push_back(subcond);
 
                     if (m_isDebugEnabled) {
                         LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Adding condition "
@@ -1779,7 +1774,7 @@ void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCon
             case ETM:
             case HTM: {
 
-                subcondCategory[iObj] = CondEnergySum;
+                subcondCategory.push_back(CondEnergySum);
 
                 // temporary storage of the parameters
                 std::vector<L1GtEnergySumTemplate::ObjectParameter> objParameter(1);
@@ -1824,11 +1819,11 @@ void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCon
 
                     subcond.setCondChipNr(*itChip);
 
-                    // no check for uniqueness - done by DB
-                    ( m_corEnergySumTemplate[*itChip] ).push_back(subcond);
-
                     // index
                     subcondIndex[iObj] = ( m_corEnergySumTemplate[*itChip] ).size() - 1;
+
+                    // no check for uniqueness - done by DB
+                    ( m_corEnergySumTemplate[*itChip] ).push_back(subcond);
 
                     if (m_isDebugEnabled) {
                         LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Adding condition "

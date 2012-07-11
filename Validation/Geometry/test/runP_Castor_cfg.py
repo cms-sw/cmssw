@@ -31,7 +31,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         MaterialBudget = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
         )
     )
 )
@@ -62,8 +62,8 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         DoHCAL       = cms.untracked.bool(False),
         NBinPhi      = cms.untracked.int32(360),
         NBinEta      = cms.untracked.int32(100),
-        EtaLow       = cms.untracked.double(-7.0),
-        EtaHigh      = cms.untracked.double(-5.0),
+        EtaLow       = cms.untracked.double(5.0),
+        EtaHigh      = cms.untracked.double(7.0),
         RMax         = cms.untracked.double(1.0),
         ZMax         = cms.untracked.double(18.0)
     ),

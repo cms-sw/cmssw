@@ -131,6 +131,8 @@ namespace evf {
     UInt_t   nbPendingSMDqmDiscards()const { return nbPendingSMDqmDiscards_; }
     UInt_t   nbDiscarded()        const { return nbDiscarded_; }
     UInt_t   nbLost()             const { return nbLost_; }
+    UInt_t   nbEolPosted()        const { return nbEolPosted_; }
+    UInt_t   nbEolDiscarded()     const { return nbEolDiscarded_; }
     
     UInt_t   nbErrors()           const { return nbErrors_; }
     UInt_t   nbCrcErrors()        const { return nbCrcErrors_; }
@@ -248,11 +250,14 @@ namespace evf {
     UInt_t             nbPendingSMDqmDiscards_;
     UInt_t             nbDiscarded_;
     UInt_t             nbLost_;
+    UInt_t             nbEolPosted_;
+    UInt_t             nbEolDiscarded_;
     
     UInt_t             nbClientsToShutDown_;
     bool               isReadyToShutDown_;
     bool               isActive_;
     bool               isHalting_;
+    bool               isStopping_;
     
     UInt_t             nbErrors_;
     UInt_t             nbCrcErrors_;

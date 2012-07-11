@@ -1,8 +1,8 @@
 /*
  * \file EBDataCertificationTask.cc
  *
- * $Date: 2010/08/11 14:57:34 $
- * $Revision: 1.26 $
+ * $Date: 2011/08/30 09:30:32 $
+ * $Revision: 1.29 $
  * \author E. Di Marco
  *
 */
@@ -59,26 +59,26 @@ EBDataCertificationTask::~EBDataCertificationTask() {
 
 void EBDataCertificationTask::beginJob(void){
 
-  char histo[200];
+  std::string name;
 
   if ( dqmStore_ ) {
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
 
-    sprintf(histo, "CertificationSummary");
-    meEBDataCertificationSummary_ = dqmStore_->bookFloat(histo);
+    name = "CertificationSummary";
+    meEBDataCertificationSummary_ = dqmStore_->bookFloat(name);
     meEBDataCertificationSummary_->Fill(-1.0);
 
-    sprintf(histo, "CertificationSummaryMap");
-    meEBDataCertificationSummaryMap_ = dqmStore_->book2D(histo,histo, 72, 0., 72., 34, 0., 34.);
+    name = "CertificationSummaryMap";
+    meEBDataCertificationSummaryMap_ = dqmStore_->book2D(name, name, 72, 0., 72., 34, 0., 34.);
     meEBDataCertificationSummaryMap_->setAxisTitle("jphi", 1);
     meEBDataCertificationSummaryMap_->setAxisTitle("jeta", 2);
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/CertificationContents");
 
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
-      meEBDataCertification_[i] = dqmStore_->bookFloat(histo);
+      name = "EcalBarrel_" + Numbers::sEB(i+1);
+      meEBDataCertification_[i] = dqmStore_->bookFloat(name);
       meEBDataCertification_[i]->Fill(-1.0);
     }
 
@@ -100,8 +100,6 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
 
   this->reset();
 
-  char histo[200];
-
   MonitorElement* me;
 
   // evaluate the DQM quality of observables checked by lumi
@@ -110,16 +108,13 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
     DQMVal[i] = -1.;
   }
 
-  sprintf(histo, (prefixME_ + "/EBIntegrityTask/EBIT weighted integrity errors by lumi").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get(prefixME_ + "/EBIntegrityTask/EBIT weighted integrity errors by lumi");
   hIntegrityByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hIntegrityByLumi_ );
 
-  sprintf(histo, (prefixME_ + "/EBStatusFlagsTask/FEStatus/EBSFT weighted frontend errors by lumi").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get(prefixME_ + "/EBStatusFlagsTask/FEStatus/EBSFT weighted frontend errors by lumi");
   hFrontendByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hFrontendByLumi_ );
 
-  sprintf(histo, (prefixME_ + "/EBRawDataTask/EBRDT FE synchronization errors by lumi").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get(prefixME_ + "/EBRawDataTask/EBRDT FE synchronization errors by lumi");
   hSynchronizationByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hSynchronizationByLumi_ );
 
   if( hIntegrityByLumi_ && hFrontendByLumi_ && hSynchronizationByLumi_ ) {
@@ -160,17 +155,13 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
     float minVal = std::min(integrityQual,frontendQual);
     float totDQMVal = std::min(minVal,synchronizationQual);
 
-    sprintf(histo, (prefixME_ + "/EventInfo/reportSummary").c_str());
-    me = dqmStore_->get(histo);
+    me = dqmStore_->get((prefixME_ + "/EventInfo/reportSummary"));
     if( me ) me->Fill(totDQMVal);
-
     for ( int i=0; i<36; i++) {
-      sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
-      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/EcalBarrel_" + Numbers::sEB(i+1) ) ;
       if( me ) me->Fill(DQMVal[i]);
 
-      sprintf(histo, "reportSummaryMap");
-      me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo );
+      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
       if( me ) {
         for ( int iett = 0; iett < 34; iett++ ) {
           for ( int iptt = 0; iptt < 72; iptt++ ) {
@@ -184,12 +175,10 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
   }
 
   // now combine reduced DQM with DCS and DAQ
-  sprintf(histo, (prefixME_ + "/EventInfo/DAQSummaryMap").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get(prefixME_ + "/EventInfo/DAQSummaryMap");
   hDAQ_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hDAQ_ );
 
-  sprintf(histo, (prefixME_ + "/EventInfo/DCSSummaryMap").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get(prefixME_ + "/EventInfo/DCSSummaryMap");
   hDCS_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hDCS_ );
 
   float sumCert = 0.;
@@ -259,20 +248,15 @@ void EBDataCertificationTask::endRun(const edm::Run& r, const edm::EventSetup& c
 
   this->reset();
 
-  char histo[200];
-
   MonitorElement* me;
 
-  sprintf(histo, (prefixME_ + "/EventInfo/reportSummaryMap").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
   hDQM_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hDQM_ );
 
-  sprintf(histo, (prefixME_ + "/EventInfo/DAQSummaryMap").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get(prefixME_ + "/EventInfo/DAQSummaryMap");
   hDAQ_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hDAQ_ );
 
-  sprintf(histo, (prefixME_ + "/EventInfo/DCSSummaryMap").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get(prefixME_ + "/EventInfo/DCSSummaryMap");
   hDCS_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hDCS_ );
 
   float sumCert = 0.;

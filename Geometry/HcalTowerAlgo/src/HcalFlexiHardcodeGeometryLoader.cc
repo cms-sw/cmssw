@@ -9,7 +9,7 @@
 
 namespace {
   const int MAX_HCAL_PHI = 72;
-  const float DEGREE2RAD = M_PI / 180.;
+  const double DEGREE2RAD = M_PI / 180.;
 
   // Parameter objects
 
@@ -260,11 +260,11 @@ namespace {
       for (int iPhi = param.phiFirst; iPhi <= MAX_HCAL_PHI; iPhi += param.phiStep) {
 	for (int iside = -1; iside <= 1; iside += 2) { // both detector sides are identical
 	  HcalDetId hid (fHB ? HcalBarrel : HcalOuter, param.eta*iside, iPhi, param.depth);
-	  float phiCenter = ((iPhi-1)*360./MAX_HCAL_PHI + 0.5*param.dphi) * DEGREE2RAD; // middle of the cell
-	  float etaCenter = 0.5*(param.etaMin + param.etaMax);
-	  float x = param.rMin* cos (phiCenter);
-	  float y = param.rMin* sin (phiCenter);
-	  float z = iside * param.rMin * sinh(etaCenter);
+	  double phiCenter = ((iPhi-1)*360./MAX_HCAL_PHI + 0.5*param.dphi) * DEGREE2RAD; // middle of the cell
+	  double etaCenter = 0.5*(param.etaMin + param.etaMax);
+	  double x = param.rMin* cos (phiCenter);
+	  double y = param.rMin* sin (phiCenter);
+	  double z = iside * param.rMin * sinh(etaCenter);
 	  // make cell geometry
 	  GlobalPoint refPoint (x,y,z); // center of the cell's face
 	  std::vector<double> cellParams;
@@ -272,7 +272,7 @@ namespace {
 	  cellParams.push_back (0.5 * (param.etaMax - param.etaMin)); // deta_half
 	  cellParams.push_back (0.5 * param.dphi * DEGREE2RAD);  // dphi_half
 	  cellParams.push_back (0.5 * (param.rMax - param.rMin) * cosh (etaCenter)); // dr_half
-	  cellParams.push_back ( fabs( refPoint.eta()));
+	  cellParams.push_back ( fabs( refPoint.eta() ) ) ;
 	  cellParams.push_back ( fabs( refPoint.z() ) ) ;
 	  
 // 	  std::cout << "HcalFlexiHardcodeGeometryLoader::fillHBHO-> " << hid << hid.ieta() << '/' << hid.iphi() << '/' << hid.depth()
@@ -298,13 +298,13 @@ namespace {
       for (int iPhi = param.phiFirst; iPhi <= MAX_HCAL_PHI; iPhi += param.phiStep) {
 	for (int iside = -1; iside <= 1; iside += 2) { // both detector sides are identical
 	  HcalDetId hid (HcalEndcap, param.eta*iside, iPhi, param.depth);
-	  float phiCenter = ((iPhi-1)*360./MAX_HCAL_PHI + 0.5*param.dphi) * DEGREE2RAD; // middle of the cell
-	  float etaCenter = 0.5 * (param.etaMin + param.etaMax);
+	  double phiCenter = ((iPhi-1)*360./MAX_HCAL_PHI + 0.5*param.dphi) * DEGREE2RAD; // middle of the cell
+	  double etaCenter = 0.5 * (param.etaMin + param.etaMax);
 
-	  float perp = param.zMin / sinh (etaCenter);
-	  float x = perp * cos (phiCenter);
-	  float y = perp * sin (phiCenter);
-	  float z = iside * param.zMin;
+	  double perp = param.zMin / sinh (etaCenter);
+	  double x = perp * cos (phiCenter);
+	  double y = perp * sin (phiCenter);
+	  double z = iside * param.zMin;
 	  // make cell geometry
 	  GlobalPoint refPoint (x,y,z); // center of the cell's face
 	  std::vector<double> cellParams;
@@ -312,7 +312,7 @@ namespace {
 	  cellParams.push_back (0.5 * (param.etaMax - param.etaMin)); // deta_half
 	  cellParams.push_back (0.5 * param.dphi * DEGREE2RAD);  // dphi_half
 	  cellParams.push_back (-0.5 * (param.zMax - param.zMin) / tanh (etaCenter)); // dz_half, "-" means edges in Z
-	  cellParams.push_back ( fabs( refPoint.eta()));
+	  cellParams.push_back ( fabs( refPoint.eta() ) ) ;
 	  cellParams.push_back ( fabs( refPoint.z() ) ) ;
 	  
 // 	  std::cout << "HcalFlexiHardcodeGeometryLoader::fillHE-> " << hid << refPoint << '/' << cellParams [0] << '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
@@ -337,25 +337,22 @@ namespace {
       for (int iPhi = param.phiFirst; iPhi <= MAX_HCAL_PHI; iPhi += param.phiStep) {
 	for (int iside = -1; iside <= 1; iside += 2) { // both detector sides are identical
 	  HcalDetId hid (HcalForward, param.eta*iside, iPhi, param.depth);
-	  float phiCenter = ((iPhi-1)*360./MAX_HCAL_PHI + 0.5*param.dphi) * DEGREE2RAD; // middle of the cell
-	  GlobalPoint inner (param.rMin, 0., param.zMin);
-	  GlobalPoint outer (param.rMax, 0., param.zMin);
-	  float iEta = inner.eta();
-	  float oEta = outer.eta();
-	  float etaCenter = 0.5 * ( iEta + oEta );
+	  double phiCenter = ((iPhi-1)*360./MAX_HCAL_PHI + 0.5*param.dphi) * DEGREE2RAD; // middle of the cell
+	  GlobalPoint inner (param.rMin, 0, param.zMin);
+	  GlobalPoint outer (param.rMax, 0, param.zMin);
+	  double etaCenter = 0.5 * (inner.eta() + outer.eta());
 
-	  float perp = param.zMin / sinh (etaCenter);
-	  float x = perp * cos (phiCenter);
-	  float y = perp * sin (phiCenter);
-	  float z = iside * param.zMin;
+	  double perp = param.zMin / sinh (etaCenter);
+	  double x = perp * cos (phiCenter);
+	  double y = perp * sin (phiCenter);
+	  double z = iside * param.zMin;
 	  // make cell geometry
 	  GlobalPoint refPoint (x,y,z); // center of the cell's face
-	  std::vector<double> cellParams;
-	  cellParams.reserve (5);
-	  cellParams.push_back (0.5 * ( iEta - oEta )); // deta_half
+	  std::vector<double> cellParams; cellParams.reserve (3);
+	  cellParams.push_back (0.5 * (inner.eta() - outer.eta())); // deta_half
 	  cellParams.push_back (0.5 * param.dphi * DEGREE2RAD);  // dphi_half
 	  cellParams.push_back (0.5 * (param.zMax - param.zMin)); // dz_half
-	  cellParams.push_back ( fabs( refPoint.eta()));
+	  cellParams.push_back ( fabs( refPoint.eta() ) ) ;
 	  cellParams.push_back ( fabs( refPoint.z() ) ) ;
 	  
 // 	  std::cout << "HcalFlexiHardcodeGeometryLoader::fillHF-> " << hid << refPoint << '/' << cellParams [0] << '/' << cellParams [1] << '/' << cellParams [2] << std::endl;

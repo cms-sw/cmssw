@@ -19,6 +19,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+//$Id: EcalRecHitWorkerRecover.cc,v 1.29 2011/07/21 13:43:34 argiro Exp $
+
 EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps) :
         EcalRecHitWorkerBaseClass(ps)
 {
@@ -33,6 +35,8 @@ EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps) :
         recoverEEVFE_ = ps.getParameter<bool>("recoverEEVFE");
         recoverEBFE_ = ps.getParameter<bool>("recoverEBFE");
         recoverEEFE_ = ps.getParameter<bool>("recoverEEFE");
+
+	dbStatusToBeExcludedEE_ = ps.getParameter<std::vector<int> >("dbStatusToBeExcludedEE");
 
         tpDigiCollection_        = ps.getParameter<edm::InputTag>("triggerPrimitiveDigiCollection");
         logWarningEtThreshold_EB_FE_ = ps.getParameter<double>("logWarningEtThreshold_EB_FE");
@@ -52,17 +56,19 @@ void EcalRecHitWorkerRecover::set(const edm::EventSetup& es)
         es.get<EcalBarrelGeometryRecord>().get("EcalBarrel",pEBGeom_);
         es.get<EcalEndcapGeometryRecord>().get("EcalEndcap",pEEGeom_);
 	es.get<CaloGeometryRecord>().get(caloGeometry_);
+	es.get<EcalChannelStatusRcd>().get(chStatus_);
         geo_ = caloGeometry_.product();
         ebGeom_ = pEBGeom_.product();
         eeGeom_ = pEEGeom_.product();
         es.get<IdealGeometryRecord>().get(ttMap_);
         recoveredDetIds_EB_.clear();
         recoveredDetIds_EE_.clear();
+	tpgscale_.setEventSetup(es);
 }
 
 
 bool
-EcalRecHitWorkerRecover::run( const edm::Event & evt,
+EcalRecHitWorkerRecover::run( const edm::Event & evt, 
                 const EcalUncalibratedRecHit& uncalibRH,
                 EcalRecHitCollection & result )
 {
@@ -75,8 +81,6 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
         // killDeadChannels_ = true, means explicitely kill dead channels even if the recovered energies are computed in the code
         // if you don't want to store the recovered energies in the rechit you can produce LogWarnings if logWarningEtThreshold_EB(EE)_FE>0 
 	// logWarningEtThreshold_EB(EE)_FE_<0 will not compute the recovered energies at all (faster)
-	// Revovery in the EE is not tested, recovered energies may not make sense
-        // EE recovery computation is not tested against segmentation faults, use with caution even if you are going to killDeadChannels=true
 
         if ( killDeadChannels_ ) {
                 if (    (flags == EcalRecHitWorkerRecover::EB_single && !recoverEBIsolatedChannels_)
@@ -85,7 +89,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                      || (flags == EcalRecHitWorkerRecover::EE_VFE && !recoverEEVFE_)
                      ) {
                         EcalRecHit hit( detId, 0., 0., EcalRecHit::kDead );
-
+                        hit.setFlag( EcalRecHit::kDead)  ;
                         insertRecHit( hit, result); // insert trivial rechit with kDead flag
                         return true;
                 } 
@@ -94,7 +98,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         std::vector<DetId> vid = ttMap_->constituentsOf( ttDetId );
                         for ( std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit ) {
                                 EcalRecHit hit( (*dit), 0., 0., EcalRecHit::kDead );
-
+                                hit.setFlag( EcalRecHit::kDead ) ;
                                 insertRecHit( hit, result ); // insert trivial rechit with kDead flag
                         }
 			if(logWarningEtThreshold_EB_FE_<0)return true; // if you don't want log warning just return true
@@ -115,7 +119,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         }
                         for ( size_t i = 0; i < eeC.size(); ++i ) {
                                 EcalRecHit hit( eeC[i], 0., 0., EcalRecHit::kDead );
-
+                                hit.setFlag( EcalRecHit::kDead ) ;
                                 insertRecHit( hit, result ); // insert trivial rechit with kDead flag
                         }
 		   	if(logWarningEtThreshold_EE_FE_<0)   return true; // if you don't want log warning just return true
@@ -198,7 +202,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         // .. the energy of the recHits in the TTs but not in the SC
                         //std::vector<DetId> vid = ecalMapping_->dccTowerConstituents( ecalMapping_->DCCid( ttDetId ), ecalMapping_->iTT( ttDetId ) );
 			// due to lack of implementation of the EcalTrigTowerDetId ix,iy methods in EE we compute Et recovered energies (in EB we compute E)
-                        // --- RECOVERY NOT YET VALIDATED
+
                         EEDetId eeId( detId );
                         EcalScDetId sc( (eeId.ix()-1)/5+1, (eeId.iy()-1)/5+1, eeId.zside() );
                         std::set<DetId> eeC;
@@ -208,7 +212,10 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                                         int iy = (sc.iy()-1)*5 + dy;
                                         int iz = sc.zside();
                                         if(EEDetId::validDetId(ix, iy, iz)){
-                                                eeC.insert(EEDetId(ix, iy, iz));
+					  EEDetId id(ix, iy, iz);
+					  if (checkChannelStatus(id,dbStatusToBeExcludedEE_)){
+                                                eeC.insert(id);
+					  } // check status
                                         }
                                 }
                         }
@@ -240,6 +247,17 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                                         EcalTrigTowerDetId ttId = itTP->id();
 
 					std::vector<DetId> v = ttMap_->constituentsOf( *it );
+
+					// from the constituents, remove dead channels
+					std::vector<DetId>::iterator ttcons = v.begin();
+					while (ttcons != v.end()){
+					  if (!checkChannelStatus(*ttcons,dbStatusToBeExcludedEE_)){
+						ttcons=v.erase(ttcons);
+					  } else {
+					    ++ttcons;
+					  }
+					}// while 
+
                                         if ( itTP->compressedEt() == 0xFF ){ // In the case of a saturated trigger tower, a fraction
 					  atLeastOneTPSaturated = true; //of the saturated energy is put in: number of xtals in dead region/total xtals in TT *63.75
                                         	
@@ -311,16 +329,17 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
 			if ( !killDeadChannels_ || recoverEEFE_ ) { // if eeC is empty, i.e. there are no hits 
 			                                            // in the tower, nothing is returned. No negative values from noise.
 			  for ( std::set<DetId>::const_iterator it = eeC.begin(); it != eeC.end(); ++it ) {
-			    EcalRecHit hit( *it, 0., 0., EcalRecHit::kDead ); 
-			    hit.setFlag( EcalRecHit::kDead) ;
+
 			    float eta = geo_->getPosition(*it).eta(); //Convert back to E from Et for the recovered hits
 			    float pf = 1.0/cosh(eta);
-			    hit = EcalRecHit( *it, totE / ((float)eeC.size()*pf), 0. );
-			    if (atLeastOneTPSaturated) hit.setFlag(EcalRecHit::kTPSaturated );
-                            			    
+			    EcalRecHit hit( *it, totE / ((float)eeC.size()*pf), 0);
+			    
+			    if (atLeastOneTPSaturated) hit.setFlag(EcalRecHit::kTPSaturated );                            
+			    hit.setFlag(EcalRecHit::kTowerRecovered); 
 			    insertRecHit( hit, result );
-			  }
-                        }
+			    
+			  }// for
+                        }// if 
         }
         return true;
 }
@@ -340,7 +359,14 @@ float EcalRecHitWorkerRecover::estimateEnergy(int ieta, EcalRecHitCollection* hi
 		}
 	}
 	
-	if (count==0) return 63.75*(ieta>26?2:1); //If there are no overlapping crystals return saturated value.
+	if (count==0) {                    // If there are no overlapping crystals return saturated value.
+
+	  double etsat = tpgscale_.getTPGInGeV(0xFF,
+					       ttMap_->towerOf(*vId.begin())); // get saturation value for the first
+                                                                               // constituent, for the others it's the same 
+
+	  return etsat/cosh(ieta)*(ieta>26?2:1); // account for duplicated TT in EE for ieta>26
+	}
 	else return xtalE*((vId.size()/(float)count) - 1)*(ieta>26?2:1);
 	
 	
@@ -391,6 +417,36 @@ float EcalRecHitWorkerRecover::recCheckCalib(float eTT, int ieta){
 	 
 	 return eTT;
 	 
+}
+
+// return false is the channel has status  in the list of statusestoexclude
+// true otherwise (channel ok)
+bool EcalRecHitWorkerRecover::checkChannelStatus(const DetId& id, 
+						 const std::vector<int>& statusestoexclude){
+  
+
+  if (!chStatus_.isValid())     
+    edm::LogError("ObjectNotFound") << "Channel Status not set"; 
+  
+  
+  EcalChannelStatus::const_iterator chIt = chStatus_->find( id );
+  uint16_t dbStatus = 0;
+  if ( chIt != chStatus_->end() ) {
+    dbStatus = chIt->getStatusCode();
+  } else {
+    edm::LogError("ObjectNotFound") << "No channel status found for xtal " 
+				    << id.rawId() 
+				    << "! something wrong with EcalChannelStatus in your DB? ";
+  }
+  
+  for (std::vector<int>::const_iterator status = statusestoexclude.begin();
+       status!= statusestoexclude.end(); ++status){
+    
+    if ( *status == dbStatus) return false;
+    
+  }
+
+  return true;
 }
 
 

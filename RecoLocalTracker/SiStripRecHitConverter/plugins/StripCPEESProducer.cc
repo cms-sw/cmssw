@@ -29,14 +29,12 @@ produce(const TkStripCPERecord & iRecord)
 { 
   edm::ESHandle<TrackerGeometry> pDD;  iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );
   edm::ESHandle<MagneticField> magfield;  iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield );
-  edm::ESHandle<SiStripLorentzAngle> lorentzAngle; 
-  iRecord.getRecord<SiStripLorentzAngleDepRcd>().get(lorentzAngle);
+  edm::ESHandle<SiStripLorentzAngle> lorentzAngle;  iRecord.getRecord<SiStripLorentzAngleRcd>().get(lorentzAngle);
   edm::ESHandle<SiStripConfObject> confObj;  iRecord.getRecord<SiStripConfObjectRcd>().get(confObj);
   edm::ESHandle<SiStripLatency> latency;  iRecord.getRecord<SiStripLatencyRcd>().get(latency);
   edm::ESHandle<SiStripNoises> noise;  iRecord.getRecord<SiStripNoisesRcd>().get(noise);
   edm::ESHandle<SiStripApvGain> gain;  iRecord.getRecord<SiStripApvGainRcd>().get(gain);
   edm::ESHandle<SiStripBadStrip> bad;  iRecord.getRecord<SiStripBadChannelRcd>().get(bad);
- 
   
   switch(cpeNum) {
 

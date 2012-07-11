@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2010/03/27 20:07:58 $
- * $Revision: 1.116 $
+ * $Date: 2011/08/23 00:25:30 $
+ * $Revision: 1.117.4.1 $
  * \author G. Della Ricca
  *
 */
@@ -96,15 +96,15 @@ void EBCosmicTask::setup(void){
 
   init_ = true;
 
-  char histo[200];
+  std::string name;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBCosmicTask");
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EBCosmicTask/Sel");
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBCT energy sel %s", Numbers::sEB(i+1).c_str());
-      meSelMap_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      name = "EBCT energy sel " + Numbers::sEB(i+1);
+      meSelMap_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       meSelMap_[i]->setAxisTitle("ieta", 1);
       meSelMap_[i]->setAxisTitle("iphi", 2);
       meSelMap_[i]->setAxisTitle("energy (GeV)", 3);
@@ -112,11 +112,11 @@ void EBCosmicTask::setup(void){
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EBCosmicTask/Spectrum");
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBCT 1x1 energy spectrum %s", Numbers::sEB(i+1).c_str());
-      meSpectrum_[0][i] = dqmStore_->book1D(histo, histo, 100, 0., 1.5);
+      name = "EBCT 1x1 energy spectrum " + Numbers::sEB(i+1);
+      meSpectrum_[0][i] = dqmStore_->book1D(name, name, 100, 0., 1.5);
       meSpectrum_[0][i]->setAxisTitle("energy (GeV)", 1);
-      sprintf(histo, "EBCT 3x3 energy spectrum %s", Numbers::sEB(i+1).c_str());
-      meSpectrum_[1][i] = dqmStore_->book1D(histo, histo, 100, 0., 1.5);
+      name = "EBCT 3x3 energy spectrum " + Numbers::sEB(i+1);
+      meSpectrum_[1][i] = dqmStore_->book1D(name, name, 100, 0., 1.5);
       meSpectrum_[1][i]->setAxisTitle("energy (GeV)", 1);
     }
 

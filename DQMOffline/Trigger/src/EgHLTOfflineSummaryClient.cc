@@ -87,13 +87,17 @@ void EgHLTOfflineSummaryClient::beginRun(const edm::Run& run, const edm::EventSe
     hltConfig.init(run,c,hltTag_,changed);
     if(filterInactiveTriggers_){
       std::vector<std::string> activeFilters;
+      std::vector<std::string> activeEleFilters;
+      std::vector<std::string> activeEle2LegFilters;
+      std::vector<std::string> activePhoFilters;
+      std::vector<std::string> activePho2LegFilters;
       
-      egHLT::trigTools::getActiveFilters(hltConfig,activeFilters);     
+      egHLT::trigTools::getActiveFilters(hltConfig,activeFilters,activeEleFilters,activeEle2LegFilters,activePhoFilters,activePho2LegFilters);     
       
       egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeFilters);
-      egHLT::trigTools::filterInactiveTriggers(phoHLTFilterNames_,activeFilters);
-      egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNamesForSumBit_,activeFilters);
-      egHLT::trigTools::filterInactiveTriggers(phoHLTFilterNamesForSumBit_,activeFilters); 
+      egHLT::trigTools::filterInactiveTriggers(phoHLTFilterNames_,activePhoFilters);
+      egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNamesForSumBit_,activeEleFilters);
+      egHLT::trigTools::filterInactiveTriggers(phoHLTFilterNamesForSumBit_,activePhoFilters); 
       
     }
     getEgHLTFiltersToMon_(egHLTFiltersToMon_);

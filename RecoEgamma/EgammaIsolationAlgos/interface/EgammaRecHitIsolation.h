@@ -15,6 +15,7 @@
 //CMSSW includes
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -39,6 +40,10 @@ class EgammaRecHitIsolation {
   
   double getEtSum(const reco::Candidate * emObject) const {return getSum_(emObject,true);}
   double getEnergySum(const reco::Candidate * emObject) const{ return  getSum_(emObject,false);}
+
+  double getEtSum(const reco::SuperCluster* emObject ) const {return getSum_(emObject,true);}
+  double getEnergySum(const reco::SuperCluster * emObject) const{ return  getSum_(emObject,false);}
+
   void setUseNumCrystals(bool b=true) { useNumCrystals_ = b; }
   void setVetoClustered(bool b=true) { vetoClustered_ = b; }
   void doSpikeRemoval(const EcalRecHitCollection *const recHits, 
@@ -67,6 +72,7 @@ class EgammaRecHitIsolation {
   
  private:
   double getSum_(const reco::Candidate *,bool returnEt )const;
+  double getSum_(const reco::SuperCluster *,bool returnEt )const;
 
   double extRadius_ ;
   double intRadius_ ;

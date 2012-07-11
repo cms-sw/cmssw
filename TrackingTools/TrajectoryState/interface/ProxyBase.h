@@ -19,7 +19,7 @@ public:
 
   ProxyBase() : theData(0) {}
 
-  explicit ProxyBase( T* p) : theData(p) {if (theData) theData->addReference();}
+  ProxyBase( T* p) : theData(p) {if (theData) theData->addReference();}
 
   ProxyBase( const ProxyBase& other) {
     theData = other.theData;
@@ -92,7 +92,7 @@ private:
 
 template <class T, class Cloner >
 inline
-void swap(ProxyBase<T,Cloner>& lh, ProxyBase<T,Cloner>& rh) {
+void swap(ProxyBase<T,Cloner>& lh,  const ProxyBase<T,Cloner>& rh) {
   lh.swap(rh);
 }
 

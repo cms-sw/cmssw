@@ -180,22 +180,11 @@ bool ExhumeHadronizer::initializeForExternalPartons()
    return false;
 }
 
-bool ExhumeHadronizer::readSettings( int )
-{
-
-   Pythia6Service::InstanceWrapper guard(pythia6Service_);
-
-   pythia6Service_->setGeneralParams();
-
-   return true;
-
-}
-
 bool ExhumeHadronizer::initializeForInternalPartons()
 {
    Pythia6Service::InstanceWrapper guard(pythia6Service_);
 
-   // pythia6Service_->setGeneralParams();
+   pythia6Service_->setGeneralParams();
  
    //Exhume Initialization
    edm::ParameterSet processPSet = myPSet_.getParameter<edm::ParameterSet>("ExhumeProcess");

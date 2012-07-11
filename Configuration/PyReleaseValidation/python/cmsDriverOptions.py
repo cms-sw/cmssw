@@ -49,7 +49,7 @@ parser.add_option("--fileout",
                    dest="fileout")
 
 parser.add_option("--filetype",
-                   help="The type of the infile (EDM, LHE or MCDB).",
+                   help="The type of the infile (EDM or LHE).",
                    default="",#to be changed in the default form later
                    dest="filetype")
 
@@ -129,6 +129,12 @@ expertSettings.add_option("--no_output",
                           action="store_true",
                           default=False,
                           dest="no_output_flag")
+
+expertSettings.add_option("--oneoutput",
+                          help="use only one output module",
+                          action="store_true",
+                          default="False",
+                          dest="oneoutput")
 
 expertSettings.add_option("--prefix",
                           help="Specify a prefix to the cmsRun command.",
@@ -283,6 +289,10 @@ expertSettings.add_option("--inputEventContent",
                           help="specify the input event content",
                           default=None,
                           dest="inputEventContent")
+expertSettings.add_option("--slhc",
+                          help="Specify the SLHC scenario version",
+                          default=None,
+                          dest="slhc")
 
 (options,args) = parser.parse_args() # by default the arg is sys.argv[1:]
 
@@ -346,14 +356,14 @@ for s in step_list:
 
 
 if options.filetype=="":
-    if options.filein.lower().endswith(".lhe") or options.filein.lower().endswith(".lhef"):
+    if options.filein.lower().endswith(".lhe") or options.filein.lower().endswith(".lhef") or options.filein.startswith("lhe:"):
         options.filetype="LHE"
     elif options.filein.startswith("mcdb:"):
-        options.filetype="MCDB"
+        print "This is a deprecated way of selecting lhe files from article number. Please use lhe:article argument to --filein"
+        options.filein=options.filein.replace('mcdb:','lhe:')
+        options.filetype="LHE"
     else:
         options.filetype="EDM"
-if options.filetype=="MCDB" and options.filein.startswith("mcdb:"):
-    options.filein = options.filein[5:]
 
 filesuffix = {"LHE": "lhe", "EDM": "root", "MCDB": ""}[options.filetype]
 

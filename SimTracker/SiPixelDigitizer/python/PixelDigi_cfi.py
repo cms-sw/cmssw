@@ -10,6 +10,7 @@ simSiPixelDigis = cms.EDProducer("SiPixelDigitizer",
     OffsetSmearing = cms.double(0.0),
     ThresholdInElectrons_FPix = cms.double(3000.0), 
     ThresholdInElectrons_BPix = cms.double(3500.0),
+    ThresholdInElectrons_BPix_L1 = cms.double(3700.0),  #-Carlotta #CPC
     AddThresholdSmearing = cms.bool(True),
     ThresholdSmearing_FPix = cms.double(210.0),
     ThresholdSmearing_BPix = cms.double(245.0),

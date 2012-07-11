@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+//#include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
@@ -33,7 +34,9 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+//#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/Topology.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
@@ -136,15 +139,17 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
   // get the GeometricDet
   //
   edm::ESHandle<GeometricDet> rDD;
-  //if (fromDDD_) {
-    iSetup.get<IdealGeometryRecord>().get( rDD );     
-  //} else {
+  edm::ESHandle<std::vector<GeometricDetExtra> > rDDE;
+ //if (fromDDD_) {
+  iSetup.get<IdealGeometryRecord>().get( rDD );     
+  iSetup.get<IdealGeometryRecord>().get( rDDE );
+ //} else {
   //  iSetup.get<PGeometricDetRcd>().get( rDD );
   //}
-  edm::LogInfo("ModuleInfo_Phase2") << " Top node is  " << &(*rDD) << " " <<  (*rDD).name().name() << std::endl;
-  edm::LogInfo("ModuleInfo_Phase2") << " And Contains  Daughters: " << (*rDD).deepComponents().size() << std::endl;
-  CmsTrackerDebugNavigator nav;
-  nav.dump(&(*rDD));
+  edm::LogInfo("ModuleInfo_Phase2") << " Top node is  " << rDD.product() << " " <<  rDD.product()->name().name() << std::endl;
+  edm::LogInfo("ModuleInfo_Phase2") << " And Contains  Daughters: " << rDD.product()->deepComponents().size() << std::endl;
+  CmsTrackerDebugNavigator nav(*rDDE.product());
+  nav.dump(*rDD.product(), *rDDE.product());
   //
   //first instance tracking geometry
   edm::ESHandle<TrackerGeometry> pDD;
@@ -157,10 +162,10 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
   unsigned int pxb_fullN = 0;
   unsigned int pxb_halfN = 0;
   unsigned int pxb_stackN = 0;
-  unsigned int pxb_full_strx12N = 0;
-  unsigned int pxb_half_strx12N = 0;
-  unsigned int pxb_full_strx34N = 0;
-  unsigned int pxb_half_strx34N = 0;
+  //unsigned int pxb_full_strx12N = 0;
+  //unsigned int pxb_half_strx12N = 0;
+  //unsigned int pxb_full_strx34N = 0;
+  //unsigned int pxb_half_strx34N = 0;
   unsigned int pxb_full_L[16]= { 0 };
   unsigned int pxb_half_L[16]= { 0 };
   unsigned int pxb_stack[16]= { 0 };
@@ -300,8 +305,17 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
   
   std::vector<const GeometricDet*> modules =  (*rDD).deepComponents();
   Output << "************************ List of modules with positions ************************" << std::endl;
-  for(unsigned int i=0; i<modules.size();i++){
+  // MEC: 2010-04-13: need to find corresponding GeometricDetExtra.
+  std::vector<GeometricDetExtra>::const_iterator gdei(rDDE->begin()), gdeEnd(rDDE->end());
+ for(unsigned int i=0; i<modules.size();i++){
     unsigned int rawid = modules[i]->geographicalID().rawId();
+    gdei = rDDE->begin();
+    for (; gdei != gdeEnd; ++gdei) {
+      if (gdei->geographicalId() == modules[i]->geographicalId()) break;
+    }
+
+    if (gdei == gdeEnd) throw cms::Exception("ModuleInfo") << "THERE IS NO MATCHING DetId in the GeometricDetExtra"; //THIS never happens!
+
     GeometricDet::nav_type detNavType = modules[i]->navType();
     Output << std::fixed << std::setprecision(6); // set as default 6 decimal digits
     std::bitset<32> binary_rawid(rawid);
@@ -314,9 +328,9 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 
     Output << std::endl;
     int subdetid = modules[i]->geographicalID().subdetId();
-    double volume = modules[i]->volume() / 1000; // mm3->cm3
-    double density = modules[i]->density() / density_units;
-    double weight = modules[i]->weight() / density_units / 1000.; // [kg], hence the factor 1000;
+    double volume = gdei->volume() / 1000; // mm3->cm3
+    double density = gdei->density() / density_units;
+    double weight = gdei->weight() / density_units / 1000.; // [kg], hence the factor 1000;
     double thickness = modules[i]->bounds()->thickness() * 10000; // cm-->um
     double length = (modules[i]->bounds()->length()); // already in cm
     //double width = (modules[i]->bounds()->width()); // already in cm
@@ -326,6 +340,7 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
     volume_total+=volume;
     weight_total+=weight;
     activeSurface_total+=activeSurface;
+
     switch (subdetid) {
       
       // PXB
@@ -336,15 +351,17 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 	weight_pxb+=weight;
 	activeSurface_pxb+=activeSurface;
 	std::string name = modules[i]->name().name();
-	if(name == "PixelBarrelActiveFull" || name == "PixelBarrelActiveFull1") pxb_fullN++;
+	if(name == "PixelBarrelActiveFull" || name == "PixelBarrelActiveFull0" || name == "PixelBarrelActiveFull1" ||
+	   name == "PixelBarrelActiveFull2" || name == "PixelBarrelActiveFull3"
+	  ) pxb_fullN++;
 	if(name == "PixelBarrelActiveHalf" || name == "PixelBarrelActiveHalf1") pxb_halfN++;
         if(name == "PixelBarrelActiveStack0" || name == "PixelBarrelActiveStack1" || name == "PixelBarrelActiveStack2" || name == "PixelBarrelActiveStack3" ||
            name == "PixelBarrelActiveStack4" || name == "PixelBarrelActiveStack5" || name == "PixelBarrelActiveStack6" || name == "PixelBarrelActiveStack7" ||
            name == "PixelBarrelActiveStack8" || name == "PixelBarrelActiveStack9" ) pxb_stackN++;
-	if(name == "PixelBarrelActiveFull2") pxb_full_strx12N++;
-	if(name == "PixelBarrelActiveHalf2") pxb_half_strx12N++;
-	if(name == "PixelBarrelActiveFull3") pxb_full_strx34N++;
-	if(name == "PixelBarrelActiveHalf3") pxb_half_strx34N++;
+	//if(name == "PixelBarrelActiveFull2") pxb_full_strx12N++; // Outdated ?
+	//if(name == "PixelBarrelActiveHalf2") pxb_half_strx12N++;
+	//if(name == "PixelBarrelActiveFull3") pxb_full_strx34N++;
+	//if(name == "PixelBarrelActiveHalf3") pxb_half_strx34N++;
 	PXBDetId module(rawid);
 	unsigned int theLayer  = module.layer();
 	unsigned int theLadder = module.ladder();
@@ -356,18 +373,22 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 	  DetId detIdObject( detid );
 	  const GeomDetUnit * genericDet =  pDD->idToDetUnit( detIdObject );
 	  const PixelGeomDetUnit * pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
-	  const RectangularPixelTopology * theTopol = dynamic_cast<const RectangularPixelTopology*>( & (pixDet->specificTopology()) );
+	  //std::cout << "  "<<__LINE__<<" PixelGeomDetUnit "<<pixDet->surface().position().perp()<<" , "<<pixDet->surface().position().z()<<"\n";
+	  const PixelTopology  * theTopol = &(pixDet->specificTopology()); 
 	  std::pair<float,float> pitchxy = theTopol->pitch();
 	pxbpitchx[theLayer-1] = double(int(0.5+(10000*pitchxy.first )));
 	pxbpitchy[theLayer-1] = double(int(0.5+(10000*pitchxy.second)));
+        //std::cout<<"  "<<" BPix Layer "<< theLayer << " with Pitch = " << pxbpitchx[theLayer-1]<<" , "<<pxbpitchy[theLayer-1]<<"\n";
 	} // Discard some transitional variables.
 	if(theLayer > nlayersPXB) nlayersPXB=theLayer;
-	if(name == "PixelBarrelActiveFull" || name == "PixelBarrelActiveFull1" || name == "PixelBarrelActiveFull2" || name == "PixelBarrelActiveFull3" ) pxb_full_L[theLayer-1]++;
+        // The following sums will need to be verified...
+	if(name == "PixelBarrelActiveFull" || name == "PixelBarrelActiveFull0" || name == "PixelBarrelActiveFull1" || name == "PixelBarrelActiveFull2" || name == "PixelBarrelActiveFull3" ) pxb_full_L[theLayer-1]++;
 	if(name == "PixelBarrelActiveHalf" || name == "PixelBarrelActiveHalf1" || name == "PixelBarrelActiveHalf2" || name == "PixelBarrelActiveHalf3" ) pxb_half_L[theLayer-1]++;
 	if(name == "PixelBarrelActiveStack0" || name == "PixelBarrelActiveStack1" || name == "PixelBarrelActiveStack2" || name == "PixelBarrelActiveStack3" ||
            name == "PixelBarrelActiveStack4" || name == "PixelBarrelActiveStack5" || name == "PixelBarrelActiveStack6" || name == "PixelBarrelActiveStack7" ||
            name == "PixelBarrelActiveStack8" || name == "PixelBarrelActiveStack9" ) 									 pxb_stack[theLayer-1]++;
-	if(name == "PixelBarrelActiveFull"   || name == "PixelBarrelActiveHalf"   || name == "PixelBarrelActiveFull1"  || name == "PixelBarrelActiveHalf1"  ||
+	if(name == "PixelBarrelActiveFull"   || name == "PixelBarrelActiveHalf"   || name == "PixelBarrelActiveFull0" ||
+ 	   name == "PixelBarrelActiveFull1"  || name == "PixelBarrelActiveHalf1"  ||
 	   name == "PixelBarrelActiveStack0" || name == "PixelBarrelActiveStack1" || name == "PixelBarrelActiveStack2" || name == "PixelBarrelActiveStack3" ||
            name == "PixelBarrelActiveStack4" || name == "PixelBarrelActiveStack5" || name == "PixelBarrelActiveStack6" || name == "PixelBarrelActiveStack7" ||
            name == "PixelBarrelActiveStack8" || name == "PixelBarrelActiveStack9" )   psi_pxb[theLayer-1] += modules[i]->pixROCx()*modules[i]->pixROCy();
@@ -382,7 +403,7 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
             name == "PixelBarrelActiveStack4" || name == "PixelBarrelActiveStack5" || name == "PixelBarrelActiveStack6" || name == "PixelBarrelActiveStack7" ||
             name == "PixelBarrelActiveStack8" || name == "PixelBarrelActiveStack9" || name == "PixelBarrelActiveFull"   || name == "PixelBarrelActiveFull1"  ||
 	    name == "PixelBarrelActiveHalf"   || name == "PixelBarrelActiveHalf1"  || name == "PixelBarrelActiveFull2"  || name == "PixelBarrelActiveHalf2"  ||
-	    name == "PixelBarrelActiveFull3"  || name == "PixelBarrelActiveHalf3"  )==0) std::cout <<"\nYou have added PXB layers that are not taken into account!\n\n";
+	    name == "PixelBarrelActiveFull3"  || name == "PixelBarrelActiveHalf3"  || name == "PixelBarrelActiveFull0"  )==0) std::cout <<"\nYou have added PXB layers that are not taken into account! \ti.e. "<<name<<"\n";
         if (16<theLayer) std::cout<<"\nYou need to increase the PXB array sizes!\n";
         activeSurface_pxb_L[theLayer-1]+=activeSurface;
 	psi_pxb_L[theLayer-1] += modules[i]->pixROCx()*modules[i]->pixROCy();
@@ -392,7 +413,7 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
         Output << " PXB" << "\t" << "Layer " << theLayer << " Ladder " << theLadder
 	       << "\t" << " module " << theModule << " " << name << "\t";
 	if ( fromDDD_ && printDDD_ ) {
-	  Output << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << std::endl;
+	  Output << "son of " << gdei->parents()[gdei->parents().size()-3].logicalPart().name() << std::endl;
 	} else {
 	  Output << " NO DDD Hierarchy available " << std::endl;
 	}
@@ -407,7 +428,9 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 	weight_pxf+=weight;
 	activeSurface_pxf+=activeSurface;
 	std::string name = modules[i]->name().name();
-        if(name == "PixelForwardSensor")    pxf_D_N++;
+        if(name == "PixelForwardSensor" ||
+           name == "PixelForwardSensor1"|| name == "PixelForwardSensor2"|| name == "PixelForwardSensor3"
+                                          ) pxf_D_N++;
 	if(name == "PixelForwardActive1x2") pxf_1x2N++;
 	if(name == "PixelForwardActive1x5") pxf_1x5N++;
 	if(name == "PixelForwardActive2x3") pxf_2x3N++;
@@ -425,20 +448,25 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
           DetId detIdObject( detid );
           const GeomDetUnit * genericDet =  pDD->idToDetUnit( detIdObject );
           const PixelGeomDetUnit * pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
-          const RectangularPixelTopology * theTopol = dynamic_cast<const RectangularPixelTopology*>( & (pixDet->specificTopology()) );
+          const PixelTopology  * theTopol = &(pixDet->specificTopology());
           std::pair<float,float> pitchxy = theTopol->pitch();
         pxfpitchx[theDisk-1] = double(int(0.5+(10000*pitchxy.first )));
         pxfpitchy[theDisk-1] = double(int(0.5+(10000*pitchxy.second)));
         } // Discard some transitional variables.
 	if(theDisk > ndisksPXF) ndisksPXF=theDisk;
-	if(name == "PixelForwardSensor")    pxf_D[theDisk-1]++;
+	if(name == "PixelForwardSensor" ||
+	   name == "PixelForwardSensor1"|| name == "PixelForwardSensor2"|| name == "PixelForwardSensor3"
+	  )    pxf_D[theDisk-1]++;
 	if(name == "PixelForwardActive1x2") pxf_1x2_D[theDisk-1]++;
 	if(name == "PixelForwardActive1x5") pxf_1x5_D[theDisk-1]++;
 	if(name == "PixelForwardActive2x3") pxf_2x3_D[theDisk-1]++;
 	if(name == "PixelForwardActive2x4") pxf_2x4_D[theDisk-1]++;
 	if(name == "PixelForwardActive2x5") pxf_2x5_D[theDisk-1]++;
         // Make sure there are no new names we didn't know about.
-        if((name == "PixelForwardSensor" || name == "PixelForwardActive1x2" || name == "PixelForwardActive1x5" || name == "PixelForwardActive2x3" || name == "PixelForwardActive2x4" || name == "PixelForwardActive2x5")==0)  std::cout <<"\nYou have added PXF layers that are not taken into account!\t"<<name <<"\n";
+        if((name == "PixelForwardSensor" || name == "PixelForwardActive1x2" || name == "PixelForwardActive1x5" || 
+	    name == "PixelForwardActive2x3" || name == "PixelForwardActive2x4" || name == "PixelForwardActive2x5" ||
+            name == "PixelForwardSensor1"|| name == "PixelForwardSensor2"|| name == "PixelForwardSensor3"
+	   )==0)  std::cout <<"\nYou have added PXF layers that are not taken into account! \ti.e. "<<name <<"\n";
         if (3<theDisk) std::cout<<"\nYou need to increase the PXF array sizes!\n";
 	activeSurface_pxf_D[theDisk-1]+=activeSurface;
 	psi_pxf_D[theDisk-1] += modules[i]->pixROCx()*modules[i]->pixROCy();
@@ -452,7 +480,7 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 	Output << " PXF" << side << "\t" << "Disk " << theDisk << " Blade " << theBlade << " Panel " << thePanel
 	       << "\t" << " module " << theModule << "\t" << name << "\t";
 	if ( fromDDD_ && printDDD_ ) {
-	  Output << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << std::endl;
+	  Output << "son of " << gdei->parents()[gdei->parents().size()-3].logicalPart().name() << std::endl;
 	} else {
 	  Output << " NO DDD Hierarchy available " << std::endl;
 	}
@@ -493,7 +521,7 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 	Output << " TIB" << side << "\t" << "Layer " << theLayer << " " << part
 	       << "\t" << "string " << theString[2] << "\t" << " module " << theModule << " " << name << "\t";
 	if ( fromDDD_ && printDDD_ ) {
-	  Output << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name();
+	  Output << "son of " << gdei->parents()[gdei->parents().size()-3].logicalPart().name();
 	} else {
 	  Output << " NO DDD Hierarchy available ";
 	}
@@ -541,7 +569,7 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 	Output << " TID" << side << "\t" << "Disk " << theDisk << " Ring " << theRing << " " << part
 	       << "\t" << " module " << theModule[1] << "\t" << name << "\t";
 	if ( fromDDD_ && printDDD_ ) {
-	  Output << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name();
+	  Output << "son of " << gdei->parents()[gdei->parents().size()-3].logicalPart().name();
 	} else {
 	  Output << " NO DDD Hierarchy available ";
 	}
@@ -581,11 +609,10 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 	std::string side;
 	std::string part;
 	side = (theRod[0] == 1 ) ? "-" : "+";
-	
 	Output << " TOB" << side << "\t" << "Layer " << theLayer 
 	       << "\t" << "rod " << theRod[1] << " module " << theModule << "\t" << name << "\t" ;
 	if ( fromDDD_ && printDDD_ ) {
-	  Output << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name();
+	  Output << "son of " << gdei->parents()[gdei->parents().size()-3].logicalPart().name();
 	} else {
 	  Output << " NO DDD Hierarchy available ";
 	}
@@ -645,7 +672,7 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 	Output << " TEC" << side << "\t" << "Wheel " << theWheel << " Petal " << thePetal[1] << " " << petal << " Ring " << theRing << "\t"
 	       << "\t" << " module " << theModule << "\t" << name << "\t";
 	if ( fromDDD_ && printDDD_ ) {
-	  Output << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name();
+	  Output << "son of " << gdei->parents()[gdei->parents().size()-3].logicalPart().name();
 	} else {
 	  Output << " NO DDD Hierarchy available ";
 	}
@@ -833,14 +860,15 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
   Output << "   Inner: Full = " << pxb_fullN << std::endl;
   Output << "   Inner: Half = " << pxb_halfN << std::endl;
   Output << "        Stacks = " << pxb_stackN << std::endl;
-  Output << "   Strx12: Full = " << pxb_full_strx12N << std::endl;
-  Output << "   Strx12: Half = " << pxb_half_strx12N << std::endl;
-  Output << "   Strx34: Full = " << pxb_full_strx34N << std::endl;
-  Output << "   Strx34: Half = " << pxb_half_strx34N << std::endl;
+  //Output << "   Strx12: Full = " << pxb_full_strx12N << std::endl;
+  //Output << "   Strx12: Half = " << pxb_half_strx12N << std::endl;
+  //Output << "   Strx34: Full = " << pxb_full_strx34N << std::endl;
+  //Output << "   Strx34: Half = " << pxb_half_strx34N << std::endl;
   Output << "   Active Silicon Detectors"                    << std::endl;
   Output << "     Weight  = " << weight_pxb        << " kg"  << std::endl;
   Output << "     Volume  = " << volume_pxb        << " cm3" << std::endl;
   Output << "     Surface = " << activeSurface_pxb << " cm2" << std::endl;
+  Output << "        NEED TO VERIFY THE NEXT 6 LINES!!!!!!!!!!!!!!!!! "<< std::endl;
   Output << "        PSI46s Inner  = " << (int)psi_pxbN  << std::endl;
   Output << "        PSI46s Strx12  = " << (int)psi_pxb_strx12N  << std::endl;
   Output << "        PSI46s Strx34  = " << (int)psi_pxb_strx34N  << std::endl;
@@ -975,7 +1003,7 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
     GeometryOutput << "        Active Silicon surface in PXF disk no. " << i+1<< ": "<< activeSurface_pxf_D[i]<< " [cm^2]"<< std::endl;
     GeometryOutput << "        Number of PSI46s in PXF disk no. " << i+1<< ": "<< psi_pxf_D[i]<< std::endl;
     GeometryOutput << "        Number of pixel channels in PXF disk no. " << i+1<< ": "<< (int)psi_pxf_D[i]*chan_per_psiD[i]<< std::endl;
-    GeometryOutput << "        Pitch X & Y (microns) of PXF disk no. " << i+1<< ": "<< pxbpitchx[i] <<" & "<< pxbpitchy[i] <<std::endl;
+    GeometryOutput << "        Pitch X & Y (microns) of PXF disk no. " << i+1<< ": "<< pxfpitchx[i] <<" & "<< pxfpitchy[i] <<std::endl;
     GeometryOutput << std::endl;
     GeometryXLS <<"PXF"<<i+1<<" "<<pxfR_min_D[i]<<" "<<pxfR_max_D[i]<<" "<<pxfZ_D[i]/(pxf_D[i]+pxf_1x2_D[i]+pxf_1x5_D[i]+pxf_2x3_D[i]+pxf_2x4_D[i]+pxf_2x5_D[i])<<" "<<activeSurface_pxf_D[i]<<" "<<psi_pxf_D[i]<<" "<<(int)psi_pxf_D[i]*chan_per_psiD[i]<<" "<<pxf_D[i]+pxf_1x2_D[i]+pxf_1x5_D[i]+pxf_2x3_D[i]+pxf_2x4_D[i]+pxf_2x5_D[i]<<" "<<pxf_D[i]<<" "<<pxf_1x2_D[i]<<" "<<pxf_1x5_D[i]<<" "<<pxf_2x3_D[i]<<" "<<pxf_2x4_D[i]<<" "<<pxf_2x5_D[i]<<std::endl;  
   }
