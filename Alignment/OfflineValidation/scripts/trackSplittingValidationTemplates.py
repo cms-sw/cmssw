@@ -23,7 +23,7 @@ process.load('Configuration.StandardSequences.Geometry_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 # setting global tag
 #process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
+# process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 
 
@@ -78,6 +78,8 @@ from CondCore.DBCommon.CondDBSetup_cfi import *
 .oO[dbLoad]Oo.
 
 .oO[APE]Oo.
+
+.oO[kinksAndBows]Oo.
 
 ## track hit filter.............................................................
 

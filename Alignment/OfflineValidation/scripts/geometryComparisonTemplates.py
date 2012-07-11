@@ -21,32 +21,9 @@ process.MessageLogger = cms.Service("MessageLogger",
         'cout')
 ) 
 
-#removed: APE
-#removed: dbLoad
-import CalibTracker.Configuration.Common.PoolDBESSource_cfi
-process.GeomToComp = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-connect = cms.string('.oO[dbpath]Oo.'),
+.oO[dbLoad]Oo.
 
-    toGet = cms.VPSet(cms.PSet(
-        record = cms.string('TrackerAlignmentRcd'),
-        tag = cms.string('.oO[tag]Oo.')
-    ))
-   
-)
-process.es_prefer_geom=cms.ESPrefer("PoolDBESSource","GeomToComp")
-
-from CondCore.DBCommon.CondDBSetup_cfi import *
-
-process.ZeroAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
-								connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
-								timetype = cms.string("runnumber"),
-								toGet = cms.VPSet(
-											cms.PSet(
-												record = cms.string('TrackerAlignmentErrorRcd'),
-												tag = cms.string('TrackerIdealGeometryErrors210_mc')
-											))
-								)
-process.es_prefer_ZeroAPE = cms.ESPrefer("PoolDBESSource", "ZeroAPE")
+.oO[APE]Oo.
 
 .oO[kinksAndBows]Oo.
 

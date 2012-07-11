@@ -128,7 +128,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 #process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
+# process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
 
 ## LAYERWISE Lorentz Angle ###################
 
@@ -291,7 +291,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
  ## GlobalTag Conditions (if needed)
  ##
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
+# process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 
 
@@ -448,7 +448,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
  ##
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
-process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
+# process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
 
 .oO[LorentzAngleTemplate]Oo.
   
@@ -1053,7 +1053,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
  ## GlobalTag Conditions (if needed)
  ##
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
+# process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 
 

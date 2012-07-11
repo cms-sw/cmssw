@@ -24,7 +24,7 @@ from CalibTracker.Configuration.Common.PoolDBESSource_cfi import poolDBESSource
 import CalibTracker.Configuration.Common.PoolDBESSource_cfi
 process.trackerAlignment =  CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
                                         connect = cms.string('.oO[dbpath]Oo.'),
-                                        timetype = cms.string("runnumber"),
+#                                         timetype = cms.string("runnumber"),
                                         toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
                                                                    tag = cms.string('.oO[tag]Oo.')
                                                                    ))
@@ -40,7 +40,7 @@ APETemplate="""
 from CondCore.DBCommon.CondDBSetup_cfi import *
 process.APE = poolDBESSource.clone(
                                         connect = cms.string('.oO[errordbpath]Oo.'),
-                                        timetype = cms.string("runnumber"),
+#                                         timetype = cms.string("runnumber"),
                                         toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
                                                                    tag = cms.string('.oO[errortag]Oo.')
                                                                    ))
@@ -55,8 +55,7 @@ kinksAndBowsTemplate="""
 import CalibTracker.Configuration.Common.PoolDBESSource_cfi
 process.trackerBowedSensors = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
      connect = cms.string('.oO[kbdbpath]Oo.'),
- 
-    toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
+     toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
                                tag = cms.string('.oO[kbtag]Oo.')
                                )
                       )
