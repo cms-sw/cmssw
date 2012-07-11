@@ -108,10 +108,12 @@ FastTimerServiceClient::endRun(edm::Run const & run, edm::EventSetup const & set
   for (size_t p = 1; p <= size; ++p) {
     // extract the list of Paths and EndPaths from the bin labels of "path_total_time"
     std::string label = path_total->GetXaxis()->GetBinLabel(p);
-    TH1F * counter = dqm->get( m_dqm_path + "/Paths/" + label + "_module_counter" )->getTH1F();
-    TH1F * total   = dqm->get( m_dqm_path + "/Paths/" + label + "_module_total"   )->getTH1F();
-    if (counter == 0 or total == 0)
+    MonitorElement * me_counter = dqm->get( m_dqm_path + "/Paths/" + label + "_module_counter" );
+    MonitorElement * me_total   = dqm->get( m_dqm_path + "/Paths/" + label + "_module_total" );
+    if (me_counter == 0 or me_total == 0)
       continue;
+    TH1F * counter = me_counter->getTH1F();
+    TH1F * total   = me_total  ->getTH1F();
     size_t bins = counter->GetXaxis()->GetNbins();
     double min  = counter->GetXaxis()->GetXmin();
     double max  = counter->GetXaxis()->GetXmax();
