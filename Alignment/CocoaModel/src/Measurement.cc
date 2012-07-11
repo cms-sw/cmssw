@@ -669,7 +669,7 @@ void Measurement::copyMeas( Measurement* meas, const std::string& subsstr1, cons
   //--------- Fill the list of names of OptOs that take part in this measurement ( names only )
 
   std::vector<std::string> wordlist;
-  auto optolist = meas->OptOList();
+  auto &optolist = meas->OptOList();
   ALIuint nOptos = optolist.size();
   for ( ALIuint ii = 0; ii < nOptos; ii++ ) {
     wordlist.push_back( ALIUtils::changeName( optolist[ii]->longName(), subsstr1, subsstr2) );
