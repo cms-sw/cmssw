@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/HIon/V171 (CMSSW_5_2_6)
+# /dev/CMSSW_5_2_1/HIon/V172 (CMSSW_5_2_6)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V171')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V172')
 )
 
 streams = cms.PSet( 
@@ -15,7 +15,6 @@ streams = cms.PSet(
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   ExpressForHI = cms.vstring( 'HIExpressPhysics' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitorHI' ),
-  HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
   HLTMON = cms.vstring( 'OfflineMonitorHI' )
 )
 datasets = cms.PSet( 
@@ -310,7 +309,6 @@ datasets = cms.PSet(
     'HLT_HIZeroBiasPixel_SingleTrack_v5',
     'HLT_HIZeroBiasXOR_v4',
     'HLT_HIZeroBias_v4' ),
-  OnlineHltResults = cms.vstring( 'HLTriggerFinalPath' ),
   TestEnablesEcalHcalDT = cms.vstring( 'HLT_HIDTCalibration_v3',
     'HLT_HIEcalCalibration_v3',
     'HLT_HIHcalCalibration_v3' )
@@ -1749,17 +1747,17 @@ hltESPTrajectoryBuilderL3 = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
 hltESPTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
   ComponentName = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
   fractionShared = cms.double( 0.5 ),
-  ValidHitBonus = cms.double( 5.0 ),
+  ValidHitBonus = cms.double( 100.0 ),
   ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
-  MissingHitPenalty = cms.double( 20.0 ),
+  MissingHitPenalty = cms.double( 0.0 ),
   allowSharedFirstHit = cms.bool( False )
 )
 hltESPTrajectoryCleanerBySharedSeeds = cms.ESProducer( "TrajectoryCleanerESProducer",
   ComponentName = cms.string( "hltESPTrajectoryCleanerBySharedSeeds" ),
   fractionShared = cms.double( 0.5 ),
-  ValidHitBonus = cms.double( 5.0 ),
+  ValidHitBonus = cms.double( 100.0 ),
   ComponentType = cms.string( "TrajectoryCleanerBySharedSeeds" ),
-  MissingHitPenalty = cms.double( 20.0 ),
+  MissingHitPenalty = cms.double( 0.0 ),
   allowSharedFirstHit = cms.bool( True )
 )
 hltESPTrajectoryFilterForElectrons = cms.ESProducer( "TrajectoryFilterESProducer",

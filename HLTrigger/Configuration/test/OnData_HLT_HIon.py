@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V171 (CMSSW_5_2_6)
+# /dev/CMSSW_5_2_1/HIon/V172 (CMSSW_5_2_6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V171')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V172')
 )
 
 process.streams = cms.PSet( 
@@ -16,7 +16,6 @@ process.streams = cms.PSet(
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   ExpressForHI = cms.vstring( 'HIExpressPhysics' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitorHI' ),
-  HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
   HLTMON = cms.vstring( 'OfflineMonitorHI' )
 )
 process.datasets = cms.PSet( 
@@ -311,7 +310,6 @@ process.datasets = cms.PSet(
     'HLT_HIZeroBiasPixel_SingleTrack_v5',
     'HLT_HIZeroBiasXOR_v4',
     'HLT_HIZeroBias_v4' ),
-  OnlineHltResults = cms.vstring( 'HLTriggerFinalPath' ),
   TestEnablesEcalHcalDT = cms.vstring( 'HLT_HIDTCalibration_v3',
     'HLT_HIEcalCalibration_v3',
     'HLT_HIHcalCalibration_v3' )
@@ -2022,17 +2020,17 @@ process.hltESPTrajectoryBuilderL3 = cms.ESProducer( "CkfTrajectoryBuilderESProdu
 process.hltESPTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
   ComponentName = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
   fractionShared = cms.double( 0.5 ),
-  ValidHitBonus = cms.double( 5.0 ),
+  ValidHitBonus = cms.double( 100.0 ),
   ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
-  MissingHitPenalty = cms.double( 20.0 ),
+  MissingHitPenalty = cms.double( 0.0 ),
   allowSharedFirstHit = cms.bool( False )
 )
 process.hltESPTrajectoryCleanerBySharedSeeds = cms.ESProducer( "TrajectoryCleanerESProducer",
   ComponentName = cms.string( "hltESPTrajectoryCleanerBySharedSeeds" ),
   fractionShared = cms.double( 0.5 ),
-  ValidHitBonus = cms.double( 5.0 ),
+  ValidHitBonus = cms.double( 100.0 ),
   ComponentType = cms.string( "TrajectoryCleanerBySharedSeeds" ),
-  MissingHitPenalty = cms.double( 20.0 ),
+  MissingHitPenalty = cms.double( 0.0 ),
   allowSharedFirstHit = cms.bool( True )
 )
 process.hltESPTrajectoryFilterForElectrons = cms.ESProducer( "TrajectoryFilterESProducer",
@@ -8158,19 +8156,6 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep LumiScalerss_hltScalersRawToDigi_*_*',
       'keep edmTriggerResults_*_*_*' )
 )
-process.hltOutputHLTDQMResults = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputHLTDQMResults.root" ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLTriggerFinalPath' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
-      'keep LumiScalerss_hltScalersRawToDigi_*_*',
-      'keep edmTriggerResults_*_*_*' )
-)
 process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputHLTMON.root" ),
     fastCloning = cms.untracked.bool( False ),
@@ -8436,7 +8421,7 @@ process.DQMOutput = cms.Path( process.hltPreDQMOutput )
 process.EcalCalibrationOutput = cms.EndPath( process.hltPreEcalCalibrationOutput + process.hltOutputEcalCalibration )
 process.ExpressForHIOutput = cms.EndPath( process.hltPreExpressForHIOutput + process.hltPreExpressForHIOutputSmart + process.hltOutputExpressForHI )
 process.HLTDQMOutput = cms.EndPath( process.hltPreHLTDQMOutput + process.hltPreHLTDQMOutputSmart + process.hltOutputHLTDQM )
-process.HLTDQMResultsOutput = cms.EndPath( process.hltPreHLTDQMResultsOutput + process.hltPreHLTDQMResultsOutputSmart + process.hltOutputHLTDQMResults )
+process.HLTDQMResultsOutput = cms.EndPath( process.hltPreHLTDQMResultsOutput + process.hltPreHLTDQMResultsOutputSmart )
 process.HLTMONOutput = cms.EndPath( process.hltPreHLTMONOutput + process.hltPreHLTMONOutputSmart + process.hltOutputHLTMON )
 process.NanoDSTOutput = cms.EndPath( process.hltPreNanoDSTOutput )
 process.RPCMONOutput = cms.EndPath( process.hltPreRPCMONOutput )

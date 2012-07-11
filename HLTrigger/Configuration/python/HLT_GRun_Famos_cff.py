@@ -1,11 +1,11 @@
-# /online/collisions/2012/7e33/v3.3/HLT/V2 (CMSSW_5_2_6)
+# /online/collisions/2012/7e33/v3.3/HLT/V4 (CMSSW_5_2_6)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/7e33/v3.3/HLT/V2')
+  tableName = cms.string('/online/collisions/2012/7e33/v3.3/HLT/V4')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -1416,17 +1416,17 @@ hltESPTrajectoryBuilderL3 = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
 hltESPTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
   ComponentName = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
   fractionShared = cms.double( 0.5 ),
-  ValidHitBonus = cms.double( 5.0 ),
+  ValidHitBonus = cms.double( 100.0 ),
   ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
-  MissingHitPenalty = cms.double( 20.0 ),
+  MissingHitPenalty = cms.double( 0.0 ),
   allowSharedFirstHit = cms.bool( False )
 )
 hltESPTrajectoryCleanerBySharedSeeds = cms.ESProducer( "TrajectoryCleanerESProducer",
   ComponentName = cms.string( "hltESPTrajectoryCleanerBySharedSeeds" ),
   fractionShared = cms.double( 0.5 ),
-  ValidHitBonus = cms.double( 5.0 ),
+  ValidHitBonus = cms.double( 100.0 ),
   ComponentType = cms.string( "TrajectoryCleanerBySharedSeeds" ),
-  MissingHitPenalty = cms.double( 20.0 ),
+  MissingHitPenalty = cms.double( 0.0 ),
   allowSharedFirstHit = cms.bool( True )
 )
 hltESPTrajectoryFilterForElectrons = cms.ESProducer( "TrajectoryFilterESProducer",
