@@ -106,7 +106,7 @@ public:
     return _OptONameList;
   }
   
-  std::vector<OpticalObject*>& OptOList() {
+  const std::vector<OpticalObject*>& OptOList() const {
     return _OptOList;
   }
   
