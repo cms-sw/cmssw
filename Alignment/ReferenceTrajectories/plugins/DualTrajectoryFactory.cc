@@ -3,6 +3,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
@@ -54,9 +55,11 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 DualTrajectoryFactory::DualTrajectoryFactory( const edm::ParameterSet & config ) :
-  TrajectoryFactoryBase( config )
+  TrajectoryFactoryBase( config ),
+  theMass(config.getParameter<double>("ParticleMass"))
 {
-  theMass = config.getParameter< double >( "ParticleMass" );
+  edm::LogInfo("Alignment") << "@SUB=DualTrajectoryFactory"
+                            << "mass: " << theMass;
 }
 
  
@@ -72,6 +75,12 @@ DualTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 
   edm::ESHandle< MagneticField > magneticField;
   setup.get< IdealMagneticFieldRecord >().get( magneticField );
+  if (magneticField->inTesla(GlobalPoint(0.,0.,0.)).mag2() < 1.e-6) {
+    edm::LogWarning("Alignment") << "@SUB=DualTrajectoryFactory::trajectories"
+                                 << "B-field in z is " << magneticField->inTesla(GlobalPoint(0.,0.,0.)).z()
+                                 << ": You should probably use the DualBzeroTrajectoryFactory\n" 
+                                 << "or fix this code to switch automatically as the ReferenceTrajectoryFactory does.";
+  }
 
   ConstTrajTrackPairCollection::const_iterator itTracks = tracks.begin();
 
@@ -117,6 +126,12 @@ DualTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 
   edm::ESHandle< MagneticField > magneticField;
   setup.get< IdealMagneticFieldRecord >().get( magneticField );
+  if (magneticField->inTesla(GlobalPoint(0.,0.,0.)).mag2() < 1.e-6) {
+    edm::LogWarning("Alignment") << "@SUB=DualTrajectoryFactory::trajectories"
+                                 << "B-field in z is " << magneticField->inTesla(GlobalPoint(0.,0.,0.)).z()
+                                 << ": You should probably use the DualBzeroTrajectoryFactory\n" 
+                                 << "or fix this code to switch automatically as the ReferenceTrajectoryFactory does.";
+  }
 
   ConstTrajTrackPairCollection::const_iterator itTracks = tracks.begin();
   ExternalPredictionCollection::const_iterator itExternal = external.begin();
