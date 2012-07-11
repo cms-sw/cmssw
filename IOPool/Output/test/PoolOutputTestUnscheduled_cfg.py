@@ -16,7 +16,7 @@ process.OtherThing = cms.EDProducer("OtherThingProducer",
 )
 
 process.output = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('file:PoolOutputTest.root')
+    fileName = cms.untracked.string('file:PoolOutputTestUnscheduled.root')
 )
 
 process.source = cms.Source("EmptySource")
