@@ -9,7 +9,7 @@ __maintainer__ = "Miguel Ojeda"
 __email__ = "mojedasa@cern.ch"
 __status__ = "Staging"
 
-_tagcollector_url = 'https://cmssdt.cern.ch/tc/'
+_tagcollector_url = 'https://cmssdt.cern.ch/tctestbed/'
 
 import urllib
 import urllib2
