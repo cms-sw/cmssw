@@ -29,17 +29,19 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 HFRecoEcalCandidateProducer::HFRecoEcalCandidateProducer(edm::ParameterSet const& conf):
+  defaultDB_(std::vector<double>()),
   hfclusters_(conf.getParameter<edm::InputTag>("hfclusters")),
-  vertices_(conf.existsAs<bool>("VertexCollection") ? conf.getParameter<edm::InputTag>("VertexCollection"):(edm::InputTag)"offlinePrimaryVertices"),
-  HFDBversion_(conf.existsAs<bool>("HFDBversion") ? conf.getParameter<int>("HFDBversion"):99),//do nothing
-  HFDBvector_(conf.existsAs<bool>("HFDBvector") ? conf.getParameter<std::vector<double> >("HFDBvector"):defaultDB_),
+  vertices_(conf.existsAs<edm::InputTag>("VertexCollection") ? conf.getParameter<edm::InputTag>("VertexCollection"):(edm::InputTag)"offlinePrimaryVertices"),
+  HFDBversion_(conf.existsAs<int>("HFDBversion") ? conf.getParameter<int>("HFDBversion"):99),//do nothing
+  HFDBvector_(conf.existsAs<std::vector<double> >("HFDBvector") ? conf.getParameter<std::vector<double> >("HFDBvector"):defaultDB_),
+  doPU_(false),
   Cut2D_(conf.getParameter<double>("intercept2DCut")),
   defaultSlope2D_((Cut2D_<=0.83)?(0.475):((Cut2D_>0.83 && Cut2D_<=0.9)?(0.275):(0.2))),//fix for hlt unable to add slope variable now
   hfvars_(HFDBversion_,HFDBvector_),
   algo_(conf.existsAs<bool>("Correct") ? conf.getParameter<bool>("Correct") : true,
 	conf.getParameter<double>("e9e25Cut"),
 	conf.getParameter<double>("intercept2DCut"),
-	conf.existsAs<bool>("intercept2DSlope") ? conf.getParameter<double>("intercept2DSlope") : defaultSlope2D_,
+	conf.existsAs<double>("intercept2DSlope") ? conf.getParameter<double>("intercept2DSlope") : defaultSlope2D_,
 	conf.getParameter<std::vector<double> >("e1e9Cut"),
 	conf.getParameter<std::vector<double> >("eCOREe9Cut"),
 	conf.getParameter<std::vector<double> >("eSeLCut"),

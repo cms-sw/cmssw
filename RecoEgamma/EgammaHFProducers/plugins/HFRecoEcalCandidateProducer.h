@@ -26,11 +26,11 @@ class HFRecoEcalCandidateProducer : public edm::EDProducer {
   explicit HFRecoEcalCandidateProducer(edm::ParameterSet const& conf);
   virtual void produce(edm::Event& e, edm::EventSetup const& iSetup);
  private:
+  std::vector<double> defaultDB_; 
   edm::InputTag hfclusters_,vertices_;
   int HFDBversion_;
   std::vector<double> HFDBvector_;
   bool doPU_; 
-  std::vector<double> defaultDB_; 
   double Cut2D_;
   double defaultSlope2D_;
   reco::HFValueStruct hfvars_;
