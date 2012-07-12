@@ -1,28 +1,30 @@
 #!/usr/bin/env python
-VERSION='1.00'
+#########################################################################
+# Command to produce plots with selected conditions and styles          #
+# output                                                                # 
+#                                                                       #
+# Author:      Zhen Xie                                                 #
+#########################################################################
+#
 import os,os.path,sys,datetime,time,csv,re
-from RecoLuminosity.LumiDB import lumiTime,argparse,matplotRender,sessionManager,lumiCalcAPI,lumiCorrections,lumiParameters,inputFilesetParser
+from RecoLuminosity.LumiDB import argparse,lumiTime,matplotRender,sessionManager,lumiParameters,RegexValidator,revisionDML,lumiCalcAPI,normDML
 import matplotlib
 from matplotlib.figure import Figure
 
-class RegexValidator(object):
-    def __init__(self, pattern, statement=None):
-        self.pattern = re.compile(pattern)
-        self.statement = statement
-        if not self.statement:
-            self.statement = "must match pattern %s" % self.pattern
-
-    def __call__(self, string):
-        match = self.pattern.search(string)
-        if not match:
-            raise ValueError(self.statement)
-        return string
-    
 def parseInputFiles(inputfilename):
+    '''
+    output ({run:[cmsls,cmsls,...]},[[resultlines]])
+    '''
+    selectedrunlsInDB={}
+    resultlines=[]
     p=inputFilesetParser.inputFilesetParser(inputfilename)
     runlsbyfile=p.runsandls()
-    return runlsbyfile
-
+    selectedProcessedRuns=p.selectedRunsWithresult()
+    selectedNonProcessedRuns=p.selectedRunsWithoutresult()
+    resultlines=p.resultlines()
+    for runinfile in selectedNonProcessedRuns:
+        selectedrunlsInDB[runinfile]=runlsbyfile[runinfile]
+    return (selectedrunlsInDB,resultlines)
 ##############################
 ## ######################## ##
 ## ## ################## ## ##
@@ -40,9 +42,9 @@ if __name__=='__main__':
     beamModeChoices = [ "stable", "quiet", "either"]
     amodetagChoices = [ "PROTPHYS","IONPHYS",'PAPHYS' ]
     actiontofilebasemap={'time':'lumivstime','run':'lumivsrun','fill':'lumivsfill','perday':'lumiperday','instpeakperday':'lumipeak'}
-    #
+    #############################################################
     # parse figure configuration if found
-    #  
+    #############################################################
     currentdir=os.getcwd()
     rcparamfile='.lumiplotrc'
     mplrcdir=matplotlib.get_configdir()
@@ -69,9 +71,9 @@ if __name__=='__main__':
             figureparams['dpi']=config.getint('dpi')
         except ConfigParser.NoOptionError:
             pass
-    #
+    ###############################
     # parse arguments
-    #  
+    ###############################  
     #
     # basic arguments
     #
@@ -87,11 +89,16 @@ if __name__=='__main__':
                         dest='authpath',
                         action='store',
                         help='path to authentication file')
-    parser.add_argument('--norm',
-                        dest='norm',
+    parser.add_argument('--datatag',
+                        dest='datatag',
                         action='store',
-                        default='pp7TeV',
-                        help='norm factor name or value')
+                        default=None,
+                        help='data tag')
+    parser.add_argument('--normtag',
+                        dest='normtag',
+                        action='store',
+                        default=None,
+                        help='norm tag')
     #
     #optional arg to select exact run and ls
     #
@@ -144,12 +151,12 @@ if __name__=='__main__':
                         dest='begintime',
                         action='store',
                         default='03/01/10 00:00:00',
-                        type=RegexValidator("^\d\d/\d\d/\d\d \d\d:\d\d:\d\d$","must be form mm/dd/yy hh:mm:ss"),
+                        type=RegexValidator.RegexValidator("^\d\d/\d\d/\d\d \d\d:\d\d:\d\d$","must be form mm/dd/yy hh:mm:ss"),
                         help='min run start time,mm/dd/yy hh:mm:ss')
     parser.add_argument('--end',
                         dest='endtime',
                         action='store',
-                        type=RegexValidator("^\d\d/\d\d/\d\d \d\d:\d\d:\d\d$","must be form mm/dd/yy hh:mm:ss"),
+                        type=RegexValidator.RegexValidator("^\d\d/\d\d/\d\d \d\d:\d\d:\d\d$","must be form mm/dd/yy hh:mm:ss"),
                         help='max run start time,mm/dd/yy hh:mm:ss')
     #
     #frontier config options
@@ -195,13 +202,10 @@ if __name__=='__main__':
     
     ####correction switches
     parser.add_argument('--without-correction',
-                        dest='withoutCorrection',
+                        dest='withoutNorm',
                         action='store_true',
-                        help='without fine correction')    
-    parser.add_argument('--correctionv3',
-                        dest='correctionv3',
-                        action='store_true',
-                        help='apply correction v3')
+                        help='without any correction/calibration')    
+
     ###general switches
     parser.add_argument('--verbose',
                         dest='verbose',
@@ -241,14 +245,13 @@ if __name__=='__main__':
     if not endtime:
         endtime=lut.DatetimeToStr(datetime.datetime.utcnow(),customfm='%m/%d/%y %H:%M:%S')
     pbeammode=None
-    normfactor=options.norm
     if options.beamstatus=='stable':
         pbeammode='STABLE BEAMS'
     resultlines=[]
     inplots=[]
-    #
+    #######################################################################
     ##process old plot csv files,if any, skipping #commentlines
-    #
+    #######################################################################
     inplot=options.inplot
     if inplot:
         inplots=inplot.split('+')
@@ -258,32 +261,23 @@ if __name__=='__main__':
             for row in reader:
                 if '#' in row[0]:continue
                 resultlines.append(row)
-    #
+    #####################################
     ##find runs need to read from DB
-    #
+    #####################################
     irunlsdict={}#either from -i or from other selection options
+    rruns=[]
     reqTrg=True
     reqHlt=False
     if options.hltpath:
         reqHlt=True
-    session.transaction().start(True)
-    schema=session.nominalSchema()
-    if options.inputfile:
-        irunlsdict=parseInputFiles(options.inputfile)
-
     fillrunMap={}
-    finecorrections=None
-    runlsfromDB={}#run/ls need to fetch from db
-    runsnotdrawn=[]
     lastDrawnRun=None
     maxDrawnDay=None
     lastDrawnFill=None
     newFirstDay=None
     newFirstRun=None
     newFirstFill=None
-
     session.transaction().start(True)
-    schema=session.nominalSchema()
     if options.action=='perday' or options.action=='instpeakperday':
         maxDrawnDay=int(lut.StrToDatetime(begtime,customfm='%m/%d/%y %H:%M:%S').date().toordinal()) #default maxDrawnDay is begtime
         if resultlines: #if there's old result lines
@@ -295,8 +289,7 @@ if __name__=='__main__':
         begT=datetime.datetime.combine(datetime.date.fromordinal(newFirstDay),midnight)
         begTStr=lut.DatetimeToStr(begT,customfm='%m/%d/%y %H:%M:%S')
         #find runs not in old plot
-        runsnotdrawn=lumiCalcAPI.runList(schema,options.fillnum,runmin=None,runmax=None,startT=begTStr,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
-        print '[INFO] runstoredraw ',runsnotdrawn
+        runlist=lumiCalcAPI.runList(session.nominalSchema(),options.fillnum,runmin=None,runmax=None,startT=begTStr,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
     if options.action=='run' or options.action=='time':
         lastDrawnRun=132000
         if resultlines:#if there's old plot, start to count runs only after that
@@ -304,8 +297,7 @@ if __name__=='__main__':
         newFirstRun=lastDrawnRun+1
         if options.lastpointfromdb:
             newFirstRun=lastDrawnRun
-        runsnotdrawn=lumiCalcAPI.runList(schema,options.fillnum,runmin=newFirstRun,runmax=None,startT=begtime,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
-        
+        runlist=lumiCalcAPI.runList(session.nominalSchema(),options.fillnum,runmin=newFirstRun,runmax=None,startT=begtime,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
     if options.action=='fill':
         lastDrawnFill=1000
         lastDrawnRun=132000
@@ -315,53 +307,78 @@ if __name__=='__main__':
         newFirstRun=lastDrawnRun+1
         if options.lastpointfromdb:
             newFirstRun=lastDrawnRun
-        runsnotdrawn=lumiCalcAPI.runList(schema,runmin=newFirstRun,runmax=None,startT=begtime,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
-        fillrunMap=lumiCalcAPI.fillrunMap(schema,runmin=newFirstRun,runmax=None,startT=begtime,stopT=endtime)
-    session.transaction().commit()
-    for r in runsnotdrawn:
-        if irunlsdict:
-            if not irunlsdict.has_key(r):
-                continue                
-            runlsfromDB[r]=irunlsdict[r]
+        runlist=lumiCalcAPI.runList(session.nominalSchema(),runmin=newFirstRun,runmax=None,startT=begtime,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
+        fillrunMap=lumiCalcAPI.fillrunMap(session.nominalSchema(),runmin=newFirstRun,runmax=None,startT=begtime,stopT=endtime)
+
+    if options.inputfile:
+        (irunlsdict,iresults)=parseInputFiles(options.inputfile)
+        #apply further filter only if specified
+        if options.fillnum or options.begin or options.end or options.amodetag or options.beamenergy:
+            rruns=[val for val in runlist if val in irunlsdict.keys()]
+            for selectedrun in irunlsdict.keys():#if there's further filter on the runlist,clean input dict
+                if selectedrun not in rruns:
+                    del irunlsdict[selectedrun]
         else:
-            runlsfromDB[r]=None
-                
+            rruns=irunlsdict.keys()
+    else:
+        for run in runlist:
+            irunlsdict[run]=None
+        rruns=irunlsdict.keys()
+            
     if options.verbose:
-        print '[INFO] runs from db: ',runlsfromDB
+        print '[INFO] runs from db: ',irunlsdict
         if lastDrawnRun:
             print '[INFO] last run in old plot: ',lastDrawnRun
             print '[INFO] first run from DB in fresh plot: ',newFirstRun
         if maxDrawnDay:
             print '[INFO] last day in old plot: ',maxDrawnDay
             print '[INFO] first day from DB in fresh plot: ',newFirstDay
-    fig=Figure(figsize=(figureparams['sizex'],figureparams['sizey']),dpi=figureparams['dpi'])
-    m=matplotRender.matplotRender(fig)
-    logfig=Figure(figsize=(figureparams['sizex'],figureparams['sizey']),dpi=figureparams['dpi'])
-    mlog=matplotRender.matplotRender(logfig)
 
-    if len(runlsfromDB)==0:
+    if len(rruns)==0:
         if len(resultlines)!=0:
             print '[INFO] drawing all from old plot data'
         else:
             print '[INFO] found no old nor new data, do nothing'
             exit(0)
 
-    finecorrections=None
-    driftcorrections=None
-    if not options.withoutCorrection:
-        rruns=runlsfromDB.keys()
-        session.transaction().start(True)
-        schema=session.nominalSchema()
-        if options.correctionv3:
-            cterms=lumiCorrections.nonlinearV3()               
-        else:#default
-            cterms=lumiCorrections.nonlinearV2()
-        finecorrections=lumiCorrections.correctionsForRangeV2(schema,rruns,cterms)#constant+nonlinear corrections
-        driftcorrections=lumiCorrections.driftcorrectionsForRange(schema,rruns,cterms)
-        session.transaction().commit()
-    session.transaction().start(True)
+    GrunsummaryData=lumiCalcAPI.runsummaryMap(session.nominalSchema(),irunlsdict)
+    #####################################
+    #resolve data ids
+    #####################################
+    datatagname=options.datatag
+    if not datatagname:
+        (datatagid,datatagname)=revisionDML.currentDataTag(session.nominalSchema())
+        dataidmap=revisionDML.dataIdsByTagId(session.nominalSchema(),datatagid,runlist=rruns,withcomment=False)
+        #{run:(lumidataid,trgdataid,hltdataid,())}
+    else:
+        dataidmap=revisionDML.dataIdsByTagName(session.nominalSchema(),datatagname,runlist=rruns,withcomment=False)
+    #
+    # check normtag and get norm values if required
+    #
+    normname='NONE'
+    normid=0
+    normvalueDict={}
+    if not options.withoutNorm:
+        normname=options.normtag
+        if not normname:
+            normmap=normDML.normIdByType(session.nominalSchema(),lumitype='HF',defaultonly=True)
+            if len(normmap):
+                normname=normmap.keys()[0]
+                normid=normmap[normname]
+        else:
+            normid=normDML.normIdByName(session.nominalSchema(),normname)
+        if not normid:
+            raise RuntimeError('[ERROR] cannot resolve norm/correction')
+            sys.exit(-1)
+        normvalueDict=normDML.normValueById(session.nominalSchema(),normid) #{since:[corrector(0),{paramname:paramvalue}(1),amodetag(2),egev(3),comment(4)]}
+
+    fig=Figure(figsize=(figureparams['sizex'],figureparams['sizey']),dpi=figureparams['dpi'])
+    m=matplotRender.matplotRender(fig)
+    logfig=Figure(figsize=(figureparams['sizex'],figureparams['sizey']),dpi=figureparams['dpi'])
+    mlog=matplotRender.matplotRender(logfig)
+
     if not options.hltpath:
-        lumibyls=lumiCalcAPI.lumiForRange(session.nominalSchema(),runlsfromDB,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=True)
+        lumibyls=lumiCalcAPI.lumiForIds(session.nominalSchema(),irunlsdict,dataidmap,runsummaryMap=GrunsummaryData,beamstatusfilter=pbeammode,normmap=normvalueDict,lumitype='HF')
     else:
         referenceLabel='Recorded'
         hltname=options.hltpath
@@ -371,7 +388,7 @@ if __name__=='__main__':
         elif 1 in [c in hltname for c in '*?[]']: #is a fnmatch pattern
             hltpat=hltname
             hltname=None
-        lumibyls=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),runlsfromDB,hltpathname=hltname,hltpathpattern=hltpat,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=True)
+        lumibyls=lumiCalcAPI.effectiveLumiForIds(session.nominalSchema(),irunlsdict,dataidmap,runsummaryMap=GrunsummaryData,beamstatusfilter=pbeammode,normmap=normvalueDict,hltpathname=hltname,hltpathpattern=hltpat)
     session.transaction().commit()
     rawdata={}
     #
@@ -382,13 +399,13 @@ if __name__=='__main__':
             rundata=lumibyls[run]
             if not options.hltpath:
                 if len(rundata)!=0:
-                    rawdata.setdefault('Delivered',[]).append((run,sum([t[5] for t in rundata])))
-                    rawdata.setdefault('Recorded',[]).append((run,sum([t[6] for t in rundata])))
+                    rawdata.setdefault('Delivered',[]).append((run,sum([t[5] for t in rundata if t[5]])))
+                    rawdata.setdefault('Recorded',[]).append((run,sum([t[6] for t in rundata if t[6]])))
             else:
                 labels=['Recorded']
                 if len(rundata)!=0:
                     pathdict={}#{pathname:[eff,]}
-                    rawdata.setdefault('Recorded',[]).append((run,sum([t[6] for t in rundata])))
+                    rawdata.setdefault('Recorded',[]).append((run,sum([t[6] for t in rundata if t[6]])))
                     for perlsdata in rundata:
                         effdict=perlsdata[8]
                         pathnames=effdict.keys()
@@ -396,7 +413,7 @@ if __name__=='__main__':
                             pathdict.setdefault(thispath,[]).append(effdict[thispath][3])
                     for thispath in pathdict.keys():
                         labels.append(thispath)
-                        rawdata.setdefault(thispath,[]).append((run,sum([t for t in pathdict[thispath]])))
+                        rawdata.setdefault(thispath,[]).append((run,sum([t for t in pathdict[thispath] if t])))
         if options.yscale=='linear':
             m.plotSumX_Run(rawdata,resultlines,textoutput=outtextfilename,yscale='linear',referenceLabel=referenceLabel,labels=labels)
         elif options.yscale=='log':
@@ -411,13 +428,13 @@ if __name__=='__main__':
                 rundata=lumibyls[run]
                 if not options.hltpath:
                     if len(rundata)!=0:
-                        rawdata.setdefault('Delivered',[]).append((fill,run,sum([t[5] for t in rundata])))
-                        rawdata.setdefault('Recorded',[]).append((fill,run,sum([t[6] for t in rundata])))
+                        rawdata.setdefault('Delivered',[]).append((fill,run,sum([t[5] for t in rundata if t[5]])))
+                        rawdata.setdefault('Recorded',[]).append((fill,run,sum([t[6] for t in rundata if t[6]])))
                 else:
                     labels=['Recorded']
                     if len(rundata)!=0:
                         pathdict={}#{pathname:[eff,]}
-                        rawdata.setdefault('Recorded',[]).append((fill,run,sum([t[6] for t in rundata])))
+                        rawdata.setdefault('Recorded',[]).append((fill,run,sum([t[6] for t in rundata if t[6]])))
                         for perlsdata in rundata:
                             effdict=perlsdata[8]
                             pathnames=effdict.keys()
@@ -425,7 +442,7 @@ if __name__=='__main__':
                                 pathdict.setdefault(thispath,[]).append(effdict[thispath][3])
                         for thispath in pathdict.keys():
                             labels.append(thispath)
-                            rawdata.setdefault(thispath,[]).append((fill,run,sum([t for t in pathdict[thispath]])))
+                            rawdata.setdefault(thispath,[]).append((fill,run,sum([t for t in pathdict[thispath] if t])))
         if options.yscale=='linear':
             m.plotSumX_Fill(rawdata,resultlines,textoutput=outtextfilename,yscale='linear',referenceLabel=referenceLabel)
         elif options.yscale=='log':
@@ -438,13 +455,13 @@ if __name__=='__main__':
             rundata=lumibyls[run]
             if not options.hltpath:
                 if len(rundata)!=0:
-                    rawdata.setdefault('Delivered',[]).append((run,rundata[0][2],rundata[-1][2],sum([t[5] for t in rundata])))
-                    rawdata.setdefault('Recorded',[]).append((run,rundata[0][2],rundata[-1][2],sum([t[6] for t in rundata])))
+                    rawdata.setdefault('Delivered',[]).append((run,rundata[0][2],rundata[-1][2],sum([t[5] for t in rundata if t[5]])))
+                    rawdata.setdefault('Recorded',[]).append((run,rundata[0][2],rundata[-1][2],sum([t[6] for t in rundata if t[6]])))
             else:
                 labels=['Recorded']
                 if len(rundata)!=0:
                     pathdict={}#{pathname:[eff,]}
-                    rawdata.setdefault('Recorded',[]).append((run,rundata[0][2],rundata[-1][2],sum([t[6] for t in rundata])))
+                    rawdata.setdefault('Recorded',[]).append((run,rundata[0][2],rundata[-1][2],sum([t[6] for t in rundata if t[6]])))
                     for perlsdata in rundata:
                         effdict=perlsdata[8]
                         pathnames=effdict.keys()
@@ -452,7 +469,7 @@ if __name__=='__main__':
                             pathdict.setdefault(thispath,[]).append(effdict[thispath][3])
                     for thispath in pathdict.keys():
                         labels.append(thispath)
-                        rawdata.setdefault(thispath,[]).append((run,rundata[0][2],rundata[-1][2],sum([t for t in pathdict[thispath]])))
+                        rawdata.setdefault(thispath,[]).append((run,rundata[0][2],rundata[-1][2],sum([t for t in pathdict[thispath] if t])))
         if options.yscale=='linear':
             m.plotSumX_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='linear',referenceLabel=referenceLabel)
         elif options.yscale=='log':
@@ -475,8 +492,8 @@ if __name__=='__main__':
             daydata=daydict[day]
             daybeg=str(daydata[0][0])+':'+str(daydata[0][1])
             dayend=str(daydata[-1][0])+':'+str(daydata[-1][1])
-            daydel=sum([t[2] for t in daydata])
-            dayrec=sum([t[3] for t in daydata])
+            daydel=sum([t[2] for t in daydata if t[2]])
+            dayrec=sum([t[3] for t in daydata if t[3]])
             rawdata.setdefault('Delivered',[]).append((day,daybeg,dayend,daydel))
             rawdata.setdefault('Recorded',[]).append((day,daybeg,dayend,dayrec))
         #print 'rawdata ',rawdata
@@ -507,7 +524,6 @@ if __name__=='__main__':
                     daymax_val=datatp[2]
                     daymax_run=datatp[0]
                     daymax_ls=datatp[1]
-            #print 'day ',day,' daymax_run ',daymax_run,' daymax_ls ',daymax_ls,' daymax_val ',daymax_val
             rawdata.setdefault('Delivered',[]).append((day,daymax_run,daymax_ls,daymax_val))
         if options.yscale=='linear':
             m.plotPeakPerday_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='linear',referenceLabel=referenceLabel)
@@ -541,7 +557,7 @@ if __name__=='__main__':
                 rawydata.setdefault('Recorded',[]).append(reclumi)
             rawxdata=[run,thisfillnumber,starttime,stoptime,totlumils,totcmsls]
         m.plotInst_RunLS(rawxdata,rawydata,textoutput=None)
-    
+        
     if options.yscale=='linear':
         if options.interactive:
             m.drawInteractive()
@@ -566,4 +582,4 @@ if __name__=='__main__':
             m.drawPNG(outplotfilename+'.png')
             mlog.drawPNG(outplotfilename+'_log.png')
             exit(0)
-        
+

@@ -23,7 +23,6 @@ def afterglowByFillscheme(fillscheme,afterglowPatterns):
     '''
     for (apattern,cfactor) in afterglowPatterns:
         if re.match(apattern,fillscheme):
-            #print apattern,cfactor
             return cfactor
     return 1.0
 
@@ -337,14 +336,8 @@ def pixelcorrectionsForRange(schema,inputRange):
         runs.append(int(inputRange))
     else:
         runs=inputRange
-    if not runs:
-        return {}
-    minrun=min(runs)
     afterglows=[]
-    if minrun>190380:
-        s=nameDealer.pixelfillschemeTableName(2012)
-    else:
-        s=nameDealer.fillschemeTableName()
+    s=nameDealer.fillschemeTableName()
     r=nameDealer.cmsrunsummaryTableName()
     qHandle=schema.newQuery()
     try:
