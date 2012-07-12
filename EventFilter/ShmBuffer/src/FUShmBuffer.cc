@@ -1524,10 +1524,16 @@ bool FUShmBuffer::setEvtTimeStamp(unsigned int index, time_t timeStamp) {
 //______________________________________________________________________________
 bool FUShmBuffer::setClientPrcId(pid_t prcId) {
 	lock();
-	stringstream details;
-	details << "nClients_<nClientsMax_ assertion failed! Actual nClients is "
+	try {
+		XCEPT_ASSERT(nClients_ < nClientsMax_, evf::Exception, "");
+	}
+	catch(...) {
+		stringstream details;
+		details << "nClients_<nClientsMax_ assertion failed! Actual nClients is "
 			<< nClients_ << " and nClientsMax is " << nClientsMax_;
-	XCEPT_ASSERT(nClients_ < nClientsMax_, evf::Exception, details.str());
+		unlock();
+		XCEPT_ASSERT(false, evf::Exception, details.str());
+	}
 	pid_t *prcid = (pid_t*) ((unsigned long) this + clientPrcIdOffset_);
 	for (unsigned int i = 0; i < nClients_; i++) {
 		if ((*prcid) == prcId) {
@@ -1551,7 +1557,10 @@ bool FUShmBuffer::removeClientPrcId(pid_t prcId) {
 		prcid++;
 		iClient++;
 	}
-	if (iClient==nClients_) return false;
+	if (iClient==nClients_) {
+		unlock();
+		return false;
+	}
 	//stringstream details;
 	//details << "iClient!=nClients_ assertion failed! Actual iClient is "
 	//		<< iClient;
@@ -1647,9 +1656,15 @@ bool FUShmBuffer::rawCellReadyForDiscard(unsigned int index) {
 			+ evtDiscardOffset_);
 	pcount += index;
 	lock();
-	stringstream details2;
-	details2 << "*pcount>0 assertion failed! Value at pcount is " << *pcount << " for cell index " << index;
-	XCEPT_ASSERT(*pcount > 0, evf::Exception, details2.str());
+	try {
+		XCEPT_ASSERT(*pcount > 0, evf::Exception, "");
+	}
+	catch (...) {
+		stringstream details2;
+		details2 << "*pcount>0 assertion failed! Value at pcount is " << *pcount << " for cell index " << index;
+		unlock();
+		XCEPT_ASSERT(false, evf::Exception, details2.str());
+	}
 	--(*pcount);
 	bool result = (*pcount == 0);
 	unlock();
