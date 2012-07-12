@@ -35,6 +35,11 @@ namespace l1slhc
 		const int& iEta(  ) const;
 		const int& iPhi(  ) const;
 		const int& E(  ) const;
+
+		//asymmetry member variables
+		const int& AsymEta(  ) const;
+		const int& AsymPhi(  ) const;
+
 		const bool& central(  ) const;
 		const math::PtEtaPhiMLorentzVector& p4(  ) const;	// returns LorentzVector in eta,phi space
 		const int& JetSize(  ) const;
@@ -69,6 +74,9 @@ namespace l1slhc
 		int mIphi;
 		int mE;
 		bool mCentral;
+//add asym
+		int mAsymEta;
+		int mAsymPhi;
 
 		int mJetSize;
 		L1TowerJet::tJetShape mJetShapeType;
