@@ -224,7 +224,22 @@ void FWPFCandidateWithHitsProxyBuilder::scaleProduct(TEveElementList* parent, FW
       }
    }
 }  
-
+//______________________________________________________________________________
+namespace {
+TString boxset_tooltip_callback(TEveDigitSet* ds, Int_t idx)
+{
+   void* ud = ds->GetUserData(idx);
+   if (ud);
+   {
+      reco::PFRecHit* hit = (reco::PFRecHit*) ud;
+      // printf("idx %d %p hit data %p\n", idx, (void*)hit, ud);
+      if (hit)
+         return TString::Format("RecHit %d energy '%f'", idx,  hit->energy());
+      else
+         return "ERROR";
+   }
+}
+}
 //______________________________________________________________________________
 void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandidate& cand, TEveElement* holder, const FWViewContext* vc)
 { 
@@ -282,10 +297,14 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
                }
             }
             boxset->RefitPlex();
+            boxset->SetAlwaysSecSelect(1);
+            boxset->SetPickable(1);
+            boxset->SetTooltipCBFoo(boxset_tooltip_callback);
             if (boxset->GetPlex()->Size() == 0)
                printf("Can't find matching hits with for HCAL block %d in HBHE collection. Number of hits %d.\n", elIdx, (int)hitsandfracs.size());
             //else   printf("boxset plex size N:%d Size %d: hits%d\n", boxset->GetPlex()->N(),  boxset->GetPlex()->Size(),  (int)hitsandfracs.size());
-            setupAddElement(boxset, holder);
+            //  setupAddElement(boxset, holder);
+            holder->AddElement(boxset);
             setupAddElement(lineset, holder);
 
          }
