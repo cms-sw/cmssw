@@ -1,11 +1,11 @@
-# /online/collisions/2012/7e33/v3.3/HLT/V4 (CMSSW_5_2_6)
+# /dev/CMSSW_5_2_1/GRun/V173 (CMSSW_5_2_6)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/7e33/v3.3/HLT/V4')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V173')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -11593,11 +11593,11 @@ hltTau3MuMuMuTkFilter = cms.EDFilter( "HLTmmkFilter",
     MaxEta = cms.double( 2.5 ),
     ThirdTrackMass = cms.double( 0.1 ),
     FastAccept = cms.bool( False ),
-    MaxInvMass = cms.double( 2.0 ),
+    MaxInvMass = cms.double( 2.1 ),
     MinCosinePointingAngle = cms.double( 0.98 ),
     MaxNormalisedChi2 = cms.double( 2.082 ),
     BeamSpotTag = cms.InputTag( "offlineBeamSpot" ),
-    MinInvMass = cms.double( 1.7 ),
+    MinInvMass = cms.double( 1.65 ),
     MuCand = cms.InputTag( "hltL3MuonCandidates" )
 )
 hltL1sL1DoubleMu10MuOpenORDoubleMu103p5 = cms.EDFilter( "HLTLevel1GTSeed",

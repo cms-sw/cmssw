@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/HLT/V430 (CMSSW_5_2_6)
+# /dev/CMSSW_5_2_1/HLT/V431 (CMSSW_5_2_6)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V430')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V431')
 )
 
 streams = cms.PSet( 
@@ -18756,11 +18756,11 @@ hltTau3MuMuMuTkFilter = cms.EDFilter( "HLTmmkFilter",
     MaxEta = cms.double( 2.5 ),
     ThirdTrackMass = cms.double( 0.1 ),
     FastAccept = cms.bool( False ),
-    MaxInvMass = cms.double( 2.0 ),
+    MaxInvMass = cms.double( 2.1 ),
     MinCosinePointingAngle = cms.double( 0.98 ),
     MaxNormalisedChi2 = cms.double( 2.082 ),
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
-    MinInvMass = cms.double( 1.7 ),
+    MinInvMass = cms.double( 1.65 ),
     MuCand = cms.InputTag( "hltL3MuonCandidates" )
 )
 hltL1sL1DoubleMu10MuOpenORDoubleMu103p5 = cms.EDFilter( "HLTLevel1GTSeed",

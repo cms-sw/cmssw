@@ -380,7 +380,7 @@ HLT_Ele22_eta2p1_WP90NoIso_LooseIsoPFTau20_v*                                   
 HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v*                                                           # sr #128206
 HLT_Mu17_eta2p1_LooseIsoPFTau20_v*                                                              # sr #128206
 
-HLT_Tau2Mu_ItTrack_v*                                                                           # sr #92594 (bug)
+HLT_Tau2Mu_ItTrack_v*                                                                           # sr #92594 (bug), sr #130210
 
 HLT_QuadJet80_v*                                                                                # sr #126462, removed L1FastJet from name
 HLT_SixJet45_v*                                                                                 # sr #126426, removed L1FastJet from name
