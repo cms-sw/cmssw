@@ -4,8 +4,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: dpiparo $
-# $Date: 2012/06/13 06:48:45 $
-# $Revision: 1.2 $
+# $Date: 2012/07/03 05:38:00 $
+# $Revision: 1.3 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -19,6 +19,7 @@ import cPickle
 import glob
 from re import search
 from subprocess import Popen,PIPE
+from multiprocessing import Pool
 from sys import exit
 
 import sys
@@ -310,6 +311,35 @@ def count_alive_processes(p_list):
 
 #-------------------------------------------------------------------------------
 
+def call_compare_using_files(args):
+  """Creates shell command to compare two files using compare_using_files.py
+  script and calls it."""
+  sample, ref_filename, test_filename, options = args
+  blacklists=guess_blacklists([sample],name2version(ref_filename),name2version(test_filename),options.hlt)
+  command = " compare_using_files.py "
+  command+= "%s %s " %(ref_filename,test_filename)
+  command+= " -C -R "
+  if options.do_pngs:
+    command+= " -p "
+  command+= " -o %s " %sample
+  # Change threshold to an experimental and empirical value of 10^-5
+  command+= " --specify_run "
+  command+= " -t %s " %options.test_threshold
+  command+= " -s %s " %options.stat_test
+
+  # Inspect the HLT directories
+  if options.hlt:
+    command+=" -d HLT "
+
+  if len(blacklists[sample]) >0:
+    command+= '-B %s ' %blacklists[sample]
+  print "\nExecuting --  %s" %command
+
+  process=Popen(filter(lambda x: len(x)>0,command.split(" ")))
+  process.name=sample
+
+#--------------------------------------------------------------------------------
+
 def do_comparisons_threaded(options):
 
   n_processes= int(options.n_processes)
@@ -378,55 +408,12 @@ def do_comparisons_threaded(options):
   running_subprocesses=[]
   process_counter=0
   print ref_filenames
-  for sample,ref_filename,test_filename in zip(samples,ref_filenames,test_filenames):
-    
-    blacklists=guess_blacklists([sample],name2version(ref_filename),name2version(test_filename),options.hlt)
-    
-    # Build samplename
-    #outdirname=sample
-    #if len(skim_name)>0:
-      #outdirname+="_%s"%skim_name
-    
-    # Build the commandline
-    command = " compare_using_files.py " 
-    command+= "%s %s " %(ref_filename,test_filename)           
-    command+= " -C -R "
-    if options.do_pngs:
-      command+= " -p "
-    command+= " -o %s " %sample
-    # Change threshold to an experimental and empirical value of 10^-5
-    command+= " --specify_run "
-    command+= " -t %s " %options.test_threshold
-    command+= " -s %s " %options.stat_test
 
-    # Inspect the HLT directories
-    if options.hlt:
-      command+=" -d HLT "
+  ## Compare all pairs of root files
+  pool = Pool(n_processes)
+  args_iterable = [list(args) + [options] for args in zip(samples, ref_filenames, test_filenames)]
+  pool.map(call_compare_using_files, args_iterable)
 
-    if len(blacklists[sample]) >0:
-      command+= '-B %s ' %blacklists[sample]        
-    print "\nExecuting --  %s" %command
-    
-    # start subprocess
-    process=Popen(filter(lambda x: len(x)>0,command.split(" ")))
-    process.name=sample
-    process_counter+=1
-    
-    # add it to the list
-    running_subprocesses.append(process)    
-    
-    
-    if process_counter>=n_processes:
-      process_counter=0
-      for p in running_subprocesses:
-        #print "Waiting for %s" %p.name
-        p.wait()
-
-  # Wait for all processes to be ended
-  for p in running_subprocesses:
-        #print "Waiting for %s" %p.name
-        p.wait()
-  
   # move the pickles on the top, hack
   os.system("mv */*pkl .")
   
