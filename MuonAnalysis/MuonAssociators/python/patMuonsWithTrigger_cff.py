@@ -166,7 +166,7 @@ def switchOffAmbiguityResolution(process):
 
 def changeTriggerProcessName(process, triggerProcessName, oldProcessName="HLT"):
     "Change the process name under which the trigger was run"
-    patTrigger.processName = triggerProcessName
+    patTriggerFull.processName = triggerProcessName
 
 def changeRecoMuonInput(process, recoMuonCollectionTag, oldRecoMuonCollectionTag=cms.InputTag("muons")):
     "Use a different input collection of reco muons"
