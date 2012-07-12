@@ -287,8 +287,10 @@ HLT_MET80_v*                                                                    
 HLT_HT650_Track50_dEdx3p6_v*                                                                    # sr #126412
 HLT_HT650_Track60_dEdx3p7_v*                                                                    # sr #126412
 
-HLT_L2Mu70_eta2p1_PFMET55_v*                                                                    # sr #128166
-HLT_L2Mu70_eta2p1_PFMET60_v*                                                                    # sr #128166
+#HLT_L2Mu70_eta2p1_PFMET55_v*                                                                   # sr #128166, removed in sr #130266
+#HLT_L2Mu70_eta2p1_PFMET60_v*                                                                   # sr #128166, removed in sr #130266
+HLT_L2Mu70_2Cha_eta2p1_PFMET55_v*                                                               # sr #130266
+HLT_L2Mu70_2Cha_eta2p1_PFMET60_v*                                                               # sr #130266
 
 #HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_PFMET20_v*                                        # sr #126441, renamed to *MET*, removed by sr #128209
 #HLT_Ele27_WP80_PFJet30_PFJet25_Deta3_v*                                                        # sr #126441, removed by sr #128209
