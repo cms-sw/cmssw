@@ -5,7 +5,7 @@
 // 
 // Original Author:  Rick Cavanaugh
 //         Created:  April 4, 2006
-// $Id: METProducer.cc,v 1.48 2012/06/06 23:20:13 sakuma Exp $
+// $Id: METProducer.cc,v 1.49 2012/06/07 01:16:10 sakuma Exp $
 //
 //
 
@@ -38,6 +38,7 @@
 #include "DataFormats/METReco/interface/PFClusterMETFwd.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
 
+#include "RecoMET/METAlgorithms/interface/METAlgo.h" 
 #include "RecoMET/METAlgorithms/interface/TCMETAlgo.h"
 #include "RecoMET/METAlgorithms/interface/SignAlgoResolutions.h"
 #include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
@@ -102,7 +103,7 @@ namespace cms
 	    else if( rfType_ == 2 ) responseFunctionType = 2; // 'mode'
 	    else { /* probably error */ }
 	  }
-	tcmetalgorithm.configure(iConfig, responseFunctionType );
+	tcMetAlgo_.configure(iConfig, responseFunctionType );
       }
     else                            
       produces<reco::METCollection>().setBranchAlias(alias.c_str()); 
@@ -154,26 +155,20 @@ namespace cms
     edm::Handle<edm::View<reco::Candidate> > input;
     event.getByLabel(inputLabel, input);
 
-    CommonMETData output;
+    static METAlgo algo;
+    CommonMETData commonMETdata = algo.run(input, globalThreshold);
 
-    //Run Basic MET Algorithm
-    alg_.run(input, &output, globalThreshold);
+    static CaloSpecificAlgo calospecalgo;
+    reco::CaloMET calomet = calospecalgo.addInfo(input, commonMETdata, noHF, globalThreshold);
 
-    // Run CaloSpecific Algorithm
-    CaloSpecificAlgo calospecalgo;
-    reco::CaloMET calomet = calospecalgo.addInfo(input, output, noHF, globalThreshold);
-
-    //Run algorithm to calculate CaloMET Significance and add to the MET Object
     if( calculateSignificance_ ) 
       {
 	SignCaloSpecificAlgo signcalospecalgo;
-	//metsig::SignAlgoResolutions resolutions(conf_);
-	
-	signcalospecalgo.calculateBaseCaloMET(input,output,*resolutions_,noHF,globalThreshold);
-	calomet.SetMetSignificance( signcalospecalgo.getSignificance() );
+	signcalospecalgo.calculateBaseCaloMET(input, commonMETdata, *resolutions_, noHF, globalThreshold);
+	calomet.SetMetSignificance(signcalospecalgo.getSignificance() );
 	calomet.setSignificanceMatrix(signcalospecalgo.getSignificanceMatrix());
       }
-    //Store CaloMET object in CaloMET collection 
+
     std::auto_ptr<reco::CaloMETCollection> calometcoll;
     calometcoll.reset(new reco::CaloMETCollection);
     calometcoll->push_back( calomet ) ;
@@ -184,7 +179,7 @@ namespace cms
   {
     std::auto_ptr<reco::METCollection> tcmetcoll;
     tcmetcoll.reset(new reco::METCollection);
-    tcmetcoll->push_back( tcmetalgorithm.CalculateTCMET(event, setup ) ) ;
+    tcmetcoll->push_back( tcMetAlgo_.CalculateTCMET(event, setup ) ) ;
     event.put( tcmetcoll );
   }
 
@@ -193,22 +188,21 @@ namespace cms
     edm::Handle<edm::View<reco::Candidate> > input;
     event.getByLabel(inputLabel, input);
 
-    CommonMETData output;
+    static METAlgo algo;
+    CommonMETData commonMETdata = algo.run(input, globalThreshold);
 
-    alg_.run(input, &output, globalThreshold);
     PFSpecificAlgo pf;
-    std::auto_ptr<reco::PFMETCollection> pfmetcoll;
-    pfmetcoll.reset (new reco::PFMETCollection);
 	
-    // add resolutions and calculate significance
     if( calculateSignificance_ )
       {
-	//metsig::SignAlgoResolutions resolutions(conf_);
 	edm::Handle<edm::View<reco::PFJet> > jets;
-	event.getByLabel(jetsLabel_,jets);
+	event.getByLabel(jetsLabel_, jets);
 	pf.runSignificance(*resolutions_, jets);
       }
-    pfmetcoll->push_back( pf.addInfo(input, output) );
+
+    std::auto_ptr<reco::PFMETCollection> pfmetcoll;
+    pfmetcoll.reset(new reco::PFMETCollection);
+    pfmetcoll->push_back( pf.addInfo(input, commonMETdata) );
     event.put( pfmetcoll );
   }
 
@@ -217,14 +211,14 @@ namespace cms
     edm::Handle<edm::View<reco::Candidate> > input;
     event.getByLabel(inputLabel, input);
 
-    CommonMETData output;
+    static METAlgo algo;
+    CommonMETData commonMETdata = algo.run(input, globalThreshold);
 
-    alg_.run(input, &output, globalThreshold);
     PFClusterSpecificAlgo pfcluster;
     std::auto_ptr<reco::PFClusterMETCollection> pfclustermetcoll;
     pfclustermetcoll.reset (new reco::PFClusterMETCollection);
 	
-    pfclustermetcoll->push_back( pfcluster.addInfo(input, output) );
+    pfclustermetcoll->push_back( pfcluster.addInfo(input, commonMETdata) );
     event.put( pfclustermetcoll );
   }
 
@@ -233,12 +227,12 @@ namespace cms
     edm::Handle<edm::View<reco::Candidate> > input;
     event.getByLabel(inputLabel, input);
 
-    CommonMETData output;
+    CommonMETData commonMETdata;
 
     GenSpecificAlgo gen;
     std::auto_ptr<reco::GenMETCollection> genmetcoll;
     genmetcoll.reset (new reco::GenMETCollection);
-    genmetcoll->push_back( gen.addInfo(input, &output, globalThreshold, onlyFiducial, usePt) );
+    genmetcoll->push_back( gen.addInfo(input, &commonMETdata, globalThreshold, onlyFiducial, usePt) );
     event.put( genmetcoll );
   }
   
@@ -247,13 +241,14 @@ namespace cms
     edm::Handle<edm::View<reco::Candidate> > input;
     event.getByLabel(inputLabel, input);
 
-    CommonMETData output;
+    CommonMETData commonMETdata;
 
-    alg_.run(input, &output, globalThreshold); 
+    static METAlgo algo;
+    algo.run(input, &commonMETdata, globalThreshold); 
 
-    math::XYZTLorentzVector p4( output.mex, output.mey, 0.0, output.met);
+    math::XYZTLorentzVector p4( commonMETdata.mex, commonMETdata.mey, 0.0, commonMETdata.met);
     math::XYZPoint vtx(0,0,0);
-    reco::MET met( output.sumet, p4, vtx );
+    reco::MET met( commonMETdata.sumet, p4, vtx );
     std::auto_ptr<reco::METCollection> metcoll;
     metcoll.reset(new reco::METCollection);
     metcoll->push_back( met );

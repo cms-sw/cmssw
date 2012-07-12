@@ -13,7 +13,7 @@
 //
 // Original Author:  Rick Cavanaugh
 //         Created:  May 14, 2005
-// $Id: METProducer.h,v 1.28 2012/06/06 23:20:12 sakuma Exp $
+// $Id: METProducer.h,v 1.29 2012/06/07 01:16:10 sakuma Exp $
 //
 //
 
@@ -22,7 +22,6 @@
 
 #include <string.h>
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "RecoMET/METAlgorithms/interface/METAlgo.h" 
 #include "RecoMET/METAlgorithms/interface/TCMETAlgo.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -44,7 +43,6 @@ namespace cms
     {
     public:
       explicit METProducer(const edm::ParameterSet&);
-      // explicit METProducer();
       virtual ~METProducer() { }
       virtual void produce(edm::Event&, const edm::EventSetup&);
 
@@ -80,8 +78,7 @@ namespace cms
       //Use Pt instaed of Et
       bool usePt; 
 
-      METAlgo alg_; 
-      TCMETAlgo tcmetalgorithm;
+      TCMETAlgo tcMetAlgo_;
     };
 }
 
