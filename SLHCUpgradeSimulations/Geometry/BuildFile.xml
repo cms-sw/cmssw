@@ -4,6 +4,5 @@
 <use   name="SimG4Core/Watcher"/>
 <use   name="SimG4Core/Geometry"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="geant4core"/>
 <use   name="boost"/>
 <flags   EDM_PLUGIN="1"/>
