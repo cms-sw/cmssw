@@ -1,91 +1,45 @@
 import FWCore.ParameterSet.Config as cms
 
+#==================================================== FILTER EVENTS WITH WZSkims
+#from DPGAnalysis.Skims.WElectronSkim_cff import *  # already imported by ZElectronSkim_cff
+from DPGAnalysis.Skims.ZElectronSkim_cff import *
+# tagGsfSeq for Zee
+#
+WSkimSeq = cms.Sequence( WEnuHltFilter * ele_sequence * elecMetFilter )
+
+
+#===================================================== removing events with trackerDrivenOnly electrons
+# if you want to filter events with trackerDrivenOnly electrons
+# you should produce a collection containing the Ref to the
+# trackerDrivenOnly electrons and then you should filter these events
+# the lines to produce the Ref collection are the following
+# you should not need to uncomment those, because I've already
+# produced them in the ALCARECO step
+trackerDrivenOnlyElectrons = cms.EDFilter("GsfElectronRefSelector",
+                                          src = cms.InputTag( 'gsfElectrons' ),
+                                          cut = cms.string( "(ecalDrivenSeed==0)" )
+                                          )
+
+# these lines active a filter that counts if there are more than 0
+# trackerDrivenOnly electrons 
+trackerDrivenRemover = cms.EDFilter("PATCandViewCountFilter",
+                                    minNumber = cms.uint32(0),
+                                    maxNumber = cms.uint32(0),
+                                    src = cms.InputTag("trackerDrivenOnlyElectrons")
+                                    )
+trackerDrivenRemoverSeq = cms.Sequence( trackerDrivenOnlyElectrons * process.trackerDrivenRemover )
+
+
+
+
 from Calibration.EcalAlCaRecoProducers.alCaIsolatedElectrons_cfi import *
-from Calibration.EcalAlCaRecoProducers.electronIsolationSequence_cff import *
-from RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi import *
-
-import HLTrigger.HLTfilters.hltHighLevel_cfi 
-
-#
-# The current (as of $Date: 2010/03/04 05:42:57 $) ALCA stream for single and double electron
-# calibration
-#
-
-isolElectronewkHLTFilter=HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
-#   HLTPaths = ['HLT_Ele15_SW_L1R', 'HLT_DoubleEle10_SW_L1R', # 1E31
-#               'HLT_Ele10_LW_L1R', 'HLT_DoubleEle5_SW_L1R']  # 8E29
-    eventSetupPathsKey='EcalCalElectron',
-    throw = False
-)
-
-goodElectrons = cms.EDFilter("CandViewRefSelector",
-    filter = cms.bool(True),
-    src = cms.InputTag("gsfElectrons"),
-    cut = cms.string('et > 15')
-)
-
-goodElectronFilter = cms.EDFilter("CandViewCountFilter",
-    src = cms.InputTag("goodElectrons"),
-    minNumber = cms.uint32(1)
-)
-
-goodElectrons2 = cms.EDFilter("CandViewRefSelector",
-    filter = cms.bool(True),
-    src = cms.InputTag("gsfElectrons"),
-    cut = cms.string('et > 1')
-)
-
-goodElectronFilter2 = cms.EDFilter("CandViewCountFilter",
-    src = cms.InputTag("goodElectrons2"),
-    minNumber = cms.uint32(0)
-)
-
-
-
-superClusterMerger =  cms.EDProducer("EgammaSuperClusterMerger",
-    src = cms.VInputTag(cms.InputTag('correctedHybridSuperClusters'), cms.InputTag('correctedMulti5x5SuperClustersWithPreshower'))
-    )
-
-superClusterCands = cms.EDProducer("ConcreteEcalCandidateProducer",
-    src = cms.InputTag("superClusterMerger"),
-    particleType = cms.string('gamma')
-)
-
-goodSuperClusters = cms.EDFilter("CandViewRefSelector",
-    filter = cms.bool(True),
-    src = cms.InputTag("superClusterCands"),
-    cut = cms.string('et > 20')
-)
-
-goodSuperClusterFilter = cms.EDFilter("CandViewCountFilter",
-    src = cms.InputTag("goodSuperClusters"),
-    minNumber = cms.uint32(1)
-)
-
-goodSuperClusters2 = cms.EDFilter("CandViewRefSelector",
-    filter = cms.bool(True),
-    src = cms.InputTag("superClusterCands"),
-    cut = cms.string('et > 10')
-)
-
-goodSuperClusterFilter2 = cms.EDFilter("CandViewCountFilter",
-    src = cms.InputTag("goodSuperClusters2"),
-    minNumber = cms.uint32(0)
-)
 
 seqALCARECOEcalCalElectronRECO = cms.Sequence(alCaIsolatedElectrons)
 
-seqALCARECOEcalCalElectron = cms.Sequence(isolElectronewkHLTFilter*         \
-                                          superClusterMerger*               \
-                                          superClusterCands*                \
-                                          goodSuperClusters*                \
-                                          goodSuperClusterFilter*           \
-                                          goodSuperClusters2*               \
-                                          goodSuperClusterFilter2*          \
-                                          goodElectrons*                    \
-                                          goodElectronFilter*               \
-                                          goodElectrons2*                   \
-                                          goodElectronFilter2*              \
-                                          alcaElectronIsolationSequence*    \
-                                          seqALCARECOEcalCalElectronRECO)
+seqALCARECOEcalCalElectron = cms.Sequence( ( tagGsfSeq +
+                                             WSkimSeq +
+                                             trackerDrivenRemoverSeq
+                                             ) *
+                                           seqALCARECOEcalCalElectronRECO
+                                           )
 
