@@ -1,12 +1,12 @@
-#ifndef _ALCAELECTRONSPRODUCER_H
-#define _ALCAELECTRONSPRODUCER_H
+#ifndef _ALCAECALRECHITREDUCER_H
+#define _ALCAECALRECHITREDUCER_H
 
 // -*- C++ -*-
 //
-// Package:    AlCaElectronsProducer
-// Class:      AlCaElectronsProducer
+// Package:    AlCaECALRecHitReducer
+// Class:      AlCaECALRecHitReducer
 // 
-/**\class AlCaElectronsProducer AlCaElectronsProducer.cc Calibration/EcalAlCaRecoProducers/src/AlCaElectronsProducer.cc
+/**\class AlCaECALRecHitReducer AlCaECALRecHitReducer.cc Calibration/EcalAlCaRecoProducers/src/AlCaECALRecHitReducer.cc
 
  Description: Example of a producer of AlCa electrons
 
@@ -17,7 +17,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Mon Jul 17 18:07:01 CEST 2006
-// $Id: AlCaElectronsProducer.h,v 1.12 2010/01/06 17:46:42 presotto Exp $
+// $Id: AlCaECALRecHitReducer.h,v 1.13 2010/02/11 00:10:34 wmtan Exp $
 //
 //
 
@@ -42,11 +42,11 @@
 //! class declaration
 //!
 
-class AlCaElectronsProducer : public edm::EDProducer {
+class AlCaECALRecHitReducer : public edm::EDProducer {
    public:
       //! ctor
-      explicit AlCaElectronsProducer(const edm::ParameterSet&);
-      ~AlCaElectronsProducer();
+      explicit AlCaECALRecHitReducer(const edm::ParameterSet&);
+      ~AlCaECALRecHitReducer();
 
  
 //PG       void beginJob (const edm::EventSetup&)
