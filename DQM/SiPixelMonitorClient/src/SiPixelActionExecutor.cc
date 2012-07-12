@@ -749,6 +749,12 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
     vector<MonitorElement*> sum_mes;
     for (vector<string>::const_iterator iv = me_names.begin();
 	 iv != me_names.end(); iv++) {
+      //Look to see if plot is already booked?
+      bool isBooked = false;
+      vector<string> contents = bei->getMEs(); 
+      for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++)
+	if ((*im).find(*iv) != string::npos) isBooked = true;
+      if (isBooked) edm::LogInfo("SiPixelActionExecutor") << "[SiPixelActionExecutor]: Double-booking found for "<< (*iv) <<"\n";
       if(source_type_==5||source_type_==6){
 	if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
 	   (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
@@ -764,7 +770,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
         string tag = prefix + "_" + (*iv) + "_FEDErrors";
         MonitorElement* temp = getFEDSummaryME(bei, tag);
         sum_mes.push_back(temp);
-      }else if((*iv)=="FedChLErrArray"||(*iv)=="FedChNErrArray"||(*iv)=="FedETypeNErrArray"){
+      }else if(!isBooked && ((*iv)=="FedChLErrArray"||(*iv)=="FedChNErrArray"||(*iv)=="FedETypeNErrArray")){
         string tag = prefix + "_" + (*iv);
 	MonitorElement* temp;
 	if((*iv)=="FedChLErrArray") temp = bei->book2D("FedChLErrArray","Type of last error",40,-0.5,39.5,37,0.,37.);
