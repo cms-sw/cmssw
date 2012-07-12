@@ -6,6 +6,7 @@
 #include "TEveTrackPropagator.h"
 #include "TEveCompound.h"
 #include "TEveStraightLineSet.h"
+#include "TEveProjectionBases.h"
 
 #include "Fireworks/ParticleFlow/plugins/FWPFCandidateWithHitsProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -212,19 +213,13 @@ void FWPFCandidateWithHitsProxyBuilder::scaleProduct(TEveElementList* parent, FW
                memcpy(atom->fVertices, &scaledCorners[0], sizeof(atom->fVertices));
 
                editBoxInLineSet(li, &scaledCorners[0]);
-               /* 
-               TEveStraightLineSet::Line_t& line = * (TEveStraightLineSet::Line_t*) li();
-              
-               float* p = &scaledCorners[0];
-               for (int i = 0; i < 3 ; ++i) {
-                  line.fV1[i] = p[i];
-                  line.fV2[0+i] = p[3+i];
-               }
-
-               break;
-               */
             }
 
+            for (TEveProjectable::ProjList_i p = lineset->BeginProjecteds(); p != lineset->EndProjecteds(); ++p)
+            {
+               TEveStraightLineSetProjected* projLineSet = (TEveStraightLineSetProjected*)(*p);
+               projLineSet->UpdateProjection();
+            }
          }
       }
    }
