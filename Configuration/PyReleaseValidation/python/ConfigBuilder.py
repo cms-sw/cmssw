@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.390 $"
+__version__ = "$Revision: 1.391 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -266,7 +266,9 @@ class ConfigBuilder(object):
         self.additionalCommands.append(command)
         if not command.strip().startswith("#"):
             # substitute: process.foo = process.bar -> self.process.foo = self.process.bar
-            exec(command.replace("process.","self.process."))
+            import re
+            exec(re.sub(r"([^a-zA-Z_0-9]|^)(process)([^a-zA-Z_0-9])",r"\1self.process\3",command))
+            #exec(command.replace("process.","self.process."))
 
     def addCommon(self):
             if 'HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys():
@@ -1531,6 +1533,8 @@ class ConfigBuilder(object):
 
 	    if not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap:
 		    self.executeAndRemember("process.mix.playback = True")
+		    self.executeAndRemember("process.mix.digitizers = cms.PSet()")
+                    self.executeAndRemember("for a in process.aliases: delattr(process, a)")
 
 	    if hasattr(self.process,"genstepfilter") and len(self.process.genstepfilter.triggerConditions):
 		    #will get in the schedule, smoothly
@@ -1785,7 +1789,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.390 $"),
+                                            (version=cms.untracked.string("$Revision: 1.391 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
