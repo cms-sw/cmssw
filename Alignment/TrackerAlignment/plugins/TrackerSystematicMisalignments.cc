@@ -112,12 +112,8 @@ void TrackerSystematicMisalignments::analyze(const edm::Event& event, const edm:
 	const edm::ParameterSet tkGeomConsts( theParameterSet.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
 	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom,
 									      tkGeomConsts.getParameter<bool>("upgradeGeometry"),
-									      tkGeomConsts.getParameter<int>( "ROWS_PER_ROC" ),
-									      tkGeomConsts.getParameter<int>( "COLS_PER_ROC" ),
 									      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
-									      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ),
-									      tkGeomConsts.getParameter<int>( "ROCS_X" ),
-									      tkGeomConsts.getParameter<int>( "ROCS_Y" ));
+									      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ));
 	
 	//take geometry from DB or randomly generate geometry
 	if (m_fromDBGeom){

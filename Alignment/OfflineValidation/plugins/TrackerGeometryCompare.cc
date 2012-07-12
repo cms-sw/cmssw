@@ -302,13 +302,8 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	//reference tracker
 	TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet,
 							      tkGeomConsts.getParameter<bool>("upgradeGeometry"),
-							      tkGeomConsts.getParameter<int>( "ROWS_PER_ROC" ),
-							      tkGeomConsts.getParameter<int>( "COLS_PER_ROC" ),
 							      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
-							      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ),
-							      tkGeomConsts.getParameter<int>( "ROCS_X" ),
-							      tkGeomConsts.getParameter<int>( "ROCS_Y" ));
-
+							      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ));
 	if (_inputFilename1 != "IDEAL"){
 		GeometryAligner aligner1;
 		aligner1.applyAlignments<TrackerGeometry>( &(*theRefTracker), &(*alignments1), &(*alignmentErrors1),
@@ -319,13 +314,8 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	//currernt tracker
 	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet,
 							      tkGeomConsts.getParameter<bool>("upgradeGeometry"),
-							      tkGeomConsts.getParameter<int>( "ROWS_PER_ROC" ),
-							      tkGeomConsts.getParameter<int>( "COLS_PER_ROC" ),
 							      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
-							      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ),
-							      tkGeomConsts.getParameter<int>( "ROCS_X" ),
-							      tkGeomConsts.getParameter<int>( "ROCS_Y" ));
-
+							      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ));
 	if (_inputFilename2 != "IDEAL"){
 		GeometryAligner aligner2;
 		aligner2.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments2), &(*alignmentErrors2),

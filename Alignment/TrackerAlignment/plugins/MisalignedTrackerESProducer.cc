@@ -92,13 +92,8 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
   theTracker  = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*gD),
 									 theTkConstants.getParameter<bool>("upgradeGeometry"),
-									 theTkConstants.getParameter<int>( "ROWS_PER_ROC" ),
-									 theTkConstants.getParameter<int>( "COLS_PER_ROC" ),
 									 theTkConstants.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
-									 theTkConstants.getParameter<int>( "BIG_PIX_PER_ROC_Y" ),
-									 theTkConstants.getParameter<int>( "ROCS_X" ),
-									 theTkConstants.getParameter<int>( "ROCS_Y" )));
-	
+									 theTkConstants.getParameter<int>( "BIG_PIX_PER_ROC_Y" )));
   // Create the alignable hierarchy
   std::auto_ptr<AlignableTracker> theAlignableTracker(new AlignableTracker( &(*theTracker) ) );
 

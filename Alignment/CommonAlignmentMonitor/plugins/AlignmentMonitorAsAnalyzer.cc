@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Apr 26 12:36:13 CDT 2008
-// $Id: AlignmentMonitorAsAnalyzer.cc,v 1.6 2012/06/13 09:10:35 yana Exp $
+// $Id: AlignmentMonitorAsAnalyzer.cc,v 1.7 2012/06/13 16:23:30 yana Exp $
 //
 //
 
@@ -143,12 +143,8 @@ AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
       TrackerGeomBuilderFromGeometricDet trackerBuilder;
       boost::shared_ptr<TrackerGeometry> theTracker(trackerBuilder.build(&(*theGeometricDet),
 									 theTkConstants.getParameter<bool>("upgradeGeometry"),
-									 theTkConstants.getParameter<int>( "ROWS_PER_ROC" ),
-									 theTkConstants.getParameter<int>( "COLS_PER_ROC" ),
 									 theTkConstants.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
-									 theTkConstants.getParameter<int>( "BIG_PIX_PER_ROC_Y" ),
-									 theTkConstants.getParameter<int>( "ROCS_X" ),
-									 theTkConstants.getParameter<int>( "ROCS_Y" )));
+									 theTkConstants.getParameter<int>( "BIG_PIX_PER_ROC_Y" )));
       
       edm::ESHandle<MuonDDDConstants> mdc;
       iSetup.get<MuonNumberingRecord>().get(mdc);

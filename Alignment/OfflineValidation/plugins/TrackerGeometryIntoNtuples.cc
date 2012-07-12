@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: TrackerGeometryIntoNtuples.cc,v 1.9 2012/06/13 09:20:14 yana Exp $
+// $Id: TrackerGeometryIntoNtuples.cc,v 1.10 2012/06/13 16:23:31 yana Exp $
 //
 //
 
@@ -134,13 +134,8 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 	const edm::ParameterSet tkGeomConsts( theParameterSet.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
 	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet,
 							      tkGeomConsts.getParameter<bool>("upgradeGeometry"),
-							      tkGeomConsts.getParameter<int>( "ROWS_PER_ROC" ),
-							      tkGeomConsts.getParameter<int>( "COLS_PER_ROC" ),
 							      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
-							      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ),
-							      tkGeomConsts.getParameter<int>( "ROCS_X" ),
-							      tkGeomConsts.getParameter<int>( "ROCS_Y" ));
-	
+							      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ));
 	//build the tracker
 	edm::ESHandle<Alignments> alignments;
 	edm::ESHandle<AlignmentErrors> alignmentErrors;

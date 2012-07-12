@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2012/06/13 09:16:06 $
- *  $Revision: 1.43 $
+ *  $Date: 2012/06/13 16:23:31 $
+ *  $Revision: 1.44 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -289,13 +289,9 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
       const edm::ParameterSet tkGeomConsts( theParameterSet.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
       TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet,
 							    tkGeomConsts.getParameter<bool>("upgradeGeometry"),
-							    tkGeomConsts.getParameter<int>( "ROWS_PER_ROC" ),
-							    tkGeomConsts.getParameter<int>( "COLS_PER_ROC" ),
 							    tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
-							    tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ),
-							    tkGeomConsts.getParameter<int>( "ROCS_X" ),
-							    tkGeomConsts.getParameter<int>( "ROCS_Y" ));
-
+							    tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ));
+      
       theAlignableTracker = new AlignableTracker(&(*theRefTracker));
     }
     else {

@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.63 $
-///  last update: $Date: 2012/06/13 09:13:57 $
+///  Revision   : $Revision: 1.64 $
+///  last update: $Date: 2012/06/13 16:23:30 $
 ///  by         : $Author: yana $
 
 #include "AlignmentProducer.h"
@@ -608,12 +608,8 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
      TrackerGeomBuilderFromGeometricDet trackerBuilder;
      theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet),
 									   tkGeomConsts.getParameter<bool>("upgradeGeometry"),
-									   tkGeomConsts.getParameter<int>( "ROWS_PER_ROC" ),
-									   tkGeomConsts.getParameter<int>( "COLS_PER_ROC" ),
 									   tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
-									   tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ),
-									   tkGeomConsts.getParameter<int>( "ROCS_X" ),
-									   tkGeomConsts.getParameter<int>( "ROCS_Y" )));
+									   tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" )));
    }
 
    if (doMuon_) {
