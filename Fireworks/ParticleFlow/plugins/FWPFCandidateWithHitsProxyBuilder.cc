@@ -57,7 +57,7 @@ FWPFCandidateWithHitsProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
 
  
    Int_t idx = 0;
-   initCaloRecHitsCollections();
+   initPFRecHitsCollections();
    for( reco::PFCandidateCollection::const_iterator it = candidates->begin(), itEnd = candidates->end(); it != itEnd; ++it, ++idx)
    {  
       TEveCompound* comp = createCompound();
@@ -89,19 +89,20 @@ FWPFCandidateWithHitsProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
 }
 
 //______________________________________________________________________________
-void FWPFCandidateWithHitsProxyBuilder::initCaloRecHitsCollections()
+void FWPFCandidateWithHitsProxyBuilder::initPFRecHitsCollections()
 {  
    // ref hcal collections
-   edm::Handle<HBHERecHitCollection> handle_hits;
+   edm::Handle<reco::PFRecHitCollection> handle_hits;
 
-   m_collectionHBHE =0;
+   m_collectionHCAL =0;
    try
    {
-      edm::InputTag tag("hbhereco");
+      // edm::InputTag tag("hbhereco");
+      edm::InputTag tag("particleFlowRecHitHCAL");
       item()->getEvent()->getByLabel(tag, handle_hits);
       if (handle_hits.isValid())
       {
-         m_collectionHBHE = &*handle_hits;
+         m_collectionHCAL = &*handle_hits;
       }
    }
    catch (...)
@@ -111,7 +112,7 @@ void FWPFCandidateWithHitsProxyBuilder::initCaloRecHitsCollections()
 }
 
 //______________________________________________________________________________
-void FWPFCandidateWithHitsProxyBuilder::viewContextBoxScale( const float* corners, float scale, bool plotEt, std::vector<float>& scaledCorners, const CaloRecHit*)
+void FWPFCandidateWithHitsProxyBuilder::viewContextBoxScale( const float* corners, float scale, bool plotEt, std::vector<float>& scaledCorners, const reco::PFRecHit*)
 {
    static TEveVector vtmp;
    vtmp.Set(0.f, 0.f, 0.f);
@@ -138,13 +139,13 @@ void FWPFCandidateWithHitsProxyBuilder::viewContextBoxScale( const float* corner
 }
 
 //______________________________________________________________________________
-const CaloRecHit* FWPFCandidateWithHitsProxyBuilder::getHitForDetId(uint32_t candIdx)
+const reco::PFRecHit* FWPFCandidateWithHitsProxyBuilder::getHitForDetId(unsigned candIdx)
 {
 
-   for (HBHERecHitCollection::const_iterator it = m_collectionHBHE->begin(); it != m_collectionHBHE->end(); ++it)
+   for (reco::PFRecHitCollection::const_iterator it = m_collectionHCAL->begin(); it != m_collectionHCAL->end(); ++it)
    {
-      unsigned int x = it->detid();
-      if ( x == candIdx)
+
+      if ( it->detId() == candIdx)
       {
          return  &(*it);
       }
@@ -155,7 +156,6 @@ const CaloRecHit* FWPFCandidateWithHitsProxyBuilder::getHitForDetId(uint32_t can
 //______________________________________________________________________________
 void FWPFCandidateWithHitsProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc)
 {
-   /*
    std::vector<float> scaledCorners(24);
 
    float scale = vc->getEnergyScale()->getScaleFactor3D()/50;
@@ -166,20 +166,23 @@ void FWPFCandidateWithHitsProxyBuilder::scaleProduct(TEveElementList* parent, FW
          TEveElement::List_i xx =  (*i)->BeginChildren(); ++xx;
          TEveBoxSet* boxset = dynamic_cast<TEveBoxSet*>(*xx);
          TEveChunkManager* plex = boxset->GetPlex();
-         //         printf("=== boxset %p N:%d Size:%d\n",(void*)plex,  plex->N(),  plex->Size());
          if (plex->N())
          {
             for (int atomIdx=0; atomIdx < plex->Size(); ++atomIdx)
             {
-               TEveBoxSet::BFreeBox_t* atom = (TEveBoxSet::BFreeBox_t*)boxset->GetPlex()->Atom(atomIdx);
-               // printf("atom %d %p\n", atomIdx, (void*)atom);
-               // printf("%d corner %f \n", atomIdx, atom->fVertices[0][0]);
+               if (boxset->GetUserData(atomIdx))
+               {
+                  TEveBoxSet::BFreeBox_t* atom = (TEveBoxSet::BFreeBox_t*)boxset->GetPlex()->Atom(atomIdx);
+                  reco::PFRecHit* hit = (reco::PFRecHit*)boxset->GetUserData(atomIdx);
+                  const float* corners = item()->getGeom()->getCorners(hit->detId());
+                  viewContextBoxScale(corners, hit->energy()*scale, vc->getEnergyScale()->getPlotEt(), scaledCorners, hit);
+                  memcpy(atom->fVertices, &scaledCorners[0], sizeof(atom->fVertices));
+               }
             }
 
          }
       }
    }
-   */
 }  
 
 //______________________________________________________________________________
@@ -223,7 +226,7 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
             {
                unsigned int hitDetId = hitsandfracs[ihandf].first;
                const float* corners = context().getGeom()->getCorners(hitDetId);
-               const CaloRecHit* hit = getHitForDetId(hitDetId);
+               const reco::PFRecHit* hit = getHitForDetId(hitDetId);
                if (hit)
                {
                   viewContextBoxScale( corners, hit->energy()*scale, vc->getEnergyScale()->getPlotEt(), scaledCorners, hit);
@@ -241,8 +244,7 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
             boxset->RefitPlex();
             if (boxset->GetPlex()->Size() == 0)
                printf("Can't find matching hits with for HCAL block %d in HBHE collection. Number of hits %d.\n", elIdx, (int)hitsandfracs.size());
-            else
-               printf("boxset plex size N:%d Size %d: hits%d\n", boxset->GetPlex()->N(),  boxset->GetPlex()->Size(),  (int)hitsandfracs.size());
+            //else   printf("boxset plex size N:%d Size %d: hits%d\n", boxset->GetPlex()->N(),  boxset->GetPlex()->Size(),  (int)hitsandfracs.size());
             setupAddElement(boxset, holder);
             setupAddElement(lineset, holder);
 

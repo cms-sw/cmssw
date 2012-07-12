@@ -1,8 +1,11 @@
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+//#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 namespace reco 
 {
 class PFCandidate;
+class PFRecHit;
 }
 class CaloRecHit;
 
@@ -25,9 +28,10 @@ private:
    const FWPFCandidateWithHitsProxyBuilder& operator=( const FWPFCandidateWithHitsProxyBuilder& );   // Stop default
 
    void addHitsForCandidate(const reco::PFCandidate& c, TEveElement* holder, const FWViewContext* vc);
-   void initCaloRecHitsCollections();
-   const CaloRecHit* getHitForDetId(uint32_t detId);
-   void viewContextBoxScale( const float* corners, float scale, bool plotEt, std::vector<float>& scaledCorners, const CaloRecHit*);
+   void initPFRecHitsCollections();
+   const reco::PFRecHit* getHitForDetId(unsigned detId);
+   void viewContextBoxScale( const float* corners, float scale, bool plotEt, std::vector<float>& scaledCorners, const reco::PFRecHit*);
 
-   const HBHERecHitCollection *m_collectionHBHE;
+   const reco::PFRecHitCollection *m_collectionHCAL;
+
 };
