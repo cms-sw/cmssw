@@ -28,13 +28,11 @@ public:
 
   virtual const TopologyType& specificTopology() const  { return *theTopology;}
 
-
-  void setTopology( TopologyType* topol);
-
 private:
-
+  PixelGeomDetType& operator = ( const PixelGeomDetType& other );
+  PixelGeomDetType( const PixelGeomDetType& other );
+    
   TopologyType*    theTopology;
-
 };
 
 

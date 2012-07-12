@@ -7,10 +7,11 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripTopologyBuilder.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/GeometrySurface/interface/MediumProperties.h"
-
 
 #include <cfloat>
 #include <cassert>
@@ -55,11 +56,11 @@ TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* 
     dets[comp[i]->geographicalID().subdetId()-1].push_back(comp[i]);
   
   // this order is VERY IMPORTANT!!!!!
-  buildPixel(pixB,tracker,GeomDetEnumerators::SubDetector::PixelBarrel, "barrel",
+  buildPixel(pixB,tracker,GeomDetEnumerators::SubDetector::PixelBarrel,
 	     upgradeGeometry,
 	     BIG_PIX_PER_ROC_X,
 	     BIG_PIX_PER_ROC_Y); //"PixelBarrel" 
-  buildPixel(pixF,tracker,GeomDetEnumerators::SubDetector::PixelEndcap, "endcap",
+  buildPixel(pixF,tracker,GeomDetEnumerators::SubDetector::PixelEndcap,
 	     upgradeGeometry,
 	     BIG_PIX_PER_ROC_X,
 	     BIG_PIX_PER_ROC_Y); //"PixelEndcap" 
@@ -77,7 +78,6 @@ TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* 
 void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricDet*>  const & gdv, 
 						    TrackerGeometry* tracker,
 						    GeomDetType::SubDetector det,
-						    const std::string& part,
 						    bool upgradeGeometry,
 						    int BIG_PIX_PER_ROC_X, // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
 						    int BIG_PIX_PER_ROC_Y) // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
@@ -89,14 +89,9 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
     std::string const & detName = gdv[i]->name().fullname();
     if (thePixelDetTypeMap.find(detName) == thePixelDetTypeMap.end()) {
       std::auto_ptr<const Bounds> bounds(gdv[i]->bounds());
-      LogDebug( "TrackerGeomBuilderFromGeometricDet" ) << "pixROCRows " << gdv[i]->pixROCRows() << " == 80; "
-						       << "pixROCCols " << gdv[i]->pixROCCols() << " == 52;  "
-						       << "pixROCx " << gdv[i]->pixROCx() << " == 0; "
-						       << "pixROCy " << gdv[i]->pixROCy() << " == 0\n";
       
       PixelTopology* t = 
-	theTopologyBuilder->buildPixel(&*bounds,
-				       part,
+	  PixelTopologyBuilder().build(&*bounds,
 				       upgradeGeometry,
 				       gdv[i]->pixROCRows(),
 				       gdv[i]->pixROCCols(),
@@ -131,7 +126,7 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
     if (theStripDetTypeMap.find(detName) == theStripDetTypeMap.end()) {
        std::auto_ptr<const Bounds> bounds(gdv[i]->bounds());
        StripTopology* t =
-	theTopologyBuilder->buildStrip(&*bounds,
+	   StripTopologyBuilder().build(&*bounds,
 				       gdv[i]->siliconAPVNum(),
 				       part);
       theStripDetTypeMap[detName] = new  StripGeomDetType( t,detName,det,
@@ -186,56 +181,6 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
     }
   }
 }
-
-
-// std::string TrackerGeomBuilderFromGeometricDet::getString(const std::string & s, DDExpandedView* ev) const
-// {
-//     DDValue val(s);
-//     vector<const DDsvalues_type *> result;
-//     ev->specificsV(result);
-//     vector<const DDsvalues_type *>::iterator it = result.begin();
-//     bool foundIt = false;
-//     for (; it != result.end(); ++it)
-//     {
-// 	foundIt = DDfetch(*it,val);
-// 	if (foundIt) break;
-
-//     }    
-//     if (foundIt)
-//     { 
-// 	const std::vector<std::string> & temp = val.strings(); 
-// 	if (temp.size() != 1)
-// 	{
-// 	  throw cms::Exception("Configuration") << "I need 1 "<< s << " tags";
-// 	}
-// 	return temp[0]; 
-//     }
-//     return "NotFound";
-// }
-
-// double TrackerGeomBuilderFromGeometricDet::getDouble(const std::string & s,  DDExpandedView* ev) const 
-// {
-//   DDValue val(s);
-//   vector<const DDsvalues_type *> result;
-//   ev->specificsV(result);
-//   vector<const DDsvalues_type *>::iterator it = result.begin();
-//   bool foundIt = false;
-//   for (; it != result.end(); ++it)
-//     {
-//       foundIt = DDfetch(*it,val);
-//       if (foundIt) break;
-//     }    
-//   if (foundIt)
-//     { 
-//       const std::vector<std::string> & temp = val.strings(); 
-//       if (temp.size() != 1)
-// 	{
-// 	  throw cms::Exception("Configuration") << "I need 1 "<< s << " tags";
-// 	}
-//       return double(atof(temp[0].c_str())); 
-//     }
-//   return 0;
-// }
 
 PlaneBuilderFromGeometricDet::ResultType
 TrackerGeomBuilderFromGeometricDet::buildPlaneWithMaterial(const GeometricDet* gd,

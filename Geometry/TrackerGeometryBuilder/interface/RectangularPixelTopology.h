@@ -60,8 +60,6 @@ public:
       m_ncols( ncols ),
       m_ROWS_PER_ROC( ROWS_PER_ROC ),     // Num of Rows per ROC 
       m_COLS_PER_ROC( COLS_PER_ROC ),     // Num of Cols per ROC
-      m_BIG_PIX_PER_ROC_X( BIG_PIX_PER_ROC_X ), // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
-      m_BIG_PIX_PER_ROC_Y( BIG_PIX_PER_ROC_Y ), // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
       m_ROCS_X( ROCS_X ), // 2 for SLHC
       m_ROCS_Y( ROCS_Y ),  // 8 for SLHC
       m_upgradeGeometry( upgradeGeometry )
@@ -193,8 +191,6 @@ private:
   int m_ncols;
   int m_ROWS_PER_ROC;
   int m_COLS_PER_ROC;
-  int m_BIG_PIX_PER_ROC_X;
-  int m_BIG_PIX_PER_ROC_Y;
   int m_ROCS_X;
   int m_ROCS_Y;
   bool m_upgradeGeometry;

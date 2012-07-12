@@ -1,10 +1,5 @@
-#include <typeinfo>
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-
-#include <algorithm>
-#include <iostream>
-#include <map>
 
 GluedGeomDet::GluedGeomDet( BoundPlane* sp,const GeomDetUnit* monoDet, const GeomDetUnit* stereoDet) : 
   GeomDet(sp),theMonoDet(monoDet),theStereoDet(stereoDet){

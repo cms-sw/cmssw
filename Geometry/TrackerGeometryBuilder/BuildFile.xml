@@ -8,7 +8,6 @@
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/CommonTopologies"/>
 <use   name="Geometry/TrackerNumberingBuilder"/>
-<use   name="Utilities/General"/>
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>
