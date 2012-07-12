@@ -40,10 +40,9 @@ def useGsfElectrons(process, postfix, dR = "04"):
     module.useParticleFlow = False
     print "Building particle-based isolation for GsfElectrons in PF2PAT(PFBRECO)"
     print "********************* "
-    adaptPFIsoElectrons( process, module, "PFIso"+postfix, dR )
+    adaptPFIsoElectrons( process, module, postfix+"PFIso", dR )
     getattr(process,'patDefaultSequence'+postfix).replace( getattr(process,"patElectrons"+postfix),
-                                                   process.pfParticleSelectionSequence +
-                                                   setupPFElectronIso(process, 'gsfElectrons', "PFIso"+postfix) +
+                                                   setupPFElectronIso(process, 'gsfElectrons', "PFIso", postfix, runPF2PAT=True) +
                                                    getattr(process,"patElectrons"+postfix) )
 
 def adaptPFIsoElectrons(process,module, postfix = "PFIso", dR = "04"):
