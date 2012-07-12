@@ -44,6 +44,34 @@ void addBoxAsLines(TEveStraightLineSet* lineset, const float* p)
    for (int l = 0; l < 4; ++l)
       addLineToLineSet(lineset, p, 0+l, 4+l);
 }
+
+void  editLineInLineSet(TEveChunkManager::iterator& li, const float* p, int i1, int i2)
+{
+   TEveStraightLineSet::Line_t& line = * (TEveStraightLineSet::Line_t*) li();
+   i1 *= 3;
+   i2 *= 3;
+   for (int i = 0; i < 3 ; ++i) {
+      line.fV1[0+i] = p[i1+i];
+      line.fV2[0+i] = p[i2+i];
+   }
+
+   li.next();
+}
+
+void editBoxInLineSet(TEveChunkManager::iterator& li, const float* p)
+{
+    
+   for (int i = 0; i < 5; i+=4)
+   {
+      editLineInLineSet(li, p, 0+i, 1+i);
+
+      editLineInLineSet(li, p, 1+i, 2+i);
+      editLineInLineSet(li, p, 2+i, 3+i);
+      editLineInLineSet(li, p, 3+i, 0+i);
+   }
+   for (int i = 0; i < 4; ++i)
+      editLineInLineSet(li, p, 0+i, 4+i);
+}
 }
 
  //______________________________________________________________________________
@@ -165,19 +193,36 @@ void FWPFCandidateWithHitsProxyBuilder::scaleProduct(TEveElementList* parent, FW
       {
          TEveElement::List_i xx =  (*i)->BeginChildren(); ++xx;
          TEveBoxSet* boxset = dynamic_cast<TEveBoxSet*>(*xx);
+         ++xx;
+         TEveStraightLineSet* lineset = dynamic_cast<TEveStraightLineSet*>(*xx);
+         TEveChunkManager::iterator li(lineset->GetLinePlex());
+         li.next();
+
+
          TEveChunkManager* plex = boxset->GetPlex();
          if (plex->N())
          {
             for (int atomIdx=0; atomIdx < plex->Size(); ++atomIdx)
             {
-               if (boxset->GetUserData(atomIdx))
-               {
-                  TEveBoxSet::BFreeBox_t* atom = (TEveBoxSet::BFreeBox_t*)boxset->GetPlex()->Atom(atomIdx);
-                  reco::PFRecHit* hit = (reco::PFRecHit*)boxset->GetUserData(atomIdx);
-                  const float* corners = item()->getGeom()->getCorners(hit->detId());
-                  viewContextBoxScale(corners, hit->energy()*scale, vc->getEnergyScale()->getPlotEt(), scaledCorners, hit);
-                  memcpy(atom->fVertices, &scaledCorners[0], sizeof(atom->fVertices));
+              
+               TEveBoxSet::BFreeBox_t* atom = (TEveBoxSet::BFreeBox_t*)boxset->GetPlex()->Atom(atomIdx);
+               reco::PFRecHit* hit = (reco::PFRecHit*)boxset->GetUserData(atomIdx);
+               const float* corners = item()->getGeom()->getCorners(hit->detId());
+               viewContextBoxScale(corners, hit->energy()*scale, vc->getEnergyScale()->getPlotEt(), scaledCorners, hit);
+               memcpy(atom->fVertices, &scaledCorners[0], sizeof(atom->fVertices));
+
+               editBoxInLineSet(li, &scaledCorners[0]);
+               /* 
+               TEveStraightLineSet::Line_t& line = * (TEveStraightLineSet::Line_t*) li();
+              
+               float* p = &scaledCorners[0];
+               for (int i = 0; i < 3 ; ++i) {
+                  line.fV1[i] = p[i];
+                  line.fV2[0+i] = p[3+i];
                }
+
+               break;
+               */
             }
 
          }
