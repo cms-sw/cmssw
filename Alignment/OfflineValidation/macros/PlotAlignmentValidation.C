@@ -69,10 +69,10 @@ TkOfflineVariables::TkOfflineVariables(std::string fileName, std::string baseDir
     if ((*d).Get("TkOffVal")) {
       tree = (TTree*)(*d).Get("TkOffVal");
     } else {
-      std::cout<<"no tree named TkOffVal"<<endl;
+      std::cout<<"no tree named TkOffVal"<<std::endl;
     }
   } else {
-    std::cout<<"no directory named "<<baseDir.c_str()<<endl;
+    std::cout<<"no directory named "<<baseDir.c_str()<<std::endl;
   }
 }
 
@@ -89,7 +89,7 @@ public:
   void useFitForDMRplots(bool usefit = false);
   void plotOutlierModules(const char *outputFileName="OutlierModules.ps",std::string plotVariable = "chi2PerDofX" ,float chi2_cut = 10,unsigned int minHits = 50);//method dumps selected modules into ps file
   void plotSubDetResiduals(bool plotNormHisto=false, unsigned int subDetId=7);//subDetector number :1.TPB, 2.TBE+, 3.TBE-, 4.TIB, 5.TID+, 6.TID-, 7.TOB, 8.TEC+ or 9.TEC-
-  void plotDMR(const std::string plotVar="medianX",Int_t minHits = 50);//plotVar default is medianX, but meanX and rmsX possible as well
+  void plotDMR(const std::string& plotVar="medianX",Int_t minHits = 50, bool plotPrime = true, bool plotSplits = false);
   void plotHitMaps();
   void setOutputDir( std::string dir );
   void setTreeBaseDir( std::string dir = "TrackerOfflineValidationStandalone");
@@ -110,7 +110,7 @@ private :
   void setNiceStyle();
   void setCanvasStyle( TCanvas& canv );
   void setLegendStyle( TLegend& leg );
-  
+
   TString outputFile;
   std::string outputDir;
   TList *sourcelist;
@@ -118,6 +118,32 @@ private :
   bool moreThanOneSource;
   std::string fileNames[10];
   int fileCounter;	
+
+  // These are helpers for DMR plotting
+
+  struct DMRPlotInfo {
+    std::string variable;
+    int nbins;
+    double min, max;
+    int minHits;
+    bool plotPrime, plotSplits;
+    int subDetId;
+    THStack* hstack;
+    TLegend* legend;
+    TkOfflineVariables* vars;
+    float maxY;
+    TH1F* h;
+    TH1F* hout;
+    TH1F* hin;
+    bool firsthisto;
+  };
+
+  std::string getSelectionForDMRPlot(int minHits, int subDetId, int direction);
+  std::string getVariableForDMRPlot(const std::string& histoname, const std::string& variable,
+				    int nbins, double min, double max);
+  void setDMRHistStyleAndLegend(TH1F* h, DMRPlotInfo& plotinfo, int direction);
+  void plotDMRHistogram(DMRPlotInfo& plotinfo, int direction);
+
 };
 
 //------------------------------------------------------------------------------
@@ -235,7 +261,7 @@ void PlotAlignmentValidation::plotSubDetResiduals(bool plotNormHisto,unsigned in
     }
   }
   //hstack->Draw("nostack");
-  char PlotName[100];
+  char PlotName[1000];
   sprintf( PlotName, "%s/%s.eps", outputDir.c_str(), histoName.Data() );
   
   c->Print(PlotName);
@@ -268,7 +294,7 @@ void PlotAlignmentValidation::plotHitMaps()
   c->cd(3);
   tree->Draw("entries:posR:posPhi","","COLZ2Prof");
   
-  char PlotName[100];
+  char PlotName[1000];
   sprintf( PlotName, "%s/%s.eps", outputDir.c_str(), histName_.c_str() );
   
   c->Print(PlotName);
@@ -279,7 +305,7 @@ void PlotAlignmentValidation::plotHitMaps()
 }
 
 //------------------------------------------------------------------------------
-void PlotAlignmentValidation::plotOutlierModules(const char *outputFileName, string plotVariable,
+void PlotAlignmentValidation::plotOutlierModules(const char *outputFileName, std::string plotVariable,
 						 float plotVariable_cut ,int unsigned minHits)
 {
  
@@ -415,153 +441,151 @@ void PlotAlignmentValidation::setTreeBaseDir( std::string dir )
 }
 
 //------------------------------------------------------------------------------
-void  PlotAlignmentValidation::plotDMR(const std::string variable, Int_t minHits )
+void  PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits,
+				       bool plotPrime, bool plotSplits)
 {
+
+  // Variable name should end with X or Y. If it doesn't, recursively calls plotDMR twice with
+  // X and Y added, respectively
+  if (variable == "mean" || variable == "median" || variable == "meanNorm" ||
+      variable == "rms" || variable == "rmsNorm") {
+    plotDMR(variable+"X", minHits, plotPrime, plotSplits);
+    plotDMR(variable+"Y", minHits, plotPrime, plotSplits);
+    return;
+  }
+
+  // This boolean array tells for which detector modules to plot split DMR plots
+  // They are plotted for BPIX, FPIX, TIB and TOB
+  static bool plotSplitsFor[6] = { true, true, true, false, true, false };
+
+  DMRPlotInfo plotinfo;
+
   setNiceStyle(); 
   gStyle->SetOptStat(0);
-
-  // TList treeList=getTreeList();
   
-  TCanvas *c = new TCanvas("canv", "canv", 600, 600);
-  setCanvasStyle( *c );
-  //loop over sub-detectors 
-  for (int i=1;i<7;++i) {
+  TCanvas c("canv", "canv", 600, 600);
+  setCanvasStyle( c );
+
+  plotinfo.variable = variable;
+  plotinfo.minHits = minHits;
+  plotinfo.plotPrime = plotPrime;
+
+  if (variable == "meanX") {          plotinfo.nbins = 50;  plotinfo.min = -0.001; plotinfo.max = 0.001; }
+  else if (variable == "meanY") {     plotinfo.nbins = 50;  plotinfo.min = -0.005; plotinfo.max = 0.005; }
+  else if (variable == "medianX") {   plotinfo.nbins = 50;  plotinfo.min = -0.005; plotinfo.max = 0.005; }
+  else if (variable == "medianY") {   plotinfo.nbins = 50;  plotinfo.min = -0.005; plotinfo.max = 0.005; }
+  else if (variable == "meanNormX") { plotinfo.nbins = 100; plotinfo.min = -2.0;   plotinfo.max = 2.0; }
+  else if (variable == "rmsX") {      plotinfo.nbins = 100; plotinfo.min = 0.0;    plotinfo.max = 0.1; }
+  else if (variable == "rmsY") {      plotinfo.nbins = 100; plotinfo.min = 0.0;    plotinfo.max = 0.1; }
+  else if (variable == "rmsNormX") {      plotinfo.nbins = 100; plotinfo.min = 0.3;    plotinfo.max = 1.8; }
+  else if (variable == "rmsNormY") {      plotinfo.nbins = 100; plotinfo.min = 0.3;    plotinfo.max = 1.8; }
+  else {                              plotinfo.nbins = 100; plotinfo.min = -0.1;   plotinfo.max = 0.1; }
+
+  for (int i=1; i<=6; ++i) {
+
+    // Skip strip detectors if plotting any "Y" variable
+    if (i != 1 && i != 2 && variable.length() > 0 && variable[variable.length()-1] == 'Y') {
+      continue;
+    }
  
-    int histo_Counter=1;
-    TLegend *leg_hist = new TLegend(0.17,0.8,0.85,0.88);
-    setLegendStyle(*leg_hist);
-    //loop over file list
-    //TTree *tree= (TTree*)treeList.First();
-    //binning
-    int nbinsX=100;
-    double xmin=0;
-    double xmax=0;
-    float maxY=0;
-    bool isHisto = false;
-    std::string plotVar=variable;
-    THStack *hstack=new THStack("hstack","hstack");
+    plotinfo.plotSplits = plotSplits && plotSplitsFor[i-1];
+    if (!plotinfo.plotPrime && !plotinfo.plotSplits) {
+      continue;
+    }
+
+    THStack hstack("hstack", "hstack");
+    plotinfo.maxY = 0;
+    plotinfo.subDetId = i;
+    plotinfo.legend = new TLegend(0.17, 0.8, 0.85, 0.88);
+    setLegendStyle(*plotinfo.legend);
+    plotinfo.hstack = &hstack;
+    plotinfo.h = plotinfo.hout = plotinfo.hin = 0;
+    plotinfo.firsthisto = true;
     
     for(std::vector<TkOfflineVariables*>::iterator it = sourceList.begin();
 	it != sourceList.end(); ++it){
-      //while ( tree ){
-      plotVar=variable;
-      TString subdet = "entries>=";
-      subdet+=minHits; 
-      subdet+=" && subDetId==";
-      subdet+=i;
-      
-      char binning [50]="";
-      sprintf (binning, ">>myhisto(%d,  %f , %f)", nbinsX, xmin, xmax);
-      TH1F *h = 0;
-      
-      if (histo_Counter==1&&plotVar=="meanX")(*it)->getTree()->Draw( (plotVar+=">>myhisto(50,-0.001,0.001)").c_str(),subdet,"goff");
-      else if (histo_Counter==1&&plotVar=="meanY")(*it)->getTree()->Draw( (plotVar+=">>myhisto(50,-0.005,0.005)").c_str(),subdet,"goff");
-      else if (histo_Counter==1&&plotVar=="medianX")(*it)->getTree()->Draw( (plotVar+=">>myhisto(50,-0.005,0.005)").c_str(),subdet,"goff");
-      else if (histo_Counter==1&&plotVar=="medianY")(*it)->getTree()->Draw( (plotVar+=">>myhisto(50,-0.005,0.005)").c_str(),subdet,"goff");
-      else if (histo_Counter==1&&plotVar=="meanNormX")(*it)->getTree()->Draw( (plotVar+=">>myhisto(100,-2,2)").c_str(),subdet,"goff");
-      else if (histo_Counter==1&&plotVar=="rmsX")(*it)->getTree()->Draw( (plotVar+=">>myhisto(100,0.,0.1)").c_str(),subdet,"goff");
-      else if (histo_Counter!=1)(*it)->getTree()->Draw( (plotVar+=binning).c_str(),subdet,"goff");
-      
-      if (gDirectory) gDirectory->GetObject("myhisto", h);
-      std::pair<float,float> fitResults(9999., 9999.);
-      if (h){
-	if (h->GetEntries()>0) {
-	  isHisto = true;
-	  h->SetDirectory(0);
-	  //general draw options
-	  h->SetLineWidth(2);
-	  //first histo only, setting optStat...
-	  if (histo_Counter==1)
-	    setHistStyle(*h,plotVar.c_str() ,"#modules", 1 ); //set color later
-	  
-	  h->SetLineColor( (*it)->getLineColor() );
-	  h->SetLineStyle( (*it)->getLineStyle() );
-	  //h->SetMarkerStyle(20+file_Counter);
-	  
-	  //draw options
-	  
-	  if (maxY<h->GetMaximum()){
-	    maxY=h->GetMaximum();
-	  }
-	  
-	  //fit histogram for median and mean
-	  if (variable=="medianX"||variable =="meanX") {
-	    fitResults=fitGauss(h, (*it)->getLineColor() );
-	  }
-	  
-	  if (histo_Counter==1){
-	    //get mean and sigma from fit: gauss for 2sigma range
-	    hstack->Add(h);
-	    nbinsX=h->GetXaxis()->GetNbins();
-	    xmin=h->GetXaxis()->GetXmin();
-	    xmax=h->GetXaxis()->GetXmax();
-	    
-	  } else if (histo_Counter!=1 &&  h->GetEntries()>0) {
-	    hstack->Add(h);
-	  }
 
-	  char legend [50]="";
-	  std::string legEntry = (*it)->getName();
-	  if ( (variable=="medianX"||variable =="meanX") && useFit_) {
-	    sprintf (legend, "%s: #mu = %4.2f#mum, #sigma = %4.2f#mum ",legEntry.c_str(),fitResults.first ,fitResults.second);
+      plotinfo.vars = *it;
+
+      if (plotinfo.plotPrime) {
+	plotDMRHistogram(plotinfo, 0);
+      }
+
+      if (plotinfo.plotSplits) {
+	plotDMRHistogram(plotinfo, -1);
+	plotDMRHistogram(plotinfo, 1);
+      }
+
+      if (plotinfo.plotPrime) {
+	if (plotinfo.h) { setDMRHistStyleAndLegend(plotinfo.h, plotinfo, 0); }
+      }
+
+      if (plotinfo.plotSplits) {
+	// Add delta mu to the histogram
+	if (plotinfo.hin != 0 && plotinfo.hout != 0 && !plotinfo.plotPrime) {
+	  std::ostringstream legend;
+	  std::string unit = " #mum";
+	  legend.precision(2);
+	  float factor = 10000.0f;
+	  if (plotinfo.variable == "meanNormX" || plotinfo.variable == "meanNormY" ||
+	      plotinfo.variable == "rmsNormX" || plotinfo.variable == "rmsNormY") {
+	    factor = 1.0f;
+	    unit = "";
 	  }
-	  if ( (variable=="medianX"||variable =="meanX"||variable=="medianY"||variable =="meanY" )&&useFit_ == false) {
-	    sprintf (legend, "%s: #mu = %4.2f#mum, rms = %4.2f#mum ",legEntry.c_str(),h->GetMean(1)*10000 ,h->GetRMS(1)*10000);
-	  } else {
-	    sprintf (legend, "%s ",legEntry.c_str());
-	  }
-	  if(h)
-	    leg_hist->AddEntry(h,legend,"l");
-	  else
-	    std::cerr<< "histogram did not exist!";
+	  float deltamu = factor*(plotinfo.hin->GetMean(1) - plotinfo.hout->GetMean(1));
+	  legend << plotinfo.vars->getName() << ": #Delta#mu = " << deltamu << unit;
+	  plotinfo.legend->AddEntry(static_cast<TObject*>(0), legend.str().c_str(), ""); 
 	}
+	if (plotinfo.hout) { setDMRHistStyleAndLegend(plotinfo.hout, plotinfo, -1); }
+	if (plotinfo.hin) { setDMRHistStyleAndLegend(plotinfo.hin, plotinfo, 1); }
       }
-      
-      //     tree= (TTree*)treeList.After( tree );
-      //     file_Counter++;
-      histo_Counter++;
       
     }
     
-    if (isHisto){
-      hstack->Draw("nostack");
-      hstack->SetMaximum(maxY*1.3);
-      setTitleStyle(*hstack,plotVar.c_str() ,"#modules",i);
-      setHistStyle(*hstack->GetHistogram(),plotVar.c_str() ,"#modules", 1 );
-      leg_hist->Draw(); 
-      
-      std::string histName="D";
-      if (variable=="medianX") histName+="medianR_";
-      else if (variable=="medianY") histName+="medianYR_";
-      else if (variable=="meanX") histName+="meanR_";
-      else if (variable=="meanY") histName+="meanYR_";
-      else if (variable=="rmsX") histName+="rmsR_";
-      std::string subDetector ="";
-      switch (i){
-      case 1 : subDetector+="TPB";break;
-      case 2 : subDetector+="TPE";break;
-      case 3 : subDetector+="TIB";break;
-      case 4 : subDetector+="TID";break;
-      case 5 : subDetector+="TOB";break;
-      case 6 : subDetector+="TEC";break;
-      }
+    if (plotinfo.h != 0 || plotinfo.hout != 0 || plotinfo.hin != 0) {
+
+      hstack.Draw("nostack");
+      hstack.SetMaximum(plotinfo.maxY*1.3);
+      setTitleStyle(hstack, variable.c_str(), "#modules", plotinfo.subDetId);
+      setHistStyle(*hstack.GetHistogram(), variable.c_str(), "#modules", 1);
+
+      plotinfo.legend->Draw(); 
  
-      char PlotName[100];
-      sprintf( PlotName, "%s/%s%s.eps",outputDir.c_str(), histName.c_str(), subDetector.c_str() );
-      c->Update(); 
-      c->Print(PlotName);
-      //c->Update();
-      //c->Close();
+      std::ostringstream plotName;
+      plotName << outputDir << "/D";
+     
+      if (variable=="medianX") plotName << "medianR_";
+      else if (variable=="medianY") plotName << "medianYR_";
+      else if (variable=="meanX") plotName << "meanR_";
+      else if (variable=="meanY") plotName << "meanYR_";
+      else if (variable=="meanNormX") plotName << "meanNR_";
+      else if (variable=="meanNormY") plotName << "meanNYR_";
+      else if (variable=="rmsX") plotName << "rmsR_";
+      else if (variable=="rmsY") plotName << "rmsYR_";
+      else if (variable=="rmsNormX") plotName << "rmsNR_";
+      else if (variable=="rmsNormY") plotName << "rmsNYR_";
+
+      switch (i) {
+      case 1: plotName << "TPB"; break;
+      case 2: plotName << "TPE"; break;
+      case 3: plotName << "TIB"; break;
+      case 4: plotName << "TID"; break;
+      case 5: plotName << "TOB"; break;
+      case 6: plotName << "TEC"; break;
+      }
+
+      if (plotPrime && !plotSplits) { plotName << "_prime"; }
+      else if (!plotPrime && plotSplits) { plotName << "_split"; }
+ 
+      plotName << ".eps";
+
+      c.Update(); 
+      c.Print(plotName.str().c_str());
       
     }
-    
-    delete hstack;
-    hstack=0; 
     
   }
-  
-  delete c;
-  c=0;
+
 }
 
 //------------------------------------------------------------------------------
@@ -823,8 +847,11 @@ void  PlotAlignmentValidation::setHistStyle( TH1& hist,const char* titleX, const
   else if( titelXAxis.Contains("meanX") )titel_Xaxis<<"#LTx'_{pred}-x'_{hit}#GT[cm]";
   else if( titelXAxis.Contains("meanY") )titel_Xaxis<<"#LTy'_{pred}-y'_{hit}#GT[cm]";
   else if( titelXAxis.Contains("rmsX") )titel_Xaxis<<"RMS(x'_{pred}-x'_{hit})[cm]";
+  else if( titelXAxis.Contains("rmsY") )titel_Xaxis<<"RMS(y'_{pred}-y'_{hit})[cm]";
   else if( titelXAxis.Contains("meanNormX") )titel_Xaxis<<"#LTx'_{pred}-x'_{hit}/#sigma#GT";
+  else if( titelXAxis.Contains("meanNormY") )titel_Xaxis<<"#LTy'_{pred}-y'_{hit}/#sigma#GT";
   else if( titelXAxis.Contains("rmsNormX") )titel_Xaxis<<"RMS(x'_{pred}-x'_{hit}/#sigma)";
+  else if( titelXAxis.Contains("rmsNormY") )titel_Xaxis<<"RMS(y'_{pred}-y'_{hit}/#sigma)";
   else if( titelXAxis.Contains("meanLocalX") )titel_Xaxis<<"#LTx_{pred}-x_{hit}#GT[cm]";
   else if( titelXAxis.Contains("rmsLocalX") )titel_Xaxis<<"RMS(x_{pred}-x_{hit})[cm]";
   else if( titelXAxis.Contains("meanNormLocalX") )titel_Xaxis<<"#LTx_{pred}-x_{hit}/#sigma#GT[cm]";
@@ -840,7 +867,6 @@ void  PlotAlignmentValidation::setHistStyle( TH1& hist,const char* titleX, const
     hist.SetMarkerColor(color);
   }
   
-  
   hist.GetXaxis()->SetTitle( (titel_Xaxis.str()).c_str() );
   hist.GetXaxis()->SetTitleSize  ( 0.05 );
   hist.GetXaxis()->SetTitleColor (    1 );
@@ -850,7 +876,7 @@ void  PlotAlignmentValidation::setHistStyle( TH1& hist,const char* titleX, const
   hist.GetXaxis()->SetLabelFont  (   62 );
   //hist.GetXaxis()->CenterTitle   (      );
   hist.GetXaxis()->SetNdivisions (  505 );
- 
+
   if /*( titelYAxis.Contains("meanX") )titel_Yaxis<<"#LTx'_{pred}-x'_{hit}#GT[cm]";
   else if ( titelYAxis.Contains("rmsX") )titel_Yaxis<<"RMS(x'_{pred}-x'_{hit})[cm]";
   else if( titelYAxis.Contains("meanNormX") )titel_Yaxis<<"#LTx'_{pred}-x'_{hit}/#sigma#GT";
@@ -863,7 +889,6 @@ void  PlotAlignmentValidation::setHistStyle( TH1& hist,const char* titleX, const
 	    || titelYAxis.Contains("#modules") )titel_Yaxis<<"#modules";
   else titel_Yaxis<<titleY<<"[cm]";
 
-  
   hist.GetYaxis()->SetTitle( (titel_Yaxis.str()).c_str()  );
   //hist.SetMinimum(1);
   hist.GetYaxis()->SetTitleSize  ( 0.05 );
@@ -874,4 +899,136 @@ void  PlotAlignmentValidation::setHistStyle( TH1& hist,const char* titleX, const
   hist.GetYaxis()->SetLabelSize  ( 0.03 );
   hist.GetYaxis()->SetLabelFont  (   62 );
 
+}
+
+//------------------------------------------------------------------------------
+
+std::string PlotAlignmentValidation::
+getSelectionForDMRPlot(int minHits, int subDetId, int direction)
+{
+  std::ostringstream builder;
+  builder << "entries >= " << minHits;
+  builder << " && subDetId == " << subDetId;
+  if (direction != 0) {
+    if (subDetId == 2) { // FPIX is split by zDirection
+      builder << " && zDirection == " << direction;
+    } else {
+      builder << " && rDirection == " << direction;
+    }
+  }
+  builder.flush();
+  return builder.str();
+}
+
+std::string PlotAlignmentValidation::
+getVariableForDMRPlot(const std::string& histoname, const std::string& variable, int nbins, double min,
+		      double max)
+{
+  std::ostringstream builder;
+  builder << variable << ">>" << histoname << "(" << nbins << "," << min <<
+    "," << max << ")";
+  builder.flush();
+  return builder.str();
+}
+
+void PlotAlignmentValidation::
+setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo, int direction)
+{
+  std::pair<float,float> fitResults(9999., 9999.);
+
+  h->SetDirectory(0);
+
+  // The whole DMR plot is plotted with wider line than the split plots
+  // If only split plots are plotted, they will be stronger too, though
+  h->SetLineWidth((direction == 0 || (plotinfo.plotSplits && !plotinfo.plotPrime)) ? 2 : 1);
+
+  // These lines determine the style of the plots according to rules:
+  // -If the plot is for direction != 0, +1 or +2 is added to the given style for distinction
+  // -However if only direction split plots are to be plotted, the additions should be 0 and +1 respectively
+  // -Modulo 4 arithmetic, because the styles run from 1..4
+  int linestyle = plotinfo.vars->getLineStyle() - 1, linestyleplus = 0;
+  if (direction == -1) { linestyleplus = 1; }
+  if (direction == 1) { linestyleplus = 2; }
+  if (direction != 0 && plotinfo.plotSplits && !plotinfo.plotPrime) { linestyleplus--; }
+  linestyle = (linestyle + linestyleplus) % 4 + 1;
+
+  if (plotinfo.firsthisto) {
+    setHistStyle(*h, plotinfo.variable.c_str(), "#modules", 1); //set color later
+    plotinfo.firsthisto = false;
+  }
+
+  h->SetLineColor( plotinfo.vars->getLineColor() );
+  h->SetLineStyle( linestyle );
+	  
+  if (plotinfo.maxY<h->GetMaximum()){
+    plotinfo.maxY=h->GetMaximum();
+  }
+	  
+  //fit histogram for median and mean
+  if (plotinfo.variable == "medianX" || plotinfo.variable == "meanX") {
+    fitResults = fitGauss(h, plotinfo.vars->getLineColor() );
+  }
+	  
+  plotinfo.hstack->Add(h);
+
+  std::ostringstream legend;
+  legend.precision(2);
+
+  // Legend: header part
+  if (direction == -1 && plotinfo.subDetId != 2) { legend << "rDirection < 0: "; }
+  else if (direction == 1 && plotinfo.subDetId != 2) { legend << "rDirection > 0: "; }
+  else if (direction == -1 && plotinfo.subDetId == 2) { legend << "zDirection < 0: "; }
+  else if (direction == 1 && plotinfo.subDetId == 2) { legend << "zDirection > 0: "; }
+  else { legend  << plotinfo.vars->getName() << ": "; }
+
+  // Legend: Statistics
+  if (plotinfo.variable == "medianX" || plotinfo.variable == "meanX" ||
+      plotinfo.variable == "medianY" || plotinfo.variable == "meanY") {
+    if (useFit_) {
+      legend << "#mu = " << fitResults.first << " #mum, #sigma = " << fitResults.second << " #mum";
+    } else {
+      legend << "#mu = " << h->GetMean(1)*10000 << " #mum, rms = " << h->GetRMS(1)*10000 << " #mum";
+    }
+  } else if (plotinfo.variable == "rmsX" || plotinfo.variable == "rmsY") {
+    legend << "#mu = " << h->GetMean(1)*10000 << " #mum, rms = " << h->GetRMS(1)*10000 << " #mum";
+  } else if (plotinfo.variable == "meanNormX" || plotinfo.variable == "meanNormY" ||
+	     plotinfo.variable == "rmsNormX" || plotinfo.variable == "rmsNormY") {
+    legend << "#mu = " << h->GetMean(1) << ", rms = " << h->GetRMS(1);
+  }
+
+  // Legend: Delta mu for split plots
+  if (plotinfo.hin != 0 && plotinfo.hout != 0 && plotinfo.plotSplits &&
+      plotinfo.plotPrime && direction == 0) {
+    std::string unit = " #mum";
+    float factor = 10000.0f;
+    if (plotinfo.variable == "meanNormX" || plotinfo.variable == "meanNormY" ||
+	plotinfo.variable == "rmsNormX" || plotinfo.variable == "rmsNormY") {
+      factor = 1.0f;
+      unit = "";
+    }
+    float deltamu = factor*(plotinfo.hin->GetMean(1) - plotinfo.hout->GetMean(1));
+    legend << ", #Delta#mu = " << deltamu << unit;
+  }
+
+  plotinfo.legend->AddEntry(h, legend.str().c_str(), "l");
+
+}
+
+void PlotAlignmentValidation::
+plotDMRHistogram(PlotAlignmentValidation::DMRPlotInfo& plotinfo, int direction)
+{
+  TH1F* h = 0;
+  std::string histoname;
+  if (direction == -1) { histoname = "myhistoout"; }
+  else if (direction == 1) { histoname = "myhistoin"; }
+  else { histoname = "myhisto"; }
+  std::string plotVariable = getVariableForDMRPlot(histoname, plotinfo.variable, plotinfo.nbins, plotinfo.min, plotinfo.max);
+  std::string selection = getSelectionForDMRPlot(plotinfo.minHits, plotinfo.subDetId, direction);
+  plotinfo.vars->getTree()->Draw(plotVariable.c_str(), selection.c_str(), "goff");
+  if (gDirectory) gDirectory->GetObject(histoname.c_str(), h);
+  if (h && h->GetEntries() > 0) {
+    if (direction == -1) { plotinfo.hout = h; }
+    else if (direction == 1) { plotinfo.hin = h; }
+    else { plotinfo.h = h; }
+  }
 }
