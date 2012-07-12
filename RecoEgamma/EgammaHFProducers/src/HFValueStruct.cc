@@ -11,7 +11,7 @@
 //
 
 
-reco::HFValueStruct::HFValueStruct(int& version, std::vector<double>& vect): v_(version),hfvv_(vect) {
+reco::HFValueStruct::HFValueStruct(const int& version, const std::vector<double>& vect): v_(version),hfvv_(vect) {
   //if(v_==-1) hfvv_=SetHfvvFromDB_();
   //v==99 will always give defaults
   

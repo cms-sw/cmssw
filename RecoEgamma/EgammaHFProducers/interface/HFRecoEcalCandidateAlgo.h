@@ -29,7 +29,7 @@ public:
 			  const std::vector<double>& e1e9Cut,
 			  const std::vector<double>& eCOREe9Cut,
 			  const std::vector<double>& eSeLCut,
-			  reco::HFValueStruct hfvv);
+			  const reco::HFValueStruct hfvv);
   
   /** Analyze the hits */
   void produce(const edm::Handle<reco::SuperClusterCollection>& SuperClusters,

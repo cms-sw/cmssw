@@ -15,7 +15,7 @@ namespace reco {
 
     
     HFValueStruct() {}
-    HFValueStruct(int& version, std::vector<double>& vect);
+    HFValueStruct(const int& version, const std::vector<double>& vect);
     // returns single value by index
     
       double EnCor(int ieta)const;
@@ -44,7 +44,7 @@ namespace reco {
   private:
       int v_;
       std::vector<double> hfvv_;
-      std::vector<double> SetHfvvFromDB_();
+      //std::vector<double> SetHfvvFromDB_();  //will need when in database
       bool doEnCor_,doPU_;
       
       int indexByIeta(int& ieta)const;

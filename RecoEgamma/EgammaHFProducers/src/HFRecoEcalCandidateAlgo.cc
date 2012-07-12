@@ -23,7 +23,7 @@ HFRecoEcalCandidateAlgo::HFRecoEcalCandidateAlgo(bool correct,double e9e25Cut,do
 						 const std::vector<double>& e1e9Cut,
 						 const std::vector<double>& eCOREe9Cut,
 						 const std::vector<double>& eSeLCut,
-						 reco::HFValueStruct hfvv				
+						 const reco::HFValueStruct hfvv				
 ) :
   
   m_correct(correct), 
