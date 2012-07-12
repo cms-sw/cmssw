@@ -98,6 +98,8 @@ class Alignment:
                 self.runGeomComp = config.get(section,"rungeomcomp")
             else:
                 raise StandardError, "in alignment:%s you have to provide rungeomcomp in compare mode."%(name)
+        else:
+            self.runGeomComp = "1"
 
         self.kinksAndBows = ""
         self.kbdbpath = ""
