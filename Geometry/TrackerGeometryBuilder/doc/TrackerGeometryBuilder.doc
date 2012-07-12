@@ -21,7 +21,6 @@ the information form the GeometricDet.
 <!-- List the classes that are provided for use in other packages (if any) -->
 
 - GeomDetLess
-- GeomDetTypeIdToEnum
 - GeomTopologyBuilder
 - GluedGeomDet
 - PixelGeomDetType
