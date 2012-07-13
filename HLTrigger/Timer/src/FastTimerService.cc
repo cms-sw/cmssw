@@ -52,8 +52,8 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_enable_timing_paths(        config.getUntrackedParameter<bool>(       "enableTimingPaths",         false) ),
   m_enable_timing_summary(      config.getUntrackedParameter<bool>(       "enableTimingSummary",       false) ),
   m_enable_dqm(                 config.getUntrackedParameter<bool>(       "enableDQM",                 false) ),
-  m_enable_dqm_bylumi(          config.getUntrackedParameter<bool>(       "enableDQMbyLumi",           false) ),
-  m_skip_first_path(            config.getUntrackedParameter<bool>(       "skipFirstPath",             false) ),    // XXX not yet implemented
+  m_enable_dqm_bylumi(          config.getUntrackedParameter<bool>(       "enableDQMbyLumi",           false) ),    // XXX not yet fully implemented
+  m_skip_first_path(            config.getUntrackedParameter<bool>(       "skipFirstPath",             false) ),
   // dqm configuration
   m_dqm_eventtime_range(        config.getUntrackedParameter<double>(     "dqmEventTimeRange",         1000.) ),    // ms
   m_dqm_eventtime_resolution(   config.getUntrackedParameter<double>(     "dqmEventTimeResolution",       5.) ),    // ms
