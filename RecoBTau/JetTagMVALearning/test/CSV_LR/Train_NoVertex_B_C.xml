@@ -11,6 +11,7 @@
 		<option name="trainfiles">train_NoVertex_%1$s%2$s.%3$s</option>
 		<option name="id">CombinedSVNoVertex</option>
 	</general>
+       </processor>
 	<input id="input">
 		<var name="jetPt" multiple="false" optional="false"/>
 		<var name="jetEta" multiple="false" optional="false"/>
@@ -27,13 +28,17 @@
 		<var name="trackDeltaR" multiple="true" optional="true"/>
 		<var name="trackPtRatio" multiple="true" optional="true"/>
 		<var name="trackPParRatio" multiple="true" optional="true"/>
-		<!--<var name="trackDecayLenSig" multiple="true" optional="true"/>-->
+		<var name="trackDecayLenSig" multiple="true" optional="true"/>
 		<var name="trackJetDist" multiple="true" optional="true"/>
 		<var name="trackFirstTrackDist" multiple="true" optional="true"/>
 		<var name="trackDecayLenVal" multiple="true" optional="true"/>
+		<var name="vertexMass" multiple="false" optional="false"/>
+		<var name="vertexNTracks" multiple="false" optional="false"/>
+		<var name="vertexEnergyRatio" multiple="false" optional="false"/>
 		<var name="trackSip2dSigAboveCharm" multiple="false" optional="false"/>
 		<var name="trackSip3dSigAboveCharm" multiple="false" optional="false"/>
 		<var name="trackSumJetEtRatio" multiple="false" optional="false"/>
+		<var name="vertexJetDeltaR" multiple="false" optional="false"/>
 		<var name="trackSumJetDeltaR" multiple="false" optional="false"/>
 		<var name="nTracks" multiple="false" optional="false"/>
 		<var name="category" multiple="false" optional="false"/>
@@ -85,13 +90,9 @@
                         <var source="input" name="trackSip2dVal"/>
                         <var source="input" name="trackSip3dVal"/>
                         <var source="input" name="trackMomentum"/>
-                        <var source="input" name="trackDeltaR"/>
-                        <var source="input" name="trackPtRatio"/>
-                        <var source="input" name="trackJetDist"/>
-                        <var source="input" name="trackDecayLenVal"/>
+                        <var source="input" name="trackEtaRel"/>
                         <var source="input" name="trackSip2dSigAboveCharm"/>
                         <var source="input" name="trackSip3dSigAboveCharm"/>
-                        <var source="input" name="trackSumJetEtRatio"/>
                 </input>
                 <config>
                         <pdf/>
@@ -101,13 +102,9 @@
                         <pdf smooth="1" lower="-0.2" upper="0.2"/>      <!-- trackSip2dVal -->
                         <pdf smooth="1" lower="-3" upper="3"/>      <!-- trackSip3dVal -->
                         <pdf smooth="1" lower="0" upper="250"/>      <!-- trackMomentum -->
-                        <pdf smooth="2" lower="0" upper="0.5"/>      <!-- trackDeltaR -->
-                        <pdf smooth="1" lower="0.0" upper="0.3"/>    <!-- trackPtRatio -->
-                        <pdf smooth="1" lower="-0.07" upper="0.0"/>  <!-- trackJetDist -->
-                        <pdf smooth="1" lower="0" upper="40"/>       <!-- trackDecayLenVal -->
+                        <pdf smooth="1" lower="1.2" upper="8.5" />      <!-- trackEtaRel -->
                         <pdf smooth="1" lower="-50" upper="80"/>      <!-- trackSip2dSigAboveCharm -->
                         <pdf smooth="1" lower="-50" upper="80"/>      <!-- trackSip3dSigAboveCharm -->
-                        <pdf smooth="1" lower="0.0" upper="5.0"/>    <!-- trackSumJetEtRatio -->
                 </config>
                 <output>
                         <var name="varjetPt"/>
@@ -117,13 +114,9 @@
                         <var name="vartrackSip2dVal"/>
                         <var name="vartrackSip3dVal"/>
                         <var name="vartrackMomentum"/>
-                        <var name="vartrackDeltaR"/>
-                        <var name="vartrackPtRatio"/>
-                        <var name="vartrackJetDist"/>
-                        <var name="vartrackDecayLenVal"/>
+                        <var name="vartrackEtaRel"/>
                         <var name="vartrackSip2dSigAboveCharm"/>
                         <var name="vartrackSip3dSigAboveCharm"/>
-                        <var name="vartrackSumJetEtRatio"/>
                 </output>
         </processor>
         <processor id="split2" name="ProcSplitter">
@@ -144,11 +137,6 @@
         <processor id="lkh2" name="ProcLikelihood">
                 <input>
                         <var source="cat" name="category"/>
-			<var source="norm2" name="vartrackDeltaR"/>
-			<var source="norm2" name="vartrackPtRatio"/>
-			<var source="norm2" name="vartrackJetDist"/>
-			<var source="norm2" name="vartrackDecayLenVal"/>
-			<var source="norm2" name="vartrackSumJetEtRatio"/>
                         <var source="split2" name="vartrackSip3dSig_1"/>
                         <var source="split2" name="vartrackSip3dSig_2"/>
                         <var source="split2" name="vartrackSip3dSig_3"/>
@@ -157,11 +145,6 @@
                 <config>
                         <general/>
                         <category count="15"/>
-                        <sigbkg smooth="3"/> <!-- trackDeltaR -->
-                        <sigbkg smooth="3"/> <!-- trackPtRatio -->
-                        <sigbkg smooth="3"/> <!-- trackJetDist -->
-                        <sigbkg smooth="3"/> <!-- trackDecayLenVal -->
-                        <sigbkg smooth="3"/> <!-- trackSumJetEtRatio -->
                         <sigbkg smooth="3"/> <!-- vartrackSip3dSig_1 -->
                         <sigbkg smooth="3"/> <!-- vartrackSip3dSig_2 -->
                         <sigbkg smooth="3"/> <!-- vartrackSip3dSig_3 -->
@@ -188,7 +171,7 @@
                         <var source="normlkh2" name="normdiscr2"/>
                 </input>
                 <config>
-                        <bias_table>
+                        <bias_table><!--B_C-->
                                 <bias>0.68134</bias>
 				<bias>0.74779</bias>
 				<bias>0.822418</bias>		
@@ -204,7 +187,7 @@
 				<bias>0.41276</bias>
 				<bias>0.472191</bias>
 				<bias>0.602347</bias>
-                        </bias_table>
+                        </bias_table><!--B_C-->
         	        <category count="15"/>
 	                <sigbkg lower="0" upper="1" size="200" smooth="1"/>
                 </config>
@@ -213,9 +196,9 @@
                 </output>
         </processor>
 
-
 	<output>
 		<var source="biaslkh2" name="biasdiscr2"/>
 	</output>
 </MVATrainer>
+
 

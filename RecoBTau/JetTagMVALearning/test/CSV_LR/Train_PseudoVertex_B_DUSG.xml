@@ -27,7 +27,7 @@
 		<var name="trackDeltaR" multiple="true" optional="true"/>
 		<var name="trackPtRatio" multiple="true" optional="true"/>
 		<var name="trackPParRatio" multiple="true" optional="true"/>
-		<!--<var name="trackDecayLenSig" multiple="true" optional="true"/>-->
+		<var name="trackDecayLenSig" multiple="true" optional="true"/>
 		<var name="trackJetDist" multiple="true" optional="true"/>
 		<var name="trackFirstTrackDist" multiple="true" optional="true"/>
 		<var name="trackDecayLenVal" multiple="true" optional="true"/>
@@ -79,7 +79,6 @@
                         <var name="nTracks"/>
                 </output>
         </processor>
-
         <processor id="norm1" name="ProcNormalize">
                 <input>
                         <var source="input" name="jetPt"/>
@@ -90,17 +89,11 @@
                         <var source="input" name="trackSip3dVal"/>
                         <var source="input" name="trackMomentum"/>
                         <var source="input" name="trackEtaRel"/>
-                        <var source="input" name="trackDeltaR"/>
-                        <var source="input" name="trackPtRatio"/>
-                        <var source="input" name="trackJetDist"/>
-                        <var source="input" name="trackDecayLenVal"/>
                         <var source="input" name="vertexMass"/>
                         <var source="input" name="vertexNTracks"/>
                         <var source="input" name="vertexEnergyRatio"/>
                         <var source="input" name="trackSip2dSigAboveCharm"/>
                         <var source="input" name="trackSip3dSigAboveCharm"/>
-                        <var source="input" name="trackSumJetEtRatio"/>
-                        <var source="input" name="vertexJetDeltaR"/>
                 </input>
                 <config>
                         <pdf/>
@@ -111,17 +104,11 @@
                         <pdf smooth="1" lower="-3" upper="3"/>    <!-- trackSip3dVal -->
                         <pdf smooth="1" lower="0" upper="250"/>    <!-- trackMomentum -->
                         <pdf smooth="2" lower="1.2" upper="8.5"/>    <!-- trackEtaRel -->
-                        <pdf smooth="2" lower="0" upper="0.5"/>     <!-- trackDeltaR -->
-                        <pdf smooth="1" lower="0.0" upper="0.3"/>   <!-- trackPtRatio -->
-                        <pdf smooth="1" lower="-0.07" upper="0.0"/> <!-- trackJetDist -->
-                        <pdf smooth="1" lower="0" upper="40"/>      <!-- trackDecayLenVal -->
                         <pdf smooth="2" lower="0.2" upper="10"/>    <!-- vertexMass -->
                         <pdf smooth="2" lower="1.5" upper="13.5"/>    <!-- vertexNTracks -->
                         <pdf lower="0" upper="1"/>    <!-- vertexEnergyRatio -->
                         <pdf smooth="1" lower="-50" upper="80"/>    <!-- trackSip2dSigAboveCharm -->
                         <pdf smooth="1" lower="-50" upper="80"/>    <!-- trackSip3dSigAboveCharm -->
-                        <pdf smooth="1" lower="0.0" upper="5.0"/>   <!-- trackSumJetEtRatio -->
-                        <pdf lower="0" upper="0.5"/>                <!-- vertexJetDeltaR -->  
                 </config>
                 <output>
                         <var name="varjetPt"/>
@@ -132,17 +119,11 @@
                         <var name="vartrackSip3dVal"/>
                         <var name="vartrackMomentum"/>
                         <var name="vartrackEtaRel"/>
-                        <var name="vartrackDeltaR"/>
-                        <var name="vartrackPtRatio"/>
-                        <var name="vartrackJetDist"/>
-                        <var name="vartrackDecayLenVal"/>
                         <var name="varvertexMass"/>
                         <var name="varvertexNTracks"/>
                         <var name="varvertexEnergyRatio"/>
                         <var name="vartrackSip2dSigAboveCharm"/>
                         <var name="vartrackSip3dSigAboveCharm"/>
-                        <var name="vartrackSumJetEtRatio"/>
-                        <var name="varvertexJetDeltaR"/>
                 </output>
         </processor>
         <processor id="split1" name="ProcSplitter">
@@ -164,16 +145,10 @@
                 <input>
                         <var source="cat" name="category"/>
                         <var source="norm1" name="vartrackEtaRel"/>
-			<var source="norm1" name="vartrackDeltaR"/>
-			<var source="norm1" name="vartrackPtRatio"/>
-			<var source="norm1" name="vartrackJetDist"/>
-			<var source="norm1" name="vartrackDecayLenVal"/>
                         <var source="norm1" name="varvertexMass"/>
                         <var source="norm1" name="varvertexNTracks"/>
                         <var source="norm1" name="varvertexEnergyRatio"/>
                         <var source="norm1" name="vartrackSip2dSigAboveCharm"/>
-			<var source="norm1" name="vartrackSumJetEtRatio"/>
-			<var source="norm1" name="varvertexJetDeltaR"/>
                         <var source="split1" name="vartrackSip3dSig_1"/>
                         <var source="split1" name="vartrackSip3dSig_2"/>
                         <var source="split1" name="vartrackSip3dSig_3"/>
@@ -183,16 +158,10 @@
                         <general/>
                         <category count="15"/>
                         <sigbkg smooth="3"/> <!-- trackEtaRel -->
-                        <sigbkg smooth="3"/> <!-- trackDeltaR -->
-                        <sigbkg smooth="3"/> <!-- trackPtRatio --> 
-                        <sigbkg smooth="3"/> <!-- trackJetDist -->
-                        <sigbkg smooth="3"/> <!-- trackDecayLenVal -->
                         <sigbkg smooth="3"/> <!-- vertexMass -->
                         <sigbkg/> <!-- vertexNTracks -->
                         <sigbkg smooth="3"/> <!-- vertexEnergyRatio -->
                         <sigbkg smooth="3"/> <!-- trackSip2dSigAboveCharm -->
-                        <sigbkg smooth="3"/> <!-- trackSumJetEtRatio -->
-                        <sigbkg smooth="3"/> <!-- vertexJetDeltaR -->
                         <sigbkg smooth="3"/> <!-- trackSip3dSig_1 -->
                         <sigbkg smooth="3"/> <!-- trackSip3dSig_2 -->
                         <sigbkg smooth="3"/> <!-- trackSip3dSig_3 -->
@@ -219,7 +188,7 @@
                         <var source="normlkh1" name="normdiscr1"/>
                 </input>
                 <config>
-                        <bias_table>
+                        <bias_table><!--B_DUSG-->
                                 <bias>14.2671</bias>
 				<bias>16.9919</bias>
 				<bias>14.0894</bias>
@@ -235,7 +204,7 @@
 				<bias>2.42523</bias>
 				<bias>2.00305</bias>
 				<bias>2.14843</bias>
-                        </bias_table>
+                        </bias_table><!--B_DUSG-->
 			<category count="15"/>
 			<sigbkg lower="0" upper="1" size="100" smooth="3"/>
                 </config>
@@ -249,4 +218,5 @@
 		<var source="biaslkh1" name="biasdiscr1"/>
 	</output>
 </MVATrainer>
+
 
