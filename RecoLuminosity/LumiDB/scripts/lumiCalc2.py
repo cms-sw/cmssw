@@ -120,7 +120,7 @@ if __name__ == '__main__':
                         help='max run start time (mm/dd/yy hh:mm:ss),max fill or max run'
                         )
     parser.add_argument('--minBiasXsec',dest='minbiasxsec',action='store',
-                        default=71300.0,
+                        default=69300.0,
                         type=float,
                         required=False,
                         help='minbias cross-section in ub'
