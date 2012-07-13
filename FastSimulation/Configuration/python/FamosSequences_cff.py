@@ -451,8 +451,7 @@ simulationNoMuonDigiWithFamos = cms.Sequence(
 simulationWithFamos = cms.Sequence(
     famosSimulationSequence+
     muonDigi+
-    siTrackerGaussianSmearingRecHits+
-    caloRecHits
+    siTrackerGaussianSmearingRecHits
 )
 
 
@@ -460,6 +459,7 @@ simulationWithFamos = cms.Sequence(
 reconstructionWithFamos = cms.Sequence(
     iterativeTracking+
     vertexreco+
+    caloRecHits+
     caloTowersRec+
     ecalClusters+
     particleFlowCluster+
