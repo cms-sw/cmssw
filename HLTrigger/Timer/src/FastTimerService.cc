@@ -52,6 +52,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_enable_timing_paths(        config.getUntrackedParameter<bool>(       "enableTimingPaths",         false) ),
   m_enable_timing_summary(      config.getUntrackedParameter<bool>(       "enableTimingSummary",       false) ),
   m_enable_dqm(                 config.getUntrackedParameter<bool>(       "enableDQM",                 false) ),
+  m_enable_dqm_bymodule(        config.getUntrackedParameter<bool>(       "enableDQMbyModule",         false) ),
   m_enable_dqm_bylumi(          config.getUntrackedParameter<bool>(       "enableDQMbyLumi",           false) ),    // XXX not yet fully implemented
   m_skip_first_path(            config.getUntrackedParameter<bool>(       "skipFirstPath",             false) ),
   // dqm configuration
@@ -214,7 +215,7 @@ void FastTimerService::postBeginJob() {
       }
     }
 
-    if (m_enable_timing_modules) {
+    if (m_enable_timing_modules and m_enable_dqm_bymodule) {
       m_dqms->setCurrentFolder((m_dqm_path + "/Modules"));
       BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules) {
         std::string const & label  = keyval.first->moduleLabel();
@@ -686,7 +687,7 @@ void FastTimerService::postModule(edm::ModuleDescription const & module) {
     module.has_just_run    = true;
     module.time_active     = time;
     module.summary_active += time;
-    if (m_dqms)
+    if (m_dqms and m_enable_dqm_bymodule)
       module.dqm_active->Fill(time * 1000.);                    // convert to ms
   } else {
     // should never get here

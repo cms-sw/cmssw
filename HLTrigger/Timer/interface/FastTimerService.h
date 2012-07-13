@@ -272,6 +272,7 @@ private:
   const bool                                    m_enable_timing_paths;
   const bool                                    m_enable_timing_summary;
   const bool                                    m_enable_dqm;
+  const bool                                    m_enable_dqm_bymodule;
   const bool                                    m_enable_dqm_bylumi;
 
   // dqm configuration
