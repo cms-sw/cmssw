@@ -170,13 +170,8 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
     ),
                                     
     TotalNumberOfDigisFailure = cms.PSet(
-        subdetswitchon        = cms.bool(False),
-        Nbins = cms.int32(6),
-        xmin = cms.double(0.5),
-        xmax = cms.double(6.5),
-        Nbinsy = cms.int32(1),
-        ymin = cms.double(0.5),
-        ymax = cms.double(1.5)
+        Nbins = cms.int32(2000),
+        subdetswitchon        = cms.bool(False)
     ),
 
     xLumiProf = cms.int32(5),
