@@ -207,7 +207,7 @@ namespace edm {
           Exception ex(errors::FileOpenError, "", e);
           ex.addContext("Calling RootInputFileSequence::initFile()");
           ex.clearMessage();
-          ex << "Input file " << fileIter_->fileName() << " was not found, could not be opened, or is corrupted.\n";
+          ex << "Input file " << fileIter_->fileName() << " could not be opened because of the following:\n";
           throw ex;
         }
       }
@@ -224,8 +224,8 @@ namespace edm {
           Exception ex(errors::FallbackFileOpenError, "", e);
           ex.addContext("Calling RootInputFileSequence::initFile()");
           ex.clearMessage();
-          ex << "Input file " << fileIter_->fileName() << " was not found, could not be opened, or is corrupted.\n";
-          ex << "Fallback Input file " << fallbackName << " also was not found, could not be opened, or is corrupted.\n";
+          ex << "Input file " << fileIter_->fileName() << " could not be opened.\n";
+          ex << "Fallback Input file " << fallbackName << " also could not be opened because of the following:\n";
           throw ex;
         }
       }
