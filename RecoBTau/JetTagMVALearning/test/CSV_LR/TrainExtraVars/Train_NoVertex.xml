@@ -23,11 +23,10 @@
 		<var name="trackEta" multiple="true" optional="true"/>
 		<var name="trackPtRel" multiple="true" optional="true"/>
 		<var name="trackPPar" multiple="true" optional="true"/>
-		<!--<var name="trackEtaRel" multiple="true" optional="true"/>-->
+		<var name="trackEtaRel" multiple="true" optional="true"/>
 		<var name="trackDeltaR" multiple="true" optional="true"/>
 		<var name="trackPtRatio" multiple="true" optional="true"/>
 		<var name="trackPParRatio" multiple="true" optional="true"/>
-		<!--<var name="trackDecayLenSig" multiple="true" optional="true"/>-->
 		<var name="trackJetDist" multiple="true" optional="true"/>
 		<var name="trackFirstTrackDist" multiple="true" optional="true"/>
 		<var name="trackDecayLenVal" multiple="true" optional="true"/>
