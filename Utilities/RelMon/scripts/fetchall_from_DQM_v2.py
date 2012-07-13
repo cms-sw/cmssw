@@ -82,7 +82,7 @@ parser.add_option('-m', '--mc', action='store_false', dest='is_from_data',
                   help='Fetch Monte Carlo relvals.')
 parser.add_option('-r', '--release', action='store', dest='release',
                   help='Release to fetch from. RELEASE format "CMSSW_x_x_x", e.g. CMSSW_5_3_2.')
-parser.add_option('-e', '--re', '--regexp', action='store', dest='regexp',
+parser.add_option('-e', '--re', '--regexp', action='store', dest='regexp', default='',
         help='Comma separated regular expresions for file names. e.g. to fetch '+
         'files, which names contain "cos" or "jet" and does not contain "2010", use: '+
         '"cos,jet,^((?!2010).)*$".')
@@ -100,9 +100,6 @@ if options.is_from_data is None:
 elif options.release is None:
     parser.error('You have to specify the CMSSW release, use --release option. ' +
                  'E.g. --release CMSSW_5_3_2')
-elif options.regexp is None:
-    parser.error('You have to specify the Regular Expresion for file names. Use ' +
-                 '--regexp option. E.g. --regexp "*.root"')
 elif not options.mthreads.isdigit():
     parser.error('Bad --mthreads argument format. It has to be integer. E.g. ' +
                  '--mthreads 3')
