@@ -242,3 +242,54 @@ lumi::RevisionDML::addRunToCurrentHFDataTag(coral::ISchema& schema,
   }
   return currenttagid;
 }
+
+lumi::RevisionDML::DataID
+lumi::RevisionDML::dataIDForRun(coral::ISchema& schema,
+			  unsigned int runnum,
+			  unsigned long long tagid){
+  lumi::RevisionDML::DataID result;
+  coral::IQuery* qHandle=schema.newQuery();
+  qHandle->addToTableList( lumi::LumiNames::tagrunsTableName());
+  qHandle->addToOutputList("LUMIDATAID");
+  qHandle->addToOutputList("TRGDATAID");
+  qHandle->addToOutputList("HLTDATAID");
+  coral::AttributeList qResult;
+  qResult.extend("LUMIDATAID",typeid(unsigned long long));
+  qResult.extend("TRGDATAID",typeid(unsigned long long));
+  qResult.extend("HLTDATAID",typeid(unsigned long long));
+  qHandle->defineOutput(qResult);
+  coral::AttributeList qCondition;
+  qCondition.extend("tagid",typeid(unsigned long long));
+  qCondition.extend("runnum",typeid(unsigned int));
+  qCondition["tagid"].data<unsigned long long>()=tagid;
+  qCondition["runnum"].data<unsigned int>()=runnum;
+  std::string qConditionStr("TAGID<=:tagid AND RUNNUM=:runnum");
+  qHandle->setCondition(qConditionStr,qCondition);
+  coral::ICursor& cursor=qHandle->execute();
+  unsigned long long minlumid=0;
+  unsigned long long mintrgid=0;
+  unsigned long long minhltid=0;
+  while(cursor.next()){
+    if(!cursor.currentRow()["LUMIDATAID"].isNull()){
+      unsigned long long lumiid=cursor.currentRow()["LUMIDATAID"].data<unsigned long long>();      
+      if(lumiid>minlumid){
+	result.lumi_id=lumiid;
+      }
+      
+    }
+    if(!cursor.currentRow()["TRGDATAID"].isNull()){
+      unsigned long long trgid=cursor.currentRow()["TRGDATAID"].data<unsigned long long>();      
+      if(trgid>mintrgid){
+	result.trg_id=trgid;
+      }
+    }
+    if(!cursor.currentRow()["HLTDATAID"].isNull()){
+      unsigned long long hltid=cursor.currentRow()["HLTDATAID"].data<unsigned long long>();  
+      if(hltid>minhltid){
+	result.hlt_id=hltid;
+      }
+    }
+  }
+  delete qHandle;
+  return result;
+}

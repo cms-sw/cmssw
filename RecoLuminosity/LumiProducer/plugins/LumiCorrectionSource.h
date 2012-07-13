@@ -36,11 +36,11 @@ class LumiCorrectionSource: public edm::ESProducer , public edm::EventSetupRecor
   std::string toParentString(const xercesc::DOMNode &nodeToConvert)const;
  private:
   std::string m_connectStr;
+  std::string m_datatag;
   std::string m_siteconfpath;
   std::map< unsigned int,boost::shared_ptr<LumiCorrectionParam> > m_paramcache;
   bool m_isNullRun; //if lumi data exist for this run
   unsigned int m_paramcachedrun;
-  std::string m_datatag;
   unsigned int m_cachesize;
   boost::shared_ptr<LumiCorrectionParam> m_paramresult;
   const edm::IOVSyncValue* m_pcurrentTime;

@@ -6,7 +6,7 @@
 /**\class LumiCorrectionSource LumiCorrectionSource.cc RecoLuminosity/LumiProducer/src/LumiCorrectionSource.cc
 Description: A essource/esproducer for lumi correction factor and run parameters needed to deduce the corrections
 */
-// $Id$
+// $Id: LumiCorrectionSource.cc,v 1.1 2012/07/11 13:54:58 xiezhen Exp $
 
 //#include <memory>
 //#include "boost/shared_ptr.hpp"
@@ -226,21 +226,32 @@ LumiCorrectionSource::fillparamcache(unsigned int runnumber){
   tconverter.setCppTypeForSqlType(std::string("float"),std::string("FLOAT(63)"));
   tconverter.setCppTypeForSqlType(std::string("unsigned int"),std::string("NUMBER(10)"));
   tconverter.setCppTypeForSqlType(std::string("unsigned short"),std::string("NUMBER(1)"));
-
+  boost::shared_ptr<LumiCorrectionParam> result(new LumiCorrectionParam(LumiCorrectionParam::HF));
   try{
     session->transaction().start(true);
     coral::ISchema& schema=session->nominalSchema();
     lumi::RevisionDML dml;
-    unsigned long long dataid=dml.currentHFDataTagId(schema);
+    unsigned long long tagid=dml.currentHFDataTagId(schema);
+    lumi::RevisionDML::DataID dataid=dml.dataIDForRun(schema,runnumber,tagid);
+    unsigned int lumiid=dataid.lumi_id;
+
+    if(lumiid==0){
+      result->setNBX(0);
+      m_paramcache.insert(std::make_pair(runnumber,result));
+      session->transaction().commit();
+      mydbservice->disconnect(session);
+      return;
+    }
 
     coral::AttributeList lumidataBindVariables;
     lumidataBindVariables.extend("dataid",typeid(unsigned long long));
-    lumidataBindVariables["dataid"].data<unsigned long long>()=dataid;
+    lumidataBindVariables["dataid"].data<unsigned long long>()=lumiid;   
     std::string conditionStr("DATA_ID=:dataid");
     coral::AttributeList lumiparamOutput;
     lumiparamOutput.extend("NCOLLIDINGBUNCHES",typeid(unsigned int));
     coral::IQuery* lumiparamQuery=schema.newQuery();
     lumiparamQuery->addToTableList(std::string("LUMIDATA"));
+    lumiparamQuery->setCondition(conditionStr,lumidataBindVariables);
     coral::ICursor& lumiparamcursor=lumiparamQuery->execute();
     while( lumiparamcursor.next() ){
       const coral::AttributeList& row=lumiparamcursor.currentRow();
@@ -248,7 +259,6 @@ LumiCorrectionSource::fillparamcache(unsigned int runnumber){
       if(!row["NCOLLIDINGBUNCHES"].isNull()){
 	ncollidingbx=row["NCOLLIDINGBUNCHES"].data<unsigned int>();
       }
-      boost::shared_ptr<LumiCorrectionParam> result(new LumiCorrectionParam(LumiCorrectionParam::HF));
       result->setNBX(ncollidingbx);
       m_paramcache.insert(std::make_pair(runnumber,result));
     }

@@ -14,6 +14,14 @@ namespace lumi{
     //  unsigned long long revision_id;
     //  unsigned long long data_id;
     //};
+    class DataID{
+    public:
+      DataID():lumi_id(0),trg_id(0),hlt_id(0){}
+    public:
+      unsigned long long lumi_id;	
+      unsigned long long trg_id;
+      unsigned long long hlt_id;
+    };
     class Entry{
     public:
       Entry():revision_id(0),entry_id(0),data_id(0),entry_name(""){}
@@ -98,7 +106,9 @@ namespace lumi{
 				  unsigned long long trgid,
 				  unsigned long long hltid,
 				  const std::string& patchcomment);
+    DataID dataIDForRun(coral::ISchema& schema,
+			unsigned int runnum,
+			unsigned long long tagid);
   };
-  
 }//ns lumi
 #endif
