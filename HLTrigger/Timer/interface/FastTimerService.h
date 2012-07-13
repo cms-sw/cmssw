@@ -275,8 +275,13 @@ private:
   const bool                                    m_enable_dqm_bylumi;
 
   // dqm configuration
-  const double                                  m_dqm_time_range;
-  const double                                  m_dqm_time_resolution;
+  const bool                                    m_skip_first_path;
+  const double                                  m_dqm_eventtime_range;
+  const double                                  m_dqm_eventtime_resolution;
+  const double                                  m_dqm_pathtime_range;
+  const double                                  m_dqm_pathtime_resolution;
+  const double                                  m_dqm_moduletime_range;
+  const double                                  m_dqm_moduletime_resolution;
   std::string                                   m_dqm_path;
 
   // job configuration and caching
