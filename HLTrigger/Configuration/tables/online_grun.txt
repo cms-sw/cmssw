@@ -725,7 +725,7 @@ EcalCalibrationOutput
 #ExpressForCosmicsOutput                                                                        # only in 'GRun' and 'cosmics', not in 'online'
 ExpressOutput
 HLTDQMOutput
-HLTDQMResultsOutput
+#HLTDQMResultsOutput										# only in 'GRun', not in 'online'
 HLTMONOutput
 NanoDSTOutput
 PhysicsDSTOutput
