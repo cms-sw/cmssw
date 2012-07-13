@@ -52,8 +52,10 @@
   <class name="reco::MuonIsolation" ClassVersion="10">
    <version ClassVersion="10" checksum="2078425999"/>
   </class>
-  <class name="reco::MuonPFIsolation" ClassVersion="13">
+  <class name="reco::MuonPFIsolation" ClassVersion="14">
    <version ClassVersion="13" checksum="893633899"/>
+   <version ClassVersion="14" checksum="3941472816"/>
+
   </class>
 
   <class name="reco::Muon::MuonTrackRefMap"/>
