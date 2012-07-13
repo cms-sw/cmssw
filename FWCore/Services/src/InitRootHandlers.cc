@@ -129,7 +129,10 @@ namespace {
        std::ostringstream sstr;
        sstr << "Fatal Root Error: " << el_location << "\n" << el_message << '\n';
        edm::Exception except(edm::errors::FatalRootError, sstr.str());
+       except.addAdditionalInfo(except.message());
+       except.clearMessage();
        throw except;
+     
     }
 
     // Typically, we get here only for informational messages,
