@@ -53,9 +53,15 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_enable_timing_summary(  config.getUntrackedParameter<bool>(        "enableTimingSummary",  false) ),
   m_enable_dqm(             config.getUntrackedParameter<bool>(        "enableDQM",            false) ),
   m_enable_dqm_bylumi(      config.getUntrackedParameter<bool>(        "enableDQMbyLumi",      false) ),
+  m_skip_first_path(        config.getUntrackedParameter<bool>(        "skipFirstPath",        false) ),
   // dqm configuration
-  m_dqm_time_range(         config.getUntrackedParameter<double>(      "dqmTimeRange",         1000.) ),   // ms
-  m_dqm_time_resolution(    config.getUntrackedParameter<double>(      "dqmTimeResolution",       5.) ),   // ms
+  m_dqm_eventtime_range(        config.getUntrackedParameter<double>(      "dqmEventTimeRange",         1000.) ),   // ms
+  m_dqm_eventtime_resolution(   config.getUntrackedParameter<double>(      "dqmEventTimeResolution",       5.) ),   // ms
+  m_dqm_pathtime_range(         config.getUntrackedParameter<double>(      "dqmPathTimeRange",           100.) ),   // ms
+  m_dqm_pathtime_resolution(    config.getUntrackedParameter<double>(      "dqmPathTimeResolution",       0.5) ),   // ms
+  m_dqm_moduletime_range(       config.getUntrackedParameter<double>(      "dqmModuleTimeRange",          40.) ),   // ms
+  m_dqm_moduletime_resolution(  config.getUntrackedParameter<double>(      "dqmModuleTimeResolution",     0.2) ),   // ms
+
   m_dqm_path(               config.getUntrackedParameter<std::string>( "dqmPath",     "TimerService") ),
   // caching
   m_first_path(0),          // these are initialized at prePathBeginRun(),
@@ -169,15 +175,18 @@ void FastTimerService::postBeginJob() {
     }
 
     // book MonitorElement's
-    int bins = (int) std::ceil(m_dqm_time_range / m_dqm_time_resolution);
+    int eventbins = (int) std::ceil(m_dqm_eventtime_range / m_dqm_eventtime_resolution);
+    int pathbins = (int) std::ceil(m_dqm_pathtime_range / m_dqm_pathtime_resolution);
+    int modulebins = (int) std::ceil(m_dqm_moduletime_range / m_dqm_moduletime_resolution);
+
     m_dqms->setCurrentFolder(m_dqm_path);
-    m_dqm_event         = m_dqms->book1D("event",        "Event",    bins, 0., m_dqm_time_range)->getTH1F();
+    m_dqm_event         = m_dqms->book1D("event",        "Event",    eventbins, 0., m_dqm_eventtime_range)->getTH1F();
     m_dqm_event         ->StatOverflows(true);
-    m_dqm_source        = m_dqms->book1D("source",       "Source",   bins, 0., m_dqm_time_range)->getTH1F();
+    m_dqm_source        = m_dqms->book1D("source",       "Source",   pathbins, 0., m_dqm_pathtime_range)->getTH1F();
     m_dqm_source        ->StatOverflows(true);
-    m_dqm_all_paths     = m_dqms->book1D("all_paths",    "Paths",    bins, 0., m_dqm_time_range)->getTH1F();
+    m_dqm_all_paths     = m_dqms->book1D("all_paths",    "Paths",    eventbins, 0., m_dqm_eventtime_range)->getTH1F();
     m_dqm_all_paths     ->StatOverflows(true);
-    m_dqm_all_endpaths  = m_dqms->book1D("all_endpaths", "EndPaths", bins, 0., m_dqm_time_range)->getTH1F();
+    m_dqm_all_endpaths  = m_dqms->book1D("all_endpaths", "EndPaths", pathbins, 0., m_dqm_pathtime_range)->getTH1F();
     m_dqm_all_endpaths  ->StatOverflows(true);
     // these are actually filled in the harvesting step - but that may happen in a separate step, which no longer has all the information about the endpaths
     size_t size_p = tns.getTrigPaths().size();
@@ -201,7 +210,7 @@ void FastTimerService::postBeginJob() {
       BOOST_FOREACH(PathMap<PathInfo>::value_type & keyval, m_paths) {
         std::string const & pathname = keyval.first;
         PathInfo          & pathinfo = keyval.second;
-        pathinfo.dqm_active = m_dqms->book1D(pathname + "_active", pathname + " active time", bins, 0., m_dqm_time_range)->getTH1F();
+        pathinfo.dqm_active = m_dqms->book1D(pathname + "_active", pathname + " active time", pathbins, 0., m_dqm_pathtime_range)->getTH1F();
         pathinfo.dqm_active->StatOverflows(true);
       }
     }
@@ -211,7 +220,7 @@ void FastTimerService::postBeginJob() {
       BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules) {
         std::string const & label  = keyval.first->moduleLabel();
         ModuleInfo        & module = keyval.second;
-        module.dqm_active = m_dqms->book1D(label, label, bins, 0., m_dqm_time_range)->getTH1F();
+        module.dqm_active = m_dqms->book1D(label, label, modulebins, 0., m_dqm_moduletime_range)->getTH1F();
         module.dqm_active->StatOverflows(true);
       }
     }
@@ -222,17 +231,17 @@ void FastTimerService::postBeginJob() {
         std::string const & pathname = keyval.first;
         PathInfo          & pathinfo = keyval.second;
 #ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
-        pathinfo.dqm_premodules   = m_dqms->book1D(pathname + "_premodules",   pathname + " pre-modules overhead",   bins, 0., m_dqm_time_range)->getTH1F();
+        pathinfo.dqm_premodules   = m_dqms->book1D(pathname + "_premodules",   pathname + " pre-modules overhead",   modulebins, 0., m_dqm_moduletime_range)->getTH1F();
         pathinfo.dqm_premodules  ->StatOverflows(true);
-        pathinfo.dqm_intermodules = m_dqms->book1D(pathname + "_intermodules", pathname + " inter-modules overhead", bins, 0., m_dqm_time_range)->getTH1F();
+        pathinfo.dqm_intermodules = m_dqms->book1D(pathname + "_intermodules", pathname + " inter-modules overhead", modulebins, 0., m_dqm_moduletime_range)->getTH1F();
         pathinfo.dqm_intermodules->StatOverflows(true);
-        pathinfo.dqm_postmodules  = m_dqms->book1D(pathname + "_postmodules",  pathname + " post-modules overhead",  bins, 0., m_dqm_time_range)->getTH1F();
+        pathinfo.dqm_postmodules  = m_dqms->book1D(pathname + "_postmodules",  pathname + " post-modules overhead",  modulebins, 0., m_dqm_moduletime_range)->getTH1F();
         pathinfo.dqm_postmodules ->StatOverflows(true);
 #else
-        pathinfo.dqm_overhead     = m_dqms->book1D(pathname + "_overhead",     pathname + " overhead time",          bins, 0., m_dqm_time_range)->getTH1F();
+        pathinfo.dqm_overhead     = m_dqms->book1D(pathname + "_overhead",     pathname + " overhead time",          pathbins, 0., m_dqm_pathtime_range)->getTH1F();
         pathinfo.dqm_overhead    ->StatOverflows(true);
 #endif
-        pathinfo.dqm_total        = m_dqms->book1D(pathname + "_total",        pathname + " total time",             bins, 0., m_dqm_time_range)->getTH1F();
+        pathinfo.dqm_total        = m_dqms->book1D(pathname + "_total",        pathname + " total time",             pathbins, 0., m_dqm_pathtime_range)->getTH1F();
         pathinfo.dqm_total       ->StatOverflows(true);
         
         // book histograms for modules-in-paths statistics
@@ -456,7 +465,9 @@ void FastTimerService::prePathBeginRun(std::string const & path ) {
   // cache the pointers to the names of the first and last path and endpath
   edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
   if (not tns.getTrigPaths().empty()) {
-    if (path == tns.getTrigPaths().front())
+    if (path == tns.getTrigPaths().at(0) && !m_skip_first_path)
+      m_first_path = & path;
+    else if (path == tns.getTrigPaths().at(1) && m_skip_first_path)
       m_first_path = & path;
     if (path == tns.getTrigPaths().back())
       m_last_path = & path;
