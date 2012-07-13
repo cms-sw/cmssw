@@ -23,6 +23,7 @@ class ParametrisedPhysics : public G4VPhysicsConstructor
  private:
   edm::ParameterSet theParSet;
   GflashEMShowerModel *theEMShowerModel;
+  GflashEMShowerModel *theHadShowerModel;
   GflashHadronShowerModel *theHadronShowerModel;
 
 };

@@ -28,18 +28,21 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
 
   G4DataQuestionaire it(photon);
 
-  std::string hadronPhysics = thePar.getParameter<std::string>("GflashHadronPhysics");
+  //std::string hadronPhysics = thePar.getParameter<std::string>("GflashHadronPhysics");
 
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   bool tracking= p.getParameter<bool>("TrackingCut");
   std::string region = p.getParameter<std::string>("Region");
+  bool gem  = thePar.getParameter<bool>("GflashEMShowerModel");
+  bool ghad = thePar.getParameter<bool>("GflashHadronShowerModel");
 
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << hadronPhysics << " + CMS GFLASH with Flags for EM Physics "
-                              << emPhys << ", for Hadronic Physics "
-                              << hadPhys << " and tracking cut " << tracking
+			      << " + CMS GFLASH with Flags for EM Physics "
+                              << gem << ", for Hadronic Physics "
+			      << ghad 
+                              << " and tracking cut " << tracking
                               << " with special region " << region;
 
   RegisterPhysics(new ParametrisedPhysics("parametrised",thePar)); 

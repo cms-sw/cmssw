@@ -19,12 +19,15 @@
 #include "G4TouchableHandle.hh"
 #include "G4VSensitiveDetector.hh"
 
-GflashEMShowerModel::GflashEMShowerModel(G4String modelName, G4Envelope* envelope, edm::ParameterSet parSet)
+GflashEMShowerModel::GflashEMShowerModel(const G4String& modelName, 
+					 G4Envelope* envelope, 
+					 edm::ParameterSet parSet)
   : G4VFastSimulationModel(modelName, envelope), theParSet(parSet) {
 
   theWatcherOn = parSet.getParameter<bool>("watcherOn");
 
   theProfile = new GflashEMShowerProfile(parSet);
+  theRegion  = const_cast<const G4Region*>(envelope); 
 
   theGflashStep = new G4Step();
   theGflashTouchableHandle = new G4TouchableHistory();
@@ -54,10 +57,10 @@ G4bool GflashEMShowerModel::ModelTrigger(const G4FastTrack & fastTrack ) {
   if(fastTrack.GetPrimaryTrack()->GetKineticEnergy() < 1.0*GeV) return false;
   if(excludeDetectorRegion(fastTrack)) return false;
 
-  G4bool trigger = fastTrack.GetPrimaryTrack()->GetDefinition() == G4Electron::ElectronDefinition() || 
-    fastTrack.GetPrimaryTrack()->GetDefinition() == G4Positron::PositronDefinition();
+  //G4bool trigger = fastTrack.GetPrimaryTrack()->GetDefinition() == G4Electron::ElectronDefinition() || 
+  //  fastTrack.GetPrimaryTrack()->GetDefinition() == G4Positron::PositronDefinition();
 
-  if(!trigger) return false;
+  //if(!trigger) return false;
 
   // This will be changed accordingly when the way dealing with CaloRegion changes later.
   G4TouchableHistory* touch = (G4TouchableHistory*)(fastTrack.GetPrimaryTrack()->GetTouchable());
@@ -65,7 +68,10 @@ G4bool GflashEMShowerModel::ModelTrigger(const G4FastTrack & fastTrack ) {
   if( pCurrentVolume == 0) return false;
 
   G4LogicalVolume* lv = pCurrentVolume->GetLogicalVolume();
-  if(lv->GetRegion()->GetName() != "CaloRegion") return false;
+  //std::cout << "GflashEMShowerModel::ModelTrigger: LV " 
+  //	    << lv->GetRegion()->GetName() << std::endl;
+  //  if(lv->GetRegion()->GetName() != "CaloRegion") return false;
+  //if(lv->GetRegion()->GetName() != "EcalRegion") return false;
 
   // The parameterization starts inside crystals
   std::size_t pos1 = lv->GetName().find("EBRY");
@@ -140,7 +146,7 @@ void GflashEMShowerModel::makeHits(const G4FastTrack& fastTrack) {
       if( aCurrentVolume == 0 ) continue;
 
       G4LogicalVolume* lv = aCurrentVolume->GetLogicalVolume();
-      if(lv->GetRegion()->GetName() != "CaloRegion") continue;
+      if(lv->GetRegion() != theRegion) continue;
 
       theGflashStep->GetPreStepPoint()->SetSensitiveDetector(aCurrentVolume->GetLogicalVolume()->GetSensitiveDetector());
       G4VSensitiveDetector* aSensitive = theGflashStep->GetPreStepPoint()->GetSensitiveDetector();
@@ -153,7 +159,8 @@ void GflashEMShowerModel::makeHits(const G4FastTrack& fastTrack) {
 
 }
 
-void GflashEMShowerModel::updateGflashStep(G4ThreeVector spotPosition, G4double timeGlobal)
+void GflashEMShowerModel::updateGflashStep(G4ThreeVector spotPosition, 
+					   G4double timeGlobal)
 {
   theGflashStep->GetPostStepPoint()->SetGlobalTime(timeGlobal);
   theGflashStep->GetPreStepPoint()->SetPosition(spotPosition);
