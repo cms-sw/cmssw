@@ -50,7 +50,7 @@ public:
 private:
   const bool theSaveToDB; /// whether or not writing to DB
   const edm::ParameterSet theScenario; /// misalignment scenario
-  const edm::ParameterSet theTkConstants;
+  const edm::ParameterSet thePSet;
   const std::string theAlignRecordName, theErrorRecordName;
   
   boost::shared_ptr<TrackerGeometry> theTracker;
@@ -66,7 +66,7 @@ private:
 MisalignedTrackerESProducer::MisalignedTrackerESProducer(const edm::ParameterSet& p) :
   theSaveToDB(p.getUntrackedParameter<bool>("saveToDbase")),
   theScenario(p.getParameter<edm::ParameterSet>("scenario")),
-  theTkConstants(p.getParameter<edm::ParameterSet>( "trackerGeometryConstants" )),
+  thePSet(p),
   theAlignRecordName("TrackerAlignmentRcd"),
   theErrorRecordName("TrackerAlignmentErrorRcd")
 {
@@ -90,10 +90,8 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   edm::ESHandle<GeometricDet> gD;
   iRecord.getRecord<IdealGeometryRecord>().get( gD );
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
-  theTracker  = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*gD),
-									 theTkConstants.getParameter<bool>("upgradeGeometry"),
-									 theTkConstants.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
-									 theTkConstants.getParameter<int>( "BIG_PIX_PER_ROC_Y" )));
+  theTracker  = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*gD), thePSet));
+ 
   // Create the alignable hierarchy
   std::auto_ptr<AlignableTracker> theAlignableTracker(new AlignableTracker( &(*theTracker) ) );
 

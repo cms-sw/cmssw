@@ -297,13 +297,9 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	edm::ESHandle<Alignments> globalPositionRcd;
 	iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
 
-	const edm::ParameterSet tkGeomConsts( m_params.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
-	
 	//reference tracker
-	TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet,
-							      tkGeomConsts.getParameter<bool>("upgradeGeometry"),
-							      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
-							      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ));
+	TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, m_params);
+
 	if (_inputFilename1 != "IDEAL"){
 		GeometryAligner aligner1;
 		aligner1.applyAlignments<TrackerGeometry>( &(*theRefTracker), &(*alignments1), &(*alignmentErrors1),
@@ -312,10 +308,8 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	referenceTracker = new AlignableTracker(&(*theRefTracker));
 
 	//currernt tracker
-	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet,
-							      tkGeomConsts.getParameter<bool>("upgradeGeometry"),
-							      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
-							      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ));
+	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet, m_params);
+
 	if (_inputFilename2 != "IDEAL"){
 		GeometryAligner aligner2;
 		aligner2.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments2), &(*alignmentErrors2),

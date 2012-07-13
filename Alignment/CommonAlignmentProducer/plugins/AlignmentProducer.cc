@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.64 $
-///  last update: $Date: 2012/06/13 16:23:30 $
+///  Revision   : $Revision: 1.65 $
+///  last update: $Date: 2012/07/12 14:54:21 $
 ///  by         : $Author: yana $
 
 #include "AlignmentProducer.h"
@@ -601,15 +601,10 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
    iSetup.get<IdealGeometryRecord>().get( cpv );
 
    if (doTracker_) {
-     const edm::ParameterSet tkGeomConsts( theParameterSet.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
-     
      edm::ESHandle<GeometricDet> geometricDet;
      iSetup.get<IdealGeometryRecord>().get( geometricDet );
      TrackerGeomBuilderFromGeometricDet trackerBuilder;
-     theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet),
-									   tkGeomConsts.getParameter<bool>("upgradeGeometry"),
-									   tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
-									   tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" )));
+     theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet), theParameterSet ));
    }
 
    if (doMuon_) {

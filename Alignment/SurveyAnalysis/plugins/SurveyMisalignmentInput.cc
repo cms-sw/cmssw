@@ -23,11 +23,7 @@ void SurveyMisalignmentInput::analyze(const edm::Event&, const edm::EventSetup& 
   if (theFirstEvent) {
     edm::ESHandle<GeometricDet> geom;
     setup.get<IdealGeometryRecord>().get(geom);	 
-    const edm::ParameterSet tkGeomConsts( theParameterSet.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
-    TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom,
-									  tkGeomConsts.getParameter<bool>("upgradeGeometry"),
-									  tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
-									  tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ));
+    TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, theParameterSet);
     
     addComponent(new AlignableTracker( tracker ) );
 

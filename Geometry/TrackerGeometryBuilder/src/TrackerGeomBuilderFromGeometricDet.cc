@@ -34,9 +34,21 @@ namespace {
   }
 }
 
-TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, bool upgradeGeometry,
-							    int BIG_PIX_PER_ROC_X,
-							    int BIG_PIX_PER_ROC_Y){
+TrackerGeometry*
+TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const edm::ParameterSet& pSet )
+{
+  bool upgradeGeometry = false;
+  int BIG_PIX_PER_ROC_X = 1;
+  int BIG_PIX_PER_ROC_Y = 2;
+  
+  if( pSet.exists( "trackerGeometryConstants" ))
+  {
+    const edm::ParameterSet tkGeomConsts( pSet.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
+    upgradeGeometry = tkGeomConsts.getParameter<bool>( "upgradeGeometry" );  
+    BIG_PIX_PER_ROC_X = tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" );
+    BIG_PIX_PER_ROC_Y = tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" );
+  }
+    
   thePixelDetTypeMap.clear();
   theStripDetTypeMap.clear();
    

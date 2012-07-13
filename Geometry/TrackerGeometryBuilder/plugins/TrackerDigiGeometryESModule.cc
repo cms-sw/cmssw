@@ -29,27 +29,8 @@
 TrackerDigiGeometryESModule::TrackerDigiGeometryESModule(const edm::ParameterSet & p) 
   : alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")),
     myLabel_(p.getParameter<std::string>("appendToDataLabel")),
-    m_ROWS_PER_ROC( 80 ),     // Num of Rows per ROC 
-    m_COLS_PER_ROC( 52 ),     // Num of Cols per ROC
-    m_BIG_PIX_PER_ROC_X( 1 ), // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
-    m_BIG_PIX_PER_ROC_Y( 2 ), // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
-    m_ROCS_X( 0 ),	      // 2 for SLHC
-    m_ROCS_Y( 0 ),	      // 8 for SLHC
-    m_upgradeGeometry( false )
+    m_pSet( p )
 {
-  if( p.exists( "trackerGeometryConstants" ))
-  {
-    const edm::ParameterSet tkGeomConsts( p.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
-
-    m_ROWS_PER_ROC  = tkGeomConsts.getParameter<int>( "ROWS_PER_ROC" );
-    m_COLS_PER_ROC  = tkGeomConsts.getParameter<int>( "COLS_PER_ROC" );
-    m_BIG_PIX_PER_ROC_X = tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" );
-    m_BIG_PIX_PER_ROC_Y = tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" );
-    m_ROCS_X = tkGeomConsts.getParameter<int>( "ROCS_X" );
-    m_ROCS_Y = tkGeomConsts.getParameter<int>( "ROCS_Y" );
-    m_upgradeGeometry = tkGeomConsts.getParameter<bool>( "upgradeGeometry" );
-  }
- 
     applyAlignment_ = p.getParameter<bool>("applyAlignment");
     fromDDD_ = p.getParameter<bool>("fromDDD");
 
@@ -129,9 +110,7 @@ TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord)
   iRecord.getRecord<IdealGeometryRecord>().get( gD );
   
   TrackerGeomBuilderFromGeometricDet builder;
-  _tracker  = boost::shared_ptr<TrackerGeometry>(builder.build(&(*gD), m_upgradeGeometry,
-							       m_BIG_PIX_PER_ROC_X,
-							       m_BIG_PIX_PER_ROC_Y));
+  _tracker  = boost::shared_ptr<TrackerGeometry>(builder.build(&(*gD), m_pSet ));
 
   if (applyAlignment_) {
     // Since fake is fully working when checking for 'empty', we should get rid of applyAlignment_!
@@ -169,9 +148,6 @@ TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord)
   }
   
   return _tracker;
-} 
-
-
-
+}
 
 DEFINE_FWK_EVENTSETUP_MODULE(TrackerDigiGeometryESModule);
