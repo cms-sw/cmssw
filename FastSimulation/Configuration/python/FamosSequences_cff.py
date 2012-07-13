@@ -258,10 +258,10 @@ famosWithTrackerHits = cms.Sequence(
     siTrackerGaussianSmearingRecHits
 )
 
-famosWithTrackerAndCaloHits = cms.Sequence(
-    famosWithTrackerHits+
-    caloRecHits
-)
+#famosWithTrackerAndCaloHits = cms.Sequence(
+#    famosWithTrackerHits+
+#    caloRecHits
+#)
 
 famosWithTracks = cms.Sequence(
     famosWithTrackerHits+
@@ -276,27 +276,30 @@ famosWithTracksAndMuonHits = cms.Sequence(
     famosMuonSequence
 )
 
-famosWithTracksAndMuons = cms.Sequence(
-    famosSimulationSequence+
-    siTrackerGaussianSmearingRecHits+
-    iterativeTracking+
-    vertexreco+
-    famosMuonSequence+
-    caloRecHits+
-    caloTowersRec+
-    famosMuonIdAndIsolationSequence
-)
+#famosWithTracksAndMuons = cms.Sequence(
+#    famosSimulationSequence+
+#    siTrackerGaussianSmearingRecHits+
+#    iterativeTracking+
+#    vertexreco+
+#    famosMuonSequence+
+#    caloRecHits+
+#    caloTowersRec+
+#    famosMuonIdAndIsolationSequence
+#)
 
-famosWithCaloHits = cms.Sequence(
-    famosSimulationSequence+
-    caloRecHits
-)
+### Is it really needed? It gives troubles when the (real digi + local reco) option is switched on in caloRecHits, because it needs tracks
+#famosWithCaloHits = cms.Sequence(
+##    famosSimulationSequence+
+#    famosWithTracks+
+#    caloRecHits
+#)
 
-famosWithEcalClusters = cms.Sequence(
-    famosWithCaloHits+
-    ecalClusters+
-    particleFlowCluster
-)
+### Is it really needed? It gives troubles when the (real digi + local reco) option is switched on in caloRecHits, because it needs tracks
+#famosWithEcalClusters = cms.Sequence(
+#    famosWithCaloHits+
+#    ecalClusters+
+#    particleFlowCluster
+#)
 
 famosWithTracksAndCaloHits = cms.Sequence(
     famosWithTracks+
@@ -320,10 +323,11 @@ famosWithParticleFlow = cms.Sequence(
     PFJetMet
 )
 
-famosWithCaloTowers = cms.Sequence(
-    famosWithCaloHits+
-    caloTowersRec
-)
+### Is it really needed? It gives troubles when the (real digi + local reco) option is switched on in caloRecHits, because it needs tracks
+#famosWithCaloTowers = cms.Sequence(
+#    famosWithCaloHits+
+#    caloTowersRec
+#)
 
 famosEcalDrivenElectronSequence = cms.Sequence(
     famosGsfTrackSequence+
@@ -344,42 +348,42 @@ famosWithTracksAndCaloTowers = cms.Sequence(
     caloTowersRec
 )
 
-famosWithTracksAndJets = cms.Sequence(
-    famosWithTracksAndCaloTowers+
-    vertexreco+
-    caloJetMetGen+
-    caloJetMet
-)
+#famosWithTracksAndJets = cms.Sequence(
+#    famosWithTracksAndCaloTowers+
+#    vertexreco+
+#    caloJetMetGen+
+#    caloJetMet
+#)
 
 ### Standard Jets _cannot_ be done without many other things...
 #######################################################################
-famosWithJets = cms.Sequence(
-    famosWithTracksAndCaloTowers+
-    vertexreco+
-    ecalClusters+
-    particleFlowCluster+
-    famosGsfTrackSequence+
-    famosMuonSequence+
-    famosMuonIdAndIsolationSequence+
-    famosParticleFlowSequence+
-    gsfElectronSequence+	
-    caloJetMetGen+
-    caloJetMet
-)
+#famosWithJets = cms.Sequence(
+#    famosWithTracksAndCaloTowers+
+#    vertexreco+
+#    ecalClusters+
+#    particleFlowCluster+
+#    famosGsfTrackSequence+
+#    famosMuonSequence+
+#    famosMuonIdAndIsolationSequence+
+#    famosParticleFlowSequence+
+#    gsfElectronSequence+	
+#    caloJetMetGen+
+#    caloJetMet
+#)
 
 ##--- simplified IC05 jets only
-famosWithSimpleJets = cms.Sequence(
-    famosWithTracksAndCaloTowers+
-    vertexreco+
-    caloJetMetGen+
-    iterativeCone5CaloJets+
-    ic5JetTracksAssociatorAtVertex
-)
+#famosWithSimpleJets = cms.Sequence(
+#    famosWithTracksAndCaloTowers+
+#    vertexreco+
+#    caloJetMetGen+
+#    iterativeCone5CaloJets+
+#    ic5JetTracksAssociatorAtVertex
+#)
 
-famosWithCaloTowersAndParticleFlow = cms.Sequence(
-    famosWithParticleFlow+
-    caloTowersRec
-)
+#famosWithCaloTowersAndParticleFlow = cms.Sequence(
+#    famosWithParticleFlow+
+#    caloTowersRec
+#)
 
 
 famosWithElectrons = cms.Sequence(
@@ -403,17 +407,17 @@ famosWithPhotons = cms.Sequence(
     interestingGamIsoDetIdEE
 )
 
-famosWithElectronsAndPhotons = cms.Sequence(
-    famosWithTracks+
-    vertexreco+
-    caloRecHits+
-    ecalClusters+
-    caloTowersRec+
-    famosElectronSequence+
-    famosPhotonSequence+
-    interestingEgammaIsoDetIds+
-    egammaIsolationSequence
-)
+#famosWithElectronsAndPhotons = cms.Sequence(
+#    famosWithTracks+
+#    vertexreco+
+#    caloRecHits+
+#    ecalClusters+
+#    caloTowersRec+
+#    famosElectronSequence+
+#    famosPhotonSequence+
+#    interestingEgammaIsoDetIds+
+#    egammaIsolationSequence
+#)
 
 famosWithBTagging = cms.Sequence(
     famosWithTracksAndCaloTowers+
@@ -426,19 +430,19 @@ famosWithBTagging = cms.Sequence(
     famosBTaggingSequence
     )
 
-famosWithTauTagging = cms.Sequence(
-    famosWithTracksAndCaloTowers+
-    vertexreco+
-    iterativeCone5CaloJets+
-    ic5JetTracksAssociatorAtVertex+
-    ecalClusters+
-    famosTauTaggingSequence
-)
+#famosWithTauTagging = cms.Sequence(
+#    famosWithTracksAndCaloTowers+
+#    vertexreco+
+#    iterativeCone5CaloJets+
+#    ic5JetTracksAssociatorAtVertex+
+#    ecalClusters+
+#    famosTauTaggingSequence
+#)
 
-famosWithPFTauTagging = cms.Sequence(
-    famosWithCaloTowersAndParticleFlow+
-    famosPFTauTaggingSequence
-)
+#famosWithPFTauTagging = cms.Sequence(
+#    famosWithCaloTowersAndParticleFlow+
+#    famosPFTauTaggingSequence
+#)
 
 # The simulation sequence without muon digitization
 simulationNoMuonDigiWithFamos = cms.Sequence(
@@ -485,32 +489,32 @@ reconstructionWithFamos = cms.Sequence(
     famosPFTauTaggingSequence
 )
 
-reconstructionWithFamosNoTk = cms.Sequence(
-    vertexreco+
-    caloRecHits+
-    caloTowersRec+
-    ecalClusters+
-    particleFlowCluster+
-    famosGsfTrackSequence+
-    famosMuonSequence+
-    famosMuonIdAndIsolationSequence+
-    famosConversionSequence+
-    particleFlowTrackWithDisplacedVertex+
-    famosEcalDrivenElectronSequence+
-    famosPhotonSequence+
-    famosParticleFlowSequence+
-    egammaHighLevelRecoPostPF+
-    muonshighlevelreco+
-    caloJetMetGen+
-    caloJetMet+
-    PFJetMet+
-    ic5JetTracksAssociatorAtVertex+
-    ak5JetTracksAssociatorAtVertex+
-    famosTauTaggingSequence+
-    reducedRecHits+
-    famosBTaggingSequence+
-    famosPFTauTaggingSequence
-)
+#reconstructionWithFamosNoTk = cms.Sequence(
+#    vertexreco+
+#    caloRecHits+
+#    caloTowersRec+
+#    ecalClusters+
+#    particleFlowCluster+
+#    famosGsfTrackSequence+
+#    famosMuonSequence+
+#    famosMuonIdAndIsolationSequence+
+#    famosConversionSequence+
+#    particleFlowTrackWithDisplacedVertex+
+#    famosEcalDrivenElectronSequence+
+#    famosPhotonSequence+
+#    famosParticleFlowSequence+
+#    egammaHighLevelRecoPostPF+
+#    muonshighlevelreco+
+#    caloJetMetGen+
+#    caloJetMet+
+#    PFJetMet+
+#    ic5JetTracksAssociatorAtVertex+
+#    ak5JetTracksAssociatorAtVertex+
+#    famosTauTaggingSequence+
+#    reducedRecHits+
+#    famosBTaggingSequence+
+#    famosPFTauTaggingSequence
+#)
 
 # Simulation plus reconstruction
 famosWithEverything = cms.Sequence(
