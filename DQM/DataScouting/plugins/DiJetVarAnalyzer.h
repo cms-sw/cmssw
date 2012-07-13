@@ -3,7 +3,8 @@
 
 
 #include "DQM/DataScouting/interface/ScoutingAnalyzerBase.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
 
 #include "TLorentzVector.h"
 #include <vector>
@@ -35,10 +36,12 @@ class DiJetVarAnalyzer : public ScoutingAnalyzerBase
     double  detawidejets_;
     double  dphiwidejets_;
 
-    std::string HLTpathMain_;
-    std::string HLTpathMonitor_;
-
-    HLTConfigProvider hltConfig;
+    // trigger conditions
+    triggerExpression::Evaluator * HLTpathMain_;
+    triggerExpression::Evaluator * HLTpathMonitor_;
+    
+    // cache some data from the Event for faster access by the trigger conditions
+    triggerExpression::Data triggerConfiguration_;
     
     //1D histograms
     MonitorElement * m_cutFlow;

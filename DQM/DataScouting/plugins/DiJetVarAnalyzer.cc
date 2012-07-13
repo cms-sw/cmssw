@@ -9,11 +9,11 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "FWCore/Common/interface/TriggerNames.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionParser.h"
 
 #include <cmath>
 
@@ -24,35 +24,26 @@ DiJetVarAnalyzer::DiJetVarAnalyzer( const edm::ParameterSet & conf ):
   jetCollectionTag_        (conf.getUntrackedParameter<edm::InputTag>("jetCollectionTag")),
   //dijetVarCollectionTag_   (conf.getUntrackedParameter<edm::InputTag>("dijetVarCollectionTag")),
   widejetsCollectionTag_   (conf.getUntrackedParameter<edm::InputTag>("widejetsCollectionTag")),
-  hltInputTag_             (conf.getUntrackedParameter<edm::InputTag>("hltInputTag")), 
   numwidejets_             (conf.getParameter<unsigned int>("numwidejets")),
   etawidejets_             (conf.getParameter<double>("etawidejets")),
   ptwidejets_              (conf.getParameter<double>("ptwidejets")),
   detawidejets_            (conf.getParameter<double>("detawidejets")),
   dphiwidejets_            (conf.getParameter<double>("dphiwidejets")),
-  HLTpathMain_             (conf.getParameter<std::string>("HLTpathMain")),
-  HLTpathMonitor_          (conf.getParameter<std::string>("HLTpathMonitor"))
+  HLTpathMain_             (triggerExpression::parse( conf.getParameter<std::string>("HLTpathMain") )),
+  HLTpathMonitor_          (triggerExpression::parse( conf.getParameter<std::string>("HLTpathMonitor") )),
+  triggerConfiguration_           (conf.getParameterSet("triggerConfiguration"))
 {
 }
 
 //------------------------------------------------------------------------------
 // Nothing to destroy: the DQM service thinks about everything
-DiJetVarAnalyzer::~DiJetVarAnalyzer(){}
+DiJetVarAnalyzer::~DiJetVarAnalyzer(){
+  delete HLTpathMain_;
+  delete HLTpathMonitor_;
+}
 
 //------------------------------------------------------------------------------
 void DiJetVarAnalyzer::beginRun( const edm::Run & iRun, const edm::EventSetup & iSetup){
-
-  bool changed = true;
-  if (hltConfig.init(iRun, iSetup, hltInputTag_.process(), changed)) {
-    // if init returns TRUE, initialisation has succeeded!
-    edm::LogInfo("DiJetVarAnalyzer") << "HLT config with process name " << hltInputTag_.process() << " successfully extracted";
-  } else {
-    // if init returns FALSE, initialisation has NOT succeeded, which indicates a problem
-    // with the file and/or code and needs to be investigated!
-    edm::LogError("DiJetVarAnalyzer") << "Error! HLT config extraction with process name " << hltInputTag_.process() << " failed";
-    // In this case, all access methods will return empty values!
-  }  
-
 }
 
 //------------------------------------------------------------------------------
@@ -246,8 +237,6 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
   
 
   // ## Get Trigger Info
-  edm::Handle<edm::TriggerResults> triggerResults;
-  iEvent.getByLabel(hltInputTag_, triggerResults);
 
   // HLT paths for DataScouting
   //  DST_HT250_v1
@@ -255,36 +244,30 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
   //  DST_Mu5_HT250_v1
   //  DST_Ele8_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT250_v1
 
-  int HLTpathMain_fired = -1;
+  int HLTpathMain_fired    = -1;
   int HLTpathMonitor_fired = -1;
   
-  if(triggerResults.isValid()) {
-    edm::LogInfo("DiJetVarAnalyzer") << "Successfully obtained " << hltInputTag_;
 
-    // Loop over HLT paths
-    // const edm::TriggerNames& names = iEvent.triggerNames(*triggerResults);
-    //     for (int i = 0; i < (int) triggerResults->size() ; ++i) 
-    //       {
-    // 	std::cout << names.triggerName(i) << " : " << triggerResults->accept(i) << std::endl;
-    //       }
-
-    unsigned int index_HLTpathMain = hltConfig.triggerIndex( HLTpathMain_ );
-    if( index_HLTpathMain < triggerResults->size() ) {
-      if( triggerResults->accept( index_HLTpathMain ) ) HLTpathMain_fired = 1; else HLTpathMain_fired = 0;
-    } else {
-      //edm::LogError("DiJetVarAnalyzer") << "Requested HLT path \"" << HLTpathMain_ << "\" does not exist" << std::endl;
+  if (HLTpathMain_ and HLTpathMonitor_ and triggerConfiguration_.setEvent(iEvent, c)) {
+    // invalid HLT configuration, skip the processing
+    
+    // if the L1 or HLT configurations have changed, (re)initialize the filters (including during the first event)
+    if (triggerConfiguration_.configurationUpdated()) {
+      HLTpathMain_->init(triggerConfiguration_);
+      HLTpathMonitor_->init(triggerConfiguration_);
+      
+      // log the expanded configuration
+      // std::cout << "HLT selector configurations updated" << std::endl;
+      // std::cout << "HLTpathMain:    " << *HLTpathMain_    << std::endl;
+      // std::cout << "HLTpathMonitor: " << *HLTpathMonitor_ << std::endl;
     }
-
-    unsigned int index_HLTpathMonitor = hltConfig.triggerIndex( HLTpathMonitor_ );
-    if( index_HLTpathMonitor < triggerResults->size() ) {
-      if( triggerResults->accept( index_HLTpathMonitor ) ) HLTpathMonitor_fired = 1; else HLTpathMonitor_fired = 0;
-    } else {
-      //edm::LogError("DiJetVarAnalyzer") << "Requested HLT path \"" << HLTpathMonitor_ << "\" does not exist" << std::endl;
-    }
-
+    
+    HLTpathMain_fired    = (*HLTpathMain_)(triggerConfiguration_);
+    HLTpathMonitor_fired = (*HLTpathMonitor_)(triggerConfiguration_);
+    
+    // The OR of the two should always be "1"
+    // std::cout << *HLTpathMain_ << ": " << HLTpathMain_fired << " -- " << *HLTpathMonitor_ << ": " << HLTpathMonitor_fired << std::endl;
   }
-  // The OR of the two should always be "1"
-  //std::cout << HLTpathMain_ << ": " << HLTpathMain_fired << " -- " << HLTpathMonitor_ << ": " << HLTpathMonitor_fired << std::endl;
   
   // ## Trigger Efficiency Curves
 
