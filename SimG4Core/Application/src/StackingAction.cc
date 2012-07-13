@@ -30,6 +30,18 @@ StackingAction::StackingAction(const edm::ParameterSet & p) {
   savePDandCinCalo    = p.getUntrackedParameter<bool>("SavePrimaryDecayProductsAndConversionsInCalo",false);
   savePDandCinMuon    = p.getUntrackedParameter<bool>("SavePrimaryDecayProductsAndConversionsInMuon",false);
   saveFirstSecondary  = p.getUntrackedParameter<bool>("SaveFirstLevelSecondary",false);
+  killInCalo = false;
+  killInCaloEfH = false;
+
+  if ( p.exists("TestKillingOptions") ) {
+
+    killInCalo = (p.getParameter<edm::ParameterSet>("TestKillingOptions")).getParameter<bool>("KillInCalo");
+    killInCaloEfH = (p.getParameter<edm::ParameterSet>("TestKillingOptions")).getParameter<bool>("KillInCaloEfH");
+    edm::LogWarning("SimG4CoreApplication") << " *** Activating special test killing options in StackingAction \n"
+                                            << " *** Kill secondaries in Calorimetetrs volume = " << killInCalo << "\n"
+                                            << " *** Kill electromagnetic secondaries from hadrons in Calorimeters volume = " << killInCaloEfH;
+
+  }
 
   edm::LogInfo("SimG4CoreApplication") << "StackingAction initiated with"
 				       << " flag for saving decay products in "
@@ -103,6 +115,20 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 	  aTrack->GetCreatorProcess()->GetProcessSubType() == fIonisation)
 	classification = fKill;
     }
+    if (killInCalo) {
+      if ( isThisVolume(aTrack->GetTouchable(),calo)) { 
+        classification = fKill; 
+      }
+    }
+    if (killInCaloEfH) {
+      int    pdg = aTrack->GetDefinition()->GetPDGEncoding();
+      int    pdgMother = mother->GetDefinition()->GetPDGEncoding();
+      if ( (pdg == 22 || std::abs(pdg) == 11) && (std::abs(pdgMother) < 11 || std::abs(pdgMother) > 17) && pdgMother != 22  ) {
+        if ( isThisVolume(aTrack->GetTouchable(),calo)) { 
+          classification = fKill; 
+        }
+      }
+    }
 #ifdef DebugLog
     LogDebug("SimG4CoreApplication") << "StackingAction:Classify Track "
 				     << aTrack->GetTrackID() << " Parent " 
@@ -132,7 +158,7 @@ void StackingAction::initPointer() {
         if (strcmp("Tracker",(*lvcite)->GetName().c_str()) == 0) tracker.push_back(*lvcite);
         if (strcmp("BEAM",(*lvcite)->GetName().substr(0,4).c_str()) == 0) tracker.push_back(*lvcite);
       }
-      if (savePDandCinCalo) {
+      if (savePDandCinCalo || killInCalo || killInCaloEfH ) {
         if (strcmp("CALO",(*lvcite)->GetName().c_str()) == 0) calo.push_back(*lvcite);
         if (strcmp("VCAL",(*lvcite)->GetName().c_str()) == 0) calo.push_back(*lvcite);
       }
@@ -241,3 +267,5 @@ bool StackingAction::isItLongLived(const G4Track * aTrack) const {
   if (time > tofM) flag = true;
   return flag;
 }
+
+
