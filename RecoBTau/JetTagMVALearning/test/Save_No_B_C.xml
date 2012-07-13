@@ -23,6 +23,7 @@
 		<var name="trackEta" multiple="true" optional="true"/>
 		<var name="trackPtRel" multiple="true" optional="true"/>
 		<var name="trackPPar" multiple="true" optional="true"/>
+		<var name="trackEtaRel" multiple="true" optional="true"/>
 		<var name="trackDeltaR" multiple="true" optional="true"/>
 		<var name="trackPtRatio" multiple="true" optional="true"/>
 		<var name="trackPParRatio" multiple="true" optional="true"/>
@@ -78,9 +79,17 @@
 			<var source="input" name="trackSip2dVal"/>
 			<var source="input" name="trackSip3dVal"/>
 			<var source="input" name="trackMomentum"/>
+			<var source="input" name="trackDeltaR"/>
+			<var source="input" name="trackPtRatio"/>
+			<var source="input" name="trackJetDist"/>
+			<var source="input" name="trackDecayLenVal"/>
+			<var source="input" name="trackSip2dSigAboveCharm"/>
+			<var source="input" name="trackSip3dSigAboveCharm"/>
+			<var source="input" name="trackSumJetEtRatio"/>
 			<var source="input" name="trackEta"/>
 			<var source="input" name="trackPtRel"/>
 			<var source="input" name="trackPPar"/>
+			<var source="input" name="trackEtaRel"/>
 			<var source="input" name="trackDeltaR"/>
 			<var source="input" name="trackPtRatio"/>
 			<var source="input" name="trackPParRatio"/>
