@@ -54,6 +54,8 @@ private:
   math::XYZTLorentzVector* vtx_;
   double weight_;    
   double Z_lmin,Z_lmax,Z_hector;
+  std::vector<int> pdgFilter;
+  bool pdgFilterSel;
 };
 
 #endif
