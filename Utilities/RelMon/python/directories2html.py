@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: dpiparo $
-# $Date: 2012/06/12 12:25:27 $
-# $Revision: 1.1 $
+# $Date: 2012/06/12 13:19:32 $
+# $Revision: 1.2 $
 
 #
 #                                                                              
@@ -82,7 +82,11 @@ def get_page_header(directory=None,additional_header=""):
     meta=directory.meta
     style='img.fail {border:1px solid #ff0000;}\n'+\
           'img.succes {border:1px solid #00ff00;}\n'+\
-          'img.null {border:1px solid #ffff00;}\n'
+          'img.null {border:1px solid #ffff00;}\n'+\
+          'a.black_link:link {color: #333333}\n'+\
+          'a.black_link:hover {color: #737373}\n'+\
+          'a.black_link:visited {color: #333333}\n'+\
+          'a.black_link:active {color: #333333}\n'
   javascripts=""
   
   
@@ -315,7 +319,7 @@ def get_comparisons(category,directory):
 
       html_comparisons+='<div class="span-6 %s"><p>%s</p>' %(class_type,comparison.name)+\
                       '<p class="alt">%s: %.2E</p>' %(comparison.test_name,comparison.rank)+\
-                      '<div><a href="%s">%s</a></div>'%(single_fairy1,directory.meta.release1)+\
+                      '<div><a class="black_link" href="%s">%s</a></div>'%(single_fairy1,directory.meta.release1)+\
                       '<div><a href="%s">%s</a></div>'%(single_fairy2,directory.meta.release2)+\
                       '<a href="%s"><img src="%s" class="top center %s"></a></div>'%(big_fairy,small_fairy,cat_classes[category])
 
