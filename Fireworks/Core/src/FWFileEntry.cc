@@ -46,13 +46,7 @@ void FWFileEntry::openFile(bool checkVersion)
    }
    gErrorIgnoreLevel = -1;
    m_file = newFile;
-   m_event = new fwlite::Event(m_file);
-   m_eventTree = dynamic_cast<TTree*>(m_file->Get("Events"));
 
-   if (m_eventTree == 0)
-   { 
-      throw std::runtime_error("Cannot find TTree 'Events' in the data file");
-   }
 
    // check CMSSW relese version for compatibility
    if (checkVersion) {
@@ -94,6 +88,14 @@ void FWFileEntry::openFile(bool checkVersion)
       }
    }
 
+   // load event
+   m_event = new fwlite::Event(m_file);
+   m_eventTree = dynamic_cast<TTree*>(m_file->Get("Events"));
+
+   if (m_eventTree == 0)
+   { 
+      throw std::runtime_error("Cannot find TTree 'Events' in the data file");
+   }
 
    // This now set in DataHelper
    //TTreeCache::SetLearnEntries(2);
