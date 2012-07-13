@@ -62,7 +62,7 @@ checkRemoteConnection()
    	      echo "We are running on SL5 or CentOS5."
    	      if [ -e /usr/lib64/libGL.so.1.2 ]; then
    		  echo "To avoid this problem libGL.so from MesaGL package will be preloaded."
-   		  export LD_PRELOAD=/usr/lib64/libGL.so.1.2
+                  export LD_PRELOAD=/usr/lib64/libGL.so.1.2:$LD_PRELOAD
    	      else
    		  echo "Can not find replacement libGL.so from MesaGL."
    		  echo "If you run into trouble try installing mesa-libGL package on remote machine."
