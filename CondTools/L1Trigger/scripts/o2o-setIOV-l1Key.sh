@@ -36,6 +36,7 @@ release=CMSSW_4_2_3_ONLINE
 version=012
 
 echo "`date` : o2o-setIOV-l1Key-slc5.sh $run $l1Key" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
+echo "`uptime`" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 START=$(date +%s)
 
 if [ $# -lt 2 ]
@@ -63,7 +64,7 @@ if [ -f o2o-setIOV.lock ]
     then
     echo "$0 already running.  Aborting process."  | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
     echo "$0 already running.  Aborting process."  1>&2
-    tail -3 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
+    tail -4 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
     exit 50
 else
     touch o2o-setIOV.lock
@@ -110,7 +111,7 @@ echo "`date` : parsed tscKey = ${tscKey}" >> tmp.log 2>&1
 $CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-iov.sh -x ${centralRel} ${forceUpdate} ${run} ${tscKey} >> tmp.log 2>&1
 o2ocode1=$?
 
-tail -1 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
+tail -2 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
 
 # Filter CORAL debug output into different file, which gets deleted if no errors
 grep -E "CORAL.*Info|CORAL.*Debug" tmp.log >& /nfshome0/popcondev/L1Job/coraldebug-${run}.log
