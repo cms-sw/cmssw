@@ -508,6 +508,7 @@ namespace evf {
     MonitorElement * busySummary2_;
     MonitorElement * fuReportsSummary_;
     MonitorElement * daqBusySummary_;
+    MonitorElement * busyModules_;
     unsigned int summaryLastLs_;
     std::vector<std::map<unsigned int, unsigned int> > occupancyNameMap;
     //1 queue per number of subProcesses (and one common)

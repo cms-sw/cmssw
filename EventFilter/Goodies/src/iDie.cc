@@ -698,7 +698,7 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
 	  fillDQMStatHist(nbsIdx,currentLs_[nbsIdx]);
 	  fillDQMModFractionHist(nbsIdx,currentLs_[nbsIdx],lst->getNSampledNonIdle(),
 	      lst->getOffendersVector());
-
+	  //fillDQMModBusyHist(currentLs_[nbsIx]);
 	  doFlush();
 	  perLumiFileSaver(currentLs_[nbsIdx]);
 	}
@@ -748,6 +748,8 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
 	if (lsid && maxMod > (cumulative_ >>4) && cumulative_>64 && blockingModulesPerLs_[lsid-1].size()<3) 
 	{
 	  blockingModulesPerLs_[lsid-1].push_back(std::pair<unsigned int, float>(maxModId,(float)maxMod/cumulative_));
+	  std::cout << "iDie: found module taking a lot of time: " << mapmod_[maxModId] 
+		  << " " << 100.*(float)maxMod/cumulative_ << "% of lumisection "<< lsid << std::endl; 
 	}
 	lst->update(busyCounts,datap_[2],nbproc_,ncpubusy_);
       }
@@ -1061,6 +1063,7 @@ void iDie::initMonitorElements()
   busySummary2_ = dqmStore_->book2D("03_BUSY_SUMMARY_PROCSTAT","Busy fraction from /proc/stat",ROLL,0,ROLL,epInstances.size()+2,0,epInstances.size()+2);
   fuReportsSummary_ = dqmStore_->book2D("04_EP_REPORTS_SUMMARY","Number of reports received",ROLL,0,ROLL,epInstances.size()+1,0,epInstances.size()+1);
 
+  //busyModules_  = dqmStore_->book2D("MODULES_BUSY",ROLL,1.,1.+ROLL,MODNAMES,0,MODNAMES);
   //everything goes into layouts folder
   //dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
   daqBusySummary_ = dqmStore_->book1D("reportSummaryMap","DAQ HLT Farm busy (%)",4000,1,4001.);

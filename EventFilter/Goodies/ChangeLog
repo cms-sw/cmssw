@@ -7,6 +7,7 @@
 	* refill whole row when new item added in module time
 	* lsStat and lsCommonStat are allocated (avoids extra copy)
 	* refilling past 4 lumisections on report with new lumi received
+	* reporting modules taking a lot of time
 
 2012-07-10 Srecko Morovic <srecko.morovic@cern.ch>
 
