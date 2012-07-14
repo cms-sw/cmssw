@@ -42,6 +42,7 @@
 using namespace evf;
 
 #define ROLL 20
+#define PASTUPDATES 4
 
 ////////////////////////////////////////////////////////////////////////////////
 // construction/destruction
@@ -54,8 +55,8 @@ iDie::iDie(xdaq::ApplicationStub *s)
   , dqmState_("Null")
   , instance_(0)
   , runNumber_(0)
-//  , dqmCollectorHost_()
-//  , dqmCollectorPort_()
+  , dqmCollectorHost_()
+  , dqmCollectorPort_()
   , totalCores_(0)
   , nstates_(0)
   , cpustat_(std::vector<std::vector<int> >(0))
@@ -79,7 +80,7 @@ iDie::iDie(xdaq::ApplicationStub *s)
   , meInitialized_(false)
   , dqmService_(nullptr)
   , dqmStore_(nullptr)
-  , dqmEnabled_(true)
+  , dqmEnabled_(false)
   , saveLsInterval_(10)
   , ilumiprev_(0)
   , dqmSaveDir_("")
@@ -167,7 +168,7 @@ iDie::iDie(xdaq::ApplicationStub *s)
     occupancyNameMap.push_back(mptmp);
   }
   nbSubsClasses = epInstances.size();
-  lsHistory = new std::deque<lsStat>[nbSubsClasses];
+  lsHistory = new std::deque<lsStat*>[nbSubsClasses];
   //umask for setting permissions of created directories
   umask(000);
 
@@ -189,8 +190,14 @@ void iDie::actionPerformed(xdata::Event& e)
     if ( item == "runNumber") {
       LOG4CPLUS_WARN(getApplicationLogger(),
 		     "New Run was started - iDie will reset");
-      dqmState_ = "Prepared";
       reset();
+
+      dqmState_ = "Prepared";
+      if (dqmEnabled_.value_) { 
+	if (!evtProcessor_) initFramework();
+	if (!meInitialized_) initMonitorElements();
+	doFlush();
+      }
     }
     
   }
@@ -239,11 +246,13 @@ xoap::MessageReference iDie::fsmCallback(xoap::MessageReference msg)
     else if(commandName == "Stop") {
       //remove histograms
       if (meInitialized_) {
-        sleep(1);
         dqmState_ = "Removed";
+        usleep(10000);//propagating dqmState to caches
         meInitialized_=false;
-        dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
-        dqmStore_->removeContents();
+        sleep(1);//making sure that any running ls update finishes
+
+        //dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
+        //dqmStore_->removeContents();
         dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/");
         dqmStore_->removeContents();
         doFlush(); 
@@ -445,12 +454,6 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
   throw (xgi::exception::Exception)
 {
 
-  if (!evtProcessor_ && dqmEnabled_.value_) initFramework();
-  else if (evtProcessor_ && !meInitialized_) {
-    if (dqmState_!="Removed")
-	  initMonitorElements();
-  }
-
   timeval tv;
   gettimeofday(&tv,0);
   time_t now = tv.tv_sec;
@@ -544,6 +547,15 @@ void iDie::postEntryiChoke(xgi::Input*in,xgi::Output*out)
   throw (xgi::exception::Exception)
 {
   //  std::cout << "postEntryiChoke " << std::endl;
+ 
+  if (dqmEnabled_.value_) {
+    if (!evtProcessor_) initFramework();
+    if (!meInitialized_) {
+      if (dqmState_!="Removed")	initMonitorElements();
+    }
+  }
+
+
   unsigned int lsid = 0;
   cgicc::Cgicc cgi(in); 
   /*  cgicc::CgiEnvironment cgie(in);
@@ -623,14 +635,6 @@ void iDie::reset()
     {delete datap_; datap_ = 0;}
   b_=0; b1_=0; b2_=0; b3_=0; b4_=0;
 
-  if (dqmEnabled_.value_) { 
-    if (!evtProcessor_) {
-      initFramework();
-    }
-    else if (evtProcessor_) initMonitorElements();
-    doFlush();
-  }
-
 }
 
 void iDie::parseModuleLegenda(std::string leg)
@@ -685,18 +689,16 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
   int nbsIdx = -1;
   if (meInitialized_ && nbSubsList.find(nbsubs_)!=nbSubsList.end() && lsid) {
      nbsIdx = nbSubsList[nbsubs_];
-    if (currentLs_[nbsIdx]<lsid) {
+    if (currentLs_[nbsIdx]<lsid) {//new lumisection for this ep class
       if (currentLs_[nbsIdx]!=0) {
         if (lsHistory[nbsIdx].size()) {
-	  //push update
-	  lsStat & lst = lsHistory[nbsIdx].back();
+	  //push update for last lumi
+	  lsStat * lst = lsHistory[nbsIdx].back();
 
 	  fillDQMStatHist(nbsIdx,currentLs_[nbsIdx]);
+	  fillDQMModFractionHist(nbsIdx,currentLs_[nbsIdx],lst->getNSampledNonIdle(),
+	      lst->getOffendersVector());
 
-	  fillDQMModFractionHist(nbsIdx,currentLs_[nbsIdx],lst.getNSampledNonIdle(),
-			  lst.getOffendersVector());
-
-	  lsHistory[nbsIdx].back().deleteModuleSamplingPtr();//clear
 	  doFlush();
 	  perLumiFileSaver(currentLs_[nbsIdx]);
 	}
@@ -704,45 +706,39 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
 
       currentLs_[nbsIdx]=lsid;
 
-      //debug info
-      //if (commonLsHistory.size()>2 && commonLsHistory.back().ls_<lsid)
-        //std::cout << "DQM DEBUG: " << commonLsHistory.back().printInfo() << std::endl;
+      //add elements for new lumisection, fill the gap if needed
+      unsigned int lclast = commonLsHistory.size() ? commonLsHistory.back()->ls_:0;
+      for (unsigned int newls=lclast+1;newls<=lsid;newls++)
+          commonLsHistory.push_back(new commonLsStat(newls,epInstances.size()));
 
-      if (!commonLsHistory.size() || commonLsHistory.back().ls_<lsid)
-        commonLsHistory.push_back(commonLsStat(lsid,epInstances.size()));
-        lsHistory[nbsIdx].push_back(lsStat(lsid,nbsubs_,nModuleLegendaMessageReceived_,nstates_));
-	if (commonLsHistory.size()>ROLL) commonLsHistory.pop_front();
-	if (lsHistory[nbsIdx].size()>ROLL) lsHistory[nbsIdx].pop_front();
+      unsigned int lhlast = lsHistory[nbsIdx].size() ? lsHistory[nbsIdx].back()->ls_:0;
+      for (size_t newls=lhlast+1;newls<=lsid;newls++) {
+        lsHistory[nbsIdx].push_back(new lsStat(newls,nbsubs_,nModuleLegendaMessageReceived_,nstates_));
+      }
+
+      //remove old elements from queues
+      if (commonLsHistory.size()>ROLL) {delete commonLsHistory.front(); commonLsHistory.pop_front();}
+      if (lsHistory[nbsIdx].size()>ROLL) {delete lsHistory[nbsIdx].front(); lsHistory[nbsIdx].pop_front();}
     }
-    if (currentLs_[nbsIdx]==lsid-1) { // late update
+    if (currentLs_[nbsIdx]>=lsid) { // update for current or previous lumis
       unsigned int qsize=lsHistory[nbsIdx].size();
-      if (qsize>1) {
+      unsigned int delta = currentLs_[nbsIdx]-lsid;
+      if (qsize>delta && delta<ROLL) {
+        lsStat * lst = (lsHistory[nbsIdx])[qsize-delta-1];
 	unsigned int cumulative_ = 0;
-	std::pair<unsigned int,unsigned int> * fillptr = (lsHistory[nbsIdx])[qsize-2].getModuleSamplingPtr();
+	auto fillvec = lst->getModuleSamplingPtr();
 	for (unsigned int i=0;i<nstates_;i++) {
 	  cumulative_+=datap_[i];
-	  if (fillptr) {
-	    fillptr[i].second+=datap_[i];
+	  if (fillvec) {
+	    fillvec[i].second+=datap_[i];
 	  }
 	}
-
-	(lsHistory[nbsIdx])[qsize-2].update(cumulative_-datap_[2],datap_[2],nbproc_,ncpubusy_);
+	lst->update(cumulative_-datap_[2],datap_[2],nbproc_,ncpubusy_);
       }
-    }
-    else if (currentLs_[nbsIdx]==lsid) {//current ls update
-      unsigned int cumulative_ = 0;
-      std::pair<unsigned int,unsigned int> * fillptr = lsHistory[nbsIdx].back().getModuleSamplingPtr();
-      for (unsigned int i=0;i<nstates_;i++) {
-	cumulative_+=datap_[i];
-	if (fillptr) {
-	  fillptr[i].second+=datap_[i];
-	}
-      }
-      lsHistory[nbsIdx].back().update(cumulative_-datap_[2],datap_[2],nbproc_,ncpubusy_);
     }
   }
   else {
-    //no defined plots for this number of sub processes
+    //no predefined plots for this number of sub processes
   }
 
   if(t_!=0){
@@ -926,15 +922,19 @@ void iDie::initFramework()
 
   //ParameterSetRetriever pr(configString_);
   //std::string configuration_ = pr.getAsString();
-  if (!dqmEnabled_.value_ || !dqmCollectorHost_.value_.size() || !dqmCollectorPort_.value_.size()) {
-    dqmEnabled_.value_=false;
-    std::cout << " DQM connection parameters not present. Disabling DQM histograms" << std::endl;
-    return;
-  }
 
   std::string configuration_ = configString_;
   configuration_.replace(configuration_.find("EMPTYHOST"),9,dqmCollectorHost_.value_);
+
+  //check if port is a number
+  {
+    std::string & s = dqmCollectorPort_.value_;
+    std::string::const_iterator it = s.begin();
+    while (it != s.end() && std::isdigit(*it)) ++it;
+    if (it != s.end() || s.empty()) dqmCollectorPort_="0";
+  }
   configuration_.replace(configuration_.find("EMPTYPORT"),9,dqmCollectorPort_.value_);
+
   PythonProcessDesc ppdesc = PythonProcessDesc(configuration_);
   boost::shared_ptr<edm::ProcessDesc> pdesc;
   std::vector<std::string> defaultServices = {"InitRootHandlers"};
@@ -951,29 +951,29 @@ void iDie::initFramework()
       pf->makePresence("MessageServicePresence").release();
     }
     else {
-      std::cout << "SLAVE: Unable to create message service presence "<<std::endl;
+    LOG4CPLUS_WARN(getApplicationLogger(),"Unable to create message service presence");
     }
   } 
   catch(edm::Exception e) {
-    std::cout << "edm::Exception: "<< e.what() << std::endl;
+    LOG4CPLUS_WARN(getApplicationLogger(),e.what());
   }
 
   catch(cms::Exception e) {
-    std::cout << "cms::Exception: "<< e.what() << std::endl;
+    LOG4CPLUS_WARN(getApplicationLogger(),e.what());
   }
  
   catch(std::exception e) {
-    std::cout << "std::exception: "<< e.what() << std::endl;
+    LOG4CPLUS_WARN(getApplicationLogger(),e.what());
   }
   catch(...) {
-    std::cout <<"SLAVE: Unknown Exception (Message Presence)"<<std::endl;
+    LOG4CPLUS_WARN(getApplicationLogger(),"Unknown Exception (Message Presence)");
   }
 
   try {
   serviceToken_ = edm::ServiceRegistry::createSet(*pServiceSets_);
   }
   catch (...) {
-    std::cout << "Failed creation of service token "<<std::endl;
+    LOG4CPLUS_WARN(getApplicationLogger(),"Failed creation of service token ");
     dqmEnabled_.value_=false;
   }
   edm::ServiceRegistry::Operate operate(serviceToken_);
@@ -998,6 +998,8 @@ void iDie::initFramework()
     LOG4CPLUS_WARN(getApplicationLogger(),"exception when trying to get service DQMService");
     dqmEnabled_.value_=false;
   }
+  if (!dqmEnabled_.value_) LOG4CPLUS_ERROR(getApplicationLogger(),"Failed to initialize DQMService/DQMStore");
+
   if (dqmState_!="Removed")
     initMonitorElements();
 
@@ -1031,7 +1033,7 @@ void iDie::initMonitorElements()
 		         4000,1.,4001));
     meVecOffenders_.push_back(dqmStore_->book2D("MODULE_FRACTION_"+TString(str.str().c_str()),
 			                        "Module processing time fraction_"+ TString(str.str().c_str()),
-		                                MODLZSIZELUMI,1.,1.+MODLZSIZELUMI,MODLZSIZE,0,MODLZSIZE));
+		                                ROLL,1.,1.+ROLL,MODNAMES,0,MODNAMES));
     //fill 1 in underrflow bin
     meVecOffenders_[i]->Fill(0,1);
     occupancyNameMap[i].clear();
@@ -1074,9 +1076,9 @@ void iDie::initMonitorElements()
   fuReportsSummary_->setBinLabel(epInstances.size()+1,"All",2);
 
   for (size_t i=0;i<epInstances.size();i++) {
-    lsHistory[i]=std::deque<lsStat>();
+    lsHistory[i]=std::deque<lsStat*>();
   }
-  commonLsHistory=std::deque<commonLsStat>();
+  commonLsHistory=std::deque<commonLsStat*>();
 
   meInitialized_=true;
 
@@ -1091,81 +1093,75 @@ void iDie::fillDQMStatHist(unsigned int nbsIdx, unsigned int lsid)
 {
   if (!evtProcessor_ || lsid==0) return;
   unsigned int qsize = lsHistory[nbsIdx].size();
-  lsStat & lst = (lsHistory[nbsIdx])[qsize-1];
-  commonLsStat & clst = commonLsHistory[qsize-1];
 
-  meVecRate_[nbsIdx]->setBinContent(lsid,lst.getRatePerMachine());
-  meVecRate_[nbsIdx]->setBinError(lsid,lst.getRateErrPerMachine());
-  meVecTime_[nbsIdx]->setBinContent(lsid>2? lsid:0,lst.getEvtTime()*1000);//msec
-  meVecTime_[nbsIdx]->setBinError(lsid>2? lsid:0,lst.getEvtTimeErr()*1000);//msec
-  updateRollingHistos(nbsIdx, lsid,lst,clst,true);
+  //update lumis
+  if (qsize) {
+    for (int i =(int)qsize-1;i>=0 && i>=(int)qsize-PASTUPDATES;i--) {
+      unsigned int qpos=(unsigned int) i;
+      unsigned int forls = lsid - (qsize-1-i);
+      lsStat * lst = (lsHistory[nbsIdx])[qpos];
+      commonLsStat * clst = commonLsHistory[qpos];
 
-  
-  if (qsize>1) {
-    lsStat & prevLst = (lsHistory[nbsIdx])[qsize-2];
-    commonLsStat prevClst = commonLsHistory[qsize-2];
-    if (prevLst.ls_==lsid-1) {
-
-      meVecRate_[nbsIdx]->setBinContent(lsid-1,prevLst.getRatePerMachine());
-      meVecRate_[nbsIdx]->setBinError(lsid-1,prevLst.getRateErrPerMachine());
-      meVecTime_[nbsIdx]->setBinContent(lsid-1>2 ? lsid-1:0,prevLst.getEvtTime()*1000);//msec
-      meVecTime_[nbsIdx]->setBinError(lsid-1>2 ? lsid-1:0,prevLst.getEvtTimeErr()*1000);//msec
-      updateRollingHistos(nbsIdx, lsid-1,prevLst, prevClst, false);
+      meVecRate_[nbsIdx]->setBinContent(forls,lst->getRatePerMachine());
+      meVecRate_[nbsIdx]->setBinError(forls,lst->getRateErrPerMachine());
+      meVecTime_[nbsIdx]->setBinContent(forls>2? forls:0,lst->getEvtTime()*1000);//msec
+      meVecTime_[nbsIdx]->setBinError(forls>2? forls:0,lst->getEvtTimeErr()*1000);//msec
+      updateRollingHistos(nbsIdx, forls,lst,clst,i==(int)qsize-1);
     }
   }
-
 }
 
-void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat & lst, commonLsStat  & clst, bool roll) {
+void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * lst, commonLsStat  * clst, bool roll) {
   unsigned int lsidBin;
   if (roll) {
-  if (lsid>ROLL) {
-    lsidBin=ROLL;
-    if (lsid>summaryLastLs_) { //see if plots aren't up to date
-      unsigned int lsdiff = lsid-summaryLastLs_;
-      for (unsigned int i=1;i<=ROLL;i++) {
-	if (i<ROLL) {
-	  bool emptyBin=false;
-	  if (i<=ROLL-lsdiff) emptyBin=true;
-          for (unsigned int j=1;j<=epInstances.size()+1;j++) {
-	    rateSummary_->setBinContent(i,j,emptyBin? 0 : rateSummary_->getBinContent(i+lsdiff,j));
-	    timingSummary_->setBinContent(i,j,emptyBin ? 0 : timingSummary_->getBinContent(i+lsdiff,j));
-	    busySummary_->setBinContent(i,j,emptyBin ? 0 : busySummary_->getBinContent(i+lsdiff,j));
-	    busySummary2_->setBinContent(i,j,emptyBin ? 0 : busySummary2_->getBinContent(i+lsdiff,j));
-	    fuReportsSummary_->setBinContent(i,j,emptyBin ? 0 : fuReportsSummary_->getBinContent(i+lsdiff,j));
-          }
-	  busySummary_->setBinContent(i,epInstances.size()+2,emptyBin ? 0 : busySummary2_->getBinContent(i+lsdiff,epInstances.size()+2));
-	  busySummary2_->setBinContent(i,epInstances.size()+2,emptyBin ? 0 : busySummary2_->getBinContent(i+lsdiff,epInstances.size()+2));
+    if (lsid>ROLL) {
+      lsidBin=ROLL;
+      if (lsid>summaryLastLs_) { //see if plots aren't up to date
+	unsigned int lsdiff = lsid-summaryLastLs_;
+	for (unsigned int i=1;i<=ROLL;i++) {
+	  if (i<ROLL) {
+	    bool emptyBin=false;
+	    if (i>ROLL-lsdiff) emptyBin=true;
+	    for (unsigned int j=1;j<=epInstances.size()+1;j++) {
+	      rateSummary_->setBinContent(i,j,emptyBin? 0 : rateSummary_->getBinContent(i+lsdiff,j));
+	      timingSummary_->setBinContent(i,j,emptyBin ? 0 : timingSummary_->getBinContent(i+lsdiff,j));
+	      busySummary_->setBinContent(i,j,emptyBin ? 0 : busySummary_->getBinContent(i+lsdiff,j));
+	      busySummary2_->setBinContent(i,j,emptyBin ? 0 : busySummary2_->getBinContent(i+lsdiff,j));
+	      fuReportsSummary_->setBinContent(i,j,emptyBin ? 0 : fuReportsSummary_->getBinContent(i+lsdiff,j));
+	    }
+	    busySummary_->setBinContent(i,epInstances.size()+2,emptyBin ? 0 : busySummary2_->getBinContent(i+lsdiff,epInstances.size()+2));
+	    busySummary2_->setBinContent(i,epInstances.size()+2,emptyBin ? 0 : busySummary2_->getBinContent(i+lsdiff,epInstances.size()+2));
+	  }
+
+	  std::ostringstream ostr;
+	  ostr << lsid-ROLL+i;
+	  rateSummary_->setBinLabel(i,ostr.str(),1);
+	  timingSummary_->setBinLabel(i,ostr.str(),1);
+	  busySummary_->setBinLabel(i,ostr.str(),1);
+	  busySummary2_->setBinLabel(i,ostr.str(),1);
+	  fuReportsSummary_->setBinLabel(i,ostr.str(),1);
+
 	}
-
-	std::ostringstream ostr;
-	ostr << lsid-ROLL+i;
-	rateSummary_->setBinLabel(i,ostr.str(),1);
-	timingSummary_->setBinLabel(i,ostr.str(),1);
-	busySummary_->setBinLabel(i,ostr.str(),1);
-	busySummary2_->setBinLabel(i,ostr.str(),1);
-	fuReportsSummary_->setBinLabel(i,ostr.str(),1);
-
+	summaryLastLs_=lsid;
       }
-      summaryLastLs_=lsid;
+      else if (lsid<summaryLastLs_) {
+	if (summaryLastLs_-lsid>=ROLL) return;//very old
+	lsidBin=ROLL-(summaryLastLs_-lsid);
+      }
     }
-    else if (lsid<summaryLastLs_) {
-      if (summaryLastLs_-lsid>=ROLL) return;//very old
-      lsidBin=ROLL-(summaryLastLs_-lsid);
-    }
-  }
-  else if (lsid) {lsidBin=lsid;} else return;
+    else if (lsid) {lsidBin=lsid;} else return;
   }
   else {// previous lumisection updates
-    lsidBin=lsid>ROLL-1 ? ROLL-1:lsid;
+    unsigned int roll_pos = ROLL-(summaryLastLs_-lsid);
+    lsidBin=lsid > roll_pos ? roll_pos : lsid;
   }
 
-  rateSummary_->setBinContent(lsidBin,nbsIdx+1,lst.getRate());
-  timingSummary_->setBinContent(lsidBin,nbsIdx+1,lst.getEvtTime()*1000);
-  fuReportsSummary_->setBinContent(lsidBin,nbsIdx+1,lst.getReports());
+  rateSummary_->setBinContent(lsidBin,nbsIdx+1,lst->getRate());
+  timingSummary_->setBinContent(lsidBin,nbsIdx+1,lst->getEvtTime()*1000);
+  fuReportsSummary_->setBinContent(lsidBin,nbsIdx+1,lst->getReports());
 
   //float epMaxInv=1/epMax[nbsIdx];
-  float busyCorr = lst.getFracBusy() * (float)epInstances[nbsIdx]/epMax[nbsIdx];//really how busy is machine (uncorrected)
+  float busyCorr = lst->getFracBusy() * (float)epInstances[nbsIdx]/epMax[nbsIdx];//really how busy is machine (uncorrected)
   ///busyCPU *= (float)epInstances[nbsIdx]/epMax[nbsIdx];
   //max based on how much is configured and max possible
   float fracMax  = 0.5 + (std::max(epInstances[nbsIdx]-epMax[nbsIdx]/2.,0.)/(epMax[nbsIdx])) *HTscaling[nbsIdx];
@@ -1176,27 +1172,27 @@ void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat & 
   float busyFrCPUTheor=0;
   if (busyCorr>0.5) {//take into account HT scaling for the busy fraction
     busyFr=(0.5 + (busyCorr-0.5)*HTscaling[nbsIdx])/fracMax;
-    busyCPUFr=(0.5 + (lst.getFracCPUBusy()-0.5)*HTscaling[nbsIdx])/fracMax;
+    busyCPUFr=(0.5 + (lst->getFracCPUBusy()-0.5)*HTscaling[nbsIdx])/fracMax;
     busyFrTheor = (0.5+(busyCorr-0.5)*HTscaling[nbsIdx])/ (0.5+HTscaling[nbsIdx]);
-    busyFrCPUTheor = (0.5+(lst.getFracCPUBusy()-0.5)*HTscaling[nbsIdx])/ (0.5+HTscaling[nbsIdx]);
+    busyFrCPUTheor = (0.5+(lst->getFracCPUBusy()-0.5)*HTscaling[nbsIdx])/ (0.5+HTscaling[nbsIdx]);
   }
   else {//below the HT threshold
     busyFr=busyCorr / fracMax;
-    busyCPUFr=lst.getFracCPUBusy() / fracMax;
+    busyCPUFr=lst->getFracCPUBusy() / fracMax;
     busyFrTheor = busyCorr / (0.5+HTscaling[nbsIdx]);
-    busyFrCPUTheor = lst.getFracCPUBusy() / (0.5+HTscaling[nbsIdx]);
+    busyFrCPUTheor = lst->getFracCPUBusy() / (0.5+HTscaling[nbsIdx]);
   }
   //rolled
   busySummary_->setBinContent(lsidBin,nbsIdx+1,busyFr);//"corrected" cpu busy fraction
   busySummary2_->setBinContent(lsidBin,nbsIdx+1,busyCPUFr);//"corrected" cpu busy fraction
-  clst.setBusyForClass(nbsIdx,lst.getRate(),busyFr,busyFrTheor,busyCPUFr,busyFrCPUTheor,lst.getReports());
-  rateSummary_->setBinContent(lsidBin,epInstances.size()+1,clst.getTotalRate());
-  fuReportsSummary_->setBinContent(lsidBin,epInstances.size()+1,clst.getNReports());
-  float busyAvg = clst.getBusyTotalFrac(false,machineWeightInst);
+  clst->setBusyForClass(nbsIdx,lst->getRate(),busyFr,busyFrTheor,busyCPUFr,busyFrCPUTheor,lst->getReports());
+  rateSummary_->setBinContent(lsidBin,epInstances.size()+1,clst->getTotalRate());
+  fuReportsSummary_->setBinContent(lsidBin,epInstances.size()+1,clst->getNReports());
+  float busyAvg = clst->getBusyTotalFrac(false,machineWeightInst);
   busySummary_->setBinContent(lsidBin,epInstances.size()+1,busyAvg);
-  busySummary2_->setBinContent(lsidBin,epInstances.size()+1,clst.getBusyTotalFrac(true,machineWeightInst));
-  busySummary_->setBinContent(lsidBin,epInstances.size()+2,clst.getBusyTotalFracTheor(false,machineWeight));
-  busySummary2_->setBinContent(lsidBin,epInstances.size()+2,clst.getBusyTotalFracTheor(true,machineWeight));
+  busySummary2_->setBinContent(lsidBin,epInstances.size()+1,clst->getBusyTotalFrac(true,machineWeightInst));
+  busySummary_->setBinContent(lsidBin,epInstances.size()+2,clst->getBusyTotalFracTheor(false,machineWeight));
+  busySummary2_->setBinContent(lsidBin,epInstances.size()+2,clst->getBusyTotalFracTheor(true,machineWeight));
   //non rolled
   daqBusySummary_->setBinContent(lsid,busyAvg*100);
   daqBusySummary_->setBinError(lsid,0);
@@ -1209,33 +1205,31 @@ void iDie::fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsign
   MonitorElement * me = meVecOffenders_[nbsIdx];
   //shift bin names by 1
   unsigned int xBinToFill=lsid;
-  if (lsid>MODLZSIZELUMI) {
-    for (unsigned int i=1;i<=MODLZSIZELUMI;i++) {
-      for (unsigned int j=1;j<=MODLZSIZE;j++) {
-	if (i<MODLZSIZELUMI)
+  if (lsid>ROLL) {
+    for (unsigned int i=1;i<=ROLL;i++) {
+      for (unsigned int j=1;j<=MODNAMES;j++) {
+	if (i<ROLL)
 	  me->setBinContent(i,j,me->getBinContent(i+1,j));
 	else
 	  me->setBinContent(i,j,0);
       }
       std::ostringstream ostr;
-      ostr << lsid-MODLZSIZELUMI+i;
+      ostr << lsid-ROLL+i;
       me->setBinLabel(i,ostr.str(),1);
     }
     std::ostringstream ostr;
     ostr << lsid;
-    //me->setBinLabel(MODLZSIZELUMI,ostr.str(),1);
-    //me->setBinContent(MODLZSIZELUMI,ostr.str(),1);
-    xBinToFill=MODLZSIZELUMI;
+    xBinToFill=ROLL;
   }
   float nonIdleInv=0.;
   if (nonIdle>0.)nonIdleInv=1./nonIdle;
   for (unsigned int i=0;i<offenders.size();i++) {
     unsigned int x=offenders[i].first;
     float percentageUsed=offenders[i].second*nonIdleInv;
-    if (percentageUsed>0.03) {//3% threshold
-      if (occupancyNameMap[nbsIdx].count(x)==0) {
+    if (percentageUsed>0.02) {//2% threshold
+      if (occupancyNameMap[nbsIdx].count(x)==0) {//new element
 	unsigned int y=occupancyNameMap[nbsIdx].size();
-	if (y<MODLZSIZE) {
+	if (y<MODNAMES) {
 	  (occupancyNameMap[nbsIdx])[x]=y;
 	  me->setBinContent(xBinToFill,y+1,((int)(1000.*percentageUsed))/1000.);
 	  me->setBinLabel(y+1,mapmod_[x],2);
@@ -1246,14 +1240,14 @@ void iDie::fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsign
   for (unsigned int i=0;i<offenders.size();i++) {
     unsigned int x=offenders[i].first;
     float percentageUsed=offenders[i].second*nonIdleInv;
-    if (percentageUsed>0.02) {//3% threshold
+    if (percentageUsed>0.02) {//2% threshold
       if (occupancyNameMap[nbsIdx].count(x)==0) {
 	unsigned int y=occupancyNameMap[nbsIdx].size();
-	if (y>=MODLZSIZE && xBinToFill>1) {
+	if (y>=MODNAMES && xBinToFill>1) {
 	  //filled up, replace another one
 	  float minbinval=1.;
 	  unsigned int toReplace=0;
-	  for (size_t j=1;j<=MODLZSIZE;j++) {
+	  for (size_t j=1;j<=MODNAMES;j++) {
 	    //decide based on the smallest value
 	    float bin=me->getBinContent(xBinToFill,j);
 	    if (bin<minbinval) {toReplace=j;minbinval=bin;}
@@ -1275,15 +1269,22 @@ void iDie::fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsign
 	      me->setBinContent(xBinToFill,toReplace,((int)(100.*percentageUsed))/100.);
 	      me->setBinLabel(toReplace,mapmod_[x],2);
 	      //reset fields for previous lumis
-	      for (size_t k=1;k<xBinToFill;k++)
-                me->setBinContent(k,toReplace,0);
+	      unsigned qsize = lsHistory[nbsIdx].size();
+	      for (size_t k=1;k<xBinToFill;k++) {
+                if (xBinToFill-k+1<qsize) {
+                  float fr = (lsHistory[nbsIdx])[qsize-xBinToFill+k-1]->getOffenderFracAt(x);
+		  if (fr>0.02) me->setBinContent(k,toReplace,fr);
+		}
+		else
+                  me->setBinContent(k,toReplace,0);
+	      }
 	    }
 	  }
 	}
       }
       else {
 	unsigned int y=(occupancyNameMap[nbsIdx])[x];
-	me->setBinContent(xBinToFill,y,((int)(100.*percentageUsed))/100.);
+	me->setBinContent(xBinToFill,y+1,((int)(100.*percentageUsed))/100.);
       }
     }
   }
@@ -1360,7 +1361,7 @@ void iDie::perLumiFileSaver(unsigned int lsid)
 	//}
       }
       catch (...) {
-	LOG4CPLUS_ERROR(getApplicationLogger(),"iDie could not create root file");
+	LOG4CPLUS_ERROR(getApplicationLogger(),"iDie could not create root file " << filename);
       }
     }
 

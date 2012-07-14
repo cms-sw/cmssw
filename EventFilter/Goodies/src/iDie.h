@@ -37,9 +37,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#define MODLZSIZE 25
-#define MODLZSIZELUMI 20
-#define MOD_OCC_THRESHOLD 5
+#define MODNAMES 25
 
 namespace evf {
 
@@ -161,7 +159,7 @@ namespace evf {
     void fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsigned int nonIdle,
 		                 std::vector<std::pair<unsigned int, unsigned int>> offenders);
  
-    void updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat & lst, commonLsStat & clst, bool roll);
+    void updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * lst, commonLsStat * clst, bool roll);
     void doFlush();
     void perLumiFileSaver(unsigned int lsid);
     //
@@ -225,7 +223,7 @@ namespace evf {
       
       public:
       unsigned int ls_;
-      std::vector<unsigned int> rateVec_;
+      std::vector<float> rateVec_;
       std::vector<float> busyVec_;
       std::vector<float> busyCPUVec_;
       std::vector<float> busyVecTheor_;
@@ -242,7 +240,8 @@ namespace evf {
 	}
 	ls_=lsid;
       }
-      void setBusyForClass(unsigned int classIdx,unsigned int rate,float busy,float busyTheor, float busyCPU, float busyCPUTheor, unsigned int nMachineReports) {
+
+      void setBusyForClass(unsigned int classIdx,float rate,float busy,float busyTheor, float busyCPU, float busyCPUTheor, unsigned int nMachineReports) {
 	rateVec_[classIdx]=rate;
 	busyVec_[classIdx]=busy;
 	busyCPUVec_[classIdx]=busyCPU;
@@ -251,8 +250,8 @@ namespace evf {
 	nbMachines[classIdx]=nMachineReports;
       }
 
-      unsigned int getTotalRate() {
-	unsigned int totRate=0;
+      float getTotalRate() {
+	float totRate=0;
 	for (size_t i=0;i<rateVec_.size();i++) totRate+=rateVec_[i];
 	return totRate;
       } 
@@ -335,6 +334,10 @@ namespace evf {
 	  moduleSamplingSums[i].first=i;
 	  moduleSamplingSums[i].second=0;
 	}
+      }
+
+      ~lsStat() {
+         delete moduleSamplingSums;
       }
 
       void update(unsigned int nSampledNonIdle,unsigned int nSampledIdle, unsigned int nProc,unsigned int ncpubusy) {
@@ -449,9 +452,10 @@ namespace evf {
 	if (moduleSamplingSums) {
           std::qsort((void *)moduleSamplingSums, nmodulenames_,
 	             sizeof(std::pair<unsigned int,unsigned int>), modlistSortFunction);
+
 	  unsigned int count=0;
 	  unsigned int saveidx=0;
-	  while (saveidx < MODLZSIZE && count<nmodulenames_ && saveidx<MODLZSIZE)
+	  while (saveidx < MODNAMES && count<nmodulenames_ && saveidx<MODNAMES)
 	  {
             if (moduleSamplingSums[count].first==2) {count++;continue;}
             ret.push_back(moduleSamplingSums[count]);
@@ -460,6 +464,20 @@ namespace evf {
 	  }
 	}
         return ret;
+      }
+
+      float getOffenderFracAt(unsigned int x) {
+        if (x<nmodulenames_) {
+	  if (updated_) calcStat();
+	  float total = nSampledNonIdle_+nSampledIdle_;
+	  if (total>0.) {
+	    for (size_t i=0;i<nmodulenames_;i++) {
+	      if (moduleSamplingSums[i].first==x)
+	      return moduleSamplingSums[i].second/total;
+	    }
+	  }
+	}
+	return 0.;
       }
     };
 
@@ -489,8 +507,8 @@ namespace evf {
     unsigned int summaryLastLs_;
     std::vector<std::map<unsigned int, unsigned int> > occupancyNameMap;
     //1 queue per number of subProcesses (and one common)
-    std::deque<commonLsStat> commonLsHistory;
-    std::deque<lsStat> *lsHistory;
+    std::deque<commonLsStat*> commonLsHistory;
+    std::deque<lsStat*> * lsHistory;
 
     std::vector<unsigned int> currentLs_;
 
