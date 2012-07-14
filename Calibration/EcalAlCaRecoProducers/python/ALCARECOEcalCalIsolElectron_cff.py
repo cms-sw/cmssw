@@ -27,7 +27,8 @@ trackerDrivenRemover = cms.EDFilter("PATCandViewCountFilter",
                                     maxNumber = cms.uint32(0),
                                     src = cms.InputTag("trackerDrivenOnlyElectrons")
                                     )
-trackerDrivenRemoverSeq = cms.Sequence( trackerDrivenOnlyElectrons * trackerDrivenRemover )
+#trackerDrivenRemoverSeq = cms.Sequence( trackerDrivenOnlyElectrons * trackerDrivenRemover )
+trackerDrivenRemoverSeq = cms.Sequence( trackerDrivenOnlyElectrons)
 
 
 from RecoJets.Configuration.RecoPFJets_cff import *

@@ -22,7 +22,9 @@ OutALCARECOEcalCalElectron = cms.PSet(
     'keep recoPreshowerCluster*_*_*_*',
     'drop reco*Clusters_hfEMClusters_*_RECO',
     'drop reco*Clusters_*Translator_*_RECO',
+    'keep reco*Clusters_pfElectronTranslator_*_*',
     'keep recoGsfElectron*_*_*_*',
+    'drop recoGsfElectron*_uncleaned*_*_*',
     'keep *EcalRecHit*_alCaIsolatedElectrons_*_*',#+processName
     'keep *EcalRecHit*_reducedEcalRecHitsES_*_*',
     'drop *EcalRecHit*_ecalRecHit_*_*',
