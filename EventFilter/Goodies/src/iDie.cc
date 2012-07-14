@@ -708,8 +708,10 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
 
       //add elements for new lumisection, fill the gap if needed
       unsigned int lclast = commonLsHistory.size() ? commonLsHistory.back()->ls_:0;
-      for (unsigned int newls=lclast+1;newls<=lsid;newls++)
+      for (unsigned int newls=lclast+1;newls<=lsid;newls++) {
           commonLsHistory.push_back(new commonLsStat(newls,epInstances.size()));
+	  blockingModulesPerLs_.push_back(std::vector<std::pair<unsigned int,float> >(3));
+      }
 
       unsigned int lhlast = lsHistory[nbsIdx].size() ? lsHistory[nbsIdx].back()->ls_:0;
       for (size_t newls=lhlast+1;newls<=lsid;newls++) {
@@ -727,13 +729,27 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
         lsStat * lst = (lsHistory[nbsIdx])[qsize-delta-1];
 	unsigned int cumulative_ = 0;
 	auto fillvec = lst->getModuleSamplingPtr();
+	unsigned int maxMod = 0;
+	unsigned int maxModId = 0;
 	for (unsigned int i=0;i<nstates_;i++) {
+	  //extract worst module
+	  if (i!=2 && datap_[i]>(int)maxMod) {
+            maxModId=i;
+	    maxMod=datap_[i];
+	  }
 	  cumulative_+=datap_[i];
 	  if (fillvec) {
 	    fillvec[i].second+=datap_[i];
 	  }
 	}
-	lst->update(cumulative_-datap_[2],datap_[2],nbproc_,ncpubusy_);
+	unsigned int busyCounts = cumulative_-datap_[2];
+	std::cout << " busyCounts " << busyCounts << std::endl;
+	//find module that is stuck for more than ~1.5 seconds on single host provided that statistics is sufficient
+	if (lsid && maxMod > (cumulative_ >>4) && cumulative_>64 && blockingModulesPerLs_[lsid-1].size()<3) 
+	{
+	  blockingModulesPerLs_[lsid-1].push_back(std::pair<unsigned int, float>(maxModId,(float)maxMod/cumulative_));
+	}
+	lst->update(busyCounts,datap_[2],nbproc_,ncpubusy_);
       }
     }
   }
@@ -1019,6 +1035,7 @@ void iDie::initMonitorElements()
   }
   ilumiprev_ = 0;
   savedForLs_=0;
+  summaryLastLs_ = 0;
   pastSavedFiles_.clear();
  
   dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/");
@@ -1048,7 +1065,6 @@ void iDie::initMonitorElements()
   //dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
   daqBusySummary_ = dqmStore_->book1D("reportSummaryMap","DAQ HLT Farm busy (%)",4000,1,4001.);
 
-  summaryLastLs_ = 0;
   for (size_t i=1;i<=ROLL;i++) {
     std::ostringstream ostr;
     ostr << i;
@@ -1075,10 +1091,18 @@ void iDie::initMonitorElements()
   busySummary2_->setBinLabel(epInstances.size()+2,"%Max",2);
   fuReportsSummary_->setBinLabel(epInstances.size()+1,"All",2);
 
+  //wipe out all ls history
   for (size_t i=0;i<epInstances.size();i++) {
-    lsHistory[i]=std::deque<lsStat*>();
+    for (size_t j=0;j<lsHistory[i].size();j++) {
+      delete lsHistory[i].front();
+      lsHistory[i].pop_front();
+    }
   }
-  commonLsHistory=std::deque<commonLsStat*>();
+  for (size_t j=0;j<commonLsHistory.size();j++) {
+    delete commonLsHistory.front();
+    commonLsHistory.pop_front();
+  }
+  blockingModulesPerLs_.clear();
 
   meInitialized_=true;
 
@@ -1116,7 +1140,7 @@ void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * 
   if (roll) {
     if (lsid>ROLL) {
       lsidBin=ROLL;
-      if (lsid>summaryLastLs_) { //see if plots aren't up to date
+      if (lsid>summaryLastLs_) { //last ls in plots isn't up to date
 	unsigned int lsdiff = lsid-summaryLastLs_;
 	for (unsigned int i=1;i<=ROLL;i++) {
 	  if (i<ROLL) {

@@ -323,6 +323,7 @@ namespace evf {
       double fracCPUBusy_;
       unsigned int nmodulenames_;
       std::pair<unsigned int,unsigned int> *moduleSamplingSums;
+      //std::vector<std::pair<unsigned int, unsigned int>> blockingModules;
 
       lsStat(unsigned int ls, unsigned int nbSubs,unsigned int maxreps,unsigned int nmodulenames):
 	ls_(ls),updated_(false),nbSubs_(nbSubs),
@@ -340,7 +341,9 @@ namespace evf {
          delete moduleSamplingSums;
       }
 
-      void update(unsigned int nSampledNonIdle,unsigned int nSampledIdle, unsigned int nProc,unsigned int ncpubusy) {
+      void update(unsigned int nSampledNonIdle,unsigned int nSampledIdle, 
+	          unsigned int nProc,unsigned int ncpubusy)
+      {
 	nReports_++;
 	nSampledNonIdle_+=nSampledNonIdle;
 	nSampledNonIdle2_+=pow(nSampledNonIdle,2);
@@ -349,6 +352,7 @@ namespace evf {
 	nProc_+=nProc;
 	nProc2_+=pow(nProc,2);
 	nCPUBusy_+=ncpubusy;
+
 	updated_=true;
       }
 
@@ -509,6 +513,7 @@ namespace evf {
     //1 queue per number of subProcesses (and one common)
     std::deque<commonLsStat*> commonLsHistory;
     std::deque<lsStat*> * lsHistory;
+    std::vector<std::vector<std::pair<unsigned int,float>>> blockingModulesPerLs_;
 
     std::vector<unsigned int> currentLs_;
 
