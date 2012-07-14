@@ -33,7 +33,7 @@ run=$1
 l1Key=$2
 
 release=CMSSW_4_2_3_ONLINE
-version=011
+version=012
 
 echo "`date` : o2o-setIOV-l1Key-slc5.sh $run $l1Key" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 START=$(date +%s)
@@ -75,9 +75,7 @@ trap "rm -f o2o-setIOV.lock; mv tmp.log tmp.log.save; exit" 1 2 3 4 5 6 7 8 9 10
 
 # run script; args are run key
 rm -f tmp.log
-echo "`date` : setting TSC IOVs" >& tmp.log
-tscKey=`$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh -t ${l1Key}`
-echo "`date` : parsed tscKey = ${tscKey}" >> tmp.log 2>&1
+echo "`date`" >& tmp.log
 
 # Check if o2o-tscKey.sh is running.  If so, wait 15 seconds to prevent simultaneous writing ot ORCON.
 if [ -f o2o-tscKey.lock ]
@@ -92,9 +90,6 @@ if [ ${fflag} -eq 1 ]
     forceUpdate="-f"
 fi
 
-$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-iov.sh -x ${centralRel} ${forceUpdate} ${run} ${tscKey} >> tmp.log 2>&1
-o2ocode1=$?
-
 o2ocode2=0
 
 if [ ${oflag} -eq 1 ]
@@ -108,6 +103,12 @@ if [ ${nflag} -eq 0 ]
     $CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-rs-keysFromL1Key.sh -x ${overwrite} ${centralRel} ${forceUpdate} ${run} ${l1Key} >> tmp.log 2>&1
     o2ocode2=$?
 fi
+
+echo "`date` : setting TSC IOVs" >> tmp.log 2>&1
+tscKey=`$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh -t ${l1Key}`
+echo "`date` : parsed tscKey = ${tscKey}" >> tmp.log 2>&1
+$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-iov.sh -x ${centralRel} ${forceUpdate} ${run} ${tscKey} >> tmp.log 2>&1
+o2ocode1=$?
 
 tail -1 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
 
