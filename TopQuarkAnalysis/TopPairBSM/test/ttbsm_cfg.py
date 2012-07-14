@@ -214,6 +214,7 @@ from PhysicsTools.PatAlgos.tools.pfTools import *
 postfix = "PFlow"
 usePF2PAT(process,runPF2PAT=True, jetAlgo='AK5', runOnMC=not options.useData, postfix=postfix,
 	  jetCorrections=inputJetCorrLabel, pvCollection=cms.InputTag('goodOfflinePrimaryVertices'))
+useGsfElectrons(process,postfix,dR="04")
 if not options.forceCheckClosestZVertex :
     process.pfPileUpPFlow.checkClosestZVertex = False
 
@@ -221,14 +222,16 @@ if not options.forceCheckClosestZVertex :
 postfixLoose = "PFlowLoose"
 usePF2PAT(process,runPF2PAT=True, jetAlgo='AK5', runOnMC=not options.useData, postfix=postfixLoose,
 	  jetCorrections=inputJetCorrLabel, pvCollection=cms.InputTag('goodOfflinePrimaryVertices'))
+useGsfElectrons(process,postfixLoose,dR="04")
 if not options.forceCheckClosestZVertex :
     process.pfPileUpPFlowLoose.checkClosestZVertex = False
 
+
 # Turn on the delta-beta corrections
-process.pfIsolatedElectronsPFlow.doDeltaBetaCorrection = True
-process.pfIsolatedMuonsPFlow.doDeltaBetaCorrection = True
-process.pfIsolatedElectronsPFlowLoose.doDeltaBetaCorrection = True
-process.pfIsolatedMuonsPFlowLoose.doDeltaBetaCorrection = True
+#process.pfIsolatedElectronsPFlow.doDeltaBetaCorrection = True
+#process.pfIsolatedMuonsPFlow.doDeltaBetaCorrection = True
+#process.pfIsolatedElectronsPFlowLoose.doDeltaBetaCorrection = True
+#process.pfIsolatedMuonsPFlowLoose.doDeltaBetaCorrection = True
 
 # Set up "loose" leptons. 
 process.pfIsolatedMuonsPFlowLoose.isolationCut = cms.double(999.0) 
@@ -257,11 +260,28 @@ process.patElectronsPFlowLoose.electronIDSources.mvaTrigV0    = cms.InputTag("mv
 process.patElectronsPFlowLoose.electronIDSources.mvaNonTrigV0 = cms.InputTag("mvaNonTrigV0") 
 process.patPF2PATSequencePFlowLoose.replace( process.patElectronsPFlowLoose, process.eidMVASequence * process.patElectronsPFlowLoose )
 
+#Convesion Rejection
+# this should be your last selected electron collection name since currently index is used to match with electron later. We can fix this using reference pointer.
+process.patConversionsPFlow = cms.EDProducer("PATConversionProducer",
+                                             electronSource = cms.InputTag("selectedPatElectronsPFlow")      
+                                             )
+process.patPF2PATSequencePFlow += process.patConversionsPFlow
+process.patConversionsPFlowLoose = cms.EDProducer("PATConversionProducer",
+                                                  electronSource = cms.InputTag("selectedPatElectronsPFlowLoose")  
+                                                  )
+process.patPF2PATSequencePFlowLoose += process.patConversionsPFlowLoose
+
 ###############################
 ###### Bare KT 0.6 jets #######
 ###############################
 
 from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
+## from RecoJets.JetProducers.kt4PFJets_cfi import *
+## process.kt6PFJetsForIsolation =  kt4PFJets.clone(
+##     rParam = 0.6,
+##     doRhoFastjet = True,
+##     Rho_EtaMax = cms.double(2.5)
+##     )
 
 ###############################
 ###### Bare CA 0.8 jets #######
@@ -1456,6 +1476,7 @@ process.out.outputCommands = [
     'drop *_*PFlowLoose*_*_*',
     'keep patElectrons_selected*PFlowLoose*_*_*',
     'keep patMuons_selected*PFlowLoose*_*_*',
+    'keep *_patConversions*_*_*',
     #'keep patTaus_*PFlowLoose*_*_*',
     'keep *_offlineBeamSpot_*_*',
     'drop *_*atTaus_*_*',
