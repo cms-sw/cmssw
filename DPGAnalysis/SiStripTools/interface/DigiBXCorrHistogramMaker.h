@@ -167,11 +167,11 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int,s
     if(m_scalefact.size()>=1) {
       sprintf(title,"%s %s multiplicity vs BX separation",slab.c_str(),m_hitname.c_str());
       sprintf(name,"n%sdigivsdbx2D",slab.c_str());
-      m_ndigivsdbx2D[i] = subev.make<TH2F>(name,title,1000,-0.5,500000-0.5,m_nbins,0,m_binmax[ui]/(m_scalefact[0]*m_nbins)*m_nbins);
+      m_ndigivsdbx2D[i] = subev.make<TH2F>(name,title,1000,-0.5,500000-0.5,m_nbins,0,(1+m_binmax[ui]/(m_scalefact[0]*m_nbins))*m_nbins);
       sprintf(name,"n%sdigivsdbx2Dzoom2",slab.c_str());
-      m_ndigivsdbx2Dzoom2[i] = subev.make<TH2F>(name,title,1000,-0.5,50000-0.5,m_nbins,0,m_binmax[ui]/(m_scalefact[0]*m_nbins)*m_nbins);
+      m_ndigivsdbx2Dzoom2[i] = subev.make<TH2F>(name,title,1000,-0.5,50000-0.5,m_nbins,0,(1+m_binmax[ui]/(m_scalefact[0]*m_nbins))*m_nbins);
       sprintf(name,"n%sdigivsdbx2Dzoom",slab.c_str());
-      m_ndigivsdbx2Dzoom[i] = subev.make<TH2F>(name,title,1000,-0.5,999.5,m_nbins,0,m_binmax[ui]/(m_scalefact[0]*m_nbins)*m_nbins);
+      m_ndigivsdbx2Dzoom[i] = subev.make<TH2F>(name,title,1000,-0.5,999.5,m_nbins,0,(1+m_binmax[ui]/(m_scalefact[0]*m_nbins))*m_nbins);
 
       m_ndigivsdbx2D[i]->GetXaxis()->SetTitle("#DeltaBX"); m_ndigivsdbx2D[i]->GetYaxis()->SetTitle("Number of Hits"); 
       m_ndigivsdbx2Dzoom2[i]->GetXaxis()->SetTitle("#DeltaBX"); m_ndigivsdbx2Dzoom2[i]->GetYaxis()->SetTitle("Number of Hits"); 
@@ -211,7 +211,7 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int,s
 	
 	sprintf(name,"n%sdigivsdbxincycle2D",slab.c_str());
 	sprintf(title,"%s %s multiplicity vs BX separation w.r.t. cycle",slab.c_str(),m_hitname.c_str());
-	m_ndigivsdbxincycle2D[i] = subev.make<TH2F>(name,title,1000,-0.5,999.5,m_nbins,0.,m_binmax[ui]/(m_scalefact[0]*m_nbins)*m_nbins);
+	m_ndigivsdbxincycle2D[i] = subev.make<TH2F>(name,title,1000,-0.5,999.5,m_nbins,0.,(1+m_binmax[ui]/(m_scalefact[0]*m_nbins))*m_nbins);
 	m_ndigivsdbxincycle2D[i]->GetXaxis()->SetTitle("#DeltaBX w.r.t. cycle");   m_ndigivsdbxincycle2D[i]->GetYaxis()->SetTitle("Number of Hits"); 
 
 	if(m_dbx3Histo) {
@@ -224,7 +224,7 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int,s
 	  if(m_dbx3Histo3D) {
 	    sprintf(name,"n%sdigivsdbxincycle33D",slab.c_str());
 	    sprintf(title,"%s %s multiplicity vs Triplets BX separation w.r.t. cycle",slab.c_str(),m_hitname.c_str());
-	    m_ndigivsdbxincycle33D[i] = subev.make<TH3F>(name,title,2000,-0.5,1999.5,30,-0.5,2099.5,50,0.,m_binmax[ui]/(m_scalefact[0]*50)*50);
+	    m_ndigivsdbxincycle33D[i] = subev.make<TH3F>(name,title,2000,-0.5,1999.5,30,-0.5,2099.5,50,0.,(1+m_binmax[ui]/(m_scalefact[0]*50))*50);
 	    m_ndigivsdbxincycle33D[i]->GetXaxis()->SetTitle("#DeltaBX(n,n-1)");  
 	    m_ndigivsdbxincycle33D[i]->GetYaxis()->SetTitle("#DeltaBX(n,n-2)-#DeltaBX(n,n-1)");
 	  }
@@ -247,18 +247,18 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int,s
 
       if(m_scalefact.size()>=1) {
 	sprintf(name,"n%sdigivscycle",slab.c_str());
-	m_ndigivscycle[i] =subev.make<TH2F>(name,title,70,-0.5,69.5,m_nbins,0,m_binmax[ui]/(m_scalefact[0]*m_nbins)*m_nbins);
+	m_ndigivscycle[i] =subev.make<TH2F>(name,title,70,-0.5,69.5,m_nbins,0,(1+m_binmax[ui]/(m_scalefact[0]*m_nbins))*m_nbins);
 	m_ndigivscycle[i]->GetXaxis()->SetTitle("absolute BX mod(70)"); m_ndigivscycle[i]->GetYaxis()->SetTitle("Number of Hits");
       }
       if(m_scalefact.size()>=2) {
 	sprintf(name,"n%sdigivscyclezoom",slab.c_str());
-	m_ndigivscyclezoom[i] =subev.make<TH2F>(name,title,70,-0.5,69.5,m_nbins,0,m_binmax[ui]/(m_scalefact[1]*m_nbins)*m_nbins);
+	m_ndigivscyclezoom[i] =subev.make<TH2F>(name,title,70,-0.5,69.5,m_nbins,0,(1+m_binmax[ui]/(m_scalefact[1]*m_nbins))*m_nbins);
 	m_ndigivscyclezoom[i]->GetXaxis()->SetTitle("absolute BX mod(70)"); 
 	m_ndigivscyclezoom[i]->GetYaxis()->SetTitle("Number of Hits");
       }
       if(m_scalefact.size()>=3) {
 	sprintf(name,"n%sdigivscyclezoom2",slab.c_str());
-	m_ndigivscyclezoom2[i] =subev.make<TH2F>(name,title,70,-0.5,69.5,m_nbins,0,m_binmax[ui]/(m_scalefact[2]*m_nbins)*m_nbins);
+	m_ndigivscyclezoom2[i] =subev.make<TH2F>(name,title,70,-0.5,69.5,m_nbins,0,(1+m_binmax[ui]/(m_scalefact[2]*m_nbins))*m_nbins);
 	m_ndigivscyclezoom2[i]->GetXaxis()->SetTitle("absolute BX mod(70)"); 
 	m_ndigivscyclezoom2[i]->GetYaxis()->SetTitle("Number of Hits");
       }
@@ -296,17 +296,17 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int,s
     
     if(m_scalefact.size()>=1) {
       sprintf(name,"n%sdigivsbx2D",slab.c_str());
-      m_ndigivsbx2D[i] =subev.make<TH2F>(name,title,3564,-0.5,3563.5,m_nbins,0,m_binmax[ui]/(m_scalefact[0]*m_nbins)*m_nbins);
+      m_ndigivsbx2D[i] =subev.make<TH2F>(name,title,3564,-0.5,3563.5,m_nbins,0,(1+m_binmax[ui]/(m_scalefact[0]*m_nbins))*m_nbins);
       m_ndigivsbx2D[i]->GetXaxis()->SetTitle("BX#"); m_ndigivsbx2D[i]->GetYaxis()->SetTitle("Number of Hits");
     }
     if(m_scalefact.size()>=2) {
       sprintf(name,"n%sdigivsbx2Dzoom",slab.c_str());
-      m_ndigivsbx2Dzoom[i] =subev.make<TH2F>(name,title,3564,-0.5,3563.5,m_nbins,0,m_binmax[ui]/(m_scalefact[1]*m_nbins)*m_nbins);
+      m_ndigivsbx2Dzoom[i] =subev.make<TH2F>(name,title,3564,-0.5,3563.5,m_nbins,0,(1+m_binmax[ui]/(m_scalefact[1]*m_nbins))*m_nbins);
       m_ndigivsbx2Dzoom[i]->GetXaxis()->SetTitle("BX#"); m_ndigivsbx2Dzoom[i]->GetYaxis()->SetTitle("Number of Hits");
     }
     if(m_scalefact.size()>=3) {
       sprintf(name,"n%sdigivsbx2Dzoom2",slab.c_str());
-      m_ndigivsbx2Dzoom2[i] =subev.make<TH2F>(name,title,3564,-0.5,3563.5,m_nbins,0,m_binmax[ui]/(m_scalefact[2]*m_nbins)*m_nbins);
+      m_ndigivsbx2Dzoom2[i] =subev.make<TH2F>(name,title,3564,-0.5,3563.5,m_nbins,0,(1+m_binmax[ui]/(m_scalefact[2]*m_nbins))*m_nbins);
       m_ndigivsbx2Dzoom2[i]->GetXaxis()->SetTitle("BX#"); m_ndigivsbx2Dzoom2[i]->GetYaxis()->SetTitle("Number of Hits");
     }
 
