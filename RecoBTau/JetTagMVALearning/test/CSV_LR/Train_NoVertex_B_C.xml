@@ -11,7 +11,6 @@
 		<option name="trainfiles">train_NoVertex_%1$s%2$s.%3$s</option>
 		<option name="id">CombinedSVNoVertex</option>
 	</general>
-       </processor>
 	<input id="input">
 		<var name="jetPt" multiple="false" optional="false"/>
 		<var name="jetEta" multiple="false" optional="false"/>
@@ -199,6 +198,5 @@
 	<output>
 		<var source="biaslkh2" name="biasdiscr2"/>
 	</output>
+
 </MVATrainer>
-
-
