@@ -743,13 +743,12 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
 	  }
 	}
 	unsigned int busyCounts = cumulative_-datap_[2];
-	std::cout << " busyCounts " << busyCounts << std::endl;
 	//find module that is stuck for more than ~1.5 seconds on single host provided that statistics is sufficient
-	if (lsid && maxMod > (cumulative_ >>4) && cumulative_>64 && blockingModulesPerLs_[lsid-1].size()<3) 
+	if (lsid && maxMod > (cumulative_ >>4) && cumulative_>50 && blockingModulesPerLs_[lsid-1].size()<3) 
 	{
 	  blockingModulesPerLs_[lsid-1].push_back(std::pair<unsigned int, float>(maxModId,(float)maxMod/cumulative_));
-	  std::cout << "iDie: found module taking a lot of time: " << mapmod_[maxModId] 
-		  << " " << 100.*(float)maxMod/cumulative_ << "% of lumisection "<< lsid << std::endl; 
+	  LOG4CPLUS_WARN(getApplicationLogger(),"iDie: found module taking a lot of time: " << mapmod_[maxModId] 
+		  << " " << 100.*(float)maxMod/cumulative_ << "% of lumisection "<< lsid); 
 	}
 	lst->update(busyCounts,datap_[2],nbproc_,ncpubusy_);
       }
@@ -1066,7 +1065,9 @@ void iDie::initMonitorElements()
   //busyModules_  = dqmStore_->book2D("MODULES_BUSY",ROLL,1.,1.+ROLL,MODNAMES,0,MODNAMES);
   //everything goes into layouts folder
   //dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
-  daqBusySummary_ = dqmStore_->book1D("reportSummaryMap","DAQ HLT Farm busy (%)",4000,1,4001.);
+  std::ostringstream busySummaryTitle;
+  busySummaryTitle << "DAQ HLT Farm busy (%) for run "<< runNumber_.value_;
+  daqBusySummary_ = dqmStore_->book1D("reportSummaryMap",busySummaryTitle.str(),4000,1,4001.);
 
   for (size_t i=1;i<=ROLL;i++) {
     std::ostringstream ostr;
