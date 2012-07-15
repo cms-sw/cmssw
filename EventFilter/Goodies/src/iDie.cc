@@ -19,6 +19,7 @@
 #include <sys/stat.h>
 //#include <sys/dir.h>
 #include <time.h>
+#include <math.h>
 
 #include "cgicc/CgiDefs.h"
 #include "cgicc/Cgicc.h"
@@ -1184,16 +1185,12 @@ void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * 
     lsidBin=lsid > roll_pos ? roll_pos : lsid;
   }
 
-  rateSummary_->setBinContent(lsidBin,nbsIdx+1,lst->getRate());
-  timingSummary_->setBinContent(lsidBin,nbsIdx+1,lst->getEvtTime()*1000);
-  fuReportsSummary_->setBinContent(lsidBin,nbsIdx+1,lst->getReports());
-
-  //float epMaxInv=1/epMax[nbsIdx];
-  float busyCorr = lst->getFracBusy() * (float)epInstances[nbsIdx]/epMax[nbsIdx];//really how busy is machine (uncorrected)
-  ///busyCPU *= (float)epInstances[nbsIdx]/epMax[nbsIdx];
+  //how busy is it with current setup
+  float busyCorr = lst->getFracBusy() * (float)epInstances[nbsIdx]/epMax[nbsIdx];
   //max based on how much is configured and max possible
   float fracMax  = 0.5 + (std::max(epInstances[nbsIdx]-epMax[nbsIdx]/2.,0.)/(epMax[nbsIdx])) *HTscaling[nbsIdx];
 
+  //corrections for the HT effect
   float busyFr=0;
   float busyCPUFr=0;
   float busyFrTheor=0;
@@ -1210,20 +1207,33 @@ void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * 
     busyFrTheor = busyCorr / (0.5+HTscaling[nbsIdx]);
     busyFrCPUTheor = lst->getFracCPUBusy() / (0.5+HTscaling[nbsIdx]);
   }
-  //rolled
-  busySummary_->setBinContent(lsidBin,nbsIdx+1,busyFr);//"corrected" cpu busy fraction
-  busySummary2_->setBinContent(lsidBin,nbsIdx+1,busyCPUFr);//"corrected" cpu busy fraction
+  //average
   clst->setBusyForClass(nbsIdx,lst->getRate(),busyFr,busyFrTheor,busyCPUFr,busyFrCPUTheor,lst->getReports());
-  rateSummary_->setBinContent(lsidBin,epInstances.size()+1,clst->getTotalRate());
-  fuReportsSummary_->setBinContent(lsidBin,epInstances.size()+1,clst->getNReports());
   float busyAvg = clst->getBusyTotalFrac(false,machineWeightInst);
-  busySummary_->setBinContent(lsidBin,epInstances.size()+1,busyAvg);
-  busySummary2_->setBinContent(lsidBin,epInstances.size()+1,clst->getBusyTotalFrac(true,machineWeightInst));
-  busySummary_->setBinContent(lsidBin,epInstances.size()+2,clst->getBusyTotalFracTheor(false,machineWeight));
-  busySummary2_->setBinContent(lsidBin,epInstances.size()+2,clst->getBusyTotalFracTheor(true,machineWeight));
-  //non rolled
+
+  //rounding
+  busyFr=fround(busyFr,0.001f);
+  busyCPUFr=fround(busyCPUFr,0.001f);
+  busyFrTheor=fround(busyFrTheor,0.001f);
+  busyFrCPUTheor=fround(busyFrCPUTheor,0.001f);
+  busyAvg=fround(busyAvg,0.001f);
+
+  //filling plots
   daqBusySummary_->setBinContent(lsid,busyAvg*100);
   daqBusySummary_->setBinError(lsid,0);
+
+  //"rolling" histograms
+  rateSummary_->setBinContent(lsidBin,nbsIdx+1,lst->getRate());
+  timingSummary_->setBinContent(lsidBin,nbsIdx+1,lst->getEvtTime()*1000);
+  fuReportsSummary_->setBinContent(lsidBin,nbsIdx+1,lst->getReports());
+  busySummary_->setBinContent(lsidBin,nbsIdx+1,fround(busyFr,0.001f));
+  busySummary2_->setBinContent(lsidBin,nbsIdx+1,fround(busyCPUFr,0.001f));
+  rateSummary_->setBinContent(lsidBin,epInstances.size()+1,clst->getTotalRate());
+  fuReportsSummary_->setBinContent(lsidBin,epInstances.size()+1,clst->getNReports());
+  busySummary_->setBinContent(lsidBin,epInstances.size()+1,fround(busyAvg,0.001f));
+  busySummary2_->setBinContent(lsidBin,epInstances.size()+1,fround(clst->getBusyTotalFrac(true,machineWeightInst),0.001f));
+  busySummary_->setBinContent(lsidBin,epInstances.size()+2,fround(clst->getBusyTotalFracTheor(false,machineWeight),0.001f));
+  busySummary2_->setBinContent(lsidBin,epInstances.size()+2,fround(clst->getBusyTotalFracTheor(true,machineWeight),0.001f));
 
 }
 
@@ -1259,7 +1269,7 @@ void iDie::fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsign
 	unsigned int y=occupancyNameMap[nbsIdx].size();
 	if (y<MODNAMES) {
 	  (occupancyNameMap[nbsIdx])[x]=y;
-	  me->setBinContent(xBinToFill,y+1,((int)(1000.*percentageUsed))/1000.);
+	  me->setBinContent(xBinToFill,y+1,((int)(1000.f*percentageUsed))/1000);
 	  me->setBinLabel(y+1,mapmod_[x],2);
 	}
       }
@@ -1294,14 +1304,14 @@ void iDie::fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsign
 	      //add new
 	      (occupancyNameMap[nbsIdx])[x]=toReplace-1;
 	      //fill histogram
-	      me->setBinContent(xBinToFill,toReplace,((int)(100.*percentageUsed))/100.);
+	      me->setBinContent(xBinToFill,toReplace,((int)(1000.f*percentageUsed))/1000);
 	      me->setBinLabel(toReplace,mapmod_[x],2);
 	      //reset fields for previous lumis
 	      unsigned qsize = lsHistory[nbsIdx].size();
 	      for (size_t k=1;k<xBinToFill;k++) {
                 if (xBinToFill-k+1<qsize) {
                   float fr = (lsHistory[nbsIdx])[qsize-xBinToFill+k-1]->getOffenderFracAt(x);
-		  if (fr>0.02) me->setBinContent(k,toReplace,fr);
+		  if (fr>0.02) me->setBinContent(k,toReplace,(int)(1000.f*fr)/1000);
 		}
 		else
                   me->setBinContent(k,toReplace,0);
@@ -1312,7 +1322,7 @@ void iDie::fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsign
       }
       else {
 	unsigned int y=(occupancyNameMap[nbsIdx])[x];
-	me->setBinContent(xBinToFill,y+1,((int)(100.*percentageUsed))/100.);
+	me->setBinContent(xBinToFill,y+1,((int)(1000.f*percentageUsed))/1000);
       }
     }
   }

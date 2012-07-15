@@ -28,6 +28,7 @@
 #include <deque>
 
 #include <sys/time.h>
+#include <math.h>
 
 #include "TFile.h"
 #include "TTree.h"
@@ -540,6 +541,9 @@ namespace evf {
     return 1;
   }
 
+  float fround(float val, float mod) {
+    return val - fmod(val,mod);
+  }
 
 } // namespace evf
 

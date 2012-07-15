@@ -1,13 +1,14 @@
 2012-07-13 Srecko Morovic <srecko.morovic@cern.ch>
 
+	* tag V00-02-11
 	* dqmEnabled --> false by default
 	* fixed rolling plots bug
 	* check if collector port is a number
 	* fixed filling wrong row in module time spent histograms
 	* refill whole row when new item added in module time
-	* lsStat and lsCommonStat are allocated (avoids extra copy)
+	* lsStat and lsCommonStat list is now allocated on heap (avoids extra copy)
 	* refilling past 4 lumisections on report with new lumi received
-	* reporting modules taking a lot of time (warning)
+	* reporting modules taking a lot of time (warning) with log4cplus
 
 2012-07-10 Srecko Morovic <srecko.morovic@cern.ch>
 
