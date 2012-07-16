@@ -59,6 +59,8 @@ namespace gen {
       void rmarin_( int*, int*, int* );
    }
 
+   double TauolappInterface_RandGetter();
+
    class TauolaInterface
    {
       public:
@@ -110,7 +112,6 @@ namespace gen {
        
    };
 
-   double TauolappInterface_RandGetter();
 
 /* */
 
