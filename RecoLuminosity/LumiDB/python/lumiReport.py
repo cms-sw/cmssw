@@ -321,8 +321,10 @@ def toScreenOverview(lumidata,resultlines,scalefactor,irunlsdict=None,noWarning=
                     existdata.append(cmslsnum)
             if irunlsdict and irunlsdict[run]:
                 if cmslsnum and cmslsnum in irunlsdict[run]:
-                    deliveredData.append(perlsdata[5])
-                    recordedData.append(perlsdata[6])
+                    if perlsdata[5]:
+                        deliveredData.append(perlsdata[5])
+                    if perlsdata[6]:
+                        recordedData.append(perlsdata[6])
                     selectedcmsls.append(cmslsnum)
             else:
                 deliveredData.append(perlsdata[5])
@@ -348,7 +350,6 @@ def toScreenOverview(lumidata,resultlines,scalefactor,irunlsdict=None,noWarning=
             result.append([str(run)+':'+str(fillnum),str(nls),'%.3f'%(totdeliveredlumi*scalefactor)+' ('+deliveredlumiunit+')',selectedlsStr,'%.3f'%(totrecordedlumi*scalefactor)+' ('+recordedlumiunit+')'])
         else:
             result.append([str(run)+':'+str(fillnum),nls,totdelivered*scalefactor,selectedlsStr,totrecorded*scalefactor])
-            print 'eh'
     sortedresult=sorted(result,key=lambda x : int(str(x[0]).split(':')[0]))
     if irunlsdict and not noWarning:
         for run,cmslslist in irunlsdict.items():
