@@ -704,7 +704,6 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarn
             rline[5]='%.3f'%(rr)+' ('+lumiu+')'
             totdict[mypath][1]+=reff
         result.append(rline)
-    
     for run in lumidata.keys():#loop over runs
         lsdata=lumidata[run]
         hprescdict={}
@@ -786,7 +785,6 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarn
             effvalStr='n/a'
             lprescStr='n/a'
             cleanlname=''
-            print lname
             if lname!='n/a':
                 effval=totefflumiDict[name]*scalefactor
                 lprescs=list(set(lprescdict[lname]))

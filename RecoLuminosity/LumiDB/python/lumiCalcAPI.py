@@ -600,6 +600,7 @@ def effectiveLumiForIds(schema,irunlsdict,dataidmap,runsummaryMap=None,beamstatu
             else:
                 continue
             hltpathdata=hltresult[run][hltlsidx][1]
+            efflumidict={}#{pathname:[[l1bitname,l1prescale,hltprescale,efflumi]]}       
             for pathidx,thispathinfo in enumerate(hltpathdata):
                 thispathname=thispathinfo[0]
                 thisprescale=thispathinfo[1]
@@ -634,7 +635,7 @@ def effectiveLumiForIds(schema,irunlsdict,dataidmap,runsummaryMap=None,beamstatu
                             l1prescale=None
                     except KeyError:
                         l1prescale=None
-                efflumidict={}#{pathname:[[l1bitname,l1prescale,hltprescale,efflumi]]}       
+            
                 efflumi=0.0
                 if l1prescale and thisprescale:#normal both prescaled
                     efflumi=recordedlumi/(float(l1prescale)*float(thisprescale))
@@ -643,6 +644,6 @@ def effectiveLumiForIds(schema,irunlsdict,dataidmap,runsummaryMap=None,beamstatu
                     efflumidict[thispathname]=[l1bitname,l1prescale,thisprescale,efflumi]
                 else:
                     efflumidict[thispathname]=[None,0,thisprescale,efflumi]
-                perlsdata[8]=efflumidict
+            perlsdata[8]=efflumidict
     return deliveredresult
 
