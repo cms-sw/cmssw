@@ -380,10 +380,10 @@ HLT_Dimuon7_PsiPrime_v*                                                         
 #HLT_IsoMu20_eta2p1_LooseIsoPFTau20_v*                                                          # sr #127269, removed by sr #128206
 #HLT_Ele22_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v*                               # sr #127269, removed by sr #128206
 
-HLT_Ele22_eta2p1_WP90Rho_LooseIsoPFTau20_v*                                                     # sr #128206
-HLT_Ele22_eta2p1_WP90NoIso_LooseIsoPFTau20_v*                                                   # sr #128206
-HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v*                                                           # sr #128206
-HLT_Mu17_eta2p1_LooseIsoPFTau20_v*                                                              # sr #128206
+HLT_Ele22_eta2p1_WP90Rho_LooseIsoPFTau20_v*                                                     # sr #128206, sr #130325
+HLT_Ele22_eta2p1_WP90NoIso_LooseIsoPFTau20_v*                                                   # sr #128206, sr #130325
+HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v*                                                           # sr #128206, sr #130325
+HLT_Mu17_eta2p1_LooseIsoPFTau20_v*                                                              # sr #128206, sr #130325
 
 HLT_Tau2Mu_ItTrack_v*                                                                           # sr #92594 (bug), sr #130210
 
