@@ -1,5 +1,5 @@
 #include "QGSPCMS_FTFP_BERT_EML.hh"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics92.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -11,7 +11,7 @@
 #include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
-#include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSPCMS_FTFP_BERT.h"
+#include "HadronPhysicsQGSP_FTFP_BERT.hh"
 
 #include <string>
 
@@ -28,39 +28,39 @@ QGSPCMS_FTFP_BERT_EML::QGSPCMS_FTFP_BERT_EML(G4LogicalVolumeToDDLogicalPartMap& 
   bool tracking= p.getParameter<bool>("TrackingCut");
   std::string region = p.getParameter<std::string>("Region");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_FTFP_BERT_EML 3.3 with Flags for EM Physics "
+			      << "QGSP_FTFP_BERT_EML for Geant4 9.5 with Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
 			      << hadPhys << " and tracking cut " << tracking
                               << " with special region " << region;
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics92("standard EM EML",ver,region));
+    RegisterPhysics( new CMSEmStandardPhysics95("standard EM EML",ver,region));
 
     // Synchroton Radiation & GN Physics
-    RegisterPhysics( new G4EmExtraPhysics("extra EM"));
+    RegisterPhysics( new G4EmExtraPhysics(ver));
   }
 
   // Decays
-  RegisterPhysics( new G4DecayPhysics("decay",ver) );
+  RegisterPhysics( new G4DecayPhysics(ver) );
 
   if (hadPhys) {
     // Hadron Elastic scattering
-    RegisterPhysics( new G4HadronElasticPhysics("elastic",ver,false));
+    RegisterPhysics( new G4HadronElasticPhysics(ver));
 
     // Hadron Physics
-    G4bool quasiElastic=true;
-    RegisterPhysics( new HadronPhysicsQGSPCMS_FTFP_BERT("hadron",quasiElastic)); 
+    RegisterPhysics( new HadronPhysicsQGSP_FTFP_BERT(ver)); 
   
     // Stopping Physics
-    RegisterPhysics( new G4QStoppingPhysics("stopping"));
+    RegisterPhysics( new G4QStoppingPhysics(ver));
 
     // Ion Physics
-    RegisterPhysics( new G4IonPhysics("ion"));
+    RegisterPhysics( new G4IonPhysics(ver));
 
     // Neutron tracking cut
-    if (tracking) 
-      RegisterPhysics( new G4NeutronTrackingCut("Neutron tracking cut", ver));
+    if (tracking) {
+      RegisterPhysics( new G4NeutronTrackingCut(ver));
+    }
   }
 
   // Monopoles
