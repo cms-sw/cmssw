@@ -59,6 +59,20 @@ TColor cmsOrange2(kCMSOrange2, 227./255., 136./255., 36./255.);
 
 //------------------------------
 
+std::string replaceInString(std::string const stringIn,
+                            std::string const stringSearch,
+                            std::string const stringReplace) {
+  std::string stringOut(stringIn);
+  if (stringSearch != stringReplace) {
+    string::size_type pos = 0;
+    while ((pos = stringOut.find(stringSearch, pos)) != string::npos) {
+      stringOut.replace(pos, stringSearch.size(), stringReplace);
+      ++pos;
+    }
+  }
+  return stringOut;
+}
+
 void rootInit() {
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
@@ -94,12 +108,12 @@ TCanvas* createCanvas() {
   return new TCanvas("canvas", "Canvas", 10, 10, 1800, 1400);
 }
 
-TLegend* createLegend() {
+TLegend* createLegend(float const shift_x=0., float const shift_y=0.) {
   float width = .5;
   float height = .1;
-  float min_x = .2;
+  float min_x = .2 + shift_x;
   float max_x = min_x + width;
-  float min_y = .78;
+  float min_y = .78 + shift_y;
   float max_y = min_y + height;
   return new TLegend(min_x, min_y, max_x, max_y);
 }
@@ -284,6 +298,12 @@ void readInputFileIntLumi(std::string& fileName,
                           std::vector<float>& delivered_lumiV,
                           std::vector<float>& recorded_lumiV) {
 
+  runV.clear();
+  start_timeV.clear();
+  end_timeV.clear();
+  delivered_lumiV.clear();
+  recorded_lumiV.clear();
+
   char line[200];
   std::string lineS;
   size_t const i = 50;
@@ -320,6 +340,12 @@ void readInputFilePeakLumi(std::string const& fileName,
                            std::vector<int>& runV,
                            std::vector<int>& lsV,
                            std::vector<float>& lumiV) {
+
+  dayV.clear();
+  runV.clear();
+  lsV.clear();
+  lumiV.clear();
+
   char line[200];
   size_t const i = 50;
   char dayC[i], runC[i], lsC[i], lumiC[i];
@@ -347,6 +373,66 @@ void readInputFilePeakLumi(std::string const& fileName,
       }
     }
     fclose(file);
+  }
+}
+
+void mapIntLumiToDays(std::vector<int>& runV,
+                      std::vector<std::string> start_timeV,
+                      std::vector<std::string> end_timeV,
+                      std::vector<float>& delivered_lumiV,
+                      std::vector<float>& recorded_lumiV,
+                      float* delivered_lumiA, float* recorded_lumiA) {
+
+  // Figure out the time span of the data in days.
+  TTimeStamp tmpLo = timestampFromString(start_timeV.front());
+  TTimeStamp tmpHi = timestampFromString(end_timeV.back());
+  TTimeStamp dateLo = zeroTimeInTimestamp(tmpLo);
+  TTimeStamp dateHi = zeroTimeInTimestamp(tmpHi);
+  int numDays = ((dateHi.GetSec() - dateLo.GetSec()) / (24 * 60 * 60)) + 1;
+
+  // Map luminosities on to days.
+  for(size_t ind = 0; ind < runV.size(); ++ind) {
+    TTimeStamp timeStart = timestampFromString(start_timeV.at(ind));
+    TTimeStamp timeEnd = timestampFromString(end_timeV.at(ind).c_str());
+
+    Int_t dayDiff = (timeEnd.GetSec() - timeStart.GetSec()) / (60 * 60 * 24);
+    //Int_t dayDiff = timeEnd.GetDate() - timeStart.GetDate();
+    // DEBUG DEBUG DEBUG
+    // This assumes we don't take runs longer than 24 hours.
+    assert(dayDiff >= 0);
+    assert(dayDiff < 2);
+    // DEBUG DEBUG DEBUG end
+
+    time_t start = dateLo.GetSec();
+    time_t dayIndex = (timeStart.GetSec() - start) / (24 * 60 * 60);
+
+    if (dayDiff == 0) {
+      // Whole run is contained in a single day.
+      delivered_lumiA[dayIndex] += delivered_lumiV.at(ind);
+      recorded_lumiA[dayIndex] += recorded_lumiV.at(ind);
+    } else {
+      // Run runs across midnight, need to split the lumi across two
+      // days.
+      // DEBUG DEBUG DEBUG
+      assert((dayIndex + 1) < numDays);
+      // DEBUG DEBUG DEBUG end
+      TTimeStamp timeMid(timeStart);
+      timeMid = zeroTimeInTimestamp(timeMid);
+      timeMid.SetSec(timeMid.GetSec() + (24 * 60 * 60));
+      float frac1 = 1. * (timeMid.GetSec() - timeStart.GetSec()) /
+        (timeEnd.GetSec() - timeStart.GetSec());
+      float frac2 = 1. * (timeEnd.GetSec() - timeMid.GetSec()) /
+        (timeEnd.GetSec() - timeStart.GetSec());
+      // DEBUG DEBUG DEBUG
+      assert(abs(frac1 + frac2 - 1.) < 1.e-9);
+      // DEBUG DEBUG DEBUG end
+      float tmpDel = delivered_lumiV.at(ind);
+      float tmpRec = recorded_lumiV.at(ind);
+      delivered_lumiA[dayIndex] += frac1 * tmpDel;
+      recorded_lumiA[dayIndex] += frac1 * tmpRec;
+      delivered_lumiA[dayIndex + 1] += frac2 * tmpDel;
+      recorded_lumiA[dayIndex + 1] += frac2 * tmpRec;
+    }
   }
 }
 
@@ -442,6 +528,11 @@ void create_plots(std::string const colorScheme="Greg", int const year=2012,
                      year, partTypeStr.c_str(), eBeam.c_str(), nucleon.c_str())) +
     std::string("Date;") +
     std::string("Peak Delivered Luminosity (Hz/nb)");
+  std::string titleCumulativeYears =
+    std::string(Form("CMS Total Integrated Luminosity, %s;",
+                     partTypeStr.c_str(), nucleon.c_str())) +
+    std::string("Time in year;") +
+    std::string(Form("Total Integrated Luminosity (%s^{-1})", units.c_str()));
 
   // This is the intermediate CSV file with the integrated lumi data
   // from the lumi DB
@@ -504,6 +595,15 @@ void create_plots(std::string const colorScheme="Greg", int const year=2012,
   readInputFileIntLumi(fileNameIntLumi, runV, start_timeV, end_timeV,
                        delivered_lumiV, recorded_lumiV);
 
+  // Scale everything.
+  // DEBUG DEBUG DEBUG
+  assert(delivered_lumiV.size() == recorded_lumiV.size());
+  // DEBUG DEBUG DEBUG end
+  for (size_t ijk = 0; ijk != delivered_lumiV.size(); ++ijk) {
+    delivered_lumiV.at(ijk) = delivered_lumiV.at(ijk) / conversionFactor;
+    recorded_lumiV.at(ijk) = recorded_lumiV.at(ijk) / conversionFactor;
+  }
+
   // Figure out the time span of the data in days.
   TTimeStamp tmpLo = timestampFromString(start_timeV.front());
   TTimeStamp tmpHi = timestampFromString(end_timeV.back());
@@ -521,50 +621,9 @@ void create_plots(std::string const colorScheme="Greg", int const year=2012,
     recorded_lumiA[iTmp] = 0.;
   }
 
-  // Map luminosities on to days.
-  for(size_t ind = 0; ind < runV.size(); ++ind) {
-    TTimeStamp timeStart = timestampFromString(start_timeV.at(ind));
-    TTimeStamp timeEnd = timestampFromString(end_timeV.at(ind).c_str());
-
-    Int_t dayDiff = (timeEnd.GetSec() - timeStart.GetSec()) / (60 * 60 * 24);
-    //Int_t dayDiff = timeEnd.GetDate() - timeStart.GetDate();
-    // DEBUG DEBUG DEBUG
-    // This assumes we don't take runs longer than 24 hours.
-    assert(dayDiff >= 0);
-    assert(dayDiff < 2);
-    // DEBUG DEBUG DEBUG end
-
-    time_t start = dateLo.GetSec();
-    time_t dayIndex = (timeStart.GetSec() - start) / (24 * 60 * 60);
-
-    if (dayDiff == 0) {
-      // Whole run is contained in a single day.
-      delivered_lumiA[dayIndex] += delivered_lumiV.at(ind) / conversionFactor;
-      recorded_lumiA[dayIndex] += recorded_lumiV.at(ind) / conversionFactor;
-    } else {
-      // Run runs across midnight, need to split the lumi across two
-      // days.
-      // DEBUG DEBUG DEBUG
-      assert((dayIndex + 1) < numDays);
-      // DEBUG DEBUG DEBUG end
-      TTimeStamp timeMid(timeStart);
-      timeMid = zeroTimeInTimestamp(timeMid);
-      timeMid.SetSec(timeMid.GetSec() + (24 * 60 * 60));
-      float frac1 = 1. * (timeMid.GetSec() - timeStart.GetSec()) /
-        (timeEnd.GetSec() - timeStart.GetSec());
-      float frac2 = 1. * (timeEnd.GetSec() - timeMid.GetSec()) /
-        (timeEnd.GetSec() - timeStart.GetSec());
-      // DEBUG DEBUG DEBUG
-      assert(abs(frac1 + frac2 - 1.) < 1.e-9);
-      // DEBUG DEBUG DEBUG end
-      float tmpDel = delivered_lumiV.at(ind) / conversionFactor;
-      float tmpRec = recorded_lumiV.at(ind) / conversionFactor;
-      delivered_lumiA[dayIndex] += frac1 * tmpDel;
-      recorded_lumiA[dayIndex] += frac1 * tmpRec;
-      delivered_lumiA[dayIndex + 1] += frac2 * tmpDel;
-      recorded_lumiA[dayIndex + 1] += frac2 * tmpRec;
-    }
-  }
+  mapIntLumiToDays(runV, start_timeV, end_timeV,
+                   delivered_lumiV, recorded_lumiV,
+                   delivered_lumiA, recorded_lumiA);
 
   // Figure out the maxima.
   float maxDel = -1;
@@ -810,6 +869,204 @@ void create_plots(std::string const colorScheme="Greg", int const year=2012,
 
   delete legend;
   delete canvas;
+
+  //------------------------------
+  // Create the integrated lumi for 2010, 2011, 2012 plot.
+  //------------------------------
+
+  if (beamType == "PROTPHYS") {
+
+    // Read 2010.
+    std::string fileNameIntLumi_2010 = replaceInString(fileNameIntLumi,
+                                                       Form("%d", year),
+                                                       "2010");
+    std::vector<float> delivered_lumiV_2010;
+    std::vector<float> recorded_lumiV_2010;
+    readInputFileIntLumi(fileNameIntLumi_2010, runV, start_timeV, end_timeV,
+                         delivered_lumiV_2010, recorded_lumiV_2010);
+    // DEBUG DEBUG DEBUG
+    assert(delivered_lumiV_2010.size() == recorded_lumiV_2010.size());
+    // DEBUG DEBUG DEBUG end
+    for (size_t ijk = 0; ijk != delivered_lumiV_2010.size(); ++ijk) {
+      delivered_lumiV_2010.at(ijk) = delivered_lumiV_2010.at(ijk) / conversionFactor;
+    }
+    tmpLo = timestampFromString(start_timeV.front());
+    tmpHi = timestampFromString(end_timeV.back());
+    dateLo = zeroTimeInTimestamp(tmpLo);
+    dateHi = zeroTimeInTimestamp(tmpHi);
+    numDays = ((dateHi.GetSec() - dateLo.GetSec()) / (24 * 60 * 60)) + 1;
+    int const nBins = numDays;
+    float delivered_lumiA_2010[nBins];
+    float recorded_lumiA_2010[nBins];
+    for (int iTmp = 0; iTmp < numDays; ++iTmp) {
+      delivered_lumiA_2010[iTmp] = 0.;
+      recorded_lumiA_2010[iTmp] = 0.;
+    }
+    mapIntLumiToDays(runV, start_timeV, end_timeV,
+                     delivered_lumiV_2010, recorded_lumiV_2010,
+                     delivered_lumiA_2010, recorded_lumiA_2010);
+    a = dateLo;
+    b = dateHi;
+    // NOTE: Watch out with this magic. It centers the bins on the days.
+    b.SetSec(b.GetSec() + (24 * 60 * 60));
+    a.SetSec(a.GetSec() - (12 * 60 * 60) - (60 * 60));
+    b.SetSec(b.GetSec() - (12 * 60 * 60) - (60 * 60));
+    TH1F h_delLum_2010("", "", numDays, a.GetSec(), b.GetSec());
+    for (int i = 0; i != numDays; ++i) {
+      h_delLum_2010.SetBinContent(i + 1, delivered_lumiA_2010[i]);
+    }
+    TH1F* h_delLumCum_2010 = dynamic_cast<TH1F*>(h_delLum_2010.Clone());
+    double cumDel = 0.;
+    for (int bin = 1; bin != h_delLum_2010.GetNbinsX() + 1; ++bin) {
+      cumDel += h_delLum_2010.GetBinContent(bin);
+      h_delLumCum_2010->SetBinContent(bin, cumDel);
+    }
+
+    // Read 2011.
+    std::string fileNameIntLumi_2011 = replaceInString(fileNameIntLumi,
+                                                       Form("%d", year),
+                                                       "2011");
+    std::vector<float> delivered_lumiV_2011;
+    std::vector<float> recorded_lumiV_2011;
+    readInputFileIntLumi(fileNameIntLumi_2011, runV, start_timeV, end_timeV,
+                         delivered_lumiV_2011, recorded_lumiV_2011);
+    // DEBUG DEBUG DEBUG
+    assert(delivered_lumiV_2011.size() == recorded_lumiV_2011.size());
+    // DEBUG DEBUG DEBUG end
+    for (size_t ijk = 0; ijk != delivered_lumiV_2011.size(); ++ijk) {
+      delivered_lumiV_2011.at(ijk) = delivered_lumiV_2011.at(ijk) / conversionFactor;
+    }
+    tmpLo = timestampFromString(start_timeV.front());
+    tmpHi = timestampFromString(end_timeV.back());
+    dateLo = zeroTimeInTimestamp(tmpLo);
+    dateHi = zeroTimeInTimestamp(tmpHi);
+    numDays = ((dateHi.GetSec() - dateLo.GetSec()) / (24 * 60 * 60)) + 1;
+    int const nBins = numDays;
+    float delivered_lumiA_2011[nBins];
+    float recorded_lumiA_2011[nBins];
+    for (int iTmp = 0; iTmp < numDays; ++iTmp) {
+      delivered_lumiA_2011[iTmp] = 0.;
+      recorded_lumiA_2011[iTmp] = 0.;
+    }
+    mapIntLumiToDays(runV, start_timeV, end_timeV,
+                     delivered_lumiV_2011, recorded_lumiV_2011,
+                     delivered_lumiA_2011, recorded_lumiA_2011);
+    a = dateLo;
+    b = dateHi;
+    // Shift the whole data a year back.
+    a.SetSec(a.GetSec() - 365 * 24 * 60 * 60);
+    b.SetSec(b.GetSec() - 365 * 24 * 60 * 60);
+    // NOTE: Watch out with this magic. It centers the bins on the days.
+    b.SetSec(b.GetSec() + (24 * 60 * 60));
+    a.SetSec(a.GetSec() - (12 * 60 * 60) - (60 * 60));
+    b.SetSec(b.GetSec() - (12 * 60 * 60) - (60 * 60));
+    TH1F h_delLum_2011("", "", numDays, a.GetSec(), b.GetSec());
+    for (int i = 0; i != numDays; ++i) {
+      h_delLum_2011.SetBinContent(i + 1, delivered_lumiA_2011[i]);
+    }
+    TH1F* h_delLumCum_2011 = dynamic_cast<TH1F*>(h_delLum_2011.Clone());
+    double cumDel = 0.;
+    for (int bin = 1; bin != h_delLum_2011.GetNbinsX() + 1; ++bin) {
+      cumDel += h_delLum_2011.GetBinContent(bin);
+      h_delLumCum_2011->SetBinContent(bin, cumDel);
+    }
+
+    // Read 2012.
+    std::string fileNameIntLumi_2012 = replaceInString(fileNameIntLumi,
+                                                       Form("%d", year),
+                                                       "2012");
+    std::vector<float> delivered_lumiV_2012;
+    std::vector<float> recorded_lumiV_2012;
+    readInputFileIntLumi(fileNameIntLumi_2012, runV, start_timeV, end_timeV,
+                         delivered_lumiV_2012, recorded_lumiV_2012);
+    // DEBUG DEBUG DEBUG
+    assert(delivered_lumiV_2012.size() == recorded_lumiV_2012.size());
+    // DEBUG DEBUG DEBUG end
+    for (size_t ijk = 0; ijk != delivered_lumiV_2012.size(); ++ijk) {
+      delivered_lumiV_2012.at(ijk) = delivered_lumiV_2012.at(ijk) / conversionFactor;
+    }
+    tmpLo = timestampFromString(start_timeV.front());
+    tmpHi = timestampFromString(end_timeV.back());
+    dateLo = zeroTimeInTimestamp(tmpLo);
+    dateHi = zeroTimeInTimestamp(tmpHi);
+    numDays = ((dateHi.GetSec() - dateLo.GetSec()) / (24 * 60 * 60)) + 1;
+    int const nBins = numDays;
+    float delivered_lumiA_2012[nBins];
+    float recorded_lumiA_2012[nBins];
+    for (int iTmp = 0; iTmp < numDays; ++iTmp) {
+      delivered_lumiA_2012[iTmp] = 0.;
+      recorded_lumiA_2012[iTmp] = 0.;
+    }
+    mapIntLumiToDays(runV, start_timeV, end_timeV,
+                     delivered_lumiV_2012, recorded_lumiV_2012,
+                     delivered_lumiA_2012, recorded_lumiA_2012);
+    a = dateLo;
+    b = dateHi;
+    // Shift the whole data two years back.
+    a.SetSec(a.GetSec() - (365 + 366) * 24 * 60 * 60);
+    b.SetSec(b.GetSec() - (365 + 366) * 24 * 60 * 60);
+    // NOTE: Watch out with this magic. It centers the bins on the days.
+    b.SetSec(b.GetSec() + (24 * 60 * 60));
+    a.SetSec(a.GetSec() - (12 * 60 * 60) - (60 * 60));
+    b.SetSec(b.GetSec() - (12 * 60 * 60) - (60 * 60));
+    TH1F h_delLum_2012("", "", numDays, a.GetSec(), b.GetSec());
+    for (int i = 0; i != numDays; ++i) {
+      h_delLum_2012.SetBinContent(i + 1, delivered_lumiA_2012[i]);
+    }
+    TH1F* h_delLumCum_2012 = dynamic_cast<TH1F*>(h_delLum_2012.Clone());
+    double cumDel = 0.;
+    for (int bin = 1; bin != h_delLum_2012.GetNbinsX() + 1; ++bin) {
+      cumDel += h_delLum_2012.GetBinContent(bin);
+      h_delLumCum_2012->SetBinContent(bin, cumDel);
+    }
+
+    // Tweak.
+    h_delLumCum_2010->SetFillColor(kWhite);
+    h_delLumCum_2011->SetFillColor(kWhite);
+    h_delLumCum_2012->SetFillColor(kWhite);
+    h_delLumCum_2010->SetLineColor(kGreen);
+    h_delLumCum_2011->SetLineColor(kRed);
+    h_delLumCum_2012->SetLineColor(kBlue);
+    h_delLumCum_2010->SetLineWidth(5.);
+    h_delLumCum_2011->SetLineWidth(5.);
+    h_delLumCum_2012->SetLineWidth(5.);
+    h_delLumCum_2010->Scale(scaleFactor);
+    h_delLumCum_2011->Scale(scaleFactor);
+    h_delLumCum_2012->Scale(scaleFactor);
+
+    h_delLumCum_2012->SetTitle(titleCumulativeYears.c_str());
+    h_delLumCum_2012->GetXaxis()->SetTimeDisplay(1);
+    h_delLumCum_2012->GetXaxis()->SetTimeFormat("%d/%m");
+    h_delLumCum_2012->GetXaxis()->SetTimeOffset(0, "gmt");
+    h_delLumCum_2012->GetXaxis()->SetLabelOffset(0.01);
+    h_delLumCum_2012->GetYaxis()->SetTitleOffset(1.2);
+    h_delLumCum_2012->GetXaxis()->SetTitleFont(62);
+    h_delLumCum_2012->GetYaxis()->SetTitleFont(62);
+    h_delLumCum_2012->GetXaxis()->SetNdivisions(705);
+
+    // And plot.
+    TCanvas* canvas = createCanvas();
+    // NOTE: The order here is a bit interesting but it sets the scale...
+    h_delLumCum_2012->Draw("][");
+    h_delLumCum_2011->Draw("SAME ][");
+    h_delLumCum_2010->Draw("SAME ][");
+
+    legend = createLegend();
+    legend->AddEntry(h_delLumCum_2010, "2010, #sqrt{s} = 7 TeV");
+    legend->AddEntry(h_delLumCum_2011, "2011, #sqrt{s} = 7 TeV");
+    legend->AddEntry(h_delLumCum_2012, "2012, #sqrt{s} = 8 TeV");
+    legend->Draw();
+    duplicateYAxis(canvas, h_delLumCum_2011->GetYaxis());
+    canvas->RedrawAxis();
+    drawLogo(canvas, logoName);
+    canvas->Print(Form("int_lumi_cumulative_%s%s.png",
+                       partType.c_str(), fileSuffix.c_str()));
+    delete h_delLumCum_2010;
+    delete h_delLumCum_2011;
+    delete h_delLumCum_2012;
+    delete legend;
+    delete canvas;
+  }
 }
 
 void create_public_lumi_plots(int const year=2012,
