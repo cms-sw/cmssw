@@ -139,7 +139,7 @@ echo "**************************************************************************
 """
 	nr = 0
 	currEnv = 0
-	print "init"
+	print "-> init"
         initSeq = testSeq[0]
 	mainSeq = testSeq[1]
 	finalSeq = testSeq[2]
@@ -155,7 +155,7 @@ echo "==============================================="
 			cmds += SetEnv(refRelease, refArch,refPath)
 			currEnv = 2
 		cmds +=Command(step[0])
-	print "cmd"
+	print "-> test sequence"
 	for step in mainSeq:
                 cmds += """
 echo "==============================================="
@@ -170,7 +170,7 @@ echo "==============================================="
 		cmds +=Command(step[0])
 		cmds += 'RCODE['+str(nr)+']=$RETVAL'
 		nr +=1
-	print "final"
+	print "-> final"
 	cmds += """
 	RETVAL=0
 	"""
@@ -217,7 +217,7 @@ class RegressionTest:
 
     def runOnDb(self, label, release, arch, path):
 	relID = reference_db.ExtractID(release)
-	print 'Running test "'+label+'" on rel='+release+' arch='+arch+' from path='+path
+	print 'Running test "'+label+'" on rel='+release+' arch='+arch+' from path= '+path
 	cmds = """
 echo ""
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
@@ -244,8 +244,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     def runOnReference(self, label, release, arch, path, refRelease, refArch, refPath):
 	relID = reference_db.ExtractID(release)
-	print "Testing "+release+" "+arch+" from "
-	print path+" : "
+	print "Testing "+release+" "+arch+" from path: "+path
 	curs = conn.cursor()
 	cmds = """
 echo ""
@@ -277,7 +276,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	reStr = "\!L\!([^!]+)\!TR\!([^!]+)\!TA\!([^!]+)\!RR\!([^!]+)\!RA\!([^!]+)"
 	for i in range (0, self.n_res):
 		reStr +=  "\!C"+str(i)+"\!(\d+)"
-	print 'restr1=',reStr
+	#print 'restr1=',reStr
 
 	pattern = re.compile(reStr)
 	matching = pattern.findall(self.out_value)
@@ -286,7 +285,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	for match in matching:
 		#print match
 		self.resDb.writeStatus(runID, timeStamp, match,self.resTags)
-	print '\Output:', stdoutMod
+	print stdoutMod
 	self.resDb.addLogStatus(self.label, runID, stdoutMod)
         print "Test '%s' runID=%d" %(self.label, runID)
         stat = "SUCCESS"

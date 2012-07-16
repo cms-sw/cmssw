@@ -17,17 +17,17 @@
 	</test>
 	<test name="ExportIOV_regression">
 		<init>
-			<command exec ="$TTEST/testExport -I testExport -M -P $TAUTH -s $TMAINDB -Z $TSEED" env ="ref"></command>
-			<command exec ="$TTEST/testExport -I dummy -P $TAUTH -s $TAUXDB -Z $TSEED" env ="ref"></command>
+			<command exec ="$TTEST/testExport -I testExport -M -P $TAUTH -s $TMAINDB" env ="ref"></command>
+			<command exec ="$TTEST/testExport -I dummy -P $TAUTH -s $TAUXDB" env ="ref"></command>
 		</init>
 		<sequence>
 			<command exec ="$TTEST/testExport -E -s $TMAINDB -d $TAUXDB -P $TAUTH -t testExport" result="EXP from Ref to Ref" env ="cand"></command>
 			<command exec ="$TTEST/testExport -R testExport -s $TMAINDB -d $TAUXDB -P $TAUTH"  result="Ref READ" env ="ref"></command>
-			<command exec ="$TTEST/testExport -I dummy -s $TAUXDB -P $TAUTH -Z $TSEED" env ="cand"></command>
+			<command exec ="$TTEST/testExport -I dummy -s $TAUXDB -P $TAUTH" env ="cand"></command>
 			<command exec ="$TTEST/testExport -E -s $TMAINDB -d $TAUXDB -P $TAUTH -t testExport" result="EXP from Ref to Cand" env ="cand"></command>
 			<command exec ="$TTEST/testExport -R testExport -s $TMAINDB -d $TAUXDB -P $TAUTH"  result="Cand READ" env ="cand"></command>
-			<command exec ="$TTEST/testExport -I testExport  -M -s $TMAINDB -P $TAUTH -Z $TSEED" env ="cand"></command>
-			<command exec ="$TTEST/testExport -I dummy  -s $TAUXDB -P $TAUTH -Z $TSEED" env ="ref"></command>
+			<command exec ="$TTEST/testExport -I testExport  -M -s $TMAINDB -P $TAUTH" env ="cand"></command>
+			<command exec ="$TTEST/testExport -I dummy  -s $TAUXDB -P $TAUTH" env ="ref"></command>
 			<command exec ="$TTEST/testExport -E -s $TMAINDB -d $TAUXDB -P $TAUTH -t testExport" result="EXP from Cand to Ref" env ="cand"></command>
 			<command exec ="$TTEST/testExport -R testExport -s $TMAINDB -d $TAUXDB -P $TAUTH"  result="Cand READ" env ="cand"></command>
 			<command exec ="$TTEST/testExport -C -s $TAUXDB -P $TAUTH" env ="cand"></command>
