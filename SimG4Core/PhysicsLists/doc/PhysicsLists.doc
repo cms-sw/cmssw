@@ -26,10 +26,9 @@ components provided by Geant4.
 - CMSEmStandardPhysics     - standard EM physics equivalent to Option0
 - CMSEmStandardPhysics71   - obsolete standard EM physics equivalent to Option1
 - CMSEmStandardPhysics92   - standard EM physics equivalent to Option1
-- CMSEmStandardPhysics95   - standard EM physics equivalent to Option1 
-                             + Seltzer-Berger model of bremsstrahlung for e+e-
-                             below 1 GeV, CMSUrbanMscModel95 for e+- scattering
-                             for 2012 custom production
+- CMSEmStandardPhysics95   - standard EM physics equivalent to Option1 except 
+                             muon multiple scattering - G4UrbanMscModel90
+                             is used
 - CMSEmStandardPhysics95msc92 - CMSUrbanMscModel95 replaced 
                              by CMSUrbanMscModel92 made for tests
 - CMSEmStandardPhysics95msc93 - CMSUrbanMscModel95 replaced 

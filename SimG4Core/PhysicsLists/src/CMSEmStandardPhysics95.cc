@@ -22,6 +22,7 @@
 #include "G4SeltzerBergerModel95.hh"
 #include "G4eBremsstrahlungRelModel95.hh"
 
+#include "G4MuMultipleScattering.hh"
 #include "G4MuIonisation.hh"
 #include "G4MuBremsstrahlung.hh"
 #include "G4MuPairProduction.hh"
@@ -65,10 +66,12 @@
 #include "G4He3.hh"
 #include "G4Alpha.hh"
 #include "G4GenericIon.hh"
+#include "G4BuilderType.hh"
 
 CMSEmStandardPhysics95::CMSEmStandardPhysics95(const G4String& name, G4int ver, std::string reg):
   G4VPhysicsConstructor(name), verbose(ver), region(reg) {
   G4LossTableManager::Instance();
+  SetPhysicsType(bElectromagnetic);
 }
 
 CMSEmStandardPhysics95::~CMSEmStandardPhysics95() {}
@@ -130,81 +133,100 @@ void CMSEmStandardPhysics95::ConstructProcess()
   }
   */
 
+  G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
+
+  // Add standard EM Processes
   theParticleIterator->reset();
   while( (*theParticleIterator)() ){
     G4ParticleDefinition* particle = theParticleIterator->value();
-    G4ProcessManager* pmanager = particle->GetProcessManager();
     G4String particleName = particle->GetParticleName();
     if(verbose > 1)
       G4cout << "### " << GetPhysicsName() << " instantiates for " 
-	     << particleName << " at " << particle << G4endl;
+	     << particleName << G4endl;
 
     if (particleName == "gamma") {
 
-      pmanager->AddDiscreteProcess(new G4PhotoElectricEffect);
-      pmanager->AddDiscreteProcess(new G4ComptonScattering);
-      pmanager->AddDiscreteProcess(new G4GammaConversion);
+      ph->RegisterProcess(new G4PhotoElectricEffect(), particle);
+      ph->RegisterProcess(new G4ComptonScattering(), particle);
+      ph->RegisterProcess(new G4GammaConversion(), particle);
 
     } else if (particleName == "e-") {
 
       G4eIonisation* eioni = new G4eIonisation();
       eioni->SetStepFunction(0.8, 1.0*mm);
-      G4eMultipleScattering* msc = new G4eMultipleScattering;
+      G4eMultipleScattering* msc = new G4eMultipleScattering();
       msc->SetStepLimitType(fMinimal);
-      msc->AddEmModel(0,new CMSUrbanMscModel95());
-
       G4eBremsstrahlung* ebrem = new G4eBremsstrahlung();
-      ebrem->SetEmModel(new G4SeltzerBergerModel95(), 1);
-      ebrem->SetEmModel(new G4eBremsstrahlungRelModel95(), 2);
-      ebrem->EmModel(2)->SetLowEnergyLimit(GeV);
 
-      pmanager->AddProcess(msc,                   -1, 1, 1);
-      pmanager->AddProcess(eioni,                 -1, 2, 2);
-      pmanager->AddProcess(ebrem,                 -1,-3, 3);
+      ph->RegisterProcess(msc, particle);
+      ph->RegisterProcess(eioni, particle);
+      ph->RegisterProcess(ebrem, particle);
 
     } else if (particleName == "e+") {
 
       G4eIonisation* eioni = new G4eIonisation();
       eioni->SetStepFunction(0.8, 1.0*mm);
-      G4eMultipleScattering* msc = new G4eMultipleScattering;
+      G4eMultipleScattering* msc = new G4eMultipleScattering();
       msc->SetStepLimitType(fMinimal);
-      msc->AddEmModel(0,new CMSUrbanMscModel95());
 
       G4eBremsstrahlung* ebrem = new G4eBremsstrahlung();
-      ebrem->SetEmModel(new G4SeltzerBergerModel95(), 1);
-      ebrem->SetEmModel(new G4eBremsstrahlungRelModel95(), 2);
-      ebrem->EmModel(2)->SetLowEnergyLimit(GeV);
 
-      pmanager->AddProcess(msc,                     -1, 1, 1);
-      pmanager->AddProcess(eioni,                   -1, 2, 2);
-      pmanager->AddProcess(ebrem,                   -1,-3, 3);
-      pmanager->AddProcess(new G4eplusAnnihilation,  0,-1, 4);
+      ph->RegisterProcess(msc, particle);
+      ph->RegisterProcess(eioni, particle);
+      ph->RegisterProcess(ebrem, particle);
+      ph->RegisterProcess(new G4eplusAnnihilation(), particle);
 
     } else if (particleName == "mu+" ||
                particleName == "mu-"    ) {
 
-      pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
-      pmanager->AddProcess(new G4MuIonisation,        -1, 2, 2);
-      pmanager->AddProcess(new G4MuBremsstrahlung,    -1,-3, 3);
-      pmanager->AddProcess(new G4MuPairProduction,    -1,-4, 4);
+      G4MuMultipleScattering* msc = new G4MuMultipleScattering();
+      G4MuBremsstrahlung* mub = new G4MuBremsstrahlung();
+      G4MuPairProduction* mup = new G4MuPairProduction();
 
-    } else if (particleName == "alpha" ||
-               particleName == "He3" ||
-               particleName == "GenericIon") {
+      ph->RegisterProcess(msc, particle);
+      ph->RegisterProcess(new G4MuIonisation(), particle);
+      ph->RegisterProcess(mub, particle);
+      ph->RegisterProcess(mup, particle);
 
-      pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
-      pmanager->AddProcess(new G4ionIonisation,       -1, 2, 2);
+    } else if (particleName == "alpha" || 
+	       particleName == "He3" ) {
 
-    } else if (particleName == "pi+" ||
-	       particleName == "kaon+" ||
-	       particleName == "kaon-" ||
-	       particleName == "proton" ||
+      ph->RegisterProcess(new G4hMultipleScattering(), particle);
+      ph->RegisterProcess(new G4ionIonisation(), particle);
+
+    } else if (particleName == "GenericIon") {
+
+      ph->RegisterProcess(new G4hMultipleScattering(), particle);
+      ph->RegisterProcess(new G4ionIonisation(), particle);
+
+    } else if (particleName == "pi+" || 
 	       particleName == "pi-" ) {
 
-      pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
-      pmanager->AddProcess(new G4hIonisation,         -1, 2, 2);
-      pmanager->AddProcess(new G4hBremsstrahlung(),   -1,-3, 3);
-      pmanager->AddProcess(new G4hPairProduction(),   -1,-4, 4);
+      G4hBremsstrahlung* pib = new G4hBremsstrahlung();
+      G4hPairProduction* pip = new G4hPairProduction();
+
+      ph->RegisterProcess(new G4hMultipleScattering(), particle);
+      ph->RegisterProcess(new G4hIonisation(), particle);
+      ph->RegisterProcess(pib, particle);
+      ph->RegisterProcess(pip, particle);
+
+    } else if (particleName == "kaon+" ||
+               particleName == "kaon-" ) {
+
+      G4hBremsstrahlung* kb = new G4hBremsstrahlung();
+      G4hPairProduction* kp = new G4hPairProduction();
+
+      ph->RegisterProcess(new G4hMultipleScattering(), particle);
+      ph->RegisterProcess(new G4hIonisation(), particle);
+      ph->RegisterProcess(kb, particle);
+      ph->RegisterProcess(kp, particle);
+
+    } else if (particleName == "proton" ) {
+
+      ph->RegisterProcess(new G4hMultipleScattering(), particle);
+      ph->RegisterProcess(new G4hIonisation(), particle);
+      ph->RegisterProcess(new G4hBremsstrahlung(), particle);
+      ph->RegisterProcess(new G4hPairProduction(), particle);
 
     } else if (particleName == "B+" ||
 	       particleName == "B-" ||
@@ -212,13 +234,17 @@ void CMSEmStandardPhysics95::ConstructProcess()
 	       particleName == "D-" ||
 	       particleName == "Ds+" ||
 	       particleName == "Ds-" ||
+               particleName == "anti_He3" ||
+               particleName == "anti_alpha" ||
+               particleName == "anti_deuteron" ||
                particleName == "anti_lambda_c+" ||
                particleName == "anti_omega-" ||
-               particleName == "anti_proton" ||
+	       particleName == "anti_proton" ||
                particleName == "anti_sigma_c+" ||
                particleName == "anti_sigma_c++" ||
                particleName == "anti_sigma+" ||
                particleName == "anti_sigma-" ||
+               particleName == "anti_triton" ||
                particleName == "anti_xi_c+" ||
                particleName == "anti_xi-" ||
                particleName == "deuteron" ||
@@ -234,8 +260,8 @@ void CMSEmStandardPhysics95::ConstructProcess()
                particleName == "xi_c+" ||
                particleName == "xi-" ) {
 
-      pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
-      pmanager->AddProcess(new G4hIonisation,         -1, 2, 2);
+      ph->RegisterProcess(new G4hMultipleScattering(), particle);
+      ph->RegisterProcess(new G4hIonisation(), particle);
     }
   }
 
@@ -243,15 +269,8 @@ void CMSEmStandardPhysics95::ConstructProcess()
   //
   G4EmProcessOptions opt;
   opt.SetVerbose(verbose);
+  opt.SetPolarAngleLimit(CLHEP::pi);
   // ApplyCuts
   //
   opt.SetApplyCuts(true);
-
-  // Physics tables
-  //
-  opt.SetMinEnergy(100.*eV);
-  opt.SetMaxEnergy(10.*TeV);
-  opt.SetDEDXBinning(77);
-  opt.SetLambdaBinning(77);
-
 }
