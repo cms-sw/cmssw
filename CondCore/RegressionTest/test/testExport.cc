@@ -1,9 +1,9 @@
-#include "CondCore/Utilities/interface/Utilities.h"
+#include "CondCore/Utilities/interface/ExportIOVUtilities.h"
 #include "CondCore/RegressionTest/interface/TestFunct.h"
 
 namespace cond_regression {
 
-  class ExportIOVTest : public cond::Utilities {
+  class ExportIOVTest : public cond::ExportIOVUtilities {
   public:
     ExportIOVTest();
     ~ExportIOVTest();
@@ -14,16 +14,13 @@ namespace cond_regression {
 }
 
 cond_regression::ExportIOVTest::ExportIOVTest():
-  cond::Utilities("testExport"){
-  addAuthenticationOptions();
-  addConnectOption("sourceConnect","s","source connection string");
-  addConnectOption("destConnect","d","destionation connection string");
-  addOption<cond::Time_t>("beginTime","b","begin time (first since)");
+  cond::ExportIOVUtilities("testExport"){
   addOption<std::string>("initDatabase","I","initialize the database with the specified tag");
   addOption<bool>("cleanUp","C","initialize cleanUp the database account");
   addOption<std::string>("read","R","read and verify the specified tag");
   addOption<int>("seed","Z","input seed for data generation");
   addOption<bool>("metadata","M","initialize the database with the metadata table");
+  addOption<bool>("export","E","start the export with the specified parameters");
 }
 
 cond_regression::ExportIOVTest::~ExportIOVTest(){
@@ -57,7 +54,6 @@ int cond_regression::ExportIOVTest::execute(){
 	return 1;
       }
     }
-    std::cout <<"@@writing iov..."<<std::endl;
     if(!m_tf.WriteWithIOV(tag, seed, since, withTestMetadata)){
       return 1;
     }
@@ -85,6 +81,9 @@ int cond_regression::ExportIOVTest::execute(){
       return 1;
     }
     return 0;
+  }
+  if( hasOptionValue("export") ){
+    return cond::ExportIOVUtilities::execute();
   }
   return 1;
 }
