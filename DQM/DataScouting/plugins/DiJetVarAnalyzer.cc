@@ -354,7 +354,7 @@ void DiJetVarAnalyzer::bookMEs(){
 			       );
   m_cutFlow->getTH1()->GetXaxis()->SetBinLabel(1,"No cut");
   m_cutFlow->getTH1()->GetXaxis()->SetBinLabel(2,"N(WideJets)>=2");
-  m_cutFlow->getTH1()->GetXaxis()->SetBinLabel(3,"|#eta|<2.4 , pT>30");
+  m_cutFlow->getTH1()->GetXaxis()->SetBinLabel(3,"|#eta|<2.5 , pT>30");
   m_cutFlow->getTH1()->GetXaxis()->SetBinLabel(4,"|#Delta#eta|<1.3");
   m_cutFlow->getTH1()->GetXaxis()->SetBinLabel(5,"JetID");
   m_cutFlow->getTH1()->GetXaxis()->SetBinLabel(6,"|#Delta#phi|>#pi/3");
