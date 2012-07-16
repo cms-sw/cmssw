@@ -109,7 +109,10 @@ relvaldir = "RelVal"
 if options.is_from_data:
     relvaldir = "RelValData"
 
-releasedir = options.release[:-1] + "x"
+release = re.findall('(CMSSW_\d_\d_)\d(?:_[\w\d]*)?', options.release)
+if not release:
+    parser.error('No such CMSSW release found. Please check the ``--release`` commandline option value.')
+releasedir = release + "x"
 
 base_url = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/'
 filedir_url = base_url + relvaldir + '/' + releasedir + '/'
