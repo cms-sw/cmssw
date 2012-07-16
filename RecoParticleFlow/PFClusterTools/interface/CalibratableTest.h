@@ -155,8 +155,8 @@ template<class T> void CalibratableTest::getCollection(edm::Handle<T>& c,
 	}
 	catch (cms::Exception& err) {
 		std::cout << "Couldn't get collection\n";
-		std::ostringstream err;
-		//LogError("Error getting collection!") << err;
+		//std::ostringstream s;
+		//LogError("Error getting collection!") << s;
 	}
 }
 
