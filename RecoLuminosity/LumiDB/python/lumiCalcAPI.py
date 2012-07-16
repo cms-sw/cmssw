@@ -626,7 +626,7 @@ def effectiveLumiForIds(schema,irunlsdict,dataidmap,runsummaryMap=None,beamstatu
                                         if l1p!=0 and l1p<pmin:
                                             l1prescale=l1p
                                             l1bitname=bit
-                                    if exptype=='OR':
+                                    if exptype=='AND':
                                         if l1p!=0 and l1p>pmax:
                                             l1prescale=l1p
                                             l1bitname=bit
