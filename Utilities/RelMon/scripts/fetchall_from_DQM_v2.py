@@ -112,7 +112,7 @@ if options.is_from_data:
 release = re.findall('(CMSSW_\d_\d_)\d(?:_[\w\d]*)?', options.release)
 if not release:
     parser.error('No such CMSSW release found. Please check the ``--release`` commandline option value.')
-releasedir = release + "x"
+releasedir = release[0] + "x"
 
 base_url = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/'
 filedir_url = base_url + relvaldir + '/' + releasedir + '/'
@@ -126,7 +126,7 @@ if options.mthreads > 3 or options.mthreads < 1:
     options.mthreads = 3
 
 ## Fetch the files, using multi-processing
-file_res = [re.compile(r) for r in options.regexp.split(',') + [options.release.upper()]]
+file_res = [re.compile(r) for r in options.regexp.split(',') + [options.release]]
 selected_files = [f for f in all_files if all([r.search(f) for r in file_res])]
 
 print 'Downloading files:'
