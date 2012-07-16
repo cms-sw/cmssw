@@ -142,6 +142,8 @@ fftjetJetMaker = cms.EDProducer(
     #  "locallyAdaptive"  -- use different resolutions in different parts
     #                        of the eta-phi space in order to maximize
     #                        a certain optimization criterion
+    #  "fromGenJets"      -- a special mode in which peaks are produced
+    #                        from GenJets. Useful for calibration.
     resolution = cms.string("fixed"),
     #
     # Scale parameter for the "fixed" and "locallyAdaptive" resolution schemes
@@ -221,5 +223,11 @@ fftjetJetMaker = cms.EDProducer(
     subtractPileupAs4Vec = cms.bool(True),
     #
     # Source of the pile-up energy flow data
-    pileupLabel = cms.InputTag("pileupestimator", "FFTJetPileupEstimatePF")
+    pileupLabel = cms.InputTag("pileupestimator", "FFTJetPileupEstimatePF"),
+    #
+    # Label for GenJet collection in the "fromGenJets" resolution mode
+    genJetsLabel = cms.InputTag("fftgenjetproducer", "MadeByFFTJet"),
+    #
+    # Max number of GenJets to use in the "fromGenJets" resolution mode
+    maxGenJets = cms.uint32(2147483647)
 )
