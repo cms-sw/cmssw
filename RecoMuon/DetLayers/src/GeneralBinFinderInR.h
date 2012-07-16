@@ -4,8 +4,8 @@
 /** \class GeneralBinFinderInR
  *  A R binfinder for a non-periodic group of detectors.
  *
- *  $Date: 2006/05/16 10:39:03 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/11/16 16:11:58 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -35,7 +35,7 @@ public:
 		      std::vector<Det*>::const_iterator last)
     : theNbins( last-first)
   {
-    std::vector<Det*> dets(first,last);
+    std::vector<const Det*> dets(first,last);
     RBorderFinder bf(dets);
     theBorders=bf.RBorders();
     theBins=bf.RBins();
