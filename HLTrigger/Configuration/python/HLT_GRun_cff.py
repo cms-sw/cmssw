@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/GRun/V175 (CMSSW_5_2_6)
+# /dev/CMSSW_5_2_1/GRun/V176 (CMSSW_5_2_6)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V175')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V176')
 )
 
 streams = cms.PSet( 
@@ -16704,6 +16704,18 @@ hltL3fL1DoubleMu10MuOpenOR3p5L1f0L2f10L3Filtered13 = cms.EDFilter( "HLTMuonL3Pre
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
     MinPt = cms.double( 13.0 )
 )
+hltDiMuonGlb13Glb8DzFiltered0p2 = cms.EDFilter( "HLT2MuonMuonDZ",
+    saveTags = cms.bool( True ),
+    originTag1 = cms.InputTag( "hltL3MuonCandidates" ),
+    originTag2 = cms.InputTag( "hltL3MuonCandidates" ),
+    MinN = cms.int32( 1 ),
+    triggerType1 = cms.int32( 83 ),
+    triggerType2 = cms.int32( 83 ),
+    MinDR = cms.double( 0.0010 ),
+    MaxDZ = cms.double( 0.2 ),
+    inputTag1 = cms.InputTag( "hltL3pfL1DoubleMu10MuOpenOR3p5L1f0L2pf0L3PreFiltered8" ),
+    inputTag2 = cms.InputTag( "hltL3fL1DoubleMu10MuOpenOR3p5L1f0L2f10L3Filtered13" )
+)
 hltPreMu17Mu8 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -16727,6 +16739,18 @@ hltL3fL1DoubleMu10MuOpenOR3p5L1f0L2f10L3Filtered17 = cms.EDFilter( "HLTMuonL3Pre
     MinDr = cms.double( -1.0 ),
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
     MinPt = cms.double( 17.0 )
+)
+hltDiMuonGlb17Glb8DzFiltered0p2 = cms.EDFilter( "HLT2MuonMuonDZ",
+    saveTags = cms.bool( True ),
+    originTag1 = cms.InputTag( "hltL3MuonCandidates" ),
+    originTag2 = cms.InputTag( "hltL3MuonCandidates" ),
+    MinN = cms.int32( 1 ),
+    triggerType1 = cms.int32( 83 ),
+    triggerType2 = cms.int32( 83 ),
+    MinDR = cms.double( 0.0010 ),
+    MaxDZ = cms.double( 0.2 ),
+    inputTag1 = cms.InputTag( "hltL3pfL1DoubleMu10MuOpenOR3p5L1f0L2pf0L3PreFiltered8" ),
+    inputTag2 = cms.InputTag( "hltL3fL1DoubleMu10MuOpenOR3p5L1f0L2f10L3Filtered17" )
 )
 hltPreMu17TkMu8 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -38172,8 +38196,8 @@ HLT_Dimuon0_Upsilon_Muon_v18 = cms.Path( HLTBeginSequence + hltL1sL1TripleMu0Hig
 HLT_Dimuon3p5_SameSign_v6 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMu0erHighQ + hltPreDimuon3p5SameSign + hltDimuonL1Filtered0 + HLTL2muonrecoSequence + hltDimuonL2PreFiltered0 + HLTL3muonrecoSequence + hltDimuon3p5SameSignL3Filtered + HLTEndSequence )
 HLT_DoubleMu4_Acoplanarity03_v5 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMu0 + hltPreDoubleMu4Acoplanarity03 + hltL1fL1sL1DoubleMu0L1f0 + HLTL2muonrecoSequence + hltL2fL1sL1DoubleMu0L1f0L2f0 + HLTL3muonrecoSequence + hltL3fL1sL1DoubleMu0L1f0L2f0L3f4 + hltDoubleMu4ExclL3PreFiltered + HLTEndSequence )
 HLT_Tau2Mu_ItTrack_v6 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMu0or33HighQ + hltPreTau2MuItTrack + hltDimuon0or33L1Filtered0 + HLTL2muonrecoSequence + hltDimuon0or33L2PreFiltered0 + HLTL3muonrecoSequence + hltTauTo2MuL3Filtered + hltDisplacedmumuVtxProducerDoubleMuTau2Mu + hltDisplacedmumuFilterDoubleMuTau2Mu + HLTTauTo2MuRegPixelRecoSequence + HLTDoLocalStripSequence + HLTIterativeTrackingTau3Mu + hltTau3MuAllTracks + hltTau3MuMuMuTkFilter + HLTEndSequence )
-HLT_Mu13_Mu8_v20 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMu10MuOpenORDoubleMu103p5 + hltPreMu13Mu8 + hltL1DoubleMu10MuOpenOR3p5L1Filtered0 + HLTL2muonrecoSequence + hltL2pfL1DoubleMu10MuOpenOR3p5L1f0L2PreFiltered0 + hltL2fL1DoubleMu10MuOpenOR3p5L1f0L2Filtered10 + HLTL3muonrecoSequence + hltL3pfL1DoubleMu10MuOpenOR3p5L1f0L2pf0L3PreFiltered8 + hltL3fL1DoubleMu10MuOpenOR3p5L1f0L2f10L3Filtered13 + HLTEndSequence )
-HLT_Mu17_Mu8_v20 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMu10MuOpenORDoubleMu103p5 + hltPreMu17Mu8 + hltL1DoubleMu10MuOpenOR3p5L1Filtered0 + HLTL2muonrecoSequence + hltL2pfL1DoubleMu10MuOpenOR3p5L1f0L2PreFiltered0 + hltL2fL1DoubleMu10MuOpenOR3p5L1f0L2Filtered10 + HLTL3muonrecoSequence + hltL3pfL1DoubleMu10MuOpenOR3p5L1f0L2pf0L3PreFiltered8 + hltL3fL1DoubleMu10MuOpenOR3p5L1f0L2f10L3Filtered17 + HLTEndSequence )
+HLT_Mu13_Mu8_v20 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMu10MuOpenORDoubleMu103p5 + hltPreMu13Mu8 + hltL1DoubleMu10MuOpenOR3p5L1Filtered0 + HLTL2muonrecoSequence + hltL2pfL1DoubleMu10MuOpenOR3p5L1f0L2PreFiltered0 + hltL2fL1DoubleMu10MuOpenOR3p5L1f0L2Filtered10 + HLTL3muonrecoSequence + hltL3pfL1DoubleMu10MuOpenOR3p5L1f0L2pf0L3PreFiltered8 + hltL3fL1DoubleMu10MuOpenOR3p5L1f0L2f10L3Filtered13 + hltDiMuonGlb13Glb8DzFiltered0p2 + HLTEndSequence )
+HLT_Mu17_Mu8_v20 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMu10MuOpenORDoubleMu103p5 + hltPreMu17Mu8 + hltL1DoubleMu10MuOpenOR3p5L1Filtered0 + HLTL2muonrecoSequence + hltL2pfL1DoubleMu10MuOpenOR3p5L1f0L2PreFiltered0 + hltL2fL1DoubleMu10MuOpenOR3p5L1f0L2Filtered10 + HLTL3muonrecoSequence + hltL3pfL1DoubleMu10MuOpenOR3p5L1f0L2pf0L3PreFiltered8 + hltL3fL1DoubleMu10MuOpenOR3p5L1f0L2f10L3Filtered17 + hltDiMuonGlb17Glb8DzFiltered0p2 + HLTEndSequence )
 HLT_Mu17_TkMu8_v13 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMu10MuOpenORDoubleMu103p5 + hltPreMu17TkMu8 + hltL1fL1sDoubleMu10MuOpenOR3p5L1Filtered0 + HLTL2muonrecoSequence + hltL2fL1sDoubleMu10MuOpenOR3p5L1f0L2Filtered10 + HLTL3muonrecoSequence + hltL3fL1sMu10MuOpenOR3p5L1f0L2f10L3Filtered17 + HLTTrackerMuonSequence + hltDiMuonGlbFiltered17TrkFiltered8 + hltDiMuonGlb17Trk8DzFiltered0p2 + HLTEndSequence )
 HLT_Mu22_TkMu8_v8 = cms.Path( HLTBeginSequence + hltL1sMu16 + hltPreMu22TkMu8 + hltL1fL1sMu16L1Filtered0 + HLTL2muonrecoSequence + hltL2fL1sMu16L1f0L2Filtered16Q + HLTL3muonrecoSequence + hltL3fL1sMu16L1f0L2f16QL3Filtered22 + HLTTrackerMuonSequence + hltDiMuonGlbFiltered22TrkFiltered8 + hltDiMuonGlb22Trk8DzFiltered0p2 + HLTEndSequence )
 HLT_Mu22_TkMu22_v8 = cms.Path( HLTBeginSequence + hltL1sMu16 + hltPreMu22TkMu22 + hltL1fL1sMu16L1Filtered0 + HLTL2muonrecoSequence + hltL2fL1sMu16L1f0L2Filtered16Q + HLTL3muonrecoSequence + hltL3fL1sMu16L1f0L2f16QL3Filtered22 + HLTTrackerMuonSequence + hltDiMuonGlbFiltered22TrkFiltered22 + hltDiMuonGlb22Trk22DzFiltered0p2 + HLTEndSequence )
