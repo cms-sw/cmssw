@@ -16,7 +16,7 @@
 // Original Author:  Alexandre Spiridonov
 //         Created:  Fri Oct 16 15:59:05 CEST 2009
 //
-// $Id: GlobalTrackerMuonAlignment.cc,v 1.9 2011/12/22 20:02:51 innocent Exp $
+// $Id: GlobalTrackerMuonAlignment.cc,v 1.10 2012/07/16 12:05:38 eulisse Exp $
 //
 
 // system include files
@@ -1980,7 +1980,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
       std::cout<<" diag [ "<<Cm(0,0)<<" "<<Cm(1,1)<<" "<<Cm(2,2)<<" "<<Cm(3,3)<<" "
 	       <<Cm(4,4)<<" "<<Cm(5,5)<<" ]"<<std::endl;
       
-      static AlgebraicSymMatrix66 Ro;
+      AlgebraicSymMatrix66 Ro;
       double Diag[6];
       for(int i=0; i<=5; i++) Diag[i] = sqrt(Cm(i,i));
       for(int i=0; i<=5; i++)
