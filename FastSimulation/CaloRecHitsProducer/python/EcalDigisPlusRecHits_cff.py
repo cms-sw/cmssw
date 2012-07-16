@@ -21,8 +21,9 @@ from SimCalorimetry.EcalSelectiveReadoutProducers.ecalDigis_cfi import *
 
 # RCT (Regional Calorimeter Trigger) emulator import 
 import L1Trigger.RegionalCaloTrigger.rctDigis_cfi
-simRctDigis = L1Trigger.RegionalCaloTrigger.rctDigis_cfi.rctDigis.clone()  
-simRctDigis.ecalDigis = cms.VInputTag( cms.InputTag( 'simEcalTriggerPrimitiveDigis' ) ) 
+simRctDigisECAL = L1Trigger.RegionalCaloTrigger.rctDigis_cfi.rctDigis.clone()  
+simRctDigisECAL.ecalDigis = cms.VInputTag( cms.InputTag( 'simEcalTriggerPrimitiveDigis' ) ) 
+simRctDigisECAL.useHcal = cms.bool(False)
 
 #ECAL reconstruction
 from RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi import *
@@ -62,7 +63,7 @@ ecalPreshowerRecHit =  cms.EDProducer("CaloRecHitsProducer",
 
 
 ecalDigisPlusRecHitSequence = cms.Sequence(simEcalUnsuppressedDigis*simEcalTriggerPrimitiveDigis*simEcalDigis* # Digi
-			  simRctDigis*							           # L1Simulation
+			  simRctDigisECAL*							           # L1Simulation
                           ecalPacker*rawDataCollector*ecalDigis*                                   #Digi2raw raw2digi
 			  ecalGlobalUncalibRecHit*ecalDetIdToBeRecovered*ecalRecHit)	           # Reconstruction	
 			  

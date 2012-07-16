@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ####Hcal Digis
-from FWCore.Modules.printContent_cfi import *
+#from FWCore.Modules.printContent_cfi import *
 
 import SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi 
 hcalSimBlockFastSim = SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi.hcalSimBlock.clone()
@@ -14,8 +14,9 @@ from SimCalorimetry.HcalTrigPrimProducers.hcalTTPDigis_cfi import *
 
 # RCT (Regional Calorimeter Trigger) emulator import 
 import L1Trigger.RegionalCaloTrigger.rctDigis_cfi
-simRctDigis = L1Trigger.RegionalCaloTrigger.rctDigis_cfi.rctDigis.clone()  
-simRctDigis.hcalDigis = cms.VInputTag( cms.InputTag( 'simHcalTriggerPrimitiveDigis' ) ) 
+simRctDigisHCAL = L1Trigger.RegionalCaloTrigger.rctDigis_cfi.rctDigis.clone()  
+simRctDigisHCAL.hcalDigis = cms.VInputTag( cms.InputTag( 'simHcalTriggerPrimitiveDigis' ) ) 
+simRctDigisHCAL.useEcal = cms.bool(False)
 
 #Digi2Raw Raw2Digi
 from EventFilter.HcalRawToDigi.HcalDigiToRaw_cfi import * 
@@ -25,7 +26,7 @@ hcalDigis = EventFilter.HcalRawToDigi.HcalRawToDigi_cfi.hcalDigis.clone()
 hcalDigis.InputLabel = 'rawDataCollector'
 
 hcalDigiSequence = cms.Sequence(simHcalUnsuppressedDigis*simHcalTriggerPrimitiveDigis*simHcalDigis*simHcalTTPDigis
-                                *simRctDigis
+                                *simRctDigisHCAL
                                 *hcalRawData*rawDataCollector*hcalDigis)
 
 ##HcalRecHit
