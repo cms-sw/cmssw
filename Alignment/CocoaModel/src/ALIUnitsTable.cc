@@ -60,14 +60,14 @@ ALIUnitDefinition& ALIUnitDefinition::operator=(const ALIUnitDefinition& right)
 
 ALIint ALIUnitDefinition::operator==(const ALIUnitDefinition& right) const
 {
-  return (this == (ALIUnitDefinition *) &right);
+  return (this == &right);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 ALIint ALIUnitDefinition::operator!=(const ALIUnitDefinition &right) const
 {
-  return (this != (ALIUnitDefinition *) &right);
+  return (this != &right);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -284,14 +284,14 @@ ALIUnitsCategory& ALIUnitsCategory::operator=(const ALIUnitsCategory& right)
  
 ALIint ALIUnitsCategory::operator==(const ALIUnitsCategory& right) const
 {
-  return (this == (ALIUnitsCategory *) &right);
+  return (this == &right);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
  
 ALIint ALIUnitsCategory::operator!=(const ALIUnitsCategory &right) const
 {
-  return (this != (ALIUnitsCategory *) &right);
+  return (this != &right);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
