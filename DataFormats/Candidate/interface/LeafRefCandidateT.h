@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: LeafRefCandidateT.h,v 1.1 2009/11/24 03:15:57 srappocc Exp $
+ * \version $Id: LeafRefCandidateT.h,v 1.2 2011/10/27 19:54:25 wmtan Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -171,32 +171,32 @@ namespace reco {
     /// get a component                                                                                                
 
     template<typename C> C get() const {
-      if ( hasMasterClone() ) return masterClone()->get<C>();
+      if ( hasMasterClone() ) return masterClone()->template get<C>();
       else return reco::get<C>( * this );
     }
     /// get a component                                                                                                
     template<typename C, typename Tag> C get() const {
-      if ( hasMasterClone() ) return masterClone()->get<C, Tag>();
+      if ( hasMasterClone() ) return masterClone()->template get<C, Tag>();
       else return reco::get<C, Tag>( * this );
     }
     /// get a component                                                                                                
     template<typename C> C get( size_type i ) const {
-      if ( hasMasterClone() ) return masterClone()->get<C>( i );
+      if ( hasMasterClone() ) return masterClone()->template get<C>( i );
       else return reco::get<C>( * this, i );
     }
     /// get a component                                                                                                
     template<typename C, typename Tag> C get( size_type i ) const {
-      if ( hasMasterClone() ) return masterClone()->get<C, Tag>( i );
+      if ( hasMasterClone() ) return masterClone()->template get<C, Tag>( i );
       else return reco::get<C, Tag>( * this, i );
     }
     /// number of components                                                                                           
     template<typename C> size_type numberOf() const {
-      if ( hasMasterClone() ) return masterClone()->numberOf<C>();
+      if ( hasMasterClone() ) return masterClone()->template numberOf<C>();
       else return reco::numberOf<C>( * this );
     }
     /// number of components                                                                                           
     template<typename C, typename Tag> size_type numberOf() const {
-      if ( hasMasterClone() ) return masterClone()->numberOf<C, Tag>();
+      if ( hasMasterClone() ) return masterClone()->template numberOf<C, Tag>();
       else return reco::numberOf<C, Tag>( * this );
     }
 
