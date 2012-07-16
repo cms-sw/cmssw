@@ -31,7 +31,7 @@ public:
   SegmentToTrackAssociator ( const edm::ParameterSet& );
 
   //destructor 
-  virtual ~SegmentToTrackAssociator() {} 
+  virtual ~SegmentToTrackAssociator();
 
   //Associate
   MuonTransientTrackingRecHit::MuonRecHitContainer associate( const edm::Event&, const edm::EventSetup&, const reco::Track&, std::string  );
