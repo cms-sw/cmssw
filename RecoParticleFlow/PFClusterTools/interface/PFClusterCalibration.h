@@ -10,11 +10,15 @@
 #include <string>
 #include <map>
 #include <ostream>
+#include <iosfwd>
 
 class TF1;
 class TTree;
 
 namespace pftools {
+
+class PFClusterCalibration;
+std::ostream& operator<<(std::ostream& s, const PFClusterCalibration& cc);
 
 /*
  * \class PFClusterCalibration
