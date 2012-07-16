@@ -1034,22 +1034,27 @@ void create_plots(std::string const colorScheme="Greg", int const year=2012,
     h_delLumCum_2011->Scale(scaleFactor);
     h_delLumCum_2012->Scale(scaleFactor);
 
-    h_delLumCum_2012->SetTitle(titleCumulativeYears.c_str());
-    h_delLumCum_2012->GetXaxis()->SetTimeDisplay(1);
-    h_delLumCum_2012->GetXaxis()->SetTimeFormat("%d/%m");
-    h_delLumCum_2012->GetXaxis()->SetTimeOffset(0, "gmt");
-    h_delLumCum_2012->GetXaxis()->SetLabelOffset(0.01);
-    h_delLumCum_2012->GetYaxis()->SetTitleOffset(1.2);
-    h_delLumCum_2012->GetXaxis()->SetTitleFont(62);
-    h_delLumCum_2012->GetYaxis()->SetTitleFont(62);
-    h_delLumCum_2012->GetXaxis()->SetNdivisions(705);
+    h_delLumCum_2011->SetTitle(titleCumulativeYears.c_str());
+    h_delLumCum_2011->GetXaxis()->SetTimeDisplay(1);
+    h_delLumCum_2011->GetXaxis()->SetTimeFormat("%d/%m");
+    h_delLumCum_2011->GetXaxis()->SetTimeOffset(0, "gmt");
+    h_delLumCum_2011->GetXaxis()->SetLabelOffset(0.01);
+    h_delLumCum_2011->GetYaxis()->SetTitleOffset(1.2);
+    h_delLumCum_2011->GetXaxis()->SetTitleFont(62);
+    h_delLumCum_2011->GetYaxis()->SetTitleFont(62);
+    h_delLumCum_2011->GetXaxis()->SetNdivisions(705);
 
     // And plot.
     TCanvas* canvas = createCanvas();
     // NOTE: The order here is a bit interesting but it sets the scale...
-    h_delLumCum_2012->Draw("][");
-    h_delLumCum_2011->Draw("SAME ][");
+    h_delLumCum_2011->Draw("][");
     h_delLumCum_2010->Draw("SAME ][");
+    h_delLumCum_2012->Draw("SAME ][");
+
+    min_y = 0.;
+    airSpace = .2;
+    max_y = (1. + airSpace) * h_delLumCum_2012->GetMaximum();
+    h_delLumCum_2011->GetYaxis()->SetRangeUser(min_y, max_y);
 
     legend = createLegend();
     legend->AddEntry(h_delLumCum_2010, "2010, #sqrt{s} = 7 TeV");
