@@ -423,7 +423,9 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMuOniaParked_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMuOniaParked_selector.l1tResults = cms.InputTag('')
 streamA_datasetMuOniaParked_selector.throw      = cms.bool(False)
-streamA_datasetMuOniaParked_selector.triggerConditions = cms.vstring('HLT_Dimuon10_Jpsi_v6', 
+streamA_datasetMuOniaParked_selector.triggerConditions = cms.vstring('HLT_BTagMu_Jet20_Mu4_v1', 
+    'HLT_BTagMu_Jet60_Mu4_v1', 
+    'HLT_Dimuon10_Jpsi_v6', 
     'HLT_Dimuon5_PsiPrime_v6', 
     'HLT_Dimuon5_Upsilon_v6', 
     'HLT_Dimuon7_PsiPrime_v3', 
