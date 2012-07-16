@@ -69,7 +69,7 @@ void AlignmentMonitorGeneric::event(const edm::Event &iEvent,
 				    const edm::EventSetup&,
 				    const ConstTrajTrackPairCollection& tracks)
 {
-  static TrajectoryStateCombiner tsoscomb;
+  TrajectoryStateCombiner tsoscomb;
 
   for (unsigned int t = 0; t < tracks.size(); ++t)
   {
