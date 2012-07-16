@@ -122,7 +122,7 @@ void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
   // old TDC (767)
   if (tdc->n_max_hits!=192) {
     const CombinedTDCQDCDataFormat* qdctdc=(const CombinedTDCQDCDataFormat*)raw.data();
-    hitbase=(unsigned int*)(qdctdc);
+    hitbase=(const unsigned int*)(qdctdc);
     hitbase+=6; // header
     hitbase+=qdctdc->n_qdc_hits/2; // two unsigned short per unsigned long
     totalhits=qdctdc->n_tdc_hits&0xFFFF; // mask off high bits
@@ -148,7 +148,7 @@ void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
   for (int i=0;i<32;i++) v775[i]=-1;
   if (tdc->n_max_hits!=192) {
     const CombinedTDCQDCDataFormat* qdctdc=(const CombinedTDCQDCDataFormat*)raw.data();
-    hitbase=(unsigned int*)(qdctdc);
+    hitbase=(const unsigned int*)(qdctdc);
     hitbase+=6; // header
     hitbase+=qdctdc->n_qdc_hits/2; // two unsigned short per unsigned long
     hitbase+=(qdctdc->n_tdc_hits&0xFFFF); // same length
