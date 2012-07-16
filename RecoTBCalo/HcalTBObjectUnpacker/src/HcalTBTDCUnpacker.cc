@@ -27,12 +27,11 @@ static const int lcTOF2J           = 132;
 
 namespace hcaltb {
 
-  static FILE* dumpObs=0;
-
 HcalTBTDCUnpacker::HcalTBTDCUnpacker(bool include_unmatched_hits) :
-  includeUnmatchedHits_(include_unmatched_hits) {
+  includeUnmatchedHits_(include_unmatched_hits),
+  dumpObs_(0) {
 //  setupWC(); reads it from configuration file
-//  dumpObs=fopen("dump_obs.csv","w");
+//  dumpObs_=fopen("dump_obs.csv","w");
 }
 void HcalTBTDCUnpacker::setCalib(const std::vector<std::vector<std::string> >& calibLines_) {
         for(int i=0;i<161;i++)
@@ -302,9 +301,9 @@ void HcalTBTDCUnpacker::reconstructWC(const std::vector<Hit>& hits, HcalTBEventP
       }
     }
     
-    if (n1!=0 && n2!=0 && dumpObs!=0) {
-      fprintf(dumpObs,"%d,%f,%f,%f,%f\n",plane,hits1[0],hits2[0],hitsA[0],hitsA[1]);
-      fflush(dumpObs);
+    if (n1!=0 && n2!=0 && dumpObs_!=0) {
+      fprintf(dumpObs_,"%d,%f,%f,%f,%f\n",plane,hits1[0],hits2[0],hitsA[0],hitsA[1]);
+      fflush(dumpObs_);
     }
 
     // anode-matched hits
