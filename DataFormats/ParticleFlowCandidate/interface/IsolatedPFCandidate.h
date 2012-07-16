@@ -25,7 +25,7 @@ namespace reco {
 			 double isolation );
 
     /// destructor
-    virtual ~IsolatedPFCandidate() {}
+    virtual ~IsolatedPFCandidate();
 
     /// return a clone
     virtual IsolatedPFCandidate * clone() const;

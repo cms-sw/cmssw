@@ -19,7 +19,7 @@ IsolatedPFCandidate * IsolatedPFCandidate::clone() const {
 }
 
 
-IsolatedPFCandidate::~IsolatedPFCandidate();
+IsolatedPFCandidate::~IsolatedPFCandidate() {}
 
 
 std::ostream& reco::operator<<( std::ostream& out, 
