@@ -3,9 +3,9 @@
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
-# $Author: dpiparo $
-# $Date: 2012/07/03 05:38:00 $
-# $Revision: 1.3 $
+# $Author: agimbuta $
+# $Date: 2012/07/12 15:30:54 $
+# $Revision: 1.4 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -30,13 +30,13 @@ if os.environ.has_key("RELMON_SA"):
   from dqm_interfaces import DirWalkerFile,string2blacklist,DirWalkerFile_thread_wrapper
   from dirstructure import Directory
   from directories2html import directory2html,make_summary_table
-  from utils import ask_ok,unpickler
+  from utils import ask_ok, unpickler, make_files_pairs
 else:
   import Utilities.RelMon.definitions as definitions
   from Utilities.RelMon.dqm_interfaces import DirWalkerFile,string2blacklist,DirWalkerFile_thread_wrapper
   from Utilities.RelMon.dirstructure import Directory
   from Utilities.RelMon.directories2html import directory2html,make_summary_table
-  from Utilities.RelMon.utils import ask_ok,unpickler
+  from Utilities.RelMon.utils import ask_ok, unpickler, make_files_pairs
 sys.argv=argv
 
 #-------------------------------------------------------------------------------
@@ -192,48 +192,6 @@ def get_roofiles_in_dir(directory):
   files_list_path=map(lambda s: os.path.join(directory,s), files_list)
   
   return files_list_path
-  
-#-------------------------------------------------------------------------------  
-  
-def make_files_pairs(files_list):
-  new_list=[]
-  pairs={}
-  files_list.sort(key=name2version) 
-  ## check if we deal with data or MC
-  pair_criterium=0
-  run_s = name2run(os.path.basename(files_list[0]))[1:]
-  if int( run_s ) >100000 :
-    #pair_criterium=name2run
-    pair_criterium=name2runskim
-  else:
-    pair_criterium=name2sample
-  
-  #prev_version=name2version(files_list[0])
-  for filename in files_list:
-    #if name2version(filename) !=prev_version:
-      #break
-    short_filename=os.path.basename(filename)
-    feature = pair_criterium(short_filename)
-    pair_found=False
-    for sister_filename in files_list:
-      short_sister_filename=os.path.basename(sister_filename)
-      if short_sister_filename!=short_filename:
-         pass
-#        print feature
-#        print pair_criterium(short_sister_filename)
-#        print short_sister_filename,short_filename
-      if feature==pair_criterium(short_sister_filename) and short_sister_filename!=short_filename:
-        print "Found pair!"
-        print short_filename
-        print short_sister_filename
-        print "----"
-        pair_found=True
-        #if not pairs.has_key(filename):
-        if not filename in new_list:
-          pairs[filename]=sister_filename
-          new_list.append(filename)
-          new_list.append(sister_filename)
-  return new_list
   
 #-------------------------------------------------------------------------------  
 
