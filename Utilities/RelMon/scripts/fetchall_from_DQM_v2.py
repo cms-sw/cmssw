@@ -117,7 +117,7 @@ relvaldir = "RelVal"
 if options.is_from_data:
     relvaldir = "RelValData"
 
-release = re.findall('(CMSSW_\d_\d_)\d(?:_[\w\d]*)?', options.release)
+release = re.findall('(CMSSW_\d*_\d*_)\d*(?:_[\w\d]*)?', options.release)
 if not release:
     parser.error('No such CMSSW release found. Please check the ``--release`` commandline option value.')
 releasedir = release[0] + "x"
