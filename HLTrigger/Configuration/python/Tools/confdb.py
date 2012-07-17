@@ -477,7 +477,7 @@ if 'GlobalTag' in %%(dict)s:
     elif self.config.globaltag.startswith('auto:'):
       self.config.menuGlobalTagAuto = self.config.globaltag[5:]
       text += "    from Configuration.AlCa.autoCond import autoCond\n"
-      text += "    %%(process)sGlobalTag.globaltag = autoCond['%(menuGlobalTagAuto)s'].split(',')[0]\n"
+      text += "    %%(process)sGlobalTag.globaltag = autoCond['%(menuGlobalTagAuto)s_%(type)s'][0].split(',')[0]\n"
     else:
       text += "    %%(process)sGlobalTag.globaltag = '%(globaltag)s'\n"
 

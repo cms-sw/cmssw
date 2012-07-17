@@ -8492,7 +8492,7 @@ if 'GlobalTag' in process.__dict__:
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
     from Configuration.AlCa.autoCond import autoCond
-    process.GlobalTag.globaltag = autoCond['starthi'].split(',')[0]
+    process.GlobalTag.globaltag = autoCond['starthi_HIon'][0].split(',')[0]
 
 # override the L1 menu
 if 'GlobalTag' in process.__dict__:
