@@ -171,18 +171,20 @@ class ResultsDB:
 	sqlstr +="VALUES(:ids, :rid, :ts, :labl, "
 	sqlstr +=":trel, :tarc, :rrel, :rarc)"
 	curs.prepare(sqlstr)
+        print 'lab=',match[0]
 	curs.execute(sqlstr, ids = id , rid = runID, ts=timeStamp, labl=match[0], trel = match[1], tarc = match[2], rrel = match[3], rarc = match[4])
 	self.conn.commit()
 	for i in range(5, len(match)):
-                if resTags[i-5] != "%NONE":
-                        self.writeResults(id, match[0], resTags[i-5], match[i])
+            if resTags[i-5] != "%NONE":
+                self.writeResults(id, match[0], resTags[i-5], match[i])
 
     def writeResults(self, id, label, name, status):
 	curs = self.conn.cursor()
 	sqlstr = "INSERT INTO TEST_RESULTS(RID, ID, LABEL, NAME, STATUS)"
 	sqlstr +="VALUES(:rid, :ids, :labl, :nam, :stat)"
 	curs.prepare(sqlstr)
-	curs.execute(sqlstr, rid = self.getAutoIncResults(), ids = id, labl = label, nam = name, stat = status)
+        rrid = self.getAutoIncResults()
+	curs.execute(sqlstr, rid= rrid, ids = id, labl = label, nam = name, stat = status)
 	self.conn.commit()
 
     def addLogStatus(self,label, runID, logStr):
