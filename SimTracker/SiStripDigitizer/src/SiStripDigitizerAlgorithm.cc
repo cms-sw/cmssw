@@ -23,7 +23,6 @@
 
 SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine& eng):
   lorentzAngleName(conf.getParameter<std::string>("LorentzAngle")),
-  theElectronPerADC(conf.getParameter<double>( peakMode ? "electronPerAdcPeak" : "electronPerAdcDec" )),
   theThreshold(conf.getParameter<double>("NoiseSigmaThreshold")),
   cmnRMStib(conf.getParameter<double>("cmnRMStib")),
   cmnRMStob(conf.getParameter<double>("cmnRMStob")),
@@ -40,6 +39,7 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   APVSaturationFromHIP(conf.getParameter<bool>("APVSaturationFromHIP")),
   theFedAlgo(conf.getParameter<int>("FedAlgorithm")),
   zeroSuppression(conf.getParameter<bool>("ZeroSuppression")),
+  theElectronPerADC(conf.getParameter<double>( peakMode ? "electronPerAdcPeak" : "electronPerAdcDec" )),
   theTOFCutForPeak(conf.getParameter<double>("TOFCutForPeak")),
   theTOFCutForDeconvolution(conf.getParameter<double>("TOFCutForDeconvolution")),
   tofCut(peakMode ? theTOFCutForPeak : theTOFCutForDeconvolution),

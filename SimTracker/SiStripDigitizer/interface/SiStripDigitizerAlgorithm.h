@@ -84,7 +84,6 @@ class SiStripDigitizerAlgorithm {
   
  private:
   const std::string lorentzAngleName;
-  const double theElectronPerADC;
   const double theThreshold;
   const double cmnRMStib;
   const double cmnRMStob;
@@ -102,6 +101,7 @@ class SiStripDigitizerAlgorithm {
   
   const int theFedAlgo;
   const bool zeroSuppression;
+  const double theElectronPerADC;
   const double theTOFCutForPeak;
   const double theTOFCutForDeconvolution;
   const double tofCut;
