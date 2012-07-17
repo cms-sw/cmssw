@@ -550,6 +550,7 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarni
                 datarunlsdict[int(runnumstr)]=[]
         myls=rline[1]
         mypath=rline[2]
+
         if myls and myls!='n/a' and mpath and mpath!='n/a':
             totOldSelectedLSDict[mypath]=0
             totOldRecordedDict[mypath]=0.
@@ -680,6 +681,7 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarni
         dumptocsv(fieldnames,sortedresult,filename)
         
 def toScreenTotEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarning=True,toFile=None):
+
     '''
     input:  {run:[lumilsnum(0),triggeredls(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]}(8),bxdata(9),beamdata](10),fillnum(11)}
     screen Run,SelectedLS,Recorded,HLTPath,L1Bit,Effective
@@ -806,6 +808,7 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarn
             hprescStr='('+','.join(['%d'%(x) for x in hprescs])+')'
             (totrecval,totrecunit)=CommonUtil.guessUnit(totrecordedinrun*scalefactor)
             effval='n/a'
+
             effvalStr='n/a'
             lprescStr='n/a'
             cleanlname=''
@@ -985,7 +988,7 @@ def toScreenLSTrg(trgdata,iresults=[],irunlsdict=None,noWarning=True,toFile=None
     else:
         filename=toFile
         fieldnames=['Run','LS','dfrac','(bitname,count,presc)']
-        dumptocsv(fieldnames,sortedresult,filename)
+        dumptocsv(fieldnames,result,filename)
 
 def toScreenLSHlt(hltdata,iresults=[],toFile=None):
     '''
