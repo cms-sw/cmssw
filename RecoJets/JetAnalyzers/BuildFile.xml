@@ -27,3 +27,4 @@
 <use   name="CalibCalorimetry/HcalAlgos"/>
 <use   name="CondFormats/HcalObjects"/>
 <use   name="RecoLocalCalo/HcalRecAlgos"/>
+<use   name="RecoJets/FFTJetAlgorithms"/>
