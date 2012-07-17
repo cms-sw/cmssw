@@ -5,8 +5,6 @@ from SimCalorimetry.EcalSimProducers.ecalNotContainmentSim_cff import *
 
 # This includes is needed for the ECAL digis
 from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff import *
-simEcalTriggerPrimitiveDigis.Famos = True
-simEcalTriggerPrimitiveDigis.Label = 'ecalRecHit'
 
 ecalRecHit = cms.EDProducer("CaloRecHitsProducer",
                             InputRecHitCollectionTypes = cms.vuint32(2, 3),
@@ -52,3 +50,6 @@ ecalPreshowerRecHit =  cms.EDProducer("CaloRecHitsProducer",
                                                        Threshold = cms.double(4.5e-05),
                                                        MixedSimHits = cms.InputTag("mix","famosSimHitsEcalHitsES"))))
 
+
+simEcalTriggerPrimitiveDigis.Famos = True
+simEcalTriggerPrimitiveDigis.Label = 'ecalRecHit'
