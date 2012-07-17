@@ -139,7 +139,7 @@ void SimpleFFTJetAnalyzer::beginJob()
     vars += ":peakEta:peakPhi:peakMagnitude:peakDriftSpeed:peakMagSpeed:peakLifetime:peakScale:peakNearestNeighborDistance:peakClusterRadius:peakClusterSeparation:hessDet:hessLaplacian";
 
     // Pile-up variables
-    vars += ":pileupPt:pileupEta:pileupPhi:pileupMass:pileup";
+    vars += ":pileupPt:pileupEta:pileupPhi:pileupMass";
 
     // FFTJet specific jet quantities
     vars += ":pt:eta:phi:mass:etSum:centroidEta:centroidPhi:etaWidth:phiWidth:etaPhiCorr:fuzziness:convergenceDistance:recoScale:recoScaleRatio:membershipFactor:code:status";
@@ -223,11 +223,10 @@ void SimpleFFTJetAnalyzer::fillJetInfo(const edm::Event& iEvent,
 
             const math::XYZTLorentzVector& pileupVec(
                 storedJet.getFFTSpecific().f_pileup());
-            ntupleData.push_back(pileupVec.Pt());
+            ntupleData.push_back(pileupVec.Pt()); // identical to jet.pileup()
             ntupleData.push_back(pileupVec.Eta());
             ntupleData.push_back(pileupVec.Phi());
             ntupleData.push_back(pileupVec.mass());
-            ntupleData.push_back(jet.pileup());
 
             ntupleData.push_back(jet.vec().Pt());
             ntupleData.push_back(jet.vec().Eta());
