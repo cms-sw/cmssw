@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: dpiparo $
-# $Date: 2012/06/12 12:57:40 $
-# $Revision: 1.2 $
+# $Date: 2012/06/12 13:20:32 $
+# $Revision: 1.3 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -13,12 +13,13 @@
 
 
 import array
-from cPickle import load
 import os
+import re
+import sys
+from cPickle import load
 from os.path import dirname,basename,join,isfile
 from threading import Thread
-from time import asctime 
-import sys
+from time import asctime
 
 theargv=sys.argv
 sys.argv=[]
@@ -451,7 +452,139 @@ def wget(url):
     ofile.write(bin_content)
     ofile.close()
 
-#-------------------------------------------------------------------------------    
+#-------------------------------------------------------------------------------
+##-----------------   Make files pairs:  RelValData utils   --------------------
 
+def get_relvaldata_id(file):
+    """Returns unique relvaldata ID for a given file."""
+    run_id = re.search('R\d{9}', file)
+    run = re.search('_RelVal_([\w\d]*)-v\d__', file)
+    if not run:
+        run = re.search('GR_R_\d*_V\d*C?_([\w\d]*)-v\d__', file)
+    if run_id and run:
+        return (run_id.group(), run.group(1))
+    return None
 
+def get_relvaldata_cmssw_version(file):
+    """Returns tuple (CMSSW release, GR_R version) for specified RelValData file."""
+    cmssw_release = re.findall('(CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?)-', file)
+    gr_r_version = re.findall('-(GR_R_\d*_V\d*\w?)(?:_RelVal)?_', file)
+    if not gr_r_version:
+        gr_r_version = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-(\w*)_RelVal_', file)
+    if cmssw_release and gr_r_version:
+        return (cmssw_release[0], gr_r_version[0])
 
+def get_relvaldata_version(file):
+    """Returns tuple (CMSSW version, run version) for specified file."""
+    cmssw_version = re.findall('^DQM_V(\d*)_', file)
+    run_version = re.findall('_RelVal_[\w\d]*-v(\d)__', file)
+    if not run_version:
+        run_version = re.findall('GR_R_\d*_V\d*C?_[\w\d]*-v(\d)__', file)
+    if cmssw_version and run_version:
+        return (int(cmssw_version[0]), int(run_version[0]))
+
+def get_relvaldata_max_version(files):
+    """Returns file with maximum version at a) beggining of the file,
+    e.g. DQM_V000M b) at the end of run, e.g. _run2012-vM. M has to be max."""
+    max_file = files[0]
+    max_v = get_relvaldata_version(files[0])
+    for file in files:
+        file_v = get_relvaldata_version(file)
+        if file_v[1] > max_v[1] or ((file_v[1] == max_v[1]) and (file_v[0] > max_v[0])):
+            max_file = file
+            max_v = file_v
+    return max_file
+
+##-------------------   Make files pairs:  RelVal utils   ---------------------
+def get_relval_version(file):
+    """Returns tuple (CMSSW version, run version) for specified file."""
+    cmssw_version = re.findall('^DQM_V(\d*)_', file)
+    run_version = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-[\w\d]*_V\d*\w?(?:_[\w\d]*)?-v(\d*)__', file)
+    if cmssw_version and run_version:
+        return (int(cmssw_version[0]), int(run_version[0]))
+
+def get_relval_max_version(files):
+    """Returns file with maximum version at a) beggining of the file,
+    e.g. DQM_V000M b) at the end of run, e.g. _run2012-vM. M has to be max."""
+    max_file = files[0]
+    max_v = get_relval_version(files[0])
+    for file in files:
+        file_v = get_relval_version(file)
+        if file_v[1] > max_v[1] or ((file_v[1] == max_v[1]) and (file_v[0] > max_v[0])):
+            max_file = file
+            max_v = file_v
+    return max_file
+
+def get_relval_cmssw_version(file):
+    cmssw_release = re.findall('(CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?)-', file)
+    gr_r_version = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-([\w\d]*)_V\d*\w?(?:_[\w\d]*)?-v', file)
+    if cmssw_release and gr_r_version:
+        return (cmssw_release[0], gr_r_version[0])
+
+def get_relval_id(file):
+    """Returns unique relval ID (dataset name) for a given file."""
+    dataset_name = re.findall('R\d{9}__([\w\d]*)__CMSSW_', file)
+    run = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-[\w\d]*_V\d*\w?(?:_([\w\d]*))?-v\d*__', file)
+    if run[0]:
+        return (dataset_name[0], run[0])
+    else:
+        return (dataset_name[0], '_V\d*\w?-v\d*__')
+
+##-------------------------  Make files pairs --------------------------
+def is_relvaldata(files):
+    is_relvaldata_re = re.compile('_RelVal_')
+    return any([is_relvaldata_re.search(filename) for filename in files])
+
+def make_files_pairs(files, verbose=True):
+    ## Select functions to use
+    if is_relvaldata(files):
+        get_cmssw_version = get_relvaldata_cmssw_version
+        get_id = get_relvaldata_id
+        get_max_version = get_relvaldata_max_version
+        # print 'Pairing Data RelVal files.'
+    else:
+        get_cmssw_version = get_relval_cmssw_version
+        get_id = get_relval_id
+        get_max_version = get_relval_max_version
+        # print 'Pairing Monte Carlo RelVal files.'
+
+    ## Divide files into groups
+    versions_files = dict()
+    for file in files:
+        version = get_cmssw_version(file)
+        if versions_files.has_key(version):
+            versions_files[version].append(file)
+        else:
+            versions_files[version] = [file]
+
+    ## Print the division into groups
+    if verbose:
+        print '\nFound versions:'
+        for version in versions_files:
+            print '%s: %d files' % (str(version),  len(versions_files[version]))
+
+    ## Select two biggest groups.
+    versions = versions_files.keys()
+    sizes = [len(value) for value in versions_files.values()]
+    v1 = versions[sizes.index(sorted(sizes)[-2])]
+    v2 = versions[sizes.index(sorted(sizes)[-1])]
+
+    ## Print two biggest groups.
+    if verbose:
+        print '\nPairing %s (%d files) and %s (%d files)' % (': '.join(v1),
+                len(versions_files[v1]), ': '.join(v2), len(versions_files[v2]))
+
+    ## Pairing two versions
+    pairs = []
+    for unique_id in set([get_id(file) for file in versions_files[v1]]):
+        dataset_re = re.compile(unique_id[0]+'_')
+        run = re.compile(unique_id[1])
+        c1_files = [file for file in versions_files[v1] if dataset_re.search(file) and run.search(file)]
+        c2_files = [file for file in versions_files[v2] if dataset_re.search(file) and run.search(file)]
+        if len(c1_files) > 0 and len(c2_files) > 0:
+            first_file = get_max_version(c1_files)
+            second_file = get_max_version(c2_files)
+            pairs.extend((first_file, second_file))
+    if verbose:
+        print "\nPaired and got %d files." % len(pairs)
+    return pairs
