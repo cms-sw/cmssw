@@ -258,7 +258,7 @@ if __name__ == '__main__':
         if not options.outputfile:
             lumiReport.toScreenLSBeam(result,iresults=iresults,dumpIntensity=False)
         else:
-            lumiReport.toScreenLSBeam(result,resultlines=iresults,dumpIntensity=options.withbeamintensity,toFile=options.outputfile)
+            lumiReport.toScreenLSBeam(result,iresults=iresults,dumpIntensity=options.withbeamintensity,toFile=options.outputfile)
     if options.action == 'runsummary':
         session.transaction().start(True)
         result=lumiCalcAPI.runsummary(session.nominalSchema(),irunlsdict)

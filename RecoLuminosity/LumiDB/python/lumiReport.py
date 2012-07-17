@@ -1132,7 +1132,7 @@ def toScreenLSBeam(beamdata,iresults=[],dumpIntensity=False,toFile=None):
         if dumpIntensity:
             fieldnames.append('(bxidx,b1,b2)')
         filename=toFile
-        dumptocsv(fieldnames,sortedresult,filename)
+        dumptocsv(fieldnames,result,filename)
 
 if __name__ == "__main__":
     toScreenHeader('lumiCalc2.py','V04-00-00','v0','pp8TeV')
