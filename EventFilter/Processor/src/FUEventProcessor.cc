@@ -694,7 +694,8 @@ bool FUEventProcessor::doEndRunInEDM() {
     if (count<0) {
       std::ostringstream ost;
       if (!forkInfoObj_->receivedStop_)
-        ost << "Timeout waiting for Master edm::EventProcessor to go stopping state "<<evtProcessor_->stateName(st) << ": input source did not receive stop signal!";
+        ost << "Timeout waiting for Master edm::EventProcessor to go stopping state "
+	    << evtProcessor_->stateName(st) << ": input source did not receive stop signal!";
       else
         ost << "Timeout waiting for Master edm::EventProcessor to go stopping state "<<evtProcessor_->stateName(st);
       LOG4CPLUS_ERROR(getApplicationLogger(),ost.str());
@@ -1257,6 +1258,10 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 	    ost << " process terminated with signal " << WTERMSIG(sl);
 	  }
 	  else ost << " process stopped ";
+	  //report unexpected slave exit in stop
+	  //if (stopping && (WEXITSTATUS(sl)!=0 || WIFSIGNALED(sl)!=0)) {
+	  //  LOG4CPLUS_WARN(getApplicationLogger(),ost.str() << ", slave pid:"<<getpid());
+	  //}
 	  subs_[i].countdown()=slaveRestartDelaySecs_.value_;
 	  subs_[i].setReasonForFailed(ost.str());
 	  spMStates_[i] = evtProcessor_.notstarted_state_code();
@@ -1675,11 +1680,19 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
       idleProcStats_=allProcStats_=0;
 
       utils::procCpuStat(idleProcStats_,allProcStats_);
+      timeval oldtime=lastProcReport_;
+      gettimeofday(&lastProcReport_,0);
+      int deltaTms=1000*(lastProcReport_.tv_sec-oldtime.tv_sec)
+	          + (lastProcReport_.tv_usec-oldtime.tv_usec)/1000;
+
       if (allPSTmp!=0 && idleTmp!=0 && allProcStats_!=allPSTmp) {
 	cpustat_->setCPUStat(1000 - ((idleProcStats_-idleTmp)*1000)/(allProcStats_-allPSTmp));
-	//std::cout << " got proc/stat result of " << 1000-((idleProcStats_-idleTmp)*1000)/(allProcStats_-allPSTmp) << " of 1000 " << std::endl;
+	cpustat_->setElapsed(deltaTms);
       }
-      else cpustat_->setCPUStat(0);
+      else {
+	cpustat_->setCPUStat(0);
+        cpustat_->setElapsed(0);
+      }
 
       TriggerReportStatic *trsp = evtProcessor_.getPackedTriggerReportAsStruct();
       cpustat_ ->setNproc(trsp->eventSummary.totalEvents);
@@ -2323,32 +2336,40 @@ bool FUEventProcessor::stopClassic()
 	  reasonForFailedState_ = "EventProcessor stop timed out";
 	else
 	  reasonForFailedState_ = "EventProcessor did not receive STOP event";
-	fsm_.fireFailed(reasonForFailedState_,this);
-	localLog(reasonForFailedState_);
       }
-
-    if (failed) LOG4CPLUS_WARN(getApplicationLogger(),"STOP failed: try detaching from Shm");
-
-    //detaching from shared memory
-    if(hasShMem_) detachDqmFromShm();
-
-    if (failed) LOG4CPLUS_WARN(getApplicationLogger(),"STOP failed: detached from Shm");
   }
   catch (xcept::Exception &e) {
     failed=true;
-    reasonForFailedState_ = "stopping FAILED: " + (std::string)e.what();
+    reasonForFailedState_ = "Stopping FAILED: " + (std::string)e.what();
   }
   catch (edm::Exception &e) {
     failed=true;
-    reasonForFailedState_ = "stopping FAILED: " + (std::string)e.what();
+    reasonForFailedState_ = "Stopping FAILED: " + (std::string)e.what();
   }
   catch (...) {
     failed=true;
-    reasonForFailedState_= "STOP failed: unknown exception";
+    reasonForFailedState_= "Stopping FAILED: unknown exception";
+  }
+  try {
+    if (hasShMem_) {
+      detachDqmFromShm();
+      if (failed) 
+	LOG4CPLUS_WARN(getApplicationLogger(), 
+	    "In failed STOP - success detaching DQM from Shm. pid:" << getpid());
+    }
+  }
+  catch (cms::Exception & e) {
+    failed=true;
+    reasonForFailedState_= "Stopping FAILED: " + (std::string)e.what();
+  }
+  catch (...) {
+    failed=true;
+    reasonForFailedState_= "DQM detach failed: Unknown exception";
   }
 
   if (failed) {
-    LOG4CPLUS_WARN(getApplicationLogger(),"STOP failed: return point of the stopping call reached. pid:" << getpid());
+    LOG4CPLUS_FATAL(getApplicationLogger(),"STOP failed: "
+	<< reasonForFailedState_ << " (pid:" << getpid()<<")");
     localLog(reasonForFailedState_);
     fsm_.fireFailed(reasonForFailedState_,this);
   }
@@ -2603,7 +2624,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.150 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.151 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
