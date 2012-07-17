@@ -28,12 +28,12 @@ setenv CMSSWver1 6_0_0
 setenv CMSSWver2 6_0_0
 setenv OLDRELEASE 6_0_0
 setenv NEWRELEASE 6_0_0
-setenv OLDPRERELEASE pre6
-setenv NEWPRERELEASE pre7
+setenv OLDPRERELEASE pre7
+setenv NEWPRERELEASE pre8
 
 if ( $STARTUP == True) then
-setenv OLDGLOBALTAG START53_V6-v1
-setenv NEWGLOBALTAG START53_V6-v1
+setenv OLDGLOBALTAG PU_START53_V6-v1
+setenv NEWGLOBALTAG PU_START60_V1-v1
 else 
 setenv OLDGLOBALTAG START53_V6-v1
 setenv NEWGLOBALTAG START53_V6-v1
@@ -62,7 +62,7 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 
 #Name of sample (affects output directory name and htmldescription only) 
 
-setenv PU False
+setenv PU True
 #setenv SAMPLE SingleGammaPt10
 #setenv SAMPLE SingleGammaPt35
 ##setenv SAMPLE SingleGammaFlatPt10_100
