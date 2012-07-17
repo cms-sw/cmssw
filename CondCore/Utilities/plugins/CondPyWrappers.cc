@@ -13,7 +13,7 @@
 #include "FWCore/PluginManager/interface/standard.h"
 #include "CondCore/TagCollection/interface/TagCollectionRetriever.h"
 
-#include <boost/python.hpp>
+#include "FWCore/PythonParameterSet/interface/BoostPython.h"
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
