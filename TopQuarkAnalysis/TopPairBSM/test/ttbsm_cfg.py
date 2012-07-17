@@ -214,7 +214,7 @@ from PhysicsTools.PatAlgos.tools.pfTools import *
 postfix = "PFlow"
 usePF2PAT(process,runPF2PAT=True, jetAlgo='AK5', runOnMC=not options.useData, postfix=postfix,
 	  jetCorrections=inputJetCorrLabel, pvCollection=cms.InputTag('goodOfflinePrimaryVertices'))
-useGsfElectrons(process,postfix,dR="04")
+useGsfElectrons(process,postfix,dR="03")
 if not options.forceCheckClosestZVertex :
     process.pfPileUpPFlow.checkClosestZVertex = False
 
@@ -222,16 +222,10 @@ if not options.forceCheckClosestZVertex :
 postfixLoose = "PFlowLoose"
 usePF2PAT(process,runPF2PAT=True, jetAlgo='AK5', runOnMC=not options.useData, postfix=postfixLoose,
 	  jetCorrections=inputJetCorrLabel, pvCollection=cms.InputTag('goodOfflinePrimaryVertices'))
-useGsfElectrons(process,postfixLoose,dR="04")
+useGsfElectrons(process,postfixLoose,dR="03")
 if not options.forceCheckClosestZVertex :
     process.pfPileUpPFlowLoose.checkClosestZVertex = False
 
-
-# Turn on the delta-beta corrections
-#process.pfIsolatedElectronsPFlow.doDeltaBetaCorrection = True
-#process.pfIsolatedMuonsPFlow.doDeltaBetaCorrection = True
-#process.pfIsolatedElectronsPFlowLoose.doDeltaBetaCorrection = True
-#process.pfIsolatedMuonsPFlowLoose.doDeltaBetaCorrection = True
 
 # Set up "loose" leptons. 
 process.pfIsolatedMuonsPFlowLoose.isolationCut = cms.double(999.0) 
@@ -1474,7 +1468,7 @@ process.out.outputCommands = [
     'drop recoGenJets_selectedPatJets*_*_*',
     'keep *_*_rho_*',
     'drop *_*PFlowLoose*_*_*',
-    'keep patElectrons_selected*PFlowLoose*_*_*',
+    #'keep patElectrons_selected*PFlowLoose*_*_*',
     'keep patMuons_selected*PFlowLoose*_*_*',
     'keep *_patConversions*_*_*',
     #'keep patTaus_*PFlowLoose*_*_*',
