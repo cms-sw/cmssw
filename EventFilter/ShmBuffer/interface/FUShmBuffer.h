@@ -129,7 +129,7 @@ namespace evf {
     bool           writeErrorEventData(unsigned int runNumber,
 				       unsigned int fuProcessId,
 				       unsigned int iRawCell,
-				       bool checkValue=false);
+				       bool         checkValue);
     
     bool           writeDqmEventData(unsigned int   runNumber,
 				     unsigned int   evtAtUpdate,
@@ -215,10 +215,10 @@ namespace evf {
     unsigned int   indexForEvtPrcId(pid_t evtNumber);
 
   public:
-    bool           setEvtState(unsigned int index,evt::State_t state);
+    bool           setEvtState(unsigned int index,evt::State_t state, bool lockShm=true);
     bool           setDqmState(unsigned int index,dqm::State_t state);
-    bool           setEvtDiscard(unsigned int index,unsigned int discard, bool checkValue=false);
-    int            incEvtDiscard(unsigned int index);
+    bool           setEvtDiscard(unsigned int index,unsigned int discard, bool checkValue=false, bool lockShm=true);
+    int            incEvtDiscard(unsigned int index, bool lockShm=true);
   private:
     bool           setEvtNumber(unsigned int index,unsigned int evtNumber);
     bool           setEvtTimeStamp(unsigned int index,time_t timeStamp);
