@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/GRun/V177 (CMSSW_5_2_6)
+# /dev/CMSSW_5_2_1/GRun/V178 (CMSSW_5_2_6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V177')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V178')
 )
 
 process.streams = cms.PSet( 
@@ -2412,7 +2412,7 @@ process.hltESPKullbackLeiblerDistance5D = cms.ESProducer( "DistanceBetweenCompon
 process.hltESPL1FastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
   appendToDataLabel = cms.string( "" ),
   srcRho = cms.InputTag( 'hltKT6CaloJets','rho' ),
-  algorithm = cms.string( "AK5CaloHLT" ),
+  algorithm = cms.string( "AK5Calo" ),
   level = cms.string( "L1FastJet" )
 )
 process.hltESPL1PFFastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
@@ -2439,12 +2439,12 @@ process.hltESPL2PFRelativeCorrectionESProducer = cms.ESProducer( "LXXXCorrection
 )
 process.hltESPL2RelativeCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
   appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK5CaloHLT" ),
+  algorithm = cms.string( "AK5Calo" ),
   level = cms.string( "L2Relative" )
 )
 process.hltESPL3AbsoluteCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
   appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK5CaloHLT" ),
+  algorithm = cms.string( "AK5Calo" ),
   level = cms.string( "L3Absolute" )
 )
 process.hltESPL3MuKFTrajectoryFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
@@ -42450,14 +42450,6 @@ if 'MessageLogger' in process.__dict__:
 
 # load 5.2.x JECs
 if 'GlobalTag' in process.__dict__:
-    process.GlobalTag.toGet.append(
-        cms.PSet(
-            record  = cms.string( 'JetCorrectionsRecord' ),
-            tag     = cms.string( 'JetCorrectorParametersCollection_AK5Calo_2012_V8_hlt_mc' ),
-            label   = cms.untracked.string( 'AK5CaloHLT' ),
-            connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS' )
-        )
-    )
     process.GlobalTag.toGet.append(
         cms.PSet(
             record  = cms.string( 'JetCorrectionsRecord' ),

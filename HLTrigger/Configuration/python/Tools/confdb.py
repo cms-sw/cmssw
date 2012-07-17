@@ -299,11 +299,11 @@ if 'hltHfreco' in %(dict)s:
       # load 5.2.x JECs, until they are in the GlobalTag
       self.loadAdditionalConditions('load 5.2.x JECs',
         {
-          'record'  : 'JetCorrectionsRecord',
-          'tag'     : 'JetCorrectorParametersCollection_AK5Calo_2012_V8_hlt_mc',
-          'label'   : 'AK5CaloHLT',
-          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
-        }, {
+#          'record'  : 'JetCorrectionsRecord',
+#          'tag'     : 'JetCorrectorParametersCollection_AK5Calo_2012_V8_hlt_mc',
+#          'label'   : 'AK5CaloHLT',
+#          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
+#        }, {
           'record'  : 'JetCorrectionsRecord',
           'tag'     : 'JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc',
           'label'   : 'AK5PFHLT',
