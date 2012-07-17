@@ -145,7 +145,7 @@ void SimpleFFTJetAnalyzer::beginJob()
     vars += ":pt:eta:phi:mass:etSum:centroidEta:centroidPhi:etaWidth:phiWidth:etaPhiCorr:fuzziness:convergenceDistance:recoScale:recoScaleRatio:membershipFactor:code:status";
 
     // Closest jet in delta R
-    vars += ":closestJetIndex:closestJetDR:closestJetPt";
+    vars += ":closestJetIndex:closestJetDR:closestJetDPhi:closestJetPt";
 
     // Generic jet info
     vars += ":area:nConstituents";
@@ -246,9 +246,10 @@ void SimpleFFTJetAnalyzer::fillJetInfo(const edm::Event& iEvent,
             ntupleData.push_back(jet.code());
             ntupleData.push_back(jet.status());
 
-            int closestJetIndex = -1;
-            double closestJetDR = -1.0;
-            double closestJetPt = -10.0;
+            int closestJetIndex   = -1;
+            double closestJetDR   = -1.0;
+            double closestJetPt   = -10.0;
+            double closestJetDphi = 4.0;
             if (nJets > 1U)
             {
                 closestJetDR = 1.0e30;
@@ -262,11 +263,14 @@ void SimpleFFTJetAnalyzer::fillJetInfo(const edm::Event& iEvent,
                             closestJetDR = dr;
                             closestJetIndex = k;
                             closestJetPt = otherJet.f_vec().Pt();
+                            closestJetDphi = reco::deltaPhi(jet.vec().Phi(),
+                                                            otherJet.f_vec().Phi());
                         }
                     }
             }
             ntupleData.push_back(closestJetIndex);
             ntupleData.push_back(closestJetDR);
+            ntupleData.push_back(closestJetDphi);
             ntupleData.push_back(closestJetPt);
 
             ntupleData.push_back(storedJet.jetArea());
