@@ -1041,7 +1041,7 @@ def toScreenLSHlt(hltdata,iresults=[],toFile=None):
     else:
         fieldnames=['Run','LS','(hltpath,presc,l1pass,hltaccept)']
         filename=toFile
-        dumptocsv(fieldnames,sortedresult,filename)
+        dumptocsv(fieldnames,result,filename)
     
 def toScreenConfHlt(hltconfdata,iresults=[],toFile=None):
     '''
