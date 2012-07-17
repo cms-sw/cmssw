@@ -36,6 +36,7 @@
 #include "DataFormats/JetReco/interface/FFTPFJetCollection.h"
 #include "DataFormats/JetReco/interface/FFTCaloJetCollection.h"
 #include "DataFormats/JetReco/interface/FFTGenJetCollection.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "RecoJets/FFTJetAlgorithms/interface/jetConverters.h"
 
@@ -143,6 +144,9 @@ void SimpleFFTJetAnalyzer::beginJob()
     // FFTJet specific jet quantities
     vars += ":pt:eta:phi:mass:etSum:centroidEta:centroidPhi:etaWidth:phiWidth:etaPhiCorr:fuzziness:convergenceDistance:recoScale:recoScaleRatio:membershipFactor:code:status";
 
+    // Closest jet in delta R
+    vars += ":closestJetIndex:closestJetDR:closestJetPt";
+
     // Generic jet info
     vars += ":area:nConstituents";
 
@@ -242,6 +246,29 @@ void SimpleFFTJetAnalyzer::fillJetInfo(const edm::Event& iEvent,
             ntupleData.push_back(jet.membershipFactor());
             ntupleData.push_back(jet.code());
             ntupleData.push_back(jet.status());
+
+            int closestJetIndex = -1;
+            double closestJetDR = -1.0;
+            double closestJetPt = -10.0;
+            if (nJets > 1U)
+            {
+                closestJetDR = 1.0e30;
+                for (unsigned k=0; k<nJets; ++k)
+                    if (k != i)
+                    {
+                        const reco::FFTJet<float>& otherJet((*jets)[k].getFFTSpecific());
+                        const double dr = reco::deltaR(jet.vec(), otherJet.f_vec());
+                        if (dr < closestJetDR)
+                        {
+                            closestJetDR = dr;
+                            closestJetIndex = k;
+                            closestJetPt = otherJet.f_vec().Pt();
+                        }
+                    }
+            }
+            ntupleData.push_back(closestJetIndex);
+            ntupleData.push_back(closestJetDR);
+            ntupleData.push_back(closestJetPt);
 
             ntupleData.push_back(storedJet.jetArea());
             ntupleData.push_back(storedJet.nConstituents());
