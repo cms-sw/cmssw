@@ -219,7 +219,7 @@ void SimpleFFTJetAnalyzer::fillJetInfo(const edm::Event& iEvent,
             ntupleData.push_back(peak.clusterRadius());
             ntupleData.push_back(peak.clusterSeparation());
             ntupleData.push_back(peak.hessianDeterminant());
-            ntupleData.push_back(peak.laplacian());
+            ntupleData.push_back(-peak.laplacian());
 
             const math::XYZTLorentzVector& pileupVec(
                 storedJet.getFFTSpecific().f_pileup());
