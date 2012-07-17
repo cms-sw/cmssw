@@ -25,14 +25,14 @@ setenv CMSSWver1 6_0_0
 setenv CMSSWver2 6_0_0
 setenv OLDRELEASE 6_0_0
 setenv NEWRELEASE 6_0_0
-setenv OLDPRERELEASE pre5
-setenv NEWPRERELEASE pre6
+setenv OLDPRERELEASE pre7
+setenv NEWPRERELEASE pre8
 
 
 
 if ( $STARTUP == True) then
-setenv OLDGLOBALTAG START53_V4-v1
-setenv NEWGLOBALTAG START53_V6-v1
+setenv OLDGLOBALTAG PU_START53_V6-v1
+setenv NEWGLOBALTAG PU_START60_V1-v1
 else 
 setenv OLDGLOBALTAG START50_V8-v3
 setenv NEWGLOBALTAG START50_V8-v3
@@ -62,12 +62,12 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 
 #Name of sample (affects output directory name and htmldescription only)
 
-setenv PU False
+setenv PU True
 #setenv SAMPLE SingleGammaPt10
 #setenv SAMPLE SingleGammaPt35
-setenv SAMPLE QCD_Pt_80_120
+#setenv SAMPLE QCD_Pt_80_120
 #setenv SAMPLE QCD_Pt_20_30
-#setenv SAMPLE H130GGgluonfusion
+setenv SAMPLE H130GGgluonfusion
 
 if ( $RUNTYPE == Central ) then
 setenv HISTOPATHNAME_Efficiencies DQMData/Run\ 1/EgammaV/Run\ summary/ConversionValidator/EfficienciesAndFakeRate
