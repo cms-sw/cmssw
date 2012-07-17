@@ -32,18 +32,19 @@ class TrackCountingComputer : public JetTagComputer
     
     uses("ipTagInfos");
   
-    useVariableJTA_    = parameters.getParameter<bool>("useVariableJTA");
-    varJTApars = {
-      parameters.getParameter<double>("a_dR"),
-      parameters.getParameter<double>("b_dR"),
-      parameters.getParameter<double>("a_pT"),
-      parameters.getParameter<double>("b_pT"),
-      parameters.getParameter<double>("min_pT"),  
-      parameters.getParameter<double>("max_pT"),
-      parameters.getParameter<double>("min_pT_dRcut"),  
-      parameters.getParameter<double>("max_pT_dRcut"),
-      parameters.getParameter<double>("max_pT_trackPTcut") };
-  
+    useVariableJTA_    = parameters.existsAs<bool>("useVariableJTA") ?  parameters.getParameter<bool>("useVariableJTA") : false ;
+    if (useVariableJTA_){ 
+      varJTApars = {
+	parameters.getParameter<double>("a_dR"),
+	parameters.getParameter<double>("b_dR"),
+	parameters.getParameter<double>("a_pT"),
+	parameters.getParameter<double>("b_pT"),
+	parameters.getParameter<double>("min_pT"),  
+	parameters.getParameter<double>("max_pT"),
+	parameters.getParameter<double>("min_pT_dRcut"),  
+	parameters.getParameter<double>("max_pT_dRcut"),
+	parameters.getParameter<double>("max_pT_trackPTcut") };
+    }
   }
   
   

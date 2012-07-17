@@ -29,7 +29,7 @@ TrackSelector::TrackSelector(const edm::ParameterSet &params) :
 	sip3dValMax(params.getParameter<double>("sip3dValMax")),
 	sip3dSigMin(params.getParameter<double>("sip3dSigMin")),
 	sip3dSigMax(params.getParameter<double>("sip3dSigMax")),
-	useVariableJTA_(params.getParameter<bool>("useVariableJTA"))
+	useVariableJTA_(params.existsAs<bool>("useVariableJTA") ?  params.getParameter<bool>("useVariableJTA") : false)
 {
 	std::string qualityClass =
 			params.getParameter<std::string>("qualityClass");
@@ -41,16 +41,18 @@ TrackSelector::TrackSelector(const edm::ParameterSet &params) :
 		selectQuality = true;
 		quality = reco::TrackBase::qualityByName(qualityClass);
 	}
-	varJTApars = {
-	  params.getParameter<double>("a_dR"),
-	  params.getParameter<double>("b_dR"),
-	  params.getParameter<double>("a_pT"),
-	  params.getParameter<double>("b_pT"),
-	  params.getParameter<double>("min_pT"),  
-	  params.getParameter<double>("max_pT"),
-	  params.getParameter<double>("min_pT_dRcut"),  
-	  params.getParameter<double>("max_pT_dRcut"),
-	  params.getParameter<double>("max_pT_trackPTcut") };
+	if (useVariableJTA_){
+	  varJTApars = {
+	    params.getParameter<double>("a_dR"),
+	    params.getParameter<double>("b_dR"),
+	    params.getParameter<double>("a_pT"),
+	    params.getParameter<double>("b_pT"),
+	    params.getParameter<double>("min_pT"),  
+	    params.getParameter<double>("max_pT"),
+	    params.getParameter<double>("min_pT_dRcut"),  
+	    params.getParameter<double>("max_pT_dRcut"),
+	    params.getParameter<double>("max_pT_trackPTcut") };
+	}
 }
 
 bool
