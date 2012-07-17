@@ -532,13 +532,13 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarni
     '''
     result=[]#[run,ls,hltpath,l1bitname,hltpresc,l1presc,efflumi]
     totalrow=[]
-    totSelectedLS=0
-    totRecorded=0.0
-    totEffective=0
+    totSelectedLSDict={}
+    totRecordedDict={}
+    totEffectiveDict={}
 
-    totOldSelectedLS=0
-    totOldRecorded=0.0
-    totOldEffective=0.0
+    totOldSelectedLSDict={}
+    totOldRecordedDict={}
+    totOldEffectiveDict={}
 
     maxlslumi = 0.0
     datarunlsdict={}#{run:[ls,...]}from data. construct it only if there is irunlsdict to compare with
@@ -549,27 +549,32 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarni
             if rline[1] is not 'n/a':
                 datarunlsdict[int(runnumstr)]=[]
         myls=rline[1]
+        mypath=rline[2]
+        if myls and myls!='n/a' and mpath and mpath!='n/a':
+            totOldSelectedLSDict[mypath]=0
+            totOldRecordedDict[mypath]=0.
+            totOldEffectiveDict[mypath]=0.
         if myls!='n/a':
             [luls,cmls]=myls.split(':')
             if cmls!='0':
-                totOldSelectedLS+=1
+                if totOldSelectedLSDict.has_key(mypath):
+                    totOldSelectedLSDict[mypath]+=1
                 if irunlsdict and not noWarning:
                     datarunlsdict[int(runnumstr)].append(int(myls))         
         myrecorded=0.
         if rline[6]!='n/a':
             myrecorded=float(rline[6])
             if myrecorded>maxlslumi:maxlslumi=myrecorded
-            totOldRecorded+=myrecorded
+            if totOldRecordedDict.has_key(mypath):
+                totOldRecordedDict[mypath]+=myrecorded
             rline[6]=myrecorded
         myeff={}
         if rline[7]!='n/a':
             myeff=float(rline[7])
-            totOldEffective+=myeff
+            if totOldEffectiveDict.has_key(mypath):
+                totOldEffectiveDict[mypath]+=myeff
             rline[7]=myeff
-        result.append(rline)
-        
-    totrecordedlumi=0.0
-    totefflumi=0.0
+        result.append(rline)        
 
     for run in lumidata.keys():#loop over runs
         lsdata=lumidata[run]
@@ -590,13 +595,21 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarni
             recordedlumi=0.
             if thisls[6]:
                 recordedlumi=thisls[6]
-            totRecorded+=recordedlumi
             if recordedlumi>maxlslumi:maxlslumi=recordedlumi
             if not efflumiDict:
                 result.append([str(run)+':'+str(fillnum),str(lumilsnum)+':'+str(cmslsnum),'n/a','n/a','n/a','n/a',recordedlumi,'n/a'])
                 continue
-            totSelectedLS+=1
+
             for hltpathname in sorted(efflumiDict):
+                if hltpathname and hltpathname !='n/a' :
+                    if not totRecordedDict.has_key(hltpathname):
+                        totRecordedDict[hltpathname]=0. 
+                    if not totSelectedLSDict.has_key(hltpathname):
+                        totSelectedLSDict[hltpathname]=0
+                    if not totEffectiveDict.has_key(hltpathname):
+                        totEffectiveDict[hltpathname]=0.
+                    totSelectedLSDict[hltpathname]+=1
+                    totRecordedDict[hltpathname]+=recordedlumi
                 pathdata=efflumiDict[hltpathname]
                 l1name=pathdata[0]
                 cleanl1name='n/a'
@@ -612,7 +625,8 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarni
                 if pathdata[3]:
                     lumival=pathdata[3]
                 result.append([str(run)+':'+str(fillnum),str(lumilsnum)+':'+str(cmslsnum),hltpathname,cleanl1name,hltpresc,l1presc,recordedlumi,lumival])
-                totEffective+=lumival
+                if hltpathname and hltpathname !='n/a' :
+                    totEffectiveDict[hltpathname]+=lumival
                 if irunlsdict and not noWarning:
                     datarunlsdict[run].append(int(cmslsnum))
     sortedresult=sorted(result,key=lambda x : int(str(x[0]).split(':')[0]))
@@ -627,8 +641,6 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarni
                         sys.stdout.write('[WARNING] selected run/ls '+str(run)+' '+str(ss)+' not in lumiDB or has no qualified data\n')
                         
     if not toFile:
-        (totrecordedlumi,recordedlumiunit)=CommonUtil.guessUnit((totRecorded+totOldRecorded)*scalefactor)
-        (totefflumi,efflumiunit)=CommonUtil.guessUnit((totEffective+totOldEffective)*scalefactor)
         (lsunitstring,unitdenomitor)=CommonUtil.lumiUnitForPrint(maxlslumi*scalefactor)
         labels = [('Run:Fill','LS','HLTpath','L1bit','HLTpresc','L1presc','Recorded('+lsunitstring+')','Effective('+lsunitstring+')')]
         perlsresult=[]
@@ -644,8 +656,20 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarni
         print tablePrinter.indent (labels+perlsresult, hasHeader = True, separateRows = False,
                                    prefix = '| ', postfix = ' |', justify = 'right',
                                    delim = ' | ', wrapfunc = lambda x: wrap_onspace_strict(x,25) )
-        totalrow.append([str(totSelectedLS+totOldSelectedLS),'%.3f'%(totrecordedlumi),'%.3f'%(totefflumi)])
-        lastrowlabels = [ ('Selected LS','Recorded('+recordedlumiunit+')','Effective('+efflumiunit+')')]
+        for mpath in sorted(totRecordedDict):
+            totSelectedLS=totSelectedLSDict[mpath]
+            if totOldSelectedLSDict.has_key(mpath):
+                totSelectedLS+=totOldSelectedLS[mpath]
+            totRecorded=totRecordedDict[mpath]
+            if totOldRecordedDict.has_key(mpath):
+                totRecorded+=totOldRecorded[mpath]
+            totRecorded=float(totRecorded*scalefactor)/float(unitdenomitor)
+            totEffective=totEffectiveDict[mpath]
+            if totOldEffectiveDict.has_key(mpath):
+                totEffective+=totOldEffective[mpath]
+            totEffective=float(totEffective*scalefactor)/float(unitdenomitor)
+            totalrow.append([str(totSelectedLS),mpath,'%.3f'%(totRecorded),'%.3f'%(totEffective)])
+        lastrowlabels = [ ('Selected LS','HLTPath','Recorded('+lsunitstring+')','Effective('+lsunitstring+')')]
         print ' ==  =  Total : '
         print tablePrinter.indent (lastrowlabels+totalrow, hasHeader = True, separateRows = False, prefix = '| ',
                                    postfix = ' |', justify = 'right', delim = ' | ',
