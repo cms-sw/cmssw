@@ -80,6 +80,8 @@ private:
     edm::InputTag pfCollectionLabel;
     std::string pfTitle;
 
+    double ptConversionFactor;
+
     std::vector<float> ntupleData;
 
     TNtuple* ntGen;
@@ -104,6 +106,7 @@ SimpleFFTJetAnalyzer::SimpleFFTJetAnalyzer(const edm::ParameterSet& ps)
       init_param(bool, collectPFJets),
       init_param(edm::InputTag, pfCollectionLabel),
       init_param(std::string, pfTitle),
+      init_param(double, ptConversionFactor),
       ntGen(0),
       ntCalo(0),
       ntPF(0),
@@ -136,7 +139,7 @@ void SimpleFFTJetAnalyzer::beginJob()
     vars += ":jetNumber:nJets";
 
     // Peak-related variables
-    vars += ":peakEta:peakPhi:peakMagnitude:peakDriftSpeed:peakMagSpeed:peakLifetime:peakScale:peakNearestNeighborDistance:peakClusterRadius:peakClusterSeparation:hessDet:hessLaplacian";
+    vars += ":peakEta:peakPhi:peakMagnitude:peakPt:peakDriftSpeed:peakMagSpeed:peakLifetime:peakScale:peakNearestNeighborDistance:peakClusterRadius:peakClusterSeparation:hessDet:hessLaplacian";
 
     // Pile-up variables
     vars += ":pileupPt:pileupEta:pileupPhi:pileupMass";
@@ -207,14 +210,16 @@ void SimpleFFTJetAnalyzer::fillJetInfo(const edm::Event& iEvent,
 
             ntupleData.push_back(i);
             ntupleData.push_back(nJets);
-            
+
+            const double peakScale = peak.scale();
             ntupleData.push_back(peak.eta());
             ntupleData.push_back(peak.phi());
             ntupleData.push_back(peak.magnitude());
+            ntupleData.push_back(ptConversionFactor*peakScale*peakScale*peak.magnitude());
             ntupleData.push_back(peak.driftSpeed());
             ntupleData.push_back(peak.magSpeed());
             ntupleData.push_back(peak.lifetime());
-            ntupleData.push_back(peak.scale());
+            ntupleData.push_back(peakScale);
             ntupleData.push_back(peak.nearestNeighborDistance());
             ntupleData.push_back(peak.clusterRadius());
             ntupleData.push_back(peak.clusterSeparation());
