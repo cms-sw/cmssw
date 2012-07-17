@@ -156,7 +156,9 @@ class ShapeBuilder(ModelBuilder):
                     if p == self.options.dataname:
                         if len(self.DC.obs):
                             if self.DC.obs[b] == -1: self.DC.obs[b] = norm
-                            elif abs(norm-self.DC.obs[b]) > 0.01:
+                            elif self.DC.obs[b] == 0 and norm > 0.01:
+                                if not self.options.noCheckNorm: raise RuntimeError, "Mismatch in normalizations for observed data in bin %s: text %f, shape %f" % (b,self.DC.obs[b],norm)
+                            elif self.DC.obs[b] >0 and abs(norm/self.DC.obs[b]-1) > 0.005:
                                 if not self.options.noCheckNorm: raise RuntimeError, "Mismatch in normalizations for observed data in bin %s: text %f, shape %f" % (b,self.DC.obs[b],norm)
                     else:
                         if self.DC.exp[b][p] == -1: self.DC.exp[b][p] = norm
