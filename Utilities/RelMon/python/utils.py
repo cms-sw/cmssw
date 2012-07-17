@@ -2,9 +2,9 @@
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
-# $Author: dpiparo $
-# $Date: 2012/06/12 13:20:32 $
-# $Revision: 1.3 $
+# $Author: agimbuta $
+# $Date: 2012/07/17 14:28:23 $
+# $Revision: 1.4 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -476,7 +476,7 @@ def get_relvaldata_cmssw_version(file):
 
 def get_relvaldata_version(file):
     """Returns tuple (CMSSW version, run version) for specified file."""
-    cmssw_version = re.findall('^DQM_V(\d*)_', file)
+    cmssw_version = re.findall('DQM_V(\d*)_', file)
     run_version = re.findall('_RelVal_[\w\d]*-v(\d)__', file)
     if not run_version:
         run_version = re.findall('GR_R_\d*_V\d*C?_[\w\d]*-v(\d)__', file)
@@ -498,7 +498,7 @@ def get_relvaldata_max_version(files):
 ##-------------------   Make files pairs:  RelVal utils   ---------------------
 def get_relval_version(file):
     """Returns tuple (CMSSW version, run version) for specified file."""
-    cmssw_version = re.findall('^DQM_V(\d*)_', file)
+    cmssw_version = re.findall('DQM_V(\d*)_', file)
     run_version = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-[\w\d]*_V\d*\w?(?:_[\w\d]*)?-v(\d*)__', file)
     if cmssw_version and run_version:
         return (int(cmssw_version[0]), int(run_version[0]))
@@ -566,13 +566,15 @@ def make_files_pairs(files, verbose=True):
     ## Select two biggest groups.
     versions = versions_files.keys()
     sizes = [len(value) for value in versions_files.values()]
-    v1 = versions[sizes.index(sorted(sizes)[-2])]
-    v2 = versions[sizes.index(sorted(sizes)[-1])]
+    v1 = versions[sizes.index(max(sizes))]
+    versions.remove(v1)
+    sizes.remove(max(sizes))
+    v2 = versions[sizes.index(max(sizes))]
 
     ## Print two biggest groups.
     if verbose:
-        print '\nPairing %s (%d files) and %s (%d files)' % (': '.join(v1),
-                len(versions_files[v1]), ': '.join(v2), len(versions_files[v2]))
+        print '\nPairing %s (%d files) and %s (%d files)' % (str(v1),
+                len(versions_files[v1]), str(v2), len(versions_files[v2]))
 
     ## Pairing two versions
     pairs = []
@@ -586,5 +588,5 @@ def make_files_pairs(files, verbose=True):
             second_file = get_max_version(c2_files)
             pairs.extend((first_file, second_file))
     if verbose:
-        print "\nPaired and got %d files." % len(pairs)
+        print "\nPaired and got %d files.\n" % len(pairs)
     return pairs
