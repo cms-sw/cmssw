@@ -327,7 +327,7 @@ namespace evf {
       //std::vector<std::pair<unsigned int, unsigned int>> blockingModules;
 
       lsStat(unsigned int ls, unsigned int nbSubs,unsigned int maxreps,unsigned int nmodulenames):
-	ls_(ls),updated_(false),nbSubs_(nbSubs),
+	ls_(ls),updated_(true),nbSubs_(nbSubs),
 	nSampledNonIdle_(0),nSampledNonIdle2_(0),nSampledIdle_(0),nSampledIdle2_(0),
 	nProc_(0),nProc2_(0),nCPUBusy_(0),nReports_(0),nMaxReports_(maxreps),nmodulenames_(nmodulenames)
       {
@@ -353,7 +353,7 @@ namespace evf {
 	nProc_+=nProc;
 	nProc2_+=pow(nProc,2);
 	nCPUBusy_+=ncpubusy;
-
+        std::cout << " received report ls:" <<ls_ << " subs:" << nbSubs_ << std::endl; 
 	updated_=true;
       }
 
@@ -372,26 +372,20 @@ namespace evf {
 	if (!updated_) return;
 	rateAvg=nProc_ / 23.;
 	rateErr=sqrt(fabs(nProc2_ - pow(nProc_,2)))/23.;
-	if (rateAvg==0.) {rateErr=0.;evtTimeAvg=0.;evtTimeErr=0.;fracWaitingAvg=0;}
-	else {
-	  if (nSampledNonIdle_+nSampledIdle_!=0) {
-	    float nAllInv = 1./(nSampledNonIdle_+nSampledIdle_);
+	evtTimeAvg=0.;evtTimeErr=0.;fracWaitingAvg=1.;
+	unsigned int sampled = nSampledNonIdle_+nSampledIdle_;
+	std::cout << " calcStat ("<<nbSubs_<<") r:" << rateAvg << " s:" << sampled << " ls:" << ls_ << std::endl;
+	if (rateAvg!=0. && sampled) {
+	    float nAllInv = 1./sampled;
 	    fracWaitingAvg= nSampledIdle_*nAllInv;
 	    double nSampledIdleErr2=fabs(nSampledIdle2_ - pow(nSampledIdle_,2));
 	    double nSampledNonIdleErr2=fabs(nSampledNonIdle2_ - pow(nSampledNonIdle_,2));
 	    double fracWaitingAvgErr= sqrt(
 			            (pow(nSampledIdle_,2)*nSampledNonIdleErr2
 				     + pow(nSampledNonIdle_,2)*nSampledIdleErr2))*pow(nAllInv,2);
-	    if (rateAvg) {
-	      float rateAvgInv=1./rateAvg;
-	      evtTimeAvg=nbSubs_ * nReports_ * (1.-fracWaitingAvg)*rateAvgInv;
-	      evtTimeErr = nbSubs_ * nReports_ * sqrt(pow(fracWaitingAvg*rateErr*pow(rateAvgInv,2),2) + pow(fracWaitingAvgErr*rateAvgInv,2));
-	    }
-	    else {
-              evtTimeAvg=0;
-	      evtTimeErr=0;
-	    }
-	  }
+	    float rateAvgInv=1./rateAvg;
+	    evtTimeAvg=nbSubs_ * nReports_ * (1.-fracWaitingAvg)*rateAvgInv;
+	    evtTimeErr = nbSubs_ * nReports_ * sqrt(pow(fracWaitingAvg*rateErr*pow(rateAvgInv,2),2) + pow(fracWaitingAvgErr*rateAvgInv,2));
 	}
 	if (nReports_) fracCPUBusy_=nCPUBusy_/(nReports_*1000.);
 	else fracCPUBusy_=0.;

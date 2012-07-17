@@ -688,6 +688,20 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
 
   //find index number
   int nbsIdx = -1;
+  unsigned int randls = 0;
+  unsigned int randslot = 0;
+
+  /* debugging test
+  if (lsid>3) {
+    randslot = rand();
+    if (randslot%2) nbsubs_=7;
+    else nbsubs_=8;
+    randls = rand();
+    randls%=3;
+    lsid-=randls;
+  }
+  */
+
   if (meInitialized_ && nbSubsList.find(nbsubs_)!=nbSubsList.end() && lsid) {
      nbsIdx = nbSubsList[nbsubs_];
     if (currentLs_[nbsIdx]<lsid) {//new lumisection for this ep class
@@ -720,8 +734,8 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
       }
 
       //remove old elements from queues
-      if (commonLsHistory.size()>ROLL) {delete commonLsHistory.front(); commonLsHistory.pop_front();}
-      if (lsHistory[nbsIdx].size()>ROLL) {delete lsHistory[nbsIdx].front(); lsHistory[nbsIdx].pop_front();}
+      while (commonLsHistory.size()>ROLL) {delete commonLsHistory.front(); commonLsHistory.pop_front();}
+      while (lsHistory[nbsIdx].size()>ROLL) {delete lsHistory[nbsIdx].front(); lsHistory[nbsIdx].pop_front();}
     }
     if (currentLs_[nbsIdx]>=lsid) { // update for current or previous lumis
       unsigned int qsize=lsHistory[nbsIdx].size();
@@ -1122,6 +1136,8 @@ void iDie::fillDQMStatHist(unsigned int nbsIdx, unsigned int lsid)
 {
   if (!evtProcessor_ || lsid==0) return;
   unsigned int qsize = lsHistory[nbsIdx].size();
+  //may be larger size
+  unsigned int cqsize = lsHistory[nbsIdx].size();
 
   //update lumis
   if (qsize) {
@@ -1129,7 +1145,7 @@ void iDie::fillDQMStatHist(unsigned int nbsIdx, unsigned int lsid)
       unsigned int qpos=(unsigned int) i;
       unsigned int forls = lsid - (qsize-1-i);
       lsStat * lst = (lsHistory[nbsIdx])[qpos];
-      commonLsStat * clst = commonLsHistory[qpos];
+      commonLsStat * clst = commonLsHistory[unsigned((int)qpos+ (int)cqsize - (int)qsize)];
 
       meVecRate_[nbsIdx]->setBinContent(forls,lst->getRatePerMachine());
       meVecRate_[nbsIdx]->setBinError(forls,lst->getRateErrPerMachine());
@@ -1261,6 +1277,7 @@ void iDie::fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsign
   }
   float nonIdleInv=0.;
   if (nonIdle>0.)nonIdleInv=1./nonIdle;
+  //1st pass (there are free bins left)
   for (unsigned int i=0;i<offenders.size();i++) {
     unsigned int x=offenders[i].first;
     float percentageUsed=offenders[i].second*nonIdleInv;
@@ -1269,12 +1286,15 @@ void iDie::fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsign
 	unsigned int y=occupancyNameMap[nbsIdx].size();
 	if (y<MODNAMES) {
 	  (occupancyNameMap[nbsIdx])[x]=y;
-	  me->setBinContent(xBinToFill,y+1,((int)(1000.f*percentageUsed))/1000);
+	  me->setBinContent(xBinToFill,y+1,fround(percentageUsed,0.001f));
 	  me->setBinLabel(y+1,mapmod_[x],2);
 	}
+	else break;
       }
     }
   }
+  //2nd pass (beyond available bins)
+  //if (0) //hack 
   for (unsigned int i=0;i<offenders.size();i++) {
     unsigned int x=offenders[i].first;
     float percentageUsed=offenders[i].second*nonIdleInv;
@@ -1304,14 +1324,14 @@ void iDie::fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsign
 	      //add new
 	      (occupancyNameMap[nbsIdx])[x]=toReplace-1;
 	      //fill histogram
-	      me->setBinContent(xBinToFill,toReplace,((int)(1000.f*percentageUsed))/1000);
+	      me->setBinContent(xBinToFill,toReplace,fround(percentageUsed,0.001f));
 	      me->setBinLabel(toReplace,mapmod_[x],2);
 	      //reset fields for previous lumis
 	      unsigned qsize = lsHistory[nbsIdx].size();
 	      for (size_t k=1;k<xBinToFill;k++) {
                 if (xBinToFill-k+1<qsize) {
                   float fr = (lsHistory[nbsIdx])[qsize-xBinToFill+k-1]->getOffenderFracAt(x);
-		  if (fr>0.02) me->setBinContent(k,toReplace,(int)(1000.f*fr)/1000);
+		  if (fr>0.02) me->setBinContent(k,toReplace,fround(fr,0.001f));
 		}
 		else
                   me->setBinContent(k,toReplace,0);
@@ -1322,7 +1342,7 @@ void iDie::fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsign
       }
       else {
 	unsigned int y=(occupancyNameMap[nbsIdx])[x];
-	me->setBinContent(xBinToFill,y+1,((int)(1000.f*percentageUsed))/1000);
+	me->setBinContent(xBinToFill,y+1,fround(percentageUsed,0.001f));
       }
     }
   }
