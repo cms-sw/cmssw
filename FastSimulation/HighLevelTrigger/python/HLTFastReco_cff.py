@@ -30,10 +30,12 @@ L1Emulator = cms.Sequence(L1CaloEmulator*L1MuonEmulator*gtDigis)
 
 # The calorimeter emulator requires doDigis=true)
 from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
-ecalRecHit.doDigis = True
-hbhereco.doDigis = True
-hfreco.doDigis = True
-horeco.doDigis = True
+if(CaloMode==0 or CaloMode==2):
+    ecalRecHit.doDigis = True
+if(CaloMode==0 or CaloMode==1):
+    hbhereco.doDigis = True
+    hfreco.doDigis = True
+    horeco.doDigis = True
 
 # L1 muons emulator
 #from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi import *
