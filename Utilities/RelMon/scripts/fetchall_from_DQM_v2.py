@@ -49,7 +49,13 @@ def auth_wget(url, chunk_size=1048576):
     If the content is bigger than 1MB, then save it to file.
     """
     opener = build_opener(X509CertOpen())
-    url_file = opener.open(Request(url))
+    try:
+        url_file = opener.open(Request(url))
+    except HTTPError:
+        print '\nError: the https://cmsweb.cern.ch/ site is down, please try again ' +\
+              'later. File server has returned HTTP Error 503: Service ' +\
+              'Temporarily Unavailable.\n'
+        exit()
     size = int(url_file.headers["Content-Length"])
 
     if size < 1048576:
@@ -92,6 +98,8 @@ parser.add_option('--dry', action='store_true', default=False, dest='dry_run',
                   help='Show files matched by regular expresion, but do not download them.')
 ## Parse sys.argv
 (options, args) = parser.parse_args()
+options.release = options.release.strip('"\'=')
+options.regexp = options.regexp.strip('"\'=')
 
 ## Check for option errors
 if options.is_from_data is None:
