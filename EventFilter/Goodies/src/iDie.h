@@ -323,13 +323,16 @@ namespace evf {
       double fracWaitingAvg;
       double fracCPUBusy_;
       unsigned int nmodulenames_;
+      unsigned int sumDeltaTms_;
+      float avgDeltaT_;
       std::pair<unsigned int,unsigned int> *moduleSamplingSums;
       //std::vector<std::pair<unsigned int, unsigned int>> blockingModules;
 
       lsStat(unsigned int ls, unsigned int nbSubs,unsigned int maxreps,unsigned int nmodulenames):
 	ls_(ls),updated_(true),nbSubs_(nbSubs),
 	nSampledNonIdle_(0),nSampledNonIdle2_(0),nSampledIdle_(0),nSampledIdle2_(0),
-	nProc_(0),nProc2_(0),nCPUBusy_(0),nReports_(0),nMaxReports_(maxreps),nmodulenames_(nmodulenames)
+	nProc_(0),nProc2_(0),nCPUBusy_(0),nReports_(0),nMaxReports_(maxreps),nmodulenames_(nmodulenames),
+	sumDeltaTms_(0),avgDeltaT_(23)
       {
         moduleSamplingSums = new std::pair<unsigned int,unsigned int>[nmodulenames_];
 	for (unsigned int i=0;i<nmodulenames_;i++) {
@@ -343,7 +346,7 @@ namespace evf {
       }
 
       void update(unsigned int nSampledNonIdle,unsigned int nSampledIdle, 
-	          unsigned int nProc,unsigned int ncpubusy)
+	          unsigned int nProc,unsigned int ncpubusy, unsigned int deltaTms)
       {
 	nReports_++;
 	nSampledNonIdle_+=nSampledNonIdle;
@@ -353,7 +356,7 @@ namespace evf {
 	nProc_+=nProc;
 	nProc2_+=pow(nProc,2);
 	nCPUBusy_+=ncpubusy;
-        std::cout << " received report ls:" <<ls_ << " subs:" << nbSubs_ << std::endl; 
+	sumDeltaTms_+=deltaTms;
 	updated_=true;
       }
 
@@ -370,11 +373,23 @@ namespace evf {
       void calcStat()
       {
 	if (!updated_) return;
-	rateAvg=nProc_ / 23.;
-	rateErr=sqrt(fabs(nProc2_ - pow(nProc_,2)))/23.;
+	if (nReports_) {
+	  float tinv = 0.001/nReports_;
+	  fracCPUBusy_=nCPUBusy_*tinv;
+	  avgDeltaT_=sumDeltaTms_*tinv;
+	  if (avgDeltaT_==0.) avgDeltaT_=23.;//default value
+	  rateAvg=nProc_ / avgDeltaT_;
+	  rateErr=sqrt(fabs(nProc2_ - pow(nProc_,2)))/avgDeltaT_;
+	}
+	else {
+	  fracCPUBusy_=0.;
+	  rateAvg=0.;
+	  rateErr=0.;
+	  avgDeltaT_=23.;
+	}
+
 	evtTimeAvg=0.;evtTimeErr=0.;fracWaitingAvg=1.;
 	unsigned int sampled = nSampledNonIdle_+nSampledIdle_;
-	std::cout << " calcStat ("<<nbSubs_<<") r:" << rateAvg << " s:" << sampled << " ls:" << ls_ << std::endl;
 	if (rateAvg!=0. && sampled) {
 	    float nAllInv = 1./sampled;
 	    fracWaitingAvg= nSampledIdle_*nAllInv;
@@ -387,8 +402,6 @@ namespace evf {
 	    evtTimeAvg=nbSubs_ * nReports_ * (1.-fracWaitingAvg)*rateAvgInv;
 	    evtTimeErr = nbSubs_ * nReports_ * sqrt(pow(fracWaitingAvg*rateErr*pow(rateAvgInv,2),2) + pow(fracWaitingAvgErr*rateAvgInv,2));
 	}
-	if (nReports_) fracCPUBusy_=nCPUBusy_/(nReports_*1000.);
-	else fracCPUBusy_=0.;
 	updated_=false;
       }
 

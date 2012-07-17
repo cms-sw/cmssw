@@ -1,5 +1,6 @@
 
 	* bugfixes
+	* use time form last update instead of fixed 23 sec interval
 
 2012-07-13 Srecko Morovic <srecko.morovic@cern.ch>
 

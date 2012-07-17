@@ -665,12 +665,12 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
   nModuleHistoMessageReceived_++;
   int *trp = (int*)crp;
   if(t_==0 && f_!=0){
-    datap_ = new int[nstates_+4];
+    datap_ = new int[nstates_+5];
     std::ostringstream ost;
     ost<<mapmod_[0]<<"/I";
     for(unsigned int i = 1; i < nstates_; i++)
       ost<<":"<<mapmod_[i];
-    ost<<":nsubp:instance:nproc:ncpubusy";//:nprocstat1k
+    ost<<":nsubp:instance:nproc:ncpubusy";//
     f_->cd();
     t_ = new TTree("microReport","microstate report tree");
     t_->SetAutoSave(500000);
@@ -679,19 +679,20 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
 
   }
 
-  memcpy(datap_,trp,(nstates_+4)*sizeof(int));
+  memcpy(datap_,trp,(nstates_+5)*sizeof(int));
   //check ls for subprocess type
-  unsigned int datapLen_ = nstates_+4;
-  unsigned int nbsubs_ = datap_[datapLen_-4];
-  unsigned int nbproc_ = datap_[datapLen_-2];
-  unsigned int ncpubusy_ = datap_[datapLen_-1];
+  unsigned int datapLen_ = nstates_+5;
+  unsigned int nbsubs_ = datap_[datapLen_-5];
+  unsigned int nbproc_ = datap_[datapLen_-3];
+  unsigned int ncpubusy_ = datap_[datapLen_-2];
+  unsigned int deltaTms_ = datap_[datapLen_-1];
 
   //find index number
   int nbsIdx = -1;
-  unsigned int randls = 0;
-  unsigned int randslot = 0;
 
   /* debugging test
+  unsigned int randls = 0;
+  unsigned int randslot = 0;
   if (lsid>3) {
     randslot = rand();
     if (randslot%2) nbsubs_=7;
@@ -765,7 +766,7 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
 	  LOG4CPLUS_WARN(getApplicationLogger(),"iDie: found module taking a lot of time: " << mapmod_[maxModId] 
 		  << " " << 100.*(float)maxMod/cumulative_ << "% of lumisection "<< lsid); 
 	}
-	lst->update(busyCounts,datap_[2],nbproc_,ncpubusy_);
+	lst->update(busyCounts,datap_[2],nbproc_,ncpubusy_,deltaTms_);
       }
     }
   }
