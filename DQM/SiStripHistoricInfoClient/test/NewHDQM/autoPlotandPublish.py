@@ -5,9 +5,7 @@ import subprocess
 
 ##Setting variables:
 webDir = '/data/users/event_display/HDQM/Current/'
-webDir = '/data/users/event_display/HDQM/dev2/'
-#Epochs = ['Run2012A','Run2012B','Run2012']
-Epochs = ['Run2012B']
+Epochs = ['Run2012C','Run2012B','Run2012A','Run2012']
 Recos  = ['Prompt']
 PDs    = ['MinimumBias']      ##other examples: 'SingleMu','DoubleMu'
 jsonFile  = subprocess.Popen("ls -1tr /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions12/8TeV/Prompt/Cert_*_8TeV_PromptReco_Collisions12_JSON.txt", shell=True, stdout=subprocess.PIPE).stdout.readlines()[-1][:-1]
@@ -40,10 +38,10 @@ subprocess.Popen("cp /data/users/cctrack/DQMdata/StripMode/StripReadoutMode4Cosm
 pwDir  = subprocess.Popen("pwd", shell=True, stdout=subprocess.PIPE).stdout.readline()[:-1]+'/'
 
 addplots=''
-Plots=[' -C cfg/trendPlotsTracking.ini ',' -C cfg/trendPlotsPixel_General.ini',' -C cfg/trendPlotsStrip_APVShots.ini -C cfg/trendPlotsStrip_General.ini -C cfg/trendPlotsStrip_TEC.ini -C cfg/trendPlotsStrip_TIB.ini -C cfg/trendPlotsStrip_TID.ini -C cfg/trendPlotsStrip_TOB.ini -C cfg/trendPlotsStrip_Clusters.ini', ' -C cfg/trendPlotsRECOErrors.ini']
+Plots=[' -C cfg/trendPlotsTracking.ini ',' -C cfg/trendPlotsPixel_General.ini',' -C cfg/trendPlotsStrip_APVShots.ini ',' -C cfg/trendPlotsStrip_Clusters.ini ', ' -C cfg/trendPlotsStrip_General.ini -C cfg/trendPlotsStrip_TEC.ini -C cfg/trendPlotsStrip_TIB.ini -C cfg/trendPlotsStrip_TID.ini -C cfg/trendPlotsStrip_TOB.ini ', ' -C cfg/trendPlotsRECOErrors.ini']
 #Plots=[' -C cfg/trendPlotsTracking.ini ',' -C cfg/trendPlotsPixel_General.ini',' -C cfg/trendPlotsStrip_APVShots.ini']
-title=['Tracking_plots','Pixel_plots','Strip_plots','RECOError_plots']
-indexOut=['index_tracker.htm','index_pixel.htm','index_strip.htm','index_reco.htm']
+title=['Tracking_plots','Pixel_plots','APVShots_plots','StripCluster_plots','Strip_plots','RECOError_plots']
+indexOut=['index_tracker.htm','index_pixel.htm','index_apvshots.htm','index_clusters.htm','index_strip.htm','index_reco.htm']
 cosType='ALL'
 ##Loop hDQM with xxx PDs
 for epoch in Epochs:
