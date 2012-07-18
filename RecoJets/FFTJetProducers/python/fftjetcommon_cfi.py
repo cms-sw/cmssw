@@ -91,13 +91,58 @@ fftjet_peak_selector_allpass = cms.PSet(
 
 #
 # 50 scales (49 intervals) from 0.087 to 0.6 in log space correspond
-# to the pattern recognition kernel bandwidth increase of 4.0% per scale
+# to the pattern recognition kernel bandwidth increase of 4.0% per scale.
+# This set of scales is useful for generic jet reconstruction with
+# variable jet size and for multiresolution studies.
 #
 fftjet_patreco_scales_50 = cms.PSet(
     Class = cms.string("EquidistantInLogSpace"),
     minScale = cms.double(0.087),
     maxScale = cms.double(0.6),
     nScales = cms.uint32(50)
+)
+
+#
+# Various sets of scales with 3 values (and 2 intervals).
+# Central scale is to be used for single-resolution jet
+# reconstruction. Using 3 scales instead of 1 allows for
+# determination of varios "speed" quantities for peaks.
+#
+fftjet_patreco_scales_3_at_010 = cms.PSet(
+    Class = cms.string("EquidistantInLogSpace"),
+    minScale = cms.double(0.10/1.04),
+    maxScale = cms.double(0.10*1.04),
+    nScales = cms.uint32(3)
+)
+fftjet_patreco_scales_3_at_015 = cms.PSet(
+    Class = cms.string("EquidistantInLogSpace"),
+    minScale = cms.double(0.15/1.04),
+    maxScale = cms.double(0.15*1.04),
+    nScales = cms.uint32(3)
+)
+fftjet_patreco_scales_3_at_017 = cms.PSet(
+    Class = cms.string("EquidistantInLogSpace"),
+    minScale = cms.double(0.17/1.04),
+    maxScale = cms.double(0.17*1.04),
+    nScales = cms.uint32(3)
+)
+fftjet_patreco_scales_3_at_020 = cms.PSet(
+    Class = cms.string("EquidistantInLogSpace"),
+    minScale = cms.double(0.20/1.04),
+    maxScale = cms.double(0.20*1.04),
+    nScales = cms.uint32(3)
+)
+fftjet_patreco_scales_3_at_025 = cms.PSet(
+    Class = cms.string("EquidistantInLogSpace"),
+    minScale = cms.double(0.25/1.04),
+    maxScale = cms.double(0.25*1.04),
+    nScales = cms.uint32(3)
+)
+fftjet_patreco_scales_3_at_050 = cms.PSet(
+    Class = cms.string("EquidistantInLogSpace"),
+    minScale = cms.double(0.50/1.04),
+    maxScale = cms.double(0.50*1.04),
+    nScales = cms.uint32(3)
 )
 
 #
