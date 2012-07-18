@@ -6,7 +6,7 @@ from RecoJets.FFTJetProducers.fftjetcommon_cfi import *
 fftjet_default_recombination_scale = 0.5
 
 # FFTJet jet producer configuration
-fftjetJetMaker = cms.EDProducer(
+fftjet_jet_maker = cms.EDProducer(
     "FFTJetProducer",
     #
     # Label for the input clustering tree (must be sparse)
@@ -142,8 +142,6 @@ fftjetJetMaker = cms.EDProducer(
     #  "locallyAdaptive"  -- use different resolutions in different parts
     #                        of the eta-phi space in order to maximize
     #                        a certain optimization criterion
-    #  "fromGenJets"      -- a special mode in which peaks are produced
-    #                        from GenJets. Useful for calibration.
     resolution = cms.string("fixed"),
     #
     # Scale parameter for the "fixed" and "locallyAdaptive" resolution schemes
@@ -228,6 +226,7 @@ fftjetJetMaker = cms.EDProducer(
     # Label for GenJet collection in the "fromGenJets" resolution mode
     genJetsLabel = cms.InputTag("fftgenjetproducer", "MadeByFFTJet"),
     #
-    # Max number of GenJets to use in the "fromGenJets" resolution mode
-    maxGenJets = cms.uint32(2147483647)
+    # Max number of preclusters. Does not take into account the possibility
+    # of further precluster removal by setting its membership factor to 0.
+    maxInitialPreclusters = cms.uint32(2147483647)
 )

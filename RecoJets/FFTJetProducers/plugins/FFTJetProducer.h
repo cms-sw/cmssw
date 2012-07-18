@@ -297,8 +297,10 @@ private:
     // Label for the genJets used as seeds for jets
     const edm::InputTag genJetsLabel;
     
-    // Maximum number of genJets to use as jet seeds
-    const unsigned maxGenJets;
+    // Maximum number of preclusters to use as jet seeds.
+    // This does not take into account the preclusters
+    // for which the value of the membership factor is 0.
+    const unsigned maxInitialPreclusters;
 
     // Resolution. The corresponding parameter value
     // should be one of "fixed", "maximallyStable",

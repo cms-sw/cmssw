@@ -153,7 +153,7 @@ FFTJetProducer::FFTJetProducer(const edm::ParameterSet& ps)
       init_param(double, unlikelyBgWeight),
       init_param(double, recombinationDataCutoff),
       init_param(edm::InputTag, genJetsLabel),
-      init_param(unsigned, maxGenJets),
+      init_param(unsigned, maxInitialPreclusters),
       resolution(parse_resolution(ps.getParameter<std::string>("resolution"))),
 
       minLevel(0),
@@ -240,10 +240,6 @@ void FFTJetProducer::genJetPreclusters(
         if (peakSelect(p))
             preclusters->push_back(p);
     }
-
-    std::sort(preclusters->begin(), preclusters->end(), std::greater<fftjet::Peak>());
-    if (preclusters->size() > maxGenJets)
-        preclusters->erase(preclusters->begin()+maxGenJets, preclusters->end());
 }
 
 
@@ -776,6 +772,11 @@ void FFTJetProducer::produce(edm::Event& iEvent,
                           *peakSelector, &preclusters);
     else
         selectPreclusters(sparseTree, *peakSelector, &preclusters);
+    if (preclusters.size() > maxInitialPreclusters)
+    {
+        std::sort(preclusters.begin(), preclusters.end(), std::greater<fftjet::Peak>());
+        preclusters.erase(preclusters.begin()+maxInitialPreclusters, preclusters.end());
+    }
 
     // Prepare to run the jet recombination procedure
     prepareRecombinationScales();
