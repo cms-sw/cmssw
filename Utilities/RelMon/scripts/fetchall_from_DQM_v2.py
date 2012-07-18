@@ -19,18 +19,6 @@
 # does not requires to specifie its value.
 ################################################################################
 
-"""
-How-To examples:
-$ ./fetchfiles_from_DQM.py --release CMSSW_5_3_2 --data --regexp "cos" --mthreads 2
-    ... Downloads 2 files, which names contain "cos" ...
-
-$ ./fetchfiles_from_DQM.py --release CMSSW_5_3_2 --data --regexp "cos,^((?!2010).)*$"
-    ... Downloads 1 file, which name contains "cos" and do not contain "2010" ...
-
-$ ./fetchfiles_from_DQM.py --release CMSSW_5_3_0 --data --re "^DQM_V0002,R000177790"
-    ... Downloads 5 files, which names start with "DQM_V0002" and contain "R000177790".
-"""
-
 import re
 import sys
 import os
@@ -41,7 +29,10 @@ from os.path import basename, isfile
 from optparse import OptionParser
 from urllib2 import build_opener, Request
 
-from Utilities.RelMon.authentication import X509CertOpen
+if os.environ.has_key("RELMON_SA"):
+    from authentication import X509CertOpen
+else:
+    from Utilities.RelMon.authentication import X509CertOpen
 
 
 def auth_wget(url, chunk_size=1048576):
@@ -49,13 +40,7 @@ def auth_wget(url, chunk_size=1048576):
     If the content is bigger than 1MB, then save it to file.
     """
     opener = build_opener(X509CertOpen())
-    try:
-        url_file = opener.open(Request(url))
-    except HTTPError:
-        print '\nError: the https://cmsweb.cern.ch/ site is down, please try again ' +\
-              'later. File server has returned HTTP Error 503: Service ' +\
-              'Temporarily Unavailable.\n'
-        exit()
+    url_file = opener.open(Request(url))
     size = int(url_file.headers["Content-Length"])
 
     if size < 1048576:
