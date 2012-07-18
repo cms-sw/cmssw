@@ -172,13 +172,6 @@ SimpleFFTPeakAnalyzer::SimpleFFTPeakAnalyzer(const edm::ParameterSet& ps)
             << "Invalid configuration of the clustering tree scales"
             << std::endl;
     std::sort(iniScales->begin(), iniScales->end(), std::greater<double>());
-
-    const unsigned nScales = iniScales->size();
-    for (unsigned i=0; i<nScales; ++i)
-        if ((*iniScales)[i] <= 0.0)
-            throw cms::Exception("FFTJetBadConfig") 
-                << "All clustering tree scales must be positive"
-                << std::endl;
 }
 
 
