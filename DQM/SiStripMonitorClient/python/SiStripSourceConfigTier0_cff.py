@@ -46,7 +46,6 @@ SiStripMonitorClusterBPTX.TH1MainDiagonalPosition.globalswitchon = True
 SiStripMonitorClusterBPTX.TH1StripNoise2ApvCycle.globalswitchon  = True
 SiStripMonitorClusterBPTX.TH1StripNoise3ApvCycle.globalswitchon  = True
 SiStripMonitorClusterBPTX.ClusterHisto = True
-
 SiStripMonitorClusterBPTX.BPTXfilter = cms.PSet(
     andOr         = cms.bool( False ),
     dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
@@ -55,19 +54,6 @@ SiStripMonitorClusterBPTX.BPTXfilter = cms.PSet(
     errorReplyDcs = cms.bool( True ),
     dbLabel       = cms.string("SiStripDQMTrigger"),
     l1Algorithms = cms.vstring( 'L1Tech_BPTX_plus_AND_minus.v0', 'L1_ZeroBias' ),
-    andOrL1       = cms.bool( True ),
-    errorReplyL1  = cms.bool( True ),
-    l1BeforeMask  = cms.bool( True ) # specifies, if the L1 algorithm decision should be read as before (true) or after (false) masking is applied. 
-)
-
-SiStripMonitorClusterBPTX.MUfilter = cms.PSet(
-    andOr         = cms.bool( False ),
-    dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
-    dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29),
-    andOrDcs      = cms.bool( False ),
-    errorReplyDcs = cms.bool( True ),
-    dbLabel       = cms.string("SiStripDQMTrigger"),
-    l1Algorithms = cms.vstring( 'L1_SingleMu10*' ),
     andOrL1       = cms.bool( True ),
     errorReplyL1  = cms.bool( True ),
     l1BeforeMask  = cms.bool( True ) # specifies, if the L1 algorithm decision should be read as before (true) or after (false) masking is applied. 
@@ -159,6 +145,8 @@ TrackerCollisionIterTrackingLogMessageMonCommon.dcsPartitions = cms.vint32 ( 24,
 TrackerCollisionIterTrackingLogMessageMonCommon.andOrDcs      = cms.bool( False )
 TrackerCollisionIterTrackingLogMessageMonCommon.errorReplyDcs = cms.bool( True )
 
+
+
 # Clone for MinBias ###
 TrackerCollisionIterTrackingLogMessageMonMB = DQM.TrackingMonitor.LogMessageMonitor_cff.FullIterTrackingLogMessageMon.clone()
 TrackerCollisionIterTrackingLogMessageMonMB.andOr         = cms.bool( False )
@@ -183,7 +171,7 @@ goodOfflinePrimaryVertices = cms.EDFilter(
     "PrimaryVertexObjectFilter",
     filterParams = pvSelector.clone( minNdof = cms.double(4.0), maxZ = cms.double(24.0) ),
     src=cms.InputTag('offlinePrimaryVertices'),
-    fileter = cms.bool(False)
+    filter = cms.bool(False)
 )
 
 # Sequence
@@ -195,7 +183,8 @@ SiStripDQMTier0 = cms.Sequence(
     # temporary test in order to have the "goodPrimaryVertexCollection"
 #    * goodOfflinePrimaryVertices
     *TrackerCollisionTrackMonCommon
-#    * LocalRecoLogMessageMon * TrackerCollisionIterTrackingLogMessageMonCommon
+    * LocalRecoLogMessageMon * ClusterizerLogMessageMon * SeedingLogMessageMon * TrackCandidateLogMessageMon * TrackFinderLogMessageMon
+#    * TrackerCollisionIterTrackingLogMessageMonCommon
     *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
     *dqmInfoSiStrip)
 
