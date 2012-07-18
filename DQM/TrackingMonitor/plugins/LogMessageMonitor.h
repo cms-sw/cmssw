@@ -13,7 +13,7 @@
 //
 // Original Author:  Mia Tosi,40 3-B32,+41227671609,
 //         Created:  Thu Mar  8 14:34:13 CET 2012
-// $Id$
+// $Id: LogMessageMonitor.h,v 1.1 2012/03/28 22:59:42 tosi Exp $
 //
 //
 
@@ -70,19 +70,23 @@ class LogMessageMonitor : public edm::EDAnalyzer {
       DQMStore * dqmStore_;
       edm::ParameterSet conf_;
 
-      std::map<std::string,int> allmodulesMap;
       std::map<std::string,int> modulesMap;
 
       // from parameters
-      std::vector<std::string> modules_vector_;
+  std::string pluginsMonName_;
+  std::vector<std::string> modules_vector_;
+  std::vector<std::string> categories_vector_;
+  
+  GetLumi* lumiDetails_;
+  GenericTriggerEventFlag* genTriggerEventFlag_;
+  
+  // MEs
+  std::vector<MonitorElement*> ModulesErrorsVsBXlumi;
+  std::vector<MonitorElement*> ModulesWarningsVsBXlumi;
+  
+  MonitorElement* CategoriesVsModules;
 
-      GetLumi* lumiDetails_;
-      GenericTriggerEventFlag* genTriggerEventFlag_;
-
-      // MEs
-      std::vector<MonitorElement*> ModulesErrorsVsBXlumi;
-      std::vector<MonitorElement*> ModulesWarningsVsBXlumi;
-
-      bool doWarningsPlots_;
+  bool doWarningsPlots_;
+  bool doPUmonitoring_;
       
 };
