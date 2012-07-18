@@ -14,7 +14,7 @@ class TrackIPHistograms : public FlavourHistograms<T>
   TrackIPHistograms(const std::string& baseNameTitle_ , const std::string& baseNameDescription_,
                     const int& nBins_, const double& lowerBound_, const double& upperBound_,
                     const bool& statistics, const bool& plotLog_, const bool& plotNormalized_,
-                    const std::string& plotFirst_, const bool& update, const std::string& folder, const bool& mc, const bool& quality);
+                    const std::string& plotFirst_, const bool& update, const std::string& folder, const unsigned int& mc, const bool& quality);
 
   virtual ~TrackIPHistograms(){};
 
@@ -46,7 +46,7 @@ template <class T>
 TrackIPHistograms<T>::TrackIPHistograms (const std::string& baseNameTitle_, const std::string& baseNameDescription_,
                                          const int& nBins_, const double& lowerBound_, const double& upperBound_,
                                          const bool& statistics_, const bool& plotLog_, const bool& plotNormalized_,
-                                         const std::string& plotFirst_, const bool& update, const std::string& folder, const bool& mc, const bool& quality) :
+                                         const std::string& plotFirst_, const bool& update, const std::string& folder, const unsigned int& mc, const bool& quality) :
   FlavourHistograms<T>(baseNameTitle_, baseNameDescription_, nBins_, lowerBound_, upperBound_, statistics_, plotLog_, plotNormalized_,
                        plotFirst_, update, folder, mc), quality_(quality)
 {

@@ -18,7 +18,7 @@ MVAJetTagPlotter::MVAJetTagPlotter(const std::string &tagName,
                                    const ParameterSet &pSet,
                                    const std::string& folderName,
                                    const bool& update,
-                                   const bool& mc) :
+                                   const unsigned int& mc) :
 	BaseTagInfoPlotter(folderName, etaPtBin),
 	jetTagComputer(tagName), computer(0),
 	categoryVariable(btau::lastTaggingVariable)

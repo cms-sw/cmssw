@@ -8,7 +8,7 @@ using namespace RecoBTag;
 
 TagCorrelationPlotter::TagCorrelationPlotter(const std::string& tagName1, const std::string& tagName2,
                                              const EtaPtBin& etaPtBin, const edm::ParameterSet& pSet,
-                                             const bool& mc, const bool& update) :
+                                             const unsigned int& mc, const bool& update) :
                                              BaseBTagPlotter(tagName2 + "_vs_" + tagName1, etaPtBin),
   					     lowerBound1_(pSet.getParameter<double>("Discr1Start")),
   					     lowerBound2_(pSet.getParameter<double>("Discr2Start")),
