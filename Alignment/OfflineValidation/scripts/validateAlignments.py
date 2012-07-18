@@ -113,15 +113,10 @@ class Alignment:
             if config.has_option(section,"kbdbpath") or config.has_option(section,"kbtag"):
                 raise StandardError, "in alignment:%s you have to provide either both kbdbpath _and_ kbtag or none of both."%name
 
-        if config.has_option(section,"primeplot"):
-            self.primePlot = config.get(section,"primeplot")
+        if config.has_option(section,"DMROptions"):
+            self.DMROptions = config.get(section,"DMROptions")
         else:
-            self.primePlot = "true"
-            
-        if config.has_option(section,"splitplots"):
-            self.splitPlots = config.get(section,"splitplots")
-        else:
-            self.splitPlots = "false"
+            self.DMROptions = ""
             
         self.compareTo = {}
         for option in config.options( section ):
@@ -166,8 +161,7 @@ class Alignment:
             "kinksAndBows": self.kinksAndBows,
             "kbdbpath": self.kbdbpath,
             "kbtag": self.kbtag,
-            "primePlot": self.primePlot,
-            "splitPlots": self.splitPlots
+            "DMROptions": self.DMROptions
             }
         return result  
 
