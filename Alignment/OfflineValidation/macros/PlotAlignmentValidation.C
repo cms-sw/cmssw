@@ -89,7 +89,7 @@ public:
   void useFitForDMRplots(bool usefit = false);
   void plotOutlierModules(const char *outputFileName="OutlierModules.ps",std::string plotVariable = "chi2PerDofX" ,float chi2_cut = 10,unsigned int minHits = 50);//method dumps selected modules into ps file
   void plotSubDetResiduals(bool plotNormHisto=false, unsigned int subDetId=7);//subDetector number :1.TPB, 2.TBE+, 3.TBE-, 4.TIB, 5.TID+, 6.TID-, 7.TOB, 8.TEC+ or 9.TEC-
-  void plotDMR(const std::string& plotVar="medianX",Int_t minHits = 50, const std::string& options = "prime");
+  void plotDMR(const std::string& plotVar="medianX",Int_t minHits = 50, const std::string& options = "plain");
   void plotHitMaps();
   void setOutputDir( std::string dir );
   void setTreeBaseDir( std::string dir = "TrackerOfflineValidationStandalone");
@@ -126,7 +126,7 @@ private :
     int nbins;
     double min, max;
     int minHits;
-    bool plotPrime, plotSplits;
+    bool plotPlain, plotSplits;
     int subDetId;
     THStack* hstack;
     TLegend* legend;
@@ -453,12 +453,12 @@ void  PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHit
     return;
   }
 
-  bool plotPrime = false, plotSplits = false;
-  if (options.find("prime") != std::string::npos) { plotPrime = true; }
+  bool plotPlain = false, plotSplits = false;
+  if (options.find("plain") != std::string::npos) { plotPlain = true; }
   if (options.find("split") != std::string::npos) { plotSplits = true; }
-  // Defaults to plotting only prime plot if empty (or invalid)
+  // Defaults to plotting only plain plot if empty (or invalid)
   // option string is given
-  if (!plotPrime && !plotSplits) { plotPrime = true; }
+  if (!plotPlain && !plotSplits) { plotPlain = true; }
 
   // This boolean array tells for which detector modules to plot split DMR plots
   // They are plotted for BPIX, FPIX, TIB and TOB
@@ -474,7 +474,7 @@ void  PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHit
 
   plotinfo.variable = variable;
   plotinfo.minHits = minHits;
-  plotinfo.plotPrime = plotPrime;
+  plotinfo.plotPlain = plotPlain;
 
   if (variable == "meanX") {          plotinfo.nbins = 50;  plotinfo.min = -0.001; plotinfo.max = 0.001; }
   else if (variable == "meanY") {     plotinfo.nbins = 50;  plotinfo.min = -0.005; plotinfo.max = 0.005; }
@@ -486,7 +486,10 @@ void  PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHit
   else if (variable == "rmsY") {      plotinfo.nbins = 100; plotinfo.min = 0.0;    plotinfo.max = 0.1; }
   else if (variable == "rmsNormX") {      plotinfo.nbins = 100; plotinfo.min = 0.3;    plotinfo.max = 1.8; }
   else if (variable == "rmsNormY") {      plotinfo.nbins = 100; plotinfo.min = 0.3;    plotinfo.max = 1.8; }
-  else {                              plotinfo.nbins = 100; plotinfo.min = -0.1;   plotinfo.max = 0.1; }
+  else {
+    std::cerr << "Unknown variable " << variable << std::endl;
+    plotinfo.nbins = 100; plotinfo.min = -0.1; plotinfo.max = 0.1;
+  }
 
   for (int i=1; i<=6; ++i) {
 
@@ -496,7 +499,7 @@ void  PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHit
     }
  
     plotinfo.plotSplits = plotSplits && plotSplitsFor[i-1];
-    if (!plotinfo.plotPrime && !plotinfo.plotSplits) {
+    if (!plotinfo.plotPlain && !plotinfo.plotSplits) {
       continue;
     }
 
@@ -514,7 +517,7 @@ void  PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHit
 
       plotinfo.vars = *it;
 
-      if (plotinfo.plotPrime) {
+      if (plotinfo.plotPlain) {
 	plotDMRHistogram(plotinfo, 0);
       }
 
@@ -523,13 +526,13 @@ void  PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHit
 	plotDMRHistogram(plotinfo, 1);
       }
 
-      if (plotinfo.plotPrime) {
+      if (plotinfo.plotPlain) {
 	if (plotinfo.h) { setDMRHistStyleAndLegend(plotinfo.h, plotinfo, 0); }
       }
 
       if (plotinfo.plotSplits) {
 	// Add delta mu to the histogram
-	if (plotinfo.h1 != 0 && plotinfo.h2 != 0 && !plotinfo.plotPrime) {
+	if (plotinfo.h1 != 0 && plotinfo.h2 != 0 && !plotinfo.plotPlain) {
 	  std::ostringstream legend;
 	  std::string unit = " #mum";
 	  legend.precision(2);
@@ -581,8 +584,8 @@ void  PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHit
       case 6: plotName << "TEC"; break;
       }
 
-      if (plotPrime && !plotSplits) { plotName << "_prime"; }
-      else if (!plotPrime && plotSplits) { plotName << "_split"; }
+      if (plotPlain && !plotSplits) { plotName << "_plain"; }
+      else if (!plotPlain && plotSplits) { plotName << "_split"; }
  
       plotName << ".eps";
 
@@ -947,7 +950,7 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
 
   // The whole DMR plot is plotted with wider line than the split plots
   // If only split plots are plotted, they will be stronger too, though
-  h->SetLineWidth((direction == 0 || (plotinfo.plotSplits && !plotinfo.plotPrime)) ? 2 : 1);
+  h->SetLineWidth((direction == 0 || (plotinfo.plotSplits && !plotinfo.plotPlain)) ? 2 : 1);
 
   // These lines determine the style of the plots according to rules:
   // -If the plot is for direction != 0, +1 or +2 is added to the given style for distinction
@@ -956,7 +959,7 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
   int linestyle = plotinfo.vars->getLineStyle() - 1, linestyleplus = 0;
   if (direction == -1) { linestyleplus = 1; }
   if (direction == 1) { linestyleplus = 2; }
-  if (direction != 0 && plotinfo.plotSplits && !plotinfo.plotPrime) { linestyleplus--; }
+  if (direction != 0 && plotinfo.plotSplits && !plotinfo.plotPlain) { linestyleplus--; }
   linestyle = (linestyle + linestyleplus) % 4 + 1;
 
   if (plotinfo.firsthisto) {
@@ -1005,7 +1008,7 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
 
   // Legend: Delta mu for split plots
   if (plotinfo.h1 != 0 && plotinfo.h2 != 0 && plotinfo.plotSplits &&
-      plotinfo.plotPrime && direction == 0) {
+      plotinfo.plotPlain && direction == 0) {
     std::string unit = " #mum";
     float factor = 10000.0f;
     if (plotinfo.variable == "meanNormX" || plotinfo.variable == "meanNormY" ||
