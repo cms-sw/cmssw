@@ -44,7 +44,7 @@ DQMOffline_SecondStep_PrePOG = cms.Sequence( muonQualityTests *
                                              l1TriggerDqmOfflineClient *
                                              triggerOfflineDQMClient *
                                              hltOfflineDQMClient *
-                                             bTagCollectorSequence *
+                                             bTagCollectorSequenceDATA *
                                              alcaBeamMonitorClient *
                                              SusyPostProcessorSequence *
                                              runTauEff)
@@ -58,7 +58,7 @@ DQMOffline_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
                                       DQMOffline_SecondStep_PrePOG *
                                       DQMMessageLoggerClientSeq )
 
-DQMOffline_SecondStep_PrePOGMC = cms.Sequence( bTagCollectorSequence )
+DQMOffline_SecondStep_PrePOGMC = cms.Sequence( bTagCollectorSequenceDATA )
 
 DQMOffline_SecondStepPOGMC = cms.Sequence( dqmRefHistoRootFileGetter *
                                            DQMOffline_SecondStep_PrePOGMC *
@@ -75,7 +75,8 @@ DQMHarvestCommon = cms.Sequence( dqmRefHistoRootFileGetter *
                                  hltOfflineDQMClient *
                                  dqmFEDIntegrityClient *
                                  alcaBeamMonitorClient *
-                                 runTauEff
+                                 runTauEff *
+                                 bTagCollectorSequenceDATA
                                 )
 DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
                                                DQMMessageLoggerClientSeq *
@@ -87,7 +88,8 @@ DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
                                                hltOfflineDQMClient *
                                                dqmFEDIntegrityClient *
                                                alcaBeamMonitorClient *
-                                               runTauEff
+                                               runTauEff *
+                                               bTagCollectorSequenceDATA
                                                )
 
 DQMHarvestMuon = cms.Sequence( dtClients *

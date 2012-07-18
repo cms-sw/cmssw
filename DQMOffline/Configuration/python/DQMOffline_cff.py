@@ -46,7 +46,8 @@ DQMOfflinePrePOG = cms.Sequence( muonMonitors *
                                  l1TriggerDqmOffline *
                                  triggerOfflineDQMSource *
                                  pvMonitor *
-                                 bTagPlots *
+                                 prebTagSequence *
+                                 bTagPlotsDATA *
                                  alcaBeamMonitor *
                                  dqmPhysics *
                                  produceDenoms *
@@ -60,7 +61,8 @@ DQMOffline = cms.Sequence( DQMOfflinePreDPG *
                            DQMMessageLogger )
 
 DQMOfflinePrePOGMC = cms.Sequence( pvMonitor *
-                                   bTagPlots *
+                                   prebTagSequence *
+                                   bTagPlotsDATA *
                                    dqmPhysics )
 
 DQMOfflinePOGMC = cms.Sequence( DQMOfflinePrePOGMC *
@@ -80,7 +82,9 @@ DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
                                  dqmPhysics *
                                  pvMonitor *
                                  produceDenoms *
-                                 pfTauRunDQMValidation
+                                 pfTauRunDQMValidation *
+                                 prebTagSequence *
+                                 bTagPlotsDATA 
                                 )
 DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  DQMMessageLogger *
@@ -93,7 +97,9 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  dqmPhysics *
                                  pvMonitor *
                                  produceDenoms *
-                                 pfTauRunDQMValidation
+                                 pfTauRunDQMValidation *
+                                 prebTagSequence *
+                                 bTagPlotsDATA 
                                  )
 DQMOfflineMuon = cms.Sequence( dtSources *
                                rpcTier0Source *
