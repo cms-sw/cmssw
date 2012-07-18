@@ -196,7 +196,7 @@ void SimpleFFTPeakAnalyzer::beginJob()
     numEventVariables = std::count(vars.begin(), vars.end(), ':') + 1U;
 
     // Peak-related variables
-    vars += ":level:peakNumber:nPeaks:peakEta:peakPhi:peakMagnitude:peakPt:peakDriftSpeed:peakMagSpeed:peakLifetime:peakScale:peakNearestNeighborDistance:peakClusterRadius:peakClusterSeparation:hessDet:hessLaplacian:peakNearestNeighborDPhi:peakNearestNeighborPt";
+    vars += ":level:peakNumber:nPeaks:peakEta:peakPhi:peakMagnitude:peakPt:peakDriftSpeed:peakMagSpeed:peakLifetime:peakScale:peakNearestNeighborDistance:peakClusterRadius:peakClusterSeparation:hessDet:hessLaplacian:hessEtaPhiRatio:hessEigenRatio:peakNearestNeighborDPhi:peakNearestNeighborPt";
 
     ntupleData.reserve(std::count(vars.begin(), vars.end(), ':') + 1U);
 
@@ -246,6 +246,7 @@ void SimpleFFTPeakAnalyzer::analyze(const edm::Event& iEvent,
                 const fftjet::Peak& peak = clusteringTree.getCluster(
                     ClusteringTree::NodeId(ilev, ipeak));
                 const double peakScale = peak.scale();
+                const double hessDet = peak.hessianDeterminant();
 
                 // For dense trees, peak scale and tree level scale
                 // must be the same (up to, possibly, round-off errors)
@@ -265,8 +266,35 @@ void SimpleFFTPeakAnalyzer::analyze(const edm::Event& iEvent,
                 ntupleData.push_back(peak.nearestNeighborDistance());
                 ntupleData.push_back(peak.clusterRadius());
                 ntupleData.push_back(peak.clusterSeparation());
-                ntupleData.push_back(peak.hessianDeterminant());
+                ntupleData.push_back(hessDet);
                 ntupleData.push_back(-peak.laplacian());
+
+                // Use hessian to determine some peak shape characteristics
+                double hess[3];
+                peak.hessian(hess);
+                if (hess[0])
+                    // The following quantity approximates sigma_eta/sigma_phi squared
+                    ntupleData.push_back(hess[2]/hess[0]);
+                else if (hess[2])
+                    ntupleData.push_back(FLT_MAX);
+                else
+                    ntupleData.push_back(-1.f);
+
+                // min/max ratio of hessian eigenvalues
+                const double hDelta = hess[2] - hess[0];
+                const double eigen1 = (hess[0] + hess[2] - 
+                                       sqrt(4.0*hess[1]*hess[1] + hDelta*hDelta))/2.0;
+                if (eigen1)
+                {
+                    const double eigen2 = hessDet/eigen1;
+                    const double emin = std::min(fabs(eigen1), fabs(eigen2));
+                    const double emax = std::max(fabs(eigen1), fabs(eigen2));
+                    ntupleData.push_back(emin/emax);
+                }
+                else if (hessDet)
+                    ntupleData.push_back(0.f);
+                else
+                    ntupleData.push_back(-1.f);
 
                 double nearestNeighborDPhi = 4.0;
                 double nearestNeighborPt = -10.0;
