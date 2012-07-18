@@ -138,9 +138,9 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
     ),
 
     TH1TotalNumberOfClusters = cms.PSet(
-        Nbinx          = cms.int32(50),
+        Nbinx          = cms.int32(80),
         xmin           = cms.double(-0.5),
-        xmax           = cms.double(299.5),
+        xmax           = cms.double(15999.5),
         subdetswitchon = cms.bool(False)
     ),
                                        
