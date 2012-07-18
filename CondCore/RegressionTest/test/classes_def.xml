@@ -9,7 +9,7 @@
  <class name="std::bitset<128>"/>
  <class name="ArrayPayload">
    <field name="m_vec3" mapping="blob"/>
-   <field name="m_bitset" mapping="blob"/>
+   <field name="m_bitset" mapping="blob" persistency="loose_on_reading"/>
  </class>
  <class name="Data"/>
  <class name="RegressionTestPayload"/>

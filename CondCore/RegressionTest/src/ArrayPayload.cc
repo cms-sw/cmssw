@@ -24,6 +24,14 @@ bool Param::operator !=(const Param& rhs) const {
   return !operator==( rhs );
 }
 
+void setDefaultBitSet( std::bitset<128>& val ){
+  size_t i = 0;
+  while( i<128 ){
+    if( i%2==0 ) val.set(i);
+    i++;
+  }
+}
+
 ArrayPayload::ArrayPayload():
   m_i(-1),
   m_p0(),
@@ -39,6 +47,7 @@ ArrayPayload::ArrayPayload():
   m_vec2(),
   m_map2(),
   m_vec3(){
+  setDefaultBitSet( m_bitset );
 }
 
 ArrayPayload::ArrayPayload( int seed ):
@@ -122,6 +131,7 @@ ArrayPayload::ArrayPayload( int seed ):
   }
 }
 
+#include <iostream>
 bool ArrayPayload::operator ==(const ArrayPayload& rhs) const {
   if( m_i != rhs.m_i ) return false;
   for( int i=0;i<4;i++){
@@ -164,7 +174,13 @@ bool ArrayPayload::operator ==(const ArrayPayload& rhs) const {
   if(m_map2 != rhs.m_map2 ) return false;
   if(m_list != rhs.m_list ) return false;
   if(m_set != rhs.m_set ) return false;
-  if(m_bitset != rhs.m_bitset ) return false;
+  std::bitset<128> defValue;
+  setDefaultBitSet( defValue );
+  if( m_bitset == defValue ){
+    std::cout <<"WARNING: data member \"m_bitset\" read with the default value."<<std::endl;
+  } else {
+    if( m_bitset != rhs.m_bitset ) return false;
+  }
   return true;
 }
   
