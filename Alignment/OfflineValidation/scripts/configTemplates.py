@@ -171,7 +171,7 @@ void TkAlExtendedOfflineValidation()
   gROOT->ProcessLine(".mkdir -p .oO[workdir]Oo./ExtendedOfflineValidation_Images/");
   p.setOutputDir(".oO[workdir]Oo./ExtendedOfflineValidation_Images");
   p.setTreeBaseDir(".oO[OfflineTreeBaseDir]Oo.");
-  p.plotDMR(".oO[DMRMethod]Oo.",.oO[DMRMinimum]Oo.,.oO[primePlot]Oo.,.oO[splitPlots]Oo.);
+  p.plotDMR(".oO[DMRMethod]Oo.",.oO[DMRMinimum]Oo.,".oO[DMROptions]Oo.");
 }
 """
 
