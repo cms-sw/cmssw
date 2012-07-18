@@ -35,15 +35,43 @@ SiStripMonitorDigi.TProfGlobalNShots.globalswitchon = True
 
 # SiStripMonitorCluster ####
 from DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi import *
-SiStripMonitorCluster.Mod_On = False
-SiStripMonitorCluster.TProfClustersApvCycle.subdetswitchon = True
-SiStripMonitorCluster.TProfTotalNumberOfClusters.subdetswitchon = True
-SiStripMonitorCluster.TH2CStripVsCpixel.globalswitchon=True
-SiStripMonitorCluster.TH1MultiplicityRegions.globalswitchon=True
-SiStripMonitorCluster.TH1MainDiagonalPosition.globalswitchon=True
-SiStripMonitorCluster.TH1StripNoise2ApvCycle.globalswitchon=True
-SiStripMonitorCluster.TH1StripNoise3ApvCycle.globalswitchon=True
-SiStripMonitorCluster.ClusterHisto = True
+SiStripMonitorClusterBPTX = SiStripMonitorCluster.clone()
+SiStripMonitorClusterBPTX.Mod_On = False
+SiStripMonitorClusterBPTX.TH1TotalNumberOfClusters.subdetswitchon   = True
+SiStripMonitorClusterBPTX.TProfClustersApvCycle.subdetswitchon      = True
+SiStripMonitorClusterBPTX.TProfTotalNumberOfClusters.subdetswitchon = True
+SiStripMonitorClusterBPTX.TH2CStripVsCpixel.globalswitchon       = True
+SiStripMonitorClusterBPTX.TH1MultiplicityRegions.globalswitchon  = True
+SiStripMonitorClusterBPTX.TH1MainDiagonalPosition.globalswitchon = True
+SiStripMonitorClusterBPTX.TH1StripNoise2ApvCycle.globalswitchon  = True
+SiStripMonitorClusterBPTX.TH1StripNoise3ApvCycle.globalswitchon  = True
+SiStripMonitorClusterBPTX.ClusterHisto = True
+
+SiStripMonitorClusterBPTX.BPTXfilter = cms.PSet(
+    andOr         = cms.bool( False ),
+    dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
+    dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29),
+    andOrDcs      = cms.bool( False ),
+    errorReplyDcs = cms.bool( True ),
+    dbLabel       = cms.string("SiStripDQMTrigger"),
+    l1Algorithms = cms.vstring( 'L1Tech_BPTX_plus_AND_minus.v0', 'L1_ZeroBias' ),
+    andOrL1       = cms.bool( True ),
+    errorReplyL1  = cms.bool( True ),
+    l1BeforeMask  = cms.bool( True ) # specifies, if the L1 algorithm decision should be read as before (true) or after (false) masking is applied. 
+)
+
+SiStripMonitorClusterBPTX.MUfilter = cms.PSet(
+    andOr         = cms.bool( False ),
+    dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
+    dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29),
+    andOrDcs      = cms.bool( False ),
+    errorReplyDcs = cms.bool( True ),
+    dbLabel       = cms.string("SiStripDQMTrigger"),
+    l1Algorithms = cms.vstring( 'L1_SingleMu10*' ),
+    andOrL1       = cms.bool( True ),
+    errorReplyL1  = cms.bool( True ),
+    l1BeforeMask  = cms.bool( True ) # specifies, if the L1 algorithm decision should be read as before (true) or after (false) masking is applied. 
+)
 
 # Clone for SiStripMonitorTrack for all PDs but Minimum Bias and Jet ####
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi 
@@ -154,12 +182,13 @@ from PhysicsTools.SelectorUtils.pvSelector_cfi import pvSelector
 goodOfflinePrimaryVertices = cms.EDFilter(
     "PrimaryVertexObjectFilter",
     filterParams = pvSelector.clone( minNdof = cms.double(4.0), maxZ = cms.double(24.0) ),
-    src=cms.InputTag('offlinePrimaryVertices')
+    src=cms.InputTag('offlinePrimaryVertices'),
+    fileter = cms.bool(False)
 )
 
 # Sequence
 SiStripDQMTier0 = cms.Sequence(
-    APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster
+    APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
     *SiStripMonitorTrackCommon*MonitorTrackResiduals
 #    # temporary patch in order to have BXlumi
 #    * lumiProducer
@@ -171,7 +200,7 @@ SiStripDQMTier0 = cms.Sequence(
     *dqmInfoSiStrip)
 
 SiStripDQMTier0Common = cms.Sequence(
-    APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster
+    APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX        
     *SiStripMonitorTrackCommon
 #    # temporary patch in order to have BXlumi
 #    * lumiProducer
@@ -183,7 +212,7 @@ SiStripDQMTier0Common = cms.Sequence(
     *dqmInfoSiStrip)
 
 SiStripDQMTier0MinBias = cms.Sequence(
-    APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster
+    APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
     *SiStripMonitorTrackMB*MonitorTrackResiduals
 #    * lumiProducer
 #    # temporary test in order to have the "goodPrimaryVertexCollection"
