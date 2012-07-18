@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorTowerProducer.cc,v 1.9 2011/02/24 09:43:20 hvanhaev Exp $
+// $Id: CastorTowerProducer.cc,v 1.10 2012/07/10 14:53:03 hvanhaev Exp $
 //
 //
 
@@ -158,7 +158,7 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   // retrieve the channel quality lists from database
   edm::ESHandle<CastorChannelQuality> p;
   iSetup.get<CastorChannelQualityRcd>().get(p);
-  CastorChannelQuality* myqual = new CastorChannelQuality(*p.product());
+  std::vector<DetId> channels = p->getAllChannels();
 
   // loop over rechits to build castortowerarray[4][16] and castorusedrechits[16] 
   for (unsigned int i = 0; i < InputRecHits->size(); i++) {
@@ -170,11 +170,10 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     
     // first check if the rechit is in the BAD channel list
     bool bad = false;
-    std::vector<DetId> channels = myqual->getAllChannels();
     for (std::vector<DetId>::iterator channel = channels.begin();channel !=  channels.end();channel++) {	
     	if (channel->rawId() == genericID.rawId()) {
 		// if the rechit is found in the list, set it bad
-		bad = true;
+	  bad = true; break;
     	}
     }
     // if bad, continue the loop to the next rechit
