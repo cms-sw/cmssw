@@ -75,8 +75,7 @@ DQMHarvestCommon = cms.Sequence( dqmRefHistoRootFileGetter *
                                  hltOfflineDQMClient *
                                  dqmFEDIntegrityClient *
                                  alcaBeamMonitorClient *
-                                 runTauEff *
-                                 bTagCollectorSequenceDATA
+                                 runTauEff 
                                 )
 DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
                                                DQMMessageLoggerClientSeq *
@@ -88,8 +87,7 @@ DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
                                                hltOfflineDQMClient *
                                                dqmFEDIntegrityClient *
                                                alcaBeamMonitorClient *
-                                               runTauEff *
-                                               bTagCollectorSequenceDATA
+                                               runTauEff 
                                                )
 
 DQMHarvestMuon = cms.Sequence( dtClients *
@@ -105,3 +103,5 @@ DQMHarvestHcal = cms.Sequence( hcalOfflineDQMClient )
 DQMHarvestJetMET = cms.Sequence( SusyPostProcessorSequence )
 
 DQMHarvestEGamma = cms.Sequence( photonOfflineClient )                                             
+
+DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )                                             

@@ -82,9 +82,7 @@ DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
                                  dqmPhysics *
                                  pvMonitor *
                                  produceDenoms *
-                                 pfTauRunDQMValidation *
-                                 prebTagSequence *
-                                 bTagPlotsDATA 
+                                 pfTauRunDQMValidation 
                                 )
 DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  DQMMessageLogger *
@@ -97,9 +95,7 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  dqmPhysics *
                                  pvMonitor *
                                  produceDenoms *
-                                 pfTauRunDQMValidation *
-                                 prebTagSequence *
-                                 bTagPlotsDATA 
+                                 pfTauRunDQMValidation 
                                  )
 DQMOfflineMuon = cms.Sequence( dtSources *
                                rpcTier0Source *
@@ -116,4 +112,8 @@ DQMOfflineJetMET = cms.Sequence( jetMETDQMOfflineSource )
 DQMOfflineEGamma = cms.Sequence(  photonAnalysis *
                                   zmumugammaAnalysis *
                                   piZeroAnalysis )
+
+DQMOfflineBTag = cms.Sequence( prebTagSequence *
+                               bTagPlotsDATA )
+                                                                 
 
