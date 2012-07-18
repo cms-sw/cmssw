@@ -25,6 +25,7 @@
 #include "fftjet/EquidistantSequence.hh"
 #include "fftjet/ProximityClusteringTree.hh"
 #include "fftjet/PeakEtaPhiDistance.hh"
+#include "fftjet/SparseClusteringTree.hh"
 
 #include "TNtuple.h"
 
@@ -109,6 +110,7 @@ scale_set_parser(const edm::ParameterSet& ps)
 class SimpleFFTPeakAnalyzer : public edm::EDAnalyzer
 {
 public:
+    typedef fftjet::SparseClusteringTree<fftjet::Peak,long> SparseTree;
     typedef fftjet::ProximityClusteringTree<fftjet::Peak,long> ClusteringTree;
     typedef reco::PattRecoTree<float,reco::PattRecoPeak<float> > StoredTree;
 
@@ -138,7 +140,8 @@ private:
 
     // The clustering tree variables
     fftjet::PeakEtaPhiDistance distanceCalc;
-    ClusteringTree clusteringTree;    
+    ClusteringTree clusTree;    
+    SparseTree sparseTree;
 
     // Output ntuple
     TNtuple* nt;
@@ -160,7 +163,7 @@ SimpleFFTPeakAnalyzer::SimpleFFTPeakAnalyzer(const edm::ParameterSet& ps)
       init_param(double, maxNtupleScale),
       init_param(double, etaToPhiBandwidthRatio),
       distanceCalc(etaToPhiBandwidthRatio),
-      clusteringTree(&distanceCalc),
+      clusTree(&distanceCalc),
       nt(0),
       counter(0),
       numEventVariables(0)
@@ -204,6 +207,8 @@ void SimpleFFTPeakAnalyzer::beginJob()
 void SimpleFFTPeakAnalyzer::analyze(const edm::Event& iEvent,
                                     const edm::EventSetup& iSetup)
 {
+    typedef fftjet::AbsClusteringTree<fftjet::Peak,long> AbsTree;
+
     ntupleData.clear();
     ntupleData.push_back(counter);
 
@@ -212,15 +217,22 @@ void SimpleFFTPeakAnalyzer::analyze(const edm::Event& iEvent,
     ntupleData.push_back(runnumber);
     ntupleData.push_back(eventnumber);
 
-    // Load the clustering tree. We assume that the tree
-    // is dense and that the complete event was not appended
-    // at the lowest level.
+    // Load the clustering tree. We assume that
+    // the complete event was not appended at the
+    // lowest level.
     edm::Handle<StoredTree> input;
     iEvent.getByLabel(treeLabel, input);
 
     // Convert into normal FFTJet clustering tree
-    fftjetcms::densePeakTreeFromStorable(
-        *input, iniScales.get(), 0.0, &clusteringTree);
+    if (input->isSparse())
+        fftjetcms::sparsePeakTreeFromStorable(
+            *input, iniScales.get(), 0.0, &sparseTree);
+    else
+        fftjetcms::densePeakTreeFromStorable(
+            *input, iniScales.get(), 0.0, &clusTree);
+    const AbsTree& clusteringTree = input->isSparse() ?
+        dynamic_cast<AbsTree&>(sparseTree) :
+        dynamic_cast<AbsTree&>(clusTree);
 
     // Cycle over all tree levels except level 0
     const unsigned nLevels = clusteringTree.nLevels();
