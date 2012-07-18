@@ -234,12 +234,14 @@ print HTMLFILE "<option value=\"fig/Prompt/Run2012/MinimumBias\">JSON: Minimum B
 print HTMLFILE "</select>\n"; 
 print HTMLFILE "</form>\n";
 
-
 ###########setup links to other  plots
 print HTMLFILE "Expert plots for:\n";
-print HTMLFILE "<a href=\"index_pixel.html\">Pixel</a>\n";
-print HTMLFILE "<a href=\"index_strip.html\">Strip</a>\n";
-print HTMLFILE "<a href=\"index_tracker.html\">Tracking</a>\n";
+print HTMLFILE "<a href=\"index_pixel.htm\">Pixel</a>\n";
+print HTMLFILE "<a href=\"index_apvshots.htm\">APV Shots</a>\n";
+print HTMLFILE "<a href=\"index_clusters.htm\">Strip Clusters</a>\n";
+print HTMLFILE "<a href=\"index_strip.htm\">Strip</a>\n";
+print HTMLFILE "<a href=\"index_tracker.htm\">Tracking</a>\n";
+print HTMLFILE "<a href=\"index_reco.htm\">Reco Errors</a>\n";
 print HTMLFILE "<hr>\n";
 ##############
 
