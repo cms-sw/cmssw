@@ -3,11 +3,12 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "HLTriggerOffline/Top/interface/TopHLTDQMHelpers.h"
+#include "TopSingleLeptonDQM.h"
+#include "HLTriggerOffline/Top/interface/TopHLTDQMHelper.h"
 #include <iostream>
 /*Originally from DQM/Physics by R. Wolf and J. Andrea*/
 using namespace std;
-namespace TopSingleLepton {
+namespace TopSingleLeptonHLT {
 
   // maximal number of leading jets 
   // to be used for top mass estimate
@@ -528,7 +529,7 @@ namespace TopSingleLepton {
     */
 
     // fill W boson and top mass estimates
-    Calculate eventKinematics(MAXJETS, WMASS);
+    CalculateHLT eventKinematics(MAXJETS, WMASS);
     double wMass   = eventKinematics.massWBoson  (correctedJets);
     double topMass = eventKinematics.massTopQuark(correctedJets);
     if(wMass>=0 && topMass>=0) {fill("massW_" , wMass  ); fill("massTop_" , topMass);}
@@ -591,7 +592,7 @@ TopSingleLeptonDQM::TopSingleLeptonDQM(const edm::ParameterSet& cfg): triggerTab
   std::vector<edm::ParameterSet> sel=cfg.getParameter<std::vector<edm::ParameterSet> >("selection");
   for(unsigned int i=0; i<sel.size(); ++i){
     selectionOrder_.push_back(sel.at(i).getParameter<std::string>("label"));
-    selection_[selectionStep(selectionOrder_.back())] = std::make_pair(sel.at(i), new TopSingleLepton::MonitorEnsemble(selectionStep(selectionOrder_.back()).c_str(), cfg.getParameter<edm::ParameterSet>("setup")));
+    selection_[selectionStep(selectionOrder_.back())] = std::make_pair(sel.at(i), new TopSingleLeptonHLT::MonitorEnsemble(selectionStep(selectionOrder_.back()).c_str(), cfg.getParameter<edm::ParameterSet>("setup")));
   }
 }
 
@@ -602,7 +603,7 @@ TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup& setu
   if(!triggerTable_.label().empty()){
     edm::Handle<edm::TriggerResults> triggerTable;
     if( !event.getByLabel(triggerTable_, triggerTable) ) return;
-    if(!accept(event, *triggerTable, triggerPaths_)) return;
+    if(!acceptHLT(event, *triggerTable, triggerPaths_)) return;
   }
 //  cout<<"trig passed"<<endl;
   if(!beamspot_.label().empty()){

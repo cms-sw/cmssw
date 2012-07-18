@@ -9,7 +9,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "HLTriggerOffline/Top/interface/TopHLTDQMHelpers.h"
+#include "HLTriggerOffline/Top/interface/TopHLTDQMHelper.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
@@ -35,7 +35,7 @@
    Ensemble. It will not be covered by the SelectionStep class.
 */
 
-namespace TopSingleLepton {
+namespace TopSingleLeptonHLT {
 
   class MonitorEnsemble {
   public:
@@ -157,12 +157,12 @@ namespace TopSingleLepton {
   MonitorEnsemble::fill(const edm::Event& event, const edm::TriggerResults& triggerTable, std::string channel, const std::vector<std::string> labels) const
   {
     for(unsigned int idx=0; idx<labels.size(); ++idx){
-      if( accept(event, triggerTable, monitorPath(labels[idx])) ){
+      if( acceptHLT(event, triggerTable, monitorPath(labels[idx])) ){
 	fill((channel+"Mon_").c_str(), idx+0.5 );
 	// take care to fill triggerMon_ before evts is being called
 	int evts = hists_.find((channel+"Mon_").c_str())->second->getBinContent(idx+1);
 	double value = hists_.find((channel+"Eff_").c_str())->second->getBinContent(idx+1);
-	fill((channel+"Eff_").c_str(), idx+0.5, 1./evts*(accept(event, triggerTable, selectionPath(labels[idx]))-value));
+	fill((channel+"Eff_").c_str(), idx+0.5, 1./evts*(acceptHLT(event, triggerTable, selectionPath(labels[idx]))-value));
       }
     }
   }
@@ -254,7 +254,7 @@ class TopSingleLeptonDQM : public edm::EDAnalyzer  {
   /// the configuration of the selection for the SelectionStep class, 
   /// MonitoringEnsemble keeps an instance of the MonitorEnsemble class to 
   /// be filled _after_ each selection step
-  std::map<std::string, std::pair<edm::ParameterSet, TopSingleLepton::MonitorEnsemble*> > selection_;
+  std::map<std::string, std::pair<edm::ParameterSet, TopSingleLeptonHLT::MonitorEnsemble*> > selection_;
 };
 
 #endif

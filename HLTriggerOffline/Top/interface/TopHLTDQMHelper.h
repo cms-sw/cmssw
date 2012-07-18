@@ -20,7 +20,7 @@
 */
 
 inline bool 
-accept(const edm::Event& event, const edm::TriggerResults& triggerTable, const std::string& triggerPath)
+acceptHLT(const edm::Event& event, const edm::TriggerResults& triggerTable, const std::string& triggerPath)
 {
   bool passed=false;
   const edm::TriggerNames& triggerNames = event.triggerNames(triggerTable);
@@ -36,11 +36,11 @@ accept(const edm::Event& event, const edm::TriggerResults& triggerTable, const s
 }
 
 inline bool 
-accept(const edm::Event& event, const edm::TriggerResults& triggerTable, const std::vector<std::string>& triggerPaths)
+acceptHLT(const edm::Event& event, const edm::TriggerResults& triggerTable, const std::vector<std::string>& triggerPaths)
 {
   bool passed=false;
   for(unsigned int j=0; j<triggerPaths.size(); ++j){
-    if(accept(event, triggerTable, triggerPaths[j])){
+    if(acceptHLT(event, triggerTable, triggerPaths[j])){
       passed=true;
       break;
     }
@@ -64,12 +64,12 @@ accept(const edm::Event& event, const edm::TriggerResults& triggerTable, const s
    b tag information.
 */
 
-class Calculate {
+class CalculateHLT {
  public:
   /// default constructor
-  Calculate(int maxNJets, double wMass);
+  CalculateHLT(int maxNJets, double wMass);
   /// default destructor
-  ~Calculate(){};
+  ~CalculateHLT(){};
      
   /// calculate W boson mass estimate
   double massWBoson(const std::vector<reco::Jet>& jets);
@@ -170,12 +170,12 @@ class Calculate {
 */
 
 template <typename Object> 
-class SelectionStep {
+class SelectionStepHLT {
 public:
   /// default constructor
-  SelectionStep(const edm::ParameterSet& cfg);
+  SelectionStepHLT(const edm::ParameterSet& cfg);
   /// default destructor
-  ~SelectionStep(){};
+  ~SelectionStepHLT(){};
 
   /// apply selection
   bool select(const edm::Event& event);
@@ -219,7 +219,7 @@ private:
 
 /// default constructor
 template <typename Object> 
-SelectionStep<Object>::SelectionStep(const edm::ParameterSet& cfg) :
+SelectionStepHLT<Object>::SelectionStepHLT(const edm::ParameterSet& cfg) :
   src_( cfg.getParameter<edm::InputTag>( "src"   )),
   select_( cfg.getParameter<std::string>("select")),
   jetIDSelect_(0)
@@ -252,7 +252,7 @@ SelectionStep<Object>::SelectionStep(const edm::ParameterSet& cfg) :
 
 /// apply selection
 template <typename Object> 
-bool SelectionStep<Object>::select(const edm::Event& event)
+bool SelectionStepHLT<Object>::select(const edm::Event& event)
 {
   // fetch input collection
   edm::Handle<edm::View<Object> > src; 
@@ -283,7 +283,7 @@ bool SelectionStep<Object>::select(const edm::Event& event)
   return (min_<0 && max_<0) ? (n>0):accept;
 }
 template <typename Object> 
-bool SelectionStep<Object>::selectVertex(const edm::Event& event)
+bool SelectionStepHLT<Object>::selectVertex(const edm::Event& event)
 {
   // fetch input collection
   edm::Handle<edm::View<Object> > src; 
@@ -307,7 +307,7 @@ bool SelectionStep<Object>::selectVertex(const edm::Event& event)
 
 /// apply selection (w/o using the template class Object), override for jets
 template <typename Object> 
-bool SelectionStep<Object>::select(const edm::Event& event, const edm::EventSetup& setup)
+bool SelectionStepHLT<Object>::select(const edm::Event& event, const edm::EventSetup& setup)
 {
   // fetch input collection
   edm::Handle<edm::View<Object> > src; 

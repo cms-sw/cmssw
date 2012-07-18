@@ -4,7 +4,7 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DQM/Physics/src/TopDiLeptonOfflineDQM.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
-#include "HLTriggerOffline/Top/interface/TopHLTDQMHelpers.h"
+#include "HLTriggerOffline/Top/interface/TopHLTDQMHelper.h"
 /*Originally from DQM/Physics by R. Wolf and J. Andrea*/
 
 namespace TopDiLeptonOffline {
