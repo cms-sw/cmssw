@@ -308,7 +308,7 @@ PFAlgo::setPFVertexParameters(bool useVertex,
       e(2, 2) = 15. * 15.;  
       reco::Vertex::Point p(0, 0, 0);  
       reco::Vertex dummy = reco::Vertex(p, e, 0, 0, 0); 
-      std::cout << " PFPho " << pfpho_ << std::endl;
+      //      std::cout << " PFPho " << pfpho_ << std::endl;
       pfpho_->setPhotonPrimaryVtx(dummy);
     }
   }
