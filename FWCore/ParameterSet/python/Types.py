@@ -2,9 +2,7 @@ from Mixins import PrintOptions, _SimpleParameterTypeBase, _ParameterTypeBase, _
 from Mixins import _ValidatingParameterListBase
 from ExceptionHandling import format_typename, format_outerframe
 
-import codecs
 import copy
-_string_escape_encoder = codecs.getencoder('string_escape')
 
 class _Untracked(object):
     """Class type for 'untracked' to allow nice syntax"""
@@ -143,7 +141,8 @@ class string(_SimpleParameterTypeBase):
     @staticmethod
     def formatValueForConfig(value):
         l = len(value)
-        value,newL = _string_escape_encoder(value)
+        value = value.encode("string-escape")
+        newL = len(value)
         if l != newL:
             #get rid of the hex encoding
             value=value.replace('\\x0','\\')
