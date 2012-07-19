@@ -252,6 +252,12 @@ def customise_wo_pairs(process):
     process.iterTracking.remove(process.PixelPairStep)
     return (process)
 
+def turnOffLegacyPhiCorrection(process):
+    process.simHcalUnsuppressedDigis.HcalReLabel.RelabelRules.CorrectPhi = cms.untracked.bool(False)
+    process.HcalHardcodeGeometryEP.HcalReLabel.RelabelRules.CorrectPhi = cms.untracked.bool(False)
+    process.HcalReLabel.RelabelRules.CorrectPhi = cms.untracked.bool(False)
+    return (process)
+
 def customise_pu15_25ns_wo_pairs(process):
 
     process=customise_wo_pairs(process)
