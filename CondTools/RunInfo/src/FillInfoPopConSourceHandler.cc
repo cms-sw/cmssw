@@ -14,9 +14,11 @@
 #include "CoralBase/TimeStamp.h"
 #include <iostream>
 #include <memory>
+#include <sstream>
+#include <utility>
 #include <vector>
 
-FillInfoPopConSourceHandler::FillInfoPopConSourceHandler(const edm::ParameterSet& pset):
+FillInfoPopConSourceHandler::FillInfoPopConSourceHandler( edm::ParameterSet const & pset ):
   m_debug( pset.getUntrackedParameter<bool>( "debug", false ) )
   ,m_fill( (unsigned short)pset.getUntrackedParameter<unsigned int>( "fill", 1 ) )
   ,m_name( pset.getUntrackedParameter<std::string>( "name", "FillInfoPopConSourceHandler" ) )
@@ -26,22 +28,23 @@ FillInfoPopConSourceHandler::FillInfoPopConSourceHandler(const edm::ParameterSet
 FillInfoPopConSourceHandler::~FillInfoPopConSourceHandler() {}
 
 void FillInfoPopConSourceHandler::getNewObjects() {
-  //checks what is already inside of database
-  edm::LogInfo("FillInfoPopConSourceHandler") << "got info for tag " << tagInfo().name 
-					      << ", IOVSequence token " << tagInfo().token
-					      << ": size " << tagInfo().size 
-					      << ", last object valid since " << tagInfo().lastInterval.first 
-					      << "; from " << m_name << "::getNewObjects"  
-					      << std::endl;
   
-  FillInfo* fillInfo = new FillInfo(m_fill); 
+  FillInfo* fillInfo = new FillInfo( m_fill ); 
   
   // transfer fake fill for 1 to since for the first time
-  if (tagInfo().size == 0 && m_fill != 1) {
-    edm::LogInfo("FillInfoPopConSourceHandler") << "New tag: inserting first fake object; from " << m_name << "::getNewObjects" << std::endl;
-    m_to_transfer.push_back(std::make_pair(new FillInfo(),1));
+  if ( tagInfo().size == 0 && m_fill != 1 ) {
+    edm::LogInfo("FillInfoPopConSourceHandler") << "New tag "<< tagInfo().name << ": inserting first fake object; from " << m_name << "::getNewObjects" << std::endl;
+    m_to_transfer.push_back( std::make_pair( new FillInfo(),1 ) );
+  } else {
+    //checks what is already inside of database
+    edm::LogInfo("FillInfoPopConSourceHandler") << "got info for tag " << tagInfo().name 
+						<< ", IOVSequence token " << tagInfo().token
+						<< ": size " << tagInfo().size 
+						<< ", last object valid since " << tagInfo().lastInterval.first 
+						<< " ( "<< boost::posix_time::to_iso_extended_string( cond::time::to_boost( tagInfo().lastInterval.first ) )
+						<< " ); from " << m_name << "::getNewObjects"  
+						<< std::endl;
   }
-  
   //reading from omds
   cond::DbConnection dbConnection;
   if(m_debug) {
@@ -316,27 +319,44 @@ void FillInfoPopConSourceHandler::getNewObjects() {
   if( tagInfo().size > 0 ) {
     Ref const previousFill = this->lastPayload();
     //checking its content
-    edm::LogInfo("FillInfoPopConSourceHandler") << "got last payload with token " << tagInfo().lastPayloadToken 
-						<< "\n" << *previousFill;
+    edm::LogInfo("FillInfoPopConSourceHandler") << "The last payload in tag " << tagInfo().name 
+						<< " valid since " << tagInfo().lastInterval.first
+						<< " has token " << tagInfo().lastPayloadToken 
+						<< " and values:\n" << *previousFill;
     
     //store dummy fill information if empty fills are found beetween the two last ones in stable beams
-    if( ( previousFill->endTime() + 1 ) < stableBeamStartTime ) {
-      edm::LogInfo("FillInfoPopConSourceHandler") << "entering fake fill from " 
-						  <<  previousFill->endTime() + 1
-						  <<  " to " << stableBeamStartTime - 1 
-						  << "; from " << m_name << "::getNewObjects" 
+    cond::UnpackedTime previousFillEndUnpackedTime = cond::time::unpack( previousFill->endTime() );
+    cond::Time_t afterPreviousFillEndTime = cond::time::pack( std::make_pair( previousFillEndUnpackedTime.first, previousFillEndUnpackedTime.second + 1 ) );
+    cond::Time_t beforeStableBeamStartTime = cond::time::pack( std::make_pair( cond::time::unpack( stableBeamStartTime ).first, cond::time::unpack( stableBeamStartTime ).second - 1 ) );
+    if( afterPreviousFillEndTime < stableBeamStartTime ) {
+      edm::LogInfo("FillInfoPopConSourceHandler") << "Entering fake fill between fill number " << previousFill->fillNumber()
+						  << " and current fill " << m_fill
+						  << ", from " <<  afterPreviousFillEndTime
+						  << " ( " << boost::posix_time::to_iso_extended_string( cond::time::to_boost( afterPreviousFillEndTime ) )
+						  << " ) to " << beforeStableBeamStartTime
+						  << " ( " << boost::posix_time::to_iso_extended_string( cond::time::to_boost( beforeStableBeamStartTime ) )
+						  << " ); from " << m_name << "::getNewObjects" 
 						  << std::endl;
-      m_to_transfer.push_back( std::make_pair( new FillInfo(), previousFill->endTime() + 1 ) );
+      m_to_transfer.push_back( std::make_pair( new FillInfo(), afterPreviousFillEndTime ) );
     } else {
       // no transfer needed: either we are trying to put the same value, or we want to put an older fill
-      edm::LogWarning("FillInfoPopConSourceHandler") << "NO TRANSFER NEEDED: trying to insert the same or an older fill"
+      std::ostringstream es;
+      es << "NO TRANSFER NEEDED: trying to insert fill number " << m_fill 
+	 << ( ( m_fill < previousFill->fillNumber() ) ? ", which is an older fill than " : ", which is the same fill as " ) 
+	 << "the last one in the destination tag " << previousFill->fillNumber(); 
+      edm::LogWarning("FillInfoPopConSourceHandler") << es.str()
 						     << "; from " << m_name << "::getNewObjects" 
 						     << std::endl;
       return;
     }
   }
   m_to_transfer.push_back( std::make_pair( (FillInfo*)fillInfo, stableBeamStartTime ) );
-  
+  edm::LogInfo("FillInfoPopConSourceHandler") << "The new payload to be inserted into tag " << tagInfo().name 
+					      << " with validity " << stableBeamStartTime 
+					      << " ( " << boost::posix_time::to_iso_extended_string( cond::time::to_boost( stableBeamStartTime ) )
+					      << " ) has values:\n" << *fillInfo
+					      << std::endl;
+  // adding log information
   std::ostringstream ss;
   ss << " fill = " << m_fill 
      << "; injection scheme: " << injectionScheme
