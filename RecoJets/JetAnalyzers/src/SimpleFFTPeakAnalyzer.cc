@@ -150,6 +150,18 @@ private:
     unsigned numEventVariables;
 
     std::vector<float> ntupleData;
+
+    template<class Tree>
+    void processClusteringTree(const Tree& tree);
+
+    static void fillNodeVector(const SparseTree& tree, unsigned level,
+                               std::vector<SparseTree::NodeId>* vec);
+    static void fillNodeVector(const ClusteringTree& tree, unsigned level,
+                               std::vector<ClusteringTree::NodeId>* vec);
+    static const fftjet::Peak& getCluster(const SparseTree& tree,
+                                          const SparseTree::NodeId& id);
+    static const fftjet::Peak& getCluster(const ClusteringTree& tree,
+                                          const ClusteringTree::NodeId& id);
 };
 
 //
@@ -203,36 +215,40 @@ void SimpleFFTPeakAnalyzer::beginJob()
 }
 
 
-// ------------ method called to for each event  ------------
-void SimpleFFTPeakAnalyzer::analyze(const edm::Event& iEvent,
-                                    const edm::EventSetup& iSetup)
+void SimpleFFTPeakAnalyzer::fillNodeVector(const SparseTree& tree, unsigned level,
+                                           std::vector<SparseTree::NodeId>* vec)
 {
-    typedef fftjet::AbsClusteringTree<fftjet::Peak,long> AbsTree;
+    tree.getLevelNodes(level, vec);
+}
 
-    ntupleData.clear();
-    ntupleData.push_back(counter);
 
-    const long runnumber = iEvent.id().run();
-    const long eventnumber = iEvent.id().event();
-    ntupleData.push_back(runnumber);
-    ntupleData.push_back(eventnumber);
+void SimpleFFTPeakAnalyzer::fillNodeVector(const ClusteringTree& tree, unsigned ilev,
+                                           std::vector<ClusteringTree::NodeId>* vec)
+{
+    vec->clear();
+    const unsigned nPeaks = tree.nClusters(ilev);
+    vec->reserve(nPeaks);
+    for (unsigned ipeak=0; ipeak<nPeaks; ++ipeak)
+        vec->push_back(ClusteringTree::NodeId(ilev, ipeak));
+}
 
-    // Load the clustering tree. We assume that
-    // the complete event was not appended at the
-    // lowest level.
-    edm::Handle<StoredTree> input;
-    iEvent.getByLabel(treeLabel, input);
+const fftjet::Peak& SimpleFFTPeakAnalyzer::getCluster(
+    const SparseTree& tree, const SparseTree::NodeId& id)
+{
+    return tree.uncheckedNode(id).getCluster();
+}
 
-    // Convert into normal FFTJet clustering tree
-    if (input->isSparse())
-        fftjetcms::sparsePeakTreeFromStorable(
-            *input, iniScales.get(), 0.0, &sparseTree);
-    else
-        fftjetcms::densePeakTreeFromStorable(
-            *input, iniScales.get(), 0.0, &clusTree);
-    const AbsTree& clusteringTree = input->isSparse() ?
-        dynamic_cast<AbsTree&>(sparseTree) :
-        dynamic_cast<AbsTree&>(clusTree);
+const fftjet::Peak& SimpleFFTPeakAnalyzer::getCluster(
+    const ClusteringTree& tree, const ClusteringTree::NodeId& id)
+{
+    return tree.getCluster(id);
+}
+
+template<class Tree>
+void SimpleFFTPeakAnalyzer::processClusteringTree(
+    const Tree& clusteringTree)
+{
+    std::vector<typename Tree::NodeId> nodes;
 
     // Cycle over all tree levels except level 0
     const unsigned nLevels = clusteringTree.nLevels();
@@ -242,14 +258,14 @@ void SimpleFFTPeakAnalyzer::analyze(const edm::Event& iEvent,
         if (levelScale >= minNtupleScale && levelScale <= maxNtupleScale)
         {
             // Process this level
-            const unsigned nPeaks = clusteringTree.nClusters(ilev);
+            fillNodeVector(clusteringTree, ilev, &nodes);
+            const unsigned nPeaks = nodes.size();
             for (unsigned ipeak=0; ipeak<nPeaks; ++ipeak)
             {
                 // Process this peak
                 ntupleData.erase(ntupleData.begin()+numEventVariables, ntupleData.end());
 
-                const fftjet::Peak& peak = clusteringTree.getCluster(
-                    ClusteringTree::NodeId(ilev, ipeak));
+                const fftjet::Peak& peak = getCluster(clusteringTree, nodes[ipeak]);
                 const double peakScale = peak.scale();
                 const double hessDet = peak.hessianDeterminant();
 
@@ -309,8 +325,8 @@ void SimpleFFTPeakAnalyzer::analyze(const edm::Event& iEvent,
                     for (unsigned i=0; i<nPeaks; ++i)
                         if (i != ipeak)
                         {
-                            const fftjet::Peak& neighbor = clusteringTree.getCluster(
-                                ClusteringTree::NodeId(ilev, i));
+                            const fftjet::Peak& neighbor = getCluster(
+                                clusteringTree, nodes[i]);
                             const double nScale = neighbor.scale();
                             const double d = distanceCalc(
                                 peakScale, peak, nScale, neighbor);
@@ -331,6 +347,40 @@ void SimpleFFTPeakAnalyzer::analyze(const edm::Event& iEvent,
                 nt->Fill(&ntupleData[0]);
             }
         }
+    }
+}
+
+
+// ------------ method called to for each event  ------------
+void SimpleFFTPeakAnalyzer::analyze(const edm::Event& iEvent,
+                                    const edm::EventSetup& iSetup)
+{
+    ntupleData.clear();
+    ntupleData.push_back(counter);
+
+    const long runnumber = iEvent.id().run();
+    const long eventnumber = iEvent.id().event();
+    ntupleData.push_back(runnumber);
+    ntupleData.push_back(eventnumber);
+
+    // Load the clustering tree. We assume that
+    // the complete event was not appended at the
+    // lowest level.
+    edm::Handle<StoredTree> input;
+    iEvent.getByLabel(treeLabel, input);
+
+    // Convert into normal FFTJet clustering tree
+    if (input->isSparse())
+    {
+        fftjetcms::sparsePeakTreeFromStorable(
+            *input, iniScales.get(), 0.0, &sparseTree);
+        processClusteringTree(sparseTree);
+    }
+    else
+    {
+        fftjetcms::densePeakTreeFromStorable(
+            *input, iniScales.get(), 0.0, &clusTree);
+        processClusteringTree(clusTree);
     }
 
     ++counter;
