@@ -307,7 +307,7 @@ EMShower::compute() {
   double samplingWidth = theECAL->da() + theECAL->dp();
   double theECALX0 = theECAL->radLenIncm();
 
-  double one_over_resoSquare = 1./(theECAL->resE()*theECAL->resE());
+  //  double one_over_resoSquare = 1./(theECAL->resE()*theECAL->resE());
 
 
 
