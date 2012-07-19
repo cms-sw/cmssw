@@ -65,7 +65,7 @@ namespace
 
 PFMETProducerMVA::PFMETProducerMVA(const edm::ParameterSet& cfg) 
   : mvaMEtAlgo_(cfg),
-    looseJetIdAlgo_(0)
+    looseJetIdAlgo_(0)//,
     //mvaJetIdAlgo_(cfg)
 {
   srcCorrJets_     = cfg.getParameter<edm::InputTag>("srcCorrJets");
@@ -124,6 +124,7 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
 
   // get leptons
   // (excluded from sum over PFCandidates when computing hadronic recoil)
+  //int lNMu = 0;
   std::vector<reco::Candidate::LorentzVector> leptonInfo;
   for ( vInputTag::const_iterator srcLeptons_i = srcLeptons_.begin();
 	srcLeptons_i != srcLeptons_.end(); ++srcLeptons_i ) {
@@ -132,8 +133,12 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
     for ( CandidateView::const_iterator lepton = leptons->begin();
 	  lepton != leptons->end(); ++lepton ) {
       leptonInfo.push_back(lepton->p4());
+      //if(lepton->pt() > 10.) 
+      //if(lepton->pt() > 20.) std::cout << "==== Muon ==> " << lepton->pt() << " -- " << lepton->eta() << std::endl; 
+      //if(lepton->pt() > 20.) lNMu++;
     }
   }
+  //if(lNMu == 2) std::cout << "=====> Di Muon Cand =======>"  << std::endl;
 
   // get vertices
   edm::Handle<reco::VertexCollection> vertices;
@@ -202,7 +207,6 @@ std::vector<mvaMEtUtilities::JetInfo> PFMETProducerMVA::computeJetInfo(const rec
       // match corrected and uncorrected jets
       if ( uncorrJet->jetArea() != corrJet->jetArea() ) continue;
       if ( !(fabs(uncorrJet->eta() - corrJet->eta()) < 0.01) ) continue;
-
       // check that jet passes loose PFJet id.
       bool passesLooseJetId = (*looseJetIdAlgo_)(*corrJet);
       if ( !passesLooseJetId ) continue; 
@@ -211,7 +215,7 @@ std::vector<mvaMEtUtilities::JetInfo> PFMETProducerMVA::computeJetInfo(const rec
       // (= ratio of corrected/uncorrected jet Pt)
       double jetEnCorrFactor = corrJet->pt()/uncorrJet->pt();
       mvaMEtUtilities::JetInfo jetInfo;
-
+      
       // PH: apply jet energy corrections for all Jets ignoring recommendations
       jetInfo.p4_ = corrJet->p4();
 
@@ -253,6 +257,9 @@ std::vector<reco::Vertex::Point> PFMETProducerMVA::computeVertexInfo(const reco:
   std::vector<reco::Vertex::Point> retVal;
   for ( reco::VertexCollection::const_iterator vertex = vertices.begin();
 	vertex != vertices.end(); ++vertex ) {
+    if(fabs(vertex->z())           > 24.) continue;
+    if(vertex->ndof()              <  4.) continue;
+    if(vertex->position().Rho()    >  2.) continue;
     retVal.push_back(vertex->position());
   }
   return retVal;
