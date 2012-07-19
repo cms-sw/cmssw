@@ -100,17 +100,17 @@ class C5Higgs(SMLikeHiggsModel):
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         # --- Signal Strength as only POI --- 
-        self.modelBuilder.doVar("Cgg[1,0,10]")
-        self.modelBuilder.doVar("Cvv[1,0,10]")
-        self.modelBuilder.doVar("Cgluglu[1,0,10]")
-        POI = "Cgg,Cvv,Cgluglu"
+        self.modelBuilder.doVar("Cg[1,0,10]")
+        self.modelBuilder.doVar("Cv[1,0,10]")
+        self.modelBuilder.doVar("Cglu[1,0,10]")
+        POI = "Cg,Cv,Cglu"
         if self.universalCF:
-            self.modelBuilder.doVar("Cff[1,0,10]")
-            POI += ",Cff"
+            self.modelBuilder.doVar("Cf[1,0,10]")
+            POI += ",Cf"
         else:
-            self.modelBuilder.doVar("Cbb[1,0,10]")
-            self.modelBuilder.doVar("Ctt[1,0,10]")
-            POI += ",Cbb,Ctt"
+            self.modelBuilder.doVar("Cb[1,0,10]")
+            self.modelBuilder.doVar("Ct[1,0,10]")
+            POI += ",Cb,Ct"
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
@@ -136,29 +136,35 @@ class C5Higgs(SMLikeHiggsModel):
         for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
         ## total witdhs, normalized to the SM one
+        self.modelBuilder.factory_('expr::C5_Gscal_sumglu("@0*@0 * @1", Cglu, SM_BR_hgluglu)')
+        self.modelBuilder.factory_('expr::C5_Gscal_sumg("@0*@0 * @1", Cg, SM_BR_hgg)')
+        self.modelBuilder.factory_('expr::C5_Gscal_sumv("@0*@0 * (@1+@2+@3)", Cv, SM_BR_hww, SM_BR_hzz, SM_BR_hZg )')
         if self.universalCF:
-            self.modelBuilder.factory_("expr::C5_Gscal_tot(\"@0*@1 + @2*(@3+@4+@5+@9+@10+@11) + @6*(@7+@8)\","+
-                                       " Cgluglu, SM_BR_hgluglu, Cff, SM_BR_hbb, SM_BR_hcc, SM_BR_htt,"+
-                                       " Cvv, SM_BR_hww, SM_BR_hzz,   SM_BR_hss, SM_BR_hmm, SM_BR_htoptop)")
+            self.modelBuilder.factory_('expr::C5_Gscal_sumf("@0*@0 * (@1+@2+@3+@4+@5+@6)",\
+             Cf, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hmm, SM_BR_hss)') 
         else:
-            self.modelBuilder.factory_("expr::C5_Gscal_tot(\"@0*@1 + @2*@3 + @4 + @5*@6 + @7*(@8+@9)\","+
-                                       " Cgluglu, SM_BR_hgluglu, Cbb, SM_BR_hbb, SM_BR_hcc, Ctt, SM_BR_htt,"+
-                                       " Cvv, SM_BR_hww, SM_BR_hzz)")
+            self.modelBuilder.factory_('expr::C5_Gscal_sumf("@0*@0 * (@1+@2+@3+@4) + @5*@5 * (@6+@7)",\
+             Cb, SM_BR_hbb, SM_BR_hcc, SM_BR_htoptop, SM_BR_hss,\
+             Ct, SM_BR_htt, SM_BR_hmm)') 
+        self.modelBuilder.factory_('sum::C5_Gscal_tot(C5_Gscal_sumglu, C5_Gscal_sumg, C5_Gscal_sumv, C5_Gscal_sumf)')
+
         ## BRs, normalized to the SM ones: they scale as (partial/partial_SM) / (total/total_SM) 
-        self.modelBuilder.factory_("expr::C5_BRscal_hgg(\"@0/@1\", Cgg, C5_Gscal_tot)")
-        self.modelBuilder.factory_("expr::C5_BRscal_hv(\"@0/@1\",  Cvv, C5_Gscal_tot)")
+        self.modelBuilder.factory_("expr::C5_BRscal_hgg(\"@0*@0/@1\", Cg, C5_Gscal_tot)")
+        self.modelBuilder.factory_("expr::C5_BRscal_hvv(\"@0*@0/@1\",  Cv, C5_Gscal_tot)")
         if self.universalCF:
-            self.modelBuilder.factory_("expr::C5_BRscal_hf(\"@0/@1\", Cff, C5_Gscal_tot)")
+            self.modelBuilder.factory_("expr::C5_BRscal_hff(\"@0*@0/@1\", Cf, C5_Gscal_tot)")
         else:
-            self.modelBuilder.factory_("expr::C5_BRscal_hbb(\"@0/@1\", Cbb, C5_Gscal_tot)")
-            self.modelBuilder.factory_("expr::C5_BRscal_htt(\"@0/@1\", Ctt, C5_Gscal_tot)")
+            self.modelBuilder.factory_("expr::C5_BRscal_hbb(\"@0*@0/@1\", Cb, C5_Gscal_tot)")
+            self.modelBuilder.factory_("expr::C5_BRscal_htt(\"@0*@0/@1\", Ct, C5_Gscal_tot)")
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "C5_XSBRscal_%s_%s" % (production,decay)
         if self.modelBuilder.out.function(name) == None: 
-            XSscal = "Cgluglu" if production in ["ggH"] else "Cvv"
+            XSscal = "Cglu" if production in ["ggH"] else "Cv"
+            if production in ['ttH']:
+                XSscal = 'Cf' if self.universalCF else 'Cb'
             BRscal = "hgg"
-            if decay in ["hww", "hzz"]: BRscal = "hv"
-            if decay in ["hbb", "htt"]: BRscal = ("hf" if self.universalCF else decay)
+            if decay in ["hww", "hzz"]: BRscal = "hvv"
+            if decay in ["hbb", "htt"]: BRscal = ("hff" if self.universalCF else decay)
             self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, C5_BRscal_%s)' % (name, XSscal, BRscal))
         return name
 
