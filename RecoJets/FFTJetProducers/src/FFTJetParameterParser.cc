@@ -474,7 +474,7 @@ fftjet_ClusteringTreeSparsifier_parser(const edm::ParameterSet& ps)
     const std::vector<double> userScalesV = 
         ps.getParameter<std::vector<double> >("userScales");
     const unsigned nUserScales = userScalesV.size();
-    const double* userScales = nUserScales ? NULL : &userScalesV[0];
+    const double* userScales = nUserScales ? &userScalesV[0] : NULL;
 
     return return_type(
         new fftjet::ClusteringTreeSparsifier<fftjet::Peak,long>(
