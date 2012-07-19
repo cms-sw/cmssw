@@ -21,7 +21,7 @@ def redoPFTauDiscriminators(process,
         process.patHPSPFTauDiscrimination = process.produceAndDiscriminateHPSPFTaus.copy()
         # remove producers
         for iname in process.patHPSPFTauDiscrimination.moduleNames():
-            if not (iname.find("DiscriminationBy")>-1 or iname.find("DiscriminationAgainst")>-1):
+            if not (iname.find("DiscriminationBy")>-1 or iname.find("DiscriminationAgainst")>-1 or  iname.find("kt6PFJetsForRhoComputationVoronoi") > -1 ):
                 process.patHPSPFTauDiscrimination.remove(getattr(process,iname) )
         tauDiscriminationSequence = cloneProcessingSnippet(process, process.patHPSPFTauDiscrimination, postfix)
 
