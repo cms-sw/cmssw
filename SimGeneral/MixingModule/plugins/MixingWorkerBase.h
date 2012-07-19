@@ -14,7 +14,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Principal.h"
-#include "FWCore/Framework/interface/Selector.h"
 #include "Mixing/Base/interface/PileUp.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 
