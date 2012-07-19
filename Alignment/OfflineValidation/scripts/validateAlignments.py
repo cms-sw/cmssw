@@ -113,10 +113,10 @@ class Alignment:
             if config.has_option(section,"kbdbpath") or config.has_option(section,"kbtag"):
                 raise StandardError, "in alignment:%s you have to provide either both kbdbpath _and_ kbtag or none of both."%name
 
-        if config.has_option(section,"DMROptions"):
-            self.DMROptions = config.get(section,"DMROptions")
-        else:
-            self.DMROptions = ""
+#         if config.has_option(section,"DMROptions"):
+#             self.DMROptions = config.get(section,"DMROptions")
+#         else:
+#             self.DMROptions = ""
             
         self.compareTo = {}
         for option in config.options( section ):
@@ -160,8 +160,8 @@ class Alignment:
             "runGeomComp": self.runGeomComp,
             "kinksAndBows": self.kinksAndBows,
             "kbdbpath": self.kbdbpath,
-            "kbtag": self.kbtag,
-            "DMROptions": self.DMROptions
+            "kbtag": self.kbtag# ,
+#             "DMROptions": self.DMROptions
             }
         return result  
 
@@ -406,6 +406,7 @@ class OfflineValidation(GenericValidation):
         general = readGeneral( config )
         self.__DMRMethod = general["DMRMethod"]
         self.__DMRMinimum = general["DMRMinimum"]
+        self.__DMROptions = general["DMROptions"]
         self.__OfflineTreeBaseDir = general["OfflineTreeBaseDir"]
     
     def createConfiguration(self, path, configBaseName = "TkAlOfflineValidation" ):
@@ -433,6 +434,7 @@ class OfflineValidation(GenericValidation):
                 "OfflineTreeBaseDir": self.__OfflineTreeBaseDir,
                 "DMRMethod":self.__DMRMethod,
                 "DMRMinimum":self.__DMRMinimum,
+                "DMROptions":self.__DMROptions,
                 "APE": configTemplates.APETemplate,
                 "outputFile": replaceByMap( ".oO[workdir]Oo./AlignmentValidation_.oO[name]Oo..root", repMap ),
                 "resultFile": replaceByMap( ".oO[datadir]Oo./AlignmentValidation_.oO[name]Oo..root", repMap ),
@@ -624,7 +626,8 @@ def readGeneral( config ):
         "offlineModuleLevelHistsTransient":"False",
         "OfflineTreeBaseDir":"TrackHitFilter",
         "DMRMethod":"medianX",
-        "DMRMinimum":"30"
+        "DMRMinimum":"30",
+        "DMROptions":""
         }
     try:
        for option in config.options("general"):
