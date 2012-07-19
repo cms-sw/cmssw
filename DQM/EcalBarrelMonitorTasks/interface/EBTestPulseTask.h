@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseTask.h
  *
- * $Date: 2009/10/26 17:33:47 $
- * $Revision: 1.33 $
+ * $Date: 2012/04/27 13:46:00 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -44,6 +44,8 @@ void beginRun(const edm::Run & r, const edm::EventSetup & c);
 
 /// EndRun
 void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+ void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
 /// Reset
 void reset(void);

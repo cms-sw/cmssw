@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2012/03/18 17:21:00 $
- * $Revision: 1.57.2.1 $
+ * $Date: 2012/04/27 13:46:15 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  *
  */
@@ -90,9 +90,6 @@ void EEIntegrityTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock
 
 }
 
-void EEIntegrityTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
-}
-
 void EEIntegrityTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
@@ -103,6 +100,15 @@ void EEIntegrityTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
 void EEIntegrityTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
+}
+
+void
+EEIntegrityTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EEIntegrityTask" + (subfolder_.size() == 0 ? "" : "/" + subfolder_))){
+	cleanup();
+	setup();
+  }
 }
 
 void EEIntegrityTask::reset(void) {

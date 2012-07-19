@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2012/07/05 21:14:58 $
- * $Revision: 1.75 $
+ * $Date: 2012/07/09 22:05:02 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  *
 */
@@ -137,6 +137,15 @@ void EELedTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
     }
   }
 
+}
+
+void
+EELedTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EELedTask")){
+	cleanup();
+	setup();
+  }
 }
 
 void EELedTask::reset(void) {

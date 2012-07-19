@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalTask.cc
  *
- * $Date: 2011/08/30 09:28:42 $
- * $Revision: 1.56 $
+ * $Date: 2012/04/27 13:46:16 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  *
 */
@@ -97,6 +97,15 @@ void EEPedestalTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
 void EEPedestalTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
+}
+
+void
+EEPedestalTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EEPedestalTask")){
+	cleanup();
+	setup();
+  }
 }
 
 void EEPedestalTask::reset(void) {

@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2012/05/14 20:36:37 $
- * $Revision: 1.44 $
+ * $Date: 2012/06/28 12:14:30 $
+ * $Revision: 1.45 $
  * \author E. Di Marco
  *
 */
@@ -396,6 +396,11 @@ void EERawDataTask::cleanup(void){
 }
 
 void EERawDataTask::endLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&) {
+  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EERawDataTask")){
+	cleanup();
+	setup();
+  }
+  
   MonitorElement* me(meEESynchronizationErrorsTrend_);
   if(!me) return;
   if(ls_ >= 50){

@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2011/10/28 14:15:47 $
- * $Revision: 1.60 $
+ * $Date: 2012/04/27 13:46:16 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  *
 */
@@ -95,6 +95,15 @@ void EETestPulseTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
 void EETestPulseTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
+}
+
+void
+EETestPulseTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EETestPulseTask")){
+	cleanup();
+	setup();
+  }
 }
 
 void EETestPulseTask::reset(void) {

@@ -4,8 +4,8 @@
 /*
  * \file EETimingTask.h
  *
- * $Date: 2011/09/15 21:03:25 $
- * $Revision: 1.21 $
+ * $Date: 2011/09/15 21:54:51 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -51,6 +51,8 @@ void beginRun(const edm::Run & r, const edm::EventSetup & c);
 
 /// EndRun
 void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+ void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&); 
 
 /// Reset
 void reset(void);

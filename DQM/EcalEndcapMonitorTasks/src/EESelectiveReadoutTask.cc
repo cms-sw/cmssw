@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2011/10/28 14:15:47 $
- * $Revision: 1.62 $
+ * $Date: 2012/04/27 13:46:16 $
+ * $Revision: 1.66 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -167,6 +167,15 @@ void EESelectiveReadoutTask::beginRun(const edm::Run& r, const edm::EventSetup& 
 
 void EESelectiveReadoutTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
+}
+
+void
+EESelectiveReadoutTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EESelectiveReadoutTask")){
+	cleanup();
+	setup();
+  }
 }
 
 void EESelectiveReadoutTask::reset(void) {

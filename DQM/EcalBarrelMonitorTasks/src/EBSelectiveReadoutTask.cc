@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2011/10/28 14:15:46 $
- * $Revision: 1.55 $
+ * $Date: 2012/04/27 13:46:03 $
+ * $Revision: 1.58 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -158,6 +158,15 @@ void EBSelectiveReadoutTask::beginRun(const edm::Run& r, const edm::EventSetup& 
 
 void EBSelectiveReadoutTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
+}
+
+void
+EBSelectiveReadoutTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EBSelectiveReadoutTask")){
+	cleanup();
+	setup();
+  }
 }
 
 void EBSelectiveReadoutTask::reset(void) {

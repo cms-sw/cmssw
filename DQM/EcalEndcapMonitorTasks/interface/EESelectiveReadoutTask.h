@@ -4,8 +4,8 @@
 /*
  * \file EESelectiveReadoutTask.h
  *
- * $Date: 2010/11/10 10:43:29 $
- * $Revision: 1.21 $
+ * $Date: 2011/03/03 22:05:50 $
+ * $Revision: 1.22 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -69,6 +69,8 @@ void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
 /// EndRun
 void endRun(const edm::Run& r, const edm::EventSetup& c);
+
+ void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&); 
 
 /// Reset
 void reset(void);

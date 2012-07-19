@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2012/03/18 17:21:01 $
- * $Revision: 1.89.4.1 $
+ * $Date: 2012/04/27 13:46:15 $
+ * $Revision: 1.94 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -156,6 +156,15 @@ void EEOccupancyTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
 void EEOccupancyTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
+}
+
+void
+EEOccupancyTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EEOccupancyTask" + (subfolder_.size() == 0 ? "" : "/" + subfolder_))){
+	cleanup();
+	setup();
+  }
 }
 
 void EEOccupancyTask::reset(void) {

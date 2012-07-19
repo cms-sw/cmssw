@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2011/09/15 21:54:51 $
- * $Revision: 1.73 $
+ * $Date: 2012/04/27 13:46:03 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  *
 */
@@ -95,6 +95,15 @@ void EBTimingTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
 void EBTimingTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
+}
+
+void
+EBTimingTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EBTimingTask")){
+	cleanup();
+	setup();
+  }
 }
 
 void EBTimingTask::reset(void) {

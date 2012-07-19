@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2011/10/28 14:15:46 $
- * $Revision: 1.118 $
+ * $Date: 2012/04/27 13:46:03 $
+ * $Revision: 1.121 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -97,6 +97,15 @@ void EBTestPulseTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
 void EBTestPulseTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
+}
+
+void
+EBTestPulseTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EBTestPulseTask")){
+	cleanup();
+	setup();
+  }
 }
 
 void EBTestPulseTask::reset(void) {

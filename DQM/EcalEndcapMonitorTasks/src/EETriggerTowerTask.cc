@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2011/10/28 14:15:47 $
- * $Revision: 1.78 $
+ * $Date: 2012/04/27 13:46:16 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -115,6 +115,15 @@ void EETriggerTowerTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
 void EETriggerTowerTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
+}
+
+void
+EETriggerTowerTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EETriggerTowerTask")){
+	cleanup();
+	setup();
+  }
 }
 
 void EETriggerTowerTask::reset(void) {

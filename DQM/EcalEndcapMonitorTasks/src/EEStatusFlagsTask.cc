@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2012/03/20 20:26:50 $
- * $Revision: 1.39.2.1 $
+ * $Date: 2012/04/27 13:46:16 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  *
 */
@@ -77,9 +77,6 @@ void EEStatusFlagsTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlo
 
 }
 
-void EEStatusFlagsTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
-}
-
 void EEStatusFlagsTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
@@ -90,6 +87,15 @@ void EEStatusFlagsTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
 void EEStatusFlagsTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
+}
+
+void
+EEStatusFlagsTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EEStatusFlagsTask" + (subfolder_.size() == 0 ? "" : "/" + subfolder_))){
+	cleanup();
+	setup();
+  }
 }
 
 void EEStatusFlagsTask::reset(void) {

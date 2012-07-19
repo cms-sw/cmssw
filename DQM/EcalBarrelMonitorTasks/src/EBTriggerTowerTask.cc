@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2011/10/28 14:15:46 $
- * $Revision: 1.107 $
+ * $Date: 2012/04/27 13:46:03 $
+ * $Revision: 1.111 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -101,6 +101,15 @@ void EBTriggerTowerTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
 void EBTriggerTowerTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
+}
+
+void
+EBTriggerTowerTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EBTriggerTowerTask")){
+	cleanup();
+	setup();
+  }
 }
 
 void EBTriggerTowerTask::reset(void) {

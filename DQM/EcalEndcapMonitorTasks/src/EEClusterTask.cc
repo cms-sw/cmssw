@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2011/08/30 09:28:42 $
- * $Revision: 1.83 $
+ * $Date: 2012/04/27 13:46:14 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -150,6 +150,15 @@ void EEClusterTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
 void EEClusterTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
+}
+
+void
+EEClusterTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EEClusterTask")){
+	cleanup();
+	setup();
+  }
 }
 
 void EEClusterTask::reset(void) {

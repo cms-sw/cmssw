@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2012/03/20 20:26:48 $
- * $Revision: 1.34.2.1 $
+ * $Date: 2012/04/27 13:46:03 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
@@ -75,9 +75,6 @@ void EBStatusFlagsTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlo
 
 }
 
-void EBStatusFlagsTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
-}
-
 void EBStatusFlagsTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
@@ -88,6 +85,15 @@ void EBStatusFlagsTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
 void EBStatusFlagsTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
+}
+
+void
+EBStatusFlagsTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EBStatusFlagsTask" + (subfolder_.size() == 0 ? "" : "/" + subfolder_))){
+	cleanup();
+	setup();
+  }
 }
 
 void EBStatusFlagsTask::reset(void) {

@@ -4,8 +4,8 @@
 /*
  * \file EELaserTask.h
  *
- * $Date: 2012/04/27 13:46:13 $
- * $Revision: 1.18 $
+ * $Date: 2012/07/02 19:39:29 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -43,6 +43,8 @@ void beginRun(const edm::Run & r, const edm::EventSetup & c);
 
 /// EndRun
 void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+ void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&); 
 
 /// Reset
 void reset(void);
