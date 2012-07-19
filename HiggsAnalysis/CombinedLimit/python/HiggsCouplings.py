@@ -108,9 +108,9 @@ class C5Higgs(SMLikeHiggsModel):
             self.modelBuilder.doVar("Cf[1,0,10]")
             POI += ",Cf"
         else:
-            self.modelBuilder.doVar("Cb[1,0,10]")
-            self.modelBuilder.doVar("Ct[1,0,10]")
-            POI += ",Cb,Ct"
+            self.modelBuilder.doVar("Cq[1,0,10]")
+            self.modelBuilder.doVar("Cl[1,0,10]")
+            POI += ",Cq,Cl"
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
@@ -144,24 +144,24 @@ class C5Higgs(SMLikeHiggsModel):
              Cf, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hmm, SM_BR_hss)') 
         else:
             self.modelBuilder.factory_('expr::C5_Gscal_sumf("@0*@0 * (@1+@2+@3+@4) + @5*@5 * (@6+@7)",\
-             Cb, SM_BR_hbb, SM_BR_hcc, SM_BR_htoptop, SM_BR_hss,\
-             Ct, SM_BR_htt, SM_BR_hmm)') 
+             Cq, SM_BR_hbb, SM_BR_hcc, SM_BR_htoptop, SM_BR_hss,\
+             Cl, SM_BR_htt, SM_BR_hmm)') 
         self.modelBuilder.factory_('sum::C5_Gscal_tot(C5_Gscal_sumglu, C5_Gscal_sumg, C5_Gscal_sumv, C5_Gscal_sumf)')
 
-        ## BRs, normalized to the SM ones: they scale as (partial/partial_SM) / (total/total_SM) 
+        ## BRs, normalized to the SM ones: they scale as (partial/partial_SM)^2 / (total/total_SM)^2 
         self.modelBuilder.factory_("expr::C5_BRscal_hgg(\"@0*@0/@1\", Cg, C5_Gscal_tot)")
         self.modelBuilder.factory_("expr::C5_BRscal_hvv(\"@0*@0/@1\",  Cv, C5_Gscal_tot)")
         if self.universalCF:
             self.modelBuilder.factory_("expr::C5_BRscal_hff(\"@0*@0/@1\", Cf, C5_Gscal_tot)")
         else:
-            self.modelBuilder.factory_("expr::C5_BRscal_hbb(\"@0*@0/@1\", Cb, C5_Gscal_tot)")
-            self.modelBuilder.factory_("expr::C5_BRscal_htt(\"@0*@0/@1\", Ct, C5_Gscal_tot)")
+            self.modelBuilder.factory_("expr::C5_BRscal_hbb(\"@0*@0/@1\", Cq, C5_Gscal_tot)")
+            self.modelBuilder.factory_("expr::C5_BRscal_htt(\"@0*@0/@1\", Cl, C5_Gscal_tot)")
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "C5_XSBRscal_%s_%s" % (production,decay)
         if self.modelBuilder.out.function(name) == None: 
             XSscal = "Cglu" if production in ["ggH"] else "Cv"
             if production in ['ttH']:
-                XSscal = 'Cf' if self.universalCF else 'Cb'
+                XSscal = 'Cf' if self.universalCF else 'Cq'
             BRscal = "hgg"
             if decay in ["hww", "hzz"]: BRscal = "hvv"
             if decay in ["hbb", "htt"]: BRscal = ("hff" if self.universalCF else decay)
