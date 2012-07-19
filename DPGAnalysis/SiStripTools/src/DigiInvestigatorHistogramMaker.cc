@@ -93,7 +93,7 @@ void DigiInvestigatorHistogramMaker::book(const std::string dirname) {
     if(_subdirs[i]) {
       sprintf(name,"n%sdigi",slab.c_str());
       sprintf(title,"%s %s multiplicity",slab.c_str(),_hitname.c_str());
-      _nmult[i] = _subdirs[i]->make<TH1F>(name,title,_nbins,0.,_binmax[i]/(_scalefact*_nbins)*_nbins);
+      _nmult[i] = _subdirs[i]->make<TH1F>(name,title,_nbins,0.,(1+_binmax[i]/(_scalefact*_nbins))*_nbins);
       _nmult[i]->GetXaxis()->SetTitle("Number of Hits");    _nmult[i]->GetYaxis()->SetTitle("Events");
       
       if(_runHisto) {

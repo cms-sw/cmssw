@@ -98,17 +98,17 @@ void DigiLumiCorrHistogramMaker::book(const std::string dirname) {
     if(m_subdirs[i]) {
       sprintf(name,"n%sdigivslumi",slab.c_str());
       sprintf(title,"%s %s multiplicity vs BX lumi",slab.c_str(),m_hitname.c_str());
-      m_nmultvslumi[i] = m_subdirs[i]->make<TH2F>(name,title,250,0.,10.,m_nbins,0.,m_binmax[i]/(m_scalefact*m_nbins)*m_nbins);
+      m_nmultvslumi[i] = m_subdirs[i]->make<TH2F>(name,title,250,0.,30.,m_nbins,0.,(1+m_binmax[i]/(m_scalefact*m_nbins))*m_nbins);
       m_nmultvslumi[i]->GetXaxis()->SetTitle("BX lumi [10^{30}cm^{-2}s^{-1}]");    m_nmultvslumi[i]->GetYaxis()->SetTitle("Number of Hits");
       sprintf(name,"n%sdigivslumiprof",slab.c_str());
-      m_nmultvslumiprof[i] = m_subdirs[i]->make<TProfile>(name,title,250,0.,10.);
+      m_nmultvslumiprof[i] = m_subdirs[i]->make<TProfile>(name,title,250,0.,30.);
       m_nmultvslumiprof[i]->GetXaxis()->SetTitle("BX lumi [10^{30}cm^{-2}s^{-1}]");    m_nmultvslumiprof[i]->GetYaxis()->SetTitle("Number of Hits");
       
       if(m_runHisto) {
 	edm::LogInfo("RunHistos") << "Pseudo-booking run histos " << slab.c_str();
 	sprintf(name,"n%sdigivslumivsbxprofrun",slab.c_str());
 	sprintf(title,"%s %s multiplicity vs BX lumi vs BX",slab.c_str(),m_hitname.c_str());
-	m_nmultvslumivsbxprofrun[i] = m_fhm[i]->makeTProfile2D(name,title,3564,-0.5,3563.5,250,0.,10.);
+	m_nmultvslumivsbxprofrun[i] = m_fhm[i]->makeTProfile2D(name,title,3564,-0.5,3563.5,250,0.,30.);
       }
     }
 

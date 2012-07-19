@@ -96,17 +96,17 @@ void DigiVertexCorrHistogramMaker::book(const std::string dirname) {
     if(m_subdirs[i]) {
       sprintf(name,"n%sdigivsnvtx",slab.c_str());
       sprintf(title,"%s %s multiplicity vs Nvtx",slab.c_str(),m_hitname.c_str());
-      m_nmultvsnvtx[i] = m_subdirs[i]->make<TH2F>(name,title,60,-0.5,59.5,m_nbins,0.,m_binmax[i]/(m_scalefact*m_nbins)*m_nbins);
+      m_nmultvsnvtx[i] = m_subdirs[i]->make<TH2F>(name,title,100,-0.5,99.5,m_nbins,0.,(1+m_binmax[i]/(m_scalefact*m_nbins))*m_nbins);
       m_nmultvsnvtx[i]->GetXaxis()->SetTitle("Number of Vertices");    m_nmultvsnvtx[i]->GetYaxis()->SetTitle("Number of Hits");
       sprintf(name,"n%sdigivsnvtxprof",slab.c_str());
-      m_nmultvsnvtxprof[i] = m_subdirs[i]->make<TProfile>(name,title,60,-0.5,59.5);
+      m_nmultvsnvtxprof[i] = m_subdirs[i]->make<TProfile>(name,title,100,-0.5,99.5);
       m_nmultvsnvtxprof[i]->GetXaxis()->SetTitle("Number of Vertices");    m_nmultvsnvtxprof[i]->GetYaxis()->SetTitle("Number of Hits");
 
       if(m_runHisto) {
 	edm::LogInfo("RunHistos") << "Pseudo-booking run histos " << slab.c_str();
 	sprintf(name,"n%sdigivsnvtxvsbxprofrun",slab.c_str());
 	sprintf(title,"%s %s multiplicity vs Nvtx vs BX",slab.c_str(),m_hitname.c_str());
-	m_nmultvsnvtxvsbxprofrun[i] = m_fhm[i]->makeTProfile2D(name,title,3564,-0.5,3563.5,60,-0.5,59.5);
+	m_nmultvsnvtxvsbxprofrun[i] = m_fhm[i]->makeTProfile2D(name,title,3564,-0.5,3563.5,100,-0.5,99.5);
       }
       
     }
