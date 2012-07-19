@@ -187,6 +187,7 @@ bool FFTJetDijetFilter::filter(
     {
         sparsePeakTreeFromStorable(*input, iniScales.get(),
                                    eventScale, sparseTree);
+        sparseTree->sortNodes();
         const unsigned usedLevel = sparseTree->getLevel(fixedScale);
         sparseTree->getLevelNodes(usedLevel, &nodes);
         const unsigned numNodes = nodes.size();

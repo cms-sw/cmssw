@@ -370,6 +370,7 @@ void SimpleFFTPeakAnalyzer::analyze(const edm::Event& iEvent,
     {
         fftjetcms::sparsePeakTreeFromStorable(
             *input, iniScales.get(), 0.0, &sparseTree);
+        sparseTree.sortNodes();
         processClusteringTree(sparseTree);
     }
     else
