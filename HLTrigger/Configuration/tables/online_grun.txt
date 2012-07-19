@@ -10,8 +10,8 @@ HLT_BTagMu_DiJet70_Mu5_v*                                                       
 HLT_BTagMu_DiJet110_Mu5_v*                                                                      # sr #126192, removed L1FastJet from name
 HLT_BTagMu_Jet300_Mu5_v*                                                                        # sr #126192, removed L1FastJet from name
 
-HLT_BTagMu_Jet20_Mu4_v*                                                                         # sr #130245
-HLT_BTagMu_Jet60_Mu4_v*                                                                         # sr #130245
+HLT_BTagMu_Jet20_Mu4_v*										# sr #130245
+HLT_BTagMu_Jet60_Mu4_v*										# sr #130245
 
 #HLT_HT250_DoubleDisplacedPFJet60_v*                                                            # sr #126222, removed L1FastJet from name, removed by sr #128276
 #HLT_HT250_DoubleDisplacedPFJet60_ChgFraction10_v*                                              # sr #126222, removed L1FastJet from name, removed by sr #128276

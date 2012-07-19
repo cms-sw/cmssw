@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V179 (CMSSW_5_2_6)
+# /dev/CMSSW_5_2_1/HIon/V180 (CMSSW_5_2_6_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V179')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V180')
 )
 
 process.streams = cms.PSet( 
@@ -3055,13 +3055,19 @@ process.sistripconn = cms.ESProducer( "SiStripConnectivity" )
 
 process.FastTimerService = cms.Service( "FastTimerService",
     dqmPath = cms.untracked.string( "HLT/TimerService" ),
-    useRealTimeClock = cms.untracked.bool( True ),
-    dqmTimeResolution = cms.untracked.double( 1.0 ),
+    skipFirstPath = cms.untracked.bool( False ),
+    dqmModuleTimeRange = cms.untracked.double( 40.0 ),
     enableDQMbyLumi = cms.untracked.bool( False ),
+    dqmTimeResolution = cms.untracked.double( 5.0 ),
     enableTimingPaths = cms.untracked.bool( True ),
-    enableTimingModules = cms.untracked.bool( False ),
+    dqmModuleTimeResolution = cms.untracked.double( 0.2 ),
+    dqmPathTimeResolution = cms.untracked.double( 0.5 ),
+    useRealTimeClock = cms.untracked.bool( True ),
+    enableTimingModules = cms.untracked.bool( True ),
+    dqmPathTimeRange = cms.untracked.double( 100.0 ),
     enableDQM = cms.untracked.bool( True ),
-    dqmTimeRange = cms.untracked.double( 500.0 ),
+    dqmTimeRange = cms.untracked.double( 1000.0 ),
+    enableDQMbyModule = cms.untracked.bool( False ),
     enableTimingSummary = cms.untracked.bool( True )
 )
 process.DQM = cms.Service( "DQM",
