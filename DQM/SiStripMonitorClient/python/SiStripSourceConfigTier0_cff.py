@@ -48,16 +48,28 @@ SiStripMonitorClusterBPTX.TH1StripNoise3ApvCycle.globalswitchon  = True
 SiStripMonitorClusterBPTX.ClusterHisto = True
 SiStripMonitorClusterBPTX.BPTXfilter = cms.PSet(
     andOr         = cms.bool( False ),
-    dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
-    dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29),
-    andOrDcs      = cms.bool( False ),
-    errorReplyDcs = cms.bool( True ),
     dbLabel       = cms.string("SiStripDQMTrigger"),
     l1Algorithms = cms.vstring( 'L1Tech_BPTX_plus_AND_minus.v0', 'L1_ZeroBias' ),
     andOrL1       = cms.bool( True ),
     errorReplyL1  = cms.bool( True ),
     l1BeforeMask  = cms.bool( True ) # specifies, if the L1 algorithm decision should be read as before (true) or after (false) masking is applied. 
 )
+SiStripMonitorClusterBPTX.PixelDCSfilter = cms.PSet(
+    andOr         = cms.bool( False ),
+    dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
+    dcsPartitions = cms.vint32 ( 28, 29),
+    andOrDcs      = cms.bool( False ),
+    errorReplyDcs = cms.bool( True ),
+)
+SiStripMonitorClusterBPTX.StripDCSfilter = cms.PSet(
+    andOr         = cms.bool( False ),
+    dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
+    dcsPartitions = cms.vint32 ( 24, 25, 26, 27 ),
+    andOrDcs      = cms.bool( False ),
+    errorReplyDcs = cms.bool( True ),
+)
+
+
 
 # Clone for SiStripMonitorTrack for all PDs but Minimum Bias and Jet ####
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi 

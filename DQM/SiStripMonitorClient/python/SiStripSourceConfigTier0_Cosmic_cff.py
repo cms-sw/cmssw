@@ -44,11 +44,12 @@ from DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi import *
 SiStripMonitorCluster.Mod_On = False
 SiStripMonitorCluster.TProfClustersApvCycle.subdetswitchon = True
 SiStripMonitorCluster.TProfTotalNumberOfClusters.subdetswitchon = True
-SiStripMonitorCluster.TH2CStripVsCpixel.globalswitchon=True
-SiStripMonitorCluster.TH1MultiplicityRegions.globalswitchon=True
-SiStripMonitorCluster.TH1MainDiagonalPosition.globalswitchon=True
+#SiStripMonitorCluster.TH2CStripVsCpixel.globalswitchon=True
+#SiStripMonitorCluster.TH1MultiplicityRegions.globalswitchon=True
+#SiStripMonitorCluster.TH1MainDiagonalPosition.globalswitchon=True
 SiStripMonitorCluster.TH1StripNoise2ApvCycle.globalswitchon=True
 SiStripMonitorCluster.TH1StripNoise3ApvCycle.globalswitchon=True
+SiStripMonitorCluster.TH1TotalNumberOfClusters.subdetswitchon = True
 
 # SiStripMonitorTrack ####
 # Clone for Cosmic Tracks
