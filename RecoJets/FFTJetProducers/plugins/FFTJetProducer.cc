@@ -52,6 +52,7 @@
 #include "RecoJets/FFTJetAlgorithms/interface/jetConverters.h"
 #include "RecoJets/FFTJetAlgorithms/interface/matchOneToOne.h"
 #include "RecoJets/FFTJetAlgorithms/interface/JetToPeakDistance.h"
+#include "RecoJets/FFTJetAlgorithms/interface/adjustForPileup.h"
 
 #include "DataFormats/JetReco/interface/DiscretizedEnergyFlow.h"
 
@@ -652,21 +653,12 @@ void FFTJetProducer::writeJets(edm::Event& iEvent,
         // Subtract the pile-up
         if (calculatePileup && subtractPileup)
         {
+            jet4vec = adjustForPileup(jet4vec, pileup[ijet], 
+                                      subtractPileupAs4Vec);
             if (subtractPileupAs4Vec)
-            {
-                jet4vec -= pileup[ijet];
                 setJetStatusBit(&myjet, PILEUP_SUBTRACTED_4VEC, true);
-            }
             else
-            {
-                const double pt = jet4vec.Pt();
-                if (pt > 0.0)
-                {
-                    const double pileupPt = pileup[ijet].Pt();
-                    jet4vec *= ((pt - pileupPt)/pt);
-                }
                 setJetStatusBit(&myjet, PILEUP_SUBTRACTED_PT, true);
-            }
         }
 
         // Write the specifics to the jet (simultaneously sets 4-vector,
