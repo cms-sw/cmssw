@@ -101,7 +101,7 @@ def switchToL1Emulator(process,
     # settings for using new HCAL LUTs
     if newHCALLUTs:
       process.hcalReEmulDigis = process.simHcalTriggerPrimitiveDigis.clone()
-      process.hcalReEmulDigis.inputLabel = cms.VInputTag(cms.InputTag('hcalDigis'))
+      process.hcalReEmulDigis.inputLabel = cms.VInputTag(cms.InputTag('hcalDigis'), cms.InputTag('hcalDigis'))
       process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
 
     # configure RCT re-emulation
