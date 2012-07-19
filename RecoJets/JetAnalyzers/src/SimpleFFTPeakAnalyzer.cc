@@ -269,10 +269,6 @@ void SimpleFFTPeakAnalyzer::processClusteringTree(
                 const double peakScale = peak.scale();
                 const double hessDet = peak.hessianDeterminant();
 
-                // For dense trees, peak scale and tree level scale
-                // must be the same (up to, possibly, round-off errors)
-                assert(std::abs(levelScale - peakScale)/levelScale < 1.0e-7);
-
                 ntupleData.push_back(ilev);
                 ntupleData.push_back(ipeak);
                 ntupleData.push_back(nPeaks);
