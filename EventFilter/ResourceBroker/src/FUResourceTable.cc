@@ -16,7 +16,9 @@
 #include <sys/types.h>
 #include <signal.h>
 
+#ifdef linux
 #include <thread>
+#endif
 //#define DEBUG_RES_TAB
 
 using namespace evf;
@@ -987,8 +989,9 @@ void FUResourceTable::shutDownClients() {
 
 	//start watchdog thread
 	watchDogEnd_=false;
+        #ifdef linux
 	std::thread watch(&FUResourceTable::shutdownWatchdog,this,20);
-
+        #endif
 	if (nbClientsToShutDown_ == 0) {
 	        shutdownStatus_|=1<<1;
 		LOG4CPLUS_INFO(
@@ -1107,7 +1110,9 @@ void FUResourceTable::shutDownClients() {
 	        shutdownStatus_|=1<<6;
 	}
 	watchDogEnd_=true;
+        #ifdef linux
 	watch.join();
+        #endif
 }
 
 //______________________________________________________________________________
