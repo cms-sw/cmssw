@@ -105,6 +105,9 @@ private:
     // Space for peaks
     std::vector<fftjet::Peak> peaks;
 
+    // Space for sparse tree nodes
+    std::vector<unsigned> nodes;
+
     // pass/fail decision counters
     unsigned long nPassed;
     unsigned long nRejected;
@@ -172,34 +175,37 @@ void FFTJetDijetFilter::endJob()
 bool FFTJetDijetFilter::filter(
     edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-    typedef fftjet::AbsClusteringTree<fftjet::Peak,long> AbsTree;
     typedef reco::PattRecoTree<float,reco::PattRecoPeak<float> > StoredTree;
 
     edm::Handle<StoredTree> input;
     iEvent.getByLabel(treeLabel, input);
 
-    // Convert into normal FFTJet clustering tree
-    // assuming that the tree is dense
+    // Convert the stored tree into a normal FFTJet clustering tree
+    // and extract the set of peaks at the requested scale
     const double eventScale = insertCompleteEvent ? completeEventScale : 0.0;
-    AbsTree* mytree = 0;
     if (input->isSparse())
     {
-        mytree = dynamic_cast<AbsTree*>(sparseTree);
         sparsePeakTreeFromStorable(*input, iniScales.get(),
                                    eventScale, sparseTree);
+        const unsigned usedLevel = sparseTree->getLevel(fixedScale);
+        sparseTree->getLevelNodes(usedLevel, &nodes);
+        const unsigned numNodes = nodes.size();
+        peaks.clear();
+        peaks.reserve(numNodes);
+        for (unsigned i=0; i<numNodes; ++i)
+            peaks.push_back(sparseTree->uncheckedNode(nodes[i]).getCluster());
     }
     else
     {
-        mytree = dynamic_cast<AbsTree*>(clusteringTree);
         densePeakTreeFromStorable(*input, iniScales.get(),
                                   eventScale, clusteringTree);
+        const unsigned usedLevel = clusteringTree->getLevel(fixedScale);
+        double actualScale = 0.0;
+        long dummyInfo;
+        clusteringTree->getLevelData(usedLevel,&actualScale,&peaks,&dummyInfo);
     }
-    assert(mytree);
 
-    const unsigned usedLevel = mytree->getLevel(fixedScale);
-    double actualScale = 0.0;
-    long dummyInfo;
-    mytree->getLevelData(usedLevel, &actualScale, &peaks, &dummyInfo);
+    // Get out if we don't have two clusters
     const unsigned nClusters = peaks.size();
     if (nClusters < 2)
     {
