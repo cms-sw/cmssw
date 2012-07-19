@@ -24,7 +24,7 @@ namespace edm
 
   // Virtual constructor
 
-  DataMixingMuonWorker::DataMixingMuonWorker() { sel_=0;} 
+  DataMixingMuonWorker::DataMixingMuonWorker() { } 
 
   // Constructor 
   DataMixingMuonWorker::DataMixingMuonWorker(const edm::ParameterSet& ps) : 
@@ -34,14 +34,6 @@ namespace edm
 
     // get the subdetector names
     //    this->getSubdetectorNames();  //something like this may be useful to check what we are supposed to do...
-
-    // create input selector
-    if (label_.size()>0){
-      sel_=new Selector( ModuleLabelSelector(label_));
-    }
-    else {
-      sel_=new Selector( MatchAllSelector());
-    }
 
     // Declare the products to produce
 
@@ -72,8 +64,6 @@ namespace edm
 
   // Virtual destructor needed.
   DataMixingMuonWorker::~DataMixingMuonWorker() { 
-    delete sel_;
-    sel_=0;
   }  
 
   void DataMixingMuonWorker::addMuonSignals(const edm::Event &e) { 

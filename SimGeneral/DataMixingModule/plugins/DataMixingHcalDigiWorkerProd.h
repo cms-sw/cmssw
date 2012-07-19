@@ -18,7 +18,6 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Selector.h"
 
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -76,8 +75,6 @@ namespace edm
       HFSignalGenerator theHFSignalGenerator;
       ZDCSignalGenerator theZDCSignalGenerator;
 
-
-      Selector * sel_;
       std::string label_;
 
     };

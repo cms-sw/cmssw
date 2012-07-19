@@ -17,7 +17,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Selector.h"
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -72,7 +71,6 @@ namespace edm
       const edm::DetSetVector<SiStripDigi>    *digicollection_;
       const edm::DetSetVector<SiStripRawDigi> *rawdigicollection_;
 
-      Selector * sel_;
       std::string label_;
 
     };

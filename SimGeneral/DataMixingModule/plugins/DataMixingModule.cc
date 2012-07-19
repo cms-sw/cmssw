@@ -33,14 +33,6 @@ namespace edm
     // get the subdetector names
     this->getSubdetectorNames();  //something like this may be useful to check what we are supposed to do...
 
-    // create input selector
-    if (label_.size()>0){
-      sel_=new Selector( ModuleLabelSelector(label_));
-    }
-    else {
-      sel_=new Selector( MatchAllSelector());
-    }
-
     // For now, list all of them here.  Later, make this selectable with input parameters
     // 
 
@@ -266,7 +258,6 @@ namespace edm
 
   // Virtual destructor needed.
   DataMixingModule::~DataMixingModule() { 
-    delete sel_;
     if(MergeEMDigis_){ delete EMDigiWorker_;}
     else {delete EMWorker_;}
     if(MergeHcalDigis_) { 

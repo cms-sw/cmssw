@@ -6,7 +6,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Framework/interface/Selector.h"
 #include "DataMixingHcalDigiWorkerProd.h"
 
 
@@ -27,14 +26,6 @@ namespace edm {
 
     // get the subdetector names
     //    this->getSubdetectorNames();  //something like this may be useful to check what we are supposed to do...
-
-    // create input selector
-    //    if (label_.size()>0){
-    //  sel_=new Selector( ModuleLabelSelector(label_));
-    // }
-    //else {
-    //  sel_=new Selector( MatchAllSelector());
-    //}
 
     // declare the products to produce
 
@@ -60,8 +51,6 @@ namespace edm {
   // Virtual destructor needed.
   DataMixingHcalDigiWorkerProd::~DataMixingHcalDigiWorkerProd() { 
     delete myHcalDigitizer_;
-    //delete sel_;
-    //sel_=0;
   }  
 
   void DataMixingHcalDigiWorkerProd::addHcalSignals(const edm::Event &e,const edm::EventSetup& ES) { 

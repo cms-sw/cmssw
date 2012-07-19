@@ -18,7 +18,6 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Selector.h"
 
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -91,7 +90,6 @@ namespace edm
 
       //      unsigned int eventId_; //=0 for signal, from 1-n for pileup events
 
-      Selector * sel_;
       std::string label_;
 
     };

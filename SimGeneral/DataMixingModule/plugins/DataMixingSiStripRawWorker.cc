@@ -23,7 +23,7 @@ namespace edm
 
   // Virtual constructor
 
-  DataMixingSiStripRawWorker::DataMixingSiStripRawWorker() { sel_=0;}
+  DataMixingSiStripRawWorker::DataMixingSiStripRawWorker() { }
 
   // Constructor 
   DataMixingSiStripRawWorker::DataMixingSiStripRawWorker(const edm::ParameterSet& ps) : 
@@ -33,14 +33,6 @@ namespace edm
 
     // get the subdetector names
     //    this->getSubdetectorNames();  //something like this may be useful to check what we are supposed to do...
-
-    // create input selector
-    if (label_.size()>0){
-      sel_=new Selector( ModuleLabelSelector(label_));
-    }
-    else {
-      sel_=new Selector( MatchAllSelector());
-    }
 
     // declare the products to produce
 
@@ -62,8 +54,6 @@ namespace edm
 
   // Virtual destructor needed.
   DataMixingSiStripRawWorker::~DataMixingSiStripRawWorker() { 
-    delete sel_;
-    sel_=0;
   }  
 
 
