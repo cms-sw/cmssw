@@ -4,7 +4,6 @@
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // Geometry
