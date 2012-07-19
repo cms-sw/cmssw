@@ -96,7 +96,7 @@ echo "path : """+path+""""
 	TPATH="""+path+"""
 	TMAPNAME="""+release+"""_"""+arch+"""
 	TMAINDB="""+CONNECTION_STRING+"""
-        TAUXDB="""+"oracle://cms_orcoff_prep/CMS_COND_REGRESSION"+"""
+        TAUXDB="""+"oracle://cms_orcoff_prep/CMS_COND_WEB"+"""
 	TUSERNAME="""+USERNAME+"""
 	TPASSWORD="""+PASSWORD+"""
 	TTEST=$LOCALRT/test/$TARCH
