@@ -35,6 +35,7 @@ class DigiVertexCorrHistogramMaker {
   std::string m_hitname;
   const int m_nbins;
   const int m_scalefact; 
+  const int m_maxnvtx;
   std::map<unsigned int,int> m_binmax;
   std::map<unsigned int, std::string> m_labels;
 

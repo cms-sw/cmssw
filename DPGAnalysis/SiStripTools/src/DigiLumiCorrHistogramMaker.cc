@@ -15,7 +15,7 @@
 
 DigiLumiCorrHistogramMaker::DigiLumiCorrHistogramMaker():
   m_lumiProducer("lumiProducer"),   m_fhm(),  m_runHisto(false),
-  m_hitname(), m_nbins(500), m_scalefact(), m_binmax(), m_labels(), m_nmultvslumi(), m_nmultvslumiprof(), m_subdirs() { }
+  m_hitname(), m_nbins(500), m_scalefact(), m_maxlumi(10.), m_binmax(), m_labels(), m_nmultvslumi(), m_nmultvslumiprof(), m_subdirs() { }
 
 DigiLumiCorrHistogramMaker::DigiLumiCorrHistogramMaker(const edm::ParameterSet& iConfig):
   m_lumiProducer(iConfig.getParameter<edm::InputTag>("lumiProducer")),
@@ -24,6 +24,7 @@ DigiLumiCorrHistogramMaker::DigiLumiCorrHistogramMaker(const edm::ParameterSet& 
   m_hitname(iConfig.getUntrackedParameter<std::string>("hitName","digi")),
   m_nbins(iConfig.getUntrackedParameter<int>("numberOfBins",500)),
   m_scalefact(iConfig.getUntrackedParameter<int>("scaleFactor",5)),
+  m_maxlumi(iConfig.getUntrackedParameter<double>("maxLumi",10.)),
   m_labels(), m_nmultvslumi(), m_nmultvslumiprof(), m_subdirs()
 { 
 
@@ -69,6 +70,7 @@ void DigiLumiCorrHistogramMaker::book(const std::string dirname) {
   
   edm::LogInfo("NumberOfBins") << "Number of Bins: " << m_nbins;
   edm::LogInfo("ScaleFactors") << "y-axis range scale factor: " << m_scalefact;
+  edm::LogInfo("MaxLumi") << "max lumi value: " << m_maxlumi;
   edm::LogInfo("BinMaxValue") << "Setting bin max values";
 
   for(std::map<unsigned int,std::string>::const_iterator lab=m_labels.begin();lab!=m_labels.end();lab++) {
@@ -98,17 +100,17 @@ void DigiLumiCorrHistogramMaker::book(const std::string dirname) {
     if(m_subdirs[i]) {
       sprintf(name,"n%sdigivslumi",slab.c_str());
       sprintf(title,"%s %s multiplicity vs BX lumi",slab.c_str(),m_hitname.c_str());
-      m_nmultvslumi[i] = m_subdirs[i]->make<TH2F>(name,title,250,0.,30.,m_nbins,0.,(1+m_binmax[i]/(m_scalefact*m_nbins))*m_nbins);
+      m_nmultvslumi[i] = m_subdirs[i]->make<TH2F>(name,title,250,0.,m_maxlumi,m_nbins,0.,(1+m_binmax[i]/(m_scalefact*m_nbins))*m_nbins);
       m_nmultvslumi[i]->GetXaxis()->SetTitle("BX lumi [10^{30}cm^{-2}s^{-1}]");    m_nmultvslumi[i]->GetYaxis()->SetTitle("Number of Hits");
       sprintf(name,"n%sdigivslumiprof",slab.c_str());
-      m_nmultvslumiprof[i] = m_subdirs[i]->make<TProfile>(name,title,250,0.,30.);
+      m_nmultvslumiprof[i] = m_subdirs[i]->make<TProfile>(name,title,250,0.,m_maxlumi);
       m_nmultvslumiprof[i]->GetXaxis()->SetTitle("BX lumi [10^{30}cm^{-2}s^{-1}]");    m_nmultvslumiprof[i]->GetYaxis()->SetTitle("Number of Hits");
       
       if(m_runHisto) {
 	edm::LogInfo("RunHistos") << "Pseudo-booking run histos " << slab.c_str();
 	sprintf(name,"n%sdigivslumivsbxprofrun",slab.c_str());
 	sprintf(title,"%s %s multiplicity vs BX lumi vs BX",slab.c_str(),m_hitname.c_str());
-	m_nmultvslumivsbxprofrun[i] = m_fhm[i]->makeTProfile2D(name,title,3564,-0.5,3563.5,250,0.,30.);
+	m_nmultvslumivsbxprofrun[i] = m_fhm[i]->makeTProfile2D(name,title,3564,-0.5,3563.5,250,0.,m_maxlumi);
       }
     }
 
