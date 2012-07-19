@@ -30,14 +30,14 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.load("PhysicsTools.PatAlgos.patTestJEC_local_cfi")
 
 ## Output Module Configuration (expects a path 'p')
-from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
+from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
 process.out = cms.OutputModule("PoolOutputModule",
                                fileName = cms.untracked.string('patTuple.root'),
                                ## save only events passing the full path
                                #SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('p') ),
                                ## save PAT output; you need a '*' to unpack the list of commands
                                ## 'patEventContent'
-                               outputCommands = cms.untracked.vstring('drop *', *patEventContent )
+                               outputCommands = cms.untracked.vstring('drop *', *patEventContentNoCleaning )
                                )
 
 process.outpath = cms.EndPath(process.out)

@@ -11,11 +11,16 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
-process.options.allowUnscheduled = cms.untracked.bool(True)
-#process.Tracer = cms.Service("Tracer")
+from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
+process.out.outputCommands = cms.untracked.vstring("drop *", *patEventContentNoCleaning)
+
+#process.options.allowUnscheduled = cms.untracked.bool(True)
+process.Tracer = cms.Service("Tracer")
 process.p = cms.Path(
     process.selectedPatCandidates
     )
+
+
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
