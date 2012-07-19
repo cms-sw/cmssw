@@ -24,8 +24,9 @@ fftjetDijetFilter = cms.EDFilter(
     # Clustering tree distance functor
     TreeDistanceCalculator = fftjet_fixed_bandwidth_distance,
     #
-    # The scale to work with
-    fixedScale = cms.double(0.5*1.0001),
+    # The scale to work with. Clustering tree will find the closest
+    # level whose scale is equal to or above the one given here.
+    fixedScale = cms.double(0.5/1.0001),
     #
     # Conversion factor from scale squared times peak magnitude to Pt.
     # Note that this factor depends on the grid used for pattern resolution.
