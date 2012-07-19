@@ -63,19 +63,17 @@ options.parseArguments()
 
 
 if not options.useData :
-	inputJetCorrLabel = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
+    inputJetCorrLabel = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
 
-	process.source.fileNames = [
-		'/store/mc/Summer12/TTJets_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S7_START52_V5-v1/0000/FEBE99BB-3881-E111-B1F3-003048D42DC8.root'
-		]    		
+    process.source.fileNames = [
+        '/store/mc/Summer12/TTJets_MassiveBinDECAY_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S7_START52_V9-v2/0000/00024240-BCB8-E111-A547-00304867901A.root'
+    ]
 
 else :
-	inputJetCorrLabel = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
-	process.source.fileNames = [
-		'/store/mc/Summer12/TTJets_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S7_START52_V5-v1/0000/FEBE99BB-3881-E111-B1F3-003048D42DC8.root'
-		]
-
-	
+    inputJetCorrLabel = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
+    process.source.fileNames = [
+        '/store/mc/Summer12/TTJets_MassiveBinDECAY_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S7_START52_V9-v2/0000/00024240-BCB8-E111-A547-00304867901A.root'
+    ]
 
 #process.source.eventsToProcess = cms.untracked.VEventRange( ['1:86747'] )
 
@@ -98,9 +96,18 @@ import sys
 # 4.2.x or 52x configuration
 fileTag = "52x"
 if options.useData :
-	process.GlobalTag.globaltag = cms.string( 'GR_R_52_V9D::All' )
+    process.GlobalTag.globaltag = cms.string( 'GR_R_52_V9D::All' )
+    # Jet Probability Calibration for 52x and 53x data
+    process.GlobalTag.toGet = cms.VPSet(
+        cms.PSet(record = cms.string("BTagTrackProbability2DRcd"),
+                 tag = cms.string("TrackProbabilityCalibration_2D_2012DataTOT_v1_offline"),
+                 connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_BTAU")),
+        cms.PSet(record = cms.string("BTagTrackProbability3DRcd"),
+                 tag = cms.string("TrackProbabilityCalibration_3D_2012DataTOT_v1_offline"),
+                 connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_BTAU"))
+    )
 else :
-	process.GlobalTag.globaltag = cms.string( 'START52_V11C::All' )
+    process.GlobalTag.globaltag = cms.string( 'START52_V11C::All' )
 
 
 # require scraping filter
@@ -121,8 +128,6 @@ process.HBHENoiseFilter.minIsolatedNoiseSumEt = cms.double(999999.)
 # switch on PAT trigger
 #from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
 #switchOnTrigger( process, hltProcess=options.hltProcess )
-
-
 
 
 ###############################
