@@ -22,7 +22,9 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
                                      
     TopFolderName = cms.string('SiStrip'),
 
-    BPTXfilter = cms.PSet(),
+    BPTXfilter     = cms.PSet(),
+    PixelDCSfilter = cms.PSet(),
+    StripDCSfilter = cms.PSet(),
                                      
     CreateTrendMEs = cms.bool(False),
     Trending = cms.PSet(

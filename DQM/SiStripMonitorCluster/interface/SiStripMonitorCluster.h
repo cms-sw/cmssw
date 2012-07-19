@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.40 2012/04/17 18:50:29 threus Exp $
+// $Id: SiStripMonitorCluster.h,v 1.41 2012/07/18 17:15:04 tosi Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -93,6 +93,8 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   MonitorElement* StripNoise3Cycle;
   MonitorElement* NumberOfPixelClus;
   MonitorElement* NumberOfStripClus;
+
+  MonitorElement* BPTXrateTrend;
 
  private:
 
@@ -203,9 +205,11 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
 
   // add for selecting on ZeroBias events in the MinimumBias PD
   GenericTriggerEventFlag* genTriggerEventFlagBPTXfilter_;
-  GenericTriggerEventFlag* genTriggerEventFlagMUfilter_;
+  GenericTriggerEventFlag* genTriggerEventFlagPixelDCSfilter_;
+  GenericTriggerEventFlag* genTriggerEventFlagStripDCSfilter_;
 
   bool passBPTXfilter_;
-  bool passMUfilter_;
+  bool passPixelDCSfilter_;
+  bool passStripDCSfilter_;
 };
 #endif
