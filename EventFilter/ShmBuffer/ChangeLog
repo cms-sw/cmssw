@@ -1,6 +1,8 @@
+2012-07-20 Srecko Morovic <srecko.morovic@cern.ch>
 
+	* tag V00-08-25
 	* holding shm lock during update of raw cell state and change of discard counter
-	  (after seeing related crash in the production system)
+	  (after seeing related failure in the production system)
 	* assert message cleanup (avoiding unecessary string building
 	  if there is no exception)
 
