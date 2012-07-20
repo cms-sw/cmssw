@@ -1,4 +1,6 @@
+2012-07-20 Srecko Morovic <srecko.morovic@cern.ch>
 
+	* tag V02-05-08
 	* sending interval from the last report to the iDie
 	* detach DQM from Shm before setting failed state
 
