@@ -8,9 +8,9 @@
  * \authors Phil Harris, CERN
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: PFMETAlgorithmMVA.h,v 1.2 2012/04/25 08:53:38 veelken Exp $
+ * $Id: PFMETAlgorithmMVA.h,v 1.3 2012/05/04 13:22:18 veelken Exp $
  *
  */
 
@@ -36,7 +36,7 @@ class PFMETAlgorithmMVA
   PFMETAlgorithmMVA(const edm::ParameterSet& cfg);
   ~PFMETAlgorithmMVA();
 
-  void setInput(const std::vector<reco::Candidate::LorentzVector>&,
+  void setInput(const std::vector<mvaMEtUtilities::leptonInfo>&,
 		const std::vector<mvaMEtUtilities::JetInfo>&,
 		const std::vector<mvaMEtUtilities::pfCandInfo>&,
 		const std::vector<reco::Vertex::Point>&);
@@ -118,6 +118,8 @@ class PFMETAlgorithmMVA
 
   double sumLeptonPx_;
   double sumLeptonPy_;
+  double chargedSumLeptonPx_;
+  double chargedSumLeptonPy_;
 
   reco::Candidate::LorentzVector mvaMEt_;
   TMatrixD mvaMEtCov_;

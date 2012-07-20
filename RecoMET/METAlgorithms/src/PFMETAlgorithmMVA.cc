@@ -83,26 +83,32 @@ PFMETAlgorithmMVA::~PFMETAlgorithmMVA()
 }
 
 //-------------------------------------------------------------------------------
-void PFMETAlgorithmMVA::setInput(const std::vector<reco::Candidate::LorentzVector>& leptons,
+void PFMETAlgorithmMVA::setInput(const std::vector<mvaMEtUtilities::leptonInfo>& leptons,
 				 const std::vector<mvaMEtUtilities::JetInfo>& jets,
 				 const std::vector<mvaMEtUtilities::pfCandInfo>& pfCandidates,
 				 const std::vector<reco::Vertex::Point>& vertices)
 {
-  std::vector<mvaMEtUtilities::pfCandInfo> pfCandidates_leptons = utils_.cleanPFCands(pfCandidates, leptons, 0.3, true);
-  CommonMETData sumLeptons = utils_.computePFCandSum(pfCandidates_leptons, dZcut_, 2);
-  sumLeptonPx_ = sumLeptons.mex;
-  sumLeptonPy_ = sumLeptons.mey;
+  //std::vector<mvaMEtUtilities::pfCandInfo> pfCandidates_leptons = utils_.cleanPFCands(pfCandidates, leptons, 0.3, true);
+  ///CommonMETData sumLeptons = utils_.computePFCandSum(pfCandidates_leptons, dZcut_, 2);
+  //const std::vector<mvaMEtUtilities::pfCandInfo> pfCandidates_cleaned = utils_.cleanPFCands(pfCandidates, leptons, 0.3, false);
 
-  double ptThreshold = -1.;
+  CommonMETData        sumLeptons = utils_.computeSumLeptons(leptons, false);
+  CommonMETData chargedSumLeptons = utils_.computeSumLeptons(leptons, true);
+  
+  sumLeptonPx_        = sumLeptons.mex;
+  sumLeptonPy_        = sumLeptons.mey;
+
+  chargedSumLeptonPx_ = chargedSumLeptons.mex;
+  chargedSumLeptonPy_ = chargedSumLeptons.mey;
+
+  double ptThreshold = -1000.;
   if(is42_) ptThreshold = 1.;  //PH: For 42 training added a pT cut of 1 GeV on corrected Jets
-  std::vector<mvaMEtUtilities::JetInfo> jets_cleaned = utils_.cleanJets(jets, leptons, ptThreshold, 0.5);
-  const std::vector<mvaMEtUtilities::pfCandInfo> pfCandidates_cleaned = utils_.cleanPFCands(pfCandidates, leptons, 0.3, false);
-
-  CommonMETData pfRecoil_data  = utils_.computeNegPFRecoil(sumLeptons, pfCandidates_cleaned, dZcut_);
-  CommonMETData tkRecoil_data  = utils_.computeNegTrackRecoil(sumLeptons, pfCandidates_cleaned, dZcut_);
-  CommonMETData npuRecoil_data = utils_.computeNegNoPURecoil(sumLeptons, pfCandidates_cleaned, jets_cleaned, dZcut_);
-  CommonMETData pucRecoil_data = utils_.computeNegPUCRecoil(sumLeptons, pfCandidates_cleaned, jets_cleaned, dZcut_);
-  CommonMETData puMEt_data     = utils_.computePUMEt(pfCandidates_cleaned, jets_cleaned, 0.2); //dZCut bug
+  std::vector<mvaMEtUtilities::JetInfo>          jets_cleaned         = utils_.cleanJets(jets, leptons, ptThreshold, 0.5);
+  CommonMETData pfRecoil_data  = utils_.computeNegPFRecoil   (sumLeptons       , pfCandidates,               dZcut_);
+  CommonMETData tkRecoil_data  = utils_.computeNegTrackRecoil(chargedSumLeptons, pfCandidates,               dZcut_);
+  CommonMETData npuRecoil_data = utils_.computeNegNoPURecoil (chargedSumLeptons, pfCandidates, jets_cleaned, dZcut_);
+  CommonMETData pucRecoil_data = utils_.computeNegPUCRecoil  (sumLeptons       , pfCandidates, jets_cleaned, dZcut_);
+  CommonMETData puMEt_data     = utils_.computePUMEt         (                   pfCandidates, jets_cleaned, 0.2); //dZCut bug
 
   reco::Candidate::LorentzVector jet1P4 = utils_.leadJetP4(jets_cleaned);
   reco::Candidate::LorentzVector jet2P4 = utils_.subleadJetP4(jets_cleaned);
@@ -142,7 +148,6 @@ void PFMETAlgorithmMVA::setInput(const std::vector<reco::Candidate::LorentzVecto
 	   numJetsPtGt30, numJets, 
 	   numVertices);
 
-  //PFMETAlgorithmMVA::print(std::cout);
 }
 
 void PFMETAlgorithmMVA::setInput(double pfSumEt, double pfU, double pfPhi,
@@ -197,16 +202,12 @@ void PFMETAlgorithmMVA::evaluateMVA()
 
   // compute MET
   double U      = pfU_*mvaOutputU_;
-  //std::cout << "U = " << U << std::endl;
   double Phi    = pfPhi_ + mvaOutputDPhi_;
   if ( U < 0. ) Phi += TMath::Pi();
   double cosPhi = cos(Phi);
   double sinPhi = sin(Phi);
-  //std::cout << "Phi = " << Phi << ": cos(Phi) = " << cosPhi << ", sin(Phi) = " << sinPhi << std::endl;
   double metPx  = U*cosPhi - sumLeptonPx_; // CV: U is actually minus the hadronic recoil in the event
   double metPy  = U*sinPhi - sumLeptonPy_;
-  //std::cout << "U*cosPhi = " << (U*cosPhi) << ", sum(leptons) Px = " << sumLeptonPx_ << " --> metPx = " << metPx << std::endl;
-  //std::cout << "U*sinPhi = " << (U*sinPhi) << ", sum(leptons) Py = " << sumLeptonPy_ << " --> metPy = " << metPy << std::endl;
   double metPt  = sqrt(metPx*metPx + metPy*metPy);
   mvaMEt_.SetCoordinates(metPx, metPy, 0., metPt);
 
@@ -248,8 +249,6 @@ void PFMETAlgorithmMVA::evaluateU()
   mvaInputU_[23] = numJetsPtGt30_;
   mvaInputU_[24] = pfPhi_ + mvaOutputDPhi_;
   mvaOutputU_    = mvaReaderU_->GetResponse(mvaInputU_);
-  //std::cout << "<PFMETAlgorithmMVA::evaluateU>:" << std::endl;
-  //std::cout << " mvaOutputU = " << mvaOutputU_ << std::endl;
 }
 
 void PFMETAlgorithmMVA::evaluateDPhi() 
@@ -278,8 +277,6 @@ void PFMETAlgorithmMVA::evaluateDPhi()
   mvaInputDPhi_[21] = numJets_;
   mvaInputDPhi_[22] = numJetsPtGt30_;
   mvaOutputDPhi_    = mvaReaderDPhi_->GetResponse(mvaInputDPhi_);
-  //std::cout << "<PFMETAlgorithmMVA::evaluateDPhi>:" << std::endl;
-  //std::cout << " mvaOutputDPhi = " << mvaOutputDPhi_ << std::endl;
 }
 
 void PFMETAlgorithmMVA::evaluateCovU1() 
@@ -311,8 +308,6 @@ void PFMETAlgorithmMVA::evaluateCovU1()
   mvaInputCovU1_[24] = pfPhi_ + mvaOutputDPhi_;
   mvaInputCovU1_[25] = mvaOutputU_*pfU_;
   mvaOutputCovU1_    = mvaReaderCovU1_->GetResponse(mvaInputCovU1_);
-  //std::cout << "<PFMETAlgorithmMVA::evaluateCovU1>:" << std::endl;
-  //std::cout << " mvaOutputCovU1 = " << mvaOutputCovU1_ << std::endl;
 }
 
 void PFMETAlgorithmMVA::evaluateCovU2() 
@@ -344,12 +339,7 @@ void PFMETAlgorithmMVA::evaluateCovU2()
   mvaInputCovU2_[24] = pfPhi_ + mvaOutputDPhi_;
   mvaInputCovU2_[25] = mvaOutputU_*pfU_;
   mvaOutputCovU2_    = mvaReaderCovU2_->GetResponse(mvaInputCovU2_);
-  //std::cout << "<PFMETAlgorithmMVA::evaluateCovU2>:" << std::endl;
-  //std::cout << " mvaOutputCovU2 = " << mvaOutputCovU2_ << std::endl;
 }
-//-------------------------------------------------------------------------------
-
-//-------------------------------------------------------------------------------
 void PFMETAlgorithmMVA::print(std::ostream& stream) const
 {
   stream << "<PFMETAlgorithmMVA::print>:" << std::endl;
@@ -368,4 +358,4 @@ void PFMETAlgorithmMVA::print(std::ostream& stream) const
 	 << " phi = " << atan2(sumLeptonPy_, sumLeptonPx_) << " "
 	 << "(Px = " << sumLeptonPx_ << ", Py = " << sumLeptonPy_ << ")" << std::endl;
 }
-//-------------------------------------------------------------------------------
+
