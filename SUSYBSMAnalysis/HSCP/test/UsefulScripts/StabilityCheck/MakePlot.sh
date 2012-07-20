@@ -2,7 +2,7 @@
 root -l -b << EOF
   TString makeshared(gSystem->GetMakeSharedLib());
   TString dummy = makeshared.ReplaceAll("-W ", "");
-  TString dummy = makeshared.ReplaceAll("-Wshadow ", "");
+  TString dummy = makeshared.ReplaceAll("-Wshadow ", " -std=c++0x ");
   gSystem->SetMakeSharedLib(makeshared);
   gSystem->Load("libFWCoreFWLite");
   AutoLibraryLoader::enable();
