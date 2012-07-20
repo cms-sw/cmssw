@@ -15,7 +15,7 @@ FWPFEcalRecHitLegoProxyBuilder::scaleProduct( TEveElementList *parent, FWViewTyp
       if( (*i)->isTallest() == false && (*i)->getEtEnergy( b ) == maxVal )
          (*i)->setIsTallest( true );
 
-      (*i)->updateScale( vc);
+      (*i)->updateScale( vc, getMaxValLog(caloScale->getPlotEt()));
    }
 }
 

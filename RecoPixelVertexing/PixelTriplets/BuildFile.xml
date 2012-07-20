@@ -9,6 +9,7 @@
 <use   name="MagneticField/Records"/>
 <use   name="MagneticField/Engine"/>
 <use   name="RecoTracker/TkSeedingLayers"/>
+<use   name="RecoTracker/TkSeedGenerator"/>
 <export>
   <lib   name="1"/>
 </export>

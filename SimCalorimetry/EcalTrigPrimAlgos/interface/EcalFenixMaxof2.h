@@ -20,7 +20,7 @@ class EcalFenixMaxof2 {
 public:
   EcalFenixMaxof2(int maxNrSamples,int nbMaxStrips) ;
   virtual ~EcalFenixMaxof2() ;
-  void process(std::vector<std::vector <int> > &, int nStr, int bitMask, std::vector<int> &out);
+  void process(std::vector<std::vector <int> > &, int nStr, std::vector<int> &out);
 
  private:
   int nbMaxStrips_;

@@ -1,4 +1,5 @@
 #include "FWPFClusterLegoProxyBuilder.h"
+#include "Fireworks/Candidates/interface/FWLegoCandidate.h"
 
 //______________________________________________________________________________
 void
@@ -9,7 +10,7 @@ FWPFClusterLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveElemen
     {
         for( TEveElement::List_i j = parent->BeginChildren(); j != parent->EndChildren(); j++ )
         {
-            FWPFLegoCandidate *cluster = dynamic_cast<FWPFLegoCandidate*>( *j );
+            FWLegoCandidate *cluster = dynamic_cast<FWLegoCandidate*>( *j );
             const FWDisplayProperties &dp = FWProxyBuilderBase::item()->modelInfo( iId.index() ).displayProperties();
             cluster->SetMarkerColor( dp.color() );
             cluster->ElementChanged();
@@ -26,7 +27,7 @@ FWPFClusterLegoProxyBuilder::scaleProduct( TEveElementList* parent, FWViewType::
       if ((*i)->HasChildren())
       {
          TEveElement* el = (*i)->FirstChild();  // there is only one child added in this proxy builder
-         FWPFLegoCandidate *cluster = dynamic_cast<FWPFLegoCandidate*>( el );
+         FWLegoCandidate *cluster = dynamic_cast<FWLegoCandidate*>( el );
          cluster->updateScale(vc, context());
       }
    }
@@ -45,7 +46,7 @@ FWPFClusterLegoProxyBuilder::sharedBuild( const reco::PFCluster &iData, TEveElem
 
    context().voteMaxEtAndEnergy( et, energy );
 
-   FWPFLegoCandidate *cluster = new FWPFLegoCandidate( vc, FWProxyBuilderBase::context(), energy, et, pt, eta, phi );
+   FWLegoCandidate *cluster = new FWLegoCandidate( vc, FWProxyBuilderBase::context(), energy, et, pt, eta, phi );
    cluster->SetMarkerColor( FWProxyBuilderBase::item()->defaultDisplayProperties().color() );
    setupAddElement( cluster, &oItemHolder );
 }

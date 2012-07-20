@@ -15,8 +15,8 @@
 
 /** \class CaloTowersCreator
   *  
-  * $Date: 2010/11/24 19:52:16 $
-  * $Revision: 1.7 $
+  * $Date: 2011/03/18 19:12:05 $
+  * $Revision: 1.8 $
   * Original author: J. Mans - Minnesota
   */
 
@@ -35,9 +35,11 @@ public:
 private:
 
   static const std::vector<double>& getGridValues();
+  template<typename COLL>
+  void process(edm::Event& e, const edm::InputTag & label);
 
   CaloTowersCreationAlgo algo_;
-  edm::InputTag hbheLabel_,hoLabel_,hfLabel_;
+  edm::InputTag hbheLabel_,hoLabel_,hfLabel_, hcalUpgradeLabel_;
   std::vector<edm::InputTag> ecalLabels_;
   bool allowMissingInputs_;
 
@@ -63,7 +65,7 @@ private:
   edm::ESWatcher<HcalSeverityLevelComputerRcd> hcalSevLevelWatcher_;
   edm::ESWatcher<HcalChannelQualityRcd> hcalChStatusWatcher_;
   edm::ESWatcher<IdealGeometryRecord> caloTowerConstituentsWatcher_;
-
+  bool upgrade_;
 };
 
 #endif

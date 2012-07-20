@@ -35,18 +35,18 @@ private:
     void dumpG4LVList(std::ostream& out = std::cout);
     void dumpG4LVTree(std::ostream& out = std::cout);
     void dumpMaterialList(std::ostream& out = std::cout);
-    void dumpG4LVLeaf(G4LogicalVolume * lv, uint leafDepth, uint count, std::ostream & out = std::cout);
+    void dumpG4LVLeaf(G4LogicalVolume * lv, unsigned int leafDepth, unsigned int count, std::ostream & out = std::cout);
     void dumpG4LVMatBudget(std::ostream& out = std::cout);
-    void dumpG4LVLeafWithMat(G4LogicalVolume * lv, uint leafDepth, uint count, std::ostream & out = std::cout);
+    void dumpG4LVLeafWithMat(G4LogicalVolume * lv, unsigned int leafDepth, unsigned int count, std::ostream & out = std::cout);
     int countNoTouchables();
     void add1touchable(G4LogicalVolume * lv, int & nTouch);
     void dumpHierarchyTreePVLV(std::ostream& out = std::cout);
-    void dumpHierarchyLeafPVLV(G4LogicalVolume * lv, uint leafDepth, std::ostream & out = std::cout);
-    void dumpLV(G4LogicalVolume * lv, uint leafDepth, std::ostream & out = std::cout);
-    void dumpPV(G4VPhysicalVolume * pv, uint leafDepth, std::ostream & out = std::cout);
-    void dumpTouch(G4VPhysicalVolume * pv, uint leafDepth, std::ostream & out = std::cout);
-    std::string spacesFromLeafDepth(uint leafDepth);
-    void dumpSolid(G4VSolid * sol, uint leafDepth, std::ostream & out = std::cout);
+    void dumpHierarchyLeafPVLV(G4LogicalVolume * lv, unsigned int leafDepth, std::ostream & out = std::cout);
+    void dumpLV(G4LogicalVolume * lv, unsigned int leafDepth, std::ostream & out = std::cout);
+    void dumpPV(G4VPhysicalVolume * pv, unsigned int leafDepth, std::ostream & out = std::cout);
+    void dumpTouch(G4VPhysicalVolume * pv, unsigned int leafDepth, std::ostream & out = std::cout);
+    std::string spacesFromLeafDepth(unsigned int leafDepth);
+    void dumpSolid(G4VSolid * sol, unsigned int leafDepth, std::ostream & out = std::cout);
     G4VPhysicalVolume * getTopPV();
     G4LogicalVolume * getTopLV();
 private:

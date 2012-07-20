@@ -5,11 +5,11 @@
 // Class  :     CmsShowMainFrame
 //
 // Implementation:
-//     <Notes on implementation>
+//     <Notes on implementation> 
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.113 2011/02/24 10:26:25 eulisse Exp $
+// $Id: CmsShowMainFrame.cc,v 1.120 2011/09/07 22:37:02 amraktad Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -46,6 +46,8 @@
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
 #include "Fireworks/Core/src/FWNumberEntry.h"
 
+#include "Fireworks/Core/interface/fwPaths.h"
+
 #include <fstream>
 
 //
@@ -56,6 +58,15 @@
 // static data member definitions
 //
 
+
+// AMT: temprary workaround until TGPack::ResizeExistingFrames() is public
+class FWPack : public TGPack
+{
+   friend class CmsShowMainFrame;
+public:
+   FWPack(const TGWindow* w) : TGPack(w, 100, 100) {}
+   virtual ~FWPack() {}
+};
 
 //
 // constructors and destructor
@@ -114,7 +125,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *showMainViewCtl      = new CSGAction(this, cmsshow::sShowMainViewCtl.c_str());
    CSGAction *showAddCollection    = new CSGAction(this, cmsshow::sShowAddCollection.c_str());
    CSGAction *showInvMassDialog    = new CSGAction(this, cmsshow::sShowInvMassDialog.c_str());
-   CSGAction *showGeometryTable    = new CSGAction(this, cmsshow::sShowGeometryTable.c_str());
 
    CSGAction *help               = new CSGAction(this, cmsshow::sHelp.c_str());
    CSGAction *keyboardShort      = new CSGAction(this, cmsshow::sKeyboardShort.c_str());
@@ -169,7 +179,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    menuBar->AddPopup("Edit", editMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
 
    showCommonInsp->createMenuEntry(editMenu);
-   showCommonInsp->createShortcut(kKey_A, "CTRL", GetId());
+   showCommonInsp->createShortcut(kKey_A, "CTRL+SHIFT", GetId());
    colorset->createMenuEntry(editMenu);
    colorset->createShortcut(kKey_B, "CTRL", GetId());
    editMenu->AddSeparator();
@@ -210,7 +220,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    TGPopupMenu* windowMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Window", windowMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
 
-   showCommonInsp->createShortcut(kKey_A, "CTRL", GetId());
    showCommonInsp->createMenuEntry(windowMenu);
    showObjInsp->createMenuEntry(windowMenu);
    showEventDisplayInsp->createShortcut(kKey_I, "CTRL", GetId());
@@ -218,10 +227,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    showAddCollection->createMenuEntry(windowMenu);
    showMainViewCtl->createMenuEntry(windowMenu);
    showInvMassDialog->createMenuEntry(windowMenu);
-
-   TGPopupMenu *geoMenu = new TGPopupMenu(gClient->GetRoot());
-   menuBar->AddPopup("Geomtery", geoMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
-   showGeometryTable->createMenuEntry(geoMenu);
 
    TGPopupMenu *helpMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Help", helpMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
@@ -482,7 +487,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    
    //==============================================================================
 
-   TGPack *csArea = new TGPack(this, this->GetWidth(), this->GetHeight()-42);
+   FWPack *csArea = new FWPack(this);
    csArea->SetVertical(kFALSE);
 
    TGCompositeFrame *cf = m_manager->createList(csArea);
@@ -674,7 +679,8 @@ Bool_t CmsShowMainFrame::HandleKey(Event_t *event) {
               (event->fState == (UInt_t)(modcode | kKeyLockMask)) ||
               (event->fState == (UInt_t)(modcode | kKeyMod2Mask | kKeyLockMask)))) {
             (*it_act)->activated.emit();
-            return kTRUE;
+            //  return kTRUE;
+            return false;
          }
       }
    }
@@ -722,15 +728,24 @@ CmsShowMainFrame::showFWorksInfo()
 {
    if (m_fworksAbout == 0)
    {
-      TString infoFileName("$(CMSSW_BASE)/src/Fireworks/Core/data/version.txt");
-      gSystem->ExpandPathName(infoFileName);
-      
-      ifstream infoFile(infoFileName);
       TString infoText;
-      infoText.ReadFile(infoFile);
-      infoFile.close();
- 
-      const UInt_t ww = 280, hh = 180;
+      if (gSystem->Getenv("CMSSW_VERSION"))
+      {
+         infoText = "Version ";
+         infoText += gSystem->Getenv("CMSSW_VERSION");
+      }
+      else
+      {
+         TString infoFileName("/data/version.txt");
+         fireworks::setPath(infoFileName);
+         ifstream infoFile(infoFileName);
+         infoText.ReadFile(infoFile);
+         infoFile.close();
+      }
+
+      infoText += "\nIt works or we fix it for free!\nhn-cms-visualization@cern.ch\n";
+
+      const UInt_t ww = 280, hh = 190;
       
       m_fworksAbout = new InfoFrame(gClient->GetRoot(), ww, hh, kVerticalFrame | kFixedSize);
       m_fworksAbout->SetWMSizeHints(ww, hh, ww, hh, 0, 0);
@@ -768,4 +783,33 @@ CmsShowMainFrame::bindCSGActionKeys(const TGMainFrame* f) const
       if ((*i)-> getKeycode())
          f->BindKey(this, (*i)->getKeycode(), (*i)->getModcode()); 
    }
+}
+
+void
+CmsShowMainFrame::setSummaryViewWeight(float x)
+{
+
+   TGFrameElement* fe = (TGFrameElement*) GetList()->Last();
+   FWPack* pack = (FWPack*)(fe->fFrame);
+
+   TGFrameElementPack* fep;
+   fep  = (TGFrameElementPack*)pack->GetList()->At(1);
+   fep->fWeight = x;
+
+   fep  = (TGFrameElementPack*)pack->GetList()->At(3);
+   fep->fWeight = 100 -x;
+
+   pack->ResizeExistingFrames();
+   pack->Layout();
+}
+
+float
+CmsShowMainFrame::getSummaryViewWeight() const
+{
+   TGFrameElement* fe = (TGFrameElement*)GetList()->Last();
+   TGPack* pack = (TGPack*)(fe->fFrame);
+
+   TGFrameElementPack* fep = (TGFrameElementPack*)pack->GetList()->At(1);
+   return fep->fWeight;
+      
 }

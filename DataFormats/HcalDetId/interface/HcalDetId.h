@@ -9,8 +9,8 @@
 /** \class HcalDetId
  *  Cell identifier class for the HCAL subdetectors, precision readout cells only
  *
- *  $Date: 2008/11/06 10:30:38 $
- *  $Revision: 1.13 $
+ *  $Date: 2011/05/29 18:43:20 $
+ *  $Revision: 1.15 $
  *  \author J. Mans - Minnesota
  *
  *  Rev.1.11: A.Kubik,R.Ofierzynski: add the hashed_index
@@ -54,10 +54,15 @@ public:
 			  int             tower_iphi,
 			  int             depth       ) ;
 
+  static bool validDetIdPreLS1( HcalSubdetector subdet,
+				int             tower_ieta,
+				int             tower_iphi,
+				int             depth       ) ;
+
   // get the hashed index
   int hashed_index() const;
 
-  uint32_t denseIndex() const { return hashed_index() ; }
+  uint32_t denseIndex() const { return (uint32_t)(hashed_index()) ; }
 
   static bool validDenseIndex( uint32_t din ) { return ( din < kSizeForDenseIndexing ) ; }
 
@@ -65,17 +70,32 @@ public:
 
   static const HcalDetId Undefined;
 
-   private:
+  static const int maxDepthHB=7, maxDepthHE=7;
 
-      enum { kHBhalf = 1296 ,
-	     kHEhalf = 1296 ,
-	     kHOhalf = 1080 ,
-	     kHFhalf = 864  ,
-	     kHcalhalf = kHBhalf + kHEhalf + kHOhalf + kHFhalf } ;
+private:
 
-   public:
+  enum { kHBhalf = 1296 ,
+	 kHEhalf = 1296 ,
+	 kHOhalf = 1080 ,
+	 kHFhalf = 864  ,
+	 kHcalhalf = kHBhalf + kHEhalf + kHOhalf + kHFhalf } ;
+  enum { kSizeForDenseIndexingPreLS1 = 2*kHcalhalf } ;
+  enum { kHBSizePreLS1 = 2*kHBhalf } ;
+  enum { kHESizePreLS1 = 2*kHEhalf } ;
+  enum { kHBHalfExtra  = 72*(maxDepthHB*15-16) };
+  enum { kHEHalfExtra  = 36*(maxDepthHE*19-40) };
+  enum { kHBSizeExtra  = 2*kHBHalfExtra };
+  enum { kHESizeExtra  = 2*kHEHalfExtra };
 
-      enum { kSizeForDenseIndexing = 2*kHcalhalf } ;
+  static bool validDenseIndexPreLS1( uint32_t din ) { return ( din < kSizeForDenseIndexingPreLS1 ) ; }
+
+public:
+
+  enum { kHBSize = kHBSizePreLS1+kHBSizeExtra } ;
+  enum { kHESize = kHESizePreLS1+kHESizeExtra } ;
+  enum { kHOSize = 2*kHOhalf } ;
+  enum { kHFSize = 2*kHFhalf } ;
+  enum { kSizeForDenseIndexing = kHBSize+kHESize+kHOSize+kHFSize } ;
 
 };
 

@@ -15,9 +15,12 @@ kt6PFJets = kt4PFJets.clone( rParam = 0.6 )
 ca6PFJets = ca4PFJets.clone( rParam = 0.6 )
 
 #compute areas for Fastjet PU subtraction  
-kt6PFJets.doRhoFastjet = cms.bool(True)
-ak5PFJets.doAreaFastjet = cms.bool(True)
-ak7PFJets.doAreaFastjet = cms.bool(True) 
+kt6PFJets.doRhoFastjet = True
+kt6PFJets.doAreaFastjet = True
+#use active areas and not Voronoi tessellation for the moment
+#kt6PFJets.voronoiRfact = 0.9
+ak5PFJets.doAreaFastjet = True
+ak7PFJets.doAreaFastjet = True
 
 recoPFJets   =cms.Sequence(kt4PFJets+kt6PFJets+
                            iterativeCone5PFJets+

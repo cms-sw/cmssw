@@ -19,27 +19,9 @@ laserSorter = cms.EDAnalyzer("LaserSorter",
   disableOutput = cms.untracked.bool(False),
   outputListFile = cms.untracked.string("lmfFileList.txt"),
   verbosity = cms.untracked.int32(0),
-
   #limit on "no fully readout dcc error" messages per run
   maxFullReadoutDccError = cms.int32(10),
-
   #limit on "No ECAL DCC Data" messages per run
-  maxNoEcalDataMess = cms.int32(10),
-
-  # Tolerance on lumi block spanning of a FED sequence. Subsequent events
-  # of a same FED must span at most on 2*lumiBlockSpan_+1 luminosity blocks.
-  #
-  # * It is important that the laser sequence scane does not pass twice on the same FED
-  #   within the 2*lumiBlockSpan_+1. Failing this requirement will result mixing event of
-  #   different passes in the same output file.
-  #
-  # * The number of input files opened simultinuously is proportional to 2*lumiBlockSpan_+1.
-  #   So increasing lumiBlockSpan_ will also increase the number of opened files and may have
-  #   some impact of sorting time performances.
-  #
-  # * Recommanded value is: maximum time consecutively spent on a FED in the
-  #   sequence (T_fed, = max event count * 10 ms) divided by the luminosity
-  #   block duration (T_lb), divided by 2 and ceil-rounded: ceil(T_fed/(2*T_lb))
-  lumiBlockSpan = cms.int32(2)
+  maxNoEcalDataMess = cms.int32(10)
 )
 

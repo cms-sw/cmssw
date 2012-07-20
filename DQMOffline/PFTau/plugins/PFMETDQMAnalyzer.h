@@ -30,7 +30,7 @@ class PFMETDQMAnalyzer: public edm::EDAnalyzer {
 
   edm::ParameterSet pSet_;
 
-
+  int nBadEvents_;
 };
 
 #endif 

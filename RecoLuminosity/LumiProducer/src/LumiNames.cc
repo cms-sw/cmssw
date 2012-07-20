@@ -35,35 +35,3 @@ const std::string lumi::LumiNames::idTableColumnName(){
 const std::string lumi::LumiNames::idTableColumnType(){
   return "unsigned long long";
 }
-const std::string lumi::LumiNames::revisionTableName(){
-  return "REVISIONS";
-}
-const std::string lumi::LumiNames::lumidataTableName(){
-  return "LUMIDATA";
-}
-const std::string lumi::LumiNames::lumisummaryv2TableName(){
-  return "LUMISUMMARYV2";
-}
-const std::string lumi::LumiNames::luminormTableName(){
-  return "LUMINORMS";
-}
-const std::string lumi::LumiNames::trgdataTableName(){
-  return "TRGDATA";
-}
-const std::string lumi::LumiNames::lstrgTableName(){
-  return "LSTRG";
-}
-const std::string lumi::LumiNames::hltdataTableName(){
-  return "HLTDATA";
-}
-const std::string lumi::LumiNames::lshltTableName(){
-  return "LSHLT";
-}
-const std::string lumi::LumiNames::revmapTableName(const std::string& datatablename ){
-  return datatablename+"_REV";
-}
-const std::string lumi::LumiNames::entryTableName(const std::string& datatablename ){
-  return datatablename+"_ENTRIES";
-}
-
-

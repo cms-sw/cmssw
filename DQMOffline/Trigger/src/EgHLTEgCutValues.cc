@@ -44,10 +44,10 @@ void EgCutValues::setup(const edm::ParameterSet& iConfig)
   //hlt isolation cuts
   maxHLTIsolTrksEle = iConfig.getParameter<double>("maxHLTIsolTrksEle");  
   maxHLTIsolTrksEleOverPt = iConfig.getParameter<double>("maxHLTIsolTrksEleOverPt");  
-  maxHLTIsolTrksEleOverPt = iConfig.getParameter<double>("maxHLTIsolTrksEleOverPt2"); 
+  maxHLTIsolTrksEleOverPt2 = iConfig.getParameter<double>("maxHLTIsolTrksEleOverPt2"); 
   maxHLTIsolTrksPho = iConfig.getParameter<double>("maxHLTIsolTrksPho"); 
   maxHLTIsolTrksPhoOverPt = iConfig.getParameter<double>("maxHLTIsolTrksPhoOverPt");  
-  maxHLTIsolTrksPhoOverPt = iConfig.getParameter<double>("maxHLTIsolTrksPhoOverPt2"); 
+  maxHLTIsolTrksPhoOverPt2 = iConfig.getParameter<double>("maxHLTIsolTrksPhoOverPt2"); 
   maxHLTIsolHad = iConfig.getParameter<double>("maxHLTIsolHad");
   maxHLTIsolHadOverEt = iConfig.getParameter<double>("maxHLTIsolHadOverEt");
   maxHLTIsolHadOverEt2 = iConfig.getParameter<double>("maxHLTIsolHadOverEt2");  

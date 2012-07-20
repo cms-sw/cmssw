@@ -1,7 +1,9 @@
+
 #include "DQM/HcalMonitorTasks/interface/HcalRawDataMonitor.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 
 HcalRawDataMonitor::HcalRawDataMonitor(const edm::ParameterSet& ps) {
@@ -99,6 +101,14 @@ HcalRawDataMonitor::HcalRawDataMonitor(const edm::ParameterSet& ps) {
     }
   }
 
+  // Properly initialze bylumi counters.
+  NumBadHB=0;
+  NumBadHE=0;
+  NumBadHO=0;
+  NumBadHF=0;
+  NumBadHFLUMI=0;
+  NumBadHO0=0;
+  NumBadHO12=0;
 
 } // HcalRawDataMonitor::HcalRawDataMonitor()
 
@@ -148,7 +158,13 @@ void HcalRawDataMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
 // Begin LumiBlock
 void HcalRawDataMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-					      const edm::EventSetup& c) {}
+					      const edm::EventSetup& c) {
+  if (LumiInOrder(lumiSeg.luminosityBlock())==false) return;
+  HcalBaseDQMonitor::beginLuminosityBlock(lumiSeg,c);
+  //zeroCounters(); // zero hot cell counters at the start of each luminosity block
+  ProblemsCurrentLB->Reset();
+  return;
+}
 // Setup
 void HcalRawDataMonitor::setup(void){
   // Call base class setup
@@ -163,7 +179,32 @@ void HcalRawDataMonitor::setup(void){
     std::cout <<"<HcalRawDataMonitor::beginRun>  Setting up histograms"<<std::endl;
   
   dbe_->setCurrentFolder(subdir_);
+  ProblemsVsLB=dbe_->bookProfile("RAW_Problems_HCAL_vs_LS",
+				 "Total HCAL RAW Problems vs lumi section", 
+				 NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
 
+  ProblemsVsLB_HB=dbe_->bookProfile("Total_RAW_Problems_HB_vs_LS",
+				    "Total HB RAW Problems vs lumi section",
+				    NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,3000);
+  ProblemsVsLB_HE=dbe_->bookProfile("Total_RAW_Problems_HE_vs_LS",
+				    "Total HE RAW Problems vs lumi section",
+				    NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,3000);
+  ProblemsVsLB_HO=dbe_->bookProfile("Total_RAW_Problems_HO_vs_LS",
+				    "Total HO RAW Problems vs lumi section",
+				    NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,3000);
+  ProblemsVsLB_HF=dbe_->bookProfile("Total_RAW_Problems_HF_vs_LS",
+				    "Total HF RAW Problems vs lumi section",
+				    NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,2000);
+  ProblemsVsLB_HBHEHF=dbe_->bookProfile("Total_RAW_Problems_HBHEHF_vs_LS",
+				    "Total HBHEHF RAW Problems vs lumi section",
+				    NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,2000);
+ 
+  ProblemsVsLB->getTProfile()->SetMarkerStyle(20);
+  ProblemsVsLB_HB->getTProfile()->SetMarkerStyle(20);
+  ProblemsVsLB_HE->getTProfile()->SetMarkerStyle(20);
+  ProblemsVsLB_HO->getTProfile()->SetMarkerStyle(20);
+  ProblemsVsLB_HF->getTProfile()->SetMarkerStyle(20);
+  ProblemsVsLB_HBHEHF->getTProfile()->SetMarkerStyle(20);
   MonitorElement* excludeHO2=dbe_->bookInt("ExcludeHOring2");
   // Fill with 0 if ring is not to be excluded; fill with 1 if it is to be excluded
   if (excludeHO2) excludeHO2->Fill(excludeHORing2_==true ? 1 : 0);
@@ -860,9 +901,10 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
       continue;}
     else{ //For non-EE, both CompactMode and !CompactMode
       bool CM = (htr.getExtHdr7() >> 14)&0x0001;
-      if (( CM && ( (HTRwdcount-NDAQ-NTP) != 12) )
+      int paddingsize = ((NDAQ+NTP)%2); //Extra padding to make HTRwdcount even
+      if (( CM && ( (HTRwdcount-NDAQ-NTP-paddingsize) != 12) )
 	  ||                                
-	  (!CM && ( (HTRwdcount-NDAQ-NTP) != 20) )  ) {	//incompatible Sizes declared. Skip it.
+	  (!CM && ( (HTRwdcount-NDAQ-NTP-paddingsize) != 20) )  ) {	//incompatible Sizes declared. Skip it.
 	++HalfHTRDataCorruptionIndicators_[fed3offset+2][spg3offset+1];
 	mapHTRproblem(dcc_,spigot);
 	continue;} }
@@ -929,8 +971,8 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
     if (htrUnSuppressed) {
       UScount[dcc_][spigot]++;
       int here=1+(HcalDCCHeader::SPIGOT_COUNT*(dcc_))+spigot;
-      meUSFractSpigs_->setBinContent(here,
-				     ((double)UScount[dcc_][spigot])/(double)ievt_);}
+      meUSFractSpigs_->Fill(here,
+			    ((double)UScount[dcc_][spigot]));}
 
     MonitorElement* tmpErr = 0;
     HcalDetId HDI = hashedHcalDetId_[hashup(dcc_,spigot)];
@@ -1147,11 +1189,19 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
 // End LumiBlock
 void HcalRawDataMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 					    const edm::EventSetup& c){
+
+  ProblemsVsLB_HB->Fill(lumiSeg.luminosityBlock(),NumBadHB);
+  ProblemsVsLB_HE->Fill(lumiSeg.luminosityBlock(),NumBadHE);
+  ProblemsVsLB_HO->Fill(lumiSeg.luminosityBlock(),NumBadHO);
+  ProblemsVsLB_HF->Fill(lumiSeg.luminosityBlock(),NumBadHF);
+  ProblemsVsLB_HBHEHF->Fill(lumiSeg.luminosityBlock(),NumBadHB+NumBadHE+NumBadHF);
+  ProblemsVsLB->Fill(lumiSeg.luminosityBlock(),NumBadHB+NumBadHE+NumBadHO+NumBadHF);
   // Reset current LS histogram, if it exists
   if (ProblemsCurrentLB)
     ProblemsCurrentLB->Reset();
   if (ProblemsCurrentLB)
     {
+     
       ProblemsCurrentLB->setBinContent(0,0, levt_);  // underflow bin contains number of events
       ProblemsCurrentLB->setBinContent(1,1, NumBadHB*levt_);
       ProblemsCurrentLB->setBinContent(2,1, NumBadHE*levt_);
@@ -1160,7 +1210,11 @@ void HcalRawDataMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       ProblemsCurrentLB->setBinContent(5,1, NumBadHO0*levt_);
       ProblemsCurrentLB->setBinContent(6,1, NumBadHO12*levt_);
       ProblemsCurrentLB->setBinContent(7,1, NumBadHFLUMI*levt_);
+
     }
+
+ 
+
 
   UpdateMEs();
 }
@@ -1427,4 +1481,3 @@ void HcalRawDataMonitor::mapChannproblem(int dcc, int spigot, int htrchan) {
 
 
 DEFINE_FWK_MODULE(HcalRawDataMonitor);
-

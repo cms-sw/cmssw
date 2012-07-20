@@ -18,6 +18,12 @@ using namespace edm;
 using namespace std;
 
 namespace {
+  struct CompareTwoTracks {
+    int operator() ( const reco::TransientTrack & a, const reco::TransientTrack & b ) {
+            return ( a.impactPointState().globalMomentum().perp() >
+                     b.impactPointState().globalMomentum().perp() ) ;
+    };
+  };
   // typedef ReferenceCountingPointer<VertexTrack<5> > RefCountedVertexTrack;
   typedef AdaptiveVertexFitter::RefCountedVertexTrack RefCountedVertexTrack;
 
@@ -152,14 +158,16 @@ void AdaptiveVertexFitter::setParameters ( const edm::ParameterSet & s )
 }
 
 CachingVertex<5>
-AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) const
+AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & unstracks) const
 {
-  if ( tracks.size() < 2 )
+  if ( unstracks.size() < 2 )
   {
     LogError("RecoVertex|AdaptiveVertexFitter")
       << "Supplied fewer than two tracks. Vertex is invalid.";
     return CachingVertex<5>(); // return invalid vertex
   };
+  vector < reco::TransientTrack > tracks = unstracks;
+  sort ( tracks.begin(), tracks.end(), CompareTwoTracks() );
   // Linearization Point
   GlobalPoint linP = theLinP->getLinearizationPoint(tracks);
   // Initial vertex seed, with a very large error matrix
@@ -226,10 +234,10 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
  *  The specified LinearizationPointFinder will be used to find the linearization point.
  */
 CachingVertex<5> 
-AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
+AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & unstracks,
 			       const reco::BeamSpot& beamSpot) const
 {
-  if ( tracks.size() < 1 )
+  if ( unstracks.size() < 1 )
   {
     LogError("RecoVertex|AdaptiveVertexFitter")
       << "Supplied no tracks. Vertex is invalid.";
@@ -238,6 +246,9 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
 
   VertexState beamSpotState(beamSpot);
   vector<RefCountedVertexTrack> vtContainer;
+
+  vector < reco::TransientTrack > tracks = unstracks;
+  sort ( tracks.begin(), tracks.end(), CompareTwoTracks() );
 
   if (tracks.size() > 1) {
     // Linearization Point search if there are more than 1 track
@@ -424,6 +435,8 @@ AdaptiveVertexFitter::reWeightTracks(
 
     finalTracks.push_back(vTrData);
   }
+  sort ( finalTracks.begin(), finalTracks.end(), 
+         DistanceToRefPoint ( vertex.position() ) );
   return finalTracks;
 }
 
@@ -567,8 +580,8 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
              nVertex.position().perp()>120.)
         {
           // were more than 100 m off!!
-          LogWarning ("AdaptiveVertexFitter" ) << "Help! Vertex candidate just took off to " << nVertex.position()
-					       << "! Will discard this update!";
+          LogWarning ("AdaptiveVertexFitter" ) << "Vertex candidate just took off to " << nVertex.position()
+					    << "! Will discard this update!";
 // 	    //<< "track pt was " << (**i).linearizedTrack()->track().pt()
 // 					     << "track momentum was " << (**i).linearizedTrack()->track().initialFreeState().momentum()
 // 					     << "track position was " << (**i).linearizedTrack()->track().initialFreeState().position()
@@ -580,7 +593,7 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
 	        fVertex = nVertex;
         }
       } else {
-        LogWarning("RecoVertex|AdaptiveVertexFitter") 
+        LogWarning("RecoVertex/AdaptiveVertexFitter") 
           << "The updator returned an invalid vertex when adding track "
           << i-globalVTracks.begin() 
 	        << ".\n Your vertex might just have lost one good track.";

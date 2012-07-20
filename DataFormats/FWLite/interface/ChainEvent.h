@@ -32,6 +32,7 @@
 namespace edm {
   class EDProduct;
   class ProductRegistry;
+  class ProcessHistory;
   class BranchDescription;
   class EDProductGetter;
   class EventAux;
@@ -85,6 +86,8 @@ namespace fwlite {
 
       const std::vector<edm::BranchDescription>& getBranchDescriptions() const;
       const std::vector<std::string>& getProcessHistory() const;
+      edm::ProcessHistory const& processHistory() const;
+
       TFile* getTFile() const {
         return event_->getTFile();
       }

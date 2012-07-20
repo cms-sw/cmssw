@@ -21,11 +21,6 @@
 
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
-#include <vector>
 #include <memory>
 #include <iostream>
 #include <sstream>
@@ -36,7 +31,7 @@ HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig)
   muonTag_(iConfig.getParameter<edm::InputTag>("CandTag")),
   trackTag_(iConfig.getParameter<edm::InputTag>("TrackTag")),
   prevCandTag_(iConfig.getParameter<edm::InputTag>("PreviousCandTag")),
-  saveTag_(iConfig.getUntrackedParameter<bool>("SaveTag")),
+  saveTag_(iConfig.getUntrackedParameter<bool>("SaveTag",false)),
   minMasses_(iConfig.getParameter< std::vector<double> >("MinMasses")),
   maxMasses_(iConfig.getParameter< std::vector<double> >("MaxMasses")),
   checkCharge_(iConfig.getParameter<bool>("checkCharge")),
@@ -91,39 +86,6 @@ HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig)
   stream << "  MaxDzMuonTrack = " << maxDzMuonTrack_ << "\n";
   LogDebug("HLTMuonTrackMassFilter") << stream.str();
 
-}
-
-void
-HLTMuonTrackMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot"));
-  desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL3MuonCandidates"));
-  desc.add<edm::InputTag>("TrackTag",edm::InputTag("hltMuTkMuJpsiTrackerMuonCands"));
-  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltMu0TkMuJpsiTrackMassFiltered"));
-  desc.addUntracked<bool>("SaveTag",false);
-  {
-    std::vector<double> temp1;
-    temp1.reserve(1);
-    temp1.push_back(2.5);
-    desc.add<std::vector<double> >("MinMasses",temp1);
-  }
-  {
-    std::vector<double> temp1;
-    temp1.reserve(1);
-    temp1.push_back(4.1);
-    desc.add<std::vector<double> >("MaxMasses",temp1);
-  }
-  desc.add<bool>("checkCharge",true);
-  desc.add<double>("MinTrackPt",0.0);
-  desc.add<double>("MinTrackP",2.7);
-  desc.add<double>("MaxTrackEta",999.0);
-  desc.add<double>("MaxTrackDxy",999.0);
-  desc.add<double>("MaxTrackDz",999.0);
-  desc.add<int>("MinTrackHits",5);
-  desc.add<double>("MaxTrackNormChi2",10000000000.0);
-  desc.add<double>("MaxDzMuonTrack",0.5);
-  desc.add<bool>("CutCowboys",false);
-  descriptions.add("hltMuonTrackMassFilter",desc);
 }
 
 bool

@@ -18,7 +18,7 @@
     <condition_chip_1>
         <prealgos>
             <L1_CASTORrapgap>
-                CASTORrapgap.v0
+                CASTORrapgap
                 <output_pin nr="2" pin="a" />
             </L1_CASTORrapgap>
             <L1_BPTXcoincidence>
@@ -31,8 +31,8 @@
             </L1_HTM100>
         </prealgos>
         <conditions>
-            <CASTORrapgap.v0 condition="CondExternal" particle="GtExternal" type="TypeExternal">
-            </CASTORrapgap.v0>
+            <CASTORrapgap condition="CondExternal" particle="GtExternal" type="TypeExternal">
+            </CASTORrapgap>
             <BPTXcoincidence condition="CondExternal" particle="GtExternal" type="TypeExternal">
             </BPTXcoincidence>
             <HTM_0x064 condition="esums" particle="htm" type="htm">
@@ -62,7 +62,7 @@
                 <output_pin nr="46" pin="a" />
             </L1_SingleMu5>
             <L1_SingleMu5_CASTORrapgap>
-                SingleMu5 AND CASTORrapgap.v0
+                SingleMu5 AND CASTORrapgap
                 <output_pin nr="47" pin="a" />
             </L1_SingleMu5_CASTORrapgap>
             <L1_SingleHfBitCountsI0_1>
@@ -199,8 +199,8 @@
                     <value>200</value>
                 </delta_phi>
             </CorrMuTauJet>
-            <CASTORrapgap.v0 condition="CondExternal" particle="GtExternal" type="TypeExternal">
-            </CASTORrapgap.v0>
+            <CASTORrapgap condition="CondExternal" particle="GtExternal" type="TypeExternal">
+            </CASTORrapgap>
             <SingleHfBitCounts_I0_1 condition="CondHfBitCounts" particle="HfBitCounts"
                 type="0">
                 <et_threshold max="7" min="0">
@@ -218,10 +218,10 @@
         </conditions>
     </condition_chip_2>
     <techtriggers>
-        <L1TT_BscHaloPlusZInner.v0>
+        <L1TT_BscHaloPlusZInner>
             TechTrig
             <output_pin nr="36" />
-        </L1TT_BscHaloPlusZInner.v0>
+        </L1TT_BscHaloPlusZInner>
         <L1TT_BscHaloMinusZInner>
             TechTrig
             <output_pin nr="38" />

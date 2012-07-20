@@ -36,7 +36,19 @@ pixelTriplets = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer",
             PixelTripletHLTGenerator
         )
     ),
-    SeedCreatorPSet = cms.PSet( 
+     SeedMergerPSet = cms.PSet(
+        # layer list for the merger, as defined in (or modified from):
+        # RecoPixelVertexing/PixelTriplets/python/quadrupletseedmerging_cff.py
+        layerListName = cms.string( "PixelSeedMergerQuadruplets" ),
+        # merge triplets -> quadruplets if applicable?
+        mergeTriplets = cms.bool( True ),
+        # add remaining (non-merged) triplets to merged output quadruplets?
+        # (results in a "mixed" output)
+        addRemainingTriplets = cms.bool( False ),
+        # the builder
+        ttrhBuilderLabel = cms.string( "PixelTTRHBuilderWithoutAngle" )
+    ),
+     SeedCreatorPSet = cms.PSet( 
         ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
         propagator = cms.string( "PropagatorWithMaterial" )
     ),

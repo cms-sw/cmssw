@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jan 23 10:37:22 EST 2008
-// $Id: FWModelExpressionSelector.cc,v 1.9 2009/04/27 16:53:29 dmytro Exp $
+// $Id: FWModelExpressionSelector.cc,v 1.10 2010/06/18 10:17:16 yana Exp $
 //
 
 // system include files
@@ -70,7 +70,7 @@
 //
 // const member functions
 //
-bool
+void
 FWModelExpressionSelector::select(FWEventItem* iItem, const std::string& iExpression) const
 {
    using namespace fireworks::expression;
@@ -85,20 +85,16 @@ FWModelExpressionSelector::select(FWEventItem* iItem, const std::string& iExpres
    using namespace boost::spirit::classic;
    reco::parser::SelectorPtr selectorPtr;
    reco::parser::Grammar grammar(selectorPtr,type);
-   bool succeeded=true;
    try {
       if(!parse(temp.c_str(), grammar.use_parser<0>() >> end_p, space_p).full) {
          throw FWExpressionException("syntax error", -1);
          //std::cout <<"failed to parse "<<iExpression<<" because of syntax error"<<std::endl;
-         succeeded=false;
       }
    } catch(const reco::parser::BaseException& e) {
       //NOTE: need to calculate actual position before doing the regex
       throw FWExpressionException(reco::parser::baseExceptionWhat(e), indexFromNewFormatToOldFormat(temp,e.where-temp.c_str(),iExpression));
       //std::cout <<"failed to parse "<<iExpression<<" because "<<reco::parser::baseExceptionWhat(e)<<std::endl;
-      succeeded=false;
    }
-   if(!succeeded) { return false;}
 
 
    FWChangeSentry sentry(*(iItem->changeManager()));
@@ -109,8 +105,6 @@ FWModelExpressionSelector::select(FWEventItem* iItem, const std::string& iExpres
          iItem->select(index);
       }
    }
-
-   return true;
 }
 
 //

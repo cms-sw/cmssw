@@ -2,6 +2,7 @@
 #define FastSimulation_PileUpProducer_PileUpProducer_H
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
 
 #include <vector>
 #include <string>

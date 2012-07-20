@@ -12,10 +12,10 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2011/01/09 18:04:55 $
- *  $Revision: 1.50 $
- *  $Date: 2011/01/09 18:04:55 $
- *  $Revision: 1.50 $
+ *  $Date: 2011/03/11 20:41:45 $
+ *  $Revision: 1.51 $
+ *  $Date: 2011/03/11 20:41:45 $
+ *  $Revision: 1.51 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -526,25 +526,11 @@ GlobalTrajectoryBuilderBase::getTransientRecHits(const reco::Track& track) const
 
   TransientTrackingRecHit::ConstRecHitContainer result;
   
-  TrajectoryStateTransform tsTrans;
-
-  TrajectoryStateOnSurface currTsos = tsTrans.innerStateOnSurface(track, *theService->trackingGeometry(), &*theService->magneticField());
-
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if((*hit)->isValid()) {
       DetId recoid = (*hit)->geographicalId();
       if ( recoid.det() == DetId::Tracker ) {
-	TransientTrackingRecHit::RecHitPointer ttrhit = theTrackerRecHitBuilder->build(&**hit);
-	TrajectoryStateOnSurface predTsos =  theService->propagator(theTrackerPropagatorName)->propagate(currTsos, theService->trackingGeometry()->idToDet(recoid)->surface());
-
-	if ( !predTsos.isValid() ) {
-	  edm::LogError("MissingTransientHit")
-	    <<"Could not get a tsos on the hit surface. We will miss a tracking hit.";
-	  continue; 
-	}
-	currTsos = predTsos;
-	TransientTrackingRecHit::RecHitPointer preciseHit = ttrhit->clone(predTsos);
-	result.push_back(preciseHit);
+	result.push_back(theTrackerRecHitBuilder->build(&**hit));
       } else if ( recoid.det() == DetId::Muon ) {
 	if ( (*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit) {
 	  LogDebug(theCategory) << "RPC Rec Hit discarded"; 

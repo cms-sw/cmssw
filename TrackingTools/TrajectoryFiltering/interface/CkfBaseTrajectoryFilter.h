@@ -9,7 +9,7 @@
 #include "TrackingTools/TrajectoryFiltering/interface/MaxLostHitsTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/MinHitsTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/MinPtTrajectoryFilter.h"
-
+#include "TrackingTools/TrajectoryFiltering/interface/LostHitsFractionTrajectoryFilter.h"
 
 
 class CkfBaseTrajectoryFilter : public TrajectoryFilter {
@@ -23,6 +23,7 @@ public:
     theMinPtTrajectoryFilter = new MinPtTrajectoryFilter(pset);
     theMaxHitsTrajectoryFilter = new MaxHitsTrajectoryFilter(pset);
     theMinHitsTrajectoryFilter = new MinHitsTrajectoryFilter(pset);
+    theLostHitsFractionTrajectoryFilter = new LostHitsFractionTrajectoryFilter(pset);
   }
   
   virtual bool qualityFilter( const Trajectory& traj) const {return QF<Trajectory>(traj);}
@@ -45,6 +46,7 @@ protected:
     if (!theMaxHitsTrajectoryFilter->toBeContinued(traj)) return false;     
     if (!theMaxLostHitsTrajectoryFilter->toBeContinued(traj)) return false;
     if (!theMaxConsecLostHitsTrajectoryFilter->toBeContinued(traj)) return false;
+    if (!theLostHitsFractionTrajectoryFilter->toBeContinued(traj)) return false;
     if (!theMinPtTrajectoryFilter->toBeContinued(traj)) return false;     
     if (!theChargeSignificanceTrajectoryFilter->toBeContinued(traj)) return false;
     return true;}
@@ -55,6 +57,7 @@ protected:
   MaxConsecLostHitsTrajectoryFilter * theMaxConsecLostHitsTrajectoryFilter;
   MaxHitsTrajectoryFilter * theMaxHitsTrajectoryFilter;
   MaxLostHitsTrajectoryFilter * theMaxLostHitsTrajectoryFilter;
+  LostHitsFractionTrajectoryFilter * theLostHitsFractionTrajectoryFilter;
   MinHitsTrajectoryFilter * theMinHitsTrajectoryFilter;
   MinPtTrajectoryFilter * theMinPtTrajectoryFilter;
 };

@@ -50,3 +50,16 @@ void CrossingFrame<PCaloHit>::addPileups(const int bcr, std::vector<PCaloHit> *c
     pileups_.push_back(&((*calohits)[i]));
   }
 }
+
+//special for the upgrade hit relabeller code - don't add the bunchspace time offset because it
+//has already been added
+template <> 
+void CrossingFrame<PCaloHit>::addPileupsRelabeller(const int bcr, std::vector<PCaloHit> *calohits, unsigned int evtNr, int vertexoffset) { 
+
+  EncodedEventId id(bcr,evtNr);
+  for (unsigned int i=0;i<calohits->size();++i) {
+    PCaloHit hit((*calohits)[i].id(),(*calohits)[i].energyEM(),(*calohits)[i].energyHad(),(*calohits)[i].time()+bcr*bunchSpace_,(*calohits)[i].geantTrackId());
+    (*calohits)[i].setEventId(id);
+    pileups_.push_back(&((*calohits)[i]));
+  }
+}

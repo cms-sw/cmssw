@@ -1,4 +1,4 @@
-// $Id: XHTMLMaker.h,v 1.10.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: XHTMLMaker.h,v 1.11 2011/03/07 15:31:32 mommsen Exp $
 /// @file: XHTMLMaker.h 
 
 #ifndef EventFilter_StorageManager_XHTMLMaker_h
@@ -20,8 +20,8 @@ namespace stor {
     Helper class to build XHTML pages
 
     $Author: mommsen $
-    $Revision: 1.10.4.1 $
-    $Date: 2011/03/07 11:33:04 $
+    $Revision: 1.11 $
+    $Date: 2011/03/07 15:31:32 $
   */
 
   class XHTMLMaker
@@ -121,9 +121,15 @@ namespace stor {
     void addInt( Node* parent, const long long& );
 
     /**
-      Add an unsigned long
+      Add an unsigned long long
     */
     void addInt( Node* parent, const unsigned long long& );
+
+    /**
+      Add an unsigned long in hex format
+    */
+    void addHex( Node* parent, const unsigned long& );
+
 
     /**
       Add a double

@@ -205,18 +205,18 @@ void PrintGeomMatInfo::dumpMaterialList(std::ostream & out)
 	out << "Material: " << (*matite) << std::endl;
 }
 
-void PrintGeomMatInfo::dumpG4LVLeaf(G4LogicalVolume * lv, uint leafDepth, uint count, std::ostream & out)
+void PrintGeomMatInfo::dumpG4LVLeaf(G4LogicalVolume * lv, unsigned int leafDepth, unsigned int count, std::ostream & out)
 {
-    for (uint ii=0; ii < leafDepth; ii++) out << "  ";
+    for (unsigned int ii=0; ii < leafDepth; ii++) out << "  ";
     out << " LV:(" << leafDepth << ") " << lv->GetName() << " (" << count
 	<< ")" << std::endl;
     //--- If a volume is placed n types as daughter of this LV, it should only be counted once
-    std::map<G4LogicalVolume*, uint> lvCount;
-    std::map<G4LogicalVolume*, uint>::const_iterator cite;
+    std::map<G4LogicalVolume*, unsigned int> lvCount;
+    std::map<G4LogicalVolume*, unsigned int>::const_iterator cite;
     for (int ii = 0; ii < lv->GetNoDaughters(); ii++) {
 	cite = lvCount.find(lv->GetDaughter(ii)->GetLogicalVolume());
 	if (cite != lvCount.end()) lvCount[cite->first] = (cite->second) + 1;
-	else lvCount.insert(std::pair< G4LogicalVolume*,uint>(lv->GetDaughter(ii)->GetLogicalVolume(),1));
+	else lvCount.insert(std::pair< G4LogicalVolume*,unsigned int>(lv->GetDaughter(ii)->GetLogicalVolume(),1));
     }
     for (cite = lvCount.begin(); cite != lvCount.end(); cite++) 
 	dumpG4LVLeaf((cite->first), leafDepth+1, (cite->second), out);
@@ -229,7 +229,7 @@ void PrintGeomMatInfo::dumpG4LVMatBudget(std::ostream & out)
     dumpG4LVLeafWithMat(lv,0,1,out);
 }
 
-void PrintGeomMatInfo::dumpG4LVLeafWithMat(G4LogicalVolume * lv, uint leafDepth, uint count, std::ostream & out)
+void PrintGeomMatInfo::dumpG4LVLeafWithMat(G4LogicalVolume * lv, unsigned int leafDepth, unsigned int count, std::ostream & out)
 {
     // switch off dumping at the next same level as the dump
     if(_dumpIt && _level2Dump == leafDepth) {
@@ -250,9 +250,9 @@ void PrintGeomMatInfo::dumpG4LVLeafWithMat(G4LogicalVolume * lv, uint leafDepth,
     if(_dumpIt) {
        if(leafDepth < _maxLevelsCounted) _countsPerLevel[leafDepth] = count;
        unsigned int total_multipler = 1;
-       for (uint ii=_level2Dump; ii <= leafDepth; ii++) total_multipler *= _countsPerLevel[ii];
+       for (unsigned int ii=_level2Dump; ii <= leafDepth; ii++) total_multipler *= _countsPerLevel[ii];
        double thick = (lv->GetSolid()->GetCubicVolume() * total_multipler)/_areaLayer[_dumpIndex];
-       for (uint ii=0; ii < leafDepth; ii++) out << "  ";
+       for (unsigned int ii=0; ii < leafDepth; ii++) out << "  ";
        // print out Level, Logical volume name, volume in mm**3, material name, rad len of mat in mm
        // total number of volumes from dump level start, equivalent thickness when spread over
        // a cylinder of _radiusLayer and length _zLayer; equivalent thick in rad len
@@ -263,17 +263,17 @@ void PrintGeomMatInfo::dumpG4LVLeafWithMat(G4LogicalVolume * lv, uint leafDepth,
            << " thk :" << thick << ": x/X0 :" << thick/lv->GetMaterial()->GetRadlen()
            << ":" << " Kg : " << lv->GetMass()/kg << std::endl;
     } else {
-       for (uint ii=0; ii < leafDepth; ii++) out << "  ";
+       for (unsigned int ii=0; ii < leafDepth; ii++) out << "  ";
        out << " LV:(" << leafDepth << ") " << lv->GetName() << " (" << count << ")" << std::endl;
     }
 
     //--- If a volume is placed n types as daughter of this LV, it should only be counted once
-    std::map<G4LogicalVolume*, uint> lvCount;
-    std::map<G4LogicalVolume*, uint>::const_iterator cite;
+    std::map<G4LogicalVolume*, unsigned int> lvCount;
+    std::map<G4LogicalVolume*, unsigned int>::const_iterator cite;
     for (int ii = 0; ii < lv->GetNoDaughters(); ii++) {
 	cite = lvCount.find(lv->GetDaughter(ii)->GetLogicalVolume());
 	if (cite != lvCount.end()) lvCount[cite->first] = (cite->second) + 1;
-	else lvCount.insert(std::pair< G4LogicalVolume*,uint>(lv->GetDaughter(ii)->GetLogicalVolume(),1));
+	else lvCount.insert(std::pair< G4LogicalVolume*,unsigned int>(lv->GetDaughter(ii)->GetLogicalVolume(),1));
     }
     for (cite = lvCount.begin(); cite != lvCount.end(); cite++) 
 	dumpG4LVLeafWithMat((cite->first), leafDepth+1, (cite->second), out);
@@ -314,7 +314,7 @@ void PrintGeomMatInfo::dumpHierarchyTreePVLV(std::ostream & out)
     if (_dumpTouch) dumpTouch(theTopPV, 0, out);
 }
 
-void PrintGeomMatInfo::dumpHierarchyLeafPVLV(G4LogicalVolume * lv, uint leafDepth, std::ostream & out)
+void PrintGeomMatInfo::dumpHierarchyLeafPVLV(G4LogicalVolume * lv, unsigned int leafDepth, std::ostream & out)
 {
     //----- Dump this LV 
     dumpLV(lv, leafDepth, out);
@@ -345,7 +345,7 @@ void PrintGeomMatInfo::dumpHierarchyLeafPVLV(G4LogicalVolume * lv, uint leafDept
     }
 }
  
-void PrintGeomMatInfo::dumpLV(G4LogicalVolume * lv, uint leafDepth, std::ostream & out)
+void PrintGeomMatInfo::dumpLV(G4LogicalVolume * lv, unsigned int leafDepth, std::ostream & out)
 {
     std::string spaces = spacesFromLeafDepth(leafDepth);
 
@@ -405,7 +405,7 @@ void PrintGeomMatInfo::dumpLV(G4LogicalVolume * lv, uint leafDepth, std::ostream
     }
 }	
 
-void PrintGeomMatInfo::dumpPV(G4VPhysicalVolume * pv, uint leafDepth, std::ostream & out)
+void PrintGeomMatInfo::dumpPV(G4VPhysicalVolume * pv, unsigned int leafDepth, std::ostream & out)
 {
     std::string spaces = spacesFromLeafDepth(leafDepth);
 
@@ -452,7 +452,7 @@ void PrintGeomMatInfo::dumpPV(G4VPhysicalVolume * pv, uint leafDepth, std::ostre
     }
 }
 
-void PrintGeomMatInfo::dumpTouch(G4VPhysicalVolume * pv, uint leafDepth, std::ostream & out)
+void PrintGeomMatInfo::dumpTouch(G4VPhysicalVolume * pv, unsigned int leafDepth, std::ostream & out)
 {
     std::string spaces = spacesFromLeafDepth(leafDepth);
     if (leafDepth == 0) fHistory.SetFirstEntry(pv);
@@ -483,15 +483,15 @@ void PrintGeomMatInfo::dumpTouch(G4VPhysicalVolume * pv, uint leafDepth, std::os
     if (leafDepth > 0) fHistory.BackLevel();
 }
 
-std::string PrintGeomMatInfo::spacesFromLeafDepth(uint leafDepth)
+std::string PrintGeomMatInfo::spacesFromLeafDepth(unsigned int leafDepth)
 {
     std::string spaces;
-    uint ii;
+    unsigned int ii;
     for(ii = 0; ii < leafDepth; ii++) { spaces += "  "; }
     return spaces;
 }
 
-void PrintGeomMatInfo::dumpSolid(G4VSolid * sol, uint leafDepth, std::ostream & out)
+void PrintGeomMatInfo::dumpSolid(G4VSolid * sol, unsigned int leafDepth, std::ostream & out)
 {
     std::string spaces = spacesFromLeafDepth(leafDepth);
     out << spaces << *(sol) << std::endl;

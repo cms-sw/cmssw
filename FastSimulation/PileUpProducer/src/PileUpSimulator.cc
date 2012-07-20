@@ -28,15 +28,13 @@ void PileUpSimulator::produce(const HepMC::GenEvent* myGenEvent)
   // Loop on all pile-up events
   for ( viter=vbegin; viter!=vend; ++viter ) { 
 
-    // std::cout << "Vertex n0 " << ievt << std::endl;
-
     // The origin vertex (turn it to cm's from GenEvent mm's)
     HepMC::GenVertex* v = *viter;    
     XYZTLorentzVector smearedVertex =  
       XYZTLorentzVector(v->position().x()/10.,v->position().y()/10.,
 			v->position().z()/10.,v->position().t()/10.);
 
-    // std::cout << "Vertex position " << smearedVertex << std::endl;
+    //std::cout << "Vertex position " << smearedVertex << std::endl;
 
     // Add it to the FBaseSimEvent
     int mainVertex = mySimEvent->addSimVertex(smearedVertex, -1, FSimVertexType::PILEUP_VERTEX);

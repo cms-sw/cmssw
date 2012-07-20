@@ -10,7 +10,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackingMonitor.h,v 1.10 2011/02/16 16:06:23 verdier Exp $
+// $Id: TrackingMonitor.h,v 1.11 2011/02/17 14:29:53 verdier Exp $
 
 #include <memory>
 #include <fstream>
@@ -79,7 +79,6 @@ class TrackingMonitor : public edm::EDAnalyzer
         MonitorElement* NumberOfPixelClus;
         MonitorElement* NumberOfStripClus;
         MonitorElement* RatioOfPixelAndStripClus;
-        MonitorElement* NumberOfStripVsStripClus;
         MonitorElement* NumberOfTrkVsClus;
 
 	// Monitoring vs LS

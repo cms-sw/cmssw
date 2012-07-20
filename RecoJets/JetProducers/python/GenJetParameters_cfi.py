@@ -20,6 +20,8 @@ GenJetParameters = cms.PSet(
       Active_Area_Repeats = cms.int32(5),
       GhostArea = cms.double(0.01),
       Ghost_EtaMax = cms.double(6.0),
-    Rho_EtaMax = cms.double(4.5)
+    Rho_EtaMax = cms.double(4.5),
+    useDeterministicSeed= cms.bool( True ),
+    minSeed             = cms.uint32( 14327 )
     )
 
