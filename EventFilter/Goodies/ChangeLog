@@ -1,4 +1,6 @@
+2012-07-20 Srecko Morovic <srecko.morovic@cern.ch>
 
+	* tag V00-02-12
 	* bugfixes
 	* use time form last update instead of fixed 23 sec interval
 
