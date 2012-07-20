@@ -1,47 +1,48 @@
 import FWCore.ParameterSet.Config as cms
 
-def AutoCondGlobalTag(process,gtkey):
-    """Modify the process.GlobalTag module configuration, allowing to use the
-    extended Configuration/AlCa/python/autoCond.py customisation functionality of
-    specifying symbolic globaltags (actual global tags plus additional payloads
-    to get from the DB as customisations).
+def AutoCondGlobalTag(GlobalTag,GTKey):
+    """Modify the GlobalTag module configuration, allowing to use the extended
+    Configuration/AlCa/python/autoCond.py functionality of specifying symbolic
+    globaltags (i.e., actual global tags, plus additional payloads to get from
+    the DB as customisations).
     The actual code is taken from cmsDriver's ConfigBuilder.py, adapted here to
     apply the changes directly to the process object and its module GlobalTag."""
 
-    if not 'GlobalTag' in process.__dict__:
-        return process
+    if GlobalTag==None:
+        return GlobalTag
   
-    # offline use
-    process.GlobalTag.connect   = cms.string('frontier://FrontierProd/CMS_COND_31X_GLOBALTAG')
-    process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
-
     # starting point for conditions to process
-    conditions = gtkey
+    if GTKey==None:
+        conditions = ""
+    else:
+        conditions = GTKey
     
     # check for auto globaltag
     if 'auto:' in conditions:
         from Configuration.AlCa.autoCond import autoCond
         key=conditions.split(':')[-1]
         if key not in autoCond:
-            raise Exception('no correspondance for '+key+'\n available keys are '+','.join(autoCond.keys()))
+            raise Exception('no correspondence for '+key+'\n available keys are '+','.join(autoCond.keys()))
         else:
             conditions = autoCond[key]
 
     # check format/type of customisation
     if isinstance(conditions,tuple):
-        condition = conditions[0]                    # actual globaltag
-        custom_conditions = '+'.join(conditions[1:]) # payloads
+        condition = conditions[0]                               # actual globaltag/connect/pfn
+        custom_conditions = '+'.join(conditions[1:])            # payloads to get
     else:
-        condition = conditions                       # actual globaltag
-        custom_conditions = ""                       # payloads
+        condition = conditions.split('+')[0]                    # actual globaltag/connect/pfn
+        custom_conditions = '+'.join(conditions.split('+')[1:]) # payloads to get
     
     # actual globaltag (required) plus connect/pfnPrefix strings (optional)
-    cond = condition.split(',')
-    process.GlobalTag.globaltag = cms.string(str(cond[0]))
-    if len(cond) > 1:
-        process.GlobalTag.connect = cms.string(str(cond[1]))
-        if len(cond) > 2:
-            process.GlobalTag.pfnPrefix = cms.untracked.string(str(cond[2]))
+    if condition!="":
+        cond = condition.split(',')
+        if len(cond) > 0 :
+            GlobalTag.globaltag = cms.string(str(cond[0]))
+            if len(cond) > 1:
+                GlobalTag.connect = cms.string(str(cond[1]))
+                if len(cond) > 2:
+                    GlobalTag.pfnPrefix = cms.untracked.string(str(cond[2]))
 
     # explicit payloads toGet from DB
     if custom_conditions!="":    
@@ -68,7 +69,7 @@ def AutoCondGlobalTag(process,gtkey):
                 if i==3:
                     payloadSpecToAppend.label=cms.untracked.string(str(payloadSpec[item]))
 #           print 'customising the GlobalTag with:',payloadSpecToAppend
-            process.GlobalTag.toGet.append(payloadSpecToAppend)
+            GlobalTag.toGet.append(payloadSpecToAppend)
 
     #
-    return process
+    return GlobalTag

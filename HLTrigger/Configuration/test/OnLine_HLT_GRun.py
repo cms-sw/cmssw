@@ -42266,8 +42266,9 @@ process.options = cms.untracked.PSet(
 if 'GlobalTag' in process.__dict__:
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
-    from Configuration.AlCa.autoCond import autoCond
-    process.GlobalTag.globaltag = autoCond['startup_GRun'][0].split(',')[0]
+#
+    from HLTrigger.Configuration.AutoCondGlobalTag import AutoCondGlobalTag
+    process.GlobalTag = AutoCondGlobalTag(process.GlobalTag,'auto:startup_GRun')
 
 # override the L1 menu
 if 'GlobalTag' in process.__dict__:
@@ -42284,23 +42285,4 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
     process.MessageLogger.categories.append('L1GtTrigReport')
     process.MessageLogger.categories.append('HLTrigReport')
-
-# load 5.2.x JECs
-if 'GlobalTag' in process.__dict__:
-    process.GlobalTag.toGet.append(
-        cms.PSet(
-            record  = cms.string( 'JetCorrectionsRecord' ),
-            tag     = cms.string( 'JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc' ),
-            label   = cms.untracked.string( 'AK5PFHLT' ),
-            connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS' )
-        )
-    )
-    process.GlobalTag.toGet.append(
-        cms.PSet(
-            record  = cms.string( 'JetCorrectionsRecord' ),
-            tag     = cms.string( 'JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc' ),
-            label   = cms.untracked.string( 'AK5PFchsHLT' ),
-            connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS' )
-        )
-    )
 
