@@ -763,11 +763,11 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     math::XYZVector photonPosition(photonX_,
 				   photonY_,
 				   photonZ_);
-      math::XYZVector photonPositionwrtVtx(
-					   photonX_- primaryVertex_->x(),
-					   photonY_-primaryVertex_->y(),
-					   photonZ_-primaryVertex_->z()
-					   );
+    math::XYZVector photonPositionwrtVtx(
+					 photonX_- primaryVertex_->x(),
+					 photonY_-primaryVertex_->y(),
+					 photonZ_-primaryVertex_->z()
+					 );
     math::XYZVector photonDirection=photonPositionwrtVtx.Unit();
     
     math::XYZTLorentzVector photonMomentum(photonEnergy_* photonDirection.X(),
@@ -794,9 +794,9 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     std::cout<<"                        eta = "<<photonMomentum.eta()<<std::endl;
     std::cout<<"             TrackIsolation = "<< sum_track_pt <<std::endl;
     */
-
+    math::XYZPointF Position(photonPosition.X(), photonPosition.Y(), photonPosition.Z());
     reco::PFCandidate photonCand(0,photonMomentum, reco::PFCandidate::gamma);
-    
+    photonCand.setPositionAtECALEntrance(Position);
     photonCand.setPs1Energy(ps1TotEne);
     photonCand.setPs2Energy(ps2TotEne);
     photonCand.setEcalEnergy(RawEcalEne,photonEnergy_);
