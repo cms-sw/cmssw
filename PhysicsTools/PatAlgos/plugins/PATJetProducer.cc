@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.53 2010/12/01 18:36:57 rwolf Exp $
+// $Id: PATJetProducer.cc,v 1.54 2012/05/20 20:12:25 rwolf Exp $
 
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -31,8 +31,6 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
-#include "FWCore/Framework/interface/Selector.h"
 
 #include <vector>
 #include <memory>
