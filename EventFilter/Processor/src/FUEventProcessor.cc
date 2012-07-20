@@ -1685,7 +1685,7 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
 
       if (allPSTmp!=0 && idleTmp!=0 && allProcStats_!=allPSTmp) {
 	cpustat_->setCPUStat(1000 - ((idleProcStats_-idleTmp)*1000)/(allProcStats_-allPSTmp));
-        int deltaTms=1000*(lastProcReport_.tv_sec-oldtime.tv_sec)
+        int deltaTms=1000 * (lastProcReport_.tv_sec-oldtime.tv_sec)
 	            + (lastProcReport_.tv_usec-oldtime.tv_usec)/1000;
 	cpustat_->setElapsed(deltaTms);
       }
@@ -2624,7 +2624,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.152 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.153 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
