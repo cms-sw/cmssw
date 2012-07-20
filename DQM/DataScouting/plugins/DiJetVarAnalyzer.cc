@@ -3,6 +3,9 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 
@@ -24,11 +27,15 @@ DiJetVarAnalyzer::DiJetVarAnalyzer( const edm::ParameterSet & conf ):
   jetCollectionTag_        (conf.getUntrackedParameter<edm::InputTag>("jetCollectionTag")),
   //dijetVarCollectionTag_   (conf.getUntrackedParameter<edm::InputTag>("dijetVarCollectionTag")),
   widejetsCollectionTag_   (conf.getUntrackedParameter<edm::InputTag>("widejetsCollectionTag")),
+  metCollectionTag_        (conf.getUntrackedParameter<edm::InputTag>("metCollectionTag")),
+  metCleanCollectionTag_   (conf.getUntrackedParameter<edm::InputTag>("metCleanCollectionTag")),
   numwidejets_             (conf.getParameter<unsigned int>("numwidejets")),
   etawidejets_             (conf.getParameter<double>("etawidejets")),
   ptwidejets_              (conf.getParameter<double>("ptwidejets")),
   detawidejets_            (conf.getParameter<double>("detawidejets")),
   dphiwidejets_            (conf.getParameter<double>("dphiwidejets")),
+  maxEMfraction_           (conf.getParameter<double>("maxEMfraction")),
+  maxHADfraction_          (conf.getParameter<double>("maxHADfraction")),
   HLTpathMain_             (triggerExpression::parse( conf.getParameter<std::string>("HLTpathMain") )),
   HLTpathMonitor_          (triggerExpression::parse( conf.getParameter<std::string>("HLTpathMonitor") )),
   triggerConfiguration_           (conf.getParameterSet("triggerConfiguration"))
@@ -59,6 +66,7 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
   iEvent.getByLabel(jetCollectionTag_,calojets_handle);
 
   // Loop over all the selected jets ( defined at DQM/DataScouting/python/dijetScouting_cff.py )  
+  double thisHT = 0.;
   for(reco::CaloJetCollection::const_iterator it = calojets_handle->begin(); it != calojets_handle->end(); ++it)
     {
       //cout << "== jet: " << it->pt() << " " << it->eta() << " " << it->phi() << endl;
@@ -68,7 +76,12 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
       m_selJets_hadEnergyFraction->Fill( it->energyFractionHadronic() );
       m_selJets_emEnergyFraction->Fill( it->emEnergyFraction() );
       m_selJets_towersArea->Fill( it->towersArea() );
+
+      thisHT += it->pt();
     }
+
+  // HT
+  m_HT_inclusive->Fill(thisHT);      
   
   // ## Get widejets 
   edm::Handle< vector<math::PtEtaPhiMLorentzVector> > widejets_handle;
@@ -107,14 +120,46 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
       //       cout << "== DeltaEtaJJWide: " << DeltaEtaJJWide << endl;
       //       cout << "== DeltaPhiJJWide: " << DeltaPhiJJWide << endl;
     }
-  
+
+  // ## Get met collection
+
+  // met
+  edm::Handle<reco::CaloMETCollection> calomet_handle;
+  iEvent.getByLabel(metCollectionTag_,calomet_handle);
+
+  // met cleaned
+  edm::Handle<reco::CaloMETCollection> calometClean_handle;
+  iEvent.getByLabel(metCleanCollectionTag_,calometClean_handle);
+ 
+  if( calomet_handle.isValid() && calometClean_handle.isValid() )
+    {
+      //       std::cout << "---" << std::endl;
+      //       std::cout << "== calomet: " << (calomet_handle->front()).pt() << " " << (calomet_handle->front()).phi() << std::endl;
+      //       std::cout << "== calometClean: " << (calometClean_handle->front()).pt() << " " << (calometClean_handle->front()).phi() << std::endl;
+      //       std::cout << "== calomet - calometClean: " << (calomet_handle->front()).pt() - (calometClean_handle->front()).pt() << std::endl;
+      //       std::cout << "---" << std::endl;
+      m_metCases->Fill(0);
+      m_metDiff->Fill( (calomet_handle->front()).pt() - (calometClean_handle->front()).pt() );
+      m_metVSmetclean->Fill( (calomet_handle->front()).pt() , (calometClean_handle->front()).pt() );      
+    }
+  else if( calomet_handle.isValid() && !calometClean_handle.isValid() )
+    {
+      m_metCases->Fill(1);
+      m_metCaseNoMetClean->Fill((calomet_handle->front()).pt());
+    }
+  else if( !calomet_handle.isValid() && calometClean_handle.isValid() )
+    {
+      m_metCases->Fill(2);
+    }
+
   // ## Event Selection
   bool pass_nocut=false;
   bool pass_twowidejets=false;
   bool pass_etaptcuts=false;
   bool pass_deta=false;
-  bool pass_JetIDtwojets=false;
+  bool pass_JetIDtwojets=true;
   bool pass_dphi=false;
+  bool pass_metFilter=true;
   //--
   bool pass_deta_L4=false;
   bool pass_deta_L3=false;
@@ -165,22 +210,43 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
     }
 
   // Jet id two leading jets
-  pass_JetIDtwojets=true;
 
+  if( calojets_handle->size() >= numwidejets_ )
+    {
+      //   first jet
+      reco::CaloJetCollection::const_iterator thisJet = calojets_handle->begin();
+      //cout << "== thisJet1: " << thisJet->pt() << " " << thisJet->eta() << " " << thisJet->phi() << endl;
+      if( thisJet->energyFractionHadronic()>maxHADfraction_ || thisJet->emEnergyFraction()>maxEMfraction_ )
+	pass_JetIDtwojets=false;
+
+      //   second jet
+      ++thisJet;
+      //cout << "== thisJet2: " << thisJet->pt() << " " << thisJet->eta() << " " << thisJet->phi() << endl;
+      if( thisJet->energyFractionHadronic()>maxHADfraction_ || thisJet->emEnergyFraction()>maxEMfraction_ )
+	pass_JetIDtwojets=false;
+    }      
+
+  // Met filter
+  if( calomet_handle.isValid() && calometClean_handle.isValid() )
+    {
+      if( fabs ( (calomet_handle->front()).pt() - (calometClean_handle->front()).pt() ) > 0.1 )
+	pass_metFilter=false;
+    }
+  
   // Full selection (no deta cut)
-  if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_JetIDtwojets && pass_dphi )
+  if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_JetIDtwojets && pass_dphi && pass_metFilter )
     pass_fullsel_NOdeta=true;
 
   // Full selection (various deta cuts)
-  if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_JetIDtwojets && pass_dphi && pass_deta_L4 )
+  if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_JetIDtwojets && pass_dphi && pass_metFilter && pass_deta_L4 )
     pass_fullsel_detaL4=true;
-  if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_JetIDtwojets && pass_dphi && pass_deta_L3 )
+  if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_JetIDtwojets && pass_dphi && pass_metFilter && pass_deta_L3 )
     pass_fullsel_detaL3=true;
-  if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_JetIDtwojets && pass_dphi && pass_deta_L2 )
+  if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_JetIDtwojets && pass_dphi && pass_metFilter && pass_deta_L2 )
     pass_fullsel_detaL2=true;
 
   // Full selection (default deta cut)
-  if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_deta && pass_JetIDtwojets && pass_dphi )
+  if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_deta && pass_JetIDtwojets && pass_dphi && pass_metFilter )
     pass_fullsel=true;
   
   // ## Fill Histograms 
@@ -196,8 +262,10 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
     m_cutFlow->Fill(3);
   if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_deta && pass_JetIDtwojets )
     m_cutFlow->Fill(4);
-  if( pass_fullsel )
+  if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_deta && pass_JetIDtwojets && pass_dphi )
     m_cutFlow->Fill(5);
+  if( pass_fullsel )
+    m_cutFlow->Fill(6);
 
   // After full selection
   if( pass_fullsel ) 
@@ -207,7 +275,15 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
       m_MjjWide_finalSel_varbin->Fill(MJJWide);
       m_DetajjWide_finalSel->Fill(DeltaEtaJJWide);
       m_DphijjWide_finalSel->Fill(DeltaPhiJJWide);      
+      m_HT_finalSel->Fill(thisHT);      
     }      
+
+  // After full selection (without "noise" filters)
+  if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_deta )
+    {
+      m_MjjWide_finalSel_WithoutNoiseFilter->Fill(MJJWide);
+      m_MjjWide_finalSel_WithoutNoiseFilter_varbin->Fill(MJJWide);
+    }
 
   // After full selection (except DeltaEta cut)
   if( pass_fullsel_NOdeta )
@@ -348,7 +424,7 @@ void DiJetVarAnalyzer::bookMEs(){
   // 1D histograms
   m_cutFlow = bookH1withSumw2( "h1_cutFlow",
 			       "Cut Flow",
-			       6,0.,6.,
+			       7,0.,7.,
 			       "Cut",
 			       "Number of events"
 			       );
@@ -358,6 +434,7 @@ void DiJetVarAnalyzer::bookMEs(){
   m_cutFlow->getTH1()->GetXaxis()->SetBinLabel(4,"|#Delta#eta|<1.3");
   m_cutFlow->getTH1()->GetXaxis()->SetBinLabel(5,"JetID");
   m_cutFlow->getTH1()->GetXaxis()->SetBinLabel(6,"|#Delta#phi|>#pi/3");
+  m_cutFlow->getTH1()->GetXaxis()->SetBinLabel(7,"|met-metClean|>0.1");
 
   m_MjjWide_finalSel = bookH1withSumw2( "h1_MjjWide_finalSel",
 					"M_{jj} WideJets (final selection)",
@@ -373,6 +450,20 @@ void DiJetVarAnalyzer::bookMEs(){
 						       "Number of events"
 						       );
 
+  m_MjjWide_finalSel_WithoutNoiseFilter = bookH1withSumw2( "h1_MjjWide_finalSel_WithoutNoiseFilter",
+							   "M_{jj} WideJets (final selection, without noise filters)",
+							   8000,0.,8000.,
+							   "M_{jj} WideJets [GeV]",
+							   "Number of events"
+							   );
+
+  m_MjjWide_finalSel_WithoutNoiseFilter_varbin = bookH1withSumw2BinArray( "h1_MjjWide_finalSel_WithoutNoiseFilter_varbin",
+									  "M_{jj} WideJets (final selection, without noise filters)",
+									  N_mass_bins, massBins,
+									  "M_{jj} WideJets [GeV]",
+									  "Number of events"
+									  );
+  
   m_MjjWide_deta_0p0_0p5 = bookH1withSumw2( "h1_MjjWide_deta_0p0_0p5",
 					    "M_{jj} WideJets (0.0<=#Delta#eta<0.5)",
 					    8000,0.,8000.,
@@ -556,6 +647,44 @@ void DiJetVarAnalyzer::bookMEs(){
 					  "Number of events"
 					  );
 
+  m_metDiff = bookH1withSumw2( "h1_metDiff",
+			       "Met - MetCleaned",
+			       500,-1000.,1000.,
+			       "met - metcleaned [GeV]",
+			       "Number of events"
+			       );
+
+  m_metCases = bookH1withSumw2( "h1_metCases",
+				"Met cases",
+				3,0.,3.,
+				"case",
+				"Number of events"
+				);
+  m_metCases->getTH1()->GetXaxis()->SetBinLabel(1,"met , metclean");
+  m_metCases->getTH1()->GetXaxis()->SetBinLabel(2,"met , !metclean");
+  m_metCases->getTH1()->GetXaxis()->SetBinLabel(3,"!met , metclean");
+
+
+  m_metCaseNoMetClean = bookH1withSumw2( "h1_metCaseNoMetClean",
+					 "Met - MetCleaned",
+					 1000,0.,2000.,
+					 "MET [GeV]",
+					 "Number of events"
+					 );  
+
+  m_HT_inclusive = bookH1withSumw2( "h1_HT_inclusive",
+				    "HT (inclusive)",
+				    150,0.,15000.,
+				    "HT [GeV]",
+				    "Number of events"
+				    );  
+
+  m_HT_finalSel = bookH1withSumw2( "h1_HT_finalSel",
+				   "HT (final selection)",
+				   150,0.,15000.,
+				   "HT [GeV]",
+				   "Number of events"
+				   );  
 
 
   // 2D histograms
@@ -572,6 +701,14 @@ void DiJetVarAnalyzer::bookMEs(){
 					    50,0.,5.,
 					    "M_{jj} WideJets [GeV]",
 					    "#Delta#eta_{jj} WideJets");
+
+  m_metVSmetclean = bookH2withSumw2("h2_metVSmetclean",
+				    "MET clean vs MET",
+				    100,0.,2000.,
+				    100,0.,2000.,
+				    "MET [GeV]",
+				    "MET clean [GeV]");
+
 
 }
 
