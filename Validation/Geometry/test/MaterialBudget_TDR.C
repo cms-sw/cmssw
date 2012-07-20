@@ -3,14 +3,120 @@
 #include <iomanip>
 #include <fstream>
 #include <cmath>
+#include "TStyle.h"
+
+void setTDRStyle() {
+
+  TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");
+
+// For the canvas:
+  tdrStyle->SetCanvasBorderMode(0);
+  tdrStyle->SetCanvasColor(kWhite);
+  tdrStyle->SetCanvasDefH(600); //Height of canvas
+  tdrStyle->SetCanvasDefW(600); //Width of canvas
+  tdrStyle->SetCanvasDefX(0);   //POsition on screen
+  tdrStyle->SetCanvasDefY(0);
+
+// For the Pad:
+  tdrStyle->SetPadBorderMode(0);
+  tdrStyle->SetPadColor(kWhite);
+  tdrStyle->SetPadGridX(false);
+  tdrStyle->SetPadGridY(false);
+  tdrStyle->SetGridColor(0);
+  tdrStyle->SetGridStyle(3);
+  tdrStyle->SetGridWidth(1);
+
+// For the frame:
+  tdrStyle->SetFrameBorderMode(0);
+  tdrStyle->SetFrameBorderSize(1);
+  tdrStyle->SetFrameFillColor(0);
+  tdrStyle->SetFrameFillStyle(0);
+  tdrStyle->SetFrameLineColor(1);
+  tdrStyle->SetFrameLineStyle(1);
+  tdrStyle->SetFrameLineWidth(1);
+
+// For the histo:
+  tdrStyle->SetHistLineColor(1);
+  tdrStyle->SetHistLineStyle(0);
+  tdrStyle->SetHistLineWidth(1);
+  tdrStyle->SetEndErrorSize(2);
+  tdrStyle->SetErrorX(0.);
+  tdrStyle->SetMarkerStyle(20);
+
+//For the fit/function:
+  tdrStyle->SetOptFit(1);
+  tdrStyle->SetFitFormat("5.4g");
+  tdrStyle->SetFuncColor(2);
+  tdrStyle->SetFuncStyle(1);
+  tdrStyle->SetFuncWidth(1);
+
+//For the date:
+  tdrStyle->SetOptDate(0);
+
+// For the statistics box:
+  tdrStyle->SetOptFile(0);
+  tdrStyle->SetOptStat(0); // To display the mean and RMS:   SetOptStat("mr");
+  tdrStyle->SetStatColor(kWhite);
+  tdrStyle->SetStatFont(42);
+  tdrStyle->SetStatFontSize(0.025);
+  tdrStyle->SetStatTextColor(1);
+  tdrStyle->SetStatFormat("6.4g");
+  tdrStyle->SetStatBorderSize(1);
+  tdrStyle->SetStatH(0.1);
+  tdrStyle->SetStatW(0.15);
+
+// Margins:
+  tdrStyle->SetPadTopMargin(0.05);
+  tdrStyle->SetPadBottomMargin(0.13);
+  tdrStyle->SetPadLeftMargin(0.16);
+  tdrStyle->SetPadRightMargin(0.02);
+
+// For the Global title:
+  tdrStyle->SetOptTitle(0);
+  tdrStyle->SetTitleFont(42);
+  tdrStyle->SetTitleColor(1);
+  tdrStyle->SetTitleTextColor(1);
+  tdrStyle->SetTitleFillColor(10);
+  tdrStyle->SetTitleFontSize(0.05);
+
+// For the axis titles:
+  tdrStyle->SetTitleColor(1, "XYZ");
+  tdrStyle->SetTitleFont(42, "XYZ");
+  tdrStyle->SetTitleSize(0.06, "XYZ");
+  tdrStyle->SetTitleXOffset(0.9);
+  tdrStyle->SetTitleYOffset(1.25);
+
+// For the axis labels:
+  tdrStyle->SetLabelColor(1, "XYZ");
+  tdrStyle->SetLabelFont(42, "XYZ");
+  tdrStyle->SetLabelOffset(0.007, "XYZ");
+  tdrStyle->SetLabelSize(0.05, "XYZ");
+
+// For the axis:
+  tdrStyle->SetAxisColor(1, "XYZ");
+  tdrStyle->SetStripDecimals(kTRUE);
+  tdrStyle->SetTickLength(0.03, "XYZ");
+  tdrStyle->SetNdivisions(510, "XYZ");
+  tdrStyle->SetPadTickX(1);  // To get tick marks on the opposite side of the frame
+  tdrStyle->SetPadTickY(1);
+
+// Change for log plots:
+  tdrStyle->SetOptLogx(0);
+  tdrStyle->SetOptLogy(0);
+  tdrStyle->SetOptLogz(0);
+
+// Postscript options:
+  tdrStyle->SetPaperSize(20.,20.);
+
+  tdrStyle->cd();
+}
 
 // data dirs
-TString theDirName = "Images";
-//
+TString theDirName = "Figures";
 
 // data files
 // All the rootfiles must be present:
-//  TkStrct PixBar PixFwdPlus PixFwdMinus TIB TIDF TIDB TOB TEC BeamPipe
+//  TkStrct PixBar PixFwdPlus PixFwdMinus TIB TIDF TIDB TOB TEC BeamPipe InnerServices
 //
 
 // histograms
@@ -48,24 +154,28 @@ TH1D* hist_x0_CAB;
 TH1D* hist_x0_COL;
 TH1D* hist_x0_OTH;
 //
-float mbmin;
-float mbmax;
-float etamin;
-float etamax;
-//  
+float xmin;
+float xmax; 
+
+float ymin;
+float ymax;
+//
 
 using namespace std;
 
 // Main
 MaterialBudget_TDR() {
+
+  //TDR style
+  setTDRStyle();  
+
   // plots
   createPlots("x_vs_eta");
   createPlots("x_vs_phi");
-  //  createPlots("x_vs_R");
+  createPlots("x_vs_R");
   createPlots("l_vs_eta");
   createPlots("l_vs_phi");
-  //  createPlots("l_vs_R");
-  //
+  createPlots("l_vs_R");
 }
 
 void createPlots(TString plot){
@@ -75,52 +185,59 @@ void createPlots(TString plot){
   if(plot.CompareTo("x_vs_eta") == 0) {
     plotNumber = 10;
     abscissaName = TString("#eta");
-    ordinateName = TString("x/X_{0}");
-    mbmin  =  0.0;
-    mbmax  =  2.0;
-    etamin = -4.0;
-    etamax =  4.0;
-  } else if(plot.CompareTo("x_vs_phi") == 0) {
+    ordinateName = TString("t/X_{0}");
+    ymin =  0.0;
+    ymax =  2.575;
+    xmin = -4.0;
+    xmax =  4.0;
+  }
+  else if(plot.CompareTo("x_vs_phi") == 0) {
     plotNumber = 20;
     abscissaName = TString("#varphi [rad]");
-    ordinateName = TString("x/X_{0}");
-    mbmin  =  0.0;
-    mbmax  =  2.0;
-    etamin = -4.0;
-    etamax =  4.0;
-  } else if(plot.CompareTo("x_vs_R") == 0) {
+    ordinateName = TString("t/X_{0}");
+    ymin =  0.0;
+    ymax =  6.2;
+    xmin = -4.0;
+    xmax =  4.0;
+  }
+  else if(plot.CompareTo("x_vs_R") == 0) {
     plotNumber = 40;
     abscissaName = TString("R [cm]");
-    ordinateName = TString("x/X_{0}");
-    mbmin  =  0.0;
-    mbmax  =  2.0;
-    etamin = -4.0;
-    etamax =  4.0;
-  } else if(plot.CompareTo("l_vs_eta") == 0) {
+    ordinateName = TString("t/X_{0}");
+    ymin =  0.0;
+    ymax =  70.0;
+    xmin =  0.0;
+    xmax =  1200.0;
+  }
+
+  else if(plot.CompareTo("l_vs_eta") == 0) {
     plotNumber = 1010;
     abscissaName = TString("#eta");
-    ordinateName = TString("x/#lambda_{0}");
-    mbmin  =  0.0;
-    mbmax  =  0.6;
-    etamin = -4.0;
-    etamax =  4.0;
-  } else if(plot.CompareTo("l_vs_phi") == 0) {
+    ordinateName = TString("t/#lambda_{I}");
+    ymin =  0.0;
+    ymax =  0.73;
+    xmin = -4.0;
+    xmax =  4.0;
+  }
+  else if(plot.CompareTo("l_vs_phi") == 0) {
     plotNumber = 1020;
     abscissaName = TString("#varphi [rad]");
-    ordinateName = TString("x/#lambda_{0}");
-    mbmin  =  0.0;
-    mbmax  =  1.0;
-    etamin = -4.0;
-    etamax =  4.0;
-  } else if(plot.CompareTo("l_vs_R") == 0) {
+    ordinateName = TString("t/#lambda_{I}");
+    ymin =  0.0;
+    ymax =  1.2;
+    xmin = -4.0;
+    xmax =  4.0;
+  }
+  else if(plot.CompareTo("l_vs_R") == 0) {
     plotNumber = 1040;
     abscissaName = TString("R [cm]");
-    ordinateName = TString("x/#lambda_{0}");
-    mbmin  =  0.0;
-    mbmax  =  0.7;
-    etamin = -4.0;
-    etamax =  4.0;
-  } else {
+    ordinateName = TString("t/#lambda_{I}");
+    ymin =  0.0;
+    ymax =  7.5;
+    xmin =  0.0;
+    xmax =  1200.0;
+  }
+  else {
     cout << " error: chosen plot name not known " << plot << endl;
     return;
   }
@@ -174,8 +291,10 @@ void createPlots(TString plot){
     }
     default: cout << " something wrong" << endl;
     }
+
     // file name
     TString subDetectorFileName = "matbdg_" + subDetector + ".root";
+
     // open file
     TFile* subDetectorFile = new TFile(subDetectorFileName);
     cout << "*** Open file... " << endl;
@@ -408,21 +527,36 @@ void createPlots(TString plot){
     }
   }
   
-  // properties
-  hist_x0_BeamPipe->SetFillColor(136); // Beam Pipe = dark gray blue
-  hist_x0_Pixel->SetFillColor(38);     // Pixel     = light blue
-  hist_x0_IB->SetFillColor(196);       // TIB+TID   = light red
-  hist_x0_TOB->SetFillColor(130);      // TOB       = dark green
-  hist_x0_TEC->SetFillColor(41);       // TEC       = yellow gold
-  hist_x0_Outside->SetFillColor(128);  // Outside   = dark brown
+  // colors
+  int kpipe  = kGray+2;
+  int kpixel = kAzure-5;
+  int ktib   = kMagenta-2;
+  int ktob   = kOrange+10;
+  int ktec   = kOrange-2;
+  int kout   = kGray;
+
+  int ksen = 27;
+  int kele = 46;
+  int kcab = kOrange-8;
+  int kcol = 30;
+  int ksup = 38;
+  int koth = kOrange-2;
+
+  hist_x0_BeamPipe->SetFillColor(kpipe); // Beam Pipe	 = dark gray
+  hist_x0_Pixel->SetFillColor(kpixel);   // Pixel 	 = dark blue
+  hist_x0_IB->SetFillColor(ktib);	 // TIB and TID  = violet
+  hist_x0_TOB->SetFillColor(ktob);       // TOB          = red
+  hist_x0_TEC->SetFillColor(ktec);       // TEC          = yellow gold
+  hist_x0_Outside->SetFillColor(kout);   // Support tube = light gray
+
+  hist_x0_SEN->SetFillColor(ksen); // Sensitive   = brown
+  hist_x0_ELE->SetFillColor(kele); // Electronics = red
+  hist_x0_CAB->SetFillColor(kcab); // Cabling     = dark orange 
+  hist_x0_COL->SetFillColor(kcol); // Cooling     = green
+  hist_x0_SUP->SetFillColor(ksup); // Support     = light blue
+  hist_x0_OTH->SetFillColor(koth); // Other+Air   = light orange
   //
-  hist_x0_SUP->SetFillColor(13); // Support     = dark gray
-  hist_x0_SEN->SetFillColor(27); // Sensitive   = brown
-  hist_x0_CAB->SetFillColor(46); // Cabling     = red
-  hist_x0_COL->SetFillColor(38); // Cooling     = light blue
-  hist_x0_ELE->SetFillColor(30); // Electronics = green
-  hist_x0_OTH->SetFillColor(42); // Other+Air   = orange
-  //
+  
   
   // First Plot: BeamPipe + Pixel + TIB/TID + TOB + TEC + Outside
   // stack
@@ -444,27 +578,46 @@ void createPlots(TString plot){
   //
   
   // Draw
-  stack_x0_SubDetectors.SetMinimum(mbmin);
-  stack_x0_SubDetectors.SetMaximum(mbmax);
+  stack_x0_SubDetectors.SetMinimum(ymin);
+  stack_x0_SubDetectors.SetMaximum(ymax);
   stack_x0_SubDetectors.Draw("HIST");
-  stack_x0_SubDetectors.GetXaxis()->SetLimits(etamin,etamax);
+  stack_x0_SubDetectors.GetXaxis()->SetLimits(xmin,xmax);
   //
   
   // Legenda
-  TLegend* theLegend_SubDetectors = new TLegend(0.70, 0.70, 0.89, 0.89);
-  theLegend_SubDetectors->AddEntry(hist_x0_Outside,  "Outside",  "f");
-  theLegend_SubDetectors->AddEntry(hist_x0_TEC,      "TEC",      "f");
-  theLegend_SubDetectors->AddEntry(hist_x0_TOB,      "TOB",      "f");
-  theLegend_SubDetectors->AddEntry(hist_x0_IB,       "TIB+TID",  "f");
-  theLegend_SubDetectors->AddEntry(hist_x0_Pixel,    "Pixel",    "f");
-  theLegend_SubDetectors->AddEntry(hist_x0_BeamPipe, "Beam Pipe","f");
+  TLegend* theLegend_SubDetectors = new TLegend(0.180,0.8,0.98,0.92); 
+  theLegend_SubDetectors->SetNColumns(3); 
+  theLegend_SubDetectors->SetFillColor(0); 
+  theLegend_SubDetectors->SetFillStyle(0); 
+  theLegend_SubDetectors->SetBorderSize(0); 
+
+  theLegend_SubDetectors->AddEntry(hist_x0_Outside,   "Support Tube",  "f");
+  theLegend_SubDetectors->AddEntry(hist_x0_TOB,       "TOB",           "f");
+  theLegend_SubDetectors->AddEntry(hist_x0_Pixel,     "Pixel",         "f");
+
+  theLegend_SubDetectors->AddEntry(hist_x0_TEC,       "TEC",           "f");
+  theLegend_SubDetectors->AddEntry(hist_x0_IB,        "TIB and TID",   "f");
+  theLegend_SubDetectors->AddEntry(hist_x0_BeamPipe,  "Beam Pipe",     "f");
   theLegend_SubDetectors->Draw();
+  //
+
+  // text
+  TPaveText* text_SubDetectors = new TPaveText(0.180,0.727,0.402,0.787,"NDC");
+  text_SubDetectors->SetFillColor(0);
+  text_SubDetectors->SetBorderSize(0);
+  text_SubDetectors->AddText("CMS Simulation");
+  text_SubDetectors->SetTextAlign(11);
+  text_SubDetectors->Draw();
   //
   
   // Store
   can_SubDetectors.Update();
-  can_SubDetectors.SaveAs( Form( "%s/Tracker_SubDetectors_%s.eps",  theDirName.Data(), plot.Data() ) );
-  can_SubDetectors.SaveAs( Form( "%s/Tracker_SubDetectors_%s.gif",  theDirName.Data(), plot.Data() ) );
+  //  can_SubDetectors.SaveAs( Form( "%s/Tracker_SubDetectors_%s.eps",  theDirName.Data(), plot.Data() ) );
+  //  can_SubDetectors.SaveAs( Form( "%s/Tracker_SubDetectors_%s.gif",  theDirName.Data(), plot.Data() ) );
+  can_SubDetectors.SaveAs( Form( "%s/Tracker_SubDetectors_%s.pdf",  theDirName.Data(), plot.Data() ) );
+  //  can_SubDetectors.SaveAs( Form( "%s/Tracker_SubDetectors_%s.png",  theDirName.Data(), plot.Data() ) );
+  can_SubDetectors.SaveAs( Form( "%s/Tracker_SubDetectors_%s.root",  theDirName.Data(), plot.Data() ) );
+  //  can_SubDetectors.SaveAs( Form( "%s/Tracker_SubDetectors_%s.C",  theDirName.Data(), plot.Data() ) );
   //
   
   
@@ -490,30 +643,48 @@ void createPlots(TString plot){
   //
   
   // Draw
-  stack_x0_Materials.SetMinimum(mbmin);
-  stack_x0_Materials.SetMaximum(mbmax);
+  stack_x0_Materials.SetMinimum(ymin);
+  stack_x0_Materials.SetMaximum(ymax);
   stack_x0_Materials.Draw("HIST");
-  stack_x0_Materials.GetXaxis()->SetLimits(etamin,etamax);
+  stack_x0_Materials.GetXaxis()->SetLimits(xmin,xmax);
   //
   
   // Legenda
-  TLegend* theLegend_Materials = new TLegend(0.70, 0.70, 0.89, 0.89);
-  theLegend_Materials->AddEntry(hist_x0_Outside,  "Outside",         "f");
-  theLegend_Materials->AddEntry(hist_x0_OTH,      "Other",       "f");
-  theLegend_Materials->AddEntry(hist_x0_SUP,      "Support",     "f");
-  theLegend_Materials->AddEntry(hist_x0_COL,      "Cooling",     "f");
-  theLegend_Materials->AddEntry(hist_x0_CAB,      "Cables",      "f");
-  theLegend_Materials->AddEntry(hist_x0_ELE,      "Electronics", "f");
-  theLegend_Materials->AddEntry(hist_x0_SEN,      "Sensitive",   "f");
-  theLegend_Materials->AddEntry(hist_x0_BeamPipe, "Beam Pipe",   "f");
+  TLegend* theLegend_Materials = new TLegend(0.180,0.8,0.95,0.92); 
+  theLegend_Materials->SetNColumns(3); 
+  theLegend_Materials->SetFillColor(0); 
+  theLegend_Materials->SetBorderSize(0); 
+
+  theLegend_Materials->AddEntry(hist_x0_Outside,   "Support and Thermal Screen",  "f");
+  theLegend_Materials->AddEntry(hist_x0_OTH,       "Other",                       "f");
+  theLegend_Materials->AddEntry(hist_x0_SUP,       "Mechanical Structures",       "f");
+
+  theLegend_Materials->AddEntry(hist_x0_COL,       "Cooling",                     "f");
+  theLegend_Materials->AddEntry(hist_x0_CAB,       "Cables",                      "f");
+  theLegend_Materials->AddEntry(hist_x0_ELE,       "Electronics",                 "f");
+
+  theLegend_Materials->AddEntry(hist_x0_SEN,       "Sensitive",                   "f");
+  theLegend_Materials->AddEntry(hist_x0_BeamPipe,  "Beam Pipe",                   "f");
   theLegend_Materials->Draw();
+  //
+
+  // text
+  TPaveText* text_Materials = new TPaveText(0.180,0.727,0.402,0.787,"NDC");
+  text_Materials->SetFillColor(0);
+  text_Materials->SetBorderSize(0);
+  text_Materials->AddText("CMS Simulation");
+  text_Materials->SetTextAlign(11);
+  text_Materials->Draw();
   //
   
   // Store
   can_Materials.Update();
-  can_Materials.SaveAs( Form( "%s/Tracker_Materials_%s.eps",  theDirName.Data(), plot.Data() ) );
-  can_Materials.SaveAs( Form( "%s/Tracker_Materials_%s.gif",  theDirName.Data(), plot.Data() ) );
+  // can_Materials.SaveAs( Form( "%s/Tracker_Materials_%s.eps",  theDirName.Data(), plot.Data() ) );
+  // can_Materials.SaveAs( Form( "%s/Tracker_Materials_%s.gif",  theDirName.Data(), plot.Data() ) );
+  can_Materials.SaveAs( Form( "%s/Tracker_Materials_%s.pdf",  theDirName.Data(), plot.Data() ) );
+  // can_Materials.SaveAs( Form( "%s/Tracker_Materials_%s.png",  theDirName.Data(), plot.Data() ) );
+  can_Materials.SaveAs( Form( "%s/Tracker_Materials_%s.root",  theDirName.Data(), plot.Data() ) );
+  // can_Materials.SaveAs( Form( "%s/Tracker_Materials_%s.C",  theDirName.Data(), plot.Data() ) );
   //
   
 }
-
