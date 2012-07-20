@@ -21,7 +21,8 @@
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/Core/interface/HadronizerFilter.h"
 #include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
-
+//~ #include "GeneratorInterface/SherpaInterface/plugins/SherpackFetcher.h"
+#include "GeneratorInterface/SherpaInterface/interface/SherpackFetcher.h"
 
 class SherpaHadronizer : public gen::BaseHadronizer {
 public:
@@ -41,6 +42,8 @@ public:
   
 private:
   
+  std::string SherpaProcess;
+  std::string SherpaChecksum;
   std::string SherpaPath;
   std::string SherpaPathPiece;
   std::string SherpaResultDir;
@@ -65,14 +68,17 @@ private:
 
 SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   BaseHadronizer(params),
-  SherpaPath(params.getUntrackedParameter<std::string>("Path","SherpaRun")),
-  SherpaPathPiece(params.getUntrackedParameter<std::string>("PathPiece","SherpaRun")),
-  SherpaResultDir(params.getUntrackedParameter<std::string>("ResultDir","Result")),
-  default_weight(params.getUntrackedParameter<double>("default_weight",1.)),
+  SherpaProcess(params.getUntrackedParameter<std::string>("SherpaProcess","")),
+  SherpaChecksum(params.getUntrackedParameter<std::string>("SherpaChecksum","")),
+  SherpaPath(params.getUntrackedParameter<std::string>("SherpaPath","")),
+  SherpaPathPiece(params.getUntrackedParameter<std::string>("SherpaPathPiece","")),
+  SherpaResultDir(params.getUntrackedParameter<std::string>("SherpaResultDir","Result")),
+  default_weight(params.getUntrackedParameter<double>("SherpaDefaultWeight",1.)),
   SherpaParameter(params.getParameter<edm::ParameterSet>("SherpaParameters")),
   maxEventsToPrint(params.getUntrackedParameter<int>("maxEventsToPrint", 0))
 {
-
+  //~ spf::SherpackFetcher Fetcher(params);
+  	
   // The ids (names) of parameter sets to be read (Analysis,Run) to create Analysis.dat, Run.dat
   //They are given as a vstring.  
   std::vector<std::string> setNames = SherpaParameter.getParameter<std::vector<std::string> >("parameterSets");

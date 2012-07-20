@@ -8,4 +8,6 @@
 <use name="boost"/>
 <use name="clhep"/>
 <use name="sherpa"/>
+<use name="frontier_client"/>
+<use name="FWCore/Services"/>
 <flags EDM_PLUGIN="1"/>
