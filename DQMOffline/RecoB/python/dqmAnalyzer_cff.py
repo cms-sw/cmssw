@@ -28,7 +28,6 @@ ak5PFJetsJEC = ak5PFJetsL2L3.clone(
 PFJetsFilter = cms.EDFilter("PFJetSelector",
                             src = cms.InputTag("ak5PFJetsJEC"),
                             cut = JetCut,
-                            filter = cms.bool(True)
                             )
 
 jetID = cms.InputTag("PFJetsFilter")
