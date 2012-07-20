@@ -794,7 +794,8 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     std::cout<<"                        eta = "<<photonMomentum.eta()<<std::endl;
     std::cout<<"             TrackIsolation = "<< sum_track_pt <<std::endl;
     */
-    math::XYZPointF Position(photonPosition.X(), photonPosition.Y(), photonPosition.Z());
+
+    math::XYZPointF Position(photonPosition.Unit().X(), photonPosition.Unit().Y(), photonPosition.Unit().Z());
     reco::PFCandidate photonCand(0,photonMomentum, reco::PFCandidate::gamma);
     photonCand.setPositionAtECALEntrance(Position);
     photonCand.setPs1Energy(ps1TotEne);
