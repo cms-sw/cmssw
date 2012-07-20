@@ -1,7 +1,9 @@
+2012-07-20 Srecko Morovic <srecko.morovic@cern.ch>
 
+	* tag V01-19-36
 	* sending time since last report to the iDie
 
-2012-05-29 Srecko Morovic <srecko.morovic@cern.ch>
+2012-07-10 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* V01-19-35
 	* CPUStat sends cpu usage info from /proc/stat
