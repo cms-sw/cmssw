@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik, Riccardo Bellan, Michalis Bachtis
  *
- * \version $Id: Muon.h,v 1.70 2012/03/21 22:11:05 slava77 Exp $
+ * \version $Id: Muon.h,v 1.71 2012/03/28 09:52:15 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -155,12 +155,18 @@ namespace reco {
     const MuonIsolation& isolationR05() const { return isolationR05_; }
 
     const MuonPFIsolation& pfIsolationR03() const { return pfIsolationR03_; }
+    const MuonPFIsolation& pfMeanDRIsoProfileR03() const { return pfIsoMeanDRR03_; }
+    const MuonPFIsolation& pfSumDRIsoProfileR03() const { return pfIsoSumDRR03_; }
     const MuonPFIsolation& pfIsolationR04() const { return pfIsolationR04_; }
+    const MuonPFIsolation& pfMeanDRIsoProfileR04() const { return pfIsoMeanDRR04_; }
+    const MuonPFIsolation& pfSumDRIsoProfileR04() const { return pfIsoSumDRR04_; }
+
 
     void setIsolation( const MuonIsolation& isoR03, const MuonIsolation& isoR05 );
     bool isIsolationValid() const { return isolationValid_; }
+    void setPFIsolation(std::string label,const reco::MuonPFIsolation& deposit);
 
-    void setPFIsolation( const MuonPFIsolation& isoR03, const MuonPFIsolation& isoR04 );
+
     bool isPFIsolationValid() const { return pfIsolationValid_; }
 
 
@@ -245,7 +251,11 @@ namespace reco {
 
     /// PF Isolation information for two cones with dR=0.3 and dR=0.4
     MuonPFIsolation pfIsolationR03_;
+    MuonPFIsolation pfIsoMeanDRR03_;
+    MuonPFIsolation pfIsoSumDRR03_;
     MuonPFIsolation pfIsolationR04_;
+    MuonPFIsolation pfIsoMeanDRR04_;
+    MuonPFIsolation pfIsoSumDRR04_;
 
     /// muon type mask
     unsigned int type_;
