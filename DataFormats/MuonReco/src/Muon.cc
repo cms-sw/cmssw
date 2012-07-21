@@ -733,7 +733,7 @@ void Muon::setIsolation( const MuonIsolation& isoR03, const MuonIsolation& isoR0
 }
 
 
-void Muon::setPFIsolation(std::string label, const MuonPFIsolation& deposit) 
+void Muon::setPFIsolation(const std::string& label, const MuonPFIsolation& deposit) 
 { 
   if(label=="pfIsolationR03")
     pfIsolationR03_ = deposit;

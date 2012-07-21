@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik, Riccardo Bellan, Michalis Bachtis
  *
- * \version $Id: Muon.h,v 1.71 2012/03/28 09:52:15 dmytro Exp $
+ * \version $Id: Muon.h,v 1.72 2012/07/21 00:26:08 bachtis Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -164,7 +164,7 @@ namespace reco {
 
     void setIsolation( const MuonIsolation& isoR03, const MuonIsolation& isoR05 );
     bool isIsolationValid() const { return isolationValid_; }
-    void setPFIsolation(std::string label,const reco::MuonPFIsolation& deposit);
+    void setPFIsolation(const std::string& label,const reco::MuonPFIsolation& deposit);
 
 
     bool isPFIsolationValid() const { return pfIsolationValid_; }
