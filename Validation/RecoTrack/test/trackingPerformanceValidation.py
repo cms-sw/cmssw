@@ -160,7 +160,6 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
     for sample in samples :
         templatecfgFile = open(cfg, 'r')
         templatemacroFile = open(macro, 'r')
-        print 'Get information from DBS for sample', sample
         newdir=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample 
 	cfgFileName=sample+GlobalTag
         #check if the sample is already done
@@ -178,9 +177,10 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
                 if (sampleType == 'FastSim' and PileUp == 'PU') : 
                     harvestedfile = './DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-PU_' +GlobalTag + '_FastSim_PU_2012_Startup_inTimeOnly-' + Version + '__GEN-SIM-DIGI-RECO.root'
 
-            print 'Sample:  ', sample, '\n'
+            print 'Sample:  ', sample, sampleType, PileUp, '\n'
 
             if (Sequence != "comparison_only"):
+                print 'Get information from DBS for sample', sample
                 #search the primary dataset
                 cmd='dbsql "find  dataset where dataset like /'
                 if (sampleType == 'FullSim' and PileUp == 'noPU'): cmd+=sample+'/'+NewRelease+'-'+GlobalTag+'*'+Version+'/GEN-SIM-RECO order by dataset.createdate "'
@@ -322,7 +322,8 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
                     os.system('mv val.'+ sample+ '.root ' + newdir)
 
                     print "copy py file for sample: " , sample
-                    os.system('cp '+cfgFileName+'.py ' + newdir)
+                    if (Sequence!="comparison_only"): 
+                        os.system('cp '+cfgFileName+'.py ' + newdir)
 	
 	
         else:
