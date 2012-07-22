@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2012/03/29 08:42:23 $
+// last change    : $Date: 2012/02/10 12:31:36 $
 // by             : $Author: flucke $
 
 #include "PlotMillePede.h"
@@ -24,8 +24,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 PlotMillePede::PlotMillePede(const char *fileName, Int_t iov, Int_t hieraLevel, bool useDiff)
   : MillePedeTrees(fileName, iov), fHistManager(new GFHistManager), fHieraLevel(hieraLevel),
-    fUseDiff(useDiff), fSubDetIds(), fAlignableTypeId(-1),
-    fMaxDevUp(500.), fMaxDevDown(-500.), fNbins(101)
+    fUseDiff(useDiff), fSubDetIds(), fAlignableTypeId(-1), fMaxDev(500.)
 {
   fHistManager->SetLegendX1Y1X2Y2(0.14, 0.7, 0.45, 0.9);
 }
@@ -33,8 +32,7 @@ PlotMillePede::PlotMillePede(const char *fileName, Int_t iov, Int_t hieraLevel, 
 PlotMillePede::PlotMillePede(const char *fileName, Int_t iov, Int_t hieraLevel, const char *treeNameAdd)
   : MillePedeTrees(fileName, iov, treeNameAdd),
     fHistManager(new GFHistManager), fHieraLevel(hieraLevel),
-    fUseDiff(false), fSubDetIds(), fAlignableTypeId(-1),
-    fMaxDevUp(500.), fMaxDevDown(-500.), fNbins(101)
+    fUseDiff(false), fSubDetIds(), fAlignableTypeId(-1), fMaxDev(500.)
 {
   fHistManager->SetLegendX1Y1X2Y2(0.14, 0.7, 0.45, 0.9);
 }
@@ -395,12 +393,11 @@ void PlotMillePede::DrawPedeParamVsLocation(Option_t *option, unsigned int nNonR
 // }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void PlotMillePede::DrawSurfaceDeformations(const TString &whichOne, Option_t *option,
-					    unsigned int maxNumPars, unsigned int firstPar)
+void PlotMillePede::DrawSurfaceDeformations(const TString &whichOne,
+					    Option_t *option, unsigned int maxNumPars)
 {
   const Int_t layer = this->PrepareAdd(TString(option).Contains("add", TString::kIgnoreCase));
   const TString titleAdd = this->TitleAdd();
-  const bool noLimit = TString(option).Contains("nolimit", TString::kIgnoreCase);
 
   TString parSel(Valid(0) += AndL() += Fixed(0, false)); // HACK: if u1 determination is fine
   if (TString(option).Contains("all", TString::kIgnoreCase)) parSel = "";
@@ -412,10 +409,9 @@ void PlotMillePede::DrawSurfaceDeformations(const TString &whichOne, Option_t *o
   if (whichOne.Contains("diff",   TString::kIgnoreCase)) whichOnes.Add(new TObjString("diff"));
 
   for (Int_t wi = 0; wi < whichOnes.GetEntriesFast(); ++wi) {
-    unsigned int nPlot = 0;
-    for (unsigned int i = firstPar; i < maxNumPars; ++i) {
-      TString hName(this->Unique(Form("hSurf%s%u", whichOnes[wi]->GetName(),i)));
-      if (!noLimit) hName += Form("(%d,%f,%f)", fNbins, fMaxDevDown, fMaxDevUp);
+    for (unsigned int i = 0; i < maxNumPars; ++i) {
+      const TString hName(this->Unique(Form("hSurf%s%u", whichOnes[wi]->GetName(),i))
+			  += Form("(101,-%f,%f)", fMaxDev, fMaxDev));
       TH1 *h = this->CreateHist(DeformValue(i, whichOnes[wi]->GetName()) += this->ToMumMuRadSurfDef(i),
 				parSel + AndL() += Parenth(NumDeformValues(whichOnes[wi]->GetName())),
 				hName);
@@ -424,9 +420,9 @@ void PlotMillePede::DrawSurfaceDeformations(const TString &whichOne, Option_t *o
       h->SetTitle(Form("SurfaceDeformation %s ", whichOnes[wi]->GetName())
 		  + NameSurfDef(i) += titleAdd + ";"
 		  + NameSurfDef(i) += UnitSurfDef(i));
-      fHistManager->AddHistSame(h, layer, nPlot, whichOnes[wi]->GetName());
+      fHistManager->AddHistSame(h, layer, i, whichOnes[wi]->GetName());
       //fHistManager->AddHistSame(hBef, layer, nPlot, "misaligned");
-      ++nPlot;
+
     }
   }
 
@@ -474,7 +470,7 @@ void PlotMillePede::DrawSurfaceDeformationsLayer(Option_t *option, const unsigne
       this->AddBasicSelection(sel); // append the cuts set
       // histo name with or without predefined limits:
       const TString hName(this->Unique(Form("hSurf%s%u_%u", whichOne.Data(), iPar, iDetLayer))
-			  += (noLimit ? "" : Form("(%d,%f,%f)", fNbins, fMaxDevDown, fMaxDevUp)));
+			  += (noLimit ? "" : Form("(101,-%f,%f)", fMaxDev, fMaxDev)));
       // cut away values identical to zero:
       TH1 *h = this->CreateHist(DeformValue(iPar, whichOne) += this->ToMumMuRadSurfDef(iPar),
 				(sel + AndL()) += Parenth(DeformValue(iPar, whichOne) += "!= 0."),
@@ -710,34 +706,34 @@ TString PlotMillePede::DetLayerLabel(unsigned int detLayer) const
     //   case 3: return "FPIX";
     //   case 4: return "FPIX";
     
-  case 5: return "TIB L1#phi";//"TIB L1R";
-  case 6: return "TIB L1s";   //"TIB L1S";
-  case 7: return "TIB L2#phi";//"TIB L2R";
-  case 8: return "TIB L2s";   //"TIB L2S";
+  case 5: return "TIB L1R";
+  case 6: return "TIB L1S";
+  case 7: return "TIB L2R";
+  case 8: return "TIB L2S";
   case 9: return "TIB L3";
   case 10: return "TIB L4";
 
-  case 11: return "TID R1#phi";//"TID R1R";
-  case 12: return "TID R1s";   //"TID R1S";
-  case 13: return "TID R2#phi";//"TID R2R";
-  case 14: return "TID R2s";   //"TID R2S";
+  case 11: return "TID R1R";
+  case 12: return "TID R1S";
+  case 13: return "TID R2R";
+  case 14: return "TID R2S";
   case 15: return "TID R3";
 
-  case 16: return "TEC R1#phi";//"TEC R1R";
-  case 17: return "TEC R1s";   //"TEC R1S";
-  case 18: return "TEC R2#phi";//"TEC R2R";
-  case 19: return "TEC R2s";   //"TEC R2S";
+  case 16: return "TEC R1R";
+  case 17: return "TEC R1S";
+  case 18: return "TEC R2R";
+  case 19: return "TEC R2S";
   case 20: return "TEC R3";
   case 21: return "TEC R4";
-  case 22: return "TEC R5#phi";//"TEC R5R";
-  case 23: return "TEC R5s";   //"TEC R5S";
+  case 22: return "TEC R5R";
+  case 23: return "TEC R5S";
   case 24: return "TEC R6";
   case 25: return "TEC R7";
 
-  case 26: return "TOB L1#phi";//"TOB L1R";
-  case 27: return "TOB L1s";   //"TOB L1S";
-  case 28: return "TOB L2#phi";//"TOB L2R";
-  case 29: return "TOB L2s";   //"TOB L2S";
+  case 26: return "TOB L1R";
+  case 27: return "TOB L1S";
+  case 28: return "TOB L2R";
+  case 29: return "TOB L2S";
   case 30: return "TOB L3";
   case 31: return "TOB L4";
   case 32: return "TOB L5";
@@ -810,13 +806,13 @@ void PlotMillePede::DrawParamResult(Option_t *option)
     const TString startMis(Parenth(MisParT() += Par(iPar)) += toMu);
 
     const TString hNameB(this->Unique(Form("before%d", iPar)) += 
-			 Form("(%d,%f,%f)", fNbins, fMaxDevDown, fMaxDevUp));
+			 Form("(101,-%f,%f)", fMaxDev, fMaxDev));
     TH1 *hBef = this->CreateHist(startMis, sel, hNameB);
     const TString hNameD(this->Unique(Form("end%d", iPar)) 
                          += Form("(%d,%f,%f)", hBef->GetNbinsX(), 
                                  hBef->GetXaxis()->GetXmin(), hBef->GetXaxis()->GetXmax()));
     TH1 *hEnd = this->CreateHist(finalMis, sel, hNameD);
-    const TString hName2D(this->Unique(Form("vs%d", iPar)) += Form("(30,%f,%f,30,-500,500)", fMaxDevDown, fMaxDevUp));
+    const TString hName2D(this->Unique(Form("vs%d", iPar)) += Form("(30,-%f,%f,30,-500,500)", fMaxDev, fMaxDev));
     TH1 *hVs = this->CreateHist(startMis + ":" + finalMis, sel, hName2D, "BOX");
     if (0. == hEnd->GetEntries()) continue;
     hEnd->SetTitle(DelName(iPar)+=titleAdd+";"+DelNameU(iPar)+=";#parameters");
@@ -852,7 +848,7 @@ void PlotMillePede::DrawPosResult(bool addPlots, const TString &selection)
 
     const TString toMu(this->ToMumMuRad(posName));
     const TString hNameB(this->Unique(posName + "Before")
-			 += Form("(%d,%f,%f)", fNbins, fMaxDevDown, fMaxDevUp));
+			 += Form("(101,-%f,%f)", fMaxDev, fMaxDev));
     const TString misPos(Parenth(DeltaPos(posName, MisPosT())) += toMu);
     TH1 *hBef = this->CreateHist(misPos, sel, hNameB);
     if (0. == hBef->GetEntries()) {
@@ -1728,26 +1724,12 @@ void PlotMillePede::AddBasicSelection(TString &sel) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void PlotMillePede::SetMaxDev(Float_t maxDev)
-{
-  // set symmetric x-axis range for result plots (around 0)
-  fMaxDevUp   =  TMath::Abs(maxDev);
-  fMaxDevDown = -TMath::Abs(maxDev);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void PlotMillePede::SetMaxDev(Float_t maxDevDown, Float_t maxDevUp)
+Float_t PlotMillePede::SetMaxDev(Float_t maxDev)
 {
   // set x-axis range for result plots
-  if (maxDevUp < maxDevDown) {
-    ::Error("PlotMillePede::SetMaxDev",
-            "Upper limit %f smaller than lower limit %f => Swap them!", maxDevUp, maxDevDown);     
-    fMaxDevUp   = maxDevDown;
-    fMaxDevDown = maxDevUp;
-  } else {
-    fMaxDevUp   = maxDevUp;
-    fMaxDevDown = maxDevDown;
-  }
+  const Float_t devOld = fMaxDev;
+  fMaxDev = maxDev;
+  return devOld;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1831,35 +1813,6 @@ TString PlotMillePede::TitleAdd() const
   if (result.Length()) result.Prepend(": ");  
 
   return result;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-TString PlotMillePede::AlignableObjIdString(Int_t objId) const
-{
-  switch (objId) { // see StructureType.h in CMSSW
-  case 1: return "DetUnit";
-  case 2: return "Det";
-    //
-  case 5: return "BPIXLayer";
-    //
-  case 11: return "FPIXHalfDisk";
-    //
-  case 15: return "TIBString";
-    //
-  case 19: return "TIBHalfBarrel";
-    //
-  case 25: return "TIDEndcap";
-    //
-  case 29: return "TOBHalfBarrel";
-    //
-  case 36: return "TECEndcap";
-  default: 
-    ::Error("PlotMillePede::AlignableObjIdString",
-            "Missing implementation for ObjId %d, see "
-	    "Alignment/CommonAlignment/interface/StructureType.h",
-	    objId);
-    return Form("alignable obj id %d", objId);
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

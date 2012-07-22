@@ -102,13 +102,13 @@ void FillInfoPopConSourceHandler::getNewObjects() {
   fillDataOutput.extend<std::string>( "INJECTIONSCHEME" );
   fillDataQuery->defineOutput( fillDataOutput );
   coral::ICursor& fillDataCursor = fillDataQuery->execute();
-  unsigned short bunches1, bunches2, collidingBunches, targetBunches;
-  FillInfo::FillTypeId fillType; 
-  FillInfo::ParticleTypeId particleType1, particleType2;
-  float crossingAngle, betastar, intensityBeam1, intensityBeam2, energy;
+  unsigned short bunches1 = 0, bunches2 = 0, collidingBunches = 0, targetBunches = 0;
+  FillInfo::FillTypeId fillType = FillInfo::UNKNOWN;
+  FillInfo::ParticleTypeId particleType1 = FillInfo::NONE , particleType2 = FillInfo::NONE;
+  float crossingAngle = 0., betastar = 0., intensityBeam1 = 0., intensityBeam2 = 0., energy = 0.;
   coral::TimeStamp stableBeamStartTimeStamp, stableBeamEndTimeStamp;
-  cond::Time_t creationTime, stableBeamStartTime, stableBeamEndTime;
-  std::string injectionScheme;
+  cond::Time_t creationTime = 0ULL, stableBeamStartTime = 0ULL, stableBeamEndTime = 0ULL;
+  std::string injectionScheme("None");
   while( fillDataCursor.next() ) {
     //fillDataCursor.currentRow().toOutputStream( std::cout ) << std::endl;
     coral::Attribute const & bunches1Attribute = fillDataCursor.currentRow()[ "NBUNCHESBEAM1" ];

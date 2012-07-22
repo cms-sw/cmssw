@@ -6,7 +6,7 @@ from RecoJets.FFTJetProducers.fftjetcommon_cfi import *
 fftjet_default_recombination_scale = 0.5
 
 # FFTJet jet producer configuration
-fftjet_jet_maker = cms.EDProducer(
+fftjetJetMaker = cms.EDProducer(
     "FFTJetProducer",
     #
     # Label for the input clustering tree (must be sparse)
@@ -218,15 +218,8 @@ fftjet_jet_maker = cms.EDProducer(
     # If the pile-up is both estimated and subtracted, do we want to use
     # the 4-vector pile-up subtraction scheme? (The alternative is based
     # on scaling the jet Pt).
-    subtractPileupAs4Vec = cms.bool(False),
+    subtractPileupAs4Vec = cms.bool(True),
     #
     # Source of the pile-up energy flow data
-    pileupLabel = cms.InputTag("pileupestimator", "FFTJetPileupEstimatePF"),
-    #
-    # Label for GenJet collection in the "fromGenJets" resolution mode
-    genJetsLabel = cms.InputTag("fftgenjetproducer", "MadeByFFTJet"),
-    #
-    # Max number of preclusters. Does not take into account the possibility
-    # of further precluster removal by setting its membership factor to 0.
-    maxInitialPreclusters = cms.uint32(2147483647)
+    pileupLabel = cms.InputTag("pileupestimator", "FFTJetPileupEstimatePF")
 )

@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.55 2012/05/09 fay Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.52 2011/10/13 09:29:36 eulisse Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -81,9 +81,6 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   gainRatio6over1_  = ps.getUntrackedParameter<double>("gainRatio6over1",  6.0);
 
   getWeightsFromFile_ = ps.getUntrackedParameter<bool>("getWeightsFromFile",false);
-
-  sampleMaskEB_ = ps.getUntrackedParameter<unsigned int>("sampleMaskEB",1023);
-  sampleMaskEE_ = ps.getUntrackedParameter<unsigned int>("sampleMaskEB",1023);
 
   nTDCbins_ = 1;
 
@@ -370,11 +367,6 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
 
   if (producedEcalADCToGeVConstant_)  findingRecord<EcalADCToGeVConstantRcd>();
 
-  producedEcalSampleMask_ = ps.getUntrackedParameter<bool>("producedEcalSampleMask",true);
-  if (producedEcalSampleMask_) {
-    setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalSampleMask );
-    findingRecord<EcalSampleMaskRcd>();
-  }
 }
 
 EcalTrivialConditionRetriever::~EcalTrivialConditionRetriever()
@@ -2640,9 +2632,7 @@ std::auto_ptr<Alignments>
 EcalTrivialConditionRetriever::produceEcalAlignmentEB( const EBAlignmentRcd& ) {
   double mytrans[3] = {0., 0., 0.};
   double myeuler[3] = {0., 0., 0.};
-  std::ifstream f;
-  if(getEBAlignmentFromFile_)
-    f.open(edm::FileInPath(EBAlignmentFile_).fullPath().c_str());
+  std::ifstream f(edm::FileInPath(EBAlignmentFile_).fullPath().c_str());
   std::vector<AlignTransform> my_align;
   int ieta = 1;
   int iphi = 0;
@@ -2697,9 +2687,7 @@ std::auto_ptr<Alignments>
 EcalTrivialConditionRetriever::produceEcalAlignmentEE( const EEAlignmentRcd& ) {
   double mytrans[3] = {0., 0., 0.};
   double myeuler[3] = {0., 0., 0.};
-  std::ifstream f;
-  if(getEEAlignmentFromFile_)
-    f.open(edm::FileInPath(EEAlignmentFile_).fullPath().c_str());
+  std::ifstream f(edm::FileInPath(EEAlignmentFile_).fullPath().c_str());
   std::vector<AlignTransform> my_align;
   int ix = 20;
   int iy = 50;
@@ -2732,9 +2720,7 @@ std::auto_ptr<Alignments>
 EcalTrivialConditionRetriever::produceEcalAlignmentES( const ESAlignmentRcd& ) {
   double mytrans[3] = {0., 0., 0.};
   double myeuler[3] = {0., 0., 0.};
-  std::ifstream f;
-  if(getESAlignmentFromFile_)
-    f.open(edm::FileInPath(ESAlignmentFile_).fullPath().c_str());
+  std::ifstream f(edm::FileInPath(ESAlignmentFile_).fullPath().c_str());
   std::vector<AlignTransform> my_align;
   //  int ix_vect[10] = {10, 30, 30, 50, 10, 30, 10, 30};
   int pl_vect[10] = {2, 2, 1, 1, 1, 1, 2, 2};
@@ -2761,10 +2747,4 @@ EcalTrivialConditionRetriever::produceEcalAlignmentES( const ESAlignmentRcd& ) {
   a.m_align = my_align; 
   std::auto_ptr<Alignments> ical = std::auto_ptr<Alignments>( new Alignments(a) );
   return ical;
-}
-
-std::auto_ptr<EcalSampleMask>
-EcalTrivialConditionRetriever::produceEcalSampleMask( const EcalSampleMaskRcd& )
-{
-  return std::auto_ptr<EcalSampleMask>( new EcalSampleMask(sampleMaskEB_, sampleMaskEE_) );
 }

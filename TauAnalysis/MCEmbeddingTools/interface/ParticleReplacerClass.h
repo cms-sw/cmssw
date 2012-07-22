@@ -75,6 +75,10 @@ private:
 	void cleanEvent(HepMC::GenEvent * evt, HepMC::GenVertex * vtx);
 	void repairBarcodes(HepMC::GenEvent * evt);
 
+	/// replace mode:
+	//	0	fullEvent	(incl. all other particles)
+	//	1	taus only	(create an event only with the two decaying taus)
+	unsigned int replacementMode_;
 	std::string generatorMode_;
 	bool noInitialisation_;
 
@@ -88,8 +92,7 @@ private:
 	bool useTauola_ ;
 	bool useTauolaPolarization_ ;
 	
-	//gen::TauolaInterface* tauola_;
-	gen::TauolaInterface tauola_;
+	gen::TauolaInterface* tauola_;
 
 	bool printEvent_;
 

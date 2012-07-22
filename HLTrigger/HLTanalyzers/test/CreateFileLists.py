@@ -6,7 +6,7 @@ import sys,string,time,os
 ### parameters ###
 
 FilesPerCfg=1
-CFGBASE="MinimumBias_"
+CFGBASE="Dataset_"
 
 ####
 

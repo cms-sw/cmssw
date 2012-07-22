@@ -379,7 +379,6 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 */
           }
         }
-	delete hit;
       } //end of loop on tracking rechits
   } // end of loop on recotracks
 
@@ -783,7 +782,6 @@ void StdHitNtuplizer::fillPRecHit(const int subid,
   recHit_.gx = GP.x();
   recHit_.gy = GP.y();
   recHit_.gz = GP.z();
-  delete pixeliter;
   recHit_.subid = subid;
 }
 

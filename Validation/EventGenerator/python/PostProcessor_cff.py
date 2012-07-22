@@ -296,13 +296,4 @@ postProcessorTauValidation = cms.EDAnalyzer(
                                           "TauSpinEffectsHpm nEvt")
 )
 
-
-postProcessorTTbarValidation = cms.EDAnalyzer(
-    "DQMGenericClient",
-    subDirs = cms.untracked.vstring("Generator/TTbar*"),
-    efficiency = cms.vstring(""),
-    resolution = cms.vstring(""),
-    )
-
-
-EventGeneratorPostProcessor = cms.Sequence(postProcessorBasicHepMCValidation+postProcessorBasicGenParticleValidation+postProcessorMBUEandQCDValidation+postProcessorWValidation+postProcessorDrellYanValidation+postProcessorTauValidation+postProcessorTTbarValidation)
+EventGeneratorPostProcessor = cms.Sequence(postProcessorBasicHepMCValidation+postProcessorBasicGenParticleValidation+postProcessorMBUEandQCDValidation+postProcessorWValidation+postProcessorDrellYanValidation+postProcessorTauValidation)

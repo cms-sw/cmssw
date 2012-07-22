@@ -19,10 +19,10 @@
 setenv TYPE Photons
 setenv CMSSWver1 6_0_0
 setenv RELEASE 6_0_0
-setenv PRERELEASE pre8
+setenv PRERELEASE pre5
 
-setenv FULLGLOBALTAG START60_V1-v1
-setenv FASTGLOBALTAG START60_V1_FastSim-v1
+setenv FULLGLOBALTAG START53_V4-v1
+setenv FASTGLOBALTAG START53_V4_FastSim-v1
 
 setenv RELEASE ${RELEASE}_${PRERELEASE}
 #setenv RELEASE ${RELEASE}
@@ -200,13 +200,9 @@ cat > scaledhistosForPhotonsLogScale <<EOF
   hOverEAll
   hOverEBarrel
   hOverEEndcap
-  newhOverEAll
-  newhOverEBarrel
-  newhOverEEndcap
   hcalTowerSumEtConeDR04Barrel
   hcalTowerSumEtConeDR04Endcap
-  hcalTowerBcSumEtConeDR04Barrel
-  hcalTowerBcSumEtConeDR04Endcap
+
 
 
 EOF
@@ -231,14 +227,6 @@ pEcalRecHitSumEtConeDR04VsEtEndcap
 pHcalTowerSumEtConeDR04VsEtaAll
 pHcalTowerSumEtConeDR04VsEtBarrel
 pHcalTowerSumEtConeDR04VsEtEndcap
-pHcalTowerBcSumEtConeDR04VsEtaAll
-pHcalTowerBcSumEtConeDR04VsEtBarrel
-pHcalTowerBcSumEtConeDR04VsEtEndcap
-pHoverEVsEtaAll
-pHoverEVsEtAll
-pnewHoverEVsEtaAll
-pnewHoverEVsEtAll
-
 
 EOF
 
@@ -249,12 +237,20 @@ cat > 2dhistosForPhotons <<EOF
   R1VsEtaAll
   R2VsEtaAll
   sigmaIetaIetaVsEtaAll
+  hOverEVsEtaAll
+  ecalRecHitSumEtConeDR04VsEtaAll
+  hcalTowerSumEtConeDR04VsEtaAll
   isoTrkSolidConeDR04VsEtaAll
   nTrkSolidConeDR04VsEtaAll
   R9VsEtAll
   R1VsEtAll
   R2VsEtAll
   sigmaIetaIetaVsEtAll
+  hOverEVsEtAll
+  ecalRecHitSumEtConeDR04VsEtBarrel
+  ecalRecHitSumEtConeDR04VsEtEndcap
+  hcalTowerSumEtConeDR04VsEtBarrel
+  hcalTowerSumEtConeDR04VsEtEndcap
   isoTrkSolidConeDR04VsEtAll
   nTrkSolidConeDR04VsEtAll
   eResVsR9All
@@ -297,36 +293,36 @@ setenv N 1
 foreach i (`cat efficiencyForPhotons`)
   cat > temp$N.C <<EOF
 
-TCanvas *c$i = new TCanvas("c$i");
-c$i->SetFillColor(10);
-file_old->cd("$HISTOPATHNAME_Efficiencies");
-$i->SetStats(0);
-if ( $i==deadChVsEta ||  $i==deadChVsPhi ||  $i==deadChVsEt ) {
-$i->SetMinimum(0.);
-$i->SetMaximum(0.2);
-} else if (  $i==recoEffVsEt ) {
-$i->GetXaxis()->SetRangeUser(0.,200.);
-} else {
-$i->SetMinimum(0.);
-$i->SetMaximum(1.1);
-}
-$i->SetLineColor(kPink+8);
-$i->SetMarkerColor(kPink+8);
-$i->SetMarkerStyle(20);
-$i->SetMarkerSize(1);
-$i->SetLineWidth(1);
-$i->Draw();
-file_new->cd("$HISTOPATHNAME_Efficiencies");
-$i->SetStats(0);
-$i->SetMinimum(0.);
-$i->SetMaximum(1.1);
-$i->SetLineColor(kBlack);
-$i->SetMarkerColor(kBlack);
-$i->SetMarkerStyle(20);
-$i->SetMarkerSize(1);
-$i->SetLineWidth(1);
-$i->Draw("same");
-c$i->SaveAs("gifs/$i.gif");
+//TCanvas *c$i = new TCanvas("c$i");
+//c$i->SetFillColor(10);
+//file_old->cd("$HISTOPATHNAME_Efficiencies");
+//$i->SetStats(0);
+//if ( $i==deadChVsEta ||  $i==deadChVsPhi ||  $i==deadChVsEt ) {
+//$i->SetMinimum(0.);
+//$i->SetMaximum(0.2);
+//} else if (  $i==recoEffVsEt ) {
+//$i->GetXaxis()->SetRangeUser(0.,200.);
+//} else {
+//$i->SetMinimum(0.);
+//$i->SetMaximum(1.1);
+//}
+//$i->SetLineColor(kPink+8);
+//$i->SetMarkerColor(kPink+8);
+//$i->SetMarkerStyle(20);
+//$i->SetMarkerSize(1);
+//$i->SetLineWidth(1);
+//$i->Draw();
+//file_new->cd("$HISTOPATHNAME_Efficiencies");
+//$i->SetStats(0);
+//$i->SetMinimum(0.);
+//$i->SetMaximum(1.1);
+//$i->SetLineColor(kBlack);
+//$i->SetMarkerColor(kBlack);
+//$i->SetMarkerStyle(20);
+//$i->SetMarkerSize(1);
+//$i->SetLineWidth(1);
+//$i->Draw("same");
+//c$i->SaveAs("gifs/$i.gif");
 
 EOF
   setenv N `expr $N + 1`
@@ -420,16 +416,10 @@ $i->GetYaxis()->SetRangeUser(0.,5.);
 { $i->GetYaxis()->SetRangeUser(0.,20.);
 } else if ( $i==pHcalTowerSumEtConeDR04VsEtaAll   ) 
 { $i->GetYaxis()->SetRangeUser(0.,0.3);
-} else if ( $i==pHcalTowerBcSumEtConeDR04VsEtaAll   ) 
-{ $i->GetYaxis()->SetRangeUser(0.,1.);
-} else if ( $i==pHcalTowerSumEtConeDR04VsEtBarrel ||  $i==pHcalTowerBcSumEtConeDR04VsEtBarrel) 
+} else if ( $i==pHcalTowerSumEtConeDR04VsEtBarrel   ) 
 { $i->GetYaxis()->SetRangeUser(0.,5.);
-} else if ( $i==pHcalTowerSumEtConeDR04VsEtEndcap  || $i==pHcalTowerBcSumEtConeDR04VsEtEndcap ) 
+} else if ( $i==pHcalTowerSumEtConeDR04VsEtEndcap  ) 
 { $i->GetYaxis()->SetRangeUser(0.,5.);
-} else if ( $i==pHoverEVsEtaAll || $i==pnewHoverEVsEtaAll  ) 
-{ $i->GetYaxis()->SetRangeUser(-0.05,0.05);
-} else if ( $i==pHoverEVsEtAll ||  $i==pnewHoverEVsEtAll ) 
-{ $i->GetYaxis()->SetRangeUser(-0.05,0.05);
 } else  {
 $i->SetMinimum(0.8);
 $i->SetMaximum(1.1);

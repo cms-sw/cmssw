@@ -354,17 +354,6 @@ EcalDQMBinningService::findBinsNoMap(ObjectType _otype, BinningType _btype, cons
   return findBinsNoMap(_otype, _btype, getElectronicsMap()->getDetId(_id));
 }
 
-int
-EcalDQMBinningService::getBin(ObjectType _otype, BinningType _btype, unsigned _index) const
-{
-  if(_otype >= nObjType || _btype >= unsigned(nPresetBinnings)) return 0;
-
-  const std::vector<int>* binMap(getBinMap(_otype, _btype));
-  if(binMap == 0 || _index >= binMap->size()) return 0;
-
-  return (*binMap)[_index];
-}
-
 unsigned
 EcalDQMBinningService::findOffset(ObjectType _otype, const DetId &_id) const
 {

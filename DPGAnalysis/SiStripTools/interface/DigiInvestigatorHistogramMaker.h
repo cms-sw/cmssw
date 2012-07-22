@@ -29,8 +29,7 @@ class DigiInvestigatorHistogramMaker {
 
   std::string _hitname;
   const int _nbins;
-  const unsigned int m_maxLS;
-  const unsigned int m_LSfrac;
+  const int _norbbin;
   int _scalefact;
   const bool _runHisto;
   std::map<unsigned int,int> _binmax;
