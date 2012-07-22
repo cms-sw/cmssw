@@ -20,25 +20,24 @@ NewRelease='CMSSW_6_0_0_pre8'
 
 ### This is the list of IDEAL-conditions relvals 
 startupsamples= [
-#'RelValMinBias',   ### list of samples to be validated for each pre-release  
-#'RelValQCD_Pt_3000_3500',
-#'RelValSingleElectronPt35', 
+'RelValMinBias',   ### list of samples to be validated for each pre-release  
+'RelValQCD_Pt_3000_3500',
+'RelValSingleElectronPt35', 
 'RelValTTbar', 
-#'RelValSingleMuPt10', 
-#'RelValSingleMuPt100',
-#'RelValQCD_FlatPt_15_3000',
+'RelValSingleMuPt10', 
+'RelValSingleMuPt100',
 ]
 
 pileupstartupsamples = [
-#'RelValTTbar'
+'RelValTTbar'
 ]
 
 fastsimstartupsamples = [
-#'RelValTTbar'
+'RelValTTbar'
 ]
 
 pileupfastsimstartupsamples = [
-#'RelValTTbar'
+'RelValTTbar'
 ]
 
 ### Sample version: v1,v2,etc..
@@ -50,9 +49,7 @@ StartupTag='START60_V1'
 RefStartupTag='START53_V6'
 
 ### Track algorithm name and quality. Can be a list.
-#Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5','iter6']
-#Qualities=['', 'highPurity']
-Algos= ['ootb']
+Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5','iter6']
 Qualities=['', 'highPurity']
 
 ### Leave unchanged unless the track collection name changes
