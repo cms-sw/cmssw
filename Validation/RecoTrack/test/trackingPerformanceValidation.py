@@ -11,46 +11,48 @@ import copy
 
 
 ### Reference release
-RefRelease='CMSSW_5_2_2'
+RefRelease='CMSSW_6_0_0_pre7'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_6_0_0_pre1'
+NewRelease='CMSSW_6_0_0_pre8'
 
 ### sample list 
 
 ### This is the list of IDEAL-conditions relvals 
 startupsamples= [
-'RelValMinBias',   ### list of samples to be validated for each pre-release  
-'RelValQCD_Pt_3000_3500',
-'RelValSingleElectronPt35', 
+#'RelValMinBias',   ### list of samples to be validated for each pre-release  
+#'RelValQCD_Pt_3000_3500',
+#'RelValSingleElectronPt35', 
 'RelValTTbar', 
-'RelValSingleMuPt10', 
-'RelValSingleMuPt100',
-'RelValQCD_FlatPt_15_3000',
+#'RelValSingleMuPt10', 
+#'RelValSingleMuPt100',
+#'RelValQCD_FlatPt_15_3000',
 ]
 
 pileupstartupsamples = [
-'RelValTTbar'
+#'RelValTTbar'
 ]
 
 fastsimstartupsamples = [
-'RelValTTbar'
+#'RelValTTbar'
 ]
 
 pileupfastsimstartupsamples = [
-'RelValTTbar'
+#'RelValTTbar'
 ]
 
 ### Sample version: v1,v2,etc..
 Version='v1'
 
 # Global tags
-StartupTag='START52_V4'
+StartupTag='START60_V1'
 
-RefStartupTag='START52_V4'
+RefStartupTag='START53_V6'
 
 ### Track algorithm name and quality. Can be a list.
-Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5','iter6']
+#Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5','iter6']
+#Qualities=['', 'highPurity']
+Algos= ['ootb']
 Qualities=['', 'highPurity']
 
 ### Leave unchanged unless the track collection name changes
@@ -178,111 +180,110 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
                 if (sampleType == 'FastSim' and PileUp == 'noPU') : harvestedfile = './DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-' +GlobalTag + '_FastSim-' + Version + '__GEN-SIM-DIGI-RECO.root'
                 if (sampleType == 'FastSim' and PileUp == 'PU') : 
                     harvestedfile = './DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-PU_' +GlobalTag + '_FastSim_PU_2012_Startup_inTimeOnly-' + Version + '__GEN-SIM-DIGI-RECO.root'
-                #cpcmd='rfcp '+ castorHarvestedFilesDirectory +'/' + harvestedfile + ' .'
-                #returncode=os.system(cpcmd)
-                #if (returncode!=0):
-                #    print 'copy of harvested file from castor for sample ' + sample + ' failed'
-                #    continue
-            #search the primary dataset
-            cmd='dbsql "find  dataset where dataset like /'
-            if (sampleType == 'FullSim' and PileUp == 'noPU'): cmd+=sample+'/'+NewRelease+'-'+GlobalTag+'*'+Version+'/GEN-SIM-RECO order by dataset.createdate "'
-            if (sampleType == 'FullSim' and PileUp == 'PU'):   cmd+=sample+'/'+NewRelease+'-PU_'+GlobalTag+'*'+Version+'/GEN-SIM-RECO order by dataset.createdate "'
-            if (sampleType == 'FastSim' and PileUp == 'noPU'): cmd+=sample+'/'+NewRelease+'-'+GlobalTag+'_FastSim-'+Version+'/GEN-SIM-DIGI-RECO order by dataset.createdate "'
-            if (sampleType == 'FastSim' and PileUp == 'PU'): cmd+=sample+'/'+NewRelease+'-PU_'+GlobalTag+'_FastSim_PU_2012_Startup_inTimeOnly-'+Version+'/GEN-SIM-DIGI-RECO order by dataset.createdate "'
-            cmd+='|grep '+sample+'|grep -v test|tail -1'
-            print cmd
-            dataset= os.popen(cmd).readline().strip()
-            print 'DataSet:  ', dataset, '\n'
 
-            #Check if a dataset is found
-            if dataset!="":
-                    listofdatasets.write(dataset)
-                    #Find and format the list of files
-                    cmd2='dbsql "find file where dataset like '+ dataset +'"|grep ' + sample
-                    filenames='import FWCore.ParameterSet.Config as cms\n'
-                    filenames+='readFiles = cms.untracked.vstring()\n'
-                    filenames+='secFiles = cms.untracked.vstring()\n'
-                    filenames+='source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)\n'
-                    filenames+='readFiles.extend( [\n'
-                    first=True
-                    print cmd2
-                    for line in os.popen(cmd2).readlines():
-                        filename=line.strip()
-                        if first==True:
-                            filenames+="'"
-                            filenames+=filename
-                            filenames+="'"
-                            first=False
-                        else :
-                            filenames+=",\n'"
-                            filenames+=filename
-                            filenames+="'"
-                    filenames+=']);\n'
+            print 'Sample:  ', sample, '\n'
 
-                    # if not harvesting find secondary file names (only for FullSim samples)
-                    if(Sequence!="preproduction" and sampleType=="FullSim"):
-                            cmd3='dbsql  "find dataset.parent where dataset like '+ dataset +'"|grep ' + sample
-                            parentdataset=os.popen(cmd3).readline()
-                            print 'Parent DataSet:  ', parentdataset, '\n'
+            if (Sequence != "comparison_only"):
+                #search the primary dataset
+                cmd='dbsql "find  dataset where dataset like /'
+                if (sampleType == 'FullSim' and PileUp == 'noPU'): cmd+=sample+'/'+NewRelease+'-'+GlobalTag+'*'+Version+'/GEN-SIM-RECO order by dataset.createdate "'
+                if (sampleType == 'FullSim' and PileUp == 'PU'):   cmd+=sample+'/'+NewRelease+'-PU_'+GlobalTag+'*'+Version+'/GEN-SIM-RECO order by dataset.createdate "'
+                if (sampleType == 'FastSim' and PileUp == 'noPU'): cmd+=sample+'/'+NewRelease+'-'+GlobalTag+'_FastSim-'+Version+'/GEN-SIM-DIGI-RECO order by dataset.createdate "'
+                if (sampleType == 'FastSim' and PileUp == 'PU'): cmd+=sample+'/'+NewRelease+'-PU_'+GlobalTag+'_FastSim_PU_2012_Startup_inTimeOnly-'+Version+'/GEN-SIM-DIGI-RECO order by dataset.createdate "'
+                cmd+='|grep '+sample+'|grep -v test|tail -1'
+                print cmd
+                #Check if a dataset is found
+                dataset= os.popen(cmd).readline().strip()
+                print 'DataSet:  ', dataset, '\n'
 
-                    #Check if a dataset is found
-                            if parentdataset!="":
-                                    cmd4='dbsql  "find file where dataset like '+ parentdataset +'"|grep ' + sample 
-                                    filenames+='secFiles.extend( [\n'
-                                    first=True
-
-                                    for line in os.popen(cmd4).readlines():
-                                        secfilename=line.strip()
-                                        if first==True:
-                                            filenames+="'"
-                                            filenames+=secfilename
-                                            filenames+="'"
-                                            first=False
-                                        else :
-                                            filenames+=",\n'"
-                                            filenames+=secfilename
-                                            filenames+="'"
-                                    filenames+='\n ]);\n'
+                if dataset!="":
+                        listofdatasets.write(dataset)
+                        #Find and format the list of files
+                        cmd2='dbsql "find file where dataset like '+ dataset +'"|grep ' + sample
+                        filenames='import FWCore.ParameterSet.Config as cms\n'
+                        filenames+='readFiles = cms.untracked.vstring()\n'
+                        filenames+='secFiles = cms.untracked.vstring()\n'
+                        filenames+='source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)\n'
+                        filenames+='readFiles.extend( [\n'
+                        first=True
+                        print cmd2
+                        for line in os.popen(cmd2).readlines():
+                            filename=line.strip()
+                            if first==True:
+                                filenames+="'"
+                                filenames+=filename
+                                filenames+="'"
+                                first=False
                             else :
-                                    print "No primary dataset found skipping sample: ", sample
-                                    continue
-                    else :
-                            filenames+='secFiles.extend( (               ) )'
+                                filenames+=",\n'"
+                                filenames+=filename
+                                filenames+="'"
+                        filenames+=']);\n'
 
-                    cfgFile = open(cfgFileName+'.py' , 'w' )
-                    cfgFile.write(filenames)
+                        # if not harvesting find secondary file names (only for FullSim samples)
+                        if(Sequence!="preproduction" and sampleType=="FullSim"):
+                                cmd3='dbsql  "find dataset.parent where dataset like '+ dataset +'"|grep ' + sample
+                                parentdataset=os.popen(cmd3).readline()
+                                print 'Parent DataSet:  ', parentdataset, '\n'
 
-                    if (Events.has_key(sample)!=True):
-                            Nevents=defaultNevents
-                    else:
-                            Nevents=Events[sample]
-                    thealgo=trackalgorithm
-                    thequality=trackquality
-                    if(trackalgorithm=='ootb'):
-                        thealgo=''
-                    if(thealgo!=''):
-                        thealgo='\''+thealgo+'\''
-                    if(trackquality!=''):
-                        thequality='\''+trackquality+'\''
-                    symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTag, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':thealgo, 'QUALITY':thequality, 'TRACKS':Tracks}
+                        #Check if a dataset is found
+                                if parentdataset!="":
+                                        cmd4='dbsql  "find file where dataset like '+ parentdataset +'"|grep ' + sample 
+                                        filenames+='secFiles.extend( [\n'
+                                        first=True
+
+                                        for line in os.popen(cmd4).readlines():
+                                            secfilename=line.strip()
+                                            if first==True:
+                                                filenames+="'"
+                                                filenames+=secfilename
+                                                filenames+="'"
+                                                first=False
+                                            else :
+                                                filenames+=",\n'"
+                                                filenames+=secfilename
+                                                filenames+="'"
+                                        filenames+='\n ]);\n'
+                                else :
+                                        print "No primary dataset found skipping sample: ", sample
+                                        continue
+                        else :
+                                filenames+='secFiles.extend( (               ) )'
+
+                        cfgFile = open(cfgFileName+'.py' , 'w' )
+                        cfgFile.write(filenames)
+
+                        if (Events.has_key(sample)!=True):
+                                Nevents=defaultNevents
+                        else:
+                                Nevents=Events[sample]
+                        thealgo=trackalgorithm
+                        thequality=trackquality
+                        if(trackalgorithm=='ootb'):
+                            thealgo=''
+                        if(thealgo!=''):
+                            thealgo='\''+thealgo+'\''
+                        if(trackquality!=''):
+                            thequality='\''+trackquality+'\''
+                        symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTag, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':thealgo, 'QUALITY':thequality, 'TRACKS':Tracks}
 
 
-                    cfgFile = open(cfgFileName+'.py' , 'a' )
-                    replace(symbol_map, templatecfgFile, cfgFile)
-                    if(( (Sequence=="harvesting" or Sequence=="preproduction" or Sequence=="comparison_only") and os.path.isfile(harvestedfile) )==False):
-                        # if the file is already harvested do not run the job again
-                        #cmdrun='cmsRun ' +cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
-                        cmdrun='cmsRun ' +cfgFileName+ '.py'
-                        retcode=os.system(cmdrun)
-                    else:
-                        retcode=0
+                        cfgFile = open(cfgFileName+'.py' , 'a' )
+                        replace(symbol_map, templatecfgFile, cfgFile)
+                        if(( (Sequence=="harvesting" or Sequence=="preproduction" or Sequence=="comparison_only") and os.path.isfile(harvestedfile) )==False):
+                            # if the file is already harvested do not run the job again
+                            #cmdrun='cmsRun ' +cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
+                            cmdrun='cmsRun ' +cfgFileName+ '.py'
+                            retcode=os.system(cmdrun)
+                        else:
+                            retcode=0
 
-            else:      
-                    print 'No dataset found skipping sample: '+ sample, '\n'  
-                    continue
+                else:      
+                        print 'No dataset found skipping sample: '+ sample, '\n'  
+                        continue
 
-            if (retcode!=0):
-                    print 'Job for sample '+ sample + ' failed. \n'
+                if (retcode!=0):
+                       print 'Job for sample '+ sample + ' failed. \n'
             else:
                     if (Sequence=="harvesting" or Sequence=="preproduction" or Sequence=="comparison_only"):
                             #copy only the needed histograms

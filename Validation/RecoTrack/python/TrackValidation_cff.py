@@ -1,14 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 import SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi 
-import SimTracker.TrackAssociation.TrackAssociatorByHits_cfi 
+import SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi 
 import Validation.RecoTrack.MultiTrackValidator_cfi
 from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
 from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
 from Validation.RecoTrack.PostProcessorTracker_cfi import *
 import PhysicsTools.RecoAlgos.recoTrackSelector_cfi
 
-TrackAssociatorByHitsRecoDenom= SimTracker.TrackAssociation.TrackAssociatorByHits_cfi.TrackAssociatorByHits.clone(
+TrackAssociatorByHitsRecoDenom= SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi.TrackAssociatorByHits.clone(
     ComponentName = cms.string('TrackAssociatorByHitsRecoDenom'),  
     SimToRecoDenominator = cms.string('reco')
     )
