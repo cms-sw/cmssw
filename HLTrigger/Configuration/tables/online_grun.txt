@@ -178,7 +178,7 @@ HLT_HT550_v*                                                                    
 #HLT_PFHT700_v*                                                                                 # sr #126304, removed by sr #129069
 #HLT_PFHT750_v*                                                                                 # sr #126304, removed by sr #129069
 #HLT_PFHT350_v*                                                                                 # sr #126304, removed by sr #129069
-HLT_Mu40_HT200_v*                                                                               # renamed
+#HLT_Mu40_HT200_v*                                                                              # renamed, then removed by sr #130570
 #HLT_DiCentralPFJet50_PFMET80_v*                                                                # sr #126304, removed by sr #129069
 #HLT_Photon70_CaloIdXL_FJHT400_v*                                                               # sr #126304, removed by sr #127259
 #HLT_Photon70_CaloIdXL_FJHT500_v*                                                               # sr #126304, removed by sr #127259
@@ -201,7 +201,7 @@ HLT_RsqMR40_Rsq0p04_v*                                                          
 #HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_RsqMR30_Rsq0p04_MR200_v*                          # sr #126304, removed by sr #128235
 #HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_RsqMR40_Rsq0p04_MR200_v*                          # sr #126304, removed by sr #128235
 #HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_DoubleCentralJet65_v*                             # sr #126304, removed by sr #128235
-HLT_Photon40_CaloIdL_RsqMR35_Rsq0p09_MR150_v*                                                   # sr #126304
+#HLT_Photon40_CaloIdL_RsqMR35_Rsq0p09_MR150_v*                                                  # sr #126304, removed by sr #130570
 HLT_Photon40_CaloIdL_RsqMR40_Rsq0p09_MR150_v*                                                   # sr #126304
 HLT_DoublePhoton40_CaloIdL_Rsq0p035_v*                                                          # sr #126304
 HLT_DoublePhoton40_CaloIdL_Rsq0p06_v*                                                           # sr #126304
