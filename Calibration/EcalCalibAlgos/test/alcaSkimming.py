@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
-
+import os
+import sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
+#sys.path(".")
 #
 #    _____             __ _                        _   _
 #   / ____|           / _(_)                      | | (_)
@@ -10,40 +13,85 @@ import FWCore.ParameterSet.Config as cms
 #                             __/ |
 #                            |___/
 
-# From which kind of dataset are you starting from?
-MC = False
-runFromAOD = False
-runFromALCA = False
+### setup 'sandbox'  options
+options = VarParsing.VarParsing('standard')
+# sandbox, sandboxRereco, alcaAOD, alcaMCAOD
+# sandbox -> create sandbox (ALCARAW)
+# sandboxRereco -> make the rereco (ALCARECO)
+options.register ('type',
+                  "sandbox",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "type of operations: sandbox, sandboxRereco, ALCARECO, ALCARECOSIM")
+options.register ('isCrab',
+                  1, # default value True
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.int,          # string, int, or float
+                  "bool: is a crab job")
+options.register ('tagFile',
+                  "",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "path of the file with the reReco tags")
+options.register('skim',
+                 "", 
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "type of skim: ZSkim, WSkim, EleSkim (at least one electron), ''")
+                
+### setup any defaults you want
+#options.outputFile = '/uscms/home/cplager/nobackup/outputFiles/try_3.root'
+options.output="alcaSkimSandbox.root"
+#options.files= "file:///tmp/shervin/RAW-RECO.root"
+options.files= "root://eoscms//eos/cms/store/group/alca_ecalcalib/sandbox/RAW-RECO.root"
+#options.files= "file:///tmp/shervin/MC-AODSIM.root"
+#'file1.root', 'file2.root'
+options.maxEvents = -1 # -1 means all events
+### get and parse the command line arguments
+options.parseArguments()
 
-# Do you want to reReco ECAL RecHits (also from RAW if you have them) ? 
-ECALRecalib = True
-ECALFromRAW = True
-ApplyInterCalib = True
-#Switch to turn on/off application of LC. To be set to False when running from RAW and want to produce LC=1
-ApplyLaser = False
-
-# Do you want to produce also small E/p ntuples?
-simpleNtupleEoverP = False
+print options
+# Use the options
 
 # Do you want to filter events? 
 HLTFilter = False
-HLTPath = "HLT_Ele"
-HLTProcessName = "HLT"
-
 ZSkim = False
 WSkim = False
 
-#electron cuts
-ELECTRON_ET_CUT_MIN = 20.0
-ELECTRON_CUTS = "(abs(superCluster.eta)<2.5) && (ecalEnergy*sin(superClusterPosition.theta)>" + str(ELECTRON_ET_CUT_MIN) + ")"
+if(options.skim=="ZSkim"):
+    ZSkim=True
+elif(options.skim=="WSkim"):
+    WSkim=True
+else:
+    if(options.type=="sandbox"):
+        print "[ERROR] no skim selected"
+#        sys.exit(-1)
 
-#mass cuts (for Zee selection)
-MASS_CUT_MIN = 60.
 
-#met, mt cuts (for Wenu selection)
-W_ELECTRON_ET_CUT_MIN = 30.0
-MET_CUT_MIN = 20.
-MT_CUT_MIN = 50.
+MC = False  # please specify it if starting from AOD
+if(options.type == "sandbox"):
+    processName = 'ALCASKIM'
+#    ZSkim = True
+#    WSkim = True
+elif(options.type == "sandboxRereco"):
+    processName = 'ALCARERECO'
+elif(options.type == "ALCARECOSIM"):
+    processName = 'ALCARECO'
+    MC = True
+    ZSkim=True
+    WSkim=False
+elif(options.type == "ALCARECO"):
+    processName = 'ALCARECO'
+    MC = False
+    ZSkim=True
+    WSkim=False
+else:
+    print "[ERROR] wrong type defined"
+    sys.exit(-1)
+    
+isCrab=options.isCrab
+
+
 
 
 #    _____  __             _             _         _
@@ -54,12 +102,8 @@ MT_CUT_MIN = 50.
 #    \_____|_| \__, | |___/\__\__,_|_|   \__|___/ |_| |_|\___|_|  \___|
 #               __/ |
 #              |___/
-   
 
-if (not runFromALCA):
-    processName = 'ALCASKIM'
-else:
-    processName ='ALCARERECO'
+
 
 process = cms.Process(processName)
 #process.prescaler = cms.EDFilter("Prescaler",
@@ -71,42 +115,70 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
-#process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
-#process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
-#process.load('Configuration.StandardSequences.L1Reco_cff')
-#process.load('Configuration.StandardSequences.Reconstruction_cff')
-#process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Configuration.StandardSequences.AlCaRecoStreams_cff')
+#process.load('Configuration.StandardSequences.AlCaRecoStreams_cff')
+process.load('Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalIsolElectron_cff')
+
 process.load('Configuration.EventContent.EventContent_cff')
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+# added by Shervin for ES recHits (saved as in AOD): large window 15x3 (strip x row)
+process.load('RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi')
 
+
+
+#process.MessageLogger.cerr.FwkReport.reportEvery = 500
+process.MessageLogger.cerr = cms.untracked.PSet(
+    optionalPSet = cms.untracked.bool(True),
+    INFO = cms.untracked.PSet(
+    limit = cms.untracked.int32(0)
+    ),
+    noTimeStamps = cms.untracked.bool(False),
+    FwkReport = cms.untracked.PSet(
+    optionalPSet = cms.untracked.bool(True),
+    reportEvery = cms.untracked.int32(500),
+    limit = cms.untracked.int32(10000000)
+    ),
+    default = cms.untracked.PSet(
+    limit = cms.untracked.int32(10000000)
+    ),
+    Root_NoDictionary = cms.untracked.PSet(
+                 optionalPSet = cms.untracked.bool(True),
+                 limit = cms.untracked.int32(0)
+                 ),
+    FwkJob = cms.untracked.PSet(
+    optionalPSet = cms.untracked.bool(True),
+    limit = cms.untracked.int32(0)
+    ),
+    FwkSummary = cms.untracked.PSet(
+    optionalPSet = cms.untracked.bool(True),
+    reportEvery = cms.untracked.int32(1),
+    limit = cms.untracked.int32(10000000)
+    ),
+    threshold = cms.untracked.string('INFO')
+    )
+ 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(options.maxEvents)
 )
 
-#from Calibration.EcalCalibAlgos.DoubleElectron_Jul05_ALCAELECTRON_cff import *
-#from Calibration.EcalCalibAlgos.Cert_160404_172802_cff import *
-
-readFiles = cms.untracked.vstring()
-
-readFiles.extend( [
-# MC Aod 
-#"/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/0AD7EA94-A29C-E011-BC75-001A4BA81FB8.root"
-# ALCA
-#"/store/data/Run2011A/DoubleElectron/ALCARECO/EcalCalElectron-05Jul2011ReReco-ECAL-v1/0000/623BA151-6CAD-E011-9514-00304867BECC.root"    
-# RAW-RECO
-"/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-PromptSkim-v4/0000/407132B4-EC93-E011-B11F-00248C0BE005.root"
-# RelVal
-#"/store/RelVal/CMSSW_4_2_8/RelValZEE/GEN-SIM-RECO/START42_V12-v1/0025/529A2B04-05BB-E011-837A-001A92811708.root"
-] )
+#lcg-cp -v  --vo cms \
+#srm://cmsrm-se01.roma1.infn.it:8443/srm/managerv2?SFN=/pnfs/roma1.infn.it/data/cms/store/data/Run2011B/DoubleElectron/RAW-RECO/ZElectron-PromptSkim-v1/0000/FEA9F397-DFE1-E011-BA6C-0026B94D1B09.root \
+#/tmp/shervin/RAW-RECO.root
 
 process.source = cms.Source("PoolSource",
-                            fileNames = readFiles
-)
+                            fileNames = cms.untracked.vstring(options.files),
+                            secondaryFileNames = cms.untracked.vstring(options.secondaryFiles)
+                            )
 
-#process.source.inputCommands = cms.untracked.vstring("drop *", "keep *_*_*_HLT")
+# try to drop as much as possible to reduce the running time
+# process.source.inputCommands = cms.untracked.vstring("keep *",
+#                                                      "drop recoPFTaus*_*_*_*", 
+#                                                      "drop recoPFTauDiscriminator*_*_*_*",
+#                                                      "drop *_tevMuons*_*_*",
+# #                                                     "drop *muon*_*_*_*",
+# #                                                     "keep *Electron*_*_*_",
+# #                                                     "keep *electron*_*_*_*"
+#                                                      )
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
@@ -114,181 +186,71 @@ process.options = cms.untracked.PSet(
 
 # Other statements
 #
-if (MC):
-    process.GlobalTag.globaltag = 'START42_V12::All'
+
+CMSSW_VERSION=os.getenv("CMSSW_VERSION")
+
+if(len(options.tagFile)>0):
+    execfile(options.tagFile) # load the GT 
+    process.GlobalTag = RerecoGlobalTag 
 else:
-    process.GlobalTag.globaltag = 'GR_R_42_V21::All' 
-
-
-process.GlobalTag.toGet = cms.VPSet(
-        cms.PSet(
-            record = cms.string("EcalLaserAPDPNRatiosRcd"),
-            tag = cms.string("EcalLaserAPDPNRatios_p1p2p3_v2_mc"),
-            connect =cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ECAL")
-            ),
-# cms.PSet(record = cms.string("EcalIntercalibConstantsRcd"),
-#          tag = cms.string("EcalIntercalibConstants_v10_offline"),
-#          connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ECAL")
-#         )
-#  ,cms.PSet(record = cms.string("EcalADCToGeVConstantRcd"),
-#          tag = cms.string("EcalADCToGeVConstant_v10_offline"),
-#          connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ECAL")
-#         )
-# ,cms.PSet(record = cms.string("EcalLaserAPDPNRatiosRcd"),
-##           tag = cms.string("EcalLaserAPDPNRatios_2011fit_noVPT_nolim_online"),
-#           tag = cms.string("EcalLaserAPDPNRatios_test_20110625"),
-#           tag = cms.string("EcalLaserAPDPNRatios_2011V3_online"),
-#           tag = cms.string("EcalLaserAPDPNRatios_2011mixfit_online"),
-#          connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
-#          )
- #beam spot to arrive to very last runs after 167151
-#   ,cms.PSet(record = cms.string("BeamSpotObjectsRcd"),
-#          tag = cms.string("BeamSpotObjects_PCL_byLumi_v0_prompt"),
-#          connect = cms.untracked.string("frontier://PromptProd/CMS_COND_31X_BEAMSPOT")
-         )
-
-
-
-
-##    _____ _           _                     ___    _
-##   | ____| | ___  ___| |_ _ __ ___  _ __   |_ _|__| |
-##   |  _| | |/ _ \/ __| __| '__/ _ \| '_ \   | |/ _` |
-##   | |___| |  __/ (__| |_| | | (_) | | | |  | | (_| |
-##   |_____|_|\___|\___|\__|_|  \___/|_| |_| |___\__,_|
-##
-
-process.selectedElectrons = cms.EDFilter("GsfElectronRefSelector",
-                                 src = cms.InputTag( 'gsfElectrons' ),
-                                 cut = cms.string( ELECTRON_CUTS )
-                             )
-
-process.PassingWP90 = process.selectedElectrons.clone(
-    cut = cms.string(
-        process.selectedElectrons.cut.value() +
-            " && (gsfTrack.trackerExpectedHitsInner.numberOfHits<=1)" #wrt std WP90 allowing 1 numberOfMissingExpectedHits
-            " && (ecalEnergy*sin(superClusterPosition.theta)>" + str(ELECTRON_ET_CUT_MIN) + ")"
-            " && ((isEB"
-            " && ( dr03TkSumPt/p4.Pt <0.12 && dr03EcalRecHitSumEt/p4.Pt < 0.09 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )"
-            " && (sigmaIetaIeta<0.01)"
-            " && ( -0.8<deltaPhiSuperClusterTrackAtVtx<0.8 )"
-            " && ( -0.007<deltaEtaSuperClusterTrackAtVtx<0.007 )"
-            " && (hadronicOverEm<0.12)"
-            ")"
-            " || (isEE"
-            " && ( dr03TkSumPt/p4.Pt <0.07 && dr03EcalRecHitSumEt/p4.Pt < 0.07 && dr03HcalTowerSumEt/p4.Pt  < 0.07 )"
-            " && (sigmaIetaIeta<0.03)"
-            " && ( -0.7<deltaPhiSuperClusterTrackAtVtx<0.7 )"
-            " && ( -0.009<deltaEtaSuperClusterTrackAtVtx<0.009 )"
-            " && (hadronicOverEm<0.1) "
-            "))"
-            )
-    )
-
-process.ele_sequence = cms.Sequence(
-    process.PassingWP90
-    )
-
-
-###############################
-# ECAL Recalibration
-###############################
-process.electronRecalib = cms.Sequence()
-
-if (ECALRecalib):
-    process.load("Calibration.EcalCalibAlgos.electronRecalibSCAssociator_cfi")
-            
-    if (not ECALFromRAW):
-        process.load("RecoLocalCalo.EcalRecProducers.ecalRecalibRecHit_cfi")
-        process.ecalRecHit.doIntercalib = cms.bool(ApplyInterCalib)
-        process.ecalRecHit.doLaserCorrection = cms.bool(ApplyLaser)
-        if (runFromAOD):
-            process.ecalRecHit.EBRecHitCollection = "reducedEcalRecHitsEB"
-            process.ecalRecHit.EERecHitCollection = "reducedEcalRecHitsEE"
-        elif (runFromALCA): 
-            process.ecalRecHit.EBRecHitCollection = "alCaIsolatedElectrons:alcaBarrelHits"
-            process.ecalRecHit.EERecHitCollection = "alCaIsolatedElectrons:alcaEndcapHits"
-
-        process.ecalRecHit.EBRecalibRecHitCollection = "EcalRecHitsEB"
-        process.ecalRecHit.EERecalibRecHitCollection = "EcalRecHitsEE"
-        process.electronRecalib *= (process.ecalRecHit)
-    else:
-        #restarting from ECAL RAW to reconstruct amplitudes and energies
-        process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
-        process.load('RecoLocalCalo.Configuration.RecoLocalCalo_cff')
-        process.ecalRecHit.laserCorrection=cms.bool(ApplyLaser)
-        #no switch in standard recHit producer to apply new intercalibrations
-        process.electronRecalib *= ( (process.ecalDigis+process.ecalPreshowerDigis) * process.ecalLocalRecoSequence)
+    if(options.type=="sandboxRereco"):
+        print "******************************"
+        print "[ERROR] no file with tags specified, but rereco requested"
+        sys.exit(1)
         
-    process.load("RecoEcal.Configuration.RecoEcal_cff")
-    process.correctedHybridSuperClusters.corectedSuperClusterCollection = 'recalibSC'
-    process.correctedMulti5x5SuperClustersWithPreshower.corectedSuperClusterCollection = 'endcapRecalibSC'
-
-    if (runFromAOD):
-        process.multi5x5SuperClustersWithPreshower.preshRecHitProducer = cms.InputTag("reducedEcalRecHitsES")
-        process.multi5x5PreshowerClusterShape.preshRecHitProducer = cms.InputTag("reducedEcalRecHitsES")
-    elif (runFromALCA):
-        process.multi5x5SuperClustersWithPreshower.preshRecHitProducer = cms.InputTag("alCaIsolatedElectrons","alcaPreshowerHits")
-        process.multi5x5PreshowerClusterShape.preshRecHitProducer = cms.InputTag("alCaIsolatedElectrons","alcaPreshowerHits")
-
-    process.electronRecalibSCAssociator.scIslandCollection = cms.string('endcapRecalibSC')
-    process.electronRecalibSCAssociator.scIslandProducer = cms.string('correctedMulti5x5SuperClustersWithPreshower')
-    process.electronRecalibSCAssociator.scProducer = cms.string('correctedHybridSuperClusters')
-    process.electronRecalibSCAssociator.scCollection = cms.string('recalibSC')
-    process.electronRecalibSCAssociator.electronProducer = 'gsfElectrons'
-    process.electronRecalib *= (process.hybridClusteringSequence* process.multi5x5ClusteringSequence * process.multi5x5PreshowerClusteringSequence * process.electronRecalibSCAssociator)
-
-if (runFromAOD):
-    process.alCaIsolatedElectrons.esRecHitsLabel = cms.InputTag("reducedEcalRecHitsES")
-elif (runFromALCA):
-    process.alCaIsolatedElectrons.esRecHitsLabel = cms.InputTag("alCaIsolatedElectrons","alcaPreshowerHits")
-
-if (ECALRecalib):
-    process.alCaIsolatedElectrons.ebRecHitsLabel = cms.InputTag("ecalRecHit:EcalRecHitsEB")
-    process.alCaIsolatedElectrons.eeRecHitsLabel = cms.InputTag("ecalRecHit:EcalRecHitsEE")
-    process.alCaIsolatedElectrons.electronLabel = cms.InputTag("electronRecalibSCAssociator")        
-elif (runFromAOD):
-    process.alCaIsolatedElectrons.ebRecHitsLabel = cms.InputTag("reducedEcalRecHitsEB")
-    process.alCaIsolatedElectrons.eeRecHitsLabel = cms.InputTag("reducedEcalRecHitsEE")
-elif (runFromALCA):
-    process.alCaIsolatedElectrons.ebRecHitsLabel = cms.InputTag("alCaIsolatedElectrons:alcaBarrelHits")
-    process.alCaIsolatedElectrons.eeRecHitsLabel = cms.InputTag("alCaIsolatedElectrons:alcaEndcapHits")
+    if(re.match("CMSSW_4_2_.*",CMSSW_VERSION)):
+        if (MC):
+            print "[INFO] Using GT START42_V12::All"
+            process.GlobalTag.globaltag = 'START42_V12::All'
+        else:
+            print "[INFO] Using GT GR_P_V22::All"
+            process.GlobalTag.globaltag = 'GR_P_V22::All' #GR_R_42_V21B::All' # rereco30Nov
+    elif(re.match("CMSSW_5_2_.*",CMSSW_VERSION)):
+        if(MC):
+            print "[INFO] Using GT START52_V9::All"
+            process.GlobalTag.globaltag = 'START52_V9::All'
+        else:
+            process.GlobalTag.globaltag = 'GR_P_V32::All' # 5_2_0 Prompt
+            #            process.GlobalTag.globaltag = 'GR_R_52_V7::All' # 5_2_0
+    elif(re.match("CMSSW_5_3_.*",CMSSW_VERSION)):
+        if(MC):
+            print "[INFO] Using GT START52_V9::All"
+            process.GlobalTag.globaltag = 'START52_V9::All'
+        else:
+            process.GlobalTag.globaltag = 'GR_P_V40::All' # 5_2_0 Prompt
+            #            process.GlobalTag.globaltag = 'GR_R_52_V7::All' # 5_2_0
+    else:
+        print "[ERROR]::Global Tag not set for CMSSW_VERSION: ", CMSSW_VERSION
     
-##    ____       _
-##   |  _ \ __ _(_)_ __ ___
-##   | |_) / _` | | '__/ __|
-##   |  __/ (_| | | |  \__ \
-##   |_|   \__,_|_|_|  |___/
-##
-##
 
-process.filter = cms.Sequence()
+
+
+        
+###############################
+# Event filter sequence: process.filterSeq
+# sanbox sequence: process.sandboxSeq
+# sandbox rereco sequence: process.sandboxRerecoSeq
+# alcareco event reduction: process.alcarecoSeq
+#
+    
+    
+################################# FILTERING EVENTS
+process.filterSeq = cms.Sequence()
+#process.load('calibration.SANDBOX.trackerDrivenFinder_cff')
 
 if (ZSkim):
-    process.tagGsf =  cms.EDProducer("CandViewShallowCloneCombiner",
-                                     decay = cms.string("PassingWP90 PassingWP90"),
-                                     checkCharge = cms.bool(False),
-                                     cut   = cms.string("mass > " + str(MASS_CUT_MIN))
-                                     )
-    process.tagGsfCounter = cms.EDFilter("CandViewCountFilter",
-                                         src = cms.InputTag("tagGsf"),
-                                         minNumber = cms.uint32(1)
-                                         )
-    
-    process.filter *= (process.tagGsf * process.tagGsfCounter)
+    process.load('Calibration.EcalCalibAlgos.ZElectronSkimSandbox_cff')
+    process.filterSeq *= process.ZeeFilterSeq
 elif (WSkim):
-    MT="sqrt(2*daughter(0).pt*daughter(1).pt*(1 - cos(daughter(0).phi - daughter(1).phi)))"
-    process.elecMet = cms.EDProducer("CandViewShallowCloneCombiner",
-                             decay = cms.string("pfMet PassingWP90"), # charge coniugate states are implied
-                             checkCharge = cms.bool(False),
-                             cut   = cms.string(("daughter(0).pt > %f && daughter(0).pt > %f && "+MT+" > %f") % (MET_CUT_MIN, W_ELECTRON_ET_CUT_MIN, MT_CUT_MIN))
-                             )
-    process.elecMetCounter = cms.EDFilter("CandViewCountFilter",
-                                  src = cms.InputTag("elecMet"),
-                                  minNumber = cms.uint32(1)
-                                  )
-    process.filter *= (process.elecMet * process.elecMetCounter)
-
-process.tagGsfSeq = cms.Sequence()
+    process.load("DPGAnalysis.Skims.WElectronSkim_cff")
+    process.filterSeq *= process.elecMetSeq
+elif(options.skim=="EleSkim"):
+    process.MinEleNumberFilter = cms.EDFilter("CandViewCountFilter",
+                                              src = cms.InputTag("gsfElectrons"),
+                                              minNumber = cms.uint32(1)
+                                              )
+    process.filterSeq *= process.MinEleNumberFilter
+                
 
 if (HLTFilter):
     import copy
@@ -296,67 +258,105 @@ if (HLTFilter):
     process.ZEEHltFilter = copy.deepcopy(hltHighLevel)
     process.ZEEHltFilter.throw = cms.bool(False)
     process.ZEEHltFilter.HLTPaths = ["HLT_Ele*"]
-    process.tagGsfSeq *= process.ZEEHltFilter
+    process.filterSeq *= process.ZEEHltFilter
 
 
 
-#    process.tagGsfSeq *= process.ecalRecHit 
-if (not runFromALCA):
+
+###############################
+# ECAL Recalibration
+###############################
+
+if (options.type=="sandbox"):
+    process.load('Calibration.EcalCalibAlgos.sandboxSeq_cff')
+    # this module provides:
+    #process.sandboxSeq  = uncalibRecHitSeq
+
+
+
+if(not options.type=="sandbox"):
+    # I want to reduce the recHit collections to save space
+    process.load('Calibration.EcalAlCaRecoProducers.alCaIsolatedElectrons_cfi')
+    #============================== TO BE CHECKED FOR PRESHOWER
+    process.load("RecoEcal.EgammaClusterProducers.reducedRecHitsSequence_cff")
+    process.reducedEcalRecHitsES.scEtThreshold = cms.double(0.)
+    #if(not runFromALCA):
+    process.reducedEcalRecHitsES.EcalRecHitCollectionES = cms.InputTag('ecalPreshowerRecHit','EcalRecHitsES')
+    process.reducedEcalRecHitsES.noFlag = cms.bool(True)
+    process.reducedEcalRecHitsES.OutputLabel_ES = cms.string('alCaRecHitsES')
+    
+    process.alcarecoSeq = cms.Sequence(process.alCaIsolatedElectrons + process.reducedEcalRecHitsES)
+
+    #==============================
+
+    
+if(options.type=="sandboxRereco"):
+    process.load('Calibration.EcalCalibAlgos.sandboxRerecoSeq_cff')
+    # this module provides:
+    # process.electronRecoSeq
+    # process.electronClusteringSeq # with ele-SC reassociation
+    # process.sandboxRerecoSeq = (electronRecoSeq * electronClusteringSeq)
+    process.ecalRecHit.EBuncalibRecHitCollection = cms.InputTag("ecalGlobalUncalibRecHit","EcalUncalibRecHitsEB","ALCASKIM")
+    process.ecalRecHit.EEuncalibRecHitCollection = cms.InputTag("ecalGlobalUncalibRecHit","EcalUncalibRecHitsEE","ALCASKIM")
+
+    process.correctedHybridSuperClusters.corectedSuperClusterCollection = 'recalibSC'
+    process.correctedMulti5x5SuperClustersWithPreshower.corectedSuperClusterCollection = 'endcapRecalibSC'
+    if(re.match("CMSSW_5_.*",CMSSW_VERSION)):
+        process.multi5x5PreshowerClusterShape.endcapSClusterProducer = "correctedMulti5x5SuperClustersWithPreshower:endcapRecalibSC"
+
+    # in sandboxRereco
+    process.reducedEcalRecHitsES.EndcapSuperClusterCollection= cms.InputTag('correctedMulti5x5SuperClustersWithPreshower','endcapRecalibSC',processName)
+
+    process.alCaIsolatedElectrons.electronLabel = cms.InputTag("electronRecalibSCAssociator")
+    process.alCaIsolatedElectrons.ebRecHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+    process.alCaIsolatedElectrons.eeRecHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE")
+
+if((not options.type=="sandboxRereco") ):
     process.load('RecoJets.Configuration.RecoPFJets_cff')
     process.kt6PFJetsForRhoCorrection = process.kt6PFJets.clone(doRhoFastjet = True)
     process.kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
-    process.tagGsfSeq *= (process.kt6PFJetsForRhoCorrection) 
-
-process.tagGsfSeq *= (process.ele_sequence * process.filter * process.electronRecalib )
-
-if ( (ECALRecalib) or (not runFromALCA) ):
-    process.tagGsfSeq *= ( process.seqALCARECOEcalCalElectronRECO )
-
-if (simpleNtupleEoverP):
-    from Calibration.EcalCalibAlgos.ntuplesProduction_cff import *
-    addSimpleNtupleEoverP(process,ECALRecalib)
-    process.TFileService = cms.Service(
-        "TFileService",
-        fileName = cms.string("simpleNtupleEoP.root")
-    )
-    process.tagGsfSeq *= process.simpleNtupleEoverP_step
+    process.rhoFastJetSeq = cms.Sequence(process.kt6PFJetsForRhoCorrection) 
     
-process.zFilterPath = cms.Path( process.tagGsfSeq )
+if(options.type=="sandbox"):
+    process.ZPath = cms.Path( process.filterSeq * process.trackerDrivenOnlyElectrons * process.rhoFastJetSeq *
+                              process.sandboxSeq)
+elif(options.type=="sandboxRereco"):
+    process.ZPath = cms.Path( process.sandboxRerecoSeq * process.alcarecoSeq)
+elif(options.type == "ALCARECO"):
+    process.ZPath = cms.Path( process.filterSeq * process.rhoFastJetSeq * process.alcarecoSeq)
+elif(options.type == "ALCARECOSIM"):
+    process.ZPath = cms.Path( process.filterSeq * process.rhoFastJetSeq * process.alcarecoSeq)
 
-process.OutALCARECOEcalCalElectron.outputCommands.extend( [ "keep *_pfMet_*_*", "keep *_kt6*_rho_*", "keep *_offlinePrimaryVerticesWithBS_*_*","keep *_generator_*_*" ] )
-if (ECALRecalib):
-    process.OutALCARECOEcalCalElectron.outputCommands.extend( [
-        "drop recoGsfElectrons_*_*_*",
-        "drop recoGsfElectronCores_*_*_*",
-        "drop recoSuperClusters_*_*_*",
-        "drop recoCaloClusters_*_*_*",
-        "drop recoPreshowerClusters_*_*_*",
-        "drop recoPreshowerClusterShapes_*_*_*",
-        "keep *_electronRecalibSCAssociator_*_*",
-        'keep recoSuperClusters_correctedHybridSuperClusters_*_'+processName,
-        'keep recoCaloClusters_hybridSuperClusters_*_'+processName,
-        'keep recoSuperClusters_hybridSuperClusters_uncleanOnlyHybridSuperClusters_'+processName,
-        # Endcap clusters
-        'keep recoCaloClusters_multi5x5SuperClusters_multi5x5EndcapBasicClusters_'+processName,
-        'keep recoSuperClusters_correctedMulti5x5SuperClustersWithPreshower_*_'+processName,
-        # Preshower clusters
-        'keep recoPreshowerClusters_multi5x5SuperClustersWithPreshower_*_'+processName,
-        'keep recoPreshowerClusterShapes_multi5x5PreshowerClusterShape_*_'+processName ] )
+
+process.load('Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalIsolElectron_Output_cff')
+
+if(options.type=="sandbox"):
+    from Calibration.EcalCalibAlgos.sandboxOutput_cff import *
+    process.OutALCARECOEcalCalElectron.outputCommands +=  sandboxOutputCommands
     
-process.ALCARECOoutput = cms.OutputModule("PoolOutputModule",
-                                          splitLevel = cms.untracked.int32(0),
-#                                          outputCommands = cms.untracked.vstring('keep *_*_*_ZEEALCASKIM'),
-                                          outputCommands = process.OutALCARECOEcalCalElectron.outputCommands,
-                                          fileName = cms.untracked.string('alcaRecoSkim.root'),
-                                          SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('zFilterPath')),
+if(options.type == "sandboxRereco"):
+    from Calibration.EcalCalibAlgos.sandboxRerecoOutput_cff import *
+    process.OutALCARECOEcalCalElectron.outputCommands += sandboxRerecoOutputCommands 
+
+
+if(isCrab):
+    fileName = cms.untracked.string(options.output)
+else:
+    fileName = cms.untracked.string('output/'+options.output)
+
+process.output = cms.OutputModule("PoolOutputModule",
+                                  maxSize = cms.untracked.int32(3072000),
+                                  outputCommands = process.OutALCARECOEcalCalElectron.outputCommands,
+                                          fileName = fileName,
+#                                          SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('zFilterPath')),
                                           dataset = cms.untracked.PSet(
     filterName = cms.untracked.string(''),
     dataTier = cms.untracked.string('ALCARECO')
     )
-)                                          
+                                          )                                          
 print "OUTPUTCOMMANDS"
-print process.ALCARECOoutput.outputCommands
+print process.output.outputCommands
  
-process.ALCARECOoutput_step = cms.EndPath(process.ALCARECOoutput)
+process.ALCARECOoutput_step = cms.EndPath(process.output)
 
-process.schedule = cms.Schedule(process.zFilterPath,process.ALCARECOoutput_step)
+#process.schedule = cms.Schedule(process.zFilterPath,process.ALCARECOoutput_step)
