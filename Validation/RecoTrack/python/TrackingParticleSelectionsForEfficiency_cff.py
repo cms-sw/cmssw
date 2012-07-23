@@ -7,7 +7,7 @@ generalTpSelectorBlock = cms.PSet(
     signalOnly = cms.bool(True),
     stableOnly = cms.bool(False),
     minRapidity = cms.double(-2.5),
-    minHit = cms.int32(0),
+    minHit = cms.int32(3),
     ptMin = cms.double(0.9),
     maxRapidity = cms.double(2.5),
     tip = cms.double(3.5)
@@ -21,10 +21,10 @@ TpSelectorForEfficiencyVsEtaBlock = cms.PSet(
     signalOnly = cms.bool(True),
     stableOnly = cms.bool(False),
     minRapidity = cms.double(-2.5),
-    minHit = cms.int32(0),
+    minHit = cms.int32(3),
     ptMin = cms.double(0.9),
     maxRapidity = cms.double(2.5),
-    tip = cms.double(2.0)
+    tip = cms.double(3.5)
 )
 
 TpSelectorForEfficiencyVsPhiBlock = cms.PSet(
@@ -34,7 +34,7 @@ TpSelectorForEfficiencyVsPhiBlock = cms.PSet(
     signalOnly = cms.bool(True),
     stableOnly = cms.bool(False),
     minRapidity = cms.double(-2.5),
-    minHit = cms.int32(0),
+    minHit = cms.int32(3),
     ptMin = cms.double(0.9),
     maxRapidity = cms.double(2.5),
     tip = cms.double(3.5)
@@ -47,10 +47,10 @@ TpSelectorForEfficiencyVsPtBlock = cms.PSet(
     stableOnly = cms.bool(False),
     minRapidity = cms.double(-2.5),
     maxRapidity = cms.double(2.5),
-    minHit = cms.int32(0),
+    minHit = cms.int32(3),
     ptMin = cms.double(0.050),
-    tip = cms.double(2.0),
-    lip = cms.double(20.0),
+    tip = cms.double(3.5),
+    lip = cms.double(30.0),
 )
 
 TpSelectorForEfficiencyVsVTXRBlock = cms.PSet(
@@ -59,11 +59,11 @@ TpSelectorForEfficiencyVsVTXRBlock = cms.PSet(
     signalOnly = cms.bool(True),
     stableOnly = cms.bool(False),
     minRapidity = cms.double(-2.5),
-    minHit = cms.int32(0),
-    ptMin = cms.double(1.0),
+    minHit = cms.int32(3),
+    ptMin = cms.double(0.9),
     maxRapidity = cms.double(2.5),
-    lip = cms.double(15.0),
-    tip = cms.double(60)
+    lip = cms.double(30.0),
+    tip = cms.double(30.0)
 )
 
 TpSelectorForEfficiencyVsVTXZBlock = cms.PSet(
@@ -72,9 +72,9 @@ TpSelectorForEfficiencyVsVTXZBlock = cms.PSet(
     signalOnly = cms.bool(True),
     stableOnly = cms.bool(False),
     minRapidity = cms.double(-2.5),
-    minHit = cms.int32(0),
-    ptMin = cms.double(1.0),
+    minHit = cms.int32(3),
+    ptMin = cms.double(0.9),
     maxRapidity = cms.double(2.5),
     lip = cms.double(35.0),
-    tip = cms.double(5)
+    tip = cms.double(3.5)
 )
