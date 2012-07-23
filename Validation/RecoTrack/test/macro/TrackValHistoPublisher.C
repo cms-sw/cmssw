@@ -93,8 +93,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh1->GetYaxis()->SetTitleOffset(1.2);
 //   rh1->GetYaxis()->SetRangeUser(0.5,1.025);
 //   sh1->GetYaxis()->SetRangeUser(0.5,1.025);
-   rh2 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(recoToSim)_eta"), (TH1*)rdir->Get(collname1+"/num_duplicate_eta"), (TH1*)rdir->Get(collname1+"/num_reco_eta"), "fakerate_vs_eta_r", "fake vs p_{t}", false);    
-   sh2 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(recoToSim)_eta"), (TH1*)sdir->Get(collname1+"/num_duplicate_eta"), (TH1*)sdir->Get(collname2+"/num_reco_eta"), "fakerate_vs_eta_s", "fake vs p_{t}", false);    
+   rh2 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(recoToSim)_eta"), (TH1*)rdir->Get(collname1+"/num_duplicate_eta"), (TH1*)rdir->Get(collname1+"/num_reco_eta"), "fakerate_vs_eta_r", "fake+duplicates vs #eta", false);    
+   sh2 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(recoToSim)_eta"), (TH1*)sdir->Get(collname1+"/num_duplicate_eta"), (TH1*)sdir->Get(collname2+"/num_reco_eta"), "fakerate_vs_eta_s", "fake+duplicates vs #eta", false);    
    rh2->GetYaxis()->SetRangeUser(0.,MAXFAKE);
    sh2->GetYaxis()->SetRangeUser(0.,MAXFAKE);
    rh2->GetXaxis()->SetTitle("#eta");
@@ -114,8 +114,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh3->GetYaxis()->SetTitleSize(0.05);
    rh3->GetYaxis()->SetTitleOffset(1.2);
    rh3->SetTitle("");
-   rh4 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(recoToSim)_pT"), (TH1*)rdir->Get(collname1+"/num_duplicate_pT"), (TH1*)rdir->Get(collname1+"/num_reco_pT"), "fakerate_vs_pT_r", "fake vs p_{t}", false);    
-   sh4 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(recoToSim)_pT"), (TH1*)sdir->Get(collname1+"/num_duplicate_pT"), (TH1*)sdir->Get(collname2+"/num_reco_pT"), "fakerate_vs_pT_s", "fake vs p_{t}", false);    
+   rh4 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(recoToSim)_pT"), (TH1*)rdir->Get(collname1+"/num_duplicate_pT"), (TH1*)rdir->Get(collname1+"/num_reco_pT"), "fakerate_vs_pT_r", "fake+duplicates vs p_{t}", false);    
+   sh4 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(recoToSim)_pT"), (TH1*)sdir->Get(collname1+"/num_duplicate_pT"), (TH1*)sdir->Get(collname2+"/num_reco_pT"), "fakerate_vs_pT_s", "fake+duplicates vs p_{t}", false);    
    rh4->SetTitle("");
    rh4->GetXaxis()->SetTitle("p_{t}");
    rh4->GetYaxis()->SetTitle("fake+duplicates rate vs p_{t}");
@@ -135,8 +135,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh5->GetYaxis()->SetTitleOffset(1.2);
    //rh3->GetXaxis()->SetRangeUser(0,30);
    //sh3->GetXaxis()->SetRangeUser(0,30);
-   rh6 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(recoToSim)_hit"), (TH1*)rdir->Get(collname1+"/num_duplicate_hit"), (TH1*)rdir->Get(collname1+"/num_reco_hit"), "fakerate_vs_hit_r", "fake vs hit", false);    
-   sh6 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(recoToSim)_hit"), (TH1*)sdir->Get(collname1+"/num_duplicate_hit"), (TH1*)sdir->Get(collname2+"/num_reco_hit"), "fakerate_vs_hit_s", "fake vs hit", false);    
+   rh6 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(recoToSim)_hit"), (TH1*)rdir->Get(collname1+"/num_duplicate_hit"), (TH1*)rdir->Get(collname1+"/num_reco_hit"), "fakerate_vs_hit_r", "fake+duplicates vs hit", false);    
+   sh6 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(recoToSim)_hit"), (TH1*)sdir->Get(collname1+"/num_duplicate_hit"), (TH1*)sdir->Get(collname2+"/num_reco_hit"), "fakerate_vs_hit_s", "fake+duplicates vs hit", false);    
    rh6->GetYaxis()->SetRangeUser(0.,1.0);
    rh6->GetYaxis()->SetRangeUser(0.,1.0);
    rh6->GetXaxis()->SetTitle("hits");
@@ -855,8 +855,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh1->GetYaxis()->SetTitle("efficiency vs #phi");
    rh1->GetYaxis()->SetTitleSize(0.05);
    rh1->GetYaxis()->SetTitleOffset(1.2);
-   rh2 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(recoToSim)_phi"), (TH1*)rdir->Get(collname1+"/num_duplicate_phi"), (TH1*)rdir->Get(collname1+"/num_reco_phi"), "fakerate_vs_phi_r", "fake vs phi", false);    
-   sh2 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(recoToSim)_phi"), (TH1*)sdir->Get(collname1+"/num_duplicate_phi"), (TH1*)sdir->Get(collname2+"/num_reco_phi"), "fakerate_vs_phi_s", "fake vs phi", false);    
+   rh2 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(recoToSim)_phi"), (TH1*)rdir->Get(collname1+"/num_duplicate_phi"), (TH1*)rdir->Get(collname1+"/num_reco_phi"), "fakerate_vs_phi_r", "fake+duplicates vs #phi", false);    
+   sh2 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(recoToSim)_phi"), (TH1*)sdir->Get(collname1+"/num_duplicate_phi"), (TH1*)sdir->Get(collname2+"/num_reco_phi"), "fakerate_vs_phi_s", "fake+duplicates vs #phi", false);    
    rh2->GetXaxis()->SetTitle("#phi");
    rh2->GetYaxis()->SetTitle("fake+duplicates rate vs #phi");
    rh2->GetYaxis()->SetRangeUser(0.,MAXFAKE);
@@ -875,8 +875,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh3->GetYaxis()->SetTitleSize(0.05);
    rh3->GetYaxis()->SetTitleOffset(1.2);
    rh3->SetTitle("");
-   rh4 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(recoToSim)_dxy"), (TH1*)rdir->Get(collname1+"/num_duplicate_dxy"), (TH1*)rdir->Get(collname1+"/num_reco_dxy"), "fakerate_vs_dxy_r", "fake vs dxy", false);    
-   sh4 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(recoToSim)_dxy"), (TH1*)sdir->Get(collname1+"/num_duplicate_dxy"), (TH1*)sdir->Get(collname2+"/num_reco_dxy"), "fakerate_vs_dxy_s", "fake vs dxy", false);    
+   rh4 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(recoToSim)_dxy"), (TH1*)rdir->Get(collname1+"/num_duplicate_dxy"), (TH1*)rdir->Get(collname1+"/num_reco_dxy"), "fakerate_vs_dxy_r", "fake+duplicates vs dxy", false);    
+   sh4 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(recoToSim)_dxy"), (TH1*)sdir->Get(collname1+"/num_duplicate_dxy"), (TH1*)sdir->Get(collname2+"/num_reco_dxy"), "fakerate_vs_dxy_s", "fake+duplicates vs dxy", false);    
    rh4->SetTitle("");
    rh4->GetXaxis()->SetTitle("dxy");
    rh4->GetYaxis()->SetTitle("fake+duplicates rate vs dxy");
@@ -894,10 +894,9 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh5->GetYaxis()->SetTitleOffset(1.2);
    rh5->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
    sh5->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
-   rh6 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(recoToSim)_dz"), (TH1*)rdir->Get(collname1+"/num_duplicate_dz"), (TH1*)rdir->Get(collname1+"/num_reco_dz"), "fakerate_vs_dz_r", "fake vs dz", false);    
-   sh6 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(recoToSim)_dz"), (TH1*)sdir->Get(collname1+"/num_duplicate_dz"), (TH1*)sdir->Get(collname2+"/num_reco_dz"), "fakerate_vs_dz_s", "fake vs dz", false);    
-   rh6->GetYaxis()->SetRangeUser(0.,1.0);
-   rh6->GetYaxis()->SetRangeUser(0.,1.0);
+   rh6 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(recoToSim)_dz"), (TH1*)rdir->Get(collname1+"/num_duplicate_dz"), (TH1*)rdir->Get(collname1+"/num_reco_dz"), "fakerate_vs_dz_r", "fake+duplicates vs dz", false);    
+   sh6 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(recoToSim)_dz"), (TH1*)sdir->Get(collname1+"/num_duplicate_dz"), (TH1*)sdir->Get(collname2+"/num_reco_dz"), "fakerate_vs_dz_s", "fake+duplicates vs dz", false);    
+   rh6->GetYaxis()->SetRangeUser(0.,0.7);
    rh6->GetXaxis()->SetTitle("dz");
    rh6->GetYaxis()->SetTitle("fake+duplicates rate vs dz");
    rh6->GetYaxis()->SetTitleSize(0.05);
@@ -930,8 +929,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
     //===== building 2
    //rdir->GetObject(collname1+"/fakerate_vs_phi",rh1);
    //sdir->GetObject(collname2+"/fakerate_vs_phi",sh1);
-   rh1 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(recoToSim)_phi"), (TH1*)rdir->Get(collname1+"/num_reco_phi"), "fakerate_vs_phi_r", "fake vs phi", false);    
-   sh1 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(recoToSim)_phi"), (TH1*)sdir->Get(collname2+"/num_reco_phi"), "fakerate_vs_phi_s", "fake vs phi", false);    
+   rh1 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(recoToSim)_phi"), (TH1*)rdir->Get(collname1+"/num_reco_phi"), "fakerate_vs_phi_r", "fake vs #phi", false);    
+   sh1 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(recoToSim)_phi"), (TH1*)sdir->Get(collname2+"/num_reco_phi"), "fakerate_vs_phi_s", "fake vs #phi", false);    
    rh1->GetYaxis()->SetRangeUser(0., MAXFAKE);
    sh1->GetYaxis()->SetRangeUser(0., MAXFAKE);
    rh1->GetXaxis()->SetTitle("#phi");
@@ -985,8 +984,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    sh5->GetYaxis()->SetRangeUser(0.,MAXFAKE);
    rdir->GetObject(collname1+"/duplicatesRate_dz",rh6);
    sdir->GetObject(collname2+"/duplicatesRate_dz",sh6);
-   rh6->GetYaxis()->SetRangeUser(0.,1.0);
-   rh6->GetYaxis()->SetRangeUser(0.,1.0);
+   rh6->GetYaxis()->SetRangeUser(0.,0.7);
+   rh6->GetYaxis()->SetRangeUser(0.,0.7);
    rh6->GetXaxis()->SetTitle("dz");
    rh6->GetYaxis()->SetTitle("duplicates rate vs dz");
    rh6->GetYaxis()->SetTitleSize(0.05);
@@ -1101,8 +1100,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    sdir->GetObject(collname2+"/effic_vs_vertpos",sh1);
    //rh1 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(simToReco)_vertpos"), (TH1*)rdir->Get(collname1+"/num_simul_vertpos"), "effic_vs_vertpos_r", "efficiency vs vertpos", true);    
    //sh1 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(simToReco)_vertpos"), (TH1*)sdir->Get(collname2+"/num_simul_vertpos"), "effic_vs_vertpos_s", "efficiency vs vertpos", true);    
-   rh1->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
-   sh1->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
+   rh1->GetYaxis()->SetRangeUser(0.,MAXEFF);
+   sh1->GetYaxis()->SetRangeUser(0.,MAXEFF);
    rh1->GetXaxis()->SetTitle("TP vert xy pos");
    rh1->GetYaxis()->SetTitle("efficiency vs vert xy pos");
    rh1->GetYaxis()->SetTitleSize(0.05);
@@ -1114,8 +1113,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    //sh2 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(simToReco)_zpos"), (TH1*)sdir->Get(collname2+"/num_simul_zpos"), "effic_vs_zpos_s", "efficiency vs zpos", true);    
    rh2->GetXaxis()->SetTitle("TP vert z pos");
    rh2->GetYaxis()->SetTitle("efficiency vs  vert z pos");
-   rh2->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
-   sh2->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
+   rh2->GetYaxis()->SetRangeUser(0.,MAXEFF);
+   sh2->GetYaxis()->SetRangeUser(0.,MAXEFF);
    rh2->GetYaxis()->SetTitleSize(0.05);
    rh2->GetYaxis()->SetTitleOffset(1.2);
    rh2->SetTitle("");
@@ -1139,7 +1138,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    l->AddEntry(rh1,refLabel,"LPF");
    l->AddEntry(sh1,newLabel,"LPF");
    l->Draw();
-   canvas->Print("building3.pdf");   
+   canvas->Print("effvspos.pdf");   
    delete l;
 
    //===== dE/dx
