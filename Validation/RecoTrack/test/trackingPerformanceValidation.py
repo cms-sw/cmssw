@@ -177,7 +177,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
                 if (sampleType == 'FastSim' and PileUp == 'PU') : 
                     harvestedfile = './DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-PU_' +GlobalTag + '_FastSim_PU_2012_Startup_inTimeOnly-' + Version + '__GEN-SIM-DIGI-RECO.root'
 
-            print 'Sample:  ', sample, sampleType, PileUp, '\n'
+            print 'Sample:  ', sample, sampleType, PileUp, trackquality, trackalgorithm, '\n'
 
             if (Sequence != "comparison_only"):
                 print 'Get information from DBS for sample', sample
