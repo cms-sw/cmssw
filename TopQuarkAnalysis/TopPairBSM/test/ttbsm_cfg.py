@@ -13,7 +13,13 @@ options.register ('useData',
                   False,
                   VarParsing.multiplicity.singleton,
                   VarParsing.varType.int,
-                  "Run this on real data")
+                  'Run this on real data')
+
+options.register ('globalTag',
+                  '',
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.string,
+                  'Overwrite defaul globalTag')
 
 options.register ('hltProcess',
                   'HLT',
@@ -72,7 +78,7 @@ if not options.useData :
 else :
     inputJetCorrLabel = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
     process.source.fileNames = [
-        '/store/data/Run2012A/Jet/AOD/23May2012-v2/0000/0281A057-C4A5-E111-877D-00266CFAE468.root'
+        '/store/data/Run2012B/JetHT/AOD/PromptReco-v1/000/196/197/1C76017B-60B7-E111-96E1-003048F024C2.root'
     ]
 
 #process.source.eventsToProcess = cms.untracked.VEventRange( ['1:86747'] )
@@ -93,8 +99,12 @@ import sys
 
 # 4.2.x or 52x configuration
 fileTag = "52x"
+
 if options.useData :
-    process.GlobalTag.globaltag = cms.string( 'GR_R_52_V9D::All' )
+    if options.globalTag is '':
+        process.GlobalTag.globaltag = cms.string( 'GR_R_52_V9D::All' )
+    else:
+        process.GlobalTag.globaltag = cms.string( options.globalTag )
     # Jet Probability Calibration for 52x and 53x data
     process.GlobalTag.toGet = cms.VPSet(
         cms.PSet(record = cms.string("BTagTrackProbability2DRcd"),
@@ -105,8 +115,10 @@ if options.useData :
                  connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_BTAU"))
     )
 else :
-    process.GlobalTag.globaltag = cms.string( 'START52_V11C::All' )
-
+    if options.globalTag is '':
+        process.GlobalTag.globaltag = cms.string( 'START52_V11C::All' )
+    else:
+        process.GlobalTag.globaltag = cms.string( options.globalTag )
 
 # require scraping filter
 process.scrapingVeto = cms.EDFilter("FilterOutScraping",
