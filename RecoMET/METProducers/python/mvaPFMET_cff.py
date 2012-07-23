@@ -15,7 +15,7 @@ pfMEtMVA = cms.EDProducer("PFMETProducerMVA",
     srcUncorrJets = cms.InputTag('ak5PFJets'),
     srcPFCandidates = cms.InputTag('particleFlow'),
     srcVertices = cms.InputTag('offlinePrimaryVertices'),
-    srcLeptons = cms.VInputTag("muons","hpsPFTauProducer"), # NOTE: you need to set this to collections of electrons, muons and tau-jets
+    srcLeptons = cms.VInputTag(), # NOTE: you need to set this to collections of electrons, muons and tau-jets
                                   #       passing the lepton reconstruction & identification criteria applied in your analysis
     srcRho = cms.InputTag('kt6PFJets','rho'),
     globalThreshold = pfMet.globalThreshold,
@@ -53,7 +53,7 @@ pfMEtMVA = cms.EDProducer("PFMETProducerMVA",
     tmvaSpectators = cms.vstring(),
     JetIdParams = JetIdParams,
     label = cms.string("PhilV1"),
-    verbosity = cms.int32(0)
+    verbosity = cms.int32(2)
 )
 
 pfMEtMVAsequence  = cms.Sequence(
