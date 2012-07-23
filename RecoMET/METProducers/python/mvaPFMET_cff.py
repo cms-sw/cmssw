@@ -15,7 +15,7 @@ pfMEtMVA = cms.EDProducer("PFMETProducerMVA",
     srcUncorrJets = cms.InputTag('ak5PFJets'),
     srcPFCandidates = cms.InputTag('particleFlow'),
     srcVertices = cms.InputTag('offlinePrimaryVertices'),
-    srcLeptons = cms.VInputTag(), # NOTE: you need to set this to collections of electrons, muons and tau-jets
+    srcLeptons = cms.VInputTag("muons","hpsPFTauProducer"), # NOTE: you need to set this to collections of electrons, muons and tau-jets
                                   #       passing the lepton reconstruction & identification criteria applied in your analysis
     srcRho = cms.InputTag('kt6PFJets','rho'),
     globalThreshold = pfMet.globalThreshold,
@@ -52,6 +52,7 @@ pfMEtMVA = cms.EDProducer("PFMETProducerMVA",
     ),
     tmvaSpectators = cms.vstring(),
     JetIdParams = JetIdParams,
+    label = cms.string("PhilV1"),
     verbosity = cms.int32(0)
 )
 
@@ -65,14 +66,14 @@ pfMEtMVAData = cms.EDProducer("PFMETProducerMVAData",
     srcUncorrJets = cms.InputTag('ak5PFJets'),
     srcPFCandidates = cms.InputTag('particleFlow'),
     srcVertices = cms.InputTag('offlinePrimaryVertices'),
-    srcRho = cms.InputTag('kt6PFJets','rho'),
+    srcRho = cms.InputTag('kt6PFJetsForRhoComputationVoronoi','rho'),
     globalThreshold = pfMet.globalThreshold,
     minCorrJetPt = cms.double(-1.),
     impactParTkThreshold = cms.double(0.),
     tmvaWeights = cms.string("CMGTools/External/data/mva_JetID_v1.weights.xml"),
     tmvaMethod = cms.string("JetID"),
     version = cms.int32(-1),
-    cutBased = cms.bool(False),                          
+    label = cms.string("philV1"),
     dZcut = cms.double(0.1),
     tmvaVariables = cms.vstring(
         "nvtx",

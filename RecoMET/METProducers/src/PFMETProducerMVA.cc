@@ -5,6 +5,7 @@
 #include "RecoMET/METAlgorithms/interface/METAlgo.h" 
 #include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
 
+#include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -31,7 +32,7 @@ namespace
   
     os << "{ ";
 
-    unsigned numEntries = vT.size();
+   unsigned numEntries = vT.size();
     for ( unsigned iEntry = 0; iEntry < numEntries; ++iEntry ) {
       os << vT[iEntry];
       if ( iEntry < (numEntries - 1) ) os << ", ";
@@ -64,8 +65,8 @@ namespace
 }
 
 PFMETProducerMVA::PFMETProducerMVA(const edm::ParameterSet& cfg) 
-  : mvaMEtAlgo_(cfg),
-    looseJetIdAlgo_(0)//,
+  : mvaMEtAlgo_(cfg)
+    //looseJetIdAlgo_(0),
     //mvaJetIdAlgo_(cfg)
 {
   srcCorrJets_     = cfg.getParameter<edm::InputTag>("srcCorrJets");
@@ -79,10 +80,10 @@ PFMETProducerMVA::PFMETProducerMVA(const edm::ParameterSet& cfg)
 
   minCorrJetPt_    = cfg.getParameter<double>("minCorrJetPt");
 
-  edm::ParameterSet cfgPFJetIdAlgo;
-  cfgPFJetIdAlgo.addParameter<std::string>("version", "FIRSTDATA");
-  cfgPFJetIdAlgo.addParameter<std::string>("quality", "LOOSE");
-  looseJetIdAlgo_ = new PFJetIDSelectionFunctor(cfgPFJetIdAlgo);
+  //edm::ParameterSet cfgPFJetIdAlgo;
+  //cfgPFJetIdAlgo.addParameter<std::string>("version", "FIRSTDATA");
+  //cfgPFJetIdAlgo.addParameter<std::string>("quality", "LOOSE");
+  // looseJetIdAlgo_ = new PFJetIDSelectionFunctor(cfgPFJetIdAlgo);
 
   verbosity_ = ( cfg.exists("verbosity") ) ?
     cfg.getParameter<int>("verbosity") : 0;
@@ -102,7 +103,7 @@ PFMETProducerMVA::PFMETProducerMVA(const edm::ParameterSet& cfg)
 
 PFMETProducerMVA::~PFMETProducerMVA()
 {
-  delete looseJetIdAlgo_;
+  //delete looseJetIdAlgo_;
 }
 
 void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es) 
@@ -124,21 +125,25 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
 
   // get leptons
   // (excluded from sum over PFCandidates when computing hadronic recoil)
-  //int lNMu = 0;
-  std::vector<reco::Candidate::LorentzVector> leptonInfo;
+  //int lNMu = 0; 
+  int lId  = 0;
+  std::vector<mvaMEtUtilities::leptonInfo> leptonInfo;
   for ( vInputTag::const_iterator srcLeptons_i = srcLeptons_.begin();
 	srcLeptons_i != srcLeptons_.end(); ++srcLeptons_i ) {
+    std::cout << *srcLeptons_i << std::endl;
     edm::Handle<CandidateView> leptons;
     evt.getByLabel(*srcLeptons_i, leptons);
     for ( CandidateView::const_iterator lepton = leptons->begin();
 	  lepton != leptons->end(); ++lepton ) {
-      leptonInfo.push_back(lepton->p4());
-      //if(lepton->pt() > 10.) 
-      //if(lepton->pt() > 20.) std::cout << "==== Muon ==> " << lepton->pt() << " -- " << lepton->eta() << std::endl; 
-      //if(lepton->pt() > 20.) lNMu++;
+      mvaMEtUtilities::leptonInfo pLeptonInfo;
+      pLeptonInfo.p4_          = lepton->p4();
+      pLeptonInfo.chargedFrac_ = chargedFrac(&(*lepton));
+      //if(lepton->pt() > 20. && (chargedFrac(&(*lepton)) < 1. || lId == 0) ) lNMu++;
+      leptonInfo.push_back(pLeptonInfo); 
     }
+    lId++;
   }
-  //if(lNMu == 2) std::cout << "=====> Di Muon Cand =======>"  << std::endl;
+  //if(lNMu == 2) std::cout << "=====> Di Muon Cand =======>"  << leptonInfo[0].p4_.pt() << " -- " << leptonInfo[1].p4_.pt() << std::endl;
 
   // get vertices
   edm::Handle<reco::VertexCollection> vertices;
@@ -159,9 +164,9 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
   reco::Candidate::LorentzVector pfMEtP4_original = pfMEt.p4();
   
   // compute objects specific to MVA based MET reconstruction
-  std::vector<mvaMEtUtilities::JetInfo> jetInfo = computeJetInfo(*uncorrJets, *corrJets, *vertices, hardScatterVertex, *rho);
+  std::vector<mvaMEtUtilities::JetInfo>    jetInfo         = computeJetInfo(*uncorrJets, *corrJets, *vertices, hardScatterVertex, *rho);
   std::vector<mvaMEtUtilities::pfCandInfo> pfCandidateInfo = computePFCandidateInfo(*pfCandidates, hardScatterVertex);
-  std::vector<reco::Vertex::Point> vertexInfo = computeVertexInfo(*vertices);
+  std::vector<reco::Vertex::Point>         vertexInfo      = computeVertexInfo(*vertices);
 
   // compute MVA based MET and estimate of its uncertainty
   mvaMEtAlgo_.setInput(leptonInfo, jetInfo, pfCandidateInfo, vertexInfo);
@@ -169,6 +174,7 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
 
   pfMEt.setP4(mvaMEtAlgo_.getMEt());
   pfMEt.setSignificanceMatrix(mvaMEtAlgo_.getMEtCov());
+  //std::cout << " MVA===> " << pfMEt.pt() << " -- " << pfMEt.phi() << std::endl;
 
   if ( verbosity_ ) {
     std::cout << "<PFMETProducerMVA::produce>:" << std::endl;
@@ -208,8 +214,10 @@ std::vector<mvaMEtUtilities::JetInfo> PFMETProducerMVA::computeJetInfo(const rec
       if ( uncorrJet->jetArea() != corrJet->jetArea() ) continue;
       if ( !(fabs(uncorrJet->eta() - corrJet->eta()) < 0.01) ) continue;
       // check that jet passes loose PFJet id.
-      bool passesLooseJetId = (*looseJetIdAlgo_)(*corrJet);
-      if ( !passesLooseJetId ) continue; 
+      
+      //bool passesLooseJetId = (*looseJetIdAlgo_)(*corrJet);
+      //if ( !passesLooseJetId ) continue; 
+      if(!passPFLooseId(&(*uncorrJet))) continue;
 
       // compute jet energy correction factor
       // (= ratio of corrected/uncorrected jet Pt)
@@ -263,4 +271,29 @@ std::vector<reco::Vertex::Point> PFMETProducerMVA::computeVertexInfo(const reco:
     retVal.push_back(vertex->position());
   }
   return retVal;
+}
+double PFMETProducerMVA::chargedFrac(const reco::Candidate *iCand) { 
+  if(iCand->isMuon())     return 1.;
+  if(iCand->isElectron()) return 1.;
+  if(iCand->isPhoton())   return 0.;
+  const reco::PFTau *lPFTau = 0; 
+  lPFTau = dynamic_cast<const reco::PFTau*>(iCand);//} 
+  double lPtTot = 0; double lPtCharged = 0;
+  for (UInt_t i0 = 0; i0 < lPFTau->signalPFCands().size(); i0++) { 
+    lPtTot += (lPFTau->signalPFCands())[i0]->pt(); 
+    if((lPFTau->signalPFCands())[i0]->charge() == 0) continue;
+    lPtCharged += (lPFTau->signalPFCands())[i0]->pt(); 
+  }
+  if(lPtTot == 0 || lPFTau->signalPFCands().size() == 0 ) lPtTot = 1.;
+  return lPtCharged/lPtTot;
+}
+bool PFMETProducerMVA::passPFLooseId(const PFJet *iJet) { 
+  if(iJet->energy()== 0)                                  return false;
+  if(iJet->neutralHadronEnergy()/iJet->energy() > 0.99)   return false;
+  if(iJet->neutralEmEnergy()/iJet->energy()     > 0.99)   return false;
+  if(iJet->nConstituents() <  2)                          return false;
+  if(iJet->chargedHadronEnergy()/iJet->energy() <= 0 && fabs(iJet->eta()) < 2.4 ) return false;
+  if(iJet->chargedEmEnergy()/iJet->energy() >  0.99  && fabs(iJet->eta()) < 2.4 ) return false;
+  if(iJet->chargedMultiplicity()            < 1      && fabs(iJet->eta()) < 2.4 ) return false;
+  return true;
 }
