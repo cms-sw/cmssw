@@ -53,9 +53,9 @@ void InitHistos(stPlots* st=NULL);
 void Analysis_Step3(char* SavePath);
 
 bool PassTrigger      (const fwlite::ChainEvent& ev, bool isData);
-bool   PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData& dedxSObj, const reco::DeDxData& dedxMObj, const reco::MuonTimeExtra* tof, const reco::MuonTimeExtra* dttof, const reco::MuonTimeExtra* csctof, const fwlite::ChainEvent& ev, stPlots* st=NULL, const double& GenBeta=-1, bool RescaleP=false, const double& RescaleI=0.0, const double& RescaleT=0.0);
-bool PassSelection(const susybsm::HSCParticle& hscp,  const reco::DeDxData& dedxSObj, const reco::DeDxData& dedxMObj, const reco::MuonTimeExtra* tof, const fwlite::ChainEvent& ev, const int& CutIndex=0, stPlots* st=NULL, const double& GenBeta=-1, bool RescaleP=false, const double& RescaleI=0.0, const double& RescaleT=0.0);
-void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, const reco::DeDxData& dedxSObj, const reco::DeDxData& dedxMObj, const reco::MuonTimeExtra* tof, stPlots* st=NULL);
+bool   PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, const reco::MuonTimeExtra* dttof, const reco::MuonTimeExtra* csctof, const fwlite::ChainEvent& ev, stPlots* st=NULL, const double& GenBeta=-1, bool RescaleP=false, const double& RescaleI=0.0, const double& RescaleT=0.0);
+bool PassSelection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, const fwlite::ChainEvent& ev, const int& CutIndex=0, stPlots* st=NULL, const double& GenBeta=-1, bool RescaleP=false, const double& RescaleI=0.0, const double& RescaleT=0.0);
+void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, stPlots* st=NULL);
 
 double RescaledPt       (const double& pt, const double& eta, const double& phi, const int& charge);
 /////////////////////////// VARIABLE DECLARATION /////////////////////////////
@@ -164,7 +164,7 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
    GlobalMaxEta   = MaxEta_;
    GlobalMinPt    = MinPt_;
 
-   if(TypeMode!=2){      GlobalMinNDOF   = 0; 
+   if(TypeMode<2){      GlobalMinNDOF   = 0; 
                          GlobalMinTOF    = 0;
    }else{                GlobalMaxTIsol *= 2;
                          GlobalMaxEIsol *= 2;
@@ -172,18 +172,24 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
 
    // define the selection to be considered later for the optimization
    // WARNING: recall that this has a huge impact on the analysis time AND on the output file size --> be carefull with your choice
-   CutPt .push_back(GlobalMinPt);   CutI  .push_back(GlobalMinIs);  CutTOF.push_back(GlobalMinTOF);
-   if(TypeMode!=2){   
+   if(TypeMode!=3) {CutPt .push_back(GlobalMinPt);   CutI  .push_back(GlobalMinIs);  CutTOF.push_back(GlobalMinTOF);}
+   else {CutPt .push_back(SAMinPt);   CutI  .push_back(-1);  CutTOF.push_back(GlobalMinTOF);}
+   if(TypeMode<2){   
       for(double Pt =GlobalMinPt+5 ; Pt <200;Pt+=5){
       for(double I  =GlobalMinIs+0.025  ; I  <0.45 ;I+=0.025){
          CutPt .push_back(Pt);   CutI  .push_back(I);  CutTOF.push_back(-1);
       }}
-   }else{
+   }else if(TypeMode==2){
       for(double Pt =GlobalMinPt+5 ; Pt <120;  Pt+=5){
       for(double I  =GlobalMinIs +0.025; I  <0.40;  I+=0.025){
       for(double TOF=GlobalMinTOF+0.025; TOF<1.35;TOF+=0.025){
          CutPt .push_back(Pt);   CutI  .push_back(I);  CutTOF.push_back(TOF);
       }}}
+   }else if(TypeMode==3){
+     for(double Pt =SAMinPt+30 ; Pt <550;  Pt+=30){
+       for(double TOF=GlobalMinTOF+0.025; TOF<1.4;TOF+=0.01){
+         CutPt .push_back(Pt);   CutI  .push_back(-1);  CutTOF.push_back(TOF);
+       }}
    }
    printf("%i Different Final Selection will be tested\n",(int)CutPt.size());
 
@@ -238,14 +244,15 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData)
          if(tr.accept("HSCPHLTTriggerMetDeDxFilter"))return true;
          if(tr.accept("HSCPHLTTriggerMuDeDxFilter"))return true;
          if(tr.accept("HSCPHLTTriggerMuFilter"))return true;
+	 if(TypeMode==3) if(tr.accept(tr.triggerIndex("HSCPHLTTriggerL2MuFilter"))) return true;
       #endif
       return false;
 }
 
 // check if one HSCP candidate is passing the preselection (the function also has many more arguments because it is used to fill some histograms AND to evaluate the systematics
-bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData& dedxSObj, const reco::DeDxData& dedxMObj, const reco::MuonTimeExtra* tof, const reco::MuonTimeExtra* dttof, const reco::MuonTimeExtra* csctof, const fwlite::ChainEvent& ev, stPlots* st, const double& GenBeta, bool RescaleP, const double& RescaleI, const double& RescaleT)
+bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, const reco::MuonTimeExtra* dttof, const reco::MuonTimeExtra* csctof, const fwlite::ChainEvent& ev, stPlots* st, const double& GenBeta, bool RescaleP, const double& RescaleI, const double& RescaleT)
 {
-
+   if(!dedxSObj) return false;
    if(TypeMode==1 && !(hscp.type() == HSCParticleType::trackerMuon || hscp.type() == HSCParticleType::globalMuon))return false;
    if(TypeMode==2 && hscp.type() != HSCParticleType::globalMuon)return false;
    reco::TrackRef   track = hscp.trackRef(); if(track.isNull())return false;
@@ -266,9 +273,9 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData& d
    if(track->validFraction()<GlobalMinFOVH)return false;
 
    if(st){st->TNOH  ->Fill(0.0,Event_Weight);
-          st->BS_TNOM->Fill(dedxSObj.numberOfMeasurements(),Event_Weight);
+          st->BS_TNOM->Fill(dedxSObj->numberOfMeasurements(),Event_Weight);
    }
-   if(dedxSObj.numberOfMeasurements()<GlobalMinNOM)return false;
+   if(dedxSObj->numberOfMeasurements()<GlobalMinNOM)return false;
    if(st){st->TNOM  ->Fill(0.0,Event_Weight);}
 
    if(tof){
@@ -294,11 +301,11 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData& d
    }else{        if(track->pt()<GlobalMinPt)return false;   }
 
    if(st){st->MPt   ->Fill(0.0,Event_Weight);
-          st->BS_MIs->Fill(dedxSObj.dEdx(),Event_Weight);
-          st->BS_MIm->Fill(dedxMObj.dEdx(),Event_Weight);
+          st->BS_MIs->Fill(dedxSObj->dEdx(),Event_Weight);
+          st->BS_MIm->Fill(dedxMObj->dEdx(),Event_Weight);
    }
-   if(dedxSObj.dEdx()+RescaleI<GlobalMinIs)return false;
-   if(dedxMObj.dEdx()<GlobalMinIm)return false;
+   if(dedxSObj->dEdx()+RescaleI<GlobalMinIs)return false;
+   if(dedxMObj->dEdx()<GlobalMinIm)return false;
    if(st){st->MI   ->Fill(0.0,Event_Weight);}
    if(tof){
    if(st){st->BS_MTOF ->Fill(tof->inverseBeta(),Event_Weight);}
@@ -351,8 +358,8 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData& d
    if(std::max(0.0,track->pt())<GlobalMinPt)return false;
    if(st){st->Pterr   ->Fill(0.0,Event_Weight);}
 
-   if(st){st->BS_EtaIs->Fill(track->eta(),dedxSObj.dEdx(),Event_Weight);
-          st->BS_EtaIm->Fill(track->eta(),dedxMObj.dEdx(),Event_Weight);
+   if(st){st->BS_EtaIs->Fill(track->eta(),dedxSObj->dEdx(),Event_Weight);
+          st->BS_EtaIm->Fill(track->eta(),dedxMObj->dEdx(),Event_Weight);
           st->BS_EtaP ->Fill(track->eta(),track->p(),Event_Weight);
           st->BS_EtaPt->Fill(track->eta(),track->pt(),Event_Weight);
           if(tof)st->BS_EtaTOF->Fill(track->eta(),tof->inverseBeta(),Event_Weight);
@@ -361,28 +368,28 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData& d
    if(st){if(GenBeta>=0)st->Beta_PreselectedC->Fill(GenBeta, Event_Weight);
           st->BS_P  ->Fill(track->p(),Event_Weight);
           st->BS_Pt ->Fill(track->pt(),Event_Weight);
-          st->BS_Is ->Fill(dedxSObj.dEdx(),Event_Weight);
-          st->BS_Im ->Fill(dedxMObj.dEdx(),Event_Weight);
+          st->BS_Is ->Fill(dedxSObj->dEdx(),Event_Weight);
+          st->BS_Im ->Fill(dedxMObj->dEdx(),Event_Weight);
           if(tof) {
 	    st->BS_TOF->Fill(tof->inverseBeta(),Event_Weight);
 	    if(dttof->nDof()>6) st->BS_TOF_DT->Fill(dttof->inverseBeta(),Event_Weight);
             if(csctof->nDof()>6) st->BS_TOF_CSC->Fill(csctof->inverseBeta(),Event_Weight);
 	  }
-          st->BS_PIs  ->Fill(track->p()  ,dedxSObj.dEdx(),Event_Weight);
-          st->BS_PIm  ->Fill(track->p()  ,dedxMObj.dEdx(),Event_Weight);
-          st->BS_PtIs ->Fill(track->pt() ,dedxSObj.dEdx(),Event_Weight);
-          st->BS_PtIm ->Fill(track->pt() ,dedxMObj.dEdx(),Event_Weight);
-          if(tof)st->BS_TOFIs->Fill(tof->inverseBeta(),dedxSObj.dEdx(),Event_Weight);
-          if(tof)st->BS_TOFIm->Fill(tof->inverseBeta(),dedxMObj.dEdx(),Event_Weight);
+          st->BS_PIs  ->Fill(track->p()  ,dedxSObj->dEdx(),Event_Weight);
+          st->BS_PIm  ->Fill(track->p()  ,dedxMObj->dEdx(),Event_Weight);
+          st->BS_PtIs ->Fill(track->pt() ,dedxSObj->dEdx(),Event_Weight);
+          st->BS_PtIm ->Fill(track->pt() ,dedxMObj->dEdx(),Event_Weight);
+          if(tof)st->BS_TOFIs->Fill(tof->inverseBeta(),dedxSObj->dEdx(),Event_Weight);
+          if(tof)st->BS_TOFIm->Fill(tof->inverseBeta(),dedxMObj->dEdx(),Event_Weight);
    }
 
    return true;
 }
 
 // check if one HSCP candidate is passing the selection (the function also has many more arguments because it is used to fill some histograms AND to evaluate the systematics
-bool PassSelection(const susybsm::HSCParticle& hscp,  const reco::DeDxData& dedxSObj, const reco::DeDxData& dedxMObj, const reco::MuonTimeExtra* tof, const fwlite::ChainEvent& ev, const int& CutIndex, stPlots* st, const double& GenBeta, bool RescaleP, const double& RescaleI, const double& RescaleT){
+bool PassSelection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, const fwlite::ChainEvent& ev, const int& CutIndex, stPlots* st, const double& GenBeta, bool RescaleP, const double& RescaleI, const double& RescaleT){
    reco::TrackRef   track = hscp.trackRef(); if(track.isNull())return false;
-
+   if(!dedxSObj) return false;
    double MuonTOF = GlobalMinTOF;
    if(tof){
       MuonTOF = tof->inverseBeta();
@@ -399,7 +406,7 @@ bool PassSelection(const susybsm::HSCParticle& hscp,  const reco::DeDxData& dedx
           if(GenBeta>=0)st->Beta_SelectedP->Fill(CutIndex,GenBeta, Event_Weight);
    }
 
-   if(dedxSObj.dEdx()+RescaleI<CutI[CutIndex])return false;
+   if(dedxSObj->dEdx()+RescaleI<CutI[CutIndex])return false;
    if(st){st->I    ->Fill(CutIndex,Event_Weight);
           if(GenBeta>=0)st->Beta_SelectedI->Fill(CutIndex, GenBeta, Event_Weight);
    }
@@ -409,33 +416,33 @@ bool PassSelection(const susybsm::HSCParticle& hscp,  const reco::DeDxData& dedx
           if(GenBeta>=0)st->Beta_SelectedT->Fill(CutIndex, GenBeta, Event_Weight);
           st->AS_P  ->Fill(CutIndex,track->p(),Event_Weight);
           st->AS_Pt ->Fill(CutIndex,track->pt(),Event_Weight);
-          st->AS_Is ->Fill(CutIndex,dedxSObj.dEdx(),Event_Weight);
-          st->AS_Im ->Fill(CutIndex,dedxMObj.dEdx(),Event_Weight);
+          st->AS_Is ->Fill(CutIndex,dedxSObj->dEdx(),Event_Weight);
+          st->AS_Im ->Fill(CutIndex,dedxMObj->dEdx(),Event_Weight);
           st->AS_TOF->Fill(CutIndex,MuonTOF,Event_Weight);
-//        st->AS_EtaIs->Fill(CutIndex,track->eta(),dedxSObj.dEdx(),Event_Weight);
-//        st->AS_EtaIm->Fill(CutIndex,track->eta(),dedxMObj.dEdx(),Event_Weight);
+//        st->AS_EtaIs->Fill(CutIndex,track->eta(),dedxSObj->dEdx(),Event_Weight);
+//        st->AS_EtaIm->Fill(CutIndex,track->eta(),dedxMObj->dEdx(),Event_Weight);
 //        st->AS_EtaP ->Fill(CutIndex,track->eta(),track->p(),Event_Weight);
 //        st->AS_EtaPt->Fill(CutIndex,track->eta(),track->pt(),Event_Weight);
-          st->AS_PIs  ->Fill(CutIndex,track->p()  ,dedxSObj.dEdx(),Event_Weight);
-          st->AS_PIm  ->Fill(CutIndex,track->p()  ,dedxMObj.dEdx(),Event_Weight);
-          st->AS_PtIs ->Fill(CutIndex,track->pt() ,dedxSObj.dEdx(),Event_Weight);
-          st->AS_PtIm ->Fill(CutIndex,track->pt() ,dedxMObj.dEdx(),Event_Weight);
-          st->AS_TOFIs->Fill(CutIndex,MuonTOF     ,dedxSObj.dEdx(),Event_Weight);
-          st->AS_TOFIm->Fill(CutIndex,MuonTOF     ,dedxMObj.dEdx(),Event_Weight);
+          st->AS_PIs  ->Fill(CutIndex,track->p()  ,dedxSObj->dEdx(),Event_Weight);
+          st->AS_PIm  ->Fill(CutIndex,track->p()  ,dedxMObj->dEdx(),Event_Weight);
+          st->AS_PtIs ->Fill(CutIndex,track->pt() ,dedxSObj->dEdx(),Event_Weight);
+          st->AS_PtIm ->Fill(CutIndex,track->pt() ,dedxMObj->dEdx(),Event_Weight);
+          st->AS_TOFIs->Fill(CutIndex,MuonTOF     ,dedxSObj->dEdx(),Event_Weight);
+          st->AS_TOFIm->Fill(CutIndex,MuonTOF     ,dedxMObj->dEdx(),Event_Weight);
    }
 
    return true;
 }
 
 // all code for the filling of the ABCD related histograms --> this information will be used later in Step4 for the actual datadriven prediction
-void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, const reco::DeDxData& dedxSObj, const reco::DeDxData& dedxMObj, const reco::MuonTimeExtra* tof, stPlots* st){
+void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, stPlots* st){
          reco::TrackRef   track = hscp.trackRef(); if(track.isNull())return;
-
+	 if(!dedxSObj) return;
          double MuonTOF = GlobalMinTOF;
          if(tof){MuonTOF = tof->inverseBeta(); }
 
 	 Hist_Pt->Fill(track->pt(),Event_Weight);
-         Hist_Is->Fill(dedxSObj.dEdx(),Event_Weight);
+         Hist_Is->Fill(dedxSObj->dEdx(),Event_Weight);
          Hist_TOF->Fill(MuonTOF,Event_Weight);
 
 
@@ -458,32 +465,32 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
 //      TOF
 
             if(track->pt()>100){
-               CtrlPt_S4_Is->Fill(dedxSObj.dEdx(), Event_Weight);
-               CtrlPt_S4_Im->Fill(dedxMObj.dEdx(), Event_Weight);
+               CtrlPt_S4_Is->Fill(dedxSObj->dEdx(), Event_Weight);
+               CtrlPt_S4_Im->Fill(dedxMObj->dEdx(), Event_Weight);
                if(tof)CtrlPt_S4_TOF->Fill(MuonTOF, Event_Weight);
             }else if(track->pt()>80){
-               CtrlPt_S3_Is->Fill(dedxSObj.dEdx(), Event_Weight);
-               CtrlPt_S3_Im->Fill(dedxMObj.dEdx(), Event_Weight);
+               CtrlPt_S3_Is->Fill(dedxSObj->dEdx(), Event_Weight);
+               CtrlPt_S3_Im->Fill(dedxMObj->dEdx(), Event_Weight);
                if(tof)CtrlPt_S3_TOF->Fill(MuonTOF, Event_Weight);
             }else if(track->pt()>60){
-               CtrlPt_S2_Is->Fill(dedxSObj.dEdx(), Event_Weight);
-               CtrlPt_S2_Im->Fill(dedxMObj.dEdx(), Event_Weight);
+               CtrlPt_S2_Is->Fill(dedxSObj->dEdx(), Event_Weight);
+               CtrlPt_S2_Im->Fill(dedxMObj->dEdx(), Event_Weight);
                if(tof)CtrlPt_S2_TOF->Fill(MuonTOF, Event_Weight);
             }else{
-               CtrlPt_S1_Is->Fill(dedxSObj.dEdx(), Event_Weight);
-               CtrlPt_S1_Im->Fill(dedxMObj.dEdx(), Event_Weight);
+               CtrlPt_S1_Is->Fill(dedxSObj->dEdx(), Event_Weight);
+               CtrlPt_S1_Im->Fill(dedxMObj->dEdx(), Event_Weight);
                if(tof)CtrlPt_S1_TOF->Fill(MuonTOF, Event_Weight);
             }
 
-            if(dedxSObj.dEdx()>0.2){           if(tof)CtrlIs_S4_TOF->Fill(MuonTOF, Event_Weight);
-            }else if(dedxSObj.dEdx()>0.1){     if(tof)CtrlIs_S3_TOF->Fill(MuonTOF, Event_Weight);
-            }else if(dedxSObj.dEdx()>0.05){     if(tof)CtrlIs_S2_TOF->Fill(MuonTOF, Event_Weight);
+            if(dedxSObj->dEdx()>0.2){           if(tof)CtrlIs_S4_TOF->Fill(MuonTOF, Event_Weight);
+            }else if(dedxSObj->dEdx()>0.1){     if(tof)CtrlIs_S3_TOF->Fill(MuonTOF, Event_Weight);
+            }else if(dedxSObj->dEdx()>0.05){     if(tof)CtrlIs_S2_TOF->Fill(MuonTOF, Event_Weight);
             }else{                             if(tof)CtrlIs_S1_TOF->Fill(MuonTOF, Event_Weight);
             }
 
-            if(dedxMObj.dEdx()>4.4){           if(tof)CtrlIm_S4_TOF->Fill(MuonTOF, Event_Weight);
-            }else if(dedxMObj.dEdx()>4.1){     if(tof)CtrlIm_S3_TOF->Fill(MuonTOF, Event_Weight);
-            }else if(dedxMObj.dEdx()>3.8){     if(tof)CtrlIm_S2_TOF->Fill(MuonTOF, Event_Weight);
+            if(dedxMObj->dEdx()>4.4){           if(tof)CtrlIm_S4_TOF->Fill(MuonTOF, Event_Weight);
+            }else if(dedxMObj->dEdx()>4.1){     if(tof)CtrlIm_S3_TOF->Fill(MuonTOF, Event_Weight);
+            }else if(dedxMObj->dEdx()>3.8){     if(tof)CtrlIm_S2_TOF->Fill(MuonTOF, Event_Weight);
             }else{                             if(tof)CtrlIm_S1_TOF->Fill(MuonTOF, Event_Weight);
             }
 
@@ -491,12 +498,12 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
          for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
 
             bool PassPtCut  = track->pt()>=CutPt[CutIndex];
-            bool PassICut   = (dedxSObj.dEdx()>=CutI[CutIndex]);
+            bool PassICut   = (dedxSObj->dEdx()>=CutI[CutIndex]);
             bool PassTOFCut = MuonTOF>=CutTOF[CutIndex];
             if(       PassTOFCut &&  PassPtCut &&  PassICut){   //Region D
                H_D      ->Fill(CutIndex,                Event_Weight);
                RegionD_P  ->Fill(CutIndex,track->p(),     Event_Weight);
-               RegionD_I  ->Fill(CutIndex,dedxMObj.dEdx(),Event_Weight);
+               RegionD_I  ->Fill(CutIndex,dedxMObj->dEdx(),Event_Weight);
                RegionD_TOF->Fill(CutIndex,MuonTOF,        Event_Weight);
 	       st->AS_Eta_RegionD->Fill(CutIndex,track->eta());
             }else if( PassTOFCut &&  PassPtCut && !PassICut){   //Region C
@@ -506,7 +513,7 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
                st->AS_Eta_RegionC->Fill(CutIndex,track->eta());
             }else if( PassTOFCut && !PassPtCut &&  PassICut){   //Region B
                H_B     ->Fill(CutIndex,                 Event_Weight);
-               if(TypeMode!=2)Pred_I  ->Fill(CutIndex,dedxMObj.dEdx(), Event_Weight);
+               if(TypeMode!=2)Pred_I  ->Fill(CutIndex,dedxMObj->dEdx(), Event_Weight);
                if(TypeMode!=2)Pred_EtaS->Fill(CutIndex,track->eta(),         Event_Weight);
 //               Pred_TOF->Fill(CutIndex,MuonTOF,         Event_Weight);      //Not used but a priori uncorrelated so could be used (TO BE CHECK)
                st->AS_Eta_RegionB->Fill(CutIndex,track->eta());
@@ -518,7 +525,7 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
                st->AS_Eta_RegionA->Fill(CutIndex,track->eta());
             }else if(!PassTOFCut &&  PassPtCut &&  PassICut){   //Region H
                H_H   ->Fill(CutIndex,          Event_Weight);
-//               Pred_I->Fill(CutIndex,dedxMObj.dEdx(),   Event_Weight);      //Not used but a priori uncorrelated so could be used (TO BE CHECK)
+//               Pred_I->Fill(CutIndex,dedxMObj->dEdx(),   Event_Weight);      //Not used but a priori uncorrelated so could be used (TO BE CHECK)
                st->AS_Eta_RegionH->Fill(CutIndex,track->eta());
             }else if(!PassTOFCut &&  PassPtCut && !PassICut){   //Region G
                H_G     ->Fill(CutIndex,                 Event_Weight);
@@ -526,7 +533,7 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
                st->AS_Eta_RegionG->Fill(CutIndex,track->eta());
             }else if(!PassTOFCut && !PassPtCut &&  PassICut){   //Region F
                H_F     ->Fill(CutIndex,                 Event_Weight);
-               if(TypeMode==2)Pred_I  ->Fill(CutIndex,dedxMObj.dEdx(), Event_Weight);
+               if(TypeMode==2)Pred_I  ->Fill(CutIndex,dedxMObj->dEdx(), Event_Weight);
                if(TypeMode==2)Pred_EtaS->Fill(CutIndex,track->eta(),         Event_Weight);
                st->AS_Eta_RegionF->Fill(CutIndex,track->eta());
             }else if(!PassTOFCut && !PassPtCut && !PassICut){   //Region E
@@ -695,22 +702,35 @@ void Analysis_Step3(char* SavePath)
                reco::MuonRef  muon  = hscp.muonRef();
                reco::TrackRef track = hscp.trackRef();
 
-               //skip events without inner tracker track
-               if(track.isNull())continue;
-
+               //skip events without inner tracker track except for TOF only analysis
+	       if(track.isNull() && TypeMode!=3)continue;
+	       //skip events without muon except for Tk Only analysis
+	       if(TypeMode!=0 && muon.isNull()) continue;
+	       //Skip events without stand alone muon for TOF only analysis
+	       if(TypeMode==3 && !hscp.muonRef()->isStandAloneMuon()) continue;
 
                //for signal only, make sure that the candidate is associated to a true HSCP
                int ClosestGen;
                if(isSignal && DistToHSCP(hscp, genColl, ClosestGen)>0.03)continue;
 
+	       //Determine momentum for track.  For TOF only use the stand alone momentum, for others use inner track momentum
+	       double p;
+	       if(TypeMode!=3) p=track->p();
+	       else p=hscp.muonRef()->standAloneMuon()->p();
 
                //load quantity associated to this track (TOF and dEdx)
-               const DeDxData& dedxSObj  = dEdxSCollH->get(track.key());
-               const DeDxData& dedxMObj  = dEdxMCollH->get(track.key());
+	       const DeDxData* dedxSObj = NULL;
+	       const DeDxData* dedxMObj = NULL;
+	       if(TypeMode!=3 && !track.isNull()) {
+		 dedxSObj  = &dEdxSCollH->get(track.key());
+		 dedxMObj  = &dEdxMCollH->get(track.key());
+	       }
+
                const reco::MuonTimeExtra* tof = NULL;
                const reco::MuonTimeExtra* dttof = NULL;
                const reco::MuonTimeExtra* csctof = NULL;
               if(TypeMode==2 && !hscp.muonRef().isNull()){ tof  = &TOFCollH->get(hscp.muonRef().key()); dttof = &TOFDTCollH->get(hscp.muonRef().key());  csctof = &TOFCSCCollH->get(hscp.muonRef().key());}
+
 
                //compute systematic uncertainties on signal
                if(isSignal){
@@ -722,9 +742,12 @@ void Analysis_Step3(char* SavePath)
 
                   // compute systematic due to momentum scale
                   if(PassPreselection(hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   PRescale, 0, 0)){
-                     double Mass     = GetMass(track->p()*PRescale,dedxMObj.dEdx(), !isData);
-                     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p()*PRescale,tof->inverseBeta());
-                     double MassComb = Mass;if(tof)MassComb=GetMassFromBeta(track->p()*PRescale, (GetIBeta(dedxMObj.dEdx(),!isData) + (1/tof->inverseBeta()))*0.5 ) ;
+ 		     double Mass     = -1; if(dedxMObj) Mass=GetMass(p*PRescale,dedxMObj->dEdx(),!isData);
+		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(p*PRescale,tof->inverseBeta());
+		     double MassComb = -1;
+		     if(tof && dedxMObj)MassComb=GetMassFromBeta(p*PRescale, (GetIBeta(dedxMObj->dEdx(),!isData) + (1/tof->inverseBeta()))*0.5);
+		     else if(dedxMObj) MassComb = Mass;
+		     if(tof) MassComb=MassTOF;
 
                      for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
                         if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, -1,   PRescale, 0, 0)){
@@ -741,9 +764,12 @@ void Analysis_Step3(char* SavePath)
 
                   // compute systematic due to dEdx (both Ias and Ih)
                   if(PassPreselection(hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   0, IRescale, 0)){
-                     double Mass     = GetMass(track->p(),dedxMObj.dEdx()*MRescale,!isData);
-                     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p(),tof->inverseBeta());
-                     double MassComb = Mass;if(tof)MassComb=GetMassFromBeta(track->p(), (GetIBeta(dedxMObj.dEdx()*MRescale,!isData) + (1/tof->inverseBeta()))*0.5 ) ;
+		     double Mass     = -1; if(dedxMObj) Mass=GetMass(p,dedxMObj->dEdx()*MRescale,!isData);
+		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(p,tof->inverseBeta());
+		     double MassComb = -1;
+		     if(tof && dedxMObj)MassComb=GetMassFromBeta(p*PRescale, (GetIBeta(dedxMObj->dEdx(),!isData) + (1/tof->inverseBeta()))*0.5);
+		     else if(dedxMObj) MassComb = Mass;
+		     if(tof) MassComb=MassTOF;
 
                      for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
                         if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, -1,   0, IRescale, 0)){
@@ -760,9 +786,12 @@ void Analysis_Step3(char* SavePath)
 
                   // compute systematic due to Mass shift
                   if(PassPreselection(hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   0, 0, 0)){
-                     double Mass     = GetMass(track->p(),dedxMObj.dEdx()*MRescale,!isData);
-                     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p(),tof->inverseBeta());
-                     double MassComb = Mass;if(tof)MassComb=GetMassFromBeta(track->p(), (GetIBeta(dedxMObj.dEdx()*MRescale,!isData) + (1/tof->inverseBeta()))*0.5 ) ;
+		     double Mass     = -1; if(dedxMObj) Mass=GetMass(p,dedxMObj->dEdx()*MRescale,!isData);
+		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(p,tof->inverseBeta());
+		     double MassComb = -1;
+		     if(tof && dedxMObj)MassComb=GetMassFromBeta(p*PRescale, (GetIBeta(dedxMObj->dEdx(),!isData) + (1/tof->inverseBeta()))*0.5);
+		     else if(dedxMObj) MassComb = Mass;
+		     if(tof) MassComb=MassTOF;
 
                      for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
                         if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, -1,   0, 0, 0)){
@@ -779,9 +808,12 @@ void Analysis_Step3(char* SavePath)
 
                   // compute systematic due to TOF
                   if(PassPreselection(hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   0, 0, TRescale)){
-                     double Mass     = GetMass(track->p(),dedxMObj.dEdx(),!isData);
-                     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p(),tof->inverseBeta()*TRescale);
-                     double MassComb = Mass;if(tof)MassComb=GetMassFromBeta(track->p(), (GetIBeta(dedxMObj.dEdx(),!isData) + ((1/tof->inverseBeta())*TRescale ))*0.5 ) ;
+ 		     double Mass     = -1; if(dedxMObj) Mass=GetMass(p,dedxMObj->dEdx(),!isData);
+		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(p,(tof->inverseBeta()+TRescale));
+		     double MassComb = -1;
+		     if(tof && dedxMObj)MassComb=GetMassFromBeta(p*PRescale, (GetIBeta(dedxMObj->dEdx(),!isData) + (1/tof->inverseBeta()))*0.5);
+		     else if(dedxMObj) MassComb = Mass;
+		     if(tof) MassComb=MassTOF;
 
                      for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
                         if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, -1,   0, 0, TRescale)){
@@ -798,9 +830,12 @@ void Analysis_Step3(char* SavePath)
 
                   // compute systematics due to PU
                   if(PassPreselection(hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   PRescale, 0, 0)){
-                     double Mass     = GetMass(track->p()*PRescale,dedxMObj.dEdx(),!isData);
-                     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p()*PRescale,tof->inverseBeta());
-                     double MassComb = Mass;if(tof)MassComb=GetMassFromBeta(track->p()*PRescale, (GetIBeta(dedxMObj.dEdx(),!isData) + (1/tof->inverseBeta()))*0.5 ) ;
+		     double Mass     = -1; if(dedxMObj) Mass=GetMass(p,dedxMObj->dEdx(),!isData);
+		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(p,tof->inverseBeta());
+		     double MassComb = -1;
+		     if(tof && dedxMObj)MassComb=GetMassFromBeta(p*PRescale, (GetIBeta(dedxMObj->dEdx(),!isData) + (1/tof->inverseBeta()))*0.5);
+		     else if(dedxMObj) MassComb = Mass;
+		     if(tof) MassComb=MassTOF;
 
                      for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
                         if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, -1,   PRescale, 0, 0)){
@@ -824,9 +859,12 @@ void Analysis_Step3(char* SavePath)
                if(isData || isMC)Analysis_FillControlAndPredictionHist(hscp, dedxSObj, dedxMObj, tof, &SamplePlots);
 
                //compute the mass of the candidate
-               double Mass     = GetMass(track->p(),dedxMObj.dEdx(),!isData);
-               double MassTOF  = -1;  if(tof)MassTOF=GetTOFMass(track->p(),tof->inverseBeta());
-               double MassComb = Mass;if(tof)MassComb=GetMassFromBeta(track->p(), (GetIBeta(dedxMObj.dEdx(),!isData) + (1/tof->inverseBeta()))*0.5 ) ;
+	       double Mass     = -1; if(dedxMObj) Mass = GetMass(p,dedxMObj->dEdx(),!isData);
+	       double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(p,tof->inverseBeta());
+	       double MassComb = -1;
+	       if(tof && dedxMObj)MassComb=GetMassFromBeta(p, (GetIBeta(dedxMObj->dEdx(),!isData) + (1/tof->inverseBeta()))*0.5 ) ;
+	       if(dedxMObj) MassComb = Mass;
+	       if(tof)MassComb=GetMassFromBeta(p, (1/tof->inverseBeta()));
                bool PassNonTrivialSelection=false;
 
                //loop on all possible selection (one of them, the optimal one, will be used later)
@@ -849,7 +887,7 @@ void Analysis_Step3(char* SavePath)
                   if(isMC)MCTrPlots.MassComb->Fill(CutIndex, MassComb, Event_Weight);
                   SamplePlots      .MassComb->Fill(CutIndex, MassComb, Event_Weight);
                } //end of Cut loop
-               if(PassNonTrivialSelection) stPlots_FillTree(SamplePlots, ev.eventAuxiliary().run(),ev.eventAuxiliary().event(), c, track->pt(), dedxSObj.dEdx(), tof ? tof->inverseBeta() : -1, Mass, -1);
+               if(PassNonTrivialSelection) stPlots_FillTree(SamplePlots, ev.eventAuxiliary().run(),ev.eventAuxiliary().event(), c, track->pt(), dedxSObj ? dedxSObj->dEdx() : -1, tof ? tof->inverseBeta() : -1, Mass, -1);
             }// end of Track Loop
 
             //save event dependent information thanks to the bookkeeping

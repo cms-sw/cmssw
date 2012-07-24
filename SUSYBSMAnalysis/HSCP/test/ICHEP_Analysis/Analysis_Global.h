@@ -47,9 +47,10 @@ double               IntegratedLuminosityBeforeTriggerChange = 0;
 
 
 // Type of the analysis
-char		   TypeMode         = 0; //0 = Tracker-Only analysis (used in 2010 and 2011 papers)
+int		   TypeMode         = 0; //0 = Tracker-Only analysis (used in 2010 and 2011 papers)
 					 //1 = Tracker+Muon analysis (used in 2010 paper)
                                          //2 = Tracker+TOF  analysis (used in 2011 paper)
+                                         //3 = TOF Only     analysis (to be used in 2012 paper)
                                          //? do not hesitate to define your own --> TOF-Only, mCHAMPs, fractional charge
 
 // directory where to find the EDM files --> check the function at the end of this file, to see how it is defined interactively
@@ -102,6 +103,18 @@ std::string        TOF_Label       = "combined";
 std::string        TOFdt_Label     = "dt";
 std::string        TOFcsc_Label    = "csc";
 
+//Variables used in the TOF only HSCP search
+float              DTRegion      =   0.9;  //Define the dividing line between DT and 
+float              CSCRegion     =   0.9;  //CSC regions of CMS
+float              SAMaxDxy      =   25.;  //Max dxy displacement for SA track
+float              SAMaxDz       =   20.;  //Max dz displacement for SA track
+float              CosmicMinDz   =   70.;  //Min dz displacement to be tagged as cosmic muon
+float              CosmicMaxDz   =   120.; //Max dz displacement for cosmic tagged tracks
+double             SAMinPt       =   80.0; //Min SA pt 
+float              SAMaxEta      =   2.4;  //Max SA eta
+//double             MaxDistTrigger=   0.4;  //Max Dist to trigger object
+double             minSegEtaSep  = 0.04;   //Minimum eta separation between SA track and muon segment on opposite side of detector
+
 
 // function used to define Axis range and legend automatically from the estimator label
 void InitdEdx(std::string dEdxS_Label_){
@@ -132,6 +145,8 @@ void InitBaseDirectory(){
       BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_11_01/";
    }else if(host.find("cern.ch")!=std::string::npos){
       BaseDirectory = "rfio:/castor/cern.ch/user/r/rybinska/HSCPEDMFiles/";
+   }else if(host.find("fnal.gov")!=std::string::npos){
+     BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/venkat12/2012Data/";
    }else{
       BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/venkat12/2012Data/";
       printf("YOUR MACHINE (%s) IS NOT KNOW --> please add your machine to the 'InitBaseDirectory' function of 'Analysis_Global.h'\n", host.c_str());
