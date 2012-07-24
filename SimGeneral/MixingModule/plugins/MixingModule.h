@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/Selector.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -81,10 +82,12 @@ namespace edm {
 			  const edm::EventSetup& setup);
       void createDigiAccumulators( const edm::ParameterSet& mixingPSet ) ;
 
-      InputTag inputTagPlayback_;
+      std::string labelPlayback_;
       bool mixProdStep2_;
       bool mixProdStep1_;
       CrossingFramePlaybackInfoExtended *playbackInfo_;
+
+      Selector * sel_;
 
       std::vector<MixingWorkerBase *> workers_;
       std::vector<MixingWorkerBase *> workersObjects_;

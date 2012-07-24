@@ -79,14 +79,7 @@ mixedTripletStepSeedLayersA.layerList = cms.vstring('BPix1+BPix2+BPix3', 'BPix2+
         'FPix2_pos+FPix3_pos+TEC1_pos', 'FPix2_neg+FPix3_neg+TEC1_neg',
         'FPix3_pos+TEC2_pos+TEC3_pos', 'FPix3_neg+TEC2_neg+TEC3_neg')
 
-#mixedTripletStepSeedLayersB.layerList = cms.vstring('BPix3+BPix4+TIB1', 'BPix3+BPix4+TIB2')
-## switch off SeedB the easy way
-mixedTripletStepSeedLayersB.layerList = cms.vstring('BPix1+BPix2+BPix3')
-## increased the max track candidates
-#process.load("RecoTracker.CkfPattern.CkfTrackCandidates_cff")
-#process.ckfTrackCandidates.maxNSeeds = cms.uint32(500000)
-mixedTripletStepTrackCandidates.maxNSeeds = cms.uint32(150000)
-pixelPairStepTrackCandidates.maxNSeeds = cms.uint32(150000)
+mixedTripletStepSeedLayersB.layerList = cms.vstring('BPix3+BPix4+TIB1', 'BPix3+BPix4+TIB2')
 
 #--->
 # disconnect merger for stepOne and step 2 to have triplets merged

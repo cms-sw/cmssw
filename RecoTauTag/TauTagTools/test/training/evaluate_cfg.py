@@ -58,7 +58,7 @@ process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
-from Configuration.AlCa.autoCond import autoCond
+from Configuration.PyReleaseValidation.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
 
 # Setup output file for the plots
@@ -275,8 +275,6 @@ process.load("RecoTauTag.Configuration.HPSTancTaus_cfi")
 process.hpsTancTausDiscriminationByTanc.transforms = custom_transform.transforms
 process.combinatoricRecoTausTancTransform.transforms = \
         custom_transform.transforms
-process.hpsTancTausDiscriminationByTancVLoose.Prediscriminants.tancCut.cut = \
-        custom_transform.cuts.vlooseCut
 process.hpsTancTausDiscriminationByTancLoose.Prediscriminants.tancCut.cut = \
         custom_transform.cuts.looseCut
 process.hpsTancTausDiscriminationByTancMedium.Prediscriminants.tancCut.cut = \
@@ -310,7 +308,6 @@ discriminators['shrinkingConePFTauProducer'] = [
 
 discriminators['hpsTancTaus'] = [
     'hpsTancTausDiscriminationByTanc',
-    'hpsTancTausDiscriminationByTancVLoose',
     'hpsTancTausDiscriminationByTancLoose',
     'hpsTancTausDiscriminationByTancMedium',
     'hpsTancTausDiscriminationByTancTight',
@@ -363,4 +360,4 @@ process.path = cms.Path(process.main)
 process.schedule = cms.Schedule(
     process.path
 )
-process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )

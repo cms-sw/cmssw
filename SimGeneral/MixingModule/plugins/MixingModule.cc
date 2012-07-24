@@ -29,7 +29,7 @@ namespace edm {
   // Constructor
   MixingModule::MixingModule(const edm::ParameterSet& ps_mix) :
   BMixingModule(ps_mix),
-  inputTagPlayback_(),
+  labelPlayback_(ps_mix.getParameter<std::string>("LabelPlayback")),
   mixProdStep2_(ps_mix.getParameter<bool>("mixProdStep2")),
   mixProdStep1_(ps_mix.getParameter<bool>("mixProdStep1")),
   digiAccumulators_()
@@ -43,14 +43,12 @@ namespace edm {
       useCurrentProcessOnly_=ps_mix.getParameter<bool>("useCurrentProcessOnly");
       LogInfo("MixingModule") <<" using given Parameter 'useCurrentProcessOnly' ="<<useCurrentProcessOnly_;
     }
-    std::string labelPlayback;    
-    if (ps_mix.exists("LabelPlayback")) {
-      labelPlayback = ps_mix.getParameter<std::string>("LabelPlayback");
+    if (labelPlayback_.size()>0){
+      sel_=new Selector(ModuleLabelSelector(labelPlayback_));
     }
-    if (labelPlayback.empty()) {
-      labelPlayback = ps_mix.getParameter<std::string>("@module_label");
+    else {
+      sel_=new Selector(MatchAllSelector());
     }
-    inputTagPlayback_ = InputTag(labelPlayback, "");
 
     ParameterSet ps=ps_mix.getParameter<ParameterSet>("mixObjects");
     std::vector<std::string> names = ps.getParameterNames();
@@ -235,6 +233,7 @@ dropUnwantedBranches(wantedBranches_);
     for (unsigned int ii=0;ii<workersObjects_.size();++ii){
       delete workersObjects_[ii];
     }
+    delete sel_;
 
     std::vector<DigiAccumulatorMixMod*>::const_iterator accItr = digiAccumulators_.begin();
     std::vector<DigiAccumulatorMixMod*>::const_iterator accEnd = digiAccumulators_.end();
@@ -274,7 +273,7 @@ dropUnwantedBranches(wantedBranches_);
     std::vector<edm::EventID> recordEventID;
     edm::Handle<CrossingFramePlaybackInfoExtended>  playbackInfo_H;
     if (playback_) {
-      bool got = e.getByLabel(inputTagPlayback_, playbackInfo_H);
+      bool got=e.get((*sel_), playbackInfo_H);
       if (!got) {
         throw cms::Exception("MixingProductNotFound") << " No "
           "CrossingFramePlaybackInfoExtended on the input file, but playback "

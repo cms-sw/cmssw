@@ -95,13 +95,12 @@ addMixingScenario("FS_mix_2012_Startup_inTimeOnly",{'file': 'FastSimulation.Pile
 addMixingScenario("FS_mix_2012_Summer_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.mix_2012_Summer_inTimeOnly_cff'})
 
 ##slhc section
-addMixingScenario("SLHC_LowLumiPileUp_Phase1_R30F12",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R30F12_cff'})
-addMixingScenario("SLHC_LowLumiPileUp_Phase1_R30F12_smpx",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R30F12_smpx_cff'})
+addMixingScenario("SLHC_LowLumiPileUp_Phase1_R39F16",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_cff'})
+addMixingScenario("SLHC_LowLumiPileUp_Phase1_R39F16_smpx",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_smpx_cff'})
 addMixingScenario("SLHC_LowLumiPileUp_Phase1_R34F16",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R34F16_cff'})
 addMixingScenario("SLHC_LowLumiPileUp_Phase1_R34F16_smpx",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R34F16_smpx_cff'})
 addMixingScenario("SLHC_LowLumiPileUp_stdgeom",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_stdgeom_cff'})
-addMixingScenario("SLHC_LowLumiPileUp_Phase1_R30F12_HCal",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R30F12_HCal_cff'})
-addMixingScenario("SLHC_LowLumiPileUp_Phase1_R34F16_HCal",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R34F16_HCal_cff'})
+addMixingScenario("SLHC_LowLumiPileUp_Phase1_R39F16_HCal",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_HCal_cff'})
 
 MixingDefaultKey = '2012_Summer_50ns_PoissonOOTPU'
 MixingFSDefaultKey = '2012_Summer_inTimeOnly'

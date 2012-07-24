@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.82 2012/07/18 17:15:05 tosi Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.80 2012/03/06 11:47:06 borrell Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -41,25 +41,13 @@
 #include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
 #include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
 
-#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 #include "TMath.h"
 #include <iostream>
 
 //--------------------------------------------------------------------------------------------
-SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig)
-  : dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig), show_mechanical_structure_view(true), show_readout_view(false), show_control_view(false), select_all_detectors(false), reset_each_run(false), m_cacheID_(0)
-					    //  , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig))
+SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) : dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig), show_mechanical_structure_view(true), show_readout_view(false), show_control_view(false), select_all_detectors(false), reset_each_run(false), m_cacheID_(0)
 {
-
-  // initialize
-  passBPTXfilter_ = true;
-
-  // initialize GenericTriggerEventFlag by specific configuration
-  // in this way, one can set specific selections for different MEs
-  genTriggerEventFlagBPTXfilter_     = new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("BPTXfilter")     );
-  genTriggerEventFlagPixelDCSfilter_ = new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("PixelDCSfilter") );
-  genTriggerEventFlagStripDCSfilter_ = new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("StripDCSfilter") );
 
   firstEvent = -1;
   eventNb = 0;
@@ -196,22 +184,11 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig)
 } 
 
 SiStripMonitorCluster::~SiStripMonitorCluster() { 
-  if (dcsStatus_)           delete dcsStatus_;
-  if (genTriggerEventFlagBPTXfilter_    ) delete genTriggerEventFlagBPTXfilter_;
-  if (genTriggerEventFlagPixelDCSfilter_) delete genTriggerEventFlagPixelDCSfilter_;
-  if (genTriggerEventFlagStripDCSfilter_) delete genTriggerEventFlagStripDCSfilter_;
+  if (dcsStatus_) delete dcsStatus_;
 }
 
 //--------------------------------------------------------------------------------------------
 void SiStripMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup& es){
-
-  // Initialize the GenericTriggerEventFlag
-  if ( genTriggerEventFlagBPTXfilter_->on() )
-    genTriggerEventFlagBPTXfilter_->initRun( run, es );
-  if ( genTriggerEventFlagPixelDCSfilter_->on() )
-    genTriggerEventFlagPixelDCSfilter_->initRun( run, es );
-  if ( genTriggerEventFlagStripDCSfilter_->on() )
-    genTriggerEventFlagStripDCSfilter_->initRun( run, es );
 
   if (show_mechanical_structure_view) {
     unsigned long long cacheID = es.get<SiStripDetCablingRcd>().cacheIdentifier();
@@ -382,17 +359,6 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
       GlobalMainDiagonalPosition->setAxisTitle("atan(NPix/(k*NStrip))");
     }
 
-    // TO BE ADDED !!!
-    /*
-    if ( globalswitchapvcycledbxth2on or globalswitchcstripvscpix or globalswitchMultiRegions or ClusterHisto_ ) {
-      dqmStore_->setCurrentFolder(topFolderName_+"/MechanicalView/");
-      std::string HistoName = "BPTX rate";
-      BPTXrateTrend = dqmStore_->bookProfile(HistoName,HistoName, LSBin, LSMin, LSMax, 0, 10000.,"");
-      BPTXrateTrend->getTH1()->SetBit(TH1::kCanRebin);
-      BPTXrateTrend->setAxisTitle("#Lumi section",1);
-      BPTXrateTrend->setAxisTitle("Number of BPTX events per LS",2);
-    }
-    */
 
     if (globalswitchstripnoise2apvcycle){
       dqmStore_->setCurrentFolder(topFolderName_+"/MechanicalView/");
@@ -444,13 +410,6 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
 //--------------------------------------------------------------------------------------------
 void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
-  // Filter out events if Trigger Filtering is requested
-  passBPTXfilter_     = ( iEvent.isRealData() and genTriggerEventFlagBPTXfilter_->on()     ) ? genTriggerEventFlagBPTXfilter_->accept( iEvent, iSetup)     : true;
-  passPixelDCSfilter_ = ( iEvent.isRealData() and genTriggerEventFlagPixelDCSfilter_->on() ) ? genTriggerEventFlagPixelDCSfilter_->accept( iEvent, iSetup) : true;
-  passStripDCSfilter_ = ( iEvent.isRealData() and genTriggerEventFlagStripDCSfilter_->on() ) ? genTriggerEventFlagStripDCSfilter_->accept( iEvent, iSetup) : true;
-  //  std::cout << "passBPTXfilter_ ? " << passBPTXfilter_ << std::endl;
-
   // Filter out events if DCS Event if requested
   if (dcsStatus_ && !dcsStatus_->getStatus(iEvent,iSetup)) return;
 
@@ -490,18 +449,13 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     NPixClusters= PixC->data().size();
     isPixValid=true;
     MultiplicityRegion=FindRegion(NStripClusters,NPixClusters);  
-
-    if ( passBPTXfilter_ and passPixelDCSfilter_ and passStripDCSfilter_ ) {
-      if (globalswitchcstripvscpix) GlobalCStripVsCpix->Fill(NStripClusters,NPixClusters);
-      if (globalswitchmaindiagonalposition && NStripClusters > 0) GlobalMainDiagonalPosition->Fill(atan(NPixClusters/(k0*NStripClusters)));
-      if (globalswitchMultiRegions) PixVsStripMultiplicityRegions->Fill(MultiplicityRegion);
-    }
+    if (globalswitchcstripvscpix) GlobalCStripVsCpix->Fill(NStripClusters,NPixClusters);
+    if (globalswitchmaindiagonalposition && NStripClusters > 0) GlobalMainDiagonalPosition->Fill(atan(NPixClusters/(k0*NStripClusters)));
+    if (globalswitchMultiRegions) PixVsStripMultiplicityRegions->Fill(MultiplicityRegion);
    
     if (ClusterHisto_){
-      if ( passBPTXfilter_ and passPixelDCSfilter_ )
-	NumberOfPixelClus->Fill(NPixClusters);
-      if ( passBPTXfilter_ and passStripDCSfilter_ )
-	NumberOfStripClus->Fill(NStripClusters);
+      NumberOfPixelClus->Fill(NPixClusters);
+      NumberOfStripClus->Fill(NStripClusters);
     }
   }
   // initialise # of clusters to zero
@@ -707,18 +661,12 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 	MultiplicityRegion_Vs_APVcycle_filled=true;
       }
 
-      if (subdetswitchtotclusth1on)
-	  sdetmes.SubDetTotClusterTH1->Fill(sdetmes.totNClusters);
-      if (subdetswitchtotclusprofon)
-	  sdetmes.SubDetTotClusterProf->Fill(iOrbitSec,sdetmes.totNClusters);
-      if (subdetswitchapvcycleprofon)
-	sdetmes.SubDetClusterApvProf->Fill(tbx_corr%70,sdetmes.totNClusters);
-      if (subdetswitchapvcycleth2on)
-	sdetmes.SubDetClusterApvTH2->Fill(tbx_corr%70,sdetmes.totNClusters);
-      if (subdetswitchdbxcycleprofon)
-	sdetmes.SubDetClusterDBxCycleProf->Fill(dbxincycle,sdetmes.totNClusters);
-      if (subdetswitchapvcycledbxprof2on)
-	sdetmes.SubDetApvDBxProf2->Fill(tbx_corr%70,dbx,sdetmes.totNClusters);
+      if (subdetswitchtotclusth1on) sdetmes.SubDetTotClusterTH1->Fill(sdetmes.totNClusters);
+      if (subdetswitchtotclusprofon) sdetmes.SubDetTotClusterProf->Fill(iOrbitSec,sdetmes.totNClusters);
+      if (subdetswitchapvcycleprofon) sdetmes.SubDetClusterApvProf->Fill(tbx_corr%70,sdetmes.totNClusters);
+      if (subdetswitchapvcycleth2on) sdetmes.SubDetClusterApvTH2->Fill(tbx_corr%70,sdetmes.totNClusters);
+      if (subdetswitchdbxcycleprofon) sdetmes.SubDetClusterDBxCycleProf->Fill(dbxincycle,sdetmes.totNClusters);
+      if (subdetswitchapvcycledbxprof2on) sdetmes.SubDetApvDBxProf2->Fill(tbx_corr%70,dbx,sdetmes.totNClusters);
     }
   }
 }

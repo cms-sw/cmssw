@@ -14,7 +14,7 @@ struct stPlots {
    float        Tree_Pt;
    float        Tree_I;
    float        Tree_TOF;
-   float        Tree_Mass;
+  float        Tree_Mass;
 
    TH2F*  Mass;
    TH2F*  MassTOF;
@@ -41,13 +41,7 @@ struct stPlots {
    TH2F*  MassComb_SystT;
    TH2F*  MaxEventMass_SystT;
 
-  TH2F*  Mass_SystPU;
-  TH2F*  MassTOF_SystPU;
-  TH2F*  MassComb_SystPU;
-  TH2F*  MaxEventMass_SystPU;
-
-   TH1F* TotalE;
-   TH1F* TotalEPU; 
+   TH1F* TotalE; 
    TH1F* TotalTE;
    TH1F* Total;
    TH1F* V3D; 
@@ -71,7 +65,6 @@ struct stPlots {
    TH1F* HSCPE_SystI;
    TH1F* HSCPE_SystM;
    TH1F* HSCPE_SystT;
-   TH1F* HSCPE_SystPU;
 
    TH1F* Beta_Gen;
    TH1F* Beta_GenCharged;
@@ -100,22 +93,11 @@ struct stPlots {
    TH1F*  BS_TIsol;
    TH1F*  BS_EIsol;
 
-  TH2F* AS_Eta_RegionA;
-  TH2F* AS_Eta_RegionB;
-  TH2F* AS_Eta_RegionC;
-  TH2F* AS_Eta_RegionD;
-  TH2F* AS_Eta_RegionE;
-  TH2F* AS_Eta_RegionF;
-  TH2F* AS_Eta_RegionG;
-  TH2F* AS_Eta_RegionH;
-
    TH1F*  BS_P; 	   TH2F*  AS_P;
    TH1F*  BS_Pt;	   TH2F*  AS_Pt;
    TH1F*  BS_Is;	   TH2F*  AS_Is;
    TH1F*  BS_Im;           TH2F*  AS_Im;
    TH1F*  BS_TOF;          TH2F*  AS_TOF;
-   TH1F*  BS_TOF_DT;
-   TH1F*  BS_TOF_CSC;
 
    TH2F*  BS_EtaIs;        //TH3F*  AS_EtaIs;
    TH2F*  BS_EtaIm;        //TH3F*  AS_EtaIm;
@@ -129,7 +111,6 @@ struct stPlots {
    TH2F*  BS_PtIm;         TH3F*  AS_PtIm;
    TH2F*  BS_TOFIs;        TH3F*  AS_TOFIs;  
    TH2F*  BS_TOFIm;        TH3F*  AS_TOFIm;   
-
 };
 
 void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned int NCuts, bool SkipSelectionPlot=false)
@@ -142,32 +123,31 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = BaseName;               st.Directory = HistoFile->mkdir(Name.c_str(), Name.c_str()); 
    st.Directory->cd();
 
-   Name = "TotalE";   st.TotalE  = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "TotalEPU"; st.TotalEPU= new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);
-   Name = "TotalTE";  st.TotalTE = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "Total";    st.Total   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "V3D";      st.V3D     = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "Chi2";     st.Chi2    = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "Qual";     st.Qual    = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "TNOH";     st.TNOH    = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "TNOM";     st.TNOM    = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);
-   Name = "nDof";     st.nDof    = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "Pterr";    st.Pterr   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "TIsol";    st.TIsol   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "EIsol";    st.EIsol   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "MPt";      st.MPt     = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "MI";       st.MI      = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "MTOF";     st.MTOF    = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "Pt";       st.Pt      = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);     
-   Name = "I";        st.I       = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);     
-   Name = "TOF";      st.TOF     = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);     
-   Name = "HSCPE";    st.HSCPE   = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);     
+   Name = "TotalE";   st.TotalE = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "TotalTE";  st.TotalTE= new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "Total";    st.Total  = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "V3D";      st.V3D    = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "Chi2";     st.Chi2   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "Qual";     st.Qual   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "TNOH";     st.TNOH   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "TNOM";     st.TNOM   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);
+   Name = "nDof";     st.nDof   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "Pterr";    st.Pterr  = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "TIsol";    st.TIsol  = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "EIsol";    st.EIsol  = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "MPt";      st.MPt    = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "MI";       st.MI     = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "MTOF";     st.MTOF   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "Pt";       st.Pt     = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);     
+   Name = "I";        st.I      = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);     
+   Name = "TOF";      st.TOF    = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);     
+   Name = "HSCPE";    st.HSCPE  = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);     
 
    Name = "HSCPE_SystP";    st.HSCPE_SystP  = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);
    Name = "HSCPE_SystI";    st.HSCPE_SystI  = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);
    Name = "HSCPE_SystM";    st.HSCPE_SystM  = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);
    Name = "HSCPE_SystT";    st.HSCPE_SystT  = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);
-   Name = "HSCPE_SystPU";   st.HSCPE_SystPU = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);
+
 
 
    Name = "Mass";     st.Mass     = new TH2F(Name.c_str(), Name.c_str(),NCuts,0,NCuts, MassNBins, 0, MassHistoUpperBound);   st.Mass    ->Sumw2();
@@ -195,10 +175,6 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "MassComb_SystT"; st.MassComb_SystT = new TH2F(Name.c_str(), Name.c_str(),NCuts,0,NCuts, MassNBins, 0, MassHistoUpperBound);   st.MassComb_SystT->Sumw2();
    Name = "MaxEventMass_SystT";     st.MaxEventMass_SystT = new TH2F(Name.c_str(), Name.c_str(),NCuts,0,NCuts, MassNBins, 0, MassHistoUpperBound);st.MaxEventMass_SystT->Sumw2();
 
-   Name = "Mass_SystPU";    st.Mass_SystPU     = new TH2F(Name.c_str(), Name.c_str(),NCuts,0,NCuts, MassNBins, 0, MassHistoUpperBound);   st.Mass_SystPU    ->Sumw2();
-   Name = "MassTOF_SystPU"; st.MassTOF_SystPU  = new TH2F(Name.c_str(), Name.c_str(),NCuts,0,NCuts, MassNBins, 0, MassHistoUpperBound);   st.MassTOF_SystPU ->Sumw2();
-   Name = "MassComb_SystPU";st.MassComb_SystPU = new TH2F(Name.c_str(), Name.c_str(),NCuts,0,NCuts, MassNBins, 0, MassHistoUpperBound);   st.MassComb_SystPU->Sumw2();
-   Name = "MaxEventMass_SystPU";  st.MaxEventMass_SystPU = new TH2F(Name.c_str(), Name.c_str(),NCuts,0,NCuts, MassNBins, 0, MassHistoUpperBound);st.MaxEventMass_SystPU->Sumw2();
 
    if(SkipSelectionPlot)return;
    Name = "Beta_Gen"         ; st.Beta_Gen         = new TH1F(Name.c_str(), Name.c_str(),                 20, 0,  1);  st.Beta_Gen         ->Sumw2();
@@ -223,26 +199,16 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_PtErr"; st.BS_Pterr = new TH1F(Name.c_str(), Name.c_str(),  40,  0,  1);                st.BS_Pterr->Sumw2();
    Name = "BS_MPt"  ; st.BS_MPt   = new TH1F(Name.c_str(), Name.c_str(),  50,  0, PtHistoUpperBound); st.BS_MPt->Sumw2();
    Name = "BS_MIs"  ; st.BS_MIs   = new TH1F(Name.c_str(), Name.c_str(),  50,  0, dEdxS_UpLim);       st.BS_MIs->Sumw2();
-   Name = "BS_MIm"  ; st.BS_MIm   = new TH1F(Name.c_str(), Name.c_str(),  100,  0, dEdxM_UpLim);       st.BS_MIm->Sumw2();
+   Name = "BS_MIm"  ; st.BS_MIm   = new TH1F(Name.c_str(), Name.c_str(),  50,  0, dEdxM_UpLim);       st.BS_MIm->Sumw2();
    Name = "BS_MTOF" ; st.BS_MTOF  = new TH1F(Name.c_str(), Name.c_str(),  50, -2, 5);                 st.BS_MTOF->Sumw2();
    Name = "BS_TIsol"; st.BS_TIsol = new TH1F(Name.c_str(), Name.c_str(),  25,  0, 100);               st.BS_TIsol->Sumw2();
    Name = "BS_EIsol"; st.BS_EIsol = new TH1F(Name.c_str(), Name.c_str(),  25,  0, 1.5);               st.BS_EIsol->Sumw2();
+
    Name = "BS_P"    ; st.BS_P     = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_P->Sumw2();
    Name = "BS_Pt"   ; st.BS_Pt    = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_Pt->Sumw2();
-   Name = "BS_Is"   ; st.BS_Is    = new TH1F(Name.c_str(), Name.c_str(),                   100, 0, dEdxS_UpLim);       st.BS_Is->Sumw2();
-   Name = "BS_Im"   ; st.BS_Im    = new TH1F(Name.c_str(), Name.c_str(),                   100, 3, dEdxM_UpLim);       st.BS_Im->Sumw2();
-   Name = "BS_TOF"  ; st.BS_TOF   = new TH1F(Name.c_str(), Name.c_str(),                   150, 1, 5);                 st.BS_TOF->Sumw2();
-   Name = "BS_TOF_DT"  ; st.BS_TOF_DT   = new TH1F(Name.c_str(), Name.c_str(),                   150, 1, 5);                 st.BS_TOF_DT->Sumw2();
-   Name = "BS_TOF_CSC"  ; st.BS_TOF_CSC   = new TH1F(Name.c_str(), Name.c_str(),                   150, 1, 5);                 st.BS_TOF_CSC->Sumw2();
-
-   Name = "AS_Eta_RegionA" ; st.AS_Eta_RegionA  = new TH2F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts,  50,  -2.6,  2.6);           st.AS_Eta_RegionA->Sumw2();
-   Name = "AS_Eta_RegionB" ; st.AS_Eta_RegionB  = new TH2F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts,  50,  -2.6,  2.6);           st.AS_Eta_RegionB->Sumw2();
-   Name = "AS_Eta_RegionC" ; st.AS_Eta_RegionC  = new TH2F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts,  50,  -2.6,  2.6);           st.AS_Eta_RegionC->Sumw2();
-   Name = "AS_Eta_RegionD" ; st.AS_Eta_RegionD  = new TH2F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts,  50,  -2.6,  2.6);           st.AS_Eta_RegionD->Sumw2();
-   Name = "AS_Eta_RegionE" ; st.AS_Eta_RegionE  = new TH2F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts,  50,  -2.6,  2.6);           st.AS_Eta_RegionE->Sumw2();
-   Name = "AS_Eta_RegionF" ; st.AS_Eta_RegionF  = new TH2F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts,  50,  -2.6,  2.6);           st.AS_Eta_RegionF->Sumw2();
-   Name = "AS_Eta_RegionG" ; st.AS_Eta_RegionG  = new TH2F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts,  50,  -2.6,  2.6);           st.AS_Eta_RegionG->Sumw2();
-   Name = "AS_Eta_RegionH" ; st.AS_Eta_RegionH  = new TH2F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts,  50,  -2.6,  2.6);           st.AS_Eta_RegionH->Sumw2();
+   Name = "BS_Is"   ; st.BS_Is    = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, dEdxS_UpLim);       st.BS_Is->Sumw2();
+   Name = "BS_Im"   ; st.BS_Im    = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, dEdxM_UpLim);       st.BS_Im->Sumw2();
+   Name = "BS_TOF"  ; st.BS_TOF   = new TH1F(Name.c_str(), Name.c_str(),                   50, 1, 5);                 st.BS_TOF->Sumw2();
 
    Name = "AS_P"    ; st.AS_P     = new TH2F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50, 0, PtHistoUpperBound); st.AS_P->Sumw2();
    Name = "AS_Pt"   ; st.AS_Pt    = new TH2F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50, 0, PtHistoUpperBound); st.AS_Pt->Sumw2();
@@ -260,8 +226,8 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_PIm"  ; st.BS_PIm   = new TH2F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound, 50, 0, dEdxM_UpLim);
    Name = "BS_PtIs" ; st.BS_PtIs  = new TH2F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound, 50, 0, dEdxS_UpLim);
    Name = "BS_PtIm" ; st.BS_PtIm  = new TH2F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound, 50, 0, dEdxM_UpLim);
-   Name = "BS_TOFIs"; st.BS_TOFIs = new TH2F(Name.c_str(), Name.c_str(),                   100, 1, 5, 100, 0, dEdxS_UpLim);
-   Name = "BS_TOFIm"; st.BS_TOFIm = new TH2F(Name.c_str(), Name.c_str(),                   100, 1, 5, 100, 0, dEdxM_UpLim);
+   Name = "BS_TOFIs"; st.BS_TOFIs = new TH2F(Name.c_str(), Name.c_str(),                   50, 1, 5, 50, 0, dEdxS_UpLim);
+   Name = "BS_TOFIm"; st.BS_TOFIm = new TH2F(Name.c_str(), Name.c_str(),                   50, 1, 5, 50, 0, dEdxM_UpLim);
 
 //   Name = "AS_EtaIs"; st.AS_EtaIs = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50,-3, 3, 50, 0, dEdxS_UpLim);
 //   Name = "AS_EtaIm"; st.AS_EtaIm = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50,-3, 3, 50, 0, dEdxM_UpLim);
@@ -302,7 +268,6 @@ void stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName, T
    TH1::AddDirectory(kTRUE);
 
    st.TotalE            = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/TotalE");
-   st.TotalEPU          = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/TotalEPU");
    st.TotalTE           = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/TotalTE");
    st.Total             = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/Total");
    st.V3D               = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/V3D");
@@ -326,7 +291,6 @@ void stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName, T
    st.HSCPE_SystI       = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/HSCPE_SystI");
    st.HSCPE_SystM       = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/HSCPE_SystM");
    st.HSCPE_SystT       = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/HSCPE_SystT");
-   st.HSCPE_SystPU      = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/HSCPE_SystPU");
 
    st.Mass              = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/Mass");
    st.MassTOF           = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/MassTOF");
@@ -348,10 +312,6 @@ void stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName, T
    st.MassComb_SystT    = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/MassComb_SystT");
    st.MaxEventMass_SystT    = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/MaxEventMass_SystT");
 
-   st.Mass_SystPU        = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/Mass_SystPU");
-   st.MassTOF_SystPU     = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/MassTOF_SystPU");
-   st.MassComb_SystPU    = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/MassComb_SystPU");
-   st.MaxEventMass_SystPU= (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/MaxEventMass_SystPU");
 
    st.Beta_Gen          = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/Beta_Gen");
    st.Beta_GenCharged   = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/Beta_GenCharged");
@@ -388,8 +348,6 @@ void stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName, T
    st.BS_Is     = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/BS_Is");
    st.AS_Is     = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/AS_Is");
    st.BS_TOF    = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/BS_TOF");
-   st.BS_TOF_DT    = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/BS_TOF_DT");
-   st.BS_TOF_CSC    = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/BS_TOF_CSC");
    st.AS_TOF    = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/AS_TOF");
    st.BS_EtaIs  = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/BS_EtaIs");
    //st.AS_EtaIs  = (TH3F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/AS_EtaIs");
@@ -413,15 +371,6 @@ void stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName, T
    st.AS_TOFIs  = (TH3F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/AS_TOFIs");
    st.BS_TOFIm  = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/BS_TOFIm");
    st.AS_TOFIm  = (TH3F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/AS_TOFIm");
-
-   st.AS_Eta_RegionA  = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/AS_Eta_RegionA");
-   st.AS_Eta_RegionB  = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/AS_Eta_RegionB");
-   st.AS_Eta_RegionC  = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/AS_Eta_RegionC");
-   st.AS_Eta_RegionD  = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/AS_Eta_RegionD");
-   st.AS_Eta_RegionE  = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/AS_Eta_RegionE");
-   st.AS_Eta_RegionF  = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/AS_Eta_RegionF");
-   st.AS_Eta_RegionG  = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/AS_Eta_RegionG");
-   st.AS_Eta_RegionH  = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/AS_Eta_RegionH");
    HistoFile->cd();
 }
 
@@ -688,33 +637,6 @@ void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, un
    SaveCanvas(c1,SavePath,std::string("TOFIm_AS")+CutIndexStr, true);
    delete Histos[0];
    delete c1;
-
-
-   TH1** Histos1D = new TH1*[10];
-   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos1D[0] = (TH1*)st.AS_Eta_RegionA->ProjectionY((st.Name+"A").c_str(),CutIndex+1,CutIndex+1); legend.push_back("A");  
-   if(Histos1D[0]->Integral()>0) Histos1D[0]->Scale(1.0/Histos1D[0]->Integral());
-   Histos1D[1] = (TH1*)st.AS_Eta_RegionB->ProjectionY((st.Name+"B").c_str(),CutIndex+1,CutIndex+1); legend.push_back("B");
-   if(Histos1D[1]->Integral()>0) Histos1D[1]->Scale(1.0/Histos1D[1]->Integral());
-   //Histos1D[2] = (TH1*)st.AS_Eta_RegionC->ProjectionY((st.Name+"C").c_str(),CutIndex+1,CutIndex+1); legend.push_back("C");
-   //if(Histos1D[2]->Integral()>0) Histos1D[2]->Scale(1.0/Histos1D[2]->Integral());
-   //Histos1D[3] = (TH1*)st.AS_Eta_RegionD->ProjectionY((st.Name+"D").c_str(),CutIndex+1,CutIndex+1); legend.push_back("D");
-   //if(Histos1D[3]->Integral()>0) Histos1D[3]->Scale(1.0/Histos1D[3]->Integral());
-   Histos1D[2] = (TH1*)st.AS_Eta_RegionE->ProjectionY((st.Name+"E").c_str(),CutIndex+1,CutIndex+1); legend.push_back("E");
-   if(Histos1D[2]->Integral()>0) Histos1D[2]->Scale(1.0/Histos1D[2]->Integral());
-   Histos1D[3] = (TH1*)st.AS_Eta_RegionF->ProjectionY((st.Name+"F").c_str(),CutIndex+1,CutIndex+1); legend.push_back("F");
-   if(Histos1D[3]->Integral()>0) Histos1D[3]->Scale(1.0/Histos1D[3]->Integral());
-   //Histos1D[6] = (TH1*)st.AS_Eta_RegionG->ProjectionY((st.Name+"G").c_str(),CutIndex+1,CutIndex+1); legend.push_back("G");
-   //if(Histos1D[6]->Integral()>0) Histos1D[6]->Scale(1.0/Histos1D[6]->Integral());
-   //Histos1D[7] = (TH1*)st.AS_Eta_RegionH->ProjectionY((st.Name+"H").c_str(),CutIndex+1,CutIndex+1); legend.push_back("H");
-   //if(Histos1D[7]->Integral()>0) Histos1D[7]->Scale(1.0/Histos1D[7]->Integral());
-   DrawSuperposedHistos((TH1**)Histos1D, legend, "E1",  "p_{T} (GeV/c)", "arbitrary units", 0, 0, 0, 0);
-   DrawLegend((TObject**)Histos1D,legend,LegendTitle,"P");
-   c1->SetLogy(false);
-   DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,std::string("EtaRegions_AS")+CutIndexStr);
-   //for(unsigned int i=0;i<8;i++){delete Histos1D[i];}
-   delete c1;
 }
 
 void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsigned int CutIndex, stPlots* st1, stPlots* st2=NULL, stPlots* st3=NULL, stPlots* st4=NULL, stPlots* st5=NULL, stPlots* st6=NULL, stPlots* st7=NULL)
@@ -740,9 +662,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      for(unsigned int s=0;s<signals.size();s++){
         if(signals[s].Name==st[i]->Name){Index=s;break;}
      }
-     if(st[i]->Name=="MCTr"){lg.push_back("MC - SM");}
-     else if(st[i]->Name=="Data"){lg.push_back("Observed");}
-     else if(Index==-1){lg.push_back(st[i]->Name);}else{lg.push_back(signals[Index].Legend);}
+     if(st[i]->Name=="MCTr"){lg.push_back("MC");}else if(Index==-1){lg.push_back(st[i]->Name);}else{lg.push_back(signals[Index].Legend);}
   }
    
    TH1** Histos = new TH1*[10];
@@ -780,7 +700,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
       DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.36, 0.92, 0.20, 0.025);
       c1->SetLogy(true);
       DrawPreliminary(IntegratedLuminosity);
-      SaveCanvas(c1,SavePath,st[i]->Name + "_Beta");
+      SaveCanvas(c1,SavePath,st[i]->Name + "_Beta", true);
       delete Histos[3]; delete Histos[4]; 
       if(!IsTkOnly)delete Histos[5];
       delete c1;
@@ -925,6 +845,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    Histos[i] = (TH1*)st[i]->BS_MTOF->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", -2,5, 0,0);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
+   //DrawLegend((TObject**)Histos,legend,LegendTitle,"P",0.35);
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"MTOF_BS", true);
@@ -959,8 +880,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    char tmp[2048];
    sprintf(tmp,"Fraction of tracks/%0.2f",Histos[0]->GetBinWidth(1));
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend.c_str(), tmp, 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend.c_str(), tmp, 0,1, 0,0, false, true);
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P",  0.76, 0.65);
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Is_BS");
@@ -978,7 +898,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
-   Histos[i] = (TH1*)(st[i]->AS_Is->ProjectionY((st[i]->Name+"AA").c_str(),CutIndex+1,CutIndex+1)); legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
+   Histos[i] = (TH1*)(st[i]->AS_Is->ProjectionY((st[i]->Name+"A").c_str(),CutIndex+1,CutIndex+1)); legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend.c_str(), "arbitrary units", 0,0, 0,0);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.79, 0.35);
    c1->SetLogy(true);
@@ -989,7 +909,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
-   Histos[i] = (TH1*)st[i]->AS_Im->ProjectionY((st[i]->Name+"BB").c_str(),CutIndex+1,CutIndex+1); legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
+   Histos[i] = (TH1*)st[i]->AS_Im->ProjectionY((st[i]->Name+"B").c_str(),CutIndex+1,CutIndex+1); legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxM_Legend.c_str(), "arbitrary units", 0,20, 0,0);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
@@ -1001,11 +921,9 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_Pt; legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
-   sprintf(tmp,"Fraction of tracks/%2.0f GeV/#font[12]{c}",Histos[0]->GetBinWidth(1));
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} (GeV/#font[12]{c})", tmp, 0,1250, 0.000000001, 1.2);
-   if(IsTkOnly) DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.45, 0.42, 0.26, 0.05);
-   else DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.51, 0.39, 0.33, 0.05);
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} (GeV/#font[12]{c})", tmp, 0,1250, 0.000000001, 1.2, false, true);
+   sprintf(tmp,"Fraction of tracks/%2.0f GeV/c",Histos[0]->GetBinWidth(1));
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} (GeV/c)", tmp, 0,1250, 0,0);
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.86, 0.94);
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Pt_BS");
@@ -1013,7 +931,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
-   Histos[i] = (TH1*)st[i]->AS_Pt->ProjectionY((st[i]->Name+"CC").c_str(),CutIndex+1,CutIndex+1); legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
+   Histos[i] = (TH1*)st[i]->AS_Pt->ProjectionY((st[i]->Name+"C").c_str(),CutIndex+1,CutIndex+1); legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} (GeV/c)", "arbitrary units", 0,1250, 0,0);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
@@ -1027,44 +945,21 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    Histos[i] = (TH1*)st[i]->BS_TOF; legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    //char tmp[2048];
    sprintf(tmp,"Fraction of tracks/%0.2f",Histos[0]->GetBinWidth(1));
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", tmp, 0.5, 1.5, 0, 0);
-   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");//,0.35);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", tmp, 1,4, 0,0);
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.82);//,0.35);
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"TOF_BS");
-   delete c1;
-
-   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   for(unsigned int i=0;i<st.size();i++){
-   Histos[i] = (TH1*)st[i]->BS_TOF_DT; legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
-   sprintf(tmp,"Fraction of tracks/%0.2f",Histos[0]->GetBinWidth(1));
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", tmp, 0.5, 1.5, 0, 0);
-   DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.85);//,0.35);
-   c1->SetLogy(true);
-   DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"TOF_DT_BS");
-   delete c1;
-
-   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   for(unsigned int i=0;i<st.size();i++){
-   Histos[i] = (TH1*)st[i]->BS_TOF_CSC; legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
-   sprintf(tmp,"Fraction of tracks/%0.2f",Histos[0]->GetBinWidth(1));
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", tmp, 0.5, 1.5, 0, 0);
-   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");//,0.35);
-   c1->SetLogy(true);
-   DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"TOF_CSC_BS");
+   SaveCanvas(c1,SavePath,"TOF_BS", true);
    delete c1;
    
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
-   Histos[i] = (TH1*)st[i]->AS_TOF->ProjectionY((st[i]->Name+"DD").c_str(),CutIndex+1,CutIndex+1); legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
+   Histos[i] = (TH1*)st[i]->AS_TOF->ProjectionY((st[i]->Name+"D").c_str(),CutIndex+1,CutIndex+1); legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,4, 0,0);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P");//, 0.35);
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,std::string("TOF_AS")+CutIndexStr);
+   SaveCanvas(c1,SavePath,std::string("TOF_AS")+CutIndexStr, true);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
-
 }
