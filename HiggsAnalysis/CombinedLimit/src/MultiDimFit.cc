@@ -96,7 +96,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
         for (int i = 0, n = poi_.size(); i < n; ++i) {
             poiVals_[i] = poiVars_[i]->getVal();
         }
-        Combine::commitPoint(/*expected=*/false, /*quantile=*/1.);
+        if (algo_ != None) Combine::commitPoint(/*expected=*/false, /*quantile=*/1.); // otherwise we get it multiple times
     }
     std::auto_ptr<RooAbsReal> nll;
     if (algo_ != None && algo_ != Singles) {
@@ -209,6 +209,8 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
     //snap.Print("V");
     if (n == 1) {
         for (unsigned int i = 0; i < points_; ++i) {
+            if (i < firstPoint_) continue;
+            if (i > lastPoint_)  break;
             double x =  pmin[0] + (i+0.5)*(pmax[0]-pmin[0])/points_; 
             if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
             *params = snap; 
