@@ -684,12 +684,14 @@ void mergeBand(TDirectory *in, TString band1, TString band2, TString comb) {
         bc->SetPoint(k, b2->GetX()[i], b2->GetY()[i]);
         bc->SetPointError(k, b2->GetErrorXlow(i), b2->GetErrorXhigh(i), 
                              b2->GetErrorYlow(i), b2->GetErrorYhigh(i));
+        k++;
     }
     bc->Sort();
     bc->SetName(comb);
     in->WriteTObject(bc, comb, "Overwrite");
 }
 void mergeBands(TDirectory *in, TString band1, TString band2, TString comb) {
+    mergeBand(in, band1+"_obs",   band2+"_obs",   comb+"_obs");
     mergeBand(in, band1+"_mean",   band2+"_mean",   comb+"_mean");
     mergeBand(in, band1+"_median", band2+"_median", comb+"_median");
     mergeBand(in, band1+"_mean_95",   band2+"_mean_95",   comb+"_mean_95");
@@ -1026,9 +1028,19 @@ void importBands(TDirectory *bands, TString name, const char *fileName, bool has
     FILE *in = fopen(fileName, "r");
     if (in == 0) { std::cerr << "Cannot open " << fileName << std::endl; return; }
     TGraphAsymmErrors *inObs = new TGraphAsymmErrors(); inObs->SetName(name+"_obs");
-    TGraphAsymmErrors *in68  = new TGraphAsymmErrors();  in68->SetName(name);
-    TGraphAsymmErrors *in95  = new TGraphAsymmErrors();  in95->SetName(name+"_95");
+    TGraphAsymmErrors *in68  = new TGraphAsymmErrors();  in68->SetName(name+"_median");
+    TGraphAsymmErrors *in95  = new TGraphAsymmErrors();  in95->SetName(name+"_median_95");
     float mH, yObs, yLL, yLo, y, yHi, yHH; 
+    char buff[1025];
+    do {
+        int c = fgetc(in);
+        if (c == 'm' || c == '-') {
+            fgets(buff,1024,in);
+        } else {
+            ungetc(c,in);
+            break;
+        }
+    } while(true);
     if (hasObs) {
         for (int n = 0; fscanf(in,"%f %f %f %f %f %f %f", &mH, &yObs, &yLL, &yLo, &y, &yHi, &yHH) == 7; ++n) {
             inObs->SetPoint(n, mH, yObs);
