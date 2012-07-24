@@ -1,3 +1,4 @@
+// Original Author:  Loic Quertenmont
 
 #ifndef PLOT_FUNCTION
 #define PLOT_FUNCTION
@@ -7,8 +8,7 @@ int Color [] = {1,4,2,8,6,9,3,7,5};
 int Marker[] = {20,22,21,23,29,27,2};
 int Style [] = {1,2,5,7,9,10};
 
-
-
+// handfull function to get one TObject from a complex cirectory stucture in a file
 TObject* GetObjectFromPath(TDirectory* File, std::string Path, bool GetACopy=false)
 {
    size_t pos = Path.find("/");
@@ -29,27 +29,19 @@ TObject* GetObjectFromPath(TDirectory* File, std::string Path, bool GetACopy=fal
    }
 }
 
+// similar to the above code
 TObject* GetObjectFromPath(TDirectory* Container, TDirectory* File, std::string Path, bool GetACopy=false){
    TObject* toreturn = GetObjectFromPath(File,Path,GetACopy);
    if(TH1* th1 = dynamic_cast<TH1*>(toreturn))th1->SetDirectory(Container);
    return toreturn;
 }
 
-
+// create a directory/subdirectory on disk
 void MakeDirectories(std::string path){
-/*   size_t pos = 0;
-   
-   while(pos!=std::string::npos){
-      pos = path.find("/",pos+1);
-      if(pos!=std::string::npos){
-         system( (std::string("mkdir -p ") + path.substr(0,pos)).c_str());
-      }
-   }
-*/
-
    system( (std::string("mkdir -p ") + path).c_str());
 }
 
+// save a TCanvas on disk in a few different format (mind that 2D plots can be huge if saved in eps/C/pdf)
 void SaveCanvas(TCanvas* c, std::string path, std::string name, bool OnlyPPNG=false){
    std::string tmppath = path;
    if(tmppath[tmppath.length()-1]!='/')tmppath += "_";
@@ -62,9 +54,7 @@ void SaveCanvas(TCanvas* c, std::string path, std::string name, bool OnlyPPNG=fa
    filepath = tmppath +  ".pdf"; c->SaveAs(filepath.c_str());
 }
 
-//void DrawPreliminary(int Type, double X=0.28, double Y=0.98, double W=0.85, double H=0.95){
-//void DrawPreliminary(double Lumi, double X=0.12, double Y=1.00, double W=0.80, double H=0.945){  //USED FOR PAS
-//void DrawPreliminary(double Lumi, double X=0.42, double Y=0.98, double W=0.82, double H=0.945){
+// function that add the TPaveText on the current canvas with the "CMS Preliminary...." on top of the Histograms
 void DrawPreliminary(double Lumi, double X=0.40, double Y=0.995, double W=0.82, double H=0.945){
    TPaveText* T = new TPaveText(X,Y,W,H, "NDC");
    T->SetFillColor(0);
@@ -73,21 +63,14 @@ void DrawPreliminary(double Lumi, double X=0.40, double Y=0.995, double W=0.82, 
 
    if(Lumi>0 ){
       char tmp[2048];
-//      sprintf(tmp,"CMS Preliminary 2010 : L_{int} =%4.1f nb^{-1}  at  #sqrt{s} = 7 TeV",Lumi*1000.0);
-//      sprintf(tmp,"CMS Preliminary 2010 : %4.1f nb^{-1}    #sqrt{s} = 7 TeV",Lumi*1000.0);
-//      sprintf(tmp,"CMS Preliminary 2010   #sqrt{s} = 7TeV   %4.1f nb ^{-1}",Lumi*1000.0);
-//      sprintf(tmp,"CMS Preliminary 2010   #sqrt{s} = 7TeV   %3.0f nb ^{-1}",Lumi*1000.0);
-//      sprintf(tmp,"CMS Preliminary 2010   #sqrt{s} = 7TeV   %4.2f pb ^{-1}",Lumi*1.0); //USED FOR PAS
-//      sprintf(tmp,"CMS 2010   #sqrt{s} = 7 TeV   %4.2f pb ^{-1}",Lumi*1.0);
-//      sprintf(tmp,"CMS   #sqrt{s} = 7 TeV   %4.2f pb ^{-1}",Lumi*1.0);
       sprintf(tmp,"CMS Preliminary   #sqrt{s} = 8 TeV   %1.1f fb ^{-1}",Lumi*0.001);
-
       T->AddText(tmp);
    }
    T->Draw("same");
 }
 
-void DrawLegend (TObject** Histos, std::vector<std::string> legend, std::string Title, std::string Style, double X=0.79, double Y=0.92, double W=0.20, double H=0.05)
+// handfull function to draw the legend associated to a vector of histogram
+void DrawLegend (TObject** Histos, std::vector<std::string> legend, std::string Title, std::string Style_, double X=0.79, double Y=0.92, double W=0.20, double H=0.05)
 {
    int    N             = legend.size();
    
@@ -99,7 +82,7 @@ void DrawLegend (TObject** Histos, std::vector<std::string> legend, std::string 
       //leg->SetTextAlign(32);
       if(Title!="")leg->SetHeader(Title.c_str());
 
-      if(Style=="DataMC"){
+      if(Style_=="DataMC"){
          for(int i=0;i<N;i++){
             TH2D* temp = (TH2D*)Histos[i]->Clone();
             temp->SetMarkerSize(1.3);
@@ -113,14 +96,14 @@ void DrawLegend (TObject** Histos, std::vector<std::string> legend, std::string 
          for(int i=0;i<N;i++){
             TH2D* temp = (TH2D*)Histos[i]->Clone();
             temp->SetMarkerSize(1.3);
-            leg->AddEntry(temp, legend[i].c_str() ,Style.c_str());
+            leg->AddEntry(temp, legend[i].c_str() ,Style_.c_str());
          }
       }
       leg->Draw();
    }
 } 
 
-
+// draw the stat box
 void DrawStatBox(TObject** Histos, std::vector<std::string> legend, bool Mean, double X=0.15, double Y=0.93, double W=0.15, double H=0.03)
 {  
    int    N             = legend.size();
@@ -151,9 +134,8 @@ void DrawStatBox(TObject** Histos, std::vector<std::string> legend, bool Mean, d
    }
 }
 
-
-
-void DrawTH2D(TH2D** Histos, std::vector<std::string> legend, std::string Style, std::string Xlegend, std::string Ylegend, double xmin, double xmax, double ymin, double ymax)
+// draw a TH2D histogram
+void DrawTH2D(TH2D** Histos, std::vector<std::string> legend, std::string Style_, std::string Xlegend, std::string Ylegend, double xmin, double xmax, double ymin, double ymax)
 {
    int    N             = legend.size();
    
@@ -172,15 +154,15 @@ void DrawTH2D(TH2D** Histos, std::vector<std::string> legend, std::string Style,
    }
 
    char Buffer[256];
-   Histos[0]->Draw(Style.c_str());
+   Histos[0]->Draw(Style_.c_str());
    for(int i=1;i<N;i++){
-        sprintf(Buffer,"%s same",Style.c_str());
+        sprintf(Buffer,"%s same",Style_.c_str());
         Histos[i]->Draw(Buffer);
    }
 }
 
-
-void DrawSuperposedHistos(TH1** Histos, std::vector<std::string> legend, std::string Style,  std::string Xlegend, std::string Ylegend, double xmin, double xmax, double ymin, double ymax, bool Normalize=false, bool same=false)
+// Draw a list of TH1 and superimposed them
+void DrawSuperposedHistos(TH1** Histos, std::vector<std::string> legend, std::string Style_,  std::string Xlegend, std::string Ylegend, double xmin, double xmax, double ymin, double ymax, bool Normalize=false, bool same=false)
 {
    int    N             = legend.size();
 
@@ -207,7 +189,7 @@ void DrawSuperposedHistos(TH1** Histos, std::vector<std::string> legend, std::st
         Histos[i]->SetMarkerSize(1.5);
         Histos[i]->SetLineColor(Color[i]);
         Histos[i]->SetLineWidth(2);
-       if(Style=="DataMC" && i==0){
+       if(Style_=="DataMC" && i==0){
            Histos[i]->SetFillColor(0);
            Histos[i]->SetMarkerStyle(20);
            Histos[i]->SetMarkerColor(1);
@@ -220,11 +202,10 @@ void DrawSuperposedHistos(TH1** Histos, std::vector<std::string> legend, std::st
            HistoMax      = Histos[i]->GetMaximum();
            HistoHeighest = i;
         }
-
    }
 
    char Buffer[256];
-   if(Style=="DataMC"){
+   if(Style_=="DataMC"){
       if(HistoHeighest==0){
          Histos[HistoHeighest]->Draw("E1");
       }else{
@@ -239,13 +220,13 @@ void DrawSuperposedHistos(TH1** Histos, std::vector<std::string> legend, std::st
            }
       }
    }else{
-     if(same) {sprintf(Buffer,"same %s",Style.c_str());
+     if(same) {sprintf(Buffer,"same %s",Style_.c_str());
        Histos[HistoHeighest]->Draw(Buffer);}
-     else Histos[HistoHeighest]->Draw(Style.c_str());
+     else Histos[HistoHeighest]->Draw(Style_.c_str());
       for(int i=0;i<N;i++){
            if(i==HistoHeighest)continue;
-           if(Style!=""){
-	     sprintf(Buffer,"same %s",Style.c_str());
+           if(Style_!=""){
+	     sprintf(Buffer,"same %s",Style_.c_str());
            }else{
               sprintf(Buffer,"same");
            }
@@ -254,7 +235,7 @@ void DrawSuperposedHistos(TH1** Histos, std::vector<std::string> legend, std::st
    }
 }
 
-
+// automatically determined what is the best axis ranges for a TH2D
 void Smart_SetAxisRange(TH2D* histo){
    double Min=1E50;
    double Max=1E-50;
@@ -268,6 +249,22 @@ void Smart_SetAxisRange(TH2D* histo){
    else if(Max/Min<100){Max*=10.0; Min/=10.0;}
    histo->SetAxisRange(Min,Max,"Z");
 }
+
+// return a TCUTG corresponding to the uncertainty on a xsection
+TCutG* GetErrorBand(string name, int N, double* Mass, double* Low, double* High, double MinLow, double MaxHigh){
+   TCutG* cutg = new TCutG(name.c_str(),2*N);
+   cutg->SetFillColor(kGreen-7);
+   for(int i=0;i<N;i++){
+      double Min = std::max(Low[i],MinLow);
+      cutg->SetPoint( i,Mass[i], Min);
+   }
+   for(int i=0;i<N;i++){
+      double Max = std::min(High[N-1-i],MaxHigh);
+      cutg->SetPoint(N+i,Mass[N-1-i], Max);
+   }
+   return cutg;
+}
+
 
 
 #endif

@@ -1,412 +1,256 @@
+// Original Author:  Loic Quertenmont
+
 #ifndef HSCP_ANALYSIS_SAMPLE
 #define HSCP_ANALYSIS_SAMPLE
 
-#define SID_GL300     0
-#define SID_GL400     1
-#define SID_GL500     2
-#define SID_GL600     3
-#define SID_GL700     4
-#define SID_GL800     5
-#define SID_GL900     6
-#define SID_GL1000    7
-#define SID_GL1100    8
-#define SID_GL1200    9
-#define SID_GL300N    10
-#define SID_GL400N    11
-#define SID_GL500N    12
-#define SID_GL600N    13
-#define SID_GL700N    14
-#define SID_GL800N    15
-#define SID_GL900N    16
-#define SID_GL1000N   17
-#define SID_GL1100N   18
-#define SID_GL1200N   19
-#define SID_ST130     20
-#define SID_ST200     21
-#define SID_ST300     22
-#define SID_ST400     23
-#define SID_ST500     24
-#define SID_ST600     25
-#define SID_ST700     26
-#define SID_ST800     27
-#define SID_ST130N    28
-#define SID_ST200N    29
-#define SID_ST300N    30
-#define SID_ST400N    31
-#define SID_ST500N    32
-#define SID_ST600N    33
-#define SID_ST700N    34
-#define SID_ST800N    35
-#define SID_GS100     36
-#define SID_GS126     37
-#define SID_GS156     38
-#define SID_GS200     39
-#define SID_GS247     40
-#define SID_GS308     41
-#define SID_GS370     42
-#define SID_GS432     43
-#define SID_GS494     44
-#define SID_PS100     45
-#define SID_PS126     46
-#define SID_PS156     47
-#define SID_PS200     48
-#define SID_PS247     49
-#define SID_PS308     50
-#define SID_D08K100   51
-#define SID_D08K121   52
-#define SID_D08K182   53
-#define SID_D08K242   54
-#define SID_D08K302   55
-#define SID_D08K350   56
-#define SID_D08K370   57
-#define SID_D08K390   58
-#define SID_D08K395   59
-#define SID_D08K400   60
-#define SID_D08K410   61
-#define SID_D08K420   62
-#define SID_D08K500   63
-#define SID_D12K100   64
-#define SID_D12K182   65
-#define SID_D12K302   66
-#define SID_D12K500   67
-#define SID_D12K530   68
-#define SID_D12K570   69
-#define SID_D12K590   70
-#define SID_D12K595   71
-#define SID_D12K600   72
-#define SID_D12K610   73
-#define SID_D12K620   74
-#define SID_D12K700   75
-#define SID_D16K100   76
-#define SID_D16K182   77
-#define SID_D16K302   78
-#define SID_D16K500   79
-#define SID_D16K700   80
-#define SID_D16K730   81
-#define SID_D16K770   82
-#define SID_D16K790   83
-#define SID_D16K795   84
-#define SID_D16K800   85
-#define SID_D16K820   86
-#define SID_D16K900   87
-
-
-
-//This code is there to enable/disable year dependent code
-//#define ANALYSIS2011
-
-#ifdef ANALYSIS2011
-int                  RunningPeriods = 2;
-double               IntegratedLuminosity = 4976; //3168; //2410;//2125; //2080; //1912; //1947; //1631; //976.204518023; //705.273820; //342.603275; //204.160928; //191.04;
-double               IntegratedLuminosityBeforeTriggerChange = 355.227; //353.494; // Total luminosity taken before RPC L1 trigger change (went into effect on run 165970)
-#else
-int                  RunningPeriods = 1;
-double               IntegratedLuminosity = 2900;
-double               IntegratedLuminosityBeforeTriggerChange = 0;
-#endif
-
-
-float                Event_Weight = 1;
-int                  MaxEntry = -1;
-
-
-
-class stSignal{
+class stSample{
    public:
-   std::string Type;
+   std::string CMSSW;
+   int         Type;
    std::string Name;
    std::string FileName;
    std::string Legend;
-   double Mass;
-   double XSec;
-   bool   MakePlot;
-   bool   IsS4PileUp;
-   int    NChargedHSCP;
+   std::string Pileup;
+   double      Mass;
+   double      XSec;
+   bool        MakePlot;
+   float       WNC0;//weight for signal event with 0 Charged HSCP
+   float       WNC1;//weight for signal event with 1 Charged HSCP
+   float       WNC2;//weight for signal event with 2 Charged HSCP
 
-   stSignal(); 
-   stSignal(int NChargedHSCP_, std::string Type_, std::string Name_, std::string FileName_, std::string Legend_, double Mass_, bool MakePlot_, bool IsS4PileUp_, double XSec_){NChargedHSCP=NChargedHSCP_; Type=Type_; Name=Name_; FileName=FileName_; Legend=Legend_; Mass=Mass_; MakePlot=MakePlot_; IsS4PileUp=IsS4PileUp_;XSec=XSec_; }
+   //These weights are used to reweight the gluino samples for different scenario of gluinobll fraction (f).  
+   //The weights are independent on the mass and are computed as a reweighting factor w.r.t a f=10% gluino ball sample.
+   //Weights have been computed in 2010 to be : 
+   //for f=00% --> [0.2524 / 0.3029 , 0.4893 / 0.4955 , 0.2583 / 0.2015]
+   //for f=10% --> [0.3029 / 0.3029 , 0.4955 / 0.4955 , 0.2015 / 0.2015]
+   //for f=50% --> [0.5739 / 0.3029 , 0.3704 / 0.4955 , 0.0557 / 0.2015]
+
+   stSample(){};
+   stSample(std::string CMSSW_, int Type_, std::string Name_, std::string FileName_, std::string Legend_, std::string Pileup_, double Mass_, double XSec_, bool MakePlot_, float WNC0_, float WNC1_, float WNC2_){CMSSW=CMSSW_; Type=Type_; Name=Name_; FileName=FileName_; Legend=Legend_; Pileup=Pileup_; Mass=Mass_; XSec=XSec_; MakePlot=MakePlot_; WNC0=WNC0_; WNC1=WNC1_; WNC2=WNC2_;}
+
+   int readFromFile(FILE* pFile){ 
+      char line[4096];
+      char* toReturn = fgets(line, 4096, pFile);
+      if(!toReturn)return EOF;
+      char* pch=strtok(line,","); int Arg=0; string tmp; int temp;
+      while (pch!=NULL){
+         switch(Arg){
+            case  0: tmp = pch;  CMSSW    = tmp.substr(tmp.find("\"")+1,tmp.rfind("\"")-tmp.find("\"")-1); break;
+            case  1: sscanf(pch, "%d", &Type); break;
+            case  2: tmp = pch;  Name     = tmp.substr(tmp.find("\"")+1,tmp.rfind("\"")-tmp.find("\"")-1); break;
+            case  3: tmp = pch;  FileName = tmp.substr(tmp.find("\"")+1,tmp.rfind("\"")-tmp.find("\"")-1); break;
+            case  4: tmp = pch;  Legend   = tmp.substr(tmp.find("\"")+1,tmp.rfind("\"")-tmp.find("\"")-1); break;
+            case  5: tmp = pch;  Pileup   = tmp.substr(tmp.find("\"")+1,tmp.rfind("\"")-tmp.find("\"")-1); break;
+            case  6: sscanf(pch, "%lf", &Mass); break;
+            case  7: sscanf(pch, "%lf", &XSec); break;
+            case  8: sscanf(pch, "%d", &temp); MakePlot=(temp>0); break;
+            case  9: sscanf(pch, "%f", &WNC0); break;
+            case 10: sscanf(pch, "%f", &WNC1); break;
+            case 11: sscanf(pch, "%f", &WNC2); break;
+            default:return EOF;break;
+         }
+         pch=strtok(NULL,",");Arg++;
+      }
+      return 0;
+   }
+
+   void print(FILE* pFile=stdout){
+      fprintf(pFile, "%-9s, %1d, %-30s, %-40s, %-60s, %-8s, % 5g, %+12.10E, %1i, %5.3f, %5.3f, %5.3f\n", (string("\"")+CMSSW+"\"").c_str(), Type, (string("\"")+Name+"\"").c_str(), (string("\"")+FileName+"\"").c_str(), (string("\"")+Legend+"\"").c_str(), (string("\"")+Pileup+"\"").c_str(), Mass, XSec, MakePlot, WNC0, WNC1, WNC2);
+   }
+
+   std::string ModelName(){
+      char MassStr[255];sprintf(MassStr, "%.0f",Mass);
+      string toReturn=Name; toReturn.erase(toReturn.find(MassStr), string(MassStr).length());
+      return toReturn;
+   }
+
+   std::string ModelLegend(){
+      char MassStr[255];sprintf(MassStr, "%.0f",Mass);
+      string toReturn=Legend; toReturn.erase(toReturn.find(MassStr), string(MassStr).length());
+      if(toReturn.find(" GeV/#font[12]{c}^{2}")!=string::npos)toReturn.erase(toReturn.find(" GeV/#font[12]{c}^{2}"), string(" GeV/#font[12]{c}^{2}").length());
+      return toReturn;
+   }
+
+   double GetFGluinoWeight(int NChargedHSCP){ 
+      if(Type!=2)return 1;
+      double Weight;
+      switch(NChargedHSCP){
+         case 0: Weight=WNC0; break;
+         case 1: Weight=WNC1; break;
+         case 2: Weight=WNC2; break;
+         default: return 1.0;
+      }
+      if(Weight<0)return 1.0;
+      return Weight;
+   }
+
 };
 
-
-void GetSignalDefinition(std::vector<stSignal>& signals, bool TkOnly=true){
-  //#ifdef ANALYSIS2011
-  //2011 7TeV Signals
-  signals.push_back(stSignal(-1,"Gluino", "Gluino300", "Gluino300"    , "MC - #tilde{g} 300 GeV/#font[12]{c}^{2}"                 , 300,  1, 1,  65.800000) ); //NLO
-  signals.push_back(stSignal(-1,"Gluino", "Gluino400", "Gluino400"    , "MC - #tilde{g} 400 GeV/#font[12]{c}^{2}"                 , 400,  1, 1,   11.20000) ); //NLO
-  signals.push_back(stSignal(-1,"Gluino", "Gluino500", "Gluino500"    , "MC - #tilde{g} 500 GeV/#font[12]{c}^{2}"                 , 500,  1, 1,   2.540000) ); //NLO
-  signals.push_back(stSignal(-1,"Gluino", "Gluino600", "Gluino600"    , "MC - #tilde{g} 600 GeV/#font[12]{c}^{2}"                 , 600,  1, 1,   0.693000) ); //NLO
-  signals.push_back(stSignal(-1,"Gluino", "Gluino700", "Gluino700"    , "MC - #tilde{g} 700 GeV/#font[12]{c}^{2}"                 , 700,  1, 1,   0.214000) ); //NLO
-  signals.push_back(stSignal(-1,"Gluino", "Gluino800", "Gluino800"    , "MC - #tilde{g} 800 GeV/#font[12]{c}^{2}"                 , 800,  1, 1,   0.072500) ); //NLO
-  signals.push_back(stSignal(-1,"Gluino", "Gluino900", "Gluino900"    , "MC - #tilde{g} 900 GeV/#font[12]{c}^{2}"                 , 900,  1, 1,   0.026200) ); //NLO
-  signals.push_back(stSignal(-1,"Gluino", "Gluino1000", "Gluino1000"  , "MC - #tilde{g} 1000 GeV/#font[12]{c}^{2}"                ,1000,  1, 1,   0.0098700) ); //NLO
-  signals.push_back(stSignal(-1,"Gluino", "Gluino1100", "Gluino1100"  , "MC - #tilde{g} 1100 GeV/#font[12]{c}^{2}"                ,1100,  1, 1,   0.0038600) ); //NLO 
-  signals.push_back(stSignal(-1,"Gluino", "Gluino1200", "Gluino1200"  , "MC - #tilde{g} 1200 GeV/#font[12]{c}^{2}"                ,1200,  1, 1,   0.0015400) ); //NLO
-
-  signals.push_back(stSignal( 0,"Gluino", "Gluino300_NC0", "Gluino300"    , "MC - #tilde{g} 300 GeV/#font[12]{c}^{2}"                 , 300,  1, 1,  65.800000) ); //NLO
-  signals.push_back(stSignal( 0,"Gluino", "Gluino400_NC0", "Gluino400"    , "MC - #tilde{g} 400 GeV/#font[12]{c}^{2}"                 , 400,  1, 1,   11.20000) ); //NLO
-  signals.push_back(stSignal( 0,"Gluino", "Gluino500_NC0", "Gluino500"    , "MC - #tilde{g} 500 GeV/#font[12]{c}^{2}"                 , 500,  1, 1,   2.540000) ); //NLO
-  signals.push_back(stSignal( 0,"Gluino", "Gluino600_NC0", "Gluino600"    , "MC - #tilde{g} 600 GeV/#font[12]{c}^{2}"                 , 600,  1, 1,   0.693000) ); //NLO
-  signals.push_back(stSignal( 0,"Gluino", "Gluino700_NC0", "Gluino700"    , "MC - #tilde{g} 700 GeV/#font[12]{c}^{2}"                 , 700,  1, 1,   0.214000) ); //NLO
-  signals.push_back(stSignal( 0,"Gluino", "Gluino800_NC0", "Gluino800"    , "MC - #tilde{g} 800 GeV/#font[12]{c}^{2}"                 , 800,  1, 1,   0.072500) ); //NLO
-  signals.push_back(stSignal( 0,"Gluino", "Gluino900_NC0", "Gluino900"    , "MC - #tilde{g} 900 GeV/#font[12]{c}^{2}"                 , 900,  1, 1,   0.026200) ); //NLO
-  signals.push_back(stSignal( 0,"Gluino", "Gluino1000_NC0", "Gluino1000"  , "MC - #tilde{g} 1000 GeV/#font[12]{c}^{2}"                ,1000,  1, 1,   0.0098700) ); //NLO
-  signals.push_back(stSignal( 0,"Gluino", "Gluino1100_NC0", "Gluino1100"  , "MC - #tilde{g} 1100 GeV/#font[12]{c}^{2}"                ,1100,  1, 1,   0.0038600) ); //NLO 
-  signals.push_back(stSignal( 0,"Gluino", "Gluino1200_NC0", "Gluino1200"  , "MC - #tilde{g} 1200 GeV/#font[12]{c}^{2}"                ,1200,  1, 1,   0.0015400) ); //NLO
-
-  signals.push_back(stSignal( 1,"Gluino", "Gluino300_NC1", "Gluino300"    , "MC - #tilde{g} 300 GeV/#font[12]{c}^{2}"                 , 300,  1, 1,  65.800000) ); //NLO
-  signals.push_back(stSignal( 1,"Gluino", "Gluino400_NC1", "Gluino400"    , "MC - #tilde{g} 400 GeV/#font[12]{c}^{2}"                 , 400,  1, 1,   11.20000) ); //NLO
-  signals.push_back(stSignal( 1,"Gluino", "Gluino500_NC1", "Gluino500"    , "MC - #tilde{g} 500 GeV/#font[12]{c}^{2}"                 , 500,  1, 1,   2.540000) ); //NLO
-  signals.push_back(stSignal( 1,"Gluino", "Gluino600_NC1", "Gluino600"    , "MC - #tilde{g} 600 GeV/#font[12]{c}^{2}"                 , 600,  1, 1,   0.693000) ); //NLO
-  signals.push_back(stSignal( 1,"Gluino", "Gluino700_NC1", "Gluino700"    , "MC - #tilde{g} 700 GeV/#font[12]{c}^{2}"                 , 700,  1, 1,   0.214000) ); //NLO
-  signals.push_back(stSignal( 1,"Gluino", "Gluino800_NC1", "Gluino800"    , "MC - #tilde{g} 800 GeV/#font[12]{c}^{2}"                 , 800,  1, 1,   0.072500) ); //NLO
-  signals.push_back(stSignal( 1,"Gluino", "Gluino900_NC1", "Gluino900"    , "MC - #tilde{g} 900 GeV/#font[12]{c}^{2}"                 , 900,  1, 1,   0.026200) ); //NLO
-  signals.push_back(stSignal( 1,"Gluino", "Gluino1000_NC1", "Gluino1000"  , "MC - #tilde{g} 1000 GeV/#font[12]{c}^{2}"                ,1000,  1, 1,   0.0098700) ); //NLO
-  signals.push_back(stSignal( 1,"Gluino", "Gluino1100_NC1", "Gluino1100"  , "MC - #tilde{g} 1100 GeV/#font[12]{c}^{2}"                ,1100,  1, 1,   0.0038600) ); //NLO 
-  signals.push_back(stSignal( 1,"Gluino", "Gluino1200_NC1", "Gluino1200"  , "MC - #tilde{g} 1200 GeV/#font[12]{c}^{2}"                ,1200,  1, 1,   0.0015400) ); //NLO
-
-  signals.push_back(stSignal( 2,"Gluino", "Gluino300_NC2", "Gluino300"    , "MC - #tilde{g} 300 GeV/#font[12]{c}^{2}"                 , 300,  1, 1,  65.800000) ); //NLO
-  signals.push_back(stSignal( 2,"Gluino", "Gluino400_NC2", "Gluino400"    , "MC - #tilde{g} 400 GeV/#font[12]{c}^{2}"                 , 400,  1, 1,   11.20000) ); //NLO
-  signals.push_back(stSignal( 2,"Gluino", "Gluino500_NC2", "Gluino500"    , "MC - #tilde{g} 500 GeV/#font[12]{c}^{2}"                 , 500,  1, 1,   2.540000) ); //NLO
-  signals.push_back(stSignal( 2,"Gluino", "Gluino600_NC2", "Gluino600"    , "MC - #tilde{g} 600 GeV/#font[12]{c}^{2}"                 , 600,  1, 1,   0.693000) ); //NLO
-  signals.push_back(stSignal( 2,"Gluino", "Gluino700_NC2", "Gluino700"    , "MC - #tilde{g} 700 GeV/#font[12]{c}^{2}"                 , 700,  1, 1,   0.214000) ); //NLO
-  signals.push_back(stSignal( 2,"Gluino", "Gluino800_NC2", "Gluino800"    , "MC - #tilde{g} 800 GeV/#font[12]{c}^{2}"                 , 800,  1, 1,   0.072500) ); //NLO
-  signals.push_back(stSignal( 2,"Gluino", "Gluino900_NC2", "Gluino900"    , "MC - #tilde{g} 900 GeV/#font[12]{c}^{2}"                 , 900,  1, 1,   0.026200) ); //NLO
-  signals.push_back(stSignal( 2,"Gluino", "Gluino1000_NC2", "Gluino1000"  , "MC - #tilde{g} 1000 GeV/#font[12]{c}^{2}"                ,1000,  1, 1,   0.0098700) ); //NLO
-  signals.push_back(stSignal( 2,"Gluino", "Gluino1100_NC2", "Gluino1100"  , "MC - #tilde{g} 1100 GeV/#font[12]{c}^{2}"                ,1100,  1, 1,   0.0038600) ); //NLO 
-  signals.push_back(stSignal( 2,"Gluino", "Gluino1200_NC2", "Gluino1200"  , "MC - #tilde{g} 1200 GeV/#font[12]{c}^{2}"                ,1200,  1, 1,   0.0015400) ); //NLO
-
-  if(TkOnly) {
-  signals.push_back(stSignal(-1,"Gluino", "Gluino300N", "Gluino300N"   , "#tilde{g} 300 GeV/#font[12]{c}^{2} CS"              , 300,  1, 1,  65.800000) ); //NLO
-  signals.push_back(stSignal(-1,"Gluino", "Gluino400N", "Gluino400N"   , "#tilde{g} 400 GeV/#font[12]{c}^{2} CS"              , 400,  1, 1,   11.20000) ); //NLO
-  signals.push_back(stSignal(-1,"Gluino", "Gluino500N", "Gluino500N"   , "#tilde{g} 500 GeV/#font[12]{c}^{2} CS"              , 500,  1, 1,   2.540000) ); //NLO
-  signals.push_back(stSignal(-1,"Gluino", "Gluino600N", "Gluino600N"   , "#tilde{g} 600 GeV/#font[12]{c}^{2} CS"              , 600,  1, 1,   0.693000) ); //NLO
-  signals.push_back(stSignal(-1,"Gluino", "Gluino700N", "Gluino700N"   , "#tilde{g} 700 GeV/#font[12]{c}^{2} CS"              , 700,  1, 1,   0.214000) ); //NLO
-  signals.push_back(stSignal(-1,"Gluino", "Gluino800N", "Gluino800N"   , "#tilde{g} 800 GeV/#font[12]{c}^{2} CS"              , 800,  1, 1,   0.072500) ); //NLO
-  signals.push_back(stSignal(-1,"Gluino", "Gluino900N", "Gluino900N"   , "#tilde{g} 900 GeV/#font[12]{c}^{2} CS"              , 900,  1, 1,   0.026200) ); //NLO
-  signals.push_back(stSignal(-1,"Gluino", "Gluino1000N", "Gluino1000N" , "#tilde{g} 1000 GeV/#font[12]{c}^{2} CS"             ,1000,  1, 1,   0.0098700) ); //NLO
-  signals.push_back(stSignal(-1,"Gluino", "Gluino1100N", "Gluino1100N" , "#tilde{g} 1100 GeV/#font[12]{c}^{2} CS"             ,1100,  1, 1,   0.0038600) ); //NLO
-  signals.push_back(stSignal(-1,"Gluino", "Gluino1200N", "Gluino1200N" , "#tilde{g} 1200 GeV/#font[12]{c}^{2} CS"             ,1200,  1, 1,   0.0015400) ); //NLO
-
-  signals.push_back(stSignal( 0,"Gluino", "Gluino300N_NC0", "Gluino300N"   , "#tilde{g} 300 GeV/#font[12]{c}^{2} CS"              , 300,  1, 1,  65.800000) ); //NLO
-  signals.push_back(stSignal( 0,"Gluino", "Gluino400N_NC0", "Gluino400N"   , "#tilde{g} 400 GeV/#font[12]{c}^{2} CS"              , 400,  1, 1,   11.20000) ); //NLO
-  signals.push_back(stSignal( 0,"Gluino", "Gluino500N_NC0", "Gluino500N"   , "#tilde{g} 500 GeV/#font[12]{c}^{2} CS"              , 500,  1, 1,   2.540000) ); //NLO
-  signals.push_back(stSignal( 0,"Gluino", "Gluino600N_NC0", "Gluino600N"   , "#tilde{g} 600 GeV/#font[12]{c}^{2} CS"              , 600,  1, 1,   0.693000) ); //NLO
-  signals.push_back(stSignal( 0,"Gluino", "Gluino700N_NC0", "Gluino700N"   , "#tilde{g} 700 GeV/#font[12]{c}^{2} CS"              , 700,  1, 1,   0.214000) ); //NLO
-  signals.push_back(stSignal( 0,"Gluino", "Gluino800N_NC0", "Gluino800N"   , "#tilde{g} 800 GeV/#font[12]{c}^{2} CS"              , 800,  1, 1,   0.072500) ); //NLO
-  signals.push_back(stSignal( 0,"Gluino", "Gluino900N_NC0", "Gluino900N"   , "#tilde{g} 900 GeV/#font[12]{c}^{2} CS"              , 900,  1, 1,   0.026200) ); //NLO
-  signals.push_back(stSignal( 0,"Gluino", "Gluino1000N_NC0", "Gluino1000N" , "#tilde{g} 1000 GeV/#font[12]{c}^{2} CS"             ,1000,  1, 1,   0.0098700) ); //NLO
-  signals.push_back(stSignal( 0,"Gluino", "Gluino1100N_NC0", "Gluino1100N" , "#tilde{g} 1100 GeV/#font[12]{c}^{2} CS"             ,1100,  1, 1,   0.0038600) ); //NLO
-  signals.push_back(stSignal( 0,"Gluino", "Gluino1200N_NC0", "Gluino1200N" , "#tilde{g} 1200 GeV/#font[12]{c}^{2} CS"             ,1200,  1, 1,   0.0015400) ); //NLO
-
-  signals.push_back(stSignal( 1,"Gluino", "Gluino300N_NC1", "Gluino300N"   , "#tilde{g} 300 GeV/#font[12]{c}^{2} CS"              , 300,  1, 1,  65.800000) ); //NLO
-  signals.push_back(stSignal( 1,"Gluino", "Gluino400N_NC1", "Gluino400N"   , "#tilde{g} 400 GeV/#font[12]{c}^{2} CS"              , 400,  1, 1,   11.20000) ); //NLO
-  signals.push_back(stSignal( 1,"Gluino", "Gluino500N_NC1", "Gluino500N"   , "#tilde{g} 500 GeV/#font[12]{c}^{2} CS"              , 500,  1, 1,   2.540000) ); //NLO
-  signals.push_back(stSignal( 1,"Gluino", "Gluino600N_NC1", "Gluino600N"   , "#tilde{g} 600 GeV/#font[12]{c}^{2} CS"              , 600,  1, 1,   0.693000) ); //NLO
-  signals.push_back(stSignal( 1,"Gluino", "Gluino700N_NC1", "Gluino700N"   , "#tilde{g} 700 GeV/#font[12]{c}^{2} CS"              , 700,  1, 1,   0.214000) ); //NLO
-  signals.push_back(stSignal( 1,"Gluino", "Gluino800N_NC1", "Gluino800N"   , "#tilde{g} 800 GeV/#font[12]{c}^{2} CS"              , 800,  1, 1,   0.072500) ); //NLO
-  signals.push_back(stSignal( 1,"Gluino", "Gluino900N_NC1", "Gluino900N"   , "#tilde{g} 900 GeV/#font[12]{c}^{2} CS"              , 900,  1, 1,   0.026200) ); //NLO
-  signals.push_back(stSignal( 1,"Gluino", "Gluino1000N_NC1", "Gluino1000N" , "#tilde{g} 1000 GeV/#font[12]{c}^{2} CS"             ,1000,  1, 1,   0.0098700) ); //NLO
-  signals.push_back(stSignal( 1,"Gluino", "Gluino1100N_NC1", "Gluino1100N" , "#tilde{g} 1100 GeV/#font[12]{c}^{2} CS"             ,1100,  1, 1,   0.0038600) ); //NLO
-  signals.push_back(stSignal( 1,"Gluino", "Gluino1200N_NC1", "Gluino1200N" , "#tilde{g} 1200 GeV/#font[12]{c}^{2} CS"             ,1200,  1, 1,   0.0015400) ); //NLO
-
-  signals.push_back(stSignal( 2,"Gluino", "Gluino300N_NC2", "Gluino300N"   , "#tilde{g} 300 GeV/#font[12]{c}^{2} CS"              , 300,  1, 1,  65.800000) ); //NLO
-  signals.push_back(stSignal( 2,"Gluino", "Gluino400N_NC2", "Gluino400N"   , "#tilde{g} 400 GeV/#font[12]{c}^{2} CS"              , 400,  1, 1,   11.20000) ); //NLO
-  signals.push_back(stSignal( 2,"Gluino", "Gluino500N_NC2", "Gluino500N"   , "#tilde{g} 500 GeV/#font[12]{c}^{2} CS"              , 500,  1, 1,   2.540000) ); //NLO
-  signals.push_back(stSignal( 2,"Gluino", "Gluino600N_NC2", "Gluino600N"   , "#tilde{g} 600 GeV/#font[12]{c}^{2} CS"              , 600,  1, 1,   0.693000) ); //NLO
-  signals.push_back(stSignal( 2,"Gluino", "Gluino700N_NC2", "Gluino700N"   , "#tilde{g} 700 GeV/#font[12]{c}^{2} CS"              , 700,  1, 1,   0.214000) ); //NLO
-  signals.push_back(stSignal( 2,"Gluino", "Gluino800N_NC2", "Gluino800N"   , "#tilde{g} 800 GeV/#font[12]{c}^{2} CS"              , 800,  1, 1,   0.072500) ); //NLO
-  signals.push_back(stSignal( 2,"Gluino", "Gluino900N_NC2", "Gluino900N"   , "#tilde{g} 900 GeV/#font[12]{c}^{2} CS"              , 900,  1, 1,   0.026200) ); //NLO
-  signals.push_back(stSignal( 2,"Gluino", "Gluino1000N_NC2", "Gluino1000N" , "#tilde{g} 1000 GeV/#font[12]{c}^{2} CS"             ,1000,  1, 1,   0.0098700) ); //NLO
-  signals.push_back(stSignal( 2,"Gluino", "Gluino1100N_NC2", "Gluino1100N" , "#tilde{g} 1100 GeV/#font[12]{c}^{2} CS"             ,1100,  1, 1,   0.0038600) ); //NLO
-  signals.push_back(stSignal( 2,"Gluino", "Gluino1200N_NC2", "Gluino1200N" , "#tilde{g} 1200 GeV/#font[12]{c}^{2} CS"             ,1200,  1, 1,   0.0015400) ); //NLO
-
-  }
-
-  signals.push_back(stSignal(-1,"Stop"  , "Stop130", "Stop130"      , "#tilde{t}_{1} 130 GeV/#font[12]{c}^{2}"             , 130,  1, 1, 120.000000) ); //NLO
-  signals.push_back(stSignal(-1,"Stop"  , "Stop200", "Stop200"      , "#tilde{t}_{1} 200 GeV/#font[12]{c}^{2}"             , 200,  1, 1,  13.000000) ); //NLO
-  signals.push_back(stSignal(-1,"Stop"  , "Stop300", "Stop300"      , "#tilde{t}_{1} 300 GeV/#font[12]{c}^{2}"             , 300,  1, 1,   1.310000) ); //NLO
-  signals.push_back(stSignal(-1,"Stop"  , "Stop400", "Stop400"      , "#tilde{t}_{1} 400 GeV/#font[12]{c}^{2}"             , 400,  1, 1,   0.218000) ); //NLO
-  signals.push_back(stSignal(-1,"Stop"  , "Stop500", "Stop500"      , "#tilde{t}_{1} 500 GeV/#font[12]{c}^{2}"             , 500,  0, 1,  0.047800) ); //NLO
-  signals.push_back(stSignal(-1,"Stop"  , "Stop600", "Stop600"      , "#tilde{t}_{1} 600 GeV/#font[12]{c}^{2}"             , 600,  1, 1,   0.012500) ); //NLO
-  signals.push_back(stSignal(-1,"Stop"  , "Stop700", "Stop700"      , "#tilde{t}_{1} 700 GeV/#font[12]{c}^{2}"             , 700,  1, 1,   0.003560) ); //NLO
-  signals.push_back(stSignal(-1,"Stop"  , "Stop800", "Stop800"      , "#tilde{t}_{1} 800 GeV/#font[12]{c}^{2}"             , 800,  1, 1,   0.001140) ); //NLO
-  if(TkOnly) {
-  signals.push_back(stSignal(-1,"Stop"  , "Stop130N", "Stop130N"      , "#tilde{t}_{1} 130 GeV/#font[12]{c}^{2} CS"          , 130,  1, 1, 120.000000) ); //NLO
-  signals.push_back(stSignal(-1,"Stop"  , "Stop200N", "Stop200N"     , "#tilde{t}_{1} 200 GeV/#font[12]{c}^{2} CS"          , 200,  1, 1,  13.000000) ); //NLO
-  signals.push_back(stSignal(-1,"Stop"  , "Stop300N", "Stop300N"     , "#tilde{t}_{1} 300 GeV/#font[12]{c}^{2} CS"          , 300,  1, 1,   1.310000) ); //NLO
-  signals.push_back(stSignal(-1,"Stop"  , "Stop400N", "Stop400N"     , "#tilde{t}_{1} 400 GeV/#font[12]{c}^{2} CS"          , 400,  1, 1,   0.218000) ); //NLO
-  signals.push_back(stSignal(-1,"Stop"  , "Stop500N", "Stop500N"     , "#tilde{t}_{1} 500 GeV/#font[12]{c}^{2} CS"          , 500,  0, 1,  0.047800) ); //NLO
-  signals.push_back(stSignal(-1,"Stop"  , "Stop600N", "Stop600N"     , "#tilde{t}_{1} 600 GeV/#font[12]{c}^{2} CS"          , 600,  1, 1,   0.012500) ); //NLO
-  signals.push_back(stSignal(-1,"Stop"  , "Stop700N", "Stop700N"     , "#tilde{t}_{1} 700 GeV/#font[12]{c}^{2} CS"          , 700,  1, 1,   0.003560) ); //NLO
-  signals.push_back(stSignal(-1,"Stop"  , "Stop800N", "Stop800N"     , "#tilde{t}_{1} 800 GeV/#font[12]{c}^{2} CS"          , 800,  1, 1,   0.001140) ); //NLO
-  }
-
-  signals.push_back(stSignal(-1,"Stau"  , "GMStau100", "GMStau100"    , "MC - GMSB #tilde{#tau}_{1} 100 GeV/#font[12]{c}^{2}"     , 100,  1, 1,   1.3398) ); //NLO
-  signals.push_back(stSignal(-1,"Stau"  , "GMStau126", "GMStau126"    , "MC - GMSB #tilde{#tau}_{1} 126 GeV/#font[12]{c}^{2}"     , 126,  1, 1,   0.274591) ); //NLO
-  signals.push_back(stSignal(-1,"Stau"  , "GMStau156", "GMStau156"    , "MC - GMSB #tilde{#tau}_{1} 156 GeV/#font[12]{c}^{2}"     , 156,  0, 1,  0.0645953) ); //NLO
-  signals.push_back(stSignal(-1,"Stau"  , "GMStau200", "GMStau200"    , "MC - GMSB #tilde{#tau}_{1} 200 GeV/#font[12]{c}^{2}"     , 200,  1, 1,   0.0118093) ); //NLO
-  signals.push_back(stSignal(-1,"Stau"  , "GMStau247", "GMStau247"    , "MC - GMSB #tilde{#tau}_{1} 247 GeV/#font[12]{c}^{2}"     , 247,  0, 1,  0.00342512) ); //NLO
-  signals.push_back(stSignal(-1,"Stau"  , "GMStau308", "GMStau308"    , "MC - GMSB #tilde{#tau}_{1} 308 GeV/#font[12]{c}^{2}"     , 308,  1, 1,  0.00098447 ) ); //NLO
-  signals.push_back(stSignal(-1,"Stau"  , "GMStau370", "GMStau370"    , "MC - GMSB #tilde{#tau}_{1} 370 GeV/#font[12]{c}^{2}"     , 370,  1, 1,   0.000353388) ); //NLO
-  signals.push_back(stSignal(-1,"Stau"  , "GMStau432", "GMStau432"    , "MC - GMSB #tilde{#tau}_{1} 432 GeV/#font[12]{c}^{2}"     , 432,  1, 1,   0.000141817) ); //NLO
-  signals.push_back(stSignal(-1,"Stau"  , "GMStau494", "GMStau494"    , "MC - GMSB #tilde{#tau}_{1} 494 GeV/#font[12]{c}^{2}"     , 494,  1, 1,   0.00006177) ); //NLO
-
-  signals.push_back(stSignal(-1,"Stau"  , "PPStau100", "PPStau100", "Pair #tilde{#tau}_{1} 100 GeV/#font[12]{c}^{2}"     , 100,  1, 1,   0.0382) ); //NLO
-  signals.push_back(stSignal(-1,"Stau"  , "PPStau126", "PPStau126", "Pair #tilde{#tau}_{1} 126 GeV/#font[12]{c}^{2}"     , 126,  0, 1,  0.0161) ); //NLO
-  signals.push_back(stSignal(-1,"Stau"  , "PPStau156", "PPStau156", "Pair #tilde{#tau}_{1} 156 GeV/#font[12]{c}^{2}"     , 156,  0, 1,  0.00704) ); //NLO
-  signals.push_back(stSignal(-1,"Stau"  , "PPStau200", "PPStau200", "Pair #tilde{#tau}_{1} 200 GeV/#font[12]{c}^{2}"     , 200,  1, 1,   0.00247) ); //NLO
-  signals.push_back(stSignal(-1,"Stau"  , "PPStau247", "PPStau247", "Pair #tilde{#tau}_{1} 247 GeV/#font[12]{c}^{2}"     , 247,  0, 1,  0.00101) ); //NLO
-  signals.push_back(stSignal(-1,"Stau"  , "PPStau308", "PPStau308", "Pair #tilde{#tau}_{1} 308 GeV/#font[12]{c}^{2}"     , 308,  0, 1,  0.000353) ); //NLO  
-
-  signals.push_back(stSignal(-1,"DCRho08HyperK" , "DCRho08HyperK100" , "DCRho08HyperK100"    , "DICHAMP #tilde{K} 100 GeV/#font[12]{c}^{2}"  , 100,  1, 1,   1.405000) ); //LO
-  signals.push_back(stSignal(-1,"DCRho08HyperK" , "DCRho08HyperK121" , "DCRho08HyperK121"    , "DICHAMP #tilde{K} 121 GeV/#font[12]{c}^{2}"  , 121,  1, 1,   0.979000) ); //LO
-  signals.push_back(stSignal(-1,"DCRho08HyperK" , "DCRho08HyperK182" , "DCRho08HyperK182"    , "DICHAMP #tilde{K} 182 GeV/#font[12]{c}^{2}"  , 182,  0, 1,   0.560000) ); //LO
-  signals.push_back(stSignal(-1,"DCRho08HyperK" , "DCRho08HyperK242" , "DCRho08HyperK242"    , "DICHAMP #tilde{K} 242 GeV/#font[12]{c}^{2}"  , 242,  0, 1,   0.489000) ); //LO
-  signals.push_back(stSignal(-1,"DCRho08HyperK" , "DCRho08HyperK302" , "DCRho08HyperK302"    , "DICHAMP #tilde{K} 302 GeV/#font[12]{c}^{2}"  , 302,  1, 1,   0.463000) ); //LO
-  signals.push_back(stSignal(-1,"DCRho08HyperK" , "DCRho08HyperK350" , "DCRho08HyperK350"    , "DICHAMP #tilde{K} 350 GeV/#font[12]{c}^{2}"  , 350,  1, 1,   0.473000) ); //LO
-  signals.push_back(stSignal(-1,"DCRho08HyperK" , "DCRho08HyperK370" , "DCRho08HyperK370"    , "DICHAMP #tilde{K} 370 GeV/#font[12]{c}^{2}"  , 370,  1, 1,   0.48288105) ); //LO
-  signals.push_back(stSignal(-1,"DCRho08HyperK" , "DCRho08HyperK390" , "DCRho08HyperK390"    , "DICHAMP #tilde{K} 390 GeV/#font[12]{c}^{2}"  , 390,  1, 1,   0.47132496) ); //LO
-  signals.push_back(stSignal(-1,"DCRho08HyperK" , "DCRho08HyperK395" , "DCRho08HyperK395"    , "DICHAMP #tilde{K} 395 GeV/#font[12]{c}^{2}"  , 395,  1, 1,   0.420000) ); //LO
-  signals.push_back(stSignal(-1,"DCRho08HyperK" , "DCRho08HyperK400" , "DCRho08HyperK400"    , "DICHAMP #tilde{K} 400 GeV/#font[12]{c}^{2}"  , 400,  1, 1,   0.473000) ); //LO
-  signals.push_back(stSignal(-1,"DCRho08HyperK" , "DCRho08HyperK410" , "DCRho08HyperK410"    , "DICHAMP #tilde{K} 410 GeV/#font[12]{c}^{2}"  , 410,  1, 1,   0.0060812129) ); //LO
-  signals.push_back(stSignal(-1,"DCRho08HyperK" , "DCRho08HyperK420" , "DCRho08HyperK420"    , "DICHAMP #tilde{K} 420 GeV/#font[12]{c}^{2}"  , 420,  1, 1,   0.003500) ); //LO
-  signals.push_back(stSignal(-1,"DCRho08HyperK" , "DCRho08HyperK500" , "DCRho08HyperK500"    , "DICHAMP #tilde{K} 500 GeV/#font[12]{c}^{2}"  , 500,  1, 1,   0.0002849) ); //LO
-  
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK100" , "DCRho12HyperK100"  , "DICHAMP #tilde{K} 100 GeV/#font[12]{c}^{2}"  , 100,  1, 1, 0.8339415992) ); //LO
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK182" , "DCRho12HyperK182"  , "DICHAMP #tilde{K} 182 GeV/#font[12]{c}^{2}"  , 182,  1, 1, 0.168096952140) ); //LO
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK302" , "DCRho12HyperK302"  , "DICHAMP #tilde{K} 302 GeV/#font[12]{c}^{2}"  , 302,  1, 1, 0.079554948387) ); //LO 
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK500" , "DCRho12HyperK500"  , "DICHAMP #tilde{K} 500 GeV/#font[12]{c}^{2}"  , 500,  1, 1, 0.063996737) ); //LO    
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK530" , "DCRho12HyperK530"  , "DICHAMP #tilde{K} 530 GeV/#font[12]{c}^{2}"  , 530,  1, 1, 0.064943882) ); //LO    
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK570" , "DCRho12HyperK570"  , "DICHAMP #tilde{K} 570 GeV/#font[12]{c}^{2}"  , 570,  1, 1, 0.0662920530) ); //LO    
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK590" , "DCRho12HyperK590"  , "DICHAMP #tilde{K} 590 GeV/#font[12]{c}^{2}"  , 590,  1, 1, 0.060748383) ); //LO    
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK595" , "DCRho12HyperK595"  , "DICHAMP #tilde{K} 595 GeV/#font[12]{c}^{2}"  , 595,  1, 1, 0.04968409) ); //LO     
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK600" , "DCRho12HyperK600"  , "DICHAMP #tilde{K} 600 GeV/#font[12]{c}^{2}"  , 600,  1, 1, 0.0026232721237) ); //LO 
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK610" , "DCRho12HyperK610"  , "DICHAMP #tilde{K} 610 GeV/#font[12]{c}^{2}"  , 610,  1, 1, 0.00127431) ); //LO      
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK620" , "DCRho12HyperK620"  , "DICHAMP #tilde{K} 620 GeV/#font[12]{c}^{2}"  , 620,  1, 1, 0.00056965104319) ); //LO
-  signals.push_back(stSignal(-1,"DCRho12HyperK" , "DCRho12HyperK700" , "DCRho12HyperK700"  , "DICHAMP #tilde{K} 700 GeV/#font[12]{c}^{2}"  , 700,  1, 1, 0.00006122886211) ); //LO
-  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK100" , "DCRho16HyperK100"  , "DICHAMP #tilde{K} 100 GeV/#font[12]{c}^{2}"  , 100,  1, 1, 0.711518686800) ); //LO 
-  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK182" , "DCRho16HyperK182"  , "DICHAMP #tilde{K} 182 GeV/#font[12]{c}^{2}"  , 182,  1, 1, 0.089726059780) ); //LO  
-  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK302" , "DCRho16HyperK302"  , "DICHAMP #tilde{K} 302 GeV/#font[12]{c}^{2}"  , 302,  1, 1, 0.019769637301) ); //LO 
-  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK500" , "DCRho16HyperK500"  , "DICHAMP #tilde{K} 500 GeV/#font[12]{c}^{2}"  , 500,  1, 1, 0.0063302286576) ); //LO 
-  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK700" , "DCRho16HyperK700"  , "DICHAMP #tilde{K} 700 GeV/#font[12]{c}^{2}"  , 700,  1, 1, 0.002536779850) ); //LO  
-  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK730" , "DCRho16HyperK730"  , "DICHAMP #tilde{K} 730 GeV/#font[12]{c}^{2}"  , 730,  1, 1, 0.00213454921) ); //LO
-  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK770" , "DCRho16HyperK770"  , "DICHAMP #tilde{K} 770 GeV/#font[12]{c}^{2}"  , 770,  1, 1, 0.001737551) ); //LO 
-  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK790" , "DCRho16HyperK790"  , "DICHAMP #tilde{K} 790 GeV/#font[12]{c}^{2}"  , 790,  1, 1, 0.00161578593) ); //LO
-  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK795" , "DCRho16HyperK795"  , "DICHAMP #tilde{K} 795 GeV/#font[12]{c}^{2}"  , 795,  1, 1, 0.00153513713) ); //LO
-  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK800" , "DCRho16HyperK800"  , "DICHAMP #tilde{K} 800 GeV/#font[12]{c}^{2}"  , 800,  1, 1, 0.000256086965) ); //LO
-  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK810" , "DCRho16HyperK810"  , "DICHAMP #tilde{K} 810 GeV/#font[12]{c}^{2}"  , 810,  1, 1, 0.000140664) ); //LO 
-  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK820" , "DCRho16HyperK820"  , "DICHAMP #tilde{K} 820 GeV/#font[12]{c}^{2}"  , 820,  1, 1, 0.000097929923655));//LO 
-  signals.push_back(stSignal(-1,"DCRho16HyperK" , "DCRho16HyperK900" , "DCRho16HyperK900"  , "DICHAMP #tilde{K} 900 GeV/#font[12]{c}^{2}"  , 900,  1, 1, 0.000013146066)); //LO
-//#endif
+void GetSampleDefinition(std::vector<stSample>& samples, std::string sampleTxtFile="Analysis_Samples.txt"){
+      FILE* pFile = fopen(sampleTxtFile.c_str(),"r");
+         if(!pFile){printf("Can't open %s\n","Analysis_Samples.txt"); return;}
+         stSample newSample;      
+         while(newSample.readFromFile(pFile)!=EOF){samples.push_back(newSample);}
+      fclose(pFile);
 }
 
-struct stMC{
-   std::string Name;
-   double XSection;
-   double MaxPtHat;
-   double MaxEvent;
-   bool   IsS4PileUp;
-
-   stMC();
-      stMC(std::string Name_, double XSection_, double MaxPtHat_, int MaxEvent_, bool IsS4PileUp_){Name = Name_; XSection = XSection_; MaxPtHat = MaxPtHat_; MaxEvent = MaxEvent_;IsS4PileUp = IsS4PileUp_;}
-};
-
-void GetMCDefinition(std::vector<stMC>& MC){
-#ifdef ANALYSIS2011
-     //2011 7TeV MC
-   MC.push_back(stMC("MC_DYToTauTau"            ,     1.300E3  , -1, -1, 0));
-   MC.push_back(stMC("MC_DYToMuMu"              ,     1.300E3  , -1, -1, 0));
-   MC.push_back(stMC("MC_WJetsToLNu"            ,     2.777E4  , -1, -1, 1));
-   MC.push_back(stMC("MC_TTJets"                ,     9.400E1  , -1, -1, 1));
- //MC.push_back(stMC("MC_QCD_Pt-15to30"         ,     8.16E8  , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-30to50"         ,     5.310E7  , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-50to80"         ,     6.360E6  , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-80to120"        ,     7.840E5  , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-120to170"       ,     1.150E5  , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-170to300"       ,     2.430E4  , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-300to470"       ,     1.170E3  , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-470to600"       ,     7.020E1  , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-600to800"       ,     1.560E1  , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-800to1000"      ,     1.84     , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-1000to1400"     ,     3.320E-1 , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-1400to1800"     ,     1.090E-2 , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-1800"           ,     3.580E-4 , -1, -1, 0));
-   MC.push_back(stMC("MC_ZJetToMuMu_Pt-0to15"   ,     4.280E3  , -1, -1, 0));
-   MC.push_back(stMC("MC_ZJetToMuMu_Pt-15to20"  ,     1.450E2  , -1, -1, 0));
-   MC.push_back(stMC("MC_ZJetToMuMu_Pt-20to30"  ,     1.310E2  , -1, -1, 0));
-   MC.push_back(stMC("MC_ZJetToMuMu_Pt-30to50"  ,     8.400E1  , -1, -1, 0));
-   MC.push_back(stMC("MC_ZJetToMuMu_Pt-50to80"  ,     3.220E1  , -1, -1, 0));
-   MC.push_back(stMC("MC_ZJetToMuMu_Pt-80to120" ,     9.98     , -1, -1, 0));
-   MC.push_back(stMC("MC_ZJetToMuMu_Pt-120to170",     2.73     , -1, -1, 0));
-   MC.push_back(stMC("MC_ZJetToMuMu_Pt-170to230",     7.21E-1  , -1, -1, 0));
-   MC.push_back(stMC("MC_ZJetToMuMu_Pt-230to300",     1.94E-1  , -1, -1, 0));
-   MC.push_back(stMC("MC_ZJetToMuMu_Pt-300"     ,     7.59E-2  , -1, -1, 0));
-   MC.push_back(stMC("MC_ZZ"                    ,     4.287    , -1, -1, 1));
-   MC.push_back(stMC("MC_WW"                    ,     2.783E1  , -1, -1, 1));
-   MC.push_back(stMC("MC_WZ"                    ,     1.47E1   , -1, -1, 1));
-#endif
-}
-
-void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName, int period=0){
-//  std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_08_03/";
-  //std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/jchen/11_09_13_HSCP2011EDM/";
-  //std::string BaseDirectory = "/uscmst1b_scratch/lpc1/lpcphys/jchen/HSCPEDM_11_01_11/";
-//  std::string BaseDirectory = "root://eoscms//eos/cms/store/cmst3/user/querten/12_04_17_HSCP_EDM/";
-  //std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_11_01/";
-  //std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/venkat12/2012Data/";
-  std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/farrell3/2012HSCPEDMFiles/";
-   if(SampleName=="Data"){
-#ifdef ANALYSIS2011
-     std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/farrell3/NewDTError26Dec2011/";
-     inputFiles.push_back(BaseDirectory + "Data_RunA_160404_163869.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_165001_166033.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_166034_166500.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_166501_166893.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_166894_167151.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_167153_167913.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_170826_171500.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_171501_172619.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_172620_172790.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_172791_172802.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_172803_172900.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_172901_173243.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_173244_173692.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_175860_176099.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_176100_176309.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_176467_176800.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_176801_177053.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_177074_177783.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_177788_178380.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_178420_179411.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_179434_180252.root");
-#else
-        inputFiles.push_back(BaseDirectory + "Data_RunA_190645-191100.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunA_191101-191246.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunA_191247.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunA_191248-191300.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunA_191301-191800.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunA_191801-192000.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunA_193001-193336.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunA_193338-193557.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunA_193558-193686.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunB_193752-194050.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunB_194051-194108.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunB_194109-194150.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunB_194151-194223.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunB_194224-194424.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunB_194425-194479.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunB_194480-194686.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunB_194687-194712.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunB_194713-194912.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunB_194913-195147.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunB_195148-195396.root");
-#endif
-   }else if(SampleName.find("MC_",0)<std::string::npos){
-     inputFiles.push_back(BaseDirectory + SampleName + ".root");
-   }else{
-     if (period==0) inputFiles.push_back(BaseDirectory + SampleName + ".root");
-     if (period==1) inputFiles.push_back(BaseDirectory + SampleName + "BX1.root");
+void GetInputFiles(stSample sample, std::string BaseDirectory_, std::vector<std::string>& inputFiles, int period=0){
+   if(sample.Type>=2){ //MC Signal
+     if (period==0) inputFiles.push_back(BaseDirectory_ + sample.FileName + ".root");
+     if (period==1) inputFiles.push_back(BaseDirectory_ + sample.FileName + "BX1.root");
+   }else{ //Data or MC Background
+     inputFiles.push_back(BaseDirectory_ + sample.FileName + ".root");
    }
 }
 
+int JobIdToIndex(string JobId, const std::vector<stSample>& samples){
+   for(unsigned int s=0;s<samples.size();s++){
+      if(samples[s].Name==JobId)return s;
+   }return -1;
+}
+
+void keepOnlySamplesOfTypeX(std::vector<stSample>& samples, int TypeX){
+   for(unsigned int s=0;s<samples.size();s++){if(samples[s].Type!=TypeX){samples.erase(samples.begin()+s);s--;} }
+}
+
+void keepOnlyTheXtoYSamples(std::vector<stSample>& samples, unsigned int X, unsigned int Y){
+   std::vector<stSample> tmp; for(unsigned int s=X;s<=Y && s<samples.size();s++){tmp.push_back(samples[s]);} samples.clear();
+   for(unsigned int s=0;s<tmp.size();s++)samples.push_back(tmp[s]);
+}
+
+void keepOnlySamplesOfNameX(std::vector<stSample>& samples, string NameX){
+   for(unsigned int s=0;s<samples.size();s++){if(samples[s].Name!=NameX){samples.erase(samples.begin()+s);s--;} }
+}  
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Genertic code related to samples processing in FWLITE --> functions below will be loaded only if FWLITE compiler variable is defined
+
+#ifdef FWLITE
+
+unsigned long GetInitialNumberOfMCEvent(const vector<string>& fileNames);
+double GetSampleWeight  (const double& IntegratedLuminosityInPb=-1, const double& IntegratedLuminosityInPbBeforeTriggerChange=-1, const double& CrossSection=0, const double& MCEvents=0, int period=0);
+double GetSampleWeightMC(const double& IntegratedLuminosityInPb, const std::vector<string> fileNames, const double& XSection, const double& SampleSize, double MaxEvent);
+double GetPUWeight      (const fwlite::ChainEvent& ev, const std::string& pileup, double &PUSystFactor);
+
+// loop on all the lumi blocks for an EDM file in order to count the number of events that are in a sample
+// this is useful to determine how to normalize the events (compute weight)
+unsigned long GetInitialNumberOfMCEvent(const vector<string>& fileNames)
+{
+   unsigned long Total = 0;
+   fwlite::ChainEvent tree(fileNames);
+
+   for(unsigned int f=0;f<fileNames.size();f++){
+      TFile *file;
+      size_t place=fileNames[f].find("dcache");
+      if(place!=string::npos){
+         string name=fileNames[f];
+         name.replace(place, 7, "dcap://cmsgridftp.fnal.gov:24125");
+         file = new TDCacheFile (name.c_str());
+      }else{
+         file = new TFile (fileNames[f].c_str());
+      }
+
+      fwlite::LuminosityBlock ls( file );
+      for(ls.toBegin(); !ls.atEnd(); ++ls){
+         fwlite::Handle<edm::MergeableCounter> nEventsTotalCounter;
+         nEventsTotalCounter.getByLabel(ls,"nEventsBefSkim");
+         if(!nEventsTotalCounter.isValid()){printf("Invalid nEventsTotalCounterH\n");continue;}
+         Total+= nEventsTotalCounter->value;
+      }
+   }
+   return Total;
+}
+
+// compute event weight for the signal samples based on number of events in the sample, cross section and intergated luminosity
+double GetSampleWeight(const double& IntegratedLuminosityInPb, const double& IntegratedLuminosityInPbBeforeTriggerChange, const double& CrossSection, const double& MCEvents, int period){
+  double Weight = 1.0;
+  if(IntegratedLuminosityInPb>=IntegratedLuminosityInPbBeforeTriggerChange && IntegratedLuminosityInPb>0){
+    double NMCEvents = MCEvents;
+    //if(MaxEntry>0)NMCEvents=std::min(MCEvents,(double)MaxEntry);
+    if      (period==0)Weight = (CrossSection * IntegratedLuminosityInPbBeforeTriggerChange) / NMCEvents;
+    else if (period==1)Weight = (CrossSection * (IntegratedLuminosityInPb-IntegratedLuminosityInPbBeforeTriggerChange)) / NMCEvents;
+  }
+  return Weight;
+}
+
+// compute event weight for the MC background samples based on number of events in the sample, cross section and intergated luminosity
+double GetSampleWeightMC(const double& IntegratedLuminosityInPb, const std::vector<string> fileNames, const double& XSection, const double& SampleSize, double MaxEvent){
+  double Weight = 1.0;
+   unsigned long InitNumberOfEvents = GetInitialNumberOfMCEvent(fileNames); 
+   double SampleEquivalentLumi = InitNumberOfEvents / XSection;
+   if(MaxEvent<0)MaxEvent=SampleSize;
+   printf("GetSampleWeight MC: IntLumi = %6.2E  SampleLumi = %6.2E --> EventWeight = %6.2E --> ",IntegratedLuminosityInPb,SampleEquivalentLumi, IntegratedLuminosityInPb/SampleEquivalentLumi);
+//   printf("Sample NEvent = %6.2E   SampleEventUsed = %6.2E --> Weight Rescale = %6.2E\n",SampleSize, MaxEvent, SampleSize/MaxEvent);
+   Weight = (IntegratedLuminosityInPb/SampleEquivalentLumi) * (SampleSize/MaxEvent);
+   printf("FinalWeight = %6.2f\n",Weight);
+   return Weight;
+}
+
+// compute a weight to make sure that the pileup distribution in Signal/Background MC is compatible to the pileup distribution in data
+double GetPUWeight(const fwlite::ChainEvent& ev, const std::string& pileup, double &PUSystFactor, edm::LumiReWeighting& LumiWeightsMC, reweight::PoissonMeanShifter& PShift){
+   fwlite::Handle<std::vector<PileupSummaryInfo> > PupInfo;
+   PupInfo.getByLabel(ev, "addPileupInfo");
+   if(!PupInfo.isValid()){printf("PileupSummaryInfo Collection NotFound\n");return 1.0;}
+   double PUWeight_thisevent=1;
+   std::vector<PileupSummaryInfo>::const_iterator PVI;
+   int npv = -1;
+   if(pileup=="S4"){
+      float sum_nvtx = 0;
+      for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+         npv = PVI->getPU_NumInteractions();
+         sum_nvtx += float(npv);
+      }
+      float ave_nvtx = sum_nvtx/3.;
+      PUWeight_thisevent = LumiWeightsMC.weight( ave_nvtx );
+      PUSystFactor = PShift.ShiftWeight( ave_nvtx );
+   }else if(pileup=="S3"){
+      for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+         int BX = PVI->getBunchCrossing();
+         if(BX == 0) {
+            npv = PVI->getPU_NumInteractions();
+            continue;
+         }
+      }
+      PUWeight_thisevent = LumiWeightsMC.weight( npv );
+      PUSystFactor = PShift.ShiftWeight( npv );
+   }
+   return PUWeight_thisevent;
+}
+
+#endif //end FWLITE block
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Define Theoretical XSection and error band for 7TeVStops and 7TeVGluino
+
+//NLO Stop@7TeV
+double THXSEC7TeV_Stop_Mass [] = {100.,120.,140.,160.,180.,200.,220.,240.,260.,280.,300.,320.,340.,360.,380.,400.,420.,440.,460.,480.,500.,520.,540.,560.,580.,600.,620.,640.,660.,680.,700.,720.,740.,760.,800.,820.,840.,860.,880.,900.,920.,940.,960.,980.,1000.};
+double THXSEC7TeV_Stop_Cen  [] = {4.23E+02,1.77E+02,8.27E+01,4.20E+01,2.27E+01,1.30E+01,7.71E+00,4.75E+00,3.02E+00,1.97E+00,1.31E+00,8.86E-01,6.11E-01,4.28E-01,3.03E-01,2.18E-01,1.58E-01,1.16E-01,8.55E-02,6.37E-02,4.78E-02,3.62E-02,2.75E-02,2.10E-02,1.62E-02,1.25E-02,9.68E-03,7.51E-03,5.84E-03,4.55E-03,3.56E-03,2.78E-03,2.17E-03,1.67E-03,1.14E-03,9.14E-04,7.33E-04,5.89E-04,4.75E-04,3.82E-04,3.09E-04,2.50E-04,2.03E-04,1.64E-04,1.33E-04};
+double THXSEC7TeV_Stop_Low  [] = {4.86E+02,2.02E+02,9.41E+01,4.76E+01,2.57E+01,1.47E+01,8.72E+00,5.37E+00,3.41E+00,2.22E+00,1.48E+00,1.00E+00,6.92E-01,4.84E-01,3.44E-01,2.47E-01,1.79E-01,1.32E-01,9.75E-02,7.28E-02,5.47E-02,4.15E-02,3.15E-02,2.42E-02,1.87E-02,1.44E-02,1.12E-02,8.71E-03,6.78E-03,5.29E-03,4.14E-03,3.23E-03,2.52E-03,1.94E-03,1.35E-03,1.08E-03,8.68E-04,7.01E-04,5.65E-04,4.56E-04,3.69E-04,3.00E-04,2.44E-04,1.98E-04,1.61E-04};
+double THXSEC7TeV_Stop_High [] = {3.74E+02,1.56E+02,7.29E+01,3.70E+01,2.01E+01,1.14E+01,6.77E+00,4.17E+00,2.65E+00,1.72E+00,1.14E+00,7.73E-01,5.31E-01,3.70E-01,2.63E-01,1.88E-01,1.36E-01,9.93E-02,7.31E-02,5.44E-02,4.06E-02,3.07E-02,2.33E-02,1.77E-02,1.36E-02,1.05E-02,8.11E-03,6.27E-03,4.87E-03,3.78E-03,2.95E-03,2.30E-03,1.79E-03,1.38E-03,9.31E-04,7.42E-04,5.93E-04,4.74E-04,3.81E-04,3.06E-04,2.47E-04,1.98E-04,1.60E-04,1.29E-04,1.04E-04};
+
+//NLO Gluino@7TeV
+double THXSEC7TeV_Gluino_Mass [] = {300.000000,320.000000,340.000000,360.000000,380.000000,400.000000,420.000000,440.000000,460.000000,480.000000,500.000000,520.000000,540.000000,560.000000,580.000000,600.000000,620.000000,640.000000,660.000000,680.000000,700.000000,720.000000,740.000000,760.000000,780.000000,800.000000,820.000000,840.000000,860.000000,880.000000,900.000000,920.000000,940.000000,960.000000,980.000000,1000.000000,1020.000000,1040.000000,1060.000000,1080.000000,1100.000000,1120.000000,1140.000000,1160.000000,1180.000000,1200.000000};
+double THXSEC7TeV_Gluino_Cen  [] = {6.580000E+01,4.480000E+01,3.100000E+01,2.170000E+01,1.550000E+01,1.120000E+01,8.150000E+00,6.010000E+00,4.470000E+00,3.360000E+00,2.540000E+00,1.930000E+00,1.480000E+00,1.140000E+00,8.880000E-01,6.930000E-01,5.430000E-01,4.280000E-01,3.390000E-01,2.690000E-01,2.140000E-01,1.720000E-01,1.370000E-01,1.110000E-01,8.950000E-02,7.250000E-02,5.880000E-02,4.790000E-02,3.910000E-02,3.200000E-02,2.620000E-02,2.150000E-02,1.760000E-02,1.450000E-02,1.190000E-02,9.870000E-03,8.150000E-03,6.740000E-03,5.590000E-03,4.640000E-03,3.860000E-03,3.200000E-03,2.660000E-03,2.220000E-03,1.850000E-03,1.540000E-03};
+double THXSEC7TeV_Gluino_Low  [] = {7.553474E+01,5.146393E+01,3.566432E+01,2.512864E+01,1.804830E+01,1.304305E+01,9.556500E+00,7.044302E+00,5.271630E+00,3.988566E+00,3.018432E+00,2.308958E+00,1.773087E+00,1.374688E+00,1.070057E+00,8.414255E-01,6.640146E-01,5.237697E-01,4.145975E-01,3.315876E-01,2.657578E-01,2.134368E-01,1.716366E-01,1.387783E-01,1.127959E-01,9.142058E-02,7.469319E-02,6.086165E-02,4.999024E-02,4.092504E-02,3.378647E-02,2.791464E-02,2.286025E-02,1.896689E-02,1.560576E-02,1.300309E-02,1.082652E-02,8.957356E-03,7.480351E-03,6.255235E-03,5.204033E-03,4.420000E-03,3.730000E-03,3.160000E-03,2.670000E-03,2.270000E-03};
+double THXSEC7TeV_Gluino_High [] = {5.742197E+01,3.883067E+01,2.678981E+01,1.876433E+01,1.338010E+01,9.580894E+00,6.973463E+00,5.091237E+00,3.788946E+00,2.845079E+00,2.130996E+00,1.626191E+00,1.243271E+00,9.589442E-01,7.381439E-01,5.751390E-01,4.515518E-01,3.522239E-01,2.787396E-01,2.208681E-01,1.759448E-01,1.397393E-01,1.116011E-01,8.996432E-02,7.195999E-02,5.827633E-02,4.733762E-02,3.809243E-02,3.105941E-02,2.538284E-02,2.054873E-02,1.688133E-02,1.379495E-02,1.136371E-02,9.251707E-03,7.653260E-03,6.325800E-03,5.168580E-03,4.283127E-03,3.515531E-03,2.919556E-03,2.300000E-03,1.890000E-03,1.530000E-03,1.250000E-03,1.000000E-03};
+
+//LO GMSB Stau@7TeV
+double THXSEC7TeV_GMStau_Mass [] = {100,126,156,200,247,308,370,432,494};
+double THXSEC7TeV_GMStau_Cen  [] = {1.3398,0.274591,0.0645953,0.0118093,0.00342512,0.00098447,0.000353388,0.000141817,6.17749e-05};
+double THXSEC7TeV_GMStau_Low  [] = {1.18163,0.242982,0.0581651,0.0109992,0.00324853,0.00093519,0.000335826,0.000134024,5.83501e-05};
+double THXSEC7TeV_GMStau_High [] = {1.48684,0.304386,0.0709262,0.012632,0.00358232,0.00102099,0.000366819,0.000147665,6.45963e-05};
+
+//LO PairProduced Stau@7TeV
+double THXSEC7TeV_PPStau_Mass [] = {100,126,156,200,247,308};
+double THXSEC7TeV_PPStau_Cen  [] = {0.038200,0.0161,0.007040,0.002470,0.001010,0.000353};
+double THXSEC7TeV_PPStau_Low  [] = {0.037076,0.0155927,0.0067891,0.00237277,0.00096927,0.000335308};
+double THXSEC7TeV_PPStau_High [] = {0.0391443,0.016527,0.00723151,0.00253477,0.00103844,0.000363699};
+
 #endif
+

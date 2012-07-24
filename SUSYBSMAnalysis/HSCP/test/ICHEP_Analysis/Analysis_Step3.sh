@@ -11,7 +11,7 @@ root -l -b << EOF
   gSystem->Load("libDataFormatsVertexReco.so");
   gSystem->Load("libDataFormatsCommon.so");
   gSystem->Load("libDataFormatsHepMCCandidate.so");
-  gSystem->Load("libDataFormatsTrackerRecHit2D.so");
- .x DumpInfo.C++("Results/dedxASmi/combined/Eta15/PtMin45/Type2/",860,350);
+  gSystem->Load("libPhysicsToolsUtilities.so");
+  .x Analysis_Step3.C++("ANALYSE_40_to_40", 2, "dedxASmi", "dedxHarm2", "combined", 0.0, 0.0, 0.0, 50.0, 2.1);
 EOF
 

@@ -1,3 +1,4 @@
+// Original Author:  Loic Quertenmont
 
 #include <vector>
 
