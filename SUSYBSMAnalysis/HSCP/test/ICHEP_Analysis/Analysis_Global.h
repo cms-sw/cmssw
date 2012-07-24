@@ -34,10 +34,12 @@
 //#define ANALYSIS2011
 
 #ifdef ANALYSIS2011
+double               SQRTS          = 7;
 int                  RunningPeriods = 2;
 double               IntegratedLuminosity = 4976; 
 double               IntegratedLuminosityBeforeTriggerChange = 355.227; 
 #else
+double               SQRTS          = 8;
 int                  RunningPeriods = 1;
 double               IntegratedLuminosity = 3295;
 double               IntegratedLuminosityBeforeTriggerChange = 0;

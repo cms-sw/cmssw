@@ -1,8 +1,5 @@
 // Original Author:  Loic Quertenmont
 
-#define ANALYSIS2011 //TEMPORARY THING TO HAVE THE 2011 X SECTION
-
-
 #include "Analysis_Global.h"
 #include "Analysis_CommonFunction.h"
 #include "Analysis_PlotFunction.h"
@@ -42,9 +39,10 @@ struct stAllInfo{
    float  NPred;
    float  NPredErr;
    float  NSign;
+   double LInt;
 
    stAllInfo(string path=""){
-     Mass=-1; XSec_Th=-1; XSec_Err=-1; XSec_Exp=-1; XSec_ExpUp=-1;XSec_ExpDown=-1;XSec_Exp2Up=-1;XSec_Exp2Down=-1; XSec_Obs=-1; Eff=-1; Eff_SYSTP=-1; Eff_SYSTI=-1;  Eff_SYSTM=-1; Eff_SYSTT=-1; Eff_SYSTPU=-1;
+     Mass=-1; XSec_Th=-1; XSec_Err=-1; XSec_Exp=-1; XSec_ExpUp=-1;XSec_ExpDown=-1;XSec_Exp2Up=-1;XSec_Exp2Down=-1; XSec_Obs=-1; Eff=-1; Eff_SYSTP=-1; Eff_SYSTI=-1;  Eff_SYSTM=-1; Eff_SYSTT=-1; Eff_SYSTPU=-1; LInt=-1;
       if(path=="")return;
       FILE* pFile = fopen(path.c_str(),"r");
       if(!pFile){printf("Can't open %s\n",path.c_str()); return;}
@@ -74,6 +72,7 @@ struct stAllInfo{
       fscanf(pFile,"NPred        : %E\n" ,&NPred);
       fscanf(pFile,"NPredErr     : %E\n" ,&NPredErr);
       fscanf(pFile,"NSign        : %E\n" ,&NSign);
+      fscanf(pFile,"LInt         : %lf\n",&LInt);
       fclose(pFile);
    }
 };
@@ -81,11 +80,11 @@ struct stAllInfo{
 double PlotMinScale = 0.0005;
 double PlotMaxScale = 3;
 
-stAllInfo Exclusion(string pattern, string modelName, string signal);
+stAllInfo Exclusion(string pattern, string Data, string modelName, string signal);
 double GetSignalMeanHSCPPerEvent(string InputPattern, unsigned int CutIndex, double MinRange, double MaxRange);
 
 
-TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, int XSectionType, std::vector<stSample>& modelSamples);
+TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, int XSectionType, std::vector<stSample>& modelSamples, double& LInt);
 void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern);
 void DrawModelLimitWithBand(string InputPattern);
 
@@ -139,8 +138,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 
    if(MODE=="COMPILE")return;
 
+   string Data = "Data11";
+   if(Data=="Data11"){SQRTS=7.0;}else{SQRTS=8.0;}
+
    if(MODE=="ANALYSE"){
-      Exclusion(InputPattern, modelName, signal);
+      Exclusion(InputPattern, Data, modelName, signal);
       return;
    }
    
@@ -170,6 +172,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 
    //make plots of the observed limit for all signal model (and mass point) and save the result in a latex table
    TCanvas* c1;
+   double LInt;
    FILE* pFile    = fopen((string("Analysis_Step6_Result") + ".txt").c_str(),"w");
    FILE* talkFile = fopen((outpath + "TalkPlots" + ".txt").c_str(),"w");
 
@@ -187,7 +190,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 
    TGraph** TkGraphs  = new TGraph*[modelVector.size()];
    for(unsigned int k=0; k<modelVector.size(); k++){
-      TkGraphs[k] = MakePlot(pFile,talkFile,TkPattern,modelVector[k], 2, modelMap[modelVector[k]]);
+      TkGraphs[k] = MakePlot(pFile,talkFile,TkPattern,modelVector[k], 2, modelMap[modelVector[k]], LInt);
    }
    fprintf(pFile   ,"      \\end{tabular}\n\\end{table}\n\n");
    fprintf(pFile   , "\\begin{table}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
@@ -201,7 +204,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    for(unsigned int k=0; k<modelVector.size(); k++){
       bool isNeutral = false;if(modelVector[k].find("GluinoN")!=string::npos || modelVector[k].find("StopN")!=string::npos)isNeutral = true;
       if(isNeutral) continue;//skip charged suppressed models
-      MuGraphs[k] = MakePlot(pFile,talkFile,MuPattern,modelVector[k], 2, modelMap[modelVector[k]]);
+      MuGraphs[k] = MakePlot(pFile,talkFile,MuPattern,modelVector[k], 2, modelMap[modelVector[k]], LInt);
    }
 
    fprintf(pFile   ,"      \\end{tabular}\n\\end{table}\n\n");
@@ -226,13 +229,13 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
          ThXSec   [k] = new TGraph(sizeof(THXSEC7TeV_Stop_Mass)/sizeof(double),THXSEC7TeV_Stop_Mass,THXSEC7TeV_Stop_Cen);
          ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr",sizeof(THXSEC7TeV_Stop_Mass)/sizeof(double),THXSEC7TeV_Stop_Mass,THXSEC7TeV_Stop_Low,THXSEC7TeV_Stop_High, PlotMinScale, PlotMaxScale);
       }else if(modelVector[k].find("GMStau"  )!=string::npos){
-         ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]]); 
+         ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt); 
          ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC7TeV_GMStau_Mass)/sizeof(double),THXSEC7TeV_GMStau_Mass,THXSEC7TeV_GMStau_Low,THXSEC7TeV_GMStau_High, PlotMinScale, PlotMaxScale); 
       }else if(modelVector[k].find("PPStau"  )!=string::npos){
-         ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]]);   
+         ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);   
          ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC7TeV_PPStau_Mass)/sizeof(double),THXSEC7TeV_PPStau_Mass,THXSEC7TeV_PPStau_Low,THXSEC7TeV_PPStau_High, PlotMinScale, PlotMaxScale); 
       }else{
-         ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]]);
+         ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
          double* XSecErrLow  = new double[ThXSec[k]->GetN()];
          double* XSecErrHigh = new double[ThXSec[k]->GetN()];
          //assume 15% error on xsection
@@ -318,7 +321,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    MGMu->GetYaxis()->SetTitleOffset(1.70);
    MGMu->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, LInt);
    TLegend* LEGMu = new TLegend(0.45,0.65,0.65,0.90);   
    LEGMu->SetHeader("Tracker + TOF");
    LEGMu->SetFillColor(0); 
@@ -380,7 +383,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    MGTk->GetYaxis()->SetTitleOffset(1.70);
    MGTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, LInt);
    
    TLegend* LEGTk = new TLegend(0.45,0.58,0.795,0.9);
    LEGTk->SetHeader("Tracker - Only");
@@ -415,7 +418,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    MGDCMu->GetYaxis()->SetTitle("#sigma (pb)");
    MGDCMu->GetYaxis()->SetTitleOffset(1.70);
    MGDCMu->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, LInt);
    
    TLegend* LEGDCMu = new TLegend(0.50,0.65,0.80,0.9);
    LEGDCMu->SetHeader("Tracker + TOF");
@@ -461,7 +464,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    MGDCTk->GetYaxis()->SetTitle("#sigma (pb)");
    MGDCTk->GetYaxis()->SetTitleOffset(1.70);
    MGDCTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, LInt);
 
    TLegend* LEGDCTk = new TLegend(0.50,0.65,0.80,0.90);
    LEGDCTk->SetHeader("Tracker - Only");
@@ -512,7 +515,7 @@ void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern){
 }
 
 
-TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, int XSectionType, std::vector<stSample>& modelSamples){
+TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, int XSectionType, std::vector<stSample>& modelSamples, double& LInt){
    unsigned int N   = modelSamples.size();
    double* Mass     = new double   [modelSamples.size()];
    double* XSecTh   = new double   [modelSamples.size()];
@@ -525,6 +528,7 @@ TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelN
       XSecTh      [i]=Infos[i].XSec_Th;
       XSecObs     [i]=Infos[i].XSec_Obs;
       XSecExp     [i]=Infos[i].XSec_Exp;
+      LInt           =Infos[i].LInt;
    }
    
    if(XSectionType>0){
@@ -557,7 +561,7 @@ TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelN
 }
 
 
-stAllInfo Exclusion(string pattern, string modelName, string signal){
+stAllInfo Exclusion(string pattern, string Data, string modelName, string signal){
    GetSampleDefinition(samples);
    CurrentSampleIndex        = JobIdToIndex(signal,samples); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return stAllInfo();  } 
 
@@ -587,6 +591,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal){
    toReturn.NPred         = 0;
    toReturn.NPredErr      = 0;
    toReturn.NSign         = 0;
+   toReturn.LInt          = 0;
 
    double RescaleFactor = 1.0;
    double RescaleError  = 0.1;
@@ -604,17 +609,18 @@ stAllInfo Exclusion(string pattern, string modelName, string signal){
    TH1D*  HCuts_Pt      = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
    TH1D*  HCuts_I       = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
    TH1D*  HCuts_TOF     = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
-   TH1D*  H_A           = (TH1D*)GetObjectFromPath(InputFile, "Data11/H_A");
-   TH1D*  H_B           = (TH1D*)GetObjectFromPath(InputFile, "Data11/H_B");
-   TH1D*  H_C           = (TH1D*)GetObjectFromPath(InputFile, "Data11/H_C");
- //TH1D*  H_D           = (TH1D*)GetObjectFromPath(InputFile, "Data11/H_D");
-   TH1D*  H_E           = (TH1D*)GetObjectFromPath(InputFile, "Data11/H_E");
-   TH1D*  H_F           = (TH1D*)GetObjectFromPath(InputFile, "Data11/H_F");
-   TH1D*  H_G           = (TH1D*)GetObjectFromPath(InputFile, "Data11/H_G");
- //TH1D*  H_H           = (TH1D*)GetObjectFromPath(InputFile, "Data11/H_H");
-   TH1D*  H_P           = (TH1D*)GetObjectFromPath(InputFile, "Data11/H_P");
-   TH2D*  MassData      = (TH2D*)GetObjectFromPath(InputFile, "Data11/Mass");
-   TH2D*  MassPred      = (TH2D*)GetObjectFromPath(InputFile, "Data11/Pred_Mass");
+   TH1D*  H_Lumi        = (TH1D*)GetObjectFromPath(InputFile, Data+"/IntLumi");
+   TH1D*  H_A           = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_A");
+   TH1D*  H_B           = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_B");
+   TH1D*  H_C           = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_C");
+ //TH1D*  H_D           = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_D");
+   TH1D*  H_E           = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_E");
+   TH1D*  H_F           = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_F");
+   TH1D*  H_G           = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_G");
+ //TH1D*  H_H           = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_H");
+   TH1D*  H_P           = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_P");
+   TH2D*  MassData      = (TH2D*)GetObjectFromPath(InputFile, Data+"/Mass");
+   TH2D*  MassPred      = (TH2D*)GetObjectFromPath(InputFile, Data+"/Pred_Mass");
    TH2D*  MassSign      = (TH2D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/Mass" );
    TH2D*  MassSignP     = (TH2D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/Mass_SystP");
    TH2D*  MassSignI     = (TH2D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/Mass_SystI");
@@ -623,8 +629,9 @@ stAllInfo Exclusion(string pattern, string modelName, string signal){
    TH2D*  MassSignPU    = (TH2D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/Mass_SystPU" );
    TH1D* TotalE         = (TH1D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/TotalE" );
    TH1D* TotalEPU       = (TH1D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/TotalEPU" );
-   double norm  =samples[CurrentSampleIndex].XSec*IntegratedLuminosity/TotalE  ->Integral();
-   double normPU=samples[CurrentSampleIndex].XSec*IntegratedLuminosity/TotalEPU->Integral();
+   double LInt  = H_Lumi->GetBinContent(1);
+   double norm  = samples[CurrentSampleIndex].XSec*LInt/TotalE  ->Integral(); //normalize the samples to the actual lumi used for limits
+   double normPU= samples[CurrentSampleIndex].XSec*LInt/TotalEPU->Integral();
    fprintf(pFile,"NORM = %f\n",norm);
 
    TH1D *MassSignProj, *MassSignPProj, *MassSignIProj, *MassSignMProj, *MassSignTProj, *MassSignPUProj;
@@ -681,28 +688,28 @@ stAllInfo Exclusion(string pattern, string modelName, string signal){
       CurrentSampleIndex        = JobIdToIndex(signal,samples); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return toReturn;  } 
 
       double INTERN_ESign       = MassSignProj->Integral(MassSignProj            ->GetXaxis()->FindBin(MinRange), MassSignProj      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      ; 
-      double INTERN_Eff         = INTERN_ESign       / (samples[CurrentSampleIndex].XSec*IntegratedLuminosity);
+      double INTERN_Eff         = INTERN_ESign       / (samples[CurrentSampleIndex].XSec*LInt);
       Eff                       = INTERN_Eff;
-      //fprintf(pFile  ,"%10s: INTERN_ESign=%6.2E   INTERN_Eff=%6.E   XSec=%6.2E   Lumi=%6.2E  || pred=%f\n",signal.c_str(),INTERN_ESign,INTERN_Eff,samples[CurrentSampleIndex].XSec, IntegratedLuminosity, MassPredProj->Integral());fflush(stdout);
+      //fprintf(pFile  ,"%10s: INTERN_ESign=%6.2E   INTERN_Eff=%6.E   XSec=%6.2E   Lumi=%6.2E  || pred=%f\n",signal.c_str(),INTERN_ESign,INTERN_Eff,samples[CurrentSampleIndex].XSec, LInt, MassPredProj->Integral());fflush(stdout);
 
       double INTERN_ESignP      = MassSignPProj->Integral(MassSignPProj            ->GetXaxis()->FindBin(MinRange), MassSignPProj      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      ;
-      double INTERN_EffP        = INTERN_ESignP      / (samples[CurrentSampleIndex].XSec*IntegratedLuminosity);
+      double INTERN_EffP        = INTERN_ESignP      / (samples[CurrentSampleIndex].XSec*LInt);
       EffP                      = INTERN_EffP;
 
       double INTERN_ESignI      = MassSignIProj->Integral(MassSignIProj            ->GetXaxis()->FindBin(MinRange), MassSignIProj      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      ;
-      double INTERN_EffI        = INTERN_ESignI      / (samples[CurrentSampleIndex].XSec*IntegratedLuminosity);
+      double INTERN_EffI        = INTERN_ESignI      / (samples[CurrentSampleIndex].XSec*LInt);
       EffI                      = INTERN_EffI;
 
       double INTERN_ESignM      = MassSignMProj->Integral(MassSignMProj            ->GetXaxis()->FindBin(MinRange), MassSignMProj      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      ;
-      double INTERN_EffM        = INTERN_ESignM      / (samples[CurrentSampleIndex].XSec*IntegratedLuminosity);
+      double INTERN_EffM        = INTERN_ESignM      / (samples[CurrentSampleIndex].XSec*LInt);
       EffM                      = INTERN_EffM;
 
       double INTERN_ESignT      = MassSignTProj->Integral(MassSignTProj            ->GetXaxis()->FindBin(MinRange), MassSignTProj      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      ;
-      double INTERN_EffT        = INTERN_ESignT      / (samples[CurrentSampleIndex].XSec*IntegratedLuminosity);
+      double INTERN_EffT        = INTERN_ESignT      / (samples[CurrentSampleIndex].XSec*LInt);
       EffT                      = INTERN_EffT;
 
       double INTERN_ESignPU      = MassSignPUProj->Integral(MassSignPUProj            ->GetXaxis()->FindBin(MinRange), MassSignPUProj      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      ;
-      double INTERN_EffPU        = INTERN_ESignPU      / (samples[CurrentSampleIndex].XSec*IntegratedLuminosity);
+      double INTERN_EffPU        = INTERN_ESignPU      / (samples[CurrentSampleIndex].XSec*LInt);
       EffPU                      = INTERN_EffPU;
 
       if(Eff==0)continue;
@@ -733,7 +740,8 @@ stAllInfo Exclusion(string pattern, string modelName, string signal){
      toReturn.NData     = NData;
      toReturn.NPred     = NPred;
      toReturn.NPredErr  = NPredErr;
-     toReturn.NSign     = Eff*(samples[CurrentSampleIndex].XSec*IntegratedLuminosity);
+     toReturn.NSign     = Eff*(samples[CurrentSampleIndex].XSec*LInt);
+     toReturn.LInt      = LInt;
 
      CutInfo[CutIndex]=toReturn;
    }
@@ -752,7 +760,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal){
      }
    }
 
-   double MinReach=(FiveSigma-NPredSB)/(EffSB*IntegratedLuminosity);
+   double MinReach=(FiveSigma-NPredSB)/(EffSB*LInt);
    toReturn=CutInfo[MaxSOverBIndex]; // In case this point does give the best reach avoids rounding errors
 
    for(int CutIndex=0;CutIndex<MassData->GetNbinsX();CutIndex++){
@@ -763,7 +771,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal){
      double FiveSigma=1E50;
      for (int n_obs=5; n_obs<1000; n_obs++) {
        if(n_obs<(NPred+3*sqrt(NPred))) continue;    //5 sigma implies more than 5 times sqrt(B) excess so can cut these points, put it at 3 to be safe
-       double thisReach=(n_obs-NPred)/(Eff*IntegratedLuminosity);
+       double thisReach=(n_obs-NPred)/(Eff*LInt);
        if(thisReach>=MinReach) break;    // This selection point will not give the optimum reach so move on
        if(nSigma(NPred, n_obs, NPredErr/NPred)>=5) {
 	 FiveSigma=n_obs;
@@ -771,7 +779,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal){
        }
      }
 
-     double Reach=(FiveSigma-NPred)/(Eff*IntegratedLuminosity);
+     double Reach=(FiveSigma-NPred)/(Eff*LInt);
      if(Reach>MinReach) continue;
      MinReach=Reach;
      toReturn=CutInfo[CutIndex];
@@ -784,7 +792,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal){
    double Eff=toReturn.Eff;
    double NData=toReturn.NData;
 
-   CLMResults =  roostats_limit(IntegratedLuminosity, IntegratedLuminosity*0.022, Eff, Eff*signalUncertainty,NPred, NPredErr, NData, false, 1, "cls", "", 12345);
+   CLMResults =  roostats_limit(LInt, LInt*0.022, Eff, Eff*signalUncertainty,NPred, NPredErr, NData, false, 1, "cls", "", 12345);
    toReturn.XSec_Exp      = CLMResults.GetExpectedLimit();
    toReturn.XSec_ExpUp    = CLMResults.GetOneSigmaHighRange();
    toReturn.XSec_ExpDown  = CLMResults.GetOneSigmaLowRange();
@@ -821,7 +829,8 @@ stAllInfo Exclusion(string pattern, string modelName, string signal){
    fprintf(pFile2,"NPred        : %+6.2E\n",toReturn.NPred);
    fprintf(pFile2,"NPredErr     : %+6.2E\n",toReturn.NPredErr);
    fprintf(pFile2,"NSign        : %+6.2E\n",toReturn.NSign);
-   fprintf(pFile2, "%f+-%f  %f+-%f %f+-%f %f\n",IntegratedLuminosity, IntegratedLuminosity*0.022, Eff, Eff*signalUncertainty,NPred, NPredErr, NData);
+   fprintf(pFile2,"LInt         : %f\n",toReturn.LInt);
+   fprintf(pFile2, "%f+-%f  %f+-%f %f+-%f %f\n",LInt, LInt*0.022, Eff, Eff*signalUncertainty,NPred, NPredErr, NData);
    fclose(pFile2); 
    return toReturn;
 }
@@ -852,6 +861,7 @@ void DrawModelLimitWithBand(string InputPattern){
    bool IsTkOnly = (InputPattern.find("Type0",0)<std::string::npos);
    string prefix = "Mu";    if(IsTkOnly) prefix ="Tk";
 
+   double LInt = 0;
    for(unsigned int k=0; k<modelVector.size(); k++){
       bool isNeutral = false;if(modelVector[k].find("GluinoN")!=string::npos || modelVector[k].find("StopN")!=string::npos)isNeutral = true;
       if(!IsTkOnly && isNeutral) continue;
@@ -867,6 +877,7 @@ void DrawModelLimitWithBand(string InputPattern){
          XSecExpDown [i]=Infos.XSec_ExpDown;
          XSecExp2Up  [i]=Infos.XSec_Exp2Up;
          XSecExp2Down[i]=Infos.XSec_Exp2Down;
+         LInt           =Infos.LInt;
       }
 
       TGraph* graphtheory  = new TGraph(N,Mass,XSecTh);
@@ -904,7 +915,7 @@ void DrawModelLimitWithBand(string InputPattern){
       MG->GetYaxis()->SetTitle("#sigma (pb)");
       MG->GetYaxis()->SetTitleOffset(1.70);
       MG->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
-      DrawPreliminary(IntegratedLuminosity);
+      DrawPreliminary(SQRTS, LInt);
       
       TLegend* LEG = new TLegend(0.40,0.65,0.8,0.90);
       string headerstr;
@@ -943,6 +954,7 @@ void DrawRatioBands(string InputPattern)
    TCutG**  Exp2SigmaAErr = new TCutG* [modelVector.size()];
    TPad** padA            = new TPad*  [modelVector.size()];
    double step, top;
+   double LInt = 0;
 
    top= 1.0/(modelVector.size()+2);
    step=(1.0-2.*top)/(modelVector.size());
@@ -982,6 +994,7 @@ void DrawRatioBands(string InputPattern)
          XSecExpDown [i]=Infos.XSec_ExpDown /Infos.XSec_Exp;
          XSecExp2Up  [i]=Infos.XSec_Exp2Up  /Infos.XSec_Exp;
          XSecExp2Down[i]=Infos.XSec_Exp2Down/Infos.XSec_Exp;
+         LInt           =Infos.LInt;
       }
 
       TGraph* graphtheory  = new TGraph(N,Mass,XSecTh);
@@ -1084,7 +1097,7 @@ void DrawRatioBands(string InputPattern)
       }
    }
    c1->cd();
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, LInt);
 
    TPaveText *pt = new TPaveText(0.1, 0., 0.15, 0.7,"NDC");
    string tmp = "95% CL Limits (Relative to Expected Limit)";

@@ -275,7 +275,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    leg->Draw();
 
    //add CMS label and save
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    c1->SetLogy(true);
    SaveCanvas(c1, InputPattern, string("Rescale_") + HistoSuffix);
    delete c1;
@@ -327,7 +327,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend, "arbitrary units", 0,0.5, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_IsSpectrum");
    delete c1;
 
@@ -344,7 +344,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxM_Legend, "arbitrary units", 3.0,5, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_ImSpectrum");
    delete c1;
 
@@ -361,7 +361,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,2, 0,0); 
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_TOFSpectrum");
    delete c1;
 
@@ -377,11 +377,11 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,1.7, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(false);
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Is_TOFSpectrum");
 
    c1->SetLogy(true);
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Is_TOFSpectrumLog");
    delete c1;
 
@@ -396,7 +396,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,1.7, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(false);
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Im_TOFSpectrum");
    delete c1;
 
@@ -419,7 +419,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    ((TH1D*)Histos[1])->Rebin(10);  
    DrawSuperposedHistos((TH1**)Histos, legend, "Hist E1",  "p (Gev/c)", "u.a.", 0,1500, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_PSpectrum");
    delete Histos[0]; delete Histos[1];
    delete c1;
@@ -434,7 +434,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    ((TH1D*)Histos[1])->Rebin(2);
    DrawSuperposedHistos((TH1**)Histos, legend, "Hist E1",  dEdxM_Legend, "u.a.", 0,6, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_ISpectrum");
    delete Histos[0]; delete Histos[1];
    delete c1;
@@ -449,7 +449,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    ((TH1D*)Histos[1])->Rebin(2);
    DrawSuperposedHistos((TH1**)Histos, legend, "Hist E1",  "1/#beta", "u.a.", 0,0, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_TOFSpectrum");
    delete Histos[0]; delete Histos[1];
    delete c1;
@@ -479,7 +479,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    //DataVsPred->SetMaximum(3);
    //Histos[0] = DataVsPred;   legend.push_back("Observed");
    //DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "PtCut", "ICut", 0,0, 0,0);
-   //DrawPreliminary(IntegratedLuminosity);
+   //DrawPreliminary(SQRTS, IntegratedLuminosity);
    //SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_PredVsObs");
    //delete c1;
 
@@ -491,7 +491,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    //c1->SetLogz(true);
    //Histos[0] = PredMap;   legend.push_back("Observed");
    //DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "PtCut", "ICut", 0,0, 0,0);
-   //DrawPreliminary(IntegratedLuminosity);
+   //DrawPreliminary(SQRTS, IntegratedLuminosity);
    //SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_Pred");
    //delete c1;
 
@@ -499,7 +499,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    //c1->SetLogz(true);
    //Histos[0] = DataMap;   legend.push_back("Observed");
    //DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "PtCut", "ICut", 0,0, 0,0);
-   //DrawPreliminary(IntegratedLuminosity);
+   //DrawPreliminary(SQRTS, IntegratedLuminosity);
    //SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_Data");
    //delete c1;
 
@@ -790,7 +790,7 @@ void GetSystematicOnPrediction(string InputPattern){
    MGTOF->GetYaxis()->SetTitleOffset(1.70);
    MGTOF->GetYaxis()->SetRangeUser(10,1E6);
    LEG->Draw();
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,InputPattern,"Systematics_TOF_Value");
    delete c1;
 
@@ -808,7 +808,7 @@ void GetSystematicOnPrediction(string InputPattern){
    MGI->GetYaxis()->SetTitleOffset(1.70);
    MGI->GetYaxis()->SetRangeUser(10,1E6);
    LEG->Draw();
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,InputPattern,"Systematics_I_Value");
    delete c1;
 
@@ -826,7 +826,7 @@ void GetSystematicOnPrediction(string InputPattern){
    MGP->GetYaxis()->SetTitleOffset(1.70);
    MGP->GetYaxis()->SetRangeUser(10,1E6);
    LEG->Draw();
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,InputPattern,"Systematics_P_Value");
    delete c1;
 
@@ -1173,7 +1173,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Gluino500_Mass, "Gluino500"   ,"P");
    leg->AddEntry(Gluino800_Mass, "Gluino800"   ,"P");
    leg->Draw();
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1, outpath, "Gluino_Mass");
    delete c1;
 
@@ -1189,7 +1189,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    Data_PIs->SetMarkerColor(Color[4]);
    Data_PIs->SetFillColor(Color[4]);
    Data_PIs->Draw("COLZ");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1, outpath, "Data_PIs", true);
    delete c1;
 
@@ -1205,7 +1205,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    Data_PIm->SetMarkerColor(Color[4]);
    Data_PIm->SetFillColor(Color[4]);
    Data_PIm->Draw("COLZ");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1, outpath, "Data_PIm", true);
    delete c1;
 
@@ -1221,7 +1221,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    Data_TOFIs->SetMarkerColor(Color[4]);
    Data_TOFIs->SetFillColor(Color[4]);
    Data_TOFIs->Draw("COLZ");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1, outpath, "Data_TOFIs", true);
    delete c1;
 
@@ -1237,7 +1237,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    Data_TOFIm->SetMarkerColor(Color[4]);
    Data_TOFIm->SetFillColor(Color[4]);
    Data_TOFIm->Draw("COLZ");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1, outpath, "Data_TOFIm", true);
    delete c1;
 
@@ -1271,7 +1271,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Gluino500_PIs, "Gluino500"   ,"F");
    leg->AddEntry(Gluino800_PIs, "Gluino800"   ,"F");
    leg->Draw();
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1, outpath, "Gluino_PIs", true);
    delete c1;
 
@@ -1319,7 +1319,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Gluino500_PIm, "Gluino500"   ,"F");
    leg->AddEntry(Gluino800_PIm, "Gluino800"   ,"F");
    leg->Draw();
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1, outpath, "Gluino_PIm", true);
    delete c1;
 
@@ -1353,7 +1353,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Gluino500_TOFIs, "Gluino500"   ,"F");
    leg->AddEntry(Gluino800_TOFIs, "Gluino800"   ,"F");
    leg->Draw();
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1, outpath, "Gluino_TOFIs", true);
    delete c1;
 
@@ -1388,7 +1388,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Gluino500_TOFIm, "Gluino500"   ,"F");
    leg->AddEntry(Gluino800_TOFIm, "Gluino800"   ,"F");
    leg->Draw();
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1, outpath, "Gluino_TOFIm", true);
    delete c1;
 
@@ -1443,7 +1443,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Data_PIm_450, "300 < M < 400 GeV","P");
    leg->AddEntry(Data_PIm_All, "400 < M GeV"      ,"P");
    leg->Draw();
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1, outpath, "Data_PIm_Colored", true);
    delete c1;
 }

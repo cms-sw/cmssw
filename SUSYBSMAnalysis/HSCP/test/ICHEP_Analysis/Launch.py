@@ -9,7 +9,7 @@ import glob
 
 #If path below is empty (""), it will be skipped for any computation
 TkOnlyPath = "Results/dedxASmi/combined/Eta15/PtMin45/Type0/"
-TkMuonPath = "Results/dedxASmi/combined/Eta15/PtMin45/Type2/"
+TkMuonPath = ""#"Results/dedxASmi/combined/Eta15/PtMin45/Type2/"
 
 CMSSW_VERSION = os.getenv('CMSSW_VERSION','CMSSW_VERSION')
 if CMSSW_VERSION == 'CMSSW_VERSION':
@@ -52,13 +52,13 @@ elif sys.argv[1]=='1':
         LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)
  
         if(len(TkOnlyPath)>1):
-           os.system('rm -f ' + TkOnlyPath + 'Histos.root')
-           os.system('hadd -f ' + TkOnlyPath + 'Histos.root ' + TkOnlyPath + '*.root')
+#           os.system('rm -f ' + TkOnlyPath + 'Histos.root')
+#           os.system('hadd -f ' + TkOnlyPath + 'Histos.root ' + TkOnlyPath + '*.root')
            LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step4.C", '"'+TkOnlyPath+'"'])
 
         if(len(TkMuonPath)>1):
-           os.system('rm -f ' + TkMuonPath + 'Histos.root')
-           os.system('hadd -f ' + TkMuonPath + 'Histos.root ' + TkMuonPath + '*.root')
+#           os.system('rm -f ' + TkMuonPath + 'Histos.root')
+#           os.system('hadd -f ' + TkMuonPath + 'Histos.root ' + TkMuonPath + '*.root')
            LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step4.C", '"'+TkMuonPath+'"'])
 
         LaunchOnCondor.SendCluster_Submit()
