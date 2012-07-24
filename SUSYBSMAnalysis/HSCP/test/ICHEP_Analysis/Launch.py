@@ -8,7 +8,7 @@ import LaunchOnCondor
 import glob
 
 #If path below is empty (""), it will be skipped for any computation
-TkOnlyPath = ""#"Results/dedxASmi/combined/Eta15/PtMin45/Type0/"
+TkOnlyPath = "Results/dedxASmi/combined/Eta15/PtMin45/Type0/"
 TkMuonPath = "Results/dedxASmi/combined/Eta15/PtMin45/Type2/"
 
 CMSSW_VERSION = os.getenv('CMSSW_VERSION','CMSSW_VERSION')
