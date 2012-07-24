@@ -88,7 +88,12 @@ class ModelBuilder(ModelBuilderBase):
         for (n,nofloat,pdf,args,errline) in self.DC.systs: 
             if pdf == "lnN" or pdf.startswith("shape"):
                 r = "-4,4" if pdf == "shape" else "-7,7"
-                self.doObj("%s_Pdf" % n, "Gaussian", "%s[%s], %s_In[0,%s], 1" % (n,r,n,r));
+                sig = 1.0;
+                for pn,pf in self.options.nuisancesToRescale:
+                    if re.match(pn, n): 
+                        sig = float(pf); sigscale = sig * (4 if pdf == "shape" else 7)
+                        r = "-%g,%g" % (sigscale,sigscale)
+                self.doObj("%s_Pdf" % n, "Gaussian", "%s[%s], %s_In[0,%s], %g" % (n,r,n,r,sig));
                 globalobs.append("%s_In" % n)
                 if self.options.bin:
                   self.out.var("%s_In" % n).setConstant(True)
