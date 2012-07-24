@@ -22,7 +22,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
-#include "FWCore/Utilities/interface/ReflexTools.h"
+#include "FWCore/Utilities/interface/DictionaryTools.h"
 
 #include "boost/bind.hpp"
 #include "boost/ref.hpp"

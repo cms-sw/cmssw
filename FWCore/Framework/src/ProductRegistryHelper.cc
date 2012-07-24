@@ -7,6 +7,7 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/Utilities/interface/DictionaryTools.h"
 
 namespace edm {
   ProductRegistryHelper::~ProductRegistryHelper() { }
@@ -21,7 +22,7 @@ namespace edm {
                                        ModuleDescription const& iDesc,
                                        ProductRegistry& iReg,
                                        bool iIsListener) {
-    std::string const prefix("LCGReflex/");
+    std::string const& prefix = dictionaryPlugInPrefix();
     for(TypeLabelList::const_iterator p = iBegin; p != iEnd; ++p) {
       if(!p->typeID_.hasDictionary()) {
         //attempt to load

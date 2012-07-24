@@ -31,7 +31,7 @@ namespace edm {
       void swap(BaseVectorHolder&) {} // nothing to swap
 
       // the following structure is public
-      // to allow reflex dictionary to compile
+      // to allow dictionary to compile
       //    protected:
       struct const_iterator_imp {
         typedef ptrdiff_t difference_type;

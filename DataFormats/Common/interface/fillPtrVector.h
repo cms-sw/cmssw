@@ -23,8 +23,7 @@
 // user include files
 #include "DataFormats/Common/interface/FillView.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "Reflex/Object.h"
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 #include "DataFormats/Common/interface/fwd_fillPtrVector.h"
 
@@ -58,8 +57,7 @@ namespace edm {
           oPtr.push_back(address);
         }
       } else {
-        static Reflex::Type const s_type(Reflex::Type::ByTypeInfo(typeid(element_type)));
-        Reflex::Type toType = Reflex::Type::ByTypeInfo(iToType);
+        static TypeWithDict const s_type(typeid(element_type));
 
         for(std::vector<unsigned long>::const_iterator itIndex = iIndicies.begin(),
             itEnd = iIndicies.end();
@@ -68,14 +66,9 @@ namespace edm {
           iter it = coll.begin();
           std::advance(it, *itIndex);
           element_type const* address = GetProduct<product_type>::address(it);
-          // The const_cast below is needed because
-          // Object's constructor requires a pointer to
-          // non-const void, although the implementation does not, of
-          // course, modify the object to which the pointer points.
-          Reflex::Object obj(s_type, const_cast<void*>(static_cast<void const*>(address)));
-          Reflex::Object cast = obj.CastObject(toType);
-          if(0 != cast.Address()) {
-            oPtr.push_back(cast.Address());// returns void*, after pointer adjustment
+          void const* ptr = TypeWithDict(iToType).pointerToContainedType(address, s_type);
+          if(0 != ptr) {
+            oPtr.push_back(ptr);
           } else {
             Exception::throwThis(errors::LogicError,
             "TypeConversionError "

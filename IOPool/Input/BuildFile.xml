@@ -12,5 +12,4 @@
 <use   name="boost"/>
 <use   name="clhep"/>
 <use   name="rootcore"/>
-<use   name="rootrflx"/>
 <flags   EDM_PLUGIN="1"/>

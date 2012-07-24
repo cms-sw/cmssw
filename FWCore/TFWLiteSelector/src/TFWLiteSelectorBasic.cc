@@ -43,6 +43,8 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
 // system include files
@@ -50,7 +52,6 @@
 #include "TChain.h"
 #include "TFile.h"
 #include "TTree.h"
-#include "Reflex/Type.h"
 
 namespace edm {
   namespace root {
@@ -88,21 +89,19 @@ namespace edm {
       }
       //find the class type
       std::string const fullName = wrappedClassName(bDesc.className());
-      Reflex::Type classType = Reflex::Type::ByName(fullName);
-      if(classType == Reflex::Type()) {
+      TypeWithDict classType = TypeWithDict::byName(fullName);
+      if(!bool(classType)) {
         throw cms::Exception("MissingDictionary")
         << "could not find dictionary for type '" << fullName << "'"
         << "\n Please make sure all the necessary libraries are available.";
       }
 
-      //use reflex to create an instance of it
-      Reflex::Object wrapperObj = classType.Construct();
-      if(0 == wrapperObj.Address()) {
+      //create an instance of it
+      void const* address  = classType.construct().address();
+      if(0 == address) {
         throw cms::Exception("FailedToCreate") << "could not create an instance of '" << fullName << "'";
       }
-      void* address  = wrapperObj.Address();
       branch->SetAddress(&address);
-
 
       branch->GetEntry(entry_);
       return WrapperOwningHolder(address, bDesc.getInterface());

@@ -10,7 +10,7 @@
  Description: Allows interaction with data in the Event without actually using the C++ class
 
  Usage:
-    The GenericHandle allows one to get data back from the edm::Event as a Reflex::Object instead
+    The GenericHandle allows one to get data back from the edm::Event as an ObjectWithDict instead
   of as the actual C++ class type.
 
   //make a handle to hold an instance of 'MyClass'
@@ -28,8 +28,8 @@
 
 // user include files
 #include "FWCore/Framework/interface/Event.h"
-
-#include "Reflex/Object.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 // system include files
 #include <string>
@@ -45,32 +45,32 @@ class Handle<GenericObject> {
 public:
     ///Throws exception if iName is not a known C++ class type
     Handle(std::string const& iName) : 
-       type_(Reflex::Type::ByName(iName)), prod_(), prov_(0) {
-          if(type_ == Reflex::Type()) {
+       type_(TypeWithDict::byName(iName)), prod_(), prov_(0) {
+          if(!bool(type_)) {
              Exception::throwThis(errors::NotFound,
              "Handle<GenericObject> told to use uknown type '",
              iName.c_str(),
              "'.\n Please check spelling or that a module uses this type in the job.");
            }
-           if(type_.IsTypedef()){
+           if(type_.isTypedef()){
               //For a 'Typedef' the 'toType' method returns the actual type
-              // this is needed since you are now allowed to 'invoke' methods of a 'Typedef'
+              // this is needed since you are not allowed to 'invoke' methods of a 'Typedef'
               // only for a 'real' class
-              type_ = type_.ToType();
+              type_ = type_.toType();
            }
         }
    
    ///Throws exception if iType is invalid
-   Handle(Reflex::Type const& iType) :
+   Handle(TypeWithDict const& iType) :
       type_(iType), prod_(), prov_(0) {
-         if(iType == Reflex::Type()) {
-            Exception::throwThis(errors::NotFound, "Handle<GenericObject> given an invalid Reflex::Type");
+         if(!bool(iType)) {
+            Exception::throwThis(errors::NotFound, "Handle<GenericObject> given an invalid type");
          }
-         if(type_.IsTypedef()){
+         if(type_.isTypedef()){
             //For a 'Typedef' the 'toType' method returns the actual type
             // this is needed since you are now allowed to 'invoke' methods of a 'Typedef'
             // only for a 'real' class
-            type_ = type_.ToType();
+            type_ = type_.toType();
          }
       }
    
@@ -81,8 +81,8 @@ public:
    whyFailed_(h.whyFailed_) {
    }
    
-   Handle(Reflex::Object const& prod, Provenance const* prov, ProductID const&):
-   type_(prod.TypeOf()),
+   Handle(ObjectWithDict const& prod, Provenance const* prov, ProductID const&):
+   type_(prod.typeOf()),
    prod_(prod),
    prov_(prov) { 
       assert(prod_);
@@ -115,16 +115,16 @@ public:
    bool failedToGet() const {
      return 0 != whyFailed_.get();
    }
-   Reflex::Object const* product() const { 
+   ObjectWithDict const* product() const { 
      if(this->failedToGet()) { 
        whyFailed_->raise();
      } 
      return &prod_;
    }
-   Reflex::Object const* operator->() const {return this->product();}
-   Reflex::Object const& operator*() const {return *(this->product());}
+   ObjectWithDict const* operator->() const {return this->product();}
+   ObjectWithDict const& operator*() const {return *(this->product());}
    
-   Reflex::Type const& type() const {return type_;}
+   TypeWithDict const& type() const {return type_;}
    Provenance const* provenance() const {return prov_;}
    
    ProductID id() const {return prov_->productID();}
@@ -135,8 +135,8 @@ public:
     whyFailed_=iWhyFailed;
   }
 private:
-   Reflex::Type type_;
-   Reflex::Object prod_;
+   TypeWithDict type_;
+   ObjectWithDict prod_;
    Provenance const* prov_;    
    boost::shared_ptr<cms::Exception> whyFailed_;
 

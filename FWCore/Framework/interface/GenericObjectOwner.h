@@ -20,10 +20,10 @@
 
 // system include files
 #include <string>
-#include "Reflex/Object.h"
 
 // user include files
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
 
 // forward declarations
 namespace edm {
@@ -32,13 +32,13 @@ class GenericObjectOwner
 
    public:
       GenericObjectOwner(): m_ownData(false){}
-      explicit GenericObjectOwner(Reflex::Object const& iObject,
+      explicit GenericObjectOwner(ObjectWithDict const& iObject,
                                   bool iOwnData=true):
          m_object(iObject), m_ownData(iOwnData) {}
       ~GenericObjectOwner();
 
       // ---------- const member functions ---------------------
-      Reflex::Object object() const;
+      ObjectWithDict object() const;
    
       // ---------- static member functions --------------------
 
@@ -52,7 +52,7 @@ class GenericObjectOwner
       GenericObjectOwner const& operator=(GenericObjectOwner const&); // stop default
 
       // ---------- member data --------------------------------
-      Reflex::Object m_object;
+      ObjectWithDict m_object;
       bool m_ownData;
 };
 
@@ -66,7 +66,7 @@ class GenericObjectOwner
       OrphanHandle(OrphanHandle<GenericObjectOwner> const& h):
       prod_(h.prod_.object(),false), id_(h.id_) {}
       
-      OrphanHandle(Reflex::Object const& prod, ProductID const& id):
+      OrphanHandle(ObjectWithDict const& prod, ProductID const& id):
       prod_(prod,false), id_(id) {}
       
       //~OrphanHandle();
@@ -84,7 +84,7 @@ class GenericObjectOwner
 	 return *this;
       }
       
-      bool isValid() const {return 0 !=prod_.object().Address();}
+      bool isValid() const {return 0 != prod_.object().address();}
          
       GenericObjectOwner const* product() const {return &prod_;}
       GenericObjectOwner const* operator->() const {return product();}

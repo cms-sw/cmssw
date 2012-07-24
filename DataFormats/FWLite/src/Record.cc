@@ -13,7 +13,6 @@
 // system include files
 #include <cassert>
 #include "TTree.h"
-#include "Reflex/Type.h"
 // user include files
 #include "DataFormats/FWLite/interface/Record.h"
 #include "DataFormats/Provenance/interface/ESRecordAuxiliary.h"
@@ -154,7 +153,7 @@ Record::endSyncValue() const
 
 
 cms::Exception* 
-Record::get(const TypeID& iType, 
+Record::get(const edm::TypeID& iType, 
             const char* iLabel, 
             const void*& iData) const
 {
@@ -162,8 +161,7 @@ Record::get(const TypeID& iType,
    
    TBranch*& branch = m_branches[std::make_pair(iType,iLabel)];
    if(0==branch){
-      Reflex::Type t = Reflex::Type::ByTypeInfo(iType.typeInfo());
-      if(t == Reflex::Type()){
+      if(!iType.hasDictionary()){
          returnValue = new cms::Exception("UnknownType");
          (*returnValue)<<"The type "
          <<iType.typeInfo().name()<<" was requested from Record "<<name()
@@ -171,13 +169,13 @@ Record::get(const TypeID& iType,
          return returnValue;
       }
       //build branch name
-      std::string branchName = fwlite::format_type_to_mangled(t.Name(Reflex::SCOPED|Reflex::FINAL))+"__"+iLabel;
+      std::string branchName = fwlite::format_type_to_mangled(iType.className())+"__"+iLabel;
       branch = m_tree->FindBranch(branchName.c_str());
       
       if(0==branch){
          returnValue = new cms::Exception("NoDataAvailable");
          (*returnValue)<<"The data of type "
-                       <<t.Name(Reflex::SCOPED|Reflex::FINAL)
+                       <<iType.className()
                        <<" with label '"<<iLabel<<"' for Record "<<name()<<" is not in this file.";
          return returnValue;
       }

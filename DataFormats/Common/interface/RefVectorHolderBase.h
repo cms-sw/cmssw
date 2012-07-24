@@ -25,7 +25,7 @@ namespace edm {
       virtual RefVectorHolderBase* cloneEmpty() const = 0;
       virtual void push_back(RefHolderBase const* r) = 0;
       // the following structure is public
-      // to allow reflex dictionary to compile
+      // to allow dictionary to compile
       //    protected:
       struct const_iterator_imp {
         typedef ptrdiff_t difference_type;

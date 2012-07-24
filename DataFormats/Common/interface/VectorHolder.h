@@ -91,7 +91,7 @@ namespace edm {
       ref_vector_type refVector_;
       
       // the following structure is public
-      // to allow reflex dictionary to compile
+      // to allow dictionary to compile
     public:
       struct const_iterator_imp_specific : public const_iterator_imp {
         typedef ptrdiff_t difference_type;

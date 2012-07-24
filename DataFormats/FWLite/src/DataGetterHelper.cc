@@ -12,26 +12,21 @@
 
 // system include files
 #include <iostream>
-#include "Reflex/Type.h"
-#include "Reflex/Object.h"
-#include "Reflex/Member.h"
 
 // user include files
 #include "DataFormats/FWLite/interface/DataGetterHelper.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TTreeCache.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/WrapperHolder.h"
 
 #include "FWCore/FWLite/interface/setRefStreamer.h"
 
-#include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/Utilities/interface/WrappedClassName.h"
-
 #include "FWCore/Utilities/interface/EDMException.h"
-
-#define TTCACHE_SIZE 20*1024*1024
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
 
 namespace fwlite {
     //
@@ -76,7 +71,8 @@ namespace fwlite {
         }
         tree_ = tree;
         if (useCache) {
-            tree_->SetCacheSize(TTCACHE_SIZE);
+            constexpr unsigned long long cacheSize = 20ULL*1024ULL*1024ULL;
+            tree_->SetCacheSize(cacheSize);
             TFile* iFile(branchMap_->getFile());
             tcache_.reset(dynamic_cast<TTreeCache*>(iFile->GetCacheRead()));
             iFile->SetCacheRead(0);
@@ -137,13 +133,13 @@ namespace fwlite {
         //WORK AROUND FOR ROOT!!
         //Create a new instance so that we can clear any cache the object uses
         //this slows the code down
-        Reflex::Object obj = iData.obj_;
-        iData.obj_ = iData.obj_.TypeOf().Construct();
-        iData.pObj_ = iData.obj_.Address();
+        edm::ObjectWithDict obj = iData.obj_;
+        iData.obj_ = iData.obj_.construct();
+        iData.pObj_ = iData.obj_.address();
         iData.branch_->SetAddress(&(iData.pObj_));
         //If a REF to this was requested in the past, we might as well do the work now
         if(0!=iData.pProd_) {
-            iData.pProd_ = iData.obj_.Address();
+            iData.pProd_ = iData.obj_.address();
         }
         obj.Destruct();
         //END OF WORK AROUND
@@ -250,26 +246,26 @@ namespace fwlite {
             if(0 == theData.get()) {
                 //We do not already have this data as another key
 
-                //Use Reflex to create an instance of the object to be used as a buffer
-                Reflex::Type rType = Reflex::Type::ByTypeInfo(iInfo);
-                if(rType == Reflex::Type()) {
-                    throw cms::Exception("UnknownType")<<"No Reflex dictionary exists for type "<<iInfo.name();
+                //create an instance of the object to be used as a buffer
+                edm::TypeWithDict type(iInfo);
+                if(!bool(type)) {
+                    throw cms::Exception("UnknownType") << "No dictionary exists for type " << iInfo.name();
                 }
-                Reflex::Object obj = rType.Construct();
 
-                if(obj.Address() == 0) {
-                    throw cms::Exception("ConstructionFailed")<<"failed to construct an instance of "<<rType.Name();
+                edm::ObjectWithDict obj(type);
+
+                if(obj.address() == 0) {
+                    throw cms::Exception("ConstructionFailed") << "failed to construct an instance of " << type.name();
                 }
                 boost::shared_ptr<internal::Data> newData(new internal::Data());
                 newData->branch_ = branch;
                 newData->obj_ = obj;
                 newData->lastProduct_=-1;
-                newData->pObj_ = obj.Address();
+                newData->pObj_ = obj.address();
                 newData->pProd_ = 0;
                 branch->SetAddress(&(newData->pObj_));
                 newData->interface_ = 0;
-                Reflex::Member getTheInterface = rType.FunctionMemberByName(std::string("getInterface"));
-                getTheInterface.Invoke(newData->interface_);
+                type.invokeByName(newData->interface_, std::string("getInterface"));
                 theData = newData;
             }
             itFind = data_.insert(std::make_pair(newKey, theData)).first;
@@ -321,7 +317,7 @@ namespace fwlite {
                 //haven't gotten the data for this event
                 getBranchData(getter_.get(), index, theData);
             }
-            *pOData = theData.obj_.Address();
+            *pOData = theData.obj_.address();
         }
 
         if (0 == *pOData) return false;
@@ -347,7 +343,7 @@ namespace fwlite {
             }
         }
 
-        holder = edm::WrapperHolder(theData.obj_.Address(), theData.interface_);
+        holder = edm::WrapperHolder(theData.obj_.address(), theData.interface_);
         return holder.isValid();
     }
 
@@ -393,7 +389,7 @@ namespace fwlite {
                 }
                 itData = data_.find(k);
                 assert(itData != data_.end());
-                assert(holder.wrapper() == itData->second->obj_.Address());
+                assert(holder.wrapper() == itData->second->obj_.address());
             }
             itFound = idToData_.insert(std::make_pair(theID,itData->second)).first;
         }
@@ -402,7 +398,7 @@ namespace fwlite {
             getBranchData(getter_.get(), index, *(itFound->second));
         }
         if(0==itFound->second->pProd_) {
-            itFound->second->pProd_ = itFound->second->obj_.Address();
+            itFound->second->pProd_ = itFound->second->obj_.address();
 
             if(0==itFound->second->pProd_) {
               return edm::WrapperHolder();

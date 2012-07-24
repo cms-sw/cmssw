@@ -1,6 +1,5 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
-<use   name="rootrflx"/>
 <export>
   <lib   name="1"/>
 </export>

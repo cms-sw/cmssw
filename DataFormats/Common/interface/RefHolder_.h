@@ -4,8 +4,8 @@
 
 #include "DataFormats/Common/interface/RefHolderBase.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "Reflex/Object.h"
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/DictionaryTools.h"
 #include <memory>
 
 namespace edm {
@@ -43,7 +43,7 @@ namespace edm {
       //Needed for ROOT storage
       CMS_CLASS_VERSION(10)
     private:
-      virtual void const* pointerToType(Reflex::Type const& iToType) const;
+      virtual void const* pointerToType(TypeWithDict const& iToType) const;
       REF ref_;
     };
 
@@ -142,19 +142,12 @@ namespace edm {
 
     template <class REF>
     void const* 
-    RefHolder<REF>::pointerToType(Reflex::Type const& iToType) const 
+    RefHolder<REF>::pointerToType(TypeWithDict const& iToType) const 
     {
       typedef typename REF::value_type contained_type;
-      static const Reflex::Type s_type(Reflex::Type::ByTypeInfo(typeid(contained_type)));
+      static TypeWithDict const s_type(typeid(contained_type));
     
-      // The const_cast below is needed because
-      // Object's constructor requires a pointer to
-      // non-const void, although the implementation does not, of
-      // course, modify the object to which the pointer points.
-      Reflex::Object obj(s_type, const_cast<void*>(static_cast<const void*>(ref_.get())));
-      if ( s_type == iToType ) return obj.Address();
-      Reflex::Object cast = obj.CastObject(iToType);
-      return cast.Address(); // returns void*, after pointer adjustment
+      return iToType.pointerToContainedType(ref_.get(), s_type);
     }
   } // namespace reftobase
 }

@@ -138,7 +138,7 @@ testPtrVector::check() {
 
 void
 testPtrVector::get() {
-  using namespace test_with_reflex;
+  using namespace test_with_dictionaries;
   typedef std::vector<IntValue> IntCollection;
   std::auto_ptr<IntCollection> ptr(new IntCollection);
 

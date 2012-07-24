@@ -12,7 +12,7 @@
 
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/ReflexTools.h"
+#include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
 #include <algorithm>
@@ -289,8 +289,8 @@ namespace edm {
   
           if(bool(type)) {
             // Here we look in the object named "type" for a typedef
-            // named "value_type" and get the reflex Type for it.
-            // Then check to ensure the reflex dictionary is defined
+            // named "value_type" and get the type for it.
+            // Then check to ensure the dictionary is defined
             // for this value_type.
             // I do not throw an exception here if the check fails
             // because there are known cases where the dictionary does

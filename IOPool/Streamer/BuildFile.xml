@@ -14,7 +14,6 @@
 <use   name="boost"/>
 <use   name="rootcintex"/>
 <use   name="rootcore"/>
-<use   name="rootrflx"/>
 <use   name="zlib"/>
 <export>
   <lib   name="1"/>

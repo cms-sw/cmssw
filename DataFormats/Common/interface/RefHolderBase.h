@@ -4,8 +4,9 @@
  *
  *
  */
-#include "Reflex/Type.h"
 #include <memory>
+
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 namespace edm {
   class ProductID;
@@ -48,10 +49,10 @@ namespace edm {
 
     private:
       // "cast" the real type of the element (the T of contained Ref),
-      // and cast it to the type specified by toType, using Reflex.
+      // and cast it to the type specified by toType.
       // Return 0 if the real type is not toType nor a subclass of
       // toType.
-      virtual void const* pointerToType(Reflex::Type const& toType) const = 0;
+      virtual void const* pointerToType(TypeWithDict const& toType) const = 0;
     };
 
     //------------------------------------------------------------------
@@ -66,7 +67,7 @@ namespace edm {
     T const*
     RefHolderBase::getPtr() const
     {
-      static Reflex::Type s_type(Reflex::Type::ByTypeInfo(typeid(T)));
+      static TypeWithDict s_type(typeid(T));
       return static_cast<T const*>(pointerToType(s_type));
     }
 

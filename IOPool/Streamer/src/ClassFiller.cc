@@ -2,7 +2,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
-#include "FWCore/Utilities/interface/ReflexTools.h"
+#include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "Cintex/Cintex.h"
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
@@ -17,9 +17,8 @@
 
 namespace edm {
   void loadCap(std::string const& name) {
-    static std::string const fname("LCGReflex/");
     FDEBUG(1) << "Loading dictionary for " << name << "\n";
-    edmplugin::PluginCapabilities::get()->load(fname + name);
+    edmplugin::PluginCapabilities::get()->load(dictionaryPlugInPrefix() + name);
     checkDictionaries(name);
     if (!missingTypes().empty()) {
       StringSet missing = missingTypes();

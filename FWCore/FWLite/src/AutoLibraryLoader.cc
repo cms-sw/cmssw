@@ -56,8 +56,7 @@ AutoLibraryLoader::enable()
    static BareRootProductGetter s_getter;
    edm::RootAutoLibraryLoader::enable();
    //this function must be called after enabling the autoloader
-   // so that the Reflex dictionaries will be converted to ROOT 
-   // dictionaries and the TClass we need will be available
+   // so that the TClass we need will be available
    fwlite::setRefStreamer(&s_getter);
    
    //Make it easy to load our headers

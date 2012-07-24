@@ -25,30 +25,30 @@ void convert_handle(BasicHandle const& orig,
   }
   WrapperHolder originalWrap = orig.wrapperHolder();
   if(!originalWrap.isValid()) {
-    throw edm::Exception(edm::errors::InvalidReference,"NullPointer")
+    throw Exception(errors::InvalidReference,"NullPointer")
       << "edm::BasicHandle has null pointer to Wrapper";
   }
   
-  Reflex::Object wrap(Reflex::Type::ByTypeInfo(originalWrap.wrappedTypeInfo()), const_cast<void*>(originalWrap.wrapper()));
-  assert(wrap != Reflex::Object());
+  ObjectWithDict wrap(originalWrap.wrappedTypeInfo(), const_cast<void*>(originalWrap.wrapper()));
+  assert(bool(wrap));
   
-  Reflex::Object product(wrap.Get("obj"));
+  ObjectWithDict product(wrap.get("obj"));
   if(!product){
-    throw edm::Exception(edm::errors::LogicError)<<"GenericObject could not find 'obj' member";
+    throw Exception(errors::LogicError)<<"GenericObject could not find 'obj' member";
   }
-  if(product.TypeOf().IsTypedef()){
+  if(product.isTypedef()){
     //For a 'Typedef' the 'ToType' method returns the actual type
     // this is needed since you are now allowed to 'invoke' methods of a 'Typedef'
     // only for a 'real' class
-    product = Reflex::Object(product.TypeOf().ToType(), product.Address());
-    assert(!product.TypeOf().IsTypedef());
+    product = ObjectWithDict(product.typeOf().toType(), product.address());
+    assert(!product.isTypedef());
   }
   //NOTE: comparing on type doesn't seem to always work! The problem appears to be if we have a typedef
-  if(product.TypeOf()!=result.type() &&
-     !product.TypeOf().IsEquivalentTo(result.type()) &&
-     product.TypeOf().TypeInfo()!= result.type().TypeInfo()){
-    throw edm::Exception(edm::errors::LogicError)<<"GenericObject asked for "<<result.type().Name()
-    <<" but was given a "<<product.TypeOf().Name();
+  if(product.typeOf() != result.type() &&
+     !product.typeOf().isEquivalentTo(result.type()) &&
+     product.typeOf().typeInfo() != result.type().typeInfo()){
+    throw Exception(errors::LogicError) << "GenericObject asked for " << result.type().name()
+      << " but was given a " << product.name();
   }
   
   Handle<GenericObject> h(product, orig.provenance(), orig.id());
@@ -62,7 +62,7 @@ edm::Event::getByLabel<GenericObject>(std::string const& label,
                                       std::string const& productInstanceName,
                                       Handle<GenericObject>& result) const
 {
-  BasicHandle bh = provRecorder_.getByLabel_(TypeID(result.type().TypeInfo()), label, productInstanceName, std::string());
+  BasicHandle bh = provRecorder_.getByLabel_(TypeID(result.type().typeInfo()), label, productInstanceName, std::string());
   convert_handle(bh, result);  // throws on conversion error
   if(!bh.failedToGet()) {
     addToGotBranchIDs(*bh.provenance());
@@ -79,7 +79,7 @@ edm::Event::getByLabel<GenericObject>(edm::InputTag const& tag,
   if (tag.process().empty()) {
     return this->getByLabel(tag.label(), tag.instance(), result);
   } else {
-    BasicHandle bh = provRecorder_.getByLabel_(TypeID(result.type().TypeInfo()), tag.label(), tag.instance(),tag.process());
+    BasicHandle bh = provRecorder_.getByLabel_(TypeID(result.type().typeInfo()), tag.label(), tag.instance(),tag.process());
     convert_handle(bh, result);  // throws on conversion error
     if(!bh.failedToGet()) {
       addToGotBranchIDs(*bh.provenance());

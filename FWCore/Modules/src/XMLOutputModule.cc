@@ -18,9 +18,6 @@
 #include <sstream>
 #include <algorithm>
 
-#include "Reflex/Base.h"
-#include "Reflex/Member.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/Selections.h"
@@ -33,6 +30,10 @@
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/GenericHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/BaseWithDict.h"
+#include "FWCore/Utilities/interface/MemberWithDict.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 // user include files
 
@@ -70,22 +71,22 @@ namespace edm {
 
   namespace {
     void doNotDelete(void*) {}
-    void callDestruct(Reflex::Object* iObj) {
+    void callDestruct(ObjectWithDict* iObj) {
       iObj->Destruct();
     }
-    //Handle memory for calls to Reflex Invoke
+    //Handle memory for calls to invoke
     // We handle Ref's by using an external void* buffer (which we do not delete) while everything else
-    // we ask Reflex to create the proper object (and therefore must ask Reflex to delete it)
-    boost::shared_ptr<Reflex::Object> initReturnValue(Reflex::Member const& iMember,
-                                                      Reflex::Object* iObj,
+    // we create the proper object (and therefore must delete it)
+    boost::shared_ptr<ObjectWithDict> initReturnValue(MemberWithDict const& iMember,
+                                                      ObjectWithDict* iObj,
                                                       void** iRefBuffer) {
-      Reflex::Type returnType = iMember.TypeOf().ReturnType();
-      if(returnType.IsReference()) {
-        *iObj = Reflex::Object(returnType, iRefBuffer);
-        return boost::shared_ptr<Reflex::Object>(iObj, doNotDelete);
+      TypeWithDict returnType = iMember.returnType();
+      if(returnType.isReference()) {
+        *iObj = ObjectWithDict(returnType, iRefBuffer);
+        return boost::shared_ptr<ObjectWithDict>(iObj, doNotDelete);
       }
-      *iObj = returnType.Construct();
-      return boost::shared_ptr<Reflex::Object>(iObj, callDestruct);
+      *iObj = returnType.construct();
+      return boost::shared_ptr<ObjectWithDict>(iObj, callDestruct);
     }
 
     //remove characters from a string which are not allowed to be used in XML
@@ -140,31 +141,31 @@ namespace edm {
     }
 
     template<typename T>
-    void doPrint(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix, Reflex::Object const& iObject, std::string const& iIndent) {
+    void doPrint(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix, ObjectWithDict const& iObject, std::string const& iIndent) {
       oStream << iIndent << iPrefix << typeidToName(typeid(T)) << kNameValueSep
-        << *reinterpret_cast<T*>(iObject.Address()) << iPostfix << "\n";
+        << *reinterpret_cast<T*>(iObject.address()) << iPostfix << "\n";
     }
 
     template<>
-    void doPrint<char>(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix, Reflex::Object const& iObject, std::string const& iIndent) {
+    void doPrint<char>(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix, ObjectWithDict const& iObject, std::string const& iIndent) {
       oStream << iIndent << iPrefix << "char" << kNameValueSep
-        << static_cast<int>(*reinterpret_cast<char*>(iObject.Address())) << iPostfix << "\n";
+        << static_cast<int>(*reinterpret_cast<char*>(iObject.address())) << iPostfix << "\n";
     }
 
     template<>
-    void doPrint<unsigned char>(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix, Reflex::Object const& iObject, std::string const& iIndent) {
-      oStream << iIndent << iPrefix << "unsigned char" << kNameValueSep << static_cast<unsigned int>(*reinterpret_cast<unsigned char*>(iObject.Address())) << iPostfix << "\n";
+    void doPrint<unsigned char>(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix, ObjectWithDict const& iObject, std::string const& iIndent) {
+      oStream << iIndent << iPrefix << "unsigned char" << kNameValueSep << static_cast<unsigned int>(*reinterpret_cast<unsigned char*>(iObject.address())) << iPostfix << "\n";
     }
 
     template<>
-    void doPrint<bool>(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix, Reflex::Object const& iObject, std::string const& iIndent) {
+    void doPrint<bool>(std::ostream& oStream, std::string const& iPrefix, std::string const& iPostfix, ObjectWithDict const& iObject, std::string const& iIndent) {
       oStream << iIndent << iPrefix << "bool" << kNameValueSep
-        << ((*reinterpret_cast<bool*>(iObject.Address()))?"true":"false") << iPostfix << "\n";
+        << ((*reinterpret_cast<bool*>(iObject.address()))?"true":"false") << iPostfix << "\n";
     }
 
 
     typedef void(*FunctionType)(std::ostream&, std::string const&,
-                                std::string const&, Reflex::Object const&, std::string const&);
+                                std::string const&, ObjectWithDict const&, std::string const&);
     typedef std::map<std::string, FunctionType> TypeToPrintMap;
 
     template<typename T>
@@ -175,9 +176,9 @@ namespace edm {
     bool printAsBuiltin(std::ostream& oStream,
                                std::string const& iPrefix,
                                std::string const& iPostfix,
-                               Reflex::Object const iObject,
+                               ObjectWithDict const iObject,
                                std::string const& iIndent){
-      typedef void(*FunctionType)(std::ostream&, std::string const&, std::string const&, Reflex::Object const&, std::string const&);
+      typedef void(*FunctionType)(std::ostream&, std::string const&, std::string const&, ObjectWithDict const&, std::string const&);
       typedef std::map<std::string, FunctionType> TypeToPrintMap;
       static TypeToPrintMap s_map;
       static bool isFirst = true;
@@ -195,7 +196,7 @@ namespace edm {
         addToMap<double>(s_map);
         isFirst=false;
       }
-      TypeToPrintMap::iterator itFound =s_map.find(iObject.TypeOf().TypeInfo().name());
+      TypeToPrintMap::iterator itFound =s_map.find(iObject.typeName());
       if(itFound == s_map.end()){
 
         return false;
@@ -207,64 +208,64 @@ namespace edm {
     bool printAsContainer(std::ostream& oStream,
                           std::string const& iPrefix,
                           std::string const& iPostfix,
-                          Reflex::Object const& iObject,
+                          ObjectWithDict const& iObject,
                           std::string const& iIndent,
                           std::string const& iIndentDelta);
 
     void printDataMembers(std::ostream& oStream,
-                          Reflex::Object const& iObject,
-                          Reflex::Type const& iType,
+                          ObjectWithDict const& iObject,
+                          TypeWithDict const& iType,
                           std::string const& iIndent,
                           std::string const& iIndentDelta);
 
     void printObject(std::ostream& oStream,
                      std::string const& iPrefix,
                      std::string const& iPostfix,
-                     Reflex::Object const& iObject,
+                     ObjectWithDict const& iObject,
                      std::string const& iIndent,
                      std::string const& iIndentDelta) {
-      Reflex::Object objectToPrint = iObject;
+      ObjectWithDict objectToPrint = iObject;
       std::string indent(iIndent);
-      if(iObject.TypeOf().IsPointer()) {
-        oStream << iIndent << iPrefix << formatXML(iObject.TypeOf().Name(Reflex::SCOPED)) << "\">\n";
+      if(iObject.isPointer()) {
+        oStream << iIndent << iPrefix << formatXML(iObject.name()) << "\">\n";
         indent +=iIndentDelta;
-        int size = (0!=iObject.Address()) ? (0!=*reinterpret_cast<void**>(iObject.Address())?1:0) : 0;
+        int size = (0!=iObject.address()) ? (0!=*reinterpret_cast<void**>(iObject.address())?1:0) : 0;
         oStream << indent << kContainerOpen << size << "\">\n";
         if(size) {
           std::string indent2 = indent + iIndentDelta;
-          Reflex::Object obj(iObject.TypeOf().ToType(), *reinterpret_cast<void**>(iObject.Address()));
-          obj = obj.CastObject(obj.DynamicType());
+          ObjectWithDict obj(iObject.toType(), *reinterpret_cast<void**>(iObject.address()));
+          obj = obj.castObject(obj.dynamicType());
           printObject(oStream, kObjectOpen, kObjectClose, obj, indent2, iIndentDelta);
         }
         oStream << indent << kContainerClose << "\n";
         oStream << iIndent << iPostfix << "\n";
-        Reflex::Type pointedType = iObject.TypeOf().ToType();
-        if(Reflex::Type::ByName("void") == pointedType || pointedType.IsPointer() || iObject.Address()==0) {
+        TypeWithDict pointedType = iObject.toType();
+        if(TypeWithDict::byName("void") == pointedType || pointedType.isPointer() || iObject.address()==0) {
           return;
         }
         return;
         /*
         //have the code that follows print the contents of the data to which the pointer points
-        objectToPrint = Reflex::Object(pointedType, iObject.Address());
+        objectToPrint = ObjectWithDict(pointedType, iObject.address());
         //try to convert it to its actual type (assuming the original type was a base class)
-        objectToPrint = Reflex::Object(objectToPrint.CastObject(objectToPrint.DynamicType()));
+        objectToPrint = ObjectWithDict(objectToPrint.CastObject(objectToPrint.DynamicType()));
         indent +=iIndentDelta;
         */
       }
-      std::string typeName(objectToPrint.TypeOf().Name(Reflex::SCOPED));
+      std::string typeName(objectToPrint.name());
       if(typeName.empty()){
         typeName="{unknown}";
       }
 
       //see if we are dealing with a typedef
-      Reflex::Type objectType = objectToPrint.TypeOf();
+      TypeWithDict objectType = objectToPrint.typeOf();
       bool wasTypedef = false;
-      while(objectType.IsTypedef()) {
-         objectType = objectType.ToType();
+      while(objectType.isTypedef()) {
+         objectType = objectType.toType();
          wasTypedef = true;
       }
       if(wasTypedef){
-         Reflex::Object tmp(objectType, objectToPrint.Address());
+         ObjectWithDict tmp(objectType, objectToPrint.address());
          objectToPrint = tmp;
       }
       if(printAsBuiltin(oStream, iPrefix, iPostfix, objectToPrint, indent)) {
@@ -281,37 +282,37 @@ namespace edm {
     }
 
     void printDataMembers(std::ostream& oStream,
-                          Reflex::Object const& iObject,
-                          Reflex::Type const& iType,
+                          ObjectWithDict const& iObject,
+                          TypeWithDict const& iType,
                           std::string const& iIndent,
                           std::string const& iIndentDelta) {
       //print all the base class data members
-      for(Reflex::Base_Iterator itBase = iType.Base_Begin();
-          itBase != iType.Base_End();
-          ++itBase) {
-        printDataMembers(oStream, iObject.CastObject(itBase->ToType()), itBase->ToType(), iIndent, iIndentDelta);
+      TypeBases bases(iType);
+      for(auto const& baseMember : bases) {
+        BaseWithDict base(baseMember);
+        printDataMembers(oStream, iObject.castObject(base.toType()), base.toType(), iIndent, iIndentDelta);
       }
       static std::string const kPrefix("<datamember name=\"");
       static std::string const ktype("\" type=\"");
       static std::string const kPostfix("</datamember>");
 
-      for(Reflex::Member_Iterator itMember = iType.DataMember_Begin();
-          itMember != iType.DataMember_End();
-          ++itMember){
-        //std::cout << "     debug " << itMember->Name() << " " << itMember->TypeOf().Name() << "\n";
-        if (itMember->IsTransient()) {
+      TypeDataMembers dataMembers(iType);
+      for(auto const& dataMember : dataMembers) {
+        MemberWithDict member(dataMember);
+        //std::cout << "     debug " << member.name() << " " << member.name() << "\n";
+        if (member.isTransient()) {
           continue;
         }
         try {
-          std::string prefix = kPrefix + itMember->Name() + ktype;
+          std::string prefix = kPrefix + member.name() + ktype;
           printObject(oStream,
                       prefix,
                       kPostfix,
-                      itMember->Get(iObject),
+                      member.get(iObject),
                       iIndent,
                       iIndentDelta);
         }catch(std::exception& iEx) {
-          std::cout << iIndent << itMember->Name() << " <exception caught("
+          std::cout << iIndent << member.name() << " <exception caught("
           << iEx.what() << ")>\n";
         }
       }
@@ -320,55 +321,57 @@ namespace edm {
     bool printContentsOfStdContainer(std::ostream& oStream,
                                      std::string const& iPrefix,
                                      std::string const& iPostfix,
-                                     Reflex::Object iBegin,
-                                     Reflex::Object const& iEnd,
+                                     ObjectWithDict iBegin,
+                                     ObjectWithDict const& iEnd,
                                      std::string const& iIndent,
                                      std::string const& iIndentDelta){
       size_t size = 0;
       std::ostringstream sStream;
-      if(iBegin.TypeOf() != iEnd.TypeOf()) {
-        std::cerr << " begin (" << iBegin.TypeOf().Name(Reflex::SCOPED) << ") and end ("
-          << iEnd.TypeOf().Name(Reflex::SCOPED) << ") are not the same type" << std::endl;
+      if(iBegin.typeOf() != iEnd.typeOf()) {
+        std::cerr << " begin (" << iBegin.name() << ") and end ("
+          << iEnd.name() << ") are not the same type" << std::endl;
         throw std::exception();
       }
       try {
-        Reflex::Member compare(iBegin.TypeOf().MemberByName("operator!="));
+        MemberWithDict compare(iBegin.typeOf().memberByName("operator!="));
         if(!compare) {
-          //std::cerr << "no 'operator!=' for " << iBegin.TypeOf().Name() << std::endl;
+          //std::cerr << "no 'operator!=' for " << iBegin.name() << std::endl;
           return false;
         }
-        Reflex::Member incr(iBegin.TypeOf().MemberByName("operator++"));
+        MemberWithDict incr(iBegin.typeOf().memberByName("operator++"));
         if(!incr) {
-          //std::cerr << "no 'operator++' for " << iBegin.TypeOf().Name() << std::endl;
+          //std::cerr << "no 'operator++' for " << iBegin.name() << std::endl;
           return false;
         }
-        Reflex::Member deref(iBegin.TypeOf().MemberByName("operator*"));
+        MemberWithDict deref(iBegin.typeOf().memberByName("operator*"));
         if(!deref) {
-          //std::cerr << "no 'operator*' for " << iBegin.TypeOf().Name() << std::endl;
+          //std::cerr << "no 'operator*' for " << iBegin.name() << std::endl;
           return false;
         }
 
         std::string indexIndent = iIndent+iIndentDelta;
         int dummy=0;
-        //std::cerr << "going to loop using iterator " << iBegin.TypeOf().Name(Reflex::SCOPED) << std::endl;
+        //std::cerr << "going to loop using iterator " << iBegin.name() << std::endl;
 
-        std::vector<void*> compareArgs = Reflex::Tools::MakeVector((iEnd.Address()));
-        std::vector<void*> incrArgs = Reflex::Tools::MakeVector(static_cast<void*>(&dummy));
+        std::vector<void*> compareArgs;
+        compareArgs.push_back(iEnd.address());
+        std::vector<void*> incArgs;
+        incArgs.push_back(&dummy);
         bool compareResult;
-        Reflex::Object objCompareResult(Reflex::Type::ByTypeInfo(typeid(bool)), &compareResult);
-        Reflex::Object objIncr;
+        ObjectWithDict objCompareResult(TypeWithDict(typeid(bool)), &compareResult);
+        ObjectWithDict objIncr;
         void* objIncrRefBuffer;
-        boost::shared_ptr<Reflex::Object> incrMemHolder = initReturnValue(incr, &objIncr, &objIncrRefBuffer);
+        boost::shared_ptr<ObjectWithDict> incrMemHolder = initReturnValue(incr, &objIncr, &objIncrRefBuffer);
         for(;
-          compare.Invoke(iBegin, &objCompareResult, compareArgs), compareResult;
-          incr.Invoke(iBegin, &objIncr, incrArgs), ++size) {
+          compare.invoke(iBegin, &objCompareResult, compareArgs), compareResult;
+          incr.invoke(iBegin, &objIncr, incArgs), ++size) {
           //std::cerr << "going to print" << std::endl;
-          Reflex::Object iTemp;
+          ObjectWithDict iTemp;
           void* derefRefBuffer;
-          boost::shared_ptr<Reflex::Object> derefMemHolder = initReturnValue(deref, &iTemp, &derefRefBuffer);
-          deref.Invoke(iBegin, &iTemp);
-          if(iTemp.TypeOf().IsReference()) {
-            iTemp = Reflex::Object(iTemp.TypeOf(), derefRefBuffer);
+          boost::shared_ptr<ObjectWithDict> derefMemHolder = initReturnValue(deref, &iTemp, &derefRefBuffer);
+          deref.invoke(iBegin, &iTemp);
+          if(iTemp.isReference()) {
+            iTemp = ObjectWithDict(iTemp.typeOf(), derefRefBuffer);
           }
           printObject(sStream, kObjectOpen, kObjectClose, iTemp, indexIndent, iIndentDelta);
           //std::cerr << "printed" << std::endl;
@@ -387,40 +390,42 @@ namespace edm {
 
     bool printAsContainer(std::ostream& oStream,
                           std::string const& iPrefix, std::string const& iPostfix,
-                          Reflex::Object const& iObject,
+                          ObjectWithDict const& iObject,
                           std::string const& iIndent,
                           std::string const& iIndentDelta) {
-      Reflex::Object sizeObj;
+      ObjectWithDict sizeObj;
       try {
         size_t temp; //used to hold the memory for the return value
-        sizeObj = Reflex::Object(Reflex::Type::ByTypeInfo(typeid(size_t)), &temp);
-        iObject.Invoke("size", &sizeObj);
+        sizeObj = ObjectWithDict(TypeWithDict(typeid(size_t)), &temp);
+        iObject.invoke("size", &sizeObj);
 
-        if(sizeObj.TypeOf().TypeInfo() != typeid(size_t)) {
+        if(sizeObj.typeOf().typeInfo() != typeid(size_t)) {
           throw std::exception();
         }
-        size_t size = *reinterpret_cast<size_t*>(sizeObj.Address());
-        Reflex::Member atMember;
-        atMember = iObject.TypeOf().MemberByName("at");
+        size_t size = *reinterpret_cast<size_t*>(sizeObj.address());
+        MemberWithDict atMember;
+        atMember = iObject.typeOf().memberByName("at");
         if(!atMember) {
           throw std::exception();
         }
-        std::string typeName(iObject.TypeOf().Name(Reflex::SCOPED));
+        std::string typeName(iObject.name());
         if(typeName.empty()){
           typeName="{unknown}";
         }
 
         oStream << iIndent << iPrefix << formatXML(typeName) << "\">\n"
           << iIndent << kContainerOpen << size << "\">\n";
-        Reflex::Object contained;
+        ObjectWithDict contained;
         std::string indexIndent=iIndent+iIndentDelta;
         for(size_t index = 0; index != size; ++index) {
           void* atRefBuffer;
-          boost::shared_ptr<Reflex::Object> atMemHolder = initReturnValue(atMember, &contained, &atRefBuffer);
+          boost::shared_ptr<ObjectWithDict> atMemHolder = initReturnValue(atMember, &contained, &atRefBuffer);
 
-          atMember.Invoke(iObject, &contained, Reflex::Tools::MakeVector(static_cast<void*>(&index)));
-          if(contained.TypeOf().IsReference()) {
-            contained = Reflex::Object(contained.TypeOf(), atRefBuffer);
+          std::vector<void*> args;
+          args.push_back(&index);
+          atMember.invoke(iObject, &contained, args);
+          if(contained.isReference()) {
+            contained = ObjectWithDict(contained.typeOf(), atRefBuffer);
           }
           //std::cout << "invoked 'at'" << std::endl;
           try {
@@ -437,21 +442,21 @@ namespace edm {
         //std::cerr << "failed to invoke 'at' because " << x.what() << std::endl;
         try {
           //oStream << iIndent << iPrefix << formatXML(typeName) << "\">\n";
-          std::string typeName(iObject.TypeOf().Name(Reflex::SCOPED));
+          std::string typeName(iObject.name());
           if(typeName.empty()){
             typeName="{unknown}";
           }
-          Reflex::Object iObjBegin;
+          ObjectWithDict iObjBegin;
           void* beginRefBuffer;
-          Reflex::Member beginMember = iObject.TypeOf().MemberByName("begin");
-          boost::shared_ptr<Reflex::Object> beginMemHolder = initReturnValue(beginMember, &iObjBegin, &beginRefBuffer);
-          Reflex::Object iObjEnd;
+          MemberWithDict beginMember = iObject.typeOf().memberByName("begin");
+          boost::shared_ptr<ObjectWithDict> beginMemHolder = initReturnValue(beginMember, &iObjBegin, &beginRefBuffer);
+          ObjectWithDict iObjEnd;
           void* endRefBuffer;
-          Reflex::Member endMember = iObject.TypeOf().MemberByName("end");
-          boost::shared_ptr<Reflex::Object> endMemHolder = initReturnValue(endMember, &iObjEnd, &endRefBuffer);
+          MemberWithDict endMember = iObject.typeOf().memberByName("end");
+          boost::shared_ptr<ObjectWithDict> endMemHolder = initReturnValue(endMember, &iObjEnd, &endRefBuffer);
 
-          beginMember.Invoke(iObject, &iObjBegin);
-          endMember.Invoke(iObject, &iObjEnd);
+          beginMember.invoke(iObject, &iObjBegin);
+          endMember.invoke(iObject, &iObjEnd);
           if(printContentsOfStdContainer(oStream,
                                          iIndent+iPrefix+formatXML(typeName)+"\">\n",
                                          iIndent+iPostfix,

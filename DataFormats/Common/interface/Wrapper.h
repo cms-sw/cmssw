@@ -29,7 +29,7 @@ namespace edm {
   class Wrapper {
   public:
     typedef T value_type;
-    typedef T wrapped_type;  // used with Reflex to identify Wrappers
+    typedef T wrapped_type;  // used with the dictionary to identify Wrappers
     Wrapper() : present(false), obj() {}
     explicit Wrapper(std::auto_ptr<T> ptr);
     ~Wrapper() {}
@@ -40,8 +40,7 @@ namespace edm {
     static std::type_info const& productTypeInfo() { return typeid(T);}
     static std::type_info const& typeInfo() { return typeid(Wrapper<T>);}
 
-    /**REFLEX must call the following constructor
-        the constructor takes ownership of T* */
+    //  the constructor takes ownership of T*
     Wrapper(T*);
 
     static

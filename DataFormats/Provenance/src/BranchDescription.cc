@@ -2,9 +2,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
-
-#include "Reflex/Member.h"
 
 #include <ostream>
 #include <sstream>
@@ -180,15 +179,15 @@ namespace edm {
       basketSize() = invalidBasketSize;
       return;
     }
-    Reflex::PropertyList wp = Reflex::Type::ByTypeInfo(type().typeInfo()).Properties();
-    transient() = (wp.HasProperty("persistent") ? wp.PropertyAsString("persistent") == std::string("false") : false);
+    TypeWithDict wp(type().typeInfo());
+    transient() = (wp.hasProperty("persistent") ? wp.propertyValueAsString("persistent") == std::string("false") : false);
     if(transient()) {
       splitLevel() = invalidSplitLevel;
       basketSize() = invalidBasketSize;
       return;
     }
-    if(wp.HasProperty("splitLevel")) {
-      splitLevel() = strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0);
+    if(wp.hasProperty("splitLevel")) {
+      splitLevel() = strtol(wp.propertyValueAsString("splitLevel").c_str(), 0, 0);
       if(splitLevel() < 0) {
         throw cms::Exception("IllegalSplitLevel") << "' An illegal ROOT split level of " <<
         splitLevel() << " is specified for class " << wrappedName() << ".'\n";
@@ -197,8 +196,8 @@ namespace edm {
     } else {
       splitLevel() = invalidSplitLevel;
     }
-    if(wp.HasProperty("basketSize")) {
-      basketSize() = strtol(wp.PropertyAsString("basketSize").c_str(), 0, 0);
+    if(wp.hasProperty("basketSize")) {
+      basketSize() = strtol(wp.propertyValueAsString("basketSize").c_str(), 0, 0);
       if(basketSize() <= 0) {
         throw cms::Exception("IllegalBasketSize") << "' An illegal ROOT basket size of " <<
         basketSize() << " is specified for class " << wrappedName() << "'.\n";
@@ -369,9 +368,8 @@ namespace edm {
   BranchDescription::getInterface() const {
     if(wrapperInterfaceBase() == 0) {
       // This could be done in init(), but we only want to do it on demand, for performance reasons.
-      Reflex::Type type = Reflex::Type::ByName(wrappedName());
-      Reflex::Member getTheInterface = type.FunctionMemberByName(std::string("getInterface"));
-      getTheInterface.Invoke(wrapperInterfaceBase());
+      TypeWithDict type = TypeWithDict::byName(wrappedName());
+      type.invokeByName(wrapperInterfaceBase(), "getInterface");
       assert(wrapperInterfaceBase() != 0);
     }
     return wrapperInterfaceBase();

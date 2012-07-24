@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 15 09:47:48 EDT 2005
-// $Id: LoadAllDictionaries.cc,v 1.9 2010/03/09 16:24:55 wdd Exp $
+// $Id: LoadAllDictionaries.cc,v 1.10 2010/07/20 22:13:22 chrjones Exp $
 //
 
 // system include files
@@ -49,7 +49,6 @@ edm::service::LoadAllDictionaries::LoadAllDictionaries(const edm::ParameterSet& 
        return;
      }
      std::string lastClass;
-     const std::string cPrefix("LCGReflex/");
      const std::string mystring("edm::Wrapper");
 
      for (edmplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
@@ -73,6 +72,6 @@ void edm::service::LoadAllDictionaries::fillDescriptions(edm::ConfigurationDescr
   edm::ParameterSetDescription desc;
   desc.addUntracked<bool>("doLoad", true)->setComment("Only if 'true' do we load all dictionaries");
   descriptions.add("LoadAllDictionaries", desc);
-  descriptions.setComment("This service allows you to force all known Reflex dictionaries to be loaded at the beginning of the job");
+  descriptions.setComment("This service allows you to force all known dictionaries to be loaded at the beginning of the job");
 }
 

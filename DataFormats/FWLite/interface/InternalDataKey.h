@@ -20,9 +20,9 @@
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
-#include "Reflex/Object.h"
 #include "TBranch.h"
 
 #include <cstring>
@@ -81,7 +81,7 @@ namespace fwlite {
       struct Data {
             TBranch* branch_;
             Long64_t lastProduct_;
-            Reflex::Object obj_; // For wrapped object
+            edm::ObjectWithDict obj_; // For wrapped object
             void * pObj_; // pointer to pProd_.  ROOT requires the address of the pointer be stable
             void * pProd_; // pointer to wrapped product
             edm::WrapperInterfaceBase * interface_;
