@@ -101,7 +101,6 @@ def CreateTheShellFile(argv):
         elif argv[0]=='ROOT':
 		if Jobs_RunHere==0:
                 	shell_file.write('cd -\n')
-                #shell_file.write('source setstandaloneroot.sh\n')
 	        shell_file.write('root -l -b << EOF\n')
 	        shell_file.write('   TString makeshared(gSystem->GetMakeSharedLib());\n')
 	        shell_file.write('   TString dummy = makeshared.ReplaceAll("-W ", "-Wno-deprecated-declarations -Wno-deprecated ");\n')
@@ -110,13 +109,11 @@ def CreateTheShellFile(argv):
 	        shell_file.write('   gSystem->SetMakeSharedLib(makeshared);\n')
 		shell_file.write('   gSystem->SetIncludePath( "-I$ROOFITSYS/include" );\n')  
                 shell_file.write('   .x %s+' % argv[1] + function_argument + '\n')
-#                shell_file.write("root -l -b -q %s" % argv[1] + "+'%s'\n" % function_argument)
 	        shell_file.write('   .q\n')
 	        shell_file.write('EOF\n\n')
         elif argv[0]=='FWLITE':                 
 		if Jobs_RunHere==0:
                 	shell_file.write('cd -\n')
-#	        shell_file.write('eval `scramv1 runtime -sh`\n')
 	        shell_file.write('root -l -b << EOF\n')
                 shell_file.write('   TString makeshared(gSystem->GetMakeSharedLib());\n')
                 shell_file.write('   TString dummy = makeshared.ReplaceAll("-W ", "-Wno-deprecated-declarations -Wno-deprecated ");\n')
