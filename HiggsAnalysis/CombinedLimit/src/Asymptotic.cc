@@ -26,7 +26,7 @@ std::string Asymptotic::what_ = "both";
 bool  Asymptotic::qtilde_ = true; 
 bool  Asymptotic::picky_ = false; 
 bool  Asymptotic::noFitAsimov_ = false; 
-bool  Asymptotic::newExpected_ = false; 
+bool  Asymptotic::newExpected_ = true; 
 std::string Asymptotic::minosAlgo_ = "stepping"; 
 std::string Asymptotic::minimizerAlgo_ = "Minuit2";
 float       Asymptotic::minimizerTolerance_ = 0.01;
@@ -47,7 +47,7 @@ LimitAlgo("Asymptotic specific options") {
         ("qtilde", boost::program_options::value<bool>(&qtilde_)->default_value(qtilde_),  "Allow only non-negative signal strengths (default is true).")
         ("picky", "Abort on fit failures")
         ("noFitAsimov", "Use the pre-fit asimov dataset")
-        ("newExpected", "Use the new formula for expected limits")
+        ("newExpected", boost::program_options::value<bool>(&newExpected_)->default_value(newExpected_), "Use the new formula for expected limits (default is true)")
         ("minosAlgo", boost::program_options::value<std::string>(&minosAlgo_)->default_value(minosAlgo_), "Algorithm to use to get the median expected limit: 'minos' (fastest), 'bisection', 'stepping' (default, most robust)")
     ;
 }
@@ -62,7 +62,6 @@ void Asymptotic::applyOptions(const boost::program_options::variables_map &vm) {
     }
     picky_ = vm.count("picky");
     noFitAsimov_ = vm.count("noFitAsimov");
-    newExpected_ = vm.count("newExpected");
     if (what_ == "blind") { what_ = "expected"; noFitAsimov_ = true; } 
     if (noFitAsimov_) std::cout << "Will use a-priori expected background instead of a-posteriori one." << std::endl; 
 }
