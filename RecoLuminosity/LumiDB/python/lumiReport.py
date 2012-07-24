@@ -198,9 +198,10 @@ def toScreenTotDelivered(lumidata,resultlines,scalefactor,irunlsdict=None,noWarn
                 if cmslsnum:
                     existdata.append(cmslsnum)
             if irunlsdict and irunlsdict[run]:
-                if cmslsnum and cmslsnum in irunlsdict[run]:
+                if lumilsnum and lumilsnum in irunlsdict[run]:
                     deliveredData.append(perlsdata[5])
-                    selectedcmsls.append(cmslsnum)
+                    if cmslsnum:
+                        selectedcmsls.append(cmslsnum)
             else:
                 deliveredData.append(perlsdata[5])
                 if cmslsnum:                    
@@ -320,12 +321,12 @@ def toScreenOverview(lumidata,resultlines,scalefactor,irunlsdict=None,noWarning=
                 if cmslsnum:
                     existdata.append(cmslsnum)
             if irunlsdict and irunlsdict[run]:
-                if cmslsnum and cmslsnum in irunlsdict[run]:
+                if lumilsnum and lumilsnum in irunlsdict[run]:
                     if perlsdata[5]:
                         deliveredData.append(perlsdata[5])
                     if perlsdata[6]:
                         recordedData.append(perlsdata[6])
-                    selectedcmsls.append(cmslsnum)
+                    selectedcmsls.append(lumilsnum)
             else:
                 deliveredData.append(perlsdata[5])
                 if perlsdata[6]:
@@ -359,7 +360,7 @@ def toScreenOverview(lumidata,resultlines,scalefactor,irunlsdict=None,noWarning=
             if cmslslist:
                 for ss in cmslslist:
                     if ss not in datarunlsdict[run]:
-                        sys.stdout.write('[WARNING] selected run/ls '+str(run)+' '+str(ss)+' not in lumiDB\n')
+                        sys.stdout.write('[WARNING] lumi or trg for selected run/ls '+str(run)+' '+str(ss)+' not in lumiDB\n')
     if not toFile:
         labels = [('Run:Fill', 'Delivered LS', 'Delivered','Selected LS','Recorded')]    
         print ' ==  = '
@@ -417,7 +418,7 @@ def toScreenLumiByLS(lumidata,resultlines,scalefactor,irunlsdict=None,noWarning=
             if cmls!='0':
                 totOldSelectedLS+=1
                 if irunlsdict and not noWarning:
-                    datarunlsdict[int(runnumstr)].append(int(myls))            
+                    datarunlsdict[int(runnumstr)].append(int(myls))                    
         dl=rline[5]
         if rline[5]!='n/a':
             dl=float(rline[5])#delivered in /ub
@@ -462,13 +463,12 @@ def toScreenLumiByLS(lumidata,resultlines,scalefactor,irunlsdict=None,noWarning=
             if perlsdata[6]:
                 recordedlumi=perlsdata[6]
             if irunlsdict and irunlsdict[run]:
-                if run in irunlsdict and cmslsnum in irunlsdict[run]:
+                if run in irunlsdict and lumilsnum in irunlsdict[run]:
                     result.append([str(run)+':'+str(fillnum),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,'%.1f'%begev,deliveredlumi,recordedlumi,npu])                
                     totalDelivered+=deliveredlumi
                     totalRecorded+=recordedlumi
                     totalDeliveredLS+=1
-                    if cmslsnum:
-                        totalSelectedLS+=1
+                    totalSelectedLS+=1
             else:
                 result.append([str(run)+':'+str(fillnum),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,'%.1f'%begev,deliveredlumi,recordedlumi,npu])
                 totalDelivered+=deliveredlumi
@@ -486,7 +486,7 @@ def toScreenLumiByLS(lumidata,resultlines,scalefactor,irunlsdict=None,noWarning=
             if cmslslist:
                 for ss in cmslslist:
                     if ss not in datarunlsdict[run]:
-                        sys.stdout.write('[WARNING] selected run/ls '+str(run)+' '+str(ss)+' not in lumiDB\n')
+                        sys.stdout.write('[WARNING] lumi or trg for selected run/ls '+str(run)+' '+str(ss)+' not in lumiDB\n')
     if not toFile:                    
         (lsunitstring,unitdenomitor)=CommonUtil.lumiUnitForPrint(maxlslumi*scalefactor)
         labels = [ ('Run:Fill','LS','UTCTime','Beam Status','E(GeV)','Del('+lsunitstring+')','Rec('+lsunitstring+')','avgPU') ]                    
@@ -825,6 +825,7 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarn
                 result.append([str(run)+':'+str(fillnum),selectedlsStr,totrecordedinrun*scalefactor,name+hprescStr,cleanlname+lprescStr,effval])
                 
     if irunlsdict and not noWarning:
+        print cmslslist
         for run,cmslslist in irunlsdict.items():
             if run not in datarunlsdict.keys() or datarunlsdict[run] is None:
                 sys.stdout.write('[WARNING] selected run '+str(run)+' not in lumiDB or has no HLT data\n')
