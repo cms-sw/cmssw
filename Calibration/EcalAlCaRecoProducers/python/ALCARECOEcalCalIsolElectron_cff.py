@@ -15,20 +15,20 @@ import FWCore.ParameterSet.Config as cms
 # the lines to produce the Ref collection are the following
 # you should not need to uncomment those, because I've already
 # produced them in the ALCARECO step
-trackerDrivenOnlyElectrons = cms.EDFilter("GsfElectronRefSelector",
-                                          src = cms.InputTag( 'gsfElectrons' ),
-                                          cut = cms.string( "(ecalDrivenSeed==0)" )
-                                          )
+#trackerDrivenOnlyElectrons = cms.EDFilter("GsfElectronRefSelector",
+#                                          src = cms.InputTag( 'gsfElectrons' ),
+#                                          cut = cms.string( "(ecalDrivenSeed==0)" )
+#                                          )
 
 # these lines active a filter that counts if there are more than 0
 # trackerDrivenOnly electrons 
-trackerDrivenRemover = cms.EDFilter("PATCandViewCountFilter",
-                                    minNumber = cms.uint32(0),
-                                    maxNumber = cms.uint32(0),
-                                    src = cms.InputTag("trackerDrivenOnlyElectrons")
-                                    )
+#trackerDrivenRemover = cms.EDFilter("PATCandViewCountFilter",
+#                                    minNumber = cms.uint32(0),
+#                                    maxNumber = cms.uint32(0),
+#                                    src = cms.InputTag("trackerDrivenOnlyElectrons")
+#                                    )
 #trackerDrivenRemoverSeq = cms.Sequence( trackerDrivenOnlyElectrons * trackerDrivenRemover )
-trackerDrivenRemoverSeq = cms.Sequence( trackerDrivenOnlyElectrons)
+#trackerDrivenRemoverSeq = cms.Sequence( trackerDrivenOnlyElectrons)
 
 
 from RecoJets.Configuration.RecoPFJets_cff import *
@@ -40,10 +40,10 @@ kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
 
 from Calibration.EcalAlCaRecoProducers.alCaIsolatedElectrons_cfi import *
 
-seqALCARECOEcalCalElectronRECO = cms.Sequence(kt6PFJetsForRhoCorrection + alCaIsolatedElectrons)
+seqALCARECOEcalCalElectronRECO = cms.Sequence( alCaIsolatedElectrons)
 
 
-seqALCARECOEcalCalElectron = cms.Sequence( trackerDrivenRemoverSeq *
+seqALCARECOEcalCalElectron = cms.Sequence( kt6PFJetsForRhoCorrection +
                                            seqALCARECOEcalCalElectronRECO
                                           )
 
