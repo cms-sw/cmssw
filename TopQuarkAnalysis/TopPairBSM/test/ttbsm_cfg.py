@@ -306,12 +306,12 @@ process.patPF2PATSequencePFlowLoose += process.patConversionsPFlowLoose
 ###############################
 
 from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
-## from RecoJets.JetProducers.kt4PFJets_cfi import *
-## process.kt6PFJetsForIsolation =  kt4PFJets.clone(
-##     rParam = 0.6,
-##     doRhoFastjet = True,
-##     Rho_EtaMax = cms.double(2.5)
-##     )
+from RecoJets.JetProducers.kt4PFJets_cfi import *
+process.kt6PFJetsForIsolation =  kt4PFJets.clone(
+    rParam = 0.6,
+    doRhoFastjet = True,
+    Rho_EtaMax = cms.double(2.5)
+    )
 
 ###############################
 ###### Bare CA 0.8 jets #######
@@ -1327,6 +1327,7 @@ process.patseq = cms.Sequence(
     process.caPrunedGen*
     process.caTopTagGen*
     process.CATopTagInfosGen*
+    process.kt6PFJetsForIsolation*
     getattr(process,"patPF2PATSequence"+postfixLoose)#*
 #    process.miniPFLeptonSequence
     )
