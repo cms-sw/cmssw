@@ -27,10 +27,10 @@
 #define DBGV(X,Z) if (X>1) { Z; }
 #define DBG_TestStat_params 0 // ProfiledLikelihoodRatioTestStatOpt::Evaluate; 1 = dump nlls; 2 = dump params at each eval
 #define DBG_TestStat_NOFIT  0 // FIXME HACK: if set, don't profile the likelihood, just evaluate it
-#define DBG_PLTestStat_ctor 2 // dump parameters in c-tor
-#define DBG_PLTestStat_pars 2 // dump parameters in eval
-#define DBG_PLTestStat_fit  2 // dump fit result
-#define DBG_PLTestStat_main 2 // limited debugging (final NLLs, failed fits)
+#define DBG_PLTestStat_ctor 1 // dump parameters in c-tor
+#define DBG_PLTestStat_pars 1 // dump parameters in eval
+#define DBG_PLTestStat_fit  1 // dump fit result
+#define DBG_PLTestStat_main 1 // limited debugging (final NLLs, failed fits)
 #else
 #define DBG(X,Z) 
 #define DBGV(X,Z) 
@@ -51,18 +51,24 @@ ProfiledLikelihoodRatioTestStatOpt::ProfiledLikelihoodRatioTestStatOpt(
 {
     snapNull_.addClone(paramsNull);
     snapAlt_.addClone(paramsAlt);
-    DBG(DBG_TestStat_params, (std::cout << "Null snapshot" << pdfNull_->GetName())) DBG(DBG_TestStat_params, (snapNull_.Print("V")))
-    DBG(DBG_TestStat_params, (std::cout << "Alt  snapshot" << pdfAlt_->GetName()))  DBG(DBG_TestStat_params, (snapAlt_.Print("V")))
-    if (nuisances) nuisances_.addClone(*nuisances);
+    DBG(DBG_TestStat_params, (std::cout << "Null snapshot" << pdfNull_->GetName() << "\n")) DBG(DBG_TestStat_params, (snapNull_.Print("V")))
+    DBG(DBG_TestStat_params, (std::cout << "Alt  snapshot" << pdfAlt_->GetName() << "\n"))  DBG(DBG_TestStat_params, (snapAlt_.Print("V")))
+    if (nuisances) {
+        nuisances_.addClone(*nuisances);
+        DBG(DBG_TestStat_params, (std::cout << "Nuisances" << std::endl))  DBG(DBG_TestStat_params, (nuisances_.Print("V")))
+    }
 }
 
 Double_t ProfiledLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& nullPOI)
 {
+    RooArgSet initialStateAlt;  paramsAlt_->snapshot(initialStateAlt);
+    RooArgSet initialStateNull; paramsNull_->snapshot(initialStateNull);
+
     *paramsNull_ = nuisances_;
     *paramsNull_ = snapNull_;
     *paramsNull_ = nullPOI;
         
-    DBGV(DBG_TestStat_params, (std::cout << "Parameters of null pdf (pre fit)" << pdfNull_->GetName()))
+    DBGV(DBG_TestStat_params, (std::cout << "Parameters of null pdf (pre fit)" << pdfNull_->GetName() << "\n"))
     DBGV(DBG_TestStat_params, (paramsNull_->Print("V")))
 
     bool canKeepNullNLL = createNLL(*pdfNull_, data, nllNull_);
@@ -72,14 +78,19 @@ Double_t ProfiledLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSe
     *paramsAlt_ = nuisances_;
     *paramsAlt_ = snapAlt_;
         
-    DBGV(DBG_TestStat_params, (std::cout << "Parameters of alt pdf " << pdfAlt_->GetName()))
+    DBGV(DBG_TestStat_params, (std::cout << "Parameters of alt pdf " << pdfAlt_->GetName() << "\n"))
     DBGV(DBG_TestStat_params, (paramsAlt_->Print("V")))
     bool canKeepAltNLL = createNLL(*pdfAlt_, data, nllAlt_);
     double altNLL = minNLL(nllAlt_);
     if (!canKeepAltNLL) nllAlt_.reset();
     
     DBG(DBG_TestStat_params, (printf("Pln: null = %+8.4f, alt = %+8.4f\n", nullNLL, altNLL)))
-    return nullNLL-altNLL;
+    double ret = nullNLL-altNLL;
+
+    *paramsAlt_  = initialStateAlt;
+    *paramsNull_ = initialStateNull;
+
+    return ret;
 }
 
 bool ProfiledLikelihoodRatioTestStatOpt::createNLL(RooAbsPdf &pdf, RooAbsData &data, std::auto_ptr<RooAbsReal> &nll_) 
@@ -102,10 +113,9 @@ double ProfiledLikelihoodRatioTestStatOpt::minNLL(std::auto_ptr<RooAbsReal> &nll
     std::auto_ptr<RooAbsReal> nll_(pdf.createNLL(data, RooFit::Constrain(nuisances_)));
     return nll_->getVal();
 #endif
-    RooMinimizer minim(*nll_);
+    CascadeMinimizer minim(*nll_, CascadeMinimizer::Constrained);
     minim.setStrategy(0);
-    minim.setPrintLevel(verbosity_-2);
-    minim.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
+    minim.minimize(verbosity_-2);
     if (verbosity_ > 1) {
         std::auto_ptr<RooFitResult> res(minim.save());
         res->Print("V");
