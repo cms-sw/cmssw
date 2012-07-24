@@ -8,7 +8,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['startup']
-process.GlobalTag.globaltag = "GR_R_60_V1::All"
+#process.GlobalTag.globaltag = "GR_R_60_V1::All"
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
@@ -57,6 +57,10 @@ process.hcalNoiseRatesClient.outputFile = cms.untracked.string('NoiseRatesHarves
 process.hcalRecHitsDQMClient.outputFile = cms.untracked.string('HcalRecHitsHarvestingME.root')
 
 ##########
+process.load("DQMServices.Components.DQMStoreStats_cfi")
+
+##########
 process.p2 = cms.Path( process.HcalDQMOfflineSequence
                        * process.HcalDQMOfflinePostProcessor
+                       * process.dqmStoreStats
                        * process.dqmSaver)
