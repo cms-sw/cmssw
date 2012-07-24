@@ -1,6 +1,5 @@
 <use   name="FWCore/Utilities"/>
 <use   name="boost"/>
-<use   name="rootrflx"/>
 <export>
   <lib   name="1"/>
 </export>

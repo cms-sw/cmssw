@@ -1,7 +1,6 @@
 <use   name="FWCore/Utilities"/>
 <use   name="boost"/>
 <use   name="rootcore"/>
-<use   name="rootrflx"/>
 <use   name="FWCore/MessageLogger"/>
 <export>
   <lib   name="1"/>
