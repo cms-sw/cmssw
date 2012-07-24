@@ -4,8 +4,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: agimbuta $
-# $Date: 2012/07/12 15:30:54 $
-# $Revision: 1.4 $
+# $Date: 2012/07/17 14:56:58 $
+# $Revision: 1.5 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -18,7 +18,7 @@ import os
 import cPickle
 import glob
 from re import search
-from subprocess import Popen,PIPE
+from subprocess import call,PIPE
 from multiprocessing import Pool
 from sys import exit
 
@@ -293,8 +293,9 @@ def call_compare_using_files(args):
     command+= '-B %s ' %blacklists[sample]
   print "\nExecuting --  %s" %command
 
-  process=Popen(filter(lambda x: len(x)>0,command.split(" ")))
-  process.name=sample
+  process=call(filter(lambda x: len(x)>0,command.split(" ")))
+  return process
+  
 
 #--------------------------------------------------------------------------------
 
@@ -356,7 +357,7 @@ def do_comparisons_threaded(options):
       #first=False
       
     #print n_processes
-  print n_processes
+  #print n_processes
   
   # Test if we treat data
   skim_name=""
@@ -365,20 +366,19 @@ def do_comparisons_threaded(options):
     
   running_subprocesses=[]
   process_counter=0
-  print ref_filenames
+  #print ref_filenames
 
   ## Compare all pairs of root files
   pool = Pool(n_processes)
   args_iterable = [list(args) + [options] for args in zip(samples, ref_filenames, test_filenames)]
-  pool.map(call_compare_using_files, args_iterable)
-
+  pool.map(call_compare_using_files, args_iterable) 
   # move the pickles on the top, hack
   os.system("mv */*pkl .")
   
   os.chdir("..")
 #-------------------------------------------------------------------------------
 def do_reports(indir):
-  print indir
+  #print indir
   os.chdir(indir)
   pkl_list=filter(lambda x:".pkl" in x, os.listdir("./"))
   running_subprocesses=[]
@@ -392,7 +392,7 @@ def do_reports(indir):
     command+= "-P %s " %pklfilename
     command+= "-o %s " %pklfilename[:-4]
     print "Executing %s" %command
-    process=Popen(filter(lambda x: len(x)>0,command.split(" ")))
+    process=call(filter(lambda x: len(x)>0,command.split(" ")))
     process_counter+=1
     # add it to the list
     running_subprocesses.append(process)   
