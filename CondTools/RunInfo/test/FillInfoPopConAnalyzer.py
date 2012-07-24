@@ -31,7 +31,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 process.Test1 = cms.EDAnalyzer("FillInfoPopConAnalyzer",
                                SinceAppendMode = cms.bool(True),
                                record = cms.string('FillInfoRcd'),
-                               name = cms.string('FillInfo'),
+                               name = cms.untracked.string('FillInfo'),
                                Source = cms.PSet(fill = cms.untracked.uint32(902),
                                                  connectionString = cms.untracked.string("oracle://ora_db/ora_schema"),
                                                  authenticationPath =  cms.untracked.string(".")
