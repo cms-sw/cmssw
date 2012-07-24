@@ -23,10 +23,11 @@
 #include "FWCore/RootAutoLibraryLoader/src/stdNamespaceAdder.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
+#include "FWCore/Utilities/interface/DictionaryTools.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 
 #include "Cintex/Cintex.h"
 #include "TClass.h"
@@ -100,7 +101,7 @@ namespace edm {
           return false;
         }
         //std::cout << "asking to find " << classname << std::endl;
-        static std::string const cPrefix("LCGReflex/");
+        std::string const& cPrefix = dictionaryPlugInPrefix();
         //std::cout << "asking to find " << cPrefix + classname << std::endl;
         try {
           //give ROOT a name for the file we are loading
@@ -110,7 +111,7 @@ namespace edm {
             if(!t.isComplete()) {
               //would be nice to issue a warning here.  Not sure the remainder of this comment is correct.
               // this message happens too often (too many false positives) to be useful plus ROOT will complain about a missing dictionary
-              //std::cerr << "Warning: Reflex knows about type '" << classname << "' but has no dictionary for it." << std::endl;
+              //std::cerr << "Warning: ROOT knows about type '" << classname << "' but has no dictionary for it." << std::endl;
               return false;
             }
           } else {
@@ -151,12 +152,12 @@ namespace edm {
         int result = loadLibraryForClass(c) ? 1:0;
         G__setgvp(varp);
         //NOTE: the check for the library is done since we can have a failure
-        // if a CMS library has an incomplete set of Reflex dictionaries where
+        // if a CMS library has an incomplete set of reflex dictionaries where
         // the remaining dictionaries can be found by Cint.  If the library with
-        // the Reflex dictionaries is loaded first, then the Cint library then any
-        // requests for a Type from the Reflex library will fail because for
-        // some reason the loading of the Cint library causes Reflex to forget about
-        // what types it already loaded from the Reflex library.  This problem was
+        // the reflex dictionaries is loaded first, then the Cint library then any
+        // requests for a Type from the reflex library will fail because for
+        // some reason the loading of the Cint library causes reflex to forget about
+        // what types it already loaded from the reflex library.  This problem was
         // seen for libDataFormatsMath and libMathCore.  I do not print an error message
         // since the dictionaries are actually loaded so things work fine.
         if(!result && 0 != strcmp(l, kDummyLibName) && gPrevious) {
@@ -211,7 +212,7 @@ namespace edm {
             ++itSpecial) {
           specialsToLib[classNameForRoot(itSpecial->second)];
         }
-        static std::string const cPrefix("LCGReflex/");
+        std::string const& cPrefix = dictionaryPlugInPrefix();
         for (edmplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
              itInfoEnd = itFound->second.end();
              itInfo != itInfoEnd; ++itInfo) {
@@ -272,15 +273,15 @@ namespace edm {
               //need to construct the Class ourselves
               TypeID t(TypeID::byName(name));
               if(!bool(t)) {
-                std::cout << "reflex did not build " << name << std::endl;
+                std::cout << "dictionary did not build " << name << std::endl;
                 continue;
               }
-              TClass* reflexNamedClass = TClass::GetClass(t.typeInfo());
-              if(0 == reflexNamedClass) {
+              TClass* namedClass = TClass::GetClass(t.typeInfo());
+              if(0 == namedClass) {
                 std::cout << "failed to get TClass by typeid for " << name << std::endl;
                 continue;
               }
-              reflexNamedClass->Clone(itSpecial->first.c_str());
+              namedClass->Clone(itSpecial->first.c_str());
               std::string magictypedef("namespace edm { typedef ");
               magictypedef += classNameForRoot(name) + " " + itSpecial->first + "; }";
               // std::cout << "Magic typedef " << magictypedef << std::endl;
@@ -360,7 +361,7 @@ namespace edm {
          }
          //NOTE: As of ROOT 5.27.06 this warning generates false positives for HepMC classes because
          // ROOT has special handling for them built into class.rules
-         //std::cerr << "WARNING[RootAutoLibraryLoader]: Reflex failed to create CINT dictionary for " << classname << std::endl;
+         //std::cerr << "WARNING[RootAutoLibraryLoader]: ROOT failed to create CINT dictionary for " << classname << std::endl;
          return 0;
       }
       //std::cout << "looking for " << classname << " load " << (load? "T":"F") << std::endl;
@@ -419,7 +420,6 @@ namespace edm {
        return;
      }
      std::string lastClass;
-     std::string const cPrefix("LCGReflex/");
 
      //give ROOT a name for the file we are loading
      RootLoadFileSentry sentry;
