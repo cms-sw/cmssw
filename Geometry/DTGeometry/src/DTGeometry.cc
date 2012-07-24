@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/08/22 15:57:11 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/01/22 21:10:37 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - CERN
  */
 
@@ -21,7 +21,6 @@ DTGeometry::~DTGeometry(){
 }
 
 const DTGeometry::DetTypeContainer&  DTGeometry::detTypes() const{
-  static DetTypeContainer  theDetTypes;
   // FIXME - fill it at runtime
   return theDetTypes;
 }
@@ -60,14 +59,12 @@ const DTGeometry::DetContainer& DTGeometry::dets() const{
 
 
 const DTGeometry::DetIdContainer& DTGeometry::detUnitIds() const{
-  static DetIdContainer    theDetUnitIds;
   // FIXME - fill it at runtime
   return theDetUnitIds;
 }
 
 
 const DTGeometry::DetIdContainer& DTGeometry::detIds() const{
-  static DetIdContainer theDetIds;
   // FIXME - fill it at runtime
   return theDetIds;
 }
