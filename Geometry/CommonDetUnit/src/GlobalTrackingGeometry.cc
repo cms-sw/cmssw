@@ -1,19 +1,19 @@
 /** \file GlobalTrackingGeometry.cc
  *
- *  $Date: 2006/07/12 11:00:59 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/12/20 16:50:22 $
+ *  $Revision: 1.7 $
  *  \author M. Sani
  */
 
 #include <Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <FWCore/Utilities/interface/Exception.h>
 
-using namespace edm;
+GlobalTrackingGeometry::GlobalTrackingGeometry(std::vector<const TrackingGeometry*>& geos)
+    : theGeometries(geos)
+{}
 
-GlobalTrackingGeometry::GlobalTrackingGeometry(std::vector<const TrackingGeometry*>& geos) : theGeometries(geos) {}
-
-GlobalTrackingGeometry::~GlobalTrackingGeometry() {}
+GlobalTrackingGeometry::~GlobalTrackingGeometry()
+{}
 
 const GeomDetUnit* GlobalTrackingGeometry::idToDetUnit(DetId id) const {
     
@@ -51,82 +51,82 @@ const TrackingGeometry* GlobalTrackingGeometry::slaveGeometry(DetId id) const {
     return theGeometries[idx];
 }
 
-const TrackingGeometry::DetTypeContainer& GlobalTrackingGeometry::detTypes() const {
-    
-   static DetTypeContainer result;
-   if ( ! result.empty() ) return result; 
-   for(std::vector<const TrackingGeometry*>::const_iterator geom = theGeometries.begin();
-       geom != theGeometries.end(); geom++)
+const TrackingGeometry::DetTypeContainer&
+GlobalTrackingGeometry::detTypes( void ) const
+{    
+   if ( ! theDetTypes.empty() ) return theDetTypes; 
+   for( std::vector<const TrackingGeometry*>::const_iterator geom = theGeometries.begin(), geomEnd = theGeometries.end();
+       geom != geomEnd; ++geom )
      {
-	if (*geom == 0) continue;
-	DetTypeContainer detTypes((*geom)->detTypes());
-	if ( detTypes.size()+result.size()<result.capacity() ) result.resize(detTypes.size()+result.size());
-	for( DetTypeContainer::const_iterator detType = detTypes.begin(); detType!=detTypes.end(); detType++)
-	  result.push_back(*detType);
+	if( *geom == 0 ) continue;
+	DetTypeContainer detTypes(( *geom )->detTypes());
+	if( detTypes.size() + theDetTypes.size() < theDetTypes.capacity()) theDetTypes.resize( detTypes.size() + theDetTypes.size());
+	for( DetTypeContainer::const_iterator detType = detTypes.begin(), detTypeEnd = detTypes.end(); detType != detTypeEnd; ++detType )
+	  theDetTypes.push_back( *detType );
      }
-   return result;
+   return theDetTypes;
 }
 
-const TrackingGeometry::DetUnitContainer& GlobalTrackingGeometry::detUnits() const {
-
-   static DetUnitContainer result;
-   if ( ! result.empty() ) return result; 
-   for(std::vector<const TrackingGeometry*>::const_iterator geom = theGeometries.begin();
-       geom != theGeometries.end(); geom++)
+const TrackingGeometry::DetUnitContainer&
+GlobalTrackingGeometry::detUnits( void ) const
+{
+   if( ! theDetUnits.empty()) return theDetUnits; 
+   for( std::vector<const TrackingGeometry*>::const_iterator geom = theGeometries.begin(), geomEnd = theGeometries.end();
+       geom != geomEnd; ++geom )
      {
-	if (*geom == 0) continue;
-	DetUnitContainer detUnits((*geom)->detUnits());
-	if ( detUnits.size()+result.size()<result.capacity() ) result.resize(detUnits.size()+result.size());
-	for( DetUnitContainer::const_iterator detUnit = detUnits.begin(); detUnit!=detUnits.end(); detUnit++)
-	  result.push_back(*detUnit);
+	if( *geom == 0 ) continue;
+	DetUnitContainer detUnits(( *geom )->detUnits());
+	if( detUnits.size() + theDetUnits.size() < theDetUnits.capacity()) theDetUnits.resize( detUnits.size() + theDetUnits.size());
+	for( DetUnitContainer::const_iterator detUnit = detUnits.begin(), detUnitEnd = detUnits.end(); detUnit != detUnitEnd; ++detUnit )
+	  theDetUnits.push_back( *detUnit );
      }
-   return result;
+   return theDetUnits;
 }
 
-const TrackingGeometry::DetContainer& GlobalTrackingGeometry::dets() const {
-
-   static DetContainer result;
-   if ( ! result.empty() ) return result; 
-   for(std::vector<const TrackingGeometry*>::const_iterator geom = theGeometries.begin();
-       geom != theGeometries.end(); geom++)
+const TrackingGeometry::DetContainer&
+GlobalTrackingGeometry::dets( void ) const
+{
+   if( ! theDets.empty()) return theDets; 
+   for( std::vector<const TrackingGeometry*>::const_iterator geom = theGeometries.begin(), geomEnd = theGeometries.end();
+       geom != geomEnd; ++geom )
      {
-	if (*geom == 0) continue;
-	DetContainer dets((*geom)->dets());
-	if ( dets.size()+result.size()<result.capacity() ) result.resize(dets.size()+result.size());
-	for( DetContainer::const_iterator det = dets.begin(); det!=dets.end(); det++)
-	  result.push_back(*det);
+	if( *geom == 0 ) continue;
+	DetContainer dets(( *geom )->dets());
+	if( dets.size() + theDets.size() < theDets.capacity()) theDets.resize( dets.size() + theDets.size());
+	for( DetContainer::const_iterator det = dets.begin(), detEnd = dets.end(); det != detEnd; ++det )
+	  theDets.push_back( *det );
      }
-   return result;
+   return theDets;
 }
 
-const TrackingGeometry::DetIdContainer& GlobalTrackingGeometry::detUnitIds() const {
-
-   static DetIdContainer result;
-   if ( ! result.empty() ) return result; 
-   for(std::vector<const TrackingGeometry*>::const_iterator geom = theGeometries.begin();
-       geom != theGeometries.end(); geom++)
+const TrackingGeometry::DetIdContainer&
+GlobalTrackingGeometry::detUnitIds( void ) const
+{
+   if( ! theDetUnitIds.empty()) return theDetUnitIds; 
+   for( std::vector<const TrackingGeometry*>::const_iterator geom = theGeometries.begin(), geomEnd = theGeometries.end();
+       geom != geomEnd; ++geom )
      {
-	if (*geom == 0) continue;
-	DetIdContainer detUnitIds((*geom)->detUnitIds());
-	if ( detUnitIds.size()+result.size()<result.capacity() ) result.resize(detUnitIds.size()+result.size());
-	for( DetIdContainer::const_iterator detUnitId = detUnitIds.begin(); detUnitId!=detUnitIds.end(); detUnitId++)
-	  result.push_back(*detUnitId);
+	if( *geom == 0 ) continue;
+	DetIdContainer detUnitIds(( *geom )->detUnitIds());
+	if( detUnitIds.size() + theDetUnitIds.size() < theDetUnitIds.capacity()) theDetUnitIds.resize( detUnitIds.size() + theDetUnitIds.size());
+	for( DetIdContainer::const_iterator detUnitId = detUnitIds.begin(), detUnitIdEnd = detUnitIds.end(); detUnitId != detUnitIdEnd; ++detUnitId )
+	  theDetUnitIds.push_back( *detUnitId );
      }
-   return result;
+   return theDetUnitIds;
 }
 
-const TrackingGeometry::DetIdContainer& GlobalTrackingGeometry::detIds() const {
-
-   static DetIdContainer result;
-   if ( ! result.empty() ) return result; 
-   for(std::vector<const TrackingGeometry*>::const_iterator geom = theGeometries.begin();
-       geom != theGeometries.end(); geom++)
+const TrackingGeometry::DetIdContainer&
+GlobalTrackingGeometry::detIds( void ) const
+{
+   if( ! theDetIds.empty() ) return theDetIds; 
+   for( std::vector<const TrackingGeometry*>::const_iterator geom = theGeometries.begin(), geomEnd = theGeometries.end();
+       geom != geomEnd; ++geom )
      {
-	if (*geom == 0) continue;
-	DetIdContainer detIds((*geom)->detIds());
-	if ( detIds.size()+result.size()<result.capacity() ) result.resize(detIds.size()+result.size());
-	for( DetIdContainer::const_iterator detId = detIds.begin(); detId!=detIds.end(); detId++)
-	  result.push_back(*detId);
+	if( *geom == 0 ) continue;
+	DetIdContainer detIds(( *geom )->detIds());
+	if( detIds.size() + theDetIds.size() < theDetIds.capacity()) theDetIds.resize( detIds.size() + theDetIds.size());
+	for( DetIdContainer::const_iterator detId = detIds.begin(), detIdEnd = detIds.end(); detId != detIdEnd; ++detId )
+	  theDetIds.push_back( *detId );
      }
-   return result;
+   return theDetIds;
 }
