@@ -795,9 +795,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     std::cout<<"             TrackIsolation = "<< sum_track_pt <<std::endl;
     */
 
-    math::XYZPointF Position(photonPosition.Unit().X(), photonPosition.Unit().Y(), photonPosition.Unit().Z());
     reco::PFCandidate photonCand(0,photonMomentum, reco::PFCandidate::gamma);
-    photonCand.setPositionAtECALEntrance(Position);
     photonCand.setPs1Energy(ps1TotEne);
     photonCand.setPs2Energy(ps2TotEne);
     photonCand.setEcalEnergy(RawEcalEne,photonEnergy_);
@@ -816,7 +814,6 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	  count++;
 	}
     }
-    //photonCand.setPositionAtECALEntrance(math::XYZPointF(photonMom_.position()));
     // set isvalid_ to TRUE since we've found at least one photon candidate
     isvalid_ = true;
     // push back the candidate into the collection ...
@@ -824,7 +821,6 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     for(std::vector<unsigned int>::const_iterator it = 
 	  AddFromElectron_.begin();
 	it != AddFromElectron_.end(); ++it)photonCand.addElementInBlock(blockRef,*it);
-    
     
     // ... and lock all elemts used
     for(std::vector<unsigned int>::const_iterator it = elemsToLock.begin();
@@ -869,6 +865,18 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 						 GCorr * photonEnergy_           );
       photonCand.setP4(photonCorrMomentum);
     }
+    
+    std::multimap<float, unsigned int>OrderedClust;
+    for(unsigned int i=0; i<PFClusters.size(); ++i){  
+      float et=PFClusters[i].energy()*sin(PFClusters[i].position().theta());
+      OrderedClust.insert(make_pair(et, i));
+    }
+    std::multimap<float, unsigned int>::reverse_iterator rit;
+    rit=OrderedClust.rbegin();
+    unsigned int highEindex=(*rit).second;
+    //store Position at ECAL Entrance as Position of Max Et PFCluster
+    photonCand.setPositionAtECALEntrance(math::XYZPointF(PFClusters[highEindex].position()));
+    
     //Mustache ID variables
     Mustache Must;
     Must.FillMustacheVar(PFClusters);
