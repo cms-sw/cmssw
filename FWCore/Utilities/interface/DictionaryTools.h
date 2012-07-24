@@ -1,9 +1,9 @@
-#ifndef FWCore_Utilities_ReflexTools_h
-#define FWCore_Utilities_ReflexTools_h
+#ifndef FWCore_Utilities_DictionaryTools_h
+#define FWCore_Utilities_DictionaryTools_h
 
 /*----------------------------------------------------------------------
 
-ReflexTools provides a small number of TypeID-based tools, used in
+DictionaryTools provides a small number of dictionary based tools, used in
 the CMS event model.
 
 ----------------------------------------------------------------------*/
@@ -58,6 +58,7 @@ namespace edm {
   void public_base_classes(TypeID const& type,
                            std::vector<TypeID>& baseTypes);
 
+  std::string const& dictionaryPlugInPrefix();
 }
 
 #endif

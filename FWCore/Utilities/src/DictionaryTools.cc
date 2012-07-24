@@ -1,4 +1,4 @@
-#include "FWCore/Utilities/interface/ReflexTools.h"
+#include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -18,6 +18,11 @@
 #include <sstream>
 
 namespace edm {
+
+  std::string const& dictionaryPlugInPrefix() {
+    static std::string const prefix("LCGReflex/");
+    return prefix;
+  }
 
   static StringSet foundTypes_;
   static StringSet missingTypes_;
@@ -287,7 +292,7 @@ namespace edm {
             /*
             else {
               throw Exception(errors::UnimplementedFeature)
-                << "DataFormats/Common/src/ReflexTools.cc in function public_base_classes.\n"
+                << "DataFormats/Common/src/DictionaryTools.cc in function public_base_classes.\n"
                 << "Encountered class that has a public base class that appears\n"
                 << "multiple times in its inheritance heirarchy.\n"
                 << "Please contact the EDM Framework group with details about\n"

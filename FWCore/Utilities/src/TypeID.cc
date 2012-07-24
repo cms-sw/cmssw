@@ -45,7 +45,7 @@ namespace {
        << "TypeID::className: No dictionary for class " << iType.name() << '\n';
 #endif
     }
-    return t.Name(Reflex::SCOPED);
+    return t.Name(Reflex::SCOPED | Reflex::FINAL);
   }
 
   std::type_info const* classNameToType(std::string const& className) {
@@ -92,7 +92,7 @@ namespace {
   }
 
   bool
-  TypeID::stripTemplate(std::string& theName) {
+  stripTemplate(std::string& theName) {
     std::string const spec("<,>");
     char const space = ' ';
     std::string::size_type idx = theName.find_first_of(spec);
@@ -117,7 +117,7 @@ namespace {
   }
 
   bool
-  TypeID::stripNamespace(std::string& theName) {
+  stripNamespace(std::string& theName) {
     std::string::size_type idx = theName.rfind(':');
     bool ret = (idx != std::string::npos);
     if (ret) {

@@ -15,6 +15,9 @@ persisted across invocations of the program.
 #include "FWCore/Utilities/interface/TypeIDBase.h"
 
 namespace edm {
+  bool stripTemplate(std::string& theName);
+
+  bool stripNamespace(std::string& theName);
 
   class TypeID : private TypeIDBase {
   public:
@@ -57,9 +60,6 @@ namespace edm {
     using TypeIDBase::typeInfo;
 
   private:
-    static bool stripTemplate(std::string& theName);
-
-    static bool stripNamespace(std::string& theName);
 
   };
 
