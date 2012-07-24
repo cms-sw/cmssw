@@ -2,7 +2,6 @@
   <lib   name="1"/>
 </export>
 <use   name="FWCore/PluginManager"/>
-<use   name="rootrflx"/>
 <use   name="rootcintex"/>
 <use   name="rootcore"/>
 <use   name="boost_regex"/>
