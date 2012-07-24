@@ -33,7 +33,7 @@ namespace {
 	boost::python::object null;
 	return null.ptr();
      }
-    return PyROOT::BindRootObject( iHandle.product()->Address(), TClass::GetClass(iHandle.type().TypeInfo()));
+    return PyROOT::BindRootObject( iHandle.product()->address(), TClass::GetClass(iHandle.type().typeInfo()));
   }
 }
 
