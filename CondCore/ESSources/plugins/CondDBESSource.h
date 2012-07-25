@@ -36,6 +36,8 @@ class CondDBESSource : public edm::eventsetup::DataProxyProvider,
  public:
   typedef boost::shared_ptr<cond::DataProxyWrapperBase > ProxyP;
   typedef std::multimap< std::string,  ProxyP> ProxyMap;
+
+  typedef enum { NOREFRESH, REFRESH, RECONNECT } RefreshPolicy;
  
 
   explicit CondDBESSource( const edm::ParameterSet& );
@@ -60,10 +62,12 @@ class CondDBESSource : public edm::eventsetup::DataProxyProvider,
   ProxyMap m_proxies;
 
 
-  typedef std::set< cond::TagMetadata > TagCollection;
+  typedef std::map< std::string, cond::TagMetadata > TagCollection;
   // the collections of tag, record/label used in this ESSource
   TagCollection m_tagCollection;
-
+  std::map<std::string,std::pair<cond::DbSession,std::string> > m_sessionPool;
+  std::map<std::string,unsigned int> m_lastRecordRuns;
+  
   struct Stats {
     int nData;
     int nSet;
@@ -71,15 +75,17 @@ class CondDBESSource : public edm::eventsetup::DataProxyProvider,
     int nLumi;
     int nRefresh;
     int nActualRefresh;
+    int nReconnect;
+    int nActualReconnect;
   };
 
-  Stats stats;
+  Stats m_stats;
 
-  unsigned int lastRun;
-  unsigned int lastLumi;
-  bool doRefresh;
+  unsigned int m_lastRun;
+  unsigned int m_lastLumi;
+  RefreshPolicy m_policy;
 
-  bool doDump;
+  bool m_doDump;
 
  private:
 
