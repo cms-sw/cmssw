@@ -60,7 +60,6 @@ void Analysis_Step5()
 
      //This function has not yet been reviewed after july's update
 //   MakeExpLimitpLot("Results_1toys_lp/dedxASmi/combined/Eta15/PtMin35/Type0/EXCLUSION/Stop200.info","tmp1.png");
-
 }
 
 
@@ -80,13 +79,13 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    if(!InputFile || InputFile->IsZombie() || !InputFile->IsOpen() || InputFile->TestBit(TFile::kRecovered) )return;   
 
    //README: Comments or uncomment lines below in order to decide what you want to see on your plot
-   //Pred12    = ((TH2D*)GetObjectFromPath(InputFile, string("Data12/Pred_") + HistoSuffix   ))->ProjectionY("TmpPredMass"   ,CutIndex+1,CutIndex+1,"o");
-   //Data12    = ((TH2D*)GetObjectFromPath(InputFile, string("Data12/"     ) + HistoSuffix   ))->ProjectionY("TmpDataMass"   ,CutIndex+1,CutIndex+1,"o");
+   Pred12    = ((TH2D*)GetObjectFromPath(InputFile, string("Data12/Pred_") + HistoSuffix   ))->ProjectionY("TmpPredMass"   ,CutIndex+1,CutIndex+1,"o");
+   Data12    = ((TH2D*)GetObjectFromPath(InputFile, string("Data12/"     ) + HistoSuffix   ))->ProjectionY("TmpDataMass"   ,CutIndex+1,CutIndex+1,"o");
    Pred11    = ((TH2D*)GetObjectFromPath(InputFile, string("Data11/Pred_") + HistoSuffix   ))->ProjectionY("TmpPred11Mass" ,CutIndex+1,CutIndex+1,"o");
    Data11    = ((TH2D*)GetObjectFromPath(InputFile, string("Data11/"     ) + HistoSuffix   ))->ProjectionY("TmpData11Mass" ,CutIndex+1,CutIndex+1,"o");
    //MCPred    = ((TH2D*)GetObjectFromPath(InputFile, string("MCTr/Pred_"  ) + HistoSuffix   ))->ProjectionY("TmpMCPred"     ,CutIndex+1,CutIndex+1,"o");
    //MC        = ((TH2D*)GetObjectFromPath(InputFile, string("MCTr/"       ) + HistoSuffix   ))->ProjectionY("TmpMCMass"     ,CutIndex+1,CutIndex+1,"o");
-   //Signal    = ((TH2D*)GetObjectFromPath(InputFile, string(SName+"/"     ) + HistoSuffix   ))->ProjectionY("TmpSignalMass" ,CutIndex+1,CutIndex+1,"o");
+   Signal    = ((TH2D*)GetObjectFromPath(InputFile, string(SName+"/"     ) + HistoSuffix   ))->ProjectionY("TmpSignalMass" ,CutIndex+1,CutIndex+1,"o");
 
    //rescale Data11 & MC samples to prediction of 2012 data
    if(Data12 && Pred12){
