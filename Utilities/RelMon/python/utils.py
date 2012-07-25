@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: agimbuta $
-# $Date: 2012/07/25 08:54:49 $
-# $Revision: 1.7 $
+# $Date: 2012/07/25 09:22:20 $
+# $Revision: 1.8 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -577,17 +577,17 @@ def make_files_pairs(files, verbose=True):
                 len(versions_files[v1]), str(v2), len(versions_files[v2]))
 
     ## Pairing two versions
+    print '\nGot pairs:'
     pairs = []
     for unique_id in set([get_id(file) for file in versions_files[v1]]):
         dataset_re = re.compile(unique_id+'_')
-        print unique_id
         c1_files = [file for file in versions_files[v1] if dataset_re.search(file)]
         c2_files = [file for file in versions_files[v2] if dataset_re.search(file)]
-        print len(c1_files), len(c2_files)
         if len(c1_files) > 0 and len(c2_files) > 0:
             first_file = get_max_version(c1_files)
             second_file = get_max_version(c2_files)
+            print '%s\n%s\n' % (first_file, second_file)
             pairs.extend((first_file, second_file))
     if verbose:
-        print "\nPaired and got %d files.\n" % len(pairs)
+        print "Paired and got %d files.\n" % len(pairs)
     return pairs
