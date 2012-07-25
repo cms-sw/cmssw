@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: agimbuta $
-# $Date: 2012/07/25 08:45:28 $
-# $Revision: 1.6 $
+# $Date: 2012/07/25 08:54:49 $
+# $Revision: 1.7 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -524,11 +524,7 @@ def get_relval_cmssw_version(file):
 def get_relval_id(file):
     """Returns unique relval ID (dataset name) for a given file."""
     dataset_name = re.findall('R\d{9}__([\w\d]*)__CMSSW_', file)
-    run = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-[\w\d]*_V\d*\w?(?:_([\w\d]*))?-v\d*__', file)
-    if run[0]:
-        return (dataset_name[0], run[0])
-    else:
-        return (dataset_name[0], '_V\d*\w?-v\d*__')
+    return dataset_name[0]
 
 ##-------------------------  Make files pairs --------------------------
 def is_relvaldata(files):
@@ -583,10 +579,11 @@ def make_files_pairs(files, verbose=True):
     ## Pairing two versions
     pairs = []
     for unique_id in set([get_id(file) for file in versions_files[v1]]):
-        dataset_re = re.compile(unique_id[0]+'_')
-        run = re.compile(unique_id[1])
-        c1_files = [file for file in versions_files[v1] if dataset_re.search(file) and run.search(file)]
-        c2_files = [file for file in versions_files[v2] if dataset_re.search(file) and run.search(file)]
+        dataset_re = re.compile(unique_id+'_')
+        print unique_id
+        c1_files = [file for file in versions_files[v1] if dataset_re.search(file)]
+        c2_files = [file for file in versions_files[v2] if dataset_re.search(file)]
+        print len(c1_files), len(c2_files)
         if len(c1_files) > 0 and len(c2_files) > 0:
             first_file = get_max_version(c1_files)
             second_file = get_max_version(c2_files)
