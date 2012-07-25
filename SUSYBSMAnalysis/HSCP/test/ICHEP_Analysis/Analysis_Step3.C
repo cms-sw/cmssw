@@ -138,7 +138,7 @@ reweight::PoissonMeanShifter PShift(0.6);//0.6 for upshift, -0.6 for downshift
 
 /////////////////////////// CODE PARAMETERS /////////////////////////////
 
-void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdxS_Label, string dEdxMass_=dEdxM_Label, string TOF_Label_=TOF_Label, double CutPt_=-1.0, double CutI_=-1, double CutTOF_=-1, float MinPt_=GlobalMinPt, float MaxEta_=GlobalMaxEta)
+void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdxS_Label, string dEdxMass_=dEdxM_Label, string TOF_Label_=TOF_Label, double CutPt_=-1.0, double CutI_=-1, double CutTOF_=-1, float MinPt_=GlobalMinPt, float MaxEta_=GlobalMaxEta, float MaxDZ_=GlobalMaxDZ, float MaxDXY_=GlobalMaxDXY)
 {
    if(MODE=="COMPILE")return;
 
@@ -163,17 +163,22 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
    TypeMode       = TypeMode_;
    GlobalMaxEta   = MaxEta_;
    GlobalMinPt    = MinPt_;
+   GlobalMaxDZ    = MaxDZ_;
+   GlobalMaxDXY    = MaxDXY_;
 
    if(TypeMode<2){      GlobalMinNDOF   = 0; 
                          GlobalMinTOF    = 0;
-   }else{                GlobalMaxTIsol *= 2;
-                         GlobalMaxEIsol *= 2;
+   }else if(TypeMode==2) { GlobalMaxTIsol *= 2;
+                           GlobalMaxEIsol *= 2;
+   }
+   else if(TypeMode==3){
+     GlobalMinIs      =   -1;
    }
 
    // define the selection to be considered later for the optimization
    // WARNING: recall that this has a huge impact on the analysis time AND on the output file size --> be carefull with your choice
-   if(TypeMode!=3) {CutPt .push_back(GlobalMinPt);   CutI  .push_back(GlobalMinIs);  CutTOF.push_back(GlobalMinTOF);}
-   else {CutPt .push_back(SAMinPt);   CutI  .push_back(-1);  CutTOF.push_back(GlobalMinTOF);}
+   CutPt .push_back(GlobalMinPt);   CutI  .push_back(GlobalMinIs);  CutTOF.push_back(GlobalMinTOF);
+
    if(TypeMode<2){   
       for(double Pt =GlobalMinPt+5 ; Pt <200;Pt+=5){
       for(double I  =GlobalMinIs+0.025  ; I  <0.45 ;I+=0.025){
@@ -186,7 +191,7 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
          CutPt .push_back(Pt);   CutI  .push_back(I);  CutTOF.push_back(TOF);
       }}}
    }else if(TypeMode==3){
-     for(double Pt =SAMinPt+30 ; Pt <550;  Pt+=30){
+     for(double Pt =GlobalMinPt+30 ; Pt <550;  Pt+=30){
        for(double TOF=GlobalMinTOF+0.025; TOF<1.4;TOF+=0.01){
          CutPt .push_back(Pt);   CutI  .push_back(-1);  CutTOF.push_back(TOF);
        }}
@@ -266,8 +271,6 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    }
    if(track.isNull())return false;
 
-   if(TypeMode==3 && !muon->combinedQuality().updatedSta) return false;
-
    if(st){st->Total->Fill(0.0,Event_Weight);
      if(GenBeta>=0)st->Beta_Matched->Fill(GenBeta, Event_Weight);
      st->BS_Eta->Fill(track->eta(),Event_Weight);
@@ -279,9 +282,10 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
           st->BS_TNOHFraction->Fill(track->validFraction(),Event_Weight);
    }
 
-   if(track->found()<GlobalMinNOH)return false;
-   if(track->hitPattern().numberOfValidPixelHits()<GlobalMinNOPH)return false;
-   if(track->validFraction()<GlobalMinFOVH)return false;
+   if(TypeMode!=3 && track->found()<GlobalMinNOH)return false;
+
+   if(TypeMode!=3 && track->hitPattern().numberOfValidPixelHits()<GlobalMinNOPH)return false;
+   if(TypeMode!=3 && track->validFraction()<GlobalMinFOVH)return false;
 
    if(st){st->TNOH  ->Fill(0.0,Event_Weight);
      if(dedxSObj) st->BS_TNOM->Fill(dedxSObj->numberOfMeasurements(),Event_Weight);
@@ -291,18 +295,18 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 
    if(tof){
    if(st){st->BS_nDof->Fill(tof->nDof(),Event_Weight);}
-   if(TypeMode==2 && tof->nDof()<GlobalMinNDOF && (dttof->nDof()<GlobalMinNDOFDT || csctof->nDof()<GlobalMinNDOFCSC) )return false;
+   if(TypeMode>1 && tof->nDof()<GlobalMinNDOF && (dttof->nDof()<GlobalMinNDOFDT || csctof->nDof()<GlobalMinNDOFCSC) )return false;
    }
 
    if(st){st->nDof  ->Fill(0.0,Event_Weight);
           st->BS_Qual->Fill(track->qualityMask(),Event_Weight);
    }
 
-   if(track->qualityMask()<GlobalMinQual )return false;
+   if(TypeMode!=3 && track->qualityMask()<GlobalMinQual )return false;
    if(st){st->Qual  ->Fill(0.0,Event_Weight);
           st->BS_Chi2->Fill(track->chi2()/track->ndof(),Event_Weight);
    }
-   if(track->chi2()/track->ndof()>GlobalMaxChi2 )return false;
+   if(TypeMode!=3 && track->chi2()/track->ndof()>GlobalMaxChi2 )return false;
    if(st){st->Chi2  ->Fill(0.0,Event_Weight);}
 
    if(st && GenBeta>=0)st->Beta_PreselectedA->Fill(GenBeta, Event_Weight);
@@ -341,30 +345,34 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
          dxy = track->dxy(vertexColl[i].position());
       }
    }
+
    double v3d = sqrt(dz*dz+dxy*dxy);
 
    if(st){st->BS_V3D->Fill(v3d,Event_Weight);}
-   if(v3d>GlobalMaxV3D )return false;
+   if(TypeMode!=3 && v3d>GlobalMaxV3D )return false;
+   if(TypeMode==3 && fabs(dxy)>GlobalMaxDXY) return false;
    if(st){st->V3D  ->Fill(0.0,Event_Weight);}
 
-   fwlite::Handle<HSCPIsolationValueMap> IsolationH;
-   IsolationH.getByLabel(ev, "HSCPIsolation03");
-   if(!IsolationH.isValid()){printf("Invalid IsolationH\n");return false;}
-   const ValueMap<HSCPIsolation>& IsolationMap = *IsolationH.product();
+   if(TypeMode!=3) {
+     fwlite::Handle<HSCPIsolationValueMap> IsolationH;
+     IsolationH.getByLabel(ev, "HSCPIsolation03");
+     if(!IsolationH.isValid()){printf("Invalid IsolationH\n");return false;}
+     const ValueMap<HSCPIsolation>& IsolationMap = *IsolationH.product();
 
-   HSCPIsolation hscpIso = IsolationMap.get((size_t)track.key());
+     HSCPIsolation hscpIso = IsolationMap.get((size_t)track.key());
 
-   if(st){st->BS_TIsol ->Fill(hscpIso.Get_TK_SumEt(),Event_Weight);}
-    if(hscpIso.Get_TK_SumEt()>GlobalMaxTIsol)return false;
-   if(st){st->TIsol   ->Fill(0.0,Event_Weight);}
+     if(st){st->BS_TIsol ->Fill(hscpIso.Get_TK_SumEt(),Event_Weight);}
+     if(hscpIso.Get_TK_SumEt()>GlobalMaxTIsol)return false;
+     if(st){st->TIsol   ->Fill(0.0,Event_Weight);}
 
-   double EoP = (hscpIso.Get_ECAL_Energy() + hscpIso.Get_HCAL_Energy())/track->p();
-   if(st){st->BS_EIsol ->Fill(EoP,Event_Weight);}
-   if(EoP>GlobalMaxEIsol)return false;
-   if(st){st->EIsol   ->Fill(0.0,Event_Weight);}
+     double EoP = (hscpIso.Get_ECAL_Energy() + hscpIso.Get_HCAL_Energy())/track->p();
+     if(st){st->BS_EIsol ->Fill(EoP,Event_Weight);}
+     if(EoP>GlobalMaxEIsol)return false;
+     if(st){st->EIsol   ->Fill(0.0,Event_Weight);}
+   }
 
    if(st){st->BS_Pterr ->Fill(track->ptError()/track->pt(),Event_Weight);}
-   if((track->ptError()/track->pt())>GlobalMaxPterr)return false;
+   if(TypeMode!=3 && (track->ptError()/track->pt())>GlobalMaxPterr)return false;
 
    if(std::max(0.0,track->pt())<GlobalMinPt)return false;
    if(st){st->Pterr   ->Fill(0.0,Event_Weight);}
@@ -737,24 +745,23 @@ void Analysis_Step3(char* SavePath)
                //define alias for important variable
                susybsm::HSCParticle hscp  = hscpColl[c];
                reco::MuonRef  muon  = hscp.muonRef();
-               reco::TrackRef track = hscp.trackRef();
 
-               //skip events without inner tracker track except for TOF only analysis
-	       if(track.isNull() && TypeMode!=3)continue;
-	       //skip events without muon except for Tk Only analysis
-	       if(TypeMode!=0 && muon.isNull()) continue;
-	       //Skip events without updated stand alone muon for TOF only analysis
+	       //For TOF only analysis use updated stand alone muon track.
+	       //Otherwise use inner tracker track
+	       reco::TrackRef track;
+	       if(TypeMode!=3) track = hscp.trackRef();
+	       else {
+		 if(muon.isNull()) continue;
+		 if(!muon->combinedQuality().updatedSta) continue;
+		 track = muon->standAloneMuon();
+	       }
 
-	       if(TypeMode==3 && (!hscp.muonRef()->isStandAloneMuon() || !muon->combinedQuality().updatedSta)) continue;
+               //skip events without track
+	       if(track.isNull())continue;
 
                //for signal only, make sure that the candidate is associated to a true HSCP
                int ClosestGen;
                if(isSignal && DistToHSCP(hscp, genColl, ClosestGen)>0.03)continue;
-
-	       //Determine momentum for track.  For TOF only use the stand alone momentum, for others use inner track momentum
-	       double p;
-	       if(TypeMode!=3) p=track->p();
-	       else p=hscp.muonRef()->standAloneMuon()->p();
 
                //load quantity associated to this track (TOF and dEdx)
 	       const DeDxData* dedxSObj = NULL;
@@ -779,10 +786,10 @@ void Analysis_Step3(char* SavePath)
 
                   // compute systematic due to momentum scale
                   if(PassPreselection(hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   PRescale, 0, 0)){
- 		     double Mass     = -1; if(dedxMObj) Mass=GetMass(p*PRescale,dedxMObj->dEdx(),!isData);
-		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(p*PRescale,tof->inverseBeta());
+ 		     double Mass     = -1; if(dedxMObj) Mass=GetMass(track->p()*PRescale,dedxMObj->dEdx(),!isData);
+		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p()*PRescale,tof->inverseBeta());
 		     double MassComb = -1;
-		     if(tof && dedxMObj)MassComb=GetMassFromBeta(p*PRescale, (GetIBeta(dedxMObj->dEdx(),!isData) + (1/tof->inverseBeta()))*0.5);
+		     if(tof && dedxMObj)MassComb=GetMassFromBeta(track->p()*PRescale, (GetIBeta(dedxMObj->dEdx(),!isData) + (1/tof->inverseBeta()))*0.5);
 		     else if(dedxMObj) MassComb = Mass;
 		     if(tof) MassComb=MassTOF;
 
@@ -801,10 +808,10 @@ void Analysis_Step3(char* SavePath)
 
                   // compute systematic due to dEdx (both Ias and Ih)
                   if(PassPreselection(hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   0, IRescale, 0)){
-		     double Mass     = -1; if(dedxMObj) Mass=GetMass(p,dedxMObj->dEdx()*MRescale,!isData);
-		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(p,tof->inverseBeta());
+		     double Mass     = -1; if(dedxMObj) Mass=GetMass(track->p(),dedxMObj->dEdx()*MRescale,!isData);
+		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p(),tof->inverseBeta());
 		     double MassComb = -1;
-		     if(tof && dedxMObj)MassComb=GetMassFromBeta(p*PRescale, (GetIBeta(dedxMObj->dEdx(),!isData) + (1/tof->inverseBeta()))*0.5);
+		     if(tof && dedxMObj)MassComb=GetMassFromBeta(track->p()*PRescale, (GetIBeta(dedxMObj->dEdx(),!isData) + (1/tof->inverseBeta()))*0.5);
 		     else if(dedxMObj) MassComb = Mass;
 		     if(tof) MassComb=MassTOF;
 
@@ -823,10 +830,10 @@ void Analysis_Step3(char* SavePath)
 
                   // compute systematic due to Mass shift
                   if(PassPreselection(hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   0, 0, 0)){
-		     double Mass     = -1; if(dedxMObj) Mass=GetMass(p,dedxMObj->dEdx()*MRescale,!isData);
-		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(p,tof->inverseBeta());
+		     double Mass     = -1; if(dedxMObj) Mass=GetMass(track->p(),dedxMObj->dEdx()*MRescale,!isData);
+		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p(),tof->inverseBeta());
 		     double MassComb = -1;
-		     if(tof && dedxMObj)MassComb=GetMassFromBeta(p*PRescale, (GetIBeta(dedxMObj->dEdx(),!isData) + (1/tof->inverseBeta()))*0.5);
+		     if(tof && dedxMObj)MassComb=GetMassFromBeta(track->p()*PRescale, (GetIBeta(dedxMObj->dEdx(),!isData) + (1/tof->inverseBeta()))*0.5);
 		     else if(dedxMObj) MassComb = Mass;
 		     if(tof) MassComb=MassTOF;
 
@@ -845,10 +852,10 @@ void Analysis_Step3(char* SavePath)
 
                   // compute systematic due to TOF
                   if(PassPreselection(hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   0, 0, TRescale)){
- 		     double Mass     = -1; if(dedxMObj) Mass=GetMass(p,dedxMObj->dEdx(),!isData);
-		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(p,(tof->inverseBeta()+TRescale));
+ 		     double Mass     = -1; if(dedxMObj) Mass=GetMass(track->p(),dedxMObj->dEdx(),!isData);
+		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p(),(tof->inverseBeta()+TRescale));
 		     double MassComb = -1;
-		     if(tof && dedxMObj)MassComb=GetMassFromBeta(p*PRescale, (GetIBeta(dedxMObj->dEdx(),!isData) + (1/tof->inverseBeta()))*0.5);
+		     if(tof && dedxMObj)MassComb=GetMassFromBeta(track->p()*PRescale, (GetIBeta(dedxMObj->dEdx(),!isData) + (1/tof->inverseBeta()))*0.5);
 		     else if(dedxMObj) MassComb = Mass;
 		     if(tof) MassComb=MassTOF;
 
@@ -867,10 +874,10 @@ void Analysis_Step3(char* SavePath)
 
                   // compute systematics due to PU
                   if(PassPreselection(hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   PRescale, 0, 0)){
-		     double Mass     = -1; if(dedxMObj) Mass=GetMass(p,dedxMObj->dEdx(),!isData);
-		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(p,tof->inverseBeta());
+		     double Mass     = -1; if(dedxMObj) Mass=GetMass(track->p(),dedxMObj->dEdx(),!isData);
+		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p(),tof->inverseBeta());
 		     double MassComb = -1;
-		     if(tof && dedxMObj)MassComb=GetMassFromBeta(p*PRescale, (GetIBeta(dedxMObj->dEdx(),!isData) + (1/tof->inverseBeta()))*0.5);
+		     if(tof && dedxMObj)MassComb=GetMassFromBeta(track->p()*PRescale, (GetIBeta(dedxMObj->dEdx(),!isData) + (1/tof->inverseBeta()))*0.5);
 		     else if(dedxMObj) MassComb = Mass;
 		     if(tof) MassComb=MassTOF;
 
@@ -896,12 +903,12 @@ void Analysis_Step3(char* SavePath)
                if(isData || isMC)Analysis_FillControlAndPredictionHist(hscp, dedxSObj, dedxMObj, tof, &SamplePlots);
 
                //compute the mass of the candidate
-	       double Mass     = -1; if(dedxMObj) Mass = GetMass(p,dedxMObj->dEdx(),!isData);
-	       double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(p,tof->inverseBeta());
+	       double Mass     = -1; if(dedxMObj) Mass = GetMass(track->p(),dedxMObj->dEdx(),!isData);
+	       double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p(),tof->inverseBeta());
 	       double MassComb = -1;
-	       if(tof && dedxMObj)MassComb=GetMassFromBeta(p, (GetIBeta(dedxMObj->dEdx(),!isData) + (1/tof->inverseBeta()))*0.5 ) ;
+	       if(tof && dedxMObj)MassComb=GetMassFromBeta(track->p(), (GetIBeta(dedxMObj->dEdx(),!isData) + (1/tof->inverseBeta()))*0.5 ) ;
 	       if(dedxMObj) MassComb = Mass;
-	       if(tof)MassComb=GetMassFromBeta(p, (1/tof->inverseBeta()));
+	       if(tof)MassComb=GetMassFromBeta(track->p(),(1/tof->inverseBeta()));
                bool PassNonTrivialSelection=false;
 
                //loop on all possible selection (one of them, the optimal one, will be used later)
