@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: agimbuta $
-# $Date: 2012/07/17 14:28:23 $
-# $Revision: 1.4 $
+# $Date: 2012/07/17 14:55:50 $
+# $Revision: 1.5 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -517,7 +517,7 @@ def get_relval_max_version(files):
 
 def get_relval_cmssw_version(file):
     cmssw_release = re.findall('(CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?)-', file)
-    gr_r_version = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-([\w\d]*)_V\d*\w?(?:_[\w\d]*)?-v', file)
+    gr_r_version = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-([\w\d]*)_V\d*\w?(_[\w\d]*)?-v', file)
     if cmssw_release and gr_r_version:
         return (cmssw_release[0], gr_r_version[0])
 
