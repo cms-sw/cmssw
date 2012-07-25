@@ -4,6 +4,7 @@
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/BlobStreamerPluginFactory.h"
+#include "CondCore/DBCommon/interface/Auth.h"
 // CMSSW includes
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "CondCore/DBCommon/interface/TechnologyProxyFactory.h"
@@ -79,6 +80,28 @@ namespace cond {
         }
       }
 
+    void openReadOnly( const std::string& connectionString, 
+		       const std::string& transactionId ){
+        close();
+        if( connection.get() ){
+          if(!connection->isOpen()){
+            throw cond::Exception("DbSession::open: cannot open session. Underlying connection is closed.");
+          }
+          boost::shared_ptr<ora::ConnectionPool> connPool = connection->connectionPool();
+          database.reset( new ora::Database( connPool ) );
+ 
+          ora::IBlobStreamingService* blobStreamer = cond::BlobStreamerPluginFactory::get()->create(  blobStreamingService );
+          if(!blobStreamer) throw cond::Exception("DbSession::open: cannot find required plugin. No instance of ora::IBlobStreamingService has been loaded..");
+          database->configuration().setBlobStreamingService( blobStreamer );
+          // open the db connection
+          technologyProxy = buildTechnologyProxy(connectionString, *connection);
+          std::string connStr = (*technologyProxy).getRealConnectString(transactionId);
+          database->connect( connStr, Auth::COND_READER_ROLE, true );
+          transaction.reset( new cond::DbTransaction( database->transaction() ) );
+          isOpen = true;
+        }
+      }
+
       void close(){
         transaction.reset();
         database.reset();
@@ -127,6 +150,11 @@ void cond::DbSession::open( const std::string& connectionString, bool readOnly )
 void cond::DbSession::open( const std::string& connectionString, const std::string& asRole, bool readOnly )
 {
   m_implementation->open( connectionString, asRole, readOnly );
+}
+
+void cond::DbSession::openReadOnly( const std::string& connectionString, const std::string& id )
+{
+  m_implementation->openReadOnly( connectionString, id );
 }
 
 void cond::DbSession::close()

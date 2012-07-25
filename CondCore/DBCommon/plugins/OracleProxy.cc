@@ -8,6 +8,7 @@ namespace cond {
       m_userconnect = userconnect;
     }
     std::string getRealConnectString() const{ return  m_userconnect;}
+    std::string getRealConnectString( const std::string& ) const{ return m_userconnect;}
     bool isTransactional() const { return true;}
     std::string m_userconnect;
   };

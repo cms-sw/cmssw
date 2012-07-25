@@ -17,6 +17,7 @@ namespace cond{
     ~FrontierProxy();
     void initialize(const std::string&userconnect,const DbConnection& connection);
     std::string getRealConnectString() const;
+    std::string getRealConnectString( const std::string& transactionId ) const;
     bool isTransactional() const { return false;}
 
   private:
@@ -47,25 +48,61 @@ cond::FrontierProxy::~FrontierProxy(){
   m_refreshtablelist.clear();
 }
 
-std::string 
-cond::FrontierProxy::getRealConnectString() const{
-  std::string result = m_userconnect;
-  std::string proto("frontier://");
-  std::string::size_type fpos=m_userconnect.find(proto);
-  unsigned int nslash=this->countslash(m_userconnect.substr(proto.size(),m_userconnect.size()-fpos));
-  if(nslash==1){
-    edm::Service<edm::SiteLocalConfig> localconfservice;
-    if( !localconfservice.isAvailable() ){
-      throw cms::Exception("edm::SiteLocalConfigService is not available");       
+namespace cond {
+
+  unsigned int
+  countslash(const std::string& input) {
+    unsigned int count=0;
+    std::string::size_type slashpos( 0 );
+    while( slashpos!=std::string::npos){
+      slashpos = input.find('/', slashpos );
+      if ( slashpos != std::string::npos ){
+	++count;
+	// start next search after this word
+	slashpos += 1;
+      }
     }
-    result=localconfservice->lookupCalibConnect(m_userconnect);
+    return count;
   }
-  if (!m_transactionId.empty()) {
-    size_t l = result.rfind('/');
-    result.insert(l,"(freshkey="+m_transactionId+')');
-    
+
+  std::string makeRealConnectString( const std::string& initialConnection, const std::string& transactionId ) {
+    std::string result = initialConnection;
+    // for testing
+    //std::string res = initialConnection;
+    std::string proto("frontier://");
+    std::string::size_type fpos=initialConnection.find(proto);
+    unsigned int nslash=countslash(initialConnection.substr(proto.size(),initialConnection.size()-fpos));
+    if(nslash==1){
+      edm::Service<edm::SiteLocalConfig> localconfservice;
+      if( !localconfservice.isAvailable() ){
+	throw cms::Exception("edm::SiteLocalConfigService is not available");       
+      }
+      result=localconfservice->lookupCalibConnect(initialConnection);
+      res=localconfservice->lookupCalibConnect(initialConnection);
+    }
+    if (!transactionId.empty()) {
+      size_t l = result.rfind('/');
+      result.insert(l,"(freshkey="+transactionId+')');
+      //size_t l = res.rfind('/');
+      //res.insert(l,"(freshkey="+transactionId+')');
+    }
+    //std::cout << "***** frontier connection string " << std::endl;
+    //std::cout << res << std::endl;
+    return result;
   }
-  return result;
+
+}
+
+std::string 
+cond::FrontierProxy::getRealConnectString() const {
+  return makeRealConnectString(  m_userconnect, m_transactionId );
+}
+
+std::string 
+cond::FrontierProxy::getRealConnectString( const std::string& transactionId ) const{
+  const std::string* transId = &transactionId;
+  if( transactionId.empty() ) transId = &m_transactionId;
+  return makeRealConnectString(  m_userconnect, *transId );
 }
 
 void 
@@ -96,20 +133,6 @@ cond::FrontierProxy::initialize(const std::string&userconnect, const DbConnectio
     connection.webCacheControl().refreshTable(refreshConnect,*it );
   }
   
-}
-unsigned int
-cond::FrontierProxy::countslash(const std::string& input) {
-  unsigned int count=0;
-  std::string::size_type slashpos( 0 );
-  while( slashpos!=std::string::npos){
-    slashpos = input.find('/', slashpos );
-    if ( slashpos != std::string::npos ){
-      ++count;
-      // start next search after this word
-      slashpos += 1;
-    }
-  }
-  return count;
 }
 
 #include "CondCore/DBCommon/interface/TechnologyProxyFactory.h"
