@@ -78,7 +78,7 @@ if not options.useData :
 else :
     inputJetCorrLabel = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
     process.source.fileNames = [
-        '/store/data/Run2012B/JetHT/AOD/PromptReco-v1/000/196/197/1C76017B-60B7-E111-96E1-003048F024C2.root'
+        '/store/data/Run2012A/MuEG/AOD/29Jun2012-v1/0000/FCC05CD8-E9C2-E111-A3A2-20CF305B0508.root'
     ]
 
 #process.source.eventsToProcess = cms.untracked.VEventRange( ['1:86747'] )
