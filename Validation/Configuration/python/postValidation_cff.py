@@ -49,4 +49,3 @@ postValidation_gen = cms.Sequence(
     EventGeneratorPostProcessor
 )
 
-B
