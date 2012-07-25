@@ -35,6 +35,7 @@ namespace cond {
     }
       
     void refresh(); 
+    void refresh( cond::DbSession& dbs ); 
      
     std::pair<int,int> range( cond::Time_t since, cond::Time_t  till );
 
@@ -164,6 +165,7 @@ namespace cond {
     void load( const std::string & token );
 
     bool refresh();
+    bool refresh( cond::DbSession& newSession );
 
     const std::string& token(); 
     

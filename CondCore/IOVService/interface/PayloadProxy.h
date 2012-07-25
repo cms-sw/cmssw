@@ -84,6 +84,7 @@ namespace cond {
 
     // reload the iov return true if size has changed
     bool refresh();
+    bool refresh( cond::DbSession& newSession );
 
 
   private:

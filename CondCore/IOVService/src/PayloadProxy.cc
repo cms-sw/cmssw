@@ -133,8 +133,17 @@ namespace cond {
     return anew;
   }
 
-
-
-
+  bool BasePayloadProxy::refresh( cond::DbSession& newSession ) {
+    ++gstats.nRefresh; ++stats.nRefresh;
+    m_session = newSession;
+    m_session.transaction().start(true);
+    bool anew = m_iov.refresh( newSession );
+    m_session.transaction().commit();
+    if (anew) {
+      m_element = IOVElementProxy();
+      ++gstats.nArefresh; ++stats.nArefresh;
+    }
+    return anew;
+  }
 
 }
