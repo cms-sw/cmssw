@@ -1,5 +1,4 @@
 #include "CondCore/IOVService/interface/IOVProxy.h"
-
 #include "CondFormats/Common/interface/TimeConversions.h"
 
 void cond::IOVProxyData::refresh(){
@@ -15,19 +14,23 @@ void cond::IOVProxyData::refresh(){
 
 std::pair<int,int> cond::IOVProxyData::range( cond::Time_t since, 
 					      cond::Time_t  till ){
-  int low = (since<data->iovs().front().sinceTime()) ? 0 :
-    data->find(since)-data->iovs().begin();
-  int high = data->find(till) - data->iovs().begin();
-  high = std::min( high+1, (int)data->iovs().size());
+  int low = -1;
+  int high = -1;
+  if( till >= data->iovs().front().sinceTime() ){
+    low = (since<data->iovs().front().sinceTime()) ? 0 :
+      data->find(since)-data->iovs().begin();
+    high = data->find(till) - data->iovs().begin();
+    high = std::min( high+1,(int)data->iovs().size())-1;
+  }
   return std::make_pair( low, high );
 }
 
 void cond::IOVElementProxy::set(IOVSequence const & v, int ii) {
-  size_t i =ii;
-  if (i>=v.iovs().size()) {
+  if (ii>=(int)v.iovs().size() || ii<0) {
     set(cond::invalidTime, cond::invalidTime,"");
     return;
   }
+  size_t i =ii;
   m_token = v.iovs()[i].token();
   m_since =  v.iovs()[i].sinceTime();
   if(i+1==v.iovs().size()) {
@@ -108,7 +111,9 @@ cond::IOVElementProxy cond::IOVRange::back() const {
 }
 
 size_t cond::IOVRange::size() const {
-  return m_high-m_low;
+  size_t sz = 0;
+  if( m_high>=0 && m_low>=0 ) sz = m_high-m_low+1;
+  return sz;
 }
 
 cond::IOVProxy::IOVProxy() : 
@@ -186,24 +191,37 @@ cond::IOVRange cond::IOVProxy::rangeHead(cond::Time_t since,
 					 cond::Time_t  till, 
 					 int n) const {
   std::pair<int,int> rg = m_iov->range( since, till );
-  return IOVRange( m_iov, rg.first, std::min( rg.first+n, rg.second ) );  
+  int low = -1;
+  int high = -1;
+  if( n ){
+    low = rg.first;
+    high = std::min( rg.first+n-1, rg.second );
+  }
+  return IOVRange( m_iov, low, high );  
 }
 
 cond::IOVRange cond::IOVProxy::rangeTail(cond::Time_t since, 
 					 cond::Time_t  till, 
 					 int n) const {
   std::pair<int,int> rg = m_iov->range( since, till );
-  return IOVRange( m_iov, std::max( rg.second-n,rg.first), rg.second );
+  int low = -1;
+  int high = -1;
+  if( n ){
+    low = std::max( rg.second-n+1,rg.first);
+    high = rg.second;
+  }
+  return IOVRange( m_iov, low, high );
 }
 
 cond::IOVRange cond::IOVProxy::head(int n) const {
-  int high = std::min( n, size() );
+  int high = std::min( n, size()-1 );
   return IOVRange( m_iov, 0, high );  
 }
 
 cond::IOVRange cond::IOVProxy::tail(int n) const {
-  int low = std::max(size()-n, 0);
-  return IOVRange( m_iov, low, size() );  
+  int sz  = size();
+  if( n>sz ) n = sz;
+  return IOVRange( m_iov, sz-n, sz-1 );  
 }
 
 cond::IOVProxy::const_iterator cond::IOVProxy::find(cond::Time_t time) const {

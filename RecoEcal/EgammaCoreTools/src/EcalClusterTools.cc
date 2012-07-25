@@ -15,6 +15,18 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 
+float EcalClusterTools::getFraction( const std::vector< std::pair<DetId, float> > &v_id, DetId id
+			  ){
+  float frac = 1.0;
+  for ( size_t i = 0; i < v_id.size(); ++i ) {
+    if(v_id[i].first.rawId()==id.rawId()){
+      frac=v_id[i].second;
+    }
+  }
+  return frac;
+}
+
+
 std::pair<DetId, float> EcalClusterTools::getMaximum( const std::vector< std::pair<DetId, float> > &v_id, const EcalRecHitCollection *recHits)
 {
     float max = 0;
@@ -118,14 +130,17 @@ float EcalClusterTools::recHitEnergy(DetId id, const EcalRecHitCollection *recHi
 //      -2 -1 0 1 2 ix
 float EcalClusterTools::matrixEnergy( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax )
 {
+  //take into account fractions
     // fast version
     CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
     float energy = 0;
+    std::vector< std::pair<DetId, float> > v_id = cluster.hitsAndFractions();
     for ( int i = ixMin; i <= ixMax; ++i ) {
         for ( int j = iyMin; j <= iyMax; ++j ) {
-            cursor.home();
-            cursor.offsetBy( i, j );
-            energy += recHitEnergy( *cursor, recHits );
+	  cursor.home();
+	  cursor.offsetBy( i, j );
+	  float frac=getFraction(v_id,*cursor);
+	  energy += recHitEnergy( *cursor, recHits )*frac;
         }
     }
     // slow elegant version

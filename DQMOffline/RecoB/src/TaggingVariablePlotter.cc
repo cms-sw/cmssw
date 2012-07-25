@@ -34,7 +34,7 @@ TaggingVariablePlotter::VariableConfig::VariableConfig(
 		plot.histo.reset(new FlavourHistograms<double>(
 							       name + (*iter ? Form("%d", *iter) : "")
 							       + (category.empty() ? ""
-								  : ("_" + category) + "_" + label),
+								  : ("_" + category)),
 			TaggingVariableDescription[var], nBins, min, max,
 			false, logScale, true, "b", update,label,mc));
 		plot.index = *iter;
@@ -68,25 +68,11 @@ TaggingVariablePlotter::~TaggingVariablePlotter ()
 void TaggingVariablePlotter::analyzeTag (const BaseTagInfo *baseTagInfo,
 	const int &jetFlavour)
 {
-  analyzeTag(baseTagInfo->taggingVariables(), jetFlavour,1.);
-}
-
-void TaggingVariablePlotter::analyzeTag (const BaseTagInfo *baseTagInfo,
-					 const int &jetFlavour,
-					 const float & w)
-{
-  analyzeTag(baseTagInfo->taggingVariables(), jetFlavour,w);
+	analyzeTag(baseTagInfo->taggingVariables(), jetFlavour);
 }
 
 void TaggingVariablePlotter::analyzeTag (const TaggingVariableList &vars,
 	const int &jetFlavour)
-{
-  analyzeTag(vars,jetFlavour,1.);
-}
-
-void TaggingVariablePlotter::analyzeTag (const TaggingVariableList &vars,
-					 const int &jetFlavour,
-					 const float & w)
 {
 	for(vector<VariableConfig>::const_iterator iter = variables.begin();
 	    iter != variables.end(); ++iter) {
@@ -101,10 +87,10 @@ void TaggingVariablePlotter::analyzeTag (const TaggingVariableList &vars,
 			if (plot->index == 0) {
 				for(std::vector<TaggingValue>::const_iterator iter = values.begin();
                                     iter != values.end(); ++iter)
-				  plot->histo->fill(jetFlavour, *iter,w);
+					plot->histo->fill(jetFlavour, *iter);
 			} else if (plot->index - 1 < size)
 				plot->histo->fill(jetFlavour,
-				                  values[plot->index - 1],w);
+				                  values[plot->index - 1]);
 		}
 	}
 }

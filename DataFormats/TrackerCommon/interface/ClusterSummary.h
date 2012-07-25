@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Segala
 //         Created:  Wed Feb 23 17:36:23 CST 2011
-// $Id: ClusterSummary.h,v 1.2 2012/02/02 18:19:10 msegala Exp $
+// $Id: ClusterSummary.h,v 1.3 2012/04/24 15:26:46 msegala Exp $
 //
 //
 
@@ -277,9 +277,8 @@ class ClusterSummary {
   // Class which determines if a detId is part of a desired partition
   class ModuleSelection{
   public:
-    ModuleSelection(std::string gs){
-      geosearch = gs;
-    };
+    ModuleSelection(std::string gs);
+    virtual ~ModuleSelection();
     virtual std::pair<int,int> IsStripSelected (int DetId);
     virtual std::pair<int,int> IsPixelSelected (int DetId);
   private:

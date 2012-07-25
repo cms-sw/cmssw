@@ -131,8 +131,8 @@ static std::string ADMIN_KEY_COL("CRED2");
 static std::string COND_AUTHORIZATION_TABLE("COND_AUTHORIZATION");
 static std::string AUTH_ID_COL("AUTH_ID");
 static std::string P_ID_COL("P_ID");
-static std::string ROLE_COL("ROLE");
-static std::string SCHEMA_COL("SCHEMA");
+static std::string ROLE_COL("C_ROLE");
+static std::string SCHEMA_COL("C_SCHEMA");
 static std::string AUTH_KEY_COL("CRED3");
 static std::string C_ID_COL("C_ID");
 
@@ -1007,7 +1007,7 @@ bool cond::CredentialStore::unsetPermission( const std::string& principal,
     throwException( msg, "CredentialStore::unsetPermission");
   }
 
-  coral::ITableDataEditor& editor = schema.tableHandle(COND_AUTHENTICATION_TABLE).dataEditor();
+  coral::ITableDataEditor& editor = schema.tableHandle(COND_AUTHORIZATION_TABLE).dataEditor();
   coral::AttributeList deleteData;
   deleteData.extend<int>( P_ID_COL );
   deleteData.extend<std::string>( ROLE_COL );
@@ -1178,7 +1178,6 @@ bool cond::CredentialStore::importForPrincipal( const std::string& principal,
   std::string princKey = cipher.b64decrypt( princData.adminKey);
 
   const std::map< std::pair<std::string,std::string>, coral::AuthenticationCredentials* >& creds = dataSource.data();
-  // first import the connections
   for( std::map< std::pair<std::string,std::string>, coral::AuthenticationCredentials* >::const_iterator iConn = creds.begin(); iConn != creds.end(); ++iConn ){
     const std::string& connectionString = iConn->first.first;
     coral::URIParser parser;
@@ -1187,8 +1186,10 @@ bool cond::CredentialStore::importForPrincipal( const std::string& principal,
     const std::string& role = iConn->first.second;
     std::string userName = iConn->second->valueForItem( coral::IAuthenticationCredentials::userItem() );
     std::string password = iConn->second->valueForItem( coral::IAuthenticationCredentials::passwordItem());
+    // first import the connections
     std::pair<int,std::string> conn = updateConnection( schemaLabel( serviceName, userName ), userName, password, false );
     Cipher cipher( m_principalKey );
+    // than set the permission for the specific role
     setPermission( princData.id, princKey, role, connectionString, conn.first, conn.second );
     imported = true;
   }
@@ -1379,4 +1380,9 @@ bool cond::CredentialStore::exportAll( coral_bridge::AuthenticationCredentialSet
   session.close();
   return found;  
 }
+
+const std::string& cond::CredentialStore::keyPrincipalName (){
+  return m_key.principalName();
+}
+
 

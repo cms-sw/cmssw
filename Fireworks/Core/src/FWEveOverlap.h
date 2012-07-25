@@ -15,14 +15,15 @@ public:
 
    virtual void Paint(Option_t* option="");
    virtual TString     GetHighlightTooltip();
-
+   
    virtual FWGeometryTableManagerBase* tableManager();
+   virtual FWGeometryTableViewBase* browser();
    virtual void popupMenu(int x, int y, TGLViewer* v);
 private:
    FWOverlapTableView       *m_browser;
 
 #ifndef __CINT__
-   void paintChildNodesRecurse(FWGeometryTableManagerBase::Entries_i pIt, Int_t idx,  const TGeoHMatrix& mtx);
+   bool paintChildNodesRecurse(FWGeometryTableManagerBase::Entries_i pIt, Int_t idx,  const TGeoHMatrix& mtx);
 #endif
    ClassDef(FWEveOverlap, 0);
 };

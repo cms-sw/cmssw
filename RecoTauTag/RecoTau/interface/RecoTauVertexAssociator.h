@@ -20,7 +20,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 
 // Forward declarations
 namespace edm {
@@ -53,13 +52,10 @@ class RecoTauVertexAssociator {
     reco::VertexRef associatedVertex(const PFTau& tau) const;
     /// Load the vertices from the event.
     void setEvent(const edm::Event& evt);
-    reco::TrackBaseRef getLeadTrack(const PFJet& jet) const;
   private:
     std::vector<reco::VertexRef> vertices_;
     edm::InputTag vertexTag_;
     Algorithm algo_;
-    //PJ adding quality cuts
-    RecoTauQualityCuts qcuts_;
 };
 
 } /* tau */ } /* reco */

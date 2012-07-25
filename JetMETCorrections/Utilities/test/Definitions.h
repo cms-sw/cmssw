@@ -1,9 +1,0 @@
-const int NTRIALS             = 1000;//Number of random numbers for combining uncertainties.
-string LEVELS                 = "L2:L3"; //String defining the levels of JEC.
-string CORRECTION_TAGS        = "Summer08Redigi_L2Relative_IC5Calo:Summer08Redigi_L3Absolute_IC5Calo"; //String that defines the JEC correction tags.
-string UNCERTAINTY_TAGS       = "L2TotalUncertainty:L3Uncertainty"; //String that defines the JEC uncertainty tags.
-string ACTIVE_UNCERTAINTIES   = "L2:L3"; //String that defines which uncertainties will be propagated.
-string SINGLE_UNCERTAINTY_TAG = "L2:L3TotalUncertainty"; //String that defines a single uncertainty tag.
-double CM_ENERGY              = 10000.;
-const int NETA                = 20;
-const double etaBoundaries[NETA+1] = {-5.,-4.,-3.5,-3.,-2.5,-2.,-1.5,-1.3,-1.,-0.5,0.,0.5,1.,1.3,1.5,2.,2.5,3.,3.5,4.,5.};

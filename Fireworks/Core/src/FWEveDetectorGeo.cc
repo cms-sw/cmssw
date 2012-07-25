@@ -19,6 +19,11 @@ FWGeometryTableManagerBase* FWEveDetectorGeo::tableManager()
 {
    return m_browser->getTableManager();
 }
+
+FWGeometryTableViewBase* FWEveDetectorGeo::browser()
+{
+   return m_browser;
+}
 //______________________________________________________________________________
 
 void FWEveDetectorGeo::Paint(Option_t* opt)
@@ -31,6 +36,7 @@ void FWEveDetectorGeo::Paint(Option_t* opt)
    TEveGeoManagerHolder gmgr( FWGeometryTableViewManager::getGeoMangeur());
 
    m_maxLevel = m_browser->getVisLevel() + m_browser->getTableManager()->getLevelOffset();
+
    m_filterOff = m_browser->getFilter().empty();
 
    Int_t topIdx = m_browser->getTopNodeIdx();
@@ -41,20 +47,23 @@ void FWEveDetectorGeo::Paint(Option_t* opt)
    {
       std::advance(sit, topIdx);
       m_browser->getTableManager()->getNodeMatrix(*sit, mtx);
-
-      if (sit->testBit(FWGeometryTableManagerBase::kVisNodeSelf) && ((FWGeometryTableManager*)tableManager())->getVisibility(*sit))
-         paintShape(true, *sit,  topIdx,mtx, m_browser->getVolumeMode() );
    }
 
+   bool drawsChildren = 0;
+   
    if ( ((FWGeometryTableManager*)tableManager())->getVisibilityChld(*sit))
-      paintChildNodesRecurse( sit, topIdx, mtx);
+      drawsChildren = paintChildNodesRecurse( sit, topIdx, mtx);
+   
+   if (sit->testBit(FWGeometryTableManagerBase::kVisNodeSelf) && ((FWGeometryTableManager*)tableManager())->getVisibility(*sit))
+      paintShape( topIdx,mtx, m_browser->getVolumeMode(), drawsChildren );
+   
    
    fflush(stdout);
 }
 
 
 // ______________________________________________________________________
-void FWEveDetectorGeo::paintChildNodesRecurse (FWGeometryTableManagerBase::Entries_i pIt, Int_t cnt, const TGeoHMatrix& parentMtx)
+bool FWEveDetectorGeo::paintChildNodesRecurse (FWGeometryTableManagerBase::Entries_i pIt, Int_t cnt, const TGeoHMatrix& parentMtx)
 { 
    TGeoNode* parentNode =  pIt->m_node;
    int nD = parentNode->GetNdaughters();
@@ -63,6 +72,8 @@ void FWEveDetectorGeo::paintChildNodesRecurse (FWGeometryTableManagerBase::Entri
 
    pIt++;
    int pcnt = cnt+1;
+   
+   bool drawsChildNodes = 0;
 
    FWGeometryTableManagerBase::Entries_i it;
    for (int n = 0; n != nD; ++n)
@@ -74,32 +85,40 @@ void FWEveDetectorGeo::paintChildNodesRecurse (FWGeometryTableManagerBase::Entri
       TGeoHMatrix nm = parentMtx;
       nm.Multiply(it->m_node->GetMatrix());
 
-  
+      bool drawsChildNodesSecondGen = false;
       if (m_filterOff || m_browser->isSelectedByRegion())
       {
-         if ( ((FWGeometryTableManager*)tableManager())->getVisibility(*it))
-            paintShape(true, *it, cnt , nm, m_browser->getVolumeMode() );
-
          if  ( ((FWGeometryTableManager*)tableManager())->getVisibilityChld(*it) && ( it->m_level < m_maxLevel)) {
-            paintChildNodesRecurse(it,cnt , nm);
+           drawsChildNodesSecondGen = paintChildNodesRecurse(it,cnt , nm);
+         }
+         
+         if ( ((FWGeometryTableManager*)tableManager())->getVisibility(*it))
+         {
+            paintShape(cnt , nm, m_browser->getVolumeMode(),  drawsChildNodesSecondGen );
+            drawsChildNodes = true;
          }
 
       }
       else
       {
-         ((FWGeometryTableManager*)tableManager())->assertNodeFilterCache(*it);
-         if ( ((FWGeometryTableManager*)tableManager())->getVisibility(*it))
-            paintShape(false, *it,cnt , nm, m_browser->getVolumeMode()  );
-
          if ( ((FWGeometryTableManager*)tableManager())->getVisibilityChld(*it) && ( it->m_level < m_maxLevel || m_browser->getIgnoreVisLevelWhenFilter() ))
          {
-            paintChildNodesRecurse(it,cnt , nm);
+            drawsChildNodesSecondGen = paintChildNodesRecurse(it,cnt , nm);
+         }
+         
+         ((FWGeometryTableManager*)tableManager())->assertNodeFilterCache(*it);
+         if ( ((FWGeometryTableManager*)tableManager())->getVisibility(*it))
+         {
+            paintShape(cnt , nm, m_browser->getVolumeMode(), drawsChildNodesSecondGen );
+            drawsChildNodes = true;
          }
       }
 
-
+      drawsChildNodes |= drawsChildNodesSecondGen;
       FWGeometryTableManagerBase::getNNodesTotal(parentNode->GetDaughter(n), dOff);  
    }
+   
+   return  drawsChildNodes;
 }
 
 //______________________________________________________________________________
@@ -114,53 +133,6 @@ TString  FWEveDetectorGeo::GetHighlightTooltip()
       return data.name();
    }
    return "error";
-}
-
-//______________________________________________________________________________
-
-void FWEveDetectorGeo::paintShape(bool visLevel, FWGeometryTableManagerBase::NodeInfo& data,  Int_t tableIndex, const TGeoHMatrix& nm, bool volumeColor)
-{
-   // check leaf node 
-   
-   
-   bool leafNode = (data.m_node->GetNdaughters() == 0);
-   if (visLevel) {
-      if (!leafNode) leafNode = (data.m_level == m_maxLevel);
-   }
-   
-   if (leafNode) {
-      int si = tableIndex + 1;
-      int dOff = 0;   
-      for (int n = 0; n != data.m_node->GetNdaughters(); ++n)
-      {
-         int di = si + n + dOff;
-         FWGeometryTableManagerBase::getNNodesTotal(data.m_node->GetDaughter(n), dOff);
-         if (tableManager()->refEntries()[di].testBit(FWGeometryTableManagerBase::kVisNodeSelf)) {
-            leafNode = false;
-            break;
-         }
-      } 
-   }
-   
-   int oldTransparency = data.m_transparency;
-   if (leafNode)
-   {
-      data.m_transparency = TMath::Max((Char_t)m_browser->getMinLeafTransparency(), data.m_transparency);
-      if (data.m_transparency < 100) {
-         data.m_transparency *= (m_browser->getLeafTransparencyFactor());
-         FWGeoTopNode::paintShape(data, tableIndex, nm, volumeColor);
-      }
-   }
-   else {
-      data.m_transparency = TMath::Max((Char_t)m_browser->getMinParentTransparency(), data.m_transparency);
-      if (data.m_transparency < 100) {
-         data.m_transparency *= (m_browser->getParentTransparencyFactor());
-        // printf("[ %d %d] ", oldTransparency, data.m_transparency);
-         FWGeoTopNode::paintShape(data, tableIndex, nm, volumeColor);
-      }
-   }
-   data.m_transparency = oldTransparency;
-   
 }
 
 //_____________________________________________________________________________

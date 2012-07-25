@@ -708,15 +708,16 @@ bool muon::overlap( const reco::Muon& muon1, const reco::Muon& muon2,
 
 bool muon::isTightMuon(const reco::Muon& muon, const reco::Vertex& vtx){
 
-  if(!muon.isTrackerMuon() || !muon.isGlobalMuon()) return false;
+  if(!muon.isPFMuon() || !muon.isGlobalMuon() ) return false;
 
-  bool muID = isGoodMuon(muon,GlobalMuonPromptTight) && isGoodMuon(muon,TrackerMuonArbitrated);
+  bool muID = isGoodMuon(muon,GlobalMuonPromptTight) && (muon.numberOfMatchedStations() > 1);
+    
   
-  bool hits = muon.innerTrack()->numberOfValidHits() > 10 &&
-    muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 &&
-    muon.numberOfMatchedStations() > 1;
+  bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
+    muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
+
   
-  bool ip = fabs(muon.muonBestTrack()->dxy(vtx.position())) < 0.2;
+  bool ip = fabs(muon.muonBestTrack()->dxy(vtx.position())) < 0.2 && fabs(muon.muonBestTrack()->dz(vtx.position())) < 0.5;
   
   return muID && hits && ip;
 }

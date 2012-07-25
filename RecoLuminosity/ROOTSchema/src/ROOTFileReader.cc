@@ -45,7 +45,6 @@ int HCAL_HLX::ROOTFileReader::CreateFileNameList(){
   
   // Check directory existance.
   if( ( dp = opendir( dirName_.c_str() )  ) == NULL ){
-    closedir(dp);
     return false;
   }
 

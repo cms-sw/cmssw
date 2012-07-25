@@ -81,7 +81,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::vector< std::vector<std::s
   
   if (tmp=="Mode:"){
     in >> mode_;
-//    std::cout << __LINE__ << "]\t" << mthn << "mode=" << mode_ << std::endl;
+    std::cout << __LINE__ << "]\t" << mthn << "mode=" << mode_ << std::endl;
     in >>tmp;
   } else {
     mode_="FEDChannelOffsetPixel";

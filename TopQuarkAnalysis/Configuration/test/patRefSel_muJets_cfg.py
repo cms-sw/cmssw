@@ -25,7 +25,7 @@ runOnMC = True
 ### Standard and PF work flow
 
 # Standard
-runStandardPAT = True
+runStandardPAT = False
 usePFJets      = True
 useCaloJets    = True
 
@@ -119,7 +119,7 @@ useMuonCutBasePF = False # use minimal (veto) muon selection cut on top of 'pfMu
 # electrons
 #pfElectronSelectionCut  = 'pt > 5. && gsfTrackRef.isNonnull && gsfTrackRef.trackerExpectedHitsInner.numberOfLostHits < 2'
 useElectronCutBasePF  = False # use minimal (veto) electron selection cut on top of 'pfElectronSelectionCut'
-#pfElectronnIsoConeR03 = False
+#pfElectronIsoConeR03 = True
 #pfElectronCombIsoCut  = 0.2
 
 ### JEC levels
@@ -188,17 +188,17 @@ process.load( "TopQuarkAnalysis.Configuration.patRefSel_inputModule_cfi" )
 if useRelVals:
   from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
   if runOnMC:
-    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_2_3'
+    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_2_5_cand1'
                                      , relVal        = 'RelValTTbar'
-                                     , globalTag     = 'START52_V5'
+                                     , globalTag     = 'START52_V9'
                                      , maxVersions   = 1
                                      )
   else:
-    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_2_2'
+    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_2_5_cand1'
                                      , relVal        = 'SingleMu'
                                      , dataTier      = 'RECO'
-                                     , globalTag     = 'GR_R_52_V4_RelVal_mu2011B'
-                                     , maxVersions   = 2
+                                     , globalTag     = 'GR_R_52_V7_RelVal_mu2011B'
+                                     , maxVersions   = 1
                                      )
 process.source.fileNames = inputFiles
 process.maxEvents.input  = maxInputEvents
@@ -241,9 +241,9 @@ process.step0b = process.goodOfflinePrimaryVertices.clone( filter = True )
 
 ### Event cleaning
 process.load( 'TopQuarkAnalysis.Configuration.patRefSel_eventCleaning_cff' )
-process.step0c = cms.Sequence(
-  process.eventCleaning
-)
+process.step0c = cms.Sequence()
+if not runOnMC:
+  process.step0c += process.eventCleaningData
 
 
 ###
@@ -339,16 +339,17 @@ if runPF2PAT:
   applyPostfix( process, 'pfSelectedElectrons'      , postfix ).cut = pfElectronSelectionCut
   applyPostfix( process, 'pfIsolatedElectrons'      , postfix ).isolationCut = pfElectronCombIsoCut
   if pfElectronIsoConeR03:
-    applyPostfix( process, 'pfIsolatedElectrons', postfix ).isolationValueMapsCharged  = cms.VInputTag( cms.InputTag( 'elPFIsoValueCharged03' + postfix )
+    applyPostfix( process, 'pfIsolatedElectrons', postfix ).isolationValueMapsCharged  = cms.VInputTag( cms.InputTag( 'elPFIsoValueCharged03PFId' + postfix )
                                                                                                        )
-    applyPostfix( process, 'pfIsolatedElectrons', postfix ).deltaBetaIsolationValueMap = cms.InputTag( 'elPFIsoValuePU03' + postfix )
-    applyPostfix( process, 'pfIsolatedElectrons', postfix ).isolationValueMapsNeutral  = cms.VInputTag( cms.InputTag( 'elPFIsoValueNeutral03' + postfix )
-                                                                                                      , cms.InputTag( 'elPFIsoValueGamma03'   + postfix )
+    applyPostfix( process, 'pfIsolatedElectrons', postfix ).deltaBetaIsolationValueMap = cms.InputTag( 'elPFIsoValuePU03PFId' + postfix )
+    applyPostfix( process, 'pfIsolatedElectrons', postfix ).isolationValueMapsNeutral  = cms.VInputTag( cms.InputTag( 'elPFIsoValueNeutral03PFId' + postfix )
+                                                                                                      , cms.InputTag( 'elPFIsoValueGamma03PFId'   + postfix )
                                                                                                       )
-    applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfNeutralHadrons   = cms.InputTag( 'elPFIsoValueNeutral03' + postfix )
-    applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfPUChargedHadrons = cms.InputTag( 'elPFIsoValuePU03' + postfix )
-    applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfPhotons          = cms.InputTag( 'elPFIsoValueGamma03' + postfix )
-    applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfChargedHadrons   = cms.InputTag( 'elPFIsoValueCharged03' + postfix )
+    applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfNeutralHadrons   = cms.InputTag( 'elPFIsoValueNeutral03PFId' + postfix )
+    applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfPUChargedHadrons = cms.InputTag( 'elPFIsoValuePU03PFId' + postfix )
+    applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfPhotons          = cms.InputTag( 'elPFIsoValueGamma03PFId' + postfix )
+    applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfChargedHadrons   = cms.InputTag( 'elPFIsoValueCharged03PFId' + postfix )
+
 
 from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import *
 
@@ -537,9 +538,8 @@ if runPF2PAT:
     applyPostfix( process, 'patJetCorrFactors', postfix ).rho = cms.InputTag( 'kt6PFJets' + postfix, 'rho' )
   process.out.outputCommands.append( 'keep double_kt6PFJets' + postfix + '_*_' + process.name_() )
 
-  goodPatJetsPF = goodPatJets.clone( src = cms.InputTag( 'selectedPatJets' + postfix ) )
+  goodPatJetsPF = goodPatJets.clone( src = cms.InputTag( 'selectedPatJets' + postfix ), checkOverlaps = cms.PSet() )
   setattr( process, 'goodPatJets' + postfix, goodPatJetsPF )
-  getattr( process, 'goodPatJets' + postfix ).checkOverlaps.muons.src = cms.InputTag( 'intermediatePatMuons' + postfix )
 
   step4aPF = step4a.clone( src = cms.InputTag( 'goodPatJets' + postfix ) )
   setattr( process, 'step4a' + postfix, step4aPF )
@@ -613,8 +613,7 @@ if runPF2PAT:
 
   ### Jets
 
-  getattr( process, 'goodPatJets' + postfix ).preselection               = jetCutPF
-  getattr( process, 'goodPatJets' + postfix ).checkOverlaps.muons.deltaR = jetMuonsDRPF
+  getattr( process, 'goodPatJets' + postfix ).preselection = jetCutPF
 
   ### Electrons
 
@@ -670,19 +669,12 @@ if addTriggerMatching:
 ### Scheduling
 ###
 
-# CiC electron ID
+# MVA electron ID
 
-process.load( "RecoEgamma.ElectronIdentification.cutsInCategoriesElectronIdentificationV06_cfi" )
-process.eidCiCSequence = cms.Sequence(
-  process.eidVeryLooseMC
-+ process.eidLooseMC
-+ process.eidMediumMC
-+ process.eidTightMC
-+ process.eidSuperTightMC
-+ process.eidHyperTight1MC
-+ process.eidHyperTight2MC
-+ process.eidHyperTight3MC
-+ process.eidHyperTight4MC
+process.load( "EGamma.EGammaAnalysisTools.electronIdMVAProducer_cfi" )
+process.eidMVASequence = cms.Sequence(
+  process.mvaTrigV0
++ process.mvaNonTrigV0
 )
 
 # The additional sequence
@@ -715,36 +707,41 @@ if runStandardPAT:
     if useGoodVertex:
       process.p += process.step0b
     process.p += process.step0c
-    process.p += process.eidCiCSequence
+    process.p += process.eidMVASequence
     if useL1FastJet and useRelVals:
       process.p += process.ak5CaloJetSequence
     process.p += process.patDefaultSequence
     if usePFJets:
-      process.p.remove( getattr( process, 'patJetCorrFactors'                    + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'jetTracksAssociatorAtVertex'          + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'impactParameterTagInfos'              + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'secondaryVertexTagInfos'              + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'softMuonTagInfos'                     + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'jetBProbabilityBJetTags'              + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'jetProbabilityBJetTags'               + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'trackCountingHighPurBJetTags'         + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'trackCountingHighEffBJetTags'         + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'simpleSecondaryVertexHighEffBJetTags' + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'simpleSecondaryVertexHighPurBJetTags' + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'combinedSecondaryVertexBJetTags'      + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'combinedSecondaryVertexMVABJetTags'   + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'softMuonBJetTags'                     + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'softMuonByPtBJetTags'                 + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'softMuonByIP3dBJetTags'               + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'patJetCharge'                         + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'patJetPartonMatch'                    + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'patJetGenJetMatch'                    + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'patJetPartonAssociation'              + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'patJetFlavourAssociation'             + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'patJets'                              + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'patMETs'                              + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'selectedPatJets'                      + jetAlgo + pfSuffix ) )
-      process.p.remove( getattr( process, 'countPatJets'                         + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'patJetCorrFactors'                            + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'jetTracksAssociatorAtVertex'                  + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'impactParameterTagInfos'                      + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'secondaryVertexTagInfos'                      + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'softMuonTagInfos'                             + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'secondaryVertexNegativeTagInfos'              + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'jetBProbabilityBJetTags'                      + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'jetProbabilityBJetTags'                       + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'trackCountingHighPurBJetTags'                 + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'trackCountingHighEffBJetTags'                 + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'simpleSecondaryVertexHighEffBJetTags'         + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'simpleSecondaryVertexHighPurBJetTags'         + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'combinedSecondaryVertexBJetTags'              + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'combinedSecondaryVertexMVABJetTags'           + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'softMuonBJetTags'                             + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'softMuonByPtBJetTags'                         + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'softMuonByIP3dBJetTags'                       + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'simpleSecondaryVertexNegativeHighEffBJetTags' + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'simpleSecondaryVertexNegativeHighPurBJetTags' + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'negativeTrackCountingHighEffJetTags'          + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'negativeTrackCountingHighPurJetTags'          + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'patJetCharge'                                 + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'patJetPartonMatch'                            + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'patJetGenJetMatch'                            + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'patJetPartonAssociation'                      + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'patJetFlavourAssociation'                     + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'patJets'                                      + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'patMETs'                                      + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'selectedPatJets'                              + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'countPatJets'                                 + jetAlgo + pfSuffix ) )
     process.p += process.patAddOnSequence
     if useLooseMuon:
       process.p += process.step1a
@@ -773,7 +770,7 @@ if runStandardPAT:
     if useGoodVertex:
       pAddPF += process.step0b
     pAddPF += process.step0c
-    pAddPF += process.eidCiCSequence
+    pAddPF += process.eidMVASequence
     if useL1FastJet:
       pAddPF += process.ak5PFJets
     pAddPF += process.patDefaultSequence
@@ -783,6 +780,7 @@ if runStandardPAT:
       pAddPF.remove( process.impactParameterTagInfosAOD )
       pAddPF.remove( process.secondaryVertexTagInfosAOD )
       pAddPF.remove( process.softMuonTagInfosAOD )
+      pAddPF.remove( process.secondaryVertexNegativeTagInfosAOD )
       pAddPF.remove( process.jetBProbabilityBJetTagsAOD )
       pAddPF.remove( process.jetProbabilityBJetTagsAOD )
       pAddPF.remove( process.trackCountingHighPurBJetTagsAOD )
@@ -794,6 +792,10 @@ if runStandardPAT:
       pAddPF.remove( process.softMuonBJetTagsAOD )
       pAddPF.remove( process.softMuonByPtBJetTagsAOD )
       pAddPF.remove( process.softMuonByIP3dBJetTagsAOD )
+      pAddPF.remove( process.simpleSecondaryVertexNegativeHighEffBJetTagsAOD )
+      pAddPF.remove( process.simpleSecondaryVertexNegativeHighPurBJetTagsAOD )
+      pAddPF.remove( process.negativeTrackCountingHighEffJetTagsAOD )
+      pAddPF.remove( process.negativeTrackCountingHighPurJetTagsAOD )
     pAddPF.remove( process.patJetCharge )
     pAddPF.remove( process.patJetPartonMatch )
     pAddPF.remove( process.patJetGenJetMatch )
@@ -841,7 +843,7 @@ if runPF2PAT:
   if useGoodVertex:
     pPF += process.step0b
   pPF += process.step0c
-  pPF += process.eidCiCSequence
+  pPF += process.eidMVASequence
   pPF += getattr( process, 'patPF2PATSequence' + postfix )
   pPF += getattr( process, 'patAddOnSequence' + postfix )
   if useLooseMuon:
