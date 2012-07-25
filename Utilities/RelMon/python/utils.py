@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: agimbuta $
-# $Date: 2012/07/17 14:55:50 $
-# $Revision: 1.5 $
+# $Date: 2012/07/25 08:45:28 $
+# $Revision: 1.6 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -562,6 +562,10 @@ def make_files_pairs(files, verbose=True):
         print '\nFound versions:'
         for version in versions_files:
             print '%s: %d files' % (str(version),  len(versions_files[version]))
+
+    if len(versions_files.keys()) <= 1:
+        print '\nFound too little versions, there is nothing to pair. Exiting...\n'
+        exit()
 
     ## Select two biggest groups.
     versions = versions_files.keys()
