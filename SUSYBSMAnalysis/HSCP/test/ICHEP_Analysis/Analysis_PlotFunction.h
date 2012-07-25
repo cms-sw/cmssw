@@ -55,17 +55,17 @@ void SaveCanvas(TCanvas* c, std::string path, std::string name, bool OnlyPPNG=fa
 }
 
 // function that add the TPaveText on the current canvas with the "CMS Preliminary...." on top of the Histograms
-void DrawPreliminary(double SQRTS, double Lumi, double X=0.40, double Y=0.995, double W=0.82, double H=0.945){
+void DrawPreliminary(double SQRTS_, double Lumi, double X=0.40, double Y=0.995, double W=0.82, double H=0.945){
    TPaveText* T = new TPaveText(X,Y,W,H, "NDC");
    T->SetFillColor(0);
    T->SetTextAlign(22);
    char tmp[2048];
    if(Lumi<=0 ){
-      sprintf(tmp,"CMS Preliminary   #sqrt{s} = %1.0f TeV",SQRTS);
+      sprintf(tmp,"CMS Preliminary   #sqrt{s} = %1.0f TeV",SQRTS_);
       T->AddText(tmp);
    }
    if(Lumi>0 ){
-      sprintf(tmp,"CMS Preliminary   #sqrt{s} = %1.0f TeV   %1.1f fb ^{-1}",SQRTS, Lumi*0.001);
+      sprintf(tmp,"CMS Preliminary   #sqrt{s} = %1.0f TeV   %1.1f fb ^{-1}",SQRTS_, Lumi*0.001);
       T->AddText(tmp);
    }
    T->Draw("same");
