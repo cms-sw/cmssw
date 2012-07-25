@@ -78,7 +78,7 @@ namespace cond {
 	throw cms::Exception("edm::SiteLocalConfigService is not available");       
       }
       result=localconfservice->lookupCalibConnect(initialConnection);
-      res=localconfservice->lookupCalibConnect(initialConnection);
+      //res=localconfservice->lookupCalibConnect(initialConnection);
     }
     if (!transactionId.empty()) {
       size_t l = result.rfind('/');
