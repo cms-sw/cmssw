@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: agimbuta $
-# $Date: 2012/07/25 09:22:20 $
-# $Revision: 1.8 $
+# $Date: 2012/07/25 09:28:46 $
+# $Revision: 1.9 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -114,7 +114,7 @@ class StatisticalTest(object):
 
   def get_rank(self):
     if not self.is_init:
-      if self.rank<0:
+      if self.rank < 0:
         type1=type(self.h1)
         type2=type(self.h2)
         if (type1 != type2):
@@ -534,11 +534,13 @@ def is_relvaldata(files):
 def make_files_pairs(files, verbose=True):
     ## Select functions to use
     if is_relvaldata(files):
+        is_relval_data = True
         get_cmssw_version = get_relvaldata_cmssw_version
         get_id = get_relvaldata_id
         get_max_version = get_relvaldata_max_version
         # print 'Pairing Data RelVal files.'
     else:
+        is_relval_data = False
         get_cmssw_version = get_relval_cmssw_version
         get_id = get_relval_id
         get_max_version = get_relval_max_version
@@ -580,9 +582,16 @@ def make_files_pairs(files, verbose=True):
     print '\nGot pairs:'
     pairs = []
     for unique_id in set([get_id(file) for file in versions_files[v1]]):
-        dataset_re = re.compile(unique_id+'_')
-        c1_files = [file for file in versions_files[v1] if dataset_re.search(file)]
-        c2_files = [file for file in versions_files[v2] if dataset_re.search(file)]
+        if is_relval_data:
+            dataset_re = re.compile(unique_id[0]+'_')
+            run_re = re.compile(unique_id[1])
+            c1_files = [file for file in versions_files[v1] if dataset_re.search(file) and run_re.search(file)]
+            c2_files = [file for file in versions_files[v2] if dataset_re.search(file) and run_re.search(file)]
+        else:
+            dataset_re = re.compile(unique_id+'_')
+            c1_files = [file for file in versions_files[v1] if dataset_re.search(file)]
+            c2_files = [file for file in versions_files[v2] if dataset_re.search(file)]
+
         if len(c1_files) > 0 and len(c2_files) > 0:
             first_file = get_max_version(c1_files)
             second_file = get_max_version(c2_files)
