@@ -193,7 +193,7 @@ void HistoryNode::printEventSetupHistory(ParameterSetMap const& iPSM,
                                                    processConfig,
                                                    itH->processName());
         if(iFindMatch.empty() or retValue.find(iFindMatch) != std::string::npos) {
-          moduleStrings.push_back(std::move(retValue));
+          sourceStrings.push_back(std::move(retValue));
         }
       }
       //get the modules
