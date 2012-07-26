@@ -625,7 +625,7 @@ def readGeneral( config ):
         "logdir":os.getcwd(),
         "offlineModuleLevelHistsTransient":"False",
         "OfflineTreeBaseDir":"TrackHitFilter",
-        "DMRMethod":"medianX",
+        "DMRMethod":"median",
         "DMRMinimum":"30",
         "DMROptions":""
         }
