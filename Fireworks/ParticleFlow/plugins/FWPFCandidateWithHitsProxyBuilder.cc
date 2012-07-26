@@ -247,17 +247,19 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
   
    for(unsigned elIdx=0; elIdx<eleInBlocks.size(); elIdx++)
    {
-      unsigned ieTrack = 0;
-      unsigned ieECAL = 0;
+     // unsigned ieTrack = 0;
+     // unsigned ieECAL = 0;
       unsigned ieHCAL = 0;
 
       reco::PFBlockRef blockRef = eleInBlocks[elIdx].first;
       unsigned indexInBlock = eleInBlocks[elIdx].second;
       edm::Ptr<reco::PFBlock> myBlock(blockRef.id(),blockRef.get(), blockRef.key());
+      /*
       if (myBlock->elements()[indexInBlock].type() == 1)
          ieTrack = indexInBlock;
       if (myBlock->elements()[indexInBlock].type() == 4)
          ieECAL = indexInBlock;
+      */
       if (myBlock->elements()[indexInBlock].type() == 5)
          ieHCAL = indexInBlock;
    
