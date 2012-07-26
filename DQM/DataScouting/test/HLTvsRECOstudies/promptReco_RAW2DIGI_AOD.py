@@ -1,8 +1,8 @@
 # Auto generated configuration file
 # using: 
-# Revision: 1.372.2.20 
-# Source: /local/reps/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: reco --step RAW2DIGI,RECO --conditions GR_P_V32::All --eventcontent AOD --no_exec --data --filein file:outputPhysicsDST.root --fileout outputPhysicsDST_HLTplusAOD.root --python_filename promptReco_RAW2DIGI_AOD.py --number 2
+# Revision: 1.372.2.1 
+# Source: /local/reps/CMSSW.admin/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
+# with command line options: reco --step RAW2DIGI,RECO --conditions GR_P_V32::All --eventcontent AOD --no_exec --data --filein file:outputPhysicsDST.root --fileout outputPhysicsDST_HLTplusAOD.root --python_filename promptReco_RAW2DIGI_AOD.py --number -1
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('RECO')
@@ -35,8 +35,8 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.372.2.20 $'),
-    annotation = cms.untracked.string('reco nevts:2'),
+    version = cms.untracked.string('$Revision: 1.372.2.1 $'),
+    annotation = cms.untracked.string('reco nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 
@@ -71,13 +71,14 @@ process.AODoutput.outputCommands.extend(
        'keep *_hltRecoEcalSuperClusterActivityCandidate_*_*',
        'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
        'keep edmTriggerResults_*_*_*',
-       ## RAW data
-       #'keep FEDRawDataCollection_rawDataCollector_*_*',
-       #'keep FEDRawDataCollection_source_*_*',
+       ## RAW data                                                                                                    
+       #'keep FEDRawDataCollection_rawDataCollector_*_*',           
+       #'keep FEDRawDataCollection_source_*_*', 
        'keep triggerTriggerEvent_*_*_*',
        'keep *_hltL1GtObjectMap_*_*'
             )
           )
+
 
 # Additional output definition
 

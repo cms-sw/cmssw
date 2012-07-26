@@ -1,3 +1,16 @@
+This is a two step process.
+
+1) First step:
+run HLT on RAW data and store RAW+DataScouting event content.
+Make sure you use the same CMSSW release used to collect the data.
+
+2) Second step:
+run RECO on the output of 1) and store AOD+DataSouting event content
+Make sure you use the same CMSSW release used to make prompt reconstruction of the collected data
+
+################################################################################
+
+
 --------------------------
 -- 1) RAW --> HLT + RAW --
 --------------------------
@@ -108,15 +121,35 @@ the trigger report is here: hlt_data_01.txt
 the output .root file is here: outputPhysicsDST.root
 
 
+
+
+
 --------------------------------
 -- 2) HLT + RAW --> HLT + AOD --
 --------------------------------
+
+Setup CMSSW area 
+(the instructions below are for Run2012B. 
+The CMSSW release might change for different datasets: 
+please check in DAS what was used for prompt reco):
+
+
+setenv SCRAM_ARCH slc5_amd64_gcc462
+scram p -n CMSSW_5_2_4_patch2_DataScouting CMSSW CMSSW_5_2_4_patch2
+cd CMSSW_5_2_4_patch2_DataScouting/src
+cmsenv
+
 
 Create configuration file for reconstruction of the data:
 
 cmsDriver.py reco --step RAW2DIGI,RECO --conditions GR_P_V32::All --eventcontent AOD --no_exec --data --filein file:outputPhysicsDST.root --fileout outputPhysicsDST_HLTplusAOD.root --python_filename promptReco_RAW2DIGI_AOD.py --number -1
 
-Edit to add the HLT event content:
+NOTE 1 : the global tag is correct for Run2012B. If you analyze other periods, the appropriate global tag used for prompt reco shoudl be used
+
+NOTE 2 : the input file must be the output of the previous step
+
+
+Edit to add the DataScouting event content:
 
 process.AODoutput.outputCommands.extend(
         cms.untracked.vstring(
