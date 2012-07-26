@@ -87,7 +87,7 @@ workflows[5.3] = ['SingleMuPt100', ['SingleMuPt100FS']]
 workflows[5.4] = ['ZEE', ['ZEEFS']]
 workflows[5.5] = ['ZTT',['ZTTFS']]
 
-workflows[39]  = ['QCDFlatPt153000', ['QCDFlatPt153000FS']]
+workflows[39]  = ['QCD_FlatPt_15_3000', ['QCDFlatPt153000FS']]
 workflows[6.4] = ['H130GGgluonfusion', ['H130GGgluonfusionFS']]
 
 ### standard set ###
