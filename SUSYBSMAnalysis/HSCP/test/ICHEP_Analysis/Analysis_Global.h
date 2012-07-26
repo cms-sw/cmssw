@@ -110,7 +110,7 @@ float              CosmicMinDz   =   70.;  //Min dz displacement to be tagged as
 float              CosmicMaxDz   =   120.; //Max dz displacement for cosmic tagged tracks
 //double             MaxDistTrigger=   0.4;  //Max Dist to trigger object
 double             minSegEtaSep  = 0.04;   //Minimum eta separation between SA track and muon segment on opposite side of detector
-
+int                DzRegions     = 6;      //Number of different Dz side regions used to make cosmic background prediction
 
 // function used to define Axis range and legend automatically from the estimator label
 void InitdEdx(std::string dEdxS_Label_){

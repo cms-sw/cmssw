@@ -1,8 +1,8 @@
 // Original Author:  Loic Quertenmont
 
 
-namespace reco    { class Vertex; class Track; class GenParticle; class DeDxData; class MuonTimeExtra;}
-namespace susybsm { class HSCParticle; class HSCPIsolation;}
+namespace reco    { class Vertex; class Track; class GenParticle; class DeDxData; class MuonTimeExtra; class PFMET;}
+namespace susybsm { class HSCParticle; class HSCPIsolation; class MuonSegment;}
 namespace fwlite  { class ChainEvent;}
 namespace trigger { class TriggerEvent;}
 namespace edm     { class TriggerResults; class TriggerResultsByName; class InputTag; class LumiReWeighting;}
@@ -18,8 +18,12 @@ namespace reweight{ class PoissonMeanShifter;}
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPIsolation.h"
+#include "AnalysisDataFormats/SUSYBSMObjects/interface/MuonSegment.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/METReco/interface/PFMET.h"
 
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
@@ -52,11 +56,11 @@ using namespace reweight;
 void InitHistos(stPlots* st=NULL);
 void Analysis_Step3(char* SavePath);
 
-bool PassTrigger      (const fwlite::ChainEvent& ev, bool isData);
+bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic=false);
 bool   PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, const reco::MuonTimeExtra* dttof, const reco::MuonTimeExtra* csctof, const fwlite::ChainEvent& ev, stPlots* st=NULL, const double& GenBeta=-1, bool RescaleP=false, const double& RescaleI=0.0, const double& RescaleT=0.0);
 bool PassSelection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, const fwlite::ChainEvent& ev, const int& CutIndex=0, stPlots* st=NULL, const double& GenBeta=-1, bool RescaleP=false, const double& RescaleI=0.0, const double& RescaleT=0.0);
 void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, stPlots* st=NULL);
-
+double SegSep(const susybsm::HSCParticle& hscp, const fwlite::ChainEvent& ev, double& minPhi, double& minEta);
 double RescaledPt       (const double& pt, const double& eta, const double& phi, const int& charge);
 /////////////////////////// VARIABLE DECLARATION /////////////////////////////
 
@@ -82,6 +86,10 @@ TH1D* H_F;
 TH1D* H_G;
 TH1D* H_H;
 TH1D* H_P;
+
+TH2D* H_D_DzSidebands;
+TH2D* H_D_DzSidebands_DT;
+TH2D* H_D_DzSidebands_CSC;
 
 std::vector<double>  CutPt ;
 std::vector<double>  CutI  ;
@@ -233,8 +241,8 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
 }
 
 
-// check if the event is passing trigger or not --> note that the functiion has two part (one for 2011 analysis and the other one for 2012)
-bool PassTrigger(const fwlite::ChainEvent& ev, bool isData)
+// check if the event is passing trigger or not --> note that the function has two part (one for 2011 analysis and the other one for 2012)
+bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
 {
       edm::TriggerResultsByName tr = ev.triggerResultsByName("MergeHLT");
       if(!tr.isValid())return false;
@@ -245,11 +253,21 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData)
            if(!isData) Event_Weight=Event_Weight*0.96;
            return true;
          }
+	 if(TypeMode==3) {
+	   fwlite::Handle<reco::PFMETCollection> pfMETCollection;
+	   pfMETCollection.getByLabel(ev,"pfMet");
+	   if(tr.accept(tr.triggerIndex("HSCPPathSAMU")) && pfMETCollection->begin()->et()>60) return true;
+	 }
       #else
-         if(tr.accept("HSCPHLTTriggerMetDeDxFilter"))return true;
-         if(tr.accept("HSCPHLTTriggerMuDeDxFilter"))return true;
-         if(tr.accept("HSCPHLTTriggerMuFilter"))return true;
+	 if(TypeMode!=3) {
+	   if(tr.accept("HSCPHLTTriggerMetDeDxFilter"))return true;
+	   if(tr.accept("HSCPHLTTriggerMuDeDxFilter"))return true;
+	   if(tr.accept("HSCPHLTTriggerMuFilter"))return true;
+	 }
+	 //Only for the TOF only analysis
 	 if(TypeMode==3) if(tr.accept(tr.triggerIndex("HSCPHLTTriggerL2MuFilter"))) return true;
+	 //Only accepted if looking for cosmic events
+	 if(isCosmic) if(tr.accept(tr.triggerIndex("HSCPHLTTriggerCosmicFilter"))) return true;
       #endif
       return false;
 }
@@ -257,13 +275,12 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData)
 // check if one HSCP candidate is passing the preselection (the function also has many more arguments because it is used to fill some histograms AND to evaluate the systematics
 bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, const reco::MuonTimeExtra* dttof, const reco::MuonTimeExtra* csctof, const fwlite::ChainEvent& ev, stPlots* st, const double& GenBeta, bool RescaleP, const double& RescaleI, const double& RescaleT)
 {
-
    if(TypeMode==1 && !(hscp.type() == HSCParticleType::trackerMuon || hscp.type() == HSCParticleType::globalMuon))return false;
    if(TypeMode==2 && hscp.type() != HSCParticleType::globalMuon)return false;
-   if(TypeMode==3 && hscp.type() != HSCParticleType::standAloneMuon)return false;
 
    reco::TrackRef   track;
    reco::MuonRef muon = hscp.muonRef();
+
    if(TypeMode!=3) track = hscp.trackRef();
    else {
      if(muon.isNull()) return false;
@@ -339,11 +356,55 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 
    double dz  = track->dz (vertexColl[0].position());
    double dxy = track->dxy(vertexColl[0].position());
-   for(unsigned int i=1;i<vertexColl.size();i++){
-      if(fabs(track->dz (vertexColl[i].position())) < fabs(dz) ){
-         dz  = track->dz (vertexColl[i].position());
-         dxy = track->dxy(vertexColl[i].position());
-      }
+   int goodVerts=0;
+   for(unsigned int i=0;i<vertexColl.size();i++){
+     if(fabs(track->dz (vertexColl[i].position())) < fabs(dz) ){
+       dz  = track->dz (vertexColl[i].position());
+       dxy = track->dxy(vertexColl[i].position());
+       if(fabs(vertexColl[i].z())<15 && sqrt(vertexColl[i].x()*vertexColl[i].x()+vertexColl[i].y()*vertexColl[i].y())<2 && vertexColl[i].ndof()>3) goodVerts++;
+     }
+   }
+
+   if(st) st->BS_PV->Fill(goodVerts,Event_Weight);
+   if(TypeMode==3 && goodVerts<1) return false;
+
+   //For TOF only analysis match to a SA track without vertex constraint for IP cuts
+   if(TypeMode==3) {
+     fwlite::Handle< std::vector<reco::Track> > noVertexTrackCollHandle;
+     noVertexTrackCollHandle.getByLabel(ev,"RefitSAMuons", "");
+
+     //To be cleaned up when new EDM files created, different track names exist in different files
+     if(!noVertexTrackCollHandle.isValid()){
+       noVertexTrackCollHandle.getByLabel(ev,"refittedStandAloneMuons", "");
+       if(!noVertexTrackCollHandle.isValid()){
+	 noVertexTrackCollHandle.getByLabel(ev,"RefitMTSAMuons", "");
+	 if(!noVertexTrackCollHandle.isValid()){
+	   printf("No Vertex Track Collection Not Found\n");
+	   return false;
+	 }
+       }
+     }
+     //Find closest NV track
+     const std::vector<reco::Track>& noVertexTrackColl = *noVertexTrackCollHandle;
+     reco::Track NVTrack;
+     double minDr=15;
+     for(unsigned int i=0;i<noVertexTrackColl.size();i++){
+       double dR = deltaR(track->eta(), track->phi(), noVertexTrackColl[i].eta(), noVertexTrackColl[i].phi());
+       if(dR<minDr) {minDr=dR;
+	 NVTrack=noVertexTrackColl[i];}
+     }
+     if(st) st->BS_dR_NVTrack->Fill(minDr,Event_Weight);
+     if(minDr>0.4) return false;
+     if(st)st->NVTrack->Fill(0.0,Event_Weight);
+
+     //Find displacement of tracks with respect to beam spot
+     fwlite::Handle<reco::BeamSpot> beamSpotCollHandle;
+     beamSpotCollHandle.getByLabel(ev,"offlineBeamSpot");
+     if(!beamSpotCollHandle.isValid()){printf("Beam Spot Collection NotFound\n");return false;}
+     const reco::BeamSpot& beamSpotColl = *beamSpotCollHandle;
+
+     dz  = NVTrack.dz (beamSpotColl.position());
+     dxy = NVTrack.dxy(beamSpotColl.position());
    }
 
    double v3d = sqrt(dz*dz+dxy*dxy);
@@ -377,6 +438,85 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    if(std::max(0.0,track->pt())<GlobalMinPt)return false;
    if(st){st->Pterr   ->Fill(0.0,Event_Weight);}
 
+   //Cut on number of matched muon stations
+   int count=track->hitPattern().muonStationsWithValidHits();
+   if(st) {
+     st->BS_MatchedStations->Fill(count, Event_Weight);  ;
+   }
+   if(TypeMode==3 && count<2) return false;
+   if(st) st->Stations->Fill(0.0, Event_Weight);
+
+   //Find distance to nearest segment on opposite side of detector
+   double minPhi, minEta;
+   double segSep=SegSep(hscp, ev, minPhi, minEta);
+
+   if(st){
+     st->BS_SegSep->Fill(segSep, Event_Weight);
+     st->BS_SegMinPhiSep->Fill(minPhi, Event_Weight);
+     st->BS_SegMinEtaSep->Fill(minEta, Event_Weight);
+     //Plotting segment separation depending on whether track passed dz cut
+     if(fabs(dz)>GlobalMaxDZ) {
+       st->BS_SegMinEtaSep_FailDz->Fill(minEta, Event_Weight);
+     }
+     else {
+       st->BS_SegMinEtaSep_PassDz->Fill(minEta, Event_Weight);
+     }
+     //Plots for tracking failing Eta Sep cut
+     if(fabs(minEta)<minSegEtaSep) {
+       //Needed to compare dz distribution of cosmics in pure cosmic and main sample
+       st->BS_Dz_FailSep->Fill(dz);
+     }
+   }
+
+   //Now cut Eta separation
+   if(TypeMode==3 && fabs(minEta)<minSegEtaSep) return false;
+   if(st){st->SegSep->Fill(0.0,Event_Weight);}
+
+   if(st) {
+     //Plots for tracks in dz control region
+     if(fabs(dz)>CosmicMinDz && fabs(dz)<CosmicMaxDz) {
+       st->BS_Pt_FailDz->Fill(track->pt(), Event_Weight);
+       st->BS_TOF_FailDz->Fill(tof->inverseBeta(), Event_Weight);
+       st->BS_Eta_FailDz->Fill(track->eta(), Event_Weight);
+       if(fabs(track->eta())>CSCRegion) {
+	 st->BS_TOF_FailDz_CSC->Fill(tof->inverseBeta(), Event_Weight);
+	 st->BS_Pt_FailDz_CSC->Fill(track->pt(), Event_Weight);
+       }
+       else if(fabs(track->eta())<DTRegion) {
+	 st->BS_TOF_FailDz_DT->Fill(tof->inverseBeta(), Event_Weight);
+	 st->BS_Pt_FailDz_DT->Fill(track->pt(), Event_Weight);
+       }
+     }
+     //Plots of dz
+     st->BS_Dz->Fill(dz, Event_Weight);
+     if(fabs(track->eta())>CSCRegion) st->BS_Dz_CSC->Fill(dz,Event_Weight);
+     else if(fabs(track->eta())<DTRegion) st->BS_Dz_DT->Fill(dz,Event_Weight);
+     st->BS_EtaDz->Fill(track->eta(),dz,Event_Weight);
+   }
+
+   //Split into different dz regions, each different region used to predict cosmic background and find systematic
+   if(TypeMode==3 && !muon->isGlobalMuon() && st) {
+     int DzType=-1;
+     if(fabs(dz)<GlobalMaxDZ) DzType=0;
+     else if(fabs(dz)<30) DzType=1;
+     else if(fabs(dz)<50) DzType=2;
+     else if(fabs(dz)<70) DzType=3;
+     if(fabs(dz)>CosmicMinDz && fabs(dz)<CosmicMaxDz) DzType=4;
+     if(fabs(dz)>CosmicMaxDz) DzType=5;
+     //Count number of tracks in dz sidebands passing the TOF cut
+     //The pt cut is not applied to increase statistics
+     for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
+       if(tof->inverseBeta()>=CutTOF[CutIndex]) {
+	 H_D_DzSidebands->Fill(CutIndex, DzType);
+	 if(fabs(track->eta())<DTRegion) H_D_DzSidebands_DT->Fill(CutIndex, DzType);
+         else H_D_DzSidebands_CSC->Fill(CutIndex, DzType);
+       }
+     }
+   }
+
+   //Cut on dz for TOF only analysis
+   if(TypeMode==3 && fabs(dz)>GlobalMaxDZ) return false;
+
    if(st){if(dedxSObj) st->BS_EtaIs->Fill(track->eta(),dedxSObj->dEdx(),Event_Weight);
           if(dedxMObj) st->BS_EtaIm->Fill(track->eta(),dedxMObj->dEdx(),Event_Weight);
           st->BS_EtaP ->Fill(track->eta(),track->p(),Event_Weight);
@@ -400,10 +540,9 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
             st->BS_PtIs ->Fill(track->pt() ,dedxSObj->dEdx(),Event_Weight);
             st->BS_PtIm ->Fill(track->pt() ,dedxMObj->dEdx(),Event_Weight);
 	  }
-          if(tof)st->BS_TOFIs->Fill(tof->inverseBeta(),dedxSObj->dEdx(),Event_Weight);
-          if(tof)st->BS_TOFIm->Fill(tof->inverseBeta(),dedxMObj->dEdx(),Event_Weight);
+          if(tof && dedxSObj)st->BS_TOFIs->Fill(tof->inverseBeta(),dedxSObj->dEdx(),Event_Weight);
+          if(tof && dedxSObj)st->BS_TOFIm->Fill(tof->inverseBeta(),dedxMObj->dEdx(),Event_Weight);
    }
-
    return true;
 }
 
@@ -445,7 +584,7 @@ bool PassSelection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedx
           if(GenBeta>=0)st->Beta_SelectedI->Fill(CutIndex, GenBeta, Event_Weight);
    }
 
-   if(TypeMode==2 && MuonTOF+RescaleT<CutTOF[CutIndex])return false;
+   if(TypeMode>1 && MuonTOF+RescaleT<CutTOF[CutIndex])return false;
    if(st){st->TOF  ->Fill(CutIndex,Event_Weight);
           if(GenBeta>=0)st->Beta_SelectedT->Fill(CutIndex, GenBeta, Event_Weight);
           st->AS_P  ->Fill(CutIndex,track->p(),Event_Weight);
@@ -614,6 +753,18 @@ void Analysis_Step3(char* SavePath)
          stPlots_Init(HistoFile,plotsMap["MCTr"],"MCTr", CutPt.size());
       }stPlots& MCTrPlots = plotsMap["MCTr"];
 
+      //Initialize plot container for pure cosmic sample
+      //Cosmic sample is contained in data file so for TOF-Only search
+      //need a new set of plots for these events
+      string CosmicName="";
+      if(isData && TypeMode==3) {
+	string Name;
+	if(samples[s].Name.find("12")!=string::npos) CosmicName="Cosmic12";
+	else CosmicName="Cosmic11";
+	if(plotsMap.find(CosmicName)==plotsMap.end()){plotsMap[CosmicName] = stPlots();}
+	stPlots_Init(HistoFile,plotsMap[CosmicName],CosmicName, CutPt.size());
+      }stPlots& CosmicPlots = plotsMap[CosmicName];
+
       //Initialize histo specific to the sample (mostly related to ABCD --> done only for MCTr or Data);
       if(isData)InitHistos(&SamplePlots);
       if(isMC)  InitHistos(&MCTrPlots);
@@ -693,7 +844,15 @@ void Analysis_Step3(char* SavePath)
             if(isMC)MCTrPlots.TotalE  ->Fill(0.0,Event_Weight);
             SamplePlots      .TotalEPU->Fill(0.0,Event_Weight*PUSystFactor);
             if(isMC)MCTrPlots.TotalEPU->Fill(0.0,Event_Weight*PUSystFactor);
-            if(!PassTrigger(ev, isData) )continue;
+	    //See if event passed signal triggers
+            if(!PassTrigger(ev, isData) ) {
+	      //For TOF only analysis if the event doesn't pass the signal triggers check if it was triggered by the no BPTX cosmic trigger
+	      //If not TOF only then move to next event
+	      if(TypeMode!=3) continue;
+	      if(!PassTrigger(ev, isData, true)) continue;
+	      //If is cosmic event then switch plots to use to the ones for cosmics
+	      SamplePlots=CosmicPlots;
+	    }
             SamplePlots       .TotalTE->Fill(0.0,Event_Weight);
             if(isMC)MCTrPlots .TotalTE->Fill(0.0,Event_Weight);
 
@@ -774,7 +933,7 @@ void Analysis_Step3(char* SavePath)
                const reco::MuonTimeExtra* tof = NULL;
                const reco::MuonTimeExtra* dttof = NULL;
                const reco::MuonTimeExtra* csctof = NULL;
-              if(TypeMode==2 && !hscp.muonRef().isNull()){ tof  = &TOFCollH->get(hscp.muonRef().key()); dttof = &TOFDTCollH->get(hscp.muonRef().key());  csctof = &TOFCSCCollH->get(hscp.muonRef().key());}
+              if(TypeMode>1 && !hscp.muonRef().isNull()){ tof  = &TOFCollH->get(hscp.muonRef().key()); dttof = &TOFDTCollH->get(hscp.muonRef().key());  csctof = &TOFCSCCollH->get(hscp.muonRef().key());}
 
                //compute systematic uncertainties on signal
                if(isSignal){
@@ -997,13 +1156,13 @@ void InitHistos(stPlots* st){
       HCuts_TOF = new TProfile("HCuts_TOF","HCuts_TOF",CutPt.size(),0,CutPt.size());
       for(unsigned int i=0;i<CutPt.size();i++){  HCuts_Pt->Fill(i,CutPt[i]);     HCuts_I->Fill(i,CutI[i]);    HCuts_TOF->Fill(i,CutTOF[i]);   }
 
-      sprintf(Name,"Pred_Mass");    Pred_Mass     = new TH2D(Name,Name,CutPt.size(),0,CutPt.size(),MassNBins,0,MassHistoUpperBound);                   Pred_Mass->Sumw2();
-      sprintf(Name,"Pred_MassTOF"); Pred_MassTOF  = new TH2D(Name,Name,CutPt.size(),0,CutPt.size(),MassNBins,0,MassHistoUpperBound);                   Pred_MassTOF->Sumw2();
-      sprintf(Name,"Pred_MassComb");Pred_MassComb = new TH2D(Name,Name,CutPt.size(),0,CutPt.size(),MassNBins,0,MassHistoUpperBound);                   Pred_MassComb->Sumw2();
-
    //Initialization of variables that exist for each different samples
    }else{
       st->Directory->cd();
+
+      sprintf(Name,"Pred_Mass");    Pred_Mass     = new TH2D(Name,Name,CutPt.size(),0,CutPt.size(),MassNBins,0,MassHistoUpperBound);                   Pred_Mass->Sumw2();
+      sprintf(Name,"Pred_MassTOF"); Pred_MassTOF  = new TH2D(Name,Name,CutPt.size(),0,CutPt.size(),MassNBins,0,MassHistoUpperBound);                   Pred_MassTOF->Sumw2();
+      sprintf(Name,"Pred_MassComb");Pred_MassComb = new TH2D(Name,Name,CutPt.size(),0,CutPt.size(),MassNBins,0,MassHistoUpperBound);                   Pred_MassComb->Sumw2();
 
       H_A = new TH1D("H_A" ,"H_A" ,CutPt.size(),0,CutPt.size());
       H_B = new TH1D("H_B" ,"H_B" ,CutPt.size(),0,CutPt.size());
@@ -1014,6 +1173,10 @@ void InitHistos(stPlots* st){
       H_G = new TH1D("H_G" ,"H_G" ,CutPt.size(),0,CutPt.size());
       H_H = new TH1D("H_H" ,"H_H" ,CutPt.size(),0,CutPt.size());
       H_P = new TH1D("H_P" ,"H_P" ,CutPt.size(),0,CutPt.size());
+
+      H_D_DzSidebands = new TH2D("H_D_DzSidebands" ,"H_D_DzSidebands" ,CutPt.size(),0,CutPt.size(), DzRegions, 0, DzRegions); H_D_DzSidebands->Sumw2();
+      H_D_DzSidebands_DT = new TH2D("H_D_DzSidebands_DT" ,"H_D_DzSidebands_DT" ,CutPt.size(),0,CutPt.size(), DzRegions, 0, DzRegions); H_D_DzSidebands_DT->Sumw2();
+      H_D_DzSidebands_CSC = new TH2D("H_D_DzSidebands_CSC" ,"H_D_DzSidebands_CSC" ,CutPt.size(),0,CutPt.size(), DzRegions, 0, DzRegions); H_D_DzSidebands_CSC->Sumw2();
 
       CtrlPt_S1_Is   = new TH1D("CtrlPt_S1_Is" ,"CtrlPt_S1_Is" ,200,0,dEdxS_UpLim);  CtrlPt_S1_Is ->Sumw2();
       CtrlPt_S1_Im   = new TH1D("CtrlPt_S1_Im" ,"CtrlPt_S1_Im" ,200,0,dEdxM_UpLim);  CtrlPt_S1_Im ->Sumw2();
@@ -1062,3 +1225,50 @@ double RescaledPt(const double& pt, const double& eta, const double& phi, const 
    return 1/newInvPt;
 }
 
+double SegSep(const susybsm::HSCParticle& hscp, const fwlite::ChainEvent& ev, double& minPhi, double& minEta) {
+  reco::TrackRef   track;
+  if(TypeMode!=3) track = hscp.trackRef();
+  else {
+    reco::MuonRef muon = hscp.muonRef();
+    if(muon.isNull()) return false;
+    track = muon->standAloneMuon();
+  }
+  if(track.isNull())return false;
+
+  fwlite::Handle<MuonSegmentCollection> SegCollHandle;
+  SegCollHandle.getByLabel(ev, "MuonSegmentProducer");
+  if(!SegCollHandle.isValid()){printf("Segment Collection Not Found\n");return 0;}
+  MuonSegmentCollection SegCollection = *SegCollHandle;
+
+  double minDr=10;
+  minPhi=10;
+  minEta=10;
+
+  //Look for segment on opposite side of detector from track
+  for (MuonSegmentCollection::const_iterator segment = SegCollection.begin(); segment!=SegCollection.end();++segment) {  
+    GlobalPoint gp = segment->getGP();
+
+    //Flip HSCP to opposite side of detector
+    double eta_hscp = -1*track->eta();
+    double phi_hscp= track->phi()+M_PI;
+
+    double deta = gp.eta() - eta_hscp;
+    double dphi = gp.phi() - phi_hscp;
+    while (dphi >   M_PI) dphi -= 2*M_PI;
+    while (dphi <= -M_PI) dphi += 2*M_PI;
+
+    //Find segment most opposite in eta
+    //Require phi difference of 0.5 so it doesn't match to own segment
+    if(fabs(deta)<fabs(minEta) && fabs(dphi)<(M_PI-0.5)) {
+      minEta=deta;
+    }
+    //Find segment most opposite in phi
+    if(fabs(dphi)<fabs(minPhi)) {
+      minPhi=dphi;
+    }
+    //Find segment most opposite in Eta-Phi
+    double dR=sqrt(deta*deta+dphi*dphi);
+    if(dR<minDr) minDr=dR;
+  }
+  return minDr;
+}
