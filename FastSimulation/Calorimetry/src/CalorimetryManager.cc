@@ -57,6 +57,10 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+//ROOT headers
+#include "TROOT.h"
+#include "TH1.h"
+
 using namespace edm;
 
 typedef math::XYZVector XYZVector;
@@ -118,19 +122,36 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
   dbe = edm::Service<DQMStore>().operator->();
 
   if (useDQM_){
+	TH1::SetDefaultSumw2(true); //turn on histo errors
+  
+	//ECAL histos
     dbe->setCurrentFolder("EMShower");
      // please keep the binning with fixed width and coherent between ShapeRhoZ and Tr/Lo shapes. Also check if you 
      // change the binning that the weight changes in the filling in EMShower.cc
     dbe->book1D("TransverseShape","Transverse Shape; #rho / Moliere radius; 1/E dE/d#rho",70, 0., 7.);
     dbe->book1D("LongitudinalShape","Longitudinal Shape; z / X0; 1/E dE/dz",40, 0.01, 40.01);
-
     dbe->book1D("LongitudinalShapeLayers","Longitudinal Shape in number of layers; z / Layers; 1/E dE/dz", 26, 0.01, 26.01);
-
     dbe->book2D("ShapeRhoZ","2D Shape; #rho / Moliere radius; z / X0", 70, 0., 7., 26, 0.01, 26.01);
-    
     dbe->book1D("NumberOfParticles","Number Of Particles entering the Shower; #Particles; #Events", 6, -0.5, 5.5);
-    
     dbe->book1D("ParticlesEnergy","Log Particles Energy; log10(E / GeV); #Particles", 30, 0, 3);
+	
+	//HCAL histos
+    dbe->setCurrentFolder("HDShower");
+
+    dbe->book1D("TransverseShapeECAL","ECAL Transverse Shape; #rho / #lambda_{int}; 1/E dE/d#rho",70, 0., 7.);
+    dbe->book1D("LongitudinalShapeECAL","ECAL Longitudinal Shape; z / #lambda_{int}; 1/E dE/dz",20, 0., 2.);
+    dbe->book1D("TransverseShapeHCAL","HCAL Transverse Shape; #rho / #lambda_{int}; 1/E dE/d#rho",70, 0., 7.);
+    dbe->book1D("LongitudinalShapeHCAL","HCAL Longitudinal Shape; z / #lambda_{int}; 1/E dE/dz",120, 0., 12.);       
+    dbe->book1D("ParticlesEnergy","Log Particles Energy; log10(E / GeV); #Particles", 30, 0, 3);
+
+    dbe->setCurrentFolder("HDEnergies");
+    dbe->book1D("EpECAL","ECAL perfect energy; E / Egen; # events",200,0,2);
+    dbe->book1D("EsECAL","ECAL smeared energy; E / Egen; # events",200,0,2);
+    dbe->book1D("EpHCAL","HCAL perfect energy; E / Egen; # events",200,0,2);
+    dbe->book1D("EsHCAL","HCAL smeared energy; E / Egen; # events",200,0,2);
+    dbe->book1D("EpTot","Total perfect energy; E / Egen; # events",200,0,2);
+    dbe->book1D("EsTot","Total smeared energy; E / Egen; # events",200,0,2);
+	
   }
 
 //   myHistos = Histos::instance();
@@ -262,7 +283,7 @@ void CalorimetryManager::reconstruct()
     int pid = abs(myTrack.type());
 
     if (debug_) {
-      LogDebug("FastCalorimetry") << " ===> pid = "  << pid << std::endl;      
+      LogInfo("FastCalorimetry") << " ===> pid = "  << pid << std::endl;      
     }
     
     
@@ -304,7 +325,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   std::vector<const RawParticle*> thePart;
   double X0depth;
   if (debug_) {
-    LogDebug("FastCalorimetry") << " EMShowerSimulation "  <<myTrack << std::endl;      
+    LogInfo("FastCalorimetry") << " EMShowerSimulation "  <<myTrack << std::endl;      
   }
   
   //  std::cout << " Simulating " << myTrack << std::endl;
@@ -596,7 +617,7 @@ void CalorimetryManager::reconstructECAL(const FSimTrack& track) {
   // if full simulation and in HF, but without showering anyway...
   if(hit == 2 && optionHDSim_ == 2 ) { 
     std::pair<double,double> response =
-      myHDResponse_->responseHCAL(0, EGen, pathEta, 0); // last par.= 0 = e/gamma 
+      myHDResponse_->responseHCAL(0, EGen, pathEta, hit, 0); // last par.= 0 = e/gamma 
     e     = response.first;
     sigma = response.second;
   }
@@ -647,7 +668,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
   int hit;
   int pid = abs(myTrack.type());
   if (debug_) {
-    LogDebug("FastCalorimetry") << " reconstructHCAL "  << myTrack << std::endl;      
+    LogInfo("FastCalorimetry") << " reconstructHCAL "  << myTrack << std::endl;      
   }
 
   //  FSimTrack myTrack = mySimEvent.track(fsimi);
@@ -676,23 +697,23 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
   if(pid == 13) { 
     //    std::cout << " We should not be here " << std::endl;
     std::pair<double,double> response =
-      myHDResponse_->responseHCAL(0, EGen, pathEta, 2); // 2=muon 
+      myHDResponse_->responseHCAL(0, EGen, pathEta, hit, 2); // 2=muon 
     emeas  = response.first;
     if(debug_)
-      LogDebug("FastCalorimetry") << "CalorimetryManager::reconstructHCAL - MUON !!!" << std::endl;
+      LogInfo("FastCalorimetry") << "CalorimetryManager::reconstructHCAL - MUON !!!" << std::endl;
   }
   else if( pid == 22 || pid == 11)
     {
       
       std::pair<double,double> response =
-	myHDResponse_->responseHCAL(0, EGen, pathEta, 0); // last par. = 0 = e/gamma
+	myHDResponse_->responseHCAL(0, EGen, pathEta, hit, 0); // last par. = 0 = e/gamma
       e     = response.first;              //
       sigma = response.second;             //
       emeas = random->gaussShoot(e,sigma); //
 
       //  cout <<  "CalorimetryManager::reconstructHCAL - e/gamma !!!" << std::endl;
       if(debug_)
-	LogDebug("FastCalorimetry") << "CalorimetryManager::reconstructHCAL - e/gamma !!!" << std::endl;
+	LogInfo("FastCalorimetry") << "CalorimetryManager::reconstructHCAL - e/gamma !!!" << std::endl;
     }
     else {
       e     = myHDResponse_->getHCALEnergyResponse(EGen,hit);
@@ -703,7 +724,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
     
 
   if(debug_)
-    LogDebug("FastCalorimetry") << "CalorimetryManager::reconstructHCAL - on-calo "   
+    LogInfo("FastCalorimetry") << "CalorimetryManager::reconstructHCAL - on-calo "   
 				<< "  eta = " << pathEta 
 				<< "  phi = " << pathPhi 
 				<< "  Egen = " << EGen 
@@ -723,7 +744,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
   XYZTLorentzVector moment = myTrack.momentum();
   
   if(debug_)
-    LogDebug("FastCalorimetry") 
+    LogInfo("FastCalorimetry") 
       << "CalorimetryManager::HDShowerSimulation - track param."
       << std::endl
       << "  eta = " << moment.eta() << std::endl
@@ -732,7 +753,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
       << "   e  = " << myTrack.hcalEntrance().e() << std::endl;
 
   if (debug_) {
-      LogDebug("FastCalorimetry") << " HDShowerSimulation "  << myTrack << std::endl;      
+      LogInfo("FastCalorimetry") << " HDShowerSimulation "  << myTrack << std::endl;      
     }
 
 
@@ -751,7 +772,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
   }
   else
     {
-      LogDebug("FastCalorimetry") << " The particle is not in the acceptance " << std::endl;
+      LogInfo("FastCalorimetry") << " The particle is not in the acceptance " << std::endl;
       return;
     }
 
@@ -800,7 +821,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
       }
 
   if(debug_)
-    LogDebug("FastCalorimetry") 
+    LogInfo("FastCalorimetry") 
       << "CalorimetryManager::HDShowerSimulation - on-calo 1 "
       << std::endl
       << "  onEcal    = " <<  myTrack.onEcal()  << std::endl
@@ -863,7 +884,8 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 			   &myGrid,
 			   &myHcalHitMaker,
 			   onECAL,
-			   eGen);
+			   eGen,
+			   dbe);
 	status = theShower.compute();
         mip    = theShower.getmip();
       }
@@ -952,7 +974,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
       }
       else { // optionHDsim == 2
 	std::pair<double,double> response =
-	  myHDResponse_->responseHCAL(mip, eGen, pathEta, 1); // 1=hadron
+	  myHDResponse_->responseHCAL(mip, eGen, pathEta, hit, 1); // 1=hadron
 	e     = response.first;
 	sigma = response.second;
       }
@@ -964,7 +986,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
       respCorr(eint);     
 
       if(debug_)
-	LogDebug("FastCalorimetry") 
+	LogInfo("FastCalorimetry") 
 	  << "CalorimetryManager::HDShowerSimulation - on-calo 2" << std::endl
 	  << "   eta  = " << pathEta << std::endl
 	  << "   phi  = " << pathPhi << std::endl
@@ -975,6 +997,9 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 	  << "  corr  = " << correction << std::endl
 	  << "   mip  = " << mip << std::endl;
       
+      //perfect and smeared energy vars
+      double EpE, EsE, EpH, EsH;
+      EpE = EsE = EpH = EsH = 0;	  
       
       // was map<unsigned,double> but CaloHitMaker uses float
       std::map<unsigned,float>::const_iterator mapitr;
@@ -984,8 +1009,10 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 	endmapitr=myGrid.getHits().end();
 	for(mapitr=myGrid.getHits().begin(); mapitr!=endmapitr; ++mapitr) {
 	  double energy = mapitr->second;
+	  EpE += energy;
           energy *= correction;              // RESCALING 
           energy *= ecorr;
+	  EsE += energy;
 
 	  if(energy > 0.000001) { 
 	    if(onECAL==1)
@@ -995,7 +1022,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 	      updateMap(EEDetId(mapitr->first).hashedIndex(),energy,myTrack.id(),EEMapping_,firedCellsEE_);
 
 	    if(debug_)
-	      LogDebug("FastCalorimetry") << " ECAL cell " << mapitr->first << " added,  E = " 
+	      LogInfo("FastCalorimetry") << " ECAL cell " << mapitr->first << " added,  E = " 
 		   << energy << std::endl;  
 	  }
 	}
@@ -1005,15 +1032,28 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
       endmapitr=myHcalHitMaker.getHits().end();
       for(mapitr=myHcalHitMaker.getHits().begin(); mapitr!=endmapitr; ++mapitr) {
 	double energy = mapitr->second;
+	EpH += energy;
 	energy *= correction;               // RESCALING 
 	energy *= hcorr;
+	EsH += energy;
 
 	updateMap(HcalDetId(mapitr->first).hashed_index(),energy,myTrack.id(),HMapping_,firedCellsHCAL_);
 	if(debug_)
-	  LogDebug("FastCalorimetry") << " HCAL cell "  
+	  LogInfo("FastCalorimetry") << " HCAL cell "  
 	       << mapitr->first << " added    E = " 
 	       << mapitr->second << std::endl;  
       }
+	  
+	  if(useDQM_){
+	    //fill energy histos
+	    dbe->get("HDEnergies/EpECAL")->Fill(EpE/eGen);
+	    dbe->get("HDEnergies/EsECAL")->Fill(EsE/eGen);
+	    dbe->get("HDEnergies/EpHCAL")->Fill(EpH/eGen);
+	    dbe->get("HDEnergies/EsHCAL")->Fill(EsH/eGen);
+	    dbe->get("HDEnergies/EpTot")->Fill((EpE + EpH)/eGen);
+	    dbe->get("HDEnergies/EsTot")->Fill((EsE + EsH)/eGen);
+	  }
+	  
     }      
     else {  // shower simulation failed  
 //      std::cout << " Shower simulation failed " << trackPosition.Vect() << std::endl;
@@ -1025,7 +1065,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 	  DetId cell = myCalorimeter_->getClosestCell(trackPosition.Vect(),false,false);
 	  updateMap(HcalDetId(cell).hashed_index(),emeas,myTrack.id(),HMapping_,firedCellsHCAL_);
 	  if(debug_)
-	    LogDebug("FastCalorimetry") << " HCAL simple cell "   
+	    LogInfo("FastCalorimetry") << " HCAL simple cell "   
 					<< cell.rawId() << " added    E = " 
 					<< emeas << std::endl;  
 	}
@@ -1034,7 +1074,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
   } // e > 0. ...
 
   if(debug_)
-    LogDebug("FastCalorimetry") << std::endl << " FASTEnergyReconstructor::HDShowerSimulation  finished "
+    LogInfo("FastCalorimetry") << std::endl << " FASTEnergyReconstructor::HDShowerSimulation  finished "
 	 << std::endl;
 }
 
@@ -1054,7 +1094,7 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack)
     }
 
   if(debug_)
-    LogDebug("FastCalorimetry") << "CalorimetryManager::MuonMipSimulation - track param."
+    LogInfo("FastCalorimetry") << "CalorimetryManager::MuonMipSimulation - track param."
          << std::endl
 	 << "  eta = " << moment.eta() << std::endl
          << "  phi = " << moment.phi() << std::endl
@@ -1075,7 +1115,7 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack)
   }
   else
     {
-      LogDebug("FastCalorimetry") << " The particle is not in the acceptance " << std::endl;
+      LogInfo("FastCalorimetry") << " The particle is not in the acceptance " << std::endl;
       return;
     }
 
@@ -1266,7 +1306,7 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack)
 	}
       
       if(debug_)
-	LogDebug("FastCalorimetry") << " ECAL cell " << mapitr->first << " added,  E = " 
+	LogInfo("FastCalorimetry") << " ECAL cell " << mapitr->first << " added,  E = " 
 				    << energy << std::endl;  
     }
   }
@@ -1279,13 +1319,13 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack)
       updateMap(HcalDetId(mapitr->first).hashed_index(),energy,myTrack.id(),HMapping_,firedCellsHCAL_);
     }
     if(debug_)
-      LogDebug("FastCalorimetry") << " HCAL cell "  
+      LogInfo("FastCalorimetry") << " HCAL cell "  
 				  << mapitr->first << " added    E = " 
 				  << mapitr->second << std::endl;  
   }
   
   if(debug_)
-    LogDebug("FastCalorimetry") << std::endl << " FASTEnergyReconstructor::MipShowerSimulation  finished "
+    LogInfo("FastCalorimetry") << std::endl << " FASTEnergyReconstructor::MipShowerSimulation  finished "
 	 << std::endl;
 }
 
@@ -1500,7 +1540,7 @@ void CalorimetryManager::respCorr(double p) {
   }
 
   if(debug_)
-    LogDebug("FastCalorimetry") << " p, ecorr, hcorr = " << p << " "  
+    LogInfo("FastCalorimetry") << " p, ecorr, hcorr = " << p << " "  
 			        << ecorr << "  " << hcorr << std::endl;
 	
 }
