@@ -28,7 +28,8 @@ namespace edm {
                      BranchType const& branchType,
                      unsigned int maxVirtualSize,
                      unsigned int cacheSize,
-                     unsigned int learningEntries) :
+                     unsigned int learningEntries,
+                     bool enablePrefetching) :
     filePtr_(filePtr),
     tree_(dynamic_cast<TTree*>(filePtr_.get() != 0 ? filePtr_->Get(BranchTypeToProductTreeName(branchType).c_str()) : 0)),
     metaTree_(dynamic_cast<TTree*>(filePtr_.get() != 0 ? filePtr_->Get(BranchTypeToMetaDataTreeName(branchType).c_str()) : 0)),
@@ -36,15 +37,21 @@ namespace edm {
     auxBranch_(tree_ ? getAuxiliaryBranch(tree_, branchType_) : 0),
     treeCache_(),
     rawTreeCache_(),
+    triggerTreeCache_(),
+    rawTriggerTreeCache_(),
+    trainedSet_(),
+    triggerSet_(),
     entries_(tree_ ? tree_->GetEntries() : 0),
     entryNumber_(-1),
     branchNames_(),
     branches_(new BranchMap),
     trainNow_(false),
     switchOverEntry_(-1),
+    rawTriggerSwitchOverEntry_(-1),
     learningEntries_(learningEntries),
     cacheSize_(cacheSize),
     treeAutoFlush_(tree_ ? tree_->GetAutoFlush() : 0),
+    enablePrefetching_(enablePrefetching),
     rootDelayedReader_(new RootDelayedReader(*this, filePtr)),
     branchEntryInfoBranch_(metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : (tree_ ? getProductProvenanceBranch(tree_, branchType_) : 0)),
     infoTree_(dynamic_cast<TTree*>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : 0)) // backward compatibility
@@ -62,6 +69,11 @@ namespace edm {
       }
       setTreeMaxVirtualSize(maxVirtualSize);
       setCacheSize(cacheSize);
+      if (tree_) {
+         Int_t branchCount = tree_->GetListOfBranches()->GetEntriesFast();
+         trainedSet_.reserve(branchCount);
+         triggerSet_.reserve(branchCount);
+      }
   }
 
   RootTree::~RootTree() {
@@ -145,6 +157,7 @@ namespace edm {
     cacheSize_ = cacheSize;
     tree_->SetCacheSize(static_cast<Long64_t>(cacheSize));
     treeCache_.reset(dynamic_cast<TTreeCache*>(filePtr_->GetCacheRead()));
+    treeCache_->SetEnablePrefetching(enablePrefetching_);
     filePtr_->SetCacheRead(0);
     rawTreeCache_.reset();
   }
@@ -175,6 +188,9 @@ namespace edm {
     if(treeCache_ && trainNow_ && entryNumber_ >= 0) {
       startTraining();
       trainNow_ = false;
+      trainedSet_.clear();
+      triggerSet_.clear();
+      rawTriggerSwitchOverEntry_ = -1;
     }
     if (treeCache_ && treeCache_->IsLearning() && switchOverEntry_ >= 0 && entryNumber_ >= switchOverEntry_) {
       stopTraining();
@@ -189,10 +205,90 @@ namespace edm {
         branch->GetEntry(entryNumber);
       } else if (treeCache_->IsLearning() && rawTreeCache_) {
         treeCache_->AddBranch(branch, kTRUE);
+        trainedSet_.insert(branch);
         filePtr_->SetCacheRead(rawTreeCache_.get());
         branch->GetEntry(entryNumber);
         filePtr_->SetCacheRead(0);
+      } else if (trainedSet_.find(branch) == trainedSet_.end()) {
+        // This branch is not going to be in the cache.
+        // Assume this is a "trigger pattern".
+        // Always make sure the branch is added to the trigger set.
+        if (triggerSet_.find(branch) == triggerSet_.end()) {
+          triggerSet_.insert(branch);
+          if (triggerTreeCache_.get()) { triggerTreeCache_->AddBranch(branch, kTRUE); }
+        }
+
+        if (rawTriggerSwitchOverEntry_ < 0) {
+          // The trigger has never fired before.  Take everything not in the
+          // trainedSet and load it from disk
+
+          // Calculate the end of the next cluster; triggers in the next cluster
+          // will use the triggerCache, not the rawTriggerCache.
+          TTree::TClusterIterator clusterIter = tree_->GetClusterIterator(entryNumber);
+          while (rawTriggerSwitchOverEntry_ < entryNumber) {
+            rawTriggerSwitchOverEntry_ = clusterIter();
+          }
+
+          // ROOT will automatically expand the cache to fit one cluster; hence, we use
+          // 1 MB as the cache size below
+          tree_->SetCacheSize(static_cast<Long64_t>(5*1024*1024));
+          rawTriggerTreeCache_.reset(dynamic_cast<TTreeCache*>(filePtr_->GetCacheRead()));
+          rawTriggerTreeCache_->SetEnablePrefetching(false);
+          TObjArray *branches = tree_->GetListOfBranches();
+          int branchCount = branches->GetEntriesFast();
+
+          // Train the rawTriggerCache to have everything not in the regular cache.
+          rawTriggerTreeCache_->SetLearnEntries(0);
+          rawTriggerTreeCache_->SetEntryRange(entryNumber, rawTriggerSwitchOverEntry_);
+          for (int i=0;i<branchCount;i++) {
+            TBranch *tmp_branch = (TBranch*)branches->UncheckedAt(i);
+            if (trainedSet_.find(tmp_branch) != trainedSet_.end()) {
+              continue;
+            }
+            rawTriggerTreeCache_->AddBranch(tmp_branch, kTRUE);
+          }
+          performedSwitchOver_ = false;
+          rawTriggerTreeCache_->StopLearningPhase();
+          filePtr_->SetCacheRead(0);
+
+          // Finally, fetch the event using the cache.
+          filePtr_->SetCacheRead(rawTriggerTreeCache_.get());
+          branch->GetEntry(entryNumber);
+          filePtr_->SetCacheRead(0);
+
+        } else if (entryNumber_ < rawTriggerSwitchOverEntry_) {
+          // The raw trigger has fired and it contents are valid.
+          filePtr_->SetCacheRead(rawTriggerTreeCache_.get());
+          branch->GetEntry(entryNumber);
+          filePtr_->SetCacheRead(0);
+        } else if (rawTriggerSwitchOverEntry_ > 0) {
+          // The raw trigger has fired, but we are out of the cache.  Use the
+          // triggerCache instead.
+          if (!performedSwitchOver_) {
+            rawTriggerTreeCache_.reset();
+            performedSwitchOver_ = true;
+
+            // Train the triggerCache
+            tree_->SetCacheSize(static_cast<Long64_t>(5*1024*1024));
+            triggerTreeCache_.reset(dynamic_cast<TTreeCache*>(filePtr_->GetCacheRead()));
+            triggerTreeCache_->SetEnablePrefetching(false);
+            triggerTreeCache_->SetLearnEntries(0);
+            triggerTreeCache_->SetEntryRange(entryNumber, tree_->GetEntries());
+            for(std::unordered_set<TBranch*>::const_iterator it = triggerSet_.begin(), itEnd = triggerSet_.end();
+                it != itEnd;
+                it++)
+            {
+              triggerTreeCache_->AddBranch(*it, kTRUE);
+            }
+            triggerTreeCache_->StopLearningPhase();
+            filePtr_->SetCacheRead(0);
+          }
+          filePtr_->SetCacheRead(triggerTreeCache_.get());
+          branch->GetEntry(entryNumber);
+          filePtr_->SetCacheRead(0);
+        }
       } else {
+        // The "normal" TTreeCache case.
         filePtr_->SetCacheRead(treeCache_.get());
         branch->GetEntry(entryNumber);
         filePtr_->SetCacheRead(0);
@@ -218,6 +314,7 @@ namespace edm {
     treeCache_->SetLearnEntries(learningEntries_);
     tree_->SetCacheSize(static_cast<Long64_t>(cacheSize_));
     rawTreeCache_.reset(dynamic_cast<TTreeCache *>(filePtr_->GetCacheRead()));
+    rawTreeCache_->SetEnablePrefetching(false);
     filePtr_->SetCacheRead(0);
     rawTreeCache_->SetLearnEntries(0);
     switchOverEntry_ = entryNumber_ + learningEntries_;
@@ -229,6 +326,8 @@ namespace edm {
     treeCache_->SetEntryRange(switchOverEntry_, tree_->GetEntries());
     treeCache_->AddBranch(poolNames::branchListIndexesBranchName().c_str(), kTRUE);
     treeCache_->AddBranch(BranchTypeToAuxiliaryBranchName(branchType_).c_str(), kTRUE);
+    trainedSet_.clear();
+    triggerSet_.clear();
     assert(treeCache_->GetTree() == tree_);
   }
 
@@ -255,6 +354,8 @@ namespace edm {
     // deadlocks or exceptions.
     treeCache_.reset();
     rawTreeCache_.reset();
+    triggerTreeCache_.reset();
+    rawTriggerTreeCache_.reset();
     // We give up our shared ownership of the TFile itself.
     filePtr_.reset();
   }
@@ -276,6 +377,17 @@ namespace edm {
     // We make sure the treeCache_ is detached from the file,
     // so that ROOT does not also delete it.
     filePtr_->SetCacheRead(0);
+
+    // Must also manually add things to the trained set.
+    TObjArray *branches = tree_->GetListOfBranches();
+    int branchCount = branches->GetEntriesFast();
+    for (int i=0;i<branchCount;i++) {
+       TBranch *branch = (TBranch*)branches->UncheckedAt(i);
+       if ((branchNames[0] == '*') || (strcmp(branchNames, branch->GetName()) == 0)) {
+          trainedSet_.insert(branch);
+       } 
+    } 
+ 
   }
 
   namespace roottree {

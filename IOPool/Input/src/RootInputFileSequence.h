@@ -113,6 +113,7 @@ namespace edm {
     bool dropDescendants_;
     bool labelRawDataLikeMC_;
     bool usingGoToEvent_;
+    bool enablePrefetching_;
   }; // class RootInputFileSequence
 }
 #endif

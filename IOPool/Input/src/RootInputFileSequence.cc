@@ -63,7 +63,8 @@ namespace edm {
     duplicateChecker_(inputType == InputType::Primary ? new DuplicateChecker(pset) : 0),
     dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", inputType != InputType::SecondarySource)),
     labelRawDataLikeMC_(pset.getUntrackedParameter<bool>("labelRawDataLikeMC", true)),
-    usingGoToEvent_(false) {
+    usingGoToEvent_(false),
+    enablePrefetching_(pset.getUntrackedParameter<bool>("enablePrefetching", false)) {
 
     //we now allow the site local config to specify what the TTree cache size should be
     Service<SiteLocalConfig> pSLC;
@@ -248,7 +249,8 @@ namespace edm {
           currentIndexIntoFile,
           orderedProcessHistoryIDs_,
           labelRawDataLikeMC_,
-          usingGoToEvent_));
+          usingGoToEvent_,
+          enablePrefetching_));
 
       fileIterLastOpened_ = fileIter_;
       indexesIntoFiles_[currentIndexIntoFile] = rootFile_->indexIntoFileSharedPtr();
@@ -767,6 +769,8 @@ namespace edm {
         ->setComment("Size of ROOT TTree prefetch cache.  Affects performance.");
     desc.addUntracked<int>("treeMaxVirtualSize", -1)
         ->setComment("Size of ROOT TTree TBasket cache.  Affects performance.");
+    desc.addUntracked<bool>("enablePrefetching", false)
+        ->setComment("Request ROOT to asynchronously prefetch I/O during computation.");
     desc.addUntracked<unsigned int>("setRunNumber", 0U)
         ->setComment("If non-zero, change number of first run to this number. Apply same offset to all runs.  Allowed only for simulation.");
     desc.addUntracked<bool>("dropDescendantsOfDroppedBranches", true)
