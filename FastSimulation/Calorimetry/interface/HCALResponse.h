@@ -8,14 +8,7 @@
  */
 
 #include <map>
-
-#define maxHDe    15   // energy points for hadrons  
-#define maxHDeta  51   // eta    points for hadrons
-#define maxEMe     6   // energy points  e/gamma in HF
-#define maxEMeta  21   // eta points     e/gamma in HF
-#define maxMUe     4   // energy points for muons
-#define maxMUeta   6   
-#define maxMUbin  40   // binning oh muon histograms  
+#include <vector>
 
 typedef std::pair<double,double> response;
 enum part{hcbarrel=0, hcendcap=1, hcforward=2};
@@ -37,7 +30,9 @@ public:
   // Get the response in the for of pair 
   // parameters:  energy, eta, e/gamma = 0, hadron = 1, mu = 2, mip: 0/1/2
   // mip = 2 means "mean" response regardless actual mip
-  response responseHCAL(int mip, double energy, double eta, int partype);
+  response responseHCAL(int mip, double energy, double eta, int hit, int partype);
+  void responseHCALStandard(int mip, double energy, double eta, int hit, int partype);
+  void responseHCALUpgrade(int mip, double energy, double eta, int hit, int partype);
 
   // legacy methods using simple furmulae
   double getHCALEnergyResponse   (double e, int hit);
@@ -52,41 +47,59 @@ private:
   void interEM(double e, int ie, int ieta); 
   void interMU(double e, int ie, int ieta); 
 
-  ///Default values for resolution parametrisation:
-  ///stochastic, constant and noise.
+  //Default values for resolution parametrisation:
+  //stochastic, constant and noise.
   //in the barrel and in the endcap
   //in the ECAL, HCAL, VFCAL
   double RespPar[3][2][3];
 
-  ///HCAL response parameters
+  //HCAL response parameters
   double eResponseScale[3];
   double eResponsePlateau[3];
   double eResponseExponent;
   double eResponseCoefficient;
   double eResponseCorrection;
   double eBias;
+  
+  //correction factors
+  std::vector<double> barrelCorrection;
+  std::vector<double> endcapCorrection;
+  std::vector<double> forwardCorrectionEnergyDependent;
+  std::vector<double> forwardCorrectionEtaDependent;
 
-  // just eta step of the tabulated data
-  double etaStep, muStep;
+  //max values
+  int maxHDe, maxHDeta, maxMUe, maxMUeta, maxMUbin, maxEMe, maxEMeta;
+  
+  //switch for phase 2 upgrade
+  bool phase2Upgrade;
+  // eta step for eta index calc
+  double etaStep;
+  // energy step of the tabulated muon data
+  double muStep;
+  // correction factor for HF EM
+  double respFactorEM;
   // mean and sigma
   double mean, sigma; 
 
   // Tabulated energy, et/pt and eta points
-  double eGridHD  [maxHDe];
-  double eGridEM  [maxEMe];
-  double eGridMU  [maxMUe];
-  double etaGridMU[maxMUeta];
+  std::vector<double> eGridHD;
+  std::vector<double> eGridEM;
+  std::vector<double> eGridMU;
+  std::vector<double> etaGridMU;
 
   // Tabulated response and mean for hadrons normalized to the energy
-  double meanHD      [maxHDe][maxHDeta], sigmaHD      [maxHDe][maxHDeta];
-  double meanHD_mip  [maxHDe][maxHDeta], sigmaHD_mip  [maxHDe][maxHDeta];
-  double meanHD_nomip[maxHDe][maxHDeta], sigmaHD_nomip[maxHDe][maxHDeta];
+  // indices: meanHD[energy][eta]
+  std::vector<std::vector<double> > meanHD, sigmaHD;
+  std::vector<std::vector<double> > meanHD_mip, sigmaHD_mip;
+  std::vector<std::vector<double> > meanHD_nomip, sigmaHD_nomip;
   
-  // Tabulated response and mean for e/gamma in HF specifically (normalized) 
-  double meanEM[maxEMe][maxEMeta], sigmaEM[maxEMe][maxEMeta];
+  // Tabulated response and mean for e/gamma in HF specifically (normalized)
+  // indices: meanEM[energy][eta]
+  std::vector<std::vector<double> > meanEM, sigmaEM;
 
-  // muon histos 
-  double responseMU[maxMUe][maxMUeta][maxMUbin]; 
+  // muon histos
+  // indices: responseMU[energy][eta][bin]
+  std::vector<std::vector<std::vector<double> > > responseMU; 
 
   // Famos random engine
   const RandomEngine* random;
