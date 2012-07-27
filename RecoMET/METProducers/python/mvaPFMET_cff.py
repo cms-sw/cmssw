@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoMET.METProducers.PFMET_cfi import pfMet
+#from RecoMET.METProducers.PFMET_cfi import pfMet
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 from JetMETCorrections.Configuration.DefaultJEC_cff import *
 from CMGTools.External.puJetIDAlgo_cff import JetIdParams
@@ -18,7 +18,7 @@ pfMEtMVA = cms.EDProducer("PFMETProducerMVA",
     srcLeptons = cms.VInputTag(), # NOTE: you need to set this to collections of electrons, muons and tau-jets
                                   #       passing the lepton reconstruction & identification criteria applied in your analysis
     srcRho = cms.InputTag('kt6PFJets','rho'),
-    globalThreshold = pfMet.globalThreshold,
+    globalThreshold = cms.double(-1.),#pfMet.globalThreshold,
     minCorrJetPt = cms.double(-1.),
     inputFileNames = cms.PSet(
         U     = cms.FileInPath('pharris/MVAMet/data/gbrmet_52.root'),
@@ -67,7 +67,7 @@ pfMEtMVAData = cms.EDProducer("PFMETProducerMVAData",
     srcPFCandidates = cms.InputTag('particleFlow'),
     srcVertices = cms.InputTag('offlinePrimaryVertices'),
     srcRho = cms.InputTag('kt6PFJetsForRhoComputationVoronoi','rho'),
-    globalThreshold = pfMet.globalThreshold,
+    globalThreshold = cms.double(-1.),#pfMet.globalThreshold,
     minCorrJetPt = cms.double(-1.),
     impactParTkThreshold = cms.double(0.),
     tmvaWeights = cms.string("CMGTools/External/data/mva_JetID_v1.weights.xml"),
