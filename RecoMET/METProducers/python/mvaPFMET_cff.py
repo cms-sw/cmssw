@@ -1,3 +1,4 @@
+
 import FWCore.ParameterSet.Config as cms
 
 #from RecoMET.METProducers.PFMET_cfi import pfMet
@@ -53,7 +54,7 @@ pfMEtMVA = cms.EDProducer("PFMETProducerMVA",
     tmvaSpectators = cms.vstring(),
     JetIdParams = JetIdParams,
     label = cms.string("PhilV1"),
-    verbosity = cms.int32(2)
+    verbosity = cms.int32(0)
 )
 
 pfMEtMVAsequence  = cms.Sequence(
