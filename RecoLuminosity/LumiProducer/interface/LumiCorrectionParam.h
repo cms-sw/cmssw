@@ -27,9 +27,9 @@ class LumiCorrectionParam {
   ///get correction function name
   std::string corrFunc()const;
   ///get correction coefficients
-  std::map<const std::string,float>::const_iterator nonlinearCoeff()const;
+  std::map< const std::string,float >::const_iterator nonlinearCoeff()const;
   ///get afterglow threshold/value
-  std::vector< std::pair<unsigned int,float> >::const_iterator afterglows()const;
+  std::map< unsigned int,float >::const_iterator afterglows()const;
   ///on which amodetag this correction definition should be applied for
   ///information only
   std::string amodetag()const;
@@ -47,17 +47,17 @@ class LumiCorrectionParam {
   ///set correction function
   void setcorrFunc(const std::string& corrfunc);
   ///set nonlinear constants
-  void setnonlinearCoeff(std::map<const std::string,float>& coeffmap);
+  void setnonlinearCoeff(std::map<std::string,float>& coeffmap);
   ///set afterglow thresholds
-  void setafterglows(std::vector< std::pair<unsigned int,float> >& afterglows);
+  void setafterglows(std::map< unsigned int,float >& afterglows);
   
  private :
   LumiType m_lumitype;
   unsigned int m_ncollidingbx;
   std::string m_normtag;
   std::string m_corrfunc;
-  std::map<const std::string,float> m_coeffmap;
-  std::vector< std::pair<unsigned int,float> > m_afterglows;
+  std::map< std::string,float > m_coeffmap;
+  std::map< unsigned int,float > m_afterglows;
   std::string m_amodetag;
   float m_beamegev;
 }; 

@@ -24,7 +24,7 @@ std::map<const std::string,float>::const_iterator
 LumiCorrectionParam::nonlinearCoeff()const{
   return m_coeffmap.begin();
 }
-std::vector< std::pair<unsigned int,float> >::const_iterator 
+std::map< unsigned int,float >::const_iterator 
 LumiCorrectionParam::afterglows()const{
   return m_afterglows.begin();
 }
@@ -49,11 +49,11 @@ LumiCorrectionParam::setcorrFunc(const std::string& corrfunc){
   m_corrfunc=corrfunc;
 }
 void 
-LumiCorrectionParam::setnonlinearCoeff(std::map<const std::string,float>& coeffmap){
+LumiCorrectionParam::setnonlinearCoeff(std::map<std::string,float>& coeffmap){
   m_coeffmap=coeffmap;
 }
 void 
-LumiCorrectionParam::setafterglows(std::vector< std::pair<unsigned int,float> >& afterglows){
+LumiCorrectionParam::setafterglows(std::map< unsigned int,float >& afterglows){
   m_afterglows=afterglows;
 }
 

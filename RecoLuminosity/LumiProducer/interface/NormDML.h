@@ -9,9 +9,10 @@ namespace coral{
 namespace lumi{
   class NormDML{
   public:
-    class normData{
+    struct normData{
+      std::string normtag;
       std::string corrfunc;
-      std::vector< std::pair<unsigned int,float> > afterglows;
+      std::map< unsigned int,float > afterglows;
       std::map< std::string, float > coefficientmap;
     };
     enum LumiType{HF,PIXEL};
@@ -19,9 +20,8 @@ namespace lumi{
     ~NormDML(){}
     unsigned long long normIdByName(const coral::ISchema& schema,const std::string& normtagname);
     unsigned long long normIdByType(const coral::ISchema& schema,LumiType=HF,bool defaultonly=true);
-    std::vector< std::pair<unsigned int,normData> >::const_iterator normById(unsigned long long normid)const;
-  private:
-    std::vector< std::pair<unsigned int,normData > > m_data;
+    void normById(const coral::ISchema& schema,unsigned long long normid,std::map< unsigned int,normData >&result)const;
+    
   };
 }//ns lumi
 #endif

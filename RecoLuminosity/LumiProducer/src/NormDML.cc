@@ -9,7 +9,6 @@ unsigned long long
 lumi::NormDML::normIdByType(const coral::ISchema& schema,LumiType,bool defaultonly){
   return 0;
 }
-std::vector< std::pair< unsigned int,lumi::NormDML::normData > >::const_iterator 
-lumi::NormDML::normById(unsigned long long normid)const{
-  return m_data.begin();
+void
+lumi::NormDML::normById(const coral::ISchema&schema, unsigned long long normid, std::map< unsigned int,lumi::NormDML::normData >& result)const{
 }

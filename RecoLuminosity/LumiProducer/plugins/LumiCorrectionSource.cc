@@ -44,6 +44,7 @@ Description: A essource/esproducer for lumi correction factor and run parameters
 #include "RecoLuminosity/LumiProducer/interface/LumiCorrectionParam.h"
 #include "RecoLuminosity/LumiProducer/interface/LumiCorrectionParamRcd.h"
 #include "RecoLuminosity/LumiProducer/interface/RevisionDML.h"
+#include "RecoLuminosity/LumiProducer/interface/NormDML.h"
 #include "LumiCorrectionSource.h"
 #include <iostream>
 #include <sstream>
@@ -262,10 +263,31 @@ LumiCorrectionSource::fillparamcache(unsigned int runnumber){
 	ncollidingbx=row["NCOLLIDINGBUNCHES"].data<unsigned int>();
       }
       result->setNBX(ncollidingbx);
-      m_paramcache.insert(std::make_pair(runnumber,result));
     }
     delete lumiparamQuery;
+    
+    lumi::NormDML normdml;
+    unsigned long long normid=0;
+    if (m_normtag.empty()){
+      normid=normdml.normIdByType(schema);
+    }else{
+      normid=normdml.normIdByName(schema,m_normtag);
+    }
+    std::map< unsigned int,lumi::NormDML::normData > normData;
+    normdml.normById(schema,normid,normData);    
     session->transaction().commit();
+    std::map< unsigned int,lumi::NormDML::normData >::iterator normEnd=normData.end();
+    std::map< unsigned int,lumi::NormDML::normData >::iterator normIt=normData.lower_bound(runnumber);
+    if(normIt!=normEnd){
+      std::cout<<normIt->second.normtag<<std::endl;
+      result->setNormtag(normIt->second.normtag);
+      result->setcorrFunc(normIt->second.corrfunc);
+      result->setnonlinearCoeff(normIt->second.coefficientmap);
+      result->setafterglows(normIt->second.afterglows);
+    }else{
+      std::cout<<"canot be"<<std::endl;
+    }
+    m_paramcache.insert(std::make_pair(runnumber,result));
   }catch(const coral::Exception& er){
     session->transaction().rollback();
     mydbservice->disconnect(session);
