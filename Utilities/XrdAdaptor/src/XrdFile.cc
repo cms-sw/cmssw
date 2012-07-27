@@ -1,6 +1,7 @@
 #include "Utilities/XrdAdaptor/src/XrdFile.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Likely.h"
 #include <vector>
 #include <sstream>
 
@@ -320,6 +321,12 @@ XrdFile::write (const void *from, IOSize n, IOOffset pos)
 bool
 XrdFile::prefetch (const IOPosBuffer *what, IOSize n)
 {
+  // Detect a prefetch support probe, and claim we don't support it.
+  // This will make the default application-only mode, but allows us to still
+  // effectively support storage-only mode.
+  if (unlikely((n == 1) && (what[0].offset() == 0) && (what[0].size() == PREFETCH_PROBE_LENGTH))) {
+    return false;
+  }
   std::vector<long long> offsets; offsets.resize(n);
   std::vector<int> lens; lens.resize(n);
   kXR_int64 total = 0;
