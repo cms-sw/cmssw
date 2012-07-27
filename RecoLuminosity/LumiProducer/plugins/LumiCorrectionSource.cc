@@ -5,8 +5,9 @@
 // 
 /**\class LumiCorrectionSource LumiCorrectionSource.cc RecoLuminosity/LumiProducer/src/LumiCorrectionSource.cc
 Description: A essource/esproducer for lumi correction factor and run parameters needed to deduce the corrections
+      Author: Zhen Xie
 */
-// $Id: LumiCorrectionSource.cc,v 1.1 2012/07/11 13:54:58 xiezhen Exp $
+// $Id: LumiCorrectionSource.cc,v 1.2 2012/07/13 15:22:44 xiezhen Exp $
 
 //#include <memory>
 //#include "boost/shared_ptr.hpp"
@@ -138,11 +139,12 @@ LumiCorrectionSource::servletTranslation(const std::string& servlet) const{
   return realconnect;
 }
 
-LumiCorrectionSource::LumiCorrectionSource(const edm::ParameterSet& iConfig):m_connectStr(""),m_datatag(""),m_paramcachedrun(0),m_cachesize(0){
+LumiCorrectionSource::LumiCorrectionSource(const edm::ParameterSet& iConfig):m_connectStr(""),m_datatag(""),m_normtag(""),m_paramcachedrun(0),m_cachesize(0){
   setWhatProduced(this,&LumiCorrectionSource::produceLumiCorrectionParam);
   findingRecord<LumiCorrectionParamRcd>();
   std::string connectStr=iConfig.getParameter<std::string>("connect");
   m_datatag=iConfig.getUntrackedParameter<std::string>("datatag","");
+  m_normtag=iConfig.getUntrackedParameter<std::string>("normtag","");
   m_cachesize=iConfig.getUntrackedParameter<unsigned int>("ncacheEntries",3);
   const std::string fproto("frontier://");
   //test if need frontier servlet site-local translation  

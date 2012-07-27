@@ -37,6 +37,7 @@ class LumiCorrectionSource: public edm::ESProducer , public edm::EventSetupRecor
  private:
   std::string m_connectStr;
   std::string m_datatag;
+  std::string m_normtag;
   std::string m_siteconfpath;
   std::map< unsigned int,boost::shared_ptr<LumiCorrectionParam> > m_paramcache;
   bool m_isNullRun; //if lumi data exist for this run
