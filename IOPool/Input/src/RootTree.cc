@@ -209,7 +209,7 @@ namespace edm {
         filePtr_->SetCacheRead(rawTreeCache_.get());
         branch->GetEntry(entryNumber);
         filePtr_->SetCacheRead(0);
-      } else if (trainedSet_.find(branch) == trainedSet_.end()) {
+      } else if (!treeCache_->IsAsyncReading() && (trainedSet_.find(branch) == trainedSet_.end())) {
         // This branch is not going to be in the cache.
         // Assume this is a "trigger pattern".
         // Always make sure the branch is added to the trigger set.
@@ -335,6 +335,7 @@ namespace edm {
   RootTree::stopTraining() {
     filePtr_->SetCacheRead(treeCache_.get());
     treeCache_->StopLearningPhase();
+    filePtr_->SetCacheRead(0);
     rawTreeCache_.reset();
   }
 

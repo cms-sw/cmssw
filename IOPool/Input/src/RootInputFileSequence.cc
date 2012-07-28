@@ -63,13 +63,15 @@ namespace edm {
     duplicateChecker_(inputType == InputType::Primary ? new DuplicateChecker(pset) : 0),
     dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", inputType != InputType::SecondarySource)),
     labelRawDataLikeMC_(pset.getUntrackedParameter<bool>("labelRawDataLikeMC", true)),
-    usingGoToEvent_(false),
-    enablePrefetching_(pset.getUntrackedParameter<bool>("enablePrefetching", false)) {
+    usingGoToEvent_(false) {
 
-    //we now allow the site local config to specify what the TTree cache size should be
+    // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
     Service<SiteLocalConfig> pSLC;
-    if(treeCacheSize_ != 0U && pSLC.isAvailable() && pSLC->sourceTTreeCacheSize()) {
-      treeCacheSize_ = *(pSLC->sourceTTreeCacheSize());
+    if(pSLC.isAvailable()) {
+      if(treeCacheSize_ != 0U && pSLC->sourceTTreeCacheSize()) {
+        treeCacheSize_ = *(pSLC->sourceTTreeCacheSize());
+      }
+      enablePrefetching_ = pSLC->enablePrefetching();
     }
 
     if(inputType_ == InputType::Primary) {
@@ -207,8 +209,9 @@ namespace edm {
           InputFile::reportSkippedFile(fileIter_->fileName(), fileIter_->logicalFileName());
           Exception ex(errors::FileOpenError, "", e);
           ex.addContext("Calling RootInputFileSequence::initFile()");
-          ex.clearMessage();
-          ex << "Input file " << fileIter_->fileName() << " could not be opened because of the following:\n";
+          std::ostringstream out;
+          out << "Input file " << fileIter_->fileName() << " could not be opened.";
+          ex.addAdditionalInfo(out.str());
           throw ex;
         }
       }
@@ -224,9 +227,10 @@ namespace edm {
           InputFile::reportSkippedFile(fileIter_->fileName(), fileIter_->logicalFileName());
           Exception ex(errors::FallbackFileOpenError, "", e);
           ex.addContext("Calling RootInputFileSequence::initFile()");
-          ex.clearMessage();
-          ex << "Input file " << fileIter_->fileName() << " could not be opened.\n";
-          ex << "Fallback Input file " << fallbackName << " also could not be opened because of the following:\n";
+          std::ostringstream out;
+          out << "Input file " << fileIter_->fileName() << " could not be opened.\n";
+          out << "Fallback Input file " << fallbackName << " also could not be opened.";
+          ex.addAdditionalInfo(out.str());
           throw ex;
         }
       }
@@ -769,8 +773,6 @@ namespace edm {
         ->setComment("Size of ROOT TTree prefetch cache.  Affects performance.");
     desc.addUntracked<int>("treeMaxVirtualSize", -1)
         ->setComment("Size of ROOT TTree TBasket cache.  Affects performance.");
-    desc.addUntracked<bool>("enablePrefetching", false)
-        ->setComment("Request ROOT to asynchronously prefetch I/O during computation.");
     desc.addUntracked<unsigned int>("setRunNumber", 0U)
         ->setComment("If non-zero, change number of first run to this number. Apply same offset to all runs.  Allowed only for simulation.");
     desc.addUntracked<bool>("dropDescendantsOfDroppedBranches", true)
