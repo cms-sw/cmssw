@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.52 2012/01/18 12:51:13 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.53 2012/06/26 14:06:30 duggan Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -201,21 +201,23 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
       nFPIXDigis = 0;
       for(int i=0; i!=40; i++) nDigisPerFed[i]=0;  
     }
-    //Now do resets for ROCuppancy maps every 10 ls
-    std::string baseDirs[2] = {"Pixel/Barrel", "Pixel/Endcap"};
-    for (int i = 0; i < 2; ++i){
-      theDMBE->cd(baseDirs[i]);
-      vector<string> shellDirs = theDMBE->getSubdirs();
-      for (vector<string>::const_iterator it = shellDirs.begin(); it != shellDirs.end(); it++) {
-	theDMBE->cd(*it);
-	vector<string> layDirs = theDMBE->getSubdirs();
-	for (vector<string>::const_iterator itt = layDirs.begin(); itt != layDirs.end(); itt++) {
-	  theDMBE->cd(*itt);
-	  vector<string> contents = theDMBE->getMEs();
-	  for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++) {
-	    if ((*im).find("rocmap") == string::npos) continue;
-	    MonitorElement* me = theDMBE->get((*itt)+"/"+(*im));
-	    if(me && lumiSection%10==0) me->Reset();}}}}//end for contents//end for layDirs//end for shellDirs//end for bar/EC
+    if (lumiSection%10==0){
+      //Now do resets for ROCuppancy maps every 10 ls
+      std::string baseDirs[2] = {"Pixel/Barrel", "Pixel/Endcap"};
+      for (int i = 0; i < 2; ++i){
+	theDMBE->cd(baseDirs[i]);
+	vector<string> shellDirs = theDMBE->getSubdirs();
+	for (vector<string>::const_iterator it = shellDirs.begin(); it != shellDirs.end(); it++) {
+	  theDMBE->cd(*it);
+	  vector<string> layDirs = theDMBE->getSubdirs();
+	  for (vector<string>::const_iterator itt = layDirs.begin(); itt != layDirs.end(); itt++) {
+	    theDMBE->cd(*itt);
+	    vector<string> contents = theDMBE->getMEs();
+	    for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++) {
+	      if ((*im).find("rocmap") == string::npos) continue;
+	      MonitorElement* me = theDMBE->get((*itt)+"/"+(*im));
+	      if(me) me->Reset();}}}}//end for contents//end for layDirs//end for shellDirs//end for bar/EC
+    }
   }
   if(!modOn){
     MonitorElement* meReset = theDMBE->get("Pixel/averageDigiOccupancy");
@@ -479,37 +481,45 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   int NzeroROCs[2]        = {0,-672};
   int NloEffROCs[2]       = {0,-672};
   std::string baseDirs[2] = {"Pixel/Barrel", "Pixel/Endcap"};
-  for (int i = 0; i < 2; ++i){
-    theDMBE->cd(baseDirs[i]);
-    vector<string> shellDirs = theDMBE->getSubdirs();
-    for (vector<string>::const_iterator it = shellDirs.begin(); it != shellDirs.end(); it++) {
-      theDMBE->cd(*it);
-      vector<string> layDirs = theDMBE->getSubdirs();
-      for (vector<string>::const_iterator itt = layDirs.begin(); itt != layDirs.end(); itt++) {
-	theDMBE->cd(*itt);
-	vector<string> contents = theDMBE->getMEs(); 
-	for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++) {
-	  if ((*im).find("rocmap") == string::npos) continue;
-	  MonitorElement* me = theDMBE->get((*itt)+"/"+(*im));
-	  if(!me) continue;
-	  float SF = 1.0; if (me->getEntries() > 0) SF = float(me->getNbinsX()*me->getNbinsY()/me->getEntries());
-	  for (int ii = 1; ii < me->getNbinsX()+1; ++ii){for (int jj = 1; jj < me->getNbinsY()+1; ++jj){
-	      if (me->getBinContent(ii,jj)    <   1) ++NzeroROCs[i];
-	      if (me->getBinContent(ii,jj)*SF < 0.25) ++NloEffROCs[i];}}
+  if (lumiSection%10> 2){
+    for (int i = 0; i < 2; ++i){
+      theDMBE->cd(baseDirs[i]);
+      vector<string> shellDirs = theDMBE->getSubdirs();
+      for (vector<string>::const_iterator it = shellDirs.begin(); it != shellDirs.end(); it++) {
+	theDMBE->cd(*it);
+	vector<string> layDirs = theDMBE->getSubdirs();
+	for (vector<string>::const_iterator itt = layDirs.begin(); itt != layDirs.end(); itt++) {
+	  theDMBE->cd(*itt);
+	  vector<string> contents = theDMBE->getMEs(); 
+	  for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++) {
+	    if ((*im).find("rocmap") == string::npos) continue;
+	    MonitorElement* me  = theDMBE->get((*itt)+"/"+(*im));
+	    if(!me) continue;
+	    MonitorElement* me2;
+	    me2 = theDMBE->get((*itt)+"/zeroOccROC_map");
+	    float SF = 1.0; if (me->getEntries() > 0) SF = float(me->getNbinsX()*me->getNbinsY()/me->getEntries());
+	    for (int ii = 1; ii < me->getNbinsX()+1; ++ii){for (int jj = 1; jj < me->getNbinsY()+1; ++jj){
+		//Putting in conversion to layer maps.. again, ugly way to do it...
+		float localX = float(ii)-0.5;
+		float localY = float(jj)/2.0 + 1.25;
+		if (i ==1) localY = float(jj)/2.0 + 0.75;
+		if (me->getBinContent(ii,jj)    <   1) {++NzeroROCs[i]; if (me2) me2->Fill(localX, localY);}
+		if (me->getBinContent(ii,jj)*SF < 0.25) ++NloEffROCs[i];}}
+	  }
 	}
       }
     }
+    for (int i =0; i < 2; ++i) NloEffROCs[i] = NloEffROCs[i] - NzeroROCs[i];
+    MonitorElement* menoOcc=theDMBE->get("Pixel/noOccROCsBarrel");
+    MonitorElement* meloOcc=theDMBE->get("Pixel/loOccROCsBarrel");
+    if(menoOcc) menoOcc->setBinContent(lumiSection/10, NzeroROCs[0]);
+    if(meloOcc) meloOcc->setBinContent(lumiSection/10, NloEffROCs[0]);
+    MonitorElement* menoOcc1=theDMBE->get("Pixel/noOccROCsEndcap");
+    MonitorElement* meloOcc1=theDMBE->get("Pixel/loOccROCsEndcap");
+    if(menoOcc1) menoOcc1->setBinContent(lumiSection/10, NzeroROCs[1]);
+    if(meloOcc1) meloOcc1->setBinContent(lumiSection/10, NloEffROCs[1]);
+    theDMBE->cd();
   }
-  for (int i =0; i < 2; ++i) NloEffROCs[i] = NloEffROCs[i] - NzeroROCs[i];
-  MonitorElement* menoOcc=theDMBE->get("Pixel/noOccROCsBarrel");
-  MonitorElement* meloOcc=theDMBE->get("Pixel/loOccROCsBarrel");
-  if(menoOcc) menoOcc->setBinContent(lumiSection/10, NzeroROCs[0]);
-  if(meloOcc) meloOcc->setBinContent(lumiSection/10, NloEffROCs[0]);
-  MonitorElement* menoOcc1=theDMBE->get("Pixel/noOccROCsEndcap");
-  MonitorElement* meloOcc1=theDMBE->get("Pixel/loOccROCsEndcap");
-  if(menoOcc1) menoOcc1->setBinContent(lumiSection/10, NzeroROCs[1]);
-  if(meloOcc1) meloOcc1->setBinContent(lumiSection/10, NloEffROCs[1]);
-  theDMBE->cd();
 //  if(lumiSection>lumSec){ lumSec = lumiSection; nLumiSecs++; }
 //  if(nEventDigis>bigEventSize) nBigEvents++;
 //  if(nLumiSecs%5==0){
@@ -735,11 +745,11 @@ void SiPixelDigiSource::bookMEs(){
   pixEvtsPerBX    = theDMBE->book1D("pixEvtsPerBX",title1,3565,0.,3565.);
   char title2[80];  sprintf(title2, "Rate of Pixel events;LumiSection;Rate [Hz]");
   pixEventRate    = theDMBE->book1D("pixEventRate",title2,5000,0.,5000.);
-  char title3[80];  sprintf(title3, "Number of Disabled Barrel ROCs;LumiSection;N_{DISABLED} Barrel ROCs");
+  char title3[80];  sprintf(title3, "Number of Zero-Occupancy Barrel ROCs;LumiSection;N_{ZERO-OCCUPANCY} Barrel ROCs");
   noOccROCsBarrel = theDMBE->book1D("noOccROCsBarrel",title3,500,0.,5000.);
   char title4[80];  sprintf(title4, "Number of Low-Efficiency Barrel ROCs;LumiSection;N_{LO EFF} Barrel ROCs");
   loOccROCsBarrel = theDMBE->book1D("loOccROCsBarrel",title4,500,0.,5000.);
-  char title5[80];  sprintf(title5, "Number of Disabled Endcap ROCs;LumiSection;N_{DISABLED} Endcap ROCs");
+  char title5[80];  sprintf(title5, "Number of Zero-Occupancy Endcap ROCs;LumiSection;N_{ZERO-OCCUPANCY} Endcap ROCs");
   noOccROCsEndcap = theDMBE->book1D("noOccROCsEndcap",title5,500,0.,5000.);
   char title6[80];  sprintf(title6, "Number of Low-Efficiency Endcap ROCs;LumiSection;N_{LO EFF} Endcap ROCs");
   loOccROCsEndcap = theDMBE->book1D("loOccROCsEndcap",title6,500,0.,5000.);
