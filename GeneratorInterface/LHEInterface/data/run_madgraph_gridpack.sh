@@ -3,7 +3,7 @@
 #set -o verbose
 
 echo "   ______________________________________     "
-echo "         Running Madgraph5                    "
+echo "         Running Madgraph5....                "
 echo "   ______________________________________     "
 
 repo=${1}
@@ -230,7 +230,7 @@ if [ $minmax_jet == true ] ;then
 	${file}_qcut${qcut}_mgPostv2.lhe 
 fi
 
-mv ${file}_qcut${qcut}_mgPostv2.lhe ${file}_final.lhe 
+mv ${file}_qcut${qcut}_mgPostv2.lhe ${name}_final.lhe 
 
 ls -l
 echo
