@@ -246,7 +246,6 @@ private:
   const bool                                    m_enable_timing_summary;
   const bool                                    m_enable_detailed_overhead_accounting;
   const bool                                    m_enable_dqm;
-//const bool                                    m_enable_dqm_bypath;
   const bool                                    m_enable_dqm_bymodule;
   const bool                                    m_enable_dqm_bylumi;
 

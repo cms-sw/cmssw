@@ -53,7 +53,6 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_enable_timing_summary(      config.getUntrackedParameter<bool>(       "enableTimingSummary",       false) ),
   m_enable_detailed_overhead_accounting( config.getUntrackedParameter<bool>( "enableDetailedOverheadAccounting", false) ),
   m_enable_dqm(                 config.getUntrackedParameter<bool>(       "enableDQM",                 false) ),
-//m_enable_dqm_bypath(          config.getUntrackedParameter<bool>(       "enableDQMbyPath",           false) ),
   m_enable_dqm_bymodule(        config.getUntrackedParameter<bool>(       "enableDQMbyModule",         false) ),
   m_enable_dqm_bylumi(          config.getUntrackedParameter<bool>(       "enableDQMbyLumi",           false) ),    // XXX not yet implemented
   m_skip_first_path(            config.getUntrackedParameter<bool>(       "skipFirstPath",             false) ),
