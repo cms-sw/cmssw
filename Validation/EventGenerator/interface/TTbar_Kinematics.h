@@ -13,7 +13,7 @@
 //
 // Original Author:  Martijn Gosselink,,,
 //         Created:  Thu Jan 19 18:40:35 CET 2012
-// $Id: TTbar_Kinematics.cc,v 1.3 2012/05/29 08:15:08 mgosseli Exp $
+// $Id: TTbar_Kinematics.h,v 1.1 2012/07/04 18:24:21 inugent Exp $
 //
 //
 // Added to: Validation/EventGenerator by Ian M. Nugent June 28, 2012
@@ -90,6 +90,7 @@ class TTbar_Kinematics : public edm::EDAnalyzer {
 
       TLorentzVector tlv_TTbar     ;
 
+      MonitorElement *nEvt;
       MonitorElement* hTopPt                 ;
       MonitorElement* hTopY                  ;
       MonitorElement* hTopMass               ;

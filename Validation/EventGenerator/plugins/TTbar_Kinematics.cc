@@ -64,6 +64,8 @@ TTbar_Kinematics::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   tlv_TTbar = tlv_Top + tlv_TopBar ;
 
   //---topquarkquantities---
+  nEvt->Fill(0.5,weight);
+
   hTopPt->Fill(tlv_Top.Pt(),weight);
   hTopPt->Fill(tlv_TopBar.Pt(),weight);
   
@@ -140,6 +142,9 @@ TTbar_Kinematics::beginJob()
 {
   if(!dbe) return;
   dbe->setCurrentFolder("Generator/TTbar");
+
+  nEvt = dbe->book1D("nEvt", "n analyzed Events", 1, 0., 1.);
+
   hTopPt         = dbe->book1D("TTbar_TopPt","t quark transverse momentum",1000,0.,1000.); hTopPt->setAxisTitle("t quark transverse momentum");
   hTopY          = dbe->book1D("TTbar_TopY","t quark rapidity",200,-5.,5.);                hTopY->setAxisTitle("t quark rapidity");
   hTopMass       = dbe->book1D("TTbar_TopMass","t quark mass",500,0.,500.);                hTopMass->setAxisTitle("t quark mass");
