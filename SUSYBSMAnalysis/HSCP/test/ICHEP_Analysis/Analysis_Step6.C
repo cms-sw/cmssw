@@ -13,7 +13,7 @@ class stAllInfo{
    double Mass, MassMean, MassSigma, MassCut;
    double XSec_Th, XSec_Err, XSec_Exp, XSec_ExpUp, XSec_ExpDown, XSec_Exp2Up, XSec_Exp2Down, XSec_Obs;
    double  Eff, Eff_SYSTP, Eff_SYSTI, Eff_SYSTM, Eff_SYSTT, Eff_SYSTPU;
-   double Significance;
+   double Significance; double XSec_5Sigma;
    double Index, WP_Pt, WP_I, WP_TOF;
    float  NData, NPred, NPredErr, NSign;
    double LInt;
@@ -23,6 +23,7 @@ class stAllInfo{
       Mass          = 0;      MassMean      = 0;      MassSigma     = 0;      MassCut       = 0;
       Index         = 0;      WP_Pt         = 0;      WP_I          = 0;      WP_TOF        = 0;
       XSec_Th       = 0;      XSec_Err      = 0;      XSec_Exp      = 1E50;   XSec_ExpUp    = 1E50;   XSec_ExpDown  = 1E50;    XSec_Exp2Up   = 1E50;    XSec_Exp2Down = 1E50;    XSec_Obs    = 1E50;
+      Significance  = 1E50;   XSec_5Sigma   = 1E50;
       Eff           = 0;      Eff_SYSTP     = 0;      Eff_SYSTI     = 0;      Eff_SYSTM     = 0;      Eff_SYSTT     = 0;
       NData         = 0;      NPred         = 0;      NPredErr      = 0;      NSign         = 0;      LInt          = 0;
       if(path=="")return;
@@ -55,6 +56,7 @@ class stAllInfo{
       fscanf(pFile,"NPredErr     : %E\n" ,&NPredErr);
       fscanf(pFile,"NSign        : %E\n" ,&NSign);
       fscanf(pFile,"LInt         : %lf\n",&LInt);
+      fscanf(pFile,"XSec_5Sigma  : %lf\n",&XSec_5Sigma);
       fclose(pFile);
    }
 
@@ -88,6 +90,7 @@ class stAllInfo{
       fprintf(pFile,"NPredErr     : %+6.2E\n",NPredErr);
       fprintf(pFile,"NSign        : %+6.2E\n",NSign);
       fprintf(pFile,"LInt         : %f\n",LInt);
+      fprintf(pFile,"XSec_5Sigma  : %f\n",XSec_5Sigma);
       fclose(pFile); 
    }
 };
@@ -112,7 +115,8 @@ void makeDataCard(string outpath, string rootPath, string ChannelName, string Si
 void saveHistoForLimit(TH1* histo, string Name, string Id);
 void saveVariationHistoForLimit(TH1* histo, TH1* vardown, string Name, string variationName);
 void testShapeBasedAnalysis(string InputPattern, string signal);
-bool runCombine(bool Significance, string& InputPattern, string& signal, unsigned int CutIndex, bool Shape, bool Temporary, stAllInfo& result, TH2D* MassData, TH2D* MassPred, TH2D* MassSign, TH2D* MassSignP, TH2D* MassSignI, TH2D* MassSignM, TH2D* MassSignT, TH2D* MassSignPU);
+double computeSignificance(bool expected, string& signal, string massStr, float Strength);
+bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, string& InputPattern, string& signal, unsigned int CutIndex, bool Shape, bool Temporary, stAllInfo& result, TH2D* MassData, TH2D* MassPred, TH2D* MassSign, TH2D* MassSignP, TH2D* MassSignI, TH2D* MassSignM, TH2D* MassSignT, TH2D* MassSignPU);
 
 double MinRange = 0;
 double MaxRange = 1999;
@@ -154,7 +158,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    if(MODE.find("SHAPE")!=string::npos){SHAPESTRING="SHAPE";}else{SHAPESTRING="";}
    if(MODE.find("ANALYSE")!=string::npos){
       if(SHAPESTRING==""){  Optimize(InputPattern, Data, signal, false);
-      }else{                Optimize(InputPattern, Data, signal, false);//testShapeBasedAnalysis(InputPattern,signal);
+      }else{                Optimize(InputPattern, Data, signal, true);//testShapeBasedAnalysis(InputPattern,signal);  //use the second part if you want to run shape based analyssi on optimal point form c&c
       }
       return;
    }
@@ -328,6 +332,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMu->GetYaxis()->SetTitle("#sigma (pb)");
    MGMu->GetYaxis()->SetTitleOffset(1.70);
    MGMu->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
+   MGMu->GetXaxis()->SetRangeUser(50,1250);
    
    DrawPreliminary(SQRTS, LInt);
    TLegend* LEGMu = new TLegend(0.45,0.65,0.65,0.90);   
@@ -390,6 +395,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGTk->GetYaxis()->SetTitle("#sigma (pb)");
    MGTk->GetYaxis()->SetTitleOffset(1.70);
    MGTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
+   MGTk->GetXaxis()->SetRangeUser(50,1250);
    
    DrawPreliminary(SQRTS, LInt);
    
@@ -426,6 +432,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGDCMu->GetYaxis()->SetTitle("#sigma (pb)");
    MGDCMu->GetYaxis()->SetTitleOffset(1.70);
    MGDCMu->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
+   MGDCMu->GetXaxis()->SetRangeUser(50,1250);
    DrawPreliminary(SQRTS, LInt);
    
    TLegend* LEGDCMu = new TLegend(0.50,0.65,0.80,0.9);
@@ -472,6 +479,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGDCTk->GetYaxis()->SetTitle("#sigma (pb)");
    MGDCTk->GetYaxis()->SetTitleOffset(1.70);
    MGDCTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
+   MGDCTk->GetXaxis()->SetRangeUser(50,1250);
    DrawPreliminary(SQRTS, LInt);
 
    TLegend* LEGDCTk = new TLegend(0.50,0.65,0.80,0.90);
@@ -915,7 +923,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape){
    stAllInfo toReturn;
    //loop on all possible selections and determine which is the best one
    for(int CutIndex=0;CutIndex<MassData->GetNbinsX();CutIndex++){
-      //if(CutIndex>25)break;
+      //if(CutIndex>25)break; //for debugging purposes
 
       //make sure the pT cut is high enough to get some statistic for both ABCD and mass shape
       if(HCuts_Pt ->GetBinContent(CutIndex+1) < 50 ) continue;  
@@ -942,20 +950,21 @@ void Optimize(string InputPattern, string Data, string signal, bool shape){
       result.WP_I      = HCuts_I  ->GetBinContent(CutIndex+1);
       result.WP_TOF    = HCuts_TOF->GetBinContent(CutIndex+1);
       result.LInt      = LInt;
+      
 
       //compute the limit for this point and check it run sucessfully (some point may be skipped because of lack of statistics or other reasons)
       //best expected limit
-      if(!runCombine(false, InputPattern, signal, CutIndex, shape, true, result, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU))continue;
+      //if(!runCombine(true, true, false, InputPattern, signal, CutIndex, shape, true, result, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU))continue;
 
-      //best significance
-      //if(!runCombine(true, InputPattern, signal, CutIndex, shape, true, result, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU))continue;
+      //best significance --> is actually best reach
+      if(!runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU))continue;
 
 
       //repport the result for this point in the log file
-      fprintf(pFile  ,"%10s: Testing CutIndex=%4i (Pt>%6.2f I>%6.3f TOF>%6.3f) %3.0f<M<inf Ndata=%+6.2E NPred=%6.3E+-%6.3E SignalEff=%6.3f ExpLimit=%6.3E (%6.3E) Signif=%6.3E",signal.c_str(),CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), MinRange,result.NData,result.NPred, result.NPredErr,result.Eff,result.XSec_Exp, result.XSec_Obs, result.Significance);fflush(stdout);
-      fprintf(stdout ,"%10s: Testing CutIndex=%4i (Pt>%6.2f I>%6.3f TOF>%6.3f) %3.0f<M<inf Ndata=%+6.2E NPred=%6.3E+-%6.3E SignalEff=%6.3f ExpLimit=%6.3E (%6.3E) Signif=%6.3E",signal.c_str(),CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), MinRange,result.NData,result.NPred, result.NPredErr,result.Eff,result.XSec_Exp, result.XSec_Obs, result.Significance);fflush(stdout);
-      if(result.XSec_Exp<toReturn.XSec_Exp){
-//      if(result.Significance>toReturn.Significance){
+      fprintf(pFile  ,"%10s: Testing CutIndex=%4i (Pt>%6.2f I>%6.3f TOF>%6.3f) %3.0f<M<inf Ndata=%+6.2E NPred=%6.3E+-%6.3E SignalEff=%6.3f ExpLimit=%6.3E (%6.3E) Reach=%6.3E",signal.c_str(),CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), MinRange,result.NData,result.NPred, result.NPredErr,result.Eff,result.XSec_Exp, result.XSec_Obs, result.XSec_5Sigma);fflush(stdout);
+      fprintf(stdout ,"%10s: Testing CutIndex=%4i (Pt>%6.2f I>%6.3f TOF>%6.3f) %3.0f<M<inf Ndata=%+6.2E NPred=%6.3E+-%6.3E SignalEff=%6.3f ExpLimit=%6.3E (%6.3E) Reach=%6.3E",signal.c_str(),CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), MinRange,result.NData,result.NPred, result.NPredErr,result.Eff,result.XSec_Exp, result.XSec_Obs, result.XSec_5Sigma);fflush(stdout);
+//      if(result.XSec_Exp<toReturn.XSec_Exp){
+      if(result.XSec_5Sigma>0 && result.XSec_5Sigma<toReturn.XSec_5Sigma){
          toReturn=result;
          fprintf(pFile  ," BestSelection\n");fflush(stdout);
          fprintf(stdout ," BestSelection\n");fflush(stdout);
@@ -967,7 +976,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape){
    fclose(pFile);   
  
    //recompute the limit for the final point and save the output in the final directory (also save some plots for the shape based analysis)
-   runCombine(false, InputPattern, signal, toReturn.Index, shape, false, toReturn, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU);
+   runCombine(false, true, true, InputPattern, signal, toReturn.Index, shape, false, toReturn, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU);
   
    //all done, save the result to file
    toReturn.Save(outpath+"/"+signal+".txt");
@@ -1040,11 +1049,15 @@ void testShapeBasedAnalysis(string InputPattern, string signal){
    CurrentSampleIndex        = JobIdToIndex(signal, samples); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  }
    int s = CurrentSampleIndex;
 
+   string outpath = InputPattern + "/"+SHAPESTRING+"EXCLUSION/";
+   MakeDirectories(outpath);
+
    //Get Optimal cut from cut&count optimization
    stAllInfo result =  stAllInfo(InputPattern+"/EXCLUSION/"+signal+".txt");
 
    //load all intput histograms
    TFile* InputFile  = new TFile((InputPattern+"/Histos.root").c_str());
+   TH1D*  H_Lumi     = (TH1D*)GetObjectFromPath(InputFile, "Data11/IntLumi");
    TH2D*  MassData   = (TH2D*)GetObjectFromPath(InputFile, "Data11/Mass");
    TH2D*  MassPred   = (TH2D*)GetObjectFromPath(InputFile, "Data11/Pred_Mass");
    TH2D*  MassSign   = (TH2D*)GetObjectFromPath(InputFile, samples[s].Name+"/Mass");
@@ -1053,16 +1066,62 @@ void testShapeBasedAnalysis(string InputPattern, string signal){
    TH2D*  MassSignM  = (TH2D*)GetObjectFromPath(InputFile, samples[s].Name+"/Mass_SystM");
    TH2D*  MassSignT  = (TH2D*)GetObjectFromPath(InputFile, samples[s].Name+"/Mass_SystT");
    TH2D*  MassSignPU = (TH2D*)GetObjectFromPath(InputFile, samples[s].Name+"/Mass_SystPU");
+   TH1D*  TotalE     = (TH1D*)GetObjectFromPath(InputFile, samples[s].Name+"/TotalE" );
+   TH1D*  TotalEPU   = (TH1D*)GetObjectFromPath(InputFile, samples[s].Name+"/TotalEPU" );
+
+   //normalise the signal samples to XSection * IntLuminosity
+   double LInt  = H_Lumi->GetBinContent(1);
+   double norm  = samples[CurrentSampleIndex].XSec*LInt/TotalE  ->Integral(); //normalize the samples to the actual lumi used for limits
+   double normPU= samples[CurrentSampleIndex].XSec*LInt/TotalEPU->Integral();
+   MassSign  ->Scale(norm);
+   MassSignP ->Scale(norm);
+   MassSignI ->Scale(norm);
+   MassSignM ->Scale(norm);
+   MassSignT ->Scale(norm);
+   MassSignPU->Scale(normPU);
+
+   bool Shape = true;
+
+   //find range
+   if(Shape){
+      MinRange = 0;
+   }else{
+      MinRange = std::max(0.0, result.MassMean-2*result.MassSigma);
+      MinRange = MassSign->GetYaxis()->GetBinLowEdge(MassSign->GetYaxis()->FindBin(MinRange)); //Round to a bin value to avoid counting prpoblem due to the binning. 
+   }
 
    //compute shape based limits and save it's output
-   runCombine(false, InputPattern, signal, result.Index, true, false, result, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU);
+   runCombine(false, true, true, InputPattern, signal, result.Index, Shape, false, result, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU);
 
    //all done, save the results to file
    result.Save(InputPattern+"/"+SHAPESTRING+"EXCLUSION/"+signal+".txt");
 }
 
+//compute the significance using a ProfileLikelihood (assuming datacard is already produced)
+double computeSignificance(bool expected, string& signal, string massStr, float Strength){
+   double toReturn = -1;
+   char strengthStr[255]; sprintf(strengthStr,"--expectSignal=%f",Strength);
+   string CodeToExecute = "cd /tmp/;";
+   if(expected)CodeToExecute += "combine -M ProfileLikelihood -n " + signal + " -m " + massStr + " --significance -t 100 " + strengthStr + " shape_" + signal+".dat &> shape_" + signal + ".log;";
+   else        CodeToExecute += "combine -M ProfileLikelihood -n " + signal + " -m " + massStr + " --significance shape_" + signal+".dat &> shape_" + signal + ".log;";
+   CodeToExecute += "cd $OLDPWD;";
+   system(CodeToExecute.c_str());   
+
+   char line[4096];
+   FILE* sFile = fopen((string("/tmp/shape_")+signal + ".log").c_str(), "r");
+   if(!sFile)std::cout<<"FILE NOT OPEN:"<< (string("/tmp/shape_")+signal + ".log").c_str() << endl;
+   int LineIndex=0; int GarbageI;      
+   while(fgets(line, 4096, sFile)){LineIndex++;       
+     if(!expected && LineIndex==3){sscanf(line,"Significance: %lf",&toReturn);     break;}
+     if( expected && LineIndex==7){sscanf(line,"median expected limit: r < %lf @ 95%%CL (%i toyMC)",&toReturn,&GarbageI); break;}
+     continue;
+   }fclose(sFile);
+   return toReturn;
+}
+
+
 //run the higgs combine stat tool
-bool runCombine(bool Significance, string& InputPattern, string& signal, unsigned int CutIndex, bool Shape, bool Temporary, stAllInfo& result, TH2D* MassData, TH2D* MassPred, TH2D* MassSign, TH2D* MassSignP, TH2D* MassSignI, TH2D* MassSignM, TH2D* MassSignT, TH2D* MassSignPU){
+bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, string& InputPattern, string& signal, unsigned int CutIndex, bool Shape, bool Temporary, stAllInfo& result, TH2D* MassData, TH2D* MassPred, TH2D* MassSign, TH2D* MassSignP, TH2D* MassSignI, TH2D* MassSignM, TH2D* MassSignT, TH2D* MassSignPU){
    //make the projection of all the 2D input histogram to get the shape for this single point
    double signalsMeanHSCPPerEvent = GetSignalMeanHSCPPerEvent(InputPattern,CutIndex, MinRange, MaxRange);
    TH1D* MassDataProj       = MassData  ->ProjectionY("MassDataProj"  ,CutIndex+1,CutIndex+1);
@@ -1095,6 +1154,9 @@ bool runCombine(bool Significance, string& InputPattern, string& signal, unsigne
    double EffPU       = (MassSignProjPU->Integral(MassSignProjPU->GetXaxis()->FindBin(MinRange), MassSignProjPU->GetXaxis()->FindBin(MaxRange))) / (result.XSec_Th*result.LInt*signalsMeanHSCPPerEvent);
    if(Eff==0)return false;
 
+   //no way that this point is optimal
+   bool pointMayBeOptimal = (fastOptimization && !getXsection && getSignificance && ((NPred-3*NPredErr)<=result.NPred || Eff>=result.Eff));
+      
    //save these info to the result structure
    result.Eff       = Eff;
    result.Eff_SYSTP = EffP;
@@ -1119,6 +1181,17 @@ bool runCombine(bool Significance, string& InputPattern, string& signal, unsigne
       MassSignProjM ->Scale(1.0/(result.XSec_Th*signalsMeanHSCPPerEvent*1000));
       MassSignProjT ->Scale(1.0/(result.XSec_Th*signalsMeanHSCPPerEvent*1000));
       MassSignProjPU->Scale(1.0/(result.XSec_Th*signalsMeanHSCPPerEvent*1000));
+
+      //Rebin --> keep CPU time reasonable and error small
+      MassDataProj  ->Rebin(2);
+      MassPredProj  ->Rebin(2);
+      MassSignProj  ->Rebin(2);
+      MassSignProjP ->Rebin(2);
+      MassSignProjI ->Rebin(2);
+      MassSignProjM ->Rebin(2);
+      MassSignProjT ->Rebin(2);
+      MassSignProjPU->Rebin(2);
+
 
       //make histo that will contains the shapes for limit
       string shapeFilePath = "/tmp/shape_"+signal+".root";
@@ -1146,42 +1219,41 @@ bool runCombine(bool Significance, string& InputPattern, string& signal, unsigne
    makeDataCard(datacardPath,string("shape_")+signal+".root", CutIndexStr,signal, NData, NPred, 1.0+(Shape?RescaleError:NPredErr/NPred), NSign, Shape);
 
    char massStr[255]; sprintf(massStr,"%.0f",result.Mass);
-   char rangeStr[255];sprintf(rangeStr," --rMin %f --rMax %f ", 0.0f, 2*(3*sqrt(NPred)/NSign) );
-   if(!Significance)printf("%f/%f --> %s\n",result.NSign,result.NPred,rangeStr);
+   if(getSignificance){
+      double SignifValue=0.0;double Strength=5;  if(result.XSec_5Sigma>0 && result.XSec_5Sigma<1E50)Strength=result.XSec_5Sigma/1000.0;
+      double previousXSec_5Sigma=result.XSec_5Sigma; result.XSec_5Sigma = -1;
+      //find signal strength needed to get a 5sigma significance
+      for(unsigned int l=0;l<10 && pointMayBeOptimal;l++){
+         SignifValue = computeSignificance(true, signal, massStr, Strength);
+         printf("SIGNAL STRENGTH = %f --> SIGNIFICANCE=%f\n",Strength,SignifValue);
+         //we found the signal strength that lead to a significance close enough to the 5sigma to stop the loop 
+         //OR we know that this point is not going to be a good one --> can do a coarse approximation since the begining
+         if(fabs(SignifValue-5)<0.5 || (fastOptimization && Strength*1000>=previousXSec_5Sigma && SignifValue<5)){
+            result.XSec_5Sigma  = Strength * (5/SignifValue) * 1000.0;//xsection in pb
+            break;
+         }
 
-
-   //prepare and run the script that will run the external "combine" tool from the Higgs group
-   string CodeToExecute;
-   CodeToExecute += "cd /tmp/;";
-   if(Significance){
-      CodeToExecute += "combine -M ProfileLikelihood -n " + signal + " -m " + massStr + " --significance -t 1000 --expectSignal=1 " + " shape_" + signal+".dat &> shape_" + signal + ".log;";
-   }else{
-      CodeToExecute += "combine -M Asymptotic        -n " + signal + " -m " + massStr + rangeStr + " shape_" + signal+".dat &> shape_" + signal + ".log;";
+         //Not yet at the right significance, change the strength to get close
+         if(isinf((float)SignifValue)){Strength/=10;                continue;} //strength is already way too high
+         if(SignifValue==0           ){Strength*=10;                continue;} //strength is already way too low
+         if(SignifValue>5            ){Strength*=std::max( 0.1,(4.9/SignifValue)); continue;} //5/significance could be use but converge faster with 4.9
+         if(SignifValue<5            ){Strength*=std::min(10.0,(5.1/SignifValue)); continue;} //5/significance could be use, but it converges faster with 5.1
+         break;                    
+      }
    }
-   CodeToExecute += "cd $OLDPWD;";
-   CodeToExecute+="cp /tmp/shape_" + signal + ".* " + InputPattern+"/"+SHAPESTRING+"EXCLUSION/." + ";";
-   system(CodeToExecute.c_str());
 
+   if(getXsection){
+      //prepare and run the script that will run the external "combine" tool from the Higgs group
+      char rangeStr[255];sprintf(rangeStr," --rMin %f --rMax %f ", 0.0f, 2*(3*sqrt(NPred)/NSign) );
+      printf("%f/%f --> %s\n",result.NSign,result.NPred,rangeStr);
+      string CodeToExecute = "cd /tmp/;";
+      CodeToExecute += "combine -M Asymptotic        -n " + signal + " -m " + massStr + rangeStr + " shape_" + signal+".dat &> shape_" + signal + ".log;";   
+      CodeToExecute += "cd $OLDPWD;cp /tmp/shape_" + signal + ".* " + InputPattern+"/"+SHAPESTRING+"EXCLUSION/." + ";";
+      system(CodeToExecute.c_str());
 
-   if(Significance){
-      char line[4096];
-      FILE* sFile = fopen((string("/tmp/shape_")+signal + ".log").c_str(), "r");
-      if(!sFile)std::cout<<"FILE NOT OPEN:"<< (string("/tmp/shape_")+signal + ".log").c_str() << endl;
-      int LineIndex=0; int GarbageI;      
-      while(fgets(line, 4096, sFile)){LineIndex++;
-        //printf("%i --> | %s\n",LineIndex,line);
-        if(LineIndex!=7)continue;
-        sscanf(line,"median expected limit: r < %lf @ 95%%CL (%i toyMC)",&(result.Significance),&GarbageI); 
-      }     
-   }else{
       //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
       //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
-      TFile* file = NULL;
-//      if(Significance){
-//         file = TFile::Open((string("/tmp/")+"higgsCombine"+signal+".ProfileLikelihood.mH"+massStr+".123456.root").c_str());
-//      }else{
-         file = TFile::Open((string("/tmp/")+"higgsCombine"+signal+".Asymptotic.mH"+massStr+".root").c_str());
-//      }
+      TFile* file = TFile::Open((string("/tmp/")+"higgsCombine"+signal+".Asymptotic.mH"+massStr+".root").c_str());
       if(!file || file->IsZombie())return false;
       TTree* tree = (TTree*)file->Get("limit");
       if(!tree)return false;
@@ -1205,6 +1277,10 @@ bool runCombine(bool Significance, string& InputPattern, string& signal, unsigne
       file->Close();
    }
 
+   if(!Temporary){
+       result.Significance = computeSignificance(false, signal, massStr, 1.0);
+   }
+
    //makePlots (only for shape based analysis)
    if(Shape && !Temporary){ 
       TCanvas* c1 = new TCanvas("c1", "c1",1200,600);
@@ -1225,6 +1301,16 @@ bool runCombine(bool Significance, string& InputPattern, string& signal, unsigne
       MassSignProj->SetFillColor(kBlue-9);
       MassSignProj->Draw("HIST");
 
+      TH1D* MassPredSignProj = (TH1D*)MassPredProj->Clone("predWithSign");
+      MassPredSignProj->Add(MassSignProj);
+      MassPredSignProj->SetMarkerStyle(0);
+      MassPredSignProj->SetLineColor(kBlue-10);
+      MassPredSignProj->SetLineStyle(1);
+      MassPredSignProj->SetLineWidth(4);
+      MassPredSignProj->SetFillColor(0);
+      MassPredSignProj->SetFillStyle(0);
+      MassPredSignProj->Draw("same HIST C");
+
       MassPredProj->SetBinContent(MassPredProj->GetNbinsX(), MassPredProj->GetBinContent(MassPredProj->GetNbinsX()) + MassPredProj->GetBinContent(MassPredProj->GetNbinsX()+1));
       MassPredProj->SetMarkerStyle(22);
       MassPredProj->SetMarkerColor(2);
@@ -1242,7 +1328,7 @@ bool runCombine(bool Significance, string& InputPattern, string& signal, unsigne
       MassDataProj->SetFillColor(0);
       MassDataProj->Draw("same E1");
 
-      TLegend* leg = new TLegend(0.45,0.75,0.85,0.93);
+      TLegend* leg = new TLegend(0.40,0.75,0.80,0.93);
       leg->SetHeader(NULL);
       leg->SetFillColor(0);
       leg->SetFillStyle(0);
@@ -1250,25 +1336,39 @@ bool runCombine(bool Significance, string& InputPattern, string& signal, unsigne
       leg->AddEntry(MassDataProj,"Data", "P");
       leg->AddEntry(MassPredProj,"Prediction", "FP");
       leg->AddEntry(MassSignProj,signal.c_str(), "F");
+      leg->AddEntry(MassPredSignProj,(string("Prediction + ")+signal).c_str(), "L");
       leg->Draw();
 
       (c1->cd(2))->SetLogy(true);
+//      (c1->cd(2))->SetGridy(true);
 
-      TH1* MassSignProjRatio  = (TH1D*)MassSignProj ->Clone(signal.c_str() );  MassSignProjRatio ->SetLineColor(1); MassSignProjRatio ->SetMarkerColor(1); MassSignProjRatio ->SetMarkerStyle(0);
+      TH1* MassSignProjRatio  = (TH1D*)MassSignProj ->Clone(signal.c_str() );  MassSignProjRatio ->SetLineColor(1); MassSignProjRatio ->SetMarkerColor(1); MassSignProjRatio ->SetMarkerStyle(0); 
       TH1* MassSignProjPRatio = (TH1D*)MassSignProjP->Clone("mom");            MassSignProjPRatio->SetLineColor(2); MassSignProjPRatio->SetMarkerColor(2); MassSignProjPRatio->SetMarkerStyle(20);
       TH1* MassSignProjIRatio = (TH1D*)MassSignProjI->Clone("Ias");            MassSignProjIRatio->SetLineColor(4); MassSignProjIRatio->SetMarkerColor(4); MassSignProjIRatio->SetMarkerStyle(21);
       TH1* MassSignProjMRatio = (TH1D*)MassSignProjM->Clone("Ih");             MassSignProjMRatio->SetLineColor(3); MassSignProjMRatio->SetMarkerColor(3); MassSignProjMRatio->SetMarkerStyle(22);
       TH1* MassSignProjTRatio = (TH1D*)MassSignProjT->Clone("TOF");            MassSignProjTRatio->SetLineColor(8); MassSignProjTRatio->SetMarkerColor(8); MassSignProjTRatio->SetMarkerStyle(23);
       TH1* MassSignProjLRatio = (TH1D*)MassSignProjPU->Clone("pu");            MassSignProjLRatio->SetLineColor(6); MassSignProjLRatio->SetMarkerColor(6); MassSignProjLRatio->SetMarkerStyle(33);
 
+      //MassSignProjPRatio->Divide(MassSignProjPRatio, MassSignProjRatio,1,1, "B");
+      //MassSignProjIRatio->Divide(MassSignProjIRatio, MassSignProjRatio,1,1, "B");
+      //MassSignProjMRatio->Divide(MassSignProjMRatio, MassSignProjRatio,1,1, "B");
+      //MassSignProjTRatio->Divide(MassSignProjTRatio, MassSignProjRatio,1,1, "B");
+      //MassSignProjLRatio->Divide(MassSignProjLRatio, MassSignProjRatio,1,1, "B");
+      //MassSignProjRatio ->Divide(MassSignProjRatio , MassSignProjRatio,1,1, "B");
+
       MassSignProjRatio->SetStats(kFALSE);
       MassSignProjRatio->SetFillColor(0);
       MassSignProjRatio->SetLineWidth(2);
       MassSignProjRatio->GetXaxis()->SetRangeUser(0,1400);
       MassSignProjRatio->GetXaxis()->SetNdivisions(505,"X");
-      MassSignProjRatio->SetMaximum(Max);
+      MassSignProjRatio->GetYaxis()->SetNdivisions(505,"X");
+      MassSignProjRatio->SetMaximum(MassSignProjPRatio->GetMaximum()*2.0);
       MassSignProjRatio->SetMinimum(Min);
-      MassSignProjRatio->Draw("hist");
+      //MassSignProjRatio->SetMaximum(2);//Max);
+      //MassSignProjRatio->SetMinimum(0);//Min);
+      //MassSignProjRatio->Reset(); //use this histogram as a framework only
+      MassSignProjRatio->Draw("HIST");
+      //TLine l1(0,1,1400,1);l1.SetLineColor(1); l1.SetLineWidth(2); l1.Draw("same");
       MassSignProjPRatio->Draw("same E1");
       MassSignProjIRatio->Draw("same E1");
       MassSignProjMRatio->Draw("same E1");
@@ -1289,13 +1389,12 @@ bool runCombine(bool Significance, string& InputPattern, string& signal, unsigne
       leg2->Draw();
 
       SaveCanvas(c1, InputPattern+"/"+SHAPESTRING+"EXCLUSION/shape", signal, true);
-      delete leg2; delete leg; delete c1;
+      delete leg2; delete leg; delete c1; delete MassPredSignProj;
+      delete MassSignProjRatio; delete MassSignProjPRatio; delete MassSignProjIRatio; delete MassSignProjMRatio; delete MassSignProjTRatio; delete MassSignProjLRatio;
    }
 
    //all done, clean everything and return true
    delete MassDataProj; delete MassPredProj; delete MassSignProj; delete MassSignProjP; delete MassSignProjI; delete MassSignProjM; delete MassSignProjT; delete MassSignProjPU;
    return true;
 }
-
-
 
