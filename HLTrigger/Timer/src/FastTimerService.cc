@@ -23,7 +23,6 @@ typedef int clockid_t;
 #include <tr1/unordered_map>
 
 // boost headers
-#include <boost/foreach.hpp>
 // for forward compatibility with boost 1.47
 #define BOOST_FILESYSTEM_VERSION 3
 #include <boost/filesystem/path.hpp>
