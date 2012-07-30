@@ -1226,13 +1226,11 @@ double RescaledPt(const double& pt, const double& eta, const double& phi, const 
 }
 
 double SegSep(const susybsm::HSCParticle& hscp, const fwlite::ChainEvent& ev, double& minPhi, double& minEta) {
-  reco::TrackRef   track;
-  if(TypeMode!=3) track = hscp.trackRef();
-  else {
-    reco::MuonRef muon = hscp.muonRef();
-    if(muon.isNull()) return false;
-    track = muon->standAloneMuon();
-  }
+  if(TypeMode!=3)return -1;
+
+  reco::MuonRef muon = hscp.muonRef();
+  if(muon.isNull()) return false;
+  reco::TrackRef  track = muon->standAloneMuon();
   if(track.isNull())return false;
 
   fwlite::Handle<MuonSegmentCollection> SegCollHandle;
