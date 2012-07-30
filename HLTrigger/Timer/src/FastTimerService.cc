@@ -127,22 +127,22 @@ void FastTimerService::postBeginJob() {
     edm::LogError("FastTimerService") << "this process is NOT bound to a single CPU, the results of the FastTimerService may be undefined";
 
   edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
-  BOOST_FOREACH(std::string const & name, tns.getTrigPaths())
+  for (auto const & name: tns.getTrigPaths())
     m_paths[name];
-  BOOST_FOREACH(std::string const & name, tns.getEndPaths())
+  for (auto const & name: tns.getEndPaths())
     m_paths[name];
 
   // cache all pathinfo objects
   if (m_enable_timing_paths) {
     m_cache_paths.reserve(m_paths.size());
-    BOOST_FOREACH(PathMap<PathInfo>::value_type & keyval, m_paths)
+    for (auto & keyval: m_paths)
       m_cache_paths.push_back(& keyval.second);
   }
 
   // cache all moduleinfo objects
   if (m_enable_timing_modules) {
     m_cache_modules.reserve(m_modules.size());
-    BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules)
+    for (auto & keyval: m_modules)
       m_cache_modules.push_back(& keyval.second);
   }
 
@@ -208,7 +208,7 @@ void FastTimerService::postBeginJob() {
 
     if (m_enable_timing_paths) {
       m_dqms->setCurrentFolder((m_dqm_path + "/Paths"));
-      BOOST_FOREACH(PathMap<PathInfo>::value_type & keyval, m_paths) {
+      for (auto & keyval: m_paths) {
         std::string const & pathname = keyval.first;
         PathInfo          & pathinfo = keyval.second;
         pathinfo.dqm_active = m_dqms->book1D(pathname + "_active", pathname + " active time", pathbins, 0., m_dqm_pathtime_range)->getTH1F();
@@ -218,7 +218,7 @@ void FastTimerService::postBeginJob() {
 
     if (m_enable_timing_modules and m_enable_dqm_bymodule) {
       m_dqms->setCurrentFolder((m_dqm_path + "/Modules"));
-      BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules) {
+      for (auto & keyval: m_modules) {
         std::string const & label  = keyval.first->moduleLabel();
         ModuleInfo        & module = keyval.second;
         module.dqm_active = m_dqms->book1D(label, label, modulebins, 0., m_dqm_moduletime_range)->getTH1F();
@@ -228,7 +228,7 @@ void FastTimerService::postBeginJob() {
 
     if (m_enable_timing_paths and m_enable_timing_modules) {
       m_dqms->setCurrentFolder((m_dqm_path + "/Paths"));
-      BOOST_FOREACH(PathMap<PathInfo>::value_type & keyval, m_paths) {
+      for (auto & keyval: m_paths) {
         std::string const & pathname = keyval.first;
         PathInfo          & pathinfo = keyval.second;
         if (m_enable_detailed_overhead_accounting) {
@@ -287,20 +287,20 @@ void FastTimerService::postEndJob() {
     out << "FastReport              " << std::right << std::setw(10) << m_summary_all_endpaths / (double) m_summary_events << "  all EndPaths"  << '\n';
     if (m_enable_timing_modules) {
       double modules_total = 0.;
-      BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules)
+      for (auto & keyval: m_modules)
         modules_total += keyval.second.summary_active;
       out << "FastReport              " << std::right << std::setw(10) << modules_total          / (double) m_summary_events << "  all Modules"   << '\n';
     }
     out << '\n';
     if (m_enable_timing_paths and not m_enable_timing_modules) {
       out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active Path" << '\n';
-      BOOST_FOREACH(std::string const & name, tns.getTrigPaths())
+      for (auto const & name: tns.getTrigPaths())
         out << "FastReport              "
             << std::right << std::setw(10) << m_paths[name].summary_active  / (double) m_summary_events << "  "
             << name << '\n';
       out << '\n';
       out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active EndPath" << '\n';
-      BOOST_FOREACH(std::string const & name, tns.getEndPaths())
+      for (auto const & name: tns.getEndPaths())
         out << "FastReport              "
             << std::right << std::setw(10) << m_paths[name].summary_active  / (double) m_summary_events << "  "
             << name << '\n';
@@ -310,7 +310,7 @@ void FastTimerService::postEndJob() {
       } else {
         out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Overhead      Total  Path" << '\n';
       }
-      BOOST_FOREACH(std::string const & name, tns.getTrigPaths()) {
+      for (auto const & name: tns.getTrigPaths()) {
         out << "FastReport              "
             << std::right << std::setw(10) << m_paths[name].summary_active        / (double) m_summary_events << " ";
         if (m_enable_detailed_overhead_accounting) {
@@ -329,7 +329,7 @@ void FastTimerService::postEndJob() {
       } else {
         out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Overhead      Total  Path" << '\n';
       }
-      BOOST_FOREACH(std::string const & name, tns.getEndPaths()) {
+      for (auto const & name: tns.getEndPaths()) {
         out << "FastReport              "
             << std::right << std::setw(10) << m_paths[name].summary_active        / (double) m_summary_events << " ";
         if (m_enable_detailed_overhead_accounting) {
@@ -346,7 +346,7 @@ void FastTimerService::postEndJob() {
     out << '\n';
     if (m_enable_timing_modules) {
       out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
-      BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules) {
+      for (auto & keyval: m_modules) {
         std::string const & label  = keyval.first->moduleLabel();
         ModuleInfo  const & module = keyval.second;
         out << "FastReport              " << std::right << std::setw(10) << module.summary_active  / (double) m_summary_events << "  " << label << '\n';
@@ -415,14 +415,14 @@ void FastTimerService::preProcessEvent(edm::EventID const & id, edm::Timestamp c
   m_event        = 0;
   m_all_paths    = 0;
   m_all_endpaths = 0;
-  BOOST_FOREACH(PathInfo * path, m_cache_paths) {
+  for (PathInfo * path: m_cache_paths) {
     path->time_active       = 0.;
     path->time_premodules   = 0.;
     path->time_intermodules = 0.;
     path->time_postmodules  = 0.;
     path->time_total        = 0.;
   }
-  BOOST_FOREACH(ModuleInfo * module, m_cache_modules) {
+  for (ModuleInfo * module: m_cache_modules) {
     module->time_active     = 0.;
   }
 }
@@ -497,7 +497,7 @@ void FastTimerService::preProcessPath(std::string const & path ) {
 
     if (m_enable_timing_modules) {
       // reset the status of this path's modules
-      BOOST_FOREACH(ModuleInfo * module, m_current_path->modules)
+      for (ModuleInfo * module: m_current_path->modules)
         if (module)
           module->has_just_run = false;
     }
@@ -690,7 +690,7 @@ edm::ModuleDescription const * FastTimerService::findModuleDescription(const std
   // fix the name of negated or ignored modules
   std::string const & target = (label[0] == '!' or label[0] == '-') ? label.substr(1) : label;
 
-  BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type const & keyval, m_modules) {
+  for (auto const & keyval: m_modules) {
     if (keyval.first == 0) {
       // this should never happen, but it would cause a segmentation fault to insert a null pointer in the path map, se we explicitly check for it and skip it
       edm::LogError("FastTimerService") << "FastTimerService::findModuleDescription: invalid entry detected in ModuleMap<ModuleInfo> m_modules, skipping";
@@ -709,7 +709,7 @@ void FastTimerService::fillPathMap(std::string const & name, std::vector<std::st
   std::vector<ModuleInfo *> & pathmap = m_paths[name].modules;
   pathmap.reserve( modules.size() );
   std::tr1::unordered_set<edm::ModuleDescription const *> pool;        // keep track of inserted modules
-  BOOST_FOREACH( std::string const & module, modules) {
+  for (auto const & module: modules) {
     edm::ModuleDescription const * md = findModuleDescription(module);
     if (md == 0) {
       // no matching module was found
