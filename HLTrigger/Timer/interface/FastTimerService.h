@@ -155,31 +155,22 @@ private:
   struct PathInfo {
     std::vector<ModuleInfo *>   modules;            // list of all modules contributing to the path (duplicate modules stored as null pointers)
     double                      time_active;        // per-event timer: time actually spent in this path
-#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
     double                      time_premodules;    // per-event timer: time spent between "begin path" and the first "begin module"
     double                      time_intermodules;  // per-event timer: time spent between modules
     double                      time_postmodules;   // per-event timer: time spent between the last "end module" and "end path"
-#else
     double                      time_overhead;      // per-event timer: sum of time_premodules, time_intermodules, time_postmodules
-#endif
     double                      time_total;         // per-event timer: sum of the time spent in all modules which would have run in this path (plus overhead)
     double                      summary_active;
-#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
     double                      summary_premodules;
     double                      summary_intermodules;
     double                      summary_postmodules;
-#else
     double                      summary_overhead;
-#endif
     double                      summary_total;
     TH1F *                      dqm_active;
-#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
     TH1F *                      dqm_premodules;
     TH1F *                      dqm_intermodules;
     TH1F *                      dqm_postmodules;
-#else
     TH1F *                      dqm_overhead;
-#endif
     TH1F *                      dqm_total;
     TH1F *                      dqm_module_counter;     // for each module in the path, track how many times it ran
     TH1F *                      dqm_module_active;      // for each module in the path, track the active time spent 
@@ -189,31 +180,22 @@ private:
     PathInfo() :
       modules(),
       time_active(0.),
-#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
       time_premodules(0.),
       time_intermodules(0.),
       time_postmodules(0.),
-#else
       time_overhead(0.),
-#endif
       time_total(0.),
       summary_active(0.),
-#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
       summary_premodules(0.),
       summary_intermodules(0.),
       summary_postmodules(0.),
-#else
       summary_overhead(0.),
-#endif
       summary_total(0.),
       dqm_active(0),
-#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
       dqm_premodules(0),
       dqm_intermodules(0),
       dqm_postmodules(0),
-#else
       dqm_overhead(0),
-#endif
       dqm_total(0),
       dqm_module_counter(0),
       dqm_module_active(0),
@@ -228,33 +210,24 @@ private:
     void reset() {
       modules.clear();
       time_active = 0.;
-#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
       time_premodules = 0.;
       time_intermodules = 0.;
       time_postmodules = 0.;
-#else
       time_overhead = 0.;
-#endif
       time_total = 0.;
       summary_active = 0.;
-#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
       summary_premodules = 0.;
       summary_intermodules = 0.;
       summary_postmodules = 0.;
-#else
       summary_overhead = 0.;
-#endif
       summary_total = 0.;
 
       // the DAQ destroys and re-creates the DQM and DQMStore services at each reconfigure, so we don't need to clean them up
       dqm_active = 0;
-#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
       dqm_premodules = 0;
       dqm_intermodules = 0;
       dqm_postmodules = 0;
-#else
       dqm_overhead = 0;
-#endif
       dqm_total = 0;
       dqm_module_counter = 0;
       dqm_module_active = 0;
@@ -271,7 +244,9 @@ private:
   const bool                                    m_enable_timing_modules;
   const bool                                    m_enable_timing_paths;
   const bool                                    m_enable_timing_summary;
+  const bool                                    m_enable_detailed_overhead_accounting;
   const bool                                    m_enable_dqm;
+//const bool                                    m_enable_dqm_bypath;
   const bool                                    m_enable_dqm_bymodule;
   const bool                                    m_enable_dqm_bylumi;
 
