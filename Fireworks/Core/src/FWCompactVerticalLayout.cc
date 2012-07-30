@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 17 12:10:42 CDT 2009
-// $Id: FWCompactVerticalLayout.cc,v 1.1 2009/03/18 15:36:41 chrjones Exp $
+// $Id: FWCompactVerticalLayout.cc,v 1.2 2010/06/18 10:17:15 yana Exp $
 //
 
 // system include files
@@ -186,7 +186,6 @@ void FWCompactVerticalLayout::Layout()
                } else {
                   extra_space = esize_expand >> 1;
                }
-               y += extra_space;
                top += extra_space;
             }
          }
