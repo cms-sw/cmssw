@@ -40,7 +40,7 @@ void getCompressedBuffer(const char* fname, Bytef** buffPtr, unsigned long& zipp
    // is compressed original buffer.
    //
    unsigned int deflatedSize =  compressBound(lSize) + 4; // estimation
-   Bytef * deflatedBuff = (Bytef*) malloc (sizeof(char)*(deflatedSize));
+   Bytef * deflatedBuff = (Bytef*) malloc (sizeof(Bytef)*(deflatedSize));
    *((unsigned int*)deflatedBuff) = htonl(lSize);
 
    //set buffer ptr
