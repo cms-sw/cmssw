@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2011/09/02 13:55:02 $
- * $Revision: 1.204 $
+ * $Date: 2012/04/26 07:44:01 $
+ * $Revision: 1.206 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -138,8 +138,6 @@ void EcalBarrelMonitorModule::beginJob(void){
 
   if ( debug_ ) std::cout << "EcalBarrelMonitorModule: beginJob" << std::endl;
 
-  ievt_ = 0;
-
   dqmStore_ = edm::Service<DQMStore>().operator->();
 
   if ( dqmStore_ ) {
@@ -154,6 +152,8 @@ void EcalBarrelMonitorModule::beginJob(void){
 }
 
 void EcalBarrelMonitorModule::beginRun(const edm::Run& r, const edm::EventSetup& c) {
+
+  ievt_ = 0;
 
   if ( debug_ ) std::cout << "EcalBarrelMonitorModule: beginRun" << std::endl;
 

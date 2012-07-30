@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2011/09/02 13:55:03 $
- * $Revision: 1.86 $
+ * $Date: 2012/04/26 07:45:15 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -138,8 +138,6 @@ void EcalEndcapMonitorModule::beginJob(void){
 
   if ( debug_ ) std::cout << "EcalEndcapMonitorModule: beginJob" << std::endl;
 
-  ievt_ = 0;
-
   dqmStore_ = edm::Service<DQMStore>().operator->();
 
   if ( dqmStore_ ) {
@@ -154,6 +152,8 @@ void EcalEndcapMonitorModule::beginJob(void){
 }
 
 void EcalEndcapMonitorModule::beginRun(const edm::Run& r, const edm::EventSetup& c) {
+
+  ievt_ = 0;
 
   if ( debug_ ) std::cout << "EcalEndcapMonitorModule: beginRun" << std::endl;
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2012/04/27 13:45:59 $
- * $Revision: 1.507 $
+ * $Date: 2012/06/28 12:14:27 $
+ * $Revision: 1.508 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -547,6 +547,8 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps) {
   clientsStatus_.insert(std::pair<std::string,int>( "Led",            11 ));
   clientsStatus_.insert(std::pair<std::string,int>( "StatusFlags",    12 ));
   clientsStatus_.insert(std::pair<std::string,int>( "Occupancy",      13 ));
+
+  summaryClient_ = 0;
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Summary" ) != enabledClients_.end() ) {
 
