@@ -6,7 +6,7 @@ export SCRAM_ARCH=slc5_amd64_gcc434
 source /nfshome0/cmssw2/cmsset_default.sh;
 export PATH="/nfshome0/cmssw2/scripts:${PATH}";
 
-cd /nfshome0/hcallumipro/LumiDBUtil/exec/CMSSW_4_2_3/src/
+cd /nfshome0/hcallumipro/LumiDBUtil/exec/CMSSW_3_11_1/src/
 eval `scramv1 runtime -sh`
 export TNS_ADMIN=/home/lumidb
 
@@ -17,8 +17,7 @@ lumilogpath="/home/lumidb/log"
 loaderconf="loader.cfg"
 cd /nfshome0/hcallumipro/LumiDBUtil/exec
 date > "$lumilogpath/tmp.log"
-sqlplus cms_runinfo_r@cms_orcon_prod/$1 < dumpfill.sql >> "$lumilogpath/tmp.log"
-lumiDBFiller.py -c $dbConnectionString -d $dropboxDir -P $lumiauthpath -L $lumilogpath -f $loaderconf >> "$lumilogpath/tmp.log"
+lumiDBFiller.py -c $dbConnectionString -d $dropboxDir -P $lumiauthpath -L $lumilogpath -f $loaderconf>> "$lumilogpath/tmp.log"
 date >> "$lumilogpath/tmp.log"
 myDate=`date +"%y-%m-%d-%H"`
 mv "$lumilogpath/tmp.log" "$lumilogpath/lumiDBFiller-$myDate.log"

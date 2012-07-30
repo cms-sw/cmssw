@@ -2,6 +2,7 @@
 #define ESZEROSUPPRESSIONPRODUCER_H
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

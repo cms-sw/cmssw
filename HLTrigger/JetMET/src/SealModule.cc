@@ -20,6 +20,8 @@
 #include "HLTrigger/JetMET/interface/HLTMhtFilter.h"
 #include "HLTrigger/JetMET/interface/HLTMhtProducer.h"
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsFilter.h"
+#include "HLTrigger/JetMET/interface/HLTHtMhtProducer.h"
+#include "HLTrigger/JetMET/interface/HLTHtMhtFilter.h"
 
 DEFINE_FWK_MODULE(HLT2jetGapFilter);
 DEFINE_FWK_MODULE(HLTAcoFilter);
@@ -40,3 +42,6 @@ DEFINE_FWK_MODULE(HLTJetCollForElePlusJets);
 DEFINE_FWK_MODULE(HLTMhtFilter);
 DEFINE_FWK_MODULE(HLTMhtProducer);
 DEFINE_FWK_MODULE(HLTJetCollectionsFilter);
+DEFINE_FWK_MODULE(HLTHtMhtProducer);
+DEFINE_FWK_MODULE(HLTHtMhtFilter);
+

@@ -123,7 +123,7 @@ Configuration[ruleName] = {}
 
 Configuration[ruleName]['description'] = 'Search for "flags" statements in BuildFile'
 Configuration[ruleName]['filesToMatch'] = ['BuildFile', 'BuildFile.xml']
-Configuration[ruleName]['exceptPaths'] = ['Utilities/RFIOAdaptor/*BuildFile.xml:.*:NO_LIB_CHECKING=',  #could be file name, dir, fileName:line, fileName:lineRegEx:LineRegEx:. Path should be only from that directory in  which we are searching
+Configuration[ruleName]['exceptPaths'] = ['Utilities/RFIOAdaptor/*BuildFile.xml:.*:NO_LIB_CHECKING=',  #could be file name, dir, fileName:line, fileName:lineNORegEx:LineRegEx:. Path should be only from that directory in  which we are searching
 					  'Utilities/RFIOAdaptor/*BuildFile.xml:.*:_FILE_OFFSET_BITS=',
 					  'Utilities/DCacheAdaptor/*BuildFile.xml:.*:_FILE_OFFSET_BITS=',
 					  'Utilities/XrdAdaptor/*BuildFile.xml:.*:_FILE_OFFSET_BITS=',
@@ -136,10 +136,11 @@ Configuration[ruleName]['exceptPaths'] = ['Utilities/RFIOAdaptor/*BuildFile.xml:
                                           'L1Trigger/CSCTrackFinder/BuildFile.xml:.*:ADD_SUBDIR=',
                                           'MagneticField/Interpolation/BuildFile.xml:.*:="-Wno-format"',
                                           'MagneticField/Interpolation/test/BuildFile.xml:.*:="-Wno-format"',
+                                          'GeneratorInterface/Pythia6Interface/plugins/BuildFile.xml:.*:LDFLAGS="\$\(PYTHIA6_BASE\)/lib/pydata.o"',
 					 ]
 Configuration[ruleName]['skip']  = [comment]
 Configuration[ruleName]['filter'] = '<\s*(f|F)(l|L)(a|A)(g|G)(s|S)\s+' #should be regular expression
-Configuration[ruleName]['exceptFilter'] = ['EDM_PLUGIN','RIVET_PLUGIN', 'GENREFLEX_ARGS', 'TEST_RUNNER_ARGS', 'INSTALL_SCRIPTS', 'NO_TESTRUN']
+Configuration[ruleName]['exceptFilter'] = ['EDM_PLUGIN','RIVET_PLUGIN', 'GENREFLEX_ARGS', 'TEST_RUNNER_ARGS', 'INSTALL_SCRIPTS', 'NO_TESTRUN', 'NO_EXPORT']
 # --------------------------------------------------------------------------------
 
 rulesDescription  = "Rule number    Description\n"

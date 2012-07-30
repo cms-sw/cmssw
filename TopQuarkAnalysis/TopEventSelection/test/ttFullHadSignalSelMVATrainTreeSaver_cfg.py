@@ -8,16 +8,16 @@ process.MessageLogger.cerr.threshold = 'INFO'
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 ## define input
+from TopQuarkAnalysis.TopEventProducers.tqafInputFiles_cff import relValTTbar
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_4_0_pre1/RelValTTbar/GEN-SIM-RECO/MC_31X_V9-v1/0008/2C8CD8FE-B6B5-DE11-ACB8-001D09F2905B.root'
-     ),
-     skipEvents = cms.untracked.uint32(0)
+    fileNames = cms.untracked.vstring(relValTTbar)
 )
+
 ## define maximal number of events to loop over
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
+
 ## configure process options
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
@@ -27,22 +27,12 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('MC_38Y_V14::All')
+
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['mc']
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
-
-#from PhysicsTools.PatAlgos.tools.cmsswVersionTools import *
-
-# run the 3.3.x software on Summer 09 MC from 3.1.x:
-#   - change the name from "ak" (3.3.x) to "antikt) (3.1.x)
-#   - run jet ID (not run in 3.1.x)
-#run33xOn31xMC( process,
-#               jetSrc = cms.InputTag("antikt5CaloJets"),
-#               jetIdTag = "antikt5"
-#               )
-
-#restrictInputToAOD31X(process)
 
 ## std sequence for ttGenEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")

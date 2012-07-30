@@ -1,6 +1,7 @@
-// $Id: Running.cc,v 1.9.6.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: Running.cc,v 1.10 2011/03/07 15:31:32 mommsen Exp $
 /// @file: Running.cc
 
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
@@ -88,7 +89,7 @@ string Running::do_stateName() const
 
 void Running::do_moveToFailedState( xcept::Exception& exception ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState( exception );
+  outermost_context().getSharedResources()->alarmHandler_->moveToFailedState( exception );
 }
 
 void Running::logStopDoneRequest( const StopDone& request )

@@ -2,5 +2,6 @@
  <use name="DataFormats/Candidate"/>
  <use name="Fireworks/Candidates"/>
  <use name="Fireworks/Core"/>
+ <lib name="Eve"/>
  <flags EDM_PLUGIN="1"/>
 </library>

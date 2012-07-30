@@ -119,10 +119,12 @@ def OptionsFromItems(items):
 
     #determine the type of file on input
     if options.filetype==defaultOptions.filetype:
-        if options.filein.lower().endswith(".lhe") or options.filein.lower().endswith(".lhef"):
+        if options.filein.lower().endswith(".lhe") or options.filein.lower().endswith(".lhef") or options.filein.startswith("lhe:"):
             options.filetype="LHE"
         elif options.filein.startswith("mcdb:"):
-            options.filetype="MCDB"
+            print "This is a deprecated way of selecting lhe files from article number. Please use lhe:article argument to --filein"
+            options.filein=options.filein.replace('mcdb:','lhe:')
+            options.filetype="LHE"
         else:
             options.filetype="EDM"
 

@@ -11,6 +11,5 @@ simCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag("mixData","MuonCS
 simRpcTriggerDigis.label = 'mixData'
 simRpcTechTrigDigis.RPCDigiLabel = 'mixData'
 simHcalTechTrigDigis.ttpDigiCollection = "DMHcalTTPDigis"
-
-
-
+simRctDigis.hcalDigis=cms.VInputTag(cms.InputTag("DMHcalTriggerPrimitiveDigis"))
+simRctDigis.ecalDigis=cms.VInputTag(cms.InputTag("DMEcalTriggerPrimitiveDigis"))

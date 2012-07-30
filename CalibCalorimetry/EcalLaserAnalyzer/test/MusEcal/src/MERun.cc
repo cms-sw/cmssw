@@ -7,20 +7,28 @@ using namespace std;
 
 #include "MERun.hh"
 #include "../../interface/MELaserPrim.h"
-#include "../../interface/MENLS.h"
 #include "../../interface/MEGeom.h"
 
 ClassImp( MERun )
 
 MERun::MERun( ME::Header header, ME::Settings settings, TString fname )
-: _header( header ), _settings( settings ), _fname(fname), _file(0), 
-  _nlsfile(0), pn_t(0), mtq_t(0)
+: _header( header ), _settings( settings ), _fname(fname), _file(0), pn_t(0), mtq_t(0)
 {
   _type = _settings.type;
   _color = _settings.wavelength;
 
-  if( settings.type== ME::iLaser ) _fnlsname = ME::rootNLSFileName( header, settings );
- 
+  //  assert( _color>=0 && _color<ME::iSizeC );  
+  //  TTree* tree_ = PNTable();
+  //   int nentries = tree_->GetEntriesFast();
+  //   for( int jj=0; jj<nentries; jj++ )
+  //     {
+  //       //      int jj=(ilm-1)*2+ipn;
+  //       tree_->LoadTree( jj );
+  //       tree_->GetEntry( jj );
+  //       //      assert( var>=0 && var<ME::iSizePN );
+  //       cout << jj << " " << pn_i["LOGIC_ID"] << endl;
+  //     }
+  // 
 }
 
 MERun::~MERun()
@@ -31,12 +39,10 @@ MERun::~MERun()
 void
 MERun::closeLaserPrimFile()
 {
-
   if( _file ) _file->Close();
   delete _file;
   _file = 0;
   _h.clear();
-  
 }
 
 TFile*
@@ -80,7 +86,6 @@ MERun::APDHist( int var )
   TH2* h(0);
 
   TFile* f = laserPrimFile();
-  
   if( f==0 ) return h;
   
   TString histName = MELaserPrim::lmfLaserName( table, _type, _settings.wavelength );
@@ -140,13 +145,7 @@ MERun::PNTable()
   // don't cache the pn_t pointer, it's dangerous
   pn_i.clear();
   pn_d.clear();
- 
   pn_t = (TTree*) f->Get(tableName);
-  if( pn_t==0){
-    cout<<" PNTABLENAME: " <<tableName<< endl;
-    f->ls();
-    cout<<" filename: " << f->GetName()<< endl;
-  }
   assert( pn_t!=0 );
   TString vname;
   vname = "LOGIC_ID"; pn_t->SetBranchAddress( vname, &pn_i[vname] );
@@ -180,189 +179,10 @@ MERun::MTQTable()
     }
   return mtq_t;
 }
-TFile*
-MERun::NLSFile( bool& doesExist , bool refresh )
-{
-  doesExist=true;
 
-  //  cout << "MERun -- Entering NLSFile ... "<<doesExist<<" "<< refresh<< " "<<_fnlsname<<endl;
-
-  if( refresh )
-    closeNLSFile();
-  
-  if( _nlsfile==0 )
-    {
-      FILE *test;
-      test= fopen( _fnlsname, "r" );
-      if(test)
-	{
-	  _nlsfile = TFile::Open( _fnlsname );
-	  fclose( test );
-	}else{
-	  doesExist=false;
-	}
-    }
-  //  cout << "MERun -- Quitting NLSFile ... "<< doesExist<< endl;
-  return _nlsfile;
-}
-void
-MERun::closeNLSFile()
-{
-  //  cout << "MERun -- Closing NLSFile ... "<< endl;
-
-  if( _nlsfile ) _nlsfile->Close();
-  delete _nlsfile;
-  _nlsfile = 0;
-  _hnls.clear();
-  _hnlsref.clear();
-  //  cout <<"MERun -- ... done"<< endl;
-  
-}
-
-
-TH2*
-MERun::NLSHist( int var , bool& doesExist )
-{
-  doesExist=true;
-
-  //  cout << "MERun -- Entering NLSHist "<<var<<" "<< doesExist<< endl;
-
-  assert( var>=0 && var<MENLS::iSize_nls);
-
-  // get an histogram in the lmfNLSPrim table
-  int table(0);
-  TString varName;
-  assert ( _type==ME::iLaser );
-    
-  table = ME::iLmfNLS;
-  varName = MENLS::nlsVarName(var);
-  
-  TH2* h(0);
-
-  TFile* f = NLSFile( doesExist, false );
-  
-  //  cout << "MERun -- NLSHist doesExist="<< doesExist<< endl;
-
-  if(!doesExist) return h;
-  
-  if( f==0 ){
-    doesExist=false;
-    return h;
-  }
-  
-  TString histName = MENLS::lmfNLSName( table, _settings.wavelength );
-  histName += MENLS::separator;
-  histName += varName;
-  //  cout << "MERun -- doesExist:"<< doesExist<< " histName: "<<histName<<endl;
-
-  if( _hnls.count(varName)==0 )
-    {
-      h = (TH2*) f->Get( histName );
-      if( h!=0 ) {
-	_hnls[varName] = h;
-	//	cout << " h exists"<<endl;
-      }
-      else cout << "histo = 0 "<< endl;
-      
-
-      if( varName == "LOGIC_ID" )
-	// if( varName == "MEAN" )
-	{
-	  TAxis* ax = h->GetXaxis();
-	  TAxis* ay = h->GetYaxis();
-      
-	  cout << "X axis Nbins=" << ax->GetNbins() 
-	       << " first=" << ax->GetFirst()
-	       << " lowedge(first)=" << ax->GetBinLowEdge(ax->GetFirst())
-	       << " last="  << ax->GetLast()
-	       << " lowedge(last)=" << ax->GetBinLowEdge(ax->GetLast())
-	       << endl;
-	  cout << "Y axis Nbins=" << ay->GetNbins() 
-	       << " first=" << ay->GetFirst()
-	       << " lowedge(first)=" << ay->GetBinLowEdge(ay->GetFirst())
-	       << " last="  << ay->GetLast()
-	       << " lowedge(last)=" << ay->GetBinLowEdge(ay->GetLast())
-	       << endl;
-	}
-    }
-  else
-    {
-      h = _hnls[varName];
-    }
-  
-  //  cout << " MERun -- quitting NLSHist "<<h->GetCellContent(1,1)<< endl;
-  return h;
-
-
-}
-
-TH2*
-MERun::NLSRefHist( int var , bool& doesExist )
-{
-  doesExist=true;
-  //  cout << "MERun -- Entering NLSRefHist "<<var<<" "<< doesExist<< endl;
-
-  assert( var>=0 && var<MENLS::iSizeRef_nls );
-
-  // get an histogram in the lmfNLSPrim table
-  int table(0);
-  TString varName;
-  assert ( _type==ME::iLaser );
-    
-  table = ME::iLmfNLSRef;
-  varName = MENLS::nlsRefVarName(var);
-  
-  TH2* h(0);
-
-  TFile* f = NLSFile( doesExist , false );
-  
-  if(!doesExist) return h;
-  
-  if( f==0 ){
-    doesExist=false;
-    return h;
-  }
-  
-  TString histName = MENLS::lmfNLSName( table, _settings.wavelength );
-  histName += MENLS::separator;
-  histName += varName;
-  //  cout << "MERun -- doesExist:"<< doesExist<<" histName:"<<histName<< endl;
-
-  if( _hnlsref.count(varName)==0 )
-    {
-      h = (TH2*) f->Get( histName );
-      if( h!=0 ) _hnlsref[varName] = h;
-      if( varName == "LOGIC_ID" )
-	// if( varName == "MEAN" )
-	{
-	  TAxis* ax = h->GetXaxis();
-	  TAxis* ay = h->GetYaxis();
-      
-	  cout << "X axis Nbins=" << ax->GetNbins() 
-	       << " first=" << ax->GetFirst()
-	       << " lowedge(first)=" << ax->GetBinLowEdge(ax->GetFirst())
-	       << " last="  << ax->GetLast()
-	       << " lowedge(last)=" << ax->GetBinLowEdge(ax->GetLast())
-	       << endl;
-	  cout << "Y axis Nbins=" << ay->GetNbins() 
-	       << " first=" << ay->GetFirst()
-	       << " lowedge(first)=" << ay->GetBinLowEdge(ay->GetFirst())
-	       << " last="  << ay->GetLast()
-	       << " lowedge(last)=" << ay->GetBinLowEdge(ay->GetLast())
-	       << endl;
-	}
-    }
-  else
-    {
-      h = _hnlsref[varName];
-    }
-  return h;
-}
-
-double
+float
 MERun::getVal( int table, int var, int i1, int i2 )
 {
-
   if( table==ME::iLmfLaserPrim || table==ME::iLmfTestPulsePrim )
     {
       int ix = i1;
@@ -373,37 +193,24 @@ MERun::getVal( int table, int var, int i1, int i2 )
       int biny = h_->GetYaxis()->FindBin( iy+0.5 );
       //int binx = h_->GetXaxis()->FindBin( ix );
       //      int biny = h_->GetYaxis()->FindBin( iy );
-      double val =  (double) h_->GetCellContent( binx, biny );
+      float val =  (float) h_->GetCellContent( binx, biny );
       return val;  
     }
   else if( table==ME::iLmfLaserPnPrim || table==ME::iLmfTestPulsePnPrim )
     {
-
+      //      assert( var>=0 && var<ME::iSizePN );
       int ilm = i1;
+      //      assert( ilm>=1 && ilm<=9 );
+      if( !( ilm>=1 && ilm<=9 ) )
+	{
+	  //	  cout << "wrong module number for barrel! ilm=" << ilm << endl;  
+	  return 0.; // SUPER FIXME !!!
+	}
       int ipn = i2;
-
       assert( ipn==0 || ipn==1 );
-
       // get the PN identifier
-
-      pair<int,int> p_;
-      int idcc=_header.dcc;
-      int iside=_header.side;
-      int ilmr=ME::lmr(idcc, iside);
-      bool isBarrel=ME::isBarrel(ilmr);
-      
-      if( isBarrel ){
-	assert( ilm>=1 && ilm<=9 );
-	p_= MEEBGeom::pn(ilm);
-      }else {
-	int dee=MEEEGeom::dee( ilmr );
-	p_= MEEEGeom::pn( dee, ilm );
-	p_.first=p_.first+100;// 101 replaced by 100 (JM 24/04/10)
-	p_.second=p_.second+200;// 201 replaced by 200 (JM 24/04/10)
-      }
-      
+      pair<int,int> p_ = MEEBGeom::pn(ilm);
       int pnid = (ipn==0)? p_.first : p_.second; 
-     
       TTree* tree_ = PNTable();
       int nentries = tree_->GetEntriesFast();
       int jj;
@@ -412,6 +219,12 @@ MERun::getVal( int table, int var, int i1, int i2 )
 	  tree_->LoadTree( jj );
 	  tree_->GetEntry( jj );
 	  int pnid_ = pn_i["LOGIC_ID"]%10000;
+//  	  cout << "ilm/ipn/pnid/jj/pn_i/pnid_/pnid " 
+// 	       << ilm << "/" 
+// 	       << ipn << "/" 
+// 	       << pnid << "/" 
+// 	       << jj << "/" 
+// 	       << pn_i["LOGIC_ID"] << "/" << pnid_ << endl;
 	  if( pnid_==pnid ) break;
 	}
       if( jj==nentries ) return 0;
@@ -420,8 +233,9 @@ MERun::getVal( int table, int var, int i1, int i2 )
 	varName=ME::PNPrimVar[var];
       else if( table==ME::iLmfTestPulsePnPrim )
 	varName=ME::TPPNPrimVar[var];
-      double val = (double) pn_d[varName];
-      
+      float val = (float) pn_d[varName];
+      //      cout << pn_i["LOGIC_ID"] << " " << ilm << " " << ipn 
+      //	   << " " << varName << "=" << val << endl;
       return val;
     }
   else if( table==ME::iLmfLaserPulse )
@@ -433,43 +247,10 @@ MERun::getVal( int table, int var, int i1, int i2 )
       tree_->GetEntry( 0 );
       assert( var>=0 && var<ME::iSizeMTQ );
       TString varName = ME::MTQPrimVar[var];
-      double val = (double) mtq_d[varName];
+      float val = (float) mtq_d[varName];
 
       return val;
     }
-  else if( table==ME::iLmfNLS)
-    {
-      bool doesExist=true;
-      int ix = i1;
-      int iy = i2;
-      TH2* h_ = NLSHist( var , doesExist );
-      
-      if( h_==0 || doesExist==false ) return -99;
-
-      int binx = h_->GetXaxis()->FindBin( ix+0.5 );
-      int biny = h_->GetYaxis()->FindBin( iy+0.5 );
-      // int binx = h_->GetXaxis()->FindBin( ix );
-      // int biny = h_->GetYaxis()->FindBin( iy );
-      double val =  (double) h_->GetCellContent( binx, biny );
-      return val;  
-    }
-  else if( table==ME::iLmfNLSRef )
-    {
-      bool doesExist=true;
-      int ix = i1;
-      int iy = i2;
-      TH2* h_ = NLSRefHist( var , doesExist );
-     
-      //      cout<< "h name "<<h_->GetName()<<endl;
-      if( h_==0 || doesExist==false ) return -99;
-      int binx = h_->GetXaxis()->FindBin( ix+0.5 );
-      int biny = h_->GetYaxis()->FindBin( iy+0.5 );
-      double val =  (double) h_->GetCellContent( binx, biny );
-      //      cout<< "val "<< int(val)<<" bins: "<<binx<<" "<<biny<< " coord: "<<ix<<" "<<iy<<endl;
-      return val;  
-    }
-
-
   return 0;
 }
 
@@ -487,7 +268,6 @@ MERun::operator==( const MERun& o ) const
 void
 MERun::print( ostream& o ) const
 {
-  o << "\tMERUN:"<< endl;
   o << "\tRun    \t=\t" << _header.run    << endl;
   o << "\tLB     \t=\t" << _header.lb     << endl;
   o << "\tDCC    \t=\t" << _header.dcc    << endl;
@@ -506,8 +286,7 @@ MERun::print( ostream& o ) const
   o << "\tDelay  \t=\t" << _settings.delay      << endl;
   o << "\tMGPA   \t=\t" << _settings.mgpagain   << endl;
   o << "\tMEM    \t=\t" << _settings.memgain    << endl;
-  o << "---> ROOT file name for primitives " << _fname << endl;
-  if( _settings.type== ME::iLaser ) o << "---> ROOT file name for NLS       " << _fnlsname << endl;
+  o << "---> ROOT file name " << _fname << endl;
 }
 
 //unsigned int

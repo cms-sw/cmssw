@@ -101,9 +101,8 @@ void SiStripDcsInfo::beginJob() {
 void SiStripDcsInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
   LogDebug ("SiStripDcsInfo") <<"SiStripDcsInfo:: Begining of Run";
   nFEDConnected_ = 0;
-  const FEDNumbering numbering;
-  const int siStripFedIdMin = numbering.MINSiStripFEDID;
-  const int siStripFedIdMax = numbering.MAXSiStripFEDID; 
+  const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
+  const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID; 
 
   // Count Tracker FEDs from RunInfo
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));

@@ -22,6 +22,8 @@
 </bin>
 <bin   file="cmscond_export_iov.cpp" name="cmscond_export_iov">
 </bin>
+<bin   file="cmscond_edit_iov.cpp" name="cmscond_edit_iov">
+</bin>
 <bin   file="cmscond_2XML.cpp" name="cmscond_2XML">
   <use   name="rootcintex"/>
 </bin>

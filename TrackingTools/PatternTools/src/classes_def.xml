@@ -4,6 +4,7 @@
   <class name="std::vector<Trajectory>" persistent="false"/>
   <class name="edm::Wrapper<std::vector<Trajectory> >" persistent="false"/>
   <class name="edm::RefProd<std::vector<Trajectory> >"/>
+  <class name="edm::Ref<std::vector<Trajectory>, Trajectory, edm::refhelper::FindUsingAdvance<std::vector<Trajectory>, Trajectory> >"/>
 
   <class name="MomentumConstraint"/>
   <!-- persistent="false" qualifier for non-wrappers is deprecated. Will be removed when no longer needed.-->
@@ -17,12 +18,6 @@
   <class name="edm::Wrapper<std::vector<VertexConstraint> >" persistent="false"/>
   <class name="edm::RefProd<std::vector<VertexConstraint> >"/>
 
-  <class name="TrackParamConstraint"/>
-  <!-- persistent="false" qualifier for non-wrappers is deprecated. Will be removed when no longer needed.-->
-  <class name="std::vector<TrackParamConstraint>" persistent="false"/>
-  <class name="edm::Wrapper<std::vector<TrackParamConstraint> >" persistent="false"/>
-  <class name="edm::RefProd<std::vector<TrackParamConstraint> >"/>
-
   <class name="edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,std::vector<reco::Track>,unsigned short > >" >
     <field name="transientMap_" transient="true"/>
   </class>
@@ -31,9 +26,6 @@
   </class>
   <class name="edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<VertexConstraint>,unsigned int> >" >
     <field name="transientMap_" transient="true"/>
-  </class>
-  <class name="edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<TrackParamConstraint>, unsigned int> >" >
-    <field name="transientMap_" transient="true" />
   </class>
 
   <class pattern="edm::KeyVal<*>"/>
@@ -44,7 +36,6 @@
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<Trajectory> >,edm::RefProd<std::vector<reco::Track> > >"/>
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,edm::RefProd<std::vector<MomentumConstraint> > >"/>
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,edm::RefProd<std::vector<VertexConstraint> > >"/>
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,edm::RefProd<std::vector<TrackParamConstraint> > >"/>
 
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<Trajectory> >,edm::RefProd<std::vector<Trajectory> > >"/>
   <class name="edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,std::vector<Trajectory>,unsigned int> >">

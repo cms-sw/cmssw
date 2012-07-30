@@ -10,7 +10,6 @@
 #include "RecoTracker/ConversionSeedGenerators/interface/SeedForPhotonConversionFromQuadruplets.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 
-#include "RecoTracker/ConversionSeedGenerators/interface/TrackManipulator.h"
 
 #include "RecoTracker/ConversionSeedGenerators/interface/PrintRecoObjects.h"
 

@@ -91,6 +91,7 @@ class PFJetBenchmark {
   TH2F* hNCH4vsEta;
   TH2F* hNCH5vsEta;
   TH2F* hNCH6vsEta;
+  TH2F* hNCH7vsEta;
 	
   // delta Pt or E quantities for Barrel
   TH1F *hBRPt;
@@ -132,6 +133,7 @@ class PFJetBenchmark {
   TH2F* hBNCH4vsPt;
   TH2F* hBNCH5vsPt;
   TH2F* hBNCH6vsPt;
+  TH2F* hBNCH7vsPt;
 	
   // delta Pt or E quantities for Endcap
   TH1F *hERPt ;
@@ -173,6 +175,7 @@ class PFJetBenchmark {
   TH2F* hENCH4vsPt;
   TH2F* hENCH5vsPt;
   TH2F* hENCH6vsPt;
+  TH2F* hENCH7vsPt;
 	
   // delta Pt or E quantities for Forward
   TH1F *hFRPt ;
@@ -214,6 +217,7 @@ class PFJetBenchmark {
   TH2F* hFNCH4vsPt;
   TH2F* hFNCH5vsPt;
   TH2F* hFNCH6vsPt;
+  TH2F* hFNCH7vsPt;
 	
   std::string outputFile_;	
  protected:

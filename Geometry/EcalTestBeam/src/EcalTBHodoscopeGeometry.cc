@@ -377,7 +377,5 @@ EcalTBHodoscopeGeometry::getFiredFibresInPlane( float xtr,
 const CaloCellGeometry* 
 EcalTBHodoscopeGeometry::cellGeomPtr( uint32_t index ) const
 {
-   const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
-   return ( m_cellVec.size() < index ||
-	    0 == cell->param() ? 0 : cell ) ;
+   return &m_cellVec[ index ] ;
 }

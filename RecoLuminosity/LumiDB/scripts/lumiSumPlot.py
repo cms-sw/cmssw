@@ -2,7 +2,7 @@
 VERSION='1.00'
 import os,sys,datetime
 import coral
-from RecoLuminosity.LumiDB import lumiTime,argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender,lumiQueryAPI,lumiCorrections,inputFilesetParser,csvReporter,CommonUtil
+from RecoLuminosity.LumiDB import lumiTime,argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender,lumiQueryAPI,inputFilesetParser,csvReporter,CommonUtil
 from matplotlib.figure import Figure
 class constants(object):
     def __init__(self):
@@ -13,7 +13,7 @@ class constants(object):
     def defaultfrontierConfigString(self):
         return """<frontier-connect><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier1.cern.ch:3128"/><proxy url="http://cmst0frontier2.cern.ch:3128"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier1.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier2.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier3.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier4.cern.ch:8000/FrontierInt"/></frontier-connect>"""
 
-def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=None,beamenergy=None,beamfluctuation=None,finecorrections=None):
+def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=None,beamenergy=None,beamfluctuation=None):
     '''
     input:  runList[runnum], selectionDict{runnum:[ls]}
     output: [[runnumber,runstarttime,lsnum,lsstarttime,delivered,recorded,recordedinpath]]
@@ -42,19 +42,13 @@ def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=Non
         #print 'runsummary ',runsummary
         lumitrginfo={}
         q=dbsession.nominalSchema().newQuery()
-        if finecorrections and finecorrections[runnum]:
-            lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation,finecorrections=finecorrections[runnum]) #q2
-        else:
-            lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q2
+        lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q2
         del q
         #print 'lumitrginfo ',lumitrginfo
         if len(lumitrginfo)==0: #if no qualified cross lumi-trg found, try lumionly
             #result.append([runnum,runstarttimeStr,1,t.StrToDatetime(runstarttimeStr),0.0,0.0])
             q=dbsession.nominalSchema().newQuery()
-            if finecorrections and finecorrections[runnum]:
-                lumiinfobyrun=lumiQueryAPI.lumisummaryByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation,finecorrections=finecorrections[runnum]) #q3
-            else:
-                lumiinfobyrun=lumiQueryAPI.lumisummaryByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation)
+            lumiinfobyrun=lumiQueryAPI.lumisummaryByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q3
             del q
             if len(lumiinfobyrun)!=0: #if lumionly has qualified data means trg has no data
                 print 'warning request run ',runnum,' has no trigger data, calculate delivered only'
@@ -105,7 +99,7 @@ def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=Non
         print sortedresult
     return sortedresult           
 
-def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=None,beamenergy=None,beamfluctuation=0.0,finecorrections=None):
+def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=None,beamenergy=None,beamfluctuation=0.0):
     '''
     input: runList[runnum], selectionDict{runnum:[ls]}
     output:{runnumber:[delivered,recorded,recordedinpath] }
@@ -123,11 +117,9 @@ def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=N
             if runnum<max(selectionDict.keys()):
                 result[runnum]=[0.0,0.0,0.0]
             continue
+        #print 'looking for run ',runnum
         q=dbsession.nominalSchema().newQuery()
-        if finecorrections and finecorrections[runnum]:
-            totallumi=lumiQueryAPI.lumisumByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation,finecorrections=finecorrections[runnum]) #q1
-        else:
-            totallumi=lumiQueryAPI.lumisumByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation)
+        totallumi=lumiQueryAPI.lumisumByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q1
         del q
         if not totallumi:
             result[runnum]=[0.0,0.0,0.0]
@@ -137,17 +129,11 @@ def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=N
         hltinfo={}
         hlttrgmap={}
         q=dbsession.nominalSchema().newQuery()
-        if finecorrections and finecorrections[runnum]:
-            lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation,finecorrections=finecorrections[runnum]) #q2
-        else:
-            lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation)
+        lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q2
         del q
         if len(lumitrginfo)==0:
             q=dbsession.nominalSchema().newQuery()
-            if finecorrections and finecorrections[runnum]:
-                lumiinfobyrun=lumiQueryAPI.lumisummaryByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation,finecorrections=finecorrections[runnum]) #q3
-            else:
-                lumiinfobyrun=lumiQueryAPI.lumisummaryByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation)
+            lumiinfobyrun=lumiQueryAPI.lumisummaryByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q3
             del q
             if len(lumiinfobyrun)!=0:
                 print 'warning request run ',runnum,' has no trigger data, calculate delivered only'
@@ -156,8 +142,8 @@ def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=N
                 instlumi=perlsdata[1]
                 norbit=perlsdata[2]
                 lslength=t.bunchspace_s*t.nbx*norbit
-                delivered+=instlumi*lslength
-            result[runnum]=[delivered,0.0,0.0]
+                delivered=instlumi*lslength
+                result[runnum]=[delivered,0.0,0.0]
             #result[runnum]=[0.0,0.0,0.0]
             #if c.VERBOSE: print 'request run ',runnum,' has no trigger, skip'
         else:
@@ -230,7 +216,6 @@ def main():
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
     parser.add_argument('action',choices=['run','fill','time','perday'],help='x-axis data type of choice')
     #graphical mode options
-    parser.add_argument('--with-correction',dest='withFineCorrection',action='store_true',help='with fine correction')
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode, print result also to screen')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
@@ -302,8 +287,7 @@ def main():
     selectionDict={}
     minTime=''
     maxTime=''
-    startRunTime=''
-    stopRunTime=''
+
     #if len(ifilename)!=0 :
     #    f=open(ifilename,'r')
     #    inputfilecontent=f.read()
@@ -330,13 +314,12 @@ def main():
         if not args.end:
             session.transaction().start(True)
             schema=session.nominalSchema()
-            lastrun=max(lumiQueryAPI.allruns(schema,requireRunsummary=True,requireLumisummary=True,requireTrg=True,requireHlt=False))
+            lastrun=max(lumiQueryAPI.allruns(schema,requireRunsummary=True,requireLumisummary=True,requireTrg=True,requireHlt=True))
             session.transaction().commit()
         else:
             lastrun=int(args.end)
         for r in range(int(args.begin),lastrun+1):
             runList.append(r)
-        runList.sort()
     elif args.action == 'fill':
         session.transaction().start(True)
         maxfill=None
@@ -355,8 +338,6 @@ def main():
             if fillDict.has_key(fill): #fill exists
                 for run in fillDict[fill]:
                     runList.append(run)
-        runList.sort()
-        
     elif args.action == 'time' or args.action == 'perday':
         session.transaction().start(True)
         t=lumiTime.lumiTime()
@@ -369,37 +350,25 @@ def main():
         qHandle=session.nominalSchema().newQuery()
         runDict=lumiQueryAPI.runsByTimerange(qHandle,minTime,maxTime)#xrawdata
         session.transaction().commit()
-        runList=runDict.keys()        
+        runList=runDict.keys()
         del qHandle
-        runList.sort()
-        if len(runList)!=0:
-            runmin=min(runList)
-            runmax=max(runList)       
-            startRunTime=runDict[runmin][0]
-            stopRunTime=runDict[runmax][1]
-        #print 'run list: ',runDict
+        #print runDict
     else:
         print 'unsupported action ',args.action
         exit
-    finecorrections=None
-    if args.withFineCorrection:
-        schema=session.nominalSchema()
-        session.transaction().start(True)
-        finecorrections=lumiCorrections.correctionsForRange(schema,runList)
-        session.transaction().commit()      
-        
+    runList.sort()
     #print 'runList ',runList
     #print 'runDict ', runDict
     
-    fig=Figure(figsize=(7.2,5.4),dpi=120)
+    fig=Figure(figsize=(6,4.5),dpi=100)
     m=matplotRender.matplotRender(fig)
     
-    logfig=Figure(figsize=(7.5,5.7),dpi=135)
+    logfig=Figure(figsize=(6.8,4.5),dpi=100)
     mlog=matplotRender.matplotRender(logfig)
     
     if args.action == 'run':
         result={}        
-        result=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,finecorrections=finecorrections)
+        result=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation)
         xdata=[]
         ydata={}
         ydata['Delivered']=[]
@@ -422,7 +391,7 @@ def main():
         mlog.plotSumX_Run(xdata,ydata,yscale='log')
     elif args.action == 'fill':        
         lumiDict={}
-        lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,finecorrections=finecorrections)
+        lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation)
         xdata=[]
         ydata={}
         ydata['Delivered']=[]
@@ -449,7 +418,7 @@ def main():
         mlog.plotSumX_Fill(xdata,ydata,fillDict,yscale='log')
     elif args.action == 'time' : 
         lumiDict={}
-        lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,finecorrections=finecorrections)
+        lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation)
         #lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS')
         xdata={}#{run:[starttime,stoptime]}
         ydata={}
@@ -469,11 +438,12 @@ def main():
             xdata[run]=[starttime,stoptime]
             if args.outputfile :
                 reporter.writeRow([run,starttime,stoptime,lumiDict[run][0],lumiDict[run][1]])
-        m.plotSumX_Time(xdata,ydata,startRunTime,stopRunTime,hltpath=hltpath,annotateBoundaryRunnum=args.annotateboundary,yscale='linear')
-        mlog.plotSumX_Time(xdata,ydata,startRunTime,stopRunTime,hltpath=hltpath,annotateBoundaryRunnum=args.annotateboundary,yscale='log')
+        m.plotSumX_Time(xdata,ydata,minTime,maxTime,hltpath=hltpath,annotateBoundaryRunnum=args.annotateboundary,yscale='linear')
+        mlog.plotSumX_Time(xdata,ydata,minTime,maxTime,hltpath=hltpath,annotateBoundaryRunnum=args.annotateboundary,yscale='log')
     elif args.action == 'perday':
         daydict={}#{day:[[run,cmslsnum,lsstarttime,delivered,recorded]]}
-        lumibyls=getLumiOrderByLS(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,finecorrections=finecorrections)
+        lumibyls=getLumiOrderByLS(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation)
+        #print 'lumibyls ',lumibyls
         #lumibyls [[runnumber,runstarttime,lsnum,lsstarttime,delivered,recorded,recordedinpath]]
         if args.outputfile:
             reporter=csvReporter.csvReporter(ofilename)
@@ -516,8 +486,8 @@ def main():
         #print 'beginfo ',beginfo
         #print 'endinfo ',endinfo
         #print resultbyday
-        m.plotPerdayX_Time( range(daymin,daymax+1) ,resultbyday,startRunTime,stopRunTime,boundaryInfo=[beginfo,endinfo],annotateBoundaryRunnum=args.annotateboundary,yscale='linear')
-        mlog.plotPerdayX_Time( range(daymin,daymax+1),resultbyday,startRunTime,stopRunTime,boundaryInfo=[beginfo,endinfo],annotateBoundaryRunnum=args.annotateboundary,yscale='log')
+        m.plotPerdayX_Time( range(daymin,daymax+1) ,resultbyday,minTime,maxTime,boundaryInfo=[beginfo,endinfo],annotateBoundaryRunnum=args.annotateboundary,yscale='linear')
+        mlog.plotPerdayX_Time( range(daymin,daymax+1),resultbyday,minTime,maxTime,boundaryInfo=[beginfo,endinfo],annotateBoundaryRunnum=args.annotateboundary,yscale='log')
     else:
         raise Exception,'must specify the type of x-axi'
 
@@ -534,13 +504,14 @@ def main():
         logfilename=basename+'_log'+extension        
         mlog.drawPNG(logfilename)
     else:
-        if not args.interactive:
-            return
-        if args.interactive is True and args.yscale=='linear':
-            m.drawInteractive()
-        elif args.interactive is True and args.yscale=='log':
-            mlog.drawInteractive()
-        else:
-            raise Exception('unsupported yscale for interactive mode : '+args.yscale)
+        raise Exception('unsupported yscale for batch mode : '+args.yscale)
+    if not args.interactive:
+        return
+    if args.interactive is True and args.yscale=='linear':
+        m.drawInteractive()
+    elif args.interactive is True and args.yscale=='log':
+        mlog.drawInteractive()
+    else:
+        raise Exception('unsupported yscale for interactive mode : '+args.yscale)
 if __name__=='__main__':
     main()

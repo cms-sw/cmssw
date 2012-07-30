@@ -89,13 +89,7 @@ void L1GlobalTriggerFDL::run(
     const L1GlobalTriggerGTL* ptrGTL,
     const L1GlobalTriggerPSB* ptrPSB,
     const int pfAlgoSetIndex,
-    const int pfTechSetIndex,
-    const bool algorithmTriggersUnprescaled,
-    const bool algorithmTriggersUnmasked,
-    const bool technicalTriggersUnprescaled,
-    const bool technicalTriggersUnmasked,
-    const bool technicalTriggersVetoUnmasked
-    )
+    const int pfTechSetIndex)
 {
 
     // FIXME get rid of bitset in GTL in order to use only EventSetup
@@ -162,7 +156,7 @@ void L1GlobalTriggerFDL::run(
 
     for (unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit) {
 
-        if ((!algorithmTriggersUnprescaled) && (prescaleFactorsAlgoTrig.at(iBit) != 1)) {
+        if (prescaleFactorsAlgoTrig.at(iBit) != 1) {
 
             bool bitValue = algoDecisionWord.at( iBit );
             if (bitValue) {
@@ -174,7 +168,7 @@ void L1GlobalTriggerFDL::run(
                     m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) =
                         prescaleFactorsAlgoTrig.at(iBit);
 
-                    //LogTrace("L1GlobalTrigger")
+                    //LogTrace("L1GlobalTriggerFDL")
                     //<< "\nPrescaled algorithm: " << iBit << ". Reset counter to "
                     //<< prescaleFactorsAlgoTrig.at(iBit) << "\n"
                     //<< std::endl;
@@ -184,7 +178,7 @@ void L1GlobalTriggerFDL::run(
                     // change bit to false
                     algoDecisionWord[iBit] = false;;
 
-                    //LogTrace("L1GlobalTrigger")
+                    //LogTrace("L1GlobalTriggerFDL")
                     //<< "\nPrescaled algorithm: " << iBit << ". Result set to false"
                     //<< std::endl;
 
@@ -206,7 +200,7 @@ void L1GlobalTriggerFDL::run(
 
     for (unsigned int iBit = 0; iBit < numberTechnicalTriggers; ++iBit) {
 
-        if ((!technicalTriggersUnprescaled) && (prescaleFactorsTechTrig.at(iBit) != 1)) {
+        if (prescaleFactorsTechTrig.at(iBit) != 1) {
 
             bool bitValue = techDecisionWord.at( iBit );
             if (bitValue) {
@@ -218,7 +212,7 @@ void L1GlobalTriggerFDL::run(
                     m_prescaleCounterTechTrig.at(inBxInEvent).at(iBit) =
                         prescaleFactorsTechTrig.at(iBit);
 
-                    //LogTrace("L1GlobalTrigger")
+                    //LogTrace("L1GlobalTriggerFDL")
                     //<< "\nPrescaled algorithm: " << iBit << ". Reset counter to "
                     //<< prescaleFactorsTechTrig.at(iBit) << "\n"
                     //<< std::endl;
@@ -228,7 +222,7 @@ void L1GlobalTriggerFDL::run(
                     // change bit to false
                     techDecisionWord[iBit] = false;
 
-                    //LogTrace("L1GlobalTrigger")
+                    //LogTrace("L1GlobalTriggerFDL")
                     //<< "\nPrescaled technical trigger: " << iBit << ". Result set to false"
                     //<< std::endl;
 
@@ -255,33 +249,29 @@ void L1GlobalTriggerFDL::run(
         // therefore do not implement it here
         bool vetoTechTrig = false;
 
-        // vetoTechTrig can change only when using trigger veto masks
-        if (!technicalTriggersVetoUnmasked) {
+        for (unsigned int iBit = 0; iBit < numberTechnicalTriggers; ++iBit) {
 
-            for (unsigned int iBit = 0; iBit < numberTechnicalTriggers; ++iBit) {
+            int triggerMaskVetoTechTrigBit =
+                triggerMaskVetoTechTrig[iBit] & (1 << iDaq);
+            //LogTrace("L1GlobalTriggerFDL")
+            //<< "\nTechnical trigger bit: " << iBit
+            //<< " mask = " << triggerMaskVetoTechTrigBit
+            //<< " DAQ partition " << iDaq
+            //<< std::endl;
 
-                int triggerMaskVetoTechTrigBit = triggerMaskVetoTechTrig[iBit]
-                        & (1 << iDaq);
-                //LogTrace("L1GlobalTrigger")
-                //<< "\nTechnical trigger bit: " << iBit
-                //<< " mask = " << triggerMaskVetoTechTrigBit
-                //<< " DAQ partition " << iDaq
+            if (triggerMaskVetoTechTrigBit && techDecisionWord[iBit]) {
+
+                daqPartitionFinalOR = false;
+                vetoTechTrig = true;
+
+                //LogTrace("L1GlobalTriggerFDL")
+                //<< "\nVeto mask technical trigger: " << iBit
+                // << ". FinalOR for DAQ partition " << iDaq << " set to false"
                 //<< std::endl;
 
-                if (triggerMaskVetoTechTrigBit && techDecisionWord[iBit]) {
-
-                    daqPartitionFinalOR = false;
-                    vetoTechTrig = true;
-
-                    //LogTrace("L1GlobalTrigger")
-                    //<< "\nVeto mask technical trigger: " << iBit
-                    // << ". FinalOR for DAQ partition " << iDaq << " set to false"
-                    //<< std::endl;
-
-                    break;
-                }
-
+                break;
             }
+
         }
 
         // apply algorithm and technical trigger masks only if no veto from technical trigger
@@ -294,16 +284,8 @@ void L1GlobalTriggerFDL::run(
 
                 bool iBitDecision = false;
 
-                int triggerMaskAlgoTrigBit = -1;
-
-                if (algorithmTriggersUnmasked) {
-                    triggerMaskAlgoTrigBit = 0;
-                } else {
-                    triggerMaskAlgoTrigBit = triggerMaskAlgoTrig[iBit] & (1
-                            << iDaq);
-
-                }
-                //LogTrace("L1GlobalTrigger")
+                int triggerMaskAlgoTrigBit = triggerMaskAlgoTrig[iBit] & (1 << iDaq);
+                //LogTrace("L1GlobalTriggerFDL")
                 //<< "\nAlgorithm trigger bit: " << iBit
                 //<< " mask = " << triggerMaskAlgoTrigBit
                 //<< " DAQ partition " << iDaq
@@ -312,7 +294,7 @@ void L1GlobalTriggerFDL::run(
                 if (triggerMaskAlgoTrigBit) {
                     iBitDecision = false;
 
-                    //LogTrace("L1GlobalTrigger")
+                    //LogTrace("L1GlobalTriggerFDL")
                     //<< "\nMasked algorithm trigger: " << iBit << ". Result set to false"
                     //<< std::endl;
                 } else {
@@ -331,15 +313,8 @@ void L1GlobalTriggerFDL::run(
 
                 bool iBitDecision = false;
 
-                int triggerMaskTechTrigBit = -1;
-
-                if (technicalTriggersUnmasked) {
-                    triggerMaskTechTrigBit = 0;
-                } else {
-                    triggerMaskTechTrigBit = triggerMaskTechTrig[iBit] & (1
-                            << iDaq);
-                }
-                //LogTrace("L1GlobalTrigger")
+                int triggerMaskTechTrigBit = triggerMaskTechTrig[iBit] & (1 << iDaq);
+                //LogTrace("L1GlobalTriggerFDL")
                 //<< "\nTechnical trigger bit: " << iBit
                 //<< " mask = " << triggerMaskTechTrigBit
                 //<< std::endl;
@@ -348,7 +323,7 @@ void L1GlobalTriggerFDL::run(
 
                     iBitDecision = false;
 
-                    //LogTrace("L1GlobalTrigger")
+                    //LogTrace("L1GlobalTriggerFDL")
                     //<< "\nMasked technical trigger: " << iBit << ". Result set to false"
                     //<< std::endl;
                 } else {

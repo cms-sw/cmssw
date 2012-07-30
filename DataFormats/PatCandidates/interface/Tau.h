@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.29 2011/06/08 20:40:18 rwolf Exp $
+// $Id: Tau.h,v 1.32 2011/09/29 16:34:26 veelken Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Tau.h,v 1.29 2011/06/08 20:40:18 rwolf Exp $
+  \version  $Id: Tau.h,v 1.32 2011/09/29 16:34:26 veelken Exp $
 */
 
 
@@ -27,11 +27,9 @@
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-#include "DataFormats/Common/interface/BoolCache.h"
-
 #include "DataFormats/PatCandidates/interface/TauPFSpecific.h"
 #include "DataFormats/PatCandidates/interface/TauCaloSpecific.h"
-
+#include "DataFormats/PatCandidates/interface/TauJetCorrFactors.h"
 
 // Define typedefs for convenience
 namespace pat {
@@ -50,6 +48,10 @@ namespace reco {
 namespace pat {
 
   class Tau : public Lepton<reco::BaseTau> {
+    /// make friends with PATTauProducer so that it can set the initial
+    /// jet energy scale unequal to raw calling the private initializeJEC
+    /// function, which should be non accessible to any other user
+    friend class PATTauProducer;
 
     public:
 
@@ -179,6 +181,9 @@ namespace pat {
       const reco::PFCandidateRefVector & signalPFGammaCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
+      const std::vector<reco::RecoTauPiZero> & signalPiZeroCandidates() const;
+      /// Method copied from reco::PFTau. 
+      /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       const reco::PFCandidateRefVector & isolationPFCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
@@ -189,6 +194,9 @@ namespace pat {
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       const reco::PFCandidateRefVector & isolationPFGammaCands() const;
+      /// Method copied from reco::PFTau. 
+      /// Throws an exception if this pat::Tau was not made from a reco::PFTau
+      const std::vector<reco::RecoTauPiZero> & isolationPiZeroCandidates() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       float isolationPFChargedHadrCandsPtSum() const { return pfSpecific().isolationPFChargedHadrCandsPtSum_; }
@@ -266,19 +274,78 @@ namespace pat {
       /// pipe operator (introduced to use pat::Tau with PFTopProjectors)
       friend std::ostream& reco::operator<<(std::ostream& out, const Tau& obj);
 
+      /// ---- methods for jet corrections ----
+      /// returns the labels of all available sets of jet energy corrections
+      const std::vector<std::string> availableJECSets() const;
+      // returns the available JEC Levels for a given jecSet
+      const std::vector<std::string> availableJECLevels(const int& set = 0) const;
+      // returns the available JEC Levels for a given jecSet
+      const std::vector<std::string> availableJECLevels(const std::string& set) const { return availableJECLevels(jecSet(set)); };
+      /// returns true if the jet carries jet energy correction information
+      /// at all
+      bool jecSetsAvailable() const { return !jec_.empty(); }
+      /// returns true if the jet carries a set of jet energy correction
+      /// factors with the given label
+      bool jecSetAvailable(const std::string& set) const {return (jecSet(set) >= 0); };
+      /// returns true if the jet carries a set of jet energy correction
+      /// factors with the given label
+      bool jecSetAvailable(const unsigned int& set) const {return (set < jec_.size()); };
+      /// returns the label of the current set of jet energy corrections
+      std::string currentJECSet() const { 
+	return currentJECSet_<jec_.size() ? jec_.at(currentJECSet_).jecSet() : std::string("ERROR"); 
+      }
+      /// return the name of the current step of jet energy corrections
+      std::string currentJECLevel() const { 
+	return currentJECSet_<jec_.size() ? jec_.at(currentJECSet_).jecLevel(currentJECLevel_) : std::string("ERROR"); 
+      }
+      /// correction factor to the given level for a specific set
+      /// of correction factors, starting from the current level
+      float jecFactor(const std::string& level, const std::string& set = "") const;
+      /// correction factor to the given level for a specific set
+      /// of correction factors, starting from the current level
+      float jecFactor(const unsigned int& level, const unsigned int& set = 0) const;
+      /// copy of the jet corrected up to the given level for the set
+      /// of jet energy correction factors, which is currently in use
+      Tau correctedTauJet(const std::string& level, const std::string& set = "") const;
+      /// copy of the jet corrected up to the given level for the set
+      /// of jet energy correction factors, which is currently in use
+      Tau correctedTauJet(const unsigned int& level, const unsigned int& set = 0) const;
+      /// p4 of the jet corrected up to the given level for the set
+      /// of jet energy correction factors, which is currently in use
+      const LorentzVector& correctedP4(const std::string& level, const std::string& set = "") const { 
+	return correctedTauJet(level, set).p4(); 
+      }
+      /// p4 of the jet corrected up to the given level for the set
+      /// of jet energy correction factors, which is currently in use
+      const LorentzVector& correctedP4(const unsigned int& level, const unsigned int& set = 0) const { 
+	return correctedTauJet(level, set).p4(); 
+      }
+
     protected:
+   
+      /// index of the set of jec factors with given label; returns -1 if no set
+      /// of jec factors exists with the given label
+      int jecSet(const std::string& label) const;
+      /// update the current JEC set; used by correctedJet
+      void currentJECSet(const unsigned int& set) { currentJECSet_=set; };
+      /// update the current JEC level; used by correctedJet
+      void currentJECLevel(const unsigned int& level) { currentJECLevel_=level; };
+      /// add more sets of energy correction factors
+      void addJECFactors(const TauJetCorrFactors& jec) {jec_.push_back(jec); };
+      /// initialize the jet to a given JEC level during creation starting from Uncorrected
+      void initializeJEC(unsigned int level, const unsigned int set = 0);
 
       // ---- for content embedding ----
       bool embeddedIsolationTracks_;
       std::vector<reco::Track> isolationTracks_;
       mutable reco::TrackRefVector isolationTracksTransientRefVector_;
-      mutable edm::BoolCache       isolationTracksTransientRefVectorFixed_;
+      mutable bool       isolationTracksTransientRefVectorFixed_;
       bool embeddedLeadTrack_;
       std::vector<reco::Track> leadTrack_;
       bool embeddedSignalTracks_;
       std::vector<reco::Track> signalTracks_;
       mutable reco::TrackRefVector signalTracksTransientRefVector_;
-      mutable edm::BoolCache       signalTracksTransientRefVectorFixed_;
+      mutable bool       signalTracksTransientRefVectorFixed_;
       // specific for PFTau
       std::vector<reco::PFCandidate> leadPFCand_;
       bool embeddedLeadPFCand_;
@@ -290,46 +357,60 @@ namespace pat {
       std::vector<reco::PFCandidate> signalPFCands_;
       bool embeddedSignalPFCands_;
       mutable reco::PFCandidateRefVector signalPFCandsTransientRefVector_;
-      mutable edm::BoolCache signalPFCandsRefVectorFixed_;
+      mutable bool signalPFCandsRefVectorFixed_;
       std::vector<reco::PFCandidate> signalPFChargedHadrCands_;
       bool embeddedSignalPFChargedHadrCands_;
       mutable reco::PFCandidateRefVector signalPFChargedHadrCandsTransientRefVector_;
-      mutable edm::BoolCache signalPFChargedHadrCandsRefVectorFixed_;
+      mutable bool signalPFChargedHadrCandsRefVectorFixed_;
       std::vector<reco::PFCandidate> signalPFNeutralHadrCands_;
       bool embeddedSignalPFNeutralHadrCands_;
       mutable reco::PFCandidateRefVector signalPFNeutralHadrCandsTransientRefVector_;
-      mutable edm::BoolCache signalPFNeutralHadrCandsRefVectorFixed_;
+      mutable bool signalPFNeutralHadrCandsRefVectorFixed_;
       std::vector<reco::PFCandidate> signalPFGammaCands_;
       bool embeddedSignalPFGammaCands_;
       mutable reco::PFCandidateRefVector signalPFGammaCandsTransientRefVector_;
-      mutable edm::BoolCache signalPFGammaCandsRefVectorFixed_;
+      mutable bool signalPFGammaCandsRefVectorFixed_;
       std::vector<reco::PFCandidate> isolationPFCands_;
       bool embeddedIsolationPFCands_;
       mutable reco::PFCandidateRefVector isolationPFCandsTransientRefVector_;
-      mutable edm::BoolCache isolationPFCandsRefVectorFixed_;
+      mutable bool isolationPFCandsRefVectorFixed_;
       std::vector<reco::PFCandidate> isolationPFChargedHadrCands_;
       bool embeddedIsolationPFChargedHadrCands_;
       mutable reco::PFCandidateRefVector isolationPFChargedHadrCandsTransientRefVector_;
-      mutable edm::BoolCache isolationPFChargedHadrCandsRefVectorFixed_;
+      mutable bool isolationPFChargedHadrCandsRefVectorFixed_;
       std::vector<reco::PFCandidate> isolationPFNeutralHadrCands_;
       bool embeddedIsolationPFNeutralHadrCands_;
       mutable reco::PFCandidateRefVector isolationPFNeutralHadrCandsTransientRefVector_;
-      mutable edm::BoolCache isolationPFNeutralHadrCandsRefVectorFixed_;
+      mutable bool isolationPFNeutralHadrCandsRefVectorFixed_;
       std::vector<reco::PFCandidate> isolationPFGammaCands_;
       bool embeddedIsolationPFGammaCands_;
       mutable reco::PFCandidateRefVector isolationPFGammaCandsTransientRefVector_;
-      mutable edm::BoolCache isolationPFGammaCandsRefVectorFixed_;
+      mutable bool isolationPFGammaCandsRefVectorFixed_;
 
       // ---- matched GenJet holder ----
       std::vector<reco::GenJet> genJet_;
+
       // ---- tau ID's holder ----
       std::vector<IdPair> tauIDs_;
+
       // ---- CaloTau specific variables  ----
       /// holder for CaloTau info, or empty vector if PFTau
       std::vector<pat::tau::TauCaloSpecific> caloSpecific_;
+
       // ---- PFTau specific variables  ----
       /// holder for PFTau info, or empty vector if CaloTau
       std::vector<pat::tau::TauPFSpecific> pfSpecific_;
+
+      // ---- energy scale correction factors ----
+      // energy scale correction factors; the string carries a potential label if
+      // more then one set of correction factors is embedded. The label corresponds
+      // to the label of the jetCorrFactors module that has been embedded.
+      std::vector<pat::TauJetCorrFactors> jec_;
+      // currently applied set of jet energy correction factors (i.e. the index in
+      // jetEnergyCorrections_)
+      unsigned int currentJECSet_;
+      // currently applied jet energy correction level
+      unsigned int currentJECLevel_;
   };
 }
 

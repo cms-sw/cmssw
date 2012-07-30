@@ -1,7 +1,7 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2010/05/27 13:33:19 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/06/01 05:45:29 $
+ *  $Revision: 1.17 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -31,6 +31,8 @@ void HcalHTRData::allocate(int version_to_create) {
   const int needed=0x200;
   // create a buffer big enough...
   m_ownData=new unsigned short[needed];
+  // clear isn't really necessary, but it makes valgrind happy
+  memset(m_ownData,0,sizeof(unsigned short)*needed);
   m_rawLength=0;
   m_rawConst=m_ownData;
 }

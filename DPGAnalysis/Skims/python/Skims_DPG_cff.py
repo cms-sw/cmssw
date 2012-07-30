@@ -5,6 +5,21 @@ skimContent = FEVTEventContent.clone()
 skimContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
 skimContent.outputCommands.append("drop *_*_*_SKIM")
 
+
+#############
+from  DPGAnalysis.Skims.HighPUSkim_cff import *
+pathHighPU =cms.Path(HighPU_Seq)
+
+SKIMStreamHighPU = cms.FilteredStream(
+    responsible = 'reco convener',
+    name = 'HighPU',
+    paths = (pathHighPU),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW')
+    )
+
+
 #############
 from  DPGAnalysis.Skims.logErrorSkim_cff import *
 pathlogerror =cms.Path(logerrorseq)

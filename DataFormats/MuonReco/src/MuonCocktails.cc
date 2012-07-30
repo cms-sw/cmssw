@@ -1,64 +1,64 @@
-#include "DataFormats/MuonReco/interface/MuonCocktails.h"
 #include "TMath.h"
-//#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+#include "DataFormats/MuonReco/interface/MuonCocktails.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-#include <TROOT.h>
-
 //
-// return the TeV-optimized refit track
+// Return the TeV-optimized refit track, aka the cocktail or Tune P.
 //
-reco::TrackRef muon::tevOptimized( const reco::TrackRef& combinedTrack,
-				   const reco::TrackRef& trackerTrack,
-                                   const reco::TrackToTrackMap tevMap1,
-                                   const reco::TrackToTrackMap tevMap2,
-                                   const reco::TrackToTrackMap tevMap3 ) {
+reco::TrackRef muon::tevOptimized(const reco::TrackRef& combinedTrack,
+				  const reco::TrackRef& trackerTrack,
+				  const reco::TrackRef& tpfmsTrack,
+				  const reco::TrackRef& pickyTrack,
+				  const double tune1,
+				  const double tune2) {
+  // Array for convenience below.
+  const reco::TrackRef refit[4] = { 
+    trackerTrack, 
+    combinedTrack, 
+    tpfmsTrack, 
+    pickyTrack 
+  }; 
 
-  std::vector<reco::TrackRef> refit(4);
-  bool ok[4];
-  ok[0] = true; // Assume tracker track OK.
+  // Calculate the log(tail probabilities). If there's a problem,
+  // signify this with prob == 0. The current problems recognized are:
+  // the track being not available, whether the (re)fit failed or it's
+  // just not in the event, or if the (re)fit ended up with no valid
+  // hits.
+  double prob[4] = {0.};
+  for (unsigned int i = 0; i < 4; ++i) 
+    if (refit[i].isNonnull() && refit[i]->numberOfValidHits()) 
+      prob[i] = muon::trackProbability(refit[i]); 
 
-  reco::TrackToTrackMap::const_iterator gmrTrack = tevMap1.find(combinedTrack);
-  reco::TrackToTrackMap::const_iterator fmsTrack = tevMap2.find(combinedTrack);
-  reco::TrackToTrackMap::const_iterator pmrTrack = tevMap3.find(combinedTrack);
+  //std::cout << "Probabilities: " << prob[0] << " " << prob[1] << " " << prob[2] << " " << prob[3] << std::endl;
 
-  ok[1] = gmrTrack != tevMap1.end();
-  ok[2] = fmsTrack != tevMap2.end();
-  ok[3] = pmrTrack != tevMap3.end();
+  // Start with picky.
+  int chosen = 3;
 
-  double prob[4];
-  int chosen=3;
+  // If there's a problem with picky, make the default one of the
+  // other tracks. Try TPFMS first, then global, then tracker-only.
+  if (prob[3] == 0.) { 
+    if      (prob[2] > 0.) chosen = 2;
+    else if (prob[1] > 0.) chosen = 1;
+    else if (prob[0] > 0.) chosen = 0;
+  } 
 
-  if (ok[0]) refit[0] = trackerTrack;
-  if (ok[1]) refit[1] = (*gmrTrack).val;
-  if (ok[2]) refit[2] = (*fmsTrack).val;
-  if (ok[3]) refit[3] = (*pmrTrack).val;
-  
-  for (unsigned int i=0; i<4; i++)
-    prob[i] = (ok[i] && refit[i]->numberOfValidHits())
-      ? trackProbability(refit[i]) : 0.0; 
+  // Now the algorithm: switch from picky to tracker-only if the
+  // difference, log(tail prob(picky)) - log(tail prob(tracker-only))
+  // is greater than a tuned value (currently 30). Then compare the
+  // so-picked track to TPFMS in the same manner using another tuned
+  // value.
+  if (prob[0] > 0. && prob[3] > 0. && (prob[3] - prob[0]) > tune1)
+    chosen = 0;
+  if (prob[2] > 0. && (prob[chosen] - prob[2]) > tune2)
+    chosen = 2;
 
-//  std::cout << "Probabilities: " << prob[0] << " " << prob[1] << " " << prob[2] << " " << prob[3] << std::endl;
-
-  if (prob[3]==0.){
-    if (prob[2]>0.){
-      chosen=2;
-    } else {
-      if (prob[1]>0.){
-	chosen=1; 
-      } else {
-        if (prob[0]>0.) chosen=0;
-      }
-    }
-  }
-  if ( prob[0]>0. && prob[3]>0. && ((prob[3]-prob[0]) > 30.) ) chosen=0;
-  if ( prob[2]>0. && ((prob[chosen]-prob[2]) > 0.) ) chosen=2;
-    
-  return refit.at(chosen);
+  // Done. Return the chosen track (which can be the global track in
+  // very rare cases).
+  return refit[chosen];
 }
 
 //
-// return the TeV-optimized refit track (older version)
+// Return the TeV-optimized refit track (older, deprecated version).
 //
 reco::TrackRef muon::tevOptimizedOld( const reco::TrackRef& combinedTrack,
 				      const reco::TrackRef& trackerTrack,
@@ -124,28 +124,6 @@ reco::TrackRef muon::tevOptimizedOld( const reco::TrackRef& combinedTrack,
 }
 
 //
-// return the TeV-optimized refit track for the muon
-//
-reco::TrackRef muon::tevOptimized( const reco::Muon& muon,
-                                   const reco::TrackToTrackMap tevMap1,
-                                   const reco::TrackToTrackMap tevMap2,
-                                   const reco::TrackToTrackMap tevMap3 ) {
-  return muon::tevOptimized(muon.combinedMuon(), muon.track(),
-			    tevMap1, tevMap2, tevMap3);
-}
-
-//
-// return the TeV-optimized refit track for the muon (older version)
-//
-reco::TrackRef muon::tevOptimizedOld( const reco::Muon& muon,
-				      const reco::TrackToTrackMap tevMap1,
-				      const reco::TrackToTrackMap tevMap2,
-				      const reco::TrackToTrackMap tevMap3 ) {
-  return muon::tevOptimizedOld(muon.combinedMuon(), muon.track(),
-			       tevMap1, tevMap2, tevMap3);
-}
-
-//
 // calculate the tail probability (-ln(P)) of a fit
 //
 double muon::trackProbability(const reco::TrackRef track) {
@@ -159,4 +137,53 @@ double muon::trackProbability(const reco::TrackRef track) {
 
 }
 
+//
+// Get the sigma-switch decision (tracker-only versus global).
+//
+reco::TrackRef muon::sigmaSwitch(const reco::TrackRef& combinedTrack,
+				 const reco::TrackRef& trackerTrack,
+				 const double nSigma,
+				 const double ptThreshold) {
+  // If either the global or tracker-only fits have pT below threshold
+  // (default 200 GeV), return the tracker-only fit.
+  if (combinedTrack->pt() < ptThreshold || trackerTrack->pt() < ptThreshold)
+    return trackerTrack;
+  
+  // If both are above the pT threshold, compare the difference in
+  // q/p: if less than two sigma of the tracker-only track, switch to
+  // global. Otherwise, use tracker-only.
+  const double delta = fabs(trackerTrack->qoverp() - combinedTrack->qoverp());
+  const double threshold = nSigma * trackerTrack->qoverpError();
+  return delta > threshold ? trackerTrack : combinedTrack;
+}
 
+//
+// Get the TMR decision (tracker-only versus TPFMS).
+//
+reco::TrackRef muon::TMR(const reco::TrackRef& trackerTrack,
+			 const reco::TrackRef& fmsTrack,
+			 const double tune) {
+  double probTK  = 0;
+  double probFMS = 0;
+  
+  if (trackerTrack.isNonnull() && trackerTrack->numberOfValidHits())
+    probTK = muon::trackProbability(trackerTrack);
+  if (fmsTrack.isNonnull() && fmsTrack->numberOfValidHits())
+    probFMS = muon::trackProbability(fmsTrack);
+  
+  bool TKok  = probTK > 0;
+  bool FMSok = probFMS > 0;
+
+  if (TKok && FMSok) {
+    if (probFMS - probTK > tune)
+      return trackerTrack;
+    else
+      return fmsTrack;
+  }
+  else if (FMSok)
+    return fmsTrack;
+  else if (TKok)
+    return trackerTrack;
+  else
+    return reco::TrackRef();
+}

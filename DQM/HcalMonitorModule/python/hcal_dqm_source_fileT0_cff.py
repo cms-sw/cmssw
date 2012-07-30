@@ -52,6 +52,15 @@ hcalDeadCellMonitor.makeDiagnostics   = True
 hcalRecHitMonitor.makeDiagnostics     = True
 hcalDigiMonitor.makeDiagnostics       = True
 
+
+# HEAVY ION UPDATE ON 18 NOV 2011 TO CHANGE HF DIGI SIZE
+# HF digis have 10 TS, just as HBHE and HO in HEAVY ION RUNNING
+
+# These settings used in tag 'HeavyIonTag_for_442p6_v2loose', but are disabled in current HEAD
+hcalDigiMonitor.minDigiSizeHF = 0
+hcalDigiMonitor.maxDigiSizeHF = 10
+
+
 # Require at least 1000 events for the dead cell monitor to process at end of lumi block?  Do we
 # want this functionality in offline, or do we want to rely only on the never-present test?
 hcalDeadCellMonitor.minDeadEventCount = 1000

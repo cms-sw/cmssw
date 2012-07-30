@@ -1182,7 +1182,7 @@ TPaveText* TEcnaParHistos::SetPaveGeneralComment(const TString comment)
  
   if( comment != "" )
     {
-      char* f_in = new char[fgMaxCar];                           fCnew++;
+      fCnew++;
       
       Double_t pav_gen_xgauche = BoxLeftX("general_comment");
       Double_t pav_gen_xdroite = BoxRightX("general_comment");
@@ -1197,8 +1197,7 @@ TPaveText* TEcnaParHistos::SetPaveGeneralComment(const TString comment)
       
       TString tit_gen = comment.Data();
       
-      sprintf( f_in, tit_gen);
-      title_g1->AddText(f_in);
+      title_g1->AddText(tit_gen);
 
       //   1 = left adjusted, 2 = vertically centered      
       Int_t    cTextPaveAlign   = 12;    title_g1->SetTextAlign(cTextPaveAlign);
@@ -1210,7 +1209,7 @@ TPaveText* TEcnaParHistos::SetPaveGeneralComment(const TString comment)
       Double_t cTextPaveRadius  = 5.;    title_g1->SetCornerRadius(cTextPaveRadius); // <= NE MARCHE PAS
       // Int_t cTextPaveShadCol = 0; title_g1->SetShadowColor(cTextPaveShadCol);  // <= methode non reconnue   
 
-      delete [] f_in;                                                 fCdelete++;
+      fCdelete++;
     }
   else
     {

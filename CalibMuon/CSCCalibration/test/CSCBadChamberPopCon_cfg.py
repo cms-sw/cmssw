@@ -12,7 +12,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("ProcessOne")
 #PopCon config
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'sqlite_file:CSCBadChambers_15April2011.db'
+process.CondDBCommon.connect = 'sqlite_file:BadChambers_5ME42.db'
 process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 #process.CondDBCommon.DBParameters.messageLevel = cms.untracked.int32(3)
 process.MessageLogger = cms.Service("MessageLogger",
@@ -33,10 +33,10 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
-    logconnect = cms.untracked.string('sqlite_file:CSCBadChamberslog_15April2011.db'),
+    logconnect = cms.untracked.string('sqlite_file:badChamberslog.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('CSCBadChambersRcd'),
-        tag = cms.string('CSCBadChambers_nineBad_FiveLiveME42_15April2011')
+        tag = cms.string('CSCBadChambers_none_FiveLiveME42')
     ))
 )
 

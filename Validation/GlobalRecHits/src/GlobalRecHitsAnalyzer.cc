@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/11/20 09:41:34 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/12/18 20:45:11 $
+ *  $Revision: 1.16 $
  *  \author M. Strang SUNY-Buffalo
  *  Testing by Ken Smith
  */
@@ -108,9 +108,6 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
     if (verbosity > 0 ) dbe->showDirStructure();
   }
 
-  Char_t hname[100];
-  Char_t htitle[100];
-  
   //monitor elements 
   
   //Si Strip
@@ -129,25 +126,19 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
     for(int amend = 0; amend < 19; ++amend) { 
       hcharname = "hSiStripn_"+SiStripString[amend];
       hchartitle= SiStripString[amend]+"  rechits";
-      sprintf(hname, hcharname.c_str());
-      sprintf(htitle, hchartitle.c_str());
-      mehSiStripn[amend] = dbe->book1D(hname,htitle,200,0.,200.);
+      mehSiStripn[amend] = dbe->book1D(hcharname,hchartitle,200,0.,200.);
       mehSiStripn[amend]->setAxisTitle("Number of hits in "+
 				       SiStripString[amend],1);
       mehSiStripn[amend]->setAxisTitle("Count",2);
       hcharname = "hSiStripResX_"+SiStripString[amend];
       hchartitle= SiStripString[amend]+" rechit x resolution";
-      sprintf(hname, hcharname.c_str());
-      sprintf(htitle, hchartitle.c_str());
-      mehSiStripResX[amend] = dbe->book1D(hname,htitle,200,-0.02,.02);
+      mehSiStripResX[amend] = dbe->book1D(hcharname,hchartitle,200,-0.02,.02);
       mehSiStripResX[amend]->setAxisTitle("X-resolution in "
 					  +SiStripString[amend],1);
       mehSiStripResX[amend]->setAxisTitle("Count",2);
       hcharname = "hSiStripResY_"+SiStripString[amend];
       hchartitle= SiStripString[amend]+" rechit y resolution";
-      sprintf(hname, hcharname.c_str());
-      sprintf(htitle, hchartitle.c_str());
-      mehSiStripResY[amend] = dbe->book1D(hname,htitle,200,-0.02,.02);
+      mehSiStripResY[amend] = dbe->book1D(hcharname,hchartitle,200,-0.02,.02);
       mehSiStripResY[amend]->setAxisTitle("Y-resolution in "+
 					  SiStripString[amend],1);
       mehSiStripResY[amend]->setAxisTitle("Count",2);
@@ -168,17 +159,13 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
     for(int amend = 0; amend < 4; ++amend) {
       hcharname = "hHcaln_"+HCalString[amend];
       hchartitle= HCalString[amend]+"  rechits";
-      sprintf(hname, hcharname.c_str());
-      sprintf(htitle, hchartitle.c_str());
-      mehHcaln[amend] = dbe->book1D(hname,htitle, 1000, HCalnLower[amend], 
+      mehHcaln[amend] = dbe->book1D(hcharname,hchartitle, 1000, HCalnLower[amend], 
 				    HCalnUpper[amend]);
       mehHcaln[amend]->setAxisTitle("Number of RecHits",1);
       mehHcaln[amend]->setAxisTitle("Count",2);
       hcharname = "hHcalRes_"+HCalString[amend];
       hchartitle= HCalString[amend]+"  rechit resolution";
-      sprintf(hname, hcharname.c_str());
-      sprintf(htitle, hchartitle.c_str());
-      mehHcalRes[amend] = dbe->book1D(hname,htitle, 25, -2., 2.);
+      mehHcalRes[amend] = dbe->book1D(hcharname,hchartitle, 25, -2., 2.);
       mehHcalRes[amend]->setAxisTitle("RecHit E - SimHit E",1);
       mehHcalRes[amend]->setAxisTitle("Count",2);
     }
@@ -201,17 +188,13 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
     for(int amend = 0; amend < 3; ++amend) {
       hcharname = "hEcaln_"+ECalString[amend];
       hchartitle= ECalString[amend]+"  rechits";
-      sprintf(hname, hcharname.c_str());
-      sprintf(htitle, hchartitle.c_str());
-      mehEcaln[amend] = dbe->book1D(hname,htitle, ECalnBins[amend], 
+      mehEcaln[amend] = dbe->book1D(hcharname,hchartitle, ECalnBins[amend], 
 				    ECalnLower[amend], ECalnUpper[amend]);
       mehEcaln[amend]->setAxisTitle("Number of RecHits",1);
       mehEcaln[amend]->setAxisTitle("Count",2);
       hcharname = "hEcalRes_"+ECalString[amend];
       hchartitle= ECalString[amend]+"  rechit resolution";
-      sprintf(hname, hcharname.c_str());
-      sprintf(htitle, hchartitle.c_str());
-      mehEcalRes[amend] = dbe->book1D(hname,htitle,ECalResBins[amend], 
+      mehEcalRes[amend] = dbe->book1D(hcharname,hchartitle,ECalResBins[amend], 
 				      ECalResLower[amend], 
 				      ECalResUpper[amend]);
       mehEcalRes[amend]->setAxisTitle("RecHit E - SimHit E",1);
@@ -231,26 +214,20 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
     for(int amend = 0; amend < 7; ++amend) {
       hcharname = "hSiPixeln_"+SiPixelString[amend];
       hchartitle= SiPixelString[amend]+" rechits";
-      sprintf(hname, hcharname.c_str());
-      sprintf(htitle, hchartitle.c_str());
-      mehSiPixeln[amend] = dbe->book1D(hname,htitle,200,0.,200.);
+      mehSiPixeln[amend] = dbe->book1D(hcharname,hchartitle,200,0.,200.);
       mehSiPixeln[amend]->setAxisTitle("Number of hits in "+
 				       SiPixelString[amend],1);
       mehSiPixeln[amend]->setAxisTitle("Count",2);
       hcharname = "hSiPixelResX_"+SiPixelString[amend];
       hchartitle= SiPixelString[amend]+" rechit x resolution";
-      sprintf(hname, hcharname.c_str());
-      sprintf(htitle, hchartitle.c_str());
-      mehSiPixelResX[amend] = dbe->book1D(hname,htitle,200,-0.02,.02);
+      mehSiPixelResX[amend] = dbe->book1D(hcharname,hchartitle,200,-0.02,.02);
       mehSiPixelResX[amend]->setAxisTitle("X-resolution in "+
 					  SiPixelString[amend],1);
       mehSiPixelResX[amend]->setAxisTitle("Count",2);
       hcharname = "hSiPixelResY_"+SiPixelString[amend];
       hchartitle= SiPixelString[amend]+" rechit y resolution";
       
-      sprintf(hname, hcharname.c_str());
-      sprintf(htitle, hchartitle.c_str());
-      mehSiPixelResY[amend] = dbe->book1D(hname,htitle,200,-0.02,.02);
+      mehSiPixelResY[amend] = dbe->book1D(hcharname,hchartitle,200,-0.02,.02);
       mehSiPixelResY[amend]->setAxisTitle("Y-resolution in "+
 					  SiPixelString[amend],1);
       mehSiPixelResY[amend]->setAxisTitle("Count",2);
@@ -268,20 +245,18 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
     
     for(int amend=0; amend<3; ++amend) {
       hchartitle = hist_string[amend]+" rechits";
-      sprintf(hname, n_List[amend].c_str());
-      sprintf(htitle, hchartitle.c_str());
       if(amend==0) {
-	mehDtMuonn=dbe->book1D(hname,htitle,50, 0., 500.);
+	mehDtMuonn=dbe->book1D(n_List[amend],hchartitle,50, 0., 500.);
 	mehDtMuonn->setAxisTitle("Number of Rechits",1);
 	mehDtMuonn->setAxisTitle("Count",2);
       }
       if(amend==1) {
-	mehCSCn=dbe->book1D(hname,htitle,50, 0., 500.);
+	mehCSCn=dbe->book1D(n_List[amend],hchartitle,50, 0., 500.);
 	mehCSCn->setAxisTitle("Number of Rechits",1);
 	mehCSCn->setAxisTitle("Count",2);
       }
       if(amend==2){
-	mehRPCn=dbe->book1D(hname,htitle,50, 0., 500.);
+	mehRPCn=dbe->book1D(n_List[amend],hchartitle,50, 0., 500.);
 	mehRPCn->setAxisTitle("Number of Rechits",1);
 	mehRPCn->setAxisTitle("Count",2);
       }
@@ -291,15 +266,15 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
     mehCSCResRDPhi=0;
     mehRPCResX=0;
     
-    sprintf(hname, "hDtMuonRes");
-    sprintf(htitle, "DT wire distance resolution");
-    mehDtMuonRes = dbe->book1D(hname, htitle, 200, -0.2, 0.2);
-    sprintf(hname, "CSCResRDPhi");
-    sprintf(htitle, "CSC perp*dphi resolution");
-    mehCSCResRDPhi = dbe->book1D(hname, htitle, 200, -0.2, 0.2);
-    sprintf(hname,"hRPCResX");
-    sprintf(htitle, "RPC rechits x resolution");
-    mehRPCResX = dbe->book1D(hname, htitle, 50, -5., 5.);
+    hcharname = "hDtMuonRes";
+    hchartitle = "DT wire distance resolution";
+    mehDtMuonRes = dbe->book1D(hcharname, hchartitle, 200, -0.2, 0.2);
+    hcharname = "CSCResRDPhi";
+    hchartitle = "CSC perp*dphi resolution";
+    mehCSCResRDPhi = dbe->book1D(hcharname, hchartitle, 200, -0.2, 0.2);
+    hcharname = "hRPCResX";
+    hchartitle = "RPC rechits x resolution";
+    mehRPCResX = dbe->book1D(hcharname, hchartitle, 50, -5., 5.);
   } 
 }
 

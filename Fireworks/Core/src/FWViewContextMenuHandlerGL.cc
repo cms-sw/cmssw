@@ -71,33 +71,14 @@ FWViewContextMenuHandlerGL::select(int iEntryIndex, const FWModelId &id, int iX,
       }
       case kCameraCenter:
       {
-         TEveVector center;
          if (FWViewType::isProjected(m_view->typeId()))
          {
-
-            // AMT:: find way to get values without using FWItemValueGetter
-
             FWModelId mId = *(m_view->context().selectionManager()->selected().begin());
-            const FWEventItem* item = mId.item();
-
-            bool bs = strstr(item->purpose().c_str(), "Beam Spot");
-            std::vector<std::pair<std::string,std::string> > func;
-            func.push_back(std::pair<std::string,std::string>("", "cm"));
-            {  
-               func.back().first = bs ? "x0" : "x";
-               FWItemValueGetter valueGetter(ROOT::Reflex::Type::ByTypeInfo(*(item->modelType()->GetTypeInfo())), func);
-               center.fX = valueGetter.valueFor(item->modelData(mId.index())); 
-            }
-            {
-               func.back().first = bs ? "y0" : "y";
-               FWItemValueGetter valueGetter(ROOT::Reflex::Type::ByTypeInfo(*(item->modelType()->GetTypeInfo())), func);
-               center.fY = valueGetter.valueFor(item->modelData(mId.index()));
-            }
-            {  
-               func.back().first = bs ? "z0" : "z";
-               FWItemValueGetter valueGetter(ROOT::Reflex::Type::ByTypeInfo(*(item->modelType()->GetTypeInfo())), func);
-               center.fZ = valueGetter.valueFor(item->modelData(mId.index()));
-            }
+            const FWItemValueGetter& valueGetter = mId.item()->valueGetter();
+            TEveVector center;
+            center.fX =  valueGetter.valueFor( mId.item()->modelData(mId.index()), 0);
+            center.fY =  valueGetter.valueFor( mId.item()->modelData(mId.index()), 1);
+            center.fZ =  valueGetter.valueFor( mId.item()->modelData(mId.index()), 2);
 
             FWRPZView* pv = static_cast<FWRPZView*>(m_view);
             pv->shiftOrigin(center);

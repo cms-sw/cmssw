@@ -11,6 +11,7 @@ egHLTOffPhoBarrelCuts = cms.PSet (
     maxDEtaIn=cms.double(-1),#not used for pho 
     maxDPhiIn=cms.double(-1),#not used for pho 
     maxInvEInvP=cms.double(-1),#not used for pho 
+    #maxHadem=cms.double(0.04),
     maxHadem=cms.double(0.05),#CaloIdVTIsoT
     maxHadEnergy=cms.double(0),
     maxSigmaIEtaIEta=cms.double(0.011),#CaloIdVTIsoT

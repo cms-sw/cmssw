@@ -26,7 +26,8 @@ class HLTJetCollectionsVBFFilter : public HLTFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
-      edm::InputTag inputTag_; // input tag identifying jets
+      edm::InputTag inputTag_; // input tag identifying jet collections
+      edm::InputTag originalTag_; // input tag original jet collection
       bool saveTags_;           // whether to save this tag
       double softJetPt_;
       double hardJetPt_;

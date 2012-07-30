@@ -4,8 +4,8 @@
 /*
  * \file DQMProvInfo.h
  *
- * $Date: 2010/09/17 16:16:05 $
- * $Revision: 1.12 $
+ * $Date: 2010/09/20 15:25:20 $
+ * $Revision: 1.13 $
  * \author A.Meyer - DESY
  *
 */
@@ -56,6 +56,7 @@ private:
   std::string provinfofolder_;
   std::string subsystemname_;
   std::string globalTag_;
+  std::string runType_;
   std::string nameProcess_;
    
   bool physDecl_;
@@ -76,6 +77,7 @@ private:
   MonitorElement * versDataset_ ;
   MonitorElement * versTaglist_ ;
   MonitorElement * versGlobaltag_ ;
+  MonitorElement * versRuntype_ ;
   MonitorElement * hostName_;          ///Hostname of the local machine
 
   MonitorElement * workingDir_;        ///Current working directory of the job

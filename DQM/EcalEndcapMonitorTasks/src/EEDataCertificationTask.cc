@@ -1,8 +1,8 @@
 /*
  * \file EEDataCertificationTask.cc
  *
- * $Date: 2010/08/30 13:14:09 $
- * $Revision: 1.26 $
+ * $Date: 2011/06/27 12:16:03 $
+ * $Revision: 1.26.4.1 $
  * \author E. Di Marco
  *
 */
@@ -61,26 +61,24 @@ EEDataCertificationTask::~EEDataCertificationTask() {
 
 void EEDataCertificationTask::beginJob(void){
 
-  char histo[200];
-
   if ( dqmStore_ ) {
+
+    std::string name;
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
 
-    sprintf(histo, "CertificationSummary");
-    meEEDataCertificationSummary_ = dqmStore_->bookFloat(histo);
+    meEEDataCertificationSummary_ = dqmStore_->bookFloat( "CertificationSummary" );
     meEEDataCertificationSummary_->Fill(-1.0);
 
-    sprintf(histo, "CertificationSummaryMap");
-    meEEDataCertificationSummaryMap_ = dqmStore_->book2D(histo,histo, 40, 0., 200., 20, 0., 100.);
+    name = "CertificationSummaryMap";
+    meEEDataCertificationSummaryMap_ = dqmStore_->book2D(name, name, 40, 0., 200., 20, 0., 100.);
     meEEDataCertificationSummaryMap_->setAxisTitle("ix / ix+100", 1);
     meEEDataCertificationSummaryMap_->setAxisTitle("iy", 2);
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/CertificationContents");
 
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
-      meEEDataCertification_[i] = dqmStore_->bookFloat(histo);
+      meEEDataCertification_[i] = dqmStore_->bookFloat( "EcalEndcap_" + Numbers::sEE(i+1) );
       meEEDataCertification_[i]->Fill(-1.0);
     }
 
@@ -102,8 +100,6 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
 
   this->reset();
 
-  char histo[200];
-
   MonitorElement* me;
 
   // evaluate the DQM quality of observables checked by lumi
@@ -117,16 +113,13 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
   const EcalElectronicsMapping *map = handle.product();
   if( ! map ) edm::LogWarning("EEDaqInfoTask") << "EcalElectronicsMapping not available";
 
-  sprintf(histo, (prefixME_ + "/EEIntegrityTask/EEIT weighted integrity errors by lumi").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/EEIT weighted integrity errors by lumi" );
   hIntegrityByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hIntegrityByLumi_ );
 
-  sprintf(histo, (prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT weighted frontend errors by lumi").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get( prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT weighted frontend errors by lumi" );
   hFrontendByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hFrontendByLumi_ );
 
-  sprintf(histo, (prefixME_ + "/EERawDataTask/EERDT FE synchronization errors by lumi").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get( prefixME_ + "/EERawDataTask/EERDT FE synchronization errors by lumi" );
   hSynchronizationByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hSynchronizationByLumi_ );
 
   if( hIntegrityByLumi_ && hFrontendByLumi_ && hSynchronizationByLumi_ && map) {
@@ -167,17 +160,14 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
     float minVal = std::min(integrityQual,frontendQual);
     float totDQMVal = std::min(minVal,synchronizationQual);
 
-    sprintf(histo, (prefixME_ + "/EventInfo/reportSummary").c_str());
-    me = dqmStore_->get(histo);
+    me = dqmStore_->get( prefixME_ + "/EventInfo/reportSummary" );
     if( me ) me->Fill(totDQMVal);
 
     for ( int i=0; i<18; i++) {
-      sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
-      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+      me = dqmStore_->get( prefixME_ + "/EventInfo/reportSummaryContents/EcalEndcap_" + Numbers::sEE(i+1) );
       if( me ) me->Fill(DQMVal[i]);
 
-      sprintf(histo, "reportSummaryMap");
-      me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo );
+      me = dqmStore_->get( prefixME_ + "/EventInfo/reportSummaryMap" );
       if( me ) {
 	for(int t=1 ; t<=nTowerMax_ ; t++){
 	  if(! map->dccTowerConstituents(DccId_[i], t).size() ) continue;
@@ -194,12 +184,10 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
   }
 
   // now combine reduced DQM with DCS and DAQ
-  sprintf(histo, (prefixME_ + "/EventInfo/DAQSummaryMap").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get( prefixME_ + "/EventInfo/DAQSummaryMap" );
   hDAQ_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hDAQ_ );
 
-  sprintf(histo, (prefixME_ + "/EventInfo/DCSSummaryMap").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get( prefixME_ + "/EventInfo/DCSSummaryMap" );
   hDCS_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hDCS_ );
 
   float sumCert = 0.;
@@ -296,20 +284,15 @@ void EEDataCertificationTask::endRun(const edm::Run& r, const edm::EventSetup& c
     return;
   }
 
-  char histo[200];
-
   MonitorElement* me;
 
-  sprintf(histo, (prefixME_ + "/EventInfo/reportSummaryMap").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get( prefixME_ + "/EventInfo/reportSummaryMap" );
   hDQM_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hDQM_ );
 
-  sprintf(histo, (prefixME_ + "/EventInfo/DAQSummaryMap").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get( prefixME_ + "/EventInfo/DAQSummaryMap" );
   hDAQ_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hDAQ_ );
 
-  sprintf(histo, (prefixME_ + "/EventInfo/DCSSummaryMap").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get( prefixME_ + "/EventInfo/DCSSummaryMap" );
   hDCS_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hDCS_ );
 
   float sumCert = 0.;

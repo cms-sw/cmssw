@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os,sys
-from RecoLuminosity.LumiDB import dataDML,revisionDML,argparse,sessionManager,lumiReport
+from RecoLuminosity.LumiDB import dataDML,revisionDML,argparse,sessionManager
 
 ##############################
 ## ######################## ##
@@ -13,15 +13,15 @@ from RecoLuminosity.LumiDB import dataDML,revisionDML,argparse,sessionManager,lu
 
 if __name__ == '__main__':
     parser=argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Lumi Normalization factor",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    allowedActions=['add','list']
-    amodetagChoices=['PROTPHYS','IONPHYS']
-    egevChoices=['3500','450','1380']
+    allowedActions=['add','get','overview']
+    amodetagChoices=['PROTPHYS','HIPHYS']
+    egevChoices=['3500','450']
     parser.add_argument('action',choices=allowedActions,help='command actions')
     parser.add_argument('-c',dest='connect',action='store',required=False,help='connect string to lumiDB,optional',default='frontier://LumiCalc/CMS_LUMI_PROD')
     parser.add_argument('-P',dest='authpath',action='store',help='path to authentication file,optional')
     parser.add_argument('-name',dest='name',action='store',help='lumi norm factor name')
-    parser.add_argument('-egev',dest='egev',action='store',default=None,help='single beam energy in GeV')
-    parser.add_argument('-amodetag',dest='amodetag',action='store',default=None,choices=amodetagChoices,help='accelerator mode')
+    parser.add_argument('-egev',dest='egev',action='store',default='3500',choices=egevChoices,help='nominal beam energy in GeV')
+    parser.add_argument('-amodetag',dest='amodetag',action='store',default='PROTPHYS',choices=amodetagChoices,help='accelerator mode')
     parser.add_argument('-input',dest='input',action='store',help='input lumi value. Option for add action only')
     parser.add_argument('-tag',dest='tag',action='store',help='version of the norm factor')
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
@@ -52,39 +52,43 @@ if __name__ == '__main__':
         (revision_id,branch_id)=revisionDML.branchInfoByName(schema,'NORM')
         dataDML.addNormToBranch(schema,options.name,options.amodetag,float(options.input),int(options.egev),{},(revision_id,'NORM'))
         session.transaction().commit()
-    elif options.action=='list':
+    #elif options.action=='createBranch':
+    #    #
+    #    # create norm branch
+    #    #        
+    #    if not options.authpath:
+    #        raise 'argument -P authpath is required for createBranch action'
+    #    if not options.name:
+    #        raise  RuntimeError('argument -name name is required for createBranch action')
+    #    session=svc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')]) 
+    #    session.transaction().start(False)
+    #    schema=session.nominalSchema()
+    #    trunk_rev_id,trunk_branch_id=revisionDML.branchInfoByName(schema,'TRUNK')
+    #    if not trunk_rev_id and not trunk_branch_id:
+    #        revisionDML.createBranch(schema,'TRUNK',None,comment='main')
+    #    revisionDML.createBranch(schema,'NORM','TRUNK',comment='hold normalization factor')
+    #    session.transaction().commit()
+    elif options.action=='get':
         session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
         session.transaction().start(True)
         schema=session.nominalSchema()
         if options.tag is None:#ask for the latest of name
-            if options.name is None and options.amodetag is None and options.egev is None:
-                branchfilter=revisionDML.revisionsInBranchName(schema,'NORM')
-                allnorms=dataDML.mostRecentLuminorms(schema,branchfilter)
-                lumiReport.toScreenNorm(allnorms)
-            elif options.name is not None:
+            if options.name is not None:
                 normdataid=dataDML.guessnormIdByName(schema,options.name)
                 norm=dataDML.luminormById(schema,normdataid)
-                nname=norm[0]
-                namodetag=norm[1]
-                nnormval=norm[2]
-                negev=norm[3]
-                lumiReport.toScreenNorm({nname:[namodetag,nnormval,negev]})
+                print 'norm for ',options.name,norm
             else:
-                amodetag=options.amodetag 
-                if options.amodetag is None:
-                    print '[Warning] -amodetag is not specified, assume PROTPHYS'
-                    amodetag='PROTPHYS'
-                egev=options.egev
-                if options.egev is None:
-                    print '[Warning] -egev is not specified, assume 3500'
-                    egev='3500'
-                normdataid=dataDML.guessnormIdByContext(schema,amodetag,int(egev))
+                normdataid=dataDML.guessnormIdByContext(schema,options.amodetag,int(options.egev))
                 norm=dataDML.luminormById(schema,normdataid)
-                nname=norm[0]
-                namodetag=norm[1]
-                nnormval=norm[2]
-                negev=norm[3]
-                lumiReport.toScreenNorm({nname:[namodetag,nnormval,negev]})
+                print 'norm for ',norm
+        session.transaction().commit()
+    elif options.action=='overview':
+        session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
+        session.transaction().start(True)
+        schema=session.nominalSchema()
+        branchfilter=revisionDML.revisionsInBranchName(schema,'NORM')
+        allnorms=dataDML.mostRecentLuminorms(schema,branchfilter)
+        print allnorms
         session.transaction().commit()
     del session
     del svc

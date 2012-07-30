@@ -1,10 +1,10 @@
 *----------------------------------------------------------------------
 *
-*  Filename             : HYDJET1_6.F
+*  Filename             : HYDJET1_8.F
 *
 *  Author               : Igor Lokhtin  (Igor.Lokhtin@cern.ch)
-*  Version              : HYDJET1_6.f
-*  Last revision        : 19-MAR-2009 
+*  Version              : HYDJET1_8.f
+*  Last revision        : 17-JUL-2011 
 *
 *======================================================================
 *
@@ -23,7 +23,7 @@
 *     tabulation of nuclear thickness function and nuclear overlap function, 
 *     test of input parametes 
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      double precision numpar,npar0,nbco0 
+      double precision numpar,npar0,nbco0
       external numpar,rhoaa,hfunc3
       common /pyint7/ sigt(0:6,0:6,0:5)
       common /pypars/ mstp(200),parp(200),msti(200),pari(200)
@@ -57,7 +57,7 @@
 * printout of HYDJET versioning 
       write(6,*) '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
      >%%%%%%%%%%%%%%%%%%%%%%%%'
-      write(6,*) '%%                        This is HYDJET version 1.6  
+      write(6,*) '%%                        This is HYDJET version 1.8  
      >                      %%' 
       write(6,*) '%%         Corresponding author: Igor Lokhtin (Igor.Lo
      >khtin@cern.ch)        %%' 
@@ -208,15 +208,15 @@
      +     /hyflow/,/hyjpar/,/hypyin/
 
 * reset lujets and hyjets arrays before event generation 
-*      n=0 
+c      n=0 
       nhj=0 
       do ncl=1,150000
        do j=1,5
-*        p(ncl,j)=0.
+c        p(ncl,j)=0.
         phj(ncl,j)=0.d0
-*        v(ncl,j)=0. 
+c        v(ncl,j)=0. 
         vhj(ncl,j)=0.d0  
-*        k(ncl,j)=0
+c        k(ncl,j)=0
         khj(ncl,j)=0 
        enddo
       end do 
@@ -289,30 +289,65 @@
       if(nhyd.eq.0) goto 4 
       if(bgen.gt.1.999d0) b1=1.999d0*RA
 
-* generate sort of hadrons (pions, kaons, nucleons) in jetset/pythia format
- 5     yy=49.d0*pyr(0)  
-       if(yy.lt.11.83333333d0) then
+* set of parameters for azimuthal anisotropy in hadron emission region
+       anc=2.8d0
+       ank=0.25d0        
+       ane=0.5d0*ank*b1/RA
+       anb=max(0.000000000001d0,anc*(1.-ane*ane)*ane)
+       anl=max(0.000000000001d0,0.5d0*(dsqrt(1.d0+4.d0*anb*
+     >    (ane+anb))-1.d0)/anb)  
+       anr=RA*dsqrt(abs(1.d0-ane))
+
+* generate sort of hadrons in jetset/pythia format
+ 5     yy=9999.d0*pyr(0)  
+       if(yy.lt.1376.d0) then
         kf=211
-       elseif(yy.lt.23.66666667d0) then
+       elseif(yy.lt.2752.d0) then
         kf=-211
-       elseif(yy.lt.35.5d0) then
+       elseif(yy.lt.4142.d0) then
         kf=111
-       elseif(yy.lt.38.375d0) then
+       elseif(yy.lt.4590.d0) then
         kf=321
-       elseif(yy.lt.41.25d0) then
+       elseif(yy.lt.5038.d0) then
         kf=-321 
-       elseif(yy.lt.44.125d0) then
-        kf=310
-       elseif(yy.lt.47.d0) then
-        kf=130  
-       elseif(yy.lt.47.5d0) then
+       elseif(yy.lt.5479.5d0) then
+        kf=311
+       elseif(yy.lt.5921.d0) then
+        kf=-311  
+       elseif(yy.lt.6063.5d0) then
         kf=2212  
-       elseif(yy.lt.48.d0) then
+       elseif(yy.lt.6206.d0) then
         kf=-2212
-       elseif(yy.lt.48.5d0) then
+       elseif(yy.lt.6347.7d0) then
         kf=2112 
-       else  
+       elseif(yy.lt.6489.4d0) then  
         kf=-2112
+       elseif(yy.lt.6935.4d0) then  
+        kf=213
+       elseif(yy.lt.7381.4d0) then  
+        kf=-213
+       elseif(yy.lt.7827.4d0) then  
+        kf=113
+       elseif(yy.lt.8248.8d0) then  
+        kf=223
+       elseif(yy.lt.8614.5d0) then  
+        kf=221
+       elseif(yy.lt.8680.d0) then  
+        kf=331
+       elseif(yy.lt.8829.d0) then  
+        kf=333
+       elseif(yy.lt.9092.d0) then  
+        kf=323
+       elseif(yy.lt.9355.d0) then  
+        kf=-323
+       elseif(yy.lt.9613.d0) then  
+        kf=313
+       elseif(yy.lt.9871.d0) then  
+        kf=-313
+       elseif(yy.lt.9935.d0) then  
+        kf=3122
+       else  
+        kf=-3122
        end if
        nhj=nhj+1
        khj(nhj,1)=1
@@ -341,40 +376,50 @@
 c       etaf=ylfl*(2.d0*pyr(0)-1.d0)         ! flat initial eta-spectrum
        etaf=gauss(0.d0,ylfl)              ! gaussian initial eta-spectrum
        phif=2.d0*pi*pyr(0) 
-       rm1=dsqrt(abs(RA*RA-b1*b1/4.d0*(dsin(phif)**2)))+
-     >      b1*dcos(phif)/2.d0
-       rm2=dsqrt(abs(RA*RA-b1*b1/4.d0*(dsin(phif)**2)))-
-     >      b1*dcos(phif)/2.d0
-       RF=min(rm1,rm2) 
+       RF=anr*dsqrt(abs(1.d0-ane*ane))/
+     >   (dsqrt(abs(1.d0+ane*dcos(2.d0*phif))))
        rrf=RF*RF*pyr(0) 
 
 * generate four-velocity of a fluid element
-       vradf=dsinh(ytfl) 
-        sb=RA*RA*(pi-2.d0*dasin(b1/RA/2.d0))-
-     >      b1*dsqrt(abs(RA*RA-b1*b1/4.d0))
-       reff=dsqrt(dsqrt(sb/pi)*RA) 
-       urf=vradf*dsqrt(abs(rrf))/reff          ! linear transverse profile
-c       urf=vradf*rrf/reff**2                  !square transverse profile 
-       utf=dcosh(etaf)*dsqrt(abs(1.d0+urf*urf)) 
-       uzf=dsinh(etaf)*dsqrt(abs(1.d0+urf*urf)) 
+       vradf=dsinh(ytfl*dsqrt(rrf)/anr)  
+       rn1=dcosh(etaf) 
+       rn2=dsinh(etaf) 
+       uxf=vradf*dsqrt(abs(1.d0+anl))*dcos(phif)
+       uyf=vradf*dsqrt(abs(1.d0-anl))*dsin(phif)
+       urf=dsqrt(uxf*uxf+uyf*uyf) 
+       rn0=dsqrt(abs(1.d0+urf*urf))
+       utf=rn1*rn0 
+       uzf=rn2*rn0 
+
+* Von Neumann rejection/acceptance procedure for Cooper-Frye prescription 
+       rfac=(rn1+rn0)/(1.d0+utf) 
+       rnx=-1.d0*uxf*rfac 
+       rny=-1.d0*uyf*rfac 
+       rnz=rn2-uzf*rfac 
+       pnx=pp0*stp0*dcos(php0)
+       pny=pp0*stp0*dsin(php0)
+       pnz=pp0*ctp0
+       pn0=dsqrt(pnx**2+pny**2+pnz**2+phj(nhj,5)**2)
+       wesn=rn0-(rnx*pnx+rny*pny+rnz*pnz)/pn0
+       wksi=2.d0*dcosh(ytfl)*pyr(0)
+       if(wksi.gt.wesn) goto 2
 
 * boost in the laboratory system 
        uipi=pp0*(urf*stp0*dcos(phif-php0)+uzf*ctp0) 
        bfac=uipi/(utf+1.d0)+ep0 
-       phj(nhj,1)=pp0*stp0*dsin(php0)+urf*dsin(phif)*bfac 
-       phj(nhj,2)=pp0*stp0*dcos(php0)+urf*dcos(phif)*bfac                    
-       phj(nhj,3)=pp0*ctp0+uzf*bfac
+       phj(nhj,1)=pnx+urf*dcos(phif)*bfac
+       phj(nhj,2)=pny+urf*dsin(phif)*bfac                   
+       phj(nhj,3)=pnz+uzf*bfac
        phj(nhj,4)=dsqrt(phj(nhj,1)**2+phj(nhj,2)**2+phj(nhj,3)**2
      >             +phj(nhj,5)**2) 
 
 * skip if too energetic forward particle - YY
-
        if(abs(phj(nhj,3)).gt.500) then
           nhj = nhj-1
           np = np-1
           goto 5
        end if
-       
+            
 * treat hadron decay (if it switched on) with pyexec routine   
         if(mdcy(pycomp(kf),1).eq.1) then                    
          nhi=1
@@ -386,7 +431,7 @@ c       urf=vradf*rrf/reff**2                  !square transverse profile
          call pyexec 
          do i=1,nhi
           do j=1,5
-                icor=0 
+	   icor=0
                 if(j.gt.2.and.khi(i,j).ne.ihydoff) 
      >               icor=ihydoff + nhj - npyt -1
            phj(nhj+i-1,j)=phi(i,j)
@@ -403,14 +448,14 @@ c       urf=vradf*rrf/reff**2                  !square transverse profile
  4    continue
 
 * fill array 'lujets' 
-*      n=nhyd+npyt 
-*      do ih=1,nhj
-*       do jh=1,5
-*        p(ih,jh)=phj(ih,jh)
-*        k(ih,jh)=khj(ih,jh)                  
-*        v(ih,jh)=vhj(ih,jh) 
-*       end do
-*      end do
+c      n=nhyd+npyt 
+c      do ih=1,nhj
+c       do jh=1,5
+c        p(ih,jh)=phj(ih,jh)
+c        k(ih,jh)=khj(ih,jh)                  
+c        v(ih,jh)=vhj(ih,jh) 
+c       end do
+c      end do
 
       return
       end
@@ -449,7 +494,7 @@ c       urf=vradf*rrf/reff**2                  !square transverse profile
        ifbp=0                                    ! fix impact parameter 
        bfixp=RA*bgen 
        Ap=AW                                     ! atomic weight            
-
+ 
        do ihard=1,njet       
         mstp(111)=0
 
@@ -490,53 +535,48 @@ c        mstj(41)=0                           ! vacuum showering off
            
         call pyexec                         ! hadronization done 
 c        call pyedit(2)                      ! remove partons & leave hadrons 
-       if(pari(17).gt.xhardestPtHat) xhardestPtHat = pari(17)
+        if(pari(17).gt.xhardestPtHat) xhardestPtHat = pari(17)
 
-* fill array of final particles                                                                                                       
+* fill array of final particles
 #ifndef  __HIROOT_FORTRAN_ONLY__
-         ievoff=(ihard-nshad-1)*50000   ! event offset                                                                                
+        ievoff=(ihard-nshad-1)*50000   ! event offset 
 #endif
-
         nu=nhj+n
         if(nu.gt.150000-np) then
-           write(6,*) 'Warning, multiplicity too large! Cut hard part.'                                                               
-           goto 52
+         write(6,*) 'Warning, multiplicity too large! Cut hard part.'
+         goto 52
         end if
         nhj=nu
         do i=nhj-n+1,nhj
-           ip=i+n-nhj
-           do j=1,5
-              phj(i,j)=p(ip,j)
-           end do
-           do j=1,5
-              vhj(i,j)=v(ip,j)
-           end do
-           do j=1,5
-              khj(i,j)=k(ip,j)
-           end do
-           do j=3,5
-              kk=k(ip,j)
-#ifndef  __HIROOT_FORTRAN_ONLY__
-            khj(i,j)=kk+ievoff
-#else
-      if(kk.gt.0) khj(i,j)=kk+nhj-n
-#endif
-           end do
+         ip=i+n-nhj
+        do j=1,5
+         phj(i,j)=p(ip,j)
         end do
-
- 53          continue
-      end do
-
-c     write(*,*) ihard," ",nhj                                                                                                        
- 52      njet=ihard-1
+        do j=1,5
+         vhj(i,j)=v(ip,j)
+        end do
+        do j=1,5
+         khj(i,j)=k(ip,j)
+        end do
+        do j=3,5
+         kk=k(ip,j)
+#ifndef  __HIROOT_FORTRAN_ONLY__
+         khj(i,j)=kk+ievoff
+#else
+         if(kk.gt.0) khj(i,j)=kk+nhj-n
+#endif
+         end do
+        end do
+ 53     continue
+       end do
+ 52    njet=ihard-1
       end if
       njet=njet-nshad
 
       pari(17)=xhardestPtHat
+
       return
       end
-
-
 ****************************** END HYHARD **************************      
       
 ********************************* HIPSEAR ***************************
@@ -1552,7 +1592,7 @@ C     INTERPOLATION SUBROUTINES ARE TAKEN FROM
 C     G.E. FORSYTHE, M.A. MALCOLM AND C.B. MOLER,
 C     COMPUTER METHODS FOR MATHEMATICAL COMPUTATIONS (PRENTICE-HALL, 1977).
       IMPLICIT double precision (A-H,O-Z)
-      DIMENSION X(100),Y(100),B(100),C(100),D(100)
+      DIMENSION X(N),Y(N),B(N),C(N),D(N)
       NM1=N-1
       IF(N.LT.2) RETURN
       IF(N.LT.3) GO TO 250
@@ -1610,7 +1650,7 @@ C ---------------------------------------------------------------------
 c***************************************************************************
 C CALCULATE THE DISTRIBUTION AT XX BY CUBIC SPLINE INTERPOLATION.
       implicit double precision(A-H,O-Z)
-      DIMENSION X(100),Y(100),B(100),C(100),D(100)
+      DIMENSION X(N),Y(N),B(N),C(N),D(N)
       DATA I/1/
       IF(I.GE.N) I=1
       IF(XX.LT.X(I)) GO TO 310

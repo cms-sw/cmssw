@@ -29,8 +29,8 @@
    implelented. signal = (S4 + S5 - 2*(S1+S2+S3 + S7+S8+S9+S10))*(ft-Gev constant)
    where SN is the signal in the nth time slice
     
-   $Date: 2011/02/02 04:26:58 $
-   $Revision: 1.2 $
+   $Date: 2011/02/23 22:51:18 $
+   $Revision: 1.3 $
    \author E. Garcia CSU &  J. Gomez UMD
 */
 
@@ -38,7 +38,7 @@ class ZdcSimpleRecAlgo {
 public:
   /** Full featured constructor for ZDC */
   ZdcSimpleRecAlgo(bool correctForTimeslew, 
-		   bool correctForContainment, float fixedPhaseNs, int recoMethod);
+		   bool correctForContainment, float fixedPhaseNs, int recoMethod, int lowGainOffset, double lowGainFrac);
   /** Simple constructor for PMT-based detectors */
   ZdcSimpleRecAlgo(int recoMethod);
     void initPulseCorr(int toadd); 
@@ -49,6 +49,9 @@ private:
   bool correctForTimeslew_;
    bool correctForPulse_;
      float phaseNS_;
+   // new lowGainEnergy variables
+   int lowGainOffset_;
+   double lowGainFrac_;
   std::auto_ptr<HcalPulseContainmentCorrection> pulseCorr_;
 };
 

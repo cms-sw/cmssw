@@ -172,9 +172,10 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
 
       edm::FileInPath hcalfiletmp("CalibCalorimetry/CaloMiscalibTools/data/"+hcalfileinpath_);      
       std::string hcalfile=hcalfiletmp.fullPath();            
-      MiscalibReaderFromXMLHcal hcalreader_(mapHcal);
       if(doMiscalib_ && !hcalfile.empty()) 
 	{
+	  MiscalibReaderFromXMLHcal hcalreader_(mapHcal);
+
 	  hcalreader_.parseXMLMiscalibFile(hcalfile);
 	  //	  mapHcal.print();
 	  std::map<uint32_t,float>::const_iterator it=mapHcal.get().begin();
@@ -348,6 +349,7 @@ void HcalRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
     {
       HcalDetId detid(it->id());
       int hashedindex=detid.hashed_index();
+
       switch(detid.subdet())
 	{
 	case HcalBarrel: 
@@ -402,9 +404,9 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
       const HcalDetId& detid  = theDetIds_[cellhashedindex];
       unsigned subdet=(detid.subdet()==HcalBarrel) ? 0: 1;	
 
-      // Check if it is above the threshold
-      if(hcalRecHits_[cellhashedindex]<threshold_[subdet]) continue; 
       float energy=hcalRecHits_[cellhashedindex];
+      // Check if it is above the threshold
+      if(energy<threshold_[subdet]) continue; 
       // apply RespCorr only to the RecHit
       energy *= myRespCorr->getValues(theDetIds_[cellhashedindex])->getValue();
       // poor man saturation
@@ -734,3 +736,4 @@ double HcalRecHitsMaker::noiseInfCfromDB(const HcalDbService * conditions,const 
   //  double noise_rms_GeV = noise_rms_fC * gain->getValue(0); // Noise RMS (GeV) for detId channel
   return noise_rms_fC;
 }
+

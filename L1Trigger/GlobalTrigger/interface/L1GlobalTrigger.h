@@ -222,29 +222,6 @@ private:
     /// length of BST record (in bytes) from parameter set
     int m_psBstLengthBytes;
 
-    /// run algorithm triggers
-    ///     if true, unprescaled (all prescale factors 1)
-    ///     will overwrite the event setup
-    bool m_algorithmTriggersUnprescaled;
-
-    ///     if true, unmasked - all enabled (all trigger masks set to 0)
-    ///     will overwrite the event setup
-    bool m_algorithmTriggersUnmasked;
-
-    /// run technical triggers
-    ///     if true, unprescaled (all prescale factors 1)
-    ///     will overwrite the event setup
-    bool m_technicalTriggersUnprescaled;
-
-    ///     if true, unmasked - all enabled (all trigger masks set to 0)
-    ///     will overwrite the event setup
-    bool m_technicalTriggersUnmasked;
-
-    ///     if true, veto unmasked - all enabled (all trigger veto masks set to 0)
-    ///     will overwrite the event setup
-    bool m_technicalTriggersVetoUnmasked;
-
-
 private:
 
     /// verbosity level

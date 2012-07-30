@@ -16,6 +16,7 @@ NchvsEta_Iter2.png "Charged multiplicity as a function of eta, step 2 (Full Sim:
 NchvsEta_Iter3.png "Charged multiplicity as a function of eta, step 3 (Full Sim: red, Fast sim: blue)"
 NchvsEta_Iter4.png "Charged multiplicity as a function of eta, step 4 (Full Sim: red, Fast sim: blue)"
 NchvsEta_Iter5.png "Charged multiplicity as a function of eta, step 5 (Full Sim: red, Fast sim: blue)"
+NchvsEta_Iter6.png "Charged multiplicity as a function of eta, step 6 (Full Sim: red, Fast sim: blue)"
 ChBrFrac.png "Charged fraction as of function of p_T, barrel (Full Sim: red, Fast sim: blue)"
 EmBrFrac.png "Photon fraction as of function of p_T, barrel (Full Sim: red, Fast sim: blue)"
 HaBrFrac.png "Neutral hadron fraction as of function of p_T, barrel (Full Sim: red, Fast sim: blue)"

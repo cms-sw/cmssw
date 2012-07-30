@@ -5,6 +5,7 @@
 
 // system include files
 #include "Rtypes.h"
+#include "TAttLine.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 // user include files

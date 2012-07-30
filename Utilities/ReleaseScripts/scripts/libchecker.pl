@@ -9,42 +9,33 @@
 #############################################################################
 
   use Getopt::Std;
+  use File::Basename;
+  use lib dirname($0);
+  use SCRAMGenUtils;
   getopts("rv");
 
   $libname = shift; chomp($libname);
+  $tmpcache = $ENV{CMSSW_BASE}."/tmp/".$ENV{SCRAM_ARCH}."/libcheck";
+  system("mkdir -p $tmpcache");
   # Should check that library actually exists
 
   # Get the list of direct dependencies
-  @LDDLIST = `ldd $libname`;
-
-  foreach $akey (@LDDLIST) {
-    chomp($akey);
-    ($AAA,$BBB,$CCC) = split(' ',$akey);
-    # Remove most extraneous stuff
-    if (($BBB eq "=>") && !($AAA =~ /linux-gate.so/) && !($AAA =~ /libgcc_s.so/)) { 
-      $ldddepmap{$AAA} = $CCC;
-      $lddrevdepmap{$CCC} = $AAA;
-
-      $lddneedmap{$AAA} = 0;
-      $lddrevneedmap{$CCC} = 0;
-    } 
+  
+  my $LddData=&getLddData($libname,$tmpcache);
+  foreach my $data (@$LddData) {
+    my $AAA=$data->[0]; my $CCC=$data->[1];
+    $ldddepmap{$AAA} = $CCC;
+    $lddrevdepmap{$CCC} = $AAA;
+    $lddneedmap{$AAA} = 0;
+    $lddrevneedmap{$CCC} = 0;
   }
 
-  # Loop over the list of direct dependencies and look at their dependencies
   for my $bkey ( keys %lddrevdepmap ) {
-    #my $value = $lddrevdepmap{$bkey};
-    #print "$bkey => $value\n";
-    @LDDLIST2 = `ldd $bkey`;
-
-    foreach $ckey (@LDDLIST2) {
-      chomp($ckey);
-      ($AAA,$BBB,$CCC) = split(' ',$ckey);
-      # Remove most extraneous stuff
-      if (($BBB eq "=>") && !($AAA =~ /linux-gate.so/) && !($AAA =~ /libgcc_s.so/)) { 
-        $lddrevneedmap{$CCC} += 1;  # Mark this dep as needed by another dep
-      } 
+    my $LddData=&getLddData($bkey,$tmpcache);
+    foreach my $data (@$LddData) {
+      my $AAA=$data->[0]; my $CCC=$data->[1];
+      $lddrevneedmap{$CCC} += 1;  # Mark this dep as needed by another dep
     }
-
   }
 
   # Get the list of unneeded libraries (includes some header lines)
@@ -60,11 +51,32 @@
       if ($opt_v) {print "Found unneeded library => $dkey\n"};
       if ($lddrevneedmap{$dkey}==0) {
         print "Unnecessary direct dependence ".$lddrevdepmap{$dkey}."\n";
-      } else {
-        #print "Used Dependence $dkey ".$lddrevneedmap{$dkey}." times\n";
       }
     } else {
       if ($opt_v) {print "Reject header line => $dkey\n"};
       if ($opt_v) {print "  With => ".$lddrevdepmap{$dkey}."\n"};
     }
+  }
+  
+  sub getLddData() {
+    my ($lib,$cache)=@_;
+    my $cfile=$cache."/".basename($lib);
+    my $data=[];
+    my $mtime=(stat($lib))[9];
+    if ((-f $cfile) && ($mtime==(stat($cfile))[9])){$data=&SCRAMGenUtils::readHashCache($cfile);}
+    else{
+      my @LDDLIST = `ldd $lib`;
+      foreach my $akey (@LDDLIST) {
+        chomp($akey);
+        $akey=~s/\s+\(.+\)\s*$//;
+        if ($akey=~/^\s*\/.+/){next;}
+        my ($AAA,$BBB,$CCC) = split(' ',$akey);
+        if (($BBB eq "=>") && ($CCC=~/^\//) && ($AAA!~/(linux-gate\.so|linux-vdso\.so|libgcc_s.so)/)) {
+	  push @$data,[$AAA,$CCC];
+        }
+      }
+      &SCRAMGenUtils::writeHashCache($data,$cfile);
+      utime($mtime, $mtime, $cfile);
+    }
+    return $data;
   }

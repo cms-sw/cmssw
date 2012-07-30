@@ -48,7 +48,7 @@ class cosmics(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "cosmics"
-        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM'
+        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
         options.isMC = False
         options.isData = True
         options.beamspot = None
@@ -85,7 +85,7 @@ class cosmics(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "cosmics"
-        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM'
+        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
         options.isMC = False
         options.isData = True
         options.beamspot = None
@@ -171,7 +171,10 @@ class cosmics(Scenario):
         options.filein = []
  
         process = cms.Process("HARVESTING")
-        process.source = cms.Source("DQMRootSource")
+        if args.get('newDQMIO', False):
+            process.source = cms.Source("DQMRootSource")
+        else:
+            process.source = cms.Source("PoolSource")
         configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()
 

@@ -828,23 +828,49 @@ sub scan_binary_file {
     if (! $is_archive) {
         my $log=undef;
 	my $fref;
-	open($fref, "ldd '$filepath' |")
-	    || die "$filepath: cannot read shared libraries: $!\n";
-	while (<$fref>) {
-	    chomp;
-	    next if (! /^\s+(\S+)\s+=>\s+(not found|\S+)(\s+\(0x[0-9a-fA-F]+\))?$/);
-	    if ($2 eq "not found") {
-	        if (!defined $log){if(!open($log, ">${binary_cache}/msglogs/$md5")){$log=undef;}}
-		if(defined $log){print $log "oops: $filepath: dependent shared library `$1' not found\n";}
-		next;
-	    }
-	    $data->{$2} = 1;
+        if ($^O=~/linux/io){
+	    open($fref, "ldd '$filepath' |")
+	         || die "$filepath: cannot read shared libraries: $!\n";
+	    while (<$fref>) {
+	        chomp;
+	        next if (! /^\s+(\S+)\s+=>\s+(not found|\S+)(\s+\(0x[0-9a-fA-F]+\))?$/);
+	        if ($2 eq "not found") {
+	            if (!defined $log){if(!open($log, ">${binary_cache}/msglogs/$md5")){$log=undef;}}
+		    if(defined $log){print $log "oops: $filepath: dependent shared library `$1' not found\n";}
+		    next;
+	        }
+	        $data->{$2} = 1;
+            }    
 	}
+        if ($^O=~/darwin/io){
+            open($fref, "otool -L '$filepath' |")
+                 || die "$filepath: cannot read shared libraries: $!\n";
+            while (<$fref>) {
+                chomp;
+                next if (! /^\s+(\S+)\s+\(.+\)\s*$/);
+                my $depname=$1;
+                my $dep=&find_path_file($depname,"$ENV{DYLD_LIBRARY_PATH}:$ENV{DYLD_FALLBACK_LIBRARY_PATH}",":");
+                if ($dep eq "") {
+                    if (!defined $log){if(!open($log, ">${binary_cache}/msglogs/$md5")){$log=undef;}}
+                    if(defined $log){print $log "oops: $filepath: dependent shared library `$depname' not found\n";}
+                    next;
+                }
+                $data->{$dep} = 1;
+            }
+        }
 	close($fref);
 	if(defined $log){close($log);}
     }
     &writecache ($data,"${binary_cache}/ldd/${md5}");
     exit 0;
+}
+
+sub find_path_file() {
+  my ($lib,$paths,$sep)=@_;
+  foreach my $dir (split($sep,$paths)) {
+    if (($dir ne "") && (-e "${dir}/${lib}")){return "${dir}/${lib}";}
+  }
+  return "";
 }
 
 sub update_binary_data ()
@@ -911,14 +937,17 @@ sub scan_binary_for_symbols ()
         SYMBOLS	 => { UNDEF => [], TEXT => [], WEAK => [],
 		      DATA => [], COMMON => [] } };
     my $symtab = $data->{SYMBOLS};
-    my $cmd = ("nm" . ($is_archive ? "" : " -D")
-	     . ($arch =~ /SunOS/ ? " -l -p" : "")
-	     . " '$filepath' |");
+    my $nm_opt="";
+    if (!$is_archive){
+      $nm_opt="-D";
+      if ($^O=~/darwin/io){$nm_opt="-f";}
+    }
+    my $cmd = "nm $nm_opt '$filepath' |";
     open(NM, $cmd) || die "$filepath: cannot read symbols: $!\n";
     while (<NM>) {
         if (/^0*\s+U\s+(\S+)$/) {
 	    $undefs{$1} = 1;
-	} elsif (/^[0-9a-fA-F]+\s+([CWTDBGRSV]\*?)\s+(\S+)$/) {
+	} elsif (/^[0-9a-fA-F]+\s+([ACWTDBGRV]\*?)\s+(\S+)$/) {
 	    next if ($is_binary);
 	    my $symclass = &symbol_class($1);
 	    next if (! $symclass);

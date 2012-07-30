@@ -1,5 +1,5 @@
 //
-// $Id:$
+// $Id: TriggerCondition.cc,v 1.1 2011/02/22 18:33:05 vadler Exp $
 //
 
 
@@ -16,6 +16,8 @@ using namespace pat;
 TriggerCondition::TriggerCondition() :
   name_()
 , accept_()
+, category_()
+, type_()
 {
   triggerObjectTypes_.clear();
   objectKeys_.clear();
@@ -26,6 +28,8 @@ TriggerCondition::TriggerCondition() :
 TriggerCondition::TriggerCondition( const std::string & name ) :
   name_( name )
 , accept_()
+, category_()
+, type_()
 {
   triggerObjectTypes_.clear();
   objectKeys_.clear();
@@ -36,6 +40,8 @@ TriggerCondition::TriggerCondition( const std::string & name ) :
 TriggerCondition::TriggerCondition( const std::string & name, bool accept ) :
   name_( name )
 , accept_( accept )
+, category_()
+, type_()
 {
   triggerObjectTypes_.clear();
   objectKeys_.clear();

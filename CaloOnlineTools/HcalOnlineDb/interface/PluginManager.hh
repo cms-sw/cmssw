@@ -71,7 +71,7 @@ namespace hcal {
      */
     static void getFactories(const char* baseClass, std::vector<AbstractPluginFactory*>& factories);
   private:
-    static std::map<std::string, std::map<std::string, AbstractPluginFactory*> > m_factories;
+    static std::map<std::string, std::map<std::string, AbstractPluginFactory*> > &factories();
   };
 
   /** \brief Templated generic plugin factory used by the DECLARE_PLUGGABLE macro 

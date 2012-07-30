@@ -5,6 +5,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexCandidateFwd.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -46,6 +48,8 @@ class PFDisplacedVertexCandidateFinder {
     dcaPInnerHitCut2_ = dcaPInnerHitCut*dcaPInnerHitCut;
     nChi2_max_ = ps_trk.getParameter<double>("nChi2_max");
     pt_min_ = ps_trk.getParameter<double>("pt_min");
+    pt_min_prim_ = ps_trk.getParameter<double>("pt_min_prim");
+    dxy_ = ps_trk.getParameter<double>("dxy");
   }
 
   /// sets debug printout flag
@@ -67,6 +71,9 @@ class PFDisplacedVertexCandidateFinder {
 
   void findDisplacedVertexCandidates();
 
+
+  void setPrimaryVertex(edm::Handle< reco::VertexCollection > mainVertexHandle, 
+			edm::Handle< reco::BeamSpot > beamSpotHandle);
 
  private:
 
@@ -140,6 +147,9 @@ class PFDisplacedVertexCandidateFinder {
   double nChi2_max_;
   double pt_min_;
 
+  double pt_min_prim_;
+  double dxy_;
+
   /// Max number of expected vertexCandidates in the event
   /// Used to allocate the memory and avoid multiple copy
   unsigned vertexCandidatesSize_;
@@ -147,7 +157,7 @@ class PFDisplacedVertexCandidateFinder {
   // Two track minimum distance algo
   TwoTrackMinimumDistance theMinimum_;
 
-
+  math::XYZPoint pvtx_;
 
   /// if true, debug printouts activated
   bool   debug_;

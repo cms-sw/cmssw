@@ -17,8 +17,8 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2010/02/16 17:06:34 $
- * $Revision: 1.3 $
+ * $Date: 2009/03/24 14:11:36 $
+ * $Revision: 1.2 $
  *
  */
 
@@ -44,7 +44,6 @@ class CSCTriggerPrimitivesProducer : public edm::EDProducer
   edm::InputTag compDigiProducer_;
   edm::InputTag wireDigiProducer_;
   CSCTriggerPrimitivesBuilder* lctBuilder_;
-  bool skipbadchambers;
 };
 
 #endif

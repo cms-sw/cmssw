@@ -52,7 +52,7 @@ int EcalFenixLinearizer::process()
 {
   int output=(uncorrectedSample_-base_); //Substract base
   //if(output<0) return 0;
-  if(output<0) return shift_ << 12; // FENIX bug(!)
+  if(output<0) return famos_? 0. : shift_ << 12; // FENIX bug(!)
   output=(output*mult_)>>(shift_+2);        //Apply multiplicative factor
   if(output>0X3FFFF)output=0X3FFFF;         //Saturation if too high
   return output;

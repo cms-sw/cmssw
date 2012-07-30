@@ -2,10 +2,10 @@
 create table revisions(
      revision_id uint64 PK,
      branch_id uint64 not null, 
-     branch_name string,  (56)
-     name string, unique  (56)
-     comment string,   (1024)
-     ctime   timestamp(6)
+     branch_name string,
+     name string, unique
+     comment string,
+     ctime   timestamp
 )
 create table revisions_id(     #id helper table
      nextid uint64 PK
@@ -16,8 +16,8 @@ create index revisions_branch_id on revision(branchid)
 create table luminorms(
      data_id  uint64 PK
      entry_id    uint64 not null references luminorms_entries(entry_id),
-     entry_name  string,  (56)
-     amodetag string,     (28)
+     entry_name  string,
+     amodetag string,
      norm_1     float,
      egev_1     uint32,
      norm_2     float,
@@ -27,7 +27,7 @@ create table luminorms(
 create table luminorms_entries(   #versionable entity helper table
      entry_id uint64 PK,
      revision_id uint64 not null references revisions(revision_id),
-     name    string  (56)
+     entry_name    string
 )
 
 create table luminorms_id(          #id helper table
@@ -39,14 +39,13 @@ create table luminorms_entries_id(    #id helper table
 create table luminorms_rev(   
     data_id uint64 not null references luminorms(data_id),
     revision_id uint64 not null references revisions(revision_id) 
-   (data_id,revision_id) PK   
 )
 3.
 create table lumidata(             #versionable data table
      data_id uint64 PK,
      entry_id    uint64 not null references lumidata_entries(entry_id),
-     entry_name string,  (56)
-     source     string,  (128)
+     entry_name string,
+     source     string,
      runnum     uint32,
      nominalegev float
 )
@@ -58,12 +57,11 @@ create table lumidata_id(          #id helper table
 create table lumidata_entries(       #versionable entity table
      entry_id     uint64 not null   ,
      revision_id  uint64 not null references revision(revision_id),
-     name    string      (56)  
+     name    string	  
 )
 create table lumidata_rev(   
     data_id uint64 not null references lumidata(data_id),
     revision_id uint64 not null references revision(revision_id) 
-   (data_id,revision_id) PK 
 )
 constraint lumidata_rev_uc unique(data_id,revision_id)
 create index lumidata_rev_revision_id on lumidata_rev(revision_id);
@@ -75,27 +73,25 @@ create table lumidata_entries_id(
 4.
 create table cmsrunsummary(        #data table
      runnum uint32 PK,
-     hltkey string not null, (128)
-     l1key  string,          (128)
-     fillnum uint32,  
-     sequence    string,     (56)
+     hltkey string not null,
+     l1key  string,
+     fillnum uint32,
+     sequence    string,
      starttime   timestamp(6),
      stoptime    timestamp(6),   
      egev uint32,
-     amodetag string      (28),
-     fillscheme string(128),
-     ncollidingbunches uint32
+     amodetag string 
 )
 5. 
 create table lumisummaryv2(         #data table
      data_id  uint64 not null PK references lumidata(data_id),
      runnum      uint32,  (redundant)
-     cmslsnum    uint32,  
+     cmslsnum    uint32,
      lumilsnum   uint32,
      instlumi     float,
      instlumierror  float,
      instlumiquality  short,
-     beamstatus   string,    (28)
+     beamstatus   string,
      beamenergy float,
      cmsbxindexblob blob,
      beamintensityblob_1 blob,
@@ -116,22 +112,21 @@ create table lumisummaryv2(         #data table
 create table trgdata(                #verionable data table
      data_id uint64 PK,
      entry_id  uint64 not null references trgdata_entries(entry_id),
-     entry_name string, (56)    
-     source string,     (128)
+     entry_name string,    
+     source string,
      runnum   uint32,
-     bitzeroname string, (56)
+     bitzeroname string,
      bitnameclob clob
 )
 create table trgdata_rev(   
     data_id uint64 not null references trgdata(data_id),
     revision_id uint64 not null references revisions(revision_id) 
-    (data_id,revision_id) PK 
 )
 constraint trgdata_rev_uc unique(data_id,revision_id)
 create table trgdata_entries(       
      entry_id    uint64 not null	     ,
      revision_id uint64 not null references revisions(revision_id),
-     name    string  (56)	 
+     name    string	 
 )
 create table trgdata_id(             #id helper table
      nextid uint64 PK
@@ -155,16 +150,16 @@ create table lstrg(          #data table
 create table hltdata(                #vesionable data table
     data_id uint64 PK,	     
     entry_id    uint64 not null references hltdata_entries(entry_id),
-    entry_name string, (56)
+    entry_name string,
     runnum    uint32,
-    source    string,  (128)
-    npath    uint32,  
+    source    string,
+    npath    uint32,
     pathnameclob clob
 )
 create table hltdata_entries(       
      entry_id    uint64 PK,
      revision_id uint64 not null references revisions(revision_id) ,
-     name    string (56)
+     name    string
 )
 create table hltdata_id(         
      nextid uint64 PK
@@ -175,8 +170,8 @@ create table hltdata_entries_id(
 create table hltdata_rev(   
     data_id uint64 not null references hltdata(data_id),
     revision_id uint64 not null references revisions(revision_id) 
-    (data_id,revision_id) PK 
 )
+constraint hltdata_rev_uc unique(dataid,revision_id)
 9.
 create table lshlt(         
    data_id uint64 not null references hltdata(data_id),
@@ -185,27 +180,19 @@ create table lshlt(
    prescaleblob blob,
    hltcountblob    blob,
    hltacceptblob     blob
-   (data_id,cmslsnum) PK
 )
 10.
 create table trghltmap(           
-   hltkey string(128) not null,
-   hltpathname string(256) not null,
-   l1seed      string(1024) not null
-   (hltkey,hltpathname,l1seed) PK
+   hltkey string not null,
+   hltpathname string not null,
+   l1seed      string not null
 )
 11.
 create table lumivalidation(      
    runnum uint32 not null,
    cmslsnum uint32 not null,
-   flag string, (28)
-   comment string (1024)
-)
-12
-create table FILLSCHEME (
-   fillscheme_id(uint64),        PK
-   fillschemepattern(string),    NOT NULL (128)
-   correctionfactor(float),      NOT NULL
+   flag string,
+   comment string
 )
 
 new applications:

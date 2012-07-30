@@ -1,16 +1,36 @@
 <lcgdict>
 
-  <class name="reco::PhotonCore"/>
-  <class name="reco::Photon"/>
-  <class name="reco::Conversion"/>
-  <class name="reco::Electron"/>
-  <class name="reco::SiStripElectron"/>
+  <class name="reco::PhotonCore" ClassVersion="10">
+   <version ClassVersion="10" checksum="1420264349"/>
+  </class>
+  <class name="reco::Photon" ClassVersion="10">
+   <version ClassVersion="10" checksum="240859851"/>
+  </class>
+  <class name="reco::Conversion" ClassVersion="10">
+   <version ClassVersion="10" checksum="2140222741"/>
+  </class>
+  <class name="reco::Electron" ClassVersion="10">
+   <version ClassVersion="10" checksum="3204453326"/>
+  </class>
+  <class name="reco::SiStripElectron" ClassVersion="10">
+   <version ClassVersion="10" checksum="371046486"/>
+  </class>
 
-  <class name="reco::Photon::FiducialFlags"/>
-  <class name="reco::Photon::ShowerShape"/>
-  <class name="reco::Photon::MIPVariables"/>
-  <class name="reco::Photon::IsolationVariables"/>
-  <class name="reco::Photon::PflowIsolationVariables" />
+  <class name="reco::Photon::FiducialFlags" ClassVersion="10">
+   <version ClassVersion="10" checksum="2148735796"/>
+  </class>
+  <class name="reco::Photon::ShowerShape" ClassVersion="10">
+   <version ClassVersion="10" checksum="530110431"/>
+  </class>
+  <class name="reco::Photon::MIPVariables" ClassVersion="10">
+   <version ClassVersion="10" checksum="1613378413"/>
+  </class>
+  <class name="reco::Photon::IsolationVariables" ClassVersion="10">
+   <version ClassVersion="10" checksum="3308689624"/>
+  </class>
+  <class name="reco::Photon::PflowIsolationVariables"  ClassVersion="10">
+   <version ClassVersion="10" checksum="3343347274"/>
+  </class>
  
   <class name="std::vector<reco::PhotonCore>"/>  
   <class name="edm::RefToBase<reco::PhotonCore>" />
@@ -61,7 +81,9 @@
 
 
 
-  <class name="reco::GsfElectronCore"/>
+  <class name="reco::GsfElectronCore" ClassVersion="10">
+   <version ClassVersion="10" checksum="2226610106"/>
+  </class>
   <class name="std::vector<reco::GsfElectronCore>"/>  
   <class name="edm::RefToBase<reco::GsfElectronCore>" />
   <class name="edm::reftobase::IndirectHolder<reco::GsfElectronCore>" />
@@ -75,20 +97,46 @@
   <class name="edm::RefVector<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore> > >"/>
   
-  <class name="reco::GsfElectron::TrackClusterMatching"/>
-  <class name="reco::GsfElectron::TrackExtrapolations"/>
-  <class name="reco::GsfElectron::ClosestCtfTrack"/>
-  <class name="reco::GsfElectron::FiducialFlags"/>
-  <class name="reco::GsfElectron::ShowerShape"/>
-  <class name="reco::GsfElectron::IsolationVariables"/>
-  <class name="reco::GsfElectron::ConversionRejection"/>
-  <class name="reco::GsfElectron::Corrections"/>
-  <class name="reco::GsfElectron::ChargeInfo"/>
-  <class name="reco::GsfElectron::PflowIsolationVariables"/>
-  <class name="reco::GsfElectron::MvaInput"/>
-  <class name="reco::GsfElectron::MvaOutput"/>
+  <class name="reco::GsfElectron::TrackClusterMatching" ClassVersion="10">
+   <version ClassVersion="10" checksum="1073796225"/>
+  </class>
+  <class name="reco::GsfElectron::TrackExtrapolations" ClassVersion="10">
+   <version ClassVersion="10" checksum="517526181"/>
+  </class>
+  <class name="reco::GsfElectron::ClosestCtfTrack" ClassVersion="10">
+   <version ClassVersion="10" checksum="1307042460"/>
+  </class>
+  <class name="reco::GsfElectron::FiducialFlags" ClassVersion="10">
+   <version ClassVersion="10" checksum="2564471186"/>
+  </class>
+  <class name="reco::GsfElectron::ShowerShape" ClassVersion="10">
+   <version ClassVersion="10" checksum="3070677812"/>
+  </class>
+  <class name="reco::GsfElectron::IsolationVariables" ClassVersion="10">
+   <version ClassVersion="10" checksum="4260674990"/>
+  </class>
+  <class name="reco::GsfElectron::ConversionRejection" ClassVersion="10">
+   <version ClassVersion="10" checksum="190549577"/>
+  </class>
+  <class name="reco::GsfElectron::Corrections" ClassVersion="10">
+   <version ClassVersion="10" checksum="3532356763"/>
+  </class>
+  <class name="reco::GsfElectron::ChargeInfo" ClassVersion="10">
+   <version ClassVersion="10" checksum="1415326811"/>
+  </class>
+  <class name="reco::GsfElectron::PflowIsolationVariables" ClassVersion="10">
+   <version ClassVersion="10" checksum="4270399196"/>
+  </class>
+  <class name="reco::GsfElectron::MvaInput" ClassVersion="10">
+   <version ClassVersion="10" checksum="2786166332"/>
+  </class>
+  <class name="reco::GsfElectron::MvaOutput" ClassVersion="10">
+   <version ClassVersion="10" checksum="2145829729"/>
+  </class>
   
-  <class name="reco::GsfElectron"/>
+  <class name="reco::GsfElectron" ClassVersion="10">
+   <version ClassVersion="10" checksum="3805055219"/>
+  </class>
   <class name="std::vector<reco::GsfElectron>"/>  
   <class name="edm::RefToBase<reco::GsfElectron>" />
   <class name="edm::reftobase::IndirectHolder<reco::GsfElectron>" />

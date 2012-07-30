@@ -24,6 +24,8 @@ class EBDigitizerTraits
       typedef EcalElectronicsSim ElectronicsSim;
 
       typedef CaloTSamples<float,10> EcalSamples ;
+
+      static void fix( Digi& digi, edm::DataFrame df ) {};
 };
 
 class EEDigitizerTraits 
@@ -37,6 +39,8 @@ class EEDigitizerTraits
       typedef EcalElectronicsSim ElectronicsSim;
 
       typedef CaloTSamples<float,10> EcalSamples ;
+
+      static void fix( Digi& digi, edm::DataFrame df ) {}
 };
 
 class ESDigitizerTraits 
@@ -50,6 +54,18 @@ class ESDigitizerTraits
       typedef ESElectronicsSimFast ElectronicsSim ;
 
       typedef CaloTSamples<float,3> EcalSamples ;
+
+      static void fix( Digi& digi, edm::DataFrame df ) {
+	 for( unsigned int i ( 0 ) ; i != 3; ++i )
+	 {
+	    static const int offset ( 65536 ) ; // for int16 to uint16
+	    const int16_t dshort ( digi[i].raw() ) ;
+	    const int     dint   ( (int) dshort + // add offset for uint16 conversion
+				   ( (int16_t) 0 > dshort ? 
+				     offset : (int) 0 ) ) ;
+	    df[i] = dint ;
+	 }
+      }
 };
 
 class ESOldDigitizerTraits 

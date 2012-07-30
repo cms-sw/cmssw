@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: checkdeps,v 1.14 2011/04/29 12:30:55 muzaffar Exp $
+# $Id: checkdeps,v 1.15 2011/07/01 08:27:50 muzaffar Exp $
 #
 # Created by: David Lange
 #             LLNL
@@ -27,8 +27,9 @@ my $checkbuildfile=0;
 my $printFileNames=0;
 my $poison_includes=undef;
 my $poison_only=0;
+my $jobs=4;
  
-foreach my $arg (@ARGV) {
+while (my $arg=shift) {
     if ( $arg eq "-a" ) {
 	$checkout=1;
 	if (!defined $poison_includes) {$poison_includes=1;}
@@ -54,6 +55,12 @@ foreach my $arg (@ARGV) {
     elsif ( $arg eq "-D" ) {
 	$poison_only=1;
     }
+    elsif ( $arg eq "-j" ) {
+        $arg = shift;
+	if ($arg!~/^\d+$/){die "Error: Invalid value '$arg' use with -j command-line argument.\n";}
+	$jobs=int($arg);
+        if ($jobs<1){$jobs=1;}
+    }
     elsif ( $arg eq "-A" ) {
         $checkpython=1;
         $checkheader=1;
@@ -76,6 +83,7 @@ foreach my $arg (@ARGV) {
               "      are useful to find out if deleted headers files are included by other source files.\n",
               "   -D only dummy copy of deleted files in ${poisondir} directory created.\n",
               "      NOTE: all other dependency check/add command-line args are ignored.\n",
+              "   -j <N> Run N threads to checkout packages. Default is ${jobs}\n",
               "   -q will pass -Q option to cvs to make it quiet\n\n";
 	exit;
     }
@@ -129,16 +137,9 @@ chdir("${localtop}/src");
 
 # Get the list of packages
 my @packages;
-for my $f (`ls`) {
-  chomp($f);
-  if( -d $f && ($f ne "CVS") ) { 
-    for my $ff (`ls ${localtop}/src/$f`) {
-      chomp($ff);
-      my $pack="${f}/${ff}";
-      if(-d $pack && ($ff ne "CVS") ) {
-        push @packages, $pack;
-      }
-    }
+foreach my $pack (glob("*/*")){
+  if (-d "$pack/.admin"){
+    push @packages, $pack;
   }
 }
 
@@ -216,12 +217,16 @@ if ( $len > 0 ) {
 	}
     }
     if ( $checkout == 1 ) {
-	foreach my $pk (@t) {
-	    my $tag = $tags->{$pk};
-	    print ">> Checking out $tag $pk\n";
-	    system("cvs $cvsOpt co -r $tag $pk");
-	    $exitcode+=$?;
-	}
+        chdir ($localtop);
+        use File::Temp qw(tempfile);
+        my ($fh,$fname) = tempfile('./tmp/checkdepsXXXXX', UNLINK => 1);;
+        foreach my $pk (@t) {
+            my $tag = $tags->{$pk};
+            print $fh "$pk ",$tags->{$pk},"\n";
+        }
+        system("cmspm co --n-threads $jobs < $fname");
+        $exitcode+=$?;
+        close($fh);
     }
 }
 if ($exitcode>0){$exitcode=1;}

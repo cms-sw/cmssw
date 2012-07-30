@@ -1,28 +1,34 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.7 $"
 
 import os
 import subprocess
 import time
 import re
 
-defaultEOSinitCommand = 'source /afs/cern.ch/cms/caf/eos.sh ; alias'
-defaultEOSBasePath = '/eos/cms/store/lhe'
-defaultEOSLoadPath = '/store/lhe'
-defaultEOSlistCommand = 'eoscms ls'
-defaultEOSfulllistCommand = 'eoscms ls -l'
-defaultEOSmkdirCommand = 'eoscms mkdir'
-defaultEOScpCommand = 'cmsStage'
+defaultEOSRootPath = '/eos/cms/store/lhe'
+defaultEOSLoadPath = 'root://eoscms/'
+defaultEOSlistCommand = 'xrd eoscms dirlist '
+defaultEOSmkdirCommand = 'xrd eoscms mkdir '
+defaultEOSfeCommand = 'xrd eoscms existfile '
+defaultEOScpCommand = 'xrdcp -np '
+
+def findXrdDir(theDirRecord):
+
+    elements = theDirRecord.split(' ')
+    if len(elements) > 1:
+        return elements[-1].rstrip('\n').split('/')[-1]
+    else:
+        return None
 
 def articleExist(artId):
 
     itExists = False
-    uploadPath = defaultEOSBasePath
-    theCommand = EOSCommandPath+defaultEOSlistCommand+' '+uploadPath
+    theCommand = defaultEOSlistCommand+' '+defaultEOSRootPath
     dirList = subprocess.Popen(["/bin/sh","-c",theCommand], stdout=subprocess.PIPE)
     for line in dirList.stdout.readlines():
-        if line.rstrip('\n') == str(artId): 
+        if findXrdDir(line) == str(artId): 
             itExists = True
 
     return itExists
@@ -31,18 +37,19 @@ def lastArticle():
 
     artList = [0]
 
-    theCommand = EOSCommandPath+defaultEOSlistCommand+' '+defaultEOSBasePath
+    theCommand = defaultEOSlistCommand+' '+defaultEOSRootPath
     dirList = subprocess.Popen(["/bin/sh","-c",theCommand], stdout=subprocess.PIPE)
     for line in dirList.stdout.readlines():
         try:
-            artList.append(int(line.rstrip('\n')))
+            if line.rstrip('\n') != '':
+                artList.append(int(findXrdDir(line)))
         except:
             break
 
     return max(artList)
 
 
-def fileUpload(uploadPath,lheList):
+def fileUpload(uploadPath,lheList, reallyDoIt):
 
     inUploadScript = ''
 
@@ -50,23 +57,30 @@ def fileUpload(uploadPath,lheList):
         # Check the file existence
         newFileName = uploadPath+'/'+str(f)
         addFile = True
-        if os.path.exists(newFileName):
+        additionalOption = ''  
+        theCommand = defaultEOSfeCommand+' '+newFileName
+        exeFullList = subprocess.Popen(["/bin/sh","-c",theCommand], stdout=subprocess.PIPE)
+        result = exeFullList.stdout.readlines()
+        if result[0].rstrip('\n') == 'The file exists.':
             addFile = False
             print 'File '+newFileName+' already exists: do you want to overwrite? [y/n]'
             reply = raw_input()
             if reply == 'y' or reply == 'Y':
                 addFile = True
+                additionalOption = ' -f '
                 print ''
                 print 'Overwriting file '+newFileName+'\n'
         # add the file
         if addFile:
-            inUploadScript += defaultEOScpCommand+' '+str(f)+' '+uploadPath+'\n'
+            print 'Adding file '+str(f)+'\n'
+            inUploadScript += defaultEOScpCommand+additionalOption+' '+str(f)+' '+defaultEOSLoadPath+uploadPath+'/'+str(f)+'\n'
 
 # launch the upload shell script        
 
     print '\n Launching upload script \n'+inUploadScript+'\n at '+time.asctime(time.localtime(time.time()))+' ...\n'
-    exeRealUpload = subprocess.Popen(["/bin/sh","-c",inUploadScript])
-    exeRealUpload.communicate()
+    if reallyDoIt:  
+      exeRealUpload = subprocess.Popen(["/bin/sh","-c",inUploadScript])
+      exeRealUpload.communicate()
     print '\n Upload ended at '+time.asctime(time.localtime(time.time()))
 
 #################################################################################################    
@@ -97,7 +111,13 @@ if __name__ == '__main__':
     parser.add_option('-l', '--list', 
                       help='List the files in article <Id>' ,
                       default=0,
-                      dest='artIdLi')                      
+                      dest='artIdLi')                     
+    
+    parser.add_option('-d', '--dry-run',
+                      help='dry run, it does nothing, but you can see what it would do',
+                      action='store_true',
+                      default=False,
+                      dest='dryRun')
 
     (options,args) = parser.parse_args()
 
@@ -109,6 +129,8 @@ if __name__ == '__main__':
     print 'Running on ',time.asctime(time.localtime(time.time()))
     print ''
     
+    reallyDoIt = not options.dryRun
+
     # Now some fault control..If an error is found we raise an exception
     if not options.newId and options.artIdUp==0 and options.artIdLi==0:
         raise Exception('Please specify the action to be taken, either "-n", "-u" or "-l"!')
@@ -140,47 +162,47 @@ if __name__ == '__main__':
     newArt = 0
     uploadPath = ''
 
-    loadEOSpath = subprocess.Popen(["/bin/sh","-c",defaultEOSinitCommand], stdout=subprocess.PIPE)
-    EOSCommandPath = ' ' 
-    for line in loadEOSpath.stdout.readlines():
-        EOSCommandPath =  line.rsplit('\'')[1].rstrip('eoscms')
-
 # new article
 
     if options.newId:
         oldArt = lastArticle()
         newArt = oldArt+1
         print 'Creating new article with identifier '+str(newArt)+' ...\n'
-        uploadPath = defaultEOSBasePath+'/'+str(newArt)
-        theCommand = EOSCommandPath+defaultEOSmkdirCommand+' '+uploadPath
-        exeUpload = subprocess.Popen(["/bin/sh","-c",theCommand])
-        exeUpload.communicate()
-        uploadPath = defaultEOSLoadPath+'/'+str(newArt)
+        uploadPath = defaultEOSRootPath+'/'+str(newArt)
+        theCommand = defaultEOSmkdirCommand+' '+uploadPath
+        if reallyDoIt:
+          exeUpload = subprocess.Popen(["/bin/sh","-c",theCommand])
+          exeUpload.communicate()
 
 # update article
         
     elif options.artIdUp != 0:
         newArt = options.artIdUp
         if articleExist(newArt):
-            uploadPath = defaultEOSLoadPath+'/'+str(newArt)
+            uploadPath = defaultEOSRootPath+'/'+str(newArt)
         else:
-            raise('Article '+newArt+' to be updated does not exist!')
+            raise('Article '+str(newArt)+' to be updated does not exist!')
 
 # list article
         
     elif options.artIdLi !=0:
-        listPath = defaultEOSBasePath+'/'+str(options.artIdLi)
-        theCommand = EOSCommandPath+defaultEOSfulllistCommand+' '+listPath
-        exeList = subprocess.Popen(["/bin/sh","-c",theCommand])
-        exeList.communicate()
+        listPath = defaultEOSRootPath+'/'+str(options.artIdLi)
+        theCommand = defaultEOSlistCommand+' '+listPath
+        exeList = subprocess.Popen(["/bin/sh","-c",theCommand], stdout=subprocess.PIPE)
+        for line in exeList.stdout.readlines():
+            if findXrdDir(line) != None:
+                print findXrdDir(line)
 
 
     if newArt > 0:
-        fileUpload(uploadPath,theList)
-        listPath = defaultEOSBasePath+'/'+str(newArt)
+        fileUpload(uploadPath,theList, reallyDoIt)
+        listPath = defaultEOSRootPath+'/'+str(newArt)
         print ''
         print 'Listing the '+str(newArt)+' article content after upload:'
-        theCommand = EOSCommandPath+defaultEOSfulllistCommand+' '+listPath
-        exeFullList = subprocess.Popen(["/bin/sh","-c",theCommand])
-        exeFullList.communicate()
+        theCommand = defaultEOSlistCommand+' '+listPath
+        if reallyDoIt:
+          exeFullList = subprocess.Popen(["/bin/sh","-c",theCommand])
+          exeFullList.communicate()
+        else:
+          print 'Dry run, nothing was done'
         

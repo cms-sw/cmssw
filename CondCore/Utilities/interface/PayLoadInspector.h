@@ -71,7 +71,7 @@ namespace cond {
     PayLoadInspector() {}
     
     ~PayLoadInspector() {
-      m_object.destruct();
+      if(m_object.address()) m_object.destruct();
     }
     
     PayLoadInspector(cond::CondDB const & conddb): m_session(conddb.session()), m_since(cond::invalidTime), m_token("") {

@@ -26,8 +26,6 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexSmoother.h"
 #include "RecoVertex/MultiVertexFit/interface/MultiVertexFitter.h"
 
-//#define VTXDEBUG
-
 class InclusiveVertexFinder : public edm::EDProducer {
     public:
 	InclusiveVertexFinder(const edm::ParameterSet &params);
@@ -42,8 +40,6 @@ class InclusiveVertexFinder : public edm::EDProducer {
 	edm::InputTag				primaryVertexCollection;
 	edm::InputTag				trackCollection;
 	unsigned int				minHits;
-	unsigned int				maxNTracks;
-	double					maxLIP;
         double 					minPt;
         double 					min3DIPSignificance;
         double 					min3DIPValue;
@@ -64,9 +60,7 @@ InclusiveVertexFinder::InclusiveVertexFinder(const edm::ParameterSet &params) :
 	primaryVertexCollection(params.getParameter<edm::InputTag>("primaryVertices")),
 	trackCollection(params.getParameter<edm::InputTag>("tracks")),
 	minHits(params.getParameter<unsigned int>("minHits")),
-	maxNTracks(params.getParameter<unsigned int>("maxNTracks")),
-       	maxLIP(params.getParameter<double>("maximumLongitudinalImpactParameter")),
- 	minPt(params.getParameter<double>("minPt")), //0.8
+        minPt(params.getParameter<double>("minPt")), //0.8
 	min3DIPSignificance(params.getParameter<double>("seedMin3DIPSignificance")),
 	min3DIPValue(params.getParameter<double>("seedMin3DIPValue")),
 	clusterMaxDistance(params.getParameter<double>("clusterMaxDistance")),
@@ -85,12 +79,11 @@ InclusiveVertexFinder::InclusiveVertexFinder(const edm::ParameterSet &params) :
 
 bool InclusiveVertexFinder::trackFilter(const reco::TrackRef &track) const
 {
-	if (track->hitPattern().numberOfValidHits() < (int)minHits)
-//	if (track->hitPattern().trackerLayersWithMeasurement() < (int)minHits)
+	if (track->hitPattern().trackerLayersWithMeasurement() < (int)minHits)
 		return false;
 	if (track->pt() < minPt )
 		return false;
- 
+        
 	return true;
 }
 
@@ -104,8 +97,7 @@ std::pair<std::vector<reco::TransientTrack>,GlobalPoint> InclusiveVertexFinder::
       float sumWeights=0;
       std::pair<bool,Measurement1D> ipSeed = IPTools::absoluteImpactParameter3D(seed,primaryVertex);
       float pvDistance = ipSeed.second.value();
-//      float densityFactor = 2./sqrt(20.*tracks.size()); // assuming all tracks being in 2 narrow jets of cone 0.3
-      float densityFactor = 2./sqrt(20.*80); // assuming 80 tracks being in 2 narrow jets of cone 0.3
+
       for(std::vector<reco::TransientTrack>::const_iterator tt = tracks.begin();tt!=tracks.end(); ++tt )   {
 
        if(*tt==seed) continue;
@@ -131,22 +123,13 @@ std::pair<std::vector<reco::TransientTrack>,GlobalPoint> InclusiveVertexFinder::
                  float dotprodSeed = (dist.points().second-pv).unit().dot(seed.impactPointState().globalDirection().unit());
 
                  float w = distanceFromPV*distanceFromPV/(pvDistance*distance);
-          	 bool selected = (m.significance() < clusterMaxSignificance && 
+
+          	 if(m.significance() < clusterMaxSignificance && 
                     dotprodSeed > clusterMinAngleCosine && //Angles between PV-PCAonSeed vectors and seed directions
                     dotprodTrack > clusterMinAngleCosine && //Angles between PV-PCAonTrack vectors and track directions
                     dotprodTrackSeed2D > clusterMinAngleCosine && //Angle between track and seed
-        //      distance*clusterScale*tracks.size() < (distanceFromPV+pvDistance)*(distanceFromPV+pvDistance)/pvDistance && // cut scaling with track density
-                   distance*clusterScale < densityFactor*distanceFromPV && // cut scaling with track density
-                    distance < clusterMaxDistance);  // absolute distance cut
-
-#ifdef VTXDEBUG
-            	    std::cout << tt->trackBaseRef().key() << " :  " << (selected?"+":" ")<< " " << m.significance() << " < " << clusterMaxSignificance <<  " &&  " << 
-                    dotprodSeed  << " > " <<  clusterMinAngleCosine << "  && " << 
-                    dotprodTrack  << " > " <<  clusterMinAngleCosine << "  && " << 
-                    dotprodTrackSeed2D  << " > " <<  clusterMinAngleCosine << "  &&  "  << 
-                    distance*clusterScale  << " < " <<  densityFactor*distanceFromPV << "  crossingtoPV: " << distanceFromPV <<  std::endl; // cut scaling with track density
-#endif           
-                 if(selected)
+                    distance*clusterScale < distanceFromPV*distanceFromPV/pvDistance && // cut scaling with track density
+                    distance < clusterMaxDistance)  // absolute distance cut
                  {
                      result.push_back(*tt);
                      seedingPoint = GlobalPoint(cp.x()*w+seedingPoint.x(),cp.y()*w+seedingPoint.y(),cp.z()*w+seedingPoint.z());  
@@ -203,9 +186,7 @@ void InclusiveVertexFinder::produce(edm::Event &event, const edm::EventSetup &es
 		TrackRef ref(tracks, track - tracks->begin());
 		if (!trackFilter(ref))
 			continue;
-                if( std::abs(ref->dz(pv.position())) > maxLIP)
-			continue;
- 
+
 		TransientTrack tt = trackBuilder->build(ref);
 		tt.setBeamSpot(*beamSpot);
 		tts.push_back(tt);
@@ -213,9 +194,7 @@ void InclusiveVertexFinder::produce(edm::Event &event, const edm::EventSetup &es
 //                std::cout << "track: " << ip.second.value() << " " << ip.second.significance() << " " << track->hitPattern().trackerLayersWithMeasurement() << " " << track->pt() << " " << track->eta() << std::endl;
                 if(ip.first && ip.second.value() >= min3DIPValue && ip.second.significance() >= min3DIPSignificance)
                   { 
-#ifdef VTXDEBUG
-                    std::cout << "new seed " <<  track-tracks->begin() << " " << ip.second.value() << " " << ip.second.significance() << " " << track->hitPattern().trackerLayersWithMeasurement() << " " << track->pt() << " " << track->eta() << std::endl;
-#endif
+  //                  std::cout << "new seed " << ip.second.value() << " " << ip.second.significance() << " " << track->hitPattern().trackerLayersWithMeasurement() << " " << track->pt() << " " << track->eta() << std::endl;
                     seeds.push_back(tt);  
                   }
  
@@ -240,9 +219,9 @@ void InclusiveVertexFinder::produce(edm::Event &event, const edm::EventSetup &es
 	    s != seeds.end(); ++s,++i)
         {
                 
-//		std::cout << "Seed N. "<<i <<   std::endl;
+//		std::cout << "Match pvd = "<< pvd[i] <<   std::endl;
         	std::pair<std::vector<reco::TransientTrack>,GlobalPoint>  ntracks = nearTracks(*s,tts,pv);
-                if(ntracks.first.size() == 0 || ntracks.first.size() > maxNTracks ) continue;
+                if(ntracks.first.size() == 0 ) continue;
                 ntracks.first.push_back(*s);
                 clusters.push_back(ntracks.first); 
 	 	std::vector<TransientVertex> vertices;
@@ -264,12 +243,10 @@ void InclusiveVertexFinder::produce(edm::Event &event, const edm::EventSetup &es
                          Measurement1D dlen= vdist.distance(pv,*v);
                          Measurement1D dlen2= vdist2d.distance(pv,*v);
 			 reco::Vertex vv(*v);
-#ifdef VTXDEBUG
-                       std::cout << "V chi2/n: " << v->normalisedChiSquared() << " ndof: " <<v->degreesOfFreedom() ;
-                         std::cout << " dlen: " << dlen.value() << " error: " << dlen.error() << " signif: " << dlen.significance();
-                         std::cout << " dlen2: " << dlen2.value() << " error2: " << dlen2.error() << " signif2: " << dlen2.significance();
-                         std::cout << " pos: " << vv.position() << " error: " <<vv.xError() << " " << vv.yError() << " " << vv.zError() << std::endl;
-#endif
+  //                       std::cout << "V chi2/n: " << v->normalisedChiSquared() << " ndof: " <<v->degreesOfFreedom() ;
+    //                     std::cout << " dlen: " << dlen.value() << " error: " << dlen.error() << " signif: " << dlen.significance();
+      //                   std::cout << " dlen2: " << dlen2.value() << " error2: " << dlen2.error() << " signif2: " << dlen2.significance();
+        //                 std::cout << " pos: " << vv.position() << " error: " <<vv.xError() << " " << vv.yError() << " " << vv.zError() << std::endl;
                          GlobalVector dir;  
 			 std::vector<reco::TransientTrack> ts = v->originalTracks();
                         for(std::vector<reco::TransientTrack>::const_iterator i = ts.begin();
@@ -277,23 +254,20 @@ void InclusiveVertexFinder::produce(edm::Event &event, const edm::EventSetup &es
                                 reco::TrackRef t = i->trackBaseRef().castTo<reco::TrackRef>();
                                 float w = v->trackWeight(*i);
                                 if (w > 0.5) dir+=i->impactPointState().globalDirection();
-#ifdef VTXDEBUG
-                                std::cout << "\t[" << (*t).pt() << ": "
-                                          << (*t).eta() << ", "
-                                          << (*t).phi() << "], "
-                                          << w << std::endl;
-#endif
+          //                      std::cout << "\t[" << (*t).pt() << ": "
+            //                              << (*t).eta() << ", "
+              //                            << (*t).phi() << "], "
+                //                          << w << std::endl;
                         }
 		       GlobalPoint ppv(pv.position().x(),pv.position().y(),pv.position().z());
 		       GlobalPoint sv((*v).position().x(),(*v).position().y(),(*v).position().z());
                        float vscal = dir.unit().dot((sv-ppv).unit()) ;
 //                        std::cout << "Vscal: " <<  vscal << std::endl;
-                       if(dlen.significance() > vertexMinDLenSig  && vscal > vertexMinAngleCosine &&  v->normalisedChiSquared() < 10 && dlen2.significance() > vertexMinDLen2DSig)
-	            	  {	 
-				recoVertices->push_back(*v);
-//	                        std::cout << "ADDED" << std::endl;
-                         }
-                      }
+                        if(dlen.significance() > vertexMinDLenSig  && vscal > vertexMinAngleCosine &&  v->normalisedChiSquared() < 10 && dlen2.significance() > vertexMinDLen2DSig)
+       			 recoVertices->push_back(*v);
+
+
+                        }
                    }
         }
 	event.put(recoVertices);

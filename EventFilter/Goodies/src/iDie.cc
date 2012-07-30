@@ -14,6 +14,9 @@
 #include <iomanip>
 #include <algorithm>
 
+#include <sys/time.h>
+#include <time.h>
+
 #include "cgicc/CgiDefs.h"
 #include "cgicc/Cgicc.h"
 #include "cgicc/FormEntry.h"
@@ -39,6 +42,21 @@ iDie::iDie(xdaq::ApplicationStub *s)
   , nstates_(0)
   , cpustat_(std::vector<std::vector<int> >(0))
   , last_ls_(0)
+  , f_(0)
+  , t_(0)
+  , b_(0)
+  , b1_(0)
+  , b2_(0)
+  , b3_(0)
+  , b4_(0)
+  , datap_(0)
+  , trppriv_(0)
+  , nModuleLegendaMessageReceived_(0)
+  , nPathLegendaMessageReceived_(0)
+  , nModuleLegendaMessageWithDataReceived_(0)
+  , nPathLegendaMessageWithDataReceived_(0)
+  , nModuleHistoMessageReceived_(0)
+  , nPathHistoMessageReceived_(0)
 {
   // initialize application info
   url_     =
@@ -64,6 +82,7 @@ iDie::iDie(xdaq::ApplicationStub *s)
   xgi::bind(this,&evf::iDie::updater,                  "updater");
   xgi::bind(this,&evf::iDie::iChoke,                   "iChoke" );
   xgi::bind(this,&evf::iDie::iChokeMiniInterface,      "iChokeMiniInterface" );
+  xgi::bind(this,&evf::iDie::spotlight,                "Spotlight" );
   xgi::bind(this,&evf::iDie::postEntry,                "postEntry");
   xgi::bind(this,&evf::iDie::postEntryiChoke,          "postChoke");
   //  gui_->setSmallAppIcon("/evf/images/Hilton.gif");
@@ -73,6 +92,14 @@ iDie::iDie(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("parameterSet",         &configString_                );
   ispace->fireItemAvailable("runNumber",            &runNumber_                   );
   getApplicationInfoSpace()->addItemChangedListener("runNumber",              this);
+
+  // timestamps
+  lastModuleLegendaMessageTimeStamp_.tv_sec=0;
+  lastModuleLegendaMessageTimeStamp_.tv_usec=0;
+  lastPathLegendaMessageTimeStamp_.tv_sec=0;
+  lastPathLegendaMessageTimeStamp_.tv_usec=0;
+  runStartDetectedTimeStamp_.tv_sec=0;
+  runStartDetectedTimeStamp_.tv_usec=0;
 }
 
 
@@ -165,14 +192,23 @@ void iDie::defaultWeb(xgi::Input *in,xgi::Output *out)
   cgicc::Cgicc cgi(in);
   std::string method = cgi.getEnvironment().getRequestMethod();
   if(method == "POST"){
-    unsigned int run;
+    unsigned int run = 0;
     std::vector<cgicc::FormEntry> el1 = cgi.getElements();
     cgi.getElement("run",el1);
     if(el1.size()!=0){
       run = el1[0].getIntegerValue();
       if(run > runNumber_.value_ || runNumber_.value_==0){
-	if(runNumber_.value_!=0) reset();
 	runNumber_.value_ = run;
+	if(runNumber_.value_!=0) 
+	  {
+	    reset();
+	    if(f_ == 0)
+	      {
+		std::ostringstream ost;
+		ost << "microReport"<<runNumber_<<".root";
+		f_ = new TFile(ost.str().c_str(),"RECREATE","microreport");
+	      }
+	  }
       }
     }
     internal::fu fuinstance;
@@ -255,8 +291,7 @@ void iDie::iChokeMiniInterface(xgi::Input *in,xgi::Output *out)
 {
   unsigned int i = 0;
 
-  std::cout << "iChoke, last_ls= " << last_ls_ << std::endl;
-  if(last_ls_==0) return;
+  if(last_ls_==0) return; //wait until at least one complete cycle so we have all arrays sized correctly !!!
   *out << "<div id=\"cls\">" << last_ls_ << "</div>" 
        << "<div id=\"clr\">" << cpuentries_[last_ls_-1] << "</div>" << std::endl;
   sorted_indices tmp(cpustat_[last_ls_-1]);
@@ -285,7 +320,7 @@ void iDie::iChokeMiniInterface(xgi::Input *in,xgi::Output *out)
   for(i=begin; i < last_ls_; i++)
     *out << "<td>" << trp_[i].eventSummary.totalEvents << "</td>"; 
   *out << "</tr>\n<tr><td></td>";
-  for(int j = 0; j < trp_[last_ls_-1].trigPathsInMenu; j++)
+  for(int j = 0; j < trp_[0].trigPathsInMenu; j++)
     {
       *out << "<tr><td></td>";
       for(i=begin; i < last_ls_; i++)
@@ -295,7 +330,7 @@ void iDie::iChokeMiniInterface(xgi::Input *in,xgi::Output *out)
       *out << "<td>" << mappath_[j] << "</td>";
       *out << "</tr>\n";
     }
-  for(int j = 0; j < trp_[last_ls_-1].endPathsInMenu; j++)
+  for(int j = 0; j < trp_[0].endPathsInMenu; j++)
     {
       *out << "<tr><td></td>";
       for(i=begin; i < last_ls_; i++)
@@ -324,7 +359,6 @@ void iDie::iChoke(xgi::Input *in,xgi::Output *out)
 void iDie::postEntry(xgi::Input*in,xgi::Output*out)
   throw (xgi::exception::Exception)
 {
-  std::cout << "postEntry " << std::endl;
   timeval tv;
   gettimeofday(&tv,0);
   time_t now = tv.tv_sec;
@@ -336,8 +370,8 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
   */
   std::vector<cgicc::FormEntry> el1;
   el1 = cgi.getElements();
-  for(unsigned int i = 0; i < el1.size(); i++)
-    std::cout << "name="<<el1[i].getName() << std::endl;
+//   for(unsigned int i = 0; i < el1.size(); i++)
+//     std::cout << "name="<<el1[i].getName() << std::endl;
   el1.clear();
   cgi.getElement("run",el1);
   if(el1.size()!=0)
@@ -360,6 +394,14 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
 	if(fi!=fus_.end()){
 	  fus_.erase(fi);
 	}
+	if(fus_.size()==0) //close the root file if we know the run is over 
+	  if(f_!=0){
+	    f_->cd();
+	    f_->Write();
+	    f_->Close();
+	    t_ = 0;
+	    delete f_; f_ = 0;
+	  }
       }
       else{
 	totalCores_++;
@@ -402,7 +444,7 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
 void iDie::postEntryiChoke(xgi::Input*in,xgi::Output*out)
   throw (xgi::exception::Exception)
 {
-  std::cout << "postEntryiChoke " << std::endl;
+  //  std::cout << "postEntryiChoke " << std::endl;
   unsigned int lsid = 0;
   cgicc::Cgicc cgi(in); 
   /*  cgicc::CgiEnvironment cgie(in);
@@ -410,8 +452,8 @@ void iDie::postEntryiChoke(xgi::Input*in,xgi::Output*out)
   */
   std::vector<cgicc::FormEntry> el1;
   el1 = cgi.getElements();
-  for(unsigned int i = 0; i < el1.size(); i++)
-    std::cout << "name="<<el1[i].getName() << std::endl;
+//   for(unsigned int i = 0; i < el1.size(); i++)
+//     std::cout << "name="<<el1[i].getName() << std::endl;
   el1.clear();
   cgi.getElement("run",el1);
   if(el1.size()!=0)
@@ -419,6 +461,27 @@ void iDie::postEntryiChoke(xgi::Input*in,xgi::Output*out)
       lsid =  el1[0].getIntegerValue();
     }
   el1.clear();
+
+  //with the first message for the new lsid, resize all containers so 
+  // a web access won't address an invalid location in case it interleaves between 
+  // the first cpustat update and the first scalers update or viceversa
+  if(lsid!=0){
+    if(lsid>cpustat_.size()){
+      cpustat_.resize(lsid,std::vector<int>(nstates_,0));
+      cpuentries_.resize(lsid,0);
+    }
+    if(lsid>trp_.size()){
+      trp_.resize(lsid);
+      funcs::reset(&trp_[lsid-1]);
+      trpentries_.resize(lsid,0);
+    }
+    if(last_ls_ < lsid) {
+      last_ls_ = lsid; 
+      funcs::reset(&trp_[lsid-1]);
+      if(t_ && (last_ls_%10==0)) t_->Write();
+    } 
+  }
+
   cgi.getElement("legenda",el1);
   if(el1.size()!=0)
     {
@@ -427,7 +490,7 @@ void iDie::postEntryiChoke(xgi::Input*in,xgi::Output*out)
   cgi.getElement("trp",el1);
   if(el1.size()!=0)
     {
-      parseModuleHisto(el1[0].getStrippedValue().c_str(),lsid);
+      parseModuleHisto(el1[0].getValue().c_str(),lsid);
     }
   el1.clear();
 }
@@ -437,10 +500,31 @@ void iDie::reset()
 {
   fus_.erase(fus_.begin(),fus_.end());
   totalCores_=0;
+  last_ls_ = 0;
+  trp_.clear();
+  trpentries_.clear();
+  cpustat_.clear();
+  cpuentries_.clear();
+  if(f_!=0){
+    f_->cd();
+    f_->Write();
+    f_->Close();
+    delete f_; f_ = 0;
+  }
+  if(t_ != 0)
+    {delete t_; t_=0;}
+  if(datap_ != 0)
+    {delete datap_; datap_ = 0;}
+  b_=0; b1_=0; b2_=0; b3_=0; b4_=0;
+
 }
 
 void iDie::parseModuleLegenda(std::string leg)
 {
+  nModuleLegendaMessageReceived_++;
+  if(leg=="") return;
+  gettimeofday(&lastModuleLegendaMessageTimeStamp_,0);
+  nModuleLegendaMessageWithDataReceived_++;
   mapmod_.clear();
   //  if(cpustat_) delete cpustat_;
   boost::char_separator<char> sep(",");
@@ -458,13 +542,27 @@ void iDie::parseModuleLegenda(std::string leg)
 
 void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
 {
-  std::cout << "parseModuleHisto ls=" << lsid << std::endl; 
-  if(last_ls_ < lsid) last_ls_ = lsid; 
+  if(lsid==0) return;
+  nModuleHistoMessageReceived_++;
   int *trp = (int*)crp;
-  if(lsid>=cpustat_.size()){
-    cpustat_.resize(lsid,std::vector<int>(nstates_,0));
-    cpuentries_.resize(lsid,0);
+  if(t_==0 && f_!=0){
+    datap_ = new int[nstates_+3];
+    std::ostringstream ost;
+    ost<<mapmod_[0]<<"/I";
+    for(unsigned int i = 1; i < nstates_; i++)
+      ost<<":"<<mapmod_[i];
+    ost<<":nsubp:instance:nproc";
+    f_->cd();
+    t_ = new TTree("microReport","microstate report tree");
+    t_->SetAutoSave(500000);
+    b_ = t_->Branch("microstates",datap_,ost.str().c_str());
+    b1_ = t_->Branch("ls",&lsid,"ls/I");
   }
+  memcpy(datap_,trp,(nstates_+3)*sizeof(int));
+  if(t_!=0){
+    t_->SetEntries(t_->GetEntries()+1); b_->Fill(); b1_->Fill();
+  }
+
   for(unsigned int i=0;i<nstates_; i++)
     {
       cpustat_[lsid-1][i] += trp[i];
@@ -475,8 +573,10 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
 
 void iDie::parsePathLegenda(std::string leg)
 {
-  std::cout << "parsePathLegenda" << std::endl;
-  std::cout << leg << std::endl;
+  nPathLegendaMessageReceived_++;
+  if(leg=="")return;
+  gettimeofday(&lastPathLegendaMessageTimeStamp_,0);
+  nPathLegendaMessageWithDataReceived_++;
   mappath_.clear();
   boost::char_separator<char> sep(",");
   boost::tokenizer<boost::char_separator<char> > tokens(leg, sep);
@@ -488,16 +588,152 @@ void iDie::parsePathLegenda(std::string leg)
 
 void iDie::parsePathHisto(const unsigned char *crp, unsigned int lsid)
 {
-  std::cout << "parsePathHisto ls=" << lsid << std::endl; 
-  TriggerReportStatic *trp = (TriggerReportStatic*)crp;
-  if(lsid>=trp_.size()){
-    trp_.resize(lsid);
-    funcs::reset(&trp_[lsid-1]);
-    trpentries_.resize(lsid,0);
+  if(lsid==0) return;
+  nPathHistoMessageReceived_++;
+//   if(lsid>=trp_.size()){
+//     trp_.resize(lsid);
+//     funcs::reset(&trp_[lsid-1]);
+//     trpentries_.resize(lsid,0);
+//   }
+  trppriv_ = (TriggerReportStatic*)crp;
+  for( int i=0; i< trppriv_->trigPathsInMenu; i++)
+    {
+      r_.ptimesRun[i] = trppriv_->trigPathSummaries[i].timesRun;
+      r_.ptimesPassedPs[i] = trppriv_->trigPathSummaries[i].timesPassedPs;
+      r_.ptimesPassedL1[i] = trppriv_->trigPathSummaries[i].timesPassedL1;
+      r_.ptimesPassed[i] = trppriv_->trigPathSummaries[i].timesPassed;
+      r_.ptimesFailed[i] = trppriv_->trigPathSummaries[i].timesFailed;
+      r_.ptimesExcept[i] = trppriv_->trigPathSummaries[i].timesExcept;
+    }
+  for( int i=0; i< trppriv_->endPathsInMenu; i++)
+    {
+      r_.etimesRun[i] = trppriv_->endPathSummaries[i].timesRun;
+      r_.etimesPassedPs[i] = trppriv_->endPathSummaries[i].timesPassedPs;
+      r_.etimesPassedL1[i] = trppriv_->endPathSummaries[i].timesPassedL1;
+      r_.etimesPassed[i] = trppriv_->endPathSummaries[i].timesPassed;
+      r_.etimesFailed[i] = trppriv_->endPathSummaries[i].timesFailed;
+      r_.etimesExcept[i] = trppriv_->endPathSummaries[i].timesExcept;
+    }
+  r_.nproc = trppriv_->eventSummary.totalEvents;
+  r_.nsub = trppriv_->nbExpected;
+  r_.nrep = trppriv_->nbReporting;
+
+  if(t_!=0 && f_!=0 && b2_==0){
+
+    b2_ = t_->Branch("rate",&r_,"nproc/I:nsub:nrep");
+    std::ostringstream ost1;
+    ost1 << "p_nrun[" << trppriv_->trigPathsInMenu
+	 << "]/I:p_npps[" << trppriv_->trigPathsInMenu
+	 << "]:p_npl1[" << trppriv_->trigPathsInMenu
+	 << "]:p_npp[" << trppriv_->trigPathsInMenu 
+	 << "]:p_npf[" << trppriv_->trigPathsInMenu
+	 << "]:p_npe[" << trppriv_->trigPathsInMenu <<"]";
+
+    b3_ = t_->Branch("paths",r_.ptimesRun,ost1.str().c_str());
+    std::ostringstream ost2;
+    ost2 << "ep_nrun[" << trppriv_->endPathsInMenu
+	 << "]/I:en_npps[" << trppriv_->endPathsInMenu
+	 << "]:ep_npl1[" << trppriv_->endPathsInMenu
+	 << "]:ep_npp[" << trppriv_->endPathsInMenu
+	 << "]:ep_npf[" << trppriv_->endPathsInMenu
+	 << "]:ep_npe[" << trppriv_->endPathsInMenu << "]";
+    b4_ = t_->Branch("endpaths",r_.etimesRun,ost2.str().c_str());
   }
-  funcs::addToReport(&trp_[lsid-1],trp,lsid);
+  if(b2_!=0) b2_->Fill();
+  if(b3_!=0) b3_->Fill();
+  if(b4_!=0) b4_->Fill();
+
+  funcs::addToReport(&trp_[lsid-1],trppriv_,lsid);
   trpentries_[lsid-1]++;
 }
+
+// web pages
+
+void iDie::spotlight(xgi::Input *in,xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+
+  std::string urn = getApplicationDescriptor()->getURN();
+
+  *out << "<!-- base href=\"/" <<  urn
+       << "\"> -->" << std::endl;
+  *out << "<html>"                                                   << std::endl;
+  *out << "<head>"                                                   << std::endl;
+  *out << "<link type=\"text/css\" rel=\"stylesheet\"";
+  *out << " href=\"/evf/html/styles.css\"/>"                   << std::endl;
+  *out << "<title>" << getApplicationDescriptor()->getClassName() 
+       << getApplicationDescriptor()->getInstance() 
+       << " MAIN</title>"     << std::endl;
+  *out << "</head>"                                                  << std::endl;
+  *out << "<body>"                                                   << std::endl;
+  *out << "<table border=\"0\" width=\"100%\">"                      << std::endl;
+  *out << "<tr>"                                                     << std::endl;
+  *out << "  <td align=\"left\">"                                    << std::endl;
+  *out << "    <img"                                                 << std::endl;
+  *out << "     align=\"middle\""                                    << std::endl;
+  *out << "     src=\"/evf/images/spoticon.jpg\""			     << std::endl;
+  *out << "     alt=\"main\""                                        << std::endl;
+  *out << "     width=\"64\""                                        << std::endl;
+  *out << "     height=\"64\""                                       << std::endl;
+  *out << "     border=\"\"/>"                                       << std::endl;
+  *out << "    <b>"                                                  << std::endl;
+  *out << getApplicationDescriptor()->getClassName() 
+       << getApplicationDescriptor()->getInstance()                  << std::endl;
+  *out << "    </b>"                                                 << std::endl;
+  *out << "  </td>"                                                  << std::endl;
+  *out << "  <td width=\"32\">"                                      << std::endl;
+  *out << "    <a href=\"/urn:xdaq-application:lid=3\">"             << std::endl;
+  *out << "      <img"                                               << std::endl;
+  *out << "       align=\"middle\""                                  << std::endl;
+  *out << "       src=\"/hyperdaq/images/HyperDAQ.jpg\""             << std::endl;
+  *out << "       alt=\"HyperDAQ\""                                  << std::endl;
+  *out << "       width=\"32\""                                      << std::endl;
+  *out << "       height=\"32\""                                     << std::endl;
+  *out << "       border=\"\"/>"                                     << std::endl;
+  *out << "    </a>"                                                 << std::endl;
+  *out << "  </td>"                                                  << std::endl;
+  *out << "  <td width=\"32\">"                                      << std::endl;
+  *out << "  </td>"                                                  << std::endl;
+  *out << "  <td width=\"32\">"                                      << std::endl;
+  *out << "    <a href=\"/" << urn << "/\">"                         << std::endl;
+  *out << "      <img"                                               << std::endl;
+  *out << "       align=\"middle\""                                  << std::endl;
+  *out << "       src=\"/evf/images/idieapp.jpg\""		     << std::endl;
+  *out << "       alt=\"main\""                                      << std::endl;
+  *out << "       width=\"32\""                                      << std::endl;
+  *out << "       height=\"32\""                                     << std::endl;
+  *out << "       border=\"\"/>"                                     << std::endl;
+  *out << "    </a>"                                                 << std::endl;
+  *out << "  </td>"                                                  << std::endl;
+  *out << "</tr>"                                                    << std::endl;
+  *out << "</table>"                                                 << std::endl;
+  *out << "<hr/>"                                                    << std::endl;
+  *out << "<table><tr><th>Parameter</th><th>Value</th></tr>"         << std::endl;
+  *out << "<tr><td>module legenda messages received</td><td>" 
+       << nModuleLegendaMessageReceived_ << "</td></tr>"      << std::endl;
+  *out << "<tr><td>path legenda messages received</td><td>" 
+       << nPathLegendaMessageReceived_ << "</td></tr>"        << std::endl;
+  *out << "<tr><td>module legenda messages with data</td><td>" 
+       << nModuleLegendaMessageWithDataReceived_ << "</td></tr>"      << std::endl;
+  *out << "<tr><td>path legenda messages with data</td><td>" 
+       << nPathLegendaMessageWithDataReceived_ << "</td></tr>"        << std::endl;
+  *out << "<tr><td>module histo messages received</td><td>" 
+       << nModuleHistoMessageReceived_<< "</td></tr>"        << std::endl;
+  *out << "<tr><td>path histo messages received</td><td>" 
+       << nPathHistoMessageReceived_<< "</td></tr>"        << std::endl;
+  tm *uptm = localtime(&lastPathLegendaMessageTimeStamp_.tv_sec);
+  char datestring[256];
+  strftime(datestring, sizeof(datestring),"%c", uptm);
+  *out << "<tr><td>time stamp of last path legenda with data</td><td>" 
+       << datestring << "</td></tr>"        << std::endl;
+  uptm = localtime(&lastModuleLegendaMessageTimeStamp_.tv_sec);
+  strftime(datestring, sizeof(datestring),"%c", uptm);
+  *out << "<tr><td>time stamp of last module legenda with data</td><td>" 
+       << datestring << "</td></tr>"        << std::endl;
+  *out << "</table></body>" << std::endl;
+
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // xdaq instantiator implementation macro

@@ -14,6 +14,7 @@ pfElectronTranslator = cms.EDProducer("PFElectronTranslator",
                                       PFGsfElectron = cms.string("pf"),
                                       PFGsfElectronCore = cms.string("pf"),
                                       MVACutBlock = cms.PSet(pfElecMva),
+                                      CheckStatusFlag = cms.bool(True),
                                       isolationValues = cms.PSet(
                                                pfChargedHadrons = cms.InputTag('isoValElectronWithCharged'),
                                                pfPhotons = cms.InputTag('isoValElectronWithPhotons'),

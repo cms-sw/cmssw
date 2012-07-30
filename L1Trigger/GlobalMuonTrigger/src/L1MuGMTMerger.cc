@@ -368,7 +368,9 @@ void L1MuGMTMerger::createMergedCand(int idx_dtcsc, int idx_rpc) {
   int merge_rank_rpc   = merge_rank(rpc_mu[idx_rpc]);
 
   // calculate select-bits (1: take DT/CSC, 0: take RPC)
-  int selected_by_rank = abs(merge_rank_dtcsc) > abs(merge_rank_rpc);
+  // fix: if equal prefer DT/CSC as in HW!
+//  int selected_by_rank = abs(merge_rank_dtcsc) > abs(merge_rank_rpc);
+  int selected_by_rank = abs(merge_rank_dtcsc) >= abs(merge_rank_rpc);
   int selected_by_pt   = dtcsc_mu[idx_dtcsc]->pt_packed() <= rpc_mu[idx_rpc]->pt_packed();
 
   // Selection by combination of min pt and higher rank

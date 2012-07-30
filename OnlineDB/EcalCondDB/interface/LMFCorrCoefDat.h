@@ -73,7 +73,7 @@ class LMFCorrCoefDat {
   void writeDB();
 
  private:
-  static const int MAX_NUMBER_OF_SEQUENCES_TO_FETCH = 32; 
+  static const int MAX_NUMBER_OF_SEQUENCES_TO_FETCH = 8; 
 
   std::map<int, LMFCorrCoefDatComponent *> m_data;   // this map associates SUBIOV_IDs to data
   std::map<int, LMFLmrSubIOV *>            m_subiov; // this map associates SUBIOV_IDs to SubIOVs

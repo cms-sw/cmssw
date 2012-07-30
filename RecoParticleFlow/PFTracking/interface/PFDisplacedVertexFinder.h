@@ -61,13 +61,14 @@ class PFDisplacedVertexFinder {
   /// Sets algo parameters for the vertex finder
   void setParameters(double transvSize, double longSize, 
 		     double primaryVertexCut, double tobCut, 
-		     double tecCut, double minAdaptWeight) {
+		     double tecCut, double minAdaptWeight, bool switchOff2TrackVertex) {
     transvSize_ = transvSize;
     longSize_   = longSize;
     primaryVertexCut_ = primaryVertexCut;
     tobCut_ = tobCut;
     tecCut_ = tecCut;
     minAdaptWeight_ = minAdaptWeight;
+    switchOff2TrackVertex_ = switchOff2TrackVertex;
   }
 
   /// Sets debug printout flag
@@ -165,6 +166,8 @@ class PFDisplacedVertexFinder {
   double tobCut_;
   double tecCut_;
   double minAdaptWeight_;
+
+  bool switchOff2TrackVertex_;
 
   /// Adaptive Vertex Fitter parameters
   

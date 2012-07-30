@@ -370,7 +370,7 @@ void SiPixelRecHitsInputDistributionsMakerNew::fillBarrel(const SiPixelRecHit& r
   
   LocalPoint lp = recHit.localPosition();
 
-  LocalError lerr = recHit.localPositionError();
+  //  LocalError lerr = recHit.localPositionError();
 
   recHitClusterInfo -> Fill(0);
   
@@ -538,7 +538,7 @@ void SiPixelRecHitsInputDistributionsMakerNew::fillForward(const SiPixelRecHit &
   
   LocalPoint lp = recHit.localPosition();
   
-  LocalError lerr = recHit.localPositionError();
+  //  LocalError lerr = recHit.localPositionError();
 
   float sim_x1 = simHit.entryPoint().x();
   float sim_x2 = simHit.exitPoint().x();

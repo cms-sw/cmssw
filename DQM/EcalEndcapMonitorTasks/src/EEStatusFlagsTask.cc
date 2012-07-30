@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2010/10/04 10:54:02 $
- * $Revision: 1.37 $
+ * $Date: 2010/10/04 11:16:02 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  *
 */
@@ -105,15 +105,15 @@ void EEStatusFlagsTask::setup(void){
 
   init_ = true;
 
-  char histo[200];
+  std::string name;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EEStatusFlagsTask");
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EEStatusFlagsTask/EvtType");
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EESFT EVTTYPE %s", Numbers::sEE(i+1).c_str());
-      meEvtType_[i] = dqmStore_->book1D(histo, histo, 31, -1., 30.);
+      name = "EESFT EVTTYPE " + Numbers::sEE(i+1);
+      meEvtType_[i] = dqmStore_->book1D(name, name, 31, -1., 30.);
       meEvtType_[i]->setBinLabel(1, "UNKNOWN", 1);
       meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
       meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::BEAMH4, "BEAMH4", 1);
@@ -143,21 +143,21 @@ void EEStatusFlagsTask::setup(void){
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EEStatusFlagsTask/FEStatus");
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EESFT front-end status %s", Numbers::sEE(i+1).c_str());
-      meFEchErrors_[i][0] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      name = "EESFT front-end status " + Numbers::sEE(i+1);
+      meFEchErrors_[i][0] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       meFEchErrors_[i][0]->setAxisTitle("ix", 1);
       if ( i+1 >= 1 && i+1 <= 9 ) meFEchErrors_[i][0]->setAxisTitle("101-ix", 1);
       meFEchErrors_[i][0]->setAxisTitle("iy", 2);
       dqmStore_->tag(meFEchErrors_[i][0], i+1);
 
-      sprintf(histo, "EESFT MEM front-end status %s", Numbers::sEE(i+1).c_str());
-      meFEchErrors_[i][1] = dqmStore_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      name = "EESFT MEM front-end status " + Numbers::sEE(i+1);
+      meFEchErrors_[i][1] = dqmStore_->book2D(name, name, 2, 0., 2., 1, 0., 1.);
       meFEchErrors_[i][1]->setAxisTitle("pseudo-strip", 1);
       meFEchErrors_[i][1]->setAxisTitle("channel", 2);
       dqmStore_->tag(meFEchErrors_[i][1], i+1);
 
-      sprintf(histo, "EESFT front-end status bits %s", Numbers::sEE(i+1).c_str());
-      meFEchErrors_[i][2] = dqmStore_->book1D(histo, histo, 16, 0., 16.);
+      name = "EESFT front-end status bits " + Numbers::sEE(i+1);
+      meFEchErrors_[i][2] = dqmStore_->book1D(name, name, 16, 0., 16.);
       meFEchErrors_[i][2]->setBinLabel(1+0, "ACTIVE", 1);
       meFEchErrors_[i][2]->setBinLabel(1+1, "DISABLED", 1);
       meFEchErrors_[i][2]->setBinLabel(1+2, "TIMEOUT", 1);
@@ -180,8 +180,8 @@ void EEStatusFlagsTask::setup(void){
     // checking the number of front-end errors in each DCC for each lumi
     // tower error is weighted by 1/34
     // bin 0 contains the number of processed events in the lumi (for normalization)
-    sprintf(histo, "EESFT weighted frontend errors by lumi");
-    meFEchErrorsByLumi_ = dqmStore_->book1D(histo, histo, 18, 1., 19.);
+    name = "EESFT weighted frontend errors by lumi";
+    meFEchErrorsByLumi_ = dqmStore_->book1D(name, name, 18, 1., 19.);
     meFEchErrorsByLumi_->setLumiFlag();
     for (int i = 0; i < 18; i++) {
       meFEchErrorsByLumi_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);

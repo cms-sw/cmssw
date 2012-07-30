@@ -47,6 +47,9 @@ public:
 
   void rescaleError( double scale );
 
+  inline const double primaryMass( void ) const { return thePrimaryMass; }
+  inline const double primaryWidth( void ) const { return thePrimaryWidth; }
+
 private:
 
   void construct( const MagneticField* magField,
@@ -73,6 +76,8 @@ private:
   TsosContainer theOriginalTsos;
   TsosContainer theRefittedTsos;
 
+  double thePrimaryMass;
+  double thePrimaryWidth;
 
   static const unsigned int nLocalParam = 5;
   static const unsigned int nDecayParam = TwoBodyDecayParameters::dimension;

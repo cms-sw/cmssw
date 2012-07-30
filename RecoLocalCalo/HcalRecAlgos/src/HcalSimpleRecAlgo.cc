@@ -11,9 +11,7 @@ static double MaximumFractionalError = 0.0005; // 0.05% error allowed from this 
 HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPulse, float phaseNS) : 
   correctForTimeslew_(correctForTimeslew),
   correctForPulse_(correctForPulse),
-  phaseNS_(phaseNS), setForData_(false), setLeakCorrection_(false) { 
-  initPulseCorr(0);
-}
+  phaseNS_(phaseNS), setForData_(false), setLeakCorrection_(false) { }
   
 
 HcalSimpleRecAlgo::HcalSimpleRecAlgo() : 
@@ -21,9 +19,9 @@ HcalSimpleRecAlgo::HcalSimpleRecAlgo() :
 
 void HcalSimpleRecAlgo::initPulseCorr(int toadd) {
   if (correctForPulse_) {    
-    pulseCorr_=std::auto_ptr<HcalPulseContainmentManager>(
-      new HcalPulseContainmentManager(phaseNS_,MaximumFractionalError)
-    );
+    if (pulseCorr_[toadd].get()==0) {
+      pulseCorr_[toadd]=std::auto_ptr<HcalPulseContainmentCorrection>(new HcalPulseContainmentCorrection(toadd,phaseNS_,MaximumFractionalError));
+    }
   }
 }
 
@@ -125,7 +123,7 @@ namespace HcalSimpleRecAlgoImpl {
 HBHERecHit HcalSimpleRecAlgo::reconstruct(const HBHEDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<HBHEDataFrame,HBHERecHit>(digi,coder,calibs,
 							       first,toadd,correctForTimeslew_,
-							       pulseCorr_->get(digi.id(), toadd),
+							       pulseCorr_[toadd].get(),
 							       HcalTimeSlew::Medium,
                                                                setForData_, setLeakCorrection_);
 }
@@ -134,7 +132,7 @@ HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int 
   return HcalSimpleRecAlgoImpl::reco<HODataFrame,HORecHit>(digi,coder,calibs,
 							   first,toadd,
 							   correctForTimeslew_,
-							   pulseCorr_->get(digi.id(), toadd),
+							   pulseCorr_[toadd].get(),
 							   HcalTimeSlew::Slow,
                                                            setForData_, false);
 }
@@ -142,7 +140,7 @@ HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int 
 HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<HcalCalibDataFrame,HcalCalibRecHit>(digi,coder,calibs,
 									 first,toadd,correctForTimeslew_,
-									 pulseCorr_->get(digi.id(), toadd),
+									 pulseCorr_[toadd].get(),
 									 HcalTimeSlew::Fast,
                                                                          setForData_, false );
 }

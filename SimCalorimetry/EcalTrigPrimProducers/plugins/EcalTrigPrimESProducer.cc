@@ -411,7 +411,7 @@ void EcalTrigPrimESProducer::parseTextFile()
       if (flagPrint_){
         std::cout << "" << st1 << std::endl;
 	std::cout << "" << st2 << std::endl;
-	std::cout << ""<< std::endl;  
+	std::cout << " "<< std::endl;  
       }
       
       //std::cout<<std::endl ;
@@ -492,38 +492,19 @@ void EcalTrigPrimESProducer::parseTextFile()
     if (dataCard == "STRIP_EB") {
       gis>>std::dec>>id ;
       
-      std::string st1;
-      
       if(flagPrint_)
         std::cout<<dataCard<<" "<<std::dec<<id <<std::endl;
-       
+
       param.clear() ;
       for (int i=0 ; i <NBstripparams[0] ; i++) {
         gis>>std::hex>>data ;
-	//std::cout << " data = " << data << std::endl;
         param.push_back(data);
 	
 	if(flagPrint_){
 	  if (i==0){
-	   std::cout<<"0x"<<std::hex<< data << std::endl;
-	  }
-	  else if (i==1){
-	    std::cout<<""<<std::hex<< data << std::endl;
-	  }
-	  else if (i>1){
-	    std::ostringstream oss;
-	    if (i==2){
-	      oss<<"0x"<<std::hex<<data;
-	      std::string result4 = oss.str();
-	      st1.append(result4);
-	    }else if(i==3){
-	      std::ostringstream oss;
-	      oss<<" 0x"<<std::hex<<data;
-	      std::string result5 = oss.str();
-	  
-	      st1.append(result5);
-	      std::cout<< "" << st1 << std::endl;
-	   }
+	    std::cout<<"0x"<<std::hex<<data << std::endl;
+	  }else if (i==1){
+	    std::cout<<" "<<std::hex<<data << std::endl;
 	  }
 	}
       }
@@ -608,7 +589,7 @@ void EcalTrigPrimESProducer::parseTextFile()
         gis>>std::dec>>data ;
         
 	if(flagPrint_){	
-          std::cout << " " << std::dec <<  data << std::endl;
+          std::cout << " " << std::hex <<  data << std::endl;
         }
 	
         param.push_back(data) ;
@@ -649,7 +630,6 @@ void EcalTrigPrimESProducer::parseTextFile()
       
       if(flagPrint_){
         std::cout << st6 << std::endl;
-	std::cout<<std::endl;
       }
        
       //std::cout<<std::endl ;
@@ -710,8 +690,7 @@ void EcalTrigPrimESProducer::parseTextFile()
       
       if(flagPrint_)
         std::cout<<std::endl ;
-        std::cout<<std::endl ;
-	
+      
       mapLut_[id] = param ;
     }
   }

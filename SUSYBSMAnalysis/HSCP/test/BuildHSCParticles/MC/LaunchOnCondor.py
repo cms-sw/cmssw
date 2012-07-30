@@ -77,8 +77,8 @@ def CreateTheShellFile(argv):
 	shell_file=open(Path_Shell,'w')
 	shell_file.write('#! /bin/sh\n')
 	shell_file.write(CopyRights + '\n')
-	shell_file.write('export SCRAM_ARCH=slc5_amd64_gcc434\n')
-        shell_file.write('export BUILD_ARCH=slc5_amd64_gcc434\n')
+	shell_file.write('export SCRAM_ARCH=slc5_ia32_gcc434\n')
+        shell_file.write('export BUILD_ARCH=slc5_ia32_gcc434\n')
         shell_file.write('export VO_CMS_SW_DIR=/nfs/soft/cms\n')
 	shell_file.write('source /nfs/soft/cms/cmsset_default.sh\n')
 	shell_file.write('cd ' + os.getcwd() + '\n')
@@ -105,11 +105,11 @@ def CreateTheShellFile(argv):
 		CreateTheConfigFile(argv);
 		shell_file.write('cd -\n')
 		shell_file.write('cmsRun ' + os.getcwd() + '/'+Path_Cfg + '\n')
-	        shell_file.write('mv '+ Jobs_Name+'* '+os.getcwd()+'/'+Farm_Directories[3]+'\n')
 	else:
 		print #Program to use is not specified... Guess it is bash command		
                 shell_file.write('#Program to use is not specified... Guess it is bash command\n')
 		shell_file.write(argv[1] + " %s\n" % function_argument)
+	shell_file.write('mv '+ Jobs_Name+'* '+os.getcwd()+'/'+Farm_Directories[3]+'\n')
 	shell_file.close()
 	os.system("chmod 777 "+Path_Shell)
 
@@ -217,8 +217,9 @@ def SendCMSJobs(FarmDirectory, JobName, ConfigFile, InputFiles, NJobs, Argv):
 	SendCluster_Create(FarmDirectory, JobName)
 	NJobs = SendCluster_LoadInputFiles(InputFiles, NJobs)
 	for i in range(NJobs):
-        	SendCluster_Push  (["CMSSW", ConfigFile])
-	SendCluster_Submit()
+        	LaunchOnCondor.SendCluster_Push  (["CMSSW", ConfigFile])
+	LaunchOnCondor.SendCluster_Submit()
+
 
 
 def GetListOfFiles(Prefix, InputPattern, Suffix):
@@ -226,19 +227,6 @@ def GetListOfFiles(Prefix, InputPattern, Suffix):
 	for i in range(len(List)):
 		List[i] = Prefix + List[i] + Suffix
 	return List
-
-def ListToFile(InputList, outputFile):
-	out_file=open(outputFile,'w')
-        for i in range(len(InputList)):
-		out_file.write('     ' + InputList[i] + '\n')
-	out_file.close()
-
-def ListToString(InputList):
-	outString = ""
-	for i in range(len(InputList)):
-		outString += InputList[i]
-	return outString
-
 
 def SendCMSMergeJob(FarmDirectory, JobName, InputFiles, OutputFile, KeepStatement):
         SendCluster_Create(FarmDirectory, JobName)
@@ -266,11 +254,20 @@ def SendCMSMergeJob(FarmDirectory, JobName, InputFiles, OutputFile, KeepStatemen
         cfg_file.write('   )\n')
         cfg_file.write(')\n')
         cfg_file.write('\n')
+        cfg_file.write('\n')
+#        cfg_file.write('process.PtHatFilter = cms.EDFilter("PtHatFilter",\n')
+#        cfg_file.write('   MaxPtHat = cms.double(%g),\n' % MaxPtHat) 
+#        cfg_file.write(')\n')
+
         cfg_file.write('process.OUT = cms.OutputModule("PoolOutputModule",\n')
         cfg_file.write('    outputCommands = cms.untracked.vstring(%s),\n' % KeepStatement)
-        cfg_file.write('    fileName = cms.untracked.string(%s)\n' % OutputFile)
+        cfg_file.write('    fileName = cms.untracked.string(%s),\n' % OutputFile)
+#        cfg_file.write('    SelectEvents = cms.untracked.PSet(\n')
+#        cfg_file.write('       SelectEvents = cms.vstring("p")\n')
+#        cfg_file.write('    ),\n')
         cfg_file.write(')\n')
         cfg_file.write('\n')
+#        cfg_file.write('process.p = cms.Path(process.PtHatFilter)\n')
         cfg_file.write('process.endPath = cms.EndPath(process.OUT)\n')
 	cfg_file.close()
         SendCluster_Push  (["CMSSW", Temp_Cfg])

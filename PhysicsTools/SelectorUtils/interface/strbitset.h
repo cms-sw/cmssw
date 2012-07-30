@@ -9,7 +9,7 @@
    to access the underlying bits by a string name instead of via an index.
 
   \author Salvatore Rappoccio
-  \version  $Id: strbitset.h,v 1.6 2010/05/05 17:24:55 srappocc Exp $
+  \version  $Id: strbitset.h,v 1.7 2010/07/23 01:25:22 srappocc Exp $
 */
 
 
@@ -377,7 +377,7 @@ class strbitset {
   
   std::string const & index( size_t i ) const {
     for ( str_index_map::const_iterator f = map_.begin(),
-	    fBegin = map_.begin(), fEnd = map_.end();
+	    fEnd = map_.end();
 	  f != fEnd; ++f ) {
       if ( f->second == i ) return f->first;
     }
