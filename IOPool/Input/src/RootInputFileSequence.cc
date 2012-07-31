@@ -65,13 +65,10 @@ namespace edm {
     labelRawDataLikeMC_(pset.getUntrackedParameter<bool>("labelRawDataLikeMC", true)),
     usingGoToEvent_(false) {
 
-    // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
+    //we now allow the site local config to specify what the TTree cache size should be
     Service<SiteLocalConfig> pSLC;
-    if(pSLC.isAvailable()) {
-      if(treeCacheSize_ != 0U && pSLC->sourceTTreeCacheSize()) {
-        treeCacheSize_ = *(pSLC->sourceTTreeCacheSize());
-      }
-      enablePrefetching_ = pSLC->enablePrefetching();
+    if(treeCacheSize_ != 0U && pSLC.isAvailable() && pSLC->sourceTTreeCacheSize()) {
+      treeCacheSize_ = *(pSLC->sourceTTreeCacheSize());
     }
 
     if(inputType_ == InputType::Primary) {
@@ -209,9 +206,8 @@ namespace edm {
           InputFile::reportSkippedFile(fileIter_->fileName(), fileIter_->logicalFileName());
           Exception ex(errors::FileOpenError, "", e);
           ex.addContext("Calling RootInputFileSequence::initFile()");
-          std::ostringstream out;
-          out << "Input file " << fileIter_->fileName() << " could not be opened.";
-          ex.addAdditionalInfo(out.str());
+          ex.clearMessage();
+          ex << "Input file " << fileIter_->fileName() << " could not be opened because of the following:\n";
           throw ex;
         }
       }
@@ -227,10 +223,9 @@ namespace edm {
           InputFile::reportSkippedFile(fileIter_->fileName(), fileIter_->logicalFileName());
           Exception ex(errors::FallbackFileOpenError, "", e);
           ex.addContext("Calling RootInputFileSequence::initFile()");
-          std::ostringstream out;
-          out << "Input file " << fileIter_->fileName() << " could not be opened.\n";
-          out << "Fallback Input file " << fallbackName << " also could not be opened.";
-          ex.addAdditionalInfo(out.str());
+          ex.clearMessage();
+          ex << "Input file " << fileIter_->fileName() << " could not be opened.\n";
+          ex << "Fallback Input file " << fallbackName << " also could not be opened because of the following:\n";
           throw ex;
         }
       }
@@ -253,8 +248,7 @@ namespace edm {
           currentIndexIntoFile,
           orderedProcessHistoryIDs_,
           labelRawDataLikeMC_,
-          usingGoToEvent_,
-          enablePrefetching_));
+          usingGoToEvent_));
 
       fileIterLastOpened_ = fileIter_;
       indexesIntoFiles_[currentIndexIntoFile] = rootFile_->indexIntoFileSharedPtr();

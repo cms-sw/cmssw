@@ -1812,7 +1812,7 @@ namespace edm {
             << "The parentage ID index value " << it->parentageIDIndex_ << " is out of bounds.  The maximum value is " << parentageIDLookup_.size()-1 << ".\n"
             << "This should never happen.\n"
             << "Please report this to the framework hypernews forum 'hn-cms-edmFramework@cern.ch'.\n";
-          }
+        }
         mapper.insertIntoSet(ProductProvenance(BranchID(it->branchID_), parentageIDLookup_[it->parentageIDIndex_]));
       }
     }

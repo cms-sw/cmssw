@@ -73,8 +73,7 @@ namespace edm {
              std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile,
              std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
              bool labelRawDataLikeMC,
-             bool usingGoToEvent,
-             bool enablePrefetching);
+             bool usingGoToEvent);
     ~RootFile();
 
     RootFile(RootFile const&) = delete; // Disallow copying and moving
