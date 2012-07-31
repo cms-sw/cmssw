@@ -206,12 +206,6 @@ unsigned short L1RCTReceiverCard::calcTauBit(L1RCTRegion region){
     answer = true;
   }
   unsigned short regionSum = calcRegionSum(region)/2; // divide by two as overflow bit is at the bottom
-  if(regionSum > 10) {
-    std::cout << "RegionSum       " << regionSum << std::endl;
-    std::cout << "etaPattern      " << etaPattern << std::endl;
-    std::cout << "phiPattern      " << phiPattern << std::endl;
-    std::cout << "Tau veto set to " << answer << std::endl;
-  }
   return answer;
 }
 
