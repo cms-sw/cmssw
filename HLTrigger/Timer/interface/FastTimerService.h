@@ -35,7 +35,7 @@ procesing time is diveded into
  - event processing
  - post-event processing overhead
 
-until lumi-processing and run-processing are taken into account, they will count as overhead
+until lumi-processing and run-processing are taken into account, they will count as inter-event overhead
 
 event processing time is diveded into
  - trigger processing (from the begin of the first path to the end of the last path)
@@ -172,9 +172,9 @@ private:
     TH1F *                      dqm_postmodules;
     TH1F *                      dqm_overhead;
     TH1F *                      dqm_total;
-    TH1F *                      dqm_module_counter;     // for each module in the path, track how many times it ran
-    TH1F *                      dqm_module_active;      // for each module in the path, track the active time spent 
-    TH1F *                      dqm_module_total;       // for each module in the path, track the total time spent 
+    TH1F *                      dqm_module_counter; // for each module in the path, track how many times it ran
+    TH1F *                      dqm_module_active;  // for each module in the path, track the active time spent 
+    TH1F *                      dqm_module_total;   // for each module in the path, track the total time spent 
 
   public:
     PathInfo() :
@@ -241,16 +241,19 @@ private:
   // configuration
   const clockid_t                               m_timer_id;             // the default is to use CLOCK_THREAD_CPUTIME_ID, unless useRealTimeClock is set, which will use CLOCK_REALTIME
   bool                                          m_is_cpu_bound;         // if the process is not bound to a single CPU, per-thread or per-process measuerements may be unreliable
-  const bool                                    m_enable_timing_modules;
   const bool                                    m_enable_timing_paths;
+  const bool                                    m_enable_timing_modules;
   const bool                                    m_enable_timing_summary;
-  const bool                                    m_enable_detailed_overhead_accounting;
-  const bool                                    m_enable_dqm;
-  const bool                                    m_enable_dqm_bymodule;
-  const bool                                    m_enable_dqm_bylumi;
+  const bool                                    m_skip_first_path;
 
   // dqm configuration
-  const bool                                    m_skip_first_path;
+  const bool                                    m_enable_dqm;
+  const bool                                    m_enable_dqm_bypath_active;     // require per-path timers
+  const bool                                    m_enable_dqm_bypath_total;      // require per-path and per-module timers
+  const bool                                    m_enable_dqm_bypath_overhead;   // require per-path and per-module timers
+  const bool                                    m_enable_dqm_bypath_details;    // require per-path and per-module timers
+  const bool                                    m_enable_dqm_bymodule;          // require per-module timers
+  const bool                                    m_enable_dqm_bylumi;
   const double                                  m_dqm_eventtime_range;
   const double                                  m_dqm_eventtime_resolution;
   const double                                  m_dqm_pathtime_range;

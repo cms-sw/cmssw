@@ -47,15 +47,18 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   // configuration
   m_timer_id(                   config.getUntrackedParameter<bool>(       "useRealTimeClock",          false) ? CLOCK_REALTIME : CLOCK_THREAD_CPUTIME_ID),
   m_is_cpu_bound(               false ),
-  m_enable_timing_modules(      config.getUntrackedParameter<bool>(       "enableTimingModules",       false) ),
   m_enable_timing_paths(        config.getUntrackedParameter<bool>(       "enableTimingPaths",         false) ),
+  m_enable_timing_modules(      config.getUntrackedParameter<bool>(       "enableTimingModules",       false) ),
   m_enable_timing_summary(      config.getUntrackedParameter<bool>(       "enableTimingSummary",       false) ),
-  m_enable_detailed_overhead_accounting( config.getUntrackedParameter<bool>( "enableDetailedOverheadAccounting", false) ),
-  m_enable_dqm(                 config.getUntrackedParameter<bool>(       "enableDQM",                 false) ),
-  m_enable_dqm_bymodule(        config.getUntrackedParameter<bool>(       "enableDQMbyModule",         false) ),
-  m_enable_dqm_bylumi(          config.getUntrackedParameter<bool>(       "enableDQMbyLumi",           false) ),    // XXX not yet implemented
   m_skip_first_path(            config.getUntrackedParameter<bool>(       "skipFirstPath",             false) ),
   // dqm configuration
+  m_enable_dqm(                 config.getUntrackedParameter<bool>(       "enableDQM",                 false) ),
+  m_enable_dqm_bypath_active(   config.getUntrackedParameter<bool>(       "enableDQMbyPathActive",     false) ),
+  m_enable_dqm_bypath_total(    config.getUntrackedParameter<bool>(       "enableDQMbyPathTotal",      false) ),
+  m_enable_dqm_bypath_overhead( config.getUntrackedParameter<bool>(       "enableDQMbyPathOverhead",   false) ),
+  m_enable_dqm_bypath_details(  config.getUntrackedParameter<bool>(       "enableDQMbyPathDetails",    false) ),
+  m_enable_dqm_bymodule(        config.getUntrackedParameter<bool>(       "enableDQMbyModule",         false) ),
+  m_enable_dqm_bylumi(          config.getUntrackedParameter<bool>(       "enableDQMbyLumi",           false) ),
   m_dqm_eventtime_range(        config.getUntrackedParameter<double>(     "dqmTimeRange",              1000.) ),    // ms
   m_dqm_eventtime_resolution(   config.getUntrackedParameter<double>(     "dqmTimeResolution",            5.) ),    // ms
   m_dqm_pathtime_range(         config.getUntrackedParameter<double>(     "dqmPathTimeRange",           100.) ),    // ms
@@ -230,19 +233,16 @@ void FastTimerService::postBeginJob() {
       for (auto & keyval: m_paths) {
         std::string const & pathname = keyval.first;
         PathInfo          & pathinfo = keyval.second;
-        if (m_enable_detailed_overhead_accounting) {
-          pathinfo.dqm_premodules   = m_dqms->book1D(pathname + "_premodules",   pathname + " pre-modules overhead",   modulebins, 0., m_dqm_moduletime_range)->getTH1F();
-          pathinfo.dqm_premodules  ->StatOverflows(true);
-          pathinfo.dqm_intermodules = m_dqms->book1D(pathname + "_intermodules", pathname + " inter-modules overhead", modulebins, 0., m_dqm_moduletime_range)->getTH1F();
-          pathinfo.dqm_intermodules->StatOverflows(true);
-          pathinfo.dqm_postmodules  = m_dqms->book1D(pathname + "_postmodules",  pathname + " post-modules overhead",  modulebins, 0., m_dqm_moduletime_range)->getTH1F();
-          pathinfo.dqm_postmodules ->StatOverflows(true);
-        } else {
-          pathinfo.dqm_overhead     = m_dqms->book1D(pathname + "_overhead",     pathname + " overhead time",          pathbins, 0., m_dqm_pathtime_range)->getTH1F();
-          pathinfo.dqm_overhead    ->StatOverflows(true);
-        }
-        pathinfo.dqm_total = m_dqms->book1D(pathname + "_total",        pathname + " total time",             pathbins, 0., m_dqm_pathtime_range)->getTH1F();
-        pathinfo.dqm_total ->StatOverflows(true);
+        pathinfo.dqm_premodules   = m_dqms->book1D(pathname + "_premodules",   pathname + " pre-modules overhead",   modulebins, 0., m_dqm_moduletime_range)->getTH1F();
+        pathinfo.dqm_premodules   ->StatOverflows(true);
+        pathinfo.dqm_intermodules = m_dqms->book1D(pathname + "_intermodules", pathname + " inter-modules overhead", modulebins, 0., m_dqm_moduletime_range)->getTH1F();
+        pathinfo.dqm_intermodules ->StatOverflows(true);
+        pathinfo.dqm_postmodules  = m_dqms->book1D(pathname + "_postmodules",  pathname + " post-modules overhead",  modulebins, 0., m_dqm_moduletime_range)->getTH1F();
+        pathinfo.dqm_postmodules  ->StatOverflows(true);
+        pathinfo.dqm_overhead     = m_dqms->book1D(pathname + "_overhead",     pathname + " overhead time",          pathbins, 0., m_dqm_pathtime_range)->getTH1F();
+        pathinfo.dqm_overhead     ->StatOverflows(true);
+        pathinfo.dqm_total        = m_dqms->book1D(pathname + "_total",        pathname + " total time",             pathbins, 0., m_dqm_pathtime_range)->getTH1F();
+        pathinfo.dqm_total        ->StatOverflows(true);
         
         // book histograms for modules-in-paths statistics
         size_t id;
@@ -304,41 +304,27 @@ void FastTimerService::postEndJob() {
             << std::right << std::setw(10) << m_paths[name].summary_active  / (double) m_summary_events << "  "
             << name << '\n';
     } else if (m_enable_timing_paths and m_enable_timing_modules) {
-      if (m_enable_detailed_overhead_accounting) {
-        out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Pre-mods Inter-mods  Post-mods      Total  Path" << '\n';
-      } else {
-        out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Overhead      Total  Path" << '\n';
-      }
+      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active      Pre-    Inter- Post-mods  Overhead     Total  Path" << '\n';
       for (auto const & name: tns.getTrigPaths()) {
         out << "FastReport              "
-            << std::right << std::setw(10) << m_paths[name].summary_active        / (double) m_summary_events << " ";
-        if (m_enable_detailed_overhead_accounting) {
-          out << std::right << std::setw(10) << m_paths[name].summary_premodules    / (double) m_summary_events << " "
-              << std::right << std::setw(10) << m_paths[name].summary_intermodules  / (double) m_summary_events << " "
-              << std::right << std::setw(10) << m_paths[name].summary_postmodules   / (double) m_summary_events << " ";
-        } else {
-          out << std::right << std::setw(10) << m_paths[name].summary_overhead      / (double) m_summary_events << "  ";
-        }
-        out << std::right << std::setw(10) << m_paths[name].summary_total         / (double) m_summary_events << "  "
+            << std::right << std::setw(10) << m_paths[name].summary_active        / (double) m_summary_events << " "
+            << std::right << std::setw(10) << m_paths[name].summary_premodules    / (double) m_summary_events << " "
+            << std::right << std::setw(10) << m_paths[name].summary_intermodules  / (double) m_summary_events << " "
+            << std::right << std::setw(10) << m_paths[name].summary_postmodules   / (double) m_summary_events << " "
+            << std::right << std::setw(10) << m_paths[name].summary_overhead      / (double) m_summary_events << " "
+            << std::right << std::setw(10) << m_paths[name].summary_total         / (double) m_summary_events << "  "
             << name << '\n';
       }
       out << '\n';
-      if (m_enable_detailed_overhead_accounting) {
-        out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Pre-mods Inter-mods  Post-mods      Total  Path" << '\n';
-      } else {
-        out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Overhead      Total  Path" << '\n';
-      }
+      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active      Pre-    Inter- Post-mods  Overhead     Total  EndPath" << '\n';
       for (auto const & name: tns.getEndPaths()) {
         out << "FastReport              "
-            << std::right << std::setw(10) << m_paths[name].summary_active        / (double) m_summary_events << " ";
-        if (m_enable_detailed_overhead_accounting) {
-          out << std::right << std::setw(10) << m_paths[name].summary_premodules    / (double) m_summary_events << " "
-              << std::right << std::setw(10) << m_paths[name].summary_intermodules  / (double) m_summary_events << " "
-              << std::right << std::setw(10) << m_paths[name].summary_postmodules   / (double) m_summary_events << " ";
-        } else {
-          out << std::right << std::setw(10) << m_paths[name].summary_overhead      / (double) m_summary_events << "  ";
-        }
-        out << std::right << std::setw(10) << m_paths[name].summary_total         / (double) m_summary_events << "  "
+            << std::right << std::setw(10) << m_paths[name].summary_active        / (double) m_summary_events << " "
+            << std::right << std::setw(10) << m_paths[name].summary_premodules    / (double) m_summary_events << " "
+            << std::right << std::setw(10) << m_paths[name].summary_intermodules  / (double) m_summary_events << " "
+            << std::right << std::setw(10) << m_paths[name].summary_postmodules   / (double) m_summary_events << " "
+            << std::right << std::setw(10) << m_paths[name].summary_overhead      / (double) m_summary_events << " "
+            << std::right << std::setw(10) << m_paths[name].summary_total         / (double) m_summary_events << "  "
             << name << '\n';
       }
     }
@@ -564,7 +550,7 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
         pathinfo.dqm_module_counter->Fill(pathinfo.modules.size());
 
       if (m_is_first_module) {
-        // no modules were active duruing this path, account all the time as overhead
+        // no modules were active during this path, account all the time as overhead
         pre      = 0.;
         inter    = 0.;
         post     = active;
@@ -594,13 +580,10 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
       pathinfo.summary_overhead     += overhead;
       pathinfo.summary_total        += total;
       if (m_dqms) {
-        if (m_enable_detailed_overhead_accounting) {
-          pathinfo.dqm_premodules  ->Fill(pre      * 1000.);      // convert to ms
-          pathinfo.dqm_intermodules->Fill(inter    * 1000.);      // convert to ms
-          pathinfo.dqm_postmodules ->Fill(post     * 1000.);      // convert to ms
-        } else {
-          pathinfo.dqm_overhead    ->Fill(overhead * 1000.);      // convert to ms
-        }
+        pathinfo.dqm_premodules  ->Fill(pre      * 1000.);      // convert to ms
+        pathinfo.dqm_intermodules->Fill(inter    * 1000.);      // convert to ms
+        pathinfo.dqm_postmodules ->Fill(post     * 1000.);      // convert to ms
+        pathinfo.dqm_overhead    ->Fill(overhead * 1000.);      // convert to ms
         pathinfo.dqm_total       ->Fill(total    * 1000.);      // convert to ms
       }
     }
