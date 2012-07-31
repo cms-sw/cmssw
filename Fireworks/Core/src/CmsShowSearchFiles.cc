@@ -37,8 +37,8 @@ private:
    std::set<std::string> m_visited;
 };
 
-static const unsigned int s_columns = 3;
-static const char* const s_prefixes[][s_columns] ={ 
+const static unsigned int s_columns = 3;
+const static char* const s_prefixes[][s_columns] ={ 
   {"http://", "Web site known by you",0},
   {"file:","Local file [you must type full path name]",0},
   {"dcap://","dCache [FNAL]",0},
@@ -326,7 +326,7 @@ void
 CmsShowSearchFiles::readError()
 {
 
-   static const char *s_readError[] = {
+  const static char *s_readError[] = {
       "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd\"> ",
       "<HTML><HEAD><TITLE>HTTP Read Error</TITLE> ",
       "<META http-equiv=Content-Type content=\"text/html; charset=UTF-8\"></HEAD> ",
