@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.37 2010/11/09 16:56:24 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.38 2012/07/31 00:18:43 amraktad Exp $
 //
 
 // system include files
@@ -400,7 +400,7 @@ FWColorManager::oldColorToIndex(Color_t iColor, int version) const
    }
    else
    {
-      static unsigned int s_version45offset = 5;
+      const static unsigned int s_version45offset = 5;
       return iColor < 1011 ? iColor : iColor + s_version45offset ;
    }
 }
