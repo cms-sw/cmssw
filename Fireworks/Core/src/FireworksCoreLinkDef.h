@@ -41,9 +41,6 @@
 #pragma link off all functions;
 #pragma link C++ class FWGUIEventDataAdder;
 
-#pragma link C++ function fwSetInCint(double);
-#pragma link C++ function fwSetInCint(long);
-#pragma link C++ function fwGetObjectPtr();
 #pragma link C++ class CSGConnector;
 #pragma link C++ class FWIntValueListenerBase;
 #pragma link C++ class FWColorFrame;
