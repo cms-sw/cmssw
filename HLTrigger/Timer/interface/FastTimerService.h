@@ -238,11 +238,11 @@ private:
   template <typename T> class PathMap   : public std::tr1::unordered_map<std::string, T> {};
   template <typename T> class ModuleMap : public std::tr1::unordered_map<edm::ModuleDescription const *, T> {};
 
-  // configuration
+  // timer configuration
   const clockid_t                               m_timer_id;             // the default is to use CLOCK_THREAD_CPUTIME_ID, unless useRealTimeClock is set, which will use CLOCK_REALTIME
   bool                                          m_is_cpu_bound;         // if the process is not bound to a single CPU, per-thread or per-process measuerements may be unreliable
-  const bool                                    m_enable_timing_paths;
-  const bool                                    m_enable_timing_modules;
+  bool                                          m_enable_timing_paths;
+  bool                                          m_enable_timing_modules;
   const bool                                    m_enable_timing_summary;
   const bool                                    m_skip_first_path;
 

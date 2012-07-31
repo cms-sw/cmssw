@@ -96,6 +96,10 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_cache_paths(),
   m_cache_modules()
 {
+  // enable timers if required by DQM plots
+  m_enable_timing_paths   = m_enable_timing_paths   or m_enable_dqm_bypath_active or m_enable_dqm_bypath_total;
+  m_enable_timing_modules = m_enable_timing_modules or m_enable_dqm_bypath_total  or m_enable_dqm_bypath_overhead or m_enable_dqm_bypath_details or m_enable_dqm_bymodule;
+
   registry.watchPostBeginJob(      this, & FastTimerService::postBeginJob );
   registry.watchPostEndJob(        this, & FastTimerService::postEndJob );
   registry.watchPrePathBeginRun(   this, & FastTimerService::prePathBeginRun) ;
