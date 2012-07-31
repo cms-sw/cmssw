@@ -38,9 +38,7 @@ if [ -n $title ]; then
 
 		if [ -z $norm ]; then
 		../../../../test/slc5_amd64_gcc462/compareHists $new $reference ${TAG[${i}]} ${TAGREF[${i}]} $title
-		fi
-
-		if [ $norm = "y" ]; then
+		elif [ $norm = "y" ]; then
 		../../../../test/slc5_amd64_gcc462/compareHists $new $reference ${TAG[${i}]} ${TAGREF[${i}]} $title y
 		fi
 
