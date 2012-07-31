@@ -242,6 +242,10 @@ HSCParticleProducer = cms.EDFilter("HSCParticleProducer",
 
 from RecoMuon.Configuration.RecoMuon_cff import *
 from RecoMuon.MuonSeedGenerator.ancientMuonSeed_cfi import *
+
+refittedStandAloneMuons = standAloneMuons.clone()
+refittedStandAloneMuons.STATrajBuilderParameters.DoRefit=True
+
 MTancientMuonSeed = ancientMuonSeed.clone()
 MTancientMuonSeed.DTRecSegmentLabel = "dt4DSegmentsMT"
 MTSAMuons = standAloneMuons.clone()
@@ -249,8 +253,8 @@ MTSAMuons.InputObjects="MTancientMuonSeed"
 RefitMTSAMuons=MTSAMuons.clone()
 RefitMTSAMuons.STATrajBuilderParameters.DoRefit=True
 
-from RecoMuon.MuonIdentification.muons1stStep_cfi import *
-MTMuons = muons1stStep.clone()
+from RecoMuon.MuonIdentification.muons_cfi import *
+MTMuons = muons.clone()
 MTMuons.inputCollectionTypes = cms.vstring('outer tracks')
 #MTMuons.inputCollectionLabels = cms.VInputTag(cms.InputTag("MTSAMuons",""))
 MTMuons.inputCollectionLabels = cms.VInputTag(cms.InputTag("MTSAMuons","UpdatedAtVtx"))
@@ -267,7 +271,7 @@ MuonSegmentProducer = cms.EDProducer("MuonSegmentProducer",
 MTmuontiming = muontiming.clone()
 MTmuontiming.MuonCollection = "MTMuons"
 
-MuonOnlySeq = cms.Sequence(MTancientMuonSeed + MTSAMuons + RefitMTSAMuons + MTMuons + MuonSegmentProducer + MTmuontiming)
+MuonOnlySeq = cms.Sequence(refittedStandAloneMuons + MTancientMuonSeed + MTSAMuons + RefitMTSAMuons + MTMuons + MuonSegmentProducer + MTmuontiming)
 
 ####################################################################################
 #   HSCParticle Selector  (Just an Example of what we can do)
