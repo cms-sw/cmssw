@@ -470,11 +470,10 @@ namespace edm {
         it != itEnd;
         ++it) {
       desc = ptReg.getMapped(*it);
-      if (0!=desc) {
-        //NOTE: some old format files have missing Parentage info
-        // so this can't be fatal.
-        parentageTree_->Fill();
-      }
+      //NOTE: some old format files have missing Parentage info
+      // so a null value of desc can't be fatal.
+      // Root will default construct an object in that case.
+      parentageTree_->Fill();
     }    
   }
 
@@ -743,6 +742,14 @@ namespace edm {
       //get the index to the ParentageID or insert a new value if not already present
       std::pair<std::map<edm::ParentageID,unsigned int>::iterator,bool> i = parentageIDs_.insert(std::make_pair(iProv.parentageID(),static_cast<unsigned int>(parentageIDs_.size())));
       toStore.parentageIDIndex_ = i.first->second;
+      if(toStore.parentageIDIndex_ >= parentageIDs_.size()) {
+        throw edm::Exception(errors::LogicError)
+          << "RootOutputFile::insertProductProvenance\n"
+          << "The parentage ID index value " << toStore.parentageIDIndex_ << " is out of bounds.  The maximum value is currently " << parentageIDs_.size()-1 << ".\n"
+          << "This should never happen.\n"
+          << "Please report this to the framework hypernews forum 'hn-cms-edmFramework@cern.ch'.\n";
+      }
+
       oToInsert.insert(toStore);
       return true;
     }
