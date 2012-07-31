@@ -4,7 +4,7 @@
 
 #include "RecoMET/METAlgorithms/interface/METAlgo.h" 
 #include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
-
+#include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
@@ -32,7 +32,7 @@ namespace
   
     os << "{ ";
 
-   unsigned numEntries = vT.size();
+    unsigned numEntries = vT.size();
     for ( unsigned iEntry = 0; iEntry < numEntries; ++iEntry ) {
       os << vT[iEntry];
       if ( iEntry < (numEntries - 1) ) os << ", ";
@@ -65,9 +65,9 @@ namespace
 }
 
 PFMETProducerMVA::PFMETProducerMVA(const edm::ParameterSet& cfg) 
-  : mvaMEtAlgo_(cfg)
+  : mvaMEtAlgo_(cfg),
     //looseJetIdAlgo_(0),
-    //mvaJetIdAlgo_(cfg)
+    mvaJetIdAlgo_(cfg)
 {
   srcCorrJets_     = cfg.getParameter<edm::InputTag>("srcCorrJets");
   srcUncorrJets_   = cfg.getParameter<edm::InputTag>("srcUncorrJets");
@@ -133,11 +133,19 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
     std::cout << *srcLeptons_i << std::endl;
     edm::Handle<CandidateView> leptons;
     evt.getByLabel(*srcLeptons_i, leptons);
-    for ( CandidateView::const_iterator lepton = leptons->begin();
-	  lepton != leptons->end(); ++lepton ) {
+    for ( CandidateView::const_iterator lepton1 = leptons->begin();
+	  lepton1 != leptons->end(); ++lepton1 ) {
+      bool pMatch = false;
+      for ( CandidateView::const_iterator lepton2 = leptons->begin();
+            lepton2 != leptons->end(); ++lepton2 ) {
+        if(lepton1 == lepton2) continue;
+        if(deltaR(lepton1->p4(),lepton2->p4()) < 0.5 &&
+           lepton1->pt() < lepton2->pt()) pMatch  = true;
+      }
+      if(pMatch) continue;
       mvaMEtUtilities::leptonInfo pLeptonInfo;
-      pLeptonInfo.p4_          = lepton->p4();
-      pLeptonInfo.chargedFrac_ = chargedFrac(&(*lepton));
+      pLeptonInfo.p4_          = lepton1->p4();
+      pLeptonInfo.chargedFrac_ = chargedFrac(&(*lepton1));
       //if(lepton->pt() > 20. && (chargedFrac(&(*lepton)) < 1. || lId == 0) ) lNMu++;
       leptonInfo.push_back(pLeptonInfo); 
     }
@@ -230,7 +238,7 @@ std::vector<mvaMEtUtilities::JetInfo> PFMETProducerMVA::computeJetInfo(const rec
       // check that jet Pt used to compute MVA based jet id. is above threshold
       if ( !(jetInfo.p4_.pt() > minCorrJetPt_) ) continue;
       
-      //jetInfo.mva_ = mvaJetIdAlgo_.computeIdVariables(&(*corrJet), jetEnCorrFactor, hardScatterVertex, vertices, true).mva();
+      jetInfo.mva_ = mvaJetIdAlgo_.computeIdVariables(&(*corrJet), jetEnCorrFactor, hardScatterVertex, vertices, true).mva();
       jetInfo.neutralEnFrac_ = (uncorrJet->neutralEmEnergy() + uncorrJet->neutralHadronEnergy())/uncorrJet->energy();
 
       retVal.push_back(jetInfo);
@@ -276,15 +284,25 @@ double PFMETProducerMVA::chargedFrac(const reco::Candidate *iCand) {
   if(iCand->isMuon())     return 1.;
   if(iCand->isElectron()) return 1.;
   if(iCand->isPhoton())   return 0.;
+  double lPtTot = 0; double lPtCharged = 0;
   const reco::PFTau *lPFTau = 0; 
   lPFTau = dynamic_cast<const reco::PFTau*>(iCand);//} 
-  double lPtTot = 0; double lPtCharged = 0;
-  for (UInt_t i0 = 0; i0 < lPFTau->signalPFCands().size(); i0++) { 
-    lPtTot += (lPFTau->signalPFCands())[i0]->pt(); 
-    if((lPFTau->signalPFCands())[i0]->charge() == 0) continue;
-    lPtCharged += (lPFTau->signalPFCands())[i0]->pt(); 
+  if(lPFTau != 0) { 
+    for (UInt_t i0 = 0; i0 < lPFTau->signalPFCands().size(); i0++) { 
+      lPtTot += (lPFTau->signalPFCands())[i0]->pt(); 
+      if((lPFTau->signalPFCands())[i0]->charge() == 0) continue;
+      lPtCharged += (lPFTau->signalPFCands())[i0]->pt(); 
+    }
+  } else { 
+    const pat::Tau *lPatPFTau = 0; 
+    lPatPFTau = dynamic_cast<const pat::Tau*>(iCand);//} 
+    for (UInt_t i0 = 0; i0 < lPatPFTau->signalPFCands().size(); i0++) { 
+      lPtTot += (lPatPFTau->signalPFCands())[i0]->pt(); 
+      if((lPatPFTau->signalPFCands())[i0]->charge() == 0) continue;
+      lPtCharged += (lPatPFTau->signalPFCands())[i0]->pt(); 
+    }
   }
-  if(lPtTot == 0 || lPFTau->signalPFCands().size() == 0 ) lPtTot = 1.;
+  if(lPtTot == 0) lPtTot = 1.;
   return lPtCharged/lPtTot;
 }
 bool PFMETProducerMVA::passPFLooseId(const PFJet *iJet) { 
