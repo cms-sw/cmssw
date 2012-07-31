@@ -17,6 +17,7 @@
 //
 //
 #include <cfloat>
+#include <climits>
 #include <string>
 #include <sstream>
 #include <cassert>
@@ -94,6 +95,7 @@ private:
     void ntuplizeSummary(const reco::FFTJetProducerSummary* psum,
                          std::string *vars);
     void ntuplizeParton(const reco::GenParticle* parton, double dr, std::string *vars);
+    void findPythia6PartonsQCD(const reco::GenParticleCollection&, unsigned indices[2]);
 
     edm::InputTag genjetCollectionLabel;
 
@@ -109,6 +111,7 @@ private:
     bool subtractPileupAs4Vec;
     bool matchParton;
     bool usingDijetGun;
+    bool usingPythiaQCD;
 
     std::vector<float> ntupleData;
 
@@ -139,6 +142,7 @@ FFTJetDijetMatch::FFTJetDijetMatch(const edm::ParameterSet& ps)
       init_param(bool, subtractPileupAs4Vec),
       init_param(bool, matchParton),
       init_param(bool, usingDijetGun),
+      init_param(bool, usingPythiaQCD),
       ntCalo(0),
       ntPF(0),
       counter(0),
@@ -389,6 +393,26 @@ void FFTJetDijetMatch::ntuplizeSummary(const reco::FFTJetProducerSummary* summar
 }
 
 
+void FFTJetDijetMatch::findPythia6PartonsQCD(
+    const reco::GenParticleCollection& coll,
+    unsigned indices[2])
+{
+    // Find the initial high Pt partons in Pythia 6 QCD production
+    //
+    // The following is just a guess based on the Pythia 6 event
+    // structure. Unfortunately, GenParticle has lost a lot of
+    // information compared to HepMC, so it is difficult to do
+    // better here. Perhaps, this lookup should be done on HepMC
+    // instead (but then the code will not work in AOD).
+    //
+    assert(coll.size() > 7);
+    indices[0] = 6;
+    indices[1] = 7;
+    for (unsigned i=0; i<2; ++i)
+        assert(coll[indices[i]].status() == 3);
+}
+
+
 // ------------ method called once each job just before starting event loop
 void FFTJetDijetMatch::beginJob()
 {
@@ -560,6 +584,28 @@ void FFTJetDijetMatch::fillJetInfo(const edm::Event& iEvent,
                                 partonMatch = igen;
                             }
                         }
+                }
+                else if (usingPythiaQCD)
+                {
+                    unsigned hiPtPartons[2] = {UINT_MAX, UINT_MAX};
+                    findPythia6PartonsQCD(*genParticles, hiPtPartons);
+
+                    for (unsigned ipart=0; ipart<2; ++ipart)
+                    {
+                        const unsigned igen = hiPtPartons[ipart];
+                        assert(igen < genParticles->size());
+                        if (igen != previousPartonMatch)
+                        {
+                            const reco::GenParticle& j((*genParticles)[igen]);
+                            const double d = reco::deltaR(genEta, genPhi,
+                                                          j.eta(), j.phi());
+                            if (d < bestDR)
+                            {
+                                bestDR = d;
+                                partonMatch = igen;
+                            }
+                        }
+                    }
                 }
                 else
                     throw cms::Exception("FFTJetBadConfig")
