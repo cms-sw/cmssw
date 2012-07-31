@@ -67,6 +67,13 @@ process.HSCParticleProducer.useBetaFromEcal = cms.bool(False)
 #no dE/dx cut from skim:
 #process.DedxFilter.filter = cms.bool(False)
 
+#skim the jet collection to keep only 15GeV jets
+process.ak5PFJetsPt15 = cms.EDFilter( "EtMinPFJetSelector",
+     src = cms.InputTag( "ak5PFJets" ),
+     filter = cms.bool( False ),
+     etMin = cms.double( 15.0 )
+)
+
 
 process.Out = cms.OutputModule("PoolOutputModule",
      outputCommands = cms.untracked.vstring(
@@ -77,23 +84,14 @@ process.Out = cms.OutputModule("PoolOutputModule",
          "keep *_genParticles_*_*",
          "keep GenEventInfoProduct_generator_*_*",
          "keep *_offlinePrimaryVertices_*_*",
-         "keep *_cscSegments_*_*",
-         #"keep *_rpcRecHits_*_*",
-         "keep *_dt4DSegments_*_*",
-         "keep *_dt4DSegmentsMT_*_*",
          "keep SiStripClusteredmNewDetSetVector_generalTracksSkim_*_*",
          "keep SiPixelClusteredmNewDetSetVector_generalTracksSkim_*_*",
-         #"keep *_reducedHSCPhbhereco_*_*",      #
-         #"keep *_reducedHSCPEcalRecHitsEB_*_*", #
-         #"keep *_reducedHSCPEcalRecHitsEE_*_*", #
          "keep *_TrackRefitter_*_*",
-         "drop TrajectorysToOnerecoTracksAssociation_TrackRefitter__",
          "keep *_standAloneMuons_*_*",
-         #"drop recoTracks_standAloneMuons__*",
          "keep *_globalMuons_*_*",  #
          "keep *_muonsSkim_*_*",
          "keep edmTriggerResults_TriggerResults_*_*",
-         "keep recoPFJets_ak5PFJets__*", #
+         "keep *_ak5PFJetsPt15__*", #
          "keep recoPFMETs_pfMet__*",     #
          "keep *_HSCParticleProducer_*_*",
          "keep *_HSCPIsolation01__*",
@@ -105,10 +103,14 @@ process.Out = cms.OutputModule("PoolOutputModule",
          "keep *_RefitMTSAMuons_*_*",
          "keep *_MTMuons_*_*",
          "keep *_MTSAMuons_*_*",
-         "keep *_refittedStandAloneMuons_*_*",
          "keep *_MTmuontiming_*_*",
+         "keep *_refittedStandAloneMuons_*_*",
          "keep *_offlineBeamSpot_*_*",
          "keep *_MuonSegmentProducer_*_*",
+         "drop TrajectorysToOnerecoTracksAssociation_TrackRefitter__",
+         "drop recoTrackExtras_*_*_*",
+         "keep recoTrackExtras_TrackRefitter_*_*",
+         "drop TrackingRecHitsOwned_*Muon*_*_*",
     ),
     fileName = cms.untracked.string('HSCP.root'),
     SelectEvents = cms.untracked.PSet(
@@ -149,7 +151,7 @@ process.es_prefer_vDriftDB = cms.ESPrefer('PoolDBESSource','vDriftDB')
 
 
 #LOOK AT SD PASSED PATH IN ORDER to avoid as much as possible duplicated events (make the merging of .root file faster)
-process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.exoticaHSCPSeq * process.nEventsBefEDM * process.HSCParticleProducerSeq)
+process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.exoticaHSCPSeq * process.nEventsBefEDM * process.ak5PFJetsPt15 * process.HSCParticleProducerSeq)
 #process.p1 = cms.Path(process.HSCParticleProducerSeq)
 process.endPath1 = cms.EndPath(process.Out)
 process.schedule = cms.Schedule( process.p1, process.endPath1)

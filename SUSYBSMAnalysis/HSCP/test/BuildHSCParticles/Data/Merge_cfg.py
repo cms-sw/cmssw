@@ -60,30 +60,21 @@ process.HSCPHLTTriggerCosmicFilter = cms.Path(process.HSCPHLTTriggerCosmic   )
 process.Out = cms.OutputModule("PoolOutputModule",
      outputCommands = cms.untracked.vstring(
          "drop *",
-         'keep EventAux_*_*_*',
-         'keep LumiSummary_*_*_*',
-         'keep edmMergeableCounter_*_*_*',
+         "keep EventAux_*_*_*",
+         "keep LumiSummary_*_*_*",
+         "keep edmMergeableCounter_*_*_*",
          "keep *_genParticles_*_*",
          "keep GenEventInfoProduct_generator_*_*",
          "keep *_offlinePrimaryVertices_*_*",
-         "keep *_cscSegments_*_*",
-         #"keep *_rpcRecHits_*_*",
-         "keep *_dt4DSegments_*_*",
-         "keep *_dt4DSegmentsMT_*_*",
          "keep SiStripClusteredmNewDetSetVector_generalTracksSkim_*_*",
          "keep SiPixelClusteredmNewDetSetVector_generalTracksSkim_*_*",
-         #"keep *_reducedHSCPhbhereco_*_*",      #
-         #"keep *_reducedHSCPEcalRecHitsEB_*_*", #
-         #"keep *_reducedHSCPEcalRecHitsEE_*_*", #
          "keep *_TrackRefitter_*_*",
-         "drop TrajectorysToOnerecoTracksAssociation_TrackRefitter__",
          "keep *_standAloneMuons_*_*",
-         #"drop recoTracks_standAloneMuons__*",
-         "keep *_globalMuons_*_*",  #
+         "keep *_globalMuons_*_*",
          "keep *_muonsSkim_*_*",
          "keep edmTriggerResults_TriggerResults_*_*",
-         "keep recoPFJets_ak5PFJets__*", #
-         "keep recoPFMETs_pfMet__*",     #
+         "keep *_ak5PFJetsPt15__*", 
+         "keep recoPFMETs_pfMet__*",     
          "keep *_HSCParticleProducer_*_*",
          "keep *_HSCPIsolation01__*",
          "keep *_HSCPIsolation03__*",
@@ -98,6 +89,10 @@ process.Out = cms.OutputModule("PoolOutputModule",
          "keep *_refittedStandAloneMuons_*_*",
          "keep *_offlineBeamSpot_*_*",
          "keep *_MuonSegmentProducer_*_*",
+         "drop TrajectorysToOnerecoTracksAssociation_TrackRefitter__",
+         "drop recoTrackExtras_*_*_*",
+         "keep recoTrackExtras_TrackRefitter_*_*",
+         "drop TrackingRecHitsOwned_*Muon*_*_*",
     ),
     fileName = cms.untracked.string('/uscmst1b_scratch/lpc1/3DayLifetime/farrell/NewDTError/XXX_OUTPUT_XXX.root'),
     SelectEvents = cms.untracked.PSet(
