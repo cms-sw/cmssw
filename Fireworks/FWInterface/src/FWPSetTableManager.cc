@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:54 CET 2011
-// $Id: FWPSetTableManager.cc,v 1.14 2011/03/07 13:13:51 amraktad Exp $
+// $Id: FWPSetTableManager.cc,v 1.15 2011/03/31 20:49:34 amraktad Exp $
 //
 
 #include <map>
@@ -716,7 +716,7 @@ void FWPSetTableManager::setExpanded(int row)
 
 FWTableCellRendererBase* FWPSetTableManager::cellRenderer(int iSortedRowNumber, int iCol) const
 {
-   static size_t maxSize = 512; // maximum string length
+   const static size_t maxSize = 512; // maximum string length
 
    static TGGC boldGC(fireworks::boldGC()); 
    static TGGC italicGC(fireworks::italicGC()); 
