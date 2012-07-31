@@ -39,6 +39,7 @@
 #include "DataFormats/JetReco/interface/FFTCaloJetCollection.h"
 #include "DataFormats/JetReco/interface/FFTGenJetCollection.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "RecoJets/FFTJetAlgorithms/interface/jetConverters.h"
 #include "RecoJets/FFTJetAlgorithms/interface/adjustForPileup.h"
@@ -92,6 +93,7 @@ private:
                      std::string *vars, unsigned sequenceNumber);
     void ntuplizeSummary(const reco::FFTJetProducerSummary* psum,
                          std::string *vars);
+    void ntuplizeParton(const reco::GenParticle* parton, double dr, std::string *vars);
 
     edm::InputTag genjetCollectionLabel;
 
@@ -105,6 +107,8 @@ private:
 
     double ptConversionFactor;
     bool subtractPileupAs4Vec;
+    bool matchParton;
+    bool usingDijetGun;
 
     std::vector<float> ntupleData;
 
@@ -133,6 +137,8 @@ FFTJetDijetMatch::FFTJetDijetMatch(const edm::ParameterSet& ps)
       init_param(std::string, pfTitle),
       init_param(double, ptConversionFactor),
       init_param(bool, subtractPileupAs4Vec),
+      init_param(bool, matchParton),
+      init_param(bool, usingDijetGun),
       ntCalo(0),
       ntPF(0),
       counter(0),
@@ -318,6 +324,37 @@ void FFTJetDijetMatch::ntuplizeJet(const MyFFTJet* injet,
 }
 
 
+void FFTJetDijetMatch::ntuplizeParton(const reco::GenParticle* parton,
+                                      const double dr, std::string *vars)
+{
+    const unsigned sequenceNumber = 0;
+
+    float partonPt = 0.f;
+    float partonEta = 0.f;
+    float partonPhi = 0.f;
+    float partonMass = 0.f;
+    float partonCode = 0.f;
+    float partonDR = 100.f;
+
+    if (parton)
+    {
+        partonPt = parton->pt();
+        partonEta = parton->eta();
+        partonPhi = parton->phi();
+        partonMass = parton->mass();
+        partonCode = parton->pdgId();
+        partonDR = dr;
+    }
+
+    add_variable(partonPt);
+    add_variable(partonEta);
+    add_variable(partonPhi);
+    add_variable(partonMass);
+    add_variable(partonCode);
+    add_variable(partonDR);
+}
+
+
 void FFTJetDijetMatch::ntuplizeSummary(const reco::FFTJetProducerSummary* summary,
                                        std::string *vars)
 {
@@ -373,6 +410,8 @@ void FFTJetDijetMatch::beginJob()
     math::XYZTLorentzVector dummy;
     ntuplizeJet(0, dummy, &vars, 0U);
     ntuplizeJet(0, dummy, &vars, 1U);
+    if (matchParton)
+        ntuplizeParton(0, 0.0, &vars);
 
     ntupleData.reserve(std::count(vars.begin(), vars.end(), ':') + 1U);
 
@@ -428,6 +467,14 @@ void FFTJetDijetMatch::fillJetInfo(const edm::Event& iEvent,
         // Collection loading reuses the same pileup vector.
         loadCollection<reco::GenJet>(iEvent, genjetCollectionLabel, &genJets);
         loadCollection<JetType>(iEvent, label, &myJets);
+
+        unsigned previousPartonMatch = 0;
+        edm::Handle<reco::GenParticleCollection> genParticles;
+        if (matchParton)
+        {
+            iEvent.getByLabel(edm::InputTag("genParticles"), genParticles);
+            previousPartonMatch = genParticles->size();
+        }
 
         const unsigned nReco = myJets.size();
         if (genJets.size() < 2 || nReco < 2)
@@ -492,6 +539,36 @@ void FFTJetDijetMatch::fillJetInfo(const edm::Event& iEvent,
             ntuplizeJet(&recoJet, myPileup[match], 0, 0U);
             math::XYZTLorentzVector dummy;
             ntuplizeJet(&genjet, dummy, 0, 1U);
+
+            // Are we going to match a parton to genGet?
+            if (matchParton)
+            {
+                unsigned partonMatch = genParticles->size();
+                bestDR = DBL_MAX;
+
+                if (usingDijetGun)
+                {
+                    for (unsigned igen=0; igen<2; ++igen)
+                        if (igen != previousPartonMatch)
+                        {
+                            const reco::GenParticle& j((*genParticles)[igen]);
+                            const double d = reco::deltaR(genEta, genPhi,
+                                                          j.eta(), j.phi());
+                            if (d < bestDR)
+                            {
+                                bestDR = d;
+                                partonMatch = igen;
+                            }
+                        }
+                }
+                else
+                    throw cms::Exception("FFTJetBadConfig")
+                        << "Generic parton matching is not implemented";
+
+                assert(partonMatch < genParticles->size());
+                previousPartonMatch = partonMatch;
+                ntuplizeParton(&(*genParticles)[partonMatch], bestDR, 0);
+            }
 
             assert(ntupleData.size() == static_cast<unsigned>(nt->GetNvar()));
             nt->Fill(&ntupleData[0]);
