@@ -199,12 +199,22 @@ void  HSCPDeDxInfoProducer::beginRun(edm::Run & run, const edm::EventSetup& iSet
              double R       = DetUnit->position().basicVector().transverse();
              double Thick   = DetUnit->surface().bounds().thickness();
 
+
+             const TrapezoidalPlaneBounds* trapezoidalBounds( dynamic_cast<const TrapezoidalPlaneBounds*>(&(DetUnit->surface().bounds())));
+
+
              stModInfo* MOD = new stModInfo;
              MOD->DetId     = Detid.rawId();
              MOD->SubDet    = SubDet;
              MOD->Eta       = Eta;
              MOD->R         = R;
              MOD->Thickness = Thick;
+             MOD->Width     = DetUnit->surface().bounds().width();
+             MOD->Length    = DetUnit->surface().bounds().length();
+             if(trapezoidalBounds!=NULL){
+                std::vector<float> const & parameters = (*trapezoidalBounds).parameters();
+                for(unsigned int p=0;p<parameters.size();p++)MOD->trapezoParams .push_back(parameters[p]);
+             }
              MOD->NAPV      = NAPV;
              MODsColl[MOD->DetId] = MOD;
          }else{
@@ -217,6 +227,8 @@ void  HSCPDeDxInfoProducer::beginRun(edm::Run & run, const edm::EventSetup& iSet
              MOD->Eta       = DetUnit->position().basicVector().eta();
              MOD->R         = DetUnit->position().basicVector().transverse();
              MOD->Thickness = DetUnit->surface().bounds().thickness();
+             MOD->Width     = DetUnit->surface().bounds().width();
+             MOD->Length    = DetUnit->surface().bounds().length();
              MOD->NAPV      = -1;
              MODsColl[MOD->DetId] = MOD;
          }
@@ -280,25 +292,31 @@ void HSCPDeDxInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 	 
          if(sistripsimplehit){
                 FillInfo(DeDxTools::GetCluster(sistripsimplehit), trajState,sistripsimplehit->geographicalId(), hscpDeDxInfo);       
+                FillPosition(trajState,sistripsimplehit->geographicalId(),hscpDeDxInfo);
   	        hscpDeDxInfo.shapetest.push_back(DeDxTools::shapeSelection(DeDxTools::GetCluster(sistripsimplehit)->amplitudes()));
          }else if(sistripmatchedhit){
                 FillInfo(DeDxTools::GetCluster(sistripmatchedhit->monoHit()), trajState, sistripmatchedhit->monoId(), hscpDeDxInfo);
+                FillPosition(trajState,sistripmatchedhit->monoId(),hscpDeDxInfo);
 	        hscpDeDxInfo.shapetest.push_back(DeDxTools::shapeSelection(DeDxTools::GetCluster(sistripmatchedhit->monoHit())->amplitudes()));
            
                 FillInfo(DeDxTools::GetCluster(sistripmatchedhit->stereoHit()), trajState,sistripmatchedhit->stereoId(), hscpDeDxInfo);
-                 hscpDeDxInfo.shapetest.push_back(true);
+                FillPosition(trajState,sistripmatchedhit->stereoId(),hscpDeDxInfo);
+                hscpDeDxInfo.shapetest.push_back(true);
          }else if(sistripsimple1dhit){ 
 	        FillInfo(DeDxTools::GetCluster(sistripsimple1dhit), trajState, sistripsimple1dhit->geographicalId(), hscpDeDxInfo);
+                FillPosition(trajState,sistripsimple1dhit->geographicalId(),hscpDeDxInfo);
                 hscpDeDxInfo.shapetest.push_back(DeDxTools::shapeSelection(DeDxTools::GetCluster(sistripsimple1dhit)->amplitudes()));
-        }else if(pixelHit){
+         }else if(pixelHit){
                 double cosine = trajState.localDirection().z() / trajState.localDirection().mag();
                 stModInfo* MOD = MODsColl[pixelHit->geographicalId()];
                 hscpDeDxInfo.charge.push_back(pixelHit->cluster()->charge());
-                hscpDeDxInfo.probability.push_back(-2);
+                hscpDeDxInfo.chargeUnSat.push_back(pixelHit->cluster()->charge());
+                hscpDeDxInfo.probability.push_back(pixelHit->probabilityQ());
                 hscpDeDxInfo.pathlength.push_back(MOD->Thickness/std::abs(cosine));
                 hscpDeDxInfo.cosine.push_back(cosine);
                 hscpDeDxInfo.detIds.push_back(pixelHit->geographicalId());
                 hscpDeDxInfo.shapetest.push_back(false);
+                FillPosition(trajState,pixelHit->geographicalId(),hscpDeDxInfo);
          }else{
          }
       }
@@ -310,6 +328,28 @@ void HSCPDeDxInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   filler.fill();
   iEvent.put(trackDeDxDiscrimAssociation);
 }
+
+
+void HSCPDeDxInfoProducer::FillPosition(TrajectoryStateOnSurface trajState,  const uint32_t &  detId, susybsm::HSCPDeDxInfo& hscpDeDxInfo)
+{
+   stModInfo* MOD          = MODsColl[detId];
+   LocalPoint HitLocalPos  = trajState.localPosition();
+
+   double Width      = MOD->Width;
+   double Length     = MOD->Length;
+
+   if(MOD->trapezoParams.size()>0){
+      Length     = MOD->trapezoParams[3]*2;
+      double t   = 0.5 + HitLocalPos.y()/Length ;
+      Width      = 2* (MOD->trapezoParams[0] + (MOD->trapezoParams[1]-MOD->trapezoParams[0]) * t);
+   }
+
+   hscpDeDxInfo.modwidth.push_back(Width);
+   hscpDeDxInfo.modlength.push_back(Length);
+   hscpDeDxInfo.localx.push_back(HitLocalPos.x());
+   hscpDeDxInfo.localy.push_back(HitLocalPos.y());
+}
+
 
 void HSCPDeDxInfoProducer::FillInfo(const SiStripCluster*   cluster, TrajectoryStateOnSurface trajState,  const uint32_t &  detId, susybsm::HSCPDeDxInfo& hscpDeDxInfo)
 {
@@ -347,6 +387,7 @@ void HSCPDeDxInfoProducer::FillInfo(const SiStripCluster*   cluster, TrajectoryS
    double Prob   = Prob_ChargePath->GetBinContent(BinX,BinY,BinZ);
 
    hscpDeDxInfo.charge.push_back(charge);
+   hscpDeDxInfo.chargeUnSat.push_back(charge);
    hscpDeDxInfo.probability.push_back(Prob);
    hscpDeDxInfo.pathlength.push_back(path);
    hscpDeDxInfo.cosine.push_back(cosine);

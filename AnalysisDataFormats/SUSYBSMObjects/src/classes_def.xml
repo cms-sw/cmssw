@@ -32,8 +32,8 @@
    <class name="edm::Wrapper<susybsm::HSCPCaloInfoCollection>"/>
    <class name="edm::Wrapper<susybsm::HSCPCaloInfoValueMap>"/>
 
-   <class name="susybsm::HSCPDeDxInfo" ClassVersion="11">
-    <version ClassVersion="11" checksum="2678255976"/>
+   <class name="susybsm::HSCPDeDxInfo" ClassVersion="12">
+    <version ClassVersion="12" checksum="3128834551"/>
    </class>
    <class name="susybsm::HSCPDeDxInfoCollection"/>
    <class name="susybsm::HSCPDeDxInfoValueMap"/>

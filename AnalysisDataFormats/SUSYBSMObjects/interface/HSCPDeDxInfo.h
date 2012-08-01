@@ -15,12 +15,16 @@ namespace susybsm {
   {
    public:
      std::vector<float> charge;
+     std::vector<float> chargeUnSat;
      std::vector<float> probability;
      std::vector<float> pathlength;
      std::vector<float> cosine;
      std::vector<uint32_t> detIds;
      std::vector<bool> shapetest;
-
+     std::vector<float> modwidth;
+     std::vector<float> modlength;
+     std::vector<float> localx;
+     std::vector<float> localy;
      HSCPDeDxInfo(){}
   };
 
