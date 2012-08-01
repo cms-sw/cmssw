@@ -7,25 +7,86 @@
 //~ #include "SherpackFetcher.h"
 #include "GeneratorInterface/SherpaInterface/interface/SherpackFetcher.h"
 
+
+//~ #include <libtar.h>
 namespace spf {
 
-SherpackFetcher::SherpackFetcher(edm::ParameterSet const& pset) :
-  SherpaProcess(pset.getUntrackedParameter<std::string>("SherpaProcess","")),
-  SherpackLocation(pset.getUntrackedParameter<std::string>("SherpackLocation","")),
-  SherpackChecksum(pset.getUntrackedParameter<std::string>("SherpackChecksum",""))
+SherpackFetcher::SherpackFetcher(edm::ParameterSet const& pset)
+{
+		if (!pset.exists("SherpaProcess")) SherpaProcess="";
+		  else SherpaProcess=pset.getParameter<std::string>("SherpaProcess");
+		if (!pset.exists("SherpackLocation")) SherpackLocation="";
+		  else SherpackLocation=pset.getParameter<std::string>("SherpackLocation");
+		if (!pset.exists("SherpackChecksum")) SherpackChecksum="";
+		  else SherpackChecksum=pset.getParameter<std::string>("SherpackChecksum");
+		if (!pset.exists("FetchSherpack")) FetchSherpack=false;
+		  else FetchSherpack=pset.getParameter<bool>("FetchSherpack");
+}
+
+int SherpackFetcher::Fetch()
 {
 
   std::string option  = "-c";
   std::string constr = "`cmsGetFnConnect frontier://smallfiles`";
   std::string sherpack = "sherpa_" + SherpaProcess + "_MASTER.tgz";
+  std::string sherpackunzip = "sherpa_" + SherpaProcess + "_MASTER.tar";
   std::string path = SherpackLocation + "/" + sherpack;
   
   //create the command line
-  char* argv[3];
- 
+   
   //~ //fn-fileget -c "`cmsGetFnConnect frontier://smallfiles`" slc5_ia32_gcc434/sherpa/1.2.2-cms3/8TeV/EWK/sherpa_8TeV_ewk_Zleptons5jetsincl_50_mll_8000_MASTER.tgz 
-  int res =FnFileGet(path);
+  if(FetchSherpack == true){
+		std::cout << "SherpackFetcher: Trying to fetch the Sherpack " << sherpack << std::endl;
+		int res =FnFileGet(path);
+		if (res!=1)  {
+				std::cout <<"SherpackFetcher: Fetching of Sherpack did not succeed, terminating" << std::endl;
+				return -1;
+		}
+		std::cout << "SherpackFetcher: Fetching successful" << std::endl;
+  }
   
+  std::ifstream my_file(sherpack.c_str());
+	if (!my_file.good())
+	{
+      std::cout << "SherpackFetcher: No Sherpack found" << std::endl;
+      return -2;
+	}
+  my_file.close();
+  std::cout << "SherpackFetcher: Sherpack found" << std::endl;
+  
+  if(SherpackChecksum!=""){
+	  char md5checksum[33]; 
+	  spu::md5_File(sherpack, md5checksum);
+	  for (int k=0; k<33; k++){
+		if (md5checksum[k]!= SherpackChecksum[k]) {
+				std::cout << "SherpackFetcher: failure, calculated and specified checksums differ!" << std::endl;
+				return -3;
+		}
+	  }
+	  std::cout << "SherpackFetcher: Calculated checksum of the Sherpack is " << md5checksum << " and matches" << std::endl;
+  } else {
+	  std::cout << "SherpackFetcher: Ignoring Checksum" << std::endl;
+  }
+  
+  
+  std::cout << "SherpackFetcher: Trying to unzip the Sherpack" << std::endl;
+  int res=spu::Unzip(sherpack,sherpackunzip);
+  if (res!=0) {
+		std::cout << "SherpackFetcher: Decompressing failed " << std::endl;
+		return -4;
+  }
+  std::cout << "SherpackFetcher: Decompressing successful " << std::endl;
+  
+  FILE *file = fopen(const_cast<char*>(sherpackunzip.c_str()),"r");
+  if( file ) {
+		std::cout << "SherpackFetcher: Decompressed Sherpack exists with name " << sherpackunzip << " starting to untar it"<<std::endl;			
+		spu::Untar(file,"./");
+  } else {
+		std::cout << "SherpackFetcher: Could not open decompressed Sherpack" << std::endl;
+		return -5;
+  }
+  fclose(file);
+  return 0;
 }
 
 int SherpackFetcher::FnFileGet(std::string pathstring)
@@ -142,6 +203,8 @@ int SherpackFetcher::FnFileGet(std::string pathstring)
 SherpackFetcher::~SherpackFetcher()
 {
 }
+
+
 
 } // end of namespace definition
 

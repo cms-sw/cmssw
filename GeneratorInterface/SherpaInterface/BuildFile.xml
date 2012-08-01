@@ -10,4 +10,5 @@
 <use name="sherpa"/>
 <use name="frontier_client"/>
 <use name="FWCore/Services"/>
+<use name="zlib"/>
 <flags EDM_PLUGIN="1"/>

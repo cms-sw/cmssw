@@ -7,6 +7,7 @@
 #include <memory>
 #include <stdint.h>
 #include <fcntl.h>
+#include <fstream>
 #include "frontier_client/frontier-cpp.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -22,19 +23,22 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "GeneratorInterface/SherpaInterface/interface/SherpackUtilities.h"
+
 namespace spf {
 
 class SherpackFetcher {
 public:
   SherpackFetcher(edm::ParameterSet const&);
+  int Fetch();
   ~SherpackFetcher();
   int FnFileGet(std::string);
   const char *classname() const { return "SherpackFetcher"; }
   
 private:
 
-
   std::string SherpaProcess;
+  bool FetchSherpack;
   std::string SherpackLocation;
   std::string SherpackChecksum;
   
