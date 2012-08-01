@@ -5,6 +5,7 @@
 #include "RecoMET/METAlgorithms/interface/METAlgo.h" 
 #include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
 //#include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
@@ -66,7 +67,7 @@ namespace
 
 PFMETProducerMVA::PFMETProducerMVA(const edm::ParameterSet& cfg) 
   : mvaMEtAlgo_(cfg)
-    //,mvaJetIdAlgo_(cfg)
+				  //,mvaJetIdAlgo_(cfg)
 {
   srcCorrJets_     = cfg.getParameter<edm::InputTag>("srcCorrJets");
   srcUncorrJets_   = cfg.getParameter<edm::InputTag>("srcUncorrJets");
@@ -147,7 +148,6 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
 	  if(pMatch && lepton1->pt() == lepton2->pt()) {
 	    pMatch = false;
 	    for(unsigned int i0 = 0; i0 < leptonInfo.size(); i0++) {
-	      std::cout << "===> " << leptonInfo[i0].p4_.pt() << " -- " << lepton1->pt() << std::endl;
 	      if(fabs(lepton1->pt() - leptonInfo[i0].p4_.pt()) < 0.1) pMatch = true;
 	    }
 	  }
@@ -158,7 +158,6 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
       pLeptonInfo.p4_          = lepton1->p4();
       pLeptonInfo.chargedFrac_ = chargedFrac(&(*lepton1));
       //if(lepton->pt() > 20. && (chargedFrac(&(*lepton)) < 1. || lId == 0) ) lNMu++;
-      std::cout << " ---> " << lepton1->pt() << " -- " << lepton1->eta() << std::endl;
       leptonInfo.push_back(pLeptonInfo); 
       break;
     }
@@ -307,14 +306,14 @@ double PFMETProducerMVA::chargedFrac(const reco::Candidate *iCand) {
     }
   } 
   //else { 
-    //const pat::Tau *lPatPFTau = 0; 
-    //lPatPFTau = dynamic_cast<const pat::Tau*>(iCand);//} 
-    //for (UInt_t i0 = 0; i0 < lPatPFTau->signalPFCands().size(); i0++) { 
-    //  lPtTot += (lPatPFTau->signalPFCands())[i0]->pt(); 
-    //  if((lPatPFTau->signalPFCands())[i0]->charge() == 0) continue;
-    //  lPtCharged += (lPatPFTau->signalPFCands())[i0]->pt(); 
-    //}
-  //}
+  //  const pat::Tau *lPatPFTau = 0; 
+  //  lPatPFTau = dynamic_cast<const pat::Tau*>(iCand);//} 
+  //  for (UInt_t i0 = 0; i0 < lPatPFTau->signalPFCands().size(); i0++) { 
+  //    lPtTot += (lPatPFTau->signalPFCands())[i0]->pt(); 
+  //    if((lPatPFTau->signalPFCands())[i0]->charge() == 0) continue;
+  //    lPtCharged += (lPatPFTau->signalPFCands())[i0]->pt(); 
+  //  }
+  // }
   if(lPtTot == 0) lPtTot = 1.;
   return lPtCharged/lPtTot;
 }
