@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+#Sets whether in CMSSW 4_2 or 5
+from SUSYBSMAnalysis.HSCP.HSCPVersion_cff import *
+
 ####################################################################################
 #   BEAMSPOT + TRAJECTORY BUILDERS
 ####################################################################################
@@ -242,6 +245,11 @@ HSCParticleProducer = cms.EDFilter("HSCParticleProducer",
 
 from RecoMuon.Configuration.RecoMuon_cff import *
 from RecoMuon.MuonSeedGenerator.ancientMuonSeed_cfi import *
+
+if CMSSW4_2:
+    refittedStandAloneMuons = standAloneMuons.clone()
+    refittedStandAloneMuons.STATrajBuilderParameters.DoRefit=True
+
 MTancientMuonSeed = ancientMuonSeed.clone()
 MTancientMuonSeed.DTRecSegmentLabel = "dt4DSegmentsMT"
 MTSAMuons = standAloneMuons.clone()
@@ -249,8 +257,13 @@ MTSAMuons.InputObjects="MTancientMuonSeed"
 RefitMTSAMuons=MTSAMuons.clone()
 RefitMTSAMuons.STATrajBuilderParameters.DoRefit=True
 
-from RecoMuon.MuonIdentification.muons1stStep_cfi import *
-MTMuons = muons1stStep.clone()
+if CMSSW4_2:
+   from RecoMuon.MuonIdentification.muons_cfi import *
+   MTMuons = muons.clone()
+else:
+   from RecoMuon.MuonIdentification.muons1stStep_cfi import * 
+   MTMuons = muons1stStep.clone()
+
 MTMuons.inputCollectionTypes = cms.vstring('outer tracks')
 #MTMuons.inputCollectionLabels = cms.VInputTag(cms.InputTag("MTSAMuons",""))
 MTMuons.inputCollectionLabels = cms.VInputTag(cms.InputTag("MTSAMuons","UpdatedAtVtx"))
@@ -268,6 +281,8 @@ MTmuontiming = muontiming.clone()
 MTmuontiming.MuonCollection = "MTMuons"
 
 MuonOnlySeq = cms.Sequence(MTancientMuonSeed + MTSAMuons + RefitMTSAMuons + MTMuons + MuonSegmentProducer + MTmuontiming)
+if CMSSW4_2:
+     MuonOnlySeq *= refittedStandAloneMuons
 
 ####################################################################################
 #   HSCParticle Selector  (Just an Example of what we can do)

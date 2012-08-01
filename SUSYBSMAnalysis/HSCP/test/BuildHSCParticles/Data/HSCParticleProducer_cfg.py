@@ -1,5 +1,3 @@
-Analysis2011=False
-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HSCPAnalysis")
@@ -11,10 +9,11 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+from SUSYBSMAnalysis.HSCP.HSCPVersion_cff import *
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
-if Analysis2011:
+if CMSSW4_2:
       process.GlobalTag.globaltag = 'GR_P_V14::All'
 else:
       process.GlobalTag.globaltag = 'GR_P_V32::All'
@@ -27,7 +26,7 @@ process.source = cms.Source("PoolSource",
 )
 
 
-if Analysis2011:
+if CMSSW4_2:
    readFiles.extend(['/store/data/Run2011B/DoubleMu/RECO/PromptReco-v1/000/178/367/A2A3E690-7CF7-E011-9F98-003048D2BEA8.root'])
 else:
    readFiles.extend(['/store/data/Run2012A/SingleMu/RECO/PromptReco-v1/000/191/248/186722DA-5E88-E111-ADFF-003048D2C0F0.root'])
@@ -165,7 +164,7 @@ process.es_prefer_vDriftDB = cms.ESPrefer('PoolDBESSource','vDriftDB')
 
 
 #LOOK AT SD PASSED PATH IN ORDER to avoid as much as possible duplicated events (make the merging of .root file faster)
-if Analysis2011:
+if CMSSW4_2:
     #The module ak5PFJetsPt15 does not exist in CMSSW4
     process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.exoticaHSCPSeq * process.nEventsBefEDM * process.HSCParticleProducerSeq)
 else:
