@@ -36,7 +36,7 @@ DumpFWTGeoRecoGeometry::analyze( const edm::Event& event, const edm::EventSetup&
 
   ESTransientHandle<FWTGeoRecoGeometry> geoh;
   eventSetup.get<FWTGeoRecoGeometryRecord>().get( geoh );
-  TGeoManager *geom = const_cast<TGeoManager*>( geoh.product()->manager());
+  TGeoManager *geom = geoh.product()->manager();//const_cast<TGeoManager*>( geoh.product()->manager());
 
   std::stringstream s;
   s << "cmsTGeoRecoGeom" << m_level << ".root";
