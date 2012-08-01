@@ -52,6 +52,7 @@ void Analysis_Step4(std::string InputPattern)
 
    string Input     = InputPattern + "Histos.root";
    TFile* InputFile = new TFile(Input.c_str(), "UPDATE");
+   int TypeMode = TypeFromPattern(InputPattern);
 
    TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
    TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
@@ -90,7 +91,7 @@ void Analysis_Step4(std::string InputPattern)
       directory->Delete("Pred_Mass;*");
       directory->Delete("Pred_MassTOF;*");
       directory->Delete("Pred_MassComb;*");
- 
+
       //reset histograms
       Pred_Mass    ->Reset();    Pred_Mass    ->SetDirectory(directory);
       Pred_MassTOF ->Reset();    Pred_MassTOF ->SetDirectory(directory);
