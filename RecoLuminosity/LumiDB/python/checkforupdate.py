@@ -1,7 +1,7 @@
 import os,commands,re,urllib2
 class checkforupdate:
     def __init__(self,statusfilename='tagstatus.txt'):
-        self.lumiurl='http://cms-service-lumi.web.cern.ch/cms-service-lumi/publicplots/'+statusfilename
+        self.lumiurl='http://cms-service-lumi.web.cern.ch/cms-service-lumi/'+statusfilename
     def fetchTagsHTTP(self):
         taglist=[]
         openurl=urllib2.build_opener()
