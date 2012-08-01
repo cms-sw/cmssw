@@ -131,6 +131,18 @@ triggerMatchingDefaultSequence = cms.Sequence(
 + cleanJetTriggerMatchHLTMu8DiJet30
 )
 
+triggerMatchingDefaultInputTags = cms.VInputTag(
+  cms.InputTag( 'cleanMuonTriggerMatchHLTMu17' )
+, cms.InputTag( 'cleanMuonTriggerMatchHLTDoubleMu5IsoMu5' )
+, cms.InputTag( 'cleanPhotonTriggerMatchHLTPhoton26Photon18' )
+, cms.InputTag( 'cleanElectronTriggerMatchHLTEle17CaloIdTCaloIsoVLTrkIdVLTrkIsoVL' )
+, cms.InputTag( 'cleanTauTriggerMatchHLTDoubleMediumIsoPFTau30Trk1eta2p1' )
+, cms.InputTag( 'cleanJetTriggerMatchHLTPFJet40' )
+, cms.InputTag( 'metTriggerMatchHLTMET120' )
+, cms.InputTag( 'cleanMuonTriggerMatchHLTMu8DiJet30' )
+, cms.InputTag( 'cleanJetTriggerMatchHLTMu8DiJet30' )
+)
+
 
 ## Further examples ##
 
