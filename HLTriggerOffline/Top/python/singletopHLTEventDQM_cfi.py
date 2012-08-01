@@ -11,7 +11,7 @@ SingleTopSingleMuonTriggerDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit
     ## communication to TopCom!
-    directory = cms.string("Physics/SingleTop/SingleTopTriggerDQM/"),
+    directory = cms.string("Physics/SingleTop/SingleTopMuonTriggerDQM/"),
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
@@ -47,7 +47,7 @@ SingleTopSingleMuonTriggerDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets
-      jetCorrector = cms.string("ak5CaloL2L3"),
+      jetCorrector = cms.string("ak5PFL2L3"),
       ## when omitted monitor plots will be filled w/o additional cut on
       ## jetID                                                                                                   
       jetID  = cms.PSet(
@@ -101,7 +101,7 @@ SingleTopSingleMuonTriggerDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   preselection = cms.PSet(
    trigger = cms.PSet(
       src    = cms.InputTag("TriggerResults","","HLT"),
-      select = cms.vstring(['HLT_Iso10Mu20_eta2p1_CentralPFJet30_BTagIPIter_v1'])#ONLY ONE PATH
+      select = cms.vstring(['HLT_Iso10Mu20_eta2p1_CentralCaloJet30_BTagIPIter_v1'])#ONLY ONE PATH
     ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
@@ -135,7 +135,7 @@ SingleTopSingleMuonTriggerDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     cms.PSet(
       label  = cms.string("jets/calo:step2"),
       src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
+      jetCorrector = cms.string("ak5PFL2L3"),
       select = cms.string("pt>30 & abs(eta)<4.5 & emEnergyFraction>0.01"),
       jetID  = cms.PSet(
         label  = cms.InputTag("ak5JetID"),
@@ -146,7 +146,7 @@ SingleTopSingleMuonTriggerDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     cms.PSet(
       label  = cms.string("jets/calo:step3"),
       src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
+      jetCorrector = cms.string("ak5PFL2L3"),
       select = cms.string("pt>30 & abs(eta)<4.5 & emEnergyFraction>0.01"),
       jetID  = cms.PSet(
         label  = cms.InputTag("ak5JetID"),
@@ -168,7 +168,7 @@ SingleTopSingleElectronTriggerDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit
     ## communication to TopCom!
-    directory = cms.string("Physics/SingleTop/SingleTopTriggerDQM/"),
+    directory = cms.string("Physics/SingleTop/SingleTopElectronTriggerDQM/"),
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
@@ -204,7 +204,7 @@ SingleTopSingleElectronTriggerDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets
-      jetCorrector = cms.string("ak5CaloL2L3"),
+      jetCorrector = cms.string("ak5PFL2L3"),
       ## when omitted monitor plots will be filled w/o additional cut on
       ## jetID                                                                                                   
       jetID  = cms.PSet(
@@ -258,7 +258,7 @@ SingleTopSingleElectronTriggerDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   preselection = cms.PSet(
    trigger = cms.PSet(
       src    = cms.InputTag("TriggerResults","","HLT"),
-      select = cms.vstring(['HLT_Iso10Mu20_eta2p1_CentralPFJet30_BTagIPIter_v1'])#ONLY ONE PATH
+      select = cms.vstring(['HLT_Iso10Mu20_eta2p1_CentralCaloJet30_BTagIPIter_v1'])#ONLY ONE PATH
     ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
@@ -292,7 +292,7 @@ SingleTopSingleElectronTriggerDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     cms.PSet(
       label  = cms.string("jets/calo:step2"),
       src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
+      jetCorrector = cms.string("ak5PFL2L3"),
       select = cms.string("pt>30 & abs(eta)<4.5 & emEnergyFraction>0.01"),
       jetID  = cms.PSet(
         label  = cms.InputTag("ak5JetID"),
