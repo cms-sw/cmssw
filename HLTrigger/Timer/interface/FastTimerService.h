@@ -252,6 +252,7 @@ private:
   const bool                                    m_enable_dqm_bypath_total;      // require per-path and per-module timers
   const bool                                    m_enable_dqm_bypath_overhead;   // require per-path and per-module timers
   const bool                                    m_enable_dqm_bypath_details;    // require per-path and per-module timers
+  const bool                                    m_enable_dqm_bypath_counters;
   const bool                                    m_enable_dqm_bymodule;          // require per-module timers
   const bool                                    m_enable_dqm_bylumi;
   const double                                  m_dqm_eventtime_range;

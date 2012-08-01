@@ -57,6 +57,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_enable_dqm_bypath_total(    config.getUntrackedParameter<bool>(       "enableDQMbyPathTotal",      false) ),
   m_enable_dqm_bypath_overhead( config.getUntrackedParameter<bool>(       "enableDQMbyPathOverhead",   false) ),
   m_enable_dqm_bypath_details(  config.getUntrackedParameter<bool>(       "enableDQMbyPathDetails",    false) ),
+  m_enable_dqm_bypath_counters( config.getUntrackedParameter<bool>(       "enableDQMbyPathCounters",   false) ),
   m_enable_dqm_bymodule(        config.getUntrackedParameter<bool>(       "enableDQMbyModule",         false) ),
   m_enable_dqm_bylumi(          config.getUntrackedParameter<bool>(       "enableDQMbyLumi",           false) ),
   m_dqm_eventtime_range(        config.getUntrackedParameter<double>(     "dqmTimeRange",              1000.) ),    // ms
@@ -182,8 +183,8 @@ void FastTimerService::postBeginJob() {
     }
 
     // book MonitorElement's
-    int eventbins = (int) std::ceil(m_dqm_eventtime_range / m_dqm_eventtime_resolution);
-    int pathbins = (int) std::ceil(m_dqm_pathtime_range / m_dqm_pathtime_resolution);
+    int eventbins  = (int) std::ceil(m_dqm_eventtime_range  / m_dqm_eventtime_resolution);
+    int pathbins   = (int) std::ceil(m_dqm_pathtime_range   / m_dqm_pathtime_resolution);
     int modulebins = (int) std::ceil(m_dqm_moduletime_range / m_dqm_moduletime_resolution);
 
     m_dqms->setCurrentFolder(m_dqm_path);
@@ -217,8 +218,62 @@ void FastTimerService::postBeginJob() {
       for (auto & keyval: m_paths) {
         std::string const & pathname = keyval.first;
         PathInfo          & pathinfo = keyval.second;
-        pathinfo.dqm_active = m_dqms->book1D(pathname + "_active", pathname + " active time", pathbins, 0., m_dqm_pathtime_range)->getTH1F();
-        pathinfo.dqm_active->StatOverflows(true);
+
+        if (m_enable_dqm_bypath_active) {
+          pathinfo.dqm_active       = m_dqms->book1D(pathname + "_active", pathname + " active time", pathbins, 0., m_dqm_pathtime_range)->getTH1F();
+          pathinfo.dqm_active       ->StatOverflows(true);
+        }
+
+        if (m_enable_dqm_bypath_overhead) {
+          pathinfo.dqm_premodules   = m_dqms->book1D(pathname + "_premodules",   pathname + " pre-modules overhead",   modulebins, 0., m_dqm_moduletime_range)->getTH1F();
+          pathinfo.dqm_premodules   ->StatOverflows(true);
+          pathinfo.dqm_intermodules = m_dqms->book1D(pathname + "_intermodules", pathname + " inter-modules overhead", modulebins, 0., m_dqm_moduletime_range)->getTH1F();
+          pathinfo.dqm_intermodules ->StatOverflows(true);
+          pathinfo.dqm_postmodules  = m_dqms->book1D(pathname + "_postmodules",  pathname + " post-modules overhead",  modulebins, 0., m_dqm_moduletime_range)->getTH1F();
+          pathinfo.dqm_postmodules  ->StatOverflows(true);
+          pathinfo.dqm_overhead     = m_dqms->book1D(pathname + "_overhead",     pathname + " overhead time",          pathbins, 0., m_dqm_pathtime_range)->getTH1F();
+          pathinfo.dqm_overhead     ->StatOverflows(true);
+        }
+
+        if (m_enable_dqm_bypath_total) {
+          pathinfo.dqm_total        = m_dqms->book1D(pathname + "_total",        pathname + " total time",             pathbins, 0., m_dqm_pathtime_range)->getTH1F();
+          pathinfo.dqm_total        ->StatOverflows(true);
+        }
+
+        if (m_enable_dqm_bypath_details or m_enable_dqm_bypath_counters) {
+          // book histograms for modules-in-paths statistics
+
+          // find histograms X-axis labels
+          size_t id;
+          std::vector<std::string> const & modules = ((id = tns.findTrigPath(pathname)) != tns.getTrigPaths().size()) ? tns.getTrigPathModules(id) :
+                                                     ((id = tns.findEndPath(pathname))  != tns.getEndPaths().size())  ? tns.getEndPathModules(id)  :
+                                                     std::vector<std::string>();
+
+          static const char * dup = "(dup.)";
+          std::vector<const char *> labels(modules.size(), nullptr);
+          for (size_t i = 0; i < modules.size(); ++i)
+            labels[i] = (pathinfo.modules[i]) ? modules[i].c_str() : dup;
+          
+          // book counter histograms
+          if (m_enable_dqm_bypath_counters) {
+            pathinfo.dqm_module_counter = m_dqms->book1D(pathname + "_module_counter", pathname + " module counter", modules.size(), -0.5, modules.size() - 0.5)->getTH1F();
+            // find module labels
+            for (size_t i = 0; i < modules.size(); ++i) {
+              pathinfo.dqm_module_counter->GetXaxis()->SetBinLabel( i+1, labels[i] );
+            }
+          }
+          // book detailed timing histograms
+          if (m_enable_dqm_bypath_details) {
+            pathinfo.dqm_module_active  = m_dqms->book1D(pathname + "_module_active",  pathname + " module active",  modules.size(), -0.5, modules.size() - 0.5)->getTH1F();
+            pathinfo.dqm_module_total   = m_dqms->book1D(pathname + "_module_total",   pathname + " module total",   modules.size(), -0.5, modules.size() - 0.5)->getTH1F();
+            // find module labels
+            for (size_t i = 0; i < modules.size(); ++i) {
+              pathinfo.dqm_module_active ->GetXaxis()->SetBinLabel( i+1, labels[i] );
+              pathinfo.dqm_module_total  ->GetXaxis()->SetBinLabel( i+1, labels[i] );
+            }
+          }
+        }
+
       }
     }
 
@@ -229,45 +284,6 @@ void FastTimerService::postBeginJob() {
         ModuleInfo        & module = keyval.second;
         module.dqm_active = m_dqms->book1D(label, label, modulebins, 0., m_dqm_moduletime_range)->getTH1F();
         module.dqm_active->StatOverflows(true);
-      }
-    }
-
-    if (m_enable_timing_paths and m_enable_timing_modules) {
-      m_dqms->setCurrentFolder((m_dqm_path + "/Paths"));
-      for (auto & keyval: m_paths) {
-        std::string const & pathname = keyval.first;
-        PathInfo          & pathinfo = keyval.second;
-        pathinfo.dqm_premodules   = m_dqms->book1D(pathname + "_premodules",   pathname + " pre-modules overhead",   modulebins, 0., m_dqm_moduletime_range)->getTH1F();
-        pathinfo.dqm_premodules   ->StatOverflows(true);
-        pathinfo.dqm_intermodules = m_dqms->book1D(pathname + "_intermodules", pathname + " inter-modules overhead", modulebins, 0., m_dqm_moduletime_range)->getTH1F();
-        pathinfo.dqm_intermodules ->StatOverflows(true);
-        pathinfo.dqm_postmodules  = m_dqms->book1D(pathname + "_postmodules",  pathname + " post-modules overhead",  modulebins, 0., m_dqm_moduletime_range)->getTH1F();
-        pathinfo.dqm_postmodules  ->StatOverflows(true);
-        pathinfo.dqm_overhead     = m_dqms->book1D(pathname + "_overhead",     pathname + " overhead time",          pathbins, 0., m_dqm_pathtime_range)->getTH1F();
-        pathinfo.dqm_overhead     ->StatOverflows(true);
-        pathinfo.dqm_total        = m_dqms->book1D(pathname + "_total",        pathname + " total time",             pathbins, 0., m_dqm_pathtime_range)->getTH1F();
-        pathinfo.dqm_total        ->StatOverflows(true);
-        
-        // book histograms for modules-in-paths statistics
-        size_t id;
-        std::vector<std::string> const & modules = ((id = tns.findTrigPath(pathname)) != tns.getTrigPaths().size()) ? tns.getTrigPathModules(id) :
-                                                   ((id = tns.findEndPath(pathname))  != tns.getEndPaths().size())  ? tns.getEndPathModules(id)  :
-                                                   std::vector<std::string>();
-        pathinfo.dqm_module_counter = m_dqms->book1D(pathname + "_module_counter", pathname + " module counter", modules.size(), -0.5, modules.size() - 0.5)->getTH1F();
-        pathinfo.dqm_module_active  = m_dqms->book1D(pathname + "_module_active",  pathname + " module active",  modules.size(), -0.5, modules.size() - 0.5)->getTH1F();
-        pathinfo.dqm_module_total   = m_dqms->book1D(pathname + "_module_total",   pathname + " module total",   modules.size(), -0.5, modules.size() - 0.5)->getTH1F();
-        // find module labels
-        for (size_t i = 0; i < modules.size(); ++i) {
-          if (pathinfo.modules[i]) {
-            pathinfo.dqm_module_counter->GetXaxis()->SetBinLabel( i+1, modules[i].c_str() );
-            pathinfo.dqm_module_active ->GetXaxis()->SetBinLabel( i+1, modules[i].c_str() );
-            pathinfo.dqm_module_total  ->GetXaxis()->SetBinLabel( i+1, modules[i].c_str() );
-          } else {
-            pathinfo.dqm_module_counter->GetXaxis()->SetBinLabel( i+1, "(dup.)" );
-            pathinfo.dqm_module_active ->GetXaxis()->SetBinLabel( i+1, "(dup.)" );
-            pathinfo.dqm_module_total  ->GetXaxis()->SetBinLabel( i+1, "(dup.)" );
-          }
-        }
       }
     }
 
@@ -520,7 +536,7 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
     PathInfo & pathinfo = * m_current_path;
     pathinfo.time_active = active;
     pathinfo.summary_active += active;
-    if (m_dqms)
+    if (m_dqms and m_enable_dqm_bypath_active)
       pathinfo.dqm_active->Fill(active * 1000.);        // convert to ms
 
     // measure the time spent between the execution of the last module and the end of the path
@@ -532,26 +548,42 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
       double current  = 0.;                 // time spent in modules active in the current path
       double total    = active;             // total per-path time, including modules already run as part of other paths
 
+      // implementation note:
+      // "active"   has already measured all the time spent in this path
+      // "current"  will be the sum of the time spent inside each module while running this path, so that
+      // "overhead" will be active - current
+      // "total"    will be active + the sum of the time spent in non-active modules
+
       size_t last_run = status.index();     // index of the last module run in this path
       for (size_t i = 0; i <= last_run; ++i) {
         ModuleInfo * module = pathinfo.modules[i];
-        // fill the counter also for duplicate modules (to properly extract rejection information)
-        pathinfo.dqm_module_counter->Fill(i);
+
+        // fill counter histograms - also for duplicate modules, to properly extract rejection information
+        if (m_enable_dqm_bypath_counters)
+          pathinfo.dqm_module_counter->Fill(i);
+
         if (module == 0)
           // this is a module occurring more than once in the same path, skip it after the first occurrence
           continue;
-        // fill the total time for all non-duplicate modules
-        pathinfo.dqm_module_total->Fill(i, module->time_active);
-        if (module->has_just_run) {
-          // fill the active time only for module actually running in this path
-          pathinfo.dqm_module_active->Fill(i, module->time_active);
+
+        if (module->has_just_run)
           current += module->time_active;
-        } else {
+        else
           total   += module->time_active;
+
+        // fill detailed timing histograms
+        if (m_enable_dqm_bypath_details) {
+          // fill the total time for all non-duplicate modules
+          pathinfo.dqm_module_total->Fill(i, module->time_active);
+          if (module->has_just_run)
+            // fill the active time only for module actually running in this path
+            pathinfo.dqm_module_active->Fill(i, module->time_active);
         }
       }
+
       if (status.accept())
-        pathinfo.dqm_module_counter->Fill(pathinfo.modules.size());
+        if (m_enable_dqm_bypath_counters)
+          pathinfo.dqm_module_counter->Fill(pathinfo.modules.size());
 
       if (m_is_first_module) {
         // no modules were active during this path, account all the time as overhead
@@ -561,7 +593,7 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
         overhead = active;
       } else {
         // extract overhead information
-        pre      = delta(m_timer_path.first, m_timer_first_module);
+        pre      = delta(m_timer_path.first,    m_timer_first_module);
         post     = delta(m_timer_module.second, m_timer_path.second);
         inter    = active - pre - current - post;
         // take care of numeric precision and rounding errors - the timer is less precise than nanosecond resolution
@@ -584,11 +616,15 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
       pathinfo.summary_overhead     += overhead;
       pathinfo.summary_total        += total;
       if (m_dqms) {
-        pathinfo.dqm_premodules  ->Fill(pre      * 1000.);      // convert to ms
-        pathinfo.dqm_intermodules->Fill(inter    * 1000.);      // convert to ms
-        pathinfo.dqm_postmodules ->Fill(post     * 1000.);      // convert to ms
-        pathinfo.dqm_overhead    ->Fill(overhead * 1000.);      // convert to ms
-        pathinfo.dqm_total       ->Fill(total    * 1000.);      // convert to ms
+        if (m_enable_dqm_bypath_overhead) {
+          pathinfo.dqm_premodules  ->Fill(pre      * 1000.);      // convert to ms
+          pathinfo.dqm_intermodules->Fill(inter    * 1000.);      // convert to ms
+          pathinfo.dqm_postmodules ->Fill(post     * 1000.);      // convert to ms
+          pathinfo.dqm_overhead    ->Fill(overhead * 1000.);      // convert to ms
+        }
+        if (m_enable_dqm_bypath_total) {
+          pathinfo.dqm_total       ->Fill(total    * 1000.);      // convert to ms
+        }
       }
     }
   }
