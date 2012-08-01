@@ -140,7 +140,7 @@ void FastTimerService::postBeginJob() {
     m_paths[name];
 
   // cache all pathinfo objects
-  if (m_enable_timing_paths) {
+  if (m_enable_timing_paths or m_enable_dqm_bypath_counters) {
     m_cache_paths.reserve(m_paths.size());
     for (auto & keyval: m_paths)
       m_cache_paths.push_back(& keyval.second);
@@ -154,7 +154,7 @@ void FastTimerService::postBeginJob() {
   }
 
   // associate to each path all the modules it contains
-  if (m_enable_timing_paths and m_enable_timing_modules) {
+  if ((m_enable_timing_paths and m_enable_timing_modules) or m_enable_dqm_bypath_counters) {
     for (size_t i = 0; i < tns.getTrigPaths().size(); ++i)
       fillPathMap( tns.getTrigPath(i), tns.getTrigPathModules(i) );
     for (size_t i = 0; i < tns.getEndPaths().size(); ++i)
@@ -213,7 +213,7 @@ void FastTimerService::postBeginJob() {
       path_total_time ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
     }
 
-    if (m_enable_timing_paths) {
+    if (m_enable_timing_paths or m_enable_dqm_bypath_counters) {
       m_dqms->setCurrentFolder((m_dqm_path + "/Paths"));
       for (auto & keyval: m_paths) {
         std::string const & pathname = keyval.first;
