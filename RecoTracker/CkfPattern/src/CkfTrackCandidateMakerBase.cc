@@ -344,7 +344,7 @@ namespace cms{
 	   theInitialState->innerState( *it , doBackFit);
 
 	 // temporary protection againt invalid initial states
-	 if (! initState.first.isValid() || initState.second == 0) {
+	 if (! initState.first.isValid() || initState.second == 0 || std::isnan(initState.first.globalPosition().x())) {
 	   //cout << "invalid innerState, will not make TrackCandidate" << endl;
 	   continue;
 	 }

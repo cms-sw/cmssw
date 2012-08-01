@@ -69,7 +69,7 @@ int cond::ExportIOVUtilities::execute(){
 
   std::string sourceIovToken("");
   std::string destIovToken("");
-  bool newIOV = true;
+  bool newIOV = false;
   cond::TimeType sourceIovType;
 
   cond::DbSession sourceDb = openDbSession("sourceConnect", Auth::COND_READER_ROLE, true);

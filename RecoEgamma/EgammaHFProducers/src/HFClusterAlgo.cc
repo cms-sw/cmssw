@@ -40,8 +40,13 @@ static int indexByEta(HcalDetId id) {
   return (id.zside()>0)?(id.ietaAbs()-29+13):(41-id.ietaAbs());
 }
 
-static const double MCMaterialCorrections_3XX[] = {  1.000,1.000,1.105,0.970,0.965,0.975,0.956,0.958,0.981,1.005,0.986,1.086,1.000,
+static const double MCMaterialCorrections[] = {  1.000,1.000,1.105,0.970,0.965,0.975,0.956,0.958,0.981,1.005,0.986,1.086,1.000,
 						 1.000,1.086,0.986,1.005,0.981,0.958,0.956,0.975,0.965,0.970,1.105,1.000,1.000 };
+
+static const double ZplusMC2010Corrections[] = { 1.0, 1.0, 1.075, 0.902, 0.983, 0.992, 0.948, 0.941, 0.975, 0.990, 0.988, 1.086, 1.0, 
+						 1.0, 1.126, 0.959, 0.979, 0.989, 0.959, 0.901, 0.937, 0.962, 0.967, 1.006, 1.0, 1.0};
+
+    
 
 void HFClusterAlgo::setup(double minTowerEnergy, double seedThreshold,double maximumSL,double maximumRenergy,
 			  bool usePMTflag,bool usePulseflag, bool forcePulseFlagMC, int correctionSet){
@@ -64,9 +69,12 @@ void HFClusterAlgo::setup(double minTowerEnergy, double seedThreshold,double max
 
   if (m_correctionSet==1) { // corrections for material from MC
     for (int ii=0; ii<13*2; ii++) 
-      m_correctionByEta[ii]=MCMaterialCorrections_3XX[ii];
+      m_correctionByEta[ii]=MCMaterialCorrections[ii];
   }
- 
+  if (m_correctionSet==2) { // corrections for material from MC + 2010 Z-based ccalibration
+    for (int ii=0; ii<13*2; ii++) 
+      m_correctionByEta[ii]=ZplusMC2010Corrections[ii];
+  }
 
 }
 
@@ -259,6 +267,26 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 	  if (dp==0 && de==0) clusterOk=false; // somehow, the seed is hosed
 	  continue;//continue to next hit, do not include this one in cluster
 	}
+	
+
+	 /*
+
+	 old pmt code
+	 // cut on "PMT HIT" flag
+	 if ((il!=hf.end())&&(il->flagField(4,1))&&(m_usePMTFlag)) {//HFPET flag for lone/short doil->flagField(0,1)
+	 if (dp==0 && de==0) clusterOk=false; // somehow, the seed is hosed
+	 continue;//continue to next hit, do not include this one in cluster
+	 }
+	 
+	 // cut on "Pulse shape HIT" flag
+	 if ((il!=hf.end())&&(il->flagField(1,1))&&(m_usePulseFlag)) {//HF DIGI TIME flag
+	 if (dp==0 && de==0) clusterOk=false; // somehow, the seed is hosed
+	 continue;//continue to next hit, do not include this one in cluster
+	 }
+	 */
+ 
+
+
 
 	if (e_long > m_minTowerEnergy && il!=hf.end()) {
 

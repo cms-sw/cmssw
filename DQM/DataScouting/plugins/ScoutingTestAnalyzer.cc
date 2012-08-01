@@ -3,7 +3,7 @@
 #include "DQM/DataScouting/plugins/ScoutingTestAnalyzer.h"
 
 
-#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 
 //------------------------------------------------------------------------------
 // A simple constructor which takes as inoput only the name of the PF jet collection
@@ -21,19 +21,19 @@ ScoutingTestAnalyzer::~ScoutingTestAnalyzer(){}
 void ScoutingTestAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup & c ){
   
   
-  edm::Handle<reco::PFJetCollection> pfjets_handle ;
-  iEvent.getByLabel(m_pfJetsCollectionTag,pfjets_handle) ;
+  edm::Handle<reco::CaloJetCollection> calojets_handle ;
+  iEvent.getByLabel(m_pfJetsCollectionTag,calojets_handle) ;
   /* This is an example of how C++11 can simplify or lifes. The auto keyword 
    make the compiler figure out by itself which is the type of the pfjets object.
    The qualifier const of course still apply.
    Poor's man explaination: "compiler, make pfjets a const ref and figure out 
    for me the type"*/
-  auto const& pfjets = *pfjets_handle;
+  auto const& calojets = *calojets_handle;
   
   // Again, C++11. A loop on a std::vector becomes as simple as this!
-  for (auto const & pfjet: pfjets){
-    m_jetPt->Fill(pfjet.pt());
-    m_jetEtaPhi->Fill(pfjet.eta(),pfjet.phi());
+  for (auto const & calojet: calojets){
+    m_jetPt->Fill(calojet.pt());
+    m_jetEtaPhi->Fill(calojet.eta(),calojet.phi());
   }
   
   

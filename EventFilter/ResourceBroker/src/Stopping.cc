@@ -9,11 +9,13 @@
 
 #include <iostream>
 #include <vector>
+#include <sstream>
 
 using std::cout;
 using std::endl;
 using std::vector;
 using std::string;
+using std::ostringstream;
 using namespace evf::rb_statemachine;
 
 // entry action, state notification, state action
@@ -36,6 +38,7 @@ void Stopping::do_stateAction() const {
 
 	try {
 		LOG4CPLUS_INFO(res->log_, "Start stopping :) ...");
+		res->resourceStructure_->setStopFlag(true);
 		res->resourceStructure_->shutDownClients();
 		timeval now;
 		timeval then;
@@ -49,13 +52,23 @@ void Stopping::do_stateAction() const {
 						<< res->resourceStructureTimeout_.value_ / 10000
 						<< endl;
 				LOG4CPLUS_WARN(res->log_,
-						"Some Process did not detach - going to Emergency stop!");
+						"Some Process did not detach - going to Emergency stop! resource status:" 
+						<< res->resourceStructure_->printStatus() );
 
 				/**
 				 * EMERGENCY STOP IS TRIGGERED
 				 */
-				res->lockRSAccess();
+
+				//try to acquire RS lock
+				int count=5;
+				do {
+				  if (!res->tryLockRSAccess()) break;
+				  usleep(100000);
+				} while (--count);
+				if (!count) XCEPT_RAISE(evf::Exception,"Can not acquire RS lock for the emergency stop!");
+
 				emergencyStop();
+
 				res->unlockRSAccess();
 
 				break;
@@ -107,6 +120,7 @@ bool Stopping::discardDqmEvent(MemRef_t* bufRef) const {
 	bool returnValue = false;
 	try {
 		returnValue = res->resourceStructure_->discardDqmEvent(bufRef);
+		//returnValue = res->resourceStructure_->discardDqmEventWhileHalting(bufRef);
 	} catch (evf::Exception& e) {
 		moveToFailedState(e);
 	}
@@ -133,24 +147,39 @@ void Stopping::emergencyStop() const {
 	// UPDATE: while in emergency stop I2O discards from SM are not allowed
 	// they are re-allowed after a new enable
 	res->allowI2ODiscards_ = false;
-
-	vector < pid_t > client_prc_ids = resourceStructure->clientPrcIds();
-	for (UInt_t i = 0; i < client_prc_ids.size(); i++) {
-		pid_t pid = client_prc_ids[i];
-		cout << "B: killing process " << i << " pid= " << pid << endl;
-		if (pid != 0) {
-			//assume processes are dead by now
-			if (!resourceStructure->handleCrashedEP(res->runNumber_, pid))
-				res->nbTimeoutsWithoutEvent_++;
-			else
-				res->nbTimeoutsWithEvent_++;
+	{
+                #ifdef linux
+		auto lk = resourceStructure->lockCrashHandlerTimed(10);
+                #else
+                bool lk=true;
+                #endif
+		if (lk) { 
+			vector < pid_t > client_prc_ids = resourceStructure->clientPrcIds();
+			for (UInt_t i = 0; i < client_prc_ids.size(); i++) {
+				pid_t pid = client_prc_ids[i];
+				cout << "B: killing process " << i << " pid= " << pid << endl;
+				if (pid != 0) {
+					//assume processes are dead by now
+					if (!resourceStructure->handleCrashedEP(res->runNumber_, pid))
+						res->nbTimeoutsWithoutEvent_++;
+					else
+						res->nbTimeoutsWithEvent_++;
+				}
+			}
+		}
+		else {
+		  XCEPT_RAISE(evf::Exception, 
+			"Timed out accessing the EP Crash Handler in emergency stop. SM discards not arriving?");
 		}
 	}
+	LOG4CPLUS_WARN(res->log_, "in Emergency stop - running lastResort");
 	resourceStructure->lastResort();
 	::sleep(1);
 	if (!resourceStructure->isReadyToShutDown()) {
-		res->reasonForFailed_
-				= "EmergencyStop: failed to shut down ResourceTable";
+		UInt_t shutdownStatus = resourceStructure->shutdownStatus();
+		std::ostringstream ostr;
+		ostr << "EmergencyStop: failed to shut down ResourceTable. Debug info mask:" << std::hex <<  shutdownStatus;
+		res->reasonForFailed_ = ostr.str();
 		XCEPT_RAISE(evf::Exception, res->reasonForFailed_);
 	}
 

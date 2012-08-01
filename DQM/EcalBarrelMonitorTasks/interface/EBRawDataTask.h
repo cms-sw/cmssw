@@ -4,8 +4,8 @@
 /*
  * \file EBRawDataTask.h
  *
- * $Date: 2012/03/20 20:26:47 $
- * $Revision: 1.8.6.1 $
+ * $Date: 2012/04/27 13:46:00 $
+ * $Revision: 1.12 $
  * \author E. Di Marco
  *
 */
@@ -94,6 +94,12 @@ MonitorElement* meEBL1ASRPErrors_;
 MonitorElement* meEBBunchCrossingSRPErrors_;
 
 MonitorElement* meEBSynchronizationErrorsByLumi_;
+
+ MonitorElement* meEBSynchronizationErrorsTrend_;
+
+ int ls_;
+
+ float fatalErrors_;
 
 bool init_;
 

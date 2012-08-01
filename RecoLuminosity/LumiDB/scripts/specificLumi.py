@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+########################################################################
+# Command to produce perbunch and specific lumi                        #
+#                                                                      #
+# Author:      Zhen Xie                                                #
+########################################################################
 #
 # dump all fills into files.
 # allfills.txt all the existing fills.
@@ -9,7 +14,7 @@
 import os,os.path,sys,math,array,datetime,time,calendar,re
 import coral
 
-from RecoLuminosity.LumiDB import argparse,sessionManager,lumiTime,CommonUtil,lumiCalcAPI,lumiCorrections,lumiParameters
+from RecoLuminosity.LumiDB import argparse,sessionManager,lumiTime,CommonUtil,lumiCalcAPI,lumiParameters,revisionDML,normDML
 MINFILL=1800
 MAXFILL=9999
 allfillname='allfills.txt'
@@ -76,7 +81,7 @@ def calculateSpecificLumi(lumi,lumierr,beam1intensity,beam1intensityerr,beam2int
     specificlumierr=0.0
     if beam1intensity<0: beam1intensity=0
     if beam2intensity<0: beam2intensity=0
-    if beam1intensity!=0.0 and  beam2intensity!=0.0:
+    if beam1intensity>0.0 and  beam2intensity>0.0:
         specificlumi=float(lumi)/(float(beam1intensity)*float(beam2intensity))
         specificlumierr=specificlumi*math.sqrt(lumierr**2/lumi**2+beam1intensityerr**2/beam1intensity**2+beam2intensityerr**2/beam2intensity**2)
     return (specificlumi,specificlumierr)
@@ -232,7 +237,7 @@ def specificlumiTofile(fillnum,filldata,outdir):
         print >>f,'%d\t%d\t%e\t%e'%(startts,stopts,plu,lui)
     f.close()
 
-def getSpecificLumi(schema,fillnum,inputdir,xingMinLum=0.0,norm='pp7TeV',withcorrection=True,amodetag='PROTPHYS',bxAlgo='OCC1'):
+def getSpecificLumi(schema,fillnum,inputdir,dataidmap,normmap,xingMinLum=0.0,amodetag='PROTPHYS',bxAlgo='OCC1'):
     '''
     specific lumi in 1e-30 (ub-1s-1) unit
     lumidetail occlumi in 1e-27
@@ -248,16 +253,11 @@ def getSpecificLumi(schema,fillnum,inputdir,xingMinLum=0.0,norm='pp7TeV',withcor
     if not runlist: return fillbypos
     irunlsdict=dict(zip(runlist,[None]*len(runlist)))
     #print irunlsdict
-    finecorrections=None
-    driftcorrections=None
-    if withcorrection :
-        cterms=lumiCorrections.nonlinearV2()
-        finecorrections=lumiCorrections.correctionsForRangeV2(schema,runlist,cterms)#constant+nonlinear corrections
-        driftcorrections=lumiCorrections.driftcorrectionsForRange(schema,runlist,cterms)
-    lumidetails=lumiCalcAPI.instCalibratedLumiForRange(schema,irunlsdict,beamstatus=None,amodetag=amodetag,withBXInfo=True,withBeamIntensity=True,bxAlgo=bxAlgo,xingMinLum=xingMinLum,norm=norm,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=True)
-    session.transaction().commit()
+    GrunsummaryData=lumiCalcAPI.runsummaryMap(session.nominalSchema(),irunlsdict)
+    lumidetails=lumiCalcAPI.deliveredLumiForIds(schema,irunlsdict,dataidmap,GrunsummaryData,beamstatusfilter=None,normmap=normmap,withBXInfo=True,bxAlgo=bxAlgo,xingMinLum=xingMinLum,withBeamIntensity=True,lumitype='HF')
+    
     #
-    #output: {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),calibratedlumi(5),calibratedlumierr(6),startorbit(7),numorbit(8),(bxvalues,bxerrs)(9),(bxidx,b1intensities,b2intensities)(10)]}}
+    #output: {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),calibratedlumierr(6),(bxvalues,bxerrs)(7),(bxidx,b1intensities,b2intensities)(8),fillnum(9)]}
     #
     totalstablebeamls=0
     orderedrunlist=sorted(lumidetails)
@@ -271,6 +271,7 @@ def getSpecificLumi(schema,fillnum,inputdir,xingMinLum=0.0,norm='pp7TeV',withcor
     if totalstablebeamls<10:#less than 10 LS in a fill has 'stable beam', it's no a good fill
         print 'fill ',fillnum,' , having less than 10 stable beam lS, is not good, skip'
         return fillbypos
+    lumiparam=lumiParameters.ParametersObject()
     for run in orderedrunlist:
         perrundata=lumidetails[run]
         for perlsdata in perrundata:
@@ -280,19 +281,21 @@ def getSpecificLumi(schema,fillnum,inputdir,xingMinLum=0.0,norm='pp7TeV',withcor
             beamstatus=perlsdata[3]
             if beamstatus=='STABLE BEAMS':
                 beamstatusfrac=1.0
-            (bxidxlist,bxvaluelist,bxerrolist)=perlsdata[9]
+            (bxidxlist,bxvaluelist,bxerrolist)=perlsdata[7]
+            #instbxvaluelist=[x/lumiparam.lslengthsec() for x in bxvaluelist if x]
+            instbxvaluelist=[x for x in bxvaluelist if x]
             maxlumi=0.0
-            if len(bxvaluelist)!=0:
-                maxlumi=max(bxvaluelist)
+            if len(instbxvaluelist)!=0:
+                maxlumi=max(instbxvaluelist)
             avginstlumi=0.0
-            if len(bxvaluelist)!=0:
-                avginstlumi=sum(bxvaluelist)
-            (intbxidxlist,b1intensities,b2intensities)=perlsdata[10]#contains only non-zero bx
+            if len(instbxvaluelist)!=0:
+                avginstlumi=sum(instbxvaluelist)
+            (intbxidxlist,b1intensities,b2intensities)=perlsdata[8]#contains only non-zero bx
             for bxidx in bxidxlist:
                 idx=bxidxlist.index(bxidx)
-                bxvalue=bxvaluelist[idx]
+                instbxvalue=instbxvaluelist[idx]
                 bxerror=bxerrolist[idx]
-                if bxvalue<max(xingMinLum,maxlumi*0.2):
+                if instbxvalue<max(xingMinLum,maxlumi*0.2):
                     continue
                 bintensityPos=-1
                 try:
@@ -300,12 +303,12 @@ def getSpecificLumi(schema,fillnum,inputdir,xingMinLum=0.0,norm='pp7TeV',withcor
                 except ValueError:
                     pass
                 if bintensityPos<=0:
-                    fillbypos.setdefault(bxidx,[]).append([ts,beamstatusfrac,bxvalue,bxerror,0.0,0.0])
+                    fillbypos.setdefault(bxidx,[]).append([ts,beamstatusfrac,instbxvalue,bxerror,0.0,0.0])
                     continue
                 b1intensity=b1intensities[bintensityPos]
                 b2intensity=b2intensities[bintensityPos]
-                speclumi=calculateSpecificLumi(bxvalue,bxerror,b1intensity,0.0,b2intensity,0.0)
-                fillbypos.setdefault(bxidx,[]).append([ts,beamstatusfrac,bxvalue,bxerror,speclumi[0],speclumi[1]])
+                speclumi=calculateSpecificLumi(instbxvalue,bxerror,b1intensity,0.0,b2intensity,0.0)
+                fillbypos.setdefault(bxidx,[]).append([ts,beamstatusfrac,instbxvalue,bxerror,speclumi[0],speclumi[1]])
     return fillbypos
 
 
@@ -372,9 +375,13 @@ if __name__ == '__main__':
                         default='OCC1',
                         required=False,
                         help='algorithm name for per-bunch lumi ')
-    parser.add_argument('--norm',dest='normfactor',action='store',
+    parser.add_argument('--normtag',dest='normtag',action='store',
                         required=False,
-                        help='norm',
+                        help='norm tag',
+                        default=None)
+    parser.add_argument('--datatag',dest='datatag',action='store',
+                        required=False,
+                        help='data tag',
                         default=None)
     #
     #command configuration 
@@ -384,8 +391,8 @@ if __name__ == '__main__':
     #
     #switches
     #
-    parser.add_argument('--without-correction',dest='withoutFineCorrection',action='store_true',
-                        help='without fine correction on calibration' )
+    parser.add_argument('--without-correction',dest='withoutNorm',action='store_true',
+                        help='without any correction/calibration' )
     parser.add_argument('--debug',dest='debug',action='store_true',
                         help='debug')
     options=parser.parse_args()
@@ -397,7 +404,6 @@ if __name__ == '__main__':
     #reprocess anyway the last 1 fill in the dir
     #redo specific lumi for all marked fills
     ##    
-    normfactor=options.normfactor
     svc=sessionManager.sessionManager(options.connect,authpath=options.authpath,debugON=options.debug)
     session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
 
@@ -428,16 +434,51 @@ if __name__ == '__main__':
     if len(fillstoprocess)==0:
         print 'no fill to process, exit '
         exit(0)
-    finecorrections=None
-    driftcorrections=None
+
+    
     print '===== Start Processing Fills',fillstoprocess
     print '====='
-    withcorrection=not options.withoutFineCorrection
     filldata={}
+    #
+    # check datatag
+    #
+    reqfillmin=min(fillstoprocess)
+    reqfillmax=max(fillstoprocess)
     session.transaction().start(True)
-    for fillnum in fillstoprocess:# process per fill
-        filldata=getSpecificLumi(session.nominalSchema(),fillnum,options.inputdir,xingMinLum=options.xingMinLum,norm=options.normfactor,withcorrection=withcorrection,amodetag=options.amodetag,bxAlgo=options.bxAlgo)
-        specificlumiTofile(fillnum,filldata,options.outputdir)
+    runlist=lumiCalcAPI.runList(session.nominalSchema(),options.fillnum,runmin=None,runmax=None,fillmin=reqfillmin,fillmax=reqfillmax,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=None,energyFlut=None,requiretrg=False,requirehlt=False)
+    
+    datatagname=options.datatag
+    if not datatagname:
+        (datatagid,datatagname)=revisionDML.currentDataTag(session.nominalSchema())
+        dataidmap=revisionDML.dataIdsByTagId(session.nominalSchema(),datatagid,runlist=runlist,withcomment=False)
+        #{run:(lumidataid,trgdataid,hltdataid,())}
+    else:
+        dataidmap=revisionDML.dataIdsByTagName(session.nominalSchema(),datatagname,runlist=runlist,withcomment=False)
+
+    #
+    # check normtag and get norm values if required
+    #
+    normname='NONE'
+    normid=0
+    normvalueDict={}
+    if not options.withoutNorm:
+        normname=options.normtag
+        if not normname:
+            normmap=normDML.normIdByType(session.nominalSchema(),lumitype='HF',defaultonly=True)
+            if len(normmap):
+                normname=normmap.keys()[0]
+                normid=normmap[normname]
+        else:
+            normid=normDML.normIdByName(session.nominalSchema(),normname)
+        if not normid:
+            raise RuntimeError('[ERROR] cannot resolve norm/correction')
+            sys.exit(-1)
+        normvalueDict=normDML.normValueById(session.nominalSchema(),normid) #{since:[corrector(0),{paramname:paramvalue}(1),amodetag(2),egev(3),comment(4)]}
     session.transaction().commit()
+    for fillnum in fillstoprocess:# process per fill
+        session.transaction().start(True)
+        filldata=getSpecificLumi(session.nominalSchema(),fillnum,options.inputdir,dataidmap,normvalueDict,xingMinLum=options.xingMinLum,amodetag=options.amodetag,bxAlgo=options.bxAlgo)
+        specificlumiTofile(fillnum,filldata,options.outputdir)
+        session.transaction().commit()
 
 

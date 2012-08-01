@@ -22,6 +22,9 @@ namespace evf{
     void setNproc(int nproc){
       mstat_[nstates_+2]=nproc;
     }
+    void setCPUStat(int busyPer1k) {
+      mstat_[nstates_+3]=busyPer1k;
+    }
     void reset()
     {
       for(int i = 0; i < nstates_; i++)

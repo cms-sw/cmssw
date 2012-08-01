@@ -13,6 +13,8 @@ workflows = Matrix()
 workflows[1000] = [ '',['RunMinBias2011A','TIER0','SKIMD','HARVESTDfst2','ALCASPLIT']]
 workflows[1001] = [ '',['RunMinBias2011A','TIER0EXP','ALCAEXP','ALCAHARVD']]
 workflows[1002]=['RRD',['RunMinBias2011A','RECOD','COPYPASTE']]#,'RECODFROMRAWRECO']]
+workflows[1003]=['', ['RunMinBias2012A','RECODDQM','HARVESTDDQM']]
+
 
 ## MC production test
 #workflows[1100] = [ '',[]]
@@ -22,5 +24,6 @@ workflows[1102]=['RR', ['TTbar','DIGI','RECO','RECOFROMRECO','COPYPASTE']]
 workflows[1103]=['RR', ['OldTTbarINPUT','RECOFROMRECOSt2']]
 
 workflows[1104]=['',['OldGenSimINPUT','RESIM','DIGIPU','RERECOPU']]
+
 
 

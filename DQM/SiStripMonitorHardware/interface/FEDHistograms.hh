@@ -52,7 +52,8 @@ public:
 			 );
 
   void fillFEHistograms(const unsigned int aFedId,
-			const FEDErrors::FELevelErrors & aFeLevelErrors
+			const FEDErrors::FELevelErrors & aFeLevelErrors,
+			const FEDErrors::EventProperties & aEventProp 
 			);
 
   void fillChannelsHistograms(const unsigned int aFedId, 
@@ -159,6 +160,8 @@ private:
     feTimeDiffTOB_,
     feTimeDiffTECB_,
     feTimeDiffTECF_;
+
+  HistogramConfig feTimeDiffvsDBX_;
 
   HistogramConfig apveAddress_;
   HistogramConfig feMajAddress_;

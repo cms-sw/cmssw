@@ -155,10 +155,10 @@ float EcalBasicClusterLocalContCorrection::getValue( const reco::BasicCluster & 
 
 
   //--- correction vs local eta
-  fetacor = pe[0]+pe[1]*localEta*pe[2]*localEta*localEta;
+  fetacor = pe[0]+pe[1]*localEta+pe[2]*localEta*localEta;
 
   //--- correction vs local phi
-  fphicor = pp[0]+pp[1]*localPhi*pp[2]*localPhi*localPhi;
+  fphicor = pp[0]+pp[1]*localPhi+pp[2]*localPhi*localPhi;
 
 
   //if the seed crystal is neighbourgh of a supermodule border, don't apply the phi dependent  containment corrections, but use the larger crack corrections instead.

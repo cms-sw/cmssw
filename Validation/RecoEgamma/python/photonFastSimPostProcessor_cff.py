@@ -10,4 +10,4 @@ conversionPostprocessing.batch = cms.bool(False)
 conversionPostprocessing.standalone = cms.bool(False)
 conversionPostprocessing.fastSim = cms.bool(True)
 
-photonPostProcessor = cms.Sequence(photonPostprocessing*conversionPostprocessing)
+photonPostProcessor = cms.Sequence(photonPostprocessing)
