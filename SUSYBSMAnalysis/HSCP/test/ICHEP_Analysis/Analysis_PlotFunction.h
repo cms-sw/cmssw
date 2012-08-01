@@ -164,7 +164,7 @@ void DrawTH2D(TH2D** Histos, std::vector<std::string> legend, std::string Style_
 }
 
 // Draw a list of TH1 and superimposed them
-void DrawSuperposedHistos(TH1** Histos, std::vector<std::string> legend, std::string Style_,  std::string Xlegend, std::string Ylegend, double xmin, double xmax, double ymin, double ymax, bool Normalize=false, bool same=false)
+void DrawSuperposedHistos(TH1** Histos, std::vector<std::string> legend, std::string Style_,  std::string Xlegend, std::string Ylegend, double xmin, double xmax, double ymin, double ymax, bool Normalize=false, bool same=false, bool lastBinOverflow=false, bool firstBinOverflow=false)
 {
    int    N             = legend.size();
 
@@ -191,6 +191,36 @@ void DrawSuperposedHistos(TH1** Histos, std::vector<std::string> legend, std::st
         Histos[i]->SetMarkerSize(1.5);
         Histos[i]->SetLineColor(Color[i]);
         Histos[i]->SetLineWidth(2);
+        if(lastBinOverflow) {
+          if(xmin!=xmax) {
+            int lastBin=Histos[i]->GetXaxis()->FindBin(xmax);
+            double sum=0;
+            double error=0;
+            for(int b=lastBin; b<Histos[i]->GetNbinsX()+2; b++) {sum+=Histos[i]->GetBinContent(b); error+=Histos[i]->GetBinError(b)*Histos[i]->GetBinError(b);}
+            Histos[i]->SetBinContent(lastBin, sum);
+            Histos[i]->SetBinError(lastBin, sqrt(error));
+          }
+          else {
+            Histos[i]->SetBinContent(Histos[i]->GetNbinsX(), Histos[i]->GetBinContent(Histos[i]->GetNbinsX())+Histos[i]->GetBinContent(Histos[i]->GetNbinsX()+1));
+            double error=sqrt(pow(Histos[i]->GetBinError(Histos[i]->GetNbinsX()),2)+pow(Histos[i]->GetBinError(Histos[i]->GetNbinsX()+1),2));
+            Histos[i]->SetBinError(Histos[i]->GetNbinsX(), error);
+          }
+        }
+        if(firstBinOverflow) {
+          if(xmin!=xmax) {
+            int firstBin=Histos[i]->GetXaxis()->FindBin(xmin);
+            double sum=0;
+            double error=0;
+            for(int b=0; b<firstBin; b++) {sum+=Histos[i]->GetBinContent(b); error+=Histos[i]->GetBinError(b)*Histos[i]->GetBinError(b);}
+            Histos[i]->SetBinContent(firstBin, sum);
+            Histos[i]->SetBinError(firstBin, sqrt(error));
+          }
+          else {
+            Histos[i]->SetBinContent(1, Histos[i]->GetBinContent(1)+Histos[i]->GetBinContent(0));
+            double error=sqrt(pow(Histos[i]->GetBinError(1),2)+pow(Histos[i]->GetBinError(0),2));
+            Histos[i]->SetBinError(1, error);
+          }
+	}
        if(Style_=="DataMC" && i==0){
            Histos[i]->SetFillColor(0);
            Histos[i]->SetMarkerStyle(20);

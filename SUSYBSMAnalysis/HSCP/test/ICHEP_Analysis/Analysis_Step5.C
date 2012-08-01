@@ -12,7 +12,7 @@ using namespace std;
 /////////////////////////// FUNCTION DECLARATION /////////////////////////////
 
 void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuffix="Mass");
-void PredictionAndControlPlot(string InputPattern, string Data, unsigned int CutIndex);
+void PredictionAndControlPlot(string InputPattern, string Data, unsigned int CutIndex, unsigned int CutIndex_Flip);
 void CutFlow(string InputPattern, unsigned int CutIndex=0);
 void SelectionPlot (string InputPattern, unsigned int CutIndex);
 
@@ -40,23 +40,30 @@ void Analysis_Step5()
 
    GetSampleDefinition(samples);
 
-   string InputPattern;				unsigned int CutIndex;
+   string InputPattern;				unsigned int CutIndex;     unsigned int CutIndex_Flip=10;
    std::vector<string> Legends;                 std::vector<string> Inputs;
 
    InputPattern = "Results/dedxASmi/combined/Eta15/PtMin45/Type0/";   CutIndex = 4; //set of cuts from the array, 0 means no cut
    MassPrediction(InputPattern, CutIndex, "Mass");
-   PredictionAndControlPlot(InputPattern, "Data11", CutIndex);
-   PredictionAndControlPlot(InputPattern, "Data12", CutIndex);
+   PredictionAndControlPlot(InputPattern, "Data11", CutIndex, CutIndex_Flip);
+   PredictionAndControlPlot(InputPattern, "Data12", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern);
    SelectionPlot(InputPattern, CutIndex);
-   
+
    InputPattern = "Results/dedxASmi/combined/Eta15/PtMin45/Type2/";   CutIndex = 16;
    MassPrediction(InputPattern, CutIndex, "Mass");
-   PredictionAndControlPlot(InputPattern, "Data11", CutIndex);
-   PredictionAndControlPlot(InputPattern, "Data12", CutIndex);
+   MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip");
+   PredictionAndControlPlot(InputPattern, "Data11", CutIndex, CutIndex_Flip);
+   PredictionAndControlPlot(InputPattern, "Data12", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern);
    SelectionPlot(InputPattern, CutIndex);
    GetSystematicOnPrediction(InputPattern);
+
+   InputPattern = "Results/dedxASmi/combined/Eta21/PtMin80/Type3/";   CutIndex = 16;
+   PredictionAndControlPlot(InputPattern, "Data11", CutIndex, CutIndex_Flip);
+   PredictionAndControlPlot(InputPattern, "Data12", CutIndex, CutIndex_Flip);
+   //CutFlow(InputPattern);
+   SelectionPlot(InputPattern, CutIndex);
 
      //This function has not yet been reviewed after july's update
 //   MakeExpLimitpLot("Results_1toys_lp/dedxASmi/combined/Eta15/PtMin35/Type0/EXCLUSION/Stop200.info","tmp1.png");
@@ -283,7 +290,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
 
 
 // make some control plots to show that ABCD method can be used
-void PredictionAndControlPlot(string InputPattern, string Data, unsigned int CutIndex){
+void PredictionAndControlPlot(string InputPattern, string Data, unsigned int CutIndex, unsigned int CutIndex_Flip){
    TCanvas* c1;
    TObject** Histos = new TObject*[10];
    std::vector<string> legend;
@@ -450,6 +457,59 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    DrawLegend(Histos,legend,LegendTitle,"P");
    DrawPreliminary(SQRTS, IntegratedLuminosity);
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_TOFSpectrum");
+   delete Histos[0]; delete Histos[1];
+   delete c1;
+
+   //Show P, I and TOF distribution in the region with TOF < 1(observed and predicted)
+   TH2D* Pred_P_Flip                = (TH2D*)GetObjectFromPath(InputFile, Data+"/Pred_P_Flip");
+   TH2D* Pred_I_Flip                 = (TH2D*)GetObjectFromPath(InputFile, Data+"/Pred_I_Flip");
+   TH2D* Pred_TOF_Flip               = (TH2D*)GetObjectFromPath(InputFile, Data+"/Pred_TOF_Flip");
+   TH2D* Data_I_Flip                 = (TH2D*)GetObjectFromPath(InputFile, Data+"/RegionD_I_Flip");   
+   TH2D* Data_P_Flip                 = (TH2D*)GetObjectFromPath(InputFile, Data+"/RegionD_P_Flip");   
+   TH2D* Data_TOF_Flip               = (TH2D*)GetObjectFromPath(InputFile, Data+"/RegionD_TOF_Flip"); 
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   c1->SetLogy(true);
+   Histos[0] = (TH1D*)(Data_P_Flip ->ProjectionY("PA_Flip",CutIndex_Flip+1,CutIndex_Flip+1,"o"));   legend.push_back("Observed");
+   Histos[1] = (TH1D*)(Pred_P_Flip ->ProjectionY("PB_Flip",CutIndex_Flip+1,CutIndex_Flip+1,"o"));   legend.push_back("Predicted");
+   ((TH1D*)Histos[0])->Scale(1/std::max(((TH1D*)Histos[0])->Integral(),1.0));
+   ((TH1D*)Histos[1])->Scale(1/std::max(((TH1D*)Histos[1])->Integral(),1.0));
+   ((TH1D*)Histos[0])->Rebin(10);
+   ((TH1D*)Histos[1])->Rebin(10);  
+   DrawSuperposedHistos((TH1**)Histos, legend, "Hist E1",  "p (Gev/c)", "u.a.", 0,1500, 0,0);
+   DrawLegend(Histos,legend,LegendTitle,"P");
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_PSpectrum_Flip");
+   delete Histos[0]; delete Histos[1];
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   c1->SetLogy(true);
+   Histos[0] = (TH1D*)(Data_I_Flip ->ProjectionY("IA_Flip",CutIndex_Flip+1,CutIndex_Flip+1,"o"));   legend.push_back("Observed");
+   Histos[1] = (TH1D*)(Pred_I_Flip ->ProjectionY("IB_Flip",CutIndex_Flip+1,CutIndex_Flip+1,"o"));   legend.push_back("Predicted");
+   ((TH1D*)Histos[0])->Scale(1/std::max(((TH1D*)Histos[0])->Integral(),1.0));
+   ((TH1D*)Histos[1])->Scale(1/std::max(((TH1D*)Histos[1])->Integral(),1.0));
+   ((TH1D*)Histos[0])->Rebin(2); 
+   ((TH1D*)Histos[1])->Rebin(2);
+   DrawSuperposedHistos((TH1**)Histos, legend, "Hist E1",  dEdxM_Legend, "u.a.", 0,6, 0,0);
+   DrawLegend(Histos,legend,LegendTitle,"P");
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_ISpectrum_Flip");
+   delete Histos[0]; delete Histos[1];
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   c1->SetLogy(true);
+   Histos[0] = (TH1D*)(Data_TOF_Flip ->ProjectionY("TA_Flip",CutIndex_Flip+1,CutIndex_Flip+1,"o"));   legend.push_back("Observed");
+   Histos[1] = (TH1D*)(Pred_TOF_Flip ->ProjectionY("TB_Flip",CutIndex_Flip+1,CutIndex_Flip+1,"o"));   legend.push_back("Predicted");
+   ((TH1D*)Histos[0])->Scale(1/std::max(((TH1D*)Histos[0])->Integral(),1.0));
+   ((TH1D*)Histos[1])->Scale(1/std::max(((TH1D*)Histos[1])->Integral(),1.0));
+   ((TH1D*)Histos[0])->Rebin(2); 
+   ((TH1D*)Histos[1])->Rebin(2);
+   DrawSuperposedHistos((TH1**)Histos, legend, "Hist E1",  "1/#beta", "u.a.", 0,0, 0,0);
+   DrawLegend(Histos,legend,LegendTitle,"P");
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_TOFSpectrum_Flip");
    delete Histos[0]; delete Histos[1];
    delete c1;
 

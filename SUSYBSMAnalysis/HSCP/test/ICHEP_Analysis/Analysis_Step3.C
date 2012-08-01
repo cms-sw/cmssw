@@ -58,38 +58,16 @@ void Analysis_Step3(char* SavePath);
 
 bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic=false);
 bool   PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, const reco::MuonTimeExtra* dttof, const reco::MuonTimeExtra* csctof, const fwlite::ChainEvent& ev, stPlots* st=NULL, const double& GenBeta=-1, bool RescaleP=false, const double& RescaleI=0.0, const double& RescaleT=0.0);
-bool PassSelection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, const fwlite::ChainEvent& ev, const int& CutIndex=0, stPlots* st=NULL, const double& GenBeta=-1, bool RescaleP=false, const double& RescaleI=0.0, const double& RescaleT=0.0);
+bool PassSelection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, const fwlite::ChainEvent& ev, const int& CutIndex=0, stPlots* st=NULL, const bool isFlip=false, const double& GenBeta=-1, bool RescaleP=false, const double& RescaleI=0.0, const double& RescaleT=0.0);
 void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, stPlots* st=NULL);
 double SegSep(const susybsm::HSCParticle& hscp, const fwlite::ChainEvent& ev, double& minPhi, double& minEta);
-double RescaledPt       (const double& pt, const double& eta, const double& phi, const int& charge);
+double RescaledPt(const double& pt, const double& eta, const double& phi, const int& charge);
 /////////////////////////// VARIABLE DECLARATION /////////////////////////////
 
 float Event_Weight = 1;
 int   MaxEntry = -1;
 
 TFile* HistoFile;
-
-TH1D*  Hist_Pt ;
-TH1D*  Hist_Is  ;
-TH1D*  Hist_TOF;
-
-TH2D*  Pred_Mass;
-TH2D*  Pred_MassTOF;
-TH2D*  Pred_MassComb;
-
-TH1D* H_A;
-TH1D* H_B;
-TH1D* H_C;
-TH1D* H_D;
-TH1D* H_E;
-TH1D* H_F;
-TH1D* H_G;
-TH1D* H_H;
-TH1D* H_P;
-
-TH2D* H_D_DzSidebands;
-TH2D* H_D_DzSidebands_DT;
-TH2D* H_D_DzSidebands_CSC;
 
 std::vector<double>  CutPt ;
 std::vector<double>  CutI  ;
@@ -99,37 +77,14 @@ TProfile*  HCuts_Pt;
 TProfile*  HCuts_I;
 TProfile*  HCuts_TOF;
 
-TH3D*  Pred_EtaP ;
-TH2D*  Pred_I    ;
-TH2D*  Pred_TOF  ;
-TH2D*  Pred_EtaB;
-TH2D*  Pred_EtaS;
-TH2D*  Pred_EtaS2;
+//The cuts used for the check on the background prediction by tracks with TOF<1
+std::vector<double>  CutPt_Flip ;
+std::vector<double>  CutI_Flip  ;
+std::vector<double>  CutTOF_Flip;
 
-TH2D*  RegionD_P   ;
-TH2D*  RegionD_I   ;
-TH2D*  RegionD_TOF  ;
-
-TH1D*  CtrlPt_S1_Is;
-TH1D*  CtrlPt_S1_Im;
-TH1D*  CtrlPt_S1_TOF;
-TH1D*  CtrlPt_S2_Is;
-TH1D*  CtrlPt_S2_Im;
-TH1D*  CtrlPt_S2_TOF;
-TH1D*  CtrlPt_S3_Is;
-TH1D*  CtrlPt_S3_Im;
-TH1D*  CtrlPt_S3_TOF;
-TH1D*  CtrlPt_S4_Is;
-TH1D*  CtrlPt_S4_Im;
-TH1D*  CtrlPt_S4_TOF;
-TH1D*  CtrlIs_S1_TOF;
-TH1D*  CtrlIs_S2_TOF;
-TH1D*  CtrlIs_S3_TOF;
-TH1D*  CtrlIs_S4_TOF;
-TH1D*  CtrlIm_S1_TOF;
-TH1D*  CtrlIm_S2_TOF;
-TH1D*  CtrlIm_S3_TOF;
-TH1D*  CtrlIm_S4_TOF;
+TProfile*  HCuts_Pt_Flip;
+TProfile*  HCuts_I_Flip;
+TProfile*  HCuts_TOF_Flip;
 
 std::vector<stSample> samples;
 std::map<std::string, stPlots> plotsMap;
@@ -186,6 +141,7 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
    // define the selection to be considered later for the optimization
    // WARNING: recall that this has a huge impact on the analysis time AND on the output file size --> be carefull with your choice
    CutPt .push_back(GlobalMinPt);   CutI  .push_back(GlobalMinIs);  CutTOF.push_back(GlobalMinTOF);
+   CutPt_Flip .push_back(GlobalMinPt);   CutI_Flip  .push_back(GlobalMinIs);  CutTOF_Flip.push_back(GlobalMinTOF);
 
    if(TypeMode<2){   
       for(double Pt =GlobalMinPt+5 ; Pt <200;Pt+=5){
@@ -199,11 +155,25 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
          CutPt .push_back(Pt);   CutI  .push_back(I);  CutTOF.push_back(TOF);
       }}}
    }else if(TypeMode==3){
-     for(double Pt =GlobalMinPt+30 ; Pt <550;  Pt+=30){
+     for(double Pt =GlobalMinPt+30 ; Pt <450;  Pt+=30){
        for(double TOF=GlobalMinTOF+0.025; TOF<1.4;TOF+=0.01){
          CutPt .push_back(Pt);   CutI  .push_back(-1);  CutTOF.push_back(TOF);
        }}
    }
+
+   if(TypeMode==2){
+     for(double Pt =GlobalMinPt+10 ; Pt <120;  Pt+=30){
+       for(double I  =GlobalMinIs +0.1; I  <0.40;  I+=0.1){
+	 for(double TOF=GlobalMinTOF-0.1; TOF>0.65;TOF-=0.1){
+	   CutPt_Flip .push_back(Pt);   CutI_Flip  .push_back(I);  CutTOF_Flip.push_back(TOF);
+	 }}}
+   }else if(TypeMode==3){
+     for(double Pt =GlobalMinPt+100 ; Pt <450;  Pt+=60){
+       for(double TOF=GlobalMinTOF-0.15; TOF>0.6;TOF-=0.05){
+         CutPt_Flip .push_back(Pt);   CutI_Flip  .push_back(-1);  CutTOF_Flip.push_back(TOF);
+       }}
+   }
+
    printf("%i Different Final Selection will be tested\n",(int)CutPt.size());
 
    //initialize LumiReWeighting
@@ -248,12 +218,14 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
       if(!tr.isValid())return false;
 
       #ifdef ANALYSIS2011
+      if(TypeMode!=3) {
          if(tr.accept(tr.triggerIndex("HscpPathSingleMu")))return true;
          else if(tr.accept(tr.triggerIndex("HscpPathPFMet"))){
            if(!isData) Event_Weight=Event_Weight*0.96;
            return true;
-         }
+         }}
 	 if(TypeMode==3) {
+           if(tr.size()== tr.triggerIndex("HSCPPathSAMU")) return false;
 	   fwlite::Handle<reco::PFMETCollection> pfMETCollection;
 	   pfMETCollection.getByLabel(ev,"pfMet");
 	   if(tr.accept(tr.triggerIndex("HSCPPathSAMU")) && pfMETCollection->begin()->et()>60) return true;
@@ -265,9 +237,15 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
 	   if(tr.accept("HSCPHLTTriggerMuFilter"))return true;
 	 }
 	 //Only for the TOF only analysis
-	 if(TypeMode==3) if(tr.accept(tr.triggerIndex("HSCPHLTTriggerL2MuFilter"))) return true;
+	 if(TypeMode==3) {
+           if(tr.size()== tr.triggerIndex("HSCPHLTTriggerL2MuFilter")) return false;
+	   if(tr.accept(tr.triggerIndex("HSCPHLTTriggerL2MuFilter"))) return true;
+	 }
 	 //Only accepted if looking for cosmic events
-	 if(isCosmic) if(tr.accept(tr.triggerIndex("HSCPHLTTriggerCosmicFilter"))) return true;
+	 if(isCosmic) {
+           if(tr.size()== tr.triggerIndex("HSCPHLTTriggerCosmicFilte")) return false;
+	   if(tr.accept(tr.triggerIndex("HSCPHLTTriggerCosmicFilter"))) return true;
+	 }
       #endif
       return false;
 }
@@ -275,6 +253,7 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
 // check if one HSCP candidate is passing the preselection (the function also has many more arguments because it is used to fill some histograms AND to evaluate the systematics
 bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, const reco::MuonTimeExtra* dttof, const reco::MuonTimeExtra* csctof, const fwlite::ChainEvent& ev, stPlots* st, const double& GenBeta, bool RescaleP, const double& RescaleI, const double& RescaleT)
 {
+
    if(TypeMode==1 && !(hscp.type() == HSCParticleType::trackerMuon || hscp.type() == HSCParticleType::globalMuon))return false;
    if(TypeMode==2 && hscp.type() != HSCParticleType::globalMuon)return false;
 
@@ -341,7 +320,9 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    if(st){st->MI   ->Fill(0.0,Event_Weight);}
    if(tof){
    if(st){st->BS_MTOF ->Fill(tof->inverseBeta(),Event_Weight);}
-   if(TypeMode>1 && tof->inverseBeta()+RescaleT<GlobalMinTOF)return false;
+   //This cut is no longer applied here but rather in the PassSelection part to use the region
+   //with TOF<GlobalMinTOF as a background check
+   //if(TypeMode>1 && tof->inverseBeta()+RescaleT<GlobalMinTOF)return false;
    if(TypeMode>1 && tof->inverseBetaErr()>GlobalMaxTOFErr)return false;
    }
    if(st){st->MTOF ->Fill(0.0,Event_Weight);
@@ -366,7 +347,9 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    }
 
    if(st) st->BS_PV->Fill(goodVerts,Event_Weight);
-   if(TypeMode==3 && goodVerts<1) return false;
+   //Require at least one good vertex except if cosmic event
+
+   if(TypeMode==3 && goodVerts<1 && st && st->Name.find("Cosmic")==string::npos) return false;
 
    //For TOF only analysis match to a SA track without vertex constraint for IP cuts
    if(TypeMode==3) {
@@ -379,7 +362,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
        if(!noVertexTrackCollHandle.isValid()){
 	 noVertexTrackCollHandle.getByLabel(ev,"RefitMTSAMuons", "");
 	 if(!noVertexTrackCollHandle.isValid()){
-	   printf("No Vertex Track Collection Not Found\n");
+	   //printf("No Vertex Track Collection Not Found\n");
 	   return false;
 	 }
        }
@@ -411,6 +394,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 
    if(st){st->BS_V3D->Fill(v3d,Event_Weight);}
    if(TypeMode!=3 && v3d>GlobalMaxV3D )return false;
+
    if(TypeMode==3 && fabs(dxy)>GlobalMaxDXY) return false;
    if(st){st->V3D  ->Fill(0.0,Event_Weight);}
 
@@ -477,7 +461,6 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
      if(fabs(dz)>CosmicMinDz && fabs(dz)<CosmicMaxDz) {
        st->BS_Pt_FailDz->Fill(track->pt(), Event_Weight);
        st->BS_TOF_FailDz->Fill(tof->inverseBeta(), Event_Weight);
-       st->BS_Eta_FailDz->Fill(track->eta(), Event_Weight);
        if(fabs(track->eta())>CSCRegion) {
 	 st->BS_TOF_FailDz_CSC->Fill(tof->inverseBeta(), Event_Weight);
 	 st->BS_Pt_FailDz_CSC->Fill(track->pt(), Event_Weight);
@@ -507,9 +490,9 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
      //The pt cut is not applied to increase statistics
      for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
        if(tof->inverseBeta()>=CutTOF[CutIndex]) {
-	 H_D_DzSidebands->Fill(CutIndex, DzType);
-	 if(fabs(track->eta())<DTRegion) H_D_DzSidebands_DT->Fill(CutIndex, DzType);
-         else H_D_DzSidebands_CSC->Fill(CutIndex, DzType);
+	 st->H_D_DzSidebands->Fill(CutIndex, DzType);
+	 if(fabs(track->eta())<DTRegion) st->H_D_DzSidebands_DT->Fill(CutIndex, DzType);
+         else st->H_D_DzSidebands_CSC->Fill(CutIndex, DzType);
        }
      }
    }
@@ -527,6 +510,8 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    if(st){if(GenBeta>=0)st->Beta_PreselectedC->Fill(GenBeta, Event_Weight);
           st->BS_P  ->Fill(track->p(),Event_Weight);
           st->BS_Pt ->Fill(track->pt(),Event_Weight);
+	  if(fabs(track->eta())<DTRegion) st->BS_Pt_DT->Fill(track->pt(),Event_Weight);
+	  else st->BS_Pt_CSC->Fill(track->pt(),Event_Weight);
           if(dedxSObj) st->BS_Is ->Fill(dedxSObj->dEdx(),Event_Weight);
           if(dedxSObj) st->BS_Im ->Fill(dedxMObj->dEdx(),Event_Weight);
           if(tof) {
@@ -547,7 +532,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 }
 
 // check if one HSCP candidate is passing the selection (the function also has many more arguments because it is used to fill some histograms AND to evaluate the systematics
-bool PassSelection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, const fwlite::ChainEvent& ev, const int& CutIndex, stPlots* st, const double& GenBeta, bool RescaleP, const double& RescaleI, const double& RescaleT){
+bool PassSelection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, const fwlite::ChainEvent& ev, const int& CutIndex, stPlots* st, const bool isFlip, const double& GenBeta, bool RescaleP, const double& RescaleI, const double& RescaleT){
 
    reco::TrackRef   track;
    if(TypeMode!=3) track = hscp.trackRef();
@@ -568,23 +553,35 @@ bool PassSelection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedx
    double Ih=0;
    if(dedxMObj) Ih=dedxMObj->dEdx();
 
+   double PtCut=CutPt[CutIndex];
+   double ICut=CutI[CutIndex];
+   double TOFCut=CutTOF[CutIndex];
+   if(isFlip) {
+     PtCut=CutPt_Flip[CutIndex];
+     ICut=CutI_Flip[CutIndex];
+     TOFCut=CutTOF_Flip[CutIndex];
+   }
+
    if(RescaleP){
-     if(RescaledPt(track->pt(),track->eta(),track->phi(),track->charge())<CutPt[CutIndex])return false;
+     if(RescaledPt(track->pt(),track->eta(),track->phi(),track->charge())<PtCut)return false;
      //if(std::max(0.0,RescaledPt(track->pt() - track->ptError(),track->eta(),track->phi(),track->charge()))<CutPt[CutIndex])return false;
    }else{
-     if(track->pt()<CutPt[CutIndex])return false;
+     if(track->pt()<PtCut)return false;
      //if(std::max(0.0,(track->pt() - track->ptError()))<CutPt[CutIndex])return false;
    } 
    if(st){st->Pt    ->Fill(CutIndex,Event_Weight);
           if(GenBeta>=0)st->Beta_SelectedP->Fill(CutIndex,GenBeta, Event_Weight);
    }
 
-   if(TypeMode!=3 && Is+RescaleI<CutI[CutIndex])return false;
+   if(TypeMode!=3 && Is+RescaleI<ICut)return false;
+
    if(st){st->I    ->Fill(CutIndex,Event_Weight);
           if(GenBeta>=0)st->Beta_SelectedI->Fill(CutIndex, GenBeta, Event_Weight);
    }
 
-   if(TypeMode>1 && MuonTOF+RescaleT<CutTOF[CutIndex])return false;
+   if(TypeMode>1 && !isFlip && MuonTOF+RescaleT<TOFCut)return false;
+   if(TypeMode>1 && isFlip && MuonTOF+RescaleT>TOFCut)return false;
+
    if(st){st->TOF  ->Fill(CutIndex,Event_Weight);
           if(GenBeta>=0)st->Beta_SelectedT->Fill(CutIndex, GenBeta, Event_Weight);
           st->AS_P  ->Fill(CutIndex,track->p(),Event_Weight);
@@ -625,9 +622,9 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
 	 double Ih=0;
 	 if(dedxMObj) Ih=dedxMObj->dEdx();
 
-	 Hist_Pt->Fill(track->pt(),Event_Weight);
-         Hist_Is->Fill(Is,Event_Weight);
-         Hist_TOF->Fill(MuonTOF,Event_Weight);
+	 st->Hist_Pt->Fill(track->pt(),Event_Weight);
+         st->Hist_Is->Fill(Is,Event_Weight);
+         st->Hist_TOF->Fill(MuonTOF,Event_Weight);
 
 
 //          /\ I
@@ -649,81 +646,157 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
 //      TOF
 
             if(track->pt()>100){
-               CtrlPt_S4_Is->Fill(Is, Event_Weight);
-               CtrlPt_S4_Im->Fill(Ih, Event_Weight);
-               if(tof)CtrlPt_S4_TOF->Fill(MuonTOF, Event_Weight);
+               st->CtrlPt_S4_Is->Fill(Is, Event_Weight);
+               st->CtrlPt_S4_Im->Fill(Ih, Event_Weight);
+               if(tof)st->CtrlPt_S4_TOF->Fill(MuonTOF, Event_Weight);
             }else if(track->pt()>80){
-               CtrlPt_S3_Is->Fill(Is, Event_Weight);
-               CtrlPt_S3_Im->Fill(Ih, Event_Weight);
-               if(tof)CtrlPt_S3_TOF->Fill(MuonTOF, Event_Weight);
+               st->CtrlPt_S3_Is->Fill(Is, Event_Weight);
+               st->CtrlPt_S3_Im->Fill(Ih, Event_Weight);
+               if(tof)st->CtrlPt_S3_TOF->Fill(MuonTOF, Event_Weight);
             }else if(track->pt()>60){
-               CtrlPt_S2_Is->Fill(Is, Event_Weight);
-               CtrlPt_S2_Im->Fill(Ih, Event_Weight);
-               if(tof)CtrlPt_S2_TOF->Fill(MuonTOF, Event_Weight);
+               st->CtrlPt_S2_Is->Fill(Is, Event_Weight);
+               st->CtrlPt_S2_Im->Fill(Ih, Event_Weight);
+               if(tof)st->CtrlPt_S2_TOF->Fill(MuonTOF, Event_Weight);
             }else{
-               CtrlPt_S1_Is->Fill(Is, Event_Weight);
-               CtrlPt_S1_Im->Fill(Ih, Event_Weight);
-               if(tof)CtrlPt_S1_TOF->Fill(MuonTOF, Event_Weight);
+               st->CtrlPt_S1_Is->Fill(Is, Event_Weight);
+               st->CtrlPt_S1_Im->Fill(Ih, Event_Weight);
+               if(tof)st->CtrlPt_S1_TOF->Fill(MuonTOF, Event_Weight);
             }
 
-            if(Is>0.2){           if(tof)CtrlIs_S4_TOF->Fill(MuonTOF, Event_Weight);
-            }else if(Is>0.1){     if(tof)CtrlIs_S3_TOF->Fill(MuonTOF, Event_Weight);
-            }else if(Is>0.05){     if(tof)CtrlIs_S2_TOF->Fill(MuonTOF, Event_Weight);
-            }else{                             if(tof)CtrlIs_S1_TOF->Fill(MuonTOF, Event_Weight);
+            if(Is>0.2){           if(tof)st->CtrlIs_S4_TOF->Fill(MuonTOF, Event_Weight);
+            }else if(Is>0.1){     if(tof)st->CtrlIs_S3_TOF->Fill(MuonTOF, Event_Weight);
+            }else if(Is>0.05){    if(tof)st->CtrlIs_S2_TOF->Fill(MuonTOF, Event_Weight);
+            }else{                if(tof)st->CtrlIs_S1_TOF->Fill(MuonTOF, Event_Weight);
             }
 
-            if(Ih>4.4){           if(tof)CtrlIm_S4_TOF->Fill(MuonTOF, Event_Weight);
-            }else if(Ih>4.1){     if(tof)CtrlIm_S3_TOF->Fill(MuonTOF, Event_Weight);
-            }else if(Ih>3.8){     if(tof)CtrlIm_S2_TOF->Fill(MuonTOF, Event_Weight);
-            }else{                             if(tof)CtrlIm_S1_TOF->Fill(MuonTOF, Event_Weight);
+            if(Ih>4.4){           if(tof)st->CtrlIm_S4_TOF->Fill(MuonTOF, Event_Weight);
+            }else if(Ih>4.1){     if(tof)st->CtrlIm_S3_TOF->Fill(MuonTOF, Event_Weight);
+            }else if(Ih>3.8){     if(tof)st->CtrlIm_S2_TOF->Fill(MuonTOF, Event_Weight);
+            }else{                if(tof)st->CtrlIm_S1_TOF->Fill(MuonTOF, Event_Weight);
             }
 
 
          for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
-
+	   if(MuonTOF<GlobalMinTOF) continue;
             bool PassPtCut  = track->pt()>=CutPt[CutIndex];
             bool PassICut   = (Is>=CutI[CutIndex]);
             bool PassTOFCut = MuonTOF>=CutTOF[CutIndex];
             if(       PassTOFCut &&  PassPtCut &&  PassICut){   //Region D
-               H_D      ->Fill(CutIndex,                Event_Weight);
-               RegionD_P  ->Fill(CutIndex,track->p(),     Event_Weight);
-               RegionD_I  ->Fill(CutIndex,Ih,Event_Weight);
-               RegionD_TOF->Fill(CutIndex,MuonTOF,        Event_Weight);
+               st->H_D      ->Fill(CutIndex,                Event_Weight);
+               if(fabs(track->eta())<DTRegion) st->H_D_Cen->Fill(CutIndex, Event_Weight);
+               else st->H_D_For->Fill(CutIndex, Event_Weight);
+               st->RegionD_P  ->Fill(CutIndex,track->p(),     Event_Weight);
+               st->RegionD_I  ->Fill(CutIndex,Ih,Event_Weight);
+               st->RegionD_TOF->Fill(CutIndex,MuonTOF,        Event_Weight);
 	       st->AS_Eta_RegionD->Fill(CutIndex,track->eta());
             }else if( PassTOFCut &&  PassPtCut && !PassICut){   //Region C
-               H_C     ->Fill(CutIndex,                 Event_Weight);
-               if(TypeMode!=2)Pred_EtaP  ->Fill(CutIndex,track->eta(), track->p(),     Event_Weight);
-//               Pred_TOF->Fill(CutIndex,MuonTOF,         Event_Weight);      //Not used but a priori uncorrelated so could be used (TO BE CHECK)
+               st->H_C     ->Fill(CutIndex,                 Event_Weight);
+	       if(fabs(track->eta())<DTRegion) st->H_C_Cen->Fill(CutIndex, Event_Weight);
+	       else st->H_C_For->Fill(CutIndex, Event_Weight);
+               if(TypeMode!=2)st->Pred_EtaP  ->Fill(CutIndex,track->eta(), track->p(),     Event_Weight);
+//               Pred_TOF->Fill(CutIndex,MuonTOF,         Event_Weight);
                st->AS_Eta_RegionC->Fill(CutIndex,track->eta());
             }else if( PassTOFCut && !PassPtCut &&  PassICut){   //Region B
-               H_B     ->Fill(CutIndex,                 Event_Weight);
-               if(TypeMode!=2)Pred_I  ->Fill(CutIndex,Ih, Event_Weight);
-               if(TypeMode!=2)Pred_EtaS->Fill(CutIndex,track->eta(),         Event_Weight);
-//               Pred_TOF->Fill(CutIndex,MuonTOF,         Event_Weight);      //Not used but a priori uncorrelated so could be used (TO BE CHECK)
+               st->H_B     ->Fill(CutIndex,                 Event_Weight);
+               if(fabs(track->eta())<DTRegion) st->H_B_Cen->Fill(CutIndex, Event_Weight);
+               else st->H_B_For->Fill(CutIndex, Event_Weight);
+               if(TypeMode!=2)st->Pred_I  ->Fill(CutIndex,Ih, Event_Weight);
+               if(TypeMode!=2)st->Pred_EtaS->Fill(CutIndex,track->eta(),         Event_Weight);
+//               Pred_TOF->Fill(CutIndex,MuonTOF,         Event_Weight);
                st->AS_Eta_RegionB->Fill(CutIndex,track->eta());
             }else if( PassTOFCut && !PassPtCut && !PassICut){   //Region A
-               H_A     ->Fill(CutIndex,                 Event_Weight);
-               if(TypeMode==2)Pred_TOF->Fill(CutIndex,MuonTOF,         Event_Weight);
-               if(TypeMode!=2)Pred_EtaB->Fill(CutIndex,track->eta(),         Event_Weight);
-               if(TypeMode==2)Pred_EtaS2->Fill(CutIndex,track->eta(),        Event_Weight);
+               st->H_A     ->Fill(CutIndex,                 Event_Weight);
+               if(fabs(track->eta())<DTRegion) st->H_A_Cen->Fill(CutIndex, Event_Weight);
+               else st->H_A_For->Fill(CutIndex, Event_Weight);
+               if(TypeMode==2)st->Pred_TOF->Fill(CutIndex,MuonTOF,         Event_Weight);
+               if(TypeMode!=2)st->Pred_EtaB->Fill(CutIndex,track->eta(),         Event_Weight);
+               if(TypeMode==2)st->Pred_EtaS2->Fill(CutIndex,track->eta(),        Event_Weight);
                st->AS_Eta_RegionA->Fill(CutIndex,track->eta());
             }else if(!PassTOFCut &&  PassPtCut &&  PassICut){   //Region H
-               H_H   ->Fill(CutIndex,          Event_Weight);
-//               Pred_I->Fill(CutIndex,Ih,   Event_Weight);      //Not used but a priori uncorrelated so could be used (TO BE CHECK)
+               st->H_H   ->Fill(CutIndex,          Event_Weight);
+               if(fabs(track->eta())<DTRegion) st->H_H_Cen->Fill(CutIndex, Event_Weight);
+               else st->H_H_For->Fill(CutIndex, Event_Weight);
+//               Pred_P->Fill(CutIndex,track->p(),        Event_Weight);
+//               Pred_I->Fill(CutIndex,Ih,   Event_Weight);
                st->AS_Eta_RegionH->Fill(CutIndex,track->eta());
             }else if(!PassTOFCut &&  PassPtCut && !PassICut){   //Region G
-               H_G     ->Fill(CutIndex,                 Event_Weight);
-               if(TypeMode==2)Pred_EtaP  ->Fill(CutIndex,track->eta(),track->p(),     Event_Weight);
+               st->H_G     ->Fill(CutIndex,                 Event_Weight);
+               if(fabs(track->eta())<DTRegion) st->H_G_Cen->Fill(CutIndex, Event_Weight);
+               else st->H_G_For->Fill(CutIndex, Event_Weight);
+               if(TypeMode==2)st->Pred_EtaP  ->Fill(CutIndex,track->eta(),track->p(),     Event_Weight);
                st->AS_Eta_RegionG->Fill(CutIndex,track->eta());
             }else if(!PassTOFCut && !PassPtCut &&  PassICut){   //Region F
-               H_F     ->Fill(CutIndex,                 Event_Weight);
-               if(TypeMode==2)Pred_I  ->Fill(CutIndex,Ih, Event_Weight);
-               if(TypeMode==2)Pred_EtaS->Fill(CutIndex,track->eta(),         Event_Weight);
+               st->H_F     ->Fill(CutIndex,                 Event_Weight);
+               if(fabs(track->eta())<DTRegion) st->H_F_Cen->Fill(CutIndex, Event_Weight);
+               else st->H_F_For->Fill(CutIndex, Event_Weight);
+               if(TypeMode==2)st->Pred_I  ->Fill(CutIndex,Ih, Event_Weight);
+               if(TypeMode==2)st->Pred_EtaS->Fill(CutIndex,track->eta(),         Event_Weight);
                st->AS_Eta_RegionF->Fill(CutIndex,track->eta());
             }else if(!PassTOFCut && !PassPtCut && !PassICut){   //Region E
-               H_E     ->Fill(CutIndex,                 Event_Weight);
-               if(TypeMode==2)Pred_EtaB->Fill(CutIndex,track->eta(),         Event_Weight);
+               st->H_E     ->Fill(CutIndex,                 Event_Weight);
+               if(fabs(track->eta())<DTRegion) st->H_E_Cen->Fill(CutIndex, Event_Weight);
+               else st->H_E_For->Fill(CutIndex, Event_Weight);
+               if(TypeMode==2)st->Pred_EtaB->Fill(CutIndex,track->eta(),         Event_Weight);
                st->AS_Eta_RegionE->Fill(CutIndex,track->eta());
+            }
+         }
+
+	 //Use events with low TOF to check accuracy of background prediction
+         for(unsigned int CutIndex=0;CutIndex<CutPt_Flip.size();CutIndex++){
+	   if(MuonTOF>GlobalMinTOF) continue;
+            bool PassPtCut  = track->pt()>=CutPt_Flip[CutIndex];
+            bool PassICut   = (Is>=CutI_Flip[CutIndex]);
+            bool PassTOFCut = MuonTOF<=CutTOF_Flip[CutIndex];
+
+            if(       PassTOFCut &&  PassPtCut &&  PassICut){   //Region D
+	      st->RegionD_P_Flip  ->Fill(CutIndex,track->p(),     Event_Weight);
+	      st->RegionD_I_Flip  ->Fill(CutIndex,Ih,Event_Weight);
+	      st->RegionD_TOF_Flip->Fill(CutIndex,MuonTOF,        Event_Weight);
+               st->H_D_Flip->Fill(CutIndex,                Event_Weight);
+               if(fabs(track->eta())<DTRegion) st->H_D_Cen_Flip->Fill(CutIndex, Event_Weight);
+               else st->H_D_For_Flip->Fill(CutIndex, Event_Weight);
+            }else if( PassTOFCut &&  PassPtCut && !PassICut){   //Region C
+               st->H_C_Flip->Fill(CutIndex,                 Event_Weight);
+	       if(fabs(track->eta())<DTRegion) st->H_C_Cen_Flip->Fill(CutIndex, Event_Weight);
+	       else st->H_C_For_Flip->Fill(CutIndex, Event_Weight);
+               if(TypeMode!=2)st->Pred_EtaP_Flip->Fill(CutIndex,track->eta(), track->p(),     Event_Weight);
+//               Pred_TOF_Flip->Fill(CutIndex,MuonTOF,         Event_Weight);
+            }else if( PassTOFCut && !PassPtCut &&  PassICut){   //Region B
+               st->H_B_Flip->Fill(CutIndex,                 Event_Weight);
+               if(fabs(track->eta())<DTRegion) st->H_B_Cen_Flip->Fill(CutIndex, Event_Weight);
+               else st->H_B_For_Flip->Fill(CutIndex, Event_Weight);
+               if(TypeMode!=2)st->Pred_I_Flip->Fill(CutIndex,Ih, Event_Weight);
+               if(TypeMode!=2)st->Pred_EtaS_Flip->Fill(CutIndex,track->eta(),         Event_Weight);
+//               Pred_TOF_Flip->Fill(CutIndex,MuonTOF,         Event_Weight);
+            }else if( PassTOFCut && !PassPtCut && !PassICut){   //Region A
+               st->H_A_Flip->Fill(CutIndex,                 Event_Weight);
+               if(fabs(track->eta())<DTRegion) st->H_A_Cen_Flip->Fill(CutIndex, Event_Weight);
+               else st->H_A_For_Flip->Fill(CutIndex, Event_Weight);
+               if(TypeMode==2)st->Pred_TOF_Flip->Fill(CutIndex,MuonTOF,         Event_Weight);
+               if(TypeMode!=2)st->Pred_EtaB_Flip->Fill(CutIndex,track->eta(),         Event_Weight);
+               if(TypeMode==2)st->Pred_EtaS2_Flip->Fill(CutIndex,track->eta(),        Event_Weight);
+            }else if(!PassTOFCut &&  PassPtCut &&  PassICut){   //Region H
+               st->H_H_Flip->Fill(CutIndex,          Event_Weight);
+               if(fabs(track->eta())<DTRegion) st->H_H_Cen_Flip->Fill(CutIndex, Event_Weight);
+               else st->H_H_For_Flip->Fill(CutIndex, Event_Weight);
+//               Pred_P_Flip->Fill(CutIndex,track->p(),        Event_Weight);
+//               Pred_I_Flip->Fill(CutIndex,Ih,   Event_Weight);
+            }else if(!PassTOFCut &&  PassPtCut && !PassICut){   //Region G
+               st->H_G_Flip->Fill(CutIndex,                 Event_Weight);
+               if(fabs(track->eta())<DTRegion) st->H_G_Cen_Flip->Fill(CutIndex, Event_Weight);
+               else st->H_G_For_Flip->Fill(CutIndex, Event_Weight);
+               if(TypeMode==2)st->Pred_EtaP_Flip->Fill(CutIndex,track->eta(),track->p(),     Event_Weight);
+            }else if(!PassTOFCut && !PassPtCut &&  PassICut){   //Region F
+               st->H_F_Flip->Fill(CutIndex,                 Event_Weight);
+               if(fabs(track->eta())<DTRegion) st->H_F_Cen_Flip->Fill(CutIndex, Event_Weight);
+               else st->H_F_For_Flip->Fill(CutIndex, Event_Weight);
+               if(TypeMode==2)st->Pred_I_Flip->Fill(CutIndex,Ih, Event_Weight);
+               if(TypeMode==2)st->Pred_EtaS_Flip->Fill(CutIndex,track->eta(),         Event_Weight);
+            }else if(!PassTOFCut && !PassPtCut && !PassICut){   //Region E
+               st->H_E_Flip->Fill(CutIndex,                 Event_Weight);
+               if(fabs(track->eta())<DTRegion) st->H_E_Cen_Flip->Fill(CutIndex, Event_Weight);
+               else st->H_E_For_Flip->Fill(CutIndex, Event_Weight);
+               if(TypeMode==2)st->Pred_EtaB_Flip->Fill(CutIndex,track->eta(),         Event_Weight);
             }
          }
 }
@@ -741,16 +814,18 @@ void Analysis_Step3(char* SavePath)
       bool isData   = (samples[s].Type==0);
       bool isMC     = (samples[s].Type==1);
       bool isSignal = (samples[s].Type==2);
- 
+
       //check that the plot container exist for this sample, otherwise create it
       if(plotsMap.find(samples[s].Name)==plotsMap.end()){plotsMap[samples[s].Name] = stPlots();}
-      stPlots_Init(HistoFile,plotsMap[samples[s].Name],samples[s].Name, CutPt.size());
+      //For data and MCTr only initialize prediction histograms
+      if(isData) stPlots_Init(HistoFile,plotsMap[samples[s].Name],samples[s].Name, CutPt.size(), false, false, CutPt_Flip.size());
+      else stPlots_Init(HistoFile,plotsMap[samples[s].Name],samples[s].Name, CutPt.size());
       stPlots& SamplePlots = plotsMap[samples[s].Name];
       SamplePlots.IntLumi->Fill(0.0,IntegratedLuminosity);
 
       if(isMC){
          if(plotsMap.find("MCTr")==plotsMap.end()){plotsMap["MCTr"] = stPlots();}
-         stPlots_Init(HistoFile,plotsMap["MCTr"],"MCTr", CutPt.size());
+         stPlots_Init(HistoFile,plotsMap["MCTr"],"MCTr", CutPt.size(), false, false, CutPt_Flip.size());
       }stPlots& MCTrPlots = plotsMap["MCTr"];
 
       //Initialize plot container for pure cosmic sample
@@ -758,16 +833,11 @@ void Analysis_Step3(char* SavePath)
       //need a new set of plots for these events
       string CosmicName="";
       if(isData && TypeMode==3) {
-	string Name;
 	if(samples[s].Name.find("12")!=string::npos) CosmicName="Cosmic12";
 	else CosmicName="Cosmic11";
 	if(plotsMap.find(CosmicName)==plotsMap.end()){plotsMap[CosmicName] = stPlots();}
-	stPlots_Init(HistoFile,plotsMap[CosmicName],CosmicName, CutPt.size());
-      }stPlots& CosmicPlots = plotsMap[CosmicName];
-
-      //Initialize histo specific to the sample (mostly related to ABCD --> done only for MCTr or Data);
-      if(isData)InitHistos(&SamplePlots);
-      if(isMC)  InitHistos(&MCTrPlots);
+	stPlots_Init(HistoFile,plotsMap[CosmicName],CosmicName, CutPt.size(), false, false, CutPt_Flip.size());
+      }stPlots&CosmicPlots = plotsMap[CosmicName];
 
       //needed for bookeeping
       bool* HSCPTk          = new bool[CutPt.size()];
@@ -785,11 +855,12 @@ void Analysis_Step3(char* SavePath)
 
       //do two loops through signal for samples with and without trigger changes.
       for (int period=0; period<(samples[s].Type==2?RunningPeriods:1); period++){
+	if(TypeMode==3 && samples[s].Type==2 && period==0) continue;
          //load the files corresponding to this sample
          std::vector<string> FileName;
          GetInputFiles(samples[s], BaseDirectory, FileName, period);
          fwlite::ChainEvent ev(FileName);
-    
+
          //compute sample global weight
          Event_Weight = 1.0;
          double SampleWeight = 1.0;
@@ -805,6 +876,7 @@ void Analysis_Step3(char* SavePath)
             if(samples[s].Type==1)SampleWeight = GetSampleWeightMC(IntegratedLuminosity,FileName, samples[s].XSec, ev.size(), NMCevents);
             else                  SampleWeight = GetSampleWeight  (IntegratedLuminosity,IntegratedLuminosityBeforeTriggerChange,samples[s].XSec,NMCevents, period);
          }
+
          //Loop on the events
          printf("Progressing Bar                   :0%%       20%%       40%%       60%%       80%%       100%%\n");
          printf("Building Mass for %10s (%1i/%1i) :",samples[s].Name.c_str(),period+1,(samples[s].Type==2?RunningPeriods:1));
@@ -838,7 +910,6 @@ void Analysis_Step3(char* SavePath)
                GetGenHSCPBeta(genColl,HSCPGenBeta1,HSCPGenBeta2,true);
                if(HSCPGenBeta1>=0)SamplePlots.Beta_GenCharged->Fill(HSCPGenBeta1, Event_Weight); if(HSCPGenBeta2>=0)SamplePlots.Beta_GenCharged->Fill(HSCPGenBeta2, Event_Weight);
             }
-
             //check if the event is passing trigger
             SamplePlots      .TotalE  ->Fill(0.0,Event_Weight);  
             if(isMC)MCTrPlots.TotalE  ->Fill(0.0,Event_Weight);
@@ -901,6 +972,7 @@ void Analysis_Step3(char* SavePath)
 
             //loop on HSCP candidates
             for(unsigned int c=0;c<hscpColl.size();c++){
+
                //define alias for important variable
                susybsm::HSCParticle hscp  = hscpColl[c];
                reco::MuonRef  muon  = hscp.muonRef();
@@ -945,6 +1017,7 @@ void Analysis_Step3(char* SavePath)
 
                   // compute systematic due to momentum scale
                   if(PassPreselection(hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   PRescale, 0, 0)){
+
  		     double Mass     = -1; if(dedxMObj) Mass=GetMass(track->p()*PRescale,dedxMObj->dEdx(),!isData);
 		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p()*PRescale,tof->inverseBeta());
 		     double MassComb = -1;
@@ -953,7 +1026,7 @@ void Analysis_Step3(char* SavePath)
 		     if(tof) MassComb=MassTOF;
 
                      for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
-                        if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, -1,   PRescale, 0, 0)){
+		       if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, false, -1,   PRescale, 0, 0)){
                            HSCPTk_SystP[CutIndex] = true;
                            if(Mass>MaxMass_SystP[CutIndex]) MaxMass_SystP[CutIndex]=Mass;
                            SamplePlots.Mass_SystP->Fill(CutIndex, Mass,Event_Weight);
@@ -975,7 +1048,7 @@ void Analysis_Step3(char* SavePath)
 		     if(tof) MassComb=MassTOF;
 
                      for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
-                        if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, -1,   0, IRescale, 0)){
+		       if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, false, -1,   0, IRescale, 0)){
                            HSCPTk_SystI[CutIndex] = true;
                            if(Mass>MaxMass_SystI[CutIndex]) MaxMass_SystI[CutIndex]=Mass;
                            SamplePlots.Mass_SystI->Fill(CutIndex, Mass,Event_Weight);
@@ -997,7 +1070,7 @@ void Analysis_Step3(char* SavePath)
 		     if(tof) MassComb=MassTOF;
 
                      for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
-                        if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, -1,   0, 0, 0)){
+		       if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, false, -1,   0, 0, 0)){
                            HSCPTk_SystM[CutIndex] = true;
                            if(Mass>MaxMass_SystM[CutIndex]) MaxMass_SystM[CutIndex]=Mass;
                            SamplePlots.Mass_SystM->Fill(CutIndex, Mass,Event_Weight);
@@ -1019,7 +1092,7 @@ void Analysis_Step3(char* SavePath)
 		     if(tof) MassComb=MassTOF;
 
                      for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
-                        if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, -1,   0, 0, TRescale)){
+		       if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, false, -1,   0, 0, TRescale)){
                            HSCPTk_SystT[CutIndex] = true;
                            if(Mass>MaxMass_SystT[CutIndex]) MaxMass_SystT[CutIndex]=Mass;
                            SamplePlots.Mass_SystT->Fill(CutIndex, Mass,Event_Weight);
@@ -1041,7 +1114,7 @@ void Analysis_Step3(char* SavePath)
 		     if(tof) MassComb=MassTOF;
 
                      for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
-                        if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, -1,   PRescale, 0, 0)){
+		       if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, false, -1,   PRescale, 0, 0)){
                            HSCPTk_SystPU[CutIndex] = true;
                            if(Mass>MaxMass_SystPU[CutIndex]) MaxMass_SystPU[CutIndex]=Mass;
                            SamplePlots.Mass_SystPU->Fill(CutIndex, Mass,Event_Weight*PUSystFactor);
@@ -1059,7 +1132,33 @@ void Analysis_Step3(char* SavePath)
                if(    !PassPreselection(hscp, dedxSObj, dedxMObj, tof, dttof, csctof, ev, &SamplePlots, isSignal?genColl[ClosestGen].p()/genColl[ClosestGen].energy():-1))continue;
 
                //fill the ABCD histograms and a few other control plots
-               if(isData || isMC)Analysis_FillControlAndPredictionHist(hscp, dedxSObj, dedxMObj, tof, &SamplePlots);
+               if(isData)Analysis_FillControlAndPredictionHist(hscp, dedxSObj, dedxMObj, tof, &SamplePlots);
+	       else if(isMC) Analysis_FillControlAndPredictionHist(hscp, dedxSObj, dedxMObj, tof, &MCTrPlots);
+
+	       //Find the number of tracks passing selection for TOF<1 that will be used to check the background prediction
+	       if(isMC || isData) {
+               //compute the mass of the candidate, for TOF mass flip the TOF over 1 to get the mass, so 0.8->1.2
+		 double Mass     = -1; if(dedxMObj) Mass = GetMass(track->p(),dedxMObj->dEdx(),!isData);
+		 double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p(),(2-tof->inverseBeta()));
+		 double MassComb = -1;
+		 if(tof && dedxMObj)MassComb=GetMassFromBeta(track->p(), (GetIBeta(dedxMObj->dEdx(),!isData) + (1/(2-tof->inverseBeta())))*0.5 ) ;
+		 if(dedxMObj) MassComb = Mass;
+		 if(tof)MassComb=GetMassFromBeta(track->p(),(1/(2-tof->inverseBeta())));
+
+		 for(unsigned int CutIndex=0;CutIndex<CutPt_Flip.size();CutIndex++){
+		 //Background check looking at region with TOF<1
+		   if(!PassSelection   (hscp, dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, true)) continue;
+                  //Fill Mass Histograms
+                  if(isMC)MCTrPlots.Mass_Flip->Fill(CutIndex, Mass,Event_Weight);
+                  SamplePlots      .Mass_Flip->Fill(CutIndex, Mass,Event_Weight);
+                  if(tof){
+                  if(isMC)MCTrPlots.MassTOF_Flip->Fill(CutIndex, MassTOF, Event_Weight);
+                     SamplePlots   .MassTOF_Flip->Fill(CutIndex, MassTOF, Event_Weight);
+                  }
+                  if(isMC)MCTrPlots.MassComb_Flip->Fill(CutIndex, MassComb, Event_Weight);
+                  SamplePlots      .MassComb_Flip->Fill(CutIndex, MassComb, Event_Weight);
+		 }
+	       }
 
                //compute the mass of the candidate
 	       double Mass     = -1; if(dedxMObj) Mass = GetMass(track->p(),dedxMObj->dEdx(),!isData);
@@ -1072,9 +1171,10 @@ void Analysis_Step3(char* SavePath)
 
                //loop on all possible selection (one of them, the optimal one, will be used later)
                for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
+
                   //Full Selection
-                  if(isMC)PassSelection   (hscp, dedxSObj, dedxMObj, tof, ev, CutIndex, &MCTrPlots);
-                  if(    !PassSelection   (hscp, dedxSObj, dedxMObj, tof, ev, CutIndex, &SamplePlots, isSignal?genColl[ClosestGen].p()/genColl[ClosestGen].energy():-1))continue;
+		 if(isMC)PassSelection   (hscp, dedxSObj, dedxMObj, tof, ev, CutIndex, &MCTrPlots);
+		 if(    !PassSelection   (hscp, dedxSObj, dedxMObj, tof, ev, CutIndex, &SamplePlots, false, isSignal?genColl[ClosestGen].p()/genColl[ClosestGen].energy():-1))continue;
 
                   if(CutIndex!=0)PassNonTrivialSelection=true;
                   HSCPTk[CutIndex] = true;
@@ -1146,76 +1246,17 @@ void Analysis_Step3(char* SavePath)
 }
 
 void InitHistos(stPlots* st){   
-   char Name   [1024];
-
    //Initialization of variables that are common to all samples
-   if(st==NULL){
-      HistoFile->cd();
-      HCuts_Pt  = new TProfile("HCuts_Pt" ,"HCuts_Pt" ,CutPt.size(),0,CutPt.size());
-      HCuts_I   = new TProfile("HCuts_I"  ,"HCuts_I"  ,CutPt.size(),0,CutPt.size());
-      HCuts_TOF = new TProfile("HCuts_TOF","HCuts_TOF",CutPt.size(),0,CutPt.size());
-      for(unsigned int i=0;i<CutPt.size();i++){  HCuts_Pt->Fill(i,CutPt[i]);     HCuts_I->Fill(i,CutI[i]);    HCuts_TOF->Fill(i,CutTOF[i]);   }
+   HistoFile->cd();
+   HCuts_Pt  = new TProfile("HCuts_Pt" ,"HCuts_Pt" ,CutPt.size(),0,CutPt.size());
+   HCuts_I   = new TProfile("HCuts_I"  ,"HCuts_I"  ,CutPt.size(),0,CutPt.size());
+   HCuts_TOF = new TProfile("HCuts_TOF","HCuts_TOF",CutPt.size(),0,CutPt.size());
+   for(unsigned int i=0;i<CutPt.size();i++){  HCuts_Pt->Fill(i,CutPt[i]);     HCuts_I->Fill(i,CutI[i]);    HCuts_TOF->Fill(i,CutTOF[i]); }
 
-   //Initialization of variables that exist for each different samples
-   }else{
-      st->Directory->cd();
-
-      sprintf(Name,"Pred_Mass");    Pred_Mass     = new TH2D(Name,Name,CutPt.size(),0,CutPt.size(),MassNBins,0,MassHistoUpperBound);                   Pred_Mass->Sumw2();
-      sprintf(Name,"Pred_MassTOF"); Pred_MassTOF  = new TH2D(Name,Name,CutPt.size(),0,CutPt.size(),MassNBins,0,MassHistoUpperBound);                   Pred_MassTOF->Sumw2();
-      sprintf(Name,"Pred_MassComb");Pred_MassComb = new TH2D(Name,Name,CutPt.size(),0,CutPt.size(),MassNBins,0,MassHistoUpperBound);                   Pred_MassComb->Sumw2();
-
-      H_A = new TH1D("H_A" ,"H_A" ,CutPt.size(),0,CutPt.size());
-      H_B = new TH1D("H_B" ,"H_B" ,CutPt.size(),0,CutPt.size());
-      H_C = new TH1D("H_C" ,"H_C" ,CutPt.size(),0,CutPt.size());
-      H_D = new TH1D("H_D" ,"H_D" ,CutPt.size(),0,CutPt.size());
-      H_E = new TH1D("H_E" ,"H_E" ,CutPt.size(),0,CutPt.size());
-      H_F = new TH1D("H_F" ,"H_F" ,CutPt.size(),0,CutPt.size());
-      H_G = new TH1D("H_G" ,"H_G" ,CutPt.size(),0,CutPt.size());
-      H_H = new TH1D("H_H" ,"H_H" ,CutPt.size(),0,CutPt.size());
-      H_P = new TH1D("H_P" ,"H_P" ,CutPt.size(),0,CutPt.size());
-
-      H_D_DzSidebands = new TH2D("H_D_DzSidebands" ,"H_D_DzSidebands" ,CutPt.size(),0,CutPt.size(), DzRegions, 0, DzRegions); H_D_DzSidebands->Sumw2();
-      H_D_DzSidebands_DT = new TH2D("H_D_DzSidebands_DT" ,"H_D_DzSidebands_DT" ,CutPt.size(),0,CutPt.size(), DzRegions, 0, DzRegions); H_D_DzSidebands_DT->Sumw2();
-      H_D_DzSidebands_CSC = new TH2D("H_D_DzSidebands_CSC" ,"H_D_DzSidebands_CSC" ,CutPt.size(),0,CutPt.size(), DzRegions, 0, DzRegions); H_D_DzSidebands_CSC->Sumw2();
-
-      CtrlPt_S1_Is   = new TH1D("CtrlPt_S1_Is" ,"CtrlPt_S1_Is" ,200,0,dEdxS_UpLim);  CtrlPt_S1_Is ->Sumw2();
-      CtrlPt_S1_Im   = new TH1D("CtrlPt_S1_Im" ,"CtrlPt_S1_Im" ,200,0,dEdxM_UpLim);  CtrlPt_S1_Im ->Sumw2();
-      CtrlPt_S1_TOF  = new TH1D("CtrlPt_S1_TOF","CtrlPt_S1_TOF",200,0,5);            CtrlPt_S1_TOF->Sumw2();
-      CtrlPt_S2_Is   = new TH1D("CtrlPt_S2_Is" ,"CtrlPt_S2_Is" ,200,0,dEdxS_UpLim);  CtrlPt_S2_Is ->Sumw2();
-      CtrlPt_S2_Im   = new TH1D("CtrlPt_S2_Im" ,"CtrlPt_S2_Im" ,200,0,dEdxM_UpLim);  CtrlPt_S2_Im ->Sumw2();
-      CtrlPt_S2_TOF  = new TH1D("CtrlPt_S2_TOF","CtrlPt_S2_TOF",200,0,5);            CtrlPt_S2_TOF->Sumw2();
-      CtrlPt_S3_Is   = new TH1D("CtrlPt_S3_Is" ,"CtrlPt_S3_Is" ,200,0,dEdxS_UpLim);  CtrlPt_S3_Is ->Sumw2();
-      CtrlPt_S3_Im   = new TH1D("CtrlPt_S3_Im" ,"CtrlPt_S3_Im" ,200,0,dEdxM_UpLim);  CtrlPt_S3_Im ->Sumw2();
-      CtrlPt_S3_TOF  = new TH1D("CtrlPt_S3_TOF","CtrlPt_S3_TOF",200,0,5);            CtrlPt_S3_TOF->Sumw2();
-      CtrlPt_S4_Is   = new TH1D("CtrlPt_S4_Is" ,"CtrlPt_S4_Is" ,200,0,dEdxS_UpLim);  CtrlPt_S4_Is ->Sumw2();
-      CtrlPt_S4_Im   = new TH1D("CtrlPt_S4_Im" ,"CtrlPt_S4_Im" ,200,0,dEdxM_UpLim);  CtrlPt_S4_Im ->Sumw2();
-      CtrlPt_S4_TOF  = new TH1D("CtrlPt_S4_TOF","CtrlPt_S4_TOF",200,0,5);            CtrlPt_S4_TOF->Sumw2();
-
-      CtrlIs_S1_TOF  = new TH1D("CtrlIs_S1_TOF","CtrlIs_S1_TOF",200,0,5);            CtrlIs_S1_TOF->Sumw2();
-      CtrlIs_S2_TOF  = new TH1D("CtrlIs_S2_TOF","CtrlIs_S2_TOF",200,0,5);            CtrlIs_S2_TOF->Sumw2();
-      CtrlIs_S3_TOF  = new TH1D("CtrlIs_S3_TOF","CtrlIs_S3_TOF",200,0,5);            CtrlIs_S3_TOF->Sumw2();
-      CtrlIs_S4_TOF  = new TH1D("CtrlIs_S4_TOF","CtrlIs_S4_TOF",200,0,5);            CtrlIs_S4_TOF->Sumw2();
-
-      CtrlIm_S1_TOF  = new TH1D("CtrlIm_S1_TOF","CtrlIm_S1_TOF",200,0,5);            CtrlIm_S1_TOF->Sumw2();
-      CtrlIm_S2_TOF  = new TH1D("CtrlIm_S2_TOF","CtrlIm_S2_TOF",200,0,5);            CtrlIm_S2_TOF->Sumw2();
-      CtrlIm_S3_TOF  = new TH1D("CtrlIm_S3_TOF","CtrlIm_S3_TOF",200,0,5);            CtrlIm_S3_TOF->Sumw2();
-      CtrlIm_S4_TOF  = new TH1D("CtrlIm_S4_TOF","CtrlIm_S4_TOF",200,0,5);            CtrlIm_S4_TOF->Sumw2();
-
-      sprintf(Name,"Hist_Is");      Hist_Is       = new TH1D(Name,Name, 200,0,dEdxS_UpLim);                                                            Hist_Is    ->Sumw2(); 
-      sprintf(Name,"Hist_Pt");      Hist_Pt       = new TH1D(Name,Name,200,0,PtHistoUpperBound);                                                       Hist_Pt    ->Sumw2();
-      sprintf(Name,"Hist_TOF");     Hist_TOF      = new TH1D(Name,Name,200,-10,20);                                                                    Hist_TOF   ->Sumw2();
-      sprintf(Name,"Pred_I");       Pred_I        = new TH2D(Name,Name,CutPt.size(),0,CutPt.size(),   200,GlobalMinIm,dEdxM_UpLim);                    Pred_I     ->Sumw2();
-      sprintf(Name,"Pred_EtaB");    Pred_EtaB     = new TH2D(Name,Name,CutPt.size(),0,CutPt.size(),   50,-3,3);                                        Pred_EtaB  ->Sumw2();
-      sprintf(Name,"Pred_EtaS");    Pred_EtaS     = new TH2D(Name,Name,CutPt.size(),0,CutPt.size(),   50,-3,3);                                        Pred_EtaS  ->Sumw2();
-      sprintf(Name,"Pred_EtaS2");   Pred_EtaS2    = new TH2D(Name,Name,CutPt.size(),0,CutPt.size(),   50,-3,3);                                        Pred_EtaS2 ->Sumw2();
-      sprintf(Name,"Pred_EtaP");    Pred_EtaP     = new TH3D(Name,Name,CutPt.size(),0,CutPt.size(),   50, -3, 3, 200,GlobalMinPt,PtHistoUpperBound);   Pred_EtaP  ->Sumw2();
-      sprintf(Name,"Pred_TOF");     Pred_TOF      = new TH2D(Name,Name,CutPt.size(),0,CutPt.size(),   200,GlobalMinTOF,5);                             Pred_TOF   ->Sumw2();
-      sprintf(Name,"RegionD_I");    RegionD_I     = new TH2D(Name,Name,CutPt.size(),0,CutPt.size(),   200,GlobalMinIm,dEdxM_UpLim);                    RegionD_I  ->Sumw2();
-      sprintf(Name,"RegionD_P");    RegionD_P     = new TH2D(Name,Name,CutPt.size(),0,CutPt.size(),   200,GlobalMinPt,PtHistoUpperBound);              RegionD_P  ->Sumw2();
-      sprintf(Name,"RegionD_TOF");  RegionD_TOF   = new TH2D(Name,Name,CutPt.size(),0,CutPt.size(),   200,GlobalMinTOF,5);                             RegionD_TOF->Sumw2();
-
-      HistoFile->cd();
-   }
+   HCuts_Pt_Flip  = new TProfile("HCuts_Pt_Flip" ,"HCuts_Pt_Flip" ,CutPt_Flip.size(),0,CutPt_Flip.size());
+   HCuts_I_Flip   = new TProfile("HCuts_I_Flip"  ,"HCuts_I_Flip"  ,CutPt_Flip.size(),0,CutPt_Flip.size());
+   HCuts_TOF_Flip = new TProfile("HCuts_TOF_Flip","HCuts_TOF_Flip",CutPt_Flip.size(),0,CutPt_Flip.size());
+   for(unsigned int i=0;i<CutPt_Flip.size();i++){  HCuts_Pt_Flip->Fill(i,CutPt_Flip[i]);     HCuts_I_Flip->Fill(i,CutI_Flip[i]);    HCuts_TOF_Flip->Fill(i,CutTOF_Flip[i]); }
 }
 
 // code needed for the evaluation of the systematics related to pt measurement
@@ -1235,7 +1276,7 @@ double SegSep(const susybsm::HSCParticle& hscp, const fwlite::ChainEvent& ev, do
 
   fwlite::Handle<MuonSegmentCollection> SegCollHandle;
   SegCollHandle.getByLabel(ev, "MuonSegmentProducer");
-  if(!SegCollHandle.isValid()){printf("Segment Collection Not Found\n");return 0;}
+  if(!SegCollHandle.isValid()){printf("Segment Collection Not Found\n"); return -1;}
   MuonSegmentCollection SegCollection = *SegCollHandle;
 
   double minDr=10;

@@ -37,6 +37,7 @@ using namespace std;
 
 void Analysis_Step4(std::string InputPattern)
 {
+
    setTDRStyle();
    gStyle->SetPadTopMargin   (0.06);
    gStyle->SetPadBottomMargin(0.12);
@@ -52,55 +53,84 @@ void Analysis_Step4(std::string InputPattern)
 
    string Input     = InputPattern + "Histos.root";
    TFile* InputFile = new TFile(Input.c_str(), "UPDATE");
-   int TypeMode = TypeFromPattern(InputPattern);
+   TypeMode = TypeFromPattern(InputPattern);
 
-   TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
-   TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
-   TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
+      //Do two loops, one for the actual background prediction and one for the 
+      //region with TOF<1
+      for(unsigned int i=0; i<2; i++) {
+	string Suffix="";
+	if(i==1) Suffix="_Flip";
 
-   TH2D*  Pred_Mass      = (TH2D*)GetObjectFromPath(InputFile, "Pred_Mass");
-   TH2D*  Pred_MassTOF   = (TH2D*)GetObjectFromPath(InputFile, "Pred_MassTOF");
-   TH2D*  Pred_MassComb  = (TH2D*)GetObjectFromPath(InputFile, "Pred_MassComb");
+	TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, ("HCuts_Pt" + Suffix).c_str());
+	TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, ("HCuts_I" + Suffix).c_str());
+	TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, ("HCuts_TOF" + Suffix).c_str());
 
-   TList* list = InputFile->GetListOfKeys();
-   for(int d=0;d<list->GetEntries();d++){
-      if(!list->At(d)->IsFolder())continue;
-      TDirectory* directory = InputFile->GetDirectory(list->At(d)->GetName());
-      directory->cd();
+	TList* list = InputFile->GetListOfKeys();
+	for(int d=0;d<list->GetEntries();d++){
+	  if(!list->At(d)->IsFolder())continue;
+	  TDirectory* directory = InputFile->GetDirectory(list->At(d)->GetName());
+	  directory->cd();
 
-      TH1D*  H_A            = (TH1D*)GetObjectFromPath(directory, "H_A");      if(!H_A)continue; //ABCD INFO NOT SAVED IN THIS DIRECTORY --> Skip it
-      TH1D*  H_B            = (TH1D*)GetObjectFromPath(directory, "H_B");
-      TH1D*  H_C            = (TH1D*)GetObjectFromPath(directory, "H_C");
-      TH1D*  H_D            = (TH1D*)GetObjectFromPath(directory, "H_D");
-      TH1D*  H_E            = (TH1D*)GetObjectFromPath(directory, "H_E");
-      TH1D*  H_F            = (TH1D*)GetObjectFromPath(directory, "H_F");
-      TH1D*  H_G            = (TH1D*)GetObjectFromPath(directory, "H_G");
-      TH1D*  H_H            = (TH1D*)GetObjectFromPath(directory, "H_H");
-      TH1D*  H_P            = (TH1D*)GetObjectFromPath(directory, "H_P");
+	  TH1D*  H_A            = (TH1D*)GetObjectFromPath(directory, ("H_A" + Suffix).c_str());      if(!H_A)continue; //ABCD INFO NOT SAVED IN THIS DIRECTORY --> Skip it
+	  TH1D*  H_B            = (TH1D*)GetObjectFromPath(directory, ("H_B" + Suffix).c_str());
+	  TH1D*  H_C            = (TH1D*)GetObjectFromPath(directory, ("H_C" + Suffix).c_str());
+	  TH1D*  H_D            = (TH1D*)GetObjectFromPath(directory, ("H_D" + Suffix).c_str());
+	  TH1D*  H_E            = (TH1D*)GetObjectFromPath(directory, ("H_E" + Suffix).c_str());
+	  TH1D*  H_F            = (TH1D*)GetObjectFromPath(directory, ("H_F" + Suffix).c_str());
+	  TH1D*  H_G            = (TH1D*)GetObjectFromPath(directory, ("H_G" + Suffix).c_str());
+	  TH1D*  H_H            = (TH1D*)GetObjectFromPath(directory, ("H_H" + Suffix).c_str());
+          TH1D*  H_P            = (TH1D*)GetObjectFromPath(directory, "H_P"); H_P->SetName("H_P_Temp");
 
-      TH3D*  Pred_EtaP      = (TH3D*)GetObjectFromPath(directory, "Pred_EtaP");
-      TH2D*  Pred_I         = (TH2D*)GetObjectFromPath(directory, "Pred_I");
-      TH2D*  Pred_TOF       = (TH2D*)GetObjectFromPath(directory, "Pred_TOF");
-      TH2D*  Pred_EtaB      = (TH2D*)GetObjectFromPath(directory, "Pred_EtaB");
-      TH2D*  Pred_EtaS      = (TH2D*)GetObjectFromPath(directory, "Pred_EtaS");
-      TH2D*  Pred_EtaS2     = (TH2D*)GetObjectFromPath(directory, "Pred_EtaS2");
-      //take data histogram to save the resulting momentum distribution
-      TH2D*  Pred_P         = (TH2D*)GetObjectFromPath(directory, "RegionD_P"); Pred_P->Reset(); Pred_P->SetName("Pred_P");
+	  //TH1D*  H_A_Cen     = (TH1D*)GetObjectFromPath(directory, ("H_A_Cen" + Suffix).c_str());
+	  TH1D*  H_B_Cen     = (TH1D*)GetObjectFromPath(directory, ("H_B_Cen" + Suffix).c_str());
+	  //TH1D*  H_C_Cen     = (TH1D*)GetObjectFromPath(directory, ("H_C_Cen" + Suffix).c_str());
+	  //TH1D*  H_D_Cen     = (TH1D*)GetObjectFromPath(directory, ("H_D_Cen" + Suffix).c_str());
+	  //TH1D*  H_E_Cen     = (TH1D*)GetObjectFromPath(directory, ("H_E_Cen" + Suffix).c_str());
+	  TH1D*  H_F_Cen     = (TH1D*)GetObjectFromPath(directory, ("H_F_Cen" + Suffix).c_str());
+	  //TH1D*  H_G_Cen     = (TH1D*)GetObjectFromPath(directory, ("H_G_Cen" + Suffix).c_str());
+	  TH1D*  H_H_Cen     = (TH1D*)GetObjectFromPath(directory, ("H_H_Cen" + Suffix).c_str());
+
+	  //TH1D*  H_A_For     = (TH1D*)GetObjectFromPath(directory, ("H_A_For" + Suffix).c_str());
+	  TH1D*  H_B_For     = (TH1D*)GetObjectFromPath(directory, ("H_B_For" + Suffix).c_str());
+	  //TH1D*  H_C_For     = (TH1D*)GetObjectFromPath(directory, ("H_C_For" + Suffix).c_str());
+	  //TH1D*  H_D_For     = (TH1D*)GetObjectFromPath(directory, ("H_D_For" + Suffix).c_str());
+	  //TH1D*  H_E_For     = (TH1D*)GetObjectFromPath(directory, ("H_E_For" + Suffix).c_str());
+	  TH1D*  H_F_For     = (TH1D*)GetObjectFromPath(directory, ("H_F_For" + Suffix).c_str());
+	  //TH1D*  H_G_For     = (TH1D*)GetObjectFromPath(directory, ("H_G_For" + Suffix).c_str());
+	  TH1D*  H_H_For     = (TH1D*)GetObjectFromPath(directory, ("H_H_For" + Suffix).c_str());
+
+	  TH3D*  Pred_EtaP      = (TH3D*)GetObjectFromPath(directory, ("Pred_EtaP" + Suffix).c_str());
+	  TH2D*  Pred_I         = (TH2D*)GetObjectFromPath(directory, ("Pred_I" + Suffix).c_str());
+	  TH2D*  Pred_TOF       = (TH2D*)GetObjectFromPath(directory, ("Pred_TOF" + Suffix).c_str());
+	  TH2D*  Pred_EtaB      = (TH2D*)GetObjectFromPath(directory, ("Pred_EtaB" + Suffix).c_str());
+	  TH2D*  Pred_EtaS      = (TH2D*)GetObjectFromPath(directory, ("Pred_EtaS" + Suffix).c_str());
+	  TH2D*  Pred_EtaS2     = (TH2D*)GetObjectFromPath(directory, ("Pred_EtaS2" + Suffix).c_str());
+
+	  TH2D*  Pred_Mass      = (TH2D*)GetObjectFromPath(directory, ("Pred_Mass" + Suffix).c_str()); Pred_Mass->SetName("Pred_Mass_Temp");
+	  TH2D*  Pred_MassTOF   = (TH2D*)GetObjectFromPath(directory, ("Pred_MassTOF" + Suffix).c_str()); Pred_MassTOF->SetName("Pred_MassTOF_Temp");
+	  TH2D*  Pred_MassComb  = (TH2D*)GetObjectFromPath(directory, ("Pred_MassComb" + Suffix).c_str()); Pred_MassComb->SetName("Pred_MassComb_Temp");
 
       //erase histogram created at previous iteration
-      directory->Delete("Pred_Mass;*");
-      directory->Delete("Pred_MassTOF;*");
-      directory->Delete("Pred_MassComb;*");
+	  directory->Delete(("Pred_P" + Suffix + ";*").c_str());
+          directory->Delete(("Pred_Mass" + Suffix + ";*").c_str());
+          directory->Delete(("Pred_MassTOF" + Suffix + ";*").c_str());
+          directory->Delete(("Pred_MassComb" + Suffix + ";*").c_str());
+          directory->Delete(("H_P" + Suffix + ";*").c_str());
+
+      //take data histogram to save the resulting momentum distribution
+	  TH2D*  Pred_P         = (TH2D*)GetObjectFromPath(directory, "RegionD_P"); Pred_P->Reset(); Pred_P->SetName(("Pred_P" + Suffix).c_str());
 
       //reset histograms
-      Pred_Mass    ->Reset();    Pred_Mass    ->SetDirectory(directory);
-      Pred_MassTOF ->Reset();    Pred_MassTOF ->SetDirectory(directory);
-      Pred_MassComb->Reset();    Pred_MassComb->SetDirectory(directory);
+	  H_P          ->Reset();    H_P          ->SetDirectory(directory); H_P->SetName(("H_P" + Suffix).c_str());
+	  Pred_Mass    ->Reset();    Pred_Mass    ->SetDirectory(directory); Pred_Mass->SetName(("Pred_Mass" + Suffix).c_str()); 
+	  Pred_MassTOF ->Reset();    Pred_MassTOF ->SetDirectory(directory); Pred_MassTOF->SetName(("Pred_MassTOF" + Suffix).c_str());
+	  Pred_MassComb->Reset();    Pred_MassComb->SetDirectory(directory); Pred_MassComb->SetName(("Pred_MassComb" + Suffix).c_str());
 
       printf("Making prediction for %s\n",directory->GetName());
       //////////////////////////////////////////////////      MAKING THE PREDICTION
       for(unsigned int CutIndex=0;CutIndex<(unsigned int)HCuts_Pt->GetXaxis()->GetNbins();CutIndex++){
          //if(CutIndex<86 || CutIndex>87)continue;
+
          const double& A=H_A->GetBinContent(CutIndex+1);
          const double& B=H_B->GetBinContent(CutIndex+1);
          const double& C=H_C->GetBinContent(CutIndex+1);
@@ -109,25 +139,55 @@ void Analysis_Step4(std::string InputPattern)
          const double& F=H_F->GetBinContent(CutIndex+1);
          const double& G=H_G->GetBinContent(CutIndex+1);
          const double& H=H_H->GetBinContent(CutIndex+1);
+
+	 //const double& A_Cen=H_A_Cen->GetBinContent(CutIndex+1);
+	 const double& B_Cen=H_B_Cen->GetBinContent(CutIndex+1);
+	 //const double& C_Cen=H_C_Cen->GetBinContent(CutIndex+1);
+	 //const double& D_Cen=H_D_Cen->GetBinContent(CutIndex+1);
+	 //const double& E_Cen=H_E_Cen->GetBinContent(CutIndex+1);
+	 const double& F_Cen=H_F_Cen->GetBinContent(CutIndex+1);
+	 //const double& G_Cen=H_G_Cen->GetBinContent(CutIndex+1);
+	 const double& H_Cen=H_H_Cen->GetBinContent(CutIndex+1);
+
+	 //const double& A_For=H_A_For->GetBinContent(CutIndex+1);
+	 const double& B_For=H_B_For->GetBinContent(CutIndex+1);
+	 //const double& C_For=H_C_For->GetBinContent(CutIndex+1);
+	 //const double& D_For=H_D_For->GetBinContent(CutIndex+1);
+	 //const double& E_For=H_E_For->GetBinContent(CutIndex+1);
+	 const double& F_For=H_F_For->GetBinContent(CutIndex+1);
+	 //const double& G_For=H_G_For->GetBinContent(CutIndex+1);
+	 const double& H_For=H_H_For->GetBinContent(CutIndex+1);
+
          double P=0;
          double Perr=0;
 
          printf("%4i --> Pt>%7.2f  I>%6.2f  TOF>%+5.2f --> A=%6.2E B=%6.E C=%6.2E D=%6.2E E=%6.2E F=%6.2E G=%6.2E H=%6.2E",CutIndex,HCuts_Pt->GetBinContent(CutIndex+1), HCuts_I->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1),A, B, C, D, E, F, G, H );
 
          if(E>0){
+	   //Prediction in Pt-Is-TOF plane
             P    = (A*F*G)/(E*E);
             Perr = sqrt( ((pow(F*G,2)* A + pow(A*G,2)*F + pow(A*F,2)*G)/pow(E,4)) + (pow((2*A*F*G)/pow(E,3),2)*E));
          }else if(A>0){
+	   //Prediction in Pt-Is plane
             P    = ((C*B)/A);
             Perr = sqrt( (pow(B/A,2)*C) + (pow(C/A,2)*B) + (pow((B*(C)/(A*A)),2)*A) );
-         }
+	 }else if(F>0){
+	   //Prediction in Pt-TOF plane
+	   double P_Cen=((H_Cen*B_Cen)/F_Cen);
+	   double Perr_Cen = sqrt( (pow(B_Cen/F_Cen,2)*H_Cen) + (pow(H_Cen/F_Cen,2)*B_Cen) + (pow((B_Cen*(H_Cen)/(F_Cen*F_Cen)),2)*F_Cen) );
+	   double P_For=((H_For*B_For)/F_For);
+	   double Perr_For = sqrt( (pow(B_For/F_For,2)*H_For) + (pow(H_For/F_For,2)*B_For) + (pow((B_For*(H_For)/(F_For*F_For)),2)*F_For) );
+	   P    = P_Cen + P_For;
+	   Perr = sqrt(Perr_Cen*Perr_Cen + Perr_For*Perr_For);
+	 }
 
          H_P->SetBinContent(CutIndex+1,P);
          H_P->SetBinError  (CutIndex+1,Perr);
-         if(P==0 || isnan((float)P))continue; //Skip this CutIndex --> No Prediction possible
+
+         if(P==0 || isnan((float)P)) {printf("\n"); continue;} //Skip this CutIndex --> No Prediction possible
 
          printf(" --> D=%6.2E vs Pred = %6.2E +- %6.2E (%6.2E%%)\n", D, P,  Perr, 100.0*Perr/P );
-
+	 if(TypeMode==3) continue;
          TH1D* Pred_EtaB_Proj     = Pred_EtaB ->ProjectionY("ProjEtaB" ,CutIndex+1,CutIndex+1);  
          TH1D* Pred_EtaS_Proj     = Pred_EtaS ->ProjectionY("ProjEtaS" ,CutIndex+1,CutIndex+1); 
          TH1D* Pred_EtaS2_Proj    = Pred_EtaS2->ProjectionY("ProjEtaS2",CutIndex+1,CutIndex+1);
@@ -208,7 +268,7 @@ void Analysis_Step4(std::string InputPattern)
          //save the predP distribution
          for(int x=0;x<Pred_P_ProjPE->GetNbinsX()+1;x++){Pred_P->SetBinContent(CutIndex+1, x, Pred_P->GetBinContent(CutIndex+1, x) + Pred_P_ProjPE->GetBinContent(x) * PE_P);};
 
-         double Proba, MI, MComb, MT=0, ProbaT=0;
+         double Proba, MI, MComb;//, MT=0, ProbaT=0;
          for(int x=0;x<Pred_P_ProjPE->GetNbinsX()+1;x++){    if(Pred_P_ProjPE->GetBinContent(x)<=0.0){continue;}  const double& p = Pred_P_ProjPE->GetBinCenter(x);
          for(int y=0;y<Pred_I_ProjPE->GetNbinsX()+1;y++){    if(Pred_I_ProjPE->GetBinContent(y)<=0.0){continue;}  const double& i = Pred_I_ProjPE->GetBinCenter(y);
             Proba = Pred_P_ProjPE->GetBinContent(x) * Pred_I_ProjPE->GetBinContent(y);  if(Proba<=0 || isnan((float)Proba))continue;
@@ -295,7 +355,7 @@ void Analysis_Step4(std::string InputPattern)
       //directory->Delete("H_P;1");
 
       //////////////////////////////////////////////////     DUMP USEFUL INFORMATION
-      FILE* pFile = fopen((InputPattern+"/Info_"+directory->GetName()+".txt").c_str(),"w");
+      FILE* pFile = fopen((InputPattern+"/Info_"+directory->GetName()+Suffix+".txt").c_str(),"w");
       for(unsigned int CutIndex=0;CutIndex<(unsigned int)HCuts_Pt->GetXaxis()->GetNbins();CutIndex++){
          const double& A=H_A->GetBinContent(CutIndex+1);
          const double& B=H_B->GetBinContent(CutIndex+1);
@@ -310,5 +370,6 @@ void Analysis_Step4(std::string InputPattern)
       fprintf(pFile,"--------------------\n");
       fclose(pFile);      
 
-   }//end loop on sub directory
+	}//end loop on sub directory
+      }//End of loop on two predictions
 }

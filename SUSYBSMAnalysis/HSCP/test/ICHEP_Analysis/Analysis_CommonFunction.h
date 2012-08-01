@@ -10,7 +10,8 @@
 int TypeFromPattern(const std::string& InputPattern){
    if(InputPattern.find("Type0",0)<std::string::npos){       return 0;
    }else if(InputPattern.find("Type1",0)<std::string::npos){ return 1;
-   }else{                                                    return 2;
+   }else if(InputPattern.find("Type2",0)<std::string::npos){ return 2;
+   }else{                                                    return 3;
    }
 }
 
@@ -20,6 +21,7 @@ std::string LegendFromType(const std::string& InputPattern){
       case 0:  return std::string("Tracker - Only"); break;
       case 1:  return std::string("Tracker + Muon"); break;
       case 2:  return std::string("Tracker + TOF" ); break;
+      case 3:  return std::string("TOF - Only" ); break;
       default : std::string("unknown");
    }
    return std::string("unknown");
