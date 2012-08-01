@@ -1,3 +1,5 @@
+Analysis2011=False
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HSCPAnalysis")
@@ -12,13 +14,25 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
-process.GlobalTag.globaltag = 'GR_P_V32::All'
+if Analysis2011:
+      process.GlobalTag.globaltag = 'GR_P_V14::All'
+else:
+      process.GlobalTag.globaltag = 'GR_P_V32::All'
 
+
+
+readFiles = cms.untracked.vstring()
 process.source = cms.Source("PoolSource",
-   fileNames = cms.untracked.vstring(
-        '/store/data/Run2012A/SingleMu/RECO/PromptReco-v1/000/191/248/186722DA-5E88-E111-ADFF-003048D2C0F0.root'
-   )
+   fileNames = readFiles
 )
+
+
+if Analysis2011:
+   readFiles.extend(['/store/data/Run2011B/DoubleMu/RECO/PromptReco-v1/000/178/367/A2A3E690-7CF7-E011-9F98-003048D2BEA8.root'])
+else:
+   readFiles.extend(['/store/data/Run2012A/SingleMu/RECO/PromptReco-v1/000/191/248/186722DA-5E88-E111-ADFF-003048D2C0F0.root'])
+
+
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
 #process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('190645:10-190645:110')
 #import FWCore.PythonUtilities.LumiList as LumiList
@@ -41,8 +55,9 @@ process.HSCPTrigger.HLTPaths = [
     "HLT_Mu50_eta2p1*",
     "HLT_HT650_*",
     "HLT_MET80_*",
-    "HLT_L2Mu*_eta2p1_PFMET*",
+    "HLT_L2Mu*MET*",
     "HLT_L2Mu*NoBPTX*",
+    "HLT_PFMHT150_*",
 ]
 process.HSCPTrigger.andOr = cms.bool( True ) #OR
 process.HSCPTrigger.throw = cms.bool( False )
@@ -73,7 +88,6 @@ process.ak5PFJetsPt15 = cms.EDFilter( "EtMinPFJetSelector",
      filter = cms.bool( False ),
      etMin = cms.double( 15.0 )
 )
-
 
 process.Out = cms.OutputModule("PoolOutputModule",
      outputCommands = cms.untracked.vstring(
@@ -151,7 +165,12 @@ process.es_prefer_vDriftDB = cms.ESPrefer('PoolDBESSource','vDriftDB')
 
 
 #LOOK AT SD PASSED PATH IN ORDER to avoid as much as possible duplicated events (make the merging of .root file faster)
-process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.exoticaHSCPSeq * process.nEventsBefEDM * process.ak5PFJetsPt15 * process.HSCParticleProducerSeq)
+if Analysis2011:
+    #The module ak5PFJetsPt15 does not exist in CMSSW4
+    process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.exoticaHSCPSeq * process.nEventsBefEDM * process.HSCParticleProducerSeq)
+else:
+    process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.exoticaHSCPSeq * process.nEventsBefEDM * process.ak5PFJetsPt15 * process.HSCParticleProducerSeq)
+
 #process.p1 = cms.Path(process.HSCParticleProducerSeq)
 process.endPath1 = cms.EndPath(process.Out)
 process.schedule = cms.Schedule( process.p1, process.endPath1)

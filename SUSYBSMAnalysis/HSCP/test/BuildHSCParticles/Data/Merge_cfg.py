@@ -45,12 +45,16 @@ process.HSCPHLTTriggerMet = process.HSCPHLTTriggerMuDeDx.clone()
 process.HSCPHLTTriggerMet.HLTPaths = ["HLT_MET80_*"]
 process.HSCPHLTTriggerMetFilter = cms.Path(process.HSCPHLTTriggerMet   )
 
+process.HSCPHLTTriggerPFMet = process.HSCPHLTTriggerMuDeDx.clone()
+process.HSCPHLTTriggerPFMet.HLTPaths = ["HLT_PFMHT150_*"]
+process.HSCPHLTTriggerPFMetFilter = cms.Path(process.HSCPHLTTriggerPFMet   )
+
 process.HSCPHLTTriggerHt = process.HSCPHLTTriggerMuDeDx.clone()
 process.HSCPHLTTriggerHt.HLTPaths = ["HLT_HT650_*"]
 process.HSCPHLTTriggerHtFilter = cms.Path(process.HSCPHLTTriggerHt   )
 
 process.HSCPHLTTriggerL2Mu = process.HSCPHLTTriggerMuDeDx.clone()
-process.HSCPHLTTriggerL2Mu.HLTPaths = ["HLT_L2Mu*_eta2p1_PFMET*"]
+process.HSCPHLTTriggerL2Mu.HLTPaths = ["HLT_L2Mu*MET*"]
 process.HSCPHLTTriggerL2MuFilter = cms.Path(process.HSCPHLTTriggerL2Mu   )
 
 process.HSCPHLTTriggerCosmic = process.HSCPHLTTriggerMuDeDx.clone()
@@ -102,4 +106,4 @@ process.Out = cms.OutputModule("PoolOutputModule",
 
 process.endPath = cms.EndPath(process.Out)
 
-process.schedule = cms.Schedule(process.DuplicateFilter, process.HSCPHLTTriggerMuDeDxFilter, process.HSCPHLTTriggerMetDeDxFilter, process.HSCPHLTTriggerHtDeDxFilter, process.HSCPHLTTriggerMuFilter, process.HSCPHLTTriggerMetFilter, process.HSCPHLTTriggerHtFilter, process.HSCPHLTTriggerL2MuFilter, process.HSCPHLTTriggerCosmicFilter, process.endPath)
+process.schedule = cms.Schedule(process.DuplicateFilter, process.HSCPHLTTriggerMuDeDxFilter, process.HSCPHLTTriggerMetDeDxFilter, process.HSCPHLTTriggerHtDeDxFilter, process.HSCPHLTTriggerMuFilter, process.HSCPHLTTriggerMetFilter, process.HSCPHLTTriggerPFMetFilter, process.HSCPHLTTriggerHtFilter, process.HSCPHLTTriggerL2MuFilter, process.HSCPHLTTriggerCosmicFilter, process.endPath)
