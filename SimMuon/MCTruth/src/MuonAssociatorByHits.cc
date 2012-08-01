@@ -1350,26 +1350,17 @@ int MuonAssociatorByHits::getShared(MapOfMatchedIds & matchedIds, TrackingPartic
 }
 
 std::string MuonAssociatorByHits::write_matched_simtracks(const std::vector<SimHitIdpr>& SimTrackIds) const {
+  if (SimTrackIds.empty())
+    return "  *** UNMATCHED ***";
 
-  string hitlog;
-
-  if (!SimTrackIds.empty()) {
-    hitlog = " matched to SimTrack";
+  string hitlog(" matched to SimTrack");
   
-    for(size_t j=0; j<SimTrackIds.size(); j++){
-      stringstream trackid;  
-      trackid<<SimTrackIds[j].first;
-      
-      stringstream evtid;    
-      evtid<<SimTrackIds[j].second.event();
-      
-      stringstream bunchxid; 
-      bunchxid<<SimTrackIds[j].second.bunchCrossing();
-      
-      hitlog = hitlog+" Id:"+trackid.str()+"/Evt:("+evtid.str()+","+bunchxid.str()+") ";
-    }
-  } else hitlog = "  *** UNMATCHED ***";
-
+  for(size_t j=0; j<SimTrackIds.size(); j++)
+  {
+    char buf[64];
+    snprintf(buf, 64, " Id:%i/Evt:(%i,%i) ", SimTrackIds[j].first, SimTrackIds[j].second.event(), SimTrackIds[j].second.bunchCrossing());
+    hitlog += buf;
+  }
   return hitlog;
 }
 
