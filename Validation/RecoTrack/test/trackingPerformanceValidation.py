@@ -11,10 +11,10 @@ import copy
 
 
 ### Reference release
-RefRelease='CMSSW_6_0_0_pre7'
+RefRelease='CMSSW_6_0_0_pre8'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_6_0_0_pre8'
+NewRelease='CMSSW_6_0_0_pre10'
 
 ### sample list 
 
@@ -44,9 +44,9 @@ pileupfastsimstartupsamples = [
 Version='v1'
 
 # Global tags
-StartupTag='START60_V1'
+StartupTag='START60_V4'
 
-RefStartupTag='START53_V6'
+RefStartupTag='START60_V1'
 
 ### Track algorithm name and quality. Can be a list.
 Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5','iter6']
@@ -123,16 +123,16 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
     tracks_map = { 'ootb':'general_AssociatorByHitsRecoDenom','iter0':'cutsRecoZero_AssociatorByHitsRecoDenom','iter1':'cutsRecoFirst_AssociatorByHitsRecoDenom','iter2':'cutsRecoSecond_AssociatorByHitsRecoDenom','iter3':'cutsRecoThird_AssociatorByHitsRecoDenom','iter4':'cutsRecoFourth_AssociatorByHitsRecoDenom','iter5':'cutsRecoFifth_AssociatorByHitsRecoDenom','iter6':'cutsRecoSixth_AssociatorByHitsRecoDenom'}
     tracks_map_hp = { 'ootb':'cutsRecoHp_AssociatorByHitsRecoDenom','iter0':'cutsRecoZeroHp_AssociatorByHitsRecoDenom','iter1':'cutsRecoFirstHp_AssociatorByHitsRecoDenom','iter2':'cutsRecoSecondHp_AssociatorByHitsRecoDenom','iter3':'cutsRecoThirdHp_AssociatorByHitsRecoDenom','iter4':'cutsRecoFourthHp_AssociatorByHitsRecoDenom','iter5':'cutsRecoFifthHp_AssociatorByHitsRecoDenom','iter6':'cutsRecoSixthHp_AssociatorByHitsRecoDenom'}
     if(trackalgorithm=='iter0' or trackalgorithm=='ootb'):
-        mineff='0.5'
+        mineff='0.0'
         maxeff='1.025'
         maxfake='0.7'
     elif(trackalgorithm=='iter1'):
         mineff='0.0'
         maxeff='0.5'
         maxfake='0.8'
-    elif(trackalgorithm=='iter6'):
+    elif(trackalgorithm=='iter5' or trackalgorithm=='iter6'):
         mineff='0.0'
-        maxeff='0.5'
+        maxeff='1.0'
         maxfake='0.8'
     else:
         mineff='0'

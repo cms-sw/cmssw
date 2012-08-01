@@ -401,8 +401,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    sh1->GetYaxis()->SetRangeUser(8,24);
    rh1->GetXaxis()->SetTitle("#eta");
    rh1->GetYaxis()->SetTitle("<hits> vs #eta");
-   rh2->GetXaxis()->SetRangeUser(0,30);
-   sh2->GetXaxis()->SetRangeUser(0,30);
+   rh2->GetXaxis()->SetRangeUser(0,40);
+   sh2->GetXaxis()->SetRangeUser(0,40);
    rh2->GetXaxis()->SetTitle("hits");
 
 
@@ -1100,8 +1100,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    sdir->GetObject(collname2+"/effic_vs_vertpos",sh1);
    //rh1 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(simToReco)_vertpos"), (TH1*)rdir->Get(collname1+"/num_simul_vertpos"), "effic_vs_vertpos_r", "efficiency vs vertpos", true);    
    //sh1 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(simToReco)_vertpos"), (TH1*)sdir->Get(collname2+"/num_simul_vertpos"), "effic_vs_vertpos_s", "efficiency vs vertpos", true);    
-   rh1->GetYaxis()->SetRangeUser(0.,MAXEFF);
-   sh1->GetYaxis()->SetRangeUser(0.,MAXEFF);
+   rh1->GetYaxis()->SetRangeUser(0.,1.);
+   sh1->GetYaxis()->SetRangeUser(0.,1.);
    rh1->GetXaxis()->SetTitle("TP vert xy pos");
    rh1->GetYaxis()->SetTitle("efficiency vs vert xy pos");
    rh1->GetYaxis()->SetTitleSize(0.05);
@@ -1113,8 +1113,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    //sh2 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(simToReco)_zpos"), (TH1*)sdir->Get(collname2+"/num_simul_zpos"), "effic_vs_zpos_s", "efficiency vs zpos", true);    
    rh2->GetXaxis()->SetTitle("TP vert z pos");
    rh2->GetYaxis()->SetTitle("efficiency vs  vert z pos");
-   rh2->GetYaxis()->SetRangeUser(0.,MAXEFF);
-   sh2->GetYaxis()->SetRangeUser(0.,MAXEFF);
+   rh2->GetYaxis()->SetRangeUser(0.,1.);
+   sh2->GetYaxis()->SetRangeUser(0.,1.);
    rh2->GetYaxis()->SetTitleSize(0.05);
    rh2->GetYaxis()->SetTitleOffset(1.2);
    rh2->SetTitle("");
