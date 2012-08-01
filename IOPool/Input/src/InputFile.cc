@@ -20,6 +20,8 @@ namespace edm {
       file_.reset();
       return;
     }
+    // Tell TFile we will manage TCacheRead (TTreeCache in particular) objects ourselves:
+    file_->SetCacheReadExternal(true);
     logFileAction("  Successfully opened file ", fileName);
   }
 
