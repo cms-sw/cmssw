@@ -5,8 +5,9 @@ cleanPatMuonsTriggerMatch = cms.EDProducer(
   "PATTriggerMatchMuonEmbedder"
 , src     = cms.InputTag( "cleanPatMuons" )
 , matches = cms.VInputTag(
-    'cleanMuonTriggerMatchHLTMu20'
-  , 'cleanMuonTriggerMatchHLTDoubleMu6'
+    'cleanMuonTriggerMatchHLTMu17'
+  , 'cleanMuonTriggerMatchHLTDoubleMu5IsoMu5'
+  , 'cleanMuonTriggerMatchHLTMu8DiJet30' # x-trigger
   )
 )
 
@@ -15,7 +16,7 @@ cleanPatPhotonsTriggerMatch = cms.EDProducer(
   "PATTriggerMatchPhotonEmbedder"
 , src     = cms.InputTag( "cleanPatPhotons" )
 , matches = cms.VInputTag(
-    'cleanPhotonTriggerMatchHLTPhoton26IsoVLPhoton18'
+    'cleanPhotonTriggerMatchHLTPhoton26Photon18'
   )
 )
 
@@ -24,7 +25,7 @@ cleanPatElectronsTriggerMatch = cms.EDProducer(
   "PATTriggerMatchElectronEmbedder"
 , src     = cms.InputTag( "cleanPatElectrons" )
 , matches = cms.VInputTag(
-    'cleanElectronTriggerMatchHLTEle27CaloIdVTCaloIsoTTrkIdTTrkIsoT'
+    'cleanElectronTriggerMatchHLTEle17CaloIdTCaloIsoVLTrkIdVLTrkIsoVL'
   )
 )
 
@@ -33,7 +34,7 @@ cleanPatTausTriggerMatch = cms.EDProducer(
   "PATTriggerMatchTauEmbedder"
 , src     = cms.InputTag( "cleanPatTaus" )
 , matches = cms.VInputTag(
-    'cleanTauTriggerMatchHLTDoubleIsoPFTau20Trk5'
+    'cleanTauTriggerMatchHLTDoubleMediumIsoPFTau30Trk1eta2p1'
   )
 )
 
@@ -42,7 +43,8 @@ cleanPatJetsTriggerMatch = cms.EDProducer(
   "PATTriggerMatchJetEmbedder"
 , src     = cms.InputTag( "cleanPatJets" )
 , matches = cms.VInputTag(
-    'cleanJetTriggerMatchHLTJet240'
+    'cleanJetTriggerMatchHLTPFJet40'
+  , 'cleanJetTriggerMatchHLTMu8DiJet30' # x-trigger
   )
 )
 
@@ -51,7 +53,7 @@ patMETsTriggerMatch = cms.EDProducer(
   "PATTriggerMatchMETEmbedder"
 , src     = cms.InputTag( "patMETs" )
 , matches = cms.VInputTag(
-    'metTriggerMatchHLTMET100'
+    'metTriggerMatchHLTMET120'
   )
 )
 
