@@ -231,7 +231,7 @@ void FastTimerService::postBeginJob() {
           pathinfo.dqm_intermodules ->StatOverflows(true);
           pathinfo.dqm_postmodules  = m_dqms->book1D(pathname + "_postmodules",  pathname + " post-modules overhead",  modulebins, 0., m_dqm_moduletime_range)->getTH1F();
           pathinfo.dqm_postmodules  ->StatOverflows(true);
-          pathinfo.dqm_overhead     = m_dqms->book1D(pathname + "_overhead",     pathname + " overhead time",          pathbins, 0., m_dqm_pathtime_range)->getTH1F();
+          pathinfo.dqm_overhead     = m_dqms->book1D(pathname + "_overhead",     pathname + " overhead time",          modulebins, 0., m_dqm_moduletime_range)->getTH1F();
           pathinfo.dqm_overhead     ->StatOverflows(true);
         }
 
