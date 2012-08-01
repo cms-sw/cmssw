@@ -31,7 +31,7 @@
 #include "RecoMET/METAlgorithms/interface/PFMETAlgorithmMVA.h"
 #include "RecoMET/METAlgorithms/interface/mvaMEtUtilities.h"
 
-//#include "CMGTools/External/interface/PileupJetIdAlgo.h"
+#include "CMGTools/External/interface/PileupJetIdAlgo.h"
 
 #include <vector>
 
@@ -75,8 +75,7 @@ namespace reco
     PFSpecificAlgo pfMEtSpecificAlgo_;
     PFMETAlgorithmMVA mvaMEtAlgo_;
 
-    //PFJetIDSelectionFunctor* looseJetIdAlgo_;
-    //PileupJetIdAlgo mvaJetIdAlgo_;
+       //PileupJetIdAlgo mvaJetIdAlgo_;
 
     int verbosity_;
   };
