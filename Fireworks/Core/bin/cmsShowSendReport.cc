@@ -51,6 +51,7 @@ void getCompressedBuffer(const char* fname, Bytef** buffPtr, unsigned long& zipp
    compress(deflatedBuff+4, &zippedSize, (const Bytef *)buffer, lSize);
    zippedSize +=4;
 
+   free(buffer);
    /*
    printf("zipped size %d \n", (int)zippedSize);
    FILE* pFileOut = fopen ( "myfile-compressed" , "wb" );
@@ -99,7 +100,7 @@ int main(int argc, char **argv)
    int res = sendto(sd, buff, buffSize, 0, 
                     (struct sockaddr *) &remoteServAddr, 
                     sizeof(remoteServAddr));
-   delete buff;
+   free(buff);
    
    if (res == -1)
       std::cerr << "Sending report has failed." << std::endl;
