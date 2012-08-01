@@ -98,8 +98,8 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_cache_modules()
 {
   // enable timers if required by DQM plots
-  m_enable_timing_paths   = m_enable_timing_paths   or m_enable_dqm_bypath_active or m_enable_dqm_bypath_total;
-  m_enable_timing_modules = m_enable_timing_modules or m_enable_dqm_bypath_total  or m_enable_dqm_bypath_overhead or m_enable_dqm_bypath_details or m_enable_dqm_bymodule;
+  m_enable_timing_paths   = m_enable_timing_paths   or m_enable_dqm_bypath_active or m_enable_dqm_bypath_total or m_enable_dqm_bypath_overhead or m_enable_dqm_bypath_details;
+  m_enable_timing_modules = m_enable_timing_modules or m_enable_dqm_bymodule      or m_enable_dqm_bypath_total or m_enable_dqm_bypath_overhead or m_enable_dqm_bypath_details;
 
   registry.watchPostBeginJob(      this, & FastTimerService::postBeginJob );
   registry.watchPostEndJob(        this, & FastTimerService::postEndJob );
@@ -220,8 +220,13 @@ void FastTimerService::postBeginJob() {
         PathInfo          & pathinfo = keyval.second;
 
         if (m_enable_dqm_bypath_active) {
-          pathinfo.dqm_active       = m_dqms->book1D(pathname + "_active", pathname + " active time", pathbins, 0., m_dqm_pathtime_range)->getTH1F();
+          pathinfo.dqm_active       = m_dqms->book1D(pathname + "_active",       pathname + " active time",            pathbins, 0., m_dqm_pathtime_range)->getTH1F();
           pathinfo.dqm_active       ->StatOverflows(true);
+        }
+
+        if (m_enable_dqm_bypath_total) {
+          pathinfo.dqm_total        = m_dqms->book1D(pathname + "_total",        pathname + " total time",             pathbins, 0., m_dqm_pathtime_range)->getTH1F();
+          pathinfo.dqm_total        ->StatOverflows(true);
         }
 
         if (m_enable_dqm_bypath_overhead) {
@@ -233,11 +238,6 @@ void FastTimerService::postBeginJob() {
           pathinfo.dqm_postmodules  ->StatOverflows(true);
           pathinfo.dqm_overhead     = m_dqms->book1D(pathname + "_overhead",     pathname + " overhead time",          modulebins, 0., m_dqm_moduletime_range)->getTH1F();
           pathinfo.dqm_overhead     ->StatOverflows(true);
-        }
-
-        if (m_enable_dqm_bypath_total) {
-          pathinfo.dqm_total        = m_dqms->book1D(pathname + "_total",        pathname + " total time",             pathbins, 0., m_dqm_pathtime_range)->getTH1F();
-          pathinfo.dqm_total        ->StatOverflows(true);
         }
 
         if (m_enable_dqm_bypath_details or m_enable_dqm_bypath_counters) {
