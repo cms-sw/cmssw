@@ -136,6 +136,11 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
    }
    else if(TypeMode==3){
      GlobalMinIs      =   -1;
+     //SA Muon trigger only existed for part of 2011 running
+#ifdef ANALYSIS2011
+     IntegratedLuminosityBeforeTriggerChange = 0;
+     IntegratedLuminosity = 4100;
+#endif
    }
 
    // define the selection to be considered later for the optimization
@@ -191,6 +196,7 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
    GetSampleDefinition(samples);
    if(MODE.find("ANALYSE_")==0){
       int sampleIdStart, sampleIdEnd; sscanf(MODE.c_str(),"ANALYSE_%d_to_%d",&sampleIdStart, &sampleIdEnd);
+      if(TypeMode==3 && sampleIdEnd>20 && sampleIdEnd<28) return; //These EDM files are missing some branches for TOF only search, to be recovered in rereco
       keepOnlyTheXtoYSamples(samples,sampleIdStart,sampleIdEnd);
       printf("----------------------------------------------------------------------------------------------------------------------------------------------------\n");
       printf("Run on the following samples:\n");
@@ -855,7 +861,6 @@ void Analysis_Step3(char* SavePath)
 
       //do two loops through signal for samples with and without trigger changes.
       for (int period=0; period<(samples[s].Type==2?RunningPeriods:1); period++){
-	if(TypeMode==3 && samples[s].Type==2 && period==0) continue;
          //load the files corresponding to this sample
          std::vector<string> FileName;
          GetInputFiles(samples[s], BaseDirectory, FileName, period);
@@ -876,7 +881,7 @@ void Analysis_Step3(char* SavePath)
             if(samples[s].Type==1)SampleWeight = GetSampleWeightMC(IntegratedLuminosity,FileName, samples[s].XSec, ev.size(), NMCevents);
             else                  SampleWeight = GetSampleWeight  (IntegratedLuminosity,IntegratedLuminosityBeforeTriggerChange,samples[s].XSec,NMCevents, period);
          }
-
+	 if(SampleWeight==0) continue; //If sample weight 0 don't run, happens Int Lumi before change = 0
          //Loop on the events
          printf("Progressing Bar                   :0%%       20%%       40%%       60%%       80%%       100%%\n");
          printf("Building Mass for %10s (%1i/%1i) :",samples[s].Name.c_str(),period+1,(samples[s].Type==2?RunningPeriods:1));
@@ -888,7 +893,6 @@ void Analysis_Step3(char* SavePath)
 
             //compute event weight
             if(samples[s].Type>0){Event_Weight = SampleWeight * GetPUWeight(ev, samples[s].Pileup, PUSystFactor, LumiWeightsMC, PShift);}else{Event_Weight = 1;}
-
             std::vector<reco::GenParticle> genColl;
             double HSCPGenBeta1=-1, HSCPGenBeta2=-1;
             if(isSignal){
@@ -897,9 +901,8 @@ void Analysis_Step3(char* SavePath)
                genCollHandle.getByLabel(ev, "genParticles");
                if(!genCollHandle.isValid()){printf("GenParticle Collection NotFound\n");continue;}
                genColl = *genCollHandle;
-               int NChargedHSCP=HowManyChargedHSCP(genColl);
+               int NChargedHSCP=HowManyChargedHSCP(genColl);                 
 
-                 
                //skip event wich does not have the right number of charged HSCP --> DEPRECATED
                //if(samples[s].NChargedHSCP>=0 && samples[s].NChargedHSCP!=NChargedHSCP)continue;
                //NEW: reweight the events based on the number of charged HSCP directly at Analysis_step23.C (instead of Step6.C as in the past)
@@ -983,10 +986,8 @@ void Analysis_Step3(char* SavePath)
 	       if(TypeMode!=3) track = hscp.trackRef();
 	       else {
 		 if(muon.isNull()) continue;
-		 if(!muon->combinedQuality().updatedSta) continue;
 		 track = muon->standAloneMuon();
 	       }
-
                //skip events without track
 	       if(track.isNull())continue;
 
