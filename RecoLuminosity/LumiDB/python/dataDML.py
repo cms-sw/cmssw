@@ -1119,12 +1119,12 @@ def beamInfoById(schema,dataid,withBeamIntensity=False,minIntensity=0.1):
                    beam2intensityArray=CommonUtil.unpackBlobtoArray(beam2intensityblob,'f')
                if bxindexArray and beam1intensityArray and beam2intensityArray:
                    for idx,bxindex in enumerate(bxindexArray):
-                       if beam1intensityArray[idx] and beam1intensityArray[idx]>minIntensity and beam2intensityArray[idx] and beam2intensityArray[idx]>minIntensity:
+                       if (beam1intensityArray[idx] and beam1intensityArray[idx]>minIntensity) or (beam2intensityArray[idx] and beam2intensityArray[idx]>minIntensity):
                            beaminfotuple=(bxindex,beam1intensityArray[idx],beam2intensityArray[idx])                   
                            beaminfotupleList.append(beaminfotuple)
                    del bxindexArray[:]
                    del beam1intensityArray[:]
-                   del beam2intensityArray[:]
+                   del beam2intensityArray[:]           
            result.append((lumilsnum,cmslsnum,beamstatus,beamenergy,ncollidingbunches,beaminfotupleList))
     except:
        del qHandle
