@@ -78,7 +78,7 @@ if not options.useData :
 else :
     inputJetCorrLabel = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
     process.source.fileNames = [
-        '/store/data/Run2012A/MuEG/AOD/29Jun2012-v1/0000/FCC05CD8-E9C2-E111-A3A2-20CF305B0508.root'
+        '/store/data/Run2012C/SingleMu/AOD/PromptReco-v1/000/197/770/FCEA1D5F-77C3-E111-9E6F-0019B9F4A1D7.root'
     ]
 
 #process.source.eventsToProcess = cms.untracked.VEventRange( ['1:86747'] )
@@ -98,11 +98,11 @@ import sys
 ###############################
 
 # 4.2.x or 52x configuration
-fileTag = "52x"
+fileTag = "53x"
 
 if options.useData :
     if options.globalTag is '':
-        process.GlobalTag.globaltag = cms.string( 'GR_R_52_V9D::All' )
+        process.GlobalTag.globaltag = cms.string( 'GR_P_V40_AN1::All' )
     else:
         process.GlobalTag.globaltag = cms.string( options.globalTag )
     # Jet Probability Calibration for 52x and 53x data
@@ -1503,7 +1503,7 @@ process.out.outputCommands = [
     'drop recoGenJets_selectedPatJets*_*_*',
     'keep *_*_rho_*',
     'drop *_*PFlowLoose*_*_*',
-    'keep patElectrons_selected*PFlowLoose*_*_*',
+    #'keep patElectrons_selected*PFlowLoose*_*_*',
     'keep patMuons_selected*PFlowLoose*_*_*',
     'keep *_patConversions*_*_*',
     #'keep patTaus_*PFlowLoose*_*_*',
