@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 24 18:52:28 CEST 2010
-// $Id: FWViewEnergyScaleEditor.h,v 1.1 2010/11/26 20:24:47 amraktad Exp $
+// $Id: FWViewEnergyScaleEditor.h,v 1.2 2010/11/27 22:08:23 amraktad Exp $
 //
 
 // system include files
@@ -54,7 +54,7 @@ private:
    FWViewEnergyScaleEditor(const FWViewEnergyScaleEditor&); // stop default
    const FWViewEnergyScaleEditor& operator=(const FWViewEnergyScaleEditor&); // stop default
    
-   void addParam(const FWParameterBase*, const char* title = 0);   
+   void addParam(FWParameterBase*, const char* title = 0);   
    
    // ---------- member data --------------------------------
 
