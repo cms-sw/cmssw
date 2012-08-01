@@ -98,9 +98,10 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_cache_modules()
 {
   // enable timers if required by DQM plots
-  m_enable_timing_paths   = m_enable_timing_paths   or m_enable_dqm_bypath_active or m_enable_dqm_bypath_total or m_enable_dqm_bypath_overhead or m_enable_dqm_bypath_details;
-  m_enable_timing_modules = m_enable_timing_modules or m_enable_dqm_bymodule      or m_enable_dqm_bypath_total or m_enable_dqm_bypath_overhead or m_enable_dqm_bypath_details;
+  m_enable_timing_paths   = m_enable_timing_paths   or m_enable_dqm_bypath_active or m_enable_dqm_bypath_total or m_enable_dqm_bypath_overhead or m_enable_dqm_bypath_details or m_enable_dqm_bypath_counters;
+  m_enable_timing_modules = m_enable_timing_modules or m_enable_dqm_bymodule      or m_enable_dqm_bypath_total or m_enable_dqm_bypath_overhead or m_enable_dqm_bypath_details or m_enable_dqm_bypath_counters;
 
+  registry.watchPreModuleBeginJob( this, & FastTimerService::preModuleBeginJob );
   registry.watchPostBeginJob(      this, & FastTimerService::postBeginJob );
   registry.watchPostEndJob(        this, & FastTimerService::postEndJob );
   registry.watchPrePathBeginRun(   this, & FastTimerService::prePathBeginRun) ;
@@ -113,7 +114,6 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   registry.watchPostProcessPath(   this, & FastTimerService::postProcessPath );
   // watch per-module events if enabled
   if (m_enable_timing_modules) {
-    registry.watchPreModuleBeginJob( this, & FastTimerService::preModuleBeginJob );
     registry.watchPreModule(         this, & FastTimerService::preModule );
     registry.watchPostModule(        this, & FastTimerService::postModule );
   }
@@ -140,26 +140,20 @@ void FastTimerService::postBeginJob() {
     m_paths[name];
 
   // cache all pathinfo objects
-  if (m_enable_timing_paths or m_enable_dqm_bypath_counters) {
-    m_cache_paths.reserve(m_paths.size());
-    for (auto & keyval: m_paths)
-      m_cache_paths.push_back(& keyval.second);
-  }
+  m_cache_paths.reserve(m_paths.size());
+  for (auto & keyval: m_paths)
+    m_cache_paths.push_back(& keyval.second);
 
   // cache all moduleinfo objects
-  if (m_enable_timing_modules) {
-    m_cache_modules.reserve(m_modules.size());
-    for (auto & keyval: m_modules)
-      m_cache_modules.push_back(& keyval.second);
-  }
+  m_cache_modules.reserve(m_modules.size());
+  for (auto & keyval: m_modules)
+    m_cache_modules.push_back(& keyval.second);
 
   // associate to each path all the modules it contains
-  if ((m_enable_timing_paths and m_enable_timing_modules) or m_enable_dqm_bypath_counters) {
-    for (size_t i = 0; i < tns.getTrigPaths().size(); ++i)
-      fillPathMap( tns.getTrigPath(i), tns.getTrigPathModules(i) );
-    for (size_t i = 0; i < tns.getEndPaths().size(); ++i)
-      fillPathMap( tns.getEndPath(i), tns.getEndPathModules(i) );
-  }
+  for (size_t i = 0; i < tns.getTrigPaths().size(); ++i)
+    fillPathMap( tns.getTrigPath(i), tns.getTrigPathModules(i) );
+  for (size_t i = 0; i < tns.getEndPaths().size(); ++i)
+    fillPathMap( tns.getEndPath(i), tns.getEndPathModules(i) );
 
   if (m_enable_dqm)
     // load the DQM store
@@ -213,7 +207,7 @@ void FastTimerService::postBeginJob() {
       path_total_time ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
     }
 
-    if (m_enable_timing_paths or m_enable_dqm_bypath_counters) {
+    if (m_enable_timing_paths) {
       m_dqms->setCurrentFolder((m_dqm_path + "/Paths"));
       for (auto & keyval: m_paths) {
         std::string const & pathname = keyval.first;
@@ -402,9 +396,6 @@ void FastTimerService::reset() {
 void FastTimerService::preModuleBeginJob(edm::ModuleDescription const & module) {
   //edm::LogImportant("FastTimerService") << __func__ << "(" << & module << ")";
   //edm::LogImportant("FastTimerService") << "module " << module.moduleLabel() << " @ " << & module;
-
-  // this is ever called only if m_enable_timing_modules = true
-  assert(m_enable_timing_modules);
 
   // allocate a counter for each module
   m_modules[& module];
