@@ -335,6 +335,14 @@ namespace edm {
       // no metadata has been dropped,
       // ID's have not been modified,
       // and the branch list indexes do not need modification.
+
+      // Note: Fast copy of the EventProductProvenance branch is unsafe
+      // unless we can enforce that the parentage information for a fully copied
+      // output file will be the same as for the input file, with nothing dropped.
+      // This has never been enforced, and, withthe EDAlias feature, it may no longer
+      // work by accident.
+      // So, for now, we do not enable fast cloning of the non-product branches.
+/*
       Service<ConstProductRegistry> reg;
       canFastCloneAux_ = (whyNotFastClonable_ == FileBlock::CanFastClone) &&
                           fb.fileFormatVersion().noMetaDataTrees() &&
@@ -344,6 +352,7 @@ namespace edm {
                           !reg->anyProductProduced() &&
                           !fb.modifiedIDs() &&
                           fb.branchListIndexesUnchanged();
+*/
 
       // Report the fast copying status.
       Service<JobReport> reportSvc;
