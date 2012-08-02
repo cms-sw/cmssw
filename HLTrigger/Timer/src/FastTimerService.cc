@@ -736,3 +736,82 @@ void FastTimerService::fillPathMap(std::string const & name, std::vector<std::st
     }
   }
 }
+
+
+// query the current module/path/event
+// Note: these functions incur in a "per-call timer overhead" (see above), currently of the order of 340ns
+
+// return the time spent since the last preModule() event
+double FastTimerService::currentModuleTime() const {
+  struct timespec now;
+  gettime(now);
+  return delta(m_timer_module.first, now);
+}
+
+// return the time spent since the last preProcessPath() event
+double FastTimerService::currentPathTime() const {
+  struct timespec now;
+  gettime(now);
+  return delta(m_timer_path.first, now);
+}
+
+// return the time spent since the last preProcessEvent() event
+double FastTimerService::currentEventTime() const {
+  struct timespec now;
+  gettime(now);
+  return delta(m_timer_event.first, now);
+}
+
+// query the time spent in a module (available after the module has run)
+double FastTimerService::queryModuleTime(const edm::ModuleDescription & module) const {
+  ModuleMap<ModuleInfo>::const_iterator keyval = m_modules.find(& module);
+  if (keyval != m_modules.end()) {
+    return keyval->second.time_active;
+  } else {
+    edm::LogError("FastTimerService") << "FastTimerService::postModule: unexpected module " << module.moduleLabel();
+    return 0.;
+  }
+}
+
+// query the time spent in a path (available after the path has run)
+double FastTimerService::queryPathActiveTime(const std::string & path) const {
+  PathMap<PathInfo>::const_iterator keyval = m_paths.find(path);
+  if (keyval != m_paths.end()) {
+    return keyval->second.time_active;
+  } else {
+    edm::LogError("FastTimerService") << "FastTimerService::postModule: unexpected path " << path;
+    return 0.;
+  }
+}
+
+// query the total time spent in a path (available after the path has run)
+double FastTimerService::queryPathTotalTime(const std::string & path) const {
+  PathMap<PathInfo>::const_iterator keyval = m_paths.find(path);
+  if (keyval != m_paths.end()) {
+    return keyval->second.time_total;
+  } else {
+    edm::LogError("FastTimerService") << "FastTimerService::postModule: unexpected path " << path;
+    return 0.;
+  }
+}
+
+// query the time spent in the current event's source (available during event processing)
+double FastTimerService::querySourceTime() const {
+  return m_source;
+}
+
+// query the time spent in the current event's paths (available during endpaths)
+double FastTimerService::queryPathsTime() const {
+  return m_all_paths;
+}
+
+// query the time spent in the current event's endpaths (available after all endpaths have run)
+double FastTimerService::queryEndPathsTime() const {
+  return m_all_endpaths;
+}
+
+// query the time spent processing the current event (available after the event has been processed)
+double FastTimerService::queryEventTime() const {
+  return m_event;
+}
+

@@ -85,25 +85,27 @@ public:
   double currentPathTime() const;           // return the time spent since the last preProcessPath() event
   double currentEventTime() const;          // return the time spent since the last preProcessEvent() event
 
-  // query the time spent in a module/path the last time it has run
+  // query the time spent in a module/path (available after it has run)
   double queryModuleTime(const edm::ModuleDescription &) const;
-  double queryPathTime(const std::string &) const;
+  double queryPathActiveTime(const std::string &) const;
+  double queryPathTotalTime(const std::string &) const;
 
-  // query the time spent in the current (or last) event's
+  // query the time spent in the current event's
   //  - source        (available during event processing)
   //  - all paths     (available during endpaths)
-  //  - all endpaths  (available after all endpaths have run, usually returns the last event's value)
-  //  - processing    (available after the event has been processed, usually returns the last event's value)
+  //  - all endpaths  (available after all endpaths have run)
+  //  - processing    (available after the event has been processed)
   double querySourceTime() const;
   double queryPathsTime() const;
   double queryEndPathsTime() const;
   double queryEventTime() const;
 
+  /* FIXME not yet implemented
   // try to assess the overhead which may not be included in the source, paths and event timers
   double queryPreSourceOverhead() const;    // time spent after the previous event's postProcessEvent and this event's preSource
   double queryPreEventOverhead() const;     // time spent after this event's postSource and preProcessEvent
   double queryPreEndPathsOverhead() const;  // time spent after the last path's postProcessPath and the first endpath's preProcessPath
-
+  */
 
 private:
   void postBeginJob();
@@ -308,7 +310,7 @@ private:
   std::pair<struct timespec, struct timespec>   m_timer_module;         // track time spent in each module
   struct timespec                               m_timer_first_module;   // record the start of the first active module in a path, if any
 
-  void gettime(struct timespec & stamp)
+  void gettime(struct timespec & stamp) const
   {
 #if defined __linux
     clock_gettime(m_timer_id, & stamp);
@@ -319,12 +321,12 @@ private:
 #endif
   }
 
-  void start(std::pair<struct timespec, struct timespec> & times)
+  void start(std::pair<struct timespec, struct timespec> & times) const
   {
     gettime(times.first);
   }
 
-  void stop(std::pair<struct timespec, struct timespec> & times)
+  void stop(std::pair<struct timespec, struct timespec> & times) const
   {
     gettime(times.second);
   }
