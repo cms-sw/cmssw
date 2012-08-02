@@ -2,9 +2,6 @@
 #include <string>
 #include <cstring>
 
-// boost headers
-#include <boost/foreach.hpp>
-
 // Root headers
 #include <TH1F.h>
 
