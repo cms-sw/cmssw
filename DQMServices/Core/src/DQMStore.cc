@@ -14,6 +14,7 @@
 #include <iterator>
 #include <cerrno>
 #include <boost/algorithm/string.hpp>
+#include <fstream>
 
 /** @var DQMStore::verbose_
     Universal verbose flag for DQM. */
@@ -51,6 +52,7 @@ static std::string s_safe = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwx
 static const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|e|t|qr)=(.*)</\\1>$");
 static const lat::Regexp s_rxmeqr1 ("^st:(\\d+):([-+e.\\d]+):([^:]*):(.*)$");
 static const lat::Regexp s_rxmeqr2 ("^st\\.(\\d+)\\.(.*)$");
+static const lat::Regexp s_rxtrace ("(.*)\\((.*)\\+0x.*\\).*");
 
 //////////////////////////////////////////////////////////////////////
 /// Check whether the @a path is a subdirectory of @a ofdir.  Returns
@@ -324,7 +326,63 @@ DQMStore::initializeFrom(const edm::ParameterSet& pset) {
   initQCriterion<NoisyChannel>(qalgos_);
   initQCriterion<ContentsWithinExpected>(qalgos_);
   initQCriterion<CompareToMedian>(qalgos_);
-  
+
+}
+
+/* Generic method to do a backtrace and print it to stdout. It is
+ customised to properly get the routine that called the booking of the
+ histograms, which, following the usual stack, is at position 4. The
+ name of the calling function is properly demangled and the original
+ shared library including this function is also printed. For a more
+ detailed explanation of the routines involved, see here:
+ http://www.gnu.org/software/libc/manual/html_node/Backtraces.html
+ http://gcc.gnu.org/onlinedocs/libstdc++/manual/ext_demangling.html.*/
+
+void
+DQMStore::print_trace (const std::string &dir, const std::string &name)
+{
+  static std::ofstream stream("histogramBookingBT.log");
+  void *array[10];
+  size_t size;
+  char **strings;
+  int r=0;
+  lat::RegexpMatch m;
+  m.reset();
+
+  size = backtrace (array, 10);
+  strings = backtrace_symbols (array, size);
+
+  if ((size > 4)
+      &&s_rxtrace.match(strings[4], 0, 0, &m))
+  {
+    char * demangled = abi::__cxa_demangle(m.matchString(strings[4], 2).c_str(), 0, 0, &r);
+    stream << "\"" << dir << "/"
+	   << name << "\" "
+	   << (r ? m.matchString(strings[4], 2) : demangled) << " "
+	   << m.matchString(strings[4], 1) << "\n";
+    free(demangled);
+  }
+  else
+    stream << "Skipping "<< dir << "/" << name
+	   << " with stack size " << size << "\n";
+  /* In this case print the full stack trace, up to main or to the
+   * maximum stack size, i.e. 10. */
+  if (verbose_ > 4)
+  {
+    size_t i;
+    m.reset();
+
+    for (i = 0; i < size; i++)
+      if (s_rxtrace.match(strings[i], 0, 0, &m))
+      {
+	char * demangled = abi::__cxa_demangle(m.matchString(strings[i], 2).c_str(), 0, 0, &r);
+	stream << "\t\t" << i << "/" << size << " "
+	       << (r ? m.matchString(strings[i], 2) : demangled) << " "
+	       << m.matchString(strings[i], 1) << std::endl;
+	free (demangled);
+      }
+  }
+  free (strings);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -332,7 +390,7 @@ DQMStore::initializeFrom(const edm::ParameterSet& pset) {
 //////////////////////////////////////////////////////////////////////
 /// set verbose level (0 turns all non-error messages off)
 void
-DQMStore::setVerbose(unsigned /* level */) 
+DQMStore::setVerbose(unsigned /* level */)
 { return; }
 
 //////////////////////////////////////////////////////////////////////
@@ -445,6 +503,8 @@ DQMStore::book(const std::string &dir, const std::string &name,
 	       HISTO *h, COLLATE collate)
 {
   assert(name.find('/') == std::string::npos);
+  if (verbose_ > 3)
+    print_trace(dir, name);
   std::string path;
   mergePath(path, dir, name);
 
@@ -514,6 +574,8 @@ DQMStore::book(const std::string &dir,
 	       const char *context)
 {
   assert(name.find('/') == std::string::npos);
+  if (verbose_ > 3)
+    print_trace(dir, name);
 
   // Check if the request monitor element already exists.
   if (MonitorElement *me = findObject(dir, name))
