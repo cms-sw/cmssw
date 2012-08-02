@@ -3,9 +3,9 @@
  * \file DQMDcsInfoClient.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2010/12/17 15:51:07 $
- * $Revision: 1.6 $
- * $Author: rovere $
+ * $Date: 2011/01/19 11:48:33 $
+ * $Revision: 1.7 $
+ * $Author: dutta $
  *
 */
 
@@ -35,6 +35,14 @@ DQMDcsInfoClient::~DQMDcsInfoClient() {
 void 
 DQMDcsInfoClient::beginRun(const edm::Run& r, const edm::EventSetup& c) 
 {
+  // Fetch GlobalTag information and fill the string/ME.
+  dbe_->cd();  
+  dbe_->setCurrentFolder(subsystemname_ +"/CMSSWInfo/");
+  const edm::ParameterSet &globalTagPSet = edm::getProcessParameterSet()
+					   .getParameterSet("PoolDBESSource@GlobalTag");
+
+  dbe_->bookString("globalTag_Harvesting", globalTagPSet.getParameter<std::string>("globaltag"));
+
   DCS.clear();
   DCS.resize(10);  // start with 10 LS, resize later
   processedLS_.clear();
