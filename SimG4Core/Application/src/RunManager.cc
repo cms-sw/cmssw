@@ -16,6 +16,7 @@
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
 #include "SimG4Core/MagneticField/interface/Field.h"
+#include "SimG4Core/GFlash/interface/ParametrisedPhysics.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -240,7 +241,16 @@ void RunManager::initG4(const edm::EventSetup & es)
   if (physicsMaker.get()==0) throw SimG4Exception("Unable to find the Physics list requested");
   m_physicsList = physicsMaker->make(map_,fPDGTable,m_fieldBuilder,m_pPhysics,m_registry);
   if (m_physicsList.get()==0) throw SimG4Exception("Physics list construction failed!");
-  m_kernel->SetPhysics(m_physicsList.get());
+
+  // adding GFlash on top of any Physics Lists
+  //const edm::ParameterSet gflash = m_pPhysics.getParameter<edm::ParameterSet>("GFlash"); 
+  bool ecal = m_pPhysics.getParameter<bool>("GflashEcal"); 
+  bool hcal = m_pPhysics.getParameter<bool>("GflashHcal"); 
+  PhysicsList* phys = m_physicsList.get(); 
+  if(ecal || hcal) { 
+    phys->RegisterPhysics(new ParametrisedPhysics("GFlash",m_pPhysics));
+  }
+  m_kernel->SetPhysics(phys);
   m_kernel->InitializePhysics();
 
   m_physicsList->ResetStoredInAscii();

@@ -84,12 +84,17 @@ g4SimHits = cms.EDProducer("OscarProducer",
         FlagFTF     = cms.untracked.bool(False),
         FlagGlauber = cms.untracked.bool(False),
         FlagHP      = cms.untracked.bool(False),
-        GFlash = cms.PSet(
-            GflashHistogram = cms.bool(False),
-            GflashEMShowerModel = cms.bool(False),
-            GflashHadronPhysics = cms.string('QGSP_BERT_EMV'),
-            GflashHadronShowerModel = cms.bool(False)
-        )
+        GflashEcal  = cms.bool(False),
+        bField      = cms.double(3.8),
+        energyScaleEB = cms.double(1.032),
+        energyScaleEE = cms.double(1.024),
+        GflashHcal  = cms.bool(False)
+        #GFlash = cms.PSet(
+        #    GflashHistogram = cms.bool(True),
+        #    GflashEMShowerModel = cms.bool(True),
+        #    GflashHadronPhysics = cms.string('QGSP_BERT_EMV'),
+        #    GflashHadronShowerModel = cms.bool(False)
+        #)
     ),
     Generator = cms.PSet(
         HectorEtaCut,
