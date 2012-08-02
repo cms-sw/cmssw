@@ -349,7 +349,14 @@ void   GetGenHSCPBeta    (const std::vector<reco::GenParticle>& genColl, double&
 
 // compute the distance between a "reconstructed" HSCP candidate and the closest geenrated HSCP
 double DistToHSCP (const susybsm::HSCParticle& hscp, const std::vector<reco::GenParticle>& genColl, int& IndexOfClosest){
-   reco::TrackRef   track = hscp.trackRef(); if(track.isNull())return false;
+   reco::TrackRef   track;
+   if(TypeMode!=3) track = hscp.trackRef();
+   else {
+     reco::MuonRef muon = hscp.muonRef();
+     if(muon.isNull()) return false;
+     track = muon->standAloneMuon();
+   }
+   if(track.isNull())return false;
 
    double RMin = 9999; IndexOfClosest=-1;
    for(unsigned int g=0;g<genColl.size();g++){
