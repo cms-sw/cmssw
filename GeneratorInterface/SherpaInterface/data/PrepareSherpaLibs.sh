@@ -5,9 +5,10 @@
 #               generate CMSSW python script
 #  uses:        SHERPA datacards, libs and cross sections
 #
-#  author:      Markus Merschmeyer, Sebastian Thuer, RWTH Aachen
-#  date:        17th July 2012
-#  version:     4.0
+#  author:      Markus Merschmeyer, Sebastian Thüer
+#               III. Physics Institute A, RWTH Aachen University
+#  date:        2nd August 2012
+#  version:     4.1
 
 
 
@@ -17,15 +18,14 @@
 
 function print_help() {
     echo "" && \
-    echo "PrepareSherpaLibs version 4.0" && echo && \
+    echo "PrepareSherpaLibs version 4.1" && echo && \
     echo "options: -i  path       path to SHERPA datacard, library & cross section files" && \
     echo "                         can also be in WWW (http://...) or SE (srm://...)" && \
     echo "                         -> ( "${datadir}" )" && \
     echo "         -p  process    SHERPA dataset/process name ( "${dataset}" )" && \
     echo "         -m  mode       CMSSW running mode ( "${imode}" )" && \
-    echo "                         [ 'LOCAL'  : local running of CMSSW         ]" && \
     echo "                         [ 'PROD'   : for production validation      ]" && \
-    echo "         -c  condition  running conditions ( "${MYCONDITIONS}" )" && \
+    echo "                         [ 'LOCAL'  : local running of CMSSW         ]" && \
     echo "         -a  path       user analysis path inside CMSSW ( "${MYANADIR}" )" && \
     echo "         -D  filename   (optional) name of data card file     ( "${cfdc}" )" && \
     echo "         -L  filename   (optional) name of library file       ( "${cflb}" )" && \
@@ -40,31 +40,39 @@ function print_help() {
 
 
 # function to build a python script for cmsDriver
-function build_python_cfi() {
+function build_python_cff() {
 
-  shpacfifile=$1  # config file name
-  process=$2      # process name
-  checksum=$3     # md5 checksum
+  imode=$1        # mode (PRODuction, LOCAL, CRAB, ...)
+  cfffilename=$2  # config file name
+  process=$3      # process name
+  checksum=$4     # MD5 checksum
 
-  if [ -e ${shpacfifile} ]; then rm ${shpacfifile}; fi
-  touch ${shpacfifile}
+  if [ -e ${cfffilename} ]; then rm ${cfffilename}; fi
+  touch ${cfffilename}
 
-  echo "import FWCore.ParameterSet.Config as cms"                          >> ${shpacfifile}
-  echo "import os"                                                         >> ${shpacfifile} 
-  echo ""                                                                  >> ${shpacfifile}
-  echo "source = cms.Source(\"EmptySource\")"                              >> ${shpacfifile}
-  echo ""                                                                  >> ${shpacfifile}
-  echo "generator = cms.EDFilter(\"SherpaGeneratorFilter\","               >> ${shpacfifile}
-  echo "  maxEventsToPrint = cms.untracked.int32(0),"                      >> ${shpacfifile}
-  echo "  filterEfficiency = cms.untracked.double(1.0),"                   >> ${shpacfifile}
-  echo "  crossSection = cms.untracked.double(-1),"                        >> ${shpacfifile}
-  echo "  SherpaProcess = cms.untracked.string('"${process}"'),"           >> ${shpacfifile}
-  echo "  SherpaChecksum = cms.untracked.string('"${checksum}"'),"         >> ${shpacfifile}
-  echo "  SherpaPath = cms.untracked.string(os.getcwd()),"                 >> ${shpacfifile}
-  echo "  SherpaPathPiece = cms.untracked.string(os.getcwd()),"            >> ${shpacfifile}
-  echo "  SherpaResultDir = cms.untracked.string('Result'),"               >> ${shpacfifile}
-  echo "  SherpaDefaultWeight = cms.untracked.double(1.0),"                >> ${shpacfifile}
-  echo "  SherpaParameters = cms.PSet(parameterSets = cms.vstring("        >> ${shpacfifile}
+  echo "import FWCore.ParameterSet.Config as cms"                          >> ${cfffilename}
+  echo "import os"                                                         >> ${cfffilename} 
+  echo ""                                                                  >> ${cfffilename}
+  echo "source = cms.Source(\"EmptySource\")"                              >> ${cfffilename}
+  echo ""                                                                  >> ${cfffilename}
+  echo "generator = cms.EDFilter(\"SherpaGeneratorFilter\","               >> ${cfffilename}
+  echo "  maxEventsToPrint = cms.int32(0),"                                >> ${cfffilename}
+  echo "  filterEfficiency = cms.untracked.double(1.0),"                   >> ${cfffilename}
+  echo "  crossSection = cms.untracked.double(-1),"                        >> ${cfffilename}
+  echo "  SherpaProcess = cms.string('"${process}"'),"                     >> ${cfffilename}
+  echo "  SherpackLocation = cms.string(''),"                              >> ${cfffilename}
+  echo "  SherpackChecksum = cms.string('"${checksum}"'),"                 >> ${cfffilename}
+  echo "  FetchSherpack = cms.bool(False),"                                >> ${cfffilename}
+  if [ "${imode}" = "PROD" ]; then
+  echo "  SherpaPath = cms.string('./'),"                                  >> ${cfffilename}
+  echo "  SherpaPathPiece = cms.string('./'),"                             >> ${cfffilename}
+  elif [ "${imode}" = "LOCAL" ]; then
+  echo "  SherpaPath = cms.string(os.getcwd()),"                           >> ${cfffilename}
+  echo "  SherpaPathPiece = cms.string(os.getcwd()),"                      >> ${cfffilename}
+  fi
+  echo "  SherpaResultDir = cms.string('Result'),"                         >> ${cfffilename}
+  echo "  SherpaDefaultWeight = cms.double(1.0),"                          >> ${cfffilename}
+  echo "  SherpaParameters = cms.PSet(parameterSets = cms.vstring("        >> ${cfffilename}
   fcnt=0
   for file in `ls *.dat`; do
     let fcnt=${fcnt}+1
@@ -73,14 +81,14 @@ function build_python_cfi() {
     let fcnt=${fcnt}-1
     pstnam=`echo ${file} | cut -f1 -d"."`
     if [ ${fcnt} -gt 0 ]; then
-  echo "                             \""${pstnam}"\","    >> ${shpacfifile}
+  echo "                             \""${pstnam}"\","    >> ${cfffilename}
     else
-  echo "                             \""${pstnam}"\"),"   >> ${shpacfifile}
+  echo "                             \""${pstnam}"\"),"   >> ${cfffilename}
     fi
   done
   for file in `ls *.dat`; do
     pstnam=`echo ${file} | cut -f1 -d"."`
-  echo "                              "${pstnam}" = cms.vstring(" >> ${shpacfifile}
+  echo "                              "${pstnam}" = cms.vstring(" >> ${cfffilename}
     cp ${file} ${file}.tmp1
     sed -e 's/[%\!].*//g' < ${file}.tmp1 > ${file}.tmp2            # remove comment lines (beginning with % or !)
     mv ${file}.tmp2 ${file}.tmp1
@@ -98,16 +106,16 @@ function build_python_cfi() {
     mv ${file}.tmp2 ${file}.tmp1
     sed -e '$s/\",/\"/' < ${file}.tmp1 > ${file}.tmp2              # fix last line
     mv ${file}.tmp2 ${file}.tmp1
-    cat  ${file}.tmp1                                         >> ${shpacfifile}
-  echo "                                                  )," >> ${shpacfifile}
+    cat  ${file}.tmp1                                         >> ${cfffilename}
+  echo "                                                  )," >> ${cfffilename}
     rm ${file}.tmp*
   done
-  echo "                             )"                       >> ${shpacfifile}
-  echo ")"                                                    >> ${shpacfifile}
-  echo ""                                                     >> ${shpacfifile}
-#  echo "ProducerSourceSequence = cms.Sequence(generator)"     >> ${shpacfifile}
-  echo "ProductionFilterSequence = cms.Sequence(generator)"   >> ${shpacfifile}
-  echo ""                                                     >> ${shpacfifile}
+  echo "                             )"                       >> ${cfffilename}
+  echo ")"                                                    >> ${cfffilename}
+  echo ""                                                     >> ${cfffilename}
+#  echo "ProducerSourceSequence = cms.Sequence(generator)"     >> ${cfffilename}
+  echo "ProductionFilterSequence = cms.Sequence(generator)"   >> ${cfffilename}
+  echo ""                                                     >> ${cfffilename}
 
 #  cat > sherpa_custom_cff.py << EOF
 #import FWCore.ParameterSet.Config as cms
@@ -119,39 +127,6 @@ function build_python_cfi() {
 #	return(process)
 #EOF
 
-}
-
-
-# function to build a python script for cmsRun
-function build_python_cfg() {
-
-  shpacfgfile=$1  # config file name
-  shpaoutfile=$2  # output root file name
-  shpacfifile=$3  # include file name (for source)
-  shpacfifile=`echo ${shpacfifile} | sed -e 's/\.py//'`
-  shpacfipath=$4  # include file path (for source)
-
-  if [ -e ${shpacfgfile} ]; then rm ${shpacfgfile}; fi
-  touch ${shpacfgfile}
-
-  echo "import FWCore.ParameterSet.Config as cms"                                                  >> ${shpacfgfile}
-  echo ""                                                                                          >> ${shpacfgfile}
-  echo "process = cms.Process(\"runSherpa\")"                                                      >> ${shpacfgfile}
-  echo "process.load('${shpacfipath}/${shpacfifile}')"                                             >> ${shpacfgfile}
-  echo "process.load(\"Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff\")">> ${shpacfgfile}
-  echo "process.maxEvents = cms.untracked.PSet("                                                   >> ${shpacfgfile}
-  echo "    input = cms.untracked.int32(100)"                                                      >> ${shpacfgfile}
-  echo ")"                                                                                         >> ${shpacfgfile}
-  echo "process.randomEngineStateProducer = cms.EDProducer(\"RandomEngineStateProducer\")"	   >> ${shpacfgfile}
-  echo "process.p1 = cms.Path(process.randomEngineStateProducer)"				   >> ${shpacfgfile}
-  echo "process.path = cms.Path(process.generator)"					           >> ${shpacfgfile}
-  echo "process.GEN = cms.OutputModule(\"PoolOutputModule\","                                      >> ${shpacfgfile}
-  echo "    fileName = cms.untracked.string('"${shpaoutfile}"')"                                   >> ${shpacfgfile}
-  echo ")"                                                                                         >> ${shpacfgfile}
-  echo "process.outpath = cms.EndPath(process.GEN)"                                                >> ${shpacfgfile}
-#  echo ""                                                                                         >> ${shpacfgfile}
-#  echo "process.genParticles.abortOnUnknownPDGCode = False"                                       >> ${shpacfgfile}
-  echo "process.schedule = cms.Schedule(process.p1,process.path,process.outpath)"                  >> ${shpacfgfile}
 }
 
 
@@ -265,21 +240,16 @@ cflb=""                                              # custom library file name
 cfcr=""                                              # custom cross section file name
 cfgr=""                                              # custom MI grid file name
 MYSRMPATH="./"                                       # SRM path for storage of results
-#MYCONDITIONS="IDEAL_V11"                             # CMSSW_2_2_X conditions
-MYCONDITIONS="MC_31X_V5"                             # CMSSW_3_1/2_X conditions
-#MYCONDITIONS="STARTUP31X_V4"                         # CMSSW_3_1/2_X conditions
-#MYCONDITIONS="DESIGN_31X_V4"                         # CMSSW_3_1/2_X conditions
 TDIR=TMP
 
 
 # get & evaluate options
-while getopts :i:p:d:m:c:a:D:L:C:G:P:h OPT
+while getopts :i:p:d:m:a:D:L:C:G:P:h OPT
 do
   case $OPT in
   i) datadir=$OPTARG ;;
   p) dataset=$OPTARG ;;
   m) imode=$OPTARG ;;
-  c) MYCONDITIONS=$OPTARG ;;
   a) MYANADIR=$OPTARG ;;
   D) cfdc=$OPTARG ;;
   L) cflb=$OPTARG ;;
@@ -314,7 +284,6 @@ fi
 echo "  -> data card directory '"${datadir}"'"
 echo "  -> dataset name '"${dataset}"'"
 echo "  -> operation mode: '"${imode}"'"
-echo "  -> running conditions: '"${MYCONDITIONS}"'"
 echo "  -> CMSSW user analysis path: '"${MYANADIR}"'"
 
 
@@ -396,26 +365,10 @@ if [ ! "${imode}" = "CRAB" ]; then
 fi
 
 
-# generate & compile pyhton script
-if [ "${imode}" = "LOCAL" ]; then
-#  cd ${MYCMSSWTEST}
-  cd ${MYCMSSWSHPA}
-  shpacfifile="sherpa_cfi.py"
-  build_python_cfi ${shpacfifile}
- rm *.dat
-  mv ${shpacfifile}   ${MYCMSSWPYTH}
-#  mv sherpa_custom_cff.py ${MYCMSSWPYTH}
-  cd ${MYCMSSWTEST}
-  shpacfgfile="sherpa_cfg.py"
-  shpaoutfile="sherpa_out.root"
-  build_python_cfg ${shpacfgfile} ${shpaoutfile} ${shpacfifile} ${MYANADIR}
-  cd ..
-  scramv1 b
-  cd -
-  cd ${HDIR}
-fi
+# initialize variables for python file generation
+spsummd5=""
 
-if [ "${imode}" = "PROD" ]; then
+if [ "${imode}" = "PROD" ] || [ "${imode}" = "LOCAL" ]; then
   shpamstfile="sherpa_"${dataset}"_MASTER.tgz"
   shpamstmd5s="sherpa_"${dataset}"_MASTER.md5"
   shpacfffile="sherpa_"${dataset}"_MASTER_cff.py"
@@ -425,11 +378,10 @@ if [ "${imode}" = "PROD" ]; then
   tar -czf ${shpamstfile} *
 ####
   md5sum ${shpamstfile} > ${shpamstmd5s}
-  summd5=`md5sum   ${shpamstfile} | cut -f1 -d" "` 
-#  echo ${summd5}"  "${shpamstfile} > ${shpamstmd5s}
+  spsummd5=`md5sum ${shpamstfile} | cut -f1 -d" "`
 ####
 
-  build_python_cfi ${shpacfffile} ${dataset} ${summd5}
+  build_python_cff ${imode} ${shpacfffile} ${dataset} ${spsummd5}
 
   mv ${shpamstfile} $HDIR
   mv ${shpamstmd5s} $HDIR
@@ -438,7 +390,6 @@ if [ "${imode}" = "PROD" ]; then
   cd $HDIR
 
   rm -rf $TDIR
-
 
 fi
 

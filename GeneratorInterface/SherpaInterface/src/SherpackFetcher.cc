@@ -21,6 +21,9 @@ SherpackFetcher::SherpackFetcher(edm::ParameterSet const& pset)
 		  else SherpackChecksum=pset.getParameter<std::string>("SherpackChecksum");
 		if (!pset.exists("FetchSherpack")) FetchSherpack=false;
 		  else FetchSherpack=pset.getParameter<bool>("FetchSherpack");
+		if (!pset.exists("SherpaPath")) SherpaPath="";
+		  else SherpaPath=pset.getParameter<std::string>("SherpaPath");
+
 }
 
 int SherpackFetcher::Fetch()
@@ -80,7 +83,7 @@ int SherpackFetcher::Fetch()
   FILE *file = fopen(const_cast<char*>(sherpackunzip.c_str()),"r");
   if( file ) {
 		std::cout << "SherpackFetcher: Decompressed Sherpack exists with name " << sherpackunzip << " starting to untar it"<<std::endl;			
-		spu::Untar(file,"./");
+		spu::Untar(file,SherpaPath.c_str());
   } else {
 		std::cout << "SherpackFetcher: Could not open decompressed Sherpack" << std::endl;
 		return -5;

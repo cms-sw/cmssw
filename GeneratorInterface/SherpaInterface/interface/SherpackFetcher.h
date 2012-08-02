@@ -38,9 +38,10 @@ public:
 private:
 
   std::string SherpaProcess;
-  bool FetchSherpack;
   std::string SherpackLocation;
   std::string SherpackChecksum;
+  bool FetchSherpack;
+  std::string SherpaPath;
   
 };
 
