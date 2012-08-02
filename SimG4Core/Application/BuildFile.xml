@@ -6,6 +6,7 @@
 <use   name="SimDataFormats/Vertex"/>
 <use   name="SimG4Core/Generators"/>
 <use   name="SimG4Core/Geometry"/>
+<use   name="SimG4Core/GFlash"/>
 <use   name="SimG4Core/MagneticField"/>
 <use   name="SimG4Core/Notification"/>
 <use   name="SimG4Core/Physics"/>
