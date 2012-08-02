@@ -7,7 +7,7 @@
 // Package:    PatAlgos
 // Class:      pat::PATTriggerProducer
 //
-// $Id: PATTriggerProducer.h,v 1.16 2011/02/22 18:29:50 vadler Exp $
+// $Id: PATTriggerProducer.h,v 1.17 2012/03/02 23:34:23 wdd Exp $
 //
 /**
   \class    pat::PATTriggerProducer PATTriggerProducer.h "PhysicsTools/PatAlgos/plugins/PATTriggerProducer.h"
@@ -33,7 +33,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger
 
   \author   Volker Adler
-  \version  $Id: PATTriggerProducer.h,v 1.16 2011/02/22 18:29:50 vadler Exp $
+  \version  $Id: PATTriggerProducer.h,v 1.17 2012/03/02 23:34:23 wdd Exp $
 */
 
 
@@ -47,7 +47,6 @@
 
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
 
 namespace pat {
 
@@ -101,8 +100,33 @@ namespace pat {
       bool                       addPathModuleLabels_;   // configuration (optional with default)
       std::vector< std::string > exludeCollections_; // configuration (optional)
 
-  };
+      class ModuleLabelToPathAndFlags {
+          public:
+              struct PathAndFlags { 
+                PathAndFlags(const std::string &name, unsigned int index, bool last, bool l3) : pathName(name), pathIndex(index), lastFilter(last), l3Filter(l3) {}
+                PathAndFlags() {}
+                std::string pathName;
+                unsigned int pathIndex;
+                bool lastFilter;
+                bool l3Filter;
+              };
+              void init(const HLTConfigProvider &conf) ;
+              void clear() { map_.clear(); }
+              const std::vector<PathAndFlags> & operator[](const std::string & filter) const {
+                  std::map<std::string,std::vector<PathAndFlags> >::const_iterator it = map_.find(filter);
+                  return (it == map_.end() ? empty_ : it->second);
+              }
+              void dump() const;
+          private:
+              void insert(const std::string & filter, const std::string &path, unsigned int pathIndex, bool lastFilter, bool l3Filter) {
+                  map_[filter].push_back(PathAndFlags(path, pathIndex, lastFilter, l3Filter));
+              }
+              std::map<std::string,std::vector<PathAndFlags> > map_;
+              const std::vector<PathAndFlags> empty_;
+      };
+      ModuleLabelToPathAndFlags moduleLabelToPathAndFlags_;
 
+  };
 }
 
 

@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.33 2012/03/02 23:34:23 wdd Exp $
+// $Id: PATTriggerProducer.cc,v 1.34 2012/03/16 18:23:28 vadler Exp $
 //
 
 
@@ -31,7 +31,6 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 
 using namespace pat;
 using namespace edm;
@@ -225,6 +224,12 @@ void PATTriggerProducer::beginRun( Run & iRun, const EventSetup & iSetup )
     LogError( "hltConfigSize" ) << "HLT config size error";
   } else hltConfigInit_ = true;
 
+  // Update mapping from filter names to path names
+  if (hltConfigInit_ && changed) {
+     moduleLabelToPathAndFlags_.init(hltConfig_);
+     //moduleLabelToPathAndFlags_.dump();
+  }
+
   // Extract pre-scales
   if ( hltConfigInit_ ) {
     // Start empty
@@ -353,34 +358,31 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
     std::auto_ptr< TriggerPathCollection > triggerPaths( new TriggerPathCollection() );
     triggerPaths->reserve( onlyStandAlone_ ? 0 : sizePaths );
     std::map< std::string, int > moduleStates;
-    std::multimap< std::string, std::pair< std::string, std::pair< bool, bool > > > filterPaths;
 
-    for ( size_t iP = 0; iP < sizePaths; ++iP ) {
-      const std::string namePath( hltConfig_.triggerName( iP ) );
-      const unsigned indexPath( hltConfig_.triggerIndex( namePath ) );
-      const unsigned sizeModulesPath( hltConfig_.size( namePath ) );
+    const std::vector<std::string> & pathNames = hltConfig_.triggerNames();
+    for ( size_t indexPath = 0; indexPath < sizePaths; ++indexPath ) {
+      const std::string & namePath = pathNames[indexPath];
+
       unsigned indexLastFilterPathModules( handleTriggerResults->index( indexPath ) + 1 );
-      unsigned indexLastFilterFilters( sizeFilters );
-      while ( indexLastFilterPathModules > 0 ) {
-        --indexLastFilterPathModules;
-        const std::string labelLastFilterPathModules( hltConfig_.moduleLabel( indexPath, indexLastFilterPathModules ) );
-        indexLastFilterFilters = handleTriggerEvent->filterIndex( InputTag( labelLastFilterPathModules, "", nameProcess_ ) );
-        if ( indexLastFilterFilters < sizeFilters ) {
-          if ( hltConfig_.moduleType( labelLastFilterPathModules ) == "HLTBool" ) continue;
-          break;
-        }
+      const unsigned sizeModulesPath( hltConfig_.size( indexPath ) );
+
+      // outside standalone mode we do care about the index of the last filter, since it goes into the output
+      if (!onlyStandAlone_) {
+          unsigned indexLastFilterFilters( sizeFilters );
+
+          while ( indexLastFilterPathModules > 0 ) {
+            --indexLastFilterPathModules;
+            // vvv--- FIXME could just retrieve once the const std::vector<std::string>
+            const std::string & labelLastFilterPathModules( hltConfig_.moduleLabel( indexPath, indexLastFilterPathModules ) );
+            // vvv--- FIXME this does a linear search that could be replaced with something smarter + avoid the encoe/decode
+            indexLastFilterFilters = handleTriggerEvent->filterIndex( InputTag( labelLastFilterPathModules, "", nameProcess_ ) );
+            if ( indexLastFilterFilters < sizeFilters ) {
+              if ( hltConfig_.moduleType( labelLastFilterPathModules ) == "HLTBool" ) continue;
+              break;
+            }
+          }
       }
-      for ( size_t iM = 0; iM < sizeModulesPath; ++iM ) {
-        const std::string nameFilter( hltConfig_.moduleLabel( indexPath, iM ) );
-        const unsigned indexFilter( handleTriggerEvent->filterIndex( InputTag( nameFilter, "", nameProcess_ ) ) );
-        if ( indexFilter < sizeFilters ) {
-          bool pathLastFilterAccepted( handleTriggerResults->wasrun( indexPath ) && handleTriggerResults->accept( indexPath ) && indexFilter == indexLastFilterFilters );
-          bool pathL3FilterAccepted( handleTriggerResults->wasrun( indexPath ) && handleTriggerResults->accept( indexPath ) && hltConfig_.saveTags( nameFilter ) );
-          std::pair< bool, bool > pathStatusValues( pathLastFilterAccepted, pathL3FilterAccepted );
-          std::pair< std::string, std::pair< bool, bool > > pathAndStatus( namePath, pathStatusValues );
-          filterPaths.insert( std::pair< std::string, std::pair< std::string, std::pair< bool, bool > > >( nameFilter, pathAndStatus ) );
-        }
-      }
+
       if ( ! onlyStandAlone_ ) {
         TriggerPath triggerPath( namePath, indexPath, hltConfig_.prescaleValue( set, namePath ), handleTriggerResults->wasrun( indexPath ), handleTriggerResults->accept( indexPath ), handleTriggerResults->error( indexPath ), indexLastFilterPathModules, hltConfig_.saveTagsModules( namePath ).size() );
         // add module names to path and states' map
@@ -417,7 +419,6 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         }
       }
     }
-
     // Put HLT paths to event
     if ( ! onlyStandAlone_ ) iEvent.put( triggerPaths );
 
@@ -430,7 +431,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
     std::multimap< trigger::size_type, std::string > filterLabels;
 
     for ( size_t iF = 0; iF < sizeFilters; ++iF ) {
-      const std::string nameFilter( handleTriggerEvent->filterTag( iF ).label() );
+      const std::string nameFilter( handleTriggerEvent->filterLabel( iF ) );
       const trigger::Keys & keys  = handleTriggerEvent->filterKeys( iF );
       const trigger::Vids & types = handleTriggerEvent->filterIds( iF );
       assert( types.size() == keys.size() );
@@ -441,20 +442,21 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
     }
 
     // HLT objects
-
     const trigger::Keys & collectionKeys( handleTriggerEvent->collectionKeys() );
     std::map< trigger::size_type, trigger::size_type > newObjectKeys;
-    for ( size_t iO = 0, iC = 0; iO < sizeObjects && iC < handleTriggerEvent->sizeCollections(); ++iO ) {
-
-      TriggerObject triggerObject( handleTriggerEvent->getObjects().at( iO ) );
+    if (! onlyStandAlone_ ) triggerObjects->reserve(sizeObjects);
+    triggerObjectsStandAlone->reserve(sizeObjects);
+    for ( size_t iO = 0, iC = 0, nC = handleTriggerEvent->sizeCollections(); iO < sizeObjects && iC < nC; ++iO ) {
+      const trigger::TriggerObject tobj = handleTriggerEvent->getObjects().at( iO );
+      TriggerObject triggerObject( reco::Particle::PolarLorentzVector(tobj.pt(), tobj.eta(), tobj.phi(), tobj.mass()), tobj.id()  );
       // set collection
       while ( iO >= collectionKeys[ iC ] ) ++iC; // relies on well ordering of trigger objects with respect to the collections
-      triggerObject.setCollection( handleTriggerEvent->collectionTag( iC ) );
+      triggerObject.setCollection( handleTriggerEvent->collectionTagEncoded( iC ) );
       // set filter ID
-      for ( std::multimap< trigger::size_type, int >::iterator iM = objectTypes.begin(); iM != objectTypes.end(); ++iM ) {
-        if ( iM->first == iO ) {
-          triggerObject.addTriggerObjectType( iM->second );
-        }
+      typedef std::multimap< trigger::size_type, int >::const_iterator it_type;
+      for (std::pair<it_type,it_type> trange = objectTypes.equal_range(iO);
+          trange.first != trange.second; ++trange.first) {
+          triggerObject.addTriggerObjectType( trange.first->second );
       }
 
       // stand-alone trigger object
@@ -463,31 +465,29 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
       bool excluded( false );
       for ( size_t iE = 0; iE < exludeCollections_.size(); ++iE ) {
         if ( triggerObjectStandAlone.hasCollection( exludeCollections_.at( iE ) ) ) {
-          newObjectKeys[ iO ] = trigger::size_type( sizeObjects );
+          if ( ! onlyStandAlone_ ) newObjectKeys[ iO ] = trigger::size_type( sizeObjects );
           excluded = true;
           break;
         }
       }
       if ( excluded ) continue;
-      for ( std::multimap< trigger::size_type, std::string >::iterator iM = filterLabels.begin(); iM != filterLabels.end(); ++iM ) {
-        if ( iM->first == iO ) {
-          triggerObjectStandAlone.addFilterLabel( iM->second );
-          for ( std::multimap< std::string, std::pair< std::string, std::pair< bool, bool > > >::iterator iP = filterPaths.begin(); iP != filterPaths.end(); ++iP ) {
-            if ( iP->first == iM->second ) {
-              triggerObjectStandAlone.addPathName( iP->second.first, iP->second.second.first, iP->second.second.second );
-            }
+      typedef std::multimap< trigger::size_type, std::string >::const_iterator it_fl;
+      for (std::pair<it_fl,it_fl> frange = filterLabels.equal_range(iO); frange.first != frange.second; ++frange.first) {
+          triggerObjectStandAlone.addFilterLabel( frange.first->second );
+          const std::vector<ModuleLabelToPathAndFlags::PathAndFlags> & paths = moduleLabelToPathAndFlags_[frange.first->second];
+          for (std::vector<ModuleLabelToPathAndFlags::PathAndFlags>::const_iterator iP = paths.begin(); iP != paths.end(); ++iP) {
+              bool pathFired = handleTriggerResults->wasrun( iP->pathIndex ) && handleTriggerResults->accept( iP->pathIndex );
+              triggerObjectStandAlone.addPathName( iP->pathName, pathFired && iP->lastFilter, pathFired && iP->l3Filter );
           }
-        }
       }
 
       if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
       triggerObjectsStandAlone->push_back( triggerObjectStandAlone );
-      newObjectKeys[ iO ] = trigger::size_type( triggerObjectsStandAlone->size() - 1 );
+      if ( ! onlyStandAlone_ ) newObjectKeys[ iO ] = trigger::size_type( triggerObjectsStandAlone->size() - 1 );
     }
 
     // Re-iterate HLT filters and finally produce them
     // in ordert to account for optionally skipped objects
-
     if ( ! onlyStandAlone_ ) {
       for ( size_t iF = 0; iF < sizeFilters; ++iF ) {
         const std::string nameFilter( handleTriggerEvent->filterTag( iF ).label() );
@@ -533,7 +533,6 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
 
   // map for assignments of objects to conditions
   std::map< L1GtObject, std::vector< unsigned > > l1ObjectTypeMap;
-
   if ( ! tagL1ExtraMu_.label().empty() ) {
     Handle< l1extra::L1MuonParticleCollection > handleL1ExtraMu;
     iEvent.getByLabel( tagL1ExtraMu_, handleL1ExtraMu );
@@ -935,6 +934,41 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
 
 }
 
+void PATTriggerProducer::ModuleLabelToPathAndFlags::init(const HLTConfigProvider &hltConfig_) {
+    clear();
+    const std::vector<std::string> & pathNames = hltConfig_.triggerNames();
+    unsigned int sizePaths = pathNames.size();
+    for ( unsigned int indexPath = 0; indexPath < sizePaths; ++indexPath ) {
+        const std::string & namePath = pathNames[indexPath];
+
+        const std::vector<std::string> & nameModules = hltConfig_.moduleLabels(indexPath);
+        unsigned int sizeModulesPath = nameModules.size();
+        bool lastFilter = true;
+        unsigned int iM = sizeModulesPath;
+        while (iM > 0) {
+            const std::string & nameFilter = nameModules[--iM];
+            //std::cout << "in path " << namePath << " the module " << iM << "/" << sizeModulesPath << " is " << nameFilter << 
+            //    " of type " << hltConfig_.moduleType(nameFilter) << ", EDMType " << hltConfig_.moduleEDMType(nameFilter) << 
+            //    " save tags " << hltConfig_.saveTags(nameFilter) << std::endl;
+            if (hltConfig_.moduleEDMType(nameFilter) != "EDFilter") continue;
+            if (hltConfig_.moduleType(nameFilter)    == "HLTBool")  continue;
+            bool saveTags = hltConfig_.saveTags(nameFilter);
+            insert( nameFilter, namePath, indexPath, lastFilter, saveTags );
+            if (saveTags) lastFilter = false;
+        }
+    }
+}
+
+void PATTriggerProducer::ModuleLabelToPathAndFlags::dump() const {
+    std::map<std::string,std::vector<PathAndFlags> >::const_iterator it = map_.begin();
+    for ( ; it != map_.end(); ++it) {
+        std::cout << "Filter " << it->first << " belongs to " << it->second.size() << " paths: " << std::endl;
+        const std::vector<PathAndFlags> & paths = it->second;
+        for (std::vector<PathAndFlags>::const_iterator it2 = paths.begin(), ed = paths.end(); it2 != ed; ++it2) {
+            std::cout << "   - " << it2->pathName << " (" << it2->pathIndex << ")  last? " << it2->lastFilter << "   l3? " << it2->l3Filter << std::endl;
+        }
+    }
+}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE( PATTriggerProducer );
