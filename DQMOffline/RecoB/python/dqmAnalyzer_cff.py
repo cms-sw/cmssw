@@ -28,7 +28,6 @@ ak5PFJetsJEC = ak5PFJetsL2L3.clone(
 PFJetsFilter = cms.EDFilter("PFJetSelector",
                             src = cms.InputTag("ak5PFJetsJEC"),
                             cut = JetCut,
-                            filter = cms.bool(True)
                             )
 
 jetID = cms.InputTag("PFJetsFilter")
@@ -194,7 +193,7 @@ pfbTagAnalysis = bTagAnalysis.clone(
     )
 pfbTagAnalysis.finalizePlots = False
 pfbTagAnalysis.finalizeOnly = False
-
+pfbTagAnalysis.ptRanges = cms.vdouble(0.0)
 bTagPlotsDATA = cms.Sequence(pfbTagAnalysis)
 
 
@@ -288,5 +287,9 @@ pfbTagValidation.finalizeOnly = False
 pfbTagValidation.jetMCSrc = 'AK5byValAlgo'
 pfbTagValidation.ptRanges = cms.vdouble(0.0)
 pfbTagValidation.etaRanges = cms.vdouble(0.0)
-
+#to run on fastsim
 bTagPlotsMC = cms.Sequence(myPartons*AK5Flavour*pfbTagValidation)
+
+#to run on fullsim in the validation sequence, all histograms produced in the dqmoffline sequence
+pfbTagValidationNoall = pfbTagValidation.clone(flavPlots="noall")
+bTagPlotsMCbcl = cms.Sequence(myPartons*AK5Flavour*pfbTagValidationNoall)

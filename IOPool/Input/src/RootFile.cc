@@ -1806,6 +1806,13 @@ namespace edm {
     } else {
       for(StoredProductProvenanceVector::const_iterator it = provVector_.begin(), itEnd = provVector_.end();
            it != itEnd; ++it) {
+        if(it->parentageIDIndex_ >= parentageIDLookup_.size()) {
+          throw edm::Exception(errors::LogicError)
+            << "ReducedProvenanceReader::ReadProvenance\n"
+            << "The parentage ID index value " << it->parentageIDIndex_ << " is out of bounds.  The maximum value is " << parentageIDLookup_.size()-1 << ".\n"
+            << "This should never happen.\n"
+            << "Please report this to the framework hypernews forum 'hn-cms-edmFramework@cern.ch'.\n";
+          }
         mapper.insertIntoSet(ProductProvenance(BranchID(it->branchID_), parentageIDLookup_[it->parentageIDIndex_]));
       }
     }

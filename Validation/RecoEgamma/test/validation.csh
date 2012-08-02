@@ -28,15 +28,15 @@ setenv CMSSWver1 6_0_0
 setenv CMSSWver2 6_0_0
 setenv OLDRELEASE 6_0_0
 setenv NEWRELEASE 6_0_0
-setenv OLDPRERELEASE pre7
-setenv NEWPRERELEASE pre8
+setenv OLDPRERELEASE pre4
+setenv NEWPRERELEASE pre5
 
 if ( $STARTUP == True) then
-setenv OLDGLOBALTAG PU_START53_V6-v1
-setenv NEWGLOBALTAG PU_START60_V1-v1
+setenv OLDGLOBALTAG PU_START53_V4-v2
+setenv NEWGLOBALTAG PU_START53_V4-v1
 else 
-setenv OLDGLOBALTAG START53_V6-v1
-setenv NEWGLOBALTAG START53_V6-v1
+setenv OLDGLOBALTAG START50_V8-v3
+setenv NEWGLOBALTAG START50_V8-v3
 endif
 
 
@@ -66,7 +66,7 @@ setenv PU True
 #setenv SAMPLE SingleGammaPt10
 #setenv SAMPLE SingleGammaPt35
 ##setenv SAMPLE SingleGammaFlatPt10_100
-setenv SAMPLE H130GGgluonfusion
+#setenv SAMPLE H130GGgluonfusion
 #setenv SAMPLE PhotonJets_Pt_10
 #setenv SAMPLE GammaJets_Pt_80_120
 #setenv SAMPLE QCD_Pt_80_120
@@ -273,13 +273,8 @@ cat > scaledhistosForPhotonsLogScale <<EOF
   hOverEAll
   hOverEBarrel
   hOverEEndcap
-  newhOverEAll
-  newhOverEBarrel
-  newhOverEEndcap
   hcalTowerSumEtConeDR04Barrel
   hcalTowerSumEtConeDR04Endcap
-  hcalTowerBcSumEtConeDR04Barrel
-  hcalTowerBcSumEtConeDR04Endcap
   r9All
   r9Barrel
   r9Endcap
@@ -319,13 +314,8 @@ pEcalRecHitSumEtConeDR04VsEtEndcap
 pHcalTowerSumEtConeDR04VsEtaAll
 pHcalTowerSumEtConeDR04VsEtBarrel
 pHcalTowerSumEtConeDR04VsEtEndcap
-pHcalTowerBcSumEtConeDR04VsEtaAll
-pHcalTowerBcSumEtConeDR04VsEtBarrel
-pHcalTowerBcSumEtConeDR04VsEtEndcap
 pHoverEVsEtaAll
 pHoverEVsEtAll
-pnewHoverEVsEtaAll
-pnewHoverEVsEtAll
 
 
 EOF
@@ -643,17 +633,15 @@ $i->GetYaxis()->SetRangeUser(0.,5.);
 { $i->GetYaxis()->SetRangeUser(0.,20.); 
 } else if ( $i==pEcalRecHitSumEtConeDR04VsEtEndcap ) 
 { $i->GetYaxis()->SetRangeUser(0.,20.);
-} else if ( $i==pHcalTowerSumEtConeDR04VsEtaAll) 
+} else if ( $i==pHcalTowerSumEtConeDR04VsEtaAll   ) 
 { $i->GetYaxis()->SetRangeUser(0.,0.5);
-} else if ( $i==pHcalTowerBcSumEtConeDR04VsEtaAll   ) 
-{ $i->GetYaxis()->SetRangeUser(0.,1.);
-} else if ( $i==pHcalTowerSumEtConeDR04VsEtBarrel ||  $i==pHcalTowerBcSumEtConeDR04VsEtBarrel) 
+} else if ( $i==pHcalTowerSumEtConeDR04VsEtBarrel   ) 
 { $i->GetYaxis()->SetRangeUser(0.,5.);
-} else if ( $i==pHcalTowerSumEtConeDR04VsEtEndcap  || $i==pHcalTowerBcSumEtConeDR04VsEtEndcap ) 
+} else if ( $i==pHcalTowerSumEtConeDR04VsEtEndcap  ) 
 { $i->GetYaxis()->SetRangeUser(0.,5.);
-} else if ( $i==pHoverEVsEtaAll || $i==pnewHoverEVsEtaAll  ) 
+} else if ( $i==pHoverEVsEtaAll  ) 
 { $i->GetYaxis()->SetRangeUser(-0.05,0.05);
-} else if ( $i==pHoverEVsEtAll ||  $i==pnewHoverEVsEtAll ) 
+} else if ( $i==pHoverEVsEtAll  ) 
 { $i->GetYaxis()->SetRangeUser(-0.05,0.05);
 } else  {
 $i->SetMinimum(0.8);

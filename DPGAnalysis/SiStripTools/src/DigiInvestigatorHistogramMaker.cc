@@ -10,13 +10,12 @@
 
 
 DigiInvestigatorHistogramMaker::DigiInvestigatorHistogramMaker():
-  _hitname(), _nbins(500), m_maxLS(100), m_LSfrac(4), _scalefact(), _runHisto(true), _binmax(), _labels(), _nmultvsorbrun(), _nmult() { }
+  _hitname(), _nbins(500), _norbbin(3600), _scalefact(), _runHisto(true), _binmax(), _labels(), _nmultvsorbrun(), _nmult() { }
 
 DigiInvestigatorHistogramMaker::DigiInvestigatorHistogramMaker(const edm::ParameterSet& iConfig):
   _hitname(iConfig.getUntrackedParameter<std::string>("hitName","digi")),
   _nbins(iConfig.getUntrackedParameter<int>("numberOfBins",500)),
-  m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin",100)),
-  m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction",4)),
+  _norbbin(iConfig.getUntrackedParameter<int>("orbitNbin",3600)),
   _scalefact(iConfig.getUntrackedParameter<int>("scaleFactor",5)),
   _runHisto(iConfig.getUntrackedParameter<bool>("runHisto",true)),
   _labels(), _rhm(), _nmultvsorbrun(), _nmult(), _subdirs() 
@@ -62,8 +61,7 @@ void DigiInvestigatorHistogramMaker::book(const std::string dirname) {
   SiStripTKNumbers trnumb;
   
   edm::LogInfo("NumberOfBins") << "Number of Bins: " << _nbins;
-  edm::LogInfo("NumberOfMaxLS") << "Max number of LS before rebinning: " << m_maxLS;
-  edm::LogInfo("StartingLSFrac") << "Fraction of LS in one bin before rebinning: " << m_LSfrac;
+  edm::LogInfo("NumberOfOrbitBins") << "Number of Orbit Bins: " << _norbbin;
   edm::LogInfo("ScaleFactors") << "x-axis range scale factor: " << _scalefact;
   edm::LogInfo("BinMaxValue") << "Setting bin max values";
 
@@ -93,13 +91,13 @@ void DigiInvestigatorHistogramMaker::book(const std::string dirname) {
     if(_subdirs[i]) {
       sprintf(name,"n%sdigi",slab.c_str());
       sprintf(title,"%s %s multiplicity",slab.c_str(),_hitname.c_str());
-      _nmult[i] = _subdirs[i]->make<TH1F>(name,title,_nbins,0.,(1+_binmax[i]/(_scalefact*_nbins))*_nbins);
+      _nmult[i] = _subdirs[i]->make<TH1F>(name,title,_nbins,0.,_binmax[i]/(_scalefact*_nbins)*_nbins);
       _nmult[i]->GetXaxis()->SetTitle("Number of Hits");    _nmult[i]->GetYaxis()->SetTitle("Events");
       
       if(_runHisto) {
 	sprintf(name,"n%sdigivsorbrun",slab.c_str());
 	sprintf(title,"%s %s mean multiplicity vs orbit",slab.c_str(),_hitname.c_str());
-	_nmultvsorbrun[i] = _rhm.makeTProfile(name,title,m_LSfrac*m_maxLS,0,m_maxLS*262144);
+	_nmultvsorbrun[i] = _rhm.makeTProfile(name,title,_norbbin,0.5,11223*_norbbin+0.5);
       }
 
     }

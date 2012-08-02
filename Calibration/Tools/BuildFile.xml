@@ -1,7 +1,6 @@
 <use   name="Utilities/Timing"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="CondFormats/EcalObjects"/>
 <use   name="DataFormats/EcalRecHit"/>
 <use   name="DataFormats/EgammaReco"/>
 <use   name="DataFormats/CaloTowers"/>

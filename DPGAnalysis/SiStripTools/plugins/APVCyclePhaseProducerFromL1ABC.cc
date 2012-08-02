@@ -30,6 +30,9 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -44,8 +47,6 @@
 
 #include "DataFormats/Scalers/interface/L1AcceptBunchCrossing.h"
 #include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
-
-#include "DPGAnalysis/SiStripTools/interface/RunHistogramManager.h"
 
 //
 // class decleration
@@ -70,12 +71,9 @@ private:
   const std::vector<int> _defphases;
   const int _orbitoffsetSOR; 
   const bool _wantHistos;
-
-  RunHistogramManager m_rhm;
-
-  TH1F** _hbx;
-  TH1F** _hdbx;
-  TH1F** _hdorbit;
+  TH1F* _hbx;
+  TH1F* _hdbx;
+  TH1F* _hdorbit;
   const unsigned int _firstgoodrun;
   std::map<unsigned int, long long> _offsets;
   long long _curroffset;
@@ -101,7 +99,6 @@ APVCyclePhaseProducerFromL1ABC::APVCyclePhaseProducerFromL1ABC(const edm::Parame
   _defphases(iConfig.getParameter<std::vector<int> >("defaultPhases")),
   _orbitoffsetSOR(iConfig.getParameter<int>("StartOfRunOrbitOffset")),
   _wantHistos(iConfig.getUntrackedParameter<bool>("wantHistos",false)),
-  m_rhm(),
   _hbx(0),_hdbx(0),_hdorbit(0),_firstgoodrun(110878),
   _offsets(), _curroffset(0), _curroffevent(0)
 {
@@ -109,13 +106,6 @@ APVCyclePhaseProducerFromL1ABC::APVCyclePhaseProducerFromL1ABC(const edm::Parame
   produces<APVCyclePhaseCollection,edm::InEvent>();
 
    //now do what ever other initialization is needed
-
-  if(_wantHistos) {
-    _hbx = m_rhm.makeTH1F("l1abcbx","BX number from L1ABC",4096,-0.5,4095.5);
-    _hdbx = m_rhm.makeTH1F("dbx","BX number difference",4096*2-1,-4095.5,4095.5);
-    _hdorbit = m_rhm.makeTH1F("dorbit","Orbit Number difference",9999,-4999.5,4999.5);
-  }
-
 
 }
 
@@ -147,20 +137,21 @@ APVCyclePhaseProducerFromL1ABC::beginRun(edm::Run& iRun, const edm::EventSetup& 
 
   if(_wantHistos) {
 
-    m_rhm.beginRun(iRun);
+    edm::Service<TFileService> tfserv;
 
-    if(_hbx && *_hbx) {
-      (*_hbx)->GetXaxis()->SetTitle("BX");     (*_hbx)->GetYaxis()->SetTitle("Events"); 
-    }
+    char dirname[300];
+    sprintf(dirname,"run_%d",iRun.run());
+    TFileDirectory subrun = tfserv->mkdir(dirname);
 
-    if(_hdbx && *_hdbx) {
-      (*_hdbx)->GetXaxis()->SetTitle("#DeltaBX");     (*_hdbx)->GetYaxis()->SetTitle("Events"); 
-    }
+    _hbx = subrun.make<TH1F>("l1abcbx","BX number from L1ABC",4096,-0.5,4095.5);
+    _hbx->GetXaxis()->SetTitle("BX");     _hbx->GetYaxis()->SetTitle("Events"); 
 
-    if(_hdorbit && *_hdorbit) {
-      (*_hdorbit)->GetXaxis()->SetTitle("#Deltaorbit");     (*_hdorbit)->GetYaxis()->SetTitle("Events"); 
-    }
-
+    _hdbx = subrun.make<TH1F>("dbx","BX number difference",4096*2-1,-4095.5,4095.5);
+    _hdbx->GetXaxis()->SetTitle("#DeltaBX");     _hdbx->GetYaxis()->SetTitle("Events"); 
+    
+    _hdorbit = subrun.make<TH1F>("dorbit","Orbit Number difference",9999,-4999.5,4999.5);
+    _hdorbit->GetXaxis()->SetTitle("#Deltaorbit");     _hdorbit->GetYaxis()->SetTitle("Events"); 
+    
   }
 
   if(iRun.run() < _firstgoodrun) {
@@ -215,9 +206,9 @@ APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventSetu
 	  bxoffset = iEvent.bunchCrossing() - l1abc->bunchCrossing();
 	  
 	  if(_wantHistos) {
-	    if(_hbx && *_hbx) (*_hbx)->Fill(l1abc->bunchCrossing());
-	    if(_hdbx && *_hdbx) (*_hdbx)->Fill(bxoffset);
-	    if(_hdorbit && *_hdorbit) (*_hdorbit)->Fill(orbitoffset);
+	    _hbx->Fill(l1abc->bunchCrossing());
+	    _hdbx->Fill(bxoffset);
+	    _hdorbit->Fill(orbitoffset);
 	  }
 	}
 	else {

@@ -11,6 +11,4 @@
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="RecoJets/JetAlgorithms"/>
 <use   name="HLTrigger/HLTcore"/>
-<use   name="CommonTools/UtilAlgos"/>
-<use   name="CommonTools/RecoAlgos" />
 <flags   EDM_PLUGIN="1"/>

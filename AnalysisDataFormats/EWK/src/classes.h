@@ -15,8 +15,6 @@
 #include "DataFormats/Common/interface/BaseVectorHolder.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/PtrVector.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Photon.h"
 
 #include <vector>
 #include <map>
@@ -36,7 +34,7 @@ namespace {
      edm::RefToBaseVector<reco::WMuNuCandidate> rtbvm;
      edm::Wrapper<edm::RefToBaseVector<reco::WMuNuCandidate> > rtbvm_w;
      edm::reftobase::BaseVectorHolder<reco::WMuNuCandidate> *bvhm_p;
-
+ 
 
 
      std::vector<reco::WMuNuCandidatePtr> v2;
@@ -52,26 +50,6 @@ namespace {
      edm::Wrapper<edm::RefToBaseVector<reco::WMuNuCandidatePtr> > rtbvm_w2;
      edm::reftobase::BaseVectorHolder<reco::WMuNuCandidatePtr> *bvhm_p2;
 
-     edm::Ptr<pat::Muon> p_m7;
-     edm::RefToBaseVector<pat::Muon> rtbv_m_7;
-     edm::PtrVector<pat::Muon> pv_m7;
-     edm::Wrapper<edm::PtrVector<pat::Muon> > w_pv_m7;
-     edm::Wrapper<edm::RefToBaseVector<pat::Muon> > w_rtbv_m_7;
-     edm::reftobase::BaseVectorHolder<pat::Muon> *bvh_m_7;
-     
-    edm::Ptr<pat::Photon> p_ph7;
-    edm::RefToBaseVector<pat::Photon> rtbv_ph_7;
-    edm::PtrVector<pat::Photon> pv_ph7;
-    edm::Wrapper<edm::PtrVector<pat::Photon> > w_pv_ph7;
-    edm::Wrapper<edm::RefToBaseVector<pat::Photon> > w_rtbv_ph_7;
-    edm::reftobase::BaseVectorHolder<pat::Photon> *bvh_ph_7;
-
-
-//      std::vector<edm::Ref<pat::MuonCollection> > v_r_mc_7;
-//      edm::Wrapper<std::vector<edm::Ref<pat::MuonCollection> > > w_v_r_mc_7;
-//      std::vector<edm::Ref<std::vector<pat::Muon>,pat::Muon,edm::refhelper::FindUsingAdvance<std::vector<pat::Muon>,pat::Muon> > > c_7;
-//      edm::Wrapper<std::vector<edm::Ref<std::vector<pat::Muon>,pat::Muon,edm::refhelper::FindUsingAdvance<std::vector<pat::Muon>,pat::Muon> > > > d_7;
-
-
+ 
   };
-}
+}  
