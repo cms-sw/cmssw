@@ -481,6 +481,10 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "AS_TOFIs"; st.AS_TOFIs = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50, 1, 5, 50, 0, dEdxS_UpLim);
    Name = "AS_TOFIm"; st.AS_TOFIm = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50, 1, 5, 50, 0, dEdxM_UpLim);
 
+   Name = "H_D_DzSidebands"; st.H_D_DzSidebands = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, DzRegions, 0, DzRegions); st.H_D_DzSidebands->Sumw2();
+   Name = "H_D_DzSidebands_DT"; st.H_D_DzSidebands_DT = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, DzRegions, 0, DzRegions); st.H_D_DzSidebands_DT->Sumw2();
+   Name = "H_D_DzSidebands_CSC"; st.H_D_DzSidebands_CSC = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, DzRegions, 0, DzRegions); st.H_D_DzSidebands_CSC->Sumw2();
+
    //Background prediction histograms don't need to be made for signal or individual MC samples
    if(!isSignal) {
    Name = "H_A"; st.H_A = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_A->Sumw2();
@@ -570,10 +574,6 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "Pred_Mass_Flip"; st.Pred_Mass_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, MassNBins,0,MassHistoUpperBound); st.Pred_Mass_Flip->Sumw2();
    Name = "Pred_MassTOF_Flip"; st.Pred_MassTOF_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, MassNBins,0,MassHistoUpperBound); st.Pred_MassTOF_Flip->Sumw2();
    Name = "Pred_MassComb_Flip"; st.Pred_MassComb_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, MassNBins,0,MassHistoUpperBound); st.Pred_MassComb_Flip->Sumw2();
-
-   Name = "H_D_DzSidebands"; st.H_D_DzSidebands = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, DzRegions, 0, DzRegions); st.H_D_DzSidebands->Sumw2();
-   Name = "H_D_DzSidebands_DT"; st.H_D_DzSidebands_DT = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, DzRegions, 0, DzRegions); st.H_D_DzSidebands_DT->Sumw2();
-   Name = "H_D_DzSidebands_CSC"; st.H_D_DzSidebands_CSC = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, DzRegions, 0, DzRegions); st.H_D_DzSidebands_CSC->Sumw2();
 
    Name = "CtrlPt_S1_Is"; st.CtrlPt_S1_Is = new TH1D(Name.c_str(), Name.c_str(),200,0,dEdxS_UpLim); st.CtrlPt_S1_Is->Sumw2();
    Name = "CtrlPt_S2_Is"; st.CtrlPt_S2_Is = new TH1D(Name.c_str(), Name.c_str(),200,0,dEdxS_UpLim); st.CtrlPt_S2_Is->Sumw2();
