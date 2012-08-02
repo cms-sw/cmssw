@@ -644,7 +644,6 @@ void FastTimerService::preModule(edm::ModuleDescription const & module) {
   // this is ever called only if m_enable_timing_modules = true
   assert(m_enable_timing_modules);
 
-#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
   // time each module
   start(m_timer_module);
 
@@ -654,20 +653,6 @@ void FastTimerService::preModule(edm::ModuleDescription const & module) {
     // measure the time spent between the beginning of the path and the execution of the first module
     m_timer_first_module = m_timer_module.first;
   } 
-#else
-  if (m_is_first_module) {
-    m_is_first_module = false;
-
-    // track the start of the first module of the path
-    start(m_timer_module);
-
-    // measure the time spent between the beginning of the path and the execution of the first module
-    m_timer_first_module = m_timer_module.first;
-  } else {
-    // use the end time of the previous module (assume no inter-module overhead)
-    m_timer_module.first = m_timer_module.second;
-  }
-#endif
 }
 
 void FastTimerService::postModule(edm::ModuleDescription const & module) {
