@@ -1532,7 +1532,7 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires, edm
 	LocalPoint extrapolatedPointLocal = cscchamber->toLocal(extrapolatedPoint[int(cscchamberCenter.z())]);
 	const CSCLayer *layer_p = cscchamber->layer(1);//layer 1
 	const CSCLayerGeometry *layerGeom = layer_p->geometry ();
-	const std::vector<float> layerBounds = layerGeom->parameters ();
+	const std::array<const float, 4> & layerBounds = layerGeom->parameters ();
 	float shiftFromEdge = 15.;//cm
 	float shiftFromDeadZone = 10.;
 	// is the extrapolated point within a sensitive region
@@ -1642,7 +1642,7 @@ void CSCValidation::histoEfficiency(TH1F *readHisto, TH1F *writeHisto){
   }
 }
 
-bool CSCValidation::withinSensitiveRegion(LocalPoint localPos, const std::vector<float> layerBounds, int station, int ring, float shiftFromEdge, float shiftFromDeadZone){
+bool CSCValidation::withinSensitiveRegion(LocalPoint localPos, const std::array<const float, 4> & layerBounds, int station, int ring, float shiftFromEdge, float shiftFromDeadZone){
 //---- check if it is in a good local region (sensitive area - geometrical and HV boundaries excluded) 
   bool pass = false;
 

@@ -197,7 +197,7 @@ private:
     double extrapolatedPosition = initPosition + initDirection*parameterOfTheLine;
     return extrapolatedPosition; 
   }
-  bool withinSensitiveRegion(LocalPoint localPos, const std::vector<float> layerBounds, int station, int ring, float shiftFromEdge, float shiftFromDeadZone);
+    bool withinSensitiveRegion(LocalPoint localPos, const std::array<const float, 4> & layerBounds, int station, int ring, float shiftFromEdge, float shiftFromDeadZone);
 
 
   // counters
