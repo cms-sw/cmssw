@@ -1,14 +1,14 @@
 #ifndef CommonTools_Utils_findMethod_h
 #define CommonTools_Utils_findMethod_h
-#include "Reflex/Member.h"
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/MemberWithDict.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include <string>
 #include "CommonTools/Utils/src/AnyMethodArgument.h"
 
 namespace reco {
   // second pair member is true if a reference is found 
   // of type edm::Ref, edm::RefToBase or edm::Ptr
-  std::pair<Reflex::Member, bool> findMethod(const Reflex::Type & type,
+  std::pair<edm::MemberWithDict, bool> findMethod(const edm::TypeWithDict & type,
 						   const std::string & name,
 						   const std::vector<reco::parser::AnyMethodArgument> &args,
                                                    std::vector<reco::parser::AnyMethodArgument> &fixuppedArgs,

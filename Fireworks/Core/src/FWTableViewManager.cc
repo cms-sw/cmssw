@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.21 2011/03/09 15:32:13 amraktad Exp $
+// $Id: FWTableViewManager.cc,v 1.22 2012/06/26 22:13:04 wmtan Exp $
 //
 
 // system include files
@@ -18,7 +18,7 @@
 
 #include "TEveManager.h"
 #include "TClass.h"
-#include "Reflex/Base.h"
+#include "FWCore/Utilities/interface/BaseWithDict.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWConfiguration.h"
@@ -201,16 +201,17 @@ FWTableViewManager::TableHandle::column(const char *name, int precision, const c
     table description for a given type @a key.
  */
 FWTableViewManager::TableSpecs::iterator 
-FWTableViewManager::tableFormatsImpl(const Reflex::Type &key) 
+FWTableViewManager::tableFormatsImpl(const edm::TypeWithDict &key) 
 {
-   TableSpecs::iterator ret = m_tableFormats.find(key.Name(Reflex::SCOPED));
+   TableSpecs::iterator ret = m_tableFormats.find(key.name(edm::TypeNameHandling::Scoped));
    if (ret != m_tableFormats.end())
       return ret;
 
    // if there is no exact match for the type, try the base classes
-   for (Reflex::Base_Iterator it = key.Base_Begin(); it != key.Base_End(); ++it) 
+   edm::TypeBases bases(key);
+   for (auto const& base : bases)  
    {
-      ret = tableFormatsImpl(it->ToType());
+      ret = tableFormatsImpl(edm::BaseWithDict(base).toType());
       if (ret != m_tableFormats.end()) 
          return ret;
    }
@@ -225,16 +226,21 @@ FWTableViewManager::tableFormatsImpl(const Reflex::Type &key)
     - If the recursion succeeds return the specific table.
     - Otherwise, create a dummy table with most common properties.
 
-    @a key the Reflex::Type of the collection for which we want
+    @a key the edm::TypeWithDict of the collection for which we want
            to have the key definition.
 
     FIXME: how about actually inspecting the type and show all the int and floats 
            if no description is found??
   */
 FWTableViewManager::TableSpecs::iterator
-FWTableViewManager::tableFormats(const Reflex::Type &key) 
+FWTableViewManager::tableFormats(const edm::TypeWithDict &key) 
 {
-   std::string keyType = key.Name(Reflex::SCOPED);
+   static const std::string isint("int");
+   static const std::string isbool("bool");
+   static const std::string isdouble("double");
+   static const std::string isfloat("float");
+
+   std::string keyType = key.name(edm::TypeNameHandling::Scoped);
 
    TableSpecs::iterator ret = m_tableFormats.find(keyType);
 
@@ -247,29 +253,29 @@ FWTableViewManager::tableFormats(const Reflex::Type &key)
       return ret;
 
    TableHandle handle = table(keyType.c_str());
-   for (Reflex::Member_Iterator mi = key.Member_Begin(),
-                                      me = key.Member_End();
-        mi != me; ++mi)
+   edm::TypeMembers members(key);
+   for (auto const& member : members)
    {
-      if (mi->FunctionParameterSize())
+      edm::MemberWithDict m(member);
+      if (m.functionParameterSize())
          continue;
-      if (!mi->IsPublic())
+      if (!m.isPublic())
          continue;
-      if (!mi->IsConst())
+      if (!m.isConst())
          continue;
-      if (mi->TypeOf().ReturnType().Name() == "int")
-         handle.column(mi->Name().c_str(), TableEntry::INT);
-      else if (mi->TypeOf().ReturnType().Name() == "bool")
-         handle.column(mi->Name().c_str(), TableEntry::BOOL);
-      else if (mi->TypeOf().ReturnType().Name() == "double")
-         handle.column(mi->Name().c_str(), 5);
-      else if (mi->TypeOf().ReturnType().Name() == "float")
-         handle.column(mi->Name().c_str(), 3);
+      if (m.typeOf().returnType().name() == isint)
+         handle.column(m.name().c_str(), TableEntry::INT);
+      else if (m.typeOf().returnType().name() == isbool)
+         handle.column(m.name().c_str(), TableEntry::BOOL);
+      else if (m.typeOf().returnType().name() == isdouble)
+         handle.column(m.name().c_str(), 5);
+      else if (m.typeOf().returnType().name() == isfloat)
+         handle.column(m.name().c_str(), 3);
    }
    return m_tableFormats.find(keyType);
 }
 
-/** Helper function which uses TClass rather than Reflex::Type.
+/** Helper function which uses TClass rather than edm::TypeWithDict.
 
     Otherwise identical to FWTableViewManager::tableFormats(const TClass &key).
 
@@ -277,7 +283,7 @@ FWTableViewManager::tableFormats(const Reflex::Type &key)
 FWTableViewManager::TableSpecs::iterator 
 FWTableViewManager::tableFormats(const TClass &key) 
 {
-   return tableFormats(Reflex::Type::ByName(key.GetName()));
+   return tableFormats(edm::TypeWithDict::byName(key.GetName()));
 }
 
 class FWViewBase*

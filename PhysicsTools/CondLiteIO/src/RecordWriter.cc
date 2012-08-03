@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Dec  9 17:01:03 CST 2009
-// $Id: RecordWriter.cc,v 1.3 2010/02/19 21:13:46 chrjones Exp $
+// $Id: RecordWriter.cc,v 1.4 2012/06/26 20:40:32 wmtan Exp $
 //
 
 // system include files
@@ -16,8 +16,8 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TBranch.h"
-#include "Reflex/Type.h"
-#include "Reflex/Object.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
 
 // user include files
 #include "PhysicsTools/CondLiteIO/interface/RecordWriter.h"
@@ -82,16 +82,16 @@ RecordWriter::update(const void* iData, const std::type_info& iType, const char*
       //first request
       DataBuffer buffer;
       buffer.pBuffer_=iData;
-      Reflex::Type t = Reflex::Type::ByTypeInfo(iType);
-      assert(t != Reflex::Type());
+      edm::TypeWithDict t(iType);
+      assert(bool(t));
       
-      std::string className = t.Name(Reflex::SCOPED|Reflex::FINAL);
+      std::string className = t.name(edm::TypeNameHandling::FinalScoped);
       
       //now find actual type
-      Reflex::Object o(t,const_cast<void*>(iData));
-      Reflex::Type trueType = o.DynamicType();
-      buffer.trueType_ = edm::TypeIDBase(trueType.TypeInfo());
-      std::string trueClassName = trueType.Name(Reflex::SCOPED|Reflex::FINAL);
+      edm::ObjectWithDict o(t,const_cast<void*>(iData));
+      edm::TypeWithDict trueType(o.dynamicType());
+      buffer.trueType_ = edm::TypeIDBase(trueType.typeInfo());
+      std::string trueClassName = trueType.name(edm::TypeNameHandling::FinalScoped);
       
       buffer.branch_ = tree_->Branch((fwlite::format_type_to_mangled(className)+"__"+label).c_str(),
                                      trueClassName.c_str(),
@@ -100,10 +100,10 @@ RecordWriter::update(const void* iData, const std::type_info& iType, const char*
       itFound = idToBuffer_.find(std::make_pair(edm::TypeIDBase(iType),
          std::string(iLabel)));
    }
-   Reflex::Type t = Reflex::Type::ByTypeInfo(iType);
-   Reflex::Object o(t,const_cast<void*>(iData));
-   Reflex::Type trueType = o.DynamicType();
-   assert(edm::TypeIDBase(trueType.TypeInfo())==itFound->second.trueType_);
+   edm::TypeWithDict t(iType);
+   edm::ObjectWithDict o(t,const_cast<void*>(iData));
+   edm::TypeWithDict trueType(o.dynamicType());
+   assert(edm::TypeIDBase(trueType.typeInfo())==itFound->second.trueType_);
    itFound->second.branch_->SetAddress(&(itFound->second.pBuffer_));
    itFound->second.pBuffer_ = iData;
 }

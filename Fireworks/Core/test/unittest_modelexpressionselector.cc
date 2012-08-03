@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 10:19:07 EST 2008
-// $Id: unittest_modelexpressionselector.cc,v 1.5 2010/07/26 15:13:13 matevz Exp $
+// $Id: unittest_modelexpressionselector.cc,v 1.6 2012/06/26 22:13:04 wmtan Exp $
 //
 
 // system include files
@@ -20,6 +20,7 @@
 // user include files
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
 #define private public
 #include "Fireworks/Core/interface/FWEventItem.h"
 #undef private
@@ -51,7 +52,7 @@ namespace  {
       ///override if id of an object should be different than the index
       //virtual std::string idForIndex(int iIndex) const;
       // ---------- member functions ---------------------------
-      virtual void setData(const Reflex::Object& ) {}
+      virtual void setData(const edm::ObjectWithDict& ) {}
       virtual void reset(){}
       
    private:
@@ -83,7 +84,7 @@ BOOST_AUTO_TEST_CASE( modelexpressionselector )
    
    FWEventItem item(&context, 0,accessor,pObj);
    //hack to force update of data
-   Reflex::Object dummy;
+   edm::ObjectWithDict dummy;
    item.setData(dummy);
    
    

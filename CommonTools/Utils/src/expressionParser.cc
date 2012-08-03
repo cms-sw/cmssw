@@ -4,7 +4,7 @@
 
 using namespace reco::parser;
 
-bool reco::parser::expressionParser(const Reflex::Type &t, const std::string & value, ExpressionPtr & expr, bool lazy) {
+bool reco::parser::expressionParser(const edm::TypeWithDict &t, const std::string & value, ExpressionPtr & expr, bool lazy) {
     using namespace boost::spirit::classic;
     Grammar grammar(expr, t, lazy);
     bool returnValue = false;

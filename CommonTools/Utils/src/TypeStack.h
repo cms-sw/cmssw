@@ -2,19 +2,19 @@
 #define CommonTools_Utils_TypeStack_h
 /* \class reco::parser::TypeStack
  *
- * Stack of reflex methods
+ * Stack of types
  *
  * \author  Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
  */
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include <vector>
 
 namespace reco {
   namespace parser {
-    typedef std::vector<Reflex::Type> TypeStack;
+    typedef std::vector<edm::TypeWithDict> TypeStack;
   }
 }
 

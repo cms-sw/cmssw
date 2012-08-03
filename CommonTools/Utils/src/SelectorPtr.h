@@ -2,12 +2,12 @@
 #define Parser_SelectorPtr_h
 /* \class reco::parser::SelectorPtr
  *
- * Shared pointer to Reflex selector
+ * Shared pointer to selector
  *
  * \author original version: Chris Jones, Cornell, 
- *         adapted to Reflex by Luca Lista, INFN
+ *         adapted by Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
  */
 #include <boost/shared_ptr.hpp>

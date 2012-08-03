@@ -2,7 +2,7 @@
 #define PhysicsTools_FWLite_ScannerHelpers_h
 
 #include <string>
-#include <Reflex/Type.h>
+#include <FWCore/Utilities/interface/TypeWithDict.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <TProfile.h>
@@ -19,35 +19,35 @@
 #endif
 
 namespace helper {
-    /** Class helper::Parser has collection of useful static methods related to StringParser that can be exported to CINT via Reflex dictionaries.
+    /** Class helper::Parser has collection of useful static methods related to StringParser that can be exported to CINT via dictionaries.
      *  It's mosly meant to be used through the helper::ScannerBase class. */    
     class Parser {
         public:
-            /// Empty constructor, necessary for Reflex, useless
+            /// Empty constructor, necessary for Root, useless
             Parser() {}
             /// Parse an expression for a given object type (using lazy parsing when resolving methods)
-            static reco::parser::ExpressionPtr  makeExpression(const std::string &expr, const Reflex::Type &type) ;
+            static reco::parser::ExpressionPtr  makeExpression(const std::string &expr, const edm::TypeWithDict &type) ;
             /// Parse an expression for a given object type (using lazy parsing when resolving methods)
-            static reco::parser::SelectorPtr    makeSelector(const std::string &expr, const Reflex::Type &type) ;
+            static reco::parser::SelectorPtr    makeSelector(const std::string &expr, const edm::TypeWithDict &type) ;
             /// Perform the type deduction form edm::Wrapper<C> to C::value_type and resolves typedefs
-            static Reflex::Type elementType(const Reflex::Type &wrapperType) ;
+            static edm::TypeWithDict elementType(const edm::TypeWithDict &wrapperType) ;
 
             //--- we define also dictionaries for these two trivial functions that should be callable even by CINT
-            //    because otherwise sometimes CINT crashes even on the creation and destruction of Reflex::Object
-            /// Make a Reflex::Object(type, obj) and pass it to the selector
-            static bool   test(const reco::parser::SelectorPtr &sel, const Reflex::Type type, const void * obj);
-            /// Make a Reflex::Object(type, obj) and pass it to the expression
-            static double eval(const reco::parser::ExpressionPtr &sel, const Reflex::Type type, const void * obj);
+            //    because otherwise sometimes CINT crashes even on the creation and destruction of edm::ObjectWithDict
+            /// Make a edm::ObjectWithDict(type, obj) and pass it to the selector
+            static bool   test(const reco::parser::SelectorPtr &sel, const edm::TypeWithDict type, const void * obj);
+            /// Make a edm::ObjectWithDict(type, obj) and pass it to the expression
+            static double eval(const reco::parser::ExpressionPtr &sel, const edm::TypeWithDict type, const void * obj);
     };
 
-    /** Class helper::ScannerBase: tool to print or histogram proprieties of an object using Reflex,
-     *  The class is generic, but each instance is restricted to the Reflex type of the objects to inspect, fixed at construction time. */
+    /** Class helper::ScannerBase: tool to print or histogram proprieties of an object using the dictionary,
+     *  The class is generic, but each instance is restricted to the type of the objects to inspect, fixed at construction time. */
     class ScannerBase {
         public:
-            /// Empty constructor, necessary for Reflex, DO NOT USE
+            /// Empty constructor, necessary for Root, DO NOT USE
             ScannerBase() {}
             /// Constructor taking as argument the type of the individual object passed to the scanner
-            ScannerBase(const Reflex::Type &objType) : objType_(objType), cuts_(1), ignoreExceptions_(false) {}
+            ScannerBase(const edm::TypeWithDict &objType) : objType_(objType), cuts_(1), ignoreExceptions_(false) {}
 
             /// Add an expression to be evaluated on the objects
             /// Returns false if the parsing failed
@@ -100,7 +100,7 @@ namespace helper {
             /// If left to the default value, false, for each exception a printout is done.
             void setIgnoreExceptions(bool ignoreThem) { ignoreExceptions_ = ignoreThem; }
         private:
-            Reflex::Type objType_;
+            edm::TypeWithDict objType_;
             std::vector<reco::parser::ExpressionPtr> exprs_;
 
             /// The first one is the default cut, the others are the extra ones

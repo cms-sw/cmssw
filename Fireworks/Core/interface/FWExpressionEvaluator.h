@@ -16,12 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:51 PST 2008
-// $Id: FWExpressionEvaluator.h,v 1.2 2009/05/01 22:30:41 jmuelmen Exp $
+// $Id: FWExpressionEvaluator.h,v 1.3 2012/06/26 22:13:03 wmtan Exp $
 //
 
 // system include files
 #include <string>
-#include <Reflex/Type.h>
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 // user include files
 #include "CommonTools/Utils/src/SelectorPtr.h"
@@ -61,7 +61,7 @@ private:
    std::string m_expression;
    std::string m_className;
    reco::parser::ExpressionPtr m_expr;
-   Reflex::Type m_type;
+   edm::TypeWithDict m_type;
 };
 
 #endif

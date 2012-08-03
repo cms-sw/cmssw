@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.58 2011/11/18 02:57:08 amraktad Exp $
+// $Id: FWEventItem.cc,v 1.59 2012/06/26 22:09:35 wmtan Exp $
 //
 
 // system include files
@@ -66,26 +66,26 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
    m_productInstanceLabel(iDesc.productInstanceLabel()),
    m_processName(iDesc.processName()),
    m_event(0),
-   m_interestingValueGetter(Reflex::Type::ByTypeInfo(*(m_accessor->modelType()->GetTypeInfo())), m_purpose),
+   m_interestingValueGetter(edm::TypeWithDict(*(m_accessor->modelType()->GetTypeInfo())), m_purpose),
    m_filter(iDesc.filterExpression(),""),
    m_printedErrorThisEvent(false),
    m_isSelected(false),
    m_proxyBuilderConfig(0)
 {
    //assert(m_type->GetTypeInfo());
-   //Reflex::Type dataType( Reflex::Type::ByTypeInfo(*(m_type->GetTypeInfo())));
-   //assert(dataType != Reflex::Type() );
+   //edm::TypeWithDict dataType(*(m_type->GetTypeInfo()));
+   //assert(dataType != edm::TypeWithDict() );
    //
-   //std::string dataTypeName = dataType.Name(Reflex::SCOPED);
+   //std::string dataTypeName = dataType.name();
    //if (dataTypeName[dataTypeName.size() -1] == '>')
    //   dataTypeName += " ";
    //std::string wrapperName = "edm::Wrapper<" + dataTypeName + ">";
    //
    //fwLog(fwlog::kDebug) << "Looking for the wrapper name" 
    //                    << wrapperName << std::endl;
-   //m_wrapperType = Reflex::Type::ByName(wrapperName);
+   //m_wrapperType = edm::TypeWithDict::byName(wrapperName);
    //
-   //assert(m_wrapperType != Reflex::Type());
+   //assert(m_wrapperType != edm::TypeWithDict());
    if(!m_accessor->isCollection()) {
       m_itemInfos.reserve(1);
    }
@@ -405,7 +405,8 @@ FWEventItem::data(const std::type_info& iInfo) const
    
    // Retrieve the data from the event.
    edm::InputTag tag(m_moduleLabel, m_productInstanceLabel, m_processName);
-   edm::FWGenericHandle handle(Reflex::Type::ByTypeInfo(iInfo));
+   edm::TypeWithDict type(iInfo);
+   edm::FWGenericHandle handle(type);
    try
    {
       m_event->getByLabel(tag, handle);
@@ -427,7 +428,7 @@ FWEventItem::data(const std::type_info& iInfo) const
 }
 
 void
-FWEventItem::setData(const Reflex::Object& iData) const
+FWEventItem::setData(const edm::ObjectWithDict& iData) const
 {
    m_accessor->setData(iData);
    //std::cout <<"size "<<m_accessor->size()<<std::endl;

@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWTableViewManager.h,v 1.8 2010/09/02 18:10:10 amraktad Exp $
+// $Id: FWTableViewManager.h,v 1.9 2010/11/04 22:38:54 amraktad Exp $
 //
 
 // system include files
@@ -24,7 +24,7 @@
 #include <vector>
 #include <set>
 #include <map>
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 // user include files
 
@@ -69,7 +69,7 @@ public:
    void                    removeAllItems(void);
    FWViewBase *            buildView(TEveWindowSlot *iParent, const std::string& type);
    const Items &           items() const { return m_items; }
-   TableSpecs::iterator    tableFormats(const Reflex::Type &key);
+   TableSpecs::iterator    tableFormats(const edm::TypeWithDict &key);
    TableSpecs::iterator    tableFormats(const TClass &key);
    void                    addTo(FWConfiguration&) const;
    void                    addToImpl(FWConfiguration&) const;
@@ -95,7 +95,7 @@ protected:
    Items       m_items;
    TableSpecs  m_tableFormats;
 private:
-   TableSpecs::iterator tableFormatsImpl(const Reflex::Type &key);
+   TableSpecs::iterator tableFormatsImpl(const edm::TypeWithDict &key);
    FWTableViewManager(const FWTableViewManager&);    // stop default
    const FWTableViewManager& operator=(const FWTableViewManager&);    // stop default
 

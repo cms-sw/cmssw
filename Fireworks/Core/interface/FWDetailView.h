@@ -2,7 +2,7 @@
 #ifndef Fireworks_Core_FWDetailView_h
 #define Fireworks_Core_FWDetailView_h
 
-#include <Reflex/Type.h>
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include <string>
 #include <typeinfo>
 #include "Fireworks/Core/interface/FWModelId.h"
@@ -18,7 +18,7 @@ public:
    }
 
    static std::string classTypeName() {
-      return Reflex::Type::ByTypeInfo(typeid(T)).Name(Reflex::SCOPED);
+      return edm::TypeWithDict(typeid(T)).name();
    }
 
    static std::string classRegisterTypeName() {

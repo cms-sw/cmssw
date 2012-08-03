@@ -8,12 +8,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 11:36:44 EDT 2008
-// $Id: FWItemSingleAccessor.cc,v 1.5 2010/07/23 16:02:54 eulisse Exp $
+// $Id: FWItemSingleAccessor.cc,v 1.6 2012/06/26 22:09:35 wmtan Exp $
 //
 
 // system include files
 #include <assert.h>
-#include "Reflex/Object.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 // user include files
 #include "Fireworks/Core/src/FWItemSingleAccessor.h"
@@ -60,18 +61,18 @@ FWItemSingleAccessor::~FWItemSingleAccessor()
 // member functions
 //
 void
-FWItemSingleAccessor::setData(const Reflex::Object& product)
+FWItemSingleAccessor::setData(const edm::ObjectWithDict& product)
 {
-   if (product.Address() == 0)
+   if (product.address() == 0)
    {
       reset();
       return;
    }
    
-   if(product.TypeOf().IsTypedef())
-      m_data = Reflex::Object(product.TypeOf().ToType(), product.Address()).Address();
+   if(product.typeOf().isTypedef())
+      m_data = edm::ObjectWithDict(product.typeOf().toType(), product.address()).address();
    else
-      m_data = product.Address();
+      m_data = product.address();
    assert(0!=m_data);
 }
 

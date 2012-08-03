@@ -5,21 +5,21 @@
  * Base class for parsed expressions
  *
  * \author original version: Chris Jones, Cornell, 
- *         adapted to Reflex by Luca Lista, INFN
+ *         adapted by Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
  */
 #include <boost/shared_ptr.hpp>
 #include <vector>
 
-namespace Reflex { class Object; }
+namespace edm { class ObjectWithDict; }
 
 namespace reco {
   namespace parser {
     struct ExpressionBase {
       virtual ~ExpressionBase() { }
-      virtual double value( const Reflex::Object & ) const = 0;
+      virtual double value( const edm::ObjectWithDict & ) const = 0;
     };
     typedef boost::shared_ptr<ExpressionBase> ExpressionPtr;
   }

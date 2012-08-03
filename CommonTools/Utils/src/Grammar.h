@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.12 $
+ * \version $Revision: 1.13 $
  *
  */
 #include "boost/spirit/include/classic_core.hpp"
@@ -37,6 +37,7 @@
 #include "CommonTools/Utils/src/MethodSetter.h"
 #include "CommonTools/Utils/src/MethodArgumentSetter.h"
 #include "CommonTools/Utils/interface/Exception.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 // #include "CommonTools/Utils/src/Abort.h"
 
 namespace reco {
@@ -58,15 +59,16 @@ namespace reco {
       mutable TypeStack typeStack;
       mutable IntStack intStack;
 
-      Grammar(SelectorPtr & sel, const Reflex::Type& iType, bool lazy=false) : 
+      Grammar(SelectorPtr & sel, const edm::TypeWithDict& iType, bool lazy=false) : 
    	sel_(& sel), expr_(& dummyExpr_), lazy_(lazy) { 
    	typeStack.push_back(iType);
       }
 
-      Grammar(ExpressionPtr & expr, const Reflex::Type& iType, bool lazy=false) : 
+      Grammar(ExpressionPtr & expr, const edm::TypeWithDict& iType, bool lazy=false) : 
    	sel_(& dummySel_), expr_(& expr), lazy_(lazy) { 
    	typeStack.push_back(iType);
       }
+
       template <typename ScannerT>
       struct definition : 
 	public boost::spirit::classic::grammar_def<boost::spirit::classic::rule<ScannerT>, 

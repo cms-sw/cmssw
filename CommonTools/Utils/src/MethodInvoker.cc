@@ -9,12 +9,12 @@
 using namespace reco::parser;
 using namespace std;
 
-MethodInvoker::MethodInvoker(const Reflex::Member & method, const vector<AnyMethodArgument> & ints) :
-  method_(method), ints_(ints), isFunction_(method.IsFunctionMember())
+MethodInvoker::MethodInvoker(const edm::MemberWithDict & method, const vector<AnyMethodArgument> & ints) :
+  method_(method), ints_(ints), isFunction_(method.isFunctionMember())
 { 
   setArgs();
-  /*std::cout << "Booking " << method_.Name() 
-            << " from " << method_.DeclaringType().Name() 
+  /*std::cout << "Booking " << method_.name() 
+            << " from " << method_.declaringTy[e().name() 
             << " with " << args_.size() << " arguments"
             << " (were " << ints.size() << ")"
             << std::endl;*/
@@ -39,46 +39,46 @@ void MethodInvoker::setArgs() {
   }
 }
 
-Reflex::Object
-MethodInvoker::invoke(const Reflex::Object & o, Reflex::Object &retstore) const {
-  Reflex::Object ret = retstore;
-  /*std::cout << "Invoking " << method_.Name() 
-            << " from " << method_.DeclaringType().Name(Reflex::QUALIFIED) 
-            << " on an instance of " << o.DynamicType().Name(Reflex::QUALIFIED) 
-            << " at " << o.Address()
+edm::ObjectWithDict
+MethodInvoker::invoke(const edm::ObjectWithDict & o, edm::ObjectWithDict &retstore) const {
+  edm::ObjectWithDict ret = retstore;
+  /*std::cout << "Invoking " << method_.name() 
+            << " from " << method_.declaringTy[e().name(edm::TypeNameHandling::Qualified) 
+            << " on an instance of " << o.dynamicType().name(edm::TypeNameHandling::Qualified) 
+            << " at " << o.address()
             << " with " << args_.size() << " arguments"
             << std::endl; */
-  Reflex::Type retType;
+  edm::TypeWithDict retType;
   if(isFunction_) {
-     method_.Invoke(o, &ret, args_);
-     retType = method_.TypeOf().ReturnType(); // this is correct, it takes pointers and refs into account
+     method_.invoke(o, &ret, args_);
+     retType = method_.typeOf().returnType(); // this is correct, it takes pointers and refs into account
   } else {
-     ret = method_.Get(o);
-     retType = method_.TypeOf();
+     ret = method_.get(o);
+     retType = method_.typeOf();
   }
-  void * addr = ret.Address(); 
-  //std::cout << "Stored result of " <<  method_.Name() << " (type " << method_.TypeOf().ReturnType().Name(Reflex::QUALIFIED) << ") at " << addr << std::endl;
+  void * addr = ret.address(); 
+  //std::cout << "Stored result of " <<  method_.name() << " (type " << method_.typeOf().returnType().name(edm::TypeNameHandling::Qualified) << ") at " << addr << std::endl;
   if(addr==0)
     throw edm::Exception(edm::errors::InvalidReference)
-      << "method \"" << method_.Name() << "\" called with " << args_.size() 
+      << "method \"" << method_.name() << "\" called with " << args_.size() 
       << " arguments returned a null pointer ";   
-  //std::cout << "Return type is " << retType.Name(Reflex::QUALIFIED) << std::endl;
+  //std::cout << "Return type is " << retType.name(edm::TypeNameHandling::Qualified) << std::endl;
    
-  if(retType.IsPointer() || retType.IsReference()) { // both need (void **)->(void *) conversion
-      if (retType.IsPointer()) {
-        retType = retType.ToType(); // for Pointers, I get the real type this way
+  if(retType.isPointer() || retType.isReference()) { // both need (void **)->(void *) conversion
+      if (retType.isPointer()) {
+        retType = retType.toType(); // for Pointers, I get the real type this way
       } else {
-        retType = Reflex::Type(retType, 0); // strip cv & ref flags
+        retType = edm::TypeWithDict(retType, edm::TypeModifiers::NoMod); // strip cv & ref flags
       }
-      while (retType.IsTypedef()) retType = retType.ToType();
-      ret = Reflex::Object(retType, *static_cast<void **>(addr));
-      //std::cout << "Now type is " << retType.Name(Reflex::QUALIFIED) << std::endl;
+      while (retType.isTypedef()) retType = retType.toType();
+      ret = edm::ObjectWithDict(retType, *static_cast<void **>(addr));
+      //std::cout << "Now type is " << retType.name(edm::TypeNameHandling::Qualified) << std::endl;
   }
   if(!ret) 
      throw edm::Exception(edm::errors::Configuration)
-      << "method \"" << method_.Name() 
+      << "method \"" << method_.name() 
       << "\" returned void invoked on object of type \"" 
-      << o.TypeOf().Name(Reflex::QUALIFIED) << "\"\n";
+      << o.typeOf().name(edm::TypeNameHandling::Qualified) << "\"\n";
   return ret;
 }
 
@@ -93,44 +93,44 @@ LazyInvoker::~LazyInvoker()
 }
 
 const SingleInvoker &
-LazyInvoker::invoker(const Reflex::Type & type) const 
+LazyInvoker::invoker(const edm::TypeWithDict & type) const 
 {
-    //std::cout << "LazyInvoker for " << name_ << " called on type " << type.Name(Reflex::QUALIFIED|Reflex::SCOPED) << std::endl;
-    SingleInvokerPtr & invoker = invokers_[type.Id()];
+    //std::cout << "LazyInvoker for " << name_ << " called on type " << type.name(edm::TypeNameHandling::Qualified) << std::endl;
+    SingleInvokerPtr & invoker = invokers_[type.id()];
     if (!invoker) {
-        //std::cout << "  Making new invoker for " << name_ << " on type " << type.Name(Reflex::QUALIFIED|Reflex::SCOPED) << std::endl;
+        //std::cout << "  Making new invoker for " << name_ << " on type " << type.name(edm::TypeNameHandling::Qualified) << std::endl;
         invoker.reset(new SingleInvoker(type, name_, argsBeforeFixups_));
     } 
     return * invoker;
 }
 
-Reflex::Object
-LazyInvoker::invoke(const Reflex::Object & o, std::vector<Reflex::Object> &v) const 
+edm::ObjectWithDict
+LazyInvoker::invoke(const edm::ObjectWithDict & o, std::vector<edm::ObjectWithDict> &v) const 
 {
-    pair<Reflex::Object, bool> ret(o,false);
+    pair<edm::ObjectWithDict, bool> ret(o,false);
     do {    
-        Reflex::Type type = ret.first.TypeOf();
-        if (type.IsClass()) type = ret.first.DynamicType();
-        ret = invoker(type).invoke(Reflex::Object(type, ret.first.Address()), v);
+        edm::TypeWithDict type = ret.first.typeOf();
+        if (type.isClass()) type = ret.first.dynamicType();
+        ret = invoker(type).invoke(edm::ObjectWithDict(type, ret.first.address()), v);
     } while (ret.second == false);
     return ret.first; 
 }
 
 double
-LazyInvoker::invokeLast(const Reflex::Object & o, std::vector<Reflex::Object> &v) const 
+LazyInvoker::invokeLast(const edm::ObjectWithDict & o, std::vector<edm::ObjectWithDict> &v) const 
 {
-    pair<Reflex::Object, bool> ret(o,false);
+    pair<edm::ObjectWithDict, bool> ret(o,false);
     const SingleInvoker *i = 0;
     do {    
-        Reflex::Type type = ret.first.TypeOf();
-        if (type.IsClass()) type = ret.first.DynamicType();
+        edm::TypeWithDict type = ret.first.typeOf();
+        if (type.isClass()) type = ret.first.dynamicType();
         i = & invoker(type);
-        ret = i->invoke(Reflex::Object(type, ret.first.Address()), v);
+        ret = i->invoke(edm::ObjectWithDict(type, ret.first.address()), v);
     } while (ret.second == false);
     return i->retToDouble(ret.first);
 }
 
-SingleInvoker::SingleInvoker(const Reflex::Type &type,
+SingleInvoker::SingleInvoker(const edm::TypeWithDict &type,
         const std::string &name,
         const std::vector<AnyMethodArgument> &args) 
 {
@@ -139,7 +139,7 @@ SingleInvoker::SingleInvoker(const Reflex::Type &type,
     MethodArgumentStack dummy2;
     MethodSetter setter(invokers_, dummy, typeStack, dummy2, false);
     isRefGet_ = !setter.push(name, args, "LazyInvoker dynamic resolution", false);
-    //std::cerr  << "SingleInvoker on type " <<  type.Name(Reflex::QUALIFIED|Reflex::SCOPED) << ", name " << name << (isRefGet_ ? " is just a ref.get " : " is real") << std::endl;
+    //std::cerr  << "SingleInvoker on type " <<  type.qualifiedName() << ", name " << name << (isRefGet_ ? " is just a ref.get " : " is real") << std::endl;
     storageNeedsDestructor_ = ExpressionVar::makeStorage(storage_, invokers_.front().method());
     retType_ = reco::typeCode(typeStack[1]); // typeStack[0] = type of self, typeStack[1] = type of ret
 }
@@ -149,22 +149,22 @@ SingleInvoker::~SingleInvoker()
     ExpressionVar::delStorage(storage_);
 }
 
-pair<Reflex::Object,bool>
-SingleInvoker::invoke(const Reflex::Object & o, std::vector<Reflex::Object> &v) const 
+pair<edm::ObjectWithDict,bool>
+SingleInvoker::invoke(const edm::ObjectWithDict & o, std::vector<edm::ObjectWithDict> &v) const 
 {
-    /* std::cerr << "[SingleInvoker::invoke] member " << invokers_.front().method().Name(Reflex::QUALIFIED|Reflex::SCOPED) << 
-                                       " of type " << o.TypeOf().Name(Reflex::QUALIFIED|Reflex::SCOPED) <<
+    /* std::cerr << "[SingleInvoker::invoke] member " << invokers_.front().method().qualifiedName() << 
+                                       " of type " << o.typeOf().qualifiedName() <<
                                        (!isRefGet_ ? " is one shot" : " needs another round") << std::endl; */
-    pair<Reflex::Object,bool> ret(invokers_.front().invoke(o, storage_), !isRefGet_);
+    pair<edm::ObjectWithDict,bool> ret(invokers_.front().invoke(o, storage_), !isRefGet_);
     if (storageNeedsDestructor_) {
-        //std::cout << "Storage type: " << storage_.TypeOf().Name(Reflex::QUALIFIED|Reflex::SCOPED) << ", I have to call the destructor." << std::endl;
+        //std::cout << "Storage type: " << storage_.typeOf().qualifiedName() << ", I have to call the destructor." << std::endl;
         v.push_back(storage_);
     }
     return ret;
 }
 
 double
-SingleInvoker::retToDouble(const Reflex::Object & o) const {
+SingleInvoker::retToDouble(const edm::ObjectWithDict & o) const {
     if (!ExpressionVar::isValidReturnType(retType_)) {
         throwFailedConversion(o);
     }
@@ -172,10 +172,10 @@ SingleInvoker::retToDouble(const Reflex::Object & o) const {
 }
 
 void
-SingleInvoker::throwFailedConversion(const Reflex::Object & o) const {
+SingleInvoker::throwFailedConversion(const edm::ObjectWithDict & o) const {
     throw edm::Exception(edm::errors::Configuration)
-        << "member \"" << invokers_.back().method().Name(Reflex::QUALIFIED)
-        << "\" return type is \"" << invokers_.back().method().TypeOf().Name(Reflex::QUALIFIED)
-        << "\" retured a \"" << o.TypeOf().Name(Reflex::QUALIFIED)
+        << "member \"" << invokers_.back().method().name()
+        << "\" return type is \"" << invokers_.back().method().typeOf().name(edm::TypeNameHandling::Qualified)
+        << "\" retured a \"" << o.typeOf().name(edm::TypeNameHandling::Qualified)
         << "\" which is not convertible to double.";
 }

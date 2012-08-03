@@ -5,9 +5,9 @@
  * logical AND combiner
  *
  * \author original version: Chris Jones, Cornell, 
- *         adapted to Reflex by Luca Lista, INFN
+ *         adapted by Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
  */
 #include "CommonTools/Utils/src/SelectorBase.h"
@@ -21,16 +21,16 @@ namespace reco {
 	rhs_ = selStack.back(); selStack.pop_back();
 	lhs_ = selStack.back(); selStack.pop_back();
       }
-      virtual bool operator()(const Reflex::Object& o) const ;
+      virtual bool operator()(const edm::ObjectWithDict& o) const ;
       private:
       Op op_;
       SelectorPtr lhs_, rhs_;
     };
 
 template <>
-bool LogicalBinaryOperator<std::logical_and<bool> >::operator()(const Reflex::Object &o) const ;
+bool LogicalBinaryOperator<std::logical_and<bool> >::operator()(const edm::ObjectWithDict &o) const ;
 template <>
-bool LogicalBinaryOperator<std::logical_or<bool> >::operator()(const Reflex::Object &o) const ;
+bool LogicalBinaryOperator<std::logical_or<bool> >::operator()(const edm::ObjectWithDict &o) const ;
   }
 }
 

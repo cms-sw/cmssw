@@ -5,9 +5,9 @@
  * logical NOT combiner
  *
  * \author original version: Chris Jones, Cornell, 
- *         adapted to Reflex by Luca Lista, INFN
+ *         adapted by Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
  */
 #include "CommonTools/Utils/src/SelectorBase.h"
@@ -18,7 +18,7 @@ namespace reco {
     struct NotCombiner : public SelectorBase {
       NotCombiner( SelectorPtr arg ) :
 	arg_( arg ) {}
-      virtual bool operator()( const Reflex::Object& o ) const {
+      virtual bool operator()( const edm::ObjectWithDict& o ) const {
 	return ! (*arg_)( o );
       }
     private:

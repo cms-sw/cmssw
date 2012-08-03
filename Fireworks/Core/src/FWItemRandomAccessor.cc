@@ -10,7 +10,7 @@
 //
 // Original Author:  Giulio Eulisse
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
-// $Id: FWItemRandomAccessor.cc,v 1.3 2010/07/23 16:02:54 eulisse Exp $
+// $Id: FWItemRandomAccessor.cc,v 1.4 2012/06/26 22:09:35 wmtan Exp $
 //
 
 // system include files
@@ -54,18 +54,18 @@ FWItemRandomAccessorBase::~FWItemRandomAccessorBase()
 // member functions
 //
 void
-FWItemRandomAccessorBase::setData(const Reflex::Object& product)
+FWItemRandomAccessorBase::setData(const edm::ObjectWithDict& product)
 {
-   if (product.Address() == 0)
+   if (product.address() == 0)
    {
       reset();
       return;
    }
    
-   if(product.TypeOf().IsTypedef())
-      m_data = Reflex::Object(product.TypeOf().ToType(),product.Address()).Address();
+   if(product.typeOf().isTypedef())
+      m_data = edm::ObjectWithDict(product.typeOf().toType(),product.address()).address();
    else
-      m_data = product.Address();
+      m_data = product.address();
    assert(0!=m_data);
 }
 

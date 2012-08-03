@@ -14,16 +14,16 @@ void ExpressionVarSetter::operator()(const char * begin, const char* end) const 
 }
 
 void ExpressionVarSetter::push(const char *begin, const char *end) const {
-  Reflex::Type type = typeStack_.back();
+  edm::TypeWithDict type = typeStack_.back();
   method::TypeCode retType = reco::typeCode(type);
   if(retType == method::invalid)
     throw  Exception(begin)
-      << "member \"" << methStack_.back().method().Name() << "\" has an invalid return type: \"" 
-      <<  methStack_.back().method().TypeOf().Name() << "\"";
+      << "member \"" << methStack_.back().method().name() << "\" has an invalid return type: \"" 
+      <<  methStack_.back().method().typeOf().name() << "\"";
   if(!ExpressionVar::isValidReturnType(retType))
      throw Exception(begin)
-       << "member \"" << methStack_.back().method().Name() 
-       << "\" return type is \"" << methStack_.back().method().TypeOf().Name() 
+       << "member \"" << methStack_.back().method().name() 
+       << "\" return type is \"" << methStack_.back().method().typeOf().name() 
        << "\" which is not convertible to double.";
   
   exprStack_.push_back(boost::shared_ptr<ExpressionBase>(new ExpressionVar(methStack_, retType)));

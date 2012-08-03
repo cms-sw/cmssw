@@ -8,15 +8,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 14:48:14 EDT 2008
-// $Id: FWItemAccessorFactory.cc,v 1.11 2010/09/13 13:49:29 matevz Exp $
+// $Id: FWItemAccessorFactory.cc,v 1.12 2012/06/26 22:13:04 wmtan Exp $
 //
 
 // system include files
 #include <iostream>
 #include "TClass.h"
 #include "TVirtualCollectionProxy.h"
-#include "Reflex/Type.h"
-#include "Reflex/Member.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/MemberWithDict.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWItemAccessorFactory.h"
@@ -172,19 +172,19 @@ FWItemAccessorFactory::hasMemberTVirtualCollectionProxy(const TClass *iClass,
                                                         size_t& oOffset)
 {
    assert(iClass->GetTypeInfo());
-   Reflex::Type dataType(Reflex::Type::ByTypeInfo(*(iClass->GetTypeInfo())));
-   assert(dataType != Reflex::Type());
+   edm::TypeWithDict dataType(*(iClass->GetTypeInfo()));
+   assert(bool(dataType));
 
    // If the object has more than one data member, we avoid guessing. 
-   if (dataType.DataMemberSize() != 1)
+   if (edm::TypeDataMembers(dataType).size() != 1)
       return false;
    
-   Reflex::Type memType(dataType.DataMemberAt(0).TypeOf());
-   assert(memType != Reflex::Type());
+   edm::TypeWithDict memType(dataType.dataMemberAt(0).typeOf());
+   assert(bool(memType));
    //make sure this is the real type and not a typedef
-   memType = memType.FinalType();
-   oMember = TClass::GetClass(memType.TypeInfo());
-   oOffset = dataType.DataMemberAt(0).Offset();
+   memType = memType.finalType();
+   oMember = TClass::GetClass(memType.typeInfo());
+   oOffset = dataType.dataMemberAt(0).offset();
    
    // Check if this is a collection known by ROOT but also that the item held by
    // the colletion actually has a dictionary  

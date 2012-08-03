@@ -20,7 +20,6 @@
 <use name="opengl"/>
 <use name="rootcintex"/>
 <use name="rootinteractive"/>
-<use name="rootrflx"/>
 <use name="rootgraphics"/>
 <use name="sigcpp"/>
 <lib name="Thread"/>

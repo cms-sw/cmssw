@@ -16,12 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:51 PST 2008
-// $Id: FWModelFilter.h,v 1.8 2010/09/01 18:48:59 amraktad Exp $
+// $Id: FWModelFilter.h,v 1.9 2012/06/26 22:13:03 wmtan Exp $
 //
 
 // system include files
 #include <string>
-#include <Reflex/Type.h>
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 // user include files
 #include "CommonTools/Utils/src/SelectorPtr.h"
@@ -61,7 +61,7 @@ private:
    std::string m_expression;
    std::string m_className;
    reco::parser::SelectorPtr m_selector;
-   Reflex::Type m_type;
+   edm::TypeWithDict m_type;
 };
 
 

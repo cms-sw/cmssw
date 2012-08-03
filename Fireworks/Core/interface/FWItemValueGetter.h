@@ -16,15 +16,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 30 16:14:58 EST 2008
-// $Id: FWItemValueGetter.h,v 1.5 2011/08/20 03:48:39 amraktad Exp $
+// $Id: FWItemValueGetter.h,v 1.6 2012/06/26 22:13:03 wmtan Exp $
 //
 
 #include <string>
 #include <vector>
 
 #include "Rtypes.h"
-#include "Reflex/Member.h"
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/MemberWithDict.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 #include "CommonTools/Utils/src/SelectorPtr.h"
 #include "CommonTools/Utils/src/SelectorBase.h"
@@ -35,7 +35,7 @@
 class FWItemValueGetter
 {
 public:
-   FWItemValueGetter(const Reflex::Type&, const std::string& iPurpose);
+   FWItemValueGetter(const edm::TypeWithDict&, const std::string& iPurpose);
    double valueFor(const void*, int idx) const;
    UInt_t precision( int idx) const;
    std::vector<std::string> getTitles() const;
@@ -62,7 +62,7 @@ private:
    Entries_t::const_iterator Entries_i;
 
    Entries_t m_entries;
-   Reflex::Type m_type;
+   edm::TypeWithDict m_type;
 
    int m_titleWidth;
 

@@ -8,12 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:16:20 EST 2008
-// $Id: FWParameterSetterBase.cc,v 1.14 2012/02/22 03:46:00 amraktad Exp $
+// $Id: FWParameterSetterBase.cc,v 1.15 2012/06/26 22:13:04 wmtan Exp $
 //
 
 // system include files
-#include "Reflex/Type.h"
-#include "Reflex/Object.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
 
 #include <assert.h>
 #include <iostream>
@@ -94,20 +94,20 @@ FWParameterSetterBase::update() const
 boost::shared_ptr<FWParameterSetterBase>
 FWParameterSetterBase::makeSetterFor(FWParameterBase* iParam)
 {
-   static std::map<edm::TypeID,Reflex::Type> s_paramToSetterMap;
+   static std::map<edm::TypeID,edm::TypeWithDict> s_paramToSetterMap;
    edm::TypeID paramType( typeid(*iParam) );
-   std::map<edm::TypeID,Reflex::Type>::iterator itFind = s_paramToSetterMap.find(paramType);
+   std::map<edm::TypeID,edm::TypeWithDict>::iterator itFind = s_paramToSetterMap.find(paramType);
    if (itFind == s_paramToSetterMap.end())
    {
-      Reflex::Type paramClass( Reflex::Type::ByTypeInfo(typeid(*iParam)) );
-      if (paramClass == Reflex::Type())
+      edm::TypeWithDict paramClass(typeid(*iParam));
+      if (paramClass == edm::TypeWithDict())
       {
-         fwLog(fwlog::kError) << " the type "<<typeid(*iParam).name()<< " is not known to REFLEX" <<std::endl;
+         fwLog(fwlog::kError) << " the type "<<typeid(*iParam).name()<< " is not known to Root" <<std::endl;
       }
-      assert(paramClass != Reflex::Type() );
+      assert(paramClass != edm::TypeWithDict() );
 
       //the corresponding setter has the same name but with 'Setter' at the end
-      std::string name = paramClass.Name();
+      std::string name = paramClass.name();
       // FIXME: there was a convention between parameter class names and associated
       //        setters. The following works around the problem introduced by
       //        the generic parameter class but it is clear that a better 
@@ -128,27 +128,27 @@ FWParameterSetterBase::makeSetterFor(FWParameterBase* iParam)
       else
          name += "Setter";
 
-      Reflex::Type setterClass( Reflex::Type::ByName( name ) );
-      if (setterClass == Reflex::Type())
+      edm::TypeWithDict setterClass( edm::TypeWithDict::byName( name ) );
+      if (setterClass == edm::TypeWithDict())
       {
-         fwLog(fwlog::kError) << " the type "<<name<< " is not known to REFLEX" <<std::endl;
+         fwLog(fwlog::kError) << " the type "<<name<< " has no dictionary" <<std::endl;
       }
-      assert(setterClass != Reflex::Type());
+      assert(setterClass != edm::TypeWithDict());
 
       s_paramToSetterMap[paramType]=setterClass;
       itFind = s_paramToSetterMap.find(paramType);
    }
    //create the instance we want
-   //NOTE: for some odd reason Reflex 'Construct' uses 'malloc' to allocate the memory.  This means the object
+   //NOTE: for some odd reason reflex 'Construct' uses 'malloc' to allocate the memory.  This means the object
    // can not be deleted using 'delete'!  So we must call Type::Destruct on the object
-   Reflex::Object setterObj = itFind->second.Construct();
+   edm::ObjectWithDict setterObj = itFind->second.construct();
 
    //make it into the base class
-   Reflex::Type s_setterBaseType( Reflex::Type::ByTypeInfo( typeid(FWParameterSetterBase) ) );
-   assert(s_setterBaseType != Reflex::Type());
-   Reflex::Object castSetterObj = setterObj.CastObject(s_setterBaseType);
-   boost::shared_ptr<FWParameterSetterBase> ptr(reinterpret_cast<FWParameterSetterBase*>( castSetterObj.Address() ),
-                                                boost::bind(&Reflex::Type::Destruct,itFind->second,setterObj.Address(),true));
+   edm::TypeWithDict s_setterBaseType(typeid(FWParameterSetterBase));
+   assert(bool(s_setterBaseType));
+   edm::ObjectWithDict castSetterObj(setterObj.castObject(s_setterBaseType));
+   boost::shared_ptr<FWParameterSetterBase> ptr(reinterpret_cast<FWParameterSetterBase*>( castSetterObj.address() ),
+                                                boost::bind(&edm::TypeWithDict::destruct,itFind->second,setterObj.address(),true));
    return ptr;
 }
 

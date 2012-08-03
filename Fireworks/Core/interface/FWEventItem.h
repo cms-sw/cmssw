@@ -16,13 +16,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.49 2011/11/18 02:57:07 amraktad Exp $
+// $Id: FWEventItem.h,v 1.50 2012/06/26 22:13:03 wmtan Exp $
 //
 
 // system include files
 #include <string>
 #include <vector>
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include <boost/shared_ptr.hpp>
 #include <sigc++/connection.h>
 
@@ -217,7 +217,7 @@ private:
    //FWEventItem(const FWEventItem&); // stop default
 
    //const FWEventItem& operator=(const FWEventItem&); // stop default
-   void setData(const Reflex::Object& ) const;
+   void setData(const edm::ObjectWithDict& ) const;
 
    void getPrimaryData() const;
    void runFilter();
@@ -238,7 +238,7 @@ private:
    std::string m_productInstanceLabel;
    std::string m_processName;
    const edm::EventBase* m_event;
-   Reflex::Type m_wrapperType;
+   edm::TypeWithDict m_wrapperType;
    FWItemValueGetter m_interestingValueGetter;
 
    FWModelFilter m_filter;

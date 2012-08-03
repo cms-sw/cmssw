@@ -5,9 +5,9 @@
  * Variable expression
  *
  * \author original version: Chris Jones, Cornell, 
- *         adapted to Reflex by Luca Lista, INFN
+ *         adapted by Luca Lista, INFN
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.5 $
  *
  */
 #include "CommonTools/Utils/src/ExpressionBase.h"
@@ -24,27 +24,26 @@ namespace reco {
       ~ExpressionVar() ;
       ExpressionVar(const ExpressionVar &var) ;
 
-      virtual double value(const Reflex::Object & o) const;
+      virtual double value(const edm::ObjectWithDict & o) const;
 
       static bool isValidReturnType(method::TypeCode);
       /// performs the needed conversion from void * to double
       /// this method is used also from the ExpressionLazyVar code
-      static double objToDouble(const Reflex::Object &obj, method::TypeCode type) ;
+      static double objToDouble(const edm::ObjectWithDict &obj, method::TypeCode type) ;
 
       /// allocate an object to hold the result of a given member (if needed)
       /// this method is used also from the LazyInvoker code
       /// returns true if objects returned from this will require a destructor 
-      static bool makeStorage(Reflex::Object &obj, const Reflex::Member &member) ;
+      static bool makeStorage(edm::ObjectWithDict &obj, const edm::MemberWithDict &member) ;
       /// delete an objecty, if needed
       /// this method is used also from the LazyInvoker code
-      static void delStorage(Reflex::Object &obj);
+      static void delStorage(edm::ObjectWithDict &obj);
 
     private:
       std::vector<MethodInvoker>  methods_;
-      mutable std::vector<Reflex::Object> objects_;
+      mutable std::vector<edm::ObjectWithDict> objects_;
       mutable std::vector<bool>           needsDestructor_;
       method::TypeCode retType_;
-      static void trueDelete(Reflex::Object & o) ;
       void initObjects_();
     }; 
 
@@ -54,11 +53,11 @@ namespace reco {
       ExpressionLazyVar(const std::vector<LazyInvoker> & methods);
       ~ExpressionLazyVar() ;
 
-      virtual double value(const Reflex::Object & o) const;
+      virtual double value(const edm::ObjectWithDict & o) const;
 
     private:
       std::vector<LazyInvoker> methods_;
-      mutable std::vector<Reflex::Object> objects_;
+      mutable std::vector<edm::ObjectWithDict> objects_;
   }; 
 
  }

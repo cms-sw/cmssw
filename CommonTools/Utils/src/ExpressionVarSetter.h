@@ -5,9 +5,9 @@
  * Numerical expression setter
  *
  * \author original version: Chris Jones, Cornell, 
- *         adapted to Reflex by Luca Lista, INFN
+ *         adapted by Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
  */
 #include "CommonTools/Utils/src/ExpressionStack.h"

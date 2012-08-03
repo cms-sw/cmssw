@@ -5,19 +5,19 @@ using namespace std;
 using namespace reco::method;
 
 namespace reco {
-  Reflex::Type returnType(const Reflex::Member & mem) {
-    Reflex::Type t = mem.TypeOf().ReturnType();
+  edm::TypeWithDict returnType(const edm::MemberWithDict & mem) {
+    edm::TypeWithDict t = mem.typeOf().returnType();
     if(t) {
-       while(t.IsTypedef()) t = t.ToType();
+       while(t.isTypedef()) t = t.toType();
     }
     return t;
   }
 
-  TypeCode returnTypeCode(const Reflex::Member & mem) {
+  TypeCode returnTypeCode(const edm::MemberWithDict & mem) {
     return typeCode(returnType(mem));
   }
 
-  TypeCode typeCode(const Reflex::Type & t) {
+  TypeCode typeCode(const edm::TypeWithDict & t) {
     static map<string, method::TypeCode> retTypeMap;
     if (retTypeMap.size() == 0) {
       retTypeMap["double"] = doubleType;
@@ -33,8 +33,8 @@ namespace reco {
       retTypeMap["unsigned char"] = uCharType;
       retTypeMap["bool"] = boolType;
     }
-    map<string, TypeCode>::const_iterator f = retTypeMap.find(t.Name());
-    if (f == retTypeMap.end()) return (t.IsEnum() ? enumType : invalid);
+    map<string, TypeCode>::const_iterator f = retTypeMap.find(t.name());
+    if (f == retTypeMap.end()) return (t.isEnum() ? enumType : invalid);
     else return f->second;
   }
 }

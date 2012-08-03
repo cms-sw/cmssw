@@ -1,8 +1,9 @@
 #ifndef CommonTools_Utils_AnyMethodArgument_h
 #define CommonTools_Utils_AnyMethodArgument_h
 
-#include "Reflex/Object.h"
-#include "Reflex/Member.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Utilities/interface/MemberWithDict.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "CommonTools/Utils/interface/Exception.h"
 
 #include <algorithm>
@@ -51,7 +52,7 @@ namespace reco {
 
     class AnyMethodArgumentFixup : public boost::static_visitor<std::pair<AnyMethodArgument, int> > {
         private:
-            Reflex::Type rflxType_;
+            edm::TypeWithDict dataType_;
             const std::type_info & type_;
             template<typename From, typename To>
             std::pair<AnyMethodArgument, int> retOk_(const From &f, int cast) const {
@@ -74,18 +75,18 @@ namespace reco {
                 return std::pair<AnyMethodArgument,int>(t,-1);
             }
         public:
-            AnyMethodArgumentFixup(Reflex::Type type) : 
-                rflxType_(type),
-                type_(type.Name() == "string" ? typeid(std::string) : type.TypeInfo()) // Otherwise Reflex does this wrong :-(
+            AnyMethodArgumentFixup(edm::TypeWithDict type) : 
+                dataType_(type),
+                type_(type.name() == "string" ? typeid(std::string) : type.typeInfo()) // Otherwise Root does this wrong :-(
             {
-                while (rflxType_.IsTypedef()) rflxType_ = rflxType_.ToType();
+                while (dataType_.isTypedef()) dataType_ = dataType_.toType();
                 /* // Code to print out enum table 
-                if (rflxType_.IsEnum()) {
-                    std::cerr << "Enum conversion: [" << rflxType_.Name() <<  "] => [" << type_.name() << "]" << std::endl;
-                    std::cerr << "Enum has " << rflxType_.MemberSize() << ", members." << std::endl;
-                    for (size_t i = 0; i < rflxType_.MemberSize(); ++i) {
-                        Reflex::Member mem = rflxType_.MemberAt(i);
-                        std::cerr << " member #"<<i<<", name = " << mem.Name() << ", rflxType_ = " << mem.TypeOf().Name() << std::endl; 
+                if (dataType_.isEnum()) {
+                    std::cerr << "Enum conversion: [" << dataType_.name() <<  "] => [" << type_.name() << "]" << std::endl;
+                    std::cerr << "Enum has " << dataType_.memberSize() << ", members." << std::endl;
+                    for (size_t i = 0; i < dataType_.memberSize(); ++i) {
+                        edm::MemberWithDict mem = dataType_.memberAt(i);
+                        std::cerr << " member #"<<i<<", name = " << mem.name() << ", dataType_ = " << mem.typeOf().name() << std::endl; 
                     }
                 } // */
             }
@@ -105,20 +106,20 @@ namespace reco {
 
             std::pair<AnyMethodArgument,int> operator()(const std::string &t) const { 
                 if (type_ == typeid(std::string)) { return std::pair<AnyMethodArgument,int>(t,0); }
-                if (rflxType_.IsEnum()) {
-                    if (rflxType_.MemberSize() == 0) {
-                        throw parser::Exception(t.c_str()) << "Enumerator '" << rflxType_.Name() << "' has no keys.\nPerhaps the reflex dictionary is missing?\n";
+                if (dataType_.isEnum()) {
+                    if (dataType_.memberSize() == 0) {
+                        throw parser::Exception(t.c_str()) << "Enumerator '" << dataType_.name() << "' has no keys.\nPerhaps the dictionary is missing?\n";
                     }
-                    Reflex::Member value = rflxType_.MemberByName(t);
-                    //std::cerr << "Trying to convert '" << t << "'  to a value for enumerator '" << rflxType_.Name() << "'" << std::endl;
+                    edm::MemberWithDict value = dataType_.memberByName(t);
+                    //std::cerr << "Trying to convert '" << t << "'  to a value for enumerator '" << dataType_.name() << "'" << std::endl;
                     if (!value) // check for existing value
                         return std::pair<AnyMethodArgument,int>(t,-1);
-                        // throw parser::Exception(t.c_str()) << "Can't convert '" << t << "' to a value for enumerator '" << rflxType_.Name() << "'\n";
-                    //std::cerr << "  found member of type '" << value.TypeOf().Name() << "'" << std::endl;
-                    if (value.TypeOf().TypeInfo() != typeid(int)) // check is backed by an Int
-                        throw parser::Exception(t.c_str()) << "Enumerator '" << rflxType_.Name() << "' is not implemented by type 'int' !!??\n";
-                    //std::cerr << "  value is @ " <<   reinterpret_cast<const int *>(value.Get().Address()) << std::endl;
-                    int ival = * reinterpret_cast<const int *>(value.Get().Address());
+                        // throw parser::Exception(t.c_str()) << "Can't convert '" << t << "' to a value for enumerator '" << dataType_.name() << "'\n";
+                    //std::cerr << "  found member of type '" << value.typeOf().name() << "'" << std::endl;
+                    if (value.typeOf().typeInfo() != typeid(int)) // check is backed by an Int
+                        throw parser::Exception(t.c_str()) << "Enumerator '" << dataType_.name() << "' is not implemented by type 'int' !!??\n";
+                    //std::cerr << "  value is @ " <<   reinterpret_cast<const int *>(value.get().address()) << std::endl;
+                    int ival = * reinterpret_cast<const int *>(value.get().address());
                     //std::cerr << "  value is = " << ival << std::endl;
                     return std::pair<AnyMethodArgument,int>(ival,1);
                 }

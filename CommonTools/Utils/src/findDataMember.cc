@@ -8,11 +8,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug 13 10:07:46 EDT 2008
-// $Id: findDataMember.cc,v 1.1 2009/02/24 14:10:22 llista Exp $
+// $Id: findDataMember.cc,v 1.2 2012/06/26 21:09:37 wmtan Exp $
 //
 
 // system include files
-#include "Reflex/Base.h"
+#include "FWCore/Utilities/interface/BaseWithDict.h"
 
 // user include files
 #include "CommonTools/Utils/src/findDataMember.h"
@@ -23,27 +23,28 @@
 //
 
 namespace reco {
-   Reflex::Member findDataMember(const Reflex::Type& iType, const std::string& iName, int& oError) {
-      Reflex::Member returnValue;
+   edm::MemberWithDict findDataMember(const edm::TypeWithDict& iType, const std::string& iName, int& oError) {
+      edm::MemberWithDict returnValue;
       oError = parser::kNameDoesNotExist;
-      Reflex::Type type = iType;
+      edm::TypeWithDict type = iType;
       if(type) {
-         if(type.IsPointer()) {
-            type = type.ToType();
+         if(type.isPointer()) {
+            type = type.toType();
          }
-         returnValue = type.DataMemberByName(iName);
+         returnValue = type.dataMemberByName(iName);
          if(!returnValue) {
             //check inheriting classes
-            for(Reflex::Base_Iterator b = type.Base_Begin(); b != type.Base_End(); ++ b) {
-               returnValue = findDataMember(b->ToType(), iName, oError);
+            edm::TypeBases bases(type);
+            for(auto const& base : bases) {
+               returnValue = findDataMember(edm::BaseWithDict(base).toType(), iName, oError);
                //only stop if we found it or some other error happened
                if(returnValue || parser::kNameDoesNotExist != oError) {
                   break;
                }
             }
          }
-         if(returnValue && !returnValue.IsPublic()) {
-            returnValue = Reflex::Member();
+         if(returnValue && !returnValue.isPublic()) {
+            returnValue = edm::MemberWithDict();
             oError = parser::kIsNotPublic;
          }
       }

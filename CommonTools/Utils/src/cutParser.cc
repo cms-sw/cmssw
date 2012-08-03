@@ -4,7 +4,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 using namespace reco::parser;
-bool reco::parser::cutParser(const Reflex::Type &t, const std::string & cut, SelectorPtr & sel, bool lazy=false) {
+bool reco::parser::cutParser(const edm::TypeWithDict &t, const std::string & cut, SelectorPtr & sel, bool lazy=false) {
     bool justBlanks = true;
     for(std::string::const_iterator c = cut.begin(); c != cut.end(); ++c) {
         if(*c != ' ') { justBlanks = false; break; }

@@ -5,7 +5,7 @@
 namespace reco {
   namespace parser {
     class AnyObjSelector : public SelectorBase {
-      virtual bool operator()(const Reflex::Object & c) const { return true; }
+      virtual bool operator()(const edm::ObjectWithDict & c) const { return true; }
     };
   }
 }

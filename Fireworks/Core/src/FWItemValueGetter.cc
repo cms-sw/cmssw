@@ -8,15 +8,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 30 16:15:43 EST 2008
-// $Id: FWItemValueGetter.cc,v 1.8 2011/08/20 03:48:40 amraktad Exp $
+// $Id: FWItemValueGetter.cc,v 1.9 2012/06/26 22:13:04 wmtan Exp $
 //
 
 // system include files
 #include <sstream>
 #include <cstdio>
 #include "TMath.h"
-#include "Reflex/Base.h"
-#include "Reflex/Base.h"
+#include "FWCore/Utilities/interface/BaseWithDict.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWItemValueGetter.h"
@@ -34,11 +34,11 @@
 //==============================================================================
 
 
-FWItemValueGetter::FWItemValueGetter(const Reflex::Type& iType, const std::string& iPurpose):
+FWItemValueGetter::FWItemValueGetter(const edm::TypeWithDict& iType, const std::string& iPurpose):
    m_type(iType),
    m_titleWidth(0)
 {
-   if ( iType.Name() == "CaloTower" )
+   if (!strcmp(iType.name().c_str(), "CaloTower"))
    {
       if ( iPurpose == "ECal" )
          addEntry("emEt", 1, "et", "GeV");
@@ -90,7 +90,7 @@ bool FWItemValueGetter::addEntry(std::string iExpression, int iPrec, std::string
    reco::parser::ExpressionPtr tmpPtr;
    reco::parser::Grammar grammar(tmpPtr, m_type);
 
-   if(m_type != Reflex::Type() && iExpression.size()) 
+   if(m_type != edm::TypeWithDict() && iExpression.size()) 
    {
       using namespace fireworks::expression;
 
@@ -122,7 +122,7 @@ double
 FWItemValueGetter::valueFor(const void* iObject, int idx) const
 {
    //  std::cout << " value for " << idx << "size " <<  m_entries.size() <<std::endl;
-   Reflex::Object o(m_type, const_cast<void *>(iObject));
+   edm::ObjectWithDict o(m_type, const_cast<void *>(iObject));
    return m_entries[idx].m_expr->value(o);
 }
 
@@ -157,7 +157,7 @@ FWItemValueGetter::getToolTip(const void* iObject) const
    static std::string buff(128, 0);
    static std::string fs = "\n %*s = %.*f";
 
-   Reflex::Object o(m_type, const_cast<void *>(iObject));
+   edm::ObjectWithDict o(m_type, const_cast<void *>(iObject));
 
    int off = 0;
    for ( std::vector<Entry >::const_iterator i = m_entries.begin() ; i != m_entries.end(); ++i) {

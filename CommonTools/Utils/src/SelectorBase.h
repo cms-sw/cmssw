@@ -2,15 +2,15 @@
 #define CommonTools_Utils_SelectorBase_h
 /** \class SelectorBase
  *
- * Base class for all Reflex object selector 
+ * Base class for all object selector 
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
  */
 
-namespace Reflex { class Object; } 
+namespace edm {class ObjectWithDict;}
 
 namespace reco {
   namespace parser {
@@ -18,8 +18,8 @@ namespace reco {
     public:
       /// destructor
       virtual ~SelectorBase() { }
-      /// return true if the Refle object is selected
-      virtual bool operator()(const Reflex::Object & c) const = 0;
+      /// return true if the object is selected
+      virtual bool operator()(const edm::ObjectWithDict & c) const = 0;
     };
   }
 }

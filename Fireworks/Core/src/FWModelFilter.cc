@@ -8,13 +8,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:56 PST 2008
-// $Id: FWModelFilter.cc,v 1.13 2010/09/01 18:49:00 amraktad Exp $
+// $Id: FWModelFilter.cc,v 1.14 2012/06/26 22:13:04 wmtan Exp $
 //
 
 // system include files
 #include <sstream>
 
-#include "Reflex/Object.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWModelFilter.h"
@@ -39,7 +39,7 @@
 FWModelFilter::FWModelFilter(const std::string& iExpression,
                              const std::string& iClassName) :
    m_className(iClassName),
-   m_type(Reflex::Type::ByName(iClassName))
+   m_type(edm::TypeWithDict::byName(iClassName))
 {
    setExpression(iExpression);
 }
@@ -71,7 +71,7 @@ FWModelFilter::~FWModelFilter()
 void
 FWModelFilter::setExpression(const std::string& iExpression)
 {
-   if(m_type != Reflex::Type() && iExpression.size()) {
+   if(m_type != edm::TypeWithDict() && iExpression.size()) {
       using namespace fireworks::expression;
 
       //Backwards compatibility with old format
@@ -104,10 +104,10 @@ FWModelFilter::setClassName(const std::string& iClassName)
 {
    //NOTE: How do we handle the case where the filter was created before
    // the library for the class was loaded and therefore we don't have
-   // a Reflex dictionary for it?
+   // a dictionary for it?
 
    m_className = iClassName;
-   m_type = Reflex::Type::ByName(iClassName);
+   m_type = edm::TypeWithDict::byName(iClassName);
    setExpression(m_expression);
 }
 
@@ -127,7 +127,7 @@ FWModelFilter::passesFilter(const void* iObject) const
       return true;
    }
 
-   Reflex::Object o(m_type, const_cast<void *>(iObject));
+   edm::ObjectWithDict o(m_type, const_cast<void *>(iObject));
    return (*m_selector)(o);
 }
 

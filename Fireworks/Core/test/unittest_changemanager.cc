@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 10:19:07 EST 2008
-// $Id: unittest_changemanager.cc,v 1.4 2010/07/26 15:13:13 matevz Exp $
+// $Id: unittest_changemanager.cc,v 1.5 2012/06/26 22:13:04 wmtan Exp $
 //
 
 // system include files
@@ -28,6 +28,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "Fireworks/Core/interface/FWItemAccessorBase.h"
+
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
 
 
 //
@@ -67,7 +69,7 @@ namespace {
       ///override if id of an object should be different than the index
       //virtual std::string idForIndex(int iIndex) const;
       // ---------- member functions ---------------------------
-      virtual void setData(const Reflex::Object& ) {}
+      virtual void setData(const edm::ObjectWithDict& ) {}
       virtual void reset(){}
       
    private:
@@ -97,7 +99,7 @@ BOOST_AUTO_TEST_CASE( changemanager )
    
    FWEventItem item(&context, 0,accessor,pObj);
    //hack to force update of data
-   Reflex::Object dummy;
+   edm::ObjectWithDict dummy;
    item.setData(dummy);
    
    cm.newItemSlot(&item);

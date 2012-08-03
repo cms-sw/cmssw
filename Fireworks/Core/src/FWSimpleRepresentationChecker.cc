@@ -8,13 +8,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 10:54:28 EST 2008
-// $Id: FWSimpleRepresentationChecker.cc,v 1.6 2010/06/02 22:55:42 chrjones Exp $
+// $Id: FWSimpleRepresentationChecker.cc,v 1.7 2012/06/26 22:13:04 wmtan Exp $
 //
 
 // system include files
 #include <iostream>
 #include "TClass.h"
-#include "Reflex/Base.h"
+#include "FWCore/Utilities/interface/BaseWithDict.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
@@ -72,21 +72,19 @@ FWSimpleRepresentationChecker::~FWSimpleRepresentationChecker()
 //
 // const member functions
 //
-static bool inheritsFrom(const Reflex::Type& iChild,
+static bool inheritsFrom(const edm::TypeWithDict& iChild,
                          const std::string& iParentTypeName,
                          unsigned int& distance) {
-   if(iChild.TypeInfo().name() == iParentTypeName) {
+   if(iChild.typeInfo().name() == iParentTypeName) {
       return true;
    }
-   if(iChild.BaseSize() == 0) {
+   edm::TypeBases bases(iChild);
+   if(bases.size() == 0) {
       return false;
    }
    ++distance;
-   for(Reflex::Base_Iterator it = iChild.Base_Begin(),
-                                   itEnd = iChild.Base_End();
-       it != itEnd;
-       ++it) {
-      if(inheritsFrom(it->ToType(),iParentTypeName,distance)) {
+   for(auto const& base : bases) {
+      if(inheritsFrom(edm::BaseWithDict(base).toType(),iParentTypeName,distance)) {
          return true;
       }
    }
@@ -116,8 +114,7 @@ FWSimpleRepresentationChecker::infoFor(const std::string& iTypeName) const
       // or the contained type may be unknown to ROOT
       return FWRepresentationInfo();
    }
-   Reflex::Type modelType =
-      Reflex::Type::ByTypeInfo( *(modelClass->GetTypeInfo()));
+   edm::TypeWithDict modelType( *(modelClass->GetTypeInfo()));
    //see if the modelType inherits from our type
 
    if(inheritsFrom(modelType,m_typeidName,distance) ) {

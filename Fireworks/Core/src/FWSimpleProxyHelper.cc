@@ -8,14 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 15:13:22 EST 2008
-// $Id: FWSimpleProxyHelper.cc,v 1.3 2010/08/18 10:30:14 amraktad Exp $
+// $Id: FWSimpleProxyHelper.cc,v 1.4 2012/06/26 22:09:35 wmtan Exp $
 //
 
 // system include files
 #include <sstream>
 
-#include "Reflex/Object.h"
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "TClass.h"
 
 // user include files
@@ -68,12 +68,12 @@ void
 FWSimpleProxyHelper::itemChanged(const FWEventItem* iItem)
 {
    if(0!=iItem) {
-      Reflex::Type myType = Reflex::Type::ByTypeInfo(*m_itemType);
-      Reflex::Object dummy(Reflex::Type::ByTypeInfo(*(iItem->modelType()->GetTypeInfo())),
+      edm::TypeWithDict myType(*m_itemType);
+      edm::ObjectWithDict dummy(edm::TypeWithDict(*(iItem->modelType()->GetTypeInfo())),
                    reinterpret_cast<void*>(0xFFFF));
-      Reflex::Object castTo = dummy.CastObject(myType);
-      assert(0!=castTo.Address());
-      m_objectOffset=static_cast<char*>(dummy.Address())-static_cast<char*>(castTo.Address());
+      edm::ObjectWithDict castTo(dummy.castObject(myType));
+      assert(0!=castTo.address());
+      m_objectOffset=static_cast<char*>(dummy.address())-static_cast<char*>(castTo.address());
    }
 }
 

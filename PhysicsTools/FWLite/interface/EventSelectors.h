@@ -60,7 +60,7 @@ namespace fwlite {
                                 const char *cut,   int minNumber=1, int maxNumber=-1) :
                 label_(label), instance_(instance),
                 min_(minNumber), max_(maxNumber),
-                scanner(new helper::ScannerBase(helper::Parser::elementType(Reflex::Type::ByTypeInfo(HandleT::TempWrapT::typeInfo()))))
+                scanner(new helper::ScannerBase(helper::Parser::elementType(edm::TypeWithDict(HandleT::TempWrapT::typeInfo()))))
             {
                 scanner->setCut(cut);
                 scanner->setIgnoreExceptions(true);

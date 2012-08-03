@@ -2,11 +2,11 @@
 #define CommonTools_Utils_MethodStack_h
 /* \class reco::parser::MethodStack
  *
- * Stack of reflex methods
+ * Stack of methods
  *
  * \author  Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
  */
 #include "CommonTools/Utils/src/MethodInvoker.h"

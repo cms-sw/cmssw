@@ -5,13 +5,13 @@
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
 #include "PhysicsTools/MVAComputer/interface/TreeReader.h"
 
-#ifdef __REFLEX__
-
+#ifdef __GCCXML__
 namespace { // anonymous
-namespace {
+struct dictionary {
 
 std::vector<PhysicsTools::Variable::Value> vv;
 
+};
 static void dummy(PhysicsTools::MVAComputer *mva)
 {
 	PhysicsTools::Variable::ValueList v;
@@ -27,7 +27,6 @@ static void dummy(PhysicsTools::MVAComputer *mva)
 	mva->deriv(v.data(), v.data());
 }
 
-}
 } // anonymous namespace
 
 #endif

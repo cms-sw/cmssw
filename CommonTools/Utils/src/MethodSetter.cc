@@ -41,28 +41,28 @@ void MethodSetter::operator()(const char * begin, const char * end) const {
 }
 
 bool MethodSetter::push(const string & name, const vector<AnyMethodArgument> & args, const char* begin,bool deep) const {
-  Reflex::Type type = typeStack_.back();
+  edm::TypeWithDict type = typeStack_.back();
   vector<AnyMethodArgument> fixups;
   int error;
-  pair<Reflex::Member, bool> mem = reco::findMethod(type, name, args, fixups,begin,error);
+  pair<edm::MemberWithDict, bool> mem = reco::findMethod(type, name, args, fixups,begin,error);
   if(mem.first) {
-     Reflex::Type retType = reco::returnType(mem.first);
+     edm::TypeWithDict retType = reco::returnType(mem.first);
      if(!retType) {
         throw Exception(begin)
-     	<< "member \"" << mem.first.Name() << "\" return type is invalid:\n" 
-        << "  member type: \"" <<  mem.first.TypeOf().Name() << "\"\n"
-     	<< "  return type: \"" << mem.first.TypeOf().ReturnType().Name() << "\"\n";
+     	<< "member \"" << mem.first.name() << "\" return type is invalid:\n" 
+        << "  member type: \"" <<  mem.first.typeOf().name() << "\"\n"
+     	<< "  return type: \"" << mem.first.typeOf().returnType().name() << "\"\n";
         
      }
      typeStack_.push_back(retType);
      // check for edm::Ref, edm::RefToBase, edm::Ptr
      if(mem.second) {
-        //std::cout << "Mem.second, so book " << mem.first.Name() << " without fixups." << std::endl;
+        //std::cout << "Mem.second, so book " << mem.first.name() << " without fixups." << std::endl;
         methStack_.push_back(MethodInvoker(mem.first));
         if (deep) push(name, args,begin); // note: we have not found the method, so we have not fixupped the arguments
         else return false;
       } else {
-        //std::cout << "Not mem.second, so book " << mem.first.Name() << " with #args = " << fixups.size() << std::endl;
+        //std::cout << "Not mem.second, so book " << mem.first.name() << " with #args = " << fixups.size() << std::endl;
         methStack_.push_back(MethodInvoker(mem.first, fixups));
       }
   } else {
@@ -71,57 +71,57 @@ bool MethodSetter::push(const string & name, const vector<AnyMethodArgument> & a
            case reco::parser::kIsNotPublic:
             throw Exception(begin)
               << "method named \"" << name << "\" for type \"" 
-              <<type.Name() << "\" is not publically accessible.";
+              <<type.name() << "\" is not publically accessible.";
             break;
            case reco::parser::kIsStatic:
              throw Exception(begin)
                << "method named \"" << name << "\" for type \"" 
-               <<type.Name() << "\" is static.";
+               <<type.name() << "\" is static.";
              break;
            case reco::parser::kIsNotConst:
               throw Exception(begin)
                 << "method named \"" << name << "\" for type \"" 
-                <<type.Name() << "\" is not const.";
+                <<type.name() << "\" is not const.";
               break;
            case reco::parser::kWrongNumberOfArguments:
                throw Exception(begin)
                  << "method named \"" << name << "\" for type \"" 
-                 <<type.Name() << "\" was passed the wrong number of arguments.";
+                 <<type.name() << "\" was passed the wrong number of arguments.";
                break;
            case reco::parser::kWrongArgumentType:
                throw Exception(begin)
                      << "method named \"" << name << "\" for type \"" 
-                     <<type.Name() << "\" was passed the wrong types of arguments.";
+                     <<type.name() << "\" was passed the wrong types of arguments.";
                break;
            default:  
             throw Exception(begin)
              << "method named \"" << name << "\" for type \"" 
-             <<type.Name() << "\" is not usable in this context.";
+             <<type.name() << "\" is not usable in this context.";
         }
      }
      //see if it is a member data
      int error;
-    Reflex:: Member member = reco::findDataMember(type,name,error);
+    edm::MemberWithDict member(reco::findDataMember(type,name,error));
      if(!member) {
         switch(error) {
            case reco::parser::kNameDoesNotExist:
             throw Exception(begin)
                << "no method or data member named \"" << name << "\" found for type \"" 
-               <<type.Name() << "\"";
+               <<type.name() << "\"";
             break;
            case reco::parser::kIsNotPublic:
             throw Exception(begin)
               << "data member named \"" << name << "\" for type \"" 
-              <<type.Name() << "\" is not publically accessible.";
+              <<type.name() << "\" is not publically accessible.";
             break;
            default:
            throw Exception(begin)
              << "data member named \"" << name << "\" for type \"" 
-             <<type.Name() << "\" is not usable in this context.";
+             <<type.name() << "\" is not usable in this context.";
            break;
         }
      }
-     typeStack_.push_back(member.TypeOf());
+     typeStack_.push_back(member.typeOf());
      methStack_.push_back(MethodInvoker(member));
   }
   return true;

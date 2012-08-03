@@ -1,6 +1,6 @@
 #include "CommonTools/Utils/src/ExpressionVar.h"
-#include "Reflex/Object.h"
-#include <Reflex/Builder/NewDelFunctions.h>
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include <map>
 #include <assert.h>
 using namespace reco::parser;
@@ -17,22 +17,22 @@ ExpressionVar::ExpressionVar(const ExpressionVar &other) :
 }
 
 ExpressionVar::~ExpressionVar() {
-    for(std::vector<Reflex::Object>::iterator it = objects_.begin(); it != objects_.end(); ++it) {
+    for(std::vector<edm::ObjectWithDict>::iterator it = objects_.begin(); it != objects_.end(); ++it) {
         delStorage(*it);
     }
     objects_.clear();
 }
 
 void
-ExpressionVar::delStorage(Reflex::Object &obj) {
-    if (obj.Address() != 0) {
-        if (obj.TypeOf().IsPointer() || obj.TypeOf().IsReference()) {
+ExpressionVar::delStorage(edm::ObjectWithDict &obj) {
+    if (obj.address() != 0) {
+        if (obj.typeOf().isPointer() || obj.typeOf().isReference()) {
             // just delete a void *, as that's what it was
-            void **p = static_cast<void **>(obj.Address());
+            void **p = static_cast<void **>(obj.address());
             delete p;
         } else {
-            //std::cout << "Calling Destruct on a " << obj.TypeOf().Name(QUALIFIED) << std::endl;
-            obj.TypeOf().Deallocate(obj.Address());
+            //std::cout << "Calling Destruct on a " << obj.typeOf().name(edm::TypeNameHandling::Qualified) << std::endl;
+            obj.typeOf().deallocate(obj.address());
         }
     }
 }
@@ -40,33 +40,33 @@ ExpressionVar::delStorage(Reflex::Object &obj) {
 void ExpressionVar::initObjects_() {
     objects_.resize(methods_.size());
     std::vector<MethodInvoker>::const_iterator it = methods_.begin(), ed = methods_.end();
-    std::vector<Reflex::Object>::iterator itobj = objects_.begin();
+    std::vector<edm::ObjectWithDict>::iterator itobj = objects_.begin();
     for (; it != ed; ++it, ++itobj) {
         needsDestructor_.push_back(makeStorage(*itobj, it->method()));
     }
 }
 
 bool
-ExpressionVar::makeStorage(Reflex::Object &obj, const Reflex::Member &member) {
+ExpressionVar::makeStorage(edm::ObjectWithDict &obj, const edm::MemberWithDict &member) {
     bool ret = false;
-    static Reflex::Type tVoid = Reflex::Type::ByName("void");
-    if (member.IsFunctionMember()) {
-        Reflex::Type retType = member.TypeOf().ReturnType();
+    static edm::TypeWithDict tVoid(edm::TypeWithDict::byName("void"));
+    if (member.isFunctionMember()) {
+        edm::TypeWithDict retType = member.typeOf().returnType();
         //remove any typedefs if any. If we do not do this it appears that we get a memory leak
         // because typedefs do not have 'destructors'
-        retType = retType.FinalType();
+        retType = retType.finalType();
         if (retType == tVoid) {
-            obj = Reflex::Object(tVoid);
-        } else if (retType.IsPointer() || retType.IsReference()) {
+            obj = edm::ObjectWithDict(tVoid);
+        } else if (retType.isPointer() || retType.isReference()) {
             // in this case, I have to allocate a void *, not an object!
-            obj = Reflex::Object(retType, new void *);
+            obj = edm::ObjectWithDict(retType, new void *);
         } else {
-            obj = Reflex::Object(retType, retType.Allocate());
-            ret = retType.IsClass();
-            //std::cout << "ExpressionVar: reserved memory at "  << obj.Address() << " for a " << retType.Name(QUALIFIED) << " returned by " << member.Name() << std::endl;
+            obj = edm::ObjectWithDict(retType, retType.allocate());
+            ret = retType.isClass();
+            //std::cout << "ExpressionVar: reserved memory at "  << obj.address() << " for a " << retType.name(edm::TypeNameHandling::Qualified) << " returned by " << member.name() << std::endl;
         }
     } else { // no alloc, we don't need it
-        obj = Reflex::Object();
+        obj = edm::ObjectWithDict();
     }
     return ret;
 }
@@ -95,26 +95,26 @@ bool ExpressionVar::isValidReturnType(method::TypeCode retType)
    return ret;
 }
 
-double ExpressionVar::value(const Reflex::Object & o) const {
-  Reflex::Object ro = o;
+double ExpressionVar::value(const edm::ObjectWithDict & o) const {
+  edm::ObjectWithDict ro = o;
   std::vector<MethodInvoker>::const_iterator itm, end = methods_.end();
-  std::vector<Reflex::Object>::iterator      ito;
+  std::vector<edm::ObjectWithDict>::iterator      ito;
   for(itm = methods_.begin(), ito = objects_.begin(); itm != end; ++itm, ++ito) {
       ro = itm->invoke(ro, *ito);
   }
   double ret = objToDouble(ro, retType_);
-  std::vector<Reflex::Object>::reverse_iterator rito, rend = objects_.rend();;
+  std::vector<edm::ObjectWithDict>::reverse_iterator rito, rend = objects_.rend();;
   std::vector<bool>::const_reverse_iterator ritb;
   for(rito = objects_.rbegin(), ritb = needsDestructor_.rbegin(); rito != rend; ++rito, ++ritb) {
-      if (*ritb) rito->TypeOf().Destruct(rito->Address(), false);
+      if (*ritb) rito->typeOf().destruct(rito->address(), false);
   }
   return ret;
 }
 
 double
-ExpressionVar::objToDouble(const Reflex::Object &obj, method::TypeCode type) {
+ExpressionVar::objToDouble(const edm::ObjectWithDict &obj, method::TypeCode type) {
   using namespace method;
-  void * addr = obj.Address();
+  void * addr = obj.address();
   double ret = 0;
   switch(type) {
   case(doubleType) : ret = * static_cast<double         *>(addr); break;
@@ -135,19 +135,6 @@ ExpressionVar::objToDouble(const Reflex::Object &obj, method::TypeCode type) {
   return ret;
 }
 
-void ExpressionVar::trueDelete(Reflex::Object & obj) {
-     static std::map<void *, Reflex::NewDelFunctions *> deleters_;
-     void * reflexTypeId = obj.TypeOf().Id();
-     std::map<void *, Reflex::NewDelFunctions *>::iterator match = deleters_.find(reflexTypeId);
-     if (match == deleters_.end()) {
-         Reflex::NewDelFunctions *ptr;
-         Reflex::Object newDel(Reflex::Type::ByTypeInfo(typeid(ptr)), &ptr);
-         obj.Invoke("__getNewDelFunctions", &newDel);
-         match = deleters_.insert(std::make_pair(reflexTypeId, ptr)).first;   
-     }
-     (*match->second->fDelete)(obj.Address());
-}
-
 ExpressionLazyVar::ExpressionLazyVar(const std::vector<LazyInvoker> & methods) :
     methods_(methods)
 {
@@ -158,16 +145,16 @@ ExpressionLazyVar::~ExpressionLazyVar()
 }
 
 double
-ExpressionLazyVar::value(const Reflex::Object & o) const {
+ExpressionLazyVar::value(const edm::ObjectWithDict & o) const {
     std::vector<LazyInvoker>::const_iterator it, ed = methods_.end()-1;
-    Reflex::Object ro = o;
+    edm::ObjectWithDict ro = o;
     for (it = methods_.begin(); it < ed; ++it) {
         ro = it->invoke(ro, objects_);
     }
     double ret = it->invokeLast(ro, objects_);
-    std::vector<Reflex::Object>::reverse_iterator rit, red = objects_.rend();
+    std::vector<edm::ObjectWithDict>::reverse_iterator rit, red = objects_.rend();
     for (rit = objects_.rbegin(); rit != red; ++rit) {
-        rit->TypeOf().Destruct(rit->Address(), false);
+        rit->typeOf().destruct(rit->address(), false);
     }
     objects_.clear();
     return ret;

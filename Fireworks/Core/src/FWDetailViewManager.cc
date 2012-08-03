@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.62 2011/05/27 04:03:42 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.63 2012/06/26 22:13:03 wmtan Exp $
 //
 
 #include <stdio.h>
@@ -69,7 +69,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& i
    TEveCompositeFrameInMainFrame* eveFrame = (TEveCompositeFrameInMainFrame*)slot->GetEveFrame();
 
    // find the right viewer for this item
-   std::string typeName = Reflex::Type::ByTypeInfo(*(id.item()->modelType()->GetTypeInfo())).Name(Reflex::SCOPED);
+   std::string typeName = edm::TypeWithDict(*(id.item()->modelType()->GetTypeInfo())).name(edm::TypeNameHandling::Scoped);
    std::vector<std::string> viewerNames = findViewersFor(typeName);
    if(0==viewerNames.size()) {
       fwLog(fwlog::kError) << "FWDetailViewManager: don't know what detailed view to "
@@ -107,7 +107,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& i
 std::vector<std::string>
 FWDetailViewManager::detailViewsFor(const FWModelId& iId) const
 {
-   std::string typeName = Reflex::Type::ByTypeInfo(*(iId.item()->modelType()->GetTypeInfo())).Name(Reflex::SCOPED);
+   std::string typeName = edm::TypeWithDict(*(iId.item()->modelType()->GetTypeInfo())).name(edm::TypeNameHandling::Scoped);
    std::vector<std::string> fullNames = findViewersFor(typeName);
    std::vector<std::string> justViewNames;
    justViewNames.reserve(fullNames.size());

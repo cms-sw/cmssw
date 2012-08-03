@@ -43,7 +43,7 @@ namespace fwlite {
     template<typename Collection>
     class Scanner {
         public:
-            /// The type of the Handle to read the Ts from the event. Needed to resolve it's Reflex type
+            /// The type of the Handle to read the Ts from the event. Needed to resolve its Type
             typedef fwlite::Handle<Collection> HandleT;
 
             /** Create a Scanner, passing a fwlite Event and the labels (just like you would in 'getByLabel') */
@@ -55,7 +55,7 @@ namespace fwlite {
                 maxEvents_(-1),
                 maxLinesToPrint_(50)
             {
-                objType = helper::Parser::elementType(Reflex::Type::ByTypeInfo(HandleT::TempWrapT::typeInfo()));
+                objType = helper::Parser::elementType(edm::TypeWithDict(HandleT::TempWrapT::typeInfo()));
             }
 
    //------------------------------------------------------------------------------------------------------------------------------------
@@ -582,7 +582,7 @@ namespace fwlite {
             bool ignoreExceptions_;
             TString exprSep_;
             HandleT        handle_;
-            Reflex::Type   objType;
+            edm::TypeWithDict   objType;
 
             TObjArray eventSelectors_;
 

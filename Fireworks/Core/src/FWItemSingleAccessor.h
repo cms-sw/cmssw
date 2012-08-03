@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 11:36:41 EDT 2008
-// $Id: FWItemSingleAccessor.h,v 1.4 2010/07/23 16:02:54 eulisse Exp $
+// $Id: FWItemSingleAccessor.h,v 1.5 2012/06/26 22:13:04 wmtan Exp $
 //
 
 // system include files
@@ -42,7 +42,7 @@ public:
    bool isCollection() const;
 
    // ---------- member functions ---------------------------
-   void setData(const Reflex::Object& );
+   void setData(const edm::ObjectWithDict& );
    virtual void reset();
 
 private:

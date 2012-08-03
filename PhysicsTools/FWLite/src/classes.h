@@ -7,7 +7,7 @@
 #include <vector>
 #include "PhysicsTools/FWLite/interface/ScannerHelpers.h"
 
-// typedefs are useful, sometimes genreflex has problems with default template arguments (e.g. the allocator)
+// typedefs are useful, sometimes Root has problems with default template arguments (e.g. the allocator)
 namespace reco { namespace parser {
     typedef std::vector<reco::parser::ExpressionPtr> ExpressionPtrs;
     typedef std::vector<reco::parser::SelectorPtr> SelectorPtrs;

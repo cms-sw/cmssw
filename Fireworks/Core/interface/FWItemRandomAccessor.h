@@ -7,11 +7,11 @@
 //
 // Original Author:  Giulio Eulisse
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
-// $Id: FWItemRandomAccessor.h,v 1.8 2010/07/23 16:02:54 eulisse Exp $
+// $Id: FWItemRandomAccessor.h,v 1.9 2012/06/26 22:13:03 wmtan Exp $
 //
 
 // system include files
-#include "Reflex/Object.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWItemAccessorBase.h"
@@ -37,7 +37,7 @@ public:
 
    bool           isCollection() const;
 
-   void           setData(const Reflex::Object&);
+   void           setData(const edm::ObjectWithDict&);
    virtual void   reset();
 
 protected:

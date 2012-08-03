@@ -8,11 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 08:43:47 EDT 2008
-// $Id: FWItemTVirtualCollectionProxyAccessor.cc,v 1.7 2010/11/01 14:48:19 matevz Exp $
+// $Id: FWItemTVirtualCollectionProxyAccessor.cc,v 1.8 2012/06/26 22:09:35 wmtan Exp $
 //
 
 // system include files
-#include "Reflex/Object.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "TVirtualCollectionProxy.h"
 
 // user include files
@@ -66,18 +67,18 @@ FWItemTVirtualCollectionProxyAccessor::~FWItemTVirtualCollectionProxyAccessor()
 // member functions
 //
 void
-FWItemTVirtualCollectionProxyAccessor::setData(const Reflex::Object& product)
+FWItemTVirtualCollectionProxyAccessor::setData(const edm::ObjectWithDict& product)
 {
-   if (product.Address() == 0)
+   if (product.address() == 0)
    {
       reset();
       return;
    }
 
-   if(product.TypeOf().IsTypedef())
-      m_data = Reflex::Object(product.TypeOf().ToType(),product.Address()).Address();
+   if(product.typeOf().isTypedef())
+      m_data = edm::ObjectWithDict(product.typeOf().toType(),product.address()).address();
    else
-      m_data = product.Address();
+      m_data = product.address();
 
    assert(0!=m_data);
    m_colProxy->PushProxy(static_cast<char*>(const_cast<void*>(m_data))+m_offset);

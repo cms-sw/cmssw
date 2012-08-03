@@ -16,12 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 15:04:58 EST 2008
-// $Id: FWPhysicsObjectDesc.h,v 1.7 2009/04/07 15:58:39 chrjones Exp $
+// $Id: FWPhysicsObjectDesc.h,v 1.8 2010/05/31 09:44:45 eulisse Exp $
 //
 
 // system include files
 #include <string>
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWDisplayProperties.h"

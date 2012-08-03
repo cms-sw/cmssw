@@ -6,7 +6,7 @@
 #include <iostream>
 
 reco::parser::ExpressionPtr
-helper::Parser::makeExpression(const std::string &expr, const Reflex::Type &type) {
+helper::Parser::makeExpression(const std::string &expr, const edm::TypeWithDict &type) {
     reco::parser::ExpressionPtr ret;
 
     using namespace boost::spirit::classic;
@@ -21,7 +21,7 @@ helper::Parser::makeExpression(const std::string &expr, const Reflex::Type &type
 }
 
 reco::parser::SelectorPtr
-helper::Parser::makeSelector(const std::string &expr, const Reflex::Type &type) {
+helper::Parser::makeSelector(const std::string &expr, const edm::TypeWithDict &type) {
     reco::parser::SelectorPtr ret;
 
     using namespace boost::spirit::classic;
@@ -35,32 +35,32 @@ helper::Parser::makeSelector(const std::string &expr, const Reflex::Type &type) 
     return ret;
 }
 
-Reflex::Type
-helper::Parser::elementType(const Reflex::Type &wrapperType) {
-    Reflex::Type collection = wrapperType.TemplateArgumentAt(0);
-    while (collection.IsTypedef()) collection = collection.ToType();
+edm::TypeWithDict
+helper::Parser::elementType(const edm::TypeWithDict &wrapperType) {
+    edm::TypeWithDict collection = wrapperType.templateArgumentAt(0);
+    while (collection.isTypedef()) collection = collection.toType();
     // now search for value_type
-    for (size_t i = 0; i < collection.SubTypeSize(); ++i) {
-        Reflex::Type objtype = collection.SubTypeAt(i);
-        if (objtype.Name() == "value_type") {
-            while (objtype.IsTypedef()) objtype = objtype.ToType();
+    for (size_t i = 0; i < collection.subTypeSize(); ++i) {
+        edm::TypeWithDict objtype = collection.subTypeAt(i);
+        if (objtype.name() == "value_type") {
+            while (objtype.isTypedef()) objtype = objtype.toType();
             return objtype;
         }
     }
-    std::cerr << "Can't get a type out of " << wrapperType.Name(Reflex::SCOPED) << std::endl;
-    return Reflex::Type();
+    std::cerr << "Can't get a type out of " << wrapperType.name(edm::TypeNameHandling::Scoped) << std::endl;
+    return edm::TypeWithDict();
 }
 
 bool
-helper::Parser::test(const reco::parser::SelectorPtr &sel, const Reflex::Type type, const void * ptr) {
-    if (sel.get() == 0) return false;Reflex::Object obj(type, const_cast<void *>(ptr));
+helper::Parser::test(const reco::parser::SelectorPtr &sel, const edm::TypeWithDict type, const void * ptr) {
+    if (sel.get() == 0) return false;edm::ObjectWithDict obj(type, const_cast<void *>(ptr));
     return (*sel)(obj);
 }
 
 double
-helper::Parser::eval(const reco::parser::ExpressionPtr &expr, const Reflex::Type type, const void * ptr) {
+helper::Parser::eval(const reco::parser::ExpressionPtr &expr, const edm::TypeWithDict type, const void * ptr) {
     if (expr.get() == 0) return 0;
-    Reflex::Object obj(type, const_cast<void *>(ptr));
+    edm::ObjectWithDict obj(type, const_cast<void *>(ptr));
     return expr->value(obj);
 }
 
@@ -116,7 +116,7 @@ helper::ScannerBase::test(const void *ptr, size_t icut) const {
     if (icut >= cuts_.size()) return false;
     if (cuts_[icut].get() == 0) return true;
     try {
-        Reflex::Object obj(objType_, const_cast<void *>(ptr));
+        edm::ObjectWithDict obj(objType_, const_cast<void *>(ptr));
         return (*cuts_[icut])(obj);
     } catch (std::exception &ex) {
         if (!ignoreExceptions_) std::cerr << "Caught exception " << ex.what() << std::endl;
@@ -127,7 +127,7 @@ helper::ScannerBase::test(const void *ptr, size_t icut) const {
 double
 helper::ScannerBase::eval(const void *ptr, size_t iexpr) const {
     try {
-        Reflex::Object obj(objType_, const_cast<void *>(ptr));
+        edm::ObjectWithDict obj(objType_, const_cast<void *>(ptr));
         if (exprs_.size() > iexpr)  return exprs_[iexpr]->value(obj);
     } catch (std::exception &ex) {
         if (!ignoreExceptions_) std::cerr << "Caught exception " << ex.what() << std::endl;
@@ -137,7 +137,7 @@ helper::ScannerBase::eval(const void *ptr, size_t iexpr) const {
 
 void
 helper::ScannerBase::print(const void *ptr) const {
-    Reflex::Object obj(objType_, const_cast<void *>(ptr));
+    edm::ObjectWithDict obj(objType_, const_cast<void *>(ptr));
     if ((cuts_[0].get() == 0) || (*cuts_[0])(obj)) {
         for (std::vector<reco::parser::ExpressionPtr>::const_iterator it = exprs_.begin(), ed = exprs_.end(); it != ed; ++it) {
             if (ptr == 0 || it->get() == 0) {
@@ -184,7 +184,7 @@ helper::ScannerBase::print(const void *ptr) const {
 
 void
 helper::ScannerBase::fill1D(const void *ptr, TH1 *hist) const {
-    Reflex::Object obj(objType_, const_cast<void *>(ptr));
+    edm::ObjectWithDict obj(objType_, const_cast<void *>(ptr));
     if ((cuts_[0].get() == 0) || (*cuts_[0])(obj)) {
         try {
             if (!exprs_.empty()) hist->Fill(exprs_[0]->value(obj));
@@ -196,7 +196,7 @@ helper::ScannerBase::fill1D(const void *ptr, TH1 *hist) const {
 
 void
 helper::ScannerBase::fill2D(const void *ptr, TH2 *hist) const {
-    Reflex::Object obj(objType_, const_cast<void *>(ptr));
+    edm::ObjectWithDict obj(objType_, const_cast<void *>(ptr));
     if ((cuts_[0].get() == 0) || (*cuts_[0])(obj)) {
         try {
             if (exprs_.size() >= 2) hist->Fill(exprs_[0]->value(obj), exprs_[1]->value(obj));
@@ -208,7 +208,7 @@ helper::ScannerBase::fill2D(const void *ptr, TH2 *hist) const {
 
 void
 helper::ScannerBase::fillGraph(const void *ptr, TGraph *graph) const {
-    Reflex::Object obj(objType_, const_cast<void *>(ptr));
+    edm::ObjectWithDict obj(objType_, const_cast<void *>(ptr));
     if ((cuts_[0].get() == 0) || (*cuts_[0])(obj)) {
         try {
             if (exprs_.size() >= 2) graph->SetPoint(graph->GetN(), exprs_[0]->value(obj), exprs_[1]->value(obj));
@@ -221,7 +221,7 @@ helper::ScannerBase::fillGraph(const void *ptr, TGraph *graph) const {
 
 void
 helper::ScannerBase::fillProf(const void *ptr, TProfile *hist) const {
-    Reflex::Object obj(objType_, const_cast<void *>(ptr));
+    edm::ObjectWithDict obj(objType_, const_cast<void *>(ptr));
     if ((cuts_[0].get() == 0) || (*cuts_[0])(obj)) {
         try {
             if (exprs_.size() >= 2) hist->Fill(exprs_[0]->value(obj), exprs_[1]->value(obj));

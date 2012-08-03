@@ -5,9 +5,9 @@
  * Numberical expression
  *
  * \author original version: Chris Jones, Cornell, 
- *         adapted to Reflex by Luca Lista, INFN
+ *         adapted by Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
  */
 #include "CommonTools/Utils/src/ExpressionBase.h"
@@ -15,7 +15,7 @@
 namespace reco {
   namespace parser {
     struct ExpressionNumber : public ExpressionBase {
-      virtual double value( const Reflex::Object& ) const { return value_; }
+      virtual double value( const edm::ObjectWithDict& ) const { return value_; }
       ExpressionNumber( double value ) : value_( value ) { }
     private:
       double value_;

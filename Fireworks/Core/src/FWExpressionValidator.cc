@@ -8,15 +8,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 20:42:51 EDT 2008
-// $Id: FWExpressionValidator.cc,v 1.7 2010/06/18 10:17:15 yana Exp $
+// $Id: FWExpressionValidator.cc,v 1.8 2012/06/26 22:13:03 wmtan Exp $
 //
 
 // system include files
 #include <ctype.h>
 #include <algorithm>
 
-#include "Reflex/Member.h"
-#include "Reflex/Base.h"
+#include "FWCore/Utilities/interface/BaseWithDict.h"
+#include "FWCore/Utilities/interface/MemberWithDict.h"
 #include <cstring>
 
 // user include files
@@ -50,10 +50,10 @@ namespace fireworks {
 
    class OptionNode {
 public:
-      OptionNode(const Reflex::Member& );
+      OptionNode(const edm::MemberWithDict& );
       OptionNode(const std::string& iDescription,
                  unsigned long iSubstitutionEnd,
-                 const Reflex::Type& iType);
+                 const edm::TypeWithDict& iType);
 
       const std::string& description() const {
          return m_description;
@@ -80,20 +80,20 @@ public:
          return m_description.substr(0,m_endOfName) < iRHS.m_description.substr(0,iRHS.m_endOfName);
       }
 
-      static void fillOptionForType( const Reflex::Type&,
+      static void fillOptionForType( const edm::TypeWithDict&,
                                      std::vector<boost::shared_ptr<OptionNode> >& );
 private:
-      Reflex::Type m_type;
+      edm::TypeWithDict m_type;
       mutable std::string m_description;
       mutable std::string::size_type m_endOfName;
       mutable std::vector<boost::shared_ptr<OptionNode> > m_subOptions;
       mutable bool m_hasSubOptions;
-      static bool typeHasOptions(const Reflex::Type& iType);
+      static bool typeHasOptions(const edm::TypeWithDict& iType);
    };
 
    OptionNode::OptionNode(const std::string& iDescription,
                           unsigned long iSubstitutionEnd,
-                          const Reflex::Type& iType) :
+                          const edm::TypeWithDict& iType) :
       m_type(iType),
       m_description(iDescription),
       m_endOfName(iSubstitutionEnd),
@@ -102,54 +102,57 @@ private:
    }
 
    namespace {
-      std::string descriptionFromMember(const Reflex::Member& iMember)
+      std::string descriptionFromMember(const edm::MemberWithDict& iMember)
       {
-         std::string typeString = iMember.TypeOf().Name();
+         std::string typeString = iMember.typeName();
          std::string::size_type index = typeString.find_first_of("(");
          if(index == std::string::npos) {
-            return iMember.Name()+":"+typeString;
+            return iMember.name()+":"+typeString;
          } else {
-            return iMember.Name()+typeString.substr(index,std::string::npos)+":"+
+            return iMember.name()+typeString.substr(index,std::string::npos)+":"+
                    typeString.substr(0,index);
          }
       }
    }
 
-   OptionNode::OptionNode(const Reflex::Member& iMember) :
+   OptionNode::OptionNode(const edm::MemberWithDict& iMember) :
       m_type(reco::returnType(iMember)),
       m_description(descriptionFromMember(iMember)),
-      m_endOfName(iMember.Name().size()),
+      m_endOfName(iMember.name().size()),
       m_hasSubOptions(typeHasOptions(m_type))
    {
    }
 
 
-   void OptionNode::fillOptionForType( const Reflex::Type& iType,
+   void OptionNode::fillOptionForType( const edm::TypeWithDict& iType,
                                        std::vector<boost::shared_ptr<OptionNode> >& oOptions)
    {
-      Reflex::Type type = iType;
-      if(type.IsPointer()) {
-         type = type.ToType();
+      edm::TypeWithDict type = iType;
+      if(type.isPointer()) {
+         type = type.toType();
       }
       // first look in base scope
-      oOptions.reserve(oOptions.size()+type.FunctionMemberSize());
-      for(Reflex::Member_Iterator m = type.FunctionMember_Begin(); m != type.FunctionMember_End(); ++m ) {
-         if(!m->TypeOf().IsConst() ||
-            m->IsConstructor() ||
-            m->IsDestructor() ||
-            m->IsOperator() ||
-            !m->IsPublic() ||
-            m->Name().substr(0,2)=="__") {continue;}
-         oOptions.push_back(boost::shared_ptr<OptionNode>(new OptionNode(*m)));
+      edm::TypeFunctionMembers functions(type);
+      oOptions.reserve(oOptions.size()+functions.size());
+      for(auto const& function : functions) {
+         edm::MemberWithDict m(function); 
+         if(!m.typeOf().isConst() ||
+            m.isConstructor() ||
+            m.isDestructor() ||
+            m.isOperator() ||
+            !m.isPublic() ||
+            m.name().substr(0,2)=="__") {continue;}
+         oOptions.push_back(boost::shared_ptr<OptionNode>(new OptionNode(m)));
       }
 
-      for(Reflex::Base_Iterator b = type.Base_Begin(); b != type.Base_End(); ++b) {
-         fillOptionForType(b->ToType(),oOptions);
+      edm::TypeBases bases(type);
+      for(auto const& base : bases) {
+         fillOptionForType(edm::BaseWithDict(base).toType(),oOptions);
       }
    }
 
-   bool OptionNode::typeHasOptions(const Reflex::Type& iType) {
-      return iType.IsClass();
+   bool OptionNode::typeHasOptions(const edm::TypeWithDict& iType) {
+      return iType.isClass();
    }
 
 }
@@ -170,7 +173,7 @@ private:
 FWExpressionValidator::FWExpressionValidator()
 {
    using  fireworks::OptionNode;
-   static const Reflex::Type s_float(Reflex::Type::ByTypeInfo(typeid(float)));
+   static const edm::TypeWithDict s_float(typeid(float));
    FUN1(abs);
    FUN1(acos);
    FUN1(asin);
@@ -220,7 +223,7 @@ FWExpressionValidator::~FWExpressionValidator()
 // member functions
 //
 void
-FWExpressionValidator::setType(const Reflex::Type& iType)
+FWExpressionValidator::setType(const edm::TypeWithDict& iType)
 {
    using fireworks::OptionNode;
    m_type=iType;
@@ -283,7 +286,7 @@ FWExpressionValidator::fillOptions(const char* iBegin, const char* iEnd,
        it != itEnd; ++it) {
       OptionNode temp(std::string(begin,*it),
                       *it-begin,
-                      Reflex::Type());
+                      edm::TypeWithDict());
 
       boost::shared_ptr<OptionNode> comp(&temp, dummyDelete);
       Options::const_iterator itFind =std::lower_bound(nodes->begin(),
