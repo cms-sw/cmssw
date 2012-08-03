@@ -62,7 +62,7 @@ namespace edm {
 
     bool isPresent() const {return present;}
     std::type_info const& dynamicTypeInfo_() const {return typeid(T);}
-#ifndef __REFLEX__
+#ifndef __GCCXML__
     bool isMergeable() const;
 
     bool mergeProduct(Wrapper<T> const* wrappedNewProduct);
@@ -197,7 +197,7 @@ namespace edm {
     void operator()(T& a, T& b) { a = b; }
   };
 
-#ifndef __REFLEX__
+#ifndef __GCCXML__
   template <typename T>
   struct IsMergeable {
     bool operator()(T const&) const { return true; }
@@ -260,7 +260,7 @@ namespace edm {
         sizeof(has_swap_helper<T>(0)) == sizeof(yes_tag);
     };
 
-#ifndef __REFLEX__
+#ifndef __GCCXML__
     template <typename T, bool (T::*)(T const&)>  struct mergeProduct_function;
     template <typename T> no_tag  has_mergeProduct_helper(...);
     template <typename T> yes_tag has_mergeProduct_helper(mergeProduct_function<T, &T::mergeProduct> * dummy);
@@ -313,7 +313,7 @@ namespace edm {
 
   }
 
-#ifndef __REFLEX__
+#ifndef __GCCXML__
   template <typename T>
   bool Wrapper<T>::isMergeable() const {
     typename boost::mpl::if_c<detail::has_mergeProduct_function<T>::value,
@@ -460,7 +460,7 @@ namespace edm {
 #include "DataFormats/Common/interface/setPtr.h"
 #include "DataFormats/Common/interface/fillPtrVector.h"
 
-#ifndef __REFLEX__
+#ifndef __GCCXML__
 #include "DataFormats/Common/interface/WrapperInterface.h"
 namespace edm {
   template <typename T>

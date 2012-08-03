@@ -141,7 +141,7 @@ namespace fwlite {
         if(0!=iData.pProd_) {
             iData.pProd_ = iData.obj_.address();
         }
-        obj.Destruct();
+        obj.destruct();
         //END OF WORK AROUND
 
         if (0 == tcache_.get()) {
