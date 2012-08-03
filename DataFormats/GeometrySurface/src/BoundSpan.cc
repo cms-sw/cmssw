@@ -15,7 +15,7 @@ namespace boundSpan {
     Surface::GlobalPoint corners[8];
 
     if (trapezoidalBounds) {
-      std::vector<float> const & parameters = (*trapezoidalBounds).parameters();
+	std::array<const float, 4> const & parameters = (*trapezoidalBounds).parameters();
       
       float hbotedge = parameters[0];
       float htopedge = parameters[1];

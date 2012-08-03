@@ -4,7 +4,7 @@
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
-#include <vector>
+#include <array>
 
 /** \class TrapezoidalPlaneBounds
  *  Trapezoidal plane bounds.
@@ -53,7 +53,7 @@ public:
    * ( half bottom edge, half top edge, half thickness, half apothem).
    * Beware! This order is different from the one in the constructor!
    */
-  virtual const std::vector<float> parameters() const;
+    virtual const std::array<const float, 4> parameters() const;
 
   virtual Bounds* clone() const;
 

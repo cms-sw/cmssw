@@ -148,7 +148,7 @@ private:
     double extrapolatedPosition = initPosition + initDirection*parameterOfTheLine;
     return extrapolatedPosition; 
   }
-  bool withinSensitiveRegion(LocalPoint localPos, const std::vector<float> layerBounds,
+    bool withinSensitiveRegion(LocalPoint localPos, const std::array<const float, 4> & layerBounds,
                              int station, int ring, float shiftFromEdge, float shiftFromDeadZone);
 
   // for BX monitor plots
