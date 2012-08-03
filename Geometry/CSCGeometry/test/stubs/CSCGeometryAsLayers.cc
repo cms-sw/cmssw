@@ -202,7 +202,7 @@ void
 
         // Layer geometry:  layer corner phi's...
 
-	std::vector<float> parameters = layer->geometry()->parameters();
+	std::array<const float, 4> const & parameters = layer->geometry()->parameters();
         // these parameters are half-lengths, due to GEANT
         float hBottomEdge = parameters[0];
         float hTopEdge    = parameters[1];
