@@ -27,6 +27,9 @@
 #include <RooPlot.h>
 #include <RooStats/ModelConfig.h>
 
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
+
 void utils::printRDH(RooAbsData *data) {
   std::vector<std::string> varnames, catnames;
   const RooArgSet *b0 = data->get();
@@ -488,3 +491,33 @@ void utils::CheapValueSnapshot::Print(const char *fmt) const {
     }
 }
 
+void utils::setPhysicsModelParameters( std::string setPhysicsModelParameterExpression, RooStats::ModelConfig *mc) {
+
+  const RooArgSet * POI = mc->GetParametersOfInterest();
+  if (!POI) {
+    cout << "setPhysicsModelParameter Warning: ModelConfig " << mc->GetName() << " does not have any parameters of interest. Doing nothing.\n";
+    return;
+  }
+ 
+  vector<string> SetParameterExpressionList;  
+  boost::split(SetParameterExpressionList, setPhysicsModelParameterExpression, boost::is_any_of(","));
+  for (uint p = 0; p < SetParameterExpressionList.size(); ++p) {
+    vector<string> SetParameterExpression;
+    boost::split(SetParameterExpression, SetParameterExpressionList[p], boost::is_any_of("="));
+      
+    if (SetParameterExpression.size() != 2) {
+      std::cout << "Error parsing physics model parameter expression : " << SetParameterExpressionList[p] << endl;
+    } else {
+      double PhysicsParameterValue = atof(SetParameterExpression[1].c_str());
+
+      RooRealVar *tmpParameter = (RooRealVar*)POI->find(SetParameterExpression[0].c_str());      
+
+      if (tmpParameter) {
+        tmpParameter->setVal(PhysicsParameterValue);
+      } else {
+        std::cout << "Warning: Did not find a parameter with name " << SetParameterExpression[0] << endl;
+      }
+    }
+  }
+
+}

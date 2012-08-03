@@ -83,6 +83,10 @@ namespace utils {
             const RooAbsCollection *src_;
             std::vector<double> values_;
     };
+
+    // Set values of physics model parameters
+  void setPhysicsModelParameters( std::string setPhysicsModelParameterExpression, RooStats::ModelConfig *mc);
+
 }
 
 #endif

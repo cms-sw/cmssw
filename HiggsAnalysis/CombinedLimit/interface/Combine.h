@@ -51,6 +51,7 @@ private:
   bool toysFrequentist_;
   float expectSignal_;
   float expectSignalMass_;
+  std::string setPhysicsModelParameterExpression_;
   
   // input-output related variables
   bool saveWorkspace_;

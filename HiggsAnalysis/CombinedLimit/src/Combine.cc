@@ -46,7 +46,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
-
 #include "../interface/LimitAlgo.h"
 #include "../interface/utils.h"
 #include "../interface/CloseCoutSentry.h"
@@ -79,7 +78,7 @@ Combine::Combine() :
     rMin_(std::numeric_limits<float>::quiet_NaN()), 
     rMax_(std::numeric_limits<float>::quiet_NaN()) {
     namespace po = boost::program_options;
-    statOptions_.add_options() 
+    statOptions_.add_options()
       ("systematics,S", po::value<bool>(&withSystematics)->default_value(true), "Add systematic uncertainties")
       ("cl,C",   po::value<float>(&cl)->default_value(0.95), "Confidence Level")
       ("rMin",   po::value<float>(&rMin_), "Override minimum value for signal strength")
@@ -94,6 +93,7 @@ Combine::Combine() :
       ("expectSignalMass", po::value<float>(&expectSignalMass_)->default_value(-99.), "If set to non-zero, generate *signal* toys instead of background ones, with the specified mass.")            
       ("unbinned,U", "Generate unbinned datasets instead of binned ones (works only for extended pdfs)")
       ("generateBinnedWorkaround", "Make binned datasets generating unbinned ones and then binnning them. Workaround for a bug in RooFit.")
+      ("setPhysicsModelParameters", po::value<string>(&setPhysicsModelParameterExpression_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")      
       ;
     ioOptions_.add_options()
       ("saveWorkspace", "Save workspace to output root file")
@@ -258,6 +258,13 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     }
     mc       = dynamic_cast<RooStats::ModelConfig *>(w->genobj(modelConfigName_.c_str()));
     mc_bonly = dynamic_cast<RooStats::ModelConfig *>(w->genobj(modelConfigNameB_.c_str()));
+
+    //*********************************************
+    //set physics model parameters
+    //*********************************************
+    utils::setPhysicsModelParameters( setPhysicsModelParameterExpression_, mc);
+    utils::setPhysicsModelParameters( setPhysicsModelParameterExpression_, mc_bonly);
+
     if (mc == 0) {  
         std::cerr << "Could not find ModelConfig '" << modelConfigName_ << "' in workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl;
         throw std::invalid_argument("Missing ModelConfig"); 
@@ -412,11 +419,14 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc_bonly->GetPdf()), *dobs, 0);
   }
   if (expectSignal_ > 0) { 
-      ((RooRealVar*)POI->first())->setVal(expectSignal_); 
+    if (POI->find("r")) {
+      ((RooRealVar*)POI->find("r"))->setVal(expectSignal_);     
       if (MH && expectSignalMass_>0.) {
-        MH->setVal(expectSignalMass_);
+        MH->setVal(expectSignalMass_);        
       }
-  }  
+    }
+  }
+
   if (nToys <= 0) { // observed or asimov
     iToy = nToys;
     if (iToy == -1) {	
@@ -507,7 +517,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
           if (toysFrequentist_) w->saveSnapshot("clean", w->allVars());
 	  if (verbose > 3) utils::printPdf(genPdf);
 	}
-        if (expectSignal_) ((RooRealVar*)POI->first())->setVal(expectSignal_);
+        if (POI->find("r")) {
+          if (expectSignal_) ((RooRealVar*)POI->find("r"))->setVal(expectSignal_);
+        }
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
 	if (isExtended) {
           if (newGen_) {
