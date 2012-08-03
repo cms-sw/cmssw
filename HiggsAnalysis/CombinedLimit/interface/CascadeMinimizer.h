@@ -40,7 +40,7 @@ class CascadeMinimizer {
         /// compact information about an algorithm
         struct Algo { 
             Algo() : algo(), tolerance(), strategy(-1) {}
-            Algo(const std::string &str, float tol=-1.f, int strategy=-1) : algo(str), tolerance(tol), strategy(-1) {}
+            Algo(const std::string &str, float tol=-1.f, int strategy=-1) : algo(str), tolerance(tol), strategy(strategy) {}
             std::string algo; float tolerance; int strategy;
             static float default_tolerance() { return -1.f; }
             static int   default_strategy() { return -1; }
