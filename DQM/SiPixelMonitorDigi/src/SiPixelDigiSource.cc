@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.53 2012/06/26 14:06:30 duggan Exp $
+// $Id: SiPixelDigiSource.cc,v 1.54 2012/07/29 13:53:14 duggan Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -512,12 +512,12 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
     for (int i =0; i < 2; ++i) NloEffROCs[i] = NloEffROCs[i] - NzeroROCs[i];
     MonitorElement* menoOcc=theDMBE->get("Pixel/noOccROCsBarrel");
     MonitorElement* meloOcc=theDMBE->get("Pixel/loOccROCsBarrel");
-    if(menoOcc) menoOcc->setBinContent(lumiSection/10, NzeroROCs[0]);
-    if(meloOcc) meloOcc->setBinContent(lumiSection/10, NloEffROCs[0]);
+    if(menoOcc) menoOcc->setBinContent(lumiSection/10+1, NzeroROCs[0]);
+    if(meloOcc) meloOcc->setBinContent(lumiSection/10+1, NloEffROCs[0]);
     MonitorElement* menoOcc1=theDMBE->get("Pixel/noOccROCsEndcap");
     MonitorElement* meloOcc1=theDMBE->get("Pixel/loOccROCsEndcap");
-    if(menoOcc1) menoOcc1->setBinContent(lumiSection/10, NzeroROCs[1]);
-    if(meloOcc1) meloOcc1->setBinContent(lumiSection/10, NloEffROCs[1]);
+    if(menoOcc1) menoOcc1->setBinContent(lumiSection/10+1, NzeroROCs[1]);
+    if(meloOcc1) meloOcc1->setBinContent(lumiSection/10+1, NloEffROCs[1]);
     theDMBE->cd();
   }
 //  if(lumiSection>lumSec){ lumSec = lumiSection; nLumiSecs++; }
