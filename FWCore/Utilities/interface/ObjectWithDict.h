@@ -30,7 +30,7 @@ namespace edm {
 
     ObjectWithDict(std::type_info const& typeID, void* address);
 
-    void Destruct() const {
+    void destruct() const {
       object_.Destruct();
     }
 
@@ -38,8 +38,6 @@ namespace edm {
       return object_.Address();
     }
 
-    std::string name() const;
-    
     std::string typeName() const;
 
     bool isPointer() const;
@@ -73,6 +71,10 @@ namespace edm {
 #endif
 
     ObjectWithDict construct() const;
+
+    template <typename T> T objectCast() {
+      return Reflex::Object_Cast<T>(this->object_);
+    }
 
   private:
     friend class MemberWithDict;

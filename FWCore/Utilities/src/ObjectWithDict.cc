@@ -16,11 +16,6 @@ namespace edm {
   ObjectWithDict::ObjectWithDict(std::type_info const& typeID, void* address) : object_(Reflex::Type::ByTypeInfo(typeID), address) {}
 
   std::string
-  ObjectWithDict::name() const {
-    return object_.TypeOf().Name();
-  }    
-    
-  std::string
   ObjectWithDict::typeName() const {
     return object_.TypeOf().TypeInfo().name();
   }

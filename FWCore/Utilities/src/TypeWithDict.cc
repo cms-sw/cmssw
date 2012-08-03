@@ -16,10 +16,10 @@
 #include "boost/thread/tss.hpp"
 
 namespace edm {
-  TypeWithDict::TypeWithDict(std::type_info const& t) : TypeIDBase(t), type_(Reflex::Type::ByTypeInfo(t)) {
+  TypeWithDict::TypeWithDict(std::type_info const& t) : type_(Reflex::Type::ByTypeInfo(t)) {
   }
 
-  TypeWithDict::TypeWithDict(Reflex::Type const& type) : TypeIDBase(type.TypeInfo()), type_(type) {
+  TypeWithDict::TypeWithDict(Reflex::Type const& type) : type_(type) {
   }
 
   void
@@ -107,6 +107,11 @@ namespace {
     return type_.Properties().PropertyAsString(property);
   }
 
+  MemberWithDict
+  TypeWithDict::dataMemberAt(size_t index) const {
+    return MemberWithDict(type_.DataMemberAt(index));
+  }
+
   ObjectWithDict
   TypeWithDict::construct() const {
     return ObjectWithDict(type_.Construct());
@@ -143,6 +148,10 @@ namespace {
     return MemberWithDict(type_.FunctionMemberByName(member));
   }
 
+  MemberWithDict
+  TypeWithDict::functionMemberByName(std::string const& member, TypeWithDict const& signature, int mods, TypeMemberQuery memberQuery) const {
+    return MemberWithDict(type_.FunctionMemberByName(member, signature.type_, mods, static_cast<Reflex::EMEMBERQUERY>(memberQuery)));
+  }
 
   TypeTemplateWithDict::TypeTemplateWithDict(TypeWithDict const& type) : typeTemplate_(type.type_.TemplateFamily()) {
   }
@@ -176,6 +185,21 @@ namespace {
     return type_.Base_End();
   }
 
+  size_t
+  TypeBases::size() const {
+    return type_.BaseSize();
+  }
+
+  Reflex::Member_Iterator
+  TypeMembers::begin() const {
+    return type_.Member_Begin();
+  }
+
+  Reflex::Member_Iterator
+  TypeMembers::end() const {
+    return type_.Member_End();
+  }
+
   Reflex::Member_Iterator
   TypeDataMembers::begin() const {
     return type_.DataMember_Begin();
@@ -186,6 +210,11 @@ namespace {
     return type_.DataMember_End();
   }
 
+  size_t
+  TypeDataMembers::size() const {
+    return type_.DataMemberSize();
+  }
+
   Reflex::Member_Iterator
   TypeFunctionMembers::begin() const {
     return type_.FunctionMember_Begin();
@@ -194,6 +223,11 @@ namespace {
   Reflex::Member_Iterator
   TypeFunctionMembers::end() const {
     return type_.FunctionMember_End();
+  }
+
+  size_t
+  TypeFunctionMembers::size() const {
+    return type_.FunctionMemberSize();
   }
 
 }

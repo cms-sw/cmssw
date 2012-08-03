@@ -12,13 +12,23 @@ namespace edm {
   MemberWithDict::typeName() const {return member_.TypeOf().Name();}
 
   ObjectWithDict
+  MemberWithDict::get() const {
+    return (ObjectWithDict(member_.Get()));
+  }
+
+  ObjectWithDict
   MemberWithDict::get(ObjectWithDict const& obj) const {
     return (ObjectWithDict(member_.Get(obj.object_)));
   }
 
   TypeWithDict
-  MemberWithDict::returnType() const {
-    return (TypeWithDict(member_.TypeOf().ReturnType()));
+  MemberWithDict::typeOf() const {
+    return (TypeWithDict(member_.TypeOf()));
+  }
+
+  TypeWithDict
+  MemberWithDict::declaringType() const {
+    return (TypeWithDict(member_.DeclaringType()));
   }
 
   void

@@ -10,7 +10,7 @@
 #include "FWCore/Utilities/interface/Likely.h"
 
 
-#if defined(__REFLEX__) || defined(__CINT__)
+#if defined(__GCCXML__) || defined(__CINT__)
   #define CMS_NOCXX11
 #endif
 #if !GCC_PREREQUISITE(4,6,0) && !defined(__clang__)

@@ -12,9 +12,8 @@ persisted across invocations of the program.
 #include <iosfwd>
 #include <typeinfo>
 #include <string>
-#include "FWCore/Utilities/interface/TypeIDBase.h"
-#include "Reflex/Member.h"
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/MemberWithDict.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "Reflex/TypeTemplate.h"
 
 namespace edm {
@@ -22,15 +21,40 @@ namespace edm {
   class MemberWithDict;
   class ObjectWithDict;
 
-  class TypeWithDict : private TypeIDBase {
+  enum TypeNameHandling {
+     NoHandling = 0,
+     Final = Reflex::FINAL,
+     Qualified = Reflex::QUALIFIED,
+     FinalQualified = Reflex::FINAL|Reflex::QUALIFIED,
+     Scoped = Reflex::SCOPED,
+     FinalScoped = Reflex::FINAL|Reflex::SCOPED,
+     QualifiedScoped = Reflex::QUALIFIED|Reflex::SCOPED,
+     FinalQualifiedScoped = Reflex::FINAL|Reflex::QUALIFIED|Reflex::SCOPED
+  };
+
+  enum TypeMemberQuery {
+    InheritedDefault = Reflex::INHERITEDMEMBERS_DEFAULT,
+    InheritedNo = Reflex::INHERITEDMEMBERS_NO,
+    InheritedAlso = Reflex::INHERITEDMEMBERS_ALSO
+  };
+
+  enum TypeModifiers {
+     NoMod = 0,
+     Const = Reflex::CONST
+  };
+
+  class TypeWithDict {
   public:
 
-    TypeWithDict() : TypeIDBase(), type_() {}
+    TypeWithDict() : type_() {}
 
     explicit TypeWithDict(std::type_info const& t);
 
     template <typename T>
-    explicit TypeWithDict(T const& t) : TypeIDBase(typeid(t)), type_(Reflex::Type::ByTypeInfo(typeid(t))) {
+    explicit TypeWithDict(T const& t) : type_(Reflex::Type::ByTypeInfo(typeid(t))) {
+    }
+
+    TypeWithDict(TypeWithDict const& type, TypeModifiers modifiers) : type_(Reflex::Type(type.type_, modifiers)) {
     }
 
     static TypeWithDict
@@ -51,6 +75,18 @@ namespace edm {
 
     bool hasProperty(std::string const& property) const;
 
+    bool isClass() const {
+      return type_.IsClass();
+    }
+
+    bool isConst() const {
+      return type_.IsConst();
+    }
+
+    bool isEnum() const {
+      return type_.IsEnum();
+    }
+
     bool isFundamental() const {
       return type_.IsFundamental();
     }
@@ -63,8 +99,20 @@ namespace edm {
       return type_.IsReference();
     }
 
+    bool isTemplateInstance() const {
+      return type_.IsTemplateInstance();
+    }
+
     bool isTypedef() const {
       return type_.IsTypedef();
+    }
+
+    TypeWithDict finalType() const {
+      return TypeWithDict(type_.FinalType());
+    }
+
+    TypeWithDict returnType() const {
+      return TypeWithDict(type_.ReturnType());
     }
 
     TypeWithDict toType() {
@@ -73,7 +121,25 @@ namespace edm {
 
     std::string propertyValueAsString(std::string const& property) const;
 
-    ObjectWithDict  construct() const;
+    MemberWithDict dataMemberAt(size_t index) const;
+
+    TypeWithDict functionParameterAt(size_t index) const {
+      return TypeWithDict(type_.FunctionParameterAt(index));
+    }
+
+    TypeWithDict subTypeAt(size_t index) const {
+      return TypeWithDict(type_.SubTypeAt(index));
+    }
+
+    TypeWithDict templateArgumentAt(size_t index) const {
+      return TypeWithDict(type_.TemplateArgumentAt(index));
+    }
+
+    ObjectWithDict construct() const;
+
+    void destruct(void * address, bool dealloc = true) const {
+      type_.Destruct(address, dealloc);
+    }
 
     void const* pointerToContainedType(void const* ptr, TypeWithDict const& containedType) const;
 
@@ -83,22 +149,37 @@ namespace edm {
       theFunction.Invoke(obj);
     }
 
+    std::string name(int mod = 0) const {
+      return type_.Name(mod);
+    }
+
+    void* id() const {
+      return type_.Id();
+    }
+
+    void* allocate() const {
+      return type_.Allocate();
+    }
+
+    void deallocate(void* instance) const {
+      type_.Deallocate(instance);
+    }
 
 #ifndef __GCCXML__
     explicit operator bool() const;
 #endif
     
-    using TypeIDBase::name;
+    bool operator<(TypeWithDict const& b) const { return type_ < b.type_; }
 
-    bool operator<(TypeWithDict const& b) const { return this->TypeIDBase::operator<(b); }
-
-    bool operator==(TypeWithDict const& b) const {return this->TypeIDBase::operator==(b);}
+    bool operator==(TypeWithDict const& b) const {return type_ == b.type_;}
 
     bool isEquivalentTo(TypeWithDict const& other) const {
       return type_.IsEquivalentTo(other.type_);
     }
 
-    using TypeIDBase::typeInfo;
+    std::type_info const& typeInfo() const {
+      return type_.TypeInfo();
+    }
 
     MemberWithDict memberByName(std::string const& member) const;
 
@@ -106,11 +187,31 @@ namespace edm {
 
     MemberWithDict functionMemberByName(std::string const& member) const;
 
+    MemberWithDict functionMemberByName(std::string const& member, TypeWithDict const& signature, int mods, TypeMemberQuery memberQuery) const;
+
+    size_t memberSize() const {
+      return type_.MemberSize();
+    }
+
+    size_t dataMemberSize() const {
+      return type_.DataMemberSize();
+    }
+
+    size_t functionMemberSize() const {
+      return type_.FunctionMemberSize();
+    }
+
+   size_t subTypeSize() const {
+      return type_.SubTypeSize();
+    }
+
+
   private:
     friend class BaseWithDict;
     friend class MemberWithDict;
     friend class ObjectWithDict;
     friend class TypeBases;
+    friend class TypeMembers;
     friend class TypeDataMembers;
     friend class TypeFunctionMembers;
     friend class TypeTemplateWithDict;
@@ -143,6 +244,11 @@ namespace edm {
       return typeTemplate_ == other.typeTemplate_;
     }
 
+    std::string name(int mod = 0) const {
+      return typeTemplate_.Name(mod);
+    }
+
+
 #ifndef __GCCXML__
     explicit operator bool() const;
 #endif
@@ -157,6 +263,16 @@ namespace edm {
     explicit TypeBases(TypeWithDict const& type) : type_(type.type_) {}
     Reflex::Base_Iterator begin() const;
     Reflex::Base_Iterator end() const;
+    size_t size() const;
+  private:
+    Reflex::Type const& type_;
+  };
+
+  class TypeMembers {
+  public:
+    explicit TypeMembers(TypeWithDict const& type) : type_(type.type_) {}
+    Reflex::Member_Iterator begin() const;
+    Reflex::Member_Iterator end() const;
   private:
     Reflex::Type const& type_;
   };
@@ -166,6 +282,7 @@ namespace edm {
     explicit TypeDataMembers(TypeWithDict const& type) : type_(type.type_) {}
     Reflex::Member_Iterator begin() const;
     Reflex::Member_Iterator end() const;
+    size_t size() const;
   private:
     Reflex::Type const& type_;
   };
@@ -175,6 +292,7 @@ namespace edm {
     explicit TypeFunctionMembers(TypeWithDict const& type) : type_(type.type_) {}
     Reflex::Member_Iterator begin() const;
     Reflex::Member_Iterator end() const;
+    size_t size() const;
   private:
     Reflex::Type const& type_;
   };
