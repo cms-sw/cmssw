@@ -177,7 +177,7 @@ ForwardDiskSectorBuilderFromDet::computeTrapezoidalCorners( const GeomDet* det) 
   }
   */
 
-  vector<float> parameters = (*myBounds).parameters();
+  array<const float, 4> const & parameters = (*myBounds).parameters();
 
   if ( parameters[0] == 0 ) {
     edm::LogError("TkDetLayers") << "ForwardDiskSectorBuilder: something weird going on !" ;
