@@ -33,6 +33,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
                 # TODO backward compatible code: to be removed after migrating autoCond.py to use a map for custom conditions
                 map = {}
                 for entry in autoKey[1:]:
+                  entry = entry.split(',')
                   record     = entry[1]
                   label      = len(entry) > 3 and entry[3] or None
                   tag        = entry[0]
