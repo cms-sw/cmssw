@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.34 2011/01/25 09:40:07 yana Exp $
+// $Id: ValidateGeometry.cc,v 1.35 2011/10/18 09:49:30 yana Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -1161,7 +1161,7 @@ ValidateGeometry::compareShape(const GeomDet* det, const float* shape)
  
   if ( const TrapezoidalPlaneBounds* tpbs = dynamic_cast<const TrapezoidalPlaneBounds*>(bounds) )
   {
-    std::vector<float> ps = tpbs->parameters();
+      std::array<const float, 4> const & ps = tpbs->parameters();
 
     assert(ps.size() == 4);
     

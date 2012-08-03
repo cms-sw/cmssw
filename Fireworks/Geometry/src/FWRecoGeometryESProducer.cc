@@ -404,7 +404,7 @@ FWRecoGeometryESProducer::fillShapeAndPlacement( unsigned int id, const GeomDet 
   const Bounds *b = &((det->surface ()).bounds ());
   if( const TrapezoidalPlaneBounds *b2 = dynamic_cast<const TrapezoidalPlaneBounds *> (b))
   {
-    std::vector< float > par = b2->parameters ();
+      std::array< const float, 4 > const & par = b2->parameters ();
     
     // These parameters are half-lengths, as in CMSIM/GEANT3
     m_fwGeometry->idToName[id].shape[0] = 1;
