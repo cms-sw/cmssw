@@ -125,7 +125,7 @@ namespace {
       edm::ObjectWithDict objectToPrint = iObject;
       std::string indent(iIndent);
       if(iObject.isPointer()) {
-        std::cout << iIndent << iName << kNameValueSep << formatClassName(iObject.name()) << std::hex << iObject.address() << std::dec << "\n";
+        std::cout << iIndent << iName << kNameValueSep << formatClassName(iObject.typeOf().name()) << std::hex << iObject.address() << std::dec << "\n";
          edm::TypeWithDict pointedType = iObject.toType();
          if(edm::TypeWithDict::byName("void") == pointedType ||
             pointedType.isPointer() ||
@@ -137,12 +137,12 @@ namespace {
          //have the code that follows print the contents of the data to which the pointer points
          objectToPrint = edm::ObjectWithDict(pointedType, iObject.address());
          //try to convert it to its actual type (assuming the original type was a base class)
-         objectToPrint = edm::ObjectWithDict(objectToPrint.CastObject(objectToPrint.DynamicType()));
+         objectToPrint = edm::ObjectWithDict(objectToPrint.castObject(objectToPrint.dynamicType()));
          printName = std::string("*") + iName;
          indent += iIndentDelta;
          */
       }
-      std::string typeName(objectToPrint.name());
+      std::string typeName(objectToPrint.typeOf().name());
       if(typeName.empty()) {
          typeName = "<unknown>";
       }
