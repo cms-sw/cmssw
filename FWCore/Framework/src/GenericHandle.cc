@@ -48,7 +48,7 @@ void convert_handle(BasicHandle const& orig,
      !product.typeOf().isEquivalentTo(result.type()) &&
      product.typeOf().typeInfo() != result.type().typeInfo()){
     throw Exception(errors::LogicError) << "GenericObject asked for " << result.type().name()
-      << " but was given a " << product.name();
+      << " but was given a " << product.typeOf().name();
   }
   
   Handle<GenericObject> h(product, orig.provenance(), orig.id());

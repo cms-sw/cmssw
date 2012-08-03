@@ -42,7 +42,7 @@ namespace edm {
 GenericObjectOwner::~GenericObjectOwner()
 {
    if(m_ownData) {
-      m_object.Destruct();
+      m_object.destruct();
    }
 }
 

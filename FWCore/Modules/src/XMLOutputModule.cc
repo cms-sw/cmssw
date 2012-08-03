@@ -72,7 +72,7 @@ namespace edm {
   namespace {
     void doNotDelete(void*) {}
     void callDestruct(ObjectWithDict* iObj) {
-      iObj->Destruct();
+      iObj->destruct();
     }
     //Handle memory for calls to invoke
     // We handle Ref's by using an external void* buffer (which we do not delete) while everything else
@@ -80,7 +80,7 @@ namespace edm {
     boost::shared_ptr<ObjectWithDict> initReturnValue(MemberWithDict const& iMember,
                                                       ObjectWithDict* iObj,
                                                       void** iRefBuffer) {
-      TypeWithDict returnType = iMember.returnType();
+      TypeWithDict returnType = iMember.typeOf().returnType();
       if(returnType.isReference()) {
         *iObj = ObjectWithDict(returnType, iRefBuffer);
         return boost::shared_ptr<ObjectWithDict>(iObj, doNotDelete);
@@ -227,7 +227,7 @@ namespace edm {
       ObjectWithDict objectToPrint = iObject;
       std::string indent(iIndent);
       if(iObject.isPointer()) {
-        oStream << iIndent << iPrefix << formatXML(iObject.name()) << "\">\n";
+        oStream << iIndent << iPrefix << formatXML(iObject.typeOf().name(TypeNameHandling::Scoped)) << "\">\n";
         indent +=iIndentDelta;
         int size = (0!=iObject.address()) ? (0!=*reinterpret_cast<void**>(iObject.address())?1:0) : 0;
         oStream << indent << kContainerOpen << size << "\">\n";
@@ -248,11 +248,11 @@ namespace edm {
         //have the code that follows print the contents of the data to which the pointer points
         objectToPrint = ObjectWithDict(pointedType, iObject.address());
         //try to convert it to its actual type (assuming the original type was a base class)
-        objectToPrint = ObjectWithDict(objectToPrint.CastObject(objectToPrint.DynamicType()));
+        objectToPrint = ObjectWithDict(objectToPrint.castObject(objectToPrint.dynamicType()));
         indent +=iIndentDelta;
         */
       }
-      std::string typeName(objectToPrint.name());
+      std::string typeName(objectToPrint.typeOf().name(TypeNameHandling::Scoped));
       if(typeName.empty()){
         typeName="{unknown}";
       }
@@ -299,7 +299,7 @@ namespace edm {
       TypeDataMembers dataMembers(iType);
       for(auto const& dataMember : dataMembers) {
         MemberWithDict member(dataMember);
-        //std::cout << "     debug " << member.name() << " " << member.name() << "\n";
+        //std::cout << "     debug " << member.name() << " " << member.typeOf().name() << "\n";
         if (member.isTransient()) {
           continue;
         }
@@ -328,30 +328,30 @@ namespace edm {
       size_t size = 0;
       std::ostringstream sStream;
       if(iBegin.typeOf() != iEnd.typeOf()) {
-        std::cerr << " begin (" << iBegin.name() << ") and end ("
-          << iEnd.name() << ") are not the same type" << std::endl;
+        std::cerr << " begin (" << iBegin.typeOf().name(TypeNameHandling::Scoped) << ") and end ("
+          << iEnd.typeOf().name(TypeNameHandling::Scoped) << ") are not the same type" << std::endl;
         throw std::exception();
       }
       try {
         MemberWithDict compare(iBegin.typeOf().memberByName("operator!="));
         if(!compare) {
-          //std::cerr << "no 'operator!=' for " << iBegin.name() << std::endl;
+          //std::cerr << "no 'operator!=' for " << iBegin.typeOf().name() << std::endl;
           return false;
         }
         MemberWithDict incr(iBegin.typeOf().memberByName("operator++"));
         if(!incr) {
-          //std::cerr << "no 'operator++' for " << iBegin.name() << std::endl;
+          //std::cerr << "no 'operator++' for " << iBegin.typeOf().name() << std::endl;
           return false;
         }
         MemberWithDict deref(iBegin.typeOf().memberByName("operator*"));
         if(!deref) {
-          //std::cerr << "no 'operator*' for " << iBegin.name() << std::endl;
+          //std::cerr << "no 'operator*' for " << iBegin.typeOf().name() << std::endl;
           return false;
         }
 
         std::string indexIndent = iIndent+iIndentDelta;
         int dummy=0;
-        //std::cerr << "going to loop using iterator " << iBegin.name() << std::endl;
+        //std::cerr << "going to loop using iterator " << iBegin.typeOf().name(NameHAndling::Scoped) << std::endl;
 
         std::vector<void*> compareArgs;
         compareArgs.push_back(iEnd.address());
@@ -408,7 +408,7 @@ namespace edm {
         if(!atMember) {
           throw std::exception();
         }
-        std::string typeName(iObject.name());
+        std::string typeName(iObject.typeOf().name(TypeNameHandling::Scoped));
         if(typeName.empty()){
           typeName="{unknown}";
         }
@@ -442,7 +442,7 @@ namespace edm {
         //std::cerr << "failed to invoke 'at' because " << x.what() << std::endl;
         try {
           //oStream << iIndent << iPrefix << formatXML(typeName) << "\">\n";
-          std::string typeName(iObject.name());
+          std::string typeName(iObject.typeOf().name(TypeNameHandling::Scoped));
           if(typeName.empty()){
             typeName="{unknown}";
           }

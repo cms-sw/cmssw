@@ -120,7 +120,7 @@ namespace edm {
        ObjectWithDict objectToPrint = iObject;
        std::string indent(iIndent);
        if(iObject.isPointer()) {
-         LogAbsolute("EventContent") << iIndent << iName << kNameValueSep << formatClassName(iObject.name()) << std::hex << iObject.address() << std::dec;// << "\n";
+         LogAbsolute("EventContent") << iIndent << iName << kNameValueSep << formatClassName(iObject.typeOf().name()) << std::hex << iObject.address() << std::dec;// << "\n";
           TypeWithDict pointedType = iObject.toType();
           if(TypeWithDict::byName("void") == pointedType ||
              pointedType.isPointer() ||
@@ -132,12 +132,12 @@ namespace edm {
           //have the code that follows print the contents of the data to which the pointer points
           objectToPrint = ObjectWithDict(pointedType, iObject.address());
           //try to convert it to its actual type (assuming the original type was a base class)
-          objectToPrint = ObjectWithDict(objectToPrint.CastObject(objectToPrint.DynamicType()));
+          objectToPrint = ObjectWithDict(objectToPrint.castObject(objectToPrint.dynamicType()));
           printName = std::string("*")+iName;
           indent += iIndentDelta;
           */
        }
-       std::string typeName(objectToPrint.name());
+       std::string typeName(objectToPrint.typeOf().name());
        if(typeName.empty()) {
           typeName = "<unknown>";
        }
@@ -180,7 +180,7 @@ namespace edm {
           size_t temp; //used to hold the memory for the return value
           sizeObj = ObjectWithDict(TypeWithDict(typeid(size_t)), &temp);
           iObject.invoke("size", &sizeObj);
-          assert(iObject.typeOf().functionMemberByName("size").returnType().typeInfo() == typeid(size_t));
+          assert(iObject.typeOf().functionMemberByName("size").typeOf().returnType().typeInfo() == typeid(size_t));
           //std::cout << "size of type '" << sizeObj.name() << "' " << sizeObj.typeName() << std::endl;
           assert(sizeObj.finalType().typeInfo() == typeid(size_t));
           size_t size = *reinterpret_cast<size_t*>(sizeObj.address());
@@ -194,9 +194,9 @@ namespace edm {
           LogAbsolute("EventContent") << iIndent << iName << kNameValueSep << "[size=" << size << "]";//"\n";
           ObjectWithDict contained;
           std::string indexIndent = iIndent + iIndentDelta;
-          TypeWithDict atReturnType(atMember.returnType());
+          TypeWithDict atReturnType(atMember.typeOf().returnType());
           //std::cout << "return type " << atReturnType.name() << " size of " << atReturnType.SizeOf()
-          // << " pointer? " << atReturnType.IsPointer() << " ref? " << atReturnType.IsReference() << std::endl;
+          // << " pointer? " << atReturnType.isPointer() << " ref? " << atReturnType.isReference() << std::endl;
 
           //Return by reference must be treated differently since reflex will not properly create
           // memory for a ref (which should just be a pointer to the object and not the object itself)
@@ -230,7 +230,7 @@ namespace edm {
                       << iEx.what() << ")>\n";
              }
              if(!isRef) {
-                contained.Destruct();
+                contained.destruct();
              }
           }
           return true;
