@@ -617,7 +617,7 @@ void CalorimetryManager::reconstructECAL(const FSimTrack& track) {
   // if full simulation and in HF, but without showering anyway...
   if(hit == 2 && optionHDSim_ == 2 ) { 
     std::pair<double,double> response =
-      myHDResponse_->responseHCAL(0, EGen, pathEta, hit, 0); // last par.= 0 = e/gamma 
+      myHDResponse_->responseHCAL(0, EGen, pathEta, 0); // last par.= 0 = e/gamma 
     e     = response.first;
     sigma = response.second;
   }
@@ -697,7 +697,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
   if(pid == 13) { 
     //    std::cout << " We should not be here " << std::endl;
     std::pair<double,double> response =
-      myHDResponse_->responseHCAL(0, EGen, pathEta, hit, 2); // 2=muon 
+      myHDResponse_->responseHCAL(0, EGen, pathEta, 2); // 2=muon 
     emeas  = response.first;
     if(debug_)
       LogInfo("FastCalorimetry") << "CalorimetryManager::reconstructHCAL - MUON !!!" << std::endl;
@@ -706,7 +706,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
     {
       
       std::pair<double,double> response =
-	myHDResponse_->responseHCAL(0, EGen, pathEta, hit, 0); // last par. = 0 = e/gamma
+	myHDResponse_->responseHCAL(0, EGen, pathEta, 0); // last par. = 0 = e/gamma
       e     = response.first;              //
       sigma = response.second;             //
       emeas = random->gaussShoot(e,sigma); //
@@ -974,7 +974,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
       }
       else { // optionHDsim == 2
 	std::pair<double,double> response =
-	  myHDResponse_->responseHCAL(mip, eGen, pathEta, hit, 1); // 1=hadron
+	  myHDResponse_->responseHCAL(mip, eGen, pathEta, 1); // 1=hadron
 	e     = response.first;
 	sigma = response.second;
       }

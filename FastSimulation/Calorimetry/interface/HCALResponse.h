@@ -30,9 +30,7 @@ public:
   // Get the response in the for of pair 
   // parameters:  energy, eta, e/gamma = 0, hadron = 1, mu = 2, mip: 0/1/2
   // mip = 2 means "mean" response regardless actual mip
-  response responseHCAL(int mip, double energy, double eta, int hit, int partype);
-  void responseHCALStandard(int mip, double energy, double eta, int hit, int partype);
-  void responseHCALUpgrade(int mip, double energy, double eta, int hit, int partype);
+  response responseHCAL(int _mip, double energy, double eta, int partype);
 
   // legacy methods using simple furmulae
   double getHCALEnergyResponse   (double e, int hit);
@@ -47,6 +45,9 @@ private:
   void interEM(double e, int ie, int ieta); 
   void interMU(double e, int ie, int ieta); 
 
+  //debugging and mip toggles
+  bool debug, usemip;
+  
   //Default values for resolution parametrisation:
   //stochastic, constant and noise.
   //in the barrel and in the endcap
@@ -69,11 +70,11 @@ private:
 
   //max values
   int maxHDe, maxHDeta, maxMUe, maxMUeta, maxMUbin, maxEMe, maxEMeta;
-  
-  //switch for phase 2 upgrade
-  bool phase2Upgrade;
+
   // eta step for eta index calc
   double etaStep;
+  // eta index for different regions
+  int  barrelHDeta, endcapHDeta, forwardHDeta, barrelMUeta, endcapMUeta;
   // energy step of the tabulated muon data
   double muStep;
   // correction factor for HF EM
