@@ -262,8 +262,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     //*********************************************
     //set physics model parameters
     //*********************************************
-    utils::setPhysicsModelParameters( setPhysicsModelParameterExpression_, mc);
-    utils::setPhysicsModelParameters( setPhysicsModelParameterExpression_, mc_bonly);
+    if (setPhysicsModelParameterExpression_ != "") {
+      utils::setPhysicsModelParameters( setPhysicsModelParameterExpression_, mc);
+      utils::setPhysicsModelParameters( setPhysicsModelParameterExpression_, mc_bonly);
+    }
 
     if (mc == 0) {  
         std::cerr << "Could not find ModelConfig '" << modelConfigName_ << "' in workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl;
