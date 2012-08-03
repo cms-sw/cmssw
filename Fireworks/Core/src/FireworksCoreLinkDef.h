@@ -1,4 +1,3 @@
-#include "Fireworks/Core/src/fwCintInterfaces.h"
 #include "Fireworks/Core/src/CSGConnector.h"
 #include "Fireworks/Core/interface/FWIntValueListenerBase.h"
 #include "Fireworks/Core/interface/FWSummaryManager.h"
