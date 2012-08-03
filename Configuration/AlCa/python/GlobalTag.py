@@ -34,9 +34,9 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
                 map = {}
                 for entry in autoKey[1:]:
                   record     = entry[1]
-                  label      = len(entry) > 3 and entry[4] or None
+                  label      = len(entry) > 3 and entry[3] or None
                   tag        = entry[0]
-                  connection = len(entry) > 2 and entry[3] or None
+                  connection = len(entry) > 2 and entry[2] or None
                   map[ (record, label) ] = (tag, connection)
                 custom_conditions.update( map )
             else:
@@ -53,16 +53,18 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
 
     # add any explicitly requested conditions, possibly overriding those from autoCond.py
     if conditions is not None:
+        # TODO backward compatible code: to be removed after migrating ConfigBuilder.py and confdb.py to use a map for custom conditions
         if isinstance(conditions, basestring): 
-          # TODO backward compatible code: to be removed after migrating ConfigBuilder.py and confdb.py to use a map for custom conditions
-          map = {}
-          for entry in conditions.split('+'):
-              record     = entry[1]
-              label      = len(entry) > 3 and entry[4] or None
-              tag        = entry[0]
-              connection = len(entry) > 2 and entry[3] or None
-              map[ (record, label) ] = (tag, connection)
-          custom_conditions.update( map )
+          if conditions:
+            map = {}
+            for entry in conditions.split('+'):
+                entry = entry.split(',')
+                record     = entry[1]
+                label      = len(entry) > 3 and entry[3] or None
+                tag        = entry[0]
+                connection = len(entry) > 2 and entry[2] or None
+                map[ (record, label) ] = (tag, connection)
+            custom_conditions.update( map )
         elif isinstance(conditions, dict):
           custom_conditions.update( conditions )
         else:
