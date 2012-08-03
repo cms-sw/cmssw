@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Tue Oct  3 23:51:34 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2008/03/19 15:54:19 $
-// $Revision: 1.5 $
+// $Author: eulisse $
+// $Date: 2012/07/31 11:46:33 $
+// $Revision: 1.6 $
 //
 
 #include <iostream>
@@ -687,8 +687,8 @@ double RingMaker::determineExtensions(DetId id, float &rmin, float &rmax, float 
 	p[7] = det->surface().toGlobal(LocalPoint(-width/2,-length/2,-thickness/2)); 
       
       } else if ( (type == Ring::TIDRing) || (type == Ring::TECRing) ) {
-      
-	const std::vector<float> &parameters = ((const TrapezoidalPlaneBounds&)(det->surface().bounds())).parameters();
+	  
+        std::array<const float, 4> const & parameters = ((const TrapezoidalPlaneBounds&)(det->surface().bounds())).parameters();
       
 	p[0] = det->surface().toGlobal(LocalPoint(parameters[0],-parameters[3],parameters[2])); 
 	p[1] = det->surface().toGlobal(LocalPoint(-parameters[0],-parameters[3],parameters[2])); 
