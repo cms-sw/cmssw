@@ -161,7 +161,7 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
       }}}
    }else if(TypeMode==3){
      for(double Pt =GlobalMinPt+30 ; Pt <450;  Pt+=30){
-       for(double TOF=GlobalMinTOF+0.025; TOF<1.4;TOF+=0.01){
+       for(double TOF=GlobalMinTOF+0.025; TOF<1.4;TOF+=0.025){
          CutPt .push_back(Pt);   CutI  .push_back(-1);  CutTOF.push_back(TOF);
        }}
    }
@@ -196,7 +196,7 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
    GetSampleDefinition(samples);
    if(MODE.find("ANALYSE_")==0){
       int sampleIdStart, sampleIdEnd; sscanf(MODE.c_str(),"ANALYSE_%d_to_%d",&sampleIdStart, &sampleIdEnd);
-      if(TypeMode==3 && sampleIdEnd>20 && sampleIdEnd<28) return; //These EDM files are missing some branches for TOF only search, to be recovered in rereco
+      if(TypeMode==3 && sampleIdEnd>20 && sampleIdEnd<30) return; //These EDM files are missing some branches for TOF only search, to be recovered in rereco
       keepOnlyTheXtoYSamples(samples,sampleIdStart,sampleIdEnd);
       printf("----------------------------------------------------------------------------------------------------------------------------------------------------\n");
       printf("Run on the following samples:\n");
@@ -249,7 +249,7 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
 	 }
 	 //Only accepted if looking for cosmic events
 	 if(isCosmic) {
-           if(tr.size()== tr.triggerIndex("HSCPHLTTriggerCosmicFilte")) return false;
+           if(tr.size()== tr.triggerIndex("HSCPHLTTriggerCosmicFilter")) return false;
 	   if(tr.accept(tr.triggerIndex("HSCPHLTTriggerCosmicFilter"))) return true;
 	 }
       #endif
@@ -259,7 +259,6 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
 // check if one HSCP candidate is passing the preselection (the function also has many more arguments because it is used to fill some histograms AND to evaluate the systematics
 bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, const reco::MuonTimeExtra* dttof, const reco::MuonTimeExtra* csctof, const fwlite::ChainEvent& ev, stPlots* st, const double& GenBeta, bool RescaleP, const double& RescaleI, const double& RescaleT)
 {
-
    if(TypeMode==1 && !(hscp.type() == HSCParticleType::trackerMuon || hscp.type() == HSCParticleType::globalMuon))return false;
    if(TypeMode==2 && hscp.type() != HSCParticleType::globalMuon)return false;
 
@@ -321,9 +320,11 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
      if(dedxSObj) st->BS_MIs->Fill(dedxSObj->dEdx(),Event_Weight);
      if(dedxSObj) st->BS_MIm->Fill(dedxMObj->dEdx(),Event_Weight);
    }
+
    if(dedxSObj) if(dedxSObj->dEdx()+RescaleI<GlobalMinIs)return false;
    if(dedxSObj) if(dedxMObj->dEdx()<GlobalMinIm)return false;
    if(st){st->MI   ->Fill(0.0,Event_Weight);}
+
    if(tof){
    if(st){st->BS_MTOF ->Fill(tof->inverseBeta(),Event_Weight);}
    //This cut is no longer applied here but rather in the PassSelection part to use the region
@@ -331,6 +332,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    //if(TypeMode>1 && tof->inverseBeta()+RescaleT<GlobalMinTOF)return false;
    if(TypeMode>1 && tof->inverseBetaErr()>GlobalMaxTOFErr)return false;
    }
+
    if(st){st->MTOF ->Fill(0.0,Event_Weight);
       if(GenBeta>=0)st->Beta_PreselectedB->Fill(GenBeta, Event_Weight);
    }
@@ -345,10 +347,10 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    double dxy = track->dxy(vertexColl[0].position());
    int goodVerts=0;
    for(unsigned int i=0;i<vertexColl.size();i++){
+     if(fabs(vertexColl[i].z())<15 && sqrt(vertexColl[i].x()*vertexColl[i].x()+vertexColl[i].y()*vertexColl[i].y())<2 && vertexColl[i].ndof()>3) goodVerts++;
      if(fabs(track->dz (vertexColl[i].position())) < fabs(dz) ){
        dz  = track->dz (vertexColl[i].position());
        dxy = track->dxy(vertexColl[i].position());
-       if(fabs(vertexColl[i].z())<15 && sqrt(vertexColl[i].x()*vertexColl[i].x()+vertexColl[i].y()*vertexColl[i].y())<2 && vertexColl[i].ndof()>3) goodVerts++;
      }
    }
 
@@ -494,6 +496,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
      if(fabs(dz)>CosmicMaxDz) DzType=5;
      //Count number of tracks in dz sidebands passing the TOF cut
      //The pt cut is not applied to increase statistics
+
      for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
        if(tof->inverseBeta()>=CutTOF[CutIndex]) {
 	 st->H_D_DzSidebands->Fill(CutIndex, DzType);
@@ -826,13 +829,13 @@ void Analysis_Step3(char* SavePath)
       //For data and MCTr only initialize prediction histograms
       if(isData) stPlots_Init(HistoFile,plotsMap[samples[s].Name],samples[s].Name, CutPt.size(), false, false, CutPt_Flip.size());
       else stPlots_Init(HistoFile,plotsMap[samples[s].Name],samples[s].Name, CutPt.size());
-      stPlots& SamplePlots = plotsMap[samples[s].Name];
-      SamplePlots.IntLumi->Fill(0.0,IntegratedLuminosity);
+      stPlots* SamplePlots = &plotsMap[samples[s].Name];
+      SamplePlots->IntLumi->Fill(0.0,IntegratedLuminosity);
 
       if(isMC){
          if(plotsMap.find("MCTr")==plotsMap.end()){plotsMap["MCTr"] = stPlots();}
          stPlots_Init(HistoFile,plotsMap["MCTr"],"MCTr", CutPt.size(), false, false, CutPt_Flip.size());
-      }stPlots& MCTrPlots = plotsMap["MCTr"];
+      }stPlots* MCTrPlots = &plotsMap["MCTr"];
 
       //Initialize plot container for pure cosmic sample
       //Cosmic sample is contained in data file so for TOF-Only search
@@ -843,7 +846,7 @@ void Analysis_Step3(char* SavePath)
 	else CosmicName="Cosmic11";
 	if(plotsMap.find(CosmicName)==plotsMap.end()){plotsMap[CosmicName] = stPlots();}
 	stPlots_Init(HistoFile,plotsMap[CosmicName],CosmicName, CutPt.size(), false, false, CutPt_Flip.size());
-      }stPlots&CosmicPlots = plotsMap[CosmicName];
+      }
 
       //needed for bookeeping
       bool* HSCPTk          = new bool[CutPt.size()];
@@ -865,7 +868,6 @@ void Analysis_Step3(char* SavePath)
          std::vector<string> FileName;
          GetInputFiles(samples[s], BaseDirectory, FileName, period);
          fwlite::ChainEvent ev(FileName);
-
          //compute sample global weight
          Event_Weight = 1.0;
          double SampleWeight = 1.0;
@@ -909,29 +911,36 @@ void Analysis_Step3(char* SavePath)
                Event_Weight*=samples[s].GetFGluinoWeight(NChargedHSCP);
 
                GetGenHSCPBeta(genColl,HSCPGenBeta1,HSCPGenBeta2,false);
-               if(HSCPGenBeta1>=0)SamplePlots.Beta_Gen      ->Fill(HSCPGenBeta1, Event_Weight);  if(HSCPGenBeta2>=0)SamplePlots.Beta_Gen       ->Fill(HSCPGenBeta2, Event_Weight);
+               if(HSCPGenBeta1>=0)SamplePlots->Beta_Gen      ->Fill(HSCPGenBeta1, Event_Weight);  if(HSCPGenBeta2>=0)SamplePlots->Beta_Gen       ->Fill(HSCPGenBeta2, Event_Weight);
                GetGenHSCPBeta(genColl,HSCPGenBeta1,HSCPGenBeta2,true);
-               if(HSCPGenBeta1>=0)SamplePlots.Beta_GenCharged->Fill(HSCPGenBeta1, Event_Weight); if(HSCPGenBeta2>=0)SamplePlots.Beta_GenCharged->Fill(HSCPGenBeta2, Event_Weight);
+               if(HSCPGenBeta1>=0)SamplePlots->Beta_GenCharged->Fill(HSCPGenBeta1, Event_Weight); if(HSCPGenBeta2>=0)SamplePlots->Beta_GenCharged->Fill(HSCPGenBeta2, Event_Weight);
             }
+
             //check if the event is passing trigger
-            SamplePlots      .TotalE  ->Fill(0.0,Event_Weight);  
-            if(isMC)MCTrPlots.TotalE  ->Fill(0.0,Event_Weight);
-            SamplePlots      .TotalEPU->Fill(0.0,Event_Weight*PUSystFactor);
-            if(isMC)MCTrPlots.TotalEPU->Fill(0.0,Event_Weight*PUSystFactor);
+            SamplePlots      ->TotalE  ->Fill(0.0,Event_Weight);  
+            if(isMC)MCTrPlots->TotalE  ->Fill(0.0,Event_Weight);
+            SamplePlots      ->TotalEPU->Fill(0.0,Event_Weight*PUSystFactor);
+            if(isMC)MCTrPlots->TotalEPU->Fill(0.0,Event_Weight*PUSystFactor);
 	    //See if event passed signal triggers
+
             if(!PassTrigger(ev, isData) ) {
 	      //For TOF only analysis if the event doesn't pass the signal triggers check if it was triggered by the no BPTX cosmic trigger
 	      //If not TOF only then move to next event
 	      if(TypeMode!=3) continue;
 	      if(!PassTrigger(ev, isData, true)) continue;
+
 	      //If is cosmic event then switch plots to use to the ones for cosmics
-	      SamplePlots=CosmicPlots;
+	      SamplePlots=&plotsMap[CosmicName];
 	    }
-            SamplePlots       .TotalTE->Fill(0.0,Event_Weight);
-            if(isMC)MCTrPlots .TotalTE->Fill(0.0,Event_Weight);
+	    else if(TypeMode==3) {
+	      SamplePlots = &plotsMap[samples[s].Name];
+	    }
+
+            SamplePlots       ->TotalTE->Fill(0.0,Event_Weight);
+            if(isMC)MCTrPlots ->TotalTE->Fill(0.0,Event_Weight);
 
             //keep beta distribution for signal
-            if(isSignal){if(HSCPGenBeta1>=0)SamplePlots.Beta_Triggered->Fill(HSCPGenBeta1, Event_Weight); if(HSCPGenBeta2>=0)SamplePlots.Beta_Triggered->Fill(HSCPGenBeta2, Event_Weight);}
+            if(isSignal){if(HSCPGenBeta1>=0)SamplePlots->Beta_Triggered->Fill(HSCPGenBeta1, Event_Weight); if(HSCPGenBeta2>=0)SamplePlots->Beta_Triggered->Fill(HSCPGenBeta2, Event_Weight);}
 
             //load all event collection that will be used later on (HSCP COll, dEdx and TOF)
             fwlite::Handle<susybsm::HSCParticleCollection> hscpCollHandle;
@@ -975,7 +984,6 @@ void Analysis_Step3(char* SavePath)
 
             //loop on HSCP candidates
             for(unsigned int c=0;c<hscpColl.size();c++){
-
                //define alias for important variable
                susybsm::HSCParticle hscp  = hscpColl[c];
                reco::MuonRef  muon  = hscp.muonRef();
@@ -1030,11 +1038,11 @@ void Analysis_Step3(char* SavePath)
 		       if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, false, -1,   PRescale, 0, 0)){
                            HSCPTk_SystP[CutIndex] = true;
                            if(Mass>MaxMass_SystP[CutIndex]) MaxMass_SystP[CutIndex]=Mass;
-                           SamplePlots.Mass_SystP->Fill(CutIndex, Mass,Event_Weight);
+                           SamplePlots->Mass_SystP->Fill(CutIndex, Mass,Event_Weight);
                            if(tof){
-                              SamplePlots.MassTOF_SystP ->Fill(CutIndex, MassTOF , Event_Weight);
+                              SamplePlots->MassTOF_SystP ->Fill(CutIndex, MassTOF , Event_Weight);
                            }
-                           SamplePlots.MassComb_SystP->Fill(CutIndex, MassComb, Event_Weight);
+                           SamplePlots->MassComb_SystP->Fill(CutIndex, MassComb, Event_Weight);
                         }
                      }
                   }
@@ -1052,11 +1060,11 @@ void Analysis_Step3(char* SavePath)
 		       if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, false, -1,   0, IRescale, 0)){
                            HSCPTk_SystI[CutIndex] = true;
                            if(Mass>MaxMass_SystI[CutIndex]) MaxMass_SystI[CutIndex]=Mass;
-                           SamplePlots.Mass_SystI->Fill(CutIndex, Mass,Event_Weight);
+                           SamplePlots->Mass_SystI->Fill(CutIndex, Mass,Event_Weight);
                            if(tof){
-                              SamplePlots.MassTOF_SystI ->Fill(CutIndex, MassTOF , Event_Weight);
+                              SamplePlots->MassTOF_SystI ->Fill(CutIndex, MassTOF , Event_Weight);
                            }
-                           SamplePlots.MassComb_SystI->Fill(CutIndex, MassComb, Event_Weight);
+                           SamplePlots->MassComb_SystI->Fill(CutIndex, MassComb, Event_Weight);
                         }
                      }
                   }
@@ -1074,11 +1082,11 @@ void Analysis_Step3(char* SavePath)
 		       if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, false, -1,   0, 0, 0)){
                            HSCPTk_SystM[CutIndex] = true;
                            if(Mass>MaxMass_SystM[CutIndex]) MaxMass_SystM[CutIndex]=Mass;
-                           SamplePlots.Mass_SystM->Fill(CutIndex, Mass,Event_Weight);
+                           SamplePlots->Mass_SystM->Fill(CutIndex, Mass,Event_Weight);
                            if(tof){
-                              SamplePlots.MassTOF_SystM ->Fill(CutIndex, MassTOF , Event_Weight);
+                              SamplePlots->MassTOF_SystM ->Fill(CutIndex, MassTOF , Event_Weight);
                            }
-                           SamplePlots.MassComb_SystM->Fill(CutIndex, MassComb, Event_Weight);
+                           SamplePlots->MassComb_SystM->Fill(CutIndex, MassComb, Event_Weight);
                         }
                      }
                   }
@@ -1096,11 +1104,11 @@ void Analysis_Step3(char* SavePath)
 		       if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, false, -1,   0, 0, TRescale)){
                            HSCPTk_SystT[CutIndex] = true;
                            if(Mass>MaxMass_SystT[CutIndex]) MaxMass_SystT[CutIndex]=Mass;
-                           SamplePlots.Mass_SystT->Fill(CutIndex, Mass,Event_Weight);
+                           SamplePlots->Mass_SystT->Fill(CutIndex, Mass,Event_Weight);
                            if(tof){
-                              SamplePlots.MassTOF_SystT ->Fill(CutIndex, MassTOF , Event_Weight);
+                              SamplePlots->MassTOF_SystT ->Fill(CutIndex, MassTOF , Event_Weight);
                            }
-                           SamplePlots.MassComb_SystT->Fill(CutIndex, MassComb, Event_Weight);
+                           SamplePlots->MassComb_SystT->Fill(CutIndex, MassComb, Event_Weight);
                         }
                      }
                   }
@@ -1118,23 +1126,23 @@ void Analysis_Step3(char* SavePath)
 		       if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, false, -1,   PRescale, 0, 0)){
                            HSCPTk_SystPU[CutIndex] = true;
                            if(Mass>MaxMass_SystPU[CutIndex]) MaxMass_SystPU[CutIndex]=Mass;
-                           SamplePlots.Mass_SystPU->Fill(CutIndex, Mass,Event_Weight*PUSystFactor);
+                           SamplePlots->Mass_SystPU->Fill(CutIndex, Mass,Event_Weight*PUSystFactor);
                            if(tof){
-                              SamplePlots.MassTOF_SystPU ->Fill(CutIndex, MassTOF , Event_Weight*PUSystFactor);
+                              SamplePlots->MassTOF_SystPU ->Fill(CutIndex, MassTOF , Event_Weight*PUSystFactor);
                            }
-                           SamplePlots.MassComb_SystPU->Fill(CutIndex, MassComb, Event_Weight*PUSystFactor);
+                           SamplePlots->MassComb_SystPU->Fill(CutIndex, MassComb, Event_Weight*PUSystFactor);
                         }
                      }
                   }
                }//End of systematic computation for signal
 
                //check if the canddiate pass the preselection cuts
-               if(isMC)PassPreselection(hscp, dedxSObj, dedxMObj, tof, dttof, csctof, ev, &MCTrPlots   );
-               if(    !PassPreselection(hscp, dedxSObj, dedxMObj, tof, dttof, csctof, ev, &SamplePlots, isSignal?genColl[ClosestGen].p()/genColl[ClosestGen].energy():-1))continue;
+               if(isMC)PassPreselection(hscp, dedxSObj, dedxMObj, tof, dttof, csctof, ev, MCTrPlots   );
+               if(    !PassPreselection(hscp, dedxSObj, dedxMObj, tof, dttof, csctof, ev, SamplePlots, isSignal?genColl[ClosestGen].p()/genColl[ClosestGen].energy():-1))continue;
 
                //fill the ABCD histograms and a few other control plots
-               if(isData)Analysis_FillControlAndPredictionHist(hscp, dedxSObj, dedxMObj, tof, &SamplePlots);
-	       else if(isMC) Analysis_FillControlAndPredictionHist(hscp, dedxSObj, dedxMObj, tof, &MCTrPlots);
+               if(isData)Analysis_FillControlAndPredictionHist(hscp, dedxSObj, dedxMObj, tof, SamplePlots);
+	       else if(isMC) Analysis_FillControlAndPredictionHist(hscp, dedxSObj, dedxMObj, tof, MCTrPlots);
 
 	       //Find the number of tracks passing selection for TOF<1 that will be used to check the background prediction
 	       if(isMC || isData) {
@@ -1150,14 +1158,14 @@ void Analysis_Step3(char* SavePath)
 		 //Background check looking at region with TOF<1
 		   if(!PassSelection   (hscp, dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, true)) continue;
                   //Fill Mass Histograms
-                  if(isMC)MCTrPlots.Mass_Flip->Fill(CutIndex, Mass,Event_Weight);
-                  SamplePlots      .Mass_Flip->Fill(CutIndex, Mass,Event_Weight);
+                  if(isMC)MCTrPlots->Mass_Flip->Fill(CutIndex, Mass,Event_Weight);
+                  SamplePlots      ->Mass_Flip->Fill(CutIndex, Mass,Event_Weight);
                   if(tof){
-                  if(isMC)MCTrPlots.MassTOF_Flip->Fill(CutIndex, MassTOF, Event_Weight);
-                     SamplePlots   .MassTOF_Flip->Fill(CutIndex, MassTOF, Event_Weight);
+                  if(isMC)MCTrPlots->MassTOF_Flip->Fill(CutIndex, MassTOF, Event_Weight);
+                     SamplePlots  ->MassTOF_Flip->Fill(CutIndex, MassTOF, Event_Weight);
                   }
-                  if(isMC)MCTrPlots.MassComb_Flip->Fill(CutIndex, MassComb, Event_Weight);
-                  SamplePlots      .MassComb_Flip->Fill(CutIndex, MassComb, Event_Weight);
+                  if(isMC)MCTrPlots->MassComb_Flip->Fill(CutIndex, MassComb, Event_Weight);
+                  SamplePlots      ->MassComb_Flip->Fill(CutIndex, MassComb, Event_Weight);
 		 }
 	       }
 
@@ -1174,22 +1182,22 @@ void Analysis_Step3(char* SavePath)
                for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
 
                   //Full Selection
-		 if(isMC)PassSelection   (hscp, dedxSObj, dedxMObj, tof, ev, CutIndex, &MCTrPlots);
-		 if(    !PassSelection   (hscp, dedxSObj, dedxMObj, tof, ev, CutIndex, &SamplePlots, false, isSignal?genColl[ClosestGen].p()/genColl[ClosestGen].energy():-1))continue;
+		 if(isMC)PassSelection   (hscp, dedxSObj, dedxMObj, tof, ev, CutIndex, MCTrPlots);
+		 if(    !PassSelection   (hscp, dedxSObj, dedxMObj, tof, ev, CutIndex, SamplePlots, false, isSignal?genColl[ClosestGen].p()/genColl[ClosestGen].energy():-1))continue;
 
                   if(CutIndex!=0)PassNonTrivialSelection=true;
                   HSCPTk[CutIndex] = true;
                   if(Mass>MaxMass[CutIndex]) MaxMass[CutIndex]=Mass;
 
                   //Fill Mass Histograms
-                  if(isMC)MCTrPlots.Mass->Fill(CutIndex, Mass,Event_Weight);
-                  SamplePlots      .Mass->Fill(CutIndex, Mass,Event_Weight);
+                  if(isMC)MCTrPlots->Mass->Fill(CutIndex, Mass,Event_Weight);
+                  SamplePlots      ->Mass->Fill(CutIndex, Mass,Event_Weight);
                   if(tof){
-                  if(isMC)MCTrPlots.MassTOF->Fill(CutIndex, MassTOF, Event_Weight);
-                     SamplePlots   .MassTOF->Fill(CutIndex, MassTOF, Event_Weight);
+                  if(isMC)MCTrPlots->MassTOF->Fill(CutIndex, MassTOF, Event_Weight);
+                     SamplePlots   ->MassTOF->Fill(CutIndex, MassTOF, Event_Weight);
                   }
-                  if(isMC)MCTrPlots.MassComb->Fill(CutIndex, MassComb, Event_Weight);
-                  SamplePlots      .MassComb->Fill(CutIndex, MassComb, Event_Weight);
+                  if(isMC)MCTrPlots->MassComb->Fill(CutIndex, MassComb, Event_Weight);
+                  SamplePlots      ->MassComb->Fill(CutIndex, MassComb, Event_Weight);
                } //end of Cut loop
                if(PassNonTrivialSelection) stPlots_FillTree(SamplePlots, ev.eventAuxiliary().run(),ev.eventAuxiliary().event(), c, track->pt(), dedxSObj ? dedxSObj->dEdx() : -1, tof ? tof->inverseBeta() : -1, Mass, -1);
             }// end of Track Loop
@@ -1197,32 +1205,32 @@ void Analysis_Step3(char* SavePath)
             //save event dependent information thanks to the bookkeeping
             for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
               if(HSCPTk[CutIndex]){
-                 SamplePlots.HSCPE             ->Fill(CutIndex,Event_Weight);
-                 SamplePlots.MaxEventMass      ->Fill(CutIndex,MaxMass[CutIndex], Event_Weight);
+                 SamplePlots->HSCPE             ->Fill(CutIndex,Event_Weight);
+                 SamplePlots->MaxEventMass      ->Fill(CutIndex,MaxMass[CutIndex], Event_Weight);
                  if(isMC){
-                 MCTrPlots.HSCPE               ->Fill(CutIndex,Event_Weight);
-                 MCTrPlots.MaxEventMass        ->Fill(CutIndex,MaxMass[CutIndex], Event_Weight);
+                 MCTrPlots->HSCPE               ->Fill(CutIndex,Event_Weight);
+                 MCTrPlots->MaxEventMass        ->Fill(CutIndex,MaxMass[CutIndex], Event_Weight);
                  }
               }
               if(HSCPTk_SystP[CutIndex]){
-                 SamplePlots.HSCPE_SystP       ->Fill(CutIndex,Event_Weight);
-                 SamplePlots.MaxEventMass_SystP->Fill(CutIndex,MaxMass_SystP[CutIndex], Event_Weight);
+                 SamplePlots->HSCPE_SystP       ->Fill(CutIndex,Event_Weight);
+                 SamplePlots->MaxEventMass_SystP->Fill(CutIndex,MaxMass_SystP[CutIndex], Event_Weight);
               }
               if(HSCPTk_SystI[CutIndex]){
-                 SamplePlots.HSCPE_SystI       ->Fill(CutIndex,Event_Weight);
-                 SamplePlots.MaxEventMass_SystI->Fill(CutIndex,MaxMass_SystI[CutIndex], Event_Weight);
+                 SamplePlots->HSCPE_SystI       ->Fill(CutIndex,Event_Weight);
+                 SamplePlots->MaxEventMass_SystI->Fill(CutIndex,MaxMass_SystI[CutIndex], Event_Weight);
               }
               if(HSCPTk_SystM[CutIndex]){
-                 SamplePlots.HSCPE_SystM       ->Fill(CutIndex,Event_Weight);
-                 SamplePlots.MaxEventMass_SystM->Fill(CutIndex,MaxMass_SystM[CutIndex], Event_Weight);
+                 SamplePlots->HSCPE_SystM       ->Fill(CutIndex,Event_Weight);
+                 SamplePlots->MaxEventMass_SystM->Fill(CutIndex,MaxMass_SystM[CutIndex], Event_Weight);
               }
               if(HSCPTk_SystT[CutIndex]){
-                 SamplePlots.HSCPE_SystT       ->Fill(CutIndex,Event_Weight);
-                 SamplePlots.MaxEventMass_SystT->Fill(CutIndex,MaxMass_SystT[CutIndex], Event_Weight);
+                 SamplePlots->HSCPE_SystT       ->Fill(CutIndex,Event_Weight);
+                 SamplePlots->MaxEventMass_SystT->Fill(CutIndex,MaxMass_SystT[CutIndex], Event_Weight);
               }
               if(HSCPTk_SystPU[CutIndex]){
-                 SamplePlots.HSCPE_SystPU       ->Fill(CutIndex,Event_Weight);
-                 SamplePlots.MaxEventMass_SystPU->Fill(CutIndex,MaxMass_SystPU[CutIndex], Event_Weight);
+                 SamplePlots->HSCPE_SystPU       ->Fill(CutIndex,Event_Weight);
+                 SamplePlots->MaxEventMass_SystPU->Fill(CutIndex,MaxMass_SystPU[CutIndex], Event_Weight);
               }
            }
          }printf("\n");// end of Event Loop

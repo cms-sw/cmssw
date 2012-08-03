@@ -417,9 +417,9 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_Pt_CSC"   ; st.BS_Pt_CSC    = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_Pt_CSC->Sumw2();
    Name = "BS_Is"   ; st.BS_Is    = new TH1F(Name.c_str(), Name.c_str(),                   100, 0, dEdxS_UpLim);       st.BS_Is->Sumw2();
    Name = "BS_Im"   ; st.BS_Im    = new TH1F(Name.c_str(), Name.c_str(),                   100, 3, dEdxM_UpLim);       st.BS_Im->Sumw2();
-   Name = "BS_TOF"  ; st.BS_TOF   = new TH1F(Name.c_str(), Name.c_str(),                   150, 1, 5);                 st.BS_TOF->Sumw2();
-   Name = "BS_TOF_DT"  ; st.BS_TOF_DT   = new TH1F(Name.c_str(), Name.c_str(),                   150, 1, 5);                 st.BS_TOF_DT->Sumw2();
-   Name = "BS_TOF_CSC"  ; st.BS_TOF_CSC   = new TH1F(Name.c_str(), Name.c_str(),                   150, 1, 5);                 st.BS_TOF_CSC->Sumw2();
+   Name = "BS_TOF"  ; st.BS_TOF   = new TH1F(Name.c_str(), Name.c_str(),                   150, -1, 5);                 st.BS_TOF->Sumw2();
+   Name = "BS_TOF_DT"  ; st.BS_TOF_DT   = new TH1F(Name.c_str(), Name.c_str(),                   150, -1, 5);                 st.BS_TOF_DT->Sumw2();
+   Name = "BS_TOF_CSC"  ; st.BS_TOF_CSC   = new TH1F(Name.c_str(), Name.c_str(),                   150, -1, 5);                 st.BS_TOF_CSC->Sumw2();
    Name = "BS_dR_NVTrack"  ; st.BS_dR_NVTrack = new TH1F(Name.c_str(), Name.c_str(), 40, 0, 1); st.BS_dR_NVTrack->Sumw2();
    Name = "BS_MatchedStations"  ; st.BS_MatchedStations= new TH1F(Name.c_str(), Name.c_str(),                   8, -0.5, 7.5); st.BS_MatchedStations->Sumw2();
    Name = "BS_PV"  ; st.BS_PV = new TH1F(Name.c_str(), Name.c_str(),                   60, 0, 60); st.BS_PV->Sumw2();
@@ -730,9 +730,9 @@ bool stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName)
    st.BS_SegMinEtaSep_PassDz  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_SegMinEtaSep_PassDz");
    st.BS_Dz_FailSep  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Dz_FailSep");
 
-   st.BS_Pt_FailDz  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_FailDz");
-   st.BS_Pt_FailDz_DT  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_FailDz_DT");
-   st.BS_Pt_FailDz_CSC  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_FailDz_CSC");
+   st.BS_Pt_FailDz  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_FailDz");
+   st.BS_Pt_FailDz_DT  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_FailDz_DT");
+   st.BS_Pt_FailDz_CSC  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_FailDz_CSC");
    st.BS_TOF_FailDz  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOF_FailDz");
    st.BS_TOF_FailDz_DT  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOF_FailDz_DT");
    st.BS_TOF_FailDz_CSC  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOF_FailDz_CSC");
@@ -790,26 +790,26 @@ bool stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName)
 }
 
 // Write the histograms to the file on disk and properly clean the memory from all the histograms 
-void stPlots_Clear(stPlots& st, bool WriteFirst=false)
+void stPlots_Clear(stPlots* st, bool WriteFirst=false)
 {
    if(WriteFirst){
-      st.Tree->SetDirectory(st.Directory);
-      st.Directory->Write();
+      st->Tree->SetDirectory(st->Directory);
+      st->Directory->Write();
    }
-   delete st.Directory;
+   delete st->Directory;
 }
 
 // add one candidate to the bookeeping tree --> the event must be saved in the tree if you want to find it back with the DumpInfo.C code later on
-void stPlots_FillTree(stPlots& st, unsigned int Run, unsigned int Event, unsigned int Hscp, double Pt, double I, double TOF, double Mass, int MaxEntry=20000){
-   if(MaxEntry>0 && st.Tree->GetEntries()>=MaxEntry)return;
-   st.Tree_Run   = Run;
-   st.Tree_Event = Event;
-   st.Tree_Hscp  = Hscp;
-   st.Tree_Pt    = Pt;
-   st.Tree_I     = I;
-   st.Tree_TOF   = TOF;
-   st.Tree_Mass  = Mass;
-   st.Tree->Fill();
+void stPlots_FillTree(stPlots* st, unsigned int Run, unsigned int Event, unsigned int Hscp, double Pt, double I, double TOF, double Mass, int MaxEntry=20000){
+   if(MaxEntry>0 && st->Tree->GetEntries()>=MaxEntry)return;
+   st->Tree_Run   = Run;
+   st->Tree_Event = Event;
+   st->Tree_Hscp  = Hscp;
+   st->Tree_Pt    = Pt;
+   st->Tree_I     = I;
+   st->Tree_TOF   = TOF;
+   st->Tree_Mass  = Mass;
+   st->Tree->Fill();
 }
 
 // dump a full preselection and selection cut flow table
@@ -851,7 +851,6 @@ void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, un
    TCanvas* c1;
 
    char CutIndexStr[255];sprintf(CutIndexStr,"_%03i",CutIndex);
-
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_EtaIs;                 legend.push_back("Before Cut");
@@ -1080,7 +1079,8 @@ void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, un
    SaveCanvas(c1,SavePath,std::string("EtaRegions_AS")+CutIndexStr);
    //for(unsigned int i=0;i<8;i++){delete Histos1D[i];}
    delete c1;
-   /*
+
+   if(st.Name.find("Cosmic")!=string::npos) {
      c1 = new TCanvas("c1","c1,",600,600);                                               legend.clear();
      Histos1D[0] = (TH1*)st.BS_Pt_FailDz->Clone(); Histos1D[0]->Rebin(4);            legend.push_back("abs(dz)>35");
      if(Histos1D[0]->Integral(0, Histos1D[0]->GetNbinsX()+1)>0) Histos1D[0]->Scale(1.0/Histos1D[0]->Integral(0, Histos1D[0]->GetNbinsX()+1));
@@ -1152,7 +1152,7 @@ void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, un
      DrawPreliminary(SQRTS, IntegratedLuminosity);
      SaveCanvas(c1,SavePath,"_TOF_Dz_DT_Comp", true);
      delete c1;
-     */
+   }
 }
 
 // draw all plots that meant for comparison with other samples (mostly 1D plots that can be superimposed)
@@ -1615,7 +1615,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_TOF; legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    sprintf(YAxisTitle,"Fraction of tracks/%0.2f",Histos[0]->GetBinWidth(1));
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", YAxisTitle, 0.5, 1.5, 0, 0);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", YAxisTitle, 0, 4, 0, 0);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P");//,0.35);
    c1->SetLogy(true);
    DrawPreliminary(SQRTS, IntegratedLuminosity);
@@ -1626,7 +1626,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_TOF_DT; legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    sprintf(YAxisTitle,"Fraction of tracks/%0.2f",Histos[0]->GetBinWidth(1));
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", YAxisTitle, 0.5, 1.5, 0, 0);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", YAxisTitle, -1, 4, 0, 0);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.85);//,0.35);
    c1->SetLogy(true);
    DrawPreliminary(SQRTS, IntegratedLuminosity);
@@ -1637,7 +1637,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_TOF_CSC; legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    sprintf(YAxisTitle,"Fraction of tracks/%0.2f",Histos[0]->GetBinWidth(1));
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", YAxisTitle, 0.5, 1.5, 0, 0);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", YAxisTitle, -1, 4, 0, 0);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P");//,0.35);
    c1->SetLogy(true);
    DrawPreliminary(SQRTS, IntegratedLuminosity);

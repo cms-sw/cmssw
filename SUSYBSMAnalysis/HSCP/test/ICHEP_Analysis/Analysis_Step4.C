@@ -68,6 +68,10 @@ void Analysis_Step4(std::string InputPattern)
 	TList* list = InputFile->GetListOfKeys();
 	for(int d=0;d<list->GetEntries();d++){
 	  if(!list->At(d)->IsFolder())continue;
+	  string DirName;
+	  DirName = DirName + list->At(d)->GetName();
+	  if(DirName.find("Cosmic")!=string::npos) continue;
+
 	  TDirectory* directory = InputFile->GetDirectory(list->At(d)->GetName());
 	  directory->cd();
 
@@ -110,12 +114,23 @@ void Analysis_Step4(std::string InputPattern)
 	  TH2D*  Pred_MassTOF   = (TH2D*)GetObjectFromPath(directory, ("Pred_MassTOF" + Suffix).c_str()); Pred_MassTOF->SetName("Pred_MassTOF_Temp");
 	  TH2D*  Pred_MassComb  = (TH2D*)GetObjectFromPath(directory, ("Pred_MassComb" + Suffix).c_str()); Pred_MassComb->SetName("Pred_MassComb_Temp");
 
+          TH2D*  H_D_DzSidebands= (TH2D*)GetObjectFromPath(directory, "H_D_DzSidebands");
+          TH1D*  H_D_Cosmic=NULL;
+          TH2D*  H_D_DzSidebands_Cosmic=NULL;
+	  if(TypeMode==3 && DirName.find("Data")!=string::npos) {
+	    string CosmicDir = DirName.replace(0, 4, "Cosmic");
+	    H_D_DzSidebands_Cosmic = (TH2D*)GetObjectFromPath(InputFile, (CosmicDir + "/H_D_DzSidebands").c_str());
+	    H_D_Cosmic             = (TH1D*)GetObjectFromPath(InputFile, (CosmicDir + "/H_D" + Suffix).c_str());
+	  }
+
       //erase histogram created at previous iteration
 	  directory->Delete(("Pred_P" + Suffix + ";*").c_str());
           directory->Delete(("Pred_Mass" + Suffix + ";*").c_str());
           directory->Delete(("Pred_MassTOF" + Suffix + ";*").c_str());
           directory->Delete(("Pred_MassComb" + Suffix + ";*").c_str());
           directory->Delete(("H_P" + Suffix + ";*").c_str());
+          directory->Delete(("H_P_Coll" + Suffix + ";*").c_str());
+          directory->Delete(("H_P_Cosmic" + Suffix + ";*").c_str());
 
       //take data histogram to save the resulting momentum distribution
 	  TH2D*  Pred_P         = (TH2D*)GetObjectFromPath(directory, "RegionD_P"); Pred_P->Reset(); Pred_P->SetName(("Pred_P" + Suffix).c_str());
@@ -125,6 +140,9 @@ void Analysis_Step4(std::string InputPattern)
 	  Pred_Mass    ->Reset();    Pred_Mass    ->SetDirectory(directory); Pred_Mass->SetName(("Pred_Mass" + Suffix).c_str()); 
 	  Pred_MassTOF ->Reset();    Pred_MassTOF ->SetDirectory(directory); Pred_MassTOF->SetName(("Pred_MassTOF" + Suffix).c_str());
 	  Pred_MassComb->Reset();    Pred_MassComb->SetDirectory(directory); Pred_MassComb->SetName(("Pred_MassComb" + Suffix).c_str());
+
+	  TH1D* H_P_Coll = (TH1D*)H_P->Clone(("H_P_Coll" + Suffix).c_str());
+          TH1D* H_P_Cosmic = (TH1D*)H_P->Clone(("H_P_Cosmic" + Suffix).c_str());
 
       printf("Making prediction for %s\n",directory->GetName());
       //////////////////////////////////////////////////      MAKING THE PREDICTION
@@ -160,6 +178,10 @@ void Analysis_Step4(std::string InputPattern)
 
          double P=0;
          double Perr=0;
+	 double P_Coll=0;
+	 double Perr_Coll=0;
+	 double P_Cosmic=0;
+	 double Perr_Cosmic=0;
 
          printf("%4i --> Pt>%7.2f  I>%6.2f  TOF>%+5.2f --> A=%6.2E B=%6.E C=%6.2E D=%6.2E E=%6.2E F=%6.2E G=%6.2E H=%6.2E",CutIndex,HCuts_Pt->GetBinContent(CutIndex+1), HCuts_I->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1),A, B, C, D, E, F, G, H );
 
@@ -177,9 +199,26 @@ void Analysis_Step4(std::string InputPattern)
 	   double Perr_Cen = sqrt( (pow(B_Cen/F_Cen,2)*H_Cen) + (pow(H_Cen/F_Cen,2)*B_Cen) + (pow((B_Cen*(H_Cen)/(F_Cen*F_Cen)),2)*F_Cen) );
 	   double P_For=((H_For*B_For)/F_For);
 	   double Perr_For = sqrt( (pow(B_For/F_For,2)*H_For) + (pow(H_For/F_For,2)*B_For) + (pow((B_For*(H_For)/(F_For*F_For)),2)*F_For) );
-	   P    = P_Cen + P_For;
-	   Perr = sqrt(Perr_Cen*Perr_Cen + Perr_For*Perr_For);
+           P_Coll    = P_Cen + P_For;
+           Perr_Coll = sqrt(Perr_Cen*Perr_Cen + Perr_For*Perr_For);
+
+	   //Predict the number of cosmics passing all cuts as number passing in dz sideband times the ratio of tracks in the sideeband
+	   //vs number in central region as determined by pure cosmic sample
+	   //Multile sidebands are made to check for background consistency, the fifth one is used for the actual prediction
+	   double D_Sideband = H_D_DzSidebands->GetBinContent(CutIndex+1, 5);
+	   double D_Cosmic = H_D_Cosmic->GetBinContent(CutIndex+1);
+           double D_Sideband_Cosmic = H_D_DzSidebands_Cosmic->GetBinContent(CutIndex+1, 5);
+	   P_Cosmic = D_Sideband * D_Cosmic / D_Sideband_Cosmic;
+	   Perr_Cosmic = sqrt( (pow(D_Cosmic/D_Sideband_Cosmic,2)*D_Sideband) + (pow(D_Sideband/D_Sideband_Cosmic,2)*D_Cosmic) + (pow((D_Cosmic*(D_Sideband)/(D_Sideband_Cosmic*D_Sideband_Cosmic)),2)*D_Sideband_Cosmic) );
+	   P    = P_Coll + P_Cosmic;
+	   Perr = sqrt(Perr_Coll*Perr_Coll + Perr_Cosmic*Perr_Cosmic);
 	 }
+
+	 H_P_Coll->SetBinContent(CutIndex+1, P_Coll);
+         H_P_Coll->SetBinError  (CutIndex+1, Perr_Coll);
+
+         H_P_Cosmic->SetBinContent(CutIndex+1,P_Cosmic);
+         H_P_Cosmic->SetBinError  (CutIndex+1,Perr_Cosmic);
 
          H_P->SetBinContent(CutIndex+1,P);
          H_P->SetBinError  (CutIndex+1,Perr);
@@ -352,6 +391,10 @@ void Analysis_Step4(std::string InputPattern)
       Pred_Mass    ->Write();
       Pred_MassTOF ->Write();
       Pred_MassComb->Write();
+      if(TypeMode==3) {
+	H_P_Coll->Write();
+        H_P_Cosmic->Write();
+      }
       //directory->Delete("H_P;1");
 
       //////////////////////////////////////////////////     DUMP USEFUL INFORMATION
