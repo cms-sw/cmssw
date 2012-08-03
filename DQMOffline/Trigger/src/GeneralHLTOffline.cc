@@ -13,7 +13,7 @@
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: GeneralHLTOffline.cc,v 1.2 2012/02/20 16:41:43 bjk Exp $
+// $Id: GeneralHLTOffline.cc,v 1.3 2012/05/07 15:23:27 jcarson Exp $
 //
 //
 
@@ -230,8 +230,11 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		 if ( indexOfModuleInAodTriggerEvent < aodTriggerEvent->sizeFilters() ) {
 		   const Keys &keys = aodTriggerEvent->filterKeys( indexOfModuleInAodTriggerEvent );
 		   if (debugPrint) std::cout << "Got Keys for index " << indexOfModuleInAodTriggerEvent <<", size of keys is " << keys.size() << std::endl;
-		   
+		   if (keys.size()>=1000) std::cout << "WARNING!! size of keys is " << keys.size() 
+						    << " for path " << pathName << " and module " << modulesThisPath[iModule]<< std::endl;
+
 		   for ( size_t iKey = 0; iKey < keys.size(); iKey++ ) {
+		     if( iKey>=1000 ) break;
 		     TriggerObject foundObject = objects[keys[iKey]];
 		     bool first_count = false;
 		     
