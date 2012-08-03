@@ -1214,7 +1214,7 @@ bool SiStripGainFromData::IsFarFromBorder(TrajectoryStateOnSurface trajState, co
 
   if(trapezoidalBounds)
   {
-     std::vector<float> const & parameters = (*trapezoidalBounds).parameters();
+      std::array<const float, 4> const & parameters = (*trapezoidalBounds).parameters();
      HalfLength     = parameters[3];
      //double t       = (HalfLength + HitLocalPos.y()) / (2*HalfLength) ;
      //HalfWidth      = parameters[0] + (parameters[1]-parameters[0]) * t;
