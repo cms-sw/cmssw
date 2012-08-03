@@ -3,6 +3,9 @@
 
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/MemberWithDict.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include <string>
 #include <sstream>
 #include <vector>
@@ -16,7 +19,7 @@
    </code>
 
    \author Stefano Argiro
-   \version $Id: StringToEnumValue.h,v 1.2 2012/06/26 21:09:37 wmtan Exp $
+   \version $Id: StringToEnumValue.h,v 1.3 2012/08/03 18:08:09 wmtan Exp $
    \date 04 Mar 2011
 */
 
