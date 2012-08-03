@@ -784,8 +784,6 @@ void CSCEfficiency::fillWG_info(edm::Handle<CSCWireDigiCollection> &wires, edm::
     const CSCLayer *layer_p = cscGeom->layer (id);
     const CSCLayerGeometry *layerGeom = layer_p->geometry ();
     //
-
-    const std::vector<float> LayerBounds = layerGeom->parameters ();
     std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
     std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
     //
