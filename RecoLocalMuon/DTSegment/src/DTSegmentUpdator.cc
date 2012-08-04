@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2012/01/31 18:05:58 $
- * $Revision: 1.46 $
+ * $Date: 2012/02/20 22:17:46 $
+ * $Revision: 1.47 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
@@ -433,9 +433,9 @@ void DTSegmentUpdator::rejectBadHits(DTChamberRecSegment2D* phiSeg) const {
   float Sy2 = 0.;
   float Sxy = 0.;
 
-  const int N =  x.size();
+  size_t N =  x.size();
 	
-  for(int i = 0; i < N;++i){
+  for(size_t i = 0; i < N;++i){
     Sx += x.at(i);
     Sy += y.at(i);
     Sx2 += x.at(i)*x.at(i);
