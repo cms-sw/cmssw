@@ -157,7 +157,7 @@ namespace edm {
     cacheSize_ = cacheSize;
     tree_->SetCacheSize(static_cast<Long64_t>(cacheSize));
     treeCache_.reset(dynamic_cast<TTreeCache*>(filePtr_->GetCacheRead()));
-    treeCache_->SetEnablePrefetching(enablePrefetching_);
+    if(treeCache_) treeCache_->SetEnablePrefetching(enablePrefetching_);
     filePtr_->SetCacheRead(0);
     rawTreeCache_.reset();
   }
@@ -233,7 +233,7 @@ namespace edm {
           // 1 MB as the cache size below
           tree_->SetCacheSize(static_cast<Long64_t>(5*1024*1024));
           rawTriggerTreeCache_.reset(dynamic_cast<TTreeCache*>(filePtr_->GetCacheRead()));
-          rawTriggerTreeCache_->SetEnablePrefetching(false);
+          if(rawTriggerTreeCache_) rawTriggerTreeCache_->SetEnablePrefetching(false);
           TObjArray *branches = tree_->GetListOfBranches();
           int branchCount = branches->GetEntriesFast();
 
