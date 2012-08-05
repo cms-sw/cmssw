@@ -4,19 +4,23 @@ import DQM.TrackingMonitor.LogMessageMonitor_cfi
 
 LocalRecoLogMessageMon = DQM.TrackingMonitor.LogMessageMonitor_cfi.LogMessageMon.clone()
 LocalRecoLogMessageMon.pluginsMonName = cms.string ( 'LocalReco' )
-LocalRecoLogMessageMon.modules        = cms.vstring( 'siPixelDigis', 'siStripDigis' )
-LocalRecoLogMessageMon.categories     = cms.vstring(  )
+LocalRecoLogMessageMon.modules        = cms.vstring( 'siPixelDigis', 'siStripDigis', 'siPixelClusters', 'siStripClusters' ) # siPixelDigis : SiPixelRawToDigi, siStripDigis : SiStripRawToDigi (SiStripRawToDigiUnpacker), siPixelClusters : SiPixelClusterProducer, siStripClusters : SiStripClusterizer
+LocalRecoLogMessageMon.categories     = cms.vstring( 'SiPixelRawToDigi', 'TooManyErrors', 'TooManyClusters' )
 
+# apparentely there are not LogError in RecoLocalTracker/SubCollectionProducers/src/TrackClusterRemover.cc
 ClusterizerLogMessageMon = DQM.TrackingMonitor.LogMessageMonitor_cfi.LogMessageMon.clone()
-ClusterizerLogMessageMon.pluginsMonName = cms.string ( 'Clusterizer' )
-ClusterizerLogMessageMon.modules        = cms.vstring( 'siPixelClusters', 'siStripZeroSuppression', 'siStripClusters', 'lowPtTripletStepClusters', 'pixelPairStepClusters', 'detachedTripletStepClusters', 'mixedTripletStepClusters', 'pixelLessStepClusters', 'tobTecStepClusters' )
+ClusterizerLogMessageMon.pluginsMonName = cms.string ( 'TrackClusterRemover' )
+ClusterizerLogMessageMon.modules        = cms.vstring( 'lowPtTripletStepClusters', 'pixelPairStepClusters', 'detachedTripletStepClusters', 'mixedTripletStepClusters', 'pixelLessStepClusters', 'tobTecStepClusters' ) # TrackClusterRemover
 ClusterizerLogMessageMon.categories     = cms.vstring(  )
 
+# initialStepSeeds,lowPtTripletStepSeeds, pixelPairStepSeeds, detachedTripletStepSeeds, : TooManyClusters (SeedGeneratorFromRegionHitsEDProducer),
+# photonConvTrajSeedFromSingleLeg : (PhotonConversionTrajectorySeedProducerFromSingleLeg)
 SeedingLogMessageMon = DQM.TrackingMonitor.LogMessageMonitor_cfi.LogMessageMon.clone()
 SeedingLogMessageMon.pluginsMonName = cms.string ( 'Seeding' ) 
 SeedingLogMessageMon.modules        = cms.vstring( 'initialStepSeeds', 'lowPtTripletStepSeeds', 'pixelPairStepSeeds', 'detachedTripletStepSeeds', 'mixedTripletStepSeedsA', 'mixedTripletStepSeedsB', 'mixedTripletStepSeeds', 'pixelLessStepSeeds', 'tobTecStepSeeds', 'photonConvTrajSeedFromSingleLeg')
 SeedingLogMessageMon.categories     = cms.vstring( 'TooManyClusters', 'TooManyPairs', 'TooManyTriplets', 'TooManySeeds' )
 
+# RecoTracker/CkfPattern/src/CkfTrackCandidateMakerBase.cc
 TrackCandidateLogMessageMon = DQM.TrackingMonitor.LogMessageMonitor_cfi.LogMessageMon.clone()
 TrackCandidateLogMessageMon.pluginsMonName = cms.string ( 'TrackCandidate' ) 
 TrackCandidateLogMessageMon.modules        = cms.vstring( 'initialStepTrackCandidates', 'lowPtTripletStepTrackCandidates', 'pixelPairStepTrackCandidates', 'detachedTripletStepTrackCandidates', 'mixedTripletStepTrackCandidates', 'pixelLessStepTrackCandidates', 'tobTecStepTrackCandidates', 'convTrackCandidates' )
