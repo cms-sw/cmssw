@@ -209,6 +209,15 @@ def addHLTL1Passthrough(process, embedder="patMuonsWithTrigger"):
     process.patMuonsWithoutTrigger.replace(process.muonMatchHLTL3, process.muonMatchHLTL1 + process.muonMatchHLTL3)
     getattr(process,embedder).matches += [ cms.InputTag('muonMatchHLTL1'), cms.InputTag('muonMatchHLTL1','propagatedReco') ]
 
+def useExtendedL1Match(process, patMuonProd="patMuonsWithoutTrigger", byWhat=["ByQ"]):
+    process.load("MuonAnalysis.MuonAssociators.muonL1MultiMatch_cfi")
+    process.globalReplace('muonL1Info', process.muonL1MultiMatch.clone(src = process.muonL1Info.src.value()))
+    pmp = getattr(process, patMuonProd)
+    for X in byWhat:
+        pmp.userData.userInts.src   += [ cms.InputTag('muonL1Info', "quality"+X) ]
+        pmp.userData.userFloats.src += [ cms.InputTag('muonL1Info', "deltaR"+X) ]
+        pmp.userData.userCands.src  += [ cms.InputTag('muonL1Info', X) ]
+
 def useL1MatchingWindowForSinglets(process):
     "Change the L1 trigger matching window to be suitable also for CSC single triggers"
     if hasattr(process, 'muonL1Info'):
