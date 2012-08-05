@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2012/05/09 22:26:23 $
- *  $Revision: 1.57 $
+ *  $Date: 2012/07/07 10:33:56 $
+ *  $Revision: 1.58 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -48,8 +48,8 @@
 
 namespace edm {
  namespace daqsource{
-  static unsigned int gtpEvmId_ =  FEDNumbering::MINTriggerGTPFEDID;
-  static unsigned int gtpeId_ =  FEDNumbering::MINTriggerEGTPFEDID;
+  constexpr unsigned int gtpEvmId_ =  FEDNumbering::MINTriggerGTPFEDID;
+  constexpr unsigned int gtpeId_ =  FEDNumbering::MINTriggerEGTPFEDID;
  }
 
   //______________________________________________________________________________
