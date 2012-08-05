@@ -5,8 +5,8 @@
 //   Description: Look-up tables for phi assignment 
 //
 //
-//   $Date: 2009/05/13 06:36:48 $
-//   $Revision: 1.6 $
+//   $Date: 2010/05/12 23:03:43 $
+//   $Revision: 1.7 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -139,6 +139,7 @@ int L1MuDTPhiLut::load() {
       number++;
 
       if ( adr != adr_old ) {
+        assert(number);
         tmplut.insert(make_pair( adr_old, ((sum_phi/number) >> sh_phi) ));
 
         adr_old = adr;
