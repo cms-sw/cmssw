@@ -28,7 +28,7 @@ const char par_name[dim][20]={"z0  ","sigma ","x0 ", "y0 ", "dxdz ", "dydz ", "s
 Double_t params[dim],errparams[dim];
 Double_t sfpar[dim],errsfpar[dim]; 
 
-static Double_t step[dim] = {1.e-5,1.e-5,1.e-3,1.e-3,1.e-3,1.e-3,1.e-5,1.e-5,1.e-5,1.e-5,1.e-5};
+constexpr Double_t step[dim] = {1.e-5,1.e-5,1.e-3,1.e-3,1.e-3,1.e-3,1.e-5,1.e-5,1.e-5,1.e-5,1.e-5};
 zData zdata;//!
 int tmpNtrks_ = 0;
 int fnthite = 0;
