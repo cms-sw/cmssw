@@ -7,7 +7,7 @@
 
 
 
-static double MaximumFractionalError = 0.0005; // 0.05% error allowed from this source
+constexpr double MaximumFractionalError = 0.0005; // 0.05% error allowed from this source
 
 ZdcSimpleRecAlgo::ZdcSimpleRecAlgo(bool correctForTimeslew, bool correctForPulse, float phaseNS, int recoMethod, int lowGainOffset, double lowGainFrac) : 
   recoMethod_(recoMethod),
