@@ -5,7 +5,7 @@
 #include <algorithm> // for "max"
 #include <math.h>
 
-static double MaximumFractionalError = 0.0005; // 0.05% error allowed from this source
+constexpr double MaximumFractionalError = 0.0005; // 0.05% error allowed from this source
 
 CastorSimpleRecAlgo::CastorSimpleRecAlgo(int firstSample, int samplesToAdd, bool correctForTimeslew, bool correctForPulse, float phaseNS) : 
   firstSample_(firstSample), 
