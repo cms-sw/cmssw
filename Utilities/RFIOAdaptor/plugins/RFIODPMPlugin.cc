@@ -15,6 +15,8 @@ struct Dummy
 #endif
   }
 };
+#ifndef __clang_analyzer__
 static Dummy foo;
+#endif
 }
 DEFINE_EDM_PLUGIN (RFIOPluginFactory,RFIODummyFile,"dpm");
