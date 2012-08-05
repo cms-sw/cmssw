@@ -36,7 +36,7 @@ dEdxAnalyzer = cms.EDAnalyzer("dEdxAnalyzer",
 
        # HIP
        dEdxHIPmassBin      = cms.int32(51),
-       dEdxHIPmassMin      = cms.double(-0.5),
+       dEdxHIPmassMin      = cms.double(-0.05),
        dEdxHIPmassMax      = cms.double(5.05),
     )                          
 )
