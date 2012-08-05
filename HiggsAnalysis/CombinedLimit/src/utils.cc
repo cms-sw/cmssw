@@ -501,7 +501,7 @@ void utils::setPhysicsModelParameters( std::string setPhysicsModelParameterExpre
  
   vector<string> SetParameterExpressionList;  
   boost::split(SetParameterExpressionList, setPhysicsModelParameterExpression, boost::is_any_of(","));
-  for (uint p = 0; p < SetParameterExpressionList.size(); ++p) {
+  for (UInt_t p = 0; p < SetParameterExpressionList.size(); ++p) {
     vector<string> SetParameterExpression;
     boost::split(SetParameterExpression, SetParameterExpressionList[p], boost::is_any_of("="));
       
