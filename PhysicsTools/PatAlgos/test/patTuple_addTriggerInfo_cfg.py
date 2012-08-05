@@ -5,7 +5,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 # Switch on "unscheduled" mode
 process.options.allowUnscheduled = cms.untracked.bool( True )
-process.Tracer = cms.Service( "Tracer" )
+#process.Tracer = cms.Service( "Tracer" )
 
 # Load default PAT
 process.load( "PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff" )
