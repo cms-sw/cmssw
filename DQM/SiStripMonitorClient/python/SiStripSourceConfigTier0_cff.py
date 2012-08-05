@@ -148,30 +148,143 @@ from DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2011_cfi import *
 
 # LogMessageMonitor ####
 from DQM.TrackingMonitor.LogMessageMonitor_cff import *
+### LocalReco
 # Clone for all PDs but MinBias ####
-import DQM.TrackingMonitor.LogMessageMonitor_cff
-TrackerCollisionIterTrackingLogMessageMonCommon = DQM.TrackingMonitor.LogMessageMonitor_cff.FullIterTrackingLogMessageMon.clone()
-TrackerCollisionIterTrackingLogMessageMonCommon.andOr         = cms.bool( False )
-TrackerCollisionIterTrackingLogMessageMonCommon.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
-TrackerCollisionIterTrackingLogMessageMonCommon.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29)
-TrackerCollisionIterTrackingLogMessageMonCommon.andOrDcs      = cms.bool( False )
-TrackerCollisionIterTrackingLogMessageMonCommon.errorReplyDcs = cms.bool( True )
-
-
+LocalRecoLogMessageMonCommon = DQM.TrackingMonitor.LogMessageMonitor_cff.LocalRecoLogMessageMon.clone()
+LocalRecoLogMessageMonCommon.andOr         = cms.bool( False )
+LocalRecoLogMessageMonCommon.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+LocalRecoLogMessageMonCommon.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29)
+LocalRecoLogMessageMonCommon.andOrDcs      = cms.bool( False )
+LocalRecoLogMessageMonCommon.errorReplyDcs = cms.bool( True )
 
 # Clone for MinBias ###
-TrackerCollisionIterTrackingLogMessageMonMB = DQM.TrackingMonitor.LogMessageMonitor_cff.FullIterTrackingLogMessageMon.clone()
-TrackerCollisionIterTrackingLogMessageMonMB.andOr         = cms.bool( False )
-TrackerCollisionIterTrackingLogMessageMonMB.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
-TrackerCollisionIterTrackingLogMessageMonMB.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29)
-TrackerCollisionIterTrackingLogMessageMonMB.andOrDcs      = cms.bool( False )
-TrackerCollisionIterTrackingLogMessageMonMB.errorReplyDcs = cms.bool( True )
-TrackerCollisionIterTrackingLogMessageMonMB.dbLabel       = cms.string("SiStripDQMTrigger")
-TrackerCollisionIterTrackingLogMessageMonMB.hltInputTag = cms.InputTag( "TriggerResults::HLT" )
-TrackerCollisionIterTrackingLogMessageMonMB.hltPaths = cms.vstring("HLT_ZeroBias_*")
-TrackerCollisionIterTrackingLogMessageMonMB.hltDBKey = cms.string("Tracker_MB")
-TrackerCollisionIterTrackingLogMessageMonMB.errorReplyHlt  = cms.bool( False )
-TrackerCollisionIterTrackingLogMessageMonMB.andOrHlt = cms.bool(True) 
+LocalRecoLogMessageMonMB = DQM.TrackingMonitor.LogMessageMonitor_cff.LocalRecoLogMessageMon.clone()
+LocalRecoLogMessageMonMB.andOr         = cms.bool( False )
+LocalRecoLogMessageMonMB.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+LocalRecoLogMessageMonMB.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29)
+LocalRecoLogMessageMonMB.andOrDcs      = cms.bool( False )
+LocalRecoLogMessageMonMB.errorReplyDcs = cms.bool( True )
+LocalRecoLogMessageMonMB.dbLabel       = cms.string("SiStripDQMTrigger")
+LocalRecoLogMessageMonMB.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
+LocalRecoLogMessageMonMB.hltPaths      = cms.vstring("HLT_ZeroBias_*")
+LocalRecoLogMessageMonMB.hltDBKey      = cms.string("Tracker_MB")
+LocalRecoLogMessageMonMB.errorReplyHlt = cms.bool( False )
+LocalRecoLogMessageMonMB.andOrHlt      = cms.bool(True) 
+
+### Clusterizer
+# Clone for all PDs but MinBias ####
+ClusterizerLogMessageMonCommon = DQM.TrackingMonitor.LogMessageMonitor_cff.ClusterizerLogMessageMon.clone()
+ClusterizerLogMessageMonCommon.andOr         = cms.bool( False )
+ClusterizerLogMessageMonCommon.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+ClusterizerLogMessageMonCommon.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29)
+ClusterizerLogMessageMonCommon.andOrDcs      = cms.bool( False )
+ClusterizerLogMessageMonCommon.errorReplyDcs = cms.bool( True )
+
+# Clone for MinBias ###
+ClusterizerLogMessageMonMB = DQM.TrackingMonitor.LogMessageMonitor_cff.ClusterizerLogMessageMon.clone()
+ClusterizerLogMessageMonMB.andOr         = cms.bool( False )
+ClusterizerLogMessageMonMB.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+ClusterizerLogMessageMonMB.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29)
+ClusterizerLogMessageMonMB.andOrDcs      = cms.bool( False )
+ClusterizerLogMessageMonMB.errorReplyDcs = cms.bool( True )
+ClusterizerLogMessageMonMB.dbLabel       = cms.string("SiStripDQMTrigger")
+ClusterizerLogMessageMonMB.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
+ClusterizerLogMessageMonMB.hltPaths      = cms.vstring("HLT_ZeroBias_*")
+ClusterizerLogMessageMonMB.hltDBKey      = cms.string("Tracker_MB")
+ClusterizerLogMessageMonMB.errorReplyHlt = cms.bool( False )
+ClusterizerLogMessageMonMB.andOrHlt      = cms.bool(True) 
+
+### Seeding
+# Clone for all PDs but MinBias ####
+SeedingLogMessageMonCommon = DQM.TrackingMonitor.LogMessageMonitor_cff.SeedingLogMessageMon.clone()
+SeedingLogMessageMonCommon.andOr         = cms.bool( False )
+SeedingLogMessageMonCommon.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+SeedingLogMessageMonCommon.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29)
+SeedingLogMessageMonCommon.andOrDcs      = cms.bool( False )
+SeedingLogMessageMonCommon.errorReplyDcs = cms.bool( True )
+
+# Clone for MinBias ###
+SeedingLogMessageMonMB = DQM.TrackingMonitor.LogMessageMonitor_cff.SeedingLogMessageMon.clone()
+SeedingLogMessageMonMB.andOr         = cms.bool( False )
+SeedingLogMessageMonMB.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+SeedingLogMessageMonMB.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29)
+SeedingLogMessageMonMB.andOrDcs      = cms.bool( False )
+SeedingLogMessageMonMB.errorReplyDcs = cms.bool( True )
+SeedingLogMessageMonMB.dbLabel       = cms.string("SiStripDQMTrigger")
+SeedingLogMessageMonMB.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
+SeedingLogMessageMonMB.hltPaths      = cms.vstring("HLT_ZeroBias_*")
+SeedingLogMessageMonMB.hltDBKey      = cms.string("Tracker_MB")
+SeedingLogMessageMonMB.errorReplyHlt = cms.bool( False )
+SeedingLogMessageMonMB.andOrHlt      = cms.bool(True) 
+
+### TrackCandidate
+# Clone for all PDs but MinBias ####
+TrackCandidateLogMessageMonCommon = DQM.TrackingMonitor.LogMessageMonitor_cff.TrackCandidateLogMessageMon.clone()
+TrackCandidateLogMessageMonCommon.andOr         = cms.bool( False )
+TrackCandidateLogMessageMonCommon.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+TrackCandidateLogMessageMonCommon.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29)
+TrackCandidateLogMessageMonCommon.andOrDcs      = cms.bool( False )
+TrackCandidateLogMessageMonCommon.errorReplyDcs = cms.bool( True )
+
+# Clone for MinBias ###
+TrackCandidateLogMessageMonMB = DQM.TrackingMonitor.LogMessageMonitor_cff.TrackCandidateLogMessageMon.clone()
+TrackCandidateLogMessageMonMB.andOr         = cms.bool( False )
+TrackCandidateLogMessageMonMB.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+TrackCandidateLogMessageMonMB.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29)
+TrackCandidateLogMessageMonMB.andOrDcs      = cms.bool( False )
+TrackCandidateLogMessageMonMB.errorReplyDcs = cms.bool( True )
+TrackCandidateLogMessageMonMB.dbLabel       = cms.string("SiStripDQMTrigger")
+TrackCandidateLogMessageMonMB.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
+TrackCandidateLogMessageMonMB.hltPaths      = cms.vstring("HLT_ZeroBias_*")
+TrackCandidateLogMessageMonMB.hltDBKey      = cms.string("Tracker_MB")
+TrackCandidateLogMessageMonMB.errorReplyHlt = cms.bool( False )
+TrackCandidateLogMessageMonMB.andOrHlt      = cms.bool(True) 
+
+### TrackFinder
+# Clone for all PDs but MinBias ####
+TrackFinderLogMessageMonCommon = DQM.TrackingMonitor.LogMessageMonitor_cff.TrackFinderLogMessageMon.clone()
+TrackFinderLogMessageMonCommon.andOr         = cms.bool( False )
+TrackFinderLogMessageMonCommon.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+TrackFinderLogMessageMonCommon.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29)
+TrackFinderLogMessageMonCommon.andOrDcs      = cms.bool( False )
+TrackFinderLogMessageMonCommon.errorReplyDcs = cms.bool( True )
+
+# Clone for MinBias ###
+TrackFinderLogMessageMonMB = DQM.TrackingMonitor.LogMessageMonitor_cff.TrackFinderLogMessageMon.clone()
+TrackFinderLogMessageMonMB.andOr         = cms.bool( False )
+TrackFinderLogMessageMonMB.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+TrackFinderLogMessageMonMB.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29)
+TrackFinderLogMessageMonMB.andOrDcs      = cms.bool( False )
+TrackFinderLogMessageMonMB.errorReplyDcs = cms.bool( True )
+TrackFinderLogMessageMonMB.dbLabel       = cms.string("SiStripDQMTrigger")
+TrackFinderLogMessageMonMB.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
+TrackFinderLogMessageMonMB.hltPaths      = cms.vstring("HLT_ZeroBias_*")
+TrackFinderLogMessageMonMB.hltDBKey      = cms.string("Tracker_MB")
+TrackFinderLogMessageMonMB.errorReplyHlt = cms.bool( False )
+TrackFinderLogMessageMonMB.andOrHlt      = cms.bool(True) 
+
+# dEdx monitor ####
+from DQM.TrackingMonitor.dEdxAnalyzer_cff import *
+import DQM.TrackingMonitor.dEdxAnalyzer_cfi
+# Clone for all PDs but MinBias ####
+dEdxMonCommon = DQM.TrackingMonitor.dEdxAnalyzer_cfi.dEdxAnalyzer.clone()
+
+# Clone for MinBias ####
+dEdxMonMB = DQM.TrackingMonitor.dEdxAnalyzer_cfi.dEdxAnalyzer.clone()
+dEdxMonMB.dEdxParameters.andOr         = cms.bool( False )
+dEdxMonMB.dEdxParameters.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
+dEdxMonMB.dEdxParameters.hltPaths      = cms.vstring("HLT_ZeroBias_*")
+dEdxMonMB.dEdxParameters.hltDBKey      = cms.string("Tracker_MB")
+dEdxMonMB.dEdxParameters.errorReplyHlt = cms.bool( False )
+dEdxMonMB.dEdxParameters.andOrHlt      = cms.bool(True) 
+
+# Clone for SingleMu ####
+dEdxMonMU = DQM.TrackingMonitor.dEdxAnalyzer_cfi.dEdxAnalyzer.clone()
+dEdxMonMU.dEdxParameters.andOr         = cms.bool( False )
+dEdxMonMU.dEdxParameters.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
+dEdxMonMU.dEdxParameters.hltPaths      = cms.vstring("HLT_SingleMu40_Eta2p1_*")
+dEdxMonMU.dEdxParameters.errorReplyHlt = cms.bool( False )
+dEdxMonMU.dEdxParameters.andOrHlt      = cms.bool(True) 
 
 
 # temporary patch in order to have BXlumi 
@@ -190,35 +303,47 @@ goodOfflinePrimaryVertices = cms.EDFilter(
 SiStripDQMTier0 = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
     *SiStripMonitorTrackCommon*MonitorTrackResiduals
+    # dEdx monitoring
+    *RefitterForDedxDQMDeDx * dedxDQMHarm2SP * dedxDQMHarm2SO * dedxDQMHarm2PO * dEdxMonCommon
+
 #    # temporary patch in order to have BXlumi
 #    * lumiProducer
     # temporary test in order to have the "goodPrimaryVertexCollection"
 #    * goodOfflinePrimaryVertices
     *TrackerCollisionTrackMonCommon
-#    * TrackerCollisionIterTrackingLogMessageMonCommon
     *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
+     # MessageLog
+    * LocalRecoLogMessageMonCommon * ClusterizerLogMessageMonCommon * SeedingLogMessageMonCommon * TrackCandidateLogMessageMonCommon * TrackFinderLogMessageMonCommon
     *dqmInfoSiStrip)
 
 SiStripDQMTier0Common = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX        
     *SiStripMonitorTrackCommon
+    # dEdx monitoring
+    *RefitterForDedxDQMDeDx * dedxDQMHarm2SP * dedxDQMHarm2SO * dedxDQMHarm2PO * dEdxMonCommon
+
 #    # temporary patch in order to have BXlumi
 #    * lumiProducer
 #    # temporary test in order to have the "goodPrimaryVertexCollection"
 #    * goodOfflinePrimaryVertices
     *TrackerCollisionTrackMonCommon
-#    * LocalRecoLogMessageMon * TrackerCollisionIterTrackingLogMessageMonCommon
     *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
+    # MessageLog
+    * LocalRecoLogMessageMonCommon * ClusterizerLogMessageMonCommon * SeedingLogMessageMonCommon * TrackCandidateLogMessageMonCommon * TrackFinderLogMessageMonCommon
     *dqmInfoSiStrip)
 
 SiStripDQMTier0MinBias = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
     *SiStripMonitorTrackMB*MonitorTrackResiduals
+    # dEdx monitoring
+    *RefitterForDedxDQMDeDx * dedxDQMHarm2SP * dedxDQMHarm2SO * dedxDQMHarm2PO * dEdxMonCommon
+
 #    * lumiProducer
 #    # temporary test in order to have the "goodPrimaryVertexCollection"
 #    * goodOfflinePrimaryVertices
     *TrackerCollisionTrackMonMB
-#   * LocalRecoLogMessageMon * TrackerCollisionIterTrackingLogMessageMonMB
     *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
+    # MessageLog
+    * LocalRecoLogMessageMonMB * ClusterizerLogMessageMonMB * SeedingLogMessageMonMB * TrackCandidateLogMessageMonMB * TrackFinderLogMessageMonMB
     *dqmInfoSiStrip)
 
