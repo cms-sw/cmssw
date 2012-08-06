@@ -85,7 +85,7 @@ def merge(dictlist,TELL=False):
 step1Defaults = {'--relval'      : None, # need to be explicitly set
                  '-s'            : 'GEN,SIM',
                  '-n'            : 10,
-                 '--conditions'  : 'auto:startup',
+                 '--conditions'  : 'auto:startup_7E33v4',
                  '--datatier'    : 'GEN-SIM',
                  '--eventcontent': 'RAWSIM',
                  }
@@ -176,7 +176,7 @@ steps['ZElSkim2012B']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2012B-ZElec
 
 #### Standard release validation samples ####
 
-stCond={'--conditions':'auto:startup'}
+stCond={'--conditions':'auto:startup_7E33v4'}
 K9by25={'--relval':'9000,25'}
 K9by50={'--relval':'9000,50'}
 K9by500={'--relval':'9000,500'}
@@ -334,7 +334,7 @@ steps['QCD_Pt_170_230']=genS('QCD_Pt_170_230_8TeV_cfi',K250by100)
 ## heavy ions tests
 U500by5={'--relval': '500,5'}
 U80by2={'--relval': '80,2'}
-hiDefaults={'--conditions':'auto:starthi',
+hiDefaults={'--conditions':'auto:starthi_HIon',
            '--scenario':'HeavyIons'}
 
 steps['HydjetQ_MinBias_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U500by5)])
@@ -362,7 +362,7 @@ def addForAll(steps,d):
 
 #### fastsim section ####
 ##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
-step1FastDefaults =merge([{'-s':'GEN,FASTSIM,HLT:GRun,VALIDATION',
+step1FastDefaults =merge([{'-s':'GEN,FASTSIM,HLT:7E33v4,VALIDATION',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
                            '--datatier':'GEN-SIM-DIGI-RECO,DQM',
                            '--relval':'27000,3000'},
@@ -431,10 +431,10 @@ steps['TTbarFSPU2']=merge([PUFS2,steps['TTbarFS']])
 
 # step2 
 step2Defaults = { 
-                  '-s'            : 'DIGI,L1,DIGI2RAW,HLT,RAW2DIGI,L1Reco',
+                  '-s'            : 'DIGI,L1,DIGI2RAW,HLT:7E33v4,RAW2DIGI,L1Reco',
                   '--datatier'    : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
                   '--eventcontent': 'FEVTDEBUGHLT',
-                  '--conditions'  : 'auto:startup',
+                  '--conditions'  : 'auto:startup_7E33v4',
                   }
 
 
@@ -444,19 +444,19 @@ steps['DIGI']=merge([step2Defaults])
 steps['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},stCond,step2Defaults])
 
 steps['DIGIPU1']=merge([PU,step2Defaults])
-steps['REDIGIPU']=merge([{'-s':'reGEN,reDIGI,L1,DIGI2RAW,HLT,RAW2DIGI,L1Reco'},steps['DIGIPU1']])
+steps['REDIGIPU']=merge([{'-s':'reGEN,reDIGI,L1,DIGI2RAW,HLT:7E33v4,RAW2DIGI,L1Reco'},steps['DIGIPU1']])
 
 
 steps['RESIM']=merge([{'-s':'reGEN,reSIM','-n':10},steps['DIGI']])
-steps['RESIMDIGI']=merge([{'-s':'reGEN,reSIM,DIGI,L1,DIGI2RAW,HLT,RAW2DIGI,L1Reco','-n':10,'--restoreRNDSeeds':'','--process':'HLT'},steps['DIGI']])
+steps['RESIMDIGI']=merge([{'-s':'reGEN,reSIM,DIGI,L1,DIGI2RAW,HLT:7E33v4,RAW2DIGI,L1Reco','-n':10,'--restoreRNDSeeds':'','--process':'HLT'},steps['DIGI']])
 
     
-steps['DIGIHI']=merge([{'-n':10},hiDefaults,step2Defaults])
+steps['DIGIHI']=merge([{'--conditions':'auto:starthi_HIon', '-s':'DIGI,L1,DIGI2RAW,HLT:HIon,RAW2DIGI,L1Reco', '--inputCommands':'"keep *","drop *_simEcalPreshowerDigis_*_*"', '-n':10}, hiDefaults, step2Defaults])
 
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step2,{'--process':'DIGI'})
 
-dataReco={'--conditions':'auto:com10',
+dataReco={'--conditions':'auto:com10_7E33v4',
           '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias,DQM',
           '--datatier':'RECO,DQMROOT',
           '--eventcontent':'RECO,DQMROOT',
@@ -466,7 +466,7 @@ dataReco={'--conditions':'auto:com10',
           }
 
 steps['HLTD']=merge([{'--process':'reHLT',
-                      '-s':'L1REPACK,HLT',
+                      '-s':'L1REPACK,HLT:7E33v4',
                       '--conditions':'auto:hltonline11',
                       '--data':'',
                       '--output':'\'[{"e":"RAW","t":"RAW","o":["drop FEDRawDataCollection_rawDataCollector__LHC"]}]\'',
@@ -488,7 +488,7 @@ steps['RECOHID10']=merge([{'--scenario':'HeavyIons',
                          '--eventcontent':'RECO,DQMROOT'},
                         steps['RECOD']])
 steps['RECOHID11']=merge([{'--repacked':''},
-                          steps['RECOHID10']])
+                        steps['RECOHID10']])
 steps['RECOHID10']['-s']+=',REPACK'
 steps['RECOHID10']['--datatier']+=',RAW'
 steps['RECOHID10']['--eventcontent']+=',REPACKRAW'
@@ -522,7 +522,7 @@ steps['Pyquen_ZeemumuJets_pt10_2760GeV']=merge([{'cfg':'Pyquen_ZeemumuJets_pt10_
 # step3 
 step3Defaults = {
                   '-s'            : 'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
-                  '--conditions'  : 'auto:startup',
+                  '--conditions'  : 'auto:startup_7E33v4',
                   '--no_exec'     : '',
                   '--datatier'    : 'GEN-SIM-RECO,DQM',
                   '--eventcontent': 'RECOSIM,DQM'
@@ -557,7 +557,7 @@ steps['RECOHIR10D11']=merge([{'--filein':'file:step2_inREPACKRAW.root',
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step3,{'--hltProcess':'DIGI'})
 
-steps['ALCACOSD']={'--conditions':'auto:com10',
+steps['ALCACOSD']={'--conditions':'auto:com10_7E33v4',
                    '--datatier':'ALCARECO',
                    '--eventcontent':'ALCARECO',
                    '--scenario':'cosmics',
@@ -565,11 +565,11 @@ steps['ALCACOSD']={'--conditions':'auto:com10',
                    }
 steps['ALCAPROMPT']={'-s':'ALCA:PromptCalibProd',
                      '--filein':'file:TkAlMinBias.root',
-                     '--conditions':'auto:com10',
+                     '--conditions':'auto:com10_7E33v4',
                      '--datatier':'ALCARECO',
                      '--eventcontent':'ALCARECO'}
 steps['ALCAEXP']={'-s':'ALCA:PromptCalibProd',
-                  '--conditions':'auto:com10',
+                  '--conditions':'auto:com10_7E33v4',
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO'}
 
@@ -577,7 +577,7 @@ steps['ALCAEXP']={'-s':'ALCA:PromptCalibProd',
 step4Defaults = { 
                   '-s'            : 'ALCA:TkAlMuonIsolated+TkAlMinBias+EcalCalElectron+HcalCalIsoTrk+MuAlOverlaps',
                   '-n'            : 1000,
-                  '--conditions'  : 'auto:startup',
+                  '--conditions'  : 'auto:startup_7E33v4',
                   '--datatier'    : 'ALCARECO',
                   '--eventcontent': 'ALCARECO',
                   }
@@ -593,7 +593,7 @@ steps['ALCABH']=merge([{'-s':'ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHal
 steps['ALCAELE']=merge([{'-s':'ALCA:EcalCalElectron'},stCond,step4Defaults])
 
 steps['ALCAHARVD']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQuality',
-                    '--conditions':'auto:com10',
+                    '--conditions':'auto:com10_7E33v4',
                     '--scenario':'pp',
                     '--data':'',
                     '--filein':'file:PromptCalibProd.root'}
@@ -603,14 +603,14 @@ steps['RECOHISt4']=steps['RECOHI']
 steps['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','--mc':''},step4Defaults])
 steps['HARVGEN']={'-s':'HARVESTING:genHarvesting',
                   '--harvesting':'AtJobEnd',
-                  '--conditions':'auto:startup',
+                  '--conditions':'auto:startup_7E33v4',
                   '--mc':'',
                   '--filein':'file:step1.root'
                   }
 
 #data
 steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
-                   '--conditions':'auto:com10',
+                   '--conditions':'auto:com10_7E33v4',
                    '--filetype':'DQM',
                    '--data':'',
                    '--scenario':'pp'}
@@ -620,45 +620,45 @@ steps['HARVESTDDQM']=merge([{'-s':'HARVESTING:@common+@muon+@hcal+@jetmet+@ecal'
 steps['HARVESTDfst2']=merge([{'--filein':'file:step2_inDQM.root'},steps['HARVESTD']])
 
 steps['HARVESTDC']={'-s':'HARVESTING:dqmHarvesting',
-                   '--conditions':'auto:com10',
+                   '--conditions':'auto:com10_7E33v4',
                    '--filetype':'DQM',
                    '--data':'',
                     '--filein':'file:step2_inDQM.root',
                    '--scenario':'cosmics'}
 steps['HARVESTDHI']={'-s':'HARVESTING:dqmHarvesting',
-                   '--conditions':'auto:com10',
+                   '--conditions':'auto:com10_HIon',
                    '--filetype':'DQM',
                    '--data':'',
                    '--scenario':'HeavyIons'}
 
 #MC
 steps['HARVEST']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
-                   '--conditions':'auto:startup',
+                   '--conditions':'auto:startup_7E33v4',
                    '--mc':'',
                    '--scenario':'pp'}
 steps['HARVESTCOS']={'-s':'HARVESTING:dqmHarvesting',
-                     '--conditions':'auto:startup',
+                     '--conditions':'auto:startup_7E33v4',
                      '--mc':'',
                      '--filein':'file:step3_inDQM.root',
                    '--scenario':'cosmics'}
 steps['HARVESTFS']={'-s':'HARVESTING:validationHarvestingFS',
-                   '--conditions':'auto:startup',
+                   '--conditions':'auto:startup_7E33v4',
                    '--mc':'',
                    '--scenario':'pp'}
 steps['HARVESTHI']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
-                   '--conditions':'auto:startup',
+                   '--conditions':'auto:startup_HIon',
                    '--mc':'',
                    '--scenario':'HeavyIons'}
 
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
-                    '--conditions':'auto:com10',
+                    '--conditions':'auto:com10_7E33v4',
                     '--scenario':'pp',
                     '--data':'',
                     '--triggerResultsProcess':'RECO',
                     '--filein':'file:step2_inALCARECO.root'}
 
 steps['SKIMD']={'-s':'SKIM:all',
-                '--conditions':'auto:com10',
+                '--conditions':'auto:com10_7E33v4',
                 '--data':'',
                 '--scenario':'pp',
                 '--filein':'file:step2.root',
@@ -667,7 +667,7 @@ steps['SKIMD']={'-s':'SKIM:all',
 steps['SKIMD3']=merge([{'--filein':'file:step3.root'},steps['SKIMD']])
 
 steps['SKIMCOSD']={'-s':'SKIM:all',
-                   '--conditions':'auto:com10',
+                   '--conditions':'auto:com10_7E33v4',
                    '--data':'',
                    '--scenario':'cosmics',
                    '--filein':'file:step2.root',
@@ -676,11 +676,11 @@ steps['SKIMCOSD']={'-s':'SKIM:all',
 
 #### for special wfs ###
 #steps['TTbar_REDIGI_RERECO']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi',
-#                                     '-s':'GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun,RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu+DtCalib,VALIDATION,DQM',
+#                                     '-s':'GEN,SIM,DIGI,L1,DIGI2RAW,HLT:7E33v4,RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu+DtCalib,VALIDATION,DQM',
 #                                     '--datatier':'GEN-SIM-DIGI-RAW-HLTDEBUG-RECO,DQM',
 #                                     '--eventcontent':'FEVTDEBUGHLT,DQM'},
 #                                    K9by50,stCond,step1Defaults])
-#steps['DIGI2RECO']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:GRun,RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
+#steps['DIGI2RECO']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:7E33v4,RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
 #                           '--filtername':'DIGItoRECO',
 #                           '--process':'RECO',
 #                           '--eventcontent':'RECOSIM,DQM',
@@ -709,6 +709,6 @@ steps['RECODFROMRAWRECO']=merge([{'-s':'RAW2DIGI:RawToDigi_noTk,L1Reco,RECO:reco
 
 
 steps['COPYPASTE']={'-s':'NONE',
-                    '--conditions':'auto:startup',
+                    '--conditions':'auto:startup_7E33v4',
                     '--output':'\'[{"t":"RAW","e":"ALL"}]\'',
                     '--customise_commands':'"process.ALLRAWoutput.fastCloning=cms.untracked.bool(False)"'}
