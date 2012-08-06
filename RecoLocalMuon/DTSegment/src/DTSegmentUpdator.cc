@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2012/02/20 22:17:46 $
- * $Revision: 1.47 $
+ * $Date: 2012/08/04 22:27:04 $
+ * $Revision: 1.48 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
@@ -453,10 +453,10 @@ void DTSegmentUpdator::rejectBadHits(DTChamberRecSegment2D* phiSeg) const {
   // Calc residuals:
   float residuals[N];
 	
-  for(int i = 0; i < N;++i)
+  for(size_t i = 0; i < N;++i)
     residuals[i] = 0;
 	
-  for(int i = 0; i < N;++i)		
+  for(size_t i = 0; i < N;++i)		
     residuals[i] = y.at(i) - par[1]*x.at(i) - par[0];
 	
   if(debug) cout << " Residuals computed! "<<  endl;
@@ -467,7 +467,7 @@ void DTSegmentUpdator::rejectBadHits(DTChamberRecSegment2D* phiSeg) const {
 	
   float mean_residual = 0.; //mean of the absolute values of residuals
 	
-  for (int i = 0; i < N; ++i)
+  for (size_t i = 0; i < N; ++i)
     mean_residual += fabs(residuals[i]);
 	
   mean_residual = mean_residual/(N - 2);	
