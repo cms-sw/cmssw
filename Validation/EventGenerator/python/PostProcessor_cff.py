@@ -341,7 +341,7 @@ postProcessorTTbarValidation = cms.EDAnalyzer(
     subDirs = cms.untracked.vstring("Generator/TTbar*"),
     efficiency = cms.vstring(""),
     resolution = cms.vstring(""),
-    normalization = cms.untracked.vstring("TTbar_BottomE nEvt"
+    normalization = cms.untracked.vstring("TTbar_BottomE nEvt",
                                           "TTbar_BottomEta nEvt",     
                                           "TTbar_BottomMass nEvt",    
                                           "TTbar_BottomPt nEvt",        
