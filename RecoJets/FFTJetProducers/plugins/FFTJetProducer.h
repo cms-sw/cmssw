@@ -21,7 +21,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Sun Jun 20 14:32:36 CDT 2010
-// $Id: FFTJetProducer.h,v 1.8 2011/10/25 00:23:52 igv Exp $
+// $Id: FFTJetProducer.h,v 1.10 2012/07/18 04:18:24 igv Exp $
 //
 //
 
@@ -62,7 +62,9 @@ public:
     typedef fftjet::RecombinedJet<fftjetcms::VectorLike> RecoFFTJet;
     typedef fftjet::SparseClusteringTree<fftjet::Peak,long> SparseTree;
 
-    // Masks for the status bits
+    // Masks for the status bits. Do not add anything
+    // here -- higher bits (starting with 0x1000) will be
+    // used to indicate jet correction levels applied.
     enum StatusBits
     {
         RESOLUTION = 0xff,

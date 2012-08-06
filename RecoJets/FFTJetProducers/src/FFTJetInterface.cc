@@ -11,8 +11,6 @@
 
 #define init_param(type, varname) varname (ps.getParameter< type >( #varname ))
 
-using namespace fftjetcms;
-
 namespace fftjetcms {
 
 bool FFTJetInterface::storeInSinglePrecision() const 
@@ -21,32 +19,10 @@ bool FFTJetInterface::storeInSinglePrecision() const
 }
 
 
-FFTJetInterface::JetType FFTJetInterface::parse_jet_type(
-    const std::string& name)
-{
-    if (!name.compare("BasicJet"))
-        return BASICJET;
-    else if (!name.compare("GenJet"))
-        return GENJET;
-    else if (!name.compare("CaloJet"))
-        return CALOJET;
-    else if (!name.compare("PFJet"))
-        return PFJET;
-    else if (!name.compare("TrackJet"))
-        return TRACKJET;
-    else if (!name.compare("JPTJet"))
-        return JPTJET;
-    else
-        throw cms::Exception("FFTJetBadConfig")
-            << "Unsupported jet type specification \""
-            << name << "\"" << std::endl;
-}
-
-
 FFTJetInterface::FFTJetInterface(const edm::ParameterSet& ps)
     : inputLabel(ps.getParameter<edm::InputTag>("src")),
       init_param(std::string, outputLabel),
-      jetType(parse_jet_type(ps.getParameter<std::string>("jetType"))),
+      jetType(parseJetType(ps.getParameter<std::string>("jetType"))),
       init_param(bool, doPVCorrection),
       init_param(edm::InputTag, srcPVs),
       etaDependentMagnutideFactors(

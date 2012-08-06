@@ -11,7 +11,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  June 29 2010
-// $Id: FFTJetInterface.h,v 1.1 2010/12/06 17:33:18 igv Exp $
+// $Id: FFTJetInterface.h,v 1.2 2010/12/07 00:18:18 igv Exp $
 //
 //
 
@@ -40,6 +40,7 @@
 
 // local FFTJet-related definitions
 #include "RecoJets/FFTJetAlgorithms/interface/fftjetTypedefs.h"
+#include "RecoJets/FFTJetProducers/interface/JetType.h"
 
 //
 // class declaration
@@ -48,19 +49,7 @@ namespace fftjetcms {
   class FFTJetInterface
   {
   public:
-    enum JetType
-      {
-        BASICJET = 0,
-        GENJET,
-        CALOJET,
-        PFJET,
-        TRACKJET,
-        JPTJET
-      };
-
     virtual ~FFTJetInterface() {}
-
-    static JetType parse_jet_type(const std::string& name);
 
   protected:
     explicit FFTJetInterface(const edm::ParameterSet&);
