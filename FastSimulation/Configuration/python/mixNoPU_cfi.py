@@ -1,8 +1,24 @@
 import FWCore.ParameterSet.Config as cms
 
+from SimGeneral.MixingModule.aliases_cfi import simEcalUnsuppressedDigis, simHcalUnsuppressedDigis
+
+from SimGeneral.MixingModule.ecalDigitizer_cfi import *
+from SimCalorimetry.EcalSimProducers.ecalDigiParameters_cff import *
+ecal_digi_parameters.hitsProducer = cms.string('famosSimHits')
+
+import SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi 
+hcalSimBlockFastSim = SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi.hcalSimBlock.clone()
+hcalSimBlockFastSim.hitsProducer = cms.string('famosSimHits')
+hcalDigitizer = cms.PSet(
+    hcalSimBlockFastSim,
+    accumulatorType = cms.string("HcalDigiProducer"),
+    makeDigiSimLinks = cms.untracked.bool(False))
+
 from FastSimulation.Configuration.mixFastSimObjects_cfi import *
+
 mix = cms.EDProducer("MixingModule",
-    digitizers = cms.PSet(),
+    digitizers = cms.PSet(ecal = cms.PSet(ecalDigitizer),
+                          hcal = cms.PSet(hcalDigitizer)),
     LabelPlayback = cms.string(''),
     maxBunch = cms.int32(0),
     minBunch = cms.int32(0),
