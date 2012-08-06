@@ -441,6 +441,7 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
  {
     if ( wantSomeContext ) {
       if (needAspace) { emitToken(ELstring(" ")); needAspace = false; }
+      assert(!needAspace);
       #ifdef ELoutputTRACE_LOG
 	std::cerr << "    =:=:=:>> context supplier is at 0x"
                   << std::hex

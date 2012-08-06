@@ -169,6 +169,8 @@ TStorageFactoryFile::Initialize(const char *path,
     create = kTRUE;
   }
 
+  assert(read || update || create);
+
   int           openFlags = IOFlags::OpenRead;
   if (!read)    openFlags |= IOFlags::OpenWrite;
   if (create)   openFlags |= IOFlags::OpenCreate;
