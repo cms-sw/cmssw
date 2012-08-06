@@ -36,5 +36,5 @@ g4SimHits.HCalSD.TestNumberingScheme = True
 # turn on SLHC topology
 #HcalTopologyIdealEP.SLHCMode = cms.untracked.bool(True) -- In the Geometry file
 
-pgen.remove(genJetMET)
+#pgen.remove(genJetMET)
 
