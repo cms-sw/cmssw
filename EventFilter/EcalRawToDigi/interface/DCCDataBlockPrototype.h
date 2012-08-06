@@ -6,8 +6,8 @@
  * Prototype for ECAL data block unpacking
  * \file DCCDataBlockPrototype.h
  *
- * $Date: 2010/09/15 21:51:33 $
- * $Revision: 1.2 $
+ * $Date: 2012/06/11 08:57:01 $
+ * $Revision: 1.3 $
  * \author N. Almeida
  *
 */
@@ -38,7 +38,7 @@ class DCCDataBlockPrototype {
 
     virtual ~DCCDataBlockPrototype() {};
   
-    virtual int unpack(uint64_t ** data, unsigned int * dwToEnd){ return BLOCK_UNPACKED;}
+    virtual int unpack(const uint64_t ** data, unsigned int * dwToEnd){ return BLOCK_UNPACKED;}
 
     virtual void updateCollectors(){};
 	
@@ -74,8 +74,8 @@ class DCCDataBlockPrototype {
     DCCEventBlock         * event_;
    
     
-    uint64_t             ** datap_;
-    uint64_t              * data_;
+    const uint64_t             ** datap_;
+    const uint64_t              * data_;
     unsigned int                  * dwToEnd_;
    
    

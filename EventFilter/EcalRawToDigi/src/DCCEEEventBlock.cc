@@ -33,7 +33,7 @@ DCCEEEventBlock::DCCEEEventBlock( DCCDataUnpacker * u,EcalElectronicsMapper * m,
 
 
 
-void DCCEEEventBlock::unpack( uint64_t * buffer, unsigned int numbBytes, unsigned int expFedId){
+void DCCEEEventBlock::unpack(const uint64_t * buffer, size_t numbBytes, unsigned int expFedId){
   
   reset();
   

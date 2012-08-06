@@ -10,8 +10,8 @@
  *
  * \file DCCEventBlock.h
  *
- * $Date: 2010/09/24 16:03:23 $
- * $Revision: 1.5 $
+ * $Date: 2010/10/02 16:09:54 $
+ * $Revision: 1.6 $
  *
  * \author N. Almeida
  * \author G. Franzoni
@@ -38,7 +38,7 @@ class DCCEventBlock {
 	
    virtual ~DCCEventBlock();  
  
-   virtual void unpack( uint64_t * buffer, unsigned int bufferSize, unsigned int expFedId){};
+   virtual void unpack(const uint64_t * buffer, size_t bufferSize, unsigned int expFedId){};
    
    void reset();
 	
@@ -71,7 +71,7 @@ class DCCEventBlock {
     int virtual unpackTCCBlocks(){ return BLOCK_UNPACKED;}
  
     DCCDataUnpacker  *  unpacker_;
-    uint64_t         *  data_; 
+    const uint64_t       *  data_; 
     unsigned int eventSize_;
     unsigned int dwToEnd_;
    
