@@ -1079,7 +1079,7 @@ void TestIndexIntoFile::testIterEndWithEvent() {
   edm::IndexIntoFile::IndexIntoFileItr iterNumCopy2 = iterNum;
   edm::IndexIntoFile::IndexIntoFileItr iterNumEnd = indexIntoFile.end(IndexIntoFile::numericalOrder);
   i = 0;
-  for (i = 0; iterNum != iterNumEnd; ++iterNum, ++iterNumCopy, ++i) {
+  for (; iterNum != iterNumEnd; ++iterNum, ++iterNumCopy, ++i) {
     iterNumCopy2 = iterNumCopy;
     CPPUNIT_ASSERT(iterNum == iterNumCopy);
     CPPUNIT_ASSERT(iterNum == iterNumCopy2);
@@ -1653,7 +1653,7 @@ void TestIndexIntoFile::testIterEndWithRun() {
   edm::IndexIntoFile::IndexIntoFileItr iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
   edm::IndexIntoFile::IndexIntoFileItr iterFirstEnd = indexIntoFile.end(IndexIntoFile::firstAppearanceOrder);
   int i = 0;
-  for (i = 0; iterFirst != iterFirstEnd; ++iterFirst, ++i) {
+  for (; iterFirst != iterFirstEnd; ++iterFirst, ++i) {
     if (i == 0)       check(iterFirst, kRun,  0, -1, -1, 0, 0);
     else if (i == 1)  check(iterFirst, kRun,  1, -1, -1, 0, 0);
     else if (i == 2)  check(iterFirst, kRun,  2, -1, -1, 0, 0);
@@ -1670,7 +1670,7 @@ void TestIndexIntoFile::testIterEndWithRun() {
   edm::IndexIntoFile::IndexIntoFileItr iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
   edm::IndexIntoFile::IndexIntoFileItr iterNumEnd = indexIntoFile.end(IndexIntoFile::numericalOrder);
   i = 0;
-  for (i = 0; iterNum != iterNumEnd; ++iterNum, ++i) {
+  for (; iterNum != iterNumEnd; ++iterNum, ++i) {
     if (i == 0)       check(iterNum, kRun,   0, -1, -1, 0, 0);
     else if (i == 1)  check(iterNum, kRun,   1, -1, -1, 0, 0);
     else if (i == 2)  check(iterNum, kRun,   2, -1, -1, 0, 0);
@@ -1754,7 +1754,7 @@ void TestIndexIntoFile::testIterLastLumiRangeNoEvents() {
   edm::IndexIntoFile::IndexIntoFileItr iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
   edm::IndexIntoFile::IndexIntoFileItr iterNumEnd = indexIntoFile.end(IndexIntoFile::numericalOrder);
   i = 0;
-  for (i = 0; iterNum != iterNumEnd; ++iterNum, ++i) {
+  for (; iterNum != iterNumEnd; ++iterNum, ++i) {
     if (i == 0)       check(iterNum, kRun,   0, 1, 1, 0, 1);
     else if (i == 1)  check(iterNum, kLumi,  0, 1, 1, 0, 1);
     else if (i == 2)  check(iterNum, kLumi,  0, 2, 1, 0, 1);

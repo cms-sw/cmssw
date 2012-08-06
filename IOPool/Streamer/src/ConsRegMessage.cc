@@ -18,18 +18,15 @@ ConsRegRequestBuilder::ConsRegRequestBuilder(void* buf, uint32 bufSize,
                                              std::string const& requestParamSet):
   buf_((uint8*)buf),bufSize_(bufSize)
 {
-  uint8* bufPtr;
-  uint32 len;
-
   // update the buffer pointer to just beyond the header
-  bufPtr = buf_ + sizeof(Header);
+  uint8* bufPtr = buf_ + sizeof(Header);
   //std::cout << "bufPtr = 0x" << hex << ((uint32) bufPtr) << dec << std::endl;
   //std::cout << "buf_ = 0x" << hex << ((uint32) buf_) << dec << std::endl;
   //std::cout << "bufSize_ = " << bufSize_ << std::endl;
   assert(((uint32) (bufPtr - buf_)) <= bufSize_);
 
   // copy the consumer name into the message
-  len = consumerName.length();
+  uint32 len = consumerName.length();
   assert(((uint32) (bufPtr + len + sizeof(uint32) - buf_)) <= bufSize_);
   convert(len, bufPtr);
   bufPtr += sizeof(uint32);
@@ -65,9 +62,6 @@ uint32 ConsRegRequestBuilder::size() const
 ConsRegRequestView::ConsRegRequestView(void* buf):
   buf_((uint8*)buf),head_(buf)
 {
-  uint8* bufPtr;
-  uint32 len;
-
   // verify that the buffer actually contains a registration request
   if (this->code() != Header::CONS_REG_REQUEST)
     {
@@ -77,10 +71,10 @@ ConsRegRequestView::ConsRegRequestView(void* buf):
     }
 
   // update the buffer pointer to just beyond the header
-  bufPtr = buf_ + sizeof(Header);
+  uint8* bufPtr = buf_ + sizeof(Header);
 
   // determine the consumer name
-  len = convert32(bufPtr);
+  uint32 len = convert32(bufPtr);
   bufPtr += sizeof(uint32);
   if (len <= 256) // len >= 0, since len is unsigned
   {
@@ -91,7 +85,7 @@ ConsRegRequestView::ConsRegRequestView(void* buf):
   // determine the request parameter set (maintain backward compatibility
   // with sources of registration requests that don't have the param set)
   if (bufPtr < (buf_ + this->size()))
-    {
+  {
       len = convert32(bufPtr);
       bufPtr += sizeof(uint32);
       // what is a reasonable limit?  This is just to prevent
@@ -101,7 +95,8 @@ ConsRegRequestView::ConsRegRequestView(void* buf):
         requestParameterSet_.append((char *) bufPtr, len);
       }
       bufPtr += len;
-    }
+      assert(bufPtr); // silence clang static analyzer
+  }
 }
 
 /**
@@ -112,10 +107,8 @@ ConsRegResponseBuilder::ConsRegResponseBuilder(void* buf, uint32 bufSize,
                                                uint32 consumerId):
   buf_((uint8*)buf),bufSize_(bufSize)
 {
-  uint8* bufPtr;
-
   // update the buffer pointer to just beyond the header
-  bufPtr = buf_ + sizeof(Header);
+  uint8* bufPtr = buf_ + sizeof(Header);
   assert(((uint32) (bufPtr - buf_)) <= bufSize_);
 
   // encode the status
@@ -179,8 +172,6 @@ setStreamSelectionTable(std::map<std::string, Strings> const& selTable)
 ConsRegResponseView::ConsRegResponseView(void* buf):
   buf_((uint8*)buf),head_(buf)
 {
-  uint8* bufPtr;
-
   // verify that the buffer actually contains a registration response
   if (this->code() != Header::CONS_REG_RESPONSE)
     {
@@ -190,7 +181,7 @@ ConsRegResponseView::ConsRegResponseView(void* buf):
     }
 
   // update the buffer pointer to just beyond the header
-  bufPtr = buf_ + sizeof(Header);
+  uint8* bufPtr = buf_ + sizeof(Header);
 
   // decode the status
   status_ = convert32(bufPtr);
@@ -199,6 +190,8 @@ ConsRegResponseView::ConsRegResponseView(void* buf):
   // decode the consumer ID
   consumerId_ = convert32(bufPtr);
   bufPtr += sizeof(uint32);
+
+  assert(bufPtr); // silence clang static analyzer
 }
 
 /**
