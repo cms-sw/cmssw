@@ -79,6 +79,7 @@ AlphaTVarProducer::CalcAlphaT(std::vector<TLorentzVector> jets){
 		//HT += jets[i].Et();
 	}
 	if(ETs.size() < 2.) return 0.0;
+	if(ETs.size() > 16.) return 0.0;
 	float DHT = deltaHt(ETs);
 	
 	float AlphaT = alphaT(HT,DHT,MHT.Mag());
@@ -88,6 +89,7 @@ AlphaTVarProducer::CalcAlphaT(std::vector<TLorentzVector> jets){
 }
 
 double AlphaTVarProducer::deltaHt(const std::vector<double>& ETs) {
+  if(ETs.size() > 16.) return 9999999;
 	std::vector<double> diff( 1<<(ETs.size()-1) , 0. );
 	for(unsigned i=0; i < diff.size(); i++)
 		for(unsigned j=0; j < ETs.size(); j++)
