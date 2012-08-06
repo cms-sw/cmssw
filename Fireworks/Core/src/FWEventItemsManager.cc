@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.39 2010/09/16 20:30:51 amraktad Exp $
+// $Id: FWEventItemsManager.cc,v 1.44 2011/08/11 03:41:08 amraktad Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
 #include "Fireworks/Core/interface/FWItemAccessorFactory.h"
+#include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 //
@@ -80,7 +81,7 @@ FWEventItemsManager::~FWEventItemsManager()
 // member functions
 //
 const FWEventItem*
-FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
+FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem, const FWConfiguration* pbc)
 {
    FWPhysicsObjectDesc temp(iItem);
    
@@ -92,7 +93,7 @@ FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
    }
    
    m_items.push_back(new FWEventItem(m_context,m_items.size(),m_accessorFactory->accessorFor(temp.type()),
-                                     temp) );
+                                     temp, pbc));
    newItem_(m_items.back());
    m_items.back()->goingToBeDestroyed_.connect(boost::bind(&FWEventItemsManager::removeItem,this,_1));
    if(m_event) {
@@ -162,7 +163,7 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
        ++it)
    {
       if(!*it) continue;
-      FWConfiguration conf(5);
+      FWConfiguration conf(6);
       ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*((*it)->type()->GetTypeInfo())));
       assert(dataType != ROOT::Reflex::Type() );
 
@@ -188,6 +189,11 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
          os << static_cast<int>((*it)->defaultDisplayProperties().transparency());
          conf.addKeyValue(kTransparency, FWConfiguration(os.str()));
       }
+
+      FWConfiguration pbTmp;
+      (*it)->getConfig()->addTo(pbTmp);
+      conf.addKeyValue("PBConfig",pbTmp, true);
+
       iTo.addKeyValue((*it)->name(), conf, true);
    }
 }
@@ -203,7 +209,9 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
 
    clearItems();
    const FWConfiguration::KeyValues* keyValues =  iFrom.keyValues();
-   assert(0!=keyValues);
+
+   if (keyValues == 0) return;
+
    for (FWConfiguration::KeyValues::const_iterator it = keyValues->begin();
         it != keyValues->end();
         ++it)
@@ -253,7 +261,22 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
       std::string purpose(name);
       if (conf.version() > 1)
          purpose = (*keyValues)[8].second.value();
-      
+
+      FWConfiguration* proxyConfig = (FWConfiguration*) conf.valueForKey("PBConfig") ? new FWConfiguration(*conf.valueForKey("PBConfig")) : 0;
+
+      // beckward compatibilty for obsolete proxy builders
+      if (conf.version() < 6)
+      {
+         assert(proxyConfig == 0);
+         if (purpose == "VerticesWithTracks")
+         {
+            purpose = "Vertices";
+            proxyConfig = new FWConfiguration();
+            FWConfiguration vTmp; vTmp.addKeyValue("Draw Tracks", FWConfiguration("1"));
+            proxyConfig->addKeyValue("Var", vTmp,true);
+         }
+      }
+
       FWPhysicsObjectDesc desc(name,
                                TClass::GetClass(type.c_str()),
                                purpose,
@@ -263,7 +286,8 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
                                processName,
                                filterExpression,
                                layer);
-      add(desc);
+      
+      add(desc, proxyConfig );
    }
 }
 

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi
-hbheprerecoMB = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi.hbheprereco.clone()
+hbherecoMB = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi.hbheprereco.clone()
 
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi
 hfrecoMB = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi.hfreco.clone()
@@ -11,8 +11,8 @@ horecoMB = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi.horeco.
 
 
 # switch off "Hcal ZS in reco":
-hbheprerecoMB.dropZSmarkedPassed = cms.bool(False)
+hbherecoMB.dropZSmarkedPassed = cms.bool(False)
 hfrecoMB.dropZSmarkedPassed = cms.bool(False)
 horecoMB.dropZSmarkedPassed = cms.bool(False)
 
-hcalLocalRecoSequenceNZS = cms.Sequence(hbheprerecoMB*hfrecoMB*horecoMB) 
+hcalLocalRecoSequenceNZS = cms.Sequence(hbherecoMB*hfrecoMB*horecoMB) 

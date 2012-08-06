@@ -2,6 +2,7 @@
 <use   name="DataFormats/ParticleFlowReco"/>
 <use   name="DataFormats/HcalDetId"/>
 <use   name="rootmath"/>
+<use   name="root"/>
 <export>
   <lib   name="1"/>
 </export>

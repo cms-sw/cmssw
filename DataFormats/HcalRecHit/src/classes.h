@@ -25,6 +25,7 @@ namespace {
     std::vector<ZDCRecHit> vZDC_;
     std::vector<CastorRecHit> vCastor_;
     std::vector<HcalCalibRecHit> vcal_;
+    std::vector<HcalUpgradeRecHit> vUpgrade_;
 
     HBHERecHitCollection theHBHE_;
     HORecHitCollection theHO_;
@@ -32,6 +33,7 @@ namespace {
     ZDCRecHitCollection theZDC_;
     CastorRecHitCollection theCastor_;
     HcalCalibRecHitCollection thecalib_;
+    HcalUpgradeRecHitCollection theupgrade_;
     HcalSourcePositionData theSPD_;
 
     edm::Wrapper<HBHERecHitCollection> theHBHEw_;
@@ -40,6 +42,7 @@ namespace {
     edm::Wrapper<ZDCRecHitCollection> theZDCw_;
     edm::Wrapper<CastorRecHitCollection> theCastorw_;
     edm::Wrapper<HcalCalibRecHitCollection> theCalibw_;
+    edm::Wrapper<HcalUpgradeRecHitCollection> theUpgradew_;
     edm::Wrapper<HcalSourcePositionData> theSPDw_;
 
     edm::Ref<HBHERecHitCollection> theHBHEr_;
@@ -48,6 +51,7 @@ namespace {
     edm::Ref<ZDCRecHitCollection> theZDCr_;
     edm::Ref<CastorRecHitCollection> theCastorr_;
     edm::Ref<HcalCalibRecHitCollection> theCalibr_;
+    edm::Ref<HcalUpgradeRecHitCollection> theUpgrader_;
 
     edm::RefProd<HBHERecHitCollection> theHBHErp_;
     edm::RefProd<HORecHitCollection> theHOrp_;
@@ -55,6 +59,7 @@ namespace {
     edm::RefProd<ZDCRecHitCollection> theZDCrp_;
     edm::RefProd<CastorRecHitCollection> theCastorrp_;
     edm::RefProd<HcalCalibRecHitCollection> theCalibrp_;
+    edm::RefProd<HcalUpgradeRecHitCollection> theUpgraderp_;
 
     edm::RefVector<HBHERecHitCollection> theHBHErv_;
     edm::RefVector<HORecHitCollection> theHOrv_;
@@ -62,11 +67,13 @@ namespace {
     edm::RefVector<ZDCRecHitCollection> theZDCrv_;
     edm::RefVector<CastorRecHitCollection> theCastorrv_;
     edm::RefVector<HcalCalibRecHitCollection> theCalibrv_;
+    edm::RefVector<HcalUpgradeRecHitCollection> theUpgraderv_;
 
     edm::reftobase::Holder<CaloRecHit, HBHERecHitRef> rb4;
     edm::reftobase::Holder<CaloRecHit, HORecHitRef > rb5;
     edm::reftobase::Holder<CaloRecHit, HFRecHitRef> rb6;
     edm::reftobase::Holder<CaloRecHit, ZDCRecHitRef> rb7;
+    edm::reftobase::Holder<CaloRecHit, HcalUpgradeRecHitRef> rb8;
   };
 }
 

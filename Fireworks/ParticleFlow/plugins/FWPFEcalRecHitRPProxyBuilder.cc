@@ -59,7 +59,7 @@ FWPFEcalRecHitRPProxyBuilder::build( const FWEventItem *iItem, TEveElementList *
       {
          bool added = false;
          float E, et;
-         float ecalR = FWPFUtils::caloR1();
+         float ecalR = FWPFGeom::caloR1();
          Double_t lPhi, rPhi;
          const EcalRecHit &iData = modelData( index );
          const float *vertices = item()->getGeom()->getCorners( iData.detid() );

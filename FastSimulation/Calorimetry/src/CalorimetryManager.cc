@@ -430,9 +430,11 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   //                                         for EM showers
   myGrid.setPulledPadSurvivalProbability(pulledPadSurvivalProbability_);
   myGrid.setCrackPadSurvivalProbability(crackPadSurvivalProbability_);
+
+  //maximumdepth dependence of the radiusfactorbehindpreshower
+  //First tuning: Shilpi Jain (Mar-Apr 2010); changed after tuning - Feb-July - Shilpi Jain
+  /* **************
   myGrid.setRadiusFactor(radiusFactor_);
- //maximumdepth dependence of the radiusfactorbehindpreshower
- // adjusted by Shilpi Jain (Mar-Apr 2010)
   if(onLayer1 || onLayer2)
     {
       float b               = radiusPreshowerCorrections_[0];
@@ -449,6 +451,26 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
     {
       myGrid.setRadiusFactor(radiusFactor_);
     }
+  ************** */
+  if(myTrack.onEcal() == 2) // if on EE  
+     {
+       if( (onLayer1 || onLayer2) && myPart.e()<=250.)
+         {
+	   double maxdepth        = X0depth+theShower.getMaximumOfShower();
+	   double newRadiusFactor = radiusFactorEE_ * aTerm/(1.+bTerm*maxdepth);
+	   myGrid.setRadiusFactor(newRadiusFactor);
+	 }
+       else // otherwise use the normal radius factor
+         {
+           myGrid.setRadiusFactor(radiusFactorEE_);
+         }
+     }//if(myTrack.onEcal() == 2)
+  else                      // else if on EB
+    {
+      myGrid.setRadiusFactor(radiusFactorEB_);
+    }
+  //(end of) changed after tuning - Feb-July - Shilpi Jain
+
   myGrid.setPreshowerPresent(simulatePreshower_);
   
   // The shower simulation
@@ -457,8 +479,8 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
 //  std::cout << " PS ECAL GAP HCAL X0 " << myGrid.ps1TotalX0()+myGrid.ps2TotalX0() << " " << myGrid.ecalTotalX0();
 //  std::cout << " " << myGrid.ecalHcalGapTotalX0() << " " << myGrid.hcalTotalX0() << std::endl;
 //  std::cout << " PS ECAL GAP HCAL L0 " << myGrid.ps1TotalL0()+myGrid.ps2TotalL0() << " " << myGrid.ecalTotalL0();
-//   std::cout << " " << myGrid.ecalHcalGapTotalL0() << " " << myGrid.hcalTotalL0() << std::endl;
-//   std::cout << "ECAL-HCAL " << myTrack.momentum().eta() << " " <<  myGrid.ecalHcalGapTotalL0() << std::endl;
+//  std::cout << " " << myGrid.ecalHcalGapTotalL0() << " " << myGrid.hcalTotalL0() << std::endl;
+//  std::cout << "ECAL-HCAL " << myTrack.momentum().eta() << " " <<  myGrid.ecalHcalGapTotalL0() << std::endl;
 //
 //  std::cout << " Grid created " << std::endl;
   if(myPreshower) theShower.setPreshower(myPreshower);
@@ -467,9 +489,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
 
   theShower.setGrid(&myGrid);
   theShower.setHcal(&myHcalHitMaker);
-  //  std:: cout << " About to compute " << std::endl;
   theShower.compute();
-  //  std::cout << " Coming back from compute" << std::endl;
   //myHistos->fill("h502", myPart->eta(),myGrid.totalX0());
   
   // Save the hits !
@@ -505,8 +525,8 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
 	  //      std::cout << " Adding " <<mapitr->first << " " << mapitr->second <<std::endl; 
 	}
       delete myPreshower;
-    }
   //  std::cout << " Deleting myPreshower " << std::endl;
+    }
   
 }
 
@@ -1282,8 +1302,14 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
   
   RCFactor_ = ECALparameters.getParameter<double>("RCFactor");
   RTFactor_ = ECALparameters.getParameter<double>("RTFactor");
-  radiusFactor_ = ECALparameters.getParameter<double>("RadiusFactor");
+  //changed after tuning - Feb-July - Shilpi Jain
+  //  radiusFactor_ = ECALparameters.getParameter<double>("RadiusFactor");
+  radiusFactorEE_ = ECALparameters.getParameter<double>("RadiusFactorEE");
+  radiusFactorEB_ = ECALparameters.getParameter<double>("RadiusFactorEB");
+  //(end of) changed after tuning - Feb-July - Shilpi Jain
   radiusPreshowerCorrections_ = ECALparameters.getParameter<std::vector<double> >("RadiusPreshowerCorrections");
+  aTerm = 1.+radiusPreshowerCorrections_[1]*radiusPreshowerCorrections_[0];
+  bTerm = radiusPreshowerCorrections_[0];
   mipValues_ = ECALparameters.getParameter<std::vector<double> >("MipsinGeV");
   simulatePreshower_ = ECALparameters.getParameter<bool>("SimulatePreshower");
 
@@ -1314,7 +1340,10 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
 	{
 	  LogInfo("FastCalorimetry") << " r < " << theTailIntervals_[ir*2] << " R_M : " << theTailIntervals_[ir*2+1] << "        ";
 	}
-      LogInfo("FastCalotimetry") << "Radius correction factor " << radiusFactor_ << std::endl;
+  //changed after tuning - Feb-July - Shilpi Jain
+      //      LogInfo("FastCalorimetry") << "Radius correction factor " << radiusFactor_ << std::endl;
+      LogInfo("FastCalorimetry") << "Radius correction factors:  EB & EE " << radiusFactorEB_ << " : "<< radiusFactorEE_ << std::endl;
+  //(end of) changed after tuning - Feb-July - Shilpi Jain
       LogInfo("FastCalorimetry") << std::endl;
       if(mipValues_.size()>2) 	{
 	LogInfo("FastCalorimetry") << "Improper number of parameters for the preshower ; using 95keV" << std::endl;

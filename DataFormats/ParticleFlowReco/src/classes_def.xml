@@ -8,6 +8,10 @@
   <class name="std::vector<reco::PFCluster>"/>
   <class name="edm::Wrapper<std::vector<reco::PFCluster> >"/>
 
+  <class name="reco::PFSuperCluster"/>
+  <class name="std::vector<reco::PFSuperCluster>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFSuperCluster> >"/>
+
   <class name="reco::PFRecHitFraction"/>
   <class name="std::vector<reco::PFRecHitFraction>"/>
 
@@ -103,6 +107,8 @@
   <class name="std::vector<edm::Ref<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack> > > "/>
 
   <class name="edm::Ref<std::vector<reco::PFCluster>,reco::PFCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCluster>,reco::PFCluster> >"/>
+
+  <class name="edm::Ref<std::vector<reco::PFSuperCluster>,reco::PFSuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PFSuperCluster>,reco::PFSuperCluster> >"/>
 
   <class name="reco::PFNuclearInteraction" />
   <class name="std::vector<reco::PFNuclearInteraction>" />

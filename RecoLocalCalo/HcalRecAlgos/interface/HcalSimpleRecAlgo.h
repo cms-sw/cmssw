@@ -11,6 +11,7 @@
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
 #include "DataFormats/HcalRecHit/interface/ZDCRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalCalibRecHit.h"
+#include "DataFormats/HcalRecHit/interface/HcalUpgradeRecHit.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentCorrection.h"
@@ -25,8 +26,8 @@
    has the option of correcting the reconstructed time for energy-dependent
    time slew associated with the QIE.
     
-   $Date: 2011/03/07 19:25:31 $
-   $Revision: 1.12 $
+   $Date: 2011/08/17 22:31:13 $
+   $Revision: 1.13.8.1 $
    \author J. Mans - Minnesota
 */
 class HcalSimpleRecAlgo {
@@ -38,6 +39,7 @@ public:
   HcalSimpleRecAlgo();
 
   void initPulseCorr(int toadd); 
+  void setD1W(double w1);
 
   // ugly hack related to HB- e-dependent corrections
   void setForData();
@@ -46,12 +48,15 @@ public:
   HFRecHit reconstruct(const HFDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HORecHit reconstruct(const HODataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+  HcalUpgradeRecHit reconstruct(const HcalUpgradeDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+
 private:
   bool correctForTimeslew_;
   bool correctForPulse_;
   float phaseNS_;
   std::auto_ptr<HcalPulseContainmentCorrection> pulseCorr_;
   bool setForData_;
+  double weight1;
 };
 
 #endif

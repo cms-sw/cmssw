@@ -4,6 +4,7 @@
     <field name="pdgTable_" transient="true"/>
   </class>
   <class name="PFRootEventManagerColin"/>
+  <class name="PFRootEventManagerUpgrade"/>
   <class name="TauEvent"/>
   <class name="NeutralEvent"/>
   <class name="EventColin"/>
@@ -19,5 +20,7 @@
   <class name="std::vector<EventColin::Block>"/>
   <class name="ResidualFitter"/>
   <class name="DialogFrame"/>
+  <class name="DialogFrameUpgrade"/>
   <class name="DisplayManager"/>
+  <class name="DisplayManagerUpgrade"/>
 </lcgdict>

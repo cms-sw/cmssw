@@ -59,6 +59,7 @@ class CrossingFrame
  
   // standard version
   void addPileups(const int bcr, std::vector<T> * vec, unsigned int evtId,int vertexoffset=0);
+  void addPileupsRelabeller(const int bcr, std::vector<T> * vec, unsigned int evtId,int vertexoffset=0);
   // version for HepMCProduct
   void addPileups(const int bcr, T * product, unsigned int evtId,int vertexoffset=0);
 
@@ -288,6 +289,13 @@ void CrossingFrame<T>::addPileups(const int bcr, std::vector<T> * product, unsig
   // But needs to be present for HepMCProduct
 }
 
+template <class T>
+void CrossingFrame<T>::addPileupsRelabeller(const int bcr, std::vector<T> * product, unsigned int evtId,int vertexoffset){
+  // default, in fact never called since special implementations exist for all possible types
+  // of this signature, i.e. PSimHit, PCaloHit, SimTrack, SimVertex
+  // But needs to be present for HepMCProduct
+}
+
 template <>
 void CrossingFrame<SimTrack>::addPileups(const int bcr, std::vector<SimTrack> *, unsigned int evtId,int vertexoffset);
 
@@ -299,6 +307,9 @@ void CrossingFrame<PSimHit>::addPileups(const int bcr, std::vector<PSimHit> *, u
 
 template <>
 void CrossingFrame<PCaloHit>::addPileups(const int bcr, std::vector<PCaloHit> *, unsigned int evtId,int vertexoffset);
+
+template <>
+void CrossingFrame<PCaloHit>::addPileupsRelabeller(const int bcr, std::vector<PCaloHit> *, unsigned int evtId,int vertexoffset);
 
 template <class T> 
 void CrossingFrame<T>::addSignals(const std::vector<T> * vec,edm::EventID id){

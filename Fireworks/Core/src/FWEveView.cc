@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.52 2011/02/03 17:38:40 amraktad Exp $
+// $Id: FWEveView.cc,v 1.54 2012/04/28 03:09:33 matevz Exp $
 //
 
 
@@ -130,6 +130,7 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
 
    FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)embeddedViewer->GetGLWidget(), (TObject*)embeddedViewer);
    embeddedViewer->SetEventHandler(eh);
+   eh->setViewer(m_viewer);
    eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
    eh->SetDoInternalSelection(kFALSE);
    FWViewContextMenuHandlerGL* ctxHand = new FWViewContextMenuHandlerGL(this);
@@ -383,6 +384,18 @@ FWEveView::setFrom(const FWConfiguration& iFrom)
    {
       m_localEnergyScale->setFrom(iFrom);
    }
+
+
+   // selection clors
+   UChar_t* ca = 0;
+   ca = gEve->GetDefaultGLViewer()->RefLightColorSet().Selection(1).Arr();
+   viewerGL()->RefLightColorSet().Selection(1).SetColor(ca[0], ca[1], ca[2]);
+   ca = gEve->GetDefaultGLViewer()->RefLightColorSet().Selection(3).Arr();
+   viewerGL()->RefLightColorSet().Selection(3).SetColor(ca[0], ca[1], ca[2]);
+   ca = gEve->GetDefaultGLViewer()->RefDarkColorSet().Selection(1).Arr();
+   viewerGL()->RefDarkColorSet().Selection(1).SetColor(ca[0], ca[1], ca[2]);
+   ca = gEve->GetDefaultGLViewer()->RefDarkColorSet().Selection(3).Arr();
+   viewerGL()->RefDarkColorSet().Selection(3).SetColor(ca[0], ca[1], ca[2]);
 }
 
 //______________________________________________________________________________

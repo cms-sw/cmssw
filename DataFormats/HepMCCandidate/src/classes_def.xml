@@ -10,7 +10,6 @@
   <class name="reco::GenParticleRef" />
   <class name="reco::GenParticleRefProd" />
   <class name="reco::GenParticleRefVector" />
-  <class name="std::vector<std::vector<reco::GenParticleRef> >"/>
   <class name="std::vector<reco::GenParticleRef>" />
   <class name="edm::Wrapper<reco::GenParticleRefVector>" />
   <class name="edm::reftobase::Holder<reco::Candidate, reco::GenParticleRef>" />

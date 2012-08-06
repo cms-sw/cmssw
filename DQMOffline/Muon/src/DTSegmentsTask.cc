@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 12:07:47 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/12/22 17:41:27 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -35,7 +35,7 @@ using namespace std;
 
 DTSegmentsTask::DTSegmentsTask(const edm::ParameterSet& pset) {
 
-  debug = pset.getUntrackedParameter<bool>("debug","false");
+  debug = pset.getUntrackedParameter<bool>("debug",false);
 
   // Get the DQM needed services
   theDbe = edm::Service<DQMStore>().operator->();
@@ -136,7 +136,7 @@ void DTSegmentsTask::analyze(const edm::Event& event, const edm::EventSetup& set
 
 
   // Get the map of noisy channels
-  bool checkNoisyChannels = parameters.getUntrackedParameter<bool>("checkNoisyChannels","false");
+  bool checkNoisyChannels = parameters.getUntrackedParameter<bool>("checkNoisyChannels",false);
   ESHandle<DTStatusFlag> statusMap;
   if(checkNoisyChannels) {
     setup.get<DTStatusFlagRcd>().get(statusMap);

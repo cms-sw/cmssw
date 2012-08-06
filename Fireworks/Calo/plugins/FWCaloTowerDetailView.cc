@@ -17,7 +17,8 @@
 // constructors and destructor
 //
 FWCaloTowerDetailView::FWCaloTowerDetailView():
-m_builder(0)
+  m_data(0),
+  m_builder(0)
 { 
 }
 

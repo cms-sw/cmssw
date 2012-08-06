@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.235 2011/02/23 14:07:03 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.250.2.3 2012/02/18 01:58:26 matevz Exp $
 
 
 //
@@ -46,10 +46,9 @@
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWViewType.h"
-#include "Fireworks/Core/interface/FWViewManagerManager.h"
+#include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
 #include "Fireworks/Core/interface/FWJobMetadataManager.h"
 #include "Fireworks/Core/interface/FWInvMassDialog.h"
-#include "Fireworks/Core/interface/FWGeometryBrowser.h"
 
 #include "Fireworks/Core/interface/FWConfiguration.h"
 
@@ -108,7 +107,6 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
    m_viewPopup(0),
    m_commonPopup(0),
    m_invMassDialog(0),
-   m_geoBrowser(0),
    m_helpPopup(0),
    m_shortcutPopup(0),
    m_helpGLPopup(0),
@@ -144,11 +142,17 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
                                                 width,
                                                 height,
                                                 this);
-      m_cmsShowMainFrame->SetWindowName("CmsShow");
       m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
+    
+      /*
+        int mlist[FWViewType::kTypeSize] = {FWViewType::kRhoPhi, FWViewType::kRhoZ, FWViewType::k3D, FWViewType::kISpy, FWViewType::kLego, FWViewType::kLegoHF, FWViewType::kGlimpse, 
+        FWViewType::kTable, FWViewType::kTableL1, FWViewType::kTableHLT,
+        FWViewType::kGeometryTable,
+        FWViewType::kRhoPhiPF, FWViewType::kLegoPFECAL}; */
+
       for (int i = 0 ; i < FWViewType::kTypeSize; ++i)
       {
-         bool separator = (i == FWViewType::kGlimpse || i == FWViewType::kTableHLT);
+         bool separator = (i == FWViewType::kGlimpse || i == FWViewType::kTableHLT || i ==  FWViewType::kLegoPFECAL);
          CSGAction* action = m_cmsShowMainFrame->createNewViewerAction(FWViewType::idToName(i), separator);
          action->activated.connect(boost::bind(&FWGUIManager::newViewSlot, this, FWViewType::idToName(i)));
       }
@@ -156,8 +160,6 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       m_detailViewManager  = new FWDetailViewManager(m_context->colorManager());
       m_contextMenuHandler = new FWModelContextMenuHandler(m_context->selectionManager(), m_detailViewManager, m_context->colorManager(), this);
 
-      m_geoBrowser = new FWGeometryBrowser(getGUIManager());
-      m_cmsShowMainFrame->bindCSGActionKeys(m_geoBrowser);
 
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
       getAction(cmsshow::sExportAllImages)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImagesOfAllViews));
@@ -172,7 +174,6 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       getAction(cmsshow::sShowCommonInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showCommonPopup));
 
       getAction(cmsshow::sShowInvMassDialog)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showInvMassDialog));
-      getAction(cmsshow::sShowGeometryTable)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showGeometryBrowser));
 
       getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
       assert(getAction(cmsshow::sHelp) != 0);
@@ -395,12 +396,6 @@ FWGUIManager::clearStatus()
 }
 
 void
-FWGUIManager::processGUIEvents()
-{
-   gSystem->ProcessEvents();
-}
-
-void
 FWGUIManager::newItem(const FWEventItem* iItem)
 {
 #if defined(THIS_WILL_NEVER_BE_DEFINED)
@@ -456,14 +451,13 @@ FWGUIManager::getSwapCandidate()
       }
       if (swapCandidate == 0)
       {
-         // no eve window found in primary check secondary
+         // no eve window found in primary, check secondary
          TGPack* sp = m_viewSecPack->GetPack();
-         Int_t nf = sp->GetList()->GetSize();
          TIter frame_iterator(sp->GetList());
-         for (Int_t i=0; i<nf; ++i) {
-            pel = (TGFrameElementPack*)frame_iterator();
+         while ((pel = (TGFrameElementPack*)frame_iterator())) 
+         {
             pef = dynamic_cast<TEveCompositeFrame*>(pel->fFrame);
-            if ( pef && pef->GetEveWindow())
+            if ( pef && pef->GetEveWindow() && pel->fState)
             {
                swapCandidate =  pef->GetEveWindow() ;
                break;
@@ -471,7 +465,6 @@ FWGUIManager::getSwapCandidate()
          }
       }
    }
-
    return swapCandidate;
 }
 
@@ -498,9 +491,8 @@ FWGUIManager::checkSubviewAreaIconState(TEveWindow* /*ew*/)
 void
 FWGUIManager::subviewIsBeingDestroyed(FWGUISubviewArea* sva)
 {
-   if(sva->isSelected()) {
+   if (sva->isSelected())
       setViewPopup(0);
-   }
 
    CmsShowTaskExecutor::TaskFunctor f;
    f = boost::bind(&FWGUIManager::subviewDestroy, this, sva);
@@ -529,7 +521,7 @@ FWGUIManager::subviewDestroyAll()
 
    for (std::vector<FWGUISubviewArea*>::iterator i= sd.begin(); i !=sd.end(); ++i)
    {
-      if((*i)->isSelected())
+      if ((*i)->isSelected())
          setViewPopup(0);
       subviewDestroy(*i);
    }
@@ -621,8 +613,10 @@ FWGUIManager::createViews(TEveWindowSlot *slot)
 }
 
 void
-FWGUIManager::createEDIFrame() {
-   if (m_ediFrame == 0) {
+FWGUIManager::createEDIFrame()
+{
+   if (m_ediFrame == 0)
+   {
       m_ediFrame = new CmsShowEDI(m_cmsShowMainFrame, 200, 200, m_context->selectionManager(),m_context->colorManager());
       m_ediFrame->CenterOnParent(kTRUE,TGTransientFrame::kTopRight);
       m_cmsShowMainFrame->bindCSGActionKeys(m_ediFrame);
@@ -633,8 +627,9 @@ void
 FWGUIManager::showEDIFrame(int iToShow)
 {
    createEDIFrame();
-   if(-1 != iToShow) {
-      m_ediFrame->show(static_cast<FWDataCategories> (iToShow));
+   if (-1 != iToShow)
+   {
+      m_ediFrame->show(static_cast<FWDataCategories>(iToShow));
    }
    m_ediFrame->MapRaised();
 }
@@ -661,7 +656,7 @@ FWGUIManager::createModelPopup()
 void
 FWGUIManager::showModelPopup()
 {
-   if (!m_modelPopup) createModelPopup();
+   if (! m_modelPopup) createModelPopup();
    m_modelPopup->MapRaised();
 }
 
@@ -676,13 +671,15 @@ FWGUIManager::popupViewClosed()
 }
 
 void
-FWGUIManager::showViewPopup() {
-   // CSG action .
+FWGUIManager::showViewPopup()
+{
+   // CSG action.
    setViewPopup(0);
 }
 
 void
-FWGUIManager::setViewPopup(TEveWindow* ew) {
+FWGUIManager::setViewPopup(TEveWindow* ew)
+{
    FWViewBase* vb = ew ? m_viewMap[ew] : 0;
    if (m_viewPopup == 0)
    {
@@ -709,16 +706,10 @@ FWGUIManager::showInvMassDialog()
 }
 
 void
-FWGUIManager::showGeometryBrowser()
-{
-  m_geoBrowser->browse();
-   m_geoBrowser->MapRaised();
-}
-
-void
 FWGUIManager::createHelpPopup ()
 {
-   if (m_helpPopup == 0) {
+   if (m_helpPopup == 0)
+   {
       m_helpPopup = new CmsShowHelpPopup("help.html", "CmsShow Help",
                                          m_cmsShowMainFrame,
                                          800, 600);
@@ -731,7 +722,8 @@ FWGUIManager::createHelpPopup ()
 void
 FWGUIManager::createShortcutPopup ()
 {
-   if (m_shortcutPopup == 0) {
+   if (m_shortcutPopup == 0)
+   {
       m_shortcutPopup = new CmsShowHelpPopup("shortcuts.html",
                                              getAction(cmsshow::sKeyboardShort)->getName().c_str(),
                                               m_cmsShowMainFrame, 800, 600);
@@ -743,7 +735,8 @@ FWGUIManager::createShortcutPopup ()
 
 void FWGUIManager::createHelpGLPopup ()
 {
-   if (m_helpGLPopup == 0) {
+   if (m_helpGLPopup == 0)
+   {
       m_helpGLPopup = new CmsShowHelpPopup("helpGL.html",
                                             getAction(cmsshow::sHelpGL)->getName().c_str(),
                                             m_cmsShowMainFrame, 800, 600);
@@ -756,12 +749,13 @@ void FWGUIManager::createHelpGLPopup ()
 void 
 FWGUIManager::showSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY, FWViewContextMenuHandlerBase* iHandler)
 {
-   if(!m_context->selectionManager()->selected().empty()) {
+   if (! m_context->selectionManager()->selected().empty())
+   {
       m_contextMenuHandler->showSelectedModelContext(iGlobalX,iGlobalY, iHandler);
    }
 }
 
- //
+//
 // const member functions
 //
 
@@ -840,9 +834,16 @@ FWGUIManager::promptForSaveConfigurationFile()
 void
 FWGUIManager::exportImageOfMainView()
 {
-   TGFrameElementPack* frameEL = (TGFrameElementPack*) m_viewPrimPack->GetPack()->GetList()->At(1);
-   TEveCompositeFrame* ef = dynamic_cast<TEveCompositeFrame*>(frameEL->fFrame);
-   m_viewMap[ef->GetEveWindow()]->promptForSaveImageTo(m_cmsShowMainFrame);
+   if (m_viewPrimPack->GetPack()->GetList()->GetSize() > 2)
+   {
+      TGFrameElementPack* frameEL = (TGFrameElementPack*) m_viewPrimPack->GetPack()->GetList()->At(1);
+      TEveCompositeFrame* ef = dynamic_cast<TEveCompositeFrame*>(frameEL->fFrame);
+      m_viewMap[ef->GetEveWindow()]->promptForSaveImageTo(m_cmsShowMainFrame);
+   }
+   else
+   {
+      fwLog(fwlog::kError) << "Main view has been destroyed." << std::endl; 
+   }
 }
 
 void
@@ -872,7 +873,7 @@ FWGUIManager::exportImagesOfAllViews()
          if (name.find(ext) == name.npos)
             name += ext;
          // now add format trailing before the extension
-         name.insert(name.rfind('.'), "-%d_%d_%d_%s");
+         name.insert(name.rfind('.'), "-%u_%u_%u_%s");
          exportAllViews(name);
       }
    }
@@ -983,7 +984,7 @@ class areaInfo
 public:
    areaInfo (TGFrameElementPack* frameElement)
    {
-      eveWindow          = 0;
+      eveWindow         = 0;
       originalSlot      = 0;
       undockedMainFrame = 0;
       weight = frameElement->fWeight;
@@ -998,11 +999,11 @@ public:
          originalSlot = eveFrame->GetEveWindow();
    }
 
-   areaInfo () {}
+  areaInfo () : weight(0), undocked(false) {}
 
-   Float_t     weight;
-   Bool_t      undocked;
-   TEveWindow *eveWindow;
+   Float_t      weight;
+   Bool_t       undocked;
+   TEveWindow  *eveWindow;
    TGMainFrame *undockedMainFrame;// cached to help find original slot for undocked windows
    TEveWindow  *originalSlot;
 };
@@ -1035,12 +1036,19 @@ addAreaInfoTo(areaInfo& pInfo,
 void
 FWGUIManager::addTo(FWConfiguration& oTo) const
 {
-   Int_t cfgVersion=2;
+   Int_t cfgVersion=3;
 
    FWConfiguration mainWindow(cfgVersion);
    float leftWeight, rightWeight;
    addWindowInfoTo(m_cmsShowMainFrame, mainWindow);
    {
+      // write summary view weight
+      {
+         std::stringstream ss;
+         ss << m_cmsShowMainFrame->getSummaryViewWeight();
+         mainWindow.addKeyValue("summaryWeight",FWConfiguration(ss.str()));
+      }
+
       // write proportions of horizontal pack (can be standalone item outside main frame)
       if ( m_viewPrimPack->GetPack()->GetList()->GetSize() > 2)
       {
@@ -1075,10 +1083,10 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
          wpacked.push_back(areaInfo(frameEL));
    }
    TGPack* sp = m_viewSecPack->GetPack();
-   Int_t nf = sp->GetList()->GetSize();
+   TGFrameElementPack *seFE;
    TIter frame_iterator(sp->GetList());
-   for (Int_t i=0; i<nf; ++i) {
-      TGFrameElementPack *seFE = (TGFrameElementPack*)frame_iterator();
+   while ((seFE = (TGFrameElementPack*)frame_iterator() ))
+   {
       if (seFE->fWeight)
          wpacked.push_back(areaInfo(seFE));
    }
@@ -1150,14 +1158,6 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       }
    }
    oTo.addKeyValue(kControllers,controllers,true);
-
-   //______________________________________________________________________________
-   // geometry 
-   FWConfiguration rootGeo;
-   {
-     m_geoBrowser->addTo(rootGeo);
-   }
-   oTo.addKeyValue("geo-browser",rootGeo,true);
 }
 
 //----------------------------------------------------------------
@@ -1192,9 +1192,14 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    // set from view reading area info nd view info
    float_t leftWeight =1;
    float_t rightWeight=1;
-   if ( mw->version() == 2 ) {
+   if ( mw->version() >= 2 ) {
       leftWeight = atof(mw->valueForKey("leftWeight")->value().c_str());
       rightWeight = atof(mw->valueForKey("rightWeight")->value().c_str());
+   }
+
+   if ( mw->version() >= 3 ) {
+      float summaryWeight = atof(mw->valueForKey("summaryWeight")->value().c_str());
+      m_cmsShowMainFrame->setSummaryViewWeight(summaryWeight);       
    }
 
    TEveWindowSlot* primSlot = (leftWeight > 0) ? m_viewPrimPack->NewSlotWithWeight(leftWeight) : 0;
@@ -1227,11 +1232,15 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
             TEveWindow* lastWindow = lastViewIt->first;
             lastWindow->UndockWindow();
             TEveCompositeFrameInMainFrame* emf = dynamic_cast<TEveCompositeFrameInMainFrame*>(lastWindow->GetEveFrame());
-            const TGMainFrame* mf =  dynamic_cast<const TGMainFrame*>(emf->GetParent());
-            m_cmsShowMainFrame->bindCSGActionKeys(mf);
-            TGMainFrame* mfp = (TGMainFrame*)mf;
-            const FWConfiguration* mwc = (areaIt->second).valueForKey("UndockedWindowPos");
-            setWindowInfoFrom(*mwc, mfp);
+            if (emf ) {
+               const TGMainFrame* mf =  dynamic_cast<const TGMainFrame*>(emf->GetParent());
+               if (mf) {
+                  m_cmsShowMainFrame->bindCSGActionKeys(mf);
+                  TGMainFrame* mfp = (TGMainFrame*)mf; // have to cast in non-const
+                  const FWConfiguration* mwc = (areaIt->second).valueForKey("UndockedWindowPos");
+                  setWindowInfoFrom(*mwc, mfp);
+               }
+            }
          }
          areaIt++;
       }
@@ -1254,15 +1263,17 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
 
    //handle controllers
    const FWConfiguration* controllers = iFrom.valueForKey(kControllers);
-   if(0!=controllers) {
+   if (0 != controllers)
+   {
       const FWConfiguration::KeyValues* keyVals = controllers->keyValues();
-      if(0!=keyVals) {
+      if (0 != keyVals)
+      {
          //we have open controllers
          for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it != keyVals->end(); ++it)
          {
             const std::string& controllerName = it->first;
             // std::cout <<"found controller "<<controllerName<<std::endl;
-            if(controllerName == kCollectionController) {
+            if (controllerName == kCollectionController) {
                showEDIFrame();
                setWindowInfoFrom(it->second,m_ediFrame);
             } else if (controllerName == kViewController) {
@@ -1279,13 +1290,20 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
       }
    }
 
-   // disable fist docked view
+
+   for(ViewMap_i it = m_viewMap.begin(); it != m_viewMap.end(); ++it)
+   {
+      if (it->second->typeId() >= FWViewType::kGeometryTable)
+      {
+         FWGeometryTableViewBase* gv = ( FWGeometryTableViewBase*)it->second;
+         gv->populate3DViewsFromConfig();
+      }
+   }
+
+   // disable first docked view
    checkSubviewAreaIconState(0);
 
-  //______________________________________________________________________________
-  const FWConfiguration* rootGeo = iFrom.valueForKey("geo-browser");
-  if (rootGeo)     
-     m_geoBrowser->setFrom(*rootGeo);
+ 
 }
 
 void

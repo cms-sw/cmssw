@@ -18,7 +18,6 @@ namespace {
     reco::GenParticleRef r1;
     reco::GenParticleRefProd rp1;
     edm::Wrapper<reco::GenParticleRefVector> wrv1;
-    edm::Wrapper<std::vector<std::vector<reco::GenParticleRef> > > wvvg1;
     edm::reftobase::Holder<reco::Candidate, reco::GenParticleRef> hcg1;
     edm::reftobase::RefHolder<reco::GenParticleRef> hcg2;
     edm::reftobase::VectorHolder<reco::Candidate, reco::GenParticleRefVector> hcg3;
@@ -40,4 +39,3 @@ namespace {
     edm::RefVectorIterator<std::vector<reco::GenParticle>,reco::GenParticle,edm::refhelper::FindUsingAdvance<std::vector<reco::GenParticle>,reco::GenParticle> > rvigp;
   };
 }
-

@@ -23,7 +23,7 @@
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "Fireworks/ParticleFlow/interface/FWPFRhoPhiRecHit.h"
-#include "Fireworks/ParticleFlow/interface/FWPFUtils.h"
+#include "Fireworks/ParticleFlow/interface/FWPFGeom.h"
 #include "Fireworks/ParticleFlow/interface/FWPFMaths.h"
 
 #include "Fireworks/Core/interface/FWViewContext.h"

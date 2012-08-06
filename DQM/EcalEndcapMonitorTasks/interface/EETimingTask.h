@@ -4,8 +4,8 @@
 /*
  * \file EETimingTask.h
  *
- * $Date: 2010/03/31 14:31:51 $
- * $Revision: 1.16 $
+ * $Date: 2011/06/27 10:33:50 $
+ * $Revision: 1.17.4.2 $
  * \author G. Della Ricca
  *
 */
@@ -32,6 +32,8 @@ EETimingTask(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EETimingTask();
+
+static const float shiftProf2D;
 
 protected:
 
@@ -71,6 +73,8 @@ bool enableCleanup_;
 
 bool mergeRuns_;
 
+float energyThreshold_;
+
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EcalRecHitCollection_;
 
@@ -80,7 +84,7 @@ MonitorElement* meTimeAmpli_[18];
 
 MonitorElement* meTimeAmpliSummary_[2];
 MonitorElement* meTimeSummary1D_[2];
-MonitorElement* meTimeSummaryMap_[2], *meTimeSummaryMapProjEta_[2], *meTimeSummaryMapProjPhi_[2];
+ MonitorElement* meTimeSummaryMap_[2];
 MonitorElement* meTimeDelta_, *meTimeDelta2D_;
 
 edm::ESHandle<CaloGeometry> pGeometry_;
@@ -89,5 +93,7 @@ bool init_;
 bool initCaloGeometry_;
 
 };
+
+const float EETimingTask::shiftProf2D = 50.;
 
 #endif

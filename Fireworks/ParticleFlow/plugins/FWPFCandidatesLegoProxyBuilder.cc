@@ -16,8 +16,8 @@
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "Fireworks/ParticleFlow/interface/FWPFLegoCandidate.h"
-#include "Fireworks/ParticleFlow/interface/setTrackTypePF.h"   // NB: This has to come after FWPFLegoCandidate include
+#include "Fireworks/Candidates/interface/FWLegoCandidate.h"
+#include "Fireworks/ParticleFlow/interface/setTrackTypePF.h"   // NB: This has to come after FWLegoCandidate include
 
 //-----------------------------------------------------------------------------
 // FWCandidate3DProxyBuilder
@@ -61,7 +61,7 @@ FWPFCandidatesLegoProxyBuilder::~FWPFCandidatesLegoProxyBuilder(){}
 void 
 FWPFCandidatesLegoProxyBuilder::build(const reco::PFCandidate &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc)
 {
-   FWPFLegoCandidate *candidate = new FWPFLegoCandidate( vc, context(), iData.energy(), iData.et(), iData.pt(),
+   FWLegoCandidate *candidate = new FWLegoCandidate( vc, context(), iData.energy(), iData.et(), iData.pt(),
                                                          iData.eta(), iData.phi() );
    candidate->SetMarkerColor( item()->defaultDisplayProperties().color() );
    fireworks::setTrackTypePF( iData, candidate );
@@ -80,7 +80,7 @@ FWPFCandidatesLegoProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType
       if ((*i)->HasChildren())
       {
          TEveElement* el = (*i)->FirstChild();  // there is only one child added in this proxy builder
-         FWPFLegoCandidate *candidate = dynamic_cast<FWPFLegoCandidate*> (el);
+         FWLegoCandidate *candidate = dynamic_cast<FWLegoCandidate*> (el);
          candidate->updateScale(vc, context());
       }
    }
@@ -95,7 +95,7 @@ FWPFCandidatesLegoProxyBuilder::localModelChanges(const FWModelId& iId, TEveElem
    if ((parent)->HasChildren())
    {
       TEveElement* el = (parent)->FirstChild();  // we know there is only one child added in this proxy builder
-      FWPFLegoCandidate *candidate = dynamic_cast<FWPFLegoCandidate*> (el);
+      FWLegoCandidate *candidate = dynamic_cast<FWLegoCandidate*> (el);
       const FWDisplayProperties& dp = item()->modelInfo(iId.index()).displayProperties();
       candidate->SetMarkerColor( dp.color());
       candidate->ElementChanged();

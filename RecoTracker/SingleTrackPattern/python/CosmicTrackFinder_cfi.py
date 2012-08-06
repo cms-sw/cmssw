@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-cosmictrackfinder = cms.EDProducer("CosmicTrackFinder",
+cosmictrackfinder = cms.EDFilter("CosmicTrackFinder",
     stereorecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHit"),
     HitProducer = cms.string('siStripRecHits'),
     pixelRecHits = cms.InputTag("siPixelRecHits"),
@@ -11,8 +11,7 @@ cosmictrackfinder = cms.EDProducer("CosmicTrackFinder",
     rphirecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
     debug = cms.untracked.bool(True),
     GeometricStructure = cms.untracked.string('MTCC'),
-    cosmicSeeds = cms.InputTag("cosmicseedfinder"),
-    useHitsSplitting = cms.bool(True)                                 
+    cosmicSeeds = cms.InputTag("cosmicseedfinder")
 )
 
 

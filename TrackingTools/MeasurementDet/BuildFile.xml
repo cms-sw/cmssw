@@ -2,5 +2,3 @@
   <lib   name="1"/>
 </export>
 <use   name="TrackingTools/TransientTrackingRecHit"/>
-<use   name="TrackingTools/PatternTools"/>
-

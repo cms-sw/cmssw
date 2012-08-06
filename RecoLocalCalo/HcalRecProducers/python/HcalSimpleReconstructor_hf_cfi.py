@@ -8,8 +8,9 @@ hfreco = cms.EDProducer("HcalSimpleReconstructor",
     correctForTimeslew = cms.bool(False),
     dropZSmarkedPassed = cms.bool(True),
     firstSample = cms.int32(4),
-    samplesToAdd = cms.int32(2),
-    tsFromDB = cms.bool(True)
+    samplesToAdd = cms.int32(1),
+    tsFromDB = cms.bool(True),
+    firstDepthWeight = cms.double(1.0)
 )
 
 

@@ -1,6 +1,7 @@
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
+#include "DataFormats/CLHEP/interface/Migration.h" 
 #include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelPlaneCrossingByCircle.h"

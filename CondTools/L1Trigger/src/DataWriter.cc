@@ -4,7 +4,6 @@
 #include "CondTools/L1Trigger/interface/Exception.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVService.h"
-#include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 
 #include <utility>

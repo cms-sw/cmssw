@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: showtags,v 1.10 2009/02/14 10:15:30 andreasp Exp $
+# $Id: showtags,v 1.11 2010/05/31 15:34:20 muzaffar Exp $
 #
 # Created by: Shahram Rahatlou
 #             University of Rome & INFN
@@ -16,12 +16,14 @@ my $doDiff;
 my $doHelp;
 my $tagCollector;
 my $reltag;
+my $useRel;
 my $updatedtags;
 my $wrtBaseRel;
 GetOptions("check|c" => \$doCVS,
            "diff|d" => \$doDiff,
            "updated|u" => \$updatedtags,
            "release|r" => \$reltag,
+	   "useRel=s" => \$useRel,
            "tagCollector|t" => \$tagCollector,
            "wrtBaseRel" => \$wrtBaseRel,
            "help|h" => \$doHelp);
@@ -44,6 +46,10 @@ die "ERROR: Could not find developers area base path. Please run this script fro
 my $releasetop=&getReleaseTop($localtop);
 die "ERROR: Could not find release base path. Please run this script from a developer area.\n" if ($releasetop eq "");
 
+if ( defined $useRel ) {
+    $releasetop = `scram list -c \| grep ${useRel}\$ \| awk '{print \$NF}' \| uniq`;
+    chomp( $releasetop );
+}
 my $taglist = "${releasetop}/src/PackageList.cmssw";
 die "ERROR: Cannot find release package/tag list at $taglist\n" if (!-e $taglist);
 
@@ -284,6 +290,7 @@ showtags [--check|-c] [--diff|-d] [--help|-h]
                                   test release
               --diff|-d           Do cvs diff with tag in test release
               --wrtBaseRel        options -c and -d will be WRT base release
+              --useRel <release>  options -c, -d and -u will be WRT the release
               --updated|-u        Only show tags which are different from 
                                   the base release
               --release|-r        Show also the tag used for the base release 

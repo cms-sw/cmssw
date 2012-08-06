@@ -1,4 +1,5 @@
 <use name="CommonTools/Utils"/>
+<use name="DataFormats/Candidate"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/EcalDetId"/>
@@ -7,8 +8,7 @@
 <use name="DataFormats/L1GlobalTrigger"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/MuonDetId"/>
-<use name="DataFormats/Provenance"/>
-<use name="DataFormats/Candidate"/>
+<use name="DataFormats/Scalers"/>
 <use name="FWCore/Common"/>
 <use name="FWCore/FWLite"/>
 <use name="FWCore/PluginManager"/>
@@ -28,6 +28,7 @@
 <lib name="Geom"/>
 <lib name="GeomPainter"/>
 <lib name="GuiHtml"/>
+<lib name="GX11"/>
 <lib name="RGL"/>
 <export>
   <lib name="1"/>

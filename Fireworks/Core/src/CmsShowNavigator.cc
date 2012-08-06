@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.107 2011/03/04 21:11:41 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.111 2011/09/12 20:30:58 amraktad Exp $
 //
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -76,7 +76,7 @@ CmsShowNavigator::openFile(const std::string& fileName)
    FWFileEntry* newFile = 0;
    try
    {
-      newFile = new FWFileEntry(fileName);
+      newFile = new FWFileEntry(fileName, m_main.getVersionCheck());
    }
    catch (std::exception& iException)
    {
@@ -89,7 +89,7 @@ CmsShowNavigator::openFile(const std::string& fileName)
    try 
    {
       // delete all previous files
-      while ( m_files.size() > 0 )
+      while ( !m_files.empty() )
       {
          FWFileEntry* file = m_files.front();
          m_files.pop_front();
@@ -123,7 +123,7 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool checkFileQueueSiz
    FWFileEntry* newFile  = 0;
    try
    {
-      newFile = new FWFileEntry(fileName);
+      newFile = new FWFileEntry(fileName, m_main.getVersionCheck());
    }
    catch(std::exception& iException)
    {
@@ -214,9 +214,13 @@ CmsShowNavigator::goTo(FileQueue_i fi, int event)
       gSystem->GetCpuInfo(&cpuInfo, 0);
       gSystem->GetMemInfo(&memInfo);
       gSystem->GetProcInfo(&procInfo);
+
+      time_t curtime;
+      time(&curtime);
       
+      fwLog(fwlog::kDebug) << "Current Time: "  << ctime(&curtime);
       fwLog(fwlog::kDebug) << "memInfo.fMemUsed \t"  << memInfo.fMemUsed << std::endl;
-      fwLog(fwlog::kDebug) << "memInfo.fSwapUsed\t" << memInfo.fSwapUsed<< std::endl; 
+      fwLog(fwlog::kDebug) << "memInfo.fSwapUsed\t" << memInfo.fSwapUsed << std::endl; 
       fwLog(fwlog::kDebug) << "procInfo.fMemResident\t" << procInfo.fMemResident << std::endl;
       fwLog(fwlog::kDebug) << "procInfo.fMemVirtual\t" << procInfo.fMemVirtual << std::endl;
       fwLog(fwlog::kDebug) << "cpuInfo.fLoad1m \t" << cpuInfo.fLoad1m << std::endl;
@@ -834,9 +838,9 @@ CmsShowNavigator::setFrom(const FWConfiguration& iFrom)
    else
    {
       int numberOfFilters = 0;
-      const FWConfiguration* value = iFrom.valueForKey( "EventFilter_total" );
-      std::istringstream s(value->value());
-      s>>numberOfFilters;
+      const FWConfiguration* nfvalue = iFrom.valueForKey( "EventFilter_total" );
+      if(nfvalue)
+         numberOfFilters = atoi(nfvalue->value().c_str());
 
       for(int i=0; i<numberOfFilters; ++i)
       {

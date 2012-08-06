@@ -5,13 +5,13 @@ process = cms.Process( "TEST" )
 
 ## Configure MessageLogger
 process.load( "FWCore.MessageService.MessageLogger_cfi" )
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( False )
 )
 
 ## Declare input
 from PhysicsTools.PatExamples.samplesCERN_cff import zjetsTrigger
-
 process.source = cms.Source( "PoolSource",
     fileNames = zjetsTrigger
 )

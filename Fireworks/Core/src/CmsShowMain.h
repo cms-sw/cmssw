@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.55 2010/11/04 10:48:44 matevz Exp $
+// $Id: CmsShowMain.h,v 1.57 2011/06/03 23:30:50 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/CmsShowMainBase.h"
@@ -79,6 +79,7 @@ public:
    void notified(TSocket*);
    const fwlite::Event* getCurrentEvent() const;
    const fireworks::Context* context() const { return m_context.get(); };
+   bool getVersionCheck() const { return !m_noVersionCheck; }
 
    void fileChangedSlot(const TFile *file);
 
@@ -125,8 +126,9 @@ private:
    bool                         m_live;
    std::auto_ptr<SignalTimer>   m_liveTimer;
    int                          m_liveTimeout;
-   Int_t                        m_lastPointerPositionX;
-   Int_t                        m_lastPointerPositionY;
+   UInt_t                       m_lastXEventSerial;
+
+   bool                         m_noVersionCheck;
 
    std::auto_ptr<TMonitor> m_monitor;
 };

@@ -15,8 +15,8 @@
 
     /** \class HcalSimpleReconstructor
 	
-    $Date: 2011/02/22 20:44:52 $
-    $Revision: 1.4 $
+    $Date: 2011/08/17 22:18:46 $
+    $Revision: 1.5.12.1 $
     \author J. Mans - Minnesota
     */
     class HcalSimpleReconstructor : public edm::EDProducer {
@@ -27,6 +27,7 @@
       virtual void beginRun(edm::Run&r, edm::EventSetup const & es);
       virtual void endRun(edm::Run&r, edm::EventSetup const & es);
     private:      
+      template<class DIGICOLL, class RECHITCOLL> void process(edm::Event& e, const edm::EventSetup& c);
       HcalSimpleRecAlgo reco_;
       DetId::Detector det_;
       int subdet_;
@@ -40,6 +41,8 @@
       int firstSample_;
       int samplesToAdd_;
       bool tsFromDB_;
+      double firstDepthWeight_;
+      bool upgrade_;
 
       HcalRecoParams* paramTS;  // firstSample & sampleToAdd from DB  
 

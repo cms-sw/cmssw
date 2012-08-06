@@ -25,9 +25,10 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
   RootFileName  = pset.getUntrackedParameter<std::string>("RootFileName", "RPCMonitorDigiDQM.root"); 
 
   useMuonDigis_=  pset.getUntrackedParameter<bool>("UseMuon", true);
+  useRollInfo_=  pset.getUntrackedParameter<bool>("UseRollInfo", false);
   muonLabel_ = pset.getParameter<edm::InputTag>("MuonLabel");
   muPtCut_  = pset.getUntrackedParameter<double>("MuonPtCut", 3.0); 
-  muEtaCut_ = pset.getUntrackedParameter<double>("MuonEtaCut", 1.6); 
+  muEtaCut_ = pset.getUntrackedParameter<double>("MuonEtaCut", 1.9); 
  
   subsystemFolder_ = pset.getUntrackedParameter<std::string>("RPCFolder", "RPC");
   globalFolder_ = pset.getUntrackedParameter<std::string>("GlobalFolder", "SummaryHistograms");
@@ -54,30 +55,38 @@ void RPCMonitorDigi::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
 
   //Book 
 
-  regionNoiseCollection = this->bookRegionME(noiseFolder_);
-  sectorRingNoiseCollection = this->bookSectorRingME(noiseFolder_);
-  wheelDiskNoiseCollection = this->bookWheelDiskME(noiseFolder_);
+  //regionNoiseCollection = this->bookRegionME(noiseFolder_);
+  //sectorRingNoiseCollection = this->bookSectorRingME(noiseFolder_);
+  //wheelDiskNoiseCollection = this->bookWheelDiskME(noiseFolder_);
   
+  this->bookRegionME(noiseFolder_, regionNoiseCollection);
+  this->bookSectorRingME(noiseFolder_, sectorRingNoiseCollection);
+  this->bookWheelDiskME(noiseFolder_, wheelDiskNoiseCollection);
+
+
+
   std::string currentFolder = subsystemFolder_ +"/"+noiseFolder_;
   dbe->setCurrentFolder(currentFolder);
   
   noiseRPCEvents_= dbe->get(currentFolder +"/RPCEvents");
   if(noiseRPCEvents_) dbe->removeElement(noiseRPCEvents_->getName());
-  noiseRPCEvents_ = dbe->bookInt("RPCEvents");
+  noiseRPCEvents_ = dbe->book1D("RPCEvents","RPCEvents", 1, 0.5, 1.5);
   
   
   if(useMuonDigis_ ){
-
-    regionMuonCollection = this->bookRegionME(muonFolder_);
-    sectorRingMuonCollection = this->bookSectorRingME(muonFolder_);
-    wheelDiskMuonCollection = this->bookWheelDiskME(muonFolder_);
-
+  //   regionMuonCollection = this->bookRegionME(muonFolder_);
+//     sectorRingMuonCollection = this->bookSectorRingME(muonFolder_);
+//     wheelDiskMuonCollection = this->bookWheelDiskME(muonFolder_);
+    this->bookRegionME(muonFolder_, regionMuonCollection);
+    this->bookSectorRingME(muonFolder_, sectorRingMuonCollection);
+    this->bookWheelDiskME(muonFolder_, wheelDiskMuonCollection);
+    
     currentFolder = subsystemFolder_ +"/"+muonFolder_;
     dbe->setCurrentFolder(currentFolder); 
    
     muonRPCEvents_= dbe->get(currentFolder +"/RPCEvents");
     if(muonRPCEvents_) dbe->removeElement(muonRPCEvents_->getName());
-    muonRPCEvents_ = dbe->bookInt("RPCEvents");
+    muonRPCEvents_ =  dbe->book1D("RPCEvents", "RPCEvents", 1, 0.5, 1.5);
 
     NumberOfMuon_ = dbe->get(currentFolder+"/NumberOfMuons");
     if(NumberOfMuon_) dbe->removeElement(NumberOfMuon_->getName());
@@ -87,7 +96,6 @@ void RPCMonitorDigi::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
     NumberOfRecHitMuon_ = dbe->get(currentFolder+"/NumberOfRPCRecHitsMuons");
     if(NumberOfRecHitMuon_) dbe->removeElement(NumberOfRecHitMuon_->getName());
     NumberOfRecHitMuon_ = dbe->book1D("NumberOfRecHitMuons", "Number of RPC RecHits per Muon", 8, -0.5, 7.5);
-
   }
    
 
@@ -99,23 +107,32 @@ void RPCMonitorDigi::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
     if(dynamic_cast< RPCChamber* >( *it ) != 0 ){
       RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
       std::vector< const RPCRoll*> roles = (ch->rolls());
-      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-	RPCDetId rpcId = (*r)->id();
-	//booking all histograms
+      if(useRollInfo_){
+	for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
+	  RPCDetId rpcId = (*r)->id();
+	  //booking all histograms
+	  RPCGeomServ rpcsrv(rpcId);
+	  std::string nameID = rpcsrv.name();
+	  if(useMuonDigis_) bookRollME(rpcId ,iSetup, muonFolder_, meMuonCollection[nameID]);
+	  bookRollME(rpcId, iSetup, noiseFolder_, meNoiseCollection[nameID]);
+	  
+	  // 	if(useMuonDigis_) meMuonCollection[(uint32_t)rpcId] = bookRollME(rpcId,iSetup,  muonFolder_);
+	  // 	meNoiseCollection[(uint32_t)rpcId] = bookRollME(rpcId,iSetup,  noiseFolder_);
+	}
+      }else{
+	RPCDetId rpcId = roles[0]->id(); //any roll would do - here I just take the first one
 	RPCGeomServ rpcsrv(rpcId);
-	std::string nameRoll = rpcsrv.name();
-	if(useMuonDigis_) meMuonCollection[(uint32_t)rpcId] = bookRollME(rpcId,iSetup, "Muon");
-	meNoiseCollection[(uint32_t)rpcId] = bookRollME(rpcId,iSetup, "Noise");
+	std::string nameID = rpcsrv.chambername();
+	if(useMuonDigis_) bookRollME(rpcId,iSetup, muonFolder_, meMuonCollection[nameID]);
+	bookRollME(rpcId, iSetup, noiseFolder_, meNoiseCollection[nameID]);
+	
       }
     }
   }//end loop on geometry to book all MEs
 
 
- //Clear flags and counters;
+  //Clear flags;
   dcs_ = true;
-  muonCounter_ = 0;
-  noiseCounter_ = 0;
-
 }
 
 void RPCMonitorDigi::endJob(void){
@@ -177,6 +194,7 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
 	  }
 	}
       }// end loop on mu rechits
+    
     }
 
     if( NumberOfMuon_)  NumberOfMuon_->Fill(numMuons);
@@ -213,8 +231,8 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
   }
 
  
-  if( useMuonDigis_ && muonRPCEvents_ != 0 )  muonRPCEvents_->Fill(muonCounter_);
-  if( noiseRPCEvents_ != 0)  noiseRPCEvents_->Fill(noiseCounter_);
+  if( useMuonDigis_ && muonRPCEvents_ != 0 )  muonRPCEvents_->Fill(1);
+  if( noiseRPCEvents_ != 0)  noiseRPCEvents_->Fill(1);
 
   if(useMuonDigis_ ) this->performSourceOperation(rechitMuon, muonFolder_);
   this->performSourceOperation(rechitNoise, noiseFolder_);
@@ -227,19 +245,17 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
   
   if(recHitMap.size()==0) return;
 
-  std::map<uint32_t, std::map<std::string, MonitorElement*> >  meRollCollection ;
+  std::map<std::string, std::map<std::string, MonitorElement*> >  meRollCollection ;
   std::map<std::string, MonitorElement*>   meWheelDisk ;
   std::map<std::string, MonitorElement*>   meRegion ;
   std::map<std::string, MonitorElement*>   meSectorRing;  
 
   if(recHittype == muonFolder_ ) {
-    muonCounter_++;
     meRollCollection = meMuonCollection;
     meWheelDisk =  wheelDiskMuonCollection;
     meRegion =  regionMuonCollection;
     meSectorRing =  sectorRingMuonCollection;
   }else if(recHittype == noiseFolder_ ){
-    noiseCounter_++;
     meRollCollection =  meNoiseCollection;
     meWheelDisk =  wheelDiskNoiseCollection;
     meRegion =  regionNoiseCollection;
@@ -257,15 +273,19 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
   for ( std::map<RPCDetId , std::vector<RPCRecHit> >::const_iterator detIdIter = recHitMap.begin(); detIdIter !=  recHitMap.end() ;  detIdIter++){
     
     RPCDetId detId = (*detIdIter).first;
-    int id=detId();
+    // int id=detId();
     
     //get roll number
     rpcdqm::utils rpcUtils;
     int nr = rpcUtils.detId2RollNr(detId);
-    std::map<std::string, MonitorElement*>  meMap = meRollCollection[id];
+ 
     
     RPCGeomServ geoServ(detId);
-    std::string nameRoll = geoServ.name();
+    std::string nameRoll = "";
+
+
+    if(useRollInfo_) nameRoll = geoServ.name();
+    else nameRoll = geoServ.chambername();
 
     int region=(int)detId.region();
     int wheelOrDiskNumber;
@@ -273,6 +293,8 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
     int ring = 0 ;
     int sector  = detId.sector();
     int layer = 0;
+    int totalRolls = 3;
+    int roll = detId.roll();
     if(region == 0) {
       wheelOrDiskType = "Wheel";  
       wheelOrDiskNumber = (int)detId.ring();
@@ -281,19 +303,34 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
       if(station == 1){
 	if(detId.layer() == 1){
 	  layer = 1; //RB1in
+	  totalRolls = 2;
 	}else{
 	  layer = 2; //RB1out
+	  totalRolls = 2;
 	}
+	if(roll == 3) roll =2; // roll=3 is Forward
       }else if(station == 2){
       	if(detId.layer() == 1){
 	  layer = 3; //RB2in
-	}else{
+	  if( abs(wheelOrDiskNumber) ==2 && roll == 3) {
+	    roll = 2; //W -2, +2 RB2in has only 2 rolls
+	    totalRolls = 2;
+	  }
+       	}else{
 	  layer = 4; //RB2out
+	  if( abs(wheelOrDiskNumber) !=2 && roll == 3){
+	    roll = 2;//W -1, 0, +1 RB2out has only 2 rolls
+	    totalRolls = 2;
+	  }
 	}
       }else if (station == 3){
 	layer = 5; //RB3
+	totalRolls = 2;
+	if(roll == 3) roll =2;
       }else{
 	layer = 6; //RB4
+	totalRolls = 2;
+	if(roll == 3) roll =2;
       }
 
     }else {
@@ -309,6 +346,8 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
     std::set<int> bxSet ;
     int numDigi = 0;
 
+    std::map<std::string, MonitorElement*>  meMap = meRollCollection[nameRoll];
+
     //Loop on recHits
     for(std::vector<RPCRecHit>::const_iterator recHitIter = recHits.begin(); recHitIter != recHits.end(); recHitIter++){
       RPCRecHit recHit = (*recHitIter);
@@ -319,7 +358,6 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
       numDigi +=  clusterSize ;
       int firstStrip = recHit.firstClusterStrip();
       int lastStrip = clusterSize + firstStrip - 1;
-
           
       // ###################### Roll Level  #################################
       
@@ -327,7 +365,10 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
       os<<"Occupancy_"<<nameRoll;
       if(meMap[os.str()]) {
 	for(int s=firstStrip; s<= lastStrip; s++){
-	  meMap[os.str()]->Fill(s);
+	  if(useRollInfo_) { meMap[os.str()]->Fill(s);}
+	  else{ 
+	    int nstrips =   meMap[os.str()]->getNbinsX()/totalRolls;
+	    meMap[os.str()]->Fill(s + nstrips*(roll-1)); }
 	}
       }
       
@@ -353,15 +394,15 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
 	}
       }
 
-      os.str("");
-      os<<"BxDistribution_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Sector_"<<sector;
-      if( meSectorRing[os.str()])  meSectorRing[os.str()]->Fill(bx);
+   //    os.str("");
+//       os<<"BxDistribution_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Sector_"<<sector;
+//       if( meSectorRing[os.str()])  meSectorRing[os.str()]->Fill(bx);
 
       os.str("");
-      if(geoServ.segment() > 0 && geoServ.segment() < 13 ){ 
-	os<<"Occupancy_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Ring_"<<ring<<"_CH01-CH12";
-      }else if (geoServ.segment() > 12 ){
-	os<<"Occupancy_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Ring_"<<ring<<"_CH13-CH36";
+      if(geoServ.segment() > 0 && geoServ.segment() < 19 ){ 
+	os<<"Occupancy_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Ring_"<<ring<<"_CH01-CH18";
+      }else if (geoServ.segment() > 18 ){
+	os<<"Occupancy_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Ring_"<<ring<<"_CH19-CH36";
       }
      
       if( meSectorRing[os.str()]){ 
@@ -370,33 +411,34 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
 	}
       }
 
-      os.str("");
-      os<<"BxDistribution_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Ring_"<<ring;
-      if( meSectorRing[os.str()])  meSectorRing[os.str()]->Fill(bx);
+     //  os.str("");
+//       os<<"BxDistribution_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Ring_"<<ring;
+//       if( meSectorRing[os.str()])  meSectorRing[os.str()]->Fill(bx);
 
       
       // ###################### Wheel/Disk Level #########################‡‡‡
+      if(region ==0){
+	os.str("");
+	os<<"1DOccupancy_Wheel_"<<wheelOrDiskNumber;
+	if( meWheelDisk[os.str()]) meWheelDisk[os.str()]->Fill(sector, clusterSize);
+	
+	os.str("");
+	os<<"Occupancy_Roll_vs_Sector_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber;       
+	if (meWheelDisk[os.str()]) meWheelDisk[os.str()]->Fill(sector, nr, clusterSize);
 
-      os.str("");
-      os<<"1DOccupancy_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber;
-      std::string meId = os.str();
-      if( meWheelDisk[os.str()]) {
-	if (region == 0){
-	  meWheelDisk[os.str()]->Fill(sector, clusterSize);
-	}else{
-	  meWheelDisk[os.str()]->Fill(ring , clusterSize);
+      }else{
+	os.str("");
+	os<<"1DOccupancy_Ring_"<<ring;
+	if ((meWheelDisk[os.str()])){
+	  if (wheelOrDiskNumber > 0 ) meWheelDisk[os.str()]->Fill(wheelOrDiskNumber +3, clusterSize);
+	  else meWheelDisk[os.str()]->Fill(wheelOrDiskNumber + 4, clusterSize);
 	}
+
+	os.str("");
+	os<<"Occupancy_Ring_vs_Segment_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber;   
+	if (meWheelDisk[os.str()]) meWheelDisk[os.str()]->Fill( geoServ.segment(), (ring-1)*3-detId.roll()+1,clusterSize );
       }
 
-
-      os.str("");
-      os<<"Occupancy_Roll_vs_Sector_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber;       
-      if (meWheelDisk[os.str()]) meWheelDisk[os.str()]->Fill(sector, nr, clusterSize);
-      
-      os.str("");
-      os<<"Occupancy_Ring_vs_Segment_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber;   
-      if (meWheelDisk[os.str()]) meWheelDisk[os.str()]->Fill( geoServ.segment(), (ring-1)*3-detId.roll()+1,clusterSize );
-      
       os.str("");
       os<<"BxDistribution_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber;
       if(meWheelDisk[os.str()])  meWheelDisk[os.str()]->Fill(bx);
@@ -442,6 +484,17 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
     os.str("");
     os<<"Multiplicity_"<<RPCMonitorDigi::regionNames_[region +1];
     if(meRegion[os.str()]) meRegion[os.str()]->Fill(numDigi);
+
+    os.str("");
+    if(region==0) {
+      os<<"Occupancy_for_Barrel";
+      if(meRegion[os.str()]) meRegion[os.str()]->Fill(sector, wheelOrDiskNumber, numDigi);
+    }else {
+      os<<"Occupancy_for_Endcap";
+      int xbin = wheelOrDiskNumber+3;
+      if (region==-1) xbin = wheelOrDiskNumber+4;
+      if(meRegion[os.str()]) meRegion[os.str()]->Fill(xbin,ring,numDigi);
+    }
 
     os.str("");
     os<<"Multiplicity_"<<nameRoll;

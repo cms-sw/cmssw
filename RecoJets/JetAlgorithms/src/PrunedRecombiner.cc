@@ -1,52 +1,47 @@
+// $Id: PrunedRecombiner.cc 984 2010-12-20 22:35:41Z verm $
 ///////////////////////////////////////////////////////////////////////////////
-//
-// PrunedRecombiner.cc
-// Last update: 5/28/09 CKV
-// PrunedRecomb version: 0.2.0
-// Author: Christopher Vermilion <verm@u.washington.edu>
 //
 // Implements the PrunedRecombiner class.  See PrunedRecombiner.hh
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "PrunedRecombPlugin.h"
+#include "RecoJets/JetAlgorithms/interface/PrunedRecombiner.hh"
 
-#include <string>
 #include <sstream>
-#include <iostream>
 
-FASTJET_BEGIN_NAMESPACE
+using namespace fastjet;
 
 std::string PrunedRecombiner::description() const
 {
 	std::ostringstream s;
-	s << "Pruned " << JetDefinition::DefaultRecombiner::description()
+	s << "Pruned " << _recombiner->description()
 	  << ", with zcut = " << _zcut << " and Rcut = " << _Rcut;
 	return s.str();
 }	
 	
-/// Recombine pa and pb and put result into pab.
-/// If pruning test is true (the recombination is vetoed) the harder
-///   parent is merged with a 0 PseudoJet. (Check that this is an identity in
-///   all recombination schemes!)
+// Recombine pa and pb and put result into pab.
+// If pruning test is true (the recombination is vetoed) the harder
+//   parent is merged with a 0 PseudoJet. (Check that this is an identity in
+//   all recombination schemes!)
+// When a branch is pruned, its cluster_hist_index is stored in 
+//   _pruned_pseudojets for later use.
 void PrunedRecombiner::recombine(const PseudoJet & pa, const PseudoJet & pb, 
                            PseudoJet & pab) const
 {
-	//std::cout << "In PR::recombine()\n";
 	PseudoJet p0(0.0, 0.0, 0.0, 0.0);
 	// test if recombination should be pruned
 	switch ( _pruning_test(pa, pb) ) {
 		case 1:
-			// MAKE RECORD OF PB BEING PRUNED
-			JetDefinition::DefaultRecombiner::recombine(pa, p0, pab);
+			_pruned_pseudojets.push_back(pb.cluster_hist_index());
+			_recombiner->recombine(pa, p0, pab);
 			break;
 		case 2:
-			// MAKE RECORD OF PA BEING PRUNED
-			JetDefinition::DefaultRecombiner::recombine(pb, p0, pab);
+			_pruned_pseudojets.push_back(pa.cluster_hist_index());
+			_recombiner->recombine(pb, p0, pab);
 			break;
 		default: 
 			// if no pruning, do regular combination
-			JetDefinition::DefaultRecombiner::recombine(pa, pb, pab);
+			_recombiner->recombine(pa, pb, pab);
 	}
 }
 
@@ -64,7 +59,7 @@ int PrunedRecombiner::_pruning_test(const PseudoJet & pa, const PseudoJet & pb) 
 	// create the new jet by recombining the first two, using the normal
 	//   recombination scheme
 	PseudoJet newjet;	
-	JetDefinition::DefaultRecombiner::recombine(pa, pb, newjet);
+	_recombiner->recombine(pa, pb, newjet);
 
 	double minpT = pa.perp();
 	int hard = 2;  // harder pj is pj2
@@ -82,5 +77,9 @@ int PrunedRecombiner::_pruning_test(const PseudoJet & pa, const PseudoJet & pb) 
 }
 
 
-FASTJET_END_NAMESPACE
-
+void PrunedRecombiner::reset(const double & zcut, const double & Rcut)
+{
+	_pruned_pseudojets.clear();
+	_zcut = zcut;
+	_Rcut = Rcut;
+}

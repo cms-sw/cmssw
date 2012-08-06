@@ -9,8 +9,8 @@ dqmElectronOfflineClient = cms.EDAnalyzer("ElectronOfflineClient",
     FinalStep = cms.string("AtRunEnd"),
     InputFile = cms.string(""),
     OutputFile = cms.string(""),
-    InputFolderName = cms.string(""),
-    OutputFolderName = cms.string(""),
+    InputFolderName = cms.string("Egamma/Electrons"),
+    OutputFolderName = cms.string("Egamma/Electrons"),
     
     EffHistoTitle = cms.string("fraction of reco ele matching a reco sc")
 

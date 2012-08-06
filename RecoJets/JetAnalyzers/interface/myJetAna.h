@@ -75,88 +75,30 @@ private:
   TH1F *HFEneOOT;
   TH1F *HOEneOOT;
 
-  TH1F *HBEneOOTTh;
-  TH1F *HEEneOOTTh;
-  TH1F *HFEneOOTTh;
-  TH1F *HOEneOOTTh;
-
-  TH1F *HBEneOOTTh1;
-  TH1F *HEEneOOTTh1;
-  TH1F *HFEneOOTTh1;
-  TH1F *HOEneOOTTh1;
-
   TH1F *HBEne;
   TH1F *HBEneTh;
-  TH1F *HBEneTh1;
   TH1F *HBEneX;
   TH1F *HBEneY;
   TH1F *HBTime;
   TH1F *HBTimeTh;
-  TH1F *HBTimeTh1;
-  TH1F *HBTimeTh2;
-  TH1F *HBTimeTh3;
-  TH1F *HBTimeThR;
-  TH1F *HBTimeTh1R;
-  TH1F *HBTimeTh2R;
-  TH1F *HBTimeTh3R;
   TH1F *HBTimeX;
   TH1F *HBTimeY;
   TH1F *HEEne;
   TH1F *HEEneTh;
-  TH1F *HEEneTh1;
   TH1F *HEEneX;
   TH1F *HEEneY;
   TH1F *HEposEne;
   TH1F *HEnegEne;
   TH1F *HETime;
   TH1F *HETimeTh;
-  TH1F *HETimeTh1;
-  TH1F *HETimeTh2;
-  TH1F *HETimeTh3;
-  TH1F *HETimeThR;
-  TH1F *HETimeTh1R;
-  TH1F *HETimeTh2R;
-  TH1F *HETimeTh3R;
   TH1F *HETimeX;
   TH1F *HETimeY;
   TH1F *HEposTime;
   TH1F *HEnegTime;
-  TH1F *HFLSRatio;
-  TH1F *HFOERatio;
-  TH1F *HFEnePMT0;
-  TH1F *HFEnePMT1;
-  TH1F *HFEnePMT2;
   TH1F *HFEne;
-  TH1F *HFEneFlagged;
   TH1F *HFEneTh;
-  TH1F *HFEneTh1;
-  TH1F *HFTimePMT0;
-  TH1F *HFTimePMT1;
-  TH1F *HFTimePMT2;
   TH1F *HFTime;
-  TH1F *PMTHits;
-  TH1F *HFTimeFlagged;
   TH1F *HFTimeTh;
-  TH1F *HFTimeTh1;
-  TH1F *HFTimeTh2;
-  TH1F *HFTimeTh3;
-  TH1F *HFTimeThR;
-  TH1F *HFTimeTh1R;
-  TH1F *HFTimeTh2R;
-  TH1F *HFTimeTh3R;
-  TH1F *TrkMultFlagged0;
-  TH1F *TrkMultFlagged1;
-  TH1F *TrkMultFlagged2;
-  TH1F *TrkMultFlagged3;
-  TH1F *TrkMultFlagged4;
-  TH1F *TrkMultFlaggedM;
-  TH1F *HFTimeThFlagged;
-  TH1F *HFTimeThFlaggedR;
-  TH1F *HFTimeThFlaggedR1;
-  TH1F *HFTimeThFlaggedR2;
-  TH1F *HFTimeThFlaggedR3;
-  TH1F *HFTimeThFlaggedR4;
-  TH1F *HFTimeThFlaggedRM;
   TH1F *HFEneP;
   TH1F *HFTimeP;
   TH1F *HFTimePMa;
@@ -164,14 +106,8 @@ private:
   TH1F *HFEneM;
   TH1F *HFTimeM;
   TH1F *HFLEne;
-  TH1F *HFLEneNoS;
-  TH1F *HFLEneNoSFlagged;
-  TH1F *HFLEneNoSFlaggedN;
   TH1F *HFLTime;
   TH1F *HFSEne;
-  TH1F *HFSEneNoL;
-  TH1F *HFSEneNoLFlagged;
-  TH1F *HFSEneNoLFlaggedN;
   TH2F *HFLvsS;
 
   TH2F *HBTvsE;
@@ -182,26 +118,12 @@ private:
   TH1F *HFSTime;
   TH1F *HOEne;
   TH1F *HOEneTh;
-  TH1F *HOEneTh1;
   TH1F *HOTime;
   TH1F *HOTimeTh;
-  TH1F *HFEtaFlagged;
-  TH1F *HFEtaFlaggedL;
-  TH1F *HFEtaFlaggedLN;
-  TH1F *HFEtaFlaggedS;
-  TH1F *HFEtaFlaggedSN;
-
-  TProfile *HFEtaNFlagged;
   TH2F *HOocc;
   TH2F *HBocc;
   TH2F *HEocc;
   TH2F *HFocc;
-  TH2F *HFEtaPhiNFlagged;
-  TH2F *HFoccFlagged;
-  TH2F *HOoccOOT;
-  TH2F *HBoccOOT;
-  TH2F *HEoccOOT;
-  TH2F *HFoccOOT;
   TH1F *HOSEne;
   TH1F *HOSTime;
   TH1F *HOHEne;
@@ -240,13 +162,7 @@ private:
   TH2F *fedSize;
   TH1F *totFedSize;
 
-  TH1F *towerHadEnHB;
-  TH1F *towerHadEnHE;
-  TH1F *towerHadEnHF;
   TH1F *towerHadEn;
-  TH1F *towerEmEnHB;
-  TH1F *towerEmEnHE;
-  TH1F *towerEmEnHF;
   TH1F *towerEmEn;
   TH1F *towerOuterEn;
 
@@ -275,8 +191,6 @@ private:
   TH1F *MEy;
   TH1F *METPhi;
   // ---
-
-  TH1F *SiClusters;
 
   // --- from reco vertexs
   TH1F *h_Vx;
@@ -335,8 +249,6 @@ private:
   TH1F *hitEta;
   TH1F *hitPhi;
 
-  TH1F *h_nTowersCal;
-  TH1F *h_EMFracCal;
   TH1F *h_ptCal;
   TH1F *h_etaCal;
   TH1F *h_phiCal;
@@ -384,9 +296,6 @@ private:
   TH1F *st_iPhi;
   TH1F *st_Frac;
 
-  TH1F *NPass;
-  TH1F *NTotal;
-
   TH2F *HFvsZ;
   TH2F *EBvHB;
   TH2F *EEvHE;
@@ -398,13 +307,6 @@ private:
   TProfile *EMF_Eta;
   TProfile *EMF_PhiX;
   TProfile *EMF_EtaX;
-
-  TProfile *HFTimeVsiEtaP;
-  TProfile *HFTimeVsiEtaM;
-  TProfile *HFTimeVsiEtaP5;
-  TProfile *HFTimeVsiEtaM5;
-  TProfile *HFTimeVsiEtaP20;
-  TProfile *HFTimeVsiEtaM20;
 };
 
 #endif

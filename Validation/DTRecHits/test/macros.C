@@ -13,30 +13,6 @@
 #include <sstream>
 #include <iomanip>
 
-#if !defined(__CINT__) || defined(__MAKECINT__)
-#include "TProfile.h"
-#include "TLegend.h"
-#include "TROOT.h"
-#include "TVirtualPad.h"
-#include "TLine.h"
-#include "TCanvas.h"
-#include "TPostScript.h"
-#include "TH1.h"
-#include "TH2.h"
-#include "TF1.h"
-#include "TAxis.h"
-#include "TMath.h"
-#include "TROOT.h"
-#include "TStyle.h"
-
-#include <iostream>
-
-using namespace std;
-
-#endif
-
-
-
 TString getPitchString(TH1 *histo, int prec = 5);
 
 
@@ -122,7 +98,6 @@ void plotAndProfileXSpread (TH2* h2, float min, float max, bool profile=false, f
     prof->SetLineColor(1);
     prof->SetLineWidth(2);
     prof->DrawCopy("same e1");
-    delete prof;
   }
   TLine * l = new TLine(h2->GetXaxis()->GetXmin(),0,h2->GetXaxis()->GetXmax(),0);
   l->SetLineColor(3);
@@ -155,9 +130,7 @@ void drawGFit(TH1 * h1, float min, float max, float minfit, float maxfit) {
   gPad->SetGrid(1,1);
   gStyle->SetGridColor(15);
   h1->GetXaxis()->SetRangeUser(min,max);
-  TString  fitName = "g";
-  fitName += i;
-    TF1* g1 = new TF1(fitName.Data(),"gaus",minfit,maxfit);
+  TF1* g1 = new TF1(TString("g")+i,"gaus",minfit,maxfit);
   g1->SetLineColor(2);
   g1->SetLineWidth(2);
   h1->Fit(g1,"R");

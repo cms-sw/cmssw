@@ -4,6 +4,7 @@ PFClusterJetParameters = cms.PSet(
     src            = cms.InputTag('pfClusterRefsForJets'),
     srcPVs         = cms.InputTag('offlinePrimaryVertices'),
     jetType        = cms.string('PFClusterJet'),
+    doOutputJets   = cms.bool(True),
     # minimum jet pt
     jetPtMin       = cms.double(3.0),
     # minimum calo tower input et
@@ -20,9 +21,13 @@ PFClusterJetParameters = cms.PSet(
     # fastjet-style pileup 
     doAreaFastjet       = cms.bool( False),
     doRhoFastjet        = cms.bool( False),
+    doAreaDiskApprox    = cms.bool( False),
     Active_Area_Repeats = cms.int32(    1),
     GhostArea           = cms.double(0.01),
     Ghost_EtaMax        = cms.double( 5.0),
-    Rho_EtaMax          = cms.double( 4.4) 
+    Rho_EtaMax          = cms.double( 4.4),
+    voronoiRfact        = cms.double(-0.9),
+    useDeterministicSeed= cms.bool( True ),
+    minSeed             = cms.uint32( 14327 )
 )
  

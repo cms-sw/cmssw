@@ -1,4 +1,5 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSimpleRecAlgo.h"
+#include "RecoLocalCalo/HcalRecAlgos/src/HcalTDCReco.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include <algorithm> // for "max"
@@ -6,16 +7,18 @@
 //--- temporary for printouts
 #include<iostream>
 
-static double MaximumFractionalError = 0.0005; // 0.05% error allowed from this source
+static double MaximumFractionalError = 0.005; // 0.5% error allowed from this source
 
 HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPulse, float phaseNS) : 
   correctForTimeslew_(correctForTimeslew),
   correctForPulse_(correctForPulse),
-  phaseNS_(phaseNS), setForData_(false) { }
+  phaseNS_(phaseNS), setForData_(false), weight1(1.0) { }
   
 
 HcalSimpleRecAlgo::HcalSimpleRecAlgo() : 
   correctForTimeslew_(false), setForData_(false) { }
+
+void HcalSimpleRecAlgo::setD1W(double w1) { weight1 = w1; }
 
 void HcalSimpleRecAlgo::initPulseCorr(int toadd) {
   if (correctForPulse_) {    
@@ -42,7 +45,7 @@ namespace HcalSimpleRecAlgoImpl {
   template<class Digi, class RecHit>
   inline RecHit reco(const Digi& digi, const HcalCoder& coder, const HcalCalibrations& calibs, 
 		     int ifirst, int n, bool slewCorrect, const HcalPulseContainmentCorrection* corr,
-		     HcalTimeSlew::BiasSetting slewFlavor, bool forData) {
+		     HcalTimeSlew::BiasSetting slewFlavor, bool forData, double w1) {
     CaloSamples tool;
     coder.adc2fC(digi,tool);
 
@@ -103,6 +106,11 @@ namespace HcalSimpleRecAlgoImpl {
       ampl *= eCorr(ieta,iphi,ampl);
     }
 
+    // Temporary hack to use depth1 weight
+    HcalDetId cell(digi.id());
+    if(cell.subdet() <= 2 && cell.depth() == 1)  // HBHE depth 1
+      ampl *= w1;
+
     return RecHit(digi.id(),ampl,time);    
   }
 }
@@ -112,7 +120,7 @@ HBHERecHit HcalSimpleRecAlgo::reconstruct(const HBHEDataFrame& digi, int first, 
 							       first,toadd,correctForTimeslew_,
 							       pulseCorr_.get(),
 							       HcalTimeSlew::Medium,
-                                                               setForData_);
+                                                               setForData_, weight1);
 }
 
 HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
@@ -121,7 +129,7 @@ HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int 
 							   correctForTimeslew_,
 							   pulseCorr_.get(),
 							   HcalTimeSlew::Slow,
-                                                           setForData_);
+                                                           setForData_, weight1);
 }
 
 HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
@@ -129,7 +137,15 @@ HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, i
 									 first,toadd,correctForTimeslew_,
 									 pulseCorr_.get(),
 									 HcalTimeSlew::Fast,
-                                                                         setForData_ );
+                                                                         setForData_ , weight1);
+}
+
+HcalUpgradeRecHit HcalSimpleRecAlgo::reconstruct(const HcalUpgradeDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
+  HcalUpgradeRecHit result = HcalSimpleRecAlgoImpl::reco<HcalUpgradeDataFrame,HcalUpgradeRecHit>(
+												 digi,coder,calibs, first,toadd,correctForTimeslew_, pulseCorr_.get(), HcalTimeSlew::Medium,setForData_, weight1 );
+  HcalTDCReco tdcReco;
+  tdcReco.reconstruct(digi, result);
+  return result;
 }
 
 HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {

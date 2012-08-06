@@ -70,7 +70,7 @@ class UTC_SLUMMARY
 {
 public:
   explicit
-    UTC_SLUMMARY( edm::ParameterSet const & p)
+    UTC_SLUMMARY( edm::ParameterSet const &)
   { 
   }
 
