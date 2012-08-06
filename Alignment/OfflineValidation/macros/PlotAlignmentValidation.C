@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
+#include <stdlib.h>
 #include "TTree.h"
 #include "TString.h"
 #include "TAxis.h"
@@ -25,126 +26,12 @@
 #include "TPaveText.h"
 #include "TPaveStats.h"
 #include "TF1.h"
+#include "TRegexp.h"
 
 // This line works only if we have a CMSSW environment...
 #include "Alignment/OfflineValidation/interface/TkOffTreeVariables.h"
 
-class TkOfflineVariables {
-public:
-  TkOfflineVariables(std::string fileName, std::string baseDir, std::string legName="", int color=1, int style=1);
-  int getLineColor(){ return lineColor; };
-  int getLineStyle(){ return lineStyle; };
-  std::string getName(){ return legendName; }
-  TTree* getTree(){ return tree; };
-  TFile* getFile(){ return file; };
-private:
-  TFile* file;
-  TTree* tree;
-  int lineColor;
-  int lineStyle;
-  std::string legendName;
-};
-
-bool useFit_ =false;
-
-
-TkOfflineVariables::TkOfflineVariables(std::string fileName, std::string baseDir, std::string legName, int lColor, int lStyle)
-{
-  lineColor = lColor;
-  lineStyle = lStyle;
-  if (legName=="") {
-    int start = 0;
-    if (fileName.find('/') ) start =fileName.find_last_of('/')+1;
-    int stop = fileName.find_last_of('.');
-    legendName = fileName.substr(start,stop-start);
-  } else { 
-    legendName = legName;
-  }
-
-  //fill the tree pointer
-  file = TFile::Open( fileName.c_str() );
-  TDirectoryFile *d = 0;
-  if (file->Get( baseDir.c_str() ) )  {
-    d = (TDirectoryFile*)file->Get( baseDir.c_str() );
-    if ((*d).Get("TkOffVal")) {
-      tree = (TTree*)(*d).Get("TkOffVal");
-    } else {
-      std::cout<<"no tree named TkOffVal"<<std::endl;
-    }
-  } else {
-    std::cout<<"no directory named "<<baseDir.c_str()<<std::endl;
-  }
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-
-class PlotAlignmentValidation {
-public:
-  //PlotAlignmentValidation(TString *tmp);
-  PlotAlignmentValidation(const char *inputFile,std::string fileName="", int lineColor=1, int lineStyle=1);
-  ~PlotAlignmentValidation();
-  void loadFileList(const char *inputFile, std::string fileName="", int lineColor=2, int lineStyle=1);
-  void useFitForDMRplots(bool usefit = false);
-  void plotOutlierModules(const char *outputFileName="OutlierModules.ps",std::string plotVariable = "chi2PerDofX" ,float chi2_cut = 10,unsigned int minHits = 50);//method dumps selected modules into ps file
-  void plotSubDetResiduals(bool plotNormHisto=false, unsigned int subDetId=7);//subDetector number :1.TPB, 2.TBE+, 3.TBE-, 4.TIB, 5.TID+, 6.TID-, 7.TOB, 8.TEC+ or 9.TEC-
-  void plotDMR(const std::string& plotVar="medianX",Int_t minHits = 50, const std::string& options = "plain");
-  void plotHitMaps();
-  void setOutputDir( std::string dir );
-  void setTreeBaseDir( std::string dir = "TrackerOfflineValidationStandalone");
-  
-  TH1* addHists(const char *selection, const TString &residType = "xPrime", bool printModuleIds = false);//add hists fulfilling 'selection' on TTree; residType: xPrime,yPrime,xPrimeNorm,yPrimeNorm,x,y,xNorm; if (printModuleIds): cout DetIds
-  
-private : 
-  TList getTreeList();
-  std::string treeBaseDir;
-  
-  std::pair<float,float> fitGauss(TH1 *hist,int color);
-  //void plotBoxOverview(TCanvas &c1, TList &treeList,std::string plot_Var1a,std::string plot_Var1b, std::string plot_Var2, Int_t filenumber,Int_t minHits);
-  //void plot1DDetailsSubDet(TCanvas &c1, TList &treeList, std::string plot_Var1a,std::string plot_Var1b, std::string plot_Var2, Int_t minHits);
-  //void plot1DDetailsBarrelLayer(TCanvas &c1, TList &treeList, std::string plot_Var1a,std::string plot_Var1b, Int_t minHits);
-  //void plot1DDetailsDiskWheel(TCanvas &c1, TList &treelist, std::string plot_Var1a,std::string plot_Var1b, Int_t minHits);
-  void setHistStyle( TH1& hist,const char* titleX, const char* titleY, int color);
-  void setTitleStyle( TNamed& h,const char* titleX, const char* titleY, int subDetId);
-  void setNiceStyle();
-  void setCanvasStyle( TCanvas& canv );
-  void setLegendStyle( TLegend& leg );
-
-  TString outputFile;
-  std::string outputDir;
-  TList *sourcelist;
-  std::vector<TkOfflineVariables*> sourceList;
-  bool moreThanOneSource;
-  std::string fileNames[10];
-  int fileCounter;	
-
-  // These are helpers for DMR plotting
-
-  struct DMRPlotInfo {
-    std::string variable;
-    int nbins;
-    double min, max;
-    int minHits;
-    bool plotPlain, plotSplits;
-    int subDetId;
-    THStack* hstack;
-    TLegend* legend;
-    TkOfflineVariables* vars;
-    float maxY;
-    TH1F* h;
-    TH1F* h1;
-    TH1F* h2;
-    bool firsthisto;
-  };
-
-  std::string getSelectionForDMRPlot(int minHits, int subDetId, int direction);
-  std::string getVariableForDMRPlot(const std::string& histoname, const std::string& variable,
-				    int nbins, double min, double max);
-  void setDMRHistStyleAndLegend(TH1F* h, DMRPlotInfo& plotinfo, int direction);
-  void plotDMRHistogram(DMRPlotInfo& plotinfo, int direction);
-
-};
+#include "Alignment/OfflineValidation/macros/PlotAlignmentValidation.h"
 
 //------------------------------------------------------------------------------
 PlotAlignmentValidation::PlotAlignmentValidation(const char *inputFile,std::string legendName, int lineColor, int lineStyle)
@@ -155,6 +42,7 @@ PlotAlignmentValidation::PlotAlignmentValidation(const char *inputFile,std::stri
   
   loadFileList( inputFile, legendName, lineColor, lineStyle);
   moreThanOneSource=false;
+  useFit_ = false;
 }
 
 //------------------------------------------------------------------------------
@@ -453,9 +341,22 @@ void  PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHit
     return;
   }
 
-  bool plotPlain = false, plotSplits = false;
+  TRegexp layer_re("layer=[0-9]+");
+  bool plotPlain = false, plotSplits = false, plotLayers = false;
+  int plotLayerN = 0;
+  Ssiz_t index, len;
   if (options.find("plain") != std::string::npos) { plotPlain = true; }
   if (options.find("split") != std::string::npos) { plotSplits = true; }
+  if (options.find("layers") != std::string::npos) { plotLayers = true; }
+  if ((index = layer_re.Index(options, &len)) != -1) {
+    if (plotLayers) {
+      std::cerr << "Warning: option 'layers' overrides 'layer=N'" << std::endl;
+    } else {
+      std::string substr = options.substr(index+6, len-6);
+      plotLayerN = atoi(substr.c_str());
+    }
+  }
+
   // Defaults to plotting only plain plot if empty (or invalid)
   // option string is given
   if (!plotPlain && !plotSplits) { plotPlain = true; }
@@ -463,6 +364,9 @@ void  PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHit
   // This boolean array tells for which detector modules to plot split DMR plots
   // They are plotted for BPIX, FPIX, TIB and TOB
   static bool plotSplitsFor[6] = { true, true, true, false, true, false };
+
+  // If layers are plotted, these are the numbers of layers for each subdetector
+  static int numberOfLayers[6] = { 3, 2, 4, 3, 6, 9 };
 
   DMRPlotInfo plotinfo;
 
@@ -475,6 +379,7 @@ void  PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHit
   plotinfo.variable = variable;
   plotinfo.minHits = minHits;
   plotinfo.plotPlain = plotPlain;
+  plotinfo.plotLayers = plotLayers;
 
   if (variable == "meanX") {          plotinfo.nbins = 50;  plotinfo.min = -0.001; plotinfo.max = 0.001; }
   else if (variable == "meanY") {     plotinfo.nbins = 50;  plotinfo.min = -0.005; plotinfo.max = 0.005; }
@@ -484,8 +389,8 @@ void  PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHit
   else if (variable == "meanNormY") { plotinfo.nbins = 100; plotinfo.min = -2.0;   plotinfo.max = 2.0; }
   else if (variable == "rmsX") {      plotinfo.nbins = 100; plotinfo.min = 0.0;    plotinfo.max = 0.1; }
   else if (variable == "rmsY") {      plotinfo.nbins = 100; plotinfo.min = 0.0;    plotinfo.max = 0.1; }
-  else if (variable == "rmsNormX") {      plotinfo.nbins = 100; plotinfo.min = 0.3;    plotinfo.max = 1.8; }
-  else if (variable == "rmsNormY") {      plotinfo.nbins = 100; plotinfo.min = 0.3;    plotinfo.max = 1.8; }
+  else if (variable == "rmsNormX") {  plotinfo.nbins = 100; plotinfo.min = 0.3;    plotinfo.max = 1.8; }
+  else if (variable == "rmsNormY") {  plotinfo.nbins = 100; plotinfo.min = 0.3;    plotinfo.max = 1.8; }
   else {
     std::cerr << "Unknown variable " << variable << std::endl;
     plotinfo.nbins = 100; plotinfo.min = -0.1; plotinfo.max = 0.1;
@@ -498,58 +403,89 @@ void  PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHit
       continue;
     }
  
+    // Skips plotting too high layers
+    if (plotLayerN > numberOfLayers[i-1]) {
+      continue;
+    }
+
     plotinfo.plotSplits = plotSplits && plotSplitsFor[i-1];
     if (!plotinfo.plotPlain && !plotinfo.plotSplits) {
       continue;
     }
 
+    // Sets dimension of legend according to the number of plots
+
+    int nPlots = 1;
+    if (plotinfo.plotSplits) { nPlots = 3; }
+    if (plotinfo.plotLayers) { nPlots *= numberOfLayers[i-1]; }
+    nPlots *= sourceList.size();
+
+    double legendY = 0.80;
+    if (nPlots > 3) { legendY -= 0.01 * (nPlots - 3); }
+    if (legendY < 0.6) {
+      std::cerr << "Warning: Huge legend!" << std::endl;
+      legendY = 0.6;
+    }
+
     THStack hstack("hstack", "hstack");
     plotinfo.maxY = 0;
     plotinfo.subDetId = i;
-    plotinfo.legend = new TLegend(0.17, 0.8, 0.85, 0.88);
+    plotinfo.nLayers = numberOfLayers[i-1];
+    plotinfo.legend = new TLegend(0.17, legendY, 0.85, 0.88);
     setLegendStyle(*plotinfo.legend);
     plotinfo.hstack = &hstack;
     plotinfo.h = plotinfo.h1 = plotinfo.h2 = 0;
     plotinfo.firsthisto = true;
     
     for(std::vector<TkOfflineVariables*>::iterator it = sourceList.begin();
-	it != sourceList.end(); ++it){
+	it != sourceList.end(); ++it) {
+
+      int minlayer = plotLayers ? 1 : plotLayerN;
+      int maxlayer = plotLayers ? plotinfo.nLayers : plotLayerN;
 
       plotinfo.vars = *it;
 
-      if (plotinfo.plotPlain) {
-	plotDMRHistogram(plotinfo, 0);
-      }
+      for (int layer = minlayer; layer <= maxlayer; layer++) {
 
-      if (plotinfo.plotSplits) {
-	plotDMRHistogram(plotinfo, -1);
-	plotDMRHistogram(plotinfo, 1);
-      }
-
-      if (plotinfo.plotPlain) {
-	if (plotinfo.h) { setDMRHistStyleAndLegend(plotinfo.h, plotinfo, 0); }
-      }
-
-      if (plotinfo.plotSplits) {
-	// Add delta mu to the histogram
-	if (plotinfo.h1 != 0 && plotinfo.h2 != 0 && !plotinfo.plotPlain) {
-	  std::ostringstream legend;
-	  std::string unit = " #mum";
-	  legend.precision(2);
-	  float factor = 10000.0f;
-	  if (plotinfo.variable == "meanNormX" || plotinfo.variable == "meanNormY" ||
-	      plotinfo.variable == "rmsNormX" || plotinfo.variable == "rmsNormY") {
-	    factor = 1.0f;
-	    unit = "";
-	  }
-	  float deltamu = factor*(plotinfo.h2->GetMean(1) - plotinfo.h1->GetMean(1));
-	  legend << plotinfo.vars->getName() << ": #Delta#mu = " << deltamu << unit;
-	  plotinfo.legend->AddEntry(static_cast<TObject*>(0), legend.str().c_str(), ""); 
+	if (plotinfo.plotPlain) {
+	  plotDMRHistogram(plotinfo, 0, layer);
 	}
-	if (plotinfo.h1) { setDMRHistStyleAndLegend(plotinfo.h1, plotinfo, -1); }
-	if (plotinfo.h2) { setDMRHistStyleAndLegend(plotinfo.h2, plotinfo, 1); }
-      }
+
+	if (plotinfo.plotSplits) {
+	  plotDMRHistogram(plotinfo, -1, layer);
+	  plotDMRHistogram(plotinfo, 1, layer);
+	}
+
+	if (plotinfo.plotPlain) {
+	  if (plotinfo.h) { setDMRHistStyleAndLegend(plotinfo.h, plotinfo, 0, layer); }
+	}
+
+	if (plotinfo.plotSplits) {
+	  // Add delta mu to the histogram
+	  if (plotinfo.h1 != 0 && plotinfo.h2 != 0 && !plotinfo.plotPlain) {
+	    std::ostringstream legend;
+	    std::string unit = " #mum";
+	    legend.precision(2);
+	    float factor = 10000.0f;
+	    if (plotinfo.variable == "meanNormX" || plotinfo.variable == "meanNormY" ||
+		plotinfo.variable == "rmsNormX" || plotinfo.variable == "rmsNormY") {
+	      factor = 1.0f;
+	      unit = "";
+	    }
+	    float deltamu = factor*(plotinfo.h2->GetMean(1) - plotinfo.h1->GetMean(1));
+	    legend << plotinfo.vars->getName();
+	    if (layer > 0) {
+	      legend << ", layer " << layer;
+	    }
+	    legend << ": #Delta#mu = " << deltamu << unit;
+	    plotinfo.legend->AddEntry(static_cast<TObject*>(0), legend.str().c_str(), ""); 
+	  }
+	  if (plotinfo.h1) { setDMRHistStyleAndLegend(plotinfo.h1, plotinfo, -1, layer); }
+	  if (plotinfo.h2) { setDMRHistStyleAndLegend(plotinfo.h2, plotinfo, 1, layer); }
+	}
       
+      }
+
     }
     
     if (plotinfo.h != 0 || plotinfo.h1 != 0 || plotinfo.h2 != 0) {
@@ -586,6 +522,8 @@ void  PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHit
 
       if (plotPlain && !plotSplits) { plotName << "_plain"; }
       else if (!plotPlain && plotSplits) { plotName << "_split"; }
+      if (plotLayers) { plotName << "_layers"; }
+      if (plotLayerN > 0) { plotName << "_layer" << plotLayerN; }
  
       plotName << ".eps";
 
@@ -914,7 +852,7 @@ void  PlotAlignmentValidation::setHistStyle( TH1& hist,const char* titleX, const
 //------------------------------------------------------------------------------
 
 std::string PlotAlignmentValidation::
-getSelectionForDMRPlot(int minHits, int subDetId, int direction)
+getSelectionForDMRPlot(int minHits, int subDetId, int direction, int layer)
 {
   std::ostringstream builder;
   builder << "entries >= " << minHits;
@@ -926,7 +864,9 @@ getSelectionForDMRPlot(int minHits, int subDetId, int direction)
       builder << " && rDirection == " << direction;
     }
   }
-  builder.flush();
+  if (layer > 0) {
+    builder << " && layer == " << layer;
+  }
   return builder.str();
 }
 
@@ -937,12 +877,11 @@ getVariableForDMRPlot(const std::string& histoname, const std::string& variable,
   std::ostringstream builder;
   builder << variable << ">>" << histoname << "(" << nbins << "," << min <<
     "," << max << ")";
-  builder.flush();
   return builder.str();
 }
 
 void PlotAlignmentValidation::
-setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo, int direction)
+setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo, int direction, int layer)
 {
   std::pair<float,float> fitResults(9999., 9999.);
 
@@ -957,17 +896,20 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
   // -However if only direction split plots are to be plotted, the additions should be 0 and +1 respectively
   // -Modulo 4 arithmetic, because the styles run from 1..4
   int linestyle = plotinfo.vars->getLineStyle() - 1, linestyleplus = 0;
-  if (direction == -1) { linestyleplus = 1; }
-  if (direction == 1) { linestyleplus = 2; }
+  if (direction == 1) { linestyleplus = 1; }
+  if (direction == -1) { linestyleplus = 2; }
   if (direction != 0 && plotinfo.plotSplits && !plotinfo.plotPlain) { linestyleplus--; }
   linestyle = (linestyle + linestyleplus) % 4 + 1;
+
+  int linecolor = plotinfo.vars->getLineColor();
+  if (plotinfo.plotLayers && layer > 0) { linecolor += layer - 1; }
 
   if (plotinfo.firsthisto) {
     setHistStyle(*h, plotinfo.variable.c_str(), "#modules", 1); //set color later
     plotinfo.firsthisto = false;
   }
 
-  h->SetLineColor( plotinfo.vars->getLineColor() );
+  h->SetLineColor( linecolor );
   h->SetLineStyle( linestyle );
 	  
   if (plotinfo.maxY<h->GetMaximum()){
@@ -976,7 +918,7 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
 	  
   //fit histogram for median and mean
   if (plotinfo.variable == "medianX" || plotinfo.variable == "meanX") {
-    fitResults = fitGauss(h, plotinfo.vars->getLineColor() );
+    fitResults = fitGauss(h, linecolor );
   }
 	  
   plotinfo.hstack->Add(h);
@@ -989,7 +931,13 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
   else if (direction == 1 && plotinfo.subDetId != 2) { legend << "rDirection > 0: "; }
   else if (direction == -1 && plotinfo.subDetId == 2) { legend << "zDirection < 0: "; }
   else if (direction == 1 && plotinfo.subDetId == 2) { legend << "zDirection > 0: "; }
-  else { legend  << plotinfo.vars->getName() << ": "; }
+  else {
+    legend  << plotinfo.vars->getName();
+    if (layer > 0) {
+      legend << ", layer " << layer << "";
+    }
+    legend << ":";
+  }
 
   // Legend: Statistics
   if (plotinfo.variable == "medianX" || plotinfo.variable == "meanX" ||
@@ -1025,7 +973,7 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
 }
 
 void PlotAlignmentValidation::
-plotDMRHistogram(PlotAlignmentValidation::DMRPlotInfo& plotinfo, int direction)
+plotDMRHistogram(PlotAlignmentValidation::DMRPlotInfo& plotinfo, int direction, int layer)
 {
   TH1F* h = 0;
   std::string histoname;
@@ -1033,7 +981,7 @@ plotDMRHistogram(PlotAlignmentValidation::DMRPlotInfo& plotinfo, int direction)
   else if (direction == 1) { histoname = "myhisto2"; }
   else { histoname = "myhisto"; }
   std::string plotVariable = getVariableForDMRPlot(histoname, plotinfo.variable, plotinfo.nbins, plotinfo.min, plotinfo.max);
-  std::string selection = getSelectionForDMRPlot(plotinfo.minHits, plotinfo.subDetId, direction);
+  std::string selection = getSelectionForDMRPlot(plotinfo.minHits, plotinfo.subDetId, direction, layer);
   plotinfo.vars->getTree()->Draw(plotVariable.c_str(), selection.c_str(), "goff");
   if (gDirectory) gDirectory->GetObject(histoname.c_str(), h);
   if (h && h->GetEntries() > 0) {
