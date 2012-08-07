@@ -191,8 +191,8 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
 
    //make the directory structure corresponding to this analysis (depends on dEdx/TOF estimator being used, Eta/Pt cuts and Mode of the analysis)
    char Buffer[2048], Command[2048];
-//   sprintf(Buffer,"Results/%s/%s/Eta%02.0f/PtMin%02.0f/Type%i/", dEdxS_Label.c_str(), TOF_Label.c_str(), 10.0*GlobalMaxEta, GlobalMinPt, TypeMode);
-   sprintf(Buffer,"Results/Type%i/", TypeMode);
+   sprintf(Buffer,"Results/%s/%s/Eta%02.0f/PtMin%02.0f/Type%i/", dEdxS_Label.c_str(), TOF_Label.c_str(), 10.0*GlobalMaxEta, GlobalMinPt, TypeMode);
+//   sprintf(Buffer,"Results/Type%i/", TypeMode);
    sprintf(Command,"mkdir -p %s",Buffer); system(Command);
 
    // get all the samples and clean the list to keep only the one we want to run on... Also initialize the BaseDirectory
