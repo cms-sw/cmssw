@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V181 (CMSSW_5_2_6_HLT1)
+# /dev/CMSSW_5_2_1/HIon/V182 (CMSSW_5_2_6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V181')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V182')
 )
 
 process.streams = cms.PSet( 
@@ -472,9 +472,6 @@ process.HcalGeometryFromDBEP = cms.ESProducer( "HcalGeometryFromDBEP",
   applyAlignment = cms.bool( False )
 )
 process.HcalTopologyIdealEP = cms.ESProducer( "HcalTopologyIdealEP" )
-process.L1GtTriggerMaskAlgoTrigTrivialProducer = cms.ESProducer( "L1GtTriggerMaskAlgoTrigTrivialProducer",
-  TriggerMask = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
-)
 process.MaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   PropagationDirection = cms.string( "alongMomentum" ),
   ComponentName = cms.string( "PropagatorWithMaterial" ),
@@ -3057,6 +3054,7 @@ process.FastTimerService = cms.Service( "FastTimerService",
     dqmPath = cms.untracked.string( "HLT/TimerService" ),
     skipFirstPath = cms.untracked.bool( False ),
     dqmModuleTimeRange = cms.untracked.double( 40.0 ),
+    enableDQMbyPathCounters = cms.untracked.bool( False ),
     enableDQMbyLumi = cms.untracked.bool( False ),
     dqmTimeResolution = cms.untracked.double( 5.0 ),
     enableTimingPaths = cms.untracked.bool( True ),
@@ -3066,9 +3064,13 @@ process.FastTimerService = cms.Service( "FastTimerService",
     enableTimingModules = cms.untracked.bool( True ),
     dqmPathTimeRange = cms.untracked.double( 100.0 ),
     enableDQM = cms.untracked.bool( True ),
+    enableDQMbyPathDetails = cms.untracked.bool( False ),
     dqmTimeRange = cms.untracked.double( 1000.0 ),
+    enableDQMbyPathOverhead = cms.untracked.bool( False ),
     enableDQMbyModule = cms.untracked.bool( False ),
-    enableTimingSummary = cms.untracked.bool( True )
+    enableDQMbyPathActive = cms.untracked.bool( False ),
+    enableTimingSummary = cms.untracked.bool( False ),
+    enableDQMbyPathTotal = cms.untracked.bool( True )
 )
 process.DQM = cms.Service( "DQM",
     publishFrequency = cms.untracked.double( 5.0 ),
@@ -3154,7 +3156,11 @@ process.MessageLogger = cms.Service( "MessageLogger",
       'hltL3MuonsIOHit',
       'hltPixelTracks',
       'hltSiPixelDigis',
-      'hltL3MuonsOIHit' ),
+      'hltL3MuonsOIHit',
+      'hltL1SeededElectronGsfTracks',
+      'hltL1SeededStartUpElectronPixelSeeds',
+      'hltBLifetimeRegionalCtfWithMaterialTracksbbPhiL1FastJetFastPV',
+      'hltCtfActivityWithMaterialTracks' ),
     errors = cms.untracked.PSet( 
       threshold = cms.untracked.string( "INFO" ),
       placeholder = cms.untracked.bool( True ),

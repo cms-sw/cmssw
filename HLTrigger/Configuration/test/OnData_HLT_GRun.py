@@ -1,11 +1,11 @@
-# /online/collisions/2012/7e33/v4.0/HLT/V8 (CMSSW_5_2_6_HLT1)
+# /online/collisions/2012/7e33/v4.1/HLT/V2 (CMSSW_5_2_6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/7e33/v4.0/HLT/V8')
+  tableName = cms.string('/online/collisions/2012/7e33/v4.1/HLT/V2')
 )
 
 process.streams = cms.PSet( 
@@ -1527,9 +1527,6 @@ process.HcalGeometryFromDBEP = cms.ESProducer( "HcalGeometryFromDBEP",
   applyAlignment = cms.bool( False )
 )
 process.HcalTopologyIdealEP = cms.ESProducer( "HcalTopologyIdealEP" )
-process.L1GtTriggerMaskAlgoTrigTrivialProducer = cms.ESProducer( "L1GtTriggerMaskAlgoTrigTrivialProducer",
-  TriggerMask = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
-)
 process.MaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   PropagationDirection = cms.string( "alongMomentum" ),
   ComponentName = cms.string( "PropagatorWithMaterial" ),
@@ -4112,6 +4109,7 @@ process.FastTimerService = cms.Service( "FastTimerService",
     dqmPath = cms.untracked.string( "HLT/TimerService" ),
     skipFirstPath = cms.untracked.bool( False ),
     dqmModuleTimeRange = cms.untracked.double( 40.0 ),
+    enableDQMbyPathCounters = cms.untracked.bool( False ),
     enableDQMbyLumi = cms.untracked.bool( False ),
     dqmTimeResolution = cms.untracked.double( 5.0 ),
     enableTimingPaths = cms.untracked.bool( True ),
@@ -4121,9 +4119,13 @@ process.FastTimerService = cms.Service( "FastTimerService",
     enableTimingModules = cms.untracked.bool( True ),
     dqmPathTimeRange = cms.untracked.double( 100.0 ),
     enableDQM = cms.untracked.bool( True ),
+    enableDQMbyPathDetails = cms.untracked.bool( False ),
     dqmTimeRange = cms.untracked.double( 1000.0 ),
+    enableDQMbyPathOverhead = cms.untracked.bool( False ),
     enableDQMbyModule = cms.untracked.bool( False ),
-    enableTimingSummary = cms.untracked.bool( True )
+    enableDQMbyPathActive = cms.untracked.bool( False ),
+    enableTimingSummary = cms.untracked.bool( False ),
+    enableDQMbyPathTotal = cms.untracked.bool( True )
 )
 process.DQM = cms.Service( "DQM",
     publishFrequency = cms.untracked.double( 5.0 ),
@@ -4209,7 +4211,11 @@ process.MessageLogger = cms.Service( "MessageLogger",
       'hltL3MuonsIOHit',
       'hltPixelTracks',
       'hltSiPixelDigis',
-      'hltL3MuonsOIHit' ),
+      'hltL3MuonsOIHit',
+      'hltL1SeededElectronGsfTracks',
+      'hltL1SeededStartUpElectronPixelSeeds',
+      'hltBLifetimeRegionalCtfWithMaterialTracksbbPhiL1FastJetFastPV',
+      'hltCtfActivityWithMaterialTracks' ),
     errors = cms.untracked.PSet( 
       threshold = cms.untracked.string( "INFO" ),
       placeholder = cms.untracked.bool( True ),
@@ -4951,7 +4957,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 40, 40, 40, 40, 320, 800, 30, 30, 0, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Ele8_CaloIdT_TrkIdVL_EG7_v2" ),
-        prescales = cms.vuint32( 40, 40, 40, 40, 40, 800, 30, 30, 0, 0, 0 )
+        prescales = cms.vuint32( 40, 40, 40, 40, 400, 800, 30, 30, 0, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Ele8_CaloIdT_TrkIdVL_Jet30_v7" ),
         prescales = cms.vuint32( 1, 1, 1, 1, 1, 15, 100, 300, 0, 0, 0 )
