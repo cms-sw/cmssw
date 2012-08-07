@@ -36,5 +36,4 @@ class CSquaredHiggs(SMLikeHiggsModel):
 
     def getHiggsSignalYieldScale(self,production,decay,energy):
         return 'CSquared'
-
-CSquared = CSquaredHiggs()     
+     
