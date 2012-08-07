@@ -11,6 +11,7 @@ import glob
 TkOnlyPath = "Results/dedxASmi/combined/Eta15/PtMin45/Type0/"
 TkMuonPath = "Results/dedxASmi/combined/Eta15/PtMin45/Type2/"
 MuOnlyPath = "Results/dedxASmi/combined/Eta21/PtMin45/Type3/"
+Qless1Path = "Results/dedxProd/combined/Eta15/PtMin45/Type5/"
 
 CMSSW_VERSION = os.getenv('CMSSW_VERSION','CMSSW_VERSION')
 if CMSSW_VERSION == 'CMSSW_VERSION':
@@ -45,6 +46,8 @@ elif sys.argv[1]=='0':
                  LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 1.5])
               if(len(MuOnlyPath)>1 and 'CMSSW_5_3' in (vals[0].replace('"',''))):
 	         LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 3, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 80, 2.1, 20, 25])
+              if(len(Qless1Path)>5):
+                 LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 5, '"dedxProd"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 1.5])
            index+=1
         f.close()
 	LaunchOnCondor.SendCluster_Submit()
@@ -66,6 +69,13 @@ elif sys.argv[1]=='1':
            os.system('hadd -f ' + TkMuonPath + 'Histos.root ' + TkMuonPath + '*.root')
            LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step4.C", '"'+TkMuonPath+'"'])
 
+        if(len(Qless1Path)>1):
+           os.system('rm -f ' + Qless1Path + 'Histos.root')
+           os.system('hadd -f ' + Qless1Path + 'Histos.root ' + Qless1Path + '*.root')
+           LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step4.C", '"'+Qless1Path+'"'])
+
+
+
         LaunchOnCondor.SendCluster_Submit()
 elif sys.argv[1]=='2':
         print 'PLOTTING'
@@ -86,6 +96,8 @@ elif sys.argv[1]=='3':
                  LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', '"'+TkOnlyPath+'"', vals[2] ])
               if(len(TkMuonPath)>1):
                  LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', '"'+TkMuonPath+'"', vals[2] ])
+              if(len(Qless1Path)>1):
+                 LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', '"'+Qless1Path+'"', vals[2] ])
         f.close()
         LaunchOnCondor.SendCluster_Submit()
 
