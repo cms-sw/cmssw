@@ -521,3 +521,35 @@ void utils::setPhysicsModelParameters( std::string setPhysicsModelParameterExpre
   }
 
 }
+
+void utils::setPhysicsModelParameterRanges( std::string setPhysicsModelParameterRangeExpression, RooStats::ModelConfig *mc) {
+
+  const RooArgSet * POI = mc->GetParametersOfInterest();
+  if (!POI) {
+    cout << "setPhysicsModelParameter Warning: ModelConfig " << mc->GetName() << " does not have any parameters of interest. Doing nothing.\n";
+    return;
+  }
+ 
+  vector<string> SetParameterRangeExpressionList;  
+  boost::split(SetParameterRangeExpressionList, setPhysicsModelParameterRangeExpression, boost::is_any_of(":"));
+  for (UInt_t p = 0; p < SetParameterRangeExpressionList.size(); ++p) {
+    vector<string> SetParameterRangeExpression;
+    boost::split(SetParameterRangeExpression, SetParameterRangeExpressionList[p], boost::is_any_of("=,"));
+      
+    if (SetParameterRangeExpression.size() != 3) {
+      std::cout << "Error parsing physics model parameter expression : " << SetParameterRangeExpressionList[p] << endl;
+    } else {
+      double PhysicsParameterRangeLow = atof(SetParameterRangeExpression[1].c_str());
+      double PhysicsParameterRangeHigh = atof(SetParameterRangeExpression[2].c_str());
+
+      RooRealVar *tmpParameter = (RooRealVar*)POI->find(SetParameterRangeExpression[0].c_str());      
+
+      if (tmpParameter) {
+        tmpParameter->setRange(PhysicsParameterRangeLow,PhysicsParameterRangeHigh);
+      } else {
+        std::cout << "Warning: Did not find a parameter with name " << SetParameterRangeExpression[0] << endl;
+      }
+    }
+  }
+
+}

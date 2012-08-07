@@ -94,6 +94,7 @@ Combine::Combine() :
       ("unbinned,U", "Generate unbinned datasets instead of binned ones (works only for extended pdfs)")
       ("generateBinnedWorkaround", "Make binned datasets generating unbinned ones and then binnning them. Workaround for a bug in RooFit.")
       ("setPhysicsModelParameters", po::value<string>(&setPhysicsModelParameterExpression_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")      
+      ("setPhysicsModelParameterRanges", po::value<string>(&setPhysicsModelParameterRangeExpression_)->default_value(""), "Set the range of relevant physics model parameters. Give a semi-colon separated list of parameter ranges. Example: CV=0.0,2.0;CF=0.0,5.0")      
       ;
     ioOptions_.add_options()
       ("saveWorkspace", "Save workspace to output root file")
@@ -265,6 +266,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (setPhysicsModelParameterExpression_ != "") {
       utils::setPhysicsModelParameters( setPhysicsModelParameterExpression_, mc);
       utils::setPhysicsModelParameters( setPhysicsModelParameterExpression_, mc_bonly);
+    }
+    if (setPhysicsModelParameterRangeExpression_ != "") {
+      utils::setPhysicsModelParameterRanges( setPhysicsModelParameterRangeExpression_, mc);
+      utils::setPhysicsModelParameterRanges( setPhysicsModelParameterRangeExpression_, mc_bonly);
     }
 
     if (mc == 0) {  

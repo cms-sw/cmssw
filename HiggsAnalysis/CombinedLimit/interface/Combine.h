@@ -52,6 +52,7 @@ private:
   float expectSignal_;
   float expectSignalMass_;
   std::string setPhysicsModelParameterExpression_;
+  std::string setPhysicsModelParameterRangeExpression_;
   
   // input-output related variables
   bool saveWorkspace_;
