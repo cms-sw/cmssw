@@ -39,28 +39,20 @@ class CvCfHiggs(SMLikeHiggsModel):
         self.SMH = SMHiggsBuilder(self.modelBuilder)
         self.setup()
     def setup(self):
-        ## Add some common ingredients
-        datadir = os.environ['CMSSW_BASE']+'/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg'
-        self.SMH.textToSpline( 'mb', os.path.join(datadir, 'running_constants.txt'), ycol=2 );
-        mb = self.modelBuilder.out.function('mb')
-        mH = self.modelBuilder.out.var('MH')
-        CF = self.modelBuilder.out.var('CF')
-        CV = self.modelBuilder.out.var('CV')
-
-        RHggCvCf = ROOT.RooScaleHGamGamLOSM('CvCf_cgammaSq', 'LO SM Hgamgam scaling', mH, CF, CV, mb, CF)
-        self.modelBuilder.out._import(RHggCvCf)
-        #Rgluglu = ROOT.RooScaleHGluGluLOSM('Rgluglu', 'LO SM Hgluglu scaling', mH, CF, mb, CF)
-        #self.modelBuilder.out._import(Rgluglu)
+        self.SMH.makeScaling('hgg', Cb='CF', Ctop='CF', CW='CV')
+        self.SMH.makeScaling('hgluglu', Cb='CF', Ctop='CF')
+        self.SMH.makeScaling('ggH', Cb='CF', Ctop='CF')
+        self.SMH.makeScaling('qqH', CW='CV', CZ='CF')
         
-        ## partial witdhs, normalized to the SM one, for decays scaling with F, V and total
+        ## partial widths, normalized to the SM one, for decays scaling with F, V and total
         for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
         self.modelBuilder.factory_('expr::CvCf_Gscal_sumf("@0*@0 * (@1+@2+@3+@4+@5+@6+@7)", CF, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hgluglu, SM_BR_hmm, SM_BR_hss)') 
         self.modelBuilder.factory_('expr::CvCf_Gscal_sumv("@0*@0 * (@1+@2+@3)", CV, SM_BR_hww, SM_BR_hzz, SM_BR_hZg)') 
-        self.modelBuilder.factory_('expr::CvCf_Gscal_gg("@0 * @1", CvCf_cgammaSq, SM_BR_hgg)') 
+        self.modelBuilder.factory_('expr::CvCf_Gscal_gg("@0 * @1", Scaling_hgg, SM_BR_hgg)') 
         self.modelBuilder.factory_('sum::CvCf_Gscal_tot(CvCf_Gscal_sumf, CvCf_Gscal_sumv, CvCf_Gscal_gg)')
         ## BRs, normalized to the SM ones: they scale as (coupling/coupling_SM)^2 / (totWidth/totWidthSM)^2 
-        self.modelBuilder.factory_('expr::CvCf_BRscal_hgg("@0/@1", CvCf_cgammaSq, CvCf_Gscal_tot)')
+        self.modelBuilder.factory_('expr::CvCf_BRscal_hgg("@0/@1", Scaling_hgg, CvCf_Gscal_tot)')
         self.modelBuilder.factory_('expr::CvCf_BRscal_hf("@0*@0/@1", CF, CvCf_Gscal_tot)')
         self.modelBuilder.factory_('expr::CvCf_BRscal_hv("@0*@0/@1", CV, CvCf_Gscal_tot)')
         

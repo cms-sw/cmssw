@@ -7,11 +7,13 @@ class SMHiggsBuilder:
     def __init__(self,modelBuilder,datadir=None):
         self.modelBuilder = modelBuilder
         if datadir == None:
-            datadir = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/sm"
+            datadir = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg"
         self.datadir = datadir
-        self.brpath = os.path.join(self.datadir,'br')
+        self.brpath = os.path.join(self.datadir,'sm/br')
+        self.coupPath = os.path.join(self.datadir,'couplings')
+
     def makeXS(self,process, energy='7TeV'):
-        self.xspath = os.path.join(self.datadir, 'xs', energy)
+        self.xspath = os.path.join(self.datadir, 'sm/xs', energy)
         if process == "ggH": self.textToSpline("SM_XS_ggH_"+energy, os.path.join(self.xspath, energy+"-ggH.txt") );
         if process == "qqH": self.textToSpline("SM_XS_qqH_"+energy, os.path.join(self.xspath, energy+"-vbfH.txt") );
         if process == "ttH": self.textToSpline("SM_XS_ttH_"+energy, os.path.join(self.xspath, energy+"-ttH.txt") );
@@ -38,6 +40,59 @@ class SMHiggsBuilder:
         self.makeTotalWidth(); 
         self.makeBR(decay);
         self.modelBuilder.factory_('prod::SM_Gamma_%s(SM_GammaTot,SM_BR_%s)' % (decay,decay))
+    def makeScaling(self,what, Cb='Cb', Ctop='Ctop', CW='CW', CZ='CZ', Ct='Ct'):
+        prefix = 'SM_%(what)s_' % locals()
+        self.modelBuilder.doVar('One[1]') 
+        if what == 'qqH':
+            for sqrts in ('7TeV', '8TeV'):
+                rooName = prefix+'RVBF_'+sqrts
+                print 'Building '+rooName
+                self.textToSpline(rooName,
+                                  os.path.join(self.coupPath, 'R_VBF_%(sqrts)s.txt'%locals()),
+                                  ycol=1 )
+                scalingName = 'Scaling_'+what+'_'+sqrts
+                print 'Building '+ scalingName
+                rooExpr = 'expr::%(scalingName)s("(@0+ @1 * @2 )/(1+@2) ", %(CW)s, %(CZ)s, %(rooName)s)'%locals()
+                print  rooExpr
+                self.modelBuilder.factory_(rooExpr)
+        elif what == 'ggH':
+            structure = {'sigma_tt':1, 'sigma_bb':2, 'sigma_tb':3}
+            for sqrts in ('7TeV', '8TeV'):
+                for qty, column in structure.iteritems():
+                    rooName = prefix+qty+'_'+sqrts
+                    print 'Building '+rooName
+                    #
+                scalingName = 'Scaling_'+what+'_'+sqrts
+                print 'Building '+scalingName
+                rooExpr = 'expr::%(scalingName)s("@0", One)'%locals()
+                print  rooExpr
+                self.modelBuilder.factory_(rooExpr)
+        elif what == 'hgluglu':
+            structure = {'Gamma_tt':1, 'Gamma_bb':2, 'Gamma_tb':3}
+            for qty, column in structure.iteritems():
+                rooName = prefix+qty
+                print 'Building '+rooName
+                #
+            scalingName = 'Scaling_'+what
+            print 'Building '+scalingName
+            rooExpr = 'expr::%(scalingName)s("@0", One)'%locals()
+            print  rooExpr
+            self.modelBuilder.factory_(rooExpr)
+        elif what == 'hgg':
+            structure = {'Gamma_tt':1, 'Gamma_bb':2, 'Gamma_tb':3}
+            for qty, column in structure.iteritems():
+                rooName = prefix+qty
+                print 'Building '+rooName
+            scalingName = 'Scaling_'+what
+            print 'Building '+scalingName
+            rooExpr = 'expr::%(scalingName)s("@0", One)'%locals()
+            print  rooExpr
+            self.modelBuilder.factory_(rooExpr)
+        else:
+            raise RuntimeError, "There is no scaling defined for %(what)s" % locals()
+                
+        
+            
     def dump(self,name,xvar,values,logfile):
         xv = self.modelBuilder.out.var(xvar)
         yf = self.modelBuilder.out.function(name)
