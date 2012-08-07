@@ -236,10 +236,12 @@ void DCCEBEventBlock::unpack(const uint64_t * buffer, size_t numbBytes, unsigned
         continue;
       }
       
-      // Unpack Tower (Xtal Block) in case of SR (data are 0 suppressed)
-      if(feUnpacking_ && sr_ && chNumber<=68)
-        {
-
+      // Unpack Tower (Xtal Block)
+      if (feUnpacking_ && chNumber <= 68) {
+        
+        //  in case of SR (data are 0 suppressed)
+        if (sr_) {
+          
           if( fov_ > 0){  
             bool applyZS(true);
             
@@ -264,22 +266,19 @@ void DCCEBEventBlock::unpack(const uint64_t * buffer, size_t numbBytes, unsigned
           }
           
         }
-      
-      
-      // Unpack Tower (Xtal Block) for no SR (possibly 0 suppression flags)
-      else if (feUnpacking_ && chNumber<=68)
-        {
+        // no SR (possibly 0 suppression flags)
+        else {
           // if tzs_ data are not really suppressed, even though zs flags are calculated
           if(tzs_){ zs_ = false;}
           STATUS = towerBlock_->unpack(&data_,&dwToEnd_,zs_,chNumber);
         }
+      }
       
       
       // Unpack Mem blocks
-      if(memUnpacking_        && chNumber>68 )
-        {
+      if (memUnpacking_ && chNumber > 68) {
           STATUS = memBlock_->unpack(&data_,&dwToEnd_,chNumber);
-        }
+      }
       
     }
     // closing loop over FE/TTblock channels
