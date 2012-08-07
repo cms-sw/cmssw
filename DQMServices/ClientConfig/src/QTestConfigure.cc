@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestConfigure
  *
- *  $Date: 2010/10/11 12:52:22 $
- *  $Revision: 1.23 $
+ *  $Date: 2011/01/19 11:40:35 $
+ *  $Revision: 1.24 $
  *  \author Ilaria Segoni
  */
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
@@ -44,6 +44,7 @@ bool QTestConfigure::enableTests(std::map<std::string, std::map<std::string, std
 //              if(!std::strcmp(testType.c_str(),ContentsWithinExpectedAS::getAlgoName().c_str())) this->EnableContentsWithinExpectedASTest(testName, params, bei);
 
                 if(!std::strcmp(testType.c_str(),CompareToMedian::getAlgoName().c_str())) this->EnableCompareToMedianTest(testName, params, bei);
+                if(!std::strcmp(testType.c_str(),CompareLastFilledBin::getAlgoName().c_str())) this->EnableCompareLastFilledBinTest(testName, params, bei);
 
 	}
 	
@@ -330,6 +331,31 @@ void QTestConfigure::EnableContentsWithinExpectedTest(std::string testName, std:
 
         int minEntries=atoi(params["minEntries"].c_str());
         if ( minEntries != 0 ) me_qc1->setMinimumEntries(minEntries);
+}
+void QTestConfigure::EnableCompareLastFilledBinTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
+
+        QCriterion * qc1;
+        if(! bei->getQCriterion(testName) ){
+                testsConfigured.push_back(testName);
+                qc1 = bei->createQTest(CompareLastFilledBin::getAlgoName(),testName);
+        }else{
+                qc1 = bei->getQCriterion(testName);
+        }
+        CompareLastFilledBin * me_qc1 = (CompareLastFilledBin *) qc1;
+
+        double warning=atof(params["warning"].c_str());
+        double error=atof(params["error"].c_str());
+        me_qc1->setWarningProb(warning);
+        me_qc1->setErrorProb(error);
+
+        double avVal=atof(params["AvVal"].c_str());
+        me_qc1->setAverage(avVal);
+
+        double minVal=atof(params["MinVal"].c_str());
+        me_qc1->setMin(minVal);
+
+        double maxVal=atof(params["MaxVal"].c_str());
+        me_qc1->setMin(maxVal);
 }
 
 /* void QTestConfigure::EnableContentsWithinExpectedASTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){

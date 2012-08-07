@@ -326,7 +326,7 @@ DQMStore::initializeFrom(const edm::ParameterSet& pset) {
   initQCriterion<NoisyChannel>(qalgos_);
   initQCriterion<ContentsWithinExpected>(qalgos_);
   initQCriterion<CompareToMedian>(qalgos_);
-
+  initQCriterion<CompareLastFilledBin>(qalgos_);
 }
 
 /* Generic method to do a backtrace and print it to stdout. It is
