@@ -155,16 +155,25 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
          CutPt .push_back(Pt);   CutI  .push_back(I);  CutTOF.push_back(-1);
       }}
    }else if(TypeMode==2){
-     for(double Pt =GlobalMinPt+10 ; Pt <120;  Pt+=30){
-       for(double I  =GlobalMinIs +0.1; I  <0.40;  I+=0.1){
-	 for(double TOF=GlobalMinTOF-0.1; TOF>0.65;TOF-=0.1){
-	   CutPt_Flip .push_back(Pt);   CutI_Flip  .push_back(I);  CutTOF_Flip.push_back(TOF);
+      for(double Pt =GlobalMinPt+5 ; Pt <120;  Pt+=5){
+      for(double I  =GlobalMinIs +0.025; I  <0.40;  I+=0.025){
+      for(double TOF=GlobalMinTOF+0.025; TOF<1.35;TOF+=0.025){
+         CutPt .push_back(Pt);   CutI  .push_back(I);  CutTOF.push_back(TOF);
+      }}}
+      for(double Pt =GlobalMinPt+10 ; Pt <120;  Pt+=30){
+      for(double I  =GlobalMinIs +0.1; I  <0.40;  I+=0.1){
+      for(double TOF=GlobalMinTOF-0.1; TOF>0.65;TOF-=0.1){
+         CutPt_Flip .push_back(Pt);   CutI_Flip  .push_back(I);  CutTOF_Flip.push_back(TOF);
       }}}
    }else if(TypeMode==3){
-     for(double Pt =GlobalMinPt+100 ; Pt <450;  Pt+=60){
-       for(double TOF=GlobalMinTOF-0.15; TOF>0.6;TOF-=0.05){
+      for(double Pt =GlobalMinPt+30 ; Pt <450;  Pt+=30){
+      for(double TOF=GlobalMinTOF+0.025; TOF<1.4;TOF+=0.025){
+         CutPt .push_back(Pt);   CutI  .push_back(-1);  CutTOF.push_back(TOF);
+      }}
+      for(double Pt =GlobalMinPt+100 ; Pt <450;  Pt+=60){
+      for(double TOF=GlobalMinTOF-0.15; TOF>0.6;TOF-=0.05){
          CutPt_Flip .push_back(Pt);   CutI_Flip  .push_back(-1);  CutTOF_Flip.push_back(TOF);
-       }}
+      }}
    }else if(TypeMode==5){   
       for(double Pt =75 ; Pt <=125;Pt+=25){
       for(double I  =0.75; I  <=1.0 ;I+=0.01){
@@ -182,7 +191,8 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
 
    //make the directory structure corresponding to this analysis (depends on dEdx/TOF estimator being used, Eta/Pt cuts and Mode of the analysis)
    char Buffer[2048], Command[2048];
-   sprintf(Buffer,"Results/%s/%s/Eta%02.0f/PtMin%02.0f/Type%i/", dEdxS_Label.c_str(), TOF_Label.c_str(), 10.0*GlobalMaxEta, GlobalMinPt, TypeMode);
+//   sprintf(Buffer,"Results/%s/%s/Eta%02.0f/PtMin%02.0f/Type%i/", dEdxS_Label.c_str(), TOF_Label.c_str(), 10.0*GlobalMaxEta, GlobalMinPt, TypeMode);
+   sprintf(Buffer,"Results/Type%i/", TypeMode);
    sprintf(Command,"mkdir -p %s",Buffer); system(Command);
 
    // get all the samples and clean the list to keep only the one we want to run on... Also initialize the BaseDirectory
