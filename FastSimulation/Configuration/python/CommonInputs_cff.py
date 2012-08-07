@@ -38,8 +38,8 @@ from FastSimulation.Calorimetry.Calorimetry_cff import *
 if(CaloMode==0):
     FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = False
 if(CaloMode==1):
-    FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
-if(CaloMode==2):
     FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = False
+if(CaloMode==2):
+    FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
 if(CaloMode==3):
     FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
