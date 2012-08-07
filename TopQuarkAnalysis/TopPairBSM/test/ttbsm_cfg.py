@@ -78,7 +78,8 @@ if not options.useData :
 else :
     inputJetCorrLabel = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
     process.source.fileNames = [
-        '/store/data/Run2012C/SingleMu/AOD/PromptReco-v1/000/197/770/FCEA1D5F-77C3-E111-9E6F-0019B9F4A1D7.root'
+        '/store/data/Run2012C/JetHT/AOD/PromptReco-v1/000/198/910/8ECBA7A2-63CE-E111-B093-001D09F24FEC.root'
+	#'/store/data/Run2012C/SingleMu/AOD/PromptReco-v1/000/197/770/FCEA1D5F-77C3-E111-9E6F-0019B9F4A1D7.root'
     ]
 
 #process.source.eventsToProcess = cms.untracked.VEventRange( ['1:86747'] )
@@ -120,19 +121,48 @@ else :
     else:
         process.GlobalTag.globaltag = cms.string( options.globalTag )
 
-# require scraping filter
-process.scrapingVeto = cms.EDFilter("FilterOutScraping",
-                                    applyfilter = cms.untracked.bool(True),
-                                    debugOn = cms.untracked.bool(False),
-                                    numtrack = cms.untracked.uint32(10),
-                                    thresh = cms.untracked.double(0.2)
-                                    )
-# HB + HE noise filtering
-process.load('CommonTools/RecoAlgos/HBHENoiseFilter_cfi')
-# Modify defaults setting to avoid an over-efficiency in the presence of OFT PU
-process.HBHENoiseFilter.minIsolatedNoiseSumE = cms.double(999999.)
-process.HBHENoiseFilter.minNumIsolatedNoiseChannels = cms.int32(999999)
-process.HBHENoiseFilter.minIsolatedNoiseSumEt = cms.double(999999.)
+
+from PhysicsTools.PatAlgos.patTemplate_cfg import *
+
+
+## The beam scraping filter __________________________________________________||
+process.noscraping = cms.EDFilter(
+    "FilterOutScraping",
+    applyfilter = cms.untracked.bool(True),
+    debugOn = cms.untracked.bool(False),
+    numtrack = cms.untracked.uint32(10),
+    thresh = cms.untracked.double(0.25)
+    )
+
+## The iso-based HBHE noise filter ___________________________________________||
+process.load('CommonTools.RecoAlgos.HBHENoiseFilter_cfi')
+
+## The CSC beam halo tight filter ____________________________________________||
+process.load('RecoMET.METAnalyzers.CSCHaloFilter_cfi')
+
+## The HCAL laser filter _____________________________________________________||
+process.load("RecoMET.METFilters.hcalLaserEventFilter_cfi")
+process.hcalLaserEventFilter.vetoByRunEventNumber=cms.untracked.bool(False)
+process.hcalLaserEventFilter.vetoByHBHEOccupancy=cms.untracked.bool(True)
+
+## The ECAL dead cell trigger primitive filter _______________________________||
+process.load('RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi')
+## For AOD and RECO recommendation to use recovered rechits
+process.EcalDeadCellTriggerPrimitiveFilter.tpDigiCollection = cms.InputTag("ecalTPSkimNA")
+
+## The EE bad SuperCrystal filter ____________________________________________||
+process.load('RecoMET.METFilters.eeBadScFilter_cfi')
+
+## The Good vertices collection needed by the tracking failure filter ________||
+process.goodVertices = cms.EDFilter(
+  "VertexSelector",
+  filter = cms.bool(False),
+  src = cms.InputTag("offlinePrimaryVertices"),
+  cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.rho < 2")
+)
+
+## The tracking failure filter _______________________________________________||
+process.load('RecoMET.METFilters.trackingFailureFilter_cfi')
 
 
 # switch on PAT trigger
@@ -146,14 +176,13 @@ process.HBHENoiseFilter.minIsolatedNoiseSumEt = cms.double(999999.)
 
 pvSrc = 'offlinePrimaryVertices'
 
-process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
-                                           vertexCollection = cms.InputTag("goodOfflinePrimaryVertices"),
-                                           minimumNDOF = cms.uint32(3) , # this is > 3
-                                           maxAbsZ = cms.double(24), 
-                                           maxd0 = cms.double(2) 
-                                           )
-
-
+## The good primary vertex filter ____________________________________________||
+process.primaryVertexFilter = cms.EDFilter(
+    "VertexSelector",
+    src = cms.InputTag("offlinePrimaryVertices"),
+    cut = cms.string("!isFake & ndof > 4 & abs(z) <= 24 & position.Rho <= 2"),
+    filter = cms.bool(True)
+    )
 
 
 from PhysicsTools.SelectorUtils.pvSelector_cfi import pvSelector
@@ -1303,12 +1332,22 @@ process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
 
 # let it run
 
+process.filtersSeq = cms.Sequence(
+   process.primaryVertexFilter *
+   process.noscraping *
+   process.HBHENoiseFilter *
+   process.CSCTightHaloFilter *
+   process.hcalLaserEventFilter *
+   process.EcalDeadCellTriggerPrimitiveFilter *
+   process.goodVertices * process.trackingFailureFilter *
+   process.eeBadScFilter
+)
+
+
+
 process.patseq = cms.Sequence(
-    process.scrapingVeto*
-    process.HBHENoiseFilter*
-    #process.offlinePrimaryVerticesDAF*    
+    process.filtersSeq*
     process.goodOfflinePrimaryVertices*
-    process.primaryVertexFilter*
     process.softElectronCands*
     process.inclusiveVertexing*
     process.genParticlesForJetsNoNu*
