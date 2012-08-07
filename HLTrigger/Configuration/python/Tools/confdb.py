@@ -461,8 +461,6 @@ if 'PrescaleService' in %(dict)s:
 if 'GlobalTag' in %%(dict)s:
     %%(process)sGlobalTag.connect   = '%%(connect)s/CMS_COND_31X_GLOBALTAG'
     %%(process)sGlobalTag.pfnPrefix = cms.untracked.string('%%(connect)s/')
-#
-    from HLTrigger.Configuration.AutoCondGlobalTag import AutoCondGlobalTag
 """
 
     # when running on MC, override the global tag even if not specified on the command line
@@ -472,8 +470,8 @@ if 'GlobalTag' in %%(dict)s:
       else:
         self.config.globaltag = globalTag['GRun']
 
-    text += "    %%(process)sGlobalTag = AutoCondGlobalTag(%%(process)sGlobalTag,'%(globaltag)s')\n"
-
+    text += "    from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag\n"
+    text += "    %%(process)sGlobalTag = customiseGlobalTag(%%(process)sGlobalTag,'%(globaltag)s')\n"
     self.data += text % self.config.__dict__
 
 
