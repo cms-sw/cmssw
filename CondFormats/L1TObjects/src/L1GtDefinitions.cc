@@ -19,7 +19,7 @@
 
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+namespace {
 template <class T>
 struct entry {                                                                                                                                                    
   char const* label;
@@ -44,7 +44,6 @@ constexpr char const*valueToKey(T value, entry<T> const *entries) {
        : entries->value == value ? entries->label
        : /*default*/       valueToKey(value, entries+1);
 }
-
 constexpr entry<L1GtBoardType> l1GtBoardTypeStringToEnumMap[] = {
             {"GTFE", GTFE},
             {"FDL", FDL},
@@ -86,6 +85,45 @@ constexpr entry<L1GtPsbQuad> l1GtPsbQuadStringToEnumMap[] = {
         {0, (L1GtPsbQuad) - 1}
 };
 
+// L1GtConditionType
+constexpr entry<L1GtConditionType> l1GtConditionTypeStringToEnumMap[] = {
+        {"TypeNull", TypeNull},
+        {"Type1s", Type1s},
+        {"Type2s", Type2s},
+        {"Type2wsc", Type2wsc},
+        {"Type2cor", Type2cor},
+        {"Type3s", Type3s},
+        {"Type4s", Type4s},
+        {"TypeETM", TypeETM},
+        {"TypeETT", TypeETT},
+        {"TypeHTT", TypeHTT},
+        {"TypeHTM", TypeHTM},
+        {"TypeJetCounts", TypeJetCounts},
+        {"TypeCastor", TypeCastor},
+        {"TypeHfBitCounts", TypeHfBitCounts},
+        {"TypeHfRingEtSums", TypeHfRingEtSums},
+        {"TypeBptx", TypeBptx},
+        {"TypeExternal", TypeExternal},
+        {0, (L1GtConditionType) - 1}
+};
+
+// L1GtConditionCategory
+constexpr entry<L1GtConditionCategory> l1GtConditionCategoryStringToEnumMap[] = {
+  {"CondNull", CondNull},
+  {"CondMuon", CondMuon},
+  {"CondCalo", CondCalo},
+  {"CondEnergySum", CondEnergySum},
+  {"CondJetCounts", CondJetCounts},
+  {"CondCorrelation", CondCorrelation},
+  {"CondCastor", CondCastor},
+  {"CondHfBitCounts", CondHfBitCounts},
+  {"CondHfRingEtSums", CondHfRingEtSums},
+  {"CondBptx", CondBptx},
+  {"CondExternal", CondExternal},
+  {0, (L1GtConditionCategory) - 1}
+};
+
+}
 // L1GtBoardType
 L1GtBoardType l1GtBoardTypeStringToEnum(const std::string& label) {
     L1GtBoardType value = keyToValue(label.c_str(), l1GtBoardTypeStringToEnumMap);
@@ -153,27 +191,6 @@ std::string l1GtPsbQuadEnumToString(const L1GtPsbQuad& psbQuad) {
   return result;
 }
 
-// L1GtConditionType
-constexpr entry<L1GtConditionType> l1GtConditionTypeStringToEnumMap[] = {
-        {"TypeNull", TypeNull},
-        {"Type1s", Type1s},
-        {"Type2s", Type2s},
-        {"Type2wsc", Type2wsc},
-        {"Type2cor", Type2cor},
-        {"Type3s", Type3s},
-        {"Type4s", Type4s},
-        {"TypeETM", TypeETM},
-        {"TypeETT", TypeETT},
-        {"TypeHTT", TypeHTT},
-        {"TypeHTM", TypeHTM},
-        {"TypeJetCounts", TypeJetCounts},
-        {"TypeCastor", TypeCastor},
-        {"TypeHfBitCounts", TypeHfBitCounts},
-        {"TypeHfRingEtSums", TypeHfRingEtSums},
-        {"TypeBptx", TypeBptx},
-        {"TypeExternal", TypeExternal},
-        {0, (L1GtConditionType) - 1}
-};
 
 L1GtConditionType l1GtConditionTypeStringToEnum(const std::string& label) {
     L1GtConditionType value = keyToValue(label.c_str(), l1GtConditionTypeStringToEnumMap);
@@ -209,23 +226,6 @@ std::string l1GtConditionTypeEnumToString(const L1GtConditionType& conditionType
   return result;
 }
 
-
-// L1GtConditionCategory
-constexpr entry<L1GtConditionCategory> l1GtConditionCategoryStringToEnumMap[] = {
-  {"CondNull", CondNull},
-  {"CondMuon", CondMuon},
-  {"CondCalo", CondCalo},
-  {"CondEnergySum", CondEnergySum},
-  {"CondJetCounts", CondJetCounts},
-  {"CondCorrelation", CondCorrelation},
-  {"CondCastor", CondCastor},
-  {"CondHfBitCounts", CondHfBitCounts},
-  {"CondHfRingEtSums", CondHfRingEtSums},
-  {"CondBptx", CondBptx},
-  {"CondExternal", CondExternal},
-  {0, (L1GtConditionCategory) - 1}
-};
-
 L1GtConditionCategory l1GtConditionCategoryStringToEnum(const std::string& label) {
   L1GtConditionCategory value = keyToValue(label.c_str(), l1GtConditionCategoryStringToEnumMap);
   // in case of unrecognized L1GtConditionCategory, return CondNull
@@ -260,4 +260,3 @@ std::string l1GtConditionCategoryEnumToString(const L1GtConditionCategory& condi
 
   return result;
 }
-
