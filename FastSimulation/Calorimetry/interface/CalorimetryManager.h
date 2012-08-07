@@ -121,9 +121,13 @@ class CalorimetryManager{
   bool useDQM_;
   std::vector<unsigned int> evtsToDebug_;
 
-
-
   bool unfoldedMode_;
+ 
+  //Digitizer
+  bool Digitizer_;
+  std::vector<double> samplingHBHE_;
+  std::vector<double> samplingHF_;
+  std::vector<double> samplingHO_;
 
   /// A few pointers to save time
   RawParticle myElec;

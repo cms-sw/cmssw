@@ -193,9 +193,21 @@ FamosCalorimetryBlock = cms.PSet(
             SimMethod = cms.int32(0), ## 0 - use HDShower, 1 - use HDRShower, 2 - GFLASH
             GridSize = cms.int32(7),
             #-- 0 - simple response, 1 - parametrized response + showering, 2 - tabulated response + showering
-            SimOption = cms.int32(2)
-        )
-    ),
+            SimOption = cms.int32(2),
+            Digitizer = cms.untracked.bool(True),
+            samplingHBHE = cms.vdouble(125.44, 125.54, 125.32, 125.13, 124.46,
+                                       125.01, 125.22, 125.48, 124.45, 125.90,
+                                       125.83, 127.01, 126.82, 129.73, 131.83,
+                                       143.52, # HB
+                                       210.55, 197.93, 186.12, 189.64, 189.63,
+                                       190.28, 189.61, 189.60, 190.12, 191.22,
+                                       190.90, 193.06, 188.42, 188.42), #HE
+            samplingHF   = cms.vdouble(0.383, 0.368),
+            samplingHO   = cms.vdouble(231.0, 231.0, 231.0, 231.0, 360.0, 
+                                       360.0, 360.0, 360.0, 360.0, 360.0,
+                                       360.0, 360.0, 360.0, 360.0, 360.0)
+            )
+        ),
     GFlash = cms.PSet(
       GflashExportToFastSim = cms.bool(True),
       GflashHadronPhysics = cms.string('QGSP_BERT'),

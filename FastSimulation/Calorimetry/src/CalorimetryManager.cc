@@ -738,8 +738,9 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
   }
 }
 
-void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
-{
+void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack){//, 
+					    // const edm::ParameterSet& fastCalo){
+
   //  TimeMe t(" FASTEnergyReconstructor::HDShower");
   XYZTLorentzVector moment = myTrack.momentum();
   
@@ -1035,6 +1036,19 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 	EpH += energy;
 	energy *= correction;               // RESCALING 
 	energy *= hcorr;
+	
+	if(Digitizer_){
+	  HcalDetId hdetid = HcalDetId(mapitr->first);
+	  if (hdetid.subdetId()== HcalBarrel || hdetid.subdetId()== HcalEndcap ) energy /= samplingHBHE_[hdetid.ietaAbs()-1]; //re-convert to GeV
+	  
+	  else if (hdetid.subdetId()== HcalForward){
+	    if(hdetid.depth()== 1) energy /= samplingHF_[0];
+	    if(hdetid.depth()== 2) energy /= samplingHF_[1];
+	  }  
+	  
+	  else if (hdetid.subdetId()== HcalOuter  )  energy /= samplingHO_[hdetid.ietaAbs()-1]; 	
+	}
+	
 	EsH += energy;
 
 	updateMap(HcalDetId(mapitr->first).hashed_index(),energy,myTrack.id(),HMapping_,firedCellsHCAL_);
@@ -1440,6 +1454,12 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
   //RF
 
   unfoldedMode_ = fastCalo.getUntrackedParameter<bool>("UnfoldedMode",false);
+
+  Digitizer_    = HCALparameters.getUntrackedParameter<bool>("Digitizer",false);
+  samplingHBHE_ = HCALparameters.getParameter< std::vector<double> >("samplingHBHE");
+  samplingHF_   = HCALparameters.getParameter< std::vector<double> >("samplingHF");
+  samplingHO_   = HCALparameters.getParameter< std::vector<double> >("samplingHO");
+
 }
 
 
@@ -1636,6 +1656,18 @@ void CalorimetryManager::loadFromHcal(edm::PCaloHitContainer & c) const
     }
   //  std::cout << " SUM : " << sum << std::endl;
   //  std::cout << " Added " <<c.size() << " hits " <<std::endl;
+
+  if(Digitizer_){
+    edm::PCaloHitContainer::iterator it=c.begin();
+    edm::PCaloHitContainer::iterator itend=c.end();
+    for(;it!=itend;++it){
+      HcalDetId myDetId(it->id());
+      if (myDetId.subdetId()== HcalBarrel) it->setTime(7.);
+      else if (myDetId.subdetId()== HcalEndcap) it->setTime(15.);
+      else if (myDetId.subdetId()== HcalForward)it->setTime(40.);
+      //  std::cout << "simhit # " << A <<"  energy = " << it->energy() << " from " << myDetId << ", "<< myDetId.subdetId() << "  time = " << it->time() << std::endl;
+    }
+  }
 }
 
 void CalorimetryManager::loadFromPreshower(edm::PCaloHitContainer & c) const
