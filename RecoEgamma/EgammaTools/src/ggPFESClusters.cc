@@ -22,10 +22,10 @@ ggPFESClusters::~ggPFESClusters(){
 
 }
 
-vector<reco::PreshowerCluster>ggPFESClusters::getPFESClusters(
+// Returns ES clusters for a PF supercluster 
+vector<reco::PreshowerCluster> ggPFESClusters::getPFESClusters(
 							      reco::SuperCluster sc 
 							      ){
-  // cout<<"SC Eta "<<sc.eta()<<endl;
   std::vector<PreshowerCluster>PFPreShowerClust;
   int jj = 0;
   float energies[100];
@@ -37,7 +37,7 @@ vector<reco::PreshowerCluster>ggPFESClusters::getPFESClusters(
       bool doubl = false;
       for(int kk=0; kk<jj; kk++){
         if(fabs(energies[kk]-(*ps)->energy())<0.0000001){
-//        cout << endl << "Duplicate cluster";
+          //cout << endl << "Duplicate cluster";
           doubl = true;
 	  break;
         }
@@ -74,6 +74,29 @@ vector<reco::PreshowerCluster>ggPFESClusters::getPFESClusters(
   return PFPreShowerClust;  
 }
 
+
+// Maps each ES cluster to its closest linked EE cluster. 
+std::map<unsigned int,unsigned int> ggPFESClusters::getClosestEECls(vector<reco::PreshowerCluster> PFPS, vector<reco::CaloCluster> PF){
+  std::map<unsigned int,unsigned int> linkedIndices;
+  std::map<double, unsigned int> links;
+
+  for(unsigned int j=0; j<PFPS.size(); ++j){
+    for(unsigned int i=0; i<PF.size(); ++i){
+      double link_ = getLinkDist(PFPS[j], PF[i]);
+      if(link_!=-1.)
+	links.insert(std::make_pair(link_,i));
+    }
+    std::map<double,unsigned int>::iterator itlinks = links.begin();
+    if((*itlinks).first>=0.)
+      linkedIndices.insert(std::make_pair(j, (*itlinks).second));
+    links.clear();
+  }
+
+  return linkedIndices;
+}
+
+
+// Returns PF link distance between ES-EE clusters. 
 double ggPFESClusters::getLinkDist(reco::PreshowerCluster clusterPS, reco::CaloCluster clusterECAL){
 
   static double resPSpitch = 0.19/sqrt(12.);

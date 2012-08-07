@@ -22,8 +22,9 @@ class ggPFESClusters{
 			  );
   virtual ~ggPFESClusters();
   virtual vector<reco::PreshowerCluster>getPFESClusters(reco::SuperCluster sc);
-  double getLinkDist(reco::PreshowerCluster clusterPS, reco::CaloCluster
-		     clusterECAL);
+  std::map<unsigned int,unsigned int> getClosestEECls(vector<reco::PreshowerCluster> PFPS, vector<reco::CaloCluster> PF);
+  double getLinkDist(reco::PreshowerCluster clusterPS, reco::CaloCluster clusterECAL);
+
  private:
   Handle<EcalRecHitCollection>ESRecHits_;
   const CaloSubdetectorGeometry* geomEnd_;
