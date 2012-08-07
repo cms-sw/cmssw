@@ -124,13 +124,13 @@ void Analysis_Step4(std::string InputPattern)
 	  }
 
       //erase histogram created at previous iteration
-	  directory->Delete(("Pred_P" + Suffix + ";*").c_str());
-          directory->Delete(("Pred_Mass" + Suffix + ";*").c_str());
-          directory->Delete(("Pred_MassTOF" + Suffix + ";*").c_str());
-          directory->Delete(("Pred_MassComb" + Suffix + ";*").c_str());
-          directory->Delete(("H_P" + Suffix + ";*").c_str());
-          directory->Delete(("H_P_Coll" + Suffix + ";*").c_str());
-          directory->Delete(("H_P_Cosmic" + Suffix + ";*").c_str());
+	  //directory->Delete(("Pred_P" + Suffix + ";*").c_str());
+          //directory->Delete(("Pred_Mass" + Suffix + ";*").c_str());
+          //directory->Delete(("Pred_MassTOF" + Suffix + ";*").c_str());
+          //directory->Delete(("Pred_MassComb" + Suffix + ";*").c_str());
+          //directory->Delete(("H_P" + Suffix + ";*").c_str());
+          //directory->Delete(("H_P_Coll" + Suffix + ";*").c_str());
+          //directory->Delete(("H_P_Cosmic" + Suffix + ";*").c_str());
 
       //take data histogram to save the resulting momentum distribution
 	  TH2D*  Pred_P         = (TH2D*)GetObjectFromPath(directory, "RegionD_P"); Pred_P->Reset(); Pred_P->SetName(("Pred_P" + Suffix).c_str());
@@ -158,22 +158,22 @@ void Analysis_Step4(std::string InputPattern)
          const double& G=H_G->GetBinContent(CutIndex+1);
          const double& H=H_H->GetBinContent(CutIndex+1);
 
-	 //const double& A_Cen=H_A_Cen->GetBinContent(CutIndex+1);
+       //const double& A_Cen=H_A_Cen->GetBinContent(CutIndex+1);
 	 const double& B_Cen=H_B_Cen->GetBinContent(CutIndex+1);
-	 //const double& C_Cen=H_C_Cen->GetBinContent(CutIndex+1);
-	 //const double& D_Cen=H_D_Cen->GetBinContent(CutIndex+1);
-	 //const double& E_Cen=H_E_Cen->GetBinContent(CutIndex+1);
+       //const double& C_Cen=H_C_Cen->GetBinContent(CutIndex+1);
+       //const double& D_Cen=H_D_Cen->GetBinContent(CutIndex+1);
+       //const double& E_Cen=H_E_Cen->GetBinContent(CutIndex+1);
 	 const double& F_Cen=H_F_Cen->GetBinContent(CutIndex+1);
-	 //const double& G_Cen=H_G_Cen->GetBinContent(CutIndex+1);
+       //const double& G_Cen=H_G_Cen->GetBinContent(CutIndex+1);
 	 const double& H_Cen=H_H_Cen->GetBinContent(CutIndex+1);
 
-	 //const double& A_For=H_A_For->GetBinContent(CutIndex+1);
+       //const double& A_For=H_A_For->GetBinContent(CutIndex+1);
 	 const double& B_For=H_B_For->GetBinContent(CutIndex+1);
-	 //const double& C_For=H_C_For->GetBinContent(CutIndex+1);
-	 //const double& D_For=H_D_For->GetBinContent(CutIndex+1);
-	 //const double& E_For=H_E_For->GetBinContent(CutIndex+1);
+       //const double& C_For=H_C_For->GetBinContent(CutIndex+1);
+       //const double& D_For=H_D_For->GetBinContent(CutIndex+1);
+       //const double& E_For=H_E_For->GetBinContent(CutIndex+1);
 	 const double& F_For=H_F_For->GetBinContent(CutIndex+1);
-	 //const double& G_For=H_G_For->GetBinContent(CutIndex+1);
+       //const double& G_For=H_G_For->GetBinContent(CutIndex+1);
 	 const double& H_For=H_H_For->GetBinContent(CutIndex+1);
 
          double P=0;
@@ -224,9 +224,9 @@ void Analysis_Step4(std::string InputPattern)
          H_P->SetBinError  (CutIndex+1,Perr);
 
          if(P==0 || isnan((float)P)) {printf("\n"); continue;} //Skip this CutIndex --> No Prediction possible
-
          printf(" --> D=%6.2E vs Pred = %6.2E +- %6.2E (%6.2E%%)\n", D, P,  Perr, 100.0*Perr/P );
-	 if(TypeMode==3) continue;
+         if(TypeMode>2)continue; //Need to compute mass predicted distribution ONLY for TkOnly and TkTOF
+
          TH1D* Pred_EtaB_Proj     = Pred_EtaB ->ProjectionY("ProjEtaB" ,CutIndex+1,CutIndex+1);  
          TH1D* Pred_EtaS_Proj     = Pred_EtaS ->ProjectionY("ProjEtaS" ,CutIndex+1,CutIndex+1); 
          TH1D* Pred_EtaS2_Proj    = Pred_EtaS2->ProjectionY("ProjEtaS2",CutIndex+1,CutIndex+1);
