@@ -11,7 +11,10 @@ int TypeFromPattern(const std::string& InputPattern){
    if(InputPattern.find("Type0",0)<std::string::npos){       return 0;
    }else if(InputPattern.find("Type1",0)<std::string::npos){ return 1;
    }else if(InputPattern.find("Type2",0)<std::string::npos){ return 2;
-   }else{                                                    return 3;
+   }else if(InputPattern.find("Type3",0)<std::string::npos){ return 3;
+   }else if(InputPattern.find("Type4",0)<std::string::npos){ return 4;
+   }else if(InputPattern.find("Type5",0)<std::string::npos){ return 5;
+   }else{                                                    return 6;
    }
 }
 
@@ -21,7 +24,9 @@ std::string LegendFromType(const std::string& InputPattern){
       case 0:  return std::string("Tracker - Only"); break;
       case 1:  return std::string("Tracker + Muon"); break;
       case 2:  return std::string("Tracker + TOF" ); break;
-      case 3:  return std::string("TOF - Only" ); break;
+      case 3:  return std::string("Muon - Only"); break;
+      case 4:  return std::string("Q>1"); break;
+      case 5:  return std::string("Q<1"); break;
       default : std::string("unknown");
    }
    return std::string("unknown");
@@ -363,8 +368,7 @@ double DistToHSCP (const susybsm::HSCParticle& hscp, const std::vector<reco::Gen
       if(genColl[g].pt()<5)continue;
       if(genColl[g].status()!=1)continue;
       int AbsPdg=abs(genColl[g].pdgId());
-      if(AbsPdg<1000000)continue;    
-
+      if(AbsPdg<1000000 && AbsPdg!=17)continue;    
       double dR = deltaR(track->eta(), track->phi(), genColl[g].eta(), genColl[g].phi());
       if(dR<RMin){RMin=dR;IndexOfClosest=g;}
    }
@@ -378,7 +382,7 @@ int HowManyChargedHSCP (const std::vector<reco::GenParticle>& genColl){
       if(genColl[g].pt()<5)continue;
       if(genColl[g].status()!=1)continue;
       int AbsPdg=abs(genColl[g].pdgId());
-      if(AbsPdg<1000000)continue;
+      if(AbsPdg<1000000 && AbsPdg!=17)continue;
       if(AbsPdg==1000993 || AbsPdg==1009313 || AbsPdg==1009113 || AbsPdg==1009223 || AbsPdg==1009333 || AbsPdg==1092114 || AbsPdg==1093214 || AbsPdg==1093324)continue; //Skip neutral gluino RHadrons
       if(AbsPdg==1000622 || AbsPdg==1000642 || AbsPdg==1006113 || AbsPdg==1006311 || AbsPdg==1006313 || AbsPdg==1006333)continue;  //skip neutral stop RHadrons
       toReturn++;
@@ -393,12 +397,69 @@ void  GetGenHSCPBeta (const std::vector<reco::GenParticle>& genColl, double& bet
       if(genColl[g].pt()<5)continue;
       if(genColl[g].status()!=1)continue;
       int AbsPdg=abs(genColl[g].pdgId());
-      if(AbsPdg<1000000)continue;
+      if(AbsPdg<1000000 && AbsPdg!=17)continue;
       if(onlyCharged && (AbsPdg==1000993 || AbsPdg==1009313 || AbsPdg==1009113 || AbsPdg==1009223 || AbsPdg==1009333 || AbsPdg==1092114 || AbsPdg==1093214 || AbsPdg==1093324))continue; //Skip neutral gluino RHadrons
       if(onlyCharged && (AbsPdg==1000622 || AbsPdg==1000642 || AbsPdg==1006113 || AbsPdg==1006311 || AbsPdg==1006313 || AbsPdg==1006333))continue;  //skip neutral stop RHadrons
       if(beta1<0){beta1=genColl[g].p()/genColl[g].energy();}else if(beta2<0){beta2=genColl[g].p()/genColl[g].energy();return;}
    }
 }
+
+
+double deltaROpositeTrack(const susybsm::HSCParticleCollection& hscpColl, const susybsm::HSCParticle& hscp){
+   reco::TrackRef track1=hscp.trackRef();
+
+   double minDr=10;
+   for(unsigned int c=0;c<hscpColl.size();c++){
+      reco::TrackRef track2;
+      if(!hscpColl[c].trackRef().isNull()){
+         track2=hscpColl[c].trackRef();
+      }else if(!hscpColl[c].muonRef().isNull() && hscpColl[c].muonRef()->combinedQuality().updatedSta){
+         track2= hscpColl[c].muonRef()->standAloneMuon();
+      }else{
+         continue;
+      }
+
+      if(fabs(track1->pt()-track2->pt())<1 && deltaR(track1->eta(), track1->phi(), track2->eta(), track2->phi())<0.1)continue; //Skip same tracks
+      double dR = deltaR(-1*track1->eta(), M_PI+track1->phi(), track2->eta(), track2->phi());
+      if(dR<minDr)minDr=dR;
+   }
+   return minDr;
+}
+
 #endif
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Handfull class to check for duplicated events
+
+class DuplicatesClass{
+   private :
+      typedef std::map<std::pair<unsigned int, unsigned int>, int > RunEventHashMap;
+      RunEventHashMap map;
+   public :
+        DuplicatesClass(){}
+        ~DuplicatesClass(){}
+        void Clear(){map.clear();}
+        bool isDuplicate(unsigned int Run, unsigned int Event){
+	   RunEventHashMap::iterator it = map.find(std::make_pair(Run,Event));
+           if(it==map.end()){
+   	      map[std::make_pair(Run,Event)] = 1;
+              return false;
+           }else{
+              map[std::make_pair(Run,Event)]++;
+           }
+           return true;
+        }
+
+        void printDuplicate(){
+           printf("Duplicate event summary:\n##########################################");
+           for(RunEventHashMap::iterator it = map.begin(); it != map.end(); it++){
+              if(it->second>1)printf("Run %6i Event %10i is duplicated (%i times)\n",it->first.first, it->first.second, it->second);
+           }          
+           printf("##########################################");
+        }
+};
+ 
+
 
 

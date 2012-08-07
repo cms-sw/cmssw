@@ -51,6 +51,8 @@ int		   TypeMode         = 0; //0 = Tracker-Only analysis (used in 2010 and 2011
 					 //1 = Tracker+Muon analysis (used in 2010 paper)
                                          //2 = Tracker+TOF  analysis (used in 2011 paper)
                                          //3 = TOF Only     analysis (to be used in 2012 paper)
+                                         //4 = Q>1          analysis (to be used in 2012 paper)
+                                         //5 = Q<1          analysis (to be used in 2012 paper)
                                          //? do not hesitate to define your own --> TOF-Only, mCHAMPs, fractional charge
 
 // directory where to find the EDM files --> check the function at the end of this file, to see how it is defined interactively

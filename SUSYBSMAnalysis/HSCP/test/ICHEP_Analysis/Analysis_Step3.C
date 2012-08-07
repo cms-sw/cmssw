@@ -133,14 +133,15 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
                          GlobalMinTOF    = 0;
    }else if(TypeMode==2) { GlobalMaxTIsol *= 2;
                            GlobalMaxEIsol *= 2;
-   }
-   else if(TypeMode==3){
+   }else if(TypeMode==3){
      GlobalMinIs      =   -1;
      //SA Muon trigger only existed for part of 2011 running
 #ifdef ANALYSIS2011
      IntegratedLuminosityBeforeTriggerChange = 0;
      IntegratedLuminosity = 4100;
 #endif
+   }else if(TypeMode==5){
+      GlobalMinIm = 2.8; //is actually dEdx max at skim level (reverse logic for type5)
    }
 
    // define the selection to be considered later for the optimization
@@ -154,29 +155,22 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
          CutPt .push_back(Pt);   CutI  .push_back(I);  CutTOF.push_back(-1);
       }}
    }else if(TypeMode==2){
-      for(double Pt =GlobalMinPt+5 ; Pt <120;  Pt+=5){
-      for(double I  =GlobalMinIs +0.025; I  <0.40;  I+=0.025){
-      for(double TOF=GlobalMinTOF+0.025; TOF<1.35;TOF+=0.025){
-         CutPt .push_back(Pt);   CutI  .push_back(I);  CutTOF.push_back(TOF);
-      }}}
-   }else if(TypeMode==3){
-     for(double Pt =GlobalMinPt+30 ; Pt <450;  Pt+=30){
-       for(double TOF=GlobalMinTOF+0.025; TOF<1.4;TOF+=0.025){
-         CutPt .push_back(Pt);   CutI  .push_back(-1);  CutTOF.push_back(TOF);
-       }}
-   }
-
-   if(TypeMode==2){
      for(double Pt =GlobalMinPt+10 ; Pt <120;  Pt+=30){
        for(double I  =GlobalMinIs +0.1; I  <0.40;  I+=0.1){
 	 for(double TOF=GlobalMinTOF-0.1; TOF>0.65;TOF-=0.1){
 	   CutPt_Flip .push_back(Pt);   CutI_Flip  .push_back(I);  CutTOF_Flip.push_back(TOF);
-	 }}}
+      }}}
    }else if(TypeMode==3){
      for(double Pt =GlobalMinPt+100 ; Pt <450;  Pt+=60){
        for(double TOF=GlobalMinTOF-0.15; TOF>0.6;TOF-=0.05){
          CutPt_Flip .push_back(Pt);   CutI_Flip  .push_back(-1);  CutTOF_Flip.push_back(TOF);
        }}
+   }else if(TypeMode==5){   
+      for(double Pt =75 ; Pt <=125;Pt+=25){
+      for(double I  =0.75; I  <=1.0 ;I+=0.01){
+         if(I<0.85 && int(I*1000)%5!=0)continue;
+         CutPt .push_back(Pt);   CutI  .push_back(I);  CutTOF.push_back(-1);
+      }}
    }
 
    printf("%i Different Final Selection will be tested\n",(int)CutPt.size());
@@ -318,11 +312,11 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 
    if(st){st->MPt   ->Fill(0.0,Event_Weight);
      if(dedxSObj) st->BS_MIs->Fill(dedxSObj->dEdx(),Event_Weight);
-     if(dedxSObj) st->BS_MIm->Fill(dedxMObj->dEdx(),Event_Weight);
+     if(dedxMObj) st->BS_MIm->Fill(dedxMObj->dEdx(),Event_Weight);
    }
 
-   if(dedxSObj) if(dedxSObj->dEdx()+RescaleI<GlobalMinIs)return false;
-   if(dedxSObj) if(dedxMObj->dEdx()<GlobalMinIm)return false;
+   if(dedxSObj && dedxSObj->dEdx()+RescaleI<GlobalMinIs)return false;
+   if(dedxMObj && ((TypeMode!=5 && dedxMObj->dEdx()<GlobalMinIm) || (TypeMode==5 && dedxMObj->dEdx()>GlobalMinIm)) )return false;
    if(st){st->MI   ->Fill(0.0,Event_Weight);}
 
    if(tof){
@@ -1010,6 +1004,12 @@ void Analysis_Step3(char* SavePath)
 		 dedxSObj  = &dEdxSCollH->get(track.key());
 		 dedxMObj  = &dEdxMCollH->get(track.key());
 	       }
+               if(TypeMode==5 && dedxSObj){
+                  //for FractionalCharge dEdx discriminator probability is close to 0, just inverse the logic such that it become close to 1 as for other analyses
+                  dedxSObj = new DeDxData(1.0-dedxSObj->dEdx(), dedxSObj->numberOfSaturatedMeasurements(), dedxSObj->numberOfMeasurements());
+                  //skip HSCP that are compatible with cosmics.
+                  if(deltaROpositeTrack(hscpColl, hscp)<0.3)continue;
+               }
 
                const reco::MuonTimeExtra* tof = NULL;
                const reco::MuonTimeExtra* dttof = NULL;
