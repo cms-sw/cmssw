@@ -1,10 +1,10 @@
-# /online/collisions/2012/5e33/v4.4/HLT/V8 (CMSSW_5_2_3_HLT2)
+# /online/collisions/2012/5e33/v4.4/HLT/V12 (CMSSW_5_2_3_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/5e33/v4.4/HLT/V8')
+  tableName = cms.string('/online/collisions/2012/5e33/v4.4/HLT/V12')
 )
 
 streams = cms.PSet( 
@@ -113,8 +113,7 @@ datasets = cms.PSet(
     'HLT_Mu22_TkMu8_v4',
     'HLT_Mu8_v16',
     'HLT_TripleMu5_v17' ),
-  DoubleMuParked = cms.vstring( 'HLT_Dimuon0_Jpsi_Muon_v15',
-    'HLT_Dimuon10_Jpsi_v3',
+  DoubleMuParked = cms.vstring( 'HLT_Dimuon10_Jpsi_v3',
     'HLT_Dimuon5_PsiPrime_v3',
     'HLT_Dimuon8_Jpsi_v3',
     'HLT_Dimuon9_PsiPrime_v9',
@@ -345,7 +344,8 @@ datasets = cms.PSet(
     'HLT_PFHT400_Mu5_PFMET50_v3',
     'HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFHT175_v2',
     'HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFHT225_v2' ),
-  MuOnia = cms.vstring( 'HLT_Dimuon0_Jpsi_NoVertexing_v11',
+  MuOnia = cms.vstring( 'HLT_Dimuon0_Jpsi_Muon_v15',
+    'HLT_Dimuon0_Jpsi_NoVertexing_v11',
     'HLT_Dimuon0_Jpsi_v14',
     'HLT_Dimuon0_PsiPrime_v3',
     'HLT_Dimuon0_Upsilon_Muon_v15',
