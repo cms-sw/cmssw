@@ -194,7 +194,7 @@ FamosCalorimetryBlock = cms.PSet(
             GridSize = cms.int32(7),
             #-- 0 - simple response, 1 - parametrized response + showering, 2 - tabulated response + showering
             SimOption = cms.int32(2),
-            Digitizer = cms.untracked.bool(True),
+            Digitizer = cms.untracked.bool(False),
             samplingHBHE = cms.vdouble(125.44, 125.54, 125.32, 125.13, 124.46,
                                        125.01, 125.22, 125.48, 124.45, 125.90,
                                        125.83, 127.01, 126.82, 129.73, 131.83,
