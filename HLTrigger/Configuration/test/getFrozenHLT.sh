@@ -24,10 +24,8 @@ function getConfigForCVS() {
   local NAME="$2"
   log "    dumping HLT cffs for $NAME from $CONFIG"
   # do not use any conditions or L1 override
-  log "    hltGetConfiguration --cff --offline --mc    $CONFIG --type GRun > HLT_${NAME}_cff.py"
-  hltGetConfiguration --cff --offline --mc    $CONFIG --type GRun > HLT_${NAME}_cff.py
-  log "    hltGetConfiguration --fastsim               $CONFIG --type GRun > HLT_${NAME}_Famos_cff.py"
-  hltGetConfiguration --fastsim               $CONFIG --type GRun > HLT_${NAME}_Famos_cff.py
+  hltGetConfiguration --cff --offline --mc    $CONFIG --type "GRun" > HLT_${NAME}_cff.py
+  hltGetConfiguration --fastsim               $CONFIG --type "GRun" > HLT_${NAME}_Famos_cff.py
 }
 
 function getConfigForOnline() {
@@ -35,10 +33,8 @@ function getConfigForOnline() {
   local NAME="$2"
   log "    dumping full HLT for $NAME from $CONFIG"
   # override the conditions with a menu-dependent "virtual" global tag, which takes care of overriding the L1 menu
-  log "    hltGetConfiguration --full --offline --data $CONFIG --type GRun --unprescale --process HLT$NAME --globaltag auto:hltonline_$NAME > OnData_HLT_${NAME}.py"
-  hltGetConfiguration --full --offline --data $CONFIG --type GRun --unprescale --process HLT$NAME --globaltag auto:hltonline_$NAME > OnData_HLT_${NAME}.py
-  log "    hltGetConfiguration --full --offline --mc   $CONFIG --type GRun --unprescale --process HLT$NAME --globaltag auto:startup_$NAME   > OnLine_HLT_${NAME}.py"
-  hltGetConfiguration --full --offline --mc   $CONFIG --type GRun --unprescale --process HLT$NAME --globaltag auto:startup_$NAME   > OnLine_HLT_${NAME}.py
+  hltGetConfiguration --full --offline --data $CONFIG --type "GRun" --unprescale --process "HLT${NAME}" --globaltag "auto:hltonline_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root"    > OnData_HLT_${NAME}.py
+  hltGetConfiguration --full --offline --mc   $CONFIG --type "GRun" --unprescale --process "HLT${NAME}" --globaltag "auto:startup_${NAME}"   --input "file:RelVal_Raw_${NAME}_STARTUP.root" > OnLine_HLT_${NAME}.py
 }
 
 # make sure we're using *this* working area
