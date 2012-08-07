@@ -107,7 +107,7 @@ if [ ! -z `echo ${run} | tr -d "[:digit:]"` ]
     echo "${lastRun} stopped" > ${lastFile}
 
     # if we're already stopped, don't keep writing to the summary file
-    if[ ${lastStatus} -ne "stopped" ]
+    if [ ${lastStatus} -ne "stopped" ]
 	then
 	echo "`date` : validate-o2o-wbm.sh" >> ${summaryFile}
 	echo "last runnum = ${lastRun}" >> ${summaryFile}
