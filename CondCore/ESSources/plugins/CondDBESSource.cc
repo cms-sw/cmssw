@@ -394,7 +394,6 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
 	  theSession.openReadOnly( tcIter->second.pfn, transId.str() );
 	  edm::LogInfo( "CondDBESSource" ) << "Re-opening the session with connection string " << tcIter->second.pfn
 					   << " and new transaction Id " <<  transId.str()
-					   << " on the real connection string " << theSession.connectionString()
 					   << "; from CondDBESSource::setIntervalFor";
 	}
 	
@@ -406,7 +405,8 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
 					 << "; from CondDBESSource::setIntervalFor";
 	bool isSizeIncreased = pmIter->second->proxy()->refresh( theSession );
 	if( isSizeIncreased )
-	  edm::LogInfo( "CondDBESSource" ) << "After reconnecting, an increased size of the IOV sequence was found; from CondDBESSource::setIntervalFor";
+	  edm::LogInfo( "CondDBESSource" ) << "After reconnecting, an increased size of the IOV sequence labeled by tag \"" << tcIter->second.tag
+					   << "\" was found; from CondDBESSource::setIntervalFor";
 	m_stats.nActualReconnect += isSizeIncreased;
 	m_stats.nReconnect++;
       } else {
@@ -417,7 +417,8 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
 					 << "; from CondDBESSource::setIntervalFor";
 	bool isSizeIncreased = pmIter->second->proxy()->refresh();
 	if( isSizeIncreased )
-	  edm::LogInfo( "CondDBESSource" ) << "After refreshing, an increased size of the IOV sequence was found; from CondDBESSource::setIntervalFor";
+	  edm::LogInfo( "CondDBESSource" ) << "After refreshing, an increased size of the IOV sequence labeled by tag \"" << tcIter->second.tag
+					   << "\" was found; from CondDBESSource::setIntervalFor";
         m_stats.nActualRefresh += isSizeIncreased;
 	m_stats.nRefresh++;
       }
@@ -475,7 +476,7 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
    }
   
   edm::LogInfo( "CondDBESSource" ) << "Setting validity for record \"" << recordname 
-				   << "\"and corresponding label(s): starting at " << oInterval.first().eventID() << ", timestamp: " << oInterval.first().time().value()
+				   << "\" and corresponding label(s): starting at " << oInterval.first().eventID() << ", timestamp: " << oInterval.first().time().value()
 				   << ", ending at "<< oInterval.last().eventID() << ", timestamp: " << oInterval.last().time().value()
 				   << ", for "<< iTime.eventID() << ", timestamp: " << iTime.time().value()
 				   << "; from CondDBESSource::setIntervalFor";
