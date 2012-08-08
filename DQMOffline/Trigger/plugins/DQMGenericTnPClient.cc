@@ -17,7 +17,7 @@
 using namespace std;
 using namespace edm;
 using namespace dqmTnP;
-using namespace std;
+
 
 typedef std::vector<std::string> vstring;
 
