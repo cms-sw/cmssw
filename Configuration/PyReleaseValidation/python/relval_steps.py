@@ -5,6 +5,8 @@ class Matrix(dict):
         if key in self:
             print "ERROR in Matrix"
             print "overwritting",key,"not allowed"
+            import sys
+            sys.exit(-9)
         else:
             self.update({float(key):WF(float(key),value)})
 
@@ -15,6 +17,8 @@ class Steps(dict):
         if key in self:
             print "ERROR in Step"
             print "overwritting",key,"not allowed"
+            import sys
+            sys.exit(-9) 
         else:
             self.update({key:value})
             # make the python file named <step>.py
@@ -39,13 +43,14 @@ class WF(list):
     
 InputInfoNDefault=2000000    
 class InputInfo(object):
-    def __init__(self,dataSet,label='',run=[],files=1000,events=InputInfoNDefault,location='CAF') :
+    def __init__(self,dataSet,label='',run=[],files=1000,events=InputInfoNDefault,split=8,location='CAF') :
         self.run = run
         self.files = files
         self.events = events
         self.location = location
         self.label = label
         self.dataSet = dataSet
+        self.split=split
 
     def dbs(self):
         command='dbs search --noheader --query "find file where dataset like '+self.dataSet
@@ -90,8 +95,8 @@ step1Defaults = {'--relval'      : None, # need to be explicitly set
 steps = Steps()
 
 #### Production test section ####
-steps['ProdMinBias']=merge([{'cfg':'MinBias_8TeV_cfi','--relval':'9000,100'},step1Defaults])
-steps['ProdTTbar']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi','--relval':'9000,50'},step1Defaults])
+steps['ProdMinBias']=merge([{'cfg':'MinBias_8TeV_cfi','--relval':'9000,300'},step1Defaults])
+steps['ProdTTbar']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi','--relval':'9000,100'},step1Defaults])
 steps['ProdQCD_Pt_3000_3500']=merge([{'cfg':'QCD_Pt_3000_3500_8TeV_cfi','--relval':'9000,25'},step1Defaults])
 
 #steps['ProdMinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValProdMinBias/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='prodmbrv',location='STD')}
@@ -156,10 +161,26 @@ steps['RunHI2010']={'INPUT':InputInfo(dataSet='/HIAllPhysics/HIRun2010-v1/RAW',l
 steps['RunHI2011']={'INPUT':InputInfo(dataSet='/HIAllPhysics/HIRun2011A-v1/RAW',label='hi2011',run=[174773],events=10000,location='STD')}
 
 
-Run2011A=[191226]
-steps['RunMinBias2012A']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2012A-v1/RAW',label='mb2012A',run=Run2011A, events=100000,location='STD')}
-steps['RunTau2012A']={'INPUT':InputInfo(dataSet='/Tau/Run2012A-v1/RAW',label='tau2012A', run=Run2011A, events=100000,location='STD')}
-steps['RunMET2012A']={'INPUT':InputInfo(dataSet='/MET/Run2012A-v1/RAW',label='met2012A', run=Run2011A, events=100000,location='STD')}
+Run2012A=[191226]
+steps['RunMinBias2012A']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2012A-v1/RAW',label='mb2012A',run=Run2012A, events=100000,location='STD')}
+steps['RunTau2012A']={'INPUT':InputInfo(dataSet='/Tau/Run2012A-v1/RAW',label='tau2012A', run=Run2012A, events=100000,location='STD')}
+steps['RunMET2012A']={'INPUT':InputInfo(dataSet='/MET/Run2012A-v1/RAW',label='met2012A', run=Run2012A, events=100000,location='STD')}
+steps['RunMu2012A']={'INPUT':InputInfo(dataSet='/SingleMu/Run2012A-v1/RAW',label='mu2012A', run=Run2012A, events=100000,location='STD')}
+steps['RunElectron2012A']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2012A-v1/RAW',label='electron2012A', run=Run2012A, events=100000,location='STD')}
+steps['RunJet2012A']={'INPUT':InputInfo(dataSet='/Jet/Run2012A-v1/RAW',label='jet2012A', run=Run2012A, events=100000,location='STD')}
+
+
+Run2012B=[194533]
+Run2012Bsk=Run2012B+[194912,195016]
+steps['RunMinBias2012B']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2012B-v1/RAW',label='mb2012B',run=Run2012B, events=100000,location='STD')}
+steps['RunMu2012B']={'INPUT':InputInfo(dataSet='/SingleMu/Run2012B-v1/RAW',label='mu2012B',location='STD',run=Run2012B)}
+steps['RunPhoton2012B']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2012B-v1/RAW',label='photon2012B',location='STD',run=Run2012B)}
+steps['RunEl2012B']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2012B-v1/RAW',label='electron2012B',location='STD',run=Run2012B)}
+steps['RunJet2012B']={'INPUT':InputInfo(dataSet='/JetHT/Run2012B-v1/RAW',label='jet2012B',location='STD',run=Run2012B)}
+steps['ZMuSkim2012B']={'INPUT':InputInfo(dataSet='/SingleMu/Run2012B-ZMu-PromptSkim-v1/RAW-RECO',label='zMu2012B',location='CAF',run=Run2012Bsk)}
+steps['WElSkim2012B']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2012B-WElectron-PromptSkim-v1/USER',label='wEl2012B',location='STD',run=Run2012Bsk)}
+steps['ZElSkim2012B']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2012B-ZElectron-PromptSkim-v1/RAW-RECO',label='zEl2012B',location='STD',run=Run2012Bsk)}
+
 
 #### Standard release validation samples ####
 
@@ -197,15 +218,16 @@ steps['QCD_FlatPt_15_3000']=gen('QCDForPF_8TeV_cfi',K9by100)
 steps['QCD_FlatPt_15_3000HS']=gen('QCDForPF_8TeV_cfi',K50by100)
 
 baseDataSetRelease=[
-    'CMSSW_6_0_0_pre3-START60_V0-v1',
-    'CMSSW_6_0_0_pre3-STARTHI60_V0-v1',
-    'CMSSW_6_0_0_pre3-PU_START60_V0-v1'
+    'CMSSW_5_2_1-START52_V4-v1',
+    'CMSSW_5_2_1-STARTHI52_V4-v1',
+    'CMSSW_5_2_1-PU_START52_V4-v1'
     ]
 
 steps['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['QCD_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['QCD_Pt_80_120INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_80_120/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['SingleElectronPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt10/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['SingleElectronPt1000INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt1000/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['SingleElectronPt35INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt35/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['SingleGammaPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleGammaPt10/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['SingleGammaPt35INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleGammaPt35/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
@@ -320,7 +342,7 @@ steps['QCD_Pt_170_230']=genS('QCD_Pt_170_230_8TeV_cfi',K250by100)
 ## heavy ions tests
 U500by5={'--relval': '500,5'}
 U80by2={'--relval': '80,2'}
-hiDefaults={'--conditions':'auto:starthi',
+hiDefaults={'--conditions':'auto:starthi_HIon',
            '--scenario':'HeavyIons'}
 
 steps['HydjetQ_MinBias_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U500by5)])
@@ -348,24 +370,22 @@ def addForAll(steps,d):
 
 #### fastsim section ####
 ##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
-step1FastDefaults =merge([{'-s':'GEN,FASTSIM,HLT:GRun,VALIDATION',
+step1FastDefaults =merge([{'-s':'GEN,FASTSIM,HLT:7E33v2,VALIDATION',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
                            '--datatier':'GEN-SIM-DIGI-RECO,DQM',
-                           '--relval':'27000,500'},
+                           '--relval':'27000,3000'},
                           step1Defaults])
 K100by500={'--relval':'100000,500'}
-steps['TTbarFS']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi'},K100by500,step1FastDefaults])
-#steps['TTbarFS2']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi'},K100by500,stCond,step1FastDefaults])
+K100byK2={'--relval':'100000,2000'}
+steps['TTbarFS']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi'},K100byK2,step1FastDefaults])
 steps['SingleMuPt1FS']=merge([{'cfg':'SingleMuPt1_cfi'},step1FastDefaults])
 steps['SingleMuPt10FS']=merge([{'cfg':'SingleMuPt10_cfi'},step1FastDefaults])
 steps['SingleMuPt100FS']=merge([{'cfg':'SingleMuPt100_cfi'},step1FastDefaults])
 steps['SinglePiPt1FS']=merge([{'cfg':'SinglePiPt1_cfi'},step1FastDefaults])
 steps['SinglePiPt10FS']=merge([{'cfg':'SinglePiPt10_cfi'},step1FastDefaults])
 steps['SinglePiPt100FS']=merge([{'cfg':'SinglePiPt100_cfi'},step1FastDefaults])
-steps['ZEEFS']=merge([{'cfg':'ZEE_8TeV_cfi'},K100by500,step1FastDefaults])
-#steps['ZEEFS2']=merge([{'cfg':'ZEE_8TeV_cfi'},K100by500,stCond,step1FastDefaults])
-steps['ZTTFS']=merge([{'cfg':'ZTT_Tauola_OneLepton_OtherHadrons_8TeV_cfi'},K100by500,step1FastDefaults])
-#steps['ZTTFS2']=merge([{'cfg':'ZTT_Tauola_OneLepton_OtherHadrons_8TeV_cfi'},K100by500,stCond,step1FastDefaults])
+steps['ZEEFS']=merge([{'cfg':'ZEE_8TeV_cfi'},K100byK2,step1FastDefaults])
+steps['ZTTFS']=merge([{'cfg':'ZTT_Tauola_OneLepton_OtherHadrons_8TeV_cfi'},K100byK2,step1FastDefaults])
 steps['QCDFlatPt153000FS']=merge([{'cfg':'QCDForPF_8TeV_cfi'},step1FastDefaults])
 steps['QCD_Pt_80_120FS']=merge([{'cfg':'QCD_Pt_80_120_8TeV_cfi'},K100by500,stCond,step1FastDefaults])
 steps['QCD_Pt_3000_3500FS']=merge([{'cfg':'QCD_Pt_3000_3500_8TeV_cfi'},K100by500,stCond,step1FastDefaults])
@@ -419,7 +439,7 @@ steps['TTbarFSPU2']=merge([PUFS2,steps['TTbarFS']])
 
 # step2 
 step2Defaults = { 
-                  '-s'            : 'DIGI,L1,DIGI2RAW,HLT,RAW2DIGI,L1Reco',
+                  '-s'            : 'DIGI,L1,DIGI2RAW,HLT:7E33v2,RAW2DIGI,L1Reco',
                   '--datatier'    : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
                   '--eventcontent': 'FEVTDEBUGHLT',
                   '--conditions'  : 'auto:startup',
@@ -432,14 +452,14 @@ steps['DIGI']=merge([step2Defaults])
 steps['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},stCond,step2Defaults])
 
 steps['DIGIPU1']=merge([PU,step2Defaults])
-steps['REDIGIPU']=merge([{'-s':'reGEN,reDIGI,L1,DIGI2RAW,HLT,RAW2DIGI,L1Reco'},steps['DIGIPU1']])
+steps['REDIGIPU']=merge([{'-s':'reGEN,reDIGI,L1,DIGI2RAW,HLT:7E33v2,RAW2DIGI,L1Reco'},steps['DIGIPU1']])
 
 
 steps['RESIM']=merge([{'-s':'reGEN,reSIM','-n':10},steps['DIGI']])
-steps['RESIMDIGI']=merge([{'-s':'reGEN,reSIM,DIGI,L1,DIGI2RAW,HLT,RAW2DIGI,L1Reco','-n':10,'--restoreRNDSeeds':'','--process':'HLT'},steps['DIGI']])
+steps['RESIMDIGI']=merge([{'-s':'reGEN,reSIM,DIGI,L1,DIGI2RAW,HLT:7E33v2,RAW2DIGI,L1Reco','-n':10,'--restoreRNDSeeds':'','--process':'HLT'},steps['DIGI']])
 
     
-steps['DIGIHI']=merge([{'-n':10},hiDefaults,step2Defaults])
+steps['DIGIHI']=merge([{'--conditions':'auto:starthi_HIon', '-s':'DIGI,L1,DIGI2RAW,HLT:HIon,RAW2DIGI,L1Reco', '--inputCommands':'"keep *","drop *_simEcalPreshowerDigis_*_*"', '-n':10}, hiDefaults, step2Defaults])
 
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step2,{'--process':'DIGI'})
@@ -454,8 +474,8 @@ dataReco={'--conditions':'auto:com10',
           }
 
 steps['HLTD']=merge([{'--process':'reHLT',
-                      '-s':'L1REPACK,HLT',
-                      '--condition':'auto:hltonline11',
+                      '-s':'L1REPACK,HLT:7E33v2',
+                      '--conditions':'auto:hltonline_7E33v2',
                       '--data':'',
                       '--output':'\'[{"e":"RAW","t":"RAW","o":["drop FEDRawDataCollection_rawDataCollector__LHC"]}]\'',
                       },])
@@ -518,13 +538,12 @@ step3Defaults = {
 
 steps['DIGIPU']=merge([{'--process':'REDIGI'},steps['DIGIPU1']])
 
-steps['RECODst3']=merge([{'--hltProcess':'reHLT'},steps['RECOD']])
+steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:com10_7E33v2'},steps['RECOD']])
 steps['RECO']=merge([step3Defaults])
 steps['RECODBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECO']])
 steps['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Defaults])
 steps['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu,DQM','--scenario':'cosmics'},stCond,step3Defaults])
 steps['RECOMIN']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+EcalCalPhiSym+EcalCalPi0Calib+EcalCalEtaCalib,VALIDATION,DQM'},stCond,step3Defaults])
-
 steps['RECODDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,DQM:@common+@muon+@hcal+@jetmet+@ecal'},steps['RECOD']])
 
 steps['RECOPU1']=merge([PU,steps['RECO']])
@@ -603,6 +622,8 @@ steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
                    '--data':'',
                    '--scenario':'pp'}
 
+steps['HARVESTDreHLT'] = merge([ {'--conditions':'auto:com10_7E33v2'}, steps['HARVESTD'] ])
+
 steps['HARVESTDDQM']=merge([{'-s':'HARVESTING:@common+@muon+@hcal+@jetmet+@ecal'},steps['HARVESTD']])
 
 steps['HARVESTDfst2']=merge([{'--filein':'file:step2_inDQM.root'},steps['HARVESTD']])
@@ -652,7 +673,7 @@ steps['SKIMD']={'-s':'SKIM:all',
                 '--filein':'file:step2.root',
                 '--secondfilein':'filelist:step1_dbsquery.log'}
 
-steps['SKIMD3']=merge([{'--filein':'file:step3.root'},steps['SKIMD']])
+steps['SKIMDreHLT'] = merge([ {'--conditions':'auto:com10_7E33v2','--filein':'file:step3.root'}, steps['SKIMD'] ])
 
 steps['SKIMCOSD']={'-s':'SKIM:all',
                    '--conditions':'auto:com10',
@@ -664,11 +685,11 @@ steps['SKIMCOSD']={'-s':'SKIM:all',
 
 #### for special wfs ###
 #steps['TTbar_REDIGI_RERECO']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi',
-#                                     '-s':'GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun,RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu+DtCalib,VALIDATION,DQM',
+#                                     '-s':'GEN,SIM,DIGI,L1,DIGI2RAW,HLT:7E33v2,RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu+DtCalib,VALIDATION,DQM',
 #                                     '--datatier':'GEN-SIM-DIGI-RAW-HLTDEBUG-RECO,DQM',
 #                                     '--eventcontent':'FEVTDEBUGHLT,DQM'},
 #                                    K9by50,stCond,step1Defaults])
-#steps['DIGI2RECO']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:GRun,RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
+#steps['DIGI2RECO']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:7E33v2,RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
 #                           '--filtername':'DIGItoRECO',
 #                           '--process':'RECO',
 #                           '--eventcontent':'RECOSIM,DQM',
@@ -694,7 +715,6 @@ steps['RECODFROMRAWRECO']=merge([{'-s':'RAW2DIGI:RawToDigi_noTk,L1Reco,RECO:reco
                                   '--secondfilein':'filelist:step1_dbsquery.log',
                                   },
                                  steps['RECOD']])
-
 
 steps['COPYPASTE']={'-s':'NONE',
                     '--conditions':'auto:startup',

@@ -141,6 +141,20 @@ SKIMStreamHZZ = cms.FilteredStream(
         dataTier = cms.untracked.string('AOD')
         )
 
+#####################
+
+# file name "PDWG_HLTZEROBIASSIG_SD" inherited from 2011 - it's actually a filter on HLT_Physics bit
+from Configuration.Skimming.PDWG_HLTZEROBIASSIG_SD_cff import *
+HLTZEROBIASSIGSDPath = cms.Path(HLTZEROBIASSIGSD)
+SKIMStreamHLTPhysics = cms.FilteredStream(
+    responsible = 'TSG',
+    name = 'HLTPhysics',
+    paths = (HLTZEROBIASSIGSDPath),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO') 
+    )
+
 
 """
 #####################
@@ -155,18 +169,6 @@ SKIMStreamHLTZEROBIASPUSD = cms.FilteredStream(
     responsible = 'PDWG',
     name = 'HLTZEROBIASPUSD',
     paths = (HLTZEROBIASPUSDPath),
-    content = skimRecoContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW') # for the moment, it could be DIGI in the future
-    )
-
-#The events to be used as signal
-from Configuration.Skimming.PDWG_HLTZEROBIASSIG_SD_cff import *
-HLTZEROBIASSIGSDPath = cms.Path(HLTZEROBIASSIGSD)
-SKIMStreamHLTZEROBIASSIGSD = cms.FilteredStream(
-    responsible = 'PDWG',
-    name = 'HLTZEROBIASSIGSD',
-    paths = (HLTZEROBIASSIGSDPath),
     content = skimRecoContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW') # for the moment, it could be DIGI in the future

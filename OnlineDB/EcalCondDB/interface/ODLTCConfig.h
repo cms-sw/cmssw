@@ -34,12 +34,6 @@ class ODLTCConfig : public IODConfig {
   inline unsigned char* getLTCClob() const { return m_ltc_clob; }
 
   void setParameters(std::map<std::string,std::string> my_keys_map);
-
-  inline void printout(){ 
-    std::cout <<"LTC >>" << "LTCConfigurationFile " <<  getLTCConfigurationFile()<< std::endl;
-     
-  }
-
   
  private:
   void prepareWrite()  throw(std::runtime_error);

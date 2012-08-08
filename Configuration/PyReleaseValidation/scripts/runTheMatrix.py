@@ -102,7 +102,7 @@ if __name__ == '__main__':
                       dest='raw'
                       )
     parser.add_option('-i','--useInput',
-                      help='Use recyling where available',
+                      help='Use recyling where available. Either all, or a coma separated list of wf number.',
                       dest='useInput',
                       default=None
                       )

@@ -26,7 +26,7 @@ useRelValSample = False
 #
 # comment/uncomment the next line to choose sample type 
 # (un-commented selects MC RelVal)
-#useRelValSample=True
+useRelValSample=True
 
 if useRelValSample == False :
     
@@ -36,8 +36,8 @@ if useRelValSample == False :
     #dataType = 'StreamFile'
     #dataType = 'RECO'
     
-    #globalTag = 'auto:com10'        # GR_R_*
-    globalTag = 'auto:hltonline'   # GR_H_*
+    globalTag = 'auto:com10'        # GR_R_*
+    #globalTag = 'auto:hltonline'   # GR_H_*
 
     #runNumber = '123596'
     #runNumber = '116035'
@@ -51,14 +51,9 @@ if useRelValSample == False :
     #runNumber = '156508_137028'
     #runNumber = '165633-CAFDQM'
     #runNumber = '180250'
-    #runNumber = '186253'
-    runNumber = '186295'
-
-    # high PU run 2011
-    #runNumber = '179828' 
     
-    # splash events 2012
-    #runNumber = '187858' 
+    # high PU run 2011
+    runNumber = '179828' 
 
 else :
 
@@ -101,7 +96,7 @@ overrideGlobalTag = False
 #overrideGlobalTag = True
 
 if overrideGlobalTag == True :
-    myGlobalTag = 'GR_P_V28'
+    myGlobalTag = 'GR_R_50_V3'
 
 ###################### end user choices ###################
 
@@ -125,7 +120,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         if (sampleFromRelease == 'CMSSW_3_7_0') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
 
             dataset = '/RelValTTbar/CMSSW_3_7_0-MC_37Y_V4-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
  
             readFiles.extend( [
                 '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V4-v1/0024/F06AD39F-3C69-DF11-BDDF-0026189438C2.root',
@@ -154,7 +149,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_3_6_0_pre2') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
 
             dataset = '/RelValTTbar/CMSSW_3_6_0_pre2-MC_3XY_V24-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
         
             readFiles.extend( [
                 '/store/relval/CMSSW_3_6_0_pre2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V24-v1/0001/9A4F4BE5-6E27-DF11-B3B6-002618FDA250.root',
@@ -184,7 +179,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_3_5_2') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
 
             dataset = '/RelValTTbar/CMSSW_3_5_2-MC_3XY_V21-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
         
             readFiles.extend( [
                 '/store/relval/CMSSW_3_5_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V21-v1/0016/FAA58A57-3D1E-DF11-87A5-001731A283DF.root',
@@ -200,7 +195,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
             
 
             dataset = '/RelValQCD_Pt_80_120/CMSSW_3_5_0-MC_3XY_V21-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
 
             readFiles.extend( [
                 '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V21-v1/0013/88F831A5-6313-DF11-991F-001731AF67B7.root',
@@ -226,7 +221,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_3_3_6') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
 
             dataset = '/RelValTTbar/CMSSW_3_3_6-MC_3XY_V9A-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
         
             readFiles.extend([
                 '/store/relval/CMSSW_3_3_6/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V9A-v1/0009/F6C6F406-3CE4-DE11-8F12-00304867BEE4.root',
@@ -238,7 +233,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_2_2_12') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
 
             dataset = '/RelValTTbar/CMSSW_2_2_4_IDEAL_V11_v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
         
             readFiles.extend([
                 '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V11_v1/0000/02697009-5CF3-DD11-A862-001D09F2423B.root',
@@ -250,7 +245,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_3_5_0') and (useSample == 'RelValQCD_Pt_80_120') and (dataType == 'RECO') :
 
             dataset = '/RelValQCD_Pt_80_120/CMSSW_3_5_0-MC_3XY_V21-v1/GEN-SIM-RECO'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
 
             readFiles.extend( [
                 '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V21-v1/0013/A6A96D0E-6313-DF11-8B6F-001A928116EE.root',
@@ -267,7 +262,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_3_6_0_pre2') and (useSample == 'RelValTTbar') and (dataType == 'RECO') :
             
             dataset = '/RelValTTbar/CMSSW_3_6_0_pre2-MC_3XY_V24-v1/GEN-SIM-RECO'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
 
             readFiles.extend( [
                 '/store/relval/CMSSW_3_6_0_pre2/RelValTTbar/GEN-SIM-RECO/MC_3XY_V24-v1/0001/6E01AFE7-6E27-DF11-986F-002618FDA207.root',
@@ -284,7 +279,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_3_5_0') and (useSample == 'RelValTTbar') and (dataType == 'RECO') :
             
             dataset = '/RelValTTbar/CMSSW_3_5_0-MC_3XY_V21-v1/GEN-SIM-RECO'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
 
             readFiles.extend( [
                 '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/MC_3XY_V21-v1/0014/5837B301-6D13-DF11-970D-001A928116EE.root',
@@ -303,7 +298,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_3_4_1') and (useSample == 'RelValQCD_Pt_80_120') and (dataType == 'RECO') :
 
             dataset = '/RelValQCD_Pt_80_120/CMSSW_3_4_1-MC_3XY_V14-v1/GEN-SIM-RECO'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
 
             readFiles.extend( [
                 '/store/relval/CMSSW_3_4_1/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V14-v1/0004/FE21D38C-7AED-DE11-8572-001D09F23F2A.root',
@@ -319,7 +314,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_3_4_1') and (useSample == 'RelValTTbar') and (dataType == 'RECO') :
             
             dataset = '/RelValTTbar/CMSSW_3_4_1-MC_3XY_V14-v1/GEN-SIM-RECO'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
 
             readFiles.extend( [
                 '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-RECO/MC_3XY_V14-v1/0004/F4996794-A2ED-DE11-81E5-001D09F2423B.root',
@@ -335,7 +330,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
 
 
         else :
-            print 'Error: no files for:\n  sample', useSample, '\n  type', dataType, '\n  produced with', sampleFromRelease    
+            print 'Error: no files for:\n  sample', useSample, '\n  type', dataType, '\n  produced with', sampleFromRelease, '\n  global tag of type ', globalTag    
             errorUserOptions = True
             
 
@@ -349,7 +344,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         if (sampleFromRelease == 'CMSSW_5_2_X') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
 
             dataset = '/RelValTTbar/CMSSW_5_2_0_pre4-START52_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
             
             readFiles.extend( [
                     '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/02B4D46B-BB51-E111-A789-003048678A76.root',
@@ -367,7 +362,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_4_2_8') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
 
             dataset = '/RelValTTbar/CMSSW_4_2_8-START42_V12-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
             
             readFiles.extend( [
                 '/store/relval/CMSSW_4_2_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v1/0030/B60C917B-B5BB-E011-85DD-001A92971B7C.root',
@@ -394,7 +389,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_4_1_5') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
 
             dataset = '/RelValTTbar/CMSSW_4_1_5-START311_V2-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
             
             readFiles.extend( [
                 '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0042/CEC944D6-736F-E011-AFF9-00304867904E.root',
@@ -421,7 +416,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_3_7_0') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
 
             dataset = '/RelValTTbar/CMSSW_3_7_0-START37_V4-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
  
             readFiles.extend( [
                 '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/DAA27EF5-5069-DF11-9B53-002618943982.root',
@@ -449,7 +444,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_3_6_0_pre2') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
 
             dataset = '/RelValTTbar/CMSSW_3_6_0_pre2-START3X_V24-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
         
             readFiles.extend( [
                 '/store/relval/CMSSW_3_6_0_pre2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START3X_V24-v1/0002/A047940F-A827-DF11-9015-0026189438E6.root',
@@ -480,7 +475,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_3_5_6') and (useSample == 'MinBias') and (dataType == 'RAW') :
 
             dataset = '/MinBias/Spring10-START3X_V25B-v1/GEN-SIM-RAW'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
         
             readFiles.extend( [
                 '/store/mc/Spring10/MinBias/GEN-SIM-RAW/START3X_V25B-v1/0104/FECFDECD-9739-DF11-A00E-001A92971AAA.root',
@@ -493,7 +488,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_3_5_2') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
 
             dataset = '/RelValTTbar/CMSSW_3_5_2-START3X_V21-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
         
             readFiles.extend( [
                 '/store/relval/CMSSW_3_5_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START3X_V21-v1/0016/FE2573D6-381E-DF11-9B55-001731AF678D.root',
@@ -508,7 +503,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_3_5_0') and (useSample == 'RelValQCD_Pt_80_120') and (dataType == 'RAW') :
         
             dataset = '/RelValQCD_Pt_80_120/CMSSW_3_5_0-START3X_V21-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
 
             readFiles.extend( [
                 '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG/START3X_V21-v1/0013/A2650844-3F13-DF11-9F8B-0018F3D096C6.root',
@@ -535,7 +530,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_3_3_6') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
 
             dataset = '/RelValTTbar/CMSSW_3_3_6-STARTUP3X_V8H-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
         
             readFiles.extend([
                 '/store/relval/CMSSW_3_3_6/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V8H-v1/0009/E44B9490-3BE4-DE11-962B-0026189437FD.root',
@@ -546,7 +541,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_2_2_12') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
             
             dataset = '/RelValTTbar/CMSSW_2_2_4_STARTUP_V8_v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
-            print '   Running on', useSample, 'sample produced with', sampleFromRelease  
+            print '   Running on', useSample, 'sample produced with', sampleFromRelease, '. Global tag used to run:', globalTag  
         
             readFiles.extend([
                 '/store/relval/CMSSW_2_2_4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V8_v1/0000/069AA022-5BF3-DD11-9A56-001617E30D12.root',
@@ -558,7 +553,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_3_6_0_pre2') and (useSample == 'RelValTTbar') and (dataType == 'RECO') :
         
             dataset = '/RelValTTbar/CMSSW_3_6_0_pre2-START3X_V24-v1/GEN-SIM-RECO'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
 
             readFiles.extend( [
                 '/store/relval/CMSSW_3_6_0_pre2/RelValTTbar/GEN-SIM-RECO/START3X_V24-v1/0002/4610810E-A827-DF11-906C-002618943807.root',
@@ -576,7 +571,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_3_5_6') and (useSample == 'MinBias') and (dataType == 'RECO') :
             
             dataset = '/MinBias/Spring10-START3X_V26A_356ReReco-v1/GEN-SIM-RECO'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
 
             readFiles.extend( [
                 '/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V26A_356ReReco-v1/0009/FEFC70B6-F53D-DF11-B57E-003048679150.root',
@@ -589,7 +584,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_3_5_0') and (useSample == 'RelValQCD_Pt_80_120') and (dataType == 'RECO') :
         
             dataset = '/RelValQCD_Pt_80_120/CMSSW_3_5_0-START3X_V21-v1/GEN-SIM-RECO'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
 
             readFiles.extend( [
                 '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/B27E46BF-3E13-DF11-A7EE-001A9281172C.root',
@@ -606,7 +601,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_3_5_0') and (useSample == 'RelValTTbar') and (dataType == 'RECO') :
         
             dataset = '/RelValTTbar/CMSSW_3_5_0-START3X_V21-v1/GEN-SIM-RECO'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
 
             readFiles.extend( [
                 '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/START3X_V21-v1/0013/E27A62CF-4013-DF11-8D9C-001A92971B32.root',
@@ -623,7 +618,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_3_4_1') and (useSample == 'RelValQCD_Pt_80_120') and (dataType == 'RECO') :
         
             dataset = '/RelValQCD_Pt_80_120/CMSSW_3_4_1-STARTUP3X_V14-v1/GEN-SIM-RECO'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
 
             readFiles.extend( [
                 '/store/relval/CMSSW_3_4_1/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3X_V14-v1/0004/D8AE64A2-8FED-DE11-B37B-000423D99658.root',
@@ -640,7 +635,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         elif (sampleFromRelease == 'CMSSW_3_4_1') and (useSample == 'RelValTTbar') and (dataType == 'RECO') :
         
             dataset = '/RelValTTbar/CMSSW_3_4_1-STARTUP3X_V14-v1/GEN-SIM-RECO'
-            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease  
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', globalTag  
 
             readFiles.extend( [
                 '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0004/CE62D4D8-85ED-DE11-8BD2-000423D9853C.root',
@@ -656,7 +651,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
 
 
         else :
-            print 'Error: no files for:\n  sample', useSample, '\n  type', dataType, '\n  produced with', sampleFromRelease    
+            print 'Error: no files for:\n  sample', useSample, '\n  type', dataType, '\n  produced with', sampleFromRelease, '\n  global tag of type ', globalTag    
             errorUserOptions = True
             
 
@@ -675,17 +670,15 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
     if dataType == 'RAW' : 
 
         # temporary hack until I code a das function
-        if (runNumber == '180250') or (runNumber == '179828') or  (runNumber == '186253') or (runNumber == '186295') or (runNumber == '187858'):
+        if (runNumber == '180250') or (runNumber == '179828') :
             
             if (runNumber == '180250') :
                 dataset = '/MinimumBias/Run2011B-v1/RAW'
             elif (runNumber == '179828') :
                 #dataset = '/HighPileUpHPF/Run2011B-v1/RAW'
                 dataset = '/ZeroBiasHPF0/Run2011B-v1/RAW'
-            elif (runNumber == '186253') or (runNumber == '186295') or (runNumber == '187858') :
-                dataset = '/Commissioning/Commissioning12-v1/RAW'
              
-            print '   Running on dataset:', dataset
+            print '   Running on dataset:', dataset, 'with global tag ', globalTag
             print
             print '   List of files retrieved by das_client:\n'
 
@@ -724,26 +717,10 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
 
             secFiles.extend([
                 ])
-            
-            if runNumber == '186295' :
-                selectedLumis= cms.untracked.VLuminosityBlockRange('186295:70-186295:max')
-                #selectedEvents = cms.untracked.VEventRange(
-                #                    '186295:112730598'
-                #                    )
-
-            if runNumber == '187858' :
-                selectedLumis= cms.untracked.VLuminosityBlockRange('187858:394', 
-                                                                   '187858:499'
-                                                                   )
-                selectedEvents = cms.untracked.VEventRange(
-                                    '187858:3244833',
-                                    '187858:4094284'
-                                    )
-
     
         elif runNumber == '156508' :
             dataset = '/MinimumBias/Commissioning11-v1/RAW'
-            print '   Running on dataset:', dataset 
+            print '   Running on dataset:', dataset, 'with global tag ', globalTag 
     
             readFiles.extend( [
                 '/store/data/Commissioning11/MinimumBias/RAW/v1/000/156/508/02BC73A4-042F-E011-97DD-001D09F29146.root' 
@@ -755,7 +732,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
     
         elif runNumber == '137028' :
             dataset = '/Run2010A/ZeroBias/RAW'
-            print '   Running on dataset:', dataset 
+            print '   Running on dataset:', dataset, 'with global tag ', globalTag 
     
             readFiles.extend( [
                 '/store/data/Run2010A/ZeroBias/RAW/v1/000/137/028/0C88B386-3971-DF11-A163-000423D99896.root' 
@@ -767,7 +744,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
     
         elif runNumber == '156508_137028' :
             dataset = 'Strangely mixed datasets'
-            print '   Running on dataset:', dataset 
+            print '   Running on dataset:', dataset, 'with global tag ', globalTag 
     
             readFiles.extend( [
                 '/store/data/Commissioning11/MinimumBias/RAW/v1/000/156/508/02BC73A4-042F-E011-97DD-001D09F29146.root', 
@@ -785,7 +762,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
     
         elif runNumber == '123596' :
             dataset = '/Cosmics/BeamCommissioning09-v1/RAW'
-            print '   Running on dataset:', dataset 
+            print '   Running on dataset:', dataset, 'with global tag ', globalTag 
     
             readFiles.extend( [
                 '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/123/596/8E21B4C8-74E2-DE11-ABAA-000423D999CA.root' 
@@ -797,7 +774,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
     
         elif runNumber == '116035' :
             dataset = '/Cosmics/Commissioning09-v3/RAW'
-            print '   Running on dataset:', dataset 
+            print '   Running on dataset:', dataset, 'with global tag ', globalTag 
     
             readFiles.extend( [                        
                 '/store/data/Commissioning09/Cosmics/RAW/v3/000/116/035/34A8317D-76AF-DE11-91DB-000423D98DC4.root'
@@ -808,7 +785,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
         
         elif runNumber == '121560' :
             dataset = '/Cosmics/Commissioning09-v3/RAW'
-            print '   Running on dataset:', dataset 
+            print '   Running on dataset:', dataset, 'with global tag ', globalTag 
     
             readFiles.extend( [                        
                 '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/121/560/DC089E4B-5ED4-DE11-A179-000423D98FBC.root'
@@ -819,7 +796,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
 
         elif runNumber == '127715' :
             dataset = '/Cosmics/Commissioning10-v3/RAW'
-            print '   Running on dataset:', dataset 
+            print '   Running on dataset:', dataset, 'with global tag ', globalTag 
     
             readFiles.extend( [                        
                 '/store/data/Commissioning10/Cosmics/RAW/v3/000/127/715/FCB12D5F-6C18-DF11-AB4B-000423D174FE.root'
@@ -830,7 +807,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
 
         elif runNumber == '132440_132439_Cosmics' :
             dataset = '/Cosmics/Commissioning10-v4/RAW'
-            print '   Running on dataset:', dataset 
+            print '   Running on dataset:', dataset, 'with global tag ', globalTag 
     
             readFiles.extend( [                        
                 '/store/data/Commissioning10/Cosmics/RAW/v4/000/132/440/72DAEFC2-1A3C-DF11-A352-0030487A195C.root',
@@ -842,7 +819,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
 
         elif runNumber == 'Commissioning10-Apr1Skim_Muon_skim-v1' :
             dataset = '/MinimumBias/Commissioning10-Apr1Skim_Muon_skim-v1/RAW-RECO'
-            print '   Running on dataset:', dataset, 'run', runNumber 
+            print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', globalTag 
     
             readFiles.extend( [                        
                 '/store/data/Commissioning10/MinimumBias/RAW-RECO/Apr1Skim_Muon_skim-v1/0139/047E236C-B03E-DF11-8A23-002618FDA204.root',
@@ -854,7 +831,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
 
         elif runNumber == '165633-CAFDQM' :
             dataset = '/MinimumBias/'
-            print '   Running on dataset:', dataset, 'run', runNumber 
+            print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', globalTag 
     
             readFiles.extend( [ 
                 'file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/DQMTest/MinimumBias__RAW__v1__165633__1CC420EE-B686-E011-A788-0030487CD6E8.root'                       
@@ -872,7 +849,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
         # data
         if runNumber == '137028' :
             dataset = '/Run2010A/ZeroBias/RECO-v2'
-            print '   Running on dataset:', dataset, 'run', runNumber 
+            print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', globalTag 
 
             readFiles.extend( [
                 '/store/data/Run2010A/ZeroBias/RECO/v2/000/137/028/08BF857D-2471-DF11-9CEB-003048D2BBF0.root'
@@ -880,7 +857,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
                 ] );
         elif runNumber == '123596' :
             dataset = '/Cosmics/BeamCommissioning09-v2/RECO'
-            print '   Running on dataset:', dataset, 'run', runNumber 
+            print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', globalTag 
 
             readFiles.extend( [
                 '/store/data/BeamCommissioning09/Cosmics/RECO/v2/000/123/596/FC5C3B0F-8AE2-DE11-A905-003048D37456.root'
@@ -888,7 +865,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
                 ] );
         elif runNumber == '127715' :
             dataset = '/Cosmics/Commissioning10-v3/RECO'
-            print '   Running on dataset:', dataset, 'run', runNumber 
+            print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', globalTag 
     
             readFiles.extend( [                        
                 '/store/data/Commissioning10/Cosmics/RECO/v3/000/127/715/261A3141-9F18-DF11-883E-001D09F24493.root'
@@ -899,7 +876,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
 
         elif runNumber == 'Commissioning10-Apr1Skim_Muon_skim-v1' :
             dataset = '/MinimumBias/Commissioning10-Apr1Skim_Muon_skim-v1/RAW-RECO'
-            print '   Running on dataset:', dataset, 'run', runNumber 
+            print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', globalTag 
     
             readFiles.extend( [
                 '/store/data/Commissioning10/MinimumBias/RAW-RECO/Apr1Skim_Muon_skim-v1/0140/E0740811-8E40-DF11-AA5E-0026189438ED.root',
@@ -913,7 +890,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
 
         elif runNumber == 'MinimumBias_Commissioning10-May13thReReco_preproduction-v1_RECO' :
             dataset = '/MinimumBias/Commissioning10-May13thReReco_preproduction-v1/RECO'
-            print '   Running on dataset:', dataset, 'run', runNumber 
+            print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', globalTag 
     
             readFiles.extend( [
                 '/store/data/Commissioning10/MinimumBias/RECO/May13thReReco_preproduction-v1/0141/A07EA5F3-845F-DF11-870E-00261894388A.root',
@@ -960,6 +937,4 @@ if globalTag.count('auto') :
     useGlobalTag = autoCond[globalTag.replace('auto:', '')]
 else :
     useGlobalTag = globalTag+'::All'    
-    
-print "\n Using global tag ", useGlobalTag, "\n"
         

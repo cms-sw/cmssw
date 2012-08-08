@@ -9,54 +9,50 @@
 
 #include <bitset>
 
-CmsTrackerBuilder::CmsTrackerBuilder( unsigned int totalBlade )
-  : m_totalBlade( totalBlade )
-{}
 
-void
-CmsTrackerBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, std::string s )
-{
-  CmsTrackerSubStrctBuilder theCmsTrackerSubStrctBuilder( m_totalBlade );
+void CmsTrackerBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s){
 
-  GeometricDet* subdet = new GeometricDet( &fv, theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )));
-  switch( theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )))
-  {
+  CmsTrackerSubStrctBuilder theCmsTrackerSubStrctBuilder;
+
+  GeometricDet * subdet = new GeometricDet(&fv,theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s,&fv)));
+  switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s,&fv))){
   case GeometricDet::PixelBarrel:
-    theCmsTrackerSubStrctBuilder.build( fv, subdet, s );      
+    theCmsTrackerSubStrctBuilder.build(fv,subdet,s);      
     break;
   case GeometricDet::PixelEndCap:
-    theCmsTrackerSubStrctBuilder.build( fv, subdet, s );      
+    theCmsTrackerSubStrctBuilder.build(fv,subdet,s);      
     break;
   case GeometricDet::TIB:
-    theCmsTrackerSubStrctBuilder.build( fv, subdet, s );      
+    theCmsTrackerSubStrctBuilder.build(fv,subdet,s);      
     break;
   case GeometricDet::TOB:
-    theCmsTrackerSubStrctBuilder.build( fv, subdet, s );    
+    theCmsTrackerSubStrctBuilder.build(fv,subdet,s);      
     break;
   case GeometricDet::TEC:
-    theCmsTrackerSubStrctBuilder.build( fv, subdet, s );      
+    theCmsTrackerSubStrctBuilder.build(fv,subdet,s);      
     break;
   case GeometricDet::TID:
-    theCmsTrackerSubStrctBuilder.build( fv, subdet, s );      
+    theCmsTrackerSubStrctBuilder.build(fv,subdet,s);      
     break;
   default:
-    edm::LogError( "CmsTrackerBuilder" ) << " ERROR - I was expecting a SubDet, I got a " << ExtractStringFromDDD::getString( s, &fv );
+    edm::LogError("CmsTrackerBuilder")<<" ERROR - I was expecting a SubDet, I got a "<<ExtractStringFromDDD::getString(s,&fv);
+    ;
   }
   
-  g->addComponent( subdet );
+  g->addComponent(subdet);
+  
 }
 
-void
-CmsTrackerBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
-{  
-  GeometricDet::GeometricDetContainer & comp = det->components();
-  std::stable_sort( comp.begin(), comp.end(), subDetByType());
+void CmsTrackerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   
-  for( uint32_t i = 0; i < comp.size(); i++ )
-  {
+  GeometricDet::GeometricDetContainer & comp = det->components();
+  std::stable_sort(comp.begin(),comp.end(),subDetByType());
+  
+  for(uint32_t i=0; i<comp.size(); i++){
     uint32_t temp= comp[i]->type();
     comp[i]->setGeographicalID(temp);
   }
+
 }
 
 

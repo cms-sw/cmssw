@@ -90,6 +90,8 @@ void FEDErrors::initialiseEvent() {
   apvErrors_.clear();
 
   chErrors_.clear();
+
+  eventProp_.deltaBX=0;
 }
 
 
@@ -852,6 +854,10 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
 
 }
 
+void FEDErrors::fillEventProperties(long long dbx) {
+  eventProp_.deltaBX = dbx;
+}
+
 void FEDErrors::incrementLumiErrors(const bool hasError,
 				    const unsigned int aSubDet){
   if (!lumiErr_.nTotal.size()) return;
@@ -963,6 +969,11 @@ FEDErrors::FECounters & FEDErrors::getFEErrorsCounters()
 FEDErrors::FEDLevelErrors & FEDErrors::getFEDLevelErrors()
 {
   return fedErrors_;
+}
+  
+FEDErrors::EventProperties & FEDErrors::getEventProperties()
+{
+  return eventProp_;
 }
   
 std::vector<FEDErrors::FELevelErrors> & FEDErrors::getFELevelErrors()

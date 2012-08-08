@@ -7,7 +7,7 @@
 
 /// Unlimited (trivial) bounds.
 
-class OpenBounds GCC11_FINAL : public Bounds {
+class OpenBounds : public Bounds {
 public:
   
   virtual float length() const  { return 1000000.; } 

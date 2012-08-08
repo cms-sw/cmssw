@@ -19,8 +19,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2010/08/04 14:50:11 $
-//   $Revision: 1.43 $
+//   $Date: 2010/08/04 10:21:20 $
+//   $Revision: 1.42 $
 //
 //   Modifications: 
 //
@@ -581,10 +581,7 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
 	if (!halfstrip[i_layer][i_hstrip].empty()) {layersHit++; break;}
       }
     }
-    // Run the algorithm only if the probability for the pre-trigger
-    // to fire is not null.  (Pre-trigger decisions are used for the
-    // strip read-out conditions in DigiToRaw.)
-    if (layersHit >= nplanes_hit_pretrig) run(halfstrip, distrip);
+    if (layersHit >= nplanes_hit_pattern) run(halfstrip, distrip);
   }
 
   // Return vector of CLCTs.

@@ -1,3 +1,44 @@
+2012-07-12 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-08-24
+	* properly unlock shmBuffer before throwing assert, and in removing
+	  client prc id (when it is not found)
+
+2012-07-10 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-08-23
+	* adding function for print semaphore status using logger
+
+2012-07-08 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-08-22
+	* removing reset of lumi and cell type on shmbuffer connection
+	  (only relevant for stop and lumi messages)
+
+2012-07-03 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-08-21
+	* logging of cell index in pcount assertion
+
+2012-06-29 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-08-20
+	* allow discards for RECOWRITTEN raw cell
+	* removing pid not fatal if not present
+
+
+2012-05-31 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-08-19
+	* fix for wrong offset of raw cell index buffer
+	* we were safe due to part of Process ID buffer never used,
+	  until it manifested with a large number of dqm cells
+
+2012-05-22 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-08-18
+	* setEvtPrcId is global,indexForEvtPrcId added
+
 2012-05-02 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V00-08-17

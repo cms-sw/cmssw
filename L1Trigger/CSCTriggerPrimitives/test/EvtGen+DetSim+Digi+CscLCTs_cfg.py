@@ -1,14 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DIGI")
+process = cms.Process("PROD")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.372.2.1 $'),
-    name = cms.untracked.string("$Source: /cvs/CMSSW/CMSSW/L1Trigger/CSCTriggerPrimitives/test/EvtGen+DetSim+Digi+CscLCTs_cfg.py,v $"),
+    version = cms.untracked.string("$Revision: 1.8 $"),
+    name = cms.untracked.string("$Source: /cvs_server/repositories/CMSSW/CMSSW/L1Trigger/CSCTriggerPrimitives/test/EvtGen+DetSim+Digi+CscLCTs_cfg.py,v $"),
     annotation = cms.untracked.string("SV: single particle gun mu- 50 GeV")
 )
 
@@ -37,15 +37,14 @@ process.RandomNumberGeneratorService.simMuonCSCDigis.initialSeed = 468
 #randSvc.populate()
 
 #- Import of standard configurations
-process.load('Configuration.StandardSequences.Services_cff')
-process.load('Configuration.StandardSequences.GeometryDB_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
-process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.StandardSequences.Generator_cff')
-process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi')
-process.load('Configuration.StandardSequences.SimIdeal_cff')
-process.load('Configuration.StandardSequences.Digi_cff')
+process.load("Configuration.StandardSequences.Services_cff")
+process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
+process.load('Configuration/StandardSequences/GeometryExtended_cff')
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.Generator_cff")
+process.load("Configuration.StandardSequences.VtxSmearedEarly10TeVCollision_cff")
+process.load("Configuration.StandardSequences.Sim_cff")
+process.load("Configuration.StandardSequences.Digi_cff")
 
 #- Event Generation.  Single muons
 process.source = cms.Source("EmptySource")
@@ -67,8 +66,8 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
 )
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = 'DESIGN_52_V5::All'
-process.GlobalTag.globaltag = 'MC_52_V8::All'
+#process.GlobalTag.globaltag = 'DESIGN_31X_V8::All'
+process.GlobalTag.globaltag = 'MC_38Y_V8::All'
 #process.GlobalTag.globaltag = 'STARTUP_V5::All'
 #process.prefer("GlobalTag")
 
@@ -86,8 +85,8 @@ process.cscpacker.correlatedLCTDigiTag = cms.InputTag("cscTriggerPrimitiveDigis"
 
 #- Output module
 process.output = cms.OutputModule("PoolOutputModule",
-    #fileName = cms.untracked.string("/data0/slava/test/muminus_pt50_CMSSW_3_9_0_pre1.root"),
-    fileName = cms.untracked.string("muminus_pt50_CMSSW_5_2_3_p1.root"),
+    fileName = cms.untracked.string("/data0/slava/test/muminus_pt50_CMSSW_3_9_0_pre1.root"),
+    #fileName = cms.untracked.string("muminus_pt50_CMSSW_3_6_0_pre3.root"),
     outputCommands = cms.untracked.vstring("keep *", 
          # "drop *_simSiPixelDigis_*_*",
          # "drop *_simSiStripDigis_*_*",
