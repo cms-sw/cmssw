@@ -94,8 +94,9 @@ namespace cond {
           if(!blobStreamer) throw cond::Exception("DbSession::open: cannot find required plugin. No instance of ora::IBlobStreamingService has been loaded..");
           database->configuration().setBlobStreamingService( blobStreamer );
           // open the db connection
+	  connection->configuration().setTransactionId( transactionId );
           technologyProxy = buildTechnologyProxy(connectionString, *connection);
-          std::string connStr = (*technologyProxy).getRealConnectString(transactionId);
+          std::string connStr = (*technologyProxy).getRealConnectString();
           database->connect( connStr, Auth::COND_READER_ROLE, true );
           transaction.reset( new cond::DbTransaction( database->transaction() ) );
           isOpen = true;
