@@ -7,12 +7,7 @@ import sys
 import LaunchOnCondor
 import glob
 
-#If path below is empty (""), it will skipped this TypeMode from any computation (including ste3)
-TkOnlyPath = "Results/dedxASmi/combined/Eta15/PtMin45/Type0/"
-TkMuonPath = "Results/dedxASmi/combined/Eta15/PtMin45/Type2/"
-MuOnlyPath = "Results/dedxASmi/combined/Eta21/PtMin45/Type3/"
-Qless1Path = "Results/dedxProd/combined/Eta15/PtMin45/Type5/"
-
+#the vector below contains the "TypeMode" of the analyses that should be run
 AnalysesToRun = [0,2,3,4,5]
 
 CMSSW_VERSION = os.getenv('CMSSW_VERSION','CMSSW_VERSION')
@@ -23,10 +18,10 @@ if CMSSW_VERSION == 'CMSSW_VERSION':
 
 if len(sys.argv)==1:
 	print "Please pass in argument a number between 0 and 2"
-        print "  0 - Submit the Core of the (TkOnly+TkTOF) Analysis     --> submitting 2xSignalPoints jobs"
-        print "  1 - Merge all output files and estimate backgrounds    --> submitting              0 jobs"
+        print "  0 - Submit the Core of the (TkOnly+TkTOF) Analysis     --> submitting 5xSignalPoints jobs"
+        print "  1 - Merge all output files and estimate backgrounds    --> submitting              5 jobs"
         print "  2 - Run the control plot macro                         --> submitting              0 jobs"
-        print "  3 - Run the Optimization macro based on best Exp Limit --> submitting 2xSignalPoints jobs"
+        print "  3 - Run the Optimization macro based on best Exp Limit --> submitting 5xSignalPoints jobs"
         print "  4 - Run the exclusion plot macro                       --> submitting              0 jobs"
 	sys.exit()
 
