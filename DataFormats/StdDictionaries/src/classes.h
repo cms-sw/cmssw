@@ -43,6 +43,7 @@ namespace {
   std::map<unsigned int,std::pair<unsigned int,unsigned int> > dummymuipuu;
   std::map<unsigned int,std::vector<std::pair<unsigned int,bool> > > dummywmv2_0;
   std::map<unsigned int,std::vector<std::pair<unsigned int,double> > >dummywmv2_1;
+  std::map<unsigned int,std::vector<std::pair<unsigned int,float> > >dummywmv2_2;
   std::map<unsigned int,std::vector<unsigned int> > dummywmv2;
   std::map<unsigned int,unsigned int> dummywm2;
   std::map<unsigned long long,std::basic_string<char> > dummyypwmv5;
@@ -162,6 +163,7 @@ namespace {
   std::vector<std::pair<std::vector<std::pair<double,std::vector<double> > >,bool> > dummypvpdvdb;
   std::vector<std::pair<unsigned int,bool> > dummy16_0;
   std::vector<std::pair<unsigned int,double> > dummy16_1;
+  std::vector<std::pair<unsigned int,float> > dummy16_1f;
   std::vector<std::pair<unsigned int,int> > dummyvpui;
   std::vector<std::pair<unsigned int,unsigned int> > dummyvpuu;
   std::vector<std::pair<unsigned long long,std::basic_string<char> > > v_ull_s;
