@@ -31,7 +31,7 @@
 #include "TTree.h"
 
 //This code is there to enable/disable year dependent code
-//#define ANALYSIS2011
+#define ANALYSIS2011
 
 #ifdef ANALYSIS2011
 double               SQRTS          = 7;
@@ -66,6 +66,7 @@ int		   MassNBins           = 200;
 
 // Thresholds for candidate preselection --> note that some of the followings can be replaced by Analysis_Step3 function arguments
 double             GlobalMaxEta     =   1.5;    // cut on inner tracker track eta
+double             GlobalMaxEtaFromTrigger =   2.1;    // cut on inner tracker track eta, as allowed by trigger
 double             GlobalMaxV3D     =   0.50;   // cut on 3D distance (cm) to closest vertex
 double             GlobalMaxDZ      =   2.00;   // cut on 1D distance (cm) to closest vertex in "Z" direction
 double             GlobalMaxDXY     =   2.00;   // cut on 2D distance (cm) to closest vertex in "R" direction
@@ -81,6 +82,7 @@ double             GlobalMinNDOFCSC =   6;      // cut on number of CSC DegreeOf
 double             GlobalMaxTOFErr  =   0.07;   // cut on error on muon TOF measurement
 double             GlobalMaxPterr   =   0.25;   // cut on error on track pT measurement 
 double             GlobalMaxTIsol   =  50;      // cut on tracker isolation (SumPt)
+double             GlobalMaxRelTIsol   =  0.10; // cut on relative tracker isolation (SumPt/Pt)
 double             GlobalMaxEIsol   =   0.30;   // cut on calorimeter isolation (E/P)
 double             GlobalMinPt      =  45.00;   // cut on pT    at PRE-SELECTION
 double             GlobalMinIs      =   0.0;    // cut on dEdxS at PRE-SELECTION (dEdxS is generally a  discriminator)
@@ -148,6 +150,7 @@ void InitBaseDirectory(){
 #ifdef ANALYSIS2011
      BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/farrell3/NewDTError26Dec2011/";
      if(TypeMode==3) BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/farrell3/30May2012HSCPEDMFiles/";
+     if(TypeMode==4) BaseDirectory = "/uscmst1b_scratch/lpc1/lpcphys/jchen/HIPEDM_03_13_12/";    // temporarily commented out to run on data & bkg MC
 #endif
    }else{
       BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/venkat12/2012Data/";
