@@ -94,7 +94,7 @@ void GetSampleDefinition(std::vector<stSample>& samples, std::string sampleTxtFi
       fclose(pFile);
 }
 
-void GetInputFiles(stSample sample, std::string BaseDirectory_, std::vector<std::string>& inputFiles, int period=0, int TypeMode=0){
+void GetInputFiles(stSample sample, std::string BaseDirectory_, std::vector<std::string>& inputFiles, int period=0){
    if(sample.Type>=2){ //MC Signal
      if (period==0 && TypeMode!=4) inputFiles.push_back(BaseDirectory_ + sample.FileName + ".root");
      if (period==0 && TypeMode==4) inputFiles.push_back(BaseDirectory_ + sample.FileName + "BX0.root");

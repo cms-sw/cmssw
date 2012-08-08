@@ -125,8 +125,6 @@ struct stPlots {
    TH1F*  BS_dxyAll;
    TH1F*  BS_dzMinv3d;
    TH1F*  BS_dxyMinv3d;
-   TH1F*  BS_dz;
-   TH1F*  BS_dxy;
    TH1F*  BS_SegSep;
    TH1F*  BS_SegMinPhiSep;
    TH1F*  BS_SegMinEtaSep;
@@ -451,8 +449,6 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_dxyAll";     st.BS_dxyAll = new TH1F(Name.c_str(), Name.c_str(),200, -10, 10);         st.BS_dxyAll->Sumw2();
    Name = "BS_dzMinv3d";   st.BS_dzMinv3d = new TH1F(Name.c_str(), Name.c_str(),200, -10, 10);       st.BS_dzMinv3d->Sumw2();
    Name = "BS_dxyMinv3d";  st.BS_dxyMinv3d = new TH1F(Name.c_str(), Name.c_str(),200, -10, 10);      st.BS_dxyMinv3d->Sumw2();
-   Name = "BS_dz";         st.BS_dz = new TH1F(Name.c_str(), Name.c_str(),50, -2, 2);                st.BS_dz->Sumw2();
-   Name = "BS_dxy";        st.BS_dxy = new TH1F(Name.c_str(), Name.c_str(),50, -2, 2);               st.BS_dxy->Sumw2();
 
    Name = "BS_SegSep"  ; st.BS_SegSep= new TH1F(Name.c_str(), Name.c_str(),                   50, 0, 2.5); st.BS_SegSep->Sumw2();
    Name = "BS_SegMinEtaSep"  ; st.BS_SegMinEtaSep= new TH1F(Name.c_str(), Name.c_str(),                   50, -1., 1.); st.BS_SegMinEtaSep->Sumw2();
@@ -461,10 +457,10 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_SegMinEtaSep_PassDz"  ; st.BS_SegMinEtaSep_PassDz= new TH1F(Name.c_str(), Name.c_str(),                   50, -1., 1.); st.BS_SegMinEtaSep_PassDz->Sumw2();
    Name = "BS_Dz_FailSep"; st.BS_Dz_FailSep   = new TH1F(Name.c_str(), Name.c_str(), 50,  -150,  150); st.BS_Dz_FailSep->Sumw2();
 
-   Name = "BS_Dxy"; st.BS_Dxy   = new TH1F(Name.c_str(), Name.c_str(), 150,  -150,  150); st.BS_Dxy->Sumw2();
-   Name = "BS_Dz"; st.BS_Dz   = new TH1F(Name.c_str(), Name.c_str(), 150,  -150,  150); st.BS_Dz->Sumw2();
-   Name = "BS_Dz_CSC"; st.BS_Dz_CSC = new TH1F(Name.c_str(), Name.c_str(), 150,  -150,  150); st.BS_Dz_CSC->Sumw2();
-   Name = "BS_Dz_DT"; st.BS_Dz_DT=new TH1F(Name.c_str(), Name.c_str(), 150,  -150,  150); st.BS_Dz_DT->Sumw2();
+   Name = "BS_Dxy"; st.BS_Dxy   = new TH1F(Name.c_str(), Name.c_str(), 150,  -IPbound,  IPbound); st.BS_Dxy->Sumw2();
+   Name = "BS_Dz"; st.BS_Dz   = new TH1F(Name.c_str(), Name.c_str(), 150,  -150,  IPbound); st.BS_Dz->Sumw2();
+   Name = "BS_Dz_CSC"; st.BS_Dz_CSC = new TH1F(Name.c_str(), Name.c_str(), 150,  -IPbound,  IPbound); st.BS_Dz_CSC->Sumw2();
+   Name = "BS_Dz_DT"; st.BS_Dz_DT=new TH1F(Name.c_str(), Name.c_str(), 150,  -IPbound,  IPbound); st.BS_Dz_DT->Sumw2();
    Name = "BS_Pt_FailDz"; st.BS_Pt_FailDz = new TH1F(Name.c_str(), Name.c_str(),  50, 0, PtHistoUpperBound); st.BS_Pt_FailDz->Sumw2();
    Name = "BS_Pt_FailDz_DT"; st.BS_Pt_FailDz_DT = new TH1F(Name.c_str(), Name.c_str(),  50, 0, PtHistoUpperBound); st.BS_Pt_FailDz_DT->Sumw2();
    Name = "BS_Pt_FailDz_CSC"; st.BS_Pt_FailDz_CSC = new TH1F(Name.c_str(), Name.c_str(),  50, 0, PtHistoUpperBound); st.BS_Pt_FailDz_CSC->Sumw2();
@@ -493,7 +489,7 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_EtaP" ; st.BS_EtaP  = new TH2F(Name.c_str(), Name.c_str(),                   50,-3, 3, 50, 0, PtHistoUpperBound);
    Name = "BS_EtaPt"; st.BS_EtaPt = new TH2F(Name.c_str(), Name.c_str(),                   50,-3, 3, 50, 0, PtHistoUpperBound);
    Name = "BS_EtaTOF" ; st.BS_EtaTOF  = new TH2F(Name.c_str(), Name.c_str(),               50,-3, 3, 50, 0, 3);
-   Name = "BS_EtaDz"; st.BS_EtaDz  = new TH2F(Name.c_str(), Name.c_str(),                 50,-3, 3, 50, -150, 150);
+   Name = "BS_EtaDz"; st.BS_EtaDz  = new TH2F(Name.c_str(), Name.c_str(),                 50,-3, 3, 50, -IPbound, IPbound);
    Name = "BS_PIs"  ; st.BS_PIs   = new TH2F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound, 50, 0, dEdxS_UpLim);
    Name = "BS_PIm"  ; st.BS_PIm   = new TH2F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound, 50, 0, dEdxM_UpLim);
    Name = "BS_PtIs" ; st.BS_PtIs  = new TH2F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound, 50, 0, dEdxS_UpLim);
@@ -1549,7 +1545,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1));
    }
    sprintf(YAxisTitle,"Fraction of tracks/%2.0f [cm]",Histos[0]->GetBinWidth(1));
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Dxy (cm)", YAxisTitle, -250, 250, 0,0, false, false, true, true);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Dxy (cm)", YAxisTitle, 0, 0, 0,0, false, false, true, true);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.82, 0.96, 0.16, 0.03);
    c1->SetLogy(true);
    DrawPreliminary(SQRTS, IntegratedLuminosity);
@@ -1563,7 +1559,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1));
    }
    sprintf(YAxisTitle,"Fraction of tracks/%2.0f [cm]",Histos[0]->GetBinWidth(1));
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Dz (cm)", YAxisTitle, -250, 250, 0,0, false, false, true, true);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Dz (cm)", YAxisTitle, 0, 0, 0,0, false, false, true, true);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.82, 0.96, 0.16, 0.03);
    c1->SetLogy(true);
    DrawPreliminary(SQRTS, IntegratedLuminosity);
@@ -1577,7 +1573,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1));
    }
    sprintf(YAxisTitle,"Fraction of tracks/%2.0f [cm]",Histos[0]->GetBinWidth(1));
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Dz (cm)", YAxisTitle, 0, 0, 0.000001,1, false, false, true, true);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Dz (cm)", YAxisTitle, 0, 0, 0,0, false, false, true, true);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.82, 0.96, 0.16, 0.03);
    c1->SetLogy(true);
    DrawPreliminary(SQRTS, IntegratedLuminosity);

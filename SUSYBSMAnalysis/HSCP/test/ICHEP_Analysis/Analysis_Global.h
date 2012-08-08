@@ -59,14 +59,14 @@ int		   TypeMode         = 0; //0 = Tracker-Only analysis (used in 2010 and 2011
 std::string BaseDirectory = "undefined... Did you call InitBaseDirectory() ? --> ";
 
 
-// binning for the pT and mass distributions
+// binning for the pT, mass, and IP distributions
 double             PtHistoUpperBound   = 1200;
 double             MassHistoUpperBound = 2000;
 int		   MassNBins           = 200;
+double             IPbound             = 2;
 
 // Thresholds for candidate preselection --> note that some of the followings can be replaced by Analysis_Step3 function arguments
 double             GlobalMaxEta     =   1.5;    // cut on inner tracker track eta
-double             GlobalMaxEtaFromTrigger =   2.1;    // cut on inner tracker track eta, as allowed by trigger
 double             GlobalMaxV3D     =   0.50;   // cut on 3D distance (cm) to closest vertex
 double             GlobalMaxDZ      =   2.00;   // cut on 1D distance (cm) to closest vertex in "Z" direction
 double             GlobalMaxDXY     =   2.00;   // cut on 2D distance (cm) to closest vertex in "R" direction

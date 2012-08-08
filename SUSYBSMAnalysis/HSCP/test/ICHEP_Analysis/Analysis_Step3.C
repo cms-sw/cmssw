@@ -135,6 +135,7 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
                            GlobalMaxEIsol *= 2;
    }else if(TypeMode==3){
      GlobalMinIs      =   -1;
+     IPbound=150;
      //SA Muon trigger only existed for part of 2011 running
 #ifdef ANALYSIS2011
      IntegratedLuminosityBeforeTriggerChange = 0;
@@ -303,11 +304,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
      st->BS_Eta->Fill(track->eta(),Event_Weight);
    }
 
-   if(TypeMode!=4){
-     if(fabs(track->eta())>GlobalMaxEta) return false;
-   }  else  {
-     if(fabs(track->eta())>GlobalMaxEtaFromTrigger ) return false;
-   }
+   if(fabs(track->eta())>GlobalMaxEta) return false;
 
    if(st){st->BS_TNOH->Fill(track->found(),Event_Weight);
           st->BS_TNOHFraction->Fill(track->validFraction(),Event_Weight);
@@ -445,9 +442,8 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    if(st)st->BS_Dxy->Fill(dxy, Event_Weight);
 
    if(TypeMode==3 && fabs(dxy)>GlobalMaxDXY) return false;
+
    if(st){st->V3D  ->Fill(0.0,Event_Weight);}
-   if(st)  st->BS_dxy->Fill(dxy,Event_Weight);
-   if(st)  st->BS_dz ->Fill(dz ,Event_Weight);
 
    if(TypeMode!=3) {
      fwlite::Handle<HSCPIsolationValueMap> IsolationH;
@@ -511,7 +507,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    if(TypeMode==3 && fabs(minEta)<minSegEtaSep) return false;
    if(st){st->SegSep->Fill(0.0,Event_Weight);}
 
-   if(st && TypeMode==3) {
+   if(st) {
      //Plots for tracks in dz control region
      if(fabs(dz)>CosmicMinDz && fabs(dz)<CosmicMaxDz && !muon->isGlobalMuon()) {
        st->BS_Pt_FailDz->Fill(track->pt(), Event_Weight);
@@ -938,7 +934,7 @@ void Analysis_Step3(char* SavePath)
       for (int period=0; period<(samples[s].Type==2?RunningPeriods:1); period++){
          //load the files corresponding to this sample
          std::vector<string> FileName;
-	 GetInputFiles(samples[s], BaseDirectory, FileName, period, TypeMode);
+	 GetInputFiles(samples[s], BaseDirectory, FileName, period);
          fwlite::ChainEvent ev(FileName);
          //compute sample global weight
          Event_Weight = 1.0;

@@ -42,17 +42,17 @@ void Analysis_Step5()
 
    GetSampleDefinition(samples);
 
-   string InputPattern;				unsigned int CutIndex;     unsigned int CutIndex_Flip=10;
+   string InputPattern;				unsigned int CutIndex;     unsigned int CutIndex_Flip;
    std::vector<string> Legends;                 std::vector<string> Inputs;
 
-   InputPattern = "Results/dedxASmi/combined/Eta15/PtMin45/Type0/";   CutIndex = 4; //set of cuts from the array, 0 means no cut
+   InputPattern = "Results/Type0/";   CutIndex = 4; //set of cuts from the array, 0 means no cut
    MassPrediction(InputPattern, CutIndex, "Mass");
    PredictionAndControlPlot(InputPattern, "Data11", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data12", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern);
    SelectionPlot(InputPattern, CutIndex);
 
-   InputPattern = "Results/dedxASmi/combined/Eta15/PtMin45/Type2/";   CutIndex = 16;
+   InputPattern = "Results/Type2/";   CutIndex = 16; CutIndex_Flip=2;
    MassPrediction(InputPattern, CutIndex, "Mass");
    MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip");
    PredictionAndControlPlot(InputPattern, "Data11", CutIndex, CutIndex_Flip);
@@ -336,15 +336,29 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    TH1D* CtrlFor_Pt_S3_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlFor_Pt_S3_TOF"); CtrlFor_Pt_S3_TOF->Rebin(1);
    TH1D* CtrlFor_Pt_S4_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlFor_Pt_S4_TOF"); CtrlFor_Pt_S4_TOF->Rebin(1);
 
+   std::vector<std::string> PtLimitsNames;
+   if(TypeMode!=3) {
+     PtLimitsNames.push_back(" 50<p_{T}< 60 GeV");
+     PtLimitsNames.push_back(" 60<p_{T}< 80 GeV");
+     PtLimitsNames.push_back(" 80<p_{T}<100 GeV");
+     PtLimitsNames.push_back("100<p_{T}");
+   }
+   else {
+     PtLimitsNames.push_back(" 80<p_{T}< 120 GeV");
+     PtLimitsNames.push_back(" 1200<p_{T}< 170 GeV");
+     PtLimitsNames.push_back(" 170<p_{T}<240 GeV");
+     PtLimitsNames.push_back("240<p_{T}");
+   }
+
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    if(CtrlPt_S1_Is->Integral()>0)CtrlPt_S1_Is->Scale(1/CtrlPt_S1_Is->Integral());
    if(CtrlPt_S2_Is->Integral()>0)CtrlPt_S2_Is->Scale(1/CtrlPt_S2_Is->Integral());
    if(CtrlPt_S3_Is->Integral()>0)CtrlPt_S3_Is->Scale(1/CtrlPt_S3_Is->Integral());
    if(CtrlPt_S4_Is->Integral()>0)CtrlPt_S4_Is->Scale(1/CtrlPt_S4_Is->Integral());
-   Histos[0] = CtrlPt_S1_Is;                     legend.push_back(" 50<p_{T}< 60 GeV");
-   Histos[1] = CtrlPt_S2_Is;                     legend.push_back(" 60<p_{T}< 80 GeV");
-   Histos[2] = CtrlPt_S3_Is;                     legend.push_back(" 80<p_{T}<100 GeV");
-   Histos[3] = CtrlPt_S4_Is;                     legend.push_back("100<p_{T}");
+   Histos[0] = CtrlPt_S1_Is;                     legend.push_back(PtLimitsNames[0]);
+   Histos[1] = CtrlPt_S2_Is;                     legend.push_back(PtLimitsNames[1]);
+   Histos[2] = CtrlPt_S3_Is;                     legend.push_back(PtLimitsNames[2]);
+   Histos[3] = CtrlPt_S4_Is;                     legend.push_back(PtLimitsNames[3]);
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend, "arbitrary units", 0,0.5, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
@@ -358,10 +372,10 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    if(CtrlPt_S2_Im->Integral()>0)CtrlPt_S2_Im->Scale(1/CtrlPt_S2_Im->Integral());
    if(CtrlPt_S3_Im->Integral()>0)CtrlPt_S3_Im->Scale(1/CtrlPt_S3_Im->Integral());
    if(CtrlPt_S4_Im->Integral()>0)CtrlPt_S4_Im->Scale(1/CtrlPt_S4_Im->Integral());
-   Histos[0] = CtrlPt_S1_Im;                     legend.push_back(" 50<p_{T}< 60 GeV");
-   Histos[1] = CtrlPt_S2_Im;                     legend.push_back(" 60<p_{T}< 80 GeV");
-   Histos[2] = CtrlPt_S3_Im;                     legend.push_back(" 80<p_{T}<100 GeV");
-   Histos[3] = CtrlPt_S4_Im;                     legend.push_back("100<p_{T}");
+   Histos[0] = CtrlPt_S1_Im;                     legend.push_back(PtLimitsNames[0]);
+   Histos[1] = CtrlPt_S2_Im;                     legend.push_back(PtLimitsNames[1]);
+   Histos[2] = CtrlPt_S3_Im;                     legend.push_back(PtLimitsNames[2]);
+   Histos[3] = CtrlPt_S4_Im;                     legend.push_back(PtLimitsNames[3]);
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxM_Legend, "arbitrary units", 3.0,5, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
@@ -375,10 +389,10 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    if(CtrlPt_S2_TOF->Integral()>0)CtrlPt_S2_TOF->Scale(1/CtrlPt_S2_TOF->Integral());
    if(CtrlPt_S3_TOF->Integral()>0)CtrlPt_S3_TOF->Scale(1/CtrlPt_S3_TOF->Integral());
    if(CtrlPt_S4_TOF->Integral()>0)CtrlPt_S4_TOF->Scale(1/CtrlPt_S4_TOF->Integral());
-   Histos[0] = CtrlPt_S1_TOF;                    legend.push_back(" 50<p_{T}< 60 GeV");
-   Histos[1] = CtrlPt_S2_TOF;                    legend.push_back(" 60<p_{T}< 80 GeV");
-   Histos[2] = CtrlPt_S3_TOF;                    legend.push_back(" 80<p_{T}<100 GeV");
-   Histos[3] = CtrlPt_S4_TOF;                    legend.push_back("100<p_{T}");
+   Histos[0] = CtrlPt_S1_TOF;                    legend.push_back(PtLimitsNames[0]);
+   Histos[1] = CtrlPt_S2_TOF;                    legend.push_back(PtLimitsNames[1]);
+   Histos[2] = CtrlPt_S3_TOF;                    legend.push_back(PtLimitsNames[2]);
+   Histos[3] = CtrlPt_S4_TOF;                    legend.push_back(PtLimitsNames[3]);
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 0,2, 0,0); 
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
@@ -393,10 +407,10 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    if(CtrlCen_Pt_S2_TOF->Integral()>0)CtrlCen_Pt_S2_TOF->Scale(1/CtrlCen_Pt_S2_TOF->Integral());
    if(CtrlCen_Pt_S3_TOF->Integral()>0)CtrlCen_Pt_S3_TOF->Scale(1/CtrlCen_Pt_S3_TOF->Integral());
    if(CtrlCen_Pt_S4_TOF->Integral()>0)CtrlCen_Pt_S4_TOF->Scale(1/CtrlCen_Pt_S4_TOF->Integral());
-   Histos[0] = CtrlCen_Pt_S1_TOF;                    legend.push_back(" 50<p_{T}< 60 GeV");
-   Histos[1] = CtrlCen_Pt_S2_TOF;                    legend.push_back(" 60<p_{T}< 80 GeV");
-   Histos[2] = CtrlCen_Pt_S3_TOF;                    legend.push_back(" 80<p_{T}<100 GeV");
-   Histos[3] = CtrlCen_Pt_S4_TOF;                    legend.push_back("100<p_{T}");
+   Histos[0] = CtrlCen_Pt_S1_TOF;                    legend.push_back(PtLimitsNames[0]);
+   Histos[1] = CtrlCen_Pt_S2_TOF;                    legend.push_back(PtLimitsNames[1]);
+   Histos[2] = CtrlCen_Pt_S3_TOF;                    legend.push_back(PtLimitsNames[2]);
+   Histos[3] = CtrlCen_Pt_S4_TOF;                    legend.push_back(PtLimitsNames[3]);
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 0,2, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
@@ -411,10 +425,10 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    if(CtrlFor_Pt_S2_TOF->Integral()>0)CtrlFor_Pt_S2_TOF->Scale(1/CtrlFor_Pt_S2_TOF->Integral());
    if(CtrlFor_Pt_S3_TOF->Integral()>0)CtrlFor_Pt_S3_TOF->Scale(1/CtrlFor_Pt_S3_TOF->Integral());
    if(CtrlFor_Pt_S4_TOF->Integral()>0)CtrlFor_Pt_S4_TOF->Scale(1/CtrlFor_Pt_S4_TOF->Integral());
-   Histos[0] = CtrlFor_Pt_S1_TOF;                    legend.push_back(" 50<p_{T}< 60 GeV");
-   Histos[1] = CtrlFor_Pt_S2_TOF;                    legend.push_back(" 60<p_{T}< 80 GeV");
-   Histos[2] = CtrlFor_Pt_S3_TOF;                    legend.push_back(" 80<p_{T}<100 GeV");
-   Histos[3] = CtrlFor_Pt_S4_TOF;                    legend.push_back("100<p_{T}");
+   Histos[0] = CtrlFor_Pt_S1_TOF;                    legend.push_back(PtLimitsNames[0]);
+   Histos[1] = CtrlFor_Pt_S2_TOF;                    legend.push_back(PtLimitsNames[1]);
+   Histos[2] = CtrlFor_Pt_S3_TOF;                    legend.push_back(PtLimitsNames[2]);
+   Histos[3] = CtrlFor_Pt_S4_TOF;                    legend.push_back(PtLimitsNames[3]);
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 0,2, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
