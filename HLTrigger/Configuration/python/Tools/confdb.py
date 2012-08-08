@@ -1021,6 +1021,13 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltFastPixelTracks")
       self.options['modules'].append( "-hltFastPixelTracksRecover")
       
+      self.options['modules'].append( "-hltFastPrimaryVertexbbPhi")
+      self.options['modules'].append( "-hltPixelTracksFastPVbbPhi")
+      self.options['modules'].append( "-hltPixelTracksRecoverbbPhi" )
+      self.options['modules'].append( "-hltFastPixelHitsVertexVHbb" )
+      self.options['modules'].append( "-hltFastPixelTracksVHbb" )
+      self.options['modules'].append( "-hltFastPixelTracksRecoverVHbb" )
+
       self.options['modules'].append( "-hltFastPrimaryVertex")
       self.options['modules'].append( "-hltFastPVPixelTracks")
       self.options['modules'].append( "-hltFastPVPixelTracksRecover" )
