@@ -98,13 +98,6 @@ cond::FrontierProxy::getRealConnectString() const {
   return makeRealConnectString(  m_userconnect, m_transactionId );
 }
 
-std::string 
-cond::FrontierProxy::getRealConnectString( const std::string& transactionId ) const{
-  const std::string* transId = &transactionId;
-  if( transactionId.empty() ) transId = &m_transactionId;
-  return makeRealConnectString(  m_userconnect, *transId );
-}
-
 void 
 cond::FrontierProxy::initialize(const std::string&userconnect, const DbConnection& connection) {
   m_userconnect = userconnect;
