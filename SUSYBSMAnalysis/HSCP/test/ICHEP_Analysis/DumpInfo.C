@@ -474,7 +474,7 @@ void DumpInfo(string Pattern, int CutIndex=0, double MassMin=-1)
       tree->GetEntry(i);
 //      printf("%6i %9i %1i  %6.2f %6.2f %6.2f\n",Run,Event,HscpI,Pt,I,TOF);
 
-      if(Pt<=CutPt || I<=CutI || (CutTOF>-1 && TOF<=CutTOF))continue;
+      if(Pt<=CutPt || I<CutI || (CutTOF>-1 && TOF<=CutTOF))continue;
       //if(Pt<=CutPt || I>=CutI || (CutTOF>-1 && TOF<=CutTOF))continue;
 
       ev.to(Run, Event);

@@ -163,24 +163,24 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       return;
    }
    
-   string TkPattern  = "Results/dedxASmi/combined/Eta15/PtMin45/Type0/";
-   string MuPattern  = "Results/dedxProd/combined/Eta15/PtMin45/Type2/";
-   string QLPattern  = "Results/dedxProd/combined/Eta15/PtMin45/Type5/";
+   string TkPattern  = "Results/Type0/";
+   string MuPattern  = "Results/Type2/";
+   string QLPattern  = "Results/Type5/";
 
    string outpath = string("Results/"+SHAPESTRING+"EXCLUSION/");
    MakeDirectories(outpath);
 
    //based on the modelMap
    DrawRatioBands(TkPattern); 
-   DrawRatioBands(MuPattern);
+//   DrawRatioBands(MuPattern);
    DrawRatioBands(QLPattern);
 
    //draw the cross section limit for all model
    DrawModelLimitWithBand(TkPattern);
-   DrawModelLimitWithBand(MuPattern);
+//   DrawModelLimitWithBand(MuPattern);
    DrawModelLimitWithBand(QLPattern);
 
-
+return;
    //make plots of the observed limit for all signal model (and mass point) and save the result in a latex table
    TCanvas* c1;
    double LInt;
