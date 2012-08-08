@@ -206,8 +206,8 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
 
    //make the directory structure corresponding to this analysis (depends on dEdx/TOF estimator being used, Eta/Pt cuts and Mode of the analysis)
    char Buffer[2048], Command[2048];
-   sprintf(Buffer,"Results/%s/%s/Eta%02.0f/PtMin%02.0f/Type%i/", dEdxS_Label.c_str(), TOF_Label.c_str(), 10.0*GlobalMaxEta, GlobalMinPt, TypeMode);
-//   sprintf(Buffer,"Results/Type%i/", TypeMode);
+   //sprintf(Buffer,"Results/%s/%s/Eta%02.0f/PtMin%02.0f/Type%i/", dEdxS_Label.c_str(), TOF_Label.c_str(), 10.0*GlobalMaxEta, GlobalMinPt, TypeMode);
+   sprintf(Buffer,"Results/Type%i/", TypeMode);
    sprintf(Command,"mkdir -p %s",Buffer); system(Command);
 
    // get all the samples and clean the list to keep only the one we want to run on... Also initialize the BaseDirectory
@@ -243,21 +243,20 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
       if(!tr.isValid())return false;
 
       #ifdef ANALYSIS2011
-      if(TypeMode<3) {
-	if(tr.accept(tr.triggerIndex("HscpPathSingleMu")))return true;
-	else if(tr.accept(tr.triggerIndex("HscpPathPFMet"))){
-	  if(!isData) Event_Weight=Event_Weight*0.96;
-	  return true;
-         }}
-	 if(TypeMode==3) {
+      if(TypeMode<3 || TypeMode==5) {
+	  if(tr.accept(tr.triggerIndex("HscpPathSingleMu")))return true;
+	  else if(tr.accept(tr.triggerIndex("HscpPathPFMet"))){
+	     if(!isData) Event_Weight=Event_Weight*0.96;
+	     return true;
+          }
+       }else if(TypeMode==3) {
            if(tr.size()== tr.triggerIndex("HSCPPathSAMU")) return false;
 	   fwlite::Handle<reco::PFMETCollection> pfMETCollection;
 	   pfMETCollection.getByLabel(ev,"pfMet");
 	   if(tr.accept(tr.triggerIndex("HSCPPathSAMU")) && pfMETCollection->begin()->et()>60) return true;
-	 }
-	 if(TypeMode==4) {
+       }else if(TypeMode==4) {
 	   if(tr.accept(tr.triggerIndex("HscpPathSingleMu")))return true;
-	 }
+       }
       #else
 	 if(TypeMode!=3) {
 	   if(tr.accept("HSCPHLTTriggerMetDeDxFilter"))return true;
@@ -952,8 +951,8 @@ void Analysis_Step3(char* SavePath)
                genCollHandle.getByLabel(ev, "genParticles");
                if(!genCollHandle.isValid()){printf("GenParticle Collection NotFound\n");continue;}
                genColl = *genCollHandle;
-               int NChargedHSCP=HowManyChargedHSCP(genColl);         // pdgid=17 is added to identify mHSCPs, will this affect other analyses?
-	       if (NChargedHSCP > 2)   continue;    // need to refine this        
+               int NChargedHSCP=HowManyChargedHSCP(genColl);
+	       //if (NChargedHSCP > 2)   continue;   DONT THINK THIS IS NEEDED
 
                //skip event wich does not have the right number of charged HSCP --> DEPRECATED
                //if(samples[s].NChargedHSCP>=0 && samples[s].NChargedHSCP!=NChargedHSCP)continue;
