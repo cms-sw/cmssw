@@ -31,7 +31,7 @@
 #include "TTree.h"
 
 //This code is there to enable/disable year dependent code
-#define ANALYSIS2011
+//#define ANALYSIS2011
 
 #ifdef ANALYSIS2011
 double               SQRTS          = 7;
@@ -113,8 +113,9 @@ float              CSCRegion     =   0.9;  //CSC regions of CMS
 float              CosmicMinDz   =   70.;  //Min dz displacement to be tagged as cosmic muon
 float              CosmicMaxDz   =   120.; //Max dz displacement for cosmic tagged tracks
 //double             MaxDistTrigger=   0.4;  //Max Dist to trigger object
-double             minSegEtaSep  = 0.04;   //Minimum eta separation between SA track and muon segment on opposite side of detector
+double             minSegEtaSep  = 0.1;   //Minimum eta separation between SA track and muon segment on opposite side of detector
 const int          DzRegions     = 6;      //Number of different Dz side regions used to make cosmic background prediction
+int                minMuStations = 2;
 
 // function used to define Axis range and legend automatically from the estimator label
 void InitdEdx(std::string dEdxS_Label_){
@@ -149,7 +150,7 @@ void InitBaseDirectory(){
      BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/venkat12/2012Data/";
 #ifdef ANALYSIS2011
      BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/farrell3/NewDTError26Dec2011/";
-     if(TypeMode==3) BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/farrell3/30May2012HSCPEDMFiles/";
+     if(TypeMode==3) BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/farrell3/30May2012HSCPEDMFiles/"; //temporary until EDM files recreated
      if(TypeMode==4) BaseDirectory = "/uscmst1b_scratch/lpc1/lpcphys/jchen/HIPEDM_03_13_12/";    // temporarily commented out to run on data & bkg MC
 #endif
    }else{

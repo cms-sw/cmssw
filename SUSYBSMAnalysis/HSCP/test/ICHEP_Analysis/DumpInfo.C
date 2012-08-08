@@ -245,7 +245,10 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
 {
    reco::MuonRef  muon  = hscp.muonRef();
    reco::TrackRef track = hscp.trackRef();
-   if(track.isNull())return;
+   if(TypeMode!=3 && track.isNull()) return;
+   reco::TrackRef SAtrack;
+   if(!muon.isNull()) SAtrack = muon->standAloneMuon();
+   if(TypeMode==3 && SAtrack.isNull()) return;
 
    fwlite::Handle< std::vector<reco::Vertex> > vertexCollHandle;
    vertexCollHandle.getByLabel(ev,"offlinePrimaryVertices");
@@ -257,17 +260,26 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
    fwlite::Handle<DeDxDataValueMap> dEdxSCollH;
    dEdxSCollH.getByLabel(ev, dEdxS_Label.c_str());
    if(!dEdxSCollH.isValid()){printf("Invalid dEdx Selection collection\n");return;}
-   DeDxData dedxSObj  = dEdxSCollH->get(track.key());
+   const DeDxData* dedxSObj = NULL;
+   if(!track.isNull()) {
+     dedxSObj  = &dEdxSCollH->get(track.key());
+   }
 
    fwlite::Handle<DeDxDataValueMap> dEdxMCollH;
    dEdxMCollH.getByLabel(ev, dEdxM_Label.c_str());
    if(!dEdxMCollH.isValid()){printf("Invalid dEdx Mass collection\n");return;}
-   DeDxData dedxMObj  = dEdxMCollH->get(track.key());
+   const DeDxData* dedxMObj = NULL;
+   if(!track.isNull()) {
+     dedxMObj  = &dEdxMCollH->get(track.key());
+   }
 
    fwlite::Handle<DeDxDataValueMap> dEdxMNPCollH;
    dEdxMNPCollH.getByLabel(ev, "dedxNPHarm2");
    if(!dEdxMNPCollH.isValid()){printf("Invalid dEdx Mass collection\n");return;}
-   DeDxData dedxMNPObj  = dEdxMNPCollH->get(track.key());
+   const DeDxData* dedxMNPObj = NULL;
+   if(!track.isNull()) {
+     dedxMNPObj  = &dEdxMNPCollH->get(track.key());
+   }
 
    fwlite::Handle<MuonTimeExtraMap> TOFDTCollH;
    TOFDTCollH.getByLabel(ev, "muontiming","dt");
@@ -283,22 +295,29 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
    const reco::MuonTimeExtra* tof = NULL;
    if(!hscp.muonRef().isNull()){ tof  = &TOFCombCollH->get(hscp.muonRef().key()); }
 
-   if(track->pt()<=CutPt || dedxSObj.dEdx()>=CutI)return;
-//   if(track->pt()<=CutPt || dedxSObj.dEdx()<=CutI)return;
+   if(TypeMode!=3 && (track->pt()<=CutPt || dedxSObj->dEdx()>=CutI))return;
+   if(TypeMode==3 && SAtrack->pt()<CutPt) return;
+//   if(track->pt()<=CutPt || dedxSObj->dEdx()<=CutI)return;
    if(CutTOF>-1 && tof && tof->inverseBeta()<=CutTOF)return;
 
-   double Mass = GetMass(track->p(),dedxMObj.dEdx(), false);   
+   double Mass=0;
+   if(!track.isNull() && dedxMObj) Mass = GetMass(track->p(),dedxMObj->dEdx(), false);   
    if(CutMass>=0 && Mass<CutMass)return;
 
-   double dz  = track->dz (vertex.position());
-   double dxy = track->dxy(vertex.position());
+   double v3d=0;
+   double dxy=0;
+   double dz=0;
+   if(!track.isNull()) {
+   dz  = track->dz (vertex.position());
+   dxy = track->dxy(vertex.position());
    for(unsigned int i=1;i<vertexColl.size();i++){
       if(fabs(track->dz (vertexColl[i].position())) < fabs(dz) ){
          dz  = track->dz (vertexColl[i].position());
          dxy = track->dxy(vertexColl[i].position());
       }
    }
-   double v3d = sqrt(dz*dz+dxy*dxy);
+   v3d = sqrt(dz*dz+dxy*dxy);
+   }
 
    fprintf(pFile,"\n");
    fprintf(pFile,"---------------------------------------------------------------------------------------------------\n");
@@ -307,28 +326,31 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
    fprintf(pFile,"Run=%i Lumi=%i Event=%i BX=%i  Orbit=%i Store=%i\n",ev.eventAuxiliary().run(),ev.eventAuxiliary().luminosityBlock(),ev.eventAuxiliary().event(),ev.eventAuxiliary().luminosityBlock(),ev.eventAuxiliary().orbitNumber(),ev.eventAuxiliary().storeNumber());
    //edm::TriggerResultsByName tr = ev.triggerResultsByName("Merge");
    //fprintf(pFile,"Trigger: SingleMu=%i  DoubleMu=%i  PFMHT=%i (CaloMET=%i)\n",(int)tr.accept(tr.triggerIndex("HscpPathSingleMu")), (int)tr.accept(tr.triggerIndex("HscpPathDoubleMu")), (int)tr.accept(tr.triggerIndex("HscpPathPFMet")), (int)tr.accept(tr.triggerIndex("HscpPathCaloMet")));
+
+   if(!track.isNull()) {
+
    fprintf(pFile,"------------------------------------------ INNER TRACKER ------------------------------------------\n");
    fprintf(pFile,"Quality = %i Chi2/NDF=%6.2f dz=+%6.2f dxy=%+6.2f V3D=%+6.2f charge:%+i\n",track->qualityMask(), track->chi2()/track->ndof(), dz, dxy, v3d, track->charge());
    fprintf(pFile,"P=%7.2f  Pt=%7.2f+-%6.2f (Cut=%6.2f) Eta=%+6.2f  Phi=%+6.2f  NOH=%2i\n",track->p(),track->pt(), track->ptError(), CutPt, track->eta(), track->phi(), track->found() );
 
    fprintf(pFile,"------------------------------------------ DEDX INFO ----------------------------------------------\n");
-   fprintf(pFile,"dEdx for selection     :%6.2f (Cut=%6.2f) NOM %2i NOS %2i\n",dedxSObj.dEdx(),CutI,dedxSObj.numberOfMeasurements(),dedxSObj.numberOfSaturatedMeasurements());
-   fprintf(pFile,"dEdx for mass reco     :%6.2f             NOM %2i NOS %2i  --> Beta dEdx = %6.2f\n",dedxMObj.dEdx(),dedxMObj.numberOfMeasurements(),dedxMObj.numberOfSaturatedMeasurements(), GetIBeta(dedxMObj.dEdx(), false) );
-   fprintf(pFile,"dEdx for mass reco (NP):%6.2f             NOM %2i NOS %2i  --> Beta dEdx = %6.2f\n",dedxMNPObj.dEdx(),dedxMNPObj.numberOfMeasurements(),dedxMNPObj.numberOfSaturatedMeasurements(), GetIBeta(dedxMNPObj.dEdx(), false) );
+   fprintf(pFile,"dEdx for selection     :%6.2f (Cut=%6.2f) NOM %2i NOS %2i\n",dedxSObj->dEdx(),CutI,dedxSObj->numberOfMeasurements(),dedxSObj->numberOfSaturatedMeasurements());
+   fprintf(pFile,"dEdx for mass reco     :%6.2f             NOM %2i NOS %2i  --> Beta dEdx = %6.2f\n",dedxMObj->dEdx(),dedxMObj->numberOfMeasurements(),dedxMObj->numberOfSaturatedMeasurements(), GetIBeta(dedxMObj->dEdx(), false) );
+   fprintf(pFile,"dEdx for mass reco (NP):%6.2f             NOM %2i NOS %2i  --> Beta dEdx = %6.2f\n",dedxMNPObj->dEdx(),dedxMNPObj->numberOfMeasurements(),dedxMNPObj->numberOfSaturatedMeasurements(), GetIBeta(dedxMNPObj->dEdx(), false) );
 
-   fprintf(pFile,"dEdx mass error     :%6.2f (1Sigma dEdx) or %6.2f (1Sigma P)\n",  GetMass(track->p(),0.95*dedxMObj.dEdx(), false),  GetMass(track->p()*(1-track->ptError()/track->pt()),dedxMObj.dEdx(), false) );
-
+   fprintf(pFile,"dEdx mass error     :%6.2f (1Sigma dEdx) or %6.2f (1Sigma P)\n",  GetMass(track->p(),0.95*dedxMObj->dEdx(), false),  GetMass(track->p()*(1-track->ptError()/track->pt()),dedxMObj->dEdx(), false) );
    for(unsigned int h=0;h<track->recHitsSize();h++){
         TrackingRecHit* recHit = (track->recHit(h))->clone();
         if(const SiStripMatchedRecHit2D* matchedHit=dynamic_cast<const SiStripMatchedRecHit2D*>(recHit)){
-           fprintf(pFile,"Mono  Hit "); printCluster(pFile,(matchedHit->monoHit()->cluster()).get());
-           fprintf(pFile,"StereoHit ");printCluster(pFile,(matchedHit->stereoHit()->cluster()).get());
+	  fprintf(pFile,"Mono  Hit "); printCluster(pFile,(matchedHit->monoHit()->cluster()).get());
+          fprintf(pFile,"StereoHit ");printCluster(pFile,(matchedHit->stereoHit()->cluster()).get());
        }else if(const SiStripRecHit2D* singleHit=dynamic_cast<const SiStripRecHit2D*>(recHit)){
            fprintf(pFile,"2D    Hit ");printCluster(pFile,(singleHit->cluster()).get());
        }else if(const SiStripRecHit1D* single1DHit=dynamic_cast<const SiStripRecHit1D*>(recHit)){
            fprintf(pFile,"1D    Hit ");printCluster(pFile,(single1DHit->cluster()).get());
        }else if(const SiPixelRecHit* pixelHit=dynamic_cast<const SiPixelRecHit*>(recHit)){
            fprintf(pFile,"Pixel Hit  --> Charge = %i\n",(int)pixelHit->cluster()->charge());
+      }
       }
    }
 
@@ -338,7 +360,10 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
       MuonTimeExtra tofCSC      = TOFCSCCollH->get(hscp.muonRef().key());
       MuonTimeExtra tofComb      = TOFCombCollH->get(hscp.muonRef().key());
 
-      fprintf(pFile,"MassTOF = %7.2fGeV\n",GetTOFMass(track->p(),tofComb.inverseBeta()));
+      double TOFMass;
+      if(TypeMode!=3) TOFMass = GetTOFMass(track->p(),tofComb.inverseBeta());
+      else TOFMass = GetTOFMass(SAtrack->p(),tofComb.inverseBeta());
+      fprintf(pFile,"MassTOF = %7.2fGeV\n",TOFMass);
 
       fprintf(pFile,"Quality=%i type=%i P=%7.2f  Pt=%7.2f Eta=%+6.2f Phi=%+6.2f #Chambers=%i\n" ,muon->isQualityValid(),muon->type(),muon->p(),muon->pt(),muon->eta(),muon->phi(),muon->numberOfChambers());
       fprintf(pFile,"muonTimeDT      : NDOF=%2i InvBeta=%6.2f+-%6.2f (Cut=%6.2f) --> beta=%6.2f FreeInvBeta=%6.2f+-%6.2f\n",tofDT  .nDof(),tofDT  .inverseBeta(), tofDT  .inverseBetaErr(), CutTOF, (1.0/tofDT  .inverseBeta()), tofDT  .freeInverseBeta(),tofDT  .freeInverseBetaErr());
@@ -349,6 +374,7 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
       fprintf(pFile,"------------------------------------------ RPC INFO -----------------------------------------------\n");
       fprintf(pFile,"isCandidate %i Beta=%6.2f\n",hscp.rpc().isCandidate,hscp.rpc().beta);
    }
+
    if(hscp.hasCaloInfo() && hscp.caloInfoRef()->ecalTime!=-9999){
       fprintf(pFile,"------------------------------------------ CALO INFO ----------------------------------------------\n");
       fprintf(pFile,"HCAL: E=%6.2f E3x3=%6.2f E5x5=%6.2f HO E=%6.2f\n",hscp.caloInfoRef()->hcalCrossedEnergy,hscp.caloInfoRef()->hcal3by3dir, hscp.caloInfoRef()->hcal5by5dir, hscp.caloInfoRef()->hoCrossedEnergy);
@@ -372,12 +398,14 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
    if(!IsolationH01.isValid()){printf("Invalid IsolationH\n");return;}
    const ValueMap<HSCPIsolation>& IsolationMap01 = *IsolationH01.product();
 
+      if(!track.isNull()) {
    HSCPIsolation hscpIso05 = IsolationMap05.get((size_t)track.key());
    HSCPIsolation hscpIso03 = IsolationMap03.get((size_t)track.key());
    HSCPIsolation hscpIso01 = IsolationMap01.get((size_t)track.key());
    fprintf(pFile,"Isolation05 --> TkCount=%6.2f TkSumEt=%6.2f EcalE/P=%6.2f HcalE/P=%6.2f --> E/P=%6.2f\n",hscpIso05.Get_TK_Count(), hscpIso05.Get_TK_SumEt(), hscpIso05.Get_ECAL_Energy()/track->p(), hscpIso05.Get_HCAL_Energy()/track->p(), (hscpIso05.Get_ECAL_Energy()+hscpIso05.Get_HCAL_Energy())/track->p());
    fprintf(pFile,"Isolation03 --> TkCount=%6.2f TkSumEt=%6.2f EcalE/P=%6.2f HcalE/P=%6.2f --> E/P=%6.2f\n",hscpIso03.Get_TK_Count(), hscpIso03.Get_TK_SumEt(), hscpIso03.Get_ECAL_Energy()/track->p(), hscpIso03.Get_HCAL_Energy()/track->p(), (hscpIso03.Get_ECAL_Energy()+hscpIso03.Get_HCAL_Energy())/track->p());
    fprintf(pFile,"Isolation01 --> TkCount=%6.2f TkSumEt=%6.2f EcalE/P=%6.2f HcalE/P=%6.2f --> E/P=%6.2f\n",hscpIso01.Get_TK_Count(), hscpIso01.Get_TK_SumEt(), hscpIso01.Get_ECAL_Energy()/track->p(), hscpIso01.Get_HCAL_Energy()/track->p(), (hscpIso01.Get_ECAL_Energy()+hscpIso01.Get_HCAL_Energy())/track->p());
+      }
    fprintf(pFile,"\n");
 
 }
@@ -410,36 +438,37 @@ void DumpInfo(string Pattern, int CutIndex=0, double MassMin=-1)
    gStyle->SetNdivisions(505);
    TH1::AddDirectory(kTRUE);
 
-   InitBaseDirectory();
+  InitBaseDirectory();
    GetSampleDefinition(samples);
    keepOnlySamplesOfTypeX(samples, 0);
 
+   TypeMode = TypeFromPattern(Pattern);
 
    TFile* InputFile      = new TFile((Pattern + "/Histos.root").c_str());
    TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
    TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
    TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
-   TH1D*  H_A            = (TH1D*)GetObjectFromPath(InputFile, "Data11/H_A");
-   TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile, "Data11/H_B");
-   TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile, "Data11/H_C");
-   TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, "Data11/H_D");
-   TH1D*  H_E            = (TH1D*)GetObjectFromPath(InputFile, "Data11/H_E");
-   TH1D*  H_F            = (TH1D*)GetObjectFromPath(InputFile, "Data11/H_F");
-   TH1D*  H_G            = (TH1D*)GetObjectFromPath(InputFile, "Data11/H_G");
-   TH1D*  H_H            = (TH1D*)GetObjectFromPath(InputFile, "Data11/H_H");
-   TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, "Data11/H_P");
+   TH1D*  H_A            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_A");
+   TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_B");
+   TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_C");
+   TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_D");
+   TH1D*  H_E            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_E");
+   TH1D*  H_F            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_F");
+   TH1D*  H_G            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_G");
+   TH1D*  H_H            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_H");
+   TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_P");
    CutPt  = HCuts_Pt ->GetBinContent(CutIndex+1);
    CutI   = HCuts_I  ->GetBinContent(CutIndex+1);
    CutTOF = HCuts_TOF->GetBinContent(CutIndex+1);
 
 
 
-   TTree* tree           = (TTree*)GetObjectFromPath(InputFile, "Data11/HscpCandidates");
+   TTree* tree           = (TTree*)GetObjectFromPath(InputFile, "Data12/HscpCandidates");
    printf("Tree Entries=%lli\n",tree->GetEntries());
 
 
    std::vector<string> FileName;
-   for(int s=0;s<samples.size();s++){if(samples[s].Name == "Data11")GetInputFiles(samples[s], BaseDirectory, FileName);}
+   for(int s=0;s<samples.size();s++){if(samples[s].Name == "Data12")GetInputFiles(samples[s], BaseDirectory, FileName);}
    fwlite::ChainEvent ev(FileName);
 
 
@@ -470,12 +499,12 @@ void DumpInfo(string Pattern, int CutIndex=0, double MassMin=-1)
    printf("Scanning D                   :");
    int TreeStep = tree->GetEntries()/50;if(TreeStep==0)TreeStep=1;
    for (Int_t i=0;i<tree->GetEntries();i++){
-      if(i%TreeStep==0){printf(".");fflush(stdout);}
+     if(i%TreeStep==0){printf(".");fflush(stdout);}
       tree->GetEntry(i);
 //      printf("%6i %9i %1i  %6.2f %6.2f %6.2f\n",Run,Event,HscpI,Pt,I,TOF);
 
-      if(Pt<=CutPt || I<CutI || (CutTOF>-1 && TOF<=CutTOF))continue;
-      //if(Pt<=CutPt || I>=CutI || (CutTOF>-1 && TOF<=CutTOF))continue;
+      if(Pt<=CutPt || (CutI>-1 && I<=CutI) || (CutTOF>-1 && TOF<=CutTOF))continue;
+      //if(Pt<=CutPt || (CutI>-1 && I>=CutI) || (CutTOF>-1 && TOF<=CutTOF))continue;
 
       ev.to(Run, Event);
       fwlite::Handle<susybsm::HSCParticleCollection> hscpCollHandle;
@@ -483,7 +512,7 @@ void DumpInfo(string Pattern, int CutIndex=0, double MassMin=-1)
       if(!hscpCollHandle.isValid()){printf("HSCP Collection NotFound\n");continue;}
       const susybsm::HSCParticleCollection& hscpColl = *hscpCollHandle;
 
-      if(I>CutI){printf("I=%g vs %f, Run=%6i Event=%10i HSCP=%i\n",I,CutI,Run,Event,HscpI);}else{continue;}
+      //if(I>CutI){printf("I=%g vs %f, Run=%6i Event=%10i HSCP=%i\n",I,CutI,Run,Event,HscpI);}else{continue;}
 
       susybsm::HSCParticle hscp  = hscpColl[HscpI];
       DumpCandidateInfo(hscp, ev, pFile);

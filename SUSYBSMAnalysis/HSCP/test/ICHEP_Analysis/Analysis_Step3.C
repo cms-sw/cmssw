@@ -161,12 +161,12 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
       for(double Pt =GlobalMinPt+5 ; Pt <120;  Pt+=5){
       for(double I  =GlobalMinIs +0.025; I  <0.40;  I+=0.025){
       for(double TOF=GlobalMinTOF+0.025; TOF<1.35;TOF+=0.025){
-         CutPt .push_back(Pt);   CutI  .push_back(I);  CutTOF.push_back(TOF);
+	   CutPt .push_back(Pt);   CutI  .push_back(I);  CutTOF.push_back(TOF);
       }}}
-      for(double Pt =GlobalMinPt+10 ; Pt <120;  Pt+=30){
-      for(double I  =GlobalMinIs +0.1; I  <0.40;  I+=0.1){
-      for(double TOF=GlobalMinTOF-0.1; TOF>0.65;TOF-=0.1){
-         CutPt_Flip .push_back(Pt);   CutI_Flip  .push_back(I);  CutTOF_Flip.push_back(TOF);
+      for(double Pt =GlobalMinPt+10 ; Pt <90;  Pt+=30){
+      for(double I  =GlobalMinIs +0.1; I  <0.30;  I+=0.1){
+      for(double TOF=GlobalMinTOF-0.05; TOF>0.65;TOF-=0.05){
+	   CutPt_Flip .push_back(Pt);   CutI_Flip  .push_back(I);  CutTOF_Flip.push_back(TOF);
       }}}
    }else if(TypeMode==3){
       for(double Pt =GlobalMinPt+30 ; Pt <450;  Pt+=30){
@@ -182,8 +182,8 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
        for(double TOF=GlobalMinTOF+0.025; TOF<1.46;TOF+=0.025){
  	 CutPt .push_back(-1);   CutI  .push_back(I);  CutTOF.push_back(TOF);
        }}
-     for(double I  =GlobalMinIs +0.025; I  <0.45;  I+=0.025){
-       for(double TOF=GlobalMinTOF-0.025; TOF>0.54;TOF-=0.025){
+      for(double I  =GlobalMinIs +0.025; I  <0.45;  I+=0.025){
+      for(double TOF=GlobalMinTOF-0.025; TOF>0.54;TOF-=0.025){
 	 CutPt_Flip .push_back(-1);   CutI_Flip  .push_back(I);  CutTOF_Flip.push_back(TOF);
        }}
    }else if(TypeMode==5){   
@@ -191,7 +191,7 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
       for(double I  =0.75; I  <=1.0 ;I+=0.01){
          if(I<0.85 && int(I*1000)%5!=0)continue;
          CutPt .push_back(Pt);   CutI  .push_back(I);  CutTOF.push_back(-1);
-      }}
+     }}
    }
 
    printf("%i Different Final Selection will be tested\n",(int)CutPt.size());
@@ -434,12 +434,15 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 
      dz  = NVTrack.dz (beamSpotColl.position());
      dxy = NVTrack.dxy(beamSpotColl.position());
+     if(NVTrack.hitPattern().muonStationsWithValidHits()<minMuStations) return false;
    }
 
    double v3d = sqrt(dz*dz+dxy*dxy);
 
    if(st){st->BS_V3D->Fill(v3d,Event_Weight);}
    if(TypeMode!=3 && v3d>GlobalMaxV3D )return false;
+
+   if(st)st->BS_Dxy->Fill(dxy, Event_Weight);
 
    if(TypeMode==3 && fabs(dxy)>GlobalMaxDXY) return false;
    if(st){st->V3D  ->Fill(0.0,Event_Weight);}
@@ -479,7 +482,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    if(st) {
      st->BS_MatchedStations->Fill(count, Event_Weight);  ;
    }
-   if(TypeMode==3 && count<2) return false;
+   if(TypeMode==3 && count<minMuStations) return false;
    if(st) st->Stations->Fill(0.0, Event_Weight);
 
    //Find distance to nearest segment on opposite side of detector
@@ -508,9 +511,9 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    if(TypeMode==3 && fabs(minEta)<minSegEtaSep) return false;
    if(st){st->SegSep->Fill(0.0,Event_Weight);}
 
-   if(st) {
+   if(st && TypeMode==3) {
      //Plots for tracks in dz control region
-     if(fabs(dz)>CosmicMinDz && fabs(dz)<CosmicMaxDz) {
+     if(fabs(dz)>CosmicMinDz && fabs(dz)<CosmicMaxDz && !muon->isGlobalMuon()) {
        st->BS_Pt_FailDz->Fill(track->pt(), Event_Weight);
        st->BS_TOF_FailDz->Fill(tof->inverseBeta(), Event_Weight);
        if(fabs(track->eta())>CSCRegion) {
@@ -529,6 +532,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
      st->BS_EtaDz->Fill(track->eta(),dz,Event_Weight);
    }
 
+
    //Split into different dz regions, each different region used to predict cosmic background and find systematic
    if(TypeMode==3 && !muon->isGlobalMuon() && st) {
      int DzType=-1;
@@ -538,9 +542,9 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
      else if(fabs(dz)<70) DzType=3;
      if(fabs(dz)>CosmicMinDz && fabs(dz)<CosmicMaxDz) DzType=4;
      if(fabs(dz)>CosmicMaxDz) DzType=5;
+
      //Count number of tracks in dz sidebands passing the TOF cut
      //The pt cut is not applied to increase statistics
-
      for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
        if(tof->inverseBeta()>=CutTOF[CutIndex]) {
 	 st->H_D_DzSidebands->Fill(CutIndex, DzType);
@@ -549,7 +553,6 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
        }
      }
    }
-
    //Cut on dz for TOF only analysis
    if(TypeMode==3 && fabs(dz)>GlobalMaxDZ) return false;
 
@@ -698,22 +701,43 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
 //        /
 //      TOF
 
-            if(track->pt()>100){
+         //Use different pt regions if using momentum from Stand Alone Muons
+	 std::vector<double> PtLimits;
+	 if(TypeMode!=3) {
+	   PtLimits.push_back(100);
+           PtLimits.push_back(80);
+           PtLimits.push_back(60);
+	 }
+	 else {
+           PtLimits.push_back(240);
+           PtLimits.push_back(170);
+           PtLimits.push_back(120);
+	 }
+
+            if(track->pt()>PtLimits[0]){
                st->CtrlPt_S4_Is->Fill(Is, Event_Weight);
                st->CtrlPt_S4_Im->Fill(Ih, Event_Weight);
                if(tof)st->CtrlPt_S4_TOF->Fill(MuonTOF, Event_Weight);
-            }else if(track->pt()>80){
+	       if(fabs(track->eta())<DTRegion) {if(tof)st->CtrlCen_Pt_S4_TOF->Fill(MuonTOF, Event_Weight);}
+	       else {if(tof)st->CtrlFor_Pt_S4_TOF->Fill(MuonTOF, Event_Weight);}
+            }else if(track->pt()>PtLimits[1]){
                st->CtrlPt_S3_Is->Fill(Is, Event_Weight);
                st->CtrlPt_S3_Im->Fill(Ih, Event_Weight);
                if(tof)st->CtrlPt_S3_TOF->Fill(MuonTOF, Event_Weight);
-            }else if(track->pt()>60){
+               if(fabs(track->eta())<DTRegion) {if(tof)st->CtrlCen_Pt_S3_TOF->Fill(MuonTOF, Event_Weight);}
+               else {if(tof)st->CtrlFor_Pt_S3_TOF->Fill(MuonTOF, Event_Weight);}
+            }else if(track->pt()>PtLimits[2]){
                st->CtrlPt_S2_Is->Fill(Is, Event_Weight);
                st->CtrlPt_S2_Im->Fill(Ih, Event_Weight);
                if(tof)st->CtrlPt_S2_TOF->Fill(MuonTOF, Event_Weight);
+               if(fabs(track->eta())<DTRegion) {if(tof)st->CtrlCen_Pt_S2_TOF->Fill(MuonTOF, Event_Weight);}
+               else {if(tof)st->CtrlFor_Pt_S2_TOF->Fill(MuonTOF, Event_Weight);}
             }else{
                st->CtrlPt_S1_Is->Fill(Is, Event_Weight);
                st->CtrlPt_S1_Im->Fill(Ih, Event_Weight);
                if(tof)st->CtrlPt_S1_TOF->Fill(MuonTOF, Event_Weight);
+               if(fabs(track->eta())<DTRegion) {if(tof)st->CtrlCen_Pt_S1_TOF->Fill(MuonTOF, Event_Weight);}
+               else {if(tof)st->CtrlFor_Pt_S1_TOF->Fill(MuonTOF, Event_Weight);}
             }
 
             if(Is>0.2){           if(tof)st->CtrlIs_S4_TOF->Fill(MuonTOF, Event_Weight);
@@ -940,6 +964,7 @@ void Analysis_Step3(char* SavePath)
             ev.to(ientry);
             if(MaxEntry>0 && ientry>MaxEntry)break;
             if(ientry%TreeStep==0){printf(".");fflush(stdout);}
+	    //if(ev.eventAuxiliary().run()>193092 && ev.eventAuxiliary().run() < 194619) continue;
 
             //compute event weight
             if(samples[s].Type>0){Event_Weight = SampleWeight * GetPUWeight(ev, samples[s].Pileup, PUSystFactor, LumiWeightsMC, PShift);}else{Event_Weight = 1;}

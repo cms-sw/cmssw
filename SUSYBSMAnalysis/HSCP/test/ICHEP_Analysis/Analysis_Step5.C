@@ -21,6 +21,7 @@ void SignalMassPlot(string InputPattern, unsigned int CutIndex);
 void GetSystematicOnPrediction(string InputPattern);
 void MakeExpLimitpLot(string Input, string Output);
 void CosmicBackgroundSystematic(string InputPattern);
+void FlipPrediction(string InputPattern);
 
 std::vector<stSample> samples;
 
@@ -59,13 +60,15 @@ void Analysis_Step5()
    CutFlow(InputPattern);
    SelectionPlot(InputPattern, CutIndex);
    GetSystematicOnPrediction(InputPattern);
+   FlipPrediction(InputPattern);
 
-   InputPattern = "Results/dedxASmi/combined/Eta21/PtMin80/Type3/";   CutIndex = 16;
+   InputPattern = "Results/Type3/";   CutIndex = 22;
    PredictionAndControlPlot(InputPattern, "Data11", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data12", CutIndex, CutIndex_Flip);
    //CutFlow(InputPattern);
    SelectionPlot(InputPattern, CutIndex);
    CosmicBackgroundSystematic(InputPattern);
+   FlipPrediction(InputPattern);
 
      //This function has not yet been reviewed after july's update
 //   MakeExpLimitpLot("Results_1toys_lp/dedxASmi/combined/Eta15/PtMin35/Type0/EXCLUSION/Stop200.info","tmp1.png");
@@ -323,6 +326,16 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    TH1D* CtrlIm_S3_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlIm_S3_TOF"); CtrlIm_S3_TOF->Rebin(1);
    TH1D* CtrlIm_S4_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlIm_S4_TOF"); CtrlIm_S4_TOF->Rebin(1);
 
+   TH1D* CtrlCen_Pt_S1_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlCen_Pt_S1_TOF"); CtrlCen_Pt_S1_TOF->Rebin(1);
+   TH1D* CtrlCen_Pt_S2_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlCen_Pt_S2_TOF"); CtrlCen_Pt_S2_TOF->Rebin(1);
+   TH1D* CtrlCen_Pt_S3_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlCen_Pt_S3_TOF"); CtrlCen_Pt_S3_TOF->Rebin(1);
+   TH1D* CtrlCen_Pt_S4_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlCen_Pt_S4_TOF"); CtrlCen_Pt_S4_TOF->Rebin(1);
+
+   TH1D* CtrlFor_Pt_S1_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlFor_Pt_S1_TOF"); CtrlFor_Pt_S1_TOF->Rebin(1);
+   TH1D* CtrlFor_Pt_S2_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlFor_Pt_S2_TOF"); CtrlFor_Pt_S2_TOF->Rebin(1);
+   TH1D* CtrlFor_Pt_S3_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlFor_Pt_S3_TOF"); CtrlFor_Pt_S3_TOF->Rebin(1);
+   TH1D* CtrlFor_Pt_S4_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlFor_Pt_S4_TOF"); CtrlFor_Pt_S4_TOF->Rebin(1);
+
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    if(CtrlPt_S1_Is->Integral()>0)CtrlPt_S1_Is->Scale(1/CtrlPt_S1_Is->Integral());
    if(CtrlPt_S2_Is->Integral()>0)CtrlPt_S2_Is->Scale(1/CtrlPt_S2_Is->Integral());
@@ -366,11 +379,49 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    Histos[1] = CtrlPt_S2_TOF;                    legend.push_back(" 60<p_{T}< 80 GeV");
    Histos[2] = CtrlPt_S3_TOF;                    legend.push_back(" 80<p_{T}<100 GeV");
    Histos[3] = CtrlPt_S4_TOF;                    legend.push_back("100<p_{T}");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,2, 0,0); 
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 0,2, 0,0); 
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(SQRTS, IntegratedLuminosity);
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_TOFSpectrum");
+   c1->SetLogy(false);
+   if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_TOFSpectrumNoLog");
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   if(CtrlCen_Pt_S1_TOF->Integral()>0)CtrlCen_Pt_S1_TOF->Scale(1/CtrlCen_Pt_S1_TOF->Integral());
+   if(CtrlCen_Pt_S2_TOF->Integral()>0)CtrlCen_Pt_S2_TOF->Scale(1/CtrlCen_Pt_S2_TOF->Integral());
+   if(CtrlCen_Pt_S3_TOF->Integral()>0)CtrlCen_Pt_S3_TOF->Scale(1/CtrlCen_Pt_S3_TOF->Integral());
+   if(CtrlCen_Pt_S4_TOF->Integral()>0)CtrlCen_Pt_S4_TOF->Scale(1/CtrlCen_Pt_S4_TOF->Integral());
+   Histos[0] = CtrlCen_Pt_S1_TOF;                    legend.push_back(" 50<p_{T}< 60 GeV");
+   Histos[1] = CtrlCen_Pt_S2_TOF;                    legend.push_back(" 60<p_{T}< 80 GeV");
+   Histos[2] = CtrlCen_Pt_S3_TOF;                    legend.push_back(" 80<p_{T}<100 GeV");
+   Histos[3] = CtrlCen_Pt_S4_TOF;                    legend.push_back("100<p_{T}");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 0,2, 0,0);
+   DrawLegend(Histos,legend,LegendTitle,"P");
+   c1->SetLogy(true);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_Cen_TOFSpectrum");
+   c1->SetLogy(false);
+   if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_Cen_TOFSpectrumNoLog");
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   if(CtrlFor_Pt_S1_TOF->Integral()>0)CtrlFor_Pt_S1_TOF->Scale(1/CtrlFor_Pt_S1_TOF->Integral());
+   if(CtrlFor_Pt_S2_TOF->Integral()>0)CtrlFor_Pt_S2_TOF->Scale(1/CtrlFor_Pt_S2_TOF->Integral());
+   if(CtrlFor_Pt_S3_TOF->Integral()>0)CtrlFor_Pt_S3_TOF->Scale(1/CtrlFor_Pt_S3_TOF->Integral());
+   if(CtrlFor_Pt_S4_TOF->Integral()>0)CtrlFor_Pt_S4_TOF->Scale(1/CtrlFor_Pt_S4_TOF->Integral());
+   Histos[0] = CtrlFor_Pt_S1_TOF;                    legend.push_back(" 50<p_{T}< 60 GeV");
+   Histos[1] = CtrlFor_Pt_S2_TOF;                    legend.push_back(" 60<p_{T}< 80 GeV");
+   Histos[2] = CtrlFor_Pt_S3_TOF;                    legend.push_back(" 80<p_{T}<100 GeV");
+   Histos[3] = CtrlFor_Pt_S4_TOF;                    legend.push_back("100<p_{T}");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 0,2, 0,0);
+   DrawLegend(Histos,legend,LegendTitle,"P");
+   c1->SetLogy(true);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_For_TOFSpectrum");
+   c1->SetLogy(false);
+   if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_For_TOFSpectrumNoLog");
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
@@ -632,7 +683,7 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
 
     if(TypeMode==3) {
       stPlots_Draw(Cosmic12Plots, InputPattern + "/Selection_Cosmic12", LegendTitle, CutIndex);
-      stPlots_Draw(Cosmic11Plots, InputPattern + "/Selection_Cosmic11", LegendTitle, CutIndex);
+      //stPlots_Draw(Cosmic11Plots, InputPattern + "/Selection_Cosmic11", LegendTitle, CutIndex);
     }
 
     stPlots_DrawComparison(InputPattern + "/Selection_Comp_Data"  , LegendTitle, CutIndex, &Data12Plots, &Data11Plots, &MCTrPlots);
@@ -790,7 +841,7 @@ void GetSystematicOnPrediction(string InputPattern){
 
       Mean  = Mean/Sigma;
       Sigma = sqrt(Sigma);
-     
+        
       double Dist    = fabs(Pred[0] - Mean);
       double Sum=0, Stat=0, Syst=0, StatB=0;
 
@@ -1568,7 +1619,7 @@ void MakeExpLimitpLot(string Input, string Output){
 
 void CosmicBackgroundSystematic(string InputPattern){
 
-  string SavePath  = InputPattern + "/Syst/";
+  string SavePath  = InputPattern;
   MakeDirectories(SavePath);
   TCanvas* c1;
   TH1** Histos = new TH1*[10];
@@ -1581,241 +1632,99 @@ void CosmicBackgroundSystematic(string InputPattern){
   TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
   TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
 
-  TH2D* H_D_DzSidebands = ((TH2D*)GetObjectFromPath(InputFile, "Data12/H_D_DzSidebands"));
-  TH2D* H_D_DzSidebands_Cosmic = (TH2D*)GetObjectFromPath(InputFile, "Cosmic12/H_D_DzSidebands");
-  TH1D* H_D_Cosmic             = (TH1D*)GetObjectFromPath(InputFile, "Cosmic12/H_D");
+  TH2D* H_D_DzSidebands = ((TH2D*)GetObjectFromPath(InputFile, "Data12/H_D_DzSidebands_DT"));
+  TH2D* H_D_DzSidebands_Cosmic = (TH2D*)GetObjectFromPath(InputFile, "Cosmic12/H_D_DzSidebands_DT");
+  TH1D* H_D_Cosmic           = (TH1D*)GetObjectFromPath(InputFile, "Cosmic12/H_D_Cen");
+  //TH1D* H_D_Data             = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_D_Cen");
 
-  TH1F *Pred_TOF100[DzRegions-1];
-  TH1F *Pred_TOF110[DzRegions-1];
-  TH1F *Pred_TOF120[DzRegions-1];
-  TH1F *Pred_TOF130[DzRegions-1];
+  std::vector<int> Index;   std::vector<int> Plot;
+  for(int CutIndex=0; CutIndex<HCuts_Pt->GetNbinsX(); CutIndex++) {
+    if(fabs(HCuts_TOF->GetBinContent(CutIndex+1)-1.1)<0.001) {Index.push_back(CutIndex); Plot.push_back(0);}
+    if(fabs(HCuts_TOF->GetBinContent(CutIndex+1)-1.2)<0.001) {Index.push_back(CutIndex); Plot.push_back(1);}
+    if(fabs(HCuts_TOF->GetBinContent(CutIndex+1)-1.25)<0.001) {Index.push_back(CutIndex); Plot.push_back(2);}
+    if(fabs(HCuts_TOF->GetBinContent(CutIndex+1)-1.3)<0.001) {Index.push_back(CutIndex); Plot.push_back(3);}
+  }
 
-  TH1F *StatSyst_TOF100 = new TH1F("StatSyst_TOF100", "StatSyst_TOF100", 7, 65, 275);
-  TH1F *StatSyst_TOF110 = new TH1F("StatSyst_TOF110", "StatSyst_TOF110", 7, 65, 275);
-  TH1F *StatSyst_TOF120 = new TH1F("StatSyst_TOF120", "StatSyst_TOF120", 7, 65, 275);
-  TH1F *StatSyst_TOF130 = new TH1F("StatSyst_TOF130", "StatSyst_TOF130", 7, 65, 275);
+  TH1F *Pred[4*DzRegions];
+  TH1F *StatSyst[4];
+  TH1F *Stat[4];
+  TH1F *Syst[4];
 
-  TH1F *Stat_TOF100 = new TH1F("Stat_TOF100", "Stat_TOF100", 7, 65, 275);
-  TH1F *Stat_TOF110 = new TH1F("Stat_TOF110", "Stat_TOF110", 7, 65, 275);
-  TH1F *Stat_TOF120 = new TH1F("Stat_TOF120", "Stat_TOF120", 7, 65, 275);
-  TH1F *Stat_TOF130 = new TH1F("Stat_TOF130", "Stat_TOF130", 7, 65, 275);
+  string Preds[4] = {"110", "120", "125", "130"};
+  string RegionNames[DzRegions]={"Region0","Region1","Region2","Region3","Region4", "Region5"};
+  string LegendNames[DzRegions]={"dz < 20 cm","20 cm < dz < 30 cm","30 cm < dz < 50 cm","50 cm < dz < 70 cm","70 cm < dz < 120 cm", "dz > 120 cm"};
 
-  TH1F *Syst_TOF100 = new TH1F("Syst_TOF100", "Syst_TOF100", 7, 65, 275);
-  TH1F *Syst_TOF110 = new TH1F("Syst_TOF110", "Syst_TOF110", 7, 65, 275);
-  TH1F *Syst_TOF120 = new TH1F("Syst_TOF120", "Syst_TOF120", 7, 65, 275);
-  TH1F *Syst_TOF130 = new TH1F("Syst_TOF130", "Syst_TOF130", 7, 65, 275);
+  for(int i=0; i<4; i++) {
+    StatSyst[i] = new TH1F(("StatSyst_TOF" + Preds[i]).c_str(), "StatSyst_TOF100", 7, 65, 275);
+    Stat[i] = new TH1F(("Stat_TOF" + Preds[i]).c_str(), "Stat_TOF100", 7, 65, 275);
+    Syst[i] = new TH1F(("Syst_TOF" + Preds[i]).c_str(), "Syst_TOF110", 7, 65, 275);
 
-  std::string RegionNames[DzRegions]={"Region0","Region1","Region2","Region3","Region4", "Region5"};
-  std::string LegendNames[DzRegions]={"dz < 6 cm","6 cm < dz < 30 cm","30 cm < dz < 50 cm","50 cm < dz < 70 cm","70 cm < dz < 120 cm", "dz > 120 cm"};
+    for(int Region=0; Region<DzRegions; Region++) {
+      string Name="Pred_TOF" + Preds[i] + "_"+ RegionNames[Region];
+      Pred[i*DzRegions+Region] = new TH1F(Name.c_str(), Name.c_str(), 7, 65, 275);
+    }
+  }
 
-  for(int Region=1; Region<DzRegions; Region++) {
-    string Name="Pred_TOF100_"+RegionNames[Region];
-    Pred_TOF100[Region] = new TH1F(Name.c_str(), Name.c_str(), 7, 65, 275);
+  for(unsigned int i=0; i<Index.size(); i++) {
+    int CutIndex=Index[i];
+    double D_Cosmic = H_D_Cosmic->GetBinContent(CutIndex+1);
 
-    Name="Pred_TOF110_"+RegionNames[Region];
-    Pred_TOF110[Region] = new TH1F(Name.c_str(), Name.c_str(), 7, 65, 275);
+    int Bin=Pred[0]->FindBin(HCuts_Pt->GetBinContent(CutIndex));
 
-    Name="Pred_TOF120_"+RegionNames[Region];
-    Pred_TOF120[Region] = new TH1F(Name.c_str(), Name.c_str(), 7, 65, 275);
+    double Sigma = 0;
+    double Mean = 0;
+    int N=0;
 
-    Name="Pred_TOF130_"+RegionNames[Region];
-    Pred_TOF130[Region] = new TH1F(Name.c_str(), Name.c_str(), 7, 65, 275);
-
-    for(int CutIndex=0; CutIndex<HCuts_Pt->GetNbinsX()+2; CutIndex++) {
-      double D_Sideband = H_D_DzSidebands->GetBinContent(CutIndex+1, Region);
-      double D_Cosmic = H_D_Cosmic->GetBinContent(CutIndex+1);
-      double D_Sideband_Cosmic = H_D_DzSidebands_Cosmic->GetBinContent(CutIndex+1, Region);
+    for(int Region=2; Region<DzRegions; Region++) {
+      double D_Sideband = H_D_DzSidebands->GetBinContent(CutIndex+1, Region+1);
+      double D_Sideband_Cosmic = H_D_DzSidebands_Cosmic->GetBinContent(CutIndex+1, Region+1);
 
       double NPred = D_Sideband * D_Cosmic / D_Sideband_Cosmic;
       double NPredErr = sqrt( (pow(D_Cosmic/D_Sideband_Cosmic,2)*D_Sideband) + (pow(D_Sideband/D_Sideband_Cosmic,2)*D_Cosmic) + (pow((D_Cosmic*(D_Sideband)/(D_Sideband_Cosmic*D_Sideband_Cosmic)),2)*D_Sideband_Cosmic) );
 
-      /*
-      double NPred_Cosmic_Cen = cosmicFraction_Cen*D_Control_Cen;
-      double NPred_Cosmic_Err_Cen = sqrt(cosmicFraction_Cen*cosmicFraction_Cen*D_Control_Cen + cosmicFractionErr_Cen*cosmicFractionErr_Cen*D_Control_Cen*D_Control_Cen);
-
-      double D_Control_For = DataPlots.H_D_For_Syst[Region]->GetBinContent(Cut);
-      double NPred_Cosmic_For = cosmicFraction_For*D_Control_For;
-      double NPred_Cosmic_Err_For = sqrt(cosmicFraction_For*cosmicFraction_For*D_Control_For + cosmicFractionErr_For*cosmicFractionErr_For*D_Control_For*D_Control_For);
-
-      double NPred = NPred_Cosmic_Cen+NPred_Cosmic_For;
-      double NPredErr = sqrt(NPred_Cosmic_Err_Cen*NPred_Cosmic_Err_Cen + NPred_Cosmic_Err_For*NPred_Cosmic_Err_For);
-      */
-      int Bin=Pred_TOF100[Region]->FindBin(HCuts_Pt->GetBinContent(CutIndex));
-
-      if(fabs(HCuts_TOF->GetBinContent(CutIndex)-1.255)<0.001) {
-	Pred_TOF100[Region]->SetBinContent(Bin, NPred);
-	Pred_TOF100[Region]->SetBinError(Bin, NPredErr);
-      }
-
-      if(fabs(HCuts_TOF->GetBinContent(CutIndex)-1.105)<0.001) {
-        Pred_TOF110[Region]->SetBinContent(Bin, NPred);
-        Pred_TOF110[Region]->SetBinError(Bin, NPredErr);
-      }
-
-      if(fabs(HCuts_TOF->GetBinContent(CutIndex)-1.205)<0.001) {
-        Pred_TOF120[Region]->SetBinContent(Bin, NPred);
-        Pred_TOF120[Region]->SetBinError(Bin, NPredErr);
-      }
-
-      if(fabs(HCuts_TOF->GetBinContent(CutIndex)-1.305)<0.001) {
-        Pred_TOF130[Region]->SetBinContent(Bin, NPred);
-        Pred_TOF130[Region]->SetBinError(Bin, NPredErr);
-      }
+      Pred[Plot[i]*DzRegions + Region]->SetBinContent(Bin, NPred);
+      Pred[Plot[i]*DzRegions + Region]->SetBinError(Bin, NPredErr);
+      Mean+=NPred/pow(NPredErr,2);
+      Sigma+=1/pow(NPredErr,2);
+      N++;
     }
+
+    Mean  = Mean/Sigma;
+    Sigma = sqrt(Sigma);
+
+    double SUM=0, STAT=0, SYST=0;
+
+    for(int p=0;p<DzRegions;p++){
+      SUM   += pow(Pred[Plot[i]*DzRegions + p]->GetBinContent(Bin)-Mean,2);
+      STAT  += pow(Pred[Plot[i]*DzRegions + p]->GetBinError(Bin),2);
+    }
+  
+    SUM  = sqrt(SUM/(N-1));
+    STAT = sqrt(STAT)/(N-1);
+    SYST = sqrt(SUM*SUM - STAT*STAT);
+  
+    Stat[Plot[i]]->SetBinContent(Bin, STAT/Mean);
+    StatSyst[Plot[i]]->SetBinContent(Bin, SUM/Mean);
+    Syst[Plot[i]]->SetBinContent(Bin, SYST/Mean);
   }
 
-  double UsedRegions=DzRegions-3;
-  double endCut=1;
-
-  for(int i=1; i<Pred_TOF100[2]->GetNbinsX()+1; i++) {
-    double StatSyst=0, Stat=0, Syst=0, Average=0;
-    for(int Region=2; Region<(DzRegions-endCut); Region++) {
-      Average+=Pred_TOF100[Region]->GetBinContent(i);
-      Stat+=Pred_TOF100[Region]->GetBinError(i)*Pred_TOF100[Region]->GetBinError(i);
+  for(int i=0; i<4; i++) {
+    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+    for(int Region=2; Region<DzRegions; Region++) {
+      Histos[Region-2] = Pred[i*DzRegions + Region];         legend.push_back(LegendNames[Region]);
     }
-
-    Average=Average/UsedRegions;
-    for(int Region=2; Region<(DzRegions-endCut); Region++) {
-      StatSyst+=pow(Pred_TOF100[Region]->GetBinContent(i)-Average,2);
-    }
-    Stat=sqrt(Stat/UsedRegions);
-    StatSyst=sqrt(StatSyst/(UsedRegions-1));
-    if(StatSyst*StatSyst>Stat*Stat) Syst=sqrt(StatSyst*StatSyst - Stat*Stat);
-
-    StatSyst_TOF100->SetBinContent(i, StatSyst/Average);
-    Stat_TOF100->SetBinContent(i, Stat/Average);
-    Syst_TOF100->SetBinContent(i, Syst/Average);
-
-    StatSyst_TOF100->SetBinError(i, 0.0001);
-    Stat_TOF100->SetBinError(i, 0.0001);
-    Syst_TOF100->SetBinError(i, 0.0001);
-  }
-
-  for(int i=1; i<Pred_TOF110[2]->GetNbinsX()+1; i++) {
-    double StatSyst=0, Stat=0, Syst=0, Average=0;
-    for(int Region=2; Region<(DzRegions-endCut); Region++) {
-      Average+=Pred_TOF110[Region]->GetBinContent(i);
-      Stat+=Pred_TOF110[Region]->GetBinError(i)*Pred_TOF110[Region]->GetBinError(i);
-    }
-
-    Average=Average/UsedRegions;
-    for(int Region=2; Region<(DzRegions-endCut); Region++) {
-      StatSyst+=pow(Pred_TOF110[Region]->GetBinContent(i)-Average,2);
-    }
-    Stat=sqrt(Stat/UsedRegions);
-    StatSyst=sqrt(StatSyst/(UsedRegions-1));
-    if(StatSyst*StatSyst>Stat*Stat) Syst=sqrt(StatSyst*StatSyst - Stat*Stat);
-
-    StatSyst_TOF110->SetBinContent(i, StatSyst/Average);
-    Stat_TOF110->SetBinContent(i, Stat/Average);
-    Syst_TOF110->SetBinContent(i, Syst/Average);
-
-    StatSyst_TOF110->SetBinError(i, 0.0001);
-    Stat_TOF110->SetBinError(i, 0.0001);
-    Syst_TOF110->SetBinError(i, 0.0001);
-  }
-
-  for(int i=1; i<Pred_TOF120[2]->GetNbinsX()+1; i++) {
-    double StatSyst=0, Stat=0, Syst=0, Average=0;
-
-    for(int Region=2; Region<(DzRegions-endCut); Region++) {
-      Average+=Pred_TOF120[Region]->GetBinContent(i);
-      Stat+=Pred_TOF120[Region]->GetBinError(i)*Pred_TOF120[Region]->GetBinError(i);
-    }
-    Average=Average/(UsedRegions);
-
-   for(int Region=2; Region<(DzRegions-endCut); Region++) {
-      StatSyst+=pow(Pred_TOF120[Region]->GetBinContent(i)-Average,2);
-    }
-    Stat=sqrt(Stat/UsedRegions);
-    StatSyst=sqrt(StatSyst/(UsedRegions-1));
-    if(StatSyst*StatSyst>Stat*Stat) Syst=sqrt(StatSyst*StatSyst - Stat*Stat);
-
-    StatSyst_TOF120->SetBinContent(i, StatSyst/Average);
-    Stat_TOF120->SetBinContent(i, Stat/Average);
-    Syst_TOF120->SetBinContent(i, Syst/Average);
-
-    StatSyst_TOF120->SetBinError(i, 0.0001);
-    Stat_TOF120->SetBinError(i, 0.0001);
-    Syst_TOF120->SetBinError(i, 0.0001);
-  }
-
-  for(int i=1; i<Pred_TOF130[2]->GetNbinsX()+1; i++) {
-    double StatSyst=0, Stat=0, Syst=0, Average=0;
-
-    for(int Region=2; Region<(DzRegions-endCut); Region++) {
-      Average+=Pred_TOF130[Region]->GetBinContent(i);
-      Stat+=Pred_TOF130[Region]->GetBinError(i)*Pred_TOF130[Region]->GetBinError(i);
-    }
-    Average=Average/UsedRegions;
-
-    for(int Region=2; Region<(DzRegions-endCut); Region++) {
-      StatSyst+=pow(Pred_TOF130[Region]->GetBinContent(i)-Average,2);
-    }
-
-    Stat=sqrt(Stat/UsedRegions);
-    StatSyst=sqrt(StatSyst/(UsedRegions-1));
-    if(StatSyst*StatSyst>Stat*Stat) Syst=sqrt(StatSyst*StatSyst - Stat*Stat);
-
-    StatSyst_TOF130->SetBinContent(i, StatSyst/Average);
-    Stat_TOF130->SetBinContent(i, Stat/Average);
-    Syst_TOF130->SetBinContent(i, Syst/Average);
-
-    StatSyst_TOF130->SetBinError(i, 0.0001);
-    Stat_TOF130->SetBinError(i, 0.0001);
-    Syst_TOF130->SetBinError(i, 0.0001);
-  }
-
+    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt Cut", "Predicted", 0,0, 0,0);
+    DrawLegend((TObject**)Histos,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
+    c1->SetLogy(false);
+    DrawPreliminary(SQRTS, IntegratedLuminosity);
+    SaveCanvas(c1,SavePath,("CosmicPrediction_TOF" + Preds[i]).c_str());
+    delete c1;
+  }  
 
   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-  for(int Region=2; Region<DzRegions; Region++) {
-    Histos[Region-2] = Pred_TOF100[Region];         legend.push_back(LegendNames[Region]);
+  for(int i=0; i<4; i++) {
+    Histos[i] = StatSyst[i];         legend.push_back(Preds[i]);
   }
-  DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt Cut", "Predicted", 0,0, 0,0);
-  DrawLegend((TObject**)Histos,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
-  c1->SetLogy(false);
-  DrawPreliminary(SQRTS, IntegratedLuminosity);
-  SaveCanvas(c1,SavePath,"CosmicPrediction_TOF100");
-  delete c1;
-
-  c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-  for(int Region=2; Region<DzRegions; Region++) {
-    Histos[Region-2] = Pred_TOF110[Region];         legend.push_back(LegendNames[Region]);
-  }
-  DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt Cut", "Predicted", 0,0, 0,0);
-  DrawLegend((TObject**)Histos,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
-  c1->SetLogy(false);
-  DrawPreliminary(SQRTS, IntegratedLuminosity);
-  SaveCanvas(c1,SavePath,"CosmicPrediction_TOF110");
-  delete c1;
-
-  c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-  for(int Region=2; Region<DzRegions; Region++) {
-    Histos[Region-2] = Pred_TOF120[Region];         legend.push_back(LegendNames[Region]);
-  }
-  DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt Cut", "Predicted", 0,0, 0,0);
-  DrawLegend((TObject**)Histos,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
-  c1->SetLogy(false);
-  DrawPreliminary(SQRTS, IntegratedLuminosity);
-  SaveCanvas(c1,SavePath,"CosmicPrediction_TOF120");
-  delete c1;
-
-  c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-  for(int Region=2; Region<DzRegions; Region++) {
-    Histos[Region-2] = Pred_TOF130[Region];         legend.push_back(LegendNames[Region]);
-  }
-  DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt Cut", "Predicted", 0,0, 0,0);
-  DrawLegend((TObject**)Histos,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
-  c1->SetLogy(false);
-  DrawPreliminary(SQRTS, IntegratedLuminosity);
-  SaveCanvas(c1,SavePath,"CosmicPrediction_TOF130");
-  delete c1;
-
-  c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-  Histos[0] = StatSyst_TOF100;         legend.push_back("TOF > 1.0");
-  Histos[1] = StatSyst_TOF110;         legend.push_back("TOF > 1.1");
-  Histos[2] = StatSyst_TOF120;         legend.push_back("TOF > 1.2");
-  //Histos[3] = StatSyst_TOF130;         legend.push_back("TOF > 1.3");
   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt Cut", "Stat+Syst Rel. Error", 0,0, 0,1.4);
   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
   c1->SetLogy(false);
@@ -1824,10 +1733,9 @@ void CosmicBackgroundSystematic(string InputPattern){
   delete c1;
 
   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-  Histos[0] = Stat_TOF100;         legend.push_back("TOF > 1.0");
-  Histos[1] = Stat_TOF110;         legend.push_back("TOF > 1.1");
-  Histos[2] = Stat_TOF120;         legend.push_back("TOF > 1.2");
-  //Histos[3] = Stat_TOF130;         legend.push_back("TOF > 1.3");
+  for(int i=0; i<4; i++) {
+    Histos[i] = Stat[i];         legend.push_back(Preds[i]);
+  }
   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt Cut", "Stat Rel. Error", 0,0, 0,1.4);
   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
   c1->SetLogy(false);
@@ -1836,14 +1744,105 @@ void CosmicBackgroundSystematic(string InputPattern){
   delete c1;
 
   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-  Histos[0] = Syst_TOF100;         legend.push_back("TOF > 1.0");
-  Histos[1] = Syst_TOF110;         legend.push_back("TOF > 1.1");
-  Histos[2] = Syst_TOF120;         legend.push_back("TOF > 1.2");
-  //Histos[3] = Syst_TOF130;         legend.push_back("TOF > 1.3");
+  for(int i=0; i<4; i++) {
+    Histos[i] = Syst[i];         legend.push_back(Preds[i]);
+  }
   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt Cut", "Syst Rel. Error", 0,0, 0,1.4);
   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
   c1->SetLogy(false);
   DrawPreliminary(SQRTS, IntegratedLuminosity);
   SaveCanvas(c1,SavePath,"CosmicSyst");
   delete c1;
+}  
+
+void FlipPrediction(string InputPattern){
+  TypeMode = TypeFromPattern(InputPattern);
+  if(TypeMode==0)return;
+
+  std::vector<string> legend;
+  string LegendTitle = LegendFromType(InputPattern);
+  string SavePath  = InputPattern;
+  MakeDirectories(SavePath);
+  TCanvas* c1;
+  TH1** Histos = new TH1*[10];
+
+  TFile* InputFile = new TFile((InputPattern + "Histos.root").c_str());
+  TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt_Flip");
+  TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I_Flip");
+  TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF_Flip");
+
+  TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_D_Flip");
+  TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_P_Flip");
+
+  std::vector<int> Index;   std::vector<int> Plot;
+  std::vector<double> TOFCuts;
+  double TOFCutMax=0, TOFCutMin=9999;
+
+  map<std::pair<double, double>,int> CutMap;
+
+  int countPlots=0;
+  for(int CutIndex=1; CutIndex<HCuts_TOF->GetNbinsX(); CutIndex++) {
+    TOFCuts.push_back(HCuts_TOF->GetBinContent(CutIndex+1));
+    if(HCuts_TOF->GetBinContent(CutIndex+1)<TOFCutMin) TOFCutMin=HCuts_TOF->GetBinContent(CutIndex+1);
+    if(HCuts_TOF->GetBinContent(CutIndex+1)>TOFCutMax) TOFCutMax=HCuts_TOF->GetBinContent(CutIndex+1);
+
+    std::pair<double, double> key(HCuts_I->GetBinContent(CutIndex+1), HCuts_Pt->GetBinContent(CutIndex+1));
+    //New combination of TOF and I cuts
+    if(CutMap.find(key)==CutMap.end()) {
+      CutMap[key]=countPlots;
+      countPlots++;
+    }
+  }
+
+  std::vector<TH1D*> Pred;
+  std::vector<TH1D*> Data;
+
+  for(int i=0; i<countPlots; i++) {
+    char DataName[1024];
+    sprintf(DataName,"Data_%i",i);
+    TH1D* TempData = new TH1D(DataName, DataName, TOFCuts.size(), TOFCutMin, TOFCutMax);
+    Data.push_back(TempData);
+    char PredName[1024];
+    sprintf(PredName,"Pred_%i",i);
+    TH1D* TempPred = new TH1D(PredName, PredName, TOFCuts.size(), TOFCutMin, TOFCutMax);
+    Pred.push_back(TempPred);
+  }
+
+  for(int CutIndex=1; CutIndex<HCuts_TOF->GetNbinsX(); CutIndex++) {
+    std::pair<double, double> key(HCuts_I->GetBinContent(CutIndex+1), HCuts_Pt->GetBinContent(CutIndex+1));
+    int plot = CutMap.find(key)->second;
+    int bin = Data[plot]->FindBin(HCuts_TOF->GetBinContent(CutIndex+1));
+
+    double D = H_D->GetBinContent(CutIndex+1);
+    Data[plot]->SetBinContent(bin, D);
+
+    double P = H_P->GetBinContent(CutIndex+1);
+    double Perr = H_P->GetBinError(CutIndex+1);
+    Pred[plot]->SetBinContent(bin, P);
+    Pred[plot]->SetBinError(bin, Perr);
+  }
+
+  for(int i=0; i<countPlots; i++) {
+    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+    Histos[0] = Data[i];      legend.push_back("Obs");
+    Histos[1] = Pred[i];    legend.push_back("Pred");
+    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Cut", "Tracks", 0, 0, 0,0);
+    DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
+    c1->SetLogy(true);
+    DrawPreliminary(SQRTS, IntegratedLuminosity);
+
+    map<std::pair<double, double>,int>::iterator it;
+    double ICut=-1, PtCut=-1;
+    for ( it=CutMap.begin() ; it != CutMap.end(); it++ ) if((*it).second==i) {
+      ICut = (*it).first.first;
+      PtCut = (*it).first.second;
+    }
+
+    char Title[1024];
+    if(ICut>-1 && PtCut>-1) sprintf(Title,"FlipPred_I%0.2f_Pt%3.0f",ICut, PtCut);
+    else if(PtCut>-1) sprintf(Title,"FlipPred_Pt%3.0f",PtCut);
+    else if(ICut>-1) sprintf(Title,"FlipPred_I%0.2f",ICut);
+    SaveCanvas(c1,SavePath,Title);
+    delete c1;
+  }
 }

@@ -12,6 +12,6 @@ root -l -b << EOF
   gSystem->Load("libDataFormatsCommon.so");
   gSystem->Load("libDataFormatsHepMCCandidate.so");
   gSystem->Load("libDataFormatsTrackerRecHit2D.so");
- .x DumpInfo.C++("Results/Type5/", 65,-1);
+ .x DumpInfo.C++("Results/Type3/", 26,-1);
 EOF
 

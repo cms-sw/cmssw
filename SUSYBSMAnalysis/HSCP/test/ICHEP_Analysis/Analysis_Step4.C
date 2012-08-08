@@ -160,18 +160,18 @@ void Analysis_Step4(std::string InputPattern)
 
        //const double& A_Cen=H_A_Cen->GetBinContent(CutIndex+1);
 	 const double& B_Cen=H_B_Cen->GetBinContent(CutIndex+1);
-       //const double& C_Cen=H_C_Cen->GetBinContent(CutIndex+1);
-       //const double& D_Cen=H_D_Cen->GetBinContent(CutIndex+1);
-       //const double& E_Cen=H_E_Cen->GetBinContent(CutIndex+1);
+	 //const double& C_Cen=H_C_Cen->GetBinContent(CutIndex+1);
+	 //const double& D_Cen=H_D_Cen->GetBinContent(CutIndex+1);
+	 //const double& E_Cen=H_E_Cen->GetBinContent(CutIndex+1);
 	 const double& F_Cen=H_F_Cen->GetBinContent(CutIndex+1);
        //const double& G_Cen=H_G_Cen->GetBinContent(CutIndex+1);
 	 const double& H_Cen=H_H_Cen->GetBinContent(CutIndex+1);
 
        //const double& A_For=H_A_For->GetBinContent(CutIndex+1);
 	 const double& B_For=H_B_For->GetBinContent(CutIndex+1);
-       //const double& C_For=H_C_For->GetBinContent(CutIndex+1);
-       //const double& D_For=H_D_For->GetBinContent(CutIndex+1);
-       //const double& E_For=H_E_For->GetBinContent(CutIndex+1);
+	 //const double& C_For=H_C_For->GetBinContent(CutIndex+1);
+	 //const double& D_For=H_D_For->GetBinContent(CutIndex+1);
+	 //const double& E_For=H_E_For->GetBinContent(CutIndex+1);
 	 const double& F_For=H_F_For->GetBinContent(CutIndex+1);
        //const double& G_For=H_G_For->GetBinContent(CutIndex+1);
 	 const double& H_For=H_H_For->GetBinContent(CutIndex+1);
