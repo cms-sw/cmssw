@@ -19,14 +19,14 @@ namespace {
 
 namespace cond {
 
-  BasePayloadProxy::Stats BasePayloadProxy::gstats = {0,0,0,0,0};
+  BasePayloadProxy::Stats BasePayloadProxy::gstats = {0,0,0,0,0,0,0};
 
 
   BasePayloadProxy::BasePayloadProxy(cond::DbSession& session,
                                      bool errorPolicy) :
     m_doThrow(errorPolicy), m_iov(session),m_session(session) {
     ++gstats.nProxy;
-    BasePayloadProxy::Stats s = {0,0,0,0,0,ObjIds()};
+    BasePayloadProxy::Stats s = {0,0,0,0,0,0,0,ObjIds()};
     stats = s;
   }
 
@@ -38,7 +38,7 @@ namespace cond {
     m_iov.load( iovToken );
     m_session.transaction().commit();
     ++gstats.nProxy;
-    BasePayloadProxy::Stats s = {0,0,0,0,0,ObjIds()};
+    BasePayloadProxy::Stats s = {0,0,0,0,0,0,0,ObjIds()};
     stats = s;
   }
 
@@ -134,14 +134,14 @@ namespace cond {
   }
 
   bool BasePayloadProxy::refresh( cond::DbSession& newSession ) {
-    ++gstats.nRefresh; ++stats.nRefresh;
+    ++gstats.nReconnect; ++stats.nReconnect;
     m_session = newSession;
     m_session.transaction().start(true);
-    bool anew = m_iov.refresh( newSession );
+    bool anew = m_iov.refresh( m_session );
     m_session.transaction().commit();
     if (anew) {
       m_element = IOVElementProxy();
-      ++gstats.nArefresh; ++stats.nArefresh;
+      ++gstats.nAreconnect; ++stats.nAreconnect;
     }
     return anew;
   }

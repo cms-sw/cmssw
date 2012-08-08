@@ -33,6 +33,8 @@ namespace cond {
       int nProxy;
       int nRefresh;
       int nArefresh;
+      int nReconnect;
+      int nAreconnect;
       int nMake;
       int nLoad;
       ObjIds ids;
