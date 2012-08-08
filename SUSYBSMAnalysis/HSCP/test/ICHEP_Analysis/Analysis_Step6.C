@@ -858,6 +858,9 @@ void DrawRatioBands(string InputPattern)
 void Optimize(string InputPattern, string Data, string signal, bool shape){
    printf("Optimize selection for %s in %s\n",signal.c_str(), InputPattern.c_str());fflush(stdout);
 
+   //get the typeMode from pattern
+   TypeMode = TypeFromPattern(InputPattern); 
+
    //Identify the signal sample
    GetSampleDefinition(samples);
    CurrentSampleIndex        = JobIdToIndex(signal,samples); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  } 
@@ -933,9 +936,11 @@ void Optimize(string InputPattern, string Data, string signal, bool shape){
       if(H_E->GetBinContent(CutIndex+1)==0 && (H_C->GetBinContent(CutIndex+1)<25 || H_B->GetBinContent(CutIndex+1)<25))continue;  //Skip events where Prediction (CB/A) is not reliable
 
       //make sure we have a reliable prediction of the shape 
-      double N_P = H_P->GetBinContent(CutIndex+1);
-      if(H_E->GetBinContent(CutIndex+1) >0 && (H_A->GetBinContent(CutIndex+1)<0.25*N_P || H_F->GetBinContent(CutIndex+1)<0.25*N_P || H_G->GetBinContent(CutIndex+1)<0.25*N_P))continue;  //Skip events where Mass Prediction is not reliable
-      if(H_E->GetBinContent(CutIndex+1)==0 && (H_C->GetBinContent(CutIndex+1)<0.25*N_P || H_B->GetBinContent(CutIndex+1)<0.25*N_P))continue;  //Skip events where Mass Prediction is not reliable
+      if(TypeMode<=2){
+         double N_P = H_P->GetBinContent(CutIndex+1);       
+         if(H_E->GetBinContent(CutIndex+1) >0 && (H_A->GetBinContent(CutIndex+1)<0.25*N_P || H_F->GetBinContent(CutIndex+1)<0.25*N_P || H_G->GetBinContent(CutIndex+1)<0.25*N_P))continue;  //Skip events where Mass Prediction is not reliable
+         if(H_E->GetBinContent(CutIndex+1)==0 && (H_C->GetBinContent(CutIndex+1)<0.25*N_P || H_B->GetBinContent(CutIndex+1)<0.25*N_P))continue;  //Skip events where Mass Prediction is not reliable
+      }
 
       //prepare outputs result structure
       result = toReturn;
@@ -953,12 +958,14 @@ void Optimize(string InputPattern, string Data, string signal, bool shape){
       
       //compute the limit for this point and check it run sucessfully (some point may be skipped because of lack of statistics or other reasons)
       //best expected limit
-    //if(TypeMode<=2 && !runCombine(true, true, false, InputPattern, signal, CutIndex, shape, true, result, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU))continue;
-    //if(TypeMode> 2 && !runCombine(true, true, false, InputPattern, signal, CutIndex, shape, true, result, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU))continue;
+    //if(TypeMode<=2){if(!runCombine(true, true, false, InputPattern, signal, CutIndex, shape, true, result, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU))continue;
+    //}else          {if(!runCombine(true, true, false, InputPattern, signal, CutIndex, shape, true, result, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU))continue;
+    //}
 
       //best significance --> is actually best reach
-      if(TypeMode<=2 && !runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU))continue;
-      if(TypeMode>2  && !runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, H_D, H_P, H_S, H_S, H_S, H_S, H_S, H_S))continue;
+      if(TypeMode<=2){if(!runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU))continue;
+      }else          {if(!runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, H_D, H_P, H_S, H_S, H_S, H_S, H_S, H_S))continue;
+      }
 
       //repport the result for this point in the log file
       fprintf(pFile  ,"%10s: Testing CutIndex=%4i (Pt>%6.2f I>%6.3f TOF>%6.3f) %3.0f<M<inf Ndata=%+6.2E NPred=%6.3E+-%6.3E SignalEff=%6.3f ExpLimit=%6.3E (%6.3E) Reach=%6.3E",signal.c_str(),CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), MinRange,result.NData,result.NPred, result.NPredErr,result.Eff,result.XSec_Exp, result.XSec_Obs, result.XSec_5Sigma);fflush(stdout);
@@ -976,8 +983,9 @@ void Optimize(string InputPattern, string Data, string signal, bool shape){
    fclose(pFile);   
  
    //recompute the limit for the final point and save the output in the final directory (also save some plots for the shape based analysis)
-   if(TypeMode<=2)runCombine(false, true, true, InputPattern, signal, toReturn.Index, shape, false, toReturn, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU);
-   if(TypeMode>2) runCombine(false, true, true, InputPattern, signal, toReturn.Index, shape, false, toReturn, H_D, H_P, H_S, H_S, H_S, H_S, H_S, H_S);
+   if(TypeMode<=2){runCombine(false, true, true, InputPattern, signal, toReturn.Index, shape, false, toReturn, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU);
+   }else          {runCombine(false, true, true, InputPattern, signal, toReturn.Index, shape, false, toReturn, H_D, H_P, H_S, H_S, H_S, H_S, H_S, H_S);
+   }
   
    //all done, save the result to file
    toReturn.Save(outpath+"/"+signal+".txt");
@@ -1104,7 +1112,7 @@ double computeSignificance(bool expected, string& signal, string massStr, float 
    char strengthStr[255]; sprintf(strengthStr,"--expectSignal=%f",Strength);
    string CodeToExecute = "cd /tmp/;";
    if(expected)CodeToExecute += "combine -M ProfileLikelihood -n " + signal + " -m " + massStr + " --significance -t 100 " + strengthStr + " shape_" + signal+".dat &> shape_" + signal + ".log;";
-   else        CodeToExecute += "combine -M ProfileLikelihood -n " + signal + " -m " + massStr + " --significance shape_" + signal+".dat &> shape_" + signal + ".log;";
+   else        CodeToExecute += "combine -M ProfileLikelihood -n " + signal + " -m " + massStr + " --significance                            shape_" + signal+".dat &> shape_" + signal + ".log;";
    CodeToExecute += "cd $OLDPWD;";
    system(CodeToExecute.c_str());   
 
@@ -1122,7 +1130,7 @@ double computeSignificance(bool expected, string& signal, string massStr, float 
 
 //run the higgs combine stat tool using predicted mass shape distribution (possibly do shape based analysis and/or cut on mass) OR 1D histogram output from ABCD  (only do cut and count without mass cut)
 bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, string& InputPattern, string& signal, unsigned int CutIndex, bool Shape, bool Temporary, stAllInfo& result, TH1* MassData, TH1* MassPred, TH1* MassSign, TH1* MassSignP, TH1* MassSignI, TH1* MassSignM, TH1* MassSignT, TH1* MassSignPU){
-   TH1D *MassDataProj, *MassPredProj, *MassSignProj, *MassSignProjP, *MassSignProjI, *MassSignProjM, *MassSignProjT, *MassSignProjPU;
+   TH1D *MassDataProj=NULL, *MassPredProj=NULL, *MassSignProj=NULL, *MassSignProjP=NULL, *MassSignProjI=NULL, *MassSignProjM=NULL, *MassSignProjT=NULL, *MassSignProjPU=NULL;
    double NData, NPredErr, NPred, NSign, NSignP, NSignI, NSignM, NSignT, NSignPU;
    double signalsMeanHSCPPerEvent = GetSignalMeanHSCPPerEvent(InputPattern,CutIndex, MinRange, MaxRange);
 
@@ -1243,7 +1251,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    makeDataCard(datacardPath,string("shape_")+signal+".root", CutIndexStr,signal, NData, NPred, 1.0+(Shape?RescaleError:NPredErr/NPred), NSign, Shape);
 
    char massStr[255]; sprintf(massStr,"%.0f",result.Mass);
-   if(getSignificance){
+   if(getSignificance && Temporary){
       double SignifValue=0.0;double Strength=5;  if(result.XSec_5Sigma>0 && result.XSec_5Sigma<1E50)Strength=result.XSec_5Sigma/1000.0;
       double previousXSec_5Sigma=result.XSec_5Sigma; result.XSec_5Sigma = -1;
       //find signal strength needed to get a 5sigma significance
@@ -1332,7 +1340,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       file->Close();
    }
 
-   if(!Temporary){
+   if(!Temporary && getSignificance){
        result.Significance = computeSignificance(false, signal, massStr, 1.0);
    }
 
