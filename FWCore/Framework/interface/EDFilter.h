@@ -62,7 +62,7 @@ namespace edm {
     void doPreForkReleaseResources();
     void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
-    void registerAnyProducts(EDFilter* module, ProductRegistry* reg) {
+    void registerProductsAndCallbacks(EDFilter* module, ProductRegistry* reg) {
       registerProducts(module, reg, moduleDescription_);
     }
 

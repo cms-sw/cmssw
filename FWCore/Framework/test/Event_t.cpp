@@ -64,13 +64,11 @@ namespace edm {
 class testEvent: public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testEvent);
   CPPUNIT_TEST(emptyEvent);
-  CPPUNIT_TEST(getBySelectorFromEmpty);
+  CPPUNIT_TEST(getByLabelFromEmpty);
   CPPUNIT_TEST(putAnIntProduct);
   CPPUNIT_TEST(putAndGetAnIntProduct);
   CPPUNIT_TEST(getByProductID);
   CPPUNIT_TEST(transaction);
-  CPPUNIT_TEST(getByInstanceName);
-  CPPUNIT_TEST(getBySelector);
   CPPUNIT_TEST(getByLabel);
   CPPUNIT_TEST(getByType);
   CPPUNIT_TEST(printHistory);
@@ -83,13 +81,11 @@ class testEvent: public CppUnit::TestFixture {
   void setUp();
   void tearDown();
   void emptyEvent();
-  void getBySelectorFromEmpty();
+  void getByLabelFromEmpty();
   void putAnIntProduct();
   void putAndGetAnIntProduct();
   void getByProductID();
   void transaction();
-  void getByInstanceName();
-  void getBySelector();
   void getByLabel();
   void getByType();
   void printHistory();
@@ -356,11 +352,11 @@ void testEvent::emptyEvent() {
   CPPUNIT_ASSERT(currentEvent_->size() == 0);
 }
 
-void testEvent::getBySelectorFromEmpty() {
-  ModuleLabelSelector byModuleLabel("mod1");
+void testEvent::getByLabelFromEmpty() {
+  InputTag inputTag("moduleLabel", "instanceName");
   Handle<int> nonesuch;
   CPPUNIT_ASSERT(!nonesuch.isValid());
-  CPPUNIT_ASSERT(!currentEvent_->get(byModuleLabel, nonesuch));
+  CPPUNIT_ASSERT(!currentEvent_->getByLabel(inputTag, nonesuch));
   CPPUNIT_ASSERT(!nonesuch.isValid());
   CPPUNIT_ASSERT(nonesuch.failedToGet());
   CPPUNIT_ASSERT_THROW(*nonesuch, cms::Exception);
@@ -379,12 +375,12 @@ void testEvent::putAndGetAnIntProduct() {
   currentEvent_->put(four, "int1");
   EDProducer::commitEvent(*currentEvent_);
 
-  ProcessNameSelector should_match("CURRENT");
-  ProcessNameSelector should_not_match("NONESUCH");
+  InputTag should_match("modMulti", "int1", "CURRENT");
+  InputTag should_not_match("modMulti", "int1", "NONESUCH");
   Handle<edmtest::IntProduct> h;
-  currentEvent_->get(should_match, h);
+  currentEvent_->getByLabel(should_match, h);
   CPPUNIT_ASSERT(h.isValid());
-  CPPUNIT_ASSERT(!currentEvent_->get(should_not_match, h));
+  CPPUNIT_ASSERT(!currentEvent_->getByLabel(should_not_match, h));
   CPPUNIT_ASSERT(!h.isValid());
   CPPUNIT_ASSERT_THROW(*h, cms::Exception);
 }
@@ -446,129 +442,6 @@ void testEvent::transaction() {
   // The Event has been destroyed without a commit -- we should not
   // have any products in the EventPrincipal.
   CPPUNIT_ASSERT(principal_->size() == 0);
-}
-
-void testEvent::getByInstanceName() {
-  typedef edmtest::IntProduct product_t;
-  typedef std::auto_ptr<product_t> ap_t;
-  typedef Handle<product_t> handle_t;
-  typedef std::vector<handle_t> handle_vec;
-
-  ap_t one(new product_t(1));
-  ap_t two(new product_t(2));
-  ap_t three(new product_t(3));
-  ap_t four(new product_t(4));
-  addProduct(one,   "int1_tag", "int1");
-  addProduct(two,   "int2_tag", "int2");
-  addProduct(three, "int3_tag");
-  addProduct(four,  "nolabel_tag");
-
-  CPPUNIT_ASSERT(currentEvent_->size() == 4);
-
-  Selector sel(ProductInstanceNameSelector("int2") &&
-               ModuleLabelSelector("modMulti"));;
-  handle_t h;
-  CPPUNIT_ASSERT(currentEvent_->get(sel, h));
-  CPPUNIT_ASSERT(h->value == 2);
-
-  std::string instance;
-  Selector sel1(ProductInstanceNameSelector(instance) &&
-               ModuleLabelSelector("modMulti"));;
-
-  CPPUNIT_ASSERT(currentEvent_->get(sel1, h));
-  CPPUNIT_ASSERT(h->value == 3);
-
-  handle_vec handles;
-  currentEvent_->getMany(ModuleLabelSelector("modMulti"), handles);
-  CPPUNIT_ASSERT(handles.size() == 3);
-  handles.clear();
-  currentEvent_->getMany(ModuleLabelSelector("nomatch"), handles);
-  CPPUNIT_ASSERT(handles.empty());
-  std::vector<Handle<int> > nomatches;
-  currentEvent_->getMany(ModuleLabelSelector("modMulti"), nomatches);
-  CPPUNIT_ASSERT(nomatches.empty());
-}
-
-void testEvent::getBySelector() {
-  typedef edmtest::IntProduct product_t;
-  typedef std::auto_ptr<product_t> ap_t;
-  typedef Handle<product_t> handle_t;
-  typedef std::vector<handle_t> handle_vec;
-
-  ap_t one(new product_t(1));
-  ap_t two(new product_t(2));
-  ap_t three(new product_t(3));
-  ap_t four(new product_t(4));
-  addProduct(one,   "int1_tag", "int1");
-  addProduct(two,   "int2_tag", "int2");
-  addProduct(three, "int3_tag");
-  addProduct(four,  "nolabel_tag");
-
-  std::auto_ptr<std::vector<edmtest::Thing> > ap_vthing(new std::vector<edmtest::Thing>);
-  addProduct(ap_vthing, "thing", "");
-
-  ap_t oneHundred(new product_t(100));
-  addProduct(oneHundred, "int1_tag_late", "int1");
-
-  std::auto_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
-  currentEvent_->put(twoHundred, "int1");
-  EDProducer::commitEvent(*currentEvent_);
-
-  CPPUNIT_ASSERT(currentEvent_->size() == 7);
-
-  Selector sel(ProductInstanceNameSelector("int2") &&
-               ModuleLabelSelector("modMulti") &&
-               ProcessNameSelector("EARLY"));;
-  handle_t h;
-  CPPUNIT_ASSERT(currentEvent_->get(sel, h));
-  CPPUNIT_ASSERT(h->value == 2);
-
-  Selector sel1(ProductInstanceNameSelector("nomatch") &&
-                ModuleLabelSelector("modMulti") &&
-                ProcessNameSelector("EARLY"));
-  CPPUNIT_ASSERT(!currentEvent_->get(sel1, h));
-  CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, cms::Exception);
-
-  Selector sel2(ProductInstanceNameSelector("int2") &&
-                ModuleLabelSelector("nomatch") &&
-                ProcessNameSelector("EARLY"));
-  CPPUNIT_ASSERT(!currentEvent_->get(sel2, h));
-  CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, cms::Exception);
-
-  Selector sel3(ProductInstanceNameSelector("int2") &&
-                ModuleLabelSelector("modMulti") &&
-                ProcessNameSelector("nomatch"));
-  CPPUNIT_ASSERT(!currentEvent_->get(sel3, h));
-  CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, cms::Exception);
-
-  Selector sel4(ModuleLabelSelector("modMulti") &&
-                ProcessNameSelector("EARLY"));
-  //multiple selections throw
-  CPPUNIT_ASSERT_THROW(currentEvent_->get(sel4, h), cms::Exception);
-
-  Selector sel5(ModuleLabelSelector("modMulti") &&
-                ProcessNameSelector("LATE"));;
-  currentEvent_->get(sel5, h);
-  CPPUNIT_ASSERT(h->value == 100);
-
-  Selector sel6(ModuleLabelSelector("modMulti") &&
-                ProcessNameSelector("CURRENT"));;
-  currentEvent_->get(sel6, h);
-  CPPUNIT_ASSERT(h->value == 200);
-
-  Selector sel7(ModuleLabelSelector("modMulti"));;
-  currentEvent_->get(sel7, h);
-  CPPUNIT_ASSERT(h->value == 200);
-
-  handle_vec handles;
-  currentEvent_->getMany(ModuleLabelSelector("modMulti"), handles);
-  CPPUNIT_ASSERT(handles.size() == 5);
-  int sum = 0;
-  for (int k = 0; k < 5; ++k) sum += handles[k]->value;
-  CPPUNIT_ASSERT(sum == 306);
 }
 
 void testEvent::getByLabel() {

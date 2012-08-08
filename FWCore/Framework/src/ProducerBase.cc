@@ -15,7 +15,7 @@ namespace edm {
   ProducerBase::ProducerBase() : ProductRegistryHelper(), callWhenNewProductsRegistered_() {}
   ProducerBase::~ProducerBase() { }
 
-   boost::function<void(const BranchDescription&)> ProducerBase::registrationCallback() const {
+   std::function<void(BranchDescription const&)> ProducerBase::registrationCallback() const {
       return callWhenNewProductsRegistered_;
    }
 
@@ -24,13 +24,13 @@ namespace edm {
      class CallbackWrapper {
        public:  
         CallbackWrapper(ProducerBase* iProd,
-                        boost::function<void(const BranchDescription&)> iCallback,
+                        std::function<void(BranchDescription const&)> iCallback,
                         ProductRegistry* iReg,
                         const ModuleDescription& iDesc):
         prod_(iProd), callback_(iCallback), reg_(iReg), mdesc_(iDesc),
         lastSize_(iProd->typeLabelList().size()) {}
         
-        void operator()(const BranchDescription& iDesc) {
+        void operator()(BranchDescription const& iDesc) {
            callback_(iDesc);
            addToRegistry();
         }
@@ -48,7 +48,7 @@ namespace edm {
 
       private:
         ProducerBase* prod_;
-        boost::function<void(const BranchDescription&)> callback_;
+        std::function<void(BranchDescription const&)> callback_;
         ProductRegistry* reg_;
         ModuleDescription mdesc_;
         unsigned int lastSize_;
@@ -61,7 +61,7 @@ namespace edm {
 				ProductRegistry* iReg,
 				ModuleDescription const& md)
   {
-    if (typeLabelList().empty() && registrationCallback().empty()) {
+    if (typeLabelList().empty() && !registrationCallback()) {
       return;
     }
     //If we have a callback, first tell the callback about all the entries already in the
@@ -69,14 +69,14 @@ namespace edm {
     // and only after that do we register the callback. This is done so the callback does not
     // get called for items registered by this producer (avoids circular reference problems)
     bool isListener = false;
-    if(!(registrationCallback().empty())) {
+    if(registrationCallback()) {
        isListener=true;
        iReg->callForEachBranch(registrationCallback());
     }
     TypeLabelList const& plist = typeLabelList();
 
     ProductRegistryHelper::addToRegistry(plist.begin(), plist.end(), md, *(iReg), isListener);
-    if(!(registrationCallback().empty())) {
+    if(registrationCallback()) {
        Service<ConstProductRegistry> regService;
        regService->watchProductAdditions(CallbackWrapper(producer, registrationCallback(), iReg, md));
     }

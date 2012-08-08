@@ -9,8 +9,9 @@ EDProducts into an Event.
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
-#include "boost/bind.hpp"
-#include "boost/function.hpp"
+
+#include <functional>
+
 namespace edm {
   class BranchDescription;
   class ModuleDescription;
@@ -22,7 +23,7 @@ namespace edm {
     virtual ~ProducerBase();
  
     /// used by the fwk to register list of products
-    boost::function<void(const BranchDescription&)> registrationCallback() const;
+    std::function<void(BranchDescription const&)> registrationCallback() const;
 
     void registerProducts(ProducerBase*,
 			ProductRegistry*,
@@ -32,16 +33,12 @@ namespace edm {
     using ProductRegistryHelper::typeLabelList;
 
   protected:
-    template<class TProducer, class TMethod>
-    void callWhenNewProductsRegistered(TProducer* iProd, TMethod iMethod) {
-       callWhenNewProductsRegistered_ = boost::bind(iMethod,iProd,_1);
+    void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
+       callWhenNewProductsRegistered_ = func;
     }
           
   private:
-    boost::function<void(const BranchDescription&)> callWhenNewProductsRegistered_;
+    std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
   };
-
-
 }
-
 #endif

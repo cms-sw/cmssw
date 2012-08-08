@@ -215,6 +215,12 @@
     <flags   EDM_PLUGIN="1"/>
     <use   name="FWCore/Framework"/>
   </library>
+  <library   file="TestGetterOfProducts.cc" name="TestGetterOfProducts">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="DataFormats/TestObjects"/>
+    <use   name="FWCore/Framework"/>
+    <use   name="FWCore/ParameterSet"/>
+  </library>
   <library   file="WhatsItExtensionCordAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc" name="WhatsItExtensionCordAnalyzer">
     <flags   EDM_PLUGIN="1"/>
     <use   name="FWCore/Framework"/>

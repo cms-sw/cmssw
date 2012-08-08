@@ -25,13 +25,13 @@ namespace edm {
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static const std::string& baseType();
     static   void prevalidate(ConfigurationDescriptions& );
-    
-
 
   protected:
     // The returned pointer will be null unless the this is currently
     // executing its event loop function ('analyze').
     CurrentProcessingContext const* currentContext() const;
+
+    void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func);
 
   private:
     bool doEvent(EventPrincipal const& ep, EventSetup const& c,
@@ -52,7 +52,7 @@ namespace edm {
     void doRespondToCloseOutputFiles(FileBlock const& fb);
     void doPreForkReleaseResources();
     void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
-    void registerAnyProducts(EDAnalyzer const*, ProductRegistry const*) {}
+    void registerProductsAndCallbacks(EDAnalyzer const*, ProductRegistry* reg);
 
     virtual void analyze(Event const&, EventSetup const&) = 0;
     virtual void beginJob(){}
@@ -74,6 +74,8 @@ namespace edm {
     ModuleDescription moduleDescription_;
 
     CurrentProcessingContext const* current_context_;
+
+    std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
   };
 }
 

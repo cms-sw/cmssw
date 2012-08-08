@@ -76,7 +76,7 @@ namespace {
    };
    
    ListenMod::ListenMod(ParameterSet const&) {
-      callWhenNewProductsRegistered(this,&ListenMod::listen);
+     callWhenNewProductsRegistered([this](BranchDescription const& branchDescription){this->listen(branchDescription);});
    }
    void ListenMod::produce(Event&, EventSetup const&) {
    }
@@ -98,7 +98,7 @@ public:
    };
    
    ListenFloatMod::ListenFloatMod(ParameterSet const&) {
-      callWhenNewProductsRegistered(this,&ListenFloatMod::listen);
+      callWhenNewProductsRegistered([this](BranchDescription const& branchDescription){this->listen(branchDescription);});
    }
    void ListenFloatMod::produce(Event&, EventSetup const&) {
    }

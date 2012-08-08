@@ -84,7 +84,7 @@ namespace edm {
     module_(ed) {
     assert(module_.get() != 0);
     module_->setModuleDescription(md);
-    module_->registerAnyProducts(module_.get(), wp.reg_);
+    module_->registerProductsAndCallbacks(module_.get(), wp.reg_);
   }
 
   template<typename T>

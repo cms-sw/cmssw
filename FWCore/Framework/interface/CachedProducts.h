@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/Selector.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm
 {
@@ -27,14 +27,14 @@ namespace edm
     {
     public:
       NamedEventSelector(std::string const& n, EventSelector const& s) :
-	nameSelector_(n), 
+	inputTag_("TriggerResults", "", n), 
 	eventSelector_(s), 
 	product_() 
       { }
 
       void fill(Event const& e)
       {
-	e.get(nameSelector_, product_);
+	e.getByLabel(inputTag_, product_);
       }
 
       bool match()
@@ -53,7 +53,7 @@ namespace edm
       }
       
     private:
-      ProcessNameSelector nameSelector_;
+      InputTag            inputTag_;
       EventSelector       eventSelector_;
       handle_t            product_;
     };

@@ -189,7 +189,7 @@ namespace edm {
     // the appropriate tests have been done.
     void reallyCloseFile();
 
-    void registerAnyProducts(OutputModule const*, ProductRegistry const*) {}
+    void registerProductsAndCallbacks(OutputModule const*, ProductRegistry const*) {}
 
     /// Ask the OutputModule if we should end the current file.
     virtual bool shouldWeCloseFile() const {return false;}

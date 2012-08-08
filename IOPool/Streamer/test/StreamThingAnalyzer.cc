@@ -2,18 +2,10 @@
 #include <iostream>
 
 #include "IOPool/Streamer/test/StreamThingAnalyzer.h"
-#include "FWCore/Framework/interface/Selector.h" 
 #include "FWCore/ParameterSet/interface/ParameterSet.h" 
 
-#if 1
-#include "DataFormats/TestObjects/interface/StreamTestThing.h"
-typedef edmtestprod::StreamTestThing WriteThis;
-#else
-#include "FWCore/Integration/interface/IntArray.h"
-typedef edmtestprod::IntArray WriteThis;
-#endif
-
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ModuleLabelMatch.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 // #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,8 +23,10 @@ namespace edmtest_thing
     name_(ps.getParameter<std::string>("product_to_get")),
     total_(),
     out_("gennums.txt"),
-	cnt_()
+    cnt_(),
+    getterUsingLabel_(edm::ModuleLabelMatch(name_), this)
   {
+    callWhenNewProductsRegistered(getterUsingLabel_);
     if(!out_)
     {
 	std::cerr << "cannot open file gennums.txt" << std::endl;
@@ -52,10 +46,9 @@ namespace edmtest_thing
   void StreamThingAnalyzer::analyze(edm::Event const& e,
 				    edm::EventSetup const&)
   {
-    edm::ModuleLabelSelector all(name_);
     typedef std::vector<edm::Handle<WriteThis> > ProdList;
     ProdList prod;
-    e.getMany(all, prod);
+    getterUsingLabel_.fillHandles(e, prod);
     ProdList::iterator i(prod.begin()),end(prod.end());
     for(; i != end; ++i)
       total_ = accumulate((*i)->data_.begin(),(*i)->data_.end(),total_);
