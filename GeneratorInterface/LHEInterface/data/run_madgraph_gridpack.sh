@@ -42,7 +42,8 @@ echo "%MSG-MG5 random seed used for the run = $rnum"
 
 # retrieve the wanted gridpack from the official repository 
 
-wget --no-check-certificate http://cms-project-generators.web.cern.ch/cms-project-generators/${repo}/${name}_gridpack.tar.gz 
+#wget --no-check-certificate http://cms-project-generators.web.cern.ch/cms-project-generators/${repo}/${name}_gridpack.tar.gz 
+fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${repo}/${name}_gridpack.tar.gz 
 
 # force the f77 compiler to be the CMS defined one
 
@@ -82,12 +83,15 @@ cd ..
 #if [ "$version" -eq "1" ] ; then
 echo will fetch DECAY and post-processing tools from repository
 
-HTTP_DOWNLOAD="http://cms-project-generators.web.cern.ch/cms-project-generators/slc5_ia32_gcc434/madgraph/Tools"
+#HTTP_DOWNLOAD="http://cms-project-generators.web.cern.ch/cms-project-generators/slc5_ia32_gcc434/madgraph/Tools"
+HTTP_DOWNLOAD=slc5_ia32_gcc434/madgraph/Tools
 
 cd madevent
-wget --no-check-certificate  ${HTTP_DOWNLOAD}/mgPostProcv2.py
+#wget --no-check-certificate  ${HTTP_DOWNLOAD}/mgPostProcv2.py
+fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${HTTP_DOWNLOAD}/mgPostProcv2.py 
 mv mgPostProcv2.py bin/.
-wget --no-check-certificate  ${HTTP_DOWNLOAD}/replace.pl
+#wget --no-check-certificate  ${HTTP_DOWNLOAD}/replace.pl
+fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${HTTP_DOWNLOAD}/replace.pl 
 mv replace.pl bin/.
 cd ..
 #fi
@@ -137,9 +141,12 @@ fi
 # DECAY process
 if [ "${decay}" == true ] ; then
 
-wget --no-check-certificate  ${HTTP_DOWNLOAD}/DECAY.tar.gz
+#wget --no-check-certificate  ${HTTP_DOWNLOAD}/DECAY.tar.gz
+fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${HTTP_DOWNLOAD}/DECAY.tar.gz 
 tar -zxf DECAY.tar.gz
-wget --no-check-certificate  ${HTTP_DOWNLOAD}/HELAS.tar.gz
+
+#wget --no-check-certificate  ${HTTP_DOWNLOAD}/HELAS.tar.gz
+fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${HTTP_DOWNLOAD}/HELAS.tar.gz 
 tar -zxf HELAS.tar.gz
 #cd HELAS ; make clean ;make ; cd ..
 cd DECAY ; 

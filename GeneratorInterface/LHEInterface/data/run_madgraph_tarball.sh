@@ -50,7 +50,9 @@ fi
 mkdir madevent; cd madevent
 
 # retrieve the wanted gridpack from the official repository 
-wget --no-check-certificate http://cms-project-generators.web.cern.ch/cms-project-generators/${repo}/${name}_tarball.tar.gz 
+#wget --no-check-certificate http://cms-project-generators.web.cern.ch/cms-project-generators/${repo}/${name}_tarball.tar.gz 
+fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${repo}/${name}_tarball.tar.gz 
+
 #repo=/shome/bortigno/MadGraph/MG5_v1_3_27/WPlus1Jet
 #cp ${repo}/${name}_tarball.tar.gz ./ 
 
@@ -78,12 +80,16 @@ sed -i -e "s#${run_card_nevents}.*.= nevents#${nevt}  = nevents#g" Cards/run_car
 new_run_card_nevents=`awk 'BEGIN{FS=" = nevents"}/nevents/{print $1}' Cards/run_card.dat`
 echo "new_run_card_nevents = ${new_run_card_nevents}"
 
-#Set the repository for additional needed files
-HTTP_DOWNLOAD="http://cms-project-generators.web.cern.ch/cms-project-generators/slc5_ia32_gcc434/madgraph/Tools"
+#Set the repository for additional needed files (It is modified to use "fn-fileget" instead of wget)
+#HTTP_DOWNLOAD="http://cms-project-generators.web.cern.ch/cms-project-generators/slc5_ia32_gcc434/madgraph/Tools"
+#wget --no-check-certificate  ${HTTP_DOWNLOAD}/mgPostProcv2.py
+#wget --no-check-certificate  ${HTTP_DOWNLOAD}/replace.pl
 
-wget --no-check-certificate  ${HTTP_DOWNLOAD}/mgPostProcv2.py
+HTTP_DOWNLOAD=slc5_ia32_gcc434/madgraph/Tools
+
+fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${HTTP_DOWNLOAD}/mgPostProcv2.py 
 mv mgPostProcv2.py bin/.
-wget --no-check-certificate  ${HTTP_DOWNLOAD}/replace.pl
+fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${HTTP_DOWNLOAD}/replace.pl 
 mv replace.pl bin/.
 
 version=`cat MGMEVersion.txt | grep -c "1.4"`
@@ -145,9 +151,12 @@ fi
 # DECAY process
 if [ "${decay}" == true ] ; then
 
-wget --no-check-certificate  ${HTTP_DOWNLOAD}/DECAY.tar.gz
+#wget --no-check-certificate  ${HTTP_DOWNLOAD}/DECAY.tar.gz
+fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${HTTP_DOWNLOAD}/DECAY.tar.gz 
 tar -zxf DECAY.tar.gz
-wget --no-check-certificate  ${HTTP_DOWNLOAD}/HELAS.tar.gz
+
+#wget --no-check-certificate  ${HTTP_DOWNLOAD}/HELAS.tar.gz
+fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${HTTP_DOWNLOAD}/HELAS.tar.gz 
 tar -zxf HELAS.tar.gz
 #cd HELAS ; make clean ;make ; cd ..
 cd DECAY ; 
