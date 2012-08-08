@@ -140,10 +140,13 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
      IntegratedLuminosityBeforeTriggerChange = 0;
      IntegratedLuminosity = 4100;
 #endif
-   }else if(TypeMode==5){
-      GlobalMinIm = 2.8; //is actually dEdx max at skim level (reverse logic for type5)
+   }//   else if(TypeMode==4){GlobalMaxTIsol = -1;
+    //     GlobalMaxEIsol = -1;
+    //   }
+   else if(TypeMode==5){
+     GlobalMinIm = 2.8; //is actually dEdx max at skim level (reverse logic for type5)
    }
-
+   
    // define the selection to be considered later for the optimization
    // WARNING: recall that this has a huge impact on the analysis time AND on the output file size --> be carefull with your choice
    CutPt .push_back(GlobalMinPt);   CutI  .push_back(GlobalMinIs);  CutTOF.push_back(GlobalMinTOF);
@@ -174,6 +177,15 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
       for(double TOF=GlobalMinTOF-0.15; TOF>0.6;TOF-=0.05){
          CutPt_Flip .push_back(Pt);   CutI_Flip  .push_back(-1);  CutTOF_Flip.push_back(TOF);
       }}
+   }else if(TypeMode==4){
+     for(double I  =GlobalMinIs +0.025; I  <0.45;  I+=0.025){
+       for(double TOF=GlobalMinTOF+0.025; TOF<1.46;TOF+=0.025){
+ 	 CutPt .push_back(-1);   CutI  .push_back(I);  CutTOF.push_back(TOF);
+       }}
+     for(double I  =GlobalMinIs +0.025; I  <0.45;  I+=0.025){
+       for(double TOF=GlobalMinTOF-0.025; TOF>0.54;TOF-=0.025){
+	 CutPt_Flip .push_back(-1);   CutI_Flip  .push_back(I);  CutTOF_Flip.push_back(TOF);
+       }}
    }else if(TypeMode==5){   
       for(double Pt =75 ; Pt <=125;Pt+=25){
       for(double I  =0.75; I  <=1.0 ;I+=0.01){
@@ -183,6 +195,9 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
    }
 
    printf("%i Different Final Selection will be tested\n",(int)CutPt.size());
+   printf("%i Different Final Selection will be tested for background uncertainty\n",(int)CutPt_Flip.size());
+   //   for (int CutIndex = 0; CutIndex < CutPt.size(); ++CutIndex)      printf("%4.0i  %3.0f   %3.3f   %3.3f\n", CutIndex+1, CutPt[CutIndex], CutI[CutIndex],  CutTOF[CutIndex]);
+   //   for (int CutIndex = 0; CutIndex < CutPt_Flip.size(); ++CutIndex) printf("%4.0i  %3.0f   %3.3f   %3.3f\n", CutIndex+1, CutPt_Flip[CutIndex], CutI_Flip[CutIndex],  CutTOF_Flip[CutIndex]);
 
    //initialize LumiReWeighting
    for(int i=0; i<35; ++i) BgLumiMC.push_back(Pileup_MC[i]);
@@ -228,17 +243,20 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
       if(!tr.isValid())return false;
 
       #ifdef ANALYSIS2011
-      if(TypeMode!=3) {
-         if(tr.accept(tr.triggerIndex("HscpPathSingleMu")))return true;
-         else if(tr.accept(tr.triggerIndex("HscpPathPFMet"))){
-           if(!isData) Event_Weight=Event_Weight*0.96;
-           return true;
+      if(TypeMode<3) {
+	if(tr.accept(tr.triggerIndex("HscpPathSingleMu")))return true;
+	else if(tr.accept(tr.triggerIndex("HscpPathPFMet"))){
+	  if(!isData) Event_Weight=Event_Weight*0.96;
+	  return true;
          }}
 	 if(TypeMode==3) {
            if(tr.size()== tr.triggerIndex("HSCPPathSAMU")) return false;
 	   fwlite::Handle<reco::PFMETCollection> pfMETCollection;
 	   pfMETCollection.getByLabel(ev,"pfMet");
 	   if(tr.accept(tr.triggerIndex("HSCPPathSAMU")) && pfMETCollection->begin()->et()>60) return true;
+	 }
+	 if(TypeMode==4) {
+	   if(tr.accept(tr.triggerIndex("HscpPathSingleMu")))return true;
 	 }
       #else
 	 if(TypeMode!=3) {
@@ -256,6 +274,11 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
            if(tr.size()== tr.triggerIndex("HSCPHLTTriggerCosmicFilter")) return false;
 	   if(tr.accept(tr.triggerIndex("HSCPHLTTriggerCosmicFilter"))) return true;
 	 }
+	 /*      if(TypeMode==4) {  // currently same as type0 and type2
+		 if(tr.accept("HSCPHLTTriggerMetDeDxFilter"))return true;
+		 if(tr.accept("HSCPHLTTriggerMuDeDxFilter"))return true;
+		 if(tr.accept("HSCPHLTTriggerMuFilter"))return true;
+		 }  */
       #endif
       return false;
 }
@@ -264,7 +287,7 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
 bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, const reco::MuonTimeExtra* dttof, const reco::MuonTimeExtra* csctof, const fwlite::ChainEvent& ev, stPlots* st, const double& GenBeta, bool RescaleP, const double& RescaleI, const double& RescaleT)
 {
    if(TypeMode==1 && !(hscp.type() == HSCParticleType::trackerMuon || hscp.type() == HSCParticleType::globalMuon))return false;
-   if(TypeMode==2 && hscp.type() != HSCParticleType::globalMuon)return false;
+   if( (TypeMode==2 || TypeMode==4) && hscp.type() != HSCParticleType::globalMuon)return false;
 
    reco::TrackRef   track;
    reco::MuonRef muon = hscp.muonRef();
@@ -281,7 +304,11 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
      st->BS_Eta->Fill(track->eta(),Event_Weight);
    }
 
-   if(fabs(track->eta())>GlobalMaxEta) return false;
+   if(TypeMode!=4){
+     if(fabs(track->eta())>GlobalMaxEta) return false;
+   }  else  {
+     if(fabs(track->eta())>GlobalMaxEtaFromTrigger ) return false;
+   }
 
    if(st){st->BS_TNOH->Fill(track->found(),Event_Weight);
           st->BS_TNOHFraction->Fill(track->validFraction(),Event_Weight);
@@ -345,20 +372,28 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    vertexCollHandle.getByLabel(ev,"offlinePrimaryVertices");
    if(!vertexCollHandle.isValid()){printf("Vertex Collection NotFound\n");return false;}
    const std::vector<reco::Vertex>& vertexColl = *vertexCollHandle;
+   if(st){st->BS_NVertex->Fill(vertexColl.size(), Event_Weight);
+     st->BS_NVertex_NoEventWeight->Fill(vertexColl.size());
+   }
    if(vertexColl.size()<1){printf("NO VERTEX\n"); return false;}
 
    double dz  = track->dz (vertexColl[0].position());
    double dxy = track->dxy(vertexColl[0].position());
    int goodVerts=0;
    for(unsigned int i=0;i<vertexColl.size();i++){
+     if(st) st->BS_dzAll->Fill( track->dz (vertexColl[i].position()),Event_Weight);
+     if(st) st->BS_dxyAll->Fill(track->dxy(vertexColl[i].position()),Event_Weight);
      if(fabs(vertexColl[i].z())<15 && sqrt(vertexColl[i].x()*vertexColl[i].x()+vertexColl[i].y()*vertexColl[i].y())<2 && vertexColl[i].ndof()>3) goodVerts++;
      if(fabs(track->dz (vertexColl[i].position())) < fabs(dz) ){
        dz  = track->dz (vertexColl[i].position());
        dxy = track->dxy(vertexColl[i].position());
      }
    }
-
+   if(st) st->BS_dzMinv3d->Fill(dz,Event_Weight);
+   if(st) st->BS_dxyMinv3d->Fill(dxy,Event_Weight);
    if(st) st->BS_PV->Fill(goodVerts,Event_Weight);
+   if(st) st->BS_PV_NoEventWeight->Fill(goodVerts);
+
    //Require at least one good vertex except if cosmic event
 
    if(TypeMode==3 && goodVerts<1 && st && st->Name.find("Cosmic")==string::npos) return false;
@@ -409,6 +444,8 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 
    if(TypeMode==3 && fabs(dxy)>GlobalMaxDXY) return false;
    if(st){st->V3D  ->Fill(0.0,Event_Weight);}
+   if(st)  st->BS_dxy->Fill(dxy,Event_Weight);
+   if(st)  st->BS_dz ->Fill(dz ,Event_Weight);
 
    if(TypeMode!=3) {
      fwlite::Handle<HSCPIsolationValueMap> IsolationH;
@@ -417,15 +454,19 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
      const ValueMap<HSCPIsolation>& IsolationMap = *IsolationH.product();
 
      HSCPIsolation hscpIso = IsolationMap.get((size_t)track.key());
-
      if(st){st->BS_TIsol ->Fill(hscpIso.Get_TK_SumEt(),Event_Weight);}
-     if(hscpIso.Get_TK_SumEt()>GlobalMaxTIsol)return false;
+     if(TypeMode!=4){       if(hscpIso.Get_TK_SumEt()>GlobalMaxTIsol)return false;     }
      if(st){st->TIsol   ->Fill(0.0,Event_Weight);}
 
      double EoP = (hscpIso.Get_ECAL_Energy() + hscpIso.Get_HCAL_Energy())/track->p();
      if(st){st->BS_EIsol ->Fill(EoP,Event_Weight);}
-     if(EoP>GlobalMaxEIsol)return false;
+     if(TypeMode!=4){       if(EoP>GlobalMaxEIsol)return false;     }
      if(st){st->EIsol   ->Fill(0.0,Event_Weight);}
+     
+     // relative tracker isolation
+     if (st) {  st->BS_SumpTOverpT->Fill(hscpIso.Get_TK_SumEt()/track->pt(), Event_Weight); }
+     if(TypeMode==4) { if(hscpIso.Get_TK_SumEt()/track->pt()>GlobalMaxRelTIsol)return false;   }
+     if (st) {  st->SumpTOverpT   ->Fill(0.0,Event_Weight);} 
    }
 
    if(st){st->BS_Pterr ->Fill(track->ptError()/track->pt(),Event_Weight);}
@@ -700,6 +741,7 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
                else st->H_D_For->Fill(CutIndex, Event_Weight);
                st->RegionD_P  ->Fill(CutIndex,track->p(),     Event_Weight);
                st->RegionD_I  ->Fill(CutIndex,Ih,Event_Weight);
+	       st->RegionD_Ias->Fill(CutIndex,Is,Event_Weight);
                st->RegionD_TOF->Fill(CutIndex,MuonTOF,        Event_Weight);
 	       st->AS_Eta_RegionD->Fill(CutIndex,track->eta());
             }else if( PassTOFCut &&  PassPtCut && !PassICut){   //Region C
@@ -729,6 +771,7 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
                st->H_H   ->Fill(CutIndex,          Event_Weight);
                if(fabs(track->eta())<DTRegion) st->H_H_Cen->Fill(CutIndex, Event_Weight);
                else st->H_H_For->Fill(CutIndex, Event_Weight);
+	       st->RegionH_Ias->Fill(CutIndex,Is,Event_Weight);
 //               Pred_P->Fill(CutIndex,track->p(),        Event_Weight);
 //               Pred_I->Fill(CutIndex,Ih,   Event_Weight);
                st->AS_Eta_RegionH->Fill(CutIndex,track->eta());
@@ -764,6 +807,7 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
             if(       PassTOFCut &&  PassPtCut &&  PassICut){   //Region D
 	      st->RegionD_P_Flip  ->Fill(CutIndex,track->p(),     Event_Weight);
 	      st->RegionD_I_Flip  ->Fill(CutIndex,Ih,Event_Weight);
+	      st->RegionD_Ias_Flip  ->Fill(CutIndex,Is,Event_Weight);
 	      st->RegionD_TOF_Flip->Fill(CutIndex,MuonTOF,        Event_Weight);
                st->H_D_Flip->Fill(CutIndex,                Event_Weight);
                if(fabs(track->eta())<DTRegion) st->H_D_Cen_Flip->Fill(CutIndex, Event_Weight);
@@ -792,8 +836,9 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
                st->H_H_Flip->Fill(CutIndex,          Event_Weight);
                if(fabs(track->eta())<DTRegion) st->H_H_Cen_Flip->Fill(CutIndex, Event_Weight);
                else st->H_H_For_Flip->Fill(CutIndex, Event_Weight);
-//               Pred_P_Flip->Fill(CutIndex,track->p(),        Event_Weight);
-//               Pred_I_Flip->Fill(CutIndex,Ih,   Event_Weight);
+	       st->RegionH_Ias_Flip  ->Fill(CutIndex,Is,Event_Weight);
+	       //               Pred_P_Flip->Fill(CutIndex,track->p(),        Event_Weight);
+	       //               Pred_I_Flip->Fill(CutIndex,Ih,   Event_Weight);
             }else if(!PassTOFCut &&  PassPtCut && !PassICut){   //Region G
                st->H_G_Flip->Fill(CutIndex,                 Event_Weight);
                if(fabs(track->eta())<DTRegion) st->H_G_Cen_Flip->Fill(CutIndex, Event_Weight);
@@ -870,7 +915,7 @@ void Analysis_Step3(char* SavePath)
       for (int period=0; period<(samples[s].Type==2?RunningPeriods:1); period++){
          //load the files corresponding to this sample
          std::vector<string> FileName;
-         GetInputFiles(samples[s], BaseDirectory, FileName, period);
+	 GetInputFiles(samples[s], BaseDirectory, FileName, period, TypeMode);
          fwlite::ChainEvent ev(FileName);
          //compute sample global weight
          Event_Weight = 1.0;
@@ -907,7 +952,8 @@ void Analysis_Step3(char* SavePath)
                genCollHandle.getByLabel(ev, "genParticles");
                if(!genCollHandle.isValid()){printf("GenParticle Collection NotFound\n");continue;}
                genColl = *genCollHandle;
-               int NChargedHSCP=HowManyChargedHSCP(genColl);                 
+               int NChargedHSCP=HowManyChargedHSCP(genColl);         // pdgid=17 is added to identify mHSCPs, will this affect other analyses?
+	       if (NChargedHSCP > 2)   continue;    // need to refine this        
 
                //skip event wich does not have the right number of charged HSCP --> DEPRECATED
                //if(samples[s].NChargedHSCP>=0 && samples[s].NChargedHSCP!=NChargedHSCP)continue;
@@ -1260,7 +1306,7 @@ void Analysis_Step3(char* SavePath)
       stPlots_Clear(SamplePlots, true);
       if(isMC)stPlots_Clear(MCTrPlots, true);
 
-   }
+   }// end of sample loop
    delete RNG;
 }
 
