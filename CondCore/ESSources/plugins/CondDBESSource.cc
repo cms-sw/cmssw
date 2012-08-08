@@ -372,8 +372,8 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
 	edm::LogInfo( "CondDBESSource" ) << "Checking if the session must be closed and re-opened for getting correct conditions"
 					 << "; from CondDBESSource::setIntervalFor";
 	std::stringstream transId;
-	transId << "long" << m_lastRun;
-	//transId << m_lastRun;
+	//transId << "long" << m_lastRun;
+	transId << m_lastRun;
 	std::map<std::string,std::pair<cond::DbSession,std::string> >::iterator iSess = m_sessionPool.find( tcIter->second.pfn );
 	cond::DbSession theSession;
 	bool reopen = false;
