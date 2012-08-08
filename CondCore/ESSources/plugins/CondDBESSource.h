@@ -37,8 +37,8 @@ class CondDBESSource : public edm::eventsetup::DataProxyProvider,
   typedef boost::shared_ptr<cond::DataProxyWrapperBase > ProxyP;
   typedef std::multimap< std::string,  ProxyP> ProxyMap;
 
-  typedef enum { NOREFRESH, REFRESH, RECONNECT } RefreshPolicy;
- 
+  typedef enum { NOREFRESH, REFRESH_ALWAYS, REFRESH_OPEN_IOVS, REFRESH_EACH_RUN, RECONNECT_EACH_RUN } RefreshPolicy;
+  
 
   explicit CondDBESSource( const edm::ParameterSet& );
   ~CondDBESSource();
@@ -84,7 +84,7 @@ class CondDBESSource : public edm::eventsetup::DataProxyProvider,
   unsigned int m_lastRun;
   unsigned int m_lastLumi;
   RefreshPolicy m_policy;
-
+  
   bool m_doDump;
 
  private:
