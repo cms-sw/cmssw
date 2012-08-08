@@ -70,6 +70,7 @@ struct stPlots {
    TH1F* MTOF; 
    TH1F* TIsol;
    TH1F* EIsol;
+   TH1F* SumpTOverpT;
    TH1F* Pt;	
    TH1F* I;	
    TH1F* TOF;
@@ -113,16 +114,25 @@ struct stPlots {
    TH1F*  BS_MTOF;
    TH1F*  BS_TIsol;
    TH1F*  BS_EIsol;
+   TH1F*  BS_SumpTOverpT;
    TH1F*  BS_dR_NVTrack;
    TH1F*  BS_MatchedStations;
+   TH1F*  BS_NVertex;
+   TH1F*  BS_NVertex_NoEventWeight;
    TH1F*  BS_PV;
+   TH1F*  BS_PV_NoEventWeight;
+   TH1F*  BS_dzAll;
+   TH1F*  BS_dxyAll;
+   TH1F*  BS_dzMinv3d;
+   TH1F*  BS_dxyMinv3d;
+   TH1F*  BS_dz;
+   TH1F*  BS_dxy;
    TH1F*  BS_SegSep;
    TH1F*  BS_SegMinPhiSep;
    TH1F*  BS_SegMinEtaSep;
    TH1F*  BS_SegMinEtaSep_FailDz;
    TH1F*  BS_SegMinEtaSep_PassDz;
    TH1F*  BS_Dz_FailSep;
- 
    TH1F*  BS_Pt_FailDz;
    TH1F*  BS_Pt_FailDz_DT;
    TH1F*  BS_Pt_FailDz_CSC;
@@ -213,7 +223,10 @@ struct stPlots {
 
   TH2D*  RegionD_P;
   TH2D*  RegionD_I;
+  TH2D*  RegionD_Ias;
   TH2D*  RegionD_TOF;
+
+  TH2D*  RegionH_Ias;
 
   TH2D* Pred_Mass;
   TH2D* Pred_MassTOF;
@@ -256,7 +269,10 @@ struct stPlots {
 
   TH2D*  RegionD_P_Flip;
   TH2D*  RegionD_I_Flip;
+  TH2D*  RegionD_Ias_Flip;
   TH2D*  RegionD_TOF_Flip;
+
+  TH2D*  RegionH_Ias_Flip;
 
   TH2D* Pred_Mass_Flip;
   TH2D* Pred_MassTOF_Flip;
@@ -307,9 +323,9 @@ struct stPlots {
 // number of samples in our analysis... The size of the file can easilly explode
 void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned int NCuts, bool SkipSelectionPlot=false, bool isSignal=true, unsigned int NCuts_Flip=0)
 {
-   st.SelPlot = !SkipSelectionPlot;
-   st.Name = BaseName;
-   st.NCuts = NCuts;
+  st.SelPlot = !SkipSelectionPlot;
+  st.Name = BaseName;
+  st.NCuts = NCuts;
 
    std::string Name;
    Name = BaseName;               st.Directory = HistoFile->mkdir(Name.c_str(), Name.c_str()); 
@@ -329,6 +345,7 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "Pterr";    st.Pterr   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
    Name = "TIsol";    st.TIsol   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
    Name = "EIsol";    st.EIsol   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "SumpTOverpT";  st.SumpTOverpT = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
    Name = "MPt";      st.MPt     = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
    Name = "MI";       st.MI      = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
    Name = "MTOF";     st.MTOF    = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
@@ -411,6 +428,7 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_MTOF" ; st.BS_MTOF  = new TH1F(Name.c_str(), Name.c_str(),  50, -2, 5);                 st.BS_MTOF->Sumw2();
    Name = "BS_TIsol"; st.BS_TIsol = new TH1F(Name.c_str(), Name.c_str(),  25,  0, 100);               st.BS_TIsol->Sumw2();
    Name = "BS_EIsol"; st.BS_EIsol = new TH1F(Name.c_str(), Name.c_str(),  25,  0, 1.5);               st.BS_EIsol->Sumw2();
+   Name = "BS_SumpTOverpT";  st.BS_SumpTOverpT = new TH1F(Name.c_str(), Name.c_str(), 80, 0.0,  2.0);  st.BS_SumpTOverpT    ->Sumw2();
    Name = "BS_P"    ; st.BS_P     = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_P->Sumw2();
    Name = "BS_Pt"   ; st.BS_Pt    = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_Pt->Sumw2();
    Name = "BS_Pt_DT"   ; st.BS_Pt_DT    = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_Pt_DT->Sumw2();
@@ -422,7 +440,18 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_TOF_CSC"  ; st.BS_TOF_CSC   = new TH1F(Name.c_str(), Name.c_str(),                   150, -1, 5);                 st.BS_TOF_CSC->Sumw2();
    Name = "BS_dR_NVTrack"  ; st.BS_dR_NVTrack = new TH1F(Name.c_str(), Name.c_str(), 40, 0, 1); st.BS_dR_NVTrack->Sumw2();
    Name = "BS_MatchedStations"  ; st.BS_MatchedStations= new TH1F(Name.c_str(), Name.c_str(),                   8, -0.5, 7.5); st.BS_MatchedStations->Sumw2();
+
+   Name = "BS_NVertex";  st.BS_NVertex = new TH1F(Name.c_str(), Name.c_str(), 60, 0,  60);  st.BS_NVertex    ->Sumw2();
+   Name = "BS_NVertex_NoEventWeight";    st.BS_NVertex_NoEventWeight = new TH1F(Name.c_str(), Name.c_str(), 60, 0, 60);     st.BS_NVertex_NoEventWeight    ->Sumw2();
    Name = "BS_PV"  ; st.BS_PV = new TH1F(Name.c_str(), Name.c_str(),                   60, 0, 60); st.BS_PV->Sumw2();
+   Name = "BS_PV_NoEventWeight"  ; st.BS_PV_NoEventWeight = new TH1F(Name.c_str(), Name.c_str(),                   60, 0, 60); st.BS_PV_NoEventWeight->Sumw2();
+   Name = "BS_dzAll";      st.BS_dzAll = new TH1F(Name.c_str(), Name.c_str(),200, -10, 10);          st.BS_dzAll->Sumw2();
+   Name = "BS_dxyAll";     st.BS_dxyAll = new TH1F(Name.c_str(), Name.c_str(),200, -10, 10);         st.BS_dxyAll->Sumw2();
+   Name = "BS_dzMinv3d";   st.BS_dzMinv3d = new TH1F(Name.c_str(), Name.c_str(),200, -10, 10);       st.BS_dzMinv3d->Sumw2();
+   Name = "BS_dxyMinv3d";  st.BS_dxyMinv3d = new TH1F(Name.c_str(), Name.c_str(),200, -10, 10);      st.BS_dxyMinv3d->Sumw2();
+   Name = "BS_dz";         st.BS_dz = new TH1F(Name.c_str(), Name.c_str(),50, -2, 2);                st.BS_dz->Sumw2();
+   Name = "BS_dxy";        st.BS_dxy = new TH1F(Name.c_str(), Name.c_str(),50, -2, 2);               st.BS_dxy->Sumw2();
+
    Name = "BS_SegSep"  ; st.BS_SegSep= new TH1F(Name.c_str(), Name.c_str(),                   50, 0, 2.5); st.BS_SegSep->Sumw2();
    Name = "BS_SegMinEtaSep"  ; st.BS_SegMinEtaSep= new TH1F(Name.c_str(), Name.c_str(),                   50, -1., 1.); st.BS_SegMinEtaSep->Sumw2();
    Name = "BS_SegMinPhiSep"  ; st.BS_SegMinPhiSep= new TH1F(Name.c_str(), Name.c_str(),                   50, -3.3, 3.3); st.BS_SegMinPhiSep->Sumw2();
@@ -466,8 +495,10 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_PIm"  ; st.BS_PIm   = new TH2F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound, 50, 0, dEdxM_UpLim);
    Name = "BS_PtIs" ; st.BS_PtIs  = new TH2F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound, 50, 0, dEdxS_UpLim);
    Name = "BS_PtIm" ; st.BS_PtIm  = new TH2F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound, 50, 0, dEdxM_UpLim);
-   Name = "BS_TOFIs"; st.BS_TOFIs = new TH2F(Name.c_str(), Name.c_str(),                   100, 1, 5, 100, 0, dEdxS_UpLim);
-   Name = "BS_TOFIm"; st.BS_TOFIm = new TH2F(Name.c_str(), Name.c_str(),                   100, 1, 5, 100, 0, dEdxM_UpLim);
+   //   Name = "BS_TOFIs"; st.BS_TOFIs = new TH2F(Name.c_str(), Name.c_str(),                   100, 1, 5, 100, 0, dEdxS_UpLim);
+   Name = "BS_TOFIs"; st.BS_TOFIs = new TH2F(Name.c_str(), Name.c_str(),                   125, 0, 5, 100, 0, dEdxS_UpLim);
+   //   Name = "BS_TOFIm"; st.BS_TOFIm = new TH2F(Name.c_str(), Name.c_str(),                   100, 1, 5, 100, 0, dEdxM_UpLim);
+   Name = "BS_TOFIm"; st.BS_TOFIm = new TH2F(Name.c_str(), Name.c_str(),                   125, 0, 5, 100, 0, dEdxM_UpLim);
 
 //   Name = "AS_EtaIs"; st.AS_EtaIs = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50,-3, 3, 50, 0, dEdxS_UpLim);
 //   Name = "AS_EtaIm"; st.AS_EtaIm = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50,-3, 3, 50, 0, dEdxM_UpLim);
@@ -524,9 +555,13 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "Pred_EtaS2"; st.Pred_EtaS2 = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, 50,-3,3); st.Pred_EtaS2->Sumw2();
    Name = "Pred_EtaP"; st.Pred_EtaP = new TH3D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, 50, -3, 3, 200,GlobalMinPt,PtHistoUpperBound); st.Pred_EtaP->Sumw2();
    Name = "Pred_TOF"; st.Pred_TOF = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts,   200,GlobalMinTOF,5); st.Pred_TOF->Sumw2();
+
    Name = "RegionD_I"; st.RegionD_I = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, 200,GlobalMinIm,dEdxM_UpLim); st.RegionD_I->Sumw2();
+   Name = "RegionD_Ias"; st.RegionD_Ias = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, 100, 0, dEdxS_UpLim); st.RegionD_Ias->Sumw2();
    Name = "RegionD_P"; st.RegionD_P = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, 200,GlobalMinPt,PtHistoUpperBound); st.RegionD_P->Sumw2();
    Name = "RegionD_TOF"; st.RegionD_TOF = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, 200,GlobalMinTOF,5); st.RegionD_TOF->Sumw2();
+
+   Name = "RegionH_Ias"; st.RegionH_Ias = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, 100, 0, dEdxS_UpLim); st.RegionH_Ias->Sumw2();
 
    Name = "Pred_Mass"; st.Pred_Mass = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, MassNBins,0,MassHistoUpperBound); st.Pred_Mass->Sumw2();
    Name = "Pred_MassTOF"; st.Pred_MassTOF = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, MassNBins,0,MassHistoUpperBound); st.Pred_MassTOF->Sumw2();
@@ -568,8 +603,11 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "Pred_TOF_Flip"; st.Pred_TOF_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip,   200,GlobalMinTOF,5); st.Pred_TOF_Flip->Sumw2();
 
    Name = "RegionD_I_Flip"; st.RegionD_I_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, 200,GlobalMinIm,dEdxM_UpLim); st.RegionD_I_Flip->Sumw2();
+   Name = "RegionD_Ias_Flip"; st.RegionD_Ias_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, 100, 0, dEdxS_UpLim); st.RegionD_Ias_Flip->Sumw2();
    Name = "RegionD_P_Flip"; st.RegionD_P_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, 200,GlobalMinPt,PtHistoUpperBound); st.RegionD_P_Flip->Sumw2();
    Name = "RegionD_TOF_Flip"; st.RegionD_TOF_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, 200,-3,1); st.RegionD_TOF_Flip->Sumw2();
+
+   Name = "RegionH_Ias_Flip"; st.RegionH_Ias_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, 100, 0, dEdxS_UpLim); st.RegionH_Ias_Flip->Sumw2();
 
    Name = "Pred_Mass_Flip"; st.Pred_Mass_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, MassNBins,0,MassHistoUpperBound); st.Pred_Mass_Flip->Sumw2();
    Name = "Pred_MassTOF_Flip"; st.Pred_MassTOF_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, MassNBins,0,MassHistoUpperBound); st.Pred_MassTOF_Flip->Sumw2();

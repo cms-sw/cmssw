@@ -94,9 +94,10 @@ void GetSampleDefinition(std::vector<stSample>& samples, std::string sampleTxtFi
       fclose(pFile);
 }
 
-void GetInputFiles(stSample sample, std::string BaseDirectory_, std::vector<std::string>& inputFiles, int period=0){
+void GetInputFiles(stSample sample, std::string BaseDirectory_, std::vector<std::string>& inputFiles, int period=0, int WhichAnalysis=0){
    if(sample.Type>=2){ //MC Signal
-     if (period==0) inputFiles.push_back(BaseDirectory_ + sample.FileName + ".root");
+     if (period==0 && WhichAnalysis!=4) inputFiles.push_back(BaseDirectory_ + sample.FileName + ".root");
+     if (period==0 && WhichAnalysis==4) inputFiles.push_back(BaseDirectory_ + sample.FileName + "BX0.root");
      if (period==1) inputFiles.push_back(BaseDirectory_ + sample.FileName + "BX1.root");
    }else{ //Data or MC Background
      inputFiles.push_back(BaseDirectory_ + sample.FileName + ".root");
