@@ -1,4 +1,4 @@
-// Last commit: $Id: PedsOnlyHistosUsingDb.cc,v 1.6 2009/06/18 20:52:37 lowette Exp $
+// Last commit: $Id: PedsOnlyHistosUsingDb.cc,v 1.7 2009/11/10 14:49:02 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedsOnlyHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedsOnlyAnalysis.h"
@@ -125,9 +125,9 @@ void PedsOnlyHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds )
 	for ( uint16_t iapv = 0; iapv < sistrip::APVS_PER_FEDCH; iapv++ ) {
 	  for ( uint16_t istr = 0; istr < anal->peds()[iapv].size(); istr++ ) { 
 	    
-	    static float high_threshold = 5.;
-	    static float low_threshold  = 2.;
-	    static bool  disable_strip  = false;
+	    constexpr float high_threshold = 5.;
+	    constexpr float low_threshold  = 2.;
+	    constexpr bool  disable_strip  = false;
 	    Fed9U::Fed9UStripDescription data( static_cast<uint32_t>( anal->peds()[iapv][istr]-pedshift ), 
 					       high_threshold, 
 					       low_threshold, 
