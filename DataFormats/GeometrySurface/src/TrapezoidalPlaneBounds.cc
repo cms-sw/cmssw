@@ -54,6 +54,6 @@ Bounds* TrapezoidalPlaneBounds::clone() const {
 
 const std::array<const float, 4> TrapezoidalPlaneBounds::parameters() const { 
   // Same order as geant3 for constructor compatibility
-  std::array<const float, 4> vec { { hbotedge, htopedge, hapothem, hthickness } };
+  std::array<const float, 4> vec { { hbotedge, htopedge, hthickness, hapothem } };
   return vec;
 }
