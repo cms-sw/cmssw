@@ -6,8 +6,8 @@
  *  
  *  This class is an EDProducer making the HLT summary object for RAW
  *
- *  $Date: 2007/08/07 18:42:18 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/12/06 08:27:31 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -15,17 +15,15 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/Framework/interface/Selector.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/TriggerNamesService.h"
-
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
-#include<string>
-#include<vector>
+#include <string>
+
+namespace edm {
+  class EventSetup;
+}
 
 //
 // class declaration
@@ -36,16 +34,11 @@ class TriggerSummaryProducerRAW : public edm::EDProducer {
   explicit TriggerSummaryProducerRAW(const edm::ParameterSet&);
   ~TriggerSummaryProducerRAW();
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  
+
  private:
   /// process name
   std::string pn_;
-  /// selector for getMany methods
-  edm::ProcessNameSelector selector_;
-  /// the pointer to the current TriggerNamesService
-  edm::service::TriggerNamesService* tns_;
-  /// handles to the filter objects
-  std::vector<edm::Handle<trigger::TriggerFilterObjectWithRefs> > fobs_;
 
+  edm::GetterOfProducts<trigger::TriggerFilterObjectWithRefs> getterOfProducts_;
 };
 #endif

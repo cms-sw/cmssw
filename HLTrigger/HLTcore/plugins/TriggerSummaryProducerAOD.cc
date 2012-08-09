@@ -2,42 +2,32 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/01/23 10:27:33 $
- *  $Revision: 1.44 $
+ *  $Date: 2012/01/30 09:40:35 $
+ *  $Revision: 1.45 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "HLTrigger/HLTcore/interface/TriggerSummaryProducerAOD.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 
+#include "FWCore/Framework/interface/ProcessMatch.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include<string>
-
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
-#include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
-#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
-
-#include "DataFormats/L1Trigger/interface/L1HFRingsFwd.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 
 #include "DataFormats/L1Trigger/interface/L1HFRings.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
@@ -46,11 +36,13 @@
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 
 #include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/TauReco/interface/PFTauFwd.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
 
 #include <algorithm>
+#include <memory>
 #include <typeinfo>
 
 
@@ -59,8 +51,6 @@
 //
 TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps) : 
   pn_(ps.getParameter<std::string>("processName")),
-  selector_(edm::ProcessNameSelector(pn_)),
-  tns_(),
   filterTagsEvent_(pn_!="*"),
   filterTagsGlobal_(pn_!="*"),
   collectionTagsEvent_(pn_!="*"),
@@ -68,27 +58,19 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
   toc_(),
   tags_(),
   offset_(),
-  fobs_(),
   keys_(),
   ids_(),
   maskFilters_()
 {
   if (pn_=="@") {
-    // use tns
-    if (edm::Service<edm::service::TriggerNamesService>().isAvailable()) {
-      // get tns pointer
-      tns_ = edm::Service<edm::service::TriggerNamesService>().operator->();
-      if (tns_!=0) {
-	pn_=tns_->getProcessName();
-      } else {
-	edm::LogError("TriggerSummaryProducerAOD") << "HLT Error: TriggerNamesService pointer = 0!";
-	pn_="*";
-      }
+    edm::Service<edm::service::TriggerNamesService> tns;
+    if (tns.isAvailable()) {
+      pn_ = tns->getProcessName();
     } else {
       edm::LogError("TriggerSummaryProducerAOD") << "HLT Error: TriggerNamesService not available!";
       pn_="*";
     }
-    selector_=edm::ProcessNameSelector(pn_);
+
     filterTagsEvent_     =InputTagSet(pn_!="*");
     filterTagsGlobal_    =InputTagSet(pn_!="*");
     collectionTagsEvent_ =InputTagSet(pn_!="*");
@@ -101,6 +83,41 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
 
   produces<trigger::TriggerEvent>();
 
+  getTriggerFilterObjectWithRefs_ = edm::GetterOfProducts<trigger::TriggerFilterObjectWithRefs>(edm::ProcessMatch(pn_), this);
+  getRecoEcalCandidateCollection_ = edm::GetterOfProducts<reco::RecoEcalCandidateCollection>(edm::ProcessMatch(pn_), this);
+  getElectronCollection_ = edm::GetterOfProducts<reco::ElectronCollection>(edm::ProcessMatch(pn_), this);
+  getRecoChargedCandidateCollection_ = edm::GetterOfProducts<reco::RecoChargedCandidateCollection>(edm::ProcessMatch(pn_), this);
+  getCaloJetCollection_ = edm::GetterOfProducts<reco::CaloJetCollection>(edm::ProcessMatch(pn_), this);
+  getCompositeCandidateCollection_ = edm::GetterOfProducts<reco::CompositeCandidateCollection>(edm::ProcessMatch(pn_), this);
+  getMETCollection_ = edm::GetterOfProducts<reco::METCollection>(edm::ProcessMatch(pn_), this);
+  getCaloMETCollection_ = edm::GetterOfProducts<reco::CaloMETCollection>(edm::ProcessMatch(pn_), this);
+  getIsolatedPixelTrackCandidateCollection_ = edm::GetterOfProducts<reco::IsolatedPixelTrackCandidateCollection>(edm::ProcessMatch(pn_), this);
+  getL1EmParticleCollection_ = edm::GetterOfProducts<l1extra::L1EmParticleCollection>(edm::ProcessMatch(pn_), this);
+  getL1MuonParticleCollection_ = edm::GetterOfProducts<l1extra::L1MuonParticleCollection>(edm::ProcessMatch(pn_), this);
+  getL1JetParticleCollection_ = edm::GetterOfProducts<l1extra::L1JetParticleCollection>(edm::ProcessMatch(pn_), this);
+  getL1EtMissParticleCollection_ = edm::GetterOfProducts<l1extra::L1EtMissParticleCollection>(edm::ProcessMatch(pn_), this);
+  getL1HFRingsCollection_ = edm::GetterOfProducts<l1extra::L1HFRingsCollection>(edm::ProcessMatch(pn_), this);
+  getPFJetCollection_ = edm::GetterOfProducts<reco::PFJetCollection>(edm::ProcessMatch(pn_), this);
+  getPFTauCollection_ = edm::GetterOfProducts<reco::PFTauCollection>(edm::ProcessMatch(pn_), this);
+
+  callWhenNewProductsRegistered([this](edm::BranchDescription const& bd){
+    getTriggerFilterObjectWithRefs_(bd);
+    getRecoEcalCandidateCollection_(bd);
+    getElectronCollection_(bd);
+    getRecoChargedCandidateCollection_(bd);
+    getCaloJetCollection_(bd);
+    getCompositeCandidateCollection_(bd);
+    getMETCollection_(bd);
+    getCaloMETCollection_(bd);
+    getIsolatedPixelTrackCandidateCollection_(bd);
+    getL1EmParticleCollection_(bd);
+    getL1MuonParticleCollection_(bd);
+    getL1JetParticleCollection_(bd);
+    getL1EtMissParticleCollection_(bd);
+    getL1HFRingsCollection_(bd);
+    getPFJetCollection_(bd);
+    getPFTauCollection_(bd);
+  });
 }
 
 TriggerSummaryProducerAOD::~TriggerSummaryProducerAOD()
@@ -149,11 +166,10 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    using namespace l1extra;
    using namespace trigger;
 
-   ///
-   /// get hold of filter objects
-   fobs_.clear();
-   iEvent.getMany(selector_,fobs_);
-   const unsigned int nfob(fobs_.size());
+   std::vector<edm::Handle<trigger::TriggerFilterObjectWithRefs> > fobs;
+   getTriggerFilterObjectWithRefs_.fillHandles(iEvent, fobs);
+
+   const unsigned int nfob(fobs.size());
    LogTrace("TriggerSummaryProducerAOD") << "Number of filter  objects found: " << nfob;
 
    string tagLabel,tagInstance,tagProcess;
@@ -170,14 +186,14 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    unsigned int nf(0);
    for (unsigned int ifob=0; ifob!=nfob; ++ifob) {
      maskFilters_[ifob]=false;
-     const vector<string>& collectionTags_(fobs_[ifob]->getCollectionTagsAsStrings());
+     const vector<string>& collectionTags_(fobs[ifob]->getCollectionTagsAsStrings());
      const unsigned int ncol(collectionTags_.size());
      if (ncol>0) {
        nf++;
        maskFilters_[ifob]=true;
-       const string& label    (fobs_[ifob].provenance()->moduleLabel());
-       const string& instance (fobs_[ifob].provenance()->productInstanceName());
-       const string& process  (fobs_[ifob].provenance()->processName());
+       const string& label    (fobs[ifob].provenance()->moduleLabel());
+       const string& instance (fobs[ifob].provenance()->productInstanceName());
+       const string& process  (fobs[ifob].provenance()->processName());
        filterTagsEvent_.insert(InputTag(label,instance,process));
        for (unsigned int icol=0; icol!=ncol; ++icol) {
 	 // overwrite process name (usually not set)
@@ -227,23 +243,23 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    tags_.clear();
    keys_.clear();
    offset_.clear();
-   fillTriggerObjectCollections<          RecoEcalCandidateCollection>(iEvent);
-   fillTriggerObjectCollections<                   ElectronCollection>(iEvent);
-   fillTriggerObjectCollections<       RecoChargedCandidateCollection>(iEvent);
-   fillTriggerObjectCollections<                    CaloJetCollection>(iEvent);
-   fillTriggerObjectCollections<         CompositeCandidateCollection>(iEvent);
-   fillTriggerObjectCollections<                        METCollection>(iEvent);
-   fillTriggerObjectCollections<                    CaloMETCollection>(iEvent);
-   fillTriggerObjectCollections<IsolatedPixelTrackCandidateCollection>(iEvent);
+   fillTriggerObjectCollections<          RecoEcalCandidateCollection>(iEvent, getRecoEcalCandidateCollection_);
+   fillTriggerObjectCollections<                   ElectronCollection>(iEvent, getElectronCollection_);
+   fillTriggerObjectCollections<       RecoChargedCandidateCollection>(iEvent, getRecoChargedCandidateCollection_);
+   fillTriggerObjectCollections<                    CaloJetCollection>(iEvent, getCaloJetCollection_);
+   fillTriggerObjectCollections<         CompositeCandidateCollection>(iEvent, getCompositeCandidateCollection_);
+   fillTriggerObjectCollections<                        METCollection>(iEvent, getMETCollection_);
+   fillTriggerObjectCollections<                    CaloMETCollection>(iEvent, getCaloMETCollection_);
+   fillTriggerObjectCollections<IsolatedPixelTrackCandidateCollection>(iEvent, getIsolatedPixelTrackCandidateCollection_);
    ///
-   fillTriggerObjectCollections<               L1EmParticleCollection>(iEvent);
-   fillTriggerObjectCollections<             L1MuonParticleCollection>(iEvent);
-   fillTriggerObjectCollections<              L1JetParticleCollection>(iEvent);
-   fillTriggerObjectCollections<           L1EtMissParticleCollection>(iEvent);
-   fillTriggerObjectCollections<                  L1HFRingsCollection>(iEvent);
+   fillTriggerObjectCollections<               L1EmParticleCollection>(iEvent, getL1EmParticleCollection_);
+   fillTriggerObjectCollections<             L1MuonParticleCollection>(iEvent, getL1MuonParticleCollection_);
+   fillTriggerObjectCollections<              L1JetParticleCollection>(iEvent, getL1JetParticleCollection_);
+   fillTriggerObjectCollections<           L1EtMissParticleCollection>(iEvent, getL1EtMissParticleCollection_);
+   fillTriggerObjectCollections<                  L1HFRingsCollection>(iEvent, getL1HFRingsCollection_);
    ///
-   fillTriggerObjectCollections<                      PFJetCollection>(iEvent);
-   fillTriggerObjectCollections<                      PFTauCollection>(iEvent);
+   fillTriggerObjectCollections<                      PFJetCollection>(iEvent, getPFJetCollection_);
+   fillTriggerObjectCollections<                      PFTauCollection>(iEvent, getPFTauCollection_);
    ///
    const unsigned int nk(tags_.size());
    LogDebug("TriggerSummaryProducerAOD") << "Number of collections found: " << nk;
@@ -261,27 +277,27 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    /// fill the L3 filter objects
    for (unsigned int ifob=0; ifob!=nfob; ++ifob) {
      if (maskFilters_[ifob]) {
-       const string& label    (fobs_[ifob].provenance()->moduleLabel());
-       const string& instance (fobs_[ifob].provenance()->productInstanceName());
-       const string& process  (fobs_[ifob].provenance()->processName());
+       const string& label    (fobs[ifob].provenance()->moduleLabel());
+       const string& instance (fobs[ifob].provenance()->productInstanceName());
+       const string& process  (fobs[ifob].provenance()->processName());
        const edm::InputTag filterTag(label,instance,process);
        ids_.clear();
        keys_.clear();
-       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->photonIds()   ,fobs_[ifob]->photonRefs());
-       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->electronIds() ,fobs_[ifob]->electronRefs());
-       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->muonIds()     ,fobs_[ifob]->muonRefs());
-       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->jetIds()      ,fobs_[ifob]->jetRefs());
-       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->compositeIds(),fobs_[ifob]->compositeRefs());
-       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->basemetIds()  ,fobs_[ifob]->basemetRefs());
-       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->calometIds()  ,fobs_[ifob]->calometRefs());
-       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->pixtrackIds() ,fobs_[ifob]->pixtrackRefs());
-       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->l1emIds()     ,fobs_[ifob]->l1emRefs());
-       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->l1muonIds()   ,fobs_[ifob]->l1muonRefs());
-       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->l1jetIds()    ,fobs_[ifob]->l1jetRefs());
-       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->l1etmissIds() ,fobs_[ifob]->l1etmissRefs());
-       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->l1hfringsIds(),fobs_[ifob]->l1hfringsRefs());
-       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->pfjetIds()    ,fobs_[ifob]->pfjetRefs());
-       fillFilterObjectMembers(iEvent,filterTag,fobs_[ifob]->pftauIds()    ,fobs_[ifob]->pftauRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs[ifob]->photonIds()   ,fobs[ifob]->photonRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs[ifob]->electronIds() ,fobs[ifob]->electronRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs[ifob]->muonIds()     ,fobs[ifob]->muonRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs[ifob]->jetIds()      ,fobs[ifob]->jetRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs[ifob]->compositeIds(),fobs[ifob]->compositeRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs[ifob]->basemetIds()  ,fobs[ifob]->basemetRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs[ifob]->calometIds()  ,fobs[ifob]->calometRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs[ifob]->pixtrackIds() ,fobs[ifob]->pixtrackRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs[ifob]->l1emIds()     ,fobs[ifob]->l1emRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs[ifob]->l1muonIds()   ,fobs[ifob]->l1muonRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs[ifob]->l1jetIds()    ,fobs[ifob]->l1jetRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs[ifob]->l1etmissIds() ,fobs[ifob]->l1etmissRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs[ifob]->l1hfringsIds(),fobs[ifob]->l1hfringsRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs[ifob]->pfjetIds()    ,fobs[ifob]->pfjetRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs[ifob]->pftauIds()    ,fobs[ifob]->pftauRefs());
        product->addFilter(filterTag,ids_,keys_);
      }
    }
@@ -293,7 +309,7 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
 }
 
 template <typename C>
-void TriggerSummaryProducerAOD::fillTriggerObjectCollections(const edm::Event& iEvent) {
+void TriggerSummaryProducerAOD::fillTriggerObjectCollections(const edm::Event& iEvent, edm::GetterOfProducts<C>& getter) {
 
   /// this routine accesses the original (L3) collections (with C++
   /// typename C), extracts 4-momentum and id of each collection
@@ -306,7 +322,7 @@ void TriggerSummaryProducerAOD::fillTriggerObjectCollections(const edm::Event& i
   using namespace trigger;
 
   vector<Handle<C> > collections;
-  iEvent.getMany(selector_,collections);
+  getter.fillHandles(iEvent, collections);
   const unsigned int nc(collections.size());
 
   for (unsigned int ic=0; ic!=nc; ++ic) {

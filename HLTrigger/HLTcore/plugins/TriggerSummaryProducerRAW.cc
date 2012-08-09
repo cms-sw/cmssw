@@ -2,49 +2,52 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/01/23 10:27:33 $
- *  $Revision: 1.12 $
+ *  $Date: 2012/01/30 09:40:35 $
+ *  $Revision: 1.13 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "HLTrigger/HLTcore/interface/TriggerSummaryProducerRAW.h"
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
-
+#include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Framework/interface/ProcessMatch.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
-#include<string>
+#include <memory>
+#include<vector>
 
 //
 // constructors and destructor
 //
 TriggerSummaryProducerRAW::TriggerSummaryProducerRAW(const edm::ParameterSet& ps) : 
-  pn_(ps.getParameter<std::string>("processName")),
-  selector_(edm::ProcessNameSelector(pn_)),
-  tns_(), fobs_()
+  pn_(ps.getParameter<std::string>("processName"))
 {
   if (pn_=="@") {
-    // use tns
-    if (edm::Service<edm::service::TriggerNamesService>().isAvailable()) {
-      // get tns pointer
-      tns_ = edm::Service<edm::service::TriggerNamesService>().operator->();
-      if (tns_!=0) {
-	pn_=tns_->getProcessName();
-      } else {
-	edm::LogError("TriggerSummaryProducerRaw") << "HLT Error: TriggerNamesService pointer = 0!";
-	pn_="*";
-      }
+    
+    edm::Service<edm::service::TriggerNamesService> tns;
+    if (tns.isAvailable()) {
+      pn_ = tns->getProcessName();
     } else {
       edm::LogError("TriggerSummaryProducerRaw") << "HLT Error: TriggerNamesService not available!";
       pn_="*";
     }
-    selector_=edm::ProcessNameSelector(pn_);
   }
 
   LogDebug("TriggerSummaryProducerRaw") << "Using process name: '" << pn_ <<"'";
   produces<trigger::TriggerEventWithRefs>();
 
+  // Tell the getter what type of products to get and
+  // also the process to get them from
+  getterOfProducts_ = edm::GetterOfProducts<trigger::TriggerFilterObjectWithRefs>(edm::ProcessMatch(pn_), this);
+  callWhenNewProductsRegistered(getterOfProducts_);
 }
 
 TriggerSummaryProducerRAW::~TriggerSummaryProducerRAW()
@@ -57,48 +60,47 @@ TriggerSummaryProducerRAW::~TriggerSummaryProducerRAW()
 
 // ------------ method called to produce the data  ------------
 void
-TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup&)
 {
    using namespace std;
    using namespace edm;
    using namespace reco;
    using namespace trigger;
 
-   // reset from previous event
-   fobs_.clear();
+   std::vector<edm::Handle<trigger::TriggerFilterObjectWithRefs> > fobs;
+   getterOfProducts_.fillHandles(iEvent, fobs);
 
-   // get all filter objects created in requested process
-   iEvent.getMany(selector_,fobs_);
-   const unsigned int nfob(fobs_.size());
+   const unsigned int nfob(fobs.size());
    LogDebug("TriggerSummaryProducerRaw") << "Number of filter objects found: " << nfob;
 
    // construct single RAW product
    auto_ptr<TriggerEventWithRefs> product(new TriggerEventWithRefs(pn_,nfob));
    for (unsigned int ifob=0; ifob!=nfob; ++ifob) {
-     const string& label    (fobs_[ifob].provenance()->moduleLabel());
-     const string& instance (fobs_[ifob].provenance()->productInstanceName());
-     const string& process  (fobs_[ifob].provenance()->processName());
+     const string& label    (fobs[ifob].provenance()->moduleLabel());
+     const string& instance (fobs[ifob].provenance()->productInstanceName());
+     const string& process  (fobs[ifob].provenance()->processName());
      const InputTag tag(label,instance,process);
      LogTrace("TriggerSummaryProducerRaw")
        << ifob << " " << tag << endl
        << " Sizes: "
-       << " 1/" << fobs_[ifob]->photonSize()
-       << " 2/" << fobs_[ifob]->electronSize()
-       << " 3/" << fobs_[ifob]->muonSize()
-       << " 4/" << fobs_[ifob]->jetSize()
-       << " 5/" << fobs_[ifob]->compositeSize()
-       << " 6/" << fobs_[ifob]->basemetSize()
-       << " 7/" << fobs_[ifob]->calometSize()
-       << " 8/" << fobs_[ifob]->pixtrackSize()
-       << " 9/" << fobs_[ifob]->l1emSize()
-       << " A/" << fobs_[ifob]->l1muonSize()
-       << " B/" << fobs_[ifob]->l1jetSize()
-       << " C/" << fobs_[ifob]->l1etmissSize()
-       << " D/" << fobs_[ifob]->l1hfringsSize()
-       << " E/" << fobs_[ifob]->pfjetSize()
-       << " F/" << fobs_[ifob]->pftauSize()
+       << " 1/" << fobs[ifob]->photonSize()
+       << " 2/" << fobs[ifob]->electronSize()
+       << " 3/" << fobs[ifob]->muonSize()
+       << " 4/" << fobs[ifob]->jetSize()
+       << " 5/" << fobs[ifob]->compositeSize()
+       << " 6/" << fobs[ifob]->basemetSize()
+       << " 7/" << fobs[ifob]->calometSize()
+
+       << " 8/" << fobs[ifob]->pixtrackSize()
+       << " 9/" << fobs[ifob]->l1emSize()
+       << " A/" << fobs[ifob]->l1muonSize()
+       << " B/" << fobs[ifob]->l1jetSize()
+       << " C/" << fobs[ifob]->l1etmissSize()
+       << " D/" << fobs[ifob]->l1hfringsSize()
+       << " E/" << fobs[ifob]->pfjetSize()
+       << " F/" << fobs[ifob]->pftauSize()
        << endl;
-     product->addFilterObject(tag,*fobs_[ifob]);
+     product->addFilterObject(tag,*fobs[ifob]);
    }
 
    // place product in Event

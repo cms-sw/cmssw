@@ -2,12 +2,16 @@
   <use   name="DataFormats/Candidate"/>
   <use   name="DataFormats/EgammaCandidates"/>
   <use   name="DataFormats/HcalIsolatedTrack"/>
+  <use   name="DataFormats/HLTReco"/>
   <use   name="DataFormats/JetReco"/>
   <use   name="DataFormats/L1Trigger"/>
   <use   name="DataFormats/METReco"/>
+  <use   name="DataFormats/Provenance"/>
   <use   name="DataFormats/RecoCandidate"/>
+  <use   name="DataFormats/TauReco"/>
   <use   name="HLTrigger/HLTcore"/>
   <use   name="FWCore/PrescaleService"/>
   <use   name="FWCore/ServiceRegistry"/>
+  <use   name="FWCore/Utilities"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

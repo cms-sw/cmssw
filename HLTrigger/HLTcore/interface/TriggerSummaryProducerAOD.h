@@ -6,8 +6,8 @@
  *  
  *  This class is an EDProducer making the HLT summary object for AOD
  *
- *  $Date: 2010/11/08 15:47:45 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/11/09 13:58:42 $
+ *  $Revision: 1.16 $
  *
  *  \author Martin Grunewald
  *
@@ -15,13 +15,11 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/Framework/interface/Selector.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/TriggerNamesService.h"
-
-#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
@@ -32,9 +30,30 @@
 #include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
+#include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1HFRingsFwd.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
 
-#include<string>
-#include<vector>
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
+
+namespace edm {
+  class EventSetup;
+}
 
 //
 // class declaration
@@ -51,7 +70,7 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   // additional
 
   template <typename C>
-  void fillTriggerObjectCollections(const edm::Event& );
+  void fillTriggerObjectCollections(const edm::Event&, edm::GetterOfProducts<C>& );
 
   template <typename T>
   void fillTriggerObject(const T& );
@@ -73,12 +92,6 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
  private:
   /// process name
   std::string pn_;
-
-  /// selector for getMany methods
-  edm::ProcessNameSelector selector_;
-
-  /// the pointer to the current TriggerNamesService
-  edm::service::TriggerNamesService* tns_;
 
   /// InputTag ordering class
   struct OrderInputTag {
@@ -114,8 +127,6 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   /// global map for indices into toc_: offset per input L3 collection
   std::map<edm::ProductID,unsigned int> offset_;
 
-  /// handles to the filter objects
-  std::vector<edm::Handle<trigger::TriggerFilterObjectWithRefs> > fobs_;
   /// keys
   trigger::Keys keys_;
   /// ids
@@ -124,5 +135,21 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   /// packing decision
   std::vector<bool> maskFilters_;
 
+  edm::GetterOfProducts<trigger::TriggerFilterObjectWithRefs> getTriggerFilterObjectWithRefs_;
+  edm::GetterOfProducts<reco::RecoEcalCandidateCollection> getRecoEcalCandidateCollection_;
+  edm::GetterOfProducts<reco::ElectronCollection> getElectronCollection_;
+  edm::GetterOfProducts<reco::RecoChargedCandidateCollection> getRecoChargedCandidateCollection_;
+  edm::GetterOfProducts<reco::CaloJetCollection> getCaloJetCollection_;
+  edm::GetterOfProducts<reco::CompositeCandidateCollection> getCompositeCandidateCollection_;
+  edm::GetterOfProducts<reco::METCollection> getMETCollection_;
+  edm::GetterOfProducts<reco::CaloMETCollection> getCaloMETCollection_;
+  edm::GetterOfProducts<reco::IsolatedPixelTrackCandidateCollection> getIsolatedPixelTrackCandidateCollection_;
+  edm::GetterOfProducts<l1extra::L1EmParticleCollection> getL1EmParticleCollection_;
+  edm::GetterOfProducts<l1extra::L1MuonParticleCollection> getL1MuonParticleCollection_;
+  edm::GetterOfProducts<l1extra::L1JetParticleCollection> getL1JetParticleCollection_;
+  edm::GetterOfProducts<l1extra::L1EtMissParticleCollection> getL1EtMissParticleCollection_;
+  edm::GetterOfProducts<l1extra::L1HFRingsCollection> getL1HFRingsCollection_;
+  edm::GetterOfProducts<reco::PFJetCollection> getPFJetCollection_;
+  edm::GetterOfProducts<reco::PFTauCollection> getPFTauCollection_;
 };
 #endif
