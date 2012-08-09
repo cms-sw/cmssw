@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author: Zhen Xie
 //       
-// $Id$
+// $Id: NormDML.h,v 1.3 2012/08/09 14:45:57 xiezhen Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -41,7 +41,7 @@ namespace lumi{
     /*
       find the most recent normid for the given norm type 
     */
-    unsigned long long normIdByType(const coral::ISchema& schema,LumiType=HF,bool defaultonly=true);
+    void normIdByType(const coral::ISchema& schema,std::map<std::string,unsigned long long>& resultMap,LumiType=HF,bool defaultonly=true);
     /*
       retrieve norm data by normid
     */

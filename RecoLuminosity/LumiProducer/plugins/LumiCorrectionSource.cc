@@ -7,7 +7,7 @@
 Description: A essource/esproducer for lumi correction factor and run parameters needed to deduce the corrections
       Author: Zhen Xie
 */
-// $Id: LumiCorrectionSource.cc,v 1.2 2012/07/13 15:22:44 xiezhen Exp $
+// $Id: LumiCorrectionSource.cc,v 1.4 2012/07/27 21:08:53 xiezhen Exp $
 
 //#include <memory>
 //#include "boost/shared_ptr.hpp"
@@ -268,8 +268,10 @@ LumiCorrectionSource::fillparamcache(unsigned int runnumber){
     
     lumi::NormDML normdml;
     unsigned long long normid=0;
+    std::map<std::string,unsigned long long> normidmap;
     if (m_normtag.empty()){
-      normid=normdml.normIdByType(schema);
+      normdml.normIdByType(schema,normidmap,lumi::NormDML::HF,true);
+      normid=normidmap.begin()->second;
     }else{
       normid=normdml.normIdByName(schema,m_normtag);
     }
