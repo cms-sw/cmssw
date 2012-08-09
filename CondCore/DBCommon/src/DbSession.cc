@@ -28,7 +28,7 @@ namespace cond {
       throw cond::Exception(userconnect +":connection string format error");
     }
     std::auto_ptr<cond::TechnologyProxy> ptr(cond::TechnologyProxyFactory::get()->create(protocol));
-    (*ptr).initialize(userconnect,connection);
+    (*ptr).initialize(connection);
     return ptr;
   }
   
@@ -73,7 +73,7 @@ namespace cond {
           database->configuration().properties().setFlag( ora::Configuration::automaticContainerCreation() );
           // open the db connection
           technologyProxy = buildTechnologyProxy(connectionString, *connection);
-          std::string connStr = (*technologyProxy).getRealConnectString();
+          std::string connStr = (*technologyProxy).getRealConnectString( connectionString );
           database->connect( connStr, role, readOnly );
           transaction.reset( new cond::DbTransaction( database->transaction() ) );
           isOpen = true;
@@ -94,9 +94,8 @@ namespace cond {
           if(!blobStreamer) throw cond::Exception("DbSession::open: cannot find required plugin. No instance of ora::IBlobStreamingService has been loaded..");
           database->configuration().setBlobStreamingService( blobStreamer );
           // open the db connection
-	  connection->configuration().setTransactionId( transactionId );
           technologyProxy = buildTechnologyProxy(connectionString, *connection);
-          std::string connStr = (*technologyProxy).getRealConnectString();
+          std::string connStr = (*technologyProxy).getRealConnectString(connectionString, transactionId);
           database->connect( connStr, Auth::COND_READER_ROLE, true );
           transaction.reset( new cond::DbTransaction( database->transaction() ) );
           isOpen = true;
@@ -241,7 +240,7 @@ bool cond::DbSession::importMapping( const std::string& sourceConnectionString,
                                      const std::string& contName ){ 
   ora::DatabaseUtility utility = storage().utility();
   std::auto_ptr<cond::TechnologyProxy> technologyProxy = buildTechnologyProxy(sourceConnectionString, *(m_implementation->connection));
-  utility.importContainerSchema( (*technologyProxy).getRealConnectString(), contName );
+  utility.importContainerSchema( (*technologyProxy).getRealConnectString( sourceConnectionString ), contName );
   return true;
 }
 

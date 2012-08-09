@@ -1,5 +1,6 @@
 #include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/DBCommon/interface/Exception.h"
 #include "RelationalAccess/IWebCacheControl.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -15,22 +16,24 @@ namespace cond{
   public:
     FrontierProxy();
     ~FrontierProxy();
-    void initialize(const std::string&userconnect,const DbConnection& connection);
-    std::string getRealConnectString() const;
-    std::string getRealConnectString( const std::string& transactionId ) const;
+    void initialize( const DbConnection& connection);
+    std::string getRealConnectString( const std::string&userconnect ) const;
+    std::string getRealConnectString( const std::string&userconnect, const std::string& transactionId ) const;
     bool isTransactional() const { return false;}
 
   private:
-    static unsigned int countslash(const std::string& input);
+    //static unsigned int countslash(const std::string& input);
+    std::string makeRealConnectString( const std::string& initialConnection, const std::string& transactionId ) const ;
   private:
-    std::string m_userconnect;
-    std::string m_transactionId;
-  std::vector<std::string> m_refreshtablelist;
+    const DbConnection* m_dbConnection;
+    std::vector<std::string> m_refreshtablelist;
   };
 }//ns cond
 
 
-cond::FrontierProxy::FrontierProxy(){
+cond::FrontierProxy::FrontierProxy():
+  m_dbConnection(0),
+  m_refreshtablelist(){
   m_refreshtablelist.reserve(10);
   //table names for IOVSequence in the old POOL mapping
   m_refreshtablelist.push_back(cond::IOVNames::iovTableName());
@@ -65,8 +68,10 @@ namespace cond {
     return count;
   }
 
-  std::string makeRealConnectString( const std::string& initialConnection, const std::string& transactionId ) {
-    std::string result = initialConnection;
+  std::string 
+  cond::FrontierProxy::makeRealConnectString( const std::string& initialConnection, 
+					      const std::string& transactionId ) const {
+    std::string realConn = initialConnection;
     // for testing
     //std::string res = initialConnection;
     std::string proto("frontier://");
@@ -77,55 +82,66 @@ namespace cond {
       if( !localconfservice.isAvailable() ){
 	throw cms::Exception("edm::SiteLocalConfigService is not available");       
       }
-      result=localconfservice->lookupCalibConnect(initialConnection);
+      realConn=localconfservice->lookupCalibConnect(initialConnection);
       //res=localconfservice->lookupCalibConnect(initialConnection);
     }
     if (!transactionId.empty()) {
-      size_t l = result.rfind('/');
-      result.insert(l,"(freshkey="+transactionId+')');
+      size_t l = realConn.rfind('/');
+      realConn.insert(l,"(freshkey="+transactionId+')');
       //size_t l = res.rfind('/');
       //res.insert(l,"(freshkey="+transactionId+')');
     }
+
+    std::string refreshConnect;
+    std::string::size_type startRefresh = realConn.find("://");
+    if (startRefresh != std::string::npos){
+      startRefresh += 3;
+    }
+    std::string::size_type endRefresh=realConn.rfind("/", std::string::npos);
+    if (endRefresh == std::string::npos){
+      refreshConnect = realConn;
+    }else{
+      refreshConnect = realConn.substr(startRefresh, endRefresh-startRefresh);
+      if(refreshConnect.substr(0,1) != "("){
+	//if the connect string is not a complicated parenthesized string,
+	// an http:// needs to be at the beginning of it
+	refreshConnect.insert(0, "http://");
+      }
+    }
+    std::vector<std::string>::const_iterator ibeg=m_refreshtablelist.begin();
+    std::vector<std::string>::const_iterator iend=m_refreshtablelist.end();
+    for(std::vector<std::string>::const_iterator it=ibeg; it!=iend; ++it){
+      m_dbConnection->webCacheControl().refreshTable(refreshConnect,*it );
+    }
+
     //std::cout << "***** frontier connection string " << std::endl;
     //std::cout << res << std::endl;
-    return result;
+    return realConn;
   }
 
 }
 
 std::string 
-cond::FrontierProxy::getRealConnectString() const {
-  return makeRealConnectString(  m_userconnect, m_transactionId );
+cond::FrontierProxy::getRealConnectString( const std::string&userconnect ) const {
+  if( ! m_dbConnection ){
+    throwException("The Technology Proxy has not been initialized.","FrontierProxy::getRealConnectString");
+  }
+  return makeRealConnectString(  userconnect, m_dbConnection->configuration().transactionId() );
+}
+
+std::string 
+cond::FrontierProxy::getRealConnectString( const std::string&userconnect, const std::string& transId ) const{
+  if( ! m_dbConnection ){
+    throwException("The Technology Proxy has not been initialized.","FrontierProxy::getRealConnectString");
+  }
+  const std::string* tId = &transId;
+  if( transId.empty() ) tId = &m_dbConnection->configuration().transactionId();
+  return makeRealConnectString(  userconnect, *tId );
 }
 
 void 
-cond::FrontierProxy::initialize(const std::string&userconnect, const DbConnection& connection) {
-  m_userconnect = userconnect;
-  m_transactionId = connection.configuration().transactionId();
-
-  std::string refreshConnect;
-  std::string realconnect=this->getRealConnectString();
-  std::string::size_type startRefresh = realconnect.find("://");
-  if (startRefresh != std::string::npos){
-    startRefresh += 3;
-  }
-  std::string::size_type endRefresh=realconnect.rfind("/", std::string::npos);
-  if (endRefresh == std::string::npos){
-    refreshConnect = realconnect;
-  }else{
-    refreshConnect = realconnect.substr(startRefresh, endRefresh-startRefresh);
-    if(refreshConnect.substr(0,1) != "("){
-      //if the connect string is not a complicated parenthesized string,
-      // an http:// needs to be at the beginning of it
-      refreshConnect.insert(0, "http://");
-    }
-  }
-  std::vector<std::string>::iterator ibeg=m_refreshtablelist.begin();
-  std::vector<std::string>::iterator iend=m_refreshtablelist.end();
-  for(std::vector<std::string>::iterator it=ibeg; it!=iend; ++it){
-    connection.webCacheControl().refreshTable(refreshConnect,*it );
-  }
-  
+cond::FrontierProxy::initialize( const DbConnection& connection ) {
+  m_dbConnection = &connection;  
 }
 
 #include "CondCore/DBCommon/interface/TechnologyProxyFactory.h"
