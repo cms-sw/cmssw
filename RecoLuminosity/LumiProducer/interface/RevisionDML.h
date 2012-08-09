@@ -109,6 +109,7 @@ namespace lumi{
     DataID dataIDForRun(coral::ISchema& schema,
 			unsigned int runnum,
 			unsigned long long tagid);
+    
   };
 }//ns lumi
 #endif

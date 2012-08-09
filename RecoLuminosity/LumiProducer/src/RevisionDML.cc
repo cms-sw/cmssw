@@ -234,9 +234,9 @@ lumi::RevisionDML::addRunToCurrentHFDataTag(coral::ISchema& schema,
   tagrundata["HLTDATAID"].data<unsigned long long>()=hltid;
   tagrundata["CREATIONTIME"].data<coral::TimeStamp>()=coral::TimeStamp::now();
   tagrundata["COMMENT"].data<std::string>()=patchcomment;
-  const std::string tagrunTableName=lumi::LumiNames::tagrunsTableName();
+  const std::string tagrunTableName=lumi::LumiNames::tagRunsTableName();
   try{
-    schema.tableHandle(lumi::LumiNames::tagrunsTableName()).dataEditor().insertRow(tagrundata);
+    schema.tableHandle(lumi::LumiNames::tagRunsTableName()).dataEditor().insertRow(tagrundata);
   }catch(const coral::DuplicateEntryInUniqueKeyException& er){
     throw lumi::duplicateRunInDataTagException("","addRunToCurrentHFDataTag","RevisionDML");
   }
@@ -249,7 +249,7 @@ lumi::RevisionDML::dataIDForRun(coral::ISchema& schema,
 			  unsigned long long tagid){
   lumi::RevisionDML::DataID result;
   coral::IQuery* qHandle=schema.newQuery();
-  qHandle->addToTableList( lumi::LumiNames::tagrunsTableName());
+  qHandle->addToTableList( lumi::LumiNames::tagRunsTableName());
   qHandle->addToOutputList("LUMIDATAID");
   qHandle->addToOutputList("TRGDATAID");
   qHandle->addToOutputList("HLTDATAID");
