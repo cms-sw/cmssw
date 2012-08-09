@@ -1,0 +1,3 @@
+alpha_s(MZ) = 0.119
+Mb          = 4.49 GeV  (pole mass)
+mb(mb)      = 4.16 GeV  (corresponding MSbar mass)
