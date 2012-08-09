@@ -39,7 +39,8 @@ class CvCfHiggs(SMLikeHiggsModel):
         self.SMH = SMHiggsBuilder(self.modelBuilder)
         self.setup()
     def setup(self):
-        self.SMH.makeScaling('hgg', Cb='CF', Ctop='CF', CW='CV')
+        self.SMH.makeScaling('hgg', Cb='CF', Ctop='CF', CW='CV', Ctau='CF')
+        self.SMH.makeScaling('hZg', Cb='CF', Ctop='CF', CW='CV', Ctau='CF')
         self.SMH.makeScaling('hgluglu', Cb='CF', Ctop='CF')
         self.SMH.makeScaling('ggH', Cb='CF', Ctop='CF')
         self.SMH.makeScaling('qqH', CW='CV', CZ='CF')
