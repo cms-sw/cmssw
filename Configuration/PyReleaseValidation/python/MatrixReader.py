@@ -182,7 +182,7 @@ class MatrixReader(object):
                 stepName=step
                 if self.wm:
                     #cannot put a certain number of things in wm
-                    if stepName in ['SKIMD','HARVESTD','HARVEST','HARVESTD','RECODFROMRAWRECO','SKIMCOSD','SKIMD3']:
+                    if stepName in ['HARVEST','HARVESTD','HARVESTDreHLT','RECODFROMRAWRECO','SKIMD','SKIMCOSD','SKIMDreHLT']:
                         continue
                     
                 #replace stepName is needed

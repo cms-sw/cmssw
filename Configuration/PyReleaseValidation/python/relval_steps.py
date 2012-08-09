@@ -530,7 +530,7 @@ step3Defaults = {
 
 steps['DIGIPU']=merge([{'--process':'REDIGI'},steps['DIGIPU1']])
 
-steps['RECODst3']=merge([{'--hltProcess':'reHLT'},steps['RECOD']])
+steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:com10_7E33v4'},steps['RECOD']])
 steps['RECO']=merge([step3Defaults])
 steps['RECODBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECO']])
 steps['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Defaults])
@@ -615,6 +615,8 @@ steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
                    '--data':'',
                    '--scenario':'pp'}
 
+steps['HARVESTDreHLT'] = merge([ {'--conditions':'auto:com10_7E33v4'}, steps['HARVESTD'] ])
+
 steps['HARVESTDDQM']=merge([{'-s':'HARVESTING:@common+@muon+@hcal+@jetmet+@ecal'},steps['HARVESTD']])
 
 steps['HARVESTDfst2']=merge([{'--filein':'file:step2_inDQM.root'},steps['HARVESTD']])
@@ -664,7 +666,7 @@ steps['SKIMD']={'-s':'SKIM:all',
                 '--filein':'file:step2.root',
                 '--secondfilein':'filelist:step1_dbsquery.log'}
 
-steps['SKIMD3']=merge([{'--filein':'file:step3.root'},steps['SKIMD']])
+steps['SKIMDreHLT'] = merge([ {'--conditions':'auto:com10_7E33v4','--filein':'file:step3.root'}, steps['SKIMD'] ])
 
 steps['SKIMCOSD']={'-s':'SKIM:all',
                    '--conditions':'auto:com10',
