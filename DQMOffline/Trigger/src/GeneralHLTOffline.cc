@@ -3,7 +3,7 @@
 // Package:    GeneralHLTOffline
 // Class:      GeneralHLTOffline
 // 
-/**\class GeneralHLTOffline
+/**\class GeneralHLTOffline 
 
  Description: [one line class summary]
  Implementation:
@@ -12,7 +12,7 @@
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: GeneralHLTOffline.cc,v 1.5 2012/08/04 12:49:52 puigh Exp $
+// $Id: GeneralHLTOffline.cc,v 1.6 2012/08/07 10:45:21 muell149 Exp $
 //
 //
 
