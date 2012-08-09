@@ -465,16 +465,25 @@ void RunIOV::setByRun(std::string location, run_t run)
    try {
      Statement* stmt = m_conn->createStatement();
 
-     stmt->setSQL("SELECT iov_id FROM run_iov riov "
-		  "JOIN run_tag rtag ON riov.tag_id = rtag.tag_id "
-		  "JOIN location_def loc ON rtag.location_id = loc.def_id "
-		  "WHERE loc.location = :1 AND riov.run_num = :2 "
-		  "AND rtag.gen_tag != 'INVALID'");
-     stmt->setString(1, location);
-     stmt->setInt(2, run);
+     if (location != "") {
+       stmt->setSQL("SELECT iov_id FROM run_iov riov "
+		    "JOIN run_tag rtag ON riov.tag_id = rtag.tag_id "
+		    "JOIN location_def loc ON rtag.location_id = loc.def_id "
+		    "WHERE loc.location = :1 AND riov.run_num = :2 "
+		    "AND rtag.gen_tag != 'INVALID'");
+       stmt->setString(1, location);
+       stmt->setInt(2, run);
+     } else {
+       stmt->setSQL("SELECT iov_id FROM run_iov riov "
+		    "JOIN run_tag rtag ON riov.tag_id = rtag.tag_id "
+		    "JOIN location_def loc ON rtag.location_id = loc.def_id "
+		    "WHERE riov.run_num = :1 "
+		    "AND rtag.gen_tag != 'INVALID'");
+       stmt->setInt(1, run);
+     }
      
      ResultSet* rset = stmt->executeQuery();
-     if (rset->next()) {
+     if (rset->next())  {
        int id = rset->getInt(1);
        this->setByID(id);
      } else {

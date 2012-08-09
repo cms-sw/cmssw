@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.34 2011/05/27 14:37:14 organtin Exp $
+// $Id: EcalCondDBInterface.cc,v 1.35 2011/09/14 13:27:59 organtin Exp $
 
 #include <iostream>
 #include <string>
@@ -673,7 +673,14 @@ RunIOV EcalCondDBInterface::fetchRunIOV(RunTag* tag, run_t run)
   return iov;
 }
 
-
+RunIOV EcalCondDBInterface::fetchRunIOV(run_t run)
+  throw(std::runtime_error)
+{  
+  RunIOV iov;
+  iov.setConnection(env, conn);
+  iov.setByRun(run);
+  return iov;
+}
 
 RunIOV EcalCondDBInterface::fetchRunIOV(std::string location, run_t run)
   throw(std::runtime_error)
