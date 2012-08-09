@@ -14,6 +14,7 @@ from DQM.EcalPreshowerMonitorModule.es_dqm_source_offline_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitor_cff import *
 from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
+from DQMOffline.Hcal.HcalDQMOfflineSequence_cff import *
 
 DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
                                  ecal_dqm_source_offline *
@@ -24,7 +25,8 @@ DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
                                  rpcTier0Source *
                                  cscSources *
                                  es_dqm_source_offline *
-                                 castorSources )
+                                 castorSources *
+                                 HcalDQMOfflineSequence)
 
 DQMOfflineDPG = cms.Sequence( DQMOfflinePreDPG *
                               DQMMessageLogger )

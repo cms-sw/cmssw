@@ -15,6 +15,7 @@ from DQM.EcalPreshowerMonitorClient.es_dqm_client_offline_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitorClient_cff import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
+from DQMOffline.Hcal.HcalDQMOfflinePostProcessor_cff import *
 
 DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                              ecal_dqm_client_offline *
@@ -25,6 +26,7 @@ DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                              rpcTier0Client *
                                              cscOfflineCollisionsClients *
                                              es_dqm_client_offline *
+                                             HcalDQMOfflinePostProcessor * 
                                              dqmFEDIntegrityClient )
 
 DQMOffline_SecondStepDPG = cms.Sequence( dqmRefHistoRootFileGetter *
