@@ -168,10 +168,10 @@ void PFPhotonClusters::FillClusterShape(){
 //	iEta=ind1+2;
 //	std::cout << " new iEta " << iEta << std::endl;
 //      }
-      assert(iEta < 5);
-      assert(iEta >= 0);
-      assert(iPhi < 5);
-      assert(iPhi >= 0);
+//      assert(iEta < 5);
+//      assert(iEta >= 0);
+//      assert(iPhi < 5);
+//      assert(iPhi >= 0);
       e5x5_[iEta][iPhi]=E;
     }
     else{
@@ -185,10 +185,10 @@ void PFPhotonClusters::FillClusterShape(){
       int ix=ind1+2;
       int iy=ind2+2;
       //std::cout<<"IX, IY "<<ix<<", "<<iy<<std::endl;	    
-      assert(ix < 5);
-      assert(ix >= 0);
-      assert(iy < 5);
-      assert(iy >= 0);
+//      assert(ix < 5);
+//      assert(ix >= 0);
+//      assert(iy < 5);
+//      assert(iy >= 0);
       e5x5_[ix][iy]=E;
     }
   }
