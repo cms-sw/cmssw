@@ -767,15 +767,15 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
                st->H_C     ->Fill(CutIndex,                 Event_Weight);
 	       if(fabs(track->eta())<DTRegion) st->H_C_Cen->Fill(CutIndex, Event_Weight);
 	       else st->H_C_For->Fill(CutIndex, Event_Weight);
-               if(TypeMode!=2)st->Pred_EtaP  ->Fill(CutIndex,track->eta(), track->p(),     Event_Weight);
+               if(TypeMode<2)st->Pred_EtaP  ->Fill(CutIndex,track->eta(), track->p(),     Event_Weight);
 //               Pred_TOF->Fill(CutIndex,MuonTOF,         Event_Weight);
                st->AS_Eta_RegionC->Fill(CutIndex,track->eta());
             }else if( PassTOFCut && !PassPtCut &&  PassICut){   //Region B
                st->H_B     ->Fill(CutIndex,                 Event_Weight);
                if(fabs(track->eta())<DTRegion) st->H_B_Cen->Fill(CutIndex, Event_Weight);
                else st->H_B_For->Fill(CutIndex, Event_Weight);
-               if(TypeMode!=2)st->Pred_I  ->Fill(CutIndex,Ih, Event_Weight);
-               if(TypeMode!=2)st->Pred_EtaS->Fill(CutIndex,track->eta(),         Event_Weight);
+               if(TypeMode<2)st->Pred_I  ->Fill(CutIndex,Ih, Event_Weight);
+               if(TypeMode<2)st->Pred_EtaS->Fill(CutIndex,track->eta(),         Event_Weight);
 //               Pred_TOF->Fill(CutIndex,MuonTOF,         Event_Weight);
                st->AS_Eta_RegionB->Fill(CutIndex,track->eta());
             }else if( PassTOFCut && !PassPtCut && !PassICut){   //Region A
@@ -783,7 +783,7 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
                if(fabs(track->eta())<DTRegion) st->H_A_Cen->Fill(CutIndex, Event_Weight);
                else st->H_A_For->Fill(CutIndex, Event_Weight);
                if(TypeMode==2)st->Pred_TOF->Fill(CutIndex,MuonTOF,         Event_Weight);
-               if(TypeMode!=2)st->Pred_EtaB->Fill(CutIndex,track->eta(),         Event_Weight);
+               if(TypeMode<2)st->Pred_EtaB->Fill(CutIndex,track->eta(),         Event_Weight);
                if(TypeMode==2)st->Pred_EtaS2->Fill(CutIndex,track->eta(),        Event_Weight);
                st->AS_Eta_RegionA->Fill(CutIndex,track->eta());
             }else if(!PassTOFCut &&  PassPtCut &&  PassICut){   //Region H
@@ -835,21 +835,21 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
                st->H_C_Flip->Fill(CutIndex,                 Event_Weight);
 	       if(fabs(track->eta())<DTRegion) st->H_C_Cen_Flip->Fill(CutIndex, Event_Weight);
 	       else st->H_C_For_Flip->Fill(CutIndex, Event_Weight);
-               if(TypeMode!=2)st->Pred_EtaP_Flip->Fill(CutIndex,track->eta(), track->p(),     Event_Weight);
+               if(TypeMode<2)st->Pred_EtaP_Flip->Fill(CutIndex,track->eta(), track->p(),     Event_Weight);
 //               Pred_TOF_Flip->Fill(CutIndex,MuonTOF,         Event_Weight);
             }else if( PassTOFCut && !PassPtCut &&  PassICut){   //Region B
                st->H_B_Flip->Fill(CutIndex,                 Event_Weight);
                if(fabs(track->eta())<DTRegion) st->H_B_Cen_Flip->Fill(CutIndex, Event_Weight);
                else st->H_B_For_Flip->Fill(CutIndex, Event_Weight);
-               if(TypeMode!=2)st->Pred_I_Flip->Fill(CutIndex,Ih, Event_Weight);
-               if(TypeMode!=2)st->Pred_EtaS_Flip->Fill(CutIndex,track->eta(),         Event_Weight);
+               if(TypeMode<2)st->Pred_I_Flip->Fill(CutIndex,Ih, Event_Weight);
+               if(TypeMode<2)st->Pred_EtaS_Flip->Fill(CutIndex,track->eta(),         Event_Weight);
 //               Pred_TOF_Flip->Fill(CutIndex,MuonTOF,         Event_Weight);
             }else if( PassTOFCut && !PassPtCut && !PassICut){   //Region A
                st->H_A_Flip->Fill(CutIndex,                 Event_Weight);
                if(fabs(track->eta())<DTRegion) st->H_A_Cen_Flip->Fill(CutIndex, Event_Weight);
                else st->H_A_For_Flip->Fill(CutIndex, Event_Weight);
                if(TypeMode==2)st->Pred_TOF_Flip->Fill(CutIndex,MuonTOF,         Event_Weight);
-               if(TypeMode!=2)st->Pred_EtaB_Flip->Fill(CutIndex,track->eta(),         Event_Weight);
+               if(TypeMode<2)st->Pred_EtaB_Flip->Fill(CutIndex,track->eta(),         Event_Weight);
                if(TypeMode==2)st->Pred_EtaS2_Flip->Fill(CutIndex,track->eta(),        Event_Weight);
             }else if(!PassTOFCut &&  PassPtCut &&  PassICut){   //Region H
                st->H_H_Flip->Fill(CutIndex,          Event_Weight);

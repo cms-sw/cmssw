@@ -62,7 +62,7 @@ void Analysis_Step5()
    GetSystematicOnPrediction(InputPattern);
    FlipPrediction(InputPattern);
 
-   InputPattern = "Results/Type3/";   CutIndex = 22;
+   InputPattern = "Results/Type3/";   CutIndex = 22; CutIndex_Flip=2;
    PredictionAndControlPlot(InputPattern, "Data11", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data12", CutIndex, CutIndex_Flip);
    //CutFlow(InputPattern);
@@ -473,7 +473,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Im_TOFSpectrum");
    delete c1;
 
-
+   if(TypeMode<3) {//These plots only made for analyses using mass distribution
    //Show P, I and TOF distribution in the signal region (observed and predicted)
    TH2D* Pred_P                = (TH2D*)GetObjectFromPath(InputFile, Data+"/Pred_P");
    TH2D* Pred_I                = (TH2D*)GetObjectFromPath(InputFile, Data+"/Pred_I");
@@ -628,7 +628,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    //DrawPreliminary(SQRTS, IntegratedLuminosity);
    //SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_Data");
    //delete c1;
-
+   }
    InputFile->Close();
 }
 
@@ -1840,7 +1840,7 @@ void FlipPrediction(string InputPattern){
     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
     Histos[0] = Data[i];      legend.push_back("Obs");
     Histos[1] = Pred[i];    legend.push_back("Pred");
-    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Cut", "Tracks", 0, 0, 0,0);
+    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta Cut", "Tracks", 0, 0, 0,0);
     DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
     c1->SetLogy(true);
     DrawPreliminary(SQRTS, IntegratedLuminosity);

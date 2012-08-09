@@ -548,12 +548,15 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "Hist_Is"; st.Hist_Is = new TH1D(Name.c_str(), Name.c_str() ,200,0,dEdxS_UpLim); st.Hist_Is->Sumw2();
    Name = "Hist_Pt"; st.Hist_Pt = new TH1D(Name.c_str(), Name.c_str() ,200,0,PtHistoUpperBound); st.Hist_Pt->Sumw2();
    Name = "Hist_TOF"; st.Hist_TOF = new TH1D(Name.c_str(), Name.c_str() ,200,-10,20); st.Hist_TOF->Sumw2();
-   Name = "Pred_I"; st.Pred_I = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, 200,GlobalMinIm,dEdxM_UpLim); st.Pred_I->Sumw2();
-   Name = "Pred_EtaB"; st.Pred_EtaB = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, 50,-3,3); st.Pred_EtaB->Sumw2();
-   Name = "Pred_EtaS"; st.Pred_EtaS = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, 50,-3,3); st.Pred_EtaS->Sumw2();
-   Name = "Pred_EtaS2"; st.Pred_EtaS2 = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, 50,-3,3); st.Pred_EtaS2->Sumw2();
-   Name = "Pred_EtaP"; st.Pred_EtaP = new TH3D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, 50, -3, 3, 200,GlobalMinPt,PtHistoUpperBound); st.Pred_EtaP->Sumw2();
-   Name = "Pred_TOF"; st.Pred_TOF = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts,   200,GlobalMinTOF,5); st.Pred_TOF->Sumw2();
+   //The following are only used to create the predicted mass spectrum.  Memory intensive so don't initialize for analyses not doing mass fits
+   if(TypeMode<3) {
+     Name = "Pred_I"; st.Pred_I = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, 200,GlobalMinIm,dEdxM_UpLim); st.Pred_I->Sumw2();
+     Name = "Pred_EtaB"; st.Pred_EtaB = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, 50,-3,3); st.Pred_EtaB->Sumw2();
+     Name = "Pred_EtaS"; st.Pred_EtaS = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, 50,-3,3); st.Pred_EtaS->Sumw2();
+     Name = "Pred_EtaS2"; st.Pred_EtaS2 = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, 50,-3,3); st.Pred_EtaS2->Sumw2();
+     Name = "Pred_EtaP"; st.Pred_EtaP = new TH3D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, 50, -3, 3, 200,GlobalMinPt,PtHistoUpperBound); st.Pred_EtaP->Sumw2();
+     Name = "Pred_TOF"; st.Pred_TOF = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts,   200,GlobalMinTOF,5); st.Pred_TOF->Sumw2();
+   }
 
    Name = "RegionD_I"; st.RegionD_I = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, 200,GlobalMinIm,dEdxM_UpLim); st.RegionD_I->Sumw2();
    Name = "RegionD_Ias"; st.RegionD_Ias = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, 100, 0, dEdxS_UpLim); st.RegionD_Ias->Sumw2();
@@ -593,13 +596,15 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "H_F_For_Flip"; st.H_F_For_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_F_For_Flip->Sumw2();
    Name = "H_G_For_Flip"; st.H_G_For_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_G_For_Flip->Sumw2();
    Name = "H_H_For_Flip"; st.H_H_For_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_H_For_Flip->Sumw2();
-
-   Name = "Pred_I_Flip"; st.Pred_I_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, 200,GlobalMinIm,dEdxM_UpLim); st.Pred_I_Flip->Sumw2();
-   Name = "Pred_EtaB_Flip"; st.Pred_EtaB_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, 50,-3,3); st.Pred_EtaB_Flip->Sumw2();
-   Name = "Pred_EtaS_Flip"; st.Pred_EtaS_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, 50,-3,3); st.Pred_EtaS_Flip->Sumw2();
-   Name = "Pred_EtaS2_Flip"; st.Pred_EtaS2_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, 50,-3,3); st.Pred_EtaS2_Flip->Sumw2();
-   Name = "Pred_EtaP_Flip"; st.Pred_EtaP_Flip = new TH3D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, 50, -3, 3, 200,GlobalMinPt,PtHistoUpperBound); st.Pred_EtaP_Flip->Sumw2();
-   Name = "Pred_TOF_Flip"; st.Pred_TOF_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip,   200,GlobalMinTOF,5); st.Pred_TOF_Flip->Sumw2();
+   //The following are only used to create the predicted mass spectrum.  Memory intensive so don't initialize for analyses not doing mass fits
+   if(TypeMode<3) {
+     Name = "Pred_I_Flip"; st.Pred_I_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, 200,GlobalMinIm,dEdxM_UpLim); st.Pred_I_Flip->Sumw2();
+     Name = "Pred_EtaB_Flip"; st.Pred_EtaB_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, 50,-3,3); st.Pred_EtaB_Flip->Sumw2();
+     Name = "Pred_EtaS_Flip"; st.Pred_EtaS_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, 50,-3,3); st.Pred_EtaS_Flip->Sumw2();
+     Name = "Pred_EtaS2_Flip"; st.Pred_EtaS2_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, 50,-3,3); st.Pred_EtaS2_Flip->Sumw2();
+     Name = "Pred_EtaP_Flip"; st.Pred_EtaP_Flip = new TH3D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, 50, -3, 3, 200,GlobalMinPt,PtHistoUpperBound); st.Pred_EtaP_Flip->Sumw2();
+     Name = "Pred_TOF_Flip"; st.Pred_TOF_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip,   200,GlobalMinTOF,5); st.Pred_TOF_Flip->Sumw2();
+   }
 
    Name = "RegionD_I_Flip"; st.RegionD_I_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, 200,GlobalMinIm,dEdxM_UpLim); st.RegionD_I_Flip->Sumw2();
    Name = "RegionD_Ias_Flip"; st.RegionD_Ias_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, 100, 0, dEdxS_UpLim); st.RegionD_Ias_Flip->Sumw2();
@@ -1546,7 +1551,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    }
    sprintf(YAxisTitle,"Fraction of tracks/%2.0f [cm]",Histos[0]->GetBinWidth(1));
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Dxy (cm)", YAxisTitle, 0, 0, 0,0, false, false, true, true);
-   DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.82, 0.96, 0.16, 0.03);
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Dxy_BS", false);
@@ -1560,7 +1565,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    }
    sprintf(YAxisTitle,"Fraction of tracks/%2.0f [cm]",Histos[0]->GetBinWidth(1));
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Dz (cm)", YAxisTitle, 0, 0, 0,0, false, false, true, true);
-   DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.82, 0.96, 0.16, 0.03);
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Dz_BS", false);
