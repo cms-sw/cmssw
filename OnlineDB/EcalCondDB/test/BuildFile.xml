@@ -2,6 +2,9 @@
 <use   name="OnlineDB/Oracle"/>
 <use   name="CalibCalorimetry/EcalLaserAnalyzer"/>
 <use   name="root"/>
+<bin   file="ExampleODMasked.cpp">
+  <flags NO_TESTRUN="1"/>
+</bin>
 <bin   file="LaserSeqToDB.cpp">
   <flags NO_TESTRUN="1"/>
 </bin>

@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.39 2011/09/14 13:27:59 organtin Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.40 2012/08/09 16:02:05 organtin Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -202,6 +202,13 @@ class EcalCondDBInterface : public EcalDBConnection {
    */
 
   std::list<ODDelaysDat> fetchFEDelaysForRun(RunIOV *iov)
+    throw(std::runtime_error);
+
+  /**
+   * Return a list of bad TT associated with a given run
+   */
+ 
+  std::list<ODBadTTDat> fetchBadTTForRun(RunIOV *iov)
     throw(std::runtime_error);
 
   /**
