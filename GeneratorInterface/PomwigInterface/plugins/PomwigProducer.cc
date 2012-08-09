@@ -194,21 +194,20 @@ PomwigProducer::PomwigProducer( const ParameterSet & pset) :
     header_str << "----------------------------------------------" << "\n";
     
     // Loop over all parameters and stop in case of mistake
-    for( vector<string>::const_iterator  
-	   itPar = pars.begin(); itPar != pars.end(); ++itPar ) {
-      static string sRandomValueSetting1("NRN(1)");
-      static string sRandomValueSetting2("NRN(2)");
-      if( (0 == itPar->compare(0,sRandomValueSetting1.size(),sRandomValueSetting1) )||(0 == itPar->compare(0,sRandomValueSetting2.size(),sRandomValueSetting2) )) {
+    for(const std::string &par : pars) {
+      constexpr char const *sRandomValueSetting1 = "NRN(1)";
+      constexpr char const *sRandomValueSetting2 = "NRN(2)";
+      if( (0 == strcmp(par.c_str(), sRandomValueSetting1) )||(0 == strcmp(par.c_str(), sRandomValueSetting2))) {
 	throw edm::Exception(edm::errors::Configuration,"HerwigError")
 	  <<" attempted to set random number using pythia command 'NRN(.)'. This is not allowed.\n  Please use the RandomNumberGeneratorService to set the random number seed.";
       }
       
-      if( ! hwgive(*itPar) ) {
+      if( ! hwgive(par) ) {
 	throw edm::Exception(edm::errors::Configuration,"HerwigError") 
-	  <<" herwig did not accept the following \""<<*itPar<<"\"";
+	  <<" herwig did not accept the following \""<< par <<"\"";
       }
       else if(printCards_)
-	header_str << "   " << *itPar << "\n";
+	header_str << "   " << par << "\n";
     }
   }
 
