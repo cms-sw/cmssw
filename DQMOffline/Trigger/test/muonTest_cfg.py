@@ -11,14 +11,19 @@ process.load("DQMServices.Components.DQMStoreStats_cfi")
 
 #### Process command-line arguments
 options = VarParsing('analysis')
-options.setDefault('inputFiles', '/store/data/Run2011A/DoubleMu/AOD/PromptReco-v6/000/174/084/9AFB5D3D-11D1-E011-82EF-003048F110BE.root')
-options.setDefault('outputFile', 'muonTest.root')
+options.setDefault('inputFiles', 'file:/shome/pablom/DQM/CMSSW_5_2_3/src/DQMOffline/Trigger/test/multicrab/B28A65E6-01BA-E111-B6BB-003048F118D2.root')
+options.setDefault('outputFile', './muonTest.root')
 
 options.parseArguments()
 
 
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = "START53_V4::All"
+
+
+
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(options.maxEvents)
+    input = cms.untracked.int32(-1)
 )
 
 process.source = cms.Source("PoolSource",
