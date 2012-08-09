@@ -15,11 +15,13 @@ process.load('RecoMET.METProducers.mvaPFMET_cff')
 #process.GlobalTag.globaltag = 'MC_44_V12::All'
 process.GlobalTag.globaltag = 'START52_V9::All'
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(300) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-    '/store/cmst3/user/pharris/HTauTauSynchronization/VBF_HToTauTau_M-120_8TeV-powheg-pythia6-tauola_22612DED-8F8A-E111-92A1-0017A4770034.root'
+    'file:../../pickevents.root'
+#    '/store/cmst3/user/pharris/HTauTauSynchronization/VBF_HToTauTau_M-120_8TeV-powheg-pythia6-tauola_FED5F7FE-0597-E111-BE71-485B39800BB5.root'
+#        'file:/tmp/pharris/VBF.root'
                             ),
                             skipEvents = cms.untracked.uint32(0)                        
 )

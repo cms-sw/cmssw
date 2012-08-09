@@ -55,7 +55,7 @@ pfMEtMVA = cms.EDProducer("PFMETProducerMVA",
     tmvaSpectators = cms.vstring(),
     JetIdParams = JetIdParams,
     label = cms.string("PhilV1"),
-    verbosity = cms.int32(2)
+    verbosity = cms.int32(0)
 )
 
 pfMEtMVAsequence  = cms.Sequence(

@@ -31,7 +31,7 @@
 #include "RecoMET/METAlgorithms/interface/PFMETAlgorithmMVA.h"
 #include "RecoMET/METAlgorithms/interface/mvaMEtUtilities.h"
 
-#include "CMGTools/External/interface/PileupJetIdAlgo.h"
+//#include "CMGTools/External/interface/PileupJetIdAlgo.h"
 
 #include <vector>
 
@@ -57,7 +57,7 @@ namespace reco
       const reco::VertexCollection&);
     double chargedFrac(const reco::Candidate *iCand);
     bool   passPFLooseId(const reco::PFJet *iJet);
- 
+    bool   istau        (const reco::Candidate *iCand);
    // configuration parameter
     edm::InputTag srcCorrJets_;
     edm::InputTag srcUncorrJets_;
@@ -75,7 +75,8 @@ namespace reco
     PFSpecificAlgo pfMEtSpecificAlgo_;
     PFMETAlgorithmMVA mvaMEtAlgo_;
 
-       //PileupJetIdAlgo mvaJetIdAlgo_;
+    //PFJetIDSelectionFunctor* looseJetIdAlgo_;
+    //PileupJetIdAlgo mvaJetIdAlgo_;
 
     int verbosity_;
   };
