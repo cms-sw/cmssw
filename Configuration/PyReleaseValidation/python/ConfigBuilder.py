@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.392 $"
+__version__ = "$Revision: 1.393 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -677,75 +677,20 @@ class ConfigBuilder(object):
         """Add conditions to the process"""
 	if not self._options.conditions: return
 	
-        if 'auto:' in self._options.conditions:
-                from Configuration.AlCa.autoCond import autoCond
-                key=self._options.conditions.split(':')[-1]
-                if key not in autoCond:
-                        raise Exception('no correspondance for '+self._options.conditions+'\n available keys are'+','.join(autoCond.keys()))
-                else:
-                        self._options.conditions = autoCond[key]
-
-        # the option can be a list of GT name and connection string
-
-	if isinstance(self._options.conditions,tuple):
-		if self._options.custom_conditions:
-			self._options.custom_conditions += '+' + '+'.join(self._options.conditions[1:])
-		else:
-			self._options.custom_conditions = '+'.join(self._options.conditions[1:])
-		self._options.conditions=self._options.conditions[0]
-
-
 	if 'FrontierConditions_GlobalTag' in self._options.conditions:
 		print 'using FrontierConditions_GlobalTag in --conditions is not necessary anymore and will be deprecated soon. please update your command line'
 		self._options.conditions = self._options.conditions.replace("FrontierConditions_GlobalTag,",'')
 						
-	conditions = self._options.conditions.split(',')
-	
-        gtName = str( conditions[0] )
-        if len(conditions) > 1:
-          connect   = str( conditions[1] )
-        if len(conditions) > 2:
-          pfnPrefix = str( conditions[2] )
-
         self.loadAndRemember(self.ConditionsDefaultCFF)
 
-        # set the global tag
-        self.executeAndRemember("process.GlobalTag.globaltag = '%s'" % gtName)
-        if len(conditions) > 1:
-            self.executeAndRemember("process.GlobalTag.connect   = '%s'" % connect)
-        if len(conditions) > 2:
-            self.executeAndRemember("process.GlobalTag.pfnPrefix = cms.untracked.string('%s')" % pfnPrefix)
+        from Configuration.AlCa.GlobalTag import GlobalTag
+        self.process.GlobalTag = GlobalTag(self.process.GlobalTag, self._options.conditions, self._options.custom_conditions)
+        self.additionalCommands.append('from Configuration.AlCa.GlobalTag import GlobalTag')
+        self.additionalCommands.append('process.GlobalTag = GlobalTag(process.GlobalTag, %s, %s)' % (repr(self._options.conditions), repr(self._options.custom_conditions)))
 
 	if self._options.slhc:
 		self.loadAndRemember("SLHCUpgradeSimulations/Geometry/fakeConditions_%s_cff"%(self._options.slhc,))
 		
-        if self._options.custom_conditions!="":
-                specs=self._options.custom_conditions.split('+')
-                self.executeAndRemember("process.GlobalTag.toGet = cms.VPSet()")
-                for spec in specs:
-			#format is tag=<...>,record=<...>,connect=<...>,label=<...> with connect and label optionnal
-                        items=spec.split(',')
-			payloadSpec={}
-			allowedFields=['tag','record','connect','label']
-			for i,item in enumerate(items):
-				if '=' in item:
-					field=item.split('=')[0]
-					if not field in allowedFields:
-						raise Exception('in --custom_conditions, '+field+' is not a valid field')
-					payloadSpec[field]=item.split('=')[1]
-				else:
-					payloadSpec[allowedFields[i]]=item
-			if (not 'record' in payloadSpec) or (not 'tag' in payloadSpec):
-				raise Exception('conditions cannot be customised with: '+repr(payloadSpec)+' no record or tag field available')
-			payloadSpecToAppend=''
-			for i,item in enumerate(allowedFields):
-				if not item in payloadSpec: continue
-				if not payloadSpec[item]: continue
-				if i<2: untracked=''
-				else: untracked='untracked.'
-				payloadSpecToAppend+='%s=cms.%sstring("%s"),'%(item,untracked,payloadSpec[item])
-			print 'customising the GlogalTag with:',payloadSpecToAppend
-			self.executeAndRemember('process.GlobalTag.toGet.append(cms.PSet(%s))'%(payloadSpecToAppend,))
 
     def addCustomise(self):
         """Include the customise code """
@@ -1798,7 +1743,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.392 $"),
+                                            (version=cms.untracked.string("$Revision: 1.393 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
