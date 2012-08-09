@@ -41,11 +41,15 @@ public:
   void testRead()  {
   //Get RunIOV info
   RunIOV iov = econn->fetchRunIOV(run);
+  std::cout << "Retrieving the list of bad TT..." << std::flush;
   std::list<ODBadTTDat> badttlist = econn->fetchBadTTForRun(&iov);
+  std::cout << "done!" << std::endl << std::flush;
   std::list<ODBadTTDat>::const_iterator i =  badttlist.begin();
   std::list<ODBadTTDat>::const_iterator e =  badttlist.end();
+  int count = 1;
   while (i != e) {
-    std::cout << i->getFedId() << " " << i->getTTId() << ": " 
+    std::cout << count++ << ": FED " << i->getFedId() << " TT " 
+	      << i->getTTId() << " STATUS " 
 	      << i->getStatus() 
 	      << std::endl << std::flush;
     i++;

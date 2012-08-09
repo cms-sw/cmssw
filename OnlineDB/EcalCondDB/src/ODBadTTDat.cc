@@ -77,6 +77,7 @@ void ODBadTTDat::fetchData(std::vector< ODBadTTDat >* p, int iovID)
   this->checkConnection();
 
   try {
+    m_readStmt = m_conn->createStatement();
     m_readStmt->setSQL("SELECT * FROM " + getTable() + " WHERE rec_id = :rec_id order by tr_id, fed_id, tt_id ");
     m_readStmt->setInt(1, iovID);
     ResultSet* rset = m_readStmt->executeQuery();

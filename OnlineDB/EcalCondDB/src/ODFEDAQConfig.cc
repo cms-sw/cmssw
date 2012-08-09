@@ -173,7 +173,7 @@ void ODFEDAQConfig::fetchData(ODFEDAQConfig * result)
   if(result->getId()==0 && (result->getConfigTag()=="") ){
     throw(std::runtime_error("ODFEDAQConfig::fetchData(): no Id defined for this ODFEDAQConfig "));
   }
-
+  
   if(result->getConfigTag()!="" && result->getVersion() ==0  ){
     int new_version=0;
     std::cout<< "using new method : retrieving last version for this tag "<<endl;
@@ -187,7 +187,7 @@ void ODFEDAQConfig::fetchData(ODFEDAQConfig * result)
 	new_version= rset->getInt(1);
       }
       m_conn->terminateStatement(m_readStmt);
-
+      
       m_readStmt = m_conn->createStatement(); 
       
       result->setVersion(new_version);
@@ -195,15 +195,13 @@ void ODFEDAQConfig::fetchData(ODFEDAQConfig * result)
     } catch (SQLException &e) {
       throw(std::runtime_error("ODFEDAQConfig::fetchData():  "+e.getMessage()));
     }
-    
-    
-    
   }
 
   try {
-
+    m_readStmt = m_conn->createStatement(); 
     m_readStmt->setSQL("SELECT * FROM " + getTable() +   
-                       " where ( config_id = :1 or (tag=:2 AND version=:3 ) )" );
+                       " where ( config_id = :1 or (tag=:2 AND version=:3 ) )"
+		       );
     m_readStmt->setInt(1, result->getId());
     m_readStmt->setString(2, result->getConfigTag());
     m_readStmt->setInt(3, result->getVersion());
@@ -228,6 +226,7 @@ void ODFEDAQConfig::fetchData(ODFEDAQConfig * result)
     result->setVFEConfig(  rset->getInt(12) );
     result->setGOLConfig(  rset->getInt(13) );
     result->setComment(          rset->getString(14) );
+
 
   } catch (SQLException &e) {
     throw(std::runtime_error("ODFEDAQConfig::fetchData():  "+e.getMessage()));
