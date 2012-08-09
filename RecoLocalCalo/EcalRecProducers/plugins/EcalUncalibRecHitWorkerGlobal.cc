@@ -421,15 +421,21 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 
                     if(kPoorRecoFlagEE_)
 		    {
-		      // first check if all samples are ok, if not don't use chi2 to flag
-		      bool samplesok = true;
-		      for (int sample =0; sample < EcalDataFrame::MAXSAMPLES; ++sample) {
-			if (!sampleMask_->useSampleEE(sample)) {
-			  samplesok = false;
-			  break;
+		    
+		      if (chi2>chi2ThreshEE_) {
+
+			// first check if all samples are ok, if not don't use chi2 to flag
+			bool samplesok = true;
+			for (int sample =0; sample < EcalDataFrame::MAXSAMPLES; ++sample) {
+			  if (!sampleMask_->useSampleEE(sample)) {
+			    samplesok = false;
+			    break;
+			  }
 			}
+			if (samplesok) uncalibRecHit.setFlagBit(EcalUncalibratedRecHit::kPoorReco);
 		      }
-		      if (chi2>chi2ThreshEE_&& samplesok)  uncalibRecHit.setFlagBit(EcalUncalibratedRecHit::kPoorReco);
+
+
 		    }				
 			
 		} else {
@@ -456,15 +462,19 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 
                     if(kPoorRecoFlagEB_)
 		    {
-		      // first check if all samples are ok, if not don't use chi2 to flag
-		      bool samplesok = true;
-		      for (int sample =0; sample < EcalDataFrame::MAXSAMPLES; ++sample) {
-			if (!sampleMask_->useSampleEB(sample)) {
-			  samplesok = false;
-			  break;
+
+		      if(chi2>chi2ThreshEB_){
+		      	// first check if all samples are ok, if not don't use chi2 to flag
+			bool samplesok = true;
+			for (int sample =0; sample < EcalDataFrame::MAXSAMPLES; ++sample) {
+			  if (!sampleMask_->useSampleEB(sample)) {
+			    samplesok = false;
+			    break;
+			  }
 			}
+			if (samplesok) uncalibRecHit.setFlagBit(EcalUncalibratedRecHit::kPoorReco);
 		      }
-		      if(chi2>chi2ThreshEB_&&samplesok) uncalibRecHit.setFlagBit(EcalUncalibratedRecHit::kPoorReco);
+
 		    }				
 		}
         }
