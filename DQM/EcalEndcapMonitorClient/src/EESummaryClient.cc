@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2012/07/09 22:05:02 $
- * $Revision: 1.225 $
+ * $Date: 2012/07/30 19:04:00 $
+ * $Revision: 1.226 $
  * \author G. Della Ricca
  *
 */
@@ -2286,10 +2286,14 @@ void EESummaryClient::analyze(void) {
  	      if( update01 ){
 
                 float rmsThresh(6.);
-                if((ix - 50) * (ix - 50) + (iy - 50) * (iy - 50) < 400.) rmsThresh = 10.;
+                float meanThresh(3.);
+                if((ix - 50) * (ix - 50) + (iy - 50) * (iy - 50) < 400.){
+                  rmsThresh = 10.;
+                  meanThresh = 6.;
+                }
 
  		// quality BAD if mean large, rms large, or significantly more outliers (num: # events in +-20 ns time window)
- 		if( std::abs(mean01) > 3. || rms01 > rmsThresh || num > 1.4 * num01 ) xval = 0.;
+ 		if( std::abs(mean01) > meanThresh || rms01 > rmsThresh || num > 1.4 * num01 ) xval = 0.;
 		else xval = 1.;
 
 	      }
