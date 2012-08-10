@@ -372,16 +372,16 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
       CondObj_name_ == "apvgain"       || 
       CondObj_name_ == "lorentzangle") ) {
     if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel"))	
-           if (CondObj_ME.SummaryOfProfileDistr) { bookSummaryProfileMEs(CondObj_ME,detId_);
-      }  
-    
-}
+      if (!CondObj_ME.SummaryOfProfileDistr) { bookSummaryProfileMEs(CondObj_ME,detId_); }
+  }    
     
   // --> currently only genuine cumul LA
   if(   (CondObj_fillId_ =="ProfileAndCumul" || CondObj_fillId_ =="onlyCumul" ) &&
-	(CondObj_name_ == "lorentzangle" ||  CondObj_name_ == "noise")  ) {
+	(
+	 CondObj_name_ == "lorentzangle" ||  
+	 CondObj_name_ == "noise")  ) {
     if(hPSet_.getParameter<bool>("FillCumulativeSummaryAtLayerLevel"))
-      if (CondObj_ME.SummaryOfCumulDistr) { bookSummaryCumulMEs(CondObj_ME,detId_); } 
+      if (!CondObj_ME.SummaryOfCumulDistr) { bookSummaryCumulMEs(CondObj_ME,detId_); } 
   } 
                           
   // --> currently only summary as a function of detId for noise, pedestal and apvgain 
@@ -392,7 +392,7 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
 	   CondObj_name_ == "pedestal"      || 
 	   CondObj_name_ == "quality"           ) {
     if(hPSet_.getParameter<bool>("FillSummaryAtLayerLevel"))          
-      if (CondObj_ME.SummaryDistr) { bookSummaryMEs(CondObj_ME,detId_); } 
+      if (!CondObj_ME.SummaryDistr) { bookSummaryMEs(CondObj_ME,detId_); } 
     
   } 
                           
@@ -526,7 +526,6 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
   else                                                          { layerId_= getLayerNameAndId(detId_).second;}
 
 
-     
   if( CondObj_name_ == "pedestal" || CondObj_name_ == "noise"|| CondObj_name_ == "lowthreshold" || CondObj_name_ == "highthreshold" ){ // plot in strip number
     
     if( (layerId_ > 610 && layerId_ < 620) || // TID & TEC have 768 strips at maximum
@@ -1215,7 +1214,7 @@ void SiStripBaseCondObjDQM::fillSummaryMEs(const std::vector<uint32_t> & selecte
   
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
       detIter_!= selectedDetIds.end();detIter_++){
-    fillMEsForLayer(SummaryMEsMap_, *detIter_);    
+    fillMEsForLayer(/*SummaryMEsMap_,*/ *detIter_);    
   }
 
   for (std::map<uint32_t, ModMEs>::iterator iter=SummaryMEsMap_.begin(); iter!=SummaryMEsMap_.end(); iter++){

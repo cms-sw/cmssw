@@ -77,7 +77,7 @@ void SiStripApvGainsDQM::fillSummaryMEs(const std::vector<uint32_t>  & selectedD
   
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
       detIter_!= selectedDetIds.end();detIter_++){
-    fillMEsForLayer(SummaryMEsMap_, *detIter_);
+    fillMEsForLayer(/*SummaryMEsMap_,*/ *detIter_);
   }
 
   for (std::map<uint32_t, ModMEs>::iterator iter=SummaryMEsMap_.begin(); iter!=SummaryMEsMap_.end(); iter++){
@@ -106,7 +106,7 @@ void SiStripApvGainsDQM::fillSummaryMEs(const std::vector<uint32_t>  & selectedD
 }  
 
 // -----
-void SiStripApvGainsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, uint32_t selDetId_){
+void SiStripApvGainsDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_, */uint32_t selDetId_){
     
   int subdetectorId_ = ((selDetId_>>25)&0x7);
   
@@ -119,8 +119,9 @@ void SiStripApvGainsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_,
   }
   // ----
          
-  std::map<uint32_t, ModMEs>::iterator selMEsMapIter_  = selMEsMap_.find(getLayerNameAndId(selDetId_).second);
+  std::map<uint32_t, ModMEs>::iterator selMEsMapIter_  = SummaryMEsMap_.find(getLayerNameAndId(selDetId_).second);
   ModMEs selME_;
+  if ( selMEsMapIter_ != SummaryMEsMap_.end())
   selME_ =selMEsMapIter_->second;
   getSummaryMEs(selME_,selDetId_);
   

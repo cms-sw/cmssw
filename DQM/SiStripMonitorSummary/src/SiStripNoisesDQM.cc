@@ -34,14 +34,14 @@ void SiStripNoisesDQM::getActiveDetIds(const edm::EventSetup & eSetup){
 
 // -----
 void SiStripNoisesDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
-  
+
   std::vector<uint32_t> DetIds;
   noiseHandle_->getDetIds(DetIds);
 
   SiStripNoises::Range noiseRange = noiseHandle_->getRange(selDetId_);
   
   int nStrip =  reader->getNumberOfApvsAndStripLength(selDetId_).first*128;
-    
+
   getModMEs(selModME_,selDetId_);
   
   float gainFactor;
@@ -66,6 +66,7 @@ void SiStripNoisesDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
       selModME_.CumulDistr->Fill(stripnoise);
     } 
   } //istrip
+
 }
   
 
@@ -74,7 +75,7 @@ void SiStripNoisesDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
 //FIXME the number of lines of code in the derived classes should be reduced ONLY at what cannot be done in the base class because of the specific implementation
 //FIXME of the derived class. Moreover, several loops on the same quantities should be avoided...
 
-void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, uint32_t selDetId_){
+void SiStripNoisesDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,*/ uint32_t selDetId_){
 
   // ----
   int subdetectorId_ = ((selDetId_>>25)&0x7);
@@ -88,14 +89,16 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
   }
   // ----
   
-  std::map<uint32_t, ModMEs>::iterator selMEsMapIter_  = selMEsMap_.find(getLayerNameAndId(selDetId_).second);
+  std::map<uint32_t, ModMEs>::iterator selMEsMapIter_  = SummaryMEsMap_.find(getLayerNameAndId(selDetId_).second);
   ModMEs selME_;
-  selME_ =selMEsMapIter_->second;
+  if ( selMEsMapIter_ != SummaryMEsMap_.end())
+    selME_ =selMEsMapIter_->second;
   getSummaryMEs(selME_,selDetId_);
   
   SiStripNoises::Range noiseRange = noiseHandle_->getRange(selDetId_);
   int nStrip =  reader->getNumberOfApvsAndStripLength(selDetId_).first*128;
-  float stripnoise;
+
+  float stripnoise=-1.;
   float meanNoise=0;
   int Nbadstrips=0;
 
@@ -136,16 +139,18 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
 						getLayerNameAndId(selDetId_).first, 
 						"") ;
   }
-  
+
+
   for( int istrip=0;istrip<nStrip;++istrip){
+
     if(gainRenormalisation_ ){
       gainFactor= gainHandle_ ->getStripGain(istrip,gainRange);
     } else{
       gainFactor=1.;
     }
     
-      stripnoise=noiseHandle_->getNoise(istrip,noiseRange)/gainFactor;
-      meanNoise+=stripnoise;
+    stripnoise=noiseHandle_->getNoise(istrip,noiseRange)/gainFactor;
+    meanNoise+=stripnoise;
     if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel")){
       if( CondObj_fillId_ =="onlyProfile" || CondObj_fillId_ =="ProfileAndCumul"){	
 	selME_.SummaryOfProfileDistr->Fill(istrip+1,stripnoise);
@@ -164,6 +169,7 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
     }
   
   } //istrip
+
 
   if(hPSet_.getParameter<bool>("FillSummaryAtLayerLevel")){
     
@@ -190,7 +196,6 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
     tkMapScaler[intNoise]++;
       
   } 
-
 
 }
   
