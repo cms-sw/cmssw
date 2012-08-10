@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import Geometry.TrackerGeometryBuilder.trackerGeometryConstants_cfi as trackerGeometryConstants_cfi
 
 # misalignment scenarios
 from Alignment.TrackerAlignment.Scenarios_cff import *
@@ -55,6 +54,9 @@ looper = cms.Looper("AlignmentProducer",
                     
                     # Choose one algorithm with configuration, HIP is default
                     algoConfig = cms.PSet(HIPAlignmentAlgorithm), # why not by reference?
+                    # Some algorithms support integrated calibrations, which to use is defined
+                    # by the string 'calibrationName' in the PSet of each calibration.
+                    calibrations = cms.VPSet(),
                     # choose monitors (default is none)
                     monitorConfig = cms.PSet(monitors = cms.untracked.vstring()),
 
@@ -66,9 +68,6 @@ looper = cms.Looper("AlignmentProducer",
                       #                                'TrackerTPEHalfDisk,111000')
                       #)
                     ),
-
-                    # Tracker constants: different for SLHC pixel topology
-                    trackerGeometryConstants = cms.PSet(trackerGeometryConstants_cfi.trackerGeometryConstants),
 
                     # Save alignment to DB: true requires configuration of PoolDBOutputService
                     saveToDB = cms.bool(False),            # save alignment?

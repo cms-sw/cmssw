@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.65 $
-///  last update: $Date: 2012/07/12 14:54:21 $
-///  by         : $Author: yana $
+///  Revision   : $Revision: 1.62 $
+///  last update: $Date: 2012/02/22 07:36:04 $
+///  by         : $Author: mussgill $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -69,6 +69,7 @@
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 #include "Alignment/CommonAlignmentParametrization/interface/BeamSpotAlignmentParameters.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationPluginFactory.h"
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
 
@@ -119,9 +120,9 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   if ( !theAlignmentAlgo )
 	throw cms::Exception("BadConfig") << "Couldn't find algorithm called " << algoName;
 
+  // Now create monitors:
   edm::ParameterSet monitorConfig = iConfig.getParameter<edm::ParameterSet>( "monitorConfig" );
   std::vector<std::string> monitors = monitorConfig.getUntrackedParameter<std::vector<std::string> >( "monitors" );
-
   for (std::vector<std::string>::const_iterator miter = monitors.begin();  miter != monitors.end();  ++miter) {
     AlignmentMonitorBase* newMonitor = AlignmentMonitorPluginFactory::get()->create(*miter, monitorConfig.getUntrackedParameter<edm::ParameterSet>(*miter));
 
@@ -129,6 +130,15 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
 
     theMonitors.push_back(newMonitor);
   }
+
+  // Finally create integrated calibrations:
+  edm::VParameterSet calibrations = iConfig.getParameter<edm::VParameterSet>("calibrations");
+  for (auto iCalib = calibrations.begin(); iCalib != calibrations.end(); ++iCalib) {
+    const std::string name(iCalib->getParameter<std::string>("calibrationName"));
+    theCalibrations.push_back(IntegratedCalibrationPluginFactory::get()->create(name, *iCalib));
+    // exception comes from line before: if (!theCalibrations.back()) throw cms::Exception(..) << ..;
+  }
+
 }
 
 
@@ -137,6 +147,12 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
 AlignmentProducer::~AlignmentProducer()
 {
   delete theAlignmentAlgo;
+
+  // Delete monitors as well??
+
+  for (auto iCal = theCalibrations.begin(); iCal != theCalibrations.end(); ++iCal) {
+    delete *iCal; // delete integrated calibration pointed to by (*iCal)
+  }
 
   delete theAlignmentParameterStore;
   delete theAlignableExtras;
@@ -272,10 +288,20 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   const std::string sParSel(theParameterSet.getParameter<std::string>("parameterSelectorSimple"));
   this->simpleMisalignment_(theAlignables, sParSel, stRandomShift_, stRandomRotation_, true);
 
-  // Initialize alignment algorithm
+  // Initialize alignment algorithm and integrated calibration and pass the latter to algorithm
   theAlignmentAlgo->initialize( iSetup, 
 				theAlignableTracker, theAlignableMuon, theAlignableExtras,
 				theAlignmentParameterStore );
+  for (auto iCal = theCalibrations.begin(); iCal != theCalibrations.end(); ++iCal) {
+    (*iCal)->beginOfJob(theAlignableTracker, theAlignableMuon, theAlignableExtras);
+  }
+  // Not all algorithms support calibrations - so do not pass empty vector
+  // and throw if non-empty and not supported:
+  if (!theCalibrations.empty() && !theAlignmentAlgo->addCalibrations(theCalibrations)) {
+    throw cms::Exception("BadConfig") << "[AlignmentProducer::beginOfJob]\n"
+				      << "Configured " << theCalibrations.size() << " calibration(s) "
+				      << "for algorithm not supporting it.";
+  }
 
   for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();
        monitor != theMonitors.end();  ++monitor) {
@@ -346,6 +372,10 @@ void AlignmentProducer::endOfJob()
 				<< bsOutput.str();
     }
 
+    for (auto iCal = theCalibrations.begin(); iCal != theCalibrations.end(); ++iCal) {
+      (*iCal)->endOfJob();
+    }
+
   }
 }
 
@@ -359,6 +389,10 @@ void AlignmentProducer::startingNewLoop(unsigned int iLoop )
   nevent_ = 0;
 
   theAlignmentAlgo->startNewLoop();
+  // FIXME: Should this be done in algorithm::startNewLoop()??
+  for (auto iCal = theCalibrations.begin(); iCal != theCalibrations.end(); ++iCal) {
+    (*iCal)->startNewLoop();
+  }
 
   for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
      (*monitor)->startingNewLoop();
@@ -412,6 +446,10 @@ AlignmentProducer::endOfLoop(const edm::EventSetup& iSetup, unsigned int iLoop)
                             << "Ending loop " << iLoop << ", terminating algorithm.";
 
   theAlignmentAlgo->terminate();
+  // FIXME: Should this be done in algorithm::terminate()??
+  for (auto iCal = theCalibrations.begin(); iCal != theCalibrations.end(); ++iCal) {
+    (*iCal)->endOfLoop();
+  }
 
   for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
      (*monitor)->endOfLoop(iSetup);
@@ -604,7 +642,7 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
      edm::ESHandle<GeometricDet> geometricDet;
      iSetup.get<IdealGeometryRecord>().get( geometricDet );
      TrackerGeomBuilderFromGeometricDet trackerBuilder;
-     theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet), theParameterSet ));
+     theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet)) );
    }
 
    if (doMuon_) {
@@ -871,14 +909,16 @@ void AlignmentProducer::writeDB(Alignments *alignments,
   }
   
   if (saveToDB_) {
-    edm::LogInfo("Alignment") << "Writing Alignments to " << alignRcd << ".";
+    edm::LogInfo("Alignment") << "Writing Alignments for run " << time
+                              << " to " << alignRcd << ".";
     poolDb->writeOne<Alignments>(tempAlignments, time, alignRcd);
   } else { // poolDb->writeOne(..) takes over 'alignments' ownership,...
     delete tempAlignments; // ...otherwise we have to delete, as promised!
   }
 
   if (saveApeToDB_) {
-    edm::LogInfo("Alignment") << "Writing AlignmentErrors to " << errRcd << ".";
+    edm::LogInfo("Alignment") << "Writing AlignmentErrors for run " << time
+                              << " to " << errRcd << ".";
     poolDb->writeOne<AlignmentErrors>(tempAlignmentErrors, time, errRcd);
   } else { // poolDb->writeOne(..) takes over 'alignmentErrors' ownership,...
     delete tempAlignmentErrors; // ...otherwise we have to delete, as promised!
@@ -899,8 +939,8 @@ void AlignmentProducer::writeDB(AlignmentSurfaceDeformations *alignmentSurfaceDe
   }
   
   if (saveDeformationsToDB_) {
-    edm::LogInfo("Alignment") << "Writing AlignmentSurfaceDeformations to "
-			      << surfaceDeformationRcd  << ".";
+    edm::LogInfo("Alignment") << "Writing AlignmentSurfaceDeformations for run " << time
+                              << " to " << surfaceDeformationRcd  << ".";
     poolDb->writeOne<AlignmentSurfaceDeformations>(alignmentSurfaceDeformations, time,
 						   surfaceDeformationRcd);
   } else { // poolDb->writeOne(..) takes over 'surfaceDeformation' ownership,...
