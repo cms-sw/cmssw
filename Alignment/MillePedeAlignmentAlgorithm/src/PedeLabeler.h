@@ -8,9 +8,9 @@
  *
  * \author    : Gero Flucke
  * date       : September 2007
- * $Date: 2010/10/26 20:52:23 $
- * $Revision: 1.4 $
- * (last update by $Author: flucke $)
+ * $Date: 2011/02/16 12:52:46 $
+ * $Revision: 1.5 $
+ * (last update by $Author: mussgill $)
  */
 
 #include <vector>
@@ -29,7 +29,7 @@ class PedeLabeler : public PedeLabelerBase
   /// constructor from three Alignables (null pointers allowed )
   PedeLabeler(const PedeLabelerBase::TopLevelAlignables &alignables,
 	      const edm::ParameterSet &config);
-  /** non-virtual destructor: do not inherit from this class **/
+  /// destructor
   ~PedeLabeler();
   
   /// uniqueId of Alignable, 0 if alignable not known
@@ -49,7 +49,8 @@ class PedeLabeler : public PedeLabelerBase
   bool hasSplitParameters(Alignable *alignable) const { return false; }
   unsigned int numberOfParameterInstances(Alignable *alignable,
 					  int param=-1) const { return 1; }
-  
+  unsigned int maxNumberOfParameterInstances() const { return 1; }
+
   /// parameter number, 0 <= .. < theMaxNumParam, belonging to unique parameter label
   unsigned int paramNumFromLabel(unsigned int paramLabel) const;
   /// alignable label from parameter label (works also for alignable label...)

@@ -8,7 +8,7 @@
  *
  * \author    : Gero Flucke
  * date       : September 2007
- * $Date: 2011/02/16 13:13:25 $
+ * $Date: 2011/03/05 20:12:23 $
  * $Revision: 1.1 $
  * (last update by $Author: mussgill $)
  */
@@ -55,7 +55,8 @@ class MomentumDependentPedeLabeler : public PedeLabelerBase
   bool hasSplitParameters(Alignable *alignable) const;
   /// returns the number of instances for a given parameter
   unsigned int numberOfParameterInstances(Alignable *alignable, int param=-1) const;
-  
+  unsigned int maxNumberOfParameterInstances() const { return theMaxNumberOfParameterInstances; }
+
   /// parameter number, 0 <= .. < theMaxNumParam, belonging to unique parameter label
   unsigned int paramNumFromLabel(unsigned int paramLabel) const;
   /// alignable label from parameter label (works also for alignable label...)
@@ -96,6 +97,7 @@ class MomentumDependentPedeLabeler : public PedeLabelerBase
   UintUintMap                 theLasBeamToLabelMap;  /// labels for las beams
   UintUintMap                 theLabelToLasBeamMap; /// reverse of the above
   const MomentumRange         theOpenMomentumRange;
+  unsigned int                theMaxNumberOfParameterInstances;
 };
 
 #endif

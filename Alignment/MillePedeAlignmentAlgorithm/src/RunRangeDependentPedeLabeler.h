@@ -8,9 +8,9 @@
  *
  * \author    : Gero Flucke
  * date       : September 2007
- * $Date: 2010/10/26 20:52:23 $
- * $Revision: 1.4 $
- * (last update by $Author: flucke $)
+ * $Date: 2011/02/16 13:12:41 $
+ * $Revision: 1.1 $
+ * (last update by $Author: mussgill $)
  */
 
 #include <vector>
@@ -61,6 +61,7 @@ class RunRangeDependentPedeLabeler : public PedeLabelerBase
   bool hasSplitParameters(Alignable *alignable) const;
   /// returns the number of instances for a given parameter
   unsigned int numberOfParameterInstances(Alignable *alignable, int param=-1) const;
+  unsigned int maxNumberOfParameterInstances() const { return theMaxNumberOfParameterInstances; }
   
   /// parameter number, 0 <= .. < theMaxNumParam, belonging to unique parameter label
   unsigned int paramNumFromLabel(unsigned int paramLabel) const;
@@ -104,6 +105,7 @@ class RunRangeDependentPedeLabeler : public PedeLabelerBase
   IdToAlignableMap            theIdToAlignableMap; /// reverse map
   UintUintMap                 theLasBeamToLabelMap;  /// labels for las beams
   UintUintMap                 theLabelToLasBeamMap; /// reverse of the above
+  unsigned int                theMaxNumberOfParameterInstances;
 };
 
 #endif
