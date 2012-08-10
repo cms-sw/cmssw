@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V182 (CMSSW_5_2_6_HLT2)
+# /dev/CMSSW_5_2_1/HIon/V183 (CMSSW_5_2_6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V182')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V183')
 )
 
 process.streams = cms.PSet( 
@@ -7962,7 +7962,7 @@ process.hltOutputCalibration = cms.OutputModule( "PoolOutputModule",
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIDTCalibration_v3',
   'HLT_HIEcalCalibration_v3',
   'HLT_HIHcalCalibration_v3' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
+    outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltDTCalibrationRaw_*_*',
       'keep *_hltEcalCalibrationRaw_*_*',
       'keep *_hltHcalCalibrationRaw_*_*',
@@ -8503,9 +8503,8 @@ process.options = cms.untracked.PSet(
 if 'GlobalTag' in process.__dict__:
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
-#
-    from HLTrigger.Configuration.AutoCondGlobalTag import AutoCondGlobalTag
-    process.GlobalTag = AutoCondGlobalTag(process.GlobalTag,'auto:starthi_HIon')
+    from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag
+    process.GlobalTag = customiseGlobalTag(process.GlobalTag,'auto:starthi_HIon')
 
 # override the L1 menu
 if 'GlobalTag' in process.__dict__:

@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/HLT/V454 (CMSSW_5_2_6_HLT2)
+# /dev/CMSSW_5_2_1/HLT/V456 (CMSSW_5_2_6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V454')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V456')
 )
 
 streams = cms.PSet( 
@@ -9519,9 +9519,9 @@ hltDoubleJet20ForwardBackward = cms.EDFilter( "HLTForwardBackwardCaloJetsFilter"
     triggerType = cms.int32( 85 ),
     nNeg = cms.uint32( 1 )
 )
-hltL1sL1QuadJetC32ORL1QuadJetC36ORQuadJetC40 = cms.EDFilter( "HLTLevel1GTSeed",
+hltL1sL1QuadJetC32ORL1QuadJetC36ORQuadJetC40ORL1HTT125ORL1HTT150ORL1HTT175ORL1DoubleJetC52ORL1DoubleJetC56ORL1DoubleJetC64 = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_QuadJetC32 OR L1_QuadJetC36 OR L1_QuadJetC40" ),
+    L1SeedsLogicalExpression = cms.string( "L1_QuadJetC32 OR L1_QuadJetC36 OR L1_QuadJetC40 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_DoubleJetC52 OR L1_DoubleJetC56 OR L1_DoubleJetC64" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),
@@ -10800,18 +10800,6 @@ hltBLifetimeL3FilterbbPhiLooseL1FastJetFastPV = cms.EDFilter( "HLTCaloJetTag",
     Jets = cms.InputTag( "hltSelectorJets20L1FastJet" ),
     MinTag = cms.double( 4.0 ),
     MaxTag = cms.double( 99999.0 )
-)
-hltL1sL1QuadJetC32ORL1QuadJetC36ORQuadJetC40ORL1HTT125ORL1HTT150ORL1HTT175ORL1DoubleJetC52ORL1DoubleJetC56ORL1DoubleJetC64 = cms.EDFilter( "HLTLevel1GTSeed",
-    saveTags = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_QuadJetC32 OR L1_QuadJetC36 OR L1_QuadJetC40 OR L1_HTT125 OR L1_HTT150 OR L1_HTT175 OR L1_DoubleJetC52 OR L1_DoubleJetC56 OR L1_DoubleJetC64" ),
-    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
-    L1UseL1TriggerObjectMaps = cms.bool( True ),
-    L1UseAliasesForSeeding = cms.bool( True ),
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
-    L1NrBxInEvent = cms.int32( 3 ),
-    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
-    L1TechTriggerSeeding = cms.bool( False )
 )
 hltPreQuadJet50 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -48657,7 +48645,7 @@ HLT_DiPFJetAve320_v9 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet128 + hltPr
 HLT_DiPFJetAve400_v9 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet128 + hltPreDiPFJetAve400 + HLTRegionalRecoJetSequenceAK5Corrected + hltSingleJet320Regional + HLTPFL1FastL2L3ReconstructionSequence + hltDiPFJetAve400 + HLTEndSequence )
 HLT_FatDiPFJetMass750_DR1p1_Deta1p5_v9 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175OrHTT200 + hltPreFatDiPFJetMass750DR1p1Deta1p5 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHtMht + hltHt550 + HLTPFL1FastL2L3ReconstructionSequence + hltDiCentralPFJet30 + hltFatDiPFJetMass750DR1p1Deta1p5 + HLTEndSequence )
 HLT_DoubleJet20_ForwardBackward_v4 = cms.Path( HLTBeginSequence + hltL1sL1DoubleForJet16EtaOpp + hltPreDoubleJet20ForwardBackward + HLTRecoJetSequenceAK5Corrected + hltDoubleJet20ForwardBackward + HLTEndSequence )
-HLT_DiJet80_DiJet60_DiJet20_v5 = cms.Path( HLTBeginSequence + hltL1sL1QuadJetC32ORL1QuadJetC36ORQuadJetC40 + hltPreDiJet80DiJet60DiJet20 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltDiCenJet80L1FastJet + hltQuadCenJet60L1FastJet + hltSixCenJet20L1FastJet + HLTEndSequence )
+HLT_DiJet80_DiJet60_DiJet20_v5 = cms.Path( HLTBeginSequence + hltL1sL1QuadJetC32ORL1QuadJetC36ORQuadJetC40ORL1HTT125ORL1HTT150ORL1HTT175ORL1DoubleJetC52ORL1DoubleJetC56ORL1DoubleJetC64 + hltPreDiJet80DiJet60DiJet20 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltDiCenJet80L1FastJet + hltQuadCenJet60L1FastJet + hltSixCenJet20L1FastJet + HLTEndSequence )
 HLT_DiCentralJet20_BTagIP_MET65_v19 = cms.Path( HLTBeginSequence + hltL1sL1ETM36OR40 + hltPreDiCentralJet20BTagIPMET65 + HLTRecoMETSequence + hltMET65 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltBJetHbb + HLTBtagIPSequenceL25Hbb + hltBLifetimeL25FilterHbb + HLTBtagIPSequenceL3Hbb + hltBLifetimeL3FilterHbbTight + HLTEndSequence )
 HLT_DiCentralJet20_BTagIP_MET65_HBHENoiseCleaned_dPhi1_v4 = cms.Path( HLTBeginSequence + hltL1sL1ETM36OR40 + hltPreDiCentralJet20BTagIPMET65HBHENoiseCleaneddPhi1 + HLTRecoMETSequence + hltMET65 + HLTHBHENoiseCleanerSequence + hltMetClean + hltMETClean32 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltBJetHbb + hltJet20 + ~hlt2CaloJetCaloMET65dPhi1 + HLTBtagIPSequenceL25Hbb + hltBLifetimeL25FilterHbb + HLTBtagIPSequenceL3Hbb + hltBLifetimeL3FilterHbbTight + HLTEndSequence )
 HLT_DiPFJet40_PFMETnoMu65_MJJ800VBF_AllJets_v8 = cms.Path( HLTBeginSequence + hltL1sL1ETM40 + hltPreDiPFJet40PFMETnoMu65MJJ800VBFAllJets + HLTRecoJetSequenceAK5L1FastJetCorrected + hltDiJet30L1FastJet + HLTRecoMETSequence + hltMET65 + HLTPFL1FastL2L3ReconstructionSequence + hltDiPFJet40MJJ800VBFFilter + hltPFMETnoMu + hltPFMETnoMu65 + HLTEndSequence )
@@ -48674,7 +48662,7 @@ HLT_Jet80Eta1p7_Jet70Eta1p7_DiBTagIP3DFastPV_v7 = cms.Path( HLTBeginSequence + h
 HLT_Jet160Eta2p4_Jet120Eta2p4_DiBTagIP3DFastPVLoose_v7 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet128 + hltPreJet160Eta2p4Jet120Eta2p4DiBTagIP3DFastPVLoose + HLTRecoJetSequenceAK5L1FastJetCorrected + hltSingleBJet160Eta2p4L1FastJet + hltDoubleBJet120Eta2p4L1FastJet + HLTBTagIPSequenceL25bbPhi1stTrackL1FastJetFastPV + hltBLifetimeL25FilterbbPhi1stTrackL1FastJetFastPV + HLTBTagIPSequenceL3bbPhiL1FastJetFastPV + hltBLifetimeL3FilterbbPhiLooseL1FastJetFastPV + HLTEndSequence )
 HLT_QuadJet50_v5 = cms.Path( HLTBeginSequence + hltL1sL1QuadJetC32ORL1QuadJetC36ORQuadJetC40ORL1HTT125ORL1HTT150ORL1HTT175ORL1DoubleJetC52ORL1DoubleJetC56ORL1DoubleJetC64 + hltPreQuadJet50 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltQuadCenJet50L1FastJet + HLTEndSequence )
 HLT_QuadJet50_Jet20_v4 = cms.Path( HLTBeginSequence + hltL1sL1QuadJetC32ORL1QuadJetC36ORQuadJetC40ORL1HTT125ORL1HTT150ORL1HTT175ORL1DoubleJetC52ORL1DoubleJetC56ORL1DoubleJetC64 + hltPreQuadJet50Jet20 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltQuadCenJet50L1FastJet + hltPentaCenJet20L1FastJet + HLTEndSequence )
-HLT_QuadJet60_DiJet20_v5 = cms.Path( HLTBeginSequence + hltL1sL1QuadJetC32ORL1QuadJetC36ORQuadJetC40 + hltPreQuadJet60DiJet20 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltQuadCenJet60L1FastJet + hltSixCenJet20L1FastJet + HLTEndSequence )
+HLT_QuadJet60_DiJet20_v5 = cms.Path( HLTBeginSequence + hltL1sL1QuadJetC32ORL1QuadJetC36ORQuadJetC40ORL1HTT125ORL1HTT150ORL1HTT175ORL1DoubleJetC52ORL1DoubleJetC56ORL1DoubleJetC64 + hltPreQuadJet60DiJet20 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltQuadCenJet60L1FastJet + hltSixCenJet20L1FastJet + HLTEndSequence )
 HLT_QuadJet70_v6 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175OrHTT200 + hltPreQuadJet70 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltQuadJet70L1FastJet + HLTEndSequence )
 HLT_QuadJet80_v6 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175OrHTT200 + hltPreQuadJet80 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltQuadJet80L1FastJet + HLTEndSequence )
 HLT_QuadJet90_v6 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175OrHTT200 + hltPreQuadJet90 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltQuadJet90L1FastJet + HLTEndSequence )
