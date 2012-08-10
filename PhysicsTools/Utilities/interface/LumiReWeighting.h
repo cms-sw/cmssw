@@ -41,8 +41,8 @@ namespace reweight{
       // The distributions aren't quite poisson because they model luminosity decreasing during a fill. This implies that
       // they do get wider as the mean increases, so the weights are not linear with increasing mean.
 
-      static double p0_minus[20] = { 1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1. };
-      static double p1_minus[20] = {
+      constexpr double p0_minus[20] = { 1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1. };
+      constexpr double p1_minus[20] = {
 	-0.677786,
 	-0.619614,
 	-0.49465,
@@ -64,7 +64,7 @@ namespace reweight{
 	1.67275,
 	1.96008
       };
-      static double p2_minus[20] = {
+      constexpr double p2_minus[20] = {
 	0.526164,
 	0.251816,
 	0.11049,
@@ -87,7 +87,7 @@ namespace reweight{
 	1.02386
       };
 
-      static double p1_expoM[5] = {
+      constexpr double p1_expoM[5] = {
 	1.63363e-03,
 	6.79290e-04,
 	3.69900e-04,
@@ -95,7 +95,7 @@ namespace reweight{
 	9.87156e-06
       };
 
-      static double p2_expoM[5] = {
+      constexpr double p2_expoM[5] = {
 	2.64692,
 	3.26585,
 	3.53229,
@@ -104,8 +104,8 @@ namespace reweight{
       };
 
 
-      static double p0_plus[20] = { 1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1. };
-      static double p1_plus[20] = {
+      constexpr double p0_plus[20] = { 1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1. };
+      constexpr double p1_plus[20] = {
 	-0.739059,
 	-0.594445,
 	-0.477276,
@@ -127,7 +127,7 @@ namespace reweight{
 	1.5802,
 	0.988689
       };
-      static double p2_plus[20] = {
+      constexpr double p2_plus[20] = {
 	0.208068,
 	0.130033,
 	0.0850356,
@@ -150,7 +150,7 @@ namespace reweight{
 	5.48835
       };
 
-      static double p1_expoP[5] = {
+      constexpr double p1_expoP[5] = {
 	1.42463e-01,
 	4.18966e-02,
 	1.12697e-01,
@@ -158,7 +158,7 @@ namespace reweight{
 	1.50768e-01
       };
 
-      static double p2_expoP[5] = {
+      constexpr double p2_expoP[5] = {
 	1.98758,
 	2.27217,
 	2.26799,
@@ -194,19 +194,13 @@ namespace reweight{
     };
 
     double ShiftWeight( int ibin ) {
-
       if(ibin<25 && ibin>=0) { return Pweight_[ibin]; }
       else { return 0;}
 
     };
 
     double ShiftWeight( float pvnum ) {
-
-      int ibin = int(pvnum);
-
-      if(ibin<25 && ibin>=0) { return Pweight_[ibin]; }
-      else { return 0;}
-
+      return ShiftWeight(int(pvnum));
     };
 
   private:
@@ -241,8 +235,6 @@ namespace edm {
 
     double weightOOT( const edm::EventBase &e ) ;
 
-    void weightOOT_init(); 
-
   protected:
 
     std::string generatedFileName_;
@@ -258,10 +250,7 @@ namespace edm {
     boost::shared_ptr<TH1>      MC_distr_;
     boost::shared_ptr<TH1>      Data_distr_;
 
-    double WeightOOTPU_[25][25];
-
     int  OldLumiSection_;
-    bool Reweight_4_2_2p2_;
     bool FirstWarning_;
 
 
