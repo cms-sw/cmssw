@@ -45,8 +45,17 @@ namespace lumi{
     /*
       retrieve norm data by normid
     */
-    void normById(const coral::ISchema& schema,unsigned long long normid,std::map< unsigned int,normData >&result)const;
+    void normById(const coral::ISchema& schema,
+		  unsigned long long normid,
+		  std::map< unsigned int,normData >&result);
     
+    /*
+      parse corrector functions
+    */
+    void parseLumiCorrector(const std::string& correctorStr,
+                       std::vector<std::string>& correctorParams);
+    void parseAfterglows(const std::string& afterglowStr,
+			 std::map<unsigned int,float>& afterglowmap);
   };
 }//ns lumi
 #endif

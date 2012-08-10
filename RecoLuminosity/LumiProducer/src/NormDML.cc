@@ -7,7 +7,8 @@
 #include "CoralBase/AttributeSpecification.h"
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
 #include <algorithm>
-#include <utility>
+#include <map>
+#include <boost/algorithm/string.hpp>
 lumi::NormDML::NormDML(){
 }
 unsigned long long 
@@ -82,7 +83,52 @@ lumi::NormDML::normIdByType(const coral::ISchema& schema,std::map<std::string,un
   delete qHandle;
 }
 void
-lumi::NormDML::normById(const coral::ISchema&schema, unsigned long long normid, std::map< unsigned int,lumi::NormDML::normData >& result)const{
+lumi::NormDML::normById(const coral::ISchema&schema, 
+			unsigned long long normid, 
+			std::map< unsigned int,lumi::NormDML::normData >& result){
   ///select * from luminormsv2data where data_id=normid
-
+  coral::IQuery* qHandle=schema.newQuery();
+  qHandle->addToTableList( lumi::LumiNames::luminormv2TableName() );  
+  std::string qConditionStr("DATA_ID=:normid ");
+  coral::AttributeList qCondition;
+  qCondition.extend("normid",typeid(unsigned long long));
+  qCondition["normid"].data<unsigned long long>()=normid;
+  qHandle->setCondition(qConditionStr,qCondition);
+  coral::AttributeList qResult;
+  coral::ICursor& cursor=qHandle->execute();
+  while( cursor.next() ){
+    const coral::AttributeList& row=cursor.currentRow();
+    unsigned int since=row["SINCE"].data<unsigned int>();
+    const std::string correctorStr=row["CORRECTOR"].data<std::string>();
+    if(result.find(since)==result.end()){
+      lumi::NormDML::normData thisnorm;
+      result.insert(std::make_pair(since,thisnorm));
+    }
+    std::vector<std::string> correctorParams;
+    parseLumiCorrector(correctorStr,correctorParams);
+    result[since].corrfunc=*(correctorParams.begin());
+    for(std::vector<std::string>::iterator corrIt=correctorParams.begin()+1;
+	corrIt!=correctorParams.end();corrIt++){
+      std::string paramName=boost::to_upper_copy(*corrIt);
+      if(paramName==std::string("AFTERGLOW")){
+	const std::string afterglowStr=row["AFTERGLOW"].data<std::string>();
+	parseAfterglows(afterglowStr,result[since].afterglows);
+      }else{
+	float param=row[paramName].data<float>();
+	result[since].coefficientmap.insert(std::make_pair(paramName,param));
+      }
+    }
+  }
+  delete qHandle;
+}
+void
+lumi::NormDML::parseLumiCorrector(const std::string& correctorStr,
+		     std::vector<std::string>& correctorParams){
+  std::string cleancorrectorStr(correctorStr);
+  boost::trim(cleancorrectorStr);
+  boost::split(correctorParams,cleancorrectorStr,boost::is_any_of(":,"));  
+}
+void
+lumi::NormDML::parseAfterglows(const std::string& afterglowStr,std::map<unsigned int,float>& afterglowmap){
+  
 }
