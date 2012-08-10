@@ -79,7 +79,6 @@ else :
     inputJetCorrLabel = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
     process.source.fileNames = [
         '/store/data/Run2012C/JetHT/AOD/PromptReco-v1/000/198/910/8ECBA7A2-63CE-E111-B093-001D09F24FEC.root'
-	#'/store/data/Run2012C/SingleMu/AOD/PromptReco-v1/000/197/770/FCEA1D5F-77C3-E111-9E6F-0019B9F4A1D7.root'
     ]
 
 #process.source.eventsToProcess = cms.untracked.VEventRange( ['1:86747'] )
@@ -103,7 +102,7 @@ fileTag = "53x"
 
 if options.useData :
     if options.globalTag is '':
-        process.GlobalTag.globaltag = cms.string( 'GR_P_V40_AN1::All' )
+        process.GlobalTag.globaltag = cms.string( 'GR_P_V41_AN1::All' )
     else:
         process.GlobalTag.globaltag = cms.string( options.globalTag )
     # Jet Probability Calibration for 52x and 53x data
@@ -117,7 +116,7 @@ if options.useData :
     )
 else :
     if options.globalTag is '':
-        process.GlobalTag.globaltag = cms.string( 'START52_V11C::All' )
+        process.GlobalTag.globaltag = cms.string( 'START53_V7E::All' )
     else:
         process.GlobalTag.globaltag = cms.string( options.globalTag )
 
