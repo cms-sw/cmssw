@@ -50,7 +50,11 @@ class SMHiggsBuilder:
                 self.textToSpline(rooName, os.path.join(self.coupPath, 'R_VBF_%(sqrts)s.txt'%locals()), ycol=1 )
                 scalingName = 'Scaling_'+what+'_'+sqrts
 #                print 'Building '+ scalingName
-                rooExpr = 'expr::%(scalingName)s("(@0+ @1 * @2 )/(1+@2) ", %(CW)s, %(CZ)s, %(rooName)s)'%locals()
+                rooExpr = 'expr::%(scalingName)s(\
+"(@0+ @1 * @2 )/(1+@2)",\
+ %(CW)s, %(CZ)s,\
+ %(rooName)s\
+)'%locals()
 #                print  rooExpr
                 self.modelBuilder.factory_(rooExpr)
         elif what == 'ggH':
@@ -61,7 +65,11 @@ class SMHiggsBuilder:
                     self.textToSpline(rooName, os.path.join(self.coupPath, 'ggH_%(sqrts)s.txt'%locals()), ycol=column )
                 scalingName = 'Scaling_'+what+'_'+sqrts
 #                print 'Building '+scalingName
-                rooExpr = 'expr::%(scalingName)s("(@0*@0)*@2  + (@1*@1)*@3 + (@0*@1)*@4", %(Ctop)s, %(Cb)s, %(prefix)ssigma_tt_%(sqrts)s, %(prefix)ssigma_bb_%(sqrts)s, %(prefix)ssigma_tb_%(sqrts)s)'%locals()
+                rooExpr = 'expr::%(scalingName)s(\
+"(@0*@0)*@2  + (@1*@1)*@3 + (@0*@1)*@4",\
+ %(Ctop)s, %(Cb)s,\
+ %(prefix)ssigma_tt_%(sqrts)s, %(prefix)ssigma_bb_%(sqrts)s, %(prefix)ssigma_tb_%(sqrts)s\
+)'%locals()
 #                print  rooExpr
                 self.modelBuilder.factory_(rooExpr)
         elif what == 'hgluglu':
@@ -71,7 +79,11 @@ class SMHiggsBuilder:
                 self.textToSpline(rooName, os.path.join(self.coupPath, 'Gamma_Hgluongluon.txt'), ycol=column )
             scalingName = 'Scaling_'+what
 #            print 'Building '+scalingName
-            rooExpr = 'expr::%(scalingName)s("(@0*@0)*@2  + (@1*@1)*@3 + (@0*@1)*@4", %(Ctop)s, %(Cb)s, %(prefix)sGamma_tt, %(prefix)sGamma_bb, %(prefix)sGamma_tb)'%locals()
+            rooExpr = 'expr::%(scalingName)s(\
+"(@0*@0)*@2  + (@1*@1)*@3 + (@0*@1)*@4",\
+ %(Ctop)s, %(Cb)s,\
+ %(prefix)sGamma_tt, %(prefix)sGamma_bb, %(prefix)sGamma_tb\
+)'%locals()
 #            print  rooExpr
             self.modelBuilder.factory_(rooExpr)
         elif what in ['hgg', 'hZg']:
@@ -88,11 +100,11 @@ class SMHiggsBuilder:
 #            print 'Building '+scalingName
             rooExpr = 'expr::%(scalingName)s(\
 "(@0*@0)*@4  + (@1*@1)*@5 + (@2*@2)*@6 + (@0*@1)*@7 + (@0*@2)*@8 + (@1*@2)*@9 + (@3*@3)*@10 + (@0*@3)*@11 + (@1*@3)*@12 + (@2*@3)*@13",\
-%(Ctop)s, %(Cb)s, %(CW)s, %(Ctau)s,\
-%(prefix)sGamma_tt, %(prefix)sGamma_bb, %(prefix)sGamma_WW,\
-%(prefix)sGamma_tb, %(prefix)sGamma_tW, %(prefix)sGamma_bW,\
-%(prefix)sGamma_ll,\
-%(prefix)sGamma_tl, %(prefix)sGamma_bl, %(prefix)sGamma_lW\
+ %(Ctop)s, %(Cb)s, %(CW)s, %(Ctau)s,\
+ %(prefix)sGamma_tt, %(prefix)sGamma_bb, %(prefix)sGamma_WW,\
+ %(prefix)sGamma_tb, %(prefix)sGamma_tW, %(prefix)sGamma_bW,\
+ %(prefix)sGamma_ll,\
+ %(prefix)sGamma_tl, %(prefix)sGamma_bl, %(prefix)sGamma_lW\
 )'%locals()
 #            print  rooExpr
             self.modelBuilder.factory_(rooExpr)
