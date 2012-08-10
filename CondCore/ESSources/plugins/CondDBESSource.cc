@@ -352,21 +352,33 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   
   for ( ProxyMap::const_iterator pmIter = pmBegin; pmIter != pmEnd; ++pmIter ) {
 
-    std::string recKey = joinRecordAndLabel( recordname, pmIter->second->label() );
-    TagCollection::const_iterator tcIter = m_tagCollection.find( recKey ); 
-    if ( tcIter == m_tagCollection.end() ) {
-      edm::LogInfo( "CondDBESSource" ) << "No Tag found for record \""<< recordname
-				       << "\" and label \""<< pmIter->second->label()
-				       << "\"; from CondDBESSource::setIntervalFor";
-      return;
-    }
-    
     edm::LogInfo( "CondDBESSource" ) << "Processing record \"" << recordname
 				     << "\" and label \""<< pmIter->second->label()
 				     << "\" for " << iTime.eventID() << ", timestamp: " << iTime.time().value()
 				     << "; from CondDBESSource::setIntervalFor";
+
+    timetype = (*pmIter).second->proxy()->timetype();
+    
+    cond::Time_t abtime = cond::fromIOVSyncValue( iTime, timetype );
+    userTime = ( 0 == abtime );
+    
+    //std::cout<<"abtime "<<abtime<<std::endl;
+
+    if (userTime) return; //  oInterval invalid to avoid that make is called...
+
+
     
     if( doRefresh ) {
+
+      std::string recKey = joinRecordAndLabel( recordname, pmIter->second->label() );
+      TagCollection::const_iterator tcIter = m_tagCollection.find( recKey ); 
+      if ( tcIter == m_tagCollection.end() ) {
+	edm::LogInfo( "CondDBESSource" ) << "No Tag found for record \""<< recordname
+					 << "\" and label \""<< pmIter->second->label()
+					 << "\"; from CondDBESSource::setIntervalFor";
+	return;
+      }
+
       // first reconnect if required
       if( m_policy == RECONNECT_EACH_RUN ) {
 	edm::LogInfo( "CondDBESSource" ) << "Checking if the session must be closed and re-opened for getting correct conditions"
@@ -425,14 +437,6 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
 
     }
 
-    timetype = (*pmIter).second->proxy()->timetype();
-    
-    cond::Time_t abtime = cond::fromIOVSyncValue( iTime, timetype );
-    userTime = ( 0 == abtime );
-    
-    //std::cout<<"abtime "<<abtime<<std::endl;
-
-    if (userTime) return; //  oInterval invalid to avoid that make is called...
     /*
       // make oInterval valid For Ever
     {
@@ -445,8 +449,7 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     //query the IOVSequence
     cond::ValidityInterval validity = (*pmIter).second->proxy()->setIntervalFor( abtime );
     
-    edm::LogInfo( "CondDBESSource" ) << "Validity coming from IOV sequence labeled by tag " << tcIter->second.tag
-				     << " for record \"" << recordname
+    edm::LogInfo( "CondDBESSource" ) << "Validity coming from IOV sequence for record \"" << recordname
 				     << "\" and label \""<< pmIter->second->label()
 				     << "\": (" << validity.first << ", " << validity.second
 				     << ") for time (type: "<< cond::timeTypeNames( timetype ) << ") " << abtime
