@@ -50,3 +50,6 @@
   <use   name="PhysicsTools/Utilities"/>
   <use   lib="Gpad"/>
 </bin>
+<bin   file="test_Poisson.cpp">
+  <use   name="PhysicsTools/Utilities"/>
+</bin>
