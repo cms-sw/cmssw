@@ -628,7 +628,7 @@ steps['HARVESTDC']={'-s':'HARVESTING:dqmHarvesting',
                     '--filein':'file:step2_inDQM.root',
                    '--scenario':'cosmics'}
 steps['HARVESTDHI']={'-s':'HARVESTING:dqmHarvesting',
-                   '--conditions':'auto:com10_HIon',
+                   '--conditions':'auto:com10',
                    '--filetype':'DQM',
                    '--data':'',
                    '--scenario':'HeavyIons'}
@@ -648,7 +648,7 @@ steps['HARVESTFS']={'-s':'HARVESTING:validationHarvestingFS',
                    '--mc':'',
                    '--scenario':'pp'}
 steps['HARVESTHI']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
-                   '--conditions':'auto:starthi',
+                   '--conditions':'auto:starthi_HIon',
                    '--mc':'',
                    '--scenario':'HeavyIons'}
 
