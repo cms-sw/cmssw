@@ -4,9 +4,9 @@ from sys import argv, stdout, stderr, exit
 from optparse import OptionParser
 
 # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
-hasHelp = False 
+hasHelp = False
 for X in ("-h", "-?", "--help"):
-    if X in argv: 
+    if X in argv:
         hasHelp = True
         argv.remove(X)
 argv.append( '-b-' )
@@ -17,14 +17,15 @@ argv.remove( '-b-' )
 if hasHelp: argv.append("-h")
 
 parser = OptionParser(usage="usage: %prog [options] in.root  \nrun with --help to get list of options")
-parser.add_option("--vtol", "--val-tolerance", dest="vtol", default=0.30, type="float", help="Report nuisances whose value changes by more than this amount of sigmas") 
-parser.add_option("--stol", "--sig-tolerance", dest="stol", default=0.10, type="float", help="Report nuisances whose sigma changes by more than this amount") 
-parser.add_option("--vtol2", "--val-tolerance2", dest="vtol2", default=2.0, type="float", help="Report severely nuisances whose value changes by more than this amount of sigmas") 
-parser.add_option("--stol2", "--sig-tolerance2", dest="stol2", default=0.50, type="float", help="Report severely nuisances whose sigma changes by more than this amount") 
-parser.add_option("-a", "--all",      dest="all",    default=False,  action="store_true", help="Print all nuisances, even the ones which are unchanged w.r.t. pre-fit values.") 
-parser.add_option("-A", "--absolute", dest="abs",    default=False,  action="store_true", help="Report also absolute values of nuisance values and errors, not only the ones normalized to the input sigma") 
+parser.add_option("--vtol", "--val-tolerance", dest="vtol", default=0.30, type="float", help="Report nuisances whose value changes by more than this amount of sigmas")
+parser.add_option("--stol", "--sig-tolerance", dest="stol", default=0.10, type="float", help="Report nuisances whose sigma changes by more than this amount")
+parser.add_option("--vtol2", "--val-tolerance2", dest="vtol2", default=2.0, type="float", help="Report severely nuisances whose value changes by more than this amount of sigmas")
+parser.add_option("--stol2", "--sig-tolerance2", dest="stol2", default=0.50, type="float", help="Report severely nuisances whose sigma changes by more than this amount")
+parser.add_option("-a", "--all",      dest="all",    default=False,  action="store_true", help="Print all nuisances, even the ones which are unchanged w.r.t. pre-fit values.")
+parser.add_option("-A", "--absolute", dest="abs",    default=False,  action="store_true", help="Report also absolute values of nuisance values and errors, not only the ones normalized to the input sigma")
 parser.add_option("-p", "--poi",      dest="poi",    default="r",    type="string",  help="Name of signal strength parameter (default is 'r' as per text2workspace.py)")
 parser.add_option("-f", "--format",   dest="format", default="text", type="string",  help="Output format ('text', 'latex', 'twiki'")
+parser.add_option("-g", "--histogram", dest="plotfile", default=None, type="string", help="If true, plot the pulls of the nuisances to the given file.")
 
 (options, args) = parser.parse_args()
 if len(args) == 0:
@@ -44,6 +45,7 @@ isFlagged = {}
 table = {}
 fpf_b = fit_b.floatParsFinal()
 fpf_s = fit_s.floatParsFinal()
+pulls = []
 for i in range(fpf_s.getSize()):
     nuis_s = fpf_s.at(i)
     name   = nuis_s.GetName();
@@ -52,19 +54,21 @@ for i in range(fpf_s.getSize()):
     row = []
     flag = False;
     mean_p, sigma_p = 0,0
-    if nuis_p == None: 
+    if nuis_p == None:
         if not options.abs: continue
         row += [ "[%.2f, %.2f]" % (nuis_s.getMin(), nuis_s.getMax()) ]
     else:
         mean_p, sigma_p = (nuis_p.getVal(), nuis_p.getError())
         if options.abs: row += [ "%.2f +/- %.2f" % (nuis_p.getVal(), nuis_p.getError()) ]
     for fit_name, nuis_x in [('b', nuis_b), ('s',nuis_s)]:
-        if nuis_x == None: 
+        if nuis_x == None:
             row += [ " n/a " ]
         else:
             row += [ "%+.2f +/- %.2f" % (nuis_x.getVal(), nuis_x.getError()) ]
             if nuis_p != None:
-                valShift = (nuis_x.getVal() - mean_p)/sigma_p 
+                valShift = (nuis_x.getVal() - mean_p)/sigma_p
+                if fit_name == 'b':
+                    pulls.append(valShift)
                 sigShift = nuis_x.getError()/sigma_p
                 if options.abs:
                     row[-1] += " (%+4.2fsig, %4.2f)" % (valShift, sigShift)
@@ -72,12 +76,12 @@ for i in range(fpf_s.getSize()):
                     row[-1] = " %+4.2f, %4.2f" % (valShift, sigShift)
                 if (abs(valShift) > options.vtol2 or abs(sigShift-1) > options.stol2):
                     isFlagged[(name,fit_name)] = 2
-                    flag = True 
+                    flag = True
                 elif (abs(valShift) > options.vtol  or abs(sigShift-1) > options.stol):
                     if options.all: isFlagged[(name,fit_name)] = 1
-                    flag = True 
+                    flag = True
                 elif options.all:
-                    flag = True 
+                    flag = True
     row += [ "%+4.2f"  % fit_s.correlation(name, options.poi) ]
     if flag or options.all: table[name] = row
 
@@ -86,7 +90,7 @@ highlight = "*%s*"
 morelight = "!%s!"
 pmsub, sigsub = None, None
 if options.format == 'text':
-    if options.abs: 
+    if options.abs:
         fmtstring = "%-40s     %15s    %30s    %30s  %10s"
         print fmtstring % ('name', 'pre fit', 'b-only fit', 's+b fit', 'rho')
     else:
@@ -105,7 +109,7 @@ elif options.format == 'latex':
         print "\\begin{tabular}{|l|r|r|r|} \\hline ";
         #what = r"$(x_\text{out} - x_\text{in})/\sigma_{\text{in}}$, $\sigma_{\text{out}}/\sigma_{\text{in}}$"
         what = r"\Delta x/\sigma_{\text{in}}$, $\sigma_{\text{out}}/\sigma_{\text{in}}$"
-        print  fmtstring % ('',     '$b$-only fit', '$s+b$ fit', '') 
+        print  fmtstring % ('',     '$b$-only fit', '$s+b$ fit', '')
         print (fmtstring % ('name', what, what, r'$\rho(\theta, \mu)$')), " \\hline"
 elif options.format == 'twiki':
     pmsub  = (r"(\S+) \+/- (\S+)", r"\1 &plusmn; \2")
@@ -157,6 +161,22 @@ for n in names:
        print fmtstring % (n, v[0], v[1], v[2])
 
 if options.format == "latex":
-    print " \\hline\n\end{tabular}" 
+    print " \\hline\n\end{tabular}"
 elif options.format == "html":
     print "</table></body></html>"
+
+if options.plotfile:
+    import ROOT
+    ROOT.gROOT.SetStyle("Plain")
+    ROOT.gStyle.SetOptFit(1)
+    histogram = ROOT.TH1F("pulls", "Pulls", 60, -3, 3)
+    for pull in pulls:
+        histogram.Fill(pull)
+    canvas = ROOT.TCanvas("asdf", "asdf", 800, 800)
+    histogram.GetXaxis().SetTitle("pull")
+    histogram.SetTitle("Post-fit nuisance pull distribution")
+    histogram.SetMarkerStyle(20)
+    histogram.SetMarkerSize(2)
+    #histogram.Fit("gaus")
+    histogram.Draw("pe")
+    canvas.SaveAs(options.plotfile)
