@@ -102,7 +102,7 @@ fileTag = "53x"
 
 if options.useData :
     if options.globalTag is '':
-        process.GlobalTag.globaltag = cms.string( 'GR_P_V41_AN1::All' )
+        process.GlobalTag.globaltag = cms.string( 'GR_P_V40_AN1::All' )
     else:
         process.GlobalTag.globaltag = cms.string( options.globalTag )
     # Jet Probability Calibration for 52x and 53x data
