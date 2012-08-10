@@ -7,8 +7,8 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.26 $
-///  last update: $Date: 2012/06/13 09:13:57 $
+///  Revision   : $Revision: 1.27 $
+///  last update: $Date: 2012/06/13 16:23:30 $
 ///  by         : $Author: yana $
 
 #include <vector>
@@ -46,6 +46,7 @@
 
 
 class Alignments;
+class IntegratedCalibrationBase;
 class SurveyErrors;
 namespace edm {
   class Run;
@@ -155,8 +156,9 @@ class AlignmentProducer : public edm::ESProducerLooper
   const SurveyErrors* theSurveyErrors;
 
   AlignmentAlgorithmBase* theAlignmentAlgo;
-  std::vector<AlignmentMonitorBase*> theMonitors;
   AlignmentParameterStore* theAlignmentParameterStore;
+  std::vector<AlignmentMonitorBase*> theMonitors;
+  std::vector<IntegratedCalibrationBase*> theCalibrations;
 
   AlignableExtras* theAlignableExtras;
   AlignableTracker* theAlignableTracker;
