@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.62 $
-///  last update: $Date: 2012/02/22 07:36:04 $
-///  by         : $Author: mussgill $
+///  Revision   : $Revision: 1.66 $
+///  last update: $Date: 2012/07/13 09:20:57 $
+///  by         : $Author: yana $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -642,7 +642,7 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
      edm::ESHandle<GeometricDet> geometricDet;
      iSetup.get<IdealGeometryRecord>().get( geometricDet );
      TrackerGeomBuilderFromGeometricDet trackerBuilder;
-     theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet)) );
+     theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet), theParameterSet ));
    }
 
    if (doMuon_) {
