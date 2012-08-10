@@ -102,8 +102,11 @@ DetId EcalClusterSeverityLevelAlgo::closestProblematic(const reco::CaloCluster &
       //Find the closest DetId in eta,phi space (distance defined by deta^2 + dphi^2)
       int deta=EBDetId::distanceEta(EBDetId(seed),EBDetId(*it));
       int dphi=EBDetId::distancePhi(EBDetId(seed),EBDetId(*it));
-      if (sqrt(deta*deta + dphi*dphi) < minDist)
+      double r = sqrt(deta*deta + dphi*dphi);
+      if (r < minDist){
 	closestProb = *it;
+	minDist = r;
+      }
     }
       
   return closestProb;
