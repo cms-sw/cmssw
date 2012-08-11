@@ -758,3 +758,32 @@ bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx){
   return muID && hits && ip;
 
 }
+
+int muon::sharedSegments( const reco::Muon& mu, const reco::Muon& mu2, unsigned int segmentArbitrationMask ) {
+    int ret = 0;
+   
+    // Will do with a stupid double loop, since creating and filling a map is probably _more_ inefficient for a single lookup.
+    for(std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch = mu.matches().begin();
+        chamberMatch != mu.matches().end(); ++chamberMatch) {
+        if (chamberMatch->segmentMatches.empty()) continue;
+        for(std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch2 = mu2.matches().begin();
+            chamberMatch2 != mu2.matches().end(); ++chamberMatch2) {
+            if (chamberMatch2->segmentMatches.empty()) continue;
+            if (chamberMatch2->id() != chamberMatch->id()) continue;
+            for(std::vector<reco::MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin(); 
+                segmentMatch != chamberMatch->segmentMatches.end(); ++segmentMatch) {
+                if (!segmentMatch->isMask(segmentArbitrationMask)) continue;
+                for(std::vector<reco::MuonSegmentMatch>::const_iterator segmentMatch2 = chamberMatch2->segmentMatches.begin(); 
+                    segmentMatch2 != chamberMatch2->segmentMatches.end(); ++segmentMatch2) {
+                    if (!segmentMatch2->isMask(segmentArbitrationMask)) continue;
+                    if ((segmentMatch->cscSegmentRef.isNonnull() && segmentMatch->cscSegmentRef == segmentMatch2->cscSegmentRef) ||
+                        (segmentMatch-> dtSegmentRef.isNonnull() && segmentMatch-> dtSegmentRef == segmentMatch2-> dtSegmentRef) ) {
+                        ++ret;
+                    } // is the same
+                } // segment of mu2 in chamber
+            } // segment of mu1 in chamber
+        } // chamber of mu2
+    } // chamber of mu1
+  
+    return ret; 
+}

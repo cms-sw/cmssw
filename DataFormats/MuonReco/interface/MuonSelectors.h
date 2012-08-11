@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Jake Ribnik, Dmytro Kovalskyi
-// $Id: MuonSelectors.h,v 1.14 2011/10/27 16:28:00 bellan Exp $
+// $Id: MuonSelectors.h,v 1.15 2012/07/09 17:14:01 bachtis Exp $
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "TMath.h"
@@ -105,6 +105,11 @@ namespace muon {
    // and pullY
    bool overlap( const reco::Muon& muon1, const reco::Muon& muon2, 
 		 double pullX = 1.0, double pullY = 1.0, bool checkAdjacentChambers = false);
+
+   /// Determine the number of shared segments between two muons.
+   /// Comparison is done using the segment references in the reco::Muon object.
+   int sharedSegments( const reco::Muon& muon1, const reco::Muon& muon2, 
+                       unsigned int segmentArbitrationMask = reco::MuonSegmentMatch::BestInChamberByDR ) ;
 
 }
 #endif
