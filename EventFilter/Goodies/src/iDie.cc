@@ -739,6 +739,7 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
       while (lsHistory[nbsIdx].size()>ROLL) {delete lsHistory[nbsIdx].front(); lsHistory[nbsIdx].pop_front();}
     }
     if (currentLs_[nbsIdx]>=lsid) { // update for current or previous lumis
+      std::cout << " setting..." << std::endl;
       unsigned int qsize=lsHistory[nbsIdx].size();
       unsigned int delta = currentLs_[nbsIdx]-lsid;
       if (qsize>delta && delta<ROLL) {
@@ -749,7 +750,7 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
 	unsigned int maxModId = 0;
 	for (unsigned int i=0;i<nstates_;i++) {
 	  //extract worst module
-	  if (i!=2 && datap_[i]>(int)maxMod) {
+	  if (i>2 && datap_[i]>(int)maxMod) {
             maxModId=i;
 	    maxMod=datap_[i];
 	  }
@@ -759,13 +760,20 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
 	  }
 	}
 	unsigned int busyCounts = cumulative_-datap_[2];
+	//disabled: can't distinguish between multiple slaves
+	/*
 	//find module that is stuck for more than ~1.5 seconds on single host provided that statistics is sufficient
-	if (lsid && maxMod > (cumulative_ >>4) && cumulative_>50 && blockingModulesPerLs_[lsid-1].size()<3) 
+	unsigned int countsPerInstance = 0;
+	if (epInstances.size())
+	  countsPerInstance = cumulative_/epInstances.size();
+	//std::cout << " found counts per instance " << countsPerInstance << " " << maxMod << std::endl;
+	if (lsid && maxMod > (countsPerInstance >>4) && countsPerInstance>32 && blockingModulesPerLs_[lsid-1].size()<3) 
 	{
-	  blockingModulesPerLs_[lsid-1].push_back(std::pair<unsigned int, float>(maxModId,(float)maxMod/cumulative_));
+	  blockingModulesPerLs_[lsid-1].push_back(std::pair<unsigned int, float>(maxModId,(float)maxMod/countsPerInstance));
 	  LOG4CPLUS_WARN(getApplicationLogger(),"iDie: found module taking a lot of time: " << mapmod_[maxModId] 
-		  << " " << 100.*(float)maxMod/cumulative_ << "% of lumisection "<< lsid); 
+		  << " " << 100.*(float)maxMod/countsPerInstance << "% of lumisection "<< lsid); 
 	}
+	*/
 	lst->update(busyCounts,datap_[2],nbproc_,ncpubusy_,deltaTms_);
       }
     }
