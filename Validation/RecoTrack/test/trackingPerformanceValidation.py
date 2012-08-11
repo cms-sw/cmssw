@@ -281,49 +281,48 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
 
                 if (retcode!=0):
                        print 'Job for sample '+ sample + ' failed. \n'
+            if (Sequence=="harvesting" or Sequence=="preproduction" or Sequence=="comparison_only"):
+                    #copy only the needed histograms
+                    if(trackquality==""):
+                            rootcommand='root -b -q -l CopySubdir.C\\('+ '\\\"'+harvestedfile+'\\\",\\\"val.' +sample+'.root\\\",\\\"'+ tracks_map[trackalgorithm]+ '\\\"\\) >& /dev/null'
+                            #rootcommand='root -b -q -l CopySubdir.C\\('+ '\\\"'+harvestedfile+'\\\",\\\"val.' +sample+'.root\\\",\\\"'+ tracks_map[trackalgorithm]+ '\\\"\\)'
+                            os.system(rootcommand)
+                    elif(trackquality=="highPurity"):
+                            os.system('root -b -q -l CopySubdir.C\\('+ '\\\"'+harvestedfile+'\\\",\\\"val.' +sample+'.root\\\",\\\"'+ tracks_map_hp[trackalgorithm]+ '\\\"\\) >& /dev/null')
+                            #os.system('root -b -q -l CopySubdir.C\\('+ '\\\"'+harvestedfile+'\\\",\\\"val.' +sample+'.root\\\",\\\"'+ tracks_map_hp[trackalgorithm]+ '\\\"\\)')
+
+            if (sampleType == 'FastSim' and dofastfull == False): referenceSample=RefRepository+'/'+RefRelease+'/fastsim/'+RefRelease+'/'+RefSelection+'/'+sample+'/'+'val.'+sample+'.root'
+            if (sampleType == 'FullSim' or dofastfull == True): referenceSample=RefRepository+'/'+RefRelease+'/'+RefSelection+'/'+sample+'/'+'val.'+sample+'.root'
+            if os.path.isfile(referenceSample ):
+                    replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefSelection+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': cfgFileName, 'MINEFF':mineff, 'MAXEFF':maxeff, 'MAXFAKE':maxfake}
+
+                    if(os.path.exists(RefRelease+'/'+RefSelection)==False):
+                            os.makedirs(RefRelease+'/'+RefSelection)
+                    os.system('cp ' + referenceSample+ ' '+RefRelease+'/'+RefSelection)  
             else:
-                    if (Sequence=="harvesting" or Sequence=="preproduction" or Sequence=="comparison_only"):
-                            #copy only the needed histograms
-                            if(trackquality==""):
-                                    rootcommand='root -b -q -l CopySubdir.C\\('+ '\\\"'+harvestedfile+'\\\",\\\"val.' +sample+'.root\\\",\\\"'+ tracks_map[trackalgorithm]+ '\\\"\\) >& /dev/null'
-                                    #rootcommand='root -b -q -l CopySubdir.C\\('+ '\\\"'+harvestedfile+'\\\",\\\"val.' +sample+'.root\\\",\\\"'+ tracks_map[trackalgorithm]+ '\\\"\\)'
-                                    os.system(rootcommand)
-                            elif(trackquality=="highPurity"):
-                                    os.system('root -b -q -l CopySubdir.C\\('+ '\\\"'+harvestedfile+'\\\",\\\"val.' +sample+'.root\\\",\\\"'+ tracks_map_hp[trackalgorithm]+ '\\\"\\) >& /dev/null')
-                                    #os.system('root -b -q -l CopySubdir.C\\('+ '\\\"'+harvestedfile+'\\\",\\\"val.' +sample+'.root\\\",\\\"'+ tracks_map_hp[trackalgorithm]+ '\\\"\\)')
-
-                    if (sampleType == 'FastSim' and dofastfull == False): referenceSample=RefRepository+'/'+RefRelease+'/fastsim/'+RefRelease+'/'+RefSelection+'/'+sample+'/'+'val.'+sample+'.root'
-                    if (sampleType == 'FullSim' or dofastfull == True): referenceSample=RefRepository+'/'+RefRelease+'/'+RefSelection+'/'+sample+'/'+'val.'+sample+'.root'
-                    if os.path.isfile(referenceSample ):
-                            replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefSelection+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': cfgFileName, 'MINEFF':mineff, 'MAXEFF':maxeff, 'MAXFAKE':maxfake}
-
-                            if(os.path.exists(RefRelease+'/'+RefSelection)==False):
-                                    os.makedirs(RefRelease+'/'+RefSelection)
-                            os.system('cp ' + referenceSample+ ' '+RefRelease+'/'+RefSelection)  
-                    else:
-                            print "No reference file found at: ", RefRelease+'/'+RefSelection
-                            replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':'val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': cfgFileName, 'MINEFF':mineff, 'MAXEFF':maxeff, 'MAXFAKE':maxfake}
+                    print "No reference file found at: ", RefRelease+'/'+RefSelection
+                    replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':'val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': cfgFileName, 'MINEFF':mineff, 'MAXEFF':maxeff, 'MAXFAKE':maxfake}
 
 
-                    macroFile = open(cfgFileName+'.C' , 'w' )
-                    replace(replace_map, templatemacroFile, macroFile)
+            macroFile = open(cfgFileName+'.C' , 'w' )
+            replace(replace_map, templatemacroFile, macroFile)
 
 
-                    os.system('root -b -q -l '+ cfgFileName+'.C'+ '>  macro.'+cfgFileName+'.log')
+            os.system('root -b -q -l '+ cfgFileName+'.C'+ '>  macro.'+cfgFileName+'.log')
 
 
-                    if(os.path.exists(newdir)==False):
-                            os.makedirs(newdir)
+            if(os.path.exists(newdir)==False):
+                    os.makedirs(newdir)
 
-                    print "moving pdf files for sample: " , sample
-                    os.system('mv  *.pdf ' + newdir)
+            print "moving pdf files for sample: " , sample
+            os.system('mv  *.pdf ' + newdir)
 
-                    print "moving root file for sample: " , sample
-                    os.system('mv val.'+ sample+ '.root ' + newdir)
+            print "moving root file for sample: " , sample
+            os.system('mv val.'+ sample+ '.root ' + newdir)
 
-                    print "copy py file for sample: " , sample
-                    if (Sequence!="comparison_only"): 
-                        os.system('cp '+cfgFileName+'.py ' + newdir)
+            print "copy py file for sample: " , sample
+            if (Sequence!="comparison_only"): 
+                os.system('cp '+cfgFileName+'.py ' + newdir)
 	
 	
         else:
