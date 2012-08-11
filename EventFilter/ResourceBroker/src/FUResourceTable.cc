@@ -970,7 +970,7 @@ void FUResourceTable::shutdownWatchdog(unsigned int timeout)
 		timeoutUs-=50000;
 		if (timeoutUs<=50000) {
 			LOG4CPLUS_ERROR(log_,"Timeout in shutdownClients, status:"<< std::hex << shutdownStatus_);
-			XCEPT_RAISE(evf::Exception, "Failed (timed out) shutdown of clients");
+			watchDogSetFailed_=true;
 			break;
 		}
 		if (timeoutUs<=1000000*timeout/2 && !warned) {
@@ -989,6 +989,7 @@ void FUResourceTable::shutDownClients() {
 
 	//start watchdog thread
 	watchDogEnd_=false;
+	watchDogSetFailed_=false;
         #ifdef linux
 	std::thread watch(&FUResourceTable::shutdownWatchdog,this,20);
         #endif
@@ -1112,6 +1113,8 @@ void FUResourceTable::shutDownClients() {
 	watchDogEnd_=true;
         #ifdef linux
 	watch.join();
+	if (watchDogSetFailed_)
+	  XCEPT_RAISE(evf::Exception, "Failed (timed out) shutdown of clients");
         #endif
 }
 

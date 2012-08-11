@@ -195,6 +195,7 @@ private:
 	bool sDqmActive_;
 
 	std::atomic_bool watchDogEnd_;
+	std::atomic_bool watchDogSetFailed_;
 
 
 };
