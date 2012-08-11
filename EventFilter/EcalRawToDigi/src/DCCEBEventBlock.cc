@@ -241,30 +241,20 @@ void DCCEBEventBlock::unpack(const uint64_t * buffer, size_t numbBytes, unsigned
         
         //  in case of SR (data are 0 suppressed)
         if (sr_) {
+          const bool applyZS =
+            (fov_ == 0) ||      // backward compatibility with FOV = 0;
+            ignoreSR ||
+            (chStatus == CH_FORCEDZS1) ||
+            ((srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) != SRP_FULLREADOUT);
           
-          if( fov_ > 0){  
-            bool applyZS(true);
-            
-              if( !ignoreSR && chStatus != CH_FORCEDZS1
-                && (srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) == SRP_FULLREADOUT){ applyZS = false; }
+          STATUS = towerBlock_->unpack(&data_, &dwToEnd_, applyZS, chNumber);
           
-                 STATUS = towerBlock_->unpack(&data_,&dwToEnd_,applyZS,chNumber);
-                
               // If there is an action to suppress SR channel the associated channel status should be updated 
               // so we can remove this piece of code
               // if ( ( srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) != SRP_NREAD ){
               //
               //  STATUS = towerBlock_->unpack(&data_,&dwToEnd_,applyZS,chNumber);
               //}
-            
-          }
-          else{
-
-             // introduced to keep backward compatibility with FOV = 0; 
-             STATUS = towerBlock_->unpack(&data_,&dwToEnd_,true,chNumber);
-
-          }
-          
         }
         // no SR (possibly 0 suppression flags)
         else {

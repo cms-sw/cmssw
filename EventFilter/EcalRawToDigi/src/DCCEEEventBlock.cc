@@ -234,28 +234,25 @@ void DCCEEEventBlock::unpack(const uint64_t * buffer, size_t numbBytes, unsigned
         continue;
       }
       
-      // Unpack Tower (Xtal Block) in case of SR (data are 0 suppressed)
-      if (feUnpacking_ && chNumber<=68) {
+      // Unpack Tower (Xtal Block)
+      if (feUnpacking_ && chNumber <= 68) {
+        
+        //  in case of SR (data are 0 suppressed)
         if (sr_) {
-          if( fov_ > 0){  
-            bool applyZS(true);
-            if( !ignoreSR && chStatus != CH_FORCEDZS1
-              && (srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) == SRP_FULLREADOUT){ applyZS = false; }
-          
+          const bool applyZS =
+            (fov_ == 0) ||      // backward compatibility with FOV = 0;
+            ignoreSR ||
+            (chStatus == CH_FORCEDZS1) ||
+            ((srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) != SRP_FULLREADOUT);
+            
+          STATUS = towerBlock_->unpack(&data_,&dwToEnd_,applyZS,chNumber);
 
             // If there is a decision to fully suppress data this is updated in channel status by the dcc
             //if ( ( srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) != SRP_NREAD ){
-                STATUS = towerBlock_->unpack(&data_,&dwToEnd_,applyZS,chNumber);
+            //    STATUS = towerBlock_->unpack(&data_,&dwToEnd_,applyZS,chNumber);
             //}
-          }
-          else{
-
-             // introduced to keep backward compatibility with FOV = 0; 
-             STATUS = towerBlock_->unpack(&data_,&dwToEnd_,true,chNumber);
-
-          }
         }
-        // Unpack Tower (Xtal Block) for no SR (possibly 0 suppression flags)
+        // no SR (possibly 0 suppression flags)
         else {
           // if tzs_ data are not really suppressed, even though zs flags are calculated
           if(tzs_){ zs_ = false;}
