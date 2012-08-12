@@ -46,6 +46,7 @@ TTbar_Kinematics::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   const reco::GenParticle*      Wplus = genEvt->wPlus()  ;
   const reco::GenParticle*      Wmin  = genEvt->wMinus() ;
 
+  if(top){
   tlv_Top        = TLorentzVector(0,0,0,0) ;
   tlv_TopBar     = TLorentzVector(0,0,0,0) ;
   tlv_Bottom     = TLorentzVector(0,0,0,0) ;
@@ -132,7 +133,7 @@ TTbar_Kinematics::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   
   hWplusPz->Fill(tlv_Wplus.Pz(),weight);
   hWminPz->Fill(tlv_Wmin.Pz(),weight);
-
+  }
 }
 
 

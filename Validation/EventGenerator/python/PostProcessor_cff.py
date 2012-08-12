@@ -389,5 +389,83 @@ postProcessorTTbarValidation = cms.EDAnalyzer(
                                           )
     )
 
+postProcessorHiggsValidation = cms.EDAnalyzer(
+    "DQMGenericClient",
+    subDirs = cms.untracked.vstring("Generator/Higgs*"),
+    efficiency = cms.vstring(""),
+    resolution = cms.vstring(""),
+    normalization = cms.untracked.vstring("Higgs_DecayChannels nEvt",
+                                          "Higgs_eta nEvt",
+                                          "Higgs_m nEvt",
+                                          "Higgs_pt nEvt",
+                                          "W_eta nEvt",
+                                          "W_pt nEvt",
+                                          "Z_eta nEvt",
+                                          "Z_pt nEvt",
+                                          "b_eta nEvt",
+                                          "b_pt nEvt",
+                                          "c_eta nEvt",
+                                          "c_pt nEvt",
+                                          "d_eta nEvt",
+                                          "d_pt nEvt",
+                                          "e_eta nEvt",
+                                          "e_pt nEvt",
+                                          "gamma_eta nEvt",
+                                          "gamma_pt nEvt",
+                                          "mu_eta nEvt",
+                                          "mu_pt nEvt",
+                                          "nEvt nEvt",
+                                          "nu_eta nEvt",
+                                          "nu_pt nEvt",
+                                          "s_eta nEvt",
+                                          "s_pt nEvt",
+                                          "t_eta nEvt",
+                                          "t_pt nEvt",
+                                          "tau_eta nEvt",
+                                          "tau_pt nEvt",
+                                          "u_eta nEvt",
+                                          "u_pt nEvt"                                                 
+                                         )
+    )
 
-EventGeneratorPostProcessor = cms.Sequence(postProcessorBasicHepMCValidation+postProcessorBasicGenParticleValidation+postProcessorMBUEandQCDValidation+postProcessorWValidation+postProcessorDrellYanValidation+postProcessorTauValidation+postProcessorTTbarValidation)
+postProcessorHplusValidation = cms.EDAnalyzer(
+    "DQMGenericClient",
+    subDirs = cms.untracked.vstring("Generator/Hplus*"),
+    efficiency = cms.vstring(""),
+    resolution = cms.vstring(""),
+    normalization = cms.untracked.vstring("Hplus_DecayChannels nEvt",
+                                          "Hplus_eta nEvt",
+                                          "Hplus_m nEvt",
+                                          "Hplus_pt nEvt",
+                                          "W_eta nEvt",
+                                          "W_pt nEvt",
+                                          "Z_eta nEvt",
+                                          "Z_pt nEvt",
+                                          "b_eta nEvt",
+                                          "b_pt nEvt",
+                                          "c_eta nEvt",
+                                          "c_pt nEvt",
+                                          "d_eta nEvt",
+                                          "d_pt nEvt",
+                                          "e_eta nEvt",
+                                          "e_pt nEvt",
+                                          "gamma_eta nEvt",
+                                          "gamma_pt nEvt",
+                                          "mu_eta nEvt",
+                                          "mu_pt nEvt",
+                                          "nEvt nEvt",
+                                          "nu_eta nEvt",
+                                          "nu_pt nEvt",
+                                          "s_eta nEvt",
+                                          "s_pt nEvt",
+                                          "t_eta nEvt",
+                                          "t_pt nEvt",
+                                          "tau_eta nEvt",
+                                          "tau_pt nEvt",
+                                          "u_eta nEvt",
+                                          "u_pt nEvt"
+                                          )
+    )
+
+
+EventGeneratorPostProcessor = cms.Sequence(postProcessorBasicHepMCValidation+postProcessorBasicGenParticleValidation+postProcessorMBUEandQCDValidation+postProcessorWValidation+postProcessorDrellYanValidation+postProcessorTauValidation+postProcessorTTbarValidation+postProcessorHiggsValidation+postProcessorHplusValidation)
