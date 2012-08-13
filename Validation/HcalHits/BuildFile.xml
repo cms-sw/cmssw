@@ -15,7 +15,6 @@
 <use   name="DataFormats/Math"/>
 <use   name="rootmath"/>
 <use   name="DQMServices/Core"/>
+<use   name="DataFormats/HepMCCandidate"/>
 
-<use   name="DataFormats/HepMCCandidate"/> 
-<use   name="DataFormats/HcalDigi"/> 
 <flags   EDM_PLUGIN="1"/>
