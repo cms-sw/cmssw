@@ -1,68 +1,21 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/PluginManager"/>
-
-<use   name="hepmc"/>
-<use   name="heppdt"/>
-
-<use   name="CondFormats/HIObjects">
-<use   name="CondFormats/DataRecord">
-
-<use   name="CommonTools/Utils"/>
-<use   name="CommonTools/UtilAlgos"/>
-
-
+<use   name="geant4core"/>
+<use   name="boost"/>
+<use   name="SimG4Core/Notification"/>
+<use   name="SimG4Core/Watcher"/>
+<use   name="SimG4CMS/Calo"/>
+<use   name="Geometry/HcalCommonData"/>
 <use   name="DataFormats/HcalDetId"/>
-<use   name="DataFormats/HcalDigi"/>
-<use   name="DataFormats/EcalRecHit"/>
-<use   name="DataFormats/DetId"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/Candidate"/>
-<use   name="DataFormats/HeavyIonEvent"/>
-<use   name="DataFormats/GeometryVector"/>
-<use   name="DataFormats/SiPixelDigi"/>
-<use   name="DataFormats/TrackingRecHit"/>
-<use   name="DataFormats/VertexReco"/>
-<use   name="DataFormats/Math"/>
-
-
-<use   name="PhysicsTools/UtilAlgos"/>
-
-
 <use   name="SimDataFormats/CaloHit"/>
 <use   name="SimDataFormats/ValidationFormats"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="SimDataFormats/TrackingAnalysis"/>
-<use   name="SimDataFormats/Vertex"/>
-
-
-<use   name="SimGeneral/HepPDTRecord"/>
-
-<use   name="SimTracker/TrackerHitAssociation"/>
-<use   name="SimTracker/TrackAssociation"/>
-<use   name="SimTracker/Records"/>
-
-<use   name="Geometry/HcalCommonData"/>
-<use   name="Geometry/CaloGeometry"/>
-<use   name="Geometry/CommonDetUnit"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="Geometry/Records"/>
-
-<use   name="RecoTracker/Record"/>
-
-<use   name="HLTrigger/HLTcore"/>
-
-<use   name="SimG4Core/Notification"/>
-<use   name="SimG4Core/Watcher"/>
-
-<use   name="SimG4CMS/Calo"/>
-
+<use   name="hepmc"/>
+<use   name="DataFormats/Math"/>
+<use   name="rootmath"/>
 <use   name="DQMServices/Core"/>
 
-
-<use   name="geant4core"/>
-<use   name="boost"/>
-<use   name="rootmath"/>
-
+<use   name="DataFormats/HepMCCandidate"/> 
+<use   name="DataFormats/HcalDigi"/> 
 <flags   EDM_PLUGIN="1"/>
