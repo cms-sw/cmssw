@@ -193,9 +193,13 @@ allAlignemts is a list of Alignment objects the is used to generate Alignment_vs
                     if randomWorkdirPart == None:
                         randomWorkdirPart = result[-1].randomWorkdirPart
             elif validationName == "offline":
+                if not readGeneral( config )["parallelJobs"] == "1":
+                    raise StandardError, "The parameter 'parallelJobs' accepts values other than '1' only in mode 'offlineParallel'."                    
                 result.append( OfflineValidation( self, config ) )
             elif validationName == "offlineDQM":
                 result.append( OfflineValidationDQM( self, config ) )
+            elif validationName == "offlineParallel":
+                result.append( OfflineValidationParallel( self, config ) )
             elif validationName == "mcValidate":
                 result.append( MonteCarloValidation( self, config ) )
             elif validationName == "split":
@@ -224,6 +228,7 @@ class GenericValidation:
         result = alignment.getRepMap()
         result.update({
                 "nEvents": str(self.__general["maxevents"]),
+                "nJobs": str(self.__general["parallelJobs"]),
                 "dataset": str(self.__general["dataset"]),
                 "superPointingDataset": str(self.__general["superPointingDataset"]),
                 "RelValSample": self.__general["relvalsample"],
@@ -243,6 +248,12 @@ cmsRun %(cfgFile)s
                 })
         #TODO catch missing delcalration of i.e. dataset or relvalsample here and rethrow to be catched by 
         #     individual validation.
+
+        # In case maxevents==-1, set number of parallel jobs to 1
+        # since we cannot calculate number of events for each
+        # parallel job
+        if str(self.__general["maxevents"]) == "-1":
+            result.update({ "nJobs": "1" })
         return result
 
     def getCompareStrings( self, requestId = None ):
@@ -466,6 +477,100 @@ class OfflineValidation(GenericValidation):
 #  p.loadFileList("rfio:/castor/cern.ch/user/j/jdraeger/Validation/MCfromCRAFT/new/Validation_MC_Adun1_CosmicTF.root","Brot ist lecker2");
         return validationsSoFar
 
+class OfflineValidationParallel(OfflineValidation):
+
+    def __init__(self, alignment,config):
+        OfflineValidation.__init__(self, alignment, config)
+        general = readGeneral( config )
+        self.__maxEvents = general["maxevents"]
+        self.__NJobs = general["parallelJobs"]
+        self.__offlineModuleLevelHistsTransient = general["offlineModuleLevelHistsTransient"]
+
+    def createConfiguration(self, path, configBaseName = "TkAlOfflineValidation" ):
+        # if offline validation uses N parallel jobs, we create here N cfg files
+        numberParallelJobs = int(self.__NJobs)
+        # limit maximum number of parallel jobs to 40
+        # (each output file is approximately 20MB)
+        maximumNumberJobs = 40
+        if numberParallelJobs > maximumNumberJobs:
+            raise StandardError, "Maximum allowed number of parallel jobs "+str(maximumNumberJobs)+" exceeded!!!"
+        # if maxevents is not specified, cannot calculate number of events for each
+        # parallel job, and therefore running only a single job
+        if int(self.__maxEvents)==-1:
+            numberParallelJobs = 1
+            self.__NJobs       = "1"
+            print "Maximum number of events (maxEvents) not specified: cannot use parallel jobs in offline validation"
+        if numberParallelJobs > 1:    
+            if self.__offlineModuleLevelHistsTransient=="True":
+                raise StandardError, "To be able to merge results when running parallel jobs, set offlineModuleLevelHistsTransient to false."
+        for index in range(numberParallelJobs):
+            cfgName = "%s.%s_%s_cfg.py"%( configBaseName, self.alignmentToValidate.name, str(index) )
+            repMap = self.getRepMap()
+            # in this parallel job, skip index*(maxEvents/nJobs) events from the beginning
+            # (first index is zero, so no skipping for a single job)
+            # and use _index_ in the name of the output file
+            repMap.update({"nIndex": str(index)})
+            repMap.update({
+                "outputFile": replaceByMap( ".oO[workdir]Oo./AlignmentValidation_.oO[name]Oo._.oO[nIndex]Oo..root", repMap )
+                })
+            repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
+            repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
+
+            cfgs = {cfgName:replaceByMap( configTemplates.offlineParallelTemplate, repMap)}
+            self.filesToCompare[ GenericValidation.defaultReferenceName ] = repMap["resultFile"] 
+            GenericValidation.createConfiguration(self, cfgs, path)
+            # here is a small problem. only the last cfgs is saved
+            # it requires a bit ugly solution later
+        
+    def createScript(self, path, scriptBaseName = "TkAlOfflineValidation"):
+        # A separate script is created for each parallel jobs.
+        # Since only one cfg is saved a bit ugly solution is needed in the loop.
+        returnValue = []
+        numJobs = int(self.__NJobs)
+        for index in range(numJobs):
+            scriptName = "%s.%s_%s.sh"%(scriptBaseName, self.alignmentToValidate.name, str(index) )
+            repMap = GenericValidation.getRepMap(self)
+            repMap["nIndex"]=""
+            repMap["nIndex"]=str(index)
+            repMap["CommandLine"]=""
+            for cfg in self.configFiles:
+                # The ugly solution here is to change the name for each parallel job 
+                cfgtemp = cfg.replace( str(numJobs-1)+"_cfg.py" , str(index)+"_cfg.py" )
+                repMap["CommandLine"]+= repMap["CommandLineTemplate"]%{"cfgFile":cfgtemp,
+                                                                       "postProcess":""
+                                                                       }
+                scripts = {scriptName: replaceByMap( configTemplates.parallelScriptTemplate, repMap ) }
+                returnValue.extend( GenericValidation.createScript(self, scripts, path) )
+        return returnValue
+
+    def getRepMap(self, alignment = None):
+        repMap = OfflineValidation.getRepMap(self, alignment) 
+        repMap.update({
+                "parallelJobs":self.__NJobs
+                })
+        return repMap
+
+    def appendToMergeParJobs( self, validationsSoFar = "" ):
+        """
+        if no argument or "" is passed a string with an instantiation is returned, 
+        else the validation is appended to the list
+        """
+        repMap = self.getRepMap()
+        if validationsSoFar == "":
+            parameters = ""
+            fileToAdd = ""
+            for index in range(int(self.__NJobs)):
+                fileToAdd = '%(resultFile)s'%repMap
+                fileToAdd = fileToAdd.replace('.root','_'+str(index)+'.root')
+                if index < int(self.__NJobs)-1:
+                    parameters = parameters+fileToAdd+','
+                else:
+                    parameters = parameters+fileToAdd                
+
+            validationsSoFar = 'hadd("'+parameters+'");'
+        return validationsSoFar
+
+
 class OfflineValidationDQM(OfflineValidation):
     def __init__(self, alignment, config):
         OfflineValidation.__init__(self, alignment, config)
@@ -627,7 +732,8 @@ def readGeneral( config ):
         "OfflineTreeBaseDir":"TrackHitFilter",
         "DMRMethod":"median",
         "DMRMinimum":"30",
-        "DMROptions":""
+        "DMROptions":"",
+        "parallelJobs":"1"
         }
     try:
        for option in config.options("general"):
@@ -658,6 +764,18 @@ def runJob(jobName, script, config):
         
         log+=getCommandOutput2("%(bsub)s %(commands)s -J %(jobName)s -o %(logDir)s/%(jobName)s.stdout -e %(logDir)s/%(jobName)s.stderr %(script)s"%repMap)
     return log
+
+def createOfflineJobsMergeScript(offlineValidationList, outFilePath):
+    repMap = offlineValidationList[0].getRepMap() # bit ugly since some special features are filled
+    repMap[ "mergeOfflinParJobsInstantiation" ] = "" #give it a "" at first in order to get the initialisation back
+
+    for validation in offlineValidationList:
+        repMap[ "mergeOfflinParJobsInstantiation" ] = validation.appendToMergeParJobs( repMap[ "mergeOfflinParJobsInstantiation" ] )
+#                    validationsSoFar = 'PlotAlignmentValidation p("%(resultFile)s", "%(name)s", %(color)s, %(style)s);\n'%repMap
+    
+    theFile = open( outFilePath, "w" )
+    theFile.write( replaceByMap( configTemplates.mergeOfflineParJobsTemplate ,repMap ) )
+    theFile.close()
 
 def createExtendedValidationScript(offlineValidationList, outFilePath):
     repMap = offlineValidationList[0].getRepMap() # bit ugly since some special features are filled
@@ -695,6 +813,55 @@ def createMergeScript( path, validations ):
         repMap["extendeValScriptPath"] = os.path.join(path, "TkAlExtendedOfflineValidation.C")
         createExtendedValidationScript( comparisonLists["OfflineValidation"], repMap["extendeValScriptPath"] )
         repMap["RunExtendedOfflineValidation"] = replaceByMap(configTemplates.extendedValidationExecution, repMap)
+
+    repMap["CompareAllignments"] = "#run comparisons"
+    for validationId in comparisonLists:
+        compareStrings = [ val.getCompareStrings(validationId) for val in comparisonLists[validationId] ]
+            
+        repMap.update({"validationId": validationId,
+                       "compareStrings": " , ".join(compareStrings) })
+        
+        repMap["CompareAllignments"] += replaceByMap( configTemplates.compareAlignmentsExecution, repMap )
+      
+    filePath = os.path.join(path, "TkAlMerge.sh")
+    theFile = open( filePath, "w" )
+    theFile.write( replaceByMap( configTemplates.mergeTemplate, repMap ) )
+    theFile.close()
+    os.chmod(filePath,0755)
+    
+    return filePath
+    
+def createParallelMergeScript( path, validations ):
+    if( len(validations) == 0 ):
+        raise StandardError, "cowardly refusing to merge nothing!"
+
+    repMap = validations[0].getRepMap() #FIXME - not nice this way
+    repMap.update({
+            "DownloadData":"",
+            "CompareAllignments":"",
+            "RunExtendedOfflineValidation":""
+            })
+
+    comparisonLists = {} # directory of lists containing the validations that are comparable
+    for validation in validations:
+        for referenceName in validation.filesToCompare:    
+            validationName = "%s.%s"%(validation.__class__.__name__, referenceName)
+            validationName = validationName.split(".%s"%GenericValidation.defaultReferenceName )[0]
+            if validationName in comparisonLists:
+                comparisonLists[ validationName ].append( validation )
+            else:
+                comparisonLists[ validationName ] = [ validation ]
+
+    if "OfflineValidationParallel" in comparisonLists:
+        repMap["extendeValScriptPath"] = os.path.join(path, "TkAlExtendedOfflineValidation.C")
+        createExtendedValidationScript( comparisonLists["OfflineValidationParallel"], repMap["extendeValScriptPath"] )
+        # add a script which merges output files from parallel jobs
+        repMap["mergeOfflineParJobsScriptPath"] = os.path.join(path, "TkAlOfflineJobsMerge.C")
+        createOfflineJobsMergeScript( comparisonLists["OfflineValidationParallel"], repMap["mergeOfflineParJobsScriptPath"] )
+        repMap["RunExtendedOfflineValidation"] = replaceByMap(configTemplates.extendedValidationExecution, repMap)
+        # DownloadData is used to merge output files from parallel jobs
+        # it uses the file TkAlOfflineJobsMerge.C
+        repMap["DownloadData"] += replaceByMap( configTemplates.mergeOfflineParallelResults, repMap )
 
     repMap["CompareAllignments"] = "#run comparisons"
     for validationId in comparisonLists:
@@ -786,7 +953,11 @@ def main(argv = None):
         validation.createConfiguration( outPath )
         scripts.extend( validation.createScript( outPath ) )
     
-    createMergeScript( outPath, validations )
+    if general["parallelJobs"] == "1":
+        createMergeScript( outPath, validations )
+    else:
+        createParallelMergeScript( outPath, validations )
+        
 
     #save backup configuration file
     backupConfigFile = open( os.path.join( outPath, "usedConfiguration.ini" ) , "w"  )
