@@ -39,7 +39,6 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
@@ -118,36 +117,7 @@ private:
  MonitorElement* genpart_GammaF_energydist;
  MonitorElement* genpart_GammaB;
  MonitorElement* genpart_GammaB_energydist;
-/////////////////////////////////
-
-/////////ZDC Digi Plots////////
- MonitorElement* meZdcfCPHAD;
- MonitorElement* meZdcfCPTOT;
- MonitorElement* meZdcfCNHAD;
- MonitorElement* meZdcfCNTOT;
- MonitorElement* meZdcfCPEMvHAD;
- MonitorElement* meZdcfCNEMvHAD;
- MonitorElement* meZdcPEM1fCvsTS;
- MonitorElement* meZdcPEM2fCvsTS;
- MonitorElement* meZdcPEM3fCvsTS;
- MonitorElement* meZdcPEM4fCvsTS;
- MonitorElement* meZdcPEM5fCvsTS;
- MonitorElement* meZdcPHAD1fCvsTS;
- MonitorElement* meZdcPHAD2fCvsTS;
- MonitorElement* meZdcPHAD3fCvsTS;
- MonitorElement* meZdcPHAD4fCvsTS;
- MonitorElement* meZdcNEM1fCvsTS;
- MonitorElement* meZdcNEM2fCvsTS;
- MonitorElement* meZdcNEM3fCvsTS;
- MonitorElement* meZdcNEM4fCvsTS;
- MonitorElement* meZdcNEM5fCvsTS;
- MonitorElement* meZdcNHAD1fCvsTS;
- MonitorElement* meZdcNHAD2fCvsTS;
- MonitorElement* meZdcNHAD3fCvsTS;
- MonitorElement* meZdcNHAD4fCvsTS;
-////////////////////////////////////////
-
-
+//////////////////////////////
 
 };
 
