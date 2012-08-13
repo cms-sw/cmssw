@@ -14,7 +14,7 @@ OutALCARECOEcalCalElectron_specific = cms.untracked.vstring(
 OutALCARECOEcalCalElectron_noDrop = cms.PSet(
     # put this if you have a filter
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOEcalCalElectron')
+        SelectEvents = cms.vstring('pathALCARECOEcalCalZElectron', 'pathALCARECOEcalCalZElectron')
     ),
     outputCommands = cms.untracked.vstring( 
     'keep *_pfMet_*_*',

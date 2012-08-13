@@ -1,12 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 #==================================================== FILTER EVENTS WITH WZSkims
-#from DPGAnalysis.Skims.WElectronSkim_cff import *  # already imported by ZElectronSkim_cff
-#from DPGAnalysis.Skims.ZElectronSkim_cff import *
+#from DPGAnalysis.Skims.WElectronSkim_cff import * # already imported by ZElectronSkim_cff
+from DPGAnalysis.Skims.ZElectronSkim_cff import *
 # tagGsfSeq for Zee
 #
-#WSkimSeq = cms.Sequence( WEnuHltFilter * ele_sequence * elecMetFilter )
+WSkimSeq = cms.Sequence( WEnuHltFilter * ele_sequence * elecMetFilter )
 
+#from calibration.SANDBOX.ZElectronSkimSandbox_cff import *
 
 #===================================================== removing events with trackerDrivenOnly electrons
 # if you want to filter events with trackerDrivenOnly electrons
@@ -31,14 +32,17 @@ import FWCore.ParameterSet.Config as cms
 #trackerDrivenRemoverSeq = cms.Sequence( trackerDrivenOnlyElectrons)
 
 
-from RecoJets.Configuration.RecoPFJets_cff import *
-kt6PFJetsForRhoCorrection = kt6PFJets.clone(doRhoFastjet = True)
-kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
+# already imported by the WElectronSkim
+#from RecoJets.Configuration.RecoPFJets_cff import *
+#kt6PFJetsForRhoCorrection = kt6PFJets.clone(doRhoFastjet = True)
+#kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
 
 
 
 
 from Calibration.EcalAlCaRecoProducers.alCaIsolatedElectrons_cfi import *
+
+
 
 seqALCARECOEcalCalElectronRECO = cms.Sequence( alCaIsolatedElectrons)
 
@@ -47,5 +51,5 @@ seqALCARECOEcalCalElectron = cms.Sequence( kt6PFJetsForRhoCorrection +
                                            seqALCARECOEcalCalElectronRECO
                                           )
 
-
-                                             
+seqALCARECOEcalCalZElectron = cms.Sequence( tagGsfSeq * seqALCARECOEcalCalElectron)
+seqALCARECOEcalCalWElectron = cms.Sequence( WSkimSeq  * seqALCARECOEcalCalElectron) 
