@@ -109,6 +109,49 @@ echo "done."
 
 ######################################################################
 ######################################################################
+#batch job execution
+parallelScriptTemplate="""
+#!/bin/bash
+#init
+#ulimit -v 3072000
+#export STAGE_SVCCLASS=cmscafuser
+source /afs/cern.ch/cms/caf/setup.sh
+# source /afs/cern.ch/cms/sw/cmsset_default.sh
+cd .oO[CMSSW_BASE]Oo./src
+# export SCRAM_ARCH=slc5_amd64_gcc462
+export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
+eval `scramv1 ru -sh`
+rfmkdir -p .oO[workdir]Oo.
+rfmkdir -p .oO[datadir]Oo.
+
+rm -f .oO[workdir]Oo./*
+cd .oO[workdir]Oo.
+
+#run
+pwd
+df -h .
+.oO[CommandLine]Oo.
+echo "----"
+echo "List of files in $(pwd):"
+ls -ltr
+echo "----"
+echo ""
+
+
+#retrieve
+rfmkdir -p .oO[logdir]Oo.
+gzip LOGFILE_*_.oO[name]Oo..log
+find .oO[workdir]Oo. -maxdepth 1 -name "LOGFILE*.oO[alignmentName]Oo.*" -print | xargs -I {} bash -c "rfcp {} .oO[logdir]Oo."
+rfmkdir -p .oO[datadir]Oo.
+find .oO[workdir]Oo. -maxdepth 1 -name "*.oO[alignmentName]Oo._.oO[nIndex]Oo.*.root" -print | xargs -I {} bash -c "rfcp {} .oO[datadir]Oo."
+#cleanup - do not remove workdir, since another parallel job might be running in the same node
+find .oO[workdir]Oo. -maxdepth 1 -name "*.oO[alignmentName]Oo._.oO[nIndex]Oo.*.root" -print | xargs -I {} bash -c "rm {}"
+echo "done."
+"""
+
+
+######################################################################
+######################################################################
 mergeTemplate="""
 #!/bin/bash
 #init
