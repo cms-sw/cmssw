@@ -36,8 +36,8 @@ CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
   ///the sizes vary depending on type of the ALCT board
   ///                                        number of words for various
   ///                                        alct board types:  1  2  3     5  6
-  static unsigned short int collisionMaskWordcount[7]    = { 8, 8,12,16,16,24,28};
-  static unsigned short int hotChannelMaskWordcount[7]   = {18,18,24,36,36,48,60};
+  constexpr unsigned short int collisionMaskWordcount[7]    = { 8, 8,12,16,16,24,28};
+  constexpr unsigned short int hotChannelMaskWordcount[7]   = {18,18,24,36,36,48,60};
 
   ///first determine the correct format  
   if (buf[0]==0xDB0A) {
