@@ -99,9 +99,9 @@ process.nEventsBefEDM   = cms.EDProducer("EventCountProducer")
 process.Out = cms.OutputModule("PoolOutputModule",
      outputCommands = cms.untracked.vstring(
          "drop *",
-         'keep EventAux_*_*_*',
-         'keep LumiSummary_*_*_*',
-         'keep edmMergeableCounter_*_*_*',
+         "keep EventAux_*_*_*",
+         "keep LumiSummary_*_*_*",
+         "keep edmMergeableCounter_*_*_*",
          "keep *_genParticles_*_*",
          "keep GenEventInfoProduct_generator_*_*",
          "keep *_offlinePrimaryVertices_*_*",
