@@ -33,7 +33,7 @@ public:
   
   
   CondIter(bool cacheIt=false) : initialized(false), useCache(cacheIt),n(0){}
-  ~CondIter(){}
+  virtual ~CondIter(){}
   
   
   void reset() { initialized=false; data.clear();}
