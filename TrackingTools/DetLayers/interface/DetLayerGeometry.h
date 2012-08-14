@@ -18,7 +18,9 @@ class DetLayer;
 class DetLayerGeometry {
  public:
   DetLayerGeometry(){};
-  
+	
+	virtual ~DetLayerGeometry() {} 
+ 
   /*
   const std::vector<DetLayer*>& allLayers() const =0;
   const std::vector<DetLayer*>& barrelLayers() const =0;
