@@ -29,7 +29,7 @@ process.source = cms.Source("PoolSource",
 if CMSSW4_2:
    readFiles.extend(['/store/data/Run2011B/SingleMu/USER/EXOHSCP-PromptSkim-v1/0000/FC298F26-65FF-E011-977F-00237DA13C76.root'])
 else:
-   readFiles.extend(['/store/data/Run2012A/SingleMu/RECO/PromptReco-v1/000/191/248/186722DA-5E88-E111-ADFF-003048D2C0F0.root'])
+   readFiles.extend(['/store/data/Run2011B/SingleMu/USER/EXOHSCP-PromptSkim-v1/0000/847B025D-76E8-E011-A7E3-1CC1DE051038.root'])
 
 
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
@@ -38,8 +38,12 @@ process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMCo
 #process.source.lumisToProcess = LumiList.LumiList(filename = 'OfficialLumi.json').getVLuminosityBlockRange()
 
 ########################################################################
-#process.load('SUSYBSMAnalysis.Skimming.EXOHSCP_cff')
-process.load('Configuration.Skimming.PDWG_EXOHSCP_cff')
+if CMSSW4_2:
+   process.load('SUSYBSMAnalysis.Skimming.EXOHSCP_cff')
+   process.load('SUSYBSMAnalysis.Skimming.EXOHSCP_EventContent_cfi')
+else:
+   process.load('Configuration.Skimming.PDWG_EXOHSCP_cff')
+
 process.load("SUSYBSMAnalysis.HSCP.HSCParticleProducerFromSkim_cff")  #IF RUNNING ON HSCP SKIM
 process.load("SUSYBSMAnalysis.HSCP.HSCPTreeBuilder_cff")
 
@@ -48,6 +52,14 @@ process.load("SUSYBSMAnalysis.HSCP.HSCPTreeBuilder_cff")
 process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
 
 if CMSSW4_2:
+   process.HSCPTrigger = cms.EDFilter("HSCPHLTFilter",
+     RemoveDuplicates = cms.bool(False),
+     TriggerProcess   = cms.string("HLT"),
+     MuonTrigger1Mask    = cms.int32(1),  #Activated
+     PFMetTriggerMask    = cms.int32(1),  #Activated
+     L2MuMETTriggerMask  = cms.int32(1),  #Activated
+   )
+else:
    process.HSCPTrigger = process.hltHighLevel.clone()
    process.HSCPTrigger.TriggerResultsTag = cms.InputTag( "TriggerResults", "", "HLT" )
    process.HSCPTrigger.HLTPaths = [
@@ -62,14 +74,6 @@ if CMSSW4_2:
    ]
    process.HSCPTrigger.andOr = cms.bool( True ) #OR
    process.HSCPTrigger.throw = cms.bool( False )
-else:
-   process.HSCPHLTTrigger = cms.EDFilter("HSCPHLTFilter",
-     RemoveDuplicates = cms.bool(False),
-     TriggerProcess   = cms.string("HLT"),
-     MuonTrigger1Mask    = cms.int32(1),  #Activated
-     PFMetTriggerMask    = cms.int32(1),  #Activated
-     L2MuMETTriggerMask  = cms.int32(1),  #Activated
-   )
 
 ########################################################################  SPECIAL CASE FOR DATA
 
@@ -175,7 +179,7 @@ process.es_prefer_vDriftDB = cms.ESPrefer('PoolDBESSource','vDriftDB')
 #LOOK AT SD PASSED PATH IN ORDER to avoid as much as possible duplicated events (make the merging of .root file faster)
 if CMSSW4_2:
     #The module ak5PFJetsPt15 does not exist in CMSSW4
-    process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.exoticaHSCPSeq * process.nEventsBefEDM * process.HSCParticleProducerSeq)
+    process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.nEventsBefEDM * process.HSCParticleProducerSeq)
 else:
     process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.exoticaHSCPSeq * process.nEventsBefEDM * process.ak5PFJetsPt15 * process.HSCParticleProducerSeq)
 
