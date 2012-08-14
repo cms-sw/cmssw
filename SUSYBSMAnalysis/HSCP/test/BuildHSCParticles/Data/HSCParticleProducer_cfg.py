@@ -29,7 +29,7 @@ process.source = cms.Source("PoolSource",
 if CMSSW4_2:
    readFiles.extend(['/store/data/Run2011B/SingleMu/USER/EXOHSCP-PromptSkim-v1/0000/FC298F26-65FF-E011-977F-00237DA13C76.root'])
 else:
-   readFiles.extend(['/store/data/Run2011B/SingleMu/USER/EXOHSCP-PromptSkim-v1/0000/847B025D-76E8-E011-A7E3-1CC1DE051038.root'])
+   readFiles.extend(['/store/data/Run2012C/SingleMu/USER/EXOHSCP-PromptSkim-v2/000/198/230/00000/14E5B271-72C8-E111-A26D-E0CB4E1A1163.root'])
 
 
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
@@ -181,7 +181,9 @@ if CMSSW4_2:
     #The module ak5PFJetsPt15 does not exist in CMSSW4
     process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.nEventsBefEDM * process.HSCParticleProducerSeq)
 else:
-    process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.exoticaHSCPSeq * process.nEventsBefEDM * process.ak5PFJetsPt15 * process.HSCParticleProducerSeq)
+    process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.nEventsBefEDM * process.ak5PFJetsPt15 * process.HSCParticleProducerSeq)
+    #If you are not running from the HSCP skim you need to redo the skim
+    #process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.exoticaHSCPSeq * process.nEventsBefEDM * process.ak5PFJetsPt15 * process.HSCParticleProducerSeq)
 
 #process.p1 = cms.Path(process.HSCParticleProducerSeq)
 process.endPath1 = cms.EndPath(process.Out)
