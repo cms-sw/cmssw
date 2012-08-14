@@ -14,6 +14,7 @@ class CosmicParametersDefinerForTP : public ParametersDefinerForTP {
 
  public:
   CosmicParametersDefinerForTP(){};
+  virtual ~CosmicParametersDefinerForTP() {};
 
   virtual ParticleBase::Vector momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticle& tp) const;
   virtual ParticleBase::Point vertex(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticle& tp) const;
