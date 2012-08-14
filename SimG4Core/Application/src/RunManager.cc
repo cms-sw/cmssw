@@ -6,6 +6,7 @@
 #include "SimG4Core/Application/interface/TrackingAction.h"
 #include "SimG4Core/Application/interface/SteppingAction.h"
 #include "SimG4Core/Application/interface/G4SimEvent.h"
+#include "SimG4Core/Application/interface/ParametrisedEMPhysics.h"
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
@@ -16,7 +17,6 @@
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
 #include "SimG4Core/MagneticField/interface/Field.h"
-#include "SimG4Core/GFlash/interface/ParametrisedPhysics.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -248,7 +248,7 @@ void RunManager::initG4(const edm::EventSetup & es)
   bool hcal = m_pPhysics.getParameter<bool>("GflashHcal"); 
   PhysicsList* phys = m_physicsList.get(); 
   if(ecal || hcal) { 
-    phys->RegisterPhysics(new ParametrisedPhysics("GFlash",m_pPhysics));
+    phys->RegisterPhysics(new ParametrisedEMPhysics("GFlash",m_pPhysics));
   }
   m_kernel->SetPhysics(phys);
   m_kernel->InitializePhysics();

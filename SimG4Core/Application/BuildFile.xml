@@ -6,13 +6,13 @@
 <use   name="SimDataFormats/Vertex"/>
 <use   name="SimG4Core/Generators"/>
 <use   name="SimG4Core/Geometry"/>
-<use   name="SimG4Core/GFlash"/>
 <use   name="SimG4Core/MagneticField"/>
 <use   name="SimG4Core/Notification"/>
 <use   name="SimG4Core/Physics"/>
 <use   name="SimG4Core/SensitiveDetector"/>
 <use   name="SimG4Core/Watcher"/>
 <use   name="SimGeneral/HepPDTRecord"/>
+<use   name="SimGeneral/GFlash"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/Framework"/>
