@@ -26,7 +26,7 @@ class PileUpSubtractor{
   typedef boost::shared_ptr<fastjet::JetDefinition>          JetDefPtr;
   
   PileUpSubtractor(const edm::ParameterSet& iConfig); 
-  ~PileUpSubtractor(){;}
+  virtual ~PileUpSubtractor(){;}
 
 virtual void setDefinition(JetDefPtr const & jetDef);
 virtual void reset(std::vector<edm::Ptr<reco::Candidate> >& input,
