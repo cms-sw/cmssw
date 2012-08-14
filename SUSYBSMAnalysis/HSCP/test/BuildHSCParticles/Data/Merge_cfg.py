@@ -68,9 +68,6 @@ process.HSCPHLTTriggerHt.HLTPaths = ["HLT_HT650_*"]
 process.HSCPHLTTriggerHtFilter = cms.Path(process.HSCPHLTTriggerHt   )
 
 if CMSSW4_2:
-   process.HSCPHLTTriggerL2Mu = process.HSCPHLTTriggerMuDeDx.clone()
-   process.HSCPHLTTriggerL2Mu.HLTPaths = ["HLT_L2Mu*MET*"]
-else:
    #Needs to be done separately as had lower threshold prescaled trigger in menu in 2011
    process.HSCPHLTTriggerL2Mu = cms.EDFilter("HSCPHLTFilter",
      RemoveDuplicates = cms.bool(False),
@@ -79,6 +76,9 @@ else:
      PFMetTriggerMask    = cms.int32(0),  #Activated
      L2MuMETTriggerMask  = cms.int32(1),  #Activated
    )
+else:
+   process.HSCPHLTTriggerL2Mu = process.HSCPHLTTriggerMuDeDx.clone()
+   process.HSCPHLTTriggerL2Mu.HLTPaths = ["HLT_L2Mu*MET*"]
 
 process.HSCPHLTTriggerL2MuFilter = cms.Path(process.HSCPHLTTriggerL2Mu   )
 
