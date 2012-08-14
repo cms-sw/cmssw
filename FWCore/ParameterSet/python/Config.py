@@ -300,11 +300,27 @@ class Process(object):
             raise ValueError(msg)
         # remove the old object of the name (if there is one)
         if hasattr(self,name) and not (getattr(self,name)==newValue):
-            # Allow items in sequences from load() statements to have
+            # Compain if items in sequences from load() statements have
             # degeneratate names, but if the user overwrites a name in the
             # main config, replace it everywhere
-            if not self.__InExtendCall and isinstance(newValue, _Sequenceable):
-                self._replaceInSequences(name, newValue)
+            if isinstance(newValue, _Sequenceable):
+                if not self.__InExtendCall:
+                   self._replaceInSequences(name, newValue)
+                else:
+                   #should check to see if used in sequence before complaining
+                   msg1 = "Trying to override definition of "+name+" while it is used by the sequence "
+                   msg2 = "\n new object defined in: "+value._filename
+                   msg2 += "\n existing object defined in: "+getattr(self,name)._filename
+                   oldValue = getattr(self,name)
+                   s = self.__findFirstSequenceUsingModule(self.sequences,oldValue)
+                   if s is not None:
+                      raise ValueError(msg1+s.label_()+msg2)
+                   s = self.__findFirstSequenceUsingModule(self.paths,oldValue)
+                   if s is not None:
+                      raise ValueError(msg1+s.label_()+msg2)
+                   s = self.__findFirstSequenceUsingModule(self.endpaths,oldValue)
+                   if s is not None:
+                      raise ValueError(msg1+s.label_()+msg2)
             self.__delattr__(name)
         self.__dict__[name]=newValue
         if isinstance(newValue,_Labelable):
@@ -313,7 +329,17 @@ class Process(object):
             self._cloneToObjectDict[id(newValue)] = newValue
         #now put in proper bucket
         newValue._place(name,self)
-
+    def __findFirstSequenceUsingModule(self,seqs,mod):
+       """Given a container of sequences, find the first sequence containing mod
+       and return the sequence. If no sequence is found, return None"""
+       from FWCore.ParameterSet.SequenceTypes import ModuleNodeVisitor
+       for sequenceable in seqs.itervalues():
+          l = list()
+          v = ModuleNodeVisitor(l)
+          sequenceable.visit(v)
+          if mod in l:
+             return sequenceable
+       return None
     def __delattr__(self,name):
         if not hasattr(self,name):
             raise KeyError('process does not know about '+name)
