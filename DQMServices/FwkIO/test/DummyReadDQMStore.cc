@@ -13,7 +13,7 @@
 //
 // Original Author:  Christopher Jones
 //         Created:  Fri Apr 29 18:05:50 CDT 2011
-// $Id: DummyReadDQMStore.cc,v 1.3 2011/05/15 20:46:01 chrjones Exp $
+// $Id: DummyReadDQMStore.cc,v 1.1 2011/07/08 19:04:34 chrjones Exp $
 //
 //
 
@@ -59,7 +59,9 @@ namespace {
       }
       m_name = iPSet.getUntrackedParameter<std::string>("name")+extension;
     }
-    
+   
+    virtual ~TH1FReader() {};
+ 
     void read() {
       if(0==m_element) {
         m_element = m_store->get(m_name);
@@ -107,7 +109,9 @@ namespace {
       }
       m_name = iPSet.getUntrackedParameter<std::string>("name")+extension;
     }
-    
+   
+    virtual ~TH2FReader() {};
+ 
     void read() {
       if(0==m_element) {
         m_element = m_store->get(m_name);

@@ -13,7 +13,7 @@
 //
 // Original Author:  Christopher Jones
 //         Created:  Fri Apr 29 18:05:50 CDT 2011
-// $Id: DummyFillDQMStore.cc,v 1.3 2011/05/15 20:46:01 chrjones Exp $
+// $Id: DummyFillDQMStore.cc,v 1.4 2012/06/13 22:02:41 wmtan Exp $
 //
 //
 
@@ -65,7 +65,9 @@ namespace {
       m_delta =  (iPSet.getUntrackedParameter<double>("highX")-m_min)/(m_steps+1);
       m_valueToFill=iPSet.getUntrackedParameter<double>("value");
     }
-    
+   
+    virtual ~TH1FFiller() {};
+ 
     void reset() {
       m_element->Reset();
     }
@@ -106,6 +108,8 @@ namespace {
       m_valueToFill=iPSet.getUntrackedParameter<double>("value");
     }
     
+    virtual ~TH2FFiller() {};
+ 
     void reset() {
       m_element->Reset();
     }
