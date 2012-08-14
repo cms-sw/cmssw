@@ -17,5 +17,7 @@ public:
   virtual TrajectoryStateClosestToBeamLine operator()
     (const FTS& originalFTS, const reco::BeamSpot & beamSpot) const;
 
+  virtual ~TSCBLBuilderNoMaterial() {};
+
 };
 #endif
