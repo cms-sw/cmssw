@@ -18,6 +18,8 @@ class MuonTransientTrackingRecHitBuilder: public TransientTrackingRecHitBuilder 
 
   MuonTransientTrackingRecHitBuilder(edm::ESHandle<GlobalTrackingGeometry> trackingGeometry = 0);
 
+  virtual ~MuonTransientTrackingRecHitBuilder() {} ;
+
   /// Call the MuonTransientTrackingRecHit::specificBuild
   RecHitPointer build(const TrackingRecHit *p, 
 		      edm::ESHandle<GlobalTrackingGeometry> trackingGeometry) const ;
