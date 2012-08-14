@@ -25,13 +25,10 @@ Jobs_Index        = ''
 Jobs_Seed	  = 0
 Jobs_NEvent	  =-1
 Jobs_Skip         = 0
-Jobs_Queue        = '2nd'
+Jobs_Queue        = '8nh'
 Jobs_Inputs	  = []
 Jobs_FinalCmds    = []
 Jobs_RunHere      = 0
-CMSSW_Type        = 0
-cwd = "\/uscms_data\/d2\/farrell3\/WorkArea\/14Aug2012\/CMSSW_5_3_3_patch1\/src\/SUSYBSMAnalysis\/HSCP\/test\/ICHEP_Analysis\/"
-olddir = "/uscms_data/d2/farrell3/WorkArea/SignalSA2012/CMSSW_4_2_8_patch6/src/SUSYBSMAnalysis/HSCP/test/Temp"
 
 useLSF = True
 
@@ -78,10 +75,6 @@ def CreateTheShellFile(argv):
 	global CopyRights	
 	global Jobs_RunHere
 	global Jobs_FinalCmds
-        global CMSSW_Type
-        global cwd
-        global olddir
-
         Path_Shell = Farm_Directories[1]+Jobs_Index+Jobs_Name+'.sh'
 
 	function_argument='('
@@ -98,23 +91,7 @@ def CreateTheShellFile(argv):
         shell_file.write('export BUILD_ARCH='+os.getenv("BUILD_ARCH","slc5_amd64_gcc462")+'\n')
         shell_file.write('export VO_CMS_SW_DIR='+os.getenv("VO_CMS_SW_DIR","/nfs/soft/cms")+'\n')
 	#shell_file.write('source /nfs/soft/cms/cmsset_default.sh\n')
-        OldDir = os.getcwd()
-	if  CMSSW_Type !=0:
-                 if CMSSW_Type==1:
-                        shell_file.write('mkdir ' + olddir + '\n')
-                        #shell_file.write('mkdir /uscms_data/d2/farrell3/WorkArea/SignalSA2012/CMSSW_4_2_8_patch6/src/SUSYBSMAnalysis/HSCP/test/Temp\n')
-                        shell_file.write('cp ' + os.getcwd() + '/* ' + olddir + '\n')
-                        #shell_file.write('cp ' + os.getcwd() + '/* /uscms_data/d2/farrell3/WorkArea/SignalSA2012/CMSSW_4_2_8_patch6/src/SUSYBSMAnalysis/HSCP/test/Temp\n')
-                 shell_file.write('cd /uscms_data/d2/farrell3/WorkArea/SignalSA2012/CMSSW_4_2_8_patch6/src/SUSYBSMAnalysis/HSCP/test/Temp\n')
-                 if CMSSW_Type==1:
-                        shell_file.write("sed 's/\/\/#define ANALYSIS2011/#define ANALYSIS2011/g' Analysis_Global.h > Temp.h\n")
-                        shell_file.write("mv Temp.h  Analysis_Global.h\n")
-                        #cwd = "\/uscms_data\/d2\/farrell3\/WorkArea\/23May2012_525p1\/src\/SUSYBSMAnalysis\/HSCP\/test\/ICHEP_Analysis\/"
-                        shell_file.write("sed 's/   sprintf(Buffer,\"Results\/Type\%i\/\", TypeMode);/   sprintf(Buffer,\"" + cwd + "Results\/Type\%i\/\", TypeMode);/g' Analysis_Step3.C > Temp.h\n")
-                        shell_file.write("mv Temp.h  Analysis_Step3.C\n")
-        if CMSSW_Type ==0:
-                 shell_file.write('cd ' + os.getcwd() + '\n')
-
+	shell_file.write('cd ' + os.getcwd() + '\n')
 	shell_file.write('eval `scramv1 runtime -sh`\n')
 
 	if   argv[0]=='BASH':
@@ -134,7 +111,7 @@ def CreateTheShellFile(argv):
                 shell_file.write('   .x %s+' % argv[1] + function_argument + '\n')
 	        shell_file.write('   .q\n')
 	        shell_file.write('EOF\n\n')
-        elif argv[0]=='FWLITE' or argv[0]=="Move_FWLITE":                 
+        elif argv[0]=='FWLITE':                 
 		if Jobs_RunHere==0:
                 	shell_file.write('cd -\n')
 	        shell_file.write('root -l -b << EOF\n')
@@ -152,8 +129,6 @@ def CreateTheShellFile(argv):
 	        shell_file.write('   gSystem->Load("libDataFormatsHepMCCandidate.so");\n')
                 shell_file.write('   gSystem->Load("libPhysicsToolsUtilities.so");\n')
                 shell_file.write('   gSystem->Load("libdcap.so");\n')
-                if CMSSW_Type!=0:
-                      argv[1] = argv[1].replace(os.getcwd(), olddir)
                 shell_file.write('   .x %s+' % argv[1] + function_argument + '\n')
 	        shell_file.write('   .q\n')
 	        shell_file.write('EOF\n\n')
@@ -266,25 +241,15 @@ def SendCluster_Push(Argv):
         global Jobs_Index
 	global Path_Shell
 	global Path_Log
-        global CMSSW_Type
 
 	Jobs_Index = "%04i_" % Jobs_Count
-        if Jobs_Count==0 and (Argv[0]=="ROOT" or Argv[0]=="FWLITE" or Argv[0]=="Move_FWLITE"):                
+        if Jobs_Count==0 and (Argv[0]=="ROOT" or Argv[0]=="FWLITE"):                
                 #First Need to Compile the macro --> Create a temporary shell path with no arguments
                 print "Compiling the Macro..."
-                CMSSW_Type = 1
-                CreateTheShellFile([Argv[0],Argv[1]])
-                os.system('sh '+Path_Shell)
-                os.system('cp '+Path_Shell + ' temp.sh')
-                os.system('rm '+Path_Shell)
-                CMSSW_Type = 0
                 CreateTheShellFile([Argv[0],Argv[1]])
                 os.system('sh '+Path_Shell)
                 os.system('rm '+Path_Shell)
 		print "Getting the jobs..."
-        CMSSW_Type = 0
-        if Argv[0]=="Move_FWLITE":
-                CMSSW_Type = 2
 	print Argv
         CreateTheShellFile(Argv)
         AddJobToCmdFile()

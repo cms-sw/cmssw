@@ -7,9 +7,8 @@ import sys
 import LaunchOnCondor
 import glob
 
-
 #the vector below contains the "TypeMode" of the analyses that should be run
-AnalysesToRun = [3]
+AnalysesToRun = [0,2,3,4,5]
 
 CMSSW_VERSION = os.getenv('CMSSW_VERSION','CMSSW_VERSION')
 if CMSSW_VERSION == 'CMSSW_VERSION':
@@ -44,13 +43,6 @@ elif sys.argv[1]=='0':
                  elif(Type==3):LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 3, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 80, 2.1, 20, 20])
                  elif(Type==4):LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 4, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
                  elif(Type==5):LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 5, '"dedxProd"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 1.5])
-           else:
-              for Type in AnalysesToRun:
-                 if  (Type==0):LaunchOnCondor.SendCluster_Push(["Move_FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 1.5])
-                 elif(Type==2):LaunchOnCondor.SendCluster_Push(["Move_FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 1.5])
-                 elif(Type==3):LaunchOnCondor.SendCluster_Push(["Move_FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 3, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 80, 2.1, 20, 25])
-                 elif(Type==4):LaunchOnCondor.SendCluster_Push(["Move_FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 4, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
-                 elif(Type==5):LaunchOnCondor.SendCluster_Push(["Move_FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 5, '"dedxProd"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 1.5])
            index+=1
         f.close()
 	LaunchOnCondor.SendCluster_Submit()
@@ -66,7 +58,6 @@ elif sys.argv[1]=='1':
            os.system('rm -f ' + Path + 'Histos.root')
            os.system('hadd -f ' + Path + 'Histos.root ' + Path + '*.root')
            LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step4.C", '"'+Path+'"'])
-
         LaunchOnCondor.SendCluster_Submit()
 elif sys.argv[1]=='2':
         print 'PLOTTING'
