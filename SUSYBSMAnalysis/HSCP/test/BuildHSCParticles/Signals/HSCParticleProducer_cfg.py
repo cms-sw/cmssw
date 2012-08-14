@@ -104,7 +104,7 @@ process.Out = cms.OutputModule("PoolOutputModule",
          "keep EventAux_*_*_*",
          "keep LumiSummary_*_*_*",
          "keep edmMergeableCounter_*_*_*",
-         "keep *_genParticles_*_*",
+         "keep *_genParticles_*_HSCPAnalysis",
          "keep GenEventInfoProduct_generator_*_*",
          "keep *_offlinePrimaryVertices_*_*",
          "keep SiStripClusteredmNewDetSetVector_generalTracksSkim_*_*",
@@ -153,7 +153,7 @@ if CMSSW4_2:
 #The module ak5PFJetsPt15 does not exist in CMSSW4
 if CMSSW4_2: process.p1 = cms.Path(process.nEventsBefSkim + process.genParticles + process.exoticaHSCPSeq + process.nEventsBefEDM                         + process.HSCParticleProducerSeq)
 else:        process.p1 = cms.Path(process.nEventsBefSkim + process.genParticles + process.exoticaHSCPSeq + process.nEventsBefEDM + process.ak5PFJetsPt15 + process.HSCParticleProducerSeq)
-print "You are going to run the following sequence: " + process.p1
+print "You are going to run the following sequence: " + str(process.p1)
 
 #process.p1 = cms.Path(process.HSCParticleProducerSeq)
 process.endPath1 = cms.EndPath(process.Out)
