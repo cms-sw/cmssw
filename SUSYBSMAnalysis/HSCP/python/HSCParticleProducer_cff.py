@@ -280,7 +280,7 @@ MuonSegmentProducer = cms.EDProducer("MuonSegmentProducer",
 MTmuontiming = muontiming.clone()
 MTmuontiming.MuonCollection = "MTMuons"
 
-MuonOnlySeq = cms.Sequence(MTancientMuonSeed + MTSAMuons + RefitMTSAMuons + MTMuons + MuonSegmentProducer + MTmuontiming)
+MuonOnlySeq = cms.Sequence(ancientMuonSeed + MTancientMuonSeed + MTSAMuons + RefitMTSAMuons + MTMuons + MuonSegmentProducer + MTmuontiming)
 if CMSSW4_2:
      MuonOnlySeq *= refittedStandAloneMuons
 
