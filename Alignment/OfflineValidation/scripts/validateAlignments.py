@@ -199,6 +199,8 @@ allAlignemts is a list of Alignment objects the is used to generate Alignment_vs
             elif validationName == "offlineDQM":
                 result.append( OfflineValidationDQM( self, config ) )
             elif validationName == "offlineParallel":
+                if readGeneral( config )["parallelJobs"] <= "1":
+                    raise StandardError, "The parameter 'parallelJobs' requires values larger than '1' in mode 'offlineParallel'."
                 result.append( OfflineValidationParallel( self, config ) )
             elif validationName == "mcValidate":
                 result.append( MonteCarloValidation( self, config ) )
@@ -497,9 +499,7 @@ class OfflineValidationParallel(OfflineValidation):
         # if maxevents is not specified, cannot calculate number of events for each
         # parallel job, and therefore running only a single job
         if int(self.__maxEvents)==-1:
-            numberParallelJobs = 1
-            self.__NJobs       = "1"
-            print "Maximum number of events (maxEvents) not specified: cannot use parallel jobs in offline validation"
+            raise StandardError, "Maximum number of events (maxEvents) not specified: cannot use parallel jobs in offline validation"
         if numberParallelJobs > 1:    
             if self.__offlineModuleLevelHistsTransient=="True":
                 raise StandardError, "To be able to merge results when running parallel jobs, set offlineModuleLevelHistsTransient to false."
