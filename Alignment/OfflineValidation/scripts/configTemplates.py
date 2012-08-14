@@ -124,6 +124,9 @@ eval `scramv1 ru -sh`
 rfmkdir -p .oO[workdir]Oo.
 rfmkdir -p .oO[datadir]Oo.
 
+#remove possible result file from previous runs
+rm -f  .oO[datadir]Oo./*.oO[alignmentName]Oo..root
+
 rm -f .oO[workdir]Oo./*
 cd .oO[workdir]Oo.
 
