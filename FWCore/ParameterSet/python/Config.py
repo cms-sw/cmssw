@@ -294,9 +294,16 @@ class Process(object):
         else:
             newValue =value
         if not self._okToPlace(name, value, self.__dict__):
+            newFile='top level config'
+            if hasattr(value,'_filename'):
+               newFile = value._filename
+            oldFile='top level config'
+            oldValue = getattr(self,name)
+            if hasattr(oldValue,'_filename'):
+               oldFile = oldValue._filename
             msg = "Trying to override definition of process."+name
-            msg += "\n new object defined in: "+value._filename
-            msg += "\n existing object defined in: "+getattr(self,name)._filename
+            msg += "\n new object defined in: "+newFile
+            msg += "\n existing object defined in: "+oldFile
             raise ValueError(msg)
         # remove the old object of the name (if there is one)
         if hasattr(self,name) and not (getattr(self,name)==newValue):
@@ -308,10 +315,16 @@ class Process(object):
                    self._replaceInSequences(name, newValue)
                 else:
                    #should check to see if used in sequence before complaining
-                   msg1 = "Trying to override definition of "+name+" while it is used by the sequence "
-                   msg2 = "\n new object defined in: "+value._filename
-                   msg2 += "\n existing object defined in: "+getattr(self,name)._filename
+                   newFile='top level config'
+                   if hasattr(value,'_filename'):
+                      newFile = value._filename
+                   oldFile='top level config'
                    oldValue = getattr(self,name)
+                   if hasattr(oldValue,'_filename'):
+                      oldFile = oldValue._filename
+                   msg1 = "Trying to override definition of "+name+" while it is used by the sequence "
+                   msg2 = "\n new object defined in: "+newFile
+                   msg2 += "\n existing object defined in: "+oldFile
                    s = self.__findFirstSequenceUsingModule(self.sequences,oldValue)
                    if s is not None:
                       raise ValueError(msg1+s.label_()+msg2)
