@@ -15,7 +15,6 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 
-
 //
 // class declaration
 //
@@ -46,6 +45,7 @@ class HSCPHLTFilter : public edm::EDFilter {
       int          MuonTrigger2Mask;
       int          PFMetTriggerMask;
       int          CaloMetTriggerMask;
+      int          L2MuMETTriggerMask;
 };
 
 
@@ -55,8 +55,9 @@ HSCPHLTFilter::HSCPHLTFilter(const edm::ParameterSet& iConfig)
    RemoveDuplicates      = iConfig.getParameter<bool>                ("RemoveDuplicates");
 
    TriggerProcess        = iConfig.getParameter<std::string>         ("TriggerProcess");
-   MuonTrigger1Mask       = iConfig.getParameter<int>                 ("MuonTrigger1Mask");
-   PFMetTriggerMask        = iConfig.getParameter<int>                 ("PFMetTriggerMask");
+   MuonTrigger1Mask      = iConfig.getParameter<int>                 ("MuonTrigger1Mask");
+   PFMetTriggerMask      = iConfig.getParameter<int>                 ("PFMetTriggerMask");
+   L2MuMETTriggerMask    = iConfig.getParameter<int>                 ("L2MuMETTriggerMask");
 
    CountEvent = 0;
    MaxPrint = 10000;
@@ -93,14 +94,15 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if(!tr.isValid()){    printf("NoValidTrigger\n");  }
 
 
-   if(RemoveDuplicates && isDuplicate(iEvent.eventAuxiliary().run(),iEvent.eventAuxiliary().event()))return false;
+   if(RemoveDuplicates) {
+     if(isDuplicate(iEvent.eventAuxiliary().run(),iEvent.eventAuxiliary().event()))return false;
+     else return true;
+   }
 
+   //for(unsigned int i=0;i<tr.size();i++){
+   //printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
+   //}fflush(stdout);
 
-//   for(unsigned int i=0;i<tr.size();i++){
-//      printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
-//   }fflush(stdout);
-
-/*
    edm::Handle< trigger::TriggerEvent > trEvHandle;
    iEvent.getByLabel("hltTriggerSummaryAOD", trEvHandle);
    trigger::TriggerEvent trEv = *trEvHandle;
@@ -108,12 +110,12 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    CountEvent++;
    //if(CountEvent<MaxPrint)printf("------------------------\n");
 
-
    unsigned int TrIndex_Unknown     = tr.size();
 
 
    bool MuonTrigger1 = false;
    bool PFMetTrigger  = false;
+   bool L2MuMETTrigger = false;
 
 
    // HLT TRIGGER BASED ON 1 MUON!
@@ -230,21 +232,45 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    }
 
+   // HLT TRIGGER BASED ON L2Mu + MET!
+   //Early 2011 running had a L2Mu60_1Hit_MET40 which was prescaled away, need to raise threshold
+   if(TrIndex_Unknown != tr.triggerIndex("HLT_L2Mu60_1Hit_MET60_v6")){
+     if(tr.accept(tr.triggerIndex("HLT_L2Mu60_1Hit_MET60_v6"))){L2MuMETTrigger = true;}
+   }else{
+     if(TrIndex_Unknown != tr.triggerIndex("HLT_L2Mu60_1Hit_MET60_v5")){
+     if(tr.accept(tr.triggerIndex("HLT_L2Mu60_1Hit_MET60_v5"))){L2MuMETTrigger = true;}
+     }else{
+       if(TrIndex_Unknown != tr.triggerIndex("HLT_L2Mu60_1Hit_MET60_v4")){
+	 if(tr.accept(tr.triggerIndex("HLT_L2Mu60_1Hit_MET60_v4"))){L2MuMETTrigger = true;}
+       }else{
+	 if(TrIndex_Unknown != tr.triggerIndex("HLT_L2Mu60_1Hit_MET60_v3")){
+	   if(tr.accept(tr.triggerIndex("HLT_L2Mu60_1Hit_MET60_v3"))){L2MuMETTrigger = true;}
+	 }else{
+	   if(TrIndex_Unknown != tr.triggerIndex("HLT_L2Mu60_1Hit_MET60_v2")) {
+	     if(tr.accept(tr.triggerIndex("HLT_L2Mu60_1Hit_MET60_v2"))){L2MuMETTrigger = true;}
+	   }else{
+	     if(TrIndex_Unknown != tr.triggerIndex("HLT_L2Mu60_1Hit_MET60_v1")){
+	       if(tr.accept(tr.triggerIndex("HLT_L2Mu60_1Hit_MET60_v1"))){L2MuMETTrigger = true;}
+	     }
+	   }
+	 }
+       }
+     }
+   }
+
    //printf("Bits = %1i %1i %1i X Mask = %+2i %+2i %+2i -->",MuonTrigger,CaloMetTrigger,CaloMetTrigger,MuonTriggerMask,CaloMetTriggerMask,CaloMetTriggerMask);
 
    if(MuonTrigger1Mask==0)MuonTrigger1=false;
    if(PFMetTriggerMask ==0)PFMetTrigger =false;
+   if(L2MuMETTriggerMask==0) L2MuMETTrigger=false;
 
    //Allow option of requiring that one of the triggers did NOT fire to remove duplicated events
    if(MuonTrigger1Mask<0 && MuonTrigger1) return false;
    if(PFMetTriggerMask<0 && PFMetTrigger) return false;
+   if(L2MuMETTriggerMask<0 && L2MuMETTrigger) return false;
 
-   bool d =  (MuonTrigger1 | PFMetTrigger);
-    printf("%i\n",d);
-   return d;
-*/
-  return true;
-
+   bool d =  (MuonTrigger1 | PFMetTrigger | L2MuMETTrigger);
+   /* printf("%i\n",d);*/return d;
 
 }
 
