@@ -25,7 +25,7 @@ Jobs_Index        = ''
 Jobs_Seed	  = 0
 Jobs_NEvent	  =-1
 Jobs_Skip         = 0
-Jobs_Queue        = '8nh'
+Jobs_Queue        = '2nd'
 Jobs_Inputs	  = []
 Jobs_FinalCmds    = []
 Jobs_RunHere      = 0
@@ -87,9 +87,9 @@ def CreateTheShellFile(argv):
 	shell_file=open(Path_Shell,'w')
 	shell_file.write('#! /bin/sh\n')
 	shell_file.write(CopyRights + '\n')
-	shell_file.write('export SCRAM_ARCH=slc5_amd64_gcc462\n')
-        shell_file.write('export BUILD_ARCH=slc5_amd64_gcc462\n')
-        shell_file.write('export VO_CMS_SW_DIR=/nfs/soft/cms\n')
+	shell_file.write('export SCRAM_ARCH='+os.getenv("SCRAM_ARCH","slc5_amd64_gcc462")+'\n')
+        shell_file.write('export BUILD_ARCH='+os.getenv("BUILD_ARCH","slc5_amd64_gcc462")+'\n')
+        shell_file.write('export VO_CMS_SW_DIR='+os.getenv("VO_CMS_SW_DIR","/nfs/soft/cms")+'\n')
 	#shell_file.write('source /nfs/soft/cms/cmsset_default.sh\n')
 	shell_file.write('cd ' + os.getcwd() + '\n')
 	shell_file.write('eval `scramv1 runtime -sh`\n')
@@ -101,26 +101,25 @@ def CreateTheShellFile(argv):
         elif argv[0]=='ROOT':
 		if Jobs_RunHere==0:
                 	shell_file.write('cd -\n')
-                shell_file.write('source setstandaloneroot.sh\n')
 	        shell_file.write('root -l -b << EOF\n')
 	        shell_file.write('   TString makeshared(gSystem->GetMakeSharedLib());\n')
-	        shell_file.write('   TString dummy = makeshared.ReplaceAll("-W ", "");\n')
+	        shell_file.write('   TString dummy = makeshared.ReplaceAll("-W ", "-Wno-deprecated-declarations -Wno-deprecated ");\n')
                 shell_file.write('   TString dummy = makeshared.ReplaceAll("-Wshadow ", " -std=c++0x ");\n')
+                shell_file.write('   cout << "Compilling with the following arguments: " << makeshared << endl;\n')
 	        shell_file.write('   gSystem->SetMakeSharedLib(makeshared);\n')
 		shell_file.write('   gSystem->SetIncludePath( "-I$ROOFITSYS/include" );\n')  
                 shell_file.write('   .x %s+' % argv[1] + function_argument + '\n')
-#                shell_file.write("root -l -b -q %s" % argv[1] + "+'%s'\n" % function_argument)
 	        shell_file.write('   .q\n')
 	        shell_file.write('EOF\n\n')
         elif argv[0]=='FWLITE':                 
 		if Jobs_RunHere==0:
                 	shell_file.write('cd -\n')
-#	        shell_file.write('eval `scramv1 runtime -sh`\n')
 	        shell_file.write('root -l -b << EOF\n')
-	        shell_file.write('   TString makeshared(gSystem->GetMakeSharedLib());\n')
-	        shell_file.write('   TString dummy = makeshared.ReplaceAll("-W ", "");\n')
+                shell_file.write('   TString makeshared(gSystem->GetMakeSharedLib());\n')
+                shell_file.write('   TString dummy = makeshared.ReplaceAll("-W ", "-Wno-deprecated-declarations -Wno-deprecated ");\n')
                 shell_file.write('   TString dummy = makeshared.ReplaceAll("-Wshadow ", " -std=c++0x ");\n')
-	        shell_file.write('   gSystem->SetMakeSharedLib(makeshared);\n')
+                shell_file.write('   cout << "Compilling with the following arguments: " << makeshared << endl;\n')
+                shell_file.write('   gSystem->SetMakeSharedLib(makeshared);\n')
                 shell_file.write('   gSystem->SetIncludePath("-I$ROOFITSYS/include");\n')
 	        shell_file.write('   gSystem->Load("libFWCoreFWLite");\n')
 	        shell_file.write('   AutoLibraryLoader::enable();\n')
@@ -164,7 +163,7 @@ def CreateTheCmdFile():
 		cmd_file.write('Environment             = CONDORJOBID=$(Process)\n')
 		cmd_file.write('notification            = Error\n')
 		#code specific for louvain
-		if(commands.getstatusoutput("uname -n")[1].find("ucl.ac.be")):
+		if(commands.getstatusoutput("uname -n")[1].find("ucl.ac.be")!=-1):
         		cmd_file.write('requirements            = (CMSFARM=?=True)&&(Memory > 200)\n')
 		else:
 			cmd_file.write('requirements            = (Memory > 200)\n')

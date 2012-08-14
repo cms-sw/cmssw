@@ -88,6 +88,8 @@ process.dedxNPProd.UseCalibration      = cms.bool(True)
 process.dedxNPASmi.UseCalibration      = cms.bool(True)
 process.dedxHitInfo.UseCalibration     = cms.bool(True)
 
+if not CMSSW4_2:
+   print ("WARNING: You are using MC7TeV_Deco_3D_Rcd_38X and MC7TeVGains.root for dEdx computation... These constants are a priori not valid for 2012 MC samples\nThe constants need to be redone for 2012 samples")
 
 ########################################################################
 process.nEventsBefSkim  = cms.EDProducer("EventCountProducer")
@@ -151,7 +153,7 @@ if CMSSW4_2:
 #The module ak5PFJetsPt15 does not exist in CMSSW4
 if CMSSW4_2: process.p1 = cms.Path(process.nEventsBefSkim + process.genParticles + process.exoticaHSCPSeq + process.nEventsBefEDM                         + process.HSCParticleProducerSeq)
 else:        process.p1 = cms.Path(process.nEventsBefSkim + process.genParticles + process.exoticaHSCPSeq + process.nEventsBefEDM + process.ak5PFJetsPt15 + process.HSCParticleProducerSeq)
-print process.p1
+print "You are going to run the following sequence: " + process.p1
 
 #process.p1 = cms.Path(process.HSCParticleProducerSeq)
 process.endPath1 = cms.EndPath(process.Out)
