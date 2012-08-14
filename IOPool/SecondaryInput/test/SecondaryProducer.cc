@@ -22,6 +22,7 @@
 #include "boost/bind.hpp"
 
 #include <memory>
+#include <string>
 
 namespace edm {
 
@@ -71,17 +72,29 @@ namespace edm {
 
     EventNumber_t en = eventPrincipal.id().event();
     // Check that secondary source products are retrieved from the same event as the EventAuxiliary
-    BasicHandle bhandle = eventPrincipal.getByType(TypeID(typeid(edmtest::IntProduct)));
+    unsigned long cachedOffset = 0ul;
+    int fillCount = -1;
+    BasicHandle bhandle = eventPrincipal.getByLabel(TypeID(typeid(edmtest::IntProduct)),
+                                                    "EventNumber",
+                                                    "",
+                                                    "",
+                                                    cachedOffset,
+                                                    fillCount);
     assert(bhandle.isValid());
     Handle<edmtest::IntProduct> handle;
     convert_handle<edmtest::IntProduct>(bhandle, handle);
     assert(static_cast<EventNumber_t>(handle->value) == en);
 
     // Check that primary source products are retrieved from the same event as the EventAuxiliary
-    e.getByType<edmtest::IntProduct>(handle);
+    e.getByLabel<edmtest::IntProduct>("EventNumber", handle);
     assert(static_cast<EventNumber_t>(handle->value) == e.id().event());
 
-    BasicHandle bh = eventPrincipal.getByType(TypeID(typeid(TC)));
+    BasicHandle bh = eventPrincipal.getByLabel(TypeID(typeid(TC)),
+                                               "Thing",
+                                               "",
+                                               "",
+                                               cachedOffset,
+                                               fillCount);
     assert(bh.isValid());
     if(!(bh.interface()->dynamicTypeInfo() == typeid(TC))) {
       handleimpl::throwConvertTypeError(typeid(TC), bh.interface()->dynamicTypeInfo());
