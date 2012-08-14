@@ -22,6 +22,8 @@ public:
   
   virtual const PerformanceWorkingPoint& workingPoint() const {return wp;}
 
+  virtual ~BtagPerformance() {};
+
   private:
   const PerformancePayload& pl;
   const PerformanceWorkingPoint& wp;
