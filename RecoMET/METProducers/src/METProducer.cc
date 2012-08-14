@@ -5,7 +5,7 @@
 // 
 // Original Author:  Rick Cavanaugh
 //         Created:  April 4, 2006
-// $Id: METProducer.cc,v 1.49 2012/06/07 01:16:10 sakuma Exp $
+// $Id: METProducer.cc,v 1.50 2012/07/12 08:14:38 sakuma Exp $
 //
 //
 
@@ -155,10 +155,10 @@ namespace cms
     edm::Handle<edm::View<reco::Candidate> > input;
     event.getByLabel(inputLabel, input);
 
-    static METAlgo algo;
+    METAlgo algo;
     CommonMETData commonMETdata = algo.run(input, globalThreshold);
 
-    static CaloSpecificAlgo calospecalgo;
+    CaloSpecificAlgo calospecalgo;
     reco::CaloMET calomet = calospecalgo.addInfo(input, commonMETdata, noHF, globalThreshold);
 
     if( calculateSignificance_ ) 
@@ -188,7 +188,7 @@ namespace cms
     edm::Handle<edm::View<reco::Candidate> > input;
     event.getByLabel(inputLabel, input);
 
-    static METAlgo algo;
+    METAlgo algo;
     CommonMETData commonMETdata = algo.run(input, globalThreshold);
 
     PFSpecificAlgo pf;
@@ -211,7 +211,7 @@ namespace cms
     edm::Handle<edm::View<reco::Candidate> > input;
     event.getByLabel(inputLabel, input);
 
-    static METAlgo algo;
+    METAlgo algo;
     CommonMETData commonMETdata = algo.run(input, globalThreshold);
 
     PFClusterSpecificAlgo pfcluster;
@@ -243,7 +243,7 @@ namespace cms
 
     CommonMETData commonMETdata;
 
-    static METAlgo algo;
+    METAlgo algo;
     algo.run(input, &commonMETdata, globalThreshold); 
 
     math::XYZTLorentzVector p4( commonMETdata.mex, commonMETdata.mey, 0.0, commonMETdata.met);
