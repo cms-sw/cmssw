@@ -20,6 +20,8 @@ public:
   // Methods
   virtual void clearMET();
 
+  virtual ~TowerMETv0() {};
+
 };
 
 #endif // METOBJECTS_TOWER_MET_H
