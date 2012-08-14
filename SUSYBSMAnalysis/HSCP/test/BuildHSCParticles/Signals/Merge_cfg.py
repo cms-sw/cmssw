@@ -19,6 +19,7 @@ process.HSCPHLTDuplicate = cms.EDFilter("HSCPHLTFilter",
    TriggerProcess   = cms.string("HLT"),
    MuonTrigger1Mask    = cms.int32(0),  #Activated
    PFMetTriggerMask    = cms.int32(0),  #Activated
+   L2MuMETTriggerMask  = cms.int32(0),
 )
 process.DuplicateFilter = cms.Path(process.HSCPHLTDuplicate   )
 
@@ -70,6 +71,7 @@ if CMSSW4_2:
       TriggerProcess   = cms.string("HLT"),
       MuonTrigger1Mask    = cms.int32(0),  #Activated
       PFMetTriggerMask    = cms.int32(1),  #Activated
+      L2MuMETTriggerMask  = cms.int32(0),
    )
    process.HSCPHLTTriggerPFMetFilter = cms.Path(process.HSCPHLTTriggerPFMet   )
 
@@ -78,8 +80,19 @@ if CMSSW4_2:
       TriggerProcess  = cms.string("HLT"),
       MuonTrigger1Mask    = cms.int32(1),  #Activated
       PFMetTriggerMask    = cms.int32(0),  #Activated
+      L2MuMETTriggerMask  = cms.int32(0),
    )
    process.HSCPHLTTriggerMuFilter = cms.Path(process.HSCPHLTTriggerMu   )
+
+   process.HSCPHLTTriggerL2Mu = cms.EDFilter("HSCPHLTFilter",
+     RemoveDuplicates = cms.bool(False),
+     TriggerProcess   = cms.string("HSCPAnalysis"),
+     MuonTrigger1Mask    = cms.int32(0),  #Activated
+     PFMetTriggerMask    = cms.int32(0),  #Activated
+     L2MuMETTriggerMask  = cms.int32(1),  #Activated
+   )
+
+   process.HSCPHLTTriggerL2MuFilter = cms.Path(process.HSCPHLTTriggerL2Mu   )
 
 
 process.Out = cms.OutputModule("PoolOutputModule",

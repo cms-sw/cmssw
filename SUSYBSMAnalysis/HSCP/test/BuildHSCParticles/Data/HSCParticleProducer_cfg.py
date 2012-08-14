@@ -11,7 +11,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 from SUSYBSMAnalysis.HSCP.HSCPVersion_cff import *
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 if CMSSW4_2:
       process.GlobalTag.globaltag = 'GR_P_V14::All'
@@ -27,7 +27,7 @@ process.source = cms.Source("PoolSource",
 
 
 if CMSSW4_2:
-   readFiles.extend(['/store/data/Run2011B/DoubleMu/RECO/PromptReco-v1/000/178/367/A2A3E690-7CF7-E011-9F98-003048D2BEA8.root'])
+   readFiles.extend(['/store/data/Run2011B/SingleMu/USER/EXOHSCP-PromptSkim-v1/0000/FC298F26-65FF-E011-977F-00237DA13C76.root'])
 else:
    readFiles.extend(['/store/data/Run2012A/SingleMu/RECO/PromptReco-v1/000/191/248/186722DA-5E88-E111-ADFF-003048D2C0F0.root'])
 
@@ -46,21 +46,30 @@ process.load("SUSYBSMAnalysis.HSCP.HSCPTreeBuilder_cff")
 ######################################################################## INCREASING HSCP TRIGGER TRESHOLD FOR OLD DATA
 
 process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
-process.HSCPTrigger = process.hltHighLevel.clone()
-process.HSCPTrigger.TriggerResultsTag = cms.InputTag( "TriggerResults", "", "HLT" )
-process.HSCPTrigger.HLTPaths = [
-    "HLT_*_dEdx*",
-    "HLT_Mu40_eta2p1*",
-    "HLT_Mu50_eta2p1*",
-    "HLT_HT650_*",
-    "HLT_MET80_*",
-    "HLT_L2Mu*MET*",
-    "HLT_L2Mu*NoBPTX*",
-    "HLT_PFMHT150_*",
-]
-process.HSCPTrigger.andOr = cms.bool( True ) #OR
-process.HSCPTrigger.throw = cms.bool( False )
 
+if CMSSW4_2:
+   process.HSCPTrigger = process.hltHighLevel.clone()
+   process.HSCPTrigger.TriggerResultsTag = cms.InputTag( "TriggerResults", "", "HLT" )
+   process.HSCPTrigger.HLTPaths = [
+     "HLT_*_dEdx*",
+     "HLT_Mu40_eta2p1*",
+     "HLT_Mu50_eta2p1*",
+     "HLT_HT650_*",
+     "HLT_MET80_*",
+     "HLT_L2Mu*MET*",
+     "HLT_L2Mu*NoBPTX*",
+     "HLT_PFMHT150_*",
+   ]
+   process.HSCPTrigger.andOr = cms.bool( True ) #OR
+   process.HSCPTrigger.throw = cms.bool( False )
+else:
+   process.HSCPHLTTrigger = cms.EDFilter("HSCPHLTFilter",
+     RemoveDuplicates = cms.bool(False),
+     TriggerProcess   = cms.string("HLT"),
+     MuonTrigger1Mask    = cms.int32(1),  #Activated
+     PFMetTriggerMask    = cms.int32(1),  #Activated
+     L2MuMETTriggerMask  = cms.int32(1),  #Activated
+   )
 
 ########################################################################  SPECIAL CASE FOR DATA
 

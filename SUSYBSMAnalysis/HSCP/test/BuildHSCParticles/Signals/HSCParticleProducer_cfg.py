@@ -8,6 +8,7 @@ process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 from SUSYBSMAnalysis.HSCP.HSCPVersion_cff import *
 
@@ -96,8 +97,6 @@ process.nEventsBefSkim  = cms.EDProducer("EventCountProducer")
 process.nEventsBefEDM   = cms.EDProducer("EventCountProducer")
 ########################################################################
 
-
-
 process.Out = cms.OutputModule("PoolOutputModule",
      outputCommands = cms.untracked.vstring(
          "drop *",
@@ -158,5 +157,3 @@ print "You are going to run the following sequence: " + str(process.p1)
 #process.p1 = cms.Path(process.HSCParticleProducerSeq)
 process.endPath1 = cms.EndPath(process.Out)
 process.schedule = cms.Schedule( process.p1, process.endPath1)
-
-

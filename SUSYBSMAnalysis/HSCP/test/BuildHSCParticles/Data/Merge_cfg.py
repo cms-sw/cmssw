@@ -3,6 +3,7 @@ process = cms.Process("MergeHLT")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.load("FWCore.MessageService.MessageLogger_cfi")
+from SUSYBSMAnalysis.HSCP.HSCPVersion_cff import *
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5000
 process.source = cms.Source("PoolSource",
@@ -18,6 +19,7 @@ process.HSCPHLTDuplicate = cms.EDFilter("HSCPHLTFilter",
    TriggerProcess   = cms.string("HLT"),
    MuonTrigger1Mask    = cms.int32(0),  #Activated
    PFMetTriggerMask    = cms.int32(0),  #Activated
+   L2MuMETTriggerMask  = cms.int32(0),  #Activated
 )
 process.DuplicateFilter = cms.Path(process.HSCPHLTDuplicate   )
 
@@ -37,8 +39,20 @@ process.HSCPHLTTriggerHtDeDx = process.HSCPHLTTriggerMuDeDx.clone()
 process.HSCPHLTTriggerHtDeDx.HLTPaths = ["HLT_HT*_dEdx*"]
 process.HSCPHLTTriggerHtDeDxFilter = cms.Path(process.HSCPHLTTriggerHtDeDx   )
 
-process.HSCPHLTTriggerMu = process.HSCPHLTTriggerMuDeDx.clone()
-process.HSCPHLTTriggerMu.HLTPaths = ["HLT_Mu40_*"]
+#process.HSCPHLTTriggerMu
+if CMSSW4_2:
+  #This needs to be done differently for 2011 data because HLT_Mu40 did not exist in trigger menu at beginning of run
+  process.HSCPHLTTriggerMu = cms.EDFilter("HSCPHLTFilter",
+     RemoveDuplicates = cms.bool(False),
+     TriggerProcess  = cms.string("HLT"),
+     MuonTrigger1Mask    = cms.int32(1),  #Activated
+     PFMetTriggerMask    = cms.int32(0),  #Activated
+     L2MuMETTriggerMask  = cms.int32(0),  #Activated
+   )
+else:
+   process.HSCPHLTTriggerMu = process.HSCPHLTTriggerMuDeDx.clone()
+   process.HSCPHLTTriggerMu.HLTPaths = ["HLT_Mu40_*"]
+
 process.HSCPHLTTriggerMuFilter = cms.Path(process.HSCPHLTTriggerMu   )
 
 process.HSCPHLTTriggerMet = process.HSCPHLTTriggerMuDeDx.clone()
@@ -53,9 +67,21 @@ process.HSCPHLTTriggerHt = process.HSCPHLTTriggerMuDeDx.clone()
 process.HSCPHLTTriggerHt.HLTPaths = ["HLT_HT650_*"]
 process.HSCPHLTTriggerHtFilter = cms.Path(process.HSCPHLTTriggerHt   )
 
-process.HSCPHLTTriggerL2Mu = process.HSCPHLTTriggerMuDeDx.clone()
-process.HSCPHLTTriggerL2Mu.HLTPaths = ["HLT_L2Mu*MET*"]
+if CMSSW4_2:
+   process.HSCPHLTTriggerL2Mu = process.HSCPHLTTriggerMuDeDx.clone()
+   process.HSCPHLTTriggerL2Mu.HLTPaths = ["HLT_L2Mu*MET*"]
+else:
+   #Needs to be done separately as had lower threshold prescaled trigger in menu in 2011
+   process.HSCPHLTTriggerL2Mu = cms.EDFilter("HSCPHLTFilter",
+     RemoveDuplicates = cms.bool(False),
+     TriggerProcess   = cms.string("HLT"),
+     MuonTrigger1Mask    = cms.int32(0),  #Activated
+     PFMetTriggerMask    = cms.int32(0),  #Activated
+     L2MuMETTriggerMask  = cms.int32(1),  #Activated
+   )
+
 process.HSCPHLTTriggerL2MuFilter = cms.Path(process.HSCPHLTTriggerL2Mu   )
+
 
 process.HSCPHLTTriggerCosmic = process.HSCPHLTTriggerMuDeDx.clone()
 process.HSCPHLTTriggerCosmic.HLTPaths = ["HLT_L2Mu*NoBPTX*"]
