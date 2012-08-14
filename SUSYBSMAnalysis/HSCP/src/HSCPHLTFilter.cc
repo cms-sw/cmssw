@@ -119,6 +119,8 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
    // HLT TRIGGER BASED ON 1 MUON!
+   //Only look for trigger if we are making a decision based on it
+   if(MuonTrigger1Mask!=0) {
    if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu40_eta2p1_v5")) {
      if(tr.accept(tr.triggerIndex("HLT_Mu40_eta2p1_v5"))){MuonTrigger1 = true;}
    }else{
@@ -168,8 +170,11 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    }
    }
+   }
 
    // HLT TRIGGER BASED ON PF MET!
+   //Only look for trigger if we are making a decision based on it
+   if(PFMetTriggerMask!=0) {
    if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v17")){
      if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v17"))){PFMetTrigger = true;}
    }else{
@@ -231,8 +236,11 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    }
    }
+   }
 
    // HLT TRIGGER BASED ON L2Mu + MET!
+   //Only look for trigger if we are making a decision based on it
+   if(L2MuMETTriggerMask!=0) {
    //Early 2011 running had a L2Mu60_1Hit_MET40 which was prescaled away, need to raise threshold
    if(TrIndex_Unknown != tr.triggerIndex("HLT_L2Mu60_1Hit_MET60_v6")){
      if(tr.accept(tr.triggerIndex("HLT_L2Mu60_1Hit_MET60_v6"))){L2MuMETTrigger = true;}
@@ -256,6 +264,7 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 }
        }
      }
+   }
    }
 
    //printf("Bits = %1i %1i %1i X Mask = %+2i %+2i %+2i -->",MuonTrigger,CaloMetTrigger,CaloMetTrigger,MuonTriggerMask,CaloMetTriggerMask,CaloMetTriggerMask);
