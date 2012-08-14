@@ -12,6 +12,6 @@ root -l -b << EOF
   gSystem->Load("libDataFormatsCommon.so");
   gSystem->Load("libDataFormatsHepMCCandidate.so");
   gSystem->Load("libPhysicsToolsUtilities.so");
-  .x Analysis_Step3.C++("ANALYSE_40_to_40", 2, "dedxASmi", "dedxHarm2", "combined", 0.0, 0.0, 0.0, 50.0, 2.1);
+  .x Analysis_Step3.C++("ANALYSE_25_to_25", 2, "dedxASmi", "dedxHarm2", "combined", 0.0, 0.0, 0.0, 50.0, 2.1);
 EOF
 
