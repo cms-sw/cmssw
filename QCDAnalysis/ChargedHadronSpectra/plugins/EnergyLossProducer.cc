@@ -50,9 +50,9 @@ void EnergyLossProducer::beginRun(edm::Run & run, const edm::EventSetup& es)
   theTracker = tracker.product();
   
   std::vector<double> ldeBins;
-  static float ldeMin   = log(1);
-  static float ldeMax   = log(100);
-  static float ldeWidth = (ldeMax - ldeMin)/250;
+  float ldeMin   = log(1);
+  float ldeMax   = log(100);
+  float ldeWidth = (ldeMax - ldeMin)/250;
   for(double lde = ldeMin; lde < ldeMax + ldeWidth/2; lde += ldeWidth)
     ldeBins.push_back(lde);
 
