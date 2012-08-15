@@ -8,7 +8,12 @@
 
 int main(int /*argc*/, char** /*argv*/) {
 
-  HcalTopology topology;
+  // FIXME: for SLHC
+  HcalTopology::Mode mode = HcalTopology::md_LHC;
+  int maxDepthHB = 2;
+  int maxDepthHE = 3;
+  
+  HcalTopology topology(mode, maxDepthHB, maxDepthHE);
   for (int idet=0; idet<4; idet++) {
     HcalSubdetector subdet = HcalBarrel;
     if (idet == 1)      subdet = HcalOuter;

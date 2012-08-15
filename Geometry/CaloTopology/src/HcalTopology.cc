@@ -6,12 +6,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-const int HcalDetId::maxDepthHB;
-const int HcalDetId::maxDepthHE;
-
 static const int IPHI_MAX=72;
 
-HcalTopology::HcalTopology(HcalTopology::Mode mode) :
+HcalTopology::HcalTopology(HcalTopology::Mode mode, int maxDepthHB, int maxDepthHE) :
   excludeHB_(false),
   excludeHE_(false),
   excludeHO_(false),
@@ -29,7 +26,9 @@ HcalTopology::HcalTopology(HcalTopology::Mode mode) :
   firstHFQuadPhiRing_(40),
   firstHETripleDepthRing_((mode==md_H2 || mode==md_H2HE)?(24):(27)),
   singlePhiBins_(72),
-  doublePhiBins_(36)
+  doublePhiBins_(36),
+  maxDepthHB_(maxDepthHB),
+  maxDepthHE_(maxDepthHE)
 {
 }
 
@@ -201,13 +200,13 @@ bool HcalTopology::validRaw(const HcalDetId& id) const {
     HcalSubdetector subdet=id.subdet();
     if (subdet==HcalBarrel) {
       if (mode_==md_SLHC || mode_==md_H2HE) {
-	if ((aieta>lastHBRing() || depth>HcalDetId::maxDepthHB || (aieta==lastHBRing() && depth > 2))) ok=false;
+	if ((aieta>lastHBRing() || depth>maxDepthHB_ || (aieta==lastHBRing() && depth > 2))) ok=false;
       } else {
 	if (aieta>lastHBRing() || depth>2 || (aieta<=14 && depth>1)) ok=false;
       }
     } else if (subdet==HcalEndcap) {
       if (mode_==md_SLHC || mode_==md_H2HE) {
-	if (depth>HcalDetId::maxDepthHE || aieta<firstHERing() || aieta>lastHERing() || (aieta==firstHERing() && depth<3) || (aieta>=firstHEDoublePhiRing() && (iphi%2)==0)) ok=false;
+	if (depth>maxDepthHE_ || aieta<firstHERing() || aieta>lastHERing() || (aieta==firstHERing() && depth<3) || (aieta>=firstHEDoublePhiRing() && (iphi%2)==0)) ok=false;
       } else {
 	if (depth>3 || aieta<firstHERing() || aieta>lastHERing() || (aieta==firstHERing() && depth!=3) || (aieta==17 && depth!=1 && mode_!=md_H2) || // special case at H2
 	    (((aieta>=17 && aieta<firstHETripleDepthRing()) || aieta==lastHERing()) && depth>2) ||
@@ -367,7 +366,7 @@ void HcalTopology::depthBinInformation(HcalSubdetector subdet, int etaRing,
       if (etaRing==lastHBRing()) {
 	nDepthBins = 2;
       } else {
-	nDepthBins = HcalDetId::maxDepthHB;
+	nDepthBins = maxDepthHB_;
       }
     } else {
       if (etaRing<=14) {
@@ -381,10 +380,10 @@ void HcalTopology::depthBinInformation(HcalSubdetector subdet, int etaRing,
   } else if(subdet == HcalEndcap) {
     if (mode_==md_SLHC || mode_==md_H2HE) {
       if (etaRing==firstHERing()) {
-	nDepthBins  = HcalDetId::maxDepthHE - 2;
+	nDepthBins  = maxDepthHE_ - 2;
 	startingBin = 3;
       } else {
-	nDepthBins  = HcalDetId::maxDepthHE;
+	nDepthBins  = maxDepthHE_;
 	startingBin = 1;
       }
     } else {
