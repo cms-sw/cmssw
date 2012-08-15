@@ -20,6 +20,7 @@
 #include "Geometry/CaloTopology/interface/HcalTopologyRestrictionParser.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
 //
 // constants, enums and typedefs
 //
@@ -32,11 +33,13 @@
 // constructors and destructor
 //
 HcalTopologyIdealEP::HcalTopologyIdealEP(const edm::ParameterSet& conf) :
-  m_restrictions(conf.getUntrackedParameter<std::string>("Exclude","")),
-  m_h2mode(conf.getUntrackedParameter<bool>("H2Mode",false)),
-  m_SLHCmode(conf.getUntrackedParameter<bool>("SLHCMode",false)),
-  m_H2HEmode(conf.getUntrackedParameter<bool>("H2HEMode",false))
+  m_restrictions(conf.getUntrackedParameter<std::string>("Exclude",""))
 {
+  const edm::ParameterSet hcalTopoConsts( conf.getParameter<edm::ParameterSet>( "hcalTopologyConstants" ));
+  m_mode = (HcalTopology::Mode) StringToEnumValue<HcalTopology::Mode>(hcalTopoConsts.getParameter<std::string>("mode"));
+  m_maxDepthHB = hcalTopoConsts.getParameter<int>("maxDepthHB");
+  m_maxDepthHE = hcalTopoConsts.getParameter<int>("maxDepthHE");
+    
   // copied from HcalHitRelabeller, input like {1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,4}
   m_segmentation.resize(29);
   std::vector<int> segmentation;
@@ -68,22 +71,8 @@ HcalTopologyIdealEP::ReturnType
 HcalTopologyIdealEP::produce(const IdealGeometryRecord& iRecord)
 {
   using namespace edm::es;
-  HcalTopology::Mode mode=HcalTopology::md_LHC;
-	
-  if (m_h2mode){
-    edm::LogInfo("HCAL") << "Using H2 Topology";
-    mode=HcalTopology::md_H2;	
-  } 
-  if (m_SLHCmode) {
-    edm::LogInfo("HCAL") << "Using SLHC Topology";
-    mode=HcalTopology::md_SLHC;
-  }
-  if (m_H2HEmode) {
-    edm::LogInfo("HCAL") << "Using H2HE Topology";
-    mode=HcalTopology::md_H2HE;
-  }
 
-  ReturnType myTopo(new HcalTopology(mode));
+  ReturnType myTopo(new HcalTopology(m_mode, m_maxDepthHB, m_maxDepthHE));
 
   HcalTopologyRestrictionParser parser(*myTopo);
   if (!m_restrictions.empty()) {

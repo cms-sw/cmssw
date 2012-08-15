@@ -13,11 +13,12 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloTowerHardcodeGeometryEP.cc,v 1.3 2010/03/26 19:56:09 sunanda Exp $
+// $Id: CaloTowerHardcodeGeometryEP.cc,v 1.4 2011/09/27 12:06:26 yana Exp $
 //
 //
 
 #include "Geometry/HcalEventSetup/src/CaloTowerHardcodeGeometryEP.h"
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
 
 //
 // constants, enums and typedefs
@@ -30,7 +31,8 @@
 //
 // constructors and destructor
 //
-CaloTowerHardcodeGeometryEP::CaloTowerHardcodeGeometryEP(const edm::ParameterSet& /*iConfig*/)
+CaloTowerHardcodeGeometryEP::CaloTowerHardcodeGeometryEP(const edm::ParameterSet& iConfig)
+    : m_hcalTopoConsts( iConfig.getParameter<edm::ParameterSet>( "hcalTopologyConstants" ))
 {
    //the following line is needed to tell the framework what
    // data is being produced
@@ -55,7 +57,9 @@ CaloTowerHardcodeGeometryEP::~CaloTowerHardcodeGeometryEP()
 CaloTowerHardcodeGeometryEP::ReturnType
 CaloTowerHardcodeGeometryEP::produce(const CaloTowerGeometryRecord& /*iRecord*/)
 {
-   std::auto_ptr<CaloSubdetectorGeometry> pCaloSubdetectorGeometry(loader_->load()) ;
+   std::auto_ptr<CaloSubdetectorGeometry> pCaloSubdetectorGeometry(loader_->load( new HcalTopology((HcalTopology::Mode) StringToEnumValue<HcalTopology::Mode>(m_hcalTopoConsts.getParameter<std::string>("mode")),
+												   m_hcalTopoConsts.getParameter<int>("maxDepthHB"),
+												   m_hcalTopoConsts.getParameter<int>("maxDepthHE")))) ;
 
    return pCaloSubdetectorGeometry ;
 }

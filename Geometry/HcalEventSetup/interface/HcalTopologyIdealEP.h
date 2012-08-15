@@ -31,7 +31,10 @@ public:
 private:
   // ----------member data ---------------------------
   std::string m_restrictions;
-  bool m_h2mode, m_SLHCmode, m_H2HEmode;
+  HcalTopology::Mode  m_mode;
+  int m_maxDepthHB;
+  int m_maxDepthHE;
+    
   // can be specified in the config
   struct RingSegmentation {
     int ring;

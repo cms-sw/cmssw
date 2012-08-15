@@ -29,6 +29,7 @@ class CaloTowerHardcodeGeometryEP : public edm::ESProducer {
 private:
       // ----------member data ---------------------------
   CaloTowerHardcodeGeometryLoader* loader_;
+  const edm::ParameterSet m_hcalTopoConsts;
 };
 
 
