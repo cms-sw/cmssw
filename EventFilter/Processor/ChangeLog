@@ -1,3 +1,10 @@
+2012-08-15 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-19
+	* MessageService handling cleanup. Keeping auto_ptr in FU class,
+	  destroy before fork and recreate everywhere after fork.
+	  (to prevent occassional lockups in slaves)
+
 2012-07-20 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V02-05-18

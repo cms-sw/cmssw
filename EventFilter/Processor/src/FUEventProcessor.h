@@ -17,6 +17,7 @@
 #include "FWEPWrapper.h"
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/PluginManager/interface/PresenceFactory.h"
 
 #include "xdaq/Application.h"
 #include "xdaq/NamespaceURI.h"
@@ -299,6 +300,8 @@ namespace evf
     unsigned long long               idleProcStats_;
     unsigned long long               allProcStats_;
     timeval                          lastProcReport_;
+
+    std::auto_ptr<edm::Presence>     messageServicePresence_;
   };
 
   

@@ -282,12 +282,13 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
 
   edm::AssertHandler ah;
 
+  //create Message Service thread and pass ownership to auto_ptr that we destroy before fork
   try{
     LOG4CPLUS_DEBUG(getApplicationLogger(),
 		    "Trying to create message service presence ");
     edm::PresenceFactory *pf = edm::PresenceFactory::get();
     if(pf != 0) {
-      pf->makePresence("MessageServicePresence").release();
+      messageServicePresence_= pf->makePresence("MessageServicePresence");
     }
     else {
       LOG4CPLUS_ERROR(getApplicationLogger(),
@@ -1184,26 +1185,20 @@ bool FUEventProcessor::receiving(toolbox::task::WorkLoop *)
 	  LOG4CPLUS_ERROR(getApplicationLogger(),"Failed to go to Stopping state in slave EP, pid "
 			                         << getpid() << " The state on Stop event was not consistent");
 	}
-	try{
-	  LOG4CPLUS_DEBUG(getApplicationLogger(),
-			  "Trying to create message service presence ");
-	  edm::PresenceFactory *pf = edm::PresenceFactory::get();
-	  if(pf != 0) {
-	    pf->makePresence("MessageServicePresence").release();
-	  }
-	  else {
-	    LOG4CPLUS_ERROR(getApplicationLogger(),
-			    "Unable to create message service presence ");
-	  }
-	} 
-	catch(...) {
-	  LOG4CPLUS_ERROR(getApplicationLogger(),"Unknown Exception");
-	}
+
 	try {
 	  stopClassic(); // call the normal sequence of stopping - as this is allowed to fail provisions must be made ...@@@EM
 	}
 	catch (...) {
-	  LOG4CPLUS_ERROR(getApplicationLogger(),"Slave EP " << getpid() << " stop failed. Process will now exit");
+	  LOG4CPLUS_ERROR(getApplicationLogger(),"Slave EP 'receiving' workloop: exception " << getpid());
+	}
+
+        //destroy MessageService thread before exit	
+	try{
+	  messageServicePresence_.reset();
+	}
+	catch(...) {
+	  LOG4CPLUS_ERROR(getApplicationLogger(),"SLAVE:Unable to destroy MessageServicePresence. pid:" << getpid() );
 	}
 
 	MsgBuf msg1(0,MSQS_MESSAGE_TYPE_STOP);
@@ -1216,7 +1211,9 @@ bool FUEventProcessor::receiving(toolbox::task::WorkLoop *)
     if(msg->mtype==MSQM_MESSAGE_TYPE_FSTOP)
       _exit(EXIT_SUCCESS);
   }
-  catch(evf::Exception &e){}
+  catch(evf::Exception &e){
+    LOG4CPLUS_ERROR(getApplicationLogger(),"Slave EP pid:" << getpid() << " receiving WorkLoop exception: "<<e.what());
+  }
   return true;
 }
 
@@ -2027,20 +2024,30 @@ void FUEventProcessor::forkProcessesFromEDM() {
     localLog(reasonForFailedState_);
   }
 
-  //fork loop
-  if (fsm_.stateName()->toString()=="stopping") {
+  std::string currentState = fsm_.stateName()->toString();
+
+  //destroy MessageServicePresence thread before fork
+  if (currentState!="stopping") {
+    try {
+      messageServicePresence_.reset();
+    }
+    catch (...) {
+      LOG4CPLUS_ERROR(getApplicationLogger(),"Unable to destroy MessageService thread before fork!");
+    }
+  }
+
+  if (currentState=="stopping") {
     LOG4CPLUS_ERROR(getApplicationLogger(),"Can not fork subprocesses in state " << fsm_.stateName()->toString());
     forkParams->isMaster=1;
     forkInfoObj_->forkParams.slotId=-1;
     forkInfoObj_->forkParams.restart=0;
   }
+  //fork loop
   else for(unsigned int i=forkFrom; i<forkTo; i++)
   {
-
     int retval = subs_[i].forkNew();
     if(retval==0)
     {
-
       forkParams->isMaster=0;
       myProcess_ = &subs_[i];
       // dirty hack: delete/recreate global binary semaphore for later use in child
@@ -2052,21 +2059,19 @@ void FUEventProcessor::forkProcessesFromEDM() {
       if(retval != 0) perror("error");
       fsm_.disableRcmsStateNotification();
 
+      //recreate MessageLogger thread in slave after fork
       try{
-	LOG4CPLUS_DEBUG(getApplicationLogger(),
-	    "Trying to create message service presence ");
-	//release the presense factory in master
 	edm::PresenceFactory *pf = edm::PresenceFactory::get();
 	if(pf != 0) {
-	  pf->makePresence("MessageServicePresence").release();
+	  messageServicePresence_ = pf->makePresence("MessageServicePresence");
 	}
 	else {
 	  LOG4CPLUS_ERROR(getApplicationLogger(),
-	      "Unable to create message service presence ");
+	      "SLAVE: Unable to create message service presence. pid:"<<getpid());
 	}
       }
       catch(...) {
-        LOG4CPLUS_ERROR(getApplicationLogger(),"Unknown Exception in MessageServicePresence");
+        LOG4CPLUS_ERROR(getApplicationLogger(),"SLAVE: Unknown Exception in MessageServicePresence. pid:"<<getpid());
       }
 
       ML::MLlog4cplus::setAppl(this);
@@ -2169,17 +2174,35 @@ void FUEventProcessor::forkProcessesFromEDM() {
       return ;
     }
     else {
+
       forkParams->isMaster=1;
       forkInfoObj_->forkParams.slotId=-1;
-      forkInfoObj_->forkParams.restart=0;
       if (forkParams->restart) {
 	std::ostringstream ost1;
 	ost1 << "-I- New Process " << retval << " forked for slot " << forkParams->slotId;
 	localLog(ost1.str());
       }
+      forkInfoObj_->forkParams.restart=0;
       //start "crash" receiver workloop
     }
   }
+
+  //recreate MessageLogger thread after fork
+  try{
+    //release the presense factory in master
+    edm::PresenceFactory *pf = edm::PresenceFactory::get();
+    if(pf != 0) {
+      messageServicePresence_ = pf->makePresence("MessageServicePresence");
+    }
+    else {
+      LOG4CPLUS_ERROR(getApplicationLogger(),
+	  "Unable to recreate message service presence ");
+    }
+  }
+  catch(...) {
+    LOG4CPLUS_ERROR(getApplicationLogger(),"Unknown Exception in MessageServicePresence");
+  }
+
   edm_init_done_=true;
 }
 
@@ -2291,8 +2314,6 @@ bool FUEventProcessor::enableMPEPSlave()
   try{
     //    evtProcessor_.makeServicesOnly();
     try{
-      LOG4CPLUS_DEBUG(getApplicationLogger(),
-		      "Trying to create message service presence ");
       edm::PresenceFactory *pf = edm::PresenceFactory::get();
       if(pf != 0) {
 	pf->makePresence("MessageServicePresence").release();
@@ -2624,7 +2645,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.153 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.154 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
@@ -2659,7 +2680,7 @@ void FUEventProcessor::handleSignalSlave(int sig, siginfo_t* info, void* c)
   //notify master
   sem_post(sigmon_sem_);
 
-  //sleep until master takes action
+  //sleep while master takes action
   sleep(2);
 
   //set up alarm if handler deadlocks on unsafe actions
