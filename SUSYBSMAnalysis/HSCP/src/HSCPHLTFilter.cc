@@ -242,6 +242,7 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //Only look for trigger if we are making a decision based on it
    if(L2MuMETTriggerMask!=0) {
    //Early 2011 running had a L2Mu60_1Hit_MET40 which was prescaled away, need to raise threshold
+
    if(TrIndex_Unknown != tr.triggerIndex("HLT_L2Mu60_1Hit_MET60_v6")){
      if(tr.accept(tr.triggerIndex("HLT_L2Mu60_1Hit_MET60_v6"))){L2MuMETTrigger = true;}
    }else{
@@ -264,6 +265,13 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 }
        }
      }
+   }
+
+   if(L2MuMETTriggerMask==2) {
+     //Special case for background MC in 2011 as it does not have trigger included in menu.  Background MC only used as cross check
+     //so make approximation of trigger to collect similar events for checks
+     if(IncreasedTreshold(trEv, InputTag("hltL2Mu20L2Filtered20","",TriggerProcess), 60, 2.1, 1, false) && 
+	IncreasedTreshold(trEv, InputTag("hltMET80","",TriggerProcess), 80, 2.1, 1, false)) {L2MuMETTrigger = true;}
    }
    }
 

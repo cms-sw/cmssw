@@ -8,9 +8,8 @@ from SUSYBSMAnalysis.HSCP.HSCPVersion_cff import *
 process.MessageLogger.cerr.FwkReport.reportEvery = 5000
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
-#XXX_INPUT_XXX
-      'file:HSCP.root'
-   )
+XXX_INPUT_XXX
+  )
 )
 
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
@@ -87,10 +86,10 @@ if CMSSW4_2:
 
    process.HSCPHLTTriggerL2Mu = cms.EDFilter("HSCPHLTFilter",
      RemoveDuplicates = cms.bool(False),
-     TriggerProcess   = cms.string("HSCPAnalysis"),
+     TriggerProcess   = cms.string("HLT"),
      MuonTrigger1Mask    = cms.int32(0),  #Activated
      PFMetTriggerMask    = cms.int32(0),  #Activated
-     L2MuMETTriggerMask  = cms.int32(1),  #Activated
+     L2MuMETTriggerMask  = cms.int32(2),  #Activated for special case of background MC
    )
 
    process.HSCPHLTTriggerL2MuFilter = cms.Path(process.HSCPHLTTriggerL2Mu   )
