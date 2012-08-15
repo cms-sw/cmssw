@@ -39,6 +39,7 @@ if CMSSW4_2:
       RemoveDuplicates    = cms.bool(False),
       MuonTrigger1Mask    = cms.int32(1),  #Activated
       PFMetTriggerMask    = cms.int32(1),  #Activated
+      L2MuMETTriggerMask  = cms.int32(1),  #Activated
    )
    process.HSCParticleProducerSeq.remove(process.refittedStandAloneMuons)
 
