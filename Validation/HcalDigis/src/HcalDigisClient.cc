@@ -14,7 +14,7 @@
 //
 // Original Author:  Ali Fahim,22 R-013,+41227672649,
 //         Created:  Wed Mar 23 22:54:28 CET 2011
-// $Id$
+// $Id: HcalDigisClient.cc,v 1.1 2012/05/24 08:39:13 abdullin Exp $
 //
 //
 
@@ -70,11 +70,14 @@ void HcalDigisClient::runClient() {
         for (unsigned int j = 0; j < fullSubPathHLTFolders.size(); j++) {
             if (strcmp(fullSubPathHLTFolders[j].c_str(), "HcalDigisV/HcalDigiTask") == 0) {
                 hcalMEs = dbe_->getContents(fullSubPathHLTFolders[j]);
-                if (!HcalDigisEndjob(hcalMEs, "HB")) std::cout << "\nError in HcalDigisEndjob! HB" << std::endl << std::endl;
-                if (!HcalDigisEndjob(hcalMEs, "HE")) std::cout << "\nError in HcalDigisEndjob! HE" << std::endl << std::endl;
-                if (!HcalDigisEndjob(hcalMEs, "HO")) std::cout << "\nError in HcalDigisEndjob! HO" << std::endl << std::endl;
-                if (!HcalDigisEndjob(hcalMEs, "HF")) std::cout << "\nError in HcalDigisEndjob! HF" << std::endl << std::endl;
-            }
+                if (!HcalDigisEndjob(hcalMEs, "HB")) 
+		  edm::LogError("HcalDigisClient") << "Error in HcalDigisEndjob! HB"; 
+                if (!HcalDigisEndjob(hcalMEs, "HE")) 
+		  edm::LogError("HcalDigisClient") << "Error in HcalDigisEndjob! HE"; 
+                if (!HcalDigisEndjob(hcalMEs, "HO")) 
+		  edm::LogError("HcalDigisClient") << "Error in HcalDigisEndjob! HO"; 
+                if (!HcalDigisEndjob(hcalMEs, "HF")) 
+		  edm::LogError("HcalDigisClient") << "Error in HcalDigisEndjob! HF";             }
         }
     }
 }
@@ -84,14 +87,19 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
     using namespace std;
     string strtmp;
 
+
     MonitorElement * nevtot(0);
     MonitorElement * ieta_iphi_occupancy_map1(0);
     MonitorElement * ieta_iphi_occupancy_map2(0);
     MonitorElement * ieta_iphi_occupancy_map3(0);
     MonitorElement * ieta_iphi_occupancy_map4(0);
 
+
+    std::cout << " Number of histos " <<     hcalMEs.size() << std::endl;
+
     for (unsigned int ih = 0; ih < hcalMEs.size(); ih++) {
          if (hcalMEs[ih]->getName() == "nevtot") nevtot = hcalMEs[ih];
+
          strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth1_" + subdet_;
          if (hcalMEs[ih]->getName() == strtmp) ieta_iphi_occupancy_map1 = hcalMEs[ih];
          strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth2_" + subdet_;
@@ -100,7 +108,24 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
          if (hcalMEs[ih]->getName() == strtmp) ieta_iphi_occupancy_map3 = hcalMEs[ih];
          strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth4_" + subdet_;
          if (hcalMEs[ih]->getName() == strtmp) ieta_iphi_occupancy_map4 = hcalMEs[ih];
+
     }//
+
+    if (nevtot                   == 0 ||
+	ieta_iphi_occupancy_map1 == 0 ||
+	ieta_iphi_occupancy_map2 == 0 ||
+	ieta_iphi_occupancy_map3 == 0 ||
+	ieta_iphi_occupancy_map4 == 0   
+	) {
+      edm::LogError("HcalDigisClient") << "No nevtot or maps histo found..."; 
+      return 0;
+    }
+
+    int ev = nevtot->getEntries();
+    if(ev <= 0) {
+      edm::LogError("HcalDigisClient") << "normalization factor <= 0!"; 
+      return 0;
+    }
 
     float fev = (float) nevtot->getEntries();
 
