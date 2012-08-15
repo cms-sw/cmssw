@@ -6,8 +6,12 @@
 #include <iostream>
 
 void testTriggerGeometry() {
+   // FIXME: for SLHC
+   HcalTopology::Mode mode = HcalTopology::md_LHC;
+   int maxDepthHB = 2;
+   int maxDepthHE = 3;
 
-  HcalTrigTowerGeometry trigTowers;
+   HcalTrigTowerGeometry trigTowers( new HcalTopology (mode, maxDepthHB, maxDepthHE));
   std::cout << "HCAL trigger tower eta bounds " << std::endl;
   for(int ieta = 1; ieta <= 32; ++ieta) {
     double eta1, eta2;
@@ -59,7 +63,13 @@ void testClosestCell(const HcalDetId & detId, const CaloSubdetectorGeometry * ge
 
 void testClosestCells() 
 {
-   HcalHardcodeGeometryLoader l;
+   // FIXME: for SLHC
+   HcalTopology::Mode mode = HcalTopology::md_LHC;
+   int maxDepthHB = 2;
+   int maxDepthHE = 3;
+  
+   HcalTopology topology(mode, maxDepthHB, maxDepthHE);
+   HcalHardcodeGeometryLoader l(topology);
    HcalHardcodeGeometryLoader::ReturnType g = l .load();
    // make sure each cel is its own closest cell
    HcalDetId barrelDet(HcalBarrel, 1, 1, 1);
@@ -87,7 +97,13 @@ void testClosestCells()
 
 int main() {
 
-  HcalHardcodeGeometryLoader l;
+  // FIXME: for SLHC
+  HcalTopology::Mode mode = HcalTopology::md_LHC;
+  int maxDepthHB = 2;
+  int maxDepthHE = 3;
+  HcalTopology topology(mode, maxDepthHB, maxDepthHE);
+
+  HcalHardcodeGeometryLoader l(topology);
   HcalHardcodeGeometryLoader::ReturnType b=l.load(DetId::Hcal,HcalBarrel);
   HcalHardcodeGeometryLoader::ReturnType e=l.load(DetId::Hcal,HcalEndcap);
   HcalHardcodeGeometryLoader::ReturnType o=l.load(DetId::Hcal,HcalOuter);

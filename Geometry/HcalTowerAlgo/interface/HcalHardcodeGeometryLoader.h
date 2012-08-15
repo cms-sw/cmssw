@@ -12,8 +12,8 @@ class HcalDetId;
  *
  * \note The HE geometry is not currently correct.  The z positions must be corrected.
  *   
- * $Date: 2008/08/27 15:57:15 $
- * $Revision: 1.7 $
+ * $Date: 2011/06/04 19:07:18 $
+ * $Revision: 1.8 $
  * \author R. Wilkinson - Caltech
 */
 class HcalHardcodeGeometryLoader 
@@ -22,7 +22,6 @@ class HcalHardcodeGeometryLoader
 
       typedef CaloSubdetectorGeometry* ReturnType ;
 
-      HcalHardcodeGeometryLoader();
       explicit HcalHardcodeGeometryLoader(const HcalTopology& ht);
       virtual ~HcalHardcodeGeometryLoader() { delete theTopology ; }
   

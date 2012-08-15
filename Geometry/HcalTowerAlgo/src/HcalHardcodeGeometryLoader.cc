@@ -9,13 +9,6 @@
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
-HcalHardcodeGeometryLoader::HcalHardcodeGeometryLoader():
-   theTopology ( new HcalTopology ),
-   extTopology ( theTopology      )
-{
-   init();
-}
-
 HcalHardcodeGeometryLoader::HcalHardcodeGeometryLoader(const HcalTopology& ht) : 
    theTopology ( 0   ) ,
    extTopology ( &ht )
