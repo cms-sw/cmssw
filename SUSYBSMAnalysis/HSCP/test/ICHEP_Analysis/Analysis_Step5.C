@@ -1810,6 +1810,7 @@ void FlipPrediction(string InputPattern){
 
   std::vector<TH1D*> Pred;
   std::vector<TH1D*> Data;
+  std::vector<TH1D*> Ratio;
 
   for(int i=0; i<countPlots; i++) {
     char DataName[1024];
@@ -1820,7 +1821,13 @@ void FlipPrediction(string InputPattern){
     sprintf(PredName,"Pred_%i",i);
     TH1D* TempPred = new TH1D(PredName, PredName, TOFCuts.size(), TOFCutMin, TOFCutMax);
     Pred.push_back(TempPred);
+    char RatioName[1024];
+    sprintf(RatioName,"Ratio_%i",i);
+    TH1D* TempRatio = new TH1D(RatioName, RatioName, TOFCuts.size(), TOFCutMin, TOFCutMax);
+
+    Ratio.push_back(TempRatio);
   }
+
 
   for(int CutIndex=1; CutIndex<HCuts_TOF->GetNbinsX(); CutIndex++) {
     std::pair<double, double> key(HCuts_I->GetBinContent(CutIndex+1), HCuts_Pt->GetBinContent(CutIndex+1));
@@ -1834,6 +1841,9 @@ void FlipPrediction(string InputPattern){
     double Perr = H_P->GetBinError(CutIndex+1);
     Pred[plot]->SetBinContent(bin, P);
     Pred[plot]->SetBinError(bin, Perr);
+
+    Ratio[plot]->SetBinContent(bin, D/P);
+    Ratio[plot]->SetBinError(bin, sqrt( D/(P*P) + pow(D*Perr/(P*P),2) ));
   }
 
   for(int i=0; i<countPlots; i++) {
@@ -1859,4 +1869,26 @@ void FlipPrediction(string InputPattern){
     SaveCanvas(c1,SavePath,Title);
     delete c1;
   }
+
+  legend.clear();
+  for(int i=0; i<countPlots; i++) {
+    map<std::pair<double, double>,int>::iterator it;
+    double ICut=-1, PtCut=-1;
+    for ( it=CutMap.begin() ; it != CutMap.end(); it++ ) if((*it).second==i) {
+      ICut = (*it).first.first;
+      PtCut = (*it).first.second;
+    }
+    char LegendName[1024];
+    if(ICut>-1 && PtCut>-1) sprintf(LegendName,"I>%0.2f Pt>%3.0f",ICut, PtCut);
+    else if(PtCut>-1) sprintf(LegendName,"Pt>%3.0f",PtCut);
+    else if(ICut>-1) sprintf(LegendName,"I>%0.2f",ICut);
+    Histos[i] = Ratio[i];            legend.push_back(LegendName);
+  }
+  c1 = new TCanvas("c1","c1,",600,600);
+  DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta Cut", "Data/MC", 0, 0, 0,0);
+  DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
+  c1->SetLogy(false);
+  DrawPreliminary(SQRTS, IntegratedLuminosity);
+  SaveCanvas(c1,SavePath,"FlipPred_Ratio");
+  delete c1;
 }
