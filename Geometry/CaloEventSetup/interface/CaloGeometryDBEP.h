@@ -10,6 +10,8 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
+
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -48,7 +50,9 @@ class CaloGeometryDBEP : public edm::ESProducer
       typedef CaloSubdetectorGeometry::IVec   IVec       ;
       
       CaloGeometryDBEP<T,U>( const edm::ParameterSet& ps ) :
-	 m_applyAlignment ( ps.getParameter<bool>("applyAlignment") )
+	  m_applyAlignment ( ps.getParameter<bool>("applyAlignment") ),
+	  m_hcalTopoConsts( ps.getParameter<edm::ParameterSet>( "hcalTopologyConstants" ))
+
       {
 	 setWhatProduced( this,
 			  &CaloGeometryDBEP<T,U>::produceAligned,
@@ -56,6 +60,7 @@ class CaloGeometryDBEP : public edm::ESProducer
       }
 
       virtual ~CaloGeometryDBEP<T,U>() {}
+    
       PtrType produceAligned( const typename T::AlignedRecord& iRecord ) 
       {
 	 const Alignments* alignPtr  ( 0 ) ;
@@ -203,10 +208,11 @@ class CaloGeometryDBEP : public edm::ESProducer
 
 	 return ptr ; 
       }
+    
+private:
 
-   private:
-
-      bool        m_applyAlignment ;
+    bool        m_applyAlignment ;
+    const edm::ParameterSet m_hcalTopoConsts;
 };
 
 #endif
