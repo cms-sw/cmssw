@@ -6,8 +6,12 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load('Configuration.StandardSequences.Services_cff')
 
-process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+process.options   = cms.untracked.PSet(
+      wantSummary = cms.untracked.bool(True),
+      SkipEvent = cms.untracked.vstring('ProductNotFound'),
+)
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 from SUSYBSMAnalysis.HSCP.HSCPVersion_cff import *
@@ -23,7 +27,11 @@ process.source = cms.Source("PoolSource",
    fileNames = readFiles
 )
 
-if CMSSW4_2: readFiles.extend(['/store/mc/Summer11/HSCPstau_M-308_7TeV-pythia6/GEN-SIM-RECO/PU_S4_START42_V11-v1/0000/00FA95F3-48A1-E011-9EC4-003048F0E828.root'])
+if CMSSW4_2: 
+        readFiles.extend([
+             #'/store/mc/Summer11/HSCPstau_M-308_7TeV-pythia6/GEN-SIM-RECO/PU_S4_START42_V11-v1/0000/00FA95F3-48A1-E011-9EC4-003048F0E828.root'
+             '/store/user/farrell3/NewEDMFileFormat/Gluino_7TeV_M800_BX1/HSCP_1_1_OHm.root'
+        ])
 else:        readFiles.extend(['/store/data/Run2012A/SingleMu/RECO/PromptReco-v1/000/191/248/186722DA-5E88-E111-ADFF-003048D2C0F0.root'])
 
 
@@ -97,6 +105,11 @@ process.nEventsBefSkim  = cms.EDProducer("EventCountProducer")
 process.nEventsBefEDM   = cms.EDProducer("EventCountProducer")
 ########################################################################
 
+if CMSSW4_2:
+   #Rerunning muon only	trigger as it did not exist in signal MC in 2011, need to modify the L1 seed to be the one available in MC
+   process.load('HLTrigger.Configuration.HLT_GRun_cff')
+   process.hltL1sMu16Eta2p1.L1SeedsLogicalExpression = cms.string( "L1_SingleMu16" )
+
 process.Out = cms.OutputModule("PoolOutputModule",
      outputCommands = cms.untracked.vstring(
          "drop *",
@@ -156,4 +169,9 @@ print "You are going to run the following sequence: " + str(process.p1)
 
 #process.p1 = cms.Path(process.HSCParticleProducerSeq)
 process.endPath1 = cms.EndPath(process.Out)
-process.schedule = cms.Schedule( process.p1, process.endPath1)
+
+if CMSSW4_2:
+      #Rerun Muon only trigger for 4_2 samples
+      process.schedule = cms.Schedule(process.p1, process.HLT_L2Mu60_1Hit_MET60_v6, process.endPath1)
+else:
+      process.schedule = cms.Schedule(process.p1, process.endPath1)
