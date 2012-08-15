@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "HepMC/IO_GenEvent.h"
@@ -29,10 +29,11 @@ protected:
   
 private:
   HepMC::IO_GenEvent* _output;
-
+  edm::InputTag hepMCProduct_;
 };
 
-HepMCEventWriter::HepMCEventWriter(const edm::ParameterSet &params)
+HepMCEventWriter::HepMCEventWriter(const edm::ParameterSet &params) :
+  hepMCProduct_(params.getParameter<edm::InputTag>("hepMCProduct"))
 {
 }
 
@@ -57,8 +58,8 @@ void HepMCEventWriter::analyze(const edm::Event &event, const edm::EventSetup &e
 {
 
   edm::Handle<edm::HepMCProduct> product;
-  event.getByType( product );
-  
+  event.getByLabel(hepMCProduct_, product);
+
   const HepMC::GenEvent* evt = product->GetEvent();
 
   _output->write_event(evt);
