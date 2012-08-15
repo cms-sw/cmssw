@@ -14,7 +14,7 @@
 //
 // Original Author:  Ali Fahim,22 R-013,+41227672649,
 //         Created:  Wed Mar 23 22:54:28 CET 2011
-// $Id: HcalDigisClient.cc,v 1.1 2012/05/24 08:39:13 abdullin Exp $
+// $Id: HcalDigisClient.cc,v 1.2 2012/08/15 12:42:58 abdullin Exp $
 //
 //
 
@@ -29,7 +29,7 @@ HcalDigisClient::HcalDigisClient(const edm::ParameterSet& iConfig) {
     msm_ = new std::map<std::string, MonitorElement*>();
     //if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) if (dbe_) dbe_->setVerbose(0);
 
-    std::cout << "dirName: " <<  dirName_ << std::endl;
+    //    std::cout << "dirName: " <<  dirName_ << std::endl;
     //dbe_->setCurrentFolder(dirName_);
     dbe_->setCurrentFolder("HcalDigisV/HcalDigiTask");
 
