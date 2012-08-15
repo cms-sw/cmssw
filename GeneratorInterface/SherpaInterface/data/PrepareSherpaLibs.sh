@@ -7,8 +7,8 @@
 #
 #  author:      Markus Merschmeyer, Sebastian Thüer
 #               III. Physics Institute A, RWTH Aachen University
-#  date:        2nd August 2012
-#  version:     4.1
+#  date:        15th August 2012
+#  version:     4.2
 
 
 
@@ -18,21 +18,21 @@
 
 function print_help() {
     echo "" && \
-    echo "PrepareSherpaLibs version 4.1" && echo && \
+    echo "PrepareSherpaLibs version 4.2" && echo && \
     echo "options: -i  path       path to SHERPA datacard, library & cross section files" && \
     echo "                         can also be in WWW (http://...) or SE (srm://...)" && \
     echo "                         -> ( "${datadir}" )" && \
     echo "         -p  process    SHERPA dataset/process name ( "${dataset}" )" && \
-    echo "         -m  mode       CMSSW running mode ( "${imode}" )" && \
-    echo "                         [ 'PROD'   : for production validation      ]" && \
-    echo "                         [ 'LOCAL'  : local running of CMSSW         ]" && \
-    echo "         -a  path       user analysis path inside CMSSW ( "${MYANADIR}" )" && \
+##    echo "         -m  mode       CMSSW running mode ( "${imode}" )" && \
+##    echo "                         [ 'PROD'   : for production validation      ]" && \
+##    echo "                         [ 'LOCAL'  : local running of CMSSW         ]" && \
+##    echo "         -a  path       user analysis path inside CMSSW ( "${MYANADIR}" )" && \
     echo "         -D  filename   (optional) name of data card file     ( "${cfdc}" )" && \
     echo "         -L  filename   (optional) name of library file       ( "${cflb}" )" && \
     echo "         -C  filename   (optional) name of cross section file ( "${cfcr}" )" && \
     echo "         -G  filename   (optional) name of MI grid file       ( "${cfgr}" )" && \
-    echo "         -P  SRM path   (CRAB) SE path for final results" && \
-    echo "                         -> ( "${MYSRMPATH}" )" && \
+##    echo "         -P  SRM path   (CRAB) SE path for final results" && \
+##    echo "                         -> ( "${MYSRMPATH}" )" && \
     echo "         -h             display this help and exit" && echo
 }
 
@@ -42,10 +42,10 @@ function print_help() {
 # function to build a python script for cmsDriver
 function build_python_cff() {
 
-  imode=$1        # mode (PRODuction, LOCAL, CRAB, ...)
-  cfffilename=$2  # config file name
-  process=$3      # process name
-  checksum=$4     # MD5 checksum
+##  imode=$1        # mode (PRODuction, LOCAL, CRAB, ...)
+  cfffilename=$1  # config file name
+  process=$2      # process name
+  checksum=$3     # MD5 checksum
 
   if [ -e ${cfffilename} ]; then rm ${cfffilename}; fi
   touch ${cfffilename}
@@ -60,16 +60,16 @@ function build_python_cff() {
   echo "  filterEfficiency = cms.untracked.double(1.0),"                   >> ${cfffilename}
   echo "  crossSection = cms.untracked.double(-1),"                        >> ${cfffilename}
   echo "  SherpaProcess = cms.string('"${process}"'),"                     >> ${cfffilename}
-  echo "  SherpackLocation = cms.string(''),"                              >> ${cfffilename}
+  echo "  SherpackLocation = cms.string('./'),"                            >> ${cfffilename}
   echo "  SherpackChecksum = cms.string('"${checksum}"'),"                 >> ${cfffilename}
   echo "  FetchSherpack = cms.bool(False),"                                >> ${cfffilename}
-  if [ "${imode}" = "PROD" ]; then
+##  if [ "${imode}" = "PROD" ]; then
   echo "  SherpaPath = cms.string('./'),"                                  >> ${cfffilename}
   echo "  SherpaPathPiece = cms.string('./'),"                             >> ${cfffilename}
-  elif [ "${imode}" = "LOCAL" ]; then
-  echo "  SherpaPath = cms.string(os.getcwd()),"                           >> ${cfffilename}
-  echo "  SherpaPathPiece = cms.string(os.getcwd()),"                      >> ${cfffilename}
-  fi
+##  elif [ "${imode}" = "LOCAL" ]; then
+##  echo "  SherpaPath = cms.string(os.getcwd()),"                           >> ${cfffilename}
+##  echo "  SherpaPathPiece = cms.string(os.getcwd()),"                      >> ${cfffilename}
+##  fi
   echo "  SherpaResultDir = cms.string('Result'),"                         >> ${cfffilename}
   echo "  SherpaDefaultWeight = cms.double(1.0),"                          >> ${cfffilename}
   echo "  SherpaParameters = cms.PSet(parameterSets = cms.vstring("        >> ${cfffilename}
@@ -174,7 +174,11 @@ function file_copy() {
   else                           # local file
     echo " <I> copying local file: "${fname}
     echo " <I>  from path: "${tpath}
-    cp ${tpath}/${fname} ./
+    if [ -e ${tpath}/${fname} ]; then
+      cp ${tpath}/${fname} ./
+    else
+      echo " <W> file does not exist, make sure everything is OK"
+    fi
   fi
 #
   DLOC0=`echo ${dpath} | cut -f1 -d "/" | grep -c -i http`
@@ -186,7 +190,11 @@ function file_copy() {
   else                           # local file
     echo " <I> copying local file: "${fname}
     echo " <I>  to path: "${dpath}
-    cp ${fname} ${dpath}/
+    if [ -e ${fname} ]; then
+      cp ${fname} ${dpath}/
+    else
+      echo " <W> file does not exist, make sure everything is OK"
+    fi
   fi
 #
     rm -f ${fname}
@@ -225,37 +233,38 @@ datadir=${HDIR}                                      # path to SHERPA datacards 
 dataset=${cproc}                                     # SHERPA dataset/process name
 if [ -e ${CMSSW_BASE} ]; then
   CMSSWDIR=${CMSSW_BASE}                             # CMSSW directory
-else
-  if [ ! "${imode}" = "PROD" ];then
-    echo " <E> \$CMSSW_BASE "${CMSSW_BASE}" does not exist"
-    echo " <E> stopping..."
-    exit 1
-  fi
+##else
+##  if [ ! "${imode}" = "PROD" ];then
+##    echo " <E> \$CMSSW_BASE "${CMSSW_BASE}" does not exist"
+##    echo " <E> stopping..."
+##    exit 1
+##  fi
 fi
-imode="PROD"                                         # CMSSW running mode
-MYANADIR="A/B"                                       # user analysis directory inside CMSSW
+##imode="PROD"                                         # CMSSW running mode
+##MYANADIR="A/B"                                       # user analysis directory inside CMSSW
 #                                                    # -> CMSSW_X_Y_Z/src/${MYANADIR}/
 cfdc=""                                              # custom data card file name
 cflb=""                                              # custom library file name
 cfcr=""                                              # custom cross section file name
 cfgr=""                                              # custom MI grid file name
-MYSRMPATH="./"                                       # SRM path for storage of results
+##MYSRMPATH="./"                                       # SRM path for storage of results
 TDIR=TMP
 
 
 # get & evaluate options
-while getopts :i:p:d:m:a:D:L:C:G:P:h OPT
+##while getopts :i:p:d:m:a:D:L:C:G:P:h OPT
+while getopts :i:p:d:D:L:C:G:h OPT
 do
   case $OPT in
   i) datadir=$OPTARG ;;
   p) dataset=$OPTARG ;;
-  m) imode=$OPTARG ;;
-  a) MYANADIR=$OPTARG ;;
+##  m) imode=$OPTARG ;;
+##  a) MYANADIR=$OPTARG ;;
   D) cfdc=$OPTARG ;;
   L) cflb=$OPTARG ;;
   C) cfcr=$OPTARG ;;
   G) cfgr=$OPTARG ;;
-  P) MYSRMPATH=$OPTARG ;;
+##  P) MYSRMPATH=$OPTARG ;;
   h) print_help && exit 0 ;;
   \?)
     shift `expr $OPTIND - 1`
@@ -283,30 +292,30 @@ fi
 # print current options/parameters
 echo "  -> data card directory '"${datadir}"'"
 echo "  -> dataset name '"${dataset}"'"
-echo "  -> operation mode: '"${imode}"'"
-echo "  -> CMSSW user analysis path: '"${MYANADIR}"'"
+##echo "  -> operation mode: '"${imode}"'"
+##echo "  -> CMSSW user analysis path: '"${MYANADIR}"'"
 
 
 # set up 
-if [ "${imode}" = "PROD" ] || [ "${imode}" = "GRID" ]; then
+##if [ "${imode}" = "PROD" ] || [ "${imode}" = "GRID" ]; then
   MYCMSSWTEST=${HDIR}/${TDIR}
   MYCMSSWPYTH=${HDIR}/${TDIR}
   MYCMSSWSHPA=${HDIR}/${TDIR}
-else
-  MYCMSSWTEST=${CMSSWDIR}/src/${MYANADIR}/test
-  MYCMSSWPYTH=${CMSSWDIR}/src/${MYANADIR}/python
-  MYCMSSWSHPA=${CMSSWDIR}/src/${MYANADIR}/test
-  if [ ! -e ${MYCMSSWTEST} ]; then                            # create user analysis path
-    mkdir -p ${MYCMSSWTEST}
-  else
-    rm -f ${CMSSWDIR}/python/${MYANADIR}/*.py*                # ...clean up
-  fi
-  if [ ! -e ${MYCMSSWPYTH} ]; then                            # create 'python' subdirectory
-    mkdir -p ${MYCMSSWPYTH}
-  else
-    rm -f ${MYCMSSWPYTH}/*.py*                                # ...clean up
-  fi
-fi
+##else
+##  MYCMSSWTEST=${CMSSWDIR}/src/${MYANADIR}/test
+##  MYCMSSWPYTH=${CMSSWDIR}/src/${MYANADIR}/python
+##  MYCMSSWSHPA=${CMSSWDIR}/src/${MYANADIR}/test
+##  if [ ! -e ${MYCMSSWTEST} ]; then                            # create user analysis path
+##    mkdir -p ${MYCMSSWTEST}
+##  else
+##    rm -f ${CMSSWDIR}/python/${MYANADIR}/*.py*                # ...clean up
+##  fi
+##  if [ ! -e ${MYCMSSWPYTH} ]; then                            # create 'python' subdirectory
+##    mkdir -p ${MYCMSSWPYTH}
+##  else
+##    rm -f ${MYCMSSWPYTH}/*.py*                                # ...clean up
+##  fi
+##fi
 
 
 # set SHERPA data file names
@@ -321,7 +330,7 @@ if [ ! "${cfgr}" = "" ]; then gridfile=${cfgr}; fi
 
 
 
-if [ ! "${imode}" = "CRAB" ]; then
+##if [ ! "${imode}" = "CRAB" ]; then
 
 # create dataset directory tree
   if [ -e ${MYCMSSWSHPA} ]; then
@@ -362,13 +371,13 @@ if [ ! "${imode}" = "CRAB" ]; then
   fi
   cd -
 
-fi
+##fi
 
 
 # initialize variables for python file generation
 spsummd5=""
 
-if [ "${imode}" = "PROD" ] || [ "${imode}" = "LOCAL" ]; then
+##if [ "${imode}" = "PROD" ] || [ "${imode}" = "LOCAL" ]; then
   shpamstfile="sherpa_"${dataset}"_MASTER.tgz"
   shpamstmd5s="sherpa_"${dataset}"_MASTER.md5"
   shpacfffile="sherpa_"${dataset}"_MASTER_cff.py"
@@ -381,7 +390,8 @@ if [ "${imode}" = "PROD" ] || [ "${imode}" = "LOCAL" ]; then
   spsummd5=`md5sum ${shpamstfile} | cut -f1 -d" "`
 ####
 
-  build_python_cff ${imode} ${shpacfffile} ${dataset} ${spsummd5}
+##  build_python_cff ${imode} ${shpacfffile} ${dataset} ${spsummd5}
+  build_python_cff ${shpacfffile} ${dataset} ${spsummd5}
 
   mv ${shpamstfile} $HDIR
   mv ${shpamstmd5s} $HDIR
@@ -391,5 +401,49 @@ if [ "${imode}" = "PROD" ] || [ "${imode}" = "LOCAL" ]; then
 
   rm -rf $TDIR
 
-fi
+##fi
+
+
+echo " <I>  "
+echo " <I>  "
+echo " <I>  "
+echo " <I>  generated sherpack:"
+echo " <I>    "${shpamstfile}
+echo " <I>  generated python fragment:"
+echo " <I>    "${shpacfffile}
+echo " <I>  MD5 checksum file:"
+echo " <I>    "${shpamstmd5s}
+echo " <I>  "
+echo " <I>  "
+echo " <I>  "
+echo " <I> ATTENTION,"
+echo " <I>  please edit the generated python fragment according to your needs:"
+echo " <I>  "
+echo " <I>  for a local production edit the line"
+echo " <I>    SherpackLocation = cms.string('[local path to your sherpack]')"
+echo " <I>  and make sure that the SherpaInterface does not try to fetch the sherpack"
+echo " <I>    FetchSherpack = cms.bool(False)"
+echo " <I>  "
+echo " <I>  "
+echo " <I>  for a production using the frontier database use"
+echo " <I>    SherpackLocation = cms.string('[frontier database path to your sherpack]')"
+echo " <I>  and this time make sure that the SherpaInterface fetches the sherpack"
+echo " <I>    FetchSherpack = cms.bool(true)"
+echo " <I>  "
+echo " <I>  "
+echo " <I>  for a production with CRAB add the sherpack to the list of additional files"
+echo " <I>    additional_input_files = [name of the ..._MASTER.tgz sherpack]"
+echo " <I>  make sure that the sherpack location is"
+echo " <I>    SherpackLocation = cms.string('./')"
+echo " <I>  and make sure that the SherpaInterface does not try to fetch the sherpack"
+echo " <I>    FetchSherpack = cms.bool(False)"
+echo " <I>  "
+echo " <I>  "
+echo " <I>  "
+echo " <I>  a good way to test the generated python file is to cross-check it with cmsDriver.py:"
+echo "       cmsDriver.py A/B/python/"${shpacfffile}" \\"
+echo "        -s GEN -n 100 --no_exec --conditions auto:mc --eventcontent RAWSIM"
+echo " <I>  "
+echo " <I>  "
+echo " <I>  "
 
