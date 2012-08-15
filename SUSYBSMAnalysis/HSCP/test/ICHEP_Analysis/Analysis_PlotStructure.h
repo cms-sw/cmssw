@@ -186,7 +186,6 @@ struct stPlots {
   TH1D* H_F;
   TH1D* H_G;
   TH1D* H_H;
-  TH1D* H_P;
 
   TH1D* H_A_Cen;
   TH1D* H_B_Cen;
@@ -228,10 +227,6 @@ struct stPlots {
 
   TH2D*  RegionH_Ias;
 
-  TH2D* Pred_Mass;
-  TH2D* Pred_MassTOF;
-  TH2D* Pred_MassComb;
-
   TH1D* H_A_Flip;
   TH1D* H_B_Flip;
   TH1D* H_C_Flip;
@@ -240,7 +235,6 @@ struct stPlots {
   TH1D* H_F_Flip;
   TH1D* H_G_Flip;
   TH1D* H_H_Flip;
-  TH1D* H_P_Flip;
 
   TH1D* H_A_Cen_Flip;
   TH1D* H_B_Cen_Flip;
@@ -273,10 +267,6 @@ struct stPlots {
   TH2D*  RegionD_TOF_Flip;
 
   TH2D*  RegionH_Ias_Flip;
-
-  TH2D* Pred_Mass_Flip;
-  TH2D* Pred_MassTOF_Flip;
-  TH2D* Pred_MassComb_Flip;
 
   TH2D* H_D_DzSidebands;
   TH2D* H_D_DzSidebands_DT;
@@ -525,7 +515,6 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "H_F"; st.H_F = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_F->Sumw2();
    Name = "H_G"; st.H_G = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_G->Sumw2();
    Name = "H_H"; st.H_H = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_H->Sumw2();
-   Name = "H_P"; st.H_P = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_P->Sumw2();
 
    Name = "H_A_Cen"; st.H_A_Cen = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_A_Cen->Sumw2();
    Name = "H_B_Cen"; st.H_B_Cen = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_B_Cen->Sumw2();
@@ -565,10 +554,6 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
 
    Name = "RegionH_Ias"; st.RegionH_Ias = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, 100, 0, dEdxS_UpLim); st.RegionH_Ias->Sumw2();
 
-   Name = "Pred_Mass"; st.Pred_Mass = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, MassNBins,0,MassHistoUpperBound); st.Pred_Mass->Sumw2();
-   Name = "Pred_MassTOF"; st.Pred_MassTOF = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, MassNBins,0,MassHistoUpperBound); st.Pred_MassTOF->Sumw2();
-   Name = "Pred_MassComb"; st.Pred_MassComb = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, MassNBins,0,MassHistoUpperBound); st.Pred_MassComb->Sumw2();
-
    Name = "H_A_Flip"; st.H_A_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_A_Flip->Sumw2();
    Name = "H_B_Flip"; st.H_B_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_B_Flip->Sumw2();
    Name = "H_C_Flip"; st.H_C_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_C_Flip->Sumw2();
@@ -577,7 +562,6 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "H_F_Flip"; st.H_F_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_F_Flip->Sumw2();
    Name = "H_G_Flip"; st.H_G_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_G_Flip->Sumw2();
    Name = "H_H_Flip"; st.H_H_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_H_Flip->Sumw2();
-   Name = "H_P_Flip"; st.H_P_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_P_Flip->Sumw2();
 
    Name = "H_A_Cen_Flip"; st.H_A_Cen_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_A_Cen_Flip->Sumw2();
    Name = "H_B_Cen_Flip"; st.H_B_Cen_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_B_Cen_Flip->Sumw2();
@@ -612,10 +596,6 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "RegionD_TOF_Flip"; st.RegionD_TOF_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, 200,-3,1); st.RegionD_TOF_Flip->Sumw2();
 
    Name = "RegionH_Ias_Flip"; st.RegionH_Ias_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, 100, 0, dEdxS_UpLim); st.RegionH_Ias_Flip->Sumw2();
-
-   Name = "Pred_Mass_Flip"; st.Pred_Mass_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, MassNBins,0,MassHistoUpperBound); st.Pred_Mass_Flip->Sumw2();
-   Name = "Pred_MassTOF_Flip"; st.Pred_MassTOF_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, MassNBins,0,MassHistoUpperBound); st.Pred_MassTOF_Flip->Sumw2();
-   Name = "Pred_MassComb_Flip"; st.Pred_MassComb_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, MassNBins,0,MassHistoUpperBound); st.Pred_MassComb_Flip->Sumw2();
 
    Name = "CtrlPt_S1_Is"; st.CtrlPt_S1_Is = new TH1D(Name.c_str(), Name.c_str(),200,0,dEdxS_UpLim); st.CtrlPt_S1_Is->Sumw2();
    Name = "CtrlPt_S2_Is"; st.CtrlPt_S2_Is = new TH1D(Name.c_str(), Name.c_str(),200,0,dEdxS_UpLim); st.CtrlPt_S2_Is->Sumw2();
