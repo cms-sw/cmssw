@@ -117,7 +117,10 @@ namespace edm {
 
     //For backwards compatibility
     TBranch* branchEntryInfoBranch() const {return branchEntryInfoBranch_;}
-    
+
+    inline TTreeCache* checkTriggerCache(TBranch* branch, EntryNumber entryNumber) const;
+    TTreeCache* checkTriggerCacheImpl(TBranch* branch, EntryNumber entryNumber) const;
+    inline TTreeCache* selectCache(TBranch* branch, EntryNumber entryNumber) const;
     void trainCache(char const* branchNames);
     void resetTraining() {trainNow_ = true;}
 
@@ -159,6 +162,7 @@ namespace edm {
 // Enable asynchronous I/O in ROOT (done in a separate thread).  Only takes
 // effect on the primary treeCache_; all other caches have this explicitly disabled.
     bool enablePrefetching_;
+    bool enableTriggerCache_;
     std::unique_ptr<DelayedReader> rootDelayedReader_;
 
     TBranch* branchEntryInfoBranch_; //backwards compatibility
