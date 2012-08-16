@@ -19,11 +19,14 @@ def redoPFTauDiscriminators(process,
 
     if tauType == 'hpsPFTau':
         process.patHPSPFTauDiscrimination = process.produceAndDiscriminateHPSPFTaus.copy()
-        # remove producers
-        for iname in process.patHPSPFTauDiscrimination.moduleNames():
-            if not (iname.find("DiscriminationBy")>-1 or iname.find("DiscriminationAgainst")>-1 or  iname.find("kt6PFJetsForRhoComputationVoronoi") > -1 ):
-                process.patHPSPFTauDiscrimination.remove(getattr(process,iname) )
-        tauDiscriminationSequence = cloneProcessingSnippet(process, process.patHPSPFTauDiscrimination, postfix)
+        if hasattr(process,"updateHPSPFTaus"+postfix):
+            tauDiscriminationSequence = getattr(process,"patHPSPFTauDiscrimination"+postfix)
+        else:
+            #        remove producers
+            for iname in process.patHPSPFTauDiscrimination.moduleNames():
+                if not (iname.find("DiscriminationBy")>-1 or iname.find("DiscriminationAgainst")>-1 or iname.find("kt6PFJetsForRhoComputationVoronoi")>-1):
+                    process.patHPSPFTauDiscrimination.remove(getattr(process,iname) )
+            tauDiscriminationSequence = cloneProcessingSnippet(process, process.patHPSPFTauDiscrimination, postfix)
 
     elif tauType == 'hpsTancTaus': #to be checked if correct
         process.patHPSTaNCPFTauDiscrimination = process.hpsTancTauInitialSequence.copy()
@@ -63,10 +66,11 @@ def redoPFTauDiscriminators(process,
     else:
         raise StandardError, "Unkown tauType: '%s'"%tauType
 
-    applyPostfix(process,"patDefaultSequence",postfix).replace(
-        applyPostfix(process,"patTaus",postfix),
-        tauDiscriminationSequence*applyPostfix(process,"patTaus",postfix)
-    )
+    if not hasattr(process,"updateHPSPFTaus"+postfix):
+        applyPostfix(process,"patDefaultSequence",postfix).replace(
+            applyPostfix(process,"patTaus",postfix),
+            tauDiscriminationSequence*applyPostfix(process,"patTaus",postfix)
+            )
 
     massSearchReplaceParam(tauDiscriminationSequence, tauSrc, oldPFTauLabel, newPFTauLabel)
 
@@ -113,7 +117,11 @@ def _buildIDSourcePSet(pfTauType, idSources, postfix =""):
     """ Build a PSet defining the tau ID sources to embed into the pat::Tau """
     output = cms.PSet()
     for label, discriminator in idSources:
-        setattr(output, label, cms.InputTag(pfTauType + discriminator + postfix))
+        if ":" in discriminator:
+          discr = discriminator.split(":")
+          setattr(output, label, cms.InputTag(pfTauType + discr[0] + postfix + ":" + discr[1]))
+        else:  
+          setattr(output, label, cms.InputTag(pfTauType + discriminator + postfix))
     return output
 
 def _switchToPFTau(process,
