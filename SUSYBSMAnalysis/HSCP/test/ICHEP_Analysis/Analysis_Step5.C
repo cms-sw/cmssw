@@ -1646,10 +1646,10 @@ void CosmicBackgroundSystematic(string InputPattern){
   TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
   TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
 
-  TH2D* H_D_DzSidebands = ((TH2D*)GetObjectFromPath(InputFile, "Data12/H_D_DzSidebands_DT"));
-  TH2D* H_D_DzSidebands_Cosmic = (TH2D*)GetObjectFromPath(InputFile, "Cosmic12/H_D_DzSidebands_DT");
-  TH1D* H_D_Cosmic           = (TH1D*)GetObjectFromPath(InputFile, "Cosmic12/H_D_Cen");
-  //TH1D* H_D_Data             = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_D_Cen");
+  TH2D* H_D_DzSidebands = ((TH2D*)GetObjectFromPath(InputFile, "Data12/H_D_DzSidebands"));
+  TH2D* H_D_DzSidebands_Cosmic = (TH2D*)GetObjectFromPath(InputFile, "Cosmic12/H_D_DzSidebands");
+  TH1D* H_D_Cosmic           = (TH1D*)GetObjectFromPath(InputFile, "Cosmic12/H_D");
+  //TH1D* H_D_Data             = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_D");
 
   std::vector<int> Index;   std::vector<int> Plot;
   for(int CutIndex=0; CutIndex<HCuts_Pt->GetNbinsX(); CutIndex++) {
