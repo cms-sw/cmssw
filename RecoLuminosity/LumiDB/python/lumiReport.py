@@ -209,7 +209,7 @@ def toScreenTotDelivered(lumidata,resultlines,scalefactor,irunlsdict=None,noWarn
         datarunlsdict[run]=existdata
         nls=len(deliveredData)
         ncmsls=0
-        iheadf selectedcmsls:
+        if selectedcmsls:
             ncmsls=len(selectedcmsls)
             totcmsls+=ncmsls
         totls+=nls
