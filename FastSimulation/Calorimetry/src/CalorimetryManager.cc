@@ -324,6 +324,7 @@ void CalorimetryManager::reconstruct()
 void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   std::vector<const RawParticle*> thePart;
   double X0depth;
+
   if (debug_) {
     LogInfo("FastCalorimetry") << " EMShowerSimulation "  <<myTrack << std::endl;      
   }
@@ -1575,16 +1576,21 @@ void CalorimetryManager::loadFromEcalBarrel(edm::PCaloHitContainer & c) const
       int hi=firedCellsEB_[ic];
       if(!unfoldedMode_)
 	{
-	  c.push_back(PCaloHit(EBDetId::unhashIndex(hi),EBMapping_[hi][0].second,0.,0));
+	  double time=(myCalorimeter_->getEcalGeometry(1)->getGeometry(EBDetId::unhashIndex(hi))->getPosition().mag())/29.98;
+	  c.push_back(PCaloHit(EBDetId::unhashIndex(hi),EBMapping_[hi][0].second,time,0));
 	  //	  std::cout << "Adding " << hi << " " << EBDetId::unhashIndex(hi) << " " ;
 	  //	  std::cout << EBMapping_[hi][0].second << " " << EBMapping_[hi][0].first << std::endl;
 	}
       else
 	{
 	  unsigned npart=EBMapping_[hi].size();
+
 	  for(unsigned ip=0;ip<npart;++ip)
 	    {
-	      c.push_back(PCaloHit(EBDetId::unhashIndex(hi),EBMapping_[hi][ip].second,0.,
+	      // get the time
+	      double time=(myCalorimeter_->getEcalGeometry(1)->getGeometry(EBDetId::unhashIndex(hi))->getPosition().mag())/29.98;
+	      //	      std::cout << " Barrel " << time  << std::endl;
+	      c.push_back(PCaloHit(EBDetId::unhashIndex(hi),EBMapping_[hi][ip].second,time,
 				   EBMapping_[hi][ip].first));
 
 	    }
@@ -1619,14 +1625,20 @@ void CalorimetryManager::loadFromEcalEndcap(edm::PCaloHitContainer & c) const
   for(unsigned ic=0;ic<size;++ic)
     {
       int hi=firedCellsEE_[ic];
-      if(!unfoldedMode_)
-	c.push_back(PCaloHit(EEDetId::unhashIndex(hi),EEMapping_[hi][0].second,0.,0));
+      if(!unfoldedMode_) {
+	double time=(myCalorimeter_->getEcalGeometry(2)->getGeometry(EEDetId::unhashIndex(hi))->getPosition().mag())/29.98;
+	c.push_back(PCaloHit(EEDetId::unhashIndex(hi),EEMapping_[hi][0].second,time,0));
+      }
       else
 	{
 	  unsigned npart=EEMapping_[hi].size();
-	  for(unsigned ip=0;ip<npart;++ip)
-	    c.push_back(PCaloHit(EEDetId::unhashIndex(hi),EEMapping_[hi][ip].second,0.,
+	  for(unsigned ip=0;ip<npart;++ip) {
+	    //	    double time=mySimEvent->track(EBMapping_[hi][ip].first).ecalEntrance().t();
+	    double time=(myCalorimeter_->getEcalGeometry(2)->getGeometry(EEDetId::unhashIndex(hi))->getPosition().mag())/29.98;
+	    //	    std::cout << " Endcap " << time << std::endl;
+	    c.push_back(PCaloHit(EEDetId::unhashIndex(hi),EEMapping_[hi][ip].second,time, 
 				 EEMapping_[hi][ip].first));
+	  }
 	}
 	
       //      sum+=cellit->second;
