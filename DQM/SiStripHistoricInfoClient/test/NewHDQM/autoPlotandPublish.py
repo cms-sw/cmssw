@@ -5,7 +5,7 @@ import subprocess
 
 ##Setting variables:
 webDir = '/data/users/event_display/HDQM/Current/'
-Epochs = ['Run2012C','Run2012B','Run2012A','Run2012']
+Epochs = ['LastWeek','Run2012C','Run2012B','Run2012A','Run2012']
 Recos  = ['Prompt']
 PDs    = ['MinimumBias']      ##other examples: 'SingleMu','DoubleMu'
 jsonFile  = subprocess.Popen("ls -1tr /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions12/8TeV/Prompt/Cert_*_8TeV_PromptReco_Collisions12_JSON.txt", shell=True, stdout=subprocess.PIPE).stdout.readlines()[-1][:-1]
@@ -38,7 +38,7 @@ subprocess.Popen("cp /data/users/cctrack/DQMdata/StripMode/StripReadoutMode4Cosm
 pwDir  = subprocess.Popen("pwd", shell=True, stdout=subprocess.PIPE).stdout.readline()[:-1]+'/'
 
 addplots=''
-Plots=[' -C cfg/trendPlotsTracking.ini ',' -C cfg/trendPlotsPixel_General.ini',' -C cfg/trendPlotsStrip_APVShots.ini ',' -C cfg/trendPlotsStrip_Clusters.ini ', ' -C cfg/trendPlotsStrip_General.ini -C cfg/trendPlotsStrip_TEC.ini -C cfg/trendPlotsStrip_TIB.ini -C cfg/trendPlotsStrip_TID.ini -C cfg/trendPlotsStrip_TOB.ini ', ' -C cfg/trendPlotsRECOErrors.ini']
+Plots=[' -C cfg/trendPlotsTracking.ini ',' -C cfg/trendPlotsPixel_General.ini',' -C cfg/trendPlotsStrip_APVShots.ini ',' -C cfg/trendPlotsStrip_ClusterRatios.ini ',' -C cfg/trendPlotsStrip_Clusters.ini -C cfg/trendPlotsStrip_General.ini -C cfg/trendPlotsStrip_TEC.ini -C cfg/trendPlotsStrip_TIB.ini -C cfg/trendPlotsStrip_TID.ini -C cfg/trendPlotsStrip_TOB.ini ', ' -C cfg/trendPlotsRECOErrors.ini']
 #Plots=[' -C cfg/trendPlotsTracking.ini ',' -C cfg/trendPlotsPixel_General.ini',' -C cfg/trendPlotsStrip_APVShots.ini']
 title=['Tracking_plots','Pixel_plots','APVShots_plots','StripCluster_plots','Strip_plots','RECOError_plots']
 indexOut=['index_tracker.htm','index_pixel.htm','index_apvshots.htm','index_clusters.htm','index_strip.htm','index_reco.htm']
@@ -62,7 +62,7 @@ for epoch in Epochs:
                         epoch='Run2012C'
                         reco='Prompt'
                         epochOut='LastWeek'
-                        run_hDQM_cmd = './trendPlots.py  -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +' -s '+cosType + ' -L '+lastwkfile
+                        run_hDQM_cmd = './trendPlots.py  -C cfg/trendPlotsDQMShortRunList.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +' -s '+cosType + ' -L '+lastwkfile
 		  print 'RUN:',run_hDQM_cmd, icos
                   ##Define local output directory
 		  figDir=pwDir+'fig/'+reco+'/'+epoch+'/'+pd+'/'+cosType+'/'
@@ -107,7 +107,7 @@ for epoch in Epochs:
                         epochOut='LastWeek'
                         outPath=webDir+'fig/'+reco+'/'+epochOut+'/'+pd+'/'+title[i]+'/'
                         print 'outPath22:',outPath
-                        run_hDQM_cmd = './trendPlots.py  -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +' -L '+lastwkfile
+                        run_hDQM_cmd = './trendPlots.py  -C cfg/trendPlotsDQMShortRunList.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +' -L '+lastwkfile
             	print "Running ",run_hDQM_cmd
 	        print "pwDir",pwDir
                 ##Define local output directory
@@ -139,7 +139,7 @@ for epoch in Epochs:
                 perlCmd = "perl "+pwDir+"test/diowroot2.pl -c 2 -t "+title[i] +" -D "+outPath +" -o "+webDir +indexOut[i]
                 print "perlCmd:", perlCmd
                 #subprocess.Popen(perlCmd, shell=True).wait()
-		if (('MinimumBias' in pd) and ('2012B' in epoch)):
+		if (('MinimumBias' in pd) and ('2012C' in epoch)):
                     subprocess.Popen(perlCmd, shell=True).wait()
 		if 'LastWeek' in epochOut:
                         epoch='LastWeek'
