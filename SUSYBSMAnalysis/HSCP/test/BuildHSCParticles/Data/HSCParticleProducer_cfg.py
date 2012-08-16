@@ -70,7 +70,7 @@ else:
      "HLT_MET80_*",
      "HLT_L2Mu*MET*",
      "HLT_L2Mu*NoBPTX*",
-     "HLT_PFMHT150_*",
+     "HLT_PFMET150_*",
    ]
    process.HSCPTrigger.andOr = cms.bool( True ) #OR
    process.HSCPTrigger.throw = cms.bool( False )

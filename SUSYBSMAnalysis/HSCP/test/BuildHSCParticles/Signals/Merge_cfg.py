@@ -49,7 +49,7 @@ process.HSCPHLTTriggerMet.HLTPaths = ["HLT_MET80_*"]
 process.HSCPHLTTriggerMetFilter = cms.Path(process.HSCPHLTTriggerMet   )
 
 process.HSCPHLTTriggerPFMet = process.HSCPHLTTriggerMuDeDx.clone()
-process.HSCPHLTTriggerPFMet.HLTPaths = ["HLT_PFMHT150_*"]
+process.HSCPHLTTriggerPFMet.HLTPaths = ["HLT_PFMET150_*"]
 process.HSCPHLTTriggerPFMetFilter = cms.Path(process.HSCPHLTTriggerPFMet   )
 
 process.HSCPHLTTriggerHt = process.HSCPHLTTriggerMuDeDx.clone()
