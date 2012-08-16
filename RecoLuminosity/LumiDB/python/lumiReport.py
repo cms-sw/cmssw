@@ -209,7 +209,7 @@ def toScreenTotDelivered(lumidata,resultlines,scalefactor,irunlsdict=None,noWarn
         datarunlsdict[run]=existdata
         nls=len(deliveredData)
         ncmsls=0
-        if selectedcmsls:
+        iheadf selectedcmsls:
             ncmsls=len(selectedcmsls)
             totcmsls+=ncmsls
         totls+=nls
@@ -825,7 +825,6 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarn
                 result.append([str(run)+':'+str(fillnum),selectedlsStr,totrecordedinrun*scalefactor,name+hprescStr,cleanlname+lprescStr,effval])
                 
     if irunlsdict and not noWarning:
-        print cmslslist
         for run,cmslslist in irunlsdict.items():
             if run not in datarunlsdict.keys() or datarunlsdict[run] is None:
                 sys.stdout.write('[WARNING] selected run '+str(run)+' not in lumiDB or has no HLT data\n')
