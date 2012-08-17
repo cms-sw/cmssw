@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.393 $"
+__version__ = "$Revision: 1.394 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -943,7 +943,7 @@ class ConfigBuilder(object):
 			if '/' in geoms[1] or '_cff' in geoms[1]:
 				self.GeometryCFF=geoms[1]
 			else:
-				self.GeometryCFF='Configuration/StandardSequences/Geometry'+geoms[1]+'_cff'
+				self.GeometryCFF='Configuration/Geometry/Geometry'+geoms[1]+'_cff'
 
 		if (geoms[0].startswith('DB:')):
 			self.SimGeometryCFF='Configuration/StandardSequences/GeometrySimDB_cff'
@@ -955,9 +955,9 @@ class ConfigBuilder(object):
 			else:
 				simGeometry=geoms[0]
 				if self._options.gflash==True:
-					self.SimGeometryCFF='Configuration/StandardSequences/Geometry'+geoms[0]+'GFlash_cff'
+					self.SimGeometryCFF='Configuration/Geometry/Geometry'+geoms[0]+'GFlash_cff'
 				else:
-					self.SimGeometryCFF='Configuration/StandardSequences/Geometry'+geoms[0]+'_cff'
+					self.SimGeometryCFF='Configuration/Geometry/Geometry'+geoms[0]+'_cff'
 
 	# synchronize the geometry configuration and the FullSimulation sequence to be used
         if simGeometry not in defaultOptions.geometryExtendedOptions:
@@ -1743,7 +1743,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.393 $"),
+                                            (version=cms.untracked.string("$Revision: 1.394 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
