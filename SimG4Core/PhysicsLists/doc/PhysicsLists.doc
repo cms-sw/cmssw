@@ -32,8 +32,12 @@ components provided by Geant4.
 - CMSEmStandardPhysics95msc92 - CMSUrbanMscModel95 replaced 
                              by CMSUrbanMscModel92 made for tests
 - CMSEmStandardPhysics95msc93 - CMSUrbanMscModel95 replaced 
-                             by CMSUrbanMscModel92 made for tests
-- CMSEmStandardPhysicsLPM  - obsolete
+                             by CMSUrbanMscModel93 - keep calorimeter response unchanged
+                             for CMSSW_5_X_Y and CMSSW_6_X_Y very similar
+- CMSEmStandardPhysicsLPM  - CMSUrbanMscModel95 replaced 
+                             by CMSUrbanMscModel93 - keep calorimeter response unchanged
+                             for CMSSW_5_X_Y and CMSSW_6_X_Y very similar
+                             use ultra-relativistic gamma conversion model above 100 GeV
 - CMSEmStandardPhysicsSync - standard EM physics equivalent to Option1 
                              + Synkrotron radiation active
 - CMSGlauberGribovXS       - obsolete alternative x-section for protons, 
@@ -41,7 +45,7 @@ components provided by Geant4.
 - CMSHadronElasticPhysicsXS- obsolete alternative hadron elastic constructor
 - CMSMonopolePhysics       - extra constructor of magnetic monopole physics
 - CMSNeutronXS             - precise inelastic and capture neutron x-sections
-- DummyEMPhysics           - constructor where onlz electron and mu- ionisation
+- DummyEMPhysics           - constructor where only electron and mu- ionisation
                              are defined
 - G4Version                
 - HadronPhysicsCMS         - constructor of hadron inelastic physics by name,
@@ -56,7 +60,11 @@ QGSPCMS_FTFP_BERT_EML       - production Physics List for 2012
 QGSPCMS_FTFP_BERT_EML95     - alternative  Physics List for 2012 providing better
                               EM shower shape, also kaon and hyperon x-sections
 QGSPCMS_FTFP_BERT_EML95msc92- alternative  Physics List for 2012 tests
-QGSPCMS_FTFP_BERT_EML95msc93- alternative  Physics List for 2012 tests
+QGSPCMS_FTFP_BERT_EML95msc93- similar to the production Phyiscs List but keep 
+                              calorimeter response unchanged for CMSSW_5_X_Y and CMSSW_6_X_Y 
+QGSPCMS_FTFP_BERT_EML_New   - similar to the production Phyiscs List but keep 
+                              calorimeter response unchanged for CMSSW_5_X_Y and CMSSW_6_X_Y 
+                              used ultrarelativistic gamma conversion model above 100 GeV
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
