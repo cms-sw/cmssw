@@ -763,7 +763,7 @@ class Process(object):
             self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.__dict__)
         processPSet.addVString(False, "@filters_on_endpaths", endpathValidator.filtersOnEndpaths)
 
-    def prune(self):
+    def prune(self,verbose=False):
         """ Remove clutter from the process which we think is unnecessary:
         tracked PSets, VPSets and unused modules and sequences. If a Schedule has been set, then Paths and EndPaths
         not in the schedule will also be removed, along with an modules and sequences used only by
@@ -779,23 +779,24 @@ class Process(object):
         for x in self.endpaths.itervalues():
             x.resolve(self.__dict__)
         usedModules = set()
+        unneededPaths = set()
         if self.schedule_():
             usedModules=set(self.schedule_().moduleNames())
             #get rid of unused paths
             schedNames = set(( x.label_() for x in self.schedule_()))
             names = set(self.paths)
             names.update(set(self.endpaths))
-            junk = names - schedNames
-            for n in junk:
+            unneededPaths = names - schedNames
+            for n in unneededPaths:
                 delattr(self,n)
         else:
             pths = list(self.paths.itervalues())
             pths.extend(self.endpaths.itervalues())
             temp = Schedule(*pths)
             usedModules=set(temp.moduleNames())
-        self._pruneModules(self.producers_(), usedModules)
-        self._pruneModules(self.filters_(), usedModules)
-        self._pruneModules(self.analyzers_(), usedModules)
+        unneededModules = self._pruneModules(self.producers_(), usedModules)
+        unneededModules.update(self._pruneModules(self.filters_(), usedModules))
+        unneededModules.update(self._pruneModules(self.analyzers_(), usedModules))
         #remove sequences that do not appear in remaining paths and endpaths
         seqs = list()
         sv = SequenceVisitor(seqs)
@@ -805,14 +806,22 @@ class Process(object):
             p.visit(sv)
         keepSeqSet = set(( s for s in seqs if s.hasLabel_()))
         availableSeqs = set(self.sequences.itervalues())
-        for s in availableSeqs-keepSeqSet:
+        unneededSeqs = availableSeqs-keepSeqSet
+        unneededSeqLabels = []
+        for s in unneededSeqs:
+            unneededSeqLabels.append(s.label_())
             delattr(self,s.label_())
-                
+        if verbose:
+            print "prune removed the following:"
+            print "  modules:"+",".join(unneededModules)
+            print "  sequences:"+",".join(unneededSeqLabels)
+            print "  paths/endpaths:"+",".join(unneededPaths)
     def _pruneModules(self, d, scheduledNames):
         moduleNames = set(d.keys())
         junk = moduleNames - scheduledNames
         for name in junk:
             delattr(self, name)
+        return junk
 
     def fillProcessDesc(self, processPSet):
         """Used by the framework to convert python to C++ objects"""
