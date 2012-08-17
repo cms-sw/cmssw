@@ -839,7 +839,7 @@ void create_plots(std::string const colorScheme="Greg", int const year=2012,
   hPeakLum.SetFillColor(kFillColorPeak);
 
   double maxPeak = 0.;
-  for (int i = 0; i != hPeakLum.GetNbinsX(); ++i) {
+  for (int i = 1; i != hPeakLum.GetNbinsX() + 1; ++i) {
     maxPeak = max(hPeakLum.GetBinContent(i), maxPeak);
   }
   airSpace = .2;
