@@ -29,7 +29,8 @@ bool CmsException::reportGeneral( clang::ento::PathDiagnosticLocation const& pat
 	  found += FN.count("xi.cc");
 	  found += FN.count("LinkDef.cc");
 	  found += FN.count("/external/");
-	  found +=FN.count("/lcg/");
+	  found += FN.count("/lcg/");
+	  found += FN.count("/uscmst1/prod/sw/cms/");
 	  if ( found!=0 )  {return false;}
 #endif
 
@@ -73,6 +74,14 @@ bool CmsException::reportMutableMember( clang::QualType const& t,
 {
 	return reportGeneral ( path, BR );
 }
+
+bool CmsException::reportClass( 
+			clang::ento::PathDiagnosticLocation const& path,
+			clang::ento::BugReporter & BR  ) const
+{
+	return reportGeneral ( path, BR );
+}
+
 
 bool CmsException::reportGlobalStaticForType( clang::QualType const& t,
 				clang::ento::PathDiagnosticLocation const& path,

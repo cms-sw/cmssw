@@ -29,6 +29,10 @@ public:
 	bool reportMutableMember( clang::QualType const& t,
 				clang::ento::PathDiagnosticLocation const& path,
 				clang::ento::BugReporter & BR  ) const;	
+	bool reportClass(
+				clang::ento::PathDiagnosticLocation const& path,
+				clang::ento::BugReporter & BR  ) const;	
+
 
 	bool reportConstCast ( const clang::ento::BugReport &R,
 		clang::ento::CheckerContext &C) const; 
