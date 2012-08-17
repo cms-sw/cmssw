@@ -239,10 +239,11 @@ class LuminosityBlockRange(_ParameterTypeBase):
     def __init__(self, start, startSub=None, end=None, endSub=None):
         super(LuminosityBlockRange,self).__init__()
         if isinstance(start, basestring):
-            self.__start    = self._valueFromString(start).__start
-            self.__startSub = self._valueFromString(start).__startSub
-            self.__end      = self._valueFromString(start).__end
-            self.__endSub   = self._valueFromString(start).__endSub
+            parsed = self._valueFromString(start)
+            self.__start    = parsed.__start
+            self.__startSub = parsed.__startSub
+            self.__end      = parsed.__end
+            self.__endSub   = parsed.__endSub
         else:
             self.__start    = start
             self.__startSub = startSub
@@ -299,12 +300,13 @@ class EventRange(_ParameterTypeBase):
     def __init__(self, start, *args):
         super(EventRange,self).__init__()
         if isinstance(start, basestring):
-            self.__start     = self._valueFromString(start).__start
-            self.__startLumi = self._valueFromString(start).__startLumi
-            self.__startSub  = self._valueFromString(start).__startSub
-            self.__end       = self._valueFromString(start).__end
-            self.__endLumi   = self._valueFromString(start).__endLumi
-            self.__endSub    = self._valueFromString(start).__endSub
+            parsed = self._valueFromString(start)
+            self.__start     = parsed.__start
+            self.__startLumi = parsed.__startLumi
+            self.__startSub  = parsed.__startSub
+            self.__end       = parsed.__end
+            self.__endLumi   = parsed.__endLumi
+            self.__endSub    = parsed.__endSub
         else:
             self.__start     = start
             if len(args) == 3:
