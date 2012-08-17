@@ -6,13 +6,6 @@ bTagPlots = cms.Sequence(calobTagAnalysis)
 calobTagAnalysis.finalizePlots = False
 calobTagAnalysis.finalizeOnly = False
 
-#collection of good vertices
-from PhysicsTools.SelectorUtils.pvSelector_cfi import pvSelector
-goodOfflinePrimaryVertices = cms.EDFilter(
-    "PrimaryVertexObjectFilter",
-    filterParams = pvSelector.clone( minNdof = cms.double(4.0), maxZ = cms.double(24.0) ),
-    src=cms.InputTag('offlinePrimaryVertices')
-    )
 
 #Jet collection
 JetCut=cms.string("neutralHadronEnergyFraction < 0.99 && neutralEmEnergyFraction < 0.99 && nConstituents > 1 && chargedHadronEnergyFraction > 0.0 && chargedMultiplicity > 0.0 && chargedEmEnergyFraction < 0.99")
@@ -28,6 +21,7 @@ ak5PFJetsJEC = ak5PFJetsL2L3.clone(
 PFJetsFilter = cms.EDFilter("PFJetSelector",
                             src = cms.InputTag("ak5PFJetsJEC"),
                             cut = JetCut,
+                            filter = cms.bool(False)
                             )
 
 jetID = cms.InputTag("PFJetsFilter")
@@ -109,7 +103,7 @@ pfbtagging = cms.Sequence(
 )
 
 #preSeq
-prebTagSequence = cms.Sequence(goodOfflinePrimaryVertices*ak5PFJetsJEC*PFJetsFilter*pfAk5JetTracksAssociatorAtVertex*pfbtagging)
+prebTagSequence = cms.Sequence(ak5PFJetsJEC*PFJetsFilter*pfAk5JetTracksAssociatorAtVertex*pfbtagging)
 
 # Module execution for data
 #from DQMOffline.RecoB.bTagAnalysisData_cfi import *
