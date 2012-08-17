@@ -51,6 +51,7 @@ private:
   virtual void endJob() ;
 
   void FillInfo(const SiStripCluster*   cluster, TrajectoryStateOnSurface trajState,const uint32_t &, susybsm::HSCPDeDxInfo& hscpDeDxInfo);
+  void FillPosition(TrajectoryStateOnSurface trajState,  const uint32_t &  detId, susybsm::HSCPDeDxInfo& hscpDeDxInfo);
   void   MakeCalibrationMap();
 
 
@@ -89,7 +90,7 @@ private:
 
 
    private :
-      struct stModInfo{int DetId; int SubDet; float Eta; float R; float Thickness; int NAPV; double Gain;};
+      struct stModInfo{int DetId; int SubDet; float Eta; float R; float Thickness; int NAPV; double Gain; double Width; double Length; std::vector<float> trapezoParams;};
 
       class isEqual{
          public:
