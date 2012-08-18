@@ -15,7 +15,7 @@ Jobs = ["MC_7TeV_ZZ", "MC_7TeV_ZJetToMuMu_Pt-80to120", "MC_7TeV_ZJetToMuMu_Pt-50
 FarmDirectory = "MERGE"
 for JobName in Jobs:
 	LaunchOnCondor.ListToFile(LaunchOnCondor.GetListOfFiles('"file:','/storage/data/cms/store/user/quertenmont/12_08_16_HSCP_EDM2011/FWLite_MC/' + JobName + '/HSCP_*.root','",'), FarmDirectory + "InputFile.txt") 
-	LaunchOnCondor.SendCMSJobs(FarmDirectory, "MC_" + JobName, "Merge_cfg.py", FarmDirectory + "InputFile.txt", 1, ['XXX_SAVEPATH_XXX','file:/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_8/12_08_16/'])
+	LaunchOnCondor.SendCMSJobs(FarmDirectory, JobName, "Merge_cfg.py", FarmDirectory + "InputFile.txt", 1, ['XXX_SAVEPATH_XXX','file:/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_8/12_08_16/'])
 
 
 os.system("rm " +  FarmDirectory + "InputFile.txt")
