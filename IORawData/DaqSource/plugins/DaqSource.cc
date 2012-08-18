@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2012/08/05 22:44:38 $
- *  $Revision: 1.59 $
+ *  $Date: 2012/08/11 14:18:47 $
+ *  $Revision: 1.60 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -419,7 +419,7 @@ namespace edm {
 	    if(luminosityBlockNumber_ > (thisEventLSid + 1))
 	    {
 	      //late event,throw fwk exception
-              throw edm::Exception(errors::LogicError,"DaqSource::event with late LS (" << thisEventLSid + 1 << ")received.");
+              throw edm::Exception(errors::LogicError,"DaqSource::event with late LS (" << (thisEventLSid + 1) << ")received.");
 	    }
 	    if(luminosityBlockNumber_ != (thisEventLSid + 1)){
 	      // we got here in a running process and some Ls might have been skipped so set the flag, 
