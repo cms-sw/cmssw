@@ -55,8 +55,8 @@ public:
   TempTrajectory() :  
     theChiSquared(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(alongMomentum), theDirectionValidity(false), 
-    theValid(true),theNLoops(0),theDPhiCache(0)
+    theDirection(anyDirection), theDirectionValidity(false), 
+    theValid(false),theNLoops(0),theDPhiCache(0)
   {}
   
   
@@ -70,7 +70,7 @@ public:
     theSeed( new TrajectorySeed(seed) ),
     theChiSquared(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(alongMomentum), theDirectionValidity(false),
+    theDirection(anyDirection), theDirectionValidity(false),
     theValid(true),theNLoops(0),theDPhiCache(0) 
   {}
   
@@ -314,10 +314,6 @@ public:
   static bool inactive(//const Det& det
 		       ){return false;}//FIXME
 
-  /** Definition of what it means for a hit to be "lost".
-   *  This definition is also used by the TrajectoryBuilder.
-   */
-  static bool lost( const TransientTrackingRecHit& hit);
 
   /// Redundant method, returns the layer of lastMeasurement() .
   const DetLayer* lastLayer() const {
@@ -347,6 +343,11 @@ public:
 
 
 private:
+  /** Definition of what it means for a hit to be "lost".
+   *  This definition is also used by the TrajectoryBuilder.
+   */
+  static bool lost( const TransientTrackingRecHit& hit) dso_internal;
+
 
   void pushAux(double chi2Increment);
 

@@ -117,18 +117,15 @@ void TempTrajectory::check() const {
 
 bool TempTrajectory::lost( const TransientTrackingRecHit& hit)
 {
-  if ( hit.isValid()) return false;
-  else {
+  if  likely(hit.isValid()) return false;
+
   //     // A DetLayer is always inactive in this logic.
   //     // The DetLayer is the Det of an invalid RecHit only if no DetUnit 
   //     // is compatible with the predicted state, so we don't really expect
   //     // a hit in this case.
   
-    if(hit.geographicalId().rawId() == 0) {return false;}
-    else{
-      return hit.getType() == TrackingRecHit::missing;
-    }
-  }
+  if(hit.geographicalId().rawId() == 0) {return false;}
+  return hit.getType() == TrackingRecHit::missing;
 }
 
 Trajectory TempTrajectory::toTrajectory() const {

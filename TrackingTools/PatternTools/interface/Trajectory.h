@@ -53,7 +53,7 @@ public:
     theSeed(), seedRef_(),
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(alongMomentum), theDirectionValidity(false), theValid(true),theDPhiCache(0),theNLoops(0)
+    theDirection(anyDirection), theDirectionValidity(false), theValid(true),theDPhiCache(0),theNLoops(0)
     {}
 
 
@@ -67,7 +67,7 @@ public:
     theSeed( new TrajectorySeed(seed) ), seedRef_(),
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(alongMomentum), theDirectionValidity(false), theValid(true),theDPhiCache(0),theNLoops(0)
+    theDirection(anyDirection), theDirectionValidity(false), theValid(true),theDPhiCache(0),theNLoops(0)
   {}
 
   /** Constructor of an empty trajectory with defined direction.
