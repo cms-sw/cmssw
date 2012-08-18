@@ -106,6 +106,7 @@ public:
     theUpdatedState(uTrajectoryStateOnSurface),
     theRecHit(aRecHit),
     theLayer(0), theEstimate(aEstimate) {}
+
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
 			TrajectoryStateOnSurface bwdPredTrajectoryStateOnSurface,
                         TrajectoryStateOnSurface uTrajectoryStateOnSurface,
@@ -118,7 +119,6 @@ public:
     theLayer(layer), theEstimate(aEstimate) {}
 
  
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   TrajectoryMeasurement( TrajectoryMeasurement const & rh) :
     theFwdPredictedState(rh.theFwdPredictedState),
     theBwdPredictedState(rh.theBwdPredictedState),
@@ -138,6 +138,7 @@ public:
 
   }
 
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
 
   TrajectoryMeasurement( TrajectoryMeasurement && rh)  noexcept:
     theFwdPredictedState(std::move(rh.theFwdPredictedState)),
@@ -158,12 +159,8 @@ public:
     return *this;
 
   }
- 
-#endif
-
-
   
-
+#endif
 
   /** Access to forward predicted state (from fitter or builder).
    *  To be replaced by forwardPredictedState.

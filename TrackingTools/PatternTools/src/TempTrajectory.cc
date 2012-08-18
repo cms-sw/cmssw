@@ -22,7 +22,6 @@ TempTrajectory::TempTrajectory( const Trajectory& traj):
 
 }
 
-TempTrajectory::~TempTrajectory() {}
 
 void TempTrajectory::pop() { 
   if (!empty()) {
@@ -32,37 +31,17 @@ void TempTrajectory::pop() {
   }
 }
 
-void TempTrajectory::push( const TrajectoryMeasurement& tm) {
-  push( tm, tm.estimate());
-}
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
-void TempTrajectory::push( TrajectoryMeasurement&& tm) {
-  push( std::forward<TrajectoryMeasurement>(tm), tm.estimate());
-}
-#endif
 
-void TempTrajectory::push( const TrajectoryMeasurement& tm, double chi2Increment){
-  pushAux(tm,chi2Increment);
-  theData.push_back(tm);
-}
-
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
-void TempTrajectory::push(TrajectoryMeasurement&& tm, double chi2Increment){
-  pushAux(tm,chi2Increment);
-  theData.push_back(std::move(tm));
-}
-#endif
-
-void TempTrajectory::pushAux( const TrajectoryMeasurement& tm, double chi2Increment)
-{
+void TempTrajectory::pushAux(double chi2Increment) {
+  const TrajectoryMeasurement& tm = theData.back();
   if ( tm.recHit()->isValid()) {
     theNumberOfFoundHits++;
    }
   //else if (lost( tm.recHit()) && !inactive(tm.recHit().det())) theNumberOfLostHits++;
   else if (lost( *(tm.recHit()) ) )   theNumberOfLostHits++;
   
- 
+  
   theChiSquared += chi2Increment;
 
   // in case of a Trajectory constructed without direction, 

@@ -179,24 +179,34 @@ public:
   TempTrajectory( const Trajectory& traj);
 
   /// destruct a TempTrajectory 
-  // trivial destructor, but must be out-of-line for code size issues
-  // https://hypernews.cern.ch/HyperNews/CMS/get/code-perf/247.html
-  ~TempTrajectory() ;
+  ~TempTrajectory() {}
 
     /** Add a new measurement to a Trajectory.
    *  The Chi2 of the trajectory is incremented by the value
    *  of tm.estimate() . 
    */
-  void push( const TrajectoryMeasurement& tm);
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
-  void push(TrajectoryMeasurement&& tm);
-#endif
+  void push( const TrajectoryMeasurement& tm){
+    push( tm, tm.estimate());
+  }
+
+  void push(TrajectoryMeasurement&& tm){
+    push( std::forward<TrajectoryMeasurement>(tm), tm.estimate());
+  }
+
+  template<typename... Args>
+  void emplace(Args && ...args) {
+    theData.emplace_back(std::forward<Args>(args)...);
+    pushAux(theData.back().estimate());
+  }
+
     /** Add a new sets of measurements to a Trajectory
    *  The sorting of hits in the other trajectory must match the one
    *  inside this trajectory (that is, both along or both opposite to momentum)
    */
   void push( const TempTrajectory & segment);
- 
+
+      
+
   /** Add a new sets of measurements to a Trajectory
    *  Exactly like push(TempTrajectory), but it doesn't copy the data
    *  (the input segment will be reset to an empty one)
@@ -208,10 +218,24 @@ public:
   /** same as the one-argument push, but the trajectory Chi2 is incremented 
    *  by chi2Increment. Useful e.g. in trajectory smoothing.
    */
-  void push( const TrajectoryMeasurement& tm, double chi2Increment);
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
-  void push( TrajectoryMeasurement&& tm, double chi2Increment);
-#endif
+  void push( const TrajectoryMeasurement& tm, double chi2Increment) {
+      theData.push_back(tm);
+      pushAux(chi2Increment);
+  }
+
+  void push( TrajectoryMeasurement&& tm, double chi2Increment) {
+    theData.push_back(std::move(tm));
+    pushAux(chi2Increment);
+  }
+
+  
+  template<typename... Args>
+  void emplace(double chi2Increment, Args && ...args) { // works only because the first Arg is never a double!
+    theData.emplace_back(std::forward<Args>(args)...);
+    pushAux(chi2Increment);
+  }
+
+
   /** Remove the last measurement from the trajectory.
    */
   void pop();
@@ -323,7 +347,7 @@ public:
 
 private:
 
-  void pushAux( const TrajectoryMeasurement& tm, double chi2Increment);
+  void pushAux(double chi2Increment);
 
 private:
 
