@@ -190,8 +190,8 @@ void TrajectorySegmentBuilder::updateTrajectory (TempTrajectory& traj,
   ConstRecHitPointer hit = tm.recHit();
  
   if ( hit->isValid()) {
-    traj.push( TM( predictedState, theUpdator.update( predictedState, *hit),
-		   hit, tm.estimate(), tm.layer()));
+    traj.emplace(predictedState, theUpdator.update( predictedState, *hit),
+		   hit, tm.estimate(), tm.layer());
 
 //     TrajectoryMeasurement tm(traj.lastMeasurement());
 //     if ( tm.updatedState().isValid() ) {
@@ -207,7 +207,7 @@ void TrajectorySegmentBuilder::updateTrajectory (TempTrajectory& traj,
 //     }
   }
   else {
-    traj.push( TM( predictedState, hit,0, tm.layer()));
+    traj.emplace(predictedState, hit,0, tm.layer());
   }
 }
 
@@ -267,14 +267,14 @@ TrajectorySegmentBuilder::addGroup (TempTrajectory& traj,
 
         if (theDbgFlg) cout << "TSB::addGroup : got " << finalTrajectories.size()
                             << " finalised candidates" << endl;
-        ret.insert(ret.end(),finalTrajectories.begin(),
-                      finalTrajectories.end());
+        ret.insert(ret.end(),make_move_iterator(finalTrajectories.begin()),
+		   make_move_iterator(finalTrajectories.end()));
       }
   } else {
       ret.reserve(updatedTrajectories.size());
       for (TempTrajectoryContainer::iterator it=updatedTrajectories.begin(); 
               it!=updatedTrajectories.end(); ++it ) { 
-        if (!it->empty()) ret.push_back(*it);
+        if (!it->empty()) ret.push_back(std::move(*it));
       }
   }
 
