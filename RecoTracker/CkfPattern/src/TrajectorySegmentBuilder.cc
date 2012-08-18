@@ -38,7 +38,7 @@ namespace {
       totSeg+=s;
       totLockHits+=l;
      }
-    void truncated() { ++truncl}
+    void truncated() { ++trunc;}
     void print() const {
       std::cout << "TrajectorySegmentBuilder stat\nGroup/Seg/Lock/trunc "
     		<< totGroup<<'/'<<totSeg<<'/'<<totLockHits<<'/'<<trunc
