@@ -281,7 +281,7 @@ def SendCMSJobs(FarmDirectory, JobName, ConfigFile, InputFiles, NJobs, Argv):
         arguments.extend(Argv);
 	for i in range(NJobs):
         	SendCluster_Push(arguments)
-#	SendCluster_Submit()
+	SendCluster_Submit()
 
 
 

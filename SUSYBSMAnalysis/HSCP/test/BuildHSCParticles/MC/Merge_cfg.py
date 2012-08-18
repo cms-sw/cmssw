@@ -134,8 +134,7 @@ process.Out = cms.OutputModule("PoolOutputModule",
          "keep *_g4SimHits_StoppedParticles*_*",
          "keep PileupSummaryInfos_addPileupInfo_*_*"
     ),
-#    fileName = cms.untracked.string('/uscmst1b_scratch/lpc1/3DayLifetime/farrell/NewDTError/XXX_OUTPUT_XXX.root'),
-    fileName = cms.untracked.string('merged.root'),
+    fileName = cms.untracked.string('XXX_SAVEPATH_XXX/XXX_OUTPUT_XXX.root'),
 )
 
 if CMSSW4_2:
