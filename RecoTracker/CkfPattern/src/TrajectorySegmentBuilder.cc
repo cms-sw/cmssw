@@ -29,17 +29,19 @@ namespace {
     long long totGroup;
     long long totSeg;
     long long totLockHits;
+    long long trunc;
     void zero() {
-      totGroup=totSeg=totLockHits=0;
+      totGroup=totSeg=totLockHits=trunc=0;
     }
     void incr(long long g, long long s, long long l) {
       totGroup+=g;
       totSeg+=s;
       totLockHits+=l;
      }
+    void truncated() { ++truncl}
     void print() const {
-      std::cout << "TrajectorySegmentBuilder stat\nGroup/Seg/Lock "
-    		<< totGroup<<'/'<<totSeg<<'/'<<totLockHits
+      std::cout << "TrajectorySegmentBuilder stat\nGroup/Seg/Lock/trunc "
+    		<< totGroup<<'/'<<totSeg<<'/'<<totLockHits<<'/'<<trunc
 		<< std::endl;
     }
     StatCount() { zero();}
@@ -49,6 +51,7 @@ namespace {
 #else
   struct StatCount {
     void incr(long long, long long, long long){}
+    void truncated() {}
   };
 #endif
 
@@ -85,8 +88,8 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   //
   // check number of combinations
   //
-  enum { MAXCOMB = 100000000 };
-  int ncomb(1);
+  constexpr long long  MAXCOMB = 100000000;
+  long long ncomb(1);
   int ngrp(0);
   bool truncate(false);
   for (vector<TMG>::const_iterator ig=measGroups.begin(); ig!=measGroups.end(); ++ig) {
@@ -104,6 +107,9 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
 					       << " combinations - limiting to "
 					       << (ngrp-1) << " groups";
       truncate = true;
+
+      statCount.truncated();
+
       break;
     }
   }  
