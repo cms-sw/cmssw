@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestConfigure
  *
- *  $Date: 2011/01/19 11:40:35 $
- *  $Revision: 1.24 $
+ *  $Date: 2012/08/07 04:24:27 $
+ *  $Revision: 1.25 $
  *  \author Ilaria Segoni
  */
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
@@ -355,7 +355,7 @@ void QTestConfigure::EnableCompareLastFilledBinTest(std::string testName, std::m
         me_qc1->setMin(minVal);
 
         double maxVal=atof(params["MaxVal"].c_str());
-        me_qc1->setMin(maxVal);
+        me_qc1->setMax(maxVal);
 }
 
 /* void QTestConfigure::EnableContentsWithinExpectedASTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
