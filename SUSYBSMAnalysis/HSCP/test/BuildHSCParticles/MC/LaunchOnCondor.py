@@ -277,9 +277,11 @@ def SendSingleJob(FarmDirectory, JobName, Argv):
 def SendCMSJobs(FarmDirectory, JobName, ConfigFile, InputFiles, NJobs, Argv):
 	SendCluster_Create(FarmDirectory, JobName)
 	NJobs = SendCluster_LoadInputFiles(InputFiles, NJobs)
+        arguments = ["CMSSW", ConfigFile];
+        arguments.extend(Argv);
 	for i in range(NJobs):
-        	LaunchOnCondor.SendCluster_Push  (["CMSSW", ConfigFile])
-	LaunchOnCondor.SendCluster_Submit()
+        	SendCluster_Push(arguments)
+#	SendCluster_Submit()
 
 
 
