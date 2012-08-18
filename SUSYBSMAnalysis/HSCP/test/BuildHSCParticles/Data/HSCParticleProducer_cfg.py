@@ -13,44 +13,24 @@ from SUSYBSMAnalysis.HSCP.HSCPVersion_cff import *
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
-if CMSSW4_2:
-      process.GlobalTag.globaltag = 'GR_P_V14::All'
-else:
-      process.GlobalTag.globaltag = 'GR_P_V32::All'
-
-
+if CMSSW4_2:   process.GlobalTag.globaltag = 'GR_P_V14::All'
+else:          process.GlobalTag.globaltag = 'GR_P_V32::All'
 
 readFiles = cms.untracked.vstring()
 process.source = cms.Source("PoolSource",
    fileNames = readFiles
 )
 
-
-if CMSSW4_2:
-   readFiles.extend(['/store/data/Run2011B/SingleMu/USER/EXOHSCP-PromptSkim-v1/0000/FC298F26-65FF-E011-977F-00237DA13C76.root'])
-else:
-   readFiles.extend(['/store/data/Run2012C/SingleMu/USER/EXOHSCP-PromptSkim-v2/000/198/230/00000/14E5B271-72C8-E111-A26D-E0CB4E1A1163.root'])
-
+if CMSSW4_2:   readFiles.extend(['/store/data/Run2011B/SingleMu/USER/EXOHSCP-PromptSkim-v1/0000/FC298F26-65FF-E011-977F-00237DA13C76.root'])
+else:          readFiles.extend(['/store/data/Run2012C/SingleMu/USER/EXOHSCP-PromptSkim-v2/000/198/230/00000/14E5B271-72C8-E111-A26D-E0CB4E1A1163.root'])
 
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
-#process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('190645:10-190645:110')
-#import FWCore.PythonUtilities.LumiList as LumiList
-#process.source.lumisToProcess = LumiList.LumiList(filename = 'OfficialLumi.json').getVLuminosityBlockRange()
 
 ########################################################################
-if CMSSW4_2:
-   process.load('SUSYBSMAnalysis.Skimming.EXOHSCP_cff')
-   process.load('SUSYBSMAnalysis.Skimming.EXOHSCP_EventContent_cfi')
-else:
-   process.load('Configuration.Skimming.PDWG_EXOHSCP_cff')
-
 process.load("SUSYBSMAnalysis.HSCP.HSCParticleProducerFromSkim_cff")  #IF RUNNING ON HSCP SKIM
-process.load("SUSYBSMAnalysis.HSCP.HSCPTreeBuilder_cff")
 
 ######################################################################## INCREASING HSCP TRIGGER TRESHOLD FOR OLD DATA
-
 process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
-
 if CMSSW4_2:
    process.HSCPTrigger = cms.EDFilter("HSCPHLTFilter",
      RemoveDuplicates = cms.bool(False),
@@ -76,30 +56,31 @@ else:
    process.HSCPTrigger.throw = cms.bool( False )
 
 ########################################################################  SPECIAL CASE FOR DATA
-
 process.GlobalTag.toGet = cms.VPSet(
    cms.PSet( record = cms.string('SiStripDeDxMip_3D_Rcd'),
             tag = cms.string('Data7TeV_Deco_3D_Rcd_38X'),
             connect = cms.untracked.string("sqlite_file:Data7TeV_Deco_SiStripDeDxMip_3D_Rcd.db")),
 )
 
+if not CMSSW4_2:
+   print ("WARNING: You are using Data7TeV_Deco_SiStripDeDxMip_3D_Rcd.db for dEdx computation... These constants are a priori not valid for 2012 samples\nThe constants need to be redone for 2012 samples")
+
+
 ########################################################################
 process.nEventsBefSkim  = cms.EDProducer("EventCountProducer")
 process.nEventsBefEDM   = cms.EDProducer("EventCountProducer")
 ########################################################################
 
-#bug fix in 52
-process.HSCParticleProducer.useBetaFromEcal = cms.bool(False)
+if not CMSSW4_2:
+   #bug fix in 52
+   process.HSCParticleProducer.useBetaFromEcal = cms.bool(False)
 
-#no dE/dx cut from skim:
-#process.DedxFilter.filter = cms.bool(False)
-
-#skim the jet collection to keep only 15GeV jets
-process.ak5PFJetsPt15 = cms.EDFilter( "EtMinPFJetSelector",
+   #skim the jet collection to keep only 15GeV jets
+   process.ak5PFJetsPt15 = cms.EDFilter( "EtMinPFJetSelector",
      src = cms.InputTag( "ak5PFJets" ),
      filter = cms.bool( False ),
      etMin = cms.double( 15.0 )
-)
+   )
 
 process.Out = cms.OutputModule("PoolOutputModule",
      outputCommands = cms.untracked.vstring(
@@ -144,8 +125,11 @@ process.Out = cms.OutputModule("PoolOutputModule",
     ),
 )
 
-from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup 
-process.tTrigDB = cms.ESSource("PoolDBESSource",
+if CMSSW4_2:
+   process.Out.outputCommands.extend(["keep recoPFJets_ak5PFJets__*"])
+
+   from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup 
+   process.tTrigDB = cms.ESSource("PoolDBESSource",
                                    CondDBSetup,
                                    timetype = cms.string('runnumber'),
                                    toGet = cms.VPSet(cms.PSet(
@@ -156,10 +140,10 @@ process.tTrigDB = cms.ESSource("PoolDBESSource",
                                    connect = cms.string('frontier://FrontierPrep/CMS_COND_DT'),
                                    authenticationMethod = cms.untracked.uint32(0)
                                    )
-#process.tTrigDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
-process.es_prefer_tTrigDB = cms.ESPrefer('PoolDBESSource','tTrigDB')
+   #process.tTrigDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
+   process.es_prefer_tTrigDB = cms.ESPrefer('PoolDBESSource','tTrigDB')
 
-process.vDriftDB = cms.ESSource("PoolDBESSource",
+   process.vDriftDB = cms.ESSource("PoolDBESSource",
                                    CondDBSetup,
                                    timetype = cms.string('runnumber'),
                                    toGet = cms.VPSet(cms.PSet(
@@ -170,22 +154,22 @@ process.vDriftDB = cms.ESSource("PoolDBESSource",
                                    connect = cms.string('frontier://FrontierPrep/CMS_COND_DT'),
                                    authenticationMethod = cms.untracked.uint32(0)
                                    )
-#process.vDriftDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
-process.es_prefer_vDriftDB = cms.ESPrefer('PoolDBESSource','vDriftDB')
+   #process.vDriftDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
+   process.es_prefer_vDriftDB = cms.ESPrefer('PoolDBESSource','vDriftDB')
+
+
 
 ########################################################################
 
 
 #LOOK AT SD PASSED PATH IN ORDER to avoid as much as possible duplicated events (make the merging of .root file faster)
-if CMSSW4_2:
-    #The module ak5PFJetsPt15 does not exist in CMSSW4
-    process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.nEventsBefEDM * process.HSCParticleProducerSeq)
-else:
-    process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.nEventsBefEDM * process.ak5PFJetsPt15 * process.HSCParticleProducerSeq)
-    #If you are not running from the HSCP skim you need to redo the skim
-    #process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.exoticaHSCPSeq * process.nEventsBefEDM * process.ak5PFJetsPt15 * process.HSCParticleProducerSeq)
+#The module ak5PFJetsPt15 does not exist in CMSSW4
+if CMSSW4_2:  process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.nEventsBefEDM *                         process.HSCParticleProducerSeq)
+else:         process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.nEventsBefEDM * process.ak5PFJetsPt15 * process.HSCParticleProducerSeq)
 
-#process.p1 = cms.Path(process.HSCParticleProducerSeq)
+#If you are not running from the HSCP skim you need to redo the skim
+#process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.exoticaHSCPSeq * process.nEventsBefEDM * process.ak5PFJetsPt15 * process.HSCParticleProducerSeq)
+
 process.endPath1 = cms.EndPath(process.Out)
 process.schedule = cms.Schedule( process.p1, process.endPath1)
 
