@@ -9,6 +9,12 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing ('python')
 
+options.register ('tlbsmTag',
+                  'tlbsm_53x_v1',
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.string,
+                  'TLBSM tag use in production')
+
 options.register ('useData',
                   False,
                   VarParsing.multiplicity.singleton,
@@ -97,23 +103,11 @@ import sys
 ####### Global Setup ##########
 ###############################
 
-# 4.2.x or 52x configuration
-fileTag = "53x"
-
 if options.useData :
     if options.globalTag is '':
         process.GlobalTag.globaltag = cms.string( 'GR_P_V40_AN1::All' )
     else:
         process.GlobalTag.globaltag = cms.string( options.globalTag )
-    # Jet Probability Calibration for 52x and 53x data
-    process.GlobalTag.toGet = cms.VPSet(
-        cms.PSet(record = cms.string("BTagTrackProbability2DRcd"),
-                 tag = cms.string("TrackProbabilityCalibration_2D_2012DataTOT_v1_offline"),
-                 connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_BTAU")),
-        cms.PSet(record = cms.string("BTagTrackProbability3DRcd"),
-                 tag = cms.string("TrackProbabilityCalibration_3D_2012DataTOT_v1_offline"),
-                 connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_BTAU"))
-    )
 else :
     if options.globalTag is '':
         process.GlobalTag.globaltag = cms.string( 'START53_V7E::All' )
@@ -655,7 +649,7 @@ addJetCollection(process,
                  cms.InputTag('caPrunedPFlow'),
                  'CA8Pruned', 'PF',
                  doJTA=False,
-                 doBTagging=False,
+                 doBTagging=True,
                  jetCorrLabel=inputJetCorrLabel,
                  doType1MET=True,
                  doL1Cleaning=False,
@@ -933,7 +927,7 @@ for jetcoll in (process.patJetsPFlow,
 # Add CATopTag and b-tag info... piggy-backing on b-tag functionality
 process.patJetsPFlow.addBTagInfo = True
 process.patJetsCATopTagPF.addBTagInfo = True
-
+process.patJetsCA8PrunedPF.addBTagInfo = True
 
 
 # Do some configuration of the jet substructure things
@@ -1465,14 +1459,14 @@ process.out.SelectEvents.SelectEvents = cms.vstring('p0')
 # rename output file
 if options.useData :
     if options.writeFat :
-        process.out.fileName = cms.untracked.string('ttbsm_' + fileTag + '_data_fat.root')
+        process.out.fileName = cms.untracked.string('ttbsm_' + options.tlbsmTag + '_data_fat.root')
     else :
-        process.out.fileName = cms.untracked.string('ttbsm_' + fileTag + '_data.root')
+        process.out.fileName = cms.untracked.string('ttbsm_' + options.tlbsmTag + '_data.root')
 else :
     if options.writeFat :
-        process.out.fileName = cms.untracked.string('ttbsm_' + fileTag + '_mc_fat.root')
+        process.out.fileName = cms.untracked.string('ttbsm_' + options.tlbsmTag + '_mc_fat.root')
     else :
-        process.out.fileName = cms.untracked.string('ttbsm_' + fileTag + '_mc.root')
+        process.out.fileName = cms.untracked.string('ttbsm_' + options.tlbsmTag + '_mc.root')
 
 
 # reduce verbosity
