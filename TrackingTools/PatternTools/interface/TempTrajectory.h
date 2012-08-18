@@ -56,7 +56,7 @@ public:
     theChiSquared(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(alongMomentum), theDirectionValidity(false), 
-    theValid(true),theDPhiCache(0),theNLoops(0)
+    theValid(true),theNLoops(0),theDPhiCache(0)
   {}
   
   
@@ -71,7 +71,7 @@ public:
     theChiSquared(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(alongMomentum), theDirectionValidity(false),
-    theValid(true),theDPhiCache(0),theNLoops(0)  
+    theValid(true),theNLoops(0),theDPhiCache(0) 
   {}
   
   /** Constructor of an empty trajectory with defined direction.
@@ -83,7 +83,7 @@ public:
     theChiSquared(0), 
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(dir), theDirectionValidity(true),
-    theValid(true),theDPhiCache(0),theNLoops(0)
+    theValid(true),theNLoops(0),theDPhiCache(0)
   {}
   
   /** Constructor of an empty trajectory with defined direction.
@@ -95,7 +95,7 @@ public:
     theChiSquared(0), 
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(dir), theDirectionValidity(true),
-    theValid(true),theDPhiCache(0),theNLoops(0)
+    theValid(true),theNLoops(0),theDPhiCache(0)
   {}
   
   
@@ -107,7 +107,7 @@ public:
     theChiSquared(0), 
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(dir), theDirectionValidity(true),
-    theValid(true),theDPhiCache(0),theNLoops(0)
+    theValid(true),theNLoops(0),theDPhiCache(0)
   {}
 
   
@@ -119,8 +119,9 @@ public:
     theData(rh.theData),
     theChiSquared(rh.theChiSquared), 
     theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
-    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity),theValid(rh.theValid),
-    theDPhiCache(rh.theDPhiCache),theNLoops(rh.theNLoops)
+    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity),theValid(rh.theValid)
+    ,theNLoops(rh.theNLoops)
+    ,theDPhiCache(rh.theDPhiCache)
   {}
   
   
@@ -135,8 +136,8 @@ public:
     theDirection=rh.theDirection; 
     theDirectionValidity=rh.theDirectionValidity;
     theValid=rh.theValid;
-    theDPhiCache=rh.theDPhiCache;
     theNLoops=rh.theNLoops;
+    theDPhiCache=rh.theDPhiCache;
  
     return *this;
 
@@ -150,8 +151,8 @@ public:
     theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
     theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity),
     theValid(rh.theValid),
-    theDPhiCache(rh.theDPhiCache),
-    theNLoops(rh.theNLoops)
+    theNLoops(rh.theNLoops),
+    theDPhiCache(rh.theDPhiCache)
    {}
 
   TempTrajectory & operator=(TempTrajectory && rh) noexcept {
@@ -164,8 +165,8 @@ public:
     theDirection=rh.theDirection;
     theDirectionValidity=rh.theDirectionValidity;
     theValid=rh.theValid;
-    theDPhiCache=rh.theDPhiCache;
     theNLoops=rh.theNLoops;
+    theDPhiCache=rh.theDPhiCache;
     return *this;
 
   }
@@ -360,12 +361,13 @@ private:
   signed short theNumberOfFoundHits;
   signed short theNumberOfLostHits;
 
-  PropagationDirection theDirection;
-  bool                 theDirectionValidity;
+  // PropagationDirection 
+  signed char theDirection;
+  bool        theDirectionValidity;
   bool theValid;
 
-  float theDPhiCache;
   signed char theNLoops;
+  float theDPhiCache;
 
 
   void check() const;

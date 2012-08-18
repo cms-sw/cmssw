@@ -10,8 +10,8 @@ TempTrajectory::TempTrajectory( const Trajectory& traj):
   theNumberOfFoundHits(0), theNumberOfLostHits(0),
   theDirection(traj.direction()), theDirectionValidity(true),
   theValid(traj.isValid()),
-  theDPhiCache(traj.dPhiCacheForLoopersReconstruction()),
-  theNLoops(traj.nLoops()) {
+  theNLoops(traj.nLoops()),
+  theDPhiCache(traj.dPhiCacheForLoopersReconstruction()) {
   
   Trajectory::DataContainer::const_iterator begin=traj.measurements().begin();
   Trajectory::DataContainer::const_iterator end=traj.measurements().end();
@@ -106,7 +106,7 @@ Trajectory::RecHitContainer Trajectory::recHits() const {
 */
 
 PropagationDirection TempTrajectory::direction() const {
-  if (theDirectionValidity) return theDirection;
+  if (theDirectionValidity) return PropagationDirection(theDirection);
   else throw cms::Exception("TrackingTools/PatternTools","Trajectory::direction() requested but not set");
 }
 
@@ -132,7 +132,7 @@ bool TempTrajectory::lost( const TransientTrackingRecHit& hit)
 }
 
 Trajectory TempTrajectory::toTrajectory() const {
-  Trajectory traj(theSeed, theDirection);
+  Trajectory traj(theSeed, PropagationDirection(theDirection));
   traj.setNLoops(theNLoops);
 
   traj.reserve(theData.size());
