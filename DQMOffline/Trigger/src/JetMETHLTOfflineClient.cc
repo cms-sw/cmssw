@@ -83,12 +83,13 @@ void JetMETHLTOfflineClient::runClient_()
   // Look at all folders, go to the subfolder which includes the string "Eff"
   std::vector<std::string> fullPathHLTFolders = dbe_->getSubdirs();
   for(unsigned int i=0;i<fullPathHLTFolders.size();i++) {
-
+    
     // Move on only if the folder name contains "Eff" Or "Trigger Summary"
     if (debug_) std::cout << fullPathHLTFolders[i] << std::endl;
     if ((fullPathHLTFolders[i].find("Eff")!=std::string::npos)) {
       dbe_->setCurrentFolder(fullPathHLTFolders[i]);
-       } else {
+    } 
+    else {
       continue;
     }
 
@@ -98,6 +99,8 @@ void JetMETHLTOfflineClient::runClient_()
 
       if (debug_) std::cout << fullSubPathHLTFolders[j] << std::endl;      
       dbe_->setCurrentFolder(fullSubPathHLTFolders[j]);
+      
+      //std::cout << "PhatDEBUG: " << fullSubPathHLTFolders[j] << std::endl; 
     
       // Look at all MonitorElements in this folder
       hltMEs = dbe_->getContents(fullSubPathHLTFolders[j]);
@@ -116,35 +119,39 @@ void JetMETHLTOfflineClient::runClient_()
 
 //	  MonitorElement* eff ;
 
+	  //std::cout << "PhatDEBUG: name = " << name << std::endl;
+
 	  for(unsigned int l=0;l<hltMEs.size();l++) {
 	    if (hltMEs[l]->getName() == "ME_Denominator"+name){
 	      // found denominator too
-              if(name.find("EtaPhi") !=std::string::npos) 
-              {
-	      TH2F* tNumerator   = hltMEs[k]->getTH2F();
-	      TH2F* tDenominator = hltMEs[l]->getTH2F();
-
-	      std::string title = "Eff_"+hltMEs[k]->getTitle();
+              if(name.find("EtaPhi") !=std::string::npos) {
+		TH2F* tNumerator   = hltMEs[k]->getTH2F();
+		TH2F* tDenominator = hltMEs[l]->getTH2F();
+		
+		std::string title = "Eff_"+hltMEs[k]->getTitle();
                 
-	      TH2F *teff = (TH2F*) tNumerator->Clone(title.c_str());
-	      teff->Divide(tNumerator,tDenominator,1,1);
-              dbe_->book2D("ME_Eff_"+name,teff);
-              delete teff;			
-              }else{
-              TH1F* tNumerator   = hltMEs[k]->getTH1F();
-              TH1F* tDenominator = hltMEs[l]->getTH1F();
-
-              std::string title = "Eff_"+hltMEs[k]->getTitle();
-
-              TH1F *teff = (TH1F*) tNumerator->Clone(title.c_str());
-              teff->Divide(tNumerator,tDenominator,1,1);
-              dbe_->book1D("ME_Eff_"+name,teff);
-              delete teff;
-             }
+		TH2F *teff = (TH2F*) tNumerator->Clone(title.c_str());
+		teff->Divide(tNumerator,tDenominator,1,1);
+		dbe_->book2D("ME_Eff_"+name,teff);
+		delete teff;
+		//std::cout << "PhatDEBUG: EtaPhiEff" <<std::endl;
+              }
+	      else{
+		TH1F* tNumerator   = hltMEs[k]->getTH1F();
+		TH1F* tDenominator = hltMEs[l]->getTH1F();
+		
+		std::string title = "Eff_"+hltMEs[k]->getTitle();
+		
+		TH1F *teff = (TH1F*) tNumerator->Clone(title.c_str());
+		teff->Divide(tNumerator,tDenominator,1,1);
+		dbe_->book1D("ME_Eff_"+name,teff);
+		delete teff;
+		//std::cout << "PhatDEBUG: MMMM" <<std::endl;
+	      }
 	    } // Denominator
 	  }   // Loop-l
 	}     // Numerator
-
+	
         
       }       // Loop-k
     }         // fullSubPath
