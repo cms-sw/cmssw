@@ -29,9 +29,10 @@ namespace {
     long long totGroup;
     long long totSeg;
     long long totLockHits;
+    long long totInvCand;
     long long trunc;
     void zero() {
-      totGroup=totSeg=totLockHits=trunc=0;
+      totGroup=totSeg=totLockHits=totInvCand=trunc=0;
     }
     void incr(long long g, long long s, long long l) {
       totGroup+=g;
@@ -39,9 +40,10 @@ namespace {
       totLockHits+=l;
      }
     void truncated() { ++trunc;}
+    void invalid() { ++totInvCand;}
     void print() const {
-      std::cout << "TrajectorySegmentBuilder stat\nGroup/Seg/Lock/trunc "
-    		<< totGroup<<'/'<<totSeg<<'/'<<totLockHits<<'/'<<trunc
+      std::cout << "TrajectorySegmentBuilder stat\nGroup/Seg/Lock/Inv/Trunc "
+    		<< totGroup<<'/'<<totSeg<<'/'<<totLockHits<<'/'<<totInvCand<<'/'<<trunc
 		<< std::endl;
     }
     StatCount() { zero();}
@@ -52,6 +54,7 @@ namespace {
   struct StatCount {
     void incr(long long, long long, long long){}
     void truncated() {}
+    void invalid() {}
   };
 #endif
 
@@ -603,7 +606,7 @@ TrajectorySegmentBuilder::cleanCandidates (vector<TempTrajectory>& candidates) c
 	  break;
 	}
       }
-      if ( allFound )  i1->invalidate();
+      if ( allFound ) { i1->invalidate(); statCount.invalid();}
     }
   }
 /*
