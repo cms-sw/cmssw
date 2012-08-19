@@ -562,24 +562,22 @@ TrajectorySegmentBuilder::cleanCandidates (vector<TempTrajectory>& candidates) c
   if ( candidates.size()<=1 )  return;
   //RecHitEqualByChannels recHitEqual(false,true);
   //
-  vector<TempTrajectory> sortedCandidates(candidates);
-  sort(sortedCandidates.begin(),sortedCandidates.end(),TrajectoryLessByFoundHits());
+  const auto NC = candidates.size();
+  int index[NC];
+  std::sort(index,index+NC,[&candidates](int i, int j) { return lessByFoundHits(candidates[i],candidates[j]);});
 //   cout << "SortedCandidates.foundHits";
-//   for ( vector<Trajectory>::iterator i1=sortedCandidates.begin();
-// 	i1!=sortedCandidates.end(); i1++ ) 
-//     cout << " " << i1->foundHits();
+//   for (auto i1 : index) 
+//     cout << " " << candidates[i1].foundHits();
 //   cout << endl;
   //
-  for ( vector<TempTrajectory>::iterator i1=sortedCandidates.begin();
-	i1!=sortedCandidates.end()-1; ++i1 ) {
+  for ( auto i1 = index; i1!=index+NC-1; ++i1) {
     // get measurements of candidate to be checked
-    const TempTrajectory::DataContainer & measurements1 = i1->measurements();
-    for ( vector<TempTrajectory>::iterator i2=i1+1;
-	  i2!=sortedCandidates.end(); ++i2 ) {
+    const TempTrajectory::DataContainer & measurements1 = candidates[*i1].measurements();
+    for ( auto i2=i1+1; i2!=index+NC; ++i2 ) {
       // no duplicates: two candidates of same size are different
-      if ( i2->foundHits()==i1->foundHits() )  continue;
+      if ( candidates[*i2].foundHits()==candidates[*i1].foundHits() )  continue;
       // get measurements of "reference"
-      const TempTrajectory::DataContainer & measurements2 = i2->measurements();
+      const TempTrajectory::DataContainer & measurements2 = candidates[*i2].measurements();
       //
       // use the fact that TMs are ordered:
       // start search in trajectory#1 from last hit match found
@@ -589,12 +587,11 @@ TrajectorySegmentBuilder::cleanCandidates (vector<TempTrajectory>& candidates) c
       for ( TempTrajectory::DataContainer::const_iterator im1=measurements1.rbegin(),im1end = measurements1.rend();
 	    im1!=im1end; --im1 ) {
 	// redundant protection - segments should not contain invalid RecHits
-	if ( !im1->recHit()->isValid() )  continue;
+	assert( im1->recHit()->isValid());
 	bool found(false);
-	for ( TempTrajectory::DataContainer::const_iterator im2=from2;
-	      im2!=im2end; --im2 ) {
+	for ( TempTrajectory::DataContainer::const_iterator im2=from2; im2!=im2end; --im2 ) {
 	  // redundant protection - segments should not contain invalid RecHits
-	  if ( !im2->recHit()->isValid() )  continue;
+	  assert (im2->recHit()->isValid());
 	  if ( im1->recHit()->hit()->sharesInput(im2->recHit()->hit(), TrackingRecHit::all) ) {
 	    found = true;
 	    from2 = im2; --from2;
@@ -606,18 +603,13 @@ TrajectorySegmentBuilder::cleanCandidates (vector<TempTrajectory>& candidates) c
 	  break;
 	}
       }
-      if ( allFound ) { i1->invalidate(); statCount.invalid();}
+      if ( allFound ) { candidates[*i1].invalidate(); statCount.invalid();}
     }
   }
-/*
-  candidates.clear();
-  for ( vector<Trajectory>::const_iterator i=sortedCandidates.begin();
-	i!=sortedCandidates.end(); i++ ) {
-    if ( i->isValid() )  candidates.push_back(*i);
-  }
-*/
+
   candidates.erase(std::remove_if( candidates.begin(),candidates.end(),
-                                   std::not1(std::mem_fun_ref(&TempTrajectory::isValid))),
+				   [&](TempTrajectory const & t) { return !t.isValid();}),
+				   // std::not1(std::mem_fun_ref(&TempTrajectory::isValid))),
  //                                boost::bind(&TempTrajectory::isValid,_1)), 
                                    candidates.end()); 
 #ifdef DBG_TSB
