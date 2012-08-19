@@ -74,11 +74,11 @@ private:
   void updateTrajectory (TempTrajectory& traj, const TM& tm) const;
  
  /// creation of new candidates from a segment and a collection of hits
-  void updateCandidates (TempTrajectory& traj, const std::vector<TM>& measurements,
+  void updateCandidates (TempTrajectory const& traj, const std::vector<TM>& measurements,
 			 TempTrajectoryContainer& candidates);
 
   /// creation of a new candidate from a segment and the best hit out of a collection
-  void updateCandidatesWithBestHit (TempTrajectory& traj, const std::vector<TM>& measurements,
+  void updateCandidatesWithBestHit (TempTrajectory const& traj, const std::vector<TM>& measurements,
 				    TempTrajectoryContainer& candidates);
 
   /// retrieve compatible hits from a DetGroup
@@ -97,7 +97,7 @@ private:
 
 // public:
 
-  std::vector<TempTrajectory> addGroup( TempTrajectory& traj,
+  std::vector<TempTrajectory> addGroup( TempTrajectory const& traj,
 			       std::vector<TrajectoryMeasurementGroup>::const_iterator begin,
 			       std::vector<TrajectoryMeasurementGroup>::const_iterator end);
     

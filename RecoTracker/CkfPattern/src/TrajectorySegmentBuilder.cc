@@ -76,7 +76,7 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   //
   // get measurement groups
   //
-  vector<TMG> measGroups = 
+  vector<TMG> const & measGroups = 
     theLayerMeasurements->groupedMeasurements(theLayer,startingState,theFullPropagator,theEstimator);
     //B.M. theLayer.groupedMeasurements(startingState,theFullPropagator,theEstimator);
 
@@ -228,7 +228,7 @@ void TrajectorySegmentBuilder::updateTrajectory (TempTrajectory& traj,
 
 
 TrajectorySegmentBuilder::TempTrajectoryContainer
-TrajectorySegmentBuilder::addGroup (TempTrajectory& traj,
+TrajectorySegmentBuilder::addGroup (TempTrajectory const & traj,
 				    vector<TMG>::const_iterator begin,
 				    vector<TMG>::const_iterator end)
 {
@@ -242,20 +242,20 @@ TrajectorySegmentBuilder::addGroup (TempTrajectory& traj,
   }
   
   if unlikely(theDbgFlg) cout << "TSB::addGroup : traj.size() = " << traj.measurements().size()
-		      << " first group at " << &(*begin)
-		   //        << " nr. of candidates = " << candidates.size() 
-		      << endl;
-
-
+			      << " first group at " << &(*begin)
+	       //        << " nr. of candidates = " << candidates.size() 
+			      << endl;
+  
+  
   TempTrajectoryContainer updatedTrajectories; updatedTrajectories.reserve(2);
   if ( traj.measurements().empty() ) {
-    vector<TM> firstMeasurements = unlockedMeasurements(begin->measurements());
+    vector<TM> const & firstMeasurements = unlockedMeasurements(begin->measurements());
     if ( theBestHitOnly )
       updateCandidatesWithBestHit(traj,firstMeasurements,updatedTrajectories);
     else
       updateCandidates(traj,begin->measurements(),updatedTrajectories);
     if unlikely(theDbgFlg) cout << "TSB::addGroup : updating with first group - "
-			<< updatedTrajectories.size() << " trajectories" << endl;
+				<< updatedTrajectories.size() << " trajectories" << endl;
   }
   else {
     if ( theBestHitOnly )
@@ -265,42 +265,39 @@ TrajectorySegmentBuilder::addGroup (TempTrajectory& traj,
       updateCandidates(traj,redoMeasurements(traj,begin->detGroup()),
 		       updatedTrajectories);
     if unlikely(theDbgFlg) cout << "TSB::addGroup : updating"
-			<< updatedTrajectories.size() << " trajectories" << endl;
+				<< updatedTrajectories.size() << " trajectories" << endl;
   }
-
+  
   if (begin+1 != end) {
-      ret.reserve(4); // a good upper bound
-      for ( TempTrajectoryContainer::iterator it=updatedTrajectories.begin();
-            it!=updatedTrajectories.end(); ++it ) {
-        if unlikely(theDbgFlg) cout << "TSB::addGroup : trying to extend candidate at "
-                            << &(*it) << " size " << it->measurements().size() << endl;
-        vector<TempTrajectory> finalTrajectories = addGroup(*it,begin+1,end);
-        if unlikely(theDbgFlg) cout << "TSB::addGroup : " << finalTrajectories.size()
-                            << " finalised candidates before cleaning" << endl;
-        //B.M. to be ported later
-	// V.I. only mark invalidate
-        cleanCandidates(finalTrajectories);
-
-        if unlikely(theDbgFlg) {
+    ret.reserve(4); // a good upper bound
+    for (auto const & ut : updatedTrajectories) {
+      if unlikely(theDbgFlg) cout << "TSB::addGroup : trying to extend candidate at "
+				  << &ut << " size " << ut.measurements().size() << endl;
+      vector<TempTrajectory> finalTrajectories = addGroup(ut,begin+1,end);
+      if unlikely(theDbgFlg) cout << "TSB::addGroup : " << finalTrajectories.size()
+				  << " finalised candidates before cleaning" << endl;
+      //B.M. to be ported later
+      // V.I. only mark invalidate
+      cleanCandidates(finalTrajectories);
+      
+      if unlikely(theDbgFlg) {
 	  int ntf=0; for ( auto const & t : finalTrajectories) if (t.isValid()) ++ntf;
 	  cout << "TSB::addGroup : got " << ntf
 	       << " finalised candidates" << endl;
 	}
-
-	for ( auto const & t : finalTrajectories) 
-	  if (t.isValid()) ret.push_back(std::move(t));
-
-	//        ret.insert(ret.end(),make_move_iterator(finalTrajectories.begin()),
-	//	   make_move_iterator(finalTrajectories.end()));
-      }
+      
+      for ( auto & t : finalTrajectories) 
+	if (t.isValid()) ret.push_back(std::move(t));
+      
+      //        ret.insert(ret.end(),make_move_iterator(finalTrajectories.begin()),
+      //	   make_move_iterator(finalTrajectories.end()));
+    }
   } else {
-      ret.reserve(updatedTrajectories.size());
-      for (TempTrajectoryContainer::iterator it=updatedTrajectories.begin(); 
-              it!=updatedTrajectories.end(); ++it ) { 
-        if (!it->empty()) ret.push_back(std::move(*it));
-      }
+    ret.reserve(updatedTrajectories.size());
+    for (auto & t : updatedTrajectories)
+      if (!t.empty()) ret.push_back(std::move(t));
   }
-
+  
   //std::cout << "TrajectorySegmentBuilder::addGroup" << 
   //             " traj.empty()=" << traj.empty() << 
   //             " end-begin=" << (end-begin)  <<
@@ -310,7 +307,7 @@ TrajectorySegmentBuilder::addGroup (TempTrajectory& traj,
 }
 
 void
-TrajectorySegmentBuilder::updateCandidates (TempTrajectory& traj,
+TrajectorySegmentBuilder::updateCandidates (TempTrajectory const & traj,
 					    const vector<TM>& measurements,
 					    TempTrajectoryContainer& candidates)
 {
@@ -332,7 +329,7 @@ TrajectorySegmentBuilder::updateCandidates (TempTrajectory& traj,
 }
 
 void
-TrajectorySegmentBuilder::updateCandidatesWithBestHit (TempTrajectory& traj,
+TrajectorySegmentBuilder::updateCandidatesWithBestHit (TempTrajectory const& traj,
 						       const vector<TM>& measurements,
 						       TempTrajectoryContainer& candidates)
 {
