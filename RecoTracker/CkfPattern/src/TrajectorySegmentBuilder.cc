@@ -563,7 +563,7 @@ TrajectorySegmentBuilder::cleanCandidates (vector<TempTrajectory>& candidates) c
   //RecHitEqualByChannels recHitEqual(false,true);
   //
   const auto NC = candidates.size();
-  int index[NC]; for (int i=0; i!=N; ++i) index[i]=i;
+  int index[NC]; for (int i=0; i!=NC; ++i) index[i]=i;
   std::sort(index,index+NC,[&candidates](int i, int j) { return lessByFoundHits(candidates[i],candidates[j]);});
 //   cout << "SortedCandidates.foundHits";
 //   for (auto i1 : index) 
