@@ -88,6 +88,9 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   theDbgFlg = false;
 #endif
 
+
+  /* V.I. to me makes things slower...
+
   //
   // check number of combinations
   //
@@ -104,20 +107,23 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
       if ( im->recHit()->isValid() )  nhit++;
     }
     if ( nhit>0 )  ncomb *= nhit;
-    if ( ncomb>MAXCOMB ) {
-      edm::LogInfo("TrajectorySegmentBuilder") << " found " << measGroups.size() 
-					       << " groups and more than " << static_cast<unsigned int>(MAXCOMB)
-					       << " combinations - limiting to "
-					       << (ngrp-1) << " groups";
-      truncate = true;
-
-      statCount.truncated();
-
-      break;
-    }
+    if unlikely( ncomb>MAXCOMB ) {
+	edm::LogInfo("TrajectorySegmentBuilder") << " found " << measGroups.size() 
+						 << " groups and more than " << static_cast<unsigned int>(MAXCOMB)
+						 << " combinations - limiting to "
+						 << (ngrp-1) << " groups";
+	truncate = true;
+	
+	statCount.truncated();
+	
+	break;
+      }
   }  
-//   cout << "Groups / combinations = " << measGroups.size() << " " << ncomb << endl;
+  //   cout << "Groups / combinations = " << measGroups.size() << " " << ncomb << endl;
   if ( truncate && ngrp>0 )  measGroups.resize(ngrp-1);
+  
+
+  */
 
 #ifdef DBG_TSB
   if ( theDbgFlg ) {
@@ -173,7 +179,7 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   TempTrajectoryContainer candidates = 
     addGroup(startingTrajectory,measGroups.begin(),measGroups.end());
 
-  if (theDbgFlg) cout << "TSB: back with " << candidates.size() << " candidates" << endl;
+  if unlikely(theDbgFlg) cout << "TSB: back with " << candidates.size() << " candidates" << endl;
   // clean
   //
   //
@@ -182,7 +188,7 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
 
   updateWithInvalidHit(startingTrajectory,measGroups,candidates);
 
-  if (theDbgFlg) cout << "TSB: " << candidates.size() << " candidates after invalid hit" << endl;
+  if unlikely(theDbgFlg) cout << "TSB: " << candidates.size() << " candidates after invalid hit" << endl;
 
   statCount.incr(measGroups.size(), candidates.size(), theLockedHits.size());
 
@@ -229,13 +235,13 @@ TrajectorySegmentBuilder::addGroup (TempTrajectory& traj,
   vector<TempTrajectory> ret;
   if ( begin==end ) {
     //std::cout << "TrajectorySegmentBuilder::addGroup" << " traj.empty()=" << traj.empty() << "EMPTY" << std::endl;
-    if (theDbgFlg) cout << "TSB::addGroup : no groups left" << endl;
+    if unlikely(theDbgFlg) cout << "TSB::addGroup : no groups left" << endl;
     if ( !traj.empty() )
       ret.push_back(traj);
     return ret;
   }
   
-  if (theDbgFlg) cout << "TSB::addGroup : traj.size() = " << traj.measurements().size()
+  if unlikely(theDbgFlg) cout << "TSB::addGroup : traj.size() = " << traj.measurements().size()
 		      << " first group at " << &(*begin)
 		   //        << " nr. of candidates = " << candidates.size() 
 		      << endl;
@@ -248,7 +254,7 @@ TrajectorySegmentBuilder::addGroup (TempTrajectory& traj,
       updateCandidatesWithBestHit(traj,firstMeasurements,updatedTrajectories);
     else
       updateCandidates(traj,begin->measurements(),updatedTrajectories);
-    if (theDbgFlg) cout << "TSB::addGroup : updating with first group - "
+    if unlikely(theDbgFlg) cout << "TSB::addGroup : updating with first group - "
 			<< updatedTrajectories.size() << " trajectories" << endl;
   }
   else {
@@ -258,7 +264,7 @@ TrajectorySegmentBuilder::addGroup (TempTrajectory& traj,
     else
       updateCandidates(traj,redoMeasurements(traj,begin->detGroup()),
 		       updatedTrajectories);
-    if (theDbgFlg) cout << "TSB::addGroup : updating"
+    if unlikely(theDbgFlg) cout << "TSB::addGroup : updating"
 			<< updatedTrajectories.size() << " trajectories" << endl;
   }
 
@@ -266,16 +272,16 @@ TrajectorySegmentBuilder::addGroup (TempTrajectory& traj,
       ret.reserve(4); // a good upper bound
       for ( TempTrajectoryContainer::iterator it=updatedTrajectories.begin();
             it!=updatedTrajectories.end(); ++it ) {
-        if (theDbgFlg) cout << "TSB::addGroup : trying to extend candidate at "
+        if unlikely(theDbgFlg) cout << "TSB::addGroup : trying to extend candidate at "
                             << &(*it) << " size " << it->measurements().size() << endl;
         vector<TempTrajectory> finalTrajectories = addGroup(*it,begin+1,end);
-        if (theDbgFlg) cout << "TSB::addGroup : " << finalTrajectories.size()
+        if unlikely(theDbgFlg) cout << "TSB::addGroup : " << finalTrajectories.size()
                             << " finalised candidates before cleaning" << endl;
         //B.M. to be ported later
 	// V.I. only mark invalidate
         cleanCandidates(finalTrajectories);
 
-        if (theDbgFlg) {
+        if unlikely(theDbgFlg) {
 	  int ntf=0; for ( auto const & t : finalTrajectories) if (t.isValid()) ++ntf;
 	  cout << "TSB::addGroup : got " << ntf
 	       << " finalised candidates" << endl;
@@ -348,7 +354,7 @@ TrajectorySegmentBuilder::updateCandidatesWithBestHit (TempTrajectory& traj,
     candidates.push_back(traj);
     updateTrajectory(candidates.back(),*ibest);
 
-    if ( theDbgFlg )
+    if unlikely( theDbgFlg )
       cout << "TSB: found best measurement at " 
 	   << ibest->recHit()->globalPosition().perp() << " "
 	   << ibest->recHit()->globalPosition().phi() << " "
@@ -370,7 +376,7 @@ TrajectorySegmentBuilder::redoMeasurements (const TempTrajectory& traj,
   //
   // loop over all dets
   //
-  if (theDbgFlg) cout << "TSB::redoMeasurements : nr. of measurements / group =";
+  if unlikely(theDbgFlg) cout << "TSB::redoMeasurements : nr. of measurements / group =";
 
   for (DetGroup::const_iterator idet=detGroup.begin(); 
        idet!=detGroup.end(); ++idet) {
@@ -384,7 +390,7 @@ TrajectorySegmentBuilder::redoMeasurements (const TempTrajectory& traj,
 						 traj.lastMeasurement().updatedState(),
 						 theGeomPropagator,theEstimator);
     
-    if (theDbgFlg && !compat.first) cout << " 0";
+    if unlikely(theDbgFlg && !compat.first) cout << " 0";
 
     if(!compat.first) continue;
     const MeasurementDet* mdet = theMeasurementTracker->idToDet(idet->det()->geographicalId());
@@ -401,7 +407,7 @@ TrajectorySegmentBuilder::redoMeasurements (const TempTrajectory& traj,
     //
     // only collect valid RecHits
     //
-    if (theDbgFlg) cout << " " << tmp.size();
+    if unlikely(theDbgFlg) cout << " " << tmp.size();
 
     for(vector<TM>::iterator tmpIt=tmp.begin(); tmpIt!=tmp.end(); ++tmpIt){
       if ( tmpIt->recHit()->isValid() ) {
@@ -410,7 +416,7 @@ TrajectorySegmentBuilder::redoMeasurements (const TempTrajectory& traj,
       }
     }
   }
-  if (theDbgFlg) cout << endl;
+  if unlikely(theDbgFlg) cout << endl;
 
   return result;
 }
@@ -449,7 +455,7 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
 	    candidates.push_back(newTraj);  // FIXME: avoid useless copy */
             candidates.push_back(traj); 
             updateTrajectory(candidates.back(), *im);
-	    if ( theDbgFlg ) cout << "TrajectorySegmentBuilder::updateWithInvalidHit "
+	    if unlikely( theDbgFlg ) cout << "TrajectorySegmentBuilder::updateWithInvalidHit "
 				  << "added inactive hit" << endl;
 	    return;
 	  }
@@ -474,7 +480,7 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
 	// only use invalid hits
 	//
 	ConstRecHitPointer hit = im->recHit();
-	if ( hit->isValid() )  continue;
+	if likely( hit->isValid() )  continue;
 
 	//
 	// check, if the extrapolation traverses the Det
@@ -509,14 +515,14 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
       }
       if ( found )  break;
     }
-    if ( theDbgFlg && !found ) cout << "TrajectorySegmentBuilder::updateWithInvalidHit: "
+    if unlikely( theDbgFlg && !found ) cout << "TrajectorySegmentBuilder::updateWithInvalidHit: "
 				    << " did not find invalid hit on 1st iteration" << endl;
     if ( found )  break;
   }
-  if ( !found ) {
-    if (theDbgFlg) cout << "TrajectorySegmentBuilder::updateWithInvalidHit: "
-			<< " did not find invalid hit" << endl;
-  }
+
+  if unlikely( theDbgFlg && (!found) )
+	       cout << "TrajectorySegmentBuilder::updateWithInvalidHit: "
+		    << " did not find invalid hit" << endl;
 }
 
 vector<TrajectoryMeasurement>
