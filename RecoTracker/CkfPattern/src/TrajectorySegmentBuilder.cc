@@ -272,12 +272,20 @@ TrajectorySegmentBuilder::addGroup (TempTrajectory& traj,
         if (theDbgFlg) cout << "TSB::addGroup : " << finalTrajectories.size()
                             << " finalised candidates before cleaning" << endl;
         //B.M. to be ported later
+	// V.I. only mark invalidate
         cleanCandidates(finalTrajectories);
 
-        if (theDbgFlg) cout << "TSB::addGroup : got " << finalTrajectories.size()
-                            << " finalised candidates" << endl;
-        ret.insert(ret.end(),make_move_iterator(finalTrajectories.begin()),
-		   make_move_iterator(finalTrajectories.end()));
+        if (theDbgFlg) {
+	  int ntf=0; for ( auto const & t : finalTrajectories) if (t.isValid()) ++ntf;
+	  cout << "TSB::addGroup : got " << ntf
+	       << " finalised candidates" << endl;
+	}
+
+	for ( auto const & t : finalTrajectories) 
+	  if (t.isValid()) ret.push_back(std::move(t));
+
+	//        ret.insert(ret.end(),make_move_iterator(finalTrajectories.begin()),
+	//	   make_move_iterator(finalTrajectories.end()));
       }
   } else {
       ret.reserve(updatedTrajectories.size());
@@ -587,11 +595,11 @@ TrajectorySegmentBuilder::cleanCandidates (vector<TempTrajectory>& candidates) c
       for ( TempTrajectory::DataContainer::const_iterator im1=measurements1.rbegin(),im1end = measurements1.rend();
 	    im1!=im1end; --im1 ) {
 	// redundant protection - segments should not contain invalid RecHits
-	assert( im1->recHit()->isValid());
+	// assert( im1->recHit()->isValid());
 	bool found(false);
 	for ( TempTrajectory::DataContainer::const_iterator im2=from2; im2!=im2end; --im2 ) {
 	  // redundant protection - segments should not contain invalid RecHits
-	  assert (im2->recHit()->isValid());
+	  // assert (im2->recHit()->isValid());
 	  if ( im1->recHit()->hit()->sharesInput(im2->recHit()->hit(), TrackingRecHit::all) ) {
 	    found = true;
 	    from2 = im2; --from2;
@@ -607,6 +615,7 @@ TrajectorySegmentBuilder::cleanCandidates (vector<TempTrajectory>& candidates) c
     }
   }
 
+  /* will remove while coping
   candidates.erase(std::remove_if( candidates.begin(),candidates.end(),
 				   [&](TempTrajectory const & t) { return !t.isValid();}),
 				   // std::not1(std::mem_fun_ref(&TempTrajectory::isValid))),
@@ -616,7 +625,9 @@ TrajectorySegmentBuilder::cleanCandidates (vector<TempTrajectory>& candidates) c
   cout << "TSB: cleanCandidates: reduced from " << sortedCandidates.size()
        << " to " << candidates.size() << " candidates" << endl;
 #endif
-  return;
+
+
+  */
 }
 
 //==================================================
