@@ -76,7 +76,11 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   //
   // get measurement groups
   //
+#ifdef TSB_TRUNCATE
+  vector<TMG> measGroups = 
+#else  
   vector<TMG> const & measGroups = 
+#endif
     theLayerMeasurements->groupedMeasurements(theLayer,startingState,theFullPropagator,theEstimator);
     //B.M. theLayer.groupedMeasurements(startingState,theFullPropagator,theEstimator);
 
@@ -89,7 +93,8 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
 #endif
 
 
-  /* V.I. to me makes things slower...
+#ifdef TSB_TRUNCATE
+  //  V.I. to me makes things slower...
 
   //
   // check number of combinations
@@ -98,14 +103,11 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   long long ncomb(1);
   int ngrp(0);
   bool truncate(false);
-  for (vector<TMG>::const_iterator ig=measGroups.begin(); ig!=measGroups.end(); ++ig) {
+  for (auto const & gr : measGroups) {
     ++ngrp;
     int nhit(0);
-    const vector<TM>& measurements = ig->measurements();
-    for ( vector<TM>::const_iterator im=measurements.begin();
-	  im!=measurements.end(); ++im ) {
-      if ( im->recHit()->isValid() )  nhit++;
-    }
+    for ( auto const & m : gr.measurements()) if likely( m.recHit()->isValid() )  nhit++;
+    
     if ( nhit>0 )  ncomb *= nhit;
     if unlikely( ncomb>MAXCOMB ) {
 	edm::LogInfo("TrajectorySegmentBuilder") << " found " << measGroups.size() 
@@ -120,10 +122,10 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
       }
   }  
   //   cout << "Groups / combinations = " << measGroups.size() << " " << ncomb << endl;
-  if ( truncate && ngrp>0 )  measGroups.resize(ngrp-1);
+  if unlikely( truncate && ngrp>0 )  measGroups.resize(ngrp-1);
   
 
-  */
+#endif
 
 #ifdef DBG_TSB
   if ( theDbgFlg ) {
