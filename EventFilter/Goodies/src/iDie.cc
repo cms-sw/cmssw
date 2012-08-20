@@ -79,6 +79,7 @@ iDie::iDie(xdaq::ApplicationStub *s)
   , nPathHistoMessageReceived_(0)
   , evtProcessor_(0)
   , meInitialized_(false)
+  , meInitializedStreams_(false)
   , dqmService_(nullptr)
   , dqmStore_(nullptr)
   , dqmEnabled_(false)
@@ -250,6 +251,8 @@ xoap::MessageReference iDie::fsmCallback(xoap::MessageReference msg)
         dqmState_ = "Removed";
         usleep(10000);//propagating dqmState to caches
         meInitialized_=false;
+        meInitializedStreams_=false;
+	endPathNames_.clear();
         sleep(1);//making sure that any running ls update finishes
 
         //dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
@@ -458,25 +461,27 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
   timeval tv;
   gettimeofday(&tv,0);
   time_t now = tv.tv_sec;
-  cgicc::Cgicc cgi(in); 
-  unsigned int run = 0;
-  pid_t cpid = 0;
-  /*  cgicc::CgiEnvironment cgie(in);
-  cout << "query = "  << cgie.getContentLength() << endl;
-  */
-  std::vector<cgicc::FormEntry> el1;
-  el1 = cgi.getElements();
-//   for(unsigned int i = 0; i < el1.size(); i++)
-//     std::cout << "name="<<el1[i].getName() << std::endl;
-  el1.clear();
-  cgi.getElement("run",el1);
-  if(el1.size()!=0)
+
+  try {
+    cgicc::Cgicc cgi(in); 
+    unsigned int run = 0;
+    pid_t cpid = 0;
+    /*  cgicc::CgiEnvironment cgie(in);
+	cout << "query = "  << cgie.getContentLength() << endl;
+	*/
+    std::vector<cgicc::FormEntry> el1;
+    el1 = cgi.getElements();
+    //   for(unsigned int i = 0; i < el1.size(); i++)
+    //     std::cout << "name="<<el1[i].getName() << std::endl;
+    el1.clear();
+    cgi.getElement("run",el1);
+    if(el1.size()!=0)
     {
       run =  el1[0].getIntegerValue();
     }
-  el1.clear();
-  cgi.getElement("stacktrace",el1);
-  if(el1.size()!=0)
+    el1.clear();
+    cgi.getElement("stacktrace",el1);
+    if(el1.size()!=0)
     {
       cpid = run;
       //      std::cout << "=============== stacktrace =============" << std::endl;
@@ -526,20 +531,32 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
 	}
       }
     }
-  el1.clear();
-  cgi.getElement("legenda",el1);
-  if(el1.size()!=0)
+    el1.clear();
+    cgi.getElement("legenda",el1);
+    if(el1.size()!=0)
     {
       parsePathLegenda(el1[0].getValue());
     }
-  cgi.getElement("trp",el1);
-  if(el1.size()!=0)
+    cgi.getElement("trp",el1);
+    if(el1.size()!=0)
     {
       unsigned int lsid = run;
       parsePathHisto((unsigned char*)(el1[0].getValue().c_str()),lsid);
     }
-  el1.clear();
-
+    el1.clear();
+  }
+  catch (edm::Exception &e) {
+    LOG4CPLUS_ERROR(getApplicationLogger(),"Caught edm exception in postEntry: " << e.what());
+  }
+  catch (cms::Exception &e) {
+    LOG4CPLUS_ERROR(getApplicationLogger(),"Caught cms exception in postEntry: " << e.what());
+  }
+  catch (std::exception &e) {
+    LOG4CPLUS_ERROR(getApplicationLogger(),"Caught std exception in postEntry: " << e.what());
+  }
+  catch (...) {
+    LOG4CPLUS_ERROR(getApplicationLogger(),"Caught unknown exception in postEntry");
+  }
 
 }
 
@@ -558,53 +575,68 @@ void iDie::postEntryiChoke(xgi::Input*in,xgi::Output*out)
 
 
   unsigned int lsid = 0;
-  cgicc::Cgicc cgi(in); 
-  /*  cgicc::CgiEnvironment cgie(in);
-  cout << "query = "  << cgie.getContentLength() << endl;
-  */
-  std::vector<cgicc::FormEntry> el1;
-  el1 = cgi.getElements();
-//   for(unsigned int i = 0; i < el1.size(); i++)
-//     std::cout << "name="<<el1[i].getName() << std::endl;
-  el1.clear();
-  cgi.getElement("run",el1);
-  if(el1.size()!=0)
+  try {
+    cgicc::Cgicc cgi(in); 
+    /*  cgicc::CgiEnvironment cgie(in);
+	cout << "query = "  << cgie.getContentLength() << endl;
+	*/
+    std::vector<cgicc::FormEntry> el1;
+    el1 = cgi.getElements();
+    //   for(unsigned int i = 0; i < el1.size(); i++)
+    //     std::cout << "name="<<el1[i].getName() << std::endl;
+    el1.clear();
+    cgi.getElement("run",el1);
+    if(el1.size()!=0)
     {
       lsid =  el1[0].getIntegerValue();
     }
-  el1.clear();
+    el1.clear();
 
-  //with the first message for the new lsid, resize all containers so 
-  // a web access won't address an invalid location in case it interleaves between 
-  // the first cpustat update and the first scalers update or viceversa
-  if(lsid!=0){
-    if(lsid>cpustat_.size()){
-      cpustat_.resize(lsid,std::vector<int>(nstates_,0));
-      cpuentries_.resize(lsid,0);
+    //with the first message for the new lsid, resize all containers so 
+    // a web access won't address an invalid location in case it interleaves between 
+    // the first cpustat update and the first scalers update or viceversa
+    if(lsid!=0){
+      if(lsid>cpustat_.size()){
+	cpustat_.resize(lsid,std::vector<int>(nstates_,0));
+	cpuentries_.resize(lsid,0);
+      }
+      if(lsid>trp_.size()){
+	trp_.resize(lsid);
+	funcs::reset(&trp_[lsid-1]);
+	trpentries_.resize(lsid,0);
+      }
+      if(last_ls_ < lsid) {
+	last_ls_ = lsid; 
+	funcs::reset(&trp_[lsid-1]);
+	if(t_ && (last_ls_%10==0)) t_->Write();
+      } 
     }
-    if(lsid>trp_.size()){
-      trp_.resize(lsid);
-      funcs::reset(&trp_[lsid-1]);
-      trpentries_.resize(lsid,0);
-    }
-    if(last_ls_ < lsid) {
-      last_ls_ = lsid; 
-      funcs::reset(&trp_[lsid-1]);
-      if(t_ && (last_ls_%10==0)) t_->Write();
-    } 
-  }
 
-  cgi.getElement("legenda",el1);
-  if(el1.size()!=0)
+    cgi.getElement("legenda",el1);
+    if(el1.size()!=0)
     {
       parseModuleLegenda(el1[0].getValue());
     }
-  cgi.getElement("trp",el1);
-  if(el1.size()!=0)
+    cgi.getElement("trp",el1);
+    if(el1.size()!=0)
     {
       parseModuleHisto(el1[0].getValue().c_str(),lsid);
     }
-  el1.clear();
+    el1.clear();
+  }
+
+  catch (edm::Exception &e) {
+    LOG4CPLUS_ERROR(getApplicationLogger(),"Caught edm exception in postEntryiChoke: " << e.what());
+  }
+  catch (cms::Exception &e) {
+    LOG4CPLUS_ERROR(getApplicationLogger(),"Caught cms exception in postEntryiChoke: " << e.what());
+  }
+  catch (std::exception &e) {
+    LOG4CPLUS_ERROR(getApplicationLogger(),"Caught std exception in postEntryiChoke: " << e.what());
+  }
+  catch (...) {
+    LOG4CPLUS_ERROR(getApplicationLogger(),"Caught unknown exception in postEntryiChoke");
+  }
 }
 
 
@@ -726,7 +758,6 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
       unsigned int lclast = commonLsHistory.size() ? commonLsHistory.back()->ls_:0;
       for (unsigned int newls=lclast+1;newls<=lsid;newls++) {
           commonLsHistory.push_back(new commonLsStat(newls,epInstances.size()));
-	  blockingModulesPerLs_.push_back(std::vector<std::pair<unsigned int,float> >(3));
       }
 
       unsigned int lhlast = lsHistory[nbsIdx].size() ? lsHistory[nbsIdx].back()->ls_:0;
@@ -739,41 +770,19 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
       while (lsHistory[nbsIdx].size()>ROLL) {delete lsHistory[nbsIdx].front(); lsHistory[nbsIdx].pop_front();}
     }
     if (currentLs_[nbsIdx]>=lsid) { // update for current or previous lumis
-      std::cout << " setting..." << std::endl;
       unsigned int qsize=lsHistory[nbsIdx].size();
       unsigned int delta = currentLs_[nbsIdx]-lsid;
       if (qsize>delta && delta<ROLL) {
         lsStat * lst = (lsHistory[nbsIdx])[qsize-delta-1];
 	unsigned int cumulative_ = 0;
 	auto fillvec = lst->getModuleSamplingPtr();
-	unsigned int maxMod = 0;
-	unsigned int maxModId = 0;
 	for (unsigned int i=0;i<nstates_;i++) {
-	  //extract worst module
-	  if (i>2 && datap_[i]>(int)maxMod) {
-            maxModId=i;
-	    maxMod=datap_[i];
-	  }
 	  cumulative_+=datap_[i];
 	  if (fillvec) {
 	    fillvec[i].second+=datap_[i];
 	  }
 	}
 	unsigned int busyCounts = cumulative_-datap_[2];
-	//disabled: can't distinguish between multiple slaves
-	/*
-	//find module that is stuck for more than ~1.5 seconds on single host provided that statistics is sufficient
-	unsigned int countsPerInstance = 0;
-	if (epInstances.size())
-	  countsPerInstance = cumulative_/epInstances.size();
-	//std::cout << " found counts per instance " << countsPerInstance << " " << maxMod << std::endl;
-	if (lsid && maxMod > (countsPerInstance >>4) && countsPerInstance>32 && blockingModulesPerLs_[lsid-1].size()<3) 
-	{
-	  blockingModulesPerLs_[lsid-1].push_back(std::pair<unsigned int, float>(maxModId,(float)maxMod/countsPerInstance));
-	  LOG4CPLUS_WARN(getApplicationLogger(),"iDie: found module taking a lot of time: " << mapmod_[maxModId] 
-		  << " " << 100.*(float)maxMod/countsPerInstance << "% of lumisection "<< lsid); 
-	}
-	*/
 	lst->update(busyCounts,datap_[2],nbproc_,ncpubusy_,deltaTms_);
       }
     }
@@ -806,7 +815,16 @@ void iDie::parsePathLegenda(std::string leg)
   for (boost::tokenizer<boost::char_separator<char> >::iterator tok_iter = tokens.begin();
        tok_iter != tokens.end(); ++tok_iter){
       mappath_.push_back((*tok_iter));
+
+      if (!meInitializedStreams_ && std::string(*tok_iter).find("Output")!=std::string::npos) {
+	std::string path_token = *tok_iter;
+	if (path_token.find("=")!=std::string::npos)
+          endPathNames_.push_back(path_token.substr(path_token.find("=")+1));
+	else
+          endPathNames_.push_back(*tok_iter);
+      }
   }
+  initMonitorElementsStreams();
 }
 
 void iDie::parsePathHisto(const unsigned char *crp, unsigned int lsid)
@@ -828,6 +846,16 @@ void iDie::parsePathHisto(const unsigned char *crp, unsigned int lsid)
       r_.ptimesFailed[i] = trppriv_->trigPathSummaries[i].timesFailed;
       r_.ptimesExcept[i] = trppriv_->trigPathSummaries[i].timesExcept;
     }
+  //find |common ls history" object for current ls
+  commonLsStat * cst = 0;
+  if (commonLsHistory.size()) cst=commonLsHistory.back();
+  if (cst && cst->ls_>=lsid) {
+    unsigned int countback=commonLsHistory.size()-1;
+    while (cst->ls_>lsid && countback) {
+      countback--;
+      cst=commonLsHistory[countback];
+    }
+  }
   for( int i=0; i< trppriv_->endPathsInMenu; i++)
     {
       r_.etimesRun[i] = trppriv_->endPathSummaries[i].timesRun;
@@ -836,6 +864,10 @@ void iDie::parsePathHisto(const unsigned char *crp, unsigned int lsid)
       r_.etimesPassed[i] = trppriv_->endPathSummaries[i].timesPassed;
       r_.etimesFailed[i] = trppriv_->endPathSummaries[i].timesFailed;
       r_.etimesExcept[i] = trppriv_->endPathSummaries[i].timesExcept;
+      if (cst) {
+        if ((unsigned)i < cst->endPathCounts_.size()) cst->endPathCounts_[i]+=r_.etimesPassed[i];
+        else cst->endPathCounts_.push_back(r_.etimesPassed[i]);
+      }
     }
   r_.nproc = trppriv_->eventSummary.totalEvents;
   r_.nsub = trppriv_->nbExpected;
@@ -1130,10 +1162,21 @@ void iDie::initMonitorElements()
     delete commonLsHistory.front();
     commonLsHistory.pop_front();
   }
-  blockingModulesPerLs_.clear();
-
   meInitialized_=true;
 
+}
+
+void iDie::initMonitorElementsStreams() {
+  if (meInitializedStreams_) return;
+
+  //add OUTPUT Stream histograms
+  endPathRates_.clear();
+  dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Streams");
+  for (size_t i=0;i<endPathNames_.size();i++) {
+    endPathRates_.push_back(dqmStore_->book1D(std::string("00 ") + endPathNames_[i]+"_RATE",endPathNames_[i]+" events/s",4000,1,4001.));
+    //endPathCumulative_.push_back(dqmStore_->book1D(std::string("01 ") + endPathNames_[i]+"_CUMULATIVE",endPathNames_[i]+" events",4000,1,4001.));
+  }
+  meInitializedStreams_=true;
 }
 
 void iDie::deleteFramework()
@@ -1154,6 +1197,7 @@ void iDie::fillDQMStatHist(unsigned int nbsIdx, unsigned int lsid)
       unsigned int qpos=(unsigned int) i;
       unsigned int forls = lsid - (qsize-1-i);
       lsStat * lst = (lsHistory[nbsIdx])[qpos];
+      unsigned int clsPos = unsigned((int)qpos+ (int)cqsize - (int)qsize);
       commonLsStat * clst = commonLsHistory[unsigned((int)qpos+ (int)cqsize - (int)qsize)];
 
       meVecRate_[nbsIdx]->setBinContent(forls,lst->getRatePerMachine());
@@ -1161,6 +1205,8 @@ void iDie::fillDQMStatHist(unsigned int nbsIdx, unsigned int lsid)
       meVecTime_[nbsIdx]->setBinContent(forls>2? forls:0,lst->getEvtTime()*1000);//msec
       meVecTime_[nbsIdx]->setBinError(forls>2? forls:0,lst->getEvtTimeErr()*1000);//msec
       updateRollingHistos(nbsIdx, forls,lst,clst,i==(int)qsize-1);
+      commonLsStat * prevclst = clsPos>0 ? commonLsHistory[clsPos-1]:nullptr;
+      updateStreamHistos(forls,clst,prevclst);
     }
   }
 }
@@ -1260,6 +1306,21 @@ void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * 
   busySummary_->setBinContent(lsidBin,epInstances.size()+2,fround(clst->getBusyTotalFracTheor(false,machineWeight),0.001f));
   busySummary2_->setBinContent(lsidBin,epInstances.size()+2,fround(clst->getBusyTotalFracTheor(true,machineWeight),0.001f));
 
+}
+
+void iDie::updateStreamHistos(unsigned int forls, commonLsStat *clst, commonLsStat *prevclst) {
+  for (size_t i=0;i<endPathRates_.size();i++) {
+    unsigned int count_current=0;
+    unsigned int count_last=0;
+    if (clst->endPathCounts_.size()>i) {
+      count_current=clst->endPathCounts_[i];
+    }
+    //if (prevclst && prevclst->endPathCounts_.size()>i) {
+      //count_last=clst->endPathCounts_[i];
+    //}
+    //endPathCumulative_[i]->setBinContent(forls,count_current);
+    endPathRates_[i]->setBinContent(forls,(count_current-count_last)/23.1);//approx ls
+  } 
 }
 
 void iDie::fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsigned int nonIdle, std::vector<std::pair<unsigned int,unsigned int>> offenders)

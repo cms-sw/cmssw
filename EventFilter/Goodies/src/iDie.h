@@ -147,7 +147,7 @@ namespace evf {
     //
     class lsStat;
     class commonLsStat;
-    
+
     void reset();
     void parseModuleLegenda(std::string);
     void parseModuleHisto(const char *, unsigned int);
@@ -156,11 +156,13 @@ namespace evf {
     void initFramework();
     void deleteFramework();
     void initMonitorElements();
+    void initMonitorElementsStreams();
     void fillDQMStatHist(unsigned int nbsIdx, unsigned int lsid);
     void fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsigned int nonIdle,
 		                 std::vector<std::pair<unsigned int, unsigned int>> offenders);
  
     void updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * lst, commonLsStat * clst, bool roll);
+    void updateStreamHistos(unsigned int forls, commonLsStat *clst, commonLsStat *prevclst);
     void doFlush();
     void perLumiFileSaver(unsigned int lsid);
     //
@@ -220,6 +222,8 @@ namespace evf {
     std::vector<float> machineWeight;
     std::vector<float> machineWeightInst;
 
+    std::vector<std::string > endPathNames_;
+
     class commonLsStat {
       
       public:
@@ -230,6 +234,7 @@ namespace evf {
       std::vector<float> busyVecTheor_;
       std::vector<float> busyCPUVecTheor_;
       std::vector<unsigned int> nbMachines;
+      std::vector<unsigned int> endPathCounts_; 
       commonLsStat(unsigned int lsid,unsigned int classes) {
         for (size_t i=0;i<classes;i++) {
 	  rateVec_.push_back(0.);
@@ -326,7 +331,6 @@ namespace evf {
       unsigned int sumDeltaTms_;
       float avgDeltaT_;
       std::pair<unsigned int,unsigned int> *moduleSamplingSums;
-      //std::vector<std::pair<unsigned int, unsigned int>> blockingModules;
 
       lsStat(unsigned int ls, unsigned int nbSubs,unsigned int maxreps,unsigned int nmodulenames):
 	ls_(ls),updated_(true),nbSubs_(nbSubs),
@@ -499,6 +503,7 @@ namespace evf {
     edm::ServiceToken               serviceToken_;
     edm::EventProcessor             *evtProcessor_;
     bool                            meInitialized_;
+    bool                            meInitializedStreams_;
     DQMService                      *dqmService_;
     DQMStore                        *dqmStore_;
     std::string                     configString_;
@@ -522,7 +527,11 @@ namespace evf {
     //1 queue per number of subProcesses (and one common)
     std::deque<commonLsStat*> commonLsHistory;
     std::deque<lsStat*> * lsHistory;
-    std::vector<std::vector<std::pair<unsigned int,float>>> blockingModulesPerLs_;
+
+    //endpath statistics
+    std::vector<MonitorElement *> endPathRates_;
+    std::vector<MonitorElement *> endPathCumulative_;
+    //std::map<unsigned int,std::pair<unsigned int,std::string>> endPathIndex_;
 
     std::vector<unsigned int> currentLs_;
 
