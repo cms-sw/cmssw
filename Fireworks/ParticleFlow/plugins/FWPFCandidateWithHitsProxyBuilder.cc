@@ -25,6 +25,8 @@
 
 namespace
 {
+   const static std::string cname("particleFlowRecHitHCALUpgrade");
+
 void  addLineToLineSet(TEveStraightLineSet* ls, const float* p, int i1, int i2)
 {
    i1 *= 3;
@@ -121,7 +123,7 @@ void FWPFCandidateWithHitsProxyBuilder::initPFRecHitsCollections()
 {  
    // ref hcal collections
    edm::Handle<reco::PFRecHitCollection> handle_hits;
-   const static std::string cname("particleFlowRecHitHCALUpgrade");
+
 
    m_collectionHCAL =0;
    try
@@ -133,10 +135,14 @@ void FWPFCandidateWithHitsProxyBuilder::initPFRecHitsCollections()
       {
          m_collectionHCAL = &*handle_hits;
       }
+      else
+      {
+         fwLog(fwlog::kError) <<"FWPFCandidateWithHitsProxyBuilder, item " << item()->name() <<": Failed to access collection with name " << cname << "." << std::endl;
+      }
    }
    catch (...)
    {
-      fwLog(fwlog::kWarning) <<"FWPFCandidateWithHitsProxyBuilder::build():: Failed to access collection with name " << cname << "." << std::endl;
+      fwLog(fwlog::kError) <<"FWPFCandidateWithHitsProxyBuilder, item " << item()->name() <<": Failed to access collection with name " << cname << "." << std::endl;
    }
 }
 
@@ -244,21 +250,24 @@ TString boxset_tooltip_callback(TEveDigitSet* ds, Int_t idx)
 void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandidate& cand, TEveElement* holder, const FWViewContext* vc)
 { 
    reco::PFCandidate::ElementsInBlocks eleInBlocks = cand.elementsInBlocks();
-  
+
+   TEveBoxSet* boxset = 0;
+   TEveStraightLineSet* lineset = 0;
+
    for(unsigned elIdx=0; elIdx<eleInBlocks.size(); elIdx++)
    {
-     // unsigned ieTrack = 0;
-     // unsigned ieECAL = 0;
+      // unsigned ieTrack = 0;
+      // unsigned ieECAL = 0;
       unsigned ieHCAL = 0;
 
       reco::PFBlockRef blockRef = eleInBlocks[elIdx].first;
       unsigned indexInBlock = eleInBlocks[elIdx].second;
       edm::Ptr<reco::PFBlock> myBlock(blockRef.id(),blockRef.get(), blockRef.key());
       /*
-      if (myBlock->elements()[indexInBlock].type() == 1)
-         ieTrack = indexInBlock;
-      if (myBlock->elements()[indexInBlock].type() == 4)
-         ieECAL = indexInBlock;
+        if (myBlock->elements()[indexInBlock].type() == 1)
+        ieTrack = indexInBlock;
+        if (myBlock->elements()[indexInBlock].type() == 4)
+        ieECAL = indexInBlock;
       */
       if (myBlock->elements()[indexInBlock].type() == 5)
          ieHCAL = indexInBlock;
@@ -266,19 +275,29 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
  
       std::vector<float> scaledCorners(24);
       float scale = vc->getEnergyScale()->getScaleFactor3D()/50;
-      if (ieHCAL) {
+      if (ieHCAL &&  m_collectionHCAL) {
          reco::PFClusterRef hcalclusterRef=myBlock->elements()[ieHCAL].clusterRef();
          edm::Ptr<reco::PFCluster> myCluster(hcalclusterRef.id(),hcalclusterRef.get(), hcalclusterRef.key());
          if (myCluster.get())
          {
             const std::vector< std::pair<DetId, float> > & hitsandfracs = myCluster->hitsAndFractions();
 
-            TEveBoxSet* boxset = new TEveBoxSet();
-            boxset->Reset(TEveBoxSet::kBT_FreeBox, true, hitsandfracs.size());
-            boxset->SetAntiFlick(true);
-            TEveStraightLineSet* lineset = new TEveStraightLineSet();
+            if (!boxset)
+            {
+               boxset = new TEveBoxSet();
+               boxset->Reset(TEveBoxSet::kBT_FreeBox, true, hitsandfracs.size());
+               boxset->SetAntiFlick(true);
+               boxset->SetAlwaysSecSelect(1);
+               boxset->SetPickable(1);
+               boxset->SetTooltipCBFoo(boxset_tooltip_callback);
+            }
 
+            if (!lineset)
+            {
+               lineset = new TEveStraightLineSet();
+            }
 
+            bool hitsFound = false;
             for ( int ihandf=0, lastIdx=(int)(hitsandfracs.size()); ihandf<lastIdx; ihandf++) 
             {
                unsigned int hitDetId = hitsandfracs[ihandf].first;
@@ -288,26 +307,23 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
                {
                   viewContextBoxScale( corners, hit->energy()*scale, vc->getEnergyScale()->getPlotEt(), scaledCorners, hit);
                   boxset->AddBox( &scaledCorners[0]);
+                  // setup last box
                   boxset->DigitColor(holder->GetMainColor());
                   boxset->DigitUserData((void*)hit);
                   addBoxAsLines(lineset, &scaledCorners[0]);
+                  hitsFound = true;
                }
+               /*
+               // AMT: don't add lines if hit is not found becuse of unconsistency of scaling.
                else
                {
                   addBoxAsLines(lineset, corners);
-
                }
+               */
             }
-            boxset->RefitPlex();
-            boxset->SetAlwaysSecSelect(1);
-            boxset->SetPickable(1);
-            boxset->SetTooltipCBFoo(boxset_tooltip_callback);
-             if (boxset->GetPlex()->Size() == 0)
-              fwLog(fwlog::kWarning) << Form("Can't find matching hits with for HCAL block %d in HBHE collection. Number of hits %d.\n", elIdx, (int)hitsandfracs.size());
+            if (!hitsFound)
+               fwLog(fwlog::kWarning) << Form("Can't find matching hits with for HCAL block %d in %s collection. Number of hits %d.\n", elIdx, cname.c_str(), (int)hitsandfracs.size());
 
-            setupAddElement(boxset, holder);
-            // holder->AddElement(boxset);
-            setupAddElement(lineset, holder);
 
          }
          else
@@ -315,6 +331,16 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
             fwLog(fwlog::kInfo) << "empty cluster \n";
          }
       }
+   } // endloop cand.elementsInBlocks();
+
+
+   if (boxset) {
+      boxset->RefitPlex();
+      setupAddElement(boxset, holder);
+   }
+
+   if (lineset) {
+      setupAddElement(lineset, holder);
    }
 }
 
