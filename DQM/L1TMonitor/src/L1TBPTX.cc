@@ -128,12 +128,10 @@ void L1TBPTX::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
   // Filling Alias-Bit Map
   for (CItAlgo algo = menu->gtAlgorithmAliasMap().begin(); algo!=menu->gtAlgorithmAliasMap().end(); ++algo){
     m_algoBit_Alias[(algo->second).algoBitNumber()] = (algo->second).algoAlias();
-    cout << "Algo " << (algo->second).algoBitNumber() << " - " << (algo->second).algoAlias() << endl;
   }
 
   for (CItAlgo algo = menu->gtTechnicalTriggerMap().begin(); algo!=menu->gtTechnicalTriggerMap().end(); ++algo){
     m_techBit_Alias[(algo->second).algoBitNumber()] = (algo->second).algoName(); 
-    cout << "Tech " << (algo->second).algoBitNumber() << " - " << (algo->second).algoName() << endl;
   }
 
   // Initializing DQM Monitor Elements
