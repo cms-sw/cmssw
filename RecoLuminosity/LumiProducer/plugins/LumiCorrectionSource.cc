@@ -7,7 +7,7 @@
 Description: A essource/esproducer for lumi correction factor and run parameters needed to deduce the corrections
       Author: Zhen Xie
 */
-// $Id: LumiCorrectionSource.cc,v 1.4 2012/07/27 21:08:53 xiezhen Exp $
+// $Id: LumiCorrectionSource.cc,v 1.5 2012/08/09 18:41:30 xiezhen Exp $
 
 //#include <memory>
 //#include "boost/shared_ptr.hpp"
@@ -234,10 +234,9 @@ LumiCorrectionSource::fillparamcache(unsigned int runnumber){
     session->transaction().start(true);
     coral::ISchema& schema=session->nominalSchema();
     lumi::RevisionDML dml;
-    unsigned long long tagid=dml.currentHFDataTagId(schema);
-    lumi::RevisionDML::DataID dataid=dml.dataIDForRun(schema,runnumber,tagid);
+    unsigned long long tagid=dml.currentHFDataTagId(schema);//get datatag id
+    lumi::RevisionDML::DataID dataid=dml.dataIDForRun(schema,runnumber,tagid);//get data id
     unsigned int lumiid=dataid.lumi_id;
-
     if(lumiid==0){
       result->setNBX(0);
       m_paramcache.insert(std::make_pair(runnumber,result));
@@ -256,16 +255,15 @@ LumiCorrectionSource::fillparamcache(unsigned int runnumber){
     lumiparamQuery->addToTableList(std::string("LUMIDATA"));
     lumiparamQuery->setCondition(conditionStr,lumidataBindVariables);
     coral::ICursor& lumiparamcursor=lumiparamQuery->execute();
+    unsigned int ncollidingbx=0;
     while( lumiparamcursor.next() ){
       const coral::AttributeList& row=lumiparamcursor.currentRow();
-      unsigned int ncollidingbx=0;
       if(!row["NCOLLIDINGBUNCHES"].isNull()){
 	ncollidingbx=row["NCOLLIDINGBUNCHES"].data<unsigned int>();
       }
       result->setNBX(ncollidingbx);
     }
     delete lumiparamQuery;
-    
     lumi::NormDML normdml;
     unsigned long long normid=0;
     std::map<std::string,unsigned long long> normidmap;
@@ -275,13 +273,13 @@ LumiCorrectionSource::fillparamcache(unsigned int runnumber){
     }else{
       normid=normdml.normIdByName(schema,m_normtag);
     }
-    std::map< unsigned int,lumi::NormDML::normData > normData;
-    normdml.normById(schema,normid,normData);    
+
+    std::map< unsigned int,lumi::NormDML::normData > normDataMap;
+    normdml.normById(schema,normid,normDataMap); 
     session->transaction().commit();
-    std::map< unsigned int,lumi::NormDML::normData >::iterator normEnd=normData.end();
-    std::map< unsigned int,lumi::NormDML::normData >::iterator normIt=normData.lower_bound(runnumber);
+    std::map< unsigned int,lumi::NormDML::normData >::iterator normEnd=normDataMap.end();
+    std::map< unsigned int,lumi::NormDML::normData >::iterator normIt=normDataMap.lower_bound(runnumber);
     if(normIt!=normEnd){
-      std::cout<<normIt->second.normtag<<std::endl;
       result->setNormtag(normIt->second.normtag);
       result->setcorrFunc(normIt->second.corrfunc);
       result->setnonlinearCoeff(normIt->second.coefficientmap);

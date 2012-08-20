@@ -57,28 +57,36 @@ lumi::NormDML::normIdByType(const coral::ISchema& schema,std::map<std::string,un
     lumitypeStr="PIXEL";
   }
   qCondition["lumitype"].data<std::string>()=lumitypeStr;
-  if(lumitype){
+  if(defaultonly){
     qConditionStr+=" AND ISTYPEDEFAULT=:istypedefault";
     qCondition.extend("istypedefault",typeid(unsigned int));
     qCondition["istypedefault"].data<unsigned int>()=1;
   }
   qHandle->setCondition(qConditionStr,qCondition);
   coral::AttributeList qResult;
-  qResult.extend("DATA_ID",typeid("unsigned long long"));
-  qResult.extend("ENTRY_NAME",typeid("std::string"));
+  qResult.extend("DATA_ID",typeid(unsigned long long));
+  qResult.extend("ENTRY_NAME",typeid(std::string));
   qHandle->defineOutput(qResult);
-  coral::ICursor& cursor=qHandle->execute();
-  while( cursor.next() ){
-    const coral::AttributeList& row=cursor.currentRow();
-    const std::string normname=row["ENTRY_NAME"].data<std::string>();
-    unsigned long long normid=row["DATA_ID"].data<unsigned long long>();
-    if(resultMap.find(normname)==resultMap.end()){
-      resultMap.insert(std::make_pair(normname,normid));
-    }else{
-      if(resultMap[normname]<normid){
+  try{
+    coral::ICursor& cursor=qHandle->execute();
+    while( cursor.next() ){
+      const coral::AttributeList& row=cursor.currentRow();
+      const std::string normname=row["ENTRY_NAME"].data<std::string>();
+      unsigned long long normid=row["DATA_ID"].data<unsigned long long>();
+      if(resultMap.find(normname)==resultMap.end()){
 	resultMap.insert(std::make_pair(normname,normid));
+      }else{
+	if(resultMap[normname]<normid){
+	  resultMap.insert(std::make_pair(normname,normid));
+	}
       }
     }
+  }catch(const coral::Exception& er){
+    std::cout<<"database error in NormDML::normIdByType "<<er.what()<<std::endl;
+    delete qHandle;
+    throw er;
+  }catch(...){
+    throw;
   }
   delete qHandle;
 }
@@ -88,7 +96,7 @@ lumi::NormDML::normById(const coral::ISchema&schema,
 			std::map< unsigned int,lumi::NormDML::normData >& result){
   ///select * from luminormsv2data where data_id=normid
   coral::IQuery* qHandle=schema.newQuery();
-  qHandle->addToTableList( lumi::LumiNames::luminormv2TableName() );  
+  qHandle->addToTableList( lumi::LumiNames::luminormv2dataTableName() );  
   std::string qConditionStr("DATA_ID=:normid ");
   coral::AttributeList qCondition;
   qCondition.extend("normid",typeid(unsigned long long));

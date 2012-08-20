@@ -23,6 +23,9 @@ const std::string lumi::LumiNames::luminormTableName(){
 const std::string lumi::LumiNames::luminormv2TableName(){
   return "LUMINORMSV2";
 }
+const std::string lumi::LumiNames::luminormv2dataTableName(){
+  return "LUMINORMSV2DATA";
+}
 const std::string lumi::LumiNames::trgdataTableName(){
   return "TRGDATA";
 }

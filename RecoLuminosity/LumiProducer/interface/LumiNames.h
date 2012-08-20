@@ -12,6 +12,7 @@ namespace lumi{
     static const std::string lumidetailTableName();
     static const std::string luminormTableName();
     static const std::string luminormv2TableName();
+    static const std::string luminormv2dataTableName();
     static const std::string trgdataTableName();
     static const std::string lstrgTableName();
     static const std::string trgTableName();
