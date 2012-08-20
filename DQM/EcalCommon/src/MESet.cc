@@ -12,13 +12,12 @@ namespace ecaldqm
   BinService const* MESet::binService_(0);
   DQMStore* MESet::dqmStore_(0);
 
-  MESet::MESet(std::string const& _fullpath, MEData const& _data, bool _readOnly/* = false*/) :
+  MESet::MESet(MEData const& _data) :
     mes_(0),
-    dir_(_fullpath.substr(0, _fullpath.find_last_of('/'))),
-    name_(_fullpath.substr(_fullpath.find_last_of('/') + 1)),
+    dir_(_data.fullPath.substr(0, _data.fullPath.find_last_of('/'))),
+    name_(_data.fullPath.substr(_data.fullPath.find_last_of('/') + 1)),
     data_(&_data),
-    active_(false),
-    readOnly_(_readOnly)
+    active_(false)
   {
     if (!binService_) {
       binService_ = &(*(edm::Service<EcalDQMBinningService>()));
@@ -32,26 +31,28 @@ namespace ecaldqm
 	throw cms::Exception("Service") << "DQMStore not found" << std::endl;
     }
 
+    if(dir_.find("/") == std::string::npos ||
+       (data_->otype != BinService::kChannel && data_->btype != BinService::kReport && name_.size() == 0))
+      throw_(_data.fullPath + " cannot be used for ME path name");
+
+    switch(data_->kind){
+    case MonitorElement::DQM_KIND_REAL:
+    case MonitorElement::DQM_KIND_TH1F:
+    case MonitorElement::DQM_KIND_TPROFILE:
+    case MonitorElement::DQM_KIND_TH2F:
+    case MonitorElement::DQM_KIND_TPROFILE2D:
+      break;
+    default:
+      throw_("Unsupported MonitorElement kind");
+    }
+
     // expand full path into dir & name
-    if(_fullpath.size() == 0)
-      throw cms::Exception("InvalidConfiguration") << "MonitorElement path empty";
+    if(_data.fullPath.size() == 0)
+      throw_("MonitorElement path empty");
   }
 
   MESet::~MESet()
   {
-  }
-
-  void
-  MESet::book()
-  {
-    clear();
-    active_ = true;
-  }
-
-  bool
-  MESet::retrieve() const
-  {
-    return false;
   }
 
   void
@@ -64,22 +65,25 @@ namespace ecaldqm
   void
   MESet::setAxisTitle(std::string const& _title, int _axis/* = 1*/)
   {
-    for(std::vector<MonitorElement*>::iterator meItr(mes_.begin()); meItr != mes_.end(); ++meItr)
-      (*meItr)->setAxisTitle(_title, _axis);
+    unsigned nME(mes_.size());
+    for(unsigned iME(0); iME < nME; iME++)
+      mes_[iME]->setAxisTitle(_title, _axis);
   }
 
   void
-  MESet::setBinLabel(unsigned _offset, int _bin, std::string const& _label, int _axis/* = 1*/)
+  MESet::setBinLabel(unsigned _iME, int _bin, std::string const& _label, int _axis/* = 1*/)
   {
-    if(_offset == unsigned(-1)){
-      for(std::vector<MonitorElement*>::iterator meItr(mes_.begin()); meItr != mes_.end(); ++meItr)
-	(*meItr)->setBinLabel(_bin, _label, _axis);
+    unsigned nME(mes_.size());
+
+    if(_iME == unsigned(-1)){
+      for(unsigned iME(0); iME < nME; iME++)
+	mes_[iME]->setBinLabel(_bin, _label, _axis);
 
       return;
     }
 
-    if(_offset >= mes_.size() || !mes_[_offset]) return;
-    mes_[_offset]->setBinLabel(_bin, _label, _axis);
+    if(_iME >= nME || !mes_[_iME]) return;
+    mes_[_iME]->setBinLabel(_bin, _label, _axis);
   }
 
   void
@@ -91,17 +95,19 @@ namespace ecaldqm
   void
   MESet::resetAll(double _content/* = 0.*/, double _err/* = 0.*/, double _entries/* = 0.*/)
   {
+    unsigned nME(mes_.size());
+
     if(data_->kind == MonitorElement::DQM_KIND_REAL){
-      for(std::vector<MonitorElement*>::iterator meItr(mes_.begin()); meItr != mes_.end(); ++meItr)
-	(*meItr)->Fill(_content);
+      for(unsigned iME(0); iME < nME; iME++)
+	mes_[iME]->Fill(_content);
       return;
     }
 
     bool simple(true);
     if(_content != 0. || _err != 0. || _entries != 0.) simple = false;
 
-    for(std::vector<MonitorElement*>::iterator meItr(mes_.begin()); meItr != mes_.end(); ++meItr){
-      TH1* h((*meItr)->getTH1());
+    for(unsigned iME(0); iME < nME; iME++){
+      TH1* h(mes_[iME]->getTH1());
       h->Reset();
       if(simple) continue;
 
@@ -129,114 +135,7 @@ namespace ecaldqm
   }
 
   void
-  MESet::fill(DetId const&, double, double, double)
-  {
-  }
-
-  void
-  MESet::fill(EcalElectronicsId const& _id, double _wx/* = 1.*/,double _wy/* = 1.*/, double _w/* = 1.*/)
-  {
-    fill(getElectronicsMap()->getDetId(_id), _wx, _wy, _w);
-  }
-
-  void
-  MESet::fill(unsigned _dcctccid, double _wx/* = 1.*/, double _wy/* = 1.*/, double _w/* = 1.*/)
-  {
-  }
-
-  void
-  MESet::fill(double, double, double)
-  {
-  }
-
-  void
-  MESet::setBinContent(DetId const&, double, double)
-  {
-  }
-
-  void
-  MESet::setBinContent(EcalElectronicsId const& _id, double _content, double _err/* = 0.*/)
-  {
-    setBinContent(getElectronicsMap()->getDetId(_id), _content, _err);
-  }
-
-  void
-  MESet::setBinContent(unsigned, double, double)
-  {
-  }
-
-  void
-  MESet::setBinEntries(DetId const&, double)
-  {
-  }
-
-  void
-  MESet::setBinEntries(EcalElectronicsId const& _id, double _entries)
-  {
-    setBinEntries(getElectronicsMap()->getDetId(_id), _entries);
-  }
-
-  void
-  MESet::setBinEntries(unsigned, double)
-  {
-  }
-
-  double
-  MESet::getBinContent(DetId const&, int) const
-  {
-    return 0.;
-  }
-
-  double
-  MESet::getBinContent(EcalElectronicsId const& _id, int _bin/* = 0*/) const
-  {
-    return getBinContent(getElectronicsMap()->getDetId(_id), _bin);
-  }
-
-  double
-  MESet::getBinContent(unsigned, int) const
-  {
-    return 0.;
-  }
-
-  double
-  MESet::getBinError(DetId const&, int) const
-  {
-    return 0.;
-  }
-
-  double
-  MESet::getBinError(EcalElectronicsId const& _id, int _bin/* = 0*/) const
-  {
-    return getBinError(getElectronicsMap()->getDetId(_id), _bin);
-  }
-
-  double
-  MESet::getBinError(unsigned, int) const
-  {
-    return 0.;
-  }
-
-  double
-  MESet::getBinEntries(DetId const&, int) const
-  {
-    return 0.;
-  }
-
-  double
-  MESet::getBinEntries(EcalElectronicsId const& _id, int _bin/* = 0*/) const
-  {
-    return getBinEntries(getElectronicsMap()->getDetId(_id), _bin);
-  }
-
-  double
-  MESet::getBinEntries(unsigned, int) const
-  {
-    return 0.;
-  }
-
-  void
-  MESet::name(std::map<std::string, std::string> const& _replacements) const
+  MESet::formName(std::map<std::string, std::string> const& _replacements) const
   {
     TString dir(dir_);
     TString name(name_);
@@ -258,136 +157,255 @@ namespace ecaldqm
   }
 
   void
-  MESet::fill_(unsigned _index, int _bin, double _w)
+  MESet::fill_(unsigned _iME, int _bin, double _w)
   {
-    MonitorElement* me(mes_.at(_index));
+    if(data_->kind == MonitorElement::DQM_KIND_REAL) return;
+
+    MonitorElement* me(mes_.at(_iME));
 
     TH1* h(me->getTH1());
 
     int nbinsX(h->GetNbinsX());
 
-    double x(h->GetXaxis()->GetBinCenter((_bin - 1) % nbinsX + 1));
+    double x(h->GetXaxis()->GetBinCenter(_bin % (nbinsX + 2)));
 
-    if((data_->kind < MonitorElement::DQM_KIND_TH2F && data_->kind >= MonitorElement::DQM_KIND_TH1F) || data_->kind == MonitorElement::DQM_KIND_TPROFILE) {
+    if(data_->kind == MonitorElement::DQM_KIND_TH1F || data_->kind == MonitorElement::DQM_KIND_TPROFILE)
       me->Fill(x, _w);
-      return;
+    else{
+      double y(h->GetYaxis()->GetBinCenter(_bin / (nbinsX + 2)));
+      me->Fill(x, y, _w);
     }
-
-    double y(h->GetYaxis()->GetBinCenter((_bin - 1) / nbinsX + 1));
-
-    me->Fill(x, y, _w);
   }
 
   void
-  MESet::fill_(unsigned _offset, double _x, double _wy, double _w)
+  MESet::fill_(unsigned _iME, int _bin, double _y, double _w)
+  {
+    if(data_->kind != MonitorElement::DQM_KIND_TH2F && data_->kind != MonitorElement::DQM_KIND_TPROFILE2D) return;
+
+    MonitorElement* me(mes_.at(_iME));
+
+    TH1* h(me->getTH1());
+
+    int nbinsX(h->GetNbinsX());
+
+    double x(h->GetXaxis()->GetBinCenter(_bin % (nbinsX + 2)));
+    me->Fill(x, _y, _w);
+  }
+
+  void
+  MESet::fill_(unsigned _iME, double _x, double _wy, double _w)
   {
     if(data_->kind == MonitorElement::DQM_KIND_REAL)
-      mes_.at(_offset)->Fill(_x);
-    else if(data_->kind < MonitorElement::DQM_KIND_TH2F || data_->kind == MonitorElement::DQM_KIND_TPROFILE)
-      mes_.at(_offset)->Fill(_x, _wy);
+      mes_.at(_iME)->Fill(_x);
+    else if(data_->kind == MonitorElement::DQM_KIND_TH1F || data_->kind == MonitorElement::DQM_KIND_TPROFILE)
+      mes_.at(_iME)->Fill(_x, _wy);
     else
-      mes_.at(_offset)->Fill(_x, _wy, _w);
+      mes_.at(_iME)->Fill(_x, _wy, _w);
   }
 
-  void
-  MESet::setBinContent_(unsigned _index, int _bin, double _content, double _err)
-  {
-    MonitorElement* me(mes_.at(_index));
 
-    if(data_->kind < MonitorElement::DQM_KIND_TH2F || data_->kind == MonitorElement::DQM_KIND_TPROFILE){
-      me->setBinContent(_bin, _content);
-      me->setBinError(_bin, _err);
+  MESet::ConstBin::ConstBin(MESet const* _meSet, unsigned _iME/* = 0*/, int _iBin/* = 1*/) :
+    meSet(_meSet),
+    iME(_iME),
+    iBin(_iBin),
+    otype(BinService::nObjType)
+  {
+    if(!meSet){
+      iME = unsigned(-1);
+      iBin = -1;
     }
-    else{
-      TH1* h(me->getTH1());
-      int nbinsX(h->GetNbinsX());
-      int ix((_bin - 1) % nbinsX + 1);
-      int iy((_bin - 1) / nbinsX + 1);
-      me->setBinContent(ix, iy, _content);
-      me->setBinError(ix, iy, _err);
+
+    MonitorElement::Kind kind(meSet->getKind());
+    if(kind != MonitorElement::DQM_KIND_TH1F && kind != MonitorElement::DQM_KIND_TPROFILE &&
+       kind != MonitorElement::DQM_KIND_TH2F && kind != MonitorElement::DQM_KIND_TPROFILE2D)
+      throw cms::Exception("InvalidOperation")
+        << "const_iterator onlye available for MESet of histogram kind";
+
+    MonitorElement const* me(meSet->mes_[iME]);
+
+    if(!me){
+      meSet = 0;
+      iME = unsigned(-1);
+      iBin = -1;
     }
+
+    if(iME == unsigned(-1)) return;
+
+    if(iBin == 1 && (kind == MonitorElement::DQM_KIND_TH2F || kind == MonitorElement::DQM_KIND_TPROFILE2D))
+      iBin = me->getNbinsX() + 3;
+
+    otype = binService_->getObject(meSet->getObjType(), iME);
   }
 
-  void
-  MESet::setBinEntries_(unsigned _index, int _bin, double _entries)
+  MESet::ConstBin&
+  MESet::ConstBin::operator=(ConstBin const& _rhs)
   {
-    MonitorElement* me(mes_.at(_index));
+    if(!meSet) meSet = _rhs.meSet;
+    else if(meSet->getObjType() != _rhs.meSet->getObjType() ||
+            meSet->getBinType() != _rhs.meSet->getBinType())
+      throw cms::Exception("IncompatibleAssignment")
+        << "Iterator of otype " << _rhs.meSet->getObjType() << " and btype " << _rhs.meSet->getBinType()
+        << " to otype " << meSet->getObjType() << " and btype " << meSet->getBinType();
 
-    if(data_->kind == MonitorElement::DQM_KIND_TPROFILE){
-      me->setBinEntries(_bin, _entries);
-    }
-    else if(data_->kind == MonitorElement::DQM_KIND_TPROFILE2D){
-      TH1* h(me->getTH1());
-      int nbinsX(h->GetNbinsX());
-      int ix((_bin - 1) % nbinsX + 1);
-      int iy((_bin - 1) / nbinsX + 1);
-      me->setBinEntries(h->GetBin(ix, iy), _entries);
-    }
+    iME = _rhs.iME;
+    iBin = _rhs.iBin;
+    otype = _rhs.otype;
+      
+    return *this;
   }
 
-  double
-  MESet::getBinContent_(unsigned _index, int _bin) const
-  {
-    MonitorElement* me(mes_.at(_index));
 
-    if(data_->kind < MonitorElement::DQM_KIND_TH2F || data_->kind == MonitorElement::DQM_KIND_TPROFILE)
-      return me->getBinContent(_bin);
-    else{
-      TH1* h(me->getTH1());
-      int nbinsX(h->GetNbinsX());
-      int ix((_bin - 1) % nbinsX + 1);
-      int iy((_bin - 1) / nbinsX + 1);
-      return h->GetBinContent(ix, iy);
+  MESet::const_iterator&
+  MESet::const_iterator::operator++()
+  {
+    unsigned& iME(constBin_.iME);
+    int& bin(constBin_.iBin);
+    MESet const* meSet(constBin_.meSet);
+    BinService::ObjectType& otype(constBin_.otype);
+
+    if(!meSet || bin < 0) return *this;
+
+    MonitorElement::Kind kind(meSet->getKind());
+    MonitorElement const* me(meSet->mes_[iME]);
+      
+    bin += 1;
+    if(bin == 1){
+      iME = 0;
+      me = meSet->mes_[iME];
+      if(kind == MonitorElement::DQM_KIND_TH2F || kind == MonitorElement::DQM_KIND_TPROFILE2D)
+        bin = me->getNbinsX() + 3;
+      otype = binService_->getObject(meSet->getObjType(), iME);
     }
-  }
 
-  double
-  MESet::getBinError_(unsigned _index, int _bin) const
-  {
-    MonitorElement* me(mes_.at(_index));
+    bool overflow(false);
+    if(kind == MonitorElement::DQM_KIND_TH1F || kind == MonitorElement::DQM_KIND_TPROFILE)
+      overflow = (bin == me->getNbinsX() + 1);
+    else
+      overflow = (bin == (me->getNbinsX() + 2) * me->getNbinsY() + me->getNbinsX() + 1);
 
-    if(data_->kind < MonitorElement::DQM_KIND_TH2F || data_->kind == MonitorElement::DQM_KIND_TPROFILE)
-      return me->getBinError(_bin);
-    else{
-      TH1* h(me->getTH1());
-      int nbinsX(h->GetNbinsX());
-      int ix((_bin - 1) % nbinsX + 1);
-      int iy((_bin - 1) / nbinsX + 1);
-      return h->GetBinError(ix, iy);
-    }
-  }
-
-  double
-  MESet::getBinEntries_(unsigned _index, int _bin) const
-  {
-    MonitorElement* me(mes_.at(_index));
-
-    switch(data_->kind){
-    case MonitorElement::DQM_KIND_TH1F:
-      return me->getBinContent(_bin);
-    case MonitorElement::DQM_KIND_TPROFILE:
-      return me->getBinEntries(_bin);
-    case MonitorElement::DQM_KIND_TH2F:
-      {
-	TH1* h(me->getTH1());
-	int nbinsX(h->GetNbinsX());
-	int ix((_bin - 1) % nbinsX + 1);
-	int iy((_bin - 1) / nbinsX + 1);
-	int bin(h->GetBin(ix, iy));
-	return me->getBinContent(bin);
+    if(overflow){
+      iME += 1;
+      me = meSet->mes_[iME];
+      if(!me){
+        iME = unsigned(-1);
+        bin = -1;
+        otype = BinService::nObjType;
       }
-    case MonitorElement::DQM_KIND_TPROFILE2D:
-      {
-	TH1* h(me->getTH1());
-	int nbinsX(h->GetNbinsX());
-	int ix((_bin - 1) % nbinsX + 1);
-	int iy((_bin - 1) / nbinsX + 1);
-	int bin(h->GetBin(ix, iy));
-	return me->getBinEntries(bin);
+      else{
+        if(kind == MonitorElement::DQM_KIND_TH2F || kind == MonitorElement::DQM_KIND_TPROFILE2D)
+          bin = me->getNbinsX() + 3;
+        else
+          bin = 1;
+            
+        otype = binService_->getObject(meSet->getObjType(), iME);
       }
-    default:
-      return 0.;
     }
+
+    return *this;
+  }
+
+  MESet::const_iterator&
+  MESet::const_iterator::operator--()
+  {
+    unsigned& iME(constBin_.iME);
+    int& bin(constBin_.iBin);
+    MESet const* meSet(constBin_.meSet);
+    BinService::ObjectType& otype(constBin_.otype);
+
+    if(!meSet || bin == 0) return *this;
+
+    MonitorElement::Kind kind(meSet->getKind());
+    MonitorElement const* me(meSet->mes_[iME]);
+
+    if(bin == -1){
+      iME = binService_->getNObjects(meSet->getObjType()) - 1;
+      me = meSet->mes_[iME];
+      if(kind == MonitorElement::DQM_KIND_TH2F || kind == MonitorElement::DQM_KIND_TPROFILE2D)
+        bin = (me->getNbinsX() + 2) * me->getNbinsY() + me->getNbinsX();
+      else
+        bin = me->getNbinsX();
+      otype = binService_->getObject(meSet->getObjType(), iME);
+    }
+    else
+      bin -= 1;
+
+    bool underflow(false);
+    if(kind == MonitorElement::DQM_KIND_TH1F || kind == MonitorElement::DQM_KIND_TPROFILE)
+      underflow = (bin == 0);
+    else
+      underflow = (bin == me->getNbinsX() + 2);
+
+    if(underflow){
+      iME -= 1;
+      me = meSet->mes_[iME];
+      if(!me){
+        iME = unsigned(-1);
+        bin = 0;
+        otype = BinService::nObjType;
+      }
+      else{
+        if(kind == MonitorElement::DQM_KIND_TH2F || kind == MonitorElement::DQM_KIND_TPROFILE2D)
+          bin = (me->getNbinsX() + 2) * me->getNbinsY() + me->getNbinsX();
+        else
+          bin = me->getNbinsX();
+            
+        otype = binService_->getObject(meSet->getObjType(), iME);
+      }
+    }
+
+    return *this;
+  }
+
+  MESet::const_iterator&
+  MESet::const_iterator::toNextChannel()
+  {
+    if(!constBin_.meSet) return *this;
+    do operator++();
+    while(constBin_.iBin > 0 && !constBin_.isChannel());
+    return *this;
+  }
+
+  MESet::const_iterator&
+  MESet::const_iterator::toPreviousChannel()
+  {
+    if(!constBin_.meSet) return *this;
+    do operator--();
+    while(constBin_.iBin > 0 && !constBin_.isChannel());
+    return *this;
+  }
+
+  bool
+  MESet::const_iterator::up()
+  {
+    if(!constBin_.meSet || constBin_.iBin < 1) return false;
+
+    MonitorElement::Kind kind(constBin_.meSet->getKind());
+    if(kind != MonitorElement::DQM_KIND_TH2F && kind != MonitorElement::DQM_KIND_TPROFILE2D) return false;
+
+    MonitorElement const* me(constBin_.meSet->mes_[constBin_.iME]);
+
+    if(constBin_.iBin / (me->getNbinsX() + 2) >= me->getNbinsY()) return false;
+
+    constBin_.iBin += me->getNbinsX() + 2;
+
+    return true;
+  }
+
+  bool
+  MESet::const_iterator::down()
+  {
+    if(!constBin_.meSet || constBin_.iBin < 1) return false;
+
+    MonitorElement::Kind kind(constBin_.meSet->getKind());
+    if(kind != MonitorElement::DQM_KIND_TH2F && kind != MonitorElement::DQM_KIND_TPROFILE2D) return false;
+
+    MonitorElement const* me(constBin_.meSet->mes_[constBin_.iME]);
+
+    if(constBin_.iBin / (me->getNbinsX() + 2) <= 1) return false;
+
+    constBin_.iBin -= me->getNbinsX() + 2;
+
+    return true;
   }
 
 }

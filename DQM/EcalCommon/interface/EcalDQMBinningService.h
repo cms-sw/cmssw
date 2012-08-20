@@ -10,6 +10,8 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 
+#include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
+
 // Keeps a map between channel ids and DQM histogram bins
 // The map is booked ad-hoc
 
@@ -19,7 +21,6 @@ namespace edm {
   class Run;
   class EventSetup;
 }
-class CaloGeometry;
 class DQMStore;
 class EcalElectronicsId;
 
@@ -27,17 +28,21 @@ class EcalDQMBinningService {
  public:
   enum ObjectType {
     kEB,
-    kEBMEM,
     kEE,
     kEEm,
     kEEp,
-    kEEMEM,
     kSM,
+    kEBSM,
+    kEESM,
     kSMMEM,
+    kEBSMMEM,
+    kEESMMEM,
     kEcal,
+    kMEM,
+    kEBMEM,
+    kEEMEM,
     kEcal2P,
     kEcal3P,
-    kEcalMEM2P,
     kChannel,
     nObjType
   };
@@ -61,7 +66,10 @@ class EcalDQMBinningService {
     nPresetBinnings = kProjPhi + 1,
 
     nDCC = 54,
+    nEBDCC = 36,
+    nEEDCC = 18,
     nDCCMEM = 44,
+    nEEDCCMEM = 8,
 
     nTCC = 108,
     kEEmTCCLow = 0, kEEmTCCHigh = 35,
@@ -70,10 +78,8 @@ class EcalDQMBinningService {
 
     nEBSMEta = 85,
     nEBSMPhi = 20,
-    nEBSMBins = nEBSMEta * nEBSMPhi,
     nEESMX = 40,
     nEESMY = 40,
-    nEESMBins = nEESMX * nEESMY,
     nEESMXExt = 45, // for EE+-02&08
     nEESMBinsExt = nEESMXExt * nEESMY,
 
@@ -88,7 +94,7 @@ class EcalDQMBinningService {
     double low, high;
     double* edges;
     std::string title;
-    AxisSpecs() : nbins(1), edges(0) {}
+    AxisSpecs() : nbins(0), edges(0) {}
     AxisSpecs(AxisSpecs const& _specs) :
       nbins(_specs.nbins), low(_specs.low), high(_specs.high), edges(0), title(_specs.title)
     {
@@ -114,29 +120,26 @@ class EcalDQMBinningService {
   ~EcalDQMBinningService();
 
   void postBeginRun(const edm::Run&, const edm::EventSetup&);
+  void postEndRun(const edm::Run&, const edm::EventSetup&);
 
-  std::vector<AxisSpecs> getBinning(ObjectType, BinningType, bool _isMap = true, unsigned _objOffset = 0) const;
+  AxisSpecs getBinning(ObjectType, BinningType, bool, int, unsigned) const;
 
-  // takes care of "key translations" as well - okey and bkey can have changed after the function returns
-  const std::vector<int>* getBinMap(ObjectType&, BinningType&) const;
+  int findBin1D(ObjectType, BinningType, DetId const&) const;
+  int findBin1D(ObjectType, BinningType, EcalElectronicsId const&) const;
+  int findBin1D(ObjectType, BinningType, unsigned) const;
 
-  std::pair<unsigned, std::vector<int> > findBins(ObjectType, BinningType, const DetId&) const;
-  std::pair<unsigned, std::vector<int> > findBins(ObjectType, BinningType, const EcalElectronicsId&) const;
-  std::pair<unsigned, std::vector<int> > findBins(ObjectType, BinningType, unsigned) const;
-  // EcalElectronicsId version returns at most one bin
+  int findBin2D(ObjectType, BinningType, DetId const&) const;
+  int findBin2D(ObjectType, BinningType, EcalElectronicsId const&) const;
 
-  std::pair<unsigned, std::vector<int> > findBinsNoMap(ObjectType, BinningType, const DetId&) const;
-  std::pair<unsigned, std::vector<int> > findBinsNoMap(ObjectType, BinningType, const EcalElectronicsId&) const;
+  unsigned findPlot(ObjectType, const DetId&) const;
+  unsigned findPlot(ObjectType, const EcalElectronicsId&) const;
+  unsigned findPlot(ObjectType, unsigned, BinningType _btype = kDCC) const;
 
-  int getBin(ObjectType, BinningType, unsigned) const;
+  ObjectType getObject(ObjectType, unsigned) const;
 
-  unsigned findOffset(ObjectType, const DetId&) const;
-  unsigned findOffset(ObjectType, const EcalElectronicsId&) const;
-  unsigned findOffset(ObjectType, BinningType, unsigned) const;
+  unsigned getNObjects(ObjectType) const;
 
-  ObjectType objectFromOffset(ObjectType, unsigned) const;
-
-  int smOffsetBins(ObjectType, BinningType, unsigned) const;
+  bool isValidIdBin(ObjectType, BinningType, unsigned, int) const;
 
   // used for EE binnings
   int xlow(int) const;
@@ -145,56 +148,117 @@ class EcalDQMBinningService {
   std::string channelName(uint32_t, BinningType _btype = kDCC) const;
 
   uint32_t idFromName(std::string const&) const;
+  uint32_t idFromBin(ObjectType, BinningType, unsigned, int) const;
 
  private:
-  std::vector<AxisSpecs> getBinningEB_(BinningType, bool) const;
-  std::vector<AxisSpecs> getBinningEBMEM_(BinningType, bool) const;
-  std::vector<AxisSpecs> getBinningEE_(BinningType, bool, int) const;
-  std::vector<AxisSpecs> getBinningEEMEM_(BinningType, bool) const;
-  std::vector<AxisSpecs> getBinningSM_(BinningType, bool, unsigned) const;
-  std::vector<AxisSpecs> getBinningSMMEM_(BinningType, bool, unsigned) const;
-  std::vector<AxisSpecs> getBinningEcal_(BinningType, bool) const;
+  AxisSpecs getBinningEB_(BinningType, bool, int) const;
+  AxisSpecs getBinningEE_(BinningType, bool, int, int) const;
+  AxisSpecs getBinningSM_(BinningType, bool, unsigned, int) const;
+  AxisSpecs getBinningSMMEM_(BinningType, bool, unsigned, int) const;
+  AxisSpecs getBinningEcal_(BinningType, bool, int) const;
+  AxisSpecs getBinningMEM_(BinningType, bool, int, int) const;
 
-  const std::vector<int>* getBinMapEB_(BinningType) const;
-  const std::vector<int>* getBinMapEBMEM_(BinningType) const;
-  const std::vector<int>* getBinMapEE_(BinningType, int) const;
-  const std::vector<int>* getBinMapEEMEM_(BinningType) const;
-  const std::vector<int>* getBinMapSM_(BinningType) const;
-  const std::vector<int>* getBinMapSMMEM_(BinningType) const;
-  const std::vector<int>* getBinMapEcal_(BinningType) const;
-
-  void findBinsCrystal_(const DetId&, ObjectType, const std::vector<int>&, std::vector<int>&) const;
-  void findBinsTriggerTower_(const DetId&, ObjectType, const std::vector<int>&, std::vector<int>&) const;
-  void findBinsSuperCrystal_(const DetId&, ObjectType, const std::vector<int>&, std::vector<int>&) const;
-  void findBinsDCC_(const DetId&, ObjectType, const std::vector<int>&, std::vector<int>&) const;
-  void findBinsTCC_(const DetId&, ObjectType, const std::vector<int>&, std::vector<int>&) const;
-  void findBinsProjEta_(const DetId&, ObjectType, const std::vector<int>&, std::vector<int>&) const;
-  void findBinsProjPhi_(const DetId&, ObjectType, const std::vector<int>&, std::vector<int>&) const;
-
-  // need to be mutable to allow runtime booking
-  mutable std::vector<int> binMaps_[nPlotType][nPresetBinnings];
-  /*
-    Following dictionaries are created during postBeginRun:
-    (kEB, kCrystal) (kEB, kSuperCrystal) (kEB, kDCC) (kEB, kTCC) (kEBMEM, kCrystal)
-    (kEE, kCrystal) (kEE, kSuperCrystal) (kEE, kDCC) (kEE, kTCC) (kEEMEM, kCrystal)
-    (kEEm, kCrystal) (kEEm, kSuperCrystal) (kEEm, kDCC) (kEEm, kTCC)
-    (kEEp, kCrystal) (kEEp, kSuperCrystal) (kEEp, kDCC) (kEEp, kTCC)
-    (kSM, kCrystal) (kSM, kSuperCrystal) (kSM, kTriggerTower) (kSMMEM, kCrystal)
-  */
-
-  mutable uint32_t cacheId_;
-  mutable ObjectType cacheOtype_;
-  mutable BinningType cacheBtype_;
-  mutable std::pair<unsigned, std::vector<int> > cache_;
-
-  const double etaBound_;
-
-  const CaloGeometry* geometry_;
-
-  bool initialized_;
+  int findBinCrystal_(ObjectType, const DetId&, int = -1) const;
+  int findBinTriggerTower_(ObjectType, const DetId&) const;
+  int findBinSuperCrystal_(ObjectType, const DetId&, int = -1) const;
+  int findBinCrystal_(ObjectType _otype, const EcalElectronicsId& _id) const { return findBinCrystal_(_otype, ecaldqm::getElectronicsMap()->getDetId(_id)); }
+  int findBinSuperCrystal_(ObjectType, const EcalElectronicsId&) const;
 
   int verbosity_;
-
 };
+
+inline
+int
+EcalDQMBinningService::xlow(int _iSM) const
+{
+  using namespace ecaldqm;
+
+  switch(_iSM){
+  case kEEm01: case kEEp01: return 15;
+  case kEEm02: case kEEp02: return 0;
+  case kEEm03: case kEEp03: return 0;
+  case kEEm04: case kEEp04: return 5;
+  case kEEm05: case kEEp05: return 30;
+  case kEEm06: case kEEp06: return 55;
+  case kEEm07: case kEEp07: return 60;
+  case kEEm08: case kEEp08: return 55;
+  case kEEm09: case kEEp09: return 45;
+  default: break;
+  }
+
+  if(_iSM >= kEBmLow && _iSM <= kEBpHigh) return 0;
+
+  return 0;
+}
+
+inline
+int
+EcalDQMBinningService::ylow(int _iSM) const
+{
+  using namespace ecaldqm;
+
+  switch(_iSM){
+  case kEEm01: case kEEp01: case kEEm09: case kEEp09: return 60;
+  case kEEm02: case kEEp02: case kEEm08: case kEEp08: return 50;
+  case kEEm03: case kEEp03: case kEEm07: case kEEp07: return 25;
+  case kEEm04: case kEEp04: case kEEm06: case kEEp06: return 5;
+  case kEEm05: case kEEp05: return 0;
+  default: break;
+  }
+
+  if(_iSM >= kEBmLow && _iSM <= kEBmHigh) return ((_iSM - kEBmLow) % 18) * 20;
+  if(_iSM >= kEBpLow && _iSM <= kEBpHigh) return (-1 - ((_iSM - kEBpLow) % 18)) * 20;
+
+  return 0;
+}
+
+inline
+unsigned
+EcalDQMBinningService::getNObjects(ObjectType _otype) const
+{
+  switch(_otype){
+  case kSM:
+    return nDCC;
+  case kEBSM:
+    return nEBDCC;
+  case kEESM:
+    return nEEDCC;
+  case kSMMEM:
+    return nDCCMEM;
+  case kEBSMMEM:
+    return nEBDCC;
+  case kEESMMEM:
+    return nEEDCCMEM;
+  case kEcal2P:
+    return 2;
+  case kEcal3P:
+    return 3;
+  default:
+    return 1;
+  }
+}
+
+inline
+EcalDQMBinningService::ObjectType
+EcalDQMBinningService::getObject(ObjectType _otype, unsigned _iObj) const
+{
+  if(_otype == kEcal3P) {
+    switch(_iObj){
+    case 0: return kEEm;
+    case 1: return kEB;
+    case 2: return kEEp;
+    default: return nObjType;
+    }
+  }
+  else if(_otype == kEcal2P){
+    switch(_iObj){
+    case 0: return kEE;
+    case 1: return kEB;
+    default: return nObjType;
+    }
+  }
+  else
+    return _otype;
+}
 
 #endif

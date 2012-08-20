@@ -1,11 +1,13 @@
 #ifndef EcalDQMCommonUtils_H
 #define EcalDQMCommonUtils_H
 
-#include <set>
 #include <iomanip>
+#include <algorithm>
+#include <cmath>
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -36,8 +38,8 @@ namespace ecaldqm {
   // returns DCC ID (1 - 54)
   unsigned dccId(const DetId&);
   unsigned dccId(const EcalElectronicsId&);
-  unsigned dccId(unsigned); // convert from dccId skipping DCCs without MEM
 
+  unsigned memDCCId(unsigned); // convert from dccId skipping DCCs without MEM
   unsigned memDCCIndex(unsigned); // reverse conversion
 
   // returns TCC ID (1 - 108)
@@ -51,11 +53,22 @@ namespace ecaldqm {
   unsigned ttId(const DetId&);
   unsigned ttId(const EcalElectronicsId&);
 
-  bool isEcalScDetId(const DetId& _id);
+  int zside(const DetId&);
 
-  unsigned getEEPnDCC(unsigned, unsigned);
+  double eta(const DetId&);
+  double phi(const EBDetId&);
+  double phi(const EEDetId&);
+  double phi(const EcalTrigTowerDetId&);
 
-  unsigned getNSuperCrystals(unsigned);
+  bool isCrystalId(const DetId&);
+  bool isSingleChannelId(const DetId&);
+  bool isEcalScDetId(const DetId&);
+  bool isEndcapTTId(const DetId&);
+
+  unsigned EEPnDCC(unsigned, unsigned);
+
+  unsigned nCrystals(unsigned);
+  unsigned nSuperCrystals(unsigned);
 
   bool ccuExists(unsigned, unsigned);
 
@@ -65,15 +78,21 @@ namespace ecaldqm {
   const EcalTrigTowerConstituentsMap* getTrigTowerMap();
   void setTrigTowerMap(const EcalTrigTowerConstituentsMap*);
 
+  const CaloGeometry* getGeometry();
+  void setGeometry(const CaloGeometry*);
+
   void checkElectronicsMap();
   void checkTrigTowerMap();
+  void checkGeometry();
 }
 
 namespace ecaldqm {
 
   extern const EcalElectronicsMapping* electronicsMap;
   extern const EcalTrigTowerConstituentsMap* trigtowerMap;
-  extern const std::set<unsigned> dccNoMEM;
+  extern const CaloGeometry* geometry;
+  extern const std::vector<unsigned> memDCC;
+  extern const double etaBound;
 
   inline unsigned dccId(const DetId &_id){
     checkElectronicsMap();
@@ -97,27 +116,17 @@ namespace ecaldqm {
     return _id.dccId();
   }
 
-  inline unsigned dccId(unsigned _index){
+  inline unsigned memDCCId(unsigned _index){
     // for DCCs with no MEM - map the index in an array of DCCs with no MEM to the DCC ID
-    unsigned iDCC(0);
-    unsigned count(0);
-
-    while(count <= _index)
-      if(dccNoMEM.find(iDCC++) == dccNoMEM.end()) count++;
-
-    return iDCC;
+    if(_index >= memDCC.size()) return 0;
+    return memDCC.at(_index) + 1;
   }
 
   inline unsigned memDCCIndex(unsigned _dccid){
-    unsigned index(0);
-    unsigned iDCC(0);
+    std::vector<unsigned>::const_iterator itr(std::find(memDCC.begin(), memDCC.end(), _dccid - 1));
+    if(itr == memDCC.end()) return -1;
 
-    while(iDCC < _dccid)
-      if(dccNoMEM.find(iDCC++) == dccNoMEM.end()) index++;
-
-    index -= 1;
-
-    return index;
+    return (itr - memDCC.begin());
   }
 
   inline unsigned tccId(const DetId &_id){
@@ -189,8 +198,63 @@ namespace ecaldqm {
     return electronicsMap->getTriggerElectronicsId(_id).ttId();
   }
 
+  inline int zside(const DetId& _id){
+    uint32_t rawId(_id);
+
+    switch(_id.subdetId()){
+    case EcalBarrel:
+      return (((rawId >> 16) & 0x1) == 1 ? 1 : -1);
+    case EcalEndcap:
+      return (((rawId >> 14) & 0x1) == 1 ? 1 : -1);
+    case EcalTriggerTower:
+      return (((rawId >> 15) & 0x1) == 1 ? 1 : -1);
+    case EcalLaserPnDiode:
+      return (((rawId >> 4) & 0x7f) > kEBpLow ? 1 : -1);
+    default:
+      throw cms::Exception("InvalidDetId") << "EcalDQMCommonUtils::zside(" << std::hex << uint32_t(_id) << ")" << std::endl;
+    }
+
+    return 0;
+  }
+
+  inline double eta(const DetId& _id){
+    checkGeometry();
+    return geometry->getPosition(_id).eta();
+  }
+
+  inline double phi(EBDetId const& _ebid){
+    const double degToRad(0.0174533);
+    return (_ebid.iphi() - 10.5) * degToRad;
+  }
+
+  inline double phi(EEDetId const& _eeid){
+    const double degToRad(0.0174533);
+    double p(std::atan2(_eeid.ix() - 50.5, _eeid.iy() - 50.5));
+    if(p < -10. * degToRad) p += 360. * degToRad;
+    return p;
+  }
+
+  inline double phi(EcalTrigTowerDetId const& _ttid){
+    const double degToRad(0.0174533);
+    double p((_ttid.iphi() - 0.5) * 5. * degToRad);
+    if(p > 350. * degToRad) p -= 360. * degToRad;
+    return p;
+  }
+
+  inline bool isCrystalId(const DetId& _id){
+    return (_id.det() == DetId::Ecal) && ((_id.subdetId() == EcalBarrel) || ((_id.subdetId() == EcalEndcap) && (((_id.rawId() >> 15) &  0x1) == 0)));
+  }
+
+  inline bool isSingleChannelId(const DetId& _id){
+    return (_id.det() == DetId::Ecal) && (isCrystalId(_id) || (_id.subdetId() == EcalLaserPnDiode));
+  }
+
   inline bool isEcalScDetId(const DetId& _id){
-    return (_id.subdetId() == EcalEndcap) && ((_id.rawId() >> 15) &  0x1);
+    return (_id.det() == DetId::Ecal) && ((_id.subdetId() == EcalEndcap) && ((_id.rawId() >> 15) &  0x1));
+  }
+
+  inline bool isEndcapTTId(const DetId& _id){
+    return (_id.det() == DetId::Ecal) && ((_id.subdetId() == EcalTriggerTower) && (((_id.rawId() >> 7) & 0x7f) > 17));
   }
 
   inline std::string smName(unsigned _dccId){
@@ -211,7 +275,7 @@ namespace ecaldqm {
   }
 
   // numbers from CalibCalorimetry/EcalLaserAnalyzer/src/MEEEGeom.cc
-  inline unsigned getEEPnDCC(unsigned _dee, unsigned _ab){
+  inline unsigned EEPnDCC(unsigned _dee, unsigned _ab){
     switch(_dee){
     case 1: // EE+F -> FEDs 649-653/0
       if(_ab == 0) return 650;
@@ -230,7 +294,43 @@ namespace ecaldqm {
     }
   }
 
-  inline unsigned getNSuperCrystals(unsigned _dccId){
+  inline unsigned nCrystals(unsigned _dccId){
+
+    unsigned iSM(_dccId - 1);
+
+    if(iSM >= kEBmLow && iSM <= kEBpHigh) return 1700;
+
+    switch(iSM){
+    case kEEm05:
+    case kEEp05:
+      return 810;
+    case kEEm07:
+    case kEEm03:
+    case kEEp07:
+    case kEEp03:
+      return 830;
+    case kEEm09:
+    case kEEm01:
+    case kEEp09:
+    case kEEp01:
+      return 815;
+    case kEEm08:
+    case kEEm02:
+    case kEEp08:
+    case kEEp02:
+      return 791;
+    case kEEm04:
+    case kEEm06:
+    case kEEp04:
+    case kEEp06:
+      return 821;
+    default:
+      return 0;
+    }
+
+  }
+
+  inline unsigned nSuperCrystals(unsigned _dccId){
 
     unsigned iSM(_dccId - 1);
 
@@ -269,7 +369,7 @@ namespace ecaldqm {
     if(_towerId == 69 || _towerId == 70) return true;
     else if((_dccId == 8 || _dccId == 53) && _towerId >= 18 && _towerId <= 24) return false;
     else if(_dccId <= kEEmHigh + 1 || _dccId >= kEEpLow + 1){
-      if(_towerId > getNSuperCrystals(_dccId)) return false;
+      if(_towerId > nSuperCrystals(_dccId)) return false;
     }
     
     return true;
@@ -283,7 +383,6 @@ namespace ecaldqm {
   inline void setElectronicsMap(const EcalElectronicsMapping* _map){
     if(electronicsMap) return;
     electronicsMap = _map;
-    checkElectronicsMap();
   }
 
   inline const EcalTrigTowerConstituentsMap* getTrigTowerMap(){
@@ -294,7 +393,16 @@ namespace ecaldqm {
   inline void setTrigTowerMap(const EcalTrigTowerConstituentsMap* _map){
     if(trigtowerMap) return;
     trigtowerMap = _map;
-    checkTrigTowerMap();
+  }
+
+  inline const CaloGeometry* getGeometry(){
+    checkGeometry();
+    return geometry;
+  }
+
+  inline void setGeometry(const CaloGeometry* _geom){
+    if(geometry) return;
+    geometry = _geom;
   }
 
   inline void checkElectronicsMap(){
@@ -305,6 +413,9 @@ namespace ecaldqm {
     if(!trigtowerMap) throw cms::Exception("InvalidCall") << "TrigTowerConstituentsMap not initialized" << std::endl;
   }
 
+  inline void checkGeometry(){
+    if(!geometry) throw cms::Exception("InvalidCall") << "CaloGeometry not initialized" << std::endl;
+  }
 }
 
 #endif

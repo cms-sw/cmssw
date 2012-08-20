@@ -1,13 +1,13 @@
 #ifndef PresampleClient_H
 #define PresampleClient_H
 
-#include "DQM/EcalCommon/interface/DQWorkerClient.h"
+#include "DQWorkerClient.h"
 
 namespace ecaldqm {
 
   class PresampleClient : public DQWorkerClient {
   public:
-    PresampleClient(const edm::ParameterSet &, const edm::ParameterSet &);
+    PresampleClient(const edm::ParameterSet &);
     ~PresampleClient() {}
 
     void bookMEs();
@@ -22,15 +22,13 @@ namespace ecaldqm {
       kRMSMap,
       kRMSMapSummary,
       kQualitySummary,
-      nMESets
+      nTargets,
+      sPedestal = 0,
+      nSources,
+      nMESets = nTargets + nSources
     };
 
     static void setMEData(std::vector<MEData>&);
-
-    enum Sources {
-      sPedestal,
-      nSources
-    };
 
   protected:
     int minChannelEntries_;

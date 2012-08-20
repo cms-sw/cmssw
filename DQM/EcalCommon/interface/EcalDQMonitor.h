@@ -19,6 +19,7 @@ class EcalDQMonitor : public edm::EDAnalyzer {
   virtual ~EcalDQMonitor();
 
  protected:
+  std::vector<ecaldqm::DQWorker*> workers_;
   std::string moduleName_;
   const bool mergeRuns_;
   const int verbosity_;

@@ -1,5 +1,13 @@
 integrityClient = dict(
-    errFractionThreshold = 0.01
+    errFractionThreshold = 0.01,
+    sources = dict(
+        Occupancy = ['OccupancyTask', 'Digi'],
+        Gain = ['IntegrityTask', 'Gain'],
+        ChId = ['IntegrityTask', 'ChId'],
+        GainSwitch = ['IntegrityTask', 'GainSwitch'],
+        TowerId = ['IntegrityTask', 'TowerId'],
+        BlockSize = ['IntegrityTask', 'BlockSize']
+    )
 )
 
 integrityClientPaths = dict(

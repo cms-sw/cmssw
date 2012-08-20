@@ -1,25 +1,13 @@
 #include "../interface/SummaryClient.h"
 
-#include "DQM/EcalBarrelMonitorClient/interface/IntegrityClient.h"
-#include "DQM/EcalBarrelMonitorClient/interface/PresampleClient.h"
-#include "DQM/EcalBarrelMonitorClient/interface/TimingClient.h"
-#include "DQM/EcalBarrelMonitorClient/interface/RawDataClient.h"
-#include "DQM/EcalBarrelMonitorTasks/interface/OccupancyTask.h"
-
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 namespace ecaldqm {
 
-  SummaryClient::SummaryClient(const edm::ParameterSet& _params, const edm::ParameterSet& _paths) :
-    DQWorkerClient(_params, _paths, "SummaryClient")
+  SummaryClient::SummaryClient(const edm::ParameterSet& _params) :
+    DQWorkerClient(_params, "SummaryClient")
   {
-    edm::ParameterSet const& sources(_params.getUntrackedParameterSet("sources"));
-    source_(sIntegrity, "IntegrityClient", IntegrityClient::kQuality, sources);
-    source_(sPresample, "PresampleClient", PresampleClient::kQuality, sources);
-    source_(sTiming, "TimingClient", TimingClient::kQuality, sources);
-    source_(sRawData, "RawDataClient", RawDataClient::kQualitySummary, sources);
-    source_(sDigiOccupancy, "OccupancyTask", OccupancyTask::kDigi, sources);
   }
 
   void
@@ -60,7 +48,7 @@ namespace ecaldqm {
       float dccChannels(0.);
       float dccGood(0.);
 
-      for(unsigned tower(1); tower <= getNSuperCrystals(dccid); tower++){
+      for(unsigned tower(1); tower <= nSuperCrystals(dccid); tower++){
 	std::vector<DetId> ids(getElectronicsMap()->dccTowerConstituents(dccid, tower));
 
 	if(ids.size() == 0) continue;
@@ -129,6 +117,12 @@ namespace ecaldqm {
     _data[kReportSummaryMap] = MEData("ReportSummaryMap", BinService::kEcal, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
     _data[kReportSummaryContents] = MEData("ReportSummaryContents", BinService::kSM, BinService::kReport, MonitorElement::DQM_KIND_REAL);
     _data[kReportSummary] = MEData("ReportSummary", BinService::kEcal, BinService::kReport, MonitorElement::DQM_KIND_REAL);
+
+    _data[sIntegrity + nTargets] = MEData("Integrity");
+    _data[sPresample + nTargets] = MEData("Presample");
+    _data[sTiming + nTargets] = MEData("Timing");
+    _data[sRawData + nTargets] = MEData("RawData");
+    _data[sDigiOccupancy + nTargets] = MEData("DigiOccupancy");
   }
 
   DEFINE_ECALDQM_WORKER(SummaryClient);

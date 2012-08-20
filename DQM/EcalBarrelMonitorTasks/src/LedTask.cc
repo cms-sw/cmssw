@@ -7,8 +7,8 @@
 
 namespace ecaldqm {
 
-  LedTask::LedTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
-    DQWorkerTask(_params, _paths, "LedTask"),
+  LedTask::LedTask(const edm::ParameterSet &_params) :
+    DQWorkerTask(_params, "LedTask"),
     ledWavelengths_(),
     MGPAGainsPN_(),
     pnAmp_()
@@ -16,7 +16,6 @@ namespace ecaldqm {
     using namespace std;
 
     collectionMask_ = 
-      (0x1 << kEcalRawData) |
       (0x1 << kEEDigi) |
       (0x1 << kPnDiodeDigi) |
       (0x1 << kEBUncalibRecHit) |
@@ -44,12 +43,12 @@ namespace ecaldqm {
 
       unsigned offset(*wlItr - 1);
 
-      MEs_[kAmplitudeSummary + offset]->name(replacements);
-      MEs_[kAmplitude + offset]->name(replacements);
-      MEs_[kOccupancy + offset]->name(replacements);
-      MEs_[kShape + offset]->name(replacements);
-      MEs_[kTiming + offset]->name(replacements);
-      MEs_[kAOverP + offset]->name(replacements);
+      MEs_[kAmplitudeSummary + offset]->formName(replacements);
+      MEs_[kAmplitude + offset]->formName(replacements);
+      MEs_[kOccupancy + offset]->formName(replacements);
+      MEs_[kShape + offset]->formName(replacements);
+      MEs_[kTiming + offset]->formName(replacements);
+      MEs_[kAOverP + offset]->formName(replacements);
 
       for(vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr){
 	ss.str("");
@@ -58,7 +57,7 @@ namespace ecaldqm {
 
 	offset = (*wlItr - 1) * nPNGain + (*gainItr == 1 ? 0 : 1);
 
-	MEs_[kPNAmplitude + offset]->name(replacements);
+	MEs_[kPNAmplitude + offset]->formName(replacements);
       }
     }
   }
@@ -126,18 +125,22 @@ namespace ecaldqm {
     return enable;
   }
 
-  void
-  LedTask::runOnRawData(const EcalRawDataCollection &_dcchs)
+  bool
+  LedTask::filterEventSetting(const std::vector<EventSettings>& _setting)
   {
-    for(EcalRawDataCollection::const_iterator dcchItr(_dcchs.begin()); dcchItr != _dcchs.end(); ++dcchItr){
-      int iDCC(dcchItr->id() - 1);
+    bool enable(false);
 
+    for(int iDCC(0); iDCC < BinService::nDCC; iDCC++){
       if(!enable_[iDCC]) continue;
+      wavelength_[iDCC] = _setting[iDCC].wavelength + 1;
 
-      wavelength_[iDCC] = dcchItr->getEventSettings().wavelength + 1;
-
-      if(std::find(ledWavelengths_.begin(), ledWavelengths_.end(), wavelength_[iDCC]) == ledWavelengths_.end()) enable_[iDCC] = false;
+      if(std::find(ledWavelengths_.begin(), ledWavelengths_.end(), wavelength_[iDCC]) != ledWavelengths_.end())
+        enable = true;
+      else
+        enable_[iDCC] = false;
     }
+
+    return enable;
   }
 
   void
@@ -247,7 +250,7 @@ namespace ecaldqm {
       int lmmod(MEEEGeom::lmmod(scid.ix(), scid.iy()));
       pair<int, int> pnPair(MEEEGeom::pn(dee, lmmod));
 
-      int pnAFED(getEEPnDCC(dee, 0)), pnBFED(getEEPnDCC(dee, 1));
+      int pnAFED(EEPnDCC(dee, 0)), pnBFED(EEPnDCC(dee, 1));
 
       pn0 = pnAmp_[pnAFED][pnPair.first];
       pn1 = pnAmp_[pnBFED][pnPair.second];
@@ -276,19 +279,19 @@ namespace ecaldqm {
     axis.high = 10.;
 
     for(unsigned iWL(0); iWL < nWL; iWL++){
-      _data[kAmplitudeSummary + iWL] = MEData("AmplitudeSummary", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D);
-      _data[kAmplitude + iWL] = MEData("Amplitude", BinService::kSM, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D);
-      _data[kOccupancy + iWL] = MEData("Occupancy", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
-      _data[kShape + iWL] = MEData("Shape", BinService::kSM, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D, 0, &axis);
-      _data[kTiming + iWL] = MEData("Timing", BinService::kSM, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D);
-      _data[kAOverP + iWL] = MEData("AOverP", BinService::kSM, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D);
+      _data[kAmplitudeSummary + iWL] = MEData("AmplitudeSummary", BinService::kEE, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D);
+      _data[kAmplitude + iWL] = MEData("Amplitude", BinService::kEESM, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D);
+      _data[kOccupancy + iWL] = MEData("Occupancy", BinService::kEE, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
+      _data[kShape + iWL] = MEData("Shape", BinService::kEESM, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D, 0, &axis);
+      _data[kTiming + iWL] = MEData("Timing", BinService::kEESM, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D);
+      _data[kAOverP + iWL] = MEData("AOverP", BinService::kEESM, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D);
 
       for(unsigned iPNGain(0); iPNGain < nPNGain; iPNGain++){
 	unsigned offset(iWL * nPNGain + iPNGain);
-	_data[kPNAmplitude + offset] = MEData("PNAmplitude", BinService::kSMMEM, BinService::kCrystal, MonitorElement::DQM_KIND_TPROFILE);
+	_data[kPNAmplitude + offset] = MEData("PNAmplitude", BinService::kEESMMEM, BinService::kCrystal, MonitorElement::DQM_KIND_TPROFILE);
       }
     }
-    _data[kPNOccupancy] = MEData("PNOccupancy", BinService::kEcalMEM2P, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
+    _data[kPNOccupancy] = MEData("PNOccupancy", BinService::kEEMEM, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
   }
 
   DEFINE_ECALDQM_WORKER(LedTask);

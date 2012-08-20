@@ -5,7 +5,10 @@ presampleClient = dict(
     meanThreshold = 25.,
     rmsThreshold = 3.,
     rmsThresholdHighEta = 6.,
-    noisyFracThreshold = 0.1
+    noisyFracThreshold = 0.1,
+    sources = dict(
+        Pedestal = ['PresampleTask', 'Pedestal']
+    )
 )
 
 presampleClientPaths = dict(

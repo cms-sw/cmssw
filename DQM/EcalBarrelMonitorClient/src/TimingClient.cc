@@ -1,15 +1,13 @@
 #include "../interface/TimingClient.h"
 
-#include "DQM/EcalBarrelMonitorTasks/interface/TimingTask.h"
-
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 #include <cmath>
 
 namespace ecaldqm {
 
-  TimingClient::TimingClient(const edm::ParameterSet& _params, const edm::ParameterSet& _paths) :
-    DQWorkerClient(_params, _paths, "TimingClient"),
+  TimingClient::TimingClient(const edm::ParameterSet& _params) :
+    DQWorkerClient(_params, "TimingClient"),
     expectedMean_(0.),
     meanThreshold_(0.),
     rmsThreshold_(0.),
@@ -24,10 +22,6 @@ namespace ecaldqm {
     minChannelEntries_ = taskParams.getUntrackedParameter<int>("minChannelEntries");
     minTowerEntries_ = taskParams.getUntrackedParameter<int>("minTowerEntries");
     tailPopulThreshold_ = taskParams.getUntrackedParameter<double>("tailPopulThreshold");
-
-    edm::ParameterSet const& sources(_params.getUntrackedParameterSet("sources"));
-    source_(sTimeAllMap, "TimingTask", TimingTask::kTimeAllMap, sources);
-    source_(sTimeMap, "TimingTask", TimingTask::kTimeMap, sources);
   }
 
   void
@@ -58,7 +52,7 @@ namespace ecaldqm {
 
     for(unsigned dccid(1); dccid <= 54; dccid++){
 
-      for(unsigned tower(1); tower <= getNSuperCrystals(dccid); tower++){
+      for(unsigned tower(1); tower <= nSuperCrystals(dccid); tower++){
 	vector<DetId> ids(getElectronicsMap()->dccTowerConstituents(dccid, tower));
 
 	if(ids.size() == 0) continue;
@@ -174,6 +168,9 @@ namespace ecaldqm {
     _data[kProjEta] = MEData("Projection", BinService::kEcal3P, BinService::kProjEta, MonitorElement::DQM_KIND_TPROFILE);
     _data[kProjPhi] = MEData("Projection", BinService::kEcal3P, BinService::kProjPhi, MonitorElement::DQM_KIND_TPROFILE);
     _data[kQualitySummary] = MEData("QualitySummary", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
+
+    _data[sTimeAllMap + nTargets] = MEData("TimeAllMap");
+    _data[sTimeMap + nTargets] = MEData("TimeMap");
   }
 
   DEFINE_ECALDQM_WORKER(TimingClient);

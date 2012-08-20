@@ -4,8 +4,8 @@
 
 namespace ecaldqm {
 
-  TimingTask::TimingTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
-    DQWorkerTask(_params, _paths, "TimingTask"),
+  TimingTask::TimingTask(const edm::ParameterSet &_params) :
+    DQWorkerTask(_params, "TimingTask"),
     energyThresholdEB_(0.),
     energyThresholdEE_(0.)
   {

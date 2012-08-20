@@ -9,7 +9,12 @@ laserClient = dict(
     expectedPNAmplitude = [800.0, 800.0, 800.0, 800.0, 800.0, 800.0, 800.0, 800.0],
     pnAmplitudeThreshold = [500.0, 500.0, 500.0, 500.0, 500.0, 500.0, 500.0, 500.0],
     pnAmplitudeRMSThreshold = [100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0],
-    towerThreshold = 0.1
+    towerThreshold = 0.1,
+    sources = dict(
+        Amplitude = ['LaserTask', 'Amplitude'],
+        Timing = ['LaserTask', 'Timing'],
+        PNAmplitude = ['LaserTask', 'PNAmplitude']
+    )
 )
 
 laserClientPaths = dict(

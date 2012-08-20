@@ -1,4 +1,10 @@
 trigPrimClient = dict(
+    sources = dict(
+        EtRealMap = ['TrigPrimTask', 'EtRealMap'],
+        EtEmulError = ['TrigPrimTask', 'EtEmulError'],
+        TimingError = ['TrigPrimTask', 'TimingError'],
+        MatchedIndex = ['TrigPrimTask', 'MatchedIndex']
+    )
 )
 
 trigPrimClientPaths = dict(

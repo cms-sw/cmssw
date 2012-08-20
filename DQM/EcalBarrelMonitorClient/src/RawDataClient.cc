@@ -1,7 +1,5 @@
 #include "../interface/RawDataClient.h"
 
-#include "DQM/EcalBarrelMonitorTasks/interface/RawDataTask.h"
-
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "DQM/EcalCommon/interface/FEFlags.h"
 
@@ -9,16 +7,12 @@
 
 namespace ecaldqm {
 
-  RawDataClient::RawDataClient(const edm::ParameterSet& _params, const edm::ParameterSet& _paths) :
-    DQWorkerClient(_params, _paths, "RawDataClient"),
+  RawDataClient::RawDataClient(const edm::ParameterSet& _params) :
+    DQWorkerClient(_params, "RawDataClient"),
     synchErrorThreshold_(0)
   {
     edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
     synchErrorThreshold_ = taskParams.getUntrackedParameter<int>("synchErrorThreshold");
-
-    edm::ParameterSet const& sources(_params.getUntrackedParameterSet("sources"));
-    source_(sL1ADCC, "RawDataTask", RawDataTask::kL1ADCC, sources);
-    source_(sFEStatus, "RawDataTask", RawDataTask::kFEStatus, sources);
   }
 
   void
@@ -40,7 +34,7 @@ namespace ecaldqm {
 
       float dccStatus(l1aDesync > synchErrorThreshold_ ? 0. : 1.);
 
-      for(unsigned tower(1); tower <= getNSuperCrystals(dccid); tower++){
+      for(unsigned tower(1); tower <= nSuperCrystals(dccid); tower++){
 	std::vector<DetId> ids(getElectronicsMap()->dccTowerConstituents(dccid, tower));
 
 	if(ids.size() == 0) continue;
@@ -77,6 +71,9 @@ namespace ecaldqm {
   RawDataClient::setMEData(std::vector<MEData>& _data)
   {
     _data[kQualitySummary] = MEData("QualitySummary", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
+
+    _data[sL1ADCC + nTargets] = MEData("L1ADCC");
+    _data[sFEStatus + nTargets] = MEData("FEStatus");
   }
 
   DEFINE_ECALDQM_WORKER(RawDataClient);

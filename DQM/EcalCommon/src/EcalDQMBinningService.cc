@@ -1,5 +1,4 @@
 #include "DQM/EcalCommon/interface/EcalDQMBinningService.h"
-#include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -25,12 +24,6 @@
 using namespace ecaldqm;
 
 EcalDQMBinningService::EcalDQMBinningService(const edm::ParameterSet& _ps, edm::ActivityRegistry &_registry) :
-  cacheId_(0),
-  cacheOtype_(nObjType),
-  cacheBtype_(nBinType),
-  etaBound_(1.479),
-  geometry_(0),
-  initialized_(false),
   verbosity_(_ps.getUntrackedParameter<int>("verbosity"))
 {
   _registry.watchPostBeginRun(this, &EcalDQMBinningService::postBeginRun);
@@ -55,530 +48,410 @@ EcalDQMBinningService::postBeginRun(const edm::Run &, const edm::EventSetup &_es
 
   edm::ESHandle<CaloGeometry> geomHndl;
   _es.get<CaloGeometryRecord>().get(geomHndl);
-  geometry_ = geomHndl.product();
-  if(!geometry_)
-    throw cms::Exception("EventSetup") << "CaloGeometry invalid";
-
-  initialized_ = true;
+  setGeometry(geomHndl.product());
 }
 
-std::vector<EcalDQMBinningService::AxisSpecs>
-EcalDQMBinningService::getBinning(ObjectType _otype, BinningType _btype, bool _isMap/* = true*/, unsigned _objOffset/* = 0*/) const
+void
+EcalDQMBinningService::postEndRun(const edm::Run &, const edm::EventSetup &)
+{
+  setElectronicsMap(0);
+  setTrigTowerMap(0);
+  setGeometry(0);
+}
+
+EcalDQMBinningService::AxisSpecs
+EcalDQMBinningService::getBinning(ObjectType _otype, BinningType _btype, bool _isMap, int _axis, unsigned _iME) const
 {
   if(_otype >= nObjType || _btype >= unsigned(nPresetBinnings))
-    return std::vector<AxisSpecs>(0); // you are on your own
+    return AxisSpecs(); // you are on your own
 
   switch(_otype){
   case kEB:
-    return getBinningEB_(_btype, _isMap);
-  case kEBMEM:
-    return getBinningEBMEM_(_btype, _isMap);
+    return getBinningEB_(_btype, _isMap, _axis);
   case kEE:
-    return getBinningEE_(_btype, _isMap, 0);
+    return getBinningEE_(_btype, _isMap, 0, _axis);
   case kEEm:
-    return getBinningEE_(_btype, _isMap, -1);
+    return getBinningEE_(_btype, _isMap, -1, _axis);
   case kEEp:
-    return getBinningEE_(_btype, _isMap, 1);
-  case kEEMEM:
-    return getBinningEEMEM_(_btype, _isMap);
+    return getBinningEE_(_btype, _isMap, 1, _axis);
   case kSM:
-    return getBinningSM_(_btype, _isMap, _objOffset);
+    return getBinningSM_(_btype, _isMap, _iME, _axis);
+  case kEBSM:
+    return getBinningSM_(_btype, _isMap, _iME + 9, _axis);
+  case kEESM:
+    if(_iME <= kEEmHigh) return getBinningSM_(_btype, _isMap, _iME, _axis);
+    else return getBinningSM_(_btype, _isMap, _iME + nEBDCC, _axis);
   case kSMMEM:
-    return getBinningSMMEM_(_btype, _isMap, _objOffset);
+    return getBinningSMMEM_(_btype, _isMap, _iME, _axis);
+  case kEBSMMEM:
+    return getBinningSMMEM_(_btype, _isMap, _iME + nEEDCCMEM / 2, _axis);
+  case kEESMMEM: 
+    if(_iME <= kEEmHigh) return getBinningSMMEM_(_btype, _isMap, _iME, _axis);
+    else return getBinningSMMEM_(_btype, _isMap, _iME + nEBDCC, _axis);
   case kEcal:
-    return getBinningEcal_(_btype, _isMap);
+    return getBinningEcal_(_btype, _isMap, _axis);
+  case kMEM:
+    return getBinningMEM_(_btype, _isMap, -1, _axis);
+  case kEBMEM:
+    return getBinningMEM_(_btype, _isMap, EcalBarrel, _axis);
+  case kEEMEM:
+    return getBinningMEM_(_btype, _isMap, EcalEndcap, _axis);
   default:
-    return std::vector<AxisSpecs>(0);
+    return AxisSpecs();
   }
 }
 
 int
-EcalDQMBinningService::xlow(int _iSM) const
+EcalDQMBinningService::findBin1D(ObjectType _otype, BinningType _btype, const DetId& _id) const
 {
-  switch(_iSM){
-  case kEEm01: case kEEp01: return 15;
-  case kEEm02: case kEEp02: return 0;
-  case kEEm03: case kEEp03: return 0;
-  case kEEm04: case kEEp04: return 5;
-  case kEEm05: case kEEp05: return 30;
-  case kEEm06: case kEEp06: return 55;
-  case kEEm07: case kEEp07: return 60;
-  case kEEm08: case kEEp08: return 55;
-  case kEEm09: case kEEp09: return 45;
-  default: break;
-  }
-
-  if(_iSM >= kEBmLow && _iSM <= kEBpHigh) return 0;
-
-  return 0;
-}
-
-int
-EcalDQMBinningService::ylow(int _iSM) const
-{
-  switch(_iSM){
-  case kEEm01: case kEEp01: case kEEm09: case kEEp09: return 60;
-  case kEEm02: case kEEp02: case kEEm08: case kEEp08: return 50;
-  case kEEm03: case kEEp03: case kEEm07: case kEEp07: return 25;
-  case kEEm04: case kEEp04: case kEEm06: case kEEp06: return 5;
-  case kEEm05: case kEEp05: return 0;
-  default: break;
-  }
-
-  if(_iSM >= kEBmLow && _iSM <= kEBmHigh) return ((_iSM - kEBmLow) % 18) * 20;
-  if(_iSM >= kEBpLow && _iSM <= kEBpHigh) return (-1 - ((_iSM - kEBpLow) % 18)) * 20;
-
-  return 0;
-}
-
-const std::vector<int>*
-EcalDQMBinningService::getBinMap(ObjectType& _okey, BinningType& _bkey) const
-{
-  if(unsigned(_okey) >= nPlotType || unsigned(_bkey) >= nPresetBinnings) return 0;
-
-  if((_okey == kEEm || _okey == kEEp) && _bkey == kProjPhi)
-    _okey = kEE;
-
-  if(_bkey == kTriggerTower){
-    if(_okey == kEB) _bkey = kSuperCrystal;
-    else if(_okey == kEE || _okey == kEEm || _okey == kEEp) _bkey = kCrystal;
-  }
-
-  if(binMaps_[_okey][_bkey].size() != 0) return &(binMaps_[_okey][_bkey]);
-
-  // Map is not defined yet (or is not going to be)
-
-  const std::vector<int>* binMap(0);
-
-  switch(_okey){
-  case kEB:
-    binMap = getBinMapEB_(_bkey);
-    break;
-  case kEBMEM:
-    binMap = getBinMapEBMEM_(_bkey);
-    break;
-  case kEE:
-    binMap = getBinMapEE_(_bkey, 0);
-    break;
-  case kEEm:
-    binMap = getBinMapEE_(_bkey, -1);
-    break;
-  case kEEp:
-    binMap = getBinMapEE_(_bkey, 1);
-    break;
-  case kEEMEM:
-    binMap = getBinMapEEMEM_(_bkey);
-    break;
+  switch(_otype){
   case kSM:
-    binMap = getBinMapSM_(_bkey);
-    break;
-  case kSMMEM:
-    binMap = getBinMapSMMEM_(_bkey);
-    break;
-  case kEcal:
-    binMap = getBinMapEcal_(_bkey);
-    break;
-  default:
-    return 0;
-  }
-
-  if(verbosity_ > 0){
-    std::cout << "EcalDQMBinningService: Booked new binMap for " << int(_okey) << " " << int(_bkey);
-    std::cout << " (Current memory usage: ";
-    int bytes(0);
-    for(unsigned iO(0); iO < nPlotType; iO++)
-      for(unsigned iB(0); iB < nPresetBinnings; iB++)
-	bytes += binMaps_[iO][iB].size() * sizeof(int);
-    std::cout << bytes / 1024. << "kB)" << std::endl;
-  }
-
-  return binMap;
-}
-
-std::pair<unsigned, std::vector<int> >
-EcalDQMBinningService::findBins(ObjectType _otype, BinningType _btype, const DetId &_id) const
-{
-  using namespace std;
-
-  if(_otype == cacheOtype_ && _btype == cacheBtype_ && _id == cacheId_) return cache_;
-
-  pair<unsigned, std::vector<int> > ret(-1, std::vector<int>(0));
-
-  if(_otype >= nObjType || _btype >= unsigned(nPresetBinnings)) return ret;
-
-  ret.first = findOffset(_otype, _id);
-  if(ret.first == unsigned(-1)) return ret;
- 
-  // bring up the appropriate dictionary
-  ObjectType okey(objectFromOffset(_otype, ret.first));
-  BinningType bkey(_btype);
-
-  if(okey == nObjType) return ret;
-
-  const std::vector<int>* binMap(getBinMap(okey, bkey));
-  if(binMap == 0) return ret;
-
-  switch(bkey){
-  case kCrystal:
-    findBinsCrystal_(_id, okey, *binMap, ret.second);
-    break;
-  case kTriggerTower:
-    findBinsTriggerTower_(_id, okey, *binMap, ret.second);
-    break;
-  case kSuperCrystal:
-    findBinsSuperCrystal_(_id, okey, *binMap, ret.second);
-    break;
-  case kDCC:
-    findBinsDCC_(_id, okey, *binMap, ret.second);
-    break;
-  case kTCC:
-    findBinsTCC_(_id, okey, *binMap, ret.second);
-    break;
-  case kProjEta:
-    findBinsProjEta_(_id, okey, *binMap, ret.second);
-    break;
-  case kProjPhi:
-    findBinsProjPhi_(_id, okey, *binMap, ret.second);
-  default :
-    break;
-  }
-
-  // binMap value differs from actual bin numbers for SM plots
-  if(_otype == kSM || _otype == kSMMEM){
-    for(vector<int>::iterator binItr(ret.second.begin()); binItr != ret.second.end(); ++binItr)
-      *binItr -= smOffsetBins(_otype, _btype, ret.first);
-  }
-
-  cacheId_ = _id;
-  cacheOtype_ = _otype;
-  cacheBtype_ = _btype;
-  cache_ = ret;
-
-  return ret;
-}
-
-std::pair<unsigned, std::vector<int> >
-EcalDQMBinningService::findBins(ObjectType _otype, BinningType _btype, const EcalElectronicsId &_id) const
-{
-  return findBins(_otype, _btype, getElectronicsMap()->getDetId(_id));
-}
-
-std::pair<unsigned, std::vector<int> >
-EcalDQMBinningService::findBins(ObjectType _otype, BinningType _btype, unsigned _dcctccid) const
-{
-  using namespace std;
-
-  if(_otype == cacheOtype_ && _btype == cacheBtype_ && _dcctccid == cacheId_) return cache_;
-
-  pair<unsigned, std::vector<int> > ret(-1, std::vector<int>(0));
-
-  if(_btype != kTCC && _btype != kDCC) return ret;
-
-  ret.first = findOffset(_otype, _btype, _dcctccid);
-
-  if(ret.first == unsigned(-1)) return ret;
-
-  // bring up the appropriate dictionary
-  ObjectType okey(objectFromOffset(_otype, ret.first));
-  BinningType bkey(_btype);
-
-  const std::vector<int>* binMap(getBinMap(okey, bkey));
-  if(binMap == 0) return ret;
-
-  unsigned index(_dcctccid - 1);
-
-  if(bkey == kDCC){
-    if(okey == kEB) index -= kEBmLow;
-    else if(okey == kEE && index >= kEEpLow) index -= (kEBpHigh - kEEmHigh);
-    else if(okey == kEEp) index -= kEEpLow;
-  }
-  else{
-    if(okey == kEB) index -= kEBTCCLow;
-    else if(okey == kEE && index >= kEEpLow) index -= (kEBTCCHigh - kEEmTCCHigh);
-    else if(okey == kEEp) index -= kEEpTCCLow;
-  }
-
-  ret.second.push_back(binMap->at(index));
-
-  cacheId_ = _dcctccid;
-  cacheOtype_ = _otype;
-  cacheBtype_ = _btype;
-  cache_ = ret;
-
-  return ret;
-}
-
-std::pair<unsigned, std::vector<int> >
-EcalDQMBinningService::findBinsNoMap(ObjectType _otype, BinningType _btype, const DetId& _id) const
-{
-  using namespace std;
-
-  // Not yet implemented to scale to general cases
-  if(!((_otype == kSM && _btype == kSuperCrystal) ||
-       (_otype == kSM && _btype == kTriggerTower) ||
-       (_otype == kEcal2P && _btype == kDCC) ||
-       (_otype == kEcal2P && _btype == kTCC)))
-    throw cms::Exception("NotImplemented") << "1D bin finding only for SM - SC plots or Ecal2P - DCC plots" << std::endl;
-
-  if(_otype == kEcal2P && (_btype == kDCC || _btype == kTCC))
-    return findBins(_otype, _btype, _id);
-
-  pair<unsigned, std::vector<int> > ret(-1, std::vector<int>(0));
-
-  ret.first = findOffset(_otype, _id);
-  if(ret.first == unsigned(-1)) return ret;
-
-  if(_otype == kSM && _btype == kSuperCrystal)
-    ret.second.push_back(towerId(_id));
-  else if(_otype == kSM && _btype == kTriggerTower){
-    unsigned tccid(tccId(_id));
-    if(tccid >= 37 && tccid <= 72) // EB
-      ret.second.push_back(ttId(_id));
-    else{
-      unsigned bin(ttId(_id));
-      tccid = (tccid - 1) % 36;
-      bool outer(tccid >= 18);
-      tccid = (tccid + 1) % 18; // TCC numbering is shifted wrt DCC numbering by one 
-      if(outer) bin += 48;
-      bin += (tccid % 2) * (outer ? 16 : 24);
-      ret.second.push_back(bin);
+  case kEBSM:
+  case kEESM:
+    if(_btype == kSuperCrystal)
+      return towerId(_id);
+    else if(_btype == kTriggerTower){
+      unsigned tccid(tccId(_id));
+      if(tccid >= 37 && tccid <= 72) // EB
+        return ttId(_id);
+      else{
+        unsigned bin(ttId(_id));
+        tccid = (tccid - 1) % 36;
+        bool outer(tccid >= 18);
+        tccid = (tccid + 1) % 18; // TCC numbering is shifted wrt DCC numbering by one 
+        if(outer) bin += 48;
+        bin += (tccid % 2) * (outer ? 16 : 24);
+        return bin;
+      }
     }
+    else
+      break;
+  case kEcal:
+    if(_btype == kDCC)
+      return dccId(_id);
+    else if(_btype == kTCC)
+      return tccId(_id);
+    else
+      break;
+  case kEB:
+    if(_btype == kDCC)
+      return dccId(_id) - 9;
+    else if(_btype == kTCC)
+      return tccId(_id) - 36;
+    else
+      break;
+  case kEEm:
+    if(_btype == kDCC)
+      return dccId(_id);
+    else if(_btype == kTCC)
+      return tccId(_id);
+    else
+      break;
+  case kEEp:
+    if(_btype == kDCC)
+      return dccId(_id) - 45;
+    else if(_btype == kTCC)
+      return tccId(_id) - 72;
+    else
+      break;
+  case kEE:
+    if(_btype == kDCC){
+      int bin(dccId(_id));
+      if(bin >= 46) bin -= 36;
+      return bin;
+    }
+    else if(_btype == kTCC){
+      int bin(tccId(_id));
+      if(bin >= 72) bin -= 36;
+      return bin;
+    }
+    else
+      break;
+  default:
+    break;
   }
 
-  return ret;
-}
-
-std::pair<unsigned, std::vector<int> >
-EcalDQMBinningService::findBinsNoMap(ObjectType _otype, BinningType _btype, const EcalElectronicsId& _id) const
-{
-  return findBinsNoMap(_otype, _btype, getElectronicsMap()->getDetId(_id));
+  return 0;
 }
 
 int
-EcalDQMBinningService::getBin(ObjectType _otype, BinningType _btype, unsigned _index) const
+EcalDQMBinningService::findBin1D(ObjectType _otype, BinningType _btype, const EcalElectronicsId& _id) const
+{
+  switch(_otype){
+  case kSM:
+  case kEBSM:
+  case kEESM:
+    if(_btype == kSuperCrystal)
+      return towerId(_id);
+    else if(_btype == kTriggerTower){
+      unsigned tccid(tccId(_id));
+      if(tccid >= 37 && tccid <= 72) // EB
+        return ttId(_id);
+      else{
+        unsigned bin(ttId(_id));
+        tccid = (tccid - 1) % 36;
+        bool outer(tccid >= 18);
+        tccid = (tccid + 1) % 18; // TCC numbering is shifted wrt DCC numbering by one 
+        if(outer) bin += 48;
+        bin += (tccid % 2) * (outer ? 16 : 24);
+        return bin;
+      }
+    }
+    else
+      break;
+  case kEcal:
+    if(_btype == kDCC)
+      return dccId(_id);
+    else if(_btype == kTCC)
+      return tccId(_id);
+    else
+      break;
+  case kEB:
+    if(_btype == kDCC)
+      return dccId(_id) - 9;
+    else if(_btype == kTCC)
+      return tccId(_id) - 36;
+    else
+      break;
+  case kEEm:
+    if(_btype == kDCC)
+      return dccId(_id);
+    else if(_btype == kTCC)
+      return tccId(_id);
+    else
+      break;
+  case kEEp:
+    if(_btype == kDCC)
+      return dccId(_id) - 45;
+    else if(_btype == kTCC)
+      return tccId(_id) - 72;
+    else
+      break;
+  case kEE:
+    if(_btype == kDCC){
+      int bin(dccId(_id));
+      if(bin >= 46) bin -= 36;
+      return bin;
+    }
+    else if(_btype == kTCC){
+      int bin(tccId(_id));
+      if(bin >= 72) bin -= 36;
+      return bin;
+    }
+    else
+      break;
+  default:
+    break;
+  }
+
+  return 0;
+}
+
+int
+EcalDQMBinningService::findBin1D(ObjectType _otype, BinningType _btype, unsigned _dcctccid) const
+{
+  if(_otype == kEcal && _btype == kDCC)
+    return _dcctccid;
+  else if(_otype == kEcal && _btype == kTCC)
+    return _dcctccid;
+  if(_otype == kEB && _btype == kDCC)
+    return _dcctccid - 9;
+  else if(_otype == kEB && _btype == kTCC)
+    return _dcctccid - 36;
+  else if(_otype == kEEm && _btype == kDCC)
+    return _dcctccid;
+  else if(_otype == kEEm && _btype == kTCC)
+    return _dcctccid;
+  else if(_otype == kEEp && _btype == kDCC)
+    return _dcctccid - 45;
+  else if(_otype == kEEp && _btype == kTCC)
+    return _dcctccid - 72;
+  else if(_otype == kEE && _btype == kDCC){
+    int bin(_dcctccid);
+    if(bin >= 46) bin -= 36;
+    return bin;
+  }
+  else if(_otype == kEE && _btype == kTCC){
+    int bin(_dcctccid);
+    if(bin >= 72) bin -= 36;
+    return bin;
+  }
+
+  return 0;
+}
+
+int
+EcalDQMBinningService::findBin2D(ObjectType _otype, BinningType _btype, const DetId& _id) const
 {
   if(_otype >= nObjType || _btype >= unsigned(nPresetBinnings)) return 0;
 
-  const std::vector<int>* binMap(getBinMap(_otype, _btype));
-  if(binMap == 0 || _index >= binMap->size()) return 0;
-
-  return (*binMap)[_index];
-}
-
-unsigned
-EcalDQMBinningService::findOffset(ObjectType _otype, const DetId &_id) const
-{
-  if(_otype == cacheOtype_ && _id == cacheId_) return cache_.first;
-
-  unsigned iSM(dccId(_id) - 1);
-
-  if(_otype == kEcal3P){
-    if(iSM <= kEEmHigh) return findOffset(kEcal3P, kUser, (unsigned)kEEm + 1);
-    else if(iSM <= kEBpHigh) return findOffset(kEcal3P, kUser, (unsigned)kEB + 1);
-    else return findOffset(kEcal3P, kUser, (unsigned)kEEp + 1);
-  }
-  else if(_otype == kEcal2P){
-    if(iSM <= kEEmHigh) return findOffset(kEcal2P, kUser, (unsigned)kEE + 1);
-    else if(iSM <= kEBpHigh) return findOffset(kEcal2P, kUser, (unsigned)kEB + 1);
-    else return findOffset(kEcal2P, kUser, (unsigned)kEE + 1);
-  }
-  else if(_otype == kEcal)
+  switch(_btype){
+  case kCrystal:
+    return findBinCrystal_(_otype, _id);
+    break;
+  case kTriggerTower:
+    return findBinTriggerTower_(_otype, _id);
+    break;
+  case kSuperCrystal:
+    return findBinSuperCrystal_(_otype, _id);
+    break;
+  default :
     return 0;
-  else if(_otype == kEcalMEM2P){
-    if(iSM <= kEEmHigh) return findOffset(kEcal2P, kUser, (unsigned)kEE + 1);
-    else if(iSM <= kEBpHigh) return findOffset(kEcal2P, kUser, (unsigned)kEB + 1);
-    else return findOffset(kEcal2P, kUser, (unsigned)kEE + 1);
   }
+}
 
-  return findOffset(_otype, kDCC, iSM + 1);
+int
+EcalDQMBinningService::findBin2D(ObjectType _otype, BinningType _btype, const EcalElectronicsId &_id) const
+{
+  if(_otype >= nObjType || _btype >= unsigned(nPresetBinnings)) return 0;
+
+  switch(_btype){
+  case kCrystal:
+    return findBinCrystal_(_otype, _id);
+    break;
+  case kSuperCrystal:
+    return findBinSuperCrystal_(_otype, _id);
+    break;
+  default :
+    return 0;
+  }
 }
 
 unsigned
-EcalDQMBinningService::findOffset(ObjectType _otype, const EcalElectronicsId &_id) const
+EcalDQMBinningService::findPlot(ObjectType _otype, const DetId &_id) const
 {
-  return findOffset(_otype, getElectronicsMap()->getDetId(_id));
+  if(getNObjects(_otype) == 1) return 0;
+
+  switch(_otype){
+  case kEcal3P:
+    if(_id.subdetId() == EcalBarrel) return 1;
+    else if(_id.subdetId() == EcalEndcap && zside(_id) > 0) return 2;
+    else if(_id.subdetId() == EcalTriggerTower){
+      if(!isEndcapTTId(_id)) return 1;
+      else{
+        if(zside(_id) > 0) return 2;
+        else return 0;
+      }
+    }
+    else return 0;
+
+  case kEcal2P:
+    if(_id.subdetId() == EcalBarrel) return 1;
+    else if(_id.subdetId() == EcalTriggerTower && !isEndcapTTId(_id)) return 1;
+    else return 0;
+
+  default:
+    return findPlot(_otype, dccId(_id));
+  }
 }
 
 unsigned
-EcalDQMBinningService::findOffset(ObjectType _otype, BinningType _btype, unsigned _dcctccid) const
+EcalDQMBinningService::findPlot(ObjectType _otype, const EcalElectronicsId &_id) const
 {
+  if(getNObjects(_otype) == 1) return 0;
+
+  return findPlot(_otype, _id.dccId());
+}
+
+unsigned
+EcalDQMBinningService::findPlot(ObjectType _otype, unsigned _dcctccid, BinningType _btype/* = kDCC*/) const
+{
+  if(getNObjects(_otype) == 1) return 0;
+
   unsigned iSM(_dcctccid - 1);
 
   switch(_otype){
-  case kEB:
-    if(_btype == kDCC && iSM >= kEBmLow && iSM <= kEBpHigh) return 0;
-    else if(_btype == kTCC && iSM >= kEBTCCLow && iSM <= kEBTCCHigh) return 0;
-    return -1;
-  case kEE:
-    if(_btype == kDCC && 
-       (iSM <= kEEmHigh ||
-	(iSM >= kEEpLow && iSM <= kEEpHigh))) return 0;
-    else if(_btype == kTCC && 
-	    (iSM <= kEEmTCCHigh ||
-	     (iSM >= kEEpTCCLow && iSM <= kEEpTCCHigh))) return 0;
-    return -1;
-  case kEEm:
-    if(_btype == kDCC && iSM <= kEEmHigh) return 0;
-    else if(_btype == kTCC && iSM <= kEEmTCCHigh) return 0;
-    else return -1;
-  case kEEp:
-    if(_btype == kDCC && (iSM >= kEEpLow && iSM <= kEEpHigh)) return 0;
-    else if(_btype == kTCC && (iSM >= kEEpTCCLow && iSM <= kEEpTCCHigh)) return 0;
-    else return -1;
   case kSM:
-    if(iSM < nDCC) return iSM;
-    else return -1;
+    return iSM;
+
+  case kEBSM:
+    return iSM - 9;
+
+  case kEESM:
+    if(iSM <= kEEmHigh) return iSM;
+    else return iSM - nEBDCC;
+
   case kSMMEM:
-    if(iSM < nDCC && dccNoMEM.find(iSM) == dccNoMEM.end()) return memDCCIndex(_dcctccid);
-    else return -1;
-  case kEcal:
-    if(_btype == kDCC && iSM < nDCC) return 0;
-    else if(_btype == kTCC && iSM < nTCC) return 0;
-    else if(_btype == kUser) return 0;
-    else return -1;
+    return memDCCIndex(_dcctccid);
+
+  case kEBSMMEM:
+    return memDCCIndex(_dcctccid) - nEEDCCMEM / 2;
+
+  case kEESMMEM:
+    if(iSM <= kEEmHigh) return memDCCIndex(_dcctccid);
+    else return memDCCIndex(_dcctccid) - nEBDCC;
+
   case kEcal2P:
-    {
-      int iSubdet(iSM);
-      if(_btype == kDCC){
-	if(iSM <= kEEmHigh) iSubdet = kEE;
-	else if(iSM <= kEBpHigh) iSubdet = kEB;
-	else iSubdet = kEE;
-      }
-      else if(_btype == kTCC){
-	if(iSM <= kEEmTCCHigh) iSubdet = kEE;
-	else if(iSM <= kEBTCCHigh) iSubdet = kEB;
-	else iSubdet = kEE;
-      }
-      if(iSubdet == kEE || iSubdet == kEEm || iSubdet == kEEp) return 0;
-      else if(iSubdet == kEB) return 1;
-      else return -1;
+    if(_btype == kDCC){
+      if(iSM <= kEEmHigh || iSM >= kEEpLow) return 0;
+      else return 1;
     }
+    else if(_btype == kTCC){
+      if(iSM <= kEEmTCCHigh || iSM >= kEEpTCCLow) return 0;
+      else return 1;
+    }
+    else{
+      if(iSM == kEB) return 1;
+      else return 0;
+    }
+
   case kEcal3P:
-    {
-      int iSubdet(iSM);
-      if(_btype == kDCC){
-	if(iSM <= kEEmHigh) iSubdet = kEEm;
-	else if(iSM <= kEBpHigh) iSubdet = kEB;
-	else iSubdet = kEEp;
-      }
-      else if(_btype == kTCC){
-	if(iSM <= kEEmTCCHigh) iSubdet = kEEm;
-	else if(iSM <= kEBTCCHigh) iSubdet = kEB;
-	else iSubdet = kEEp;
-      }
-      if(iSubdet == kEEm) return 0;
-      else if(iSubdet == kEB) return 1;
-      else if(iSubdet == kEEp) return 2;
-      else return -1;
+    if(_btype == kDCC){
+      if(iSM <= kEEmHigh) return 0;
+      else if(iSM <= kEBpHigh) return 1;
+      else return 2;
     }
-  case kEcalMEM2P:
-    {
-      int iSubdet(iSM);
-      if(iSubdet == kEE || iSubdet == kEEm || iSubdet == kEEp) return 0;
-      else if(iSubdet == kEB) return 1;
-      else return -1;
+    else{
+      if(iSM <= kEEmTCCHigh) return 0;
+      else if(iSM <= kEBTCCHigh) return 1;
+      else return 2;
     }
+
   default:
     return -1;
   }
 }
 
-EcalDQMBinningService::ObjectType
-EcalDQMBinningService::objectFromOffset(ObjectType _otype, unsigned _offset) const
+bool
+EcalDQMBinningService::isValidIdBin(ObjectType _otype, BinningType _btype, unsigned _iME, int _bin) const
 {
-  if(_otype == kEcal3P) {
-    switch(_offset){
-    case 0: return kEEm;
-    case 1: return kEB;
-    case 2: return kEEp;
-    default: return nObjType;
+  if(_otype == kEEm || _otype == kEEp){
+    if(_btype == kCrystal || _btype == kTriggerTower)
+      return EEDetId::validDetId(_bin % 102, _bin / 102, 1);
+    else if(_btype == kSuperCrystal)
+      return EcalScDetId::validDetId(_bin % 22, _bin / 22, 1);
+  }
+  else if(_otype == kEE){
+    if(_btype == kCrystal || _btype == kTriggerTower){
+      int ix(_bin % 202);
+      if(ix > 100) ix = (ix - 100) % 101;
+      return EEDetId::validDetId(ix, _bin / 202, 1);
+    }
+    else if(_btype == kSuperCrystal){
+      int ix(_bin % 42);
+      if(ix > 20) ix = (ix - 20) % 21;
+      return EcalScDetId::validDetId(ix, _bin / 42, 1);
     }
   }
-  else if(_otype == kEcal2P){
-    switch(_offset){
-    case 0: return kEE;
-    case 1: return kEB;
-    default: return nObjType;
+  else if(_otype == kSM || _otype == kEBSM || _otype == kEESM){
+    unsigned iSM(_iME);
+    if(_otype == kEBSM) iSM += 9;
+    else if(_otype == kEESM && iSM > kEEmHigh) iSM += nEBDCC;
+
+    if(iSM >= 9 && iSM < 45) return true;
+    else if(_btype == kCrystal || _btype == kTriggerTower){
+      int nX(nEESMX);
+      if(iSM == kEEm02 || iSM == kEEm08 || iSM == kEEp02 || iSM == kEEp08) nX = nEESMXExt;
+      return EEDetId::validDetId(_bin % (nX + 2) + xlow(iSM), _bin / (nX + 2) + ylow(iSM), 1);
+    }
+    else if(_btype == kSuperCrystal){
+      int nX(nEESMX / 5);
+      if(iSM == kEEm02 || iSM == kEEm08 || iSM == kEEp02 || iSM == kEEp08) nX = nEESMXExt / 5;
+      return EcalScDetId::validDetId(_bin % (nX + 2) + xlow(iSM) / 5, _bin / (nX + 2) + ylow(iSM) / 5, 1);
     }
   }
-  else if(_otype == kEcalMEM2P){
-    switch(_offset){
-    case 0: return kEEMEM;
-    case 1: return kEBMEM;
-    default: return nObjType;
-    }
-  }
-  else
-    return _otype;
-}
 
-int
-EcalDQMBinningService::smOffsetBins(ObjectType _otype, BinningType _btype, unsigned _offset) const
-{
-  if(!_offset) return 0;
-
-  switch(_otype) {
-  case kSM :
-    {
-      int bins(0);
-      int offset(_offset);
-
-      if(offset > kEEpLow){
-	int ext(0);
-	if(offset > kEEp02) ext += 1;
-	if(offset > kEEp08) ext += 1;
-	int offBins(nEESMBins * (offset - kEEpLow) + (nEESMBinsExt - nEESMBins) * ext);
-	switch(_btype){
-	case kCrystal:
-	case kTriggerTower:
-	  bins += offBins; break;
-	case kSuperCrystal:
-	  bins += offBins / 25; break;
-	default:
-	  break;
-	}
-	offset = kEEpLow;
-      }
-      if(offset > kEBmLow){
-	int offBins(nEBSMBins * (offset - kEBmLow));
-	switch(_btype){
-	case kCrystal:
-	  bins += offBins; break;
-	case kTriggerTower:
-	case kSuperCrystal:
-	  bins += offBins / 25; break;
-	default:
-	  break;
-	}
-	offset = kEBmLow;
-      }
-      if(offset > kEEmLow){
-	int ext(0);
-	if(offset > kEEm02) ext += 1;
-	if(offset > kEEm08) ext += 1;
-	int offBins(nEESMBins * (offset - kEEmLow) + (nEESMBinsExt - nEESMBins) * ext);
-	switch(_btype){
-	case kCrystal:
-	case kTriggerTower:
-	  bins += offBins; break;
-	case kSuperCrystal:
-	  bins += offBins / 25; break;
-	default:
-	  break;
-	}
-      }
-
-      return bins;
-    }
-  case kSMMEM :
-    {
-      return _offset * 10;
-    }
-  default :
-    break;
-  }
-
-  return 0;
+  return true;
 }
 
 std::string
@@ -701,4 +574,77 @@ EcalDQMBinningService::idFromName(std::string const& _name) const
   delete matches;
 
   return rawId;
+}
+
+uint32_t
+EcalDQMBinningService::idFromBin(ObjectType _otype, BinningType _btype, unsigned _iME, int _bin) const
+{
+  if(_otype == kEB){
+    if(_btype == kCrystal){
+      int ieta(_bin / 362 - 86);
+      if(ieta >= 0) ++ieta;
+      return EBDetId(ieta, _bin % 362);
+    }
+    else if(_btype == kTriggerTower || _btype == kSuperCrystal){
+      int ieta(_bin / 74 - 17);
+      int zside(1);
+      if(ieta <= 0){
+        zside = -1;
+        ieta = -ieta + 1;
+      }
+      return EcalTrigTowerDetId(zside , EcalBarrel, ieta, (_bin % 74 + 69) % 72 + 1);
+    }
+  }
+  else if(_otype == kEEm || _otype == kEEp){
+    if(_btype == kCrystal || _btype == kTriggerTower)
+      return EEDetId(_bin % 102, _bin / 102, 1).rawId();
+    else if(_btype == kSuperCrystal)
+      return EcalScDetId(_bin % 22, _bin / 22, 1).rawId();
+  }
+  else if(_otype == kEE){
+    if(_btype == kCrystal || _btype == kTriggerTower){
+      int ix(_bin % 202);
+      if(ix > 100) ix = (ix - 100) % 101;
+      return EEDetId(ix, _bin / 202, 1).rawId();
+    }
+    else if(_btype == kSuperCrystal){
+      int ix(_bin % 42);
+      if(ix > 20) ix = (ix - 20) % 21;
+      return EcalScDetId(ix, _bin / 42, 1).rawId();
+    }
+  }
+  else if(_otype == kSM || _otype == kEBSM || _otype == kEESM){
+    unsigned iSM(_iME);
+    if(_otype == kEBSM) iSM += 9;
+    else if(_otype == kEESM && iSM > kEEmHigh) iSM += nEBDCC;
+
+    if(iSM >= kEBmLow && iSM <= kEBpHigh){
+      if(_btype == kCrystal){
+        int iphi(((iSM - 9) % 18) * 20 + _bin / 87);
+        int ieta(_bin % 87);
+        if(iSM > 27) ieta *= -1;
+        return EBDetId(ieta, iphi).rawId();
+      }
+      else if(_btype == kTriggerTower || _btype == kSuperCrystal){
+        int iphi((((iSM - 9) % 18) * 4 + _bin / 19 + 69) % 72 + 1);
+        int ieta(_bin % 19);
+        int zside(iSM <= 27 ? -1 : 1);
+        return EcalTrigTowerDetId(zside, EcalBarrel, ieta, iphi).rawId();
+      }
+    }
+    else{
+      if(_btype == kCrystal || _btype == kTriggerTower){
+        int nX(nEESMX);
+        if(iSM == kEEm02 || iSM == kEEm08 || iSM == kEEp02 || iSM == kEEp08) nX = nEESMXExt;
+        return EEDetId(_bin % (nX + 2) + xlow(iSM), _bin / (nX + 2) + ylow(iSM), 1).rawId();
+      }
+      else if(_btype == kSuperCrystal){
+        int nX(nEESMX / 5);
+        if(iSM == kEEm02 || iSM == kEEm08 || iSM == kEEp02 || iSM == kEEp08) nX = nEESMXExt / 5;
+        return EcalScDetId(_bin % (nX + 2) + xlow(iSM) / 5, _bin / (nX + 2) + ylow(iSM) / 5, 1).rawId();
+      }
+    }
+  }
+
+  return 0;
 }

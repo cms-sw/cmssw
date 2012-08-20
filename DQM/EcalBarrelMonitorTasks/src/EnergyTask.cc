@@ -8,8 +8,8 @@
 
 namespace ecaldqm {
 
-  EnergyTask::EnergyTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
-    DQWorkerTask(_params, _paths, "EnergyTask"),
+  EnergyTask::EnergyTask(const edm::ParameterSet &_params) :
+    DQWorkerTask(_params, "EnergyTask"),
     topology_(0),
     isPhysicsRun_(false),
     threshS9_(0.)
@@ -29,7 +29,7 @@ namespace ecaldqm {
     else replacements["oot"] = "";
 
     for(unsigned iME(0); iME < nMESets; iME++)
-      MEs_[iME]->name(replacements);
+      MEs_[iME]->formName(replacements);
   }
 
   EnergyTask::~EnergyTask()
@@ -72,7 +72,7 @@ namespace ecaldqm {
 
       float energy(isPhysicsRun_ ? hitItr->energy() : hitItr->outOfTimeEnergy());
 
-      if ( energy < 0. ) energy = 0.0;
+      if(energy < 0.) energy = 0.0;
 
       DetId id(hitItr->id());
 

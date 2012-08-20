@@ -1,6 +1,6 @@
-#include "DQM/EcalCommon/interface/DQWorkerClient.h"
-#include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
+#include "../interface/DQWorkerClient.h"
 
+#include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "DQM/EcalCommon/interface/MESetChannel.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -10,10 +10,46 @@ namespace ecaldqm {
   EcalDQMChannelStatus const* DQWorkerClient::channelStatus(0);
   EcalDQMTowerStatus const* DQWorkerClient::towerStatus(0);
 
-  DQWorkerClient::DQWorkerClient(const edm::ParameterSet &_params, const edm::ParameterSet& _paths, std::string const& _name) :
-    DQWorker(_params, _paths, _name),
+  DQWorkerClient::DQWorkerClient(const edm::ParameterSet &_params, std::string const& _name) :
+    DQWorker(_params, _name),
     sources_(0)
   {
+    using namespace std;
+
+    map<string, vector<MEData> >::iterator dItr(meData.find(name_));
+    if(dItr == meData.end())
+      throw cms::Exception("InvalidCall") << "MonitorElement setup data not found for " << name_ << std::endl;
+
+    edm::ParameterSet const& myParams(_params.getUntrackedParameterSet(name_));
+
+    if(myParams.existsAs<edm::ParameterSet>("sources")){
+      edm::ParameterSet const& sources(myParams.getUntrackedParameterSet("sources"));
+
+      vector<MEData> const& vData(dItr->second);
+
+      for(unsigned iME(0); iME < vData.size(); iME++){
+        MEData const& nameData(vData[iME]);
+        if(nameData.kind != MonitorElement::DQM_KIND_INVALID) continue;
+
+        vector<string> workerAndME(sources.getUntrackedParameter<vector<string> >(nameData.pathName));
+
+        string worker(workerAndME[0]);
+        string ME(workerAndME[1]);
+
+        map<string, vector<MEData> >::const_iterator dataItr(meData.find(worker));
+        if(dataItr == meData.end())
+          throw cms::Exception("InvalidCall") << "DQWorker " << worker << " is not defined";
+
+        MEData data;
+        for(vector<MEData>::const_iterator mItr(dataItr->second.begin()); mItr != dataItr->second.end(); ++mItr)
+          if(mItr->pathName == ME) data = *mItr;
+
+        if(data.kind == MonitorElement::DQM_KIND_INVALID)
+          throw cms::Exception("InvalidCall") << "DQWorker " << worker << " does not have an ME of name " << ME;
+
+        sources_.push_back(createMESet_(data));
+      }
+    }
   }
 
   void
@@ -39,24 +75,6 @@ namespace ecaldqm {
     initialized_ = true;
     for(std::vector<MESet const*>::iterator sItr(sources_.begin()); sItr != sources_.end(); ++sItr)
       initialized_ &= (*sItr)->retrieve();
-  }
-
-  void
-  DQWorkerClient::source_(unsigned _iS, std::string const& _worker, unsigned _iW, edm::ParameterSet const& _sources)
-  {
-    if(_iS >= sources_.size()) sources_.resize(_iS + 1, 0);
-
-    std::map<std::string, std::vector<MEData> >::const_iterator dataItr(meData.find(_worker));
-    if(dataItr == meData.end())
-      throw cms::Exception("InvalidCall") << "DQWorker " << _worker << " is not defined";
-
-    MEData const& data(dataItr->second.at(_iW));
-
-    edm::ParameterSet const& workerPaths(_sources.getUntrackedParameterSet(_worker));
-
-    std::string fullpath(workerPaths.getUntrackedParameter<std::string>(data.pathName));
-
-    sources_.at(_iS) = createMESet_(fullpath, data, true);
   }
 
   void

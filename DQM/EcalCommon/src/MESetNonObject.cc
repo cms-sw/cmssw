@@ -1,11 +1,9 @@
 #include "DQM/EcalCommon/interface/MESetNonObject.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
-
 namespace ecaldqm
 {
-  MESetNonObject::MESetNonObject(std::string const& _fullpath, MEData const& _data, bool _readOnly/* = false*/) :
-    MESet(_fullpath, _data, _readOnly)
+  MESetNonObject::MESetNonObject(MEData const& _data) :
+    MESet(_data)
   {
   }
 
@@ -30,7 +28,7 @@ namespace ecaldqm
     case MonitorElement::DQM_KIND_TH1F :
       {
 	if(!xaxis)
-	  throw cms::Exception("InvalidCall") << "No xaxis found for MESetNonObject" << std::endl;
+	  throw_("No xaxis found for MESetNonObject");
 
 	if(!xaxis->edges)
 	  me = dqmStore_->book1D(name_, name_, xaxis->nbins, xaxis->low, xaxis->high);
@@ -47,7 +45,7 @@ namespace ecaldqm
     case MonitorElement::DQM_KIND_TPROFILE :
       {
 	if(!xaxis)
-	  throw cms::Exception("InvalidCall") << "No xaxis found for MESetNonObject" << std::endl;
+	  throw_("No xaxis found for MESetNonObject");
 
 	double ylow, yhigh;
 	if(!yaxis){
@@ -69,7 +67,7 @@ namespace ecaldqm
     case MonitorElement::DQM_KIND_TH2F :
       {
 	if(!xaxis || !yaxis)
-	  throw cms::Exception("InvalidCall") << "No x/yaxis found for MESetNonObject" << std::endl;
+	  throw_("No x/yaxis found for MESetNonObject");
 
 	if(!xaxis->edges || !yaxis->edges)
 	  me = dqmStore_->book2D(name_, name_, xaxis->nbins, xaxis->low, xaxis->high, yaxis->nbins, yaxis->low, yaxis->high);
@@ -90,7 +88,7 @@ namespace ecaldqm
     case MonitorElement::DQM_KIND_TPROFILE2D :
       {
 	if(!xaxis || !yaxis)
-	  throw cms::Exception("InvalidCall") << "No x/yaxis found for MESetNonObject" << std::endl;
+	  throw_("No x/yaxis found for MESetNonObject");
 	double high(0.), low(0.);
 	if(zaxis){
 	  low = zaxis->low;
@@ -106,7 +104,7 @@ namespace ecaldqm
       break;
 
     default :
-      throw cms::Exception("InvalidCall") << "MESetNonObject of type " << data_->kind << " not implemented" << std::endl;
+      throw_("Unsupported MonitorElement kind");
     }
 
     mes_.push_back(me);
@@ -135,6 +133,8 @@ namespace ecaldqm
   void
   MESetNonObject::fill(double _x, double _wy/* = 1.*/, double _w/* = 1.*/)
   {
+    if(!active_) return;
+
     if(mes_.size() == 0 || !mes_[0]) return;
 
     switch(data_->kind) {
@@ -154,4 +154,84 @@ namespace ecaldqm
     }
   }
 
+  void
+  MESetNonObject::setBinContent(int _bin, double _content)
+  {
+    if(!active_) return;
+    if(data_->kind == MonitorElement::DQM_KIND_REAL) return;
+
+    if(mes_.size() == 0 || !mes_[0]) return;
+
+    mes_[0]->setBinContent(_bin, _content);
+  }
+
+  void
+  MESetNonObject::setBinError(int _bin, double _error)
+  {
+    if(!active_) return;
+    if(data_->kind == MonitorElement::DQM_KIND_REAL) return;
+
+    if(mes_.size() == 0 || !mes_[0]) return;
+
+    mes_[0]->setBinError(_bin, _error);
+  }
+
+  void
+  MESetNonObject::setBinEntries(int _bin, double _entries)
+  {
+    if(!active_) return;
+    if(data_->kind != MonitorElement::DQM_KIND_TPROFILE && data_->kind != MonitorElement::DQM_KIND_TPROFILE2D) return;
+
+    if(mes_.size() == 0 || !mes_[0]) return;
+
+    mes_[0]->setBinEntries(_bin, _entries);
+  }
+
+  double
+  MESetNonObject::getBinContent(int _bin) const
+  {
+    if(!active_) return 0.;
+    if(data_->kind == MonitorElement::DQM_KIND_REAL) return 0.;
+
+    if(mes_.size() == 0 || !mes_[0]) return 0.;
+
+    return mes_[0]->getBinContent(_bin);
+  }
+
+  double
+  MESetNonObject::getBinError(int _bin) const
+  {
+    if(!active_) return 0.;
+    if(data_->kind == MonitorElement::DQM_KIND_REAL) return 0.;
+
+    if(mes_.size() == 0 || !mes_[0]) return 0.;
+
+    return mes_[0]->getBinError(_bin);
+  }
+
+  double
+  MESetNonObject::getBinEntries(int _bin) const
+  {
+    if(!active_) return 0.;
+    if(data_->kind != MonitorElement::DQM_KIND_TPROFILE && data_->kind != MonitorElement::DQM_KIND_TPROFILE2D) return 0.;
+
+    if(mes_.size() == 0 || !mes_[0]) return 0.;
+
+    return mes_[0]->getBinEntries(_bin);
+  }
+
+  int
+  MESetNonObject::findBin(double _x, double _y/* = 0.*/) const
+  {
+    if(!active_) return 0;
+
+    if(mes_.size() == 0 || !mes_[0]) return 0;
+
+    if(data_->kind == MonitorElement::DQM_KIND_TH1F || data_->kind == MonitorElement::DQM_KIND_TPROFILE)
+      return mes_[0]->getTH1()->FindBin(_x);
+    else if(data_->kind == MonitorElement::DQM_KIND_TH2F || data_->kind == MonitorElement::DQM_KIND_TPROFILE2D)
+      return mes_[0]->getTH1()->FindBin(_x, _y);
+    else
+      return 0;
+  }
 }

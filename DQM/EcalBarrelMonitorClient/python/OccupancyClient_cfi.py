@@ -1,6 +1,13 @@
+from DQM.EcalBarrelMonitorTasks.OccupancyTask_cfi import occupancyTaskPaths
+
 occupancyClient = dict(
     minHits = 20,
-    deviationThreshold = 100.0
+    deviationThreshold = 100.0,
+    sources = dict(
+        Digi = ['OccupancyTask', 'Digi'],
+        RecHitThr = ['OccupancyTask', 'RecHitThr'],
+        TPDigiThr = ['OccupancyTask', 'TPDigiThr']
+    )
 )
 
 occupancyClientPaths = dict(

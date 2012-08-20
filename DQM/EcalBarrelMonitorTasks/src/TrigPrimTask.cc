@@ -9,8 +9,8 @@
 
 namespace ecaldqm {
 
-  TrigPrimTask::TrigPrimTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
-    DQWorkerTask(_params, _paths, "TrigPrimTask"),
+  TrigPrimTask::TrigPrimTask(const edm::ParameterSet &_params) :
+    DQWorkerTask(_params, "TrigPrimTask"),
     ttMap_(0),
     realTps_(0),
     runOnEmul_(true),
@@ -29,9 +29,7 @@ namespace ecaldqm {
       (0x1 << kTrigPrimDigi) |
       (0x1 << kTrigPrimEmulDigi);
 
-    dependencies_.push_back(std::pair<Collections, Collections>(kTrigPrimEmulDigi, kEBDigi));
-    dependencies_.push_back(std::pair<Collections, Collections>(kTrigPrimEmulDigi, kEEDigi));
-    dependencies_.push_back(std::pair<Collections, Collections>(kTrigPrimEmulDigi, kTrigPrimDigi));
+    dependencies.push_back(Dependency(kTrigPrimEmulDigi, kEBDigi, kEEDigi, kTrigPrimDigi));
 
     edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
 
@@ -338,5 +336,3 @@ namespace ecaldqm {
 
   DEFINE_ECALDQM_WORKER(TrigPrimTask);
 }
-
-

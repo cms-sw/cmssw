@@ -10,8 +10,8 @@
 
 namespace ecaldqm {
 
-  PedestalTask::PedestalTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
-    DQWorkerTask(_params, _paths, "PedestalTask"),
+  PedestalTask::PedestalTask(const edm::ParameterSet &_params) :
+    DQWorkerTask(_params, "PedestalTask"),
     MGPAGains_(),
     MGPAGainsPN_()
   {
@@ -26,10 +26,10 @@ namespace ecaldqm {
     MGPAGains_ = commonParams.getUntrackedParameter<std::vector<int> >("MGPAGains");
     MGPAGainsPN_ = commonParams.getUntrackedParameter<std::vector<int> >("MGPAGainsPN");
 
-    for(std::vector<int>::iterator gainItr(MGPAGains_.begin()); gainItr != MGPAGains_.end(); ++gainItr)
+    for(vector<int>::iterator gainItr(MGPAGains_.begin()); gainItr != MGPAGains_.end(); ++gainItr)
       if(*gainItr != 1 && *gainItr != 6 && *gainItr != 12) throw cms::Exception("InvalidConfiguration") << "MGPA gain" << std::endl;
 
-    for(std::vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr)
+    for(vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr)
       if(*gainItr != 1 && *gainItr != 16) throw cms::Exception("InvalidConfiguration") << "PN diode gain" << std::endl;	
 
     map<string, string> replacements;
@@ -48,8 +48,8 @@ namespace ecaldqm {
       default: break;
       }
 
-      MEs_[kOccupancy + offset]->name(replacements);
-      MEs_[kPedestal + offset]->name(replacements);
+      MEs_[kOccupancy + offset]->formName(replacements);
+      MEs_[kPedestal + offset]->formName(replacements);
     }
 
     for(vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr){
@@ -64,8 +64,8 @@ namespace ecaldqm {
       default: break;
       }
 
-      MEs_[kPNOccupancy + offset]->name(replacements);
-      MEs_[kPNPedestal + offset]->name(replacements);
+      MEs_[kPNOccupancy + offset]->formName(replacements);
+      MEs_[kPNPedestal + offset]->formName(replacements);
     }
   }
 
@@ -192,7 +192,7 @@ namespace ecaldqm {
       _data[kPedestal + iGain] = MEData("Pedestal", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TPROFILE2D);
     }
     for(unsigned iPNGain(0); iPNGain < nPNGain; iPNGain++){
-      _data[kPNOccupancy + iPNGain] = MEData("PNOccupancy", BinService::kEcalMEM2P, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
+      _data[kPNOccupancy + iPNGain] = MEData("PNOccupancy", BinService::kMEM, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
       _data[kPNPedestal + iPNGain] = MEData("PNPedestal", BinService::kSMMEM, BinService::kCrystal, MonitorElement::DQM_KIND_TPROFILE);
     }
   }

@@ -3,5 +3,6 @@ ecalCommonParams = dict(
     hltTaskFolder = "FEDIntegrity",
     laserWavelengths = [1, 2, 3, 4],
     MGPAGains = [1, 6, 12],
-    MGPAGainsPN = [1, 16]
+    MGPAGainsPN = [1, 16],
+    topDirectory = 'Ecal'
 )

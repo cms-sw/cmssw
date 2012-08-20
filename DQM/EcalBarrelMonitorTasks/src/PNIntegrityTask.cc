@@ -4,8 +4,8 @@
 
 namespace ecaldqm {
 
-  PNIntegrityTask::PNIntegrityTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
-    DQWorkerTask(_params, _paths, "PNIntegrityTask")
+  PNIntegrityTask::PNIntegrityTask(const edm::ParameterSet &_params) :
+    DQWorkerTask(_params, "PNIntegrityTask")
   {
     collectionMask_ = 
       (0x1 << kMEMTowerIdErrors) |

@@ -1,26 +1,15 @@
 #include "../interface/IntegrityClient.h"
 
-#include "DQM/EcalBarrelMonitorTasks/interface/OccupancyTask.h"
-#include "DQM/EcalBarrelMonitorTasks/interface/IntegrityTask.h"
-
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 namespace ecaldqm {
 
-  IntegrityClient::IntegrityClient(const edm::ParameterSet& _params, const edm::ParameterSet& _paths) :
-    DQWorkerClient(_params, _paths, "IntegrityClient"),
+  IntegrityClient::IntegrityClient(const edm::ParameterSet& _params) :
+    DQWorkerClient(_params, "IntegrityClient"),
     errFractionThreshold_(0.)
   {
     edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
     errFractionThreshold_ = taskParams.getUntrackedParameter<double>("errFractionThreshold");
-
-    edm::ParameterSet const& sources(_params.getUntrackedParameterSet("sources"));
-    source_(sOccupancy, "OccupancyTask", OccupancyTask::kDigi, sources);
-    source_(sGain, "IntegrityTask", IntegrityTask::kGain, sources);
-    source_(sChId, "IntegrityTask", IntegrityTask::kChId, sources);
-    source_(sGainSwitch, "IntegrityTask", IntegrityTask::kGainSwitch, sources);
-    source_(sTowerId, "IntegrityTask", IntegrityTask::kTowerId, sources);
-    source_(sBlockSize, "IntegrityTask", IntegrityTask::kBlockSize, sources);
   }
 
   void
@@ -42,7 +31,7 @@ namespace ecaldqm {
 		  1 << EcalDQMStatusHelper::TT_SIZE_ERROR);
 
     for(unsigned dccid(1); dccid <= 54; dccid++){
-      for(unsigned tower(1); tower <= getNSuperCrystals(dccid); tower++){
+      for(unsigned tower(1); tower <= nSuperCrystals(dccid); tower++){
 	std::vector<DetId> ids(getElectronicsMap()->dccTowerConstituents(dccid, tower));
 
 	if(ids.size() == 0) continue;
@@ -105,6 +94,13 @@ namespace ecaldqm {
   {
     _data[kQuality] = MEData("Quality", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
     _data[kQualitySummary] = MEData("QualitySummary", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
+
+    _data[sOccupancy + nTargets] = MEData("Occupancy");
+    _data[sGain + nTargets] = MEData("Gain");
+    _data[sChId + nTargets] = MEData("ChId");
+    _data[sGainSwitch + nTargets] = MEData("GainSwitch");
+    _data[sTowerId + nTargets] = MEData("TowerId");
+    _data[sBlockSize + nTargets] = MEData("BlockSize");
   }
 
   DEFINE_ECALDQM_WORKER(IntegrityClient);

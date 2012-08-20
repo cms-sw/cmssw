@@ -8,8 +8,8 @@
 
 namespace ecaldqm {
 
-  LaserClient::LaserClient(const edm::ParameterSet& _params, const edm::ParameterSet& _paths) :
-    DQWorkerClient(_params, _paths, "LaserClient"),
+  LaserClient::LaserClient(const edm::ParameterSet& _params) :
+    DQWorkerClient(_params, "LaserClient"),
     laserWavelengths_(),
     MGPAGainsPN_(),
     minChannelEntries_(0),
@@ -63,18 +63,15 @@ namespace ecaldqm {
     map<string, string> replacements;
     stringstream ss;
 
-    edm::ParameterSet const& sources(_params.getUntrackedParameterSet("sources"));
     for(vector<int>::iterator wlItr(laserWavelengths_.begin()); wlItr != laserWavelengths_.end(); ++wlItr){
       ss.str("");
       ss << *wlItr;
       replacements["wl"] = ss.str();
 
       unsigned offset(*wlItr - 1);
-      source_(sAmplitude + offset, "LaserTask", LaserTask::kAmplitude + offset, sources);
-      source_(sTiming + offset, "LaserTask", LaserTask::kTiming + offset, sources);
 
-      sources_[sAmplitude + offset]->name(replacements);
-      sources_[sTiming + offset]->name(replacements);
+      sources_[sAmplitude + offset]->formName(replacements);
+      sources_[sTiming + offset]->formName(replacements);
 
       for(vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr){
 	ss.str("");
@@ -82,9 +79,8 @@ namespace ecaldqm {
 	replacements["pngain"] = ss.str();
 
 	offset = (*wlItr - 1) * nPNGain + (*gainItr == 1 ? 0 : 1);
-	source_(sPNAmplitude + offset, "LaserTask", LaserTask::kPNAmplitude, sources);
 
-	sources_[sPNAmplitude + offset]->name(replacements);
+	sources_[sPNAmplitude + offset]->formName(replacements);
       }
     }
 
@@ -97,13 +93,13 @@ namespace ecaldqm {
 
       unsigned offset(*wlItr - 1);
 
-      MEs_[kQuality + offset]->name(replacements);
-      MEs_[kQualitySummary + offset]->name(replacements);
-      MEs_[kAmplitudeMean + offset]->name(replacements);
-      MEs_[kAmplitudeRMS + offset]->name(replacements);
-      MEs_[kTimingMean + offset]->name(replacements);
-      MEs_[kTimingRMS + offset]->name(replacements);
-      MEs_[kPNQualitySummary + offset]->name(replacements);
+      MEs_[kQuality + offset]->formName(replacements);
+      MEs_[kQualitySummary + offset]->formName(replacements);
+      MEs_[kAmplitudeMean + offset]->formName(replacements);
+      MEs_[kAmplitudeRMS + offset]->formName(replacements);
+      MEs_[kTimingMean + offset]->formName(replacements);
+      MEs_[kTimingRMS + offset]->formName(replacements);
+      MEs_[kPNQualitySummary + offset]->formName(replacements);
 
       for(vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr){
 	ss.str("");
@@ -112,8 +108,8 @@ namespace ecaldqm {
 
 	offset = (*wlItr - 1) * nPNGain + (*gainItr == 1 ? 0 : 1);
 
-	MEs_[kPNAmplitudeMean + offset]->name(replacements);
-	MEs_[kPNAmplitudeRMS + offset]->name(replacements);
+	MEs_[kPNAmplitudeMean + offset]->formName(replacements);
+	MEs_[kPNAmplitudeRMS + offset]->formName(replacements);
       }
     }
   }
@@ -202,7 +198,7 @@ namespace ecaldqm {
 
       for(unsigned dccid(1); dccid <= 54; dccid++){
 
-	for(unsigned tower(1); tower <= getNSuperCrystals(dccid); tower++){
+	for(unsigned tower(1); tower <= nSuperCrystals(dccid); tower++){
 	  std::vector<DetId> ids(getElectronicsMap()->dccTowerConstituents(dccid, tower));
 
 	  if(ids.size() == 0) continue;
@@ -307,7 +303,10 @@ namespace ecaldqm {
       _data[kTimingRMS + iWL] = MEData("TimingRMS", BinService::kSM, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
 
       _data[kQualitySummary + iWL] = MEData("QualitySummary", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
-      _data[kPNQualitySummary + iWL] = MEData("PNQualitySummary", BinService::kEcalMEM2P, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
+      _data[kPNQualitySummary + iWL] = MEData("PNQualitySummary", BinService::kMEM, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
+
+      _data[sAmplitude + iWL + nTargets] = MEData("Amplitude");
+      _data[sTiming + iWL + nTargets] = MEData("Timing");
 
       for(unsigned iPNGain(0); iPNGain < nPNGain; iPNGain++){
 	unsigned offset(iWL * nPNGain + iPNGain);
@@ -319,6 +318,8 @@ namespace ecaldqm {
 	axis.low = 0.;
 	axis.high = 200.;
 	_data[kPNAmplitudeRMS + offset] = MEData("PNAmplitudeRMS", BinService::kSMMEM, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
+
+        _data[sPNAmplitude + offset + nTargets] = MEData("PNAmplitude");
       }
     }
   }

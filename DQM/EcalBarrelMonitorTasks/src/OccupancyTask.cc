@@ -4,8 +4,8 @@
 
 namespace ecaldqm {
 
-  OccupancyTask::OccupancyTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
-    DQWorkerTask(_params, _paths, "OccupancyTask"),
+  OccupancyTask::OccupancyTask(const edm::ParameterSet &_params) :
+    DQWorkerTask(_params, "OccupancyTask"),
     recHitThreshold_(0.),
     tpThreshold_(0.)
   {
@@ -19,7 +19,7 @@ namespace ecaldqm {
     edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
 
     recHitThreshold_ = taskParams.getUntrackedParameter<double>("recHitThreshold");
-    tpThreshold_ = taskParams.getUntrackedParameter<double>("tpThreshold", 1.0);
+    tpThreshold_ = taskParams.getUntrackedParameter<double>("tpThreshold");
   }
 
   OccupancyTask::~OccupancyTask()
@@ -94,9 +94,9 @@ namespace ecaldqm {
     }
 
     if(_collection == kEBRecHit)
-      MEs_[kRecHit1D]->fill((unsigned)BinService::kEB + 1, float(_hits.size()));
+      MEs_[kRecHit1D]->fill(unsigned(BinService::kEB) + 1, float(_hits.size()));
     else
-      MEs_[kRecHit1D]->fill((unsigned)BinService::kEE + 1, float(_hits.size()));
+      MEs_[kRecHit1D]->fill(unsigned(BinService::kEE) + 1, float(_hits.size()));
   }
 
   /*static*/

@@ -1,6 +1,6 @@
-#include "DQM/EcalCommon/interface/EcalDQMonitorTask.h"
+#include "../interface/EcalDQMonitorTask.h"
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
+#include "../interface/DQWorkerTask.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -20,10 +20,10 @@ using namespace ecaldqm;
 
 template <class C>
 void
-EcalDQMonitorTask::runOnCollection(const edm::Event& _evt, Collections _colName)
+EcalDQMonitorTask::runOnCollection(const edm::Event& _evt, Collections _col)
 {
   edm::Handle<C> hndl;
-  if(_evt.getByLabel(collectionTags_[_colName], hndl)){
+  if(_evt.getByLabel(collectionTags_[_col], hndl)){
 
     TStopwatch* sw(0);
     if(evaluateTime_){
@@ -33,10 +33,10 @@ EcalDQMonitorTask::runOnCollection(const edm::Event& _evt, Collections _colName)
 
     DQWorkerTask* task(0);
 
-    for(std::vector<DQWorkerTask *>::iterator wItr(taskLists_[_colName].begin()); wItr != taskLists_[_colName].end(); ++wItr){
+    for(std::vector<DQWorkerTask*>::iterator wItr(taskLists_[_col].begin()); wItr != taskLists_[_col].end(); ++wItr){
       task = *wItr;
       if(evaluateTime_) sw->Start();
-      if(enabled_[task]) task->analyze(hndl.product(), _colName);
+      if(enabled_[task]) task->analyze(hndl.product(), _col);
       if(evaluateTime_){
 	sw->Stop();
 	taskTimes_[task] += sw->RealTime();
@@ -46,16 +46,16 @@ EcalDQMonitorTask::runOnCollection(const edm::Event& _evt, Collections _colName)
     delete sw;
   }
   else if(!allowMissingCollections_)
-    throw cms::Exception("ObjectNotFound") << "Collection with InputTag " << collectionTags_[_colName] << " does not exist";
+    throw cms::Exception("ObjectNotFound") << "Collection with InputTag " << collectionTags_[_col] << " does not exist";
 }
 
 template <>
 void
-EcalDQMonitorTask::runOnCollection<DetIdCollection>(const edm::Event& _evt, Collections _colName)
+EcalDQMonitorTask::runOnCollection<DetIdCollection>(const edm::Event& _evt, Collections _col)
 {
   edm::Handle<EBDetIdCollection> ebHndl;
   edm::Handle<EEDetIdCollection> eeHndl;
-  if(_evt.getByLabel(collectionTags_[_colName], ebHndl) && _evt.getByLabel(collectionTags_[_colName], eeHndl)){
+  if(_evt.getByLabel(collectionTags_[_col], ebHndl) && _evt.getByLabel(collectionTags_[_col], eeHndl)){
     unsigned nEB(ebHndl->size());
     unsigned nEE(eeHndl->size());
 
@@ -73,10 +73,10 @@ EcalDQMonitorTask::runOnCollection<DetIdCollection>(const edm::Event& _evt, Coll
 
     DQWorkerTask* task(0);
 
-    for(std::vector<DQWorkerTask *>::iterator wItr(taskLists_[_colName].begin()); wItr != taskLists_[_colName].end(); ++wItr){
+    for(std::vector<DQWorkerTask *>::iterator wItr(taskLists_[_col].begin()); wItr != taskLists_[_col].end(); ++wItr){
       task = *wItr;
       if(evaluateTime_) sw->Start();
-      if(enabled_[task]) task->analyze(const_cast<const DetIdCollection*>(&ids), _colName);
+      if(enabled_[task]) task->analyze(const_cast<const DetIdCollection*>(&ids), _col);
       if(evaluateTime_){
 	sw->Stop();
 	taskTimes_[task] += sw->RealTime();
@@ -86,42 +86,15 @@ EcalDQMonitorTask::runOnCollection<DetIdCollection>(const edm::Event& _evt, Coll
     delete sw;
   }
   else if(!allowMissingCollections_)
-    throw cms::Exception("ObjectNotFound") << "DetIdCollection with InputTag " << collectionTags_[_colName] << " does not exist";
+    throw cms::Exception("ObjectNotFound") << "DetIdCollection with InputTag " << collectionTags_[_col] << " does not exist";
 }
 
 void
-EcalDQMonitorTask::formSchedule_(const std::vector<Collections>& _usedCollections, const std::multimap<Collections, Collections>& _dependencies)
+EcalDQMonitorTask::formSchedule_()
 {
   using namespace std;
-  typedef multimap<Collections, Collections>::const_iterator mmiter;
 
-  vector<Collections> preSchedule;
-  vector<Collections>::iterator insertPoint, findPoint;
-
-  for(vector<Collections>::const_iterator colItr(_usedCollections.begin()); colItr != _usedCollections.end(); ++colItr){
-
-    bool inserted(true);
-    if((insertPoint = find(preSchedule.begin(), preSchedule.end(), *colItr)) == preSchedule.end()) inserted = false;
-
-    pair<mmiter, mmiter> range(_dependencies.equal_range(*colItr));
-
-    for(mmiter depItr(range.first); depItr != range.second; ++depItr){
-
-      if(depItr->second == depItr->first)
-	throw cms::Exception("Fatal") << "Collection " << depItr->second << " depends on itself";
-      if(find(_usedCollections.begin(), _usedCollections.end(), depItr->second) == _usedCollections.end())
-	throw cms::Exception("Fatal") << "Collection " << depItr->first << " depends on Collection " << depItr->second;
-
-      if((findPoint = find(preSchedule.begin(), preSchedule.end(), depItr->second)) == preSchedule.end())
-	preSchedule.insert(insertPoint, depItr->second);
-      else if(findPoint > insertPoint)
-	throw cms::Exception("InvalidConfiguration") << "Circular dependencies in Collections";
-
-    }
-
-    if(!inserted) preSchedule.push_back(*colItr);
-
-  }
+  vector<Collections> preSchedule(DQWorkerTask::dependencies.formSequence());
 
   for(vector<Collections>::const_iterator colItr(preSchedule.begin()); colItr != preSchedule.end(); ++colItr){
     std::pair<Processor, Collections> sch;

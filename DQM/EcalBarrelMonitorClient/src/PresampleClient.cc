@@ -1,15 +1,13 @@
 #include "../interface/PresampleClient.h"
 
-#include "DQM/EcalBarrelMonitorTasks/interface/PresampleTask.h"
-
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 #include <cmath>
 
 namespace ecaldqm {
 
-  PresampleClient::PresampleClient(const edm::ParameterSet& _params, const edm::ParameterSet& _paths) :
-    DQWorkerClient(_params, _paths, "PresampleClient"),
+  PresampleClient::PresampleClient(const edm::ParameterSet& _params) :
+    DQWorkerClient(_params, "PresampleClient"),
     minChannelEntries_(0),
     minTowerEntries_(0),
     expectedMean_(0.),
@@ -26,9 +24,6 @@ namespace ecaldqm {
     rmsThreshold_ = taskParams.getUntrackedParameter<double>("rmsThreshold");
     rmsThresholdHighEta_ = taskParams.getUntrackedParameter<double>("rmsThresholdHighEta");
     noisyFracThreshold_ = taskParams.getUntrackedParameter<double>("noisyFracThreshold");
-
-    edm::ParameterSet const& sources(_params.getUntrackedParameterSet("sources"));
-    source_(sPedestal, "PresampleTask", PresampleTask::kPedestal, sources);
   }
 
   void
@@ -56,7 +51,7 @@ namespace ecaldqm {
 
     for(unsigned dccid(1); dccid <= 54; dccid++){
 
-      for(unsigned tower(1); tower <= getNSuperCrystals(dccid); tower++){
+      for(unsigned tower(1); tower <= nSuperCrystals(dccid); tower++){
 	std::vector<DetId> ids(getElectronicsMap()->dccTowerConstituents(dccid, tower));
 
 	if(ids.size() == 0) continue;
@@ -83,9 +78,9 @@ namespace ecaldqm {
 	    continue;
 	  }
 
-	  MEs_[kMean]->fill(*idItr, mean);
-	  MEs_[kMeanDCC]->fill(*idItr, mean);
-	  MEs_[kRMS]->fill(*idItr, rms);
+	  MEs_[kMean]->fill(dccid, mean);
+	  MEs_[kMeanDCC]->fill(dccid, mean);
+	  MEs_[kRMS]->fill(dccid, rms);
 	  MEs_[kRMSMap]->fill(*idItr, rms);
 
 	  if(std::abs(mean - expectedMean_) > meanThreshold_ || rms > rmsThresh){
@@ -143,6 +138,8 @@ namespace ecaldqm {
     _data[kRMSMapSummary] = MEData("RMSMap", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F, 0, 0, &axis);
 
     _data[kQualitySummary] = MEData("QualitySummary", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
+
+    _data[sPedestal + nTargets] = MEData("Pedestal");
   }
 
   DEFINE_ECALDQM_WORKER(PresampleClient);

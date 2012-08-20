@@ -1,11 +1,12 @@
-#include "DQM/EcalCommon/interface/EcalDQMonitorTask.h"
+#include "../interface/EcalDQMonitorTask.h"
 
 #include <algorithm>
 #include <iomanip>
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
 #include "DQM/EcalCommon/interface/MESet.h"
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
+
+#include "../interface/DQWorkerTask.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -29,7 +30,6 @@ using namespace ecaldqm;
 EcalDQMonitorTask::EcalDQMonitorTask(const edm::ParameterSet &_ps) :
   EcalDQMonitor(_ps),
   ievt_(0),
-  workers_(0),
   schedule_(),
   enabled_(),
   taskTimes_(),
@@ -38,38 +38,11 @@ EcalDQMonitorTask::EcalDQMonitorTask(const edm::ParameterSet &_ps) :
 {
   using namespace std;
 
-  vector<string> taskNames(_ps.getUntrackedParameter<vector<string> >("tasks"));
-  const edm::ParameterSet& taskParams(_ps.getUntrackedParameterSet("taskParameters"));
-  const edm::ParameterSet& mePaths(_ps.getUntrackedParameterSet("mePaths"));
-
-  WorkerFactory factory(0);
-  std::multimap<Collections, Collections> dependencies;
-
-  for(vector<string>::iterator tItr(taskNames.begin()); tItr != taskNames.end(); ++tItr){
-    if (!(factory = SetWorker::findFactory(*tItr))) continue;
-
-    if(verbosity_ > 0) cout << moduleName_ << ": Setting up " << *tItr << endl;
-
-    DQWorker* worker(factory(taskParams, mePaths.getUntrackedParameterSet(*tItr)));
-    if(worker->getName() != *tItr){
-      delete worker;
-
-      if(verbosity_ > 0) cout << moduleName_ << ": " << *tItr << " could not be configured" << endl; 
-      continue;
-    }
-    DQWorkerTask* task(static_cast<DQWorkerTask*>(worker));
-    task->setVerbosity(verbosity_);
-
-    workers_.push_back(task);
-
-    const std::vector<std::pair<Collections, Collections> >& dep(task->getDependencies());
-    for(std::vector<std::pair<Collections, Collections> >::const_iterator depItr(dep.begin()); depItr != dep.end(); ++depItr)
-      dependencies.insert(*depItr);
-  }
+  for(vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr)
+    if(!dynamic_cast<DQWorkerTask*>(*wItr))
+      throw cms::Exception("InvalidConfiguration") << "Non-client DQWorker " << (*wItr)->getName() << " passed";
 
   const edm::ParameterSet& collectionTags(_ps.getUntrackedParameterSet("collectionTags"));
-
-  std::vector<Collections> usedCollections;
 
   for(unsigned iCol(0); iCol < nCollections; iCol++){
 
@@ -78,20 +51,21 @@ EcalDQMonitorTask::EcalDQMonitorTask(const edm::ParameterSet &_ps) :
 
     bool use(iCol == kEcalRawData);
 
-    for(vector<DQWorkerTask*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
-      if((*wItr)->runsOn(iCol)){
-	taskLists_[iCol].push_back(*wItr);
+    for(vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
+      DQWorkerTask* task(static_cast<DQWorkerTask*>(*wItr));
+      if(task->runsOn(iCol)){
+	taskLists_[iCol].push_back(task);
 	use = true;
       }
     }
     if(use){
       collectionTags_[iCol] = collectionTags.getUntrackedParameter<edm::InputTag>(collectionName[iCol]);
-      usedCollections.push_back(Collections(iCol));
+      DQWorkerTask::dependencies.push_back(DQWorkerTask::Dependency(Collections(iCol)));
     }
 
   }
 
-  formSchedule_(usedCollections, dependencies);
+  formSchedule_();
 
   if(verbosity_ > 0){
     cout << moduleName_ << ": Using collections" << endl;
@@ -103,7 +77,7 @@ EcalDQMonitorTask::EcalDQMonitorTask(const edm::ParameterSet &_ps) :
 
 EcalDQMonitorTask::~EcalDQMonitorTask()
 {
-  for(std::vector<DQWorkerTask *>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr)
+  for(std::vector<DQWorker *>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr)
     delete *wItr;
 }
 
@@ -129,8 +103,8 @@ EcalDQMonitorTask::beginRun(const edm::Run &_run, const edm::EventSetup &_es)
   _es.get<IdealGeometryRecord>().get(ttMapHandle);
   setTrigTowerMap(ttMapHandle.product());
 
-  for(std::vector<DQWorkerTask*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
-    DQWorkerTask* task(*wItr);
+  for(std::vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
+    DQWorkerTask* task(static_cast<DQWorkerTask*>(*wItr));
     task->reset();
     if(task->runsOn(kRun)) task->beginRun(_run, _es);
   }
@@ -147,8 +121,8 @@ EcalDQMonitorTask::endRun(const edm::Run &_run, const edm::EventSetup &_es)
 {
   using namespace std;
 
-  for(vector<DQWorkerTask *>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
-    DQWorkerTask* task(*wItr);
+  for(vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
+    DQWorkerTask* task(static_cast<DQWorkerTask*>(*wItr));
     if(task->runsOn(kRun)) task->endRun(_run, _es);
   }
 
@@ -158,9 +132,9 @@ EcalDQMonitorTask::endRun(const edm::Run &_run, const edm::EventSetup &_es)
     ss << "************** " << moduleName_ << " **************" << endl;
     ss << "      Mean time consumption of the modules" << endl;
     ss << "____________________________________" << endl;
-    for(std::vector<DQWorkerTask *>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
-      DQWorkerTask* task(*wItr);
-      ss << setw(20) << setfill(' ') << task->getName() << "|   " << (taskTimes_[task] / ievt_) << endl;
+    for(std::vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
+      DQWorker* worker(*wItr);
+      ss << setw(20) << setfill(' ') << worker->getName() << "|   " << (taskTimes_[static_cast<DQWorkerTask*>(worker)] / ievt_) << endl;
     }
     edm::LogInfo("EcalDQM") << ss.str();
   }
@@ -169,8 +143,8 @@ EcalDQMonitorTask::endRun(const edm::Run &_run, const edm::EventSetup &_es)
 void
 EcalDQMonitorTask::beginLuminosityBlock(const edm::LuminosityBlock &_lumi, const edm::EventSetup &_es)
 {
-  for(std::vector<DQWorkerTask *>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
-    DQWorkerTask* task(*wItr);
+  for(std::vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
+    DQWorkerTask* task(static_cast<DQWorkerTask*>(*wItr));
     if(task->isInitialized() && task->runsOn(kLumiSection)) task->beginLuminosityBlock(_lumi, _es);
   }
 }
@@ -178,8 +152,8 @@ EcalDQMonitorTask::beginLuminosityBlock(const edm::LuminosityBlock &_lumi, const
 void
 EcalDQMonitorTask::endLuminosityBlock(const edm::LuminosityBlock &_lumi, const edm::EventSetup &_es)
 {
-  for(std::vector<DQWorkerTask *>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
-    DQWorkerTask* task(*wItr);
+  for(std::vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
+    DQWorkerTask* task(static_cast<DQWorkerTask*>(*wItr));
     if(task->isInitialized() && task->runsOn(kLumiSection)) task->endLuminosityBlock(_lumi, _es);
   }
 }
@@ -198,8 +172,10 @@ EcalDQMonitorTask::analyze(const edm::Event &_evt, const edm::EventSetup &_es)
  
   // determine event type (called run type in DCCHeader for some reason) for each FED
   std::vector<short> runType(54, -1);
+  std::vector<EcalDCCHeaderBlock::EcalDCCEventSettings> eventSetting(54);
   for(EcalRawDataCollection::const_iterator dcchItr = dcchsHndl->begin(); dcchItr != dcchsHndl->end(); ++dcchItr){
     runType[dcchItr->id() - 1] = dcchItr->getRunType();
+    eventSetting[dcchItr->id() - 1] = dcchItr->getEventSettings();
   }
 
   bool atLeastOne(false);
@@ -207,23 +183,23 @@ EcalDQMonitorTask::analyze(const edm::Event &_evt, const edm::EventSetup &_es)
   DQWorkerTask *task(0);
 
   // set up task modules
-  for(vector<DQWorkerTask*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
-    task = *wItr;
+  for(vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
+    task = static_cast<DQWorkerTask*>(*wItr);
 
-    if(task->filterRunType(runType)){
+    if(task->filterRunType(runType) && task->filterEventSetting(eventSetting)){
       enabled_[task] = true;
 
       if(!task->isInitialized()){
+	task->initialize();
 	if(verbosity_ > 1) cout << moduleName_ << ": Booking MEs for " << task->getName() << endl;
 	task->bookMEs();
-	task->setInitialized(true);
       }
 
       task->beginEvent(_evt, _es);
       atLeastOne = true;
-    }else{
-      enabled_[task] = false;
     }
+    else
+      enabled_[task] = false;
   }
 
   if(!atLeastOne) return;
@@ -235,8 +211,8 @@ EcalDQMonitorTask::analyze(const edm::Event &_evt, const edm::EventSetup &_es)
   }
 
   // close event
-  for(vector<DQWorkerTask *>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
-    task = *wItr;
+  for(vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
+    task = static_cast<DQWorkerTask*>(*wItr);
     if(enabled_[task]) task->endEvent(_evt, _es);
   }
 

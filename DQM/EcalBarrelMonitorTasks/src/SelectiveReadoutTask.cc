@@ -17,8 +17,8 @@
 
 namespace ecaldqm {
 
-  SelectiveReadoutTask::SelectiveReadoutTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
-    DQWorkerTask(_params, _paths, "SelectiveReadoutTask"),
+  SelectiveReadoutTask::SelectiveReadoutTask(const edm::ParameterSet &_params) :
+    DQWorkerTask(_params, "SelectiveReadoutTask"),
     useCondDb_(false),
     iFirstSample_(0),
     channelStatus_(0),
@@ -36,8 +36,8 @@ namespace ecaldqm {
       (0x1 << kEBDigi) |
       (0x1 << kEEDigi);
 
-    dependencies_.push_back(std::pair<Collections, Collections>(kEBDigi, kEcalRawData));
-    dependencies_.push_back(std::pair<Collections, Collections>(kEEDigi, kEcalRawData));
+    dependencies.push_back(Dependency(kEBDigi, kEcalRawData, kEBSrFlag));
+    dependencies.push_back(Dependency(kEEDigi, kEcalRawData, kEESrFlag));
 
     edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
 
@@ -317,7 +317,6 @@ namespace ecaldqm {
     }
 
     MEs_[kFRDropped]->fill(iSubdet + 1, nFRDropped);
-
   }
 
   void

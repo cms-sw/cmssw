@@ -10,8 +10,8 @@
 
 namespace ecaldqm {
 
-  LaserTask::LaserTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
-    DQWorkerTask(_params, _paths, "LaserTask"),
+  LaserTask::LaserTask(const edm::ParameterSet &_params) :
+    DQWorkerTask(_params, "LaserTask"),
     laserWavelengths_(),
     MGPAGainsPN_(),
     pnAmp_()
@@ -19,7 +19,6 @@ namespace ecaldqm {
     using namespace std;
 
     collectionMask_ = 
-      (0x1 << kEcalRawData) |
       (0x1 << kEBDigi) |
       (0x1 << kEEDigi) |
       (0x1 << kPnDiodeDigi) |
@@ -32,10 +31,10 @@ namespace ecaldqm {
     edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
     laserWavelengths_ = taskParams.getUntrackedParameter<std::vector<int> >("laserWavelengths");
 
-    for(std::vector<int>::iterator wlItr(laserWavelengths_.begin()); wlItr != laserWavelengths_.end(); ++wlItr)
+    for(vector<int>::iterator wlItr(laserWavelengths_.begin()); wlItr != laserWavelengths_.end(); ++wlItr)
       if(*wlItr <= 0 || *wlItr >= 5) throw cms::Exception("InvalidConfiguration") << "Laser Wavelength" << std::endl;
 
-    for(std::vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr)
+    for(vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr)
       if(*gainItr != 1 && *gainItr != 16) throw cms::Exception("InvalidConfiguration") << "PN diode gain" << std::endl;	
 
     map<string, string> replacements;
@@ -48,12 +47,12 @@ namespace ecaldqm {
 
       unsigned offset(*wlItr - 1);
 
-      MEs_[kAmplitudeSummary + offset]->name(replacements);
-      MEs_[kAmplitude + offset]->name(replacements);
-      MEs_[kOccupancy + offset]->name(replacements);
-      MEs_[kTiming + offset]->name(replacements);
-      MEs_[kShape + offset]->name(replacements);
-      MEs_[kAOverP + offset]->name(replacements);
+      MEs_[kAmplitudeSummary + offset]->formName(replacements);
+      MEs_[kAmplitude + offset]->formName(replacements);
+      MEs_[kOccupancy + offset]->formName(replacements);
+      MEs_[kTiming + offset]->formName(replacements);
+      MEs_[kShape + offset]->formName(replacements);
+      MEs_[kAOverP + offset]->formName(replacements);
 
       for(vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr){
 	ss.str("");
@@ -62,7 +61,7 @@ namespace ecaldqm {
 
 	offset = (*wlItr - 1) * nPNGain + (*gainItr == 1 ? 0 : 1);
 
-	MEs_[kPNAmplitude + offset]->name(replacements);
+	MEs_[kPNAmplitude + offset]->formName(replacements);
       }
     }
   }
@@ -130,18 +129,22 @@ namespace ecaldqm {
     return enable;
   }
 
-  void
-  LaserTask::runOnRawData(const EcalRawDataCollection &_dcchs)
+  bool
+  LaserTask::filterEventSetting(const std::vector<EventSettings>& _setting)
   {
-    for(EcalRawDataCollection::const_iterator dcchItr(_dcchs.begin()); dcchItr != _dcchs.end(); ++dcchItr){
-      int iDCC(dcchItr->id() - 1);
+    bool enable(false);
 
+    for(int iDCC(0); iDCC < BinService::nDCC; ++iDCC){
       if(!enable_[iDCC]) continue;
+      wavelength_[iDCC] = _setting[iDCC].wavelength + 1;
 
-      wavelength_[iDCC] = dcchItr->getEventSettings().wavelength + 1;
-
-      if(std::find(laserWavelengths_.begin(), laserWavelengths_.end(), wavelength_[iDCC]) == laserWavelengths_.end()) enable_[iDCC] = false;
+      if(std::find(laserWavelengths_.begin(), laserWavelengths_.end(), wavelength_[iDCC]) != laserWavelengths_.end())
+        enable = true;
+      else
+        enable_[iDCC] = false;
     }
+
+    return enable;
   }
 
   void
@@ -236,28 +239,24 @@ namespace ecaldqm {
 
 	pn0 = pnAmp_[iDCC][pnPair.first];
 	pn1 = pnAmp_[iDCC][pnPair.second];
-      }else if(_collection == kEEUncalibRecHit){
+      }
+      else if(_collection == kEEUncalibRecHit){
 	EcalScDetId scid(EEDetId(id).sc());
 
 	int dee(MEEEGeom::dee(scid.ix(), scid.iy(), scid.zside()));
 	int lmmod(MEEEGeom::lmmod(scid.ix(), scid.iy()));
 	pair<int, int> pnPair(MEEEGeom::pn(dee, lmmod));
 
-	int pnAFED(getEEPnDCC(dee, 0)), pnBFED(getEEPnDCC(dee, 1));
+	int pnAFED(EEPnDCC(dee, 0)), pnBFED(EEPnDCC(dee, 1));
 
 	pn0 = pnAmp_[pnAFED][pnPair.first];
 	pn1 = pnAmp_[pnBFED][pnPair.second];
       }
 
-      if(pn0 < 10 && pn1 > 10){
-	aop = amp / pn1;
-      }else if(pn0 > 10 && pn1 < 10){
-	aop = amp / pn0;
-      }else if(pn0 + pn1 > 1){
-	aop = amp / (0.5 * (pn0 + pn1));
-      }else{
-	aop = 1000.;
-      }
+      if(pn0 < 10 && pn1 > 10) aop = amp / pn1;
+      else if(pn0 > 10 && pn1 < 10) aop = amp / pn0;
+      else if(pn0 + pn1 > 1) aop = amp / (0.5 * (pn0 + pn1));
+      else aop = 1000.;
 
       MEs_[kAOverP + offset]->fill(id, aop);
     }
@@ -284,7 +283,7 @@ namespace ecaldqm {
 	_data[kPNAmplitude + offset] = MEData("PNAmplitude", BinService::kSMMEM, BinService::kCrystal, MonitorElement::DQM_KIND_TPROFILE);
       }
     }
-    _data[kPNOccupancy] = MEData("PNOccupancy", BinService::kEcalMEM2P, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
+    _data[kPNOccupancy] = MEData("PNOccupancy", BinService::kMEM, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
   }
 
   DEFINE_ECALDQM_WORKER(LaserTask);

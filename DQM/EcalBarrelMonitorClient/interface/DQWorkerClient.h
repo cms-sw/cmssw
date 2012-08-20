@@ -12,20 +12,16 @@
 namespace ecaldqm {
   class DQWorkerClient : public DQWorker {
   public:
-    DQWorkerClient(const edm::ParameterSet&, const edm::ParameterSet&, std::string const&);
+    DQWorkerClient(const edm::ParameterSet&, std::string const&);
     virtual ~DQWorkerClient() {}
 
-    virtual void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &);
+    void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &);
 
-    virtual void initialize();
+    void initialize();
 
     void reset();
 
     virtual void producePlots() = 0;
-
-    enum Sources {
-      nSources
-    };
 
     static EcalDQMChannelStatus const* channelStatus;
     static EcalDQMTowerStatus const* towerStatus;

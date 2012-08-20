@@ -5,8 +5,8 @@
 
 namespace ecaldqm {
 
-  PresampleTask::PresampleTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
-    DQWorkerTask(_params, _paths, "PresampleTask")
+  PresampleTask::PresampleTask(const edm::ParameterSet &_params) :
+    DQWorkerTask(_params, "PresampleTask")
   {
     collectionMask_ =
       (0x1 << kEBDigi) |

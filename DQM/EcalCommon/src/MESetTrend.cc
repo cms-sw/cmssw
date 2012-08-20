@@ -1,17 +1,25 @@
 #include "DQM/EcalCommon/interface/MESetTrend.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
-
 namespace ecaldqm {
 
-  MESetTrend::MESetTrend(std::string const& _fullpath, MEData const& _data, bool _readOnly/* = false*/) :
-    MESetEcal(_fullpath, _data, 1, _readOnly),
+  MESetTrend::MESetTrend(MEData const& _data) :
+    MESetEcal(_data, 1),
     t0_(0),
     minutely_(false),
     tLow_(0)
   {
+    switch(data_->kind){
+    case MonitorElement::DQM_KIND_TH1F:
+    case MonitorElement::DQM_KIND_TPROFILE:
+    case MonitorElement::DQM_KIND_TH2F:
+    case MonitorElement::DQM_KIND_TPROFILE2D:
+      break;
+    default:
+      throw_("Unsupported MonitorElement kind");
+    }
+
     if(!_data.xaxis || _data.xaxis->edges)
-      throw cms::Exception("InvalidConfiguration") << "MESetTrend";
+      throw_("Needs t-axis specification");
   }
 
   MESetTrend::~MESetTrend()
@@ -52,10 +60,23 @@ namespace ecaldqm {
   {
     if(!active_) return;
 
-    unsigned offset(binService_->findOffset(data_->otype, _id));
+    unsigned iME(binService_->findPlot(data_->otype, _id));
+    checkME_(iME);
 
     if(shift_(time_t(_t)))
-      MESet::fill_(offset, _t, _wy, _w);
+      fill_(iME, _t, _wy, _w);
+  }
+
+  void
+  MESetTrend::fill(EcalElectronicsId const& _id, double _t, double _wy/* = 1.*/, double _w/* = 1.*/)
+  {
+    if(!active_) return;
+
+    unsigned iME(binService_->findPlot(data_->otype, _id));
+    checkME_(iME);
+
+    if(shift_(time_t(_t)))
+      fill_(iME, _t, _wy, _w);
   }
 
   void
@@ -63,10 +84,11 @@ namespace ecaldqm {
   {
     if(!active_) return;
 
-    unsigned offset(binService_->findOffset(data_->otype, data_->btype, _dcctccid));
+    unsigned iME(binService_->findPlot(data_->otype, _dcctccid, data_->btype));
+    checkME_(iME);
 
     if(shift_(time_t(_t)))
-      MESet::fill_(offset, _t, _wy, _w);
+      fill_(iME, _t, _wy, _w);
   }
 
   void
@@ -74,10 +96,53 @@ namespace ecaldqm {
   {
     if(!active_) return;
     if(mes_.size() != 1)
-      throw cms::Exception("InvalidCall") << "MESet type incompatible" << std::endl;
+      throw_("MESet type incompatible");
 
     if(shift_(time_t(_t)))
-      MESet::fill_(0, _t, _wy, _w);
+      fill_(0, _t, _wy, _w);
+  }
+
+  int
+  MESetTrend::findBin(DetId const& _id, double _t, double _y/* = 0.*/) const
+  {
+    if(!active_) return -1;
+
+    unsigned iME(binService_->findPlot(data_->otype, _id));
+    checkME_(iME);
+
+    return mes_[iME]->getTH1()->FindBin(_t, _y);
+  }
+
+  int
+  MESetTrend::findBin(EcalElectronicsId const& _id, double _t, double _y/* = 0.*/) const
+  {
+    if(!active_) return -1;
+
+    unsigned iME(binService_->findPlot(data_->otype, _id));
+    checkME_(iME);
+
+    return mes_[iME]->getTH1()->FindBin(_t, _y);
+  }
+
+  int
+  MESetTrend::findBin(unsigned _dcctccid, double _t, double _y/* = 0.*/) const
+  {
+    if(!active_) return -1;
+
+    unsigned iME(binService_->findPlot(data_->otype, _dcctccid, data_->btype));
+    checkME_(iME);
+
+    return mes_[iME]->getTH1()->FindBin(_t, _y);
+  }
+
+  int
+  MESetTrend::findBin(double _t, double _y/* = 0.*/) const
+  {
+    if(!active_) return -1;
+    if(mes_.size() != 1)
+      throw_("MESet type incompatible");
+
+    return mes_[0]->getTH1()->FindBin(_t, _y);
   }
 
   bool
@@ -89,6 +154,7 @@ namespace ecaldqm {
     time_t tHigh(tLow_ + width);
     int nbinsX(data_->xaxis->nbins);
     MonitorElement::Kind kind(data_->kind);
+    if(kind != MonitorElement::DQM_KIND_TH1F && kind != MonitorElement::DQM_KIND_TPROFILE && kind != MonitorElement::DQM_KIND_TPROFILE2D) return false;
 
     int dtPerBin(width / nbinsX);
     int dBin(0);
@@ -118,7 +184,7 @@ namespace ecaldqm {
 	      if(me->getBinContent(iMax, iy) != 0) filled = true;
 	    break;
 	  default:
-	    return false;
+            break;
 	  }
 	}
 

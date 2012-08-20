@@ -9,8 +9,8 @@
 
 namespace ecaldqm {
 
-  RawDataTask::RawDataTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
-    DQWorkerTask(_params, _paths, "RawDataTask"),
+  RawDataTask::RawDataTask(const edm::ParameterSet &_params) :
+    DQWorkerTask(_params, "RawDataTask"),
     hltTaskMode_(0),
     hltTaskFolder_(""),
     run_(0),
@@ -25,7 +25,7 @@ namespace ecaldqm {
       (0x1 << kSource) |
       (0x1 << kEcalRawData);
 
-    dependencies_.push_back(std::pair<Collections, Collections>(kEcalRawData, kSource));
+    dependencies.push_back(Dependency(kEcalRawData, kSource));
 
     edm::ParameterSet const& commonParams(_params.getUntrackedParameterSet("Common"));
 
@@ -39,8 +39,8 @@ namespace ecaldqm {
       std::map<std::string, std::string> replacements;
       replacements["hlttask"] = hltTaskFolder_;
 
-      MEs_[kFEDEntries]->name(replacements);
-      MEs_[kFEDFatal]->name(replacements);
+      MEs_[kFEDEntries]->formName(replacements);
+      MEs_[kFEDFatal]->formName(replacements);
     }
   }
 

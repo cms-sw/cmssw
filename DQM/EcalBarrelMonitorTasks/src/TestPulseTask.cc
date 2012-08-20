@@ -10,8 +10,8 @@
 
 namespace ecaldqm {
 
-  TestPulseTask::TestPulseTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
-    DQWorkerTask(_params, _paths, "TestPulseTask"),
+  TestPulseTask::TestPulseTask(const edm::ParameterSet &_params) :
+    DQWorkerTask(_params, "TestPulseTask"),
     MGPAGains_(),
     MGPAGainsPN_()
   {
@@ -55,9 +55,9 @@ namespace ecaldqm {
       default: break;
       }
 
-      MEs_[kOccupancy + offset]->name(replacements);
-      MEs_[kShape + offset]->name(replacements);
-      MEs_[kAmplitude + offset]->name(replacements);
+      MEs_[kOccupancy + offset]->formName(replacements);
+      MEs_[kShape + offset]->formName(replacements);
+      MEs_[kAmplitude + offset]->formName(replacements);
     }
 
     for(vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr){
@@ -72,8 +72,8 @@ namespace ecaldqm {
       default: break;
       }
 
-      MEs_[kPNOccupancy + offset]->name(replacements);
-      MEs_[kPNAmplitude + offset]->name(replacements);
+      MEs_[kPNOccupancy + offset]->formName(replacements);
+      MEs_[kPNAmplitude + offset]->formName(replacements);
     }
   }
 
@@ -248,7 +248,7 @@ namespace ecaldqm {
       _data[kAmplitude + iGain] = MEData("Amplitude", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TPROFILE2D);
     }
     for(unsigned iPNGain(0); iPNGain < nPNGain; iPNGain++){
-      _data[kPNOccupancy + iPNGain] = MEData("PNOccupancy", BinService::kEcalMEM2P, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
+      _data[kPNOccupancy + iPNGain] = MEData("PNOccupancy", BinService::kMEM, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
       _data[kPNAmplitude + iPNGain] = MEData("PNPedestal", BinService::kSMMEM, BinService::kCrystal, MonitorElement::DQM_KIND_TPROFILE);
     }
   }

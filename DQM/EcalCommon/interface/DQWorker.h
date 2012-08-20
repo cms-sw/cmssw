@@ -21,7 +21,7 @@ namespace ecaldqm{
 
   class DQWorker {
   public :
-    DQWorker(const edm::ParameterSet&, const edm::ParameterSet&, std::string const&);
+    DQWorker(const edm::ParameterSet&, std::string const&);
     virtual ~DQWorker();
 
     virtual void beginRun(const edm::Run &, const edm::EventSetup &){};
@@ -33,12 +33,12 @@ namespace ecaldqm{
     virtual void bookMEs();
 
     virtual void reset();
-    virtual std::string const& getName() { return name_; }
+    virtual void initialize();
     virtual bool isInitialized() { return initialized_; }
-    virtual void setInitialized(bool _init) { initialized_ = _init; }
     virtual void setVerbosity(int _verbosity) { verbosity_ = _verbosity; }
 
-    const std::vector<MESet*>& getMEs() { return MEs_; }
+    std::string const& getName() const { return name_; }
+    std::vector<MESet*> const& getMEs() const { return MEs_; }
 
     enum MESets {
       nMESets
@@ -50,7 +50,7 @@ namespace ecaldqm{
 
   protected :
     void meSet_(unsigned, edm::ParameterSet const&);
-    MESet* createMESet_(std::string const&, MEData const&, bool _readOnly = false) const;
+    MESet* createMESet_(MEData const&) const;
 
     std::string name_;
     std::vector<MESet*> MEs_; // [nMESets]
@@ -61,15 +61,14 @@ namespace ecaldqm{
 
 
 
-  typedef DQWorker* (*WorkerFactory)(const edm::ParameterSet&, const edm::ParameterSet&);
+  typedef DQWorker* (*WorkerFactory)(const edm::ParameterSet&);
 
   // template of WorkerFactory instance
   template<class W>
     DQWorker* 
-    workerFactory(const edm::ParameterSet& _params, const edm::ParameterSet& _paths)
+    workerFactory(const edm::ParameterSet& _params)
     {
-      W* worker(new W(_params, _paths));
-      return worker;
+      return new W(_params);
     }
 
   // to be instantiated after the implementation of each worker module

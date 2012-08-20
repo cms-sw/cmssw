@@ -4,7 +4,11 @@ timingClient = dict(
     rmsThreshold = 6.,
     minChannelEntries = 3,
     minTowerEntries = 10,
-    tailPopulThreshold = 0.3
+    tailPopulThreshold = 0.3,
+    sources = dict(
+        TimeAllMap = ['TimingTask', 'TimeAllMap'],
+        TimeMap = ['TimingTask', 'TimeMap']
+    )
 )
 
 timingClientPaths = dict(

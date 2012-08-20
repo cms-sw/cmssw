@@ -1,13 +1,13 @@
 #ifndef TimingClient_H
 #define TimingClient_H
 
-#include "DQM/EcalCommon/interface/DQWorkerClient.h"
+#include "DQWorkerClient.h"
 
 namespace ecaldqm {
 
   class TimingClient : public DQWorkerClient {
   public:
-    TimingClient(const edm::ParameterSet &, const edm::ParameterSet &);
+    TimingClient(const edm::ParameterSet &);
     ~TimingClient() {}
 
     void bookMEs();
@@ -25,16 +25,14 @@ namespace ecaldqm {
       kProjEta,
       kProjPhi,
       kQualitySummary,
-      nMESets
+      nTargets,
+      sTimeAllMap = 0,
+      sTimeMap,
+      nSources,
+      nMESets = nTargets + nSources
     };
 
     static void setMEData(std::vector<MEData>&);
-
-    enum Sources {
-      sTimeAllMap,
-      sTimeMap,
-      nSources
-    };
 
   protected:
     float expectedMean_;

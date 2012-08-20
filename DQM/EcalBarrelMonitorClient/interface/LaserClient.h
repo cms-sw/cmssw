@@ -1,15 +1,13 @@
 #ifndef LaserClient_H
 #define LaserClient_H
 
-#include "DQM/EcalCommon/interface/DQWorkerClient.h"
-
-#include "DQM/EcalBarrelMonitorTasks/interface/LaserTask.h"
+#include "DQWorkerClient.h"
 
 namespace ecaldqm {
 
   class LaserClient : public DQWorkerClient {
   public:
-    LaserClient(const edm::ParameterSet &, const edm::ParameterSet &);
+    LaserClient(const edm::ParameterSet &);
     ~LaserClient() {}
 
     void bookMEs();
@@ -21,8 +19,8 @@ namespace ecaldqm {
     void producePlots();
 
     enum Constants {
-      nWL = LaserTask::nWL,
-      nPNGain = LaserTask::nPNGain
+      nWL = 4,
+      nPNGain = 2
     };
 
     enum MESets {
@@ -35,17 +33,15 @@ namespace ecaldqm {
       kPNAmplitudeRMS = kPNAmplitudeMean + nWL * nPNGain,
       kQualitySummary = kPNAmplitudeRMS + nWL * nPNGain,
       kPNQualitySummary = kQualitySummary + nWL,
-      nMESets = kPNQualitySummary + nWL
+      nTargets = kPNQualitySummary + nWL,
+      sAmplitude = 0,
+      sTiming = sAmplitude + nWL,
+      sPNAmplitude = sTiming + nWL,
+      nSources = sPNAmplitude + nWL * nPNGain,
+      nMESets = nTargets + nSources
     };
 
     static void setMEData(std::vector<MEData>&);
-
-    enum Sources {
-      sAmplitude,
-      sTiming = sAmplitude + nWL,
-      sPNAmplitude = sTiming + nWL,
-      nSources = sPNAmplitude + nWL * nPNGain
-    };
 
   protected:
     std::vector<int> laserWavelengths_;

@@ -9,13 +9,14 @@
 #include "DQM/EcalCommon/interface/MESetDet0D.h"
 #include "DQM/EcalCommon/interface/MESetDet1D.h"
 #include "DQM/EcalCommon/interface/MESetDet2D.h"
+#include "DQM/EcalCommon/interface/MESetProjection.h"
 #include "DQM/EcalCommon/interface/MESetTrend.h"
 
 namespace ecaldqm{
 
   std::map<std::string, std::vector<MEData> > DQWorker::meData;
 
-  DQWorker::DQWorker(const edm::ParameterSet &, const edm::ParameterSet& _paths, std::string const& _name) :
+  DQWorker::DQWorker(const edm::ParameterSet& _params, std::string const& _name) :
     name_(_name),
     MEs_(0),
     initialized_(false),
@@ -28,13 +29,12 @@ namespace ecaldqm{
       throw cms::Exception("InvalidCall") << "MonitorElement setup data not found for " << name_ << std::endl;
 
     vector<MEData> const& vData(dItr->second);
-    MEs_.resize(vData.size());
 
-    for(unsigned iME(0); iME < MEs_.size(); iME++){
-      MEData& data(meData[name_].at(iME));
-      string fullpath(_paths.getUntrackedParameter<string>(data.pathName));
+    for(unsigned iME(0); iME < vData.size(); iME++){
+      MEData const& data(vData[iME]);
+      if(data.kind == MonitorElement::DQM_KIND_INVALID) continue;
 
-      MEs_.at(iME) = createMESet_(fullpath, data);
+      MEs_.push_back(createMESet_(data));
     }
   }
 
@@ -60,6 +60,12 @@ namespace ecaldqm{
     initialized_ = false;
   }
 
+  void
+  DQWorker::initialize()
+  {
+    initialized_ = true;
+  }
+
   /*static*/
   void
   DQWorker::setMEData(std::vector<MEData>&)
@@ -67,20 +73,23 @@ namespace ecaldqm{
   }
 
   MESet*
-  DQWorker::createMESet_(std::string const& _fullpath, MEData const& _data, bool _readOnly/* = false*/) const
+  DQWorker::createMESet_(MEData const& _data) const
   {
     BinService::ObjectType otype(_data.otype);
     BinService::BinningType btype(_data.btype);
     MonitorElement::Kind kind(_data.kind);
 
     if(otype == BinService::nObjType)
-      return new MESetNonObject(_fullpath, _data, _readOnly);
+      return new MESetNonObject(_data);
 
     if(otype == BinService::kChannel)
-      return new MESetChannel(_fullpath, _data, _readOnly);
+      return new MESetChannel(_data);
+
+    if(btype == BinService::kProjEta || btype == BinService::kProjPhi)
+      return new MESetProjection(_data);
 
     if(btype == BinService::kTrend)
-      return new MESetTrend(_fullpath, _data, _readOnly);
+      return new MESetTrend(_data);
 
     unsigned logicalDimensions;
     switch(kind){
@@ -109,16 +118,16 @@ namespace ecaldqm{
     }
 
     if(btype == BinService::kUser)
-      return new MESetEcal(_fullpath, _data, logicalDimensions, _readOnly);
+      return new MESetEcal(_data, logicalDimensions);
 
     if(logicalDimensions == 0)
-      return new MESetDet0D(_fullpath, _data, _readOnly);
+      return new MESetDet0D(_data);
 
     if(logicalDimensions == 1)
-      return new MESetDet1D(_fullpath, _data, _readOnly);
+      return new MESetDet1D(_data);
 
     if(logicalDimensions == 2)
-      return new MESetDet2D(_fullpath, _data, _readOnly);
+      return new MESetDet2D(_data);
 
     return 0;
   }

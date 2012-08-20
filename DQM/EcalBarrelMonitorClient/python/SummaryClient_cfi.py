@@ -1,4 +1,11 @@
 summaryClient = dict(
+    sources = dict(
+        Integrity = ['IntegrityClient', 'Quality'],
+        Presample = ['PresampleClient', 'Quality'],
+        Timing = ['TimingClient', 'Quality'],
+        RawData = ['RawDataClient', 'QualitySummary'],
+        DigiOccupancy = ['OccupancyTask', 'Digi']
+    )
 )
 
 summaryClientPaths = dict(

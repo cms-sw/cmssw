@@ -6,14 +6,12 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
-#include "DQM/EcalBarrelMonitorTasks/interface/OccupancyTask.h"
-
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 namespace ecaldqm {
 
-  OccupancyClient::OccupancyClient(const edm::ParameterSet& _params, const edm::ParameterSet& _paths) :
-    DQWorkerClient(_params, _paths, "OccupancyClient"),
+  OccupancyClient::OccupancyClient(const edm::ParameterSet& _params) :
+    DQWorkerClient(_params, "OccupancyClient"),
     geometry_(0),
     minHits_(0),
     deviationThreshold_(0.)
@@ -21,11 +19,6 @@ namespace ecaldqm {
     edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
     minHits_ = taskParams.getUntrackedParameter<int>("minHits");
     deviationThreshold_ = taskParams.getUntrackedParameter<double>("deviationThreshold");
-
-    edm::ParameterSet const& sources(_params.getUntrackedParameterSet("sources"));
-    source_(sDigi, "OccupancyTask", OccupancyTask::kDigi, sources);
-    source_(sRecHitThr, "OccupancyTask", OccupancyTask::kRecHitThr, sources);
-    source_(sTPDigiThr, "OccupancyTask", OccupancyTask::kTPDigiThr, sources);
   }
 
   void
@@ -62,7 +55,7 @@ namespace ecaldqm {
     vector<int> numCrystals(28, 0); // this is static, but is easier to count now
 
     for(unsigned dccid(1); dccid <= 54; dccid++){
-      for(unsigned tower(1); tower <= getNSuperCrystals(dccid); tower++){
+      for(unsigned tower(1); tower <= nSuperCrystals(dccid); tower++){
 	vector<DetId> ids(getElectronicsMap()->dccTowerConstituents(dccid, tower));
 
 	if(ids.size() == 0) continue;
@@ -87,7 +80,7 @@ namespace ecaldqm {
 
     // second round to find hot towers
     for(unsigned dccid(1); dccid <= 54; dccid++){
-      for(unsigned tower(1); tower <= getNSuperCrystals(dccid); tower++){
+      for(unsigned tower(1); tower <= nSuperCrystals(dccid); tower++){
 	vector<DetId> ids(getElectronicsMap()->dccTowerConstituents(dccid, tower));
 
 	if(ids.size() == 0) continue;
@@ -158,6 +151,10 @@ namespace ecaldqm {
     _data[kHotRecHitThr] = MEData("HotRecHitThr", BinService::kChannel, BinService::kCrystal, MonitorElement::DQM_KIND_TH1F);
     _data[kHotTPDigiThr] = MEData("HotTPDigiThr", BinService::kChannel, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH1F);
     _data[kQualitySummary] = MEData("QualitySummary", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
+
+    _data[sDigi + nTargets] = MEData("Digi");
+    _data[sRecHitThr + nTargets] = MEData("RecHitThr");
+    _data[sTPDigiThr + nTargets] = MEData("TPDigiThr");
   }
 
   DEFINE_ECALDQM_WORKER(OccupancyClient);

@@ -16,8 +16,8 @@
 
 namespace ecaldqm {
 
-  ClusterTask::ClusterTask(const edm::ParameterSet &_params, const::edm::ParameterSet& _paths) :
-    DQWorkerTask(_params, _paths, "ClusterTask"),
+  ClusterTask::ClusterTask(const edm::ParameterSet &_params) :
+    DQWorkerTask(_params, "ClusterTask"),
     topology_(0),
     ebGeometry_(0),
     eeGeometry_(0),
@@ -36,8 +36,8 @@ namespace ecaldqm {
       (0x1 << kEBSuperCluster) |
       (0x1 << kEESuperCluster);
 
-    dependencies_.push_back(std::pair<Collections, Collections>(kEBSuperCluster, kEBRecHit));
-    dependencies_.push_back(std::pair<Collections, Collections>(kEESuperCluster, kEERecHit));
+    dependencies.push_back(Dependency(kEBSuperCluster, kEBRecHit));
+    dependencies.push_back(Dependency(kEESuperCluster, kEERecHit));
 
     edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
 
@@ -261,7 +261,7 @@ namespace ecaldqm {
     reco::SuperCluster const* leading(0);
     reco::SuperCluster const* subLeading(0);
 
-    int nSC[] = {0, 0};
+    int nSC(0);
 
     for(reco::SuperClusterCollection::const_iterator scItr(_scs.begin()); scItr != _scs.end(); ++scItr){
       const math::XYZPoint &position(scItr->position());
@@ -299,8 +299,7 @@ namespace ecaldqm {
       float e3x3(EcalClusterTools::e3x3(*scItr->seed(), hits, topology_));
       MEs_[kSCR9]->fill(id, e3x3 / energy);
 
-      int zside(position.z() > 0 ? 1 : 0);
-      nSC[zside]++;
+      nSC++;
 
       if(ievt_ % massCalcPrescale_ != 0) continue;
 
@@ -314,12 +313,10 @@ namespace ecaldqm {
       }
     }
 
-    if(_collection == kEBSuperCluster){
-      MEs_[kSCNum]->fill((unsigned)BinService::kEB + 1, nSC[0] + nSC[1]);
-    }else{
-      MEs_[kSCNum]->fill((unsigned)BinService::kEEm + 1, nSC[0]);
-      MEs_[kSCNum]->fill((unsigned)BinService::kEEp + 1, nSC[1]);
-    }
+    if(_collection == kEBSuperCluster)
+      MEs_[kSCNum]->fill((unsigned)BinService::kEB + 1, nSC);
+    else
+      MEs_[kSCNum]->fill((unsigned)BinService::kEE + 1, nSC);
 
     if(ievt_ % massCalcPrescale_ != 0) return;
 

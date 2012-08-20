@@ -1,21 +1,14 @@
 #include "../interface/TrigPrimClient.h"
 
-#include "DQM/EcalBarrelMonitorTasks/interface/TrigPrimTask.h"
-
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 #include <cmath>
 
 namespace ecaldqm {
 
-  TrigPrimClient::TrigPrimClient(const edm::ParameterSet& _params, const edm::ParameterSet& _paths) :
-    DQWorkerClient(_params, _paths, "TrigPrimClient")
+  TrigPrimClient::TrigPrimClient(const edm::ParameterSet& _params) :
+    DQWorkerClient(_params, "TrigPrimClient")
   {
-    edm::ParameterSet const& sources(_params.getUntrackedParameterSet("sources"));
-    source_(sEtRealMap, "TrigPrimTask", TrigPrimTask::kEtRealMap, sources);
-    source_(sEtEmulError, "TrigPrimTask", TrigPrimTask::kEtEmulError, sources);
-    source_(sTimingError, "TrigPrimTask", TrigPrimTask::kTimingError, sources);
-    source_(sMatchedIndex, "TrigPrimTask", TrigPrimTask::kMatchedIndex, sources);
   }
 
   void
@@ -76,6 +69,11 @@ namespace ecaldqm {
     _data[kTimingSummary] = MEData("TimingSummary", BinService::kEcal2P, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH2F);
     _data[kNonSingleSummary] = MEData("NonSingleSummary", BinService::kEcal2P, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH2F);
     _data[kEmulQualitySummary] = MEData("EmulQualitySummary", BinService::kEcal2P, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH2F);
+
+    _data[sEtRealMap + nTargets] = MEData("EtRealMap");
+    _data[sEtEmulError + nTargets] = MEData("EtEmulError");
+    _data[sTimingError + nTargets] = MEData("TimingError");
+    _data[sMatchedIndex + nTargets] = MEData("MatchedIndex");
   }
 
   DEFINE_ECALDQM_WORKER(TrigPrimClient);

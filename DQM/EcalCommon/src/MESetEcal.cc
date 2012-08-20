@@ -2,21 +2,17 @@
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
-
 #include <limits>
 
 namespace ecaldqm
 {
 
-  MESetEcal::MESetEcal(std::string const& _fullpath, MEData const& _data, int _logicalDimensions, bool _readOnly/* = false*/) :
-    MESet(_fullpath, _data, _readOnly),
-    logicalDimensions_(_logicalDimensions),
-    cacheId_(0),
-    cache_(std::make_pair(-1, std::vector<int>(0)))
+  MESetEcal::MESetEcal(MEData const& _data, int _logicalDimensions) :
+    MESet(_data),
+    logicalDimensions_(_logicalDimensions)
   {
     if(data_->btype == BinService::kUser && ((logicalDimensions_ > 0 && !data_->xaxis) || (logicalDimensions_ > 1 && !data_->yaxis)))
-      throw cms::Exception("InvalidCall") << "Need axis specifications" << std::endl;
+      throw_("Need axis specifications");
   }
 
   MESetEcal::~MESetEcal()
@@ -38,9 +34,7 @@ namespace ecaldqm
     std::vector<std::string> meNames(generateNames());
 
     for(unsigned iME(0); iME < meNames.size(); iME++){
-      unsigned iObj(iME);
-
-      BinService::ObjectType actualObject(binService_->objectFromOffset(data_->otype, iObj));
+      BinService::ObjectType actualObject(binService_->getObject(data_->otype, iME));
 
       BinService::AxisSpecs xaxis, yaxis, zaxis;
 
@@ -50,12 +44,8 @@ namespace ecaldqm
 	}
 	else{ // uses preset
 	  bool isMap(logicalDimensions_ > 1);
-	  vector<BinService::AxisSpecs> presetAxes(binService_->getBinning(actualObject, data_->btype, isMap, iObj));
-	  if(presetAxes.size() != logicalDimensions_)
-	    throw cms::Exception("InvalidCall") << "Dimensionality mismatch " << data_->otype << " " << data_->btype << " " << iObj << std::endl;
-
-	  xaxis = presetAxes[0];
-	  if(isMap) yaxis = presetAxes[1];
+	  xaxis = binService_->getBinning(actualObject, data_->btype, isMap, 1, iME);
+	  if(isMap) yaxis = binService_->getBinning(actualObject, data_->btype, true, 2, iME);
 	}
 
 	if(data_->yaxis){
@@ -136,7 +126,7 @@ namespace ecaldqm
 	  zaxis.high = zaxis.edges[zaxis.nbins];
 	}
 	if(xaxis.edges || yaxis.edges)
-	  throw cms::Exception("InvalidCall") << "Variable bin size for 2D profile not implemented" << std::endl;
+	  throw_("Variable bin size for 2D profile not implemented");
 	me = dqmStore_->bookProfile2D(meNames[iME], meNames[iME], xaxis.nbins, xaxis.low, xaxis.high, yaxis.nbins, yaxis.low, yaxis.high, zaxis.low, zaxis.high, "");
 
 	break;
@@ -146,12 +136,13 @@ namespace ecaldqm
       }
 
       if(!me)
-	throw cms::Exception("InvalidCall") << "ME could not be booked" << std::endl;
+	throw_("ME could not be booked");
 
       if(logicalDimensions_ > 0){
 	me->setAxisTitle(xaxis.title, 1);
 	me->setAxisTitle(yaxis.title, 2);
 	// For plot tagging in RenderPlugin; default values are 1 for both
+        // Does this method work?
 	me->getTH1()->SetMarkerStyle(actualObject + 2);
 	me->getTH1()->SetMarkerStyle(data_->btype + 2);
       }
@@ -218,184 +209,273 @@ namespace ecaldqm
   }
 
   void
-  MESetEcal::fill(DetId const& _id, double _x/* = 1.*/, double _wy/* = 1.*/, double _w/* = 1.*/)
+  MESetEcal::fill(DetId const& _id, double _x, double _wy/* = 1.*/, double _w/* = 1.*/)
   {
-    unsigned offset(binService_->findOffset(data_->otype, _id));
-    if(offset >= mes_.size() || !mes_[offset])
-      throw cms::Exception("InvalidCall") << "ME array index overflow" << std::endl;
+    if(!active_) return;
 
-    MESet::fill_(offset, _x, _wy, _w);
+    unsigned iME(binService_->findPlot(data_->otype, _id));
+    checkME_(iME);
+
+    fill_(iME, _x, _wy, _w);
   }
 
   void
-  MESetEcal::fill(unsigned _dcctccid, double _x/* = 1.*/, double _wy/* = 1.*/, double _w/* = 1.*/)
+  MESetEcal::fill(EcalElectronicsId const& _id, double _x, double _wy/* = 1.*/, double _w/* = 1.*/)
   {
-    unsigned offset(binService_->findOffset(data_->otype, data_->btype, _dcctccid));
+    if(!active_) return;
 
-    if(offset >= mes_.size() || !mes_[offset])
-      throw cms::Exception("InvalidCall") << "ME array index overflow" << offset << std::endl;
+    unsigned iME(binService_->findPlot(data_->otype, _id));
+    checkME_(iME);
 
-    MESet::fill_(offset, _x, _wy, _w);
+    fill_(iME, _x, _wy, _w);
   }
 
   void
-  MESetEcal::fill(double _x, double _wy/* = 1.*/, double _w/* = 1.*/)
+  MESetEcal::fill(unsigned _dcctccid, double _x, double _wy/* = 1.*/, double _w/* = 1.*/)
   {
-    if(mes_.size() != 1)
-      throw cms::Exception("InvalidCall") << "MESet type incompatible" << std::endl;
+    if(!active_) return;
 
-    MESet::fill_(0, _x, _wy, _w);
+    unsigned iME(binService_->findPlot(data_->otype, _dcctccid, data_->btype));
+    checkME_(iME);
+
+    fill_(iME, _x, _wy, _w);
   }
 
   void
-  MESetEcal::setBinContent(DetId const& _id, double _content, double _err/* = 0.*/)
+  MESetEcal::setBinContent(DetId const& _id, int _bin, double _content)
   {
-    find_(_id);
+    if(!active_) return;
 
-    std::vector<int>& bins(cache_.second);
-    for(std::vector<int>::iterator binItr(bins.begin()); binItr != bins.end(); ++binItr)
-      setBinContent_(cache_.first, *binItr, _content, _err);
+    unsigned iME(binService_->findPlot(data_->otype, _id));
+    checkME_(iME);
+
+    mes_[iME]->setBinContent(_bin, _content);
   }
 
   void
-  MESetEcal::setBinContent(unsigned _dcctccid, double _content, double _err/* = 0.*/)
+  MESetEcal::setBinContent(EcalElectronicsId const& _id, int _bin, double _content)
   {
-    find_(_dcctccid);
+    if(!active_) return;
 
-    std::vector<int>& bins(cache_.second);
-    for(std::vector<int>::iterator binItr(bins.begin()); binItr != bins.end(); ++binItr)
-      setBinContent_(cache_.first, *binItr, _content, _err);
+    unsigned iME(binService_->findPlot(data_->otype, _id));
+    checkME_(iME);
+
+    mes_[iME]->setBinContent(_bin, _content);
   }
 
   void
-  MESetEcal::setBinEntries(DetId const& _id, double _entries)
+  MESetEcal::setBinContent(unsigned _dcctccid, int _bin, double _content)
   {
-    find_(_id);
+    if(!active_) return;
 
-    std::vector<int>& bins(cache_.second);
-    for(std::vector<int>::iterator binItr(bins.begin()); binItr != bins.end(); ++binItr)
-      setBinEntries_(cache_.first, *binItr, _entries);
+    unsigned iME(binService_->findPlot(data_->otype, _dcctccid, data_->btype));
+    checkME_(iME);
+
+    mes_[iME]->setBinContent(_bin, _content);
   }
 
   void
-  MESetEcal::setBinEntries(unsigned _dcctccid, double _entries)
+  MESetEcal::setBinError(DetId const& _id, int _bin, double _error)
   {
-    find_(_dcctccid);
+    if(!active_) return;
 
-    std::vector<int>& bins(cache_.second);
-    for(std::vector<int>::iterator binItr(bins.begin()); binItr != bins.end(); ++binItr)
-      setBinEntries_(cache_.first, *binItr, _entries);
+    unsigned iME(binService_->findPlot(data_->otype, _id));
+    checkME_(iME);
+
+    mes_[iME]->setBinError(_bin, _error);
+  }
+
+  void
+  MESetEcal::setBinError(EcalElectronicsId const& _id, int _bin, double _error)
+  {
+    if(!active_) return;
+
+    unsigned iME(binService_->findPlot(data_->otype, _id));
+    checkME_(iME);
+
+    mes_[iME]->setBinError(_bin, _error);
+  }
+
+  void
+  MESetEcal::setBinError(unsigned _dcctccid, int _bin, double _error)
+  {
+    if(!active_) return;
+
+    unsigned iME(binService_->findPlot(data_->otype, _dcctccid, data_->btype));
+    checkME_(iME);
+
+    mes_[iME]->setBinError(_bin, _error);
+  }
+
+  void
+  MESetEcal::setBinEntries(DetId const& _id, int _bin, double _entries)
+  {
+    if(!active_) return;
+    if(data_->kind != MonitorElement::DQM_KIND_TPROFILE && data_->kind != MonitorElement::DQM_KIND_TPROFILE2D) return;
+
+    unsigned iME(binService_->findPlot(data_->otype, _id));
+    checkME_(iME);
+
+    mes_[iME]->setBinEntries(_bin, _entries);
+  }
+
+  void
+  MESetEcal::setBinEntries(EcalElectronicsId const& _id, int _bin, double _entries)
+  {
+    if(!active_) return;
+    if(data_->kind != MonitorElement::DQM_KIND_TPROFILE && data_->kind != MonitorElement::DQM_KIND_TPROFILE2D) return;
+
+    unsigned iME(binService_->findPlot(data_->otype, _id));
+    checkME_(iME);
+
+    mes_[iME]->setBinEntries(_bin, _entries);
+  }
+
+  void
+  MESetEcal::setBinEntries(unsigned _dcctccid, int _bin, double _entries)
+  {
+    if(!active_) return;
+    if(data_->kind != MonitorElement::DQM_KIND_TPROFILE && data_->kind != MonitorElement::DQM_KIND_TPROFILE2D) return;
+
+    unsigned iME(binService_->findPlot(data_->otype, _dcctccid, data_->btype));
+    checkME_(iME);
+
+    mes_[iME]->setBinEntries(_bin, _entries);
   }
 
   double
-  MESetEcal::getBinContent(DetId const& _id, int) const
+  MESetEcal::getBinContent(DetId const& _id, int _bin) const
   {
-    find_(_id);
+    if(!active_) return 0.;
 
-    if(cache_.second.size() == 0) return 0.;
+    unsigned iME(binService_->findPlot(data_->otype, _id));
+    checkME_(iME);
 
-    return getBinContent_(cache_.first, cache_.second[0]);
+    return mes_[iME]->getBinContent(_bin);
   }
 
   double
-  MESetEcal::getBinContent(unsigned _dcctccid, int) const
+  MESetEcal::getBinContent(EcalElectronicsId const& _id, int _bin) const
   {
-    find_(_dcctccid);
+    if(!active_) return 0.;
 
-    if(cache_.second.size() == 0) return 0.;
+    unsigned iME(binService_->findPlot(data_->otype, _id));
+    checkME_(iME);
 
-    return getBinContent_(cache_.first, cache_.second[0]);
+    return mes_[iME]->getBinContent(_bin);
   }
 
   double
-  MESetEcal::getBinError(DetId const& _id, int) const
+  MESetEcal::getBinContent(unsigned _dcctccid, int _bin) const
   {
-    find_(_id);
+    if(!active_) return 0.;
 
-    if(cache_.second.size() == 0) return 0.;
+    unsigned iME(binService_->findPlot(data_->otype, _dcctccid, data_->btype));
+    checkME_(iME);
 
-    return getBinError_(cache_.first, cache_.second[0]);
+    return mes_[iME]->getBinContent(_bin);
   }
 
   double
-  MESetEcal::getBinError(unsigned _dcctccid, int) const
+  MESetEcal::getBinError(DetId const& _id, int _bin) const
   {
-    find_(_dcctccid);
+    if(!active_) return 0.;
 
-    if(cache_.second.size() == 0) return 0.;
-    
-    return getBinError_(cache_.first, cache_.second[0]);
+    unsigned iME(binService_->findPlot(data_->otype, _id));
+    checkME_(iME);
+
+    return mes_[iME]->getBinError(_bin);
   }
 
   double
-  MESetEcal::getBinEntries(DetId const& _id, int) const
+  MESetEcal::getBinError(EcalElectronicsId const& _id, int _bin) const
   {
-    find_(_id);
+    if(!active_) return 0.;
 
-    if(cache_.second.size() == 0) return 0.;
+    unsigned iME(binService_->findPlot(data_->otype, _id));
+    checkME_(iME);
 
-    return getBinEntries_(cache_.first, cache_.second[0]);
+    return mes_[iME]->getBinError(_bin);
   }
 
   double
-  MESetEcal::getBinEntries(unsigned _dcctccid, int) const
+  MESetEcal::getBinError(unsigned _dcctccid, int _bin) const
   {
-    find_(_dcctccid);
+    if(!active_) return 0.;
 
-    if(cache_.second.size() == 0) return 0.;
-    
-    return getBinEntries_(cache_.first, cache_.second[0]);
+    unsigned iME(binService_->findPlot(data_->otype, _dcctccid, data_->btype));
+    checkME_(iME);
+
+    return mes_[iME]->getBinError(_bin);
   }
 
-  void
-  MESetEcal::reset(double _content/* = 0.*/, double _err/* = 0.*/, double _entries/* = 0.*/)
+  double
+  MESetEcal::getBinEntries(DetId const& _id, int _bin) const
   {
-    using namespace std;
+    if(!active_) return 0.;
+    if(data_->kind != MonitorElement::DQM_KIND_TPROFILE && data_->kind != MonitorElement::DQM_KIND_TPROFILE2D) return 0.;
 
-    if(data_->btype >= unsigned(BinService::nPresetBinnings)){
-      MESet::reset(_content, _err, _entries);
-      return;
-    }
+    unsigned iME(binService_->findPlot(data_->otype, _id));
+    checkME_(iME);
 
-    unsigned nME(1);
-    switch(data_->otype){
-    case BinService::kSM:
-      nME = BinService::nDCC;
-      break;
-    case BinService::kSMMEM:
-      nME = BinService::nDCCMEM;
-      break;
-    case BinService::kEcal2P:
-      nME = 2;
-      break;
-    case BinService::kEcal3P:
-      nME = 3;
-      break;
-    case BinService::kEcalMEM2P:
-      nME = 2;
-      break;
-    default:
-      break;
-    }
+    return mes_[iME]->getBinEntries(_bin);
+  }
 
-    for(unsigned iME(0); iME < nME; iME++) {
-      unsigned iObj(iME);
+  double
+  MESetEcal::getBinEntries(EcalElectronicsId const& _id, int _bin) const
+  {
+    if(!active_) return 0.;
+    if(data_->kind != MonitorElement::DQM_KIND_TPROFILE && data_->kind != MonitorElement::DQM_KIND_TPROFILE2D) return 0.;
 
-      BinService::ObjectType okey(binService_->objectFromOffset(data_->otype, iObj));
-      BinService::BinningType bkey(data_->btype);
-      if(okey == BinService::nObjType)
-	throw cms::Exception("InvalidCall") << "Undefined object & bin type";
+    unsigned iME(binService_->findPlot(data_->otype, _id));
+    checkME_(iME);
 
-      std::vector<int> const* binMap(binService_->getBinMap(okey, bkey));
-      if(!binMap)
-	throw cms::Exception("InvalidCall") << "Cannot retrieve bin map";
+    return mes_[iME]->getBinEntries(_bin);
+  }
 
-      for(std::vector<int>::const_iterator binItr(binMap->begin()); binItr != binMap->end(); ++binItr){
-	int bin(*binItr - binService_->smOffsetBins(okey, bkey, iObj));
-	setBinContent_(iME, bin, _content, _err);
-	setBinEntries_(iME, bin, 0.);
-      }
-    }
+  double
+  MESetEcal::getBinEntries(unsigned _dcctccid, int _bin) const
+  {
+    if(!active_) return 0.;
+    if(data_->kind != MonitorElement::DQM_KIND_TPROFILE && data_->kind != MonitorElement::DQM_KIND_TPROFILE2D) return 0.;
+
+    unsigned iME(binService_->findPlot(data_->otype, _dcctccid, data_->btype));
+    checkME_(iME);
+
+    return mes_[iME]->getBinEntries(_bin);
+  }
+
+  int
+  MESetEcal::findBin(DetId const& _id, double _x, double _y/* = 0.*/) const
+  {
+    if(!active_) return -1;
+
+    unsigned iME(binService_->findPlot(data_->otype, _id));
+    checkME_(iME);
+
+    return mes_[iME]->getTH1()->FindBin(_x, _y);
+  }
+
+  int
+  MESetEcal::findBin(EcalElectronicsId const& _id, double _x, double _y/* = 0.*/) const
+  {
+    if(!active_) return -1;
+
+    unsigned iME(binService_->findPlot(data_->otype, _id));
+    checkME_(iME);
+
+    return mes_[iME]->getTH1()->FindBin(_x, _y);
+  }
+
+  int
+  MESetEcal::findBin(unsigned _dcctccid, double _x, double _y/* = 0.*/) const
+  {
+    if(!active_) return -1;
+
+    unsigned iME(binService_->findPlot(data_->otype, _dcctccid, data_->btype));
+    checkME_(iME);
+
+    return mes_[iME]->getTH1()->FindBin(_x, _y);
   }
 
   std::vector<std::string>
@@ -403,34 +483,12 @@ namespace ecaldqm
   {
     using namespace std;
 
-    unsigned nME(1);
-    switch(data_->otype){
-    case BinService::kSM:
-      nME = BinService::nDCC;
-      break;
-    case BinService::kSMMEM:
-      nME = BinService::nDCCMEM;
-      break;
-    case BinService::kEcal2P:
-      nME = 2;
-      break;
-    case BinService::kEcal3P:
-      nME = 3;
-      break;
-    case BinService::kEcalMEM2P:
-      nME = 2;
-      break;
-    default:
-      break;
-    }
-
     std::vector<std::string> names(0);
 
+    unsigned nME(binService_->getNObjects(data_->otype));
+
     for(unsigned iME(0); iME < nME; iME++) {
-
-      unsigned iObj(iME);
-
-      BinService::ObjectType actualObject(binService_->objectFromOffset(data_->otype, iObj));
+      BinService::ObjectType obj(binService_->getObject(data_->otype, iME));
 
       string name(name_);
       string spacer(" ");
@@ -439,7 +497,7 @@ namespace ecaldqm
       else if(data_->btype == BinService::kProjPhi) name += " phi";
       else if(data_->btype == BinService::kReport) spacer = "_";
 
-      switch(actualObject){
+      switch(obj){
       case BinService::kEB:
       case BinService::kEBMEM:
 	name += spacer + "EB"; break;
@@ -451,11 +509,18 @@ namespace ecaldqm
       case BinService::kEEp:
 	name += spacer + "EE+"; break;
       case BinService::kSM:
-	name += spacer + binService_->channelName(iObj + 1); break;
+	name += spacer + binService_->channelName(iME + 1); break;
+      case BinService::kEBSM:
+	name += spacer + binService_->channelName(iME + 10); break;
+      case BinService::kEESM:
+	name += spacer + binService_->channelName(iME <= kEEmHigh ? iME + 1 : iME + 37); break;
       case BinService::kSMMEM:
 	//dccId(unsigned) skips DCCs without MEM
-	iObj = dccId(iME) - 1;
-	name += spacer + binService_->channelName(iObj + 1); break;
+	name += spacer + binService_->channelName(memDCCId(iME)); break;
+      case BinService::kEBSMMEM:
+	name += spacer + binService_->channelName(memDCCId(iME + 9)); break;
+      case BinService::kEESMMEM:
+	name += spacer + binService_->channelName(memDCCId(iME <= kEEmHigh ? iME : iME + 36)); break;
       default:
 	break;
       }
@@ -464,34 +529,6 @@ namespace ecaldqm
     }
 
     return names;
-  }
-
-  void
-  MESetEcal::find_(uint32_t _id) const
-  {
-    if(_id == cacheId_) return;
-
-    DetId id(_id);
-    if(id.det() == DetId::Ecal)
-      cache_ = binService_->findBins(data_->otype, data_->btype, id);
-    else
-      cache_ = binService_->findBins(data_->otype, data_->btype, unsigned(_id));
-
-    if(cache_.first >= mes_.size() || !mes_[cache_.first])
-      throw cms::Exception("InvalidCall") << "ME array index overflow" << std::endl;
-
-    // some TTs are apparently empty..!
-//     if(cache_.second.size() == 0)
-//       throw cms::Exception("InvalidCall") << "No bins to get content from" << std::endl;
-
-    cacheId_ = _id;
-  }
-
-  void
-  MESetEcal::fill_(double _w)
-  {
-    for(unsigned iBin(0); iBin < cache_.second.size(); iBin++)
-      MESet::fill_(cache_.first, cache_.second[iBin], _w);
   }
 
 }

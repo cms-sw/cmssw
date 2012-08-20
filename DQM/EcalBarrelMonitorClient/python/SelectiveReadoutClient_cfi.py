@@ -1,4 +1,13 @@
 selectiveReadoutClient = dict(
+    sources = dict(
+        FlagCounterMap = ['SelectiveReadoutTask', 'FlagCounterMap'],
+        RUForcedMap = ['SelectiveReadoutTask', 'RUForcedMap'],
+        FullReadoutMap = ['SelectiveReadoutTask', 'FullReadoutMap'],
+        ZS1Map = ['SelectiveReadoutTask', 'ZS1Map'],
+        ZSMap = ['SelectiveReadoutTask', 'ZSMap'],
+        ZSFullReadoutMap = ['SelectiveReadoutTask', 'ZSFullReadoutMap'],
+        FRDroppedMap = ['SelectiveReadoutTask', 'FRDroppedMap']
+    )
 )
 
 selectiveReadoutClientPaths = dict(

@@ -4,8 +4,8 @@
 
 namespace ecaldqm {
 
-  PNPresampleTask::PNPresampleTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
-    DQWorkerTask(_params, _paths, "PNPresampleTask")
+  PNPresampleTask::PNPresampleTask(const edm::ParameterSet &_params) :
+    DQWorkerTask(_params, "PNPresampleTask")
   {
     collectionMask_ =
       (0x1 << kPnDiodeDigi);

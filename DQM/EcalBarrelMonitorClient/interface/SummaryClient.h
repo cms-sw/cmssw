@@ -1,13 +1,13 @@
 #ifndef SummaryClient_H
 #define SummaryClient_H
 
-#include "DQM/EcalCommon/interface/DQWorkerClient.h"
+#include "DQWorkerClient.h"
 
 namespace ecaldqm {
 
   class SummaryClient : public DQWorkerClient {
   public:
-    SummaryClient(const edm::ParameterSet &, const edm::ParameterSet &);
+    SummaryClient(const edm::ParameterSet &);
     ~SummaryClient() {}
 
     void bookMEs();
@@ -21,19 +21,18 @@ namespace ecaldqm {
       kReportSummaryMap,
       kReportSummaryContents,
       kReportSummary,
-      nMESets
-    };
-
-    static void setMEData(std::vector<MEData>&);
-
-    enum Sources {
-      sIntegrity,
+      nTargets,
+      sIntegrity = 0,
       sPresample,
       sTiming,
       sRawData,
       sDigiOccupancy,
-      nSources
+      nSources,
+      nMESets = nTargets + nSources
     };
+
+    static void setMEData(std::vector<MEData>&);
+
   };
 
 }

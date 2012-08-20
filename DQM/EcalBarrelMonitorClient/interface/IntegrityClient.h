@@ -1,13 +1,13 @@
 #ifndef IntegrityClient_H
 #define IntegrityClient_H
 
-#include "DQM/EcalCommon/interface/DQWorkerClient.h"
+#include "DQWorkerClient.h"
 
 namespace ecaldqm {
 
   class IntegrityClient : public DQWorkerClient {
   public:
-    IntegrityClient(const edm::ParameterSet &, const edm::ParameterSet&);
+    IntegrityClient(const edm::ParameterSet &);
     ~IntegrityClient() {}
 
     void bookMEs();
@@ -17,20 +17,18 @@ namespace ecaldqm {
     enum MESets {
       kQuality,
       kQualitySummary,
-      nMESets
-    };
-
-    static void setMEData(std::vector<MEData>&);
-
-    enum Sources {
-      sOccupancy,
+      nTargets,
+      sOccupancy = 0,
       sGain,
       sChId,
       sGainSwitch,
       sTowerId,
       sBlockSize,
-      nSources
+      nSources,
+      nMESets = nTargets + nSources
     };
+
+    static void setMEData(std::vector<MEData>&);
 
   protected:
     float errFractionThreshold_;

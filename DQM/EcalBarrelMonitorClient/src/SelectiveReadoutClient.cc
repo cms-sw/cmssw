@@ -1,24 +1,14 @@
 #include "../interface/SelectiveReadoutClient.h"
 
-#include "DQM/EcalBarrelMonitorTasks/interface/SelectiveReadoutTask.h"
-
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 #include <cmath>
 
 namespace ecaldqm {
 
-  SelectiveReadoutClient::SelectiveReadoutClient(const edm::ParameterSet& _params, const edm::ParameterSet& _paths) :
-    DQWorkerClient(_params, _paths, "SelectiveReadoutClient")
+  SelectiveReadoutClient::SelectiveReadoutClient(const edm::ParameterSet& _params) :
+    DQWorkerClient(_params, "SelectiveReadoutClient")
   {
-    edm::ParameterSet const& sources(_params.getUntrackedParameterSet("sources"));
-    source_(sFlagCounterMap, "SelectiveReadoutTask", SelectiveReadoutTask::kFlagCounterMap, sources);
-    source_(sRUForcedMap, "SelectiveReadoutTask", SelectiveReadoutTask::kRUForcedMap, sources);
-    source_(sFullReadoutMap, "SelectiveReadoutTask", SelectiveReadoutTask::kFullReadoutMap, sources);
-    source_(sZS1Map, "SelectiveReadoutTask", SelectiveReadoutTask::kZS1Map, sources);
-    source_(sZSMap, "SelectiveReadoutTask", SelectiveReadoutTask::kZSMap, sources);
-    source_(sZSFullReadoutMap, "SelectiveReadoutTask", SelectiveReadoutTask::kZSFullReadoutMap, sources);
-    source_(sFRDroppedMap, "SelectiveReadoutTask", SelectiveReadoutTask::kFRDroppedMap, sources);
   }
 
   void
@@ -34,7 +24,7 @@ namespace ecaldqm {
 
     for(unsigned dccid(1); dccid <= 54; dccid++){
 
-      for(unsigned tower(1); tower <= getNSuperCrystals(dccid); tower++){
+      for(unsigned tower(1); tower <= nSuperCrystals(dccid); tower++){
 	vector<DetId> ids(getElectronicsMap()->dccTowerConstituents(dccid, tower));
 
 	if(ids.size() == 0) continue;
@@ -95,6 +85,14 @@ namespace ecaldqm {
     _data[kFR] = MEData("FR", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
     _data[kRUForced] = MEData("RUForced", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
     _data[kZS1] = MEData("ZS1", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
+
+    _data[sFlagCounterMap + nTargets] = MEData("FlagCounterMap");
+    _data[sRUForcedMap + nTargets] = MEData("RUForcedMap");
+    _data[sFullReadoutMap + nTargets] = MEData("FullReadoutMap");
+    _data[sZS1Map + nTargets] = MEData("ZS1Map");
+    _data[sZSMap + nTargets] = MEData("ZSMap");
+    _data[sZSFullReadoutMap + nTargets] = MEData("ZSFullReadoutMap");
+    _data[sFRDroppedMap + nTargets] = MEData("FRDroppedMap");
   }
 
   DEFINE_ECALDQM_WORKER(SelectiveReadoutClient);
