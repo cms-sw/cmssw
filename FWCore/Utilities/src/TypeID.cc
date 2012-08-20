@@ -1,6 +1,7 @@
 /*----------------------------------------------------------------------
 
 ----------------------------------------------------------------------*/
+#include <cassert>
 #include <ostream>
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
