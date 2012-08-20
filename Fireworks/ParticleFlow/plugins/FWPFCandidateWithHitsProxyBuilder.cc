@@ -91,7 +91,6 @@ FWPFCandidateWithHitsProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
    {  
       TEveCompound* comp = createCompound();
       setupAddElement( comp, product );
-      comp->IncDenyDestroy();
       // printf("products size %d/%d \n", (int)iItem->size(), product->NumChildren());
 
       const reco::PFCandidate& cand = *it;
@@ -122,12 +121,13 @@ void FWPFCandidateWithHitsProxyBuilder::initPFRecHitsCollections()
 {  
    // ref hcal collections
    edm::Handle<reco::PFRecHitCollection> handle_hits;
+   const static std::string cname("particleFlowRecHitHCALUpgrade");
 
    m_collectionHCAL =0;
    try
    {
-      // edm::InputTag tag("hbhereco");
-      edm::InputTag tag("particleFlowRecHitHCAL");
+      // edm::InputTag tag("particleFlowRecHitHCAL");
+      edm::InputTag tag(cname);
       item()->getEvent()->getByLabel(tag, handle_hits);
       if (handle_hits.isValid())
       {
@@ -136,7 +136,7 @@ void FWPFCandidateWithHitsProxyBuilder::initPFRecHitsCollections()
    }
    catch (...)
    {
-      fwLog(fwlog::kWarning) <<"FWPFCandidateWithHitsProxyBuilder::build():: Failed to access hbhereco collection." << std::endl;
+      fwLog(fwlog::kWarning) <<"FWPFCandidateWithHitsProxyBuilder::build():: Failed to access collection with name " << cname << "." << std::endl;
    }
 }
 
@@ -302,17 +302,17 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
             boxset->SetAlwaysSecSelect(1);
             boxset->SetPickable(1);
             boxset->SetTooltipCBFoo(boxset_tooltip_callback);
-            if (boxset->GetPlex()->Size() == 0)
-               printf("Can't find matching hits with for HCAL block %d in HBHE collection. Number of hits %d.\n", elIdx, (int)hitsandfracs.size());
-            //else   printf("boxset plex size N:%d Size %d: hits%d\n", boxset->GetPlex()->N(),  boxset->GetPlex()->Size(),  (int)hitsandfracs.size());
-            //  setupAddElement(boxset, holder);
-            holder->AddElement(boxset);
+             if (boxset->GetPlex()->Size() == 0)
+              fwLog(fwlog::kWarning) << Form("Can't find matching hits with for HCAL block %d in HBHE collection. Number of hits %d.\n", elIdx, (int)hitsandfracs.size());
+
+            setupAddElement(boxset, holder);
+            // holder->AddElement(boxset);
             setupAddElement(lineset, holder);
 
          }
          else
          {
-            printf("empty cluster \n");
+            fwLog(fwlog::kInfo) << "empty cluster \n";
          }
       }
    }
