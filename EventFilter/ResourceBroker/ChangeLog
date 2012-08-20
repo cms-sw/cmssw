@@ -1,3 +1,9 @@
+2012-08-20 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-00-27
+	* further fixing uncaught exceptions with std::thread
+	* increased timeout in waiting for nbClients==0 to 7.5 seconds
+
 2012-07-23 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V01-00-26

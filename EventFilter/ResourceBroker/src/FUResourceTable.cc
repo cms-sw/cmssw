@@ -1053,7 +1053,7 @@ void FUResourceTable::shutDownClients() {
 						"no cell to write stop "
 								<< shmBuffer_->nbRawCellsToWrite()
 								<< " nClients " << nbClients());
-				if (checks > 10) {
+				if (checks > 15) {
 					string msg = "No Raw Cell to Write STOP messages";
 					XCEPT_RAISE(evf::Exception, msg);
 				}
@@ -1062,6 +1062,10 @@ void FUResourceTable::shutDownClients() {
 	                shutdownStatus_|=1<<3;
 
 		} catch (evf::Exception& e) {
+			watchDogEnd_=true;
+			#ifdef linux
+			watch.join();
+			#endif
 			rethrowShmBufferException(e,
 					"FUResourceTable:shutDownClients:nbRawCellsToWrite");
 		}
@@ -1075,6 +1079,10 @@ void FUResourceTable::shutDownClients() {
 				try {
 					state = shmBuffer_->evtState(i);
 				} catch (evf::Exception& e) {
+					watchDogEnd_=true;
+					#ifdef linux
+					watch.join();
+					#endif
 					rethrowShmBufferException(e,
 							"FUResourceTable:shutDownClients:evtState");
 				}
@@ -1087,6 +1095,10 @@ void FUResourceTable::shutDownClients() {
 						shmBuffer_->setEvtDiscard(i, 1, true);
 						shmBuffer_->scheduleRawCellForDiscardServerSide(i);
 					} catch (evf::Exception& e) {
+						watchDogEnd_=true;
+						#ifdef linux
+						watch.join();
+						#endif
 						rethrowShmBufferException(e,
 								"FUResourceTable:shutDownClients:scheduleRawCellForDiscardServerSide");
 					}
@@ -1095,6 +1107,10 @@ void FUResourceTable::shutDownClients() {
 			try {
 				shmBuffer_->scheduleRawEmptyCellForDiscard();
 			} catch (evf::Exception& e) {
+				watchDogEnd_=true;
+				#ifdef linux
+				watch.join();
+				#endif
 				rethrowShmBufferException(e,
 						"FUResourceTable:shutDownClients:scheduleRawEmptyCellForDiscard");
 			}
@@ -1105,6 +1121,10 @@ void FUResourceTable::shutDownClients() {
 			for (UInt_t i = 0; i < n; ++i)
 				shmBuffer_->writeRawEmptyEvent();
 		} catch (evf::Exception& e) {
+			watchDogEnd_=true;
+			#ifdef linux
+			watch.join();
+			#endif
 			rethrowShmBufferException(e,
 					"FUResourceTable:shutDownClients:writeRawEmptyEvent");
 		}
