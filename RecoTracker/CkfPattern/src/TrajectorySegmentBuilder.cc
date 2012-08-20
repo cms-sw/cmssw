@@ -535,21 +535,19 @@ TrajectorySegmentBuilder::unlockedMeasurements (const vector<TM>& measurements) 
 
   //RecHitEqualByChannels recHitEqual(false,true);
 
-  for ( vector<TM>::const_iterator im=measurements.begin();
-	im!=measurements.end(); ++im ) {
-    ConstRecHitPointer testHit = im->recHit();
-    if ( !testHit->isValid() )  continue;
+  for ( auto const & m : measurements) {
+    ConstRecHitPointer const & testHit = m.recHit();
+    if unlikely( !testHit->isValid() )  continue;
     bool found(false);
-    if ( theLockHits ) {
-      for ( ConstRecHitContainer::const_iterator ih=theLockedHits.begin();
-	    ih!=theLockedHits.end(); ++ih ) {
-	if ( (*ih)->hit()->sharesInput(testHit->hit(), TrackingRecHit::all) ) {
+    if likely( theLockHits ) {
+      for ( auto const & h : theLockedHits) {
+	if ( h->hit()->sharesInput(testHit->hit(), TrackingRecHit::all) ) {
 	  found = true;
 	  break;
 	}
       }
     }
-    if ( !found )  result.push_back(*im);
+    if likely( !found )  result.push_back(m);
   }
   return result;
   //================================= 
