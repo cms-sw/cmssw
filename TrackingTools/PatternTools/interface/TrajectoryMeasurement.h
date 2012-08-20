@@ -185,7 +185,7 @@ public:
     return theUpdatedState;
   }
 
-  ConstRecHitPointer recHit() const {
+  ConstRecHitPointer const & recHit() const {
     return theRecHit;
   }
 
