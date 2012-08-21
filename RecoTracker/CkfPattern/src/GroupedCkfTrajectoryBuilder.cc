@@ -419,6 +419,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 
     double dPhiCacheForLoopersReconstruction(0);
     if ((*il)==traj.lastLayer()){
+
       if(maxPtForLooperReconstruction>0){
 	// ------ For loopers reconstruction
 	//cout<<" self propagating in advanceOneLayer (for loopers) \n";
@@ -504,8 +505,8 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
     LogDebug("CkfPattern")<< "GCTB: number of segments = " << segments.size();
 
     if ( !segments.empty() )  foundSegments = true;
-
-    for ( TempTrajectoryContainer::const_iterator is=segments.begin();
+    
+    for ( TempTrajectoryContainer::iterator is=segments.begin();
 	  is!=segments.end(); is++ ) {
       //
       // assume "invalid hit only" segment is last in list
@@ -513,28 +514,24 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
       const TempTrajectory::DataContainer & measurements = is->measurements();
       if ( !theAlwaysUseInvalid && is!=segments.begin() && measurements.size()==1 && 
 	   (measurements.front().recHit()->getType() == TrackingRecHit::missing) )  break;
-      //
-      // create new candidate
-      //
-      TempTrajectory newTraj(traj);
-      traj.setDPhiCacheForLoopersReconstruction(dPhiCacheForLoopersReconstruction);
       
       //----  avoid to add the same hits more than once in the trajectory ----
       bool toBeRejected(false);
       for(const TempTrajectory::DataContainer::const_iterator revIt = measurements.rbegin(); 
 	  revIt!=measurements.rend(); --revIt){
-	int tmpCounter(0);
-	for(const TempTrajectory::DataContainer::const_iterator newTrajMeasIt = newTraj.measurements().rbegin(); 
-	    newTrajMeasIt != newTraj.measurements().rend(); --newTrajMeasIt){
+	// int tmpCounter(0);
+	for(const TempTrajectory::DataContainer::const_iterator newTrajMeasIt = traj.measurements().rbegin(); 
+	    newTrajMeasIt != traj.measurements().rend(); --newTrajMeasIt){
 	  //if(tmpCounter==2) break;
-	  if(revIt->recHit()->geographicalId()==newTrajMeasIt->recHit()->geographicalId()){
+	  if(revIt->recHitR().geographicalId()==newTrajMeasIt->recHitR().geographicalId()){
 	    toBeRejected=true;
-	    break;
+	    goto rejected; //break;  // see http://stackoverflow.com/questions/1257744/can-i-use-break-to-exit-multiple-nested-for-loops
 	  }
-	  tmpCounter++;
+	  // tmpCounter++;
 	}
       }
-
+      
+    rejected:;    // http://xkcd.com/292/
       if(!toBeRejected){
 	//newTraj.push(*is);
 	//std::cout << "DEBUG: newTraj after push found,lost: " 
@@ -552,8 +549,14 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
       }
       // ------------------------
 
+      //
+      // create new candidate
+      //
+      TempTrajectory newTraj(traj);
+      traj.setDPhiCacheForLoopersReconstruction(dPhiCacheForLoopersReconstruction);
+  
 
-      newTraj.push(*is);
+      newTraj.push(std::move(*is));
       //GIO// for ( vector<TM>::const_iterator im=measurements.begin();
       //GIO//        im!=measurements.end(); im++ )  newTraj.push(*im);
       //if ( toBeContinued(newTraj,regionalCondition) ) { TOBE FIXED
@@ -562,7 +565,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 	
 	LogDebug("CkfPattern")<<"GCTB: adding updated trajectory to candidates: inOut="<<inOut<<" hits="<<newTraj.foundHits();
 
-	newCand.push_back(newTraj);
+	newCand.push_back(std::move(newTraj));
 	foundNewCandidates = true;
       }
       else {
@@ -570,10 +573,10 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 
 	LogDebug("CkfPattern")<< "GCTB: adding completed trajectory to results if passes cuts: inOut="<<inOut<<" hits="<<newTraj.foundHits();
 
-	addToResult(newTraj, result, inOut);
+	moveToResult(std::move(newTraj), result, inOut);
       }
-    }
-  }
+    } // loop over segs
+  } // loop over layers
 
   if ( !foundSegments ){
     LogDebug("CkfPattern")<< "GCTB: adding input trajectory to result";

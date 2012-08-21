@@ -55,21 +55,21 @@ void TempTrajectory::pushAux(double chi2Increment) {
   }
 }
 
-void TempTrajectory::push( const TempTrajectory& segment) {
+void TempTrajectory::push(TempTrajectory&& segment) {
   assert (segment.direction() == theDirection) ;
   const int N = segment.measurements().size();
   TrajectoryMeasurement const * tmp[N];
   int i=0;
   for (DataContainer::const_iterator it = segment.measurements().rbegin(), ed = segment.measurements().rend(); it != ed; --it)
     tmp[i++] =&(*it);
-  while(i!=0) push(*tmp[--i]);
+  while(i!=0) push(std::move(*tmp[--i]));
+  segment.theData.clear();
 }
 
-void TempTrajectory::join( TempTrajectory& segment) {
+void TempTrajectory::join( TempTrajectory&& segment) {
   assert (segment.direction() == theDirection) ;
   if (segment.theData.shared()) {
-      push(segment);
-      segment.theData.clear(); // obey the contract, and increase the chances it will be not shared one day
+    push(std::move(segment));  // obey the contract, and increase the chances it will be not shared one day
   } else {
       for (DataContainer::const_iterator it = segment.measurements().rbegin(), ed = segment.measurements().rend(); it != ed; --it) {
           if ( it->recHit()->isValid())       theNumberOfFoundHits++;

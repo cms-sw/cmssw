@@ -108,6 +108,7 @@ public:
   
   void addToResult( TempTrajectory& traj, TrajectoryContainer& result, bool inOut = false) const;    
   void addToResult( TempTrajectory& traj, TempTrajectoryContainer& result, bool inOut = false) const;    
+  void moveToResult( TempTrajectory&& traj, TempTrajectoryContainer& result, bool inOut = false) const;    
 
   StateAndLayers findStateAndLayers(const TempTrajectory& traj) const;
 

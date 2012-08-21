@@ -99,11 +99,11 @@ namespace cmsutils {
     // move
     bqueue(bqueue<T> &&cp) noexcept : 
     m_size(cp.m_size),
-      m_bound(std::move(cp.m_bound)), m_head(std::move(cp.m_head)), m_tail(std::move(cp.m_tail)) { }
+      m_bound(std::move(cp.m_bound)), m_head(std::move(cp.m_head)), m_tail(std::move(cp.m_tail)) {cp.m_size=0; }
     
     bqueue & operator=(bqueue<T> &&cp) noexcept {
       using std::swap;
-      m_size=cp.m_size;
+      swap(m_size,cp.m_size);
       swap(m_bound,cp.m_bound);
       swap(m_head,cp.m_head); 
       swap(m_tail,cp.m_tail);

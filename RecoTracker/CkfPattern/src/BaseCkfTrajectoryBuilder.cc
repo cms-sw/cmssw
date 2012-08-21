@@ -191,6 +191,20 @@ BaseCkfTrajectoryBuilder::addToResult (TempTrajectory& tmptraj,
   result.push_back( traj );
 }
 
+void 
+BaseCkfTrajectoryBuilder::moveToResult (TempTrajectory&& traj, 
+				       TempTrajectoryContainer& result,
+                                       bool inOut) const
+{
+  // quality check
+  if ( !qualityFilter(traj, inOut) )  return;
+  // discard latest dummy measurements
+  while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();
+  LogDebug("CkfPattern")<<inOut<<"=inOut option. pushing a TempTrajectory with: "<<traj.foundHits()<<" found hits. "<<traj.lostHits();
+    //			<<" lost hits. Popped :"<<(ttraj.measurements().size())-(traj.measurements().size())<<" hits.";
+  result.push_back(std::move(traj));
+}
+
 
 
 BaseCkfTrajectoryBuilder::StateAndLayers

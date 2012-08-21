@@ -203,8 +203,9 @@ public:
     /** Add a new sets of measurements to a Trajectory
    *  The sorting of hits in the other trajectory must match the one
    *  inside this trajectory (that is, both along or both opposite to momentum)
+   *  (the input segment will be reset to an empty one)
    */
-  void push( const TempTrajectory & segment);
+  void push(TempTrajectory && segment);
 
       
 
@@ -212,7 +213,7 @@ public:
    *  Exactly like push(TempTrajectory), but it doesn't copy the data
    *  (the input segment will be reset to an empty one)
    */
-  void join( TempTrajectory & segment);
+  void join( TempTrajectory && segment);
 
 
 
