@@ -54,7 +54,7 @@ namespace {
     void invalid() { ++totInvCand;}
     void print() const {
       std::cout << "GroupedCkfTrajectoryBuilder stat\nTraj "
-    		<< totGroup<<'/'<<totTraj // <<'/'<<totLockHits<<'/'<<totInvCand<<'/'<<trunc
+    		<<  totTraj // <<'/'<<totLockHits<<'/'<<totInvCand<<'/'<<trunc
 		<< std::endl;
     }
     StatCount() { zero();}
