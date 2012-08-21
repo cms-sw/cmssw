@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.26 2011/06/07 17:59:13 bellan Exp $
+// $Id: MuonIdProducer.h,v 1.27 2011/06/08 15:41:13 bellan Exp $
 //
 //
 
@@ -91,6 +91,7 @@ class MuonIdProducer : public edm::EDProducer {
    bool          isGoodTrack( const reco::Track& track );
    
    bool          isGoodTrackerMuon( const reco::Muon& muon );
+   bool          isGoodRPCMuon( const reco::Muon& muon );
    
    // check number of common DetIds for a given trackerMuon and a stand alone
    // muon track
