@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Jake Ribnik, Dmytro Kovalskyi
-// $Id: MuonSelectors.h,v 1.15 2012/07/09 17:14:01 bachtis Exp $
+// $Id: MuonSelectors.h,v 1.16 2012/08/11 13:00:33 gpetrucc Exp $
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "TMath.h"
@@ -46,7 +46,8 @@ namespace muon {
       // what we feel is more suggestive of the algorithm name. This will be
       // less confusing for future generations of CMS members, I hope...
       TMLastStationOptimizedBarrelLowPtLoose = 22, // combination of TMLastStation and TMOneStation but with low pT optimization in barrel only
-      TMLastStationOptimizedBarrelLowPtTight = 23  // combination of TMLastStation and TMOneStation but with low pT optimization in barrel only
+      TMLastStationOptimizedBarrelLowPtTight = 23, // combination of TMLastStation and TMOneStation but with low pT optimization in barrel only
+      RPCMuLoose = 24                              // checks isRPCMuon flag (require two well matched hits in different RPC layers)
    };
 
    /// a lightweight "map" for selection type string label and enum value
@@ -60,7 +61,7 @@ namespace muon {
    // ===========================================================================
    //                               Support functions
    // 
-   enum AlgorithmType { TMLastStation, TM2DCompatibility, TMOneStation };
+   enum AlgorithmType { TMLastStation, TM2DCompatibility, TMOneStation, RPCMu };
    
    // specialized GoodMuon functions called from main wrapper
    bool isGoodMuon( const reco::Muon& muon, 

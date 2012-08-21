@@ -1,5 +1,6 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 using namespace reco;
 
@@ -59,6 +60,12 @@ int Muon::numberOfMatches( ArbitrationType type ) const
    for( std::vector<MuonChamberMatch>::const_iterator chamberMatch = muMatches_.begin();
          chamberMatch != muMatches_.end(); chamberMatch++ )
    {
+      if(type == RPCHitAndTrackArbitration) {
+         if(chamberMatch->rpcMatches.empty()) continue;
+         matches += chamberMatch->rpcMatches.size();
+         continue;
+      }
+
       if(chamberMatch->segmentMatches.empty()) continue;
       if(type == NoArbitration) {
          matches++;
@@ -114,9 +121,29 @@ unsigned int Muon::stationMask( ArbitrationType type ) const
 {
    unsigned int totMask(0);
    unsigned int curMask(0);
+
    for( std::vector<MuonChamberMatch>::const_iterator chamberMatch = muMatches_.begin();
          chamberMatch != muMatches_.end(); chamberMatch++ )
    {
+      if(type == RPCHitAndTrackArbitration) {
+	 if(chamberMatch->rpcMatches.empty()) continue;
+
+	 RPCDetId rollId = chamberMatch->id.rawId();
+	 const int region    = rollId.region();
+	 int rpcIndex = 1; if (region!=0) rpcIndex = 2;
+
+         for( std::vector<MuonRPCHitMatch>::const_iterator rpcMatch = chamberMatch->rpcMatches.begin();
+               rpcMatch != chamberMatch->rpcMatches.end(); rpcMatch++ )
+         {
+            curMask = 1<<( (chamberMatch->station()-1)+4*(rpcIndex-1) );
+
+            // do not double count
+            if(!(totMask & curMask))
+               totMask += curMask;
+         }
+         continue;
+      }
+
       if(chamberMatch->segmentMatches.empty()) continue;
       if(type == NoArbitration) {
          curMask = 1<<( (chamberMatch->station()-1)+4*(chamberMatch->detector()-1) );
@@ -168,6 +195,60 @@ unsigned int Muon::stationMask( ArbitrationType type ) const
    }
 
    return totMask;
+}
+
+int Muon::numberOfMatchedRPCLayers( ArbitrationType type ) const
+{
+   int layers(0);
+
+   // six (three) layers in barrel (each endcap)
+   for( int rpcRegion = 1; rpcRegion < 3; rpcRegion++ )
+   {
+      unsigned int theRPCLayerMask = RPClayerMask(rpcRegion);
+      int it_max = 6; if(rpcRegion==2) it_max = 3;
+      for(int it = 0; it < it_max; ++it)
+         if (theRPCLayerMask & 1<<it)
+	    ++layers;
+   }
+
+   return layers;
+}
+
+unsigned int Muon::RPClayerMask( int rpcRegion ) const
+{
+   unsigned int totMask(0);
+   unsigned int curMask(0);
+   for( std::vector<MuonChamberMatch>::const_iterator chamberMatch = muMatches_.begin();
+	 chamberMatch != muMatches_.end(); chamberMatch++ )
+   {
+      if(chamberMatch->rpcMatches.empty()) continue;
+	 
+      RPCDetId rollId = chamberMatch->id.rawId();
+      const int region    = rollId.region();
+      int rpcIndex = 1; if (region!=0) rpcIndex = 2;
+
+      if(!(rpcIndex==rpcRegion)) continue;
+
+      const int layer  = rollId.layer();
+      int rpcLayer = chamberMatch->station();
+      if (rpcIndex==1) {
+	 rpcLayer = chamberMatch->station()-1 + chamberMatch->station()*layer;
+	 if ((chamberMatch->station()==2 && layer==2) || (chamberMatch->station()==4 && layer==1)) rpcLayer -= 1;
+      }
+	 
+      for( std::vector<MuonRPCHitMatch>::const_iterator rpcMatch = chamberMatch->rpcMatches.begin();
+	    rpcMatch != chamberMatch->rpcMatches.end(); rpcMatch++ )
+      {
+	 curMask = 1<<(rpcLayer-1);
+
+	 // do not double count
+	 if(!(totMask & curMask))
+	    totMask += curMask;
+      }
+   }
+   
+   return totMask;
+
 }
 
 unsigned int Muon::stationGapMaskDistance( float distanceCut ) const
