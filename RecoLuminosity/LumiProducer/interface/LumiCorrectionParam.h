@@ -27,9 +27,9 @@ class LumiCorrectionParam {
   ///get correction function name
   std::string corrFunc()const;
   ///get correction coefficients
-  std::map< const std::string,float >::const_iterator nonlinearCoeff()const;
+  const std::map< std::string,float >& nonlinearCoeff()const;
   ///get afterglow threshold/value
-  std::map< unsigned int,float >::const_iterator afterglows()const;
+  const std::map< unsigned int,float >& afterglows()const;
   ///on which amodetag this correction definition should be applied for
   ///information only
   std::string amodetag()const;

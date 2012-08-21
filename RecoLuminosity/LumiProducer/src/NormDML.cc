@@ -144,7 +144,7 @@ lumi::NormDML::parseLumiCorrector(const std::string& correctorStr,
 		     std::vector<std::string>& correctorParams){
   std::string cleancorrectorStr(correctorStr);
   boost::trim(cleancorrectorStr);
-  boost::split(correctorParams,cleancorrectorStr,boost::is_any_of(":,"));  
+  boost::split(correctorParams,cleancorrectorStr,boost::is_any_of(":,")); 
 }
 void
 lumi::NormDML::parseAfterglows(const std::string& afterglowStr,std::map<unsigned int,float>& afterglowmap){

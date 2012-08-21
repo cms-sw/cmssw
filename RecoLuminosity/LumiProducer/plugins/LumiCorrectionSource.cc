@@ -7,7 +7,7 @@
 Description: A essource/esproducer for lumi correction factor and run parameters needed to deduce the corrections
       Author: Zhen Xie
 */
-// $Id: LumiCorrectionSource.cc,v 1.6 2012/08/20 17:47:18 xiezhen Exp $
+// $Id: LumiCorrectionSource.cc,v 1.7 2012/08/21 13:01:51 xiezhen Exp $
 
 //#include <memory>
 //#include "boost/shared_ptr.hpp"
@@ -279,16 +279,13 @@ LumiCorrectionSource::fillparamcache(unsigned int runnumber){
     normdml.normById(schema,normid,normDataMap); 
     session->transaction().commit();
     std::map< unsigned int,lumi::NormDML::normData >::iterator normEnd=normDataMap.end();
-    std::map< unsigned int,lumi::NormDML::normData >::iterator normIt=normDataMap.lower_bound(runnumber);
-    if(normIt!=normEnd){
-      result->setNormtag(m_normtag);
-      result->setcorrFunc(normIt->second.corrfunc);
-      result->setnonlinearCoeff(normIt->second.coefficientmap);
-      result->setafterglows(normIt->second.afterglows);
-      result->setdescription(normIt->second.amodetag,normIt->second.beamegev);
-    }else{
-      std::cout<<"canot be"<<std::endl;
-    }
+    std::map< unsigned int,lumi::NormDML::normData >::iterator normIt=normDataMap.upper_bound(runnumber);
+    --normIt;
+    result->setNormtag(m_normtag);
+    result->setcorrFunc(normIt->second.corrfunc);
+    result->setnonlinearCoeff(normIt->second.coefficientmap);
+    result->setafterglows(normIt->second.afterglows);
+    result->setdescription(normIt->second.amodetag,normIt->second.beamegev);
     m_paramcache.insert(std::make_pair(runnumber,result));
   }catch(const coral::Exception& er){
     session->transaction().rollback();

@@ -15,7 +15,7 @@ process.DBService=cms.Service('DBService')
 process.source= cms.Source("PoolSource",
         processingMode=cms.untracked.string('RunsAndLumis'),        
         fileNames=cms.untracked.vstring(
-        'file:/data/cmsdata/009F3522-D604-E111-A08D-003048F1183E.root')
+        'file:/data/cmsdata/200786/FC7E661B-C3E8-E111-A23E-003048D2BDD8.root')
 )
 process.LumiCorrectionSource=cms.ESSource("LumiCorrectionSource",
         connect=cms.string('frontier://LumiCalc/CMS_LUMI_PROD')

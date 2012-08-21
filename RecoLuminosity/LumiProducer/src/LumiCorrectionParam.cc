@@ -20,13 +20,13 @@ std::string
 LumiCorrectionParam::corrFunc()const{
   return m_corrfunc;
 }
-std::map<const std::string,float>::const_iterator 
+const std::map< std::string,float >&
 LumiCorrectionParam::nonlinearCoeff()const{
-  return m_coeffmap.begin();
+  return m_coeffmap;
 }
-std::map< unsigned int,float >::const_iterator 
+const std::map< unsigned int,float >& 
 LumiCorrectionParam::afterglows()const{
-  return m_afterglows.begin();
+  return m_afterglows;
 }
 std::string 
 LumiCorrectionParam::amodetag()const{
@@ -69,5 +69,17 @@ std::ostream& operator<<(std::ostream& s, LumiCorrectionParam const& lumiparam){
   s<< "   ncollidingbx " << lumiparam.ncollidingbunches() << "\n";
   s<< "   amodetag " << lumiparam.amodetag() << "\n";
   s<< "   beamegev " << lumiparam.beamegev() << "\n";
+  std::map< std::string,float >::const_iterator it;
+  std::map< std::string,float >::const_iterator itBeg=lumiparam.nonlinearCoeff().begin();
+  std::map< std::string,float >::const_iterator itEnd=lumiparam.nonlinearCoeff().end();
+  for(it=itBeg;it!=itEnd;++it){
+    s<< "   params "<<it->first<<" "<<it->second<<"\n";
+  }
+  std::map< unsigned int,float >::const_iterator ait;
+  std::map< unsigned int,float >::const_iterator aitBeg=lumiparam.afterglows().begin();
+  std::map< unsigned int,float >::const_iterator aitEnd=lumiparam.afterglows().end();
+  for(ait=aitBeg;ait!=aitEnd;++ait){
+    s<< "   afterglows "<<ait->first<<" "<<ait->second<<"\n";
+  }
   return s;
 }
