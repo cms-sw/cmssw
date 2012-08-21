@@ -69,17 +69,18 @@ for i in range(0,len(events)):
     ### make dir and move reco file there
     nd2 = subprocess.Popen("mkdir "+newdir1, shell=True)
     print "mkdir ", newdir1
+    nd2.wait()
     nd4 = subprocess.Popen("mkdir "+newdir1+"/"+newdir2, shell=True)
+    nd4.wait()
     print "mkdir ", newdir1+"/"+newdir2
-    nd5 = subprocess.Popen("mkdir "+newdir1+"/"+newdir2+"/"+newdir3, shell=True)
+    mkdir3 = "mkdir "+newdir1+"/"+newdir2+"/"+newdir3
+    print "mkdir3 = ", mkdir3
+    nd5 = subprocess.Popen(mkdir3, shell=True)
+    nd5.wait()
     print "mkdir ", newdir1+"/"+newdir2+"/"+newdir3
 
-    print newdir 
-
-    print "copying to new dir"
+    print "copying to new dir: ", newdir
     nd3 = subprocess.Popen("cp recoDQM_RAW2DIGI_RECO_DQM.root "+newdir+"/.", shell=True)
-
-    #nd2 = subprocess.Popen("mkdir ./FinalOutput/Event"+runinfo[2][:-1], shell=True)
 
     ### creating the configuration file to process DQM output file
     command2 = "cmsDriver.py offlineDQM -s HARVESTING:dqmHarvesting --conditions auto:com10 --data --filein file:recoDQM_RAW2DIGI_RECO_DQM.root --scenario pp  --no_exec --python_filename=offlineDQM.py --dirout="+newdir
