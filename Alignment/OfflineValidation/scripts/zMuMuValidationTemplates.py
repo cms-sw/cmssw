@@ -262,9 +262,10 @@ rfmkdir -p .oO[logdir]Oo.
 rm -f .oO[logdir]Oo./*.stdout
 rm -f .oO[logdir]Oo./*.stderr
 
-rfmkdir -p .oO[workdir]Oo.
-rm -f .oO[workdir]Oo./*
-cd .oO[workdir]Oo.
+## The lines related to the 'workdir' are commented out in order to avoid issues with removed files from the /tmp directory.
+# rfmkdir -p .oO[workdir]Oo.
+# rm -f .oO[workdir]Oo./*
+# cd .oO[workdir]Oo.
 
 
 .oO[CommandLine]Oo.
@@ -274,14 +275,21 @@ ls -lh .
 source /afs/cern.ch/sw/lcg/external/gcc/4.6.2/x86_64-slc5/setup.sh
 source /afs/cern.ch/sw/lcg/app/releases/ROOT/5.32.00/x86_64-slc5-gcc46-opt/root/bin/thisroot.sh
 
-cd .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit
-ln -fs .oO[workdir]Oo./0_zmumuHisto.root .
+# cd .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit
+# ln -fs .oO[workdir]Oo./0_zmumuHisto.root .
+cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/CompareBiasZValidation.cc .
+cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/Legend.h .
+cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/FitMassSlices.cc .
+cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/FitSlices.cc .
+cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/FitXslices.cc .
+cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/FitWithRooFit.cc .
+
 root -q -b "CompareBiasZValidation.cc+(\\\"\\\")"
 
  
-mv BiasCheck.root .oO[workdir]Oo. 
+# mv BiasCheck.root .oO[workdir]Oo. 
 
-cd .oO[workdir]Oo.
+# cd .oO[workdir]Oo.
 cp  .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/tdrstyle.C .
 cp  .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/MultiHistoOverlap.C .
 # ln -fs /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/TMP_EM/ZMuMu/data/MC/BiasCheck_DYToMuMu_Summer11_TkAlZMuMu_IDEAL.root  ./BiasCheck_Reference.root
