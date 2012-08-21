@@ -34,11 +34,12 @@
 
 HLTHcalLaserFilter::HLTHcalLaserFilter(const edm::ParameterSet& iConfig) :
   hcalDigiCollection_(iConfig.getParameter<edm::InputTag>("hcalDigiCollection")),
-  maxTotalCalibCharge_(iConfig.getParameter<double>("maxTotalCalibCharge")),
-  maxCalibCountTS45_(iConfig.getParameter<int>("maxCalibCountTS45")),
-  maxCalibCountgt15TS45_(iConfig.getParameter<int>("maxCalibCountgt15TS45")),
-  maxCalibChargeTS45_(iConfig.getParameter<double>("maxCalibChargeTS45")),
-  maxCalibChargegt15TS45_(iConfig.getParameter<double>("maxCalibChargegt15TS45"))
+  timeSlices_(iConfig.getParameter<std::vector<int> >("timeSlices")),
+  thresholdsfC_(iConfig.getParameter<std::vector<double> >("thresholdsfC")),
+  CalibCountFilterValues_(iConfig.getParameter<std::vector<int> >("CalibCountFilterValues")),
+  CalibChargeFilterValues_(iConfig.getParameter<std::vector<double> >("CalibChargeFilterValues")),
+  maxTotalCalibCharge_(iConfig.getParameter<double>("maxTotalCalibCharge"))
+
 {
 }
 
@@ -50,10 +51,14 @@ HLTHcalLaserFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("hcalDigiCollection",edm::InputTag("hltHcalDigis"));
   desc.add<double>("maxTotalCalibCharge",-1);
-  desc.add<int>("maxCalibCountTS45",-1);
-  desc.add<int>("maxCalibCountgt15TS45",-1);
-  desc.add<double>("maxCalibChargeTS45",-1);
-  desc.add<double>("maxCalibChargegt15TS45",-1);
+
+  std::vector<int> dummy_vint;
+  std::vector<double> dummy_vdouble;
+
+  desc.add<std::vector<int> >("timeSlices",dummy_vint);
+  desc.add<std::vector<double> >("thresholdsfC",dummy_vdouble);
+  desc.add<std::vector<int> >("CalibCountFilterValues",dummy_vint);
+  desc.add<std::vector<double> >("CalibChargeFilterValues",dummy_vdouble);
 
   descriptions.add("hltHcalLaserFilter",desc);
 }
@@ -65,14 +70,19 @@ HLTHcalLaserFilter::fillDescriptions(edm::ConfigurationDescriptions& description
 bool HLTHcalLaserFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<HcalCalibDigiCollection> hCalib;
-  iEvent.getByLabel("hcalDigis", hCalib);
+  iEvent.getByLabel(hcalDigiCollection_, hCalib);
 
   // Set up potential filter variables
   double totalCalibCharge=0;
-  int calibCountTS45=0;
-  int calibCountgt15TS45=0;
-  double calibChargeTS45=0;
-  double calibChargegt15TS45=0;
+
+  // Track multiplicity and total charge for each fC threshold
+  std::vector<int> CalibCount;
+  std::vector<double> CalibCharge;
+  for (uint i=0;i<thresholdsfC_.size();++i)
+    {
+      CalibCount.push_back(0);
+      CalibCharge.push_back(0);
+    }
 
   const float adc2fC[128]={-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5,11.5,12.5,
 			   13.5,15.,17.,19.,21.,23.,25.,27.,29.5,32.5,35.5,38.5,42.,46.,50.,54.5,59.5,
@@ -102,32 +112,40 @@ bool HLTHcalLaserFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  // Add this digi to total calibration charge
 	  for(int i = 0; i < (int)digi->size(); i++)
 	    totalCalibCharge = totalCalibCharge + adc2fC[digi->sample(i).adc()&0xff];
-
-	  if(maxTotalCalibCharge_ >= 0 && totalCalibCharge > maxTotalCalibCharge_) return false;
-
-	  // Compute charge in TS4 + TS5  
-	  if (digi->size()>5)
-	    {
-	      double sumCharge=adc2fC[digi->sample(4).adc()&0xff]+adc2fC[digi->sample(5).adc()&0xff];
-	      
-	      ++calibCountTS45;
-	      calibChargeTS45+=sumCharge;
-
-	      if(maxCalibCountTS45_  >= 0 && calibCountTS45 > maxCalibCountTS45_) return false;
-	      if(maxCalibChargeTS45_ >= 0 && calibChargeTS45 > maxCalibChargeTS45_) return false;
-
-	      // Increment when sumCharge > 15 fC (other thresholds could be defined)
-	      if (sumCharge>15)
-		{
-		  ++calibCountgt15TS45;
-		  calibChargegt15TS45+=sumCharge;
-		  if(maxCalibCountgt15TS45_  >= 0 && calibCountgt15TS45 > maxCalibCountgt15TS45_) return false;
-		  if(maxCalibChargegt15TS45_ >= 0 && calibChargegt15TS45 > maxCalibChargegt15TS45_) return false;
-
-		}
-	    } // if (digi->size()>5)
 	  
+	  if(maxTotalCalibCharge_ >= 0 && totalCalibCharge > maxTotalCalibCharge_) return false;
+	  
+	  // Compute total charge found in the provided subset of timeslices
+	  double sumCharge=0;
+	  uint NTS=timeSlices_.size();
+	  int digisize=(int)digi->size(); // gives value of largest time slice
+
+	  for (uint ts=0;ts<NTS;++ts) // loop over provided timeslices
+	    {
+	      if (timeSlices_[ts]<0 || timeSlices_[ts]>digisize) continue;
+	      sumCharge+=adc2fC[digi->sample(timeSlices_[ts]).adc()&0xff];
+	    }
+
+	  // Check multiplicity and charge against filter settings for each charge threshold
+	  for (uint thresh=0;thresh<thresholdsfC_.size();++thresh)
+	    {
+	      if (sumCharge > thresholdsfC_[thresh])
+		{
+		  ++CalibCount[thresh];
+		  CalibCharge[thresh]+=sumCharge;
+		  // FilterValues must be >=0 in order for filter to be applied
+		  if (CalibCount[thresh] >= CalibCountFilterValues_[thresh] 
+		      && CalibCountFilterValues_[thresh]>=0) 
+		    return false;
+		  if (CalibCharge[thresh]>= CalibChargeFilterValues_[thresh]
+		      && CalibChargeFilterValues_[thresh]>=0) 
+		    return false;
+		} //if (sumCharge > thresholdsfC_[thresh])
+	    } //for (uint thresh=0;thresh<thresholdsfC_.size();++thresh)
+
 	} // loop on calibration digis:  for (HcalCalibDigiCollection::...)
+
+
     } // if (hCalib.isValid()==true)
   
   return true;
