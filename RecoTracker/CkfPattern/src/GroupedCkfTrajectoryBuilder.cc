@@ -420,7 +420,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
     double dPhiCacheForLoopersReconstruction(0);
     if ((*il)==traj.lastLayer()){
 
-      if(maxPtForLooperReconstruction>0){
+       if(maxPtForLooperReconstruction>0){
 	// ------ For loopers reconstruction
 	//cout<<" self propagating in advanceOneLayer (for loopers) \n";
 	const BarrelDetLayer* sbdl = dynamic_cast<const BarrelDetLayer*>(traj.lastLayer());
@@ -462,7 +462,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 	  GlobalPoint target((target1.x()+target2.x())/2,
 			     (target1.y()+target2.y())/2,
 			     (target1.z()+target2.z())/2);
-	  
+	  //  GlobalPoint target(0.5*(target1.basicVector()+target2.basicVector()));
 	  //cout << "target: " << target << endl;
 	  
 

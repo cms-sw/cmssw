@@ -199,7 +199,7 @@ BaseCkfTrajectoryBuilder::moveToResult (TempTrajectory&& traj,
   // quality check
   if ( !qualityFilter(traj, inOut) )  return;
   // discard latest dummy measurements
-  while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();
+  while (!traj.empty() && !traj.lastMeasurement().recHitR().isValid()) traj.pop();
   LogDebug("CkfPattern")<<inOut<<"=inOut option. pushing a TempTrajectory with: "<<traj.foundHits()<<" found hits. "<<traj.lostHits();
     //			<<" lost hits. Popped :"<<(ttraj.measurements().size())-(traj.measurements().size())<<" hits.";
   result.push_back(std::move(traj));
