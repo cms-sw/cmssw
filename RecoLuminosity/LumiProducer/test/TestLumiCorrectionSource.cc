@@ -62,7 +62,7 @@ void TestLumiCorrectionSource::endLuminosityBlock(edm::LuminosityBlock const& lu
     es.getData(datahandle);
     if(datahandle.isValid()){
       const LumiCorrectionParam* mydata=datahandle.product();
-      std::cout<<"ncollidingbunches "<<mydata->ncollidingbunches()<<std::endl;
+      std::cout<<"correctionparams "<<*mydata<<std::endl;
     }else{
       std::cout<<"no valid record found"<<std::endl;
     }

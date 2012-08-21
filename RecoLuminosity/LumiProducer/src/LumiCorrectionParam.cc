@@ -56,9 +56,18 @@ void
 LumiCorrectionParam::setafterglows(std::map< unsigned int,float >& afterglows){
   m_afterglows=afterglows;
 }
+void 
+LumiCorrectionParam::setdescription(const std::string& amodetag,unsigned int beamegev){
+  m_amodetag=amodetag;
+  m_beamegev=beamegev;
+}
 
 std::ostream& operator<<(std::ostream& s, LumiCorrectionParam const& lumiparam){
   s<<"\n LumiCorrectionParam\n";
-  s << std::setw(12) << "ncollidingbx " << lumiparam.ncollidingbunches() << "\n";
+  s<< "   normtag " << lumiparam.normtag() << "\n";
+  s<< "   corrfunc " << lumiparam.corrFunc() << "\n";
+  s<< "   ncollidingbx " << lumiparam.ncollidingbunches() << "\n";
+  s<< "   amodetag " << lumiparam.amodetag() << "\n";
+  s<< "   beamegev " << lumiparam.beamegev() << "\n";
   return s;
 }

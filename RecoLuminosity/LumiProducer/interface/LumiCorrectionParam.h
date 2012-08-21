@@ -50,7 +50,8 @@ class LumiCorrectionParam {
   void setnonlinearCoeff(std::map<std::string,float>& coeffmap);
   ///set afterglow thresholds
   void setafterglows(std::map< unsigned int,float >& afterglows);
-  
+  ///set description
+  void setdescription(const std::string& amodetag,unsigned int beamegev);
  private :
   LumiType m_lumitype;
   unsigned int m_ncollidingbx;

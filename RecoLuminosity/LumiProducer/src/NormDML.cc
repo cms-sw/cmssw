@@ -8,7 +8,9 @@
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
 #include <algorithm>
 #include <map>
+#include <sstream>
 #include <boost/algorithm/string.hpp>
+#include <boost/tokenizer.hpp>
 lumi::NormDML::NormDML(){
 }
 unsigned long long 
@@ -107,11 +109,18 @@ lumi::NormDML::normById(const coral::ISchema&schema,
   while( cursor.next() ){
     const coral::AttributeList& row=cursor.currentRow();
     unsigned int since=row["SINCE"].data<unsigned int>();
-    const std::string correctorStr=row["CORRECTOR"].data<std::string>();
     if(result.find(since)==result.end()){
       lumi::NormDML::normData thisnorm;
       result.insert(std::make_pair(since,thisnorm));
     }
+    const std::string correctorStr=row["CORRECTOR"].data<std::string>();
+    if(!row["AMODETAG"].isNull()){
+      result[since].amodetag=row["AMODETAG"].data<std::string>();
+    }
+    if(!row["NOMINALEGEV"].isNull()){
+      result[since].beamegev=row["NOMINALEGEV"].data<unsigned int>();
+    }
+   
     std::vector<std::string> correctorParams;
     parseLumiCorrector(correctorStr,correctorParams);
     result[since].corrfunc=*(correctorParams.begin());
@@ -126,6 +135,7 @@ lumi::NormDML::normById(const coral::ISchema&schema,
 	result[since].coefficientmap.insert(std::make_pair(paramName,param));
       }
     }
+    
   }
   delete qHandle;
 }
@@ -138,5 +148,24 @@ lumi::NormDML::parseLumiCorrector(const std::string& correctorStr,
 }
 void
 lumi::NormDML::parseAfterglows(const std::string& afterglowStr,std::map<unsigned int,float>& afterglowmap){
-  
+  typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+  boost::char_separator<char> sep("[(,)] ");
+  tokenizer tokens(afterglowStr,sep);
+  unsigned int counter=1;
+  std::string thresholdStr;
+  unsigned int threshold;
+  for(tokenizer::iterator tok_iter=tokens.begin();tok_iter != tokens.end(); ++tok_iter){
+    if(counter%2==0){
+      std::string valStr=*(tok_iter);
+      float val=0.;
+      std::stringstream strStream(valStr);
+      strStream>>val;
+      afterglowmap.insert(std::make_pair(threshold,val));
+    }else{
+      thresholdStr=*(tok_iter);
+      std::stringstream strStream(thresholdStr);
+      strStream>>threshold;
+    }    
+    ++counter;
+  }
 }

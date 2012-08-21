@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author: Zhen Xie
 //       
-// $Id: NormDML.h,v 1.3 2012/08/09 14:45:57 xiezhen Exp $
+// $Id: NormDML.h,v 1.5 2012/08/10 19:28:46 xiezhen Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -30,6 +30,8 @@ namespace lumi{
       std::string corrfunc;
       std::map< unsigned int,float > afterglows;
       std::map< std::string, float > coefficientmap;
+      std::string amodetag;
+      unsigned int beamegev;
     };
     enum LumiType{HF,PIXEL};
     NormDML();
