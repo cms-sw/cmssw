@@ -393,7 +393,7 @@ TrajectorySegmentBuilder::redoMeasurements (const TempTrajectory& traj,
 
     if(!compat.first) continue;
     const MeasurementDet* mdet = theMeasurementTracker->idToDet(idet->det()->geographicalId());
-    vector<TM> tmp
+    vector<TM> & tmp
       = mdet->fastMeasurements( compat.second, idet->trajectoryState(), theGeomPropagator, theEstimator);
     
 
@@ -408,10 +408,10 @@ TrajectorySegmentBuilder::redoMeasurements (const TempTrajectory& traj,
     //
     if unlikely(theDbgFlg) cout << " " << tmp.size();
 
-    for(vector<TM>::iterator tmpIt=tmp.begin(); tmpIt!=tmp.end(); ++tmpIt){
-      if ( tmpIt->recHit()->isValid() ) {
-	tmpIt->setLayer(&theLayer); // set layer in TM, because the Det cannot do it
-	result.push_back(*tmpIt);
+    for(auto & tmpTM : tmp){
+      if ( tmpTM.recHit()->isValid() ) {
+	tmpTM.setLayer(&theLayer); // set layer in TM, because the Det cannot do it
+	result.push_back(std::move(tmpTM));
       }
     }
   }
