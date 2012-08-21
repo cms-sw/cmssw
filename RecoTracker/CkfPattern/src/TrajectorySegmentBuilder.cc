@@ -393,7 +393,7 @@ TrajectorySegmentBuilder::redoMeasurements (const TempTrajectory& traj,
 
     if(!compat.first) continue;
     const MeasurementDet* mdet = theMeasurementTracker->idToDet(idet->det()->geographicalId());
-    vector<TM> & tmp
+    vector<TM> && tmp
       = mdet->fastMeasurements( compat.second, idet->trajectoryState(), theGeomPropagator, theEstimator);
     
 
