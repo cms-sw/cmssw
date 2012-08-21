@@ -445,7 +445,7 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
 	// if 2nd iteration
 	//
 	if ( hit.det() ) {
-	  TSOS predState(im->predictedState());
+	  auto const & predState = im->predictedState();
 	  if ( iteration>0 || 
 	       (predState.isValid() &&
 		hit.det()->surface().bounds().inside(predState.localPosition())) ) {
@@ -485,7 +485,7 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
 	//
 	// check, if the extrapolation traverses the Det
 	//
-	TSOS predState(im->predictedState());
+	auto const & predState = im->predictedState();
 	if(hit.det()){	
 	  if ( iteration>0 || (predState.isValid() &&
 			       hit.det()->surface().bounds().inside(predState.localPosition())) ) {

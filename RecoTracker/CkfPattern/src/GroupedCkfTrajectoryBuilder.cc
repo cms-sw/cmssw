@@ -40,6 +40,40 @@
 
 #include <algorithm> 
 
+namespace {
+#ifdef STAT_TSB
+  struct StatCount {
+    long long totTraj;
+    long long totInvCand;
+    void zero() {
+      totTraj=totInvCand=0;
+    }
+    void incr(long long t) {
+      totTraj+=t;
+    }
+    void invalid() { ++totInvCand;}
+    void print() const {
+      std::cout << "GroupedCkfTrajectoryBuilder stat\nTraj "
+    		<< totGroup<<'/'<<totTraj // <<'/'<<totLockHits<<'/'<<totInvCand<<'/'<<trunc
+		<< std::endl;
+    }
+    StatCount() { zero();}
+    ~StatCount() { print();}
+  };
+
+#else
+  struct StatCount {
+    void incr(long long){}
+    void invalid() {}
+  };
+#endif
+
+  StatCount statCount;
+
+}
+
+
+
 using namespace std;
 
 //#define DBG2_GCTB
@@ -223,6 +257,7 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
   analyseResult(result);
 
   LogDebug("CkfPattern")<< "GroupedCkfTrajectoryBuilder: returning result of size " << result.size();
+  statCount.incr(result.size());
 
 }
 
@@ -354,6 +389,8 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 					      TempTrajectoryContainer& result) const
 {
   std::pair<TSOS,std::vector<const DetLayer*> > stateAndLayers = findStateAndLayers(traj);
+
+
   if(maxPtForLooperReconstruction>0){
     if(
        //stateAndLayers.second.size()==0 &&
