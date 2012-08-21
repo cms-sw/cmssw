@@ -515,7 +515,15 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
       if ( !theAlwaysUseInvalid && is!=segments.begin() && measurements.size()==1 && 
 	   (measurements.front().recHit()->getType() == TrackingRecHit::missing) )  break;
       
-      //----  avoid to add the same hits more than once in the trajectory ----
+
+      //
+      // create new candidate
+      //
+      TempTrajectory newTraj(traj);
+      traj.setDPhiCacheForLoopersReconstruction(dPhiCacheForLoopersReconstruction);
+ 
+
+     //----  avoid to add the same hits more than once in the trajectory ----
       bool toBeRejected(false);
       for(const TempTrajectory::DataContainer::const_iterator revIt = measurements.rbegin(); 
 	  revIt!=measurements.rend(); --revIt){
@@ -548,12 +556,6 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 	continue; //Are we sure about this????
       }
       // ------------------------
-
-      //
-      // create new candidate
-      //
-      TempTrajectory newTraj(traj);
-      traj.setDPhiCacheForLoopersReconstruction(dPhiCacheForLoopersReconstruction);
   
 
       newTraj.push(std::move(*is));
