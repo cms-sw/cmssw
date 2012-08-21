@@ -2,7 +2,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <ext/slist>
 
 TempTrajectory::TempTrajectory( const Trajectory& traj):
   theSeed( traj.sharedSeed() ),
@@ -48,8 +47,8 @@ void TempTrajectory::pushAux(double chi2Increment) {
   // determine direction from the radii of the first two measurements
 
   if ( !theDirectionValidity && theData.size() >= 2) {
-    if (theData.front().updatedState().globalPosition().perp() <
-	theData.back().updatedState().globalPosition().perp())
+    if (theData.front().updatedState().globalPosition().perp2() <
+	theData.back().updatedState().globalPosition().perp2())
       theDirection = alongMomentum;
     else theDirection = oppositeToMomentum;
     theDirectionValidity = true;
@@ -58,13 +57,12 @@ void TempTrajectory::pushAux(double chi2Increment) {
 
 void TempTrajectory::push( const TempTrajectory& segment) {
   assert (segment.direction() == theDirection) ;
-    __gnu_cxx::slist<const TrajectoryMeasurement*> list;
-  for (DataContainer::const_iterator it = segment.measurements().rbegin(), ed = segment.measurements().rend(); it != ed; --it) {
-        list.push_front(&(*it));
-  }
-  for(__gnu_cxx::slist<const TrajectoryMeasurement*>::const_iterator it = list.begin(), ed = list.end(); it != ed; ++it) {
-        push(**it);
-  }
+  const int N = segment.measurements().size();
+  TrajectoryMeasurement const * tmp[N];
+  int i=0;
+  for (DataContainer::const_iterator it = segment.measurements().rbegin(), ed = segment.measurements().rend(); it != ed; --it)
+    tmp[i++] =&(*it);
+  while(i!=0) push(*tmp[--i]);
 }
 
 void TempTrajectory::join( TempTrajectory& segment) {
@@ -81,8 +79,8 @@ void TempTrajectory::join( TempTrajectory& segment) {
       theData.join(segment.theData);
 
       if ( !theDirectionValidity && theData.size() >= 2) {
-        if (theData.front().updatedState().globalPosition().perp() <
-            theData.back().updatedState().globalPosition().perp())
+        if (theData.front().updatedState().globalPosition().perp2() <
+            theData.back().updatedState().globalPosition().perp2())
           theDirection = alongMomentum;
         else theDirection = oppositeToMomentum;
         theDirectionValidity = true;
@@ -133,15 +131,11 @@ Trajectory TempTrajectory::toTrajectory() const {
   traj.setNLoops(theNLoops);
 
   traj.reserve(theData.size());
-  static std::vector<const TrajectoryMeasurement*> work;
-  work.resize(theData.size(), 0);
-  std::vector<const TrajectoryMeasurement*>::iterator workend = work.end(), itwork = workend;
-  for (TempTrajectory::DataContainer::const_iterator it = theData.rbegin(), ed = theData.rend(); it != ed; --it) {
-       --itwork;  *itwork = (&(*it));
-  }
-  for (; itwork != workend; ++itwork) {
-        traj.push(**itwork);
-  }
+  const TrajectoryMeasurement* tmp[theData.size()];
+  int i=0;
+  for (DataContainer::const_iterator it = theData.rbegin(), ed = theData.rend(); it != ed; --it)
+    tmp[i++] = &(*it);
+  while(i!=0) traj.push(*tmp[--i]);
   return traj;
 }
 
