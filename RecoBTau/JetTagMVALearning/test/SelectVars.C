@@ -43,10 +43,6 @@ void InitVetoVariables() {
   VetoVariablesReco.push_back("varPF_T_FROM_GAMMACONV ");
   VetoVariablesReco.push_back("varPF_T_FROM_V0 ");
   VetoVariablesReco.push_back("varPF_T_TO_DISP ");			
-  VetoVariablesReco.push_back("trackSip3dSig_1 ");
-  VetoVariablesReco.push_back("trackSip3dSig_2 ");
-  VetoVariablesReco.push_back("trackSip3dSig_3 ");
-  VetoVariablesReco.push_back("trackSip3dSig_rest ");
 
   VetoVariablesPseudo.push_back("trackDeltaR");
   VetoVariablesPseudo.push_back("trackPtRatio");
@@ -74,10 +70,6 @@ void InitVetoVariables() {
   VetoVariablesReco.push_back("varPF_T_FROM_GAMMACONV ");
   VetoVariablesReco.push_back("varPF_T_FROM_V0 ");
   VetoVariablesReco.push_back("varPF_T_TO_DISP ");			
-  VetoVariablesReco.push_back("trackSip3dSig_1 ");
-  VetoVariablesReco.push_back("trackSip3dSig_2 ");
-  VetoVariablesReco.push_back("trackSip3dSig_3 ");
-  VetoVariablesReco.push_back("trackSip3dSig_rest ");
 
 
   VetoVariablesNo.push_back("trackDeltaR");
@@ -105,10 +97,6 @@ void InitVetoVariables() {
   VetoVariablesReco.push_back("varPF_T_FROM_GAMMACONV ");
   VetoVariablesReco.push_back("varPF_T_FROM_V0 ");
   VetoVariablesReco.push_back("varPF_T_TO_DISP ");			
-  VetoVariablesReco.push_back("trackSip3dSig_1 ");
-  VetoVariablesReco.push_back("trackSip3dSig_2 ");
-  VetoVariablesReco.push_back("trackSip3dSig_3 ");
-  VetoVariablesReco.push_back("trackSip3dSig_rest ");
 }
 
 //In principle no need to modify anything below this point
