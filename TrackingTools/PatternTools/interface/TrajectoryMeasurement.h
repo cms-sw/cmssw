@@ -165,29 +165,37 @@ public:
   /** Access to forward predicted state (from fitter or builder).
    *  To be replaced by forwardPredictedState.
    */
-  TrajectoryStateOnSurface  predictedState() const {
+  TrajectoryStateOnSurface const & predictedState() const {
     return theFwdPredictedState;
   }
 
   /// Access to forward predicted state (from fitter or builder)
-  TrajectoryStateOnSurface forwardPredictedState() const {
+  TrajectoryStateOnSurface const & forwardPredictedState() const {
     return theFwdPredictedState;
   }
   /// Access to backward predicted state (from smoother)
-  TrajectoryStateOnSurface backwardPredictedState() const {
+  TrajectoryStateOnSurface const & backwardPredictedState() const {
     return theBwdPredictedState;
   }
 
   /** Access to updated state (combination of forward predicted state
    *  and hit for fitter, + backward predicted state for smoother)
    */
-  TrajectoryStateOnSurface updatedState() const {
+  TrajectoryStateOnSurface const & updatedState() const {
     return theUpdatedState;
   }
 
-  ConstRecHitPointer const & recHit() const {
+  ConstRecHitPointer::element_type const & recHitR() const {
+    return *theRecHit.get();
+  }
+
+  ConstRecHitPointer const & recHitP() const {
     return theRecHit;
   }
+
+  ConstRecHitPointer const & recHit() const {
+    return recHitP();
+  } 
 
   float estimate() const { return theEstimate;}
 
