@@ -439,7 +439,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 	    target1 : target2;
 	
 	  const Bounds& bounds( sbdl->specificSurface().bounds());
-	  float length = bounds.length() / 2.f;
+	  float length = 0.5f*bounds.length();
 	
 	  /*
 	    cout << "starting: " << starting << endl;
@@ -459,10 +459,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 
 	  Geom::Phi<double> tmpDphi = target1.phi()-target2.phi();
 	  if(fabs(tmpDphi)>maxDPhiForLooperReconstruction) continue;
-	  GlobalPoint target((target1.x()+target2.x())/2,
-			     (target1.y()+target2.y())/2,
-			     (target1.z()+target2.z())/2);
-	  //  GlobalPoint target(0.5*(target1.basicVector()+target2.basicVector()));
+	  GlobalPoint target(0.5*(target1.basicVector()+target2.basicVector()));
 	  //cout << "target: " << target << endl;
 	  
 
@@ -516,13 +513,6 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 	   (measurements.front().recHit()->getType() == TrackingRecHit::missing) )  break;
       
 
-      //
-      // create new candidate
-      //
-      TempTrajectory newTraj(traj);
-      traj.setDPhiCacheForLoopersReconstruction(dPhiCacheForLoopersReconstruction);
- 
-
      //----  avoid to add the same hits more than once in the trajectory ----
       bool toBeRejected(false);
       for(const TempTrajectory::DataContainer::const_iterator revIt = measurements.rbegin(); 
@@ -540,26 +530,33 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
       }
       
     rejected:;    // http://xkcd.com/292/
-      if(!toBeRejected){
-	//newTraj.push(*is);
-	//std::cout << "DEBUG: newTraj after push found,lost: " 
-	//	  << newTraj.foundHits() << " , " 
-	//	  << newTraj.lostHits() << " , "
-	//	  << newTraj.measurements().size() << std::endl;
-      }else{	
+      if(toBeRejected){	
 	/*cout << "WARNING: neglect candidate because it contains the same hit twice \n";
-	cout << "-- discarded track's pt,eta,#found: " 
-	     << newTraj.lastMeasurement().updatedState().globalMomentum().perp() << " , "
-	     << newTraj.lastMeasurement().updatedState().globalMomentum().eta() << " , "
-	     << newTraj.foundHits() << "\n";
+	  cout << "-- discarded track's pt,eta,#found: " 
+	  << traj.lastMeasurement().updatedState().globalMomentum().perp() << " , "
+	  << traj.lastMeasurement().updatedState().globalMomentum().eta() << " , "
+	  << traj.foundHits() << "\n";
 	*/
+	traj.setDPhiCacheForLoopersReconstruction(dPhiCacheForLoopersReconstruction);
 	continue; //Are we sure about this????
       }
       // ------------------------
-  
-
+      
+      //
+      // create new candidate
+      //
+      TempTrajectory newTraj(traj);
+      traj.setDPhiCacheForLoopersReconstruction(dPhiCacheForLoopersReconstruction);
       newTraj.push(std::move(*is));
-      //GIO// for ( vector<TM>::const_iterator im=measurements.begin();
+
+      //std::cout << "DEBUG: newTraj after push found,lost: " 
+      //	  << newTraj.foundHits() << " , " 
+      //	  << newTraj.lostHits() << " , "
+      //	  << newTraj.measurements().size() << std::endl;
+      
+      
+      
+       //GIO// for ( vector<TM>::const_iterator im=measurements.begin();
       //GIO//        im!=measurements.end(); im++ )  newTraj.push(*im);
       //if ( toBeContinued(newTraj,regionalCondition) ) { TOBE FIXED
       if ( toBeContinued(newTraj, inOut) ) {
