@@ -106,9 +106,9 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   for (auto const & gr : measGroups) {
     ++ngrp;
     int nhit(0);
-    for ( auto const & m : gr.measurements()) if likely( m.recHit()->isValid() )  nhit++;
+    for ( auto const & m : gr.measurements()) if likely( m.recHitR().isValid() )  nhit++;
     
-    if ( nhit>0 )  ncomb *= nhit;
+    if ( nhit>1 )  ncomb *= nhit;
     if unlikely( ncomb>MAXCOMB ) {
 	edm::LogInfo("TrajectorySegmentBuilder") << " found " << measGroups.size() 
 						 << " groups and more than " << static_cast<unsigned int>(MAXCOMB)
@@ -342,7 +342,7 @@ TrajectorySegmentBuilder::updateCandidatesWithBestHit (TempTrajectory const& tra
     // find real best;
     for ( vector<TM>::const_iterator im=ibest+1;
 	  im!=measurements.end(); ++im ) {
-      if ( im->recHit()->isValid() &&
+      if ( im->recHitR().isValid() &&
 	   im->estimate()<ibest->estimate()
 	   )
 	ibest = im;
@@ -353,12 +353,13 @@ TrajectorySegmentBuilder::updateCandidatesWithBestHit (TempTrajectory const& tra
     candidates.push_back(traj);
     updateTrajectory(candidates.back(),*ibest);
 
+#ifdef DBG_TSB
     if unlikely( theDbgFlg )
       cout << "TSB: found best measurement at " 
 	   << ibest->recHit()->globalPosition().perp() << " "
 	   << ibest->recHit()->globalPosition().phi() << " "
 	   << ibest->recHit()->globalPosition().z() << endl;
-    
+#endif    
   }
 
   //
@@ -409,7 +410,7 @@ TrajectorySegmentBuilder::redoMeasurements (const TempTrajectory& traj,
     if unlikely(theDbgFlg) cout << " " << tmp.size();
 
     for(auto & tmpTM : tmp){
-      if ( tmpTM.recHit()->isValid() ) {
+      if ( tmpTM.recHitR().isValid() ) {
 	tmpTM.setLayer(&theLayer); // set layer in TM, because the Det cannot do it
 	result.push_back(std::move(tmpTM));
       }
@@ -436,18 +437,18 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
       const vector<TM>& measurements = ig->measurements();
       for ( vector<TM>::const_reverse_iterator im=measurements.rbegin();
 	    im!=measurements.rend(); ++im ) {
-	ConstRecHitPointer hit = im->recHit();
-	if ( hit->getType()==TrackingRecHit::valid ||
-	     hit->getType()==TrackingRecHit::missing )  continue;
+	auto const & hit = im->recHitR();
+	if ( hit.getType()==TrackingRecHit::valid ||
+	     hit.getType()==TrackingRecHit::missing )  continue;
 	//
 	// check, if the extrapolation traverses the Det or
 	// if 2nd iteration
 	//
-	if ( hit->det() ) {
+	if ( hit.det() ) {
 	  TSOS predState(im->predictedState());
 	  if ( iteration>0 || 
 	       (predState.isValid() &&
-		hit->det()->surface().bounds().inside(predState.localPosition())) ) {
+		hit.det()->surface().bounds().inside(predState.localPosition())) ) {
 	    // add the hit
 	    /*TempTrajectory newTraj(traj);
 	    updateTrajectory(newTraj,*im);
@@ -478,16 +479,16 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
 	//
 	// only use invalid hits
 	//
-	ConstRecHitPointer hit = im->recHit();
-	if likely( hit->isValid() )  continue;
+	auto const & hit = im->recHitR();
+	if likely( hit.isValid() )  continue;
 
 	//
 	// check, if the extrapolation traverses the Det
 	//
 	TSOS predState(im->predictedState());
-	if(hit->det()){	
+	if(hit.det()){	
 	  if ( iteration>0 || (predState.isValid() &&
-			       hit->det()->surface().bounds().inside(predState.localPosition())) ) {
+			       hit.det()->surface().bounds().inside(predState.localPosition())) ) {
 	    // add invalid hit
 	    /*TempTrajectory newTraj(traj);
 	    updateTrajectory(newTraj,*im);
@@ -536,12 +537,12 @@ TrajectorySegmentBuilder::unlockedMeasurements (const vector<TM>& measurements) 
   //RecHitEqualByChannels recHitEqual(false,true);
 
   for ( auto const & m : measurements) {
-    ConstRecHitPointer const & testHit = m.recHit();
-    if unlikely( !testHit->isValid() )  continue;
+    auto const & testHit = m.recHitR();
+    if unlikely( !testHit.isValid() )  continue;
     bool found(false);
     if likely( theLockHits ) {
       for ( auto const & h : theLockedHits) {
-	if ( h->hit()->sharesInput(testHit->hit(), TrackingRecHit::all) ) {
+	if ( h->hit()->sharesInput(testHit.hit(), TrackingRecHit::all) ) {
 	  found = true;
 	  break;
 	}
@@ -603,7 +604,7 @@ TrajectorySegmentBuilder::cleanCandidates (vector<TempTrajectory>& candidates) c
 	for ( TempTrajectory::DataContainer::const_iterator im2=from2; im2!=im2end; --im2 ) {
 	  // redundant protection - segments should not contain invalid RecHits
 	  // assert (im2->recHit()->isValid());
-	  if ( im1->recHit()->hit()->sharesInput(im2->recHit()->hit(), TrackingRecHit::all) ) {
+	  if ( im1->recHitR().hit()->sharesInput(im2->recHitR().hit(), TrackingRecHit::all) ) {
 	    found = true;
 	    from2 = im2; --from2;
 	    break;
