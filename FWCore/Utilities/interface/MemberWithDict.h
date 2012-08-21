@@ -9,7 +9,7 @@ MemberWithDict:  A holder for a class member
 
 #include <string>
 
-#include "Reflex//Member.h"
+#include "Reflex/Member.h"
 
 namespace edm {
 
