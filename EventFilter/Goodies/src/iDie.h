@@ -466,18 +466,23 @@ namespace evf {
         std::vector<std::pair<unsigned int, unsigned int>> ret;
 	if (updated_) calcStat();
 	if (moduleSamplingSums) {
-          std::qsort((void *)moduleSamplingSums, nmodulenames_,
+	  //make a copy for sorting
+	  std::pair<unsigned int,unsigned int> *moduleSumsCopy = new std::pair<unsigned int,unsigned int>[nmodulenames_];
+	  memcpy(moduleSumsCopy,moduleSamplingSums,nmodulenames_*sizeof(std::pair<unsigned int,unsigned int>));
+
+	  std::qsort((void *)moduleSumsCopy, nmodulenames_,
 	             sizeof(std::pair<unsigned int,unsigned int>), modlistSortFunction);
 
 	  unsigned int count=0;
 	  unsigned int saveidx=0;
-	  while (saveidx < MODNAMES && count<nmodulenames_ && saveidx<MODNAMES)
+	  while (saveidx < MODNAMES && count<nmodulenames_)
 	  {
-            if (moduleSamplingSums[count].first==2) {count++;continue;}
-            ret.push_back(moduleSamplingSums[count]);
+            if (moduleSumsCopy[count].first==2) {count++;continue;}
+            ret.push_back(moduleSumsCopy[count]);
 	    saveidx++;
 	    count++;
 	  }
+	  delete moduleSumsCopy;
 	}
         return ret;
       }

@@ -252,12 +252,12 @@ xoap::MessageReference iDie::fsmCallback(xoap::MessageReference msg)
         usleep(10000);//propagating dqmState to caches
         meInitialized_=false;
         meInitializedStreams_=false;
-	endPathNames_.clear();
+	//endPathNames_.clear();
         sleep(1);//making sure that any running ls update finishes
 
-        //dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
-        //dqmStore_->removeContents();
         dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/");
+        dqmStore_->removeContents();
+        dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Streams/");
         dqmStore_->removeContents();
         doFlush(); 
       }
@@ -812,6 +812,7 @@ void iDie::parsePathLegenda(std::string leg)
   mappath_.clear();
   boost::char_separator<char> sep(",");
   boost::tokenizer<boost::char_separator<char> > tokens(leg, sep);
+  endPathNames_.clear();
   for (boost::tokenizer<boost::char_separator<char> >::iterator tok_iter = tokens.begin();
        tok_iter != tokens.end(); ++tok_iter){
       mappath_.push_back((*tok_iter));
@@ -824,7 +825,21 @@ void iDie::parsePathLegenda(std::string leg)
           endPathNames_.push_back(*tok_iter);
       }
   }
-  initMonitorElementsStreams();
+  //look for daqval-type menu if no "Output" endpaths found
+  if (!endPathNames_.size()) {
+	  
+    for (boost::tokenizer<boost::char_separator<char> >::iterator tok_iter = tokens.begin();
+	tok_iter != tokens.end(); ++tok_iter){
+
+      if (!meInitializedStreams_ && std::string(*tok_iter).find("output")!=std::string::npos) {
+	std::string path_token = *tok_iter;
+	if (path_token.find("=")!=std::string::npos)
+	  endPathNames_.push_back(path_token.substr(path_token.find("=")+1));
+	else
+	  endPathNames_.push_back(*tok_iter);
+      }
+    }
+  }
 }
 
 void iDie::parsePathHisto(const unsigned char *crp, unsigned int lsid)
@@ -848,14 +863,17 @@ void iDie::parsePathHisto(const unsigned char *crp, unsigned int lsid)
     }
   //find |common ls history" object for current ls
   commonLsStat * cst = 0;
-  if (commonLsHistory.size()) cst=commonLsHistory.back();
-  if (cst && cst->ls_>=lsid) {
-    unsigned int countback=commonLsHistory.size()-1;
-    while (cst->ls_>lsid && countback) {
-      countback--;
-      cst=commonLsHistory[countback];
+  if (meInitialized_) {
+    if (commonLsHistory.size()) cst=commonLsHistory.back();
+    if (cst && cst->ls_>=lsid) {
+      unsigned int countback=commonLsHistory.size()-1;
+      while (cst->ls_>lsid && countback) {
+	countback--;
+	cst=commonLsHistory[countback];
+      }
     }
   }
+
   for( int i=0; i< trppriv_->endPathsInMenu; i++)
     {
       r_.etimesRun[i] = trppriv_->endPathSummaries[i].timesRun;
@@ -1080,7 +1098,6 @@ void iDie::initFramework()
 
 void iDie::initMonitorElements()
 {
-
   if (!evtProcessor_) return;
   dqmStore_->cd();
 
@@ -1153,12 +1170,12 @@ void iDie::initMonitorElements()
 
   //wipe out all ls history
   for (size_t i=0;i<epInstances.size();i++) {
-    for (size_t j=0;j<lsHistory[i].size();j++) {
+    while (lsHistory[i].size()) {
       delete lsHistory[i].front();
       lsHistory[i].pop_front();
     }
   }
-  for (size_t j=0;j<commonLsHistory.size();j++) {
+  while (commonLsHistory.size()) {
     delete commonLsHistory.front();
     commonLsHistory.pop_front();
   }
@@ -1167,11 +1184,12 @@ void iDie::initMonitorElements()
 }
 
 void iDie::initMonitorElementsStreams() {
+  if (!dqmEnabled_.value_ || !evtProcessor_) return;
   if (meInitializedStreams_) return;
 
   //add OUTPUT Stream histograms
   endPathRates_.clear();
-  dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Streams");
+  dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Streams/");
   for (size_t i=0;i<endPathNames_.size();i++) {
     endPathRates_.push_back(dqmStore_->book1D(std::string("00 ") + endPathNames_[i]+"_RATE",endPathNames_[i]+" events/s",4000,1,4001.));
     //endPathCumulative_.push_back(dqmStore_->book1D(std::string("01 ") + endPathNames_[i]+"_CUMULATIVE",endPathNames_[i]+" events",4000,1,4001.));
@@ -1309,6 +1327,7 @@ void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * 
 }
 
 void iDie::updateStreamHistos(unsigned int forls, commonLsStat *clst, commonLsStat *prevclst) {
+  initMonitorElementsStreams();//reinitialize if needed
   for (size_t i=0;i<endPathRates_.size();i++) {
     unsigned int count_current=0;
     unsigned int count_last=0;
@@ -1346,7 +1365,7 @@ void iDie::fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsign
     xBinToFill=ROLL;
   }
   float nonIdleInv=0.;
-  if (nonIdle>0.)nonIdleInv=1./nonIdle;
+  if (nonIdle>0)nonIdleInv=1./(double)nonIdle;
   //1st pass (there are free bins left)
   for (unsigned int i=0;i<offenders.size();i++) {
     unsigned int x=offenders[i].first;

@@ -1,3 +1,10 @@
+2012-08-21 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-02-14
+	* fix deleting dequeues
+	* make a copy of module statistics before applying sort
+	* destroying Streams histograms on Stop
+
 2012-08-20 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V00-02-13
