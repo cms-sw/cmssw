@@ -385,7 +385,10 @@ process.load("Alignment.OfflineValidation.TrackerOfflineValidation_.oO[offlineVa
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..Tracks = 'TrackRefitter2'
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..trajectoryInput = 'TrackRefitter2'
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelHistsTransient = .oO[offlineModuleLevelHistsTransient]Oo.
-.oO[offlineValidationFileOutput]Oo.
+# Create the result file directly to datadir since should not use /tmp/
+# see https://cern.service-now.com/service-portal/article.do?n=KB0000484
+#.oO[offlineValidationFileOutput]Oo.
+process.TFileService.fileName = '.oO[datadir]Oo./AlignmentValidation_.oO[name]Oo._.oO[nIndex]Oo..root'
 
  ##
  ## PATH
