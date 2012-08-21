@@ -43,6 +43,26 @@
 		<var name="jetNSecondaryVertices" multiple="false" optional="false"/>
 		<var name="vertexJetDeltaR" multiple="false" optional="false"/>
 		<var name="trackSumJetDeltaR" multiple="false" optional="false"/>
+                <var name="PFchargedHadronEnergy" multiple="false" optional="false"/>
+                <var name="PFchargedHadronEnergyFraction" multiple="false" optional="false"/>
+                <var name="PFchargedHadronMultiplicity" multiple="false" optional="false"/>
+                <var name="PFneutralHadronEnergy" multiple="false" optional="false"/>
+                <var name="PFneutralHadronEnergyFraction" multiple="false" optional="false"/>
+                <var name="PFneutralHadronMultiplicity" multiple="false" optional="false"/>
+                <var name="PFphotonEnergy" multiple="false" optional="false"/>
+                <var name="PFphotonEnergyFraction" multiple="false" optional="false"/>
+                <var name="PFphotonMultiplicity" multiple="false" optional="false"/>
+                <var name="PFmuonEnergy" multiple="false" optional="false"/>
+                <var name="PFmuonEnergyFraction" multiple="false" optional="false"/>
+                <var name="PFmuonMultiplicity" multiple="false" optional="false"/>
+                <var name="PFelectronEnergy" multiple="false" optional="false"/>
+                <var name="PFelectronEnergyFraction" multiple="false" optional="false"/>
+                <var name="PFelectronMultiplicity" multiple="false" optional="false"/>
+                <var name="PFtrackid" multiple="false" optional="false"/>
+                <var name="PF_T_FROM_DISP" multiple="false" optional="false"/>
+                <var name="PF_T_FROM_GAMMACONV" multiple="false" optional="false"/>
+                <var name="PF_T_FROM_V0" multiple="false" optional="false"/>
+                <var name="PF_T_TO_DISP" multiple="false" optional="false"/>
 	</input>
 	<processor id="category" name="ProcCategory">
 		<input>
@@ -111,6 +131,26 @@
 			<var source="input" name="jetNSecondaryVertices"/>
 			<var source="input" name="vertexJetDeltaR"/>
 			<var source="input" name="trackSumJetDeltaR"/>
+                        <var source="input" name="PFchargedHadronEnergy"/>
+                        <var source="input" name="PFchargedHadronEnergyFraction"/>
+                        <var source="input" name="PFchargedHadronMultiplicity"/>
+                        <var source="input" name="PFneutralHadronEnergy"/>
+                        <var source="input" name="PFneutralHadronEnergyFraction"/>
+                        <var source="input" name="PFneutralHadronMultiplicity"/>
+                        <var source="input" name="PFphotonEnergy"/>
+                        <var source="input" name="PFphotonEnergyFraction"/>
+                        <var source="input" name="PFphotonMultiplicity"/>
+                        <var source="input" name="PFmuonEnergy"/>
+                        <var source="input" name="PFmuonEnergyFraction"/>
+                        <var source="input" name="PFmuonMultiplicity"/>
+                        <var source="input" name="PFelectronEnergy"/>
+                        <var source="input" name="PFelectronEnergyFraction"/>
+                        <var source="input" name="PFelectronMultiplicity"/>
+                        <var source="input" name="PFtrackid"/>
+                        <var source="input" name="PF_T_FROM_DISP"/>
+                        <var source="input" name="PF_T_FROM_GAMMACONV"/>
+                        <var source="input" name="PF_T_FROM_V0"/>
+                        <var source="input" name="PF_T_TO_DISP"/>
 			<var source="category" name="category"/>
 			<var source="count" name="nTracks"/>
 			</input>

@@ -39,6 +39,26 @@
 		<var name="trackSumJetEtRatio" multiple="false" optional="false"/>
 		<var name="vertexJetDeltaR" multiple="false" optional="false"/>
 		<var name="trackSumJetDeltaR" multiple="false" optional="false"/>
+                <var name="PFchargedHadronEnergy" multiple="false" optional="false"/>
+                <var name="PFchargedHadronEnergyFraction" multiple="false" optional="false"/>
+                <var name="PFchargedHadronMultiplicity" multiple="false" optional="false"/>
+                <var name="PFneutralHadronEnergy" multiple="false" optional="false"/>
+                <var name="PFneutralHadronEnergyFraction" multiple="false" optional="false"/>
+                <var name="PFneutralHadronMultiplicity" multiple="false" optional="false"/>
+                <var name="PFphotonEnergy" multiple="false" optional="false"/>
+                <var name="PFphotonEnergyFraction" multiple="false" optional="false"/>
+                <var name="PFphotonMultiplicity" multiple="false" optional="false"/>
+                <var name="PFmuonEnergy" multiple="false" optional="false"/>
+                <var name="PFmuonEnergyFraction" multiple="false" optional="false"/>
+                <var name="PFmuonMultiplicity" multiple="false" optional="false"/>
+                <var name="PFelectronEnergy" multiple="false" optional="false"/>
+                <var name="PFelectronEnergyFraction" multiple="false" optional="false"/>
+                <var name="PFelectronMultiplicity" multiple="false" optional="false"/>
+                <var name="PFtrackid" multiple="false" optional="false"/>
+                <var name="PF_T_FROM_DISP" multiple="false" optional="false"/>
+                <var name="PF_T_FROM_GAMMACONV" multiple="false" optional="false"/>
+                <var name="PF_T_FROM_V0" multiple="false" optional="false"/>
+                <var name="PF_T_TO_DISP" multiple="false" optional="false"/>
 		<var name="nTracks" multiple="false" optional="false"/>
 		<var name="category" multiple="false" optional="false"/>
 	</input>
@@ -95,6 +115,26 @@
                         <var source="input" name="trackSip2dSigAboveCharm"/>
                         <var source="input" name="trackSip3dSigAboveCharm"/>
                         <var source="input" name="trackSumJetEtRatio"/>
+                        <var source="input" name="PFchargedHadronEnergy"/>
+                        <var source="input" name="PFchargedHadronEnergyFraction"/>
+                        <var source="input" name="PFchargedHadronMultiplicity"/>
+                        <var source="input" name="PFneutralHadronEnergy"/>
+                        <var source="input" name="PFneutralHadronEnergyFraction"/>
+                        <var source="input" name="PFneutralHadronMultiplicity"/>
+                        <var source="input" name="PFphotonEnergy"/>
+                        <var source="input" name="PFphotonEnergyFraction"/>
+                        <var source="input" name="PFphotonMultiplicity"/>
+                        <var source="input" name="PFmuonEnergy"/>
+                        <var source="input" name="PFmuonEnergyFraction"/>
+                        <var source="input" name="PFmuonMultiplicity"/>
+                        <var source="input" name="PFelectronEnergy"/>
+                        <var source="input" name="PFelectronEnergyFraction"/>
+                        <var source="input" name="PFelectronMultiplicity"/>
+                        <var source="input" name="PFtrackid"/>
+                        <var source="input" name="PF_T_FROM_DISP"/>
+                        <var source="input" name="PF_T_FROM_GAMMACONV"/>
+                        <var source="input" name="PF_T_FROM_V0"/>
+                        <var source="input" name="PF_T_TO_DISP"/>
                 </input>
                 <config>
                         <pdf/>
@@ -111,6 +151,26 @@
                         <pdf smooth="1" lower="-50" upper="80"/>      <!-- trackSip2dSigAboveCharm --> 
                         <pdf smooth="1" lower="-50" upper="80"/>   <!-- trackSip3dSigAboveCharm -->
                         <pdf smooth="1" lower="0.0" upper="5.0"/>   <!-- trackSumJetEtRatio -->
+                        <pdf smooth="1" lower="0.0" upper="1200.0"/>	<!-- PFchargedHadronEnergy -->
+                        <pdf smooth="1" lower="0.0" upper="1.0"/>	<!-- PFchargedHadronEnergyFraction -->
+                        <pdf smooth="1" lower="0.0" upper="100.0"/>	<!-- PFchargedHadronMultiplicity -->
+                        <pdf smooth="1" lower="0.0" upper="400.0"/>	<!-- PFneutralHadronEnergy -->
+                        <pdf smooth="1" lower="0.0" upper="1.0"/>	<!-- PFneutralHadronEnergyFraction -->
+                        <pdf smooth="1" lower="0.0" upper="15.0"/>	<!-- PFneutralHadronMultiplicity -->
+                        <pdf smooth="1" lower="0.0" upper="600.0"/>	<!-- PFphotonEnergy -->
+                        <pdf smooth="1" lower="0.0" upper="1.0"/>	<!-- PFphotonEnergyFraction -->
+                        <pdf smooth="1" lower="0.0" upper="70.0"/>	<!-- PFphotonMultiplicity -->
+                        <pdf smooth="1" lower="0.0" upper="150.0"/>	<!-- PFmuonEnergy -->
+                        <pdf smooth="1" lower="0.0" upper="1.0"/>	<!-- PFmuonEnergyFraction -->
+                        <pdf smooth="1" lower="0.0" upper="10.0"/>	<!-- PFmuonMultiplicity -->
+                        <pdf smooth="1" lower="0.0" upper="150.0"/>	<!-- PFelectronEnergy -->
+                        <pdf smooth="1" lower="0.0" upper="1.0"/>	<!-- PFelectronEnergyFraction -->
+                        <pdf smooth="1" lower="0.0" upper="10.0"/>	<!-- PFelectronMultiplicity -->
+                        <pdf smooth="1" lower="0.0" upper="1.0"/>	<!-- PFtrackid -->
+                        <pdf smooth="1" lower="0.0" upper="1.0"/>	<!-- PF_T_FROM_DISP -->
+                        <pdf smooth="1" lower="0.0" upper="1.0"/>	<!-- PF_T_FROM_GAMMACONV -->
+                        <pdf smooth="1" lower="0.0" upper="1.0"/>	<!-- PF_T_FROM_V0 -->
+                        <pdf smooth="1" lower="0.0" upper="1.0"/>	<!-- PF_T_TO_DISP -->
                 </config>
                 <output>
                         <var name="varjetPt"/>
@@ -127,6 +187,26 @@
                         <var name="vartrackSip2dSigAboveCharm"/>
                         <var name="vartrackSip3dSigAboveCharm"/>
                         <var name="vartrackSumJetEtRatio"/>
+                        <var name="varPFchargedHadronEnergy"/>
+                        <var name="varPFchargedHadronEnergyFraction"/>
+                        <var name="varPFchargedHadronMultiplicity"/>
+                        <var name="varPFneutralHadronEnergy"/>
+                        <var name="varPFneutralHadronEnergyFraction"/>
+                        <var name="varPFneutralHadronMultiplicity"/>
+                        <var name="varPFphotonEnergy"/>
+                        <var name="varPFphotonEnergyFraction"/>
+                        <var name="varPFphotonMultiplicity"/>
+                        <var name="varPFmuonEnergy"/>
+                        <var name="varPFmuonEnergyFraction"/>
+                        <var name="varPFmuonMultiplicity"/>
+                        <var name="varPFelectronEnergy"/>
+                        <var name="varPFelectronEnergyFraction"/>
+                        <var name="varPFelectronMultiplicity"/>
+                        <var name="varPFtrackid"/>
+                        <var name="varPF_T_FROM_DISP"/>
+                        <var name="varPF_T_FROM_GAMMACONV"/>
+                        <var name="varPF_T_FROM_V0"/>
+                        <var name="varPF_T_TO_DISP"/>
                 </output>
         </processor>
         <processor id="split1" name="ProcSplitter">
@@ -152,6 +232,26 @@
 			<var source="norm1" name="vartrackJetDist"/>
 			<var source="norm1" name="vartrackDecayLenVal"/>
 			<var source="norm1" name="vartrackSumJetEtRatio"/>
+                        <var source="norm1" name="varPFchargedHadronEnergy"/>
+                        <var source="norm1" name="varPFchargedHadronEnergyFraction"/>
+                        <var source="norm1" name="varPFchargedHadronMultiplicity"/>
+                        <var source="norm1" name="varPFneutralHadronEnergy"/>
+                        <var source="norm1" name="varPFneutralHadronEnergyFraction"/>
+                        <var source="norm1" name="varPFneutralHadronMultiplicity"/>
+                        <var source="norm1" name="varPFphotonEnergy"/>
+                        <var source="norm1" name="varPFphotonEnergyFraction"/>
+                        <var source="norm1" name="varPFphotonMultiplicity"/>
+                        <var source="norm1" name="varPFmuonEnergy"/>
+                        <var source="norm1" name="varPFmuonEnergyFraction"/>
+                        <var source="norm1" name="varPFmuonMultiplicity"/>
+                        <var source="norm1" name="varPFelectronEnergy"/>
+                        <var source="norm1" name="varPFelectronEnergyFraction"/>
+                        <var source="norm1" name="varPFelectronMultiplicity"/>
+                        <var source="norm1" name="varPFtrackid"/>
+                        <var source="norm1" name="varPF_T_FROM_DISP"/>
+                        <var source="norm1" name="varPF_T_FROM_GAMMACONV"/>
+                        <var source="norm1" name="varPF_T_FROM_V0"/>
+                        <var source="norm1" name="varPF_T_TO_DISP"/>
                         <var source="split1" name="vartrackSip3dSig_1"/>
                         <var source="split1" name="vartrackSip3dSig_2"/>
                         <var source="split1" name="vartrackSip3dSig_3"/>
@@ -165,6 +265,26 @@
                         <sigbkg smooth="3"/> <!-- trackJetDist -->
                         <sigbkg smooth="3"/> <!-- trackDecayLenVal -->
                         <sigbkg smooth="3"/> <!-- trackSumJetEtRatio -->
+                        <sigbkg smooth="3"/> <!-- varPFchargedHadronEnergy -->
+                        <sigbkg smooth="3"/> <!-- varPFchargedHadronEnergyFraction -->
+                        <sigbkg smooth="3"/> <!-- varPFchargedHadronMultiplicity -->
+                        <sigbkg smooth="3"/> <!-- varPFneutralHadronEnergy -->
+                        <sigbkg smooth="3"/> <!-- varPFneutralHadronEnergyFraction -->
+                        <sigbkg smooth="3"/> <!-- varPFneutralHadronMultiplicity -->
+                        <sigbkg smooth="3"/> <!-- varPFphotonEnergy -->
+                        <sigbkg smooth="3"/> <!-- varPFphotonEnergyFraction -->
+                        <sigbkg smooth="3"/> <!-- varPFphotonMultiplicity -->
+                        <sigbkg smooth="3"/> <!-- varPFmuonEnergy -->
+                        <sigbkg smooth="3"/> <!-- varPFmuonEnergyFraction -->
+                        <sigbkg smooth="3"/> <!-- varPFmuonMultiplicity -->
+                        <sigbkg smooth="3"/> <!-- varPFelectronEnergy -->
+                        <sigbkg smooth="3"/> <!-- varPFelectronEnergyFraction -->
+                        <sigbkg smooth="3"/> <!-- varPFelectronMultiplicity -->
+                        <sigbkg smooth="3"/> <!-- varPFtrackid -->
+                        <sigbkg smooth="3"/> <!-- varPF_T_FROM_DISP -->
+                        <sigbkg smooth="3"/> <!-- varPF_T_FROM_GAMMACONV -->
+                        <sigbkg smooth="3"/> <!-- varPF_T_FROM_V0 -->
+                        <sigbkg smooth="3"/> <!-- varPF_T_TO_DISP -->			
                         <sigbkg smooth="3"/> <!-- vartrackSip3dSig_1 -->
                         <sigbkg smooth="3"/> <!-- vartrackSip3dSig_2 -->
                         <sigbkg smooth="3"/> <!-- vartrackSip3dSig_3 -->
