@@ -86,7 +86,7 @@ iDie::iDie(xdaq::ApplicationStub *s)
   , saveLsInterval_(10)
   , ilumiprev_(0)
   , dqmSaveDir_("")
-  , dqmFilesWritable_(false)
+  , dqmFilesWritable_(true)
   , topLevelFolder_("DAQ")
   , savedForLs_(0)
 {
