@@ -663,7 +663,7 @@ class ZMuMuValidation(GenericValidation):
     def __init__(self, alignment,config):
         GenericValidation.__init__(self, alignment, config)
         general = readGeneral( config )
-        for key in ("zmumureference","etamax1","etamin1","etamax2","etamin2"):
+        for key in ("etamax1","etamin1","etamax2","etamin2"):
             if not general.has_key(key):
                 raise StandardError, "missing parameter '%s' in general section. This parameter is mandatory for the ZMuMuValidation."%(key)
         
@@ -733,6 +733,7 @@ def readGeneral( config ):
         "DMRMethod":"median",
         "DMRMinimum":"30",
         "DMROptions":"",
+        "zmumureference":"/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/TMP_EM/ZMuMu/data/MC/BiasCheck_DYToMuMu_Summer11_TkAlZMuMu_IDEAL.root",
         "parallelJobs":"1"
         }
     try:
