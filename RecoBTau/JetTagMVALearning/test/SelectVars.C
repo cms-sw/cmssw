@@ -23,7 +23,30 @@ void InitVetoVariables() {
   VetoVariablesReco.push_back("trackDecayLenVal");
   VetoVariablesReco.push_back("trackSumJetEtRatio");
   VetoVariablesReco.push_back("vertexJetDeltaR");
-
+  VetoVariablesReco.push_back("varPFchargedHadronEnergy ");
+  VetoVariablesReco.push_back("varPFchargedHadronEnergyFraction ");
+  VetoVariablesReco.push_back("varPFchargedHadronMultiplicity ");
+  VetoVariablesReco.push_back("varPFneutralHadronEnergy ");
+  VetoVariablesReco.push_back("varPFneutralHadronEnergyFraction ");
+  VetoVariablesReco.push_back("varPFneutralHadronMultiplicity ");
+  VetoVariablesReco.push_back("varPFphotonEnergy ");
+  VetoVariablesReco.push_back("varPFphotonEnergyFraction ");
+  VetoVariablesReco.push_back("varPFphotonMultiplicity ");
+  VetoVariablesReco.push_back("varPFmuonEnergy ");
+  VetoVariablesReco.push_back("varPFmuonEnergyFraction ");
+  VetoVariablesReco.push_back("varPFmuonMultiplicity ");
+  VetoVariablesReco.push_back("varPFelectronEnergy ");
+  VetoVariablesReco.push_back("varPFelectronEnergyFraction ");
+  VetoVariablesReco.push_back("varPFelectronMultiplicity ");
+  VetoVariablesReco.push_back("varPFtrackid ");
+  VetoVariablesReco.push_back("varPF_T_FROM_DISP ");
+  VetoVariablesReco.push_back("varPF_T_FROM_GAMMACONV ");
+  VetoVariablesReco.push_back("varPF_T_FROM_V0 ");
+  VetoVariablesReco.push_back("varPF_T_TO_DISP ");			
+  VetoVariablesReco.push_back("trackSip3dSig_1 ");
+  VetoVariablesReco.push_back("trackSip3dSig_2 ");
+  VetoVariablesReco.push_back("trackSip3dSig_3 ");
+  VetoVariablesReco.push_back("trackSip3dSig_rest ");
 
   VetoVariablesPseudo.push_back("trackDeltaR");
   VetoVariablesPseudo.push_back("trackPtRatio");
@@ -31,6 +54,30 @@ void InitVetoVariables() {
   VetoVariablesPseudo.push_back("trackDecayLenVal");
   VetoVariablesPseudo.push_back("trackSumJetEtRatio");
   VetoVariablesPseudo.push_back("vertexJetDeltaR");
+  VetoVariablesReco.push_back("varPFchargedHadronEnergy ");
+  VetoVariablesReco.push_back("varPFchargedHadronEnergyFraction ");
+  VetoVariablesReco.push_back("varPFchargedHadronMultiplicity ");
+  VetoVariablesReco.push_back("varPFneutralHadronEnergy ");
+  VetoVariablesReco.push_back("varPFneutralHadronEnergyFraction ");
+  VetoVariablesReco.push_back("varPFneutralHadronMultiplicity ");
+  VetoVariablesReco.push_back("varPFphotonEnergy ");
+  VetoVariablesReco.push_back("varPFphotonEnergyFraction ");
+  VetoVariablesReco.push_back("varPFphotonMultiplicity ");
+  VetoVariablesReco.push_back("varPFmuonEnergy ");
+  VetoVariablesReco.push_back("varPFmuonEnergyFraction ");
+  VetoVariablesReco.push_back("varPFmuonMultiplicity ");
+  VetoVariablesReco.push_back("varPFelectronEnergy ");
+  VetoVariablesReco.push_back("varPFelectronEnergyFraction ");
+  VetoVariablesReco.push_back("varPFelectronMultiplicity ");
+  VetoVariablesReco.push_back("varPFtrackid ");
+  VetoVariablesReco.push_back("varPF_T_FROM_DISP ");
+  VetoVariablesReco.push_back("varPF_T_FROM_GAMMACONV ");
+  VetoVariablesReco.push_back("varPF_T_FROM_V0 ");
+  VetoVariablesReco.push_back("varPF_T_TO_DISP ");			
+  VetoVariablesReco.push_back("trackSip3dSig_1 ");
+  VetoVariablesReco.push_back("trackSip3dSig_2 ");
+  VetoVariablesReco.push_back("trackSip3dSig_3 ");
+  VetoVariablesReco.push_back("trackSip3dSig_rest ");
 
 
   VetoVariablesNo.push_back("trackDeltaR");
@@ -38,6 +85,30 @@ void InitVetoVariables() {
   VetoVariablesNo.push_back("trackJetDist");
   VetoVariablesNo.push_back("trackDecayLenVal");
   VetoVariablesNo.push_back("trackSumJetEtRatio");
+  VetoVariablesReco.push_back("varPFchargedHadronEnergy ");
+  VetoVariablesReco.push_back("varPFchargedHadronEnergyFraction ");
+  VetoVariablesReco.push_back("varPFchargedHadronMultiplicity ");
+  VetoVariablesReco.push_back("varPFneutralHadronEnergy ");
+  VetoVariablesReco.push_back("varPFneutralHadronEnergyFraction ");
+  VetoVariablesReco.push_back("varPFneutralHadronMultiplicity ");
+  VetoVariablesReco.push_back("varPFphotonEnergy ");
+  VetoVariablesReco.push_back("varPFphotonEnergyFraction ");
+  VetoVariablesReco.push_back("varPFphotonMultiplicity ");
+  VetoVariablesReco.push_back("varPFmuonEnergy ");
+  VetoVariablesReco.push_back("varPFmuonEnergyFraction ");
+  VetoVariablesReco.push_back("varPFmuonMultiplicity ");
+  VetoVariablesReco.push_back("varPFelectronEnergy ");
+  VetoVariablesReco.push_back("varPFelectronEnergyFraction ");
+  VetoVariablesReco.push_back("varPFelectronMultiplicity ");
+  VetoVariablesReco.push_back("varPFtrackid ");
+  VetoVariablesReco.push_back("varPF_T_FROM_DISP ");
+  VetoVariablesReco.push_back("varPF_T_FROM_GAMMACONV ");
+  VetoVariablesReco.push_back("varPF_T_FROM_V0 ");
+  VetoVariablesReco.push_back("varPF_T_TO_DISP ");			
+  VetoVariablesReco.push_back("trackSip3dSig_1 ");
+  VetoVariablesReco.push_back("trackSip3dSig_2 ");
+  VetoVariablesReco.push_back("trackSip3dSig_3 ");
+  VetoVariablesReco.push_back("trackSip3dSig_rest ");
 }
 
 //In principle no need to modify anything below this point
