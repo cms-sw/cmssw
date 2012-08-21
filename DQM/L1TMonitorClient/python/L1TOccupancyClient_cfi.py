@@ -35,6 +35,15 @@ l1tOccupancyClient = cms.EDAnalyzer("L1TOccupancyClient",
       #)
     #),
     cms.PSet(
+      testName   = cms.string('dttf_01_tracks_occupancy_test_summary'), #test name
+      algoParams = cms.PSet(
+        histPath    = cms.string('L1T/L1TDTTF/09-TEST/dttf_01_tracks_occupancy_test_summary'),
+        maskedAreas = cms.VPSet(
+          cms.PSet(kind=cms.int32(1),xmin=cms.double(3) ,xmax=cms.double(3) ,ymin=cms.double(1),ymax=cms.double(12)),
+        )
+      )
+    ),
+    cms.PSet(
       testName   = cms.string('TauJetsOccEtaPhi'), #test name
       algoParams = cms.PSet(
         histPath        = cms.string('L1T/L1TGCT/TauJetsOccEtaPhi'),
