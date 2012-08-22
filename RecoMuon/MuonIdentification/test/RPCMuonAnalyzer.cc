@@ -136,13 +136,13 @@ void RPCMuonAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& ev
       true,
       muon->isGlobalMuon(), muon->isStandAloneMuon(), muon->isTrackerMuon(),
       muon->isRPCMuon(),
-      muon::isGoodMuon(*muon, muon::RPCMuLoose) && muon->numberOfMatchedStations(reco::Muon::RPCHitAndTrackArbitration)>1 && muon->numberOfMatchedLayers(reco::Muon::RPCHitAndTrackArbitration)>2,
+      muon::isGoodMuon(*muon, muon::RPCMuLoose) && muon->numberOfMatchedStations(reco::Muon::RPCHitAndTrackArbitration)>1 && muon->numberOfMatchedRPCLayers(reco::Muon::RPCHitAndTrackArbitration)>2,
       muon::isGoodMuon(*muon, muon::TMOneStationTight),
-      muon::isGoodMuon(*muon, muon::TMOneStationTight) || (muon::isGoodMuon(*muon, muon::RPCMuLoose) && muon->numberOfMatchedStations(reco::Muon::RPCHitAndTrackArbitration)>1 && muon->numberOfMatchedLayers(reco::Muon::RPCHitAndTrackArbitration)>2),
+      muon::isGoodMuon(*muon, muon::TMOneStationTight) || (muon::isGoodMuon(*muon, muon::RPCMuLoose) && muon->numberOfMatchedStations(reco::Muon::RPCHitAndTrackArbitration)>1 && muon->numberOfMatchedRPCLayers(reco::Muon::RPCHitAndTrackArbitration)>2),
       muon::isGoodMuon(*muon, muon::GlobalMuonPromptTight),
-      muon::isGoodMuon(*muon, muon::GlobalMuonPromptTight) || (muon::isGoodMuon(*muon, muon::RPCMuLoose) && muon->numberOfMatchedStations(reco::Muon::RPCHitAndTrackArbitration)>1 && muon->numberOfMatchedLayers(reco::Muon::RPCHitAndTrackArbitration)>2),
+      muon::isGoodMuon(*muon, muon::GlobalMuonPromptTight) || (muon::isGoodMuon(*muon, muon::RPCMuLoose) && muon->numberOfMatchedStations(reco::Muon::RPCHitAndTrackArbitration)>1 && muon->numberOfMatchedRPCLayers(reco::Muon::RPCHitAndTrackArbitration)>2),
       muon::isGoodMuon(*muon, muon::GlobalMuonPromptTight) && muon->numberOfMatchedStations(reco::Muon::SegmentAndTrackArbitration)>1,
-      (muon::isGoodMuon(*muon, muon::GlobalMuonPromptTight) && muon->numberOfMatchedStations(reco::Muon::SegmentAndTrackArbitration)>1) || (muon::isGoodMuon(*muon, muon::RPCMuLoose) && muon->numberOfMatchedStations(reco::Muon::RPCHitAndTrackArbitration)>1 && muon->numberOfMatchedLayers(reco::Muon::RPCHitAndTrackArbitration)>2)
+      (muon::isGoodMuon(*muon, muon::GlobalMuonPromptTight) && muon->numberOfMatchedStations(reco::Muon::SegmentAndTrackArbitration)>1) || (muon::isGoodMuon(*muon, muon::RPCMuLoose) && muon->numberOfMatchedStations(reco::Muon::RPCHitAndTrackArbitration)>1 && muon->numberOfMatchedRPCLayers(reco::Muon::RPCHitAndTrackArbitration)>2)
     };
 
     ++nMuon;
