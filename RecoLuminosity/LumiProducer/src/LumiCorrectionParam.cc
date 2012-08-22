@@ -1,12 +1,20 @@
 #include "RecoLuminosity/LumiProducer/interface/LumiCorrectionParam.h"
+#include "RecoLuminosity/LumiProducer/interface/NormFunctor.h"
+#include "RecoLuminosity/LumiProducer/interface/NormFunctorPluginFactory.h"
 #include <iomanip>
 #include <ostream>
+#include <memory>
 LumiCorrectionParam::LumiCorrectionParam():m_lumitype(LumiCorrectionParam::HF),m_ncollidingbx(0),m_normtag(""),m_corrfunc(""),m_amodetag("PROTPHYS"),m_beamegev(0.){}
 LumiCorrectionParam::LumiCorrectionParam(LumiCorrectionParam::LumiType lumitype):m_lumitype(lumitype),m_ncollidingbx(0),m_normtag(""),m_corrfunc(""),m_amodetag("PROTPHYS"),m_beamegev(0.){}
 
 float 
-LumiCorrectionParam::getCorrection()const{
-  return 1.0;
+LumiCorrectionParam::getCorrection(float luminonorm)const{
+  std::cout<<"luminonorm "<<luminonorm<<std::endl;
+  std::auto_ptr<lumi::NormFunctor> ptr(lumi::NormFunctorPluginFactory::get()->create(m_corrfunc));
+  (*ptr).initialize(m_coeffmap,m_afterglows);
+  float result=(*ptr).getCorrection(luminonorm,0,m_ncollidingbx);
+  std::cout<<"correc fac "<<result<<std::endl;
+  return result;
 }
 unsigned int 
 LumiCorrectionParam::ncollidingbunches()const{

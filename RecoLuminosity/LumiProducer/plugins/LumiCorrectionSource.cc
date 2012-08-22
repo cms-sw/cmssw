@@ -7,7 +7,7 @@
 Description: A essource/esproducer for lumi correction factor and run parameters needed to deduce the corrections
       Author: Zhen Xie
 */
-// $Id: LumiCorrectionSource.cc,v 1.8 2012/08/21 14:18:03 xiezhen Exp $
+// $Id: LumiCorrectionSource.cc,v 1.9 2012/08/21 17:51:30 xiezhen Exp $
 
 //#include <memory>
 //#include "boost/shared_ptr.hpp"
@@ -278,8 +278,13 @@ LumiCorrectionSource::fillparamcache(unsigned int runnumber){
     std::map< unsigned int,lumi::NormDML::normData > normDataMap;
     normdml.normById(schema,normid,normDataMap); 
     session->transaction().commit();
-    std::map< unsigned int,lumi::NormDML::normData >::iterator normIt=normDataMap.upper_bound(runnumber);
-    --normIt;
+    
+    //std::map< unsigned int,lumi::NormDML::normData >::iterator normIt=normDataMap.upper_bound(runnumber);
+    std::map< unsigned int,lumi::NormDML::normData >::iterator normIt=--normDataMap.end();
+    if(runnumber<normIt->first){
+      normIt=normDataMap.upper_bound(runnumber);
+      --normIt;
+    }
     result->setNormtag(m_normtag);
     result->setcorrFunc(normIt->second.corrfunc);
     result->setnonlinearCoeff(normIt->second.coefficientmap);

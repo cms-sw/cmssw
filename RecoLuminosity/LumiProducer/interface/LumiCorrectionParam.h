@@ -19,7 +19,7 @@ class LumiCorrectionParam {
     other methods are for inspection or advanced correction customisation
   */
   ///get the final correction factor
-  float getCorrection()const;
+  float getCorrection(float luminonorm)const;
   ///get ncollidingbunches
   unsigned int ncollidingbunches()const;
   ///get current normtag

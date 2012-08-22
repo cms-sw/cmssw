@@ -63,6 +63,7 @@ void TestLumiCorrectionSource::endLuminosityBlock(edm::LuminosityBlock const& lu
     if(datahandle.isValid()){
       const LumiCorrectionParam* mydata=datahandle.product();
       std::cout<<"correctionparams "<<*mydata<<std::endl;
+      float corrfac=mydata->getCorrection(1.5);
     }else{
       std::cout<<"no valid record found"<<std::endl;
     }
