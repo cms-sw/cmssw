@@ -71,6 +71,18 @@ options.register ('useExtraJetColls',
                   VarParsing.varType.int,
                   "Write extra jet collections for substructure studies")
 
+options.register ('usePythia8',
+                  False,
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.int,
+                  "Use status codes from Pythia8 rather than Pythia6")
+
+options.register ('usePythia6andPythia8',
+                  False,
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.int,
+                  "Use status codes from Pythia8 and Pythia6")
+
 options.parseArguments()
 
 
@@ -220,6 +232,26 @@ process.prunedGenParticles = cms.EDProducer("GenParticlePruner",
                                                 ,"keep (abs(pdgId)  = 15) & status = 3" #keeps taus
                                                 )
                                             )
+
+if options.usePythia8 :
+    process.prunedGenParticles.select = cms.vstring(
+                                                "drop  *"
+                                                ,"keep status = 21" #keeps  particles from the hard matrix element
+                                                ,"keep status = 22" #keeps  particles from the hard matrix element
+                                                ,"keep status = 23" #keeps  particles from the hard matrix element
+                                                ,"keep (abs(pdgId) >= 11 & abs(pdgId) <= 16) & status = 1" #keeps e/mu and nus with status 1
+                                                ,"keep (abs(pdgId)  = 15) & (status = 21 || status = 22 || status = 23) " #keeps taus
+                                                )
+if options.usePythia6andPythia8 :
+    process.prunedGenParticles.select = cms.vstring(
+                                                "drop  *"
+                                                ,"keep status = 3" #keeps  particles from the hard matrix element
+                                                ,"keep status = 21" #keeps  particles from the hard matrix element
+                                                ,"keep status = 22" #keeps  particles from the hard matrix element
+                                                ,"keep status = 23" #keeps  particles from the hard matrix element
+                                                ,"keep (abs(pdgId) >= 11 & abs(pdgId) <= 16) & status = 1" #keeps e/mu and nus with status 1
+                                                ,"keep (abs(pdgId)  = 15) & (status = 3 || status = 21 || status = 22 || status = 23)" #keeps taus
+                                                )                                      
 
 
 ## process.prunedGenParticles = cms.EDProducer("GenParticlePruner",
@@ -1585,6 +1617,17 @@ if options.writeSimpleInputs :
 	process.out.outputCommands += [
 		'keep *_pfInputs_*_*'
 		]
+        
+if options.usePythia8 :
+    process.patJetPartonMatch.mcStatus = cms.vint32(23)
+    process.patJetPartonMatchPFlow.mcStatus = cms.vint32(23)
+    process.patJetPartonMatchPFlowLoose.mcStatus = cms.vint32(23)
+    
+if options.usePythia6andPythia8 :
+    process.patJetPartonMatch.mcStatus = cms.vint32(3,23)
+    process.patJetPartonMatchPFlow.mcStatus = cms.vint32(3,23)
+    process.patJetPartonMatchPFlowLoose.mcStatus = cms.vint32(3,23)
+
 
 
 open('junk.py','w').write(process.dumpPython())
