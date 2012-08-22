@@ -67,7 +67,7 @@ analyze(const edm::Event & event, const edm::EventSetup &setup){
   edm::ESHandle<MagneticField> handleMagField;
   setup.get<IdealMagneticFieldRecord>().get(handleMagField);
   magField = handleMagField.product();
-  if (unlikely(magField->inTesla(GlobalPoint(0.,0.,0.)).z())<0.01) return;
+  if (unlikely(magField->inTesla(GlobalPoint(0.,0.,0.)).z()<0.01)) return;
 
   _IdealHelixParameters.setMagnField(magField);
 
