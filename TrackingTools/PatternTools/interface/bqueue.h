@@ -2,6 +2,7 @@
 #define CMSUTILS_BEUEUE_H
 #include <boost/intrusive_ptr.hpp>
 #include "DataFormats/GeometrySurface/interface/BlockWipedAllocator.h"
+#include<cassert>
 
 /**  Backwards linked queue with "head sharing"
 
