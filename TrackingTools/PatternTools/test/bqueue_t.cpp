@@ -55,7 +55,10 @@ int main() {
   assert(cont.shared());
   assert(cont3.shared());
   verifySeq(cont);
- 
+  cont3.clear();
+  assert(!cont.shared());
+  assert(cont.size()==N+1);
+  verifySeq(cont);
 
   // join
   cont1.join(cont2);
@@ -79,7 +82,8 @@ int main() {
   assert(t1.shared());
   assert(t2.shared());
   // h.join(t1); //  bombs..
- 
+  t2.clear();
+
 
   cont.clear();
   assert(cont.size()==0);
