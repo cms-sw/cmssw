@@ -52,7 +52,7 @@ namespace cmsutils {
     _bqueue_item(boost::intrusive_ptr< _bqueue_item<T> > tail, Args && ...args) : 
       back(tail), value(std::forward<Args>(args)...), refCount(0) { }
     boost::intrusive_ptr< _bqueue_item<T> > back;
-    T value;
+    T const value;
     unsigned int refCount;
   };
   
@@ -148,9 +148,9 @@ namespace cmsutils {
       if (m_size == 0) m_head = m_bound; 
     }
     
-    T & front() { return m_head->value; }
+    // T & front() { return m_head->value; }
     const T & front() const { return m_head->value; }
-    T & back() { return m_tail->value; }
+    //vT & back() { return m_tail->value; }
     const T & back() const { return m_tail->value; }
     iterator rbegin() { return m_tail.get(); }
     const_iterator rbegin() const { return m_tail.get(); }

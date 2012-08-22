@@ -201,14 +201,14 @@ public:
 
   const DetLayer* layer() const { return theLayer;}
 
-  void setLayer( const DetLayer* il) { theLayer=il;}
+  void setLayer( DetLayer const * il) const { theLayer=il;}
 
 private:
   TrajectoryStateOnSurface theFwdPredictedState;
   TrajectoryStateOnSurface theBwdPredictedState;
   TrajectoryStateOnSurface theUpdatedState;
   ConstRecHitPointer       theRecHit;
-  const DetLayer* theLayer;
+  mutable DetLayer const * theLayer;
   float theEstimate;
 };
 

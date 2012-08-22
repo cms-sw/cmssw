@@ -205,7 +205,7 @@ public:
    *  inside this trajectory (that is, both along or both opposite to momentum)
    *  (the input segment will be reset to an empty one)
    */
-  void push(TempTrajectory && segment);
+  void push(TempTrajectory const & segment);
 
       
 
