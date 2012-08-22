@@ -294,7 +294,11 @@ from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 # define with a new name if changes are necessary, otherwise simply include
 # it from CommonTools/ParticleFlow/python/goodOfflinePrimaryVertices_cfi.py
 # uncomment when necessary
-# from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import goodOfflinePrimaryVertices
+from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import goodOfflinePrimaryVertices
+trackingGoodOfflinePrimaryVertices = goodOfflinePrimaryVertices.clone()
+trackingGoodOfflinePrimaryVertices.filterParams = pvSelector.clone( minNdof = cms.double(4.0), maxZ = cms.double(24.0) )
+trackingGoodOfflinePrimaryVertices.src=cms.InputTag('offlinePrimaryVertices')
+trackingGoodOfflinePrimaryVertices.filter = cms.bool(False)
 
 # Sequence
 SiStripDQMTier0 = cms.Sequence(
@@ -306,7 +310,7 @@ SiStripDQMTier0 = cms.Sequence(
 #    # temporary patch in order to have BXlumi
 #    * lumiProducer
     # temporary test in order to have the "goodPrimaryVertexCollection"
-#    * goodOfflinePrimaryVertices
+#    * trackingGoodOfflinePrimaryVertices
     *TrackerCollisionTrackMonCommon
     *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
      # MessageLog
@@ -322,7 +326,7 @@ SiStripDQMTier0Common = cms.Sequence(
 #    # temporary patch in order to have BXlumi
 #    * lumiProducer
 #    # temporary test in order to have the "goodPrimaryVertexCollection"
-#    * goodOfflinePrimaryVertices
+#    * trackingGoodOfflinePrimaryVertices
     *TrackerCollisionTrackMonCommon
     *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
     # MessageLog
@@ -337,7 +341,7 @@ SiStripDQMTier0MinBias = cms.Sequence(
 
 #    * lumiProducer
 #    # temporary test in order to have the "goodPrimaryVertexCollection"
-#    * goodOfflinePrimaryVertices
+#    * trackingGoodOfflinePrimaryVertices
     *TrackerCollisionTrackMonMB
     *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
     # MessageLog
