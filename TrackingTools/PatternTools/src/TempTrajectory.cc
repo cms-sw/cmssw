@@ -57,35 +57,31 @@ void TempTrajectory::pushAux(double chi2Increment) {
 
 void TempTrajectory::push(const TempTrajectory& segment) {
   assert (segment.direction() == theDirection) ;
+  assert(theDirectionValidity); // given the above...
+
   const int N = segment.measurements().size();
   TrajectoryMeasurement const * tmp[N];
   int i=0;
   for (DataContainer::const_iterator it = segment.measurements().rbegin(), ed = segment.measurements().rend(); it != ed; --it)
     tmp[i++] =&(*it);
-  while(i!=0) push(*tmp[--i]);
+  while(i!=0) theData.push_back(*tmp[--i]);
+  theNumberOfFoundHits+= segment.theNumberOfFoundHits;
+  theNumberOfLostHits += segment.theNumberOfLostHits;
+  theChiSquared += segment.theChiSquared;
 }
 
-void TempTrajectory::join( TempTrajectory&& segment) {
+void TempTrajectory::join( TempTrajectory& segment) {
   assert (segment.direction() == theDirection) ;
+  assert(theDirectionValidity);
+
   if (segment.theData.shared()) {
     push(segment); 
-    segment.theData.clear();
-    // obey the contract, and increase the chances it will be not shared one day
+    segment.theData.clear(); // obey the contract, and increase the chances it will be not shared one day
   } else {
-      for (DataContainer::const_iterator it = segment.measurements().rbegin(), ed = segment.measurements().rend(); it != ed; --it) {
-          if ( it->recHit()->isValid())       theNumberOfFoundHits++;
-          else if (lost( *(it->recHit()) ) ) theNumberOfLostHits++;
-          theChiSquared += it->estimate();
-      }
-      theData.join(segment.theData);
-
-      if ( !theDirectionValidity && theData.size() >= 2) {
-        if (theData.front().updatedState().globalPosition().perp2() <
-            theData.back().updatedState().globalPosition().perp2())
-          theDirection = alongMomentum;
-        else theDirection = oppositeToMomentum;
-        theDirectionValidity = true;
-      }
+    theData.join(segment.theData);
+    theNumberOfFoundHits+= segment.theNumberOfFoundHits;
+    theNumberOfLostHits += segment.theNumberOfLostHits;
+    theChiSquared += segment.theChiSquared;
   }
 }
 

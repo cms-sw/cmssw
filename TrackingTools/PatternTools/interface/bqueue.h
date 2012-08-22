@@ -24,6 +24,14 @@
      while avoiding problems if one deletes a queue which shares the head with another one
 
      Disclaimer: I'm not sure the const_iterator is really const-correct..
+
+     V.I. 22/08/2012 As the bqueue is made to be shared its content ahs been forced to be constant.
+     This avoids that accidentally an update in one Trajectory modifies the content of onother!
+
+    to support c++11 begin,end and operator++ has been added with the same semantics of rbegin,rend and operator--
+    Highly confusing, still the bqueue is a sort of reversed slist: provided the user knows should work....
+
+
 */
 namespace cmsutils {
 
@@ -64,11 +72,12 @@ namespace cmsutils {
   template<class T>
   class _bqueue_itr {
   public:
-    T* operator->() { return &it->value; }
-    T& operator*() { return it->value; }
+    // T* operator->() { return &it->value; }
+    // T& operator*() { return it->value; }
     const T* operator->() const { return &it->value; }
     const T& operator*() const { return it->value; }
-    _bqueue_itr<T> & operator--() { it = it->back; return *this; }
+    _bqueue_itr<T> & operator--() { it = it->back.get(); return *this; }
+    _bqueue_itr<T> & operator++() { it = it->back.get(); return *this; }
     const _bqueue_itr<T> & operator--() const { it = it->back.get(); return *this; }
     bool operator==(const _bqueue_itr<T> &t2) const  { return t2.it == it; }
     bool operator!=(const _bqueue_itr<T> &t2) const { return t2.it != it; }
@@ -76,9 +85,9 @@ namespace cmsutils {
     const _bqueue_itr<T> & operator=(const _bqueue_itr<T> &t2) const { it = t2.it; return *this; }
     friend class bqueue<T>;
   private:
-    _bqueue_itr(_bqueue_item<T> *t) : it(t) { }
+    // _bqueue_itr(_bqueue_item<T> *t) : it(t) { }
     _bqueue_itr(const _bqueue_item<T> *t) : it(t) { }
-    mutable _bqueue_item<T> *it;
+    mutable _bqueue_item<T> const * it;
   };
   
   template<class T>
@@ -89,22 +98,21 @@ namespace cmsutils {
     typedef _bqueue_item<value_type>       item;
     typedef boost::intrusive_ptr< _bqueue_item<value_type> >  itemptr;
     typedef _bqueue_itr<value_type>       iterator;
-    typedef const _bqueue_itr<value_type> const_iterator;
+    typedef _bqueue_itr<value_type> const_iterator;
     
-    bqueue() : m_size(0), m_bound(), m_head(m_bound), m_tail(m_bound) { }
+    bqueue() : m_size(0),  m_head(), m_tail() { }
     ~bqueue() { }
 
-    bqueue(const bqueue<T> &cp) : m_size(cp.m_size), m_bound(cp.m_bound), m_head(cp.m_head), m_tail(cp.m_tail) { }
+    bqueue(const bqueue<T> &cp) : m_size(cp.m_size), m_head(cp.m_head), m_tail(cp.m_tail) { }
     
     // move
     bqueue(bqueue<T> &&cp) noexcept : 
     m_size(cp.m_size),
-      m_bound(std::move(cp.m_bound)), m_head(std::move(cp.m_head)), m_tail(std::move(cp.m_tail)) {cp.m_size=0; }
+      m_head(std::move(cp.m_head)), m_tail(std::move(cp.m_tail)) {cp.m_size=0; }
     
     bqueue & operator=(bqueue<T> &&cp) noexcept {
       using std::swap;
       swap(m_size,cp.m_size);
-      swap(m_bound,cp.m_bound);
       swap(m_head,cp.m_head); 
       swap(m_tail,cp.m_tail);
       return *this;
@@ -113,13 +121,12 @@ namespace cmsutils {
     void swap(bqueue<T> &cp) {
       using std::swap;
       swap(m_size,cp.m_size);
-      swap(m_bound,cp.m_bound);
       swap(m_head,cp.m_head); 
       swap(m_tail,cp.m_tail);
     }
     
-    bqueue<T> fork() {
-      return bqueue<T>(m_size,m_bound,m_head,m_tail);
+    bqueue<T> fork() const {
+      return *this;
     }
     
     // copy
@@ -145,16 +152,18 @@ namespace cmsutils {
       assert(m_size > 0);
       --m_size;
       m_tail = m_tail->back;
-      if (m_size == 0) m_head = m_bound; 
+      if (m_size == 0) m_head = nullptr; 
     }
     
     // T & front() { return m_head->value; }
     const T & front() const { return m_head->value; }
     //vT & back() { return m_tail->value; }
     const T & back() const { return m_tail->value; }
-    iterator rbegin() { return m_tail.get(); }
+    // iterator rbegin() { return m_tail.get(); }
     const_iterator rbegin() const { return m_tail.get(); }
-    const_iterator rend() const { return m_bound.get(); }
+    const_iterator rend() const { return nullptr; }
+    const_iterator begin() const { return m_tail.get(); }
+    const_iterator end() const { return nullptr; }
     size_type size() const { return m_size; }
     bool empty() const { return m_size == 0; }
     const T & operator[](size_type i) const {
@@ -171,8 +180,11 @@ namespace cmsutils {
       return (m_size > 0) && (m_head->refCount > 2);
     }
 
+
     // connect 'other' at the tail of this. will reset 'other' to an empty sequence
+    // other better not to be shared!
     void join(bqueue<T> &other) {
+      assert(!other.shared());
       using std::swap;
       if (m_size == 0) {
 	swap(m_head,other.m_head);
@@ -182,23 +194,19 @@ namespace cmsutils {
 	other.m_head->back = this->m_tail;
 	m_tail = other.m_tail;
 	m_size += other.m_size;
-	other.m_head = other.m_tail = other.m_bound;
-	other.m_size = 0;
+	other.clear();
       }
     }
 
     void clear() { 
-      m_head = m_bound; 
-      m_tail = m_bound;
+      m_head = m_tail = nullptr;
       m_size = 0;
     }
 
   private:
-    bqueue(size_type size, itemptr bound, itemptr head, itemptr tail) :
-      m_size(size), m_bound(bound), m_head(head), m_tail(tail) { }
     
     size_type m_size;
-    itemptr m_bound, m_head, m_tail;
+    itemptr m_head, m_tail;
     
   };
   

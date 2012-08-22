@@ -213,7 +213,7 @@ public:
    *  Exactly like push(TempTrajectory), but it doesn't copy the data
    *  (the input segment will be reset to an empty one)
    */
-  void join( TempTrajectory && segment);
+  void join( TempTrajectory & segment);
 
 
 
