@@ -35,16 +35,16 @@ namespace {
 
   std::string typeToClassName(std::type_info const& iType) {
     // demangling supported for currently supported gcc compilers.
+    std::string result;
     try {
-      std::string result;
       typeDemangle(iType.name(), result);
-      return result;
     } catch (cms::Exception const& e) {
       edm::Exception theError(errors::DictionaryNotFound,"NoMatch");
       theError << "TypeWithDict::typeToClassName: No dictionary for class " << iType.name() << '\n';
       theError.append(e);
       throw theError;
     }
+    return result;
   }
 }
 
