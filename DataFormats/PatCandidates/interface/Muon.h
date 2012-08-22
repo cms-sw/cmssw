@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.36 2011/06/08 20:40:18 rwolf Exp $
+// $Id: Muon.h,v 1.37 2011/09/21 03:40:17 tucker Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -17,7 +17,7 @@
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
 
-  \version  $Id: Muon.h,v 1.36 2011/06/08 20:40:18 rwolf Exp $
+  \version  $Id: Muon.h,v 1.37 2011/09/21 03:40:17 tucker Exp $
 */
 
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -80,6 +80,9 @@ namespace pat {
       reco::TrackRef combinedMuon() const;
       /// reference to Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon)
       reco::TrackRef globalTrack() const { return combinedMuon(); }
+
+      /// set reference to Track selected to be the best measurement of the muon parameters (reimplemented from reco::Muon)
+      void embedMuonBestTrack();
       /// set reference to Track reconstructed in the tracker only (reimplemented from reco::Muon)
       void embedTrack();
       /// set reference to Track reconstructed in the muon detector only (reimplemented from reco::Muon)
@@ -218,7 +221,11 @@ namespace pat {
     protected:
 
       // ---- for content embedding ----
-      /// tracker of inner track detector
+
+      /// best muon track
+      bool embeddedMuonBestTrack_;
+      std::vector<reco::Track> muonBestTrack_;
+      /// track of inner track detector
       bool embeddedTrack_;
       std::vector<reco::Track> track_;
       /// track of muon system
