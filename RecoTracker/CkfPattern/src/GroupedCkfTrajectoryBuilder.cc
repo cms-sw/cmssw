@@ -547,7 +547,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
       //
       TempTrajectory newTraj(traj);
       traj.setDPhiCacheForLoopersReconstruction(dPhiCacheForLoopersReconstruction);
-      newTraj.push(std::move(*is));
+      newTraj.join(*is);
 
       //std::cout << "DEBUG: newTraj after push found,lost: " 
       //	  << newTraj.foundHits() << " , " 
