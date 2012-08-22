@@ -117,6 +117,11 @@ namespace {
     return ObjectWithDict(type_.Construct());
   }
 
+  ObjectWithDict
+  TypeWithDict::construct(TypeWithDict const& type, std::vector<void *> const& args) const {
+    return ObjectWithDict(type_.Construct(type.type_, args));
+  }
+
   void const*
   TypeWithDict::pointerToContainedType(void const* ptr, TypeWithDict const& containedType) const {
     // The const_cast below is needed because

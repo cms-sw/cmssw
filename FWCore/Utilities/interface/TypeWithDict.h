@@ -12,6 +12,7 @@ persisted across invocations of the program.
 #include <iosfwd>
 #include <typeinfo>
 #include <string>
+#include <vector>
 #include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "Reflex/TypeTemplate.h"
@@ -40,7 +41,9 @@ namespace edm {
 
   enum TypeModifiers {
      NoMod = 0,
-     Const = Reflex::CONST
+     Const = Reflex::CONST,
+     Reference = Reflex::REFERENCE,
+     ConstReference = Reflex::CONST|Reflex::REFERENCE
   };
 
   class TypeWithDict {
@@ -127,6 +130,10 @@ namespace edm {
       return TypeWithDict(type_.FunctionParameterAt(index));
     }
 
+    size_t functionParameterSize() const {
+      return type_.FunctionParameterSize();
+    }
+
     TypeWithDict subTypeAt(size_t index) const {
       return TypeWithDict(type_.SubTypeAt(index));
     }
@@ -136,6 +143,8 @@ namespace edm {
     }
 
     ObjectWithDict construct() const;
+
+    ObjectWithDict construct(TypeWithDict const& type, std::vector<void *> const& args) const;
 
     void destruct(void * address, bool dealloc = true) const {
       type_.Destruct(address, dealloc);
