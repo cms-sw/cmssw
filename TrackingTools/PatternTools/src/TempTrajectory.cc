@@ -56,14 +56,15 @@ void TempTrajectory::pushAux(double chi2Increment) {
 }
 
 void TempTrajectory::push(const TempTrajectory& segment) {
-  assert (segment.direction() == theDirection) ;
+  assert (segment.theDirection == theDirection) ;
   assert(theDirectionValidity); // given the above...
 
   const int N = segment.measurements().size();
   TrajectoryMeasurement const * tmp[N];
   int i=0;
-  for (DataContainer::const_iterator it = segment.measurements().rbegin(), ed = segment.measurements().rend(); it != ed; --it)
-    tmp[i++] =&(*it);
+  //for (DataContainer::const_iterator it = segment.measurements().rbegin(), ed = segment.measurements().rend(); it != ed; --it)
+  for ( auto const & tm : segment.measurements())
+    tmp[i++] =&tm;
   while(i!=0) theData.push_back(*tmp[--i]);
   theNumberOfFoundHits+= segment.theNumberOfFoundHits;
   theNumberOfLostHits += segment.theNumberOfLostHits;
@@ -71,7 +72,7 @@ void TempTrajectory::push(const TempTrajectory& segment) {
 }
 
 void TempTrajectory::join( TempTrajectory& segment) {
-  assert (segment.direction() == theDirection) ;
+  assert (segment.theDirection == theDirection) ;
   assert(theDirectionValidity);
 
   if (segment.theData.shared()) {
