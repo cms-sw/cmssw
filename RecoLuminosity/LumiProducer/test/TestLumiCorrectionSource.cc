@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "RecoLuminosity/LumiProducer/interface/LumiCorrectionParam.h"
 #include "RecoLuminosity/LumiProducer/interface/LumiCorrectionParamRcd.h"
-
+#include "DataFormats/Luminosity/interface/LumiSummary.h"
 #include <iostream>
 
 
@@ -58,15 +58,22 @@ void TestLumiCorrectionSource::endLuminosityBlock(edm::LuminosityBlock const& lu
     std::cout <<"Record \"LumiCorrectionParamRcd"<<"\" does not exist "<<std::endl;
   }
   try{
+    edm::Handle<LumiSummary> lumisummary;
+    lumiBlock.getByLabel("lumiProducer", lumisummary);
+    float instlumi=lumisummary->avgInsDelLumi();
+    float correctedinstlumi=instlumi;
+    float corrfac=1.;
     edm::ESHandle<LumiCorrectionParam> datahandle;
     es.getData(datahandle);
     if(datahandle.isValid()){
       const LumiCorrectionParam* mydata=datahandle.product();
       std::cout<<"correctionparams "<<*mydata<<std::endl;
-      float corrfac=mydata->getCorrection(1.5);
+      corrfac=mydata->getCorrection(instlumi);
     }else{
       std::cout<<"no valid record found"<<std::endl;
     }
+    correctedinstlumi=instlumi*corrfac;
+    std::cout<<"correctedinstlumi "<<correctedinstlumi<<std::endl;
   }catch(const edm::eventsetup::NoRecordException<LumiCorrectionParamRcd>& er){
     std::cout<<"no data found"<<std::endl;
   }catch(const cms::Exception& ee){
