@@ -81,6 +81,8 @@ addMixingScenario("2012_peak11_25ns_PoissonOOTPU",{'file': 'SimGeneral.MixingMod
 addMixingScenario("2012_peak26_50ns_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2012_peak26_50ns_PoissonOOTPU_cfi'})
 addMixingScenario("2012_Startup_50ns_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2012_Startup_50ns_PoissonOOTPU_cfi'})
 addMixingScenario("2012_Summer_50ns_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2012_Summer_50ns_PoissonOOTPU_cfi'})
+addMixingScenario("2012_Summer_50ns_PoissonOOTPU_FixedInTime0",{'file': 'SimGeneral.MixingModule.mix_2012_Summer_50ns_PoissonOOTPU_FixedInTime0_cfi'})
+addMixingScenario("2012_Summer_50ns_PoissonOOTPU_FixedInTime30",{'file': 'SimGeneral.MixingModule.mix_2012_Summer_50ns_PoissonOOTPU_FixedInTime30_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 
 ##fastsim section
