@@ -120,13 +120,13 @@ void Analysis_Step4(std::string InputPattern)
 	  }
 
       //erase histogram created at previous iteration
-	  directory->Delete(("Pred_P" + Suffix + ";*").c_str());
-          directory->Delete(("Pred_Mass" + Suffix + ";*").c_str());
-          directory->Delete(("Pred_MassTOF" + Suffix + ";*").c_str());
-          directory->Delete(("Pred_MassComb" + Suffix + ";*").c_str());
-          directory->Delete(("H_P" + Suffix + ";*").c_str());
-          directory->Delete(("H_P_Coll" + Suffix + ";*").c_str());
-          directory->Delete(("H_P_Cosmic" + Suffix + ";*").c_str());
+	  //directory->Delete(("Pred_P" + Suffix + ";*").c_str());
+          //directory->Delete(("Pred_Mass" + Suffix + ";*").c_str());
+          //directory->Delete(("Pred_MassTOF" + Suffix + ";*").c_str());
+          //directory->Delete(("Pred_MassComb" + Suffix + ";*").c_str());
+          //directory->Delete(("H_P" + Suffix + ";*").c_str());
+          //directory->Delete(("H_P_Coll" + Suffix + ";*").c_str());
+          //directory->Delete(("H_P_Cosmic" + Suffix + ";*").c_str());
 
       //take data histogram to save the resulting momentum distribution
           TH1D*  H_P            = (TH1D*)GetObjectFromPath(directory, ("H_D" + Suffix).c_str());      H_P->SetName(("H_P" + Suffix).c_str());                     H_P->Reset();
