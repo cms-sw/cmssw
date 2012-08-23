@@ -149,15 +149,11 @@ private :
   /// intermediate cleaning in the case of grouped measurements
   void groupedIntermediaryClean(TempTrajectoryContainer& theTrajectories) const  dso_internal;
 
-  /// fills in a list of layers from a container of TrajectoryMeasurements
-  /// the "fillme" vector is cleared beforehand.
-  void layers (const TempTrajectory::DataContainer& measurements,
-               std::vector<const DetLayer*> &fillme) const  dso_internal;
 
   /// change of propagation direction
-  inline PropagationDirection oppositeDirection (PropagationDirection dir) const  dso_internal{
+  static inline PropagationDirection oppositeDirection (PropagationDirection dir) {
     if ( dir==alongMomentum )  return oppositeToMomentum;
-    else if ( dir==oppositeToMomentum )  return alongMomentum;
+    if ( dir==oppositeToMomentum )  return alongMomentum;
     return dir;
   }
 
