@@ -129,13 +129,13 @@ void Analysis_Step4(std::string InputPattern)
           //directory->Delete(("H_P_Cosmic" + Suffix + ";*").c_str());
 
       //take data histogram to save the resulting momentum distribution
-          TH1D*  H_P            = (TH1D*)GetObjectFromPath(directory, ("H_D" + Suffix).c_str());      H_P->SetName(("H_P" + Suffix).c_str());                     H_P->Reset();
-	  TH1D* H_P_Coll        = (TH1D*)H_P->Clone(("H_P_Coll" + Suffix).c_str());
-          TH1D* H_P_Cosmic      = (TH1D*)H_P->Clone(("H_P_Cosmic" + Suffix).c_str());
-          TH2D*  Pred_Mass      = (TH2D*)GetObjectFromPath(directory, ("Mass" + Suffix).c_str());  Pred_Mass->SetName(("Pred_Mass" + Suffix).c_str());         Pred_Mass->Reset();
-          TH2D*  Pred_MassTOF   = (TH2D*)GetObjectFromPath(directory, ("MassTOF" + Suffix).c_str());Pred_MassTOF->SetName(("Pred_MassTOF" + Suffix).c_str());  Pred_MassTOF->Reset();
-          TH2D*  Pred_MassComb  = (TH2D*)GetObjectFromPath(directory, ("MassComb" + Suffix).c_str()); Pred_MassComb->SetName(("Pred_MassComb" + Suffix).c_str()); Pred_MassComb->Reset();
-	  TH2D*  Pred_P         = (TH2D*)GetObjectFromPath(directory, ("RegionD_P" + Suffix).c_str()); Pred_P->SetName(("Pred_P" + Suffix).c_str());           Pred_P->Reset();
+          TH1D*  H_P            = (TH1D*)GetObjectFromPath(directory, ("H_D" + Suffix).c_str())->Clone(("H_P" + Suffix).c_str());                   H_P->Reset();
+          TH1D*  H_P_Coll       = (TH1D*)H_P->Clone(("H_P_Coll" + Suffix).c_str());
+          TH1D*  H_P_Cosmic     = (TH1D*)H_P->Clone(("H_P_Cosmic" + Suffix).c_str());
+          TH2D*  Pred_Mass      = (TH2D*)GetObjectFromPath(directory, ("Mass" + Suffix).c_str())->Clone(("Pred_Mass" + Suffix).c_str());         Pred_Mass->Reset();
+          TH2D*  Pred_MassTOF   = (TH2D*)GetObjectFromPath(directory, ("MassTOF" + Suffix).c_str())->Clone(("Pred_MassTOF" + Suffix).c_str());  Pred_MassTOF->Reset();
+          TH2D*  Pred_MassComb  = (TH2D*)GetObjectFromPath(directory, ("MassComb" + Suffix).c_str())->Clone(("Pred_MassComb" + Suffix).c_str()); Pred_MassComb->Reset();
+          TH2D*  Pred_P         = (TH2D*)GetObjectFromPath(directory, ("RegionD_P" + Suffix).c_str())->Clone(("Pred_P" + Suffix).c_str());           Pred_P->Reset();
 
       printf("Making prediction for %s\n",directory->GetName());
       //////////////////////////////////////////////////      MAKING THE PREDICTION
