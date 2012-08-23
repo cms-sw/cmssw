@@ -1,7 +1,8 @@
 #include "GeneratorInterface/Core/interface/GenFilterEfficiencyAnalyzer.h"
 
-GenFilterEfficiencyAnalyzer::GenFilterEfficiencyAnalyzer(const edm::ParameterSet&):
-  nTota_(0),nPass_(0)
+GenFilterEfficiencyAnalyzer::GenFilterEfficiencyAnalyzer(const edm::ParameterSet& pset):
+  nTota_(0),nPass_(0),
+  genFilterInfoTag_(pset.getParameter<edm::InputTag>("genFilterInfoTag"))
 {
 }
 
@@ -20,7 +21,7 @@ void
 GenFilterEfficiencyAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const&) {
 
   edm::Handle<GenFilterInfo> genFilter;
-  iLumi.getByType(genFilter);
+  iLumi.getByLabel(genFilterInfoTag_, genFilter);
 
   std::cout << "Lumi section " << iLumi.id() << std::endl;
   nTota_ += genFilter->numEventsTried();

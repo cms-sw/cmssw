@@ -2,6 +2,7 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Framework"/>
+<use   name="FWCore/Utilities"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="heppdt"/>
 <use   name="clhep"/>

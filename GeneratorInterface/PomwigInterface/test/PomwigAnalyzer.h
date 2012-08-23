@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "HepMC/WeightContainer.h"
 #include "HepMC/GenEvent.h"
@@ -39,7 +40,7 @@ class PomwigAnalyzer : public edm::EDAnalyzer {
   std::string outputFilename;
   TH1D* hist_t;
   TH1D* hist_xigen;
-
+  edm::InputTag hepMCProductTag_;
 };
 
 #endif

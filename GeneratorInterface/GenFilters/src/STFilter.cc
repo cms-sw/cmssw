@@ -16,7 +16,7 @@
 */
 // Original Author:  Julia Weinelt
 //         Created:  Wed Jan 23 15:12:46 CET 2008
-// $Id: STFilter.cc,v 1.2 2009/08/26 17:57:35 wmtan Exp $
+// $Id: STFilter.cc,v 1.3 2009/12/15 10:29:32 fabiocos Exp $
 
 #include <memory>
 
@@ -28,7 +28,9 @@
 #include "HepMC/GenEvent.h"
 
 
-STFilter::STFilter(const edm::ParameterSet& iConfig) {
+STFilter::STFilter(const edm::ParameterSet& iConfig) :
+  hepMCProductTag_(iConfig.getParameter<edm::InputTag>("hepMCProductTag")) {
+
   pTMax_ = iConfig.getParameter<double>("pTMax");
   edm::LogInfo("SingleTopMatchingFilter")<<"+++ maximum pt of associated-b  pTMax = "<<pTMax_;
   DEBUGLVL = iConfig.getUntrackedParameter<int>("debuglvl", 0); // get debug level
@@ -54,7 +56,7 @@ bool STFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   ++input_events;
   
   Handle<HepMCProduct> evt;
-  iEvent.getByType(evt);
+  iEvent.getByLabel(hepMCProductTag_, evt);
   const HepMC::GenEvent * myEvt = evt->GetEvent();   // GET EVENT FROM HANDLE 
   
   bool bQuarksOpposite = false;

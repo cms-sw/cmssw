@@ -14,7 +14,8 @@
 
 
 
-PomwigAnalyzer::PomwigAnalyzer(const edm::ParameterSet& iConfig)
+PomwigAnalyzer::PomwigAnalyzer(const edm::ParameterSet& iConfig) :
+  hepMCProductTag_(iConfig.getParameter<edm::InputTag>("hepMCProductTag"))
 {
   outputFilename=iConfig.getUntrackedParameter<std::string>("OutputFilename","dummy.root");
   hist_t = new TH1D("hist_t","t proton",100,-1.4,0);
@@ -35,7 +36,7 @@ PomwigAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
    // get HepMC::GenEvent ...
    Handle<HepMCProduct> evt_h;
-   iEvent.getByType(evt_h);
+   iEvent.getByLabel(hepMCProductTag_, evt_h);
    HepMC::GenEvent * evt = new  HepMC::GenEvent(*(evt_h->GetEvent()));
 
 

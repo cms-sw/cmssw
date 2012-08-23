@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Dec 18 09:44:41 EST 2007
-// $Id: HydjetAnalyzer.cc,v 1.23 2010/10/27 15:10:25 yilmaz Exp $
+// $Id: HydjetAnalyzer.cc,v 1.24 2011/01/21 15:45:18 yilmaz Exp $
 //
 //
 
@@ -137,6 +137,7 @@ class HydjetAnalyzer : public edm::EDAnalyzer {
   edm::InputTag src_;
   edm::InputTag genParticleSrc_;
   edm::InputTag genHIsrc_;
+   edm::InputTag simVerticesTag_;
 
    edm::ESHandle < ParticleDataTable > pdt;
    edm::Service<TFileService> f;
@@ -166,6 +167,9 @@ HydjetAnalyzer::HydjetAnalyzer(const edm::ParameterSet& iConfig)
    printLists_ = iConfig.getUntrackedParameter<bool>("printLists", false);
    doCF_ = iConfig.getUntrackedParameter<bool>("doMixed", false);
    doVertex_ = iConfig.getUntrackedParameter<bool>("doVertex", false);
+   if (doVertex_) {
+      simVerticesTag_ = iConfig.getParameter<edm::InputTag>("simVerticesTag");
+   }
    etaMax_ = iConfig.getUntrackedParameter<double>("etaMax", 2);
    ptMin_ = iConfig.getUntrackedParameter<double>("ptMin", 0);
    src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generator"));
@@ -344,7 +348,7 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    if(doVertex_){
       edm::Handle<edm::SimVertexContainer> simVertices;
-      iEvent.getByType<edm::SimVertexContainer>(simVertices);
+      iEvent.getByLabel<edm::SimVertexContainer>(simVerticesTag_, simVertices);
       
       if (! simVertices.isValid() ) throw cms::Exception("FatalError") << "No vertices found\n";
       int inum = 0;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Vladimir Molchanov
 //         Created:  Wed Mar 25 19:43:12 CET 2009
-// $Id: ComphepSingletopFilter.cc,v 1.3 2009/12/15 10:29:32 fabiocos Exp $
+// $Id: ComphepSingletopFilter.cc,v 1.4 2011/10/26 09:25:47 eulisse Exp $
 //
 //
 
@@ -31,7 +31,8 @@
 // class declaration
 //
 
-ComphepSingletopFilter::ComphepSingletopFilter(const edm::ParameterSet& iConfig) {
+ComphepSingletopFilter::ComphepSingletopFilter(const edm::ParameterSet& iConfig) :
+    hepMCProductTag_(iConfig.getParameter<edm::InputTag>("hepMCProductTag")) {
     ptsep = iConfig.getParameter<double>("pTSep");
 }
 
@@ -63,7 +64,7 @@ bool ComphepSingletopFilter::filter(
     using namespace HepMC;
   
     edm::Handle<edm::HepMCProduct> evt;
-    iEvent.getByType(evt);
+    iEvent.getByLabel(hepMCProductTag_, evt);
     const HepMC::GenEvent * myEvt = evt->GetEvent();
 //  myEvt->print();  // to print the record
 
