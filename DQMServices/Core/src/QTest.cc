@@ -1438,8 +1438,7 @@ float CompareLastFilledBin::runTest(const MonitorElement *me){
     if (verbose_ > 0) std::cout << "QTest:"<< getAlgoName() << " Histogram does not exist" << std::endl;
     return 1;
   } 
-  std::cout << " Histo Name " << me->getName() << std::endl; 
-  if (verbose > 0) std::cout << "Min and Max values " << _min << " " << _max << " Av value " << _average << " lastBinX " << lastBinX<<  " lastBinY " << lastBinY <<  " lastBinVal " << lastBinVal << std::endl;
+  if (verbose_ > 0) std::cout << "Min and Max values " << _min << " " << _max << " Av value " << _average << " lastBinX " << lastBinX<<  " lastBinY " << lastBinY <<  " lastBinVal " << lastBinVal << std::endl;
   if (lastBinVal > _min && lastBinVal <= _max)
     return 1;
   else
