@@ -38,7 +38,8 @@
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 
 
-#include <algorithm> 
+#include <algorithm>
+#include <array>
 
 namespace {
 #ifdef STAT_TSB
@@ -584,6 +585,35 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
   return foundNewCandidates;
 }
 
+namespace {
+/// fills in a list of layers from a container of TrajectoryMeasurements
+/// 
+  int
+  layersInTraj (const TempTrajectory::DataContainer& measurements,
+		std::array<DetLayer const *,4> & result) {
+    const int N = result.size();
+    assert(N==4);
+    int nfound=0;
+    
+    if unlikely( measurements.empty() )  return nfound;
+    
+    result[nfound]=measurements.back().layer();
+    TempTrajectory::DataContainer::const_iterator ifirst = measurements.rbegin();
+    --ifirst;	 
+    for ( TempTrajectory::DataContainer::const_iterator im=ifirst;
+	  im!=measurements.rend()&&nfound<(N-1); --im )
+      if ( im->layer()!=result[nfound] )  result[++nfound] = im->layer();
+    
+    assert(nfound<N);
+    return nfound++;
+  }
+  
+  
+  //  for (vector<const DetLayer*>::const_iterator iter = result.begin(); iter != result.end(); iter++)
+  //  if (!*iter) edm::LogWarning("CkfPattern")<< "Warning: null det layer!! ";
+}
+
+
 //TempTrajectoryContainer
 void
 GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& theTrajectories) const 
@@ -593,16 +623,16 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
   if (theTrajectories.empty()) return;  
   //RecHitEqualByChannels recHitEqualByChannels(false, false);
   int firstLayerSize, secondLayerSize;
-  vector<const DetLayer*> firstLayers, secondLayers;
-
+  std::array<DetLayer const *,4> firstLayers, secondLayers;
+  
   for (TempTrajectoryContainer::iterator firstTraj=theTrajectories.begin();
        firstTraj!=(theTrajectories.end()-1); firstTraj++) {
 
     if ( (!firstTraj->isValid()) ||
          (!firstTraj->lastMeasurement().recHit()->isValid()) ) continue;
     const TempTrajectory::DataContainer & firstMeasurements = firstTraj->measurements();
-    layers(firstMeasurements, firstLayers);
-    firstLayerSize = firstLayers.size();
+    
+    firstLayerSize = layersInTraj(firstMeasurements, firstLayers);
     if ( firstLayerSize<4 )  continue;
 
     for (TempTrajectoryContainer::iterator secondTraj=(firstTraj+1);
@@ -611,8 +641,8 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
       if ( (!secondTraj->isValid()) ||
            (!secondTraj->lastMeasurement().recHit()->isValid()) ) continue;
       const TempTrajectory::DataContainer & secondMeasurements = secondTraj->measurements();
-      layers(secondMeasurements, secondLayers);
-      secondLayerSize = secondLayers.size();
+      
+      secondLayerSize = layersInTraj(secondMeasurements, secondLayers);
       //
       // only candidates using the same last 3 layers are compared
       //
@@ -700,26 +730,6 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
                         theTrajectories.end());
 }
 
-void
-GroupedCkfTrajectoryBuilder::layers (const TempTrajectory::DataContainer& measurements,
-                                     vector<const DetLayer*> &result) const 
-{
-  result.clear();
-
-  if ( measurements.empty() )  return ;
-
-  result.push_back(measurements.back().layer());
-  TempTrajectory::DataContainer::const_iterator ifirst = measurements.rbegin();
-  --ifirst;	 
-  for ( TempTrajectory::DataContainer::const_iterator im=ifirst;
-	im!=measurements.rend(); --im ) {
-    if ( im->layer()!=result.back() )  result.push_back(im->layer());
-  }
-
-  for (vector<const DetLayer*>::const_iterator iter = result.begin(); iter != result.end(); iter++){
-    if (!*iter) edm::LogWarning("CkfPattern")<< "Warning: null det layer!! ";
-  }
-}
 
 void
 GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(TempTrajectory& startingTraj,
@@ -1008,35 +1018,35 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
   		fwdTraj.recHits(),firstTsos));
   if (bwdFitted.size()){
     LogDebug("CkfPattern")<<"Obtained " << bwdFitted.size() << " bwdFitted trajectories with measurement size " << bwdFitted.front().measurements().size();
-	TempTrajectory fitted(fwdTraj.seed(), fwdTraj.direction());
-	fitted.setNLoops(fwdTraj.nLoops());
-        vector<TM> tmsbf = bwdFitted.front().measurements();
-	int iDetLayer=0;
-	//this is ugly but the TM in the fitted track do not contain the DetLayer.
-	//So we have to cache the detLayer pointers and replug them in.
-	//For the backward building it would be enaugh to cache the last DetLayer, 
-	//but for the intermediary cleaning we need all
- 	for ( vector<TM>::const_iterator im=tmsbf.begin();im!=tmsbf.end(); im++ ) {
-		fitted.push(TM( (*im).forwardPredictedState(),
-				(*im).backwardPredictedState(),
-				(*im).updatedState(),
-				(*im).recHit(),
-				(*im).estimate(),
-				bwdDetLayer[iDetLayer]));
-
-		LogDebug("CkfPattern")<<PrintoutHelper::dumpMeasurement(*im);
-		iDetLayer++;
-	}
+    TempTrajectory fitted(fwdTraj.seed(), fwdTraj.direction());
+    fitted.setNLoops(fwdTraj.nLoops());
+    vector<TM> tmsbf = bwdFitted.front().measurements();
+    int iDetLayer=0;
+    //this is ugly but the TM in the fitted track do not contain the DetLayer.
+    //So we have to cache the detLayer pointers and replug them in.
+    //For the backward building it would be enaugh to cache the last DetLayer, 
+    //but for the intermediary cleaning we need all
+    for ( vector<TM>::const_iterator im=tmsbf.begin();im!=tmsbf.end(); im++ ) {
+      fitted.push(TM( (*im).forwardPredictedState(),
+		      (*im).backwardPredictedState(),
+		      (*im).updatedState(),
+		      (*im).recHit(),
+		      (*im).estimate(),
+		      bwdDetLayer[iDetLayer]));
+      
+      LogDebug("CkfPattern")<<PrintoutHelper::dumpMeasurement(*im);
+      iDetLayer++;
+    }
 /*
-	TM lastMeas = bwdFitted.front().lastMeasurement();
-	fitted.pop();
-	fitted.push(TM(lastMeas.forwardPredictedState(), 
-			       lastMeas.backwardPredictedState(), 
-			       lastMeas.updatedState(),
-			       lastMeas.recHit(),
-			       lastMeas.estimate(),
-                               lastBwdDetLayer));*/
-	fittedTracks.push_back(fitted);
+  TM lastMeas = bwdFitted.front().lastMeasurement();
+  fitted.pop();
+  fitted.push(TM(lastMeas.forwardPredictedState(), 
+  lastMeas.backwardPredictedState(), 
+  lastMeas.updatedState(),
+  lastMeas.recHit(),
+  lastMeas.estimate(),
+  lastBwdDetLayer));*/
+    fittedTracks.push_back(fitted);
   }
   //
   // save result
