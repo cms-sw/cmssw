@@ -589,7 +589,7 @@ namespace {
 /// fills in a list of layers from a container of TrajectoryMeasurements
 /// 
   struct LayersInTraj {
-    static constexpr int N=4;
+    static constexpr int N=3;
     TempTrajectory * traj;
     std::array<DetLayer const *,N> layers;
     int tot;
@@ -634,6 +634,7 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
 
   for (int ifirst=0; ifirst!=ntraj-1; ++ifirst) {
     auto firstTraj = layers[ifirst].traj;
+    if (!firstTraj->isValid()) continue;
     const TempTrajectory::DataContainer & firstMeasurements = firstTraj->measurements();
     
     int firstLayerSize = layers[ifirst].tot;
@@ -642,6 +643,7 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
 
     for (int isecond= ifirst+1; isecond!=ntraj; ++isecond) {
       auto secondTraj = layers[ifirst].traj;
+    if (!secondTraj->isValid()) continue;
 
       const TempTrajectory::DataContainer & secondMeasurements = secondTraj->measurements();
       
@@ -649,7 +651,7 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
       //
       // only candidates using the same last 3 layers are compared
       //
-      if ( firstLayerSize!=secondLayerSize )  continue;
+      if ( firstLayerSize!=secondLayerSize )  continue;  // V.I.  why equal???
       auto const & secondLayers =  layers[isecond].layers;
       if ( firstLayers[0]!=secondLayers[0] ||
 	   firstLayers[1]!=secondLayers[1] ||
@@ -715,11 +717,11 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
 	break;
       }
       else {
-	secondTraj->invalidate();
+	secondTraj->invalidate();   // V.I. why break?
 	break;
       }
-    }
-  }
+    } // second
+  } // first 
 /*
   for (TempTrajectoryContainer::const_iterator it = theTrajectories.begin();
        it != theTrajectories.end(); it++) {
