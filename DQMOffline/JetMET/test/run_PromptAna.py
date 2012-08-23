@@ -53,10 +53,11 @@ if read_from_file=="True":
     f.close()
 else:
   inputfiles = os.environ.get('INPUTFILES',
-                              '/store/relval/CMSSW_5_2_0_pre4/Jet/RECO/GR_R_52_V1_RelVal_jet2011B-v1/0034/7E4E91B0-C651-E111-9197-001A92971B36.root').split(",")
-  #'/store/hidata/HIRun2010/HIAllPhysics/RECO/PromptReco-v2/000/150/314/D28FA8E9-4EEA-DF11-9B2A-000423D987E0.root').split(",")
-#'/store/data/Commissioning09/MinimumBias/RECO/v4/000/102/347/F85D1BC6-A06A-DE11-BDF8-0019B9F581C9.root').split(",")
-  #'/store/data/CRAFT09/Calo/RECO/v1/000/112/220/F0B768A4-5E93-DE11-B222-000423D94524.root').split(",")
+                              '/store/relval/CMSSW_5_3_0/Jet/RECO/GR_R_53_V1_RelVal_jet2011A-v1/0000/0CB634B9-4199-E111-9E1B-002618943863.root').split(",")
+###                              '/store/relval/CMSSW_5_2_0_pre4/Jet/RECO/GR_R_52_V1_RelVal_jet2011B-v1/0034/7E4E91B0-C651-E111-9197-001A92971B36.root').split(",")
+###                              '/store/hidata/HIRun2010/HIAllPhysics/RECO/PromptReco-v2/000/150/314/D28FA8E9-4EEA-DF11-9B2A-000423D987E0.root').split(",")
+###                              '/store/data/Commissioning09/MinimumBias/RECO/v4/000/102/347/F85D1BC6-A06A-DE11-BDF8-0019B9F581C9.root').split(",")
+###                              '/store/data/CRAFT09/Calo/RECO/v1/000/112/220/F0B768A4-5E93-DE11-B222-000423D94524.root').split(",")
 
 print 'List of input files'
 print inputfiles
@@ -79,7 +80,8 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 #
 # BeamHaloData producer
 #
-process.load("Configuration/StandardSequences/Geometry_cff")
+from Configuration.Geometry.GeometryIdeal_cff import *
+### process.load("Configuration/StandardSequences/Geometry_cff") ### Deprecated
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
@@ -87,7 +89,8 @@ process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag ='GR_R_38X_V13A::All'
 
 #process.GlobalTag.globaltag ='GR_P_V14::All'
-process.GlobalTag.globaltag ='GR_R_52_V3::All'
+#process.GlobalTag.globaltag ='GR_R_52_V3::All'
+process.GlobalTag.globaltag ='GR_R_53_V1::All'
 
 ##process.GlobalTag.toGet = cms.VPSet(
 ##    cms.PSet(record = cms.string("AlCaRecoTriggerBitsRcd"),

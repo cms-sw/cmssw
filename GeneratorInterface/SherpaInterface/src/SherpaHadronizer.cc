@@ -181,7 +181,7 @@ bool SherpaHadronizer::generatePartonsAndHadronize()
     // in case of unweighted events sherpa puts the max weight as event weight. 
     // this is not optimal, we want 1 for unweighted events, so we check 
     // whether we are producing unweighted events ("EVENT_GENERATION_MODE" == "1")
-    if ( ATOOLS::ToType<int>( ATOOLS::rpa->gen.Variable("EVENT_GENERATION_MODE") ) == 1 ) {
+    if ( ATOOLS::ToType<int>( ATOOLS::rpa.gen.Variable("EVENT_GENERATION_MODE") ) == 1 ) {
       if (ef > 0.) {
         weight = default_weight/ef;
       } else {

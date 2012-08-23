@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2012/03/23 18:24:43 $
- *  $Revision: 1.33 $
+ *  $Date: 2012/04/20 14:37:05 $
+ *  $Revision: 1.34 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -31,7 +31,6 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
-#include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
 #include "RecoJets/JetProducers/interface/JetIDHelper.h"
 
@@ -114,8 +113,8 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   edm::InputTag theCaloTowersLabel;
   edm::InputTag theJetCollectionLabel;
   edm::InputTag HcalNoiseRBXCollectionTag;
-  edm::InputTag HcalNoiseSummaryTag;
   edm::InputTag BeamHaloSummaryTag;
+  edm::InputTag HBHENoiseFilterResultTag;
   edm::InputTag vertexTag;
   edm::InputTag gtTag;
 
@@ -153,7 +152,6 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
 
   bool     _tightBHFiltering;
   int      _tightJetIDFiltering;
-  bool     _tightHcalFiltering;
 
   int _nvtx_min;
   int _nvtxtrks_min;

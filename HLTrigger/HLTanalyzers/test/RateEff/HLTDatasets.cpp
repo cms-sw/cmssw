@@ -86,12 +86,19 @@ TString& strip(TString& string)
   return string;
 }
 
-/// Finds the index of an item in the given list.
+/// Finds the index of an item in the given list. We allow for 2 occurances of a trigger, for Parking PD's
 template<typename Type1, typename Type2>
-Int_t indexOf(const std::vector<Type1>& whereToLook, const Type2& whatToFind)
+Int_t indexOf(const std::vector<Type1>& whereToLook, const Type2& whatToFind, const Int_t firstOccurance = -1)
 {
   Int_t   index = static_cast<Int_t>(whereToLook.size());
-  while (--index >= 0 && whereToLook[index] != whatToFind)  ;
+  while (--index >= 0 && whereToLook[index] != whatToFind) ;
+
+  if(firstOccurance > -1) 
+    {
+      index = firstOccurance;
+      while (--index >= 0 && whereToLook[index] != whatToFind) ;
+    }
+
   return index;
 }
 
@@ -553,7 +560,8 @@ HLTDatasets::HLTDatasets(const std::vector<TString>& triggerNames, const Char_t*
             std::cerr << "ERROR : Skipping unexpected line before declaration of first dataset : " << std::endl
                       << " [" << std::setw(3) << lineNumber << "]  " << line << std::endl;
           else {
-            const Int_t     triggerIndex  = indexOf(triggerNames, line);
+	    //            const Int_t     triggerIndex  = indexOf(triggerNames, line);
+	    Int_t     triggerIndex  = indexOf(triggerNames, line);
             // Also check in case there is an emulated version -- don't use both!
             TString         emulationName = emulationPrefix + line;
             const Int_t     emulationIndex= indexOf(triggerNames, emulationName);
@@ -564,7 +572,14 @@ HLTDatasets::HLTDatasets(const std::vector<TString>& triggerNames, const Char_t*
             } else {
               if (triggerIndex < 0 || (emulationIndex >= 0 && preferEmulatedTriggers))
                 datasetsConfig.back().push_back(Trigger(emulationName, emulationIndex));
-              else datasetsConfig.back().push_back(Trigger(line, triggerIndex));
+              else {
+		if(notInDataset[triggerIndex]    == kFALSE)
+		  {
+		    const Int_t secondTriggerIndex  = indexOf(triggerNames, line, triggerIndex);
+		    triggerIndex = secondTriggerIndex;
+		  }
+		datasetsConfig.back().push_back(Trigger(line, triggerIndex));
+	      }
               if (triggerIndex >= 0)      notInDataset[triggerIndex]    = kFALSE;
               if (emulationIndex >= 0)    notInDataset[emulationIndex]  = kFALSE;
             }

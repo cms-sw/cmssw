@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2012/05/02 14:48:04 $
- *  $Revision: 1.56 $
+ *  $Date: 2012/05/09 22:26:23 $
+ *  $Revision: 1.57 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -345,10 +345,29 @@ namespace edm {
 	      resetLuminosityBlockAuxiliary();
 	    }
 	  }
-	else if(nextLsFromSignal >(luminosityBlockNumber_+100) ) {
-	  edm::LogError("DaqSource") << "Got EOL event with value " << retval 
-				     << " nextLS would be " << nextLsFromSignal 
-				     << " while we expected " << luminosityBlockNumber_+1 << " - disregarding... "; 
+	else {
+	  if(nextLsFromSignal >(luminosityBlockNumber_+100) ) {
+	    edm::LogError("DaqSource") << "Got EOL event with value " << retval 
+				       << " nextLS would be " << nextLsFromSignal 
+				       << " while we expected " << luminosityBlockNumber_+1 << " - disregarding... ";
+	  }
+	  if (nextLsFromSignal > luminosityBlockNumber_+2) //recover on delta > 2
+	  {
+	      lastLumiUsingEol_->value_ = nextLsFromSignal;
+              thisEventLSid=nextLsFromSignal-1;//set new LS
+	      signalWaitingThreadAndBlock();
+	      luminosityBlockNumber_++;
+	      newLumi_ = true;
+	      lumiSectionIndex_->value_ = luminosityBlockNumber_;
+	      alignLsToLast_ = true;
+
+	      //set new lumi block
+	      resetLuminosityBlockAuxiliary();
+	      setLuminosityBlockAuxiliary(new LuminosityBlockAuxiliary(
+	        runNumber_, luminosityBlockNumber_, timestamp(), Timestamp::invalidTimestamp()));
+	      luminosityBlockAuxiliary()->setProcessHistoryID(phid_);
+	  }
+
 	}
 	//	else
 	//	  std::cout << getpid() << "::skipping end-of-lumi for " << (-1)*retval << std::endl;

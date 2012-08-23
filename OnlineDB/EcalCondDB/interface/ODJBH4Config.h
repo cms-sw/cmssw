@@ -44,18 +44,6 @@ class ODJBH4Config : public IODConfig {
   inline void setCaenBoardNumber(int x) { m_caen3 = x ; }
   inline int getCaenBoardNumber() const { return m_caen3 ; }
 
-  inline void printout(){
-    std::cout<<"JBH4 >> ID= "<<	    getId()	    <<std::endl;
-    std::cout<<"JBH4 >> UseBuffer= "<<	    getUseBuffer()	    <<std::endl;
-    std::cout<<"JBH4 >> HalModuleFile "<<	    getHalModuleFile()<<std::endl;	    
-    std::cout<<"JBH4 >> HalAddressTableFile="<< getHalAddressTableFile( )<<std::endl;
-    std::cout<<"JBH4 >> HalStaticTableFile="<<  getHalStaticTableFile()<<std::endl;  
-    std::cout<<"JBH4 >> Cbd8210SerialNumber="<< getCbd8210SerialNumber()<<std::endl; 
-    std::cout<<"JBH4 >> CaenBridgeType="<<	    getCaenBridgeType()<<std::endl;	    
-    std::cout<<"JBH4 >> CaenLinkNumber="<<	    getCaenLinkNumber()<<std::endl;	    
-    std::cout<<"JBH4 >> CaenBoardNumber="<<     getCaenBoardNumber()<<std::endl;     
-
-  }
 
  private:
   void prepareWrite()  throw(std::runtime_error);

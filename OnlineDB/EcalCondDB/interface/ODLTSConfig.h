@@ -31,13 +31,6 @@ class ODLTSConfig : public IODConfig {
   inline int getTrigLocL1Delay() const { return m_delay; }
   void setParameters(std::map<std::string,std::string> my_keys_map);
 
-  inline void printout(){
-    std::cout<<"LTS>> Id()"<< 	      getId()<<std::endl; 	      
-    std::cout<<"LTS>> TriggerType()"<<   getTriggerType()<<std::endl;   
-    std::cout<<"LTS>> NumberOfEvents()"<<getNumberOfEvents() <<std::endl;
-    std::cout<<"LTS>> Rate()"<< 	      getRate() 	      <<std::endl;
-    std::cout<<"LTS>> TrigLocL1Delay()"<<getTrigLocL1Delay() <<std::endl;
-  }
  private:
   int fetchNextId() throw(std::runtime_error);
   void prepareWrite()  throw(std::runtime_error);

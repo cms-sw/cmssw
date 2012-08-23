@@ -51,9 +51,7 @@ class AlignmentTwoBodyDecayTrackSelector
   double theMaxMass;
   double theDaughterMass;
   unsigned int theCandNumber;
-  bool secThrBool;
-  double thesecThr ;
-   //charge filter
+  //charge filter
   int theCharge;
   bool theUnsignedSwitch;
   //missing ET Filter

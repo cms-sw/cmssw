@@ -10,9 +10,6 @@
 
 #include <vector>
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
-
 class NavSurface;
 class Bounds;
 class TrajectoryStateOnSurface;

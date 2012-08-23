@@ -1,8 +1,8 @@
 //  \class MuScleFitPlotter
 //  Plotter for simulated,generated and reco info of muons
 //
-//  $Date: 2010/10/22 17:47:44 $
-//  $Revision: 1.22 $
+//  $Date: 2010/06/21 15:52:33 $
+//  $Revision: 1.20 $
 //  \author  C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 // ----------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ MuScleFitPlotter::~MuScleFitPlotter(){
 
 // Find and store in histograms the generated resonance and muons
 // --------------------------------------------------------------
-void MuScleFitPlotter::fillGen(const reco::GenParticleCollection* genParticles, bool PATmuons)
+void MuScleFitPlotter::fillGen1(const reco::GenParticleCollection* genParticles, bool PATmuons)
 {
   //  bool prova = false;
   //Loop on generated particles
@@ -120,7 +120,7 @@ void MuScleFitPlotter::fillGen(const reco::GenParticleCollection* genParticles, 
 
 // Find and store in histograms the generated resonance and muons
 // --------------------------------------------------------------
-void MuScleFitPlotter::fillGen(const edm::HepMCProduct* evtMC, bool sherpaFlag_)
+void MuScleFitPlotter::fillGen2(const edm::HepMCProduct* evtMC, bool sherpaFlag_)
 {
   //Loop on generated particles
   const HepMC::GenEvent* Evt = evtMC->GetEvent();
@@ -305,7 +305,7 @@ void MuScleFitPlotter::fillRec(std::vector<reco::LeafCandidate>& muons)
 }
 
 /// Used when running on the root tree containing preselected muon pairs
-void MuScleFitPlotter::fillTreeRec( const std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> > & savedPairs )
+void MuScleFitPlotter::fillRec( const std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> > & savedPairs )
 {
   std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> >::const_iterator muonPair = savedPairs.begin();
   for( ; muonPair != savedPairs.end(); ++muonPair ) {
@@ -324,7 +324,7 @@ void MuScleFitPlotter::fillTreeRec( const std::vector<std::pair<reco::Particle::
  * ATTENTION: since we do not have any id information when reading from the root tree, we always
  * fill the Z histograms by default.
  */
-void MuScleFitPlotter::fillTreeGen( const std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> > & genPairs )
+void MuScleFitPlotter::fillGen( const std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> > & genPairs )
 {
   std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> >::const_iterator genPair = genPairs.begin();
   for( ; genPair != genPairs.end(); ++genPair ) {

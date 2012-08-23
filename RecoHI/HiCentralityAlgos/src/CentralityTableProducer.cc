@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Wed May  2 21:41:30 EDT 2007
-// $Id: CentralityTableProducer.cc,v 1.12 2010/11/03 14:53:05 yilmaz Exp $
+// $Id: CentralityTableProducer.cc,v 1.11 2010/10/29 17:02:20 yilmaz Exp $
 //
 //
 
@@ -40,6 +40,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
 
 #include "CondFormats/DataRecord/interface/HeavyIonRcd.h"
