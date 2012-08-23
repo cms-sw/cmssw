@@ -177,7 +177,7 @@ namespace cond {
     m_isLoaded(false),
     m_iov( new IOVProxyData( dbSess, token )){
   }
-  
+
   void IOVEditor::reload(){
     m_iov->refresh();
     m_isLoaded = true;

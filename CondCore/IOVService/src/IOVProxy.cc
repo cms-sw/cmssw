@@ -21,11 +21,13 @@ std::pair<int,int> cond::IOVProxyData::range( cond::Time_t since,
 					      cond::Time_t  till ){
   int low = -1;
   int high = -1;
-  if( till >= data->iovs().front().sinceTime() ){
-    low = (since<data->iovs().front().sinceTime()) ? 0 :
-      data->find(since)-data->iovs().begin();
-    high = data->find(till) - data->iovs().begin();
-    high = std::min( high+1,(int)data->iovs().size())-1;
+  if( data->iovs().size() ){
+    if( till >= data->iovs().front().sinceTime() ){
+      low = (since<data->iovs().front().sinceTime()) ? 0 :
+	data->find(since)-data->iovs().begin();
+      high = data->find(till) - data->iovs().begin();
+      high = std::min( high+1,(int)data->iovs().size())-1;
+    }
   }
   return std::make_pair( low, high );
 }
