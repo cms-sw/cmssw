@@ -33,12 +33,14 @@ TTbar_GenJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // --- the MC weights ---
   Handle<GenEventInfoProduct> evt_info;
   iEvent.getByType(evt_info);
+  if(!evt_info.isValid()) return;
   weight = evt_info->weight() ;
 
   // Gather information in the GenJet collection
   edm::Handle<std::vector<reco::GenJet> > jets;
   iEvent.getByLabel(jets_, jets );
 
+  if(!jets.isValid()) return;
   // loop Jet collection and fill histograms
   int njets = 0;
   for(std::vector<reco::GenJet>::const_iterator jet_it=jets->begin(); jet_it!=jets->end(); ++jet_it){  
