@@ -21,32 +21,43 @@
 
 namespace clangcms {
 
-void ClassCheckerDecl::checkASTDecl(const clang::CXXRecordDecl *D,
+void ClassCheckerDecl::checkASTDecl(const clang::CXXMethodDecl *D,
                     clang::ento::AnalysisManager &Mgr,
                     clang::ento::BugReporter &BR) const
 {
-	return; /* Don't do anything since this is the wrong approach */
-	if ( D->hasDefinition() )
+	if ( D->getNameAsString() == "produce" || D->getNameAsString() == "beginRun" || D->getNameAsString() == "endRun" || D->getNameAsString() == "beginLuminosityBlock" || D->getNameAsString() == "endLuminosityBlock" )
 	{	    
 
-	    clang::CXXRecordDecl *CD = D->getDefinition();
 	    clang::ento::PathDiagnosticLocation PLoc =
-    	    clang::ento::PathDiagnosticLocation::createBegin(CD, BR.getSourceManager());
-
+    	    clang::ento::PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
 	    if ( ! m_exception.reportGeneral( PLoc, BR ) )
 		return; 
+	    const clang::CXXRecordDecl* P= D->getParent(); 	
 	    std::string buf;
 	    llvm::raw_string_ostream os(buf);
-	    os << "Declaration of Class  " << *CD << " .";
-//	    BR.EmitBasicReport(CD, "Class Method Checker","ThreadSafety",os.str(), DLoc);
+	    os << "Declaration of Method  ";
+	    D->printName(os);
+	    os <<" in Class " << *P <<" .";
+	    BR.EmitBasicReport(D, "Class Method Checker","ThreadSafety",os.str(), PLoc);
+	}
+}
 
-  		for (clang::CXXRecordDecl::method_iterator
-         	I = CD->method_begin(), E = CD->method_end(); I != E; ++I)  {
-			if ( I->isThisDeclarationADefinition() ) {
-				std::string buf;
-	    			llvm::raw_string_ostream os(buf);
-      				os << "Declaration of Method  " << *I << " in Class "<< *CD<<".";
-//				BR.EmitBasicReport( CD, "Class Method Checker","ThreadSafety",os.str(), DLoc);
+
+//void ClassCheckerDecl::checkASTDecl(const clang::CXXRecordDecl *D,
+//                    clang::ento::AnalysisManager &Mgr,
+//                    clang::ento::BugReporter &BR) const
+//{
+//	    clang::ento::PathDiagnosticLocation DLoc =
+//    	    clang::ento::PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
+//	    if ( ! m_exception.reportGeneral( DLoc, BR ) )
+//		return;
+//  		for (clang::CXXRecordDecl::method_iterator
+//        	I = D->method_begin(), E = D->method_end(); I != E; ++I)  {
+//			if ( I->isThisDeclarationADefinition() ) {
+//				std::string buf;
+//	    			llvm::raw_string_ostream os(buf);
+//     				os << "Declaration of Method  " << *I << " in Class "<< *D<<".";
+//				BR.EmitBasicReport( D, "Class Method Checker","ThreadSafety",os.str(), DLoc);
 
 // 		This loop keeps causing EOF crashes in clang
 //
@@ -66,28 +77,22 @@ void ClassCheckerDecl::checkASTDecl(const clang::CXXRecordDecl *D,
 //							BR.EmitBasicReport(D, "Class Checker","ThreadSafety",os.str(), DLoc);
 //						}
 //				} 
-
-    			} /* end declaration is definition */
-		} /* end method loop */
-
-
-  		for (clang::CXXRecordDecl::field_iterator
-         	I = D->field_begin(), E = D->field_end(); I != E; ++I)  {
-	    		std::string buf;
-	    		llvm::raw_string_ostream os(buf);
-      			os << "Declaration of Field  " << *I << " in Class "<<*D<<" .";
+//    			} /* end declaration is definition */
+//		} /* end method loop */
+//  		for (clang::CXXRecordDecl::field_iterator
+//         	I = D->field_begin(), E = D->field_end(); I != E; ++I)  {
+//	    		std::string buf;
+//	    		llvm::raw_string_ostream os(buf);
+//     			os << "Declaration of Field  " << *I << " in Class "<<*D<<" .";
 //			BR.EmitBasicReport(D, "Class Field Checker","ThreadSafety",os.str(), DLoc);
-    			} 
-
-	} /* has definition */
-} /* end class */
+//  		}  
+//} /* end class */
 
 
 
 void ClassCheckerCall::checkPostStmt(const clang::CXXMemberCallExpr *CE,
 		clang::ento::CheckerContext &C) const 
 {
-
 	if (clang::ento::ExplodedNode *errorNode = C.generateSink()) {
 		if (!BT)
 			BT.reset(new clang::ento::BugType("Class Call Checker", "ThreadSafety"));
@@ -97,6 +102,14 @@ void ClassCheckerCall::checkPostStmt(const clang::CXXMemberCallExpr *CE,
 			return;
 		C.EmitReport(R);
 	}
+	    clang::CXXMethodDecl *D = CE->getMethodDecl();
+	    const clang::CXXRecordDecl* P= D->getParent(); 	
+	    std::string buf;
+	    llvm::raw_string_ostream os(buf);
+	    os << "Declaration of Method  ";
+	    D->printName(os);
+	    os <<" in Class " << *P <<" .";
+//	    llvm::outs() << os.str();
 
 }
 
