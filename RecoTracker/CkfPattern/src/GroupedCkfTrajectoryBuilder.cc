@@ -205,9 +205,16 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed& seed,
   rebuildSeedingRegion(startingTraj,work);
   final.reserve(work.size());
 
+  // better the seed to be always the same... 
+  boost::shared_ptr<const TrajectorySeed>  sharedSeed;
+  if (result.empty()) 
+    sharedSeed.reset(new TrajectorySeed(seed));
+   else sharedSeed = result.front().sharedSeed();
+
+
   for (TempTrajectoryContainer::iterator traj=work.begin();
        traj!=work.end(); ++traj) {
-    final.push_back(traj->toTrajectory());
+    final.push_back(traj->toTrajectory(sharedSeed));
   }
   
   result.swap(final);
@@ -246,10 +253,10 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
   }
 
   */
-
+  boost::shared_ptr<const TrajectorySeed> pseed(new TrajectorySeed(seed));
   result.reserve(work_.size());
   for (TempTrajectoryContainer::const_iterator it = work_.begin(), ed = work_.end(); it != ed; ++it) {
-      result.push_back( it->toTrajectory() );
+      result.push_back( it->toTrajectory(pseed) );
   }
 
   work_.clear(); 

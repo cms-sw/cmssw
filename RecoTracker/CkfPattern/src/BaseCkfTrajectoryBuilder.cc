@@ -163,19 +163,21 @@ bool BaseCkfTrajectoryBuilder::toBeContinued (TempTrajectory& traj, bool inOut) 
 
 
 void 
-BaseCkfTrajectoryBuilder::addToResult (TempTrajectory& tmptraj, 
+BaseCkfTrajectoryBuilder::addToResult (boost::shared_ptr<const TrajectorySeed> const & seed, TempTrajectory& tmptraj, 
 				       TrajectoryContainer& result,
                                        bool inOut) const
 {
   // quality check
   if ( !qualityFilter(tmptraj, inOut) )  return;
-  Trajectory traj = tmptraj.toTrajectory();
+  Trajectory traj = tmptraj.toTrajectory(seed);
   // discard latest dummy measurements
   while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();
   LogDebug("CkfPattern")<<inOut<<"=inOut option. pushing a Trajectory with: "<<traj.foundHits()<<" found hits. "<<traj.lostHits()
 			<<" lost hits. Popped :"<<(tmptraj.measurements().size())-(traj.measurements().size())<<" hits.";
   result.push_back( traj);
 }
+
+
 void 
 BaseCkfTrajectoryBuilder::addToResult (TempTrajectory& tmptraj, 
 				       TempTrajectoryContainer& result,

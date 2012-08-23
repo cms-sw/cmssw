@@ -179,6 +179,10 @@ limitedCandidates( TempTrajectoryContainer &candidates,
   TempTrajectoryContainer newCand; // = TrajectoryContainer();
   //  candidates.push_back( startingTraj);
 
+  boost::shared_ptr<const TrajectorySeed>  sharedSeed;
+  if (!candidates.empty()) 
+    sharedSeed.reset(new TrajectorySeed(candidates.front().seed()));
+
   while ( !candidates.empty()) {
 
     newCand.clear();
@@ -195,7 +199,7 @@ limitedCandidates( TempTrajectoryContainer &candidates,
       // ---
 
       if ( meas.empty()) {
-	if ( qualityFilter( *traj)) addToResult( *traj, result);
+	if ( qualityFilter( *traj)) addToResult(sharedSeed, *traj, result);
       }
       else {
 	std::vector<TM>::const_iterator last;
@@ -216,7 +220,7 @@ limitedCandidates( TempTrajectoryContainer &candidates,
 	    newCand.push_back(newTraj);
 	  }
 	  else {
-	    if ( qualityFilter(newTraj)) addToResult( newTraj, result);
+	    if ( qualityFilter(newTraj)) addToResult(sharedSeed, newTraj, result);
 	    //// don't know yet
 	  }
 	}

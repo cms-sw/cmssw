@@ -52,7 +52,8 @@ public:
    * copy vector<Trajectory> in the edm::Event
    */
   
-  TempTrajectory() :  
+  TempTrajectory() : 
+    theSeed(0), 
     theChiSquared(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(anyDirection), theDirectionValidity(false), 
@@ -66,12 +67,12 @@ public:
    *  measurements.
    */
   
-  TempTrajectory( const TrajectorySeed& seed) : 
-    theSeed( new TrajectorySeed(seed) ),
-    theChiSquared(0),
-    theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(anyDirection), theDirectionValidity(false),
-    theValid(true),theNLoops(0),theDPhiCache(0) 
+  TempTrajectory( const TrajectorySeed& seed) :
+  theSeed( &seed ),
+  theChiSquared(0),
+  theNumberOfFoundHits(0), theNumberOfLostHits(0),
+  theDirection(anyDirection), theDirectionValidity(false),
+  theValid(true),theNLoops(0),theDPhiCache(0) 
   {}
   
   /** Constructor of an empty trajectory with defined direction.
@@ -79,7 +80,7 @@ public:
    *  added in the correct direction.
    */
   TempTrajectory( const TrajectorySeed& seed, PropagationDirection dir) : 
-    theSeed( new TrajectorySeed(seed) ),
+    theSeed( &seed ),
     theChiSquared(0), 
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(dir), theDirectionValidity(true),
@@ -90,7 +91,7 @@ public:
    *  No check is made in the push method that measurements are
    *  added in the correct direction.
    */
-  TempTrajectory( const boost::shared_ptr<const TrajectorySeed> & seed, PropagationDirection dir) : 
+  TempTrajectory(const TrajectorySeed * seed, PropagationDirection dir) : 
     theSeed( seed ),
     theChiSquared(0), 
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
@@ -104,6 +105,7 @@ public:
    *  added in the correct direction.
    */
   TempTrajectory(PropagationDirection dir) : 
+  theSeed(0),
     theChiSquared(0), 
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(dir), theDirectionValidity(true),
@@ -145,7 +147,7 @@ public:
   
 
   TempTrajectory(TempTrajectory && rh) noexcept :
-    theSeed(std::move(rh.theSeed)),
+  theSeed(rh.theSeed),
     theData(std::move(rh.theData)),
     theChiSquared(rh.theChiSquared), 
     theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
@@ -153,11 +155,11 @@ public:
     theValid(rh.theValid),
     theNLoops(rh.theNLoops),
     theDPhiCache(rh.theDPhiCache)
-   {}
+  {rh.theSeed=0;}
 
   TempTrajectory & operator=(TempTrajectory && rh) noexcept {
     using std::swap;
-    swap(theSeed,rh.theSeed);
+    theSeed=rh.theSeed;rh.theSeed=0; 
     swap(theData,rh.theData);
     theChiSquared=rh.theChiSquared;
     theNumberOfFoundHits=rh.theNumberOfFoundHits;
@@ -322,7 +324,7 @@ public:
   }
 
   /// Convert to a standard Trajectory 
-  Trajectory toTrajectory() const ;
+  Trajectory toTrajectory(boost::shared_ptr<const TrajectorySeed> const & seed) const ;
 
   /// Pops out all the invalid hits on the tail
   void popInvalidTail() ;
@@ -355,7 +357,7 @@ private:
 private:
 
 
-  boost::shared_ptr<const TrajectorySeed>    theSeed;
+  TrajectorySeed const *  theSeed;  // better the seed not disappear while building a Trajectory!
   DataContainer theData;
 
   float theChiSquared;
