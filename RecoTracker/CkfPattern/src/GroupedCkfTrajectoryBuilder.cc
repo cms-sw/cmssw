@@ -602,8 +602,9 @@ namespace {
       TempTrajectory::DataContainer::const_iterator ifirst = measurements.rbegin();
       --ifirst;	 
       for ( TempTrajectory::DataContainer::const_iterator im=ifirst;
-	    im!=measurements.rend(); --im )
+	    im!=measurements.rend(); --im ) {
 	if ( im->layer()!=currl ) { ++tot; currl = im->layer(); if (tot<N)  layers[tot] = currl;}
+      }
       ++tot;
     }
   
@@ -642,8 +643,8 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
     auto const & firstLayers = layers[ifirst].layers;
 
     for (int isecond= ifirst+1; isecond!=ntraj; ++isecond) {
-      auto secondTraj = layers[ifirst].traj;
-    if (!secondTraj->isValid()) continue;
+      auto secondTraj = layers[isecond].traj;
+      if (!secondTraj->isValid()) continue;
 
       const TempTrajectory::DataContainer & secondMeasurements = secondTraj->measurements();
       
