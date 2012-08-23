@@ -21,28 +21,8 @@ namespace ora {
     public:
       explicit WriteBuffer( ContainerSchema& contSchema ):
         m_buffer(),
-        m_operationBuffer( contSchema.storageSchema() ),
-        m_topLevelElement(),
-        m_writer(),
-        m_topLevelInsert( 0 ){
-
-        MappingElement& topLevelMapping = contSchema.mapping( true ).topElement();
-        m_topLevelInsert = &m_operationBuffer.newInsert( topLevelMapping.tableName() );
-        m_topLevelInsert->addId(  topLevelMapping.columnNames()[ 0 ] );
-        const Reflex::Type& type = contSchema.type();
-        MappingElement::iterator iMap = topLevelMapping.find( type.Name(Reflex::SCOPED) );
-        // the first inner mapping is the relevant...
-        if( iMap == topLevelMapping.end()){
-          throwException("Could not find a mapping element for class \""+
-                         type.Name(Reflex::SCOPED)+"\"",
-                         "WriteBuffer::WriteBuffer");
-        }
-        MappingElement& mapping = iMap->second;
-        RelationalStreamerFactory streamerFactory( contSchema );
-        m_writer.reset( streamerFactory.newWriter( type, mapping ) );
-        m_writer->build( m_topLevelElement, *m_topLevelInsert, m_operationBuffer );
+        m_contSchema( contSchema ){
       }
-      
 
       ~WriteBuffer(){
       }
@@ -53,62 +33,51 @@ namespace ora {
       
       size_t flush(){
         size_t nobj = 0;
-        for( std::vector<std::pair<int, const void*> >::const_iterator iW = m_buffer.begin();
-             iW != m_buffer.end(); ++iW ){
-          write( iW->first, iW->second );
-          if( m_operationBuffer.flush() ) nobj++;
-        }
-        m_buffer.clear();
+        if( m_buffer.size() ){
+	  MappingElement& topLevelMapping = m_contSchema.mapping( true ).topElement();
+	  RelationalBuffer operationBuffer( m_contSchema.storageSchema() );
+	  InsertOperation* topLevelInsert = &operationBuffer.newInsert( topLevelMapping.tableName() );
+	  topLevelInsert->addId(  topLevelMapping.columnNames()[ 0 ] );
+	  const Reflex::Type& type = m_contSchema.type();
+	  MappingElement::iterator iMap = topLevelMapping.find( type.Name(Reflex::SCOPED) );
+	  // the first inner mapping is the relevant...
+	  if( iMap == topLevelMapping.end()){
+	    throwException("Could not find a mapping element for class \""+
+			   type.Name(Reflex::SCOPED)+"\"",
+			   "WriteBuffer::flush");
+	  }
+	  MappingElement& mapping = iMap->second;
+	  RelationalStreamerFactory streamerFactory( m_contSchema );
+	  DataElement topLevelElement;
+	  std::auto_ptr<IRelationalWriter> writer( streamerFactory.newWriter( type, mapping ) );
+	  writer->build( topLevelElement, *topLevelInsert, operationBuffer );
+	  
+	  for( std::vector<std::pair<int, const void*> >::const_iterator iW = m_buffer.begin();
+	       iW != m_buffer.end(); ++iW ){
+	    int oid = iW->first;
+	    const void* data = iW->second;
+	    coral::AttributeList& dataBuff = topLevelInsert->data();
+	    dataBuff.begin()->data<int>() = oid;
+	    writer->write( oid, data );
+	    if( operationBuffer.flush() ) nobj++;
+	  }
+	  m_buffer.clear();
+	}
         return nobj;
       }
 
-    private:
-      void write( int oid, const void* data ){
-        coral::AttributeList& dataBuff = m_topLevelInsert->data();
-        dataBuff.begin()->data<int>() = oid;
-        m_writer->write( oid, data );
-      }      
 
-    private:
-      std::vector<std::pair<int, const void*> > m_buffer;
-      RelationalBuffer m_operationBuffer;
-      DataElement m_topLevelElement;
-      std::auto_ptr<IRelationalWriter> m_writer;
-      InsertOperation* m_topLevelInsert;
+  private:
+    std::vector<std::pair<int, const void*> > m_buffer;
+    ContainerSchema& m_contSchema;
+
   };
 
   class UpdateBuffer {
     public:
       explicit UpdateBuffer( ContainerSchema& contSchema ):
         m_buffer(),
-        m_operationBuffer( contSchema.storageSchema() ),
-        m_topLevelElement(),
-        m_depDeleter(),
-        m_updater(),
-        m_topLevelUpdate( 0 ){
-
-        std::vector<MappingElement> dependentMappings;
-        contSchema.mappingForDependentClasses( dependentMappings );
-        m_depDeleter.reset( new RelationalDeleter( dependentMappings ) );
-        m_depDeleter->build( m_operationBuffer );
-        dependentMappings.clear();
-
-        MappingElement& topLevelMapping = contSchema.mapping( true ).topElement();
-        m_topLevelUpdate = &m_operationBuffer.newUpdate( topLevelMapping.tableName(), true );
-        m_topLevelUpdate->addId(  topLevelMapping.columnNames()[ 0 ] );
-        m_topLevelUpdate->addWhereId(  topLevelMapping.columnNames()[ 0 ] );
-        const Reflex::Type& type = contSchema.type();
-        MappingElement::iterator iMap = topLevelMapping.find( type.Name(Reflex::SCOPED) );
-        // the first inner mapping is the relevant...
-        if( iMap == topLevelMapping.end()){
-          throwException("Could not find a mapping element for class \""+
-                         type.Name(Reflex::SCOPED)+"\"",
-                         "UpdateBuffer::UpdateBuffer");
-        }
-        MappingElement& mapping = iMap->second;
-        RelationalStreamerFactory streamerFactory( contSchema );
-        m_updater.reset( streamerFactory.newUpdater( type, mapping ));
-        m_updater->build( m_topLevelElement, *m_topLevelUpdate, m_operationBuffer );
+        m_contSchema( contSchema ){
       }
       
       ~UpdateBuffer(){
@@ -122,35 +91,52 @@ namespace ora {
 
       size_t flush(){
         size_t nobj = 0;
-        for( std::vector<std::pair<int, const void*> >::const_iterator iU = m_buffer.begin();
-             iU != m_buffer.end(); ++iU ){
-          update( iU->first, iU->second );
-          if( m_operationBuffer.flush()) nobj++;
-        }
-        m_buffer.clear();
+	if( m_buffer.size() ){
+	  RelationalBuffer operationBuffer( m_contSchema.storageSchema() );
+	  std::vector<MappingElement> dependentMappings;
+	  m_contSchema.mappingForDependentClasses( dependentMappings );
+	  RelationalDeleter depDeleter( dependentMappings );
+	  depDeleter.build( operationBuffer );
+	  dependentMappings.clear();
+	  
+	  MappingElement& topLevelMapping = m_contSchema.mapping( true ).topElement();
+	  UpdateOperation* topLevelUpdate = &operationBuffer.newUpdate( topLevelMapping.tableName(), true );
+	  topLevelUpdate->addId(  topLevelMapping.columnNames()[ 0 ] );
+	  topLevelUpdate->addWhereId(  topLevelMapping.columnNames()[ 0 ] );
+	  const Reflex::Type& type = m_contSchema.type();
+	  MappingElement::iterator iMap = topLevelMapping.find( type.Name(Reflex::SCOPED) );
+	  // the first inner mapping is the relevant...
+	  if( iMap == topLevelMapping.end()){
+	    throwException("Could not find a mapping element for class \""+
+			   type.Name(Reflex::SCOPED)+"\"",
+			   "UpdateBuffer::flush");
+	  }
+	  MappingElement& mapping = iMap->second;
+	  RelationalStreamerFactory streamerFactory( m_contSchema );
+	  DataElement topLevelElement;
+	  std::auto_ptr<IRelationalUpdater> updater( streamerFactory.newUpdater( type, mapping ));
+	  updater->build( topLevelElement, *topLevelUpdate, operationBuffer );
+	  for( std::vector<std::pair<int, const void*> >::const_iterator iU = m_buffer.begin();
+	       iU != m_buffer.end(); ++iU ){
+	    int oid = iU->first;
+	    const void* data = iU->second;
+	    // erase the dependencies (they cannot be updated...)
+	    depDeleter.erase( oid );
+	    coral::AttributeList& dataBuff = topLevelUpdate->data();
+	    dataBuff.begin()->data<int>() = oid;
+	    coral::AttributeList& whereDataBuff = topLevelUpdate->whereData();
+	    whereDataBuff.begin()->data<int>() = oid;
+	    updater->update( oid, data );
+	    if( operationBuffer.flush()) nobj++;
+	  }
+	  m_buffer.clear();
+	}
         return nobj;
       }
       
-
     private:
-      void update( int oid, const void* data ){
-        // erase the dependencies (cannot be updated...)
-        m_depDeleter->erase( oid );
-        coral::AttributeList& dataBuff = m_topLevelUpdate->data();
-        dataBuff.begin()->data<int>() = oid;
-        coral::AttributeList& whereDataBuff = m_topLevelUpdate->whereData();
-        whereDataBuff.begin()->data<int>() = oid;
-        m_updater->update( oid, data );
-      }
-      
-
-    private:
-      std::vector<std::pair<int, const void*> > m_buffer;
-      RelationalBuffer m_operationBuffer;
-      DataElement m_topLevelElement;
-      std::auto_ptr<RelationalDeleter> m_depDeleter;
-      std::auto_ptr<IRelationalUpdater> m_updater;
-      UpdateOperation* m_topLevelUpdate;
+    std::vector<std::pair<int, const void*> > m_buffer;
+    ContainerSchema& m_contSchema;
   };
 
   class ReadBuffer {
@@ -209,17 +195,7 @@ namespace ora {
     public:
       explicit DeleteBuffer( ContainerSchema& contSchema ):
         m_buffer(),
-        m_operationBuffer( contSchema.storageSchema() ),
-        m_mainDeleter(),
-        m_depDeleter(){
-        m_mainDeleter.reset( new RelationalDeleter( contSchema.mapping().topElement() ));
-        m_mainDeleter->build( m_operationBuffer );
-        
-        std::vector<MappingElement> dependentMappings;
-        contSchema.mappingForDependentClasses( dependentMappings );
-        m_depDeleter.reset( new RelationalDeleter( dependentMappings ) );
-        m_depDeleter->build( m_operationBuffer );
-        dependentMappings.clear();                             
+        m_contSchema( contSchema ){
       }
       
       ~DeleteBuffer(){
@@ -232,21 +208,30 @@ namespace ora {
 
       size_t flush(){
         size_t nobj = 0;
-        for( std::vector<int>::const_iterator iD = m_buffer.begin();
-             iD != m_buffer.end(); ++iD ){
-          m_depDeleter->erase( *iD );
-          m_mainDeleter->erase( *iD );
-          if( m_operationBuffer.flush() ) nobj++;
-        }
-        m_buffer.clear();
+	if( m_buffer.size()) {
+	  RelationalBuffer operationBuffer( m_contSchema.storageSchema() );
+	  RelationalDeleter mainDeleter( m_contSchema.mapping().topElement() );
+	  mainDeleter.build( operationBuffer );
+	  std::vector<MappingElement> dependentMappings;
+	  m_contSchema.mappingForDependentClasses( dependentMappings );
+	  RelationalDeleter depDeleter(  dependentMappings );
+	  depDeleter.build( operationBuffer );
+	  dependentMappings.clear();                             
+	  
+	  for( std::vector<int>::const_iterator iD = m_buffer.begin();
+	       iD != m_buffer.end(); ++iD ){
+	    depDeleter.erase( *iD );
+	    mainDeleter.erase( *iD );
+	    if( operationBuffer.flush() ) nobj++;
+	  }
+	  m_buffer.clear();
+	}
         return nobj;
       }
       
     private:
-      std::vector<int> m_buffer;
-      RelationalBuffer m_operationBuffer;
-      std::auto_ptr<RelationalDeleter> m_mainDeleter;
-      std::auto_ptr<RelationalDeleter> m_depDeleter;
+    std::vector<int> m_buffer;
+    ContainerSchema& m_contSchema;
   };
   
 }
@@ -321,6 +306,7 @@ ora::DatabaseContainer::DatabaseContainer( int contId,
   m_size( containerSize ),
   m_containerUpdateTable( session.containerUpdateTable() ),
   m_lock( false ){
+  Reflex::Type contType = m_schema->type();
 }
 
 ora::DatabaseContainer::DatabaseContainer( int contId,
