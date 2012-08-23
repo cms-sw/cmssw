@@ -19,6 +19,12 @@ from RecoBTag.SecondaryVertex.ghostTrackBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.inclusiveSecondaryVertexFinderTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.combinedInclusiveSecondaryVertexBJetTags_cfi import *
 #from RecoBTag.SecondaryVertex.combinedIVFES_cfi import * #not yet using dedicated training, share CSV ones
+from RecoBTag.SecondaryVertex.bVertexFilter_cfi import *
+inclusiveMergedVerticesFiltered = bVertexFilter.clone()
+inclusiveMergedVerticesFiltered.vertexFilter.multiplicityMin = 2
+inclusiveMergedVerticesFiltered.secondaryVertices = cms.InputTag("inclusiveMergedVertices")
+
+from RecoBTag.SecondaryVertex.simpleInclusiveSecondaryVertexBJetTags_cfi import *
 
 #negative taggers
 from RecoBTag.SecondaryVertex.secondaryVertexNegativeTagInfos_cfi import *
