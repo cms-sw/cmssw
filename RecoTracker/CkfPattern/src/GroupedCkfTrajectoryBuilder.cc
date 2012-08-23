@@ -588,29 +588,30 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 namespace {
 /// fills in a list of layers from a container of TrajectoryMeasurements
 /// 
-  int
-  layersInTraj (const TempTrajectory::DataContainer& measurements,
-		std::array<DetLayer const *,4> & result) {
-    const int N = result.size();
-    assert(N==4);
-    int nfound=0;
-    
-    if unlikely( measurements.empty() )  return nfound;
-    
-    result[nfound]=measurements.back().layer();
-    TempTrajectory::DataContainer::const_iterator ifirst = measurements.rbegin();
-    --ifirst;	 
-    for ( TempTrajectory::DataContainer::const_iterator im=ifirst;
-	  im!=measurements.rend()&&nfound<(N-1); --im )
-      if ( im->layer()!=result[nfound] )  result[++nfound] = im->layer();
-    
-    assert(nfound<N);
-    return nfound++;
-  }
+  struct LayersInTraj {
+    static constexpr int N=4;
+    TempTrajectory * traj;
+    std::array<DetLayer const *,N> layers;
+    int tot;
+    void fill(TempTrajectory & t) {
+      traj = &t;
+      tot=0;
+      const TempTrajectory::DataContainer& measurements = traj->measurements();
+      
+      auto currl = layers[tot] = measurements.back().layer();
+      TempTrajectory::DataContainer::const_iterator ifirst = measurements.rbegin();
+      --ifirst;	 
+      for ( TempTrajectory::DataContainer::const_iterator im=ifirst;
+	    im!=measurements.rend(); --im )
+	if ( im->layer()!=currl ) { ++tot; currl = im->layer(); if (tot<N)  layers[tot] = currl;}
+      ++tot;
+    }
   
-  
-  //  for (vector<const DetLayer*>::const_iterator iter = result.begin(); iter != result.end(); iter++)
-  //  if (!*iter) edm::LogWarning("CkfPattern")<< "Warning: null det layer!! ";
+    //void verify() {
+    //  for (vector<const DetLayer*>::const_iterator iter = result.begin(); iter != result.end(); iter++)
+    //  if (!*iter) edm::LogWarning("CkfPattern")<< "Warning: null det layer!! ";
+    // }
+  };
 }
 
 
@@ -622,35 +623,38 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
   //TrajectoryContainer result;
   if (theTrajectories.empty()) return;  
   //RecHitEqualByChannels recHitEqualByChannels(false, false);
-  int firstLayerSize, secondLayerSize;
-  std::array<DetLayer const *,4> firstLayers, secondLayers;
-  
-  for (TempTrajectoryContainer::iterator firstTraj=theTrajectories.begin();
-       firstTraj!=(theTrajectories.end()-1); firstTraj++) {
+  LayersInTraj layers[theTrajectories.size()];
+  int ntraj=0;
+  for ( auto & t :  theTrajectories) {
+    if ( t.isValid() && t.lastMeasurement().recHitR().isValid() )
+      layers[ntraj++].fill(t);
+  }
 
-    if ( (!firstTraj->isValid()) ||
-         (!firstTraj->lastMeasurement().recHit()->isValid()) ) continue;
+  if (ntraj<2) return;
+
+  for (int ifirst=0; ifirst!=ntraj-1; ++ifirst) {
+    auto firstTraj = layers[ifirst].traj;
     const TempTrajectory::DataContainer & firstMeasurements = firstTraj->measurements();
     
-    firstLayerSize = layersInTraj(firstMeasurements, firstLayers);
+    int firstLayerSize = layers[ifirst].tot;
     if ( firstLayerSize<4 )  continue;
+    auto const & firstLayers = layers[ifirst].layers;
 
-    for (TempTrajectoryContainer::iterator secondTraj=(firstTraj+1);
-       secondTraj!=theTrajectories.end(); secondTraj++) {
+    for (int isecond= ifirst+1; isecond!=ntraj; ++isecond) {
+      auto secondTraj = layers[ifirst].traj;
 
-      if ( (!secondTraj->isValid()) ||
-           (!secondTraj->lastMeasurement().recHit()->isValid()) ) continue;
       const TempTrajectory::DataContainer & secondMeasurements = secondTraj->measurements();
       
-      secondLayerSize = layersInTraj(secondMeasurements, secondLayers);
+      int secondLayerSize = layers[isecond].tot;
       //
       // only candidates using the same last 3 layers are compared
       //
       if ( firstLayerSize!=secondLayerSize )  continue;
+      auto const & secondLayers =  layers[isecond].layers;
       if ( firstLayers[0]!=secondLayers[0] ||
 	   firstLayers[1]!=secondLayers[1] ||
 	   firstLayers[2]!=secondLayers[2] )  continue;
-
+      
       TempTrajectory::DataContainer::const_iterator im1 = firstMeasurements.rbegin();
       TempTrajectory::DataContainer::const_iterator im2 = secondMeasurements.rbegin();
       //
@@ -705,7 +709,7 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
       }
       if ( im1==firstMeasurements.rend() || im2==secondMeasurements.rend() ||
 	   im1->layer()==layerPtr || im2->layer()==layerPtr || unequal )  continue;
-
+      
       if ( !firstValid ) {
 	firstTraj->invalidate();
 	break;
