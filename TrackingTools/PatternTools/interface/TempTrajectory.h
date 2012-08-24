@@ -324,7 +324,10 @@ public:
   }
 
   /// Convert to a standard Trajectory 
-  Trajectory toTrajectory(boost::shared_ptr<const TrajectorySeed> const & seed) const ;
+  Trajectory toTrajectory(boost::shared_ptr<const TrajectorySeed> const & seed) const;
+  Trajectory toTrajectory() const {
+    return  toTrajectory(boost::shared_ptr<const TrajectorySeed>());
+  }
 
   /// Pops out all the invalid hits on the tail
   void popInvalidTail() ;
