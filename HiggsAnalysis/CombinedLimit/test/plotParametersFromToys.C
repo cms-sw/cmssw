@@ -160,6 +160,7 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 		
 		bH->SetTitle("");	
 
+		if ( bH->Integral() <=0 )  fitPull = false;
 		if (fitPull) bH->Fit("gaus");
 	
 		c->Clear();
