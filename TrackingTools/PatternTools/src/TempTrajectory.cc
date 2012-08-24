@@ -125,6 +125,7 @@ bool TempTrajectory::lost( const TransientTrackingRecHit& hit)
 }
 
 Trajectory TempTrajectory::toTrajectory(boost::shared_ptr<const TrajectorySeed> const & iseed) const {
+  assert(theDirectionValidity);
   Trajectory traj(iseed, PropagationDirection(theDirection)); // copy seed
   traj.setNLoops(theNLoops);
 
