@@ -124,7 +124,7 @@ public:
   StateAndLayers findStateAndLayers(const TempTrajectory& traj) const;
 
  private:
-  void seedMeasurements(const TrajectorySeed& seed, std::vector<TrajectoryMeasurement> & result) const;
+  void seedMeasurements(const TrajectorySeed& seed, TempTrajectory & result) const;
 
 
 

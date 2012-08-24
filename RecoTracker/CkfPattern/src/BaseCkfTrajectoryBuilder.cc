@@ -10,7 +10,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
-#include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
@@ -53,7 +52,7 @@ BaseCkfTrajectoryBuilder::~BaseCkfTrajectoryBuilder(){
 
 
 void
-BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  std::vector<TrajectoryMeasurement> & result) const
+BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTrajectory & result) const
 {
   
 
@@ -67,7 +66,7 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  std::vec
     const DetLayer* hitLayer = 
       theMeasurementTracker->geometricSearchTracker()->detLayer(ihit->geographicalId());
 
-    TSOS invalidState( new BasicSingleTrajectoryState( hitGeomDet->surface()));
+    TSOS invalidState( hitGeomDet->surface());
     if (ihit == hitRange.second - 1) {
       // the seed trajectory state should correspond to this hit
       PTrajectoryStateOnDet pState( seed.startingState());
@@ -79,7 +78,7 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  std::vec
 
       TSOS updatedState = trajectoryStateTransform::transientState( pState, &(gdet->surface()), 
 						      theForwardPropagator->magneticField());
-      result.emplace_back(invalidState, updatedState, recHit, 0, hitLayer);
+      result.emplace(invalidState, updatedState, recHit, 0, hitLayer);
     }
     else {
       PTrajectoryStateOnDet pState( seed.startingState());
@@ -91,13 +90,14 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  std::vec
       TSOS innerState   = theBackwardPropagator->propagate(outerState,hitGeomDet->surface());
       if(innerState.isValid()) {
 	TSOS innerUpdated = theUpdator->update(innerState,*recHit);
-	result.emplace_back(invalidState, innerUpdated, recHit, 0, hitLayer);
+	result.emplace(invalidState, innerUpdated, recHit, 0, hitLayer);
       }
     }
   }
 
   // method for debugging
-  fillSeedHistoDebugger(result.begin(),result.end());
+  // fix somehow
+  // fillSeedHistoDebugger(result.begin(),result.end());
 
 }
 
@@ -115,10 +115,7 @@ createStartingTrajectory( const TrajectorySeed& seed) const
     theBackwardPropagator = &(*thePropagatorAlong);
   }
 
-  std::vector<TM> seedMeas;
-  seedMeasurements(seed, seedMeas);
-  for (std::vector<TM>::const_iterator i=seedMeas.begin(); i!=seedMeas.end(); i++)
-    result.push(*i);            
+  seedMeasurements(seed, result);
 
   LogDebug("CkfPattern")
     <<" initial trajectory from the seed: "<<PrintoutHelper::dumpCandidate(result,true);
