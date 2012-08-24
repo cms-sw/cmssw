@@ -257,7 +257,10 @@ MTSAMuons.InputObjects="MTancientMuonSeed"
 RefitMTSAMuons=MTSAMuons.clone()
 RefitMTSAMuons.STATrajBuilderParameters.DoRefit=True
 
-if CMSSW4_2:
+if CMSSW4_4:
+   from RecoMuon.MuonIdentification.muons1stStep_cfi import *
+   MTMuons = muons1stStep.clone()
+elif CMSSW4_2:
    from RecoMuon.MuonIdentification.muons_cfi import *
    MTMuons = muons.clone()
 else:
