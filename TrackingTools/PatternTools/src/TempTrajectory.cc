@@ -124,8 +124,8 @@ bool TempTrajectory::lost( const TransientTrackingRecHit& hit)
   return hit.getType() == TrackingRecHit::missing;
 }
 
-Trajectory TempTrajectory::toTrajectory(boost::shared_ptr<const TrajectorySeed> const & seed) const {
-  Trajectory traj(seed, PropagationDirection(theDirection)); // copy seed
+Trajectory TempTrajectory::toTrajectory(boost::shared_ptr<const TrajectorySeed> const & iseed) const {
+  Trajectory traj(iseed, PropagationDirection(theDirection)); // copy seed
   traj.setNLoops(theNLoops);
 
   traj.reserve(theData.size());

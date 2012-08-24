@@ -79,7 +79,7 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  std::vec
 
       TSOS updatedState = trajectoryStateTransform::transientState( pState, &(gdet->surface()), 
 						      theForwardPropagator->magneticField());
-      result.push_back(TM( invalidState, updatedState, recHit, 0, hitLayer));
+      result.emplace_back(invalidState, updatedState, recHit, 0, hitLayer);
     }
     else {
       PTrajectoryStateOnDet pState( seed.startingState());
@@ -91,7 +91,7 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  std::vec
       TSOS innerState   = theBackwardPropagator->propagate(outerState,hitGeomDet->surface());
       if(innerState.isValid()) {
 	TSOS innerUpdated = theUpdator->update(innerState,*recHit);
-	result.push_back(TM( invalidState, innerUpdated, recHit, 0, hitLayer));
+	result.emplace_back(invalidState, innerUpdated, recHit, 0, hitLayer);
       }
     }
   }

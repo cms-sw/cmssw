@@ -324,7 +324,7 @@ public:
   }
 
   /// Convert to a standard Trajectory 
-  Trajectory toTrajectory(boost::shared_ptr<const TrajectorySeed> const & seed) const;
+  Trajectory toTrajectory(boost::shared_ptr<const TrajectorySeed> const & iseed) const;
   Trajectory toTrajectory() const {
     return  toTrajectory(boost::shared_ptr<const TrajectorySeed>());
   }
