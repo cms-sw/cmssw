@@ -193,7 +193,7 @@ namespace cms{
 
 	// Build trajectory from seed outwards
         theTmpTrajectories.clear();
-	auto startTraj = theTrajectoryBuilder->buildTrajectories( (*collseed)[j], theTmpTrajectories, nullptr );
+	auto const & startTraj = theTrajectoryBuilder->buildTrajectories( (*collseed)[j], theTmpTrajectories, nullptr );
 	
        
 	LogDebug("CkfPattern") << "======== In-out trajectory building found " << theTmpTrajectories.size()

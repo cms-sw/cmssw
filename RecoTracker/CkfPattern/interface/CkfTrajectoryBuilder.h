@@ -60,7 +60,7 @@ public:
 				    const TrajectoryFilter*) const;
   
   
-  void  rebuildTrajectories(TempTrajectory& startingTraj, const TrajectorySeed&,
+  void  rebuildTrajectories(TempTrajectory const& startingTraj, const TrajectorySeed&,
 			    TrajectoryContainer& result) const {}
 
   /// set Event for the internal MeasurementTracker data member

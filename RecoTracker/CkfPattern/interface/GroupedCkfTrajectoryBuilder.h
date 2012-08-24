@@ -71,7 +71,7 @@ class GroupedCkfTrajectoryBuilder : public BaseCkfTrajectoryBuilder {
 			     TrajectoryContainer& result) const ;
  
   // same as above using the precomputed startingTraj..
-  void  rebuildTrajectories(TempTrajectory& startingTraj, const TrajectorySeed&,
+  void  rebuildTrajectories(TempTrajectory const & startingTraj, const TrajectorySeed&,
 			     TrajectoryContainer& result) const ;  
 
 
@@ -126,14 +126,14 @@ private :
 			TempTrajectoryContainer& newCand, 
 			TempTrajectoryContainer& result) const  dso_internal;
 
-  void groupedLimitedCandidates( TempTrajectory& startingTraj, 
+  void groupedLimitedCandidates( TempTrajectory const& startingTraj, 
 				 const TrajectoryFilter* regionalCondition,
 				 const Propagator* propagator, 
                                  bool inOut,
 				 TempTrajectoryContainer& result) const  dso_internal;
 
   /// try to find additional hits in seeding region
-  void rebuildSeedingRegion (TempTrajectory& startingTraj,
+  void rebuildSeedingRegion (TempTrajectory const& startingTraj,
 			     TempTrajectoryContainer& result) const  dso_internal;
 
    //** try to find additional hits in seeding region for a candidate

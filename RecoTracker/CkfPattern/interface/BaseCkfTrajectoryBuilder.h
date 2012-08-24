@@ -75,7 +75,7 @@ public:
 					    const TrajectoryFilter*) const  { assert(0==1); return TempTrajectory();}
   
   
-  virtual void  rebuildTrajectories(TempTrajectory& startingTraj, const TrajectorySeed& seed,
+  virtual void  rebuildTrajectories(TempTrajectory const& startingTraj, const TrajectorySeed& seed,
 				    TrajectoryContainer& result) const { assert(0==1);}
 
 

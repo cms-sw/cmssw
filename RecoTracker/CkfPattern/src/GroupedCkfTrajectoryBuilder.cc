@@ -199,13 +199,13 @@ GroupedCkfTrajectoryBuilder::trajectories (const TrajectorySeed& seed,
 void  
 GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed& seed,
 						  TrajectoryContainer& result) const {    
-  TempTrajectory startingTraj = createStartingTrajectory( seed);
+  TempTrajectory const & startingTraj = createStartingTrajectory( seed);
   rebuildTrajectories(startingTraj,seed,result);
 
 }
 
 void
-GroupedCkfTrajectoryBuilder::rebuildTrajectories(TempTrajectory& startingTraj, const TrajectorySeed& seed,
+GroupedCkfTrajectoryBuilder::rebuildTrajectories(TempTrajectory const & startingTraj, const TrajectorySeed& seed,
 						 TrajectoryContainer& result) const {
   TempTrajectoryContainer work;
 
@@ -250,7 +250,7 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
 
   analyseSeed( seed);
 
-  TempTrajectory startingTraj = createStartingTrajectory( seed);
+  TempTrajectory const & startingTraj = createStartingTrajectory( seed);
 
   work_.clear();
   const bool inOut = true;
@@ -292,7 +292,7 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
 
 
 void 
-GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (TempTrajectory& startingTraj, 
+GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (TempTrajectory const& startingTraj, 
 						       const TrajectoryFilter* regionalCondition,
 						       const Propagator* propagator, 
                                                        bool inOut,
@@ -350,7 +350,7 @@ GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (TempTrajectory& startingT
   }
 }
 
-std::string whatIsTheNextStep(TempTrajectory& traj , std::pair<TrajectoryStateOnSurface,std::vector<const DetLayer*> >& stateAndLayers){
+std::string whatIsTheNextStep(TempTrajectory const& traj , std::pair<TrajectoryStateOnSurface,std::vector<const DetLayer*> >& stateAndLayers){
   std::stringstream buffer;
   vector<const DetLayer*> & nl = stateAndLayers.second;
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
@@ -767,7 +767,7 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
 
 
 void
-GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(TempTrajectory& startingTraj,
+GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(TempTrajectory const & startingTraj,
 						  TempTrajectoryContainer& result) const
 {
   //
