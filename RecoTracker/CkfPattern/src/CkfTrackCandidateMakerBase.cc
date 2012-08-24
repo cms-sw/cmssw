@@ -126,8 +126,8 @@ namespace cms{
     // set the TrajectoryBuilder
     edm::ESHandle<TrajectoryBuilder> theTrajectoryBuilderHandle;
     es.get<CkfComponentsRecord>().get(theTrajectoryBuilderName,theTrajectoryBuilderHandle);
-    theTrajectoryBuilder = theTrajectoryBuilderHandle.product();    
-       
+    theTrajectoryBuilder = dynamic_cast<const BaseCkfTrajectoryBuilder*>(theTrajectoryBuilderHandle.product());    
+    assert(theTrajectoryBuilder);
   }
 
   // Functions that gets called by framework every event

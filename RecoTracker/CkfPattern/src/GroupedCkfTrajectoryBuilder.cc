@@ -773,6 +773,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(TempTrajectory& startingTraj,
   unsigned int nSeed(rseedHits.second-rseedHits.first);
   //seedHits.reserve(nSeed);
   TempTrajectoryContainer rebuiltTrajectories;
+
   for ( TempTrajectoryContainer::iterator it=result.begin();
 	it!=result.end(); it++ ) {
     //
@@ -781,7 +782,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(TempTrajectory& startingTraj,
     //
 
     if ( it->measurements().size()<=startingTraj.measurements().size() ) {
-      rebuiltTrajectories.push_back(*it);
+      rebuiltTrajectories.push_back(std::move(*it));
       LogDebug("CkfPattern")<< "RebuildSeedingRegion skipped as in-out trajectory does not exceed seed size.";
       continue;
     }
@@ -792,7 +793,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(TempTrajectory& startingTraj,
 
     backwardFit(*it,nSeed,fitter,reFitted,seedHits);
     if ( reFitted.size()!=1 ) {
-      rebuiltTrajectories.push_back(*it);
+      rebuiltTrajectories.push_back(std::move(*it));
       LogDebug("CkfPattern")<< "RebuildSeedingRegion skipped as backward fit failed";
       //			    << "after reFitted.size() " << reFitted.size();
       continue;
@@ -807,7 +808,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(TempTrajectory& startingTraj,
 
     if ( nRebuilt==0 ) it->invalidate();  // won't use original in-out track
 
-    if ( nRebuilt<=0 ) rebuiltTrajectories.push_back(*it);
+    if ( nRebuilt<0 ) rebuiltTrajectories.push_back(std::move(*it));
 
   }
   //
@@ -877,7 +878,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const std::vector<const Tracki
   //vector<TM> oldMeasurements(candidate.measurements());
   for ( TempTrajectoryContainer::iterator it=rebuiltTrajectories.begin();
 	it!=rebuiltTrajectories.end(); it++ ) {
-
+    
     TempTrajectory::DataContainer newMeasurements(it->measurements());
     //
     // Verify presence of seeding hits?
@@ -902,19 +903,20 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const std::vector<const Tracki
     //
     // construct final trajectory in the right order
     //
-    TempTrajectory reversedTrajectory(it->seed(),it->seed().direction());
+    // save & count result
+    nrOfTrajectories++;
+    result.emplace_back(it->seed(),it->seed().direction());
+    TempTrajectory & reversedTrajectory = result.back();
     reversedTrajectory.setNLoops(it->nLoops());
     for (TempTrajectory::DataContainer::const_iterator im=newMeasurements.rbegin(), ed = newMeasurements.rend();
-	  im != ed; --im ) {
+	 im != ed; --im ) {
       reversedTrajectory.push(*im);
     }
-    // save & count result
-    result.push_back(reversedTrajectory);
-    nrOfTrajectories++;
-
+    
     LogDebug("CkgPattern")<<"New traj direction = " << reversedTrajectory.direction()<<"\n"
 			  <<PrintoutHelper::dumpMeasurements(reversedTrajectory.measurements());
-  }
+  } // rebuiltTrajectories
+
   // If nrOfTrajectories = 0 and orig_ok = true, this means that a track was actually found on the
   // out-in step (meeting those requirements) but did not have the seed hits in it.
   // In this case when we return we will go ahead and use the original in-out track.

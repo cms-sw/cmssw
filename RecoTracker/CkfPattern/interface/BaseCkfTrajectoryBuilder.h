@@ -66,7 +66,6 @@ public:
 
   virtual ~BaseCkfTrajectoryBuilder();
 
-  virtual TrajectoryContainer trajectories(const TrajectorySeed&) const = 0;
 
   virtual void setEvent(const edm::Event& event) const;
   virtual void unset() const;
