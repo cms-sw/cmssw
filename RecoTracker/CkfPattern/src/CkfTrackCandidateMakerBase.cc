@@ -193,7 +193,7 @@ namespace cms{
 
 	// Build trajectory from seed outwards
         theTmpTrajectories.clear();
-	theTrajectoryBuilder->trajectories( (*collseed)[j], theTmpTrajectories );
+	auto startTraj = theTrajectoryBuilder->buildTrajectories( (*collseed)[j], theTmpTrajectories, nullptr );
 	
        
 	LogDebug("CkfPattern") << "======== In-out trajectory building found " << theTmpTrajectories.size()
@@ -214,7 +214,7 @@ namespace cms{
 	// seed and if possible further inwards.
 	
 	if (doSeedingRegionRebuilding) {
-	  theTrajectoryBuilder->rebuildSeedingRegion((*collseed)[j],theTmpTrajectories);      
+	  theTrajectoryBuilder->rebuildTrajectories(startTraj,(*collseed)[j],theTmpTrajectories);      
 
   	  LogDebug("CkfPattern") << "======== Out-in trajectory building found " << theTmpTrajectories.size()
   			              << " valid/invalid trajectories from seed " << j << " ========"<<endl
