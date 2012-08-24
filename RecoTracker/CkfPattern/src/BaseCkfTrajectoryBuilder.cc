@@ -57,8 +57,14 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTraj
   
 
   TrajectorySeed::range hitRange = seed.recHits();
-  for (TrajectorySeed::const_iterator ihit = hitRange.first; 
-       ihit != hitRange.second; ihit++) {
+
+  PTrajectoryStateOnDet pState( seed.startingState());
+  const GeomDet* gdet = theMeasurementTracker->geomTracker()->idToDet(pState.detId());
+  TSOS outerState = trajectoryStateTransform::transientState(pState, &(gdet->surface()),
+							     theForwardPropagator->magneticField());
+
+
+  for (TrajectorySeed::const_iterator ihit = hitRange.first; ihit != hitRange.second; ihit++) {
     TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&(*ihit));
     const GeomDet* hitGeomDet = 
       theMeasurementTracker->geomTracker()->idToDet( ihit->geographicalId());
@@ -69,24 +75,15 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTraj
     TSOS invalidState( hitGeomDet->surface());
     if (ihit == hitRange.second - 1) {
       // the seed trajectory state should correspond to this hit
-      PTrajectoryStateOnDet pState( seed.startingState());
-      const GeomDet* gdet = theMeasurementTracker->geomTracker()->idToDet( DetId(pState.detId()));
       if (&gdet->surface() != &hitGeomDet->surface()) {
 	edm::LogError("CkfPattern") << "CkfTrajectoryBuilder error: the seed state is not on the surface of the detector of the last seed hit";
 	return; // FIXME: should throw exception
       }
 
-      TSOS updatedState = trajectoryStateTransform::transientState( pState, &(gdet->surface()), 
-						      theForwardPropagator->magneticField());
-      result.emplace(invalidState, updatedState, recHit, 0, hitLayer);
+      //TSOS updatedState = outerstate;
+      result.emplace(invalidState, outerState, recHit, 0, hitLayer);
     }
     else {
-      PTrajectoryStateOnDet pState( seed.startingState());
-
-      TSOS outerState = trajectoryStateTransform::transientState(pState,
-						   &((theMeasurementTracker->geomTracker()->idToDet(
-										     (hitRange.second - 1)->geographicalId()))->surface()),  
-						   theForwardPropagator->magneticField());
       TSOS innerState   = theBackwardPropagator->propagate(outerState,hitGeomDet->surface());
       if(innerState.isValid()) {
 	TSOS innerUpdated = theUpdator->update(innerState,*recHit);
@@ -171,12 +168,12 @@ BaseCkfTrajectoryBuilder::addToResult (boost::shared_ptr<const TrajectorySeed> c
   while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();
   LogDebug("CkfPattern")<<inOut<<"=inOut option. pushing a Trajectory with: "<<traj.foundHits()<<" found hits. "<<traj.lostHits()
 			<<" lost hits. Popped :"<<(tmptraj.measurements().size())-(traj.measurements().size())<<" hits.";
-  result.push_back( traj);
+  result.push_back(std::move(traj));
 }
 
 
 void 
-BaseCkfTrajectoryBuilder::addToResult (TempTrajectory& tmptraj, 
+BaseCkfTrajectoryBuilder::addToResult (TempTrajectory const & tmptraj, 
 				       TempTrajectoryContainer& result,
                                        bool inOut) const
 {
@@ -187,7 +184,7 @@ BaseCkfTrajectoryBuilder::addToResult (TempTrajectory& tmptraj,
   while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();
   LogDebug("CkfPattern")<<inOut<<"=inOut option. pushing a TempTrajectory with: "<<traj.foundHits()<<" found hits. "<<traj.lostHits()
 			<<" lost hits. Popped :"<<(tmptraj.measurements().size())-(traj.measurements().size())<<" hits.";
-  result.push_back( traj );
+  result.push_back(std::move(traj));
 }
 
 void 
