@@ -57,7 +57,7 @@ public:
   // new interface returning the start Trajectory...
   TempTrajectory buildTrajectories (const TrajectorySeed&,
 				    TrajectoryContainer &ret,
-				    const TrajectoryFilter*) const  dso_internal;
+				    const TrajectoryFilter*) const;
   
   
   void  rebuildTrajectories(TempTrajectory& startingTraj, const TrajectorySeed&,

@@ -57,7 +57,7 @@ class GroupedCkfTrajectoryBuilder : public BaseCkfTrajectoryBuilder {
   // also new interface returning the start Trajectory...
   TempTrajectory buildTrajectories (const TrajectorySeed&seed,
 				    TrajectoryContainer &ret,
-				    const TrajectoryFilter*) const  dso_internal;
+				    const TrajectoryFilter*) const;
 
 
 
