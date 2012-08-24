@@ -93,6 +93,18 @@ public:
     theDirection(dir), theDirectionValidity(true), theValid(true),theDPhiCache(0),theNLoops(0)
   {}
 
+  /** Constructor of an empty trajectory with defined direction.
+   *  No check is made in the push method that measurements are
+   *  added in the correct direction.
+   */
+  explicit Trajectory(PropagationDirection dir) : 
+    theSeed(), seedRef_(),
+    theChiSquared(0), theChiSquaredBad(0),
+    theNumberOfFoundHits(0), theNumberOfLostHits(0),
+    theDirection(dir), theDirectionValidity(true), theValid(true),theDPhiCache(0),theNLoops(0)
+   
+  {}
+
 
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
  Trajectory(Trajectory const & rh) :

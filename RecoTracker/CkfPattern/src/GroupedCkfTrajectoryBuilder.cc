@@ -980,7 +980,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
   //
   // create input trajectory for backward fit
   //
-  Trajectory fwdTraj(candidate.seed(),oppositeDirection(candidate.direction()));
+  Trajectory fwdTraj(oppositeDirection(candidate.direction()));
   fwdTraj.setNLoops(candidate.nLoops());
   //const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(), TrajectorySeed::recHitContainer(), oppositeDirection(candidate.direction()));
   //Trajectory fwdTraj(seed, oppositeDirection(candidate.direction()));
@@ -1032,7 +1032,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
   		fwdTraj.recHits(),firstTsos));
   if (bwdFitted.size()){
     LogDebug("CkfPattern")<<"Obtained " << bwdFitted.size() << " bwdFitted trajectories with measurement size " << bwdFitted.front().measurements().size();
-    TempTrajectory fitted(fwdTraj.seed(), fwdTraj.direction());
+    TempTrajectory fitted(candidate.seed(), fwdTraj.direction());
     fitted.setNLoops(fwdTraj.nLoops());
     vector<TM> tmsbf = bwdFitted.front().measurements();
     int iDetLayer=0;
@@ -1060,7 +1060,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
   lastMeas.recHit(),
   lastMeas.estimate(),
   lastBwdDetLayer));*/
-    fittedTracks.push_back(fitted);
+    fittedTracks.push_back(std::move(fitted));
   }
   //
   // save result
