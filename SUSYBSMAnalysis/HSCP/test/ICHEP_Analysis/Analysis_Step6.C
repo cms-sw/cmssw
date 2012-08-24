@@ -165,6 +165,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    
    string TkPattern  = "Results/Type0/";
    string MuPattern  = "Results/Type2/";
+   string MuOnlyPattern  = "Results/Type3/";
    string QLPattern  = "Results/Type5/";
 
    string outpath = string("Results/"+SHAPESTRING+"EXCLUSION/");
@@ -173,14 +174,16 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    //based on the modelMap
    DrawRatioBands(TkPattern); 
 //   DrawRatioBands(MuPattern);
+   DrawRatioBands(MuOnlyPattern); 
    DrawRatioBands(QLPattern);
 
    //draw the cross section limit for all model
    DrawModelLimitWithBand(TkPattern);
 //   DrawModelLimitWithBand(MuPattern);
+   DrawModelLimitWithBand(MuOnlyPattern);
    DrawModelLimitWithBand(QLPattern);
 
-return;
+ return;
    //make plots of the observed limit for all signal model (and mass point) and save the result in a latex table
    TCanvas* c1;
    double LInt;
@@ -225,9 +228,31 @@ return;
    fprintf(talkFile,"\\end{document}\n\n");
 
 
+   fprintf(pFile   ,"      \\end{tabular}\n\\end{table}\n\n");
+   fprintf(pFile   , "\\begin{table}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
+
+   fprintf(talkFile,"      \\end{tabular}\n\\end{sidewaystable}\n\n");
+   fprintf(talkFile, "\\begin{sidewaystable}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
+   fprintf(talkFile,"Sample & Mass(GeV) & Pt(GeV) & $I_{as}$ & $#beta^{-1]$ & Mass Cut (GeV) & N pred & N observed & Eff \\\\\n");
+   fprintf(talkFile, "\\hline\n");
+
+   TGraph** MuOnlyGraphs = new TGraph*[modelVector.size()];
+   for(unsigned int k=0; k<modelVector.size(); k++){
+     bool isNeutral = false;if(modelVector[k].find("GluinoN")!=string::npos || modelVector[k].find("StopN")!=string::npos)isNeutral = true;
+     if(isNeutral) continue;//skip charged suppressed models                                                                                                                      
+     MuOnlyGraphs[k] = MakePlot(pFile,talkFile,MuOnlyPattern,modelVector[k], 2, modelMap[modelVector[k]], LInt);
+   }
+
+   fprintf(pFile   ,"      \\end{tabular}\n\\end{table}\n\n");
+   fprintf(pFile   ,"\\end{document}\n\n");
+
+   fprintf(talkFile,"      \\end{tabular}\n\\end{sidewaystable}\n\n");
+   fprintf(talkFile,"\\end{document}\n\n");
+
    //print a table with all uncertainty on signal efficiency
    CheckSignalUncertainty(pFile,talkFile,TkPattern);
    CheckSignalUncertainty(pFile,talkFile,MuPattern);
+   CheckSignalUncertainty(pFile,talkFile,MuOnlyPattern);
 
    //Get Theoretical xsection and error bands
    TGraph** ThXSec    = new TGraph*[modelVector.size()];
@@ -878,7 +903,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape){
    TH1D* H_E           = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_E");
    TH1D* H_F           = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_F");
    TH1D* H_G           = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_G");
- //TH1D* H_H           = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_H");
+   TH1D* H_H           = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_H");
    TH1D* H_P           = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_P");
    TH1D* H_S           = (TH1D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/TOF");
    TH2D* MassData      = (TH2D*)GetObjectFromPath(InputFile, Data+"/Mass");
@@ -933,7 +958,9 @@ void Optimize(string InputPattern, string Data, string signal, bool shape){
 
       //make sure we have a reliable prediction of the number of events      
       if(H_E->GetBinContent(CutIndex+1) >0 && (H_A->GetBinContent(CutIndex+1)<25 || H_F->GetBinContent(CutIndex+1)<25 || H_G->GetBinContent(CutIndex+1)<25))continue;  //Skip events where Prediction (AFG/EE) is not reliable
-      if(H_E->GetBinContent(CutIndex+1)==0 && (H_C->GetBinContent(CutIndex+1)<25 || H_B->GetBinContent(CutIndex+1)<25))continue;  //Skip events where Prediction (CB/A) is not reliable
+      if(H_E->GetBinContent(CutIndex+1)==0 && H_A->GetBinContent(CutIndex+1)>0 && (H_C->GetBinContent(CutIndex+1)<25 || H_B->GetBinContent(CutIndex+1)<25))continue;  //Skip events where Prediction (CB/A) is not reliable
+      if(H_F->GetBinContent(CutIndex+1)>0 && H_A->GetBinContent(CutIndex+1)==0 && (H_B->GetBinContent(CutIndex+1)<25 || H_H->GetBinContent(CutIndex+1)<25))continue;  //Skip events where Prediction (CB/A) is not reliable
+   
 
       //make sure we have a reliable prediction of the shape 
       if(TypeMode<=2){
@@ -967,7 +994,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape){
       }else          {if(!runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, H_D, H_P, H_S, H_S, H_S, H_S, H_S, H_S))continue;
       }
 
-      //repport the result for this point in the log file
+      //report the result for this point in the log file
       fprintf(pFile  ,"%10s: Testing CutIndex=%4i (Pt>%6.2f I>%6.3f TOF>%6.3f) %3.0f<M<inf Ndata=%+6.2E NPred=%6.3E+-%6.3E SignalEff=%6.3f ExpLimit=%6.3E (%6.3E) Reach=%6.3E",signal.c_str(),CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), MinRange,result.NData,result.NPred, result.NPredErr,result.Eff,result.XSec_Exp, result.XSec_Obs, result.XSec_5Sigma);fflush(stdout);
       fprintf(stdout ,"%10s: Testing CutIndex=%4i (Pt>%6.2f I>%6.3f TOF>%6.3f) %3.0f<M<inf Ndata=%+6.2E NPred=%6.3E+-%6.3E SignalEff=%6.3f ExpLimit=%6.3E (%6.3E) Reach=%6.3E",signal.c_str(),CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), MinRange,result.NData,result.NPred, result.NPredErr,result.Eff,result.XSec_Exp, result.XSec_Obs, result.XSec_5Sigma);fflush(stdout);
 //      if(result.XSec_Exp<toReturn.XSec_Exp){
