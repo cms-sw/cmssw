@@ -147,17 +147,26 @@ CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed, CkfTrajectoryBuil
     }
   */
 
-  TempTrajectory startingTraj = createStartingTrajectory( seed );
+  buildTrajectories(seed, result,nullptr);
+}
 
+TempTrajectory CkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed&seed,
+							TrajectoryContainer &result,
+							const TrajectoryFilter*) const {
+  
+  TempTrajectory startingTraj = createStartingTrajectory( seed );
+  
   /// limitedCandidates( startingTraj, regionalCondition, result);
   /// FIXME: restore regionalCondition
   limitedCandidates( startingTraj, result);
+  
+  return startingTraj;
 
   /*
-    //and remember what you just did
-    if (theSharedSeedCheck)  rememberSeedAndTrajectories(seed,result);
+  //and remember what you just did
+  if (theSharedSeedCheck)  rememberSeedAndTrajectories(seed,result);
   */
-
+  
   // analyseResult(result);
 }
 

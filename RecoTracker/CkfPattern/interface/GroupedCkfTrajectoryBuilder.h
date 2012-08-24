@@ -53,6 +53,14 @@ class GroupedCkfTrajectoryBuilder : public BaseCkfTrajectoryBuilder {
   /// trajectories building starting from a seed with a region
   void trajectories(const TrajectorySeed&, TrajectoryContainer &ret, const TrackingRegion&) const;
 
+  /// common part of both public trajectory building methods
+  // also new interface returning the start Trajectory...
+  TempTrajectory buildTrajectories (const TrajectorySeed&seed,
+				    TrajectoryContainer &ret,
+				    const TrajectoryFilter*) const  dso_internal;
+
+
+
   /** trajectories re-building in the seeding region.
       It looks for additional measurements in the seeding region of the 
       intial trajectories.
@@ -60,7 +68,12 @@ class GroupedCkfTrajectoryBuilder : public BaseCkfTrajectoryBuilder {
       collection.
   **/
   void  rebuildSeedingRegion(const TrajectorySeed&,
+			     TrajectoryContainer& result) const ;
+ 
+  // same as above using the precomputed startingTraj..
+  void  rebuildTrajectories(TempTrajectory& startingTraj, const TrajectorySeed&,
 			     TrajectoryContainer& result) const ;  
+
 
   // Access to lower level components
   const TrajectoryStateUpdator&  updator() const    {return *theUpdator;}
@@ -102,10 +115,6 @@ private :
   /// no assignment operator
   GroupedCkfTrajectoryBuilder& operator= (const GroupedCkfTrajectoryBuilder&)  dso_internal;
 
-  /// common part of both public trajectory building methods
-  void buildTrajectories (const TrajectorySeed&,
-                                  TrajectoryContainer &ret,
-	                          const TrajectoryFilter*) const  dso_internal;
   
   inline bool tkxor(bool a, bool b) const  dso_internal {return (a||b) && !(a&&b);}
   // to be ported later

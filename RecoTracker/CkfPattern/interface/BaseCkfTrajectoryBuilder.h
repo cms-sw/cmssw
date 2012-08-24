@@ -66,6 +66,15 @@ public:
 
   virtual ~BaseCkfTrajectoryBuilder();
 
+  // new interface returning the start Trajectory...
+  virtual TempTrajectory buildTrajectories (const TrajectorySeed& seed,
+					    TrajectoryContainer &ret,
+					    const TrajectoryFilter*) const  =0;
+  
+  
+  virtual void  rebuildTrajectories(TempTrajectory& startingTraj, const TrajectorySeed& seed,
+				    TrajectoryContainer& result) const =0;
+
 
   virtual void setEvent(const edm::Event& event) const;
   virtual void unset() const;

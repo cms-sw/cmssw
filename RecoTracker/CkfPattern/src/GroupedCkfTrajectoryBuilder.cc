@@ -44,18 +44,24 @@
 namespace {
 #ifdef STAT_TSB
   struct StatCount {
+    long long totSeed;
     long long totTraj;
+    long long totRebuilt;
     long long totInvCand;
     void zero() {
-      totTraj=totInvCand=0;
+      totSeed=totTraj=totRebuilt=totInvCand=0;
     }
-    void incr(long long t) {
+    void traj(long long t) {
       totTraj+=t;
+    }
+    void seed() {++totSeed;}
+    void rebuilt(long long t) {
+      totRebuilt+=t;
     }
     void invalid() { ++totInvCand;}
     void print() const {
-      std::cout << "GroupedCkfTrajectoryBuilder stat\nTraj "
-    		<<  totTraj // <<'/'<<totLockHits<<'/'<<totInvCand<<'/'<<trunc
+      std::cout << "GroupedCkfTrajectoryBuilder stat\nSeed/Traj/Rebuilt "
+    		<<  totSeed <<'/'<< totTraj <<'/'<< totRebuilt
 		<< std::endl;
     }
     StatCount() { zero();}
@@ -64,7 +70,9 @@ namespace {
 
 #else
   struct StatCount {
-    void incr(long long){}
+    void traj(long long){}
+    void seed() {}
+    void rebuilt(long long) {}
     void invalid() {}
   };
 #endif
@@ -192,6 +200,13 @@ void
 GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed& seed,
 						  TrajectoryContainer& result) const {    
   TempTrajectory startingTraj = createStartingTrajectory( seed);
+  rebuildTrajectories(startingTraj,seed,result);
+
+}
+
+void
+GroupedCkfTrajectoryBuilder::rebuildTrajectories(TempTrajectory& startingTraj, const TrajectorySeed& seed,
+						 TrajectoryContainer& result) const {
   TempTrajectoryContainer work;
 
   TrajectoryContainer final;
@@ -218,14 +233,17 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed& seed,
   }
   
   result.swap(final);
-  
+
+  statCount.rebuilt(result.size());
+
 }
 
-void
+TempTrajectory
 GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
                                                 GroupedCkfTrajectoryBuilder::TrajectoryContainer &result,
 						const TrajectoryFilter* regionalCondition) const
 {
+  statCount.seed();
   //
   // Build trajectory outwards from seed
   //
@@ -237,7 +255,7 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
   work_.clear();
   const bool inOut = true;
   groupedLimitedCandidates( startingTraj, regionalCondition, theForwardPropagator, inOut, work_);
-  if ( work_.empty() )  return ;
+  if ( work_.empty() )  return startingTraj;
 
 
 
@@ -265,7 +283,10 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
   analyseResult(result);
 
   LogDebug("CkfPattern")<< "GroupedCkfTrajectoryBuilder: returning result of size " << result.size();
-  statCount.incr(result.size());
+  statCount.traj(result.size());
+
+
+  return startingTraj;
 
 }
 

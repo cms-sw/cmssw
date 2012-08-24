@@ -54,6 +54,15 @@ public:
   /// trajectories building starting from a seed
   virtual void trajectories(const TrajectorySeed& seed, TrajectoryContainer &ret) const;
 
+  // new interface returning the start Trajectory...
+  TempTrajectory buildTrajectories (const TrajectorySeed&,
+				    TrajectoryContainer &ret,
+				    const TrajectoryFilter*) const  dso_internal;
+  
+  
+  void  rebuildTrajectories(TempTrajectory& startingTraj, const TrajectorySeed&,
+			    TrajectoryContainer& result) const {}
+
   /// set Event for the internal MeasurementTracker data member
   //  virtual void setEvent(const edm::Event& event) const;
 
