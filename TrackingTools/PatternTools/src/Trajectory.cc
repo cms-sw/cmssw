@@ -156,9 +156,10 @@ void Trajectory::recHitsV(ConstRecHitContainer & hits,bool splitting) const {
 	  hits.push_back(hitA);
 	}else {
 	  //throw cms::Exception("Error in Trajectory::recHitsV(). Direction is not defined");	
-          edm::LogError("Trajectory_recHitsV_UndefinedTrackDirection") << 
-                "Error in Trajectory::recHitsV: scalar = " << scalar << 
-                ", direction = " << (direction()==alongMomentum ? "along" : (direction()==oppositeToMomentum ? "opposite" : "undefined")) << "\n";
+          edm::LogError("Trajectory_recHitsV_UndefinedTrackDirection") 
+            << "Error in Trajectory::recHitsV: scalar = " << scalar 
+	    << ", direction = " << (direction()==alongMomentum ? "along " : (direction()==oppositeToMomentum ? "opposite " : "undefined ")) 
+	    << theDirection <<"\n";
           hits.push_back(hitA);
           hits.push_back(hitB);
         }         

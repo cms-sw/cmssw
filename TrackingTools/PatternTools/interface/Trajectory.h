@@ -63,7 +63,7 @@ public:
    *  measurements.
    */
     
-  Trajectory( const TrajectorySeed& seed) : 
+  explicit Trajectory( const TrajectorySeed& seed) : 
     theSeed( new TrajectorySeed(seed) ), seedRef_(),
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),

@@ -67,7 +67,7 @@ public:
    *  measurements.
    */
   
-  TempTrajectory( const TrajectorySeed& seed) :
+  explicit TempTrajectory( const TrajectorySeed& seed) :
   theSeed( &seed ),
   theChiSquared(0),
   theNumberOfFoundHits(0), theNumberOfLostHits(0),
@@ -104,12 +104,12 @@ public:
    *  No check is made in the push method that measurements are
    *  added in the correct direction.
    */
-  TempTrajectory(PropagationDirection dir) : 
+  explicit TempTrajectory(PropagationDirection dir) : 
   theSeed(0),
-    theChiSquared(0), 
-    theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(dir), theDirectionValidity(true),
-    theValid(true),theNLoops(0),theDPhiCache(0)
+  theChiSquared(0), 
+  theNumberOfFoundHits(0), theNumberOfLostHits(0),
+  theDirection(dir), theDirectionValidity(true),
+  theValid(true),theNLoops(0),theDPhiCache(0)
   {}
 
   
