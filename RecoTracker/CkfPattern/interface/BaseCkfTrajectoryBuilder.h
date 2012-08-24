@@ -5,7 +5,9 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include<cassert>
+#include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 
 class CkfDebugger;
 class Chi2MeasurementEstimatorBase;
