@@ -205,6 +205,10 @@ void Analysis_Step4(std::string InputPattern)
 	   Perr_Cosmic = sqrt( (pow(D_Cosmic/D_Sideband_Cosmic,2)*D_Sideband) + (pow(D_Sideband/D_Sideband_Cosmic,2)*D_Cosmic) + (pow((D_Cosmic*(D_Sideband)/(D_Sideband_Cosmic*D_Sideband_Cosmic)),2)*D_Sideband_Cosmic) );
 	   P    = P_Coll + P_Cosmic;
 	   Perr = sqrt(Perr_Coll*Perr_Coll + Perr_Cosmic*Perr_Cosmic);
+	 }else if(G>0){
+	   //Prediction in Ias-TOF plane
+	   P    = ((C*H)/G);
+	   Perr = sqrt( (pow(H/G,2)*C) + (pow(C/G,2)*H) + (pow((H*(C)/(G*G)),2)*G) );
 	 }
 
 	 H_P_Coll->SetBinContent(CutIndex+1, P_Coll);
