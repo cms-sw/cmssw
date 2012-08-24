@@ -23,26 +23,26 @@ void InitVetoVariables() {
   VetoVariablesReco.push_back("trackDecayLenVal");
   VetoVariablesReco.push_back("trackSumJetEtRatio");
   VetoVariablesReco.push_back("vertexJetDeltaR");
-  VetoVariablesReco.push_back("varPFchargedHadronEnergy ");
-  VetoVariablesReco.push_back("varPFchargedHadronEnergyFraction ");
-  VetoVariablesReco.push_back("varPFchargedHadronMultiplicity ");
-  VetoVariablesReco.push_back("varPFneutralHadronEnergy ");
-  VetoVariablesReco.push_back("varPFneutralHadronEnergyFraction ");
-  VetoVariablesReco.push_back("varPFneutralHadronMultiplicity ");
-  VetoVariablesReco.push_back("varPFphotonEnergy ");
-  VetoVariablesReco.push_back("varPFphotonEnergyFraction ");
-  VetoVariablesReco.push_back("varPFphotonMultiplicity ");
-  VetoVariablesReco.push_back("varPFmuonEnergy ");
-  VetoVariablesReco.push_back("varPFmuonEnergyFraction ");
-  VetoVariablesReco.push_back("varPFmuonMultiplicity ");
-  VetoVariablesReco.push_back("varPFelectronEnergy ");
-  VetoVariablesReco.push_back("varPFelectronEnergyFraction ");
-  VetoVariablesReco.push_back("varPFelectronMultiplicity ");
-  VetoVariablesReco.push_back("varPFtrackid ");
-  VetoVariablesReco.push_back("varPF_T_FROM_DISP ");
-  VetoVariablesReco.push_back("varPF_T_FROM_GAMMACONV ");
-  VetoVariablesReco.push_back("varPF_T_FROM_V0 ");
-  VetoVariablesReco.push_back("varPF_T_TO_DISP ");			
+  VetoVariablesReco.push_back("PFchargedHadronEnergy");
+  VetoVariablesReco.push_back("PFchargedHadronEnergyFraction");
+  VetoVariablesReco.push_back("PFchargedHadronMultiplicity");
+  VetoVariablesReco.push_back("PFneutralHadronEnergy");
+  VetoVariablesReco.push_back("PFneutralHadronEnergyFraction");
+  VetoVariablesReco.push_back("PFneutralHadronMultiplicity");
+  VetoVariablesReco.push_back("PFphotonEnergy");
+  VetoVariablesReco.push_back("PFphotonEnergyFraction");
+  VetoVariablesReco.push_back("PFphotonMultiplicity");
+  VetoVariablesReco.push_back("PFmuonEnergy");
+  VetoVariablesReco.push_back("PFmuonEnergyFraction");
+  VetoVariablesReco.push_back("PFmuonMultiplicity");
+  VetoVariablesReco.push_back("PFelectronEnergy");
+  VetoVariablesReco.push_back("PFelectronEnergyFraction");
+  VetoVariablesReco.push_back("PFelectronMultiplicity");
+  VetoVariablesReco.push_back("PFtrackid");
+  VetoVariablesReco.push_back("PF_T_FROM_DISP");
+  VetoVariablesReco.push_back("PF_T_FROM_GAMMACONV");
+  VetoVariablesReco.push_back("PF_T_FROM_V0");
+  VetoVariablesReco.push_back("PF_T_TO_DISP");			
 
   VetoVariablesPseudo.push_back("trackDeltaR");
   VetoVariablesPseudo.push_back("trackPtRatio");
@@ -50,26 +50,26 @@ void InitVetoVariables() {
   VetoVariablesPseudo.push_back("trackDecayLenVal");
   VetoVariablesPseudo.push_back("trackSumJetEtRatio");
   VetoVariablesPseudo.push_back("vertexJetDeltaR");
-  VetoVariablesReco.push_back("varPFchargedHadronEnergy ");
-  VetoVariablesReco.push_back("varPFchargedHadronEnergyFraction ");
-  VetoVariablesReco.push_back("varPFchargedHadronMultiplicity ");
-  VetoVariablesReco.push_back("varPFneutralHadronEnergy ");
-  VetoVariablesReco.push_back("varPFneutralHadronEnergyFraction ");
-  VetoVariablesReco.push_back("varPFneutralHadronMultiplicity ");
-  VetoVariablesReco.push_back("varPFphotonEnergy ");
-  VetoVariablesReco.push_back("varPFphotonEnergyFraction ");
-  VetoVariablesReco.push_back("varPFphotonMultiplicity ");
-  VetoVariablesReco.push_back("varPFmuonEnergy ");
-  VetoVariablesReco.push_back("varPFmuonEnergyFraction ");
-  VetoVariablesReco.push_back("varPFmuonMultiplicity ");
-  VetoVariablesReco.push_back("varPFelectronEnergy ");
-  VetoVariablesReco.push_back("varPFelectronEnergyFraction ");
-  VetoVariablesReco.push_back("varPFelectronMultiplicity ");
-  VetoVariablesReco.push_back("varPFtrackid ");
-  VetoVariablesReco.push_back("varPF_T_FROM_DISP ");
-  VetoVariablesReco.push_back("varPF_T_FROM_GAMMACONV ");
-  VetoVariablesReco.push_back("varPF_T_FROM_V0 ");
-  VetoVariablesReco.push_back("varPF_T_TO_DISP ");			
+  VetoVariablesPseudo.push_back("PFchargedHadronEnergy");
+  VetoVariablesPseudo.push_back("PFchargedHadronEnergyFraction");
+  VetoVariablesPseudo.push_back("PFchargedHadronMultiplicity");
+  VetoVariablesPseudo.push_back("PFneutralHadronEnergy");
+  VetoVariablesPseudo.push_back("PFneutralHadronEnergyFraction");
+  VetoVariablesPseudo.push_back("PFneutralHadronMultiplicity");
+  VetoVariablesPseudo.push_back("PFphotonEnergy");
+  VetoVariablesPseudo.push_back("PFphotonEnergyFraction");
+  VetoVariablesPseudo.push_back("PFphotonMultiplicity");
+  VetoVariablesPseudo.push_back("PFmuonEnergy");
+  VetoVariablesPseudo.push_back("PFmuonEnergyFraction");
+  VetoVariablesPseudo.push_back("PFmuonMultiplicity");
+  VetoVariablesPseudo.push_back("PFelectronEnergy");
+  VetoVariablesPseudo.push_back("PFelectronEnergyFraction");
+  VetoVariablesPseudo.push_back("PFelectronMultiplicity");
+  VetoVariablesPseudo.push_back("PFtrackid");
+  VetoVariablesPseudo.push_back("PF_T_FROM_DISP");
+  VetoVariablesPseudo.push_back("PF_T_FROM_GAMMACONV");
+  VetoVariablesPseudo.push_back("PF_T_FROM_V0");
+  VetoVariablesPseudo.push_back("PF_T_TO_DISP");			
 
 
   VetoVariablesNo.push_back("trackDeltaR");
@@ -77,26 +77,26 @@ void InitVetoVariables() {
   VetoVariablesNo.push_back("trackJetDist");
   VetoVariablesNo.push_back("trackDecayLenVal");
   VetoVariablesNo.push_back("trackSumJetEtRatio");
-  VetoVariablesReco.push_back("varPFchargedHadronEnergy ");
-  VetoVariablesReco.push_back("varPFchargedHadronEnergyFraction ");
-  VetoVariablesReco.push_back("varPFchargedHadronMultiplicity ");
-  VetoVariablesReco.push_back("varPFneutralHadronEnergy ");
-  VetoVariablesReco.push_back("varPFneutralHadronEnergyFraction ");
-  VetoVariablesReco.push_back("varPFneutralHadronMultiplicity ");
-  VetoVariablesReco.push_back("varPFphotonEnergy ");
-  VetoVariablesReco.push_back("varPFphotonEnergyFraction ");
-  VetoVariablesReco.push_back("varPFphotonMultiplicity ");
-  VetoVariablesReco.push_back("varPFmuonEnergy ");
-  VetoVariablesReco.push_back("varPFmuonEnergyFraction ");
-  VetoVariablesReco.push_back("varPFmuonMultiplicity ");
-  VetoVariablesReco.push_back("varPFelectronEnergy ");
-  VetoVariablesReco.push_back("varPFelectronEnergyFraction ");
-  VetoVariablesReco.push_back("varPFelectronMultiplicity ");
-  VetoVariablesReco.push_back("varPFtrackid ");
-  VetoVariablesReco.push_back("varPF_T_FROM_DISP ");
-  VetoVariablesReco.push_back("varPF_T_FROM_GAMMACONV ");
-  VetoVariablesReco.push_back("varPF_T_FROM_V0 ");
-  VetoVariablesReco.push_back("varPF_T_TO_DISP ");			
+  VetoVariablesNo.push_back("PFchargedHadronEnergy");
+  VetoVariablesNo.push_back("PFchargedHadronEnergyFraction");
+  VetoVariablesNo.push_back("PFchargedHadronMultiplicity");
+  VetoVariablesNo.push_back("PFneutralHadronEnergy");
+  VetoVariablesNo.push_back("PFneutralHadronEnergyFraction");
+  VetoVariablesNo.push_back("PFneutralHadronMultiplicity");
+  VetoVariablesNo.push_back("PFphotonEnergy");
+  VetoVariablesNo.push_back("PFphotonEnergyFraction");
+  VetoVariablesNo.push_back("PFphotonMultiplicity");
+  VetoVariablesNo.push_back("PFmuonEnergy");
+  VetoVariablesNo.push_back("PFmuonEnergyFraction");
+  VetoVariablesNo.push_back("PFmuonMultiplicity");
+  VetoVariablesNo.push_back("PFelectronEnergy");
+  VetoVariablesNo.push_back("PFelectronEnergyFraction");
+  VetoVariablesNo.push_back("PFelectronMultiplicity");
+  VetoVariablesNo.push_back("PFtrackid");
+  VetoVariablesNo.push_back("PF_T_FROM_DISP");
+  VetoVariablesNo.push_back("PF_T_FROM_GAMMACONV");
+  VetoVariablesNo.push_back("PF_T_FROM_V0");
+  VetoVariablesNo.push_back("PF_T_TO_DISP");			
 }
 
 //In principle no need to modify anything below this point
@@ -145,7 +145,7 @@ void AdaptOneFile(TString file = "", std::vector<TString> VetoVars) {
     for (unsigned int i = 0; i < VetoVars.size(); i++) {
       
       //if line contains one of the vetoed variables, then the line is not written
-      if (line.Contains(VetoVars[i])) {
+      if (line.Contains(VetoVars[i]) && !(VetoVars[i].Contains("PF") && VetoVars[i].EndsWith("Energy") && line.Contains("EnergyFraction")) ) {
         if (IsFirstAppearence[i] != 0) IsFirstAppearence[i] = 0;
         else printline = false;
 	
