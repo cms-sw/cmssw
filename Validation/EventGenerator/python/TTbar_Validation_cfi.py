@@ -9,10 +9,16 @@ decaySubset.fillMode = "kME"
 decaySubset.addRadiation = False
 
 ## get lorentzvectors
-analyzeTopKinematics = cms.EDAnalyzer('TTbar_Kinematics',SaveTree = cms.untracked.bool(False))
+analyzeTopKinematics = cms.EDAnalyzer('TTbar_Kinematics',
+                                      SaveTree = cms.untracked.bool(False),
+                                      genEventInfoProductTag = cms.InputTag("generator")
+                                      )
 
 ## analyze genjets
-analyzeGenJets = cms.EDAnalyzer("TTbar_GenJetAnalyzer", jets = cms.InputTag('ak5GenJets' ))
+analyzeGenJets = cms.EDAnalyzer("TTbar_GenJetAnalyzer",
+                                jets = cms.InputTag('ak5GenJets' ),
+                                genEventInfoProductTag = cms.InputTag("generator")
+                                )
 
 # --- Create list of interesting genParticles ---
 from SimGeneral.HepPDTESSource.pythiapdt_cfi import *

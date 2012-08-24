@@ -5,7 +5,8 @@
 
 
 using namespace edm;
-TTbar_Kinematics::TTbar_Kinematics(const edm::ParameterSet& iConfig)
+TTbar_Kinematics::TTbar_Kinematics(const edm::ParameterSet& iConfig) :
+  genEventInfoProductTag_(iConfig.getParameter<edm::InputTag>("genEventInfoProductTag"))
 {
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
@@ -32,7 +33,7 @@ TTbar_Kinematics::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // --- the MC weights ---
   Handle<GenEventInfoProduct> evt_info;
-  iEvent.getByType(evt_info);
+  iEvent.getByLabel(genEventInfoProductTag_, evt_info);
   if(!evt_info.isValid()) return;
   weight = evt_info->weight() ;
 
