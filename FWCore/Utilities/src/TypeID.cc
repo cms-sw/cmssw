@@ -25,16 +25,20 @@ namespace {
   TypeID const nullTypeID;
 
   std::string typeToClassName(std::type_info const& iType) {
-    std::string result;
-    try {
-      typeDemangle(iType.name(), result);
-    } catch (cms::Exception const& e) {
-      cms::Exception theError("Name Demangling Error");
-      theError << "TypeID::typeToClassName: can't demangle " << iType.name() << '\n';
-      theError.append(e);
-      throw theError;
+    Reflex::Type t = Reflex::Type::ByTypeInfo(iType);
+    if (!bool(t)) {
+      std::string result;
+      try {
+        typeDemangle(iType.name(), result);
+      } catch (cms::Exception const& e) {
+        cms::Exception theError("Name Demangling Error");
+        theError << "TypeID::typeToClassName: can't demangle " << iType.name() << '\n';
+        theError.append(e);
+        throw theError;
+      }
+      return result;
     }
-    return result;
+    return t.Name(Reflex::SCOPED | Reflex::FINAL);
   }
 
   std::type_info const* classNameToType(std::string const& className) {
