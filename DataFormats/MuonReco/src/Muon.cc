@@ -733,10 +733,26 @@ void Muon::setIsolation( const MuonIsolation& isoR03, const MuonIsolation& isoR0
 }
 
 
-void Muon::setPFIsolation( const MuonPFIsolation& isoR03, const MuonPFIsolation& isoR04 )
+void Muon::setPFIsolation(const std::string& label, const MuonPFIsolation& deposit) 
 { 
-   pfIsolationR03_ = isoR03;
-   pfIsolationR04_ = isoR04;
+  if(label=="pfIsolationR03")
+    pfIsolationR03_ = deposit;
+
+  if(label=="pfIsolationR04")
+    pfIsolationR04_ = deposit;
+
+  if(label=="pfIsoMeanDRProfileR03")
+    pfIsoMeanDRR03_ = deposit;
+
+  if(label=="pfIsoMeanDRProfileR04")
+    pfIsoMeanDRR04_ = deposit;
+
+  if(label=="pfIsoSumDRProfileR03")
+    pfIsoSumDRR03_ = deposit;
+
+  if(label=="pfIsoSumDRProfileR04")
+    pfIsoSumDRR04_ = deposit;
+
    pfIsolationValid_ = true; 
 }
 

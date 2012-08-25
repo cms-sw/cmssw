@@ -29,7 +29,6 @@ int main(int argc, char **argv)
 			break;
 			case 'w':
 				wvalue = optarg;
-			break;
 			case 's':
 				svalue = optarg;
 			break;
@@ -90,51 +89,52 @@ int main(int argc, char **argv)
 		if(rvalue != NULL)
 		{
 			std::cout<<"Reading item, mappingName :"<<rvalue<<std::endl;
-			if(!tc.Read(rvalue))
+			if(tc.Read(rvalue) == 1)
 			{
-				std::cout<<"Read failed"<<std::endl;
+				std::cout<<"failed"<<std::endl;
 				return 1;
 			}
 		}
 		if(Rflag == 1)
-			if(!tc.ReadAll())
+			if(tc.ReadAll() == 1)
 			{
-				std::cout<<"ReadAll failed"<<std::endl;
+				std::cout<<"failed"<<std::endl;
 				return 1;
 			}
 		if(cflag == 1)
 		{
 			std::cout<<"Creating DB"<<std::endl;
-			if (!tc.CreateMetaTable())
+			if (tc.CreateMetaTable() == 1)
 			{
-				std::cout<<"Create failed"<<std::endl;
+				std::cout<<"failed"<<std::endl;
 				return 1;
 			}
 		}
 		if(wvalue != NULL)
 		{
-		        int sd = -1;
-			if(svalue !=NULL) {
-			  sd = atoi(svalue);
-			} else {
-			  long now = ::time(NULL);
-			  int low = now%100;
-			  ::srand( low );
-                          sd = ::rand()%100;
+			if(svalue !=NULL)
+			{
+				if(tc.Write(wvalue, atoi(svalue)) == 1)
+				{
+				std::cout<<"failed"<<std::endl;
+				::sleep(1);
+				return 1;
+				}	
+				::sleep(1);
 			}
-			if(!tc.Write(wvalue, sd)){
-			   std::cout<<"Write failed"<<std::endl;
-			   return 1;
-			}	
-		        ::sleep(1);
+			else
+			{
+				std::cout<<"no seed provided, type -? for help"<<std::endl;
+				return 1;
+			}
 		}
 		for (index = optind; index < argc; index++)
 			printf ("Non-option argument %s\n", argv[index]);
 		if (Dflag == 1)
 		{
-			if(!tc.DropTables(connStr))
+			if(tc.DropTables(connStr) == 1)
 			{
-				std::cout<<"Drop failed"<<std::endl;
+				std::cout<<"failed"<<std::endl;
 				return 1;
 			}
 			else
@@ -142,9 +142,9 @@ int main(int argc, char **argv)
 		}
 		else if (dvalue != NULL)
 		{
-			if(!tc.DropItem(dvalue))
+			if(tc.DropItem(dvalue) == 1)
 			{
-				std::cout<<"DropItem failed"<<std::endl;
+				std::cout<<"failed"<<std::endl;
 				return 1;
 			}
 			else

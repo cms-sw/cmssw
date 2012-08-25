@@ -41,6 +41,7 @@ private:
 void
 testSingleton::testEquality( void )
 {
+  m_s = &DDI::Singleton<Dummy>::instance();
   m_copy = &DDI::Singleton<Dummy>::instance();
 
   CPPUNIT_ASSERT( m_s != 0 );

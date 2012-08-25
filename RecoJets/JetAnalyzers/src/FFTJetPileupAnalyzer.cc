@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Thu Apr 21 15:52:11 CDT 2011
-// $Id: FFTJetPileupAnalyzer.cc,v 1.12 2011/07/18 17:40:54 igv Exp $
+// $Id: FFTJetPileupAnalyzer.cc,v 1.11 2011/07/05 07:51:28 igv Exp $
 //
 //
 
@@ -81,7 +81,6 @@ private:
     bool collectFastJetRho;
     bool collectPileup;
     bool collectOOTPileup;
-    bool collectNumInteractions;
     bool collectGrids;
     bool collectGridDensity;
     bool collectVertexInfo;
@@ -115,7 +114,6 @@ FFTJetPileupAnalyzer::FFTJetPileupAnalyzer(const edm::ParameterSet& ps)
       init_param(bool, collectFastJetRho),
       init_param(bool, collectPileup),
       init_param(bool, collectOOTPileup),
-      init_param(bool, collectNumInteractions),
       init_param(bool, collectGrids),
       init_param(bool, collectGridDensity),
       init_param(bool, collectVertexInfo),
@@ -146,7 +144,6 @@ void FFTJetPileupAnalyzer::analyzePileup(
         ntupleData.push_back(static_cast<float>(nBx));
 
     double sumpt_Lo = 0.0, sumpt_Hi = 0.0;
-    float nTrueInterations = -1.f;
     totalNpu = 0;
 
     int npu_by_Bx[3] = {0,};
@@ -180,9 +177,6 @@ void FFTJetPileupAnalyzer::analyzePileup(
         npu_by_Bx[idx] += npu;
         sumpt_Lo_by_Bx[idx] += losum;
         sumpt_Hi_by_Bx[idx] += hisum;
-
-        if (bx == 0 && nTrueInterations < 0.f)
-            nTrueInterations = puInfo.getTrueNumInteractions();
 
         if (verbosePileupInfo)
             std::cout << "ibx " << ibx << " bx " << bx
@@ -221,9 +215,6 @@ void FFTJetPileupAnalyzer::analyzePileup(
             ntupleData.push_back(sumpt_Lo_by_Bx[ibx]);
             ntupleData.push_back(sumpt_Hi_by_Bx[ibx]);
         }
-
-    if (collectNumInteractions)
-        ntupleData.push_back(nTrueInterations);
 }
 
 
@@ -240,8 +231,6 @@ void FFTJetPileupAnalyzer::beginJob()
         vars += ":npu_0bx:sumptLowCut_0bx:sumptHiCut_0bx";
         vars += ":npu_posbx:sumptLowCut_posbx:sumptHiCut_posbx";
     }
-    if (collectNumInteractions)
-        vars += ":trueNInteractions";
     if (collectSummaries)
         vars += ":estimate:pileup:uncert:uncertCode";
     if (collectFastJetRho)
@@ -274,7 +263,7 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
     ntupleData.push_back(eventnumber);
 
     // Get pileup information from the pile-up information module
-    if (collectPileup || collectOOTPileup || collectNumInteractions)
+    if (collectPileup || collectOOTPileup)
     {
         edm::Handle<std::vector<PileupSummaryInfo> > puInfo;
         if (iEvent.getByLabel(pileupLabel, puInfo))
@@ -295,36 +284,22 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
                     ntupleData.push_back(0.f);
                     ntupleData.push_back(0.f);
                 }
-            if (collectNumInteractions)
-                ntupleData.push_back(-1);
         }
     }
 
     if (collectHistos)
     {
-        edm::Handle<reco::DiscretizedEnergyFlow> input;
+        edm::Handle<TH2D> input;
         iEvent.getByLabel(histoLabel, input);
 
         edm::Service<TFileService> fs;
+        TH2D* copy = new TH2D(*input);
 
-        // Convert the data
         std::ostringstream os;
-        os << input->title() << '_' << counter << '_'
+        os << copy->GetName() << '_' << counter << '_'
            << totalNpu << '_' << runnumber << '_' << eventnumber;
         const std::string& newname(os.str());
-
-        const unsigned nScales = input->nEtaBins();
-        const unsigned nPercentiles = input->nPhiBins();
-        TH2D* copy = new TH2D(newname.c_str(), newname.c_str(),
-                              nScales, -0.5, nScales-0.5, nPercentiles, 0.0, 1.0);
-        copy->GetXaxis()->SetTitle("Filter Number");
-        copy->GetYaxis()->SetTitle("Et CDF");
-        copy->GetZaxis()->SetTitle("Et Density");
-
-        const double *data = input->data();
-        for (unsigned iscale=0; iscale<nScales; ++iscale)
-            for (unsigned iper=0; iper<nPercentiles; ++iper)
-                copy->SetBinContent(iscale+1U, iper+1U, data[iscale*nPercentiles + iper]);
+        copy->SetNameTitle(newname.c_str(), newname.c_str());
 
         copy->SetDirectory(fs->getBareDirectory());
     }

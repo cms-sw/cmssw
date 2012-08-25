@@ -1,24 +1,19 @@
-<use   name="FWCore/Framework"/>
 <use   name="FWCore/ServiceRegistry"/>
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/Utilities"/>
-<use   name="CondCore/DBOutputService"/>
-<use   name="DataFormats/Candidate"/>
+<use   name="RecoMuon/TrackingTools"/>
+<use   name="TrackingTools/TransientTrack"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/MuonReco"/>
-<use   name="DataFormats/PatCandidates"/>
-<use   name="DataFormats/HepMCCandidate"/>
+<use   name="DataFormats/Common"/>
+<use   name="CondCore/DBOutputService"/>
+<use   name="CondFormats/PhysicsToolsObjects"/>
 <use   name="HLTrigger/HLTcore"/>
-<use   name="RecoMuon/TrackingTools"/>
-<use   name="MuonAnalysis/MomentumScaleCalibration"/>
-<use   name="SimGeneral/HepPDTRecord"/>
-<use   name="SimDataFormats/Track"/>
-<use   name="SimDataFormats/Vertex"/>
+<use   name="PhysicsTools/UtilAlgos"/>
 <use   name="root"/>
-<use   name="clhep"/>
-<use   name="heppdt"/>
-<use   name="hepmc"/>
+<use   name="rootgraphics"/>
+<use   name="MuonAnalysis/MomentumScaleCalibration"/>
+<flags   EDM_PLUGIN="1"/>
+<use   name="ROOTMath"/>
+<use   name="ROOTMinuit"/>
 <library   file="*.cc" name="MuonAnalysisMomentumScaleCalibrationPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

@@ -5,6 +5,6 @@
 
 
 
-//DEFINE_FWK_MODULE(AlCaElectronsProducer);
+DEFINE_FWK_MODULE(AlCaElectronsProducer);
 DEFINE_FWK_MODULE(AlCaElectronsTest);
 
