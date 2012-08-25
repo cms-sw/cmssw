@@ -297,24 +297,24 @@ if 'hltHfreco' in %(dict)s:
       self.updateMessageLogger()
 
       # load 5.2.x JECs, until they are in the GlobalTag
-      self.loadAdditionalConditions('load 5.2.x JECs',
-        {
+#      self.loadAdditionalConditions('load 5.2.x JECs',
+#        {
 #          'record'  : 'JetCorrectionsRecord',
 #          'tag'     : 'JetCorrectorParametersCollection_AK5Calo_2012_V8_hlt_mc',
 #          'label'   : 'AK5CaloHLT',
 #          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
 #        }, {
-          'record'  : 'JetCorrectionsRecord',
-          'tag'     : 'JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc',
-          'label'   : 'AK5PFHLT',
-          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
-        }, {
-          'record'  : 'JetCorrectionsRecord',
-          'tag'     : 'JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc',
-          'label'   : 'AK5PFchsHLT',
-          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
-        }
-      )
+#          'record'  : 'JetCorrectionsRecord',
+#          'tag'     : 'JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc',
+#          'label'   : 'AK5PFHLT',
+#          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
+#        }, {
+#          'record'  : 'JetCorrectionsRecord',
+#          'tag'     : 'JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc',
+#          'label'   : 'AK5PFchsHLT',
+#          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
+#        }
+#      )
 
 
   def addGlobalOptions(self):
@@ -470,17 +470,8 @@ if 'GlobalTag' in %%(dict)s:
       else:
         self.config.globaltag = globalTag['GRun']
 
-    # check if the GlobalTag is an autoCond or an explicit tag
-    if not self.config.globaltag:
-      # skip the cases with no override
-      pass
-    elif self.config.globaltag.startswith('auto:'):
-      self.config.menuGlobalTagAuto = self.config.globaltag[5:]
-      text += "    from Configuration.AlCa.autoCond import autoCond\n"
-      text += "    %%(process)sGlobalTag.globaltag = autoCond['%(menuGlobalTagAuto)s_%(type)s'][0].split(',')[0]\n"
-    else:
-      text += "    %%(process)sGlobalTag.globaltag = '%(globaltag)s'\n"
-
+    text += "    from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag\n"
+    text += "    %%(process)sGlobalTag = customiseGlobalTag(%%(process)sGlobalTag,'%(globaltag)s')\n"
     self.data += text % self.config.__dict__
 
 
@@ -1030,6 +1021,13 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltFastPixelTracks")
       self.options['modules'].append( "-hltFastPixelTracksRecover")
       
+      self.options['modules'].append( "-hltFastPrimaryVertexbbPhi")
+      self.options['modules'].append( "-hltPixelTracksFastPVbbPhi")
+      self.options['modules'].append( "-hltPixelTracksRecoverbbPhi" )
+      self.options['modules'].append( "-hltFastPixelHitsVertexVHbb" )
+      self.options['modules'].append( "-hltFastPixelTracksVHbb" )
+      self.options['modules'].append( "-hltFastPixelTracksRecoverVHbb" )
+
       self.options['modules'].append( "-hltFastPrimaryVertex")
       self.options['modules'].append( "-hltFastPVPixelTracks")
       self.options['modules'].append( "-hltFastPVPixelTracksRecover" )

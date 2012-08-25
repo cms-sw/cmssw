@@ -335,6 +335,14 @@ namespace edm {
       // no metadata has been dropped,
       // ID's have not been modified,
       // and the branch list indexes do not need modification.
+
+      // Note: Fast copy of the EventProductProvenance branch is unsafe
+      // unless we can enforce that the parentage information for a fully copied
+      // output file will be the same as for the input file, with nothing dropped.
+      // This has never been enforced, and, withthe EDAlias feature, it may no longer
+      // work by accident.
+      // So, for now, we do not enable fast cloning of the non-product branches.
+/*
       Service<ConstProductRegistry> reg;
       canFastCloneAux_ = (whyNotFastClonable_ == FileBlock::CanFastClone) &&
                           fb.fileFormatVersion().noMetaDataTrees() &&
@@ -344,6 +352,7 @@ namespace edm {
                           !reg->anyProductProduced() &&
                           !fb.modifiedIDs() &&
                           fb.branchListIndexesUnchanged();
+*/
 
       // Report the fast copying status.
       Service<JobReport> reportSvc;
@@ -470,11 +479,10 @@ namespace edm {
         it != itEnd;
         ++it) {
       desc = ptReg.getMapped(*it);
-      if (0!=desc) {
-        //NOTE: some old format files have missing Parentage info
-        // so this can't be fatal.
-        parentageTree_->Fill();
-      }
+      //NOTE: some old format files have missing Parentage info
+      // so a null value of desc can't be fatal.
+      // Root will default construct an object in that case.
+      parentageTree_->Fill();
     }    
   }
 
@@ -743,6 +751,14 @@ namespace edm {
       //get the index to the ParentageID or insert a new value if not already present
       std::pair<std::map<edm::ParentageID,unsigned int>::iterator,bool> i = parentageIDs_.insert(std::make_pair(iProv.parentageID(),static_cast<unsigned int>(parentageIDs_.size())));
       toStore.parentageIDIndex_ = i.first->second;
+      if(toStore.parentageIDIndex_ >= parentageIDs_.size()) {
+        throw edm::Exception(errors::LogicError)
+          << "RootOutputFile::insertProductProvenance\n"
+          << "The parentage ID index value " << toStore.parentageIDIndex_ << " is out of bounds.  The maximum value is currently " << parentageIDs_.size()-1 << ".\n"
+          << "This should never happen.\n"
+          << "Please report this to the framework hypernews forum 'hn-cms-edmFramework@cern.ch'.\n";
+      }
+
       oToInsert.insert(toStore);
       return true;
     }

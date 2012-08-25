@@ -38,7 +38,6 @@ class DigiLumiCorrHistogramMaker {
   std::string m_hitname;
   const int m_nbins;
   const int m_scalefact; 
-  const double m_maxlumi;
   std::map<unsigned int,int> m_binmax;
   std::map<unsigned int, std::string> m_labels;
 

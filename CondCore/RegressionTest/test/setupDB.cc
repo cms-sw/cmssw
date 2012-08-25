@@ -72,7 +72,7 @@ int main(int argc, char **argv)
 		if(cflag == 1)
 		{
 			std::cout<<"Creating DB"<<std::endl;
-			if (!tc.CreateMetaTable())
+			if (tc.CreateMetaTable() == 1)
 			{
 				std::cout<<"failed"<<std::endl;
 				return 1;
@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 		}
 		if (Dflag == 1)
 		{
-			if(!tc.DropTables(connStr))
+			if(tc.DropTables(connStr) == 1)
 			{
 				std::cout<<"failed"<<std::endl;
 				return 1;
@@ -90,7 +90,7 @@ int main(int argc, char **argv)
 		}
 		else if (dvalue != NULL)
 		{
-			if(!tc.DropItem(dvalue))
+			if(tc.DropItem(dvalue) == 1)
 			{
 				std::cout<<"failed"<<std::endl;
 				return 1;

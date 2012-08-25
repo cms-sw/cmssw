@@ -5,8 +5,6 @@ import string
 import os
 import sys
 import glob
-import fnmatch
-import commands
 
 CopyRights  = '####################################\n'
 CopyRights += '#        LaunchOnFarm Script       #\n'
@@ -25,12 +23,7 @@ Jobs_Index        = ''
 Jobs_Seed	  = 0
 Jobs_NEvent	  =-1
 Jobs_Skip         = 0
-Jobs_Queue        = '8nh'
 Jobs_Inputs	  = []
-Jobs_FinalCmds    = []
-Jobs_RunHere      = 0
-
-useLSF = True
 
 def CreateTheConfigFile(argv):
         global Jobs_Name
@@ -40,7 +33,6 @@ def CreateTheConfigFile(argv):
 	global Jobs_Skip
 	global Jobs_NEvent
 	global Jobs_Inputs
-        global Jobs_FinalCmds
 	global Path_Cfg
 	global CopyRights
         Path_Cfg   = Farm_Directories[1]+Jobs_Index+Jobs_Name+'_cfg.py'
@@ -73,8 +65,6 @@ def CreateTheShellFile(argv):
 	global Path_Shell
 	global Path_Cfg
 	global CopyRights	
-	global Jobs_RunHere
-	global Jobs_FinalCmds
         Path_Shell = Farm_Directories[1]+Jobs_Index+Jobs_Name+'.sh'
 
 	function_argument='('
@@ -87,107 +77,69 @@ def CreateTheShellFile(argv):
 	shell_file=open(Path_Shell,'w')
 	shell_file.write('#! /bin/sh\n')
 	shell_file.write(CopyRights + '\n')
-	shell_file.write('export SCRAM_ARCH=slc5_amd64_gcc462\n')
-        shell_file.write('export BUILD_ARCH=slc5_amd64_gcc462\n')
+	shell_file.write('export SCRAM_ARCH=slc5_amd64_gcc434\n')
+        shell_file.write('export BUILD_ARCH=slc5_amd64_gcc434\n')
         shell_file.write('export VO_CMS_SW_DIR=/nfs/soft/cms\n')
 	#shell_file.write('source /nfs/soft/cms/cmsset_default.sh\n')
 	shell_file.write('cd ' + os.getcwd() + '\n')
 	shell_file.write('eval `scramv1 runtime -sh`\n')
-
 	if   argv[0]=='BASH':
-		if Jobs_RunHere==0:
-                	shell_file.write('cd -\n')
                 shell_file.write(argv[1] + " %s\n" % function_argument)
         elif argv[0]=='ROOT':
-		if Jobs_RunHere==0:
-                	shell_file.write('cd -\n')
-                shell_file.write('source setstandaloneroot.sh\n')
+                 shell_file.write("root -l -b -q %s" % argv[1] + "+'%s'\n" % function_argument)
+        elif argv[0]=='FWLITE':
 	        shell_file.write('root -l -b << EOF\n')
 	        shell_file.write('   TString makeshared(gSystem->GetMakeSharedLib());\n')
 	        shell_file.write('   TString dummy = makeshared.ReplaceAll("-W ", "");\n')
-                shell_file.write('   TString dummy = makeshared.ReplaceAll("-Wshadow ", " -std=c++0x ");\n')
 	        shell_file.write('   gSystem->SetMakeSharedLib(makeshared);\n')
-		shell_file.write('   gSystem->SetIncludePath( "-I$ROOFITSYS/include" );\n')  
-                shell_file.write('   .x %s+' % argv[1] + function_argument + '\n')
-#                shell_file.write("root -l -b -q %s" % argv[1] + "+'%s'\n" % function_argument)
-	        shell_file.write('   .q\n')
-	        shell_file.write('EOF\n\n')
-        elif argv[0]=='FWLITE':                 
-		if Jobs_RunHere==0:
-                	shell_file.write('cd -\n')
-#	        shell_file.write('eval `scramv1 runtime -sh`\n')
-	        shell_file.write('root -l -b << EOF\n')
-	        shell_file.write('   TString makeshared(gSystem->GetMakeSharedLib());\n')
-	        shell_file.write('   TString dummy = makeshared.ReplaceAll("-W ", "");\n')
-                shell_file.write('   TString dummy = makeshared.ReplaceAll("-Wshadow ", " -std=c++0x ");\n')
-	        shell_file.write('   gSystem->SetMakeSharedLib(makeshared);\n')
-                shell_file.write('   gSystem->SetIncludePath("-I$ROOFITSYS/include");\n')
 	        shell_file.write('   gSystem->Load("libFWCoreFWLite");\n')
 	        shell_file.write('   AutoLibraryLoader::enable();\n')
 	        shell_file.write('   gSystem->Load("libDataFormatsFWLite.so");\n')
 	        shell_file.write('   gSystem->Load("libAnalysisDataFormatsSUSYBSMObjects.so");\n')
 	        shell_file.write('   gSystem->Load("libDataFormatsVertexReco.so");\n')
 	        shell_file.write('   gSystem->Load("libDataFormatsHepMCCandidate.so");\n')
-                shell_file.write('   gSystem->Load("libPhysicsToolsUtilities.so");\n')
-                shell_file.write('   gSystem->Load("libdcap.so");\n')
-                shell_file.write('   .x %s+' % argv[1] + function_argument + '\n')
+	        shell_file.write('   .x %s+' % argv[1] + function_argument + '\n')
 	        shell_file.write('   .q\n')
 	        shell_file.write('EOF\n\n')
         elif argv[0]=='CMSSW':
 		CreateTheConfigFile(argv);
-		if Jobs_RunHere==0:
-			shell_file.write('cd -\n')
+		shell_file.write('cd -\n')
 		shell_file.write('cmsRun ' + os.getcwd() + '/'+Path_Cfg + '\n')
+	        shell_file.write('mv '+ Jobs_Name+'* '+os.getcwd()+'/'+Farm_Directories[3]+'\n')
 	else:
 		print #Program to use is not specified... Guess it is bash command		
                 shell_file.write('#Program to use is not specified... Guess it is bash command\n')
 		shell_file.write(argv[1] + " %s\n" % function_argument)
-
-        for i in range(len(Jobs_FinalCmds)):
-		shell_file.write(Jobs_FinalCmds[i]+'\n')
-	shell_file.write('mv '+ Jobs_Name+'* '+os.getcwd()+'/'+Farm_Directories[3]+'\n')
 	shell_file.close()
 	os.system("chmod 777 "+Path_Shell)
 
 
 def CreateTheCmdFile():
-        global useLSF
         global Path_Cmd
         global CopyRights
         Path_Cmd   = Farm_Directories[1]+Jobs_Name+'.cmd'
 	cmd_file=open(Path_Cmd,'w')
-
-	if useLSF:
-		cmd_file.write(CopyRights + '\n')
-	else:
-		cmd_file.write('Universe                = vanilla\n')
-		cmd_file.write('Environment             = CONDORJOBID=$(Process)\n')
-		cmd_file.write('notification            = Error\n')
-		#code specific for louvain
-		if(commands.getstatusoutput("uname -n")[1].find("ucl.ac.be")!=-1):
-        		cmd_file.write('requirements            = (CMSFARM=?=True)&&(Memory > 200)\n')
-		else:
-			cmd_file.write('requirements            = (Memory > 200)\n')
-		cmd_file.write('should_transfer_files   = YES\n')
-		cmd_file.write('when_to_transfer_output = ON_EXIT\n')
+	cmd_file.write(CopyRights + '\n')
+	cmd_file.write('Universe                = vanilla\n')
+	cmd_file.write('Environment             = CONDORJOBID=$(Process)\n')
+	cmd_file.write('notification            = Error\n')
+	cmd_file.write('requirements            = (Memory > 200)\n')
+	cmd_file.write('should_transfer_files   = YES\n')
+	cmd_file.write('when_to_transfer_output = ON_EXIT\n')
 	cmd_file.close()
 
 def AddJobToCmdFile():
-        global useLSF
 	global Path_Shell
         global Path_Cmd
 	global Path_Log
         Path_Log   = Farm_Directories[2]+Jobs_Index+Jobs_Name
         cmd_file=open(Path_Cmd,'a')
-	if useLSF:
-		cmd_file.write("bsub -q " + Jobs_Queue + " -J " + Jobs_Name+Jobs_Index + " '" + os.getcwd() + "/"+Path_Shell + " 0 ele'\n")
-	else:
-        	cmd_file.write('\n')
-	        cmd_file.write('Executable              = %s\n'     % Path_Shell)
-        	cmd_file.write('output                  = %s.out\n' % Path_Log)
-	        cmd_file.write('error                   = %s.err\n' % Path_Log)
-        	cmd_file.write('log                     = %s.log\n' % Path_Log)
-	        cmd_file.write('Queue 1\n')
+        cmd_file.write('\n')
+        cmd_file.write('Executable              = %s\n'     % Path_Shell)
+        cmd_file.write('output                  = %s.out\n' % Path_Log)
+        cmd_file.write('error                   = %s.err\n' % Path_Log)
+        cmd_file.write('log                     = %s.log\n' % Path_Log)
+        cmd_file.write('Queue 1\n')
         cmd_file.close()
 
 def CreateDirectoryStructure(FarmDirectory):
@@ -221,16 +173,9 @@ def SendCluster_LoadInputFiles(path, NJobs):
 	return JobIndex+1
 
 def SendCluster_Create(FarmDirectory, JobName):
-	global useLSF
 	global Jobs_Name
 	global Jobs_Count
         global Farm_Directories
-
-	#determine if the submission system is LSF batch or condor
-	command_out = commands.getstatusoutput("bjobs")[1]
-	if(command_out.find("command not found")<0): useLSF = True
-	else:				  	     useLSF = False;
-
 	Jobs_Name  = JobName
 	Jobs_Count = 0
         CreateDirectoryStructure(FarmDirectory)
@@ -251,22 +196,15 @@ def SendCluster_Push(Argv):
                 os.system('sh '+Path_Shell)
                 os.system('rm '+Path_Shell)
 		print "Getting the jobs..."
-	print Argv
         CreateTheShellFile(Argv)
         AddJobToCmdFile()
 	Jobs_Count = Jobs_Count+1
 
 def SendCluster_Submit():
-        global useLSF
 	global CopyRights
         global Jobs_Count
         global Path_Cmd
-
-	if useLSF:
-		os.system("sh " + Path_Cmd)
-	else:
-		os.system("condor_submit " + Path_Cmd)  
-
+	os.system("condor_submit " + Path_Cmd)	
 	print '\n'+CopyRights
 	print '%i Job(s) has/have been submitted on the Computing Cluster' % Jobs_Count
 
@@ -279,53 +217,28 @@ def SendCMSJobs(FarmDirectory, JobName, ConfigFile, InputFiles, NJobs, Argv):
 	SendCluster_Create(FarmDirectory, JobName)
 	NJobs = SendCluster_LoadInputFiles(InputFiles, NJobs)
 	for i in range(NJobs):
-        	LaunchOnCondor.SendCluster_Push  (["CMSSW", ConfigFile])
-	LaunchOnCondor.SendCluster_Submit()
-
+        	SendCluster_Push  (["CMSSW", ConfigFile])
+	SendCluster_Submit()
 
 
 def GetListOfFiles(Prefix, InputPattern, Suffix):
-      List = []
-
-      if(InputPattern.find('/store/cmst3')==0) :
-         index = InputPattern.rfind('/')
-         Listtmp = commands.getstatusoutput('cmsLs ' + InputPattern[0:index] + ' | awk \'{print $5}\'')[1].split('\n')
-         pattern = InputPattern[index+1:len(InputPattern)]
-         for file in Listtmp:
-            if fnmatch.fnmatch(file, pattern): List.append(InputPattern[0:index]+'/'+file)
-      elif(InputPattern.find('/castor/')==0):
-         index = InputPattern.rfind('/')
-         Listtmp = commands.getstatusoutput('rfdir ' + InputPattern[0:index] + ' | awk \'{print $9}\'')[1].split('\n')
-         pattern = InputPattern[index+1:len(InputPattern)]
-         for file in Listtmp:
-            if fnmatch.fnmatch(file, pattern): List.append(InputPattern[0:index]+'/'+file)
-      else :
-         List = glob.glob(InputPattern)
-
-      List = sorted(List)
-      for i in range(len(List)):
-         List[i] = Prefix + List[i] + Suffix
-      return List
-
-
-def ListToString(InputList):
-   outString = ""
-   for i in range(len(InputList)):
-      outString += InputList[i]
-   return outString
+        List = sorted(glob.glob("/pnfs/cms/WAX/11" + InputPattern))
+        for i in range(len(List)):
+	     List[i] = Prefix + List[i] + Suffix
+             List[i] = List[i].replace("/pnfs/cms/WAX/11", "")
+        return List
 
 def ListToFile(InputList, outputFile):
-   out_file=open(outputFile,'w')
-   for i in range(len(InputList)):
-      out_file.write('     ' + InputList[i] + '\n')
-   out_file.close()
+	out_file=open(outputFile,'w')
+        for i in range(len(InputList)):
+		out_file.write('     ' + InputList[i] + '\n')
+	out_file.close()
 
-def FileToList(path):
-   input_file  = open(path,'r')
-   input_lines = input_file.readlines()
-   input_file.close()
-   input_lines.sort()
-   return input_lines
+def ListToString(InputList):
+	outString = ""
+	for i in range(len(InputList)):
+		outString += InputList[i]
+	return outString
 
 
 def SendCMSMergeJob(FarmDirectory, JobName, InputFiles, OutputFile, KeepStatement):

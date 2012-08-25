@@ -151,6 +151,7 @@ ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& pset, bool
         decayRandomEngine = &rng->getEngine();
 
 	edm::LogInfo("Replacer") << "generatorMode = "<< generatorMode_<< "\n";
+	edm::LogInfo("Replacer") << "replacementMode = "<< replacementMode_<< "\n";
 
 	return;
 }
@@ -406,15 +407,13 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
                   delete tempevt;
                 }
 	}
-
-	tried = cntVisPt_all;
-	passed = cntVisPt_pass;
-
+	eventWeight = (double)cntVisPt_pass / (double)cntVisPt_all;
 	std::cout << /*minVisibleTransverseMomentum_ <<*/ " " << cntVisPt_pass << "\t" << cntVisPt_all << "\n";
 	if (!retevt)
 	{
 		LogError("Replacer") << "failed to create an event which satisfies the minimum visible transverse momentum cuts ";
 		attempts=-1;
+		eventWeight=0;
                 if(outTree) outTree->Fill();
 		return std::auto_ptr<HepMC::GenEvent>(0);
 	}
@@ -422,7 +421,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
 	if(outTree) outTree->Fill();	
 
 	// recover the status codes
-	if (genEvt)
+	if (replacementMode_==0)
 	{
 		for (GenEvent::particle_iterator it=retevt->particles_begin();it!=retevt->particles_end();it++)
 		{
@@ -609,20 +608,14 @@ void ParticleReplacerClass::repairBarcodes(HepMC::GenEvent * evt)
 
 	// repair the barcodes
 	int max_barc=0;
-	for (GenEvent::vertex_iterator it=evt->vertices_begin(), next;it!=evt->vertices_end();it=next)
-	{
-		next=it;++next;
+	for (GenEvent::vertex_iterator it=evt->vertices_begin();it!=evt->vertices_end();it++)
 		while (!(*it)->suggest_barcode(-1*(++max_barc)))
 			;
-	}
 
 	max_barc=0;
-	for (GenEvent::particle_iterator it=evt->particles_begin(), next;it!=evt->particles_end();it=next)
-	{
-		next=it;++next;
+	for (GenEvent::particle_iterator it=evt->particles_begin();it!=evt->particles_end();it++)
 		while (!(*it)->suggest_barcode(++max_barc))
 			;
-	}
 }
 
 ///	transform a muon pair into a tau pair

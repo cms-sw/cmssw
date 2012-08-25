@@ -161,46 +161,17 @@ DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, cons
 	const BoundPlane & DTSurface = gdet->surface();
       
 	//check if the dimension of the segment is 4 
-	
+      
 	if(debug) std::cout<<"DT  \t \t Is the segment 4D?"<<std::endl;
-	
+      
 	if(segment->dimension()!=4){
 	  if(debug) std::cout<<"DT  \t \t no"<<std::endl;
 	  continue; 
 	}
-
-	if(debug) std::cout<<"DT  \t \t Are there 2 phi superlayers fired (at least 7hits)?"<<std::endl;
-	
-	if((segment->phiSegment()->recHits()).size()<7){
-	  if(debug) std::cout<<"DT  \t \t no"<<std::endl;
-	  continue; 
-	}
-	
-	if(debug) std::cout<<"DT  \t \t Are there at least 4 hits for the Z projection?"<<std::endl;
-	
-	if((segment->zSegment()->recHits()).size()<4){
-	  if(debug) std::cout<<"DT  \t \t no"<<std::endl;
-	  continue; 
-	}
-	
-	if(debug) std::cout<<"DT  \t \t Is the t0 phi projection in between -30ns and 30ns "<<std::endl;
-	
-	if(segment->phiSegment()->t0()<-30 || segment->phiSegment()->t0()>30){
-	  if(debug) std::cout<<"DT  \t \t no"<<std::endl;
-	  continue; 
-	}
-	
-	if(debug) std::cout<<"DT  \t \t Is the t0 Z projection in between -40ns and 40ns "<<std::endl;
-	
-	if(segment->zSegment()->t0()<-40 || segment->zSegment()->t0()>40){
-	  if(debug) std::cout<<"DT  \t \t no"<<std::endl;
-	  continue; 
-	}
-	
-	
+      
 	if(debug) std::cout<<"DT  \t \t yes"<<std::endl;
 	if(debug) std::cout<<"DT  \t \t DT Segment Dimension "<<segment->dimension()<<std::endl; 
-    
+      
 	float Xo=segmentPosition.x();
 	float Yo=segmentPosition.y();
 	float Zo=segmentPosition.z();
@@ -330,21 +301,6 @@ DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, cons
 	    
 	    if(debug) std::cout<<"MB4 \t \t \t \t The Segment in MB4 is 2D?"<<std::endl;
 	    if(segment->dimension()==2){
-	      
-	      if(debug) std::cout<<"MB4  \t \t \t \t Are there 2 phi superlayers fired (at least 7hits)?"<<std::endl;
-	      
-	      if((segment->phiSegment()->recHits()).size()<7){
-		if(debug) std::cout<<"MB4  \t \t \t \t no"<<std::endl;
-		continue; 
-	      }
-	      
-	      if(debug) std::cout<<"MB4  \t \t \t \t Is the t0 phi projection in between -30ns and 30ns "<<std::endl;
-	
-	      if(segment->phiSegment()->t0()<-30 || segment->phiSegment()->t0()>30){
-		if(debug) std::cout<<"MB4  \t \t \t \t no"<<std::endl;
-		continue; 
-	      }
-	      
 	      if(debug) std::cout<<"MB4 \t \t \t \t yes"<<std::endl;
 	      LocalVector segmentDirectionMB4=segmentDirection;
 	      LocalPoint segmentPositionMB4=segmentPosition;
@@ -366,34 +322,6 @@ DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, cons
 		   && dtid3.station()==3
 		   && DTSegmentCounter[dtid3] == 1
 		   && segMB3->dimension()==4){
-
-		  if(debug) std::cout<<"MB4  \t \t \t \t Are there 2 phi superlayers fired (at least 7hits)?"<<std::endl;
-		  
-		  if((segMB3->phiSegment()->recHits()).size()<7){
-		    if(debug) std::cout<<"MB4  \t \t \t \t no"<<std::endl;
-		    continue; 
-		  }
-		  
-		  if(debug) std::cout<<"MB4 \t \t \t \t Are there at least 4 hits for the Z projection?"<<std::endl;
-		  
-		  if((segMB3->zSegment()->recHits()).size()<4){
-		    if(debug) std::cout<<"MB4  \t \t \t \t no"<<std::endl;
-		    continue; 
-		  }
-		  
-		  if(debug) std::cout<<"MB4 \t \t \t \t Is the t0 phi projection in between -30ns and 30ns "<<std::endl;
-		  
-		  if(segMB3->phiSegment()->t0()<-30 || segMB3->phiSegment()->t0()>30){
-		    if(debug) std::cout<<"MB4 \t \t \t \t no"<<std::endl;
-		    continue; 
-		  }
-		  
-		  if(debug) std::cout<<"MB4 \t \t  \t \t Is the t0 Z projection in between -40ns and 40ns "<<std::endl;
-		  
-		  if(segMB3->zSegment()->t0()<-40 || segMB3->zSegment()->t0()>40){
-		    if(debug) std::cout<<"MB4 \t \t  \t \t no"<<std::endl;
-		    continue; 
-		  }
 		  
 		  if(debug) std::cout<<"MB4  \t \t \t \t distsector ="<<distsector(dtid3.sector(),DTId.sector())<<std::endl;
 		  if(debug) std::cout<<"MB4  \t \t \t \t distwheel ="<<distwheel(dtid3.wheel(),DTId.wheel())<<std::endl;

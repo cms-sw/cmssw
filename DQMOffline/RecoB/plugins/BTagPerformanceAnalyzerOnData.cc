@@ -40,6 +40,7 @@ BTagPerformanceAnalyzerOnData::BTagPerformanceAnalyzerOnData(const edm::Paramete
   moduleConfig(pSet.getParameter< vector<edm::ParameterSet> >("tagConfig")),
   mcPlots_(pSet.getParameter< unsigned int >("mcPlots"))
 {
+  if(!finalizeOnly) mcPlots_ = 0; //analyzer not designed to produce flavour histograms but could be used for harvesting 
   bookHistos(pSet);
 }
 
@@ -83,7 +84,7 @@ void BTagPerformanceAnalyzerOnData::bookHistos(const edm::ParameterSet& pSet)
       // Contains plots for each bin of rapidity and pt.
 	vector<BTagDifferentialPlot*> * differentialPlotsConstantEta = new vector<BTagDifferentialPlot*> () ;
 	vector<BTagDifferentialPlot*> * differentialPlotsConstantPt  = new vector<BTagDifferentialPlot*> () ;
-      if (finalize && mcPlots_>1){
+      if (finalize && mcPlots_==4){
 	differentialPlots.push_back(vector<BTagDifferentialPlot*>());
 	
 	// the constant b-efficiency for the differential plots versus pt and eta
@@ -119,7 +120,7 @@ void BTagPerformanceAnalyzerOnData::bookHistos(const edm::ParameterSet& pSet)
 	  binJetTagPlotters.back().push_back ( jetTagPlotter ) ;
 	  
 	  // Add to the corresponding differential plotters
-	  if (finalize && mcPlots_>1){	
+	  if (finalize && mcPlots_==4){	
 	    (*differentialPlotsConstantEta)[iEta+1]->addBinPlotter ( jetTagPlotter ) ;
 	    (*differentialPlotsConstantPt )[iPt+1] ->addBinPlotter ( jetTagPlotter ) ;
 	  }
@@ -127,7 +128,7 @@ void BTagPerformanceAnalyzerOnData::bookHistos(const edm::ParameterSet& pSet)
       }
       
       // the objects for the differential plots vs. eta, pt: collect all from constant eta and constant pt
-      if (finalize && mcPlots_>1){
+      if (finalize && mcPlots_==4){
 	differentialPlots.back().reserve(differentialPlotsConstantEta->size()+differentialPlotsConstantPt->size()) ;
 	differentialPlots.back().insert(differentialPlots.back().end(), differentialPlotsConstantEta->begin(), differentialPlotsConstantEta->end());
 	differentialPlots.back().insert(differentialPlots.back().end(), differentialPlotsConstantPt->begin(), differentialPlotsConstantPt->end());
@@ -228,7 +229,7 @@ BTagPerformanceAnalyzerOnData::~BTagPerformanceAnalyzerOnData()
     for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
       delete binJetTagPlotters[iJetLabel][iPlotter];
     }
-    if (finalize && mcPlots_>1){
+    if (finalize && mcPlots_==4){
       for (vector<BTagDifferentialPlot *>::iterator iPlotter = differentialPlots[iJetLabel].begin();
 	   iPlotter != differentialPlots[iJetLabel].end(); ++ iPlotter) {
 	delete *iPlotter;
@@ -408,7 +409,7 @@ void BTagPerformanceAnalyzerOnData::endRun(const edm::Run & run, const edm::Even
       if (produceEps) (*binJetTagPlotters[iJetLabel][iPlotter]).epsPlot(epsBaseName);
     }
     
-    if (mcPlots_ > 1){
+    if (mcPlots_==4){
       for (vector<BTagDifferentialPlot *>::iterator iPlotter = differentialPlots[iJetLabel].begin();
 	   iPlotter != differentialPlots[iJetLabel].end(); ++ iPlotter) {
 	(**iPlotter).process();
