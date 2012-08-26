@@ -2,18 +2,22 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HSCPAnalysis")
 
+from SUSYBSMAnalysis.HSCP.HSCPVersion_cff import *
+
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load("Configuration.StandardSequences.Geometry_cff")
+if CMSSW4_2:process.load("Configuration.StandardSequences.Geometry_cff")
+else:       process.load("Configuration.Geometry.GeometryIdeal_cff")
+
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-from SUSYBSMAnalysis.HSCP.HSCPVersion_cff import *
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
-if CMSSW4_2:   process.GlobalTag.globaltag = 'GR_P_V14::All'
+if   CMSSW4_4: process.GlobalTag.globaltag = 'FT_R_44_V11::All'
+elif CMSSW4_2: process.GlobalTag.globaltag = 'GR_P_V14::All'
 else:          process.GlobalTag.globaltag = 'GR_P_V32::All'
 
 readFiles = cms.untracked.vstring()
