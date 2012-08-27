@@ -21,7 +21,7 @@ void SignalMassPlot(string InputPattern, unsigned int CutIndex);
 void GetSystematicOnPrediction(string InputPattern);
 void MakeExpLimitpLot(string Input, string Output);
 void CosmicBackgroundSystematic(string InputPattern);
-void FlipPrediction(string InputPattern);
+void CheckPrediction(string InputPattern, string HistoSuffix="_Flip");
 
 std::vector<stSample> samples;
 
@@ -60,7 +60,7 @@ void Analysis_Step5()
    CutFlow(InputPattern);
    SelectionPlot(InputPattern, CutIndex);
    GetSystematicOnPrediction(InputPattern);
-   FlipPrediction(InputPattern);
+   CheckPrediction(InputPattern, "_Flip");
 
    InputPattern = "Results/Type3/";   CutIndex = 22; CutIndex_Flip=2;
    PredictionAndControlPlot(InputPattern, "Data11", CutIndex, CutIndex_Flip);
@@ -68,7 +68,8 @@ void Analysis_Step5()
    //CutFlow(InputPattern);
    SelectionPlot(InputPattern, CutIndex);
    CosmicBackgroundSystematic(InputPattern);
-   FlipPrediction(InputPattern);
+   CheckPrediction(InputPattern, "");
+   CheckPrediction(InputPattern, "_Flip");
 
      //This function has not yet been reviewed after july's update
 //   MakeExpLimitpLot("Results_1toys_lp/dedxASmi/combined/Eta15/PtMin35/Type0/EXCLUSION/Stop200.info","tmp1.png");
@@ -1769,7 +1770,7 @@ void CosmicBackgroundSystematic(string InputPattern){
   delete c1;
 }  
 
-void FlipPrediction(string InputPattern){
+void CheckPrediction(string InputPattern, string HistoSuffix){
   TypeMode = TypeFromPattern(InputPattern);
   if(TypeMode==0)return;
 
@@ -1778,15 +1779,15 @@ void FlipPrediction(string InputPattern){
   string SavePath  = InputPattern;
   MakeDirectories(SavePath);
   TCanvas* c1;
-  TH1** Histos = new TH1*[10];
+  TH1** Histos = new TH1*[100];
 
   TFile* InputFile = new TFile((InputPattern + "Histos.root").c_str());
-  TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt_Flip");
-  TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I_Flip");
-  TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF_Flip");
+  TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, string("HCuts_Pt") + HistoSuffix);
+  TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, string("HCuts_I") + HistoSuffix);
+  TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, string("HCuts_TOF") + HistoSuffix);
 
-  TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_D_Flip");
-  TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_P_Flip");
+  TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, string("Data12/H_D") + HistoSuffix);
+  TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, string("Data12/H_P") + HistoSuffix);
 
   std::vector<int> Index;   std::vector<int> Plot;
   std::vector<double> TOFCuts;
@@ -1824,12 +1825,12 @@ void FlipPrediction(string InputPattern){
     char RatioName[1024];
     sprintf(RatioName,"Ratio_%i",i);
     TH1D* TempRatio = new TH1D(RatioName, RatioName, TOFCuts.size(), TOFCutMin, TOFCutMax);
-
     Ratio.push_back(TempRatio);
   }
 
 
   for(int CutIndex=1; CutIndex<HCuts_TOF->GetNbinsX(); CutIndex++) {
+
     std::pair<double, double> key(HCuts_I->GetBinContent(CutIndex+1), HCuts_Pt->GetBinContent(CutIndex+1));
     int plot = CutMap.find(key)->second;
     int bin = Data[plot]->FindBin(HCuts_TOF->GetBinContent(CutIndex+1));
@@ -1847,14 +1848,6 @@ void FlipPrediction(string InputPattern){
   }
 
   for(int i=0; i<countPlots; i++) {
-    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-    Histos[0] = Data[i];      legend.push_back("Obs");
-    Histos[1] = Pred[i];    legend.push_back("Pred");
-    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta Cut", "Tracks", 0, 0, 0,0);
-    DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
-    c1->SetLogy(true);
-    DrawPreliminary(SQRTS, IntegratedLuminosity);
-
     map<std::pair<double, double>,int>::iterator it;
     double ICut=-1, PtCut=-1;
     for ( it=CutMap.begin() ; it != CutMap.end(); it++ ) if((*it).second==i) {
@@ -1862,10 +1855,18 @@ void FlipPrediction(string InputPattern){
       PtCut = (*it).first.second;
     }
 
+    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+    Histos[0] = Data[i];      legend.push_back("Obs");
+    Histos[1] = Pred[i];    legend.push_back("Pred");
+    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta Cut", "Tracks", 0, 0, 0,0);
+    DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.5);
+    c1->SetLogy(true);
+    DrawPreliminary(SQRTS, IntegratedLuminosity);
+
     char Title[1024];
-    if(ICut>-1 && PtCut>-1) sprintf(Title,"FlipPred_I%0.2f_Pt%3.0f",ICut, PtCut);
-    else if(PtCut>-1) sprintf(Title,"FlipPred_Pt%3.0f",PtCut);
-    else if(ICut>-1) sprintf(Title,"FlipPred_I%0.2f",ICut);
+    if(ICut>-1 && PtCut>-1) sprintf(Title,"Pred%s_I%0.2f_Pt%3.0f",HistoSuffix.c_str(), ICut, PtCut);
+    else if(PtCut>-1) sprintf(Title,"Pred%s_Pt%3.0f",HistoSuffix.c_str(),PtCut);
+    else if(ICut>-1) sprintf(Title,"Pred%s_I%0.2f",HistoSuffix.c_str(),ICut);
     SaveCanvas(c1,SavePath,Title);
     delete c1;
   }
@@ -1884,11 +1885,12 @@ void FlipPrediction(string InputPattern){
     else if(ICut>-1) sprintf(LegendName,"I>%0.2f",ICut);
     Histos[i] = Ratio[i];            legend.push_back(LegendName);
   }
+
   c1 = new TCanvas("c1","c1,",600,600);
   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta Cut", "Data/MC", 0, 0, 0,0);
   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
   c1->SetLogy(false);
   DrawPreliminary(SQRTS, IntegratedLuminosity);
-  SaveCanvas(c1,SavePath,"FlipPred_Ratio");
+  SaveCanvas(c1,SavePath,"Pred_Ratio" + HistoSuffix);
   delete c1;
 }

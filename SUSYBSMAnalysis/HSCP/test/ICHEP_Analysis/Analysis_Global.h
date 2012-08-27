@@ -88,6 +88,8 @@ double             GlobalMinPt      =  45.00;   // cut on pT    at PRE-SELECTION
 double             GlobalMinIs      =   0.0;    // cut on dEdxS at PRE-SELECTION (dEdxS is generally a  discriminator)
 double             GlobalMinIm      =   3.0;    // cut on dEdxM at PRE-SELECTION (dEdxM is generally an estimator    )
 double             GlobalMinTOF     =   1.0;    // cut on TOF   at PRE-SELECTION
+const int          MaxPredBins      =   6;      //The maximum number of different bins prediction is done in for any of the analyses (defines array size)
+int                PredBins         =   0;      //How many different bins the prediction is split in for analysis being run, sets how many histograms are actually initialized.
 
 // dEdx related variables, Name of dEdx estimator/discriminator to be used for selection (dEdxS) and for mass reconstruction (dEdxM)
 // as well as the range for the dEdx variable and K/C constant for mass reconstruction

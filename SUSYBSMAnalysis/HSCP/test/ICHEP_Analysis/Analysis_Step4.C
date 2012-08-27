@@ -84,25 +84,22 @@ void Analysis_Step4(std::string InputPattern)
 	  TH1D*  H_G            = (TH1D*)GetObjectFromPath(directory, ("H_G" + Suffix).c_str());
 	  TH1D*  H_H            = (TH1D*)GetObjectFromPath(directory, ("H_H" + Suffix).c_str());
 
-	  //TH1D*  H_A_Cen     = (TH1D*)GetObjectFromPath(directory, ("H_A_Cen" + Suffix).c_str());
-	  TH1D*  H_B_Cen     = (TH1D*)GetObjectFromPath(directory, ("H_B_Cen" + Suffix).c_str());
-	  //TH1D*  H_C_Cen     = (TH1D*)GetObjectFromPath(directory, ("H_C_Cen" + Suffix).c_str());
-	  //TH1D*  H_D_Cen     = (TH1D*)GetObjectFromPath(directory, ("H_D_Cen" + Suffix).c_str());
-	  //TH1D*  H_E_Cen     = (TH1D*)GetObjectFromPath(directory, ("H_E_Cen" + Suffix).c_str());
-	  TH1D*  H_F_Cen     = (TH1D*)GetObjectFromPath(directory, ("H_F_Cen" + Suffix).c_str());
-	  //TH1D*  H_G_Cen     = (TH1D*)GetObjectFromPath(directory, ("H_G_Cen" + Suffix).c_str());
-	  TH1D*  H_H_Cen     = (TH1D*)GetObjectFromPath(directory, ("H_H_Cen" + Suffix).c_str());
+          TH1D*  H_B_Binned[MaxPredBins];
+          TH1D*  H_F_Binned[MaxPredBins];
+          TH1D*  H_H_Binned[MaxPredBins];
+          TH1D*  H_P_Binned[MaxPredBins];
+          if(TypeMode==3) PredBins=6;
+	  for(int i=0; i<PredBins; i++) {
+	    string Version=Suffix;
+	    char Bin[1024];
+	    sprintf(Bin,"_%i", i);
+	    Version.append(Bin);
+	    H_B_Binned[i]            = (TH1D*)GetObjectFromPath(directory, ("H_B_Binned" + Version).c_str());
+	    H_F_Binned[i]            = (TH1D*)GetObjectFromPath(directory, ("H_F_Binned" + Version).c_str());
+	    H_H_Binned[i]            = (TH1D*)GetObjectFromPath(directory, ("H_H_Binned" + Version).c_str());
+	  }
 
-	  //TH1D*  H_A_For     = (TH1D*)GetObjectFromPath(directory, ("H_A_For" + Suffix).c_str());
-	  TH1D*  H_B_For     = (TH1D*)GetObjectFromPath(directory, ("H_B_For" + Suffix).c_str());
-	  //TH1D*  H_C_For     = (TH1D*)GetObjectFromPath(directory, ("H_C_For" + Suffix).c_str());
-	  //TH1D*  H_D_For     = (TH1D*)GetObjectFromPath(directory, ("H_D_For" + Suffix).c_str());
-	  //TH1D*  H_E_For     = (TH1D*)GetObjectFromPath(directory, ("H_E_For" + Suffix).c_str());
-	  TH1D*  H_F_For     = (TH1D*)GetObjectFromPath(directory, ("H_F_For" + Suffix).c_str());
-	  //TH1D*  H_G_For     = (TH1D*)GetObjectFromPath(directory, ("H_G_For" + Suffix).c_str());
-	  TH1D*  H_H_For     = (TH1D*)GetObjectFromPath(directory, ("H_H_For" + Suffix).c_str());
-
-	  TH3D*  Pred_EtaP      = (TH3D*)GetObjectFromPath(directory, ("Pred_EtaP" + Suffix).c_str());
+          TH3D*  Pred_EtaP      = (TH3D*)GetObjectFromPath(directory, ("Pred_EtaP" + Suffix).c_str());
 	  TH2D*  Pred_I         = (TH2D*)GetObjectFromPath(directory, ("Pred_I" + Suffix).c_str());
 	  TH2D*  Pred_TOF       = (TH2D*)GetObjectFromPath(directory, ("Pred_TOF" + Suffix).c_str());
 	  TH2D*  Pred_EtaB      = (TH2D*)GetObjectFromPath(directory, ("Pred_EtaB" + Suffix).c_str());
@@ -130,12 +127,20 @@ void Analysis_Step4(std::string InputPattern)
 
       //take data histogram to save the resulting momentum distribution
           TH1D*  H_P            = (TH1D*)GetObjectFromPath(directory, ("H_D" + Suffix).c_str())->Clone(("H_P" + Suffix).c_str());                   H_P->Reset();
-          TH1D*  H_P_Coll       = (TH1D*)H_P->Clone(("H_P_Coll" + Suffix).c_str());
-          TH1D*  H_P_Cosmic     = (TH1D*)H_P->Clone(("H_P_Cosmic" + Suffix).c_str());
+	  TH1D* H_P_Coll        = (TH1D*)H_P->Clone(("H_P_Coll" + Suffix).c_str());
+          TH1D* H_P_Cosmic      = (TH1D*)H_P->Clone(("H_P_Cosmic" + Suffix).c_str());
           TH2D*  Pred_Mass      = (TH2D*)GetObjectFromPath(directory, ("Mass" + Suffix).c_str())->Clone(("Pred_Mass" + Suffix).c_str());         Pred_Mass->Reset();
-          TH2D*  Pred_MassTOF   = (TH2D*)GetObjectFromPath(directory, ("MassTOF" + Suffix).c_str())->Clone(("Pred_MassTOF" + Suffix).c_str());  Pred_MassTOF->Reset();
-          TH2D*  Pred_MassComb  = (TH2D*)GetObjectFromPath(directory, ("MassComb" + Suffix).c_str())->Clone(("Pred_MassComb" + Suffix).c_str()); Pred_MassComb->Reset();
-          TH2D*  Pred_P         = (TH2D*)GetObjectFromPath(directory, ("RegionD_P" + Suffix).c_str())->Clone(("Pred_P" + Suffix).c_str());           Pred_P->Reset();
+	  TH2D*  Pred_MassTOF   = (TH2D*)GetObjectFromPath(directory, ("MassTOF" + Suffix).c_str())->Clone(("Pred_MassTOF" + Suffix).c_str());  Pred_MassTOF->Reset();
+	  TH2D*  Pred_MassComb  = (TH2D*)GetObjectFromPath(directory, ("MassComb" + Suffix).c_str())->Clone(("Pred_MassComb" + Suffix).c_str()); Pred_MassComb->Reset();
+	  TH2D*  Pred_P         = (TH2D*)GetObjectFromPath(directory, ("RegionD_P" + Suffix).c_str())->Clone(("Pred_P" + Suffix).c_str());           Pred_P->Reset();
+
+          for(int i=0; i<PredBins; i++) {
+            string Version=Suffix;
+            char Bin[1024];
+            sprintf(Bin,"_%i", i);
+            Version.append(Bin);
+            H_P_Binned[i]       = (TH1D*)H_P->Clone(("H_P_Binned" + Version).c_str());
+          }
 
       printf("Making prediction for %s\n",directory->GetName());
       //////////////////////////////////////////////////      MAKING THE PREDICTION
@@ -151,23 +156,19 @@ void Analysis_Step4(std::string InputPattern)
          const double& G=H_G->GetBinContent(CutIndex+1);
          const double& H=H_H->GetBinContent(CutIndex+1);
 
-       //const double& A_Cen=H_A_Cen->GetBinContent(CutIndex+1);
-	 const double& B_Cen=H_B_Cen->GetBinContent(CutIndex+1);
-	 //const double& C_Cen=H_C_Cen->GetBinContent(CutIndex+1);
-	 //const double& D_Cen=H_D_Cen->GetBinContent(CutIndex+1);
-	 //const double& E_Cen=H_E_Cen->GetBinContent(CutIndex+1);
-	 const double& F_Cen=H_F_Cen->GetBinContent(CutIndex+1);
-       //const double& G_Cen=H_G_Cen->GetBinContent(CutIndex+1);
-	 const double& H_Cen=H_H_Cen->GetBinContent(CutIndex+1);
+         double B_Binned[MaxPredBins];
+         double F_Binned[MaxPredBins];
+         double H_Binned[MaxPredBins];
+         //double P_Binned[MaxPredBins];
+         //double Perr_Binned[MaxPredBins];
 
-       //const double& A_For=H_A_For->GetBinContent(CutIndex+1);
-	 const double& B_For=H_B_For->GetBinContent(CutIndex+1);
-	 //const double& C_For=H_C_For->GetBinContent(CutIndex+1);
-	 //const double& D_For=H_D_For->GetBinContent(CutIndex+1);
-	 //const double& E_For=H_E_For->GetBinContent(CutIndex+1);
-	 const double& F_For=H_F_For->GetBinContent(CutIndex+1);
-       //const double& G_For=H_G_For->GetBinContent(CutIndex+1);
-	 const double& H_For=H_H_For->GetBinContent(CutIndex+1);
+         for(int i=0; i<PredBins; i++) {
+           B_Binned[i]=H_B_Binned[i]->GetBinContent(CutIndex+1);
+           F_Binned[i]=H_F_Binned[i]->GetBinContent(CutIndex+1);
+           H_Binned[i]=H_H_Binned[i]->GetBinContent(CutIndex+1);
+           //P_Binned[i]=0;
+           //Perr_Binned[i]=0;
+         }
 
          double P=0;
          double Perr=0;
@@ -188,12 +189,16 @@ void Analysis_Step4(std::string InputPattern)
             Perr = sqrt( (pow(B/A,2)*C) + (pow(C/A,2)*B) + (pow((B*(C)/(A*A)),2)*A) );
 	 }else if(F>0){
 	   //Prediction in Pt-TOF plane
-	   double P_Cen=((H_Cen*B_Cen)/F_Cen);
-	   double Perr_Cen = sqrt( (pow(B_Cen/F_Cen,2)*H_Cen) + (pow(H_Cen/F_Cen,2)*B_Cen) + (pow((B_Cen*(H_Cen)/(F_Cen*F_Cen)),2)*F_Cen) );
-	   double P_For=((H_For*B_For)/F_For);
-	   double Perr_For = sqrt( (pow(B_For/F_For,2)*H_For) + (pow(H_For/F_For,2)*B_For) + (pow((B_For*(H_For)/(F_For*F_For)),2)*F_For) );
-           P_Coll    = P_Cen + P_For;
-           Perr_Coll = sqrt(Perr_Cen*Perr_Cen + Perr_For*Perr_For);
+           for(int i=0; i<PredBins; i++) {
+             double P_Binned = ((H_Binned[i]*B_Binned[i])/F_Binned[i]);
+	     double Perr_Binned = (pow(B_Binned[i]/F_Binned[i],2)*H_Binned[i]) + (pow(H_Binned[i]/F_Binned[i],2)*B_Binned[i]) + (pow((B_Binned[i]*(H_Binned[i])/(F_Binned[i]*F_Binned[i])),2)*F_Binned[i]);
+
+	     H_P_Binned[i]->SetBinContent(CutIndex+1, P_Binned);
+             H_P_Binned[i]->SetBinError(CutIndex+1, sqrt(Perr_Binned));
+             P_Coll    += P_Binned;
+             Perr_Coll += Perr_Binned;
+           }
+           Perr_Coll = sqrt(Perr_Coll);
 
 	   //Predict the number of cosmics passing all cuts as number passing in dz sideband times the ratio of tracks in the sideeband
 	   //vs number in central region as determined by pure cosmic sample

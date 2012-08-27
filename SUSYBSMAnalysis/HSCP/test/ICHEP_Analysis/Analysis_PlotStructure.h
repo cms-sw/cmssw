@@ -187,23 +187,11 @@ struct stPlots {
   TH1D* H_G;
   TH1D* H_H;
 
-  TH1D* H_A_Cen;
-  TH1D* H_B_Cen;
-  TH1D* H_C_Cen;
-  TH1D* H_D_Cen;
-  TH1D* H_E_Cen;
-  TH1D* H_F_Cen;
-  TH1D* H_G_Cen;
-  TH1D* H_H_Cen;
-
-  TH1D* H_A_For;
-  TH1D* H_B_For;
-  TH1D* H_C_For;
-  TH1D* H_D_For;
-  TH1D* H_E_For;
-  TH1D* H_F_For;
-  TH1D* H_G_For;
-  TH1D* H_H_For;
+  //Prediction histograms for muon only analysis which is binned depending on eta nd number of muon stations
+  TH1D* H_B_Binned[MaxPredBins];
+  TH1D* H_D_Binned[MaxPredBins];
+  TH1D* H_F_Binned[MaxPredBins];
+  TH1D* H_H_Binned[MaxPredBins];
 
   TH1D*  HCuts_Pt;
   TH1D*  HCuts_Is;
@@ -236,23 +224,10 @@ struct stPlots {
   TH1D* H_G_Flip;
   TH1D* H_H_Flip;
 
-  TH1D* H_A_Cen_Flip;
-  TH1D* H_B_Cen_Flip;
-  TH1D* H_C_Cen_Flip;
-  TH1D* H_D_Cen_Flip;
-  TH1D* H_E_Cen_Flip;
-  TH1D* H_F_Cen_Flip;
-  TH1D* H_G_Cen_Flip;
-  TH1D* H_H_Cen_Flip;
-
-  TH1D* H_A_For_Flip;
-  TH1D* H_B_For_Flip;
-  TH1D* H_C_For_Flip;
-  TH1D* H_D_For_Flip;
-  TH1D* H_E_For_Flip;
-  TH1D* H_F_For_Flip;
-  TH1D* H_G_For_Flip;
-  TH1D* H_H_For_Flip;
+  TH1D* H_B_Binned_Flip[MaxPredBins];
+  TH1D* H_D_Binned_Flip[MaxPredBins];
+  TH1D* H_F_Binned_Flip[MaxPredBins];
+  TH1D* H_H_Binned_Flip[MaxPredBins];
 
   TH3D*  Pred_EtaP_Flip ;
   TH2D*  Pred_I_Flip    ;
@@ -516,23 +491,15 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "H_G"; st.H_G = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_G->Sumw2();
    Name = "H_H"; st.H_H = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_H->Sumw2();
 
-   Name = "H_A_Cen"; st.H_A_Cen = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_A_Cen->Sumw2();
-   Name = "H_B_Cen"; st.H_B_Cen = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_B_Cen->Sumw2();
-   Name = "H_C_Cen"; st.H_C_Cen = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_C_Cen->Sumw2();
-   Name = "H_D_Cen"; st.H_D_Cen = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_D_Cen->Sumw2();
-   Name = "H_E_Cen"; st.H_E_Cen = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_E_Cen->Sumw2();
-   Name = "H_F_Cen"; st.H_F_Cen = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_F_Cen->Sumw2();
-   Name = "H_G_Cen"; st.H_G_Cen = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_G_Cen->Sumw2();
-   Name = "H_H_Cen"; st.H_H_Cen = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_H_Cen->Sumw2();
-
-   Name = "H_A_For"; st.H_A_For = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_A_For->Sumw2();
-   Name = "H_B_For"; st.H_B_For = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_B_For->Sumw2();
-   Name = "H_C_For"; st.H_C_For = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_C_For->Sumw2();
-   Name = "H_D_For"; st.H_D_For = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_D_For->Sumw2();
-   Name = "H_E_For"; st.H_E_For = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_E_For->Sumw2();
-   Name = "H_F_For"; st.H_F_For = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_F_For->Sumw2();
-   Name = "H_G_For"; st.H_G_For = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_G_For->Sumw2();
-   Name = "H_H_For"; st.H_H_For = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_H_For->Sumw2();
+   //Initialize histograms for number of bins.  For everything but muon only PredBins=0 so no histograms created
+   for(int i=0; i<PredBins; i++) {
+     char Suffix[1024];
+     sprintf(Suffix,"_%i",i);
+     Name = "H_B_Binned"; Name.append(Suffix); st.H_B_Binned[i] = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_B_Binned[i]->Sumw2();
+     Name = "H_D_Binned"; Name.append(Suffix); st.H_D_Binned[i] = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_D_Binned[i]->Sumw2();
+     Name = "H_F_Binned"; Name.append(Suffix); st.H_F_Binned[i] = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_F_Binned[i]->Sumw2();
+     Name = "H_H_Binned"; Name.append(Suffix); st.H_H_Binned[i] = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_H_Binned[i]->Sumw2();
+   }
 
    Name = "Hist_Is"; st.Hist_Is = new TH1D(Name.c_str(), Name.c_str() ,200,0,dEdxS_UpLim); st.Hist_Is->Sumw2();
    Name = "Hist_Pt"; st.Hist_Pt = new TH1D(Name.c_str(), Name.c_str() ,200,0,PtHistoUpperBound); st.Hist_Pt->Sumw2();
@@ -563,23 +530,15 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "H_G_Flip"; st.H_G_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_G_Flip->Sumw2();
    Name = "H_H_Flip"; st.H_H_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_H_Flip->Sumw2();
 
-   Name = "H_A_Cen_Flip"; st.H_A_Cen_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_A_Cen_Flip->Sumw2();
-   Name = "H_B_Cen_Flip"; st.H_B_Cen_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_B_Cen_Flip->Sumw2();
-   Name = "H_C_Cen_Flip"; st.H_C_Cen_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_C_Cen_Flip->Sumw2();
-   Name = "H_D_Cen_Flip"; st.H_D_Cen_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_D_Cen_Flip->Sumw2();
-   Name = "H_E_Cen_Flip"; st.H_E_Cen_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_E_Cen_Flip->Sumw2();
-   Name = "H_F_Cen_Flip"; st.H_F_Cen_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_F_Cen_Flip->Sumw2();
-   Name = "H_G_Cen_Flip"; st.H_G_Cen_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_G_Cen_Flip->Sumw2();
-   Name = "H_H_Cen_Flip"; st.H_H_Cen_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_H_Cen_Flip->Sumw2();
+   for(int i=0; i<PredBins; i++) {
+     char Suffix[1024];
+     sprintf(Suffix,"_%i",i);
+     Name = "H_B_Binned_Flip"; Name.append(Suffix); st.H_B_Binned_Flip[i] = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_B_Binned_Flip[i]->Sumw2();
+     Name = "H_D_Binned_Flip"; Name.append(Suffix); st.H_D_Binned_Flip[i] = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_D_Binned_Flip[i]->Sumw2();
+     Name = "H_F_Binned_Flip"; Name.append(Suffix); st.H_F_Binned_Flip[i] = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_F_Binned_Flip[i]->Sumw2();
+     Name = "H_H_Binned_Flip"; Name.append(Suffix); st.H_H_Binned_Flip[i] = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.H_H_Binned_Flip[i]->Sumw2();
+   }
 
-   Name = "H_A_For_Flip"; st.H_A_For_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_A_For_Flip->Sumw2();
-   Name = "H_B_For_Flip"; st.H_B_For_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_B_For_Flip->Sumw2();
-   Name = "H_C_For_Flip"; st.H_C_For_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_C_For_Flip->Sumw2();
-   Name = "H_D_For_Flip"; st.H_D_For_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_D_For_Flip->Sumw2();
-   Name = "H_E_For_Flip"; st.H_E_For_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_E_For_Flip->Sumw2();
-   Name = "H_F_For_Flip"; st.H_F_For_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_F_For_Flip->Sumw2();
-   Name = "H_G_For_Flip"; st.H_G_For_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_G_For_Flip->Sumw2();
-   Name = "H_H_For_Flip"; st.H_H_For_Flip = new TH1D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip); st.H_H_For_Flip->Sumw2();
    //The following are only used to create the predicted mass spectrum.  Memory intensive so don't initialize for analyses not doing mass fits
    if(TypeMode<3) {
      Name = "Pred_I_Flip"; st.Pred_I_Flip = new TH2D(Name.c_str(), Name.c_str() ,NCuts_Flip,0,NCuts_Flip, 200,GlobalMinIm,dEdxM_UpLim); st.Pred_I_Flip->Sumw2();

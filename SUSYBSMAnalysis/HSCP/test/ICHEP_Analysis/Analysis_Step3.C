@@ -1,7 +1,7 @@
 // Original Author:  Loic Quertenmont
 
 
-namespace reco    { class Vertex; class Track; class GenParticle; class DeDxData; class MuonTimeExtra; class PFMET;}
+namespace reco    { class Vertex; class Track; class GenParticle; class DeDxData; class MuonTimeExtra; class PFMET; class HitPattern;}
 namespace susybsm { class HSCParticle; class HSCPIsolation; class MuonSegment;}
 namespace fwlite  { class ChainEvent;}
 namespace trigger { class TriggerEvent;}
@@ -62,6 +62,7 @@ bool PassSelection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedx
 void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, stPlots* st=NULL);
 double SegSep(const susybsm::HSCParticle& hscp, const fwlite::ChainEvent& ev, double& minPhi, double& minEta);
 double RescaledPt(const double& pt, const double& eta, const double& phi, const int& charge);
+int  muonStations(reco::HitPattern hitPattern);
 /////////////////////////// VARIABLE DECLARATION /////////////////////////////
 
 float Event_Weight = 1;
@@ -136,6 +137,7 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
    }else if(TypeMode==3){
      GlobalMinIs      =   -1;
      IPbound=150;
+     PredBins=6;
      //SA Muon trigger only existed for part of 2011 running
 #ifdef ANALYSIS2011
      IntegratedLuminosityBeforeTriggerChange = 0;
@@ -178,8 +180,8 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
       for(double TOF=GlobalMinTOF+0.025; TOF<1.4;TOF+=0.025){
          CutPt .push_back(Pt);   CutI  .push_back(-1);  CutTOF.push_back(TOF);
       }}
-      for(double Pt =GlobalMinPt+100 ; Pt <450;  Pt+=60){
-      for(double TOF=GlobalMinTOF-0.15; TOF>0.6;TOF-=0.05){
+      for(double Pt =GlobalMinPt+60 ; Pt <450;  Pt+=60){
+      for(double TOF=GlobalMinTOF-0.025; TOF>0.6;TOF-=0.025){
          CutPt_Flip .push_back(Pt);   CutI_Flip  .push_back(-1);  CutTOF_Flip.push_back(TOF);
       }}
    }else if(TypeMode==4){
@@ -356,6 +358,14 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    if(dedxMObj && ((TypeMode!=5 && dedxMObj->dEdx()<GlobalMinIm) || (TypeMode==5 && dedxMObj->dEdx()>GlobalMinIm)) )return false;
    if(st){st->MI   ->Fill(0.0,Event_Weight);}
 
+   //Cut on number of matched muon stations
+   int count = muonStations(track->hitPattern());
+   if(st) {
+     st->BS_MatchedStations->Fill(count, Event_Weight);  ;
+   }
+   if(TypeMode==3 && count<minMuStations) return false;
+   if(st) st->Stations->Fill(0.0, Event_Weight);
+
    if(tof){
    if(st){st->BS_MTOF ->Fill(tof->inverseBeta(),Event_Weight);}
    //This cut is no longer applied here but rather in the PassSelection part to use the region
@@ -435,7 +445,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 
      dz  = NVTrack.dz (beamSpotColl.position());
      dxy = NVTrack.dxy(beamSpotColl.position());
-     if(NVTrack.hitPattern().muonStationsWithValidHits()<minMuStations) return false;
+     if(muonStations(NVTrack.hitPattern())<minMuStations) return false;
    }
 
    double v3d = sqrt(dz*dz+dxy*dxy);
@@ -476,14 +486,6 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 
    if(std::max(0.0,track->pt())<GlobalMinPt)return false;
    if(st){st->Pterr   ->Fill(0.0,Event_Weight);}
-
-   //Cut on number of matched muon stations
-   int count=track->hitPattern().muonStationsWithValidHits();
-   if(st) {
-     st->BS_MatchedStations->Fill(count, Event_Weight);  ;
-   }
-   if(TypeMode==3 && count<minMuStations) return false;
-   if(st) st->Stations->Fill(0.0, Event_Weight);
 
    //Find distance to nearest segment on opposite side of detector
    double minPhi, minEta;
@@ -752,6 +754,13 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
             }else{                if(tof)st->CtrlIm_S1_TOF->Fill(MuonTOF, Event_Weight);
             }
 
+	    //Muon only prediction binned depending on where in the detector the track is and how many muon stations it has
+	    //Binning not used for other analyses
+	    int bin=-1;
+	    if(TypeMode==3) {
+	      if(fabs(track->eta())<DTRegion) bin=muonStations(track->hitPattern())-2;
+	      else bin=muonStations(track->hitPattern())+1;
+	    }
 
          for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
 	   if(MuonTOF<GlobalMinTOF) continue;
@@ -760,8 +769,7 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
             bool PassTOFCut = MuonTOF>=CutTOF[CutIndex];
             if(       PassTOFCut &&  PassPtCut &&  PassICut){   //Region D
                st->H_D      ->Fill(CutIndex,                Event_Weight);
-               if(fabs(track->eta())<DTRegion) st->H_D_Cen->Fill(CutIndex, Event_Weight);
-               else st->H_D_For->Fill(CutIndex, Event_Weight);
+               if(bin>-1 && bin<MaxPredBins) st->H_D_Binned[bin]->Fill(CutIndex,                Event_Weight);
                st->RegionD_P  ->Fill(CutIndex,track->p(),     Event_Weight);
                st->RegionD_I  ->Fill(CutIndex,Ih,Event_Weight);
 	       st->RegionD_Ias->Fill(CutIndex,Is,Event_Weight);
@@ -769,52 +777,41 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
 	       st->AS_Eta_RegionD->Fill(CutIndex,track->eta());
             }else if( PassTOFCut &&  PassPtCut && !PassICut){   //Region C
                st->H_C     ->Fill(CutIndex,                 Event_Weight);
-	       if(fabs(track->eta())<DTRegion) st->H_C_Cen->Fill(CutIndex, Event_Weight);
-	       else st->H_C_For->Fill(CutIndex, Event_Weight);
                if(TypeMode<2)st->Pred_EtaP  ->Fill(CutIndex,track->eta(), track->p(),     Event_Weight);
 //               Pred_TOF->Fill(CutIndex,MuonTOF,         Event_Weight);
                st->AS_Eta_RegionC->Fill(CutIndex,track->eta());
             }else if( PassTOFCut && !PassPtCut &&  PassICut){   //Region B
                st->H_B     ->Fill(CutIndex,                 Event_Weight);
-               if(fabs(track->eta())<DTRegion) st->H_B_Cen->Fill(CutIndex, Event_Weight);
-               else st->H_B_For->Fill(CutIndex, Event_Weight);
+               if(bin>-1 && bin<MaxPredBins) st->H_B_Binned[bin]->Fill(CutIndex,                Event_Weight);
                if(TypeMode<2)st->Pred_I  ->Fill(CutIndex,Ih, Event_Weight);
                if(TypeMode<2)st->Pred_EtaS->Fill(CutIndex,track->eta(),         Event_Weight);
 //               Pred_TOF->Fill(CutIndex,MuonTOF,         Event_Weight);
                st->AS_Eta_RegionB->Fill(CutIndex,track->eta());
             }else if( PassTOFCut && !PassPtCut && !PassICut){   //Region A
                st->H_A     ->Fill(CutIndex,                 Event_Weight);
-               if(fabs(track->eta())<DTRegion) st->H_A_Cen->Fill(CutIndex, Event_Weight);
-               else st->H_A_For->Fill(CutIndex, Event_Weight);
                if(TypeMode==2)st->Pred_TOF->Fill(CutIndex,MuonTOF,         Event_Weight);
                if(TypeMode<2)st->Pred_EtaB->Fill(CutIndex,track->eta(),         Event_Weight);
                if(TypeMode==2)st->Pred_EtaS2->Fill(CutIndex,track->eta(),        Event_Weight);
                st->AS_Eta_RegionA->Fill(CutIndex,track->eta());
             }else if(!PassTOFCut &&  PassPtCut &&  PassICut){   //Region H
                st->H_H   ->Fill(CutIndex,          Event_Weight);
-               if(fabs(track->eta())<DTRegion) st->H_H_Cen->Fill(CutIndex, Event_Weight);
-               else st->H_H_For->Fill(CutIndex, Event_Weight);
+               if(bin>-1 && bin<MaxPredBins) st->H_H_Binned[bin]->Fill(CutIndex,                Event_Weight);
 	       st->RegionH_Ias->Fill(CutIndex,Is,Event_Weight);
 //               Pred_P->Fill(CutIndex,track->p(),        Event_Weight);
 //               Pred_I->Fill(CutIndex,Ih,   Event_Weight);
                st->AS_Eta_RegionH->Fill(CutIndex,track->eta());
             }else if(!PassTOFCut &&  PassPtCut && !PassICut){   //Region G
                st->H_G     ->Fill(CutIndex,                 Event_Weight);
-               if(fabs(track->eta())<DTRegion) st->H_G_Cen->Fill(CutIndex, Event_Weight);
-               else st->H_G_For->Fill(CutIndex, Event_Weight);
                if(TypeMode==2)st->Pred_EtaP  ->Fill(CutIndex,track->eta(),track->p(),     Event_Weight);
                st->AS_Eta_RegionG->Fill(CutIndex,track->eta());
             }else if(!PassTOFCut && !PassPtCut &&  PassICut){   //Region F
                st->H_F     ->Fill(CutIndex,                 Event_Weight);
-               if(fabs(track->eta())<DTRegion) st->H_F_Cen->Fill(CutIndex, Event_Weight);
-               else st->H_F_For->Fill(CutIndex, Event_Weight);
+               if(bin>-1 && bin<MaxPredBins) st->H_F_Binned[bin]->Fill(CutIndex,                Event_Weight);
                if(TypeMode==2)st->Pred_I  ->Fill(CutIndex,Ih, Event_Weight);
                if(TypeMode==2)st->Pred_EtaS->Fill(CutIndex,track->eta(),         Event_Weight);
                st->AS_Eta_RegionF->Fill(CutIndex,track->eta());
             }else if(!PassTOFCut && !PassPtCut && !PassICut){   //Region E
                st->H_E     ->Fill(CutIndex,                 Event_Weight);
-               if(fabs(track->eta())<DTRegion) st->H_E_Cen->Fill(CutIndex, Event_Weight);
-               else st->H_E_For->Fill(CutIndex, Event_Weight);
                if(TypeMode==2)st->Pred_EtaB->Fill(CutIndex,track->eta(),         Event_Weight);
                st->AS_Eta_RegionE->Fill(CutIndex,track->eta());
             }
@@ -833,50 +830,38 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
 	      st->RegionD_Ias_Flip  ->Fill(CutIndex,Is,Event_Weight);
 	      st->RegionD_TOF_Flip->Fill(CutIndex,MuonTOF,        Event_Weight);
                st->H_D_Flip->Fill(CutIndex,                Event_Weight);
-               if(fabs(track->eta())<DTRegion) st->H_D_Cen_Flip->Fill(CutIndex, Event_Weight);
-               else st->H_D_For_Flip->Fill(CutIndex, Event_Weight);
+               if(bin>-1 && bin<MaxPredBins) st->H_D_Binned_Flip[bin]->Fill(CutIndex,                Event_Weight);
             }else if( PassTOFCut &&  PassPtCut && !PassICut){   //Region C
                st->H_C_Flip->Fill(CutIndex,                 Event_Weight);
-	       if(fabs(track->eta())<DTRegion) st->H_C_Cen_Flip->Fill(CutIndex, Event_Weight);
-	       else st->H_C_For_Flip->Fill(CutIndex, Event_Weight);
                if(TypeMode<2)st->Pred_EtaP_Flip->Fill(CutIndex,track->eta(), track->p(),     Event_Weight);
 //               Pred_TOF_Flip->Fill(CutIndex,MuonTOF,         Event_Weight);
             }else if( PassTOFCut && !PassPtCut &&  PassICut){   //Region B
                st->H_B_Flip->Fill(CutIndex,                 Event_Weight);
-               if(fabs(track->eta())<DTRegion) st->H_B_Cen_Flip->Fill(CutIndex, Event_Weight);
-               else st->H_B_For_Flip->Fill(CutIndex, Event_Weight);
+               if(bin>-1 && bin<MaxPredBins) st->H_B_Binned_Flip[bin]->Fill(CutIndex,                Event_Weight);
                if(TypeMode<2)st->Pred_I_Flip->Fill(CutIndex,Ih, Event_Weight);
                if(TypeMode<2)st->Pred_EtaS_Flip->Fill(CutIndex,track->eta(),         Event_Weight);
 //               Pred_TOF_Flip->Fill(CutIndex,MuonTOF,         Event_Weight);
             }else if( PassTOFCut && !PassPtCut && !PassICut){   //Region A
                st->H_A_Flip->Fill(CutIndex,                 Event_Weight);
-               if(fabs(track->eta())<DTRegion) st->H_A_Cen_Flip->Fill(CutIndex, Event_Weight);
-               else st->H_A_For_Flip->Fill(CutIndex, Event_Weight);
                if(TypeMode==2)st->Pred_TOF_Flip->Fill(CutIndex,MuonTOF,         Event_Weight);
                if(TypeMode<2)st->Pred_EtaB_Flip->Fill(CutIndex,track->eta(),         Event_Weight);
                if(TypeMode==2)st->Pred_EtaS2_Flip->Fill(CutIndex,track->eta(),        Event_Weight);
             }else if(!PassTOFCut &&  PassPtCut &&  PassICut){   //Region H
                st->H_H_Flip->Fill(CutIndex,          Event_Weight);
-               if(fabs(track->eta())<DTRegion) st->H_H_Cen_Flip->Fill(CutIndex, Event_Weight);
-               else st->H_H_For_Flip->Fill(CutIndex, Event_Weight);
+               if(bin>-1 && bin<MaxPredBins) st->H_H_Binned_Flip[bin]->Fill(CutIndex,                Event_Weight);
 	       st->RegionH_Ias_Flip  ->Fill(CutIndex,Is,Event_Weight);
 	       //               Pred_P_Flip->Fill(CutIndex,track->p(),        Event_Weight);
 	       //               Pred_I_Flip->Fill(CutIndex,Ih,   Event_Weight);
             }else if(!PassTOFCut &&  PassPtCut && !PassICut){   //Region G
                st->H_G_Flip->Fill(CutIndex,                 Event_Weight);
-               if(fabs(track->eta())<DTRegion) st->H_G_Cen_Flip->Fill(CutIndex, Event_Weight);
-               else st->H_G_For_Flip->Fill(CutIndex, Event_Weight);
                if(TypeMode==2)st->Pred_EtaP_Flip->Fill(CutIndex,track->eta(),track->p(),     Event_Weight);
             }else if(!PassTOFCut && !PassPtCut &&  PassICut){   //Region F
                st->H_F_Flip->Fill(CutIndex,                 Event_Weight);
-               if(fabs(track->eta())<DTRegion) st->H_F_Cen_Flip->Fill(CutIndex, Event_Weight);
-               else st->H_F_For_Flip->Fill(CutIndex, Event_Weight);
+               if(bin>-1 && bin<MaxPredBins) st->H_F_Binned_Flip[bin]->Fill(CutIndex,                Event_Weight);
                if(TypeMode==2)st->Pred_I_Flip->Fill(CutIndex,Ih, Event_Weight);
                if(TypeMode==2)st->Pred_EtaS_Flip->Fill(CutIndex,track->eta(),         Event_Weight);
             }else if(!PassTOFCut && !PassPtCut && !PassICut){   //Region E
                st->H_E_Flip->Fill(CutIndex,                 Event_Weight);
-               if(fabs(track->eta())<DTRegion) st->H_E_Cen_Flip->Fill(CutIndex, Event_Weight);
-               else st->H_E_For_Flip->Fill(CutIndex, Event_Weight);
                if(TypeMode==2)st->Pred_EtaB_Flip->Fill(CutIndex,track->eta(),         Event_Weight);
             }
          }
@@ -1398,4 +1383,22 @@ double SegSep(const susybsm::HSCParticle& hscp, const fwlite::ChainEvent& ev, do
     if(dR<minDr) minDr=dR;
   }
   return minDr;
+}
+
+//Counts the number of muon stations used in track fit only counting DT and CSC stations.
+int  muonStations(reco::HitPattern hitPattern) {
+  int stations[4] = { 0,0,0,0 };
+
+  for (int i=0; i<hitPattern.numberOfHits(); i++) {
+    uint32_t pattern = hitPattern.getHitPattern(i);
+    if (pattern == 0) break;
+    if (hitPattern.muonHitFilter(pattern) &&
+	(int(hitPattern.getSubStructure(pattern)) == 1 ||
+	 int(hitPattern.getSubStructure(pattern)) == 2) &&
+	hitPattern.getHitType(pattern) == 0) {
+      stations[hitPattern.getMuonStation(pattern)-1] = 1;
+    }
+  }
+
+  return stations[0]+stations[1]+stations[2]+stations[3];
 }
