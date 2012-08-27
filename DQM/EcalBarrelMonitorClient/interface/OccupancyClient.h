@@ -9,7 +9,7 @@ namespace ecaldqm {
 
   class OccupancyClient : public DQWorkerClient {
   public:
-    OccupancyClient(const edm::ParameterSet &);
+    OccupancyClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~OccupancyClient() {}
 
     void beginRun(const edm::Run &, const edm::EventSetup &);
@@ -23,15 +23,17 @@ namespace ecaldqm {
       kHotRecHitThr,
       kHotTPDigiThr,
       kQualitySummary,
-      nTargets,
-      sDigi = 0,
-      sRecHitThr,
-      sTPDigiThr,
-      nSources,
-      nMESets = nTargets + nSources
+      nMESets
     };
 
-    static void setMEData(std::vector<MEData>&);
+    enum Sources {
+      kDigi,
+      kRecHitThr,
+      kTPDigiThr,
+      nSources
+    };
+
+    static void setMEOrdering(std::map<std::string, unsigned>&);
 
   private:
     const CaloGeometry* geometry_;

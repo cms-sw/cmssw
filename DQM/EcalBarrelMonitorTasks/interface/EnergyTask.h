@@ -1,7 +1,7 @@
 #ifndef EnergyTask_H
 #define EnergyTask_H
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
+#include "DQWorkerTask.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
@@ -11,7 +11,7 @@ namespace ecaldqm {
 
   class EnergyTask : public DQWorkerTask {
   public:
-    EnergyTask(const edm::ParameterSet &, const edm::ParameterSet&);
+    EnergyTask(edm::ParameterSet const&, edm::ParameterSet const&);
     ~EnergyTask();
 
     bool filterRunType(const std::vector<short>&);
@@ -32,7 +32,7 @@ namespace ecaldqm {
       nMESets
     };
 
-    static void setMEData(std::vector<MEData>&);
+    static void setMEOrdering(std::map<std::string, unsigned>&);
 
   private:
     const CaloTopology *topology_;

@@ -1,7 +1,7 @@
 #ifndef OccupancyTask_H
 #define OccupancyTask_H
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
+#include "DQWorkerTask.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -10,7 +10,7 @@ namespace ecaldqm {
 
   class OccupancyTask : public DQWorkerTask {
   public:
-    OccupancyTask(const edm::ParameterSet &, const edm::ParameterSet&);
+    OccupancyTask(edm::ParameterSet const&, edm::ParameterSet const&);
     ~OccupancyTask();
 
     bool filterRunType(const std::vector<short>&);
@@ -45,7 +45,7 @@ namespace ecaldqm {
       nMESets
     };
 
-    static void setMEData(std::vector<MEData>&);
+    static void setMEOrdering(std::map<std::string, unsigned>&);
 
   private:
     float recHitThreshold_;

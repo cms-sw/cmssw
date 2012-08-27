@@ -2,326 +2,309 @@
 
 #include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
 
+#include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
+
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
+#include "DQM/EcalCommon/interface/MESetMulti.h"
 
 #include <cmath>
 
 namespace ecaldqm {
 
-  LaserClient::LaserClient(const edm::ParameterSet& _params) :
-    DQWorkerClient(_params, "LaserClient"),
-    laserWavelengths_(),
-    MGPAGainsPN_(),
-    minChannelEntries_(0),
-    expectedAmplitude_(),
-    amplitudeThreshold_(),
-    amplitudeRMSThreshold_(),
-    expectedTiming_(),
-    timingThreshold_(),
-    timingRMSThreshold_(),
-    expectedPNAmplitude_(),
-    pnAmplitudeThreshold_(),
-    pnAmplitudeRMSThreshold_(),
-    towerThreshold_()
+  LaserClient::LaserClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
+    DQWorkerClient(_workerParams, _commonParams, "LaserClient"),
+    wlToME_(),
+    wlGainToME_(),
+    minChannelEntries_(_workerParams.getUntrackedParameter<int>("minChanelEntries")),
+    expectedAmplitude_(0),
+    amplitudeThreshold_(0),
+    amplitudeRMSThreshold_(0),
+    expectedTiming_(0),
+    timingThreshold_(0),
+    timingRMSThreshold_(0),
+    expectedPNAmplitude_(0),
+    pnAmplitudeThreshold_(0),
+    pnAmplitudeRMSThreshold_(0)
   {
     using namespace std;
 
-    edm::ParameterSet const& commonParams(_params.getUntrackedParameterSet("Common"));
-    MGPAGainsPN_ = commonParams.getUntrackedParameter<vector<int> >("MGPAGainsPN");
+    vector<int> MGPAGainsPN(_commonParams.getUntrackedParameter<vector<int> >("MGPAGainsPN"));
+    vector<int> laserWavelengths(_commonParams.getUntrackedParameter<vector<int> >("laserWavelengths"));
 
-    edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
-    laserWavelengths_ = taskParams.getUntrackedParameter<vector<int> >("laserWavelengths");
-    minChannelEntries_ = taskParams.getUntrackedParameter<int>("minChannelEntries");
-    expectedAmplitude_ = taskParams.getUntrackedParameter<vector<double> >("expectedAmplitude");
-    amplitudeThreshold_ = taskParams.getUntrackedParameter<vector<double> >("amplitudeThreshold");
-    amplitudeRMSThreshold_ = taskParams.getUntrackedParameter<vector<double> >("amplitudeRMSThreshold");
-    expectedTiming_ = taskParams.getUntrackedParameter<vector<double> >("expectedTiming");
-    timingThreshold_ = taskParams.getUntrackedParameter<vector<double> >("timingThreshold");
-    timingRMSThreshold_ = taskParams.getUntrackedParameter<vector<double> >("timingRMSThreshold");
-    expectedPNAmplitude_ = taskParams.getUntrackedParameter<vector<double> >("expectedPNAmplitude");
-    pnAmplitudeThreshold_ = taskParams.getUntrackedParameter<vector<double> >("pnAmplitudeThreshold");
-    pnAmplitudeRMSThreshold_ = taskParams.getUntrackedParameter<vector<double> >("pnAmplitudeRMSThreshold");
-    towerThreshold_ = taskParams.getUntrackedParameter<double>("towerThreshold");
+    unsigned iMEWL(0);
+    unsigned iMEWLG(0);
+    for(vector<int>::iterator wlItr(laserWavelengths.begin()); wlItr != laserWavelengths.end(); ++wlItr){
+      if(*wlItr <= 0 || *wlItr >= 3) throw cms::Exception("InvalidConfiguration") << "Laser Wavelength" << endl;
+      wlToME_[*wlItr] = iMEWL++;
 
-    for(vector<int>::iterator wlItr(laserWavelengths_.begin()); wlItr != laserWavelengths_.end(); ++wlItr)
-      if(*wlItr <= 0 || *wlItr >= 5) throw cms::Exception("InvalidConfiguration") << "Laser Wavelength" << endl;
+      for(vector<int>::iterator gainItr(MGPAGainsPN.begin()); gainItr != MGPAGainsPN.end(); ++gainItr){
+        if(*gainItr != 1 && *gainItr != 16) throw cms::Exception("InvalidConfiguration") << "PN diode gain" << endl;
+        wlGainToME_[make_pair(*wlItr, *gainItr)] = iMEWLG++;
+      }
+    }
 
-    for(vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr)
-      if(*gainItr != 1 && *gainItr != 16) throw cms::Exception("InvalidConfiguration") << "PN diode gain" << endl;
-
-    if(expectedAmplitude_.size() != nWL ||
-       amplitudeThreshold_.size() != nWL ||
-       amplitudeRMSThreshold_.size() != nWL ||
-       expectedTiming_.size() != nWL ||
-       timingThreshold_.size() != nWL ||
-       timingRMSThreshold_.size() != nWL ||
-       expectedPNAmplitude_.size() != nWL * nPNGain ||
-       pnAmplitudeThreshold_.size() != nWL * nPNGain ||
-       pnAmplitudeRMSThreshold_.size() != nWL * nPNGain)
-      throw cms::Exception("InvalidConfiguration") << "Size of quality cut parameter vectors" << endl;
-
-    map<string, string> replacements;
     stringstream ss;
 
-    for(vector<int>::iterator wlItr(laserWavelengths_.begin()); wlItr != laserWavelengths_.end(); ++wlItr){
+    expectedAmplitude_.resize(iMEWL);
+    amplitudeThreshold_.resize(iMEWL);
+    amplitudeRMSThreshold_.resize(iMEWL);
+    expectedTiming_.resize(iMEWL);
+    timingThreshold_.resize(iMEWL);
+    timingRMSThreshold_.resize(iMEWL);
+
+    for(map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr){
       ss.str("");
-      ss << *wlItr;
-      replacements["wl"] = ss.str();
+      ss << "L" << wlItr->first;
 
-      unsigned offset(*wlItr - 1);
+      expectedAmplitude_[wlItr->second] = _workerParams.getUntrackedParameter<double>("expectedAmplitude" + ss.str());
+      amplitudeThreshold_[wlItr->second] = _workerParams.getUntrackedParameter<double>("amplitudeThreshold" + ss.str());
+      amplitudeRMSThreshold_[wlItr->second] = _workerParams.getUntrackedParameter<double>("amplitudeRMSThreshold" + ss.str());
+      expectedTiming_[wlItr->second] = _workerParams.getUntrackedParameter<double>("expectedTiming" + ss.str());
+      timingThreshold_[wlItr->second] = _workerParams.getUntrackedParameter<double>("timingThreshold" + ss.str());
+      timingRMSThreshold_[wlItr->second] = _workerParams.getUntrackedParameter<double>("timingRMSThreshold" + ss.str());
+    }
 
-      sources_[sAmplitude + offset]->formName(replacements);
-      sources_[sTiming + offset]->formName(replacements);
+    expectedPNAmplitude_.resize(iMEWLG);
+    pnAmplitudeThreshold_.resize(iMEWLG);
+    pnAmplitudeRMSThreshold_.resize(iMEWLG);
 
-      for(vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr){
+    for(map<pair<int, int>, unsigned>::iterator wlGainItr(wlGainToME_.begin()); wlGainItr != wlGainToME_.end(); ++wlGainItr){
+      ss.str("");
+      ss << "L" << wlGainItr->first.first << "G" << wlGainItr->first.second;
+
+      expectedPNAmplitude_[wlGainItr->second] = _workerParams.getUntrackedParameter<double>("expectedPNAmplitude" + ss.str());
+      pnAmplitudeThreshold_[wlGainItr->second] = _workerParams.getUntrackedParameter<double>("pnAmplitudeThreshold" + ss.str());
+      pnAmplitudeRMSThreshold_[wlGainItr->second] = _workerParams.getUntrackedParameter<double>("pnAmplitudeRMSThreshold" + ss.str());
+    }
+
+    map<string, string> replacements;
+
+    unsigned apdPlots[] = {kQuality, kAmplitudeMean, kAmplitudeRMS, kTimingMean, kTimingRMS, kQualitySummary, kPNQualitySummary};
+    for(unsigned iS(0); iS < sizeof(apdPlots) / sizeof(unsigned); ++iS){
+      unsigned plot(apdPlots[iS]);
+      MESet* temp(MEs_[plot]);
+      MESetMulti* meSet(new MESetMulti(*temp, iMEWL));
+
+      for(map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr){
+        meSet->use(wlItr->second);
+
+        ss.str("");
+        ss << wlItr->first;
+        replacements["wl"] = ss.str();
+
+        meSet->formPath(replacements);
+      }
+
+      MEs_[plot] = meSet;
+      delete temp;
+    }
+
+    unsigned pnPlots[] = {kPNAmplitudeMean, kPNAmplitudeRMS};
+    for(unsigned iS(0); iS < sizeof(pnPlots) / sizeof(unsigned); ++iS){
+      unsigned plot(pnPlots[iS]);
+      MESet* temp(MEs_[plot]);
+      MESetMulti* meSet(new MESetMulti(*temp, iMEWLG));
+
+      for(map<pair<int, int>, unsigned>::iterator wlGainItr(wlGainToME_.begin()); wlGainItr != wlGainToME_.end(); ++wlGainItr){
+        meSet->use(wlGainItr->second);
+
+        ss.str("");
+        ss << wlGainItr->first.first;
+        replacements["wl"] = ss.str();
+
 	ss.str("");
-	ss << *gainItr;
+	ss << wlGainItr->first.second;
 	replacements["pngain"] = ss.str();
 
-	offset = (*wlItr - 1) * nPNGain + (*gainItr == 1 ? 0 : 1);
-
-	sources_[sPNAmplitude + offset]->formName(replacements);
+        meSet->formPath(replacements);
       }
+
+      MEs_[plot] = meSet;
+      delete temp;
     }
 
-    BinService::AxisSpecs axis;
+    unsigned apdSources[] = {kAmplitude, kTiming};
+    for(unsigned iS(0); iS < sizeof(apdSources) / sizeof(unsigned); ++iS){
+      unsigned plot(apdSources[iS]);
+      MESet const* temp(sources_[plot]);
+      MESetMulti const* meSet(new MESetMulti(*temp, iMEWL));
 
-    for(vector<int>::iterator wlItr(laserWavelengths_.begin()); wlItr != laserWavelengths_.end(); ++wlItr){
-      ss.str("");
-      ss << *wlItr;
-      replacements["wl"] = ss.str();
+      for(map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr){
+        meSet->use(wlItr->second);
 
-      unsigned offset(*wlItr - 1);
+        ss.str("");
+        ss << wlItr->first;
+        replacements["wl"] = ss.str();
 
-      MEs_[kQuality + offset]->formName(replacements);
-      MEs_[kQualitySummary + offset]->formName(replacements);
-      MEs_[kAmplitudeMean + offset]->formName(replacements);
-      MEs_[kAmplitudeRMS + offset]->formName(replacements);
-      MEs_[kTimingMean + offset]->formName(replacements);
-      MEs_[kTimingRMS + offset]->formName(replacements);
-      MEs_[kPNQualitySummary + offset]->formName(replacements);
+        meSet->formPath(replacements);
+      }
 
-      for(vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr){
+      sources_[plot] = meSet;
+      delete temp;
+    }
+
+    unsigned pnSources[] = {kPNAmplitude};
+    for(unsigned iS(0); iS < sizeof(pnSources) / sizeof(unsigned); ++iS){
+      unsigned plot(pnSources[iS]);
+      MESet const* temp(sources_[plot]);
+      MESetMulti const* meSet(new MESetMulti(*temp, iMEWLG));
+
+      for(map<pair<int, int>, unsigned>::iterator wlGainItr(wlGainToME_.begin()); wlGainItr != wlGainToME_.end(); ++wlGainItr){
+        meSet->use(wlGainItr->second);
+
+        ss.str("");
+        ss << wlGainItr->first.first;
+        replacements["wl"] = ss.str();
+
 	ss.str("");
-	ss << *gainItr;
+	ss << wlGainItr->first.second;
 	replacements["pngain"] = ss.str();
 
-	offset = (*wlItr - 1) * nPNGain + (*gainItr == 1 ? 0 : 1);
-
-	MEs_[kPNAmplitudeMean + offset]->formName(replacements);
-	MEs_[kPNAmplitudeRMS + offset]->formName(replacements);
+        meSet->formPath(replacements);
       }
-    }
-  }
 
-  void
-  LaserClient::initialize()
-  {
-    initialized_ = true;
-
-    for(std::vector<int>::iterator wlItr(laserWavelengths_.begin()); wlItr != laserWavelengths_.end(); ++wlItr){
-      unsigned offset(*wlItr - 1);
-
-      initialized_ &= sources_[sAmplitude + offset]->retrieve();
-      initialized_ &= sources_[sTiming + offset]->retrieve();
-
-      for(std::vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr){
-	offset = (*wlItr - 1) * nPNGain + (*gainItr == 1 ? 0 : 1);
-
-	initialized_ &= sources_[sPNAmplitude + offset]->retrieve();
-      }
-    }
-  }
-
-  void
-  LaserClient::bookMEs()
-  {
-    for(std::vector<int>::iterator wlItr(laserWavelengths_.begin()); wlItr != laserWavelengths_.end(); ++wlItr){
-      unsigned offset(*wlItr - 1);
-
-      MEs_[kQuality + offset]->book();
-      MEs_[kQualitySummary + offset]->book();
-      MEs_[kAmplitudeMean + offset]->book();
-      MEs_[kAmplitudeRMS + offset]->book();
-      MEs_[kTimingMean + offset]->book();
-      MEs_[kTimingRMS + offset]->book();
-      MEs_[kPNQualitySummary + offset]->book();
-
-      for(std::vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr){
-	offset = (*wlItr - 1) * nPNGain + (*gainItr == 1 ? 0 : 1);
-
-	MEs_[kPNAmplitudeMean + offset]->book();
-	MEs_[kPNAmplitudeRMS + offset]->book();
-      }
+      sources_[plot] = meSet;
+      delete temp;
     }
   }
 
   void
   LaserClient::beginRun(const edm::Run &, const edm::EventSetup &)
   {
-    for(std::vector<int>::iterator wlItr(laserWavelengths_.begin()); wlItr != laserWavelengths_.end(); ++wlItr){
-      unsigned offset(*wlItr - 1);
-      MEs_[kQuality + offset]->resetAll(-1.);
-      MEs_[kQualitySummary + offset]->resetAll(-1.);
+    for(unsigned iME(0); iME < wlToME_.size(); ++iME){
+      static_cast<MESetMulti*>(MEs_[kQuality])->use(iME);
+      static_cast<MESetMulti*>(MEs_[kQualitySummary])->use(iME);
+      static_cast<MESetMulti*>(MEs_[kPNQualitySummary])->use(iME);
 
-      for(std::vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr){
-	offset = (*wlItr - 1) * nPNGain + (*gainItr == 1 ? 0 : 1);
-	MEs_[kPNQualitySummary + offset]->resetAll(-1.);
-      }
+      MEs_[kQuality]->resetAll(-1.);
+      MEs_[kQualitySummary]->resetAll(-1.);
+      MEs_[kPNQualitySummary]->resetAll(-1.);
     }
   }
 
   void
   LaserClient::producePlots()
   {
-    using namespace std;
+    uint32_t mask(1 << EcalDQMStatusHelper::LASER_MEAN_ERROR |
+                  1 << EcalDQMStatusHelper::LASER_RMS_ERROR |
+                  1 << EcalDQMStatusHelper::LASER_TIMING_MEAN_ERROR |
+                  1 << EcalDQMStatusHelper::LASER_TIMING_RMS_ERROR);
 
-    for(vector<int>::iterator wlItr(laserWavelengths_.begin()); wlItr != laserWavelengths_.end(); ++wlItr){
+    for(std::map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr){
+      static_cast<MESetMulti*>(MEs_[kQuality])->use(wlItr->second);
+      static_cast<MESetMulti*>(MEs_[kQualitySummary])->use(wlItr->second);
+      static_cast<MESetMulti*>(MEs_[kAmplitudeMean])->use(wlItr->second);
+      static_cast<MESetMulti*>(MEs_[kAmplitudeRMS])->use(wlItr->second);
+      static_cast<MESetMulti*>(MEs_[kTimingMean])->use(wlItr->second);
+      static_cast<MESetMulti*>(MEs_[kTimingRMS])->use(wlItr->second);
 
-      unsigned offset(*wlItr - 1);
+      static_cast<MESetMulti const*>(sources_[kAmplitude])->use(wlItr->second);
+      static_cast<MESetMulti const*>(sources_[kTiming])->use(wlItr->second);
 
-      MEs_[kQuality + offset]->reset(2.);
-      MEs_[kQualitySummary + offset]->reset(2.);
-      MEs_[kPNQualitySummary + offset]->reset(2.);
+      MEs_[kAmplitudeMean]->reset();
+      MEs_[kAmplitudeRMS]->reset();
+      MEs_[kTimingMean]->reset();
+      MEs_[kTimingRMS]->reset();
 
-      MEs_[kAmplitudeMean + offset]->reset();
-      MEs_[kAmplitudeRMS + offset]->reset();
-      MEs_[kTimingMean + offset]->reset();
-      MEs_[kTimingRMS + offset]->reset();
+      MESet::iterator qEnd(MEs_[kQuality]->end());
 
-      for(vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr){
-	unsigned suboffset((*wlItr - 1) * nPNGain + (*gainItr == 1 ? 0 : 1));
+      MESet::const_iterator tItr(sources_[kTiming]);
+      MESet::const_iterator aItr(sources_[kAmplitude]);
+      for(MESet::iterator qItr(MEs_[kQuality]->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
-	MEs_[kPNAmplitudeMean + suboffset]->reset();
-	MEs_[kPNAmplitudeRMS + suboffset]->reset();
+        DetId id(qItr->getId());
+
+        aItr = qItr;
+
+        float aEntries(aItr->getBinEntries());
+
+        if(aEntries < minChannelEntries_){
+          qItr->setBinContent(maskQuality_(qItr, mask, 2));
+          continue;
+        }
+
+        float aMean(aItr->getBinContent());
+        float aRms(aItr->getBinError() * sqrt(aEntries));
+
+        MEs_[kAmplitudeMean]->fill(id, aMean);
+        MEs_[kAmplitudeRMS]->fill(id, aRms);
+
+        tItr = qItr;
+
+        float tEntries(tItr->getBinEntries());
+
+        if(tEntries < minChannelEntries_) continue;
+
+        float tMean(tItr->getBinContent());
+        float tRms(tItr->getBinError() * sqrt(tEntries));
+
+        MEs_[kTimingMean]->fill(id, tMean);
+        MEs_[kTimingRMS]->fill(id, tRms);
+
+        if(abs(aMean - expectedAmplitude_[wlItr->second]) > amplitudeThreshold_[wlItr->second] || aRms > amplitudeRMSThreshold_[wlItr->second] ||
+           abs(tMean - expectedTiming_[wlItr->second]) > timingThreshold_[wlItr->second] || tRms > timingRMSThreshold_[wlItr->second])
+          qItr->setBinContent(maskQuality_(qItr, mask, 0));
+        else
+          qItr->setBinContent(maskQuality_(qItr, mask, 1));
+
       }
 
-      for(unsigned dccid(1); dccid <= 54; dccid++){
+      towerAverage_(kQualitySummary, kQuality, 0.5);
+    }
 
-	for(unsigned tower(1); tower <= nSuperCrystals(dccid); tower++){
-	  std::vector<DetId> ids(getElectronicsMap()->dccTowerConstituents(dccid, tower));
+    for(std::map<std::pair<int, int>, unsigned>::iterator wlGainItr(wlGainToME_.begin()); wlGainItr != wlGainToME_.end(); ++wlGainItr){
+      static_cast<MESetMulti*>(MEs_[kPNAmplitudeMean])->use(wlGainItr->second);
+      static_cast<MESetMulti*>(MEs_[kPNAmplitudeRMS])->use(wlGainItr->second);
+      static_cast<MESetMulti*>(MEs_[kPNQualitySummary])->use(wlToME_[wlGainItr->first.first]);
 
-	  if(ids.size() == 0) continue;
+      static_cast<MESetMulti const*>(sources_[kPNAmplitude])->use(wlGainItr->second);
 
-	  float nBad(0.);
+      MEs_[kPNAmplitudeMean]->reset();
+      MEs_[kPNAmplitudeRMS]->reset();
 
-	  for(std::vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr){
-	    float aEntries(sources_[sAmplitude + offset]->getBinEntries(*idItr));
+      MESet::const_iterator aEnd(sources_[kPNAmplitude]->end());
+      for(MESet::const_iterator aItr(sources_[kPNAmplitude]->beginChannel()); aItr != aEnd; aItr.toNextChannel()){
 
-	    if(aEntries < minChannelEntries_) continue;
+        EcalPnDiodeDetId id(aItr->getId());
 
-	    float aMean(sources_[sAmplitude + offset]->getBinContent(*idItr));
-	    float aRms(sources_[sAmplitude + offset]->getBinError(*idItr) * std::sqrt(aEntries));
+        float pEntries(aItr->getBinEntries());
 
-	    MEs_[kAmplitudeMean + offset]->fill(*idItr, aMean);
-	    MEs_[kAmplitudeRMS + offset]->fill(*idItr, aRms);
+        if(pEntries < minChannelEntries_){
+          MEs_[kPNQualitySummary]->setBinContent(id, maskQuality_(kPNQualitySummary, id, mask, 2));
+          continue;
+        }
 
-	    float tEntries(sources_[sTiming + offset]->getBinEntries(*idItr));
+        float pMean(aItr->getBinContent());
+        float pRms(aItr->getBinError() * sqrt(pEntries));
 
-	    if(tEntries < minChannelEntries_) continue;
+        MEs_[kPNAmplitudeMean]->fill(id, pMean);
+        MEs_[kPNAmplitudeRMS]->fill(id, pRms);
 
-	    float tMean(sources_[sTiming + offset]->getBinContent(*idItr));
-	    float tRms(sources_[sTiming + offset]->getBinError(*idItr) * std::sqrt(tEntries));
-
-	    MEs_[kTimingMean + offset]->fill(*idItr, tMean);
-	    MEs_[kTimingRMS + offset]->fill(*idItr, tRms);
-
-	    if(std::abs(aMean - expectedAmplitude_[offset]) > amplitudeThreshold_[offset] || aRms > amplitudeRMSThreshold_[offset] ||
-	       std::abs(tMean - expectedTiming_[offset]) > timingThreshold_[offset] || tRms > timingRMSThreshold_[offset]){
-	      MEs_[kQuality + offset]->setBinContent(*idItr, 0.);
-	      nBad += 1.;
-	    }
-	    else
-	      MEs_[kQuality + offset]->setBinContent(*idItr, 1.);
-	  }
-
-	  if(nBad / ids.size() > towerThreshold_)
-	    MEs_[kQualitySummary + offset]->setBinContent(ids[0], 0.);
-	  else
-	    MEs_[kQualitySummary + offset]->setBinContent(ids[0], 1.);
-	}
-
-	unsigned subdet;
-	if(dccid <= 9 || dccid >= 46) subdet = EcalEndcap;
-	else subdet = EcalBarrel;
-
-	for(unsigned pn(1); pn <= 10; pn++){
-	  EcalPnDiodeDetId pnid(subdet, dccid, pn);
-
-	  bool bad(false);
-	  for(vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr){
-	    unsigned suboffset((*wlItr - 1) * nPNGain + (*gainItr == 1 ? 0 : 1));
-
-	    float pEntries(sources_[sPNAmplitude + suboffset]->getBinEntries(pnid));
-
-	    if(pEntries < minChannelEntries_) continue;
-
-	    float pMean(sources_[sPNAmplitude + suboffset]->getBinContent(pnid));
-	    float pRms(sources_[sPNAmplitude + suboffset]->getBinError(pnid) * std::sqrt(pEntries));
-
-	    MEs_[kPNAmplitudeMean + suboffset]->fill(pnid, pMean);
-	    MEs_[kPNAmplitudeRMS + suboffset]->fill(pnid, pRms);
-
-	    if(std::abs(pMean - expectedPNAmplitude_[suboffset]) > pnAmplitudeThreshold_[suboffset] || pRms > pnAmplitudeRMSThreshold_[suboffset])
-	      bad = true;
-	  }
-
-	  if(bad)
-	    MEs_[kPNQualitySummary + offset]->setBinContent(pnid, 0.);
-	  else
-	    MEs_[kPNQualitySummary + offset]->setBinContent(pnid, 1.);
-	}
-
+        if(abs(pMean - expectedPNAmplitude_[wlGainItr->second]) > pnAmplitudeThreshold_[wlGainItr->second] || pRms > pnAmplitudeRMSThreshold_[wlGainItr->second])
+          MEs_[kPNQualitySummary]->setBinContent(id, maskQuality_(kPNQualitySummary, id, mask, 0));
+        else
+          MEs_[kPNQualitySummary]->setBinContent(id, maskQuality_(kPNQualitySummary, id, mask, 1));
       }
     }
   }
 
   /*static*/
   void
-  LaserClient::setMEData(std::vector<MEData>& _data)
+  LaserClient::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
   {
-    BinService::AxisSpecs axis;
+    _nameToIndex["Quality"] = kQuality;
+    _nameToIndex["AmplitudeMean"] = kAmplitudeMean;
+    _nameToIndex["AmplitudeRMS"] = kAmplitudeRMS;
+    _nameToIndex["TimingMean"] = kTimingMean;
+    _nameToIndex["TimingRMS"] = kTimingRMS;
+    _nameToIndex["PNAmplitudeMean"] = kPNAmplitudeMean;
+    _nameToIndex["PNAmplitudeRMS"] = kPNAmplitudeRMS;
+    _nameToIndex["QualitySummary"] = kQualitySummary;
+    _nameToIndex["PNQualitySummary"] = kPNQualitySummary;
 
-    for(unsigned iWL(0); iWL < nWL; iWL++){
-      _data[kQuality + iWL] = MEData("Quality", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
-
-      axis.nbins = 100;
-      axis.low = 0.;
-      axis.high = 4096.;
-      _data[kAmplitudeMean + iWL] = MEData("AmplitudeMean", BinService::kSM, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
-
-      axis.low = 0.;
-      axis.high = 400.;
-      _data[kAmplitudeRMS + iWL] = MEData("AmplitudeRMS", BinService::kSM, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
-
-      axis.low = 3.5;
-      axis.high = 5.5;
-      _data[kTimingMean + iWL] = MEData("TimingMean", BinService::kSM, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
-
-      axis.low = 0.;
-      axis.high = 0.5;
-      _data[kTimingRMS + iWL] = MEData("TimingRMS", BinService::kSM, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
-
-      _data[kQualitySummary + iWL] = MEData("QualitySummary", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
-      _data[kPNQualitySummary + iWL] = MEData("PNQualitySummary", BinService::kMEM, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
-
-      _data[sAmplitude + iWL + nTargets] = MEData("Amplitude");
-      _data[sTiming + iWL + nTargets] = MEData("Timing");
-
-      for(unsigned iPNGain(0); iPNGain < nPNGain; iPNGain++){
-	unsigned offset(iWL * nPNGain + iPNGain);
-
-	axis.low = 0.;
-	axis.high = 4096.;
-	_data[kPNAmplitudeMean + offset] = MEData("PNAmplitudeMean", BinService::kSMMEM, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
-
-	axis.low = 0.;
-	axis.high = 200.;
-	_data[kPNAmplitudeRMS + offset] = MEData("PNAmplitudeRMS", BinService::kSMMEM, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
-
-        _data[sPNAmplitude + offset + nTargets] = MEData("PNAmplitude");
-      }
-    }
+    _nameToIndex["Amplitude"] = kAmplitude;
+    _nameToIndex["Timing"] = kTiming;
+    _nameToIndex["PNAmplitude"] = kPNAmplitude;
   }
 
   DEFINE_ECALDQM_WORKER(LaserClient);

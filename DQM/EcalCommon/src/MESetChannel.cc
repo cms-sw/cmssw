@@ -4,26 +4,58 @@
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
 
 #include <limits>
+#include <iomanip>
 
 namespace ecaldqm
 {
   const unsigned maxTableSize(100);
 
-  MESetChannel::MESetChannel(MEData const& _data) :
-    MESet(_data),
+  MESetChannel::MESetChannel(std::string const& _fullPath, BinService::ObjectType _otype, BinService::BinningType _btype, MonitorElement::Kind _kind) :
+    MESet(_fullPath, _otype, _btype, _kind),
     meTable_()
   {
-    switch(data_->kind){
+    switch(kind_){
     case MonitorElement::DQM_KIND_TH1F:
     case MonitorElement::DQM_KIND_TPROFILE:
       break;
     default:
       throw_("Unsupported MonitorElement kind");
     }
+
+    switch(btype_){
+    case BinService::kCrystal:
+    case BinService::kTriggerTower:
+    case BinService::kSuperCrystal:
+    case BinService::kTCC:
+    case BinService::kDCC:
+      break;
+    default:
+      throw_("MESetChannel configured with wrong binning type");
+    }
+  }
+
+  MESetChannel::MESetChannel(MESetChannel const& _orig) :
+    MESet(_orig),
+    meTable_(_orig.meTable_)
+  {
   }
 
   MESetChannel::~MESetChannel()
   {
+  }
+
+  MESet&
+  MESetChannel::operator=(MESet const& _rhs)
+  {
+    MESetChannel const* pRhs(dynamic_cast<MESetChannel const*>(&_rhs));
+    if(pRhs) meTable_ = pRhs->meTable_;
+    return MESet::operator=(_rhs);
+  }
+
+  MESet*
+  MESetChannel::clone() const
+  {
+    return new MESetChannel(*this);
   }
 
   void
@@ -270,7 +302,7 @@ namespace ecaldqm
     for(unsigned iME(0); iME < nME; iME++){
       mes_[iME]->setBinContent(1, _content);
       mes_[iME]->setBinError(1, _err);
-      if(data_->kind == MonitorElement::DQM_KIND_TPROFILE)
+      if(kind_ == MonitorElement::DQM_KIND_TPROFILE)
 	mes_[iME]->setBinEntries(1, _entries);
     }
   }
@@ -298,10 +330,7 @@ namespace ecaldqm
   unsigned
   MESetChannel::preparePlot_(uint32_t _rawId) const
   {
-    if(_rawId == 0){
-      std::cout << "null id" << std::endl;
-      return -1;
-    }
+    if(_rawId == 0) return -1;
 
     std::map<uint32_t, unsigned>::iterator tableItr(meTable_.find(_rawId));
     if(tableItr == meTable_.end()){
@@ -310,12 +339,12 @@ namespace ecaldqm
         return -1;
       }
 
-      std::string name(binService_->channelName(_rawId, data_->btype));
+      std::string name(binService_->channelName(_rawId, btype_));
       std::string pwd(dqmStore_->pwd());
       dqmStore_->setCurrentFolder(dir_);
 
       MonitorElement* me(0);
-      if(data_->kind == MonitorElement::DQM_KIND_TH1F)
+      if(kind_ == MonitorElement::DQM_KIND_TH1F)
         me = dqmStore_->book1D(name, name, 1, 0., 1.);
       else
         me = dqmStore_->bookProfile(name, name, 1, 0., 1., -std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
@@ -352,40 +381,42 @@ namespace ecaldqm
   {
     int subdet(_id.subdetId());
 
-    switch(data_->btype){
+    switch(btype_){
     case BinService::kCrystal:
-      if(isSingleChannelId(_id)) return _id.rawId();
-      else break;
+      if(isCrystalId(_id)) return getElectronicsMap()->getElectronicsId(_id).rawId();
+      break;
 
     case BinService::kTriggerTower:
-      if(subdet == EcalTriggerTower) return _id.rawId();
-      else if(isCrystalId(_id)) return getTrigTowerMap()->towerOf(_id).rawId();
-      else break;
+      if(subdet == EcalTriggerTower){
+        std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(EcalTrigTowerDetId(_id)));
+        if(ids.size() > 0)
+          return getElectronicsMap()->getTriggerElectronicsId(ids[0]).rawId();
+      }
+      else if(isCrystalId(_id)) return getElectronicsMap()->getTriggerElectronicsId(_id).rawId();
+      break;
 
     case BinService::kSuperCrystal:
-      if(subdet == EcalBarrel) return EBDetId(_id).tower().rawId();
-      else if(isCrystalId(_id)) return EEDetId(_id).sc().rawId();
-      else if(isEcalScDetId(_id)) return _id.rawId();
-      else if(subdet == EcalTriggerTower && !isEndcapTTId(_id)) return _id.rawId();
-      else break;
+      if(isCrystalId(_id)) return getElectronicsMap()->getElectronicsId(_id).rawId();
+      else if(isEcalScDetId(_id)){
+        std::pair<int, int> dccsc(getElectronicsMap()->getDCCandSC(EcalScDetId(_id)));
+        return EcalElectronicsId(dccsc.first, dccsc.second, 1, 1).rawId();
+      }
+      else if(subdet == EcalTriggerTower && !isEndcapTTId(_id)){
+        std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(EcalTrigTowerDetId(_id)));
+        if(ids.size() > 0)
+          return getElectronicsMap()->getElectronicsId(ids[0]).rawId();
+      }
+      break;
 
     case BinService::kTCC:
-      if(subdet == EcalBarrel) return getElectronicsMap()->TCCid(EBDetId(_id)) + BinService::nDCC;
-      else if(subdet == EcalTriggerTower) return getElectronicsMap()->TCCid(EcalTrigTowerDetId(_id)) + BinService::nDCC;
-      else if(isCrystalId(_id)) return getElectronicsMap()->getTriggerElectronicsId(_id).tccId() + BinService::nDCC;
-      else break;
+      return tccId(_id) + BinService::nDCC;
 
     case BinService::kDCC:
-      if(subdet == EcalBarrel) return getElectronicsMap()->DCCid(EBDetId(_id));
-      else if(subdet == EcalTriggerTower) return getElectronicsMap()->DCCid(EcalTrigTowerDetId(_id));
-      else if(isCrystalId(_id)) return getElectronicsMap()->getElectronicsId(_id).dccId();
-      else break;
+      return dccId(_id);
 
     default:
       break;
     }
-
-    throw_("MESetChannel configured with wrong binning type");
 
     return 0;
   }
@@ -393,7 +424,7 @@ namespace ecaldqm
   uint32_t
   MESetChannel::getIndex_(EcalElectronicsId const& _id) const
   {
-    switch(data_->btype){
+    switch(btype_){
     case BinService::kCrystal:
       return _id.rawId();
 
@@ -407,7 +438,7 @@ namespace ecaldqm
       return EcalElectronicsId(_id.dccId(), _id.towerId(), 1, 1).rawId();
 
     case BinService::kTCC:
-      return getElectronicsMap()->getTriggerElectronicsId(_id).tccId() + BinService::nDCC;
+      return tccId(_id) + BinService::nDCC;
 
     case BinService::kDCC:
       return _id.dccId();
@@ -415,8 +446,6 @@ namespace ecaldqm
     default:
       break;
     }
-
-    throw_("MESetChannel configured with wrong binning type");
 
     return 0;
   }

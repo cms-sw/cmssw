@@ -2,26 +2,21 @@
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
+#include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
+
 #include <cmath>
 
 namespace ecaldqm {
 
-  TimingClient::TimingClient(const edm::ParameterSet& _params) :
-    DQWorkerClient(_params, "TimingClient"),
-    expectedMean_(0.),
-    meanThreshold_(0.),
-    rmsThreshold_(0.),
-    minChannelEntries_(0),
-    minTowerEntries_(0),
-    tailPopulThreshold_(0.)
+  TimingClient::TimingClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
+    DQWorkerClient(_workerParams, _commonParams, "TimingClient"),
+    expectedMean_(_workerParams.getUntrackedParameter<double>("expectedMean")),
+    meanThreshold_(_workerParams.getUntrackedParameter<double>("meanThreshold")),
+    rmsThreshold_(_workerParams.getUntrackedParameter<double>("rmsThreshold")),
+    minChannelEntries_(_workerParams.getUntrackedParameter<int>("minChannelEntries")),
+    minTowerEntries_(_workerParams.getUntrackedParameter<int>("minTowerEntries")),
+    tailPopulThreshold_(_workerParams.getUntrackedParameter<double>("tailPopulThreshold"))
   {
-    edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
-    expectedMean_ = taskParams.getUntrackedParameter<double>("expectedMean");
-    meanThreshold_ = taskParams.getUntrackedParameter<double>("meanThreshold");
-    rmsThreshold_ = taskParams.getUntrackedParameter<double>("rmsThreshold");
-    minChannelEntries_ = taskParams.getUntrackedParameter<int>("minChannelEntries");
-    minTowerEntries_ = taskParams.getUntrackedParameter<int>("minTowerEntries");
-    tailPopulThreshold_ = taskParams.getUntrackedParameter<double>("tailPopulThreshold");
   }
 
   void
@@ -30,7 +25,7 @@ namespace ecaldqm {
     DQWorker::bookMEs();
 
     MEs_[kQuality]->resetAll(-1.);
-    MEs_[kRMS]->resetAll(-1.);
+    MEs_[kRMSMap]->resetAll(-1.);
     MEs_[kQualitySummary]->resetAll(-1.);
   }
 
@@ -41,7 +36,6 @@ namespace ecaldqm {
 
     MEs_[kMeanSM]->reset();
     MEs_[kMeanAll]->reset();
-    MEs_[kRMS]->reset(-1.);
     MEs_[kRMSAll]->reset();
     MEs_[kProjEta]->reset();
     MEs_[kProjPhi]->reset();
@@ -50,70 +44,108 @@ namespace ecaldqm {
 
     uint32_t mask(1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING);
 
-    for(unsigned dccid(1); dccid <= 54; dccid++){
+    MESet::iterator qEnd(MEs_[kQuality]->end());
 
-      for(unsigned tower(1); tower <= nSuperCrystals(dccid); tower++){
-	vector<DetId> ids(getElectronicsMap()->dccTowerConstituents(dccid, tower));
+    MESet::iterator rItr(MEs_[kRMSMap]);
+    MESet::const_iterator tItr(sources_[kTimeMap]);
 
-	if(ids.size() == 0) continue;
+    for(MESet::iterator qItr(MEs_[kQuality]->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
-	// tower entries != sum(channel entries) because of the difference in timing cut at the source
-	float summaryEntries(0.);
-	if(dccid <= 9 || dccid >= 46){
-	  vector<EcalScDetId> scids(getElectronicsMap()->getEcalScDetId(dccid, tower));
-	  for(vector<EcalScDetId>::iterator scItr(scids.begin()); scItr != scids.end(); ++scItr)
-	    summaryEntries += sources_[sTimeAllMap]->getBinEntries(*scItr);
-	}
-	else
-	  summaryEntries = sources_[sTimeAllMap]->getBinEntries(ids[0]);
+      tItr = qItr;
+      rItr = qItr;
 
-	float towerEntries(0.);
-	float towerMean(0.);
-	float towerMean2(0.);
+      DetId id(qItr->getId());
 
-	for(vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr){
-	  float entries(sources_[sTimeMap]->getBinEntries(*idItr));
-	  float mean(sources_[sTimeMap]->getBinContent(*idItr));
-	  float rms(sources_[sTimeMap]->getBinError(*idItr) * sqrt(entries));
+      float entries(tItr->getBinEntries());
 
-	  towerEntries += entries;
-	  towerMean += mean;
-	  towerMean2 += mean * mean;
+      if(entries < minChannelEntries_){
+        qItr->setBinContent(maskQuality_(qItr, mask, 2));
+        rItr->setBinContent(-1.);
+        continue;
+      }
 
-	  if(entries < minChannelEntries_){
-	    fillQuality_(kQuality, *idItr, mask, 2.);
-	    continue;
-	  }
+      float mean(tItr->getBinContent());
+      float rms(tItr->getBinError() * sqrt(entries));
 
-	  MEs_[kMeanSM]->fill(*idItr, mean);
-	  MEs_[kMeanAll]->fill(*idItr, mean);
-	  MEs_[kProjEta]->fill(*idItr, mean);
-	  MEs_[kProjPhi]->fill(*idItr, mean);
-	  MEs_[kRMS]->fill(*idItr, rms);
-	  MEs_[kRMSAll]->fill(*idItr, rms);
+      MEs_[kMeanSM]->fill(id, mean);
+      MEs_[kMeanAll]->fill(id, mean);
+      MEs_[kProjEta]->fill(id, mean);
+      MEs_[kProjPhi]->fill(id, mean);
+      MEs_[kRMSAll]->fill(id, rms);
+      rItr->setBinContent(rms);
 
-	  if(dccid <= 27){
-	    DetId posId(0);
-	    if(idItr->subdetId() == EcalEndcap){
-	      posId = EEDetId::switchZSide(*idItr);
-	    }
-	    else{
-	      posId = EBDetId::switchZSide(*idItr);
-	    }
-	    float posTime(sources_[sTimeMap]->getBinContent(posId));
-	    MEs_[kFwdBkwdDiff]->fill(*idItr, posTime - mean);
-	    MEs_[kFwdvBkwd]->fill(*idItr, mean, posTime);
-	  }
+      bool negative(false);
+      float posTime(0.);
 
-	  float quality(abs(mean - expectedMean_) > meanThreshold_ || rms > rmsThreshold_ ? 0. : 1.);
-	  fillQuality_(kQuality, *idItr, mask, quality);
-	}
+      if(id.subdetId() == EcalBarrel){
+        EBDetId ebid(id);
+        if(ebid.zside() < 0){
+          negative = true;
+          EBDetId posId(EBDetId::switchZSide(ebid));
+          posTime = sources_[kTimeMap]->getBinContent(posId);
+        }
+      }
+      else{
+        EEDetId eeid(id);
+        if(eeid.zside() < 0){
+          negative = true;
+          EEDetId posId(EEDetId::switchZSide(eeid));
+          posTime = sources_[kTimeMap]->getBinContent(posId);
+        }
+      }
+      if(negative){
+        MEs_[kFwdBkwdDiff]->fill(id, posTime - mean);
+        MEs_[kFwdvBkwd]->fill(id, mean, posTime);
+      }
 
-	float quality(1.);
-	if(towerEntries > minTowerEntries_){
-	  if(summaryEntries < towerEntries * (1. - tailPopulThreshold_)) // large timing deviation
-	    quality = 0.;
+      if(abs(mean - expectedMean_) > meanThreshold_ || rms > rmsThreshold_)
+        qItr->setBinContent(maskQuality_(qItr, mask, 0));
+      else
+        qItr->setBinContent(maskQuality_(qItr, mask, 1));
+    }
 
+    MESet::iterator qsEnd(MEs_[kQualitySummary]->end());
+
+    MESet::const_iterator taItr(sources_[kTimeAllMap]);
+
+    for(MESet::iterator qsItr(MEs_[kQualitySummary]->beginChannel()); qsItr != qsEnd; qsItr.toNextChannel()){
+
+      DetId tId(qsItr->getId());
+
+      taItr = qsItr;
+
+      // tower entries != sum(channel entries) because of the difference in timing cut at the source
+      float summaryEntries(taItr->getBinEntries());
+
+      std::vector<DetId> ids;
+
+      if(tId.subdetId() == EcalTriggerTower)
+        ids = getTrigTowerMap()->constituentsOf(EcalTrigTowerDetId(tId));
+      else{
+        std::pair<int, int> dccsc(getElectronicsMap()->getDCCandSC(EcalScDetId(tId)));
+        ids = getElectronicsMap()->dccTowerConstituents(dccsc.first, dccsc.second);
+      }
+
+      float towerEntries(0.);
+      float towerMean(0.);
+      float towerMean2(0.);
+
+      for(vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr){
+        DetId& id(*idItr);
+
+        MESet::const_iterator tmItr(sources_[kTimeMap], id);
+
+        towerEntries += tmItr->getBinEntries();
+        float mean(tmItr->getBinContent());
+        towerMean += mean;
+        towerMean2 += mean * mean;
+      }
+
+      int quality(2);
+      if(towerEntries > minTowerEntries_){
+        if(summaryEntries < towerEntries * (1. - tailPopulThreshold_)) // large timing deviation
+          quality = 0;
+        else{
 	  towerMean /= ids.size();
 	  towerMean2 /= ids.size();
 
@@ -122,55 +154,34 @@ namespace ecaldqm {
 	  if(variance > 0.) towerRMS = sqrt(variance);
 
 	  if(abs(towerMean - expectedMean_) > meanThreshold_ || towerRMS > rmsThreshold_)
-	    quality = 0.;
-	}
-	else
-	  quality = 2.;
-
-	if(dccid <= 9 || dccid >= 46){
-	  vector<EcalScDetId> scs(getElectronicsMap()->getEcalScDetId(dccid, tower));
-	  for(vector<EcalScDetId>::iterator scItr(scs.begin()); scItr != scs.end(); ++scItr)
-	    fillQuality_(kQualitySummary, *scItr, mask, quality);
-	}
-	else
-	  fillQuality_(kQualitySummary, ids[0], mask, quality);
+	    quality = 0;
+          else
+            quality = 1;
+        }
       }
+
+      qsItr->setBinContent(maskQuality_(qsItr, mask, quality));
+
     }
   }
 
   /*static*/
   void
-  TimingClient::setMEData(std::vector<MEData>& _data)
+  TimingClient::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
   {
-    BinService::AxisSpecs axis;
+    _nameToIndex["Quality"] = kQuality;
+    _nameToIndex["MeanSM"] = kMeanSM;
+    _nameToIndex["MeanAll"] = kMeanAll;
+    _nameToIndex["FwdBkwdDiff"] = kFwdBkwdDiff;
+    _nameToIndex["FwdvBkwd"] = kFwdvBkwd;
+    _nameToIndex["RMSMap"] = kRMSMap;
+    _nameToIndex["RMSAll"] = kRMSAll;
+    _nameToIndex["ProjEta"] = kProjEta;
+    _nameToIndex["ProjPhi"] = kProjPhi;
+    _nameToIndex["QualitySummary"] = kQualitySummary;
 
-    _data[kQuality] = MEData("Quality", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
-
-    axis.nbins = 100;
-    axis.low = -25.;
-    axis.high = 25.;
-    _data[kMeanSM] = MEData("MeanSM", BinService::kSM, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
-    _data[kMeanAll] = MEData("MeanAll", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
-
-    axis.nbins = 50;
-    _data[kFwdvBkwd] = MEData("FwdvBkwd", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH2F, &axis, &axis);
-
-    axis.low = -5.;
-    axis.high = 5.;
-    _data[kFwdBkwdDiff] = MEData("FwdBkwdDiff", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
-
-    _data[kRMS] = MEData("RMS", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
-
-    axis.nbins = 100;
-    axis.low = 0.;
-    axis.high = 10.;
-    _data[kRMSAll] = MEData("RMSAll", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
-    _data[kProjEta] = MEData("Projection", BinService::kEcal3P, BinService::kProjEta, MonitorElement::DQM_KIND_TPROFILE);
-    _data[kProjPhi] = MEData("Projection", BinService::kEcal3P, BinService::kProjPhi, MonitorElement::DQM_KIND_TPROFILE);
-    _data[kQualitySummary] = MEData("QualitySummary", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
-
-    _data[sTimeAllMap + nTargets] = MEData("TimeAllMap");
-    _data[sTimeMap + nTargets] = MEData("TimeMap");
+    _nameToIndex["TimeAllMap"] = kTimeAllMap;
+    _nameToIndex["TimeMap"] = kTimeMap;
   }
 
   DEFINE_ECALDQM_WORKER(TimingClient);

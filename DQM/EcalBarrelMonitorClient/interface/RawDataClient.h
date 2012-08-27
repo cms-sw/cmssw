@@ -7,7 +7,7 @@ namespace ecaldqm {
 
   class RawDataClient : public DQWorkerClient {
   public:
-    RawDataClient(const edm::ParameterSet &);
+    RawDataClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~RawDataClient() {}
 
     void bookMEs();
@@ -16,14 +16,16 @@ namespace ecaldqm {
 
     enum MESets {
       kQualitySummary,
-      nTargets,
-      sL1ADCC = 0,
-      sFEStatus,
-      nSources,
-      nMESets = nTargets + nSources
+      nMESets
     };
 
-    static void setMEData(std::vector<MEData>&);
+    enum Sources {
+      kL1ADCC,
+      kFEStatus,
+      nSources
+    };
+
+    static void setMEOrdering(std::map<std::string, unsigned>&);
 
   private:
     int synchErrorThreshold_;

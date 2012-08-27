@@ -3,20 +3,59 @@
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 #include <limits>
+#include <sstream>
 
 namespace ecaldqm
 {
 
-  MESetEcal::MESetEcal(MEData const& _data, int _logicalDimensions) :
-    MESet(_data),
-    logicalDimensions_(_logicalDimensions)
+  MESetEcal::MESetEcal(std::string const& _fullPath, BinService::ObjectType _otype, BinService::BinningType _btype, MonitorElement::Kind _kind, unsigned _logicalDimensions, BinService::AxisSpecs const* _xaxis/* = 0*/, BinService::AxisSpecs const* _yaxis/* = 0*/, BinService::AxisSpecs const* _zaxis/* = 0*/) :
+    MESet(_fullPath, _otype, _btype, _kind),
+    logicalDimensions_(_logicalDimensions),
+    xaxis_(_xaxis),
+    yaxis_(_yaxis),
+    zaxis_(_zaxis)
   {
-    if(data_->btype == BinService::kUser && ((logicalDimensions_ > 0 && !data_->xaxis) || (logicalDimensions_ > 1 && !data_->yaxis)))
+    if(btype_ == BinService::kUser && ((logicalDimensions_ > 0 && !xaxis_) || (logicalDimensions_ > 1 && !yaxis_)))
       throw_("Need axis specifications");
+  }
+
+  MESetEcal::MESetEcal(MESetEcal const& _orig) :
+    MESet(_orig),
+    logicalDimensions_(_orig.logicalDimensions_),
+    xaxis_(_orig.xaxis_ ? new BinService::AxisSpecs(*_orig.xaxis_) : 0),
+    yaxis_(_orig.yaxis_ ? new BinService::AxisSpecs(*_orig.yaxis_) : 0),
+    zaxis_(_orig.zaxis_ ? new BinService::AxisSpecs(*_orig.zaxis_) : 0)
+  {
   }
 
   MESetEcal::~MESetEcal()
   {
+    delete xaxis_;
+    delete yaxis_;
+    delete zaxis_;
+  }
+
+  MESet&
+  MESetEcal::operator=(MESet const& _rhs)
+  {
+    delete xaxis_;
+    delete yaxis_;
+    delete zaxis_;
+
+    MESetEcal const* pRhs(dynamic_cast<MESetEcal const*>(&_rhs));
+    if(pRhs){
+      logicalDimensions_ = pRhs->logicalDimensions_;
+      if(pRhs->xaxis_) xaxis_ = new BinService::AxisSpecs(*pRhs->xaxis_);
+      if(pRhs->yaxis_) yaxis_ = new BinService::AxisSpecs(*pRhs->yaxis_);
+      if(pRhs->zaxis_) zaxis_ = new BinService::AxisSpecs(*pRhs->zaxis_);
+    }
+    return MESet::operator=(_rhs);
+  }
+
+  MESet*
+  MESetEcal::clone() const
+  {
+    return new MESetEcal(*this);
   }
 
   void
@@ -28,46 +67,37 @@ namespace ecaldqm
 
     dqmStore_->setCurrentFolder(dir_);
 
-    if(data_->btype == BinService::kReport && name_ == "")
+    if(btype_ == BinService::kReport && name_ == "")
       name_ = dir_.substr(0, dir_.find_first_of('/'));
 
     std::vector<std::string> meNames(generateNames());
 
     for(unsigned iME(0); iME < meNames.size(); iME++){
-      BinService::ObjectType actualObject(binService_->getObject(data_->otype, iME));
+      BinService::ObjectType actualObject(binService_->getObject(otype_, iME));
 
       BinService::AxisSpecs xaxis, yaxis, zaxis;
 
       if(logicalDimensions_ > 0){
-	if(data_->xaxis){
-	  xaxis = *data_->xaxis;
+	if(xaxis_){
+	  xaxis = *xaxis_;
 	}
 	else{ // uses preset
 	  bool isMap(logicalDimensions_ > 1);
-	  xaxis = binService_->getBinning(actualObject, data_->btype, isMap, 1, iME);
-	  if(isMap) yaxis = binService_->getBinning(actualObject, data_->btype, true, 2, iME);
+	  xaxis = binService_->getBinning(actualObject, btype_, isMap, 1, iME);
+	  if(isMap) yaxis = binService_->getBinning(actualObject, btype_, true, 2, iME);
 	}
 
-	if(data_->yaxis){
-	  yaxis = *data_->yaxis;
+	if(yaxis_){
+	  yaxis = *yaxis_;
 	}
-	if(logicalDimensions_ == 1 && yaxis.high - yaxis.low < 0.0001){
-	  yaxis.low = -numeric_limits<double>::max();
-	  yaxis.high = numeric_limits<double>::max();
-	}
-
-	if(data_->zaxis){
-	  zaxis = *data_->zaxis;
-	}
-	if(logicalDimensions_ > 1 && zaxis.high - zaxis.low < 0.0001){
-	  zaxis.low = -numeric_limits<double>::max();
-	  zaxis.high = numeric_limits<double>::max();
+	if(zaxis_){
+	  zaxis = *zaxis_;
 	}
       }
 
       MonitorElement* me(0);
 
-      switch(data_->kind) {
+      switch(kind_) {
       case MonitorElement::DQM_KIND_REAL :
 	me = dqmStore_->bookFloat(meNames[iME]);
 
@@ -144,36 +174,55 @@ namespace ecaldqm
 	// For plot tagging in RenderPlugin; default values are 1 for both
         // Does this method work?
 	me->getTH1()->SetMarkerStyle(actualObject + 2);
-	me->getTH1()->SetMarkerStyle(data_->btype + 2);
+	me->getTH1()->SetMarkerStyle(btype_ + 2);
       }
 
-      if(logicalDimensions_ == 1 && data_->btype == BinService::kDCC){
+      if(logicalDimensions_ == 1 && btype_ == BinService::kDCC){
 	if(actualObject == BinService::kEB){
 	  for(int iBin(1); iBin <= me->getNbinsX(); iBin++)
 	    me->setBinLabel(iBin, binService_->channelName(iBin + kEBmLow));
 	}
 	else if(actualObject == BinService::kEE){
 	  for(int iBin(1); iBin <= me->getNbinsX() / 2; iBin++){
-	    unsigned dccid((iBin + 2) % 9 + 1);
-	    me->setBinLabel(iBin, binService_->channelName(dccid));
-	  }
-	  for(int iBin(1); iBin <= me->getNbinsX() / 2; iBin++){
-	    unsigned dccid((iBin + 2) % 9 + 46);
-	    me->setBinLabel(iBin + me->getNbinsX() / 2, binService_->channelName(dccid));
+	    me->setBinLabel(iBin, binService_->channelName(iBin));
+	    me->setBinLabel(iBin + me->getNbinsX() / 2, binService_->channelName(iBin + 45));
 	  }
 	}
 	else if(actualObject == BinService::kEEm){
-	  for(int iBin(1); iBin <= me->getNbinsX(); iBin++){
-	    unsigned dccid((iBin + 2) % 9 + 1);
-	    me->setBinLabel(iBin, binService_->channelName(dccid));
-	  }
+	  for(int iBin(1); iBin <= me->getNbinsX(); iBin++)
+	    me->setBinLabel(iBin, binService_->channelName(iBin));
 	}
 	else if(actualObject == BinService::kEEp){
-	  for(int iBin(1); iBin <= me->getNbinsX(); iBin++){
-	    unsigned dccid((iBin + 2) % 9 + 46);
-	    me->setBinLabel(iBin, binService_->channelName(dccid));
-	  }
+	  for(int iBin(1); iBin <= me->getNbinsX(); iBin++)
+	    me->setBinLabel(iBin, binService_->channelName(iBin + 45));
 	}
+      }
+      if(logicalDimensions_ == 1 && btype_ == BinService::kTriggerTower){
+        unsigned dccid(0);
+        if(actualObject == BinService::kSM && (iME <= kEEmHigh || iME >= kEEpLow)) dccid = iME + 1;
+        else if(actualObject == BinService::kEESM) dccid = iME <= kEEmHigh ? iME + 1 : iME + 37;
+
+        if(dccid > 0){
+          std::stringstream ss;
+          std::pair<unsigned, unsigned> inner(innerTCCs(iME + 1));
+          std::pair<unsigned, unsigned> outer(outerTCCs(iME + 1));
+          ss << "TCC" << inner.first << " TT1";
+          me->setBinLabel(1, ss.str());
+          ss.str("");
+          ss << "TCC" << inner.second << " TT1";
+          me->setBinLabel(25, ss.str());
+          ss.str("");
+          ss << "TCC" << outer.first << " TT1";
+          me->setBinLabel(49, ss.str());
+          ss.str("");
+          ss << "TCC" << outer.second << " TT1";
+          me->setBinLabel(65, ss.str());
+          for(int iBin(5); iBin <= 80; iBin += 4){
+            ss.str("");
+            ss << iBin;
+            me->setBinLabel(iBin, ss.str());
+          }
+        }
       }
       
       mes_.push_back(me);
@@ -181,7 +230,7 @@ namespace ecaldqm
 
     // To avoid the ambiguity between "content == 0 because the mean is 0" and "content == 0 because the entry is 0"
     // RenderPlugin must be configured accordingly
-    if(data_->kind == MonitorElement::DQM_KIND_TPROFILE2D)
+    if(kind_ == MonitorElement::DQM_KIND_TPROFILE2D)
       resetAll(std::numeric_limits<double>::max(), 0., -1.);
 
     active_ = true;
@@ -209,33 +258,33 @@ namespace ecaldqm
   }
 
   void
-  MESetEcal::fill(DetId const& _id, double _x, double _wy/* = 1.*/, double _w/* = 1.*/)
+  MESetEcal::fill(DetId const& _id, double _x/* = 1.*/, double _wy/* = 1.*/, double _w/* = 1.*/)
   {
     if(!active_) return;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     fill_(iME, _x, _wy, _w);
   }
 
   void
-  MESetEcal::fill(EcalElectronicsId const& _id, double _x, double _wy/* = 1.*/, double _w/* = 1.*/)
+  MESetEcal::fill(EcalElectronicsId const& _id, double _x/* = 1.*/, double _wy/* = 1.*/, double _w/* = 1.*/)
   {
     if(!active_) return;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     fill_(iME, _x, _wy, _w);
   }
 
   void
-  MESetEcal::fill(unsigned _dcctccid, double _x, double _wy/* = 1.*/, double _w/* = 1.*/)
+  MESetEcal::fill(unsigned _dcctccid, double _x/* = 1.*/, double _wy/* = 1.*/, double _w/* = 1.*/)
   {
     if(!active_) return;
 
-    unsigned iME(binService_->findPlot(data_->otype, _dcctccid, data_->btype));
+    unsigned iME(binService_->findPlot(otype_, _dcctccid, btype_));
     checkME_(iME);
 
     fill_(iME, _x, _wy, _w);
@@ -246,7 +295,7 @@ namespace ecaldqm
   {
     if(!active_) return;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     mes_[iME]->setBinContent(_bin, _content);
@@ -257,7 +306,7 @@ namespace ecaldqm
   {
     if(!active_) return;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     mes_[iME]->setBinContent(_bin, _content);
@@ -268,7 +317,7 @@ namespace ecaldqm
   {
     if(!active_) return;
 
-    unsigned iME(binService_->findPlot(data_->otype, _dcctccid, data_->btype));
+    unsigned iME(binService_->findPlot(otype_, _dcctccid, btype_));
     checkME_(iME);
 
     mes_[iME]->setBinContent(_bin, _content);
@@ -279,7 +328,7 @@ namespace ecaldqm
   {
     if(!active_) return;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     mes_[iME]->setBinError(_bin, _error);
@@ -290,7 +339,7 @@ namespace ecaldqm
   {
     if(!active_) return;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     mes_[iME]->setBinError(_bin, _error);
@@ -301,7 +350,7 @@ namespace ecaldqm
   {
     if(!active_) return;
 
-    unsigned iME(binService_->findPlot(data_->otype, _dcctccid, data_->btype));
+    unsigned iME(binService_->findPlot(otype_, _dcctccid, btype_));
     checkME_(iME);
 
     mes_[iME]->setBinError(_bin, _error);
@@ -311,9 +360,9 @@ namespace ecaldqm
   MESetEcal::setBinEntries(DetId const& _id, int _bin, double _entries)
   {
     if(!active_) return;
-    if(data_->kind != MonitorElement::DQM_KIND_TPROFILE && data_->kind != MonitorElement::DQM_KIND_TPROFILE2D) return;
+    if(kind_ != MonitorElement::DQM_KIND_TPROFILE && kind_ != MonitorElement::DQM_KIND_TPROFILE2D) return;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     mes_[iME]->setBinEntries(_bin, _entries);
@@ -323,9 +372,9 @@ namespace ecaldqm
   MESetEcal::setBinEntries(EcalElectronicsId const& _id, int _bin, double _entries)
   {
     if(!active_) return;
-    if(data_->kind != MonitorElement::DQM_KIND_TPROFILE && data_->kind != MonitorElement::DQM_KIND_TPROFILE2D) return;
+    if(kind_ != MonitorElement::DQM_KIND_TPROFILE && kind_ != MonitorElement::DQM_KIND_TPROFILE2D) return;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     mes_[iME]->setBinEntries(_bin, _entries);
@@ -335,9 +384,9 @@ namespace ecaldqm
   MESetEcal::setBinEntries(unsigned _dcctccid, int _bin, double _entries)
   {
     if(!active_) return;
-    if(data_->kind != MonitorElement::DQM_KIND_TPROFILE && data_->kind != MonitorElement::DQM_KIND_TPROFILE2D) return;
+    if(kind_ != MonitorElement::DQM_KIND_TPROFILE && kind_ != MonitorElement::DQM_KIND_TPROFILE2D) return;
 
-    unsigned iME(binService_->findPlot(data_->otype, _dcctccid, data_->btype));
+    unsigned iME(binService_->findPlot(otype_, _dcctccid, btype_));
     checkME_(iME);
 
     mes_[iME]->setBinEntries(_bin, _entries);
@@ -348,7 +397,7 @@ namespace ecaldqm
   {
     if(!active_) return 0.;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getBinContent(_bin);
@@ -359,7 +408,7 @@ namespace ecaldqm
   {
     if(!active_) return 0.;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getBinContent(_bin);
@@ -370,7 +419,7 @@ namespace ecaldqm
   {
     if(!active_) return 0.;
 
-    unsigned iME(binService_->findPlot(data_->otype, _dcctccid, data_->btype));
+    unsigned iME(binService_->findPlot(otype_, _dcctccid, btype_));
     checkME_(iME);
 
     return mes_[iME]->getBinContent(_bin);
@@ -381,7 +430,7 @@ namespace ecaldqm
   {
     if(!active_) return 0.;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getBinError(_bin);
@@ -392,7 +441,7 @@ namespace ecaldqm
   {
     if(!active_) return 0.;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getBinError(_bin);
@@ -403,7 +452,7 @@ namespace ecaldqm
   {
     if(!active_) return 0.;
 
-    unsigned iME(binService_->findPlot(data_->otype, _dcctccid, data_->btype));
+    unsigned iME(binService_->findPlot(otype_, _dcctccid, btype_));
     checkME_(iME);
 
     return mes_[iME]->getBinError(_bin);
@@ -413,9 +462,9 @@ namespace ecaldqm
   MESetEcal::getBinEntries(DetId const& _id, int _bin) const
   {
     if(!active_) return 0.;
-    if(data_->kind != MonitorElement::DQM_KIND_TPROFILE && data_->kind != MonitorElement::DQM_KIND_TPROFILE2D) return 0.;
+    if(kind_ != MonitorElement::DQM_KIND_TPROFILE && kind_ != MonitorElement::DQM_KIND_TPROFILE2D) return 0.;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getBinEntries(_bin);
@@ -425,9 +474,9 @@ namespace ecaldqm
   MESetEcal::getBinEntries(EcalElectronicsId const& _id, int _bin) const
   {
     if(!active_) return 0.;
-    if(data_->kind != MonitorElement::DQM_KIND_TPROFILE && data_->kind != MonitorElement::DQM_KIND_TPROFILE2D) return 0.;
+    if(kind_ != MonitorElement::DQM_KIND_TPROFILE && kind_ != MonitorElement::DQM_KIND_TPROFILE2D) return 0.;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getBinEntries(_bin);
@@ -437,9 +486,9 @@ namespace ecaldqm
   MESetEcal::getBinEntries(unsigned _dcctccid, int _bin) const
   {
     if(!active_) return 0.;
-    if(data_->kind != MonitorElement::DQM_KIND_TPROFILE && data_->kind != MonitorElement::DQM_KIND_TPROFILE2D) return 0.;
+    if(kind_ != MonitorElement::DQM_KIND_TPROFILE && kind_ != MonitorElement::DQM_KIND_TPROFILE2D) return 0.;
 
-    unsigned iME(binService_->findPlot(data_->otype, _dcctccid, data_->btype));
+    unsigned iME(binService_->findPlot(otype_, _dcctccid, btype_));
     checkME_(iME);
 
     return mes_[iME]->getBinEntries(_bin);
@@ -450,7 +499,7 @@ namespace ecaldqm
   {
     if(!active_) return -1;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getTH1()->FindBin(_x, _y);
@@ -461,7 +510,7 @@ namespace ecaldqm
   {
     if(!active_) return -1;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getTH1()->FindBin(_x, _y);
@@ -472,7 +521,7 @@ namespace ecaldqm
   {
     if(!active_) return -1;
 
-    unsigned iME(binService_->findPlot(data_->otype, _dcctccid, data_->btype));
+    unsigned iME(binService_->findPlot(otype_, _dcctccid, btype_));
     checkME_(iME);
 
     return mes_[iME]->getTH1()->FindBin(_x, _y);
@@ -485,17 +534,17 @@ namespace ecaldqm
 
     std::vector<std::string> names(0);
 
-    unsigned nME(binService_->getNObjects(data_->otype));
+    unsigned nME(binService_->getNObjects(otype_));
 
     for(unsigned iME(0); iME < nME; iME++) {
-      BinService::ObjectType obj(binService_->getObject(data_->otype, iME));
+      BinService::ObjectType obj(binService_->getObject(otype_, iME));
 
       string name(name_);
       string spacer(" ");
 
-      if(data_->btype == BinService::kProjEta) name += " eta";
-      else if(data_->btype == BinService::kProjPhi) name += " phi";
-      else if(data_->btype == BinService::kReport) spacer = "_";
+      if(btype_ == BinService::kProjEta) name += " eta";
+      else if(btype_ == BinService::kProjPhi) name += " phi";
+      else if(btype_ == BinService::kReport) spacer = "_";
 
       switch(obj){
       case BinService::kEB:

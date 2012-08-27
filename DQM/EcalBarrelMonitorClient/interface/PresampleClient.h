@@ -7,7 +7,7 @@ namespace ecaldqm {
 
   class PresampleClient : public DQWorkerClient {
   public:
-    PresampleClient(const edm::ParameterSet &);
+    PresampleClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~PresampleClient() {}
 
     void bookMEs();
@@ -20,15 +20,16 @@ namespace ecaldqm {
       kMeanDCC,
       kRMS,
       kRMSMap,
-      kRMSMapSummary,
       kQualitySummary,
-      nTargets,
-      sPedestal = 0,
-      nSources,
-      nMESets = nTargets + nSources
+      nMESets
     };
 
-    static void setMEData(std::vector<MEData>&);
+    enum Sources {
+      kPedestal,
+      nSources
+    };
+
+    static void setMEOrdering(std::map<std::string, unsigned>&);
 
   protected:
     int minChannelEntries_;

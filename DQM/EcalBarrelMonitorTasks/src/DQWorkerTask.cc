@@ -6,8 +6,8 @@ namespace ecaldqm {
 
   DQWorkerTask::DependencySet DQWorkerTask::dependencies;
 
-  DQWorkerTask::DQWorkerTask(const edm::ParameterSet& _params, std::string const& _name) :
-    DQWorker(_params, _name),
+  DQWorkerTask::DQWorkerTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams, std::string const& _name) :
+    DQWorker(_workerParams, _commonParams, _name),
     collectionMask_(0)
   {
   }

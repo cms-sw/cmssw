@@ -4,10 +4,10 @@
 
 namespace ecaldqm {
 
-  OccupancyTask::OccupancyTask(const edm::ParameterSet &_params) :
-    DQWorkerTask(_params, "OccupancyTask"),
-    recHitThreshold_(0.),
-    tpThreshold_(0.)
+  OccupancyTask::OccupancyTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
+    DQWorkerTask(_workerParams, _commonParams, "OccupancyTask"),
+    recHitThreshold_(_workerParams.getUntrackedParameter<double>("recHitThreshold")),
+    tpThreshold_(_workerParams.getUntrackedParameter<double>("tpThreshold"))
   {
     collectionMask_ =
       (0x1 << kEBDigi) |
@@ -15,11 +15,6 @@ namespace ecaldqm {
       (0x1 << kTrigPrimDigi) |
       (0x1 << kEBRecHit) |
       (0x1 << kEERecHit);
-
-    edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
-
-    recHitThreshold_ = taskParams.getUntrackedParameter<double>("recHitThreshold");
-    tpThreshold_ = taskParams.getUntrackedParameter<double>("tpThreshold");
   }
 
   OccupancyTask::~OccupancyTask()
@@ -101,31 +96,25 @@ namespace ecaldqm {
 
   /*static*/
   void
-  OccupancyTask::setMEData(std::vector<MEData>& _data)
+  OccupancyTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
   {
-    BinService::AxisSpecs axis;
-
-    _data[kDigi] = MEData("Digi", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
-    _data[kDigiProjEta] = MEData("Digi", BinService::kEcal3P, BinService::kProjEta, MonitorElement::DQM_KIND_TH1F);
-    _data[kDigiProjPhi] = MEData("Digi", BinService::kEcal3P, BinService::kProjPhi, MonitorElement::DQM_KIND_TH1F);
-    _data[kDigiAll] = MEData("Digi", BinService::kEcal3P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
-    _data[kDigiDCC] = MEData("DigiDCC", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
-
-    axis.nbins = 100;
-    axis.low = 0.;
-    axis.high = 6000.;
-    _data[kRecHit1D] = MEData("RecHit1D", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
-    _data[kRecHitThr] = MEData("RecHitThr", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
-    _data[kRecHitThrProjEta] = MEData("RecHitThr", BinService::kEcal3P, BinService::kProjEta, MonitorElement::DQM_KIND_TH1F);
-    _data[kRecHitThrProjPhi] = MEData("RecHitThr", BinService::kEcal3P, BinService::kProjPhi, MonitorElement::DQM_KIND_TH1F);
-    _data[kRecHitThrAll] = MEData("RecHitThr", BinService::kEcal3P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
-    _data[kTPDigi] = MEData("TPDigi", BinService::kSM, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH2F);
-    _data[kTPDigiProjEta] = MEData("TPDigi", BinService::kEcal3P, BinService::kProjEta, MonitorElement::DQM_KIND_TH1F);
-    _data[kTPDigiProjPhi] = MEData("TPDigi", BinService::kEcal3P, BinService::kProjPhi, MonitorElement::DQM_KIND_TH1F);
-    _data[kTPDigiThr] = MEData("TPDigiThr", BinService::kSM, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH2F);
-    _data[kTPDigiThrProjEta] = MEData("TPDigiThr", BinService::kEcal3P, BinService::kProjEta, MonitorElement::DQM_KIND_TH1F);
-    _data[kTPDigiThrProjPhi] = MEData("TPDigiThr", BinService::kEcal3P, BinService::kProjPhi, MonitorElement::DQM_KIND_TH1F);
-    _data[kTPDigiThrAll] = MEData("TPDigiThr", BinService::kEcal3P, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH2F);
+    _nameToIndex["Digi"] = kDigi;
+    _nameToIndex["DigiProjEta"] = kDigiProjEta;
+    _nameToIndex["DigiProjPhi"] = kDigiProjPhi;
+    _nameToIndex["DigiAll"] = kDigiAll;
+    _nameToIndex["DigiDCC"] = kDigiDCC;
+    _nameToIndex["RecHit1D"] = kRecHit1D;
+    _nameToIndex["RecHitThr"] = kRecHitThr;
+    _nameToIndex["RecHitThrProjEta"] = kRecHitThrProjEta;
+    _nameToIndex["RecHitThrProjPhi"] = kRecHitThrProjPhi;
+    _nameToIndex["RecHitThrAll"] = kRecHitThrAll;
+    _nameToIndex["TPDigi"] = kTPDigi;
+    _nameToIndex["TPDigiProjEta"] = kTPDigiProjEta;
+    _nameToIndex["TPDigiProjPhi"] = kTPDigiProjPhi;
+    _nameToIndex["TPDigiThr"] = kTPDigiThr;
+    _nameToIndex["TPDigiThrProjEta"] = kTPDigiThrProjEta;
+    _nameToIndex["TPDigiThrProjPhi"] = kTPDigiThrProjPhi;
+    _nameToIndex["TPDigiThrAll"] = kTPDigiThrAll;
   }
 
   DEFINE_ECALDQM_WORKER(OccupancyTask);

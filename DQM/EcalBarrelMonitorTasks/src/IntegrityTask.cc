@@ -4,10 +4,10 @@
 
 namespace ecaldqm {
 
-  IntegrityTask::IntegrityTask(const edm::ParameterSet &_params) :
-    DQWorkerTask(_params, "IntegrityTask"),
-    hltTaskMode_(0),
-    hltTaskFolder_("")
+  IntegrityTask::IntegrityTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
+    DQWorkerTask(_workerParams, _commonParams, "IntegrityTask"),
+    hltTaskMode_(_commonParams.getUntrackedParameter<int>("hltTaskMode")),
+    hltTaskFolder_(_commonParams.getUntrackedParameter<std::string>("hltTaskFolder"))
   {
     collectionMask_ = 
       (0x1 << kLumiSection) |
@@ -17,11 +17,6 @@ namespace ecaldqm {
       (0x1 << kTowerIdErrors) |
       (0x1 << kBlockSizeErrors);
 
-    edm::ParameterSet const& commonParams(_params.getUntrackedParameterSet("Common"));
-
-    hltTaskMode_ = commonParams.getUntrackedParameter<int>("hltTaskMode");
-    hltTaskFolder_ = commonParams.getUntrackedParameter<std::string>("hltTaskFolder");
-
     if(hltTaskMode_ != 0 && hltTaskFolder_.size() == 0)
 	throw cms::Exception("InvalidConfiguration") << "HLTTask mode needs a folder name";
 
@@ -30,7 +25,7 @@ namespace ecaldqm {
       std::map<std::string, std::string> replacements;
       replacements["hlttask"] = hltTaskFolder_;
 
-      MEs_[kFEDNonFatal]->formName(replacements);
+      MEs_[kFEDNonFatal]->formPath(replacements);
     }
   }
 
@@ -111,16 +106,16 @@ namespace ecaldqm {
 
   /*static*/
   void
-  IntegrityTask::setMEData(std::vector<MEData>& _data)
+  IntegrityTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
   {
-    _data[kByLumi] = MEData("ByLumi", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
-    _data[kTotal] = MEData("Total", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
-    _data[kGain] = MEData("Gain", BinService::kChannel, BinService::kCrystal, MonitorElement::DQM_KIND_TH1F);
-    _data[kChId] = MEData("ChId", BinService::kChannel, BinService::kCrystal, MonitorElement::DQM_KIND_TH1F);
-    _data[kGainSwitch] = MEData("GainSwitch", BinService::kChannel, BinService::kCrystal, MonitorElement::DQM_KIND_TH1F);
-    _data[kBlockSize] = MEData("BlockSize", BinService::kChannel, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH1F);
-    _data[kTowerId] = MEData("TowerId", BinService::kChannel, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH1F);
-    _data[kFEDNonFatal] = MEData("FEDNonFatal", BinService::kEcal, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
+    _nameToIndex["ByLumi"] = kByLumi;
+    _nameToIndex["Total"] = kTotal;
+    _nameToIndex["Gain"] = kGain;
+    _nameToIndex["ChId"] = kChId;
+    _nameToIndex["GainSwitch"] = kGainSwitch;
+    _nameToIndex["BlockSize"] = kBlockSize;
+    _nameToIndex["TowerId"] = kTowerId;
+    _nameToIndex["FEDNonFatal"] = kFEDNonFatal;
   }
 
   DEFINE_ECALDQM_WORKER(IntegrityTask);

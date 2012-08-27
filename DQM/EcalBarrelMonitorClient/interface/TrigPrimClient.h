@@ -7,7 +7,7 @@ namespace ecaldqm {
 
   class TrigPrimClient : public DQWorkerClient {
   public:
-    TrigPrimClient(const edm::ParameterSet &);
+    TrigPrimClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~TrigPrimClient() {}
 
     void bookMEs();
@@ -19,16 +19,18 @@ namespace ecaldqm {
       kTimingSummary,
       kNonSingleSummary,
       kEmulQualitySummary,
-      nTargets,
-      sEtRealMap = 0,
-      sEtEmulError,
-      sTimingError,
-      sMatchedIndex,
-      nSources,
-      nMESets = nTargets + nSources
+      nMESets
     };
 
-    static void setMEData(std::vector<MEData>&);
+    enum Sources {
+      kEtRealMap,
+      kEtEmulError,
+      kTimingError,
+      kMatchedIndex,
+      nSources
+    };
+
+    static void setMEOrdering(std::map<std::string, unsigned>&);
 
   };
 

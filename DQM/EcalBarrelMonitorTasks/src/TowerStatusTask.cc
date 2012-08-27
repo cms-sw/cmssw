@@ -18,19 +18,14 @@
 
 namespace ecaldqm {
 
-  TowerStatusTask::TowerStatusTask(const edm::ParameterSet& _params) :
-    DQWorkerTask(_params, "TowerStatusTask"),
-    doDAQInfo_(false),
-    doDCSInfo_(false)
+  TowerStatusTask::TowerStatusTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
+    DQWorkerTask(_workerParams, _commonParams, "TowerStatusTask"),
+    doDAQInfo_(_workerParams.getUntrackedParameter<bool>("doDAQInfo")),
+    doDCSInfo_(_workerParams.getUntrackedParameter<bool>("doDCSInfo"))
   {
     collectionMask_ = 
       (0x1 << kRun) |
       (0x1 << kLumiSection);
-
-    edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
-
-    doDAQInfo_ = taskParams.getUntrackedParameter<bool>("doDAQInfo");
-    doDCSInfo_ = taskParams.getUntrackedParameter<bool>("doDCSInfo");
 
     if(!doDAQInfo_ && !doDCSInfo_)
       throw cms::Exception("InvalidConfiguration") << "Nonthing to do in TowerStatusTask";
@@ -152,14 +147,14 @@ namespace ecaldqm {
 
   /*static*/
   void
-  TowerStatusTask::setMEData(std::vector<MEData>& _data)
+  TowerStatusTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
   {
-    _data[kDAQSummary] = MEData("DAQSummary", BinService::kEcal, BinService::kReport, MonitorElement::DQM_KIND_REAL);
-    _data[kDAQSummaryMap] = MEData("DAQSummaryMap", BinService::kEcal, BinService::kDCC, MonitorElement::DQM_KIND_TH2F);
-    _data[kDAQContents] = MEData("DAQContents", BinService::kSM, BinService::kReport, MonitorElement::DQM_KIND_REAL);
-    _data[kDCSSummary] = MEData("DCSSummary", BinService::kEcal, BinService::kReport, MonitorElement::DQM_KIND_REAL);
-    _data[kDCSSummaryMap] = MEData("DCSSummaryMap", BinService::kEcal, BinService::kDCC, MonitorElement::DQM_KIND_TH2F);
-    _data[kDCSContents] = MEData("DCSContents", BinService::kSM, BinService::kReport, MonitorElement::DQM_KIND_REAL);
+    _nameToIndex["DAQSummary"] = kDAQSummary;
+    _nameToIndex["DAQSummaryMap"] = kDAQSummaryMap;
+    _nameToIndex["DAQContents"] = kDAQContents;
+    _nameToIndex["DCSSummary"] = kDCSSummary;
+    _nameToIndex["DCSSummaryMap"] = kDCSSummaryMap;
+    _nameToIndex["DCSContents"] = kDCSContents;
   }
 
   DEFINE_ECALDQM_WORKER(TowerStatusTask);

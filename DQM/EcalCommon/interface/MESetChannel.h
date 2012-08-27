@@ -16,8 +16,13 @@ namespace ecaldqm
   class MESetChannel : public MESet
   {
   public :
-    MESetChannel(MEData const&);
+    MESetChannel(std::string const&, BinService::ObjectType, BinService::BinningType, MonitorElement::Kind);
+    MESetChannel(MESetChannel const&);
     ~MESetChannel();
+
+    MESet& operator=(MESet const& _rhs);
+
+    MESet* clone() const;
 
     void book();
     bool retrieve() const;

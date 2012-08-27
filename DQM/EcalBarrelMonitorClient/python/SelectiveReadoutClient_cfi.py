@@ -1,19 +1,20 @@
-selectiveReadoutClient = dict(
-    sources = dict(
-        FlagCounterMap = ['SelectiveReadoutTask', 'FlagCounterMap'],
-        RUForcedMap = ['SelectiveReadoutTask', 'RUForcedMap'],
-        FullReadoutMap = ['SelectiveReadoutTask', 'FullReadoutMap'],
-        ZS1Map = ['SelectiveReadoutTask', 'ZS1Map'],
-        ZSMap = ['SelectiveReadoutTask', 'ZSMap'],
-        ZSFullReadoutMap = ['SelectiveReadoutTask', 'ZSFullReadoutMap'],
-        FRDroppedMap = ['SelectiveReadoutTask', 'FRDroppedMap']
-    )
-)
+from DQM.EcalBarrelMonitorTasks.SelectiveReadoutTask_cfi import selectiveReadoutTask
 
-selectiveReadoutClientPaths = dict(
-    FRDropped = "SelectiveReadout/SRClient FR flag drop rate",
-    ZSReadout = "SelectiveReadout/SRClient ZS flag readout rate",
-    FR = "SelectiveReadout/SRClient FR flag rate",
-    RUForced = "SelectiveReadout/SRClient unit forced readout rate",
-    ZS1 = "SelectiveReadout/SRClient ZS1 flag rate"
+selectiveReadoutClient = dict(
+    MEs = dict(
+        FRDropped = dict(path = "SelectiveReadout/SRClient FR flag drop rate", otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TH2F', zaxis = {'title': 'rate'}),
+        ZSReadout = dict(path = "SelectiveReadout/SRClient ZS flag readout rate", otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TH2F', zaxis = {'title': 'rate'}),
+        FR = dict(path = "SelectiveReadout/SRClient FR flag rate", otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TH2F', zaxis = {'title': 'rate'}),
+        RUForced = dict(path = "SelectiveReadout/SRClient unit forced readout rate", otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TH2F', zaxis = {'title': 'rate'}),
+        ZS1 = dict(path = "SelectiveReadout/SRClient ZS1 flag rate", otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TH2F', zaxis = {'title': 'rate'})
+    ),
+    sources = dict(
+        FlagCounterMap = selectiveReadoutTask['MEs']['FlagCounterMap'],
+        RUForcedMap = selectiveReadoutTask['MEs']['RUForcedMap'],
+        FullReadoutMap = selectiveReadoutTask['MEs']['FullReadoutMap'],
+        ZS1Map = selectiveReadoutTask['MEs']['ZS1Map'],
+        ZSMap = selectiveReadoutTask['MEs']['ZSMap'],
+        ZSFullReadoutMap = selectiveReadoutTask['MEs']['ZSFullReadoutMap'],
+        FRDroppedMap = selectiveReadoutTask['MEs']['FRDroppedMap']
+    )
 )

@@ -53,6 +53,9 @@ namespace ecaldqm {
   unsigned ttId(const DetId&);
   unsigned ttId(const EcalElectronicsId&);
 
+  std::pair<unsigned, unsigned> innerTCCs(unsigned);
+  std::pair<unsigned, unsigned> outerTCCs(unsigned);
+
   int zside(const DetId&);
 
   double eta(const DetId&);
@@ -88,11 +91,11 @@ namespace ecaldqm {
 
 namespace ecaldqm {
 
-  extern const EcalElectronicsMapping* electronicsMap;
-  extern const EcalTrigTowerConstituentsMap* trigtowerMap;
-  extern const CaloGeometry* geometry;
-  extern const std::vector<unsigned> memDCC;
-  extern const double etaBound;
+  extern EcalElectronicsMapping const* electronicsMap;
+  extern EcalTrigTowerConstituentsMap const* trigtowerMap;
+  extern CaloGeometry const* geometry;
+  extern std::vector<unsigned> const memDCC;
+  extern double const etaBound;
 
   inline unsigned dccId(const DetId &_id){
     checkElectronicsMap();
@@ -158,11 +161,9 @@ namespace ecaldqm {
 
     unsigned subdet(_id.subdetId());
 
-    if(subdet == EcalBarrel){
-      return EBDetId(_id).tower().iTT();
-    }else if(subdet == EcalTriggerTower){
-      return EcalTrigTowerDetId(_id).iTT();
-    }else if(subdet == EcalEndcap){
+    if(subdet == EcalBarrel) return EBDetId(_id).tower().iTT();
+    else if(subdet == EcalTriggerTower) return EcalTrigTowerDetId(_id).iTT();
+    else if(subdet == EcalEndcap){
       if(isEcalScDetId(_id)) return electronicsMap->getDCCandSC(EcalScDetId(_id)).second;
       else return electronicsMap->getElectronicsId(EEDetId(_id)).towerId();
     }
@@ -196,6 +197,44 @@ namespace ecaldqm {
   inline unsigned ttId(const EcalElectronicsId &_id){
     checkElectronicsMap();
     return electronicsMap->getTriggerElectronicsId(_id).ttId();
+  }
+
+  inline std::pair<unsigned, unsigned> innerTCCs(unsigned _dccId){
+    int iDCC(_dccId - 1);
+    std::pair<unsigned, unsigned> res;
+    if(iDCC <= kEEmHigh){
+      res.first = (iDCC - kEEmLow) * 2;
+      if(res.first == 0) res.first = 18;
+      res.second = (iDCC - kEEmLow) * 2 + 1;
+    }
+    else if(iDCC <- kEBpHigh)
+      res.first = res.second = _dccId + 27;
+    else{
+      res.first = (iDCC - kEEpLow) * 2 + 90;
+      if(res.first == 90) res.first = 108;
+      res.second = (iDCC - kEEpLow) * 2 + 91;
+    }
+
+    return res;
+  }
+
+  inline std::pair<unsigned, unsigned> outerTCCs(unsigned _dccId){
+    int iDCC(_dccId - 1);
+    std::pair<unsigned, unsigned> res;
+    if(iDCC <= kEEmHigh){
+      res.first = (iDCC - kEEmLow) * 2 + 18;
+      if(res.first == 18) res.first = 36;
+      res.second = (iDCC - kEEmLow) * 2 + 19;
+    }
+    else if(iDCC <= kEBpHigh)
+      res.first = res.second = _dccId + 27;
+    else{
+      res.first = (iDCC - kEEpLow) * 2 + 72;
+      if(res.first == 72) res.first = 90;
+      res.second = (iDCC - kEEpLow) * 2 + 73;
+    }
+
+    return res;
   }
 
   inline int zside(const DetId& _id){
@@ -381,7 +420,6 @@ namespace ecaldqm {
   }
 
   inline void setElectronicsMap(const EcalElectronicsMapping* _map){
-    if(electronicsMap) return;
     electronicsMap = _map;
   }
 

@@ -1,13 +1,15 @@
 #ifndef SelectiveReadoutTask_H
 #define SelectiveReadoutTask_H
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
+#include "DQWorkerTask.h"
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 
 class EcalTrigTowerConstituentsMap;
 
@@ -15,8 +17,8 @@ namespace ecaldqm {
 
   class SelectiveReadoutTask : public DQWorkerTask {
   public:
-    SelectiveReadoutTask(const edm::ParameterSet &, const edm::ParameterSet &);
-    ~SelectiveReadoutTask();
+    SelectiveReadoutTask(edm::ParameterSet const&, edm::ParameterSet const&);
+    ~SelectiveReadoutTask() {}
 
     void beginRun(const edm::Run &, const edm::EventSetup &);
     void beginEvent(const edm::Event &, const edm::EventSetup &);
@@ -50,31 +52,24 @@ namespace ecaldqm {
       nMESets
     };
 
-    static void setMEData(std::vector<MEData>&);
+    static void setMEOrdering(std::map<std::string, unsigned>&);
 
     enum Constants {
       nFIRTaps = 6,
-      bytesPerCrystal = 24
+      bytesPerCrystal = 24,
+      nRU = EcalTrigTowerDetId::kEBTotalTowers + EcalScDetId::kSizeForDenseIndexing
     };
 
   private:
     void setFIRWeights_(const std::vector<double> &);
-    void runOnSrFlag_(const DetId &, int, float&);
+    void runOnSrFlag_(const DetId &, int, double&);
 
     bool useCondDb_;
     int iFirstSample_;
     std::vector<int> ZSFIRWeights_;
 
-    const EcalChannelStatus *channelStatus_;
-    const EcalTrigTowerConstituentsMap *ttMap_;
-    const EBSrFlagCollection *ebSRFs_;
-    const EESrFlagCollection *eeSRFs_;
-
-    std::vector<short> feStatus_[54];
-    std::set<uint32_t> frFlaggedTowers_;
-    std::set<uint32_t> zsFlaggedTowers_;
-    std::map<uint32_t, int> ttCrystals_;
-
+    std::set<std::pair<int, int> > suppressed_;
+    std::vector<short> flags_;
   };
 
   inline void SelectiveReadoutTask::analyze(const void* _p, Collections _collection){

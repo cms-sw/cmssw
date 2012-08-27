@@ -1,9 +1,9 @@
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 namespace ecaldqm {
-  const EcalElectronicsMapping* electronicsMap(0);
-  const EcalTrigTowerConstituentsMap* trigtowerMap(0);
-  const CaloGeometry* geometry(0);
+  EcalElectronicsMapping const* electronicsMap(0);
+  EcalTrigTowerConstituentsMap const* trigtowerMap(0);
+  CaloGeometry const* geometry(0);
 
   unsigned memarr[] = {kEEm07, kEEm08, kEEm02, kEEm03,
                        kEBm01, kEBm02, kEBm03, kEBm04, kEBm05, kEBm06, kEBm07, kEBm08, kEBm09,

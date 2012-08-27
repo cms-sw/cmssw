@@ -7,10 +7,8 @@ namespace ecaldqm {
 
   class SummaryClient : public DQWorkerClient {
   public:
-    SummaryClient(const edm::ParameterSet &);
+    SummaryClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~SummaryClient() {}
-
-    void bookMEs();
 
     void beginRun(const edm::Run &, const edm::EventSetup &);
 
@@ -21,17 +19,19 @@ namespace ecaldqm {
       kReportSummaryMap,
       kReportSummaryContents,
       kReportSummary,
-      nTargets,
-      sIntegrity = 0,
-      sPresample,
-      sTiming,
-      sRawData,
-      sDigiOccupancy,
-      nSources,
-      nMESets = nTargets + nSources
+      nMESets
     };
 
-    static void setMEData(std::vector<MEData>&);
+    enum Sources {
+      kIntegrity,
+      kPresample,
+      kTiming,
+      kRawData,
+      kDigiOccupancy,
+      nSources
+    };
+
+    static void setMEOrdering(std::map<std::string, unsigned>&);
 
   };
 

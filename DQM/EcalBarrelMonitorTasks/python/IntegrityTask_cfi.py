@@ -1,14 +1,13 @@
 integrityTask = dict(
-)
-
-integrityTaskPaths = dict(
-   ByLumi       = 'Integrity/IntegrityTask errors by lumi',
-   Total        = 'Integrity/IntegrityTask errors total',
-   Gain         = 'Integrity/Gain/',
-   ChId         = 'Integrity/ChId/',
-   GainSwitch   = 'Integrity/GainSwitch/',
-   BlockSize    = 'Integrity/BlockSize/',
-   TowerId      = 'Integrity/TowerId/',
-   FEDNonFatal   = '%(hlttask)s/FEDNonFatal'
+    MEs = dict(
+        ByLumi = dict(path = 'Integrity/IntegrityTask errors by lumi', otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
+        Total = dict(path = 'Integrity/IntegrityTask errors total', otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
+        Gain = dict(path = 'Integrity/Gain/', otype = 'Channel', btype = 'Crystal', kind = 'TH1F'),
+        ChId = dict(path = 'Integrity/ChId/', otype = 'Channel', btype = 'Crystal', kind = 'TH1F'),
+        GainSwitch = dict(path = 'Integrity/GainSwitch/', otype = 'Channel', btype = 'Crystal', kind = 'TH1F'),
+        BlockSize = dict(path = 'Integrity/BlockSize/', otype = 'Channel', btype = 'SuperCrystal', kind = 'TH1F'),
+        TowerId = dict(path = 'Integrity/TowerId/', otype = 'Channel', btype = 'SuperCrystal', kind = 'TH1F'),
+        FEDNonFatal = dict(path = '%(hlttask)s/FEDNonFatal', otype = 'Ecal', btype = 'DCC', kind = 'TH1F')
+    )
 )
 

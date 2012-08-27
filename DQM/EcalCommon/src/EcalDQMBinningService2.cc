@@ -353,7 +353,7 @@ EcalDQMBinningService::findBinCrystal_(ObjectType _otype, const DetId& _id, int 
     case kSM:
     case kEBSM:
       xbin = ieta < 0 ? -ieta : ieta;
-      ybin = (iphi - 1) % 20 + 1;
+      ybin = ieta < 0 ? (iphi - 1) % 20 + 1 : 20 - (iphi - 1) % 20;
       nbinsX = nEBSMEta;
       break;
     default:
@@ -447,7 +447,7 @@ EcalDQMBinningService::findBinTriggerTower_(ObjectType _otype, DetId const& _id)
     case kSM:
     case kEBSM:
       xbin = ieta < 0 ? -ieta : ieta;
-      ybin = (iphi - 1) % 4 + 1;
+      ybin = ieta < 0 ? (iphi - 1) % 4 + 1 : 4 - (iphi - 1) % 4;
       nbinsX = 17;
       break;
     default:
@@ -484,7 +484,7 @@ EcalDQMBinningService::findBinSuperCrystal_(ObjectType _otype, const DetId& _id,
     case kSM:
     case kEBSM:
       xbin = (ieta < 0 ? -ieta - 1 : ieta - 1) / 5 + 1;
-      ybin = ((iphi - 1) % 20) / 5 + 1;
+      ybin = (ieta < 0 ? (iphi - 1) % 20 : 19 - (iphi - 1) % 20) / 5 + 1;
       nbinsX = nEBSMEta / 5;
       break;
     default:
@@ -558,6 +558,26 @@ EcalDQMBinningService::findBinSuperCrystal_(ObjectType _otype, const DetId& _id,
       default:
         break;
       }
+    }
+  }
+  else if(subdet == EcalTriggerTower && !isEndcapTTId(_id)){
+    EcalTrigTowerDetId ttid(_id);
+    int ieta(ttid.ieta());
+    int iphi((ttid.iphi() + 1) % 72 + 1);
+    switch(_otype){
+    case kEB:
+      xbin = iphi;
+      ybin = ieta < 0 ? ieta + 18 : ieta + 17;
+      nbinsX = 72;
+      break;
+    case kSM:
+    case kEBSM:
+      xbin = ieta < 0 ? -ieta : ieta;
+      ybin = ieta < 0 ? (iphi - 1) % 4 + 1 : 4 - (iphi - 1) % 4;
+      nbinsX = nEBSMEta / 5;
+      break;
+    default:
+      break;
     }
   }
 

@@ -6,8 +6,6 @@
 #include <string>
 #include <vector>
 
-#include "DQMServices/Core/interface/MonitorElement.h"
-
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
@@ -146,9 +144,14 @@ class EcalDQMBinningService {
   int ylow(int) const;
 
   std::string channelName(uint32_t, BinningType _btype = kDCC) const;
-
+  
   uint32_t idFromName(std::string const&) const;
   uint32_t idFromBin(ObjectType, BinningType, unsigned, int) const;
+
+  AxisSpecs const* formAxis(edm::ParameterSet const&) const;
+
+  ObjectType getObjectType(std::string const&) const;
+  BinningType getBinningType(std::string const&) const;
 
  private:
   AxisSpecs getBinningEB_(BinningType, bool, int) const;

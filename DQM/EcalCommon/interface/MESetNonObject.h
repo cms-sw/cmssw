@@ -8,8 +8,13 @@ namespace ecaldqm
   class MESetNonObject : public MESet
   {
   public :
-    MESetNonObject(MEData const&);
+    MESetNonObject(std::string const&, BinService::ObjectType, BinService::BinningType, MonitorElement::Kind, BinService::AxisSpecs const* = 0, BinService::AxisSpecs const* = 0, BinService::AxisSpecs const* = 0);
+    MESetNonObject(MESetNonObject const&);
     ~MESetNonObject();
+
+    MESet& operator=(MESet const&);
+
+    MESet* clone() const;
 
     void book();
     bool retrieve() const;
@@ -29,6 +34,11 @@ namespace ecaldqm
     double getBinEntries(int) const;
 
     int findBin(double, double _y = 0.) const;
+
+  protected:
+    BinService::AxisSpecs const* xaxis_;
+    BinService::AxisSpecs const* yaxis_;
+    BinService::AxisSpecs const* zaxis_;
   };
 }
 

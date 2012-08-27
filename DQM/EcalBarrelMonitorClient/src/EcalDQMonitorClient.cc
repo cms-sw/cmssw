@@ -1,6 +1,7 @@
 #include "../interface/EcalDQMonitorClient.h"
 
 #include "../interface/DQWorkerClient.h"
+#include "../interface/EcalDQMClientUtils.h"
 
 #include "DQM/EcalCommon/interface/MESet.h"
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
@@ -62,16 +63,14 @@ EcalDQMonitorClient::beginRun(const edm::Run &_run, const edm::EventSetup &_es)
   _es.get<IdealGeometryRecord>().get(ttMapHandle);
   ecaldqm::setTrigTowerMap(ttMapHandle.product());
 
-  if(_es.find(edm::eventsetup::EventSetupRecordKey::makeKey<EcalDQMChannelStatusRcd>())){
+  if(_es.find(edm::eventsetup::EventSetupRecordKey::makeKey<EcalDQMChannelStatusRcd>()) && _es.find(edm::eventsetup::EventSetupRecordKey::makeKey<EcalDQMTowerStatusRcd>())){
     edm::ESHandle<EcalDQMChannelStatus> cStHndl;
     _es.get<EcalDQMChannelStatusRcd>().get(cStHndl);
-    DQWorkerClient::channelStatus = cStHndl.product();
-  }
 
-  if(_es.find(edm::eventsetup::EventSetupRecordKey::makeKey<EcalDQMTowerStatusRcd>())){
     edm::ESHandle<EcalDQMTowerStatus> tStHndl;
     _es.get<EcalDQMTowerStatusRcd>().get(tStHndl);
-    DQWorkerClient::towerStatus = tStHndl.product();
+
+    ecaldqm::setStatuses(cStHndl.product(), tStHndl.product());
   }
 
   for(std::vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
@@ -112,8 +111,9 @@ EcalDQMonitorClient::endLuminosityBlock(const edm::LuminosityBlock &_lumi, const
   for(std::vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr)
     (*wItr)->endLuminosityBlock(_lumi, _es);
 
-  runWorkers();
   lumiStatus_ = 1;
+
+  runWorkers();
 }
 
 void
@@ -124,11 +124,17 @@ EcalDQMonitorClient::runWorkers()
 
   for(std::vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
     DQWorker* worker(*wItr);
-    if(!worker->isInitialized())
+    if(!worker->isInitialized()){
+      if(verbosity_ > 1)
+        std::cout << " initializing " << worker->getName() << std::endl;
       worker->initialize();
+    }
 
-    if(worker->isInitialized())
+    if(worker->isInitialized()){
+      if(verbosity_ > 1)
+        std::cout << " producing plots in " << worker->getName() << std::endl;
       static_cast<DQWorkerClient*>(worker)->producePlots();
+    }
   }
 
   if(verbosity_ > 0)

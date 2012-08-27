@@ -1,28 +1,28 @@
+etAxis = {'nbins': 128, 'low': 0., 'high': 256., 'title': 'TP Et'}
+indexAxis = {'nbins': 6, 'low': 0., 'high': 6., 'title': 'TP index'}
+bxAxis = {'nbins': 15, 'low': 0., 'high': 15., 'title': 'bunch crossing'}
+
 trigPrimTask = dict(
     runOnEmul = True,
     expectedTiming = 3,
     HLTCaloPath = 'HLT_SingleJet*',
-    HLTMuonPath = 'HLT_Mu5_v*'
-)
-
-trigPrimTaskPaths = dict(
-    EtReal = "TriggerPrimitives/Et/TPTask TP Et 1D",
-    EtEmul = "TriggerPrimitives/Et/TPTask emul Et 1D",
-    EtMaxEmul = "TriggerPrimitives/Et/TPTask emul max Et 1D",
-    EtRealMap = "TriggerPrimitives/Et/TPTask TP Et",
-    EtEmulMap = "TriggerPrimitives/Et/Emulation/TPTask emul Et",
-    MatchedIndex = "TriggerPrimitives/EmulMatching/MatchIndex/TPTask emul index matching real",
-    EmulMaxIndex = "TriggerPrimitives/EmulMatching/TPTask emul max Et index",
-    TimingError = "TriggerPrimitives/EmulMatching/Errors/Timing/",
-    EtVsBx = "TriggerPrimitives/Et/TPTask TP Et vs BX",
-    OccVsBx = "TriggerPrimitives/TPTask TP number vs BX",
-    HighIntMap     = "TriggerPrimitives/TPTask tower high interest occupancy",
-    MedIntMap      = "TriggerPrimitives/TPTask tower med interest occupancy",
-    LowIntMap      = "TriggerPrimitives/TPTask tower low interest occupancy",
-    TTFlags          = "TriggerPrimitives/TPTask TT flags",
-    TTFMismatch      = "TriggerPrimitives/TPTask TT flag mismatch",
-    TimingCalo = "TriggerPrimitives/TPTask TP timing calo triggers",
-    TimingMuon = "TriggerPrimitives/TPTask TP timing muon triggers",
-    EtEmulError = "TriggerPrimitives/EmulMatching/Errors/Et/",
-    FGEmulError = "TriggerPrimitives/EmulMatching/Errors/FineGrainBit/"
+    HLTMuonPath = 'HLT_Mu5_v*',
+    MEs = dict(
+        EtReal = dict(path = "TriggerPrimitives/Et/TPTask TP Et 1D", otype = 'Ecal2P', btype = 'User', kind = 'TH1F', xaxis = etAxis),
+        EtMaxEmul = dict(path = "TriggerPrimitives/Et/TPTask emul max Et 1D", otype = 'Ecal2P', btype = 'User', kind = 'TH1F', xaxis = etAxis),
+        EtRealMap = dict(path = "TriggerPrimitives/Et/TPTask TP Et", otype = 'SM', btype = 'TriggerTower', kind = 'TProfile2D', zaxis = etAxis),
+        EtSummary = dict(path = "TriggerPrimitives/Et/TPTask TP Et", otype = 'Ecal2P', btype = 'TriggerTower', kind = 'TProfile2D', zaxis = etAxis),
+        MatchedIndex = dict(path = "TriggerPrimitives/EmulMatching/MatchIndex/TPTask emul index matching real", otype = 'SM', btype = 'TriggerTower', kind = 'TH2F', yaxis = indexAxis),
+        EmulMaxIndex = dict(path = "TriggerPrimitives/EmulMatching/TPTask emul max Et index", otype = 'Ecal2P', btype = 'User', kind = 'TH1F', xaxis = indexAxis),
+        TimingError = dict(path = "TriggerPrimitives/EmulMatching/Errors/Timing/", otype = 'Channel', btype = 'TriggerTower', kind = 'TH1F'),
+        EtVsBx = dict(path = "TriggerPrimitives/Et/TPTask TP Et vs BX", otype = 'Ecal2P', btype = 'User', kind = 'TProfile', xaxis = bxAxis),
+        OccVsBx = dict(path = "TriggerPrimitives/TPTask TP number vs BX", otype = 'Ecal', btype = 'User', kind = 'TProfile', xaxis = bxAxis),
+        HighIntMap = dict(path = "TriggerPrimitives/TPTask tower high interest occupancy", otype = 'Ecal3P', btype = 'TriggerTower', kind = 'TH2F'),
+        MedIntMap = dict(path = "TriggerPrimitives/TPTask tower med interest occupancy", otype = 'Ecal3P', btype = 'TriggerTower', kind = 'TH2F'),
+        LowIntMap = dict(path = "TriggerPrimitives/TPTask tower low interest occupancy", otype = 'Ecal3P', btype = 'TriggerTower', kind = 'TH2F'),
+        TTFlags = dict(path = "TriggerPrimitives/TPTask TT flags", otype = 'Ecal2P', btype = 'DCC', kind = 'TH2F', yaxis = {'nbins': 8, 'low': 0., 'high': 8., 'title': 'TT flag'}),
+        TTFMismatch = dict(path = "TriggerPrimitives/TPTask TT flag mismatch", otype = 'Ecal2P', btype = 'TriggerTower', kind = 'TH2F'),
+        EtEmulError = dict(path = "TriggerPrimitives/EmulMatching/Errors/Et/", otype = 'Channel', btype = 'TriggerTower', kind = 'TH1F'),
+        FGEmulError = dict(path = "TriggerPrimitives/EmulMatching/Errors/FineGrainBit/", otype = 'Channel', btype = 'TriggerTower', kind = 'TH1F')
+    )
 )

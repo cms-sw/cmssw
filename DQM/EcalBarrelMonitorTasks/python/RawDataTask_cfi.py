@@ -1,27 +1,26 @@
 rawDataTask = dict(
-)
-
-rawDataTaskPaths = dict(
-    EventTypePreCalib  = "RawData/RawDataTask event type BX lt 3490",
-    EventTypeCalib     = "RawData/RawDataTask event type BX eq 3490",
-    EventTypePostCalib = "RawData/RawDataTask event type BX gt 3490",
-    CRC                = "RawData/RawDataTask CRC errors",
-    RunNumber          = "RawData/RawDataTask DCC-GT run mismatch",
-    Orbit              = "RawData/RawDataTask DCC-GT orbit mismatch",
-    TriggerType        = "RawData/RawDataTask DCC-GT trigType mismatch",
-    L1ADCC             = "RawData/RawDataTask DCC-GT L1A mismatch",
-    L1AFE              = "RawData/RawDataTask FE-DCC L1A mismatch",
-    L1ATCC             = "RawData/RawDataTask TCC-DCC L1A mismatch",
-    L1ASRP             = "RawData/RawDataTask SRP-DCC L1A mismatch",
-    BXDCC              = "RawData/RawDataTask DCC-GT BX mismatch",
-    BXFE               = "RawData/RawDataTask FE-DCC BX mismatch",
-    BXTCC              = "RawData/RawDataTask TCC-DCC BX mismatch",
-    BXSRP              = "RawData/RawDataTask SRP-DCC BX mismatch",
-    DesyncByLumi       = "RawData/RawDataTask sync errors by lumi",
-    DesyncTotal       = "RawData/RawDataTask sync errors total",
-    FEStatus           = "RawData/FEStatus/RawDataTask FE status",
-    FEByLumi           = "RawData/RawDataTask FE status errors by lumi",
-    FEDEntries         = '%(hlttask)s/FEDEntries',
-    FEDFatal           = '%(hlttask)s/FEDFatal'
+    MEs = dict(
+        EventTypePreCalib = dict(path = "RawData/RawDataTask event type BX lt 3490", otype = 'Ecal', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 25, 'low': 0., 'high': 25.}),
+        EventTypeCalib = dict(path = "RawData/RawDataTask event type BX eq 3490", otype = 'Ecal', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 25, 'low': 0., 'high': 25.}),
+        EventTypePostCalib = dict(path = "RawData/RawDataTask event type BX gt 3490", otype = 'Ecal', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 25, 'low': 0., 'high': 25.}),
+        CRC = dict(path = "RawData/RawDataTask CRC errors", otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
+        RunNumber = dict(path = "RawData/RawDataTask DCC-GT run mismatch", otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
+        Orbit = dict(path = "RawData/RawDataTask DCC-GT orbit mismatch", otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
+        TriggerType = dict(path =  "RawData/RawDataTask DCC-GT trigType mismatch", otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
+        L1ADCC = dict(path = "RawData/RawDataTask DCC-GT L1A mismatch", otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
+        L1AFE = dict(path = "RawData/RawDataTask FE-DCC L1A mismatch", otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
+        L1ATCC = dict(path = "RawData/RawDataTask TCC-DCC L1A mismatch", otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
+        L1ASRP = dict(path = "RawData/RawDataTask SRP-DCC L1A mismatch", otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
+        BXDCC = dict(path = "RawData/RawDataTask DCC-GT BX mismatch", otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
+        BXFE = dict(path = "RawData/RawDataTask FE-DCC BX mismatch", otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
+        BXTCC = dict(path = "RawData/RawDataTask TCC-DCC BX mismatch", otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
+        BXSRP = dict(path = "RawData/RawDataTask SRP-DCC BX mismatch", otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
+        DesyncByLumi = dict(path = "RawData/RawDataTask sync errors by lumi", otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
+        DesyncTotal = dict(path = "RawData/RawDataTask sync errors total", otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
+        FEStatus = dict(path = "RawData/FEStatus/RawDataTask FE status", otype = 'SM', btype = 'SuperCrystal', kind = 'TH2F', yaxis = {'nbins': 16, 'low': 0., 'high': 16.}),
+        FEByLumi = dict(path = "RawData/RawDataTask FE status errors by lumi", otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
+        FEDEntries = dict(path = '%(hlttask)s/FEDEntries', otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
+        FEDFatal = dict(path = '%(hlttask)s/FEDFatal', otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F')
+    )
 )
 

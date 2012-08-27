@@ -4,11 +4,14 @@
 
 namespace ecaldqm {
 
-  PNPresampleTask::PNPresampleTask(const edm::ParameterSet &_params) :
-    DQWorkerTask(_params, "PNPresampleTask")
+  PNPresampleTask::PNPresampleTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
+    DQWorkerTask(_workerParams, _commonParams, "PNPresampleTask")
   {
     collectionMask_ =
       (0x1 << kPnDiodeDigi);
+
+    for(unsigned iD(0); iD < BinService::nDCC; ++iD)
+      enable_[iD] = false;
   }
 
   PNPresampleTask::~PNPresampleTask()
@@ -73,9 +76,9 @@ namespace ecaldqm {
 
   /*static*/
   void
-  PNPresampleTask::setMEData(std::vector<MEData>& _data)
+  PNPresampleTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
   {
-    _data[kPedestal] = MEData("Pedestal", BinService::kSMMEM, BinService::kCrystal, MonitorElement::DQM_KIND_TPROFILE2D);
+    _nameToIndex["Pedestal"] = kPedestal;
   }
 
   DEFINE_ECALDQM_WORKER(PNPresampleTask);

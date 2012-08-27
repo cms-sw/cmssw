@@ -3,10 +3,10 @@
 namespace ecaldqm
 {
 
-  MESetDet0D::MESetDet0D(MEData const& _data) :
-    MESetEcal(_data, 0)
+  MESetDet0D::MESetDet0D(std::string const& _fullPath, BinService::ObjectType _otype, BinService::BinningType _btype, MonitorElement::Kind _kind) :
+    MESetEcal(_fullPath, _otype, _btype, _kind, 0)
   {
-    switch(data_->kind){
+    switch(kind_){
     case MonitorElement::DQM_KIND_REAL:
       break;
     default:
@@ -14,8 +14,19 @@ namespace ecaldqm
     }
   }
 
+  MESetDet0D::MESetDet0D(MESetDet0D const& _orig) :
+    MESetEcal(_orig)
+  {
+  }
+
   MESetDet0D::~MESetDet0D()
   {
+  }
+
+  MESet*
+  MESetDet0D::clone() const
+  {
+    return new MESetDet0D(*this);
   }
 
   void
@@ -23,7 +34,7 @@ namespace ecaldqm
   {
     if(!active_) return;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     mes_[iME]->Fill(_value);
@@ -34,7 +45,7 @@ namespace ecaldqm
   {
     if(!active_) return;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     mes_[iME]->Fill(_value);
@@ -45,7 +56,7 @@ namespace ecaldqm
   {
     if(!active_) return;
 
-    unsigned iME(binService_->findPlot(data_->otype, _dcctccid, data_->btype));
+    unsigned iME(binService_->findPlot(otype_, _dcctccid, btype_));
     checkME_(iME);
 
     mes_[iME]->Fill(_value);
@@ -56,7 +67,7 @@ namespace ecaldqm
   {
     if(!active_) return 0.;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getFloatValue();
@@ -67,7 +78,7 @@ namespace ecaldqm
   {
     if(!active_) return 0.;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     return mes_[iME]->getFloatValue();
@@ -78,7 +89,7 @@ namespace ecaldqm
   {
     if(!active_) return 0.;
 
-    unsigned iME(binService_->findPlot(data_->otype, _dcctccid, data_->btype));
+    unsigned iME(binService_->findPlot(otype_, _dcctccid, btype_));
     checkME_(iME);
 
     return mes_[iME]->getFloatValue();

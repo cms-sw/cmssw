@@ -34,8 +34,6 @@ class EcalDQMonitorClient : public EcalDQMonitor {
 
   void runWorkers();
 
-  // list of workers
-  std::vector<ecaldqm::DQWorker*> workers_;
   int lumiStatus_;
 };
 

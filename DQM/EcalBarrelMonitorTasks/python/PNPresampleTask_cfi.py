@@ -1,7 +1,6 @@
 pnPresampleTask = dict(
-)
-
-pnPresampleTaskPaths = dict(
-    Pedestal = "Pedestal/PNPresample/PNPresampleTask PN pedestal G16"
+    MEs = dict(
+        Pedestal = dict(path = "Pedestal/PNPresample/PNPresampleTask PN pedestal G16", otype = 'SMMEM', btype = 'Crystal', kind = 'TProfile2D')
+    )
 )
     

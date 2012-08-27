@@ -1,24 +1,21 @@
 #ifndef TrigPrimTask_H
 #define TrigPrimTask_H
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
+#include "DQWorkerTask.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-
-class EcalTrigTowerConstituentsMap;
 
 namespace ecaldqm {
 
   class TrigPrimTask : public DQWorkerTask {
   public:
-    TrigPrimTask(const edm::ParameterSet &, const edm::ParameterSet &);
+    TrigPrimTask(edm::ParameterSet const&, edm::ParameterSet const&);
     ~TrigPrimTask();
 
     void bookMEs();
 
     void analyze(const void*, Collections);
 
-    void beginRun(const edm::Run &, const edm::EventSetup &);
     void beginEvent(const edm::Event &, const edm::EventSetup &);
 
     void runOnRealTPs(const EcalTrigPrimDigiCollection &);
@@ -49,15 +46,14 @@ namespace ecaldqm {
       nMESets
     };
 
-    static void setMEData(std::vector<MEData>&);
+    static void setMEOrdering(std::map<std::string, unsigned>&);
 
     enum Constants {
       nBXBins = 15
     };
 
   private:
-    const EcalTrigTowerConstituentsMap* ttMap_;
-    const EcalTrigPrimDigiCollection* realTps_;
+    EcalTrigPrimDigiCollection const* realTps_;
 
     bool runOnEmul_;
 
@@ -68,7 +64,7 @@ namespace ecaldqm {
     bool HLTMuonBit_;
 
     int bxBinEdges_[nBXBins + 1];
-    float bxBin_;
+    double bxBin_;
 
     std::map<uint32_t, unsigned> towerReadouts_;
   };

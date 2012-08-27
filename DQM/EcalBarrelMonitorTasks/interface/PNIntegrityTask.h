@@ -1,7 +1,7 @@
 #ifndef PNIntegrityTask_H
 #define PNIntegrityTask_H
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
+#include "DQWorkerTask.h"
 
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
@@ -9,7 +9,7 @@ namespace ecaldqm {
 
   class PNIntegrityTask : public DQWorkerTask {
   public:
-    PNIntegrityTask(const edm::ParameterSet &, const edm::ParameterSet &);
+    PNIntegrityTask(edm::ParameterSet const&, edm::ParameterSet const&);
     ~PNIntegrityTask();
 
     void analyze(const void*, Collections);
@@ -24,7 +24,7 @@ namespace ecaldqm {
       nMESets
     };
 
-    static void setMEData(std::vector<MEData>&);
+    static void setMEOrdering(std::map<std::string, unsigned>&);
   };
 
   inline void PNIntegrityTask::analyze(const void* _p, Collections _collection){

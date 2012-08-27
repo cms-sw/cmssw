@@ -1,11 +1,13 @@
+from DQM.EcalBarrelMonitorTasks.RawDataTask_cfi import rawDataTask
+
 rawDataClient = dict(
     synchErrorThreshold = 10,
-    soruces = dict(
-        L1ADCC = ['RawDataTask', 'L1ADCC'],
-        FEStatus = ['RawDataTask', 'FEStatus']
+    MEs = dict(
+        QualitySummary = dict(path = "Summary/RawDataClient FE status quality", otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TH2F')
+    ),
+    sources = dict(
+        L1ADCC = rawDataTask['MEs']['L1ADCC'],
+        FEStatus = rawDataTask['MEs']['FEStatus']
     )
 )
 
-rawDataClientPaths = dict(
-    QualitySummary = "Summary/RawDataClient FE status quality"
-)

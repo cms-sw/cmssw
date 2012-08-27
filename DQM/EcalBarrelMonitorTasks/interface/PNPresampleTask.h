@@ -1,7 +1,7 @@
 #ifndef PNPresampleTask_H
 #define PNPresampleTask_H
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
+#include "DQWorkerTask.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
@@ -9,7 +9,7 @@ namespace ecaldqm {
 
   class PNPresampleTask : public DQWorkerTask {
   public:
-    PNPresampleTask(const edm::ParameterSet &, const edm::ParameterSet &);
+    PNPresampleTask(edm::ParameterSet const&, edm::ParameterSet const&);
     ~PNPresampleTask();
 
     bool filterRunType(const std::vector<short>&);
@@ -26,7 +26,7 @@ namespace ecaldqm {
       nMESets
     };
 
-    static void setMEData(std::vector<MEData>&);
+    static void setMEOrdering(std::map<std::string, unsigned>&);
 
   protected:
     bool enable_[BinService::nDCC];

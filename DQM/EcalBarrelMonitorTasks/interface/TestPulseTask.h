@@ -1,7 +1,7 @@
 #ifndef TestPulseTask_H
 #define TestPulseTask_H
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
+#include "DQWorkerTask.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -10,10 +10,8 @@ namespace ecaldqm {
 
   class TestPulseTask : public DQWorkerTask {
   public:
-    TestPulseTask(const edm::ParameterSet &, const edm::ParameterSet &);
+    TestPulseTask(edm::ParameterSet const&, edm::ParameterSet const&);
     ~TestPulseTask();
-
-    void bookMEs();
 
     bool filterRunType(const std::vector<short>&);
 
@@ -26,27 +24,23 @@ namespace ecaldqm {
     void runOnPnDigis(const EcalPnDiodeDigiCollection&);
     void runOnUncalibRecHits(const EcalUncalibratedRecHitCollection&);
 
-    enum Constants {
-      nGain = 3,
-      nPNGain = 2
-    };
-
     enum MESets{
       kOccupancy,
-      kShape = kOccupancy + nGain,
-      kAmplitude = kShape + nGain, // profile2d
-      kPNOccupancy = kAmplitude + nGain, // profile2d
-      kPNAmplitude = kPNOccupancy + nPNGain, // profile2d
-      nMESets = kPNAmplitude + nPNGain
+      kShape,
+      kAmplitude,
+      kPNOccupancy,
+      kPNAmplitude,
+      nMESets
     };
 
-    static void setMEData(std::vector<MEData>&);
+    static void setMEOrdering(std::map<std::string, unsigned>&);
 
   protected:
-    bool enable_[54];
-    int gain_[54];
-    std::vector<int> MGPAGains_;
-    std::vector<int> MGPAGainsPN_;
+    std::map<int, unsigned> gainToME_;
+    std::map<int, unsigned> pnGainToME_;
+
+    bool enable_[BinService::nDCC];
+    int gain_[BinService::nDCC];
   };
 
   inline void TestPulseTask::analyze(const void* _p, Collections _collection){

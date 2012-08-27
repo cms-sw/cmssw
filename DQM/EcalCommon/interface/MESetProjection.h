@@ -13,8 +13,11 @@ namespace ecaldqm
   class MESetProjection : public MESetEcal
   {
   public :
-    MESetProjection(MEData const&);
+    MESetProjection(std::string const&, BinService::ObjectType, BinService::BinningType, MonitorElement::Kind, BinService::AxisSpecs const* = 0);
+    MESetProjection(MESetProjection const&);
     ~MESetProjection();
+
+    MESet* clone() const;
 
     void fill(DetId const&, double = 1., double _unused1 = 0., double _unused2 = 0.);
     void fill(double, double = 1., double _unused = 0.);

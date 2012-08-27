@@ -7,56 +7,49 @@ namespace ecaldqm {
 
   class LaserClient : public DQWorkerClient {
   public:
-    LaserClient(const edm::ParameterSet &);
+    LaserClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~LaserClient() {}
-
-    void bookMEs();
-
-    void initialize();
 
     void beginRun(const edm::Run&, const edm::EventSetup&);
 
     void producePlots();
 
-    enum Constants {
-      nWL = 4,
-      nPNGain = 2
-    };
-
     enum MESets {
       kQuality,
-      kAmplitudeMean = kQuality + nWL,
-      kAmplitudeRMS = kAmplitudeMean + nWL,
-      kTimingMean = kAmplitudeRMS + nWL,
-      kTimingRMS = kTimingMean + nWL,
-      kPNAmplitudeMean = kTimingRMS + nWL,
-      kPNAmplitudeRMS = kPNAmplitudeMean + nWL * nPNGain,
-      kQualitySummary = kPNAmplitudeRMS + nWL * nPNGain,
-      kPNQualitySummary = kQualitySummary + nWL,
-      nTargets = kPNQualitySummary + nWL,
-      sAmplitude = 0,
-      sTiming = sAmplitude + nWL,
-      sPNAmplitude = sTiming + nWL,
-      nSources = sPNAmplitude + nWL * nPNGain,
-      nMESets = nTargets + nSources
+      kAmplitudeMean,
+      kAmplitudeRMS,
+      kTimingMean,
+      kTimingRMS,
+      kPNAmplitudeMean,
+      kPNAmplitudeRMS,
+      kQualitySummary,
+      kPNQualitySummary,
+      nMESets
     };
 
-    static void setMEData(std::vector<MEData>&);
+    enum Sources {
+      kAmplitude,
+      kTiming,
+      kPNAmplitude,
+      nSources
+    };
+ 
+    static void setMEOrdering(std::map<std::string, unsigned>&);
 
   protected:
-    std::vector<int> laserWavelengths_;
-    std::vector<int> MGPAGainsPN_;
+    std::map<int, unsigned> wlToME_;
+    std::map<std::pair<int, int>, unsigned> wlGainToME_;
 
     int minChannelEntries_;
-    std::vector<double> expectedAmplitude_;
-    std::vector<double> amplitudeThreshold_;
-    std::vector<double> amplitudeRMSThreshold_;
-    std::vector<double> expectedTiming_;
-    std::vector<double> timingThreshold_;
-    std::vector<double> timingRMSThreshold_;
-    std::vector<double> expectedPNAmplitude_;
-    std::vector<double> pnAmplitudeThreshold_;
-    std::vector<double> pnAmplitudeRMSThreshold_;
+    std::vector<float> expectedAmplitude_;
+    std::vector<float> amplitudeThreshold_;
+    std::vector<float> amplitudeRMSThreshold_;
+    std::vector<float> expectedTiming_;
+    std::vector<float> timingThreshold_;
+    std::vector<float> timingRMSThreshold_;
+    std::vector<float> expectedPNAmplitude_;
+    std::vector<float> pnAmplitudeThreshold_;
+    std::vector<float> pnAmplitudeRMSThreshold_;
 
     float towerThreshold_;
 

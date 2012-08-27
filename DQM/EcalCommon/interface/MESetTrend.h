@@ -13,8 +13,13 @@ namespace ecaldqm
   class MESetTrend : public MESetEcal
   {
   public :
-    MESetTrend(MEData const&);
+    MESetTrend(std::string const&, BinService::ObjectType, BinService::BinningType, MonitorElement::Kind, BinService::AxisSpecs const* = 0);
+    MESetTrend(MESetTrend const&);
     ~MESetTrend();
+
+    MESet& operator=(MESet const&);
+
+    MESet* clone() const;
 
     void book();
 

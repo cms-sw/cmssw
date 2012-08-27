@@ -4,8 +4,8 @@
 
 namespace ecaldqm {
 
-  PNIntegrityTask::PNIntegrityTask(const edm::ParameterSet &_params) :
-    DQWorkerTask(_params, "PNIntegrityTask")
+  PNIntegrityTask::PNIntegrityTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
+    DQWorkerTask(_workerParams, _commonParams, "PNIntegrityTask")
   {
     collectionMask_ = 
       (0x1 << kMEMTowerIdErrors) |
@@ -47,12 +47,12 @@ namespace ecaldqm {
 
   /*static*/
   void
-  PNIntegrityTask::setMEData(std::vector<MEData>& _data)
+  PNIntegrityTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
   {
-    _data[kMEMChId] = MEData("MEMChId", BinService::kChannel, BinService::kCrystal, MonitorElement::DQM_KIND_TH1F);
-    _data[kMEMGain] = MEData("MEMGain", BinService::kChannel, BinService::kCrystal, MonitorElement::DQM_KIND_TH1F);
-    _data[kMEMBlockSize] = MEData("MEMBlockSize", BinService::kChannel, BinService::kCrystal, MonitorElement::DQM_KIND_TH1F);
-    _data[kMEMTowerId] = MEData("MEMTowerId", BinService::kChannel, BinService::kCrystal, MonitorElement::DQM_KIND_TH1F);
+    _nameToIndex["MEMChId"] = kMEMChId;
+    _nameToIndex["MEMGain"] = kMEMGain;
+    _nameToIndex["MEMBlockSize"] = kMEMBlockSize;
+    _nameToIndex["MEMTowerId"] = kMEMTowerId;
   }
 
   DEFINE_ECALDQM_WORKER(PNIntegrityTask);

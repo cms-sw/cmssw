@@ -17,15 +17,13 @@
 
 namespace ecaldqm {
 
-  SelectiveReadoutTask::SelectiveReadoutTask(const edm::ParameterSet &_params) :
-    DQWorkerTask(_params, "SelectiveReadoutTask"),
-    useCondDb_(false),
-    iFirstSample_(0),
-    channelStatus_(0),
-    ebSRFs_(0),
-    eeSRFs_(0),
-    frFlaggedTowers_(),
-    zsFlaggedTowers_()
+  SelectiveReadoutTask::SelectiveReadoutTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
+    DQWorkerTask(_workerParams, _commonParams, "SelectiveReadoutTask"),
+    useCondDb_(_workerParams.getUntrackedParameter<bool>("useCondDb")),
+    iFirstSample_(_workerParams.getUntrackedParameter<int>("DCCZS1stSample")),
+    ZSFIRWeights_(nFIRTaps),
+    suppressed_(),
+    flags_(nRU, -1)
   {
     collectionMask_ = 
       (0x1 << kRun) |
@@ -39,17 +37,10 @@ namespace ecaldqm {
     dependencies.push_back(Dependency(kEBDigi, kEcalRawData, kEBSrFlag));
     dependencies.push_back(Dependency(kEEDigi, kEcalRawData, kEESrFlag));
 
-    edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
-
-    useCondDb_ = taskParams.getUntrackedParameter<bool>("useCondDb");
-    iFirstSample_ = taskParams.getUntrackedParameter<int>("DCCZS1stSample");
-
-    std::vector<double> normWeights(taskParams.getUntrackedParameter<std::vector<double> >("ZSFIRWeights", std::vector<double>(0)));
-    if(normWeights.size()) setFIRWeights_(normWeights);
-  }
-
-  SelectiveReadoutTask::~SelectiveReadoutTask()
-  {
+    if(!useCondDb_){
+      std::vector<double> normWeights(_workerParams.getUntrackedParameter<std::vector<double> >("ZSFIRWeights"));
+      setFIRWeights_(normWeights);
+    }
   }
 
   void
@@ -71,20 +62,13 @@ namespace ecaldqm {
       }
       else edm::LogWarning("EcalDQM") << "SelectiveReadoutTask: DCC weight set is not exactly 1.";
     }
-
-    edm::ESHandle<EcalChannelStatus> chSHndl;
-    _es.get<EcalChannelStatusRcd>().get(chSHndl);
-    channelStatus_ = chSHndl.product();
-    if(!channelStatus_)
-      throw cms::Exception("EventSetup") << "EcalChannelStatusRcd";
   }
 
   void
   SelectiveReadoutTask::beginEvent(const edm::Event &, const edm::EventSetup &)
   {
-    for(int iDCC(0); iDCC < 54; iDCC++) feStatus_[iDCC].clear();
-    frFlaggedTowers_.clear();
-    zsFlaggedTowers_.clear();
+    flags_.assign(nRU, -1);
+    suppressed_.clear();
   }
 
   void
@@ -108,17 +92,17 @@ namespace ecaldqm {
   SelectiveReadoutTask::runOnRawData(const EcalRawDataCollection &_dcchs)
   {
     for(EcalRawDataCollection::const_iterator dcchItr(_dcchs.begin()); dcchItr != _dcchs.end(); ++dcchItr){
-      const std::vector<short> &feStatus(dcchItr->getFEStatus());
-      feStatus_[dcchItr->id() - 1].assign(feStatus.begin(), feStatus.end());
+      std::vector<short> const& feStatus(dcchItr->getFEStatus());
+      unsigned nFE(feStatus.size());
+      for(unsigned iFE(0); iFE < nFE; ++iFE)
+        if(feStatus[iFE] == Disabled) suppressed_.insert(std::make_pair(dcchItr->id(), iFE + 1));
     }
   }
 
   void
   SelectiveReadoutTask::runOnEBSrFlags(const EBSrFlagCollection &_srfs)
   {
-    float nFR(0.);
-
-    ebSRFs_ = &_srfs;
+    double nFR(0.);
 
     for(EBSrFlagCollection::const_iterator srfItr(_srfs.begin()); srfItr != _srfs.end(); ++srfItr)
       runOnSrFlag_(srfItr->id(), srfItr->value(), nFR);
@@ -129,9 +113,7 @@ namespace ecaldqm {
   void
   SelectiveReadoutTask::runOnEESrFlags(const EESrFlagCollection &_srfs)
   {
-    float nFR(0.);
-
-    eeSRFs_ = &_srfs;
+    double nFR(0.);
 
     for(EESrFlagCollection::const_iterator srfItr(_srfs.begin()); srfItr != _srfs.end(); ++srfItr)
       runOnSrFlag_(srfItr->id(), srfItr->value(), nFR);
@@ -140,28 +122,27 @@ namespace ecaldqm {
   }
 
   void
-  SelectiveReadoutTask::runOnSrFlag_(const DetId &_id, int _flag, float& nFR)
+  SelectiveReadoutTask::runOnSrFlag_(const DetId &_id, int _flag, double& _nFR)
   {
-    uint32_t rawId(_id.rawId());
-    int dccid(dccId(_id));
-    int towerid(towerId(_id));
-
     MEs_[kFlagCounterMap]->fill(_id);
 
-    short status(feStatus_[dccid - 1].size() ? feStatus_[dccid - 1][towerid - 1] : 0); // check: towerid == feId??
- 
+    unsigned iRU(-1);
+    if(_id.subdetId() == EcalTriggerTower)
+      iRU = EcalTrigTowerDetId(_id).hashedIndex();
+    else
+      iRU = EcalScDetId(_id).hashedIndex() + EcalTrigTowerDetId::kEBTotalTowers;
+    flags_[iRU] = _flag;
+
     switch(_flag & ~EcalSrFlag::SRF_FORCED_MASK){
     case EcalSrFlag::SRF_FULL:
       MEs_[kFullReadoutMap]->fill(_id);
-      nFR += 1.;
-      if(status != Disabled) frFlaggedTowers_.insert(rawId); // will be used in Digi loop
+      _nFR += 1.;
       break;
     case EcalSrFlag::SRF_ZS1:
       MEs_[kZS1Map]->fill(_id);
       // fallthrough
     case EcalSrFlag::SRF_ZS2:
       MEs_[kZSMap]->fill(_id);
-      if(status != Disabled) zsFlaggedTowers_.insert(rawId);
       break;
     default:
       break;
@@ -174,54 +155,22 @@ namespace ecaldqm {
   void
   SelectiveReadoutTask::runOnDigis(const EcalDigiCollection &_digis, Collections _collection)
   {
-    using namespace std;
+    std::vector<int> sizes(nRU, 0);
 
-    map<uint32_t, pair<int, int> > flagAndSizeMap;
-    map<uint32_t, pair<int, int> >::iterator fasItr;
-
-    int nHighInt(0), nLowInt(0); // one or two entries will be empty
+    int nHighInt(0), nLowInt(0);
 
     for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
 
-      DetId id(digiItr->id());
+      DetId const& id(digiItr->id());
 
-      pair<int, int> *flagAndSize(0);
+      unsigned iRU(-1);
 
-      if(_collection == kEBDigi){
-	EcalTrigTowerDetId ttid(EBDetId(id).tower());
-	uint32_t rawId(ttid.rawId());
+      if(_collection == kEBDigi) iRU = EBDetId(id).tower().hashedIndex();
+      else iRU = EEDetId(id).sc().hashedIndex() + EcalTrigTowerDetId::kEBTotalTowers;
 
-	fasItr = flagAndSizeMap.find(rawId);
+      if(flags_[iRU] < 0) continue;
 
-	if(fasItr == flagAndSizeMap.end()){
-	  flagAndSize = &(flagAndSizeMap[rawId]);
-
-	  EBSrFlagCollection::const_iterator srItr(ebSRFs_->find(ttid));
-	  if(srItr != ebSRFs_->end()) flagAndSize->first = srItr->value();
-	  else flagAndSize->first = -1;
-	}else{
-	  flagAndSize = &(fasItr->second);
-	}
-      }else{
-	EcalScDetId scid(EEDetId(id).sc());
-	uint32_t rawId(scid.rawId());
-
-	fasItr = flagAndSizeMap.find(rawId);
-
-	if(fasItr == flagAndSizeMap.end()){
-	  flagAndSize = &(flagAndSizeMap[rawId]);
-
-	  EESrFlagCollection::const_iterator srItr(eeSRFs_->find(scid));
-	  if(srItr != eeSRFs_->end()) flagAndSize->first = srItr->value();
-	  else flagAndSize->first = -1;
-	}else{
-	  flagAndSize = &(fasItr->second);
-	}
-      }
-
-      if(flagAndSize->first < 0) continue;
-
-      flagAndSize->second += 1;
+      sizes[iRU] += 1;
 
       // SR filter output calculation
 
@@ -256,12 +205,13 @@ namespace ecaldqm {
       //one sample has a lower gain than gain 12 (that is gain 12 output
       //is saturated)
 
-      bool highInterest((flagAndSize->first & ~EcalSrFlag::SRF_FORCED_MASK) == EcalSrFlag::SRF_FULL);
+      bool highInterest((flags_[iRU] & ~EcalSrFlag::SRF_FORCED_MASK) == EcalSrFlag::SRF_FULL);
 
       if(highInterest){
 	MEs_[kHighIntOutput]->fill(id, ZSFIRValue);
 	nHighInt += 1;
-      }else{
+      }
+      else{
 	MEs_[kLowIntOutput]->fill(id, ZSFIRValue);
 	nLowInt += 1;
       }
@@ -276,46 +226,41 @@ namespace ecaldqm {
     float lowIntPayload(nLowInt * bytesPerCrystal / 1024. / denom);
     MEs_[kLowIntPayload]->fill(iSubdet + 1, lowIntPayload);
 
-    // Check for "ZS-flagged but readout" and "FR-flagged but dropped" towers
-
     float nZSFullReadout(0.);
-    for(unsigned iTower(0); iTower < EcalTrigTowerDetId::kEBTotalTowers + EcalScDetId::kSizeForDenseIndexing; iTower++){
+    float nFRDropped(0.);
+
+    for(unsigned iRU(0); iRU < nRU; ++iRU){
       DetId id;
-      if(iTower < EcalTrigTowerDetId::kEBTotalTowers) id = EcalTrigTowerDetId::detIdFromDenseIndex(iTower);
-      else id = EcalScDetId::unhashIndex(iTower - EcalTrigTowerDetId::kEBTotalTowers);
+      if(iRU < EcalTrigTowerDetId::kEBTotalTowers) id = EcalTrigTowerDetId::detIdFromDenseIndex(iRU);
+      else id = EcalScDetId::unhashIndex(iRU - EcalTrigTowerDetId::kEBTotalTowers);
 
-      fasItr = flagAndSizeMap.find(id.rawId());
-
-      float towerSize(0.);
-      if(fasItr != flagAndSizeMap.end()) towerSize = fasItr->second.second * bytesPerCrystal;
+      double towerSize(sizes[iRU] * bytesPerCrystal);
 
       MEs_[kTowerSize]->fill(id, towerSize);
 
-      if(fasItr == flagAndSizeMap.end() || fasItr->second.first < 0) continue; // not read out || no flag set
+      if(flags_[iRU] < 0) continue;
 
-      bool ruFullyReadout(unsigned(fasItr->second.second) == getElectronicsMap()->dccTowerConstituents(dccId(id), towerId(id)).size());
+      int dccid(dccId(id));
+      int towerid(towerId(id));
 
-      if(ruFullyReadout && zsFlaggedTowers_.find(id.rawId()) != zsFlaggedTowers_.end()){
+      if(suppressed_.find(std::make_pair(dccid, towerid)) != suppressed_.end()) continue;
+
+      int flag(flags_[iRU] & ~EcalSrFlag::SRF_FORCED_MASK);
+
+      bool ruFullyReadout(unsigned(sizes[iRU]) == getElectronicsMap()->dccTowerConstituents(dccid, towerid).size());
+
+      if(ruFullyReadout && (flag == EcalSrFlag::SRF_ZS1 || flag == EcalSrFlag::SRF_ZS2)){
 	MEs_[kZSFullReadoutMap]->fill(id);
 	nZSFullReadout += 1.;
       }
 
-      // we will later use the list of FR flagged towers that do not have data
-      // if the tower is in flagAndSizeMap then there is data; remove it from the list
-      if(frFlaggedTowers_.find(id.rawId()) != frFlaggedTowers_.end()) frFlaggedTowers_.erase(id.rawId());
+      if(sizes[iRU] == 0 && flag == EcalSrFlag::SRF_FULL){
+        MEs_[kFRDroppedMap]->fill(id);
+        nFRDropped += 1.;
+      }
     }
 
     MEs_[kZSFullReadout]->fill(iSubdet + 1, nZSFullReadout);
-
-    float nFRDropped(0.);
-
-    for(set<uint32_t>::iterator frItr(frFlaggedTowers_.begin()); frItr != frFlaggedTowers_.end(); ++frItr){
-      DetId id(*frItr);
-
-      MEs_[kFRDroppedMap]->fill(id);
-      nFRDropped += 1.;
-    }
-
     MEs_[kFRDropped]->fill(iSubdet + 1, nFRDropped);
   }
 
@@ -328,7 +273,7 @@ namespace ecaldqm {
     bool notNormalized(false), notInt(false);
     for(std::vector<double>::const_iterator it(_normWeights.begin()); it != _normWeights.end(); ++it){
       if(*it > 1.) notNormalized = true;
-      if((int)(*it) != *it) notInt = true;
+      if(int(*it) != *it) notInt = true;
     }
     if(notInt && notNormalized){
       throw cms::Exception("InvalidConfiguration")
@@ -343,12 +288,13 @@ namespace ecaldqm {
 
     if(notNormalized){
       for(unsigned i(0); i< ZSFIRWeights_.size(); ++i)
-	ZSFIRWeights_[i] = (int)_normWeights[i];
-    }else{
-      const unsigned maxWeight(0xEFF); //weights coded on 11+1 signed bits
+	ZSFIRWeights_[i] = int(_normWeights[i]);
+    }
+    else{
+      const int maxWeight(0xEFF); //weights coded on 11+1 signed bits
       for(unsigned i(0); i < ZSFIRWeights_.size(); ++i){
-	ZSFIRWeights_[i] = lround(_normWeights[i] * (1<<10));
-	if(abs(ZSFIRWeights_[i]) > (int)maxWeight) //overflow
+	ZSFIRWeights_[i] = lround(_normWeights[i] * (0x1 << 10));
+	if(std::abs(ZSFIRWeights_[i]) > maxWeight) //overflow
 	  ZSFIRWeights_[i] = ZSFIRWeights_[i] < 0 ? -maxWeight : maxWeight;
       }
     }
@@ -356,63 +302,25 @@ namespace ecaldqm {
 
   /*static*/
   void
-  SelectiveReadoutTask::setMEData(std::vector<MEData>& _data)
+  SelectiveReadoutTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
   {
-    BinService::AxisSpecs axis;
-
-    axis.low = 0.;
-    axis.high = 50.;
-    _data[kTowerSize] = MEData("TowerSize", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D, 0, 0, &axis);
-
-    axis.title = "event size (kB)";
-    axis.nbins = 78; // 10 zero-bins + 68
-    axis.edges = new double[79];
-    float fullTTSize(0.608);
-    for(int i(0); i <= 10; i++) axis.edges[i] = fullTTSize / 10. * i;
-    for(int i(11); i < 79; i++) axis.edges[i] = fullTTSize * (i - 10);
-    _data[kDCCSize] = MEData("DCCSize", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH2F, 0, &axis);
-    delete [] axis.edges;
-    axis.edges = 0;
-
-    axis.nbins = 100;
-    axis.low = 0.;
-    axis.high = 3.;
-    axis.title = "event size (kB)";
-    _data[kEventSize] = MEData("EventSize", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
-    _data[kFlagCounterMap] = MEData("FlagCounterMap", BinService::kEcal3P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
-    _data[kRUForcedMap] = MEData("RUForcedMap", BinService::kEcal3P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
-
-    axis.nbins = 100;
-    axis.low = 0.;
-    axis.high = 200.;
-    axis.title = "number of towers";
-    _data[kFullReadout] = MEData("FullReadout", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
-    _data[kFullReadoutMap] = MEData("FullReadoutMap", BinService::kEcal3P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
-    _data[kZS1Map] = MEData("ZS1Map", BinService::kEcal3P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
-    _data[kZSMap] = MEData("ZSMap", BinService::kEcal3P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
-
-    axis.nbins = 20;
-    axis.low = 0.;
-    axis.high = 20.;
-    axis.title = "number of towers";
-    _data[kZSFullReadout] = MEData("ZSFullReadout", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
-    _data[kZSFullReadoutMap] = MEData("ZSFullReadoutMap", BinService::kEcal3P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
-    _data[kFRDropped] = MEData("FRDropped", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
-    _data[kFRDroppedMap] = MEData("FRDroppedMap", BinService::kEcal3P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
-
-    axis.nbins = 100;
-    axis.low = 0.;
-    axis.high = 3.;
-    axis.title = "event size (kB)";
-    _data[kHighIntPayload] = MEData("HighIntPayload", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
-    _data[kLowIntPayload] = MEData("LowIntPayload", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
-
-    axis.nbins = 100;
-    axis.low = -60.;
-    axis.high = 60.;
-    axis.title = "ADC counts*4";
-    _data[kHighIntOutput] = MEData("HighIntOutput", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
-    _data[kLowIntOutput] = MEData("LowIntOutput", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
+    _nameToIndex["TowerSize"] = kTowerSize;
+    _nameToIndex["DCCSize"] = kDCCSize;
+    _nameToIndex["EventSize"] = kEventSize;
+    _nameToIndex["FlagCounterMap"] = kFlagCounterMap;
+    _nameToIndex["RUForcedMap"] = kRUForcedMap;
+    _nameToIndex["FullReadout"] = kFullReadout;
+    _nameToIndex["FullReadoutMap"] = kFullReadoutMap;
+    _nameToIndex["ZS1Map"] = kZS1Map;
+    _nameToIndex["ZSMap"] = kZSMap;
+    _nameToIndex["ZSFullReadout"] = kZSFullReadout;
+    _nameToIndex["ZSFullReadoutMap"] = kZSFullReadoutMap;
+    _nameToIndex["FRDropped"] = kFRDropped;
+    _nameToIndex["FRDroppedMap"] = kFRDroppedMap;
+    _nameToIndex["HighIntPayload"] = kHighIntPayload;
+    _nameToIndex["LowIntPayload"] = kLowIntPayload;
+    _nameToIndex["HighIntOutput"] = kHighIntOutput;
+    _nameToIndex["LowIntOutput"] = kLowIntOutput;
   }
 
   DEFINE_ECALDQM_WORKER(SelectiveReadoutTask);

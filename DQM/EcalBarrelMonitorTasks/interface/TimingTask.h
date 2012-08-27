@@ -1,7 +1,7 @@
 #ifndef TimingTask_H
 #define TimingTask_H
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
+#include "DQWorkerTask.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
@@ -9,7 +9,7 @@ namespace ecaldqm {
 
   class TimingTask : public DQWorkerTask {
   public:
-    TimingTask(const edm::ParameterSet &, const edm::ParameterSet &);
+    TimingTask(edm::ParameterSet const&, edm::ParameterSet const&);
     ~TimingTask();
 
     bool filterRunType(const std::vector<short>&);
@@ -27,7 +27,7 @@ namespace ecaldqm {
       nMESets
     };
 
-    static void setMEData(std::vector<MEData>&);
+    static void setMEOrdering(std::map<std::string, unsigned>&);
 
   private:
     float energyThresholdEB_;

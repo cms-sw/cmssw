@@ -1,7 +1,7 @@
 #ifndef ClusterTask_H
 #define ClusterTask_H
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
+#include "DQWorkerTask.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
@@ -14,7 +14,7 @@ namespace ecaldqm {
 
   class ClusterTask : public DQWorkerTask {
   public:
-    ClusterTask(const edm::ParameterSet &, const edm::ParameterSet&);
+    ClusterTask(edm::ParameterSet const&, edm::ParameterSet const&);
     ~ClusterTask();
 
     void bookMEs();
@@ -61,7 +61,7 @@ namespace ecaldqm {
     };
 
     // needs to be declared in each derived class
-    static void setMEData(std::vector<MEData>&);
+    static void setMEOrdering(std::map<std::string, unsigned>&);
 
   private:
     const CaloTopology *topology_;

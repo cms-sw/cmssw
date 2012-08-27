@@ -5,8 +5,8 @@
 
 namespace ecaldqm {
 
-  PresampleTask::PresampleTask(const edm::ParameterSet &_params) :
-    DQWorkerTask(_params, "PresampleTask")
+  PresampleTask::PresampleTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
+    DQWorkerTask(_workerParams, _commonParams, "PresampleTask")
   {
     collectionMask_ =
       (0x1 << kEBDigi) |
@@ -62,12 +62,9 @@ namespace ecaldqm {
 
   /*static*/
   void
-  PresampleTask::setMEData(std::vector<MEData>& _data)
+  PresampleTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
   {
-    BinService::AxisSpecs axis;
-    axis.low = 160.;
-    axis.high = 240.;
-    _data[kPedestal] = MEData("Pedestal", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TPROFILE2D, 0, 0, &axis);
+    _nameToIndex["Pedestal"] = kPedestal;
   }
 
   DEFINE_ECALDQM_WORKER(PresampleTask);

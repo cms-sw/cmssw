@@ -5,13 +5,8 @@
 
 namespace ecaldqm {
 
-  SummaryClient::SummaryClient(const edm::ParameterSet& _params) :
-    DQWorkerClient(_params, "SummaryClient")
-  {
-  }
-
-  void
-  SummaryClient::bookMEs()
+  SummaryClient::SummaryClient(edm::ParameterSet const&  _workerParams, edm::ParameterSet const& _commonParams) :
+    DQWorkerClient(_workerParams, _commonParams, "SummaryClient")
   {
   }
 
@@ -32,97 +27,75 @@ namespace ecaldqm {
   void
   SummaryClient::producePlots()
   {
-    MEs_[kQualitySummary]->reset(2.);
     MEs_[kReportSummaryMap]->reset(1.);
+    MEs_[kReportSummaryContents]->reset(1.);
+    MEs_[kReportSummary]->reset(1.);
 
     float totalChannels(0.);
     float totalGood(0.);
 
-    for(unsigned dccid(1); dccid <= 54; dccid++){
-      MonitorElement const* me(sources_[sDigiOccupancy]->getME(dccid - 1));
-      if(me && me->getTH1()->GetEntries() < 1.){
-	MEs_[kReportSummaryContents]->fill(dccid, 1.);
-	continue;
+    std::vector<float> dccChannels(BinService::nDCC, 0.);
+    std::vector<float> dccGood(BinService::nDCC, 0.);
+
+    MESet::iterator qEnd(MEs_[kQualitySummary]->end());
+    for(MESet::iterator qItr(MEs_[kQualitySummary]->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
+
+      DetId id(qItr->getId());
+
+      float integrity(sources_[kIntegrity]->getBinContent(id));
+
+      if(integrity == 2. || integrity == 5.){
+        qItr->setBinContent(integrity);
+        continue;
       }
 
-      float dccChannels(0.);
-      float dccGood(0.);
+      float presample(sources_[kPresample]->getBinContent(id));
+      float timing(sources_[kTiming]->getBinContent(id));
+      float rawdata(MEs_[kRawData]->getBinContent(id));
 
-      for(unsigned tower(1); tower <= nSuperCrystals(dccid); tower++){
-	std::vector<DetId> ids(getElectronicsMap()->dccTowerConstituents(dccid, tower));
+      float status(1.);
+      if(integrity == 0. || presample == 0. || timing == 0. || rawdata == 0.)
+        status = 0.;
+      else if(integrity == 3. || presample == 3. || timing == 3. || rawdata == 3.)
+        status = 3.;
 
-	if(ids.size() == 0) continue;
+      qItr->setBinContent(status);
 
-	float towerChannels(0.);
-	float towerGood(0.);
+      unsigned iDCC(dccId(id) - 1);
 
-	for(std::vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr){
-
-	  float integrity(sources_[sIntegrity]->getBinContent(*idItr));
-
-	  if(integrity == 2.) continue;
-
-	  float presample(sources_[sPresample]->getBinContent(*idItr));
-	  float timing(sources_[sTiming]->getBinContent(*idItr));
-	  float rawdata(sources_[sRawData]->getBinContent(*idItr));
-
-	  if(integrity > 2.) integrity = 1.;
-	  if(presample > 2.) presample = 1.;
-	  if(timing > 2.) timing = 1.;
-	  if(rawdata > 2.) rawdata = 1.;
-
-	  float status(1.);
-	  if(integrity < 2.) status *= integrity;
-	  if(presample < 2.) status *= presample;
-	  if(timing < 2.) status *= timing;
-	  if(rawdata < 2.) status *= rawdata;
-
-	  MEs_[kQualitySummary]->setBinContent(*idItr, status);
-
-	  if(status == 1.){
-	    towerGood += 1.;
-	    dccGood += 1.;
-	    totalGood += 1.;
-	  }
-	  towerChannels += 1.;
-	  dccChannels += 1.;
-	  totalChannels += 1.;
-	}
-
-	if(towerChannels < 1.) continue;
-
-	if(dccid <= 9 || dccid >= 46){
-	  std::vector<EcalScDetId> scs(getElectronicsMap()->getEcalScDetId(dccid, tower));
-	  for(std::vector<EcalScDetId>::iterator scItr(scs.begin()); scItr != scs.end(); ++scItr)
-	    MEs_[kReportSummaryMap]->setBinContent(*scItr, towerGood / towerChannels);
-	}
-	else
-	  MEs_[kReportSummaryMap]->setBinContent(ids[0], towerGood / towerChannels);
+      if(status == 1.){
+        dccGood[iDCC] += 1.;
+        totalGood += 1.;
       }
+      dccChannels[iDCC] += 1.;
+      totalChannels += 1.;
+    }
 
-      if(dccChannels < 1.) continue;
+    for(unsigned iDCC(0); iDCC < BinService::nDCC; ++iDCC){
+      if(dccChannels[iDCC] < 1.) continue;
 
-      MEs_[kReportSummaryContents]->fill(dccid, dccGood / dccChannels);
+      unsigned dccid(iDCC + 1);
+      float frac(dccGood[iDCC] / dccChannels[iDCC]);
+      MEs_[kReportSummaryMap]->fill(dccid, frac);
+      MEs_[kReportSummaryContents]->fill(dccid, frac);
     }
 
     if(totalChannels > 0.) MEs_[kReportSummary]->fill(totalGood / totalChannels);
-
   }
 
   /*static*/
   void
-  SummaryClient::setMEData(std::vector<MEData>& _data)
+  SummaryClient::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
   {
-    _data[kQualitySummary] = MEData("QualitySummary", BinService::kEcal2P, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
-    _data[kReportSummaryMap] = MEData("ReportSummaryMap", BinService::kEcal, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
-    _data[kReportSummaryContents] = MEData("ReportSummaryContents", BinService::kSM, BinService::kReport, MonitorElement::DQM_KIND_REAL);
-    _data[kReportSummary] = MEData("ReportSummary", BinService::kEcal, BinService::kReport, MonitorElement::DQM_KIND_REAL);
+    _nameToIndex["QualitySummary"] = kQualitySummary;
+    _nameToIndex["ReportSummaryMap"] = kReportSummaryMap;
+    _nameToIndex["ReportSummaryContents"] = kReportSummaryContents;
+    _nameToIndex["ReportSummary"] = kReportSummary;
 
-    _data[sIntegrity + nTargets] = MEData("Integrity");
-    _data[sPresample + nTargets] = MEData("Presample");
-    _data[sTiming + nTargets] = MEData("Timing");
-    _data[sRawData + nTargets] = MEData("RawData");
-    _data[sDigiOccupancy + nTargets] = MEData("DigiOccupancy");
+    _nameToIndex["Integrity"] = kIntegrity;
+    _nameToIndex["Presample"] = kPresample;
+    _nameToIndex["Timing"] = kTiming;
+    _nameToIndex["RawData"] = kRawData;
   }
 
   DEFINE_ECALDQM_WORKER(SummaryClient);

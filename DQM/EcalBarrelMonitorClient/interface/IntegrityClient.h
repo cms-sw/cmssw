@@ -7,7 +7,7 @@ namespace ecaldqm {
 
   class IntegrityClient : public DQWorkerClient {
   public:
-    IntegrityClient(const edm::ParameterSet &);
+    IntegrityClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~IntegrityClient() {}
 
     void bookMEs();
@@ -17,18 +17,20 @@ namespace ecaldqm {
     enum MESets {
       kQuality,
       kQualitySummary,
-      nTargets,
-      sOccupancy = 0,
-      sGain,
-      sChId,
-      sGainSwitch,
-      sTowerId,
-      sBlockSize,
-      nSources,
-      nMESets = nTargets + nSources
+      nMESets
     };
 
-    static void setMEData(std::vector<MEData>&);
+    enum Sources {
+      kOccupancy,
+      kGain,
+      kChId,
+      kGainSwitch,
+      kTowerId,
+      kBlockSize,
+      nSources
+    };
+
+    static void setMEOrdering(std::map<std::string, unsigned>&);
 
   protected:
     float errFractionThreshold_;

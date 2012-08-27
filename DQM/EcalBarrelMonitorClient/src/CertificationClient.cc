@@ -5,8 +5,8 @@
 
 namespace ecaldqm {
 
-  CertificationClient::CertificationClient(const edm::ParameterSet& _params) :
-    DQWorkerClient(_params, "CertificationClient")
+  CertificationClient::CertificationClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
+    DQWorkerClient(_workerParams, _commonParams, "CertificationClient")
   {
   }
 
@@ -34,17 +34,18 @@ namespace ecaldqm {
 
   /*static*/
   void
-  CertificationClient::setMEData(std::vector<MEData>& _data)
+  CertificationClient::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
   {
-    _data[kCertificationMap] = MEData("CertificationMap", BinService::kEcal, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
-    _data[kCertificationContents] = MEData("CertificationContents", BinService::kSM, BinService::kReport, MonitorElement::DQM_KIND_REAL);
-    _data[kCertification] = MEData("Certification", BinService::kEcal, BinService::kReport, MonitorElement::DQM_KIND_REAL);
+    _nameToIndex["CertificationMap"] = kCertificationMap;
+    _nameToIndex["CertificationContents"] = kCertificationContents;
+    _nameToIndex["Certification"] = kCertification;
 
-    _data[sDAQ + nTargets] = MEData("DAQ");
-    _data[sDCS + nTargets] = MEData("DCS");
-    _data[sReport + nTargets] = MEData("Report");
+    _nameToIndex["DAQ"] = kDAQ;
+    _nameToIndex["DCS"] = kDCS;
+    _nameToIndex["Report"] = kReport;
   }
 
   DEFINE_ECALDQM_WORKER(CertificationClient);
 }
+
 

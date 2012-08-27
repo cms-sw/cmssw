@@ -1,9 +1,8 @@
 #ifndef LaserTask_H
 #define LaserTask_H
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
+#include "DQWorkerTask.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
@@ -11,48 +10,38 @@ namespace ecaldqm {
 
   class LaserTask : public DQWorkerTask {
   public:
-    LaserTask(const edm::ParameterSet &, const edm::ParameterSet &);
+    LaserTask(edm::ParameterSet const&, edm::ParameterSet const&);
     ~LaserTask();
 
     bool filterRunType(const std::vector<short>&);
-
-    void bookMEs();
+    bool filterEventSetting(const std::vector<EventSettings>&);
 
     void beginRun(const edm::Run &, const edm::EventSetup &);
     void endEvent(const edm::Event &, const edm::EventSetup &);
 
     void analyze(const void*, Collections);
 
-    void runOnRawData(const EcalRawDataCollection&);
     void runOnDigis(const EcalDigiCollection&);
     void runOnPnDigis(const EcalPnDiodeDigiCollection&);
     void runOnUncalibRecHits(const EcalUncalibratedRecHitCollection&, Collections);
 
-    std::vector<int> const& getLaserWavelengths() const { return laserWavelengths_; }
-    std::vector<int> const& getMGPAGainsPN() const { return MGPAGainsPN_; }
-
-    enum Constants {
-      nWL = 4,
-      nPNGain = 2
-    };
-
     enum MESets {
-      kAmplitudeSummary, // profile2d
-      kAmplitude = kAmplitudeSummary + nWL, // profile2d
-      kOccupancy = kAmplitude + nWL,
-      kTiming = kOccupancy + nWL, // profile2d
-      kShape = kTiming + nWL,
-      kAOverP = kShape + nWL, // profile2d
-      kPNAmplitude = kAOverP + nWL, // profile2d
-      kPNOccupancy = kPNAmplitude + nWL * nPNGain, // profile2d
+      kAmplitudeSummary,
+      kAmplitude,
+      kOccupancy,
+      kTiming,
+      kShape,
+      kAOverP,
+      kPNAmplitude,
+      kPNOccupancy,
       nMESets
     };
 
-    static void setMEData(std::vector<MEData>&);
+    static void setMEOrdering(std::map<std::string, unsigned>&);
 
   private:
-    std::vector<int> laserWavelengths_;
-    std::vector<int> MGPAGainsPN_;
+    std::map<int, unsigned> wlToME_;
+    std::map<std::pair<int, int>, unsigned> wlGainToME_;
 
     bool enable_[BinService::nDCC];
     int wavelength_[BinService::nDCC];
@@ -61,9 +50,6 @@ namespace ecaldqm {
 
   inline void LaserTask::analyze(const void* _p, Collections _collection){
     switch(_collection){
-    case kEcalRawData:
-      runOnRawData(*static_cast<const EcalRawDataCollection*>(_p));
-      break;
     case kEBDigi:
     case kEEDigi:
       runOnDigis(*static_cast<const EcalDigiCollection*>(_p));

@@ -1,19 +1,19 @@
 #include "../interface/LaserTask.h"
 
 #include <cmath>
-#include <algorithm>
 
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/MEEBGeom.h"
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/MEEEGeom.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
+#include "DQM/EcalCommon/interface/MESetMulti.h"
 
 namespace ecaldqm {
 
-  LaserTask::LaserTask(const edm::ParameterSet &_params) :
-    DQWorkerTask(_params, "LaserTask"),
-    laserWavelengths_(),
-    MGPAGainsPN_(),
+  LaserTask::LaserTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
+    DQWorkerTask(_workerParams, _commonParams, "LaserTask"),
+    wlToME_(),
+    wlGainToME_(),
     pnAmp_()
   {
     using namespace std;
@@ -25,72 +25,76 @@ namespace ecaldqm {
       (0x1 << kEBUncalibRecHit) |
       (0x1 << kEEUncalibRecHit);
 
-    edm::ParameterSet const& commonParams(_params.getUntrackedParameterSet("Common"));
-    MGPAGainsPN_ = commonParams.getUntrackedParameter<std::vector<int> >("MGPAGainsPN");
+    for(unsigned iD(0); iD < BinService::nDCC; ++iD){
+      enable_[iD] = false;
+      wavelength_[iD] = 0;
+    }
 
-    edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
-    laserWavelengths_ = taskParams.getUntrackedParameter<std::vector<int> >("laserWavelengths");
+    vector<int> MGPAGainsPN(_commonParams.getUntrackedParameter<vector<int> >("MGPAGainsPN"));
+    vector<int> laserWavelengths(_commonParams.getUntrackedParameter<vector<int> >("laserWavelengths"));
 
-    for(vector<int>::iterator wlItr(laserWavelengths_.begin()); wlItr != laserWavelengths_.end(); ++wlItr)
-      if(*wlItr <= 0 || *wlItr >= 5) throw cms::Exception("InvalidConfiguration") << "Laser Wavelength" << std::endl;
+    unsigned iMEWL(0);
+    unsigned iMEWLG(0);
+    for(vector<int>::iterator wlItr(laserWavelengths.begin()); wlItr != laserWavelengths.end(); ++wlItr){
+      if(*wlItr <= 0 || *wlItr >= 5) throw cms::Exception("InvalidConfiguration") << "Laser Wavelength" << endl;
+      wlToME_[*wlItr] = iMEWL++;
 
-    for(vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr)
-      if(*gainItr != 1 && *gainItr != 16) throw cms::Exception("InvalidConfiguration") << "PN diode gain" << std::endl;	
+      for(vector<int>::iterator gainItr(MGPAGainsPN.begin()); gainItr != MGPAGainsPN.end(); ++gainItr){
+        if(*gainItr != 1 && *gainItr != 16) throw cms::Exception("InvalidConfiguration") << "PN diode gain" << endl;
+        wlGainToME_[make_pair(*wlItr, *gainItr)] = iMEWLG++;
+      }
+    }
 
     map<string, string> replacements;
     stringstream ss;
 
-    for(vector<int>::iterator wlItr(laserWavelengths_.begin()); wlItr != laserWavelengths_.end(); ++wlItr){
-      ss.str("");
-      ss << *wlItr;
-      replacements["wl"] = ss.str();
+    unsigned apdPlots[] = {kAmplitudeSummary, kAmplitude, kOccupancy, kTiming, kShape, kAOverP};
+    for(unsigned iS(0); iS < sizeof(apdPlots) / sizeof(unsigned); ++iS){
+      unsigned plot(apdPlots[iS]);
+      MESet* temp(MEs_[plot]);
+      MESetMulti* meSet(new MESetMulti(*temp, iMEWL));
 
-      unsigned offset(*wlItr - 1);
+      for(map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr){
+        meSet->use(wlItr->second);
 
-      MEs_[kAmplitudeSummary + offset]->formName(replacements);
-      MEs_[kAmplitude + offset]->formName(replacements);
-      MEs_[kOccupancy + offset]->formName(replacements);
-      MEs_[kTiming + offset]->formName(replacements);
-      MEs_[kShape + offset]->formName(replacements);
-      MEs_[kAOverP + offset]->formName(replacements);
+        ss.str("");
+        ss << wlItr->first;
+        replacements["wl"] = ss.str();
 
-      for(vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr){
+        meSet->formPath(replacements);
+      }
+
+      MEs_[plot] = meSet;
+      delete temp;
+    }
+
+    unsigned pnPlots[] = {kPNAmplitude};
+    for(unsigned iS(0); iS < sizeof(pnPlots) / sizeof(unsigned); ++iS){
+      unsigned plot(pnPlots[iS]);
+      MESet* temp(MEs_[plot]);
+      MESetMulti* meSet(new MESetMulti(*temp, iMEWLG));
+
+      for(map<pair<int, int>, unsigned>::iterator wlGainItr(wlGainToME_.begin()); wlGainItr != wlGainToME_.end(); ++wlGainItr){
+        meSet->use(wlGainItr->second);
+
+        ss.str("");
+        ss << wlGainItr->first.first;
+        replacements["wl"] = ss.str();
+
 	ss.str("");
-	ss << *gainItr;
+	ss << wlGainItr->first.second;
 	replacements["pngain"] = ss.str();
 
-	offset = (*wlItr - 1) * nPNGain + (*gainItr == 1 ? 0 : 1);
-
-	MEs_[kPNAmplitude + offset]->formName(replacements);
+        meSet->formPath(replacements);
       }
+
+      MEs_[plot] = meSet;
+      delete temp;
     }
   }
 
   LaserTask::~LaserTask()
   {
-  }
-
-  void
-  LaserTask::bookMEs()
-  {
-    for(std::vector<int>::iterator wlItr(laserWavelengths_.begin()); wlItr != laserWavelengths_.end(); ++wlItr){
-      unsigned offset(*wlItr - 1);
-
-      MEs_[kAmplitudeSummary + offset]->book();
-      MEs_[kAmplitude + offset]->book();
-      MEs_[kOccupancy + offset]->book();
-      MEs_[kTiming + offset]->book();
-      MEs_[kShape + offset]->book();
-      MEs_[kAOverP + offset]->book();
-
-      for(std::vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr){
-	offset = (*wlItr - 1) * nPNGain + (*gainItr == 1 ? 0 : 1);
-
-	MEs_[kPNAmplitude + offset]->book();
-      }
-    }
-
-    MEs_[kPNOccupancy]->book();
   }
 
   void
@@ -138,7 +142,7 @@ namespace ecaldqm {
       if(!enable_[iDCC]) continue;
       wavelength_[iDCC] = _setting[iDCC].wavelength + 1;
 
-      if(std::find(laserWavelengths_.begin(), laserWavelengths_.end(), wavelength_[iDCC]) != laserWavelengths_.end())
+      if(wlToME_.find(wavelength_[iDCC]) != wlToME_.end())
         enable = true;
       else
         enable_[iDCC] = false;
@@ -150,6 +154,8 @@ namespace ecaldqm {
   void
   LaserTask::runOnDigis(const EcalDigiCollection &_digis)
   {
+    unsigned iME(-1);
+
     for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       const DetId& id(digiItr->id());
 
@@ -159,18 +165,24 @@ namespace ecaldqm {
 
       EcalDataFrame dataFrame(*digiItr);
 
-      unsigned offset(wavelength_[iDCC] - 1);
+      if(iME != wlToME_[wavelength_[iDCC]]){
+        iME = wlToME_[wavelength_[iDCC]];
+        static_cast<MESetMulti*>(MEs_[kOccupancy])->use(iME);
+        static_cast<MESetMulti*>(MEs_[kShape])->use(iME);
+      }
 
-      MEs_[kOccupancy + offset]->fill(id);
+      MEs_[kOccupancy]->fill(id);
 
       for(int iSample(0); iSample < 10; iSample++)
-	MEs_[kShape + offset]->fill(id, iSample + 0.5, float(dataFrame.sample(iSample).adc()));
+	MEs_[kShape]->fill(id, iSample + 0.5, float(dataFrame.sample(iSample).adc()));
     }
   }
 
   void
   LaserTask::runOnPnDigis(const EcalPnDiodeDigiCollection &_digis)
   {
+    unsigned iME(-1);
+
     for(EcalPnDiodeDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       const EcalPnDiodeDetId& id(digiItr->id());
 
@@ -197,9 +209,14 @@ namespace ecaldqm {
       int gain(digiItr->sample(0).gainId() == 0 ? 1 : 16);
       max *= (16. / gain);
 
-      unsigned offset((wavelength_[iDCC] - 1) * nPNGain + (gain == 1 ? 0 : 1));
+      std::pair<int, int> wlGain(wavelength_[iDCC], gain);
 
-      MEs_[kPNAmplitude + offset]->fill(id, max);
+      if(iME != wlGainToME_[wlGain]){
+        iME = wlGainToME_[wlGain];
+        static_cast<MESetMulti*>(MEs_[kPNAmplitude])->use(iME);
+      }
+
+      MEs_[kPNAmplitude]->fill(id, max);
 
       if(pnAmp_.find(iDCC) == pnAmp_.end()) pnAmp_[iDCC].resize(10);
       pnAmp_[iDCC][id.iPnId() - 1] = max;
@@ -211,6 +228,8 @@ namespace ecaldqm {
   {
     using namespace std;
 
+    unsigned iME(-1);
+
     for(EcalUncalibratedRecHitCollection::const_iterator uhitItr(_uhits.begin()); uhitItr != _uhits.end(); ++uhitItr){
       const DetId& id(uhitItr->id());
 
@@ -218,19 +237,26 @@ namespace ecaldqm {
 
       if(!enable_[iDCC]) continue;
 
-      unsigned offset(wavelength_[iDCC] - 1);
+      if(iME != wlToME_[wavelength_[iDCC]]){
+        iME = wlToME_[wavelength_[iDCC]];
+        static_cast<MESetMulti*>(MEs_[kAmplitude])->use(iME);
+        static_cast<MESetMulti*>(MEs_[kAmplitudeSummary])->use(iME);
+        static_cast<MESetMulti*>(MEs_[kTiming])->use(iME);
+        static_cast<MESetMulti*>(MEs_[kAOverP])->use(iME);
+      }
 
       float amp(max((double)uhitItr->amplitude(), 0.));
       float jitter(max((double)uhitItr->jitter() + 5.0, 0.));
 
-      MEs_[kAmplitudeSummary + offset]->fill(id, amp);
-      MEs_[kAmplitude + offset]->fill(id, amp);
-      MEs_[kTiming + offset]->fill(id, jitter);
+      MEs_[kAmplitudeSummary]->fill(id, amp);
+      MEs_[kAmplitude]->fill(id, amp);
+      MEs_[kTiming]->fill(id, jitter);
 
       if(pnAmp_.find(iDCC) == pnAmp_.end()) continue;
 
       float aop(0.);
       float pn0(0.), pn1(0.);
+
       if(_collection == kEBUncalibRecHit){
 	EBDetId ebid(id);
 
@@ -258,33 +284,24 @@ namespace ecaldqm {
       else if(pn0 + pn1 > 1) aop = amp / (0.5 * (pn0 + pn1));
       else aop = 1000.;
 
-      MEs_[kAOverP + offset]->fill(id, aop);
+      MEs_[kAOverP]->fill(id, aop);
     }
   }
 
   /*static*/
   void
-  LaserTask::setMEData(std::vector<MEData>& _data)
+  LaserTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
   {
-    BinService::AxisSpecs axis;
-    axis.nbins = 10;
-    axis.low = 0.;
-    axis.high = 10.;
-
-    for(unsigned iWL(0); iWL < nWL; iWL++){
-      _data[kAmplitudeSummary + iWL] = MEData("AmplitudeSummary", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D);
-      _data[kAmplitude + iWL] = MEData("Amplitude", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TPROFILE2D);
-      _data[kOccupancy + iWL] = MEData("Occupancy", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
-      _data[kTiming + iWL] = MEData("Timing", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TPROFILE2D);
-      _data[kShape + iWL] = MEData("Shape", BinService::kSM, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D, 0, &axis);
-      _data[kAOverP + iWL] = MEData("AOverP", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TPROFILE2D);
-      for(unsigned iPNGain(0); iPNGain < nPNGain; iPNGain++){
-	unsigned offset(iWL * nPNGain + iPNGain);
-	_data[kPNAmplitude + offset] = MEData("PNAmplitude", BinService::kSMMEM, BinService::kCrystal, MonitorElement::DQM_KIND_TPROFILE);
-      }
-    }
-    _data[kPNOccupancy] = MEData("PNOccupancy", BinService::kMEM, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
+    _nameToIndex["AmplitudeSummary"] = kAmplitudeSummary;
+    _nameToIndex["Amplitude"] = kAmplitude;
+    _nameToIndex["Occupancy"] = kOccupancy;
+    _nameToIndex["Timing"] = kTiming;
+    _nameToIndex["Shape"] = kShape;
+    _nameToIndex["AOverP"] = kAOverP;
+    _nameToIndex["PNAmplitude"] = kPNAmplitude;
+    _nameToIndex["PNOccupancy"] = kPNOccupancy;
   }
 
   DEFINE_ECALDQM_WORKER(LaserTask);
 }
+

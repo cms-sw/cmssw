@@ -7,7 +7,7 @@ namespace ecaldqm {
 
   class SelectiveReadoutClient : public DQWorkerClient {
   public:
-    SelectiveReadoutClient(const edm::ParameterSet &);
+    SelectiveReadoutClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~SelectiveReadoutClient() {}
 
     void producePlots();
@@ -18,19 +18,21 @@ namespace ecaldqm {
       kFR,
       kRUForced,
       kZS1,
-      nTargets,
-      sFlagCounterMap = 0, // h2f counter
-      sRUForcedMap, // h2f counter
-      sFullReadoutMap, // h2f counter
-      sZS1Map, // h2f counter
-      sZSMap, // h2f counter
-      sZSFullReadoutMap, // h2f counter
-      sFRDroppedMap, // h2f counter
-      nSources,
-      nMESets = nTargets + nSources
+      nMESets
     };
 
-    static void setMEData(std::vector<MEData>&);
+    enum Sources {
+      kFlagCounterMap,
+      kRUForcedMap,
+      kFullReadoutMap,
+      kZS1Map,
+      kZSMap,
+      kZSFullReadoutMap,
+      kFRDroppedMap,
+      nSources
+    };
+
+    static void setMEOrdering(std::map<std::string, unsigned>&);
 
   };
 

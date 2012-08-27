@@ -16,16 +16,16 @@
 
 namespace ecaldqm {
 
-  ClusterTask::ClusterTask(const edm::ParameterSet &_params) :
-    DQWorkerTask(_params, "ClusterTask"),
+  ClusterTask::ClusterTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
+    DQWorkerTask(_workerParams, _commonParams, "ClusterTask"),
     topology_(0),
     ebGeometry_(0),
     eeGeometry_(0),
     ebHits_(0),
     eeHits_(0),
     ievt_(0),
-    lowEMax_(0.),
-    massCalcPrescale_(0)
+    lowEMax_(_workerParams.getUntrackedParameter<double>("lowEMax")),
+    massCalcPrescale_(_workerParams.getUntrackedParameter<int>("massCalcPrescale"))
   {
     collectionMask_ = 
       (0x1 << kRun) |
@@ -39,10 +39,8 @@ namespace ecaldqm {
     dependencies.push_back(Dependency(kEBSuperCluster, kEBRecHit));
     dependencies.push_back(Dependency(kEESuperCluster, kEERecHit));
 
-    edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
-
-    lowEMax_ = taskParams.getUntrackedParameter<double>("lowEMax");
-    massCalcPrescale_ = taskParams.getUntrackedParameter<int>("massCalcPrescale");
+    if(massCalcPrescale_ == 0)
+      throw cms::Exception("InvalidConfiguration") << "Mass calculation prescale is zero";
   }
 
   ClusterTask::~ClusterTask()
@@ -161,11 +159,11 @@ namespace ecaldqm {
       MEs_[kBCE]->fill(id, energy);
 
       MEs_[kBCEMap]->fill(id, energy);
-      MEs_[kBCEMapProjEta]->fill(id, energy);
+      MEs_[kBCEMapProjEta]->fill(position.eta(), energy);
       MEs_[kBCEMapProjPhi]->fill(id, energy);
 
       MEs_[kBCOccupancy]->fill(id);
-      MEs_[kBCOccupancyProjEta]->fill(id);
+      MEs_[kBCOccupancyProjEta]->fill(position.eta());
       MEs_[kBCOccupancyProjPhi]->fill(id);
 
       float size(bcItr->size());
@@ -173,7 +171,7 @@ namespace ecaldqm {
       MEs_[kBCSize]->fill(id, size);
 
       MEs_[kBCSizeMap]->fill(id, size);
-      MEs_[kBCSizeMapProjEta]->fill(id, size);
+      MEs_[kBCSizeMapProjEta]->fill(position.eta(), size);
       MEs_[kBCSizeMapProjPhi]->fill(id, size);
 
       int zside(position.z() > 0 ? 1 : 0);
@@ -334,96 +332,34 @@ namespace ecaldqm {
 
   /*static*/
   void
-  ClusterTask::setMEData(std::vector<MEData>& _data)
+  ClusterTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
   {
-    BinService::AxisSpecs xaxis, yaxis, zaxis;
-
-    zaxis.low = 0.;
-    zaxis.high = 50.;
-    _data[kBCEMap] = MEData("BCEMap", BinService::kEcal3P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D, 0, 0, &zaxis);
-    _data[kBCEMapProjEta] = MEData("BCEMap", BinService::kEcal3P, BinService::kProjEta, MonitorElement::DQM_KIND_TPROFILE);
-    _data[kBCEMapProjPhi] = MEData("BCEMap", BinService::kEcal3P, BinService::kProjPhi, MonitorElement::DQM_KIND_TPROFILE);
-
-    _data[kBCOccupancy] = MEData("BCOccupancy", BinService::kEcal3P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
-    _data[kBCOccupancyProjEta] = MEData("BCOccupancy", BinService::kEcal3P, BinService::kProjEta, MonitorElement::DQM_KIND_TH1F);
-    _data[kBCOccupancyProjPhi] = MEData("BCOccupancy", BinService::kEcal3P, BinService::kProjPhi, MonitorElement::DQM_KIND_TH1F);
-
-    zaxis.high = 30.;
-    _data[kBCSizeMap] = MEData("BCSizeMap", BinService::kEcal3P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D, 0, 0, &zaxis);
-    _data[kBCSizeMapProjEta] = MEData("BCSizeMap", BinService::kEcal3P, BinService::kProjEta, MonitorElement::DQM_KIND_TPROFILE);
-    _data[kBCSizeMapProjPhi] = MEData("BCSizeMap", BinService::kEcal3P, BinService::kProjPhi, MonitorElement::DQM_KIND_TPROFILE);
-
-    xaxis.nbins = 50;
-    xaxis.low = 0.;
-    xaxis.high = 150.;
-    _data[kBCE] = MEData("BCE", BinService::kEcal3P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &xaxis);
-
-    xaxis.nbins = 20;
-    xaxis.low = 0.;
-    xaxis.high = 100.;
-    _data[kBCNum] = MEData("BCNum", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &xaxis);
-
-    xaxis.nbins = 50;
-    xaxis.low = 0.;
-    xaxis.high = 100.;
-    _data[kBCSize] = MEData("BCSize", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &xaxis);
-
-    xaxis.nbins = 50;
-    xaxis.low = 0.;
-    xaxis.high = 150.;
-    _data[kSCE] = MEData("SCE", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &xaxis);
-
-    xaxis.nbins = 50;
-    xaxis.low = 0.;
-    xaxis.high = 10.;
-    _data[kSCELow] = MEData("SCELow", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &xaxis);
-
-    xaxis.nbins = 50;
-    xaxis.low = 0.;
-    xaxis.high = 150.;
-    _data[kSCSeedEnergy] = MEData("SCSeedEnergy", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &xaxis);
-
-    yaxis.nbins = 50;
-    yaxis.low = 0.;
-    yaxis.high = 150.;
-    _data[kSCClusterVsSeed] = MEData("SCClusterVsSeed", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH2F, &xaxis, &yaxis);
-
-    _data[kSCSeedOccupancy] = MEData("SCSeedOccupancy", BinService::kEcal3P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
-    _data[kSingleCrystalCluster] = MEData("SCSingleCrystalCluster", BinService::kEcal3P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
-
-    xaxis.nbins = 20;
-    xaxis.low = 0.;
-    xaxis.high = 20.;
-    _data[kSCNum] = MEData("SCNum", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &xaxis);
-
-    xaxis.nbins = 15;
-    xaxis.low = 0.;
-    xaxis.high = 15.;
-    _data[kSCNBCs] = MEData("SCNBCs", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &xaxis);
-    xaxis.nbins = 50;
-    xaxis.low = 0.;
-    xaxis.high = 150.;
-    _data[kSCNcrystals] = MEData("SCNcrystals", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &xaxis);
-
-    xaxis.nbins = 50;
-    xaxis.low = 0.;
-    xaxis.high = 1.2;
-    _data[kSCR9] = MEData("SCR9", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &xaxis);
-
-
-    xaxis.nbins = 50;
-    xaxis.low = 0.;
-    xaxis.high = 0.5;
-    _data[kPi0] = MEData("Pi0", BinService::nObjType, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &xaxis);
-    xaxis.low = 2.9;
-    xaxis.high = 3.3;
-    _data[kJPsi] = MEData("JPsi", BinService::nObjType, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &xaxis);
-    xaxis.low = 40.;
-    xaxis.high = 110.;
-    _data[kZ] = MEData("Z", BinService::nObjType, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &xaxis);
-    xaxis.low = 110.;
-    xaxis.high = 3000.;
-    _data[kHighMass] = MEData("HighMass", BinService::nObjType, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &xaxis);
+    _nameToIndex["BCEMap"] = kBCEMap;
+    _nameToIndex["BCEMapProjEta"] = kBCEMapProjEta;
+    _nameToIndex["BCEMapProjPhi"] = kBCEMapProjPhi;
+    _nameToIndex["BCOccupancy"] = kBCOccupancy;
+    _nameToIndex["BCOccupancyProjEta"] = kBCOccupancyProjEta;
+    _nameToIndex["BCOccupancyProjPhi"] = kBCOccupancyProjPhi;
+    _nameToIndex["BCSizeMap"] = kBCSizeMap;
+    _nameToIndex["BCSizeMapProjEta"] = kBCSizeMapProjEta;
+    _nameToIndex["BCSizeMapProjPhi"] = kBCSizeMapProjPhi;
+    _nameToIndex["BCE"] = kBCE;
+    _nameToIndex["BCNum"] = kBCNum;
+    _nameToIndex["BCSize"] = kBCSize;
+    _nameToIndex["SCE"] = kSCE;
+    _nameToIndex["SCELow"] = kSCELow;
+    _nameToIndex["SCSeedEnergy"] = kSCSeedEnergy;
+    _nameToIndex["SCClusterVsSeed"] = kSCClusterVsSeed;
+    _nameToIndex["SCSeedOccupancy"] = kSCSeedOccupancy;
+    _nameToIndex["SingleCrystalCluster"] = kSingleCrystalCluster;
+    _nameToIndex["SCNum"] = kSCNum;
+    _nameToIndex["SCNBCs"] = kSCNBCs;
+    _nameToIndex["SCNcrystals"] = kSCNcrystals;
+    _nameToIndex["SCR9"] = kSCR9;
+    _nameToIndex["Pi0"] = kPi0;
+    _nameToIndex["JPsi"] = kJPsi;
+    _nameToIndex["Z"] = kZ;
+    _nameToIndex["HighMass"] = kHighMass;
   }
 
   DEFINE_ECALDQM_WORKER(ClusterTask);

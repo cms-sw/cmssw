@@ -1,14 +1,15 @@
-trigPrimClient = dict(
-    sources = dict(
-        EtRealMap = ['TrigPrimTask', 'EtRealMap'],
-        EtEmulError = ['TrigPrimTask', 'EtEmulError'],
-        TimingError = ['TrigPrimTask', 'TimingError'],
-        MatchedIndex = ['TrigPrimTask', 'MatchedIndex']
-    )
-)
+from DQM.EcalBarrelMonitorTasks.TrigPrimTask_cfi import trigPrimTask
 
-trigPrimClientPaths = dict(
-    TimingSummary = "TriggerPrimitives/TPClient TP timing",
-    NonSingleSummary = "TriggerPrimitives/TPClient TP match non-single timing",
-    EmulQualitySummary = "Summary/TPClient TP emulation quality"
+trigPrimClient = dict(
+    MEs = dict(
+        TimingSummary = dict(path = "TriggerPrimitives/TPClient TP timing", otype = 'Ecal2P', btype = 'TriggerTower', kind = 'TH2F'),
+        NonSingleSummary = dict(path = "TriggerPrimitives/TPClient TP match non-single timing", otype = 'Ecal2P', btype = 'TriggerTower', kind = 'TH2F'),
+        EmulQualitySummary = dict(path = "Summary/TPClient TP emulation quality", otype = 'Ecal2P', btype = 'TriggerTower', kind = 'TH2F')
+    ),
+    sources = dict(
+        EtRealMap = trigPrimTask['MEs']['EtRealMap'],
+        EtEmulError = trigPrimTask['MEs']['EtEmulError'],
+        TimingError = trigPrimTask['MEs']['TimingError'],
+        MatchedIndex = trigPrimTask['MEs']['MatchedIndex']
+    )
 )

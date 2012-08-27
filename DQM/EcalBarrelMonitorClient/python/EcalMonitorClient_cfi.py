@@ -1,38 +1,27 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.EcalCommon.dqmpset import *
-from DQM.EcalCommon.CommonParams_cfi import *
+from DQM.EcalCommon.CommonParams_cfi import ecalCommonParams
 
-import DQM.EcalBarrelMonitorClient.IntegrityClient_cfi as ecalIntegrityClient
-import DQM.EcalBarrelMonitorClient.OccupancyClient_cfi as ecalOccupancyClient
-import DQM.EcalBarrelMonitorClient.PresampleClient_cfi as ecalPresampleClient
-import DQM.EcalBarrelMonitorClient.TrigPrimClient_cfi as ecalTrigPrimClient
-import DQM.EcalBarrelMonitorClient.RawDataClient_cfi as ecalRawDataClient
-import DQM.EcalBarrelMonitorClient.TimingClient_cfi as ecalTimingClient
-import DQM.EcalBarrelMonitorClient.SelectiveReadoutClient_cfi as ecalSelectiveReadoutClient
-import DQM.EcalBarrelMonitorClient.SummaryClient_cfi as ecalSummaryClient
-
-ecalMonitorClientPaths = dict(
-    IntegrityClient = ecalIntegrityClient.integrityClientPaths,
-    OccupancyClient = ecalOccupancyClient.occupancyClientPaths,
-    PresampleClient = ecalPresampleClient.presampleClientPaths,
-    TrigPrimClient = ecalTrigPrimClient.trigPrimClientPaths,
-    RawDataClient = ecalRawDataClient.rawDataClientPaths,
-    TimingClient = ecalTimingClient.timingClientPaths,
-    SelectiveReadoutClient = ecalSelectiveReadoutClient.selectiveReadoutClientPaths,
-    SummaryClient = ecalSummaryClient.summaryClientPaths
-)
+from DQM.EcalBarrelMonitorClient.IntegrityClient_cfi import integrityClient
+from DQM.EcalBarrelMonitorClient.OccupancyClient_cfi import occupancyClient
+from DQM.EcalBarrelMonitorClient.PresampleClient_cfi import presampleClient
+from DQM.EcalBarrelMonitorClient.TrigPrimClient_cfi import trigPrimClient
+from DQM.EcalBarrelMonitorClient.RawDataClient_cfi import rawDataClient
+from DQM.EcalBarrelMonitorClient.TimingClient_cfi import timingClient
+from DQM.EcalBarrelMonitorClient.SelectiveReadoutClient_cfi import selectiveReadoutClient
+from DQM.EcalBarrelMonitorClient.SummaryClient_cfi import summaryClient
 
 ecalMonitorClientParams = dict(
-    IntegrityClient = ecalIntegrityClient.integrityClient,
-    OccupancyClient = ecalOccupancyClient.occupancyClient,
-    PresampleClient = ecalPresampleClient.presampleClient,
-    TrigPrimClient = ecalTrigPrimClient.trigPrimClient,
-    RawDataClient = ecalRawDataClient.rawDataClient,
-    TimingClient = ecalTimingClient.timingClient,
-    SelectiveReadoutClient = ecalSelectiveReadoutClient.selectiveReadoutClient,
-    SummaryClient = ecalSummaryClient.summaryClient,
-    Common = ecalCommonParams
+    IntegrityClient = integrityClient,
+    OccupancyClient = occupancyClient,
+    PresampleClient = presampleClient,
+    TrigPrimClient = trigPrimClient,
+    RawDataClient = rawDataClient,
+    TimingClient = timingClient,
+    SelectiveReadoutClient = selectiveReadoutClient,
+    SummaryClient = summaryClient,
+    common = ecalCommonParams
 )
 
 ecalMonitorClient = cms.EDAnalyzer("EcalDQMonitorClient",
@@ -51,7 +40,5 @@ ecalMonitorClient = cms.EDAnalyzer("EcalDQMonitorClient",
     ),
     # task parameters (included from indivitual cfis)
     workerParameters = dqmpset(ecalMonitorClientParams),
-    # ME paths for each task (included from inidividual cfis)
-    mePaths = dqmpaths("Ecal", ecalMonitorClientPaths),
     verbosity = cms.untracked.int32(0)
 )

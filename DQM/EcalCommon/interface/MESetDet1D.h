@@ -14,8 +14,11 @@ namespace ecaldqm
   class MESetDet1D : public MESetEcal
   {
   public :
-    MESetDet1D(MEData const&);
+    MESetDet1D(std::string const&, BinService::ObjectType, BinService::BinningType, MonitorElement::Kind, BinService::AxisSpecs const* = 0);
+    MESetDet1D(MESetDet1D const&);
     ~MESetDet1D();
+
+    MESet* clone() const;
 
     void fill(DetId const&, double _wy = 1., double _w = 1., double _unused = 0.);
     void fill(EcalElectronicsId const&, double _wy = 1., double _w = 1., double _unused = 0.);

@@ -7,7 +7,7 @@ namespace ecaldqm {
 
   class TimingClient : public DQWorkerClient {
   public:
-    TimingClient(const edm::ParameterSet &);
+    TimingClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~TimingClient() {}
 
     void bookMEs();
@@ -20,19 +20,21 @@ namespace ecaldqm {
       kMeanAll,
       kFwdBkwdDiff,
       kFwdvBkwd,
-      kRMS,
+      kRMSMap,
       kRMSAll,
       kProjEta,
       kProjPhi,
       kQualitySummary,
-      nTargets,
-      sTimeAllMap = 0,
-      sTimeMap,
-      nSources,
-      nMESets = nTargets + nSources
+      nMESets
     };
 
-    static void setMEData(std::vector<MEData>&);
+    enum Sources {
+      kTimeAllMap,
+      kTimeMap,
+      nSources
+    };
+
+    static void setMEOrdering(std::map<std::string, unsigned>&);
 
   protected:
     float expectedMean_;

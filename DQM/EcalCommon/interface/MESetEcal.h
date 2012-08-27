@@ -15,15 +15,20 @@ namespace ecaldqm
   class MESetEcal : public MESet
   {
   public :
-    MESetEcal(MEData const&, int);
+    MESetEcal(std::string const&, BinService::ObjectType, BinService::BinningType, MonitorElement::Kind, unsigned, BinService::AxisSpecs const* = 0, BinService::AxisSpecs const* = 0, BinService::AxisSpecs const* = 0);
+    MESetEcal(MESetEcal const&);
     ~MESetEcal();
+
+    MESet& operator=(MESet const&);
+
+    MESet* clone() const;
 
     void book();
     bool retrieve() const;
 
-    void fill(DetId const&, double _wx = 1., double _wy = 1., double _w = 1.);
-    void fill(EcalElectronicsId const&, double _wx = 1., double _wy = 1., double _w = 1.);
-    void fill(unsigned, double _wx = 1., double _wy = 1., double _w = 1.);
+    void fill(DetId const&, double = 1., double = 1., double = 1.);
+    void fill(EcalElectronicsId const&, double = 1., double = 1., double = 1.);
+    void fill(unsigned, double = 1., double = 1., double = 1.);
 
     void setBinContent(DetId const&, int, double);
     void setBinContent(EcalElectronicsId const&, int, double);
@@ -56,7 +61,10 @@ namespace ecaldqm
     std::vector<std::string> generateNames() const;
 
   protected :
-    const unsigned logicalDimensions_;
+    unsigned logicalDimensions_;
+    BinService::AxisSpecs const* xaxis_;
+    BinService::AxisSpecs const* yaxis_;
+    BinService::AxisSpecs const* zaxis_;
   };
 
 }

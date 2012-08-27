@@ -2,6 +2,8 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "DQM/EcalCommon/interface/MESet.h"
 #include "DQM/EcalCommon/interface/MESetNonObject.h"
 #include "DQM/EcalCommon/interface/MESetChannel.h"
@@ -14,9 +16,9 @@
 
 namespace ecaldqm{
 
-  std::map<std::string, std::vector<MEData> > DQWorker::meData;
+  std::map<std::string, std::map<std::string, unsigned> > DQWorker::meOrderingMaps;
 
-  DQWorker::DQWorker(const edm::ParameterSet& _params, std::string const& _name) :
+  DQWorker::DQWorker(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams, std::string const& _name) :
     name_(_name),
     MEs_(0),
     initialized_(false),
@@ -24,17 +26,32 @@ namespace ecaldqm{
   {
     using namespace std;
 
-    map<string, vector<MEData> >::iterator dItr(meData.find(name_));
-    if(dItr == meData.end())
-      throw cms::Exception("InvalidCall") << "MonitorElement setup data not found for " << name_ << std::endl;
+    map<string, map<string, unsigned> >::const_iterator mItr(meOrderingMaps.find(name_));
+    if(mItr == meOrderingMaps.end())
+      throw cms::Exception("InvalidConfiguration") << "Cannot find ME ordering for " << name_;
 
-    vector<MEData> const& vData(dItr->second);
+    string topDir;
+    if(_workerParams.existsAs<string>("topDirectory", false))
+      topDir = _workerParams.getUntrackedParameter<string>("topDirectory");
+    else
+      topDir = _commonParams.getUntrackedParameter<string>("topDirectory");
 
-    for(unsigned iME(0); iME < vData.size(); iME++){
-      MEData const& data(vData[iME]);
-      if(data.kind == MonitorElement::DQM_KIND_INVALID) continue;
+    edm::ParameterSet const& MEParams(_workerParams.getUntrackedParameterSet("MEs"));
+    vector<string> const& MENames(MEParams.getParameterNames());
 
-      MEs_.push_back(createMESet_(data));
+    MEs_.resize(MENames.size());
+
+    map<string, unsigned> const& nameToIndex(mItr->second);
+
+    for(unsigned iME(0); iME < MENames.size(); iME++){
+      string const& MEName(MENames[iME]);
+
+      map<string, unsigned>::const_iterator nItr(nameToIndex.find(MEName));
+      if(nItr == nameToIndex.end())
+        throw cms::Exception("InvalidConfiguration") << "Cannot find ME index for " << MEName;
+
+      MESet* meSet(createMESet_(topDir, MEParams.getUntrackedParameterSet(MEName)));
+      if(meSet) MEs_[nItr->second] = meSet;
     }
   }
 
@@ -68,28 +85,40 @@ namespace ecaldqm{
 
   /*static*/
   void
-  DQWorker::setMEData(std::vector<MEData>&)
+  DQWorker::setMEOrdering(std::map<std::string, unsigned>&)
   {
   }
 
   MESet*
-  DQWorker::createMESet_(MEData const& _data) const
+  DQWorker::createMESet_(std::string const& _topDir, edm::ParameterSet const& _MEParam) const
   {
-    BinService::ObjectType otype(_data.otype);
-    BinService::BinningType btype(_data.btype);
-    MonitorElement::Kind kind(_data.kind);
+    BinService const* binService(&(*(edm::Service<EcalDQMBinningService>())));
+    if(!binService)
+      throw cms::Exception("Service") << "EcalDQMBinningService not found" << std::endl;
+
+    std::string fullPath(_topDir + "/" + _MEParam.getUntrackedParameter<std::string>("path"));
+    BinService::ObjectType otype(binService->getObjectType(_MEParam.getUntrackedParameter<std::string>("otype")));
+    BinService::BinningType btype(binService->getBinningType(_MEParam.getUntrackedParameter<std::string>("btype")));
+    MonitorElement::Kind kind(MESet::translateKind(_MEParam.getUntrackedParameter<std::string>("kind")));
+
+    BinService::AxisSpecs const* xaxis(0);
+    BinService::AxisSpecs const* yaxis(0);
+    BinService::AxisSpecs const* zaxis(0);
+    if(_MEParam.existsAs<edm::ParameterSet>("xaxis", false)) xaxis = binService->formAxis(_MEParam.getUntrackedParameterSet("xaxis"));
+    if(_MEParam.existsAs<edm::ParameterSet>("yaxis", false)) yaxis = binService->formAxis(_MEParam.getUntrackedParameterSet("yaxis"));
+    if(_MEParam.existsAs<edm::ParameterSet>("zaxis", false)) zaxis = binService->formAxis(_MEParam.getUntrackedParameterSet("zaxis"));
 
     if(otype == BinService::nObjType)
-      return new MESetNonObject(_data);
+      return new MESetNonObject(fullPath, otype, btype, kind, xaxis, yaxis, zaxis);
 
     if(otype == BinService::kChannel)
-      return new MESetChannel(_data);
+      return new MESetChannel(fullPath, otype, btype, kind);
 
     if(btype == BinService::kProjEta || btype == BinService::kProjPhi)
-      return new MESetProjection(_data);
+      return new MESetProjection(fullPath, otype, btype, kind, yaxis);
 
     if(btype == BinService::kTrend)
-      return new MESetTrend(_data);
+      return new MESetTrend(fullPath, otype, btype, kind, yaxis);
 
     unsigned logicalDimensions;
     switch(kind){
@@ -109,7 +138,7 @@ namespace ecaldqm{
     }
 
     // example case: Ecal/TriggerPrimitives/EmulMatching/TrigPrimTask matching index
-    if(logicalDimensions == 2 && _data.yaxis && btype != BinService::kUser) logicalDimensions = 1;
+    if(logicalDimensions == 2 && yaxis && btype != BinService::kUser) logicalDimensions = 1;
 
     // for EventInfo summary contents
     if(btype == BinService::kReport){
@@ -118,26 +147,33 @@ namespace ecaldqm{
     }
 
     if(btype == BinService::kUser)
-      return new MESetEcal(_data, logicalDimensions);
+      return new MESetEcal(fullPath, otype, btype, kind, logicalDimensions, xaxis, yaxis, zaxis);
 
     if(logicalDimensions == 0)
-      return new MESetDet0D(_data);
+      return new MESetDet0D(fullPath, otype, btype, kind);
 
     if(logicalDimensions == 1)
-      return new MESetDet1D(_data);
+      return new MESetDet1D(fullPath, otype, btype, kind, yaxis);
 
     if(logicalDimensions == 2)
-      return new MESetDet2D(_data);
+      return new MESetDet2D(fullPath, otype, btype, kind, zaxis);
 
     return 0;
   }
 
+  void
+  DQWorker::print_(std::string const& _message, int _threshold/* = 0*/) const
+  {
+    if(verbosity_ > _threshold)
+      std::cout << name_ << ": " << _message << std::endl;
+  }
 
 
-  std::map<std::string, WorkerFactory> SetWorker::workerFactories_;
+
+  std::map<std::string, WorkerFactory> WorkerFactoryHelper::workerFactories_;
 
   WorkerFactory
-  SetWorker::findFactory(const std::string &_name)
+  WorkerFactoryHelper::findFactory(const std::string &_name)
   {
     if(workerFactories_.find(_name) != workerFactories_.end()) return workerFactories_[_name];
     return NULL;

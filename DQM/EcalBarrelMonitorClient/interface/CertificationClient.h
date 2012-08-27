@@ -7,7 +7,7 @@ namespace ecaldqm {
 
   class CertificationClient : public DQWorkerClient {
   public:
-    CertificationClient(edm::ParameterSet const&);
+    CertificationClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~CertificationClient() {}
 
     void bookMEs();
@@ -20,18 +20,17 @@ namespace ecaldqm {
       kCertificationMap,
       kCertificationContents,
       kCertification,
-      nTargets,
-      sIntegrity = 0,
-      sFEStatus,
-      sDesync,
-      sDAQ,
-      sDCS,
-      sReport,
-      nSources,
-      nMESets = nTargets + nSources
+      nMESets
     };
 
-    static void setMEData(std::vector<MEData>&);
+    enum Sources {
+      kDAQ,
+      kDCS,
+      kReport,
+      nSources
+    };
+
+    static void setMEOrdering(std::map<std::string, unsigned>&);
   };
 
 }

@@ -9,10 +9,10 @@
 
 namespace ecaldqm {
 
-  RawDataTask::RawDataTask(const edm::ParameterSet &_params) :
-    DQWorkerTask(_params, "RawDataTask"),
-    hltTaskMode_(0),
-    hltTaskFolder_(""),
+  RawDataTask::RawDataTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
+    DQWorkerTask(_workerParams, _commonParams, "RawDataTask"),
+    hltTaskMode_(_commonParams.getUntrackedParameter<int>("hltTaskMode")),
+    hltTaskFolder_(_commonParams.getUntrackedParameter<std::string>("hltTaskFolder")),
     run_(0),
     l1A_(0),
     orbit_(0),
@@ -27,11 +27,6 @@ namespace ecaldqm {
 
     dependencies.push_back(Dependency(kEcalRawData, kSource));
 
-    edm::ParameterSet const& commonParams(_params.getUntrackedParameterSet("Common"));
-
-    hltTaskMode_ = commonParams.getUntrackedParameter<int>("hltTaskMode");
-    hltTaskFolder_ = commonParams.getUntrackedParameter<std::string>("hltTaskFolder");
-
     if(hltTaskMode_ != 0 && hltTaskFolder_.size() == 0)
 	throw cms::Exception("InvalidConfiguration") << "HLTTask mode needs a folder name";
 
@@ -39,8 +34,8 @@ namespace ecaldqm {
       std::map<std::string, std::string> replacements;
       replacements["hlttask"] = hltTaskFolder_;
 
-      MEs_[kFEDEntries]->formName(replacements);
-      MEs_[kFEDFatal]->formName(replacements);
+      MEs_[kFEDEntries]->formPath(replacements);
+      MEs_[kFEDFatal]->formPath(replacements);
     }
   }
 
@@ -297,39 +292,29 @@ namespace ecaldqm {
 
   /*static*/
   void
-  RawDataTask::setMEData(std::vector<MEData>& _data)
+  RawDataTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
   {
-    BinService::AxisSpecs eventTypeAxis;
-    eventTypeAxis.nbins = nEventTypes;
-    eventTypeAxis.low = 0.;
-    eventTypeAxis.high = nEventTypes;
-
-    BinService::AxisSpecs feStatusAxis;
-    feStatusAxis.nbins = nFEFlags;
-    feStatusAxis.low = 0.;
-    feStatusAxis.high = nFEFlags;
-
-    _data[kEventTypePreCalib] = MEData("EventTypePreCalib", BinService::kEcal, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &eventTypeAxis);
-    _data[kEventTypeCalib] = MEData("EventTypeCalib", BinService::kEcal, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &eventTypeAxis);
-    _data[kEventTypePostCalib] = MEData("EventTypePostCalib", BinService::kEcal, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &eventTypeAxis);
-    _data[kCRC] = MEData("CRC", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
-    _data[kRunNumber] = MEData("RunNumber", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
-    _data[kOrbit] = MEData("Orbit", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
-    _data[kTriggerType] = MEData("TriggerType", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
-    _data[kL1ADCC] = MEData("L1ADCC", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
-    _data[kL1AFE] = MEData("L1AFE", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
-    _data[kL1ATCC] = MEData("L1ATCC", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
-    _data[kL1ASRP] = MEData("L1ASRP", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
-    _data[kBXDCC] = MEData("BXDCC", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
-    _data[kBXFE] = MEData("BXFE", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
-    _data[kBXTCC] = MEData("BXTCC", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
-    _data[kBXSRP] = MEData("BXSRP", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
-    _data[kDesyncByLumi] = MEData("DesyncByLumi", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
-    _data[kDesyncTotal] = MEData("DesyncTotal", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
-    _data[kFEStatus] = MEData("FEStatus", BinService::kSM, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F, 0, &feStatusAxis);
-    _data[kFEByLumi] = MEData("FEByLumi", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
-    _data[kFEDEntries] = MEData("FEDEntries", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
-    _data[kFEDFatal] = MEData("FEDFatal", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TH1F);
+    _nameToIndex["EventTypePreCalib"] = kEventTypePreCalib;
+    _nameToIndex["EventTypeCalib"] = kEventTypeCalib;
+    _nameToIndex["EventTypePostCalib"] = kEventTypePostCalib;
+    _nameToIndex["CRC"] = kCRC;
+    _nameToIndex["RunNumber"] = kRunNumber;
+    _nameToIndex["Orbit"] = kOrbit;
+    _nameToIndex["TriggerType"] = kTriggerType;
+    _nameToIndex["L1ADCC"] = kL1ADCC;
+    _nameToIndex["L1AFE"] = kL1AFE;
+    _nameToIndex["L1ATCC"] = kL1ATCC;
+    _nameToIndex["L1ASRP"] = kL1ASRP;
+    _nameToIndex["BXDCC"] = kBXDCC;
+    _nameToIndex["BXFE"] = kBXFE;
+    _nameToIndex["BXTCC"] = kBXTCC;
+    _nameToIndex["BXSRP"] = kBXSRP;
+    _nameToIndex["DesyncByLumi"] = kDesyncByLumi;
+    _nameToIndex["DesyncTotal"] = kDesyncTotal;
+    _nameToIndex["FEStatus"] = kFEStatus;
+    _nameToIndex["FEByLumi"] = kFEByLumi;
+    _nameToIndex["FEDEntries"] = kFEDEntries;
+    _nameToIndex["FEDFatal"] = kFEDFatal;
   }
 
   DEFINE_ECALDQM_WORKER(RawDataTask);

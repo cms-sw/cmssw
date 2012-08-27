@@ -4,10 +4,10 @@
 
 namespace ecaldqm
 {
-  MESetProjection::MESetProjection(MEData const& _data) :
-    MESetEcal(_data, 1)
+  MESetProjection::MESetProjection(std::string const& _fullPath, BinService::ObjectType _otype, BinService::BinningType _btype, MonitorElement::Kind _kind, BinService::AxisSpecs const* _yaxis/* = 0*/) :
+    MESetEcal(_fullPath, _otype, _btype, _kind, 1, 0, _yaxis)
   {
-    switch(data_->kind){
+    switch(kind_){
     case MonitorElement::DQM_KIND_TH1F:
     case MonitorElement::DQM_KIND_TPROFILE:
       break;
@@ -15,7 +15,7 @@ namespace ecaldqm
       throw_("Unsupported MonitorElement kind");
     }
 
-    switch(data_->btype){
+    switch(btype_){
     case BinService::kProjEta:
     case BinService::kProjPhi:
       break;
@@ -24,8 +24,19 @@ namespace ecaldqm
     }
   }
 
+  MESetProjection::MESetProjection(MESetProjection const& _orig) :
+    MESetEcal(_orig)
+  {
+  }
+
   MESetProjection::~MESetProjection()
   {
+  }
+
+  MESet*
+  MESetProjection::clone() const
+  {
+    return new MESetProjection(*this);
   }
 
   void
@@ -33,22 +44,22 @@ namespace ecaldqm
   {
     if(!active_) return;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     int subdet(_id.subdetId());
 
     if(subdet == EcalBarrel){
       EBDetId ebid(_id);
-      if(data_->btype == BinService::kProjEta)
-        fill_(iME, ebid.approxEta(), _w, 0.);
-      else if(data_->btype == BinService::kProjPhi)
+      if(btype_ == BinService::kProjEta)
+        fill_(iME, ebid.approxEta() + (ebid.zside() < 0 ? 0.5 : -0.5) * EBDetId::crystalUnitToEta, _w, 0.);
+      else if(btype_ == BinService::kProjPhi)
         fill_(iME, phi(ebid), _w, 0.);
     }
     else if(subdet == EcalEndcap){
-      if(data_->btype == BinService::kProjEta)
+      if(btype_ == BinService::kProjEta)
         fill_(iME, eta(_id), _w, 0.);
-      if(data_->btype == BinService::kProjPhi){
+      if(btype_ == BinService::kProjPhi){
         EEDetId eeid(_id);
         fill_(iME, phi(eeid), _w, 0.);
       }
@@ -57,11 +68,11 @@ namespace ecaldqm
       EcalTrigTowerDetId ttid(_id);
       std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttid));
       unsigned nIds(ids.size());
-      if(data_->btype == BinService::kProjEta){
+      if(btype_ == BinService::kProjEta){
         for(unsigned iId(0); iId < nIds; iId++)
           fill_(iME, eta(ids[iId]), _w / nIds, 0.);
       }
-      else if(data_->btype == BinService::kProjPhi){
+      else if(btype_ == BinService::kProjPhi){
         for(unsigned iId(0); iId < nIds; iId++){
           EEDetId eeid(ids[iId]);
           fill_(iME, phi(eeid), _w / nIds, 0.);
@@ -70,14 +81,14 @@ namespace ecaldqm
     }
     else if(subdet == EcalTriggerTower){
       EcalTrigTowerDetId ttid(_id);
-      if(data_->btype == BinService::kProjEta){
+      if(btype_ == BinService::kProjEta){
         int ieta(ttid.ieta());
         if(ieta < 18 && ieta > 0)
           fill_(iME, (ieta * 5 - 2.5) * EBDetId::crystalUnitToEta, _w, 0.);
         else if(ieta > -18 && ieta < 0)
           fill_(iME, (ieta * 5 + 2.5) * EBDetId::crystalUnitToEta, _w, 0.);
       }
-      else if(data_->btype == BinService::kProjPhi)
+      else if(btype_ == BinService::kProjPhi)
         fill_(iME, phi(ttid), _w, 0.);
     }
   }
@@ -86,7 +97,7 @@ namespace ecaldqm
   MESetProjection::fill(double _x, double _w/* = 1.*/, double)
   {
     if(!active_) return;
-    if(data_->btype != BinService::kProjEta) return;
+    if(btype_ != BinService::kProjEta) return;
 
     unsigned iME;
     if(_x < -etaBound) iME = 0;
@@ -103,7 +114,7 @@ namespace ecaldqm
   {
     if(!active_) return;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     MonitorElement* me(mes_[iME]);
@@ -113,14 +124,14 @@ namespace ecaldqm
       std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttid));
       unsigned nIds(ids.size());
       std::set<int> bins;
-      if(data_->btype == BinService::kProjEta){
+      if(btype_ == BinService::kProjEta){
         for(unsigned iId(0); iId < nIds; iId++){
           int bin(me->getTH1()->FindBin(eta(ids[iId])));
           if(bins.find(bin) != bins.end()) continue;
           me->setBinContent(bin, _content);
         }
       }
-      else if(data_->btype == BinService::kProjPhi){
+      else if(btype_ == BinService::kProjPhi){
         for(unsigned iId(0); iId < nIds; iId++){
           EEDetId eeid(ids[iId]);
           int bin(me->getTH1()->FindBin(phi(eeid)));
@@ -135,27 +146,27 @@ namespace ecaldqm
     int subdet(_id.subdetId());
     if(subdet == EcalBarrel){
       EBDetId ebid(_id);
-      if(data_->btype == BinService::kProjEta)
-        x = ebid.approxEta();
-      else if(data_->btype == BinService::kProjPhi)
+      if(btype_ == BinService::kProjEta)
+        x = ebid.approxEta() + (ebid.zside() < 0 ? 0.5 : -0.5) * EBDetId::crystalUnitToEta;
+      else if(btype_ == BinService::kProjPhi)
         x = phi(ebid);
     }
     else if(subdet == EcalEndcap){
-      if(data_->btype == BinService::kProjEta)
+      if(btype_ == BinService::kProjEta)
         x = eta(_id);
-      else if(data_->btype == BinService::kProjPhi)
+      else if(btype_ == BinService::kProjPhi)
         x = phi(EEDetId(_id));
     }
     else if(subdet == EcalTriggerTower){
       EcalTrigTowerDetId ttid(_id);
-      if(data_->btype == BinService::kProjEta){
+      if(btype_ == BinService::kProjEta){
         int ieta(ttid.ieta());
         if(ieta < 18 && ieta > 0)
           x = (ieta * 5 - 2.5) * EBDetId::crystalUnitToEta;
         else if(ieta > -18 && ieta < 0)
           x = (ieta * 5 + 2.5) * EBDetId::crystalUnitToEta;
       }
-      else if(data_->btype == BinService::kProjPhi)
+      else if(btype_ == BinService::kProjPhi)
         x = phi(ttid);
     }
 
@@ -168,7 +179,7 @@ namespace ecaldqm
   {
     if(!active_) return;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     MonitorElement* me(mes_[iME]);
@@ -178,14 +189,14 @@ namespace ecaldqm
       std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttid));
       unsigned nIds(ids.size());
       std::set<int> bins;
-      if(data_->btype == BinService::kProjEta){
+      if(btype_ == BinService::kProjEta){
         for(unsigned iId(0); iId < nIds; iId++){
           int bin(me->getTH1()->FindBin(eta(ids[iId])));
           if(bins.find(bin) != bins.end()) continue;
           me->setBinError(bin, _error);
         }
       }
-      else if(data_->btype == BinService::kProjPhi){
+      else if(btype_ == BinService::kProjPhi){
         for(unsigned iId(0); iId < nIds; iId++){
           int bin(me->getTH1()->FindBin(phi(EEDetId(ids[iId]))));
           if(bins.find(bin) != bins.end()) continue;
@@ -199,27 +210,27 @@ namespace ecaldqm
     int subdet(_id.subdetId());
     if(subdet == EcalBarrel){
       EBDetId ebid(_id);
-      if(data_->btype == BinService::kProjEta)
-        x = ebid.approxEta();
-      else if(data_->btype == BinService::kProjPhi)
+      if(btype_ == BinService::kProjEta)
+        x = ebid.approxEta() + (ebid.zside() < 0 ? 0.5 : -0.5) * EBDetId::crystalUnitToEta;
+      else if(btype_ == BinService::kProjPhi)
         x = phi(ebid);
     }
     else if(subdet == EcalEndcap){
-      if(data_->btype == BinService::kProjEta)
+      if(btype_ == BinService::kProjEta)
         x = eta(_id);
-      else if(data_->btype == BinService::kProjPhi)
+      else if(btype_ == BinService::kProjPhi)
         x = phi(EEDetId(_id));
      }
     else if(subdet == EcalTriggerTower){
       EcalTrigTowerDetId ttid(_id);
-      if(data_->btype == BinService::kProjEta){
+      if(btype_ == BinService::kProjEta){
         int ieta(ttid.ieta());
         if(ieta < 18 && ieta > 0)
           x = (ieta * 5 - 2.5) * EBDetId::crystalUnitToEta;
         else if(ieta > -18 && ieta < 0)
           x = (ieta * 5 + 2.5) * EBDetId::crystalUnitToEta;
       }
-      else if(data_->btype == BinService::kProjPhi)
+      else if(btype_ == BinService::kProjPhi)
         x = phi(ttid);
     }
 
@@ -232,7 +243,7 @@ namespace ecaldqm
   {
     if(!active_) return;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     MonitorElement* me(mes_[iME]);
@@ -242,14 +253,14 @@ namespace ecaldqm
       std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttid));
       unsigned nIds(ids.size());
       std::set<int> bins;
-      if(data_->btype == BinService::kProjEta){
+      if(btype_ == BinService::kProjEta){
         for(unsigned iId(0); iId < nIds; iId++){
           int bin(me->getTH1()->FindBin(eta(ids[iId])));
           if(bins.find(bin) != bins.end()) continue;
           me->setBinEntries(bin, _entries);
         }
       }
-      else if(data_->btype == BinService::kProjPhi){
+      else if(btype_ == BinService::kProjPhi){
         for(unsigned iId(0); iId < nIds; iId++){
           int bin(me->getTH1()->FindBin(phi(EEDetId(ids[iId]))));
           if(bins.find(bin) != bins.end()) continue;
@@ -263,27 +274,27 @@ namespace ecaldqm
     int subdet(_id.subdetId());
     if(subdet == EcalBarrel){
       EBDetId ebid(_id);
-      if(data_->btype == BinService::kProjEta)
+      if(btype_ == BinService::kProjEta)
         x = ebid.approxEta();
-      else if(data_->btype == BinService::kProjPhi)
+      else if(btype_ == BinService::kProjPhi)
         x = phi(ebid);
     }
     else if(subdet == EcalEndcap){
-      if(data_->btype == BinService::kProjEta)
+      if(btype_ == BinService::kProjEta)
         x = eta(_id);
-      else if(data_->btype == BinService::kProjPhi)
+      else if(btype_ == BinService::kProjPhi)
         x = phi(EEDetId(_id));
     }
     else if(subdet == EcalTriggerTower){
       EcalTrigTowerDetId ttid(_id);
-      if(data_->btype == BinService::kProjEta){
+      if(btype_ == BinService::kProjEta){
         int ieta(ttid.ieta());
         if(ieta < 18 && ieta > 0)
           x = (ieta * 5 - 2.5) * EBDetId::crystalUnitToEta;
         else if(ieta > -18 && ieta < 0)
           x = (ieta * 5 + 2.5) * EBDetId::crystalUnitToEta;
       }
-      else if(data_->btype == BinService::kProjPhi)
+      else if(btype_ == BinService::kProjPhi)
         x = phi(ttid);
     }
 
@@ -296,7 +307,7 @@ namespace ecaldqm
   {
     if(!active_) return 0.;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     MonitorElement* me(mes_[iME]);
@@ -304,11 +315,11 @@ namespace ecaldqm
     if(isEndcapTTId(_id)){
       EcalTrigTowerDetId ttid(_id);
       std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttid));
-      if(data_->btype == BinService::kProjEta){
+      if(btype_ == BinService::kProjEta){
         int bin(me->getTH1()->FindBin(eta(ids[0])));
         return me->getBinContent(bin);
       }
-      else if(data_->btype == BinService::kProjPhi){
+      else if(btype_ == BinService::kProjPhi){
         int bin(me->getTH1()->FindBin(phi(EEDetId(ids[0]))));
         return me->getBinContent(bin);
       }
@@ -319,27 +330,27 @@ namespace ecaldqm
     int subdet(_id.subdetId());
     if(subdet == EcalBarrel){
       EBDetId ebid(_id);
-      if(data_->btype == BinService::kProjEta)
+      if(btype_ == BinService::kProjEta)
         x = ebid.approxEta();
-      else if(data_->btype == BinService::kProjPhi)
+      else if(btype_ == BinService::kProjPhi)
         x = phi(ebid);
     }
     else if(subdet == EcalEndcap){
-      if(data_->btype == BinService::kProjEta)
+      if(btype_ == BinService::kProjEta)
         x = eta(_id);
-      else if(data_->btype == BinService::kProjPhi)
+      else if(btype_ == BinService::kProjPhi)
         x = phi(EEDetId(_id));
     }
     else if(subdet == EcalTriggerTower){
       EcalTrigTowerDetId ttid(_id);
-      if(data_->btype == BinService::kProjEta){
+      if(btype_ == BinService::kProjEta){
         int ieta(ttid.ieta());
         if(ieta < 18 && ieta > 0)
           x = (ieta * 5 - 2.5) * EBDetId::crystalUnitToEta;
         else if(ieta > -18 && ieta < 0)
           x = (ieta * 5 + 2.5) * EBDetId::crystalUnitToEta;
       }
-      else if(data_->btype == BinService::kProjPhi)
+      else if(btype_ == BinService::kProjPhi)
         x = phi(ttid);
     }
 
@@ -352,7 +363,7 @@ namespace ecaldqm
   {
     if(!active_) return 0.;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     MonitorElement* me(mes_[iME]);
@@ -360,11 +371,11 @@ namespace ecaldqm
     if(isEndcapTTId(_id)){
       EcalTrigTowerDetId ttid(_id);
       std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttid));
-      if(data_->btype == BinService::kProjEta){
+      if(btype_ == BinService::kProjEta){
         int bin(me->getTH1()->FindBin(eta(ids[0])));
         return me->getBinError(bin);
       }
-      else if(data_->btype == BinService::kProjPhi){
+      else if(btype_ == BinService::kProjPhi){
         int bin(me->getTH1()->FindBin(phi(EEDetId(ids[0]))));
         return me->getBinError(bin);
       }
@@ -375,27 +386,27 @@ namespace ecaldqm
     int subdet(_id.subdetId());
     if(subdet == EcalBarrel){
       EBDetId ebid(_id);
-      if(data_->btype == BinService::kProjEta)
+      if(btype_ == BinService::kProjEta)
         x = ebid.approxEta();
-      else if(data_->btype == BinService::kProjPhi)
+      else if(btype_ == BinService::kProjPhi)
         x = phi(ebid);
     }
     else if(subdet == EcalEndcap){
-      if(data_->btype == BinService::kProjEta)
+      if(btype_ == BinService::kProjEta)
         x = eta(_id);
-      else if(data_->btype == BinService::kProjPhi)
+      else if(btype_ == BinService::kProjPhi)
         x = phi(EEDetId(_id));
     }
     else if(subdet == EcalTriggerTower){
       EcalTrigTowerDetId ttid(_id);
-      if(data_->btype == BinService::kProjEta){
+      if(btype_ == BinService::kProjEta){
         int ieta(ttid.ieta());
         if(ieta < 18 && ieta > 0)
           x = (ieta * 5 - 2.5) * EBDetId::crystalUnitToEta;
         else if(ieta > -18 && ieta < 0)
           x = (ieta * 5 + 2.5) * EBDetId::crystalUnitToEta;
       }
-      else if(data_->btype == BinService::kProjPhi)
+      else if(btype_ == BinService::kProjPhi)
         x = phi(ttid);
     }
 
@@ -408,7 +419,7 @@ namespace ecaldqm
   {
     if(!active_) return 0.;
 
-    unsigned iME(binService_->findPlot(data_->otype, _id));
+    unsigned iME(binService_->findPlot(otype_, _id));
     checkME_(iME);
 
     MonitorElement* me(mes_[iME]);
@@ -416,11 +427,11 @@ namespace ecaldqm
     if(isEndcapTTId(_id)){
       EcalTrigTowerDetId ttid(_id);
       std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttid));
-      if(data_->btype == BinService::kProjEta){
+      if(btype_ == BinService::kProjEta){
         int bin(me->getTH1()->FindBin(eta(ids[0])));
         return me->getBinEntries(bin);
       }
-      else if(data_->btype == BinService::kProjPhi){
+      else if(btype_ == BinService::kProjPhi){
         int bin(me->getTH1()->FindBin(phi(EEDetId(ids[0]))));
         return me->getBinEntries(bin);
       }
@@ -431,27 +442,27 @@ namespace ecaldqm
     int subdet(_id.subdetId());
     if(subdet == EcalBarrel){
       EBDetId ebid(_id);
-      if(data_->btype == BinService::kProjEta)
+      if(btype_ == BinService::kProjEta)
         x = ebid.approxEta();
-      else if(data_->btype == BinService::kProjPhi)
+      else if(btype_ == BinService::kProjPhi)
         x = phi(ebid);
     }
     else if(subdet == EcalEndcap){
-      if(data_->btype == BinService::kProjEta)
+      if(btype_ == BinService::kProjEta)
         x = eta(_id);
-      else if(data_->btype == BinService::kProjPhi)
+      else if(btype_ == BinService::kProjPhi)
         x = phi(EEDetId(_id));
     }
     else if(subdet == EcalTriggerTower){
       EcalTrigTowerDetId ttid(_id);
-      if(data_->btype == BinService::kProjEta){
+      if(btype_ == BinService::kProjEta){
         int ieta(ttid.ieta());
         if(ieta < 18 && ieta > 0)
           x = (ieta * 5 - 2.5) * EBDetId::crystalUnitToEta;
         else if(ieta > -18 && ieta < 0)
           x = (ieta * 5 + 2.5) * EBDetId::crystalUnitToEta;
       }
-      else if(data_->btype == BinService::kProjPhi)
+      else if(btype_ == BinService::kProjPhi)
         x = phi(ttid);
     }
 
