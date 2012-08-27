@@ -10,7 +10,6 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CommonTools/Utils/interface/StringToEnumValue.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
@@ -51,7 +50,7 @@ class CaloGeometryDBEP : public edm::ESProducer
       
       CaloGeometryDBEP<T,U>( const edm::ParameterSet& ps ) :
 	  m_applyAlignment ( ps.getParameter<bool>("applyAlignment") ),
-	  m_hcalTopoConsts( ps.getParameter<edm::ParameterSet>( "hcalTopologyConstants" ))
+	  m_pSet( ps )
 
       {
 	 setWhatProduced( this,
@@ -212,7 +211,7 @@ class CaloGeometryDBEP : public edm::ESProducer
 private:
 
     bool        m_applyAlignment ;
-    const edm::ParameterSet m_hcalTopoConsts;
+    const edm::ParameterSet m_pSet;
 };
 
 #endif

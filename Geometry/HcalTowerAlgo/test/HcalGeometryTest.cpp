@@ -7,7 +7,7 @@
 
 void testTriggerGeometry() {
    // FIXME: for SLHC
-   HcalTopology::Mode mode = HcalTopology::md_LHC;
+   HcalTopologyMode::Mode mode = HcalTopologyMode::LHC;
    int maxDepthHB = 2;
    int maxDepthHE = 3;
 
@@ -64,7 +64,7 @@ void testClosestCell(const HcalDetId & detId, const CaloSubdetectorGeometry * ge
 void testClosestCells() 
 {
    // FIXME: for SLHC
-   HcalTopology::Mode mode = HcalTopology::md_LHC;
+   HcalTopologyMode::Mode mode = HcalTopologyMode::LHC;
    int maxDepthHB = 2;
    int maxDepthHE = 3;
   
@@ -98,7 +98,7 @@ void testClosestCells()
 int main() {
 
   // FIXME: for SLHC
-  HcalTopology::Mode mode = HcalTopology::md_LHC;
+  HcalTopologyMode::Mode mode = HcalTopologyMode::LHC;
   int maxDepthHB = 2;
   int maxDepthHE = 3;
   HcalTopology topology(mode, maxDepthHB, maxDepthHE);

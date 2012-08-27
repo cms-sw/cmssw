@@ -11,8 +11,12 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 //
 // class decleration
@@ -26,14 +30,14 @@ public:
 
   typedef boost::shared_ptr<HcalTopology> ReturnType;
 
+  static void fillDescriptions( edm::ConfigurationDescriptions & descriptions );
+    
   ReturnType produce(const IdealGeometryRecord&);
 
 private:
   // ----------member data ---------------------------
   std::string m_restrictions;
-  HcalTopology::Mode  m_mode;
-  int m_maxDepthHB;
-  int m_maxDepthHE;
+  const edm::ParameterSet m_pSet;
     
   // can be specified in the config
   struct RingSegmentation {

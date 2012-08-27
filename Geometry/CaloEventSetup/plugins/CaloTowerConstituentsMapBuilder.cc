@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloTowerConstituentsMapBuilder.cc,v 1.4 2010/03/26 19:35:00 sunanda Exp $
+// $Id: CaloTowerConstituentsMapBuilder.cc,v 1.5 2012/08/15 14:57:20 yana Exp $
 //
 //
 
@@ -21,7 +21,8 @@
 // user include files
 #include "Geometry/CaloEventSetup/plugins/CaloTowerConstituentsMapBuilder.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "CommonTools/Utils/interface/StringToEnumValue.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include <zlib.h>
 #include <cstdio>
 #include <strings.h>
@@ -31,7 +32,7 @@
 //
 CaloTowerConstituentsMapBuilder::CaloTowerConstituentsMapBuilder(const edm::ParameterSet& iConfig) :
     mapFile_(iConfig.getUntrackedParameter<std::string>("MapFile","")),
-    m_hcalTopoConsts( iConfig.getParameter<edm::ParameterSet>( "hcalTopologyConstants" ))
+    m_pSet( iConfig )
   /*
   doStandardHBHE_(iConfig.getParameter<bool>("standardHBHE","true")),
   doStandardHF_(iConfig.getParameter<bool>("standardHF","true")),
@@ -55,13 +56,43 @@ CaloTowerConstituentsMapBuilder::~CaloTowerConstituentsMapBuilder()
 // member functions
 //
 
+void
+CaloTowerConstituentsMapBuilder::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
+{
+  edm::ParameterSetDescription hcalTopologyConstants;
+  hcalTopologyConstants.add<std::string>( "mode", "HcalTopologyMode::LHC" );
+  hcalTopologyConstants.add<int>( "maxDepthHB", 2 );
+  hcalTopologyConstants.add<int>( "maxDepthHE", 3 );  
+
+  edm::ParameterSetDescription hcalSLHCTopologyConstants;
+  hcalSLHCTopologyConstants.add<std::string>( "mode", "HcalTopologyMode::SLHC" );
+  hcalSLHCTopologyConstants.add<int>( "maxDepthHB", 7 );
+  hcalSLHCTopologyConstants.add<int>( "maxDepthHE", 7 );
+
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<std::string>( "MapFile", "" );
+  desc.addOptional<edm::ParameterSetDescription>( "hcalTopologyConstants", hcalTopologyConstants );
+  descriptions.add( "caloTowerConstituents", desc );
+
+  edm::ParameterSetDescription descSLHC;
+  descSLHC.addUntracked<std::string>( "MapFile", "" );
+  descSLHC.addOptional<edm::ParameterSetDescription>( "hcalTopologyConstants", hcalSLHCTopologyConstants );
+  descriptions.add( "caloTowerConstituentsSLHC", descSLHC );
+}
+
 // ------------ method called to produce the data  ------------
 CaloTowerConstituentsMapBuilder::ReturnType
 CaloTowerConstituentsMapBuilder::produce(const IdealGeometryRecord& iRecord)
 {
-   std::auto_ptr<CaloTowerConstituentsMap> prod(new CaloTowerConstituentsMap( new HcalTopology((HcalTopology::Mode) StringToEnumValue<HcalTopology::Mode>(m_hcalTopoConsts.getParameter<std::string>("mode")),
-											       m_hcalTopoConsts.getParameter<int>("maxDepthHB"),
-											       m_hcalTopoConsts.getParameter<int>("maxDepthHE"))));
+   const edm::ParameterSet hcalTopoConsts = m_pSet.getParameter<edm::ParameterSet>( "hcalTopologyConstants" );
+   std::string modeStr = hcalTopoConsts.getParameter<std::string>("mode");
+
+   StringToEnumParser<HcalTopologyMode::Mode> parser;
+   HcalTopologyMode::Mode mode = (HcalTopologyMode::Mode) parser.parseString(hcalTopoConsts.getParameter<std::string>("mode"));
+
+   std::auto_ptr<CaloTowerConstituentsMap> prod( new CaloTowerConstituentsMap( new HcalTopology( mode,
+												 hcalTopoConsts.getParameter<int>("maxDepthHB"),
+												 hcalTopoConsts.getParameter<int>("maxDepthHE"))));
    prod->useStandardHB(true);
    prod->useStandardHE(true);
    prod->useStandardHF(true);
