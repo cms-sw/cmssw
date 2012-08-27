@@ -131,8 +131,8 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
 
    if(TypeMode<2){      GlobalMinNDOF   = 0; 
                          GlobalMinTOF    = 0;
-   }else if(TypeMode==2) { GlobalMaxTIsol *= 2;
-                           GlobalMaxEIsol *= 2;
+   }else if(TypeMode==2) { //GlobalMaxTIsol *= 2;
+                          // GlobalMaxEIsol *= 2;
    }else if(TypeMode==3){
      GlobalMinIs      =   -1;
      IPbound=150;
@@ -145,7 +145,11 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
     //     GlobalMaxEIsol = -1;
     //   }
    else if(TypeMode==5){
-     GlobalMinIm = 2.8; //is actually dEdx max at skim level (reverse logic for type5)
+     GlobalMinIm   = 2.8; //is actually dEdx max at skim level (reverse logic for type5)
+     GlobalMinNOH  = 6;
+     GlobalMinNOM  = 5;  
+     GlobalMinNDOF = 0; //tkOnly analysis --> comment these 2 lines to use only global muon tracks
+     GlobalMinTOF  = 0;
    }
    
    // define the selection to be considered later for the optimization
@@ -323,7 +327,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 
    if(tof){
    if(st){st->BS_nDof->Fill(tof->nDof(),Event_Weight);}
-   if(TypeMode>1 && tof->nDof()<GlobalMinNDOF && (dttof->nDof()<GlobalMinNDOFDT || csctof->nDof()<GlobalMinNDOFCSC) )return false;
+   if((TypeMode>1  && TypeMode!=5) && tof->nDof()<GlobalMinNDOF && (dttof->nDof()<GlobalMinNDOFDT || csctof->nDof()<GlobalMinNDOFCSC) )return false;
    }
 
    if(st){st->nDof  ->Fill(0.0,Event_Weight);
@@ -357,7 +361,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    //This cut is no longer applied here but rather in the PassSelection part to use the region
    //with TOF<GlobalMinTOF as a background check
    //if(TypeMode>1 && tof->inverseBeta()+RescaleT<GlobalMinTOF)return false;
-   if(TypeMode>1 && tof->inverseBetaErr()>GlobalMaxTOFErr)return false;
+   if((TypeMode>1  && TypeMode!=5) && tof->inverseBetaErr()>GlobalMaxTOFErr)return false;
    }
 
    if(st){st->MTOF ->Fill(0.0,Event_Weight);
@@ -631,8 +635,8 @@ bool PassSelection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedx
           if(GenBeta>=0)st->Beta_SelectedI->Fill(CutIndex, GenBeta, Event_Weight);
    }
 
-   if(TypeMode>1 && !isFlip && MuonTOF+RescaleT<TOFCut)return false;
-   if(TypeMode>1 && isFlip && MuonTOF+RescaleT>TOFCut)return false;
+   if((TypeMode>1  && TypeMode!=5) && !isFlip && MuonTOF+RescaleT<TOFCut)return false;
+   if((TypeMode>1  && TypeMode!=5) && isFlip && MuonTOF+RescaleT>TOFCut)return false;
 
    if(st){st->TOF  ->Fill(CutIndex,Event_Weight);
           if(GenBeta>=0)st->Beta_SelectedT->Fill(CutIndex, GenBeta, Event_Weight);
@@ -992,7 +996,6 @@ void Analysis_Step3(char* SavePath)
             SamplePlots      ->TotalEPU->Fill(0.0,Event_Weight*PUSystFactor);
             if(isMC)MCTrPlots->TotalEPU->Fill(0.0,Event_Weight*PUSystFactor);
 	    //See if event passed signal triggers
-
             if(!PassTrigger(ev, isData) ) {
 	      //For TOF only analysis if the event doesn't pass the signal triggers check if it was triggered by the no BPTX cosmic trigger
 	      //If not TOF only then move to next event
@@ -1080,13 +1083,13 @@ void Analysis_Step3(char* SavePath)
 		 dedxSObj  = &dEdxSCollH->get(track.key());
 		 dedxMObj  = &dEdxMCollH->get(track.key());
 	       }
+
                if(TypeMode==5 && dedxSObj){
                   //for FractionalCharge dEdx discriminator probability is close to 0, just inverse the logic such that it become close to 1 as for other analyses
                   dedxSObj = new DeDxData(1.0-dedxSObj->dEdx(), dedxSObj->numberOfSaturatedMeasurements(), dedxSObj->numberOfMeasurements());
                   //skip HSCP that are compatible with cosmics.
                   if(deltaROpositeTrack(hscpColl, hscp)<0.3)continue;
                }
-
                const reco::MuonTimeExtra* tof = NULL;
                const reco::MuonTimeExtra* dttof = NULL;
                const reco::MuonTimeExtra* csctof = NULL;
