@@ -9,7 +9,7 @@
 int main(int /*argc*/, char** /*argv*/) {
 
   // FIXME: for SLHC
-  HcalTopology::Mode mode = HcalTopology::md_LHC;
+  HcalTopologyMode::Mode mode = HcalTopologyMode::LHC;
   int maxDepthHB = 2;
   int maxDepthHE = 3;
   
