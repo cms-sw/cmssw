@@ -29,6 +29,44 @@
 #include "TrackingTools/TrackFitters/interface/RecHitSorter.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 
+namespace {
+#ifdef STAT_TSB
+  struct StatCount {
+    long long totTrack;
+    long long totLoop;
+    long long totGsfTrack;
+    void zero() {
+      totTrack=totLoop=totGsfTrack=0;
+    }
+    void track(int l) {
+      if (l>0) ++totLoop; else ++totTrack;
+    }
+    void gsf() {++totGsfTrack;}
+
+
+    void print() const {
+      std::cout << "TrackProducer stat\nTrack/Loop/Gsf "
+    		<<  totTrack <<'/'<< totLoop <<'/'<< totGsfTrack
+		<< std::endl;
+    }
+    StatCount() { zero();}
+    ~StatCount() { print();}
+  };
+
+#else
+  struct StatCount {
+    void track(int){}
+    void gsf(){}
+  };
+#endif
+
+  StatCount statCount;
+
+}
+
+
+
+
 template <> bool
 TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFitter,
 						 const Propagator * thePropagator,
@@ -116,6 +154,7 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
     AlgoProduct aProduct(theTraj,std::make_pair(theTrack,seedDir));
     algoResults.push_back(aProduct);
     
+    statCount.track(nLoops);
     return true;
   } 
   else  return false;
@@ -228,6 +267,7 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
     algoResults.push_back(aProduct);
     LogDebug("GsfTrackProducer") <<"track done2\n";
     
+    statCount.gsf();
     return true;
   } 
   else  return false;
