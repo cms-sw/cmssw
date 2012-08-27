@@ -203,10 +203,10 @@ void EffHistogramList::ComputeEff(TrackHistogramList* refHists)
     EffEtaQ2->GetYaxis()->SetTitle("Efficiency");
     EffEtaQ3->GetXaxis()->SetTitle("Eta Sim");
     EffEtaQ3->GetYaxis()->SetTitle("Efficiency");
-    EffEtaAll->SetMaximum(1.1);
-    EffEtaQ1->SetMaximum(1.1);
-    EffEtaQ2->SetMaximum(1.1);
-    EffEtaQ3->SetMaximum(1.1);
+    EffEtaAll->GetYaxis()->SetRangeUser(0.0,1.1);
+    EffEtaQ1->GetYaxis()->SetRangeUser(0.0,1.1);
+    EffEtaQ2->GetYaxis()->SetRangeUser(0.0,1.1);
+    EffEtaQ3->GetYaxis()->SetRangeUser(0.0,1.1);
     EffEtaQ1->SetTitle("Efficiency for Quality 1, 2, and 3 Tracks");
     EffEtaQ1->SetFillColor(1);
     EffEtaQ2->SetFillColor(4);
@@ -235,10 +235,10 @@ void EffHistogramList::ComputeEff(TrackHistogramList* refHists)
     EffSignedEtaQ2->GetYaxis()->SetTitle("Efficiency");
     EffSignedEtaQ3->GetXaxis()->SetTitle("Eta Sim");
     EffSignedEtaQ3->GetYaxis()->SetTitle("Efficiency");
-    EffSignedEtaAll->SetMaximum(1.1);
-    EffSignedEtaQ1->SetMaximum(1.1);
-    EffSignedEtaQ2->SetMaximum(1.1);
-    EffSignedEtaQ3->SetMaximum(1.1);
+    EffSignedEtaAll->GetYaxis()->SetRangeUser(0.0,1.1);
+    EffSignedEtaQ1->GetYaxis()->SetRangeUser(0.0,1.1);
+    EffSignedEtaQ2->GetYaxis()->SetRangeUser(0.0,1.1);
+    EffSignedEtaQ3->GetYaxis()->SetRangeUser(0.0,1.1);
     EffSignedEtaQ1->SetTitle("Efficiency for Quality 1, 2, and 3 Tracks");
     EffSignedEtaQ1->SetFillColor(1);
     EffSignedEtaQ2->SetFillColor(4);
@@ -265,10 +265,10 @@ void EffHistogramList::ComputeEff(TrackHistogramList* refHists)
     EffPhiQ2->GetYaxis()->SetTitle("Efficiency");
     EffPhiQ3->GetXaxis()->SetTitle("Phi Sim");
     EffPhiQ3->GetYaxis()->SetTitle("Efficiency");
-    EffPhi->SetMaximum(1.1);
-    EffPhiQ1->SetMaximum(1.1);
-    EffPhiQ2->SetMaximum(1.1);
-    EffPhiQ3->SetMaximum(1.1);
+    EffPhi->GetYaxis()->SetRangeUser(0.0,1.1);
+    EffPhiQ1->GetYaxis()->SetRangeUser(0.0,1.1);
+    EffPhiQ2->GetYaxis()->SetRangeUser(0.0,1.1);
+    EffPhiQ3->GetYaxis()->SetRangeUser(0.0,1.1);
     EffPhiQ1->SetTitle("Efficiency for Quality 1, 2, and 3 Tracks");
     EffPhiQ1->SetFillColor(1);
     EffPhiQ2->SetFillColor(4);
@@ -326,7 +326,7 @@ void EffHistogramList::DrawPtEffHists(std::string region, TCanvas* canvas, TF1* 
     {
 	PtEffHists[i]->GetXaxis()->SetTitle("Pt Sim (GeV/c)");
 	PtEffHists[i]->GetYaxis()->SetTitle("Efficiency");
-	PtEffHists[i]->SetMaximum(1.1);
+	PtEffHists[i]->GetYaxis()->SetRangeUser(0.0,1.1);
 	tmp=region+" Pt Efficiency";
 	PtEffHists[i]->SetTitle(tmp.c_str());
 	PtEffHists[i]->SetFillColor(7-i);
