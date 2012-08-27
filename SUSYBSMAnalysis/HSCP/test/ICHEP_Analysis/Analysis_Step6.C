@@ -1287,8 +1287,8 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
          printf("SIGNAL STRENGTH = %f --> SIGNIFICANCE=%f\n",Strength,SignifValue);
          //we found the signal strength that lead to a significance close enough to the 5sigma to stop the loop 
          //OR we know that this point is not going to be a good one --> can do a coarse approximation since the begining
-         if(fabs(SignifValue-5)<0.5 || (fastOptimization && Strength*1000>=previousXSec_5Sigma && SignifValue<5)){
-            result.XSec_5Sigma  = Strength * (5/SignifValue) * 1000.0;//xsection in pb
+         if(fabs(SignifValue-5)<0.5 || (fastOptimization && Strength/1000>=previousXSec_5Sigma && SignifValue<5)){
+            result.XSec_5Sigma  = Strength * (5/SignifValue) / 1000.0;//xsection in pb
             break;
          }
 
