@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for muon reco track
  *
- *  $Date: 2011/07/14 13:27:43 $
- *  $Revision: 1.3 $
+ *  $Date: 2012/06/29 16:51:20 $
+ *  $Revision: 1.4 $
  *  \author S. Goy Lopez, CIEMAT
  */
 
@@ -49,6 +49,11 @@ class MuonKinVsEtaAnalyzer : public MuonAnalyzerBase {
   std::string metname;
   // STA Label
   edm::InputTag theSTACollectionLabel;
+
+  //Vertex requirements
+  edm::InputTag  vertexTag;
+  edm::InputTag  bsTag;
+
 
   //histo binning parameters
   int pBin;

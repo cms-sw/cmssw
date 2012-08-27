@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/06/29 16:51:20 $
- *  $Revision: 1.4 $
+ *  $Date: 2012/07/05 08:45:16 $
+ *  $Revision: 1.5 $
  *  \author S. Goy Lopez, CIEMAT 
  */
 
@@ -16,6 +16,10 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -39,6 +43,9 @@ void MuonKinVsEtaAnalyzer::beginJob(DQMStore * dbe) {
 
   LogTrace(metname)<<"[MuonKinVsEtaAnalyzer] Parameters initialization";
   dbe->setCurrentFolder("Muons/MuonKinVsEtaAnalyzer");
+
+  vertexTag  = parameters.getParameter<edm::InputTag>("vertexLabel");
+  bsTag  = parameters.getParameter<edm::InputTag>("bsLabel");
 
   etaBin = parameters.getParameter<int>("etaBin");
   etaMin = parameters.getParameter<double>("etaMin");
@@ -109,6 +116,44 @@ void MuonKinVsEtaAnalyzer::beginJob(DQMStore * dbe) {
 
 
 void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Muon& recoMu) {
+
+  // ==========================================================
+  // Look for the Primary Vertex (and use the BeamSpot instead, if you can't find it):
+
+  reco::Vertex::Point posVtx;
+  reco::Vertex::Error errVtx;
+ 
+  unsigned int theIndexOfThePrimaryVertex = 999.;
+ 
+  edm::Handle<reco::VertexCollection> vertex;
+  iEvent.getByLabel(vertexTag, vertex);
+
+  for (unsigned int ind=0; ind<vertex->size(); ++ind) {
+    if ( (*vertex)[ind].isValid() && !((*vertex)[ind].isFake()) ) {
+      theIndexOfThePrimaryVertex = ind;
+      break;
+    }
+  }
+  if (theIndexOfThePrimaryVertex<100) {
+    posVtx = ((*vertex)[theIndexOfThePrimaryVertex]).position();
+    errVtx = ((*vertex)[theIndexOfThePrimaryVertex]).error();
+  }   else {
+    LogInfo("RecoMuonValidator") << "reco::PrimaryVertex not found, use BeamSpot position instead\n";
+  
+    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+    iEvent.getByLabel(bsTag,recoBeamSpotHandle);
+    
+    reco::BeamSpot bs = *recoBeamSpotHandle;
+    
+    posVtx = bs.position();
+    errVtx(0,0) = bs.BeamWidthX();
+    errVtx(1,1) = bs.BeamWidthY();
+    errVtx(2,2) = bs.sigmaZ();
+  }
+  const reco::Vertex thePrimaryVertex(posVtx,errVtx);
+
+  // ==========================================================
+
   
   reco::BeamSpot beamSpot;
   Handle<reco::BeamSpot> beamSpotHandle;
@@ -158,9 +203,8 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	ptStaTrack[iEtaRegion]->Fill(recoStaTrack->pt());
       }
     }
-    if (recoMu.isGlobalMuon() && recoMu.isTrackerMuon() && recoMu.combinedMuon()->normalizedChi2()<10. 
-	&& recoMu.combinedMuon()->hitPattern().numberOfValidMuonHits()>0 && fabs(recoMu.combinedMuon()->dxy(beamSpot.position()))<0.2 
-	&& recoMu.combinedMuon()->hitPattern().numberOfValidPixelHits()>0 && recoMu.numberOfMatches() > 1) {
+
+    if ( muon::isTightMuon(recoMu, thePrimaryVertex) ) {
       LogTrace(metname)<<"[MuonKinVsEtaAnalyzer] The mu is Tight - filling the histos";
       reco::TrackRef recoTightTrack = recoMu.combinedMuon();
       if(fabs(recoTightTrack->eta())>EtaCutMin && fabs(recoTightTrack->eta())<EtaCutMax){

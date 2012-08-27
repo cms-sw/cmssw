@@ -47,6 +47,10 @@ class MuonRecoOneHLT : public MuonAnalyzerBase {
   // STA Label
   edm::InputTag theMuonCollectionLabel;
   edm::InputTag theSTACollectionLabel;
+
+ //Vertex requirements
+  edm::InputTag  vertexTag;
+  edm::InputTag  bsTag;
   
   std::vector<std::string> singlemuonExpr_;
   std::vector<std::string> doublemuonExpr_;
