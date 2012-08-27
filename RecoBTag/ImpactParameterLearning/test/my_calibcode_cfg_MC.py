@@ -10,7 +10,7 @@ from SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi import *
 from SimTracker.TrackAssociation.TrackAssociatorByHits_cfi import *
 from RecoBTag.ImpactParameter.impactParameter_cfi import *
 
-process = cms.Process("Mistag")
+process = cms.Process("Calib")
 
 process.source = cms.Source(
   "PoolSource",
@@ -254,7 +254,6 @@ process.p = cms.Path(
   #$$
   process.JetHLTFilter*
   
-  # process.kt6PFJets
   process.offlinePrimaryVertices 
   *process.goodOfflinePrimaryVertices
   *getattr(process,"patPF2PATSequence"+postfix)

@@ -10,7 +10,7 @@ from SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi import *
 from SimTracker.TrackAssociation.TrackAssociatorByHits_cfi import *
 from RecoBTag.ImpactParameter.impactParameter_cfi import *
 
-process = cms.Process("Mistag")
+process = cms.Process("Calib")
 
 process.source = cms.Source(
   "PoolSource",
@@ -126,7 +126,7 @@ postfix = "PF2PAT"  # to have only PF2PAT
 
 usePF2PAT(process,runPF2PAT=True,
           jetAlgo='AK5', runOnMC=False, postfix=postfix,
-          jetCorrections=('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])#,
+          jetCorrections=('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])#,
           #pvCollection=cms.InputTag('goodOfflinePrimaryVertices')
           )
 process.pfPileUpPF2PAT.checkClosestZVertex = False
@@ -142,8 +142,7 @@ process.pfPileUpPF2PAT.Vertices = cms.InputTag('goodOfflinePrimaryVertices')
 
 from PhysicsTools.SelectorUtils.pvSelector_cfi import pvSelector
 
-process.goodOfflinePrimaryVertices = cms.EDFilter(
-  "PrimaryVertexObjectFilter",
+process.goodOfflinePrimaryVertices = cms.EDFilter( "PrimaryVertexObjectFilter",
   filterParams = pvSelector.clone( minNdof = cms.double(4.0), maxZ = cms.double(24.0) ),
   src=cms.InputTag('offlinePrimaryVertices')
   )
@@ -162,6 +161,7 @@ process.PATJetsFilter = cms.EDFilter("PATJetSelector",
                                     cut = cms.string("pt > 10.0 && abs(eta) < 2.5 && neutralHadronEnergyFraction < 0.99 && neutralEmEnergyFraction < 0.99 && nConstituents > 1 && chargedHadronEnergyFraction > 0.0 && chargedMultiplicity > 0.0 && chargedEmEnergyFraction < 0.99"),
                                     #filter = cms.bool(True)
                                     )
+				    
 #---------------------------------------
 process.load("bTag.CommissioningCommonSetup.caloJetIDFilter_cff")
 
@@ -252,15 +252,12 @@ process.ipCalib.jetCorrector   = cms.string('ak5PFL1FastL2L3')
 
 process.p = cms.Path(
   #$$
-  process.JetHLTFilter*
-  
-  # process.kt6PFJets
-  process.offlinePrimaryVertices 
+  process.JetHLTFilter
+  *process.noscraping
+  *process.primaryVertexFilter
   *process.goodOfflinePrimaryVertices
   *getattr(process,"patPF2PATSequence"+postfix)
-  *process.noscraping
   *process.PATJetsFilter
-  *process.primaryVertexFilter
   *process.ak5JetTracksAssociatorAtVertex
   *process.btagging
   *process.positiveOnlyJetProbabilityJetTags*process.negativeOnlyJetProbabilityJetTags
