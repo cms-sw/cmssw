@@ -269,16 +269,12 @@ void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& 
 	    }
 	  }
 	}
-	
-	if (recoMu1->isTrackerMuon() && recoMu2->isTrackerMuon() &&
-	    recoMu1->innerTrack()->found() > 11 && recoMu2->innerTrack()->found() &&
-	    recoMu1->innerTrack()->chi2()/recoMu1->innerTrack()->ndof() < 4.0 && 
-	    recoMu2->innerTrack()->chi2()/recoMu2->innerTrack()->ndof() < 4.0 &&
-	    recoMu1->numberOfMatches() > 0 && recoMu2->numberOfMatches() > 0 && 
-	    recoMu1->innerTrack()->hitPattern().pixelLayersWithMeasurement() > 1 &&
-	    recoMu2->innerTrack()->hitPattern().pixelLayersWithMeasurement() > 1 &&
-	    fabs(recoMu1->innerTrack()->dxy()) < 3.0 && fabs(recoMu1->innerTrack()->dxy()) < 3.0 &&
-	    fabs(recoMu1->innerTrack()->dz()) < 15.0 && fabs(recoMu1->innerTrack()->dz()) < 15.0){
+
+
+	LogTrace(metname)<<"[DiMuonHistograms] Soft-Soft pair"<<endl;
+
+	if (muon::isSoftMuon(*recoMu1, thePrimaryVertex)  && 
+	    muon::isSoftMuon(*recoMu2, thePrimaryVertex) ) { 
 	  
 	  if (charge < 0) {
 	    InvMass = (Mu1+Mu2).M();
