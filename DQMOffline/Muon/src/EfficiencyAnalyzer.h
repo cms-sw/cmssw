@@ -53,7 +53,7 @@ class EfficiencyAnalyzer : public MuonAnalyzerBase {
   //Vertex requirements
   bool _doPVCheck;
   edm::InputTag  vertexTag;
-
+  edm::InputTag  bsTag;
 
   //histo binning parameters
   int etaBin_;
@@ -111,6 +111,15 @@ class EfficiencyAnalyzer : public MuonAnalyzerBase {
   
   
   MonitorElement* test_TightMu_Minv;
+  
+  // Apply deltaBeta PU corrections to the PF isolation eficiencies.
+  MonitorElement* h_passProbes_pfIsodBTightMu_pt;
+  MonitorElement* h_passProbes_EB_pfIsodBTightMu_pt;
+  MonitorElement* h_passProbes_EE_pfIsodBTightMu_pt;
+  MonitorElement* h_passProbes_pfIsodBTightMu_nVtx;
+  MonitorElement* h_passProbes_EB_pfIsodBTightMu_nVtx; 
+  MonitorElement* h_passProbes_EE_pfIsodBTightMu_nVtx; 
+
 
   int _numPV;
 

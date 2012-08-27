@@ -14,6 +14,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 
 
@@ -23,7 +24,7 @@ using namespace edm;
 #include "TFile.h"
 #include <vector>
 #include "math.h"
-
+#include <algorithm>
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
@@ -60,6 +61,7 @@ void EfficiencyAnalyzer::beginJob(DQMStore * dbe) {
   //Vertex requirements
   _doPVCheck = parameters.getParameter<bool>("doPrimaryVertexCheck");
   vertexTag  = parameters.getParameter<edm::InputTag>("vertexLabel");
+  bsTag  = parameters.getParameter<edm::InputTag>("bsLabel");
 
   ptBin_ = parameters.getParameter<int>("ptBin");
   ptMin_ = parameters.getParameter<double>("ptMin");
@@ -116,6 +118,16 @@ void EfficiencyAnalyzer::beginJob(DQMStore * dbe) {
   h_passProbes_EE_pfIsoTightMu_nVtx  = dbe->book1D("passProbes_EE_pfIsoTightMu_nVtx", "Endcap: pfIsoTightMu Passing Probes nVtx (R04)",  vtxBin_, vtxMin_, vtxMax_);
 
   
+  // Apply deltaBeta PU corrections to the PF isolation eficiencies.
+  
+  h_passProbes_pfIsodBTightMu_pt = dbe->book1D("passProbes_pfIsodBTightMu_pt","pfIsoTightMu Passing Probes Pt (deltaB PU correction)", ptBin_, ptMin_, ptMax_);
+  h_passProbes_EB_pfIsodBTightMu_pt = dbe->book1D("passProbes_EB_pfIsodBTightMu_pt","Barrel: pfIsoTightMu Passing Probes Pt (deltaB PU correction)", ptBin_, ptMin_, ptMax_);
+  h_passProbes_EE_pfIsodBTightMu_pt = dbe->book1D("passProbes_EE_pfIsodBTightMu_pt","Endcap: pfIsoTightMu Passing Probes Pt (deltaB PU correction)", ptBin_, ptMin_, ptMax_);
+  h_passProbes_pfIsodBTightMu_nVtx     = dbe->book1D("passProbes_pfIsodBTightMu_nVtx",    "pfIsoTightMu Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
+h_passProbes_EB_pfIsodBTightMu_nVtx  = dbe->book1D("passProbes_EB_pfIsodBTightMu_nVtx", "Barrel: pfIsoTightMu Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
+  h_passProbes_EE_pfIsodBTightMu_nVtx  = dbe->book1D("passProbes_EE_pfIsodBTightMu_nVtx", "Endcap: pfIsoTightMu Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
+
+
 
 #ifdef DEBUG
   cout << "[EfficiencyAnalyzer] Parameters initialization DONE" <<endl;
@@ -179,6 +191,47 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
     }
   }
   // ==========================================================
+
+
+  // ==========================================================
+  // Look for the Primary Vertex (and use the BeamSpot instead, if you can't find it):
+
+  reco::Vertex::Point posVtx;
+  reco::Vertex::Error errVtx;
+ 
+  unsigned int theIndexOfThePrimaryVertex = 999.;
+ 
+  edm::Handle<reco::VertexCollection> vertex;
+  iEvent.getByLabel(vertexTag, vertex);
+
+  for (unsigned int ind=0; ind<vertex->size(); ++ind) {
+    if ( (*vertex)[ind].isValid() && !((*vertex)[ind].isFake()) ) {
+      theIndexOfThePrimaryVertex = ind;
+      break;
+    }
+  }
+  if (theIndexOfThePrimaryVertex<100) {
+    posVtx = ((*vertex)[theIndexOfThePrimaryVertex]).position();
+    errVtx = ((*vertex)[theIndexOfThePrimaryVertex]).error();
+  }   else {
+    LogInfo("RecoMuonValidator") << "reco::PrimaryVertex not found, use BeamSpot position instead\n";
+  
+    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+    iEvent.getByLabel(bsTag,recoBeamSpotHandle);
+    
+    reco::BeamSpot bs = *recoBeamSpotHandle;
+    
+    posVtx = bs.position();
+    errVtx(0,0) = bs.BeamWidthX();
+    errVtx(1,1) = bs.BeamWidthY();
+    errVtx(2,2) = bs.sigmaZ();
+  }
+  const reco::Vertex thePrimaryVertex(posVtx,errVtx);
+
+  // ==========================================================
+
+
+
   
   
   if(!muons.isValid()) return;
@@ -207,15 +260,9 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
     
     
     //--- Define if it is a tight muon
-    if (!recoMu1->isGlobalMuon())                                           continue;
-    if (!recoMu1->isPFMuon())                                               continue;
-    if (recoMu1->combinedMuon()->normalizedChi2() > 10.)                    continue;
-    if (recoMu1->numberOfMatchedStations() < 1)                             continue;
-    if (recoMu1->combinedMuon()->hitPattern().numberOfValidMuonHits() < 1)  continue;
-    if (fabs(recoMu1->combinedMuon()->dxy(beamSpot.position())) > 0.2)      continue;
-    if (fabs(recoMu1->innerTrack()->dz(beamSpot.position())) > 0.5)         continue;
-    if (recoMu1->combinedMuon()->hitPattern().numberOfValidPixelHits() < 1) continue;
-    if (recoMu1->track()->hitPattern().trackerLayersWithMeasurement() <= 5) continue;
+    // Change the Tight muon definition by using the implemented method in: MuonSelectors.cc
+
+    if (!muon::isTightMuon(*recoMu1, thePrimaryVertex)) continue;
   
     //-- is isolated muon
     if (muPt1 <= 15)          continue;
@@ -247,17 +294,12 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
 
       test_TightMu_Minv->Fill(Minv);
       
+
+
       // Probes passing the tight muon criteria 
-      if (!recoMu2->isGlobalMuon())                                           continue;
-      if (!recoMu2->isPFMuon())                                               continue;
-      if (recoMu2->combinedMuon()->normalizedChi2() > 10.)                    continue;
-      if (recoMu2->numberOfMatchedStations() < 1)                             continue;
-      if (recoMu2->combinedMuon()->hitPattern().numberOfValidMuonHits() < 1)  continue;
-      if (fabs(recoMu2->combinedMuon()->dxy(beamSpot.position())) > 0.2)      continue;
-      if (fabs(recoMu2->innerTrack()->dz(beamSpot.position())) > 0.5)         continue;
-      if (recoMu2->combinedMuon()->hitPattern().numberOfValidPixelHits() < 1) continue;
-      if (recoMu2->track()->hitPattern().trackerLayersWithMeasurement() <= 5) continue;
-     
+
+      if (!muon::isTightMuon(*recoMu2, thePrimaryVertex)) continue;
+
       h_passProbes_TightMu_pt->Fill(recoMu2->pt());
       h_passProbes_TightMu_eta->Fill(recoMu2->eta());
       h_passProbes_TightMu_phi->Fill(recoMu2->phi());
@@ -297,6 +339,14 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
       float photonIso = recoMu2->pfIsolationR04().sumPhotonEt;
       float relPFIso = (chargedIso + neutralIso + photonIso) /  (recoMu2->pt()); 
       
+      float pu = recoMu2->pfIsolationR04().sumPUPt; 
+
+      float neutralphotonPUCorrected = std::max(0.0 , (neutralIso + photonIso - 0.5*pu ) ); 
+
+      float relPFIsoPUCorrected = (chargedIso + neutralphotonPUCorrected) /  (recoMu2->pt()); 
+
+
+
       if (relPFIso < 0.12 ) { 
 	h_passProbes_pfIsoTightMu_pt->Fill(recoMu2->pt());
 	if (isMB) h_passProbes_EB_pfIsoTightMu_pt->Fill(recoMu2->pt());
@@ -306,6 +356,22 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
 	if (bPrimaryVertex && isMB) h_passProbes_EB_pfIsoTightMu_nVtx->Fill(_numPV);
 	if (bPrimaryVertex && isME) h_passProbes_EE_pfIsoTightMu_nVtx->Fill(_numPV);
       }
+
+
+
+	// Apply deltaBeta PU corrections to the PF isolation eficiencies.
+
+	if ( relPFIsoPUCorrected < 0.12 ) { 
+
+	h_passProbes_pfIsodBTightMu_pt->Fill(recoMu2->pt());
+	if (isMB) h_passProbes_EB_pfIsodBTightMu_pt->Fill(recoMu2->pt());
+	if (isME) h_passProbes_EE_pfIsodBTightMu_pt->Fill(recoMu2->pt());
+	
+	if( bPrimaryVertex)         h_passProbes_pfIsodBTightMu_nVtx->Fill(_numPV);
+	if (bPrimaryVertex && isMB) h_passProbes_EB_pfIsodBTightMu_nVtx->Fill(_numPV);
+	if (bPrimaryVertex && isME) h_passProbes_EE_pfIsodBTightMu_nVtx->Fill(_numPV);
+	   }
+
     }
   }
 }
