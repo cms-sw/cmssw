@@ -171,7 +171,7 @@ foreach gtag ( STARTUP DATA )
     echo "Creating DigiL1RawHLT $name"
     cmsDriver.py RelVal                --step=DIGI,L1,DIGI2RAW,$XHLT               --conditions=$GTAG --filein=$InputGenSim                        --custom_conditions=$XL1T  --fileout=RelVal_DigiL1RawHLT_$name.root --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW-HLT'  --eventcontent=FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  --scenario=$SCEN --python_filename=RelVal_DigiL1RawHLT_$name.py  --processName=$PNAME
 
-    if ( ($table != HIon) && ($table!= PIon) ) then
+    if ( ($table != HIon) && ($table != PIon) ) then
 
     echo
     echo "Creating FastSim $name"
