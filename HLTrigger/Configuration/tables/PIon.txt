@@ -1,5 +1,46 @@
 # "PIon" menu
-HLTriggerFirstPath
-HLTriggerFinalPath
-HLTAnalyzerEndpath
-AOutput
+HLT_Activity_Ecal_SC7_v*               # sr 131577
+HLT_BeamGas_HF_Beam1_v*                # sr 131577
+HLT_BeamGas_HF_Beam2_v*                # sr 131577
+HLT_BeamHalo_v*                        # sr 131577
+HLT_HcalPhiSym_v*                      # sr 131577
+HLT_HcalNZS_v*                         # sr 131577
+HLT_GlobalRunHPDNoise_v*               # sr 131577
+HLT_Physics_v*                         # sr 131577
+DST_Physics_v*                         # sr 131577
+HLT_DTCalibration_v*                   # sr 131577
+HLT_EcalCalibration_v*                 # sr 131577
+HLT_HcalCalibration_v*                 # sr 131577
+HLT_TrackerCalibration_v*              # sr 131577
+HLT_Random_v*                          # sr 131577
+HLT_L1DoubleJet36Central_v*            # sr 131577
+AlCa_EcalPi0EBonly_v*                  # sr 131577
+AlCa_EcalPi0EEonly_v*                  # sr 131577
+AlCa_EcalEtaEBonly_v*                  # sr 131577
+AlCa_EcalEtaEEonly_v*                  # sr 131577
+AlCa_EcalPhiSym_v*                     # sr 131577
+AlCa_RPCMuonNoTriggers_v*              # sr 131577
+AlCa_RPCMuonNoHits_v*                  # sr 131577
+AlCa_RPCMuonNormalisation_v*           # sr 131577
+AlCa_LumiPixels_v*                     # sr 131577
+AlCa_LumiPixels_ZeroBias_v*            # sr 131577
+AlCa_LumiPixels_Random_v*              # sr 131577
+DQM_FEDIntegrity_v*                    # sr 131577
+HLT_LogMonitor_v*                      # sr 131577
+HLTriggerFinalPath                     # sr 131577
+HLTAnalyzerEndpath                     # only in 'PIon', not in 'online'
+AOutput                                # sr 131577
+BOutput                                # sr 131577
+ALCAP0Output                           # sr 131577
+ALCAPHISYMOutput                       # sr 131577
+ALCALUMIPIXELSOutput                   # sr 131577
+CalibrationOutput                      # sr 131577
+DQMOutput                              # sr 131577
+EcalCalibrationOutput                  # sr 131577
+ExpressOutput                          # sr 131577
+HLTDQMOutput                           # sr 131577
+HLTMONOutput                           # sr 131577
+NanoDSTOutput                          # sr 131577
+PhysicsDSTOutput                       # sr 131577
+RPCMONOutput                           # sr 131577
+TrackerCalibrationOutput               # sr 131577
