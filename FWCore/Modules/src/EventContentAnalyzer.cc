@@ -27,7 +27,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
-#include "FWCore/Utilities/interface/MemberWithDict.h"
+#include "FWCore/Utilities/interface/FunctionWithDict.h"
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
@@ -184,9 +184,9 @@ namespace edm {
           //std::cout << "size of type '" << sizeObj.name() << "' " << sizeObj.typeName() << std::endl;
           assert(sizeObj.finalType().typeInfo() == typeid(size_t));
           size_t size = *reinterpret_cast<size_t*>(sizeObj.address());
-          MemberWithDict atMember;
+          FunctionWithDict atMember;
           try {
-             atMember = iObject.typeOf().memberByName("at");
+             atMember = iObject.typeOf().functionMemberByName("at");
           } catch(std::exception const& x) {
              //std::cerr << "could not get 'at' member because " << x.what() << std::endl;
              return false;

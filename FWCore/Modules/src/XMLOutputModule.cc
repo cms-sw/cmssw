@@ -31,6 +31,7 @@
 #include "FWCore/Framework/interface/GenericHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/BaseWithDict.h"
+#include "FWCore/Utilities/interface/FunctionWithDict.h"
 #include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
@@ -77,7 +78,7 @@ namespace edm {
     //Handle memory for calls to invoke
     // We handle Ref's by using an external void* buffer (which we do not delete) while everything else
     // we create the proper object (and therefore must delete it)
-    boost::shared_ptr<ObjectWithDict> initReturnValue(MemberWithDict const& iMember,
+    boost::shared_ptr<ObjectWithDict> initReturnValue(FunctionWithDict const& iMember,
                                                       ObjectWithDict* iObj,
                                                       void** iRefBuffer) {
       TypeWithDict returnType = iMember.typeOf().returnType();
@@ -333,17 +334,17 @@ namespace edm {
         throw std::exception();
       }
       try {
-        MemberWithDict compare(iBegin.typeOf().memberByName("operator!="));
+        FunctionWithDict compare(iBegin.typeOf().functionMemberByName("operator!="));
         if(!compare) {
           //std::cerr << "no 'operator!=' for " << iBegin.typeOf().name() << std::endl;
           return false;
         }
-        MemberWithDict incr(iBegin.typeOf().memberByName("operator++"));
+        FunctionWithDict incr(iBegin.typeOf().functionMemberByName("operator++"));
         if(!incr) {
           //std::cerr << "no 'operator++' for " << iBegin.typeOf().name() << std::endl;
           return false;
         }
-        MemberWithDict deref(iBegin.typeOf().memberByName("operator*"));
+        FunctionWithDict deref(iBegin.typeOf().functionMemberByName("operator*"));
         if(!deref) {
           //std::cerr << "no 'operator*' for " << iBegin.typeOf().name() << std::endl;
           return false;
@@ -403,8 +404,8 @@ namespace edm {
           throw std::exception();
         }
         size_t size = *reinterpret_cast<size_t*>(sizeObj.address());
-        MemberWithDict atMember;
-        atMember = iObject.typeOf().memberByName("at");
+        FunctionWithDict atMember;
+        atMember = iObject.typeOf().functionMemberByName("at");
         if(!atMember) {
           throw std::exception();
         }
@@ -448,11 +449,11 @@ namespace edm {
           }
           ObjectWithDict iObjBegin;
           void* beginRefBuffer;
-          MemberWithDict beginMember = iObject.typeOf().memberByName("begin");
+          FunctionWithDict beginMember = iObject.typeOf().functionMemberByName("begin");
           boost::shared_ptr<ObjectWithDict> beginMemHolder = initReturnValue(beginMember, &iObjBegin, &beginRefBuffer);
           ObjectWithDict iObjEnd;
           void* endRefBuffer;
-          MemberWithDict endMember = iObject.typeOf().memberByName("end");
+          FunctionWithDict endMember = iObject.typeOf().functionMemberByName("end");
           boost::shared_ptr<ObjectWithDict> endMemHolder = initReturnValue(endMember, &iObjEnd, &endRefBuffer);
 
           beginMember.invoke(iObject, &iObjBegin);
