@@ -10,7 +10,7 @@
 #include "CmsException.h"
 
 namespace clangcms {
-class ClassCheckerDecl : public clang::ento::Checker< clang::ento::check::ASTDecl< clang::CXXMethodDecl> > {
+class ClassCheckerMDecl : public clang::ento::Checker< clang::ento::check::ASTDecl< clang::CXXMethodDecl> > {
   mutable clang::OwningPtr< clang::ento::BuiltinBug> BT;
 
 public:
@@ -22,6 +22,17 @@ private:
   CmsException m_exception;
 };  
 
+class ClassCheckerRDecl : public clang::ento::Checker< clang::ento::check::ASTDecl< clang::CXXRecordDecl> > {
+  mutable clang::OwningPtr< clang::ento::BuiltinBug> BT;
+
+public:
+  void checkASTDecl(const clang::CXXRecordDecl *D,
+                      clang::ento::AnalysisManager &Mgr,
+                      clang::ento::BugReporter &BR) const;
+
+private:
+  CmsException m_exception;
+};  
 
 class ClassCheckerCall : public clang::ento::Checker< clang::ento::check::PostStmt< clang::CXXMemberCallExpr> > {
   mutable clang::OwningPtr<clang::ento::BugType> BT;

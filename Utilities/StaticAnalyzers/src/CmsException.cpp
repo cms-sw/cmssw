@@ -30,7 +30,8 @@ bool CmsException::reportGeneral( clang::ento::PathDiagnosticLocation const& pat
 	  found += FN.count("LinkDef.cc");
 	  found += FN.count("/external/");
 	  found += FN.count("/lcg/");
-	  found += FN.count("/uscmst1/prod/sw/cms/");
+	  found += FN.count("/cms/cmssw/"); 
+	  found += FN.count("/test/"); 
 	  if ( found!=0 )  {return false;}
 #endif
 
