@@ -17,7 +17,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -40,10 +39,19 @@ using namespace std;
 using namespace edm;
 
 PFRecHitProducerHCAL::PFRecHitProducerHCAL(const edm::ParameterSet& iConfig)
-  : PFRecHitProducer( iConfig ) 
+  : PFRecHitProducer( iConfig ),
+    m_mode(HcalTopologyMode::LHC),
+    m_maxDepthHB(2),
+    m_maxDepthHE(3)
 {
-
- 
+  if( iConfig.exists( "hcalTopologyConstants" ))
+  {
+    const edm::ParameterSet hcalTopoConsts( iConfig.getParameter<edm::ParameterSet>( "hcalTopologyConstants" ));
+    StringToEnumParser<HcalTopologyMode::Mode> parser;
+    m_mode = (HcalTopologyMode::Mode) parser.parseString(hcalTopoConsts.getParameter<std::string>("mode"));
+    m_maxDepthHB = hcalTopoConsts.getParameter<int>("maxDepthHB");
+    m_maxDepthHE = hcalTopoConsts.getParameter<int>("maxDepthHE");
+  }
 
   // access to the collections of rechits 
 
@@ -966,7 +974,7 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
        
   
     // get the hcal topology
-    HcalTopology hcalTopology;
+    HcalTopology hcalTopology(m_mode, m_maxDepthHB, m_maxDepthHE);
     
     // HCAL rechits 
     //    vector<edm::Handle<HBHERecHitCollection> > hcalHandles;  
