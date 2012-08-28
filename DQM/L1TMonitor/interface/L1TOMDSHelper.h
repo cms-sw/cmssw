@@ -20,16 +20,20 @@ class BeamConfiguration{
 
   public:
 
-    BeamConfiguration(){m_valid = false;}
+    BeamConfiguration(){
+      m_valid           = false;
+      nCollidingBunches = 0;
+    }
 
     bool bxConfig(int iBx){
       if(beam1[iBx] && beam2[iBx]){return true;}
       else                        {return false;}
     }
     
-    bool isValid(){return m_valid;}
-
-    bool m_valid;           // Bit Name for which the fit refers to
+    bool isValid()          {return m_valid;}
+    
+    bool m_valid;
+    int  nCollidingBunches;
     std::vector<bool> beam1;
     std::vector<bool> beam2;
 

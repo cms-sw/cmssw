@@ -187,6 +187,8 @@ BeamConfiguration L1TOMDSHelper::getBeamConfiguration(int lhcFillNumber,int &err
     else{
 
       bConfig.m_valid = true;
+      
+      int nCollidingBunches = 0;
 
       for(int i=0; i<qResults.numberRows();++i){    
         int   bunch;
@@ -200,8 +202,12 @@ BeamConfiguration L1TOMDSHelper::getBeamConfiguration(int lhcFillNumber,int &err
 
         if(beam2config){bConfig.beam2.push_back(true);}
         else           {bConfig.beam2.push_back(false);}
-
+        
+        if(beam1config && beam2config){nCollidingBunches++;}
       }
+      
+      bConfig.nCollidingBunches = nCollidingBunches;
+      
     }
   }
 
