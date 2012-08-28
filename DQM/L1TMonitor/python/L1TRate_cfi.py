@@ -46,7 +46,7 @@ l1tRate = cms.EDAnalyzer("L1TRate",
       ETM    = cms.untracked.bool(True),
       ETT    = cms.untracked.bool(True),
       HTT    = cms.untracked.bool(True),
-      HTM    = cms.untracked.bool(True),
+      HTM    = cms.untracked.bool(False),
     ),
   ),
 
