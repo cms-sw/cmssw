@@ -416,7 +416,8 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & mcparticles,
 //______________________________________________________________________________
 HcalSubdetector reco::hcalSubdetector(int iEta)
 {
-  static const HcalTopology topology;
+  // FIXME for SLHC
+  static const HcalTopology topology(HcalTopologyMode::LHC, 2, 3);
   int eta = std::abs(iEta);
   if      (eta <= topology.lastHBRing()) return HcalBarrel;
   else if (eta <= topology.lastHERing()) return HcalEndcap;
