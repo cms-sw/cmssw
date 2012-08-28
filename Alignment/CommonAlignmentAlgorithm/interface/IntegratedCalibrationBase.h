@@ -6,16 +6,17 @@
  *
  *  \author Gero Flucke
  *  \date August 2012
- *  $Revision: 1.77 $
- *  $Date: 2011/09/06 13:46:08 $
- *  (last update by $Author: mussgill $)
+ *  $Revision: 1.1 $
+ *  $Date: 2012/08/10 09:07:20 $
+ *  (last update by $Author: flucke $)
  *
  *  Base class for the calibrations that are integrated
  *  into the alignment algorithms.
  *  Note that not all algorithms support this...
  *  Limitations:
  *   o Hits are assumed to be (up to) 2D.
- *   o Derivatives depend on local things only (hit and track TSOS).
+ *   o Derivatives depend only on local things (hit and track TSOS),
+ *     EventSetup and AlignmentAlgorithmBase::EventInfo.
  */
 
 
