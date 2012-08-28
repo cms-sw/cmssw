@@ -266,7 +266,10 @@ void L1TBPTX::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup 
 // * Fills LS by LS ration of trigger out of sync
 //_____________________________________________________________________
 void L1TBPTX::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
-
+  
+  //______________________________________________________________________________
+  // Monitoring efficiencies
+  //______________________________________________________________________________  
   if(m_verbose){cout << "[L1TBPTX] Called endLuminosityBlock." << endl;}
 
   // If this LS is valid (i.e. all events recorded with stable beams)
@@ -302,32 +305,37 @@ void L1TBPTX::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
     }
   }
   
-  //_____________________________________________________________________
+  //______________________________________________________________________________
   // Monitoring rates
-  //_____________________________________________________________________  
+  //______________________________________________________________________________  
+  // We are only interested in monitoring lumisections where the the LHC state is
+  // RAMP, FLATTOP, SQUEEZE, ADJUST or STABLE since the bunch configuration and 
+  // therefore the BPTX rate will not change.
   
-  const vector<int>& currentPFAlgo = (*m_prescaleFactorsAlgoTrig).at(m_currentPrescalesIndex);
-  const vector<int>& currentPFTech = (*m_prescaleFactorsTechTrig).at(m_currentPrescalesIndex);
+  if(m_currentLSValid){
+  
+    const vector<int>& currentPFAlgo = (*m_prescaleFactorsAlgoTrig).at(m_currentPrescalesIndex);
+    const vector<int>& currentPFTech = (*m_prescaleFactorsTechTrig).at(m_currentPrescalesIndex);
     
-  for(unsigned i=0; i<m_monitorRates.size(); i++){
+    for(unsigned i=0; i<m_monitorRates.size(); i++){
    
-    bool isAlgo = m_monitorRates[i].getParameter<bool>  ("bitType");
-    int  bit    = m_monitorRates[i].getParameter<int>   ("bitNumber");
+      bool isAlgo = m_monitorRates[i].getParameter<bool>  ("bitType");
+      int  bit    = m_monitorRates[i].getParameter<int>   ("bitNumber");
   
-    pair<bool,int> refME = pair<bool,int>(isAlgo,bit);
+      pair<bool,int> refME = pair<bool,int>(isAlgo,bit);
     
-    if(isAlgo){
-      int    bin      = m_meRate[refME]->getTH1()->FindBin(m_currentGTLS);
-      int    trigPS   = currentPFAlgo[bit];
-      double trigRate = (double) trigPS*m_l1Rate[refME];
-      m_meRate[refME]->setBinContent(bin,trigRate);
+      if(isAlgo){
+        int    bin      = m_meRate[refME]->getTH1()->FindBin(m_currentGTLS);
+        int    trigPS   = currentPFAlgo[bit];
+        double trigRate = (double) trigPS*m_l1Rate[refME];
+        m_meRate[refME]->setBinContent(bin,trigRate);
       
-    }else{
-      int    bin      = m_meRate[refME]->getTH1()->FindBin(m_currentGTLS);
-      int    trigPS   = currentPFTech[bit];
-      double trigRate = (double) trigPS*m_l1Rate[refME];
-      m_meRate[refME]->setBinContent(bin,trigRate);
-      
+      }else{
+        int    bin      = m_meRate[refME]->getTH1()->FindBin(m_currentGTLS);
+        int    trigPS   = currentPFTech[bit];
+        double trigRate = (double) trigPS*m_l1Rate[refME];
+        m_meRate[refME]->setBinContent(bin,trigRate);
+      }
     }
   }
 }
@@ -360,17 +368,29 @@ void L1TBPTX::analyze(const Event & iEvent, const EventSetup & eventSetup){
       const L1GtfeExtWord& gtfeEvmWord = gtEvmReadoutRecord->gtfeWord();
       unsigned int lhcBeamMode         = gtfeEvmWord.beamMode();          // Updating beam mode
 
-      if(m_lhcFill==0){
+      if(m_verbose){cout << "[L1TBPTX] Beam mode: "<< lhcBeamMode << endl;}
+      
+      if(lhcBeamMode==RAMP || lhcBeamMode==FLATTOP || lhcBeamMode==SQUEEZE || lhcBeamMode==ADJUST || lhcBeamMode==STABLE){
+	
+        if(m_lhcFill==0){
 
-        if(m_verbose){cout << "[L1TBPTX] -> New fill... retrieving LHC Bunch structure" << endl;}
+	  if(m_verbose){cout << "[L1TBPTX] No valid bunch structure yet retrived. Attemptting to retrive..." << endl;}
 
-        m_lhcFill = gtfeEvmWord.lhcFillNumber(); // Getting LHC Fill Number from GT
-        getBeamConfOMDS();                       // Getting Beam Configuration from OMDS
+          m_lhcFill = gtfeEvmWord.lhcFillNumber(); // Getting LHC Fill Number from GT
+	  
+	  getBeamConfOMDS(); // Getting Beam Configuration from OMDS
+
+	  // We are between RAMP and STABLE so there should be some colliding bunches
+	  // in the machine. If 0 colliding bunched are found might be due to a delay 
+	  // of the update of the database. So we declare this LS as invalid and try
+	  // again on the next one.
+	  if(m_beamConfig.nCollidingBunches<=0){
+            m_lhcFill=0;
+	    m_currentLSValid=false;
+	  }
+	}
       }
-
-      if(lhcBeamMode!=RAMP && lhcBeamMode!=FLATTOP && lhcBeamMode!=SQUEEZE && lhcBeamMode!=ADJUST && lhcBeamMode!=STABLE){
-        m_currentLSValid = false;
-      }
+      else{m_currentLSValid=false;}
 
     }else{
       int eCount = m_ErrorMonitor->getTH1()->GetBinContent(ERROR_UNABLE_RETRIVE_PRODUCT);
@@ -477,6 +497,8 @@ void L1TBPTX::analyze(const Event & iEvent, const EventSetup & eventSetup){
 //_____________________________________________________________________
 void L1TBPTX::getBeamConfOMDS(){
 
+  if(m_verbose){cout << "[L1TBPTX] Called getBeamConfOMDS()" << endl;}
+  
   //Getting connection paremeters
   string oracleDB   = m_parameters.getParameter<string>("oracleDB");
   string pathCondDB = m_parameters.getParameter<string>("pathCondDB");
@@ -488,36 +510,50 @@ void L1TBPTX::getBeamConfOMDS(){
 
   if(conError == L1TOMDSHelper::NO_ERROR){
 
+    if(m_verbose){cout << "[L1TBPTX] Connected to DB with no error." << endl;}
+    
     int errorRetrive;
     m_beamConfig = myOMDSHelper.getBeamConfiguration(m_lhcFill,errorRetrive);
-
-    if(conError == L1TOMDSHelper::WARNING_DB_CONN_FAILED){
-      int eCount = m_ErrorMonitor->getTH1()->GetBinContent(WARNING_DB_INCORRECT_NBUNCHES);
-      eCount++;
-      m_ErrorMonitor->getTH1()->SetBinContent(WARNING_DB_INCORRECT_NBUNCHES,eCount);
+    
+    if(errorRetrive == L1TOMDSHelper::NO_ERROR){
+      if(m_verbose){
+	cout << "[L1TBPTX] Retriving LHC Bunch Structure: NO_ERROR" << endl;
+	cout << "[L1TSync] -> LHC Bunch Structure valid=" << m_beamConfig.m_valid << " nBunches=" << m_beamConfig.nCollidingBunches << endl;
+      }
     }
-    else if(conError == L1TOMDSHelper::WARNING_DB_QUERY_FAILED){
+    else if(errorRetrive == L1TOMDSHelper::WARNING_DB_QUERY_FAILED){
+      if(m_verbose){cout << "[L1TBPTX] Retriving LHC Bunch Structure: WARNING_DB_QUERY_FAILED" << endl;}
+      
       int eCount = m_ErrorMonitor->getTH1()->GetBinContent(WARNING_DB_QUERY_FAILED);
       eCount++;
       m_ErrorMonitor->getTH1()->SetBinContent(WARNING_DB_QUERY_FAILED,eCount);
     }
+    else if(errorRetrive == L1TOMDSHelper::WARNING_DB_INCORRECT_NBUNCHES){
+      if(m_verbose){cout << "[L1TBPTX] Retriving LHC Bunch Structure: WARNING_DB_INCORRECT_NBUNCHES" << endl;}
+      
+      int eCount = m_ErrorMonitor->getTH1()->GetBinContent(WARNING_DB_INCORRECT_NBUNCHES);
+      eCount++;
+      m_ErrorMonitor->getTH1()->SetBinContent(WARNING_DB_INCORRECT_NBUNCHES,eCount);
+    }    
     else{
+      if(m_verbose){cout << "[L1TBPTX] Retriving LHC Bunch Structure: UNKNOWN" << endl;}
       int eCount = m_ErrorMonitor->getTH1()->GetBinContent(UNKNOWN);
       eCount++;
       m_ErrorMonitor->getTH1()->SetBinContent(UNKNOWN,eCount);
     }
 
-  }else{
-
-    if(conError == L1TOMDSHelper::WARNING_DB_CONN_FAILED){
-      int eCount = m_ErrorMonitor->getTH1()->GetBinContent(WARNING_DB_CONN_FAILED);
-      eCount++;
-      m_ErrorMonitor->getTH1()->SetBinContent(WARNING_DB_CONN_FAILED,eCount);
-    }else{
-      int eCount = m_ErrorMonitor->getTH1()->GetBinContent(UNKNOWN);
-      eCount++;
-      m_ErrorMonitor->getTH1()->SetBinContent(UNKNOWN,eCount);
-    }
+  }
+  else if(conError == L1TOMDSHelper::WARNING_DB_CONN_FAILED){ 
+    if(m_verbose){cout << "[L1TBPTX] Connection to DB: WARNING_DB_CONN_FAILED" << endl;}
+    int eCount = m_ErrorMonitor->getTH1()->GetBinContent(WARNING_DB_CONN_FAILED);
+    eCount++;
+    m_ErrorMonitor->getTH1()->SetBinContent(WARNING_DB_CONN_FAILED,eCount);
+  }
+  else{
+    if(m_verbose){cout << "[L1TBPTX] Connection to DB: UNKNOWN" << endl;}
+    int eCount = m_ErrorMonitor->getTH1()->GetBinContent(UNKNOWN);
+    eCount++;
+    m_ErrorMonitor->getTH1()->SetBinContent(UNKNOWN,eCount);    
   }
 }
 
