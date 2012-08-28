@@ -100,6 +100,8 @@ namespace lumi{
     void insertHltRunData(coral::ISchema& schema,const HltEntry& hltentry);
     
     unsigned long long currentHFDataTagId(coral::ISchema& schema);
+    unsigned long long HFDataTagIdByName(coral::ISchema& schema,
+					 const std::string& datatagname);
     unsigned long long addRunToCurrentHFDataTag(coral::ISchema& schema,
 				  unsigned int runnum,
 				  unsigned long long lumiid,

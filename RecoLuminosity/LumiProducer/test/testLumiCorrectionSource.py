@@ -18,7 +18,9 @@ process.source= cms.Source("PoolSource",
         'file:/data/cmsdata/200786/FC7E661B-C3E8-E111-A23E-003048D2BDD8.root')
 )
 process.LumiCorrectionSource=cms.ESSource("LumiCorrectionSource",
-        connect=cms.string('frontier://LumiCalc/CMS_LUMI_PROD')
+        connect=cms.string('frontier://LumiCalc/CMS_LUMI_PROD'),
+        normtag=cms.untracked.string('HFV2a'),
+        datatag=cms.untracked.string('v3')
 )
 process.prod = cms.EDAnalyzer("TestLumiCorrectionSource")
 

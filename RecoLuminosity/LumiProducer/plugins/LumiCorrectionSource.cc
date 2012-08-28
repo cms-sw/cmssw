@@ -7,7 +7,7 @@
 Description: A essource/esproducer for lumi correction factor and run parameters needed to deduce the corrections
       Author: Zhen Xie
 */
-// $Id: LumiCorrectionSource.cc,v 1.10 2012/08/22 18:00:52 xiezhen Exp $
+// $Id: LumiCorrectionSource.cc,v 1.12 2012/08/28 10:43:54 xiezhen Exp $
 
 //#include <memory>
 //#include "boost/shared_ptr.hpp"
@@ -235,7 +235,12 @@ LumiCorrectionSource::fillparamcache(unsigned int runnumber){
     session->transaction().start(true);
     coral::ISchema& schema=session->nominalSchema();
     lumi::RevisionDML dml;
-    unsigned long long tagid=dml.currentHFDataTagId(schema);//get datatag id
+    unsigned long long tagid=0;
+    if(m_datatag.empty()){
+      tagid=dml.currentHFDataTagId(schema);//get datatag id
+    }else{
+      tagid=dml.HFDataTagIdByName(schema,m_datatag);
+    }
     lumi::RevisionDML::DataID dataid=dml.dataIDForRun(schema,runnumber,tagid);//get data id
     unsigned int lumiid=dataid.lumi_id;
     if(lumiid==0){

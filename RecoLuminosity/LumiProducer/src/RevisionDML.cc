@@ -211,6 +211,31 @@ lumi::RevisionDML::currentHFDataTagId(coral::ISchema& schema){
 }
 
 unsigned long long
+lumi::RevisionDML::HFDataTagIdByName(coral::ISchema& schema,
+				     const std::string& datatagname){
+  unsigned long long datatagid=0;
+  coral::IQuery* qHandle=schema.newQuery();
+  qHandle->addToTableList( lumi::LumiNames::tagsTableName());
+  const std::string conditionStr("TAGNAME=:tagname");
+  coral::AttributeList condition;
+  condition.extend("tagname",typeid(std::string));
+  condition["tagname"].data<std::string>()=datatagname;
+  qHandle->addToOutputList("TAGID");
+  coral::AttributeList qResult;
+  qResult.extend("TAGID",typeid(unsigned long long));
+  qHandle->setCondition(conditionStr,condition);
+  qHandle->defineOutput(qResult);
+  coral::ICursor& cursor=qHandle->execute();
+  while(cursor.next()){
+    if(!cursor.currentRow()["TAGID"].isNull()){
+      datatagid=cursor.currentRow()["TAGID"].data<unsigned long long>();
+    }
+  }
+  delete qHandle;
+  return datatagid;
+}
+
+unsigned long long
 lumi::RevisionDML::addRunToCurrentHFDataTag(coral::ISchema& schema,
 					    unsigned int runnum,
 					    unsigned long long lumiid,

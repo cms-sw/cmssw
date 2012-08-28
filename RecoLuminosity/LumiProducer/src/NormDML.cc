@@ -22,25 +22,26 @@ lumi::NormDML::normIdByName(const coral::ISchema& schema,const std::string& norm
   qHandle->addToTableList( lumi::LumiNames::luminormv2TableName() );
   qHandle->addToOutputList("DATA_ID");
   if(!normtagname.empty()){
-    std::string qConditionStr("ENTRY_NAME=:normtagname ");
+    std::string qConditionStr("ENTRY_NAME=:normtagname");
     coral::AttributeList qCondition;
     qCondition.extend("normtagname",typeid(std::string));
     qCondition["normtagname"].data<std::string>()=normtagname;
     qHandle->setCondition(qConditionStr,qCondition);
   }
   coral::AttributeList qResult;
-  qResult.extend("DATA_ID",typeid("unsigned long long"));
+  qResult.extend("DATA_ID",typeid(unsigned long long));
   qHandle->defineOutput(qResult);
-  
   coral::ICursor& cursor=qHandle->execute();
   while( cursor.next() ){
     const coral::AttributeList& row=cursor.currentRow();
     luminormids.push_back(row["DATA_ID"].data<unsigned long long>());
   }
   delete qHandle;
-  if(luminormids.size() !=0){
-    std::vector<unsigned long long>::iterator resultIt=std::max_element( luminormids.begin(), luminormids.end());
-    return *resultIt;
+  std::vector<unsigned long long>::iterator resultIt;
+  for(resultIt=luminormids.begin();resultIt!=luminormids.end();++resultIt){
+    if( (*resultIt)>result){
+      result=*resultIt;
+    }
   }
   return result;
 }
