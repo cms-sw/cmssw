@@ -2,6 +2,7 @@
 
 ----------------------------------------------------------------------*/
 #include <ostream>
+#include "FWCore/Utilities/interface/FunctionWithDict.h"
 #include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
@@ -105,11 +106,6 @@ namespace {
     return type_.Properties().PropertyAsString(property);
   }
 
-  MemberWithDict
-  TypeWithDict::dataMemberAt(size_t index) const {
-    return MemberWithDict(type_.DataMemberAt(index));
-  }
-
   ObjectWithDict
   TypeWithDict::construct() const {
     return ObjectWithDict(type_.Construct());
@@ -137,23 +133,18 @@ namespace {
   }
 
   MemberWithDict
-  TypeWithDict::memberByName(std::string const& member) const {
-    return MemberWithDict(type_.MemberByName(member));
-  }
-
-  MemberWithDict
   TypeWithDict::dataMemberByName(std::string const& member) const {
     return MemberWithDict(type_.DataMemberByName(member));
   }
 
-  MemberWithDict
+  FunctionWithDict
   TypeWithDict::functionMemberByName(std::string const& member) const {
-    return MemberWithDict(type_.FunctionMemberByName(member));
+    return FunctionWithDict(type_.FunctionMemberByName(member));
   }
 
-  MemberWithDict
+  FunctionWithDict
   TypeWithDict::functionMemberByName(std::string const& member, TypeWithDict const& signature, int mods, TypeMemberQuery memberQuery) const {
-    return MemberWithDict(type_.FunctionMemberByName(member, signature.type_, mods, static_cast<Reflex::EMEMBERQUERY>(memberQuery)));
+    return FunctionWithDict(type_.FunctionMemberByName(member, signature.type_, mods, static_cast<Reflex::EMEMBERQUERY>(memberQuery)));
   }
 
   TypeTemplateWithDict::TypeTemplateWithDict(TypeWithDict const& type) : typeTemplate_(type.type_.TemplateFamily()) {
@@ -191,16 +182,6 @@ namespace {
   size_t
   TypeBases::size() const {
     return type_.BaseSize();
-  }
-
-  Reflex::Member_Iterator
-  TypeMembers::begin() const {
-    return type_.Member_Begin();
-  }
-
-  Reflex::Member_Iterator
-  TypeMembers::end() const {
-    return type_.Member_End();
   }
 
   Reflex::Member_Iterator

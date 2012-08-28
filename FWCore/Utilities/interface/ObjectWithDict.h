@@ -77,6 +77,7 @@ namespace edm {
     }
 
   private:
+    friend class FunctionWithDict;
     friend class MemberWithDict;
     friend class TypeWithDict;
 

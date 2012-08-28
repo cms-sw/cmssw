@@ -13,12 +13,14 @@ persisted across invocations of the program.
 #include <typeinfo>
 #include <string>
 #include <vector>
+#include "FWCore/Utilities/interface/FunctionWithDict.h"
 #include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "Reflex/TypeTemplate.h"
 
 namespace edm {
 
+  class FunctionWithDict;
   class MemberWithDict;
   class ObjectWithDict;
 
@@ -124,8 +126,6 @@ namespace edm {
 
     std::string propertyValueAsString(std::string const& property) const;
 
-    MemberWithDict dataMemberAt(size_t index) const;
-
     TypeWithDict functionParameterAt(size_t index) const {
       return TypeWithDict(type_.FunctionParameterAt(index));
     }
@@ -190,17 +190,11 @@ namespace edm {
       return type_.TypeInfo();
     }
 
-    MemberWithDict memberByName(std::string const& member) const;
-
     MemberWithDict dataMemberByName(std::string const& member) const;
 
-    MemberWithDict functionMemberByName(std::string const& member) const;
+    FunctionWithDict functionMemberByName(std::string const& member) const;
 
-    MemberWithDict functionMemberByName(std::string const& member, TypeWithDict const& signature, int mods, TypeMemberQuery memberQuery) const;
-
-    size_t memberSize() const {
-      return type_.MemberSize();
-    }
+    FunctionWithDict functionMemberByName(std::string const& member, TypeWithDict const& signature, int mods, TypeMemberQuery memberQuery) const;
 
     size_t dataMemberSize() const {
       return type_.DataMemberSize();
@@ -217,10 +211,10 @@ namespace edm {
 
   private:
     friend class BaseWithDict;
+    friend class FunctionWithDict;
     friend class MemberWithDict;
     friend class ObjectWithDict;
     friend class TypeBases;
-    friend class TypeMembers;
     friend class TypeDataMembers;
     friend class TypeFunctionMembers;
     friend class TypeTemplateWithDict;
@@ -273,15 +267,6 @@ namespace edm {
     Reflex::Base_Iterator begin() const;
     Reflex::Base_Iterator end() const;
     size_t size() const;
-  private:
-    Reflex::Type const& type_;
-  };
-
-  class TypeMembers {
-  public:
-    explicit TypeMembers(TypeWithDict const& type) : type_(type.type_) {}
-    Reflex::Member_Iterator begin() const;
-    Reflex::Member_Iterator end() const;
   private:
     Reflex::Type const& type_;
   };
