@@ -46,10 +46,6 @@ namespace edm {
 
     template <typename PROD>
     bool
-    get(SelectorBase const&, Handle<PROD>& result) const;
-
-    template <typename PROD>
-    bool
     getByLabel(std::string const& label, Handle<PROD>& result) const;
 
     template <typename PROD>
@@ -62,10 +58,6 @@ namespace edm {
     template <typename PROD>
     bool
     getByLabel(InputTag const& tag, Handle<PROD>& result) const;
-
-    template <typename PROD>
-    void
-    getMany(SelectorBase const&, std::vector<Handle<PROD> >& results) const;
 
     template <typename PROD>
     bool
@@ -168,12 +160,6 @@ namespace edm {
 
   template <typename PROD>
   bool
-  Run::get(SelectorBase const& sel, Handle<PROD>& result) const {
-    return provRecorder_.get(sel, result);
-  }
-
-  template <typename PROD>
-  bool
   Run::getByLabel(std::string const& label, Handle<PROD>& result) const {
     return provRecorder_.getByLabel(label, result);
   }
@@ -191,12 +177,6 @@ namespace edm {
   bool
   Run::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
     return provRecorder_.getByLabel(tag, result);
-  }
-
-  template <typename PROD>
-  void
-  Run::getMany(SelectorBase const& sel, std::vector<Handle<PROD> >& results) const {
-    return provRecorder_.getMany(sel, results);
   }
 
   template <typename PROD>

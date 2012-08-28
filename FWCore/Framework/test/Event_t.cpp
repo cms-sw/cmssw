@@ -24,7 +24,6 @@ Test program for edm::Event.
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Algorithms.h"

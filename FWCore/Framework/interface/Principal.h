@@ -92,19 +92,12 @@ namespace edm {
 
     OutputHandle getForOutput(BranchID const& bid, bool getProd) const;
 
-    BasicHandle  getBySelector(TypeID const& tid,
-                               SelectorBase const& s) const;
-
     BasicHandle  getByLabel(TypeID const& tid,
                             std::string const& label,
                             std::string const& productInstanceName,
                             std::string const& processName,
                             size_t& cachedOffset,
                             int& fillCount) const;
-
-    void getMany(TypeID const& tid,
-                 SelectorBase const&,
-                 BasicHandleVec& results) const;
 
     BasicHandle  getByType(TypeID const& tid) const;
 
@@ -116,9 +109,11 @@ namespace edm {
     //   2. and has the nested type 'value_type'
     //   3. and for which typeID is the same as or a public base of
     //      this value_type,
-    //   4. and which matches the given selector
+    //   4. and which matches the given label, instance, and process
     size_t getMatchingSequence(TypeID const& typeID,
-                               SelectorBase const& selector,
+                               std::string const& moduleLabel,
+                               std::string const& productInstanceName,
+                               std::string const& processName,
                                BasicHandle& result) const;
 
     ProcessHistory const& processHistory() const {
@@ -196,7 +191,10 @@ namespace edm {
 
     size_t findGroup(TypeID const& typeID,
                      TypeLookup const& typeLookup,
-                     SelectorBase const& selector,
+                     bool doMatching,
+                     std::string const& moduleLabel,
+                     std::string const& productInstanceName,
+                     std::string const& processName,
                      BasicHandle& result) const;
 
     ProductData const* findGroupByLabel(TypeID const& typeID,
@@ -209,7 +207,6 @@ namespace edm {
 
     size_t findGroups(TypeID const& typeID,
                       TypeLookup const& typeLookup,
-                      SelectorBase const& selector,
                       BasicHandleVec& results) const;
 
     // defaults to no-op unless overridden in derived class.

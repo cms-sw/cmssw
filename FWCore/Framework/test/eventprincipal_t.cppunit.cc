@@ -23,7 +23,6 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -45,9 +44,7 @@ Test of the EventPrincipal class.
 class test_ep: public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(test_ep);
   CPPUNIT_TEST(failgetbyIdTest);
-  CPPUNIT_TEST(failgetbySelectorTest);
   CPPUNIT_TEST(failgetbyLabelTest);
-  CPPUNIT_TEST(failgetManyTest);
   CPPUNIT_TEST(failgetbyTypeTest);
   CPPUNIT_TEST(failgetManybyTypeTest);
   CPPUNIT_TEST(failgetbyInvalidIdTest);
@@ -57,9 +54,7 @@ public:
   void setUp();
   void tearDown();
   void failgetbyIdTest();
-  void failgetbySelectorTest();
   void failgetbyLabelTest();
-  void failgetManyTest();
   void failgetbyTypeTest();
   void failgetManybyTypeTest();
   void failgetbyInvalidIdTest();
@@ -228,15 +223,6 @@ void test_ep::failgetbyIdTest() {
   CPPUNIT_ASSERT(h.failedToGet());
 }
 
-void test_ep::failgetbySelectorTest() {
-  edmtest::IntProduct dummy;
-  edm::TypeID tid(dummy);
-
-  edm::ProcessNameSelector pnsel("PROD");
-  edm::BasicHandle h(pEvent_->getBySelector(tid, pnsel));
-  CPPUNIT_ASSERT(h.failedToGet());
-}
-
 void test_ep::failgetbyLabelTest() {
   edmtest::IntProduct dummy;
   edm::TypeID tid(dummy);
@@ -247,16 +233,6 @@ void test_ep::failgetbyLabelTest() {
   int fillCount = -1;
   edm::BasicHandle h(pEvent_->getByLabel(tid, label, std::string(), std::string(), cachedOffset, fillCount));
   CPPUNIT_ASSERT(h.failedToGet());
-}
-
-void test_ep::failgetManyTest() {
-  edmtest::IntProduct dummy;
-  edm::TypeID tid(dummy);
-
-  edm::ProcessNameSelector sel("PROD");
-  std::vector<edm::BasicHandle > handles;
-  pEvent_->getMany(tid, sel, handles);
-  CPPUNIT_ASSERT(handles.empty());
 }
 
 void test_ep::failgetbyTypeTest() {

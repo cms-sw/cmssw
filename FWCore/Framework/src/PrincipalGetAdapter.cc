@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/Principal.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "FWCore/Framework/interface/Selector.h"
 
 namespace edm {
 
@@ -50,18 +49,6 @@ namespace edm {
   }
 
   BasicHandle
-  PrincipalGetAdapter::get_(TypeID const& tid, SelectorBase const& sel) const {
-    return principal_.getBySelector(tid, sel);
-  }
-
-  void
-  PrincipalGetAdapter::getMany_(TypeID const& tid,
-		  SelectorBase const& sel,
-		  BasicHandleVec& results) const {
-    principal_.getMany(tid, sel, results);
-  }
-
-  BasicHandle
   PrincipalGetAdapter::getByLabel_(TypeID const& tid,
                      std::string const& label,
   	             std::string const& productInstanceName,
@@ -91,42 +78,17 @@ namespace edm {
   }
 
   int
-  PrincipalGetAdapter::getMatchingSequence_(TypeID const& typeID,
-                                     SelectorBase const& selector,
-                                     BasicHandle& result) const {
+  PrincipalGetAdapter::getMatchingSequenceByLabel_(TypeID const& typeID,
+                                                   std::string const& label,
+                                                   std::string const& productInstanceName,
+                                                   std::string const& processName,
+                                                   BasicHandle& result) const {
+
     return principal_.getMatchingSequence(typeID,
-                                    selector,
-                                    result);
-  }
-
-  int
-  PrincipalGetAdapter::getMatchingSequenceByLabel_(TypeID const& typeID,
-                                            std::string const& label,
-                                            std::string const& productInstanceName,
-                                            BasicHandle& result) const {
-    Selector sel(ModuleLabelSelector(label) &&
-                 ProductInstanceNameSelector(productInstanceName));
-
-    int n = principal_.getMatchingSequence(typeID,
-                                     sel,
-                                     result);
-    return n;
-  }
-
-  int
-  PrincipalGetAdapter::getMatchingSequenceByLabel_(TypeID const& typeID,
-                                            std::string const& label,
-                                            std::string const& productInstanceName,
-                                            std::string const& processName,
-                                            BasicHandle& result) const {
-    Selector sel(ModuleLabelSelector(label) &&
-                 ProductInstanceNameSelector(productInstanceName) &&
-                 ProcessNameSelector(processName));
-
-    int n = principal_.getMatchingSequence(typeID,
-  				   sel,
-  				   result);
-    return n;
+                                          label,
+                                          productInstanceName,
+                                          processName,
+                                          result);
   }
 
   ProcessHistory const&
