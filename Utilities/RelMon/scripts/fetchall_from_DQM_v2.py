@@ -1,12 +1,11 @@
 #! /usr/bin/env python
+'''
+Script fetches files matching specified RegExps from DQM GUI.
+
+Author:  Albertas Gimbutas,  Vilnius University (LT)
+e-mail:  albertasgim@gmail.com
+'''
 ################################################################################
-#
-# ``fetchfiles_from_DQM``: a script for fetching specified files from DQM
-# system. Its a part of RelMon tool for automatic Relase Comparison.
-#
-# Albertas Gimbutas CERN - albertasgim@gmail.com
-#
-#
 # Change logs:
 # 2012-07-09 16:10 - BugFix: RELEASE has to be in selected file names.
 # 2012-07-09 16:10 - Added How-To examples and command line option
@@ -17,7 +16,6 @@
 # 2012-07-06 14:09 - Added new commandline options implmenetation.
 # 2012-07-06 09:48 - fixed ``--data`` commandline option small bug. Now it
 # does not requires to specifie its value.
-#
 ################################################################################
 
 import re
