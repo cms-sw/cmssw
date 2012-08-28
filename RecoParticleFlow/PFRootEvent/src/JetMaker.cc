@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.1 2009/08/24 14:35:59 srappocc Exp $
+/// $Id: JetMaker.cc,v 1.2 2010/10/15 22:44:34 wmtan Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -245,7 +245,8 @@ bool JetMaker::makeSpecific (const JetReco::InputCollection& fMcParticles,
 }
 
 HcalSubdetector JetMaker::hcalSubdetector (int fEta) {
-  static const HcalTopology topology;
+  // FIXME for SLHC
+  static const HcalTopology topology(HcalTopologyMode::LHC, 2, 3);
   int eta = std::abs (fEta);
   if (eta <= topology.lastHBRing()) return HcalBarrel;
   else if (eta <= topology.lastHERing()) return HcalEndcap;
