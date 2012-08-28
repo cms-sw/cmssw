@@ -62,8 +62,6 @@ lumi::fPoly::getCorrection(float luminonorm,float intglumi,unsigned int nBXs)con
   if(coeffIt!=m_coeffmap.end()){
     a2=coeffIt->second;
   }
-  std::cout<<"a0 "<<a0<<std::endl;
-  std::cout<<"Afterglow "<<Afterglow<<std::endl;
   result=a0*Afterglow/(1.+a1*avglumi+a2*avglumi*avglumi)*driftterm;
   return result;
 }

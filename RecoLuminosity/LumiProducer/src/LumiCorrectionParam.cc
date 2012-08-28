@@ -12,7 +12,6 @@ LumiCorrectionParam::getCorrection(float luminonorm)const{
   std::auto_ptr<lumi::NormFunctor> ptr(lumi::NormFunctorPluginFactory::get()->create(m_corrfunc));
   (*ptr).initialize(m_coeffmap,m_afterglows);
   float result=(*ptr).getCorrection(luminonorm,m_intglumi,m_ncollidingbx);
-  std::cout<<"correc fac "<<result<<std::endl;
   return result;
 }
 unsigned int 

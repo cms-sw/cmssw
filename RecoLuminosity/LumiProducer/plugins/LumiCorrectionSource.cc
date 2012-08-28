@@ -310,7 +310,7 @@ LumiCorrectionSource::fetchIntglumi(coral::ISchema& schema,unsigned int runnumbe
   qHandle->addToTableList(lumi::LumiNames::intglumiv2TableName());
   coral::AttributeList qResult;
   qResult.extend("INTGLUMI",typeid(float));
-  std::string conditionStr("RUNNUMBER=:runnumber");
+  std::string conditionStr("RUNNUM=:runnumber");
   coral::AttributeList qCondition;
   qCondition.extend("runnumber",typeid(unsigned int));
   qCondition["runnumber"].data<unsigned int>()=runnumber;
