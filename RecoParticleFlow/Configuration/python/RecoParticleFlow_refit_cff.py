@@ -6,9 +6,11 @@ from RecoParticleFlow.PFProducer.particleFlowSimParticle_cff import *
 from RecoParticleFlow.PFProducer.particleFlowBlock_cff import *
 from RecoParticleFlow.PFProducer.particleFlow_cff import *
 from RecoTracker.Configuration.RecoTracker_cff import *
-CaloTowerConstituentsMapBuilder = cms.ESProducer("CaloTowerConstituentsMapBuilder",
-    MapFile = cms.untracked.string('Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz')
-)
+
+import Geometry.CaloEventSetup.caloTowerConstituents_cfi
+
+caloTowerConstituentsMapBuilder = Geometry.CaloEventSetup.caloTowerConstituents_cfi.caloTowerConstituents.clone()
+caloTowerConstituentsMapBuilder.MapFile = "Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz"
 
 particleFlowReco = cms.Sequence(
     ckftracks*
