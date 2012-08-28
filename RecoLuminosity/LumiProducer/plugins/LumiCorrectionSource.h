@@ -11,6 +11,9 @@
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/util/XMLString.hpp>
+namespace coral{
+  class ISchema;
+}
 namespace edm{
   class IOVSyncValue;
 }
@@ -47,5 +50,6 @@ class LumiCorrectionSource: public edm::ESProducer , public edm::EventSetupRecor
   const edm::IOVSyncValue* m_pcurrentTime;
  private:
   void fillparamcache(unsigned int runnumber);
+  float fetchIntglumi(coral::ISchema& schema,unsigned int runnumber);
 };
 #endif

@@ -135,7 +135,6 @@ lumi::NormDML::normById(const coral::ISchema&schema,
 	result[since].coefficientmap.insert(std::make_pair(paramName,param));
       }
     }
-    
   }
   delete qHandle;
 }

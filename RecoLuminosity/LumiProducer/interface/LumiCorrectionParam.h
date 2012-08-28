@@ -36,7 +36,8 @@ class LumiCorrectionParam {
   ///on which single beam egev this correction definition should be applied for
   ///information only
   unsigned int beamegev()const;
-
+  ///lumi integrated up to that run. Needed for 2011B correction, otherwise 0.
+  float intglumi() const;
   /*
     setters 
   */  
@@ -52,6 +53,8 @@ class LumiCorrectionParam {
   void setafterglows(std::map< unsigned int,float >& afterglows);
   ///set description
   void setdescription(const std::string& amodetag,unsigned int beamegev);
+  ///set intglumi
+  void setintglumi(float intglumi);
  private :
   LumiType m_lumitype;
   unsigned int m_ncollidingbx;
@@ -61,6 +64,7 @@ class LumiCorrectionParam {
   std::map< unsigned int,float > m_afterglows;
   std::string m_amodetag;
   float m_beamegev;
+  float m_intglumi;
 }; 
 
 std::ostream& operator<<(std::ostream& s, const LumiCorrectionParam& lumicorr);

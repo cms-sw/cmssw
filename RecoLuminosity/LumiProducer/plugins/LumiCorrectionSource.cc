@@ -7,7 +7,7 @@
 Description: A essource/esproducer for lumi correction factor and run parameters needed to deduce the corrections
       Author: Zhen Xie
 */
-// $Id: LumiCorrectionSource.cc,v 1.9 2012/08/21 17:51:30 xiezhen Exp $
+// $Id: LumiCorrectionSource.cc,v 1.10 2012/08/22 18:00:52 xiezhen Exp $
 
 //#include <memory>
 //#include "boost/shared_ptr.hpp"
@@ -45,6 +45,7 @@ Description: A essource/esproducer for lumi correction factor and run parameters
 #include "RecoLuminosity/LumiProducer/interface/LumiCorrectionParamRcd.h"
 #include "RecoLuminosity/LumiProducer/interface/RevisionDML.h"
 #include "RecoLuminosity/LumiProducer/interface/NormDML.h"
+#include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
 #include "LumiCorrectionSource.h"
 #include <iostream>
 #include <sstream>
@@ -244,7 +245,7 @@ LumiCorrectionSource::fillparamcache(unsigned int runnumber){
       mydbservice->disconnect(session);
       return;
     }
-
+    
     coral::AttributeList lumidataBindVariables;
     lumidataBindVariables.extend("dataid",typeid(unsigned long long));
     lumidataBindVariables["dataid"].data<unsigned long long>()=lumiid;   
@@ -277,9 +278,7 @@ LumiCorrectionSource::fillparamcache(unsigned int runnumber){
 
     std::map< unsigned int,lumi::NormDML::normData > normDataMap;
     normdml.normById(schema,normid,normDataMap); 
-    session->transaction().commit();
     
-    //std::map< unsigned int,lumi::NormDML::normData >::iterator normIt=normDataMap.upper_bound(runnumber);
     std::map< unsigned int,lumi::NormDML::normData >::iterator normIt=--normDataMap.end();
     if(runnumber<normIt->first){
       normIt=normDataMap.upper_bound(runnumber);
@@ -291,12 +290,42 @@ LumiCorrectionSource::fillparamcache(unsigned int runnumber){
     result->setafterglows(normIt->second.afterglows);
     result->setdescription(normIt->second.amodetag,normIt->second.beamegev);
     m_paramcache.insert(std::make_pair(runnumber,result));
+    if(normIt->second.coefficientmap["DRIFT"]!=0.){
+      float intglumi=fetchIntglumi(schema,runnumber);
+      result->setintglumi(intglumi);
+    }
+    session->transaction().commit();
   }catch(const coral::Exception& er){
     session->transaction().rollback();
     mydbservice->disconnect(session);
     throw cms::Exception("DatabaseError ")<<er.what();
   }
   mydbservice->disconnect(session);
+}
+
+float 
+LumiCorrectionSource::fetchIntglumi(coral::ISchema& schema,unsigned int runnumber){
+  float result=0.;
+  coral::IQuery* qHandle=schema.newQuery();
+  qHandle->addToTableList(lumi::LumiNames::intglumiv2TableName());
+  coral::AttributeList qResult;
+  qResult.extend("INTGLUMI",typeid(float));
+  std::string conditionStr("RUNNUMBER=:runnumber");
+  coral::AttributeList qCondition;
+  qCondition.extend("runnumber",typeid(unsigned int));
+  qCondition["runnumber"].data<unsigned int>()=runnumber;
+  qHandle->setCondition(conditionStr,qCondition);
+  qHandle->addToOutputList("INTGLUMI");
+  qHandle->defineOutput(qResult);
+  coral::ICursor& intglumiCursor=qHandle->execute();
+  while( intglumiCursor.next() ){
+    const coral::AttributeList& row=intglumiCursor.currentRow();
+    if(!row["INTGLUMI"].isNull()){
+      result=row["INTGLUMI"].data<float>();
+    }
+  }
+  delete qHandle;
+  return result;
 }
 
 LumiCorrectionSource::~LumiCorrectionSource(){}
