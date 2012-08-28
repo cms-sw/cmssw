@@ -36,7 +36,7 @@ foreach gtag ( $1 )
     set base = ( $base ONLINE_HLT RelVal_HLT RelVal_HLT2 )
 
     if ( $gtag == STARTUP ) then
-      if ( $table != HIon ) then
+      if ( ( $table != HIon ) && ( $table != PIon) ) then
         set base = ( $base FastSim_GenToHLT )
       endif
     endif
