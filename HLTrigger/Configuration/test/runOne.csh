@@ -12,9 +12,9 @@ echo Starting $0 $1 $2
 if ( $2 == "" ) then
   set tables = ( GRun )
 else if ( $2 == ALL ) then
-  set tables = ( GRun 5E33v4 7E33v2 7E33v3 7E33v4 HIon )
+  set tables = ( GRun PIon 5E33v4 7E33v2 7E33v3 7E33v4 HIon )
 else if ( $2 == BOTH ) then
-  set tables = ( GRun HIon )
+  set tables = ( GRun PIon )
 else if ( $2 == FROZEN ) then
   set tables = ( 5E33v4 7E33v2 7E33v3 7E33v4)
 else
