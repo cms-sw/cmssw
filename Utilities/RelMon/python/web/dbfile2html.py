@@ -14,9 +14,7 @@ from os.path import isfile, join, exists, dirname, basename
 from app_utils import *
 from optparse import OptionParser
 
-import sys
-sys.path.append(getcwd())
-from Utilities.RelMon.web.jinja2 import Environment, FileSystemLoader, escape
+from jinja2 import Environment, FileSystemLoader, escape
 env = Environment(loader=FileSystemLoader('templates'))  # Template directory has to exist
 
 parser = OptionParser(usage='Usage: %prog --db PATH_TO_DB [options]')
