@@ -7,13 +7,14 @@ l1tSyncHltFilter = hltHighLevel.clone(TriggerResultsTag ="TriggerResults::HLT")
 l1tSyncHltFilter.throw = cms.bool(False)
 l1tSyncHltFilter.HLTPaths = ['HLT_ZeroBias_v*',
                              'HLT_L1ETM30_v*',
-                             'HLT_L1MultiJet_v*',
-                             'HLT_L1SingleEG12_v',
+                             'HLT_L1ETM40_v*',
+                             'HLT_L1ETM70_v*',
+                             'HLT_L1ETM100_v*',
                              'HLT_L1SingleEG5_v*',
+                             'HLT_L1SingleEG12_v*',
                              'HLT_L1SingleJet16_v*',
                              'HLT_L1SingleJet36_v*',
-                             'HLT_L1SingleMu10_v*',
-                             'HLT_L1SingleMu20_v*'
+                             'HLT_L1SingleMu12_v*'
                              ]
 
 
