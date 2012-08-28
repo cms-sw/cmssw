@@ -1,4 +1,10 @@
 #! /usr/bin/env python
+'''
+Help functions for ValidationMatrix_v2.py.
+
+Author:  Albertas Gimbutas,  Vilnius University (LT)
+e-mail:  albertasgim@gmail.com
+'''
 import sys
 import re
 import time
