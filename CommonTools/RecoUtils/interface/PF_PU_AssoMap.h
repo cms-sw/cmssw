@@ -19,12 +19,12 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "CommonTools/RecoUtils/interface/PF_PU_AssoMapAlgos.h"
-   
+
 //
 // class declaration
 //
 
-class PF_PU_AssoMap : public edm::EDProducer {
+class PF_PU_AssoMap : public edm::EDProducer, private PF_PU_AssoMapAlgos {
    public:
       explicit PF_PU_AssoMap(const edm::ParameterSet&);
       ~PF_PU_AssoMap();
@@ -36,29 +36,8 @@ class PF_PU_AssoMap : public edm::EDProducer {
 
       // ----------member data ---------------------------
 
-      edm::InputTag input_VertexCollection_;
       edm::InputTag input_TrackCollection_;
 
-      bool input_VertexAssOneDim_;
-      bool input_VertexAssClosest_;
-      bool input_VertexAssUseAbsDistance_;
-
-      edm::InputTag input_GsfElectronCollection_;
-      edm::InputTag ConversionsCollection_;
-
-      edm::InputTag KshortCollection_;
-      edm::InputTag LambdaCollection_;
-
-      edm::InputTag NIVertexCollection_;
-
-      bool UseBeamSpotCompatibility_;
-      edm::InputTag input_BeamSpot_;
-
-      int maxNumWarnings_; // CV: print Warning if TrackExtra objects don't exist in input file,
-                           //     but only a few times
-      int numWarnings_;
-
-      bool ignoremissingpfcollection_;
 };
 
 
