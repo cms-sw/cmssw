@@ -4,7 +4,9 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FastSimulation/Utilities/interface/GaussianTail.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include <map>
 #include <vector>
 
@@ -18,7 +20,6 @@ class HcalDbService;
 class HcalRespCorrs;
 
 namespace edm { 
-  class ParameterSet;
   class Event;
   class EventSetup;
 }
@@ -102,6 +103,7 @@ class HcalRecHitsMaker
 
   // the access to the response corection factors
   const HcalRespCorrs* myRespCorr;
+  const edm::ParameterSet m_pSet;
 };
 
 #endif
