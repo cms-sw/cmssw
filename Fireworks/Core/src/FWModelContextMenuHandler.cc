@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:04 CDT 2009
-// $Id: FWModelContextMenuHandler.cc,v 1.23 2012/06/26 22:09:35 wmtan Exp $
+// $Id: FWModelContextMenuHandler.cc,v 1.24 2012/08/03 18:20:28 wmtan Exp $
 //
 
 // system include files
@@ -150,7 +150,7 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
          // void* xx = &std::cout;
          //const std::vector<void*> j(1, xx);
          //edm::TypeMemberQuery inh =  edm::TypeMemberQuery::InheritedAlso;
-         //edm::MemberWithDict m = rtype.functionMemberByName("print",edm::TypeWithDict(edm::TypeWithDict::byName("void (std::ostream&)"), edm::TypeModifiers::Const), edm::TypeModifiers::NoMod , inh))
+         //edm::FunctionWithDict m = rtype.functionMemberByName("print",edm::TypeWithDict(edm::TypeWithDict::byName("void (std::ostream&)"), edm::TypeModifiers::Const), edm::TypeModifiers::NoMod , inh))
          //m.Invoke(o, 0, j);
 
          const char* cmd  = Form("FWGUIManager::OStream() << *(%s*)%p ;",  id.item()->modelType()->GetName(), (void*)id.item()->modelData(id.index()));

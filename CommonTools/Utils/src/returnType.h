@@ -4,16 +4,16 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: returnType.h,v 1.2 2012/06/26 21:13:13 wmtan Exp $
+ * \version $Id: returnType.h,v 1.3 2012/08/03 18:08:11 wmtan Exp $
  */
 
 #include "CommonTools/Utils/src/TypeCode.h"
-#include "FWCore/Utilities/interface/MemberWithDict.h"
+#include "FWCore/Utilities/interface/FunctionWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
 namespace reco {
-  edm::TypeWithDict returnType(const edm::MemberWithDict &);
-  method::TypeCode returnTypeCode(const edm::MemberWithDict &);
+  edm::TypeWithDict returnType(const edm::FunctionWithDict &);
+  method::TypeCode returnTypeCode(const edm::FunctionWithDict &);
   method::TypeCode typeCode(const edm::TypeWithDict &);
 }
 

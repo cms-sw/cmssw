@@ -19,7 +19,7 @@ static bool fatalErrorCondition(int iError)
    
 }
 namespace reco {
-  int checkMethod(const edm::MemberWithDict & mem, 
+  int checkMethod(const edm::FunctionWithDict & mem, 
                   const edm::TypeWithDict   & type,
                   const std::vector<AnyMethodArgument> &args, std::vector<AnyMethodArgument> &fixuppedArgs) {
     int casts = 0;
@@ -62,7 +62,7 @@ namespace reco {
     return casts;
   }
 
-  pair<edm::MemberWithDict, bool> findMethod(const edm::TypeWithDict & t, 
+  pair<edm::FunctionWithDict, bool> findMethod(const edm::TypeWithDict & t, 
                                 const string & name, 
                                 const std::vector<AnyMethodArgument> &args, 
                                 std::vector<AnyMethodArgument> &fixuppedArgs,
@@ -76,15 +76,15 @@ namespace reco {
     while(type.isPointer() || type.isTypedef()) type = type.toType();
     type = edm::TypeWithDict(type, edm::TypeModifiers::NoMod); // strip const, volatile, c++ ref, ..
 
-    pair<edm::MemberWithDict, bool> mem; mem.second = false;
+    pair<edm::FunctionWithDict, bool> mem; mem.second = false;
 
     // suitable members and number of integer->real casts required to get them
-    vector<pair<int,edm::MemberWithDict> > oks;
+    vector<pair<int,edm::FunctionWithDict> > oks;
 
     // first look in base scope
     edm::TypeFunctionMembers functions(type);
     for(auto const& function : functions) {
-      edm::MemberWithDict m(function);
+      edm::FunctionWithDict m(function);
       if(m.name()==name) {
         int casts = checkMethod(m, type, args, fixuppedArgs);
         if (casts > -1) {

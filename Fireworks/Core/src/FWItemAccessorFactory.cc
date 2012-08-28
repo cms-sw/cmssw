@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 14:48:14 EDT 2008
-// $Id: FWItemAccessorFactory.cc,v 1.12 2012/06/26 22:13:04 wmtan Exp $
+// $Id: FWItemAccessorFactory.cc,v 1.13 2012/08/03 18:20:28 wmtan Exp $
 //
 
 // system include files
@@ -176,15 +176,17 @@ FWItemAccessorFactory::hasMemberTVirtualCollectionProxy(const TClass *iClass,
    assert(bool(dataType));
 
    // If the object has more than one data member, we avoid guessing. 
-   if (edm::TypeDataMembers(dataType).size() != 1)
+   edm::TypeDataMembers members(dataType);
+   if (members.size() != 1)
       return false;
    
-   edm::TypeWithDict memType(dataType.dataMemberAt(0).typeOf());
+   edm::MemberWithDict member(*members.begin());
+   edm::TypeWithDict memType(member.typeOf());
    assert(bool(memType));
    //make sure this is the real type and not a typedef
    memType = memType.finalType();
    oMember = TClass::GetClass(memType.typeInfo());
-   oOffset = dataType.dataMemberAt(0).offset();
+   oOffset = member.offset();
    
    // Check if this is a collection known by ROOT but also that the item held by
    // the colletion actually has a dictionary  

@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         adapted by Luca Lista, INFN
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
  */
 #include "CommonTools/Utils/src/ExpressionBase.h"
@@ -34,7 +34,7 @@ namespace reco {
       /// allocate an object to hold the result of a given member (if needed)
       /// this method is used also from the LazyInvoker code
       /// returns true if objects returned from this will require a destructor 
-      static bool makeStorage(edm::ObjectWithDict &obj, const edm::MemberWithDict &member) ;
+      static bool makeStorage(edm::ObjectWithDict &obj, const edm::TypeWithDict &retType) ;
       /// delete an objecty, if needed
       /// this method is used also from the LazyInvoker code
       static void delStorage(edm::ObjectWithDict &obj);

@@ -5,7 +5,7 @@ using namespace std;
 using namespace reco::method;
 
 namespace reco {
-  edm::TypeWithDict returnType(const edm::MemberWithDict & mem) {
+  edm::TypeWithDict returnType(const edm::FunctionWithDict & mem) {
     edm::TypeWithDict t = mem.typeOf().returnType();
     if(t) {
        while(t.isTypedef()) t = t.toType();
@@ -13,7 +13,7 @@ namespace reco {
     return t;
   }
 
-  TypeCode returnTypeCode(const edm::MemberWithDict & mem) {
+  TypeCode returnTypeCode(const edm::FunctionWithDict & mem) {
     return typeCode(returnType(mem));
   }
 

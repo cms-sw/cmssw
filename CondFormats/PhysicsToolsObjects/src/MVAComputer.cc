@@ -18,7 +18,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.cc,v 1.10 2010/01/26 19:40:03 saout Exp $
+// $Id: MVAComputer.cc,v 1.11 2012/08/23 17:59:29 wmtan Exp $
 //
 #include <functional>
 #include <algorithm>
@@ -31,7 +31,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/Utilities/interface/MemberWithDict.h"
+#include "FWCore/Utilities/interface/FunctionWithDict.h"
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
@@ -136,7 +136,7 @@ void MVAComputer::addProcessor(const VarProcessor *proc)
 	// find and call copy constructor
         edm::TypeFunctionMembers members(type);
         for(auto const& mem : members) {
-            edm::MemberWithDict member(mem);
+            edm::FunctionWithDict member(mem);
 		const edm::TypeWithDict &ctor = member.typeOf();
 		if (!member.isConstructor() ||
 		    ctor.functionParameterSize() != 1 ||

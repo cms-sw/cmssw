@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.22 2012/06/26 22:13:04 wmtan Exp $
+// $Id: FWTableViewManager.cc,v 1.23 2012/08/03 18:20:28 wmtan Exp $
 //
 
 // system include files
@@ -253,12 +253,29 @@ FWTableViewManager::tableFormats(const edm::TypeWithDict &key)
       return ret;
 
    TableHandle handle = table(keyType.c_str());
-   edm::TypeMembers members(key);
-   for (auto const& member : members)
+   edm::TypeFunctionMembers functionMembers(key);
+   for (auto const& member : functionMembers)
    {
-      edm::MemberWithDict m(member);
+      edm::FunctionWithDict m(member);
       if (m.functionParameterSize())
          continue;
+      if (!m.isPublic())
+         continue;
+      if (!m.isConst())
+         continue;
+      if (m.typeOf().returnType().name() == isint)
+         handle.column(m.name().c_str(), TableEntry::INT);
+      else if (m.typeOf().returnType().name() == isbool)
+         handle.column(m.name().c_str(), TableEntry::BOOL);
+      else if (m.typeOf().returnType().name() == isdouble)
+         handle.column(m.name().c_str(), 5);
+      else if (m.typeOf().returnType().name() == isfloat)
+         handle.column(m.name().c_str(), 3);
+   }
+   edm::TypeDataMembers dataMembers(key);
+   for (auto const& member : dataMembers)
+   {
+      edm::MemberWithDict m(member);
       if (!m.isPublic())
          continue;
       if (!m.isConst())

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 20:42:51 EDT 2008
-// $Id: FWExpressionValidator.cc,v 1.8 2012/06/26 22:13:03 wmtan Exp $
+// $Id: FWExpressionValidator.cc,v 1.9 2012/08/03 18:20:28 wmtan Exp $
 //
 
 // system include files
@@ -16,7 +16,7 @@
 #include <algorithm>
 
 #include "FWCore/Utilities/interface/BaseWithDict.h"
-#include "FWCore/Utilities/interface/MemberWithDict.h"
+#include "FWCore/Utilities/interface/FunctionWithDict.h"
 #include <cstring>
 
 // user include files
@@ -50,7 +50,7 @@ namespace fireworks {
 
    class OptionNode {
 public:
-      OptionNode(const edm::MemberWithDict& );
+      OptionNode(const edm::FunctionWithDict& );
       OptionNode(const std::string& iDescription,
                  unsigned long iSubstitutionEnd,
                  const edm::TypeWithDict& iType);
@@ -102,7 +102,7 @@ private:
    }
 
    namespace {
-      std::string descriptionFromMember(const edm::MemberWithDict& iMember)
+      std::string descriptionFromMember(const edm::FunctionWithDict& iMember)
       {
          std::string typeString = iMember.typeName();
          std::string::size_type index = typeString.find_first_of("(");
@@ -115,7 +115,7 @@ private:
       }
    }
 
-   OptionNode::OptionNode(const edm::MemberWithDict& iMember) :
+   OptionNode::OptionNode(const edm::FunctionWithDict& iMember) :
       m_type(reco::returnType(iMember)),
       m_description(descriptionFromMember(iMember)),
       m_endOfName(iMember.name().size()),
@@ -135,7 +135,7 @@ private:
       edm::TypeFunctionMembers functions(type);
       oOptions.reserve(oOptions.size()+functions.size());
       for(auto const& function : functions) {
-         edm::MemberWithDict m(function); 
+         edm::FunctionWithDict m(function); 
          if(!m.typeOf().isConst() ||
             m.isConstructor() ||
             m.isDestructor() ||

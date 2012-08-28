@@ -44,7 +44,7 @@ bool MethodSetter::push(const string & name, const vector<AnyMethodArgument> & a
   edm::TypeWithDict type = typeStack_.back();
   vector<AnyMethodArgument> fixups;
   int error;
-  pair<edm::MemberWithDict, bool> mem = reco::findMethod(type, name, args, fixups,begin,error);
+  pair<edm::FunctionWithDict, bool> mem = reco::findMethod(type, name, args, fixups,begin,error);
   if(mem.first) {
      edm::TypeWithDict retType = reco::returnType(mem.first);
      if(!retType) {

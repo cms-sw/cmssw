@@ -1,5 +1,7 @@
 #include "CommonTools/Utils/src/ExpressionVar.h"
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Utilities/interface/FunctionWithDict.h"
+#include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include <map>
 #include <assert.h>
@@ -42,31 +44,31 @@ void ExpressionVar::initObjects_() {
     std::vector<MethodInvoker>::const_iterator it = methods_.begin(), ed = methods_.end();
     std::vector<edm::ObjectWithDict>::iterator itobj = objects_.begin();
     for (; it != ed; ++it, ++itobj) {
-        needsDestructor_.push_back(makeStorage(*itobj, it->method()));
+       //remove any typedefs if any. If we do not do this it appears that we get a memory leak
+       // because typedefs do not have 'destructors'
+       if(it->isFunction()) {
+          edm::TypeWithDict retType = it->method().typeOf().returnType().finalType();
+          needsDestructor_.push_back(makeStorage(*itobj, retType));
+       } else {
+          edm::TypeWithDict retType = it->member().typeOf().returnType().finalType();
+          needsDestructor_.push_back(makeStorage(*itobj, retType));
+       }
     }
 }
 
 bool
-ExpressionVar::makeStorage(edm::ObjectWithDict &obj, const edm::MemberWithDict &member) {
+ExpressionVar::makeStorage(edm::ObjectWithDict &obj, const edm::TypeWithDict &retType) {
     bool ret = false;
     static edm::TypeWithDict tVoid(edm::TypeWithDict::byName("void"));
-    if (member.isFunctionMember()) {
-        edm::TypeWithDict retType = member.typeOf().returnType();
-        //remove any typedefs if any. If we do not do this it appears that we get a memory leak
-        // because typedefs do not have 'destructors'
-        retType = retType.finalType();
-        if (retType == tVoid) {
-            obj = edm::ObjectWithDict(tVoid);
-        } else if (retType.isPointer() || retType.isReference()) {
-            // in this case, I have to allocate a void *, not an object!
-            obj = edm::ObjectWithDict(retType, new void *);
-        } else {
-            obj = edm::ObjectWithDict(retType, retType.allocate());
-            ret = retType.isClass();
-            //std::cout << "ExpressionVar: reserved memory at "  << obj.address() << " for a " << retType.name(edm::TypeNameHandling::Qualified) << " returned by " << member.name() << std::endl;
-        }
-    } else { // no alloc, we don't need it
-        obj = edm::ObjectWithDict();
+    if (retType == tVoid) {
+        obj = edm::ObjectWithDict(tVoid);
+    } else if (retType.isPointer() || retType.isReference()) {
+        // in this case, I have to allocate a void *, not an object!
+        obj = edm::ObjectWithDict(retType, new void *);
+    } else {
+        obj = edm::ObjectWithDict(retType, retType.allocate());
+        ret = retType.isClass();
+        //std::cout << "ExpressionVar: reserved memory at "  << obj.address() << " for a " << retType.name(edm::TypeNameHandling::Qualified) << " returned by " << member.name() << std::endl;
     }
     return ret;
 }
