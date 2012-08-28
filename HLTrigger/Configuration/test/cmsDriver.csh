@@ -140,8 +140,8 @@ foreach gtag ( STARTUP DATA )
     else if ( $table == PIon ) then
       set XL1T = $XL1TPP2
       set XHLT = HLT:PIon
-      set GTAG = ${GTAGHI}_GRun
-      set NN   = $NNHI
+      set GTAG = ${GTAGPP}_GRun
+      set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimPIon
       set InputLHCRaw = $InputLHCRawPIon
