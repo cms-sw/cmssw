@@ -5331,7 +5331,7 @@ if 'GlobalTag' in process.__dict__:
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
     from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag
-    process.GlobalTag = customiseGlobalTag(process.GlobalTag,'auto:hltonline_GRon')
+    process.GlobalTag = customiseGlobalTag(process.GlobalTag,'auto:hltonline_GRun')
 
 # override the L1 menu
 if 'GlobalTag' in process.__dict__:
