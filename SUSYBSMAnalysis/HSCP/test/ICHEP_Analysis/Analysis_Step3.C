@@ -251,18 +251,21 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
 
       #ifdef ANALYSIS2011
       if(TypeMode<3 || TypeMode==5) {
-	  if(tr.accept(tr.triggerIndex("HscpPathSingleMu")))return true;
-	  else if(tr.accept(tr.triggerIndex("HscpPathPFMet"))){
-	     if(!isData) Event_Weight=Event_Weight*0.96;
-	     return true;
+          if(tr.accept(tr.triggerIndex("HSCPHLTTriggerMuFilter")))return true;
+          else if(tr.accept(tr.triggerIndex("HSCPHLTTriggerMetFilter"))){
+             if(!isData) Event_Weight=Event_Weight*0.96;
+             return true;
           }
        }else if(TypeMode==3) {
-           if(tr.size()== tr.triggerIndex("HSCPPathSAMU")) return false;
-	   fwlite::Handle<reco::PFMETCollection> pfMETCollection;
-	   pfMETCollection.getByLabel(ev,"pfMet");
-	   if(tr.accept(tr.triggerIndex("HSCPPathSAMU")) && pfMETCollection->begin()->et()>60) return true;
+           if(tr.size()== tr.triggerIndex("HSCPHLTTriggerL2MuFilter")) return false;
+           if(tr.accept(tr.triggerIndex("HSCPHLTTriggerL2MuFilter"))) return true;
+//           if(tr.size()== tr.triggerIndex("HSCPPathSAMU")) return false;
+//         fwlite::Handle<reco::PFMETCollection> pfMETCollection;
+//         pfMETCollection.getByLabel(ev,"pfMet");
+//         if(tr.accept(tr.triggerIndex("HSCPPathSAMU")) && pfMETCollection->begin()->et()>60) return true;
        }else if(TypeMode==4) {
-	   if(tr.accept(tr.triggerIndex("HscpPathSingleMu")))return true;
+           if(tr.accept(tr.triggerIndex("HSCPHLTTriggerMuFilter")))return true;
+
        }
       #else
 	 if(TypeMode!=3) {
@@ -925,6 +928,12 @@ void Analysis_Step3(char* SavePath)
          std::vector<string> FileName;
 	 GetInputFiles(samples[s], BaseDirectory, FileName, period);
          fwlite::ChainEvent ev(FileName);
+
+         DuplicatesClass duplicateChecker; 
+         duplicateChecker.Clear();
+         bool checkDuplicates = isData && FileName.size()>1;
+         if(checkDuplicates){printf("Duplicated events will be removed\n");}
+
          //compute sample global weight
          Event_Weight = 1.0;
          double SampleWeight = 1.0;
@@ -949,6 +958,7 @@ void Analysis_Step3(char* SavePath)
             ev.to(ientry);
             if(MaxEntry>0 && ientry>MaxEntry)break;
             if(ientry%TreeStep==0){printf(".");fflush(stdout);}
+            if(checkDuplicates && duplicateChecker.isDuplicate(ev.eventAuxiliary().run(), ev.eventAuxiliary().event()))continue;
 	    //if(ev.eventAuxiliary().run()>193092 && ev.eventAuxiliary().run() < 194619) continue;
 
             //compute event weight

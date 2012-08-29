@@ -95,12 +95,22 @@ void GetSampleDefinition(std::vector<stSample>& samples, std::string sampleTxtFi
 }
 
 void GetInputFiles(stSample sample, std::string BaseDirectory_, std::vector<std::string>& inputFiles, int period=0){
-   if(sample.Type>=2){ //MC Signal
-     if (period==0 && TypeMode!=4) inputFiles.push_back(BaseDirectory_ + sample.FileName + ".root");
-     if (period==0 && TypeMode==4) inputFiles.push_back(BaseDirectory_ + sample.FileName + "BX0.root");
-     if (period==1) inputFiles.push_back(BaseDirectory_ + sample.FileName + "BX1.root");
-   }else{ //Data or MC Background
-     inputFiles.push_back(BaseDirectory_ + sample.FileName + ".root");
+   std::vector<string> fileNames;
+   char* tmp = (char*)sample.FileName.c_str();
+   char* pch=strtok(tmp,";");
+   while (pch!=NULL){
+      fileNames.push_back(pch);
+      pch=strtok(NULL,",");
+   }
+
+   for(unsigned int f=0;f<fileNames.size();f++){  
+      if(sample.Type>=2){ //MC Signal
+        if (period==0 && TypeMode!=4) inputFiles.push_back(BaseDirectory_ + fileNames[f] + ".root");
+        if (period==0 && TypeMode==4) inputFiles.push_back(BaseDirectory_ + fileNames[f] + "BX0.root");
+        if (period==1) inputFiles.push_back(BaseDirectory_ + fileNames[f] + "BX1.root");
+      }else{ //Data or MC Background
+        inputFiles.push_back(BaseDirectory_ + fileNames[f] + ".root");
+      }
    }
 }
 

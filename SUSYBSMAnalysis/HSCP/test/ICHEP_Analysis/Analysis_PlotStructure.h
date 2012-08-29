@@ -294,6 +294,8 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
 
    std::string Name;
    Name = BaseName;               st.Directory = HistoFile->mkdir(Name.c_str(), Name.c_str()); 
+   //return 0 if the directory already exist, in that case just take the directory
+   if(!st.Directory)HistoFile->GetDirectory(Name.c_str());
    st.Directory->cd();
    Name = "IntLumi";  st.IntLumi = new TProfile(Name.c_str(), Name.c_str(),  1    , 0,  1);
    Name = "TotalE";   st.TotalE  = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
