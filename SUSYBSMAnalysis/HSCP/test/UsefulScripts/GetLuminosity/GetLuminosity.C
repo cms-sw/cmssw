@@ -28,8 +28,8 @@
 #include "DataFormats/FWLite/interface/Run.h"
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
-#include "../../ICHEP_AnalysisImproved/Analysis_Global.h"
-#include "../../ICHEP_AnalysisImproved/Analysis_Samples.h"
+#include "../../ICHEP_Analysis/Analysis_Global.h"
+#include "../../ICHEP_Analysis/Analysis_Samples.h"
 
 using namespace fwlite;
 
