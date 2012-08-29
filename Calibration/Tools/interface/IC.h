@@ -79,6 +79,34 @@ class DSIsBarrel : public DS
 };
 
 
+class DSIsBarrelPlus : public DS
+{
+        public:
+                bool operator()(DetId id)
+                {
+                        if (id.subdetId() == EcalBarrel)
+                        {
+                                return EBDetId(id).ieta() > 0;
+                        }
+                        return false;
+                }
+};
+
+
+class DSIsBarrelMinus : public DS
+{
+        public:
+                bool operator()(DetId id)
+                {
+                        if (id.subdetId() == EcalBarrel)
+                        {
+                                return EBDetId(id).ieta() < 0;
+                        }
+                        return false;
+                }
+};
+
+
 class DSIsEndcap : public DS
 {
         public:
@@ -364,6 +392,7 @@ class IC {
                 static void add(const IC & a, const IC & b, IC & res);
                 static void combine(const IC & a, const IC & b, IC & res);
                 static void fillHoles(const IC & a, const IC & b, IC & res);
+                static void removeOutliers(const IC & a, IC & res, float low_thr = 0.4, float high_thr = 2.5);
                 static void smear(const IC & a, float sigma, IC & res);
                 static void smear(const IC & a, IC & res);
 

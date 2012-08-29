@@ -635,7 +635,8 @@ bool IC::isValid(float v, float e)
 {
         //if (v < 0 || v > 2) return false;
         //if (v < 0) return false;
-        if (fabs(e) > 100 || v < 0) return false;
+        //if (fabs(e) > 100 || v < 0) return false;
+        if (fabs(e) > 100 || v < 0.4 || v > 2.5) return false;
         //if (v < 0.3 || v > 3) return false;
         return true;
 }
@@ -670,6 +671,25 @@ void IC::scaleEta(IC & ic, const IC & ic_scale, bool reciprocalScale)
         }
 }
 
+
+void IC::removeOutliers(const IC & a, IC & res, float low_thr, float high_thr)
+{
+        for (size_t i = 0; i < a.ids().size(); ++i) {
+                DetId id(a.ids()[i]);
+                float va = a.ic()[id];
+
+                if (va > high_thr){
+                        res.ic().setValue(id, high_thr);
+                        fprintf(stderr, "[IC::RemoveOutlier] !!! set to 2.5 IC for crystal %d was %f now %f\n", id.rawId(), va, res.ic()[id]);
+                }
+
+                if (va < low_thr ){
+                        res.ic().setValue(id, low_thr);
+                        fprintf(stderr, "[IC::RemoveOutlier] !!! set to 0.4 IC for crystal %d was %f now %f\n", id.rawId(), va, res.ic()[id]);
+
+                }
+        }
+}
 
 void IC::setToUnit(IC & ic)
 {
