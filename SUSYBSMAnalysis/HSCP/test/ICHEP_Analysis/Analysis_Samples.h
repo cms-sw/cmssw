@@ -105,9 +105,8 @@ void GetInputFiles(stSample sample, std::string BaseDirectory_, std::vector<std:
 
    for(unsigned int f=0;f<fileNames.size();f++){  
       if(sample.Type>=2){ //MC Signal
-        if (period==0 && TypeMode!=4) inputFiles.push_back(BaseDirectory_ + fileNames[f] + ".root");
-        if (period==0 && TypeMode==4) inputFiles.push_back(BaseDirectory_ + fileNames[f] + "BX0.root");
-        if (period==1) inputFiles.push_back(BaseDirectory_ + fileNames[f] + "BX1.root");
+        if (period==0) inputFiles.push_back(BaseDirectory_ + fileNames[f] + "_BX0.root");
+        if (period==1) inputFiles.push_back(BaseDirectory_ + fileNames[f] + "_BX1.root");
       }else{ //Data or MC Background
         inputFiles.push_back(BaseDirectory_ + fileNames[f] + ".root");
       }

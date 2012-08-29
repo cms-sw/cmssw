@@ -36,8 +36,8 @@
 #ifdef ANALYSIS2011
 double               SQRTS          = 7;
 int                  RunningPeriods = 2;
-double               IntegratedLuminosity = 4976; 
-double               IntegratedLuminosityBeforeTriggerChange = 355.227; 
+double               IntegratedLuminosity = 5003; 
+double               IntegratedLuminosityBeforeTriggerChange = 409.91; 
 #else
 double               SQRTS          = 8;
 int                  RunningPeriods = 1;
@@ -145,7 +145,8 @@ void InitBaseDirectory(){
 
    // BaseDirectory is defined as a function of the host you are running on
    if(host.find("ucl.ac.be")!=std::string::npos){
-      BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_11_01/";
+      //BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_11_01/";
+      BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_8/12_08_16/";
    }else if(host.find("cern.ch")!=std::string::npos){
       BaseDirectory = "rfio:/castor/cern.ch/user/r/rybinska/HSCPEDMFiles/";
    }else if(host.find("fnal.gov")!=std::string::npos){
@@ -163,9 +164,9 @@ void InitBaseDirectory(){
    }
 
    // BaseDirectory is defined a function of the username
-   if(analyst.find("querten")!=std::string::npos && host.find("ucl.ac.be")!=std::string::npos){
-      BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_11_01/";
-   }   
+//   if(analyst.find("querten")!=std::string::npos && host.find("ucl.ac.be")!=std::string::npos){
+//      BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_11_01/";
+//   }   
 }
 
 
