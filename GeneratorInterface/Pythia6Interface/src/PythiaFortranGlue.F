@@ -13,7 +13,8 @@ C Open file for reading
       CHARACTER*(*) EVFILE
 
 C Open file for writing. (Replace if already exists !)
-      OPEN(UNIT, FILE=EVFILE, STATUS='REPLACE')
+      CLOSE(UNIT)
+      OPEN(UNIT, FILE=EVFILE, STATUS='UNKNOWN')
 
       END
 
