@@ -367,7 +367,7 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 //				|| I->getNameAsString() == "endLuminosityBlock" )
 			{
 				const clang::CXXMethodDecl *  MD = &(*I);
-				clang::CXXMethodDecl *  CD = (*I).getCorrespondingMethodInClass( RD ,true );
+//				clang::CXXMethodDecl *  CD = (*I).getCorrespondingMethodInClass( RD ,true );
 				clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( MD , SM );
 //				if (  m_exception.reportClass( DLoc, BR ) ) MD->dump();
 				std::string buf;
