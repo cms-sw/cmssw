@@ -137,8 +137,8 @@ RunManager::RunManager(edm::ParameterSet const & p)
       m_pTrackingAction(p.getParameter<edm::ParameterSet>("TrackingAction")),
       m_pSteppingAction(p.getParameter<edm::ParameterSet>("SteppingAction")),
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
-      m_p(p), m_fieldBuilder(0)
-
+      m_p(p), m_fieldBuilder(0),
+      m_theLHCTlinkTag(p.getParameter<edm::InputTag>("theLHCTlinkTag"))
 {    
     m_kernel = G4RunManagerKernel::GetRunManagerKernel();
     if (m_kernel==0) m_kernel = new G4RunManagerKernel();
@@ -493,7 +493,7 @@ void RunManager::abortRun(bool softAbort)
 void RunManager::resetGenParticleId( edm::Event& inpevt ) {
 
   edm::Handle<edm::LHCTransportLinkContainer> theLHCTlink;
-  inpevt.getByType( theLHCTlink );
+  inpevt.getByLabel( m_theLHCTlinkTag, theLHCTlink );
   if ( theLHCTlink.isValid() ) {
     m_trackManager->setLHCTransportLink( theLHCTlink.product() );
   }
