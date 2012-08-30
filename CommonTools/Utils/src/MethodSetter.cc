@@ -51,7 +51,7 @@ bool MethodSetter::push(const string & name, const vector<AnyMethodArgument> & a
         throw Exception(begin)
      	<< "member \"" << mem.first.name() << "\" return type is invalid:\n" 
         << "  member type: \"" <<  mem.first.typeOf().name() << "\"\n"
-     	<< "  return type: \"" << mem.first.typeOf().returnType().name() << "\"\n";
+     	<< "  return type: \"" << mem.first.returnType().name() << "\"\n";
         
      }
      typeStack_.push_back(retType);

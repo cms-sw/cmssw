@@ -3,6 +3,7 @@
 #include "CommonTools/Utils/interface/Exception.h"
 #include "FWCore/Utilities/interface/BaseWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
+#include <cassert>
 
 using namespace std;
 using reco::parser::AnyMethodArgument;
@@ -42,17 +43,20 @@ namespace reco {
         << ", min #args = " << minArgs << ", max #args = " << maxArgs 
         << ", args = " << args.size() << std::endl;*/
     if (!args.empty()) {
-        edm::TypeWithDict t = mem.typeOf();
+        assert(args.size() == mem.functionParameterSize());
         std::vector<AnyMethodArgument> tmpFixups;
-        for (size_t i = 0; i < args.size(); ++i) { 
-            std::pair<AnyMethodArgument,int> fixup = boost::apply_visitor( reco::parser::AnyMethodArgumentFixup(t.functionParameterAt(i)), args[i] );
-            //std::cerr << "\t ARG " << i << " type is " << t.functionParameterAt(i).name() << " conversion = " << fixup.second << std::endl; 
+        size_t i = 0;
+        for (auto const& param : mem) { 
+            edm::TypeWithDict parameter(param);
+            std::pair<AnyMethodArgument,int> fixup = boost::apply_visitor( reco::parser::AnyMethodArgumentFixup(parameter), args[i] );
+            //std::cerr << "\t ARG " << i << " type is " << parameter.name() << " conversion = " << fixup.second << std::endl; 
             if (fixup.second >= 0) { 
                 tmpFixups.push_back(fixup.first);
                 casts += fixup.second;
             } else { 
                 return -1*parser::kWrongArgumentType;
             }
+            ++i;
         }
         fixuppedArgs.swap(tmpFixups);
     }

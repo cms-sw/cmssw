@@ -47,11 +47,11 @@ void ExpressionVar::initObjects_() {
        //remove any typedefs if any. If we do not do this it appears that we get a memory leak
        // because typedefs do not have 'destructors'
        if(it->isFunction()) {
-          edm::TypeWithDict retType = it->method().typeOf().returnType().finalType();
+          edm::TypeWithDict retType = it->method().returnType().finalType();
           needsDestructor_.push_back(makeStorage(*itobj, retType));
        } else {
-          edm::TypeWithDict retType = it->member().typeOf().returnType().finalType();
-          needsDestructor_.push_back(makeStorage(*itobj, retType));
+          *itobj = edm::ObjectWithDict();
+          needsDestructor_.push_back(false);
        }
     }
 }

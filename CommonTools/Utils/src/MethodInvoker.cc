@@ -79,7 +79,7 @@ MethodInvoker::invoke(const edm::ObjectWithDict & o, edm::ObjectWithDict &retsto
             << " with " << args_.size() << " arguments"
             << std::endl; */
      method_.invoke(o, &ret, args_);
-     retType = method_.typeOf().returnType(); // this is correct, it takes pointers and refs into account
+     retType = method_.returnType(); // this is correct, it takes pointers and refs into account
   } else {
      /*std::cout << "Invoking " << methodName() 
             << " from " << member_.declaringType().name(edm::TypeNameHandling::Qualified) 
@@ -179,11 +179,11 @@ SingleInvoker::SingleInvoker(const edm::TypeWithDict &type,
     //remove any typedefs if any. If we do not do this it appears that we get a memory leak
     // because typedefs do not have 'destructors'
     if(invokers_.front().isFunction()) {
-       edm::TypeWithDict retType = invokers_.front().method().typeOf().returnType().finalType();
+       edm::TypeWithDict retType = invokers_.front().method().returnType().finalType();
        storageNeedsDestructor_ = ExpressionVar::makeStorage(storage_, retType);
     } else {
-       edm::TypeWithDict retType = invokers_.front().member().typeOf().returnType().finalType();
-       storageNeedsDestructor_ = ExpressionVar::makeStorage(storage_, retType);
+       storage_ = edm::ObjectWithDict();
+       storageNeedsDestructor_ = false;
     }
     retType_ = reco::typeCode(typeStack[1]); // typeStack[0] = type of self, typeStack[1] = type of ret
 }

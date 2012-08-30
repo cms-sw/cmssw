@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.23 2012/08/03 18:20:28 wmtan Exp $
+// $Id: FWTableViewManager.cc,v 1.24 2012/08/28 22:25:42 wmtan Exp $
 //
 
 // system include files
@@ -263,13 +263,13 @@ FWTableViewManager::tableFormats(const edm::TypeWithDict &key)
          continue;
       if (!m.isConst())
          continue;
-      if (m.typeOf().returnType().name() == isint)
+      if (m.returnType().name() == isint)
          handle.column(m.name().c_str(), TableEntry::INT);
-      else if (m.typeOf().returnType().name() == isbool)
+      else if (m.returnType().name() == isbool)
          handle.column(m.name().c_str(), TableEntry::BOOL);
-      else if (m.typeOf().returnType().name() == isdouble)
+      else if (m.returnType().name() == isdouble)
          handle.column(m.name().c_str(), 5);
-      else if (m.typeOf().returnType().name() == isfloat)
+      else if (m.returnType().name() == isfloat)
          handle.column(m.name().c_str(), 3);
    }
    edm::TypeDataMembers dataMembers(key);
@@ -280,13 +280,13 @@ FWTableViewManager::tableFormats(const edm::TypeWithDict &key)
          continue;
       if (!m.isConst())
          continue;
-      if (m.typeOf().returnType().name() == isint)
+      if (m.typeOf().name() == isint)
          handle.column(m.name().c_str(), TableEntry::INT);
-      else if (m.typeOf().returnType().name() == isbool)
+      else if (m.typeOf().name() == isbool)
          handle.column(m.name().c_str(), TableEntry::BOOL);
-      else if (m.typeOf().returnType().name() == isdouble)
+      else if (m.typeOf().name() == isdouble)
          handle.column(m.name().c_str(), 5);
-      else if (m.typeOf().returnType().name() == isfloat)
+      else if (m.typeOf().name() == isfloat)
          handle.column(m.name().c_str(), 3);
    }
    return m_tableFormats.find(keyType);

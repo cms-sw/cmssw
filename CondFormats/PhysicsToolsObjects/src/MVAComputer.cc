@@ -18,7 +18,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.cc,v 1.11 2012/08/23 17:59:29 wmtan Exp $
+// $Id: MVAComputer.cc,v 1.12 2012/08/28 22:29:49 wmtan Exp $
 //
 #include <functional>
 #include <algorithm>
@@ -137,12 +137,12 @@ void MVAComputer::addProcessor(const VarProcessor *proc)
         edm::TypeFunctionMembers members(type);
         for(auto const& mem : members) {
             edm::FunctionWithDict member(mem);
-		const edm::TypeWithDict &ctor = member.typeOf();
 		if (!member.isConstructor() ||
-		    ctor.functionParameterSize() != 1 ||
-		    ctor.functionParameterAt(0).id() != refType.id())
+		    member.functionParameterSize() != 1 ||
+		    edm::TypeWithDict(*member.begin()).id() != refType.id())
 			continue;
 
+		const edm::TypeWithDict &ctor = member.typeOf();
                 std::vector<void *> values(1, obj.address()); 
 		edm::ObjectWithDict copy(type.construct(ctor, values));
 
