@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy,591 R-013,+41227674265,
 //         Created:  Tue Mar  9 12:59:18 CET 2010
-// $Id: HcalDetDiagPedestalMonitor.cc,v 1.19 2012/01/31 16:15:17 davidlt Exp $
+// $Id: HcalDetDiagPedestalMonitor.cc,v 1.20 2012/03/13 15:54:45 apresyan Exp $
 //
 //
 // user include files
@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -235,9 +236,12 @@ class HcalDetDiagPedestalMonitor : public HcalBaseDQMonitor {
 
       std::map<unsigned int, int> KnownBadCells_;
 
+      edm::InputTag hcalTBTriggerDataTag_;
 };
 
-HcalDetDiagPedestalMonitor::HcalDetDiagPedestalMonitor(const edm::ParameterSet& iConfig){
+HcalDetDiagPedestalMonitor::HcalDetDiagPedestalMonitor(const edm::ParameterSet& iConfig) :
+  hcalTBTriggerDataTag_(iConfig.getParameter<edm::InputTag>("hcalTBTriggerDataTag"))
+{
   ievt_=-1;
   emap=0;
   dataset_seq_number=1;
@@ -435,7 +439,7 @@ static int  lastPEDorbit,nChecksPED;
    
    // for local runs 
    edm::Handle<HcalTBTriggerData> trigger_data;
-   iEvent.getByType(trigger_data);
+   iEvent.getByLabel(hcalTBTriggerDataTag_, trigger_data);
    if(trigger_data.isValid()){
      if((trigger_data->triggerWord())==5) PedestalEvent=true;
        LocalRun=true;

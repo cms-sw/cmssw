@@ -11,6 +11,7 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 // forward declarations
 class HcalDetDiagNoiseRMSummary; 
@@ -24,8 +25,8 @@ class HcalLogicalMapGenerator;
 
 /** \class HcalDetDiagNoiseMonitor
   *  
-  * $Date: 2011/02/23 14:16:00 $
-  * $Revision: 1.6 $
+  * $Date: 2012/06/27 13:20:29 $
+  * $Revision: 1.7 $
   * \author D. Vishnevskiy
   */
 
@@ -49,7 +50,8 @@ private:
   edm::InputTag L1ADataLabel_;
   edm::InputTag digiLabel_;
   edm::InputTag rawDataLabel_;
-  
+  edm::InputTag hcalTBTriggerDataTag_;
+
   HcalLogicalMap          *lmap;
   HcalLogicalMapGenerator *gen;
  

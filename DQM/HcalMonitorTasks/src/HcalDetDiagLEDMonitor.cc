@@ -16,6 +16,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -212,6 +213,7 @@ private:
 
   edm::InputTag digiLabel_;
   edm::InputTag calibDigiLabel_;
+  edm::InputTag hcalTBTriggerDataTag_;
 
   std::map<unsigned int, int> KnownBadCells_;
 
@@ -236,7 +238,9 @@ static const float adc2fC[128]={-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5, 10
 
 
 
-HcalDetDiagLEDMonitor::HcalDetDiagLEDMonitor(const edm::ParameterSet& ps) {
+HcalDetDiagLEDMonitor::HcalDetDiagLEDMonitor(const edm::ParameterSet& ps) :
+  hcalTBTriggerDataTag_(ps.getParameter<edm::InputTag>("hcalTBTriggerDataTag"))
+{
   ievt_=0;
   dataset_seq_number=1;
   run_number=-1;
@@ -382,7 +386,7 @@ int  eta,phi,depth,nTS;
    // for local runs 
 
    edm::Handle<HcalTBTriggerData> trigger_data;
-   iEvent.getByType(trigger_data);
+   iEvent.getByLabel(hcalTBTriggerDataTag_, trigger_data);
    if(trigger_data.isValid()){
       if(trigger_data->triggerWord()==6){ LEDEvent=true;LocalRun=true;}
    } 

@@ -38,5 +38,6 @@ hcalDetDiagPedestalMonitor=cms.EDAnalyzer("HcalDetDiagPedestalMonitor",
                                           HOMeanTreshold         = cms.untracked.double(0.2),
                                           HORmsTreshold          = cms.untracked.double(0.3),
                                           HFMeanTreshold         = cms.untracked.double(0.2),
-                                          HFRmsTreshold          = cms.untracked.double(0.3)
+                                          HFRmsTreshold          = cms.untracked.double(0.3),
+                                          hcalTBTriggerDataTag   = cms.InputTag("tbunpack")
                                    )
