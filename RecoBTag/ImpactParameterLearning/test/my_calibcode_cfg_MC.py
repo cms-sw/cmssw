@@ -19,8 +19,49 @@ process.source = cms.Source(
   # data from /Jet/Run2012A-PromptReco-v1/AOD
   #        'file:FE2E21F0-0583-E111-8DA9-001D09F241F0.root'
   # data from /BTag/Run2012A-PromptReco-v1/AOD
-  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/F88F3DF3-53E7-E111-91BE-003048D4DCD8.root'
-  )
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/F88F3DF3-53E7-E111-91BE-003048D4DCD8.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/000F649B-49E7-E111-9434-00237DE0BED6.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/0030E782-40E7-E111-A87C-003048F0E830.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/005FC58F-5DE7-E111-883D-0025904B1446.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/0066EAF2-64E7-E111-8B4D-0025904B578E.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/020C40F4-6AE7-E111-9E75-00266CFFA780.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/04D8EE0A-5AE7-E111-A08B-002481E0E450.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/064DF4E6-5BE7-E111-9EB7-0030487F171B.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/06A9A98B-5FE7-E111-9F82-002590494C92.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/082FC482-75E7-E111-9618-003048F02D36.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/0896105C-66E7-E111-93A9-00266CFFA2D0.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/08DDFF81-50E7-E111-A859-003048D3C7BC.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/0AA179BC-53E7-E111-A7CB-003048D4DF90.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/0ACE5C03-61E7-E111-BE6B-002481E76052.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/0C419424-4DE7-E111-9E39-0030487F0EDF.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/0CB0FEA1-46E7-E111-A8C3-00266CF32930.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/0CE72B6F-60E7-E111-9F05-002481E76052.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/0E2755E3-5DE7-E111-982B-002481E0D500.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/0E36C61E-66E7-E111-9EED-00237DE0BED6.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/102300AF-66E7-E111-8243-003048C68AA6.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/102D7ED4-63E7-E111-B36D-003048C692FE.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/1219B9DA-61E7-E111-B6D4-0025904B1428.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/124AA395-31E7-E111-A043-0030487D710F.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/143865A9-4DE7-E111-8FBE-0030487F0EDF.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/146FAC44-52E7-E111-BCE8-003048C6903A.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/14E81D7D-52E7-E111-962A-003048D439BE.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/160E1D82-35E7-E111-94C5-0030487F92B5.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/16501EA4-48E7-E111-B40C-003048D4397E.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/1684525F-57E7-E111-A4C5-0025904B144A.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/18E2D0DD-31E7-E111-8D8F-0030487F1A67.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/18F50273-52E7-E111-A5F8-0025901D4B22.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/18FBC0D1-61E7-E111-B83D-002481E7628E.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/1A3EB849-5DE7-E111-9130-003048C692FE.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/1A8EBFCD-63E7-E111-9A61-0025904B578E.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/1ADE7EA3-51E7-E111-A022-003048D3C7BC.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/1C0EF983-47E7-E111-A43A-00266CFFA604.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/1C8BB143-7FE7-E111-9DA2-002481E0E912.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/1CE771D7-65E7-E111-BDE9-003048C68A9E.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/1E2D5345-5BE7-E111-B5B6-0030487F171B.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/1EB5B5EA-66E7-E111-A765-0030487D83B9.root',
+  'rfio:/dpm/in2p3.fr/home/cms/phedex/store/mc/Summer12_DR53X/QCD_Pt-120to170_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/00000/1EF528D3-61E7-E111-BD9B-003048F010F4.root'
+
+ )
   )
 
 process.maxEvents = cms.untracked.PSet(
@@ -214,10 +255,10 @@ process.mistag.triggerTable = 'TriggerResults::HLT' # Data and MC
 #---------------------------------------
 
 
-process.AK5byRef.jets = "selectedPatJetsPF2PAT"
+process.AK5byRef.jets = "PATJetsFilter"
 
 # process.mistag.Jets = 'ak5PFJets'
-process.mistag.Jets = 'selectedPatJetsPF2PAT'
+process.mistag.Jets = 'PATJetsFilter'
 process.mistag.jetCorrector = cms.string('ak5PFL1FastL2L3')
 #process.mistag.jetCorrector = cms.string('ak5PFchsL1FastL2L3Residual')
 
@@ -257,10 +298,10 @@ process.p = cms.Path(
   process.offlinePrimaryVertices 
   *process.goodOfflinePrimaryVertices
   *getattr(process,"patPF2PATSequence"+postfix)
+  *process.PATJetsFilter
   *process.myPartons
   *process.AK5Flavour
   *process.noscraping
-  *process.PATJetsFilter
   *process.primaryVertexFilter
   *process.ak5JetTracksAssociatorAtVertex
   *process.btagging

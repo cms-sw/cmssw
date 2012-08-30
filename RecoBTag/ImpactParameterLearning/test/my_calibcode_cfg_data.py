@@ -159,7 +159,7 @@ process.jetIDSelector.version = cms.string('PURE09')
 process.PATJetsFilter = cms.EDFilter("PATJetSelector",    
                                     src = cms.InputTag("selectedPatJetsPF2PAT"),
                                     cut = cms.string("pt > 10.0 && abs(eta) < 2.5 && neutralHadronEnergyFraction < 0.99 && neutralEmEnergyFraction < 0.99 && nConstituents > 1 && chargedHadronEnergyFraction > 0.0 && chargedMultiplicity > 0.0 && chargedEmEnergyFraction < 0.99"),
-                                    #filter = cms.bool(True)
+                                    filter = cms.bool(True)
                                     )
 				    
 #---------------------------------------
@@ -214,10 +214,10 @@ process.mistag.triggerTable = 'TriggerResults::HLT' # Data and MC
 #---------------------------------------
 
 
-process.AK5byRef.jets = "selectedPatJetsPF2PAT"
+process.AK5byRef.jets = "PATJetsFilter"
 
 # process.mistag.Jets = 'ak5PFJets'
-process.mistag.Jets = 'selectedPatJetsPF2PAT'
+process.mistag.Jets = 'PATJetsFilter'
 process.mistag.jetCorrector = cms.string('ak5PFL1FastL2L3')
 #process.mistag.jetCorrector = cms.string('ak5PFchsL1FastL2L3Residual')
 
@@ -244,7 +244,7 @@ process.JetHLTFilter = hlt.triggerResultsFilter.clone(
 
 
 process.load("RecoBTag.ImpactParameterLearning.ImpactParameterCalibration_cfi")
-process.ipCalib.Jets           = cms.InputTag('PFJetsFilter')
+process.ipCalib.Jets           = cms.InputTag('PATJetsFilter')
 process.ipCalib.jetCorrector   = cms.string('ak5PFL1FastL2L3')
 
 
