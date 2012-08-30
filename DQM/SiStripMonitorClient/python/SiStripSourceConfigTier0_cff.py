@@ -164,7 +164,8 @@ SiStripDQMTier0 = cms.Sequence(
 #    # temporary patch in order to have BXlumi
 #    * lumiProducer
     # temporary test in order to have the "goodPrimaryVertexCollection"
-    * goodOfflinePrimaryVertices *TrackerCollisionTrackMonCommon
+#    * goodOfflinePrimaryVertices
+    *TrackerCollisionTrackMonCommon
 #    * LocalRecoLogMessageMon * TrackerCollisionIterTrackingLogMessageMonCommon
     *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
     *dqmInfoSiStrip)
@@ -175,7 +176,8 @@ SiStripDQMTier0Common = cms.Sequence(
 #    # temporary patch in order to have BXlumi
 #    * lumiProducer
 #    # temporary test in order to have the "goodPrimaryVertexCollection"
-    * goodOfflinePrimaryVertices *TrackerCollisionTrackMonCommon
+#    * goodOfflinePrimaryVertices
+    *TrackerCollisionTrackMonCommon
 #    * LocalRecoLogMessageMon * TrackerCollisionIterTrackingLogMessageMonCommon
     *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
     *dqmInfoSiStrip)
@@ -185,8 +187,9 @@ SiStripDQMTier0MinBias = cms.Sequence(
     *SiStripMonitorTrackMB*MonitorTrackResiduals
 #    * lumiProducer
 #    # temporary test in order to have the "goodPrimaryVertexCollection"
-    * goodOfflinePrimaryVertices *TrackerCollisionTrackMonMB
-#    * LocalRecoLogMessageMon * TrackerCollisionIterTrackingLogMessageMonMB
+#    * goodOfflinePrimaryVertices
+    *TrackerCollisionTrackMonMB
+#   * LocalRecoLogMessageMon * TrackerCollisionIterTrackingLogMessageMonMB
     *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
     *dqmInfoSiStrip)
 

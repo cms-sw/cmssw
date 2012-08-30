@@ -22,7 +22,7 @@ ssclusmultinvestigator = cms.EDAnalyzer('MultiplicityInvestigator',
                                          hitName = cms.untracked.string("cluster"),
                                          multiplicityMap = cms.InputTag("ssclustermultprod"),
                                          numberOfBins = cms.untracked.int32(500),   
-                                         maxLSBeforeRebin = cms.untracked.uint32(100),   
+                                         orbitNbin = cms.untracked.int32(1800),   
                                          scaleFactor = cms.untracked.int32(10)
                                       )
 

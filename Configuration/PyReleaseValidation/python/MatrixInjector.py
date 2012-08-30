@@ -73,19 +73,15 @@ class MatrixInjector(object):
             "SplittingArguments" : {"events_per_job" : 250},  #Size of jobs in terms of splitting algorithm
             #"RequestSizeEvents" : 10000,                      #Total number of events to generate
             "RequestNumEvents" : 10000,                      #Total number of events to generate
-            "Seeding" : "AutomaticSeeding",                          #Random seeding method
+            "Seeding" : "Automatic",                          #Random seeding method
             "PrimaryDataset" : None,                          #Primary Dataset to be created
-            "nowmIO": {}
             }
         self.defaultInput={
             "TaskName" : "DigiHLT",                                      #Task Name
             "ConfigCacheID" : None,                                      #Processing Config id
             "InputDataset" : None,                                       #Input Dataset to be processed
-            #"SplittingAlgorithm"  : "FileBased",                        #Splitting Algorithm
-            #"SplittingArguments" : {"files_per_job" : 1},               #Size of jobs in terms of splitting algorithm
-            "SplittingAlgorithm"  : "LumiBased",                        #Splitting Algorithm
-            "SplittingArguments" : {"lumis_per_job" : 1},               #Size of jobs in terms of splitting algorithm
-            "nowmIO": {}
+            "SplittingAlgorithm"  : "FileBased",                        #Splitting Algorithm
+            "SplittingArguments" : {"files_per_job" : 1},               #Size of jobs in terms of splitting algorithm
             }
         self.defaultTask={
             "TaskName" : None,                                 #Task Name
@@ -112,13 +108,10 @@ class MatrixInjector(object):
                 if x[0]==n:
                     #print "found",n,s[3]
                     chainDict['RequestString']='RV'+s[1].split('+')[0]
-                    index=0
-                    for step in s[3]:
+                    for (index,step) in enumerate(s[3]):
                         if 'INPUT' in step or (not isinstance(s[2][index],str)):
                             nextHasDSInput=s[2][index]
                         else:
-                            if 'HARVEST' in step:
-                                continue
                             if (index==0):
                                 #first step and not input -> gen part
                                 chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultScratch))
@@ -128,7 +121,7 @@ class MatrixInjector(object):
                                     return -12
                                 else:
                                     arg=s[2][index].split()
-                                    ns=map(int,arg[arg.index('--relval')+1].split(','))
+                                    ns=arg[arg.index('--relval')+1].split(',')
                                     chainDict['nowmTasklist'][-1]['RequestSizeEvents'] = ns[0]
                                     chainDict['nowmTasklist'][-1]['SplittingArguments']['events_per_job'] = ns[1]
                             elif nextHasDSInput:
@@ -150,8 +143,7 @@ class MatrixInjector(object):
                                 return -15
                             chainDict['nowmTasklist'][-1]['ConfigCacheID']='%s/%s.py'%(dir,step)
                             chainDict['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT']
-                        index+=1
-                        
+                            
             #wrap up for this one
             #print 'wrapping up'
             chainDict['TaskChain']=len(chainDict['nowmTasklist'])

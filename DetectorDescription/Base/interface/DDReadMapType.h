@@ -3,19 +3,20 @@
 
 #include <string>
 #include <map>
+#include "DetectorDescription/Base/interface/DDException.h"
 
 namespace dddDetails {
-  void errorReadMapType(const std::string & key);
+  void errorReadMapType(const std::string & key) throw (DDException);
 }
 
-//! a std::map<std::string,YourType> that offers a const operator[key]; if key is not stored in the std::map, a cms::Exception is thrown 
+//! a std::map<std::string,YourType> that offers a const operator[key]; if key is not stored in the std::map, a DDException is thrown 
 /** otherwise, the ReadMapType works the same as std::map<std::string,YourType> */
 template<class V> class ReadMapType : public std::map<std::string,V>
 {
  public:
   ReadMapType() : std::map<std::string,V>() {}
 
-  const V & operator[](const std::string & key) const
+  const V & operator[](const std::string & key) const throw (DDException)
    { 
       typename std::map<std::string,V>::const_iterator it = this->find(key); 
       if (it == this->end()) dddDetails::errorReadMapType(key);

@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalBarrelIntegrityTask = cms.EDAnalyzer("EBIntegrityTask",
-    prefixME = cms.untracked.string('Ecal'),
+    prefixME = cms.untracked.string('EcalBarrel'),
     enableCleanup = cms.untracked.bool(False),
-    mergeRuns = cms.untracked.bool(False),    
+    mergeRuns = cms.untracked.bool(False),
+                                         subfolder = cms.untracked.string(""),
     EBDetIdCollection0 = cms.InputTag("ecalEBunpacker","EcalIntegrityDCCSizeErrors"),
     EBDetIdCollection1 = cms.InputTag("ecalEBunpacker","EcalIntegrityGainErrors"),
     EBDetIdCollection2 = cms.InputTag("ecalEBunpacker","EcalIntegrityChIdErrors"),

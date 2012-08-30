@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2011/08/30 09:29:05 $
- * $Revision: 1.26 $
+ * $Date: 2010/02/17 22:46:52 $
+ * $Revision: 1.25 $
  *
 */
 
@@ -84,6 +84,13 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
                      const edm::Handle<edm::TriggerResults>& hltResults
                      = edm::Handle<edm::TriggerResults>());
 
+
+  /// book monitor elements for real, or emulated digis
+  void setup( std::string const &nameext,
+	      std::string const &folder, 
+	      bool emulated);
+  
+
   /// local event counter
   int ievt_;
 
@@ -105,9 +112,6 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
   array1 meEmulError_;
   array1 meEmulMatch_;
   array1 meVetoEmulError_;
-
-  /// 1D emulator match 1D
-  array1 meEmulMatchIndex1D_;
 
   /// init flag
   bool init_;
@@ -141,6 +145,8 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
   /// debug output root file. if empty, no output file created.
   std::string outputFile_;
 
+  /// 1D emulator match 1D
+  MonitorElement* meEmulMatchIndex1D_[2];
   MonitorElement* meEmulMatchMaxIndex1D_[2];
 
   /// ET spectrums for the whole EE+/-

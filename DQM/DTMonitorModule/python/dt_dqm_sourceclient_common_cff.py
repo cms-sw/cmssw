@@ -19,13 +19,6 @@ import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
 gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
 gtDigis.DaqGtInputTag = 'rawDataCollector'
 
-
-# filter on HLT paths:
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import *
-triggerResultsFilter.l1tResults = 'gtDigis'
-triggerResultsFilter.throw = False
-triggerResultsFilter.triggerConditions = cms.vstring( 'HLT_Mu*', 'HLT_DoubleMu*', 'HLT_L1SingleMu*' )
-
 # Scalers info
 from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
@@ -121,4 +114,4 @@ dtDQMTest = cms.Sequence(dataIntegrityTest + blockedROChannelTest + triggerLutTe
 dtDQMCalib = cms.Sequence(dtTPmonitor + dtTPTriggerMonitor + dtTPmonitorTest + dtTPTriggerTest)
 
 # sequence to be run on physics events (includes filters, reco and DQM)
-dtDQMPhysSequence = cms.Sequence(dtScalerInfoMonitor + gtDigis + triggerResultsFilter * reco + dtDQMTask + dtDQMTest)
+dtDQMPhysSequence = cms.Sequence(dtScalerInfoMonitor + gtDigis + reco + dtDQMTask + dtDQMTest)

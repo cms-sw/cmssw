@@ -1,13 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("FIRST")
 
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-
-process.MessageLogger.cerr.threshold = 'INFO'
-process.MessageLogger.cerr.INFO.limit = 100
-
-#process.options = cms.untracked.PSet(forceEventSetupCacheClearOnNewRun = cms.untracked.bool(True))
-
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(30)
 )
@@ -20,71 +13,21 @@ process.source = cms.Source("EmptySource",
     numberEventsInRun = cms.untracked.uint32(10)
 )
 
-process.DoodadESSource = cms.ESSource("DoodadESSource"
-                                      , appendToDataLabel = cms.string('abc')
-                                      , test2 = cms.untracked.string('z')
-)
-
-# ---------------------------------------------------------------
-
 copyProcess = cms.Process("COPY")
 process.subProcess = cms.SubProcess(copyProcess)
 
-copyProcess.DoodadESSource = cms.ESSource("DoodadESSource"
-                                          , appendToDataLabel = cms.string('abc')
-                                          , test2 = cms.untracked.string('zz')
-)
-
-# ---------------------------------------------------------------
-
-prodProcess = cms.Process("PROD")
+prodProcess = cms.Process("SECOND")
 copyProcess.subProcess = cms.SubProcess(prodProcess)
-
-prodProcess.DoodadESSource = cms.ESSource("DoodadESSource"
-                                          , appendToDataLabel = cms.string('abcd')
-                                          , test2 = cms.untracked.string('z')
-)
 
 prodProcess.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer")
 
 prodProcess.p1 = cms.Path(prodProcess.thingWithMergeProducer)
 
-prodProcess.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
-    toGet = cms.VPSet(cms.PSet(
-        record = cms.string('GadgetRcd'),
-        data = cms.vstring('edmtest::Doodad/abcd')
-    ) ),
-    verbose = cms.untracked.bool(True)
-)
-
-prodProcess.noPut = cms.EDProducer("ThingWithMergeProducer",
-    noPut = cms.untracked.bool(True)
-)
-
-prodProcess.path1 = cms.Path(prodProcess.get)
-
-prodProcess.path2 = cms.Path(prodProcess.noPut)
-
-# ---------------------------------------------------------------
-
 copy2Process = cms.Process("COPY2")
 prodProcess.subProcess = cms.SubProcess(copy2Process)
 
-copy2Process.DoodadESSource = cms.ESSource("DoodadESSource"
-                                           , appendToDataLabel = cms.string('abc')
-                                           , test2 = cms.untracked.string('z')
-)
-
-# ---------------------------------------------------------------
-
-prod2Process = cms.Process("PROD2")
+prod2Process = cms.Process("PROD")
 copy2Process.subProcess = cms.SubProcess(prod2Process)
-prod2Process.DoodadESSource = cms.ESSource("DoodadESSource"
-                                           , appendToDataLabel = cms.string('abc')
-                                           , test2 = cms.untracked.string('zz')
-)
-
-prod2Process.WhatsItESProducer = cms.ESProducer("WhatsItESProducer")
 
 prod2Process.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer")
 
@@ -93,17 +36,13 @@ prod2Process.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer")
 prod2Process.testmerge = cms.EDAnalyzer("TestMergeResults",
 
     expectedProcessHistoryInRuns = cms.untracked.vstring(
-        'PROD',            # Run 1
-        'PROD2',
-        'PROD',            # Run 2
-        'PROD2',
-        'PROD',            # Run 3
-        'PROD2'
+        'SECOND',            # Run 1
+        'PROD',
+        'SECOND',            # Run 2
+        'PROD',
+        'SECOND',            # Run 3
+        'PROD'
     )
-)
-
-prod2Process.dependsOnNoPut = cms.EDProducer("ThingWithMergeProducer",
-    labelsToGet = cms.untracked.vstring('noPut')
 )
 
 prod2Process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
@@ -166,14 +105,6 @@ prod2Process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
 )
 )
 
-prod2Process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
-    toGet = cms.VPSet(cms.PSet(
-        record = cms.string('GadgetRcd'),
-        data = cms.vstring('edmtest::Doodad/abc')
-    ) ),
-    verbose = cms.untracked.bool(True)
-)
-
 prod2Process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('testSubProcess.root')
 )
@@ -181,9 +112,5 @@ prod2Process.out = cms.OutputModule("PoolOutputModule",
 prod2Process.path1 = cms.Path(prod2Process.thingWithMergeProducer)
 
 prod2Process.path2 = cms.Path(prod2Process.test*prod2Process.testmerge)
-
-prod2Process.path3 = cms.Path(prod2Process.get)
-
-prod2Process.path4 = cms.Path(prod2Process.dependsOnNoPut)
 
 prod2Process.endPath1 = cms.EndPath(prod2Process.out)

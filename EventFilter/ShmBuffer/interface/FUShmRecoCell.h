@@ -31,12 +31,14 @@ namespace evf {
     unsigned int   payloadSize() const { return payloadSize_; }
     unsigned char* payloadAddr() const;
     unsigned int   eventSize()   const { return eventSize_; }
+    unsigned int   nExpectedEPs() const { return nExpectedEPs_; }
     
     void           writeInitMsg(unsigned int   outModId,
 				unsigned int   fuProcessId,
 				unsigned int   fuGuid,
 				unsigned char *data,
-				unsigned int   dataSize);
+				unsigned int   dataSize,
+				unsigned int   nExpectedEPs);
     
     void           writeEventData(unsigned int   rawCellIndex,
 				  unsigned int   runNumber,
@@ -78,6 +80,7 @@ namespace evf {
     unsigned int payloadSize_;
     unsigned int payloadOffset_;
     unsigned int eventSize_;
+    unsigned int nExpectedEPs_;
     
   };
 

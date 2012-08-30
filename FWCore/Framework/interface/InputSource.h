@@ -107,10 +107,12 @@ namespace edm {
     EventPrincipal* readEvent(EventID const&);
 
     /// Read next luminosity block Auxilary
-    boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary();
+    boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary() {
+      return readLuminosityBlockAuxiliary_();
+    }
 
     /// Read next run Auxiliary
-    boost::shared_ptr<RunAuxiliary> readRunAuxiliary();
+    boost::shared_ptr<RunAuxiliary> readRunAuxiliary() {return readRunAuxiliary_();}
 
     /// Read next run
     void readAndCacheRun(bool merge, HistoryAppender& historyAppender);
@@ -128,7 +130,7 @@ namespace edm {
     boost::shared_ptr<FileBlock> readFile();
 
     /// close current file
-    void closeFile(boost::shared_ptr<FileBlock>, bool cleaningUpAfterException);
+    void closeFile(boost::shared_ptr<FileBlock>);
 
     /// Skip the number of events specified.
     /// Offset may be negative.
@@ -137,7 +139,15 @@ namespace edm {
     bool goToEvent(EventID const& eventID);
 
     /// Begin again at the first event
-    void rewind();
+    void rewind() {
+      doneReadAhead_ = false;
+      state_ = IsInvalid;
+      remainingEvents_ = maxEvents_;
+      rewind_();
+    }
+
+    /// Wake up the input source
+    void wakeUp() {wakeUp_();}
 
     /// Set the run number
     void setRunNumber(RunNumber_t r) {setRun(r);}
@@ -199,13 +209,13 @@ namespace edm {
     void doBeginLumi(LuminosityBlockPrincipal& lbp);
 
     /// Called by framework at end of lumi block
-    void doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException);
+    void doEndLumi(LuminosityBlockPrincipal& lbp);
 
     /// Called by framework at beginning of run
     void doBeginRun(RunPrincipal& rp);
 
     /// Called by framework at end of run
-    void doEndRun(RunPrincipal& rp, bool cleaningUpAfterException);
+    void doEndRun(RunPrincipal& rp);
 
     /// Called by the framework before forking the process
     void doPreForkReleaseResources();
@@ -237,9 +247,9 @@ namespace edm {
     /// Called by the framework to merge or insert lumi in principal cache.
     boost::shared_ptr<LuminosityBlockAuxiliary> luminosityBlockAuxiliary() const {return lumiAuxiliary_;}
 
-    bool randomAccess() const;
-    ProcessingController::ForwardState forwardState() const;
-    ProcessingController::ReverseState reverseState() const;
+    bool randomAccess() const { return randomAccess_(); }
+    ProcessingController::ForwardState forwardState() const { return forwardState_(); }
+    ProcessingController::ReverseState reverseState() const { return reverseState_(); }
 
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::typeLabelList;
@@ -338,6 +348,7 @@ namespace edm {
     virtual void setRun(RunNumber_t r);
     virtual void setLumi(LuminosityBlockNumber_t lb);
     virtual void rewind_();
+    virtual void wakeUp_();
     void postRead(Event& event);
     virtual void beginLuminosityBlock(LuminosityBlock&);
     virtual void endLuminosityBlock(LuminosityBlock&);

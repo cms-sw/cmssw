@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForRunType.h,v 1.11 2009/10/22 15:57:40 lowette Exp $
+// Last commit: $Id: ConstantsForRunType.h,v 1.10 2009/02/10 21:45:54 lowette Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForRunType_H
 #define DataFormats_SiStripCommon_ConstantsForRunType_H
@@ -36,7 +36,6 @@ namespace sistrip {
   static const char calibScanDeconRun_[]    = "CalibrationScanDeco";
   static const char daqScopeModeRun_[]      = "DaqScopeMode";
   static const char physicsRun_[]           = "Physics";
-  static const char noiseHVScan_[]          = "NoiseHVScan";
   
   // ---------- Enumerated type ---------- 
   
@@ -68,7 +67,6 @@ namespace sistrip {
    * FED calibration run for noise (only)     (23 = NOISE),
    * FED calib. for peds and detailed noise   (24 = PEDS_FULL_NOISE),
    * pulse shape tuning using decon mode      (33 = CALIBRATION_DECO), 
-   * HV scan, measuring noise                 (42 = NOISE_HVSCAN)
    */
   enum RunType { 
       PHYSICS               = 1,
@@ -94,7 +92,6 @@ namespace sistrip {
       NOISE                 = 23,
       PEDS_FULL_NOISE       = 24,
       CALIBRATION_DECO      = 33,
-      NOISE_HVSCAN          = 42,
       UNKNOWN_RUN_TYPE   = sistrip::unknown_,
       UNDEFINED_RUN_TYPE = sistrip::invalid_
   };

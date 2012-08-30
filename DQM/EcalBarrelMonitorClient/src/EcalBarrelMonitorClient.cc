@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2011/09/02 13:55:01 $
- * $Revision: 1.504 $
+ * $Date: 2012/03/16 13:16:44 $
+ * $Revision: 1.504.2.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -53,6 +53,8 @@
 #include "DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h"
@@ -195,6 +197,8 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps) {
     std::cout << " prefixME path is '" << prefixME_ << "'" << std::endl;
   }
 
+  produceReports_ = ps.getUntrackedParameter<bool>("produceReports", true);
+
   // enableCleanup switch
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -209,6 +213,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps) {
 
   // vector of selected Super Modules (Defaults to all 36).
 
+  superModules_.reserve(36);
   for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
 
   superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
@@ -216,7 +221,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps) {
   if ( verbose_ ) {
     std::cout << " Selected SMs:" << std::endl;
     for ( unsigned int i = 0; i < superModules_.size(); i++ ) {
-      std::cout << " " << superModules_[i];
+      std::cout << " " << std::setw(2) << std::setfill('0') << superModules_[i];
     }
     std::cout << std::endl;
   }
@@ -238,7 +243,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps) {
     std::cout << std::endl;
   }
 
-  // set runTypes (use resize() on purpose!) // Can be done in initialization
+  // set runTypes (use resize() on purpose!)
 
   runTypes_.resize(30);
   for ( unsigned int i = 0; i < runTypes_.size(); i++ ) runTypes_[i] =  "UNKNOWN";
@@ -268,7 +273,10 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps) {
   runTypes_[EcalDCCHeaderBlock::CALIB_LOCAL]          = "CALIB";
 
   // clients' constructors
-  // use bitmaps instead
+
+  clients_.reserve(12);
+  clientsNames_.reserve(12);
+
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Integrity" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EBIntegrityClient(ps) );
@@ -454,6 +462,26 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps) {
 
   }
 
+  if ( find(enabledClients_.begin(), enabledClients_.end(), "BeamCalo" ) != enabledClients_.end() ) {
+
+    clients_.push_back( new EBBeamCaloClient(ps) );
+    clientsNames_.push_back( "BeamCalo" );
+
+    clientsRuns_.insert(std::pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(std::pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+
+  }
+
+  if ( find(enabledClients_.begin(), enabledClients_.end(), "BeamHodo" ) != enabledClients_.end() ) {
+
+    clients_.push_back( new EBBeamHodoClient(ps) );
+    clientsNames_.push_back( "BeamHodo" );
+
+    clientsRuns_.insert(std::pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(std::pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+
+  }
+
   if ( find(enabledClients_.begin(), enabledClients_.end(), "TriggerTower" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EBTriggerTowerClient(ps) );
@@ -524,7 +552,6 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps) {
   }
 
   // define status bits
-  // simply use enum
 
   clientsStatus_.insert(std::pair<std::string,int>( "Integrity",       0 ));
   clientsStatus_.insert(std::pair<std::string,int>( "Cosmic",          1 ));
@@ -532,6 +559,8 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps) {
   clientsStatus_.insert(std::pair<std::string,int>( "Pedestal",        3 ));
   clientsStatus_.insert(std::pair<std::string,int>( "PedestalOnline",  4 ));
   clientsStatus_.insert(std::pair<std::string,int>( "TestPulse",       5 ));
+  clientsStatus_.insert(std::pair<std::string,int>( "BeamCalo",        6 ));
+  clientsStatus_.insert(std::pair<std::string,int>( "BeamHodo",        7 ));
   clientsStatus_.insert(std::pair<std::string,int>( "TriggerTower",    8 ));
   clientsStatus_.insert(std::pair<std::string,int>( "Cluster",         9 ));
   clientsStatus_.insert(std::pair<std::string,int>( "Timing",         10 ));
@@ -583,8 +612,6 @@ void EcalBarrelMonitorClient::beginJob(void) {
 
   last_run_ = -1;
 
-  last_event_ = 0;
-
   subrun_  = -1;
 
   if ( debug_ ) std::cout << "EcalBarrelMonitorClient: beginJob" << std::endl;
@@ -611,74 +638,6 @@ void EcalBarrelMonitorClient::beginJob(void) {
   }
 
   if ( summaryClient_ ) summaryClient_->beginJob();
-
-  // summary for DQM GUI
-
-  std::vector<std::string>::iterator clBegin(enabledClients_.begin()), clEnd(enabledClients_.end());
-  if(std::find(clBegin, clEnd, "Integrity") != clEnd &&
-     std::find(clBegin, clEnd, "PedestalOnline") != clEnd &&
-     std::find(clBegin, clEnd, "Timing") != clEnd &&
-     std::find(clBegin, clEnd, "StatusFlags") != clEnd) {
-
-    MonitorElement* me;
-
-    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
-
-    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary EB");
-    if ( me ) {
-      dqmStore_->removeElement(me->getName());
-    }
-    me = dqmStore_->bookFloat("reportSummary EB");
-    me->Fill(-1.0);
-
-    // workaround for new EB+EE running
-    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
-    if ( me ) {
-      dqmStore_->removeElement(me->getName());
-    }
-    me = dqmStore_->bookFloat("reportSummary");
-    me->Fill(-1.0);
-
-    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
-
-    std::string name;
-    for (int i = 0; i < 36; i++) {
-      name = "EcalBarrel_" + Numbers::sEB(i+1);
-      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + name);
-      if ( me ) {
-	dqmStore_->removeElement(me->getName());
-      }
-      me = dqmStore_->bookFloat(name);
-      me->Fill(-1.0);
-    }
-
-    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
-
-    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap EB");
-    if ( me ) {
-      dqmStore_->removeElement(me->getName());
-    }
-    me = dqmStore_->book2D("reportSummaryMap EB","Ecal Report Summary Map EB", 72, 0., 360., 34, -85., 85.);
-    for ( int iettx = 0; iettx < 34; iettx++ ) {
-      for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
-	me->setBinContent( ipttx+1, iettx+1, -1.0 );
-      }
-    }
-    me->setAxisTitle("jphi", 1);
-    me->setAxisTitle("jeta", 2);
-
-    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
-    if ( me ) {
-      dqmStore_->removeElement(me->getName());
-    }
-    me = dqmStore_->book2D("reportSummaryMap","Ecal Report Summary Map", 72, 0., 360., 54, 0., 270);
-    for ( int iettx = 0; iettx < 54; iettx++ ) {
-      for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
-	me->setBinContent( ipttx+1, iettx+1, -1.0 );
-      }
-    }
-
-  }
 
 }
 
@@ -735,6 +694,51 @@ void EcalBarrelMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup&
 
   jevt_ = 0;
 
+  // summary for DQM GUI
+
+  if(produceReports_){
+
+    MonitorElement* me;
+
+    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
+    if ( me ) {
+      dqmStore_->removeElement(me->getName());
+    }
+    me = dqmStore_->bookFloat("reportSummary");
+    me->Fill(-1.0);
+
+    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
+
+    std::string name;
+    for (int i = 0; i < 36; i++) {
+      name = "EcalBarrel_" + Numbers::sEB(i+1);
+      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + name);
+      if ( me ) {
+	dqmStore_->removeElement(me->getName());
+      }
+      me = dqmStore_->bookFloat(name);
+      me->Fill(-1.0);
+    }
+
+    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
+    if ( me ) {
+      dqmStore_->removeElement(me->getName());
+    }
+
+    me = dqmStore_->book2D("reportSummaryMap","EcalBarrel Report Summary Map", 72, 0., 72., 34, 0., 34);
+    for ( int iettx = 0; iettx < 34; iettx++ ) {
+      for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
+	me->setBinContent( ipttx+1, iettx+1, -1.0 );
+      }
+    }
+    me->setAxisTitle("jphi", 1);
+    me->setAxisTitle("jeta", 2);
+
+  }
 }
 
 void EcalBarrelMonitorClient::endJob(void) {
@@ -871,7 +875,7 @@ void EcalBarrelMonitorClient::endRun(const edm::Run& r, const edm::EventSetup& c
 
     MonitorElement* me;
 
-    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary EB");
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
     if ( me ) me->Fill(-1.0);
 
     for (int i = 0; i < 36; i++) {
@@ -879,7 +883,7 @@ void EcalBarrelMonitorClient::endRun(const edm::Run& r, const edm::EventSetup& c
       if ( me ) me->Fill(-1.0);
     }
 
-    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap EB");
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
     for ( int iettx = 0; iettx < 34; iettx++ ) {
       for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
         if ( me ) me->setBinContent( ipttx+1, iettx+1, -1.0 );
@@ -1220,36 +1224,10 @@ void EcalBarrelMonitorClient::writeDb(void) {
     bool done = false;
     for ( std::multimap<EBClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
       if ( h_ && runType_ != -1 && runType_ == (*j).second && !done ) {
-        if ( strcmp(clientsNames_[i].c_str(), "Cosmic") == 0 &&
-	     runType_ != EcalDCCHeaderBlock::COSMIC &&
-	     runType_ != EcalDCCHeaderBlock::COSMICS_LOCAL &&
-	     runType_ != EcalDCCHeaderBlock::COSMICS_GLOBAL &&
-	     runType_ != EcalDCCHeaderBlock::PHYSICS_GLOBAL &&
-	     runType_ != EcalDCCHeaderBlock::PHYSICS_LOCAL &&
-	     h_->GetBinContent(2+EcalDCCHeaderBlock::COSMIC) == 0 &&
-	     h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_LOCAL) == 0 &&
-	     h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_GLOBAL) == 0 &&
-	     h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_GLOBAL) == 0 &&
-	     h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_LOCAL) == 0 ) continue;
-
-        if ( strcmp(clientsNames_[i].c_str(), "Laser") == 0 &&
-	     runType_ != EcalDCCHeaderBlock::LASER_STD &&
-	     runType_ != EcalDCCHeaderBlock::LASER_GAP &&
-	     h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 &&
-	     h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
-
-        if ( strcmp(clientsNames_[i].c_str(), "Pedestal") == 0 &&
-	     runType_ != EcalDCCHeaderBlock::PEDESTAL_STD &&
-	     runType_ != EcalDCCHeaderBlock::PEDESTAL_GAP &&
-	     h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 &&
-	     h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
-
-        if ( strcmp(clientsNames_[i].c_str(), "TestPulse") == 0 &&
-	     runType_ != EcalDCCHeaderBlock::TESTPULSE_MGPA &&
-	     runType_ != EcalDCCHeaderBlock::TESTPULSE_GAP &&
-	     h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 &&
-	     h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
-
+        if ( strcmp(clientsNames_[i].c_str(), "Cosmic") == 0 && runType_ != EcalDCCHeaderBlock::COSMIC && runType_ != EcalDCCHeaderBlock::COSMICS_LOCAL && runType_ != EcalDCCHeaderBlock::COSMICS_GLOBAL && runType_ != EcalDCCHeaderBlock::PHYSICS_GLOBAL && runType_ != EcalDCCHeaderBlock::PHYSICS_LOCAL && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMIC) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_LOCAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_GLOBAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_GLOBAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_LOCAL) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Laser") == 0 && runType_ != EcalDCCHeaderBlock::LASER_STD && runType_ != EcalDCCHeaderBlock::LASER_GAP && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Pedestal") == 0 && runType_ != EcalDCCHeaderBlock::PEDESTAL_STD && runType_ != EcalDCCHeaderBlock::PEDESTAL_GAP && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "TestPulse") == 0 && runType_ != EcalDCCHeaderBlock::TESTPULSE_MGPA && runType_ != EcalDCCHeaderBlock::TESTPULSE_GAP && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
         done = true;
         if ( verbose_ ) {
           if ( econn ) {
@@ -1290,17 +1268,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
 
   float nevt = -1.;
 
-  if(dqmStore_){
-    MonitorElement *me(dqmStore_->get(prefixME_ + "/EventInfo/processedEvents"));
-    if(me){
-      std::stringstream ss;
-      int processedEvents;
-      ss << me->valueString();
-      ss >> processedEvents;
-      nevt = processedEvents - last_event_;
-      last_event_ = processedEvents;
-    }
-  }
+  if ( h_ ) nevt = h_->GetSumOfWeights();
 
   md.setNumEvents(int(nevt));
   md.setMonRunOutcomeDef(monRunOutcomeDef);
@@ -1378,17 +1346,7 @@ void EcalBarrelMonitorClient::endRunDb(void) {
 
   float nevt = -1.;
 
-  if(dqmStore_){
-    MonitorElement *me(dqmStore_->get(prefixME_ + "/EventInfo/processedEvents"));
-    if(me){
-      std::stringstream ss;
-      int processedEvents;
-      ss << me->valueString();
-      ss >> processedEvents;
-      nevt = processedEvents - last_event_;
-      last_event_ = processedEvents;
-    }
-  }
+  if ( h_ ) nevt = h_->GetSumOfWeights();
 
   rd.setNumEvents(int(nevt));
 
@@ -1498,7 +1456,7 @@ void EcalBarrelMonitorClient::analyze(void) {
     if ( debug_ ) std::cout << "Found '" << prefixME_ << "/EcalInfo/EVT'" << std::endl;
   }
 
-  me = dqmStore_->get(prefixME_ + "/RawData/EventType/RawDataTask event type EB");
+  me = dqmStore_->get(prefixME_ + "/EcalInfo/EVTTYPE");
   h_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
 
   me = dqmStore_->get(prefixME_ + "/EcalInfo/RUNTYPE");
@@ -1780,16 +1738,12 @@ void EcalBarrelMonitorClient::softReset(bool flag) {
     }
   }
 
-  mes = dqmStore_->getContents(prefixME_ + "/RawData/EventType");
-  std::vector<MonitorElement *> mesFED(dqmStore_->getContents(prefixME_ + "/RawData/EventType/FED"));
-  mes.insert(mes.end(), mesFED.begin(), mesFED.end());
-  for(std::vector<MonitorElement *>::iterator meItr(mes.begin()); meItr != mes.end(); ++meItr){
-    if ( *meItr ) {
-      if ( flag ) {
-	dqmStore_->softReset(*meItr);
-      } else {
-	dqmStore_->disableSoftReset(*meItr);
-      }
+  MonitorElement* me = dqmStore_->get(prefixME_ + "/EcalInfo/EVTTYPE");
+  if ( me ) {
+    if ( flag ) {
+      dqmStore_->softReset(me);
+    } else {
+      dqmStore_->disableSoftReset(me);
     }
   }
 

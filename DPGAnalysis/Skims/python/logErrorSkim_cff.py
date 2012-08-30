@@ -6,4 +6,5 @@ stableBeam = cms.EDFilter("HLTBeamModeFilter",
                           saveTags = cms.bool(False)
                           )
 
-logerrorseq=cms.Sequence(gtEvmDigis+stableBeam+logErrorFilter)
+logerrorseq=cms.Sequence(gtEvmDigis+stableBeam+logErrorSkimFilter)
+logerrormonitorseq=cms.Sequence(gtEvmDigis+stableBeam+logErrorFilter)

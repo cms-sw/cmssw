@@ -28,6 +28,7 @@
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "DetectorDescription/Core/src/DDCheck.h"
 #include "DetectorDescription/Core/src/DDCheckMaterials.cc"
+#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDExpandedNode.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -127,6 +128,11 @@ int main(int argc, char *argv[])
     std::cout << "cleared DDCompactView.  " << std::endl;
 
   }
+  catch (DDException& e)
+  {
+    std::cerr << "DDD-PROBLEM:" << std::endl 
+	      << e << std::endl;
+  }  
   //  Deal with any exceptions that may have been thrown.
   catch (cms::Exception& e) {
     std::cout << "cms::Exception caught in "

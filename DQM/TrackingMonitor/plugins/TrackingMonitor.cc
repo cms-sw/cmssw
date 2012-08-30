@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/03/28 23:32:37 $
- *  $Revision: 1.36 $
+ *  $Date: 2012/03/29 17:21:05 $
+ *  $Revision: 1.37 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -69,6 +69,8 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     , NumberOfTrkVsPixelClus(NULL)
 				*/
     , NumberOfGoodTrkVsClus(NULL)
+    , NumberOfTracksVsLS(NULL)
+    , NumberOfGoodTracksVsLS(NULL)
     , GoodTracksFractionVsLS(NULL)
     , GoodTracksNumberOfRecHitsPerTrackVsLS(NULL)
 				// ADD by Mia for PU monitoring
@@ -253,9 +255,24 @@ void TrackingMonitor::beginJob(void)
    
  
     if ( doProfilesVsLS_ || doAllPlots) {
+
+      dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
+
+      histname = "NumberOfTracksVsLS_"+ CategoryName;
+      NumberOfTracksVsLS = dqmStore_->bookProfile(histname,histname, LSBin,LSMin,LSMax, TKNoMin, (TKNoMax+0.5)*3.-0.5,"");
+      NumberOfTracksVsLS->getTH1()->SetBit(TH1::kCanRebin);
+      NumberOfTracksVsLS->setAxisTitle("#Lumi section",1);
+      NumberOfTracksVsLS->setAxisTitle("Number of  Tracks",2);
+
       if (doGoodTrackPlots_ || doAllPlots ){
 	dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties/GoodTracks");
 
+	histname = "NumberOfGoodTracksVsLS_"+ CategoryName;
+	NumberOfGoodTracksVsLS = dqmStore_->bookProfile(histname,histname, LSBin,LSMin,LSMax, TKNoMin, TKNoMax,"");
+	NumberOfGoodTracksVsLS->getTH1()->SetBit(TH1::kCanRebin);
+	NumberOfGoodTracksVsLS->setAxisTitle("#Lumi section",1);
+	NumberOfGoodTracksVsLS->setAxisTitle("Number of Good Tracks",2);
+	
 	histname = "GoodTracksFractionVsLS_"+ CategoryName;
 	GoodTracksFractionVsLS = dqmStore_->bookProfile(histname,histname, LSBin,LSMin,LSMax,0,1.1,"");
 	GoodTracksFractionVsLS->getTH1()->SetBit(TH1::kCanRebin);
@@ -605,8 +622,12 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  FractionOfGoodTracks -> Fill(frac);
 	}
 
-    	if ( doGoodTrackPlots_ || doAllPlots ) {
-	  if ( doProfilesVsLS_ || doAllPlots) GoodTracksFractionVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),frac);
+	if ( doProfilesVsLS_ || doAllPlots) {
+	  NumberOfTracksVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),totalNumTracks);
+	  if ( doGoodTrackPlots_ || doAllPlots ) {
+	    NumberOfGoodTracksVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),totalNumHPPt1Tracks);
+	    GoodTracksFractionVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),frac);
+	  }
 	}
 
 	if ( doLumiAnalysis ) {
