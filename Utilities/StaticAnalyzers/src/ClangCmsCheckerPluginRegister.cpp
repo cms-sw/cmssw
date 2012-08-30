@@ -26,11 +26,11 @@ void clang_registerCheckers ( CheckerRegistry &registry)
 	registry.addChecker< clangcms::ConstCastChecker>( "threadsafety.ConstCast", "Checks for casts which remove const qualifier and might result in thread-unsafe code" );
 	registry.addChecker< clangcms::StaticLocalChecker>( "threadsafety.StaticLocal", "Checks for non-const method local statics which might not be thread-safe" );
 	registry.addChecker< clangcms::MutableMemberChecker>( "threadsafety.MutableMember", "Checks for members with the mutable keyword which might not be thread-safe" );
+	registry.addChecker< clangcms::GlobalStaticChecker>( "threadsafety.GlobalStatic", "Checks for global non-const statics which might not be thread-safe" );
 	registry.addChecker< clangcms::ClassCheckerRDecl>( "threadsafety.Class", "Reports classes " );
 	registry.addChecker< clangcms::ClassCheckerMDecl>( "threadsafety.Class", "Reports classes " );
-	registry.addChecker< clangcms::ClassCheckerCall>( "threadsafety.Class", "Reports classes " );
-	registry.addChecker< clangcms::GlobalStaticChecker>( "threadsafety.GlobalStatic", "Checks for global non-const statics which might not be thread-safe" );
-
+	registry.addChecker< clangcms::ClassCheckerMCall>( "threadsafety.Class", "Reports classes " );
+	registry.addChecker< clangcms::ClassChecker>( "threadsafety.Class", "Reports classes " );
 }
 
 extern "C"
