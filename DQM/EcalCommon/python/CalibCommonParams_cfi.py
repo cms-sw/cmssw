@@ -6,5 +6,5 @@ ecalCalibCommonParams = dict(
     MGPAGains = [12],
 #    MGPAGainsPN = [1, 16],
     MGPAGainsPN = [16],
-    topDirectory = "EcalCalibration"
+    topDirectory = "Ecal"
 )

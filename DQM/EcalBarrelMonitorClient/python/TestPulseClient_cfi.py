@@ -16,8 +16,8 @@ testPulseClient = dict(
         AmplitudeMean = dict(path = 'TestPulse/Gain%(gain)s/AmplitudeMean/TestPulseClient amplitude mean G%(gain)s', otype = 'SM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 120, 'low': 170., 'high': 230.}),
         AmplitudeRMS = dict(path = "TestPulse/Gain%(gain)s/RMS/TestPulseClient rms G%(gain)s", otype = 'SM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 0., 'high': 10.}),
         PNAmplitudeRMS = dict(path = 'PN/TestPulse/Gain%(pngain)s/RMS/TestPulseClient PN rms G%(pngain)s', otype = 'SMMEM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 0., 'high': 50.}),
-        QualitySummary = dict(path = 'Summary/TestPulseClient testpulse quality G%(gain)s', otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TH2F'),
-        PNQualitySummary = dict(path = 'Summary/TestPulseClient PN quality G%(pngain)s', otype = 'MEM', btype = 'Crystal', kind = 'TH2F')
+        QualitySummary = dict(path = 'Summary/Calibration/TestPulseClient testpulse quality G%(gain)s', otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TH2F'),
+        PNQualitySummary = dict(path = 'Summary/Calibration/TestPulseClient PN quality G%(pngain)s', otype = 'MEM', btype = 'Crystal', kind = 'TH2F')
     ),
     sources = dict(
         Amplitude = testPulseTask['MEs']['Amplitude'],

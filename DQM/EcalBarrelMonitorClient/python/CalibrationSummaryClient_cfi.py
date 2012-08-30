@@ -15,11 +15,8 @@ calibrationSummaryClient = dict(
 #    pedestalMGPAGains = [1, 6, 12],
 #    pedestalMGPAGainsPN = [1, 16],
     MEs = dict(
-        QualitySummary = dict(path = 'Summary/CalibSummaryClient global quality', otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TH2F'),
-        PNQualitySummary = dict(path = 'Summary/CalibSummaryClient PN global quality', otype = 'MEM', btype = 'Crystal', kind = 'TH2F'),
-        ReportSummaryMap = dict(path = 'EventInfo/reporSummaryMap', otype = 'Ecal', btype = 'DCC', kind = 'TH2F'),
-        ReportSummaryContents = dict(path = "EventInfo/reportSummaryContents/", otype = 'SM', btype = 'Report', kind = 'REAL'),
-        ReportSummary = dict(path = "EventInfo/reportSummary", otype = 'Ecal', btype = 'Report', kind = 'REAL')
+        QualitySummary = dict(path = 'Summary/Calibration/CalibSummaryClient global quality', otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TH2F'),
+        PNQualitySummary = dict(path = 'Summary/Calibration/CalibSummaryClient PN global quality', otype = 'MEM', btype = 'Crystal', kind = 'TH2F')
     ),
     sources = dict(
         PNIntegrity = pnIntegrityClient['MEs']['QualitySummary'],

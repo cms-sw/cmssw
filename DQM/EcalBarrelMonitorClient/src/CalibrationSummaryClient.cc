@@ -157,22 +157,12 @@ namespace ecaldqm {
     MEs_[kQualitySummary]->reset(kGood);
     MEs_[kPNQualitySummary]->resetAll(-1.);
     MEs_[kPNQualitySummary]->reset(kGood);
-    MEs_[kReportSummaryMap]->resetAll(-1.);
-    MEs_[kReportSummaryMap]->reset(1.);
-    MEs_[kReportSummaryContents]->reset(1.);
-    MEs_[kReportSummary]->reset(1.);
   }
 
   void
   CalibrationSummaryClient::producePlots()
   {
     using namespace std;
-
-    float totalTowers(0.);
-    float totalGood(0.);
-
-    vector<float> dccTowers(BinService::nDCC, 0.);
-    vector<float> dccGood(BinService::nDCC, 0.);
 
     MESet::iterator qEnd(MEs_[kQualitySummary]->end());
     MESet::const_iterator lItr(sources_[kLaser]->end());
@@ -229,28 +219,7 @@ namespace ecaldqm {
       }
 
       qItr->setBinContent(status);
-
-      unsigned iDCC(dccId(DetId(qItr->getId())) - 1);
-
-      if(status != kBad){
-        dccGood[iDCC] += 1.;
-        totalGood += 1.;
-      }
-      dccTowers[iDCC] += 1.;
-      totalTowers += 1.;
     }
-
-    for(unsigned iDCC(0); iDCC < BinService::nDCC; ++iDCC){
-      if(dccTowers[iDCC] < 1.) continue;
-
-      unsigned dccid(iDCC + 1);
-      float frac(dccGood[iDCC] / dccTowers[iDCC]);
-      MEs_[kReportSummaryMap]->setBinContent(dccid, frac);
-      MEs_[kReportSummaryContents]->fill(dccid, frac);
-    }
-
-    if(totalTowers > 0.) MEs_[kReportSummary]->fill(totalGood / totalTowers);
-
 
     for(unsigned iDCC(0); iDCC < BinService::nDCC; ++iDCC){
       if(memDCCIndex(iDCC + 1) == unsigned(-1)) continue;
@@ -316,9 +285,6 @@ namespace ecaldqm {
   {
     _nameToIndex["QualitySummary"] = kQualitySummary;
     _nameToIndex["PNQualitySummary"] = kPNQualitySummary;
-    _nameToIndex["ReportSummaryMap"] = kReportSummaryMap;
-    _nameToIndex["ReportSummaryContents"] = kReportSummaryContents;
-    _nameToIndex["ReportSummary"] = kReportSummary;
 
     _nameToIndex["PNIntegrity"] = kPNIntegrity;
     _nameToIndex["Laser"] = kLaser;

@@ -17,9 +17,6 @@ namespace ecaldqm {
     enum MESets {
       kQualitySummary,
       kPNQualitySummary,
-      kReportSummaryMap,
-      kReportSummaryContents,
-      kReportSummary,
       nMESets
     };
 
