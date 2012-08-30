@@ -24,6 +24,8 @@ inclusiveMergedVerticesFiltered = bVertexFilter.clone()
 inclusiveMergedVerticesFiltered.vertexFilter.multiplicityMin = 2
 inclusiveMergedVerticesFiltered.secondaryVertices = cms.InputTag("inclusiveMergedVertices")
 
+from RecoBTag.SecondaryVertex.bToCharmDecayVertexMerger_cfi import *
+
 from RecoBTag.SecondaryVertex.simpleInclusiveSecondaryVertexBJetTags_cfi import *
 
 #negative taggers

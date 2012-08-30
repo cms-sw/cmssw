@@ -17,7 +17,7 @@ inclusiveSecondaryVertexFinderTagInfos.vertexCuts.distSig2dMin = 2.0
 
 inclusiveSecondaryVertexFinderTagInfosFiltered = secondaryVertexTagInfos.clone()
 
-inclusiveSecondaryVertexFinderTagInfosFiltered.extSVCollection     = cms.InputTag('inclusiveMergedVerticesFiltered')
+inclusiveSecondaryVertexFinderTagInfosFiltered.extSVCollection     = cms.InputTag('bToCharmDecayVertexMerged')
 inclusiveSecondaryVertexFinderTagInfosFiltered.extSVDeltaRToJet    = cms.double(0.3)
 inclusiveSecondaryVertexFinderTagInfosFiltered.useExternalSV = cms.bool(True)
 inclusiveSecondaryVertexFinderTagInfosFiltered.vertexCuts.fracPV = 0.79 ## 4 out of 5 is discarded
