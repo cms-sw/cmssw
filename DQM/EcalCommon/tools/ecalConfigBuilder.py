@@ -700,6 +700,7 @@ customizations += '''
 
 if physics :
     customizations += '''
+process.ecalPhysicsFilter.EcalRawDataCollection = cms.InputTag("ecalDigis")
 process.ecalPhysicsFilter.clusterPrescaleFactor = cms.untracked.int32(1)
 '''
     if live :
