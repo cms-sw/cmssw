@@ -65,8 +65,7 @@ process.load('Configuration/StandardSequences/DigiToRawDM_cff')
 #process.cscpacker.wireDigiTag = cms.InputTag("mixData","MuonCSCWireDigiDM")
 #process.cscpacker.stripDigiTag = cms.InputTag("mixData","MuonCSCStripDigiDM")          
 #process.cscpacker.comparatorDigiTag = cms.InputTag("mixData","MuonCSCComparatorDigiDM")
-#process.dtpacker.digibytype =  cms.untracked.bool(False)
-#process.dtpacker.digiColl =  cms.string('mixData')
+#process.dtpacker.digiColl =  cms.InputTag('mixData')
 #process.DigiToRaw.rpcpacker.
 #RPCs assume there is only one RPCDigiCollection - bad!!!
 #
