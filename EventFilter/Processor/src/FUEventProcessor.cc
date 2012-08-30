@@ -28,6 +28,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "toolbox/BSem.h" 
+#include "toolbox/Runtime.h"
+#include "toolbox/stacktrace.h"
+#include "toolbox/net/Utils.h"
 
 #include <boost/tokenizer.hpp>
 
@@ -41,6 +44,8 @@
 
 #include <sys/wait.h>
 #include <sys/utsname.h>
+#include <sys/mman.h>
+#include <signal.h>
 
 #include <typeinfo>
 #include <stdlib.h>
@@ -53,6 +58,24 @@ using namespace cgicc;
 namespace toolbox {
   namespace mem {
     extern toolbox::BSem * _s_mutex_ptr_; 
+  }
+}
+
+//signal handler (global)
+namespace evf {
+  FUEventProcessor * FUInstancePtr_;
+  int evfep_raised_signal;
+  void evfep_sighandler(int sig, siginfo_t* info, void* c)
+  {
+    evfep_raised_signal=sig;
+    FUInstancePtr_->handleSignalSlave(sig, info, c);
+  }
+  void evfep_alarmhandler(int sig, siginfo_t* info, void* c)
+  {
+    if (evfep_raised_signal) {
+      signal(evfep_raised_signal,SIG_DFL);
+      raise(evfep_raised_signal);
+    }
   }
 }
 
@@ -100,6 +123,9 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , wlSupervising_(0)
   , asSupervisor_(0)
   , supervising_(false)
+  , wlSignalMonitor_(0)
+  , asSignalMonitor_(0)
+  , signalMonitorActive_(false)
   , monitorInfoSpace_(0)
   , monitorLegendaInfoSpace_(0)
   , applicationInfoSpace_(0)
@@ -130,8 +156,11 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , crashesThisRun_(false)
   , rlimit_coresize_changed_(false)
   , crashesToDump_(2)
+  , sigmon_sem_(0)
 {
   using namespace utils;
+
+  FUInstancePtr_=this;
 
   names_.push_back("nbProcessed"    );
   names_.push_back("nbAccepted"     );
@@ -242,6 +271,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   xgi::bind(this, &FUEventProcessor::scalersWeb,       "scalersWeb");
   xgi::bind(this, &FUEventProcessor::pathNames,        "pathNames" );
   xgi::bind(this, &FUEventProcessor::subWeb,           "SubWeb"    );
+  xgi::bind(this, &FUEventProcessor::getSlavePids,     "getSlavePids");
   xgi::bind(this, &FUEventProcessor::moduleWeb,        "moduleWeb" );
   xgi::bind(this, &FUEventProcessor::serviceWeb,       "serviceWeb");
   xgi::bind(this, &FUEventProcessor::microState,       "microState");
@@ -310,7 +340,20 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   //save default core file size
   getrlimit(RLIMIT_CORE,&rlimit_coresize_default_);
 
-
+  //prepare IPC semaphore for getting the workloop waked up on signal caught in slaves
+  #ifdef linux
+  if (sigmon_sem_==0) {
+    sigmon_sem_ = (sem_t*)mmap(NULL, sizeof(sem_t),
+	PROT_READ | PROT_WRITE,
+	MAP_ANONYMOUS | MAP_SHARED, 0, 0);
+    if (!sigmon_sem_) {
+      perror("mmap error\n");
+      std::cout << "mmap error"<<std::endl;
+    }
+    else
+      sem_init(sigmon_sem_,true,0);
+  }
+  #endif
 }
 //___________here ends the *huge* constructor___________________________________
 
@@ -433,6 +476,8 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 {
   nbTotalDQM_ = 0;
   scalersUpdates_ = 0;
+  idleProcStats_ = 0;
+  allProcStats_ = 0;
 //   std::cout << "values " << ((nbSubProcesses_.value_!=0) ? 0x10 : 0) << " "
 // 	    << ((instance_.value_==0) ? 0x8 : 0) << " "
 // 	    << (hasServiceWebRegistry_.value_ ? 0x4 : 0) << " "
@@ -452,6 +497,9 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
     setrlimit(RLIMIT_CORE,&rlimit_coresize_default_);
   rlimit_coresize_changed_=false;
   crashesThisRun_=0;
+  //recreate signal monitor sem
+  sem_destroy(sigmon_sem_);
+  sem_init(sigmon_sem_,true,0);
 
   if(!epInitialized_){
     evtProcessor_.forceInitEventProcessorMaybe();
@@ -555,11 +603,7 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 	}
     }
 
-  if (!edm_init_done_) {
-    //enable while we wait for beginRun/conditions to load
-    LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");
-    fsm_.fireEvent("EnableDone",this);
-    localLog("-I- Start completed");
+  if (forkInEDM_.value_) {
 
     edm::event_processor::State st;
     while (!edm_init_done_) {
@@ -575,8 +619,16 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
       fsm_.fireFailed(reasonForFailedState_,this);
       return false;
     }
+
+    sleep(1);
     startSummarizeWorkLoop();
+    startSignalMonitorWorkLoop();//only with new forking
     vp_ = vulture_->start(iDieUrl_.value_,runNumber_.value_);
+
+    //enable after we are done with conditions loading and forking
+    LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");
+    fsm_.fireEvent("EnableDone",this);
+    localLog("-I- Start completed");
     return false;
   }
 
@@ -593,12 +645,17 @@ bool FUEventProcessor::doEndRunInEDM() {
   if (forkInfoObj_) {
 
     int count = 30;
+    bool waitedForEDM=false;
     while (!edm_init_done_ && count) {
       ::sleep(1);
       if (count%5==0)
         LOG4CPLUS_WARN(log_,"MASTER EP: Stopping while EP busy in beginRun. waiting " <<count<< "sec");
       count--;
+      waitedForEDM=true;
     }
+    //sleep a few more seconds it was early stop
+    if (waitedForEDM) sleep(5);
+
     //if (count==0) fsm_.fireFailed("failed to stop Master EP",this);
 
     if (evtProcessor_->getState()==edm::event_processor::sJobReady)
@@ -651,20 +708,27 @@ bool FUEventProcessor::doEndRunInEDM() {
 //______________________________________________________________________________
 bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
 {
+  setrlimit(RLIMIT_CORE,&rlimit_coresize_default_);
   if(nbSubProcesses_.value_!=0) {
     stopSlavesAndAcknowledge();
-    if (forkInEDM_.value_) doEndRunInEDM();
+    if (forkInEDM_.value_) {
+            //only in new forking for now
+            sem_post(sigmon_sem_);
+	    doEndRunInEDM();
+    }
   }
   vulture_->stop();
 
   if (forkInEDM_.value_) {
+    //shared memory was already disconnected in master
     bool tmpHasShMem_=hasShMem_;
     hasShMem_=false;
-    bool stop_status = stopClassic();
+    stopClassic();
     hasShMem_=tmpHasShMem_;
-    return stop_status;
+    return false;
   }
-  return stopClassic();
+  stopClassic();
+  return false;
 }
 
 
@@ -672,9 +736,13 @@ bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
 bool FUEventProcessor::halting(toolbox::task::WorkLoop* wl)
 {
   LOG4CPLUS_INFO(getApplicationLogger(),"Start halting ...");
+  setrlimit(RLIMIT_CORE,&rlimit_coresize_default_);
   if(nbSubProcesses_.value_!=0) { 
     stopSlavesAndAcknowledge();
-    if (forkInEDM_.value_) doEndRunInEDM();
+    if (forkInEDM_.value_) {
+            sem_post(sigmon_sem_);
+	    doEndRunInEDM();
+    }
   }
   try{
     evtProcessor_.stopAndHalt();
@@ -741,6 +809,15 @@ void FUEventProcessor::actionPerformed(xdata::Event& e)
   
 }
 
+//______________________________________________________________________________
+void FUEventProcessor::getSlavePids(xgi::Input  *in, xgi::Output *out)
+{
+  for (unsigned int i=0;i<subs_.size();i++)
+  {
+    if (i!=0) *out << ",";
+    *out << subs_[i].pid();
+  }
+}
 //______________________________________________________________________________
 void FUEventProcessor::subWeb(xgi::Input  *in, xgi::Output *out)
 {
@@ -1084,16 +1161,28 @@ bool FUEventProcessor::receiving(toolbox::task::WorkLoop *)
     myProcess_->rcvSlave(msg,false); //will receive only messages from Master
     if(msg->mtype==MSQM_MESSAGE_TYPE_RLI)
       {
-	std::cout << "slave process pid " << getpid() << ": setting coredump size limit to 0" << std::endl;
 	rlimit rl;
 	getrlimit(RLIMIT_CORE,&rl);
 	rl.rlim_cur=0;
 	setrlimit(RLIMIT_CORE,&rl);
+	rlimit_coresize_changed_=true;
+      }
+    if (msg->mtype==MSQM_MESSAGE_TYPE_RLR)
+      {
+	//reset coresize limit
+        setrlimit(RLIMIT_CORE,&rlimit_coresize_default_);
+	rlimit_coresize_changed_=false;
       }
     if(msg->mtype==MSQM_MESSAGE_TYPE_STOP)
       {
 	pthread_mutex_lock(&stop_lock_);
-	fsm_.fireEvent("Stop",this); // need to set state in fsm first to allow stopDone transition
+	try {
+	  fsm_.fireEvent("Stop",this); // need to set state in fsm first to allow stopDone transition
+	}
+	catch (...) {
+	  LOG4CPLUS_ERROR(getApplicationLogger(),"Failed to go to Stopping state in slave EP, pid "
+			                         << getpid() << " The state on Stop event was not consistent");
+	}
 	try{
 	  LOG4CPLUS_DEBUG(getApplicationLogger(),
 			  "Trying to create message service presence ");
@@ -1109,7 +1198,13 @@ bool FUEventProcessor::receiving(toolbox::task::WorkLoop *)
 	catch(...) {
 	  LOG4CPLUS_ERROR(getApplicationLogger(),"Unknown Exception");
 	}
-	stopClassic(); // call the normal sequence of stopping - as this is allowed to fail provisions must be made ...@@@EM
+	try {
+	  stopClassic(); // call the normal sequence of stopping - as this is allowed to fail provisions must be made ...@@@EM
+	}
+	catch (...) {
+	  LOG4CPLUS_ERROR(getApplicationLogger(),"Slave EP " << getpid() << " stop failed. Process will now exit");
+	}
+
 	MsgBuf msg1(0,MSQS_MESSAGE_TYPE_STOP);
 	myProcess_->postSlave(msg1,false);
 	pthread_mutex_unlock(&stop_lock_);
@@ -1160,7 +1255,6 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 	  if(subs_[i].alive()==0) ost << " process exited with status " << WEXITSTATUS(sl);
 	  else if(WIFSIGNALED(sl)!=0) {
 	    ost << " process terminated with signal " << WTERMSIG(sl);
-	    crashesThisRun_++;
 	  }
 	  else ost << " process stopped ";
 	  subs_[i].countdown()=slaveRestartDelaySecs_.value_;
@@ -1178,25 +1272,28 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
   pthread_mutex_unlock(&stop_lock_);	
   if(stopping) return true; // if in stopping we are done
 
-  //set core size limit to 0 for master and all child processes if 2 or more restarts in this run
-  if (crashesThisRun_>=crashesToDump_.value_ && running && !rlimit_coresize_changed_) {
-
-    rlimit rlold;
-    getrlimit(RLIMIT_CORE,&rlold);
-    rlimit rlnew = rlold;
-    rlnew.rlim_cur=0;
-    setrlimit(RLIMIT_CORE,&rlnew);
-    rlimit_coresize_changed_=true;
-    
-    MsgBuf master_message_rli_(NUMERIC_MESSAGE_SIZE,MSQM_MESSAGE_TYPE_RLI);
-    for (unsigned int i = 0; i < subs_.size(); i++) {
-      try {
-	if (subs_[i].alive())
-          subs_[i].post(master_message_rli_,false);
+  // check if we need to reset core dumps (15 min after last one)
+  if (running && rlimit_coresize_changed_) {
+    timeval newtv;
+    gettimeofday(&newtv,0);
+    int delta = newtv.tv_sec-lastCrashTime_.tv_sec;
+    if (delta>60*15) {
+      std::ostringstream ostr;
+      ostr << " No more slave EP crashes on this machine in last 15 min. resetting core size limits";
+      std::cout << ostr.str() << std::endl;
+      LOG4CPLUS_INFO(getApplicationLogger(),ostr.str());
+      setrlimit(RLIMIT_CORE,&rlimit_coresize_default_);
+      MsgBuf master_message_rlr_(NUMERIC_MESSAGE_SIZE,MSQM_MESSAGE_TYPE_RLR);
+      for (unsigned int i = 0; i < subs_.size(); i++) {
+	try {
+	  if (subs_[i].alive())
+	    subs_[i].post(master_message_rlr_,false);
+	}
+	catch (...) {}
       }
-      catch (...) {}
+      rlimit_coresize_changed_=false;
+      crashesThisRun_=0;
     }
-      //prlimit(subs_[i].pid(),RLIMIT_CORE,&rlnew,&rlold);
   }
 
   if(running && edm_init_done_)
@@ -1573,6 +1670,17 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
   //  cpustat_->printStat();
   if(iDieStatisticsGathering_.value_){
     try{
+      unsigned long long idleTmp=idleProcStats_;
+      unsigned long long allPSTmp=allProcStats_;
+      idleProcStats_=allProcStats_=0;
+
+      utils::procCpuStat(idleProcStats_,allProcStats_);
+      if (allPSTmp!=0 && idleTmp!=0 && allProcStats_!=allPSTmp) {
+	cpustat_->setCPUStat(1000 - ((idleProcStats_-idleTmp)*1000)/(allProcStats_-allPSTmp));
+	//std::cout << " got proc/stat result of " << 1000-((idleProcStats_-idleTmp)*1000)/(allProcStats_-allPSTmp) << " of 1000 " << std::endl;
+      }
+      else cpustat_->setCPUStat(0);
+
       TriggerReportStatic *trsp = evtProcessor_.getPackedTriggerReportAsStruct();
       cpustat_ ->setNproc(trsp->eventSummary.totalEvents);
       cpustat_ ->sendStat(evtProcessor_.getLumiSectionReferenceIndex());
@@ -1734,6 +1842,77 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
   return true;
 }
 
+void FUEventProcessor::startSignalMonitorWorkLoop() throw (evf::Exception)
+{
+  //todo rewind/check semaphore
+  //start workloop
+  try {
+    wlSignalMonitor_=
+      toolbox::task::getWorkLoopFactory()->getWorkLoop("SignalMonitor",
+						       "waiting");
+
+    if (!wlSignalMonitor_->isActive()) wlSignalMonitor_->activate();
+    asSignalMonitor_ = toolbox::task::bind(this,&FUEventProcessor::sigmon,
+				       "SignalMonitor");
+    wlSignalMonitor_->submit(asSignalMonitor_);
+    signalMonitorActive_ = true;
+  }
+  catch (xcept::Exception& e) {
+    std::string msg = "Failed to start workloop 'SignalMonitor'. (3)";
+    std::cout << e.what() << std::endl;
+    XCEPT_RETHROW(evf::Exception,msg,e);
+  }
+}
+ 
+
+bool FUEventProcessor::sigmon(toolbox::task::WorkLoop* wl)
+{
+  while (1) {
+    sem_wait(sigmon_sem_);
+    std::cout << " received signal notification from slave!"<< std::endl;
+  
+    //check if shutdown time
+    bool running = fsm_.stateName()->toString()=="Enabled";
+    bool stopping = fsm_.stateName()->toString()=="stopping";
+    bool enabling = fsm_.stateName()->toString()=="enabling";
+    if (!running && !enabling) {
+      signalMonitorActive_ = false;
+      return false;
+    }
+
+    crashesThisRun_++;
+    gettimeofday(&lastCrashTime_,0);
+
+    //set core size limit to 0 in master and slaves
+    if (crashesThisRun_>=crashesToDump_.value_ && (running || stopping) && !rlimit_coresize_changed_) {
+
+      rlimit rlold;
+      getrlimit(RLIMIT_CORE,&rlold);
+      rlimit rlnew = rlold;
+      rlnew.rlim_cur=0;
+      setrlimit(RLIMIT_CORE,&rlnew);
+      rlimit_coresize_changed_=true;
+      MsgBuf master_message_rli_(NUMERIC_MESSAGE_SIZE,MSQM_MESSAGE_TYPE_RLI);
+      //in case of frequent crashes, allow first slot to dump (until restart)
+      unsigned int min=1;
+      for (unsigned int i = min; i < subs_.size(); i++) {
+	try {
+	  if (subs_[i].alive()) {
+	    subs_[i].post(master_message_rli_,false);
+	  }
+	}
+	catch (...) {}
+      }
+      std::ostringstream ostr;
+      ostr << "Number of recent slave crashes reaches " << crashesThisRun_
+           << ". Disabling core dumps for next 15 minutes in this FilterUnit";
+      LOG4CPLUS_WARN(getApplicationLogger(),ostr.str());
+    }
+  }//end while loop
+  signalMonitorActive_ = false;
+  return false;
+}
+
 
 bool FUEventProcessor::enableCommon()
 {
@@ -1836,7 +2015,13 @@ void FUEventProcessor::forkProcessesFromEDM() {
   }
 
   //fork loop
-  for(unsigned int i=forkFrom; i<forkTo; i++)
+  if (fsm_.stateName()->toString()=="stopping") {
+    LOG4CPLUS_ERROR(getApplicationLogger(),"Can not fork subprocesses in state " << fsm_.stateName()->toString());
+    forkParams->isMaster=1;
+    forkInfoObj_->forkParams.slotId=-1;
+    forkInfoObj_->forkParams.restart=0;
+  }
+  else for(unsigned int i=forkFrom; i<forkTo; i++)
   {
 
     int retval = subs_[i].forkNew();
@@ -1889,9 +2074,13 @@ void FUEventProcessor::forkProcessesFromEDM() {
       if (forkParams->restart) {
 	//do restart things
 	scalersUpdates_ = 0;
-	fsm_.fireEvent("Stop",this); // need to set state in fsm first to allow stopDone transition
-	fsm_.fireEvent("StopDone",this); // need to set state in fsm first to allow stopDone transition
-	fsm_.fireEvent("Enable",this); // need to set state in fsm first to allow stopDone transition
+	try {
+	  fsm_.fireEvent("Stop",this); // need to set state in fsm first to allow stopDone transition
+	  fsm_.fireEvent("StopDone",this); // need to set state in fsm first to allow stopDone transition
+	  fsm_.fireEvent("Enable",this); // need to set state in fsm first to allow stopDone transition
+	} catch (...) {
+          LOG4CPLUS_WARN(getApplicationLogger(),"Failed to Stop/Enable FSM of the restarted slave EP");
+	}
 	try{
 	  xdata::Serializable *lsid = applicationInfoSpace_->find("lumiSectionIndex");
 	  if(lsid) {
@@ -1929,6 +2118,40 @@ void FUEventProcessor::forkProcessesFromEDM() {
         fsm_.fireEvent("EnableDone",this);
       }
       catch (...) {}
+
+      //make sure workloops are started
+      while (!wlReceiving_->isActive() || !wlReceivingMonitor_->isActive()) usleep(10000);
+
+      //unmask signals
+      sigset_t tmpset_thread;
+      sigemptyset(&tmpset_thread);
+      sigaddset(&tmpset_thread, SIGQUIT);
+      sigaddset(&tmpset_thread, SIGILL);
+      sigaddset(&tmpset_thread, SIGABRT);
+      sigaddset(&tmpset_thread, SIGFPE);
+      sigaddset(&tmpset_thread, SIGSEGV);
+      sigaddset(&tmpset_thread, SIGALRM);
+      //sigprocmask(SIG_UNBLOCK, &tmpset_thread, 0);
+      pthread_sigmask(SIG_UNBLOCK,&tmpset_thread,0);
+     
+      //set signal handlers 
+      struct sigaction sa;
+      sigset_t tmpset;
+      memset(&tmpset,0,sizeof(tmpset));
+      sigemptyset(&tmpset);
+      sa.sa_mask=tmpset;
+      sa.sa_flags=SA_RESETHAND | SA_SIGINFO;
+      sa.sa_handler=0;
+      sa.sa_sigaction=evfep_sighandler;
+
+      sigaction(SIGQUIT,&sa,0);
+      sigaction(SIGILL,&sa,0);
+      sigaction(SIGABRT,&sa,0);
+      sigaction(SIGFPE,&sa,0);
+      sigaction(SIGSEGV,&sa,0);
+      sa.sa_sigaction=evfep_alarmhandler;
+      sigaction(SIGALRM,&sa,0);
+
       //child return to DaqSource
       return ;
     }
@@ -1941,6 +2164,7 @@ void FUEventProcessor::forkProcessesFromEDM() {
 	ost1 << "-I- New Process " << retval << " forked for slot " << forkParams->slotId;
 	localLog(ost1.str());
       }
+      //start "crash" receiver workloop
     }
   }
   edm_init_done_=true;
@@ -2085,6 +2309,7 @@ bool FUEventProcessor::enableMPEPSlave()
 
 bool FUEventProcessor::stopClassic()
 {
+  bool failed=false;
   try {
     LOG4CPLUS_INFO(getApplicationLogger(),"Start stopping :) ...");
     edm::EventProcessor::StatusCode rc = evtProcessor_.stop();
@@ -2092,6 +2317,7 @@ bool FUEventProcessor::stopClassic()
       fsm_.fireEvent("StopDone",this);
     else
       {
+	failed=true;
 	//	epMState_ = evtProcessor_->currentStateName();
 	if(rc == edm::EventProcessor::epTimedOut)
 	  reasonForFailedState_ = "EventProcessor stop timed out";
@@ -2100,13 +2326,33 @@ bool FUEventProcessor::stopClassic()
 	fsm_.fireFailed(reasonForFailedState_,this);
 	localLog(reasonForFailedState_);
       }
+
+    if (failed) LOG4CPLUS_WARN(getApplicationLogger(),"STOP failed: try detaching from Shm");
+
+    //detaching from shared memory
     if(hasShMem_) detachDqmFromShm();
+
+    if (failed) LOG4CPLUS_WARN(getApplicationLogger(),"STOP failed: detached from Shm");
   }
   catch (xcept::Exception &e) {
+    failed=true;
     reasonForFailedState_ = "stopping FAILED: " + (std::string)e.what();
+  }
+  catch (edm::Exception &e) {
+    failed=true;
+    reasonForFailedState_ = "stopping FAILED: " + (std::string)e.what();
+  }
+  catch (...) {
+    failed=true;
+    reasonForFailedState_= "STOP failed: unknown exception";
+  }
+
+  if (failed) {
+    LOG4CPLUS_WARN(getApplicationLogger(),"STOP failed: return point of the stopping call reached. pid:" << getpid());
     localLog(reasonForFailedState_);
     fsm_.fireFailed(reasonForFailedState_,this);
   }
+
   LOG4CPLUS_INFO(getApplicationLogger(),"Finished stopping!");
   localLog("-I- Stop completed");
   return false;
@@ -2357,7 +2603,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.138 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.150 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
@@ -2386,5 +2632,41 @@ void FUEventProcessor::makeStaticInfo()
   cDiv(&ost);
   updaterStatic_ = ost.str();
 }
+
+void FUEventProcessor::handleSignalSlave(int sig, siginfo_t* info, void* c)
+{
+  //notify master
+  sem_post(sigmon_sem_);
+
+  //sleep until master takes action
+  sleep(2);
+
+  //set up alarm if handler deadlocks on unsafe actions
+  alarm(5);
+  
+  std::cout << "--- Slave EP signal handler caught signal " << sig << " process id is " << info->si_pid <<" ---" << std::endl;
+  std::cout << "--- Address: " << std::hex << info->si_addr << std::dec << " --- " << std::endl;
+  std::cout << "--- Stacktrace follows --" << std::endl;
+  std::ostringstream stacktr;
+  toolbox::stacktrace(20,stacktr);
+  std::cout << stacktr.str();
+  if (!rlimit_coresize_changed_)
+    std::cout << "--- Dumping core." <<  " --- " << std::endl;
+  else
+    std::cout << "--- Core dump count exceeded on this FU. ---"<<std::endl;
+ 
+  std::string hasdump = "";
+  if (rlimit_coresize_changed_) hasdump = " (core dump disabled) ";
+
+  LOG4CPLUS_ERROR(getApplicationLogger(),    "--- Slave EP signal handler caught signal " << sig << ". process id is " << getpid() 
+		                          << " on node " << toolbox::net::getHostName() << " ---" << std::endl
+                                          << "--- Address: " << std::hex << info->si_addr << std::dec << " --- " << std::endl
+					  << "--- Stacktrace follows"<< hasdump << " ---" << std::endl << stacktr.str()
+					  );
+
+  //re-raise signal with default handler (will cause core dump if enabled)
+  raise(sig);
+}
+
 
 XDAQ_INSTANTIATOR_IMPL(evf::FUEventProcessor)

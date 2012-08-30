@@ -151,7 +151,8 @@ reco::Track* PixelFitterByHelixProjections::run(
   int iCharge = charge(points);
   float curvature = circle.curvature();
 
-  if (curvature > 1.e-4) {
+  if ((curvature > 1.e-4)&&
+	(likely(theField->inTesla(GlobalPoint(0.,0.,0.)).z()>0.01))) {
     float invPt = PixelRecoUtilities::inversePt( circle.curvature(), es);
     valPt = (invPt > 1.e-4f) ? 1.f/invPt : 1.e4f;
     CircleFromThreePoints::Vector2D center = circle.center();

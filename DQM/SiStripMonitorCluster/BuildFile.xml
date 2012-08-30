@@ -2,6 +2,7 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="DQMServices/Core"/>
+<use   name="CommonTools/TriggerUtils"/>
 <use   name="DataFormats/SiStripCluster"/>
 <use   name="DataFormats/SiPixelCluster"/>
 <use   name="CalibFormats/SiStripObjects"/>

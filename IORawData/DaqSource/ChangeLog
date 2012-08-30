@@ -1,3 +1,13 @@
+2012-07-07 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* V01-12-02
+	* align lumi and recover in case of lumi events not sequential in LS
+
+2012-05-23 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* V01-12-01
+	* reporting stop state to FU
+
 2012-05-02 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V01-12-00

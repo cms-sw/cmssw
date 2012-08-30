@@ -91,22 +91,7 @@ printGlobalTagL1Gmt = cms.Sequence(printL1GmtParameters*printL1GmtMuScales)
 
 # Global Trigger
 #
-
-l1GtStableParametersTest = cms.EDAnalyzer('L1GtStableParametersTester')
-l1GtParametersTest = cms.EDAnalyzer('L1GtParametersTester')
-l1GtBoardMapsTest = cms.EDAnalyzer('L1GtBoardMapsTester')
-l1GtPsbSetupTest = cms.EDAnalyzer('L1GtPsbSetupTester')
-l1GtPrescaleFactorsAndMasksTest = cms.EDAnalyzer('L1GtPrescaleFactorsAndMasksTester')
-l1GtTriggerMenuTest = cms.EDAnalyzer('L1GtTriggerMenuTester')
-
-printGlobalTagL1Gt = cms.Sequence(l1GtStableParametersTest
-                                  *l1GtParametersTest
-                                  *l1GtBoardMapsTest
-                                  *l1GtPsbSetupTest
-                                  *l1GtPrescaleFactorsAndMasksTest
-                                  *l1GtTriggerMenuTest
-                                  )
-
+from L1TriggerConfig.L1GtConfigProducers.L1GtTester_cff import *
 
 # all L1 records
 printGlobalTagL1 = cms.Sequence(printGlobalTagL1Rct

@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # prepare reco information
 from PhysicsTools.PatAlgos.recoLayer0.pfCandidateIsoDepositSelection_cff import *
 from PhysicsTools.PatAlgos.recoLayer0.tauIsolation_cff import *
-from PhysicsTools.PatAlgos.recoLayer0.tauDiscriminators_cff import *
+#from PhysicsTools.PatAlgos.recoLayer0.tauDiscriminators_cff import *
 # CV: do **not** load PhysicsTools/PatAlgos/python/recoLayer0/tauJetCorrections_cff
 #     in order to avoid triggering FileInPath to SQLlite file
 #       CondFormats/JetMETObjects/data/TauJec11_V1.db
@@ -20,10 +20,6 @@ from PhysicsTools.PatAlgos.producersLayer1.tauProducer_cfi import *
 
 makePatTaus = cms.Sequence(
     # reco pre-production
-    patFixedConePFTauDiscrimination *
-    patHPSPFTauDiscrimination *
-    patShrinkingConePFTauDiscrimination *
-    patCaloTauDiscrimination *
     patPFCandidateIsoDepositSelection *
     patPFTauIsolation *
     #patTauJetCorrections *

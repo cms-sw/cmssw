@@ -88,7 +88,7 @@ DQMOutput
 EcalCalibrationOutput
 ExpressForHIOutput
 HLTDQMOutput
-HLTDQMResultsOutput
+#HLTDQMResultsOutput										# Removed from the master since /dev/CMSSW_5_2_1/HLT/V435
 HLTMONOutput
 NanoDSTOutput
 RPCMONOutput

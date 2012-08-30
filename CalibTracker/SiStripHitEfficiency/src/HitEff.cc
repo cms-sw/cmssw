@@ -514,10 +514,8 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 		    cluster_info.push_back(sqrt(parameters.second.xx()));
 		    cluster_info.push_back(parameters.first.y());
 		    cluster_info.push_back(sqrt(parameters.second.yy()));
-		    cout << "before getting signal over noise" << endl;
 		    cluster_info.push_back( clusterInfo.signalOverNoise() );
 		    //cluster_info.push_back( clusterInfo.getSignalOverNoise() );
-		    cout << "after getting signal over noise" << endl;
 		    VCluster_info.push_back(cluster_info);
 		    nClusters++;
 		    if (DEBUG) cout << "Have ID match. residual = " << VCluster_info.back()[0] << "  res sigma = " << VCluster_info.back()[1] << endl;
@@ -670,8 +668,8 @@ void HitEff::endJob(){
   traj->GetDirectory()->cd();
   traj->Write();  
   
-  cout << " Events Analysed             " <<  events          << endl;
-  cout << " Number Of Tracked events    " <<  EventTrackCKF   << endl;
+  if (DEBUG) cout << " Events Analysed             " <<  events          << endl;
+  if (DEBUG) cout << " Number Of Tracked events    " <<  EventTrackCKF   << endl;
 }
 
 double HitEff::checkConsistency(StripClusterParameterEstimator::LocalValues parameters, double xx, double xerr) {

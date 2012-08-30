@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2011/06/10 13:50:12 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/01/26 17:46:03 $
+ *  $Revision: 1.9 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -83,9 +83,6 @@ private:
   // switch on for detailed analysis
   bool detailedAnalysis;
   int nMinEvts;
-
-  int maxPhiHit;
-  int maxPhiZHit;
 
   bool runOnline;
 

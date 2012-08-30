@@ -627,7 +627,8 @@ void FWGeometryTableViewBase::setTopNodePathFromConfig(const FWConfiguration& iF
 
    std::istringstream s(value->value());
    s>> tn;
-   if (tn >= (getTableManager()->refEntries().size() -1 )) { 
+   int lastIdx = getTableManager()->refEntries().size() -1;
+   if (tn >= lastIdx) { 
       fwLog(fwlog::kWarning) << Form("Ignoring node path from confugration file -- %s value larger than number of nodes \n", m_topNodeIdx.name().c_str());
       return;
    }

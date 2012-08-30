@@ -11,7 +11,7 @@
  *  Local Coordinate system coincides with center of the box
  *  with X axis along the width and Y axis along the lenght.
  */
-class RectangularPlaneBounds GCC11_FINAL : public Bounds {
+class RectangularPlaneBounds : public Bounds {
 public:
 
   /// Construct from  half width (extension in local X),
