@@ -288,6 +288,7 @@ namespace evf
 
     moduleweb::ForkInfoObj           *forkInfoObj_;
     pthread_mutex_t                  forkObjLock_;
+    bool                             restart_in_progress_;
     bool                             edm_init_done_;
 
     unsigned int                     crashesThisRun_;

@@ -2202,7 +2202,7 @@ void FUEventProcessor::forkProcessesFromEDM() {
   catch(...) {
     LOG4CPLUS_ERROR(getApplicationLogger(),"Unknown Exception in MessageServicePresence");
   }
-
+  restart_in_progress_=false;
   edm_init_done_=true;
 }
 
@@ -2282,6 +2282,10 @@ bool FUEventProcessor::restartForkInEDM(unsigned int slotId) {
   sem_post(forkInfoObj_->control_sem_);
   forkInfoObj_->unlock();
   usleep(1000);
+  //sleep until fork is performed
+  int count=50;
+  restart_in_progress_=true;
+  while (restart_in_progress_ && count--) usleep(20000);
   return true;
 }
 
@@ -2645,7 +2649,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.154 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.155 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
