@@ -165,6 +165,7 @@ namespace evf {
     void updateStreamHistos(unsigned int forls, commonLsStat *clst, commonLsStat *prevclst);
     void doFlush();
     void perLumiFileSaver(unsigned int lsid);
+    void perTimeFileSaver();
     //
     // member data
     //
@@ -177,7 +178,10 @@ namespace evf {
     xdata::String                   class_;
     xdata::UnsignedInteger32        instance_;
     xdata::String                   hostname_;
+
     xdata::UnsignedInteger32        runNumber_;
+    unsigned int                    lastRunNumberSet_;
+
     xdata::String                   dqmCollectorHost_;
     xdata::String                   dqmCollectorPort_;
     fmap                            fus_;
@@ -330,13 +334,14 @@ namespace evf {
       unsigned int nmodulenames_;
       unsigned int sumDeltaTms_;
       float avgDeltaT_;
+      float avgDeltaT2_;
       std::pair<unsigned int,unsigned int> *moduleSamplingSums;
 
       lsStat(unsigned int ls, unsigned int nbSubs,unsigned int maxreps,unsigned int nmodulenames):
 	ls_(ls),updated_(true),nbSubs_(nbSubs),
 	nSampledNonIdle_(0),nSampledNonIdle2_(0),nSampledIdle_(0),nSampledIdle2_(0),
 	nProc_(0),nProc2_(0),nCPUBusy_(0),nReports_(0),nMaxReports_(maxreps),nmodulenames_(nmodulenames),
-	sumDeltaTms_(0),avgDeltaT_(23)
+	sumDeltaTms_(0),avgDeltaT_(23),avgDeltaT2_(0)
       {
         moduleSamplingSums = new std::pair<unsigned int,unsigned int>[nmodulenames_];
 	for (unsigned int i=0;i<nmodulenames_;i++) {
@@ -380,8 +385,11 @@ namespace evf {
 	if (nReports_) {
 	  float tinv = 0.001/nReports_;
 	  fracCPUBusy_=nCPUBusy_*tinv;
-	  avgDeltaT_=sumDeltaTms_*tinv;
-	  if (avgDeltaT_==0.) avgDeltaT_=23.;//default value
+	  avgDeltaT_ = avgDeltaT2_ = sumDeltaTms_*tinv;
+	  if (avgDeltaT_==0.) {
+	    avgDeltaT_=23.;//default value
+	    avgDeltaT2_=0;
+	  }
 	  rateAvg=nProc_ / avgDeltaT_;
 	  rateErr=sqrt(fabs(nProc2_ - pow(nProc_,2)))/avgDeltaT_;
 	}
@@ -462,6 +470,11 @@ namespace evf {
         return nReports_;
       }
 
+      float getDt() {
+	if (updated_) calcStat();
+        return avgDeltaT2_;
+      }
+
       std::vector<std::pair<unsigned int, unsigned int>> getOffendersVector() {
         std::vector<std::pair<unsigned int, unsigned int>> ret;
 	if (updated_) calcStat();
@@ -521,11 +534,15 @@ namespace evf {
     std::vector<MonitorElement*> meVecTime_;
     std::vector<MonitorElement*> meVecOffenders_;
     MonitorElement * rateSummary_;
+    MonitorElement * reportPeriodSummary_;
     MonitorElement * timingSummary_;
     MonitorElement * busySummary_;
     MonitorElement * busySummary2_;
+    MonitorElement * busySummaryUncorr1_;
+    MonitorElement * busySummaryUncorr2_;
     MonitorElement * fuReportsSummary_;
     MonitorElement * daqBusySummary_;
+    MonitorElement * daqBusySummary2_;
     MonitorElement * busyModules_;
     unsigned int summaryLastLs_;
     std::vector<std::map<unsigned int, unsigned int> > occupancyNameMap;
@@ -549,6 +566,9 @@ namespace evf {
     unsigned int savedForLs_;
     std::string fileBaseName_;
     bool writeDirectoryPresent_;
+
+    timeval * reportingStart_;
+    unsigned int lastSavedForTime_;
   }; // class iDie
 
   int modlistSortFunction( const void *a, const void *b)

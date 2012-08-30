@@ -1,3 +1,14 @@
+2012-08-28 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-02-16
+	* correct normalization for projected CPU usage
+	* correct weight factor for C6220 with 16 slave EP's
+	* removed histograms for BUFUs with 22 slave EP's
+	* histogram for busy from /proc/stat
+	* two tables with uncorrected CPU usage
+	* update runNumber in title before writing files
+	* save also time-based root files for DQM archiving
+
 2012-08-21 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V00-02-15
