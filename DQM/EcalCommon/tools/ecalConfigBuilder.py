@@ -59,7 +59,7 @@ laser = (config == 'Laser')
 # PrivLive will have larger coverage of time; what about statistics?
 
 workspace = 'Ecal'
-if config == 'Laser' :
+if laser or calib :
     workspace = 'EcalCalibration'
 
 withDB = False
