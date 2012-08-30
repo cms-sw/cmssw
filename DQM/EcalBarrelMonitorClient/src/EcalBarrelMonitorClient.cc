@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2012/06/28 12:14:27 $
- * $Revision: 1.508 $
+ * $Date: 2012/07/30 19:03:58 $
+ * $Revision: 1.509 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -910,6 +910,7 @@ void EcalBarrelMonitorClient::endLuminosityBlock(const edm::LuminosityBlock& l, 
 
   }
 
+  bool clientMissing(false);
   for(unsigned iC(0); iC < enabledClients_.size(); iC++){
     std::string& name(enabledClients_[iC]);
 
@@ -918,14 +919,15 @@ void EcalBarrelMonitorClient::endLuminosityBlock(const edm::LuminosityBlock& l, 
     if(!dqmStore_->dirExists(prefixME_ + "/EB" + name + "Client")){
       std::vector<std::string>::iterator itr(std::find(clientsNames_.begin(), clientsNames_.end(), name));
       if(itr == clientsNames_.end()) continue; // something seriously wrong, but ignore
-
-      std::cout << "EB" << name << "Client is missing plots; resetting now" << std::endl;
-
-      EBClient* client(clients_[itr - clientsNames_.begin()]);
-
-      client->cleanup();
-      client->setup();
+      std::cout << "EB" << name << "Client is missing plots; issuing beginRun" << std::endl;
+      clientMissing = true;
+      break;
     }
+  }
+  if(clientMissing){
+    forced_status_ = false;
+    endRun();
+    beginRun();
   }
 
 }

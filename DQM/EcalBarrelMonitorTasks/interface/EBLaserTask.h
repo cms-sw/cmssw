@@ -4,8 +4,8 @@
 /*
  * \file EBLaserTask.h
  *
- * $Date: 2012/07/02 19:39:29 $
- * $Revision: 1.40 $
+ * $Date: 2012/07/19 22:50:41 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  *
 */
@@ -115,6 +115,8 @@ MonitorElement* mePnPedMapG16L4_[36];
  MonitorElement* meAmplSummaryMapL4_;
 
 bool init_;
+
+ bool filterEmptyEvents_;
 
  int nEmpty_;
 

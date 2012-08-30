@@ -6,5 +6,5 @@ ecalBarrelRawDataTask = cms.EDAnalyzer("EBRawDataTask",
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),
     FEDRawDataCollection = cms.InputTag("rawDataCollector"),
-    EcalRawDataCollection = cms.InputTag("ecalEBunpacker")
+    EcalRawDataCollection = cms.InputTag("ecalDigis")
 )

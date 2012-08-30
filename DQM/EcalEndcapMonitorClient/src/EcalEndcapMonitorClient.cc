@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2012/04/27 13:46:08 $
- * $Revision: 1.270 $
+ * $Date: 2012/06/28 12:14:29 $
+ * $Revision: 1.271 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -958,6 +958,7 @@ void EcalEndcapMonitorClient::endLuminosityBlock(const edm::LuminosityBlock& l, 
 
   }
 
+  bool clientMissing(false);
   for(unsigned iC(0); iC < enabledClients_.size(); iC++){
     std::string& name(enabledClients_[iC]);
 
@@ -966,14 +967,16 @@ void EcalEndcapMonitorClient::endLuminosityBlock(const edm::LuminosityBlock& l, 
     if(!dqmStore_->dirExists(prefixME_ + "/EE" + name + "Client")){
       std::vector<std::string>::iterator itr(std::find(clientsNames_.begin(), clientsNames_.end(), name));
       if(itr == clientsNames_.end()) continue; // something seriously wrong, but ignore
+      std::cout << "EE" << name << "Client is missing plots; issuing beginRun" << std::endl;
 
-      std::cout << "EE" << name << "Client is missing plots; resetting now" << std::endl;
-
-      EEClient* client(clients_[itr - clientsNames_.begin()]);
-
-      client->cleanup();
-      client->setup();
+      clientMissing = true;
+      break;
     }
+  }
+  if(clientMissing){
+    forced_status_ = false;
+    endRun();
+    beginRun();
   }
 
 }

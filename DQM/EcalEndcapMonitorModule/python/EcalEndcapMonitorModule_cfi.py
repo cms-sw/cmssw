@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalEndcapMonitorModule = cms.EDAnalyzer("EcalEndcapMonitorModule",
-    EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
-    EEDigiCollection = cms.InputTag("ecalEBunpacker","eeDigis"),
+    EcalRawDataCollection = cms.InputTag("ecalDigis"),
+    EEDigiCollection = cms.InputTag("ecalDigis","eeDigis"),
     EcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-    EcalTrigPrimDigiCollection = cms.InputTag("ecalEBunpacker","EcalTriggerPrimitives"),
+    EcalTrigPrimDigiCollection = cms.InputTag("ecalDigis","EcalTriggerPrimitives"),
     prefixME = cms.untracked.string('EcalEndcap'),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),

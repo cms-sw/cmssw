@@ -5,6 +5,6 @@ ecalBarrelStatusFlagsTask = cms.EDAnalyzer("EBStatusFlagsTask",
                                            subfolder = cms.untracked.string(''),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),    
-    EcalRawDataCollection = cms.InputTag("ecalEBunpacker")
+    EcalRawDataCollection = cms.InputTag("ecalDigis")
 )
 

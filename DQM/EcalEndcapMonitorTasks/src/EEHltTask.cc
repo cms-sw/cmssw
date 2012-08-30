@@ -1,8 +1,8 @@
 /*
  * \file EEHltTask.cc
  *
- * $Date: 2011/08/30 09:28:42 $
- * $Revision: 1.17 $
+ * $Date: 2012/04/27 13:46:15 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */
@@ -206,7 +206,7 @@ void EEHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	  uint64_t * fedTrailer = pData + (length - 1);
 	  bool crcError = (*fedTrailer >> 2 ) & 0x1;
 
-	  if (crcError) FedsSizeErrors[ism-1]++;
+	  if (crcError) FedsSizeErrors[zside * 9 + ism-1]++;
 
 	}
 

@@ -5,6 +5,6 @@ ecalEndcapPedestalOnlineTask = cms.EDAnalyzer("EEPedestalOnlineTask",
     subfolder = cms.untracked.string(""),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),    
-    EEDigiCollection = cms.InputTag("ecalEBunpacker","eeDigis")
+    EEDigiCollection = cms.InputTag("ecalDigis","eeDigis")
 )
 
