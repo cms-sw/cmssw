@@ -4,7 +4,7 @@ import re
 # get options
 optparser = OptionParser()
 optparser.add_option("-e", "--env", dest = "environment",
-                   help = "ENV=(CMSLive|PrivLive|PrivOffline|LocalLive|LocalOffline)", metavar = "ENV")
+                   help = "ENV=(CMSLive|PrivLive|PrivOffline|LocalLive|LocalOffline)", metavar = "ENV", default = "")
 optparser.add_option("-c", "--config", dest = "config",
                    help = "CONFIG=(Physics|Calibration|Laser)", metavar = "CONFIG")
 optparser.add_option("-d", "--daqtype", dest = "daqtype", default = "globalDAQ",
@@ -156,10 +156,10 @@ process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
 
 if not laser :
     recoModules += '''
-process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")
+from EventFilter.EcalRawToDigi.EcalUnpackerData_cfi import ecalEBunpacker
+process.ecalDigis = ecalEBunpacker.clone()
 
-import RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi
-process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi.ecalGlobalUncalibRecHit.clone()
+process.load("RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi")
 
 process.load("RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi")
 
@@ -181,11 +181,11 @@ process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi")
 
 if calib :
     recoModules += '''
-import RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi
-process.ecalUncalibHit1 = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi.ecalFixedAlphaBetaFitUncalibRecHit.clone()
+from RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi import ecalFixedAlphaBetaFitUncalibRecHit
+process.ecalLaserLedUncalibRecHit = ecalFixedAlphaBetaFitUncalibRecHit.clone()
 
-import RecoLocalCalo.EcalRecProducers.ecalMaxSampleUncalibRecHit_cfi
-process.ecalUncalibHit2 = RecoLocalCalo.EcalRecProducers.ecalMaxSampleUncalibRecHit_cfi.ecalMaxSampleUncalibRecHit.clone()
+from RecoLocalCalo.EcalRecProducers.ecalMaxSampleUncalibRecHit_cfi import ecalMaxSampleUncalibRecHit
+process.ecalTestPulseUncalibRecHit = ecalMaxSampleUncalibRecHit.clone()
 '''
 
 
@@ -196,14 +196,15 @@ if newFramework :
 
 process.load("DQM.EcalCommon.EcalDQMBinningService_cfi")
 '''
-    if laser :
-        ecalDQM += '''
-process.load("DQM.EcalCalibration.EcalLaserMonitor_cfi")
-'''
-    else :
+    if physics :
         ecalDQM += '''
 process.load("DQM.EcalBarrelMonitorTasks.EcalMonitorTask_cfi")
 process.load("DQM.EcalBarrelMonitorClient.EcalMonitorClient_cfi")
+'''
+    else :
+        ecalDQM += '''
+process.load("DQM.EcalBarrelMonitorTasks.EcalCalibMonitorTasks_cfi")
+process.load("DQM.EcalBarrelMonitorClient.EcalCalibMonitorClient_cfi")
 '''        
 
 else :
@@ -304,8 +305,7 @@ process.ecalPhysicsFilter = cms.EDFilter("EcalMonitorPrescaler")
 elif calib :
     filters += '''
 process.ecalCalibrationFilter = cms.EDFilter("EcalMonitorPrescaler")
-process.ecalLaserFilter = cms.EDFilter("EcalMonitorPrescaler")
-process.ecalLedFilter = cms.EDFilter("EcalMonitorPrescaler")
+process.ecalLaserLedFilter = cms.EDFilter("EcalMonitorPrescaler")
 process.ecalPedestalFilter = cms.EDFilter("EcalMonitorPrescaler")
 process.ecalTestPulseFilter = cms.EDFilter("EcalMonitorPrescaler")
 '''
@@ -385,11 +385,11 @@ process.ecalPreRecoSequence = cms.Sequence(
         sequencePaths += '#    process.hltTriggerTypeFilter +'
 
     sequencePaths += '''
-    process.ecalEBunpacker
+    process.ecalDigis
 )
 
 process.ecalRecoSequence = cms.Sequence(
-    process.ecalUncalibHit *
+    process.ecalGlobalUncalibRecHit *
     process.ecalDetIdToBeRecovered *
     process.ecalRecHit
 )
@@ -489,27 +489,26 @@ process.ecalMonitorPath = cms.Path(
     
     elif calib :
         sequencePaths += '''
-process.ecalLaserPath = cms.Path(
+process.ecalLaserLedPath = cms.Path(
     process.ecalPreRecoSequence *
-    process.ecalLaserFilter *    
+    process.ecalLaserLedFilter *    
     process.ecalRecoSequence *
-    process.ecalUncalibHit1 *
+    process.ecalLaserLedUncalibRecHit *'''
+        if newFramework :
+            sequencePaths += '''
+    (
+    process.ecalLaserLedMonitorTask +
+    process.ecalPNDiodeMonitorTask
+    )'''
+        else :
+            sequencePaths += '''
     (
     process.ecalMonitorBaseSequence +
     process.ecalBarrelLaserTask +
-    process.ecalEndcapLaserTask
-    )
-)
-
-process.ecalLedPath = cms.Path(
-    process.ecalPreRecoSequence *
-    process.ecalLedFilter *
-    process.ecalRecoSequence *
-    process.ecalUncalibHit1 *
-    (
-    process.ecalMonitorBaseSequence +    
+    process.ecalEndcapLaserTask +
     process.ecalEndcapLedTask
-    )
+    )'''
+        sequencePaths += '''
 )
 '''
         if (daqtype == 'localDAQ') :
@@ -517,12 +516,21 @@ process.ecalLedPath = cms.Path(
 process.ecalPedestalPath = cms.Path(
     process.ecalPreRecoSequence *
     process.ecalPedestalFilter *    
-    process.ecalRecoSequence *
+    process.ecalRecoSequence *'''
+            if newFramework :
+                sequencePaths += '''
+    (
+    process.ecalPedestalMonitorTask +
+    process.ecalPNDiodeMonitorTask
+    )'''
+            else :
+                sequencePaths += '''
     (
     process.ecalMonitorBaseSequence +    
     process.ecalBarrelPedestalTask +
     process.ecalEndcapPedestalTask
-    )
+    )'''
+            sequencePaths += '''
 )    
 '''
 
@@ -531,12 +539,21 @@ process.ecalTestPulsePath = cms.Path(
     process.ecalPreRecoSequence *
     process.ecalTestPulseFilter *    
     process.ecalRecoSequence *
-    process.ecalUncalibHit2 *
+    process.ecalTestPulseUncalibRecHit *'''
+        if newFramework :
+            sequencePaths += '''
+    (
+    process.ecalTestPulseMonitorTask +
+    process.ecalPNDiodeMonitorTask
+    )'''
+        else :
+            sequencePaths += '''
     (
     process.ecalMonitorBaseSequence +    
     process.ecalBarrelTestPulseTask +
     process.ecalEndcapTestPulseTask
-    )
+    )'''
+        sequencePaths += '''
 )
 '''
 
@@ -557,8 +574,13 @@ process.ecalClientPath = cms.Path(
     process.ecalEndcapTrendClient +'''
 
     if newFramework :
-        sequencePaths += '''
+        if physics :
+            sequencePaths += '''
     process.ecalMonitorClient'''
+        else :
+            sequencePaths += '''
+    process.ecalCalibMonitorClient'''
+            
     else :
         sequencePaths += '''
     process.ecalBarrelMonitorClient +
@@ -600,8 +622,7 @@ if physics :
     process.ecalClientPath,'''
 elif calib :
     sequencePaths += '''
-    process.ecalLaserPath,
-    process.ecalLedPath,'''
+    process.ecalLaserLedPath,'''
 
     if (daqtype == 'localDAQ') :
         sequencePaths += '''
@@ -653,42 +674,24 @@ if not laser :
     customizations += '''
  ## Reconstruction Modules ##
 
-process.ecalUncalibHit.EBdigiCollection = "ecalEBunpacker:ebDigis"
-process.ecalUncalibHit.EEdigiCollection = "ecalEBunpacker:eeDigis"
-
-process.ecalDetIdToBeRecovered.ebSrFlagCollection = "ecalEBunpacker"
-process.ecalDetIdToBeRecovered.eeSrFlagCollection = "ecalEBunpacker"
-process.ecalDetIdToBeRecovered.ebIntegrityGainErrors = "ecalEBunpacker:EcalIntegrityGainErrors"
-process.ecalDetIdToBeRecovered.ebIntegrityGainSwitchErrors = "ecalEBunpacker:EcalIntegrityGainSwitchErrors"
-process.ecalDetIdToBeRecovered.ebIntegrityChIdErrors = "ecalEBunpacker:EcalIntegrityChIdErrors"
-process.ecalDetIdToBeRecovered.eeIntegrityGainErrors = "ecalEBunpacker:EcalIntegrityGainErrors"
-process.ecalDetIdToBeRecovered.eeIntegrityGainSwitchErrors = "ecalEBunpacker:EcalIntegrityGainSwitchErrors"
-process.ecalDetIdToBeRecovered.eeIntegrityChIdErrors = "ecalEBunpacker:EcalIntegrityChIdErrors"
-process.ecalDetIdToBeRecovered.integrityTTIdErrors = "ecalEBunpacker:EcalIntegrityTTIdErrors"
-process.ecalDetIdToBeRecovered.integrityBlockSizeErrors = "ecalEBunpacker:EcalIntegrityBlockSizeErrors"
-
 process.ecalRecHit.killDeadChannels = True
 process.ecalRecHit.ChannelStatusToBeExcluded = [ 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
-process.ecalRecHit.EBuncalibRecHitCollection = "ecalUncalibHit:EcalUncalibRecHitsEB"
-process.ecalRecHit.EEuncalibRecHitCollection = "ecalUncalibHit:EcalUncalibRecHitsEE"
 '''
 
 if physics :
     customizations += '''
-process.simEcalTriggerPrimitiveDigis.Label = "ecalEBunpacker"
+process.simEcalTriggerPrimitiveDigis.Label = "ecalDigis"
 process.simEcalTriggerPrimitiveDigis.InstanceEB = "ebDigis"
 process.simEcalTriggerPrimitiveDigis.InstanceEE = "eeDigis"
 '''
 
 if calib :
     customizations += '''
-process.ecalUncalibHit1.MinAmplBarrel = 12.
-process.ecalUncalibHit1.MinAmplEndcap = 16.
-process.ecalUncalibHit1.EBdigiCollection = "ecalEBunpacker:ebDigis"
-process.ecalUncalibHit1.EEdigiCollection = "ecalEBunpacker:eeDigis"
-
-process.ecalUncalibHit2.EBdigiCollection = "ecalEBunpacker:ebDigis"
-process.ecalUncalibHit2.EEdigiCollection = "ecalEBunpacker:eeDigis"
+process.ecalTestPulseUncalibRecHit.EBdigiCollection = "ecalDigis:ebDigis"
+process.ecalTestPulseUncalibRecHit.EEdigiCollection = "ecalDigis:eeDigis"
+    
+process.ecalLaserLedUncalibRecHit.MinAmplBarrel = 12.
+process.ecalLaserLedUncalibRecHit.MinAmplEndcap = 16.
 '''
 
 customizations += '''
@@ -697,7 +700,6 @@ customizations += '''
 
 if physics :
     customizations += '''
-process.ecalPhysicsFilter.EcalRawDataCollection = cms.InputTag("ecalEBunpacker")
 process.ecalPhysicsFilter.clusterPrescaleFactor = cms.untracked.int32(1)
 '''
     if live :
@@ -707,22 +709,20 @@ process.hltTriggerTypeFilter.SelectedTriggerType = 1 # 0=random, 1=physics, 2=ca
         
 if calib :
     customizations += '''
-process.ecalCalibrationFilter.EcalRawDataCollection = cms.InputTag("ecalEBunpacker")
+process.ecalCalibrationFilter.EcalRawDataCollection = cms.InputTag("ecalDigis")
 process.ecalCalibrationFilter.laserPrescaleFactor = cms.untracked.int32(1)
 process.ecalCalibrationFilter.ledPrescaleFactor = cms.untracked.int32(1)
 process.ecalCalibrationFilter.pedestalPrescaleFactor = cms.untracked.int32(1)
 process.ecalCalibrationFilter.testpulsePrescaleFactor = cms.untracked.int32(1)
-    
-process.ecalLaserFilter.EcalRawDataCollection = cms.InputTag("ecalEBunpacker")
-process.ecalLaserFilter.laserPrescaleFactor = cms.untracked.int32(1)
 
-process.ecalLedFilter.EcalRawDataCollection = cms.InputTag("ecalEBunpacker")
-process.ecalLedFilter.ledPrescaleFactor = cms.untracked.int32(1)
+process.ecalLaserLedFilter.EcalRawDataCollection = cms.InputTag("ecalDigis")
+process.ecalLaserLedFilter.laserPrescaleFactor = cms.untracked.int32(1)
+process.ecalLaserLedFilter.ledPrescaleFactor = cms.untracked.int32(1)
 
-process.ecalPedestalFilter.EcalRawDataCollection = cms.InputTag("ecalEBunpacker")
+process.ecalPedestalFilter.EcalRawDataCollection = cms.InputTag("ecalDigis")
 process.ecalPedestalFilter.pedestalPrescaleFactor = cms.untracked.int32(1)
 
-process.ecalTestPulseFilter.EcalRawDataCollection = cms.InputTag("ecalEBunpacker")
+process.ecalTestPulseFilter.EcalRawDataCollection = cms.InputTag("ecalDigis")
 process.ecalTestPulseFilter.testpulsePrescaleFactor = cms.untracked.int32(1)
 '''
     if live :
@@ -737,8 +737,7 @@ customizations += '''
 if newFramework :
     if physics :
         customizations += '''
-process.ecalMonitorTask.taskParameters.Common.hltTaskMode = 2
-process.ecalMonitorClient.runAtEndLumi = True
+process.ecalMonitorTask.workerParameters.common.hltTaskMode = 2
 '''
 
     if laser :
@@ -750,11 +749,11 @@ process.ecalLaserMonitorClient.clientParameters.LightChecker.matacqPlotsDir = "/
 else :
     if calib :
         customizations += '''
-process.ecalBarrelLaserTask.EcalUncalibratedRecHitCollection = "ecalUncalibHit1:EcalUncalibRecHitsEB"
-process.ecalBarrelTestPulseTask.EcalUncalibratedRecHitCollection = "ecalUncalibHit2:EcalUncalibRecHitsEB"
-process.ecalEndcapLaserTask.EcalUncalibratedRecHitCollection = "ecalUncalibHit1:EcalUncalibRecHitsEE"
-process.ecalEndcapLedTask.EcalUncalibratedRecHitCollection = "ecalUncalibHit1:EcalUncalibRecHitsEE"
-process.ecalEndcapTestPulseTask.EcalUncalibratedRecHitCollection = "ecalUncalibHit2:EcalUncalibRecHitsEE"
+process.ecalBarrelLaserTask.EcalUncalibratedRecHitCollection = "ecalLaserLedUncalibRecHit:EcalUncalibRecHitsEB"
+process.ecalBarrelTestPulseTask.EcalUncalibratedRecHitCollection = "ecalTestPulseUncalibRecHit:EcalUncalibRecHitsEB"
+process.ecalEndcapLaserTask.EcalUncalibratedRecHitCollection = "ecalLaserLedUncalibRecHit:EcalUncalibRecHitsEE"
+process.ecalEndcapLedTask.EcalUncalibratedRecHitCollection = "ecalLaserLedUncalibRecHit:EcalUncalibRecHitsEE"
+process.ecalEndcapTestPulseTask.EcalUncalibratedRecHitCollection = "ecalTestPulseUncalibRecHit:EcalUncalibRecHitsEE"
 
 process.ecalBarrelLaserTask.laserWavelengths = [ 1, 2, 3, 4 ]
 process.ecalEndcapLaserTask.laserWavelengths = [ 1, 2, 3, 4 ]
@@ -803,8 +802,8 @@ process.ecalEndcapTimingTask.useBeamStatus = cms.untracked.bool(True)
     customizations += '''
 process.ecalBarrelMonitorClient.location = "P5_Co"
 process.ecalEndcapMonitorClient.location = "P5_Co"
-process.ecalBarrelMonitorClient.verbose = True
-process.ecalEndcapMonitorClient.verbose = True
+process.ecalBarrelMonitorClient.verbose = False
+process.ecalEndcapMonitorClient.verbose = False
 '''
 
     if live :
@@ -883,7 +882,7 @@ customizations += '''
 '''
 
 if newFramework :
-    if laser :
+    if laser or not physics:
         customizations += '''
 process.dqmEnv.subSystemFolder = cms.untracked.string("EcalCalibration")
 '''
@@ -967,9 +966,7 @@ if live :
     elif local :
         customizations += 'process.source.sourceURL = cms.string("http://localhost:22100/urn:xdaq-application:lid=30")' + "\n"
 
-    if physics and (daqtype == 'globalDAQ') :
-        customizations += 'process.source.SelectHLTOutput = cms.untracked.string("hltOutputA")' + "\n"
-    else :
+    if not physics or (daqtype != 'globalDAQ') :
         customizations += 'process.source.SelectHLTOutput = cms.untracked.string("hltOutputCalibration")' + "\n"
         customizations += 'process.source.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("HLT_EcalCalibration_v*"))' + "\n"
         
@@ -1019,7 +1016,7 @@ if process.runType.getRunType() == process.runType.hi_run:
 
 if not laser :
     customizations += '''
-process.ecalEBunpacker.InputLabel = cms.InputTag(FedRawData)
+process.ecalDigis.InputLabel = cms.InputTag(FedRawData)
 '''
 
     if not newFramework :
