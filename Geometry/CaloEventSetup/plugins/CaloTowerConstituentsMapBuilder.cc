@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloTowerConstituentsMapBuilder.cc,v 1.5 2012/08/15 14:57:20 yana Exp $
+// $Id: CaloTowerConstituentsMapBuilder.cc,v 1.6 2012/08/27 15:21:57 yana Exp $
 //
 //
 
@@ -84,15 +84,20 @@ CaloTowerConstituentsMapBuilder::fillDescriptions(edm::ConfigurationDescriptions
 CaloTowerConstituentsMapBuilder::ReturnType
 CaloTowerConstituentsMapBuilder::produce(const IdealGeometryRecord& iRecord)
 {
-   const edm::ParameterSet hcalTopoConsts = m_pSet.getParameter<edm::ParameterSet>( "hcalTopologyConstants" );
-   std::string modeStr = hcalTopoConsts.getParameter<std::string>("mode");
+   HcalTopologyMode::Mode mode = HcalTopologyMode::LHC;
+   int maxDepthHB = 2;
+   int maxDepthHE = 3;
+   if( m_pSet.exists( "hcalTopologyConstants" ))
+   {
+      const edm::ParameterSet hcalTopoConsts( m_pSet.getParameter<edm::ParameterSet>( "hcalTopologyConstants" ));
+      StringToEnumParser<HcalTopologyMode::Mode> parser;
+      mode = (HcalTopologyMode::Mode) parser.parseString(hcalTopoConsts.getParameter<std::string>("mode"));
+      maxDepthHB = hcalTopoConsts.getParameter<int>("maxDepthHB");
+      maxDepthHE = hcalTopoConsts.getParameter<int>("maxDepthHE");
+   }
 
-   StringToEnumParser<HcalTopologyMode::Mode> parser;
-   HcalTopologyMode::Mode mode = (HcalTopologyMode::Mode) parser.parseString(hcalTopoConsts.getParameter<std::string>("mode"));
+   std::auto_ptr<CaloTowerConstituentsMap> prod( new CaloTowerConstituentsMap( new HcalTopology( mode, maxDepthHB, maxDepthHE )));
 
-   std::auto_ptr<CaloTowerConstituentsMap> prod( new CaloTowerConstituentsMap( new HcalTopology( mode,
-												 hcalTopoConsts.getParameter<int>("maxDepthHB"),
-												 hcalTopoConsts.getParameter<int>("maxDepthHE"))));
    prod->useStandardHB(true);
    prod->useStandardHE(true);
    prod->useStandardHF(true);

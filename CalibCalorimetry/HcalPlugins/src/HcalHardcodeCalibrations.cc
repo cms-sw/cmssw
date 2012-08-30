@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.31 2012/06/27 12:10:18 yana Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.32 2012/08/28 13:44:18 yana Exp $
 //
 //
 
@@ -72,15 +72,21 @@ namespace {
 }
 
 HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iConfig )
+    : maxDepthHB_( 2 ),
+      maxDepthHE_( 3 ),
+      mode_( HcalTopologyMode::LHC )
 {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::HcalHardcodeCalibrations->...";
   
   //parsing record parameters
-  StringToEnumParser<HcalTopologyMode::Mode> parser;
-  const edm::ParameterSet hcalTopoConsts = iConfig.getParameter<edm::ParameterSet>( "hcalTopologyConstants" );
-  mode_= (HcalTopologyMode::Mode) parser.parseString( hcalTopoConsts.getParameter<std::string>("mode"));
-  maxDepthHB_ = hcalTopoConsts.getParameter<int>("maxDepthHB");
-  maxDepthHE_ = hcalTopoConsts.getParameter<int>("maxDepthHE");
+  if( iConfig.exists( "hcalTopologyConstants" ))
+  {
+    const edm::ParameterSet hcalTopoConsts( iConfig.getParameter<edm::ParameterSet>( "hcalTopologyConstants" ));
+    StringToEnumParser<HcalTopologyMode::Mode> parser;
+    mode_ = (HcalTopologyMode::Mode) parser.parseString(hcalTopoConsts.getParameter<std::string>("mode"));
+    maxDepthHB_ = hcalTopoConsts.getParameter<int>("maxDepthHB");
+    maxDepthHE_ = hcalTopoConsts.getParameter<int>("maxDepthHE");
+  }
 
   (mode_ == HcalTopologyMode::H2 || mode_ == HcalTopologyMode::H2HE) ? h2mode_=true : h2mode_ = false;
   std::vector <std::string> toGet = iConfig.getUntrackedParameter <std::vector <std::string> > ("toGet");
