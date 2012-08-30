@@ -44,8 +44,8 @@ laserClient = dict(
         AmplitudeRMS = dict(path = "Laser/Laser%(wl)s/Amplitude/RMS/LaserClient amplitude RMS L%(wl)s", otype = 'SM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 0., 'high': 400.}),
         TimingMean = dict(path = 'Laser/Laser%(wl)s/Timing/Mean/LaserClient timing mean L%(wl)s', otype = 'SM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 3.5, 'high': 5.5}),
         TimingRMS = dict(path = 'Laser/Laser%(wl)s/Timing/RMS/LaserClient timing RMS L%(wl)s', otype = 'SM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 0., 'high': 0.5}),
-        QualitySummary = dict(path = 'Summary/Calibration/LaserClient laser quality L%(wl)s', otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TH2F'),
-        PNQualitySummary = dict(path = 'Summary/Calibration/LaserClient PN quality L%(wl)s', otype = 'MEM', btype = 'Crystal', kind = 'TH2F')
+        QualitySummary = dict(path = 'Summary/LaserClient laser quality L%(wl)s', otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TH2F'),
+        PNQualitySummary = dict(path = 'Summary/LaserClient PN quality L%(wl)s', otype = 'MEM', btype = 'Crystal', kind = 'TH2F')
     ),
     sources = dict(
         Amplitude = laserTask['MEs']['Amplitude'],
