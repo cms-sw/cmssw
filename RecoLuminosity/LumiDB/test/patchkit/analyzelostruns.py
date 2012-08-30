@@ -129,6 +129,7 @@ def insertLumischemaV2(dbsession,runnum,datasource,perlsrawdata,perbunchrawdata,
         instlumierror=0.
         instlumiquality=1
         if perbunchrawdata:
+            withDetails=True
             bxdataocc1blob=perbunchrawdata[cmslsnum][0]
             bxerrorocc1blob=perbunchrawdata[cmslsnum][1]
             bxqualityocc1blob=perbunchrawdata[cmslsnum][2]
@@ -146,6 +147,7 @@ def insertLumischemaV2(dbsession,runnum,datasource,perlsrawdata,perbunchrawdata,
             instlumierror=perbunchrawdata[cmslsnum][14]
             instlumiquality=perbunchrawdata[cmslsnum][15]
         elif bxdistribution:
+            withDetails=True
             bxdataArray=array.array('f')
             bxerrorArray=array.array('f')
             bxqualityArray=array.array('h')
