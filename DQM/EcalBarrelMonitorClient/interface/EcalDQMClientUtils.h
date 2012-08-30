@@ -12,7 +12,7 @@ namespace ecaldqm
 {
   typedef EcalDQMBinningService BinService;
 
-  float maskQuality(BinService::BinningType, DetId const&, uint32_t, int);
+  bool applyMask(BinService::BinningType, DetId const&, uint32_t);
 
   void setStatuses(EcalDQMChannelStatus const*, EcalDQMTowerStatus const*);
 }

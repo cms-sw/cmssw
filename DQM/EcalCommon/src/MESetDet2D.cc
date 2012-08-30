@@ -71,6 +71,20 @@ namespace ecaldqm
   }
 
   void
+  MESetDet2D::fill(unsigned _dcctccid, double _w/* = 1.*/, double, double)
+  {
+    if(!active_) return;
+
+    unsigned iME(binService_->findPlot(otype_, _dcctccid));
+    checkME_(iME);
+
+    BinService::ObjectType obj(binService_->getObject(otype_, iME));
+
+    int bin(binService_->findBin2D(obj, btype_, _dcctccid));
+    fill_(iME, bin, _w);
+  }
+
+  void
   MESetDet2D::setBinContent(DetId const& _id, double _content)
   {
     if(!active_) return;
@@ -111,6 +125,20 @@ namespace ecaldqm
   }
 
   void
+  MESetDet2D::setBinContent(unsigned _dcctccid, double _content)
+  {
+    if(!active_) return;
+
+    unsigned iME(binService_->findPlot(otype_, _dcctccid));
+    checkME_(iME);
+
+    BinService::ObjectType obj(binService_->getObject(otype_, iME));
+
+    int bin(binService_->findBin2D(obj, btype_, _dcctccid));
+    mes_[iME]->setBinContent(bin, _content);
+  }
+
+  void
   MESetDet2D::setBinError(DetId const& _id, double _error)
   {
     if(!active_) return;
@@ -147,6 +175,20 @@ namespace ecaldqm
     BinService::ObjectType obj(binService_->getObject(otype_, iME));
 
     int bin(binService_->findBin2D(obj, btype_, _id));
+    mes_[iME]->setBinError(bin, _error);
+  }
+
+  void
+  MESetDet2D::setBinError(unsigned _dcctccid, double _error)
+  {
+    if(!active_) return;
+
+    unsigned iME(binService_->findPlot(otype_, _dcctccid));
+    checkME_(iME);
+
+    BinService::ObjectType obj(binService_->getObject(otype_, iME));
+
+    int bin(binService_->findBin2D(obj, btype_, _dcctccid));
     mes_[iME]->setBinError(bin, _error);
   }
 
@@ -192,6 +234,20 @@ namespace ecaldqm
     mes_[iME]->setBinEntries(bin, _entries);
   }
 
+  void
+  MESetDet2D::setBinEntries(unsigned _dcctccid, double _entries)
+  {
+    if(!active_) return;
+
+    unsigned iME(binService_->findPlot(otype_, _dcctccid));
+    checkME_(iME);
+
+    BinService::ObjectType obj(binService_->getObject(otype_, iME));
+
+    int bin(binService_->findBin2D(obj, btype_, _dcctccid));
+    mes_[iME]->setBinEntries(bin, _entries);
+  }
+
   double
   MESetDet2D::getBinContent(DetId const& _id, int) const
   {
@@ -230,6 +286,20 @@ namespace ecaldqm
     return mes_[iME]->getBinContent(bin);
   }
 
+  double
+  MESetDet2D::getBinContent(unsigned _dcctccid, int) const
+  {
+    if(!active_) return 0.;
+
+    unsigned iME(binService_->findPlot(otype_, _dcctccid));
+    checkME_(iME);
+
+    BinService::ObjectType obj(binService_->getObject(otype_, iME));
+
+    int bin(binService_->findBin2D(obj, btype_, _dcctccid));
+    
+    return mes_[iME]->getBinContent(bin);
+  }
 
   double
   MESetDet2D::getBinError(DetId const& _id, int) const
@@ -253,7 +323,7 @@ namespace ecaldqm
     
     return mes_[iME]->getBinError(bin);
   }
-  
+
   double
   MESetDet2D::getBinError(EcalElectronicsId const& _id, int) const
   {
@@ -269,6 +339,20 @@ namespace ecaldqm
     return mes_[iME]->getBinError(bin);
   }
 
+  double
+  MESetDet2D::getBinError(unsigned _dcctccid, int) const
+  {
+    if(!active_) return 0.;
+
+    unsigned iME(binService_->findPlot(otype_, _dcctccid));
+    checkME_(iME);
+
+    BinService::ObjectType obj(binService_->getObject(otype_, iME));
+
+    int bin(binService_->findBin2D(obj, btype_, _dcctccid));
+    
+    return mes_[iME]->getBinError(bin);
+  }
 
   double
   MESetDet2D::getBinEntries(DetId const& _id, int) const
@@ -306,6 +390,21 @@ namespace ecaldqm
     BinService::ObjectType obj(binService_->getObject(otype_, iME));
 
     int bin(binService_->findBin2D(obj, btype_, _id));
+    
+    return mes_[iME]->getBinEntries(bin);
+  }
+
+  double
+  MESetDet2D::getBinEntries(unsigned _dcctccid, int) const
+  {
+    if(!active_) return 0.;
+
+    unsigned iME(binService_->findPlot(otype_, _dcctccid));
+    checkME_(iME);
+
+    BinService::ObjectType obj(binService_->getObject(otype_, iME));
+
+    int bin(binService_->findBin2D(obj, btype_, _dcctccid));
     
     return mes_[iME]->getBinEntries(bin);
   }

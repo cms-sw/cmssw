@@ -22,8 +22,8 @@ namespace ecaldqm {
       (0x1 << kEBDigi) |
       (0x1 << kEEDigi) |
       (0x1 << kPnDiodeDigi) |
-      (0x1 << kEBUncalibRecHit) |
-      (0x1 << kEEUncalibRecHit);
+      (0x1 << kEBTestPulseUncalibRecHit) |
+      (0x1 << kEETestPulseUncalibRecHit);
 
     for(unsigned iD(0); iD < BinService::nDCC; ++iD){
       enable_[iD] = false;
@@ -68,7 +68,7 @@ namespace ecaldqm {
       delete temp;
     }
 
-    unsigned pnPlots[] = {kPNOccupancy, kPNAmplitude};
+    unsigned pnPlots[] = {kPNAmplitude};
     for(unsigned iS(0); iS < sizeof(pnPlots) / sizeof(unsigned); ++iS){
       unsigned plot(pnPlots[iS]);
       MESet* temp(MEs_[plot]);
@@ -89,28 +89,6 @@ namespace ecaldqm {
     }
   }
 
-  TestPulseTask::~TestPulseTask()
-  {
-  }
-
-  void
-  TestPulseTask::beginRun(const edm::Run&, const edm::EventSetup&)
-  {
-    for(int idcc(0); idcc < 54; idcc++){
-      enable_[idcc] = false;
-      gain_[idcc] = 0;
-    }
-  }
-
-  void
-  TestPulseTask::endEvent(const edm::Event&, const edm::EventSetup&)
-  {
-    for(int idcc(0); idcc < 54; idcc++){
-      enable_[idcc] = false;
-      gain_[idcc] = 0;
-    }
-  }
-
   bool
   TestPulseTask::filterRunType(const std::vector<short>& _runType)
   {
@@ -122,6 +100,8 @@ namespace ecaldqm {
 	enable = true;
 	enable_[iFED] = true;
       }
+      else
+        enable_[iFED] = false;
     }
 
     return enable;
@@ -137,7 +117,10 @@ namespace ecaldqm {
 
       int iDCC(dccId(id) - 1);
 
-      if(!enable_[iDCC]) continue;
+      if(!enable_[iDCC]){
+        gain_[iDCC] = 0;
+        continue;
+      }
 
       // EcalDataFrame is not a derived class of edm::DataFrame, but can take edm::DataFrame in the constructor
       EcalDataFrame dataFrame(*digiItr);
@@ -150,7 +133,11 @@ namespace ecaldqm {
       default: continue;
       }
 
-      if(gainToME_.find(gain) == gainToME_.end()) continue;
+      if(gainToME_.find(gain) == gainToME_.end()){
+        enable_[iDCC] = false;
+        gain_[iDCC] = 0;
+        continue;
+      }
 
       if(iME != gainToME_[gain]){
         iME = gainToME_[gain];
@@ -173,7 +160,7 @@ namespace ecaldqm {
     unsigned iME(-1);
 
     for(EcalPnDiodeDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
-      EcalPnDiodeDetId id(digiItr->id());
+      EcalPnDiodeDetId const& id(digiItr->id());
 
       int iDCC(dccId(id) - 1);
 
@@ -190,11 +177,8 @@ namespace ecaldqm {
 
       if(iME != pnGainToME_[gain]){
         iME = pnGainToME_[gain];
-        static_cast<MESetMulti*>(MEs_[kPNOccupancy])->use(iME);
         static_cast<MESetMulti*>(MEs_[kPNAmplitude])->use(iME);
       }
-
-      MEs_[kPNOccupancy]->fill(id);
 
       float pedestal(0.);
       for(int iSample(0); iSample < 4; iSample++)
@@ -205,7 +189,7 @@ namespace ecaldqm {
       for(int iSample(0); iSample < 50; iSample++)
 	if(digiItr->sample(iSample).adc() > max) max = digiItr->sample(iSample).adc();
 
-      float amplitude(max - pedestal);
+      double amplitude(max - pedestal);
 
       MEs_[kPNAmplitude]->fill(id, amplitude);
     }
@@ -239,7 +223,6 @@ namespace ecaldqm {
     _nameToIndex["Occupancy"] = kOccupancy;
     _nameToIndex["Shape"] = kShape;
     _nameToIndex["Amplitude"] = kAmplitude;
-    _nameToIndex["PNOccupancy"] = kPNOccupancy;
     _nameToIndex["PNAmplitude"] = kPNAmplitude;
   }
 

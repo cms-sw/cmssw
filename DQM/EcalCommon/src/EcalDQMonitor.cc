@@ -12,8 +12,8 @@ using namespace ecaldqm;
 
 EcalDQMonitor::EcalDQMonitor(const edm::ParameterSet &_ps) :
   moduleName_(_ps.getUntrackedParameter<std::string>("moduleName")),
-  mergeRuns_(_ps.getUntrackedParameter<bool>("mergeRuns")),
-  verbosity_(_ps.getUntrackedParameter<int>("verbosity")),
+  mergeRuns_(_ps.getUntrackedParameter<bool>("mergeRuns", false)),
+  verbosity_(_ps.getUntrackedParameter<int>("verbosity", 0)),
   initialized_(false)
 {
   using namespace std;
@@ -43,8 +43,4 @@ EcalDQMonitor::EcalDQMonitor(const edm::ParameterSet &_ps) :
 
     workers_.push_back(worker);
   }
-}
-
-EcalDQMonitor::~EcalDQMonitor()
-{
 }

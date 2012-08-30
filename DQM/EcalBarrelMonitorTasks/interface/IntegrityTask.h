@@ -11,7 +11,6 @@ namespace ecaldqm {
   class IntegrityTask : public DQWorkerTask {
   public:
     IntegrityTask(edm::ParameterSet const&, edm::ParameterSet const&);
-    ~IntegrityTask();
 
     void bookMEs();
 

@@ -11,11 +11,10 @@ namespace ecaldqm {
   }
 
   void
-  CertificationClient::bookMEs()
+  CertificationClient::beginRun(edm::Run const&, edm::EventSetup const&)
   {
-    DQWorker::bookMEs();
-
     MEs_[kCertificationMap]->resetAll(-1.);
+    MEs_[kCertificationMap]->reset(1.);
   }
 
   void

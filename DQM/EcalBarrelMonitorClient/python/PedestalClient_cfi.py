@@ -20,7 +20,7 @@ pedestalClient = dict(
         Quality = dict(path = 'Pedestal/Gain%(gain)s/Quality/PedestalClient pedestal quality G%(gain)s', otype = 'SM', btype = 'Crystal', kind = 'TH2F'),
         Mean = dict(path = 'Pedestal/Gain%(gain)s/Mean/PedestalClient mean G%(gain)s', otype = 'SM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 120, 'low': 170., 'high': 230.}),
         RMS = dict(path = "Pedestal/Gain%(gain)s/RMS/PedestalClient rms G%(gain)s", otype = 'SM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 0., 'high': 10.}),
-        PNRMS = dict(path = 'Pedestal/PN/Gain%(pngain)s/RMS/PedestalClient PN rms G%(pngain)s', otype = 'SMMEM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 0., 'high': 50.}),
+        PNRMS = dict(path = 'PN/Pedestal/Gain%(pngain)s/RMS/PedestalClient PN rms G%(pngain)s', otype = 'SMMEM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 0., 'high': 50.}),
         QualitySummary = dict(path = 'Summary/PedestalClient pedestal quality G%(gain)s', otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TH2F'),
         PNQualitySummary = dict(path = 'Summary/PedestalClient PN quality G%(pngain)s', otype = 'MEM', btype = 'Crystal', kind = 'TH2F')
     ),

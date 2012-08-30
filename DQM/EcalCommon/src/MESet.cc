@@ -258,11 +258,12 @@ namespace ecaldqm
 
     if(iME == unsigned(-1)) return;
 
+    // current internal bin numbering scheme does not allow 1D histograms (overflow & underflow in each y)
     MonitorElement::Kind kind(meSet_->getKind());
-    if(kind != MonitorElement::DQM_KIND_TH1F && kind != MonitorElement::DQM_KIND_TPROFILE &&
-       kind != MonitorElement::DQM_KIND_TH2F && kind != MonitorElement::DQM_KIND_TPROFILE2D)
+    //    if(kind != MonitorElement::DQM_KIND_TH1F && kind != MonitorElement::DQM_KIND_TPROFILE &&
+    if(kind != MonitorElement::DQM_KIND_TH2F && kind != MonitorElement::DQM_KIND_TPROFILE2D)
       throw cms::Exception("InvalidOperation")
-        << "const_iterator only available for MESet of histogram kind";
+        << "const_iterator only available for MESet of 2D histograms";
 
     MonitorElement const* me(meSet_->getME(iME));
 
@@ -318,11 +319,12 @@ namespace ecaldqm
   MESet::const_iterator::operator++()
   {
     unsigned& iME(bin_.iME);
-    int& bin(bin_.iBin);
     MESet const* meSet(bin_.getMESet());
-    BinService::ObjectType& otype(bin_.otype);
 
     if(!meSet || iME == unsigned(-1)) return *this;
+
+    int& bin(bin_.iBin);
+    BinService::ObjectType& otype(bin_.otype);
 
     MonitorElement::Kind kind(meSet->getKind());
     MonitorElement const* me(meSet->getME(iME));
@@ -332,7 +334,7 @@ namespace ecaldqm
     ++bin;
     if(bin == 1){
       iME = 0;
-      me = meSet->mes_[iME];
+      me = meSet->getME(iME);
       nbinsX = me->getNbinsX();
       if(kind == MonitorElement::DQM_KIND_TH2F || kind == MonitorElement::DQM_KIND_TPROFILE2D)
         bin = nbinsX + 3;
@@ -385,7 +387,7 @@ namespace ecaldqm
     MonitorElement::Kind kind(meSet->getKind());
     if(kind != MonitorElement::DQM_KIND_TH2F && kind != MonitorElement::DQM_KIND_TPROFILE2D) return false;
 
-    MonitorElement const* me(meSet->mes_[bin_.iME]);
+    MonitorElement const* me(meSet->getME(bin_.iME));
 
     if(bin_.iBin / (me->getNbinsX() + 2) >= me->getNbinsY()) return false;
 
@@ -403,7 +405,7 @@ namespace ecaldqm
     MonitorElement::Kind kind(meSet->getKind());
     if(kind != MonitorElement::DQM_KIND_TH2F && kind != MonitorElement::DQM_KIND_TPROFILE2D) return false;
 
-    MonitorElement const* me(meSet->mes_[bin_.iME]);
+    MonitorElement const* me(meSet->getME(bin_.iME));
 
     if(bin_.iBin / (me->getNbinsX() + 2) <= 1) return false;
 

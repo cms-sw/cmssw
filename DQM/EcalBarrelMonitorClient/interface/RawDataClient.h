@@ -10,7 +10,7 @@ namespace ecaldqm {
     RawDataClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~RawDataClient() {}
 
-    void bookMEs();
+    void beginRun(const edm::Run &, const edm::EventSetup &);
 
     void producePlots();
 

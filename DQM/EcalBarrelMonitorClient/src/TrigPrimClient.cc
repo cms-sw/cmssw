@@ -14,11 +14,10 @@ namespace ecaldqm {
   }
 
   void
-  TrigPrimClient::bookMEs()
+  TrigPrimClient::beginRun(const edm::Run &, const edm::EventSetup &)
   {
-    DQWorker::bookMEs();
-
     MEs_[kEmulQualitySummary]->resetAll(-1.);
+    MEs_[kEmulQualitySummary]->reset(kUnknown);
   }
 
   void
@@ -32,6 +31,8 @@ namespace ecaldqm {
 
     for(unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; iTT++){
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
+
+      bool doMask(applyMask_(kEmulQualitySummary, ttid, mask));
 
       float towerEntries(0.);
       float tMax(0.5);
@@ -49,7 +50,7 @@ namespace ecaldqm {
       MEs_[kTimingSummary]->setBinContent(ttid, tMax);
 
       if(towerEntries < 1.){
-	MEs_[kEmulQualitySummary]->setBinContent(ttid, maskQuality_(kEmulQualitySummary, ttid, mask, 2));
+	MEs_[kEmulQualitySummary]->setBinContent(ttid, doMask ? kMUnknown : kUnknown);
 	continue;
       }
 
@@ -58,8 +59,10 @@ namespace ecaldqm {
       if(nonsingleFraction > 0.)
 	MEs_[kNonSingleSummary]->setBinContent(ttid, nonsingleFraction);
 
-      int quality(sources_[kEtEmulError]->getBinContent(ttid) > 0. || sources_[kTimingError]->getBinContent(ttid) > 0. ? 0 : 1);
-      MEs_[kEmulQualitySummary]->setBinContent(ttid, maskQuality_(kEmulQualitySummary, ttid, mask, quality));
+      if(sources_[kEtEmulError]->getBinContent(ttid) > 0.)
+        MEs_[kEmulQualitySummary]->setBinContent(ttid, doMask ? kMBad : kBad);
+      else
+        MEs_[kEmulQualitySummary]->setBinContent(ttid, doMask ? kMGood : kGood);
     }
   }
 
@@ -73,7 +76,6 @@ namespace ecaldqm {
 
     _nameToIndex["EtRealMap"] = kEtRealMap;
     _nameToIndex["EtEmulError"] = kEtEmulError;
-    _nameToIndex["TimingError"] = kTimingError;
     _nameToIndex["MatchedIndex"] = kMatchedIndex;
   }
 

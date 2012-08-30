@@ -7,8 +7,7 @@ namespace ecaldqm
     current_(0),
     sets_(_nClones)
   {
-    if(_nClones == 0)
-      throw_("Zero-plet MESetMulti");
+    if(_nClones == 0) return;
 
     for(unsigned iS(0); iS < sets_.size(); ++iS)
       sets_[iS] = _seed.clone();
@@ -21,6 +20,8 @@ namespace ecaldqm
     current_(0),
     sets_(_orig.sets_.size())
   {
+    if(sets_.size() == 0) return;
+
     unsigned currentIndex(-1);
     for(unsigned iS(0); iS < sets_.size(); ++iS){
       if(_orig.sets_[iS] == _orig.current_) currentIndex = iS;
@@ -42,9 +43,12 @@ namespace ecaldqm
     for(unsigned iS(0); iS < sets_.size(); ++iS)
       delete sets_[iS];
     sets_.clear();
+    current_ = 0;
 
     MESetMulti const* pRhs(dynamic_cast<MESetMulti const*>(&_rhs));
     if(pRhs){
+      if(pRhs->sets_.size() == 0) return *this;
+
       unsigned currentIndex(-1);
       for(unsigned iS(0); iS < pRhs->sets_.size(); ++iS){
         if(pRhs->sets_[iS] == pRhs->current_) currentIndex = iS;

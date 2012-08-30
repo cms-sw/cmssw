@@ -24,7 +24,6 @@ namespace ecaldqm {
     ebHits_(0),
     eeHits_(0),
     ievt_(0),
-    lowEMax_(_workerParams.getUntrackedParameter<double>("lowEMax")),
     massCalcPrescale_(_workerParams.getUntrackedParameter<int>("massCalcPrescale"))
   {
     collectionMask_ = 
@@ -36,15 +35,15 @@ namespace ecaldqm {
       (0x1 << kEBSuperCluster) |
       (0x1 << kEESuperCluster);
 
-    dependencies.push_back(Dependency(kEBSuperCluster, kEBRecHit));
-    dependencies.push_back(Dependency(kEESuperCluster, kEERecHit));
-
     if(massCalcPrescale_ == 0)
       throw cms::Exception("InvalidConfiguration") << "Mass calculation prescale is zero";
   }
 
-  ClusterTask::~ClusterTask()
+  void
+  ClusterTask::setDependencies(DependencySet& _dependencies)
   {
+    _dependencies.push_back(Dependency(kEBSuperCluster, kEBRecHit));
+    _dependencies.push_back(Dependency(kEESuperCluster, kEERecHit));
   }
 
   void
@@ -73,32 +72,6 @@ namespace ecaldqm {
     eeHits_ = 0;
 
     ievt_++;
-  }
-
-  void
-  ClusterTask::bookMEs()
-  {
-    DQWorker::bookMEs();
-
-    MEs_[kBCE]->setAxisTitle("energy (GeV)", 1);
-    MEs_[kBCNum]->setAxisTitle("number of clusters", 1);
-    MEs_[kBCSize]->setAxisTitle("number of clusters", 1);
-    MEs_[kSCE]->setAxisTitle("energy (GeV)", 1);
-    MEs_[kSCELow]->setAxisTitle("energy (GeV)", 1);
-    MEs_[kSCSeedEnergy]->setAxisTitle("energy (GeV)", 1);
-    MEs_[kSCClusterVsSeed]->setAxisTitle("seed crystal energy (GeV)", 1);
-    MEs_[kSCClusterVsSeed]->setAxisTitle("cluster energy (GeV)", 2);
-    MEs_[kSCNum]->setAxisTitle("number of clusters", 1);
-    MEs_[kSCNBCs]->setAxisTitle("cluster size", 1);
-    MEs_[kSCNcrystals]->setAxisTitle("cluster size", 1);
-    MEs_[kSCR9]->setAxisTitle("R9", 1);
-    MEs_[kPi0]->setAxisTitle("mass (GeV)", 1);
-    MEs_[kJPsi]->setAxisTitle("mass (GeV)", 1);
-    MEs_[kZ]->setAxisTitle("mass (GeV)", 1);
-    MEs_[kHighMass]->setAxisTitle("mass (GeV)", 1);
-
-    for(int i(0); i < 2; i++)
-      MEs_[kSCELow]->getME(i)->getTH1()->GetXaxis()->SetLimits(0., lowEMax_);
   }
   
   bool
@@ -277,7 +250,7 @@ namespace ecaldqm {
       float energy(scItr->energy());
 
       MEs_[kSCE]->fill(id, energy);
-      if(energy < lowEMax_) MEs_[kSCELow]->fill(id, energy);
+      MEs_[kSCELow]->fill(id, energy);
 
       MEs_[kSCNBCs]->fill(id, scItr->clustersSize());
       MEs_[kSCNcrystals]->fill(id, scItr->size());

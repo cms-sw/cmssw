@@ -82,14 +82,6 @@ namespace ecaldqm
     virtual double getBinEntries(unsigned, int = 0) const { return 0.; }
     virtual double getBinEntries(int) const { return 0.; }
 
-    virtual int findBin(DetId const&) const { return 0; }
-    virtual int findBin(EcalElectronicsId const&) const { return 0; }
-    virtual int findBin(unsigned) const { return 0; }
-    virtual int findBin(DetId const&, double, double = 0.) const { return 0; }
-    virtual int findBin(EcalElectronicsId const&, double, double = 0.) const { return 0; }
-    virtual int findBin(unsigned, double, double = 0.) const { return 0; }
-    virtual int findBin(double, double = 0.) const { return 0; }
-
     virtual void setAxisTitle(std::string const&, int = 1);
     virtual void setBinLabel(unsigned, int, std::string const&, int = 1);
 
@@ -107,6 +99,7 @@ namespace ecaldqm
     MonitorElement::Kind getKind() const { return kind_; }
     bool isActive() const { return active_; }
     virtual MonitorElement const* getME(unsigned _iME) const { return (_iME < mes_.size() ? mes_[_iME] : 0); }
+    virtual MonitorElement* getME(unsigned _iME) { return (_iME < mes_.size() ? mes_[_iME] : 0); }
 
     static MonitorElement::Kind translateKind(std::string const&);
 
@@ -119,7 +112,7 @@ namespace ecaldqm
     {
       if(!getME(_iME)){
         std::stringstream ss;
-        ss << "ME array index overflow: " << _iME;
+        ss << "ME does not exist at index " << _iME;
         throw_(ss.str());
       }
     }
@@ -163,25 +156,27 @@ namespace ecaldqm
       }
       bool isChannel() const
       {
-        return binService_->isValidIdBin(otype, meSet_->getBinType(), iME, iBin);
+        if(meSet_) return binService_->isValidIdBin(otype, meSet_->getBinType(), iME, iBin);
+        else return false;
       }
       uint32_t getId() const
       {
-        return binService_->idFromBin(otype, meSet_->getBinType(), iME, iBin);
+        if(meSet_) return binService_->idFromBin(otype, meSet_->getBinType(), iME, iBin);
+        else return 0;
       }
       double getBinContent() const
       {
-        if(iBin > 0) return meSet_->mes_[iME]->getBinContent(iBin);
+        if(meSet_ && iME != unsigned(-1)) return meSet_->getME(iME)->getBinContent(iBin);
         else return 0.;
       }
       double getBinError() const
       {
-        if(iBin > 0) return meSet_->mes_[iME]->getBinError(iBin);
+        if(meSet_ && iME != unsigned(-1)) return meSet_->getME(iME)->getBinError(iBin);
         else return 0.;
       }
       double getBinEntries() const
       {
-        if(iBin > 0) return meSet_->mes_[iME]->getBinEntries(iBin);
+        if(meSet_ && iME != unsigned(-1)) return meSet_->getME(iME)->getBinEntries(iBin);
         else return 0.;
       }
       void setMESet(MESet const* _meSet) { meSet_ = _meSet; }
@@ -205,23 +200,23 @@ namespace ecaldqm
       }
       void fill(double _w = 1.)
       {
-        if(meSet_ && iBin > 0) meSet_->fill_(iME, iBin, _w);
+        if(meSet_) meSet_->fill_(iME, iBin, _w);
       }
       void fill(double _y, double _w = 1.)
       {
-        if(meSet_ && iBin > 0) meSet_->fill_(iME, iBin, _y, _w);
+        if(meSet_) meSet_->fill_(iME, iBin, _y, _w);
       }
       void setBinContent(double _content)
       {
-        if(meSet_ && iBin > 0) meSet_->mes_.at(iME)->setBinContent(iBin, _content);
+        if(meSet_ && iME != unsigned(-1)) meSet_->getME(iME)->setBinContent(iBin, _content);
       }
       void setBinError(double _error)
       {
-        if(meSet_ && iBin > 0) meSet_->mes_.at(iME)->setBinError(iBin, _error);
+        if(meSet_ && iME != unsigned(-1)) meSet_->getME(iME)->setBinError(iBin, _error);
       }
       void setBinEntries(double _entries)
       {
-        if(meSet_ && iBin > 0) meSet_->mes_.at(iME)->setBinEntries(iBin, _entries);
+        if(meSet_ && iME != unsigned(-1)) meSet_->getME(iME)->setBinEntries(iBin, _entries);
       }
       void setMESet(MESet* _meSet) { ConstBin::meSet_ = _meSet; meSet_ = _meSet; }
       MESet* getMESet() const { return meSet_; }

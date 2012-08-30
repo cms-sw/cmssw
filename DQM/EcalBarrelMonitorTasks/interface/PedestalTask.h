@@ -10,7 +10,7 @@ namespace ecaldqm {
   class PedestalTask : public DQWorkerTask {
   public:
     PedestalTask(edm::ParameterSet const&, edm::ParameterSet const&);
-    ~PedestalTask();
+    ~PedestalTask() {}
 
     bool filterRunType(const std::vector<short>&);
 
@@ -22,7 +22,6 @@ namespace ecaldqm {
     enum MESets {
       kOccupancy, // h2f
       kPedestal, // profile2d
-      kPNOccupancy,
       kPNPedestal, // profile2d
       nMESets
     };

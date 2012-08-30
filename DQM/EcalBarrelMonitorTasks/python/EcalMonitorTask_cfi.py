@@ -16,20 +16,6 @@ from DQM.EcalBarrelMonitorTasks.TrigPrimTask_cfi import trigPrimTask
 from DQM.EcalBarrelMonitorTasks.TowerStatusTask_cfi import towerStatusTask
 from DQM.EcalBarrelMonitorTasks.PresampleTask_cfi import presampleTask
 
-ecalMonitorTaskParams = dict(
-    ClusterTask = clusterTask,
-    EnergyTask = energyTask,
-    IntegrityTask = integrityTask,
-    OccupancyTask = occupancyTask,
-    RawDataTask = rawDataTask,
-    SelectiveReadoutTask = selectiveReadoutTask,
-    TimingTask = timingTask,
-    TrigPrimTask = trigPrimTask,
-    TowerStatusTask = towerStatusTask,
-    PresampleTask = presampleTask,
-    common = ecalCommonParams
-)
-
 ecalMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
     moduleName = cms.untracked.string("Ecal Monitor Source"),
     mergeRuns = cms.untracked.bool(False),
@@ -47,7 +33,21 @@ ecalMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
         "PresampleTask"
     ),
     # task parameters (included from indivitual cfis)
-    workerParameters = dqmpset(ecalMonitorTaskParams),
+    workerParameters = dqmpset(
+        dict(
+            ClusterTask = clusterTask,
+            EnergyTask = energyTask,
+            IntegrityTask = integrityTask,
+            OccupancyTask = occupancyTask,
+            RawDataTask = rawDataTask,
+            SelectiveReadoutTask = selectiveReadoutTask,
+            TimingTask = timingTask,
+            TrigPrimTask = trigPrimTask,
+            TowerStatusTask = towerStatusTask,
+            PresampleTask = presampleTask,
+            common = ecalCommonParams
+        )
+    ),
     collectionTags = ecalDQMCollectionTags,
     allowMissingCollections = cms.untracked.bool(False),
     verbosity = cms.untracked.int32(0),

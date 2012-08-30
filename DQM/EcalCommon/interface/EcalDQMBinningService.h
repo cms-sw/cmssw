@@ -92,7 +92,7 @@ class EcalDQMBinningService {
     double low, high;
     double* edges;
     std::string title;
-    AxisSpecs() : nbins(0), edges(0) {}
+    AxisSpecs() : nbins(0), low(0.), high(0.), edges(0) {}
     AxisSpecs(AxisSpecs const& _specs) :
       nbins(_specs.nbins), low(_specs.low), high(_specs.high), edges(0), title(_specs.title)
     {
@@ -128,6 +128,7 @@ class EcalDQMBinningService {
 
   int findBin2D(ObjectType, BinningType, DetId const&) const;
   int findBin2D(ObjectType, BinningType, EcalElectronicsId const&) const;
+  int findBin2D(ObjectType, BinningType, unsigned) const;
 
   unsigned findPlot(ObjectType, const DetId&) const;
   unsigned findPlot(ObjectType, const EcalElectronicsId&) const;

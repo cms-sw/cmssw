@@ -78,21 +78,30 @@ namespace ecaldqm
       BinService::AxisSpecs xaxis, yaxis, zaxis;
 
       if(logicalDimensions_ > 0){
+
 	if(xaxis_){
 	  xaxis = *xaxis_;
 	}
 	else{ // uses preset
 	  bool isMap(logicalDimensions_ > 1);
 	  xaxis = binService_->getBinning(actualObject, btype_, isMap, 1, iME);
-	  if(isMap) yaxis = binService_->getBinning(actualObject, btype_, true, 2, iME);
+          if(isMap) yaxis = binService_->getBinning(actualObject, btype_, true, 2, iME);
 	}
 
 	if(yaxis_){
 	  yaxis = *yaxis_;
 	}
+        if(yaxis.high - yaxis.low < 1.e-10){
+          yaxis.low = -std::numeric_limits<double>::max();
+          yaxis.high = std::numeric_limits<double>::max();
+        }
 	if(zaxis_){
 	  zaxis = *zaxis_;
 	}
+        if(zaxis.high - zaxis.low < 1.e-10){
+          zaxis.low = -std::numeric_limits<double>::max();
+          zaxis.high = std::numeric_limits<double>::max();
+        }
       }
 
       MonitorElement* me(0);
@@ -171,6 +180,7 @@ namespace ecaldqm
       if(logicalDimensions_ > 0){
 	me->setAxisTitle(xaxis.title, 1);
 	me->setAxisTitle(yaxis.title, 2);
+        if(logicalDimensions_ > 1) me->setAxisTitle(zaxis.title, 3);
 	// For plot tagging in RenderPlugin; default values are 1 for both
         // Does this method work?
 	me->getTH1()->SetMarkerStyle(actualObject + 2);
@@ -197,7 +207,7 @@ namespace ecaldqm
 	    me->setBinLabel(iBin, binService_->channelName(iBin + 45));
 	}
       }
-      if(logicalDimensions_ == 1 && btype_ == BinService::kTriggerTower){
+      else if(logicalDimensions_ == 1 && btype_ == BinService::kTriggerTower){
         unsigned dccid(0);
         if(actualObject == BinService::kSM && (iME <= kEEmHigh || iME >= kEEpLow)) dccid = iME + 1;
         else if(actualObject == BinService::kEESM) dccid = iME <= kEEmHigh ? iME + 1 : iME + 37;
@@ -217,11 +227,39 @@ namespace ecaldqm
           ss.str("");
           ss << "TCC" << outer.second << " TT1";
           me->setBinLabel(65, ss.str());
-          for(int iBin(5); iBin <= 80; iBin += 4){
+          int offset(0);
+          for(int iBin(4); iBin <= 80; iBin += 4){
+            if(iBin == 28) offset = 24;
+            else if(iBin == 52) offset = 48;
+            else if(iBin == 68) offset = 64;
             ss.str("");
-            ss << iBin;
+            ss << iBin - offset;
             me->setBinLabel(iBin, ss.str());
           }
+        }
+      }
+      else if(logicalDimensions_ == 2 && btype_ == BinService::kCrystal){
+        if(actualObject == BinService::kMEM){
+          for(int iBin(1); iBin <= me->getNbinsX(); ++iBin)
+            me->setBinLabel(iBin, binService_->channelName(memDCCId(iBin - 1)));
+        }
+        if(actualObject == BinService::kEBMEM){
+          for(int iBin(1); iBin <= me->getNbinsX(); ++iBin)
+            me->setBinLabel(iBin, binService_->channelName(memDCCId(iBin - 5)));
+        }
+        if(actualObject == BinService::kEEMEM){
+          for(int iBin(1); iBin <= me->getNbinsX() / 2; ++iBin){
+            me->setBinLabel(iBin, binService_->channelName(memDCCId(iBin - 1)));
+            me->setBinLabel(iBin + me->getNbinsX() / 2, binService_->channelName(memDCCId(iBin + 39)));
+          }
+        }
+      }
+      else if(logicalDimensions_ == 2 && btype_ == BinService::kDCC){
+        if(actualObject == BinService::kEcal){
+          me->setBinLabel(1, "EE", 2);
+          me->setBinLabel(6, "EE", 2);
+          me->setBinLabel(3, "EB", 2);
+          me->setBinLabel(5, "EB", 2);
         }
       }
       
@@ -230,7 +268,7 @@ namespace ecaldqm
 
     // To avoid the ambiguity between "content == 0 because the mean is 0" and "content == 0 because the entry is 0"
     // RenderPlugin must be configured accordingly
-    if(kind_ == MonitorElement::DQM_KIND_TPROFILE2D)
+    if(kind_ == MonitorElement::DQM_KIND_TPROFILE2D && logicalDimensions_ == 2)
       resetAll(std::numeric_limits<double>::max(), 0., -1.);
 
     active_ = true;
@@ -288,6 +326,16 @@ namespace ecaldqm
     checkME_(iME);
 
     fill_(iME, _x, _wy, _w);
+  }
+
+  void
+  MESetEcal::fill(double _x, double _wy/* = 1.*/, double _w/* = 1.*/)
+  {
+    if(!active_) return;
+
+    if(mes_.size() != 1) return;
+
+    fill_(0, _x, _wy, _w);
   }
 
   void

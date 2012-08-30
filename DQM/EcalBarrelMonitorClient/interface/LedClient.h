@@ -20,8 +20,6 @@ namespace ecaldqm {
       kAmplitudeRMS,
       kTimingMean,
       kTimingRMS,
-      kPNAmplitudeMean,
-      kPNAmplitudeRMS,
       kQualitySummary,
       kPNQualitySummary,
       nMESets
@@ -38,7 +36,6 @@ namespace ecaldqm {
 
   protected:
     std::map<int, unsigned> wlToME_;
-    std::map<std::pair<int, int>, unsigned> wlGainToME_;
 
     int minChannelEntries_;
     std::vector<double> expectedAmplitude_;

@@ -68,45 +68,30 @@ namespace ecaldqm {
       initialized_ &= (*sItr)->retrieve();
   }
 
-  float
-  DQWorkerClient::maskQuality_(unsigned _iME, DetId const& _id, uint32_t _mask, int _quality)
+  bool
+  DQWorkerClient::applyMask_(unsigned _iME, DetId const& _id, uint32_t _mask)
   {
-    return maskQuality(MEs_[_iME]->getBinType(), _id, _mask, _quality);
+    return applyMask(MEs_[_iME]->getBinType(), _id, _mask);
   }
 
-  float
-  DQWorkerClient::maskQuality_(MESet::iterator const& _itr, uint32_t _mask, int _quality)
+  bool
+  DQWorkerClient::applyMask_(unsigned, EcalPnDiodeDetId const&)
   {
-    uint32_t id(_itr->getId());
-    if(id == 0) return _quality;
-    else return maskQuality(_itr->getMESet()->getBinType(), DetId(id), _mask, _quality);
-  }
-
-  float
-  DQWorkerClient::maskPNQuality_(unsigned, EcalPnDiodeDetId const&, int _quality)
-  {
-    return _quality;
-  }
-
-  float
-  DQWorkerClient::maskPNQuality_(MESet::iterator const& _itr, int _quality)
-  {
-    return _quality;
+    return false;
   }
 
   void
   DQWorkerClient::towerAverage_(unsigned _target, unsigned _source, float _threshold)
   {
-    MESet::iterator meEnd(MEs_[_target]->end());
-    for(MESet::iterator meItr(MEs_[_target]->beginChannel()); meItr != meEnd; meItr.toNextChannel()){
-      DetId towerId(meItr->getId());
+    MESet::iterator tEnd(MEs_[_target]->end());
+    for(MESet::iterator tItr(MEs_[_target]->beginChannel()); tItr != tEnd; tItr.toNextChannel()){
+      DetId towerId(tItr->getId());
 
       std::vector<DetId> cryIds;
       if(towerId.subdetId() == EcalTriggerTower)
         cryIds = getTrigTowerMap()->constituentsOf(EcalTrigTowerDetId(towerId));
       else{
-        std::pair<int, int> dccsc(getElectronicsMap()->getDCCandSC(EcalScDetId(towerId)));
-        cryIds = getElectronicsMap()->dccTowerConstituents(dccsc.first, dccsc.second);
+        cryIds = scConstituents(EcalScDetId(towerId));
       }
 
       if(cryIds.size() == 0) return;
@@ -129,11 +114,11 @@ namespace ecaldqm {
         }
       }
       
-      if(nValid < 1.) meItr->setBinContent(masked ? 5. : 2.);
+      if(nValid < 1.) tItr->setBinContent(masked ? 5. : 2.);
       else{
         mean /= nValid;
-        if(mean < _threshold) meItr->setBinContent(masked ? 3. : 0.);
-        else meItr->setBinContent(masked ? 4. : 1.);
+        if(mean < _threshold) tItr->setBinContent(masked ? 3. : 0.);
+        else tItr->setBinContent(masked ? 4. : 1.);
       }
     }
   }

@@ -1,12 +1,12 @@
 #include "../interface/EcalDQMonitorTask.h"
 
+#include "../interface/DQWorkerTask.h"
+
 #include <algorithm>
 #include <iomanip>
 
 #include "DQM/EcalCommon/interface/MESet.h"
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
-
-#include "../interface/DQWorkerTask.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -33,8 +33,8 @@ EcalDQMonitorTask::EcalDQMonitorTask(const edm::ParameterSet &_ps) :
   schedule_(),
   enabled_(),
   taskTimes_(),
-  evaluateTime_(_ps.getUntrackedParameter<bool>("evaluateTime")),
-  allowMissingCollections_(_ps.getUntrackedParameter<bool>("allowMissingCollections"))
+  evaluateTime_(_ps.getUntrackedParameter<bool>("evaluateTime", false)),
+  allowMissingCollections_(_ps.getUntrackedParameter<bool>("allowMissingCollections", false))
 {
   using namespace std;
 
@@ -43,6 +43,8 @@ EcalDQMonitorTask::EcalDQMonitorTask(const edm::ParameterSet &_ps) :
       throw cms::Exception("InvalidConfiguration") << "Non-client DQWorker " << (*wItr)->getName() << " passed";
 
   const edm::ParameterSet& collectionTags(_ps.getUntrackedParameterSet("collectionTags"));
+
+  ecaldqm::DependencySet dependencies;
 
   for(unsigned iCol(0); iCol < nCollections; iCol++){
 
@@ -53,6 +55,9 @@ EcalDQMonitorTask::EcalDQMonitorTask(const edm::ParameterSet &_ps) :
 
     for(vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
       DQWorkerTask* task(static_cast<DQWorkerTask*>(*wItr));
+
+      task->setDependencies(dependencies);
+
       if(task->runsOn(iCol)){
 	taskLists_[iCol].push_back(task);
 	use = true;
@@ -60,12 +65,12 @@ EcalDQMonitorTask::EcalDQMonitorTask(const edm::ParameterSet &_ps) :
     }
     if(use){
       collectionTags_[iCol] = collectionTags.getUntrackedParameter<edm::InputTag>(collectionName[iCol]);
-      DQWorkerTask::dependencies.push_back(DQWorkerTask::Dependency(Collections(iCol)));
+      dependencies.push_back(ecaldqm::Dependency(Collections(iCol)));
     }
 
   }
 
-  formSchedule_();
+  formSchedule_(dependencies.formSequence());
 
   if(verbosity_ > 0){
     cout << moduleName_ << ": Using collections" << endl;

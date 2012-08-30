@@ -6,7 +6,6 @@ ledTask = dict(
         Shape = dict(path = "Led/Led%(wl)s/LedTask pulse shape L%(wl)s", otype = 'EESM', btype = 'SuperCrystal', kind = 'TProfile2D', yaxis = {'nbins': 10, 'low': 0., 'high': 10.}),
         Timing = dict(path = "Led/Led%(wl)s/Timing/LedTask uncalib timing L%(wl)s", otype = 'EESM', btype = 'SuperCrystal', kind = 'TProfile2D'),
         AOverP = dict(path = "Led/Led%(wl)s/AOverP/LedTask AoverP L%(wl)s", otype = 'EESM', btype = 'SuperCrystal', kind = 'TProfile2D'),
-        PNAmplitude = dict(path = "Led/Led%(wl)s/PN/Gain%(pngain)s/LedTask PN amplitude L%(wl)s G%(wl)s", otype = 'EESMMEM', btype = 'Crystal', kind = 'TProfile'),
-        PNOccupancy = dict(path = "Occupancy/LedTask PN digi occupancy", otype = 'EEMEM', btype = 'Crystal', kind = 'TH2F')
+        PNAmplitude = dict(path = "PN/Led/Led%(wl)s/LedTask PN amplitude L%(wl)s", otype = 'EESMMEM', btype = 'Crystal', kind = 'TProfile')
     )
 )

@@ -14,18 +14,12 @@ ledClient = dict(
     timingThresholdL2 = 0.5,
     timingRMSThresholdL1 = 0.2,
     timingRMSThresholdL2 = 0.2,
-    expectedPNAmplitudeL1G1 = 800.0,
-    expectedPNAmplitudeL1G16 = 800.0,
-    expectedPNAmplitudeL2G1 = 800.0,
-    expectedPNAmplitudeL2G16 = 800.0,
-    pnAmplitudeThresholdL1G1 = 500.0,
-    pnAmplitudeThresholdL1G16 = 500.0,
-    pnAmplitudeThresholdL2G1 = 500.0,
-    pnAmplitudeThresholdL2G16 = 500.0,
-    pnAmplitudeRMSThresholdL1G1 = 100.0,
-    pnAmplitudeRMSThresholdL1G16 = 100.0,
-    pnAmplitudeRMSThresholdL2G1 = 100.0,
-    pnAmplitudeRMSThresholdL2G16 = 100.0,
+    expectedPNAmplitudeL1 = 800.0,
+    expectedPNAmplitudeL2 = 800.0,
+    pnAmplitudeThresholdL1 = 500.0,
+    pnAmplitudeThresholdL2 = 500.0,
+    pnAmplitudeRMSThresholdL1 = 100.0,
+    pnAmplitudeRMSThresholdL2 = 100.0,
     towerThreshold = 0.1,
     MEs = dict(
         AmplitudeMean = dict(path = "Led/Led%(wl)s/Amplitude/Mean/LedClient amplitude mean L%(wl)s", otype = 'EESM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 0., 'high': 4096.}),
@@ -34,10 +28,10 @@ ledClient = dict(
         TimingRMS = dict(path = 'Led/Led%(wl)s/Timing/RMS/LedClient timing RMS L%(wl)s', otype = 'EESM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 0., 'high': 0.5}),
         Quality = dict(path = 'Led/Led%(wl)s/Quality/LedClient led quality L%(wl)s', otype = 'EESM', btype = 'Crystal', kind = 'TH2F'),
         QualitySummary = dict(path = 'Summary/LedClient led quality L%(wl)s', otype = 'EE', btype = 'SuperCrystal', kind = 'TH2F'),
-        PNQualitySummary = dict(path = 'Summary/LedClient PN quality L%(wl)s G%(pngain)s', otype = 'EEMEM', btype = 'Crystal', kind = 'TH2F')
+        PNQualitySummary = dict(path = 'Summary/LedClient PN quality L%(wl)s', otype = 'EEMEM', btype = 'Crystal', kind = 'TH2F')
     ),
     sources = dict(
-        Amplitude = ledTask['MEs']['Amptlitude'],
+        Amplitude = ledTask['MEs']['Amplitude'],
         Timing = ledTask['MEs']['Timing'],
         PNAmplitude = ledTask['MEs']['PNAmplitude']
     )

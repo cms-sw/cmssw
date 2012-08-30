@@ -165,6 +165,13 @@ EcalDQMBinningService::findBin1D(ObjectType _otype, BinningType _btype, const De
     }
     else
       break;
+  case kSMMEM:
+  case kEBSMMEM:
+  case kEESMMEM:
+    if(_btype == kCrystal)
+      return EcalPnDiodeDetId(_id).iPnId();
+    else
+      break;
   default:
     break;
   }
@@ -307,6 +314,21 @@ EcalDQMBinningService::findBin2D(ObjectType _otype, BinningType _btype, const Ec
   }
 }
 
+int
+EcalDQMBinningService::findBin2D(ObjectType _otype, BinningType _btype, unsigned _dccid) const
+{
+  if(_otype != kEcal || _btype != kDCC) return 0;
+
+  int nbinsX(9);
+  unsigned iDCC(_dccid - 1);
+  int xbin(0);
+  if(iDCC <= kEEmHigh || iDCC >= kEEpLow) xbin = (iDCC + 6) % nbinsX + 1;
+  else xbin = iDCC % nbinsX + 1;
+  int ybin(6 - iDCC / nbinsX);
+
+  return (nbinsX + 2) * ybin + xbin;
+}
+
 unsigned
 EcalDQMBinningService::findPlot(ObjectType _otype, const DetId &_id) const
 {
@@ -434,16 +456,16 @@ EcalDQMBinningService::isValidIdBin(ObjectType _otype, BinningType _btype, unsig
       if(iSM == kEEm02 || iSM == kEEm08 || iSM == kEEp02 || iSM == kEEp08) nX = nEESMXExt;
       int ix(_bin % (nX + 2) + xlow(iSM));
       int iy(_bin / (nX + 2) + ylow(iSM));
-      int zside(iSM <= kEEmHigh ? -1 : 1);
-      return EEDetId::validDetId(ix, iy, 1) && iSM == dccId(EEDetId(ix, iy, zside)) - 1;
+      int z(iSM <= kEEmHigh ? -1 : 1);
+      return EEDetId::validDetId(ix, iy, 1) && iSM == dccId(EEDetId(ix, iy, z)) - 1;
     }
     else if(_btype == kSuperCrystal){
       int nX(nEESMX / 5);
       if(iSM == kEEm02 || iSM == kEEm08 || iSM == kEEp02 || iSM == kEEp08) nX = nEESMXExt / 5;
       int ix(_bin % (nX + 2) + xlow(iSM) / 5);
       int iy(_bin / (nX + 2) + ylow(iSM) / 5);
-      int zside(iSM <= kEEmHigh ? -1 : 1);
-      return EcalScDetId::validDetId(ix, iy, zside) && iSM == dccId(EcalScDetId(ix, iy, zside)) - 1;
+      int z(iSM <= kEEmHigh ? -1 : 1);
+      return EcalScDetId::validDetId(ix, iy, z) && iSM == dccId(EcalScDetId(ix, iy, z)) - 1;
     }
   }
 
@@ -590,30 +612,33 @@ EcalDQMBinningService::idFromBin(ObjectType _otype, BinningType _btype, unsigned
     }
     else if(_btype == kTriggerTower || _btype == kSuperCrystal){
       int ieta(_bin / 74 - 17);
-      int zside(1);
+      int z(1);
       if(ieta <= 0){
-        zside = -1;
+        z = -1;
         ieta = -ieta + 1;
       }
-      return EcalTrigTowerDetId(zside , EcalBarrel, ieta, (_bin % 74 + 69) % 72 + 1);
+      return EcalTrigTowerDetId(z , EcalBarrel, ieta, (_bin % 74 + 69) % 72 + 1);
     }
   }
   else if(_otype == kEEm || _otype == kEEp){
+    int z(_otype == kEEm ? -1 : 1);
     if(_btype == kCrystal || _btype == kTriggerTower)
-      return EEDetId(_bin % 102, _bin / 102, 1).rawId();
+      return EEDetId(_bin % 102, _bin / 102, z).rawId();
     else if(_btype == kSuperCrystal)
-      return EcalScDetId(_bin % 22, _bin / 22, 1).rawId();
+      return EcalScDetId(_bin % 22, _bin / 22, z).rawId();
   }
   else if(_otype == kEE){
     if(_btype == kCrystal || _btype == kTriggerTower){
       int ix(_bin % 202);
-      if(ix > 100) ix = (ix - 100) % 101;
-      return EEDetId(ix, _bin / 202, 1).rawId();
+      int z(ix > 100 ? 1 : -1);
+      if(z > 0) ix = (ix - 100) % 101;
+      return EEDetId(ix, _bin / 202, z).rawId();
     }
     else if(_btype == kSuperCrystal){
       int ix(_bin % 42);
-      if(ix > 20) ix = (ix - 20) % 21;
-      return EcalScDetId(ix, _bin / 42, 1).rawId();
+      int z(ix > 20 ? 1 : -1);
+      if(z > 0) ix = (ix - 20) % 21;
+      return EcalScDetId(ix, _bin / 42, z).rawId();
     }
   }
   else if(_otype == kSM || _otype == kEBSM || _otype == kEESM){
@@ -621,30 +646,30 @@ EcalDQMBinningService::idFromBin(ObjectType _otype, BinningType _btype, unsigned
     if(_otype == kEBSM) iSM += 9;
     else if(_otype == kEESM && iSM > kEEmHigh) iSM += nEBDCC;
 
-    int zside(iSM <= kEBmHigh ? -1 : 1);
+    int z(iSM <= kEBmHigh ? -1 : 1);
 
     if((iSM >= kEBmLow && iSM <= kEBmHigh) || (iSM >= kEBpLow && iSM <= kEBpHigh)){
       if(_btype == kCrystal){
-        int iphi(((iSM - 9) % 18) * 20 + (zside < 0 ? _bin / 87 : 21 - _bin / 87));
-        int ieta((_bin % 87) * zside);
+        int iphi(((iSM - 9) % 18) * 20 + (z < 0 ? _bin / 87 : 21 - _bin / 87));
+        int ieta((_bin % 87) * z);
         return EBDetId(ieta, iphi).rawId();
       }
       else if(_btype == kTriggerTower || _btype == kSuperCrystal){
-        int iphi((((iSM - 9) % 18) * 4 + (zside < 0 ? _bin / 19 : 5 - _bin / 19) + 69) % 72 + 1);
+        int iphi((((iSM - 9) % 18) * 4 + (z < 0 ? _bin / 19 : 5 - _bin / 19) + 69) % 72 + 1);
         int ieta(_bin % 19);
-        return EcalTrigTowerDetId(zside, EcalBarrel, ieta, iphi).rawId();
+        return EcalTrigTowerDetId(z, EcalBarrel, ieta, iphi).rawId();
       }
     }
     else{
       if(_btype == kCrystal || _btype == kTriggerTower){
         int nX(nEESMX);
         if(iSM == kEEm02 || iSM == kEEm08 || iSM == kEEp02 || iSM == kEEp08) nX = nEESMXExt;
-        return EEDetId(_bin % (nX + 2) + xlow(iSM), _bin / (nX + 2) + ylow(iSM), zside).rawId();
+        return EEDetId(_bin % (nX + 2) + xlow(iSM), _bin / (nX + 2) + ylow(iSM), z).rawId();
       }
       else if(_btype == kSuperCrystal){
         int nX(nEESMX / 5);
         if(iSM == kEEm02 || iSM == kEEm08 || iSM == kEEp02 || iSM == kEEp08) nX = nEESMXExt / 5;
-        return EcalScDetId(_bin % (nX + 2) + xlow(iSM) / 5, _bin / (nX + 2) + ylow(iSM) / 5, zside).rawId();
+        return EcalScDetId(_bin % (nX + 2) + xlow(iSM) / 5, _bin / (nX + 2) + ylow(iSM) / 5, z).rawId();
       }
     }
   }

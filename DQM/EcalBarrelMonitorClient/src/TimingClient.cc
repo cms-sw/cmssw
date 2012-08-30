@@ -11,8 +11,10 @@ namespace ecaldqm {
   TimingClient::TimingClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
     DQWorkerClient(_workerParams, _commonParams, "TimingClient"),
     expectedMean_(_workerParams.getUntrackedParameter<double>("expectedMean")),
-    meanThreshold_(_workerParams.getUntrackedParameter<double>("meanThreshold")),
-    rmsThreshold_(_workerParams.getUntrackedParameter<double>("rmsThreshold")),
+    toleranceMean_(_workerParams.getUntrackedParameter<double>("toleranceMean")),
+    toleranceMeanFwd_(_workerParams.getUntrackedParameter<double>("toleranceMeanFwd")),
+    toleranceRMS_(_workerParams.getUntrackedParameter<double>("toleranceRMS")),
+    toleranceRMSFwd_(_workerParams.getUntrackedParameter<double>("toleranceRMSFwd")),
     minChannelEntries_(_workerParams.getUntrackedParameter<int>("minChannelEntries")),
     minTowerEntries_(_workerParams.getUntrackedParameter<int>("minTowerEntries")),
     tailPopulThreshold_(_workerParams.getUntrackedParameter<double>("tailPopulThreshold"))
@@ -20,13 +22,14 @@ namespace ecaldqm {
   }
 
   void
-  TimingClient::bookMEs()
+  TimingClient::beginRun(const edm::Run &, const edm::EventSetup &)
   {
-    DQWorker::bookMEs();
-
     MEs_[kQuality]->resetAll(-1.);
     MEs_[kRMSMap]->resetAll(-1.);
     MEs_[kQualitySummary]->resetAll(-1.);
+
+    MEs_[kQuality]->reset(kUnknown);
+    MEs_[kQualitySummary]->reset(kUnknown);
   }
 
   void
@@ -56,10 +59,12 @@ namespace ecaldqm {
 
       DetId id(qItr->getId());
 
+      bool doMask(applyMask_(kQuality, id, mask));
+
       float entries(tItr->getBinEntries());
 
       if(entries < minChannelEntries_){
-        qItr->setBinContent(maskQuality_(qItr, mask, 2));
+        qItr->setBinContent(doMask ? kMUnknown : kUnknown);
         rItr->setBinContent(-1.);
         continue;
       }
@@ -76,6 +81,14 @@ namespace ecaldqm {
 
       bool negative(false);
       float posTime(0.);
+
+      float meanThresh(toleranceMean_);
+      float rmsThresh(toleranceRMS_);
+
+      if(isForward(id)){
+        meanThresh = toleranceMeanFwd_;
+        rmsThresh = toleranceRMSFwd_;
+      }
 
       if(id.subdetId() == EcalBarrel){
         EBDetId ebid(id);
@@ -98,10 +111,10 @@ namespace ecaldqm {
         MEs_[kFwdvBkwd]->fill(id, mean, posTime);
       }
 
-      if(abs(mean - expectedMean_) > meanThreshold_ || rms > rmsThreshold_)
-        qItr->setBinContent(maskQuality_(qItr, mask, 0));
+      if(abs(mean - expectedMean_) > meanThresh || rms > rmsThresh)
+        qItr->setBinContent(doMask ? kMBad : kBad);
       else
-        qItr->setBinContent(maskQuality_(qItr, mask, 1));
+        qItr->setBinContent(doMask ? kMGood : kGood);
     }
 
     MESet::iterator qsEnd(MEs_[kQualitySummary]->end());
@@ -119,49 +132,61 @@ namespace ecaldqm {
 
       std::vector<DetId> ids;
 
+      float meanThresh(toleranceMean_);
+      float rmsThresh(toleranceRMS_);
+
       if(tId.subdetId() == EcalTriggerTower)
         ids = getTrigTowerMap()->constituentsOf(EcalTrigTowerDetId(tId));
       else{
-        std::pair<int, int> dccsc(getElectronicsMap()->getDCCandSC(EcalScDetId(tId)));
-        ids = getElectronicsMap()->dccTowerConstituents(dccsc.first, dccsc.second);
+        EcalScDetId scid(tId);
+        ids = scConstituents(scid);
+
+        if(ids.size() > 0 && isForward(ids[0])){
+          meanThresh = toleranceMeanFwd_;
+          rmsThresh = toleranceRMSFwd_;
+        }
       }
 
       float towerEntries(0.);
       float towerMean(0.);
       float towerMean2(0.);
 
+      bool doMask(false);
+
       for(vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr){
         DetId& id(*idItr);
 
+        doMask |= applyMask_(kQuality, id, mask);
+
         MESet::const_iterator tmItr(sources_[kTimeMap], id);
 
-        towerEntries += tmItr->getBinEntries();
+        float entries(tmItr->getBinEntries());
+        if(entries < 0.) continue;
+        towerEntries += entries;
         float mean(tmItr->getBinContent());
-        towerMean += mean;
-        towerMean2 += mean * mean;
+        towerMean += mean * entries;
+        float rms(tmItr->getBinError() * sqrt(entries));
+        towerMean2 += (rms * rms + mean * mean) * entries;
       }
 
-      int quality(2);
-      if(towerEntries > minTowerEntries_){
+      double quality(doMask ? kMUnknown : kUnknown);
+      if(towerEntries / ids.size() > minTowerEntries_ / 25.){
         if(summaryEntries < towerEntries * (1. - tailPopulThreshold_)) // large timing deviation
           quality = 0;
         else{
-	  towerMean /= ids.size();
-	  towerMean2 /= ids.size();
+	  towerMean /= towerEntries;
+	  towerMean2 /= towerEntries;
 
-	  float towerRMS(0.);
-	  float variance(towerMean2 - towerMean * towerMean);
-	  if(variance > 0.) towerRMS = sqrt(variance);
+	  float towerRMS(sqrt(towerMean2 - towerMean * towerMean));
 
-	  if(abs(towerMean - expectedMean_) > meanThreshold_ || towerRMS > rmsThreshold_)
-	    quality = 0;
+	  if(abs(towerMean - expectedMean_) > meanThresh || towerRMS > rmsThresh)
+	    quality = doMask ? kMBad : kBad;
           else
-            quality = 1;
+            quality = doMask ? kMGood : kGood;
         }
       }
 
-      qsItr->setBinContent(maskQuality_(qsItr, mask, quality));
-
+      qsItr->setBinContent(quality);
     }
   }
 

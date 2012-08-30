@@ -31,10 +31,6 @@ namespace ecaldqm {
       throw cms::Exception("InvalidConfiguration") << "Nonthing to do in TowerStatusTask";
   }
 
-  TowerStatusTask::~TowerStatusTask()
-  {
-  }
-
   void
   TowerStatusTask::beginRun(const edm::Run &, const edm::EventSetup &)
   {
@@ -52,6 +48,8 @@ namespace ecaldqm {
 
       MEs_[kDCSSummaryMap]->resetAll(-1.);
     }
+
+    initialized_ = true;
   }
 
   void
@@ -74,12 +72,10 @@ namespace ecaldqm {
 	}
       }
       for(unsigned id(0); id < EcalScDetId::kSizeForDenseIndexing; id++){
-	if(daqHndl->endcap(id).getStatusCode() == 0){
+	if(daqHndl->endcap(id).getStatusCode() != 0){
           EcalScDetId scid(EcalScDetId::unhashIndex(id));
-          std::pair<int, int> dccsc(getElectronicsMap()->getDCCandSC(scid));
-          float nC(getElectronicsMap()->dccTowerConstituents(dccsc.first, dccsc.second).size());
           unsigned dccid(dccId(scid));
-	  status[dccid - 1] -= nC / nCrystals(dccid);
+	  status[dccid - 1] -= double(scConstituents(scid).size()) / nCrystals(dccid);
 	}
       }
 
@@ -103,12 +99,10 @@ namespace ecaldqm {
 	}
       }
       for(unsigned id(0); id < EcalScDetId::kSizeForDenseIndexing; id++){
-	if(dcsHndl->endcap(id).getStatusCode() == 0){
+	if(dcsHndl->endcap(id).getStatusCode() != 0){
           EcalScDetId scid(EcalScDetId::unhashIndex(id));
-          std::pair<int, int> dccsc(getElectronicsMap()->getDCCandSC(scid));
-          float nC(getElectronicsMap()->dccTowerConstituents(dccsc.first, dccsc.second).size());
           unsigned dccid(dccId(scid));
-	  status[dccid - 1] -= nC / nCrystals(dccid);
+	  status[dccid - 1] -= double(scConstituents(scid).size()) / nCrystals(dccid);
 	}
       }
 

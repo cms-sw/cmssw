@@ -10,7 +10,9 @@ namespace ecaldqm {
   class TrigPrimTask : public DQWorkerTask {
   public:
     TrigPrimTask(edm::ParameterSet const&, edm::ParameterSet const&);
-    ~TrigPrimTask();
+    ~TrigPrimTask() {}
+
+    void setDependencies(DependencySet&);
 
     void bookMEs();
 
@@ -31,7 +33,6 @@ namespace ecaldqm {
       kEtSummary,
       kMatchedIndex,
       kEmulMaxIndex,
-      kTimingError,
       kEtVsBx,
       kOccVsBx,
       kLowIntMap,
@@ -57,7 +58,6 @@ namespace ecaldqm {
 
     bool runOnEmul_;
 
-    int expectedTiming_;
     std::string HLTCaloPath_;
     std::string HLTMuonPath_;
     bool HLTCaloBit_;

@@ -2,11 +2,13 @@ from DQM.EcalBarrelMonitorTasks.TimingTask_cfi import timingTask
 
 timingClient = dict(
     expectedMean = 0.,
-    meanThreshold = 2.,
-    rmsThreshold = 6.,
+    toleranceMean = 2.,
+    toleranceMeanFwd = 3.,
+    toleranceRMS = 6.,
+    toleranceRMSFwd = 9.,
     minChannelEntries = 3,
-    minTowerEntries = 10,
-    tailPopulThreshold = 0.3,
+    minTowerEntries = 20,
+    tailPopulThreshold = 0.4,
     MEs = dict(
         Quality = dict(path = "Timing/Quality/TimingClient timing quality", otype = 'SM', btype = 'Crystal', kind = 'TH2F'),
         MeanSM = dict(path = "Timing/Mean/TimingClient SM mean", otype = 'SM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': -25., 'high': 25.}),

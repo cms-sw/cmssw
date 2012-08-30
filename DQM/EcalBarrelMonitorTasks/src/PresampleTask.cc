@@ -41,18 +41,25 @@ namespace ecaldqm {
       // EcalDataFrame is not a derived class of edm::DataFrame, but can take edm::DataFrame in the constructor
       EcalDataFrame dataFrame(*digiItr);
 
-      float mean(0.);
       bool gainSwitch(false);
-
-      for(int iSample(0); iSample < 3; iSample++){
-	if(dataFrame.sample(iSample).gainId() != 1){
-	  gainSwitch = true;
-	  break;
-	}
-
-	mean += dataFrame.sample(iSample).adc();
+      int iMax(-1);
+      int maxADC(0);
+      for(int iSample(0); iSample < 10; ++iSample){
+        int adc(dataFrame.sample(iSample).adc());
+        if(adc > maxADC){
+          iMax = iSample;
+          maxADC = adc;
+        }
+        if(iSample < 3 && dataFrame.sample(iSample).gainId() != 1){
+          gainSwitch = true;
+          break;
+        }
       }
-      if(gainSwitch) continue;
+      if(iMax != 5 || gainSwitch) continue;
+
+      float mean(0.);
+      for(int iSample(0); iSample < 3; ++iSample)
+	mean += dataFrame.sample(iSample).adc();
 
       mean /= 3.;
 

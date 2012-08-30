@@ -10,7 +10,7 @@ namespace ecaldqm {
     IntegrityClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~IntegrityClient() {}
 
-    void bookMEs();
+    void beginRun(edm::Run const&, edm::EventSetup const&);
 
     void producePlots();
 

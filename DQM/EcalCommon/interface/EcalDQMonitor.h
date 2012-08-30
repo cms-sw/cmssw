@@ -16,7 +16,7 @@ namespace ecaldqm{
 class EcalDQMonitor : public edm::EDAnalyzer {
  public:
   EcalDQMonitor(const edm::ParameterSet &);
-  virtual ~EcalDQMonitor();
+  virtual ~EcalDQMonitor() {}
 
  protected:
   std::vector<ecaldqm::DQWorker*> workers_;

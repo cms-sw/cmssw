@@ -20,6 +20,8 @@ namespace ecaldqm {
     SelectiveReadoutTask(edm::ParameterSet const&, edm::ParameterSet const&);
     ~SelectiveReadoutTask() {}
 
+    void setDependencies(DependencySet&);
+
     void beginRun(const edm::Run &, const edm::EventSetup &);
     void beginEvent(const edm::Event &, const edm::EventSetup &);
 

@@ -13,8 +13,8 @@ namespace ecaldqm {
   EcalDQMChannelStatus const* channelStatus(0);
   EcalDQMTowerStatus const* towerStatus(0);
 
-  float
-  maskQuality(BinService::BinningType _btype, DetId const& _id, uint32_t _mask, int _quality)
+  bool
+  applyMask(BinService::BinningType _btype, DetId const& _id, uint32_t _mask)
   {
     using namespace std;
 
@@ -22,7 +22,7 @@ namespace ecaldqm {
 
     // turn off masking for good channel for the time being
     // update the RP then enable again
-    if(_quality != 1 && channelStatus && towerStatus){
+    if(channelStatus && towerStatus){
       bool searchTower(_btype == BinService::kTriggerTower || _btype == BinService::kSuperCrystal);
 
       switch(_id.subdetId()){
@@ -125,7 +125,7 @@ namespace ecaldqm {
       }
     }
 
-    return doMask ? _quality + 3. : _quality;
+    return doMask;
   }
 
   void

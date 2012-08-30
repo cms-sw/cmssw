@@ -26,7 +26,8 @@ namespace ecaldqm
 
     enum Sources {
       kPedestal,
-      kPNPedestal
+      kPNPedestal,
+      nSources
     };
 
     static void setMEOrdering(std::map<std::string, unsigned>&);

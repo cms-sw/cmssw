@@ -25,8 +25,6 @@ namespace ecaldqm {
       (0x1 << kSource) |
       (0x1 << kEcalRawData);
 
-    dependencies.push_back(Dependency(kEcalRawData, kSource));
-
     if(hltTaskMode_ != 0 && hltTaskFolder_.size() == 0)
 	throw cms::Exception("InvalidConfiguration") << "HLTTask mode needs a folder name";
 
@@ -39,8 +37,10 @@ namespace ecaldqm {
     }
   }
 
-  RawDataTask::~RawDataTask()
+  void
+  RawDataTask::setDependencies(DependencySet& _dependencies)
   {
+    _dependencies.push_back(Dependency(kEcalRawData, kSource));
   }
 
   void

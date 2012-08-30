@@ -8,7 +8,7 @@ namespace ecaldqm
 {
 
   PedestalClient::PedestalClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
-    DQWorkerClient(_workerParams, _commonParams, "PedestalTask"),
+    DQWorkerClient(_workerParams, _commonParams, "PedestalClient"),
     expectedMean_(0),
     toleranceMean_(0),
     toleranceRMS_(0),
@@ -153,12 +153,17 @@ namespace ecaldqm
 
       MEs_[kQuality]->resetAll(-1.);
       MEs_[kQualitySummary]->resetAll(-1.);
+
+      MEs_[kQuality]->reset(kUnknown);
+      MEs_[kQualitySummary]->reset(kUnknown);
     }
 
     for(unsigned iME(0); iME < pnGainToME_.size(); ++iME){
       static_cast<MESetMulti*>(MEs_[kPNQualitySummary])->use(iME);
 
       MEs_[kPNQualitySummary]->resetAll(-1.);
+
+      MEs_[kPNQualitySummary]->reset(kUnknown);
     }
   }
 
@@ -196,34 +201,36 @@ namespace ecaldqm
         break;
       }
 
-      MESet::const_iterator meEnd(sources_[kPedestal]->end());
-      for(MESet::const_iterator meItr(sources_[kPedestal]->beginChannel()); meItr != meEnd; meItr.toNextChannel()){
+      MESet::iterator qEnd(MEs_[kQuality]->end());
+      MESet::const_iterator pItr(sources_[kPedestal]);
+      for(MESet::iterator qItr(MEs_[kQuality]->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
-        DetId id(meItr->getId());
+        DetId id(qItr->getId());
 
-        float mean(meItr->getBinContent());
-        float entries(meItr->getBinEntries());
-        float rms(meItr->getBinError() * sqrt(entries));
+        bool doMask(applyMask_(kQuality, id, mask));
 
-        int quality(2);
+        pItr = qItr;
+
+        float entries(pItr->getBinEntries());
 
         if(entries < 1.){
-          MEs_[kQuality]->setBinContent(id, maskQuality_(kQuality, id, mask, quality));
+          qItr->setBinContent(doMask ? kMUnknown : kUnknown);
           continue;
         }
 
+        float mean(pItr->getBinContent());
+        float rms(pItr->getBinError() * sqrt(entries));
+
         MEs_[kMean]->fill(id, mean);
-        MEs_[kRMS]->fill(id, mean);
+        MEs_[kRMS]->fill(id, rms);
 
         if(abs(mean - expectedMean_[gainItr->second]) > toleranceMean_[gainItr->second] || rms > toleranceRMS_[gainItr->second])
-          quality = 0;
+          qItr->setBinContent(doMask ? kMBad : kBad);
         else
-          quality = 1;
-
-        MEs_[kQuality]->setBinContent(id, maskQuality_(kQuality, id, mask, quality));
+          qItr->setBinContent(doMask ? kMGood : kGood);
       }
-        
-      towerAverage_(kQualitySummary, kQuality, 0.5);
+
+      towerAverage_(kQualitySummary, kQuality, 0.2);
     }
 
     for(map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr){
@@ -248,30 +255,36 @@ namespace ecaldqm
         break;
       }
 
-      MESet::const_iterator meEnd(sources_[kPNPedestal]->end());
-      for(MESet::const_iterator meItr(sources_[kPNPedestal]->beginChannel()); meItr != meEnd; meItr.toNextChannel()){
+      for(unsigned iDCC(0); iDCC < BinService::nDCC; ++iDCC){
 
-        EcalPnDiodeDetId id(meItr->getId());
+        if(memDCCIndex(iDCC + 1) == unsigned(-1)) continue;
 
-        float mean(meItr->getBinContent());
-        float entries(meItr->getBinEntries());
-        float rms(meItr->getBinError() * sqrt(entries));
+        for(unsigned iPN(0); iPN < 10; ++iPN){
+          int subdet(0);
+          if(iDCC >= kEBmLow && iDCC <= kEBpHigh) subdet = EcalBarrel;
+          else subdet = EcalEndcap;
 
-        int quality(2);
+          EcalPnDiodeDetId id(subdet, iDCC + 1, iPN + 1);
 
-        if(entries < 1.){
-          MEs_[kPNQualitySummary]->setBinContent(id, maskQuality_(kPNQualitySummary, id, mask, quality));
-          continue;
+          bool doMask(applyMask_(kPNQualitySummary, id));
+
+          float entries(sources_[kPNPedestal]->getBinEntries(id));
+
+          if(entries < 1.){
+            MEs_[kPNQualitySummary]->setBinContent(id, doMask ? kMUnknown : kUnknown);
+            continue;
+          }
+
+          float mean(sources_[kPNPedestal]->getBinContent(id));
+          float rms(sources_[kPNPedestal]->getBinError(id) * sqrt(entries));
+
+          MEs_[kPNRMS]->fill(id, rms);
+
+          if(abs(mean - expectedPNMean_[gainItr->second]) > tolerancePNMean_[gainItr->second] || rms > tolerancePNRMS_[gainItr->second])
+            MEs_[kPNQualitySummary]->setBinContent(id, doMask ? kMBad : kBad);
+          else
+            MEs_[kPNQualitySummary]->setBinContent(id, doMask ? kMGood : kGood);
         }
-
-        MEs_[kPNRMS]->fill(id, rms);
-
-        if(abs(mean - expectedPNMean_[gainItr->second]) > tolerancePNMean_[gainItr->second] || rms > tolerancePNRMS_[gainItr->second])
-          quality = 0;
-        else
-          quality = 1;
-
-        MEs_[kPNQualitySummary]->setBinContent(id, maskQuality_(kPNQualitySummary, id, mask, quality));
       }
     }
   }

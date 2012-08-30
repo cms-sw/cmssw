@@ -12,7 +12,6 @@ namespace ecaldqm {
     DQWorkerTask(_workerParams, _commonParams, "TrigPrimTask"),
     realTps_(0),
     runOnEmul_(_workerParams.getUntrackedParameter<bool>("runOnEmul")),
-    expectedTiming_(_workerParams.getUntrackedParameter<int>("expectedTiming")),
     HLTCaloPath_(_workerParams.getUntrackedParameter<std::string>("HLTCaloPath")),
     HLTMuonPath_(_workerParams.getUntrackedParameter<std::string>("HLTMuonPath")),
     HLTCaloBit_(false),
@@ -25,19 +24,17 @@ namespace ecaldqm {
       (0x1 << kEBDigi) |
       (0x1 << kEEDigi) |
       (0x1 << kTrigPrimDigi) |
-      (0x1 << kTrigPrimEmulDigi);
-
-    dependencies.push_back(Dependency(kTrigPrimEmulDigi, kEBDigi, kEEDigi, kTrigPrimDigi));
+      (runOnEmul_ ? 0x1 << kTrigPrimEmulDigi : 0);
 
     // binning in terms of bunch trains
     int binEdges[nBXBins + 1] = {1, 271, 541, 892, 1162, 1432, 1783, 2053, 2323, 2674, 2944, 3214, 3446, 3490, 3491, 3565};
     for(int i(0); i < nBXBins + 1; i++) bxBinEdges_[i] = binEdges[i];
-
-    if(!runOnEmul_) collectionMask_ &= ~(0x1 << kTrigPrimEmulDigi);
   }
 
-  TrigPrimTask::~TrigPrimTask()
+  void
+  TrigPrimTask::setDependencies(DependencySet& _dependencies)
   {
+    _dependencies.push_back(Dependency(kTrigPrimEmulDigi, kEBDigi, kEEDigi, kTrigPrimDigi));
   }
 
   void
@@ -47,11 +44,13 @@ namespace ecaldqm {
 
     if(runOnEmul_){
       DQWorker::bookMEs();
-      MEs_[kEmulMaxIndex]->setBinLabel(-1, 1, "no emul", 1);
+      MEs_[kEmulMaxIndex]->setBinLabel(-1, 1, "no maximum", 1);
+      MEs_[kMatchedIndex]->setBinLabel(-1, 1, "no emul", 2);
       for(int i(2); i <= 6; i++){
 	ss.str("");
 	ss << (i - 1);
 	MEs_[kEmulMaxIndex]->setBinLabel(-1, i, ss.str(), 1);
+	MEs_[kMatchedIndex]->setBinLabel(-1, i, ss.str(), 2);
       }
     }
     else{
@@ -69,6 +68,12 @@ namespace ecaldqm {
       MEs_[kEtVsBx]->setBinLabel(-1, iBin, ss.str(), 1);
       MEs_[kOccVsBx]->setBinLabel(-1, iBin, ss.str(), 1);
       iBin++;
+    }
+
+    for(int iBin(1); iBin <= 8; ++iBin){
+      ss.str("");
+      ss << iBin - 1;
+      MEs_[kTTFlags]->setBinLabel(-1, iBin, ss.str(), 2);
     }
   }
 
@@ -233,30 +238,29 @@ namespace ecaldqm {
 
 	int realEt(realItr->compressedEt());
 
-	if(realEt <= 0) continue;
+	if(realEt > 0){
 
-	int interest(realItr->ttFlag() & 0x3);
-	if((interest == 1 || interest == 3) && towerReadouts_[ttid.rawId()] == getTrigTowerMap()->constituentsOf(ttid).size()){
+          int interest(realItr->ttFlag() & 0x3);
+          if((interest == 1 || interest == 3) && towerReadouts_[ttid.rawId()] == getTrigTowerMap()->constituentsOf(ttid).size()){
 
-	  if(et != realEt) match = false;
-	  if(tpItr->fineGrain() != realItr->fineGrain()) matchFG = false;
+            if(et != realEt) match = false;
+            if(tpItr->fineGrain() != realItr->fineGrain()) matchFG = false;
 
-	  std::vector<int> matchedIndex(0);
-	  for(int iDigi(0); iDigi < 5; iDigi++){
-	    if((*tpItr)[iDigi].compressedEt() == realEt)
-	      matchedIndex.push_back(iDigi + 1);
-	  }
+            std::vector<int> matchedIndex(0);
+            for(int iDigi(0); iDigi < 5; iDigi++){
+              if((*tpItr)[iDigi].compressedEt() == realEt)
+                matchedIndex.push_back(iDigi + 1);
+            }
 
-	  if(!matchedIndex.size()) matchedIndex.push_back(0);
-	  for(std::vector<int>::iterator matchItr(matchedIndex.begin()); matchItr != matchedIndex.end(); ++matchItr){
-	    MEs_[kMatchedIndex]->fill(ttid, *matchItr + 0.5);
+            if(!matchedIndex.size()) matchedIndex.push_back(0);
+            for(std::vector<int>::iterator matchItr(matchedIndex.begin()); matchItr != matchedIndex.end(); ++matchItr){
+              MEs_[kMatchedIndex]->fill(ttid, *matchItr + 0.5);
 
-	    // timing information is only within emulated TPs (real TPs have one time sample)
-// 	    if(HLTCaloBit_) MEs_[kTimingCalo]->fill(ttid, float(*matchItr));
-// 	    if(HLTMuonBit_) MEs_[kTimingMuon]->fill(ttid, float(*matchItr));
-
-	    if(*matchItr != expectedTiming_) MEs_[kTimingError]->fill(ttid);
-	  }
+              // timing information is only within emulated TPs (real TPs have one time sample)
+              // 	    if(HLTCaloBit_) MEs_[kTimingCalo]->fill(ttid, float(*matchItr));
+              // 	    if(HLTMuonBit_) MEs_[kTimingMuon]->fill(ttid, float(*matchItr));
+            }
+          }
 
 	}
       }
@@ -280,7 +284,6 @@ namespace ecaldqm {
     _nameToIndex["EtSummary"] = kEtSummary;
     _nameToIndex["MatchedIndex"] = kMatchedIndex;
     _nameToIndex["EmulMaxIndex"] = kEmulMaxIndex;
-    _nameToIndex["TimingError"] = kTimingError;
     _nameToIndex["EtVsBx"] = kEtVsBx;
     _nameToIndex["OccVsBx"] = kOccVsBx;
     _nameToIndex["LowIntMap"] = kLowIntMap;

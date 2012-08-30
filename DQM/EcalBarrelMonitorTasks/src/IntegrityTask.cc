@@ -29,10 +29,6 @@ namespace ecaldqm {
     }
   }
 
-  IntegrityTask::~IntegrityTask()
-  {
-  }
-
   void
   IntegrityTask::bookMEs()
   {

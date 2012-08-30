@@ -1,39 +1,51 @@
-#ifndef PNIntegrityTask_H
-#define PNIntegrityTask_H
+#ifndef PNDiodeTask_H
+#define PNDiodeTask_H
 
 #include "DQWorkerTask.h"
 
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 namespace ecaldqm {
 
-  class PNIntegrityTask : public DQWorkerTask {
+  class PNDiodeTask : public DQWorkerTask {
   public:
-    PNIntegrityTask(edm::ParameterSet const&, edm::ParameterSet const&);
-    ~PNIntegrityTask();
+    PNDiodeTask(edm::ParameterSet const&, edm::ParameterSet const&);
+    ~PNDiodeTask() {}
+
+    bool filterRunType(const std::vector<short>&);
 
     void analyze(const void*, Collections);
 
     void runOnErrors(const EcalElectronicsIdCollection &, Collections);
+    void runOnPnDigis(const EcalPnDiodeDigiCollection&);
 
     enum MESets {
       kMEMChId,
       kMEMGain,
       kMEMBlockSize,
       kMEMTowerId,
+      kPedestal,
+      kOccupancy,
       nMESets
     };
 
     static void setMEOrdering(std::map<std::string, unsigned>&);
+
+  protected:
+    bool enable_[BinService::nDCC];
   };
 
-  inline void PNIntegrityTask::analyze(const void* _p, Collections _collection){
+  inline void PNDiodeTask::analyze(const void* _p, Collections _collection){
     switch(_collection){
     case kMEMTowerIdErrors:
     case kMEMBlockSizeErrors:
     case kMEMChIdErrors:
     case kMEMGainErrors:
       runOnErrors(*static_cast<const EcalElectronicsIdCollection*>(_p), _collection);
+      break;
+    case kPnDiodeDigi:
+      runOnPnDigis(*static_cast<const EcalPnDiodeDigiCollection*>(_p));
       break;
     default:
       break;

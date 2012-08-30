@@ -28,14 +28,9 @@ namespace ecaldqm {
     geometry_ = geomHndl.product();
     if(!geometry_)
       throw cms::Exception("EventSetup") << "CaloGeometry invalid";
-  }
-
-  void
-  OccupancyClient::bookMEs()
-  {
-    DQWorker::bookMEs();
 
     MEs_[kQualitySummary]->resetAll(-1.);
+    MEs_[kQualitySummary]->reset(kUnknown);
   }
 
   void
@@ -78,9 +73,11 @@ namespace ecaldqm {
 
     // second round to find hot towers
     for(MESet::const_iterator dItr(sources_[kDigi]->beginChannel()); dItr != dEnd; dItr.toNextChannel()){
-      rItr = dItr;
-
       DetId id(dItr->getId());
+
+      bool doMask(applyMask_(kQualitySummary, id, mask));
+
+      rItr = dItr;
 
       float entries(dItr->getBinContent());
       float rhentries(rItr->getBinContent());
@@ -88,30 +85,21 @@ namespace ecaldqm {
       int ieta(getTrigTowerMap()->towerOf(dItr->getId()).ieta());
       unsigned index(ieta < 0 ? ieta + 28 : ieta + 27);
 
-      if(entries > minHits_){
-        if(entries > digiPhiRingMean.at(index) * deviationThreshold_){
-          MEs_[kHotDigi]->fill(id);
-          MEs_[kQualitySummary]->setBinContent(id, maskQuality_(kQualitySummary, id, mask, 0));
-          continue;
-        }
-        
-        if(rhentries > minHits_){
-          if(rhentries > rechitPhiRingMean.at(index) * deviationThreshold_){
-            MEs_[kHotRecHitThr]->fill(id);
-            MEs_[kQualitySummary]->setBinContent(id, maskQuality_(kQualitySummary, id, mask, 0));
-            continue;
-          }
+      int quality(doMask ? kMGood : kGood);
 
-	  MEs_[kQualitySummary]->setBinContent(id, maskQuality_(kQualitySummary, id, mask, 1));
-        }
+      if(entries > minHits_ && entries > digiPhiRingMean.at(index) * deviationThreshold_){
+        MEs_[kHotDigi]->fill(id);
+        quality = doMask ? kMBad : kBad;
       }
-      else
-        MEs_[kQualitySummary]->setBinContent(id, maskQuality_(kQualitySummary, id, mask, 2));
+      if(rhentries > minHits_ && rhentries > rechitPhiRingMean.at(index) * deviationThreshold_){
+        MEs_[kHotRecHitThr]->fill(id);
+        quality = doMask ? kMBad : kBad;
+      }
+
+      MEs_[kQualitySummary]->setBinContent(id, double(quality));
     }
 
     vector<double> tpdigiPhiRingMean(56, 0.);
-
-    print_("determing phi-ring tower mean");
 
     for(unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; ++iTT){
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
@@ -129,23 +117,29 @@ namespace ecaldqm {
       tpdigiPhiRingMean[55 - ie] /= denom;
     }
 
-    print_("detecting hot towers");
-
     for(unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; ++iTT){
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
+
       float entries(sources_[kTPDigiThr]->getBinContent(ttid));
 
-      if(entries > minHits_){
-        if(entries > tpdigiPhiRingMean.at(ttid.ietaAbs() - 1) * deviationThreshold_){
-          MEs_[kHotTPDigiThr]->fill(ttid);
-          MEs_[kQualitySummary]->setBinContent(ttid, maskQuality_(kQualitySummary, ttid, mask, 0));
-          continue;
-        }
+      int quality(kGood);
 
-        MEs_[kQualitySummary]->setBinContent(ttid, maskQuality_(kQualitySummary, ttid, mask, 1));
+      if(entries > minHits_ && entries > tpdigiPhiRingMean.at(ttid.ietaAbs() - 1) * deviationThreshold_){
+        MEs_[kHotTPDigiThr]->fill(ttid);
+        quality = kBad;
       }
-      else
-        MEs_[kQualitySummary]->setBinContent(ttid, maskQuality_(kQualitySummary, ttid, mask, 2));
+
+      if(quality != kBad) continue;
+
+      std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttid));
+      for(unsigned iD(0); iD < ids.size(); ++iD){
+        DetId& id(ids[iD]);
+
+        int quality(MEs_[kQualitySummary]->getBinContent(id));
+        if(quality == kMBad || quality == kBad) continue;
+
+        MEs_[kQualitySummary]->setBinContent(id, applyMask_(kQualitySummary, id, mask) ? kMBad : kBad);
+      }
     }
   }
 

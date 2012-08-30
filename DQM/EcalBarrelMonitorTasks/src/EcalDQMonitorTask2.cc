@@ -90,13 +90,11 @@ EcalDQMonitorTask::runOnCollection<DetIdCollection>(const edm::Event& _evt, Coll
 }
 
 void
-EcalDQMonitorTask::formSchedule_()
+EcalDQMonitorTask::formSchedule_(std::vector<Collections> const& _preSchedule)
 {
   using namespace std;
 
-  vector<Collections> preSchedule(DQWorkerTask::dependencies.formSequence());
-
-  for(vector<Collections>::const_iterator colItr(preSchedule.begin()); colItr != preSchedule.end(); ++colItr){
+  for(vector<Collections>::const_iterator colItr(_preSchedule.begin()); colItr != _preSchedule.end(); ++colItr){
     std::pair<Processor, Collections> sch;
 
     switch(*colItr){
@@ -139,6 +137,14 @@ EcalDQMonitorTask::formSchedule_()
     case kEBUncalibRecHit:
       sch.first = &EcalDQMonitorTask::runOnCollection<EcalUncalibratedRecHitCollection>; break;
     case kEEUncalibRecHit:
+      sch.first = &EcalDQMonitorTask::runOnCollection<EcalUncalibratedRecHitCollection>; break;
+    case kEBLaserLedUncalibRecHit:
+      sch.first = &EcalDQMonitorTask::runOnCollection<EcalUncalibratedRecHitCollection>; break;
+    case kEELaserLedUncalibRecHit:
+      sch.first = &EcalDQMonitorTask::runOnCollection<EcalUncalibratedRecHitCollection>; break;
+    case kEBTestPulseUncalibRecHit:
+      sch.first = &EcalDQMonitorTask::runOnCollection<EcalUncalibratedRecHitCollection>; break;
+    case kEETestPulseUncalibRecHit:
       sch.first = &EcalDQMonitorTask::runOnCollection<EcalUncalibratedRecHitCollection>; break;
     case kEBRecHit:
       sch.first = &EcalDQMonitorTask::runOnCollection<EcalRecHitCollection>; break;

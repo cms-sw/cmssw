@@ -9,7 +9,6 @@ trigPrimClient = dict(
     sources = dict(
         EtRealMap = trigPrimTask['MEs']['EtRealMap'],
         EtEmulError = trigPrimTask['MEs']['EtEmulError'],
-        TimingError = trigPrimTask['MEs']['TimingError'],
         MatchedIndex = trigPrimTask['MEs']['MatchedIndex']
     )
 )

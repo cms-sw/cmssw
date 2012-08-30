@@ -10,7 +10,7 @@ namespace ecaldqm {
     CertificationClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~CertificationClient() {}
 
-    void bookMEs();
+    void beginRun(edm::Run const&, edm::EventSetup const&);
 
     void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 

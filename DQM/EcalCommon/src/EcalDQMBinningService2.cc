@@ -232,7 +232,8 @@ EcalDQMBinningService::getBinningSMMEM_(BinningType _btype, bool _isMap, unsigne
     specs.nbins = 10;
     specs.low = 0.;
     specs.high = 10.;
-    specs.title = "pseudo-strip";
+    if(_isMap) specs.title = "pseudo-strip";
+    else specs.title = "iPN";
   }
   else if(_axis == 2){
     specs.nbins = 1;
@@ -311,7 +312,7 @@ EcalDQMBinningService::getBinningMEM_(BinningType _btype, bool _isMap, int _subd
 {
   AxisSpecs specs;
 
-  if(_btype != kCrystal || _isMap) return specs;
+  if(_btype != kCrystal) return specs;
 
   int nbins(44);
   if(_subdet == EcalBarrel) nbins = 36;
@@ -321,7 +322,6 @@ EcalDQMBinningService::getBinningMEM_(BinningType _btype, bool _isMap, int _subd
     specs.nbins = nbins;
     specs.low = 0.;
     specs.high = nbins;
-    specs.title = "iDCC";
   }
   else if(_axis == 2){
     specs.nbins = 10;
@@ -434,8 +434,11 @@ EcalDQMBinningService::findBinTriggerTower_(ObjectType _otype, DetId const& _id)
   int nbinsX(0);
   int subdet(_id.subdetId());
 
-  if(subdet == EcalTriggerTower && !isEndcapTTId(_id)){
-    EcalTrigTowerDetId ttid(_id);
+  if((subdet == EcalTriggerTower && !isEndcapTTId(_id)) || subdet == EcalBarrel){
+    EcalTrigTowerDetId ttid;
+    if(subdet == EcalBarrel) ttid = EBDetId(_id).tower();
+    else ttid = _id;
+
     int ieta(ttid.ieta());
     int iphi((ttid.iphi() + 1) % 72 + 1);
     switch(_otype){

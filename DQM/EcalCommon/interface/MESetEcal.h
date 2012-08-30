@@ -29,6 +29,7 @@ namespace ecaldqm
     void fill(DetId const&, double = 1., double = 1., double = 1.);
     void fill(EcalElectronicsId const&, double = 1., double = 1., double = 1.);
     void fill(unsigned, double = 1., double = 1., double = 1.);
+    void fill(double, double = 1., double = 1.);
 
     void setBinContent(DetId const&, int, double);
     void setBinContent(EcalElectronicsId const&, int, double);

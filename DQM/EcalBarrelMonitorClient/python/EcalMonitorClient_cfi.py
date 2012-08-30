@@ -12,18 +12,6 @@ from DQM.EcalBarrelMonitorClient.TimingClient_cfi import timingClient
 from DQM.EcalBarrelMonitorClient.SelectiveReadoutClient_cfi import selectiveReadoutClient
 from DQM.EcalBarrelMonitorClient.SummaryClient_cfi import summaryClient
 
-ecalMonitorClientParams = dict(
-    IntegrityClient = integrityClient,
-    OccupancyClient = occupancyClient,
-    PresampleClient = presampleClient,
-    TrigPrimClient = trigPrimClient,
-    RawDataClient = rawDataClient,
-    TimingClient = timingClient,
-    SelectiveReadoutClient = selectiveReadoutClient,
-    SummaryClient = summaryClient,
-    common = ecalCommonParams
-)
-
 ecalMonitorClient = cms.EDAnalyzer("EcalDQMonitorClient",
     moduleName = cms.untracked.string("Ecal Monitor Client"),
     mergeRuns = cms.untracked.bool(False),
@@ -39,6 +27,18 @@ ecalMonitorClient = cms.EDAnalyzer("EcalDQMonitorClient",
         "SummaryClient"
     ),
     # task parameters (included from indivitual cfis)
-    workerParameters = dqmpset(ecalMonitorClientParams),
+    workerParameters = dqmpset(
+        dict(
+            IntegrityClient = integrityClient,
+            OccupancyClient = occupancyClient,
+            PresampleClient = presampleClient,
+            TrigPrimClient = trigPrimClient,
+            RawDataClient = rawDataClient,
+            TimingClient = timingClient,
+            SelectiveReadoutClient = selectiveReadoutClient,
+            SummaryClient = summaryClient,
+            common = ecalCommonParams
+        )
+    ),
     verbosity = cms.untracked.int32(0)
 )

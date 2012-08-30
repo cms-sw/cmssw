@@ -10,7 +10,7 @@ namespace ecaldqm {
     TimingClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~TimingClient() {}
 
-    void bookMEs();
+    void beginRun(const edm::Run &, const edm::EventSetup &);
 
     void producePlots();
 
@@ -38,8 +38,10 @@ namespace ecaldqm {
 
   protected:
     float expectedMean_;
-    float meanThreshold_;
-    float rmsThreshold_;
+    float toleranceMean_;
+    float toleranceMeanFwd_;
+    float toleranceRMS_;
+    float toleranceRMSFwd_;
     int minChannelEntries_;
     int minTowerEntries_;
     float tailPopulThreshold_;

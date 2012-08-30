@@ -34,13 +34,17 @@ namespace ecaldqm {
       (0x1 << kEBDigi) |
       (0x1 << kEEDigi);
 
-    dependencies.push_back(Dependency(kEBDigi, kEcalRawData, kEBSrFlag));
-    dependencies.push_back(Dependency(kEEDigi, kEcalRawData, kEESrFlag));
-
     if(!useCondDb_){
       std::vector<double> normWeights(_workerParams.getUntrackedParameter<std::vector<double> >("ZSFIRWeights"));
       setFIRWeights_(normWeights);
     }
+  }
+
+  void
+  SelectiveReadoutTask::setDependencies(DependencySet& _dependencies)
+  {
+    _dependencies.push_back(Dependency(kEBDigi, kEcalRawData, kEBSrFlag));
+    _dependencies.push_back(Dependency(kEEDigi, kEcalRawData, kEESrFlag));
   }
 
   void
@@ -155,7 +159,9 @@ namespace ecaldqm {
   void
   SelectiveReadoutTask::runOnDigis(const EcalDigiCollection &_digis, Collections _collection)
   {
-    std::vector<int> sizes(nRU, 0);
+    unsigned const nTower(_collection == kEBDigi ? unsigned(EcalTrigTowerDetId::kEBTotalTowers) : unsigned(EcalScDetId::kSizeForDenseIndexing));
+
+    std::vector<unsigned> sizes(nTower, 0);
 
     int nHighInt(0), nLowInt(0);
 
@@ -163,14 +169,21 @@ namespace ecaldqm {
 
       DetId const& id(digiItr->id());
 
+      unsigned iTower(-1);
       unsigned iRU(-1);
 
-      if(_collection == kEBDigi) iRU = EBDetId(id).tower().hashedIndex();
-      else iRU = EEDetId(id).sc().hashedIndex() + EcalTrigTowerDetId::kEBTotalTowers;
+      if(_collection == kEBDigi){
+        iTower = EBDetId(id).tower().hashedIndex();
+        iRU = iTower;
+      }
+      else{
+        iTower = EEDetId(id).sc().hashedIndex();
+        iRU = iTower + EcalTrigTowerDetId::kEBTotalTowers;
+      }
 
       if(flags_[iRU] < 0) continue;
 
-      sizes[iRU] += 1;
+      sizes[iTower] += 1;
 
       // SR filter output calculation
 
@@ -229,12 +242,13 @@ namespace ecaldqm {
     float nZSFullReadout(0.);
     float nFRDropped(0.);
 
-    for(unsigned iRU(0); iRU < nRU; ++iRU){
+    unsigned iRU(iSubdet == BinService::kEB ? 0 : EcalTrigTowerDetId::kEBTotalTowers);
+    for(unsigned iTower(0); iTower < nTower; ++iTower, ++iRU){
       DetId id;
-      if(iRU < EcalTrigTowerDetId::kEBTotalTowers) id = EcalTrigTowerDetId::detIdFromDenseIndex(iRU);
-      else id = EcalScDetId::unhashIndex(iRU - EcalTrigTowerDetId::kEBTotalTowers);
+      if(iSubdet == BinService::kEB) id = EcalTrigTowerDetId::detIdFromDenseIndex(iTower);
+      else id = EcalScDetId::unhashIndex(iTower);
 
-      double towerSize(sizes[iRU] * bytesPerCrystal);
+      double towerSize(sizes[iTower] * bytesPerCrystal);
 
       MEs_[kTowerSize]->fill(id, towerSize);
 
@@ -247,14 +261,14 @@ namespace ecaldqm {
 
       int flag(flags_[iRU] & ~EcalSrFlag::SRF_FORCED_MASK);
 
-      bool ruFullyReadout(unsigned(sizes[iRU]) == getElectronicsMap()->dccTowerConstituents(dccid, towerid).size());
+      bool ruFullyReadout(sizes[iTower] == getElectronicsMap()->dccTowerConstituents(dccid, towerid).size());
 
       if(ruFullyReadout && (flag == EcalSrFlag::SRF_ZS1 || flag == EcalSrFlag::SRF_ZS2)){
 	MEs_[kZSFullReadoutMap]->fill(id);
 	nZSFullReadout += 1.;
       }
 
-      if(sizes[iRU] == 0 && flag == EcalSrFlag::SRF_FULL){
+      if(sizes[iTower] == 0 && flag == EcalSrFlag::SRF_FULL){
         MEs_[kFRDroppedMap]->fill(id);
         nFRDropped += 1.;
       }

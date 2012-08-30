@@ -11,7 +11,9 @@ namespace ecaldqm {
   class RawDataTask : public DQWorkerTask {
   public:
     RawDataTask(edm::ParameterSet const&, edm::ParameterSet const&);
-    ~RawDataTask();
+    ~RawDataTask() {}
+
+    void setDependencies(DependencySet&);
 
     void bookMEs();
 

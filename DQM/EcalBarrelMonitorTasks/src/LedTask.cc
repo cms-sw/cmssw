@@ -11,7 +11,6 @@ namespace ecaldqm {
   LedTask::LedTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
     DQWorkerTask(_workerParams, _commonParams, "LedTask"),
     wlToME_(),
-    wlGainToME_(),
     pnAmp_()
   {
     using namespace std;
@@ -19,35 +18,27 @@ namespace ecaldqm {
     collectionMask_ = 
       (0x1 << kEEDigi) |
       (0x1 << kPnDiodeDigi) |
-      (0x1 << kEBUncalibRecHit) |
-      (0x1 << kEEUncalibRecHit);
+      (0x1 << kEELaserLedUncalibRecHit);
 
     for(unsigned iD(0); iD < BinService::nDCC; ++iD){
       enable_[iD] = false;
       wavelength_[iD] = 0;
     }
 
-    vector<int> MGPAGainsPN(_commonParams.getUntrackedParameter<vector<int> >("MGPAGainsPN"));
     vector<int> ledWavelengths(_commonParams.getUntrackedParameter<vector<int> >("ledWavelengths"));
 
     unsigned iMEWL(0);
-    unsigned iMEWLG(0);
     for(vector<int>::iterator wlItr(ledWavelengths.begin()); wlItr != ledWavelengths.end(); ++wlItr){
-      if(*wlItr <= 0 || *wlItr >= 2) throw cms::Exception("InvalidConfiguration") << "Led Wavelength" << endl;
+      if(*wlItr <= 0 || *wlItr >= 3) throw cms::Exception("InvalidConfiguration") << "Led Wavelength" << endl;
       wlToME_[*wlItr] = iMEWL++;
-
-      for(vector<int>::iterator gainItr(MGPAGainsPN.begin()); gainItr != MGPAGainsPN.end(); ++gainItr){
-        if(*gainItr != 1 && *gainItr != 16) throw cms::Exception("InvalidConfiguration") << "PN diode gain" << endl;
-        wlGainToME_[make_pair(*wlItr, *gainItr)] = iMEWLG++;
-      }
     }
 
     map<string, string> replacements;
     stringstream ss;
 
-    unsigned apdPlots[] = {kAmplitudeSummary, kAmplitude, kOccupancy, kTiming, kShape, kAOverP};
-    for(unsigned iS(0); iS < sizeof(apdPlots) / sizeof(unsigned); ++iS){
-      unsigned plot(apdPlots[iS]);
+    unsigned wlPlots[] = {kAmplitudeSummary, kAmplitude, kOccupancy, kTiming, kShape, kAOverP, kPNAmplitude};
+    for(unsigned iS(0); iS < sizeof(wlPlots) / sizeof(unsigned); ++iS){
+      unsigned plot(wlPlots[iS]);
       MESet* temp(MEs_[plot]);
       MESetMulti* meSet(new MESetMulti(*temp, iMEWL));
 
@@ -64,53 +55,11 @@ namespace ecaldqm {
       MEs_[plot] = meSet;
       delete temp;
     }
-
-    unsigned pnPlots[] = {kPNAmplitude};
-    for(unsigned iS(0); iS < sizeof(pnPlots) / sizeof(unsigned); ++iS){
-      unsigned plot(pnPlots[iS]);
-      MESet* temp(MEs_[plot]);
-      MESetMulti* meSet(new MESetMulti(*temp, iMEWLG));
-
-      for(map<pair<int, int>, unsigned>::iterator wlGainItr(wlGainToME_.begin()); wlGainItr != wlGainToME_.end(); ++wlGainItr){
-        meSet->use(wlGainItr->second);
-
-        ss.str("");
-        ss << wlGainItr->first.first;
-        replacements["wl"] = ss.str();
-
-	ss.str("");
-	ss << wlGainItr->first.second;
-	replacements["pngain"] = ss.str();
-
-        meSet->formPath(replacements);
-      }
-
-      MEs_[plot] = meSet;
-      delete temp;
-    }
-  }
-
-  LedTask::~LedTask()
-  {
   }
 
   void
-  LedTask::beginRun(const edm::Run &, const edm::EventSetup &_es)
+  LedTask::beginEvent(const edm::Event &, const edm::EventSetup &)
   {
-    for(int iDCC(0); iDCC < BinService::nDCC; iDCC++){
-      enable_[iDCC] = false;
-      wavelength_[iDCC] = -1;
-    }
-    pnAmp_.clear();
-  }
-
-  void
-  LedTask::endEvent(const edm::Event &, const edm::EventSetup &)
-  {
-    for(int iDCC(0); iDCC < BinService::nDCC; iDCC++){
-      enable_[iDCC] = false;
-      wavelength_[iDCC] = -1;
-    }
     pnAmp_.clear();
   }
 
@@ -125,6 +74,8 @@ namespace ecaldqm {
 	enable = true;
 	enable_[iDCC] = true;
       }
+      else
+        enable_[iDCC] = false;
     }
 
     return enable;
@@ -136,7 +87,10 @@ namespace ecaldqm {
     bool enable(false);
 
     for(int iDCC(0); iDCC < BinService::nDCC; iDCC++){
-      if(!enable_[iDCC]) continue;
+      if(!enable_[iDCC]){
+        wavelength_[iDCC] = -1;
+        continue;
+      }
       wavelength_[iDCC] = _setting[iDCC].wavelength + 1;
 
       if(wlToME_.find(wavelength_[iDCC]) != wlToME_.end())
@@ -188,8 +142,6 @@ namespace ecaldqm {
 
       if(!enable_[iDCC]) continue;
 
-      MEs_[kPNOccupancy]->fill(id);
-
       float pedestal(0.);
       for(int iSample(0); iSample < 4; iSample++)
 	pedestal += digiItr->sample(iSample).adc();
@@ -204,13 +156,8 @@ namespace ecaldqm {
 	if(amp > max) max = amp;
       }
 
-      int gain(digiItr->sample(0).gainId() == 0 ? 1 : 16);
-      max *= (16. / gain);
-
-      std::pair<int, int> wlGain(wavelength_[iDCC], gain);
-
-      if(iME != wlGainToME_[wlGain]){
-        iME = wlGainToME_[wlGain];
+      if(iME != wlToME_[wavelength_[iDCC]]){
+        iME = wlToME_[wavelength_[iDCC]];
         static_cast<MESetMulti*>(MEs_[kPNAmplitude])->use(iME);
       }
 
@@ -291,7 +238,6 @@ namespace ecaldqm {
     _nameToIndex["Timing"] = kTiming;
     _nameToIndex["AOverP"] = kAOverP;
     _nameToIndex["PNAmplitude"] = kPNAmplitude;
-    _nameToIndex["PNOccupancy"] = kPNOccupancy;
   }
 
   DEFINE_ECALDQM_WORKER(LedTask);

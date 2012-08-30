@@ -143,6 +143,10 @@ namespace ecaldqm
       throw_("Unsupported MonitorElement kind");
     }
 
+    if(xaxis_) me->setAxisTitle(xaxis_->title, 1);
+    if(yaxis_) me->setAxisTitle(yaxis_->title, 2);
+    if(zaxis_) me->setAxisTitle(zaxis_->title, 3);
+
     mes_.push_back(me);
 
     active_ = true;

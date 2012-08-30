@@ -13,20 +13,21 @@ namespace ecaldqm {
     minChannelEntries_(_workerParams.getUntrackedParameter<int>("minChannelEntries")),
     minTowerEntries_(_workerParams.getUntrackedParameter<int>("minTowerEntries")),
     expectedMean_(_workerParams.getUntrackedParameter<double>("expectedMean")),
-    meanThreshold_(_workerParams.getUntrackedParameter<double>("meanThreshold")),
-    rmsThreshold_(_workerParams.getUntrackedParameter<double>("rmsThreshold")),
-    rmsThresholdHighEta_(_workerParams.getUntrackedParameter<double>("rmsThresholdHighEta"))
+    toleranceMean_(_workerParams.getUntrackedParameter<double>("toleranceMean")),
+    toleranceRMS_(_workerParams.getUntrackedParameter<double>("toleranceRMS")),
+    toleranceRMSFwd_(_workerParams.getUntrackedParameter<double>("toleranceRMSFwd"))
   {
   }
 
   void
-  PresampleClient::bookMEs()
+  PresampleClient::beginRun(const edm::Run &, const edm::EventSetup &)
   {
-    DQWorker::bookMEs();
-
     MEs_[kQuality]->resetAll(-1.);
     MEs_[kRMSMap]->resetAll(-1.);
     MEs_[kQualitySummary]->resetAll(-1.);
+
+    MEs_[kQuality]->reset(kUnknown);
+    MEs_[kQualitySummary]->reset(kUnknown);
   }
 
   void
@@ -50,17 +51,17 @@ namespace ecaldqm {
 
       DetId id(qItr->getId());
 
-      double rmsThresh(rmsThreshold_);
+      bool doMask(applyMask_(kQuality, id, mask));
 
-      if(id.subdetId() == EcalEndcap){
-        EEDetId eeid(id);
-        if((eeid.ix() - 50) * (eeid.ix() - 50) + (eeid.iy() - 50) * (eeid.iy() - 50) < 400) rmsThresh = rmsThresholdHighEta_;
-      }
+      double rmsThresh(toleranceRMS_);
+
+      if(isForward(id)) rmsThresh = toleranceRMSFwd_;
 
       double entries(pItr->getBinEntries());
 
       if(entries < minChannelEntries_){
-        qItr->setBinContent(maskQuality_(qItr, mask, 2));
+        qItr->setBinContent(doMask ? kMUnknown : kUnknown);
+        MEs_[kQualitySummary]->setBinContent(id, doMask ? kMUnknown : kUnknown);
         rItr->setBinContent(-1.);
         continue;
       }
@@ -75,14 +76,16 @@ namespace ecaldqm {
       MEs_[kRMS]->fill(dccid, rms);
       rItr->setBinContent(rms);
 
-      if(std::abs(mean - expectedMean_) > meanThreshold_ || rms > rmsThresh)
-        qItr->setBinContent(maskQuality_(qItr, mask, 0));
-      else
-        qItr->setBinContent(maskQuality_(qItr, mask, 1));
-
+      if(std::abs(mean - expectedMean_) > toleranceMean_ || rms > rmsThresh){
+        qItr->setBinContent(doMask ? kMBad : kBad);
+        MEs_[kQualitySummary]->setBinContent(id, doMask ? kMBad : kBad);
+      }
+      else{
+        qItr->setBinContent(doMask ? kMGood : kGood);
+        MEs_[kQualitySummary]->setBinContent(id, doMask ? kMGood : kGood);
+      }
     }
 
-    towerAverage_(kQualitySummary, kQuality, 0.2);
   }
 
   /*static*/

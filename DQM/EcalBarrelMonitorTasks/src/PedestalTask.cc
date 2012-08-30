@@ -62,7 +62,7 @@ namespace ecaldqm {
       delete temp;
     }
 
-    unsigned pnPlots[] = {kPNOccupancy, kPNPedestal};
+    unsigned pnPlots[] = {kPNPedestal};
     for(unsigned iS(0); iS < sizeof(pnPlots) / sizeof(unsigned); ++iS){
       unsigned plot(pnPlots[iS]);
       MESet* temp(MEs_[plot]);
@@ -83,10 +83,6 @@ namespace ecaldqm {
     }
   }
 
-  PedestalTask::~PedestalTask()
-  {
-  }
-
   bool
   PedestalTask::filterRunType(const std::vector<short>& _runType)
   {
@@ -98,6 +94,8 @@ namespace ecaldqm {
 	enable = true;
 	enable_[iFED] = true;
       }
+      else
+        enable_[iFED] = false;
     }
 
     return enable;
@@ -168,11 +166,8 @@ namespace ecaldqm {
 
       if(iME != pnGainToME_[gain]){
         iME = pnGainToME_[gain];
-        static_cast<MESetMulti*>(MEs_[kPNOccupancy])->use(iME);
         static_cast<MESetMulti*>(MEs_[kPNPedestal])->use(iME);
       }
-
-      MEs_[kPNOccupancy]->fill(id);
 
       float mean(0.);
       for(int iSample(0); iSample < 50; iSample++)
@@ -189,7 +184,6 @@ namespace ecaldqm {
   {
     _nameToIndex["Occupancy"] = kOccupancy;
     _nameToIndex["Pedestal"] = kPedestal;
-    _nameToIndex["PNOccupancy"] = kPNOccupancy;
     _nameToIndex["PNPedestal"] = kPNPedestal;
   }
 

@@ -11,13 +11,12 @@ namespace ecaldqm {
   class LedTask : public DQWorkerTask {
   public:
     LedTask(edm::ParameterSet const&, edm::ParameterSet const&);
-    ~LedTask();
+    ~LedTask() {}
 
     bool filterRunType(const std::vector<short>&);
     bool filterEventSetting(const std::vector<EventSettings>&);
 
-    void beginRun(const edm::Run &, const edm::EventSetup &);
-    void endEvent(const edm::Event &, const edm::EventSetup &);
+    void beginEvent(const edm::Event &, const edm::EventSetup &);
 
     void analyze(const void*, Collections);
 
@@ -33,7 +32,6 @@ namespace ecaldqm {
       kTiming,
       kAOverP,
       kPNAmplitude,
-      kPNOccupancy,
       nMESets
     };
 
@@ -41,7 +39,6 @@ namespace ecaldqm {
 
   private:
     std::map<int, unsigned> wlToME_;
-    std::map<std::pair<int, int>, unsigned> wlGainToME_;
 
     bool enable_[BinService::nDCC];
     int wavelength_[BinService::nDCC];
@@ -56,8 +53,7 @@ namespace ecaldqm {
     case kPnDiodeDigi:
       runOnPnDigis(*static_cast<const EcalPnDiodeDigiCollection*>(_p));
       break;
-    case kEBUncalibRecHit:
-    case kEEUncalibRecHit:
+    case kEELaserLedUncalibRecHit:
       runOnUncalibRecHits(*static_cast<const EcalUncalibratedRecHitCollection*>(_p));
       break;
     default:

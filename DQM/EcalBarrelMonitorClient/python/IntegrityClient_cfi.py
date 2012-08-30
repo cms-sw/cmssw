@@ -5,7 +5,7 @@ integrityClient = dict(
     errFractionThreshold = 0.01,
     MEs = dict(
         Quality = dict(path = "Integrity/Quality/IntegrityClient data integrity quality", otype = 'SM', btype = 'Crystal', kind = 'TH2F'),
-        QualitySummary = dict(path = "Summary/IntegrityClient data integrity quality", otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TH2F')
+        QualitySummary = dict(path = "Summary/IntegrityClient data integrity quality", otype = 'Ecal2P', btype = 'Crystal', kind = 'TH2F')
     ),
     sources = dict(
         Occupancy = occupancyTask['MEs']['Digi'],            

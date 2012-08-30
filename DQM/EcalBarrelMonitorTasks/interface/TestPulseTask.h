@@ -11,12 +11,9 @@ namespace ecaldqm {
   class TestPulseTask : public DQWorkerTask {
   public:
     TestPulseTask(edm::ParameterSet const&, edm::ParameterSet const&);
-    ~TestPulseTask();
+    ~TestPulseTask() {}
 
     bool filterRunType(const std::vector<short>&);
-
-    void beginRun(const edm::Run&, const edm::EventSetup&);
-    void endEvent(const edm::Event&, const edm::EventSetup&);
 
     void analyze(const void*, Collections);
 
@@ -28,7 +25,6 @@ namespace ecaldqm {
       kOccupancy,
       kShape,
       kAmplitude,
-      kPNOccupancy,
       kPNAmplitude,
       nMESets
     };
@@ -52,8 +48,8 @@ namespace ecaldqm {
     case kPnDiodeDigi:
       runOnPnDigis(*static_cast<const EcalPnDiodeDigiCollection*>(_p));
       break;
-    case kEBUncalibRecHit:
-    case kEEUncalibRecHit:
+    case kEBTestPulseUncalibRecHit:
+    case kEETestPulseUncalibRecHit:
       runOnUncalibRecHits(*static_cast<const EcalUncalibratedRecHitCollection*>(_p));
       break;
     default:

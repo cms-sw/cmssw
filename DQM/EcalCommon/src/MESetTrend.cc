@@ -66,6 +66,9 @@ namespace ecaldqm {
 
     MESetEcal::book();
 
+    for(unsigned iME(0); iME < mes_.size(); ++iME)
+      mes_[iME]->getTH1()->GetXaxis()->SetTimeDisplay(1);
+
     tLow_ = t0_;
   }
 

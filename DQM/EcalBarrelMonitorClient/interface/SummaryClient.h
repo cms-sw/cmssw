@@ -27,7 +27,8 @@ namespace ecaldqm {
       kPresample,
       kTiming,
       kRawData,
-      kDigiOccupancy,
+      kTriggerPrimitives,
+      kHotCell,
       nSources
     };
 

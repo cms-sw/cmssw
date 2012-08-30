@@ -4,8 +4,6 @@
 
 namespace ecaldqm {
 
-  DQWorkerTask::DependencySet DQWorkerTask::dependencies;
-
   DQWorkerTask::DQWorkerTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams, std::string const& _name) :
     DQWorker(_workerParams, _commonParams, _name),
     collectionMask_(0)
@@ -31,7 +29,7 @@ namespace ecaldqm {
   }
 
   void
-  DQWorkerTask::DependencySet::formSequenceFragment_(Dependency const& _d, std::vector<Collections>& _sequence, std::vector<Collections>::iterator _maxPos) const
+  DependencySet::formSequenceFragment_(Dependency const& _d, std::vector<Collections>& _sequence, std::vector<Collections>::iterator _maxPos) const
   {
     Collections col(_d.dependant);
     std::vector<Collections>::iterator pos(std::find(_sequence.begin(), _sequence.end(), col));

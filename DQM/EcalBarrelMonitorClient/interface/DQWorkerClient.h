@@ -19,12 +19,19 @@ namespace ecaldqm {
 
     virtual void producePlots() = 0;
 
+    enum Quality {
+      kBad = 0,
+      kGood = 1,
+      kUnknown = 2,
+      kMBad = 3,
+      kMGood = 4,
+      kMUnknown = 5
+    };
+
   protected:
     void source_(unsigned, std::string const&, unsigned, edm::ParameterSet const&);
-    float maskQuality_(unsigned, DetId const&, uint32_t, int);
-    float maskQuality_(MESet::iterator const&, uint32_t, int);
-    float maskPNQuality_(unsigned, EcalPnDiodeDetId const&, int);
-    float maskPNQuality_(MESet::iterator const&, int);
+    bool applyMask_(unsigned, DetId const&, uint32_t);
+    bool applyMask_(unsigned, EcalPnDiodeDetId const&);
     void towerAverage_(unsigned, unsigned, float);
 
     std::vector<MESet const*> sources_;

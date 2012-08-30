@@ -13,12 +13,12 @@ namespace ecaldqm {
   }
 
   void
-  IntegrityClient::bookMEs()
+  IntegrityClient::beginRun(edm::Run const&, edm::EventSetup const&)
   {
-    DQWorker::bookMEs();
-
     MEs_[kQuality]->resetAll(-1.);
     MEs_[kQualitySummary]->resetAll(-1.);
+    MEs_[kQuality]->reset(kUnknown);
+    MEs_[kQualitySummary]->reset(kUnknown);
   }
 
   void
@@ -38,6 +38,8 @@ namespace ecaldqm {
 
       DetId id(qItr->getId());
 
+      bool doMask(applyMask_(kQuality, id, mask));
+
       float entries(occItr->getBinContent());
 
       float gain(sources_[kGain]->getBinContent(id));
@@ -48,19 +50,22 @@ namespace ecaldqm {
       float blocksize(sources_[kBlockSize]->getBinContent(id));
 
       if(entries + gain + chid + gainswitch + towerid + blocksize < 1.){
-        qItr->setBinContent(maskQuality_(qItr, mask, 2));
+        qItr->setBinContent(doMask ? kMUnknown : kUnknown);
+        MEs_[kQualitySummary]->setBinContent(id, doMask ? kMUnknown : kUnknown);
         continue;
       }
 
       float chErr((gain + chid + gainswitch + towerid + blocksize) / (entries + gain + chid + gainswitch + towerid + blocksize));
 
-      if(chErr > errFractionThreshold_)
-        qItr->setBinContent(maskQuality_(qItr, mask, 0));
-      else
-        qItr->setBinContent(maskQuality_(qItr, mask, 1));
+      if(chErr > errFractionThreshold_){
+        qItr->setBinContent(doMask ? kMBad : kBad);
+        MEs_[kQualitySummary]->setBinContent(id, doMask ? kMBad : kBad);
+      }
+      else{
+        qItr->setBinContent(doMask ? kMGood : kGood);
+        MEs_[kQualitySummary]->setBinContent(id, doMask ? kMGood : kGood);
+      }
     }
-
-    towerAverage_(kQualitySummary, kQuality, 0.5);
   }
 
   /*static*/

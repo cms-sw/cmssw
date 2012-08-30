@@ -2,7 +2,8 @@ from DQM.EcalBarrelMonitorClient.IntegrityClient_cfi import integrityClient
 from DQM.EcalBarrelMonitorClient.PresampleClient_cfi import presampleClient
 from DQM.EcalBarrelMonitorClient.TimingClient_cfi import timingClient
 from DQM.EcalBarrelMonitorClient.RawDataClient_cfi import rawDataClient
-from DQM.EcalBarrelMonitorTasks.OccupancyTask_cfi import occupancyTask
+from DQM.EcalBarrelMonitorClient.TrigPrimClient_cfi import trigPrimClient
+from DQM.EcalBarrelMonitorClient.OccupancyClient_cfi import occupancyClient
 
 summaryClient = dict(
     MEs = dict(
@@ -12,9 +13,11 @@ summaryClient = dict(
         ReportSummary = dict(path = "EventInfo/reportSummary", otype = 'Ecal', btype = 'Report', kind = 'REAL')
     ),
     sources = dict(
-        Integrity = integrityClient['MEs']['Quality'],
-        Presample = presampleClient['MEs']['Quality'],
-        Timing = timingClient['MEs']['Quality'],
-        RawData = rawDataClient['MEs']['QualitySummary']
+        Integrity = integrityClient['MEs']['QualitySummary'],
+        Presample = presampleClient['MEs']['QualitySummary'],
+        Timing = timingClient['MEs']['QualitySummary'],
+        RawData = rawDataClient['MEs']['QualitySummary'],
+        TriggerPrimitives = trigPrimClient['MEs']['EmulQualitySummary'],
+        HotCell = occupancyClient['MEs']['QualitySummary']
     )
 )

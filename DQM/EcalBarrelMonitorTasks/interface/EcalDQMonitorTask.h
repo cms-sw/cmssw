@@ -42,7 +42,7 @@ class EcalDQMonitorTask : public EcalDQMonitor {
 
   template <class C> void runOnCollection(const edm::Event&, ecaldqm::Collections);
 
-  void formSchedule_();
+  void formSchedule_(std::vector<ecaldqm::Collections> const&);
 
   int ievt_;
   // list of InputTags

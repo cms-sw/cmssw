@@ -1,6 +1,5 @@
 #include "../interface/SummaryClient.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 namespace ecaldqm {
@@ -13,11 +12,8 @@ namespace ecaldqm {
   void
   SummaryClient::beginRun(const edm::Run &, const edm::EventSetup &)
   {
-    for(unsigned iME(0); iME < MEs_.size(); ++iME)
-      MEs_[iME]->book();
-
     MEs_[kQualitySummary]->resetAll(-1.);
-    MEs_[kQualitySummary]->reset(1.);
+    MEs_[kQualitySummary]->reset(kUnknown);
     MEs_[kReportSummaryMap]->resetAll(-1.);
     MEs_[kReportSummaryMap]->reset(1.);
     MEs_[kReportSummaryContents]->reset(1.);
@@ -27,10 +23,6 @@ namespace ecaldqm {
   void
   SummaryClient::producePlots()
   {
-    MEs_[kReportSummaryMap]->reset(1.);
-    MEs_[kReportSummaryContents]->reset(1.);
-    MEs_[kReportSummary]->reset(1.);
-
     float totalChannels(0.);
     float totalGood(0.);
 
@@ -38,32 +30,42 @@ namespace ecaldqm {
     std::vector<float> dccGood(BinService::nDCC, 0.);
 
     MESet::iterator qEnd(MEs_[kQualitySummary]->end());
+    MESet::const_iterator iItr(sources_[kIntegrity]);
+    MESet::const_iterator pItr(sources_[kPresample]);
+    MESet::const_iterator hItr(sources_[kHotCell]);
     for(MESet::iterator qItr(MEs_[kQualitySummary]->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
       DetId id(qItr->getId());
 
-      float integrity(sources_[kIntegrity]->getBinContent(id));
+      iItr = qItr;
 
-      if(integrity == 2. || integrity == 5.){
+      int integrity(iItr->getBinContent());
+
+      if(integrity == kUnknown){
         qItr->setBinContent(integrity);
         continue;
       }
 
-      float presample(sources_[kPresample]->getBinContent(id));
-      float timing(sources_[kTiming]->getBinContent(id));
-      float rawdata(MEs_[kRawData]->getBinContent(id));
+      pItr = qItr;
+      hItr = qItr;
 
-      float status(1.);
-      if(integrity == 0. || presample == 0. || timing == 0. || rawdata == 0.)
-        status = 0.;
-      else if(integrity == 3. || presample == 3. || timing == 3. || rawdata == 3.)
-        status = 3.;
+      int presample(pItr->getBinContent());
+      int hotcell(hItr->getBinContent());
+      int timing(sources_[kTiming]->getBinContent(id));
+      int rawdata(sources_[kRawData]->getBinContent(id));
+      int trigprim(sources_[kTriggerPrimitives]->getBinContent(id));
+
+      int status(kGood);
+      if(integrity == kBad || presample == kBad || timing == kBad || rawdata == kBad || trigprim == kBad || hotcell == kBad)
+        status = kBad;
+      else if(integrity == kUnknown && presample == kUnknown && timing == kUnknown && rawdata == kUnknown && trigprim == kUnknown)
+        status = kUnknown;
 
       qItr->setBinContent(status);
 
       unsigned iDCC(dccId(id) - 1);
 
-      if(status == 1.){
+      if(status != kBad){
         dccGood[iDCC] += 1.;
         totalGood += 1.;
       }
@@ -76,7 +78,7 @@ namespace ecaldqm {
 
       unsigned dccid(iDCC + 1);
       float frac(dccGood[iDCC] / dccChannels[iDCC]);
-      MEs_[kReportSummaryMap]->fill(dccid, frac);
+      MEs_[kReportSummaryMap]->setBinContent(dccid, frac);
       MEs_[kReportSummaryContents]->fill(dccid, frac);
     }
 
@@ -96,6 +98,8 @@ namespace ecaldqm {
     _nameToIndex["Presample"] = kPresample;
     _nameToIndex["Timing"] = kTiming;
     _nameToIndex["RawData"] = kRawData;
+    _nameToIndex["TriggerPrimitives"] = kTriggerPrimitives;
+    _nameToIndex["HotCell"] = kHotCell;
   }
 
   DEFINE_ECALDQM_WORKER(SummaryClient);

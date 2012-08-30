@@ -10,7 +10,7 @@ namespace ecaldqm {
     TrigPrimClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~TrigPrimClient() {}
 
-    void bookMEs();
+    void beginRun(const edm::Run &, const edm::EventSetup &);
 
     void producePlots();
 
@@ -25,7 +25,6 @@ namespace ecaldqm {
     enum Sources {
       kEtRealMap,
       kEtEmulError,
-      kTimingError,
       kMatchedIndex,
       nSources
     };

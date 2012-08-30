@@ -24,16 +24,20 @@ namespace ecaldqm {
     kTrigPrimEmulDigi, // 17
     kEBUncalibRecHit, // 18
     kEEUncalibRecHit, // 19
-    kEBRecHit, // 20
-    kEERecHit, // 21
-    kEBBasicCluster, // 22
-    kEEBasicCluster, // 23
-    kEBSuperCluster, // 24
-    kEESuperCluster, // 25
-    kRun, // 26
-    kLumiSection, // 27
-    nProcessedObjects, // 28
-    nCollections = kRun  // 26
+    kEBLaserLedUncalibRecHit, // 20
+    kEELaserLedUncalibRecHit, // 21
+    kEBTestPulseUncalibRecHit, // 22
+    kEETestPulseUncalibRecHit, // 23
+    kEBRecHit, // 24
+    kEERecHit, // 25
+    kEBBasicCluster, // 26
+    kEEBasicCluster, // 27
+    kEBSuperCluster, // 28
+    kEESuperCluster, // 29
+    kRun, // 30
+    kLumiSection, // 31
+    nProcessedObjects, // 32
+    nCollections = kRun  // 30
   };
 
   std::string const collectionName[nCollections] = {
@@ -57,6 +61,10 @@ namespace ecaldqm {
     "TrigPrimEmulDigi",
     "EBUncalibRecHit",
     "EEUncalibRecHit",
+    "EBLaserLedUncalibRecHit",
+    "EELaserLedUncalibRecHit",
+    "EBTestPulseUncalibRecHit",
+    "EETestPulseUncalibRecHit",
     "EBRecHit",
     "EERecHit",
     "EBBasicCluster",

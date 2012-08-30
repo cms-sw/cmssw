@@ -10,7 +10,7 @@ namespace ecaldqm {
     PresampleClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~PresampleClient() {}
 
-    void bookMEs();
+    void beginRun(const edm::Run &, const edm::EventSetup &);
 
     void producePlots();
 
@@ -35,9 +35,9 @@ namespace ecaldqm {
     int minChannelEntries_;
     int minTowerEntries_;
     float expectedMean_;
-    float meanThreshold_;
-    float rmsThreshold_;
-    float rmsThresholdHighEta_;
+    float toleranceMean_;
+    float toleranceRMS_;
+    float toleranceRMSFwd_;
     float noisyFracThreshold_;
   };
 

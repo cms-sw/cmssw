@@ -15,11 +15,11 @@ namespace ecaldqm {
   class ClusterTask : public DQWorkerTask {
   public:
     ClusterTask(edm::ParameterSet const&, edm::ParameterSet const&);
-    ~ClusterTask();
-
-    void bookMEs();
+    ~ClusterTask() {}
 
     bool filterRunType(const std::vector<short>&);
+
+    void setDependencies(DependencySet&);
 
     void beginRun(const edm::Run &, const edm::EventSetup &);
     void beginEvent(const edm::Event &, const edm::EventSetup &);
@@ -69,7 +69,6 @@ namespace ecaldqm {
     const CaloSubdetectorGeometry* eeGeometry_;
     const EcalRecHitCollection *ebHits_, *eeHits_;
     int ievt_;
-    float lowEMax_;
     int massCalcPrescale_;
   };
 

@@ -13,7 +13,6 @@ namespace ecaldqm {
     };
 
     TowerStatusTask(edm::ParameterSet const&, edm::ParameterSet const&);
-    ~TowerStatusTask();
 
     void beginRun(const edm::Run &, const edm::EventSetup &);
     void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &);

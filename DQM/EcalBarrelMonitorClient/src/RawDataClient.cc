@@ -16,11 +16,10 @@ namespace ecaldqm {
   }
 
   void
-  RawDataClient::bookMEs()
+  RawDataClient::beginRun(const edm::Run &, const edm::EventSetup &)
   {
-    DQWorker::bookMEs();
-
     MEs_[kQualitySummary]->resetAll(-1.);
+    MEs_[kQualitySummary]->reset(kUnknown);
   }
 
   void
@@ -39,14 +38,17 @@ namespace ecaldqm {
     for(MESet::iterator meItr(MEs_[kQualitySummary]->beginChannel()); meItr != meEnd; meItr.toNextChannel()){
 
       DetId id(meItr->getId());
+
+      bool doMask(applyMask_(kQualitySummary, id, mask));
+
       unsigned dccid(dccId(id));
 
       if(dccStatus[dccid - 1] == 0){
-        meItr->setBinContent(maskQuality_(meItr, mask, 0));
+        meItr->setBinContent(doMask ? kMUnknown : kUnknown);
         continue;
       }
 
-      int towerStatus(1);
+      int towerStatus(doMask ? kMGood : kGood);
       float towerEntries(0.);
       for(unsigned iS(0); iS < nFEFlags; iS++){
         float entries(sources_[kFEStatus]->getBinContent(id, iS + 1));
@@ -54,12 +56,12 @@ namespace ecaldqm {
         if(entries > 0. &&
            iS != Enabled && iS != Disabled && iS != Suppressed &&
            iS != FIFOFull && iS != FIFOFullL1ADesync && iS != ForcedZS)
-          towerStatus = 0;
+          towerStatus = doMask ? kMBad : kBad;
       }
 
-      if(towerEntries < 1.) towerStatus = 2;
+      if(towerEntries < 1.) towerStatus = doMask ? kMUnknown : kUnknown;
 
-      meItr->setBinContent(maskQuality_(meItr, mask, towerStatus));
+      meItr->setBinContent(towerStatus);
 
     }
   }

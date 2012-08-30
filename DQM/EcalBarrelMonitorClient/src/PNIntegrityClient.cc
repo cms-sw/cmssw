@@ -9,43 +9,46 @@ namespace ecaldqm
   }
 
   void
-  PNIntegrityClient::bookMEs()
+  PNIntegrityClient::beginRun(edm::Run const&, edm::EventSetup const&)
   {
-    DQWorker::bookMEs();
-
     MEs_[kQualitySummary]->resetAll(-1.);
+    MEs_[kQualitySummary]->reset(kUnknown);
   }
 
   void
   PNIntegrityClient::producePlots()
   {
-    MESet::const_iterator oEnd(sources_[kOccupancy]->end());
-    MESet::iterator qsItr(MEs_[kQualitySummary]);
-    for(MESet::const_iterator oItr(sources_[kOccupancy]->beginChannel()); oItr != oEnd; oItr.toNextChannel()){
+    for(unsigned iDCC(0); iDCC < BinService::nDCC; ++iDCC){
+      if(memDCCIndex(iDCC + 1) == unsigned(-1)) continue;
+      for(unsigned iPN(0); iPN < 10; ++iPN){
+        int subdet(0);
+        if(iDCC >= kEBmLow && iDCC <= kEBpHigh) subdet = EcalBarrel;
+        else subdet = EcalEndcap;
 
-      qsItr = oItr;
+        EcalPnDiodeDetId id(subdet, iDCC + 1, iPN + 1);
 
-      EcalPnDiodeDetId id(oItr->getId());
+        bool doMask(applyMask_(kQualitySummary, id));
 
-      float entries(oItr->getBinContent());
+        float entries(sources_[kOccupancy]->getBinContent(id));
 
-      float chid(sources_[kMEMChId]->getBinContent(id));
-      float gain(sources_[kMEMGain]->getBinContent(id));
+        float chid(sources_[kMEMChId]->getBinContent(id));
+        float gain(sources_[kMEMGain]->getBinContent(id));
 
-      float blocksize(sources_[kMEMBlockSize]->getBinContent(id));
-      float towerid(sources_[kMEMTowerId]->getBinContent(id));
+        float blocksize(sources_[kMEMBlockSize]->getBinContent(id));
+        float towerid(sources_[kMEMTowerId]->getBinContent(id));
 
-      if(entries + gain + chid + blocksize + towerid < 1.){
-        qsItr->setBinContent(maskPNQuality_(qsItr, 2));
-        continue;
+        if(entries + gain + chid + blocksize + towerid < 1.){
+          MEs_[kQualitySummary]->setBinContent(id, doMask ? kMUnknown : kUnknown);
+          continue;
+        }
+
+        float chErr((gain + chid + blocksize + towerid) / (entries + gain + chid + blocksize + towerid));
+
+        if(chErr > errFractionThreshold_)
+          MEs_[kQualitySummary]->setBinContent(id, doMask ? kMBad : kBad);
+        else
+          MEs_[kQualitySummary]->setBinContent(id, doMask ? kMGood : kGood);
       }
-
-      float chErr((gain + chid + blocksize + towerid) / (entries + gain + chid + blocksize + towerid));
-
-      if(chErr > errFractionThreshold_)
-        qsItr->setBinContent(maskPNQuality_(qsItr, 0));
-      else
-        qsItr->setBinContent(maskPNQuality_(qsItr, 1));
     }
   }
 
@@ -55,7 +58,7 @@ namespace ecaldqm
   {
     _nameToIndex["QualitySummary"] = kQualitySummary;
 
-    _nameToIndex["kOccupancy"] = kOccupancy;
+    _nameToIndex["Occupancy"] = kOccupancy;
     _nameToIndex["MEMChId"] = kMEMChId;
     _nameToIndex["MEMGain"] = kMEMGain;
     _nameToIndex["MEMBlockSize"] = kMEMBlockSize;
