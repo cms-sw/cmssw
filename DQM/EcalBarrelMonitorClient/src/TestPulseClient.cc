@@ -59,7 +59,7 @@ namespace ecaldqm
 
     map<string, string> replacements;
 
-    unsigned apdPlots[] = {kQuality, kAmplitudeMean, kAmplitudeRMS, kQualitySummary};
+    unsigned apdPlots[] = {kQuality, kAmplitudeRMS, kQualitySummary};
     for(unsigned iS(0); iS < sizeof(apdPlots) / sizeof(unsigned); ++iS){
       unsigned plot(apdPlots[iS]);
       MESet* temp(MEs_[plot]);
@@ -171,12 +171,10 @@ namespace ecaldqm
     for(map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
       static_cast<MESetMulti*>(MEs_[kQuality])->use(gainItr->second);
       static_cast<MESetMulti*>(MEs_[kQualitySummary])->use(gainItr->second);
-      static_cast<MESetMulti*>(MEs_[kAmplitudeMean])->use(gainItr->second);
       static_cast<MESetMulti*>(MEs_[kAmplitudeRMS])->use(gainItr->second);
 
       static_cast<MESetMulti const*>(sources_[kAmplitude])->use(gainItr->second);
 
-      MEs_[kAmplitudeMean]->reset();
       MEs_[kAmplitudeRMS]->reset();
 
       uint32_t mask(0);
@@ -217,7 +215,6 @@ namespace ecaldqm
         float amp(aItr->getBinContent());
         float rms(aItr->getBinError() * sqrt(entries));
 
-        MEs_[kAmplitudeMean]->fill(id, amp);
         MEs_[kAmplitudeRMS]->fill(id, rms);
 
         if(amp < amplitudeThreshold_[gainItr->second] || rms > toleranceRMS_[gainItr->second])
@@ -289,7 +286,6 @@ namespace ecaldqm
   TestPulseClient::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
   {
     _nameToIndex["Quality"] = kQuality;
-    _nameToIndex["AmplitudeMean"] = kAmplitudeMean;
     _nameToIndex["AmplitudeRMS"] = kAmplitudeRMS;
     _nameToIndex["PNAmplitudeRMS"] = kPNAmplitudeRMS;
     _nameToIndex["QualitySummary"] = kQualitySummary;

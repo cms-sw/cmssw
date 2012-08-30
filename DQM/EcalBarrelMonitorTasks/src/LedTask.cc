@@ -208,7 +208,7 @@ namespace ecaldqm {
       int lmmod(MEEEGeom::lmmod(scid.ix(), scid.iy()));
       pair<int, int> pnPair(MEEEGeom::pn(dee, lmmod));
 
-      int pnAFED(EEPnDCC(dee, 0)), pnBFED(EEPnDCC(dee, 1));
+      int pnAFED(EEPnDCC(dee, 0) - 601), pnBFED(EEPnDCC(dee, 1) - 601);
 
       pn0 = pnAmp_[pnAFED][pnPair.first];
       pn1 = pnAmp_[pnBFED][pnPair.second];

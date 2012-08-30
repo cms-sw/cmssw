@@ -109,8 +109,49 @@ namespace ecaldqm {
   void
   LaserTask::runOnDigis(const EcalDigiCollection &_digis)
   {
-    unsigned iME(-1);
+    int nReadouts(0);
+    std::vector<int> maxpos(10, 0);
 
+    for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
+      const DetId& id(digiItr->id());
+
+      int iDCC(dccId(id) - 1);
+
+      if(!enable_[iDCC]) continue;
+
+      ++nReadouts;
+
+      EcalDataFrame dataFrame(*digiItr);
+
+      int iMax(-1);
+      int max(0);
+      for (int i = 0; i < 10; i++) {
+        int adc = dataFrame.sample(i).adc();
+        if(adc > max){
+          max = adc;
+          iMax = i;
+        }
+      }
+      if(iMax >= 0)
+        maxpos[iMax] += 1;
+    }
+
+    bool majorityExists(false);
+    int threshold(nReadouts / 2);
+    for(int i(0); i < 10; i++){
+      if(maxpos[i] > threshold){
+        majorityExists = true;
+        break;
+      }
+    }
+
+    if(!majorityExists){
+      for(unsigned iDCC(0); iDCC < BinService::nDCC; ++iDCC)
+        enable_[iDCC] = false;
+      return;
+    }
+
+    unsigned iME(-1);
     for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       const DetId& id(digiItr->id());
 
