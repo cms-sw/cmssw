@@ -95,14 +95,19 @@ HcalTopologyIdealEP::produce(const IdealGeometryRecord& iRecord)
 {
   using namespace edm::es;
 
-  const edm::ParameterSet hcalTopoConsts( m_pSet.getParameter<edm::ParameterSet>( "hcalTopologyConstants" ));
-  std::string modeStr = hcalTopoConsts.getParameter<std::string>("mode");
-  StringToEnumParser<HcalTopologyMode::Mode> eparser;
-  HcalTopologyMode::Mode mode = (HcalTopologyMode::Mode) eparser.parseString(hcalTopoConsts.getParameter<std::string>("mode"));
+  HcalTopologyMode::Mode mode = HcalTopologyMode::LHC;
+  int maxDepthHB = 2;
+  int maxDepthHE = 3;
+  if( m_pSet.exists( "hcalTopologyConstants" ))
+  {
+    const edm::ParameterSet hcalTopoConsts( m_pSet.getParameter<edm::ParameterSet>( "hcalTopologyConstants" ));
+    StringToEnumParser<HcalTopologyMode::Mode> eparser;
+    mode = (HcalTopologyMode::Mode) eparser.parseString(hcalTopoConsts.getParameter<std::string>("mode"));
+    maxDepthHB = hcalTopoConsts.getParameter<int>("maxDepthHB");
+    maxDepthHE = hcalTopoConsts.getParameter<int>("maxDepthHE");
+  }
 
-  ReturnType myTopo(new HcalTopology(mode,
-				     hcalTopoConsts.getParameter<int>("maxDepthHB"),
-				     hcalTopoConsts.getParameter<int>("maxDepthHE")));
+  ReturnType myTopo(new HcalTopology( mode, maxDepthHB, maxDepthHE ));
 
   HcalTopologyRestrictionParser parser(*myTopo);
   if (!m_restrictions.empty()) {
