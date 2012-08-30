@@ -62,6 +62,8 @@ namespace edm {
     TypeWithDict(TypeWithDict const& type, TypeModifiers modifiers) : type_(Reflex::Type(type.type_, modifiers)) {
     }
 
+    explicit TypeWithDict(Reflex::Type const& type);
+
     static TypeWithDict
     byName(std::string const& className);
 
@@ -116,23 +118,11 @@ namespace edm {
       return TypeWithDict(type_.FinalType());
     }
 
-    TypeWithDict returnType() const {
-      return TypeWithDict(type_.ReturnType());
-    }
-
     TypeWithDict toType() {
       return TypeWithDict(type_.ToType());
     }
 
     std::string propertyValueAsString(std::string const& property) const;
-
-    TypeWithDict functionParameterAt(size_t index) const {
-      return TypeWithDict(type_.FunctionParameterAt(index));
-    }
-
-    size_t functionParameterSize() const {
-      return type_.FunctionParameterSize();
-    }
 
     TypeWithDict subTypeAt(size_t index) const {
       return TypeWithDict(type_.SubTypeAt(index));
@@ -219,8 +209,6 @@ namespace edm {
     friend class TypeFunctionMembers;
     friend class TypeTemplateWithDict;
 
-    explicit TypeWithDict(Reflex::Type const& type);
-
     Reflex::Type type_;
   };
 
@@ -255,7 +243,7 @@ namespace edm {
 #ifndef __GCCXML__
     explicit operator bool() const;
 #endif
-    
+
   private:
     explicit TypeTemplateWithDict(Reflex::TypeTemplate const& typeTemplate);
     Reflex::TypeTemplate typeTemplate_;

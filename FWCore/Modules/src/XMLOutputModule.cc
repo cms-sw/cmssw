@@ -81,7 +81,7 @@ namespace edm {
     boost::shared_ptr<ObjectWithDict> initReturnValue(FunctionWithDict const& iMember,
                                                       ObjectWithDict* iObj,
                                                       void** iRefBuffer) {
-      TypeWithDict returnType = iMember.typeOf().returnType();
+      TypeWithDict returnType = iMember.returnType();
       if(returnType.isReference()) {
         *iObj = ObjectWithDict(returnType, iRefBuffer);
         return boost::shared_ptr<ObjectWithDict>(iObj, doNotDelete);

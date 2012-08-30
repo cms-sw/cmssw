@@ -54,6 +54,8 @@ namespace edm {
       return function_.IsStatic();
     }
 
+    TypeWithDict returnType() const;
+
     size_t functionParameterSize(bool required = false) const {
       return function_.FunctionParameterSize(required);
     }
@@ -62,6 +64,12 @@ namespace edm {
 
     bool operator<(FunctionWithDict const& other) const {
       return function_ < other.function_;
+    }
+
+    Reflex::Type_Iterator begin() const;
+    Reflex::Type_Iterator end() const;
+    size_t size() const {
+      return functionParameterSize();
     }
 
 #ifndef __GCCXML__

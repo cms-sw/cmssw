@@ -17,6 +17,11 @@ namespace edm {
   }
 
   TypeWithDict
+  FunctionWithDict::returnType() const {
+    return (TypeWithDict(function_.TypeOf().ReturnType()));
+  }
+
+  TypeWithDict
   FunctionWithDict::declaringType() const {
     return (TypeWithDict(function_.DeclaringType()));
   }
@@ -24,5 +29,15 @@ namespace edm {
   void
   FunctionWithDict::invoke(ObjectWithDict const& obj, ObjectWithDict* ret, std::vector<void*> const& values) const {
     function_.Invoke(obj.object_, &ret->object_, values);
+  }
+
+  Reflex::Type_Iterator
+  FunctionWithDict::begin() const {
+    return function_.TypeOf().FunctionParameter_Begin();
+  }
+
+  Reflex::Type_Iterator
+  FunctionWithDict::end() const {
+    return function_.TypeOf().FunctionParameter_End();
   }
 }
