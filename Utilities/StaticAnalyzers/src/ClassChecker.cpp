@@ -307,7 +307,7 @@ void WalkAST::ReportCall(const clang::CallExpr *CE, bool isPure) {
     if (VisitedFunctions[FD] == PostVisited)
       os << " <-- " << *FD;
   }
-   os <<"/n";
+   os <<"\n";
   // Names of args  
   for ( clang::CallExpr::const_arg_iterator I=CE->arg_begin(), E=CE->arg_end(); I != E;++I){
 	os<<"Args "<<*I<<" ";
@@ -403,8 +403,8 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 	    		llvm::raw_string_ostream os(buf);
   			os << "Declaration of Field  " << *FD << " in Class "<<*RD<<" .\n";
 			clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( FD, SM );
-//			if ( m_exception.reportClass( DLoc, BR ) ) 
-//				BR.EmitBasicReport(FD, "Class Checker FieldDecl","ThreadSafety",os.str(), DLoc);
+			if ( m_exception.reportClass( DLoc, BR ) ) 
+				BR.EmitBasicReport(FD, "Class Checker FieldDecl","ThreadSafety",os.str(), DLoc);
  		}  /* end of field loop */
 
 	
