@@ -81,8 +81,8 @@
  **
  **
  **  $Id: PhotonValidator
- **  $Date: 2012/02/14 19:43:43 $
- **  $Revision: 1.2 $
+ **  $Date: 2012/05/25 16:47:34 $
+ **  $Revision: 1.3 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -958,9 +958,61 @@ void  PhotonValidator::beginJob() {
     p_sceResVsR9_[1] = dbe_->bookProfile(histname+"Barrel"," All photons  scE/Etrue vs R9: Barrel ",  r9Bin*2,r9Min, r9Max,resBin,resMin, resMax,"");
     p_sceResVsR9_[2] = dbe_->bookProfile(histname+"Endcap"," All photons  scE/Etrue vs R9: Endcap ",  r9Bin*2,r9Min, r9Max,resBin,resMin, resMax,"");
 
+    // Photon E reslution when using energy values from regressions
+    histname = "eResRegr1";
+    h_phoEResRegr1_[0][0] = dbe_->book1D(histname+"All"," Photon rec/true Energy from Regression1 : All ecal ", resBin,resMin, resMax);
+    h_phoEResRegr1_[0][1] = dbe_->book1D(histname+"Barrel"," Photon rec/true Energy from Regression1: Barrel ",resBin,resMin, resMax);
+    h_phoEResRegr1_[0][2] = dbe_->book1D(histname+"Endcap"," Photon rec/true Energy from Regression1: Endcap ",resBin,resMin, resMax);
+
+    h_phoEResRegr1_[1][0] = dbe_->book1D(histname+"unconvAll"," Photon rec/true Energy from Regression1 if r9>0.94, 0.95: All ecal ", resBin,resMin, resMax);
+    h_phoEResRegr1_[1][1] = dbe_->book1D(histname+"unconvBarrel"," Photon rec/true Energy from Regression1 if r9>0.94: Barrel ",resBin,resMin, resMax);
+    h_phoEResRegr1_[1][2] = dbe_->book1D(histname+"unconvEndcap"," Photon rec/true Energy from Regression1 if r9>0.95: Endcap ",resBin,resMin, resMax);
+
+    h_phoEResRegr1_[2][0] = dbe_->book1D(histname+"convAll"," Photon rec/true Energy  from Regression1if r9<0.0.94, 0.95: All ecal ", resBin,resMin, resMax);
+    h_phoEResRegr1_[2][1] = dbe_->book1D(histname+"convBarrel"," Photon rec/true Energy from Regression1 if r9<0.94: Barrel ",resBin,resMin, resMax);
+    h_phoEResRegr1_[2][2] = dbe_->book1D(histname+"convEndcap"," Photon rec/true Energy from Regression1 if r9<0.95: Endcap ",resBin,resMin, resMax);
+
+    histname = "eResRegr2";
+    h_phoEResRegr2_[0][0] = dbe_->book1D(histname+"All"," Photon rec/true Energy from Regression2 : All ecal ", resBin,resMin, resMax);
+    h_phoEResRegr2_[0][1] = dbe_->book1D(histname+"Barrel"," Photon rec/true Energy from Regression2: Barrel ",resBin,resMin, resMax);
+    h_phoEResRegr2_[0][2] = dbe_->book1D(histname+"Endcap"," Photon rec/true Energy from Regression2: Endcap ",resBin,resMin, resMax);
+
+    h_phoEResRegr2_[1][0] = dbe_->book1D(histname+"unconvAll"," Photon rec/true Energy from Regression2 if r9>0.94, 0.95: All ecal ", resBin,resMin, resMax);
+    h_phoEResRegr2_[1][1] = dbe_->book1D(histname+"unconvBarrel"," Photon rec/true Energy from Regression2 if r9>0.94: Barrel ",resBin,resMin, resMax);
+    h_phoEResRegr2_[1][2] = dbe_->book1D(histname+"unconvEndcap"," Photon rec/true Energy from Regression2 if r9>0.95: Endcap ",resBin,resMin, resMax);
+
+    h_phoEResRegr2_[2][0] = dbe_->book1D(histname+"convAll"," Photon rec/true Energy  from Regression2 if r9<0.0.94, 0.95: All ecal ", resBin,resMin, resMax);
+    h_phoEResRegr2_[2][1] = dbe_->book1D(histname+"convBarrel"," Photon rec/true Energy from Regression2 if r9<0.94: Barrel ",resBin,resMin, resMax);
+    h_phoEResRegr2_[2][2] = dbe_->book1D(histname+"convEndcap"," Photon rec/true Energy from Regression2 if r9<0.95: Endcap ",resBin,resMin, resMax);
+
+    //  Infos from Particle Flow - isolation and ID
+    histname = "chargedHadIso";
+    h_chHadIso_[0]=  dbe_->book1D(histname+"All",   "PF chargedHadIso:  All Ecal",etBin,etMin,20.);
+    h_chHadIso_[1]=  dbe_->book1D(histname+"Barrel",   "PF chargedHadIso:  Barrel",etBin,etMin,20.);
+    h_chHadIso_[2]=  dbe_->book1D(histname+"Endcap",   "PF chargedHadIso:  Endcap",etBin,etMin,20.);
+    histname = "neutralHadIso";
+    h_nHadIso_[0]=  dbe_->book1D(histname+"All",   "PF neutralHadIso:  All Ecal",etBin,etMin,20.);
+    h_nHadIso_[1]=  dbe_->book1D(histname+"Barrel",   "PF neutralHadIso:  Barrel",etBin,etMin,20.);
+    h_nHadIso_[2]=  dbe_->book1D(histname+"Endcap",   "PF neutralHadIso:  Endcap",etBin,etMin,20.);
+    histname = "photonIso";
+    h_phoIso_[0]=  dbe_->book1D(histname+"All",   "PF photonIso:  All Ecal",etBin,etMin,20.);
+    h_phoIso_[1]=  dbe_->book1D(histname+"Barrel",   "PF photonIso:  Barrel",etBin,etMin,20.);
+    h_phoIso_[2]=  dbe_->book1D(histname+"Endcap",   "PF photonIso:  Endcap",etBin,etMin,20.);
+    histname = "nCluOutMustache";
+    h_nCluOutsideMustache_[0]= dbe_->book1D(histname+"All",   "PF number of clusters outside Mustache:  All Ecal",50,0.,50.);      
+    h_nCluOutsideMustache_[1]= dbe_->book1D(histname+"Barrel",   "PF number of clusters outside Mustache:  Barrel",50,0.,50.);      
+    h_nCluOutsideMustache_[2]= dbe_->book1D(histname+"Endcap",   "PF number of clusters outside Mustache:  Endcap",50,0.,50.);      
+    histname = "etOutMustache";
+    h_etOutsideMustache_[0]= dbe_->book1D(histname+"All",   "PF et outside Mustache:  All Ecal",etBin,etMin,20.);
+    h_etOutsideMustache_[1]= dbe_->book1D(histname+"Barrel",   "PF et outside Mustache:  Barrel",etBin,etMin,20.);
+    h_etOutsideMustache_[2]= dbe_->book1D(histname+"Endcap",   "PF et outside Mustache:  Endcap",etBin,etMin,20.);
+    histname = "pfMVA";
+    h_pfMva_[0]= dbe_->book1D(histname+"All",   "PF MVA output:  All Ecal",etBin,etMin,20.);
+    h_pfMva_[1]= dbe_->book1D(histname+"Barrel",   "PF MVA output:  Barrel",etBin,etMin,20.);
+    h_pfMva_[2]= dbe_->book1D(histname+"Endcap",   "PF MVA output:  Endcap",etBin,etMin,20.);
 
 
-    if ( ! isRunCentrally_ ) { 
+    //    if ( ! isRunCentrally_ ) { 
       // Photon pair invariant mass
       histname = "gamgamMass";
       h_gamgamMass_[0][0] = dbe_->book1D(histname+"All","2 photons invariant mass: All ecal ", ggMassBin, ggMassMin, ggMassMax);
@@ -976,7 +1028,39 @@ void  PhotonValidator::beginJob() {
       h_gamgamMass_[2][0] = dbe_->book1D(histname+"All","2 photons with conversion invariant mass: All ecal ", ggMassBin, ggMassMin, ggMassMax);
       h_gamgamMass_[2][1] = dbe_->book1D(histname+"Barrel","2 photons with  conversion  invariant mass:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
       h_gamgamMass_[2][2] = dbe_->book1D(histname+"Endcap","2 photons with  conversion  invariant mass:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
-    }
+      // with energy regression1 
+      histname = "gamgamMassRegr1";
+      h_gamgamMassRegr1_[0][0] = dbe_->book1D(histname+"All","2 photons invariant mass Regr1 : All ecal ", ggMassBin, ggMassMin, ggMassMax);
+      h_gamgamMassRegr1_[0][1] = dbe_->book1D(histname+"Barrel","2 photons invariant mass Regr1 :  Barrel ",ggMassBin, ggMassMin, ggMassMax);
+      h_gamgamMassRegr1_[0][2] = dbe_->book1D(histname+"Endcap","2 photons invariant mass Regr1 :  Endcap ",ggMassBin, ggMassMin, ggMassMax);
+      //
+      histname = "gamgamMassRegr1NoConv";
+      h_gamgamMassRegr1_[1][0] = dbe_->book1D(histname+"All","2 photons with no conversion invariant mass Regr1: All ecal ",ggMassBin, ggMassMin, ggMassMax);
+      h_gamgamMassRegr1_[1][1] = dbe_->book1D(histname+"Barrel","2 photons with no conversion  invariant mass Regr1:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
+      h_gamgamMassRegr1_[1][2] = dbe_->book1D(histname+"Endcap","2 photons with no conversion  invariant mass Regr1:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
+      //
+      histname = "gamgamMassRegr1Conv";
+      h_gamgamMassRegr1_[2][0] = dbe_->book1D(histname+"All","2 photons with conversion invariant mass Regr1: All ecal ", ggMassBin, ggMassMin, ggMassMax);
+      h_gamgamMassRegr1_[2][1] = dbe_->book1D(histname+"Barrel","2 photons with  conversion  invariant mass Regr1:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
+      h_gamgamMassRegr1_[2][2] = dbe_->book1D(histname+"Endcap","2 photons with  conversion  invariant mass Regr1:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
+      // with energy regression2
+      histname = "gamgamMassRegr2";
+      h_gamgamMassRegr2_[0][0] = dbe_->book1D(histname+"All","2 photons invariant mass Regr2 : All ecal ", ggMassBin, ggMassMin, ggMassMax);
+      h_gamgamMassRegr2_[0][1] = dbe_->book1D(histname+"Barrel","2 photons invariant mass Regr2 :  Barrel ",ggMassBin, ggMassMin, ggMassMax);
+      h_gamgamMassRegr2_[0][2] = dbe_->book1D(histname+"Endcap","2 photons invariant mass Regr2 :  Endcap ",ggMassBin, ggMassMin, ggMassMax);
+      //
+      histname = "gamgamMassRegr2NoConv";
+      h_gamgamMassRegr2_[1][0] = dbe_->book1D(histname+"All","2 photons with no conversion invariant mass Regr2: All ecal ",ggMassBin, ggMassMin, ggMassMax);
+      h_gamgamMassRegr2_[1][1] = dbe_->book1D(histname+"Barrel","2 photons with no conversion  invariant mass Regr2:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
+      h_gamgamMassRegr2_[1][2] = dbe_->book1D(histname+"Endcap","2 photons with no conversion  invariant mass Regr2:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
+      //
+      histname = "gamgamMassRegr2Conv";
+      h_gamgamMassRegr2_[2][0] = dbe_->book1D(histname+"All","2 photons with conversion invariant mass Regr2: All ecal ", ggMassBin, ggMassMin, ggMassMax);
+      h_gamgamMassRegr2_[2][1] = dbe_->book1D(histname+"Barrel","2 photons with  conversion  invariant mass Regr2:  Barrel ",ggMassBin, ggMassMin, ggMassMax);
+      h_gamgamMassRegr2_[2][2] = dbe_->book1D(histname+"Endcap","2 photons with  conversion  invariant mass Regr2:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
+ 
+
+      //}
 
     dbe_->setCurrentFolder("EgammaV/PhotonValidator/ConversionInfo");
 
@@ -1579,14 +1663,19 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   }
 
   std::sort(myPhotons.begin(), myPhotons.end(), sortPhotons());
-  if ( ! isRunCentrally_ ) { 
+  // if ( ! isRunCentrally_ ) { 
     if ( myPhotons.size() >=2 ) {
       if ( myPhotons[0].et() > 40 && myPhotons[1].et() > 25 ) {
 	
 	math::XYZTLorentzVector p12 = myPhotons[0].p4()+myPhotons[1].p4();
+	math::XYZTLorentzVector p12_regr1 = myPhotons[0].p4(reco::Photon::regression1)+myPhotons[1].p4(reco::Photon::regression1);
+	math::XYZTLorentzVector p12_regr2 = myPhotons[0].p4(reco::Photon::regression2)+myPhotons[1].p4(reco::Photon::regression2);
 	float gamgamMass2 = p12.Dot(p12);
+	float gamgamMass2_regr1 = p12_regr1.Dot(p12_regr1);
+	float gamgamMass2_regr2 = p12_regr2.Dot(p12_regr2);
+
+	//// standard ecal energy corrections
 	if (  gamgamMass2 > 0 ) {
-	  
 	  // total
 	  h_gamgamMass_[0][0] -> Fill(sqrt( gamgamMass2 ));
 	  if (  myPhotons[0].isEB() && 	 myPhotons[1].isEB() )
@@ -1595,10 +1684,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	       (  myPhotons[0].isEE() && 	 myPhotons[1].isEB() ) ||
 	       (  myPhotons[0].isEB() && 	 myPhotons[1].isEE() ) )
 	    h_gamgamMass_[0][2] -> Fill(sqrt( gamgamMass2 ));
-	  
-	  
 	  // Golden photons
-	  if (  myPhotons[0].r9() > 0.93 &&  myPhotons[1].r9() > 0.93 ) {
+	  if (  myPhotons[0].r9() > 0.94 &&  myPhotons[1].r9() > 0.94 ) {
 	    h_gamgamMass_[1][0] -> Fill(sqrt( gamgamMass2 ));
 	    if (  myPhotons[0].isEB() && 	 myPhotons[1].isEB() )
 	      h_gamgamMass_[1][1] -> Fill(sqrt( gamgamMass2 ));
@@ -1607,8 +1694,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 		 (  myPhotons[0].isEB() && 	 myPhotons[1].isEE() ) )
 	      h_gamgamMass_[1][2] -> Fill(sqrt( gamgamMass2 ));
 	  }
-	  
-	  
 	  // both photons converted
 	  if ( myPhotons[0].conversions().size() > 0 && myPhotons[1].conversions().size() >0 ) {
 	    if ( myPhotons[0].conversions()[0]->nTracks() ==2 &&  myPhotons[1].conversions()[0]->nTracks() ==2  ) {
@@ -1626,8 +1711,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 		}
 	      }
 	    }
-	    
-	    
 	  } else if ( myPhotons[0].conversions().size() > 0 && myPhotons[1].conversions().size() ==0 && myPhotons[1].r9() > 0.93  )  { 	// one photon converted
 	    if ( myPhotons[0].conversions()[0]->nTracks() ==2 ) {
 	      float chi2Prob1 = ChiSquaredProbability( myPhotons[0].conversions()[0]->conversionVertex().chi2(),  myPhotons[0].conversions()[0]->conversionVertex().ndof() );
@@ -1641,8 +1724,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 		}
 	      }
 	    }
-	    
-	    
 	  } else if ( myPhotons[1].conversions().size() > 0 && myPhotons[0].conversions().size() ==0 &&  myPhotons[0].r9() > 0.93 )  { 	// one photon converted
 	    if ( myPhotons[1].conversions()[0]->nTracks() ==2 ) {
 	      float chi2Prob1 = ChiSquaredProbability( myPhotons[1].conversions()[0]->conversionVertex().chi2(),  myPhotons[1].conversions()[0]->conversionVertex().ndof() );
@@ -1657,12 +1738,159 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      }
 	    }
 	  }
+	} // gamgamMass2 > 0
+
+	////  energy from regression1
+	if (  gamgamMass2_regr1 > 0 ) {
+	  // total
+	  h_gamgamMassRegr1_[0][0] -> Fill(sqrt( gamgamMass2_regr1 ));
+	  if (  myPhotons[0].isEB() && 	 myPhotons[1].isEB() )
+	    h_gamgamMassRegr1_[0][1] -> Fill(sqrt( gamgamMass2_regr1 ));
+	  if ( (  myPhotons[0].isEE() && 	 myPhotons[1].isEE() )  ||
+	       (  myPhotons[0].isEE() && 	 myPhotons[1].isEB() ) ||
+	       (  myPhotons[0].isEB() && 	 myPhotons[1].isEE() ) )
+	    h_gamgamMassRegr1_[0][2] -> Fill(sqrt( gamgamMass2_regr1 ));
+	  // Golden photons
+	  if (  myPhotons[0].r9() > 0.94 &&  myPhotons[1].r9() > 0.94 ) {
+	    h_gamgamMassRegr1_[1][0] -> Fill(sqrt( gamgamMass2_regr1 ));
+	    if (  myPhotons[0].isEB() && 	 myPhotons[1].isEB() )
+	      h_gamgamMassRegr1_[1][1] -> Fill(sqrt( gamgamMass2_regr1 ));
+	    if ( (  myPhotons[0].isEE() && 	 myPhotons[1].isEE() )  ||
+		 (  myPhotons[0].isEE() && 	 myPhotons[1].isEB() ) ||
+		 (  myPhotons[0].isEB() && 	 myPhotons[1].isEE() ) )
+	      h_gamgamMassRegr1_[1][2] -> Fill(sqrt( gamgamMass2_regr1 ));
+	  }
 	  
 	  
-	}
+	  // both photons converted
+	  if ( myPhotons[0].conversions().size() > 0 && myPhotons[1].conversions().size() >0 ) {
+	    if ( myPhotons[0].conversions()[0]->nTracks() ==2 &&  myPhotons[1].conversions()[0]->nTracks() ==2  ) {
+	      float chi2Prob1 = ChiSquaredProbability( myPhotons[0].conversions()[0]->conversionVertex().chi2(),  myPhotons[0].conversions()[0]->conversionVertex().ndof() );
+	      float chi2Prob2 = ChiSquaredProbability( myPhotons[1].conversions()[0]->conversionVertex().chi2(),  myPhotons[1].conversions()[0]->conversionVertex().ndof() );
+	      if ( chi2Prob1 > 0.0005 &&  chi2Prob2 > 0.0005 ) {
+		h_gamgamMassRegr1_[2][0] -> Fill(sqrt( gamgamMass2_regr1 ));
+		if (  myPhotons[0].isEB() && 	 myPhotons[1].isEB() ) {
+		  h_gamgamMassRegr1_[2][1] -> Fill(sqrt( gamgamMass2_regr1 ));
+		}
+		if ( (  myPhotons[0].isEE() && 	 myPhotons[1].isEE() )  ||
+		     (  myPhotons[0].isEE() && 	 myPhotons[1].isEB() ) ||
+		     (  myPhotons[0].isEB() && 	 myPhotons[1].isEE() ) )
+		  h_gamgamMassRegr1_[2][2] -> Fill(sqrt( gamgamMass2_regr1 )); {
+		}
+	      }
+	    }
+	  } else if ( myPhotons[0].conversions().size() > 0 && myPhotons[1].conversions().size() ==0 && myPhotons[1].r9() > 0.93  )  { 	// one photon converted
+	    if ( myPhotons[0].conversions()[0]->nTracks() ==2 ) {
+	      float chi2Prob1 = ChiSquaredProbability( myPhotons[0].conversions()[0]->conversionVertex().chi2(),  myPhotons[0].conversions()[0]->conversionVertex().ndof() );
+	      if ( chi2Prob1 > 0.0005 ) {
+		h_gamgamMassRegr1_[2][0] -> Fill(sqrt( gamgamMass2_regr1 ));
+		if (  myPhotons[0].isEB() &&  myPhotons[1].isEB() ) {
+		  h_gamgamMassRegr1_[2][1] -> Fill(sqrt( gamgamMass2_regr1 ));
+		}
+		if (  myPhotons[0].isEE() ||  myPhotons[1].isEE() ) {
+		  h_gamgamMassRegr1_[2][2] -> Fill(sqrt( gamgamMass2_regr1 ));
+		}
+	      }
+	    }
+	  } else if ( myPhotons[1].conversions().size() > 0 && myPhotons[0].conversions().size() ==0 &&  myPhotons[0].r9() > 0.93 )  { 	// one photon converted
+	    if ( myPhotons[1].conversions()[0]->nTracks() ==2 ) {
+	      float chi2Prob1 = ChiSquaredProbability( myPhotons[1].conversions()[0]->conversionVertex().chi2(),  myPhotons[1].conversions()[0]->conversionVertex().ndof() );
+	      if ( chi2Prob1 > 0.0005 ) {
+		h_gamgamMassRegr1_[2][0] -> Fill(sqrt( gamgamMass2_regr1 ));
+		if (  myPhotons[0].isEB() && myPhotons[1].isEB() ) {
+		  h_gamgamMassRegr1_[2][1] -> Fill(sqrt( gamgamMass2_regr1 ));
+		}
+		if (  myPhotons[0].isEE() ||  myPhotons[1].isEE() ) {
+		  h_gamgamMassRegr1_[2][2] -> Fill(sqrt( gamgamMass2_regr1 ));
+		}
+	      }
+	    }
+	  }
+	} // gamgamMass2_regr1 > 0
+
+
+	////  energy from regression2
+	if (  gamgamMass2_regr2 > 0 ) {
+	  // total
+	  h_gamgamMassRegr2_[0][0] -> Fill(sqrt( gamgamMass2_regr2 ));
+	  if (  myPhotons[0].isEB() && 	 myPhotons[1].isEB() )
+	    h_gamgamMassRegr2_[0][1] -> Fill(sqrt( gamgamMass2_regr2 ));
+	  if ( (  myPhotons[0].isEE() && 	 myPhotons[1].isEE() )  ||
+	       (  myPhotons[0].isEE() && 	 myPhotons[1].isEB() ) ||
+	       (  myPhotons[0].isEB() && 	 myPhotons[1].isEE() ) )
+	    h_gamgamMassRegr2_[0][2] -> Fill(sqrt( gamgamMass2_regr2 ));
+	  // Golden photons
+	  if (  myPhotons[0].r9() > 0.94 &&  myPhotons[1].r9() > 0.94 ) {
+	    h_gamgamMassRegr2_[1][0] -> Fill(sqrt( gamgamMass2_regr2 ));
+	    if (  myPhotons[0].isEB() && 	 myPhotons[1].isEB() )
+	      h_gamgamMassRegr2_[1][1] -> Fill(sqrt( gamgamMass2_regr2 ));
+	    if ( (  myPhotons[0].isEE() && 	 myPhotons[1].isEE() )  ||
+		 (  myPhotons[0].isEE() && 	 myPhotons[1].isEB() ) ||
+		 (  myPhotons[0].isEB() && 	 myPhotons[1].isEE() ) )
+	      h_gamgamMassRegr2_[1][2] -> Fill(sqrt( gamgamMass2_regr2 ));
+	  }
+	  
+	  
+	  // both photons converted
+	  if ( myPhotons[0].conversions().size() > 0 && myPhotons[1].conversions().size() >0 ) {
+	    if ( myPhotons[0].conversions()[0]->nTracks() ==2 &&  myPhotons[1].conversions()[0]->nTracks() ==2  ) {
+	      float chi2Prob1 = ChiSquaredProbability( myPhotons[0].conversions()[0]->conversionVertex().chi2(),  myPhotons[0].conversions()[0]->conversionVertex().ndof() );
+	      float chi2Prob2 = ChiSquaredProbability( myPhotons[1].conversions()[0]->conversionVertex().chi2(),  myPhotons[1].conversions()[0]->conversionVertex().ndof() );
+	      if ( chi2Prob1 > 0.0005 &&  chi2Prob2 > 0.0005 ) {
+		h_gamgamMassRegr2_[2][0] -> Fill(sqrt( gamgamMass2_regr2 ));
+		if (  myPhotons[0].isEB() && 	 myPhotons[1].isEB() ) {
+		  h_gamgamMassRegr2_[2][1] -> Fill(sqrt( gamgamMass2_regr2 ));
+		}
+		if ( (  myPhotons[0].isEE() && 	 myPhotons[1].isEE() )  ||
+		     (  myPhotons[0].isEE() && 	 myPhotons[1].isEB() ) ||
+		     (  myPhotons[0].isEB() && 	 myPhotons[1].isEE() ) )
+		  h_gamgamMassRegr2_[2][2] -> Fill(sqrt( gamgamMass2_regr2 )); {
+		}
+	      }
+	    }
+	  } else if ( myPhotons[0].conversions().size() > 0 && myPhotons[1].conversions().size() ==0 && myPhotons[1].r9() > 0.93  )  { 	// one photon converted
+	    if ( myPhotons[0].conversions()[0]->nTracks() ==2 ) {
+	      float chi2Prob1 = ChiSquaredProbability( myPhotons[0].conversions()[0]->conversionVertex().chi2(),  myPhotons[0].conversions()[0]->conversionVertex().ndof() );
+	      if ( chi2Prob1 > 0.0005 ) {
+		h_gamgamMassRegr2_[2][0] -> Fill(sqrt( gamgamMass2_regr2 ));
+		if (  myPhotons[0].isEB() &&  myPhotons[1].isEB() ) {
+		  h_gamgamMassRegr2_[2][1] -> Fill(sqrt( gamgamMass2_regr2 ));
+		}
+		if (  myPhotons[0].isEE() ||  myPhotons[1].isEE() ) {
+		  h_gamgamMassRegr2_[2][2] -> Fill(sqrt( gamgamMass2_regr2 ));
+		}
+	      }
+	    }
+	  } else if ( myPhotons[1].conversions().size() > 0 && myPhotons[0].conversions().size() ==0 &&  myPhotons[0].r9() > 0.93 )  { 	// one photon converted
+	    if ( myPhotons[1].conversions()[0]->nTracks() ==2 ) {
+	      float chi2Prob1 = ChiSquaredProbability( myPhotons[1].conversions()[0]->conversionVertex().chi2(),  myPhotons[1].conversions()[0]->conversionVertex().ndof() );
+	      if ( chi2Prob1 > 0.0005 ) {
+		h_gamgamMassRegr2_[2][0] -> Fill(sqrt( gamgamMass2_regr2 ));
+		if (  myPhotons[0].isEB() && myPhotons[1].isEB() ) {
+		  h_gamgamMassRegr2_[2][1] -> Fill(sqrt( gamgamMass2_regr2 ));
+		}
+		if (  myPhotons[0].isEE() ||  myPhotons[1].isEE() ) {
+		  h_gamgamMassRegr2_[2][2] -> Fill(sqrt( gamgamMass2_regr2 ));
+		}
+	      }
+	    }
+	  }
+	} // gamgamMass2_regr2 > 0
+
+
+
+
+
+
+
+
+
+
+
+
       }
     }
-  }
+    // }
 
 
   //  cout << " PhotonValidator mcPhotons.size() " << mcPhotons.size() << endl;
@@ -1888,12 +2116,12 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
       }
 
-
-
       int type=0;
       const EcalRecHitCollection ecalRecHitCollection = *(ecalRecHitHandle.product());
       float photonE = matchingPho.energy();
       float photonEt= matchingPho.energy()/cosh( matchingPho.eta()) ;
+      float photonERegr1 = matchingPho.getCorrectedEnergy(reco::Photon::regression1);
+      float photonERegr2 = matchingPho.getCorrectedEnergy(reco::Photon::regression2);
       float r9 = matchingPho.r9();
       float r1 = matchingPho.r1x5();
       float r2 = matchingPho.r2x5();
@@ -1905,8 +2133,16 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       float newhcalIso = matchingPho.hcalTowerSumEtBcConeDR04();
       float trkIso =  matchingPho.trkSumPtSolidConeDR04();
       float nIsoTrk   =  matchingPho.nTrkSolidConeDR04();
-      std::vector< std::pair<DetId, float> >::const_iterator rhIt;
+      // PF related quantities
+      float chargedHadIso =  matchingPho.chargedHadronIso();
+      float neutralHadIso =  matchingPho.neutralHadronIso();
+      float photonIso     =  matchingPho.photonIso();
+      float etOutsideMustache = matchingPho.etOutsideMustache();
+      int   nClusterOutsideMustache = matchingPho.nClusterOutsideMustache();
+      float pfMVA = matchingPho.pfMVA();
+      ///
 
+      std::vector< std::pair<DetId, float> >::const_iterator rhIt;
       bool atLeastOneDeadChannel=false;
       for(reco::CaloCluster_iterator bcIt = matchingPho.superCluster()->clustersBegin();bcIt != matchingPho.superCluster()->clustersEnd(); ++bcIt) {
 	for(rhIt = (*bcIt)->hitsAndFractions().begin();rhIt != (*bcIt)->hitsAndFractions().end(); ++rhIt) {
@@ -1995,6 +2231,13 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h_nTrkSolidConeDR04_[type][0]->Fill( nIsoTrk );
       h2_nTrkSolidConeDR04VsEta_[0] -> Fill (mcEta_, nIsoTrk );
       h2_nTrkSolidConeDR04VsEt_[0] -> Fill ((*mcPho).fourMomentum().et(), nIsoTrk);
+      // 
+      h_chHadIso_[0]-> Fill (chargedHadIso);
+      h_nHadIso_[0]-> Fill (neutralHadIso);
+      h_phoIso_[0]-> Fill (photonIso);
+      h_nCluOutsideMustache_[0]->Fill(float(nClusterOutsideMustache));
+      h_etOutsideMustache_[0]->Fill(etOutsideMustache);
+      h_pfMva_[0]->Fill(pfMVA);    
       //
       h_phoEta_[type]->Fill( matchingPho.eta() );
       h_phoPhi_[type]->Fill( matchingPho.phi() );
@@ -2004,6 +2247,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h_phoEt_[type][0]->Fill( photonEt);
       //
       h_phoERes_[0][0]->Fill( photonE / (*mcPho).fourMomentum().e() );
+      h_phoEResRegr1_[0][0]->Fill( photonERegr1 / (*mcPho).fourMomentum().e() );
+      h_phoEResRegr2_[0][0]->Fill( photonERegr2 / (*mcPho).fourMomentum().e() );
       h2_eResVsEta_[0]->Fill (mcEta_, photonE/(*mcPho).fourMomentum().e()  ) ;
       p_eResVsEta_[0]->Fill (mcEta_, photonE/(*mcPho).fourMomentum().e()  ) ;
 
@@ -2063,12 +2308,16 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
       if ( (r9>0.94 && phoIsInBarrel) ||   (r9>0.95 && phoIsInEndcap)  )  {
 	h_phoERes_[1][0]->Fill( photonE / (*mcPho).fourMomentum().e() );
+	h_phoEResRegr1_[1][0]->Fill( photonERegr1 / (*mcPho).fourMomentum().e() );
+	h_phoEResRegr2_[1][0]->Fill( photonERegr2 / (*mcPho).fourMomentum().e() );
 	if ( ! isRunCentrally_ ) h2_eResVsEt_[0][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	p_eResVsEt_[0][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	p_eResVsEta_[1]->Fill (mcEta_,photonE/ (*mcPho).fourMomentum().e()  ) ;
 
       } else if ( ( r9 <= 0.94&& phoIsInBarrel) ||  ( r9 <= 0.95&& phoIsInEndcap)  ) {
 	h_phoERes_[2][0]->Fill(photonE / (*mcPho).fourMomentum().e() );
+	h_phoEResRegr1_[2][0]->Fill( photonERegr1 / (*mcPho).fourMomentum().e() );
+	h_phoEResRegr2_[2][0]->Fill( photonERegr2 / (*mcPho).fourMomentum().e() );
 	p_eResVsEt_[0][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	p_eResVsEta_[2]->Fill (mcEta_,photonE/ (*mcPho).fourMomentum().e()  ) ;
 	if ( ! isRunCentrally_ ) {
@@ -2097,35 +2346,41 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	p_hcalTowerBcSumEtConeDR04VsEt_[1] -> Fill ((*mcPho).fourMomentum().et(), newhcalIso);
 	h_isoTrkSolidConeDR04_[type][1]->Fill( trkIso );
 	h_nTrkSolidConeDR04_[type][1]->Fill( nIsoTrk );
-	if ( ! isRunCentrally_ ) {
-	  h2_ecalRecHitSumEtConeDR04VsEt_[1] -> Fill ((*mcPho).fourMomentum().et(), ecalIso);
-	  h2_hcalTowerSumEtConeDR04VsEt_[1] -> Fill ((*mcPho).fourMomentum().et(), hcalIso);
-	}
-
-
-
+	h_chHadIso_[1]-> Fill (chargedHadIso);
+	h_nHadIso_[1]-> Fill (neutralHadIso);
+	h_phoIso_[1]-> Fill (photonIso);
+	h_nCluOutsideMustache_[1]->Fill(float(nClusterOutsideMustache));
+	h_etOutsideMustache_[1]->Fill(etOutsideMustache);
+	h_pfMva_[1]->Fill(pfMVA);    
 	h_phoE_[type][1]->Fill( photonE );
 	h_phoEt_[type][1]->Fill( photonEt );
 	h_nConv_[type][1]->Fill(float( matchingPho.conversions().size()));
-
-
 	h_phoERes_[0][1]->Fill( photonE / (*mcPho).fourMomentum().e() );
+	h_phoEResRegr1_[0][1]->Fill( photonERegr1 / (*mcPho).fourMomentum().e() );
+	h_phoEResRegr2_[0][1]->Fill( photonERegr2 / (*mcPho).fourMomentum().e() );
 	h2_eResVsR9_[1]->Fill (r9, photonE/(*mcPho).fourMomentum().e()  ) ;
 	h2_sceResVsR9_[1]->Fill (r9,  matchingPho.superCluster()->energy()/(*mcPho).fourMomentum().e()  ) ;
 	p_eResVsR9_[1]->Fill (r9, photonE/(*mcPho).fourMomentum().e()  ) ;
 	p_sceResVsR9_[1]->Fill (r9,  matchingPho.superCluster()->energy()/(*mcPho).fourMomentum().e()  ) ;
-
-	if ( ! isRunCentrally_ ) h2_eResVsEt_[1][0]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
+	if ( ! isRunCentrally_ ) {
+	  h2_ecalRecHitSumEtConeDR04VsEt_[1] -> Fill ((*mcPho).fourMomentum().et(), ecalIso);
+	  h2_hcalTowerSumEtConeDR04VsEt_[1] -> Fill ((*mcPho).fourMomentum().et(), hcalIso);
+	  h2_eResVsEt_[1][0]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
+	}
 	p_eResVsEt_[1][0]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 
 
 	if ( r9 > 0.94 ) {
 	  h_phoERes_[1][1]->Fill(  photonE  / (*mcPho).fourMomentum().e() );
+	  h_phoEResRegr1_[1][1]->Fill( photonERegr1 / (*mcPho).fourMomentum().e() );
+	  h_phoEResRegr2_[1][1]->Fill( photonERegr2 / (*mcPho).fourMomentum().e() );
 	  if ( ! isRunCentrally_ ) h2_eResVsEt_[1][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	  p_eResVsEt_[1][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	}
 	if ( r9 <= 0.94 )  {
 	  h_phoERes_[2][1]->Fill( photonE / (*mcPho).fourMomentum().e() );
+	  h_phoEResRegr1_[2][1]->Fill( photonERegr1 / (*mcPho).fourMomentum().e() );
+	  h_phoEResRegr2_[2][1]->Fill( photonERegr2 / (*mcPho).fourMomentum().e() );
 	  p_eResVsEt_[1][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	  if ( ! isRunCentrally_ ) {
 	    h2_eResVsEt_[1][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
@@ -2150,10 +2405,18 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
         p_hcalTowerBcSumEtConeDR04VsEt_[2] -> Fill ((*mcPho).fourMomentum().et(), newhcalIso);
 	h_isoTrkSolidConeDR04_[type][2]->Fill( trkIso );
 	h_nTrkSolidConeDR04_[type][2]->Fill( nIsoTrk );
+	h_chHadIso_[2]-> Fill (chargedHadIso);
+	h_nHadIso_[2]-> Fill (neutralHadIso);
+	h_phoIso_[2]-> Fill (photonIso);
+	h_nCluOutsideMustache_[2]->Fill(float(nClusterOutsideMustache));
+	h_etOutsideMustache_[2]->Fill(etOutsideMustache);
+	h_pfMva_[2]->Fill(pfMVA);    
 	h_phoE_[type][2]->Fill( photonE );
 	h_phoEt_[type][2]->Fill( photonEt );
 	h_nConv_[type][2]->Fill(float( matchingPho.conversions().size()));
 	h_phoERes_[0][2]->Fill( photonE / (*mcPho).fourMomentum().e() );
+	h_phoEResRegr1_[0][2]->Fill( photonERegr1 / (*mcPho).fourMomentum().e() );
+	h_phoEResRegr2_[0][2]->Fill( photonERegr2 / (*mcPho).fourMomentum().e() );
 	h2_eResVsR9_[2]->Fill (r9, photonE/(*mcPho).fourMomentum().e()  ) ;
 	h2_sceResVsR9_[2]->Fill (r9,  matchingPho.superCluster()->energy()/(*mcPho).fourMomentum().e()  ) ;
 	p_eResVsR9_[2]->Fill (r9, photonE/(*mcPho).fourMomentum().e()  ) ;
@@ -2169,11 +2432,15 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	if ( r9 > 0.95 ) {
 
 	  h_phoERes_[1][2]->Fill( photonE / (*mcPho).fourMomentum().e() );
+	  h_phoEResRegr1_[1][2]->Fill( photonERegr1 / (*mcPho).fourMomentum().e() );
+	  h_phoEResRegr2_[1][2]->Fill( photonERegr2 / (*mcPho).fourMomentum().e() );
 	  if ( ! isRunCentrally_ ) h2_eResVsEt_[2][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	  p_eResVsEt_[2][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	}
 	if ( r9 <= 0.95 ) {
 	  h_phoERes_[2][2]->Fill( photonE / (*mcPho).fourMomentum().e() );
+	  h_phoEResRegr1_[2][2]->Fill( photonERegr1 / (*mcPho).fourMomentum().e() );
+	  h_phoEResRegr2_[2][2]->Fill( photonERegr2 / (*mcPho).fourMomentum().e() );
 	  p_eResVsEt_[2][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	  if ( ! isRunCentrally_ ) {
 	    h2_eResVsEt_[2][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
