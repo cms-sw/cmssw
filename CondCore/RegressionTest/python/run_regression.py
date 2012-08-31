@@ -392,7 +392,6 @@ else:
                     ret = test.runOnReference(LABEL, RELEASE, ARCH, PATH, RELEASE, ARCH, PATH)
                     done = True
                 if( REF_RELEASE != None and done==False ):
-                    okPar = False
                     if( REF_ARCH == None ):
                         okPar = False
                         print "Error: missing -A (ref architecture) parameter"

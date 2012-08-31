@@ -44,6 +44,9 @@ class ResultsDB:
 	sqlstr = "CREATE TABLE RUN_STEP_RESULT (ID NUMBER, STEP_LABEL VARCHAR(100), STATUS NUMBER)"
 	curs.prepare(sqlstr)
 	curs.execute(sqlstr)
+	sqlstr = "CREATE SEQUENCE RUN_ID_SEQ INCREMENT BY 1 START WITH 1"
+	curs.prepare(sqlstr)
+	curs.execute(sqlstr)
 	sqlstr = "CREATE SEQUENCE RES_ID_SEQ INCREMENT BY 1 START WITH 1"
 	curs.prepare(sqlstr)
 	curs.execute(sqlstr)
