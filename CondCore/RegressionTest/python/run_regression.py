@@ -269,9 +269,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	return 1
 
     def finalize( self ):
-	if self.resDb.checkLabelSequence(self.label) == False:
-		self.resDb.writeSequence(self.label)
-	runID = self.resDb.nextRunIDVal(self.label)
+	runID = self.resDb.getNewRunId()
 
 	reStr = "\!L\!([^!]+)\!TR\!([^!]+)\!TA\!([^!]+)\!RR\!([^!]+)\!RA\!([^!]+)"
 	for i in range (0, self.n_res):
@@ -284,12 +282,12 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	timeStamp = self.resDb.getDate()
 	for match in matching:
 		#print match
-		self.resDb.writeStatus(runID, timeStamp, match,self.resTags)
+		self.resDb.writeResult(runID, timeStamp, match,self.resTags)
 	print stdoutMod
-	self.resDb.addLogStatus(self.label, runID, stdoutMod)
+	self.resDb.addResultLog(runID, stdoutMod)
         print "Test '%s' runID=%d" %(self.label, runID)
         stat = "SUCCESS"
-	if(self.resDb.checkIfOkStatus(runID, self.label) == False):
+	if(self.resDb.checkResult(runID) == False):
                 stat = "FAILURE"
         print "Exit status=%s" %stat
         print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
