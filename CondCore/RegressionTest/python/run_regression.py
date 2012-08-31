@@ -268,7 +268,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	self.label = label
 	return 1
 
-    def finalize( self ):
+    def finalize( self, writeFlag ):
 	runID = self.resDb.getNewRunId()
 
 	reStr = "\!L\!([^!]+)\!TR\!([^!]+)\!TA\!([^!]+)\!RR\!([^!]+)\!RA\!([^!]+)"
@@ -280,15 +280,18 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	matching = pattern.findall(self.out_value)
 	stdoutMod = pattern.sub("", self.out_value)
 	timeStamp = self.resDb.getDate()
+        stat = "SUCCESS"
 	for match in matching:
 		#print match
-		self.resDb.writeResult(runID, timeStamp, match,self.resTags)
+		if( writeFlag):
+			self.resDb.writeResult(runID, timeStamp, match,self.resTags)
+		for i in range(5, len(match)):
+			if( match[i] != str(0) ):
+				stat = "FAILURE"
 	print stdoutMod
-	self.resDb.addResultLog(runID, stdoutMod)
+	if( writeFlag ):
+		self.resDb.addResultLog(runID, stdoutMod)
         print "Test '%s' runID=%d" %(self.label, runID)
-        stat = "SUCCESS"
-	if(self.resDb.checkResult(runID) == False):
-                stat = "FAILURE"
         print "Exit status=%s" %stat
         print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
@@ -314,7 +317,7 @@ def CheckPath (release, arch, path):
 		return False
 	
 try:
-	opts, args = getopt.getopt(sys.argv[1:], "FSR:A:P:t:r:a:p:h", ['full', 'self', 'help'])
+	opts, args = getopt.getopt(sys.argv[1:], "FSR:A:P:t:r:a:p:hw", ['full', 'self', 'help'])
 except getopt.GetoptError, err:
 	# print help information and exit:
 	print str(err) # will print something like "option -a not recognized"
@@ -329,7 +332,7 @@ REF_PATH = None
 LABEL = None
 fflag = False
 sflag = False
-hflag = False
+wflag = False
 for o, a in opts:
 	if o in ("-F", "--full"):
 		fflag = True
@@ -349,6 +352,8 @@ for o, a in opts:
 		ARCH = a
 	elif o == "-p":
 		PATH = a
+	elif o == "-w":
+		wflag = True
 	elif o in ("-h", "--help"):
 		CmdUsage()
 		sys.exit(2)
@@ -399,5 +404,5 @@ else:
                         ret = test.runOnReference(LABEL, RELEASE, ARCH, PATH, REF_RELEASE, REF_ARCH, REF_PATH)
 			done = True
 		if ( done == True and ret>0  ):
-			test.finalize()
+			test.finalize( wflag )
 		conn.close()	
