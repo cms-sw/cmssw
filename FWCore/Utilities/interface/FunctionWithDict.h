@@ -62,10 +62,6 @@ namespace edm {
 
     void invoke(ObjectWithDict const& obj, ObjectWithDict* ret, std::vector<void*> const& values = std::vector<void*>()) const;
 
-    bool operator<(FunctionWithDict const& other) const {
-      return function_ < other.function_;
-    }
-
     Reflex::Type_Iterator begin() const;
     Reflex::Type_Iterator end() const;
     size_t size() const {
