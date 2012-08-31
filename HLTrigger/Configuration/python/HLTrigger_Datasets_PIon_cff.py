@@ -5,12 +5,6 @@ import FWCore.ParameterSet.Config as cms
 
 # dump of the Stream A Datasets defined in the HLT table as Stream A Datasets
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetBJetPlusX_selector
-streamA_datasetBJetPlusX_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetBJetPlusX_selector.l1tResults = cms.InputTag('')
-streamA_datasetBJetPlusX_selector.throw      = cms.bool(False)
-streamA_datasetBJetPlusX_selector.triggerConditions = cms.vstring('HLT_L1DoubleJet36Central_v7')
-
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetCommissioning_selector
 streamA_datasetCommissioning_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetCommissioning_selector.l1tResults = cms.InputTag('')
@@ -38,6 +32,13 @@ streamA_datasetHcalNZS_selector.throw      = cms.bool(False)
 streamA_datasetHcalNZS_selector.triggerConditions = cms.vstring('HLT_HcalNZS_v10', 
     'HLT_HcalPhiSym_v11')
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetJetMon_selector
+streamA_datasetJetMon_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetJetMon_selector.l1tResults = cms.InputTag('')
+streamA_datasetJetMon_selector.throw      = cms.bool(False)
+streamA_datasetJetMon_selector.triggerConditions = cms.vstring('HLT_PASingleForJet15_v1', 
+    'HLT_PASingleForJet25_v1')
+
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetLogMonitor_selector
 streamA_datasetLogMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetLogMonitor_selector.l1tResults = cms.InputTag('')
@@ -48,8 +49,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMinimumBias_selector.l1tResults = cms.InputTag('')
 streamA_datasetMinimumBias_selector.throw      = cms.bool(False)
-streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_Physics_v5', 
-    'HLT_Random_v2')
+streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_Physics_v5')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetPAPhysics_selector
 streamA_datasetPAPhysics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -59,7 +59,6 @@ streamA_datasetPAPhysics_selector.triggerConditions = cms.vstring('HLT_PADimuon0
     'HLT_PADoubleJet20_ForwardBackward_v1', 
     'HLT_PADoubleMu4_Acoplanarity03_v1', 
     'HLT_PAExclDijet35_HFAND_v1', 
-    'HLT_PAHFOR_SingleTrack_ExpressStream_v1', 
     'HLT_PAHFOR_SingleTrack_v1', 
     'HLT_PAL1DoubleEG3_FwdVeto_v1', 
     'HLT_PAL1DoubleJet20_RomanPotsOR_v1', 
@@ -77,9 +76,7 @@ streamA_datasetPAPhysics_selector.triggerConditions = cms.vstring('HLT_PADimuon0
     'HLT_PAL1SingleMuOpen_v1', 
     'HLT_PAL1Tech53_MB_SingleTrack_v1', 
     'HLT_PAL1Tech53_MB_v1', 
-    'HLT_PAL1Tech54_ZeroBias_v1', 
     'HLT_PAL1Tech_HBHEHO_totalOR_v1', 
-    'HLT_PAL1Tech_HCAL_HF_single_channel_v1', 
     'HLT_PAMinBiasBSC_OR_v1', 
     'HLT_PAMinBiasBSC_v1', 
     'HLT_PAMinBiasHF_OR_v1', 
@@ -99,9 +96,7 @@ streamA_datasetPAPhysics_selector.triggerConditions = cms.vstring('HLT_PADimuon0
     'HLT_PASingleForJet25_v1', 
     'HLT_PAT1minbias_Tech55_v1', 
     'HLT_PAZeroBiasPixel_DoubleTrack_v1', 
-    'HLT_PAZeroBiasPixel_SingleTrack_ExpressStream_v1', 
     'HLT_PAZeroBiasPixel_SingleTrack_v1', 
-    'HLT_PAZeroBias_v1', 
     'HLT_PAak5CaloJet20_NoJetID_v1', 
     'HLT_PAak5CaloJet40_NoJetID_v1', 
     'HLT_PAak5CaloJet60_NoJetID_v1')

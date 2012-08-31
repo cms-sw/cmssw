@@ -12,8 +12,6 @@ HLT_DTCalibration_v*                               # sr 131577
 HLT_EcalCalibration_v*                             # sr 131577
 HLT_HcalCalibration_v*                             # sr 131577
 HLT_TrackerCalibration_v*                          # sr 131577
-HLT_Random_v*                                      # sr 131577
-HLT_L1DoubleJet36Central_v*                        # sr 131577
 AlCa_EcalPi0EBonly_v*                              # sr 131577
 AlCa_EcalPi0EEonly_v*                              # sr 131577
 AlCa_EcalEtaEBonly_v*                              # sr 131577
@@ -77,6 +75,7 @@ HLT_PADoubleJet20_ForwardBackward_v*               # sr 131577
 HLT_PARandom_v*                                    # sr 131577
 DQM_FEDIntegrity_v*                                # sr 131577
 HLT_LogMonitor_v*                                  # sr 131577
+HLTriggerFirstPath
 HLTriggerFinalPath                                 # sr 131577
 HLTAnalyzerEndpath                                 # only in 'PIon', not in 'online'
 AOutput                                            # sr 131577
