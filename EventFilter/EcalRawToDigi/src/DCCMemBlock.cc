@@ -264,7 +264,7 @@ void DCCMemBlock::unpackMemTowerData(){
           (*invalidMemGains_)->push_back(id);
           
            if( ! DCCDataUnpacker::silentMode_ ){
-	      edm::LogWarning("IncorrectBlock")
+	      edm::LogWarning("IncorrectGain")
 	       <<"For event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" , mem tower block "<<towerId_
 	       <<"\nIn strip "<<stripId<<" xtal "<<xtalId<<" the gain is "<<gain<<" in sample "<<(i+1);
            }
