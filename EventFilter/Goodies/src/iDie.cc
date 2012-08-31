@@ -1302,7 +1302,7 @@ void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * 
   //max based on how much is configured and max possible
   float fracMax  = 0.5 + (std::max(epInstances[nbsIdx]-epMax[nbsIdx]/2.,0.)/(epMax[nbsIdx])) *HTscaling[nbsIdx];
   if (epInstances[nbsIdx]<epMax[nbsIdx]/2) {
-	  fracMax = epInstances[nbsIdx]/epMax[nbsIdx];
+	  fracMax = epInstances[nbsIdx]/((double)epMax[nbsIdx]);
   }
 
   //corrections for the HT effect
