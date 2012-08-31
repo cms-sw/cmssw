@@ -11,21 +11,4 @@
    <field name="m_vec3" mapping="blob"/>
    <field name="m_bitset" mapping="blob" persistency="loose_on_reading"/>
  </class>
- <class name="Data"/>
- <class name="RegressionTestPayload"/>
- <class name="TestPayloadClass">
-	<!-- <field name="testIntVector" mapping="blob"/> -->
-  </class>
-  <class name="Inheritances"/>
-  <class name="Primitives"/>
-  <class name="DataStructs"/>
-  <class name="TestInheritance"/>
-  <class name="TestData"/>
-  <class name="DataStructs::TestStruct"/>
-  <class name="DataStructs::Color"/>
-  <class name="std::vector<DataStructs::Color>"/>
-  <class name="std::pair<const std::string,std::vector<DataStructs::Color> >"/>
-  <class name="std::map<std::string, std::vector<DataStructs::Color> >"/>
-  <class name="std::list<std::string>"/>
-  <class name="std::set<char>"/>
 </lcgdict>   
