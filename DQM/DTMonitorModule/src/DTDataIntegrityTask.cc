@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2011/10/31 17:11:20 $
- * $Revision: 1.76 $
+ * $Date: 2012/08/31 09:25:07 $
+ * $Revision: 1.77 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino), G. Cerminara (INFN Torino)
  *
  */
@@ -213,12 +213,12 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histoType = "FEDAvgEvLenghtvsLumi";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
     histoTitle = "Avg Event Lenght (Bytes) vs LumiSec FED " +  dduID_s.str();
-    dduTimeHistos[histoType][code.getDDUID()] = new DTTimeEvolutionHisto(dbe,histoName,histoTitle,2500,10,true,0);
+    dduTimeHistos[histoType][code.getDDUID()] = new DTTimeEvolutionHisto(dbe,histoName,histoTitle,250,10,true,0);
 
     histoType = "ROSReadvsLumi";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
     histoTitle = "Number of ROS read vs Lumi" +  dduID_s.str();
-    dduTimeHistos[histoType][code.getDDUID()] = new DTTimeEvolutionHisto(dbe,histoName,histoTitle,2500,10,true,0);
+    dduTimeHistos[histoType][code.getDDUID()] = new DTTimeEvolutionHisto(dbe,histoName,histoTitle,250,10,true,0);
 
     histoType = "TTSValues";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
