@@ -452,77 +452,77 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 	il!=layerEnd; il++) {
 
     TSOS stateToUse = stateAndLayers.first;
-
+    
     double dPhiCacheForLoopersReconstruction(0);
     if unlikely((*il)==traj.lastLayer()){
-
-       if(maxPt2ForLooperReconstruction>0){
-	// ------ For loopers reconstruction
-	//cout<<" self propagating in advanceOneLayer (for loopers) \n";
-	const BarrelDetLayer* sbdl = dynamic_cast<const BarrelDetLayer*>(traj.lastLayer());
-	if(sbdl){
-	  HelixBarrelCylinderCrossing cylinderCrossing(stateToUse.globalPosition(),
-						       stateToUse.globalMomentum(),
-						       stateToUse.transverseCurvature(),
-						       propagator->propagationDirection(),
-						       sbdl->specificSurface());
-	  if(!cylinderCrossing.hasSolution()) continue;
-	  GlobalPoint starting = stateToUse.globalPosition();
-	  GlobalPoint target1 = cylinderCrossing.position1();
-	  GlobalPoint target2 = cylinderCrossing.position2();
-	  
-	  GlobalPoint farther = fabs(starting.phi()-target1.phi()) > fabs(starting.phi()-target2.phi()) ?
-	    target1 : target2;
 	
-	  const Bounds& bounds( sbdl->specificSurface().bounds());
-	  float length = 0.5f*bounds.length();
-	
-	  /*
-	    cout << "starting: " << starting << endl;
-	    cout << "target1: " << target1 << endl;
-	    cout << "target2: " << target2 << endl;
-	    cout << "dphi: " << (target1.phi()-target2.phi()) << endl;
+	if(maxPt2ForLooperReconstruction>0){
+	  // ------ For loopers reconstruction
+	  //cout<<" self propagating in advanceOneLayer (for loopers) \n";
+	  const BarrelDetLayer* sbdl = dynamic_cast<const BarrelDetLayer*>(traj.lastLayer());
+	  if(sbdl){
+	    HelixBarrelCylinderCrossing cylinderCrossing(stateToUse.globalPosition(),
+							 stateToUse.globalMomentum(),
+							 stateToUse.transverseCurvature(),
+							 propagator->propagationDirection(),
+							 sbdl->specificSurface());
+	    if(!cylinderCrossing.hasSolution()) continue;
+	    GlobalPoint starting = stateToUse.globalPosition();
+	    GlobalPoint target1 = cylinderCrossing.position1();
+	    GlobalPoint target2 = cylinderCrossing.position2();
+	    
+	    GlobalPoint farther = fabs(starting.phi()-target1.phi()) > fabs(starting.phi()-target2.phi()) ?
+	      target1 : target2;
+	    
+	    const Bounds& bounds( sbdl->specificSurface().bounds());
+	    float length = 0.5f*bounds.length();
+	    
+	    /*
+	      cout << "starting: " << starting << endl;
+	      cout << "target1: " << target1 << endl;
+	      cout << "target2: " << target2 << endl;
+	      cout << "dphi: " << (target1.phi()-target2.phi()) << endl;
 	    cout << "length: " << length << endl;
-	  */
-	
-	  /*
-	  float deltaZ = bounds.thickness()/2.f/fabs(tan(stateToUse.globalDirection().theta()) ) ;
-	  if(stateToUse.hasError())
-	    deltaZ += 3*sqrt(stateToUse.cartesianError().position().czz());
-	  if( fabs(farther.z()) > length + deltaZ ) continue;
-	  */
-	  if(fabs(farther.z())*0.95>length) continue;
+	    */
+	    
+	    /*
+	      float deltaZ = bounds.thickness()/2.f/fabs(tan(stateToUse.globalDirection().theta()) ) ;
+	      if(stateToUse.hasError())
+	      deltaZ += 3*sqrt(stateToUse.cartesianError().position().czz());
+	      if( fabs(farther.z()) > length + deltaZ ) continue;
+	    */
+	    if(fabs(farther.z())*0.95f>length) continue;
+	    
+	    Geom::Phi<float> tmpDphi = target1.phi()-target2.phi();
+	    if(std::abs(tmpDphi)>maxDPhiForLooperReconstruction) continue;
+	    GlobalPoint target(0.5f*(target1.basicVector()+target2.basicVector()));
+	    //cout << "target: " << target << endl;
+	    
 
-	  Geom::Phi<double> tmpDphi = target1.phi()-target2.phi();
-	  if(fabs(tmpDphi)>maxDPhiForLooperReconstruction) continue;
-	  GlobalPoint target(0.5*(target1.basicVector()+target2.basicVector()));
-	  //cout << "target: " << target << endl;
-	  
-
-	  
-	  TransverseImpactPointExtrapolator extrapolator;
-	  stateToUse = extrapolator.extrapolate(stateToUse, target, *propagator);
-	  if (!stateToUse.isValid()) continue; //SK: consider trying the original? probably not
-
-	  //dPhiCacheForLoopersReconstruction = fabs(target1.phi()-target2.phi())*2.;
-	  dPhiCacheForLoopersReconstruction = fabs(tmpDphi);
-	  traj.incrementLoops();
-	}else{
-	  continue;
-	}
-      }else{
+	    
+	    TransverseImpactPointExtrapolator extrapolator;
+	    stateToUse = extrapolator.extrapolate(stateToUse, target, *propagator);
+	    if (!stateToUse.isValid()) continue; //SK: consider trying the original? probably not
+	    
+	    //dPhiCacheForLoopersReconstruction = fabs(target1.phi()-target2.phi())*2.;
+	    dPhiCacheForLoopersReconstruction = std::abs(tmpDphi);
+	    traj.incrementLoops();
+	  }else{ // not barrel
+	    continue;
+	  }
+	}else{ // loopers not requested (why else???)
 	// ------ For cosmics reconstruction
-	LogDebug("CkfPattern")<<" self propagating in advanceOneLayer.\n from: \n"<<stateToUse;
-	//self navigation case
-	// go to a middle point first
-	TransverseImpactPointExtrapolator middle;
-	GlobalPoint center(0,0,0);
-	stateToUse = middle.extrapolate(stateToUse, center, *theForwardPropagator);
-	
-	if (!stateToUse.isValid()) continue;
-	LogDebug("CkfPattern")<<"to: "<<stateToUse;
-      }
-    }
+	  LogDebug("CkfPattern")<<" self propagating in advanceOneLayer.\n from: \n"<<stateToUse;
+	  //self navigation case
+	  // go to a middle point first
+	  TransverseImpactPointExtrapolator middle;
+	  GlobalPoint center(0,0,0);
+	  stateToUse = middle.extrapolate(stateToUse, center, *theForwardPropagator);
+	  
+	  if (!stateToUse.isValid()) continue;
+	  LogDebug("CkfPattern")<<"to: "<<stateToUse;
+	}
+      } // last layer... 
     
     TrajectorySegmentBuilder layerBuilder(theMeasurementTracker,
 					  theLayerMeasurements,
