@@ -4,8 +4,8 @@
 /*
  * \file EBTrendTask.h
  *
- * $Date: 2010/03/28 09:13:48 $
- * $Revision: 1.4 $
+ * $Date: 2010/02/08 21:35:03 $
+ * $Revision: 1.3 $
  * \author Dongwook Jang, Soon Yung Jun
  *
  */
@@ -44,8 +44,6 @@ class EBTrendTask: public edm::EDAnalyzer{
 
   // EndRun
   void endRun(const edm::Run & r, const edm::EventSetup & c);
-
- void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);  
 
   // Reset
   void reset(void);

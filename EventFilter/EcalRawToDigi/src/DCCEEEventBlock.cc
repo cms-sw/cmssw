@@ -198,6 +198,11 @@ void DCCEEEventBlock::unpack(const uint64_t * buffer, size_t numbBytes, unsigned
   if( feUnpacking_ || memUnpacking_ ){                                                      
     it = feChStatus_.begin();
     
+    // fields for tower recovery code
+    unsigned int next_tower_id = 1000;
+    const uint64_t* next_data = data_;
+    unsigned int next_dwToEnd = dwToEnd_;
+    
     // looping over FE channels, i.e. tower blocks
     for( unsigned int chNumber=1; chNumber<= numbChannels && STATUS!=STOP_EVENT_UNPACKING; chNumber++, it++ ){                        
       //for( unsigned int i=1; chNumber<= numbChannels; chNumber++, it++ ){                        
@@ -234,6 +239,18 @@ void DCCEEEventBlock::unpack(const uint64_t * buffer, size_t numbBytes, unsigned
         continue;
       }
       
+      // preserve data pointer
+      const uint64_t* const prev_data = data_;
+      const unsigned int prev_dwToEnd = dwToEnd_;
+      
+      // skip corrupted/problematic data block
+      if (chNumber >= next_tower_id) {
+        data_ = next_data;
+        dwToEnd_ = next_dwToEnd;
+        next_tower_id = 1000;
+      }
+      
+      
       // Unpack Tower (Xtal Block)
       if (feUnpacking_ && chNumber <= 68) {
         
@@ -265,6 +282,21 @@ void DCCEEEventBlock::unpack(const uint64_t * buffer, size_t numbBytes, unsigned
         {
           STATUS = memBlock_->unpack(&data_,&dwToEnd_,chNumber);
         }
+      
+      
+      // corruption recovery
+      if (STATUS == SKIP_BLOCK_UNPACKING) {
+        data_ = prev_data;
+        dwToEnd_ = prev_dwToEnd;
+        
+        next_tower_id = next_tower_search(chNumber);
+        
+        next_data = data_;
+        next_dwToEnd = dwToEnd_;
+        
+        data_ = prev_data;
+        dwToEnd_ = prev_dwToEnd;
+      }
       
     }
     // closing loop over FE/TTblock channels

@@ -9,6 +9,7 @@
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Utilities"/>
 <flags   EDM_PLUGIN="1"/>
 <library   file="HydjetAnalyzer.cc" name="HydjetAnalyzer">
 </library>

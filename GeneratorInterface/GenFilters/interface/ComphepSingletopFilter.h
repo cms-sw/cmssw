@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //
@@ -25,6 +26,7 @@ private:
     double ptsep;
     unsigned int read22, read23;
     unsigned int pass22, pass23;
+    edm::InputTag hepMCProductTag_;
 };
 
 #endif

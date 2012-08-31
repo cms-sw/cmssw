@@ -121,10 +121,6 @@ namespace edm {
 
     template <typename PROD>
     bool 
-    get(SelectorBase const&, Handle<PROD>& result) const;
-  
-    template <typename PROD>
-    bool 
     getByLabel(std::string const& label, Handle<PROD>& result) const;
 
     template <typename PROD>
@@ -137,10 +133,6 @@ namespace edm {
     template <typename PROD> 	 
     bool 	 
     getByLabel(InputTag const& tag, Handle<PROD>& result) const; 	 
-
-    template <typename PROD>
-    void 
-    getMany(SelectorBase const&, std::vector<Handle<PROD> >& results) const;
 
     template <typename PROD>
     bool
@@ -169,9 +161,6 @@ namespace edm {
     // from the Principal class.
 
     BasicHandle 
-    get_(TypeID const& tid, SelectorBase const&) const;
-    
-    BasicHandle 
     getByLabel_(TypeID const& tid,
 		std::string const& label,
 		std::string const& productInstanceName,
@@ -180,28 +169,12 @@ namespace edm {
     BasicHandle 
     getByLabel_(TypeID const& tid, InputTag const& tag) const;
 
-    void 
-    getMany_(TypeID const& tid, 
-	     SelectorBase const& sel, 
-	     BasicHandleVec& results) const;
-
     BasicHandle 
     getByType_(TypeID const& tid) const;
 
     void 
     getManyByType_(TypeID const& tid, 
 		   BasicHandleVec& results) const;
-
-    int 
-    getMatchingSequence_(TypeID const& typeID,
-                         SelectorBase const& selector,
-                         BasicHandle& result) const;
-
-    int 
-    getMatchingSequenceByLabel_(TypeID const& typeID,
-                                std::string const& label,
-                                std::string const& productInstanceName,
-                                BasicHandle& result) const;
 
     int 
     getMatchingSequenceByLabel_(TypeID const& typeID,
@@ -313,20 +286,6 @@ namespace edm {
 
   template <typename PROD>
   inline
-  bool 
-  PrincipalGetAdapter::get(SelectorBase const& sel,
-		    Handle<PROD>& result) const {
-    result.clear();
-    BasicHandle bh = this->get_(TypeID(typeid(PROD)),sel);
-    convert_handle(bh, result);  // throws on conversion error
-    if (bh.failedToGet()) {
-      return false;
-    }
-    return true;
-  }
-  
-  template <typename PROD>
-  inline
   bool
   PrincipalGetAdapter::getByLabel(std::string const& label,
 			   Handle<PROD>& result) const {
@@ -360,40 +319,6 @@ namespace edm {
       return false;
     }
     return true;
-  }
-
-  template <typename PROD>
-  inline
-  void 
-  PrincipalGetAdapter::getMany(SelectorBase const& sel,
-			std::vector<Handle<PROD> >& results) const { 
-    BasicHandleVec bhv;
-    this->getMany_(TypeID(typeid(PROD)), sel, bhv);
-    
-    // Go through the returned handles; for each element,
-    //   1. create a Handle<PROD> and
-    //
-    // This function presents an exception safety difficulty. If an
-    // exception is thrown when converting a handle, the "got
-    // products" record will be wrong.
-    //
-    // Since EDProducers are not allowed to use this function,
-    // the problem does not seem too severe.
-    //
-    // Question: do we even need to keep track of the "got products"
-    // for this function, since it is *not* to be used by EDProducers?
-    std::vector<Handle<PROD> > products;
-
-    typename BasicHandleVec::const_iterator it = bhv.begin();
-    typename BasicHandleVec::const_iterator end = bhv.end();
-
-    while (it != end) {
-      Handle<PROD> result;
-      convert_handle(*it, result);  // throws on conversion error
-      products.push_back(result);
-      ++it;
-    }
-    results.swap(products);
   }
 
   template <typename PROD>

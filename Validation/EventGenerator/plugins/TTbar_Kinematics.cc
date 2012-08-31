@@ -5,7 +5,8 @@
 
 
 using namespace edm;
-TTbar_Kinematics::TTbar_Kinematics(const edm::ParameterSet& iConfig)
+TTbar_Kinematics::TTbar_Kinematics(const edm::ParameterSet& iConfig) :
+  genEventInfoProductTag_(iConfig.getParameter<edm::InputTag>("genEventInfoProductTag"))
 {
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
@@ -32,107 +33,117 @@ TTbar_Kinematics::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // --- the MC weights ---
   Handle<GenEventInfoProduct> evt_info;
-  iEvent.getByType(evt_info);
+  iEvent.getByLabel(genEventInfoProductTag_, evt_info);
+  if(!evt_info.isValid()) return;
   weight = evt_info->weight() ;
 
   // --- get TopQuarkAnalysis TtGenEvent
   Handle<TtGenEvent> genEvt;
   iEvent.getByLabel("genEvt", genEvt);
 
-  const reco::GenParticle*        top = genEvt->top()    ;
-  const reco::GenParticle*    antitop = genEvt->topBar() ;
-  const reco::GenParticle*     bottom = genEvt->b()      ;
-  const reco::GenParticle* antibottom = genEvt->bBar()   ;
-  const reco::GenParticle*      Wplus = genEvt->wPlus()  ;
-  const reco::GenParticle*      Wmin  = genEvt->wMinus() ;
+  if(!genEvt.isValid())return;
 
-  if(top){
+  const reco::GenParticle*        top = 0;
+  const reco::GenParticle*    antitop = 0;
+  const reco::GenParticle*     bottom = 0;
+  const reco::GenParticle* antibottom = 0;
+  const reco::GenParticle*      Wplus = 0;
+  const reco::GenParticle*      Wmin  = 0;
+
+  top        = genEvt->top();
+  antitop    = genEvt->topBar();
+  bottom     = genEvt->b();
+  antibottom = genEvt->bBar();
+  Wplus      = genEvt->wPlus();
+  Wmin       = genEvt->wMinus();
+
   tlv_Top        = TLorentzVector(0,0,0,0) ;
   tlv_TopBar     = TLorentzVector(0,0,0,0) ;
   tlv_Bottom     = TLorentzVector(0,0,0,0) ;
   tlv_BottomBar  = TLorentzVector(0,0,0,0) ;
   tlv_Wplus      = TLorentzVector(0,0,0,0) ;
   tlv_Wmin       = TLorentzVector(0,0,0,0) ;
-
   tlv_TTbar      = TLorentzVector(0,0,0,0);
 
-  tlv_Top.SetPxPyPzE(top->p4().px(),top->p4().py(),top->p4().pz(),top->p4().e());
-  tlv_TopBar.SetPxPyPzE(antitop->p4().px(),antitop->p4().py(),antitop->p4().pz(),antitop->p4().e());
-  tlv_Bottom.SetPxPyPzE(bottom->p4().px(),bottom->p4().py(),bottom->p4().pz(),bottom->p4().e());
-  tlv_BottomBar.SetPxPyPzE(antibottom->p4().px(),antibottom->p4().py(),antibottom->p4().pz(),antibottom->p4().e());
-  tlv_Wplus.SetPxPyPzE(Wplus->p4().px(),Wplus->p4().py(),Wplus->p4().pz(),Wplus->p4().e());
-  tlv_Wmin.SetPxPyPzE(Wmin->p4().px(),Wmin->p4().py(),Wmin->p4().pz(),Wmin->p4().e());
+  if(top)        tlv_Top.SetPxPyPzE(top->p4().px(),top->p4().py(),top->p4().pz(),top->p4().e());
+  if(antitop)    tlv_TopBar.SetPxPyPzE(antitop->p4().px(),antitop->p4().py(),antitop->p4().pz(),antitop->p4().e());
+  if(bottom)     tlv_Bottom.SetPxPyPzE(bottom->p4().px(),bottom->p4().py(),bottom->p4().pz(),bottom->p4().e());
+  if(antibottom) tlv_BottomBar.SetPxPyPzE(antibottom->p4().px(),antibottom->p4().py(),antibottom->p4().pz(),antibottom->p4().e());
+  if(Wplus)      tlv_Wplus.SetPxPyPzE(Wplus->p4().px(),Wplus->p4().py(),Wplus->p4().pz(),Wplus->p4().e());
+  if(Wmin)       tlv_Wmin.SetPxPyPzE(Wmin->p4().px(),Wmin->p4().py(),Wmin->p4().pz(),Wmin->p4().e());
   tlv_TTbar = tlv_Top + tlv_TopBar ;
 
   //---topquarkquantities---
   nEvt->Fill(0.5,weight);
-
-  hTopPt->Fill(tlv_Top.Pt(),weight);
-  hTopPt->Fill(tlv_TopBar.Pt(),weight);
-  
-  hTopY->Fill(tlv_Top.Rapidity(),weight);
-  hTopY->Fill(tlv_TopBar.Rapidity(),weight);
-  
-  hTopMass->Fill(tlv_Top.M(),weight);
-  hTopMass->Fill(tlv_TopBar.M(),weight);
-  
-  //---ttbarpairquantities---
-  hTTbarPt->Fill(tlv_TTbar.Pt(),weight);
-  hTTbarPt->Fill(tlv_TTbar.Pt(),weight);
-  
-  hTTbarY->Fill(tlv_TTbar.Rapidity(),weight);
-  hTTbarY->Fill(tlv_TTbar.Rapidity(),weight);
-  
-  hTTbarMass->Fill(tlv_TTbar.M(),weight);
-  hTTbarMass->Fill(tlv_TTbar.M(),weight);
-  
-  hBottomPt->Fill(tlv_Bottom.Pt(),weight);
-  hBottomPt->Fill(tlv_BottomBar.Pt(),weight);
-  
-  hBottomEta->Fill(tlv_Bottom.Eta(),weight);
-  hBottomEta->Fill(tlv_BottomBar.Eta(),weight);
-  
-  //hBottomY->Fill(math::XYZTLorentzVector(bottom->momentum()).Rapidity(),weight);
-  //hBottomY->Fill(math::XYZTLorentzVector(antibottom->momentum()).Rapidity(),weight);
-  
-  hBottomY->Fill(tlv_Bottom.Rapidity(),weight);
-  hBottomY->Fill(tlv_BottomBar.Rapidity(),weight);
-  
-  hBottomPz->Fill(tlv_Bottom.Pz(),weight);
-  hBottomPz->Fill(tlv_BottomBar.Pz(),weight);
-  
-  hBottomE->Fill(tlv_Bottom.E(),weight);
-  hBottomE->Fill(tlv_BottomBar.E(),weight);
-
-  hBottomMass->Fill(tlv_Bottom.M(),weight);
-  hBottomMass->Fill(tlv_BottomBar.M(),weight);
-  
-  hBottomPtPz->Fill(tlv_Bottom.Pt(),tlv_Bottom.Pz(),weight);
-  hBottomPtPz->Fill(tlv_BottomBar.Pt(),tlv_BottomBar.Pz(),weight);
-  
-  hBottomEtaPz->Fill(tlv_Bottom.Eta(),tlv_Bottom.Pz(),weight);
-  hBottomEtaPz->Fill(tlv_BottomBar.Eta(),tlv_BottomBar.Pz(),weight);
-  
-  hBottomEtaPt->Fill(tlv_Bottom.Eta(),tlv_Bottom.Pt(),weight);
-  hBottomEtaPt->Fill(tlv_BottomBar.Eta(),tlv_BottomBar.Pt(),weight);
-  
-  hBottomYPz->Fill(tlv_Bottom.Rapidity(),tlv_Bottom.Pz(),weight);
-  hBottomYPz->Fill(tlv_BottomBar.Rapidity(),tlv_BottomBar.Pz(),weight);
-  
-  hBottomMassPz->Fill(tlv_Bottom.M(),tlv_Bottom.Pz(),weight);
-  hBottomMassPz->Fill(tlv_BottomBar.M(),tlv_BottomBar.Pz(),weight);
-  
-  hBottomMassEta->Fill(tlv_Bottom.M(),tlv_Bottom.Eta(),weight);
-  hBottomMassEta->Fill(tlv_BottomBar.M(),tlv_BottomBar.Eta(),weight);
-  
-  hBottomMassY->Fill(tlv_Bottom.M(),tlv_Bottom.Rapidity(),weight);
-  hBottomMassY->Fill(tlv_BottomBar.M(),tlv_BottomBar.Rapidity(),weight);
-  
-  hBottomMassDeltaY->Fill(tlv_Bottom.M(),tlv_Bottom.Eta()-tlv_Bottom.Rapidity(),weight);
-  hBottomMassDeltaY->Fill(tlv_BottomBar.M(),tlv_BottomBar.Eta()-tlv_BottomBar.Rapidity(),weight);
-  
-  hWplusPz->Fill(tlv_Wplus.Pz(),weight);
-  hWminPz->Fill(tlv_Wmin.Pz(),weight);
+  if(top && antitop){
+    hTopPt->Fill(tlv_Top.Pt(),weight);
+    hTopPt->Fill(tlv_TopBar.Pt(),weight);
+    
+    hTopY->Fill(tlv_Top.Rapidity(),weight);
+    hTopY->Fill(tlv_TopBar.Rapidity(),weight);
+    
+    hTopMass->Fill(tlv_Top.M(),weight);
+    hTopMass->Fill(tlv_TopBar.M(),weight);
+    
+    //---ttbarpairquantities---
+    hTTbarPt->Fill(tlv_TTbar.Pt(),weight);
+    hTTbarPt->Fill(tlv_TTbar.Pt(),weight);
+    
+    hTTbarY->Fill(tlv_TTbar.Rapidity(),weight);
+    hTTbarY->Fill(tlv_TTbar.Rapidity(),weight);
+    
+    hTTbarMass->Fill(tlv_TTbar.M(),weight);
+    hTTbarMass->Fill(tlv_TTbar.M(),weight);
+  }
+  if(bottom && antibottom){
+    hBottomPt->Fill(tlv_Bottom.Pt(),weight);
+    hBottomPt->Fill(tlv_BottomBar.Pt(),weight);
+    
+    hBottomEta->Fill(tlv_Bottom.Eta(),weight);
+    hBottomEta->Fill(tlv_BottomBar.Eta(),weight);
+    
+    //hBottomY->Fill(math::XYZTLorentzVector(bottom->momentum()).Rapidity(),weight);
+    //hBottomY->Fill(math::XYZTLorentzVector(antibottom->momentum()).Rapidity(),weight);
+    
+    hBottomY->Fill(tlv_Bottom.Rapidity(),weight);
+    hBottomY->Fill(tlv_BottomBar.Rapidity(),weight);
+    
+    hBottomPz->Fill(tlv_Bottom.Pz(),weight);
+    hBottomPz->Fill(tlv_BottomBar.Pz(),weight);
+    
+    hBottomE->Fill(tlv_Bottom.E(),weight);
+    hBottomE->Fill(tlv_BottomBar.E(),weight);
+    
+    hBottomMass->Fill(tlv_Bottom.M(),weight);
+    hBottomMass->Fill(tlv_BottomBar.M(),weight);
+    
+    hBottomPtPz->Fill(tlv_Bottom.Pt(),tlv_Bottom.Pz(),weight);
+    hBottomPtPz->Fill(tlv_BottomBar.Pt(),tlv_BottomBar.Pz(),weight);
+    
+    hBottomEtaPz->Fill(tlv_Bottom.Eta(),tlv_Bottom.Pz(),weight);
+    hBottomEtaPz->Fill(tlv_BottomBar.Eta(),tlv_BottomBar.Pz(),weight);
+    
+    hBottomEtaPt->Fill(tlv_Bottom.Eta(),tlv_Bottom.Pt(),weight);
+    hBottomEtaPt->Fill(tlv_BottomBar.Eta(),tlv_BottomBar.Pt(),weight);
+    
+    hBottomYPz->Fill(tlv_Bottom.Rapidity(),tlv_Bottom.Pz(),weight);
+    hBottomYPz->Fill(tlv_BottomBar.Rapidity(),tlv_BottomBar.Pz(),weight);
+    
+    hBottomMassPz->Fill(tlv_Bottom.M(),tlv_Bottom.Pz(),weight);
+    hBottomMassPz->Fill(tlv_BottomBar.M(),tlv_BottomBar.Pz(),weight);
+    
+    hBottomMassEta->Fill(tlv_Bottom.M(),tlv_Bottom.Eta(),weight);
+    hBottomMassEta->Fill(tlv_BottomBar.M(),tlv_BottomBar.Eta(),weight);
+    
+    hBottomMassY->Fill(tlv_Bottom.M(),tlv_Bottom.Rapidity(),weight);
+    hBottomMassY->Fill(tlv_BottomBar.M(),tlv_BottomBar.Rapidity(),weight);
+    
+    hBottomMassDeltaY->Fill(tlv_Bottom.M(),tlv_Bottom.Eta()-tlv_Bottom.Rapidity(),weight);
+    hBottomMassDeltaY->Fill(tlv_BottomBar.M(),tlv_BottomBar.Eta()-tlv_BottomBar.Rapidity(),weight);
+  }
+  if(Wplus && Wmin){
+    hWplusPz->Fill(tlv_Wplus.Pz(),weight);
+    hWminPz->Fill(tlv_Wmin.Pz(),weight);
   }
 }
 

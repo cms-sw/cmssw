@@ -47,6 +47,8 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
   if(sign_ == "-") iz = -1;
   if(sign_ == "*") iz = 0;
 
+  imc = 0;
+
   if ( dbe_ ) {
     dbe_->setCurrentFolder("HcalRecHitsD/HcalRecHitTask");
 

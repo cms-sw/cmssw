@@ -171,7 +171,7 @@ if __name__ == '__main__':
         if workingversion:
             updateversionList=c.checkforupdate(workingversion,isverbose=False)
             if updateversionList:
-                updateversion=updateversionList[-1][0]
+                updateversion='#'.join(updateversionList)
     #
     # check DB environment
     #   

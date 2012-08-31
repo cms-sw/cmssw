@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalTask.h
  *
- * $Date: 2012/04/27 13:46:00 $
- * $Revision: 1.35 $
+ * $Date: 2009/10/26 17:33:47 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
 */
@@ -43,8 +43,6 @@ void beginRun(const edm::Run & r, const edm::EventSetup & c);
 
 /// EndRun
 void endRun(const edm::Run & r, const edm::EventSetup & c);
-
- void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
 /// Reset
 void reset(void);

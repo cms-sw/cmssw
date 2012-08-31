@@ -1,9 +1,3 @@
-2012-07-23 Srecko Morovic <srecko.morovic@cern.ch>
-
-	* tag V01-00-26
-	* fixing a crash from throwing exception in the shutdownClients
-	  watchdog thread (unhandled). Now it will be thrown from the main thread.
-
 2012-07-19 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V01-00-25

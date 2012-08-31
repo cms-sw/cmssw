@@ -282,13 +282,17 @@ steps['JpsiMM']=genS('JpsiMM_8TeV_cfi',{'--relval':'65250,725'})
 ##steps['TTbar2']=genS('TTbar_Tauola_8TeV_cfi',K9by50)
 steps['WE']=genS('WE_8TeV_cfi',K9by100)
 steps['WM']=genS('WM_8TeV_cfi',K9by100)
+steps['WpM']=genS('WpM_8TeV_cfi',K9by100)
 ##steps['ZEE2']=genS('ZEE_8TeV_cfi',K9by100)
 steps['ZMM']=genS('ZMM_8TeV_cfi',{'--relval':'18000,200'})
+steps['ZpMM']=genS('ZpMM_8TeV_cfi',K9by100)
+
 steps['ZTT']=genS('ZTT_Tauola_All_hadronic_8TeV_cfi',K9by100)
 steps['H130GGgluonfusion']=genS('H130GGgluonfusion_8TeV_cfi',K9by100)
 steps['PhotonJets_Pt_10']=genS('PhotonJet_Pt_10_8TeV_cfi',K9by100)
 steps['QQH1352T_Tauola']=genS('QQH1352T_Tauola_8TeV_cfi',K9by100)
 steps['ZmumuJets_Pt_20_300']=gen('ZmumuJets_Pt_20_300_GEN_8TeV_cfg',K250by100)
+steps['ADDMonoJet_d3MD3']=genS('ADDMonoJet_8TeV_d3MD3_cfi',K9by100)
 
 steps['MinBias2INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['Higgs200ChargedTausINPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
@@ -304,6 +308,7 @@ steps['ZTTINPUT']={'INPUT':InputInfo(dataSet='/RelValZTT/%s/GEN-SIM'%(baseDataSe
 steps['H130GGgluonfusionINPUT']={'INPUT':InputInfo(dataSet='/RelValH130GGgluonfusion/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['PhotonJets_Pt_10INPUT']={'INPUT':InputInfo(dataSet='/RelValPhotonJets_Pt_10/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['QQH1352T_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_Tauola/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+
 
 steps['ZmumuJets_Pt_20_300INPUT']={'INPUT':InputInfo(dataSet='/RelValZmumuJets_Pt_20_300/%s/GEN-SIM'%(baseDataSetRelease[2],),location='STD')}
 

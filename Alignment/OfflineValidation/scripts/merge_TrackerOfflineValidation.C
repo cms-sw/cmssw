@@ -34,7 +34,6 @@ if (gSystem->Getenv("CMSSW_RELEASE_BASE") != '\0') {
 // This line works only if we have a CMSSW environment...
 #include "Alignment/OfflineValidation/interface/TkOffTreeVariables.h"
 
-#include "TROOT.h"
 #include <string>
 #include <map>
 #include <iostream>
@@ -53,15 +52,15 @@ std::map<unsigned int, TkOffTreeVariables> map_;
 std::map<unsigned int, TString> idPathMap_;
 
 // methods
-void MergeRootfile( TDirectory *target, TList *sourcelist);
-void RewriteTree( TDirectory *target,TTree *tree);
+void MergeRootfile( TDirectory *target, TList *sourcelist );
+void RewriteTree( TDirectory *target,TTree *tree,
+		  const std::map<unsigned int,TkOffTreeVariables> &map_);
 std::pair<float,float> FitResiduals(TH1 *h, float meantmp, float rmstmp);
 float getMedian(const TH1 *histo);
 //////////////////////////////////////////////////////////////////////////
 // master method
 //////////////////////////////////////////////////////////////////////////
 void hadd(const char *filesSeparatedByKommaOrEmpty = "") {
-//void merge_TrackerOfflineValidation(const char *filesSeparatedByKommaOrEmpty = "") {
 
   TString fileNames(filesSeparatedByKommaOrEmpty);
   TObjArray *names = 0;
@@ -104,44 +103,24 @@ void hadd(const char *filesSeparatedByKommaOrEmpty = "") {
   delete names;
   
   TFile *Target = TFile::Open( "$TMPDIR/merge_output.root", "RECREATE" );
-  MergeRootfile( Target, FileList);
+  MergeRootfile( Target, FileList );
   std::cout << "Finished merging of histograms." << std::endl;
 
-  Target->cd("TrackerOfflineValidationStandalone");
+  Target->cd("TrackerOfflineValidation");
   TTree *tree = new TTree("TkOffVal","TkOffVal");
-  RewriteTree(Target,tree);
+  RewriteTree(Target,tree,map_);
   tree->Write();
   std::cout<<"Written Tree, now saving hists..." << std::endl;
 
-  //  Target->SaveSelf(kTRUE);
+  Target->SaveSelf(kTRUE);
   std::cout << "Closing file " << Target->GetName() << std::endl;
-
-  // There is a bug in this file(?) and the script gets
-  // stuck in the line "delete Target"
-  // without the followin 
-  std::cout << endl; 
-  std::cout << "-----------------------------------------------------------------" << std::endl;
-  std::cout << "---  Because of a bug in the code, ROOT gets stuck when  --------" << std::endl;
-  std::cout << "---  closing the file.  In that case, please do the following ---" << std::endl;
-  std::cout << "--- 1) hit CTRL-Z -----------------------------------------------" << std::endl;
-  std::cout << "--- 2) check the ID number or the process root with ps---------- " << std::endl;
-  std::cout << "--- 3) kill the root process ------------------------------------" << std::endl;
-  std::cout << "--- 4) continue plotting with fg (only a few minutes left)------ " << std::endl;
-  std::cout << "-- ------------------------------------------------------------- " << std::endl;
-
-  // tested, does not work
-  //  Target->cd();
-  Target->Close();
-  //delete Target;
-
-  std::cout << "Now returning from merge_TrackerOfflineValidation.C" << std::endl;
-  return;
+  delete Target;
 } 
 
 /////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////
-void MergeRootfile( TDirectory *target, TList *sourcelist) {
+void MergeRootfile( TDirectory *target, TList *sourcelist ) {
 
  
   TString path( (char*)strstr( target->GetPath(), ":" ) );
@@ -155,7 +134,7 @@ void MergeRootfile( TDirectory *target, TList *sourcelist) {
   TH1::AddDirectory(kFALSE);
 
   // loop over all keys in this directory
-
+ 
   TIter nextkey( current_sourcedir->GetListOfKeys() );
   TKey *key, *oldkey=0;
   while ( (key = (TKey*)nextkey())) {
@@ -199,6 +178,7 @@ void MergeRootfile( TDirectory *target, TList *sourcelist) {
       }
     }
     else if ( obj->IsA()->InheritsFrom( "TTree" ) ) {
+      
       if (!copiedTree_ && TString("TkOffVal") == obj->GetName()) {
 	// get tree structure and 'const' entries for each module once 
 	// ('constant' means not effected by merging)
@@ -221,6 +201,7 @@ void MergeRootfile( TDirectory *target, TList *sourcelist) {
       }
     } else if ( obj->IsA()->InheritsFrom( "TDirectory" ) ) {
       // it's a subdirectory
+      
       cout << "Found subdirectory " << obj->GetName() << endl;
 
       // create a new subdir of same name and title in the target file
@@ -257,12 +238,10 @@ void MergeRootfile( TDirectory *target, TList *sourcelist) {
   // save modifications to target file
   target->SaveSelf(kTRUE);
   TH1::AddDirectory(status);
-
-  return;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-void RewriteTree( TDirectory *target, TTree *tree)
+void RewriteTree( TDirectory *target, TTree *tree, const std::map<unsigned int,TkOffTreeVariables> &map_)
 
 { 
   TkOffTreeVariables *treeVar = new TkOffTreeVariables;
@@ -281,6 +260,7 @@ void RewriteTree( TDirectory *target, TTree *tree)
     treeVar->clear(); 
     // first get 'constant' values from map ('constant' means not effected by merging)
     (*treeVar) = it->second; // (includes module id)
+    // std::cout << "Module " << counter << ", ID " << treeVar->moduleId << std::endl;
     
     // now path name:
     const TString &path = idPathMap_[treeVar->moduleId]; 
@@ -407,7 +387,7 @@ void RewriteTree( TDirectory *target, TTree *tree)
 		  << path << treeVar->histNameNormY << std::endl;
       }
     }
-     
+      
     tree->Fill();
   } // end loop on modules
 

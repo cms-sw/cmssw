@@ -127,6 +127,11 @@ workflows[28] = ['', ['QCD_Pt_80_120','DIGI','RECO']]
 workflows[27] = ['', ['WM','DIGI','RECO']]
 workflows[30] = ['', ['ZMM','DIGI','RECO']]
 
+workflows[10] = ['', ['ADDMonoJet_d3MD3','DIGI','RECO']]
+workflows[12] = ['', ['ZpMM','DIGI','RECO']]
+workflows[14] = ['', ['WpM','DIGI','RECO']]
+
+
 
 ### HI test ###
 workflows[40] = ['',['HydjetQ_MinBias_2760GeV','DIGIHI','RECOHI','HARVESTHI']]

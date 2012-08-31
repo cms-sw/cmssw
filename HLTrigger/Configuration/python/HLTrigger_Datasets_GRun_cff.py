@@ -431,7 +431,8 @@ streamA_datasetMuOniaParked_selector.triggerConditions = cms.vstring('HLT_BTagMu
     'HLT_Dimuon8_Jpsi_v7', 
     'HLT_Dimuon8_Upsilon_v6', 
     'HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v6', 
-    'HLT_DoubleMu3p5_LowMass_Displaced_v6')
+    'HLT_DoubleMu3p5_LowMass_Displaced_v6', 
+    'HLT_Mu15_TkMu5_Onia_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMultiJet_selector
 streamA_datasetMultiJet_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')

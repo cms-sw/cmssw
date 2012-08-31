@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.1 $
- *  $Date: 2011/03/05 20:12:23 $
+ *  $Revision: 1.3 $
+ *  $Date: 2011/03/05 19:59:17 $
  *  (last update by $Author: mussgill $)
  */
 
@@ -25,9 +25,8 @@
 //___________________________________________________________________________
 MomentumDependentPedeLabeler::MomentumDependentPedeLabeler(const PedeLabelerBase::TopLevelAlignables &alignables,
 							   const edm::ParameterSet &config)
-  : PedeLabelerBase(alignables, config),
-    theOpenMomentumRange(std::pair<float,float>(0.0, 10000.0)),
-    theMaxNumberOfParameterInstances(0)
+  :PedeLabelerBase(alignables, config),
+   theOpenMomentumRange(std::pair<float,float>(0.0, 10000.0))
 {
   std::vector<Alignable*> alis;
   alis.push_back(alignables.aliTracker_);
@@ -45,7 +44,6 @@ MomentumDependentPedeLabeler::MomentumDependentPedeLabeler(const PedeLabelerBase
 				   alignables.aliExtras_, 
 				   config);
   this->buildMap(alis);
-  this->buildReverseMap(); // needed already now to 'fill' theMaxNumberOfParameterInstances
 }
 
 //___________________________________________________________________________
@@ -434,11 +432,6 @@ unsigned int MomentumDependentPedeLabeler::buildMap(const std::vector<Alignable*
     id += theMaxNumParam;
   }
 
-  if (id > theParamInstanceOffset) { // 'overflow' per instance
-    throw cms::Exception("Alignment") << "@SUB=MomentumDependentPedeLabeler::buildMap: " 
-                                      << "Too many labels per instance (" << id-1 << ") leading to double use, "
-                                      << "increase PedeLabelerBase::theParamInstanceOffset!\n";
-  }
   // return combined size
   return theAlignableToIdMap.size() + theLasBeamToLabelMap.size();
 }
@@ -454,7 +447,6 @@ unsigned int MomentumDependentPedeLabeler::buildReverseMap()
     const unsigned int key = (*it).second;
     Alignable *ali = (*it).first;
     const unsigned int nInstances = this->numberOfParameterInstances(ali, -1);
-    theMaxNumberOfParameterInstances = std::max(nInstances, theMaxNumberOfParameterInstances);
     for (unsigned int iInstance=0;iInstance<nInstances;++iInstance) {
       theIdToAlignableMap[key+iInstance*theParamInstanceOffset] = ali;
     }

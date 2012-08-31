@@ -6,15 +6,11 @@
 
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
 #include <utility>
-
 /*****************************************************************************/
 VZeroFinder::VZeroFinder
   (const edm::EventSetup& es,
-   const edm::ParameterSet& pset,
-   const reco::BeamSpot& theBeamSpot)
+   const edm::ParameterSet& pset)
 {
   // Get track-pair level cuts
   maxDca = pset.getParameter<double>("maxDca");
@@ -28,10 +24,6 @@ VZeroFinder::VZeroFinder
   edm::ESHandle<MagneticField> magField;
   es.get<IdealMagneticFieldRecord>().get(magField);
   theMagField = magField.product();
-
-  beamSpot = GlobalPoint( theBeamSpot.position().x(),
-                          theBeamSpot.position().y(),
-                          theBeamSpot.position().z() );
 }
 
 /*****************************************************************************/
@@ -107,21 +99,21 @@ bool VZeroFinder::checkTrackPair(const reco::Track& posTrack,
 */
 
   if(dca < maxDca &&
-     (crossing - beamSpot).perp() > minCrossingRadius &&
-     (crossing - beamSpot).perp() < maxCrossingRadius)
+     crossing.perp() > minCrossingRadius &&
+     crossing.perp() < maxCrossingRadius)
   {
     // Momentum of the mother
     GlobalVector momentum = momenta.first + momenta.second;
     float impact = -1.;
 
     if(vertices->size() > 0)
-    { // 3D
+    {
       // Impact parameter of the mother wrt vertices, choose smallest
       for(reco::VertexCollection::const_iterator
           vertex = vertices->begin(); vertex!= vertices->end(); vertex++)
       {
-        GlobalVector r(crossing.x() - vertex->position().x(),
-                       crossing.y() - vertex->position().y(),
+        GlobalVector r(crossing.x(),
+                       crossing.y(),
                        crossing.z() - vertex->position().z());
         GlobalVector p(momentum.x(),momentum.y(),momentum.z());
   
@@ -133,10 +125,9 @@ bool VZeroFinder::checkTrackPair(const reco::Track& posTrack,
       }
     }
     else
-    { // 2D
+    {
       // Impact parameter of the mother in the plane
-      GlobalVector r_(crossing.x() - beamSpot.x(),
-                      crossing.y() - beamSpot.y(),0);
+      GlobalVector r_(crossing.x(),crossing.y(),0);
       GlobalVector p_(momentum.x(),momentum.y(),0);
 
       GlobalVector b_ = r_ - (r_*p_)*p_ / p_.mag2();

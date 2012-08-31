@@ -7,7 +7,6 @@
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeDemangler.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -34,17 +33,16 @@ namespace edm {
 namespace {
 
   std::string typeToClassName(std::type_info const& iType) {
-    // demangling supported for currently supported gcc compilers.
+    std::string result;
     try {
-      std::string result;
       typeDemangle(iType.name(), result);
-      return result;
     } catch (cms::Exception const& e) {
-      edm::Exception theError(errors::DictionaryNotFound,"NoMatch");
-      theError << "TypeWithDict::typeToClassName: No dictionary for class " << iType.name() << '\n';
+      cms::Exception theError("Name Demangling Error");
+      theError << "TypeWithDict::typeToClassName: can't demangle " << iType.name() << '\n';
       theError.append(e);
       throw theError;
     }
+    return result;
   }
 }
 
@@ -115,6 +113,11 @@ namespace {
   ObjectWithDict
   TypeWithDict::construct() const {
     return ObjectWithDict(type_.Construct());
+  }
+
+  ObjectWithDict
+  TypeWithDict::construct(TypeWithDict const& type, std::vector<void *> const& args) const {
+    return ObjectWithDict(type_.Construct(type.type_, args));
   }
 
   void const*

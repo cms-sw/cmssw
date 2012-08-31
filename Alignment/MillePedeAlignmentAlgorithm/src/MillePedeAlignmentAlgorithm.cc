@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.77 $
- *  $Date: 2011/09/06 13:46:08 $
- *  (last update by $Author: mussgill $)
+ *  $Revision: 1.76 $
+ *  $Date: 2011/08/08 21:52:32 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
@@ -31,7 +31,6 @@
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
-#include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationBase.h"
 
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
@@ -180,14 +179,10 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
 			      << " previous MillePede constants from 'pedeReaderInputs'.";
   }
 
-  // FIXME: add selection of run range via 'pedeReaderInputs'
-  // Note: Results for parameters of IntegratedCalibration's cannot be treated... 
   RunRange runrange(cond::timeTypeSpecs[cond::runnumber].beginValue,
 		    cond::timeTypeSpecs[cond::runnumber].endValue);
   for (std::vector<edm::ParameterSet>::const_iterator iSet = mprespset.begin(), iE = mprespset.end();
        iSet != iE; ++iSet) {
-    // This read will ignore calibrations as long as they are not yet passed to Millepede
-    // during/before initialize(..) - currently addCalibrations(..) is called later in AlignmentProducer
     if (!this->readFromPede((*iSet), false, runrange)) { // false: do not erase SelectionUserVariables
       throw cms::Exception("BadConfig")
 	<< "MillePedeAlignmentAlgorithm::initialize: Problems reading input constants of "
@@ -211,6 +206,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
         << "'vstring mergeTreeFiles' and 'vstring mergeBinaryFiles' must be empty for "
         << "modes running mille.";
     }
+    //theMille = new Mille((theDir + theConfig.getParameter<std::string>("binaryFile")).c_str());// add ', false);' for text output);
     const std::string moniFile(theConfig.getUntrackedParameter<std::string>("monitorFile"));
     if (moniFile.size()) theMonitor = new MillePedeMonitor((theDir + moniFile).c_str());
 
@@ -226,14 +222,6 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
     theDoSurveyPixelBarrel = pxbSurveyCfg.getParameter<bool>("doSurvey");
     if (theDoSurveyPixelBarrel) this->addPxbSurvey(pxbSurveyCfg);
   }
-}
-
-//____________________________________________________
-bool MillePedeAlignmentAlgorithm::addCalibrations(const std::vector<IntegratedCalibrationBase*> &iCals)
-{
-  theCalibrations.insert(theCalibrations.end(), iCals.begin(), iCals.end());
-  thePedeLabels->addCalibrations(iCals);
-  return true;
 }
 
 //____________________________________________________
@@ -315,8 +303,7 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup, const EventI
     RefTrajColl::value_type refTrajPtr = *iRefTraj; 
     if (theMonitor) theMonitor->fillRefTrajectory(refTrajPtr);
 
-    const std::pair<unsigned int, unsigned int> nHitXy 
-      = this->addReferenceTrajectory(setup, eventInfo, refTrajPtr);
+    const std::pair<unsigned int, unsigned int> nHitXy = this->addReferenceTrajectory(eventInfo, refTrajPtr);
 
     if (theMonitor && (nHitXy.first || nHitXy.second)) {
       // if track used (i.e. some hits), fill monitoring
@@ -332,8 +319,7 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup, const EventI
 
 //____________________________________________________
 std::pair<unsigned int, unsigned int>
-MillePedeAlignmentAlgorithm::addReferenceTrajectory(const edm::EventSetup &setup,
-                                                    const EventInfo &eventInfo, 
+MillePedeAlignmentAlgorithm::addReferenceTrajectory(const EventInfo &eventInfo, 
 						    const RefTrajColl::value_type &refTrajPtr)
 {
   std::pair<unsigned int, unsigned int> hitResultXy(0,0);
@@ -345,7 +331,7 @@ MillePedeAlignmentAlgorithm::addReferenceTrajectory(const edm::EventSetup &setup
     std::vector<bool> validHitVecY(refTrajPtr->recHits().size(), false);
     // Use recHits from ReferenceTrajectory (since they have the right order!):
     for (unsigned int iHit = 0; iHit < refTrajPtr->recHits().size(); ++iHit) {
-      const int flagXY = this->addMeasurementData(setup, eventInfo, refTrajPtr, iHit, parVec[iHit]);
+      const int flagXY = this->addMeasurementData(eventInfo, refTrajPtr, iHit, parVec[iHit]);
 
       if (flagXY < 0) { // problem
 	hitResultXy.first = 0;
@@ -418,8 +404,7 @@ void MillePedeAlignmentAlgorithm::endRun(const EventInfo &eventInfo, const EndRu
 }
 
 //____________________________________________________
-int MillePedeAlignmentAlgorithm::addMeasurementData(const edm::EventSetup &setup,
-                                                    const EventInfo &eventInfo, 
+int MillePedeAlignmentAlgorithm::addMeasurementData(const EventInfo &eventInfo, 
 						    const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
 						    unsigned int iHit,
 						    AlignmentParameters *&params)
@@ -434,11 +419,6 @@ int MillePedeAlignmentAlgorithm::addMeasurementData(const edm::EventSetup &setup
   // ignore invalid hits
   if (!recHitPtr->isValid()) return 0;
 
-  // First add the derivatives from IntegratedCalibration's,
-  // should even be OK if problems for "usual" derivatives from Alignables
-  this->globalDerivativesCalibration(recHitPtr, tsos, setup, eventInfo, // input
-                                     theFloatBufferX, theFloatBufferY, theIntBuffer); // output
-
   // get AlignableDet/Unit for this hit
   AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromDetId(recHitPtr->geographicalId()));
   
@@ -447,8 +427,8 @@ int MillePedeAlignmentAlgorithm::addMeasurementData(const edm::EventSetup &setup
 					theFloatBufferY, theIntBuffer, params)) {
     return -1; // problem
   } else if (theFloatBufferX.empty()) {
-     return 0; // empty for X: no alignable for hit, nor calibrations
-  } else { // now even if no alignable, but calibrations!
+    return 0; // empty for X: no alignable for hit
+  } else { 
     return this->callMille(refTrajPtr, iHit, theIntBuffer, theFloatBufferX, theFloatBufferY);
   }
 }
@@ -507,29 +487,6 @@ bool MillePedeAlignmentAlgorithm
 					  tsos, ali->mother(), alidet,
                                           globalDerivativesX, globalDerivativesY,
 					  globalLabels, lowestParams);
-}
-
-
-//____________________________________________________
-void MillePedeAlignmentAlgorithm::
-globalDerivativesCalibration(const TransientTrackingRecHit::ConstRecHitPointer &recHit,
-                             const TrajectoryStateOnSurface &tsos,
-                             const edm::EventSetup &setup, const EventInfo &eventInfo,
-                             std::vector<float> &globalDerivativesX,
-                             std::vector<float> &globalDerivativesY,
-                             std::vector<int> &globalLabels) const
-{
-  std::vector<IntegratedCalibrationBase::ValuesIndexPair> derivs;
-  for (auto iCalib = theCalibrations.begin(); iCalib != theCalibrations.end(); ++iCalib) {
-    // get all derivatives of this calibration // const unsigned int num =
-    (*iCalib)->derivatives(derivs, *recHit, tsos, setup, eventInfo);
-    for (auto iValuesInd = derivs.begin(); iValuesInd != derivs.end(); ++iValuesInd) {
-      // transfer label and x/y derivatives 
-      globalLabels.push_back(thePedeLabels->calibrationLabel(*iCalib, iValuesInd->second));
-      globalDerivativesX.push_back(iValuesInd->first.first);
-      globalDerivativesY.push_back(iValuesInd->first.second);
-    }
-  }
 }
 
 // //____________________________________________________
@@ -593,7 +550,7 @@ bool MillePedeAlignmentAlgorithm::readFromPede(const edm::ParameterSet &mprespse
 
   PedeReader reader(mprespset, *thePedeSteer, *thePedeLabels, runrange);
   std::vector<Alignable*> alis;
-  bool okRead = reader.read(alis, setUserVars); // also may set params of IntegratedCalibration's
+  bool okRead = reader.read(alis, setUserVars);
   bool numMatch = true;
   
   std::stringstream out("Read ");

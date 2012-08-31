@@ -2,8 +2,8 @@
  * \file DQMStoreStats.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2011/06/07 23:29:24 $
- * $Revision: 1.15 $
+ * $Date: 2011/06/08 22:32:43 $
+ * $Revision: 1.16 $
  * $Author: rovere $
  *
  * Description: Print out statistics of histograms in DQMStore
@@ -201,11 +201,11 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
       subfolderStringEnd = path.find( '/', subfolderStringBegin );
       if( std::string::npos == subfolderStringEnd )
       {
-        curr = curr->cd(path.substr( subfolderStringBegin, path.size() ));
+        curr = curr->cd(path.substr( subfolderStringBegin, path.size()-subfolderStringBegin ));
         break;
       }
       curr = curr->cd(path.substr( subfolderStringBegin, subfolderStringEnd-subfolderStringBegin ));
-      subfolderStringBegin = subfolderStringEnd+1;
+      subfolderStringBegin = ++subfolderStringEnd < path.size() ? subfolderStringEnd : path.size();
     }
     
     // protection against ghost ME with empty paths
@@ -220,6 +220,7 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
       subsystemname = path.substr( 0, subsysStringEnd );
       aSubsystem.subsystemName_ = subsystemname;
       dqmStoreStatsTopLevel.push_back( aSubsystem );
+      subfoldername = "";
     }
 
     // get subfolder name (if there is one..)

@@ -6,8 +6,8 @@
  *  compatibility degree between the extrapolated track
  *  state and the reconstructed segment in the muon chambers
  *
- *  $Date: 2011/11/29 07:50:12 $
- *  $Revision: 1.11 $
+ *  $Date: 2011/11/02 06:38:03 $
+ *  $Revision: 1.10 $
  *
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain
@@ -50,7 +50,7 @@ using namespace std;
 using namespace reco;
 
 DynamicTruncation::DynamicTruncation(const edm::Event& event, const MuonServiceProxy& theService):
-  DTThr(0), CSCThr(0), useAPE(false) 
+  DTThr(0), CSCThr(0) 
 {
   theEvent = &event;
   theSetup = &theService.eventSetup();
@@ -132,9 +132,7 @@ TransientTrackingRecHit::ConstRecHitContainer DynamicTruncation::filter(const Tr
 
 
  
-void DynamicTruncation::setThr(int bThr, int eThr, int useAPE_) {
-  if (useAPE_ == 1) useAPE = true;
-  else useAPE = false;
+void DynamicTruncation::setThr(int bThr, int eThr) {
   if (bThr <= MAX_THR && bThr >= 0) DTThr  = bThr; // DT thr 
   else DTThr = MAX_THR;
   if (eThr <= MAX_THR && eThr >= 0) CSCThr = eThr; // CSC thr
@@ -149,7 +147,7 @@ double DynamicTruncation::getBest(std::vector<CSCSegment>& segs, TrajectoryState
   std::vector<CSCSegment>::size_type sz = segs.size();
   for (i=0; i<sz; i++) {
     LocalError apeLoc; //default constructor is all zeroes, OK
-    if (useAPE) apeLoc = ErrorFrameTransformer().transform(cscApeMap.find(segs[i].cscDetId())->second, theG->idToDet(segs[i].cscDetId())->surface());
+    apeLoc = ErrorFrameTransformer().transform(cscApeMap.find(segs[i].cscDetId())->second, theG->idToDet(segs[i].cscDetId())->surface());
     StateSegmentMatcher estim(&tsos, &segs[i], &apeLoc);
     double tmp = estim.value();
     if (tmp < val) {
@@ -168,7 +166,7 @@ double DynamicTruncation::getBest(std::vector<DTRecSegment4D>& segs, TrajectoryS
   std::vector<DTRecSegment4D>::size_type sz = segs.size();
   for (i=0; i<sz; i++) {
     LocalError apeLoc; //default constructor is all zeroes, OK
-    if (useAPE) apeLoc = ErrorFrameTransformer().transform(dtApeMap.find(segs[i].chamberId())->second, theG->idToDet(segs[i].chamberId())->surface());
+    apeLoc = ErrorFrameTransformer().transform(dtApeMap.find(segs[i].chamberId())->second, theG->idToDet(segs[i].chamberId())->surface());
     StateSegmentMatcher estim(&tsos, &segs[i], &apeLoc); 
     double tmp = estim.value();                                                                                                                                              
     if (tmp < val) {
@@ -212,7 +210,7 @@ void DynamicTruncation::filteringAlgo(map<int, std::vector<DetId> >& detMap) {
   for (unsigned int iDet = 0; iDet < detMap.size(); ++iDet) {
     double bestLayerValue = MAX_THR;
     bool isDTorCSC = false;
-    ConstRecHitContainer layerRH, layerSEG;
+    ConstRecHitContainer layerRH;
     std::vector<DetId> chamber = detMap[iDet];
     for (unsigned int j = 0; j < chamber.size(); ++j) {
       DetId id = chamber[j];
@@ -244,8 +242,7 @@ void DynamicTruncation::filteringAlgo(map<int, std::vector<DetId> >& detMap) {
 	  
 	  // Check if the best estimator value is below the THR and then get the RH componing the segment
 	  if (bestChamberValue >= DTThr || bestChamberValue > bestLayerValue) continue; 
-	  layerRH.clear(); layerSEG.clear();
-	  layerSEG.push_back(theMuonRecHitBuilder->build(&bestDTSeg));
+	  layerRH.clear();
 	  std::vector<DTRecHit1D> DTrh = getSegs.getDTRHmap(bestDTSeg);
 	  for (std::vector<DTRecHit1D>::iterator it = DTrh.begin(); it != DTrh.end(); it++) {
 	    layerRH.push_back(theMuonRecHitBuilder->build(&*it));
@@ -279,8 +276,7 @@ void DynamicTruncation::filteringAlgo(map<int, std::vector<DetId> >& detMap) {
 	  
 	  // Check if the best estimator value is below the THR and then get the RH componing the segment
 	  if (bestChamberValue >= CSCThr || bestChamberValue > bestLayerValue) continue;
-	  layerRH.clear(); layerSEG.clear();
-	  layerSEG.push_back(theMuonRecHitBuilder->build(&bestCSCSeg));
+	  layerRH.clear();
 	  std::vector<CSCRecHit2D> CSCrh = getSegs.getCSCRHmap(bestCSCSeg);
 	  for (std::vector<CSCRecHit2D>::iterator it = CSCrh.begin(); it != CSCrh.end(); ++it) {
 	    layerRH.push_back(theMuonRecHitBuilder->build(&*it));
@@ -294,32 +290,11 @@ void DynamicTruncation::filteringAlgo(map<int, std::vector<DetId> >& detMap) {
       else estimators.push_back(-1);
     }
 
-    // For segment based fits
-    if (layerSEG.size() > 0) {
-      result.push_back(layerSEG.front());
-      DetId id_ = layerSEG.front()->geographicalId();
-      if (id_.subdetId() == MuonSubdetId::DT) {
-	DTChamberId MuonChId(id_);
-	TrajectoryStateOnSurface temp = propagator->propagate(currentState, theG->idToDet(MuonChId)->surface());
-	//if (temp.isValid()) 
-	currentState = updatorHandle->update(temp, *layerSEG.front());	
-      }
-      if (id_.subdetId() == MuonSubdetId::CSC) {
-        CSCDetId MuonChId(id_);
-        TrajectoryStateOnSurface temp = propagator->propagate(currentState, theG->idToDet(MuonChId)->surface());
-        //if (temp.isValid())  
-        currentState = updatorHandle->update(temp, *layerSEG.front());
-      }
-    }
-
-
-
-
-    /*
-      // For hit based fits 
     if (layerRH.size() > 0) {                                                                                                                                          
-      for (ConstRecHitContainer::iterator it = layerRH.begin(); it != layerRH.end(); ++it) result.push_back((*it)); 
-
+      for (ConstRecHitContainer::iterator it = layerRH.begin(); it != layerRH.end(); ++it) {                                                                         
+	result.push_back((*it));                                                                                                                                         
+      }                                                                                                                                                                
+      
       // sort the vector                                                                                                                                             
       layerRH = sort(layerRH);                                                                                                                                         
       
@@ -328,9 +303,6 @@ void DynamicTruncation::filteringAlgo(map<int, std::vector<DetId> >& detMap) {
       if (id.subdetId() == MuonSubdetId::DT) updateWithDThits(layerRH);                                                                                 
       else updateWithCSChits(layerRH);                                                                                                                 
     }
-    */    
-
-    layerSEG.clear();
     layerRH.clear();                                                                                                                                                    
   }
 }  

@@ -23,8 +23,7 @@ DTDigiToRawModule::DTDigiToRawModule(const edm::ParameterSet& ps) {
   
   dduID = ps.getUntrackedParameter<int>("dduID", 770);
   debug = ps.getUntrackedParameter<bool>("debugMode", false);
-  digicoll = ps.getUntrackedParameter<string>("digiColl", "dtunpacker");
-  digibyType = ps.getUntrackedParameter<bool>("digibytype", true);
+  digicoll = ps.getParameter<edm::InputTag>("digiColl");
   
   useStandardFEDid_ = ps.getUntrackedParameter<bool>("useStandardFEDid", true);
   minFEDid_ = ps.getUntrackedParameter<int>("minFEDid", 770);
@@ -46,13 +45,8 @@ void DTDigiToRawModule::produce(Event & e, const EventSetup& iSetup) {
   
   // Take digis from the event
   Handle<DTDigiCollection> digis;
-  if (digibyType) {
-    e.getByType(digis);
-  }
-  else {
-    e.getByLabel(digicoll, digis);
-  }
-  
+  e.getByLabel(digicoll, digis);
+
   // Load DTMap
   edm::ESHandle<DTReadOutMapping> map;
   iSetup.get<DTReadOutMappingRcd>().get( map );

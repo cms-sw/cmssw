@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.h,v 1.14 2008/04/21 08:53:02 saout Exp $
+// $Id: MVAComputer.h,v 1.15 2010/01/26 19:40:03 saout Exp $
 //
 
 #include <string>
@@ -25,7 +25,7 @@ namespace Calibration {
 
 class BitSet {
     public:
-	// help that poor ROOT Cint/Reflex to copy bitsets... (workaround)
+	// help that poor ROOT to copy bitsets... (workaround)
 	BitSet &operator = (const BitSet &other)
 	{ store = other.store; bitsInLast = other.bitsInLast; return *this; }
 

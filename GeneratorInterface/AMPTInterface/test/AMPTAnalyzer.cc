@@ -113,6 +113,7 @@ class AMPTAnalyzer : public edm::EDAnalyzer {
    double etaMax_;
    double ptMin_;
   edm::InputTag src_;
+   edm::InputTag simVerticesTag_;
 
    edm::ESHandle < ParticleDataTable > pdt;
    edm::Service<TFileService> f;
@@ -141,6 +142,9 @@ AMPTAnalyzer::AMPTAnalyzer(const edm::ParameterSet& iConfig)
    printLists_ = iConfig.getUntrackedParameter<bool>("printLists", false);
    doCF_ = iConfig.getUntrackedParameter<bool>("doMixed", false);
    doVertex_ = iConfig.getUntrackedParameter<bool>("doVertex", false);
+   if (doVertex_) {
+      simVerticesTag_ = iConfig.getParameter<edm::InputTag>("simVerticesTag");
+   }
    etaMax_ = iConfig.getUntrackedParameter<double>("etaMax", 2);
    ptMin_ = iConfig.getUntrackedParameter<double>("ptMin", 0);
    src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generator"));
@@ -293,7 +297,7 @@ AMPTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    if(doVertex_){
       edm::Handle<edm::SimVertexContainer> simVertices;
-      iEvent.getByType<edm::SimVertexContainer>(simVertices);
+      iEvent.getByLabel<edm::SimVertexContainer>(simVerticesTag_, simVertices);
       
       if (! simVertices.isValid() ) throw cms::Exception("FatalError") << "No vertices found\n";
       int inum = 0;

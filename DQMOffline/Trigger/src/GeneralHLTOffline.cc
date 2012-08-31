@@ -3,16 +3,17 @@
 // Package:    GeneralHLTOffline
 // Class:      GeneralHLTOffline
 // 
-/**\class GeneralHLTOffline 
+/**\class GeneralHLTOffline
 
  Description: [one line class summary]
+
  Implementation:
      [Notes on implementation]
 */
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: GeneralHLTOffline.cc,v 1.6 2012/08/07 10:45:21 muell149 Exp $
+// $Id: GeneralHLTOffline.cc,v 1.4 2012/08/03 10:26:05 puigh Exp $
 //
 //
 
@@ -65,29 +66,28 @@ class GeneralHLTOffline : public edm::EDAnalyzer {
       virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
+
       virtual void beginRun(edm::Run const&, edm::EventSetup const&);
       virtual void endRun(edm::Run const&, edm::EventSetup const&);
       virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
       virtual void setupHltMatrix(std::string, int);
-   virtual void fillHltMatrix(std::string, std::string, double, double, bool);
+  virtual void fillHltMatrix(std::string, std::string, double, double, bool);
 
       // ----------member data ---------------------------
 
 
   bool debugPrint;
   bool outputPrint;
-  
+
   std::string plotDirectoryName;
-  std::string hltTag;
 
   DQMStore * dbe;
-  
-  HLTConfigProvider hltConfig_;
-  
-  vector< vector<string> > PDsVectorPathsVector;
 
-  MonitorElement * cppath;
+  HLTConfigProvider hltConfig_;
+
+  vector< vector<string> > PDsVectorPathsVector;
+  
 };
 
 //
@@ -113,10 +113,8 @@ GeneralHLTOffline::GeneralHLTOffline(const edm::ParameterSet& iConfig)
 
   plotDirectoryName = iConfig.getUntrackedParameter<std::string>("dirname", "HLT/General");
 
-   if (debugPrint) std::cout << "Got plot dirname = " << plotDirectoryName << std::endl;
-  
-  hltTag = iConfig.getParameter<std::string> ("HltProcessName");
-  
+  if (debugPrint) std::cout << "Got plot dirname = " << plotDirectoryName << std::endl;
+
 
 }
 
@@ -145,7 +143,7 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     // Access Trigger Results
    edm::Handle<edm::TriggerResults> triggerResults;
-   iEvent.getByLabel(InputTag("TriggerResults","", hltTag), triggerResults);
+   iEvent.getByLabel(InputTag("TriggerResults","", "HLT"), triggerResults);
    
    if (!triggerResults.isValid()) {
      if (debugPrint) std::cout << "Trigger results not valid" << std::endl;
@@ -154,7 +152,7 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     if (debugPrint) std::cout << "Found triggerResults" << std::endl;
 
    edm::Handle<trigger::TriggerEvent>         aodTriggerEvent;   
-   iEvent.getByLabel(InputTag("hltTriggerSummaryAOD", "", hltTag), aodTriggerEvent);
+   iEvent.getByLabel(InputTag("hltTriggerSummaryAOD", "", "HLT"), aodTriggerEvent);
    
    if ( !aodTriggerEvent.isValid() ) { 
      if (debugPrint) std::cout << "No AOD trigger summary found! Returning..."; 
@@ -167,7 +165,6 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   bool streamAfound = false;
   int i = 0;
-
 
   for (vector<string>::iterator streamName = nameStreams.begin(); 
        streamName != nameStreams.end(); ++streamName) {
@@ -203,28 +200,9 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	 
 	 if (debugPrint) std::cout << "Index = " << index << " triggerResults->size() = " << triggerResults->size() << std::endl;
 	 
-
-	 //fill the histos with empty weights......
-	 std::string label = datasetNames[iPD];
-	 std:: string fullPathToCPP = "HLT/GeneralHLTOffline/"+label+"/cppath_"+label;
-	 MonitorElement * ME_mini_cppath = dbe->get(fullPathToCPP);/////charlie
-	 TH1F * hist_mini_cppath = ME_mini_cppath->getTH1F();//charlie
-
-	 TAxis * axis = hist_mini_cppath->GetXaxis();
-	 int bin_num = axis->FindBin(pathName.c_str());
-	 int bn = bin_num - 1;
-	 hist_mini_cppath->Fill(bn,0);//charlieeeee
-	 hist_mini_cppath->SetEntries(hist_mini_cppath->Integral());
-
-
-	 
-
-
 	 if (index < triggerResults->size()) {
 	   if(triggerResults->accept(index)) {
-	     	     
-	     cppath->Fill(index,1);
-	     	     
+	     
 	     if (debugPrint) std::cout << "We fired path " << pathName << std::endl;
 	     
 	     // look up module labels for this path
@@ -245,7 +223,7 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		 
 		 if (hltConfig_.moduleType(modulesThisPath[iModule]) == "HLTLevel1GTSeed") break;
 		 
-		 InputTag moduleWhoseResultsWeWant(modulesThisPath[iModule], "", hltTag);
+		 InputTag moduleWhoseResultsWeWant(modulesThisPath[iModule], "", "HLT");
 		 
 		 unsigned int indexOfModuleInAodTriggerEvent = aodTriggerEvent->filterIndex(moduleWhoseResultsWeWant);
 		 
@@ -281,30 +259,19 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		 
 		 // OK, we found the last module. No need to look at the others.
 		 // get out of the loop
+		 
 		 break;
 	       }// end if saveTags
 	     }//end Loop backward through module names   
 	   }// end if(triggerResults->accept(index))
-
-	   // else:
-	   
-	   
-	   
-
 	 }// end if (index < triggerResults->size())
        }// end Loop over Paths in each PD
      }//end Loop over PDs
    }
-   
+
    
 
 }
-
-
-
-
-
-
 
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -343,22 +310,16 @@ GeneralHLTOffline::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 
 
   bool changed = true;
-  if (hltConfig_.init(iRun, iSetup, hltTag, changed)) {
+  if (hltConfig_.init(iRun, iSetup, "HLT", changed)) {
     if(debugPrint)
       if(debugPrint) std::cout << "HLT config with process name " 
-                << hltTag << " successfully extracted" << std::endl;
+                << "HLT" << " successfully extracted" << std::endl;
   } else {
     if (debugPrint)
       if (debugPrint) std::cout << "Warning, didn't find process HLT" << std::endl;
   }
 
   if (debugPrint) std::cout << " About to access stream A content " << std::endl;
-
-
-  //////////// Book a simple ME
-
-  dbe->setCurrentFolder("HLT/GeneralHLTOffline/");
-  cppath = dbe->book1D("cppath","Counts/Path",hltConfig_.size(),0,hltConfig_.size());  
 
   std::vector<std::string> nameStreams = hltConfig_.streamNames();
 
@@ -375,8 +336,8 @@ GeneralHLTOffline::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
       if (debugPrint) std::cout << " Stream A not found " << std::endl;
     i++;
   }
- 
- 
+
+
   if (streamAfound) {
     vector<string> datasetNames =  hltConfig_.streamContent("A");
   
@@ -394,17 +355,16 @@ GeneralHLTOffline::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
       
       if (debugPrint) std::cout <<"Found PD: " << datasetNames[i]  << std::endl;     
       setupHltMatrix(datasetNames[i],i);   
-
+      
     }// end of loop over dataset names
   }
-}// end of beginRun
 
+}// end of beginRun
 
 // ------------ method called when ending the processing of a run  ------------
 void GeneralHLTOffline::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
-
 
 void GeneralHLTOffline::setupHltMatrix(std::string label, int iPD) {
 
@@ -430,6 +390,9 @@ dbe->setCurrentFolder(PD_Folder.c_str());
 HLTMenu = hltConfig_.tableName();
 dbe->bookString("hltMenuName",HLTMenu.c_str());
 
+
+
+
 h_name = "HLT_"+label+"_EtaVsPhi";
 h_title = "HLT_"+label+"_EtaVsPhi";
 h_name_1dEta = "HLT_"+label+"_1dEta";
@@ -446,14 +409,13 @@ Double_t EtaMax = 2.610;
 Double_t PhiMax = 17.0*TMath::Pi()/16.0;
 Double_t PhiMaxFine = 33.0*TMath::Pi()/32.0;
 
-//Double_t eta_bins[] = {-2.610,-2.349,-2.088,-1.827,-1.740,-1.653,-1.566,-1.479,-1.392,-1.305,-1.044,-0.783,-0.522,-0.261,0,0.261,0.522,0.783,1.044,1.305,1.392,1.479,1.566,1.653,1.740,1.827,2.088,2.349,2.610}; //Has narrower bins in Barrel/Endcap border region
+  //Double_t eta_bins[] = {-2.610,-2.349,-2.088,-1.827,-1.740,-1.653,-1.566,-1.479,-1.392,-1.305,-1.044,-0.783,-0.522,-0.261,0,0.261,0.522,0.783,1.044,1.305,1.392,1.479,1.566,1.653,1.740,1.827,2.088,2.349,2.610}; //Has narrower bins in Barrel/Endcap border region
 //Double_t eta_bins[] = {-2.610,-2.175,-1.740,-1.305,-0.870,-0.435,0,0.435,0.870,1.305,1.740,2.175,2.610};
 //Double_t phi_bins[] = {-TMath::Pi(),-3*TMath::Pi()/4,-TMath::Pi()/2,-TMath::Pi()/4,0,TMath::Pi()/4,TMath::Pi()/2,3*TMath::Pi()/4,TMath::Pi()};
 
  TH2F * hist_EtaVsPhi = new TH2F(h_name.c_str(),h_title.c_str(),numBinsEta,-EtaMax,EtaMax,numBinsPhi,-PhiMax,PhiMax);
  TH1F * hist_1dEta = new TH1F(h_name_1dEta.c_str(),h_title_1dEta.c_str(),numBinsEtaFine,-EtaMax,EtaMax);
  TH1F * hist_1dPhi = new TH1F(h_name_1dPhi.c_str(),h_title_1dPhi.c_str(),numBinsPhiFine,-PhiMaxFine,PhiMaxFine);
-
 
  hist_EtaVsPhi->SetMinimum(0);
  hist_1dEta->SetMinimum(0);
@@ -467,29 +429,12 @@ Double_t PhiMaxFine = 33.0*TMath::Pi()/32.0;
  // MonitorElement * ME_1dPhi = dbe->book1D(h_name_1dPhi.c_str(),hist_1dPhi);
  dbe->book1D(h_name_1dPhi.c_str(),hist_1dPhi);
 
- ////charlieeeeeee
- std::string folderz;
- folderz = TString("HLT/GeneralHLTOffline/"+label);//make it the top level directory, that is on the same dir level as paths
- dbe->setCurrentFolder(folderz.c_str());
- //book charlie's new histogramzzzzzz
- std::string dnamez = "cppath_"+label;
- std::string dtitlez = "cppath_"+label;
- int sizez = PDsVectorPathsVector[iPD].size();
- TH1F * hist_mini_cppath = new TH1F(dnamez.c_str(),dtitlez.c_str(),sizez,0,sizez);//or iPath
- dbe->book1D(dnamez.c_str(),hist_mini_cppath);
- 
- unsigned int jPath;
- for (unsigned int iPath = 0; iPath < PDsVectorPathsVector[iPD].size(); iPath++) { //loop over triggers
+  for (unsigned int iPath = 0; iPath < PDsVectorPathsVector[iPD].size(); iPath++) { 
     pathName = PDsVectorPathsVector[iPD][iPath];
     h_name_1dEtaPath = "HLT_"+pathName+"_1dEta";
     h_name_1dPhiPath = "HLT_"+pathName+"_1dPhi";
     h_title_1dEtaPath = pathName+" Occupancy Vs Eta";
     h_title_1dPhiPath = pathName+"Occupancy Vs Phi";
-
-    jPath=iPath+1;
-    TAxis * axis = hist_mini_cppath->GetXaxis();
-    axis->SetBinLabel(jPath,pathName.c_str());
-
     Path_Folder = TString("HLT/GeneralHLTOffline/"+label+"/Paths");
     dbe->setCurrentFolder(Path_Folder.c_str());
 
@@ -498,19 +443,12 @@ Double_t PhiMaxFine = 33.0*TMath::Pi()/32.0;
     dbe->book1D(h_name_1dEtaPath.c_str(),h_title_1dEtaPath.c_str(),numBinsEtaFine,-EtaMax,EtaMax);
      //     MonitorElement * ME_1dPhi = dbe->book1D(h_name_1dPhiPath.c_str(),h_title_1dPhiPath.c_str(),numBinsPhiFine,-PhiMaxFine,PhiMaxFine);
     dbe->book1D(h_name_1dPhiPath.c_str(),h_title_1dPhiPath.c_str(),numBinsPhiFine,-PhiMaxFine,PhiMaxFine);
-
+  
     if (debugPrint) std::cout << "book1D for " << pathName << std::endl;
   }
-
    
  if (debugPrint) std::cout << "Success setupHltMatrix( " << label << " , " << iPD << " )" << std::cout;
 } //End setupHltMatrix
-
-
-
-
-
-
 
 void GeneralHLTOffline::fillHltMatrix(std::string label, std::string path,double Eta, double Phi, bool first_count) {
 
@@ -521,14 +459,10 @@ void GeneralHLTOffline::fillHltMatrix(std::string label, std::string path,double
   std::string fullPathToME1dPhi;
   std::string fullPathToME1dEtaPath;
   std::string fullPathToME1dPhiPath;
-  std::string fullPathToCPP;
-
 
  fullPathToME = "HLT/GeneralHLTOffline/HLT_"+label+"_EtaVsPhi"; 
  fullPathToME1dEta = "HLT/GeneralHLTOffline/HLT_"+label+"_1dEta";
  fullPathToME1dPhi = "HLT/GeneralHLTOffline/HLT_"+label+"_1dPhi";
- fullPathToCPP = "HLT/GeneralHLTOffline/"+label+"/cppath_"+label;
- 
 
 if (label != "SingleMu" && label != "SingleElectron" && label != "Jet") {
  fullPathToME = "HLT/GeneralHLTOffline/"+label+"/HLT_"+label+"_EtaVsPhi"; 
@@ -546,8 +480,7 @@ if (label != "SingleMu" && label != "SingleElectron" && label != "Jet") {
   MonitorElement * ME_1dPhi = dbe->get(fullPathToME1dPhi);  
   MonitorElement * ME_1dEtaPath = dbe->get(fullPathToME1dEtaPath);
   MonitorElement * ME_1dPhiPath = dbe->get(fullPathToME1dPhiPath);
-  MonitorElement * ME_mini_cppath = dbe->get(fullPathToCPP);
-  
+
   if (debugPrint) std::cout << "MonitorElement * " << std::endl;
 
   TH2F * hist_2d = ME_2d->getTH2F();
@@ -555,7 +488,6 @@ if (label != "SingleMu" && label != "SingleElectron" && label != "Jet") {
   TH1F * hist_1dPhi = ME_1dPhi->getTH1F();
   TH1F * hist_1dEtaPath = ME_1dEtaPath->getTH1F();
   TH1F * hist_1dPhiPath = ME_1dPhiPath->getTH1F();
-  TH1F * hist_mini_cppath = ME_mini_cppath->getTH1F();
 
   if (debugPrint) std::cout << "TH2F *" << std::endl;
 
@@ -568,15 +500,9 @@ if (label != "SingleMu" && label != "SingleElectron" && label != "Jet") {
     hist_1dEta->Fill(Eta);
     hist_1dPhi->Fill(Phi); 
     hist_2d->Fill(Eta,Phi); }
-  hist_1dEtaPath->Fill(Eta); 
-  hist_1dPhiPath->Fill(Phi);
-  
-  TAxis * axis = hist_mini_cppath->GetXaxis();
-  int bin_num = axis->FindBin(path.c_str());
-  int bn = bin_num - 1;
-  hist_mini_cppath->Fill(bn,1);
+    hist_1dEtaPath->Fill(Eta); 
+    hist_1dPhiPath->Fill(Phi);
 
-    
  if (debugPrint) std::cout << "hist->Fill" << std::endl;
 
 } //End fillHltMatrix

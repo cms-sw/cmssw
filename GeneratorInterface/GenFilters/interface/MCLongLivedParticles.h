@@ -15,7 +15,7 @@
 //
 // Original Author:  Filip Moortgat
 //         Created:  Mon Sept 11 10:57:54 CET 2006
-// $Id: MCLongLivedParticles.h,v 1.1 2008/06/24 09:34:26 fambrogl Exp $
+// $Id: MCLongLivedParticles.h,v 1.2 2010/07/21 04:23:23 wmtan Exp $
 //
 //
 
@@ -29,6 +29,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -48,6 +49,6 @@ private:
   // ----------member data ---------------------------
   
   float theCut;
-
+  edm::InputTag hepMCProductTag_;
 };
 #endif

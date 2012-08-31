@@ -1,6 +1,7 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/Utilities"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="GeneratorInterface/Core"/>
 

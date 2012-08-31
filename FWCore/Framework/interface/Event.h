@@ -102,10 +102,6 @@ namespace edm {
 
     template<typename PROD>
     bool
-    get(SelectorBase const& sel, Handle<PROD>& result) const;
-
-    template<typename PROD>
-    bool
     getByLabel(InputTag const& tag, Handle<PROD>& result) const;
 
     template<typename PROD>
@@ -115,10 +111,6 @@ namespace edm {
     template<typename PROD>
     bool
     getByLabel(std::string const& label, std::string const& productInstanceName, Handle<PROD>& result) const;
-
-    template<typename PROD>
-    void
-    getMany(SelectorBase const& sel, std::vector<Handle<PROD> >& results) const;
 
     template<typename PROD>
     bool
@@ -343,16 +335,6 @@ namespace edm {
 
   template<typename PROD>
   bool
-  Event::get(SelectorBase const& sel, Handle<PROD>& result) const {
-    bool ok = provRecorder_.get(sel, result);
-    if(ok) {
-      addToGotBranchIDs(*result.provenance());
-    }
-    return ok;
-  }
-
-  template<typename PROD>
-  bool
   Event::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
     bool ok = provRecorder_.getByLabel(tag, result);
     if(ok) {
@@ -381,16 +363,6 @@ namespace edm {
       addToGotBranchIDs(*result.provenance());
     }
     return ok;
-  }
-
-  template<typename PROD>
-  void
-  Event::getMany(SelectorBase const& sel, std::vector<Handle<PROD> >& results) const {
-    provRecorder_.getMany(sel, results);
-    for(typename std::vector<Handle<PROD> >::const_iterator it = results.begin(), itEnd = results.end();
-        it != itEnd; ++it) {
-      addToGotBranchIDs(*it->provenance());
-    }
   }
 
   template<typename PROD>
@@ -429,9 +401,11 @@ namespace edm {
     TypeID typeID(typeid(ELEMENT));
 
     BasicHandle bh;
+    std::string processName; // empty
     int nFound = provRecorder_.getMatchingSequenceByLabel_(typeID,
                                                            moduleLabel,
                                                            productInstanceName,
+                                                           processName,
                                                            bh);
 
     if(nFound == 0) {

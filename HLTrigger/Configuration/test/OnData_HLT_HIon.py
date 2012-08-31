@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V183 (CMSSW_5_2_6_HLT2)
+# /dev/CMSSW_5_2_1/HIon/V186 (CMSSW_5_2_6_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V183')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V186')
 )
 
 process.streams = cms.PSet( 
@@ -316,7 +316,11 @@ process.datasets = cms.PSet(
 )
 
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
-    BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
+    globaltag = cms.string( "GR_H_V30::All" ),
+    RefreshEachRun = cms.untracked.bool( True ),
+    RefreshOpenIOVs = cms.untracked.bool( False ),
+    toGet = cms.VPSet( 
+    ),
     DBParameters = cms.PSet( 
       authenticationPath = cms.untracked.string( "." ),
       connectionRetrialTimeOut = cms.untracked.int32( 60 ),
@@ -328,12 +332,10 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
       connectionTimeOut = cms.untracked.int32( 0 ),
       connectionRetrialPeriod = cms.untracked.int32( 10 )
     ),
-    toGet = cms.VPSet( 
-    ),
+    RefreshAlways = cms.untracked.bool( False ),
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
-    globaltag = cms.string( "GR_H_V30::All" ),
-    timetype = cms.string( "runnumber" ),
-    RefreshEachRun = cms.untracked.bool( True )
+    ReconnectEachRun = cms.untracked.bool( False ),
+    BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" )
 )
 process.HepPDTESSource = cms.ESSource( "HepPDTESSource",
     pdtFileName = cms.FileInPath( "SimGeneral/HepPDTESSource/data/pythiaparticle.tbl" )
@@ -8253,7 +8255,7 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltL1extraParticles_*_*',
       'keep *_hltL1sDoubleTauJet44erorDoubleJetC64_*_*',
       'keep *_hltL1sL1EG18er_*_*',
-      'keep *_hltL1sL1ETM36or40_*_*',
+      'keep *_hltL1sL1ETM36ORETM40_*_*',
       'keep *_hltL1sMu16Eta2p1_*_*',
       'keep *_hltL3TkTracksFromL2_*_*',
       'keep *_hltL3crIsoL1sMu16Eta2p1L1f0L2f16QL3f18QL3crIsoRhoFiltered0p15_*_*',

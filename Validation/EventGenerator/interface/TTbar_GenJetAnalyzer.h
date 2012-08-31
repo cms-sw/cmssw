@@ -13,7 +13,7 @@
 //
 // Original Author:  Martijn Gosselink,,,
 //         Created:  Thu May 10 17:15:16 CEST 2012
-// $Id: TTbar_GenJetAnalyzer.cc,v 1.3 2012/05/29 08:17:01 mgosseli Exp $
+// $Id: TTbar_GenJetAnalyzer.h,v 1.1 2012/07/04 18:24:21 inugent Exp $
 //
 //
 // Added to: Validation/EventGenerator by Ian M. Nugent June 28, 2012
@@ -35,6 +35,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
@@ -75,6 +77,7 @@ class TTbar_GenJetAnalyzer : public edm::EDAnalyzer {
       DQMStore *dbe;
 
       edm::InputTag jets_;
+      edm::InputTag genEventInfoProductTag_;
       std::map<std::string, MonitorElement*> hists_;
 
       double weight ;

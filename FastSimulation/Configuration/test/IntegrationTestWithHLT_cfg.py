@@ -33,7 +33,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('FastSimulation.Configuration.Geometries_cff')
 
 # L1 Emulator and HLT Setup
-process.load("FastSimulation.HighLevelTrigger.HLTSetup_cff")
+#process.load("FastSimulation.HighLevelTrigger.HLTSetup_cff")
 
 # Famos sequences
 process.load("FastSimulation.Configuration.FamosSequences_cff")

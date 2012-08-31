@@ -6,8 +6,8 @@
  *
 */
 //
-//   $Date: 2008/04/16 23:25:10 $
-//   $Revision: 1.4 $
+//   $Date: 2007/04/27 13:16:00 $
+//   $Revision: 1.3 $
 //
 //   Original Author :
 //   H. Sakulin            HEPHY Vienna
@@ -128,7 +128,6 @@ class L1MuSignedPackingGeneric : public L1MuPacking {
 class L1MuPseudoSignedPacking : public L1MuPacking {
  public:
       L1MuPseudoSignedPacking() {}
-  virtual ~L1MuPseudoSignedPacking() {};
   L1MuPseudoSignedPacking(unsigned int nbits) : m_nbits(nbits) {};
 
   /// get the (pseudo-)sign from the packed notation (0=positive, 1=negative)

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.393 $"
+__version__ = "$Revision: 1.397 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -410,7 +410,7 @@ class ConfigBuilder(object):
 		self.process.source.eventsToProcess=cms.untracked.VEventRange( LumiList.LumiList(self._options.lumiToProcess).getCMSSWString().split(',') )
 
 		
-        if 'GEN' in self.stepMap.keys() or (not self._options.filein and hasattr(self._options, "evt_type")):
+        if 'GEN' in self.stepMap.keys() or 'LHE' in self.stepMap or (not self._options.filein and hasattr(self._options, "evt_type")):
             if self.process.source is None:
                 self.process.source=cms.Source("EmptySource")
             # if option himix is active, drop possibly duplicate DIGI-RAW info:
@@ -813,8 +813,9 @@ class ConfigBuilder(object):
             self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1EmulatorDM_cff'
 
         self.ALCADefaultSeq=None
-        self.SIMDefaultSeq=None
+	self.LHEDefaultSeq='externalLHEProducer'
         self.GENDefaultSeq='pgen'
+        self.SIMDefaultSeq=None
         self.DIGIDefaultSeq='pdigi'
         self.DATAMIXDefaultSeq=None
         self.DIGI2RAWDefaultSeq='DigiToRaw'
@@ -943,7 +944,7 @@ class ConfigBuilder(object):
 			if '/' in geoms[1] or '_cff' in geoms[1]:
 				self.GeometryCFF=geoms[1]
 			else:
-				self.GeometryCFF='Configuration/StandardSequences/Geometry'+geoms[1]+'_cff'
+				self.GeometryCFF='Configuration/Geometry/Geometry'+geoms[1]+'_cff'
 
 		if (geoms[0].startswith('DB:')):
 			self.SimGeometryCFF='Configuration/StandardSequences/GeometrySimDB_cff'
@@ -955,9 +956,9 @@ class ConfigBuilder(object):
 			else:
 				simGeometry=geoms[0]
 				if self._options.gflash==True:
-					self.SimGeometryCFF='Configuration/StandardSequences/Geometry'+geoms[0]+'GFlash_cff'
+					self.SimGeometryCFF='Configuration/Geometry/Geometry'+geoms[0]+'GFlash_cff'
 				else:
-					self.SimGeometryCFF='Configuration/StandardSequences/Geometry'+geoms[0]+'_cff'
+					self.SimGeometryCFF='Configuration/Geometry/Geometry'+geoms[0]+'_cff'
 
 	# synchronize the geometry configuration and the FullSimulation sequence to be used
         if simGeometry not in defaultOptions.geometryExtendedOptions:
@@ -1156,6 +1157,22 @@ class ConfigBuilder(object):
                 print "available ",available
                 #print "verify your configuration, ignoring for now"
                 raise Exception("The following alcas could not be found "+str(alcaList))
+
+    def prepare_LHE(self, sequence = None):
+	    #load the fragment
+	    ##make it loadable
+	    loadFragment = self._options.evt_type.replace('.py','',).replace('.','_').replace('python/','').replace('/','.')
+	    print "Loading lhe fragment from",loadFragment
+	    __import__(loadFragment)
+	    self.process.load(loadFragment)
+	    ##inline the modules
+	    self._options.inlineObjets+=','+sequence
+	    
+	    getattr(self.process,sequence).nEvents = int(self._options.number)
+	    
+	    #schedule it
+	    self.process.lhe_step = cms.Path( getattr( self.process,sequence)  )
+	    self.schedule.append( self.process.lhe_step )
 
     def prepare_GEN(self, sequence = None):
         """ load the fragment of generator configuration """
@@ -1479,10 +1496,7 @@ class ConfigBuilder(object):
                     self.process.prevalidation_step = cms.Path( getattr(self.process, prevalSeqName ) )
                     self.schedule.append(self.process.prevalidation_step)
 
-	    if valSeqName.startswith('genvalid'):
-		    self.process.validation_step = cms.Path( getattr(self.process,valSeqName ) )
-	    else:
-		    self.process.validation_step = cms.EndPath( getattr(self.process,valSeqName ) )
+	    self.process.validation_step = cms.EndPath( getattr(self.process,valSeqName ) )
             self.schedule.append(self.process.validation_step)
 
 	    if not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap:
@@ -1743,7 +1757,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.393 $"),
+                                            (version=cms.untracked.string("$Revision: 1.397 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
@@ -1893,7 +1907,7 @@ class ConfigBuilder(object):
 		
 		for (o,om) in self.process.outputModules_().items():
 			ioJson[o]=om.fileName.value()
-		ioJson['GT']=self._options.conditions
+		ioJson['GT']=self.process.GlobalTag.globaltag.value()
 		import json
 		io.write(json.dumps(ioJson))
 	return

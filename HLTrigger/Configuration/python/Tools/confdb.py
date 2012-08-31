@@ -80,6 +80,7 @@ class HLTProcess(object):
     "HLT_L1TrackerCosmics_v*",
     
 # TODO: paths not supported by FastSim, but for which a recovery should be attempted
+    "HLT_Mu15_TkMu5_Onia_v*",
   
     )
 

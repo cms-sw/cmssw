@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2012/07/09 22:05:02 $
- * $Revision: 1.76 $
+ * $Date: 2012/04/29 14:20:12 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  *
 */
@@ -98,9 +98,6 @@ void EELedTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if ( ! mergeRuns_ ) this->reset();
 
-  ievt_ = 0;
-  nEmpty_ = 0;
-
 }
 
 void EELedTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
@@ -137,15 +134,6 @@ void EELedTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
     }
   }
 
-}
-
-void
-EELedTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EELedTask")){
-	cleanup();
-	setup();
-  }
 }
 
 void EELedTask::reset(void) {
@@ -510,7 +498,7 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    if(!enable && (ievt_ < 4000 || double(nEmpty_++) / double(ievt_) < 0.95)) return;
+    if(!enable) return;
 
     int need = digis->size();
     LogDebug("EELedTask") << "event " << ievt_ << " digi collection size " << need;

@@ -47,7 +47,7 @@ namespace {
           --depth;
           if (depth == 0) {
             demangledName.erase(index, inx + 1 - index);
-            if (demangledName[index] == ' ') {
+            if (demangledName[index] == ' ' && (index == 0 || demangledName[index - 1] != '>')) {
               demangledName.erase(index, 1);
             }
             break;

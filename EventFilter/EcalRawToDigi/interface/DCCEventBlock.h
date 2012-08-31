@@ -10,8 +10,8 @@
  *
  * \file DCCEventBlock.h
  *
- * $Date: 2010/10/02 16:09:54 $
- * $Revision: 1.6 $
+ * $Date: 2012/08/06 21:51:35 $
+ * $Revision: 1.7 $
  *
  * \author N. Almeida
  * \author G. Franzoni
@@ -74,7 +74,9 @@ class DCCEventBlock {
     const uint64_t       *  data_; 
     unsigned int eventSize_;
     unsigned int dwToEnd_;
-   
+    
+    unsigned int next_tower_search(const unsigned int current_tower_id);
+    
     std::vector<short> feChStatus_;
     std::vector<short> tccChStatus_;
     std::vector<short> hlt_;

@@ -290,14 +290,16 @@ dEdxMonMU.dEdxParameters.andOrHlt      = cms.bool(True)
 # temporary patch in order to have BXlumi 
 from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 
-from PhysicsTools.SelectorUtils.pvSelector_cfi import pvSelector
 # temporary test in order to temporary produce the "goodPrimaryVertexCollection"
-goodOfflinePrimaryVertices = cms.EDFilter(
-    "PrimaryVertexObjectFilter",
-    filterParams = pvSelector.clone( minNdof = cms.double(4.0), maxZ = cms.double(24.0) ),
-    src=cms.InputTag('offlinePrimaryVertices'),
-    filter = cms.bool(False)
-)
+# define with a new name if changes are necessary, otherwise simply include
+# it from CommonTools/ParticleFlow/python/goodOfflinePrimaryVertices_cfi.py
+# uncomment when necessary
+from PhysicsTools.SelectorUtils.pvSelector_cfi import pvSelector
+from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import goodOfflinePrimaryVertices
+trackingDQMgoodOfflinePrimaryVertices = goodOfflinePrimaryVertices.clone()
+trackingDQMgoodOfflinePrimaryVertices.filterParams = pvSelector.clone( minNdof = cms.double(4.0), maxZ = cms.double(24.0) )
+trackingDQMgoodOfflinePrimaryVertices.src=cms.InputTag('offlinePrimaryVertices')
+trackingDQMgoodOfflinePrimaryVertices.filter = cms.bool(False)
 
 # Sequence
 SiStripDQMTier0 = cms.Sequence(
@@ -309,7 +311,7 @@ SiStripDQMTier0 = cms.Sequence(
 #    # temporary patch in order to have BXlumi
 #    * lumiProducer
     # temporary test in order to have the "goodPrimaryVertexCollection"
-#    * goodOfflinePrimaryVertices
+#    * trackingDQMgoodOfflinePrimaryVertices
     *TrackerCollisionTrackMonCommon
     *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
      # MessageLog
@@ -325,7 +327,7 @@ SiStripDQMTier0Common = cms.Sequence(
 #    # temporary patch in order to have BXlumi
 #    * lumiProducer
 #    # temporary test in order to have the "goodPrimaryVertexCollection"
-#    * goodOfflinePrimaryVertices
+#    * trackingDQMgoodOfflinePrimaryVertices
     *TrackerCollisionTrackMonCommon
     *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
     # MessageLog
@@ -340,7 +342,7 @@ SiStripDQMTier0MinBias = cms.Sequence(
 
 #    * lumiProducer
 #    # temporary test in order to have the "goodPrimaryVertexCollection"
-#    * goodOfflinePrimaryVertices
+#    * trackingDQMgoodOfflinePrimaryVertices
     *TrackerCollisionTrackMonMB
     *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
     # MessageLog
