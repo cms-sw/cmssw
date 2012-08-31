@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_6/HLT/V10 (CMSSW_5_2_6_HLT3)
+# /dev/CMSSW_5_2_6/HLT/V11 (CMSSW_5_2_6_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/HLT/V10')
+  tableName = cms.string('/dev/CMSSW_5_2_6/HLT/V11')
 )
 
 streams = cms.PSet( 
@@ -48790,7 +48790,7 @@ hltPrePASingleForJet25 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-hltPrePAakCaloJet20NoJetID = cms.EDFilter( "HLTPrescaler",
+hltPrePAak5CaloJet20NoJetID = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -48832,7 +48832,7 @@ hltSingleJet60RegionalNoJetID = cms.EDFilter( "HLT1CaloJet",
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 85 )
 )
-hltPrePAL1SingleMuOpen_v1 = cms.EDFilter( "HLTPrescaler",
+hltPrePAL1SingleMuOpen = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -49171,7 +49171,7 @@ hltPrePAL1TechHBHEHOtotalOR = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-hltPrePAL1TechHCALsinglechannel = cms.EDFilter( "HLTPrescaler",
+hltPrePAL1TechHCALHFsinglechannel = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -49203,7 +49203,7 @@ hltL1sPAMinBiasHfOr = cms.EDFilter( "HLTLevel1GTSeed",
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1TechTriggerSeeding = cms.bool( True )
 )
-hltPrePAMinBiasHfOr = cms.EDFilter( "HLTPrescaler",
+hltPrePAMinBiasHFOR = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -50532,10 +50532,10 @@ HLT_PAL1SingleJet16_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleJet16 + 
 HLT_PAL1SingleJet36_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleJet36 + hltPrePAL1SingleJet36 + HLTEndSequence )
 HLT_PASingleForJet15_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1ZeroBias + hltPrePASingleForJet15 + HLTRecoJetSequenceAK5Corrected + hltSingleForJet15 + HLTEndSequence )
 HLT_PASingleForJet25_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleForJet16 + hltPrePASingleForJet25 + HLTRecoJetSequenceAK5Corrected + hltSingleForJet25 + HLTEndSequence )
-HLT_PAak5CaloJet20_NoJetID_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleJet16 + hltPrePAakCaloJet20NoJetID + HLTRegionalTowerMakerForJetsSequence + hltAntiKT5CaloJetsRegional + hltCaloJetL1MatchedRegional + hltCaloJetCorrectedRegionalNoJetID + hltSingleJet20RegionalNoJetID + HLTEndSequence )
+HLT_PAak5CaloJet20_NoJetID_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleJet16 + hltPrePAak5CaloJet20NoJetID + HLTRegionalTowerMakerForJetsSequence + hltAntiKT5CaloJetsRegional + hltCaloJetL1MatchedRegional + hltCaloJetCorrectedRegionalNoJetID + hltSingleJet20RegionalNoJetID + HLTEndSequence )
 HLT_PAak5CaloJet40_NoJetID_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleJet16 + hltPrePAak5CaloJet40NoJetID + HLTRegionalTowerMakerForJetsSequence + hltAntiKT5CaloJetsRegional + hltCaloJetL1MatchedRegional + hltCaloJetCorrectedRegionalNoJetID + hltSingleJet40RegionalNoJetID + HLTEndSequence )
 HLT_PAak5CaloJet60_NoJetID_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleJet36 + hltPrePAak5CaloJet60NoJetID + HLTRegionalTowerMakerForJetsSequence + hltAntiKT5CaloJetsRegional + hltCaloJetL1MatchedRegional + hltCaloJetCorrectedRegionalNoJetID + hltSingleJet60RegionalNoJetID + HLTEndSequence )
-HLT_PAL1SingleMuOpen_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMuOpen + hltPrePAL1SingleMuOpen_v1 + hltL1MuOpenL1Filtered0 + HLTEndSequence )
+HLT_PAL1SingleMuOpen_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMuOpen + hltPrePAL1SingleMuOpen + hltL1MuOpenL1Filtered0 + HLTEndSequence )
 HLT_PAL1SingleMu3_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMu3 + hltPrePAL1SingleMu3 + hltL1fL1sMu3L1Filtered0 + HLTEndSequence )
 HLT_PAL1SingleMu7_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMu7 + hltPrePAL1SingleMu7 + hltL1fL1sMu7L1Filtered0 + HLTEndSequence )
 HLT_PAL1SingleMu12_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMu12 + hltPrePAL1SingleMu12 + hltL1fL1sMu12L1Filtered0 + HLTEndSequence )
@@ -50560,9 +50560,9 @@ HLT_PAL1Tech53_MB_SingleTrack_v1 = cms.Path( HLTBeginSequence + hltL1sL1Tech53MB
 HLT_PAL1Tech54_ZeroBias_v1 = cms.Path( HLTBeginSequence + hltL1sL1Tech54ZeroBias + hltPrePAL1Tech54ZeroBias + HLTEndSequence )
 HLT_PAT1minbias_Tech55_v1 = cms.Path( HLTBeginSequence + hltL1sT1minbiasTech55 + hltPrePAT1minbiasTech55 + HLTEndSequence )
 HLT_PAL1Tech_HBHEHO_totalOR_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sTechTrigHCALNoise + hltPrePAL1TechHBHEHOtotalOR + HLTEndSequence )
-HLT_PAL1Tech_HCAL_HF_single_channel_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1TechHCALHFsinglechannel + hltPrePAL1TechHCALsinglechannel + HLTEndSequence )
+HLT_PAL1Tech_HCAL_HF_single_channel_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1TechHCALHFsinglechannel + hltPrePAL1TechHCALHFsinglechannel + HLTEndSequence )
 HLT_PAMinBiasHF_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sPAMinBiasHF + hltPrePAMinBiasHF + HLTEndSequence )
-HLT_PAMinBiasHF_OR_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sPAMinBiasHfOr + hltPrePAMinBiasHfOr + HLTEndSequence )
+HLT_PAMinBiasHF_OR_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sPAMinBiasHfOr + hltPrePAMinBiasHFOR + HLTEndSequence )
 HLT_PAMinBiasBSC_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sPAMinBiasBSC + hltPrePAMinBiasBSC + HLTEndSequence )
 HLT_PAMinBiasBSC_OR_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sPAMinBiasBSCOR + hltPrePAMinBiasBSCOR + HLTEndSequence )
 HLT_PAMinBiasHfOrBSC_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sPAMinBiasHfOrBSC + hltPrePAMinBiasHfOrBSC + HLTEndSequence )

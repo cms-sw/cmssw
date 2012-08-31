@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/PIon/V8 (CMSSW_5_2_6_HLT3)
+# /dev/CMSSW_5_2_6/PIon/V9 (CMSSW_5_2_6_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V8')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V9')
 )
 
 process.streams = cms.PSet( 
@@ -4972,7 +4972,7 @@ process.hltSingleForJet25 = cms.EDFilter( "HLTForwardBackwardCaloJetsFilter",
     triggerType = cms.int32( 85 ),
     nNeg = cms.uint32( 0 )
 )
-process.hltPrePAakCaloJet20NoJetID = cms.EDFilter( "HLTPrescaler",
+process.hltPrePAak5CaloJet20NoJetID = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -5200,7 +5200,7 @@ process.hltL1sL1SingleMuOpen = cms.EDFilter( "HLTLevel1GTSeed",
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1TechTriggerSeeding = cms.bool( False )
 )
-process.hltPrePAL1SingleMuOpen_v1 = cms.EDFilter( "HLTPrescaler",
+process.hltPrePAL1SingleMuOpen = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -7244,7 +7244,7 @@ process.hltL1sL1TechHCALHFsinglechannel = cms.EDFilter( "HLTLevel1GTSeed",
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1TechTriggerSeeding = cms.bool( True )
 )
-process.hltPrePAL1TechHCALsinglechannel = cms.EDFilter( "HLTPrescaler",
+process.hltPrePAL1TechHCALHFsinglechannel = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -7276,7 +7276,7 @@ process.hltL1sPAMinBiasHfOr = cms.EDFilter( "HLTLevel1GTSeed",
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1TechTriggerSeeding = cms.bool( True )
 )
-process.hltPrePAMinBiasHfOr = cms.EDFilter( "HLTPrescaler",
+process.hltPrePAMinBiasHFOR = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -8285,10 +8285,10 @@ process.HLT_PAL1SingleJet16_v1 = cms.Path( process.HLTBeginSequenceBPTX + proces
 process.HLT_PAL1SingleJet36_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleJet36 + process.hltPrePAL1SingleJet36 + process.HLTEndSequence )
 process.HLT_PASingleForJet15_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1ZeroBias + process.hltPrePASingleForJet15 + process.HLTRecoJetSequenceAK5Corrected + process.hltSingleForJet15 + process.HLTEndSequence )
 process.HLT_PASingleForJet25_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleForJet16 + process.hltPrePASingleForJet25 + process.HLTRecoJetSequenceAK5Corrected + process.hltSingleForJet25 + process.HLTEndSequence )
-process.HLT_PAak5CaloJet20_NoJetID_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleJet16 + process.hltPrePAakCaloJet20NoJetID + process.HLTRegionalTowerMakerForJetsSequence + process.hltAntiKT5CaloJetsRegional + process.hltCaloJetL1MatchedRegional + process.hltCaloJetCorrectedRegionalNoJetID + process.hltSingleJet20RegionalNoJetID + process.HLTEndSequence )
+process.HLT_PAak5CaloJet20_NoJetID_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleJet16 + process.hltPrePAak5CaloJet20NoJetID + process.HLTRegionalTowerMakerForJetsSequence + process.hltAntiKT5CaloJetsRegional + process.hltCaloJetL1MatchedRegional + process.hltCaloJetCorrectedRegionalNoJetID + process.hltSingleJet20RegionalNoJetID + process.HLTEndSequence )
 process.HLT_PAak5CaloJet40_NoJetID_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleJet16 + process.hltPrePAak5CaloJet40NoJetID + process.HLTRegionalTowerMakerForJetsSequence + process.hltAntiKT5CaloJetsRegional + process.hltCaloJetL1MatchedRegional + process.hltCaloJetCorrectedRegionalNoJetID + process.hltSingleJet40RegionalNoJetID + process.HLTEndSequence )
 process.HLT_PAak5CaloJet60_NoJetID_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleJet36 + process.hltPrePAak5CaloJet60NoJetID + process.HLTRegionalTowerMakerForJetsSequence + process.hltAntiKT5CaloJetsRegional + process.hltCaloJetL1MatchedRegional + process.hltCaloJetCorrectedRegionalNoJetID + process.hltSingleJet60RegionalNoJetID + process.HLTEndSequence )
-process.HLT_PAL1SingleMuOpen_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMuOpen + process.hltPrePAL1SingleMuOpen_v1 + process.hltL1MuOpenL1Filtered0 + process.HLTEndSequence )
+process.HLT_PAL1SingleMuOpen_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMuOpen + process.hltPrePAL1SingleMuOpen + process.hltL1MuOpenL1Filtered0 + process.HLTEndSequence )
 process.HLT_PAL1SingleMu3_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMu3 + process.hltPrePAL1SingleMu3 + process.hltL1fL1sMu3L1Filtered0 + process.HLTEndSequence )
 process.HLT_PAL1SingleMu7_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMu7 + process.hltPrePAL1SingleMu7 + process.hltL1fL1sMu7L1Filtered0 + process.HLTEndSequence )
 process.HLT_PAL1SingleMu12_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMu12 + process.hltPrePAL1SingleMu12 + process.hltL1fL1sMu12L1Filtered0 + process.HLTEndSequence )
@@ -8313,9 +8313,9 @@ process.HLT_PAL1Tech53_MB_SingleTrack_v1 = cms.Path( process.HLTBeginSequence + 
 process.HLT_PAL1Tech54_ZeroBias_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1Tech54ZeroBias + process.hltPrePAL1Tech54ZeroBias + process.HLTEndSequence )
 process.HLT_PAT1minbias_Tech55_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sT1minbiasTech55 + process.hltPrePAT1minbiasTech55 + process.HLTEndSequence )
 process.HLT_PAL1Tech_HBHEHO_totalOR_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sTechTrigHCALNoise + process.hltPrePAL1TechHBHEHOtotalOR + process.HLTEndSequence )
-process.HLT_PAL1Tech_HCAL_HF_single_channel_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1TechHCALHFsinglechannel + process.hltPrePAL1TechHCALsinglechannel + process.HLTEndSequence )
+process.HLT_PAL1Tech_HCAL_HF_single_channel_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1TechHCALHFsinglechannel + process.hltPrePAL1TechHCALHFsinglechannel + process.HLTEndSequence )
 process.HLT_PAMinBiasHF_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sPAMinBiasHF + process.hltPrePAMinBiasHF + process.HLTEndSequence )
-process.HLT_PAMinBiasHF_OR_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sPAMinBiasHfOr + process.hltPrePAMinBiasHfOr + process.HLTEndSequence )
+process.HLT_PAMinBiasHF_OR_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sPAMinBiasHfOr + process.hltPrePAMinBiasHFOR + process.HLTEndSequence )
 process.HLT_PAMinBiasBSC_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sPAMinBiasBSC + process.hltPrePAMinBiasBSC + process.HLTEndSequence )
 process.HLT_PAMinBiasBSC_OR_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sPAMinBiasBSCOR + process.hltPrePAMinBiasBSCOR + process.HLTEndSequence )
 process.HLT_PAMinBiasHfOrBSC_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sPAMinBiasHfOrBSC + process.hltPrePAMinBiasHfOrBSC + process.HLTEndSequence )
