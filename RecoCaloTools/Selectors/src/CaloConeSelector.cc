@@ -11,7 +11,7 @@ CaloConeSelector::CaloConeSelector(double dR, const CaloGeometry* geom, DetId::D
 }
 
 std::auto_ptr<CaloRecHitMetaCollectionV> CaloConeSelector::select(double eta, double phi, const CaloRecHitMetaCollectionV& inputCollection) {
-  GlobalPoint p(GlobalPoint::Cylindrical(1,phi,sinh(eta)));
+  GlobalPoint p(GlobalPoint::Cylindrical(1,phi,tanh(eta)));
   return select(p,inputCollection);
 }
 

@@ -1,6 +1,5 @@
 #ifndef HFRECORECALCANDIDATEALGO_H
 #define HFRECORECALCANDIDATEALGO_H 1
-#include "RecoEgamma/EgammaHFProducers/interface/HFValueStruct.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -22,38 +21,30 @@
 
 class HFRecoEcalCandidateAlgo {
 public:
-  HFRecoEcalCandidateAlgo(bool correct, 
-			  double e9e25Cut,
+  HFRecoEcalCandidateAlgo(bool correct, double e9e25Cut,
 			  double intercept2DCut,
-			  double intercept2DSlope,
 			  const std::vector<double>& e1e9Cut,
 			  const std::vector<double>& eCOREe9Cut,
-			  const std::vector<double>& eSeLCut,
-			  reco::HFValueStruct hfvv);
+			  const std::vector<double>& eSeLCut);
   
   /** Analyze the hits */
   void produce(const edm::Handle<reco::SuperClusterCollection>& SuperClusters,
 	       const reco::HFEMClusterShapeAssociationCollection& AssocShapes,
-	       reco::RecoEcalCandidateCollection& RecoECand,
-	       int nvtx);
+	       reco::RecoEcalCandidateCollection& RecoECand);
   
   
  private:
-  reco::RecoEcalCandidate correctEPosition(const reco::SuperCluster& original, const reco::HFEMClusterShape& shape, int nvtx);
+  reco::RecoEcalCandidate correctEPosition(const reco::SuperCluster& original, const reco::HFEMClusterShape& shape);
+  
   bool m_correct;
   double m_e9e25Cut;
   double m_intercept2DCut;
-  double m_intercept2DSlope;
   double m_e1e9Cuthi;
   double m_eCOREe9Cuthi;
   double m_eSeLCuthi;
   double m_e1e9Cutlo;
   double m_eCOREe9Cutlo;
   double m_eSeLCutlo;
-  int m_era;
-  bool m_correctForPileup;
-  reco::HFValueStruct m_hfvv;
- 
 };
 
 #endif 

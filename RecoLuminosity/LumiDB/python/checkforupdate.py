@@ -20,7 +20,9 @@ class checkforupdate:
         cleanresult=result.lstrip().strip()
         cleanresult=re.sub(r'\s+|\t+',' ',cleanresult)
         allfields=cleanresult.split(' ')
-        workingversion=allfields[2]
+        workingversion = "n/a"
+        for line in filter(lambda line: "Sticky Tag" in line, result.split('\n')):
+            workingversion = line.split()[2]
         if workingversion=='(none)':
             workingversion='HEAD'
         if isverbose:
@@ -28,7 +30,7 @@ class checkforupdate:
             print '  project base : '+cmsswWorkingBase
             print '  script : '+scriptname
             print '  version : '+workingversion
-        return allfields[2]
+        return workingversion
     def checkforupdate(self,workingtag,isverbose=True):
         newtags=self.fetchTagsHTTP()
         if workingtag=='(none)':#means HEAD
@@ -38,7 +40,7 @@ class checkforupdate:
             return []
         w=workingtag.lstrip('V').split('-')
         if len(w)!=3:
-            print workingtag+' is not a release tag, can not compare'
+            #print workingtag+' is not a release tag, can not compare'
             return []
         w=[int(r) for r in w]
         updatetags=[]

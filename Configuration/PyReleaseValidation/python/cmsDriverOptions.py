@@ -76,6 +76,7 @@ def OptionsFromItems(items):
     # <type>_<energy>_<step>.root
     prec_step = {"NONE":"",
                  "ALL":"",
+                 "LHE":"",
                  "GEN":"",
                  "reGEN":"",
                  "SIM":"GEN",
@@ -144,7 +145,7 @@ def OptionsFromItems(items):
 
     filesuffix = {"LHE": "lhe", "EDM": "root", "MCDB": "", "DQM":"root"}[options.filetype]
 
-    if options.filein=="" and not (first_step in ("ALL","GEN","SIM_CHAIN")):
+    if options.filein=="" and not (first_step in ("ALL","LHE","GEN","SIM_CHAIN")):
         options.dirin="file:"+options.dirin.replace('file:','')
         options.filein=trimmedEvtType+"_"+prec_step[first_step]+"."+filesuffix
 

@@ -214,8 +214,10 @@ int cond::AuthenticationManager::execute(){
     std::string principal = getOptionValue<std::string>("princ_name");
     coral_bridge::AuthenticationCredentialSet source;
     if( !coral_bridge::parseXMLAuthenticationFile( fileName, source ) ){
+      std::cout <<"Error: XML parsing failed."<<std::endl;
       return 1;
     }
+    std::cout <<"Importing "<<source.data().size()<<" connection items."<<std::endl;
     credDb.importForPrincipal( principal, source );
     return 0;
   }

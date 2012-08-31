@@ -24,8 +24,6 @@ class SurfaceDeformation
   typedef Topology::Vector2D             Vector2D;
   typedef Topology::MathVector2D         MathVector2D;
 
-  virtual ~SurfaceDeformation() {}
-
   virtual SurfaceDeformation* clone() const = 0;
 
   /// specific type, i.e. SurfaceDeformationFactory::Type

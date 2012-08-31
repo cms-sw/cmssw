@@ -104,7 +104,7 @@ namespace evf{
     pthread_mutex_init(&ep_guard_lock_,0);
   }
 
-  FWEPWrapper::~FWEPWrapper() {delete evtProcessor_; evtProcessor_=0;}
+  FWEPWrapper::~FWEPWrapper() {if (0!=evtProcessor_) delete evtProcessor_; evtProcessor_=0;}
 
   void FWEPWrapper::publishConfigAndMonitorItems(bool multi)
   {
@@ -204,7 +204,16 @@ namespace evf{
       
     LOG4CPLUS_INFO(log_,"Initialize CMSSW EventProcessor.");
     LOG4CPLUS_INFO(log_,"CMSSW_BASE:"<<getenv("CMSSW_BASE"));
-  
+ 
+    //end job of previous EP instance
+    if (0!=evtProcessor_) {
+	edm::event_processor::State st = evtProcessor_->getState();
+	if(st == edm::event_processor::sJobReady || st == edm::event_processor::sDone) {
+	  evtProcessor_->endJob();
+	}
+        delete evtProcessor_;
+	evtProcessor_=0;
+    }
 
     // job configuration string
     ParameterSetRetriever pr(configString_);
@@ -223,6 +232,7 @@ namespace evf{
     else
       pdesc = boost::shared_ptr<edm::ProcessDesc>(new edm::ProcessDesc(configuration_));
     pServiceSets = pdesc->getServicesPSets();
+
     // add default set of services
     if(!servicesDone_) {
       //DQMStore should not be created in the Master (MP case) since this poses problems in the slave
@@ -324,7 +334,6 @@ namespace evf{
     defaultServices.push_back("JobReportService");
     pdesc->addServices(defaultServices, forcedServices);
     pthread_mutex_lock(&ep_guard_lock_);
-    if (0!=evtProcessor_) delete evtProcessor_;
     
     evtProcessor_ = new edm::EventProcessor(pdesc,
 					    serviceToken_,
@@ -455,22 +464,41 @@ namespace evf{
     LOG4CPLUS_WARN(log_,"FUEventProcessor::stopEventProcessor.1 state "
 		   << evtProcessor_->stateName(st));
     edm::EventProcessor::StatusCode rc = edm::EventProcessor::epSuccess;
-    if(!(st==edm::event_processor::sStopping || st==edm::event_processor::sJobReady
-	 || st==edm::event_processor::sDone)){
-      ::sleep(1);
+
+    //total stopping time allowed before epTimeout/epOther
+    unsigned int stopTimeLeft = (timeoutOnStop_.value_+1)*1000000;
+    if (timeoutOnStop_.value_==0) stopTimeLeft=1500000;
+ 
+    while (!(st==edm::event_processor::sStopping || st==edm::event_processor::sJobReady
+			             || st==edm::event_processor::sDone)) {
+      usleep(100000);
       st = evtProcessor_->getState();
-      if(st!=edm::event_processor::sStopping) {
-	LOG4CPLUS_WARN(log_,
-		       "FUEventProcessor::stopEventProcessor.2 After 1s - state: "
-		       << evtProcessor_->stateName(st)); 
-	return edm::EventProcessor::epOther;
-	}
+      if (stopTimeLeft<500000) {
+        break;
+      }
+      stopTimeLeft-=100000;
+    }
+    //if already in stopped state
+    if (st==edm::event_processor::sJobReady || st==edm::event_processor::sDone) 
+      return edm::EventProcessor::epSuccess;
+
+    //if not even in stopping state
+    if(st!=edm::event_processor::sStopping) {
+      LOG4CPLUS_WARN(log_,
+	  "FUEventProcessor::stopEventProcessor.2 After 1s - state: "
+	  << evtProcessor_->stateName(st)); 
+      return edm::EventProcessor::epOther;
     }
     LOG4CPLUS_WARN(log_,"FUEventProcessor::stopEventProcessor.3 state "
-		   << evtProcessor_->stateName(st));
+	<< evtProcessor_->stateName(st));
+
+    //use remaining time left for the framework timeout
+    if (stopTimeLeft<1000000) stopTimeLeft=1000000;
+    stopTimeLeft/=1000000;
+    if (timeoutOnStop_.value_==0) stopTimeLeft=0;
 
     try  {
-      rc = evtProcessor_->waitTillDoneAsync(timeoutOnStop_.value_);
+      rc = evtProcessor_->waitTillDoneAsync(stopTimeLeft);
       watching_ = false;
     }
     catch(cms::Exception &e) {
@@ -525,7 +553,6 @@ namespace evf{
     watching_ = false;
     if(rc != edm::EventProcessor::epTimedOut)
       {
-	
 	if(st == edm::event_processor::sJobReady || st == edm::event_processor::sDone)
 	  evtProcessor_->endJob();
 	pthread_mutex_lock(&ep_guard_lock_);

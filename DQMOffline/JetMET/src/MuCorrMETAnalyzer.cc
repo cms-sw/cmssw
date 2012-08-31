@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/04/19 11:51:50 $
- *  $Revision: 1.9 $
+ *  $Date: 2012/04/20 14:37:48 $
+ *  $Revision: 1.10 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -57,8 +57,8 @@ void MuCorrMETAnalyzer::beginJob(DQMStore * dbe) {
 
   // Other data collections
   HcalNoiseRBXCollectionTag   = parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection");
-  HcalNoiseSummaryTag         = parameters.getParameter<edm::InputTag>("HcalNoiseSummary");
   theJetCollectionLabel       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
+  HBHENoiseFilterResultTag    = parameters.getParameter<edm::InputTag>("HBHENoiseFilterResultLabel");
 
   // misc
   _verbose     = parameters.getParameter<int>("verbose");
@@ -87,7 +87,6 @@ void MuCorrMETAnalyzer::beginJob(DQMStore * dbe) {
   _FolderNames.push_back("All");
   _FolderNames.push_back("Cleanup");
   _FolderNames.push_back("HcalNoiseFilter");
-  _FolderNames.push_back("HcalNoiseFilterTight");
   _FolderNames.push_back("JetID");
   _FolderNames.push_back("JetIDTight");
 
@@ -97,7 +96,6 @@ void MuCorrMETAnalyzer::beginJob(DQMStore * dbe) {
     if (*ic=="Cleanup")              bookMESet(DirName+"/"+*ic);
     if (_allSelection){
     if (*ic=="HcalNoiseFilter")      bookMESet(DirName+"/"+*ic);
-    if (*ic=="HcalNoiseFilterTight") bookMESet(DirName+"/"+*ic);
     if (*ic=="JetID")                bookMESet(DirName+"/"+*ic);
     if (*ic=="JetIDTight")           bookMESet(DirName+"/"+*ic);
     }
@@ -370,12 +368,15 @@ void MuCorrMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     if (_verbose) std::cout << "MuCorrMETAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
   }
   
-  edm::Handle<HcalNoiseSummary> HNoiseSummary;
-  iEvent.getByLabel(HcalNoiseSummaryTag,HNoiseSummary);
-  if (!HNoiseSummary.isValid()) {
-    LogDebug("") << "MuCorrMETAnalyzer: Could not find Hcal NoiseSummary product" << std::endl;
-    if (_verbose) std::cout << "MuCorrMETAnalyzer: Could not find Hcal NoiseSummary product" << std::endl;
+
+  edm::Handle<bool> HBHENoiseFilterResultHandle;
+  iEvent.getByLabel(HBHENoiseFilterResultTag, HBHENoiseFilterResultHandle);
+  bool HBHENoiseFilterResult = *HBHENoiseFilterResultHandle;
+  if (!HBHENoiseFilterResultHandle.isValid()) {
+    LogDebug("") << "MuCorrMETAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
+    if (_verbose) std::cout << "MuCorrMETAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
   }
+
 
   edm::Handle<reco::CaloJetCollection> caloJets;
   iEvent.getByLabel(theJetCollectionLabel, caloJets);
@@ -475,8 +476,7 @@ void MuCorrMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   // ==========================================================
   // HCAL Noise filter
   
-  bool bHcalNoiseFilter      = HNoiseSummary->passLooseNoiseFilter();
-  bool bHcalNoiseFilterTight = HNoiseSummary->passTightNoiseFilter();
+  bool bHcalNoiseFilter = HBHENoiseFilterResult;
 
   // ==========================================================
   // Reconstructed MET Information - fill MonitorElements
@@ -489,7 +489,6 @@ void MuCorrMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     if (*ic=="Cleanup" && bHcalNoiseFilter && bJetID) fillMESet(iEvent, DirName+"/"+*ic, *muCorrmet);
     if (_allSelection) {
     if (*ic=="HcalNoiseFilter"      && bHcalNoiseFilter )       fillMESet(iEvent, DirName+"/"+*ic, *muCorrmet);
-    if (*ic=="HcalNoiseFilterTight" && bHcalNoiseFilterTight )  fillMESet(iEvent, DirName+"/"+*ic, *muCorrmet);
     if (*ic=="JetID"      && bJetID)                            fillMESet(iEvent, DirName+"/"+*ic, *muCorrmet);
     if (*ic=="JetIDTight" && bJetIDTight)                       fillMESet(iEvent, DirName+"/"+*ic, *muCorrmet);
     }

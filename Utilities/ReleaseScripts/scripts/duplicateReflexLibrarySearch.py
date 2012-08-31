@@ -60,7 +60,7 @@ equivDict = \
          {'GsfTrackReco'          : ['GsfTrack.*']},
          {'METReco'               : ['reco::(Calo|PF|Gen|)MET','reco::PFClusterMET']},
          {'ParticleFlowReco'      : ['reco::RecoPFClusterRefCandidateRef.*']},
-         {'ParticleFlowCandidate' : ['reco::PFCandidateRef','reco::PFCandidateFwdRef']},
+         {'ParticleFlowCandidate' : ['reco::PFCandidateRef','reco::PFCandidateFwdRef','reco::PFCandidate']},
          {'PhysicsToolsObjects'   : ['PhysicsTools::Calibration']},
          {'RecoCandidate'         : ['reco::Candidate']},
          {'TrackReco'             : ['reco::Track']},

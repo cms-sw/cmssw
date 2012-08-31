@@ -57,7 +57,7 @@ MultiplicityCorrelatorHistogramMaker::MultiplicityCorrelatorHistogramMaker(const
 	    iConfig.getParameter<std::string>("yDetLabel").c_str(),
 	    iConfig.getParameter<std::string>("xDetLabel").c_str());
     m_yvsxmultprofvsbxrun = m_fhm.makeTProfile2D(hname,htitle,
-						 3564,-0.5,3564-0.5,
+						 3564,0.5,3563.5,
 						 iConfig.getParameter<unsigned int>("xBins"),0.,iConfig.getParameter<double>("xMax"));
     sprintf(hname,"%sVs%sprofvsbx",
 	    iConfig.getParameter<std::string>("xDetLabel").c_str(),
@@ -66,7 +66,7 @@ MultiplicityCorrelatorHistogramMaker::MultiplicityCorrelatorHistogramMaker(const
 	    iConfig.getParameter<std::string>("xDetLabel").c_str(),
 	    iConfig.getParameter<std::string>("yDetLabel").c_str());
     m_xvsymultprofvsbxrun = m_fhm.makeTProfile2D(hname,htitle,
-						 3564,-0.5,3564-0.5,
+						 3564,0.5,3563.5,
 						 iConfig.getParameter<unsigned int>("yBins"),0.,iConfig.getParameter<double>("yMax"));
   }
   
@@ -98,7 +98,7 @@ MultiplicityCorrelatorHistogramMaker::MultiplicityCorrelatorHistogramMaker(const
 	      iConfig.getParameter<std::string>("yDetLabel").c_str(),
 	      iConfig.getParameter<std::string>("xDetLabel").c_str()
 	      );
-      m_atanyoverxvsbxrun2D = m_fhm.makeTH2F(hname,htitle,3564,-0.5,3564-0.5,
+      m_atanyoverxvsbxrun2D = m_fhm.makeTH2F(hname,htitle,3564,-0.5,3563.5,
 					   iConfig.getParameter<unsigned int>("rBins"),0.,1.6);
     }
     if(m_runHistoBXProfile) {
@@ -110,7 +110,7 @@ MultiplicityCorrelatorHistogramMaker::MultiplicityCorrelatorHistogramMaker(const
 	      iConfig.getParameter<std::string>("yDetLabel").c_str(),
 	      iConfig.getParameter<std::string>("xDetLabel").c_str()
 	      );
-      m_atanyoverxvsbxrun = m_fhm.makeTProfile(hname,htitle,3564,-0.5,3564-0.5);
+      m_atanyoverxvsbxrun = m_fhm.makeTProfile(hname,htitle,3564,-0.5,3563.5);
     }
   }
 

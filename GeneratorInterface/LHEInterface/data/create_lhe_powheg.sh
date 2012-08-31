@@ -151,7 +151,10 @@ echo "LIBS+=-lz -lstdc++" >> Makefile
 LHA_BASE="`readlink -f "$LHAPATH/../../../"`"
 
 #slc5_amd64_gcc462/external/lhapdf/5.8.5 has a bug. if this version is used, replace it by 5.8.5-cms:
+if [ `basename $LHA_BASE` == "5.8.5" ]
+then  
 LHA_BASE="`echo "$LHA_BASE" | sed 's@slc5_amd64_gcc462/external/lhapdf/5.8.5@slc5_amd64_gcc462/external/lhapdf/5.8.5-cms@'`"
+fi
 
 LHA_BASE_OLD="`$LHA_BASE/bin/lhapdf-config --prefix`"
 cat > lhapdf-config-wrap <<EOF

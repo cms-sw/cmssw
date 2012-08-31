@@ -33,7 +33,7 @@ namespace evf {
 /**
  * Table of resources linked with the Shared Memory Buffer
  *
- * $Author: aspataru $
+ * $Author: smorovic $
  *
  */
 
@@ -166,6 +166,9 @@ public:
 	/// reset the ShmBuffer to the initial state
 	void resetIPC();
 
+	//debugging
+	std::string printStatus();
+
 private:
 
 	/**
@@ -179,7 +182,20 @@ private:
 	 */
 	void rethrowShmBufferException(evf::Exception& e, std::string where) const throw (evf::Exception);
 
+	/**
+	 * Spawned as a thread watching for shutdown of clients.
+	 */
+	void shutdownWatchdog(unsigned int timeout);
+
+
 	FUShmBuffer *shmBuffer_;
+
+	//workloop termination status
+	bool sDataActive_;
+	bool sDqmActive_;
+
+	std::atomic_bool watchDogEnd_;
+
 
 };
 

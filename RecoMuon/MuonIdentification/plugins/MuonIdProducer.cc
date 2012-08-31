@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.67 2011/09/23 13:06:53 ptraczyk Exp $
+// $Id: MuonIdProducer.cc,v 1.68 2011/11/01 16:01:49 bellan Exp $
 //
 //
 
@@ -277,16 +277,33 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
 
    reco::Muon aMuon;
    reco::Muon::MuonTrackTypePair chosenTrack;
-   
+   reco::TrackRef tpfmsRef;
+   reco::TrackRef pickyRef;
+   bool useSigmaSwitch = false;
+
    if (tpfmsCollectionHandle_.isValid() && !tpfmsCollectionHandle_.failedToGet() && 
-       pickyCollectionHandle_.isValid() && !pickyCollectionHandle_.failedToGet()) 
-       chosenTrack = muon::tevOptimized( links.globalTrack(), links.trackerTrack(), 
-                                         muon::getTevRefitTrack(links.globalTrack(), *tpfmsCollectionHandle_),
-                                         muon::getTevRefitTrack(links.globalTrack(), *pickyCollectionHandle_),
-                                         ptThresholdToFillCandidateP4WithGlobalFit_);
-     else chosenTrack = muon::sigmaSwitch( links.globalTrack(), links.trackerTrack(), 
-                                           sigmaThresholdToFillCandidateP4WithGlobalFit_,
-                                           ptThresholdToFillCandidateP4WithGlobalFit_);
+       pickyCollectionHandle_.isValid() && !pickyCollectionHandle_.failedToGet()) {
+       
+     tpfmsRef = muon::getTevRefitTrack(links.globalTrack(), *tpfmsCollectionHandle_);
+     pickyRef = muon::getTevRefitTrack(links.globalTrack(), *pickyCollectionHandle_);
+     
+     if (tpfmsRef.isNull() && pickyRef.isNull()){
+       edm::LogWarning("MakeMuonWithTEV")<<"Failed to get  TEV refits, fall back to sigma switch.";
+       useSigmaSwitch = true;
+     }
+   } else {
+     useSigmaSwitch = true;
+   }
+
+   if (useSigmaSwitch){
+     chosenTrack = muon::sigmaSwitch( links.globalTrack(), links.trackerTrack(), 
+				      sigmaThresholdToFillCandidateP4WithGlobalFit_,
+				      ptThresholdToFillCandidateP4WithGlobalFit_);
+   } else {
+     chosenTrack = muon::tevOptimized( links.globalTrack(), links.trackerTrack(), 
+				       tpfmsRef, pickyRef,
+				       ptThresholdToFillCandidateP4WithGlobalFit_);
+   }
    aMuon = makeMuon(*chosenTrack.first);
    aMuon.setInnerTrack( links.trackerTrack() );
    aMuon.setOuterTrack( links.standAloneTrack() );

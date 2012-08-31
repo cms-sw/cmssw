@@ -6,35 +6,6 @@ skimContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
 skimContent.outputCommands.append("drop *_*_*_SKIM")
 
 
-############
-from DPGAnalysis.Skims.cosmicSPSkim_cff import *
-
-cosmicMuonsBarrelOnlyPath = cms.Path(cosmicMuonsBarrelOnlySequence)
-cosmicMuonsPath = cms.Path(cosmicMuonsSequence)
-cosmicMuons1LegPath = cms.Path(cosmicMuons1LegSequence)
-globalCosmicMuonsBarrelOnlyPath = cms.Path(globalCosmicMuonsBarrelOnlySequence)
-cosmictrackfinderP5Path = cms.Path(cosmictrackfinderP5Sequence)
-globalCosmicMuonsPath = cms.Path(globalCosmicMuonsSequence)
-globalCosmicMuons1LegPath = cms.Path(globalCosmicMuons1LegSequence)
-
-SKIMStreamCosmicSP = cms.FilteredStream(
-            responsible = 'MU-POG TRK-DPG',
-                    name = 'CosmicSP',
-                    paths = (cosmicMuonsBarrelOnlyPath,
-                                              cosmicMuonsPath,
-                                              cosmicMuons1LegPath,
-                                              globalCosmicMuonsBarrelOnlyPath,
-                                              cosmictrackfinderP5Path,
-                                              globalCosmicMuonsPath,
-                                              globalCosmicMuons1LegPath
-
-                             ),
-                    content = skimContent.outputCommands,
-                    selectEvents = cms.untracked.PSet(),
-                    dataTier = cms.untracked.string('RAW-RECO')
-                    )
-
-
 
 #############
 from  DPGAnalysis.Skims.logErrorSkim_cff import *

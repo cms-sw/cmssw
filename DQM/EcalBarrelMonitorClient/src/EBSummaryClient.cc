@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2012/04/27 13:45:59 $
- * $Revision: 1.229 $
+ * $Date: 2012/05/18 09:11:54 $
+ * $Revision: 1.231 $
  * \author G. Della Ricca
  *
 */
@@ -81,7 +81,7 @@ EBSummaryClient::EBSummaryClient(const edm::ParameterSet& ps) {
 
   timingNHitThreshold_ = ps.getUntrackedParameter<int>("timingNHitThreshold", 5);
 
-  synchErrorThreshold_ = ps.getUntrackedParameter<int>("synchErrorThreshold", 5);
+  synchErrorThreshold_ = ps.getUntrackedParameter<double>("synchErrorThreshold", 0.01);
 
   // summary maps
   meIntegrity_            = 0;
@@ -157,6 +157,8 @@ EBSummaryClient::EBSummaryClient(const edm::ParameterSet& ps) {
   meLaserL3PNErr_       = 0;
   meLaserL4Err_         = 0;
   meLaserL4PNErr_       = 0;
+
+  meSummaryErr_ = 0;
 
   // additional histograms from tasks
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -285,6 +287,7 @@ void EBSummaryClient::setup(void) {
       meRecHitEnergy_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
       meRecHitEnergy_->setAxisTitle("jphi", 1);
       meRecHitEnergy_->setAxisTitle("jeta", 2);
+      meRecHitEnergy_->setAxisTitle("energy (GeV)", 3);
     }
     if(laserClient){
       if ( meOccupancyPN_ ) dqmStore_->removeElement( meOccupancyPN_->getName() );
@@ -330,6 +333,7 @@ void EBSummaryClient::setup(void) {
     mePedestalOnlineRMSMap_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
     mePedestalOnlineRMSMap_->setAxisTitle("jphi", 1);
     mePedestalOnlineRMSMap_->setAxisTitle("jeta", 2);
+    mePedestalOnlineRMSMap_->setAxisTitle("rms", 3);
 
     if ( mePedestalOnlineMean_ ) dqmStore_->removeElement( mePedestalOnlineMean_->getName() );
     name = "EBPOT pedestal G12 mean";
@@ -730,6 +734,7 @@ void EBSummaryClient::setup(void) {
     meTriggerTowerEt_ = dqmStore_->book2D(name, name, 72, 0., 72., 34, -17., 17.);
     meTriggerTowerEt_->setAxisTitle("jphi'", 1);
     meTriggerTowerEt_->setAxisTitle("jeta'", 2);
+    meTriggerTowerEt_->setAxisTitle("Et (GeV)", 3);
 
     if( meTriggerTowerEmulError_ ) dqmStore_->removeElement( meTriggerTowerEmulError_->getName() );
     name = "EBTTT emulator error quality summary";
@@ -758,6 +763,10 @@ void EBSummaryClient::setup(void) {
     meGlobalSummary_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
     meGlobalSummary_->setAxisTitle("jphi", 1);
     meGlobalSummary_->setAxisTitle("jeta", 2);
+
+    if(meSummaryErr_) dqmStore_->removeElement(meSummaryErr_->getName());
+    name = "EB global summary errors";
+    meSummaryErr_ = dqmStore_->book1D(name, name, 1, 0., 1.);
   }
 }
 
@@ -967,6 +976,8 @@ void EBSummaryClient::cleanup(void) {
   if ( meGlobalSummary_ ) dqmStore_->removeElement( meGlobalSummary_->getName() );
   meGlobalSummary_ = 0;
 
+  if(meSummaryErr_) dqmStore_->removeElement(meSummaryErr_->getName());
+  meSummaryErr_ = 0;
 }
 
 #ifdef WITH_ECAL_COND_DB
@@ -1115,12 +1126,16 @@ void EBSummaryClient::analyze(void) {
 
   if(meGlobalSummary_ ) meGlobalSummary_->setEntries( 0 );
 
+  if(meSummaryErr_) meSummaryErr_->Reset();
+
   MonitorElement* me(0);
   me = dqmStore_->get(prefixME_ + "/EBTimingTask/EBTMT timing map");
   TProfile2D* htmt(0);
   htmt = UtilsClient::getHisto(me, false, htmt);
 
   std::string subdir(subfolder_ == "" ? "" : subfolder_ + "/");
+
+  TH1F* oosTrend(0);
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
@@ -1143,6 +1158,15 @@ void EBSummaryClient::analyze(void) {
     TH2F* h2;
     TH2F* h3;
 
+    me = dqmStore_->get( prefixME_ + "/EcalInfo/EBMM DCC" );
+    norm01_ = UtilsClient::getHisto( me, cloneME_, norm01_ );
+
+    me = dqmStore_->get( prefixME_ + "/EBRawDataTask/" + subdir + "EBRDT L1A FE errors" );
+    synch01_ = UtilsClient::getHisto( me, cloneME_, synch01_ );
+
+    me = dqmStore_->get(prefixME_ + "/EBRawDataTask/" + subdir + "EBRDT accumulated FE synchronization errors");
+    oosTrend = UtilsClient::getHisto(me, cloneME_, oosTrend);
+
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
       int ism = superModules_[i];
@@ -1158,12 +1182,6 @@ void EBSummaryClient::analyze(void) {
 
       me = dqmStore_->get( prefixME_ + "/EBTimingTask/EBTMT timing " + Numbers::sEB(ism) );
       htmt01_[ism-1] = UtilsClient::getHisto( me, cloneME_, htmt01_[ism-1] );
-
-      me = dqmStore_->get( prefixME_ + "/EcalInfo/EBMM DCC" );
-      norm01_ = UtilsClient::getHisto( me, cloneME_, norm01_ );
-
-      me = dqmStore_->get( prefixME_ + "/EBRawDataTask/" + subdir + "EBRDT L1A FE errors" );
-      synch01_ = UtilsClient::getHisto( me, cloneME_, synch01_ );
 
       for ( int ie = 1; ie <= 85; ie++ ) {
         for ( int ip = 1; ip <= 20; ip++ ) {
@@ -2024,10 +2042,15 @@ void EBSummaryClient::analyze(void) {
         // are reverted back to yellow
         float iEntries=0;
 
-        if(synch01_) {
-	  float synchErrors = synch01_->GetBinContent(ism);
-          if(synchErrors > synchErrorThreshold_) xval=0;
-        }
+	if(norm01_ && synch01_) {
+	  float frac_synch_errors = 0.;
+	  float norm = norm01_->GetBinContent(ism);
+	  if(norm > 0) frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm);
+	  if(frac_synch_errors > synchErrorThreshold_){
+	    xval = 0;
+	    if(oosTrend && oosTrend->GetBinContent(oosTrend->GetNbinsX()) - oosTrend->GetBinContent(1) < 1.) xval += 3.;
+	  }
+	}
 
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter != superModules_.end()) {
@@ -2067,6 +2090,9 @@ void EBSummaryClient::analyze(void) {
 
     }
   }
+
+  if(meSummaryErr_)
+    meSummaryErr_->setBinContent(1, double(nGlobalErrors) / double(nValidChannels));
 
   float reportSummary = -1.0;
   if ( nValidChannels != 0 )
@@ -2110,6 +2136,28 @@ void EBSummaryClient::analyze(void) {
 	    if ( xval == 0 ) ++nGlobalErrorsTT[ipttx-1][iettx-1];
 	  }
 
+	}
+      }
+
+      // Countermeasure to partial TR failure
+      // make the whole SM red if more than 2 towers within a 2x2 matrix fails
+
+      for(int jeta(1); jeta <= 33; jeta++){
+	for(int jphi(1); jphi <= 71; jphi++){
+	  int nErr(0);
+	  if(nValidChannelsTT[jphi - 1][jeta - 1] > 0 && nGlobalErrorsTT[jphi - 1][jeta - 1] == nValidChannelsTT[jphi - 1][jeta - 1]) nErr += 1;
+	  if(nValidChannelsTT[jphi][jeta - 1] > 0 && nGlobalErrorsTT[jphi][jeta - 1] == nValidChannelsTT[jphi][jeta - 1]) nErr += 1;
+	  if(nValidChannelsTT[jphi - 1][jeta] > 0 && nGlobalErrorsTT[jphi - 1][jeta] == nValidChannelsTT[jphi - 1][jeta]) nErr += 1;
+	  if(nValidChannelsTT[jphi][jeta] > 0 && nGlobalErrorsTT[jphi][jeta] == nValidChannelsTT[jphi][jeta]) nErr += 1;
+	  if(nErr > 2){
+	    int jphi0(((jphi - 1) / 4) * 4);
+	    int jeta0(((jeta - 1) / 17) * 17);
+	    for(int jjphi(jphi0); jjphi < jphi0 + 4; jjphi++){
+	      for(int jjeta(jeta0); jjeta < jeta0 + 17; jjeta++){
+		nGlobalErrorsTT[jjphi][jjeta] = nValidChannelsTT[jjphi][jjeta];
+	      }
+	    }
+	  }
 	}
       }
 

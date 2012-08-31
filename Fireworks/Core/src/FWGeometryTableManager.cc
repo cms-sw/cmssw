@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jan  4 20:31:25 CET 2012
-// $Id: FWGeometryTableManager.cc,v 1.52 2012/04/30 19:59:36 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.53 2012/05/04 03:00:38 amraktad Exp $
 //
 
 // system include files
@@ -220,7 +220,7 @@ void FWGeometryTableManager::updateFilter(int iType)
    int numMatched = 0;
    for (Volumes_i i = m_volumes.begin(); i != m_volumes.end(); ++i)
    {
-      char* res = 0;
+      const char* res = 0;
       
       if (iType == FWGeometryTableView::kFilterMaterialName)
       {
