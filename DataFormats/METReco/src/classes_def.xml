@@ -1,11 +1,46 @@
 <lcgdict>
 
+  <class name="CommonMETData" ClassVersion="10">
+   <version ClassVersion="10" checksum="2091468611"/>
+  </class>
+  <class name="edm::Wrapper<CommonMETData>"/> 
+  <class name="std::vector<CommonMETData>"/> 
+  <class name="edm::Wrapper<std::vector<CommonMETData> >"/> 
+
   <class name="CorrMETData" ClassVersion="10">
    <version ClassVersion="10" checksum="1727583300"/>
   </class>
   <class name="edm::Wrapper<CorrMETData>"/> 
   <class name="std::vector<CorrMETData>"/> 
   <class name="edm::Wrapper<std::vector<CorrMETData> >"/> 
+
+  <class name="metsig::SigInputObj" ClassVersion="10">
+   <version ClassVersion="10" checksum="802320509"/>
+  </class>
+  <class name="edm::Wrapper<metsig::SigInputObj>"/> 
+  <class name="std::vector<metsig::SigInputObj>"/> 
+  <class name="edm::Wrapper<std::vector<metsig::SigInputObj> >"/> 
+
+  <class name="reco::JetInfo" ClassVersion="10">
+   <version ClassVersion="10" checksum="1396416553"/>
+  </class>
+  <class name="reco::JetInfoCollection" />
+  <class name="edm::Wrapper<reco::JetInfoCollection>" />
+
+  <class name="reco::MVAMEtJetInfo" ClassVersion="12">
+   <version ClassVersion="10" checksum="695030979"/>
+   <version ClassVersion="11" checksum="2096949665"/>
+   <version ClassVersion="12" checksum="774362219"/>
+  </class>
+  <class name="reco::MVAMEtJetInfoCollection" />
+  <class name="edm::Wrapper<reco::MVAMEtJetInfoCollection>" />
+
+  <class name="reco::MVAMEtPFCandInfo" ClassVersion="11">
+   <version ClassVersion="10" checksum="2500257969"/>
+   <version ClassVersion="11" checksum="1494751375"/>
+  </class>
+  <class name="reco::MVAMEtPFCandInfoCollection" />
+  <class name="edm::Wrapper<reco::MVAMEtPFCandInfoCollection>" />
 
   <class name="SpecificCaloMETData" ClassVersion="10">
    <version ClassVersion="10" checksum="3022746385"/>
@@ -19,11 +54,6 @@
   <class name="SpecificGenMETData" ClassVersion="10">
    <version ClassVersion="10" checksum="2173201550"/>
   </class>
-
-  <class name="CommonMETData" ClassVersion="10">
-   <version ClassVersion="10" checksum="2091468611"/>
-  </class>
-  <class name="std::vector<CommonMETData>"/>
 
   <class name="reco::MET" ClassVersion="10">
    <version ClassVersion="10" checksum="3898304931"/>

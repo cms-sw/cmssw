@@ -31,8 +31,11 @@
 #include "DataFormats/METReco/interface/PhiWedge.h"
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
+#include "DataFormats/METReco/interface/SigInputObj.h"
 #include "DataFormats/METReco/interface/MVAMETData.h"
 #include "DataFormats/METReco/interface/MVAMETDataFwd.h"
+#include "DataFormats/METReco/interface/MVAMEtData.h"
+#include "DataFormats/METReco/interface/MVAMEtDataFwd.h"
 #include "DataFormats/METReco/interface/AnomalousECALVariables.h"
 #include "DataFormats/METReco/interface/BoundaryInformation.h"
 
@@ -107,8 +110,6 @@ namespace {
     edm::reftobase::RefHolder<reco::GenMETRef> dummy34;
     edm::reftobase::RefHolder<reco::PFMETRef> dummy35;
     edm::reftobase::RefHolder<reco::PFClusterMETRef> dummy40;
-    // used for backward compatibility
-    std::vector<CommonMETData> bcv1;
 
     std::vector<SpecificCaloMETData> bcv2;
     std::vector<SpecificPFMETData> bpfv2;
@@ -142,14 +143,32 @@ namespace {
     std::vector<edm::Ref<std::vector<reco::CaloMET> > > vrvcm;
     std::vector<edm::Ref<std::vector<reco::MET> > > vrvrm;
 
-    CorrMETData dummy41;
-    edm::Wrapper<CorrMETData> dummy42;
-    std::vector<CorrMETData> dummy43;
-    edm::Wrapper<std::vector<CorrMETData> > dummy44;
+    CommonMETData dummy41;
+    edm::Wrapper<CommonMETData> dummy42;
+    std::vector<CommonMETData> dummy43;
+    edm::Wrapper<std::vector<CommonMETData> > dummy44;
+
+    CorrMETData dummy51;
+    edm::Wrapper<CorrMETData> dummy52;
+    std::vector<CorrMETData> dummy53;
+    edm::Wrapper<std::vector<CorrMETData> > dummy54;
+
+    metsig::SigInputObj dummy61;
+    edm::Wrapper<metsig::SigInputObj> dummy62;
+    std::vector<metsig::SigInputObj> dummy63;
+    edm::Wrapper<std::vector<metsig::SigInputObj> > dummy64;
 
     reco::JetInfo dummyJetInfo;
     reco::JetInfoCollection dummyJetInfoCollection;
     edm::Wrapper<reco::JetInfoCollection> dummyJetInfoCollectionWrapped;
+
+    reco::MVAMEtJetInfo dummyMVAMEtJetInfo;
+    reco::MVAMEtJetInfoCollection dummyMVAMEtJetInfoCollection;
+    edm::Wrapper<reco::MVAMEtJetInfoCollection> dummyMVAMEtJetInfoCollectionWrapped;
+    
+    reco::MVAMEtPFCandInfo dummyMVAMEtPFCandInfo;
+    reco::MVAMEtPFCandInfoCollection dummyMVAMEtPFCandInfoCollection;
+    edm::Wrapper<reco::MVAMEtPFCandInfoCollection> dummyMVAMEtPFCandInfoCollectionWrapped;
 
     AnomalousECALVariables dummyBE20;
     edm::Wrapper<AnomalousECALVariables> dummyBE21;
