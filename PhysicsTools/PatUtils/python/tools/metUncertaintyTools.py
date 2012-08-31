@@ -1061,7 +1061,7 @@ class RunMEtUncertainties(ConfigToolBase):
             return
 
         if not hasattr(process, "noPileUpPFMEt"):
-            process.load("JetMETCorrections.Type1MET.noPileUpPFMET_cff")
+            process.load("JetMETCorrections.METPUSubtraction.noPileUpPFMET_cff")
 
         lastUncorrectedJetCollectionForNoPileUpPFMEt = 'ak5PFJets'
         lastCorrectedJetCollectionForNoPileUpPFMEt = 'calibratedAK5PFJetsForNoPileUpMEt'
