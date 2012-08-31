@@ -624,17 +624,7 @@ void CalorimetryManager::reconstructECAL(const FSimTrack& track) {
   }
 
   double emeas = 0.;
-  if(sigma>0.)
-    emeas = random->gaussShoot(e,sigma);
-
-  /*
-  double emeas = -0.000001;  
-  if(sigma>0.){
-    do{
-      emeas = random->gaussShoot(e,sigma);  
-    } while (emeas < 0. );
-  } 
-  */
+  if(sigma>0.) emeas = gaussShootNoNegative(e,sigma);
 
   if(debug_)
     std::cout << "FASTEnergyReconstructor::reconstructECAL : " 
@@ -700,8 +690,8 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
   double EGen  = myTrack.hcalEntrance().e();
   double e     = 0.;
   double sigma = 0.;
-  //double emeas = 0.;
-  double emeas = -0.0001;
+  double emeas = 0.;
+  //double emeas = -0.0001;
  
   if(pid == 13) { 
     //    std::cout << " We should not be here " << std::endl;
@@ -718,12 +708,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
 	myHDResponse_->responseHCAL(0, EGen, pathEta, 0); // last par. = 0 = e/gamma
       e     = response.first;              //
       sigma = response.second;             //
-      emeas = random->gaussShoot(e,sigma); //
-      /*
-      do{
-	emeas = random->gaussShoot(e,sigma);  
-      } while (emeas < 0. );  
-      */
+      emeas = gaussShootNoNegative(e,sigma);
 
       //  cout <<  "CalorimetryManager::reconstructHCAL - e/gamma !!!" << std::endl;
       if(debug_)
@@ -733,12 +718,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
       e     = myHDResponse_->getHCALEnergyResponse(EGen,hit);
       sigma = myHDResponse_->getHCALEnergyResolution(EGen, hit);
       
-      emeas = random->gaussShoot(e,sigma);  
-      /*
-      do{
-	emeas = random->gaussShoot(e,sigma);  
-      } while (emeas < 0. );
-      */
+      emeas = gaussShootNoNegative(e,sigma);
     }
     
 
@@ -810,8 +790,8 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack){//,
   double e     = 0.;
   double sigma = 0.;
 
-  //double emeas = 0.;  
-  double emeas = -0.000001; 
+  double emeas = 0.;  
+  //double emeas = -0.000001; 
 
   //===========================================================================
   if(eGen > 0.) {  
@@ -1000,12 +980,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack){//,
 	sigma = response.second;
       }
       
-      emeas = random->gaussShoot(e,sigma);   
-      /*
-      do{
-	emeas = random->gaussShoot(e,sigma);  
-      } while (emeas < 0.);   
-      */
+      emeas = gaussShootNoNegative(e,sigma);
       double correction = emeas / eGen;
       
       // RespCorrP factors (ECAL and HCAL separately) calculation
@@ -1720,6 +1695,25 @@ void CalorimetryManager::loadFromPreshower(edm::PCaloHitContainer & c) const
 	    }
 	}
     }
+}
+
+// Remove (most) hits with negative energies
+double CalorimetryManager::gaussShootNoNegative(double e, double sigma) 
+{
+  double out = -0.0001;
+  if (e >= 0.) {
+    while (out < 0.) out = random->gaussShoot(e,sigma);
+  } else { // give up on re-trying, otherwise too much time can be lost before emeas comes out positive
+    out = random->gaussShoot(e,sigma);
+  }
+  /*
+      if (out < 0.) {
+	std::cout << "e = " << e << " - sigma = " << sigma << " - emeas < 0 (!)" << std::endl;
+      } else {
+	std::cout << "e = " << e << " - sigma = " << sigma << " - emeas > 0 " << std::endl;
+      }
+  */
+  return out;
 }
 
 
