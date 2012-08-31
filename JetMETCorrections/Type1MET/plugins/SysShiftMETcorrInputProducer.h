@@ -8,9 +8,9 @@
  *
  * \authors Christian Veelken, LLR
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: SysShiftMETcorrInputProducer.h,v 1.1 2012/04/03 11:51:22 veelken Exp $
+ * $Id: SysShiftMETcorrInputProducer.h,v 1.2 2012/04/09 14:19:01 veelken Exp $
  *
  */
 
@@ -20,7 +20,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include <TFormula.h>
+#include "JetMETCorrections/Type1MET/interface/SysShiftMETcorrExtractor.h"
 
 #include <string>
 
@@ -37,11 +37,12 @@ class SysShiftMETcorrInputProducer : public edm::EDProducer
 
   std::string moduleLabel_;
 
-  edm::InputTag src_; // PFCandidate input collection
-  edm::InputTag srcVertices_; // Vertex input collection
+  edm::InputTag srcMEt_;
+  edm::InputTag srcVertices_;
+  edm::InputTag srcJets_; 
+  double jetPtThreshold_;
 
-  TFormula* corrPx_;
-  TFormula* corrPy_;
+  SysShiftMETcorrExtractor* extractor_;
 };
 
 #endif
