@@ -264,6 +264,18 @@ SKIMStreamHLTZEROBIASPUSD = cms.FilteredStream(
 
 
 ## exo skims
+from Configuration.Skimming.PDWG_MonoPhoton_cff import *
+EXOMonoPhotonPath = cms.Path(monophotonSkimSequence)
+SKIMStreamEXOMonoPhoton = cms.FilteredStream(
+    responsible = 'EXO',
+    name = 'EXOMonoPhoton',
+    paths = (EXOMonoPhotonPath),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO') 
+    )
+
+
 """
 from SUSYBSMAnalysis.Skimming.EXOLLResSkim_cff import *
 exoLLResmmPath = cms.Path(exoLLResdiMuonSequence)
