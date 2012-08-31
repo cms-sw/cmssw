@@ -9,9 +9,6 @@ from RecoMuon.MuonSeedGenerator.CosmicMuonSeedProducer_cfi import *
 
 # Stand alone muon track producer
 from RecoMuon.CosmicMuonProducer.cosmicMuons_cff import *
-#Mike: For backport at 53X : adding RPC back to the fit 
-cosmicMuons.TrajectoryBuilderParameters.BackwardMuonTrajectoryUpdatorParameters.ExcludeRPCFromFit = cms.bool(False)
-cosmicMuons.TrajectoryBuilderParameters.MuonTrajectoryUpdatorParameters.ExcludeRPCFromFit = cms.bool(False)
 
 # Global muon track producer
 from RecoMuon.CosmicMuonProducer.globalCosmicMuons_cff import *
