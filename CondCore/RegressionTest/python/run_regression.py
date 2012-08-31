@@ -269,7 +269,6 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	return 1
 
     def finalize( self, writeFlag ):
-	runID = self.resDb.getNewRunId()
 
 	reStr = "\!L\!([^!]+)\!TR\!([^!]+)\!TA\!([^!]+)\!RR\!([^!]+)\!RA\!([^!]+)"
 	for i in range (0, self.n_res):
@@ -281,6 +280,9 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	stdoutMod = pattern.sub("", self.out_value)
 	timeStamp = self.resDb.getDate()
         stat = "SUCCESS"
+	runID = 0
+	if( writeFlag ):
+		runID = self.resDb.getNewRunId()
 	for match in matching:
 		#print match
 		if( writeFlag):
