@@ -66,6 +66,12 @@ namespace reco {
     return casts;
   }
 
+  typedef pair<int,edm::FunctionWithDict> OK;
+  bool nCasts(OK const& a, OK const& b) {
+    return a.first < b.first;
+  }
+
+
   pair<edm::FunctionWithDict, bool> findMethod(const edm::TypeWithDict & t, 
                                 const string & name, 
                                 const std::vector<AnyMethodArgument> &args, 
@@ -106,8 +112,8 @@ namespace reco {
     // found at least one method
     if (!oks.empty()) {
         if (oks.size() > 1) {
-            // sort by number of conversiosns needed
-            sort(oks.begin(), oks.end());
+            // sort by number of conversions needed
+            sort(oks.begin(), oks.end(), nCasts);
 
             if (oks[0].first == oks[1].first) { // two methods with same ambiguity
                 throw parser::Exception(iIterator)
