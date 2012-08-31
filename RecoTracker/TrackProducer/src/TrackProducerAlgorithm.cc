@@ -234,7 +234,9 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
       edm::LogError("CannotPropagateToBeamLine")<<"the state on the closest measurement isnot valid. skipping track.";
       delete theTraj;
       return false;
-    }    const FreeTrajectoryState & stateForProjectionToBeamLine=*theTraj->closestMeasurement(GlobalPoint(bs.x0(),bs.y0(),bs.z0())).updatedState().freeState();
+    }    
+
+    const FreeTrajectoryState & stateForProjectionToBeamLine=*theTraj->closestMeasurement(GlobalPoint(bs.x0(),bs.y0(),bs.z0())).updatedState().freeState();
 
     LogDebug("TrackProducer") << "stateForProjectionToBeamLine=" << stateForProjectionToBeamLine;
 

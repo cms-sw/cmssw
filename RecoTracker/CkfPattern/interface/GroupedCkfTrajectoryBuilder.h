@@ -202,7 +202,7 @@ private:
 
   /** If the value is greater than zero, the reconstructions for looper is turned on for
       candidates with pt greater than maxPtForLooperReconstruction */
-  float maxPtForLooperReconstruction;
+  float maxPt2ForLooperReconstruction;
 
   float maxDPhiForLooperReconstruction;
 

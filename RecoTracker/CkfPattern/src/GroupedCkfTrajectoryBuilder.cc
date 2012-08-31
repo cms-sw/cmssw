@@ -135,8 +135,9 @@ GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
   theMinNrOf2dHitsForRebuild  = 2;
   theRequireSeedHitsInRebuild = conf.getParameter<bool>("requireSeedHitsInRebuild");
   theMinNrOfHitsForRebuild    = max(0,conf.getParameter<int>("minNrOfHitsForRebuild"));
-  maxPtForLooperReconstruction     = conf.existsAs<double>("maxPtForLooperReconstruction") ? 
+  maxPt2ForLooperReconstruction     = conf.existsAs<double>("maxPtForLooperReconstruction") ? 
     conf.getParameter<double>("maxPtForLooperReconstruction") : 0;
+  maxPt2ForLooperReconstruction *=maxPt2ForLooperReconstruction;
   maxDPhiForLooperReconstruction     = conf.existsAs<double>("maxDPhiForLooperReconstruction") ? 
     conf.getParameter<double>("maxDPhiForLooperReconstruction") : 2.0;
 
@@ -350,11 +351,12 @@ GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (TempTrajectory const& sta
   }
 }
 
+#ifdef EDM_ML_DEBUG
 std::string whatIsTheNextStep(TempTrajectory const& traj , std::pair<TrajectoryStateOnSurface,std::vector<const DetLayer*> >& stateAndLayers){
   std::stringstream buffer;
   vector<const DetLayer*> & nl = stateAndLayers.second;
-#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
-#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
+  // #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
+  // #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
   //B.M. TkLayerName layerName;
   //B.M. buffer << "Started from " << layerName(traj.lastLayer()) 
   const BarrelDetLayer* sbdl = dynamic_cast<const BarrelDetLayer*>(traj.lastLayer());
@@ -389,7 +391,7 @@ std::string whatIsTheStateToUse(TrajectoryStateOnSurface &initial, TrajectorySta
          << " , pt / phi / pz /charge = " 
 	 << stateToUse.globalMomentum().perp() << " / "  
 	 << stateToUse.globalMomentum().phi() << " / " 
-	 << stateToUse.globalMomentum().z() << " / " 
+    	 << stateToUse.globalMomentum().z() << " / " 
 	 << stateToUse.charge()
 	 << " for layer at "<< l << endl;
   buffer << "     errors:";
@@ -407,7 +409,7 @@ std::string whatIsTheStateToUse(TrajectoryStateOnSurface &initial, TrajectorySta
   //buffer << endl;
   return buffer.str();
 }
-
+#endif
 
 bool 
 GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj, 
@@ -420,13 +422,16 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
   std::pair<TSOS,std::vector<const DetLayer*> > stateAndLayers = findStateAndLayers(traj);
 
 
-  if(maxPtForLooperReconstruction>0){
+  if(maxPt2ForLooperReconstruction>0){
     if(
        //stateAndLayers.second.size()==0 &&
-       traj.lastLayer()->location()==0 && 
-       stateAndLayers.first.globalMomentum().perp()<maxPtForLooperReconstruction &&
-       stateAndLayers.first.globalMomentum().perp()>0.3)
-      stateAndLayers.second.push_back(traj.lastLayer());
+       traj.lastLayer()->location()==0) {
+      float pt2 = stateAndLayers.first.globalMomentum().perp2();
+      if (pt2<maxPt2ForLooperReconstruction &&
+	  pt2>(0.3f*0.3f)
+	  )
+	stateAndLayers.second.push_back(traj.lastLayer());
+    }
   }
 
   vector<const DetLayer*>::iterator layerBegin = stateAndLayers.second.begin();
@@ -437,7 +442,9 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
   //     return false;
   //   }
   
+#ifdef EDM_ML_DEBUG
   LogDebug("CkfPattern")<<whatIsTheNextStep(traj, stateAndLayers);
+#endif
   
   bool foundSegments(false);
   bool foundNewCandidates(false);
@@ -447,9 +454,9 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
     TSOS stateToUse = stateAndLayers.first;
 
     double dPhiCacheForLoopersReconstruction(0);
-    if ((*il)==traj.lastLayer()){
+    if unlikely((*il)==traj.lastLayer()){
 
-       if(maxPtForLooperReconstruction>0){
+       if(maxPt2ForLooperReconstruction>0){
 	// ------ For loopers reconstruction
 	//cout<<" self propagating in advanceOneLayer (for loopers) \n";
 	const BarrelDetLayer* sbdl = dynamic_cast<const BarrelDetLayer*>(traj.lastLayer());
@@ -523,7 +530,9 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 					  *theUpdator,*theEstimator,
 					  theLockHits,theBestHitOnly);
 
+#ifdef EDM_ML_DEBUG
     LogDebug("CkfPattern")<<whatIsTheStateToUse(stateAndLayers.first,stateToUse,*il);
+#endif
     
     TempTrajectoryContainer segments=
       layerBuilder.segments(stateToUse);
