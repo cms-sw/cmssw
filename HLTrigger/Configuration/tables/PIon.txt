@@ -55,7 +55,6 @@ HLT_PAL1Tech53_MB_SingleTrack_v*                   # sr 131577
 HLT_PAL1Tech54_ZeroBias_v*                         # sr 131577
 HLT_PAT1minbias_Tech55_v*                          # sr 131577
 HLT_PAL1Tech_HBHEHO_totalOR_v*                     # sr 131577
-HLT_PAL1Tech_HCAL_HF_single_channel_v*             # sr 131577
 HLT_PAMinBiasHF_v*                                 # sr 131577
 HLT_PAMinBiasHF_OR_v*                              # sr 131577
 HLT_PAMinBiasBSC_v*                                # sr 131577

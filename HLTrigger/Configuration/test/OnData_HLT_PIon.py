@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/PIon/V9 (CMSSW_5_2_6_HLT3)
+# /dev/CMSSW_5_2_6/PIon/V10 (CMSSW_5_2_6_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V9')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V10')
 )
 
 process.streams = cms.PSet( 
@@ -7232,22 +7232,6 @@ process.hltPrePAL1TechHBHEHOtotalOR = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltL1sL1TechHCALHFsinglechannel = cms.EDFilter( "HLTLevel1GTSeed",
-    saveTags = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "8" ),
-    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
-    L1UseL1TriggerObjectMaps = cms.bool( True ),
-    L1UseAliasesForSeeding = cms.bool( True ),
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
-    L1NrBxInEvent = cms.int32( 3 ),
-    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
-    L1TechTriggerSeeding = cms.bool( True )
-)
-process.hltPrePAL1TechHCALHFsinglechannel = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
-)
 process.hltL1sPAMinBiasHF = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
     L1SeedsLogicalExpression = cms.string( "9" ),
@@ -7879,7 +7863,6 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_PAL1Tech53_MB_v1',
   'HLT_PAL1Tech54_ZeroBias_v1',
   'HLT_PAL1Tech_HBHEHO_totalOR_v1',
-  'HLT_PAL1Tech_HCAL_HF_single_channel_v1',
   'HLT_PAMinBiasBSC_OR_v1',
   'HLT_PAMinBiasBSC_v1',
   'HLT_PAMinBiasHF_OR_v1',
@@ -8000,7 +7983,6 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_PAL1SingleMu12_v1',
   'HLT_PAL1SingleMuOpen_v1',
   'HLT_PAL1Tech_HBHEHO_totalOR_v1',
-  'HLT_PAL1Tech_HCAL_HF_single_channel_v1',
   'HLT_PAMu5_v1',
   'HLT_PAMu8_v1',
   'HLT_PAPixelTracks_Multiplicity70_v1',
@@ -8097,7 +8079,6 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_PAL1SingleMu12_v1',
   'HLT_PAL1SingleMuOpen_v1',
   'HLT_PAL1Tech_HBHEHO_totalOR_v1',
-  'HLT_PAL1Tech_HCAL_HF_single_channel_v1',
   'HLT_PAMu5_v1',
   'HLT_PAMu8_v1',
   'HLT_PAPixelTracks_Multiplicity70_v1',
@@ -8313,7 +8294,6 @@ process.HLT_PAL1Tech53_MB_SingleTrack_v1 = cms.Path( process.HLTBeginSequence + 
 process.HLT_PAL1Tech54_ZeroBias_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1Tech54ZeroBias + process.hltPrePAL1Tech54ZeroBias + process.HLTEndSequence )
 process.HLT_PAT1minbias_Tech55_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sT1minbiasTech55 + process.hltPrePAT1minbiasTech55 + process.HLTEndSequence )
 process.HLT_PAL1Tech_HBHEHO_totalOR_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sTechTrigHCALNoise + process.hltPrePAL1TechHBHEHOtotalOR + process.HLTEndSequence )
-process.HLT_PAL1Tech_HCAL_HF_single_channel_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1TechHCALHFsinglechannel + process.hltPrePAL1TechHCALHFsinglechannel + process.HLTEndSequence )
 process.HLT_PAMinBiasHF_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sPAMinBiasHF + process.hltPrePAMinBiasHF + process.HLTEndSequence )
 process.HLT_PAMinBiasHF_OR_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sPAMinBiasHfOr + process.hltPrePAMinBiasHFOR + process.HLTEndSequence )
 process.HLT_PAMinBiasBSC_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sPAMinBiasBSC + process.hltPrePAMinBiasBSC + process.HLTEndSequence )

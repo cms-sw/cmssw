@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_6/PIon/V9 (CMSSW_5_2_6_HLT3)
+# /dev/CMSSW_5_2_6/PIon/V10 (CMSSW_5_2_6_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V9')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V10')
 )
 
 streams = cms.PSet( 
@@ -6686,22 +6686,6 @@ hltPrePAL1TechHBHEHOtotalOR = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-hltL1sL1TechHCALHFsinglechannel = cms.EDFilter( "HLTLevel1GTSeed",
-    saveTags = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "8" ),
-    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
-    L1UseL1TriggerObjectMaps = cms.bool( True ),
-    L1UseAliasesForSeeding = cms.bool( True ),
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
-    L1NrBxInEvent = cms.int32( 3 ),
-    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
-    L1TechTriggerSeeding = cms.bool( True )
-)
-hltPrePAL1TechHCALHFsinglechannel = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
-)
 hltL1sPAMinBiasHF = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
     L1SeedsLogicalExpression = cms.string( "9" ),
@@ -7276,7 +7260,6 @@ HLT_PAL1Tech53_MB_SingleTrack_v1 = cms.Path( HLTBeginSequence + hltL1sL1Tech53MB
 HLT_PAL1Tech54_ZeroBias_v1 = cms.Path( HLTBeginSequence + hltL1sL1Tech54ZeroBias + hltPrePAL1Tech54ZeroBias + HLTEndSequence )
 HLT_PAT1minbias_Tech55_v1 = cms.Path( HLTBeginSequence + hltL1sT1minbiasTech55 + hltPrePAT1minbiasTech55 + HLTEndSequence )
 HLT_PAL1Tech_HBHEHO_totalOR_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sTechTrigHCALNoise + hltPrePAL1TechHBHEHOtotalOR + HLTEndSequence )
-HLT_PAL1Tech_HCAL_HF_single_channel_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1TechHCALHFsinglechannel + hltPrePAL1TechHCALHFsinglechannel + HLTEndSequence )
 HLT_PAMinBiasHF_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sPAMinBiasHF + hltPrePAMinBiasHF + HLTEndSequence )
 HLT_PAMinBiasHF_OR_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sPAMinBiasHfOr + hltPrePAMinBiasHFOR + HLTEndSequence )
 HLT_PAMinBiasBSC_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sPAMinBiasBSC + hltPrePAMinBiasBSC + HLTEndSequence )
@@ -7300,7 +7283,7 @@ HLTriggerFinalPath = cms.Path( hltGtDigis + hltScalersRawToDigi + hltFEDSelector
 HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 
 
-HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Activity_Ecal_SC7_v13, HLT_BeamGas_HF_Beam1_v5, HLT_BeamGas_HF_Beam2_v5, HLT_BeamHalo_v13, HLT_HcalPhiSym_v11, HLT_HcalNZS_v10, HLT_GlobalRunHPDNoise_v8, HLT_Physics_v5, DST_Physics_v5, HLT_DTCalibration_v2, HLT_EcalCalibration_v3, HLT_HcalCalibration_v3, HLT_TrackerCalibration_v3, AlCa_EcalPi0EBonly_v6, AlCa_EcalPi0EEonly_v6, AlCa_EcalEtaEBonly_v6, AlCa_EcalEtaEEonly_v6, AlCa_EcalPhiSym_v13, AlCa_RPCMuonNoTriggers_v9, AlCa_RPCMuonNoHits_v9, AlCa_RPCMuonNormalisation_v9, AlCa_LumiPixels_v8, AlCa_LumiPixels_ZeroBias_v4, AlCa_LumiPixels_Random_v1, HLT_PAL1SingleJet16_v1, HLT_PAL1SingleJet36_v1, HLT_PASingleForJet15_v1, HLT_PASingleForJet25_v1, HLT_PAak5CaloJet20_NoJetID_v1, HLT_PAak5CaloJet40_NoJetID_v1, HLT_PAak5CaloJet60_NoJetID_v1, HLT_PAL1SingleMuOpen_v1, HLT_PAL1SingleMu3_v1, HLT_PAL1SingleMu7_v1, HLT_PAL1SingleMu12_v1, HLT_PAL1DoubleMu0_v1, HLT_PADimuon0_NoVertexing_v1, HLT_PAMu5_v1, HLT_PAMu8_v1, HLT_PAL1SingleEG5_v1, HLT_PAL1SingleEG7_v1, HLT_PAL1SingleEG12_v1, HLT_PAPhoton10_CaloIdVL_v1, HLT_PAPhoton15_CaloIdVL_v1, HLT_PAPhoton20_CaloIdVL_v1, HLT_PAPhoton30_CaloIdVL_v1, HLT_PAL1ETM30_v1, HLT_PAL1ETM70_v1, HLT_PAPixelTracks_Multiplicity70_v1, HLT_PAPixelTracks_Multiplicity90_v1, HLT_PARomanPots_Tech52_v1, HLT_PAL1Tech53_MB_v1, HLT_PAL1Tech53_MB_SingleTrack_v1, HLT_PAL1Tech54_ZeroBias_v1, HLT_PAT1minbias_Tech55_v1, HLT_PAL1Tech_HBHEHO_totalOR_v1, HLT_PAL1Tech_HCAL_HF_single_channel_v1, HLT_PAMinBiasHF_v1, HLT_PAMinBiasHF_OR_v1, HLT_PAMinBiasBSC_v1, HLT_PAMinBiasBSC_OR_v1, HLT_PAMinBiasHfOrBSC_v1, HLT_PAZeroBias_v1, HLT_PAZeroBiasPixel_SingleTrack_v1, HLT_PAZeroBiasPixel_SingleTrack_ExpressStream_v1, HLT_PAHFOR_SingleTrack_v1, HLT_PAHFOR_SingleTrack_ExpressStream_v1, HLT_PAZeroBiasPixel_DoubleTrack_v1, HLT_PADoubleMu4_Acoplanarity03_v1, HLT_PAExclDijet35_HFAND_v1, HLT_PAL1DoubleEG3_FwdVeto_v1, HLT_PAL1DoubleJet20_RomanPotsOR_v1, HLT_PADoubleJet20_ForwardBackward_v1, HLT_PARandom_v1, DQM_FEDIntegrity_v11, HLT_LogMonitor_v4, HLTriggerFinalPath, HLTAnalyzerEndpath ))
+HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Activity_Ecal_SC7_v13, HLT_BeamGas_HF_Beam1_v5, HLT_BeamGas_HF_Beam2_v5, HLT_BeamHalo_v13, HLT_HcalPhiSym_v11, HLT_HcalNZS_v10, HLT_GlobalRunHPDNoise_v8, HLT_Physics_v5, DST_Physics_v5, HLT_DTCalibration_v2, HLT_EcalCalibration_v3, HLT_HcalCalibration_v3, HLT_TrackerCalibration_v3, AlCa_EcalPi0EBonly_v6, AlCa_EcalPi0EEonly_v6, AlCa_EcalEtaEBonly_v6, AlCa_EcalEtaEEonly_v6, AlCa_EcalPhiSym_v13, AlCa_RPCMuonNoTriggers_v9, AlCa_RPCMuonNoHits_v9, AlCa_RPCMuonNormalisation_v9, AlCa_LumiPixels_v8, AlCa_LumiPixels_ZeroBias_v4, AlCa_LumiPixels_Random_v1, HLT_PAL1SingleJet16_v1, HLT_PAL1SingleJet36_v1, HLT_PASingleForJet15_v1, HLT_PASingleForJet25_v1, HLT_PAak5CaloJet20_NoJetID_v1, HLT_PAak5CaloJet40_NoJetID_v1, HLT_PAak5CaloJet60_NoJetID_v1, HLT_PAL1SingleMuOpen_v1, HLT_PAL1SingleMu3_v1, HLT_PAL1SingleMu7_v1, HLT_PAL1SingleMu12_v1, HLT_PAL1DoubleMu0_v1, HLT_PADimuon0_NoVertexing_v1, HLT_PAMu5_v1, HLT_PAMu8_v1, HLT_PAL1SingleEG5_v1, HLT_PAL1SingleEG7_v1, HLT_PAL1SingleEG12_v1, HLT_PAPhoton10_CaloIdVL_v1, HLT_PAPhoton15_CaloIdVL_v1, HLT_PAPhoton20_CaloIdVL_v1, HLT_PAPhoton30_CaloIdVL_v1, HLT_PAL1ETM30_v1, HLT_PAL1ETM70_v1, HLT_PAPixelTracks_Multiplicity70_v1, HLT_PAPixelTracks_Multiplicity90_v1, HLT_PARomanPots_Tech52_v1, HLT_PAL1Tech53_MB_v1, HLT_PAL1Tech53_MB_SingleTrack_v1, HLT_PAL1Tech54_ZeroBias_v1, HLT_PAT1minbias_Tech55_v1, HLT_PAL1Tech_HBHEHO_totalOR_v1, HLT_PAMinBiasHF_v1, HLT_PAMinBiasHF_OR_v1, HLT_PAMinBiasBSC_v1, HLT_PAMinBiasBSC_OR_v1, HLT_PAMinBiasHfOrBSC_v1, HLT_PAZeroBias_v1, HLT_PAZeroBiasPixel_SingleTrack_v1, HLT_PAZeroBiasPixel_SingleTrack_ExpressStream_v1, HLT_PAHFOR_SingleTrack_v1, HLT_PAHFOR_SingleTrack_ExpressStream_v1, HLT_PAZeroBiasPixel_DoubleTrack_v1, HLT_PADoubleMu4_Acoplanarity03_v1, HLT_PAExclDijet35_HFAND_v1, HLT_PAL1DoubleEG3_FwdVeto_v1, HLT_PAL1DoubleJet20_RomanPotsOR_v1, HLT_PADoubleJet20_ForwardBackward_v1, HLT_PARandom_v1, DQM_FEDIntegrity_v11, HLT_LogMonitor_v4, HLTriggerFinalPath, HLTAnalyzerEndpath ))
 
 # CMSSW version specific customizations
 import os
