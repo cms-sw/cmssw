@@ -168,9 +168,9 @@ namespace edm {
     explicit operator bool() const;
 #endif
     
-    bool operator<(TypeWithDict const& b) const { return type_ < b.type_; }
+    bool operator<(TypeWithDict const& b) const { return typeInfo().before(b.typeInfo()); }
 
-    bool operator==(TypeWithDict const& b) const {return type_ == b.type_;}
+    bool operator==(TypeWithDict const& b) const {return typeInfo() == b.typeInfo();}
 
     bool isEquivalentTo(TypeWithDict const& other) const {
       return type_.IsEquivalentTo(other.type_);
@@ -211,10 +211,6 @@ namespace edm {
 
     Reflex::Type type_;
   };
-
-  inline bool operator>(TypeWithDict const& a, TypeWithDict const& b) {
-    return b < a;
-  }
 
   inline bool operator!=(TypeWithDict const& a, TypeWithDict const& b) {
     return !(a == b);
