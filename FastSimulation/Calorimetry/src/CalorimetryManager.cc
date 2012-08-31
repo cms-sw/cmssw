@@ -624,10 +624,17 @@ void CalorimetryManager::reconstructECAL(const FSimTrack& track) {
   }
 
   double emeas = 0.;
-  
   if(sigma>0.)
     emeas = random->gaussShoot(e,sigma);
-  
+
+  /*
+  double emeas = -0.000001;  
+  if(sigma>0.){
+    do{
+      emeas = random->gaussShoot(e,sigma);  
+    } while (emeas < 0. );
+  } 
+  */
 
   if(debug_)
     std::cout << "FASTEnergyReconstructor::reconstructECAL : " 
@@ -693,8 +700,9 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
   double EGen  = myTrack.hcalEntrance().e();
   double e     = 0.;
   double sigma = 0.;
-  double emeas = 0.;
-
+  //double emeas = 0.;
+  double emeas = -0.0001;
+ 
   if(pid == 13) { 
     //    std::cout << " We should not be here " << std::endl;
     std::pair<double,double> response =
@@ -711,6 +719,11 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
       e     = response.first;              //
       sigma = response.second;             //
       emeas = random->gaussShoot(e,sigma); //
+      /*
+      do{
+	emeas = random->gaussShoot(e,sigma);  
+      } while (emeas < 0. );  
+      */
 
       //  cout <<  "CalorimetryManager::reconstructHCAL - e/gamma !!!" << std::endl;
       if(debug_)
@@ -721,6 +734,11 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
       sigma = myHDResponse_->getHCALEnergyResolution(EGen, hit);
       
       emeas = random->gaussShoot(e,sigma);  
+      /*
+      do{
+	emeas = random->gaussShoot(e,sigma);  
+      } while (emeas < 0. );
+      */
     }
     
 
@@ -792,8 +810,9 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack){//,
   double e     = 0.;
   double sigma = 0.;
 
-  double emeas = 0.;  
-  
+  //double emeas = 0.;  
+  double emeas = -0.000001; 
+
   //===========================================================================
   if(eGen > 0.) {  
 
@@ -981,7 +1000,12 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack){//,
 	sigma = response.second;
       }
       
-      emeas = random->gaussShoot(e,sigma);      
+      emeas = random->gaussShoot(e,sigma);   
+      /*
+      do{
+	emeas = random->gaussShoot(e,sigma);  
+      } while (emeas < 0.);   
+      */
       double correction = emeas / eGen;
       
       // RespCorrP factors (ECAL and HCAL separately) calculation
@@ -1569,37 +1593,32 @@ void CalorimetryManager::respCorr(double p) {
 
 void CalorimetryManager::loadFromEcalBarrel(edm::PCaloHitContainer & c) const
 { 
-  unsigned size=firedCellsEB_.size();
-  //  float sum=0.;
-  for(unsigned ic=0;ic<size;++ic)
-    {
-      int hi=firedCellsEB_[ic];
-      if(!unfoldedMode_)
-	{
-	  double time=(myCalorimeter_->getEcalGeometry(1)->getGeometry(EBDetId::unhashIndex(hi))->getPosition().mag())/29.98;
-	  c.push_back(PCaloHit(EBDetId::unhashIndex(hi),EBMapping_[hi][0].second,time,0));
-	  //	  std::cout << "Adding " << hi << " " << EBDetId::unhashIndex(hi) << " " ;
-	  //	  std::cout << EBMapping_[hi][0].second << " " << EBMapping_[hi][0].first << std::endl;
-	}
-      else
-	{
-	  unsigned npart=EBMapping_[hi].size();
-
-	  for(unsigned ip=0;ip<npart;++ip)
-	    {
-	      // get the time
-	      double time=(myCalorimeter_->getEcalGeometry(1)->getGeometry(EBDetId::unhashIndex(hi))->getPosition().mag())/29.98;
-	      //	      std::cout << " Barrel " << time  << std::endl;
-	      c.push_back(PCaloHit(EBDetId::unhashIndex(hi),EBMapping_[hi][ip].second,time,
-				   EBMapping_[hi][ip].first));
-
-	    }
-	}
-	
-      //      sum+=cellit->second;
+  unsigned size = firedCellsEB_.size();
+  double time = 0.;
+  for(unsigned ic=0;ic<size;++ic){ 
+    int hi = firedCellsEB_[ic];
+    if(!unfoldedMode_){
+      if(Digitizer_) time = (myCalorimeter_->getEcalGeometry(1)->getGeometry(EBDetId::unhashIndex(hi))->getPosition().mag())/29.98;
+      else time = 0.;
+      c.push_back(PCaloHit(EBDetId::unhashIndex(hi),EBMapping_[hi][0].second,time,0));
+      //	  std::cout << "Adding " << hi << " " << EBDetId::unhashIndex(hi) << " " ;
+      //	  std::cout << EBMapping_[hi][0].second << " " << EBMapping_[hi][0].first << std::endl;
     }
+    else{
+      unsigned npart=EBMapping_[hi].size();
+      for(unsigned ip=0;ip<npart;++ip){
+	// get the time
+	if(Digitizer_) time = (myCalorimeter_->getEcalGeometry(1)->getGeometry(EBDetId::unhashIndex(hi))->getPosition().mag())/29.98;
+	else time = 0.;
+	//	      std::cout << " Barrel " << time  << std::endl;
+	c.push_back(PCaloHit(EBDetId::unhashIndex(hi),EBMapping_[hi][ip].second,time,EBMapping_[hi][ip].first));
+      }
+    }
+    
+    //      sum+=cellit->second;
+  }
   
-//  for(unsigned ic=0;ic<61200;++ic) 
+  //  for(unsigned ic=0;ic<61200;++ic) 
 //    { 
 //      EBDetId myCell(EBDetId::unhashIndex(ic)); 
 //      if(!myCell.null()) 
@@ -1621,28 +1640,26 @@ void CalorimetryManager::loadFromEcalBarrel(edm::PCaloHitContainer & c) const
 void CalorimetryManager::loadFromEcalEndcap(edm::PCaloHitContainer & c) const
 {
   unsigned size=firedCellsEE_.size();
-  //  float sum=0.;
-  for(unsigned ic=0;ic<size;++ic)
-    {
-      int hi=firedCellsEE_[ic];
-      if(!unfoldedMode_) {
-	double time=(myCalorimeter_->getEcalGeometry(2)->getGeometry(EEDetId::unhashIndex(hi))->getPosition().mag())/29.98;
-	c.push_back(PCaloHit(EEDetId::unhashIndex(hi),EEMapping_[hi][0].second,time,0));
-      }
-      else
-	{
-	  unsigned npart=EEMapping_[hi].size();
-	  for(unsigned ip=0;ip<npart;++ip) {
-	    //	    double time=mySimEvent->track(EBMapping_[hi][ip].first).ecalEntrance().t();
-	    double time=(myCalorimeter_->getEcalGeometry(2)->getGeometry(EEDetId::unhashIndex(hi))->getPosition().mag())/29.98;
-	    //	    std::cout << " Endcap " << time << std::endl;
-	    c.push_back(PCaloHit(EEDetId::unhashIndex(hi),EEMapping_[hi][ip].second,time, 
-				 EEMapping_[hi][ip].first));
-	  }
-	}
-	
-      //      sum+=cellit->second;
+  double time;
+  
+  for(unsigned ic=0;ic<size;++ic){
+    int hi=firedCellsEE_[ic];
+    if(!unfoldedMode_) {
+      if(Digitizer_) time=(myCalorimeter_->getEcalGeometry(2)->getGeometry(EEDetId::unhashIndex(hi))->getPosition().mag())/29.98;
+      else time = 0.;
+      c.push_back(PCaloHit(EEDetId::unhashIndex(hi),EEMapping_[hi][0].second,time,0));
     }
+    else{
+      unsigned npart=EEMapping_[hi].size();
+      for(unsigned ip=0;ip<npart;++ip) {
+	if(Digitizer_) time=(myCalorimeter_->getEcalGeometry(2)->getGeometry(EEDetId::unhashIndex(hi))->getPosition().mag())/29.98;
+	else time = 0.;	   
+	c.push_back(PCaloHit(EEDetId::unhashIndex(hi),EEMapping_[hi][ip].second,time,EEMapping_[hi][ip].first));
+      }
+    }
+    
+    //      sum+=cellit->second;
+  }
   //  std::cout << " SUM : " << sum << std::endl;
   //  std::cout << " Added " <<c.size() << " hits " <<std::endl;
 }
@@ -1650,37 +1667,40 @@ void CalorimetryManager::loadFromEcalEndcap(edm::PCaloHitContainer & c) const
 void CalorimetryManager::loadFromHcal(edm::PCaloHitContainer & c) const
 {
   unsigned size=firedCellsHCAL_.size();
-  //  float sum=0.;
-  for(unsigned ic=0;ic<size;++ic)
-    {
-      int hi=firedCellsHCAL_[ic];
-      if(!unfoldedMode_)
-	c.push_back(PCaloHit(theDetIds_[hi],HMapping_[hi][0].second,0.,0));
-      else
-	{
-	  unsigned npart=HMapping_[hi].size();
-	  for(unsigned ip=0;ip<npart;++ip)
-	    c.push_back(PCaloHit(theDetIds_[hi],HMapping_[hi][ip].second,0.,
-				 HMapping_[hi][ip].first));
-	}
-	
-      //      sum+=cellit->second;
+  double time;
+  for(unsigned ic=0;ic<size;++ic){
+    int hi=firedCellsHCAL_[ic];
+    if(!unfoldedMode_){
+      if(Digitizer_) time=(myCalorimeter_->getHcalGeometry()->getGeometry(theDetIds_[hi])->getPosition().mag())/29.98;
+      else time = 0.;
+      c.push_back(PCaloHit(theDetIds_[hi],HMapping_[hi][0].second,time,0));
     }
+    else{
+      unsigned npart=HMapping_[hi].size();
+      for(unsigned ip=0;ip<npart;++ip){
+	if(Digitizer_) time=(myCalorimeter_->getHcalGeometry()->getGeometry(theDetIds_[hi])->getPosition().mag())/29.98;
+	else time = 0.;
+	c.push_back(PCaloHit(theDetIds_[hi],HMapping_[hi][ip].second, time, HMapping_[hi][ip].first));
+      }
+    }
+    
+    //      sum+=cellit->second;
+  }
   //  std::cout << " SUM : " << sum << std::endl;
   //  std::cout << " Added " <<c.size() << " hits " <<std::endl;
-
-  if(Digitizer_){
-    edm::PCaloHitContainer::iterator it=c.begin();
-    edm::PCaloHitContainer::iterator itend=c.end();
-    for(;it!=itend;++it){
-      HcalDetId myDetId(it->id());
-      if (myDetId.subdetId()== HcalBarrel) it->setTime(7.);
-      else if (myDetId.subdetId()== HcalEndcap) it->setTime(15.);
-      else if (myDetId.subdetId()== HcalForward)it->setTime(40.);
-      //  std::cout << "simhit # " << A <<"  energy = " << it->energy() << " from " << myDetId << ", "<< myDetId.subdetId() << "  time = " << it->time() << std::endl;
-    }
-  }
+  
+  // if(Digitizer_){
+  //     edm::PCaloHitContainer::iterator it=c.begin();
+  //     edm::PCaloHitContainer::iterator itend=c.end();
+  //     for(;it!=itend;++it){
+  //       HcalDetId myDetId(it->id());
+  //       if (myDetId.subdetId()== HcalBarrel) it->setTime(7.);
+  //       else if (myDetId.subdetId()== HcalEndcap) it->setTime(15.);
+  //       else if (myDetId.subdetId()== HcalForward)it->setTime(40.);
+  //       //  std::cout << "simhit # " << A <<"  energy = " << it->energy() << " from " << myDetId << ", "<< myDetId.subdetId() << "  time = " << it->time() << std::endl;
+  //     }
 }
+
 
 void CalorimetryManager::loadFromPreshower(edm::PCaloHitContainer & c) const
 {
