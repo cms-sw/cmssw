@@ -71,6 +71,7 @@ options.register ('useExtraJetColls',
                   VarParsing.varType.int,
                   "Write extra jet collections for substructure studies")
 
+<<<<<<< ttbsm_cfg.py
 options.register ('usePythia8',
                   False,
                   VarParsing.multiplicity.singleton,
@@ -90,8 +91,29 @@ options.register ('runOnFastSim',
                   "Option needed to run on fastsim.")
 
 
-options.parseArguments()
+=======
 
+options.register ('usePythia8',
+                  False,
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.int,
+                  "Use status codes from Pythia8 rather than Pythia6")
+
+
+options.register ('usePythia6andPythia8',
+                  False,
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.int,
+                  "Use status codes from Pythia8 and Pythia6")
+
+
+options.register ('runOnFastSim',
+                  False,
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.int,
+                  "Option needed to run on fastsim.")
+
+options.parseArguments()
 
 if not options.useData :
     inputJetCorrLabel = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
