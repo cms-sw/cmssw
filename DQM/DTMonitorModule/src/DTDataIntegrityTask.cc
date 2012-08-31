@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2011/10/19 10:05:54 $
- * $Revision: 1.75 $
+ * $Date: 2011/10/31 17:11:20 $
+ * $Revision: 1.76 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino), G. Cerminara (INFN Torino)
  *
  */
@@ -213,7 +213,12 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histoType = "FEDAvgEvLenghtvsLumi";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
     histoTitle = "Avg Event Lenght (Bytes) vs LumiSec FED " +  dduID_s.str();
-    dduTimeHistos[histoType][code.getDDUID()] = new DTTimeEvolutionHisto(dbe,histoName,histoTitle,200,10,true,0);
+    dduTimeHistos[histoType][code.getDDUID()] = new DTTimeEvolutionHisto(dbe,histoName,histoTitle,2500,10,true,0);
+
+    histoType = "ROSReadvsLumi";
+    histoName = "FED" + dduID_s.str() + "_" + histoType;
+    histoTitle = "Number of ROS read vs Lumi" +  dduID_s.str();
+    dduTimeHistos[histoType][code.getDDUID()] = new DTTimeEvolutionHisto(dbe,histoName,histoTitle,2500,10,true,0);
 
     histoType = "TTSValues";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
@@ -1076,6 +1081,8 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   if(mode > 1) return;
 
   dduTimeHistos["FEDAvgEvLenghtvsLumi"][code.getDDUID()]->accumulateValueTimeSlot(fedEvtLenght);
+
+  dduTimeHistos["ROSReadvsLumi"][code.getDDUID()]->accumulateValueTimeSlot(rosPositions.size());
 
   // size of the list of ROS in the Read-Out
   dduHistos["ROSList"][code.getDDUID()]->Fill(rosPositions.size());
