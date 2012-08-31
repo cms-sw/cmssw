@@ -51,3 +51,72 @@ streamA_datasetMinimumBias_selector.throw      = cms.bool(False)
 streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_Physics_v5', 
     'HLT_Random_v2')
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetPAPhysics_selector
+streamA_datasetPAPhysics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetPAPhysics_selector.l1tResults = cms.InputTag('')
+streamA_datasetPAPhysics_selector.throw      = cms.bool(False)
+streamA_datasetPAPhysics_selector.triggerConditions = cms.vstring('HLT_PADimuon0_NoVertexing_v1', 
+    'HLT_PADoubleJet20_ForwardBackward_v1', 
+    'HLT_PADoubleMu4_Acoplanarity03_v1', 
+    'HLT_PAExclDijet35_HFAND_v1', 
+    'HLT_PAHFOR_SingleTrack_ExpressStream_v1', 
+    'HLT_PAHFOR_SingleTrack_v1', 
+    'HLT_PAL1DoubleEG3_FwdVeto_v1', 
+    'HLT_PAL1DoubleJet20_RomanPotsOR_v1', 
+    'HLT_PAL1DoubleMu0_v1', 
+    'HLT_PAL1ETM30_v1', 
+    'HLT_PAL1ETM70_v1', 
+    'HLT_PAL1SingleEG12_v1', 
+    'HLT_PAL1SingleEG5_v1', 
+    'HLT_PAL1SingleEG7_v1', 
+    'HLT_PAL1SingleJet16_v1', 
+    'HLT_PAL1SingleJet36_v1', 
+    'HLT_PAL1SingleMu12_v1', 
+    'HLT_PAL1SingleMu3_v1', 
+    'HLT_PAL1SingleMu7_v1', 
+    'HLT_PAL1SingleMuOpen_v1', 
+    'HLT_PAL1Tech53_MB_SingleTrack_v1', 
+    'HLT_PAL1Tech53_MB_v1', 
+    'HLT_PAL1Tech54_ZeroBias_v1', 
+    'HLT_PAL1Tech_HBHEHO_totalOR_v1', 
+    'HLT_PAL1Tech_HCAL_HF_single_channel_v1', 
+    'HLT_PAMinBiasBSC_OR_v1', 
+    'HLT_PAMinBiasBSC_v1', 
+    'HLT_PAMinBiasHF_OR_v1', 
+    'HLT_PAMinBiasHF_v1', 
+    'HLT_PAMinBiasHfOrBSC_v1', 
+    'HLT_PAMu5_v1', 
+    'HLT_PAMu8_v1', 
+    'HLT_PAPhoton10_CaloIdVL_v1', 
+    'HLT_PAPhoton15_CaloIdVL_v1', 
+    'HLT_PAPhoton20_CaloIdVL_v1', 
+    'HLT_PAPhoton30_CaloIdVL_v1', 
+    'HLT_PAPixelTracks_Multiplicity70_v1', 
+    'HLT_PAPixelTracks_Multiplicity90_v1', 
+    'HLT_PARandom_v1', 
+    'HLT_PARomanPots_Tech52_v1', 
+    'HLT_PASingleForJet15_v1', 
+    'HLT_PASingleForJet25_v1', 
+    'HLT_PAT1minbias_Tech55_v1', 
+    'HLT_PAZeroBiasPixel_DoubleTrack_v1', 
+    'HLT_PAZeroBiasPixel_SingleTrack_ExpressStream_v1', 
+    'HLT_PAZeroBiasPixel_SingleTrack_v1', 
+    'HLT_PAZeroBias_v1', 
+    'HLT_PAak5CaloJet20_NoJetID_v1', 
+    'HLT_PAak5CaloJet40_NoJetID_v1', 
+    'HLT_PAak5CaloJet60_NoJetID_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetPAZeroBias1_selector
+streamA_datasetPAZeroBias1_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetPAZeroBias1_selector.l1tResults = cms.InputTag('')
+streamA_datasetPAZeroBias1_selector.throw      = cms.bool(False)
+streamA_datasetPAZeroBias1_selector.triggerConditions = cms.vstring('HLT_PARandom_v1', 
+    'HLT_PAZeroBias_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetPAZeroBias2_selector
+streamA_datasetPAZeroBias2_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetPAZeroBias2_selector.l1tResults = cms.InputTag('')
+streamA_datasetPAZeroBias2_selector.throw      = cms.bool(False)
+streamA_datasetPAZeroBias2_selector.triggerConditions = cms.vstring('HLT_PAL1Tech54_ZeroBias_v1', 
+    'HLT_PARandom_v1')
+
