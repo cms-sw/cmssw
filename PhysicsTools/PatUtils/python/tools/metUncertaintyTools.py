@@ -43,7 +43,7 @@ class RunMEtUncertainties(ConfigToolBase):
                           "Flag to enable/disable sequence for MVA-based PFMEt", Type=bool)
         self.addParameter(self._defaultParameters, 'makeNoPileUpPFMEt', False,
                           "Flag to enable/disable sequence for no-PU PFMEt", Type=bool)
-        self.addParameter(self._defaultParameters, 'doApplyType0corr', False,
+        self.addParameter(self._defaultParameters, 'doApplyType0corr', True,
                           "Flag to enable/disable usage of Type-0 MET corrections", Type=bool)
         self.addParameter(self._defaultParameters, 'sysShiftCorrParameter', None,
                           "MET sys. shift correction parameters", Type=cms.PSet)
