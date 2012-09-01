@@ -264,8 +264,14 @@ cat > scaledhistosForPhotons <<EOF
   nTrkSolidConeDR04All
   nTrkSolidConeDR04Barrel
   nTrkSolidConeDR04Endcap
-
-
+  r9Barrel
+  r9Endcap
+  r1Barrel
+  r1Endcap
+  r2Barrel
+  r2Endcap
+  sigmaIetaIetaBarrel
+  sigmaIetaIetaEndcap
 
 EOF
 
@@ -280,20 +286,17 @@ cat > scaledhistosForPhotonsLogScale <<EOF
   hcalTowerSumEtConeDR04Endcap
   hcalTowerBcSumEtConeDR04Barrel
   hcalTowerBcSumEtConeDR04Endcap
-  r9All
+  ecalRecHitSumEtConeDR04Barrel
+  ecalRecHitSumEtConeDR04Endcap
   r9Barrel
   r9Endcap
-  r1All
   r1Barrel
   r1Endcap
-  r2All
   r2Barrel
   r2Endcap
   sigmaIetaIetaAll
   sigmaIetaIetaBarrel
   sigmaIetaIetaEndcap
-  ecalRecHitSumEtConeDR04Barrel
-  ecalRecHitSumEtConeDR04Endcap
 
 
 
@@ -594,9 +597,10 @@ end
 
 foreach i (`cat scaledhistosForPhotonsLogScale`)
   cat > temp$N.C <<EOF
-TCanvas *c$i = new TCanvas("c$i");
-c$i->SetFillColor(10);
-c$i->SetLogy(1);
+TCanvas *cc$i = new TCanvas("cc$i");
+cc$i->cd();
+cc$i->SetFillColor(10);
+cc$i->SetLogy();
 //file_new->cd("DQMData/EgammaV/PhotonValidator/Photons");
 file_new->cd("$HISTOPATHNAME_Photons");
 Double_t nnew=$i->GetEntries();
@@ -607,6 +611,7 @@ $i->GetXaxis()->SetRangeUser(0.,10.);
 }
 Double_t nold=$i->GetEntries();
 $i->SetStats(0);
+$i->SetMinimum(1);
 $i->SetLineColor(kPink+8);
 $i->SetFillColor(kPink+8);
 $i->Draw();
@@ -620,7 +625,7 @@ $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->Scale(nold/nnew);
 $i->Draw("e1same");
-c$i->SaveAs("gifs/$i.gif");
+cc$i->SaveAs("gifs/log$i.gif");
 
 EOF
   setenv N `expr $N + 1`
@@ -1134,5 +1139,5 @@ echo "cd $OUTDIR"
 
 root -b -l -q validation.C
 cd $CURRENTDIR
-echo "Then you can view your valdation plots here:"
+echo "Then you can view your validation plots here:"
 echo "http://cmsdoc.cern.ch/Physics/egamma/www/$OUTPATH/validation.html"
