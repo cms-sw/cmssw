@@ -17,7 +17,7 @@ class MultiTrajectoryStateMerger;
 /** A GSF fitter, similar to KFTrajectoryFitter.
  */
 
-class GsfTrajectoryFitter : public TrajectoryFitter {
+class GsfTrajectoryFitter  GCC11_FINAL  : public TrajectoryFitter {
 
 private:
   typedef TrajectoryStateOnSurface TSOS;
@@ -36,12 +36,15 @@ public:
   
   virtual ~GsfTrajectoryFitter(); 
   
-  virtual std::vector<Trajectory> fit(const Trajectory& aTraj) const;
-  virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
-				      const RecHitContainer& hits) const;
-  virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
-				      const RecHitContainer& hits, 
-				      const TSOS& firstPredTsos) const;
+  Trajectory fitOne(const Trajectory& t, fitType type) const;
+  Trajectory fitOne(const TrajectorySeed& aSeed,
+		    const RecHitContainer& hits, 
+		    const TrajectoryStateOnSurface& firstPredTsos, fitType type) const;
+  Trajectory fitOne(const TrajectorySeed& aSeed,
+		    const RecHitContainer& hits, fitType type) const;
+
+
+
 
   const Propagator* propagator() const {return thePropagator;}
   const TrajectoryStateUpdator* updator() const {return theUpdator;}

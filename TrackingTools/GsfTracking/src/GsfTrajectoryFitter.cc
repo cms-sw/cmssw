@@ -32,28 +32,28 @@ GsfTrajectoryFitter::~GsfTrajectoryFitter() {
   delete theMerger;
 }
 
-std::vector<Trajectory> GsfTrajectoryFitter::fit(const Trajectory& aTraj) const 
-{  
-  if(aTraj.empty()) return std::vector<Trajectory>();
+Trajectory GsfTrajectoryFitter::fitOne(const Trajectory& aTraj, fitType type) const {  
+  if(aTraj.empty()) return Trajectory();
  
-  TM firstTM = aTraj.firstMeasurement();
+  TM const & firstTM = aTraj.firstMeasurement();
   TSOS firstTsos = TrajectoryStateWithArbitraryError()(firstTM.updatedState());
   
-  return fit(aTraj.seed(), aTraj.recHits(), firstTsos);
+  return fitOne(aTraj.seed(), aTraj.recHits(), firstTsos,type);
 }
 
-std::vector<Trajectory> GsfTrajectoryFitter::fit(const TrajectorySeed& aSeed,
-						 const RecHitContainer& hits) const {
-
+Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
+				       const RecHitContainer& hits, fitType type) const {
+  
   edm::LogError("GsfTrajectoryFitter") 
     << "GsfTrajectoryFitter::fit(TrajectorySeed, vector<RecHit>) not implemented";
-
-  return std::vector<Trajectory>();
+  
+  return Trajectory();
 }
 
-std::vector<Trajectory> GsfTrajectoryFitter::fit(const TrajectorySeed& aSeed,
-						 const RecHitContainer& hits, 
-						 const TSOS& firstPredTsos) const {
+Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
+				    const RecHitContainer& hits, 
+				    const TrajectoryStateOnSurface& firstPredTsos,
+				    fitType) const {
 
   //   static TimingReport::Item* propTimer =
   //     &(*TimingReport::current())[string("GsfTrajectoryFitter:propagation")];
@@ -64,7 +64,7 @@ std::vector<Trajectory> GsfTrajectoryFitter::fit(const TrajectorySeed& aSeed,
   //   updateTimer->switchCPU(false);
   //   if ( !theTiming )  updateTimer->switchOn(false);
 
-  if(hits.empty()) return std::vector<Trajectory>();
+  if(hits.empty()) return Trajectory();
 
   Trajectory myTraj(aSeed, propagator()->propagationDirection());
 
@@ -72,7 +72,7 @@ std::vector<Trajectory> GsfTrajectoryFitter::fit(const TrajectorySeed& aSeed,
   if(!predTsos.isValid()) {
     edm::LogInfo("GsfTrajectoryFitter") 
       << "GsfTrajectoryFitter: predicted tsos of first measurement not valid!";
-    return std::vector<Trajectory>();
+    return Trajectory();
   } 
 
   TSOS currTsos;
@@ -85,7 +85,7 @@ std::vector<Trajectory> GsfTrajectoryFitter::fit(const TrajectorySeed& aSeed,
     }
     if (!predTsos.isValid() || !currTsos.isValid()){
       edm::LogError("InvalidState")<<"first hit";
-      return std::vector<Trajectory>();
+      return Trajectory();
     }
     myTraj.push(TM(predTsos, currTsos, preciseHit, 0., theGeometry->idToLayer(preciseHit->geographicalId() )),
 		estimator()->estimate(predTsos, *preciseHit).second);
@@ -93,7 +93,7 @@ std::vector<Trajectory> GsfTrajectoryFitter::fit(const TrajectorySeed& aSeed,
     currTsos = predTsos;
     if (!predTsos.isValid()){
       edm::LogError("InvalidState")<<"first invalid hit";
-      return std::vector<Trajectory>();
+      return Trajectory();
     }
     myTraj.push(TM(predTsos, *hits.begin(),0., theGeometry->idToLayer((*hits.begin())->geographicalId()) ));
   }
@@ -135,13 +135,13 @@ std::vector<Trajectory> GsfTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 	edm::LogInfo("GsfTrajectoryFitter") 
 	  << "GsfTrajectoryFitter: predicted tsos not valid! \n"
 	  << "Returning trajectory with " << myTraj.foundHits() << " found hits.";
-	return std::vector<Trajectory>(1,myTraj);
+	return myTraj;
       }
       else {
       edm::LogInfo("GsfTrajectoryFitter") 
 	<< "GsfTrajectoryFitter: predicted tsos not valid after " << myTraj.foundHits()
 	<< " hits, discarding candidate!";
-	return std::vector<Trajectory>();
+	return Trajectory();
       }
     }
     if ( merger() ) predTsos = merger()->merge(predTsos);
@@ -155,7 +155,7 @@ std::vector<Trajectory> GsfTrajectoryFitter::fit(const TrajectorySeed& aSeed,
       }
       if (!predTsos.isValid() || !currTsos.isValid()){
 	edm::LogError("InvalidState")<<"inside hit";
-	return std::vector<Trajectory>();
+	return Trajectory();
       }
       myTraj.push(TM(predTsos, currTsos, preciseHit,
 		     estimator()->estimate(predTsos, *preciseHit).second,
@@ -164,10 +164,10 @@ std::vector<Trajectory> GsfTrajectoryFitter::fit(const TrajectorySeed& aSeed,
       currTsos = predTsos;
       if (!predTsos.isValid()){
       edm::LogError("InvalidState")<<"inside invalid hit";
-      return std::vector<Trajectory>();
+      return Trajectory();
       }
       myTraj.push(TM(predTsos, *ihit,0., theGeometry->idToLayer( (*ihit)->geographicalId()) ));
     }
   }
-  return std::vector<Trajectory>(1, myTraj);
+  return myTraj;
 }
