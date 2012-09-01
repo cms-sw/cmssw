@@ -554,6 +554,8 @@ streamA_datasetSingleMu_selector.triggerConditions = cms.vstring('HLT_IsoMu17_et
     'HLT_Mu12_eta2p1_DiCentral_40_20_v7', 
     'HLT_Mu12_eta2p1_L1Mu10erJetC12WdEtaPhi1DiJetsC_v6', 
     'HLT_Mu12_v18', 
+    'HLT_Mu15_eta2p1_DiCentral_20_v1', 
+    'HLT_Mu15_eta2p1_DiCentral_40_20_v1', 
     'HLT_Mu15_eta2p1_L1Mu10erJetC12WdEtaPhi1DiJetsC_v2', 
     'HLT_Mu15_eta2p1_TriCentral_40_20_20_BTagIP3D1stTrack_v7', 
     'HLT_Mu15_eta2p1_TriCentral_40_20_20_DiBTagIP3D1stTrack_v7', 
