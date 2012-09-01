@@ -7,8 +7,8 @@
  *      within cylinders
  *
  *
- *  $Date: 2009/10/20 03:46:52 $
- *  $Revision: 1.20 $
+ *  $Date: 2010/03/07 16:47:38 $
+ *  $Revision: 1.21 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -58,16 +58,16 @@ CosmicMuonSmoother::~CosmicMuonSmoother() {
 //
 // fit and smooth trajectory
 //
-vector<Trajectory> CosmicMuonSmoother::trajectories(const Trajectory& t) const {
+Trajectory CosmicMuonSmoother::trajectory(const Trajectory& t) const {
    vector<Trajectory> fitted = fit(t);
-   return smooth(fitted);
+   return smooth(fitted).front();
 
 }
 
 //
 // fit and smooth trajectory 
 //
-vector<Trajectory> CosmicMuonSmoother::trajectories(const TrajectorySeed& seed,
+std::vector<Trajectory> CosmicMuonSmoother::trajectories(const TrajectorySeed& seed,
 	                                           const ConstRecHitContainer& hits, 
 	                                           const TrajectoryStateOnSurface& firstPredTsos) const {
 
