@@ -659,6 +659,9 @@ HLT_DiJet35_MJJ650_AllJets_DEta3p5_VBF_v*                                       
 HLT_DiJet35_MJJ700_AllJets_DEta3p5_VBF_v*                                                       # sr #127987
 HLT_DiJet35_MJJ750_AllJets_DEta3p5_VBF_v*                                                       # sr #127987
 
+HLT_Mu15_eta2p1_DiCentral_40_20_v*								# sr#131717
+HLT_Mu15_eta2p1_DiCentral_20_v*									# sr#131717
+
 HLT_BeamGas_HF_Beam1_v*                                                                         # sr #126174
 HLT_BeamGas_HF_Beam2_v*                                                                         # sr #126174
 HLT_BeamHalo_v*
