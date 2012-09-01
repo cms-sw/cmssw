@@ -37,13 +37,13 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed&,
 }
 
 Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
-				   const RecHitContainer& hits,
+				      const RecHitContainer& hits,
 				      const TSOS& firstPredTsos,fitType) const 
 {
   if(hits.empty()) return Trajectory();
 
 
-  if (aSeed.direction() == anyDirection) 
+  if unlikely(aSeed.direction() == anyDirection) 
     throw cms::Exception("KFTrajectoryFitter","TrajectorySeed::direction() requested but not set");
   
   SetPropagationDirection setDir(*thePropagator,aSeed.direction());
@@ -75,7 +75,7 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 
     const TransientTrackingRecHit & hit = (**ihit);
     
-    if (hit.isValid() == false && hit.surface() == 0) {
+    if unlikely( (!hit.isValid()) && hit.surface() == nullptr) {
       LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";
       continue;
     }
@@ -140,14 +140,14 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
       predTsos = thePropagator->propagate( currTsos, *(hit.surface()) );
     
 
-    if(!predTsos.isValid()) {
+    if unlikely(!predTsos.isValid()) {
       LogDebug("TrackFitters") 
 	<< "SOMETHING WRONG !" << "\n"
 	<< "KFTrajectoryFitter: predicted tsos not valid!\n" 
 	<< "current TSOS: " << currTsos << "\n";
 
       if(hit.surface())	LogTrace("TrackFitters") << "next Surface: " << hit.surface()->position() << "\n";
-
+      
       if( myTraj.foundHits() >= minHits_ ) {
 	LogDebug("TrackFitters") << " breaking trajectory" << "\n";
 	break;      
@@ -157,55 +157,54 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
       }
     }
     
-    if(hit.isValid()) {
-      //update
-      LogTrace("TrackFitters") << "THE HIT IS VALID: updating hit with predTsos";
-      TransientTrackingRecHit::RecHitPointer preciseHit = hit.clone(predTsos);
-
-      if (preciseHit->isValid() == false){
-	LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos" << "\n";
-	currTsos = predTsos;
-	myTraj.push(TM(predTsos, *ihit,0,theGeometry->idToLayer((*ihit)->geographicalId()) ));
-
-      }else{
-	LogTrace("TrackFitters") << "THE Precise HIT IS VALID: updating currTsos" << "\n";
-	currTsos = updator()->update(predTsos, *preciseHit);
-	//check for valid hits with no det (refitter with constraints)
-	if (!currTsos.isValid()){
-	  edm::LogError("FailedUpdate")<<"updating with the hit failed. Not updating the trajectory with the hit";
-	  myTraj.push(TM(predTsos, *ihit,0,theGeometry->idToLayer((*ihit)->geographicalId())  ));
-	  //There is a no-fail policy here. So, it's time to give up
-	  //Keep the traj with invalid TSOS so that it's clear what happened
-	  if( myTraj.foundHits() >= minHits_ ) {
-	    LogDebug("TrackFitters") << " breaking trajectory" << "\n";
-	    break;      
-	  } else {        
-	    LogDebug("TrackFitters") << " killing trajectory" << "\n";       
-	    return Trajectory();
+    if likely(hit.isValid()) {
+	//update
+	LogTrace("TrackFitters") << "THE HIT IS VALID: updating hit with predTsos";
+	TransientTrackingRecHit::RecHitPointer preciseHit = hit.clone(predTsos);
+	
+	if unlikely(!preciseHit->isValid()){
+	    LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos" << "\n";
+	    currTsos = predTsos;
+	    myTraj.push(TM(predTsos, *ihit,0,theGeometry->idToLayer((*ihit)->geographicalId()) ));
+	    
+	  }else{
+	  LogTrace("TrackFitters") << "THE Precise HIT IS VALID: updating currTsos" << "\n";
+	  currTsos = updator()->update(predTsos, *preciseHit);
+	  //check for valid hits with no det (refitter with constraints)
+	  if unlikely(!currTsos.isValid()){
+	      edm::LogError("FailedUpdate")<<"updating with the hit failed. Not updating the trajectory with the hit";
+	      myTraj.push(TM(predTsos, *ihit,0,theGeometry->idToLayer((*ihit)->geographicalId())  ));
+	      //There is a no-fail policy here. So, it's time to give up
+	      //Keep the traj with invalid TSOS so that it's clear what happened
+	      if( myTraj.foundHits() >= minHits_ ) {
+		LogDebug("TrackFitters") << " breaking trajectory" << "\n";
+		break;      
+	      } else {        
+		LogDebug("TrackFitters") << " killing trajectory" << "\n";       
+		return Trajectory();
+	      }
+	    } else{
+	    if (preciseHit->det()) myTraj.push(TM(predTsos, currTsos, preciseHit,
+						  estimator()->estimate(predTsos, *preciseHit).second,
+						  theGeometry->idToLayer(preciseHit->geographicalId())  ));
+	    else myTraj.push(TM(predTsos, currTsos, preciseHit,
+				estimator()->estimate(predTsos, *preciseHit).second));
 	  }
 	}
-	else{
-	  if (preciseHit->det()) myTraj.push(TM(predTsos, currTsos, preciseHit,
-						estimator()->estimate(predTsos, *preciseHit).second,
-						theGeometry->idToLayer(preciseHit->geographicalId())  ));
-	  else myTraj.push(TM(predTsos, currTsos, preciseHit,
-			      estimator()->estimate(predTsos, *preciseHit).second));
-	}
-      }
-    } else {
+      } else {
       //no update
       LogDebug("TrackFitters") << "THE HIT IS NOT VALID: using currTsos" << "\n";
       currTsos = predTsos;
       myTraj.push(TM(predTsos, *ihit,0,theGeometry->idToLayer((*ihit)->geographicalId())  ));
     }
-
+    
     LogTrace("TrackFitters")
       << "predTsos !" << "\n"
       << predTsos << "\n"
       <<"currTsos !" << "\n"
       << currTsos;
   }  
-
+  
   LogDebug("TrackFitters") << "Found 1 trajectory with " << myTraj.foundHits() << " valid hits\n";
   
   return ret;
