@@ -22,10 +22,9 @@ KFTrajectorySmoother::~KFTrajectorySmoother() {
 
 }
 
-std::vector<Trajectory> 
-KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
-  // let's try to get return value optimization
-  // the 'standard' case is when we return 1 tractory
+Trajectory
+KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
+  if(aTraj.empty()) return Trajectory();
 
   if (  aTraj.direction() == alongMomentum) {
     thePropagator->setPropagationDirection(oppositeToMomentum);
@@ -33,11 +32,9 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
     thePropagator->setPropagationDirection(alongMomentum);
   }
 
-  std::vector<Trajectory> ret(1, Trajectory(aTraj.seed(), thePropagator->propagationDirection()));
-  Trajectory & myTraj = ret.front();
-
-
-  if(aTraj.empty()) { ret.clear(); return ret; } 
+  Trajectory ret(aTraj.seed(), thePropagator->propagationDirection());
+  Trajectory & myTraj = ret;
+  
 
 
   const std::vector<TM> & avtm = aTraj.measurements();
@@ -79,7 +76,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 	LogDebug("TrackFitters") << " breaking trajectory" << "\n";
       } else {        
 	LogDebug("TrackFitters") << " killing trajectory" << "\n";      
-        ret.clear(); 
+        return Trajectory();
       }
       break;      
     }
@@ -154,13 +151,13 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 	  LogDebug("TrackFitters") << " breaking trajectory" << "\n";
 	} else {        
 	  LogDebug("TrackFitters") << " killing trajectory" << "\n";       
-          ret.clear(); 
+	  return Trajectory();
         }
         break;      
       }
-
+      
       TransientTrackingRecHit::RecHitPointer preciseHit = hit->clone(combTsos);
-
+      
       if (preciseHit->isValid() == false){
 	LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos" << "\n";
 	currTsos = predTsos;
@@ -193,7 +190,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 	    LogDebug("TrackFitters") << " breaking trajectory" << "\n";
 	  } else {        
 	    LogDebug("TrackFitters") << " killing trajectory" << "\n";       
-            ret.clear(); 
+	    return Trajectory();  
 	  }
           break;
 	}
@@ -242,7 +239,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
       if(!combTsos.isValid()) {
     	LogDebug("TrackFitters") << 
     	  "KFTrajectorySmoother: combined tsos not valid!";
-        ret.clear(); break;
+        return Trajectory();
       }
       
       myTraj.push(TM(itm->forwardPredictedState(),

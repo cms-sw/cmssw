@@ -6,8 +6,8 @@
  *  This is necessary e.g. when the seed introduced a bias (by using
  *  a beam contraint etc.). Ported from ORCA
  *
- *  $Date: 2010/06/16 15:47:09 $
- *  $Revision: 1.15 $
+ *  $Date: 2011/01/06 17:04:16 $
+ *  $Revision: 1.16 $
  *  \author todorov, cerati
  */
 
@@ -16,7 +16,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
 
-class KFFittingSmoother : public TrajectoryFitter {
+class KFFittingSmoother GCC11_FINAL : public TrajectoryFitter {
 
 public:
   /// constructor with predefined fitter and smoother and propagator
@@ -42,12 +42,12 @@ public:
   
   virtual ~KFFittingSmoother();
   
-  virtual std::vector<Trajectory> fit(const Trajectory& t) const;
-  virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
+  Trajectory fitOne(const Trajectory& t, fitType type) const;
+  Trajectory fitOne(const TrajectorySeed& aSeed,
 				 const RecHitContainer& hits, 
-				 const TrajectoryStateOnSurface& firstPredTsos) const;
-  virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
-				 const RecHitContainer& hits) const;
+				 const TrajectoryStateOnSurface& firstPredTsos, fitType type) const;
+  Trajectory fitOne(const TrajectorySeed& aSeed,
+		    const RecHitContainer& hits, fitType type) const;
 
   const TrajectoryFitter* fitter() const {return theFitter;}
   const TrajectorySmoother* smoother() const {return theSmoother;}
@@ -61,6 +61,10 @@ public:
   
 private:
 
+  Trajectory smoothingStep(Trajectory const & fitted) const {return smoother()->trajectory(fitted);}
+
+private:
+  
   const TrajectoryFitter* theFitter;
   const TrajectorySmoother* theSmoother;
   double theEstimateCut;
@@ -72,7 +76,7 @@ private:
   bool breakTrajWith2ConsecutiveMissing;
   bool noInvalidHitsBeginEnd;
   
-  void smoothingStep(std::vector<Trajectory>& fitted, std::vector<Trajectory> & smoothed) const;
+
   TrajectoryStateWithArbitraryError   tsosWithError;
   
 };

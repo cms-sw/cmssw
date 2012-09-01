@@ -17,30 +17,30 @@
 
 const DetLayerGeometry KFTrajectoryFitter::dummyGeometry;
 
-std::vector<Trajectory> KFTrajectoryFitter::fit(const Trajectory& aTraj) const {
+Trajectory KFTrajectoryFitter::fitOne(const Trajectory& aTraj, fitType type) const {
 
-  if(aTraj.empty()) return std::vector<Trajectory>();
+  if(aTraj.empty()) return Trajectory();
  
   TM firstTM = aTraj.firstMeasurement();
   TSOS firstTsos = TrajectoryStateWithArbitraryError()(firstTM.updatedState());
   
-  return fit(aTraj.seed(), aTraj.recHits(), firstTsos);
+  return fitOne(aTraj.seed(), aTraj.recHits(), firstTsos,type);
 }
 
-std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
-						const RecHitContainer& hits) const{
+Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed&,
+				      const RecHitContainer&, fitType) const{
 
   throw cms::Exception("TrackFitters", 
 		       "KFTrajectoryFitter::fit(TrajectorySeed, <TransientTrackingRecHit>) not implemented"); 
 
-  return std::vector<Trajectory>();
+  return Trajectory();
 }
 
-std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
-						const RecHitContainer& hits,
-						const TSOS& firstPredTsos) const 
+Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
+				   const RecHitContainer& hits,
+				      const TSOS& firstPredTsos,fitType) const 
 {
-  if(hits.empty()) return std::vector<Trajectory>();
+  if(hits.empty()) return Trajectory();
 
 
   if (aSeed.direction() == anyDirection) 
@@ -63,8 +63,8 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
   LogTrace("TrackFitters") << " INITIAL STATE "<< firstPredTsos;
 #endif
 
-  std::vector<Trajectory> ret(1, Trajectory(aSeed, thePropagator->propagationDirection()));
-  Trajectory & myTraj = ret.front();
+  Trajectory ret(aSeed, thePropagator->propagationDirection());
+  Trajectory & myTraj = ret;
   myTraj.reserve(hits.size());
 
   TSOS predTsos(firstPredTsos);
@@ -74,7 +74,7 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
   for(RecHitContainer::const_iterator ihit = hits.begin(); ihit != hits.end(); ++ihit, ++hitcounter) {
 
     const TransientTrackingRecHit & hit = (**ihit);
-
+    
     if (hit.isValid() == false && hit.surface() == 0) {
       LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";
       continue;
@@ -153,7 +153,7 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 	break;      
       } else {        
 	LogDebug("TrackFitters") << " killing trajectory" << "\n";       
-	return std::vector<Trajectory>();
+	return Trajectory();
       }
     }
     
@@ -181,7 +181,7 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 	    break;      
 	  } else {        
 	    LogDebug("TrackFitters") << " killing trajectory" << "\n";       
-	    return std::vector<Trajectory>();
+	    return Trajectory();
 	  }
 	}
 	else{

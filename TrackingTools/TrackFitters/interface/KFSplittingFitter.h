@@ -5,16 +5,19 @@
  *  A Kalman track fit that splits matched RecHits into individual
  *  components before fitting them. Ported from ORCA
  *
- *  $Date: 2007/05/09 12:56:07 $
- *  $Revision: 1.5.2.1 $
+ *  $Date: 2007/05/09 14:17:57 $
+ *  $Revision: 1.6 $
  *  \author todorov, cerati
  */
 
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/RecHitSplitter.h"
 
-class KFSplittingFitter : public KFTrajectoryFitter {
+class KFSplittingFitter GCC11_FINAL : public TrajectoryFitter {
 
 private:
+
+  typedef RecHitSplitter::RecHitContainer        RecHitContainer;
 
   typedef TrajectoryStateOnSurface TSOS;
   typedef FreeTrajectoryState FTS;
@@ -25,23 +28,33 @@ public:
   KFSplittingFitter(const Propagator& aPropagator,
                     const TrajectoryStateUpdator& aUpdator,
                     const MeasurementEstimator& aEstimator) :
-    KFTrajectoryFitter(aPropagator, aUpdator, aEstimator) {}
+    fitter(aPropagator, aUpdator, aEstimator) {}
 
 
   KFSplittingFitter(const Propagator* aPropagator,
 		    const TrajectoryStateUpdator* aUpdator,
 		    const MeasurementEstimator* aEstimator) : 
-    KFTrajectoryFitter(aPropagator, aUpdator, aEstimator) {}
+    fitter(aPropagator, aUpdator, aEstimator) {}
 
   virtual KFSplittingFitter* clone() const {
-    return new KFSplittingFitter(propagator(),updator(),estimator());
+    return new KFSplittingFitter(fitter.propagator(),fitter.updator(),fitter.estimator());
   }
   
-  virtual std::vector<Trajectory> fit(const Trajectory& aTraj) const;
-  virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
-				      const RecHitContainer& hits, 
-				      const TSOS& firstPredTsos) const;
+  Trajectory fitOne(const Trajectory& aTraj,
+		    fitType type) const;
+  Trajectory fitOne(const TrajectorySeed& aSeed,
+		    const RecHitContainer& hits,
+		    fitType type) const;
+ Trajectory fitOne(const TrajectorySeed& aSeed,
+		    const RecHitContainer& hits, 
+		    const TSOS& firstPredTsos,
+		    fitType type) const;
 
+ private :
+
+ void sorter(const RecHitContainer& hits, PropagationDirection dir, RecHitContainer & result) const;
+
+ KFTrajectoryFitter fitter;
 
 };
 

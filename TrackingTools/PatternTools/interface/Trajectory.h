@@ -53,7 +53,7 @@ public:
     theSeed(), seedRef_(),
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(anyDirection), theDirectionValidity(false), theValid(true),theDPhiCache(0),theNLoops(0)
+    theDirection(anyDirection), theDirectionValidity(false), theValid(false),theDPhiCache(0),theNLoops(0)
     {}
 
 
@@ -192,7 +192,7 @@ public:
    */
   TrajectoryMeasurement const & lastMeasurement() const {
     check(); 
-    if (theData.back().recHit()->hit()!=0) return theData.back();
+    if (theData.back().recHitR().hit()!=0) return theData.back();
     else if (theData.size()>2) return *(theData.end()-2);
     else throw cms::Exception("TrajectoryMeasurement::lastMeasurement - Too few measurements in trajectory");
   }
@@ -205,7 +205,7 @@ public:
    */
   TrajectoryMeasurement const & firstMeasurement() const {
     check(); 
-    if (theData.front().recHit()->hit()!=0) return theData.front();
+    if (theData.front().recHitR().hit()!=0) return theData.front();
     else if (theData.size()>2) return *(theData.begin()+1);
     else throw cms::Exception("TrajectoryMeasurement::firstMeasurement - Too few measurements in trajectory");
   }

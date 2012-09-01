@@ -4,14 +4,14 @@
 /** \class FlexibleKFFittingSmoother
  *  Combine different FittingSmoother in a single module
  *
- *  $Date: 2012/03/06 $
+ *  $Date: 2012/03/06 16:35:56 $
  *  $Revision: 1.1 $
  *  \author mangano
  */
 
 #include "TrackingTools/TrackFitters/interface/KFFittingSmoother.h"
 
-class FlexibleKFFittingSmoother : public TrajectoryFitter {
+class FlexibleKFFittingSmoother GCC11_FINAL : public TrajectoryFitter {
 
 public:
   /// constructor with predefined fitter and smoother and propagator
@@ -22,41 +22,28 @@ public:
   
   virtual ~FlexibleKFFittingSmoother();
   
-  virtual std::vector<Trajectory> fit(const Trajectory& t) const {
-    return theStandardFitter->fit(t);
-  }
-
-  virtual std::vector<Trajectory> fit(const Trajectory& t,fitType type) const;
-
-
-  virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
-				      const RecHitContainer& hits, 
-				      const TrajectoryStateOnSurface& firstPredTsos) const{
-    return theStandardFitter->fit(aSeed,hits,firstPredTsos);
-  }
-
-  virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
-				      const RecHitContainer& hits, 
-				      const TrajectoryStateOnSurface& firstPredTsos,
-				      fitType type) const;
+  Trajectory fitOne(const Trajectory& t,fitType type) const{ return fitter(type)->fitOne(t,type);}
   
-  virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
-				      const RecHitContainer& hits) const{
-    return theStandardFitter->fit(aSeed,hits);
-  }
-
-  virtual std::vector<Trajectory> fit(const TrajectorySeed& aSeed,
-				      const RecHitContainer& hits,
-				      fitType type) const;
-
-  //const TrajectoryFitter* fitter() const {return theFitter;}
-  //const TrajectorySmoother* smoother() const {return theSmoother;}
-
+  
+  Trajectory fitOne(const TrajectorySeed& aSeed,
+		    const RecHitContainer& hits, 
+		    const TrajectoryStateOnSurface& firstPredTsos,
+		    fitType type) const {return fitter(type)->fitOne(aSeed,hits,firstPredTsos,type); }
+  
+  Trajectory fitOne(const TrajectorySeed& aSeed,
+		    const RecHitContainer& hits,
+		    fitType type) const { return fitter(type)->fitOne(aSeed,hits,type); }
+  
   FlexibleKFFittingSmoother* clone() const {
     return new FlexibleKFFittingSmoother(*theStandardFitter,*theLooperFitter);
   }
   
-private:
+ private:
+  
+  const TrajectoryFitter* fitter(fitType type) const {
+    return (type==standard) ? theStandardFitter : theLooperFitter;
+  }
+  
   const TrajectoryFitter* theStandardFitter;
   const TrajectoryFitter* theLooperFitter;
   

@@ -4,6 +4,8 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
 class TrajectorySeed;
 class TrajectoryStateOnSurface;
 
@@ -21,27 +23,34 @@ public:
   typedef Trajectory::RecHitContainer      RecHitContainer;
 
   virtual ~TrajectoryFitter() {}
-
-  virtual std::vector<Trajectory> fit(const Trajectory&) const = 0;
-  virtual std::vector<Trajectory> fit(const Trajectory& traj, fitType type) const {return fit(traj);}
-
-
-  virtual std::vector<Trajectory> fit(const TrajectorySeed&,
-				      const RecHitContainer&) const = 0;
-  virtual std::vector<Trajectory> fit(const TrajectorySeed& seed,
-				      const RecHitContainer& hits, fitType type) const {return fit(seed,hits);}
-
-
-  virtual std::vector<Trajectory> fit(const TrajectorySeed&,
-				      const RecHitContainer&, 
-				      const TrajectoryStateOnSurface&) const = 0;
-  virtual std::vector<Trajectory> fit(const TrajectorySeed& seed,
-				      const RecHitContainer& hits, 
-				      const TrajectoryStateOnSurface& tsos,
-				      fitType type) const {return fit(seed,hits,tsos);}
-
-
   virtual TrajectoryFitter* clone() const = 0;
+
+  // new interface return one trajectory: if fit fails trajectory is invalid...
+  virtual Trajectory fitOne(const Trajectory& traj, fitType type=standard) const=0;
+  virtual Trajectory fitOne(const TrajectorySeed& seed,
+			    const RecHitContainer& hits, fitType typee=standard) const =0;
+  virtual Trajectory fitOne(const TrajectorySeed& seed,
+			    const RecHitContainer& hits, 
+			    const TrajectoryStateOnSurface& tsos, fitType type=standard) const=0;
+  
+  
+  // backward compatible interface...
+  std::vector<Trajectory> fit(const Trajectory& traj, fitType type=standard) const {return makeVect(fitOne(traj,type));}
+  
+  std::vector<Trajectory> fit(const TrajectorySeed& seed,
+			      const RecHitContainer& hits, fitType type=standard) const {return makeVect(fitOne(seed,hits,type));}
+  std::vector<Trajectory> fit(const TrajectorySeed& seed,
+			      const RecHitContainer& hits, 
+			      const TrajectoryStateOnSurface& tsos,
+				    fitType type=standard) const {return makeVect(fitOne(seed,hits,tsos,type));}
+  
+private:
+
+  static std::vector<Trajectory> makeVect(Trajectory && outTraj) {
+    if (outTraj.isValid()) return std::vector<Trajectory>(1,std::move(outTraj));
+    return std::vector<Trajectory>();
+  }
+
 };
 
 #endif
