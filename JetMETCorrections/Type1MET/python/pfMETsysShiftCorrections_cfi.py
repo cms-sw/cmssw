@@ -103,18 +103,18 @@ pfMEtSysShiftCorrParameters_2011runAplusBvsNvtx_mc = cms.VPSet(cms.PSet(
     py = cms.string("-4.54408e-01 - 1.89684e-01*Nvtx")
 ))
 
-pfMEtSysShiftCorrParameters_2012runAvsNvtx_data = cms.VPSet(cms.PSet(
+pfMEtSysShiftCorrParameters_2012runAplusBvsNvtx_data = cms.VPSet(cms.PSet(
     numJetsMin = cms.int32(-1),
     numJetsMax = cms.int32(-1),
-    px = cms.string("+3.54233e-01 + 2.65299e-01*Nvtx"),
-    py = cms.string("+1.88923e-01 - 1.66425e-01*Nvtx")
+    px = cms.string("+1.68804e-01 + 3.37139e-01*Nvtx"),
+    py = cms.string("-1.72555e-01 - 1.79594e-01*Nvtx")
 ))
 
-pfMEtSysShiftCorrParameters_2012runAvsNvtx_mc = cms.VPSet(cms.PSet(
+pfMEtSysShiftCorrParameters_2012runAplusBvsNvtx_mc = cms.VPSet(cms.PSet(
     numJetsMin = cms.int32(-1),
     numJetsMax = cms.int32(-1),
-    px = cms.string("-2.99576e-02 - 6.61932e-02*Nvtx"),
-    py = cms.string("+3.70819e-01 - 1.48617e-01*Nvtx")
+    px = cms.string("+2.22335e-02 - 6.59183e-02*Nvtx"),
+    py = cms.string("+1.52720e-01 - 1.28052e-01*Nvtx")
 ))
 
 selectedVerticesForMEtCorr = cms.EDFilter("VertexSelector",
@@ -129,7 +129,7 @@ pfMEtSysShiftCorr = cms.EDProducer("SysShiftMETcorrInputProducer",
     srcVertices = cms.InputTag('selectedVerticesForMEtCorr'),
     srcJets = cms.InputTag('ak5PFJets'),
     jetPtThreshold = cms.double(10.),
-    parameter = pfMEtSysShiftCorrParameters_2012runAvsNvtx_data
+    parameter = pfMEtSysShiftCorrParameters_2012runAplusBvsNvtx_data
 )                                     
 
 pfMEtSysShiftCorrSequence = cms.Sequence(selectedVerticesForMEtCorr * pfMEtSysShiftCorr)
