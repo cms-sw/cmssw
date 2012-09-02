@@ -431,14 +431,17 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 	      std::string slegenda = ((xdata::String*)legenda)->value_;
 	      ratestat_->sendLegenda(slegenda);
 	    }
-
+	    if (sorRef_) {
+	      xdata::String dsLegenda =  sorRef_->getDatasetNamesString();
+	      ratestat_->sendAuxLegenda(dsLegenda);
+	    }
 	  }
 	  catch(evf::Exception &e){
 	    LOG4CPLUS_INFO(getApplicationLogger(),"coud not send legenda"
-			   << e.what());
+		<< e.what());
 	  }
 	}
-	
+
 	fsm_.fireEvent("ConfigureDone",this);
 	LOG4CPLUS_INFO(getApplicationLogger(),"Finished configuring!");
 	localLog("-I- Configuration completed");
@@ -528,6 +531,10 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 	  {
 	    std::string slegenda = ((xdata::String*)legenda)->value_;
 	    ratestat_->sendLegenda(slegenda);
+	  }
+	  if (sorRef_) {
+	    xdata::String dsLegenda =  sorRef_->getDatasetNamesString();
+	    ratestat_->sendAuxLegenda(dsLegenda);
 	  }
 	}
       catch(evf::Exception &e)
@@ -999,7 +1006,7 @@ void FUEventProcessor::scalersWeb(xgi::Input  *in, xgi::Output *out)
   out->getHTTPResponseHeader().addHeader( "Content-Transfer-Encoding",
 					  "binary" );
   if(evtProcessor_ != 0){
-    out->write( (char*)(evtProcessor_.getPackedTriggerReportAsStruct()), sizeof(TriggerReportStatic) );
+    out->write( (char*)(evtProcessor_.getPackedTriggerReportAsStruct()), sizeof(TriggerReportStatic));
   }
 }
 
@@ -2649,7 +2656,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.155 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.156 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
