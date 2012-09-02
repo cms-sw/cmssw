@@ -1,7 +1,7 @@
 2012-09-02 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V00-08-16
-	* forgot to add experimental module definition
+	* forgot to remove experimental module definition
 
 2012-09-02 Srecko Morovic <srecko.morovic@cern.ch>
 
