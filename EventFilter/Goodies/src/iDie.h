@@ -152,17 +152,20 @@ namespace evf {
     void parseModuleLegenda(std::string);
     void parseModuleHisto(const char *, unsigned int);
     void parsePathLegenda(std::string);
+    void parseDatasetLegenda(std::string);
     void parsePathHisto(const unsigned char *, unsigned int);
     void initFramework();
     void deleteFramework();
     void initMonitorElements();
     void initMonitorElementsStreams();
+    void initMonitorElementsDatasets();
     void fillDQMStatHist(unsigned int nbsIdx, unsigned int lsid);
     void fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsigned int nonIdle,
 		                 std::vector<std::pair<unsigned int, unsigned int>> offenders);
  
     void updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * lst, commonLsStat * clst, bool roll);
     void updateStreamHistos(unsigned int forls, commonLsStat *clst, commonLsStat *prevclst);
+    void updateDatasetHistos(unsigned int forls, commonLsStat *clst, commonLsStat *prevclst);
     void doFlush();
     void perLumiFileSaver(unsigned int lsid);
     void perTimeFileSaver();
@@ -218,6 +221,10 @@ namespace evf {
     timeval                         lastModuleLegendaMessageTimeStamp_;
     timeval                         lastPathLegendaMessageTimeStamp_;
 
+    int                             nDatasetLegendaMessageReceived_;
+    int                             nDatasetLegendaMessageWithDataReceived_;
+    timeval                         lastDatasetLegendaMessageTimeStamp_;
+
     //DQM histogram statistics
     std::vector<unsigned int> epInstances;
     std::vector<unsigned int> epMax;
@@ -227,6 +234,7 @@ namespace evf {
     std::vector<float> machineWeightInst;
 
     std::vector<std::string > endPathNames_;
+    std::vector<std::string > datasetNames_;
 
     class commonLsStat {
       
@@ -239,6 +247,7 @@ namespace evf {
       std::vector<float> busyCPUVecTheor_;
       std::vector<unsigned int> nbMachines;
       std::vector<unsigned int> endPathCounts_; 
+      std::vector<unsigned int> datasetCounts_; 
       commonLsStat(unsigned int lsid,unsigned int classes) {
         for (size_t i=0;i<classes;i++) {
 	  rateVec_.push_back(0.);
@@ -522,6 +531,7 @@ namespace evf {
     edm::EventProcessor             *evtProcessor_;
     bool                            meInitialized_;
     bool                            meInitializedStreams_;
+    bool                            meInitializedDatasets_;
     DQMService                      *dqmService_;
     DQMStore                        *dqmStore_;
     std::string                     configString_;
@@ -552,8 +562,9 @@ namespace evf {
 
     //endpath statistics
     std::vector<MonitorElement *> endPathRates_;
-    std::vector<MonitorElement *> endPathCumulative_;
-    //std::map<unsigned int,std::pair<unsigned int,std::string>> endPathIndex_;
+
+    //dataset statistics
+    std::vector<MonitorElement *> datasetRates_;
 
     std::vector<unsigned int> currentLs_;
 

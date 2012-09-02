@@ -1,6 +1,7 @@
 2012-08-31 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V00-02-17
+	* datasets rates (depends on Utilities,Modules,Processor changes)
 	* fix a bug with integer division instead of FP
 
 2012-08-28 Srecko Morovic <srecko.morovic@cern.ch>

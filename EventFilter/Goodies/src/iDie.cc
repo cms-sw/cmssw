@@ -78,9 +78,12 @@ iDie::iDie(xdaq::ApplicationStub *s)
   , nPathLegendaMessageWithDataReceived_(0)
   , nModuleHistoMessageReceived_(0)
   , nPathHistoMessageReceived_(0)
+  , nDatasetLegendaMessageReceived_(0)
+  , nDatasetLegendaMessageWithDataReceived_(0)
   , evtProcessor_(0)
   , meInitialized_(false)
   , meInitializedStreams_(false)
+  , meInitializedDatasets_(false)
   , dqmService_(nullptr)
   , dqmStore_(nullptr)
   , dqmEnabled_(false)
@@ -137,6 +140,8 @@ iDie::iDie(xdaq::ApplicationStub *s)
   lastModuleLegendaMessageTimeStamp_.tv_usec=0;
   lastPathLegendaMessageTimeStamp_.tv_sec=0;
   lastPathLegendaMessageTimeStamp_.tv_usec=0;
+  lastDatasetLegendaMessageTimeStamp_.tv_sec=0;
+  lastDatasetLegendaMessageTimeStamp_.tv_usec=0;
   runStartDetectedTimeStamp_.tv_sec=0;
   runStartDetectedTimeStamp_.tv_usec=0;
 
@@ -254,12 +259,14 @@ xoap::MessageReference iDie::fsmCallback(xoap::MessageReference msg)
         usleep(10000);//propagating dqmState to caches
         meInitialized_=false;
         meInitializedStreams_=false;
-	//endPathNames_.clear();
+        meInitializedDatasets_=false;
         sleep(1);//making sure that any running ls update finishes
 
         dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/");
         dqmStore_->removeContents();
         dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Streams/");
+        dqmStore_->removeContents();
+        dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Datasets/");
         dqmStore_->removeContents();
         doFlush(); 
       }
@@ -541,6 +548,11 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
     {
       parsePathLegenda(el1[0].getValue());
     }
+    cgi.getElement("LegendaAux",el1);
+    if (el1.size()!=0)
+    {
+      parseDatasetLegenda(el1[0].getValue());
+    }
     cgi.getElement("trp",el1);
     if(el1.size()!=0)
     {
@@ -821,7 +833,7 @@ void iDie::parsePathLegenda(std::string leg)
        tok_iter != tokens.end(); ++tok_iter){
       mappath_.push_back((*tok_iter));
 
-      if (!meInitializedStreams_ && std::string(*tok_iter).find("Output")!=std::string::npos) {
+      if (std::string(*tok_iter).find("Output")!=std::string::npos) {
 	std::string path_token = *tok_iter;
 	if (path_token.find("=")!=std::string::npos)
           endPathNames_.push_back(path_token.substr(path_token.find("=")+1));
@@ -835,7 +847,7 @@ void iDie::parsePathLegenda(std::string leg)
     for (boost::tokenizer<boost::char_separator<char> >::iterator tok_iter = tokens.begin();
 	tok_iter != tokens.end(); ++tok_iter){
 
-      if (!meInitializedStreams_ && std::string(*tok_iter).find("output")!=std::string::npos) {
+      if (std::string(*tok_iter).find("output")!=std::string::npos) {
 	std::string path_token = *tok_iter;
 	if (path_token.find("=")!=std::string::npos)
 	  endPathNames_.push_back(path_token.substr(path_token.find("=")+1));
@@ -843,6 +855,21 @@ void iDie::parsePathLegenda(std::string leg)
 	  endPathNames_.push_back(*tok_iter);
       }
     }
+  }
+}
+
+void iDie::parseDatasetLegenda(std::string leg)
+{
+  nDatasetLegendaMessageReceived_++;
+  if(leg=="")return;
+  gettimeofday(&lastDatasetLegendaMessageTimeStamp_,0);
+  nDatasetLegendaMessageWithDataReceived_++;
+  boost::char_separator<char> sep(",");
+  boost::tokenizer<boost::char_separator<char> > tokens(leg, sep);
+  datasetNames_.clear();
+  for (boost::tokenizer<boost::char_separator<char> >::iterator tok_iter = tokens.begin();
+       tok_iter != tokens.end(); ++tok_iter){
+      datasetNames_.push_back((*tok_iter));
   }
 }
 
@@ -891,6 +918,15 @@ void iDie::parsePathHisto(const unsigned char *crp, unsigned int lsid)
         else cst->endPathCounts_.push_back(r_.etimesPassed[i]);
       }
     }
+
+  for( int i=0; i< trppriv_->datasetsInMenu; i++)
+  {
+    if (cst) {
+      if ((unsigned)i < cst->datasetCounts_.size()) cst->datasetCounts_[i]+=trppriv_->datasetSummaries[i].timesPassed;
+      else cst->datasetCounts_.push_back(trppriv_->datasetSummaries[i].timesPassed);
+    }
+  }
+
   r_.nproc = trppriv_->eventSummary.totalEvents;
   r_.nsub = trppriv_->nbExpected;
   r_.nrep = trppriv_->nbReporting;
@@ -1151,7 +1187,7 @@ void iDie::initMonitorElements()
   busySummaryTitle << "DAQ HLT Farm busy (%) for run "<< runNumber_.value_;
   lastRunNumberSet_ = runNumber_.value_;
   daqBusySummary_ = dqmStore_->book1D("reportSummaryMap",busySummaryTitle.str(),4000,1,4001.);
-  daqBusySummary2_ = dqmStore_->book1D("reportSummaryMap_PROCSTAT","DAQ HLT Farm busy (%) from /proc/stat (%max)",4000,1,4001.);
+  daqBusySummary2_ = dqmStore_->book1D("reportSummaryMap_PROCSTAT","DAQ HLT Farm busy (%) from /proc/stat",4000,1,4001.);
 
   for (size_t i=1;i<=ROLL;i++) {
     std::ostringstream ostr;
@@ -1209,10 +1245,24 @@ void iDie::initMonitorElementsStreams() {
   dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Streams/");
   for (size_t i=0;i<endPathNames_.size();i++) {
     endPathRates_.push_back(dqmStore_->book1D(std::string("00 ") + endPathNames_[i]+"_RATE",endPathNames_[i]+" events/s",4000,1,4001.));
-    //endPathCumulative_.push_back(dqmStore_->book1D(std::string("01 ") + endPathNames_[i]+"_CUMULATIVE",endPathNames_[i]+" events",4000,1,4001.));
   }
   meInitializedStreams_=true;
 }
+
+
+void iDie::initMonitorElementsDatasets() {
+  if (!dqmEnabled_.value_ || !evtProcessor_) return;
+  if (meInitializedDatasets_) return;
+
+  //add OUTPUT Stream histograms
+  datasetRates_.clear();
+  dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Datasets/");
+  for (size_t i=0;i<datasetNames_.size();i++) {
+    datasetRates_.push_back(dqmStore_->book1D(std::string("00 ") + datasetNames_[i]+"_RATE",datasetNames_[i]+" events/s",4000,1,4001.));
+  }
+  meInitializedDatasets_=true;
+}
+
 
 void iDie::deleteFramework()
 {
@@ -1242,6 +1292,7 @@ void iDie::fillDQMStatHist(unsigned int nbsIdx, unsigned int lsid)
       updateRollingHistos(nbsIdx, forls,lst,clst,i==(int)qsize-1);
       commonLsStat * prevclst = clsPos>0 ? commonLsHistory[clsPos-1]:nullptr;
       updateStreamHistos(forls,clst,prevclst);
+      updateDatasetHistos(forls,clst,prevclst);
     }
   }
 }
@@ -1347,7 +1398,7 @@ void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * 
   //filling plots
   daqBusySummary_->setBinContent(lsid,busyAvg*100.);
   daqBusySummary_->setBinError(lsid,0);
-  daqBusySummary2_->setBinContent(lsid,clst->getBusyTotalFracTheor(true,machineWeight)*100.);
+  daqBusySummary2_->setBinContent(lsid,busyAvgCPU*100.);
   daqBusySummary2_->setBinError(lsid,0);
 
   //"rolling" histograms
@@ -1370,21 +1421,35 @@ void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * 
 
 }
 
-void iDie::updateStreamHistos(unsigned int forls, commonLsStat *clst, commonLsStat *prevclst) {
-  initMonitorElementsStreams();//reinitialize if needed
+void iDie::updateStreamHistos(unsigned int forls, commonLsStat *clst, commonLsStat *prevclst)
+{
+  if (endPathRates_.size()!=endPathNames_.size()) meInitializedStreams_=false; 
+  initMonitorElementsStreams();//reinitialize (conditionally)
   for (size_t i=0;i<endPathRates_.size();i++) {
     unsigned int count_current=0;
     unsigned int count_last=0;
     if (clst->endPathCounts_.size()>i) {
       count_current=clst->endPathCounts_[i];
     }
-    //if (prevclst && prevclst->endPathCounts_.size()>i) {
-      //count_last=clst->endPathCounts_[i];
-    //}
-    //endPathCumulative_[i]->setBinContent(forls,count_current);
     endPathRates_[i]->setBinContent(forls,(count_current-count_last)/23.1);//approx ls
   } 
 }
+
+
+void iDie::updateDatasetHistos(unsigned int forls, commonLsStat *clst, commonLsStat *prevclst)
+{
+  if (datasetRates_.size()!=datasetNames_.size()) meInitializedDatasets_=false; 
+  initMonitorElementsDatasets();//reinitialize (conditionally)
+  for (size_t i=0;i<datasetRates_.size();i++) {
+    unsigned int count_current=0;
+    unsigned int count_last=0;
+    if (clst->datasetCounts_.size()>i) {
+      count_current=clst->datasetCounts_[i];
+    }
+    datasetRates_[i]->setBinContent(forls,(count_current-count_last)/23.1);//approx ls
+  } 
+}
+
 
 void iDie::fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsigned int nonIdle, std::vector<std::pair<unsigned int,unsigned int>> offenders)
 {
