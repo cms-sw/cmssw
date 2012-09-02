@@ -9,7 +9,6 @@
 #include "EventFilter/Modules/interface/ShmOutputModuleRegistry.h"
 
 typedef edm::StreamerOutputModule<edm::FUShmOutputModule> ShmStreamConsumer;
-typedef edm::StreamerOutputModule<edm::FUWriterModule> FUStreamWriter;
 
 using edm::FUShmOutputModule;
 using namespace edm::serviceregistry;
