@@ -37,6 +37,39 @@
 #include "RecoTracker/TrackProducer/interface/ClusterRemovalRefSetter.h"
 
 
+namespace {
+#ifdef STAT_TSB
+  struct StatCount {
+    long long totBegin=0;
+    long long totEnd=0;
+    void begin(int tt) {
+      totBegin+=tt;
+    }
+    void end(int tt) { totEnd+=tt;}
+
+
+    void print() const {
+      std::cout << "TrackListMerger stat\nBegin/End/ "
+    		<<  totTrack <<'/'<< totBegin <<'/'<< totEnd
+		<< std::endl;
+    }
+    StatCount() {}
+    ~StatCount() { print();}
+  };
+
+#else
+  struct StatCount {
+    void begin(int){}
+    void end(int){}
+  };
+#endif
+
+  StatCount statCount;
+
+}
+
+
+
 namespace cms
 {
   
@@ -154,7 +187,8 @@ namespace cms
       rSize+=trackCollSizes[i];
     }
     
-    
+    statCount.begin(rSize);
+
     //
     //  quality cuts first
     // 
@@ -533,6 +567,9 @@ namespace cms
       }
     }
     
+    statCount.begin(outputTrks->size());
+
+
     e.put(outputTrks);
     if (copyExtras_) {
       e.put(outputTrkExtras);
