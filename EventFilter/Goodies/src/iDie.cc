@@ -1244,7 +1244,7 @@ void iDie::initMonitorElementsStreams() {
   endPathRates_.clear();
   dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Streams/");
   for (size_t i=0;i<endPathNames_.size();i++) {
-    endPathRates_.push_back(dqmStore_->book1D(std::string("00 ") + endPathNames_[i]+"_RATE",endPathNames_[i]+" events/s",4000,1,4001.));
+    endPathRates_.push_back(dqmStore_->book1D(endPathNames_[i]+"_RATE",endPathNames_[i]+" events/s",4000,1,4001.));
   }
   meInitializedStreams_=true;
 }
@@ -1258,7 +1258,7 @@ void iDie::initMonitorElementsDatasets() {
   datasetRates_.clear();
   dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Datasets/");
   for (size_t i=0;i<datasetNames_.size();i++) {
-    datasetRates_.push_back(dqmStore_->book1D(std::string("00 ") + datasetNames_[i]+"_RATE",datasetNames_[i]+" events/s",4000,1,4001.));
+    datasetRates_.push_back(dqmStore_->book1D(datasetNames_[i]+"_RATE",datasetNames_[i]+" events/s",4000,1,4001.));
   }
   meInitializedDatasets_=true;
 }
