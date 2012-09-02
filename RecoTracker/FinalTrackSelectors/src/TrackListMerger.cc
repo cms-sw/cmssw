@@ -290,7 +290,7 @@ namespace cms
       for ( unsigned int i=0; i<rSize; i++) saveSelected[i]=selected[i];
       
       //DL protect against 0 tracks? 
-      for ( unsigned int i=0; i<trackCollFirsts[collsSize-1]; i++) {
+      for ( unsigned int i=0; i<trackCollFirsts[collsSize-2]; i++) {
 	if (selected[i]==0) continue;
 	unsigned int collNum=trackCollNum[i];
 	//nothing to do if this is the last collection
@@ -305,7 +305,7 @@ namespace cms
 	int nhit1 = validHits[i];
 	double score1 = score[i];
 	
-	for ( unsigned int j=trackCollFirsts[collNum]; j<rSize; j++) {
+	for ( unsigned int j=trackCollFirsts[collNum+1]; j<rSize; j++) {
 	  if (selected[j]==0) continue;
 	  unsigned int collNum2=trackCollNum[j];
 	  assert ( collNum != collNum2);
