@@ -50,7 +50,7 @@ namespace {
 
     void print() const {
       std::cout << "TrackListMerger stat\nBegin/End/ "
-    		<<  totTrack <<'/'<< totBegin <<'/'<< totEnd
+    		<<  totBegin <<'/'<< totEnd
 		<< std::endl;
     }
     StatCount() {}
@@ -567,7 +567,7 @@ namespace cms
       }
     }
     
-    statCount.begin(outputTrks->size());
+    statCount.end(outputTrks->size());
 
 
     e.put(outputTrks);
