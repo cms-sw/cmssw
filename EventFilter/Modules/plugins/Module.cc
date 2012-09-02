@@ -18,7 +18,6 @@ typedef ParameterSetMaker<ShmOutputModuleRegistry> maker3;
 
 
 DEFINE_FWK_MODULE(ShmStreamConsumer);
-DEFINE_FWK_MODULE(FUStreamWriter);
 DEFINE_FWK_SERVICE_MAKER(FUShmDQMOutputService,dssMaker);
 DEFINE_FWK_SERVICE_MAKER(ShmOutputModuleRegistry,maker3);
 
