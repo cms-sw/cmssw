@@ -101,14 +101,12 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
   // }
   
   ndof = 0;
-  TransientTrackingRecHit::RecHitContainer validHits;
-  theTraj->validRecHits(validHits);
   for (auto const & tm : theTraj->measurements()) {
     auto const & h = tm.recHitR();
-    if (h.isValid()) ndof = ndof + h.dimension()*h.weight();
+    if (h.isValid()) ndof = ndof + float(h.dimension())*h.weight();  // two virtual calls!
   }
-
-  ndof = ndof - 5;
+  
+  ndof -= 5.f;
   if unlikely(std::abs(theTSOS.magneticField()->nominalValue())<DBL_MIN) ++ndof;  // same as -4
  
  
@@ -211,8 +209,6 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
   //     }
   
   ndof = 0;
-  TransientTrackingRecHit::RecHitContainer validHits;
-  theTraj->validRecHits(validHits);
   for (auto const & tm : theTraj->measurements()) {
     auto const & h = tm.recHitR();
     if (h.isValid()) ndof = ndof + h.dimension()*h.weight();
