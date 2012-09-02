@@ -28,11 +28,15 @@ namespace evf
       void dumpRegistry();
       std::vector<edm::FUShmOutputModule *> getShmOutputModules();
 
+      std::string getDatasetNamesString();
+      std::vector<edm::FUShmOutputModule *> & getShmOutputModulesWithDatasets() {return shmOutputsWithDatasets_;}
+
     private:
       typedef std::map<std::string, OutputModule*> dct;
       typedef dct::iterator idct;
       void clear();
       dct clm_;
+      std::vector<edm::FUShmOutputModule *> shmOutputsWithDatasets_;
       friend class FWEPWrapper;
     };
 }

@@ -48,5 +48,26 @@ namespace evf{
      clm_.clear();
   }
 
-
+  std::string ShmOutputModuleRegistry::getDatasetNamesString()
+  {
+    shmOutputsWithDatasets_.clear();
+    std::vector<std::string> listOfDatasets;
+    std::vector<edm::FUShmOutputModule *> outputs = getShmOutputModules();
+    for (unsigned int i=0;i<outputs.size();i++) {
+      edm::FUShmOutputModule * output = outputs[i];
+      if (output->getStreamId().size()) {
+	std::vector<std::string> datasets  = output->getDatasetNames();
+	listOfDatasets.insert(listOfDatasets.end(),datasets.begin(),datasets.end());
+	if (datasets.size())
+	  shmOutputsWithDatasets_.push_back(output);
+      }
+    }
+    std::string datasetNameString;
+    for (unsigned int i=0;i<listOfDatasets.size();i++) {
+      if (i)
+        datasetNameString+=",";
+      datasetNameString+=listOfDatasets[i];
+    }
+    return datasetNameString;
+  }
 } //end namespace evf
