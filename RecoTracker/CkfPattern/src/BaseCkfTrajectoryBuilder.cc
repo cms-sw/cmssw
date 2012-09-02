@@ -209,19 +209,19 @@ BaseCkfTrajectoryBuilder::findStateAndLayers(const TempTrajectory& traj) const
   if (traj.empty())
     {
       //set the currentState to be the one from the trajectory seed starting point
-      PTrajectoryStateOnDet ptod = traj.seed().startingState();
+      PTrajectoryStateOnDet const & ptod = traj.seed().startingState();
       DetId id(ptod.detId());
       const GeomDet * g = theMeasurementTracker->geomTracker()->idToDet(id);                    
       const Surface * surface=&g->surface();
       
       
-      TSOS currentState = TrajectoryStateOnSurface(trajectoryStateTransform::transientState(ptod,surface,theForwardPropagator->magneticField()));      
+      TSOS currentState(trajectoryStateTransform::transientState(ptod,surface,theForwardPropagator->magneticField()));      
       const DetLayer* lastLayer = theMeasurementTracker->geometricSearchTracker()->detLayer(id);      
       return StateAndLayers(currentState,lastLayer->nextLayers( *currentState.freeState(), traj.direction()) );
     }
   else
     {  
-      TSOS currentState = traj.lastMeasurement().updatedState();
+      TSOS const & currentState = traj.lastMeasurement().updatedState();
       return StateAndLayers(currentState,traj.lastLayer()->nextLayers( *currentState.freeState(), traj.direction()) );
     }
 }
