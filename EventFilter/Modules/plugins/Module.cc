@@ -3,7 +3,6 @@
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "IOPool/Streamer/interface/StreamerOutputModule.h"
 #include "EventFilter/Modules/src/FUShmOutputModule.h"
-#include "EventFilter/Modules/src/FUWriterModule.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "EventFilter/Modules/interface/FUShmDQMOutputService.h"
 #include "EventFilter/Modules/interface/ShmOutputModuleRegistry.h"
