@@ -142,13 +142,11 @@ private :
 			    TempTrajectory& candidate,
 			    TempTrajectoryContainer& result) const  dso_internal;
 
-  // ** Backward fit of trajectory candidate except seed. Fit result and
-  // *  remaining hits are returned in fittedTracks and remainingHits.
-  // *  FittedTracks is empty if no fit was done. *
-  void backwardFit (TempTrajectory& candidate, unsigned int nSeed,
-		    const TrajectoryFitter& fitter,
-		    TempTrajectoryContainer& fittedTracks,
-		    std::vector<const TrackingRecHit*>& remainingHits) const  dso_internal;
+  // ** Backward fit of trajectory candidate except seed. Fit result is returned. invalid if fit failed
+  // *  remaining hits are returned  remainingHits.
+  TempTrajectory backwardFit (TempTrajectory& candidate, unsigned int nSeed,
+			      const TrajectoryFitter& fitter,
+			      std::vector<const TrackingRecHit*>& remainingHits) const  dso_internal;
 
   /// Verifies presence of a RecHits in a range of TrajectoryMeasurements.
   bool verifyHits (TempTrajectory::DataContainer::const_iterator rbegin,

@@ -791,7 +791,6 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(TempTrajectory const & startin
   //
   KFTrajectoryFitter fitter(&(*theBackwardPropagator),&updator(),&estimator());
   //
-  TempTrajectoryContainer reFitted;
   TrajectorySeed::range rseedHits = startingTraj.seed().recHits();
   std::vector<const TrackingRecHit*> seedHits;
   //seedHits.insert(seedHits.end(), rseedHits.first, rseedHits.second);
@@ -821,20 +820,20 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(TempTrajectory const & startin
     // or fails
     //
 
-    backwardFit(*it,nSeed,fitter,reFitted,seedHits);
-    if ( reFitted.size()!=1 ) {
-      rebuiltTrajectories.push_back(std::move(*it));
-      LogDebug("CkfPattern")<< "RebuildSeedingRegion skipped as backward fit failed";
-      //			    << "after reFitted.size() " << reFitted.size();
-      continue;
-    }
+    auto && reFitted = backwardFit(*it,nSeed,fitter,seedHits);
+    if unlikely( !reFitted.isValid() ) {
+	rebuiltTrajectories.push_back(std::move(*it));
+	LogDebug("CkfPattern")<< "RebuildSeedingRegion skipped as backward fit failed";
+	//			    << "after reFitted.size() " << reFitted.size();
+	continue;
+      }
     //LogDebug("CkfPattern")<<"after reFitted.size() " << reFitted.size();
     //
     // Rebuild seeding part. In case it fails: keep initial trajectory
     // (better to drop it??)
     //
     int nRebuilt =
-      rebuildSeedingRegion (seedHits,reFitted.front(),rebuiltTrajectories);
+      rebuildSeedingRegion (seedHits,reFitted,rebuiltTrajectories);
 
     if ( nRebuilt==0 ) it->invalidate();  // won't use original in-out track
 
@@ -962,25 +961,20 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const std::vector<const Tracki
   return nrOfTrajectories;
 }
 
-void
+TempTrajectory
 GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned int nSeed,
 					  const TrajectoryFitter& fitter,
-					  TempTrajectoryContainer& fittedTracks,
 					  std::vector<const TrackingRecHit*>& remainingHits) const
 {
   //
   // clear array of non-fitted hits
   //
   remainingHits.clear();
-  fittedTracks.clear();
   //
   // skip candidates which are not exceeding the seed size
   // (e.g. Because no Tracker layers exist outside seeding region)
   //
-  if ( candidate.measurements().size()<=nSeed ) {
-    fittedTracks.clear();
-    return;
-  }
+  if unlikely( candidate.measurements().size()<=nSeed ) return TempTrajectory();
 
   LogDebug("CkfPattern")<<"nSeed " << nSeed << endl
 			<< "Old traj direction = " << candidate.direction() << endl
@@ -991,24 +985,19 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
   // (Will try to fit only hits outside the seeding region. However,
   // if there are not enough of these, it will also use the seeding hits).
   //
-  TempTrajectory::DataContainer oldMeasurements(candidate.measurements());
-//   int nOld(oldMeasurements.size());
-//   const unsigned int nHitAllMin(5);
-//   const unsigned int nHit2dMin(2);
+  //   const unsigned int nHitAllMin(5);
+  //   const unsigned int nHit2dMin(2);
   unsigned int nHit(0);    // number of valid hits after seeding region
   //unsigned int nHit2d(0);  // number of valid hits after seeding region with 2D info
   // use all hits except the first n (from seed), but require minimum
   // specified in configuration.
   //  Swapped over next two lines.
-  unsigned int nHitMin = max(candidate.foundHits()-nSeed,theMinNrOfHitsForRebuild);
+  unsigned int nHitMin = std::max(candidate.foundHits()-nSeed,theMinNrOfHitsForRebuild);
   //  unsigned int nHitMin = oldMeasurements.size()-nSeed;
   // we want to rebuild only if the number of VALID measurements excluding the seed measurements is higher than the cut
-  if (nHitMin<theMinNrOfHitsForRebuild){
-	fittedTracks.clear();
-    	return;
-  }
+  if unlikely(nHitMin<theMinNrOfHitsForRebuild) return TempTrajectory();
 
-  LogDebug("CkfPattern")/* << "nHitMin " << nHitMin*/ <<"Sizes: " << oldMeasurements.size() << " / ";
+  LogDebug("CkfPattern")/* << "nHitMin " << nHitMin*/ <<"Sizes: " << candidate.measurements().size() << " / ";
   //
   // create input trajectory for backward fit
   //
@@ -1016,25 +1005,26 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
   fwdTraj.setNLoops(candidate.nLoops());
   //const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(), TrajectorySeed::recHitContainer(), oppositeDirection(candidate.direction()));
   //Trajectory fwdTraj(seed, oppositeDirection(candidate.direction()));
-  std::vector<const DetLayer*> bwdDetLayer; 
-  for ( TempTrajectory::DataContainer::const_iterator im=oldMeasurements.rbegin();
-	im!=oldMeasurements.rend(); --im) {
-    const TrackingRecHit* hit = im->recHit()->hit();
+
+  const DetLayer* bwdDetLayer[candidate.measurements().size()];
+  int nl=0;
+  for ( auto const & tm : candidate.measurements() ) {
+    const TrackingRecHit* hit = tm.recHitR().hit();
     //
     // add hits until required number is reached
     //
     if ( nHit<nHitMin ){//|| nHit2d<theMinNrOf2dHitsForRebuild ) {
-      fwdTraj.push(*im);
-      bwdDetLayer.push_back(im->layer());
+      fwdTraj.push(tm);
+      bwdDetLayer[nl++]=tm.layer();
       //
       // count valid / 2D hits
       //
-      if ( hit->isValid() ) {
-	nHit++;
-	//if ( hit.isMatched() ||
-	//     hit.det().detUnits().front()->type().module()==pixel )
-        //nHit2d++;
-      }
+      if likely( hit->isValid() ) {
+	  nHit++;
+	  //if ( hit.isMatched() ||
+	  //     hit.det().detUnits().front()->type().module()==pixel )
+	  //nHit2d++;
+	}
     }
     //if (nHit==nHitMin) lastBwdDetLayer=im->layer();	
     //
@@ -1048,10 +1038,8 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
   //
   // Fit only if required number of valid hits can be used
   //
-  if ( nHit<nHitMin ){  //|| nHit2d<theMinNrOf2dHitsForRebuild ) {
-    fittedTracks.clear();
-    return;
-  }
+  if unlikely( nHit<nHitMin ) return TempTrajectory();
+
   //
   // Do the backward fit (important: start from scaled, not random cov. matrix!)
   //
@@ -1059,46 +1047,45 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
   //cout << "firstTsos "<< firstTsos << endl;
   firstTsos.rescaleError(10.);
   //TrajectoryContainer bwdFitted(fitter.fit(fwdTraj.seed(),fwdTraj.recHits(),firstTsos));
-  TrajectoryContainer bwdFitted(fitter.fit(
-  		TrajectorySeed(PTrajectoryStateOnDet(), TrajectorySeed::recHitContainer(), oppositeDirection(candidate.direction())),
-  		fwdTraj.recHits(),firstTsos));
-  if (bwdFitted.size()){
-    LogDebug("CkfPattern")<<"Obtained " << bwdFitted.size() << " bwdFitted trajectories with measurement size " << bwdFitted.front().measurements().size();
-    TempTrajectory fitted(candidate.seed(), fwdTraj.direction());
-    fitted.setNLoops(fwdTraj.nLoops());
-    vector<TM> tmsbf = bwdFitted.front().measurements();
-    int iDetLayer=0;
-    //this is ugly but the TM in the fitted track do not contain the DetLayer.
-    //So we have to cache the detLayer pointers and replug them in.
-    //For the backward building it would be enaugh to cache the last DetLayer, 
-    //but for the intermediary cleaning we need all
-    for ( vector<TM>::const_iterator im=tmsbf.begin();im!=tmsbf.end(); im++ ) {
-      fitted.push(TM( (*im).forwardPredictedState(),
-		      (*im).backwardPredictedState(),
-		      (*im).updatedState(),
-		      (*im).recHit(),
-		      (*im).estimate(),
-		      bwdDetLayer[iDetLayer]));
-      
-      LogDebug("CkfPattern")<<PrintoutHelper::dumpMeasurement(*im);
-      iDetLayer++;
-    }
-/*
-  TM lastMeas = bwdFitted.front().lastMeasurement();
-  fitted.pop();
-  fitted.push(TM(lastMeas.forwardPredictedState(), 
-  lastMeas.backwardPredictedState(), 
-  lastMeas.updatedState(),
-  lastMeas.recHit(),
-  lastMeas.estimate(),
-  lastBwdDetLayer));*/
-    fittedTracks.push_back(std::move(fitted));
+  Trajectory && bwdFitted = fitter.fitOne(TrajectorySeed(PTrajectoryStateOnDet(), TrajectorySeed::recHitContainer(), oppositeDirection(candidate.direction())),
+					  fwdTraj.recHits(),firstTsos);
+  if unlikely(!bwdFitted.isValid()) return TempTrajectory();
+
+
+  LogDebug("CkfPattern")<<"Obtained bwdFitted trajectory with measurement size " << bwdFitted.measurements().size();
+  TempTrajectory fitted(candidate.seed(), fwdTraj.direction());
+  fitted.setNLoops(fwdTraj.nLoops());
+  vector<TM> const & tmsbf = bwdFitted.measurements();
+  int iDetLayer=0;
+  //this is ugly but the TM in the fitted track do not contain the DetLayer.
+  //So we have to cache the detLayer pointers and replug them in.
+  //For the backward building it would be enaugh to cache the last DetLayer, 
+  //but for the intermediary cleaning we need all
+  for ( vector<TM>::const_iterator im=tmsbf.begin();im!=tmsbf.end(); im++ ) {
+    fitted.emplace( (*im).forwardPredictedState(),
+		    (*im).backwardPredictedState(),
+		    (*im).updatedState(),
+		    (*im).recHit(),
+		    (*im).estimate(),
+		    bwdDetLayer[iDetLayer]
+		    );
+    
+    LogDebug("CkfPattern")<<PrintoutHelper::dumpMeasurement(*im);
+    iDetLayer++;
   }
-  //
-  // save result
-  //
-  //fittedTracks.swap(bwdFitted);
-  //cout << "Obtained " << fittedTracks.size() << " fittedTracks trajectories with measurement size " << fittedTracks.front().measurements().size() << endl;
+  /*
+    TM lastMeas = bwdFitted.front().lastMeasurement();
+    fitted.pop();
+    fitted.push(TM(lastMeas.forwardPredictedState(), 
+    lastMeas.backwardPredictedState(), 
+    lastMeas.updatedState(),
+    lastMeas.recHit(),
+    lastMeas.estimate(),
+    lastBwdDetLayer));
+  */
+  
+  
+  return fitted;
 }
 
 bool
