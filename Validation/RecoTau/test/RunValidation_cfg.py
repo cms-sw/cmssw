@@ -86,12 +86,6 @@ if not os.path.exists(configDir):
 #                                    #
 ######################################
 
-def LoadDataCffFile(theFile):
-   outputFileName = os.path.join(configDir, "DataSource_cff.py")
-   process.load(theFile)
-   outputFile = open(outputFileName,'w')
-   outputFile.write('import FWCore.ParameterSet.Config as cms\n')
-   outputFile.write('source = %s\n'%process.source)
 
 process.schedule = cms.Schedule()
 
@@ -108,7 +102,7 @@ if options.dataSource.find('recoFiles') != -1:
    if myFile == 'none':
       myFile = "Validation.RecoTau.sources.EventSource_%s_RECO_cff" % options.eventType
       #myFile = os.path.join(ReleaseBase, "Validation/RecoTau/test", "EventSource_%s_RECO_cff.py" % options.eventType)
-   LoadDataCffFile(myFile)
+   process.load(myFile)
    if len(process.source.fileNames) == 0:
       import Validation.RecoTau.DBSApi_cff as mydbs
       if os.path.isfile('SourcesDatabase.xml'):
@@ -121,6 +115,10 @@ if options.dataSource.find('recoFiles') != -1:
       if len(process.source.fileNames) == 0:
          sys.exit(0)
       print process.source
+   outputFileName = os.path.join(configDir, "DataSource_cff.py")
+   outputFile = open(outputFileName,'w')
+   outputFile.write('import FWCore.ParameterSet.Config as cms\n')
+   outputFile.write('source = %s\n'%process.source)
    # check if we want to rerun PFTau
    if options.dataSource.find('PFTau') != -1:
       process.load("Configuration.StandardSequences.Geometry_cff")
