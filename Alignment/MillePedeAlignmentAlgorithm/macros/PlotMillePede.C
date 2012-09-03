@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2012/03/29 08:42:23 $
+// last change    : $Date: 2012/06/25 13:19:01 $
 // by             : $Author: flucke $
 
 #include "PlotMillePede.h"
@@ -1841,16 +1841,19 @@ TString PlotMillePede::AlignableObjIdString(Int_t objId) const
   case 2: return "Det";
     //
   case 5: return "BPIXLayer";
+  case 6: return "BPIXHalfBarrel";
     //
   case 11: return "FPIXHalfDisk";
     //
   case 15: return "TIBString";
     //
   case 19: return "TIBHalfBarrel";
+  case 20: return "TIBBarrel";
     //
   case 25: return "TIDEndcap";
     //
   case 29: return "TOBHalfBarrel";
+  case 30: return "TOBBarrel";
     //
   case 36: return "TECEndcap";
   default: 
