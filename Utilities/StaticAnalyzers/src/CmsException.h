@@ -14,6 +14,7 @@
 #include "clang/StaticAnalyzer/Core/BugReporter/BugReporter.h"
 #include "clang/StaticAnalyzer/Core/PathSensitive/CheckerContext.h"
 
+
 namespace clangcms {
 
 class CmsException {
@@ -44,9 +45,6 @@ public:
 	bool reportGeneral( clang::ento::PathDiagnosticLocation const& path, 
 				clang::ento::BugReporter & BR ) const; 
 
-private:
-	/*typedef std::vector< llvm::Regex *> ExList;
-	mutable ExList m_exceptions;*/
 };
 
 } 
