@@ -62,9 +62,9 @@ HLT_PAMinBiasBSC_OR_v*                             # sr 131577
 HLT_PAMinBiasHfOrBSC_v*                            # sr 131577
 HLT_PAZeroBias_v*                                  # sr 131577
 HLT_PAZeroBiasPixel_SingleTrack_v*                 # sr 131577 
-HLT_PAZeroBiasPixel_SingleTrack_ExpressStream_v*   # sr 131577
+# HLT_PAZeroBiasPixel_SingleTrack_ExpressStream_v* # sr 131577 removed sr 131770
 HLT_PAHFOR_SingleTrack_v*                          # sr 131577
-HLT_PAHFOR_SingleTrack_ExpressStream_v*            # sr 131577
+# HLT_PAHFOR_SingleTrack_ExpressStream_v*          # sr 131577 removed sr 131770
 HLT_PAZeroBiasPixel_DoubleTrack_v*                 # sr 131577
 HLT_PADoubleMu4_Acoplanarity03_v*                  # sr 131577
 HLT_PAExclDijet35_HFAND_v*                         # sr 131577
@@ -76,7 +76,7 @@ DQM_FEDIntegrity_v*                                # sr 131577
 HLT_LogMonitor_v*                                  # sr 131577
 HLTriggerFirstPath
 HLTriggerFinalPath                                 # sr 131577
-# HLTAnalyzerEndpath                               # only in 'PIon', not in 'online'
+# HLTAnalyzerEndpath                                 # only in 'PIon', not in 'online'
 AOutput                                            # sr 131577
 BOutput                                            # sr 131577
 ALCAP0Output                                       # sr 131577
