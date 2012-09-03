@@ -4,7 +4,7 @@
      the resource broker to send to the Storage Manager.
      See the CMS EvF Storage Manager wiki page for further notes.
 
-   $Id: FUShmOutputModule.cc,v 1.15 2012/05/02 15:02:19 smorovic Exp $
+   $Id: FUShmOutputModule.cc,v 1.16 2012/09/02 15:04:25 smorovic Exp $
 */
 
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
@@ -68,28 +68,6 @@ namespace edm
       crc = crc32(crc, buf, guidString.length());
       fuGuidValue_ = crc;
     }
-    datasetsPSet_ = edm::ParameterSet();
-    edm::ParameterSet streamsPSet = edm::ParameterSet();
-
-    try {
-      edm::ParameterSet descriptions = ps.getUntrackedParameter<edm::ParameterSet>("datasetDescriptions",edm::ParameterSet());
-      streamId_ = descriptions.getParameter<std::string>("streamId");
-      if (streamId_.size()) {
-        streamsPSet = descriptions.getParameter<edm::ParameterSet>("streams");
-        Strings streamDatasetList = streamsPSet.getParameter<Strings>(streamId_);
-        datasetsPSet_ = descriptions.getParameter<edm::ParameterSet>("datasets");
-	for (size_t i=0;i<streamDatasetList.size();i++) {
-	  selectedDatasetNames_.push_back(streamDatasetList[i]);
-	  numDatasets_++;
-	}
-      }
-    }
-    catch (...) {
-      //not present:ignore
-      selectedDatasetNames_.clear();
-      datasetsPSet_ = edm::ParameterSet();
-      numDatasets_=0;
-    }
   }
 
   FUShmOutputModule::~FUShmOutputModule()
@@ -99,12 +77,37 @@ namespace edm
     //shmdt(shmBuffer_);
   }
 
+  void FUShmOutputModule::insertStreamAndDatasetInfo(edm::ParameterSet & streams, edm::ParameterSet datasets/*std:std::string & moduleList*/)
+  {
+    try {
+      //compose dataset name string
+      if (name_.size() > std::string("hltOutput").size() && name_.find("hltOutput")!=std::string::npos)
+	streamId_=name_.substr(name_.find("hltOutput")+std::string("hltOutput").size());
+      else return;
+
+      //make local copy of dataset definitions
+
+      if (streamId_.size()) {
+	Strings streamDatasetList = streams.getParameter<Strings>(streamId_);
+	for (size_t i=0;i<streamDatasetList.size();i++) {
+	  selectedDatasetNames_.push_back(streamDatasetList[i]);
+	  Strings thisDatasetPaths = datasets.getParameter<Strings>(streamDatasetList[i]); 
+	  datasetPaths_.push_back(thisDatasetPaths);
+	  numDatasets_++;
+	}
+      }
+    }
+    catch (...) {
+      //not present:ignore
+      selectedDatasetNames_.clear();
+      datasetPaths_.clear();
+      numDatasets_=0;
+      streamId_=std::string();
+    }
+  }
 
   void FUShmOutputModule::fillDescription(ParameterSetDescription& description)
   {
-    //description.addUntracked<edm::ParameterSet>("datasetDescriptions",edm::ParameterSet())->setComment("Descriptions of datasets");
-    description.setAllowAnything();
-    //description.addUntracked<edm::ParameterSetDescription>("datasetDescriptions");
   }
 
 
@@ -254,8 +257,7 @@ namespace edm
      totalPaths_ = allPaths.size();
      for (size_t i=0;i<numDatasets_;i++)
      {
-       Strings datasetPaths = datasetsPSet_.getParameter<Strings>(selectedDatasetNames_[i]);
-       dpEventSelectors_.push_back(std::pair<std::string,edm::EventSelector*>(selectedDatasetNames_[i],new edm::EventSelector(datasetPaths,allPaths))); 
+       dpEventSelectors_.push_back(std::pair<std::string,edm::EventSelector*>(selectedDatasetNames_[i],new edm::EventSelector(datasetPaths_[i],allPaths))); 
        datasetCounts_.push_back(0);
      }
   }

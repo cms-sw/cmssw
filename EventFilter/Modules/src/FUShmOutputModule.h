@@ -6,7 +6,7 @@
      Header file shared memory to be used with FUShmOutputModule.
      See CMS EvF Storage Manager wiki page for further notes.
 
-   $Id: FUShmOutputModule.h,v 1.9 2012/05/02 15:02:19 smorovic Exp $
+   $Id: FUShmOutputModule.h,v 1.10 2012/09/02 15:04:26 smorovic Exp $
 */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -63,6 +63,7 @@ namespace edm
     FUShmOutputModule(edm::ParameterSet const& ps);
     ~FUShmOutputModule();
 
+    void insertStreamAndDatasetInfo(edm::ParameterSet & streams, edm::ParameterSet datasets/*std:std::string & moduleList*/);
     void doOutputHeader(InitMsgBuilder const& initMessage);
     void doOutputEvent(EventMsgBuilder const& eventMessage);
     unsigned int getCounts(){
@@ -107,8 +108,8 @@ namespace edm
     std::vector<unsigned int> datasetCounts_;
 
     unsigned int numDatasets_;
-    edm::ParameterSet datasetsPSet_; 
     std::vector<std::string> selectedDatasetNames_;
+    std::vector<Strings> datasetPaths_; 
     std::vector<std::pair<std::string,edm::EventSelector*>> dpEventSelectors_;
     unsigned int totalPaths_;
 

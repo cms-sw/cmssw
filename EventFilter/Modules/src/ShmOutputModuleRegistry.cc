@@ -70,4 +70,16 @@ namespace evf{
     }
     return datasetNameString;
   }
+
+  void ShmOutputModuleRegistry::insertStreamAndDatasetInfo(edm::ParameterSet & streams, edm::ParameterSet & datasets)
+  {
+    idct it= clm_.begin();
+    while(it!=clm_.end()){
+      edm::FUShmOutputModule * sho = dynamic_cast<edm::FUShmOutputModule *> ((*it).second);
+      if (sho!=NULL) {
+        sho->insertStreamAndDatasetInfo(streams,datasets);
+      }
+      it++;
+    }
+  }
 } //end namespace evf
