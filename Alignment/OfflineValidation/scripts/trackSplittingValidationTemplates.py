@@ -77,6 +77,8 @@ from CondCore.DBCommon.CondDBSetup_cfi import *
 ## tracker alignment for craft...............................................................
 .oO[dbLoad]Oo.
 
+.oO[condLoad]Oo.
+
 .oO[APE]Oo.
 
 .oO[kinksAndBows]Oo.
