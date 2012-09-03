@@ -64,8 +64,8 @@
 #include "RecoJets/JetProducers/plugins/FastjetJetProducer.h"
 #include "RecoJets/JetAlgorithms/interface/CATopJetAlgorithm.h"
 #include "CATopJetProducer.h"
-#include "CMSTopTagger.hh"
-#include "HEPTopTaggerWrapper.hh"
+#include "RecoJets/JetAlgorithms/interface/CMSTopTagger.h"
+#include "RecoJets/JetAlgorithms/interface/HEPTopTaggerWrapper.h"
 
 #include <fastjet/tools/RestFrameNSubjettinessTagger.hh>
 #include "fastjet/SISConePlugin.hh"

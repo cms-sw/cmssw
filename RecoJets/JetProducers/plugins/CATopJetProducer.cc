@@ -1,10 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CATopJetProducer.h"
-#include "CMSTopTagger.hh"
-#include "HEPTopTaggerWrapper.hh"
 
-#include <fastjet/tools/RestFrameNSubjettinessTagger.hh>
-#include "fastjet/SISConePlugin.hh"
 
 using namespace edm;
 using namespace cms;

@@ -17,7 +17,7 @@
 //      59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //----------------------------------------------------------------------
 
-#include "HEPTopTaggerWrapper.hh"
+#include "RecoJets/JetAlgorithms/interface/HEPTopTaggerWrapper.h"
 
 #include <fastjet/Error.hh>
 #include <fastjet/JetDefinition.hh>
@@ -29,7 +29,7 @@ using namespace std;
 
 // namespace hack so that this tagger can have the same name as the core code
 namespace external {
-#include "HEPTopTagger.hh"
+#include "RecoJets/JetAlgorithms/interface/HEPTopTagger.h"
 }
 
 FASTJET_BEGIN_NAMESPACE
