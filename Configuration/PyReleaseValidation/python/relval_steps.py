@@ -210,9 +210,9 @@ steps['QCD_FlatPt_15_3000']=gen('QCDForPF_8TeV_cfi',K9by100)
 steps['QCD_FlatPt_15_3000HS']=gen('QCDForPF_8TeV_cfi',K50by100)
 
 baseDataSetRelease=[
-    'CMSSW_6_0_0_pre3-START60_V0-v1',
-    'CMSSW_6_0_0_pre3-STARTHI60_V0-v1',
-    'CMSSW_6_0_0_pre3-PU_START60_V0-v1'
+    'CMSSW_6_0_0-START60_V4-v1',
+    'CMSSW_6_0_0-STARTHI60_V4-v1',
+    'CMSSW_6_0_0-PU_START60_V4-v1'
     ]
 
 steps['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
