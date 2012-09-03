@@ -621,7 +621,8 @@ TH1* PlotAlignmentValidation::addHists(const char *selection, const TString &res
     case ResYvsXProfile: hName = treeMem->profileNameResYvsX.c_str();    break;
     case ResYvsYProfile: hName = treeMem->profileNameResYvsY.c_str();    break;
    }
-    TH1 *newHist = static_cast<TH1*>(f->FindKeyAny(hName)->ReadObj());
+    TKey *histKey = f->FindKeyAny(hName);
+    TH1 *newHist = (histKey ? static_cast<TH1*>(histKey->ReadObj()) : 0);
     if (!newHist) {
       std::cout << "Hist " << hName << " not found in file, break loop." << std::endl;
       break;
