@@ -6,6 +6,7 @@ CATopJetParameters = cms.PSet(
     jetCollInstanceName = cms.string("caTopSubJets"),	# subjet collection
     verbose = cms.bool(False),          
     algorithm = cms.int32(1),               			# 0 = KT, 1 = CA, 2 = anti-KT
+    tagAlgo = cms.int32(0),				#choice of top tagging algorithm
     useAdjacency = cms.int32(2),         				# veto adjacent subjets
 														#  0 = no adjacency
 														#  1 = deltar adjacency 
