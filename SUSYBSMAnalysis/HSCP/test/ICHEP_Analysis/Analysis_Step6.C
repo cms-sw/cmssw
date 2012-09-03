@@ -183,7 +183,6 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    DrawModelLimitWithBand(MuOnlyPattern);
    DrawModelLimitWithBand(QLPattern);
 
- return;
    //make plots of the observed limit for all signal model (and mass point) and save the result in a latex table
    TCanvas* c1;
    double LInt;
@@ -623,13 +622,20 @@ double GetSignalMeanHSCPPerEvent(string InputPattern, unsigned int CutIndex, dou
 
 
 void DrawModelLimitWithBand(string InputPattern){
-   bool IsTkOnly = (InputPattern.find("Type0",0)<std::string::npos);
-   string prefix = "Mu";    if(IsTkOnly) prefix ="Tk";
+   int TypeMode = TypeFromPattern(InputPattern);
+   string prefix = "BUG";
+   switch(TypeMode){
+      case 0: prefix   = "Tk"; break;
+      case 2: prefix   = "Mu"; break;
+      case 3: prefix   = "Mo"; break;
+      case 4: prefix   = "HQ"; break;
+      case 5: prefix   = "LQ"; break;
+   }
 
    double LInt = 0;
    for(unsigned int k=0; k<modelVector.size(); k++){
       bool isNeutral = false;if(modelVector[k].find("GluinoN")!=string::npos || modelVector[k].find("StopN")!=string::npos)isNeutral = true;
-      if(!IsTkOnly && isNeutral) continue;
+      if(TypeMode!=0 && isNeutral) continue;
       unsigned int N = modelMap[modelVector[k]].size();
       stAllInfo Infos;double Mass[N], XSecTh[N], XSecExp[N],XSecObs[N], XSecExpUp[N],XSecExpDown[N],XSecExp2Up[N],XSecExp2Down[N];
       for(unsigned int i=0;i<N;i++){
@@ -683,9 +689,8 @@ void DrawModelLimitWithBand(string InputPattern){
       DrawPreliminary(SQRTS, LInt);
       
       TLegend* LEG = new TLegend(0.40,0.65,0.8,0.90);
-      string headerstr;
-      headerstr = "95% CL Limits (Tracker + TOF)";
-      if(IsTkOnly) headerstr = "95% CL Limits (Tracker - Only)";
+      string headerstr = "95% CL Limits (";
+      headerstr += LegendFromType(InputPattern) + string(")");
       LEG->SetHeader(headerstr.c_str());
       LEG->SetFillColor(0); 
       LEG->SetBorderSize(0);
@@ -697,8 +702,7 @@ void DrawModelLimitWithBand(string InputPattern){
       LEG->Draw();
       c1->SetLogy(true);
 
-      if(IsTkOnly)SaveCanvas(c1,"Results/"+SHAPESTRING+"EXCLUSION/", string("Tk"+ modelVector[k] + "ExclusionLog"));
-      else        SaveCanvas(c1,"Results/"+SHAPESTRING+"EXCLUSION/", string("Mu"+ modelVector[k] + "ExclusionLog"));
+      SaveCanvas(c1,"Results/"+SHAPESTRING+"EXCLUSION/", string(prefix+ modelVector[k] + "ExclusionLog"));
       delete c1;
    }
 }
@@ -708,8 +712,15 @@ void DrawModelLimitWithBand(string InputPattern){
 // I don't think two loops are needed, neither all these arrays...
 void DrawRatioBands(string InputPattern)
 {
-   bool IsTkOnly = (InputPattern.find("Type0",0)<std::string::npos);
-   string prefix = "Mu";    if(IsTkOnly) prefix ="Tk";
+   int TypeMode = TypeFromPattern(InputPattern);
+   string prefix = "BUG";
+   switch(TypeMode){
+      case 0: prefix   = "Tk"; break;
+      case 2: prefix   = "Mu"; break;
+      case 3: prefix   = "Mo"; break;
+      case 4: prefix   = "HQ"; break;
+      case 5: prefix   = "LQ"; break;
+   }
 
    TCanvas* c1            = new TCanvas("c1", "c1",600,800);
    TGraph** graphAtheory  = new TGraph*[modelVector.size()];
@@ -726,7 +737,7 @@ void DrawRatioBands(string InputPattern)
 
    for(unsigned int k=0; k<modelVector.size(); k++){
       bool isNeutral = false;if(modelVector[k].find("GluinoN")!=string::npos || modelVector[k].find("StopN")!=string::npos)isNeutral = true;
-      if(!IsTkOnly && isNeutral) continue;
+      if(TypeMode!=0 && isNeutral) continue;
       TPad* pad;
       if(k<(modelVector.size()-1)){
          pad = new TPad(Form("pad%i",k),Form("ExpErr%i",k),0.1,1-top-(k+1)*step,0.9,1-top-step*k);//lower left x, y, topright x, y
@@ -744,7 +755,7 @@ void DrawRatioBands(string InputPattern)
 
    for(unsigned int k=0; k<modelVector.size(); k++){
       bool isNeutral = false;if(modelVector[k].find("GluinoN")!=string::npos || modelVector[k].find("StopN")!=string::npos)isNeutral = true;
-      if(!IsTkOnly && isNeutral) continue;
+      if(TypeMode>0 && isNeutral) continue;
 
       TMultiGraph* MG = new TMultiGraph();
       unsigned int N = modelMap[modelVector[k]].size();
@@ -800,8 +811,7 @@ void DrawRatioBands(string InputPattern)
 	 TLegend* LEG;
 	 LEG = new TLegend(0.13,0.01,0.32,0.99);
          string headerstr;
-         headerstr = "Tracker + TOF";
-         if(IsTkOnly) headerstr = "Tracker - Only";
+         headerstr = LegendFromType(InputPattern);
          LEG->SetHeader(headerstr.c_str());
          LEG->SetFillColor(0); 
          LEG->SetBorderSize(0);
@@ -833,7 +843,7 @@ void DrawRatioBands(string InputPattern)
       }
 
       TPaveText *pt;
-      if(IsTkOnly) {
+      if(TypeMode==0) {
       if(k!=modelVector.size()-1) pt = new TPaveText(0.45, 0.6, 0.95, 0.87,"LBNDC");
       else pt = new TPaveText(0.45, 0.82, 0.95, 0.935,"LBNDC");
       }
@@ -874,8 +884,7 @@ void DrawRatioBands(string InputPattern)
    pt->SetFillColor(0);
    pt->Draw();
 
-   if(IsTkOnly) SaveCanvas(c1,"Results/"+SHAPESTRING+"EXCLUSION/", string("TkLimitsRatio"));
-   else         SaveCanvas(c1,"Results/"+SHAPESTRING+"EXCLUSION/", string("MuLimitsRatio"));
+   SaveCanvas(c1,"Results/"+SHAPESTRING+"EXCLUSION/", string(prefix+"LimitsRatio"));
    delete c1;
 }
 
