@@ -1,6 +1,6 @@
 // Original author: Brock Tweedie (JHU)
 // Ported to CMSSW by: Sal Rappoccio (JHU)
-// $Id: CATopJetAlgorithm.cc,v 1.12 2012/02/03 20:41:56 srappocc Exp $
+// $Id: CATopJetAlgorithm.cc,v 1.13 2012/02/14 19:43:30 srappocc Exp $
 
 #include "RecoJets/JetAlgorithms/interface/CATopJetAlgorithm.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -326,7 +326,7 @@ bool CATopJetAlgorithm::decomposeJet(const fastjet::PseudoJet & theJet,
 		} 
 		
 		// Check if clusters are adjacent using a DeltaR adjacency which is a function of pT.
-		double clusters_deltaR=deltaR( ja.eta(), ja.phi(), jb.eta(), jb.phi() );
+		double clusters_deltaR=deltaR( ja.rapidity(), ja.phi(), jb.rapidity(), jb.phi() );
 		
 		if ( verbose_  && useAdjacency_ ==2)cout<<"clusters_deltaR = "<<clusters_deltaR<<endl;
 		if ( verbose_  && useAdjacency_ ==2)cout<<"0.4-0.0004*InputObjectPt = "<<0.4-0.0004*InputObjectPt<<endl;
