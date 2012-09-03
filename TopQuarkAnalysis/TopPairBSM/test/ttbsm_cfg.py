@@ -9,12 +9,21 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing ('python')
 
+<<<<<<< ttbsm_cfg.py
 options.register ('tlbsmTag',
                   'tlbsm_60x_v1',
                   VarParsing.multiplicity.singleton,
                   VarParsing.varType.string,
                   'TLBSM tag use in production')
 
+=======
+options.register ('tlbsmTag',
+                  'tlbsm_53x_v2',
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.string,
+                  'TLBSM tag use in production')
+
+>>>>>>> 1.39.2.9
 options.register ('useData',
                   False,
                   VarParsing.multiplicity.singleton,
@@ -72,6 +81,7 @@ options.register ('useExtraJetColls',
                   "Write extra jet collections for substructure studies")
 
 <<<<<<< ttbsm_cfg.py
+<<<<<<< ttbsm_cfg.py
 options.register ('usePythia8',
                   False,
                   VarParsing.multiplicity.singleton,
@@ -113,6 +123,30 @@ options.register ('runOnFastSim',
                   VarParsing.varType.int,
                   "Option needed to run on fastsim.")
 
+=======
+
+options.register ('usePythia8',
+                  False,
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.int,
+                  "Use status codes from Pythia8 rather than Pythia6")
+
+
+options.register ('usePythia6andPythia8',
+                  False,
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.int,
+                  "Use status codes from Pythia8 and Pythia6")
+
+
+options.register ('runOnFastSim',
+                  False,
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.int,
+                  "Option needed to run on fastsim.")
+
+
+>>>>>>> 1.39.2.9
 options.parseArguments()
 
 if not options.useData :
