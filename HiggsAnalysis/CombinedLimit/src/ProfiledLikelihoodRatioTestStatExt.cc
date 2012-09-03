@@ -197,8 +197,10 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
 
     // Perform unconstrained minimization (denominator)
     if (poi_.getSize() == 1) {
-        r->setMin(0); if (initialR == 0 || (oneSided_ != oneSidedDef)) r->removeMax(); else r->setMax(1.1*initialR); 
-        r->setVal(initialR == 0 ? 0.5 : 0.5*initialR); //best guess
+        double oldMax = r->getMax();
+        if (oneSided_ != signFlipDef ) r->setMin(0); 
+        if (initialR == 0 || (oneSided_ != oneSidedDef)) r->removeMax(); else r->setMax(1.1*initialR); 
+        r->setVal(initialR == 0 ? (std::isnormal(oldMax) ? 0.1*oldMax : 0.5) : 0.5*initialR); //best guess
         r->setConstant(false);
     } else {
         utils::setAllConstant(poiParams_,false);
@@ -250,7 +252,12 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
                 }
             }
         } */
-        if (bestFitR > initialR && oneSided_ == signFlipDef) {
+        if (initialR == 0) { // NOTE: signs are flipped for the zero case!
+            if (oneSided_ == signFlipDef && bestFitR < initialR) {
+                DBG(DBG_PLTestStat_main, (printf("   fitted signal %7.4f is negative, discovery test statistics will be negative.\n", bestFitR)))
+                std::swap(thisNLL, nullNLL);
+            }
+        } else if (bestFitR > initialR && oneSided_ == signFlipDef) {
             DBG(DBG_PLTestStat_main, (printf("   fitted signal %7.4f > %7.4f, test statistics will be negative.\n", bestFitR, initialR)))
             std::swap(thisNLL, nullNLL);
         }

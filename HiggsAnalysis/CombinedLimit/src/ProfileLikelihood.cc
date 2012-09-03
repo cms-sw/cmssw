@@ -40,6 +40,7 @@ bool        ProfileLikelihood::useMinos_ = true;
 bool        ProfileLikelihood::bruteForce_ = false;
 std::string ProfileLikelihood::bfAlgo_ = "scale";
 bool        ProfileLikelihood::reportPVal_ = false;
+bool        ProfileLikelihood::uncapped_ = false;
 float       ProfileLikelihood::signalForSignificance_ = 0;
 float       ProfileLikelihood::mass_;
 std::string ProfileLikelihood::plot_ = "";
@@ -58,6 +59,7 @@ ProfileLikelihood::ProfileLikelihood() :
         ("maxOutliers",        boost::program_options::value<int>(&maxOutliers_)->default_value(maxOutliers_),      "Stop trying after finding N outliers")
         ("plot",   boost::program_options::value<std::string>(&plot_)->default_value(plot_), "Save a plot of the negative log of the profiled likelihood into the specified file")
         ("pvalue", "Report p-value instead of significance (when running with --significance)")
+        ("uncapped", boost::program_options::value<bool>(&uncapped_)->default_value(uncapped_), "Report uncapped significances or p-value (i.e. negative in case of deficits)")
         ("preFit", "Attept a fit before running the ProfileLikelihood calculator")
         ("usePLC",   "Compute PL limit using the ProfileLikelihoodCalculator (not default)")
         ("useMinos", "Compute PL limit using Minos directly, bypassing the ProfileLikelihoodCalculator (default)")
@@ -240,6 +242,7 @@ bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooStats::ModelConfig *
   RooArgSet  poi(*mc_s->GetParametersOfInterest());
   RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
 
+  if (!uncapped_) r->setMin(signalForSignificance_);
   ProfileLikelihoodCalculator plcS(data, *mc_s, 1.0-cl);
   RooArgSet nullParamValues; 
   r->setVal(signalForSignificance_);
@@ -253,16 +256,18 @@ bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooStats::ModelConfig *
       if (bfAlgo_ == "scale") q0 = significanceBruteForce(*mc_s->GetPdf(), data, *r, mc_s->GetNuisanceParameters(), 0.1*minimizerTolerance_);
       else q0 = significanceFromScan(*mc_s->GetPdf(), data, *r, mc_s->GetNuisanceParameters(), 0.1*minimizerTolerance_, points_);
       if (q0 == -1) return false;
-      limit = (q0 > 0 ? sqrt(2*q0) : 0);
+      limit = (q0 > 0 ? sqrt(2*q0) : (uncapped_ ? -sqrt(-2*q0) : 0));
   } else if (useMinos_) {
       ProfiledLikelihoodTestStatOpt testStat(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(), 
-                                                   nullParamValues, *mc_s->GetParametersOfInterest(), RooArgList(), RooArgList(), verbose-1);
+                                                   nullParamValues, *mc_s->GetParametersOfInterest(), RooArgList(), RooArgList(), verbose-1,
+                                                   uncapped_ ? ProfiledLikelihoodTestStatOpt::signFlipDef : ProfiledLikelihoodTestStatOpt::oneSidedDef);
       Double_t q0 = testStat.Evaluate(data, nullParamValues);
-      limit = q0 > 0 ? sqrt(2*q0) : 0;
+      limit = (q0 > 0 ? sqrt(2*q0) : (uncapped_ ? -sqrt(-2*q0) : 0));
   } else {
       std::auto_ptr<HypoTestResult> result(plcS.GetHypoTest());
       if (result.get() == 0) return false;
       limit = result->Significance();
+      if (uncapped_ && r->getVal() < signalForSignificance_) limit = -limit;
   }
   coutSentry.clear();
   if (limit == 0 && signbit(limit)) {
@@ -270,7 +275,9 @@ bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooStats::ModelConfig *
       std::cerr << "The minimum of the likelihood is for r <= " << signalForSignificance_ << ", so the significance is zero" << std::endl;
       limit = 0;
   }
-  if (reportPVal_) limit = RooStats::SignificanceToPValue(limit);
+  if (reportPVal_) {
+      limit = RooStats::SignificanceToPValue(limit);
+  }
 
   std::cout << "\n -- Profile Likelihood -- " << "\n";
   std::cout << (reportPVal_ ? "p-value of background: " : "Significance: ") << limit << std::endl;
@@ -393,7 +400,7 @@ double ProfileLikelihood::significanceBruteForce(RooAbsPdf &pdf, RooAbsData &dat
     CascadeMinimizer minim0(*nll, CascadeMinimizer::Unconstrained, &poi);
     minim0.setStrategy(0);
     minim0.minimize(verbose-2);
-    if (poi.getVal() < 0) {
+    if (poi.getVal() < 0 && !uncapped_) {
         printf("Minimum found at %s = %8.5f < 0: significance will be zero\n", poi.GetName(), poi.getVal());
         return 0;
     }
@@ -418,7 +425,7 @@ double ProfileLikelihood::significanceBruteForce(RooAbsPdf &pdf, RooAbsData &dat
         points->SetName(Form("nll_scan_%g", mass_));
         points->SetPoint(0, rval, 0);
     }
-    while (rval >= tolerance * poi.getMax()) {
+    while (std::abs(rval) >= tolerance * std::abs(rval > 0 ? poi.getMax() : poi.getMin())) {
         rval *= 0.8;
         poi.setVal(rval);
         minim.setStrategy(0);
@@ -459,8 +466,8 @@ double ProfileLikelihood::significanceBruteForce(RooAbsPdf &pdf, RooAbsData &dat
         }
 #endif
    }
-    if (points) outputFile->WriteTObject(points);
-   return (thisnll - minnll);
+   if (points) outputFile->WriteTObject(points);
+   return std::copysign(thisnll - minnll, rbest);
 }
 
 double ProfileLikelihood::significanceFromScan(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, int steps) const {
