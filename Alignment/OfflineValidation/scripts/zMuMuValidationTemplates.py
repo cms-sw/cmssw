@@ -66,6 +66,8 @@ process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 
 .oO[dbLoad]Oo.
 
+.oO[condLoad]Oo.
+
 .oO[APE]Oo.
 
 ########### TRACK REFITTER #################################

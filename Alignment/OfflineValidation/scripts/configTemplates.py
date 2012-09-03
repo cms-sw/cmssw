@@ -17,8 +17,6 @@ from zMuMuValidationTemplates import *
 ######################################################################
 ######################################################################
 dbLoadTemplate="""
-#from CondCore.DBCommon.CondDBSetup_cfi import *
-from CalibTracker.Configuration.Common.PoolDBESSource_cfi import poolDBESSource
 ##include private db object
 ##
 import CalibTracker.Configuration.Common.PoolDBESSource_cfi
@@ -37,8 +35,8 @@ process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlig
 ######################################################################
 ######################################################################
 APETemplate="""
-from CondCore.DBCommon.CondDBSetup_cfi import *
-process.APE = poolDBESSource.clone(
+import CalibTracker.Configuration.Common.PoolDBESSource_cfi
+process.APE = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
                                         connect = cms.string('.oO[errordbpath]Oo.'),
 #                                         timetype = cms.string("runnumber"),
                                         toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
@@ -61,6 +59,21 @@ process.trackerBowedSensors = CalibTracker.Configuration.Common.PoolDBESSource_c
                       )
     )
 process.prefer_trackerBowedSensors = cms.ESPrefer("PoolDBESSource", "trackerBowedSensors")
+"""
+
+
+######################################################################
+######################################################################
+conditionsTemplate="""
+process.conditionsIn.oO[rcdName]Oo. = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
+     connect = cms.string('.oO[connectString]Oo.'),
+     toGet = cms.VPSet(cms.PSet(record = cms.string('.oO[rcdName]Oo.'),
+                               tag = cms.string('.oO[tagName]Oo.'),
+                               label = cms.untracked.string('.oO[labelName]Oo.')
+                               )
+                      )
+    )
+process.prefer_conditionsIn.oO[rcdName]Oo. = cms.ESPrefer("PoolDBESSource", "conditionsIn.oO[rcdName]Oo.")
 """
 
 

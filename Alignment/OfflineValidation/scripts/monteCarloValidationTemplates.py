@@ -22,9 +22,10 @@ process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 process.load("Alignment.OfflineValidation.GlobalTag_cff")
 process.GlobalTag.globaltag = '.oO[GlobalTag]Oo.'
 
-import CalibTracker.Configuration.Common.PoolDBESSource_cfi
 
 .oO[dbLoad]Oo.
+
+.oO[condLoad]Oo.
 
 .oO[APE]Oo.
 
