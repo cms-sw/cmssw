@@ -372,8 +372,23 @@ def customise(process):
        #i.__iadd__(source)
 
 
-  if hasattr(process, "DQM_FEDIntegrity_v3"):
-    process.schedule.remove(process.DQM_FEDIntegrity_v3)
+  #if hasattr(process, "DQM_FEDIntegrity_v3"):
+  #  process.schedule.remove(process.DQM_FEDIntegrity_v3)
+  fedIntRemoved = False
+  for i in range(1,30):
+     attrName = "DQM_FEDIntegrity_v"+str(i) 
+     if hasattr(process, attrName ):
+       process.schedule.remove(process.DQM_FEDIntegrity_v11)
+       del process.DTDataIntegrityTask 
+       fedIntRemoved = True
+       break
+ 
+  if fedIntRemoved:
+      print "Removed", attrName
+  else:
+      print "DQM_FEDIntegrity_vXX not found, expect problems"
+
+
 
   skimEnabled = False
   if hasattr(process,"doZmumuSkim"):
