@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/PIon/V12 (CMSSW_5_2_6_HLT3)
+# /dev/CMSSW_5_2_6/PIon/V13 (CMSSW_5_2_6_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V12')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V13')
 )
 
 process.streams = cms.PSet( 
@@ -3293,7 +3293,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "DQMOutput" ),
-        prescales = cms.vuint32( 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 1, 1 )
+        prescales = cms.vuint32( 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 2, 2, 2, 2, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "ExpressOutput" ),
         prescales = cms.vuint32( 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1 )
