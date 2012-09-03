@@ -23,6 +23,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 .oO[dbLoad]Oo.
 
+.oO[condLoad]Oo.
+
 .oO[APE]Oo.
 
 .oO[kinksAndBows]Oo.
