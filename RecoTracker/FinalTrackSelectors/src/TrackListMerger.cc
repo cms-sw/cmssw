@@ -279,9 +279,9 @@ namespace cms
       }
     }
     
-    //DL here    
+    //DL here
+    if likely(rSize>2 && collsSize>1)
     for ( unsigned int ltm=0; ltm<listsToMerge_.size(); ltm++) {
-      if ( rSize==0 ) continue;
       int saveSelected[rSize];
       bool notActive[collsSize];
       for (unsigned int cn=0;cn!=collsSize;++cn)
@@ -290,7 +290,7 @@ namespace cms
       for ( unsigned int i=0; i<rSize; i++) saveSelected[i]=selected[i];
       
       //DL protect against 0 tracks? 
-      for ( unsigned int i=0; i<trackCollFirsts[collsSize-2]; i++) {
+      for ( unsigned int i=0; i<trackCollFirsts[collsSize-1]; i++) {
 	if (selected[i]==0) continue;
 	unsigned int collNum=trackCollNum[i];
 	//nothing to do if this is the last collection
@@ -305,6 +305,7 @@ namespace cms
 	int nhit1 = validHits[i];
 	double score1 = score[i];
 	
+	// start at next collection
 	for ( unsigned int j=trackCollFirsts[collNum+1]; j<rSize; j++) {
 	  if (selected[j]==0) continue;
 	  unsigned int collNum2=trackCollNum[j];
@@ -380,7 +381,9 @@ namespace cms
       }//end track loop
     } //end loop over track list sets
     
-    
+   
+
+ 
     
     // special case - if just doing the trkquals 
     if (trkQualMod_) {
