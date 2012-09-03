@@ -163,6 +163,8 @@ process.load("Configuration/StandardSequences/MagneticField_38T_cff")
 
 .oO[dbLoad]Oo.
 
+.oO[condLoad]Oo.
+
 ## to apply misalignments
 #TrackerDigiGeometryESModule.applyAlignment = True
    
@@ -308,6 +310,8 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration/StandardSequences/MagneticField_38T_cff")
 
 .oO[dbLoad]Oo.
+
+.oO[condLoad]Oo.
 
 .oO[APE]Oo.
 
@@ -464,6 +468,8 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_0T_cff") # 0T runs
 
 .oO[dbLoad]Oo.
+
+.oO[condLoad]Oo.
 
 .oO[APE]Oo.
 
@@ -1070,6 +1076,8 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration/StandardSequences/MagneticField_38T_cff")
 
 .oO[dbLoad]Oo.
+
+.oO[condLoad]Oo.
 
 from CondCore.DBCommon.CondDBSetup_cfi import *
 process.trackerSurfaces = cms.ESSource(

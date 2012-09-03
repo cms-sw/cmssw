@@ -78,8 +78,23 @@ class Alignment:
             raise StandardError, "section %s not found. Please define the alignment!"%section
         self.mode = config.get(section, "mode").split()
         self.dbpath = config.get(section, "dbpath")
+        self.tag = config.get(section,"tag")
         self.__testDbExist( self.dbpath )
  
+        self.conditions = []
+        for option in config.options( section ):
+            if option.startswith( "condition " ):
+                rcdName = option.split( "condition " )[1]
+                conditionParameters = config.get( section, option ).split( "," )
+                if len( conditionParameters ) < 2:
+                    raise StandardError, "'%s' is used with too few arguments. A connect_string and a tag are required!"%( option )
+                if len( conditionParameters ) < 3:
+                    conditionParameters.append( "" )
+                self.conditions.append({"rcdName": rcdName,
+                                        "connectString": conditionParameters[0],
+                                        "tagName": conditionParameters[1],
+                                        "labelName": conditionParameters[2]})
+
         self.errordbpath = "frontier://FrontierProd/CMS_COND_31X_FROM21X"
         self.errortag = "TrackerIdealGeometryErrors210_mc"
         if config.has_option(section,"errordbpath") and config.has_option(section,"errortag"):
@@ -89,10 +104,19 @@ class Alignment:
         else:
             if config.has_option(section,"errordbpath") or config.has_option(section,"errortag"):
                 raise StandardError, "in alignment:%s you have to provide either both errordbpath _and_ errortag or none of both."%name
-        self.tag = config.get(section,"tag")
+        if "TrackerAlignmentErrorRcd" in \
+               [ condition["rcdName"] for condition in self.conditions ]\
+               and config.has_option(section,"errordbpath"):
+            raise StandardError,("Please do not use the old (errordbpath, "
+                                 "errortag) and new syntax for configuring the"
+                                 " APE at the same time.\nThe new syntax is "
+                                 "'condition TrackerAlignmentErrorRcd: "
+                                 "<connect_string>, <tag> (, <label>)'")
+                                 
         
         self.color = config.get(section,"color")
         self.style = config.get(section,"style")
+
         if "compare" in self.mode:
             if config.has_option(section,"rungeomcomp"):
                 self.runGeomComp = config.get(section,"rungeomcomp")
@@ -112,6 +136,15 @@ class Alignment:
         else:
             if config.has_option(section,"kbdbpath") or config.has_option(section,"kbtag"):
                 raise StandardError, "in alignment:%s you have to provide either both kbdbpath _and_ kbtag or none of both."%name
+        if "TrackerSurfaceDeformationRcd" in \
+               [ condition["rcdName"] for condition in self.conditions ]\
+               and config.has_option(section,"kbdbpath"):
+            raise StandardError,("Please do not use the old (errordbpath, "
+                                 "errortag) and new syntax for configuring the"
+                                 " kinks and bows at the same time.\nThe new "
+                                 "syntax is "
+                                 "'condition TrackerSurfaceDeformationRcd: "
+                                 "<connect_string>, <tag> (, <label>)'")
 
 #         if config.has_option(section,"DMROptions"):
 #             self.DMROptions = config.get(section,"DMROptions")
@@ -129,7 +162,7 @@ class Alignment:
         if self.compareTo == {}:
             self.compareTo = {
                 "IDEAL":["Tracker","SubDets"]
-                }       
+                }
 
     def __testDbExist(self, dbpath):
         #FIXME delete return to end train debuging
@@ -166,7 +199,40 @@ class Alignment:
         return result  
 
     def getLoadTemplate(self):
-        return replaceByMap( configTemplates.dbLoadTemplate, self.getRepMap() )
+        """This function still exists only for backward compatibility to the
+           old syntax for overriding the global tag conditions.
+           """
+        if "TrackerAlignmentRcd" in [ condition["rcdName"] \
+                                      for condition in self.conditions ]:
+            return ""
+        else:
+            return replaceByMap( configTemplates.dbLoadTemplate,
+                                 self.getRepMap() )
+
+    def getAPETemplate(self):
+        """This function still exists only for backward compatibility to the
+           old syntax for overriding the global tag conditions.
+           """
+        if "TrackerAlignmentErrorRcd" in [ condition["rcdName"] \
+                                           for condition in self.conditions ]:
+            return ""
+        else:
+            return replaceByMap( configTemplates.APETemplate,
+                                 self.getRepMap() )
+
+    def getConditions(self):
+        """This function creates the configuration snippet to override
+           global tag conditions.
+           """
+        if len( self.conditions ):
+            loadCond = ("\nimport CalibTracker.Configuration."
+                        "Common.PoolDBESSource_cfi\n")
+            for cond in self.conditions:
+                loadCond += replaceByMap( configTemplates.conditionsTemplate,
+                                          cond )
+        else:
+            loadCond = ""
+        return loadCond
 
     def createValidations(self, config, options, allAlignments=[]):
         """
@@ -194,7 +260,7 @@ allAlignemts is a list of Alignment objects the is used to generate Alignment_vs
                         randomWorkdirPart = result[-1].randomWorkdirPart
             elif validationName == "offline":
                 if not readGeneral( config )["parallelJobs"] == "1":
-                    raise StandardError, "The parameter 'parallelJobs' accepts values other than '1' only in mode 'offlineParallel'."                    
+                    raise StandardError, "The parameter 'parallelJobs' accepts values other than '1' only in mode 'offlineParallel'."
                 result.append( OfflineValidation( self, config ) )
             elif validationName == "offlineDQM":
                 result.append( OfflineValidationDQM( self, config ) )
@@ -239,6 +305,7 @@ class GenericValidation:
                 "datadir": str(self.__general["datadir"]),
                 "logdir": str(self.__general["logdir"]),
                 "dbLoad": alignment.getLoadTemplate(),
+                "APE": alignment.getAPETemplate(),
                 "CommandLineTemplate": """#run configfile and post-proccess it
 cmsRun %(cfgFile)s
 %(postProcess)s """,
@@ -246,7 +313,8 @@ cmsRun %(cfgFile)s
                 "CMSSW_BASE": os.environ['CMSSW_BASE'],
                 "SCRAM_ARCH": os.environ['SCRAM_ARCH'],
                 "alignmentName": alignment.name,
-                "offlineModuleLevelHistsTransient":  self.__general["offlineModuleLevelHistsTransient"]
+                "offlineModuleLevelHistsTransient":  self.__general["offlineModuleLevelHistsTransient"],
+                "condLoad": alignment.getConditions()
                 })
         #TODO catch missing delcalration of i.e. dataset or relvalsample here and rethrow to be catched by 
         #     individual validation.
@@ -341,8 +409,7 @@ copyImages indicates wether plot*.eps files should be copied back from the farm
         
         repMap.update({"comparedGeometry": ".oO[workdir]Oo./.oO[alignmentName]Oo.ROOTGeometry.root",
                        "referenceGeometry": "IDEAL",#will be replaced later if not compared to IDEAL
-                       "reference": referenceName,
-                       "APE": configTemplates.APETemplate
+                       "reference": referenceName
                        })
         if not referenceName == "IDEAL":
             repMap["referenceGeometry"] = ".oO[workdir]Oo./.oO[reference]Oo.ROOTGeometry.root"
@@ -448,7 +515,6 @@ class OfflineValidation(GenericValidation):
                 "DMRMethod":self.__DMRMethod,
                 "DMRMinimum":self.__DMRMinimum,
                 "DMROptions":self.__DMROptions,
-                "APE": configTemplates.APETemplate,
                 "outputFile": replaceByMap( ".oO[workdir]Oo./AlignmentValidation_.oO[name]Oo..root", repMap ),
                 "resultFile": replaceByMap( ".oO[datadir]Oo./AlignmentValidation_.oO[name]Oo..root", repMap ),
                 "TrackSelectionTemplate": configTemplates.TrackSelectionTemplate,
@@ -609,7 +675,6 @@ class MonteCarloValidation(GenericValidation):
         cfgName = "TkAlMcValidation.%s_cfg.py"%( self.alignmentToValidate.name )
         repMap = GenericValidation.getRepMap(self)
         repMap.update({
-                "APE": configTemplates.APETemplate,
                 "outputFile": replaceByMap( ".oO[workdir]Oo./McValidation_.oO[name]Oo..root", repMap )
                 })
         repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
@@ -638,7 +703,6 @@ class TrackSplittingValidation(GenericValidation):
         cfgName = "TkAlTrackSplitting.%s_cfg.py"%( self.alignmentToValidate.name )
         repMap = GenericValidation.getRepMap(self)
         repMap.update({
-                "APE": configTemplates.APETemplate,
                 "outputFile": replaceByMap( ".oO[workdir]Oo./TrackSplitting_.oO[name]Oo..root", repMap )
                 })
         repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
@@ -693,7 +757,6 @@ class ZMuMuValidation(GenericValidation):
     def getRepMap(self, alignment = None):
         repMap = GenericValidation.getRepMap(self, alignment) 
         repMap.update({
-                "APE": configTemplates.APETemplate,
                 "zmumureference":self.__zmumureference,
                 "etamax1":self.__etamax1,
                 "etamin1":self.__etamin1,

@@ -171,6 +171,8 @@ process.load("Configuration/StandardSequences/MagneticField_38T_cff")
 
 .oO[dbLoad]Oo.
 
+.oO[condLoad]Oo.
+
 .oO[APE]Oo.
 
 ## to apply misalignments
@@ -372,6 +374,8 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration/StandardSequences/MagneticField_38T_cff")
 
 .oO[dbLoad]Oo.
+
+.oO[condLoad]Oo.
 
 .oO[APE]Oo.
 
