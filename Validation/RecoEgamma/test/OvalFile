@@ -1,16 +1,16 @@
 
 <var name="TEST_COMMENT" value="">
-<var name="TEST_NEW" value="6_0_0_pre10">
-<var name="TEST_REF" value="6_0_0_pre7">
+<var name="TEST_NEW" value="6_0_0_pre11">
+<var name="TEST_REF" value="6_0_0_pre10">
 
 <var name="TAG_STARTUP" value="START60_V4">
-<var name="TAG_IDEAL" value="MC_53_V5">
-<var name="DATA_VERSION" value="v1">
+<var name="TAG_IDEAL" value="MC_60_V4">
+<var name="DATA_VERSION" value="v2">
 
 <var name="STORE_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_NEW}">
 <var name="STORE_REF" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_REF}">
 
-<var name="WEB_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Test">
+<var name="WEB_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Releases">
 <!--var name="WEB_DIR" value="/afs/cern.ch/user/c/chamont/www/validation"-->
 <!--var name="WEB_URL" value="https://chamont.web.cern.ch/chamont/validation"-->
 
@@ -228,6 +228,7 @@ FullSim
     <var name="TAG_STARTUP" value="PU_${TAG_STARTUP}">
     <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
     <var name="TEST_GLOBAL_AUTOCOND" value="startup">
+    <var name="DATA_VERSION" value="v1">
     <var name="DD_COND" value="-${TEST_GLOBAL_TAG}-${DATA_VERSION}">
 
       <environment name="ValPileUpTTbarStartup">
