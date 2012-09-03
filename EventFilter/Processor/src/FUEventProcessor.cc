@@ -157,6 +157,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , rlimit_coresize_changed_(false)
   , crashesToDump_(2)
   , sigmon_sem_(0)
+  , datasetCounting_(true)
 {
   using namespace utils;
 
@@ -216,6 +217,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("slaveRestartDelaySecs",&slaveRestartDelaySecs_       );
   ispace->fireItemAvailable("iDieUrl",              &iDieUrl_                     );
   ispace->fireItemAvailable("crashesToDump"         ,&crashesToDump_              );
+  ispace->fireItemAvailable("datasetCounting"       ,&datasetCounting_            );
 
   // Add infospace listeners for exporting data values
   getApplicationInfoSpace()->addItemChangedListener("parameterSet",        this);
@@ -383,7 +385,8 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 // 	    << (hasModuleWebRegistry_.value_ ? 0x2 : 0) << " "
 // 	    << (hasPrescaleService_.value_ ? 0x1 : 0) <<std::endl;
   unsigned short smap 
-    = ((nbSubProcesses_.value_!=0) ? 0x10 : 0)
+    = (datasetCounting_.value_ ? 0x20 : 0 )
+    + ((nbSubProcesses_.value_!=0) ? 0x10 : 0)
     + (((instance_.value_%80)==0) ? 0x8 : 0) // have at least one legend per slice
     + (hasServiceWebRegistry_.value_ ? 0x4 : 0) 
     + (hasModuleWebRegistry_.value_ ? 0x2 : 0) 
@@ -488,7 +491,8 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 // 	    << (hasModuleWebRegistry_.value_ ? 0x2 : 0) << " "
 // 	    << (hasPrescaleService_.value_ ? 0x1 : 0) <<std::endl;
   unsigned short smap 
-    = ((nbSubProcesses_.value_!=0) ? 0x10 : 0)
+    = (datasetCounting_.value_ ? 0x20 : 0 )
+    + ((nbSubProcesses_.value_!=0) ? 0x10 : 0)
     + (((instance_.value_%80)==0) ? 0x8 : 0) // have at least one legend per slice
     + (hasServiceWebRegistry_.value_ ? 0x4 : 0) 
     + (hasModuleWebRegistry_.value_ ? 0x2 : 0) 
@@ -2656,7 +2660,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.156 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.157 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

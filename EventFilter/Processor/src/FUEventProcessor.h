@@ -303,6 +303,7 @@ namespace evf
     timeval                          lastProcReport_;
 
     std::auto_ptr<edm::Presence>     messageServicePresence_;
+    xdata::Boolean                   datasetCounting_;
   };
 
   

@@ -194,6 +194,7 @@ namespace evf{
     hasServiceWebRegistry_ = serviceMap & 0x4;
     bool instanceZero = serviceMap & 0x8;
     hasSubProcesses = serviceMap & 0x10;
+    bool datasetCounting = (serviceMap&0x20)>0;
     configString_ = configString;
     trh_.resetFormat(); //reset the report table even if HLT didn't change
     scalersUpdateCounter_ = 0;
@@ -324,6 +325,18 @@ namespace evf{
     if(sor) sor->clear();
     //  if(swr) swr->clear(); // in case we are coming from stop we need to clear the swr
 
+    //get and copy streams and datasets PSet from the framework configuration
+    edm::ParameterSet streamsPSet;
+    edm::ParameterSet datasetsPSet;
+    if (datasetCounting)
+      try {
+        streamsPSet =  pdesc->getProcessPSet()->getParameter<edm::ParameterSet>("streams");
+        datasetsPSet =  pdesc->getProcessPSet()->getParameter<edm::ParameterSet>("datasets");
+      }
+      catch (...) {
+        streamsPSet = edm::ParameterSet();
+        datasetsPSet = edm::ParameterSet();
+      }
 
     // instantiate the event processor - fatal exceptions are caught in the main application
 
@@ -355,6 +368,10 @@ namespace evf{
     if(swr) 
       {
 	swr->publish(applicationInfoSpace_);
+      }
+    if (sor && datasetCounting)
+      {
+        sor->insertStreamAndDatasetInfo(streamsPSet,datasetsPSet);
       }
     // get the prescale service
     LOG4CPLUS_INFO(log_,
