@@ -1,11 +1,12 @@
 /** \file
  *
- *  $Date: 2010/02/12 15:51:33 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/02/15 09:34:24 $
+ *  $Revision: 1.11 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  * FRC 060906
  */
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <FWCore/Framework/interface/Event.h>
 #include <DataFormats/Common/interface/Handle.h>
@@ -82,6 +83,11 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
   }
   else {
     e.getByLabel(inputLabel, rawdata);
+  }
+
+  if(!rawdata.isValid()){
+    LogError("DTUnpackingModule::produce") << " unable to get raw data from the event" << endl;
+    return;
   }
 
   // Get the mapping from the setup
