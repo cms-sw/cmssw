@@ -49,7 +49,6 @@ namespace ecaldqm{
     static void setMEOrdering(std::map<std::string, unsigned>&);
 
   protected :
-    MESet* createMESet_(std::string const&, edm::ParameterSet const&) const;
     void print_(std::string const&, int = 0) const;
 
     std::string name_;

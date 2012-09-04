@@ -1,18 +1,10 @@
 #include "DQM/EcalCommon/interface/DQWorker.h"
 
+#include "DQM/EcalCommon/interface/MESetUtils.h"
+
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "DQM/EcalCommon/interface/MESet.h"
-#include "DQM/EcalCommon/interface/MESetNonObject.h"
-#include "DQM/EcalCommon/interface/MESetChannel.h"
-#include "DQM/EcalCommon/interface/MESetEcal.h"
-#include "DQM/EcalCommon/interface/MESetDet0D.h"
-#include "DQM/EcalCommon/interface/MESetDet1D.h"
-#include "DQM/EcalCommon/interface/MESetDet2D.h"
-#include "DQM/EcalCommon/interface/MESetProjection.h"
-#include "DQM/EcalCommon/interface/MESetTrend.h"
 
 namespace ecaldqm{
 
@@ -36,6 +28,10 @@ namespace ecaldqm{
     else
       topDir = _commonParams.getUntrackedParameter<string>("topDirectory");
 
+    BinService const* binService(&(*(edm::Service<EcalDQMBinningService>())));
+    if(!binService)
+      throw cms::Exception("Service") << "EcalDQMBinningService not found" << std::endl;
+
     edm::ParameterSet const& MEParams(_workerParams.getUntrackedParameterSet("MEs"));
     vector<string> const& MENames(MEParams.getParameterNames());
 
@@ -50,7 +46,7 @@ namespace ecaldqm{
       if(nItr == nameToIndex.end())
         throw cms::Exception("InvalidConfiguration") << "Cannot find ME index for " << MEName;
 
-      MESet* meSet(createMESet_(topDir, MEParams.getUntrackedParameterSet(MEName)));
+      MESet* meSet(createMESet(MEParams.getUntrackedParameterSet(MEName), binService, topDir));
       if(meSet) MEs_[nItr->second] = meSet;
     }
   }
@@ -87,78 +83,6 @@ namespace ecaldqm{
   void
   DQWorker::setMEOrdering(std::map<std::string, unsigned>&)
   {
-  }
-
-  MESet*
-  DQWorker::createMESet_(std::string const& _topDir, edm::ParameterSet const& _MEParam) const
-  {
-    BinService const* binService(&(*(edm::Service<EcalDQMBinningService>())));
-    if(!binService)
-      throw cms::Exception("Service") << "EcalDQMBinningService not found" << std::endl;
-
-    std::string fullPath(_topDir + "/" + _MEParam.getUntrackedParameter<std::string>("path"));
-    BinService::ObjectType otype(binService->getObjectType(_MEParam.getUntrackedParameter<std::string>("otype")));
-    BinService::BinningType btype(binService->getBinningType(_MEParam.getUntrackedParameter<std::string>("btype")));
-    MonitorElement::Kind kind(MESet::translateKind(_MEParam.getUntrackedParameter<std::string>("kind")));
-
-    BinService::AxisSpecs const* xaxis(0);
-    BinService::AxisSpecs const* yaxis(0);
-    BinService::AxisSpecs const* zaxis(0);
-    if(_MEParam.existsAs<edm::ParameterSet>("xaxis", false)) xaxis = binService->formAxis(_MEParam.getUntrackedParameterSet("xaxis"));
-    if(_MEParam.existsAs<edm::ParameterSet>("yaxis", false)) yaxis = binService->formAxis(_MEParam.getUntrackedParameterSet("yaxis"));
-    if(_MEParam.existsAs<edm::ParameterSet>("zaxis", false)) zaxis = binService->formAxis(_MEParam.getUntrackedParameterSet("zaxis"));
-
-    if(otype == BinService::nObjType)
-      return new MESetNonObject(fullPath, otype, btype, kind, xaxis, yaxis, zaxis);
-
-    if(otype == BinService::kChannel)
-      return new MESetChannel(fullPath, otype, btype, kind);
-
-    if(btype == BinService::kProjEta || btype == BinService::kProjPhi)
-      return new MESetProjection(fullPath, otype, btype, kind, yaxis);
-
-    if(btype == BinService::kTrend)
-      return new MESetTrend(fullPath, otype, btype, kind, yaxis);
-
-    unsigned logicalDimensions;
-    switch(kind){
-    case MonitorElement::DQM_KIND_REAL:
-      logicalDimensions = 0;
-      break;
-    case MonitorElement::DQM_KIND_TH1F:
-    case MonitorElement::DQM_KIND_TPROFILE:
-      logicalDimensions = 1;
-      break;
-    case MonitorElement::DQM_KIND_TH2F:
-    case MonitorElement::DQM_KIND_TPROFILE2D:
-      logicalDimensions = 2;
-      break;
-    default:
-      throw cms::Exception("InvalidCall") << "Histogram type " << kind << " not supported" << std::endl;
-    }
-
-    // example case: Ecal/TriggerPrimitives/EmulMatching/TrigPrimTask matching index
-    if(logicalDimensions == 2 && yaxis && btype != BinService::kUser) logicalDimensions = 1;
-
-    // for EventInfo summary contents
-    if(btype == BinService::kReport){
-      if(logicalDimensions != 0)
-	throw cms::Exception("InvalidCall") << "Report can only be a DQM_KIND_REAL" << std::endl;
-    }
-
-    if(btype == BinService::kUser)
-      return new MESetEcal(fullPath, otype, btype, kind, logicalDimensions, xaxis, yaxis, zaxis);
-
-    if(logicalDimensions == 0)
-      return new MESetDet0D(fullPath, otype, btype, kind);
-
-    if(logicalDimensions == 1)
-      return new MESetDet1D(fullPath, otype, btype, kind, yaxis);
-
-    if(logicalDimensions == 2)
-      return new MESetDet2D(fullPath, otype, btype, kind, zaxis);
-
-    return 0;
   }
 
   void

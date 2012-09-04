@@ -384,27 +384,41 @@ namespace ecaldqm
     switch(btype_){
     case BinService::kCrystal:
       if(isCrystalId(_id)) return getElectronicsMap()->getElectronicsId(_id).rawId();
+      else if(_id.subdetId() == EcalLaserPnDiode){
+        EcalPnDiodeDetId pnid(_id);
+        return EcalElectronicsId(pnid.iDCCId(), pnid.iPnId() < 6 ? 69 : 70, 1, (pnid.iPnId() - 1) % 5 + 1).rawId();
+      }
       break;
 
     case BinService::kTriggerTower:
       if(subdet == EcalTriggerTower){
         std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(EcalTrigTowerDetId(_id)));
-        if(ids.size() > 0)
-          return getElectronicsMap()->getTriggerElectronicsId(ids[0]).rawId();
+        if(ids.size() > 0){
+          EcalTriggerElectronicsId teid(getElectronicsMap()->getTriggerElectronicsId(ids[0]));
+          return EcalTriggerElectronicsId(teid.tccId(), teid.ttId(), 1, 1).rawId();
+        }
       }
-      else if(isCrystalId(_id)) return getElectronicsMap()->getTriggerElectronicsId(_id).rawId();
+      else if(isCrystalId(_id)){
+        EcalTriggerElectronicsId teid(getElectronicsMap()->getTriggerElectronicsId(_id));
+        return EcalTriggerElectronicsId(teid.tccId(), teid.ttId(), 1, 1).rawId();
+      }
       break;
 
     case BinService::kSuperCrystal:
-      if(isCrystalId(_id)) return getElectronicsMap()->getElectronicsId(_id).rawId();
+      if(isCrystalId(_id)){
+        EcalElectronicsId eid(getElectronicsMap()->getElectronicsId(_id));
+        return EcalElectronicsId(eid.dccId(), eid.towerId(), 1, 1).rawId();
+      }
       else if(isEcalScDetId(_id)){
         std::pair<int, int> dccsc(getElectronicsMap()->getDCCandSC(EcalScDetId(_id)));
         return EcalElectronicsId(dccsc.first, dccsc.second, 1, 1).rawId();
       }
       else if(subdet == EcalTriggerTower && !isEndcapTTId(_id)){
         std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(EcalTrigTowerDetId(_id)));
-        if(ids.size() > 0)
-          return getElectronicsMap()->getElectronicsId(ids[0]).rawId();
+        if(ids.size() > 0){
+          EcalElectronicsId eid(getElectronicsMap()->getElectronicsId(ids[0]));
+          return EcalElectronicsId(eid.dccId(), eid.towerId(), 1, 1).rawId();
+        }
       }
       break;
 

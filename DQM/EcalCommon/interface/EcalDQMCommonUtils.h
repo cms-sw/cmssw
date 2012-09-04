@@ -57,6 +57,8 @@ namespace ecaldqm {
   unsigned ttId(const DetId&);
   unsigned ttId(const EcalElectronicsId&);
 
+  unsigned rtHalf(DetId const&);
+
   std::pair<unsigned, unsigned> innerTCCs(unsigned);
   std::pair<unsigned, unsigned> outerTCCs(unsigned);
 

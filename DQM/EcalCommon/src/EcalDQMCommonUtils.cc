@@ -138,6 +138,21 @@ namespace ecaldqm
     return electronicsMap->getTriggerElectronicsId(_id).ttId();
   }
 
+  unsigned
+  rtHalf(DetId const& _id)
+  {
+    if(_id.subdetId() == EcalBarrel){
+      int ic(EBDetId(_id).ic());
+      if((ic - 1) / 20 > 4 && (ic - 1) % 20 < 10) return 1;
+    }
+    else{
+      unsigned iDCC(dccId(_id) - 1);
+      if((iDCC == kEEm05 || iDCC == kEEp05) && EEDetId(_id).ix() > 50) return 1;
+    }
+
+    return 0;
+  }
+
   std::pair<unsigned, unsigned>
   innerTCCs(unsigned _dccId)
   {
@@ -313,19 +328,19 @@ namespace ecaldqm
   {
     switch(_dee){
     case 1: // EE+F -> FEDs 649-653/0
-      if(_ab == 0) return 650;
-      else return 651;
-    case 2: // EE+N -> FEDs 604-608/0
-      if(_ab == 0) return 605;
-      else return 606;
+      if(_ab == 0) return 50;
+      else return 51;
+    case 2: // EE+N -> FEDs 646-648, 653/1, 654
+      if(_ab == 0) return 47;
+      else return 46;
     case 3: // EE-N -> FEDs 601-603, 608/1, 609
-      if(_ab == 0) return 601;
-      else return 602;
-    case 4: // EE-F -> FEDs 646-648, 653/1, 654
-      if(_ab == 0) return 647;
-      else return 646;
+      if(_ab == 0) return 1;
+      else return 2;
+    case 4: // EE-F -> FEDs 604-608/0
+      if(_ab == 0) return 5;
+      else return 6;
     default:
-      return 600;
+      return 0;
     }
   }
 
@@ -405,11 +420,8 @@ namespace ecaldqm
   {
     if(_towerId == 69 || _towerId == 70) return true;
     else if((_dccId == 8 || _dccId == 53) && _towerId >= 18 && _towerId <= 24) return false;
-    else if(_dccId <= kEEmHigh + 1 || _dccId >= kEEpLow + 1){
-      if(_towerId > nSuperCrystals(_dccId)) return false;
-    }
-    
-    return true;
+    else if(_dccId <= kEEmHigh + 1 || _dccId >= kEEpLow + 1) return _towerId <= nSuperCrystals(_dccId);
+    else return _towerId <= 68;
   }
 
   EcalElectronicsMapping const*
@@ -470,4 +482,5 @@ namespace ecaldqm
   {
     if(!geometry) throw cms::Exception("InvalidCall") << "CaloGeometry not initialized" << std::endl;
   }
+
 }

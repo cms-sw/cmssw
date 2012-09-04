@@ -489,20 +489,23 @@ EcalDQMBinningService::channelName(uint32_t _rawId, BinningType _btype/* = kDCC*
     {
       // EB-03 DCC 12 CCU 12 strip 3 xtal 1 (EB ieta -13 iphi 60) (TCC 39 TT 12 pstrip 3 chan 1)
       EcalElectronicsId eid(_rawId);
-      ss << smName(eid.dccId()) << " DCC " << eid.dccId() << " CCU " << eid.towerId() << " strip " << eid.stripId() << " xtal " << eid.xtalId();
-      if(eid.towerId() >= 69) break;
-
-      if(eid.dccId() >= kEBmLow + 1 && eid.dccId() <= kEBpHigh + 1){
-	EBDetId ebid(getElectronicsMap()->getDetId(eid));
-	ss << " (EB ieta " << std::showpos << ebid.ieta() << std::noshowpos << " iphi " << ebid.iphi() << ")";
-      }
+      if(eid.towerId() >= 69)
+        ss << smName(eid.dccId()) << " DCC " << eid.dccId() << " CCU " << eid.towerId() << " PN " << eid.xtalId();
       else{
-	EEDetId eeid(getElectronicsMap()->getDetId(eid));
-	ss << " (EE ix " << eeid.ix() << " iy " << eeid.iy() << ")";
+        ss << smName(eid.dccId()) << " DCC " << eid.dccId() << " CCU " << eid.towerId() << " strip " << eid.stripId() << " xtal " << eid.xtalId();
+
+        if(eid.dccId() >= kEBmLow + 1 && eid.dccId() <= kEBpHigh + 1){
+          EBDetId ebid(getElectronicsMap()->getDetId(eid));
+          ss << " (EB ieta " << std::showpos << ebid.ieta() << std::noshowpos << " iphi " << ebid.iphi() << ")";
+        }
+        else{
+          EEDetId eeid(getElectronicsMap()->getDetId(eid));
+          ss << " (EE ix " << eeid.ix() << " iy " << eeid.iy() << ")";
+        }
+        EcalTriggerElectronicsId teid(getElectronicsMap()->getTriggerElectronicsId(eid));
+        ss << " (TCC " << teid.tccId() << " TT " << teid.ttId() << " pstrip " << teid.pseudoStripId() << " chan " << teid.channelId() << ")";
+        break;
       }
-      EcalTriggerElectronicsId teid(getElectronicsMap()->getTriggerElectronicsId(eid));
-      ss << " (TCC " << teid.tccId() << " TT " << teid.ttId() << " pstrip " << teid.pseudoStripId() << " chan " << teid.channelId() << ")";
-      break;
     }
   case kTriggerTower:
     {
@@ -549,11 +552,12 @@ uint32_t
 EcalDQMBinningService::idFromName(std::string const& _name) const
 {
   TString name(_name);
-  TPRegexp re("(EB|EE)([+-][0-9][0-9])(?: TCC ([0-9]+)| DCC ([0-9]+) (CCU|TCC) ([0-9]+)(?: (?:TT|strip) ([0-9]+)(?: xtal ([0-9]+)|)|)|)");
-  //            1      2                       3             4        5         6                        7                8
+  TPRegexp re("(EB|EE)([+-][0-9][0-9])(?: TCC ([0-9]+)| DCC ([0-9]+) (CCU|TCC) ([0-9]+)(?: (TT|strip|PN) ([0-9]+)(?: xtal ([0-9]+)|)|)|)");
+  //            1      2                       3             4        5         6           7             8                9
   uint32_t rawId(0);
 
   TObjArray* matches(re.MatchS(name));
+  matches->SetOwner(true);
   if(matches->GetEntries() == 0) return 0;
   else if(matches->GetEntries() == 3){
     TString subdet(static_cast<TObjString*>(matches->At(1))->GetString());
@@ -580,7 +584,7 @@ EcalDQMBinningService::idFromName(std::string const& _name) const
     TString subtype(static_cast<TObjString*>(matches->At(5))->GetString());
     if(subtype == "TCC"){
       int tccid(static_cast<TObjString*>(matches->At(6))->GetString().Atoi());
-      int ttid(static_cast<TObjString*>(matches->At(7))->GetString().Atoi());
+      int ttid(static_cast<TObjString*>(matches->At(8))->GetString().Atoi());
       rawId = EcalTriggerElectronicsId(tccid, ttid, 1, 1).rawId();
     }
     else{
@@ -589,9 +593,15 @@ EcalDQMBinningService::idFromName(std::string const& _name) const
       if(matches->GetEntries() == 7)
 	rawId = EcalElectronicsId(dccid, towerid, 1, 1).rawId();
       else{
-	int stripid(static_cast<TObjString*>(matches->At(7))->GetString().Atoi());
-	int xtalid(static_cast<TObjString*>(matches->At(8))->GetString().Atoi());
-	rawId = EcalElectronicsId(dccid, towerid, stripid, xtalid).rawId();
+        TString chType(static_cast<TObjString*>(matches->At(7))->GetString());
+	int stripOrPNid(static_cast<TObjString*>(matches->At(8))->GetString().Atoi());
+        if(chType == "PN")
+          rawId = EcalElectronicsId(dccid, towerid, 1, stripOrPNid).rawId();
+        else if(chType == "strip"){
+          int xtalid(static_cast<TObjString*>(matches->At(9))->GetString().Atoi());
+          rawId = EcalElectronicsId(dccid, towerid, stripOrPNid, xtalid).rawId();
+        }
+        // case "TT" is already taken care of
       }
     }
   }
