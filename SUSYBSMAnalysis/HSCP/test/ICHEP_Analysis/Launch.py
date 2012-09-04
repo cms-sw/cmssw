@@ -18,11 +18,12 @@ if CMSSW_VERSION == 'CMSSW_VERSION':
 
 if len(sys.argv)==1:
 	print "Please pass in argument a number between 0 and 2"
-        print "  0 - Submit the Core of the (TkOnly+TkTOF) Analysis     --> submitting 5xSignalPoints jobs"
-        print "  1 - Merge all output files and estimate backgrounds    --> submitting              5 jobs"
-        print "  2 - Run the control plot macro                         --> submitting              0 jobs"
-        print "  3 - Run the Optimization macro based on best Exp Limit --> submitting 5xSignalPoints jobs"
-        print "  4 - Run the exclusion plot macro                       --> submitting              0 jobs"
+        print "  0 - Submit the Core of the (TkOnly+TkTOF) Analysis                 --> submitting 5xSignalPoints jobs"
+        print "  1 - Merge all output files and estimate backgrounds                --> submitting              5 jobs"
+        print "  2 - Run the control plot macro                                     --> submitting              0 jobs"
+        print "  3 - Run the Optimization macro based on best Exp Limit             --> submitting 5xSignalPoints jobs (OPTIONAL)"
+        print "  4 - compute the limits from the cuts set in Analysis_Cuts.txt file --> submitting 5xSignalPoints jobs (must edit by hand Analysis_Cuts.txt)"
+        print "  5 - Run the exclusion plot macro                                   --> submitting              0 jobs"
 	sys.exit()
 
 elif sys.argv[1]=='0':	
@@ -31,13 +32,13 @@ elif sys.argv[1]=='0':
         JobName = "HscpAnalysis"
 	LaunchOnCondor.Jobs_RunHere = 1
 	LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)	
-
         f= open('Analysis_Samples.txt','r')
         index = -1
         for line in f :
            index+=1
            vals=line.split(',')
            if((vals[0].replace('"','')) in CMSSW_VERSION):
+              if(int(vals[1])!=0):continue
               for Type in AnalysesToRun:
                  if  (Type==0):LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 1.5])
                  elif(Type==2):LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 1.5])
@@ -64,7 +65,7 @@ elif sys.argv[1]=='2':
 	os.system('root Analysis_Step5.C++ -l -b -q')
 
 elif sys.argv[1]=='3':
-        print 'OPTIMIZATION'
+        print 'OPTIMIZATION & LIMIT COMPUTATION'
         FarmDirectory = "FARM"
         JobName = "HscpLimits"
         LaunchOnCondor.Jobs_RunHere = 1
@@ -76,11 +77,28 @@ elif sys.argv[1]=='3':
            if(int(vals[1])!=2):continue
            for Type in AnalysesToRun:
               Path = "Results/Type"+str(Type)+"/"
-              LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', '"'+Path+'"', vals[2] ])
+              LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"OPTIMIZE"', '"'+Path+'"', vals[2] ])
         f.close()
         LaunchOnCondor.SendCluster_Submit()
 
 elif sys.argv[1]=='4':
+        print 'LIMIT COMPUTATION (ONLY)'
+        FarmDirectory = "FARM"
+        JobName = "HscpLimits"
+        LaunchOnCondor.Jobs_RunHere = 1
+        LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)
+
+        f= open('Analysis_Samples.txt','r')
+        for line in f :
+           vals=line.split(',')
+           if(int(vals[1])!=2):continue
+           for Type in AnalysesToRun:
+              Path = "Results/Type"+str(Type)+"/"
+              LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"COMPUTELIMIT"', '"'+Path+'"', vals[2] ])
+        f.close()
+        LaunchOnCondor.SendCluster_Submit()
+
+elif sys.argv[1]=='5':
         print 'EXCLUSION'
         os.system('sh Analysis_Step6.sh')
 else:

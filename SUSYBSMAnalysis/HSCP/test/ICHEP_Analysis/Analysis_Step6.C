@@ -103,7 +103,7 @@ double RescaleError  = 0.1;
 double PlotMinScale = 0.0005;
 double PlotMaxScale = 3;
 
-void Optimize(string InputPattern, string Data, string signal, bool shape);
+void Optimize(string InputPattern, string Data, string signal, bool shape, bool cutFromFile);
 double GetSignalMeanHSCPPerEvent(string InputPattern, unsigned int CutIndex, double MinRange, double MaxRange);
 TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, int XSectionType, std::vector<stSample>& modelSamples, double& LInt);
 void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern);
@@ -156,10 +156,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    }
 
    if(MODE.find("SHAPE")!=string::npos){SHAPESTRING="SHAPE";}else{SHAPESTRING="";}
-   if(MODE.find("ANALYSE")!=string::npos){
-      if(SHAPESTRING==""){  Optimize(InputPattern, Data, signal, false);
-      }else{                Optimize(InputPattern, Data, signal, true);//testShapeBasedAnalysis(InputPattern,signal);  //use the second part if you want to run shape based analyssi on optimal point form c&c
-      }
+   if(MODE.find("COMPUTELIMIT")!=string::npos){
+      Optimize(InputPattern, Data, signal, SHAPESTRING!="", true);
+      return;
+   }else if(MODE.find("OPTIMIZE")!=string::npos){
+      Optimize(InputPattern, Data, signal, SHAPESTRING!="", false); //testShapeBasedAnalysis(InputPattern,signal);  //use the second part if you want to run shape based analyssi on optimal point form c&c      
       return;
    }
    
@@ -889,7 +890,7 @@ void DrawRatioBands(string InputPattern)
 }
 
 //will run on all possible selection and try to identify which is the best one for this sample
-void Optimize(string InputPattern, string Data, string signal, bool shape){
+void Optimize(string InputPattern, string Data, string signal, bool shape, bool cutFromFile){
    printf("Optimize selection for %s in %s\n",signal.c_str(), InputPattern.c_str());fflush(stdout);
 
    //get the typeMode from pattern
@@ -898,6 +899,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape){
    //Identify the signal sample
    GetSampleDefinition(samples);
    CurrentSampleIndex        = JobIdToIndex(signal,samples); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  } 
+
 
    //Load all input histograms
    TFile*InputFile     = new TFile((InputPattern + "Histos.root").c_str());
@@ -925,6 +927,46 @@ void Optimize(string InputPattern, string Data, string signal, bool shape){
    TH2D* MassSignPU    = (TH2D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/Mass_SystPU" );
    TH1D* TotalE        = (TH1D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/TotalE" );
    TH1D* TotalEPU      = (TH1D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/TotalEPU" );
+
+
+   //If Take the cuts From File --> Load the actual cut index
+   int OptimCutIndex = -1;  int OptimMassWindow;
+   if(cutFromFile){
+      FILE* pFile = fopen("Analysis_Cuts.txt","r");
+      if(!pFile){printf("Can't open %s\n","Analysis_Cuts.txt"); return;}
+
+      while(true){
+         char line[4096];  string Name_;  int TypeMode_; double cutPt_; double cutI_; double cutTOF_; int massWindow_;
+         if(!fgets(line, 4096, pFile))break;
+         char* pch=strtok(line,","); int Arg=0; string tmp; int temp;
+         while (pch!=NULL){
+            switch(Arg){
+               case  0: tmp = pch;  Name_     = tmp.substr(tmp.find("\"")+1,tmp.rfind("\"")-tmp.find("\"")-1); break;
+               case  1: sscanf(pch, "%d",  &TypeMode_); break;
+               case  2: sscanf(pch, "%lf", &cutPt_ ); break;
+               case  3: sscanf(pch, "%lf", &cutI_  ); break;
+               case  4: sscanf(pch, "%lf", &cutTOF_); break;
+               case  5: sscanf(pch, "%d",  &massWindow_);break;
+               default:break;
+            }
+            pch=strtok(NULL,",");Arg++;
+         }
+         //printf("%s %i %f %f %f %i\n",Name_.c_str(), TypeMode_, cutPt_, cutI_, cutTOF_, massWindow_);
+
+         if(Name_!=signal      )continue; //Not reading the cut line for the right signal sample
+         if(TypeMode_!=TypeMode)continue; //Not reading the cut line for the right TypeMode 
+
+         //We are looking at the right sample --> Now loop over all cuts and identify the cut index of the optimal cut
+         double MinDistance = 10000;
+         for(int CutIndex=0;CutIndex<HCuts_Pt->GetNbinsX();CutIndex++){
+            double cutDistance = fabs(cutPt_ - HCuts_Pt ->GetBinContent(CutIndex+1)) + fabs(cutI_ - HCuts_I ->GetBinContent(CutIndex+1)) + fabs(cutTOF_ - HCuts_TOF ->GetBinContent(CutIndex+1));
+            if(cutDistance<MinDistance){MinDistance=cutDistance; OptimCutIndex=CutIndex;  OptimMassWindow=massWindow_;}
+         }
+         printf("Closest cut index to the cuts provided: %i\n",OptimCutIndex);
+      }
+      fclose(pFile);
+   }
+
 
    //normalise the signal samples to XSection * IntLuminosity
    double LInt  = H_Lumi->GetBinContent(1);
@@ -962,21 +1004,24 @@ void Optimize(string InputPattern, string Data, string signal, bool shape){
    for(int CutIndex=0;CutIndex<MassData->GetNbinsX();CutIndex++){
       //if(CutIndex>25)break; //for debugging purposes
 
+      //if we don't want to optimize but take instead the cuts from a file, we can skip all other cuts
+      if(OptimCutIndex>=0 && CutIndex!=OptimCutIndex)continue;
+
       //make sure the pT cut is high enough to get some statistic for both ABCD and mass shape
-      if(HCuts_Pt ->GetBinContent(CutIndex+1) < 50 ) continue;  
+      if(HCuts_Pt ->GetBinContent(CutIndex+1) < 50 ){printf("Skip cut=%i because of too lose pT cut\n", CutIndex); continue;}
 
       //make sure we have a reliable prediction of the number of events      
-      if(H_E->GetBinContent(CutIndex+1) >0 && (H_A->GetBinContent(CutIndex+1)<25 || H_F->GetBinContent(CutIndex+1)<25 || H_G->GetBinContent(CutIndex+1)<25))continue;  //Skip events where Prediction (AFG/EE) is not reliable
-      if(H_E->GetBinContent(CutIndex+1)==0 && H_A->GetBinContent(CutIndex+1)>0 && (H_C->GetBinContent(CutIndex+1)<25 || H_B->GetBinContent(CutIndex+1)<25))continue;  //Skip events where Prediction (CB/A) is not reliable
-      if(H_F->GetBinContent(CutIndex+1)>0 && H_A->GetBinContent(CutIndex+1)==0 && (H_B->GetBinContent(CutIndex+1)<25 || H_H->GetBinContent(CutIndex+1)<25))continue;  //Skip events where Prediction (CB/A) is not reliable
+      if(H_E->GetBinContent(CutIndex+1) >0 && (H_A->GetBinContent(CutIndex+1)<25 || H_F->GetBinContent(CutIndex+1)<25 || H_G->GetBinContent(CutIndex+1)<25)){printf("Skip cut=%i because of unreliable ABCD prediction\n", CutIndex); continue;}  //Skip events where Prediction (AFG/EE) is not reliable
+      if(H_E->GetBinContent(CutIndex+1)==0 && H_A->GetBinContent(CutIndex+1)>0 && (H_C->GetBinContent(CutIndex+1)<25 || H_B->GetBinContent(CutIndex+1)<25)){printf("Skip cut=%i because of unreliable ABCD prediction\n", CutIndex); continue;}  //Skip events where Prediction (CB/A) is not reliable
+      if(H_F->GetBinContent(CutIndex+1)>0 && H_A->GetBinContent(CutIndex+1)==0 && (H_B->GetBinContent(CutIndex+1)<25 || H_H->GetBinContent(CutIndex+1)<25)){printf("Skip cut=%i because of unreliable ABCD prediction\n", CutIndex); continue;}  //Skip events where Prediction (CB/A) is not reliable
    
 
       //make sure we have a reliable prediction of the shape 
       if(TypeMode<=2){
          double N_P = H_P->GetBinContent(CutIndex+1);       
-         if(H_E->GetBinContent(CutIndex+1) >0 && (H_A->GetBinContent(CutIndex+1)<0.25*N_P || H_F->GetBinContent(CutIndex+1)<0.25*N_P || H_G->GetBinContent(CutIndex+1)<0.25*N_P))continue;  //Skip events where Mass Prediction is not reliable
-         if(H_E->GetBinContent(CutIndex+1)==0 && (H_C->GetBinContent(CutIndex+1)<0.25*N_P || H_B->GetBinContent(CutIndex+1)<0.25*N_P))continue;  //Skip events where Mass Prediction is not reliable
-      }
+         if(H_E->GetBinContent(CutIndex+1) >0 && (H_A->GetBinContent(CutIndex+1)<0.25*N_P || H_F->GetBinContent(CutIndex+1)<0.25*N_P || H_G->GetBinContent(CutIndex+1)<0.25*N_P)){printf("Skip cut=%i because of unreliable mass prediction\n", CutIndex); continue;}  //Skip events where Mass Prediction is not reliable
+         if(H_E->GetBinContent(CutIndex+1)==0 && (H_C->GetBinContent(CutIndex+1)<0.25*N_P || H_B->GetBinContent(CutIndex+1)<0.25*N_P)){printf("Skip cut=%i because of unreliable mass prediction\n", CutIndex); continue;}  //Skip events where Mass Prediction is not reliable
+      }      
 
       //prepare outputs result structure
       result = toReturn;
@@ -998,9 +1043,14 @@ void Optimize(string InputPattern, string Data, string signal, bool shape){
     //}else          {if(!runCombine(true, true, false, InputPattern, signal, CutIndex, shape, true, result, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU))continue;
     //}
 
-      //best significance --> is actually best reach
-      if(TypeMode<=2){if(!runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU))continue;
-      }else          {if(!runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, H_D, H_P, H_S, H_S, H_S, H_S, H_S, H_S))continue;
+      //no need to precompute the reach when not optimizing the cuts
+      if(OptimCutIndex<0){
+         //best significance --> is actually best reach
+         if(TypeMode<=2){if(!runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU)){printf("runCombine did not converge\n"); continue;}
+         }else          {if(!runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, H_D, H_P, H_S, H_S, H_S, H_S, H_S, H_S)){printf("runCombine did not converge\n"); continue;}
+         }
+      }else{
+         result.XSec_5Sigma=0.0001;//Dummy number --> will be recomputed later on... but it must be >0
       }
 
       //report the result for this point in the log file
@@ -1291,12 +1341,13 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       double SignifValue=0.0;double Strength=5;  if(result.XSec_5Sigma>0 && result.XSec_5Sigma<1E50)Strength=result.XSec_5Sigma/1000.0;
       double previousXSec_5Sigma=result.XSec_5Sigma; result.XSec_5Sigma = -1;
       //find signal strength needed to get a 5sigma significance
-      for(unsigned int l=0;l<10 && pointMayBeOptimal;l++){
+      unsigned int l=0;
+      for(l=0;l<10 && pointMayBeOptimal;l++){
          SignifValue = computeSignificance(true, signal, massStr, Strength);
          printf("SIGNAL STRENGTH = %f --> SIGNIFICANCE=%f\n",Strength,SignifValue);
          //we found the signal strength that lead to a significance close enough to the 5sigma to stop the loop 
          //OR we know that this point is not going to be a good one --> can do a coarse approximation since the begining
-         if(fabs(SignifValue-5)<0.5 || (fastOptimization && Strength/1000>=previousXSec_5Sigma && SignifValue<5)){
+         if(fabs(SignifValue-5)<0.75 || (fastOptimization && Strength/1000>=previousXSec_5Sigma && SignifValue<5)){
             result.XSec_5Sigma  = Strength * (5/SignifValue) / 1000.0;//xsection in pb
             break;
          }
@@ -1304,8 +1355,8 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
          //Not yet at the right significance, change the strength to get close
          if(isinf((float)SignifValue)){Strength/=10;                continue;} //strength is already way too high
          if(SignifValue<=0           ){Strength*=10;                continue;} //strength is already way too low
-         if(SignifValue>5            ){Strength*=std::max( 0.1,(4.9/SignifValue)); continue;} //5/significance could be use but converge faster with 4.9
-         if(SignifValue<5            ){Strength*=std::min(10.0,(5.1/SignifValue)); continue;} //5/significance could be use, but it converges faster with 5.1
+         if(SignifValue>5            ){Strength*=std::max( 0.1,(4.95/SignifValue)); continue;} //5/significance could be use but converge faster with 4.9
+         if(SignifValue<5            ){Strength*=std::min(10.0,(5.05/SignifValue)); continue;} //5/significance could be use, but it converges faster with 5.1
          break;                    
       }
    }

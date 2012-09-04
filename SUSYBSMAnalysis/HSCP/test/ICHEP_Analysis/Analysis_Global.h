@@ -31,7 +31,7 @@
 #include "TTree.h"
 
 //This code is there to enable/disable year dependent code
-//#define ANALYSIS2011
+#define ANALYSIS2011
 
 #ifdef ANALYSIS2011
 double               SQRTS          = 7;
@@ -148,7 +148,8 @@ void InitBaseDirectory(){
       //BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_11_01/";
       BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_8/12_08_16/";
    }else if(host.find("cern.ch")!=std::string::npos){
-      BaseDirectory = "rfio:/castor/cern.ch/user/r/rybinska/HSCPEDMFiles/";
+      //BaseDirectory = "rfio:/castor/cern.ch/user/r/rybinska/HSCPEDMFiles/";
+      BaseDirectory = "root://eoscms//eos/cms/store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/";
    }else if(host.find("fnal.gov")!=std::string::npos){
      BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/venkat12/2012Data/";
 #ifdef ANALYSIS2011
