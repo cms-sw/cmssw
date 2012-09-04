@@ -16,8 +16,14 @@ int main() {
   std::mt19937 eng;
   std::uniform_int_distribution<int> ugen(1,255);
  
+  hp1.setHitPattern(0, (121<<3));
+  hp2.setHitPattern(0, (121<<3));
+  hp1.setHitPattern(1, (121<<3));
+  hp2.setHitPattern(1, (125<<3));
+  hp1.setHitPattern(2, (121<<3));
+  hp2.setHitPattern(2, (121<<3));
 
-  for (int i=0; i!=20;++i) {
+  for (int i=3; i!=20;++i) {
     if (i%7==1) { 
       hp1.setHitPattern(i, (123<<3)+1); // invalid
     }
