@@ -204,7 +204,7 @@ namespace cms
     int trackCollNum[rSize];
     int trackQuals[rSize];
     for (unsigned int j=0; j<rSize;j++) {
-      indexG[i]=-1; selected[j]=1; trkUpdated[j]=false; trackCollNum[j]=0; trackQuals[j]=0;
+      indexG[j]=-1; selected[j]=1; trkUpdated[j]=false; trackCollNum[j]=0; trackQuals[j]=0;
     }
 
     int ngood=0;
