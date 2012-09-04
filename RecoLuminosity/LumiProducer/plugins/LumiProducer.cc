@@ -16,9 +16,9 @@ from the configuration file, the DB is not implemented yet)
 //
 // Original Author:  Valerie Halyo
 //                   David Dagenhart
-//       
+//                   Zhen Xie
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.25 2012/02/28 15:07:18 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.26 2012/02/29 13:52:13 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -145,7 +145,7 @@ private:
   unsigned long long getLumiDataId(const coral::ISchema& schema,unsigned int runnumber);
   unsigned long long getTrgDataId(const coral::ISchema& schema,unsigned int runnumber);
   unsigned long long getHltDataId(const coral::ISchema& schema,unsigned int runnumber);
-
+  std::string getCurrentDataTag(const coral::ISchema& schema);
   std::string m_connectStr;
   std::string m_lumiversion;
   std::string m_siteconfpath;
@@ -250,7 +250,7 @@ LumiProducer::LumiProducer(const edm::ParameterSet& iConfig):m_cachedrun(0),m_is
   // set up cache
   std::string connectStr=iConfig.getParameter<std::string>("connect");
   m_cachesize=iConfig.getUntrackedParameter<unsigned int>("ncacheEntries",5);
-  m_lumiversion="v2"; /*iConfig.getUntrackedParameter<std::string>("lumiversion");*/
+  m_lumiversion=iConfig.getUntrackedParameter<std::string>("lumiversion","");
   const std::string fproto("frontier://");
   //test if need frontier servlet site-local translation  
   if(connectStr.substr(0,fproto.length())==fproto){
@@ -375,6 +375,38 @@ LumiProducer::getHltDataId(const coral::ISchema& schema,unsigned int runnumber){
   delete hltQuery;
   return hltdataid;
 }
+
+std::string 
+LumiProducer::getCurrentDataTag(const coral::ISchema& schema){
+  //select tagid,tagname from tags
+  std::string result;
+  std::map<unsigned long long,std::string> alltags;
+  coral::IQuery* tagQuery=schema.newQuery();
+  tagQuery->addToTableList(lumi::LumiNames::tagsTableName());
+  tagQuery->addToOutputList("TAGID");
+  tagQuery->addToOutputList("TAGNAME");
+  coral::AttributeList tagoutput;
+  tagoutput.extend("TAGID",typeid(unsigned long long));
+  tagoutput.extend("TAGNAME",typeid(std::string));
+  tagQuery->defineOutput(tagoutput);
+  coral::ICursor& tagcursor=tagQuery->execute();
+  while( tagcursor.next() ){
+    const coral::AttributeList& row=tagcursor.currentRow();
+    unsigned long long tagid=row["TAGID"].data<unsigned long long>();
+    const std::string  tagname=row["TAGNAME"].data<std::string>();
+    alltags.insert(std::make_pair(tagid,tagname));
+  }
+  delete tagQuery;
+  unsigned long long maxid=0;
+  for(std::map<unsigned long long,std::string>::iterator it = alltags.begin(); it !=alltags.end(); ++it) {
+    if( it->first > maxid){
+      maxid=it->first;
+    }
+  }
+  result=alltags[maxid];
+  return result;
+}
+
 void 
 LumiProducer::beginRun(edm::Run& run,edm::EventSetup const &iSetup)
 {
@@ -448,6 +480,10 @@ LumiProducer::endRun(edm::Run& run,edm::EventSetup const &iSetup)
 }
 void 
 LumiProducer::fillRunCache(const coral::ISchema& schema,unsigned int runnumber){
+  if(m_lumiversion.empty()){
+    m_lumiversion=getCurrentDataTag(schema);
+  }
+  std::cout<<"lumi tag version 2 "<<m_lumiversion<<std::endl;
   if(m_cachedtrgdataid!=0){
     coral::AttributeList trgBindVariables;
     trgBindVariables.extend("trgdataid",typeid(unsigned long long));
