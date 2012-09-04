@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 globalhitsanalyze = cms.EDAnalyzer("GlobalHitsAnalyzer",
+    G4VtxSrc = cms.InputTag("g4SimHits"),
+    G4TrkSrc = cms.InputTag("g4SimHits"),
     MuonRpcSrc = cms.InputTag("g4SimHits","MuonRPCHits"),
     PxlBrlHighSrc = cms.InputTag("g4SimHits","TrackerHitsPixelBarrelHighTof"),
     SiTOBLowSrc = cms.InputTag("g4SimHits","TrackerHitsTOBLowTof"),

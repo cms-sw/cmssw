@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2009/07/24 14:51:29 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/01/06 14:24:50 $
+ *  $Revision: 1.18 $
  *  \author M. Strang SUNY-Buffalo
  */
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -13,7 +13,10 @@
 
 GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), vtxunit(0), label(""), 
-  getAllProvenances(false), printProvenanceInfo(false), count(0)
+  getAllProvenances(false), printProvenanceInfo(false),
+  G4VtxSrc_(iPSet.getParameter<edm::InputTag>("G4VtxSrc")),
+  G4TrkSrc_(iPSet.getParameter<edm::InputTag>("G4TrkSrc")),
+  count(0)
 {
   std::string MsgLoggerCat = "GlobalHitsAnalyzer_GlobalHitsAnalyzer";
 
@@ -815,11 +818,11 @@ void GlobalHitsAnalyzer::fillG4MC(const edm::Event& iEvent)
   if (vtxunit == 1) unit = 10.; // stored in cm, convert to mm
 
   edm::Handle<edm::SimVertexContainer> G4VtxContainer;
-  iEvent.getByType(G4VtxContainer);
+  iEvent.getByLabel(G4VtxSrc_, G4VtxContainer);
 
   // needed here by vertex multiplicity
   edm::Handle<edm::SimTrackContainer> G4TrkContainer;
-  iEvent.getByType(G4TrkContainer);
+  iEvent.getByLabel(G4TrkSrc_, G4TrkContainer);
 
 
   if (!G4VtxContainer.isValid()) {

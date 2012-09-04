@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/05/15 17:44:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/01/06 14:24:50 $
+ *  $Revision: 1.5 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -12,7 +12,10 @@
 
 GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), vtxunit(0), 
-  getAllProvenances(false), printProvenanceInfo(false), count(0)
+  getAllProvenances(false), printProvenanceInfo(false),
+  G4VtxSrc_(iPSet.getParameter<edm::InputTag>("G4VtxSrc")),
+  G4TrkSrc_(iPSet.getParameter<edm::InputTag>("G4TrkSrc")),
+  count(0)
 {
   std::string MsgLoggerCat = "GlobalHitsProdHist_GlobalHitsProdHist";
 
@@ -791,7 +794,7 @@ void GlobalHitsProdHist::fillG4MC(edm::Event& iEvent)
   if (vtxunit == 1) unit = 10.; // stored in cm, convert to mm
 
   edm::Handle<edm::SimVertexContainer> G4VtxContainer;
-  iEvent.getByType(G4VtxContainer);
+  iEvent.getByLabel(G4VtxSrc_, G4VtxContainer);
   if (!G4VtxContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find SimVertex in event!";
@@ -835,7 +838,7 @@ void GlobalHitsProdHist::fillG4MC(edm::Event& iEvent)
   // get G4Track information
   ///////////////////////////
   edm::Handle<edm::SimTrackContainer> G4TrkContainer;
-  iEvent.getByType(G4TrkContainer);
+  iEvent.getByLabel(G4TrkSrc_, G4TrkContainer);
   if (!G4TrkContainer.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find SimTrack in event!";
