@@ -4,7 +4,7 @@
 <use name="FWCore/Utilities"/>
 <use name="GeneratorInterface/Herwig6Interface"/>
 <use name="boost"/>
-<library name="GeneratorInterfaceMCatNLOSource" file="MCatNLOSource.cc mcatnlo_hwursc.f mcatnlo_upevnt.f mcatnlo_upinit.f">
+<library name="GeneratorInterfaceMCatNLOSource" file="MCatNLOSource.cc mcatnlo_hwursc.f mcatnlo_upevnt_409.f mcatnlo_upinit_409.f">
 	<use name="FWCore/Framework"/>
 	<use name="FWCore/Sources"/>
 	<use name="SimDataFormats/GeneratorProducts"/>
