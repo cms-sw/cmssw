@@ -830,20 +830,21 @@ inline int HitPattern::numberOfInactiveTrackerHits() const {
     }
     
     void fill(reco::HitPattern const & hp) {
-      nhit=0;
-      auto unpack =[this,&hit,&nhit](uint32_t pattern) -> bool {
+      int lhit=0;
+      auto unpack =[&lhit,this](uint32_t pattern) -> bool {
 	unsigned char p = 255&(pattern>>3);
-	hit[nhit++]= p;
+	hit[lhit++]= p;
 	
 	// bouble sort
-	if (nhit>1)
-	  for (auto h=hit+nhit-1; h!=hit; --h) {
+	if (lhit>1)
+	  for (auto h=hit+lhit-1; h!=hit; --h) {
 	    if ( (*(h-1)) <= p) break; // { (*h)=p;break;}
 	    (*h)=*(h-1);  *(h-1)=p;
 	}
-	return nhit<MaxHits;
+	return lhit<MaxHits;
       };
       hp.call(reco::HitPattern::validHitFilter,unpack);
+      nhit=lhit;
     }
   };
 
