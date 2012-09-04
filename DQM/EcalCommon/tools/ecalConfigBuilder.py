@@ -63,7 +63,7 @@ if laser or calib :
     workspace = 'EcalCalibration'
 
 withDB = False
-if (env == 'CMSLive') or (env == 'PrivLive') or (daqtype == 'localDAQ') :
+if (env == 'PrivLive') or (daqtype == 'localDAQ') :
     withDB = True
 
 if laser :
@@ -138,8 +138,6 @@ process = cms.Process("DQM")
 recoModules += '''
 
 ### RECONSTRUCTION MODULES ###
-
-process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")
 
 process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 
@@ -306,12 +304,14 @@ elif calib :
     filters += '''
 process.ecalCalibrationFilter = cms.EDFilter("EcalMonitorPrescaler")
 process.ecalLaserLedFilter = cms.EDFilter("EcalMonitorPrescaler")
-process.ecalPedestalFilter = cms.EDFilter("EcalMonitorPrescaler")
-process.ecalTestPulseFilter = cms.EDFilter("EcalMonitorPrescaler")
-'''
+process.ecalTestPulseFilter = cms.EDFilter("EcalMonitorPrescaler")'''
+    if (daqtype == 'localDAQ') :
+        filters += '''
+process.ecalPedestalFilter = cms.EDFilter("EcalMonitorPrescaler")'''
 
 
 setup += '''
+
 
 ### JOB PARAMETERS ###
 
@@ -720,13 +720,15 @@ process.ecalLaserLedFilter.EcalRawDataCollection = cms.InputTag("ecalDigis")
 process.ecalLaserLedFilter.laserPrescaleFactor = cms.untracked.int32(1)
 process.ecalLaserLedFilter.ledPrescaleFactor = cms.untracked.int32(1)
 
-process.ecalPedestalFilter.EcalRawDataCollection = cms.InputTag("ecalDigis")
-process.ecalPedestalFilter.pedestalPrescaleFactor = cms.untracked.int32(1)
-
 process.ecalTestPulseFilter.EcalRawDataCollection = cms.InputTag("ecalDigis")
 process.ecalTestPulseFilter.testpulsePrescaleFactor = cms.untracked.int32(1)
 '''
-    if live :
+    if (daqtype == 'localDAQ') :
+        customizations += '''
+process.ecalPedestalFilter.EcalRawDataCollection = cms.InputTag("ecalDigis")
+process.ecalPedestalFilter.pedestalPrescaleFactor = cms.untracked.int32(1)
+'''
+    elif live :
         customizations += '''
 process.hltTriggerTypeFilter.SelectedTriggerType = 2 # 0=random, 1=physics, 2=calibration, 3=technical
 '''
@@ -762,22 +764,27 @@ process.ecalEndcapLedTask.ledWavelengths = [ 1, 2 ]
 process.ecalBarrelMonitorClient.laserWavelengths = [ 1, 2, 3, 4 ]
 process.ecalEndcapMonitorClient.laserWavelengths = [ 1, 2, 3, 4 ]
 process.ecalEndcapMonitorClient.ledWavelengths = [ 1, 2 ]
-
+'''
+        if (daqtype == 'localDAQ') :
+            customizations += '''
 process.ecalBarrelMonitorClient.enabledClients = ["Integrity", "StatusFlags", "Occupancy", "PedestalOnline", "Pedestal", "TestPulse", "Laser", "Summary"]
 process.ecalEndcapMonitorClient.enabledClients = ["Integrity", "StatusFlags", "Occupancy", "PedestalOnline","Pedestal", "TestPulse", "Laser", "Led", "Summary"]
+'''
+        else :
+            customizations += '''
+process.ecalBarrelMonitorClient.enabledClients = ["Integrity", "StatusFlags", "Occupancy", "PedestalOnline", "TestPulse", "Laser", "Summary"]
+process.ecalEndcapMonitorClient.enabledClients = ["Integrity", "StatusFlags", "Occupancy", "PedestalOnline", "TestPulse", "Laser", "Led", "Summary"]
+'''            
 
+        customizations += '''
 process.ecalBarrelMonitorClient.produceReports = False
 process.ecalEndcapMonitorClient.produceReports = False
 '''
 
         if live :
             customizations += '''
-process.ecalBarrelPedestalTask.MGPAGains = [ 12 ]
-process.ecalBarrelPedestalTask.MGPAGainsPN = [ 16 ]
 process.ecalBarrelTestPulseTask.MGPAGains = [ 12 ]
 process.ecalBarrelTestPulseTask.MGPAGainsPN = [ 16 ]
-process.ecalEndcapPedestalTask.MGPAGains = [ 12 ]
-process.ecalEndcapPedestalTask.MGPAGainsPN = [ 16 ]
 process.ecalEndcapTestPulseTask.MGPAGains = [ 12 ]
 process.ecalEndcapTestPulseTask.MGPAGainsPN = [ 16 ]
 process.ecalBarrelMonitorClient.MGPAGains = [ 12 ]
@@ -863,13 +870,6 @@ process.ecalEndcapMonitorClient.dbTagName = "CMSSW-online-private"
         customizations += '''
 process.ecalBarrelMonitorClient.dbTagName = "CMSSW-offline-private"
 process.ecalEndcapMonitorClient.dbTagName = "CMSSW-offline-private"
-'''
-    elif central :
-        customizations += '''
-process.ecalBarrelMonitorClient.dbUpdateTime = 120
-process.ecalBarrelMonitorClient.dbUpdateTime = 120
-process.ecalBarrelMonitorClient.dbTagName = "CMSSW-online-central"
-process.ecalEndcapMonitorClient.dbTagName = "CMSSW-online-central"
 '''
 
 dirName = '/data/ecalod-disk01/dqm-data/tmp'
