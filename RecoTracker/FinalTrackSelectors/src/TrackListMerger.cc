@@ -346,11 +346,12 @@ namespace cms
 	  int noverlap=0;
 	  int firstoverlap=0;
 	  
+	  unsigned int js=0;
 	  for ( unsigned int ih=0; ih<nh1; ++ih ) { 
 	    const TrackingRecHit* it = rh1[k1][ih];
 	    // if unlikely(!it->isValid()) continue;
-	    
-	    for ( unsigned jh=0; jh<nh2; ++jh ) { 
+	    if (js==nh2) break;
+	    for ( unsigned int jh=js; jh<nh2; ++jh ) { 
 	      const TrackingRecHit *jt=rh1[k2][jh];
 	      // if unlikely(!jt->isValid() ) continue;
 	      if ( (it->geographicalId()|3) !=(jt->geographicalId()|3) ) continue;  // VI: mask mono/stereo...
@@ -359,11 +360,15 @@ namespace cms
 		if ((it->geographicalId()==jt->geographicalId())&&(delta<epsilon_)) {
 		  noverlap++;
 		  if ( allowFirstHitShare_ && ( ih == 0 ) && ( jh == 0 ) ) firstoverlap=1;
+		  js=jh+1;
+		  break;
 		}
 	      }else{
 		if ( it->sharesInput(jt,TrackingRecHit::some) ) {
 		  noverlap++;
 		  if ( allowFirstHitShare_ && ( ih == 0 ) && ( jh == 0 ) ) firstoverlap=1;
+		  js=jh+1;
+		  break;
 		} // tracks share input
 	      } //else use_sharesInput
 	    } // rechits on second track  
