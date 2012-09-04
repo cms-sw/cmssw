@@ -23,9 +23,9 @@ namespace ecaldqm {
     void analyze(const void*, Collections);
 
     void runOnRawData(EcalRawDataCollection const&);
-    void runOnDigis(const EcalDigiCollection&, Collections);
+    void runOnDigis(const EcalDigiCollection&);
     void runOnPnDigis(const EcalPnDiodeDigiCollection&);
-    void runOnUncalibRecHits(const EcalUncalibratedRecHitCollection&, Collections);
+    void runOnUncalibRecHits(const EcalUncalibratedRecHitCollection&);
 
     enum MESets {
       kAmplitudeSummary,
@@ -46,7 +46,7 @@ namespace ecaldqm {
     bool enable_[BinService::nDCC];
     unsigned wavelength_[BinService::nDCC];
     unsigned rtHalf_[BinService::nDCC];
-    std::map<unsigned, std::vector<float> > pnAmp_;
+    std::map<uint32_t, float> pnAmp_;
 
     unsigned ievt_;
   };
@@ -58,14 +58,14 @@ namespace ecaldqm {
       break;
     case kEBDigi:
     case kEEDigi:
-      runOnDigis(*static_cast<const EcalDigiCollection*>(_p), _collection);
+      runOnDigis(*static_cast<const EcalDigiCollection*>(_p));
       break;
     case kPnDiodeDigi:
       runOnPnDigis(*static_cast<const EcalPnDiodeDigiCollection*>(_p));
       break;
     case kEBLaserLedUncalibRecHit:
     case kEELaserLedUncalibRecHit:
-      runOnUncalibRecHits(*static_cast<const EcalUncalibratedRecHitCollection*>(_p), _collection);
+      runOnUncalibRecHits(*static_cast<const EcalUncalibratedRecHitCollection*>(_p));
       break;
     default:
       break;

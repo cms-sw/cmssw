@@ -81,7 +81,7 @@ namespace ecaldqm {
   bool isEcalScDetId(const DetId&);
   bool isEndcapTTId(const DetId&);
 
-  unsigned EEPnDCC(unsigned, unsigned);
+  EcalPnDiodeDetId pnForCrystal(DetId const&, char);
 
   unsigned nCrystals(unsigned);
   unsigned nSuperCrystals(unsigned);

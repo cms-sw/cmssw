@@ -46,7 +46,7 @@ namespace ecaldqm {
     bool enable_[BinService::nEEDCC];
     unsigned wavelength_[BinService::nEEDCC];
     unsigned rtHalf_[BinService::nEEDCC];
-    std::map<unsigned, std::vector<float> > pnAmp_;
+    std::map<unsigned, float> pnAmp_;
   };
 
   inline void LedTask::analyze(const void* _p, Collections _collection){

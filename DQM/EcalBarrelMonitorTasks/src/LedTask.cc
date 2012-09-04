@@ -1,8 +1,5 @@
 #include "../interface/LedTask.h"
 
-#include "CalibCalorimetry/EcalLaserAnalyzer/interface/MEEBGeom.h"
-#include "CalibCalorimetry/EcalLaserAnalyzer/interface/MEEEGeom.h"
-
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "DQM/EcalCommon/interface/MESetMulti.h"
 
@@ -197,24 +194,11 @@ namespace ecaldqm {
       for(int iSample(0); iSample < 10; iSample++)
 	MEs_[kShape]->fill(id, iSample + 0.5, float(dataFrame.sample(iSample).adc()));
 
-      // which PNs are used in this event?
-
-      EcalScDetId scid(EEDetId(id).sc());
-
-      int dee(MEEEGeom::dee(scid.ix(), scid.iy(), scid.zside()));
-      int lmmod(MEEEGeom::lmmod(scid.ix(), scid.iy()));
-      std::pair<int, int> pnPair(MEEEGeom::pn(dee, lmmod));
-      if(dee == 1 || dee == 4){
-        // PN numbers are transposed for far-side dees
-        pnPair.first = (pnPair.first % 5) + 5 * (1 - pnPair.first / 5);
-        pnPair.second = (pnPair.second % 5) + 5 * (1 - pnPair.second / 5);
-      }
-      
-      unsigned pnADCC(EEPnDCC(dee, 0)), pnBDCC(EEPnDCC(dee, 1));
-      if(pnAmp_.find(pnADCC) == pnAmp_.end()) pnAmp_[pnADCC].resize(10, -1.);
-      if(pnAmp_.find(pnBDCC) == pnAmp_.end()) pnAmp_[pnBDCC].resize(10, -1.);
-      pnAmp_[pnADCC][pnPair.first] = 0.;
-      pnAmp_[pnBDCC][pnPair.second] = 0.;
+      EcalPnDiodeDetId pnidA(pnForCrystal(id, 'a'));
+      EcalPnDiodeDetId pnidB(pnForCrystal(id, 'b'));
+      if(pnidA.null() || pnidB.null()) continue;
+      pnAmp_.insert(std::make_pair(pnidA.rawId(), 0.));
+      pnAmp_.insert(std::make_pair(pnidB.rawId(), 0.));
     }
   }
 
@@ -228,11 +212,12 @@ namespace ecaldqm {
 
       const EcalPnDiodeDetId& id(digiItr->id());
 
+      std::map<uint32_t, float>::iterator ampItr(pnAmp_.find(id.rawId()));
+      if(ampItr == pnAmp_.end()) continue;
+
       unsigned iDCC(dccId(id) - 1);
       if(iDCC >= kEBmLow && iDCC <= kEBpHigh) continue;
       unsigned index(iDCC <= kEEmHigh ? iDCC : iDCC - BinService::nEBDCC);
-
-      if(pnAmp_.find(iDCC + 1) == pnAmp_.end() || pnAmp_[iDCC + 1][id.iPnId() - 1] < 0.) continue;
 
       float pedestal(0.);
       for(int iSample(0); iSample < 4; iSample++)
@@ -252,8 +237,7 @@ namespace ecaldqm {
 
       MEs_[kPNAmplitude]->fill(id, max);
 
-      if(pnAmp_.find(iDCC + 1) == pnAmp_.end()) pnAmp_[iDCC + 1].resize(10);
-      pnAmp_[iDCC + 1][id.iPnId() - 1] = max;
+      ampItr->second = max;
     }
   }
 
@@ -290,35 +274,13 @@ namespace ecaldqm {
       MEs_[kTiming]->fill(id, jitter);
 
       float aop(0.);
-      float pn0(0.), pn1(0.);
 
-      EcalScDetId scid(id.sc());
-
-      int dee(MEEEGeom::dee(scid.ix(), scid.iy(), scid.zside()));
-      int lmmod(MEEEGeom::lmmod(scid.ix(), scid.iy()));
-      pair<int, int> pnPair(MEEEGeom::pn(dee, lmmod));
-      if(dee == 1 || dee == 4){
-        // PN numbers are transposed for far-side dees
-        pnPair.first = (pnPair.first % 5) + 5 * (1 - pnPair.first / 5);
-        pnPair.second = (pnPair.second % 5) + 5 * (1 - pnPair.second / 5);
-      }
-
-      unsigned pnAFED(EEPnDCC(dee, 0)), pnBFED(EEPnDCC(dee, 1));
-      if(pnAmp_.find(pnAFED) == pnAmp_.end() || pnAmp_[pnAFED][pnPair.first] < 0.) continue;
-      if(pnAmp_.find(pnBFED) == pnAmp_.end() || pnAmp_[pnBFED][pnPair.second] < 0.) continue;
-
-      pn0 = pnAmp_[pnAFED][pnPair.first];
-      pn1 = pnAmp_[pnBFED][pnPair.second];
-
-      if(pn0 < 10 && pn1 > 10){
-	aop = amp / pn1;
-      }else if(pn0 > 10 && pn1 < 10){
-	aop = amp / pn0;
-      }else if(pn0 + pn1 > 1){
-	aop = amp / (0.5 * (pn0 + pn1));
-      }else{
-	aop = 1000.;
-      }
+      map<uint32_t, float>::iterator ampItrA(pnAmp_.find(pnForCrystal(id, 'a')));
+      map<uint32_t, float>::iterator ampItrB(pnAmp_.find(pnForCrystal(id, 'b')));
+      if(ampItrA == pnAmp_.end() && ampItrB == pnAmp_.end()) continue;
+      else if(ampItrB == pnAmp_.end()) aop = amp / ampItrA->second;
+      else if(ampItrA == pnAmp_.end()) aop = amp / ampItrB->second;
+      else aop = amp / (ampItrA->second + ampItrB->second) * 2.;
 
       MEs_[kAOverP]->fill(id, aop);
     }
