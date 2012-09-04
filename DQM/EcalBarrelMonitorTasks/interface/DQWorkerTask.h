@@ -76,7 +76,6 @@ namespace ecaldqm {
     virtual void endEvent(const edm::Event &, const edm::EventSetup &) {}
 
     virtual bool filterRunType(const std::vector<short>&);
-    virtual bool filterEventSetting(const std::vector<EventSettings>&);
     virtual bool filterTrigger(const edm::TriggerResultsByName &);
     bool runsOn(unsigned);
     virtual void setDependencies(DependencySet&) {}

@@ -16,13 +16,15 @@ namespace ecaldqm {
     using namespace std;
 
     collectionMask_ = 
+      (0x1 << kEcalRawData) |
       (0x1 << kEEDigi) |
       (0x1 << kPnDiodeDigi) |
       (0x1 << kEELaserLedUncalibRecHit);
 
-    for(unsigned iD(0); iD < BinService::nDCC; ++iD){
+    for(unsigned iD(0); iD < BinService::nEEDCC; ++iD){
       enable_[iD] = false;
       wavelength_[iD] = 0;
+      rtHalf_[iD] = 0;
     }
 
     vector<int> ledWavelengths(_commonParams.getUntrackedParameter<vector<int> >("ledWavelengths"));
@@ -58,6 +60,14 @@ namespace ecaldqm {
   }
 
   void
+  LedTask::setDependencies(DependencySet& _dependencies)
+  {
+    _dependencies.push_back(Dependency(kEEDigi, kEcalRawData));
+    _dependencies.push_back(Dependency(kPnDiodeDigi, kEEDigi, kEcalRawData));
+    _dependencies.push_back(Dependency(kEELaserLedUncalibRecHit, kPnDiodeDigi, kEEDigi, kEcalRawData));
+  }
+
+  void
   LedTask::beginEvent(const edm::Event &, const edm::EventSetup &)
   {
     pnAmp_.clear();
@@ -68,54 +78,113 @@ namespace ecaldqm {
   {
     bool enable(false);
 
-    for(int iDCC(0); iDCC < BinService::nDCC; iDCC++){
+    for(unsigned iDCC(0); iDCC < BinService::nDCC; iDCC++){
+      if(iDCC >= kEBmLow && iDCC <= kEBpHigh) continue;
+      unsigned index(iDCC <= kEEmHigh ? iDCC : iDCC - BinService::nEBDCC);
       if(_runType[iDCC] == EcalDCCHeaderBlock::LED_STD ||
 	 _runType[iDCC] == EcalDCCHeaderBlock::LED_GAP){
 	enable = true;
-	enable_[iDCC] = true;
+	enable_[index] = true;
       }
       else
-        enable_[iDCC] = false;
-    }
-
-    return enable;
-  }
-
-  bool
-  LedTask::filterEventSetting(const std::vector<EventSettings>& _setting)
-  {
-    bool enable(false);
-
-    for(int iDCC(0); iDCC < BinService::nDCC; iDCC++){
-      if(!enable_[iDCC]){
-        wavelength_[iDCC] = -1;
-        continue;
-      }
-      wavelength_[iDCC] = _setting[iDCC].wavelength + 1;
-
-      if(wlToME_.find(wavelength_[iDCC]) != wlToME_.end())
-        enable = true;
-      else
-        enable_[iDCC] = false;
+        enable_[index] = false;
     }
 
     return enable;
   }
 
   void
+  LedTask::runOnRawData(EcalRawDataCollection const& _rawData)
+  {
+    for(EcalRawDataCollection::const_iterator rItr(_rawData.begin()); rItr != _rawData.end(); ++rItr){
+      unsigned iDCC(rItr->id() - 1);
+      if(iDCC >= kEBmLow && iDCC <= kEBpHigh) continue;
+      unsigned index(iDCC <= kEEmHigh ? iDCC : iDCC - BinService::nEBDCC);
+
+      if(!enable_[index]){
+        wavelength_[index] = -1;
+        rtHalf_[index] = -1;
+        continue;
+      }
+      if(rItr->getEventSettings().wavelength == 0)
+        wavelength_[index] = 1;
+      else if(rItr->getEventSettings().wavelength == 2)
+        wavelength_[index] = 2;
+      else
+        wavelength_[index] = -1;
+
+      if(wlToME_.find(wavelength_[index]) == wlToME_.end())
+        enable_[index] = false;
+
+      rtHalf_[index] = rItr->getRtHalf();
+    }
+  }
+
+  void
   LedTask::runOnDigis(const EcalDigiCollection &_digis)
   {
-    unsigned iME(-1);
+    int nReadouts[BinService::nEEDCC];
+    int maxpos[BinService::nEEDCC][10];
+    for(unsigned index(0); index < BinService::nEEDCC; ++index){
+      nReadouts[index] = 0;
+      for(int i(0); i < 10; i++) maxpos[index][i] = 0;
+    }
 
     for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       const DetId& id(digiItr->id());
 
-      int iDCC(dccId(id) - 1);
+      unsigned iDCC(dccId(id) - 1);
+      if(iDCC >= kEBmLow && iDCC <= kEBpHigh) continue;
+      unsigned index(iDCC <= kEEmHigh ? iDCC : iDCC - BinService::nEBDCC);
 
-      if(!enable_[iDCC]) continue;
+      if(!enable_[index]) continue;
+      if(rtHalf(id) != rtHalf_[index]) continue;
 
-      if(iME != wlToME_[wavelength_[iDCC]]){
-        iME = wlToME_[wavelength_[iDCC]];
+      ++nReadouts[index];
+
+      EcalDataFrame dataFrame(*digiItr);
+
+      int iMax(-1);
+      int max(0);
+      for (int i(0); i < 10; i++) {
+        int adc(dataFrame.sample(i).adc());
+        if(adc > max){
+          max = adc;
+          iMax = i;
+        }
+      }
+      if(iMax >= 0)
+        maxpos[index][iMax] += 1;
+    }
+
+    bool enable(false);
+    for(unsigned index(0); index < BinService::nEEDCC; ++index){
+      if(nReadouts[index] == 0) continue;
+      int threshold(nReadouts[index] / 3);
+      for(int i(0); i < 10; i++){
+        if(maxpos[index][i] > threshold){
+          enable_[index] = true;
+          enable = true;
+          break;
+        }
+      }
+    }
+
+    if(!enable) return;
+
+    unsigned iME(-1);
+    for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
+      const DetId& id(digiItr->id());
+
+      unsigned iDCC(dccId(id) - 1);
+      if(iDCC >= kEBmLow && iDCC <= kEBpHigh) continue;
+      unsigned index(iDCC <= kEEmHigh ? iDCC : iDCC - BinService::nEBDCC);
+
+      if(!enable_[index]) continue;
+      if(rtHalf(id) != rtHalf_[index]) continue;
+
+      if(iME != wlToME_[wavelength_[index]]){
+        iME = wlToME_[wavelength_[index]];
         static_cast<MESetMulti*>(MEs_[kOccupancy])->use(iME);
         static_cast<MESetMulti*>(MEs_[kShape])->use(iME);
       }
@@ -127,6 +196,25 @@ namespace ecaldqm {
 
       for(int iSample(0); iSample < 10; iSample++)
 	MEs_[kShape]->fill(id, iSample + 0.5, float(dataFrame.sample(iSample).adc()));
+
+      // which PNs are used in this event?
+
+      EcalScDetId scid(EEDetId(id).sc());
+
+      int dee(MEEEGeom::dee(scid.ix(), scid.iy(), scid.zside()));
+      int lmmod(MEEEGeom::lmmod(scid.ix(), scid.iy()));
+      std::pair<int, int> pnPair(MEEEGeom::pn(dee, lmmod));
+      if(dee == 1 || dee == 4){
+        // PN numbers are transposed for far-side dees
+        pnPair.first = (pnPair.first % 5) + 5 * (1 - pnPair.first / 5);
+        pnPair.second = (pnPair.second % 5) + 5 * (1 - pnPair.second / 5);
+      }
+      
+      unsigned pnADCC(EEPnDCC(dee, 0)), pnBDCC(EEPnDCC(dee, 1));
+      if(pnAmp_.find(pnADCC) == pnAmp_.end()) pnAmp_[pnADCC].resize(10, -1.);
+      if(pnAmp_.find(pnBDCC) == pnAmp_.end()) pnAmp_[pnBDCC].resize(10, -1.);
+      pnAmp_[pnADCC][pnPair.first] = 0.;
+      pnAmp_[pnBDCC][pnPair.second] = 0.;
     }
   }
 
@@ -136,11 +224,15 @@ namespace ecaldqm {
     unsigned iME(-1);
 
     for(EcalPnDiodeDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
+      if(digiItr->sample(0).gainId() != 0 && digiItr->sample(0).gainId() != 1) continue;
+
       const EcalPnDiodeDetId& id(digiItr->id());
 
-      int iDCC(dccId(id) - 1);
+      unsigned iDCC(dccId(id) - 1);
+      if(iDCC >= kEBmLow && iDCC <= kEBpHigh) continue;
+      unsigned index(iDCC <= kEEmHigh ? iDCC : iDCC - BinService::nEBDCC);
 
-      if(!enable_[iDCC]) continue;
+      if(pnAmp_.find(iDCC + 1) == pnAmp_.end() || pnAmp_[iDCC + 1][id.iPnId() - 1] < 0.) continue;
 
       float pedestal(0.);
       for(int iSample(0); iSample < 4; iSample++)
@@ -149,22 +241,19 @@ namespace ecaldqm {
 
       float max(0.);
       for(int iSample(0); iSample < 50; iSample++){
-	EcalFEMSample sample(digiItr->sample(iSample));
-
 	float amp(digiItr->sample(iSample).adc() - pedestal);
-
 	if(amp > max) max = amp;
       }
 
-      if(iME != wlToME_[wavelength_[iDCC]]){
-        iME = wlToME_[wavelength_[iDCC]];
+      if(iME != wlToME_[wavelength_[index]]){
+        iME = wlToME_[wavelength_[index]];
         static_cast<MESetMulti*>(MEs_[kPNAmplitude])->use(iME);
       }
 
       MEs_[kPNAmplitude]->fill(id, max);
 
-      if(pnAmp_.find(iDCC) == pnAmp_.end()) pnAmp_[iDCC].resize(10);
-      pnAmp_[iDCC][id.iPnId() - 1] = max;
+      if(pnAmp_.find(iDCC + 1) == pnAmp_.end()) pnAmp_[iDCC + 1].resize(10);
+      pnAmp_[iDCC + 1][id.iPnId() - 1] = max;
     }
   }
 
@@ -178,12 +267,15 @@ namespace ecaldqm {
     for(EcalUncalibratedRecHitCollection::const_iterator uhitItr(_uhits.begin()); uhitItr != _uhits.end(); ++uhitItr){
       EEDetId id(uhitItr->id());
 
-      int iDCC(dccId(id) - 1);
+      unsigned iDCC(dccId(id) - 1);
+      if(iDCC >= kEBmLow && iDCC <= kEBpHigh) continue;
+      unsigned index(iDCC <= kEEmHigh ? iDCC : iDCC - BinService::nEBDCC);
 
-      if(!enable_[iDCC]) continue;
+      if(!enable_[index]) continue;
+      if(rtHalf(id) != rtHalf_[index]) continue;
 
-      if(iME != wlToME_[wavelength_[iDCC]]){
-        iME = wlToME_[wavelength_[iDCC]];
+      if(iME != wlToME_[wavelength_[index]]){
+        iME = wlToME_[wavelength_[index]];
         static_cast<MESetMulti*>(MEs_[kAmplitude])->use(iME);
         static_cast<MESetMulti*>(MEs_[kAmplitudeSummary])->use(iME);
         static_cast<MESetMulti*>(MEs_[kTiming])->use(iME);
@@ -197,8 +289,6 @@ namespace ecaldqm {
       MEs_[kAmplitude]->fill(id, amp);
       MEs_[kTiming]->fill(id, jitter);
 
-      if(pnAmp_.find(iDCC) == pnAmp_.end()) continue;
-
       float aop(0.);
       float pn0(0.), pn1(0.);
 
@@ -207,8 +297,15 @@ namespace ecaldqm {
       int dee(MEEEGeom::dee(scid.ix(), scid.iy(), scid.zside()));
       int lmmod(MEEEGeom::lmmod(scid.ix(), scid.iy()));
       pair<int, int> pnPair(MEEEGeom::pn(dee, lmmod));
+      if(dee == 1 || dee == 4){
+        // PN numbers are transposed for far-side dees
+        pnPair.first = (pnPair.first % 5) + 5 * (1 - pnPair.first / 5);
+        pnPair.second = (pnPair.second % 5) + 5 * (1 - pnPair.second / 5);
+      }
 
-      int pnAFED(EEPnDCC(dee, 0) - 601), pnBFED(EEPnDCC(dee, 1) - 601);
+      unsigned pnAFED(EEPnDCC(dee, 0)), pnBFED(EEPnDCC(dee, 1));
+      if(pnAmp_.find(pnAFED) == pnAmp_.end() || pnAmp_[pnAFED][pnPair.first] < 0.) continue;
+      if(pnAmp_.find(pnBFED) == pnAmp_.end() || pnAmp_[pnBFED][pnPair.second] < 0.) continue;
 
       pn0 = pnAmp_[pnAFED][pnPair.first];
       pn1 = pnAmp_[pnBFED][pnPair.second];

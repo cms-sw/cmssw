@@ -5,6 +5,6 @@ pnDiodeTask = dict(
         MEMBlockSize = dict(path = 'PN/Integrity/MEMBlockSize/', otype = 'Channel', btype = 'Crystal', kind = 'TH1F'),
         MEMTowerId = dict(path = 'PN/Integrity/MEMTowerId/', otype = 'Channel', btype = 'Crystal', kind = 'TH1F'),
         Pedestal = dict(path = "PN/Presample/PNDiodeTask PN pedestal G16", otype = 'SMMEM', btype = 'Crystal', kind = 'TProfile'),
-        Occupancy = dict(path = "PN/Occupancy/PNDiodeTask MEM digi occupancy", otype = "SMMEM", btype = 'Crystal', kind = 'TH2F')
+        Occupancy = dict(path = "PN/Occupancy/PNDiodeTask MEM digi occupancy", otype = "SMMEM", btype = 'Crystal', kind = 'TH1F')
     )
 )

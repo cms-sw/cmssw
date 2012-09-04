@@ -16,15 +16,15 @@ namespace ecaldqm {
     wlToME_(),
     minChannelEntries_(_workerParams.getUntrackedParameter<int>("minChannelEntries")),
     expectedAmplitude_(0),
-    amplitudeThreshold_(0),
-    amplitudeRMSThreshold_(0),
+    toleranceAmplitude_(0),
+    toleranceAmpRMS_(0),
     expectedTiming_(0),
-    timingThreshold_(0),
-    timingRMSThreshold_(0),
+    toleranceTiming_(0),
+    toleranceTimRMS_(0),
     expectedPNAmplitude_(0),
-    pnAmplitudeThreshold_(0),
-    pnAmplitudeRMSThreshold_(0),
-    towerThreshold_(_workerParams.getUntrackedParameter<double>("towerThreshold"))
+    tolerancePNAmp_(0),
+    tolerancePNRMS_(0),
+    forwardFactor_(_workerParams.getUntrackedParameter<double>("forwardFactor"))
   {
     using namespace std;
 
@@ -39,28 +39,28 @@ namespace ecaldqm {
     stringstream ss;
 
     expectedAmplitude_.resize(iMEWL);
-    amplitudeThreshold_.resize(iMEWL);
-    amplitudeRMSThreshold_.resize(iMEWL);
+    toleranceAmplitude_.resize(iMEWL);
+    toleranceAmpRMS_.resize(iMEWL);
     expectedTiming_.resize(iMEWL);
-    timingThreshold_.resize(iMEWL);
-    timingRMSThreshold_.resize(iMEWL);
+    toleranceTiming_.resize(iMEWL);
+    toleranceTimRMS_.resize(iMEWL);
     expectedPNAmplitude_.resize(iMEWL);
-    pnAmplitudeThreshold_.resize(iMEWL);
-    pnAmplitudeRMSThreshold_.resize(iMEWL);
+    tolerancePNAmp_.resize(iMEWL);
+    tolerancePNRMS_.resize(iMEWL);
 
     for(map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr){
       ss.str("");
       ss << "L" << wlItr->first;
 
       expectedAmplitude_[wlItr->second] = _workerParams.getUntrackedParameter<double>("expectedAmplitude" + ss.str());
-      amplitudeThreshold_[wlItr->second] = _workerParams.getUntrackedParameter<double>("amplitudeThreshold" + ss.str());
-      amplitudeRMSThreshold_[wlItr->second] = _workerParams.getUntrackedParameter<double>("amplitudeRMSThreshold" + ss.str());
+      toleranceAmplitude_[wlItr->second] = _workerParams.getUntrackedParameter<double>("toleranceAmplitude" + ss.str());
+      toleranceAmpRMS_[wlItr->second] = _workerParams.getUntrackedParameter<double>("toleranceAmpRMS" + ss.str());
       expectedTiming_[wlItr->second] = _workerParams.getUntrackedParameter<double>("expectedTiming" + ss.str());
-      timingThreshold_[wlItr->second] = _workerParams.getUntrackedParameter<double>("timingThreshold" + ss.str());
-      timingRMSThreshold_[wlItr->second] = _workerParams.getUntrackedParameter<double>("timingRMSThreshold" + ss.str());
+      toleranceTiming_[wlItr->second] = _workerParams.getUntrackedParameter<double>("toleranceTiming" + ss.str());
+      toleranceTimRMS_[wlItr->second] = _workerParams.getUntrackedParameter<double>("toleranceTimRMS" + ss.str());
       expectedPNAmplitude_[wlItr->second] = _workerParams.getUntrackedParameter<double>("expectedPNAmplitude" + ss.str());
-      pnAmplitudeThreshold_[wlItr->second] = _workerParams.getUntrackedParameter<double>("pnAmplitudeThreshold" + ss.str());
-      pnAmplitudeRMSThreshold_[wlItr->second] = _workerParams.getUntrackedParameter<double>("pnAmplitudeRMSThreshold" + ss.str());
+      tolerancePNAmp_[wlItr->second] = _workerParams.getUntrackedParameter<double>("tolerancePNAmp" + ss.str());
+      tolerancePNRMS_[wlItr->second] = _workerParams.getUntrackedParameter<double>("tolerancePNRMS" + ss.str());
     }
 
     map<string, string> replacements;
@@ -187,8 +187,11 @@ namespace ecaldqm {
         MEs_[kTimingMean]->fill(id, tMean);
         MEs_[kTimingRMS]->fill(id, tRms);
 
-        if(abs(aMean - expectedAmplitude_[wlItr->second]) > amplitudeThreshold_[wlItr->second] || aRms > amplitudeRMSThreshold_[wlItr->second] ||
-           abs(tMean - expectedTiming_[wlItr->second]) > timingThreshold_[wlItr->second] || tRms > timingRMSThreshold_[wlItr->second])
+        float deviation(abs(aMean - expectedAmplitude_[wlItr->second]));
+        if(isForward(id)) deviation *= forwardFactor_;
+
+        if(deviation > toleranceAmplitude_[wlItr->second] || aRms > toleranceAmpRMS_[wlItr->second] ||
+           abs(tMean - expectedTiming_[wlItr->second]) > toleranceTiming_[wlItr->second] || tRms > toleranceTimRMS_[wlItr->second])
           qItr->setBinContent(doMask ? kMBad : kBad);
         else
           qItr->setBinContent(doMask ? kMGood : kGood);
@@ -199,13 +202,10 @@ namespace ecaldqm {
       for(unsigned iDCC(0); iDCC < BinService::nDCC; ++iDCC){
 
         if(memDCCIndex(iDCC + 1) == unsigned(-1)) continue;
+        if(iDCC >= kEBmLow && iDCC <= kEBpHigh) continue;
 
         for(unsigned iPN(0); iPN < 10; ++iPN){
-          int subdet(0);
-          if(iDCC >= kEBmLow && iDCC <= kEBpHigh) subdet = EcalBarrel;
-          else subdet = EcalEndcap;
-
-          EcalPnDiodeDetId id(subdet, iDCC + 1, iPN + 1);
+          EcalPnDiodeDetId id(EcalEndcap, iDCC + 1, iPN + 1);
 
           bool doMask(applyMask_(kPNQualitySummary, id));
 
@@ -219,7 +219,7 @@ namespace ecaldqm {
           float pMean(sources_[kPNAmplitude]->getBinContent(id));
           float pRms(sources_[kPNAmplitude]->getBinError(id) * sqrt(pEntries));
 
-          if(abs(pMean - expectedPNAmplitude_[wlItr->second]) > pnAmplitudeThreshold_[wlItr->second] || pRms > pnAmplitudeRMSThreshold_[wlItr->second])
+          if(abs(pMean - expectedPNAmplitude_[wlItr->second]) > tolerancePNAmp_[wlItr->second] || pRms > tolerancePNRMS_[wlItr->second])
             MEs_[kPNQualitySummary]->setBinContent(id, doMask ? kMBad : kBad);
           else
             MEs_[kPNQualitySummary]->setBinContent(id, doMask ? kMGood : kGood);

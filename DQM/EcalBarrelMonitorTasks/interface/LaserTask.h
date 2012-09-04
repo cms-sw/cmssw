@@ -3,6 +3,7 @@
 
 #include "DQWorkerTask.h"
 
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
@@ -13,14 +14,16 @@ namespace ecaldqm {
     LaserTask(edm::ParameterSet const&, edm::ParameterSet const&);
     ~LaserTask() {}
 
+    void setDependencies(DependencySet&);
+
     bool filterRunType(const std::vector<short>&);
-    bool filterEventSetting(const std::vector<EventSettings>&);
 
     void beginEvent(const edm::Event &, const edm::EventSetup &);
 
     void analyze(const void*, Collections);
 
-    void runOnDigis(const EcalDigiCollection&);
+    void runOnRawData(EcalRawDataCollection const&);
+    void runOnDigis(const EcalDigiCollection&, Collections);
     void runOnPnDigis(const EcalPnDiodeDigiCollection&);
     void runOnUncalibRecHits(const EcalUncalibratedRecHitCollection&, Collections);
 
@@ -41,15 +44,21 @@ namespace ecaldqm {
     std::map<int, unsigned> wlToME_;
 
     bool enable_[BinService::nDCC];
-    int wavelength_[BinService::nDCC];
-    std::map<int, std::vector<float> > pnAmp_;
+    unsigned wavelength_[BinService::nDCC];
+    unsigned rtHalf_[BinService::nDCC];
+    std::map<unsigned, std::vector<float> > pnAmp_;
+
+    unsigned ievt_;
   };
 
   inline void LaserTask::analyze(const void* _p, Collections _collection){
     switch(_collection){
+    case kEcalRawData:
+      runOnRawData(*static_cast<EcalRawDataCollection const*>(_p));
+      break;
     case kEBDigi:
     case kEEDigi:
-      runOnDigis(*static_cast<const EcalDigiCollection*>(_p));
+      runOnDigis(*static_cast<const EcalDigiCollection*>(_p), _collection);
       break;
     case kPnDiodeDigi:
       runOnPnDigis(*static_cast<const EcalPnDiodeDigiCollection*>(_p));

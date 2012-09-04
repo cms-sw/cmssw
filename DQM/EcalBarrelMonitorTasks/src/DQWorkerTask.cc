@@ -17,12 +17,6 @@ namespace ecaldqm {
   }
 
   bool
-  DQWorkerTask::filterEventSetting(const std::vector<EventSettings>&)
-  {
-    return true;
-  }
-
-  bool
   DQWorkerTask::filterTrigger(const edm::TriggerResultsByName &)
   {
     return true;

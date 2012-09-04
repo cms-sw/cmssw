@@ -206,14 +206,14 @@ namespace ecaldqm {
 
 	if(status != BXDesync && status != L1ABXDesync){ // BX desync not detected in the DCC
 	  if(feBxs[iFE] != dccBX && feBxs[iFE] != -1 && dccBX != -1){
-	    MEs_[kBXFE]->fill(dccId);
+	    MEs_[kBXFE]->fill(dccId, iFE + 0.5);
 	    feDesync = true;
 	  }
 	}
 
 	if(status != L1ADesync && status != L1ABXDesync){
 	  if(feL1s[iFE] + feL1Offset_ != dccL1AShort && feL1s[iFE] != -1 && dccL1AShort != 0){
-	    MEs_[kL1AFE]->fill(dccId);
+	    MEs_[kL1AFE]->fill(dccId, iFE + 0.5);
 	    feDesync = true;
 	  }
 	}

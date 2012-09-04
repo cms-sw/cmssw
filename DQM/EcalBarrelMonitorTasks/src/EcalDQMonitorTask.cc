@@ -177,11 +177,8 @@ EcalDQMonitorTask::analyze(const edm::Event &_evt, const edm::EventSetup &_es)
  
   // determine event type (called run type in DCCHeader for some reason) for each FED
   std::vector<short> runType(54, -1);
-  std::vector<EcalDCCHeaderBlock::EcalDCCEventSettings> eventSetting(54);
-  for(EcalRawDataCollection::const_iterator dcchItr = dcchsHndl->begin(); dcchItr != dcchsHndl->end(); ++dcchItr){
+  for(EcalRawDataCollection::const_iterator dcchItr = dcchsHndl->begin(); dcchItr != dcchsHndl->end(); ++dcchItr)
     runType[dcchItr->id() - 1] = dcchItr->getRunType();
-    eventSetting[dcchItr->id() - 1] = dcchItr->getEventSettings();
-  }
 
   bool atLeastOne(false);
 
@@ -191,7 +188,7 @@ EcalDQMonitorTask::analyze(const edm::Event &_evt, const edm::EventSetup &_es)
   for(vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
     task = static_cast<DQWorkerTask*>(*wItr);
 
-    if(task->filterRunType(runType) && task->filterEventSetting(eventSetting)){
+    if(task->filterRunType(runType)){
       enabled_[task] = true;
 
       if(!task->isInitialized()){

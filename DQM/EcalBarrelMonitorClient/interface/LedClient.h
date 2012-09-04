@@ -39,18 +39,15 @@ namespace ecaldqm {
 
     int minChannelEntries_;
     std::vector<double> expectedAmplitude_;
-    std::vector<double> amplitudeThreshold_;
-    std::vector<double> amplitudeRMSThreshold_;
+    std::vector<double> toleranceAmplitude_;
+    std::vector<double> toleranceAmpRMS_;
     std::vector<double> expectedTiming_;
-    std::vector<double> timingThreshold_;
-    std::vector<double> timingRMSThreshold_;
+    std::vector<double> toleranceTiming_;
+    std::vector<double> toleranceTimRMS_;
     std::vector<double> expectedPNAmplitude_;
-    std::vector<double> pnAmplitudeThreshold_;
-    std::vector<double> pnAmplitudeRMSThreshold_;
-
-    float towerThreshold_;
-
-    std::map<std::pair<unsigned, int>, float> ampCorrections_;
+    std::vector<double> tolerancePNAmp_;
+    std::vector<double> tolerancePNRMS_;
+    float forwardFactor_;
   };
 
 }

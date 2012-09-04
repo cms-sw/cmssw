@@ -2,10 +2,12 @@
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "DQM/EcalCommon/interface/MESetChannel.h"
+#include "DQM/EcalCommon/interface/MESetUtils.h"
 
 #include "../interface/EcalDQMClientUtils.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 namespace ecaldqm {
 
@@ -22,6 +24,10 @@ namespace ecaldqm {
       topDir = _commonParams.getUntrackedParameter<string>("topDirectory");
 
     if(_workerParams.existsAs<edm::ParameterSet>("sources", false)){
+      BinService const* binService(&(*(edm::Service<EcalDQMBinningService>())));
+      if(!binService)
+        throw cms::Exception("Service") << "EcalDQMBinningService not found" << std::endl;
+
       edm::ParameterSet const& sourceParams(_workerParams.getUntrackedParameterSet("sources"));
       vector<string> const& sourceNames(sourceParams.getParameterNames());
 
@@ -37,7 +43,7 @@ namespace ecaldqm {
         if(nItr == nameToIndex.end())
           throw cms::Exception("InvalidConfiguration") << "Cannot find ME index for " << sourceName;
 
-        MESet const* meSet(createMESet_(topDir, sourceParams.getUntrackedParameterSet(sourceName)));
+        MESet const* meSet(createMESet(sourceParams.getUntrackedParameterSet(sourceName), binService, topDir));
         if(meSet) sources_[nItr->second] = meSet;
       }
     }

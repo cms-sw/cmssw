@@ -13,6 +13,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
 #include "TStopwatch.h"
 
@@ -23,6 +24,40 @@ void
 EcalDQMonitorTask::runOnCollection(const edm::Event& _evt, Collections _col)
 {
   edm::Handle<C> hndl;
+  if(_evt.getByLabel(collectionTags_[_col], hndl)){
+
+    if(hndl->size() == 0) return;
+
+    TStopwatch* sw(0);
+    if(evaluateTime_){
+      sw = new TStopwatch;
+      sw->Stop();
+    }
+
+    DQWorkerTask* task(0);
+
+    for(std::vector<DQWorkerTask*>::iterator wItr(taskLists_[_col].begin()); wItr != taskLists_[_col].end(); ++wItr){
+      task = *wItr;
+      if(evaluateTime_) sw->Start();
+      if(enabled_[task]) task->analyze(hndl.product(), _col);
+      if(evaluateTime_){
+	sw->Stop();
+	taskTimes_[task] += sw->RealTime();
+      }
+    }
+
+    delete sw;
+  }
+  else if(!allowMissingCollections_)
+    throw cms::Exception("ObjectNotFound") << "Collection with InputTag " << collectionTags_[_col] << " does not exist";
+}
+
+// FEDRawDataCollection does not have the method size()
+template <>
+void
+EcalDQMonitorTask::runOnCollection<FEDRawDataCollection>(const edm::Event& _evt, Collections _col)
+{
+  edm::Handle<FEDRawDataCollection> hndl;
   if(_evt.getByLabel(collectionTags_[_col], hndl)){
 
     TStopwatch* sw(0);

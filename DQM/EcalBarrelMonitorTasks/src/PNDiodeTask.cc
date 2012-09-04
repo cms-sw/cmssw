@@ -66,7 +66,8 @@ namespace ecaldqm {
     }
 
     for(EcalElectronicsIdCollection::const_iterator idItr(_ids.begin()); idItr != _ids.end(); ++idItr){
-      if(MEs_[set]) MEs_[set]->fill(*idItr);
+      EcalElectronicsId eid(idItr->dccId(), idItr->towerId(), 1, idItr->xtalId());
+      if(MEs_[set]) MEs_[set]->fill(eid);
     }
   }
 
