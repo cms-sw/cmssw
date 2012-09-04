@@ -18,6 +18,9 @@ int main() {
  
 
   for (int i=0; i!=20;++i) {
+    if (i%7==1) { 
+      hp1.setHitPattern(i, (123<<3)+1); // invalid
+    }
     if (i%3==1) { 
       int p = ugen(eng);
       hp1.setHitPattern(i,p <<3);
