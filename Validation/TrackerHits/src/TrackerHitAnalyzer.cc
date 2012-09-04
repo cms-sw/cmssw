@@ -32,7 +32,8 @@
 using namespace edm;
 using namespace std;
 
-TrackerHitAnalyzer::TrackerHitAnalyzer(const edm::ParameterSet& ps) {
+TrackerHitAnalyzer::TrackerHitAnalyzer(const edm::ParameterSet& ps) :
+   G4TrkSrc_(ps.getParameter<edm::InputTag>("G4TrkSrc")) {
 
    fDBE = Service<DQMStore>().operator->();
    fOutputFile = ps.getUntrackedParameter<string>("outputFile", "TrackerHitHisto.root");
@@ -478,7 +479,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   ///////////////////////////
   
   edm::Handle<edm::SimTrackContainer> G4TrkContainer;
-  e.getByType(G4TrkContainer);
+  e.getByLabel(G4TrkSrc_, G4TrkContainer);
   if (!G4TrkContainer.isValid()) {
     edm::LogError("TrackerHitAnalyzer::analyze")
       << "Unable to find SimTrack in event!";

@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #   module trackerHitsValid = TrackerHitProducer
 trackerHitsValid = cms.EDAnalyzer("TrackerHitAnalyzer",
+    G4TrkSrc = cms.InputTag("g4SimHits"),
     SiTIDLowSrc = cms.InputTag("g4SimHits","TrackerHitsTIDLowTof"),
     PxlBrlLowSrc = cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),
     Name = cms.untracked.string('TrackerHitAnalyzer'),

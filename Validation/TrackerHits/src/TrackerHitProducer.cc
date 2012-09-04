@@ -3,7 +3,10 @@
 
 TrackerHitProducer::TrackerHitProducer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), label(""), getAllProvenances(false),
-  printProvenanceInfo(false), nRawGenPart(0), config_(iPSet), count(0)
+  printProvenanceInfo(false), nRawGenPart(0),
+  G4VtxSrc_(iPSet.getParameter<edm::InputTag>("G4VtxSrc")),
+  G4TrkSrc_(iPSet.getParameter<edm::InputTag>("G4TrkSrc")),
+  config_(iPSet), count(0)
 {
   // get information from parameter set
   fName = iPSet.getUntrackedParameter<std::string>("Name");
@@ -192,7 +195,6 @@ void TrackerHitProducer::fillG4MC(edm::Event& iEvent)
   // get MC information
   /////////////////////
   edm::Handle<edm::HepMCProduct> HepMCEvt;
-  //iEvent.getByType(HepMCEvt);
   static std::string HepMClabel = config_.getUntrackedParameter<std::string>("HepMCProductLabel","source");
   static std::string HepMCinstance = config_.getUntrackedParameter<std::string>("HepMCInputInstance","");
   iEvent.getByLabel(HepMClabel, HepMCinstance ,HepMCEvt);
@@ -213,7 +215,7 @@ void TrackerHitProducer::fillG4MC(edm::Event& iEvent)
   // get G4Vertex information
   ////////////////////////////
   edm::Handle<edm::SimVertexContainer> G4VtxContainer;
-  iEvent.getByType(G4VtxContainer);
+  iEvent.getByLabel(G4VtxSrc_, G4VtxContainer);
   if (!G4VtxContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillG4MC")
       << "Unable to find SimVertex in event!";
@@ -244,7 +246,7 @@ void TrackerHitProducer::fillG4MC(edm::Event& iEvent)
   // get G4Track information
   ///////////////////////////
   edm::Handle<edm::SimTrackContainer> G4TrkContainer;
-  iEvent.getByType(G4TrkContainer);
+  iEvent.getByLabel(G4TrkSrc_, G4TrkContainer);
   if (!G4TrkContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillG4MC")
       << "Unable to find SimTrack in event!";
