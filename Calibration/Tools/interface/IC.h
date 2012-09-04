@@ -410,6 +410,9 @@ class IC {
                 static void readEcalChannelStatusFromTextFile(const char * fileName, EcalChannelStatus & channelStatus);
                 static void makeRootTree(TTree & t, const IC & ic);
 
+                // dumps for checking
+                static void dumpEtaScale(const IC & a, const char * fileName);
+
                 static float average(const IC & a, DS & d, bool errors = false);
 
         private:
