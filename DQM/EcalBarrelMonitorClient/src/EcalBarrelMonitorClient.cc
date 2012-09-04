@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2012/07/30 19:03:58 $
- * $Revision: 1.509 $
+ * $Date: 2012/08/30 07:59:20 $
+ * $Revision: 1.510 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -896,6 +896,30 @@ void EcalBarrelMonitorClient::endLuminosityBlock(const edm::LuminosityBlock& l, 
     std::cout << std::endl;
   }
 
+  bool clientMissing(false);
+  for(unsigned iC(0); iC < enabledClients_.size(); iC++){
+    std::string& name(enabledClients_[iC]);
+
+    if(name == "Cluster" || name == "Cosmic" || name == "Occupancy" || name == "StatusFlags" || name == "Trend") continue;
+
+    std::string dir(prefixME_ + "/EB" + name + "Client");
+    if(!dqmStore_->dirExists(dir) || !dqmStore_->containsAnyMonitorable(dir)){
+      std::vector<std::string>::iterator itr(std::find(clientsNames_.begin(), clientsNames_.end(), name));
+      if(itr == clientsNames_.end()) continue; // something seriously wrong, but ignore
+      std::cout << "EB" << name << "Client is missing plots; issuing beginRun" << std::endl;
+      clientMissing = true;
+      break;
+    }
+  }
+
+  if(clientMissing){
+    forced_status_ = false;
+    endRun();
+    inputFile_ = "dummy";
+    analyze();
+    inputFile_ = "";
+  }
+
   if ( updateTime_ > 0 ) {
     if ( (current_time_ - last_time_update_) < 60 * updateTime_ ) {
       return;
@@ -909,27 +933,6 @@ void EcalBarrelMonitorClient::endLuminosityBlock(const edm::LuminosityBlock& l, 
     this->analyze();
 
   }
-
-  bool clientMissing(false);
-  for(unsigned iC(0); iC < enabledClients_.size(); iC++){
-    std::string& name(enabledClients_[iC]);
-
-    if(name == "Cluster" || name == "Cosmic" || name == "Occupancy" || name == "StatusFlags" || name == "Trend") continue;
-
-    if(!dqmStore_->dirExists(prefixME_ + "/EB" + name + "Client")){
-      std::vector<std::string>::iterator itr(std::find(clientsNames_.begin(), clientsNames_.end(), name));
-      if(itr == clientsNames_.end()) continue; // something seriously wrong, but ignore
-      std::cout << "EB" << name << "Client is missing plots; issuing beginRun" << std::endl;
-      clientMissing = true;
-      break;
-    }
-  }
-  if(clientMissing){
-    forced_status_ = false;
-    endRun();
-    beginRun();
-  }
-
 }
 
 void EcalBarrelMonitorClient::reset(void) {
@@ -1710,7 +1713,6 @@ void EcalBarrelMonitorClient::analyze(void) {
   }
 
   // END: run-time fixes for missing state transitions
-
 }
 
 void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup& c) {
