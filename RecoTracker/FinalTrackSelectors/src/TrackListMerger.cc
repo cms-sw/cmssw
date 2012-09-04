@@ -267,29 +267,27 @@ namespace cms
     std::vector<const TrackingRecHit*> rh1[ngood];  // an array of vectors!
     reco::PatternSet<23> pattern[ngood];
     unsigned char algo[ngood];
-    short int validHits[ngood];
-    short int lostHits[ngood];
+    // short int validHits[ngood];
+    // short int lostHits[ngood];
     float score[ngood];
     for ( unsigned int j=0; j<rSize; j++) {
       if (selected[j]==0) continue;
       int i = indexG[j];
       assert(i>=0);
-      validHits[i]=0;
-      lostHits[i]=0;
       unsigned int collNum=trackCollNum[j];
       unsigned int trackNum=j-trackCollFirsts[collNum];
       const reco::Track *track=&((trackColls[collNum])->at(trackNum)); 
 
       algo[i]=track->algo();
-      validHits[i]=track->numberOfValidHits();
-      lostHits[i]=track->numberOfLostHits();
-      score[i] = foundHitBonus_*validHits[i] - lostHitPenalty_*lostHits[i] - track->chi2();
+      int validHits=track->numberOfValidHits();
+      int lostHits=track->numberOfLostHits();
+      score[i] = foundHitBonus_*validHits - lostHitPenalty_*lostHits - track->chi2();
       pattern[i].fill(track->hitPattern());
 
-      rh1[i].reserve(track->recHitsSize());
+      rh1[i].reserve(validHits) ; // track->recHitsSize());
       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); ++it) { 
 	const TrackingRecHit* hit = &(**it);
-	rh1[i].push_back(hit);
+	if likely(hit->isValid()) rh1[i].push_back(hit);
       }
     }
     
@@ -317,7 +315,7 @@ namespace cms
 	unsigned nh1=rh1[k1].size();
 	int qualityMaskT1 = trackQuals[i];
 	
-	int nhit1 = validHits[k1];
+	int nhit1 = nh1; // validHits[k1];
 	float score1 = score[k1];
 	
 	// start at next collection
@@ -337,7 +335,8 @@ namespace cms
 	    int maskT2= saveSelected[j]>1? saveSelected[j]-10 : trackQuals[j];
 	    newQualityMask =(maskT1 | maskT2); // take OR of trackQuality 
 	  }
-	  int nhit2 = validHits[k2];
+	  unsigned int nh2=rh1[k2].size();
+	  int nhit2 = nh2; // validHits[k2];
 
 	  // do not even bother if not enough "pattern in common"
 	  int ncomm = reco::commonHits(pattern[k1],pattern[k2]).size();
@@ -346,15 +345,14 @@ namespace cms
 	  //loop over rechits
 	  int noverlap=0;
 	  int firstoverlap=0;
-	  unsigned int nh2=rh1[k2].size();
 	  
 	  for ( unsigned int ih=0; ih<nh1; ++ih ) { 
 	    const TrackingRecHit* it = rh1[k1][ih];
-	    if unlikely(!it->isValid()) continue;
+	    // if unlikely(!it->isValid()) continue;
 	    
 	    for ( unsigned jh=0; jh<nh2; ++jh ) { 
 	      const TrackingRecHit *jt=rh1[k2][jh];
-	      if unlikely(!jt->isValid() ) continue;
+	      // if unlikely(!jt->isValid() ) continue;
 	      if ( (it->geographicalId()|3) !=(jt->geographicalId()|3) ) continue;  // VI: mask mono/stereo...
 	      if (!use_sharesInput_){
 		float delta = std::abs ( it->localPosition().x()-jt->localPosition().x() ); 
