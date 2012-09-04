@@ -1,11 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+# $Id: RecoMET_cff.py,v 1.17 2012/09/04 20:44:36 sakuma Exp $
 
-# Name:   RecoMET_EventContent.cff
-# Author: R.Cavanaugh
-# Date:   05.11.2006
-# Notes:
-# Modification: F. Blekman (added CaloMETSignif), JP Chou (added HcalNoise)
-# Full Event content 
+##______________________________________________________ Full Event content __||
 RecoMETFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoCaloMETs_met_*_*',
                                            'keep recoCaloMETs_metNoHF_*_*',
@@ -32,15 +28,18 @@ RecoMETFEVT = cms.PSet(
                                            'keep *BeamHaloSummary_BeamHaloSummary_*_*'
                                            )
     )
+
 RecoGenMETFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoGenMETs_*_*_*')
     )
+
 RecoHcalNoiseFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoHcalNoiseRBXs_hcalnoise_*_*',
                                            'keep HcalNoiseSummary_hcalnoise_*_*'
                                            )
     )
-# RECO content
+
+##____________________________________________________________ RECO content __||
 RecoMETRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoCaloMETs_met_*_*',
                                            'keep recoCaloMETs_metNoHF_*_*',
@@ -67,15 +66,18 @@ RecoMETRECO = cms.PSet(
                                            'keep *BeamHaloSummary_BeamHaloSummary_*_*'
                                            )
     )
+
 RecoGenMETRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoGenMETs_*_*_*')
     )
+
 RecoHcalNoiseRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoHcalNoiseRBXs_hcalnoise_*_*',
                                            'keep HcalNoiseSummary_hcalnoise_*_*'
                                            )
     )
-# AOD content
+
+##_____________________________________________________________ AOD content __||
 RecoMETAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoCaloMETs_met_*_*',
                                            'keep recoCaloMETs_metNoHF_*_*',
@@ -97,11 +99,15 @@ RecoMETAOD = cms.PSet(
                                            'keep *BeamHaloSummary_BeamHaloSummary_*_*'
                                            )
     )
+
 RecoGenMETAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoGenMETs_*_*_*')
     )
+
 RecoHcalNoiseAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('drop recoHcalNoiseRBXs_hcalnoise_*_*',
                                            'keep HcalNoiseSummary_hcalnoise_*_*'
                                            )
     )
+
+##____________________________________________________________________________||
