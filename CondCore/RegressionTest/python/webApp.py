@@ -350,7 +350,6 @@ class Server:
 		else:
 			DBdata = web_results_display.GetResultHeaders(cherrypy.session['label'])
 			for data in DBdata:
-			        print 'run=',data[0]
 				if stCount != 0:
 					htmlCode += self.ShowTable(data, cherrypy.session['label'])
 					stCount = stCount -1
