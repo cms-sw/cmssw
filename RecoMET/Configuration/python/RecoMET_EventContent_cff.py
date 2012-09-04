@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-# $Id: RecoMET_cff.py,v 1.17 2012/09/04 20:44:36 sakuma Exp $
+# $Id: RecoMET_EventContent_cff.py,v 1.14 2012/09/04 20:52:02 sakuma Exp $
 
 ##______________________________________________________ Full Event content __||
 RecoMETFEVT = cms.PSet(
@@ -12,11 +12,6 @@ RecoMETFEVT = cms.PSet(
                                            'keep recoCaloMETs_metOpt_*_*',  
                                            'keep recoCaloMETs_metOptNoHFHO_*_*',
                                            'keep recoCaloMETs_metOptNoHF_*_*',
-                                           'keep recoMETs_htMetAK5_*_*',
-                                           'keep recoMETs_htMetAK7_*_*',
-                                           'keep recoMETs_htMetIC5_*_*',
-                                           'keep recoMETs_htMetKT4_*_*',
-                                           'keep recoMETs_htMetKT6_*_*',
                                            'keep recoMETs_tcMet_*_*',
                                            'keep recoMETs_tcMetWithPFclusters_*_*',                                           
                                            'keep recoPFMETs_pfMet_*_*',
@@ -50,11 +45,6 @@ RecoMETRECO = cms.PSet(
                                            'keep recoCaloMETs_metOpt_*_*',  
                                            'keep recoCaloMETs_metOptNoHFHO_*_*',
                                            'keep recoCaloMETs_metOptNoHF_*_*',
-                                           'keep recoMETs_htMetAK5_*_*',
-                                           'keep recoMETs_htMetAK7_*_*',
-                                           'keep recoMETs_htMetIC5_*_*',
-                                           'keep recoMETs_htMetKT4_*_*',
-                                           'keep recoMETs_htMetKT6_*_*',
                                            'keep recoMETs_tcMet_*_*',    
                                            'keep recoMETs_tcMetWithPFclusters_*_*',                                                                                  
                                            'keep recoPFMETs_pfMet_*_*',
@@ -83,11 +73,6 @@ RecoMETAOD = cms.PSet(
                                            'keep recoCaloMETs_metNoHF_*_*',
                                            'keep recoCaloMETs_metHO_*_*',
                                            'keep recoCaloMETs_corMetGlobalMuons_*_*',
-                                           'keep recoMETs_htMetAK5_*_*',
-                                           'keep recoMETs_htMetAK7_*_*',
-                                           'keep recoMETs_htMetIC5_*_*',
-                                           'keep recoMETs_htMetKT4_*_*',
-                                           'keep recoMETs_htMetKT6_*_*',
                                            'keep recoMETs_tcMet_*_*',  
                                            'keep recoMETs_tcMetWithPFclusters_*_*',                                                                                                                           
                                            'keep recoPFMETs_pfMet_*_*',

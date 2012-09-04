@@ -1,11 +1,10 @@
 import FWCore.ParameterSet.Config as cms
-# $Id$
+# $Id: RecoMET_cff.py,v 1.17 2012/09/04 20:44:36 sakuma Exp $
 
 ##____________________________________________________________________________||
 from RecoJets.Configuration.CaloTowersES_cfi import *
 from RecoMET.METProducers.CaloTowersOpt_cfi import *
 from RecoMET.METProducers.CaloMET_cfi import *
-from RecoMET.METProducers.HTMET_cfi import *
 from RecoMET.METProducers.CaloMETSignif_cfi import *
 from RecoMET.METProducers.hcalnoiseinfoproducer_cfi import *
 from RecoMET.METProducers.MuonMETValueMapProducer_cff import *
@@ -26,11 +25,6 @@ metreco = cms.Sequence(
         calotoweroptmakerWithHO+
         metOptHO+
         metOptNoHFHO+
-        htMetKT4+
-        htMetKT6+
-        htMetIC5+
-        htMetAK5+
-        htMetAK7+
         muonMETValueMapProducer+
         corMetGlobalMuons+
         muonTCMETValueMapProducer+
