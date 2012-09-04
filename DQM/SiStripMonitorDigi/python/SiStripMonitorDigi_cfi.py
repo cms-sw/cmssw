@@ -165,12 +165,10 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
         subdetswitchon = cms.bool(False)
     ),
 
-    TProfTotalNumberOfDigisVsLS = cms.PSet(
-        subdetswitchon           = cms.bool(False)                
-    ),
-                                    
     TotalNumberOfDigisFailure = cms.PSet(
-        Nbins = cms.int32(2000),
+        Nbins = cms.int32(2500),
+        ignoreFirstNLumisections = cms.int32(20),
+        integrateNLumisections = cms.int32(3),
         subdetswitchon        = cms.bool(False)
     ),
 
