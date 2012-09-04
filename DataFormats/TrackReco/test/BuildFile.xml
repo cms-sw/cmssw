@@ -1,4 +1,5 @@
 <use   name="DataFormats/TrackReco"/>
+<bin file="testHitPattern.cpp"/>
 <bin   name="testDataFormatsTrackReco" file="testTrack.cc,testRunner.cpp">
   <use   name="cppunit"/>
 </bin>

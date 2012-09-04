@@ -120,6 +120,14 @@ namespace reco {
   public:
     enum { MONO = 1, STEREO = 2 };
 
+   // number of 32 bit integers to store the full pattern
+    const static unsigned short PatternSize = 25;
+
+    // number of bits used for each hit
+    const static unsigned short HitSize = 11;    
+ 
+    static const int MaxHits = (PatternSize * 32) / HitSize;
+
     // default constructor
     // init hit pattern array as 0x00000000, ..., 0x00000000
     HitPattern() { for (int i=0; i<PatternSize; i++) hitPattern_[i] = 0; }
@@ -165,6 +173,15 @@ namespace reco {
 	if (typeFilter(pattern)&&filter(pattern)) ++count;
       }
       return count;
+    }
+
+    template<typename F>
+    void call(filterType typeFilter, F f) {
+     for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
+	uint32_t pattern = getHitPattern(i);
+	if (pattern == 0) break;
+	if (typeFilter(pattern)) f(pattern);
+     }
     }
 
     // print the pattern of the position-th hit
@@ -337,11 +354,6 @@ namespace reco {
     int numberOfDTStationsWithBothViews() const ;
   private:
 
-    // number of 32 bit integers to store the full pattern
-    const static unsigned short PatternSize = 25;
-
-    // number of bits used for each hit
-    const static unsigned short HitSize = 11;    
  
     // 1 bit to distinguish tracker and muon subsystems
     const static unsigned short SubDetectorOffset = 10; 
