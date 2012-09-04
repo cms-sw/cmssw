@@ -331,6 +331,18 @@ namespace cms
 
 	  int k2 = indexG[j];
 	  	  
+	  int newQualityMask = -9; //avoid resetting quality mask if not desired 10+ -9 =1
+	  if (promoteQuality_[ltm]) {
+	    int maskT1= saveSelected[i]>1? saveSelected[i]-10 : qualityMaskT1;
+	    int maskT2= saveSelected[j]>1? saveSelected[j]-10 : trackQuals[j];
+	    newQualityMask =(maskT1 | maskT2); // take OR of trackQuality 
+	  }
+	  int nhit2 = validHits[k2];
+
+	  // do not even bother if not enough "pattern in common"
+	  int ncomm = reco::commonHits(pattern[k1],pattern[k2]).size();
+	  if (ncomm<(std::min(nhit1,nhit2)-1)*shareFrac_) continue;
+
 	  //loop over rechits
 	  int noverlap=0;
 	  int firstoverlap=0;
@@ -359,13 +371,6 @@ namespace cms
 	    } // rechits on second track  
 	  } //loop over ih (rechits on first track
 	  
-	  int newQualityMask = -9; //avoid resetting quality mask if not desired 10+ -9 =1
-	  if (promoteQuality_[ltm]) {
-	    int maskT1= saveSelected[i]>1? saveSelected[i]-10 : qualityMaskT1;
-	    int maskT2= saveSelected[j]>1? saveSelected[j]-10 : trackQuals[j];
-	    newQualityMask =(maskT1 | maskT2); // take OR of trackQuality 
-	  }
-	  int nhit2 = validHits[k2];
 	  
 	  if ( (noverlap-firstoverlap) > (std::min(nhit1,nhit2)-firstoverlap)*shareFrac_ ) {
 	    float score2 = score[k2];
