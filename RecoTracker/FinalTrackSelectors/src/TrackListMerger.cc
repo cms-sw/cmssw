@@ -41,16 +41,18 @@ namespace {
 #ifdef STAT_TSB
   struct StatCount {
     long long totBegin=0;
+    long long totPre=0;
     long long totEnd=0;
     void begin(int tt) {
       totBegin+=tt;
     }
+    void pre(int tt) { totPre+=tt;}
     void end(int tt) { totEnd+=tt;}
 
 
     void print() const {
-      std::cout << "TrackListMerger stat\nBegin/End/ "
-    		<<  totBegin <<'/'<< totEnd
+      std::cout << "TrackListMerger stat\nBegin/Pre/End/ "
+    		<<  totBegin <<'/'<< totPre <<'/'<< totEnd
 		<< std::endl;
     }
     StatCount() {}
@@ -60,6 +62,7 @@ namespace {
 #else
   struct StatCount {
     void begin(int){}
+    void pre(int){}
     void end(int){}
   };
 #endif
@@ -195,14 +198,16 @@ namespace cms
     // 
     int i=-1;
     
-    int selected[rSize]; 
+    int selected[rSize];
+    int indexG[rSize];
     bool trkUpdated[rSize]; 
     int trackCollNum[rSize];
     int trackQuals[rSize];
     for (unsigned int j=0; j<rSize;j++) {
-      selected[j]=1; trkUpdated[j]=false; trackCollNum[j]=0; trackQuals[j]=0;
+      indexG[i]=-1; selected[j]=1; trkUpdated[j]=false; trackCollNum[j]=0; trackQuals[j]=0;
     }
-    
+
+    int ngood=0;
     for (unsigned int j=0; j!= collsSize; j++) {
       const reco::TrackCollection *tC1=trackColls[j];
       
@@ -248,30 +253,39 @@ namespace cms
 	    selected[i]=0; 
 	    continue;
 	  }
+	  // good!
+	  indexG[i] = ngood++;
 	  //if ( beVerb) std::cout << "inverb " << track->pt() << " " << selected[i] << std::endl;
 	}//end loop over tracks
       }//end more than 0 track
     } // loop over trackcolls
     
     
-    
+    statCount.pre(ngood);    
+
     //cache the rechits and valid hits
-    std::vector<const TrackingRecHit*> rh1[rSize];  // an array of vectors!
-    int algo[rSize];
-    int validHits[rSize];
-    int lostHits[rSize];
-    float score[rSize];
-    for ( unsigned int i=0; i<rSize; i++) {
+    std::vector<const TrackingRecHit*> rh1[ngood];  // an array of vectors!
+    reco::PatternSet<23> pattern[ngood];
+    unsigned char algo[ngood];
+    short int validHits[ngood];
+    short int lostHits[ngood];
+    float score[ngood];
+    for ( unsigned int j=0; j<rSize; j++) {
+      if (selected[j]==0) continue;
+      int i = indexG[j];
+      assert(i>=0);
       validHits[i]=0;
       lostHits[i]=0;
-      if (selected[i]==0) continue;
-      unsigned int collNum=trackCollNum[i];
-      unsigned int trackNum=i-trackCollFirsts[collNum];
+      unsigned int collNum=trackCollNum[j];
+      unsigned int trackNum=j-trackCollFirsts[collNum];
       const reco::Track *track=&((trackColls[collNum])->at(trackNum)); 
+
       algo[i]=track->algo();
       validHits[i]=track->numberOfValidHits();
       lostHits[i]=track->numberOfLostHits();
       score[i] = foundHitBonus_*validHits[i] - lostHitPenalty_*lostHits[i] - track->chi2();
+      pattern[i].fill(track->hitPattern());
+
       rh1[i].reserve(track->recHitsSize());
       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); ++it) { 
 	const TrackingRecHit* hit = &(**it);
@@ -280,7 +294,7 @@ namespace cms
     }
     
     //DL here
-    if likely(rSize>2 && collsSize>1)
+    if likely(ngood>2 && collsSize>1)
     for ( unsigned int ltm=0; ltm<listsToMerge_.size(); ltm++) {
       int saveSelected[rSize];
       bool notActive[collsSize];
@@ -299,11 +313,12 @@ namespace cms
 	//check that this track is in one of the lists for this iteration
 	if (notActive[collNum]) continue;
 
-	unsigned nh1=rh1[i].size();
+	int k1 = indexG[i];
+	unsigned nh1=rh1[k1].size();
 	int qualityMaskT1 = trackQuals[i];
 	
-	int nhit1 = validHits[i];
-	double score1 = score[i];
+	int nhit1 = validHits[k1];
+	float score1 = score[k1];
 	
 	// start at next collection
 	for ( unsigned int j=trackCollFirsts[collNum+1]; j<rSize; j++) {
@@ -314,22 +329,23 @@ namespace cms
 	  //check that this track is in one of the lists for this iteration
 	  if (notActive[collNum2]) continue;
 
+	  int k2 = indexG[j];
 	  	  
 	  //loop over rechits
 	  int noverlap=0;
 	  int firstoverlap=0;
-	  unsigned int nh2=rh1[j].size();
+	  unsigned int nh2=rh1[k2].size();
 	  
 	  for ( unsigned int ih=0; ih<nh1; ++ih ) { 
-	    const TrackingRecHit* it = rh1[i][ih];
-	    if (!it->isValid()) continue;
+	    const TrackingRecHit* it = rh1[k1][ih];
+	    if unlikely(!it->isValid()) continue;
 	    
 	    for ( unsigned jh=0; jh<nh2; ++jh ) { 
-	      const TrackingRecHit *jt=rh1[j][jh];
-	      if (!jt->isValid() ) continue;
+	      const TrackingRecHit *jt=rh1[k2][jh];
+	      if unlikely(!jt->isValid() ) continue;
 	      if ( (it->geographicalId()|3) !=(jt->geographicalId()|3) ) continue;  // VI: mask mono/stereo...
 	      if (!use_sharesInput_){
-		float delta = fabs ( it->localPosition().x()-jt->localPosition().x() ); 
+		float delta = std::abs ( it->localPosition().x()-jt->localPosition().x() ); 
 		if ((it->geographicalId()==jt->geographicalId())&&(delta<epsilon_)) {
 		  noverlap++;
 		  if ( allowFirstHitShare_ && ( ih == 0 ) && ( jh == 0 ) ) firstoverlap=1;
@@ -349,11 +365,11 @@ namespace cms
 	    int maskT2= saveSelected[j]>1? saveSelected[j]-10 : trackQuals[j];
 	    newQualityMask =(maskT1 | maskT2); // take OR of trackQuality 
 	  }
-	  int nhit2 = validHits[j];
+	  int nhit2 = validHits[k2];
 	  
 	  if ( (noverlap-firstoverlap) > (std::min(nhit1,nhit2)-firstoverlap)*shareFrac_ ) {
-	    double score2 = score[j];
-	    const double almostSame = 1.001;
+	    float score2 = score[k2];
+	    constexpr float almostSame = 1.001f;
 	    if ( score1 > almostSame * score2 ) {
 	      selected[j]=0;
 	      selected[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
@@ -364,7 +380,7 @@ namespace cms
 	      trkUpdated[j]=true;
 	    }else{
 	      // If tracks from both iterations are virtually identical, choose the one from the first iteration.
-	      if (algo[i] <= algo[j]) {
+	      if (algo[k1] <= algo[k2]) {
 		selected[j]=0;
 		selected[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
 		trkUpdated[i]=true;
