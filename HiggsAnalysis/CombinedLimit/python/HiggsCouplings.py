@@ -16,9 +16,10 @@ c5ql = C5qlHiggs()
 c5ud = C5udHiggs()
 
 # Models to test Custodial symmetry
-from HiggsAnalysis.CombinedLimit.HiggsBenchmarkModels.CustodialSymmetryModels import CwzHiggs, CzwHiggs, RzwHiggs, RwzHiggs
-cWZ  = CwzHiggs() 
-cZW  = CzwHiggs() 
-rZW  = RzwHiggs()
-rWZ  = RwzHiggs()
+from HiggsAnalysis.CombinedLimit.HiggsBenchmarkModels.CustodialSymmetryModels import CwzHiggs, CzwHiggs, RzwHiggs, RwzHiggs, LambdaWZHiggs
+lambdaWZ  = LambdaWZHiggs() 
+cWZ       = CwzHiggs() 
+cZW       = CzwHiggs() 
+rZW       = RzwHiggs()
+rWZ       = RwzHiggs()
 

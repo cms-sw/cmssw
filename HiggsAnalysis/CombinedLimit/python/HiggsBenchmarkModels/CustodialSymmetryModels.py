@@ -2,6 +2,87 @@ from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
 import ROOT, os
 
+
+class LambdaWZHiggs(SMLikeHiggsModel):
+    def __init__(self):
+        SMLikeHiggsModel.__init__(self) 
+        self.floatMass = False        
+    def setPhysicsOptions(self,physOptions):
+        for po in physOptions:
+            if po.startswith("higgsMassRange="):
+                self.floatMass = True
+                self.mHRange = po.replace("higgsMassRange=","").split(",")
+                print 'The Higgs mass range:', self.mHRange
+                if len(self.mHRange) != 2:
+                    raise RuntimeError, "Higgs mass range definition requires two extrema."
+                elif float(self.mHRange[0]) >= float(self.mHRange[1]):
+                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first."
+    def doParametersOfInterest(self):
+        """Create POI out of signal strength and MH"""
+        self.modelBuilder.doVar("kZ[1,0,2]")
+        self.modelBuilder.doVar("kf[1,0,2]")
+        self.modelBuilder.doVar("lambdaWZ[1,0,2]")
+        if self.floatMass:
+            if self.modelBuilder.out.var("MH"):
+                self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
+                self.modelBuilder.out.var("MH").setConstant(False)
+            else:
+                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1])) 
+            self.modelBuilder.doSet("POI",'kZ,lambdaWZ,kf,MH')
+        else:
+            if self.modelBuilder.out.var("MH"):
+                self.modelBuilder.out.var("MH").setVal(self.options.mass)
+                self.modelBuilder.out.var("MH").setConstant(True)
+            else:
+                self.modelBuilder.doVar("MH[%g]" % self.options.mass) 
+            self.modelBuilder.doSet("POI",'kZ,lambdaWZ,kf')
+        self.SMH = SMHiggsBuilder(self.modelBuilder)
+        self.setup()
+
+    def setup(self):
+        # define kW as lambdaWZ*kZ
+        self.modelBuilder.factory_('expr::kW("@0*@1",kZ, lambdaWZ)')
+
+        # scalings of the loops
+        self.SMH.makeScaling('hgg', Cb='kf', Ctop='kf', CW='kW', Ctau='kf')
+        self.SMH.makeScaling('qqH', CW='kW', CZ='kZ')
+        
+        # SM BR
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]: self.SMH.makeBR(d)
+
+        ## total witdhs, normalized to the SM one
+        self.modelBuilder.factory_('expr::lambdaWZ_Gscal_Z("@0*@0 * @1", kZ, SM_BR_hzz)') 
+        self.modelBuilder.factory_('expr::lambdaWZ_Gscal_W("@0*@0 * @1", kW, SM_BR_hww)') 
+        self.modelBuilder.factory_('expr::lambdaWZ_Gscal_fermions("@0*@0 * (@1+@2+@3+@4+@5+@6+@7)", kf, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hgluglu, SM_BR_hmm, SM_BR_hss)') 
+        self.modelBuilder.factory_('expr::lambdaWZ_Gscal_gg("@0 * @1", Scaling_hgg, SM_BR_hgg)') 
+        self.modelBuilder.factory_('sum::lambdaWZ_Gscal_tot(lambdaWZ_Gscal_Z, lambdaWZ_Gscal_W, lambdaWZ_Gscal_fermions, lambdaWZ_Gscal_gg)')
+
+        ## BRs, normalized to the SM ones: they scale as (partial/partial_SM) / (total/total_SM) 
+        self.modelBuilder.factory_('expr::lambdaWZ_BRscal_hzz("@0*@0/@1", kZ, lambdaWZ_Gscal_tot)')
+        self.modelBuilder.factory_('expr::lambdaWZ_BRscal_hww("@0*@0/@1", kW, lambdaWZ_Gscal_tot)')
+        self.modelBuilder.factory_('expr::lambdaWZ_BRscal_hf("@0*@0/@1", kf, lambdaWZ_Gscal_tot)')
+        self.modelBuilder.factory_('expr::lambdaWZ_BRscal_hgg("@0/@1", Scaling_hgg, lambdaWZ_Gscal_tot)')
+
+        # verbosity
+        #self.modelBuilder.out.Print()
+
+    def getHiggsSignalYieldScale(self,production,decay,energy):
+        name = "lambdaWZ_XSBRscal_%s_%s" % (production,decay)
+        print '[CustodialSymmetryModels::LambdaWZHiggs]'
+        print name, production, decay, energy
+        if self.modelBuilder.out.function(name) == None:
+            XSscal = "Scaling_qqH_"+energy
+            if production in ["ggH","ttH"]: XSscal = "kf"
+            if production == "WZ": XSscal = "kW"
+            if production == "ZH": XSscal = "kZ"
+            BRscal = "hgg"
+            if decay in ["hbb", "htt"]: BRscal = "hf"
+            if decay in ["hww", "hzz"]: BRscal = decay
+            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, lambdaWZ_BRscal_%s)' % (name, XSscal, BRscal))
+        return name
+
+
+
 class RzwHiggs(SMLikeHiggsModel):
     "scale WW by mu and ZZ by cZW^2 * mu"
     def __init__(self):
@@ -173,6 +254,7 @@ class CzwHiggs(SMLikeHiggsModel):
                 self.modelBuilder.factory_('expr::%s("@0 * @1", Czw_XSscal_%s_%s, Czw_BRscal_%s)' % (name, production, energy, decay))
         return name
 
+
 class CwzHiggs(SMLikeHiggsModel):
     "Scale w and z and touch nothing else"
     def __init__(self):
@@ -190,7 +272,7 @@ class CwzHiggs(SMLikeHiggsModel):
                     raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first."
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
-        # --- Signal Strength as only POI --- 
+        self.modelBuilder.doVar("Cz[1,0,10]")
         self.modelBuilder.doVar("Cwz[1,0,10]")
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
@@ -212,7 +294,6 @@ class CwzHiggs(SMLikeHiggsModel):
     def setup(self):
         for d in [ "hww", "hzz" ]:
             self.SMH.makeBR(d)
-        self.modelBuilder.doVar("Cz[1,0,10]")
         self.modelBuilder.factory_('expr::Cw("@0*@1",Cz, Cwz)')
             
         ## total witdhs, normalized to the SM one
@@ -244,4 +325,3 @@ class CwzHiggs(SMLikeHiggsModel):
             else:
                 self.modelBuilder.factory_('expr::%s("@0 * @1", Cwz_XSscal_%s_%s, Cwz_BRscal_%s)' % (name, production, energy, decay))
         return name
-
