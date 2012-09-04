@@ -44,15 +44,13 @@ void IC::constantMap(const IC & a, TH2F * h, DS & selector, bool errors)
         for (size_t i = 0; i < a.ids().size(); ++i) {
                 DetId id(a.ids()[i]);
                 if (!selector(id)) continue;
-                int ix = 0, iy = 0, iz = 0;
+                int ix = 0, iy = 0;
                 if (id.subdetId() == EcalBarrel) {
                         ix = EBDetId(id).iphi();
                         iy = EBDetId(id).ieta();
-                        iz = 0;
                 } else if (id.subdetId() == EcalEndcap) {
                         ix = EEDetId(id).ix();
                         iy = EEDetId(id).iy();
-                        iz = EEDetId(id).zside();
                 }
                 if (errors) h->Fill(ix, iy, a.eic()[id]);
                 else        h->Fill(ix, iy, a.ic()[id]);
@@ -266,6 +264,42 @@ void IC::dump(const IC & a, const char * fileName, DS & selector)
                         fprintf(stderr, "[dump] invalid DetId: %d\n", id.rawId());
                         exit(-1);
                 }
+        }
+        fclose(fd);
+}
+
+
+
+void IC::dumpEtaScale(const IC & a, const char * fileName)
+{
+        FILE * fd = fopen(fileName, "w");
+        if (fd == NULL) {
+                fprintf(stderr, "[dumpEtaScale] cannot open file %s\n", fileName);
+                exit(-1);
+        }
+        fprintf(fd, "#eta scale dump\n");
+        fprintf(fd, "#iring  scale  rms_on_the_mean\n");
+        float etasum[DRings::nHalfIEta * 2 + 1]; // ieta = 0 does not exist
+        float etasum2[DRings::nHalfIEta * 2 + 1]; // ieta = 0 does not exist
+        int n[DRings::nHalfIEta * 2 + 1]; // ieta = 0 does not exist
+        for (int i = 0; i < DRings::nHalfIEta * 2 + 1; ++i) {
+                etasum[i] = 0;
+                etasum2[i] = 0;
+                n[i] = 0;
+        }
+        for (size_t i = 0; i < a.ids().size(); ++i) {
+                DetId id(a.ids()[i]);
+                float v = a.ic()[id];
+                float e = a.eic()[id];
+                if (!isValid(v, e)) continue;
+                int idx = dr_.ieta(id) + DRings::nHalfIEta;
+                etasum[idx] += v;
+                etasum2[idx] += v * v;
+                n[idx]++;
+        }
+        for (int i = 0; i < DRings::nHalfIEta * 2 + 1; ++i) {
+                int ir = i - DRings::nHalfIEta;
+                if (ir != 0) fprintf(fd, "%d %f %f\n", ir, etasum[i] / n[i], sqrt(etasum2[i] * etasum2[i] / n[i] - etasum[i] * etasum[i] / n[i] / n[i]) / n[i]);
         }
         fclose(fd);
 }
@@ -635,8 +669,8 @@ bool IC::isValid(float v, float e)
 {
         //if (v < 0 || v > 2) return false;
         //if (v < 0) return false;
-        //if (fabs(e) > 100 || v < 0) return false;
-        if (fabs(e) > 100 || v < 0.4 || v > 2.5) return false;
+        if (fabs(e) > 100 || v < 0) return false;
+        //if (fabs(e) > 100 || v < 0.4 || v > 2.5) return false;
         //if (v < 0.3 || v > 3) return false;
         return true;
 }
