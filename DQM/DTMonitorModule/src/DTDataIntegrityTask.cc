@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2012/08/31 09:25:07 $
- * $Revision: 1.77 $
+ * $Date: 2012/08/31 09:36:27 $
+ * $Revision: 1.78 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino), G. Cerminara (INFN Torino)
  *
  */
@@ -385,7 +385,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histoType = "ROSAvgEventLenghtvsLumi";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + histoType;
     histoTitle = "Event Lenght (Bytes) FED " +  dduID_s.str() + " ROS " + rosID_s.str();
-    rosTimeHistos[histoType][code.getROSID()] = new DTTimeEvolutionHisto(dbe,histoName,histoTitle,200,10,true,0);
+    rosTimeHistos[histoType][code.getROSID()] = new DTTimeEvolutionHisto(dbe,histoName,histoTitle,250,10,true,0);
 
     histoType = "TDCError";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_TDCError";
@@ -1232,6 +1232,8 @@ void DTDataIntegrityTask::preProcessEvent(const edm::EventID& iEvtid, const edm:
 void DTDataIntegrityTask::preBeginLumi(const edm::LuminosityBlockID& ls, const edm::Timestamp& iTime) {
 
   nEventsLS = 0;
+ 
+  hFEDFatal->Reset();
 
 }
 
