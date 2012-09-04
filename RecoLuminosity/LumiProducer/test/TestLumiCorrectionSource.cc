@@ -61,7 +61,9 @@ void TestLumiCorrectionSource::endLuminosityBlock(edm::LuminosityBlock const& lu
     edm::Handle<LumiSummary> lumisummary;
     lumiBlock.getByLabel("lumiProducer", lumisummary);
     float instlumi=lumisummary->avgInsDelLumi();
+    std::cout<<"raw data tag "<<lumisummary->lumiVersion()<<std::endl;;
     float correctedinstlumi=instlumi;
+    float recinstlumi=lumisummary->avgInsRecLumi();
     float corrfac=1.;
     edm::ESHandle<LumiCorrectionParam> datahandle;
     es.getData(datahandle);
@@ -74,6 +76,8 @@ void TestLumiCorrectionSource::endLuminosityBlock(edm::LuminosityBlock const& lu
     }
     correctedinstlumi=instlumi*corrfac;
     std::cout<<"correctedinstlumi "<<correctedinstlumi<<std::endl;
+    float correctedinstRecLumi=recinstlumi*corrfac; 
+    std::cout<<"corrected rec instlumi "<<correctedinstRecLumi<<std::endl;
   }catch(const edm::eventsetup::NoRecordException<LumiCorrectionParamRcd>& er){
     std::cout<<"no data found"<<std::endl;
   }catch(const cms::Exception& ee){
