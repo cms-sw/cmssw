@@ -1,25 +1,57 @@
+#define private public
 #include "DataFormats/TrackReco/interface/HitPattern.h"
+#undef private
+
+#include <random>
+#include <algorithm>
 
 
-
+#include<cstdio>
+#include<iostream>
 int main() {
 
-  unsigned char hit[reco::HitPattern::MaxHits];
 
-  int nhit;
-  auto unpack =[&hit,&nhit](uint32_t pattern) {
-    hit[nhit++]= 255&&(pattern>>3);
-    // buuble sort
-    if (nhit>1)
-    for (auto h=hit+nhit-1; h!=hit+1; --h) {
-      if ( (*(h-1)) <= (*h)) break;
-      std::swap(*(h-1),(*h));
+  reco::HitPattern hp1;
+  reco::HitPattern hp2;
+  std::mt19937 eng;
+  std::uniform_int_distribution<int> ugen(1,255);
+ 
+
+  for (int i=0; i!=20;++i) {
+    if (i%3==1) { 
+      int p = ugen(eng);
+      hp1.setHitPattern(i,p <<3);
+      hp2.setHitPattern(i,p <<3);
+    } else{
+      hp1.setHitPattern(i,ugen(eng) <<3);
+      hp2.setHitPattern(i,ugen(eng) <<3);
     }
   }
 
-  reco::HitPattern hp;
+  for (int i=0; i!=15;++i) {
+    printf("%d,%d ",hp1.getHitPattern(i)>>3,
+	   hp2.getHitPattern(i)>>3
+	   );
+  }
+  printf("\n");
 
-  hp.call(reco::HitPattern::validHitFilter,unpack);
 
-  return nhit=0;
+  reco::PatternSet<15> p1(hp1), p2(hp2);
+
+  reco::PatternSet<15> comm = reco::commonHits(p1,p2);
+  std::cout << "common " << comm.size() << std::endl;
+  for (auto p:comm) printf("%d ",int(p));
+  printf("\n");
+
+  assert(p1.size()==15);
+  assert(p2.size()==15);
+  for (int i=0; i!=14;++i) {
+    printf("%d,%d ",int(p1[i]),int(p2[i]));
+    assert(p1[i]!=0);
+    assert(p2[i]!=0);
+    assert(p1[i]<=p1[i+1]);
+    assert(p2[i]<=p2[i+1]);
+  }
+  printf("\n");
+  return 0;
 }
