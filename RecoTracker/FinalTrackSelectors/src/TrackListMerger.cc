@@ -373,16 +373,19 @@ namespace cms
           
 	  float deta = std::abs(eta[k1]-eta[k2]);
 	  float dphi = std::abs(Geom::Phi<float>(phi[k1]-phi[k2]));
+
+	  /*
           if (at0[k1]&&at0[k2]) {
 	    if (deta>0.2f) continue;
 	    if (dphi>0.5f) continue; 
           }
-
+	  */
 
 	  int nprecut = (std::min(nhit1,nhit2)-1)*shareFrac_;
 	  // do not even bother if not enough "pattern in common"
-	  int ncomm = reco::commonHits(pattern[k1],pattern[k2]).size();
-	  if (ncomm<nprecut) continue;
+	  
+	  // int ncomm = reco::commonHits(pattern[k1],pattern[k2]).size();
+	  // if (ncomm<nprecut) continue;
 
 	  statCount.start();
 
@@ -401,8 +404,8 @@ namespace cms
 	    for ( ; jh<nh2; ++jh ) { 
 	      const TrackingRecHit *jt=rh1[k2][jh];
 	      // if unlikely(!jt->isValid() ) continue;
-	      if ( id1 ) > (jt->rawId()&(~3) ) continue;  // VI:exploit sorting
-	      if ( id1 ) < (jt->rawId()&(~3) ) break;  // VI: and mask mono/stereo...
+	      if ( id1  > ( jt->rawId()&(~3) ) ) continue;  // VI:exploit sorting
+	      if ( id1  < ( jt->rawId()&(~3) ) ) break;  // VI: and mask mono/stereo...
 	      bool share=false;
 	      if unlikely(!use_sharesInput_){
 		float delta = std::abs ( it->localPosition().x()-jt->localPosition().x() ); 
