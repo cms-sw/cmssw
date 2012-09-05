@@ -12,10 +12,10 @@ SiStripLorentzAngleCalibration_peak = cms.PSet(
     saveToDB = cms.bool(False), # save result in poolDBOutputService
     # If we save to DB, the recordNameDBwrite must match what is specified
     # as 'record' in the PoolDBOutputService:
-    recordNameDBwrite = cms.string('SiStripLorentzAngle_peak'),
+    recordNameDBwrite = cms.string('SiStripLorentzAngleRcd_peak'),
     )
 
 SiStripLorentzAngleCalibration_deco = SiStripLorentzAngleCalibration_peak.clone(
     readoutMode    = 'deconvolution',
-    recordNameDBwrite = cms.string('SiStripLorentzAngle_deco'),
+    recordNameDBwrite = cms.string('SiStripLorentzAngleRcd_deco'),
     )
