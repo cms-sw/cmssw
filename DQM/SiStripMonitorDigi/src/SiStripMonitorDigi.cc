@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.68 2012/07/24 18:42:45 threus Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.69 2012/09/04 15:50:58 threus Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -163,8 +163,9 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
   isStableBeams = false;
   SBTransitionDone = false;
   SBDeclaredAt = 0;
-  ignoreFirstNLumisections_ = ParametersTotDigiFailure.getParameter<int32_t>("ignoreFirstNLumisections");
-  integrateNLumisections_ = ParametersTotDigiFailure.getParameter<int32_t>("integrateNLumisections");
+  ignoreFirstNLumisections_ = TMath::Max ( 0 , ParametersTotDigiFailure.getParameter<int32_t>("ignoreFirstNLumisections") );
+  integrateNLumisections_ = TMath::Max ( 1 , ParametersTotDigiFailure.getParameter<int32_t>("integrateNLumisections") );
+
 }
 //------------------------------------------------------------------------------------------
 
