@@ -320,7 +320,7 @@ namespace cms
 	const TrackingRecHit* hit = &(**it);
 	if likely(hit->isValid()) { rh1[i].push_back(hit); std::push_heap(rh1[i].begin(),rh1[i].end(),compById); }
       }
-      std::make_heap(rh1[i].begin(),rh1[i].end(),compById);
+      std::sort_heap(rh1[i].begin(),rh1[i].end(),compById);
     }
     
     //DL here
