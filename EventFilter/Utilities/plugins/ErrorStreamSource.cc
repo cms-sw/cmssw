@@ -131,6 +131,7 @@ void ErrorStreamSource::setRunAndEventInfo()
   
   setRunNumber(runNumber);
   setEventNumber(evtNumber);
+  setLuminosityBlockNumber_t(lumiNumber);
 }
 
 
