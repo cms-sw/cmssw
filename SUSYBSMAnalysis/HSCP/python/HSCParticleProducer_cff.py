@@ -283,9 +283,7 @@ MuonSegmentProducer = cms.EDProducer("MuonSegmentProducer",
 MTmuontiming = muontiming.clone()
 MTmuontiming.MuonCollection = "MTMuons"
 
-MuonOnlySeq = cms.Sequence(ancientMuonSeed + MTancientMuonSeed + MTSAMuons + RefitMTSAMuons + MTMuons + MuonSegmentProducer + MTmuontiming)
-if CMSSW4_2:
-     MuonOnlySeq *= refittedStandAloneMuons
+MuonOnlySeq = cms.Sequence(ancientMuonSeed + MTancientMuonSeed + MTSAMuons + RefitMTSAMuons + MTMuons + MuonSegmentProducer + MTmuontiming + refittedStandAloneMuons)
 
 ####################################################################################
 #   HSCParticle Selector  (Just an Example of what we can do)
