@@ -172,8 +172,6 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
         subdetswitchon        = cms.bool(False)
     ),
 
-    xLumiProf = cms.int32(5),
-
     Mod_On = cms.bool(True),
 
     HistoryProducer = cms.InputTag("consecutiveHEs"),
