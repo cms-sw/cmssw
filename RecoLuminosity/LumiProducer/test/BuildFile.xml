@@ -48,6 +48,11 @@
   <use name="RecoLuminosity/LumiProducer"/>	
 </bin>
 
+<bin file="testBoostXML.cpp" name="testBoostXML">
+  <flags NO_TESTRUN="1"/>
+  <use name="boost"/>
+</bin>
+
 <library file="TestLumiProducer.cc" name="TestLumiProducer">
   <flags EDM_PLUGIN="1"/>
 </library>
