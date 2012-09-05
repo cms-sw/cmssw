@@ -36,23 +36,34 @@
 
 #include "RecoTracker/TrackProducer/interface/ClusterRemovalRefSetter.h"
 
+#include <x86intrin.h>
 
 namespace {
 #ifdef STAT_TSB
+inline volatile unsigned long long rdtsc() {
+ return __rdtsc();
+}
+
   struct StatCount {
+    unsigned long long st;
     long long totBegin=0;
     long long totPre=0;
     long long totEnd=0;
+    unsigned long long timeNo;  // no-overlap
+    unsigned long long timeOv;  // overlap
     void begin(int tt) {
       totBegin+=tt;
     }
+    void start() { st=rdtsc(); }
+    void noOverlap() { timeNo += (rdtsc()-st);}
+    void overlap() { timeOv += (rdtsc()-st);}
     void pre(int tt) { totPre+=tt;}
     void end(int tt) { totEnd+=tt;}
 
 
     void print() const {
-      std::cout << "TrackListMerger stat\nBegin/Pre/End/ "
-    		<<  totBegin <<'/'<< totPre <<'/'<< totEnd
+      std::cout << "TrackListMerger stat\nBegin/Pre/End/Overlap/NoOverlap "
+    		<<  totBegin <<'/'<< totPre <<'/'<< timeOv <<'/'<< timeNo <<'/'<< totEnd
 		<< std::endl;
     }
     StatCount() {}
@@ -64,6 +75,9 @@ namespace {
     void begin(int){}
     void pre(int){}
     void end(int){}
+    void start(){}
+    void noOverlap(){}
+    void overlap(){}
   };
 #endif
 
@@ -342,6 +356,8 @@ namespace cms
 	  int ncomm = reco::commonHits(pattern[k1],pattern[k2]).size();
 	  if (ncomm<(std::min(nhit1,nhit2)-1)*shareFrac_) continue;
 
+	  statCount.start();
+
 	  //loop over rechits
 	  int noverlap=0;
 	  int firstoverlap=0;
@@ -398,7 +414,11 @@ namespace cms
 		trkUpdated[j]=true;
 	      }
 	    }//end fi < fj
+	    statCount.overlap();
 	  }//end got a duplicate
+	  else {
+	    statCount.noOverlap();
+	  }
 	  //stop if the ith track is now unselected
 	  if (selected[i]==0) break;
 	}//end track2 loop
