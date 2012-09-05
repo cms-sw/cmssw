@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.62 2012/09/04 17:01:46 vadler Exp $
+// $Id: PATElectronProducer.cc,v 1.63 2012/09/05 00:06:52 tjkim Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
 
@@ -144,8 +144,8 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   }
   // embed high level selection variables?
   embedHighLevelSelection_ = iConfig.getParameter<bool>("embedHighLevelSelection");
+  beamLineSrc_ = iConfig.getParameter<edm::InputTag>("beamLineSrc");
   if ( embedHighLevelSelection_ ) {
-    beamLineSrc_ = iConfig.getParameter<edm::InputTag>("beamLineSrc");
     usePV_ = iConfig.getParameter<bool>("usePV");
     pvSrc_ = iConfig.getParameter<edm::InputTag>("pvSrc");
   }
@@ -238,12 +238,10 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   edm::Handle<reco::BeamSpot> beamSpotHandle;
   iEvent.getByLabel(beamLineSrc_, beamSpotHandle);
 
-  // Get the primary vertex
-  edm::Handle< std::vector<reco::Vertex> > pvHandle;
-  iEvent.getByLabel( pvSrc_, pvHandle );
-
-
   if ( embedHighLevelSelection_ ) {
+    // Get the primary vertex
+    edm::Handle< std::vector<reco::Vertex> > pvHandle;
+    iEvent.getByLabel( pvSrc_, pvHandle );
 
     // This is needed by the IPTools methods from the tracking group
     iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
