@@ -390,19 +390,21 @@ namespace cms
 	  int noverlap=0;
 	  int firstoverlap=0;
 	  
-	  unsigned int js=0;
+	  unsigned int jh=0;
 	  for ( unsigned int ih=0; ih<nh1; ++ih ) {
 	    // break if not enough to go...
 	    if ( nprecut-noverlap+firstoverlap > int(nh1-ih)) break;
 	    const TrackingRecHit* it = rh1[k1][ih];
+	    int id1 = (~3)&it->rawId();  // mask mono/stereo...
 	    // if unlikely(!it->isValid()) continue;
-	    if (js==nh2) break;
-	    for ( unsigned int jh=js; jh<nh2; ++jh ) { 
+	    // exploit sorting
+	    for ( ; jh<nh2; ++jh ) { 
 	      const TrackingRecHit *jt=rh1[k2][jh];
 	      // if unlikely(!jt->isValid() ) continue;
-	      if ( (it->geographicalId()|3) !=(jt->geographicalId()|3) ) continue;  // VI: mask mono/stereo...
+	      if ( id1 ) > (jt->rawId()&(~3) ) continue;  // VI:exploit sorting
+	      if ( id1 ) < (jt->rawId()&(~3) ) break;  // VI: and mask mono/stereo...
 	      bool share=false;
-	      if (!use_sharesInput_){
+	      if unlikely(!use_sharesInput_){
 		float delta = std::abs ( it->localPosition().x()-jt->localPosition().x() ); 
 		share = (it->geographicalId()==jt->geographicalId())&&(delta<epsilon_);
 	      } else{
@@ -411,7 +413,7 @@ namespace cms
 	      if (share) {
 		noverlap++;
 		if ( allowFirstHitShare_ && ( ih == 0 ) && ( jh == 0 ) ) firstoverlap=1;
-		js=jh+1;
+		jh++;
 		break;
 	      } // tracks share input
 	    } // rechits on second track  
