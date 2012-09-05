@@ -313,10 +313,12 @@ namespace cms
       eta[i]=track->eta();
       at0[i] = std::abs(track->dxy())<2. && std::abs(track->dz())<5.;
       rh1[i].reserve(validHits) ; // track->recHitsSize());
+      auto compById = [](const TrackingRecHit* h1,const TrackingRecHit*h2) {return h1->rawId()< h1->rawId();};
       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); ++it) { 
 	const TrackingRecHit* hit = &(**it);
-	if likely(hit->isValid()) rh1[i].push_back(hit);
+	if likely(hit->isValid()) { rh1[i].push_back(hit); std::push_heap(rh1[i].begin(),rh1[i].end(),compById); }
       }
+      std::make_heap(rh1[i].begin(),rh1[i].end(),compById);
     }
     
     //DL here
@@ -399,22 +401,19 @@ namespace cms
 	      const TrackingRecHit *jt=rh1[k2][jh];
 	      // if unlikely(!jt->isValid() ) continue;
 	      if ( (it->geographicalId()|3) !=(jt->geographicalId()|3) ) continue;  // VI: mask mono/stereo...
+	      bool share=false;
 	      if (!use_sharesInput_){
 		float delta = std::abs ( it->localPosition().x()-jt->localPosition().x() ); 
-		if ((it->geographicalId()==jt->geographicalId())&&(delta<epsilon_)) {
-		  noverlap++;
-		  if ( allowFirstHitShare_ && ( ih == 0 ) && ( jh == 0 ) ) firstoverlap=1;
-		  js=jh+1;
-		  break;
-		}
-	      }else{
-		if ( it->sharesInput(jt,TrackingRecHit::some) ) {
-		  noverlap++;
-		  if ( allowFirstHitShare_ && ( ih == 0 ) && ( jh == 0 ) ) firstoverlap=1;
-		  js=jh+1;
-		  break;
-		} // tracks share input
-	      } //else use_sharesInput
+		share = (it->geographicalId()==jt->geographicalId())&&(delta<epsilon_);
+	      } else{
+		share =  it->sharesInput(jt,TrackingRecHit::some); 
+	      }
+	      if (share) {
+		noverlap++;
+		if ( allowFirstHitShare_ && ( ih == 0 ) && ( jh == 0 ) ) firstoverlap=1;
+		js=jh+1;
+		break;
+	      } // tracks share input
 	    } // rechits on second track  
 	  } //loop over ih (rechits on first track
 	  
