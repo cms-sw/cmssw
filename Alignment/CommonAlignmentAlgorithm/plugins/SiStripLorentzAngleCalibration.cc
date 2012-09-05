@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : August 2012
-///  $Revision: 1.3 $
-///  $Date: 2012/09/05 07:43:22 $
+///  $Revision: 1.1 $
+///  $Date: 2012/09/05 07:56:27 $
 ///  (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationBase.h"
@@ -462,9 +462,9 @@ void SiStripLorentzAngleCalibration::writeTree(const SiStripLorentzAngle *lorent
 
   TTree *tree = new TTree(treeName, treeName);
   unsigned int id = 0;
-  double value = 0.;
+  float value = 0.;
   tree->Branch("detId", &id, "detId/i");
-  tree->Branch("value", &value, "value/D");
+  tree->Branch("value", &value, "value/F");
 
   for (auto iterIdValue = lorentzAngle->getLorentzAngles().begin();
        iterIdValue != lorentzAngle->getLorentzAngles().end(); ++iterIdValue) {
@@ -489,7 +489,7 @@ SiStripLorentzAngleCalibration::createFromTree(const char *fileName, const char 
   SiStripLorentzAngle *result = 0;
   if (tree) {
     unsigned int id = 0;
-    double value = 0.;
+    float value = 0.;
     tree->SetBranchAddress("detId", &id);
     tree->SetBranchAddress("value", &value);
 
@@ -497,9 +497,7 @@ SiStripLorentzAngleCalibration::createFromTree(const char *fileName, const char 
     const Long64_t nEntries = tree->GetEntries();
     for (Long64_t iEntry = 0; iEntry < nEntries; ++iEntry) {
       tree->GetEntry(iEntry);
-      // Nasty cast since putLorentzAngle(..) takes argument by non-const reference:
-      /*const*/ float valueFloat = static_cast<float>(value);
-      result->putLorentzAngle(id, valueFloat);
+      result->putLorentzAngle(id, value);
     }
   } else {
     edm::LogError("Alignment") << "@SUB=SiStripLorentzAngleCalibration::createFromTree"
