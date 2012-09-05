@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.61 2012/07/09 16:52:14 tjkim Exp $
+// $Id: PATElectronProducer.cc,v 1.62 2012/09/04 17:01:46 vadler Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
 
@@ -318,6 +318,9 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	  Electron anElectron(elecsRef);
 	  anElectron.setPFCandidateRef( pfRef  );
 
+          //it should be always true when particleFlow electrons are used.
+          anElectron.setIsPF( true );
+
 	  if( embedPFCandidate_ ) anElectron.embedPFCandidate();
 
 	  if ( useUserData_ ) {
@@ -449,7 +452,6 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	  const reco::GsfTrackRef& pfTrkRef= ie->gsfTrackRef();
 	  if( trkRef == pfTrkRef ) {
 	    pfId = true;
-	    anElectron.setIsPF( pfId );
 	    reco::PFCandidateRef pfRef(pfElectrons, index);
 	    anElectron.setPFCandidateRef( pfRef );
 	    break;
@@ -462,8 +464,9 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	// Get the PFCandidate
 	const reco::PFCandidatePtr& pfElePtr(myValMap[elecsRef]);
 	pfId= pfElePtr.isNonnull();
-	anElectron.setIsPF( pfId );
       }
+      // set PFId function
+      anElectron.setIsPF( pfId );
 
       // add resolution info
 
