@@ -151,8 +151,6 @@ double GetPUWeight      (const fwlite::ChainEvent& ev, const std::string& pileup
 unsigned long GetInitialNumberOfMCEvent(const vector<string>& fileNames)
 {
    unsigned long Total = 0;
-   fwlite::ChainEvent tree(fileNames);
-
    for(unsigned int f=0;f<fileNames.size();f++){
       TFile *file;
       size_t place=fileNames[f].find("dcache");
@@ -161,7 +159,7 @@ unsigned long GetInitialNumberOfMCEvent(const vector<string>& fileNames)
          name.replace(place, 7, "dcap://cmsgridftp.fnal.gov:24125");
          file = new TDCacheFile (name.c_str());
       }else{
-         file = new TFile (fileNames[f].c_str());
+         file = TFile::Open(fileNames[f].c_str());
       }
 
       fwlite::LuminosityBlock ls( file );
