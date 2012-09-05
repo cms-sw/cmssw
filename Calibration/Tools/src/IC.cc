@@ -25,6 +25,23 @@ IC::IC()
         assert(_detId.size() == EBDetId::MAX_HASH + 1 + EEDetId::kSizeForDenseIndexing);
 }
 
+void IC::coord(DetId id, Coord * c)
+{
+        if (id.subdetId() == EcalBarrel) {
+                EBDetId eid(id);
+                c->ix_ = eid.ieta();
+                c->iy_ = eid.iphi();
+                c->iz_ = 0;
+        } else if (id.subdetId() == EcalEndcap) {
+                EEDetId eid(id);
+                c->ix_ = eid.ix();
+                c->iy_ = eid.iy();
+                c->iz_ = eid.zside();
+        } else {
+                fprintf(stderr, "[IC::coord] ERROR: invalid DetId %d", id.rawId());        
+                assert(0);
+        }
+}
 
 
 
@@ -724,6 +741,23 @@ void IC::removeOutliers(const IC & a, IC & res, float low_thr, float high_thr)
                 }
         }
 }
+
+
+void IC::dumpOutliers(const IC & a, float min, float max)
+{
+        for (size_t i = 0; i < a.ids().size(); ++i) {
+                DetId id(a.ids()[i]);
+                float va = a.ic()[id];
+
+                IC::Coord c;
+                coord(id, &c);
+
+                if (va > max || va < min){
+                        fprintf(stdout, "%d %d %d %d %f %f", id.rawId(), c.ix_, c.iy_, c.iz_, va, a.eic()[id]);
+                }
+        }
+}
+
 
 void IC::setToUnit(IC & ic)
 {

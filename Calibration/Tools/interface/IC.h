@@ -366,6 +366,15 @@ class IC {
         public:
                 enum EcalPart { kAll, kEB, kEE };
 
+                typedef struct Coord {
+                        int ix_;
+                        int iy_;
+                        int iz_;
+                } Coord;
+
+                static void coord(DetId id, Coord * c);
+
+
                 IC();
 
                 EcalIntercalibConstants & ic() { return _ic; }
@@ -392,7 +401,7 @@ class IC {
                 static void add(const IC & a, const IC & b, IC & res);
                 static void combine(const IC & a, const IC & b, IC & res);
                 static void fillHoles(const IC & a, const IC & b, IC & res);
-                static void removeOutliers(const IC & a, IC & res, float low_thr = 0.4, float high_thr = 2.5);
+                static void removeOutliers(const IC & a, IC & res, float min = 0.4, float max = 2.5);
                 static void smear(const IC & a, float sigma, IC & res);
                 static void smear(const IC & a, IC & res);
 
@@ -412,6 +421,7 @@ class IC {
 
                 // dumps for checking
                 static void dumpEtaScale(const IC & a, const char * fileName);
+                static void dumpOutliers(const IC & a, float min = 0.4, float max = 2.5);
 
                 static float average(const IC & a, DS & d, bool errors = false);
 
