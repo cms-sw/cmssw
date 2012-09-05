@@ -295,6 +295,7 @@ namespace cms
     float score[ngood];
     float phi[ngood];
     float eta[ngood];
+    bool at0[ngood];
     for ( unsigned int j=0; j<rSize; j++) {
       if (selected[j]==0) continue;
       int i = indexG[j];
@@ -310,7 +311,7 @@ namespace cms
       pattern[i].fill(track->hitPattern());
       phi[i]=track->phi();
       eta[i]=track->eta();
-
+      at0[i] = std::abs(track->dxy())<2. && std::abs(track->dz())<5.;
       rh1[i].reserve(validHits) ; // track->recHitsSize());
       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); ++it) { 
 	const TrackingRecHit* hit = &(**it);
@@ -366,11 +367,14 @@ namespace cms
 	  int nhit2 = nh2; // validHits[k2];
 
 
-	  // do not bother if far apart...
+	  // do not bother if far apart and both poitning to the vertex...
+          
 	  float deta = std::abs(eta[k1]-eta[k2]);
 	  float dphi = std::abs(Geom::Phi<float>(phi[k1]-phi[k2]));
-	  // if (deta>0.25f) continue;
-	  // if (dphi>0.7f) continue; 
+          if (at0[k1]&&at0[k2]) {
+	    if (deta>0.2f) continue;
+	    if (dphi>0.5f) continue; 
+          }
 
 	  // do not even bother if not enough "pattern in common"
 	  int ncomm = reco::commonHits(pattern[k1],pattern[k2]).size();
