@@ -376,9 +376,11 @@ namespace cms
 	    if (dphi>0.5f) continue; 
           }
 
+
+	  int nprecut = (std::min(nhit1,nhit2)-1)*shareFrac_;
 	  // do not even bother if not enough "pattern in common"
 	  int ncomm = reco::commonHits(pattern[k1],pattern[k2]).size();
-	  if (ncomm<(std::min(nhit1,nhit2)-1)*shareFrac_) continue;
+	  if (ncomm<nprecut) continue;
 
 	  statCount.start();
 
@@ -387,7 +389,9 @@ namespace cms
 	  int firstoverlap=0;
 	  
 	  unsigned int js=0;
-	  for ( unsigned int ih=0; ih<nh1; ++ih ) { 
+	  for ( unsigned int ih=0; ih<nh1; ++ih ) {
+	    // break if not enough to go...
+	    if ( nprecut-noverlap+firstoverlap > int(nh1-ih)) break;
 	    const TrackingRecHit* it = rh1[k1][ih];
 	    // if unlikely(!it->isValid()) continue;
 	    if (js==nh2) break;
