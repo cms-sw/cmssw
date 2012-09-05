@@ -61,8 +61,8 @@ inline volatile unsigned long long rdtsc() {
     void overlap() { timeOv += (rdtsc()-st);}
     void pre(int tt) { totPre+=tt;}
     void end(int tt) { totEnd+=tt;}
-    void de(float d) if (d>maxDE) maxDE=d;}
-    void dp(float d) if (d>maxDP) maxDP=d;}
+    void de(float d) { if (d>maxDE) maxDE=d;}
+    void dp(float d) { if (d>maxDP) maxDP=d;}
 
 
     void print() const {
