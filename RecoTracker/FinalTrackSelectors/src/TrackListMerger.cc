@@ -284,6 +284,8 @@ namespace cms
     // short int validHits[ngood];
     // short int lostHits[ngood];
     float score[ngood];
+    float phi[ngood];
+    float eta[ngood];
     for ( unsigned int j=0; j<rSize; j++) {
       if (selected[j]==0) continue;
       int i = indexG[j];
@@ -297,6 +299,8 @@ namespace cms
       int lostHits=track->numberOfLostHits();
       score[i] = foundHitBonus_*validHits - lostHitPenalty_*lostHits - track->chi2();
       pattern[i].fill(track->hitPattern());
+      phi[i]=track->phi();
+      eta[i]=track->eta();
 
       rh1[i].reserve(validHits) ; // track->recHitsSize());
       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); ++it) { 
@@ -351,6 +355,11 @@ namespace cms
 	  }
 	  unsigned int nh2=rh1[k2].size();
 	  int nhit2 = nh2; // validHits[k2];
+
+
+	  // do not bother if far apart...
+	  if (std::abs(eta[k1]-eta[k2])<0.25f) continue;
+	  if (std::abs(Geom::Phi<float>(phi[k1]-phi[k2]))<0.7) continue; 
 
 	  // do not even bother if not enough "pattern in common"
 	  int ncomm = reco::commonHits(pattern[k1],pattern[k2]).size();
