@@ -358,8 +358,8 @@ namespace cms
 
 
 	  // do not bother if far apart...
-	  if (std::abs(eta[k1]-eta[k2])<0.25f) continue;
-	  if (std::abs(Geom::Phi<float>(phi[k1]-phi[k2]))<0.7) continue; 
+	  if (std::abs(eta[k1]-eta[k2])>0.25f) continue;
+	  if (std::abs(Geom::Phi<float>(phi[k1]-phi[k2]))>0.7f) continue; 
 
 	  // do not even bother if not enough "pattern in common"
 	  int ncomm = reco::commonHits(pattern[k1],pattern[k2]).size();
