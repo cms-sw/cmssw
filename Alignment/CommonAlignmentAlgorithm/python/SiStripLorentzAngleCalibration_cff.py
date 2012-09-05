@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 SiStripLorentzAngleCalibration_peak = cms.PSet(
-    # Name that is bound to the LorentzAngleCalibration, defined by 
-    # the DEFINE_EDM_PLUGIN macro in LorentzAngleCalibration.cc:
-    calibrationName = cms.string('LorentzAngleCalibration'),
+    # Name that is bound to the SiStripLorentzAngleCalibration, defined by 
+    # the DEFINE_EDM_PLUGIN macro in SiStripLorentzAngleCalibration.cc:
+    calibrationName = cms.string('SiStripLorentzAngleCalibration'),
 
     # Configuration parameters of LorentzAngleCalibration
     readoutMode = cms.string('peak'), # peak or deconvolution

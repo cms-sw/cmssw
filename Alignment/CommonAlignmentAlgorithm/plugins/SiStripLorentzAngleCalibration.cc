@@ -1,4 +1,4 @@
-/// \class LorentzAngleCalibration
+/// \class SiStripLorentzAngleCalibration
 ///
 /// Calibration of Lorentz angle (and strip deco mode backplane corrections?)
 /// for the tracker, integrated in the alignment algorithms.
@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : August 2012
-///  $Revision: 1.2 $
-///  $Date: 2012/08/28 19:21:49 $
+///  $Revision: 1.3 $
+///  $Date: 2012/09/05 07:43:22 $
 ///  (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationBase.h"
@@ -39,14 +39,14 @@
 #include <vector>
 #include <sstream>
 
-class LorentzAngleCalibration : public IntegratedCalibrationBase
+class SiStripLorentzAngleCalibration : public IntegratedCalibrationBase
 {
 public:
   /// Constructor
-  explicit LorentzAngleCalibration(const edm::ParameterSet &cfg);
+  explicit SiStripLorentzAngleCalibration(const edm::ParameterSet &cfg);
   
   /// Destructor
-  virtual ~LorentzAngleCalibration();
+  virtual ~SiStripLorentzAngleCalibration();
 
   /// How many parameters does this calibration define?
   virtual unsigned int numParameters() const;
@@ -134,7 +134,7 @@ private:
 //======================================================================
 //======================================================================
 
-LorentzAngleCalibration::LorentzAngleCalibration(const edm::ParameterSet &cfg)
+SiStripLorentzAngleCalibration::SiStripLorentzAngleCalibration(const edm::ParameterSet &cfg)
   : IntegratedCalibrationBase(cfg),
     readoutModeName_(cfg.getParameter<std::string>("readoutMode")),
     saveToDB_(cfg.getParameter<bool>("saveToDB")),
@@ -153,7 +153,7 @@ LorentzAngleCalibration::LorentzAngleCalibration(const edm::ParameterSet &cfg)
     readoutMode_ = 0;
   } else {
     throw cms::Exception("BadConfig")
-	  << "LorentzAngleCalibration:\n" << "Unknown mode '" 
+	  << "SiStripLorentzAngleCalibration:\n" << "Unknown mode '" 
 	  << readoutModeName_ << "', should be 'peak' or 'deconvolution' .\n";
   }
 
@@ -161,41 +161,42 @@ LorentzAngleCalibration::LorentzAngleCalibration(const edm::ParameterSet &cfg)
   parameters_.resize(2, 0.); // currently two parameters (TIB, TOB), start value 0.
   paramUncertainties_.resize(2, 0.); // dito for errors
 
-  edm::LogInfo("Alignment") << "@SUB=LorentzAngleCalibration" << "Created with name "
+  edm::LogInfo("Alignment") << "@SUB=SiStripLorentzAngleCalibration" << "Created with name "
                             << this->name() << " for readout mode '" << readoutModeName_
 			    << "',\n" << this->numParameters() << " parameters to be determined."
                             << "\nsaveToDB = " << saveToDB_
                             << "\n outFileName = " << outFileName_
                             << "\n N(merge files) = " << mergeFileNames_.size();
   if (mergeFileNames_.size()) {
-    edm::LogInfo("Alignment") << "@SUB=LorentzAngleCalibration"
+    edm::LogInfo("Alignment") << "@SUB=SiStripLorentzAngleCalibration"
                               << "First file to merge: " << mergeFileNames_[0];
   }
 }
   
 //======================================================================
-LorentzAngleCalibration::~LorentzAngleCalibration()
+SiStripLorentzAngleCalibration::~SiStripLorentzAngleCalibration()
 {
-  //  std::cout << "Destroy LorentzAngleCalibration named " << this->name() << std::endl;
+  //  std::cout << "Destroy SiStripLorentzAngleCalibration named " << this->name() << std::endl;
   delete siStripLorentzAngleInput_;
 }
 
 //======================================================================
-unsigned int LorentzAngleCalibration::numParameters() const
+unsigned int SiStripLorentzAngleCalibration::numParameters() const
 {
   return parameters_.size();
 }
 
 //======================================================================
-unsigned int LorentzAngleCalibration::derivatives(std::vector<ValuesIndexPair> &outDerivInds,
-						  const TransientTrackingRecHit &hit,
-						  const TrajectoryStateOnSurface &tsos,
-						  const edm::EventSetup &setup,
-						  const EventInfo &eventInfo) const
+unsigned int
+SiStripLorentzAngleCalibration::derivatives(std::vector<ValuesIndexPair> &outDerivInds,
+					    const TransientTrackingRecHit &hit,
+					    const TrajectoryStateOnSurface &tsos,
+					    const edm::EventSetup &setup,
+					    const EventInfo &eventInfo) const
 {
   // ugly const-cast:
   // But it is either only first initialisation or throwing an exception...
-  const_cast<LorentzAngleCalibration*>(this)->checkLorentzAngleInput(setup, eventInfo);
+  const_cast<SiStripLorentzAngleCalibration*>(this)->checkLorentzAngleInput(setup, eventInfo);
 
   outDerivInds.clear();
 
@@ -221,11 +222,11 @@ unsigned int LorentzAngleCalibration::derivatives(std::vector<ValuesIndexPair> &
         }
       }
     } else {
-      edm::LogWarning("Alignment") << "@SUB=LorentzAngleCalibration::derivatives2"
+      edm::LogWarning("Alignment") << "@SUB=SiStripLorentzAngleCalibration::derivatives2"
                                    << "Hit without GeomDet, skip!";
     }
   } else if (mode != 0 && mode != 1) { // warn only if unknown/mixed mode  
-    edm::LogWarning("Alignment") << "@SUB=LorentzAngleCalibration::derivatives3"
+    edm::LogWarning("Alignment") << "@SUB=SiStripLorentzAngleCalibration::derivatives3"
                                  << "Readout mode is " << mode << ", but looking for "
                                  << readoutMode_ << " (" << readoutModeName_ << ").";
   }
@@ -234,7 +235,7 @@ unsigned int LorentzAngleCalibration::derivatives(std::vector<ValuesIndexPair> &
 }
 
 //======================================================================
-bool LorentzAngleCalibration::setParameter(unsigned int index, double value)
+bool SiStripLorentzAngleCalibration::setParameter(unsigned int index, double value)
 {
   if (index >= parameters_.size()) {
     return false;
@@ -245,7 +246,7 @@ bool LorentzAngleCalibration::setParameter(unsigned int index, double value)
 }
 
 //======================================================================
-bool LorentzAngleCalibration::setParameterError(unsigned int index, double error)
+bool SiStripLorentzAngleCalibration::setParameterError(unsigned int index, double error)
 {
   if (index >= paramUncertainties_.size()) {
     return false;
@@ -256,7 +257,7 @@ bool LorentzAngleCalibration::setParameterError(unsigned int index, double error
 }
 
 //======================================================================
-double LorentzAngleCalibration::getParameter(unsigned int index) const
+double SiStripLorentzAngleCalibration::getParameter(unsigned int index) const
 {
   //   if (index >= parameters_.size()) {
   //     return 0.;
@@ -267,7 +268,7 @@ double LorentzAngleCalibration::getParameter(unsigned int index) const
 }
 
 //======================================================================
-double LorentzAngleCalibration::getParameterError(unsigned int index) const
+double SiStripLorentzAngleCalibration::getParameterError(unsigned int index) const
 {
   //   if (index >= paramUncertainties_.size()) {
   //     return 0.;
@@ -278,16 +279,16 @@ double LorentzAngleCalibration::getParameterError(unsigned int index) const
 }
 
 // //======================================================================
-// void LorentzAngleCalibration::beginOfJob(const AlignableTracker *tracker,
-//                                          const AlignableMuon */*muon*/,
-//                                          const AlignableExtras */*extras*/)
+// void SiStripLorentzAngleCalibration::beginOfJob(const AlignableTracker *tracker,
+//                                                 const AlignableMuon */*muon*/,
+//                                                 const AlignableExtras */*extras*/)
 // {
 //   alignableTracker_ = tracker;
 // }
 
 
 //======================================================================
-void LorentzAngleCalibration::endOfJob()
+void SiStripLorentzAngleCalibration::endOfJob()
 {
   // loginfo output
   std::ostringstream out;
@@ -295,7 +296,7 @@ void LorentzAngleCalibration::endOfJob()
   for (unsigned int iPar = 0; iPar < parameters_.size(); ++iPar) {
     out << iPar << ": " << parameters_[iPar] << " +- " << paramUncertainties_[iPar] << "\n";
   }
-  edm::LogInfo("Alignment") << "@SUB=LorentzAngleCalibration::endOfJob" << out.str();
+  edm::LogInfo("Alignment") << "@SUB=SiStripLorentzAngleCalibration::endOfJob" << out.str();
 
   // now write 'input' tree
   const SiStripLorentzAngle *input = this->getLorentzAnglesInput(); // never NULL
@@ -325,7 +326,7 @@ void LorentzAngleCalibration::endOfJob()
 	// no 'delete output;': writeOne(..) took over ownership
       } else {
 	delete output;
-	edm::LogError("BadConfig") << "@SUB=LorentzAngleCalibration::endOfJob"
+	edm::LogError("BadConfig") << "@SUB=SiStripLorentzAngleCalibration::endOfJob"
 				   << "No PoolDBOutputService available, but saveToDB true!";
       }
     } else {
@@ -336,8 +337,8 @@ void LorentzAngleCalibration::endOfJob()
 }
 
 //======================================================================
-bool LorentzAngleCalibration::checkLorentzAngleInput(const edm::EventSetup &setup,
-						     const EventInfo &eventInfo)
+bool SiStripLorentzAngleCalibration::checkLorentzAngleInput(const edm::EventSetup &setup,
+							    const EventInfo &eventInfo)
 {
   edm::ESHandle<SiStripLorentzAngle> lorentzAngleHandle;
   if (!siStripLorentzAngleInput_) {
@@ -351,7 +352,7 @@ bool LorentzAngleCalibration::checkLorentzAngleInput(const edm::EventSetup &setu
 	// FIXME: Could different maps have same content, but different order?
 	//        Or 'floating point comparison' problem?
 	throw cms::Exception("BadInput")
-	  << "LorentzAngleCalibration::checkLorentzAngleInput:\n"
+	  << "SiStripLorentzAngleCalibration::checkLorentzAngleInput:\n"
 	  << "Content of SiStripLorentzAngle changed at run " << eventInfo.eventId_.run()
 	  << ", but algorithm expects constant input!\n";
 	return false; // not reached...
@@ -363,7 +364,7 @@ bool LorentzAngleCalibration::checkLorentzAngleInput(const edm::EventSetup &setu
 }
 
 //======================================================================
-const SiStripLorentzAngle* LorentzAngleCalibration::getLorentzAnglesInput()
+const SiStripLorentzAngle* SiStripLorentzAngleCalibration::getLorentzAnglesInput()
 {
   // For parallel processing in Millepede II, create SiStripLorentzAngle
   // from info stored in files of parallel jobs and check that they are identical.
@@ -382,7 +383,7 @@ const SiStripLorentzAngle* LorentzAngleCalibration::getLorentzAnglesInput()
       if (!la->getLorentzAngles().empty() && // single job might not have got events
           la->getLorentzAngles() != siStripLorentzAngleInput_->getLorentzAngles()) {
         // Throw exception instead of error?
-        edm::LogError("NoInput") << "@SUB=LorentzAngleCalibration::getLorentzAnglesInput"
+        edm::LogError("NoInput") << "@SUB=SiStripLorentzAngleCalibration::getLorentzAnglesInput"
                                  << "Different input values from tree " << treeName
                                  << " in file " << *iFile << ".";
         
@@ -393,10 +394,10 @@ const SiStripLorentzAngle* LorentzAngleCalibration::getLorentzAnglesInput()
 
   if (!siStripLorentzAngleInput_) { // no files nor ran on events
     siStripLorentzAngleInput_ = new SiStripLorentzAngle;
-    edm::LogError("NoInput") << "@SUB=LorentzAngleCalibration::getLorentzAnglesInput"
+    edm::LogError("NoInput") << "@SUB=SiStripLorentzAngleCalibration::getLorentzAnglesInput"
 			     << "No input, create an empty one ('" << readoutModeName_ << "' mode)!";
   } else if (siStripLorentzAngleInput_->getLorentzAngles().empty()) {
-    edm::LogError("NoInput") << "@SUB=LorentzAngleCalibration::getLorentzAnglesInput"
+    edm::LogError("NoInput") << "@SUB=SiStripLorentzAngleCalibration::getLorentzAnglesInput"
 			     << "Empty result ('" << readoutModeName_ << "' mode)!";
   }
 
@@ -404,7 +405,8 @@ const SiStripLorentzAngle* LorentzAngleCalibration::getLorentzAnglesInput()
 }
 
 //======================================================================
-double LorentzAngleCalibration::getParameterForDetId(unsigned int detId, edm::RunNumber_t run)const
+double SiStripLorentzAngleCalibration::getParameterForDetId(unsigned int detId,
+							    edm::RunNumber_t run) const
 {
   const int index = this->getParameterIndexFromDetId(detId, run);
 
@@ -412,8 +414,8 @@ double LorentzAngleCalibration::getParameterForDetId(unsigned int detId, edm::Ru
 }
 
 //======================================================================
-int LorentzAngleCalibration::getParameterIndexFromDetId(unsigned int detId,
-							edm::RunNumber_t run) const
+int SiStripLorentzAngleCalibration::getParameterIndexFromDetId(unsigned int detId,
+							       edm::RunNumber_t run) const
 {
   // Return the index of the parameter that is used for this DetId.
   // If this DetId is not treated, return values < 0.
@@ -430,14 +432,14 @@ int LorentzAngleCalibration::getParameterIndexFromDetId(unsigned int detId,
 }
 
 //======================================================================
-unsigned int LorentzAngleCalibration::numIovs() const
+unsigned int SiStripLorentzAngleCalibration::numIovs() const
 {
   // FIXME: Needed to include treatment of run dependence!
   return 1; 
 }
 
 //======================================================================
-edm::RunNumber_t LorentzAngleCalibration::firstRunOfIOV(unsigned int iovNum) const
+edm::RunNumber_t SiStripLorentzAngleCalibration::firstRunOfIOV(unsigned int iovNum) const
 {
   // FIXME: Needed to include treatment of run dependence!
   if (iovNum < this->numIovs()) return 1;
@@ -446,14 +448,14 @@ edm::RunNumber_t LorentzAngleCalibration::firstRunOfIOV(unsigned int iovNum) con
 
 
 //======================================================================
-void LorentzAngleCalibration::writeTree(const SiStripLorentzAngle *lorentzAngle,
-					const char *treeName) const
+void SiStripLorentzAngleCalibration::writeTree(const SiStripLorentzAngle *lorentzAngle,
+					       const char *treeName) const
 {
   if (!lorentzAngle) return;
 
   TFile* file = TFile::Open(outFileName_.c_str(), "UPDATE");
   if (!file) {
-    edm::LogError("BadConfig") << "@SUB=LorentzAngleCalibration::writeTree"
+    edm::LogError("BadConfig") << "@SUB=SiStripLorentzAngleCalibration::writeTree"
 			       << "Could not open file '" << outFileName_ << "'.";
     return;
   }
@@ -478,7 +480,7 @@ void LorentzAngleCalibration::writeTree(const SiStripLorentzAngle *lorentzAngle,
 
 //======================================================================
 SiStripLorentzAngle* 
-LorentzAngleCalibration::createFromTree(const char *fileName, const char *treeName) const
+SiStripLorentzAngleCalibration::createFromTree(const char *fileName, const char *treeName) const
 {
   TTree *tree = 0;
   TFile* file = TFile::Open(fileName, "READ");
@@ -500,7 +502,7 @@ LorentzAngleCalibration::createFromTree(const char *fileName, const char *treeNa
       result->putLorentzAngle(id, valueFloat);
     }
   } else {
-    edm::LogError("Alignment") << "@SUB=LorentzAngleCalibration::createFromTree"
+    edm::LogError("Alignment") << "@SUB=SiStripLorentzAngleCalibration::createFromTree"
 			       << "Could not get TTree '" << treeName << "' from file '"
 			       << fileName << "'.";
   }
@@ -517,4 +519,4 @@ LorentzAngleCalibration::createFromTree(const char *fileName, const char *treeNa
 #include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationPluginFactory.h"
 
 DEFINE_EDM_PLUGIN(IntegratedCalibrationPluginFactory,
-		   LorentzAngleCalibration, "LorentzAngleCalibration");
+		   SiStripLorentzAngleCalibration, "SiStripLorentzAngleCalibration");
