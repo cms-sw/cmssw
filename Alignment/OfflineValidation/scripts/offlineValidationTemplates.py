@@ -185,6 +185,7 @@ process.load("Alignment.OfflineValidation.TrackerOfflineValidation_.oO[offlineVa
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..Tracks = 'TrackRefitter2'
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..trajectoryInput = 'TrackRefitter2'
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelHistsTransient = .oO[offlineModuleLevelHistsTransient]Oo.
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelProfiles = .oO[offlineModuleLevelProfiles]Oo.
 .oO[offlineValidationFileOutput]Oo.
 
  ##
@@ -389,6 +390,7 @@ process.load("Alignment.OfflineValidation.TrackerOfflineValidation_.oO[offlineVa
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..Tracks = 'TrackRefitter2'
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..trajectoryInput = 'TrackRefitter2'
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelHistsTransient = .oO[offlineModuleLevelHistsTransient]Oo.
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelProfiles = .oO[offlineModuleLevelProfiles]Oo.
 # Create the result file directly to datadir since should not use /tmp/
 # see https://cern.service-now.com/service-portal/article.do?n=KB0000484
 #.oO[offlineValidationFileOutput]Oo.

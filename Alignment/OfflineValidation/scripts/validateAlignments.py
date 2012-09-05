@@ -488,6 +488,7 @@ class OfflineValidation(GenericValidation):
         self.__DMRMinimum = general["DMRMinimum"]
         self.__DMROptions = general["DMROptions"]
         self.__OfflineTreeBaseDir = general["OfflineTreeBaseDir"]
+        self.__offlineModuleLevelProfiles = general["offlineModuleLevelProfiles"]
     
     def createConfiguration(self, path, configBaseName = "TkAlOfflineValidation" ):
         cfgName = "%s.%s_cfg.py"%( configBaseName, self.alignmentToValidate.name )
@@ -520,7 +521,8 @@ class OfflineValidation(GenericValidation):
                 "TrackSelectionTemplate": configTemplates.TrackSelectionTemplate,
                 "LorentzAngleTemplate": configTemplates.LorentzAngleTemplate,
                 "offlineValidationMode": "Standalone",
-                "offlineValidationFileOutput": configTemplates.offlineStandaloneFileOutputTemplate
+                "offlineValidationFileOutput": configTemplates.offlineStandaloneFileOutputTemplate,
+                "offlineModuleLevelProfiles":self.__offlineModuleLevelProfiles
                 })
         repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
         repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
@@ -792,6 +794,7 @@ def readGeneral( config ):
         "datadir":os.getcwd(),
         "logdir":os.getcwd(),
         "offlineModuleLevelHistsTransient":"False",
+        "offlineModuleLevelProfiles":"False",
         "OfflineTreeBaseDir":"TrackHitFilter",
         "DMRMethod":"median",
         "DMRMinimum":"30",
