@@ -52,7 +52,7 @@ process.mix.input.nbPileupEvents = cms.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(100)
 )
 
 energy = 100. # in GeV
@@ -63,7 +63,7 @@ process.generator = cms.EDProducer(
     "FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
         PartID = cms.vint32(13, 211, 15, 11, 22),
-
+ 
         MinEta = cms.double(-2.0), ## in radians
         MaxEta = cms.double(2.0), ## in radians
 
@@ -181,7 +181,7 @@ process.load("L1TriggerConfig.L1ScalesProducers.L1CaloScalesConfig_cff")
 process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTrigger_cff")
 
 process.L1CaloTriggerSetup.InputXMLFile=cms.FileInPath('SLHCUpgradeSimulations/L1CaloTrigger/data/setup.xml')
-
+process.L1CaloTowerProducer.ECALDigis = cms.InputTag("simEcalTriggerPrimitiveDigis")
 process.L1CaloTowerProducer.HCALDigis = cms.InputTag("simHcalUpgradeTriggerPrimitiveDigis")
 process.L1CaloTowerProducer.UseUpgradeHCAL = cms.bool(True)
 
@@ -205,8 +205,6 @@ process.analysisSequence = cms.Sequence(
 )
 
 
-
-
 ### ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ###
 #   Processing path
 ### ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ###
@@ -220,6 +218,7 @@ process.p = cms.Path(
     +process.simEcalUnsuppressedDigis
     +process.simEcalTriggerPrimitiveDigis
     +process.SLHCCaloTrigger
+    +process.mcSequence
     +process.analysisSequence
 )
 
@@ -238,7 +237,7 @@ process.o1 = cms.OutputModule(
     ),
     fileName = cms.untracked.string('UpgradeHcal.root')
 )
-process.outpath = cms.EndPath(process.o1)
+#process.outpath = cms.EndPath(process.o1)
 
 
 
