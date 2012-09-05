@@ -31,7 +31,7 @@
 #include "TTree.h"
 
 //This code is there to enable/disable year dependent code
-#define ANALYSIS2011
+//#define ANALYSIS2011
 
 #ifdef ANALYSIS2011
 double               SQRTS          = 7;
@@ -151,12 +151,7 @@ void InitBaseDirectory(){
       //BaseDirectory = "rfio:/castor/cern.ch/user/r/rybinska/HSCPEDMFiles/";
       BaseDirectory = "root://eoscms//eos/cms/store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/";
    }else if(host.find("fnal.gov")!=std::string::npos){
-     BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/venkat12/2012Data/";
-#ifdef ANALYSIS2011
-     BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/farrell3/NewDTError26Dec2011/";
-     if(TypeMode==3) BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/farrell3/30May2012HSCPEDMFiles/"; //temporary until EDM files recreated
-     if(TypeMode==4) BaseDirectory = "/uscmst1b_scratch/lpc1/lpcphys/jchen/HIPEDM_03_13_12/";    // temporarily commented out to run on data & bkg MC
-#endif
+     BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/venkat12/HSCPEDMFiles/20120901/";
    }else{
       BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/venkat12/2012Data/";
       printf("YOUR MACHINE (%s) IS NOT KNOW --> please add your machine to the 'InitBaseDirectory' function of 'Analysis_Global.h'\n", host.c_str());

@@ -222,7 +222,6 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
    GetSampleDefinition(samples);
    if(MODE.find("ANALYSE_")==0){
       int sampleIdStart, sampleIdEnd; sscanf(MODE.c_str(),"ANALYSE_%d_to_%d",&sampleIdStart, &sampleIdEnd);
-      if(TypeMode==3 && sampleIdEnd>20 && sampleIdEnd<30) return; //These EDM files are missing some branches for TOF only search, to be recovered in rereco
       keepOnlyTheXtoYSamples(samples,sampleIdStart,sampleIdEnd);
       printf("----------------------------------------------------------------------------------------------------------------------------------------------------\n");
       printf("Run on the following samples:\n");
@@ -259,10 +258,6 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
        }else if(TypeMode==3) {
            if(tr.size()== tr.triggerIndex("HSCPHLTTriggerL2MuFilter")) return false;
            if(tr.accept(tr.triggerIndex("HSCPHLTTriggerL2MuFilter"))) return true;
-//           if(tr.size()== tr.triggerIndex("HSCPPathSAMU")) return false;
-//         fwlite::Handle<reco::PFMETCollection> pfMETCollection;
-//         pfMETCollection.getByLabel(ev,"pfMet");
-//         if(tr.accept(tr.triggerIndex("HSCPPathSAMU")) && pfMETCollection->begin()->et()>60) return true;
        }else if(TypeMode==4) {
            if(tr.accept(tr.triggerIndex("HSCPHLTTriggerMuFilter")))return true;
 
@@ -408,17 +403,16 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    if(st) st->BS_PV_NoEventWeight->Fill(goodVerts);
 
    //Require at least one good vertex except if cosmic event
-
    if(TypeMode==3 && goodVerts<1 && st && st->Name.find("Cosmic")==string::npos) return false;
 
    //For TOF only analysis match to a SA track without vertex constraint for IP cuts
    if(TypeMode==3) {
      fwlite::Handle< std::vector<reco::Track> > noVertexTrackCollHandle;
-     noVertexTrackCollHandle.getByLabel(ev,"RefitSAMuons", "");
+     noVertexTrackCollHandle.getByLabel(ev,"refittedStandAloneMuons", "");
 
      //To be cleaned up when new EDM files created, different track names exist in different files
      if(!noVertexTrackCollHandle.isValid()){
-       noVertexTrackCollHandle.getByLabel(ev,"refittedStandAloneMuons", "");
+       noVertexTrackCollHandle.getByLabel(ev,"RefitSAMuons", "");
        if(!noVertexTrackCollHandle.isValid()){
 	 noVertexTrackCollHandle.getByLabel(ev,"RefitMTSAMuons", "");
 	 if(!noVertexTrackCollHandle.isValid()){
@@ -427,6 +421,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 	 }
        }
      }
+
      //Find closest NV track
      const std::vector<reco::Track>& noVertexTrackColl = *noVertexTrackCollHandle;
      reco::Track NVTrack;
@@ -959,7 +954,6 @@ void Analysis_Step3(char* SavePath)
             if(MaxEntry>0 && ientry>MaxEntry)break;
             if(ientry%TreeStep==0){printf(".");fflush(stdout);}
             if(checkDuplicates && duplicateChecker.isDuplicate(ev.eventAuxiliary().run(), ev.eventAuxiliary().event()))continue;
-	    //if(ev.eventAuxiliary().run()>193092 && ev.eventAuxiliary().run() < 194619) continue;
 
             //compute event weight
             if(samples[s].Type>0){Event_Weight = SampleWeight * GetPUWeight(ev, samples[s].Pileup, PUSystFactor, LumiWeightsMC, PShift);}else{Event_Weight = 1;}
