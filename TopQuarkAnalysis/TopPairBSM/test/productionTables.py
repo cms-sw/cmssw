@@ -59,7 +59,7 @@ def SelectedSites(dataset):
 
 def DataProductionTable(datasets):
     print '%TABLE{"headerrows="1"}%'
-    print '%EDITTABLE{ format="| label | select, 1, OUTSITE, INSITE, SUBMITTED, DONE, DELETED | text, 40 | text, 8 | text, 100 |" changerows="off" }%'
+    print '%EDITTABLE{ format="| label | select, 1, OUTSITE, INSITE, SUBMITTED, DONE, ELEVATING, ELEVATED, TRANSFERRED, DELETED | text, 40 | text, 8 | text, 100 |" changerows="off" }%'
     print '| *Parent Sample* | *Status* | *Submitter* | *Lumi [pb-1]* | *PAT* |'
     for dataset in sorted(datasets.keys()):
         if datasets[dataset]:
@@ -70,7 +70,7 @@ def DataProductionTable(datasets):
 
 def MCProductionTable(datasets):
     print '%TABLE{"headerrows="1"}%'
-    print '%EDITTABLE{ format="| label | select, 1, OUTSITE, INSITE, SUBMITTED, DONE, DELETED | text, 40 | text, 8 | text, 8 | text, 100 |" changerows="off" }%'  
+    print '%EDITTABLE{ format="| label | select, 1, OUTSITE, INSITE, SUBMITTED, DONE, ELEVATING, ELEVATED, TRANSFERRED, DELETED | text, 40 | text, 8 | text, 8 | text, 100 |" changerows="off" }%'  
     print '| *Parent Sample* | *Status* | *Submitter* | *N_total* | *N_selected* | *PAT* |'
     for dataset in sorted(datasets.keys()):
         if datasets[dataset]:
@@ -84,7 +84,7 @@ def main():
     if not 'CMSSW_BASE' in os.environ:
         raise exceptions.RuntimeError('CMSSW_BASE is not setup.')
 
-    usage = 'usage: %prog getouput [options]\n'
+    usage = 'usage: %prog [options]\n'
     usage = usage + 'Create initial production table.'
 
     parser = OptionParser(usage = usage)

@@ -26,6 +26,39 @@ def DASQuery(query, ntries = 6, sleep = 1):
     raise exceptions.StopIteration('Failed das quary after %d iterations' % ntries)
 
 
+def GetDatasetSites(name):
+    """
+    Get dataset number of events from das
+    """
+    dasquery = 'site dataset = %s' % name
+    payload = DASQuery(dasquery)
+    sites = []
+    try:
+        for site in payload['data']:
+            site = site['site'][0]
+            dataset_fraction = float(site['dataset_fraction'].rstrip('%'))
+            if dataset_fraction == 100.0:
+                sites.append(site['name'])
+    except:
+        raise exceptions.ValueError('Error when parsing the dataset sites')
+    return sites
+
+
+def SelectSite(dataset):
+    """
+    Select the site to run (FNAL or T2_US)
+    """
+    sites = GetDatasetSites(dataset)
+    result = ''
+    for site in sites:
+        if 'FNAL' in site:
+            result = 'FNAL'
+            break
+        elif 'T2_US' in site:
+            result = 'T2_US'
+    return result
+
+
 def GetDatasetNEvents(name):
     """
     Get dataset number of events from das
@@ -49,6 +82,19 @@ def CreateDataCrabConfig(options):
     elif not os.path.isfile(options.lumimask):
         raise exceptions.IOError('Lumimask file %s does not exist.' % options.lumimask)
 
+    scheduler = 'condor'
+    use_server = '0'
+    grid = ''
+
+    site = SelectSite(options.dataset)
+
+    if site == 'T2_US':
+        scheduler = 'glidein'
+        use_server = '1'
+        grid = '[GRID]\nse_white_list = T2_US_*'  
+    elif site != 'FNAL':
+        raise exceptions.ValueError('Neither FNAL nor T2_US have the dataset.')
+
     nevents = GetDatasetNEvents(options.dataset)    
     njobs = int(nevents*options.eventsize/(1000*options.filesize))
 
@@ -64,11 +110,14 @@ def CreateDataCrabConfig(options):
     ui_working_dir = options.dataset.replace('/AOD','').replace('/','_')[1:] + '_' + options.tag
 
     settings = {
+        'scheduler': scheduler,
+        'use_server': use_server,
         'datasetpath': options.dataset,
         'pycfg_params': pycfg_params,
         'datasetblock': datasetblock,
         'publish_data_name': publish_data_name,
-        'ui_working_dir': ui_working_dir 
+        'ui_working_dir': ui_working_dir,
+        'grid': grid
     }
 
     filename = '%s/src/TopQuarkAnalysis/TopPairBSM/test/crab_template.cfg' % os.environ['CMSSW_BASE']
@@ -84,11 +133,25 @@ def CreateMCCrabConfig(options):
     """
     Creates a crab config file for processing mc 
     """
+
+    scheduler = 'condor'
+    use_server = '0'
+    grid = ''
+
+    site = SelectSite(options.dataset)
+
+    if site == 'T2_US':
+        scheduler = 'glidein'
+        use_server = '1'
+        grid = '[GRID]\nse_white_list = T2_US_*'
+    elif site != 'FNAL':
+        raise exceptions.ValueError('Neither FNAL nor T2_US have the dataset.')
+
     nevents = GetDatasetNEvents(options.dataset)    
     njobs = int(nevents*options.eventsize/(1000*options.filesize))
 
     datasetblock = 'total_number_of_events = -1\n'
-    datasetblock = datasetblock + 'number_of_jobs = %d\n' % int(njobs)
+    datasetblock = datasetblock + 'number_of_jobs = %d' % int(njobs)
    
     pycfg_params = 'tlbsmTag=%s useData=0' % options.tag.lower()
     if options.pycfg :
@@ -98,11 +161,14 @@ def CreateMCCrabConfig(options):
     ui_working_dir = options.dataset.replace('/AODSIM','').replace('/','_')[1:] + '_' + options.tag
 
     settings = {
+        'scheduler': scheduler,
+        'use_server': use_server,
         'datasetpath': options.dataset,
         'pycfg_params': pycfg_params,
         'datasetblock': datasetblock,
         'publish_data_name': publish_data_name,
-        'ui_working_dir': ui_working_dir 
+        'ui_working_dir': ui_working_dir,
+        'grid': grid
     }
 
     filename = '%s/src/TopQuarkAnalysis/TopPairBSM/test/crab_template.cfg' % os.environ['CMSSW_BASE']
@@ -135,7 +201,7 @@ def main():
     )
 
     parser.add_option(
-        '--tag', type='string', default='TLBSM_53x_v1',
+        '--tag', type='string', default='TLBSM_53x_v2',
         help='Version of tlbsm, the tag has to follow the format TLBSM_XXX_vX.'
     )
 
@@ -145,7 +211,7 @@ def main():
     )
 
     parser.add_option(
-        '--eventsize', type='float', default=54.0,
+        '--eventsize', type='float', default=65.0,
         help='Event size in Kb use to compute the number of crab jobs.'
     )
 

@@ -9,21 +9,12 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing ('python')
 
-<<<<<<< ttbsm_cfg.py
-options.register ('tlbsmTag',
-                  'tlbsm_60x_v1',
-                  VarParsing.multiplicity.singleton,
-                  VarParsing.varType.string,
-                  'TLBSM tag use in production')
-
-=======
 options.register ('tlbsmTag',
                   'tlbsm_53x_v2',
                   VarParsing.multiplicity.singleton,
                   VarParsing.varType.string,
                   'TLBSM tag use in production')
 
->>>>>>> 1.39.2.9
 options.register ('useData',
                   False,
                   VarParsing.multiplicity.singleton,
@@ -80,50 +71,6 @@ options.register ('useExtraJetColls',
                   VarParsing.varType.int,
                   "Write extra jet collections for substructure studies")
 
-<<<<<<< ttbsm_cfg.py
-<<<<<<< ttbsm_cfg.py
-options.register ('usePythia8',
-                  False,
-                  VarParsing.multiplicity.singleton,
-                  VarParsing.varType.int,
-                  "Use status codes from Pythia8 rather than Pythia6")
-
-options.register ('usePythia6andPythia8',
-                  False,
-                  VarParsing.multiplicity.singleton,
-                  VarParsing.varType.int,
-                  "Use status codes from Pythia8 and Pythia6")
-
-options.register ('runOnFastSim',
-                  False,
-                  VarParsing.multiplicity.singleton,
-                  VarParsing.varType.int,
-                  "Option needed to run on fastsim.")
-
-
-=======
-
-options.register ('usePythia8',
-                  False,
-                  VarParsing.multiplicity.singleton,
-                  VarParsing.varType.int,
-                  "Use status codes from Pythia8 rather than Pythia6")
-
-
-options.register ('usePythia6andPythia8',
-                  False,
-                  VarParsing.multiplicity.singleton,
-                  VarParsing.varType.int,
-                  "Use status codes from Pythia8 and Pythia6")
-
-
-options.register ('runOnFastSim',
-                  False,
-                  VarParsing.multiplicity.singleton,
-                  VarParsing.varType.int,
-                  "Option needed to run on fastsim.")
-
-=======
 
 options.register ('usePythia8',
                   False,
@@ -146,8 +93,15 @@ options.register ('runOnFastSim',
                   "Option needed to run on fastsim.")
 
 
->>>>>>> 1.39.2.9
+options.register('doJetTauCrossCleaning',
+                 False,
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.int,
+                 "Enable cleaning the jet collections based on taus")
+
+
 options.parseArguments()
+
 
 if not options.useData :
     inputJetCorrLabel = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
@@ -391,6 +345,16 @@ process.patElectronsPFlowLoose.isolationValues = cms.PSet(
     pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral03PFIdPFlowLoose"),
     pfPhotons = cms.InputTag("elPFIsoValueGamma03PFIdPFlowLoose")
     )
+
+# enable/disable tau cleaning
+if not options.doJetTauCrossCleaning:
+    # if jetCrossCleaning is false, we want to disable
+    # the cross cleaning (which is on by default)
+    getattr(process,"pfNoTau"+postfix).enable = False
+    getattr(process,"pfNoTau"+postfixLoose).enable = False
+else:
+    getattr(process,"pfNoTau"+postfix).enable = False
+    getattr(process,"pfNoTau"+postfixLoose).enable = False
 
 # Set up "loose" leptons. 
 
@@ -675,6 +639,12 @@ process.caTopTagPFlow = cms.EDProducer(
     writeCompound = cms.bool(True)
     )
 
+process.caHEPTopTagPFlow = process.caTopTagPFlow.clone(
+	rParam = cms.double(1.5),
+	tagAlgo = cms.int32(2)
+)
+
+
 process.CATopTagInfosPFlow = cms.EDProducer("CATopJetTagger",
                                     src = cms.InputTag("caTopTagPFlow"),
                                     TopMass = cms.double(171),
@@ -688,7 +658,9 @@ process.CATopTagInfosPFlow = cms.EDProducer("CATopJetTagger",
                                     verbose = cms.bool(False)
                                     )
 
-
+process.CATopTagInfosHEPTopTagPFlow = process.CATopTagInfosPFlow.clone(
+	src = cms.InputTag("caHEPTopTagPFlow")
+)
 
 process.caTopTagGen = cms.EDProducer(
     "CATopJetProducer",
@@ -702,6 +674,10 @@ process.caTopTagGen = cms.EDProducer(
     writeCompound = cms.bool(True)
     )
 
+process.caHEPTopTagGen = process.caTopTagGen.clone(
+	rParam = cms.double(1.5)
+)
+
 process.CATopTagInfosGen = cms.EDProducer("CATopJetTagger",
                                           src = cms.InputTag("caTopTagGen"),
                                           TopMass = cms.double(171),
@@ -713,7 +689,7 @@ process.CATopTagInfosGen = cms.EDProducer("CATopJetTagger",
                                           MinMassMin = cms.double(0.0),
                                           MinMassMax = cms.double(200.0),
                                           verbose = cms.bool(False)
-                                          )
+                                         )
 
 
 
@@ -723,7 +699,9 @@ for ipostfix in [postfix] :
     for module in (
         getattr(process,"ca8PFJets" + ipostfix),
         getattr(process,"CATopTagInfos" + ipostfix),
+        getattr(process,"CATopTagInfosHEPTopTag" + ipostfix),
         getattr(process,"caTopTag" + ipostfix),
+        getattr(process,"caHEPTopTag" + ipostfix),
         getattr(process,"caPruned" + ipostfix)
         ) :
         getattr(process,"patPF2PATSequence"+ipostfix).replace( getattr(process,"pfNoElectron"+ipostfix), getattr(process,"pfNoElectron"+ipostfix)*module )
@@ -792,6 +770,19 @@ addJetCollection(process,
 addJetCollection(process, 
                  cms.InputTag('caTopTagPFlow'),
                  'CATopTag', 'PF',
+                 doJTA=True,
+                 doBTagging=True,
+                 jetCorrLabel=inputJetCorrLabel,
+                 doType1MET=True,
+                 doL1Cleaning=False,
+                 doL1Counters=False,
+                 genJetCollection = cms.InputTag("ca8GenJetsNoNu"),
+                 doJetID = False
+                 )
+
+addJetCollection(process, 
+                 cms.InputTag('caHEPTopTagPFlow'),
+                 'CAHEPTopTag', 'PF',
                  doJTA=True,
                  doBTagging=True,
                  jetCorrLabel=inputJetCorrLabel,
@@ -1007,6 +998,7 @@ switchJetCollection(process,cms.InputTag('ak5PFJets'),
 
 for icorr in [process.patJetCorrFactors,
 	      process.patJetCorrFactorsCATopTagPF,
+	      process.patJetCorrFactorsCAHEPTopTagPF,
               process.patJetCorrFactorsCA8PrunedPF,
               process.patJetCorrFactorsCA8PF ] :
     icorr.rho = cms.InputTag("kt6PFJets", "rho")
@@ -1037,7 +1029,8 @@ for jetcoll in (process.patJetsPFlow,
 		process.patJets,
                 process.patJetsCA8PF,
                 process.patJetsCA8PrunedPF,
-                process.patJetsCATopTagPF
+                process.patJetsCATopTagPF,
+                process.patJetsCAHEPTopTagPF
                 ) :
     if options.useData == False :
         jetcoll.embedGenJetMatch = False
@@ -1056,6 +1049,7 @@ for jetcoll in (process.patJetsPFlow,
 # Add CATopTag and b-tag info... piggy-backing on b-tag functionality
 process.patJetsPFlow.addBTagInfo = True
 process.patJetsCATopTagPF.addBTagInfo = True
+process.patJetsCAHEPTopTagPF.addBTagInfo = True
 process.patJetsCA8PrunedPF.addBTagInfo = True
 
 
@@ -1099,6 +1093,7 @@ if options.useExtraJetColls:
 for module in [process.patJetCorrFactors,
                process.patJetCorrFactorsPFlow,
                process.patJetCorrFactorsCATopTagPF,
+               process.patJetCorrFactorsCAHEPTopTagPF,
                process.patJetCorrFactorsCA8PrunedPF,
                process.patJetCorrFactorsCA8PF
                ]:
@@ -1150,6 +1145,14 @@ process.patJetsCATopTagPF.addTagInfos = True
 process.patJetsCATopTagPF.tagInfoSources = cms.VInputTag(
     cms.InputTag('CATopTagInfosPFlow')
     )
+
+# CA1.5 HEPTopTagTopJets
+process.selectedPatJetsCAHEPTopTagPF.cut = cms.string("pt > 150 & abs(rapidity) < 2.5")
+process.patJetsCAHEPTopTagPF.addTagInfos = True
+process.patJetsCAHEPTopTagPF.tagInfoSources = cms.VInputTag(
+    cms.InputTag('CATopTagInfosHEPTopTagPFlow')
+    )
+
 
 if options.useExtraJetColls: 
 	# CA12 Filtered jets
@@ -1222,6 +1225,12 @@ process.goodPatJetsCATopTagPF = cms.EDFilter("PFJetIDSelectionFunctorFilter",
                                              filterParams = pfJetIDSelector.clone(),
                                              src = cms.InputTag("selectedPatJetsCATopTagPF")
                                              )
+
+process.goodPatJetsCAHEPTopTagPF = cms.EDFilter("PFJetIDSelectionFunctorFilter",
+                                             filterParams = pfJetIDSelector.clone(),
+                                             src = cms.InputTag("selectedPatJetsCAHEPTopTagPF")
+                                             )
+
 
 
 if options.useExtraJetColls:
@@ -1483,6 +1492,7 @@ process.patseq = cms.Sequence(
     process.goodPatJetsCA8PF*
     process.goodPatJetsCA8PrunedPF*
     process.goodPatJetsCATopTagPF*
+    process.goodPatJetsCAHEPTopTagPF*
     process.flavorHistorySeq*
     process.prunedGenParticles*
     process.caPrunedGen*
@@ -1631,6 +1641,7 @@ process.out.outputCommands = [
     'keep recoPFJets_caPruned*_*_*',
     'keep recoPFJets_ca*Filtered*_*_*',
     'keep recoPFJets_caTopTag*_*_*',
+    'keep recoPFJets_caHEPTopTag*_*_*',
     'keep patTriggerObjects_patTriggerPFlow_*_*',
     'keep patTriggerFilters_patTriggerPFlow_*_*',
     'keep patTriggerPaths_patTriggerPFlow_*_*',
