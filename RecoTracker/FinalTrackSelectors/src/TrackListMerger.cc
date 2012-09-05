@@ -288,6 +288,7 @@ namespace cms
 
     //cache the rechits and valid hits
     std::vector<const TrackingRecHit*> rh1[ngood];  // an array of vectors!
+    const TrackingRecHit*  fh1[ngood];  // first hit...
     reco::PatternSet<23> pattern[ngood];
     unsigned char algo[ngood];
     // short int validHits[ngood];
@@ -313,7 +314,8 @@ namespace cms
       eta[i]=track->eta();
       at0[i] = std::abs(track->dxy())<2. && std::abs(track->dz())<5.;
       rh1[i].reserve(validHits) ; // track->recHitsSize());
-      auto compById = [](const TrackingRecHit* h1,const TrackingRecHit*h2) {return h1->rawId()< h1->rawId();};
+      auto compById = [](const TrackingRecHit* h1,const TrackingRecHit*h2) {return h1->rawId()< h2->rawId();};
+      fh1[i] = &(**track->recHitsBegin());
       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); ++it) { 
 	const TrackingRecHit* hit = &(**it);
 	if likely(hit->isValid()) { rh1[i].push_back(hit); std::push_heap(rh1[i].begin(),rh1[i].end(),compById); }
@@ -415,7 +417,7 @@ namespace cms
 	      }
 	      if (share) {
 		noverlap++;
-		if ( allowFirstHitShare_ && ( ih == 0 ) && ( jh == 0 ) ) firstoverlap=1;
+		if ( allowFirstHitShare_ && ( ih == 0 ) && ( jh == 0 ) ) firstoverlap=1;  //ops!!!
 		jh++;
 		break;
 	      } // tracks share input
