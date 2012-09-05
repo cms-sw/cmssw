@@ -63,7 +63,7 @@ inline volatile unsigned long long rdtsc() {
 
     void print() const {
       std::cout << "TrackListMerger stat\nBegin/Pre/End/Overlap/NoOverlap "
-    		<<  totBegin <<'/'<< totPre <<'/'<< timeOv <<'/'<< timeNo <<'/'<< totEnd
+    		<<  totBegin <<'/'<< totPre <<'/'<< totEnd <<'/'<< timeOv <<'/'<< timeNo
 		<< std::endl;
     }
     StatCount() {}
