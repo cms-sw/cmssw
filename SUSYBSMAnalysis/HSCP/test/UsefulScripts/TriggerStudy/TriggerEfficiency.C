@@ -1,4 +1,3 @@
-
 #include <exception>
 #include <vector>
 #include <string>
@@ -58,9 +57,9 @@ using namespace std;
 using namespace edm;
 using namespace trigger;
 
-#include "../../ICHEP_Analysis/Analysis_PlotFunction.h"
-#include "../../ICHEP_Analysis/Analysis_Samples.h"
 #include "../../ICHEP_Analysis/Analysis_Global.h"
+#include "../../ICHEP_Analysis/Analysis_Samples.h"
+#include "../../ICHEP_Analysis/Analysis_PlotFunction.h"
 
 #endif
 
@@ -81,7 +80,6 @@ bool PassingTrigger(const fwlite::ChainEvent& ev, const std::string& TriggerName
 
       unsigned int TrIndex_Unknown     = tr.size();
 
-       bool Accept = false;
       if(TriggerName=="MET" || TriggerName=="ANY"){
 	if(TrIndex_Unknown != tr.triggerIndex("HLT_MET80_v1")) {
 	  if(tr.accept(tr.triggerIndex("HLT_MET80_v1"))){return true;}
@@ -143,7 +141,7 @@ double HLTObjectDr(const trigger::TriggerEvent& trEv, std::string trigger, const
 {
     reco::TrackRef   track = hscp.trackRef(); if(track.isNull())return false;
 
-    unsigned int filterIndex;
+    unsigned int filterIndex=trEv.sizeFilters();
     if(trigger=="Mu") filterIndex = trEv.filterIndex(InputTag("hltDeDxFilter50DEDX3p6Mu","","HLT"));
     if(trigger=="MET" || trigger=="HT") filterIndex = trEv.filterIndex(InputTag("hltDeDxFilter50DEDX3p6","","HLT"));
 
@@ -167,8 +165,10 @@ double HLTObjectDr(const trigger::TriggerEvent& trEv, std::string trigger, const
 } 
 
 
-void TriggerEfficiency()
+void TriggerEfficiency(string MODE="COMPILE")
 {
+   if(MODE=="COMPILE") return;
+
    TFile* OutputHisto = new TFile("out.root","RECREATE");
 
    std::vector<string> triggers;
@@ -190,20 +190,20 @@ void TriggerEfficiency()
      SDeDxEff[i]  = new TProfile((triggers[i] + "SDeDxEff").c_str() ,"SDeDxEff",20, 0,1);
    }
 
-   vector<string> inputFiles;
-   std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/venkat12/2012Data/";
-   inputFiles.push_back(BaseDirectory + "Data_RunA_190645-191100.root");
-   inputFiles.push_back(BaseDirectory + "Data_RunA_191101-191246.root");
-   inputFiles.push_back(BaseDirectory + "Data_RunA_191247.root");
-   inputFiles.push_back(BaseDirectory + "Data_RunA_191248-191300.root");
-   inputFiles.push_back(BaseDirectory + "Data_RunA_191301-191800.root");
-   inputFiles.push_back(BaseDirectory + "Data_RunA_191801-192000.root");
-   inputFiles.push_back(BaseDirectory + "Data_RunA_193001-193336.root");
-   inputFiles.push_back(BaseDirectory + "Data_RunA_193338-193557.root");
-   inputFiles.push_back(BaseDirectory + "Data_RunA_193558-194076.root");
+   std::vector<stSample> samples;
+   // get all the samples and clean the list to keep only the one we want to run on... Also initialize the BaseDirectory
+   InitBaseDirectory();
+   GetSampleDefinition(samples, "../../ICHEP_Analysis/Analysis_Samples.txt");
+   keepOnlySamplesOfNameX(samples,"Data12");
+   printf("----------------------------------------------------------------------------------------------------------------------------------------------------\n");
+   printf("Run on the following samples:\n");
+   for(unsigned int s=0;s<samples.size();s++){samples[s].print();}
+   printf("----------------------------------------------------------------------------------------------------------------------------------------------------\n\n");
 
-   fwlite::ChainEvent ev(inputFiles);
-   int N   = 0;
+   for(unsigned int s=0;s<samples.size();s++){
+     std::vector<string> FileName;
+     GetInputFiles(samples[s], BaseDirectory, FileName);
+     fwlite::ChainEvent ev(FileName);
 
    printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");
    printf("Looping on %10s        :","");
@@ -213,6 +213,7 @@ void TriggerEfficiency()
       ev.to(e);       
 
       if(!PassingTrigger(ev, "ANY")) continue;
+
 //      printf("e=%i Run=%i Lumi=%i Event=%i BX=%i  Orbit=%i Store=%i\n",e,ev.eventAuxiliary().run(),ev.eventAuxiliary().luminosityBlock(),ev.eventAuxiliary().event(),ev.eventAuxiliary().luminosityBlock(),ev.eventAuxiliary().orbitNumber(),ev.eventAuxiliary().storeNumber());
 
       fwlite::Handle<susybsm::HSCParticleCollection> hscpCollHandle;
@@ -228,13 +229,13 @@ void TriggerEfficiency()
       dEdxMCollH.getByLabel(ev, "dedxHarm2");
       if(!dEdxMCollH.isValid()){printf("Invalid dEdx Mass collection\n");continue;}
 
-      fwlite::Handle<DeDxDataValueMap> dEdxMSCollH;
-      dEdxMSCollH.getByLabel(ev, "dedxNPHarm2");
-      if(!dEdxMSCollH.isValid()){printf("Invalid dEdx Mass collection\n");continue;}
+      //fwlite::Handle<DeDxDataValueMap> dEdxMSCollH;
+      //dEdxMSCollH.getByLabel(ev, "dedxNPHarm2");
+      //if(!dEdxMSCollH.isValid()){printf("Invalid dEdx Mass collection\n");continue;}
 
-      fwlite::Handle<DeDxDataValueMap> dEdxMNSTCollH;
-      dEdxMNSTCollH.getByLabel(ev, "dedxNSTHarm2");
-      if(!dEdxMNSTCollH.isValid()){printf("Invalid dEdx Mass collection\n");continue;}
+      //fwlite::Handle<DeDxDataValueMap> dEdxMNSTCollH;
+      //dEdxMNSTCollH.getByLabel(ev, "dedxNSTHarm2");
+      //if(!dEdxMNSTCollH.isValid()){printf("Invalid dEdx Mass collection\n");continue;}
 
       fwlite::Handle<MuonTimeExtraMap> TOFCollH;
       TOFCollH.getByLabel(ev, "muontiming",TOF_Label.c_str());
@@ -260,8 +261,8 @@ void TriggerEfficiency()
 
 	const DeDxData& dedxSObj  = dEdxSCollH->get(track.key());
 	const DeDxData& dedxMObj  = dEdxMCollH->get(track.key());
-	const DeDxData& dedxMSObj  = dEdxMSCollH->get(track.key());
-	const DeDxData& dedxMNSTObj  = dEdxMNSTCollH->get(track.key());
+	//const DeDxData& dedxMSObj  = dEdxMSCollH->get(track.key());
+	//const DeDxData& dedxMNSTObj  = dEdxMNSTCollH->get(track.key());
 
         const reco::MuonTimeExtra* tof = NULL;
          const reco::MuonTimeExtra* dttof = NULL;
@@ -285,6 +286,7 @@ void TriggerEfficiency()
 	 }
       }
    }printf("\n");
+   }
 
    OutputHisto->Write();
    OutputHisto->Close();
