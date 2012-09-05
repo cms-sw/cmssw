@@ -21,7 +21,7 @@ void SignalMassPlot(string InputPattern, unsigned int CutIndex);
 void GetSystematicOnPrediction(string InputPattern);
 void MakeExpLimitpLot(string Input, string Output);
 void CosmicBackgroundSystematic(string InputPattern);
-void CheckPrediction(string InputPattern, string HistoSuffix="_Flip");
+void CheckPrediction(string InputPattern, string HistoSuffix="_Flip", string DataType="Data12");
 
 std::vector<stSample> samples;
 
@@ -60,16 +60,19 @@ void Analysis_Step5()
    CutFlow(InputPattern);
    SelectionPlot(InputPattern, CutIndex);
    GetSystematicOnPrediction(InputPattern);
-   CheckPrediction(InputPattern, "_Flip");
+   CheckPrediction(InputPattern, "_Flip", "Data11");
+   CheckPrediction(InputPattern, "_Flip", "Data12");
 
    InputPattern = "Results/Type3/";   CutIndex = 22; CutIndex_Flip=2;
    PredictionAndControlPlot(InputPattern, "Data11", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data12", CutIndex, CutIndex_Flip);
    //CutFlow(InputPattern);
-   SelectionPlot(InputPattern, CutIndex);
+   //SelectionPlot(InputPattern, CutIndex);
    CosmicBackgroundSystematic(InputPattern);
-   CheckPrediction(InputPattern, "");
-   CheckPrediction(InputPattern, "_Flip");
+   CheckPrediction(InputPattern, "", "Data12");
+   CheckPrediction(InputPattern, "_Flip", "Data12");
+   CheckPrediction(InputPattern, "", "Data11");
+   CheckPrediction(InputPattern, "_Flip", "Data11");
 
      //This function has not yet been reviewed after july's update
 //   MakeExpLimitpLot("Results_1toys_lp/dedxASmi/combined/Eta15/PtMin35/Type0/EXCLUSION/Stop200.info","tmp1.png");
@@ -1770,7 +1773,7 @@ void CosmicBackgroundSystematic(string InputPattern){
   delete c1;
 }  
 
-void CheckPrediction(string InputPattern, string HistoSuffix){
+void CheckPrediction(string InputPattern, string HistoSuffix, string DataType){
   TypeMode = TypeFromPattern(InputPattern);
   if(TypeMode==0)return;
 
@@ -1786,8 +1789,8 @@ void CheckPrediction(string InputPattern, string HistoSuffix){
   TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, string("HCuts_I") + HistoSuffix);
   TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, string("HCuts_TOF") + HistoSuffix);
 
-  TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, string("Data12/H_D") + HistoSuffix);
-  TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, string("Data12/H_P") + HistoSuffix);
+  TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, string(DataType+"/H_D") + HistoSuffix);
+  TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, string(DataType+"/H_P") + HistoSuffix);
 
   std::vector<int> Index;   std::vector<int> Plot;
   std::vector<double> TOFCuts;
@@ -1864,10 +1867,10 @@ void CheckPrediction(string InputPattern, string HistoSuffix){
     DrawPreliminary(SQRTS, IntegratedLuminosity);
 
     char Title[1024];
-    if(ICut>-1 && PtCut>-1) sprintf(Title,"Pred%s_I%0.2f_Pt%3.0f",HistoSuffix.c_str(), ICut, PtCut);
-    else if(PtCut>-1) sprintf(Title,"Pred%s_Pt%3.0f",HistoSuffix.c_str(),PtCut);
-    else if(ICut>-1) sprintf(Title,"Pred%s_I%0.2f",HistoSuffix.c_str(),ICut);
-    SaveCanvas(c1,SavePath,Title);
+    if(ICut>-1 && PtCut>-1) sprintf(Title,"Pred%s_I%0.2f_Pt%3.0f_",HistoSuffix.c_str(), ICut, PtCut);
+    else if(PtCut>-1) sprintf(Title,"Pred%s_Pt%3.0f_",HistoSuffix.c_str(),PtCut);
+    else if(ICut>-1) sprintf(Title,"Pred%s_I%0.2f_",HistoSuffix.c_str(),ICut);
+    SaveCanvas(c1,SavePath,Title + DataType);
     delete c1;
   }
 
@@ -1891,6 +1894,6 @@ void CheckPrediction(string InputPattern, string HistoSuffix){
   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
   c1->SetLogy(false);
   DrawPreliminary(SQRTS, IntegratedLuminosity);
-  SaveCanvas(c1,SavePath,"Pred_Ratio" + HistoSuffix);
+  SaveCanvas(c1,SavePath,"Pred_Ratio_" + DataType + HistoSuffix);
   delete c1;
 }
