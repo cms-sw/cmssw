@@ -45,6 +45,8 @@ inline volatile unsigned long long rdtsc() {
 }
 
   struct StatCount {
+    float maxDP=0.;
+    float maxDE=0.;
     unsigned long long st;
     long long totBegin=0;
     long long totPre=0;
@@ -59,11 +61,14 @@ inline volatile unsigned long long rdtsc() {
     void overlap() { timeOv += (rdtsc()-st);}
     void pre(int tt) { totPre+=tt;}
     void end(int tt) { totEnd+=tt;}
+    void de(float d) if (d>maxDE) maxDE=d;}
+    void dp(float d) if (d>maxDP) maxDP=d;}
 
 
     void print() const {
-      std::cout << "TrackListMerger stat\nBegin/Pre/End/Overlap/NoOverlap "
-    		<<  totBegin <<'/'<< totPre <<'/'<< totEnd <<'/'<< timeOv <<'/'<< timeNo
+      std::cout << "TrackListMerger stat\nBegin/Pre/End/maxDPhi/maxDEta/Overlap/NoOverlap "
+    		<<  totBegin <<'/'<< totPre <<'/'<< totEnd <<'/'<< maxDP <<'/'<< maxDE 
+		<<'/'<< timeOv/1000 <<'/'<< timeNo/1000
 		<< std::endl;
     }
     StatCount() {}
@@ -78,6 +83,10 @@ inline volatile unsigned long long rdtsc() {
     void start(){}
     void noOverlap(){}
     void overlap(){}
+    void de(float){}
+    void dp(float){}
+
+
   };
 #endif
 
@@ -358,8 +367,10 @@ namespace cms
 
 
 	  // do not bother if far apart...
-	  if (std::abs(eta[k1]-eta[k2])>0.25f) continue;
-	  if (std::abs(Geom::Phi<float>(phi[k1]-phi[k2]))>0.7f) continue; 
+	  float deta = std::abs(eta[k1]-eta[k2]);
+	  float dphi = std::abs(Geom::Phi<float>(phi[k1]-phi[k2]));
+	  // if (deta>0.25f) continue;
+	  // if (dphi>0.7f) continue; 
 
 	  // do not even bother if not enough "pattern in common"
 	  int ncomm = reco::commonHits(pattern[k1],pattern[k2]).size();
@@ -424,6 +435,8 @@ namespace cms
 	      }
 	    }//end fi < fj
 	    statCount.overlap();
+	    statCount.dp(dphi);
+	    statCount.de(deta);
 	  }//end got a duplicate
 	  else {
 	    statCount.noOverlap();
