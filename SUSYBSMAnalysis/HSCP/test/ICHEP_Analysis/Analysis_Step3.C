@@ -252,7 +252,7 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
       #ifdef ANALYSIS2011
       if(TypeMode<3 || TypeMode==5) {
           if(tr.accept(tr.triggerIndex("HSCPHLTTriggerMuFilter")))return true;
-          else if(tr.accept(tr.triggerIndex("HSCPHLTTriggerMetFilter"))){
+          else if(tr.accept(tr.triggerIndex("HSCPHLTTriggerPFMetFilter"))){
              if(!isData) Event_Weight=Event_Weight*0.96;
              return true;
           }
