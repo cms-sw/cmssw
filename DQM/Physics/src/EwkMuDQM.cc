@@ -599,13 +599,13 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 		  }
                         njets_hist_done = true;
                   if( flags_passed==NFLAGS ) {
-                        if (!wfullsel_hist_done){
-                        npvs_after_->Fill(nvvertex);
-                        muoncharge_after_->Fill(charge);
-                        }
-                        wfullsel_hist_done=true;    
+		    if (!wfullsel_hist_done){
+		      npvs_after_->Fill(nvvertex);
+		      muoncharge_after_->Fill(charge);
+		    }
+		    wfullsel_hist_done=true;    
                   } 
-                   
+		  
             }
 
             // The cases in which the event is rejected as a Z are considered independently:
@@ -680,24 +680,25 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
                                           zhlt_hist_done = true; 
 				       }  
 				       if (!zmuon_sel[11] || flags_passed_z==NFLAGSZ) {dimuonmass_afterZ_->Fill(ZRecoGlb.mass()); } 
-						 if (!zmuon_sel[12] || flags_passed_z==NFLAGSZ ){
-                                                            if(!zjets_hist_done){
-                                                            njets_afterZ_->Fill(njets);
-                                                            leadingjet_pt_afterZ_->Fill(lead_jet_pt);
-                                                            leadingjet_eta_afterZ_->Fill(lead_jet_eta);
-                                                            }
-                                                            zjets_hist_done=true;
-                                    }
-                               if(flags_passed_z==NFLAGSZ) {met_afterZ_->Fill(met_et);
-                                          if(!zfullsel_hist_done){
-                                          npvs_afterZ_->Fill(nvvertex);
-                                          muoncharge_afterZ_->Fill(charge);
-                                          }
-                                          zfullsel_hist_done=true;
-                               }     
-                  }
-
+				       if (!zmuon_sel[12] || flags_passed_z==NFLAGSZ ){
+					 if(!zjets_hist_done){
+					   njets_afterZ_->Fill(njets);
+					   leadingjet_pt_afterZ_->Fill(lead_jet_pt);
+					   leadingjet_eta_afterZ_->Fill(lead_jet_eta);
+					 }
+					 zjets_hist_done=true;
+				       }
+				       if(flags_passed_z==NFLAGSZ) {
+					 met_afterZ_->Fill(met_et);
+					 if(!zfullsel_hist_done){
+					   npvs_afterZ_->Fill(nvvertex);
+					   muoncharge_afterZ_->Fill(charge);
+					 }
+					 zfullsel_hist_done=true;
+				       }
 			       }
+
+		   }
 
 	    }
 
