@@ -37,6 +37,8 @@ public:
     fitter_.initExpCoeff( -1., -10., 0. );
     fitter_.initFsig(0.5, 0., 1.);
 
+    fitter_.initConstant(0, 0, 10000);
+
     fitter_.initAlpha(3., 0., 4.);
     fitter_.initN(1, 0., 100.);
 

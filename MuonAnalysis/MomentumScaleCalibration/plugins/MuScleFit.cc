@@ -1,16 +1,16 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2010/10/22 17:48:07 $
- *  $Revision: 1.42 $
+ *  $Date: 2012/05/07 10:03:26 $
+ *  $Revision: 1.108 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2011/05/12 08:59:19 $
-//  $Revision: 1.107 $
+//  $Date: 2012/05/07 10:03:26 $
+//  $Revision: 1.108 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -523,9 +523,9 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) :
   // Initialize ResMaxSigma And ResHalfWidth - 0 = global, 1 = SM, 2 = tracker
   // -------------------------------------------------------------------------
   MuScleFitUtils::massWindowHalfWidth[0][0] = 20.;
-  MuScleFitUtils::massWindowHalfWidth[0][1] = 0.5;
-  MuScleFitUtils::massWindowHalfWidth[0][2] = 0.5;
-  MuScleFitUtils::massWindowHalfWidth[0][3] = 0.5;
+  MuScleFitUtils::massWindowHalfWidth[0][1] = 0.35;
+  MuScleFitUtils::massWindowHalfWidth[0][2] = 0.35;
+  MuScleFitUtils::massWindowHalfWidth[0][3] = 0.35;
   MuScleFitUtils::massWindowHalfWidth[0][4] = 0.2;
   MuScleFitUtils::massWindowHalfWidth[0][5] = 0.2;
   MuScleFitUtils::massWindowHalfWidth[1][0] = 50.;
@@ -535,9 +535,9 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) :
   MuScleFitUtils::massWindowHalfWidth[1][4] = 1.5;
   MuScleFitUtils::massWindowHalfWidth[1][5] = 1.5;
   MuScleFitUtils::massWindowHalfWidth[2][0] = 20.;
-  MuScleFitUtils::massWindowHalfWidth[2][1] = 0.5;
-  MuScleFitUtils::massWindowHalfWidth[2][2] = 0.5;
-  MuScleFitUtils::massWindowHalfWidth[2][3] = 0.5;
+  MuScleFitUtils::massWindowHalfWidth[2][1] = 0.35;
+  MuScleFitUtils::massWindowHalfWidth[2][2] = 0.35;
+  MuScleFitUtils::massWindowHalfWidth[2][3] = 0.35;
   MuScleFitUtils::massWindowHalfWidth[2][4] = 0.2;
   MuScleFitUtils::massWindowHalfWidth[2][5] = 0.2;
 
