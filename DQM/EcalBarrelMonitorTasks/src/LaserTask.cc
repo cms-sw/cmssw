@@ -229,8 +229,6 @@ namespace ecaldqm {
         static_cast<MESetMulti*>(MEs_[kPNAmplitude])->use(iME);
       }
 
-      pnAmplitude_->Fill(iDCC * 10 + id.iPnId() - 0.5, max);
-
       MEs_[kPNAmplitude]->fill(id, max);
 
       ampItr->second = max;
