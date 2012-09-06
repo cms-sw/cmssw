@@ -1,5 +1,5 @@
 
-// $Id: BetaBoostEvtVtxGenerator.cc,v 1.3 2012/05/26 23:40:25 lixu Exp $
+// $Id: BetaBoostEvtVtxGenerator.cc,v 1.1 2012/06/08 22:19:46 yilmaz Exp $
 /*
 ________________________________________________________________________
 
@@ -262,8 +262,8 @@ TMatrixD* BetaBoostEvtVtxGenerator::GetInvLorentzBoost() {
        tmpboostZ(3,2)=0.;
        tmpboostZ(3,3) = 1.;
 
-       tmpboostXYZ=tmpboost*tmpboostZ;
-       tmpboost.Invert();
+       tmpboostXYZ=tmpboostZ*tmpboost;
+       tmpboostXYZ.Invert();
 
 
 
