@@ -1274,7 +1274,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
 
    //no way that this point is optimal
    bool pointMayBeOptimal = (fastOptimization && !getXsection && getSignificance && ((NPred-3*NPredErr)<=result.NPred || Eff>=result.Eff));
-      
+
    //save these info to the result structure
    result.Eff       = Eff;
    result.Eff_SYSTP = EffP;
@@ -1338,7 +1338,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
 
    char massStr[255]; sprintf(massStr,"%.0f",result.Mass);
    if(getSignificance && Temporary){
-      double SignifValue=0.0;double Strength=5;  if(result.XSec_5Sigma>0 && result.XSec_5Sigma<1E50)Strength=result.XSec_5Sigma/1000.0;
+      double SignifValue=0.0;double Strength=5;  if(result.XSec_5Sigma>0 && result.XSec_5Sigma<1E50)Strength=result.XSec_5Sigma*1000.0;
       double previousXSec_5Sigma=result.XSec_5Sigma; result.XSec_5Sigma = -1;
       //find signal strength needed to get a 5sigma significance
       unsigned int l=0;
