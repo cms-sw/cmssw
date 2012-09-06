@@ -1,21 +1,22 @@
 #
 #  SUSY-PAT configuration fragment
 #
-#  PAT configuration for the SUSY group - 42X series
+#  PAT configuration for the SUSY group - 53X series
 #  More information here:
-#  https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatLayer1DefV10
+#  https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatLayer1DefV12
 
 
 import FWCore.ParameterSet.Config as cms
 
-def addDefaultSUSYPAT(process,mcInfo=True,HLTMenu='HLT',jetMetCorrections=['L2Relative', 'L3Absolute'],mcVersion='',theJetNames = ['AK5PF'],doValidation=False,extMatch=False,doSusyTopProjection=False):
-    loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,'PF')
+def addDefaultSUSYPAT(process,mcInfo=True,HLTMenu='HLT',jetMetCorrections=['L2Relative', 'L3Absolute'],mcVersion='',theJetNames = ['AK5PF'],doValidation=False,extMatch=False,doSusyTopProjection=False,doType1MetCorrection=True):
+    loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,doType1MetCorrection,'PF')
     addTagInfos(process,jetMetCorrections)
     if not mcInfo:
 	removeMCDependence(process)
     loadPAT(process,jetMetCorrections,extMatch)
     addJetMET(process,theJetNames,jetMetCorrections,mcVersion)
-    #loadPATTriggers(process,HLTMenu,theJetNames,electronMatches,muonMatches,tauMatches,jetMatches,photonMatches)
+    # loadType1METSequence(process)   # defines process.Type1METSequence
+    # loadPATTriggers(process,HLTMenu,theJetNames,electronMatches,muonMatches,tauMatches,jetMatches,photonMatches)
 
     #-- Counter for the number of processed events --------------------------------
     process.eventCountProducer = cms.EDProducer("EventCountProducer")
@@ -23,9 +24,9 @@ def addDefaultSUSYPAT(process,mcInfo=True,HLTMenu='HLT',jetMetCorrections=['L2Re
     # Full path
     #process.load('RecoTauTag.Configuration.RecoPFTauTag_cff')
     process.susyPatDefaultSequence = cms.Sequence( process.eventCountProducer
-    #                                               * process.PFTau
+                                                   # * process.PFTau
+                                                   # * process.Type1METSequence
                                                    * process.patPF2PATSequence
-#                                                   * process.patDefaultSequence #(included in process.patPF2PATSequence - needed for PF isolation)
                                                    * process.patPF2PATSequencePF
                                                    )
 
@@ -36,7 +37,6 @@ def addDefaultSUSYPAT(process,mcInfo=True,HLTMenu='HLT',jetMetCorrections=['L2Re
     if doValidation:
         loadSusyValidation(process)
         process.susyPatDefaultSequence.replace(process.patPF2PATSequencePF, process.patPF2PATSequencePF * process.ak5CaloJetsL2L3 * process.metJESCorAK5CaloJet  * process.RecoSusyValidation * process.PatSusyValidation*process.MEtoEDMConverter)
-
 
 def extensiveMatching(process):
     process.load("SimGeneral.TrackingAnalysis.trackingParticlesNoSimHits_cfi")    # On RECO
@@ -54,7 +54,6 @@ def extensiveMatching(process):
     addClassByHits(process.patMuonsPF,labels=['classByHitsGlb'],extraInfo=True)
     
     process.extensiveMatching = cms.Sequence(process.mergedTruth+process.muonClassificationByHits)
-
 
 def loadPAT(process,jetMetCorrections,extMatch):
     #-- Changes for electron and photon ID ----------------------------------------
@@ -162,15 +161,14 @@ def loadPAT(process,jetMetCorrections,extMatch):
         process.pfJets.doAreaFastjet = True
         process.pfJetsPF.doAreaFastjet = True
 
-
-def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,postfix):
+def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,doType1MetCorrection,postfix):
     #-- PAT standard config -------------------------------------------------------
     process.load("PhysicsTools.PatAlgos.patSequences_cff")
     #-- Jet corrections -----------------------------------------------------------
     process.patJetCorrFactors.levels = jetMetCorrections 
     #-- PF2PAT config -------------------------------------------------------------
     from PhysicsTools.PatAlgos.tools.pfTools import usePF2PAT
-    usePF2PAT(process,runPF2PAT=True, jetAlgo='AK5',runOnMC=(mcInfo==1),postfix=postfix, jetCorrections=('AK5PFchs', jetMetCorrections))
+    usePF2PAT(process,runPF2PAT=True, jetAlgo='AK5',runOnMC=(mcInfo==1),postfix=postfix, jetCorrections=('AK5PFchs', jetMetCorrections),typeIMetCorrections=doType1MetCorrection)
 
     #process.patJetsPF.embedGenJetMatch = False
     #process.patJetsPF.embedPFCandidates = False
@@ -378,6 +376,10 @@ def loadPATTriggers(process,HLTMenu,theJetNames,electronMatches,muonMatches,tauM
     switchOnTriggerMatchEmbedding( process, ['patTauMatch'], hltProcess=HLTMenu)
     pfSwitchOnTriggerMatchEmbedding( process, ['patTauMatchPF'], 'selectedPatTausPF', 'cleanPatTausTriggerMatch' )
 
+def loadType1METSequence(process):
+    process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
+    process.Type1METSequence = cms.Sequence(process.producePFMETCorrections)
+
 def addTypeIIMet(process) :
     # Add reco::MET with Type II correction 
     from PhysicsTools.PatAlgos.recoLayer0.jetMETCorrections_cff import metJESCorAK5CaloJet
@@ -455,7 +457,6 @@ def addSUSYJetCollection(process,jetMetCorrections,jets = 'IC5Calo',mcVersion=''
                      genJetCollection = cms.InputTag('%(collection)sGenJets' % locals())
                      )
 
-
 def addJetMET(process,theJetNames,jetMetCorrections,mcVersion):
     #-- Extra Jet/MET collections -------------------------------------------------
     # Add a few jet collections...
@@ -499,7 +500,6 @@ def addJetMET(process,theJetNames,jetMetCorrections,mcVersion):
         process.selectedPatCandidateSummary.candidates.append(cms.InputTag('selectedPatJets'+jets))
         process.cleanPatCandidateSummary.candidates.append(cms.InputTag('cleanPatJets'+jets))
 	
-
 def removeMCDependence( process ):
     #-- Remove MC dependence ------------------------------------------------------
     from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
@@ -554,7 +554,8 @@ def getSUSY_pattuple_outputCommands( process ):
 	#DQM
 	'keep *_MEtoEDMConverter_*_PAT',
     'drop recoTracks_generalTracks*_*_*',
-	'drop *_towerMaker_*_*' 
+	'drop *_towerMaker_*_*',
+    # 'keep *_pfType1CorrectedMet*_*_*'
         ] 
 	keepList.extend(patEventContent)
 	keepList.extend(patExtraAodEventContent)
