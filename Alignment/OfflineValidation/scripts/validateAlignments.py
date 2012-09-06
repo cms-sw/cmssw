@@ -69,6 +69,73 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             if item[0] == option:
                 return True
         return False
+        
+    def __updateDict( self, dictionary, section ):
+        try:
+            for option in self.options( section ):
+                dictionary[option] = self.get( section, option )
+            if "local"+section.title() in self.sections():
+                for option in self.options( "local"+section.title() ):
+                    dictionary[option] = self.get( "local"+section.title(),
+                                                   option )
+#                 for option in dictionary:
+#                     if option in [item[0] for item in \
+#                                   self.items( "local"+section.title() )]:
+#                         dictionary[option] = self.get( "local"+section.title(),
+#                                                        option )
+        except ConfigParser.NoSectionError, section:
+            raise StandardError, ("%s in configuration files. This section is "
+                                  "mandatory."
+                                  %( str( section ).replace( ":", "", 1 ) ) )
+
+    def getResultingSection( self, section, defaultDict = {}, demandPars = [] ):
+        result = defaultDict
+        for option in demandPars:
+            try:
+                result[option] = self.get( section, option )
+            except ConfigParser.NoOptionError, globalSection:
+                globalSection = str( globalSection ).split( "'" )[-2]
+                try:
+                    result[option] = self.get( "local"+section.title(), option )
+                except ConfigParser.NoOptionError, option:
+                    raise StandardError, ("%s. This option is mandatory."
+                                          %( str( option )\
+                                             .replace( ":", "", 1 )\
+                                             .replace( "section", "section '"\
+                                                       +globalSection+"' or", 1 )
+                                             )
+                                          )
+        self.__updateDict( result, section )
+        return result
+
+    def getAlignments( self ):
+        alignments = []
+        for section in self.sections():
+            if "alignment:" in section:
+                alignments.append( Alignment( section.split( "alignment:" )[1],
+                                              self ) )
+        return alignments
+
+    def getCompares( self ):
+        compares = {}
+        for section in self.sections():
+            if "compare:" in section:
+                levels = self.get( section, "levels" )
+                dbOutput = self.get( section, "dbOutput" )
+                compares[section.split(":")[1]] = ( levels, dbOutput )
+        return compares
+
+    def getGeneral( self ):
+        defaults = {
+            "jobmode":"interactive",
+            "workdir":os.getcwd(),
+            "datadir":os.getcwd(),
+            "logdir":os.getcwd(),
+            "parallelJobs":"1"
+            }
+        general = self.getResultingSection( "general", defaultDict = defaults )
+        return general
+
 
 class Alignment:
     def __init__(self, name, config):
