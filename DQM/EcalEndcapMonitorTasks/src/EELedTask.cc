@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2012/07/19 22:50:44 $
- * $Revision: 1.77 $
+ * $Date: 2012/09/06 22:15:48 $
+ * $Revision: 1.78 $
  * \author G. Della Ricca
  *
 */
@@ -74,29 +74,9 @@ EELedTask::EELedTask(const edm::ParameterSet& ps){
     mePnAmplMapG16L2_[i] = 0;
     mePnPedMapG16L2_[i] = 0;
   }
-
-    ///////TEST///////
-  output_ = new TFile("/home/yiiyama/work/DQM/Maintenance530/src/EELedTask.root", "recreate");
-  output_->cd();
-  amplitude_[0] = new TH2F("amplitudeL1", "amplitude L1", 18, 0., 18., 400, 0., 4000.);
-  amplitude_[1] = new TH2F("amplitudeL2", "amplitude L2", 18, 0., 18., 400, 0., 4000.);
-  tim_[0] = new TH2F("timL1", "tim L1", 18, 0., 18., 10, 0., 10.);
-  tim_[1] = new TH2F("timL2", "tim L2", 18, 0., 18., 10, 0., 10.);
-  pnAmplitude_ = new TH2F("pnAmplitude", "PN amplitude", 180, 0., 180., 400, 0., 4000.);
-  ///////TEST///////
 }
 
 EELedTask::~EELedTask(){
-  /// TEST
-    output_->cd();
-    for(int i(0); i < 2; ++i){
-      amplitude_[i]->Write();
-      tim_[i]->Write();
-    }
-    pnAmplitude_->Write();
-    output_->Close();
-    delete output_;
-  /// TEST
 }
 
 void EELedTask::beginJob(void){
@@ -666,10 +646,6 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       if ( mePN ) mePN->Fill(num - 0.5, xvalmax);
 
-      ///TEST///
-      pnAmplitude_->Fill((ism - 1) * 10 + num - 0.5, xvalmax);
-      ///TEST///
-
       if ( ipn >= 0 && ipn < 80 ) adcPN[ipn] = xvalmax;
 
     }
@@ -750,10 +726,6 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( yval <= 0. ) yval = 0.0;
       float zval = hitItr->pedestal();
       if ( zval <= 0. ) zval = 0.0;
-
-      ///TEST///
-      amplitude_[waveLength[ism - 1] == 0 ? 0 : 1]->Fill(ism - 0.5, xval);
-      ///TEST///
 
       if ( meAmplMap ) meAmplMap->Fill(xix, xiy, xval);
 

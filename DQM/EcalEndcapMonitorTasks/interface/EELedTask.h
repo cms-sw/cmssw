@@ -4,8 +4,8 @@
 /*
  * \file EELedTask.h
  *
- * $Date: 2012/07/19 22:50:43 $
- * $Revision: 1.16 $
+ * $Date: 2012/09/06 22:15:48 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -13,11 +13,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-///TEST
-#include "TFile.h"
-#include "TH2F.h"
-///TEST
 
 class MonitorElement;
 class DQMStore;
@@ -100,12 +95,6 @@ bool init_;
 
  int nEmpty_;
 
-    ///////TEST///////
-    TFile* output_;
-    TH2F* amplitude_[2];
-    TH2F* tim_[2];
-    TH2F* pnAmplitude_;
-    ///////TEST///////
 };
 
 #endif
