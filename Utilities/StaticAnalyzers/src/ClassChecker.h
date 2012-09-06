@@ -24,18 +24,6 @@ private:
   CmsException m_exception;
 };  
 
-class ClassCheckerRDecl : public clang::ento::Checker< clang::ento::check::ASTDecl< clang::CXXRecordDecl> > {
-  mutable clang::OwningPtr< clang::ento::BuiltinBug> BT;
-
-public:
-  void checkASTDecl(const clang::CXXRecordDecl *D,
-                      clang::ento::AnalysisManager &Mgr,
-                      clang::ento::BugReporter &BR) const;
-
-private:
-  CmsException m_exception;
-};  
-
 class ClassCheckerMCall : public clang::ento::Checker< clang::ento::check::PostStmt< clang::CXXMemberCallExpr> > {
   mutable clang::OwningPtr<clang::ento::BugType> BT;
 
@@ -48,12 +36,12 @@ private:
   CmsException m_exception;
 };
 
-class ClassChecker : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
+class ClassCheckerRDecl : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
   mutable clang::OwningPtr< clang::ento::BugType> BT;
 
 
 public:
-  void checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::AnalysisManager& mgr,
+  void checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR) const ;
 
 private:

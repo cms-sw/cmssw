@@ -34,15 +34,17 @@ void ClassCheckerMDecl::checkASTDecl(const clang::CXXMethodDecl *D,
 
 	    clang::ento::PathDiagnosticLocation PLoc =
   	    clang::ento::PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
-	    if ( ! m_exception.reportGeneral( PLoc, BR ) )
-		return; 
+	    if ( ! m_exception.reportGeneral( PLoc, BR ) ) return; 
 	    const clang::CXXRecordDecl* P= D->getParent(); 
+	    clang::SourceRange R = D->getSourceRange();
 	    std::string buf;
 	    llvm::raw_string_ostream os(buf);
 	    os << "Declaration of Method  ";
 	    D->printName(os);
 	    os <<" in Class " << *P <<" .\n";
-	    BR.EmitBasicReport(D, "Class Checker CXXMethodDecl","ThreadSafety",os.str(), PLoc);
+	    llvm::outs()<<os.str();	
+//	    if (  !m_exception.reportClass( PLoc, BR ) ) return; 
+//		BR.EmitBasicReport(D, "Class Checker CXXMethodDecl","ThreadSafety",os.str(), PLoc,R);
 		if (D->hasBody()){
 			clang::Stmt* S = D->getBody();
 			for (clang::Stmt::const_child_iterator
@@ -51,80 +53,23 @@ void ClassCheckerMDecl::checkASTDecl(const clang::CXXMethodDecl *D,
 					const clang::CXXMemberCallExpr * ce = llvm::cast<clang::CXXMemberCallExpr>(*c);
 					clang::CXXMethodDecl *D = ce->getMethodDecl();
 					const clang::CXXRecordDecl* P = ce->getRecordDecl();
-					clang::ento::PathDiagnosticLocation DLoc = 
-						clang::ento::PathDiagnosticLocation::createBegin(ce->getDirectCallee(), BR.getSourceManager());
+					clang::ento::PathDiagnosticLocation DLoc =                                                                                 
+                                               clang::ento::PathDiagnosticLocation::createBegin(ce->getDirectCallee(), BR.getSourceManager());
+  					clang::SourceRange R = ce->getCallee()->getSourceRange();
     					std::string buf;
 	    				llvm::raw_string_ostream os(buf);
 					os<< "CXXMemberCallExpr "<< *ce->getDirectCallee();
 					os<<" MethodDecl "<<*D <<" RecordDecl " << *P << " .\n";
-					if ( m_exception.reportClass( DLoc, BR ) )  { 
-						BR.EmitBasicReport(ce->getCalleeDecl(), "Class Checker CXXMemberCallExpr in CXXMethodDecl","ThreadSafety",os.str(), DLoc);
-						}
+					llvm::outs()<<os.str();
+//					if (  !m_exception.reportClass( DLoc, BR ) ) continue;
+//					BR.EmitBasicReport(ce->getCalleeDecl(),"Class Checker CXXMemberCallExpr in CXXMethodDecl","ThreadSafety",os.str(), DLoc,R);
+				
 					}
 				}
 			} 
 
-	}
+	} //Method Name check
 }
-
-
-void ClassCheckerRDecl::checkASTDecl(const clang::CXXRecordDecl *D,
-                    clang::ento::AnalysisManager &Mgr,
-                   clang::ento::BugReporter &BR) const
-{
-//		const clang::SourceManager &SM = BR.getSourceManager();
-//	    	clang::ento::PathDiagnosticLocation DLoc = clang::ento::PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
-//	    	if ( ! m_exception.reportGeneral( DLoc, BR ) ) return;
-//  		for (clang::CXXRecordDecl::method_iterator
-//		I = D->method_begin(), E = D->method_end(); I != E; ++I)  
-//		{
-//			if ( I->getNameAsString() == "produce" 
-//				|| I->getNameAsString() == "beginRun" 
-//				|| I->getNameAsString() == "endRun" 
-//				|| I->getNameAsString() == "beginLuminosityBlock" 
-//				|| I->getNameAsString() == "endLuminosityBlock" )
-//			{
-//				const clang::CXXMethodDecl *  MD = &(*I);
-//				MD->dump();
-//				clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( MD, SM );
-//				std::string buf;
-//	    			llvm::raw_string_ostream os(buf);
-//  				os << "Method  " << (*I) << " Parent Class "<< *D<<". \n";
-// 				if ( ! m_exception.reportClass( DLoc, BR ) )
-//					return; 
-//				BR.EmitBasicReport( MD, "Class Checker CXXMethodDecl in CXXRecordDecl","ThreadSafety",os.str(), DLoc);
-//
-//			for (clang::CXXMethodDecl::method_iterator
-//				J=I->begin_overridden_methods(), F=I->end_overridden_methods(); J !=F; J++)
-//				{
-//				
-//				const clang::CXXMethodDecl * MD = (*J);
-//				MD->dump();
-//				clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( MD, SM );
-//				std::string buf;
-//	    			llvm::raw_string_ostream os(buf);
-//    				os << "Overridden Method  " << (**J) << " Method "<< (*I)<<". \n";
-//	    			llvm::outs()<<os.str();
-// 				if ( ! m_exception.reportClass( DLoc, BR ) )
-//					return; 
-//				DLoc.asLocation().dump();
-//				BR.EmitBasicReport( *J, "Class Checker Overridden CXXMethodDecl in CXXRecordDecl","ThreadSafety",os.str(), DLoc);
-//				}				   				
-//			}			
-//		} /* end method loop */
-//
-//
-//  		for (clang::CXXRecordDecl::field_iterator
-//		       	I = D->field_begin(), E = D->field_end(); I != E; ++I)  {
-//			const clang::FieldDecl * RD = &(*I);
-//	    		std::string buf;
-//	    		llvm::raw_string_ostream os(buf);
-//  			os << "Declaration of Field  " << *RD << " in Class "<<*D<<" .\n";
-//			clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( RD, SM );
-//			BR.EmitBasicReport(D, "Class Checker FieldDecl in CXXRecordDecl","ThreadSafety",os.str(), DLoc);
-// 		}  /* end of field loop */
-
-} /* end class */
 
 
 
@@ -145,10 +90,13 @@ void ClassCheckerMCall::checkPostStmt(const clang::CXXMemberCallExpr *CE,
 		for ( clang::CallExpr::const_arg_iterator I=CE->arg_begin(), E=CE->arg_end(); I != E;++I)
 		{
 			os <<" Arg "<< *I <<" ";
-		} 
+		}
+		os<<"\n"; 
+ 		llvm::outs()<<os.str();
 		clang::ento::BugReport *R = new clang::ento::BugReport(*BT, os.str(), errorNode);
 		R->addRange(CE->getSourceRange());
-	   	if ( ! m_exception.reportConstCast( *R, C ) ) C.EmitReport(R);
+//	   	if ( !m_exception.reportConstCast( *R, C ) ) return;
+//		C.EmitReport(R);
 	}
 
 }
@@ -243,7 +191,7 @@ public:
   void VisitStmt(clang::Stmt *S) { VisitChildren(S); }
   void VisitChildren(clang::Stmt *S);
   
-  void ReportCall(const clang::CallExpr *CE, bool isPure);
+  void ReportCall(const clang::CallExpr *CE);
 
 };
 
@@ -264,30 +212,13 @@ void WalkAST::VisitCallExpr(clang::CallExpr *CE) {
 
 void WalkAST::VisitCXXMemberCallExpr(clang::CallExpr *CE) {
   VisitChildren(CE);
-  bool callIsNonVirtual = false;
   
-  // Several situations to elide for checking.
-  if (clang::MemberExpr *CME = llvm::dyn_cast<clang::MemberExpr>(CE->getCallee())) {
-    // If the member access is fully qualified (i.e., X::F), then treat
-    // this as a non-virtual call and do not warn.
-    if (CME->getQualifier())
-      callIsNonVirtual = true;
-
-    // Elide analyzing the call entirely if the base pointer is not 'this'.
-    if (clang::Expr *base = CME->getBase()->IgnoreImpCasts())
-      if (!clang::isa<clang::CXXThisExpr>(base))
-        return;
-  }
-
-  // Get the callee.
-  const clang::CXXMethodDecl *MD = llvm::dyn_cast<clang::CXXMethodDecl>(CE->getDirectCallee());
-//  if (MD && MD->isVirtual() && !callIsNonVirtual)
-    ReportCall(CE, MD->isPure());
+  ReportCall(CE);
 
   Enqueue(CE);
 }
 
-void WalkAST::ReportCall(const clang::CallExpr *CE, bool isPure) {
+void WalkAST::ReportCall(const clang::CallExpr *CE) {
   llvm::SmallString<100> buf;
   llvm::raw_svector_ostream os(buf);
 
@@ -308,108 +239,104 @@ void WalkAST::ReportCall(const clang::CallExpr *CE, bool isPure) {
       os << " <-- " << *FD;
   }
    os <<"\n";
-  // Names of args  
-  for ( clang::CallExpr::const_arg_iterator I=CE->arg_begin(), E=CE->arg_end(); I != E;++I){
-	os<<"Args "<<*I<<" ";
-  }	
-
+// Names of args  
+    clang::LangOptions LangOpts;
+    LangOpts.CPlusPlus = true;
+    clang::PrintingPolicy Policy(LangOpts);
+    for(int i=0, j=CE->getNumArgs(); i<j; i++)
+	{
+	std::string TypeS;
+        llvm::raw_string_ostream s(TypeS);
+        CE->getArg(i)->printPretty(s, 0, Policy);
+        os << "arg: " << s.str() << " ";
+	}	
 
   os << "\n";
 
   clang::ento::PathDiagnosticLocation CELoc =
-    clang::ento::PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
-  clang::SourceRange R = CE->getCallee()->getSourceRange();
+    clang::ento::PathDiagnosticLocation::createBegin(CE->getDirectCallee(), BR.getSourceManager());
+  clang::SourceRange R = CE->getDirectCallee()->getSourceRange();
 
 
-  
-  if (m_exception.reportClass( CELoc, BR ) ) {
-  BR.EmitBasicReport(AC->getDecl(),
-                       "CMSSW Class Method CallExpr ",
+ llvm::outs()<<os.str();
+ 
+  if (!m_exception.reportClass( CELoc, BR ) ) return;
+  		BR.EmitBasicReport(CE->getDirectCallee(),
+                      "Class Checker CallExpr in Class Method",
                       "ThreadSafety",
-                       os.str(), CELoc, &R,1);
-    return;
-  }
-  else {
-//    os << "\n Class Methods Checker";
-//    BR.EmitBasicReport(AC->getDecl(),
-//                       "External Class Method CallExpr",
-//                       "Thread Safety",
-//                       os.str(), CELoc, &R,1);
-    return;
+                       os.str(),CELoc,R);
 
-  }
+ 
 }
 
-void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::AnalysisManager& mgr,
+void ClassCheckerRDecl::checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR) const {
 
+	const clang::CXXRecordDecl *RD=CRD;
 	clangcms::WalkAST walker(BR, mgr.getAnalysisDeclContext(RD));
-
 	const clang::SourceManager &SM = BR.getSourceManager();
 	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( RD, SM );
-//	if (  m_exception.reportClass( DLoc, BR ) ) RD->dump();
+	if (  !m_exception.reportClass( DLoc, BR ) ) return;
 
 // Check the class methods (member methods).
 	for (clang::CXXRecordDecl::method_iterator
 		I = RD->method_begin(), E = RD->method_end(); I != E; ++I)  
 	{      
 
-			if ( I->hasBody() ){
-				clang::Stmt *Body = I->getBody();
-        			walker.Visit(Body);
-        			walker.Execute();
-        			}
-
-//			if ( I->getNameAsString() == "produce" 
-//				|| I->getNameAsString() == "beginRun" 
-//				|| I->getNameAsString() == "endRun" 
-//				|| I->getNameAsString() == "beginLuminosityBlock" 
-//				|| I->getNameAsString() == "endLuminosityBlock" )
+			if ( I->getNameAsString() == "produce" 
+				|| I->getNameAsString() == "beginRun" 
+				|| I->getNameAsString() == "endRun" 
+				|| I->getNameAsString() == "beginLuminosityBlock" 
+				|| I->getNameAsString() == "endLuminosityBlock" )
 			{
-				const clang::CXXMethodDecl *  MD = &(*I);
-//				clang::CXXMethodDecl *  CD = (*I).getCorrespondingMethodInClass( RD ,true );
+				const clang::CXXMethodDecl *  MD = &llvm::cast<const clang::CXXMethodDecl>(*I->getMostRecentDecl());
 				clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( MD , SM );
-//				if (  m_exception.reportClass( DLoc, BR ) ) MD->dump();
+				clang::SourceRange R = MD->getSourceRange();
+				if (  !m_exception.reportClass( DLoc, BR ) ) continue;
 				std::string buf;
 	    			llvm::raw_string_ostream os(buf);
-  				os << "Method  " << (*I) << " Parent Class "<< *RD<<". \n";
-				if (  m_exception.reportClass( DLoc, BR ) ) 
-					BR.EmitBasicReport( MD , "Class Checker MethodDecl","ThreadSafety",os.str(), DLoc);
-				for (clang::CXXMethodDecl::method_iterator
-					J=I->begin_overridden_methods(), F=I->end_overridden_methods(); J !=F; J++)
-					{
-					const clang::CXXMethodDecl * MD = (*J);
-					clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( MD, SM );
-//					if ( m_exception.reportClass( DLoc, BR ) ) (*J)->dump();
-					std::string buf;
-	    				llvm::raw_string_ostream os(buf);
-   					os << "Overridden Method  " << (**J) << " Method "<< (*I)<<". \n";
- 					if ( m_exception.reportClass( DLoc, BR ) ) 
-						BR.EmitBasicReport( *J, "Class Checker Overridden MethodDecl","ThreadSafety",os.str(), DLoc);
-					}				   				
-			}
+  				os << "Method  " << (*I) << " in Class "<< *(I->getParent())<<". \n";
+				llvm::outs()<<os.str();
+				if ( !m_exception.reportClass( DLoc, BR ) ) continue; 
+				BR.EmitBasicReport( MD , "Class Checker MethodDecl","ThreadSafety",os.str(), DLoc,R);
+//				for (clang::CXXMethodDecl::method_iterator
+//					J=I->begin_overridden_methods(), F=I->end_overridden_methods(); J !=F; J++)
+//					{
+//					const clang::CXXMethodDecl * MD = (*J);
+//					clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( MD, SM );
+//					clang::SourceRange R = MD->getSourceRange();
+//					std::string buf;
+//	    				llvm::raw_string_ostream os(buf);
+//   					os << "Overridden Method  " << (**J) << " in Class "<< *((*J)->getParent()) <<". \n";
+//					llvm::outs()<<os.str();
+//					if (  !m_exception.reportClass( DLoc, BR ) ) continue;
+//					BR.EmitBasicReport( *J, "Class Checker Overridden MethodDecl","ThreadSafety",os.str(), DLoc,R);
+//					} /* end of overriden methods */
+			// visit the body of the method							   				
+				if ( I->hasBody() ){
+					clang::Stmt *Body = I->getBody();
+	       				walker.Visit(Body);
+        				walker.Execute();
+        			}
+			} /* end of Name check */
     	}	/* end of methods loop */
 
-  		for (clang::CXXRecordDecl::field_iterator
-		       	I = RD->field_begin(), E = RD->field_end(); I != E; ++I)  {
-			if ( I->hasBody() ){
-				clang::Stmt *Body = I->getBody();
-				Body->dump();
-        			walker.Visit(Body);
-        			walker.Execute();
-        			}
-			const clang::FieldDecl * FD = &(*I);
-	    		std::string buf;
-	    		llvm::raw_string_ostream os(buf);
-  			os << "Declaration of Field  " << *FD << " in Class "<<*RD<<" .\n";
-			clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( FD, SM );
-			if ( m_exception.reportClass( DLoc, BR ) ) 
-				BR.EmitBasicReport(FD, "Class Checker FieldDecl","ThreadSafety",os.str(), DLoc);
- 		}  /* end of field loop */
+//  		for (clang::CXXRecordDecl::field_iterator
+//		       	I = RD->field_begin(), E = RD->field_end(); I != E; ++I)  {
+//			const clang::FieldDecl * FD = &(*I);
+//			clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( FD, SM );
+//			clang::SourceRange R = FD->getSourceRange();
+//			if ( !m_exception.reportClass( DLoc, BR ) ) continue; 
+//	    		std::string buf;
+//	    		llvm::raw_string_ostream os(buf);
+// 			os << "Field  " << *FD << " in Class "<< *(I->getParent()) <<" .\n";
+//			llvm::outs()<<os.str();
+//			BR.EmitBasicReport(FD, "Class Checker FieldDecl","ThreadSafety",os.str(), DLoc,R);
+// 		}  /* end of field loop */
 
 	
 
-};
+}
 
 }
 
