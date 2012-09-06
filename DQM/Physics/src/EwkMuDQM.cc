@@ -596,6 +596,7 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
                                     leadingjet_pt_after_->Fill(lead_jet_pt);
                                     leadingjet_eta_after_->Fill(lead_jet_eta);
                         }
+		  }
                         njets_hist_done = true;
                   if( flags_passed==NFLAGS ) {
                         if (!wfullsel_hist_done){
@@ -606,7 +607,6 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
                   } 
                    
             }
-
 
             // The cases in which the event is rejected as a Z are considered independently:
             if ( muon4Z &&  !muon_sel[9]){
@@ -699,8 +699,7 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 
 			       }
 
-                  }
-            }
+	    }
 
       }
 
