@@ -627,7 +627,7 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
                               if (mu2.charge() * charge != -1 ) continue;
 			            reco::TrackRef gm2 = mu2.globalTrack();
 				    reco::TrackRef tk2 = mu2.innerTrack();
-                                    double pt2 = mu2.pt(); if (pt2>ptThrForZ1_) zmuon_sel[5] = true;
+                                    double pt2 = mu2.pt(); if (pt2>ptThrForZ2_) zmuon_sel[5] = true;
                                     double eta2=mu2.eta(); if (fabs(eta2)<etaCut_) zmuon_sel[6] = true;
 				    double dxy2 = gm2->dxy(beamSpotHandle->position()); if (fabs(dxy2)<dxyCut_) zmuon_sel[7] = true;
                                     double normalizedChi22 = gm2->normalizedChi2();
