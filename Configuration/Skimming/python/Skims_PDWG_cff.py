@@ -155,6 +155,19 @@ SKIMStreamHLTPhysics = cms.FilteredStream(
     dataTier = cms.untracked.string('RAW-RECO') 
     )
 
+#####################
+
+from Configuration.Skimming.PDWG_MonoPhoton_cff import *
+EXOMonoPhotonPath = cms.Path(monophotonSkimSequence)
+SKIMStreamEXOMonoPhoton = cms.FilteredStream(
+    responsible = 'EXO',
+    name = 'EXOMonoPhoton',
+    paths = (EXOMonoPhotonPath),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO') 
+    )
+
 
 """
 #####################
@@ -260,20 +273,6 @@ SKIMStreamHLTZEROBIASPUSD = cms.FilteredStream(
 #    selectEvents = cms.untracked.PSet(),
 #    dataTier = cms.untracked.string('AOD')
 #    )
-
-
-
-## exo skims
-from Configuration.Skimming.PDWG_MonoPhoton_cff import *
-EXOMonoPhotonPath = cms.Path(monophotonSkimSequence)
-SKIMStreamEXOMonoPhoton = cms.FilteredStream(
-    responsible = 'EXO',
-    name = 'EXOMonoPhoton',
-    paths = (EXOMonoPhotonPath),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO') 
-    )
 
 
 """
