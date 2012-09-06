@@ -5,7 +5,8 @@
 namespace ecaldqm {
 
   SummaryClient::SummaryClient(edm::ParameterSet const&  _workerParams, edm::ParameterSet const& _commonParams) :
-    DQWorkerClient(_workerParams, _commonParams, "SummaryClient")
+    DQWorkerClient(_workerParams, _commonParams, "SummaryClient"),
+    online_(_workerParams.getUntrackedParameter<bool>("online"))
   {
   }
 
@@ -71,6 +72,58 @@ namespace ecaldqm {
       }
       dccChannels[iDCC] += 1.;
       totalChannels += 1.;
+    }
+
+    if(online_){
+      for(int iz(-1); iz <= 1; iz += 2){
+        for(int ieta(1); ieta < 17; ++ieta){
+          for(int iphi(1); iphi <= 72; ++iphi){
+            unsigned nBad(0);
+            EcalTrigTowerDetId ttids[4];
+            for(int deta(0); deta < 2; ++deta){
+              for(int dphi(0); dphi < 2; ++dphi){
+                int ttphi(iphi != 72 ? iphi + dphi : 1);
+                ttids[deta * 2 + dphi] = EcalTrigTowerDetId(iz, EcalBarrel, ieta + deta, ttphi);
+                std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttids[deta * 2 + dphi]));
+                unsigned nIds(ids.size());
+                for(unsigned iD(0); iD < nIds; ++iD)
+                  if(int(MEs_[kQualitySummary]->getBinContent(ids[iD])) == kBad) nBad += 1;
+              }
+            }
+
+            if(nBad >= 50){
+              for(unsigned iD(0); iD < 4; ++iD)
+                dccGood[dccId(ttids[iD]) - 1] = 0.;
+            }
+          }
+        }
+      }
+
+      for(int iz(-1); iz <= 1; iz += 2){
+        for(int ix(1); ix < 20; ++ix){
+          for(int iy(1); iy < 20; ++iy){
+            unsigned nBad(0);
+            unsigned nChannels(0);
+            EcalScDetId scids[4];
+            for(int dx(0); dx < 2; ++dx){
+              for(int dy(0); dy < 2; ++dy){
+                if(!EcalScDetId::validDetId(ix + dx, iy + dy, iz)) continue;
+                scids[dx * 2 + dy] = EcalScDetId(ix + dx, iy + dy, iz);
+                std::vector<DetId> ids(scConstituents(scids[dx * 2 + dy]));
+                unsigned nIds(ids.size());
+                for(unsigned iD(0); iD < nIds; ++iD)
+                  if(int(MEs_[kQualitySummary]->getBinContent(ids[iD])) == kBad) nBad += 1;
+                nChannels += nIds;
+              }
+            }
+
+            if(nBad >= nChannels * 0.5){
+              for(unsigned iD(0); iD < 4; ++iD)
+                dccGood[dccId(scids[iD]) - 1] = 0.;
+            }
+          }
+        }
+      }
     }
 
     for(unsigned iDCC(0); iDCC < BinService::nDCC; ++iDCC){

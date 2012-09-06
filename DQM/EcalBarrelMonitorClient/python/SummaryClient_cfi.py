@@ -6,6 +6,7 @@ from DQM.EcalBarrelMonitorClient.TrigPrimClient_cfi import trigPrimClient
 from DQM.EcalBarrelMonitorClient.OccupancyClient_cfi import occupancyClient
 
 summaryClient = dict(
+    online = False,
     MEs = dict(
         QualitySummary = dict(path = "Summary/SummaryClient global quality", otype = 'Ecal2P', btype = 'Crystal', kind = 'TH2F'),
         ReportSummaryMap = dict(path = "EventInfo/reportSummaryMap", otype = 'Ecal', btype = 'DCC', kind = 'TH2F'),

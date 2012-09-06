@@ -119,16 +119,12 @@ namespace ecaldqm {
 
     MESet::iterator qsEnd(MEs_[kQualitySummary]->end());
 
-    MESet::const_iterator taItr(sources_[kTimeAllMap]);
-
     for(MESet::iterator qsItr(MEs_[kQualitySummary]->beginChannel()); qsItr != qsEnd; qsItr.toNextChannel()){
 
       DetId tId(qsItr->getId());
 
-      taItr = qsItr;
-
       // tower entries != sum(channel entries) because of the difference in timing cut at the source
-      float summaryEntries(taItr->getBinEntries());
+      float summaryEntries(sources_[kTimeAllMap]->getBinEntries(tId));
 
       std::vector<DetId> ids;
 

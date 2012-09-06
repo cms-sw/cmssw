@@ -73,28 +73,28 @@ namespace ecaldqm {
       MEs_[kHitAll]->fill(id, energy);
 
       // look for the seeds
-      float e3x3(energy);
-      bool isSeed = true;
+//       float e3x3(energy);
+//       bool isSeed = true;
 
-      EcalRecHitCollection::const_iterator neighborItr;
-      float neighborE;
-      std::vector<DetId> window(topology_->getWindow(id, 3, 3));
-      for(std::vector<DetId>::iterator idItr(window.begin()); idItr != window.end(); ++idItr){
-	if((neighborItr = _hits.find(*idItr)) == _hits.end()) continue;
-        if(isPhysicsRun_ && neighborItr->checkFlagMask(notGood)) continue;
-        if(!isPhysicsRun_ && neighborItr->checkFlagMask(neitherGoodNorOOT)) continue;
-	neighborE = isPhysicsRun_ ? neighborItr->energy() : neighborItr->outOfTimeEnergy();
-	if(neighborE > energy){
-	  isSeed = false;
-	  break;
-	}
-	e3x3 += neighborE;
-      }
+//       EcalRecHitCollection::const_iterator neighborItr;
+//       float neighborE;
+//       std::vector<DetId> window(topology_->getWindow(id, 3, 3));
+//       for(std::vector<DetId>::iterator idItr(window.begin()); idItr != window.end(); ++idItr){
+// 	if((neighborItr = _hits.find(*idItr)) == _hits.end()) continue;
+//         if(isPhysicsRun_ && neighborItr->checkFlagMask(notGood)) continue;
+//         if(!isPhysicsRun_ && neighborItr->checkFlagMask(neitherGoodNorOOT)) continue;
+// 	neighborE = isPhysicsRun_ ? neighborItr->energy() : neighborItr->outOfTimeEnergy();
+// 	if(neighborE > energy){
+// 	  isSeed = false;
+// 	  break;
+// 	}
+// 	e3x3 += neighborE;
+//       }
 
-      if(!isSeed) continue;
+//       if(!isSeed) continue;
 
-      if ( e3x3 >= threshS9_ )
-	MEs_[kMiniCluster]->fill(id, e3x3);
+//       if ( e3x3 >= threshS9_ )
+// 	MEs_[kMiniCluster]->fill(id, e3x3);
 
     }
   }
@@ -107,7 +107,7 @@ namespace ecaldqm {
     _nameToIndex["HitMapAll"] = kHitMapAll;
     _nameToIndex["Hit"] = kHit; 
     _nameToIndex["HitAll"] = kHitAll;
-    _nameToIndex["MiniCluster"] = kMiniCluster; 
+    //    _nameToIndex["MiniCluster"] = kMiniCluster; 
   }
 
   DEFINE_ECALDQM_WORKER(EnergyTask);

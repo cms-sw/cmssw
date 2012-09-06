@@ -8,6 +8,7 @@ namespace ecaldqm
   /* class MESetMulti
      wrapper for a set of MESets
      use() method sets the MESet to be used
+     MESet will not be booked / retrieved unless it is used once
   */
 
   class MESetMulti : public MESet {
@@ -81,6 +82,7 @@ namespace ecaldqm
 
     void use(unsigned) const;
     MESet* getCurrent() const { return current_; }
+    unsigned getMultiplicity() const { return sets_.size(); }
 
     const_iterator begin() const { return current_ ? const_iterator(current_) : end(); }
     const_iterator end() const { return const_iterator(current_, -1, -1); }
@@ -92,6 +94,7 @@ namespace ecaldqm
   protected:
     mutable MESet* current_;
     std::vector<MESet*> sets_;
+    mutable std::vector<bool> use_;
   };
 }
 

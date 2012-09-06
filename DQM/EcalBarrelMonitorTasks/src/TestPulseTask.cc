@@ -51,41 +51,33 @@ namespace ecaldqm {
     unsigned apdPlots[] = {kOccupancy, kShape, kAmplitude};
     for(unsigned iS(0); iS < sizeof(apdPlots) / sizeof(unsigned); ++iS){
       unsigned plot(apdPlots[iS]);
-      MESet* temp(MEs_[plot]);
-      MESetMulti* meSet(new MESetMulti(*temp, iMEGain));
+      MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
 
       for(map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
-        meSet->use(gainItr->second);
+        multi->use(gainItr->second);
 
         ss.str("");
         ss << gainItr->first;
         replacements["gain"] = ss.str();
 
-        meSet->formPath(replacements);
+        multi->formPath(replacements);
       }
-
-      MEs_[plot] = meSet;
-      delete temp;
     }
 
     unsigned pnPlots[] = {kPNAmplitude};
     for(unsigned iS(0); iS < sizeof(pnPlots) / sizeof(unsigned); ++iS){
       unsigned plot(pnPlots[iS]);
-      MESet* temp(MEs_[plot]);
-      MESetMulti* meSet(new MESetMulti(*temp, iMEPNGain));
+      MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
 
       for(map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr){
-        meSet->use(gainItr->second);
+        multi->use(gainItr->second);
 
         ss.str("");
         ss << gainItr->first;
         replacements["pngain"] = ss.str();
 
-        meSet->formPath(replacements);
+        multi->formPath(replacements);
       }
-
-      MEs_[plot] = meSet;
-      delete temp;
     }
   }
 

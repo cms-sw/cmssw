@@ -18,11 +18,10 @@ namespace ecaldqm
 
     if(_id.subdetId() == EcalBarrel){
       EBDetId ebid(_id);
-      int dccid(_id);
       int lmmod(MEEBGeom::lmmod(ebid.ieta(), ebid.iphi()));
 
-      switch(dccid){
-      case 610:
+      switch(dccId(_id)){
+      case 10:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 10, 1) : EcalPnDiodeDetId(EcalBarrel, 10, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 10, 2) : EcalPnDiodeDetId(EcalBarrel, 10, 7);
@@ -36,7 +35,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 611:
+      case 11:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 11, 1) : EcalPnDiodeDetId(EcalBarrel, 11, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 11, 2) : EcalPnDiodeDetId(EcalBarrel, 11, 7);
@@ -50,7 +49,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 612:
+      case 12:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 12, 1) : EcalPnDiodeDetId(EcalBarrel, 12, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 12, 2) : EcalPnDiodeDetId(EcalBarrel, 12, 7);
@@ -64,7 +63,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 613:
+      case 13:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 13, 1) : EcalPnDiodeDetId(EcalBarrel, 13, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 13, 2) : EcalPnDiodeDetId(EcalBarrel, 13, 7);
@@ -78,7 +77,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 614:
+      case 14:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 14, 1) : EcalPnDiodeDetId(EcalBarrel, 14, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 14, 2) : EcalPnDiodeDetId(EcalBarrel, 14, 7);
@@ -92,7 +91,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 615:
+      case 15:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 15, 1) : EcalPnDiodeDetId(EcalBarrel, 15, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 15, 2) : EcalPnDiodeDetId(EcalBarrel, 15, 7);
@@ -106,7 +105,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 616:
+      case 16:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 16, 1) : EcalPnDiodeDetId(EcalBarrel, 16, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 16, 2) : EcalPnDiodeDetId(EcalBarrel, 16, 7);
@@ -120,7 +119,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 617:
+      case 17:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 17, 1) : EcalPnDiodeDetId(EcalBarrel, 17, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 17, 2) : EcalPnDiodeDetId(EcalBarrel, 17, 7);
@@ -134,7 +133,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 618:
+      case 18:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 18, 1) : EcalPnDiodeDetId(EcalBarrel, 18, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 18, 2) : EcalPnDiodeDetId(EcalBarrel, 18, 7);
@@ -148,7 +147,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 619:
+      case 19:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 19, 1) : EcalPnDiodeDetId(EcalBarrel, 19, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 19, 2) : EcalPnDiodeDetId(EcalBarrel, 19, 8);
@@ -162,7 +161,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 620:
+      case 20:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 20, 1) : EcalPnDiodeDetId(EcalBarrel, 20, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 20, 2) : EcalPnDiodeDetId(EcalBarrel, 20, 7);
@@ -176,7 +175,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 621:
+      case 21:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 21, 1) : EcalPnDiodeDetId(EcalBarrel, 21, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 21, 2) : EcalPnDiodeDetId(EcalBarrel, 21, 7);
@@ -190,7 +189,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 622:
+      case 22:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 22, 1) : EcalPnDiodeDetId(EcalBarrel, 22, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 22, 2) : EcalPnDiodeDetId(EcalBarrel, 22, 7);
@@ -204,7 +203,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 623:
+      case 23:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 23, 1) : EcalPnDiodeDetId(EcalBarrel, 23, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 23, 2) : EcalPnDiodeDetId(EcalBarrel, 23, 7);
@@ -218,7 +217,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 624:
+      case 24:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 24, 1) : EcalPnDiodeDetId(EcalBarrel, 24, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 24, 2) : EcalPnDiodeDetId(EcalBarrel, 24, 7);
@@ -232,7 +231,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 625:
+      case 25:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 25, 2) : EcalPnDiodeDetId(EcalBarrel, 25, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 25, 1) : EcalPnDiodeDetId(EcalBarrel, 25, 7);
@@ -246,7 +245,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 626:
+      case 26:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 26, 1) : EcalPnDiodeDetId(EcalBarrel, 26, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 26, 2) : EcalPnDiodeDetId(EcalBarrel, 26, 7);
@@ -260,7 +259,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 627:
+      case 27:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 27, 1) : EcalPnDiodeDetId(EcalBarrel, 27, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 27, 2) : EcalPnDiodeDetId(EcalBarrel, 27, 7);
@@ -274,7 +273,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 628:
+      case 28:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 28, 1) : EcalPnDiodeDetId(EcalBarrel, 28, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 28, 2) : EcalPnDiodeDetId(EcalBarrel, 28, 7);
@@ -288,7 +287,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 629:
+      case 29:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 29, 1) : EcalPnDiodeDetId(EcalBarrel, 29, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 29, 2) : EcalPnDiodeDetId(EcalBarrel, 29, 7);
@@ -302,7 +301,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 630:
+      case 30:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 30, 1) : EcalPnDiodeDetId(EcalBarrel, 30, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 30, 2) : EcalPnDiodeDetId(EcalBarrel, 30, 7);
@@ -316,7 +315,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 631:
+      case 31:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 31, 1) : EcalPnDiodeDetId(EcalBarrel, 31, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 31, 2) : EcalPnDiodeDetId(EcalBarrel, 31, 7);
@@ -330,7 +329,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 632:
+      case 32:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 32, 1) : EcalPnDiodeDetId(EcalBarrel, 32, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 32, 2) : EcalPnDiodeDetId(EcalBarrel, 32, 7);
@@ -344,7 +343,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 633:
+      case 33:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 33, 1) : EcalPnDiodeDetId(EcalBarrel, 33, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 33, 2) : EcalPnDiodeDetId(EcalBarrel, 33, 7);
@@ -358,7 +357,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 634:
+      case 34:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 34, 1) : EcalPnDiodeDetId(EcalBarrel, 34, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 34, 2) : EcalPnDiodeDetId(EcalBarrel, 34, 7);
@@ -372,7 +371,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 635:
+      case 35:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 35, 1) : EcalPnDiodeDetId(EcalBarrel, 35, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 35, 2) : EcalPnDiodeDetId(EcalBarrel, 35, 7);
@@ -386,7 +385,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 636:
+      case 36:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 36, 1) : EcalPnDiodeDetId(EcalBarrel, 36, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 36, 2) : EcalPnDiodeDetId(EcalBarrel, 36, 7);
@@ -400,7 +399,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 637:
+      case 37:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 37, 1) : EcalPnDiodeDetId(EcalBarrel, 37, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 37, 2) : EcalPnDiodeDetId(EcalBarrel, 37, 7);
@@ -414,7 +413,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 638:
+      case 38:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 38, 1) : EcalPnDiodeDetId(EcalBarrel, 38, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 38, 2) : EcalPnDiodeDetId(EcalBarrel, 38, 7);
@@ -428,7 +427,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 639:
+      case 39:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 39, 1) : EcalPnDiodeDetId(EcalBarrel, 39, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 39, 2) : EcalPnDiodeDetId(EcalBarrel, 39, 7);
@@ -442,7 +441,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 640:
+      case 40:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 40, 1) : EcalPnDiodeDetId(EcalBarrel, 40, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 40, 2) : EcalPnDiodeDetId(EcalBarrel, 40, 7);
@@ -456,7 +455,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 641:
+      case 41:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 41, 1) : EcalPnDiodeDetId(EcalBarrel, 41, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 41, 2) : EcalPnDiodeDetId(EcalBarrel, 41, 7);
@@ -470,7 +469,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 642:
+      case 42:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 42, 1) : EcalPnDiodeDetId(EcalBarrel, 42, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 42, 2) : EcalPnDiodeDetId(EcalBarrel, 42, 7);
@@ -484,7 +483,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 643:
+      case 43:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 43, 1) : EcalPnDiodeDetId(EcalBarrel, 43, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 43, 2) : EcalPnDiodeDetId(EcalBarrel, 43, 7);
@@ -498,7 +497,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 644:
+      case 44:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 44, 1) : EcalPnDiodeDetId(EcalBarrel, 44, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 44, 2) : EcalPnDiodeDetId(EcalBarrel, 44, 7);
@@ -512,7 +511,7 @@ namespace ecaldqm
         default: return EcalPnDiodeDetId(0);
         }
         break;
-      case 645:
+      case 45:
         switch(lmmod){
         case 1: return pnA ? EcalPnDiodeDetId(EcalBarrel, 45, 1) : EcalPnDiodeDetId(EcalBarrel, 45, 6);
         case 2: return pnA ? EcalPnDiodeDetId(EcalBarrel, 45, 2) : EcalPnDiodeDetId(EcalBarrel, 45, 7);

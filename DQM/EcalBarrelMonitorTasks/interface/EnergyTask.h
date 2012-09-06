@@ -28,7 +28,7 @@ namespace ecaldqm {
       //      k3x3Map, // profile2d 
       kHit, // h1f
       kHitAll,
-      kMiniCluster, // h1f
+      //      kMiniCluster, // h1f
       nMESets
     };
 

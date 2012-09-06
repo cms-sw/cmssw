@@ -66,81 +66,65 @@ namespace ecaldqm
     unsigned apdPlots[] = {kQuality, kMean, kRMS, kQualitySummary};
     for(unsigned iS(0); iS < sizeof(apdPlots) / sizeof(unsigned); ++iS){
       unsigned plot(apdPlots[iS]);
-      MESet* temp(MEs_[plot]);
-      MESetMulti* meSet(new MESetMulti(*temp, iMEGain));
+      MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
 
       for(map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
-        meSet->use(gainItr->second);
+        multi->use(gainItr->second);
 
         ss.str("");
         ss << gainItr->first;
         replacements["gain"] = ss.str();
 
-        meSet->formPath(replacements);
+        multi->formPath(replacements);
       }
-
-      MEs_[plot] = meSet;
-      delete temp;
     }
 
     unsigned pnPlots[] = {kPNRMS, kPNQualitySummary};
     for(unsigned iS(0); iS < sizeof(pnPlots) / sizeof(unsigned); ++iS){
       unsigned plot(pnPlots[iS]);
-      MESet* temp(MEs_[plot]);
-      MESetMulti* meSet(new MESetMulti(*temp, iMEPNGain));
+      MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
 
       for(map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr){
-        meSet->use(gainItr->second);
+        multi->use(gainItr->second);
 
         ss.str("");
         ss << gainItr->first;
         replacements["pngain"] = ss.str();
 
-        meSet->formPath(replacements);
+        multi->formPath(replacements);
       }
-
-      MEs_[plot] = meSet;
-      delete temp;
     }
 
     unsigned apdSources[] = {kPedestal};
     for(unsigned iS(0); iS < sizeof(apdSources) / sizeof(unsigned); ++iS){
       unsigned plot(apdSources[iS]);
-      MESet const* temp(sources_[plot]);
-      MESetMulti const* meSet(new MESetMulti(*temp, iMEGain));
+      MESetMulti const* multi(static_cast<MESetMulti const*>(sources_[plot]));
 
       for(map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
-        meSet->use(gainItr->second);
+        multi->use(gainItr->second);
 
         ss.str("");
         ss << gainItr->first;
         replacements["gain"] = ss.str();
 
-        meSet->formPath(replacements);
+        multi->formPath(replacements);
       }
-
-      sources_[plot] = meSet;
-      delete temp;
     }
 
     unsigned pnSources[] = {kPNPedestal};
     for(unsigned iS(0); iS < sizeof(pnSources) / sizeof(unsigned); ++iS){
       unsigned plot(pnSources[iS]);
-      MESet const* temp(sources_[plot]);
-      MESetMulti const* meSet(new MESetMulti(*temp, iMEPNGain));
+      MESetMulti const* multi(static_cast<MESetMulti const*>(sources_[plot]));
 
       for(map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr){
-        meSet->use(gainItr->second);
+        multi->use(gainItr->second);
 
         ss.str("");
         ss << gainItr->first;
         replacements["pngain"] = ss.str();
 
-        meSet->formPath(replacements);
+        multi->formPath(replacements);
       }
-
-      sources_[plot] = meSet;
-      delete temp;
     }
   }
 

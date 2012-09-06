@@ -240,6 +240,8 @@ namespace ecaldqm
       const_iterator& toNextChannel();
       bool up();
       bool down();
+      bool left();
+      bool right();
 
       protected:
       ConstBin bin_;
@@ -257,6 +259,8 @@ namespace ecaldqm
       const_iterator& toNextChannel() { const_iterator::toNextChannel(); bin_.ConstBin::operator=(const_iterator::bin_); return *this; }
       bool up() { bool res(const_iterator::up()); bin_.ConstBin::operator=(const_iterator::bin_); return res; }
       bool down() { bool res(const_iterator::down()); bin_.ConstBin::operator=(const_iterator::bin_); return res; }
+      bool left() { bool res(const_iterator::left()); bin_.ConstBin::operator=(const_iterator::bin_); return res; }
+      bool right() { bool res(const_iterator::right()); bin_.ConstBin::operator=(const_iterator::bin_); return res; }
 
       private:
       Bin bin_;

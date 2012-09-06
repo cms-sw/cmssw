@@ -42,12 +42,10 @@ namespace ecaldqm {
 
     MESet::iterator qEnd(MEs_[kQuality]->end());
 
-    MESet::iterator rItr(MEs_[kRMSMap]);
     MESet::const_iterator pItr(sources_[kPedestal]);
     for(MESet::iterator qItr(MEs_[kQuality]->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
       pItr = qItr;
-      rItr = qItr;
 
       DetId id(qItr->getId());
 
@@ -62,7 +60,7 @@ namespace ecaldqm {
       if(entries < minChannelEntries_){
         qItr->setBinContent(doMask ? kMUnknown : kUnknown);
         MEs_[kQualitySummary]->setBinContent(id, doMask ? kMUnknown : kUnknown);
-        rItr->setBinContent(-1.);
+        MEs_[kRMSMap]->setBinContent(id, -1.);
         continue;
       }
 
@@ -74,7 +72,7 @@ namespace ecaldqm {
       MEs_[kMean]->fill(dccid, mean);
       MEs_[kMeanDCC]->fill(dccid, mean);
       MEs_[kRMS]->fill(dccid, rms);
-      rItr->setBinContent(rms);
+      MEs_[kRMSMap]->setBinContent(id, rms);
 
       if(std::abs(mean - expectedMean_) > toleranceMean_ || rms > rmsThresh){
         qItr->setBinContent(doMask ? kMBad : kBad);

@@ -17,7 +17,7 @@ namespace ecaldqm {
     minChannelEntries_(_workerParams.getUntrackedParameter<int>("minChannelEntries")),
     expectedAmplitude_(0),
     toleranceAmplitude_(0),
-    toleranceAmpRMS_(0),
+    toleranceAmpRMSRatio_(0),
     expectedTiming_(0),
     toleranceTiming_(0),
     toleranceTimRMS_(0),
@@ -40,7 +40,7 @@ namespace ecaldqm {
 
     expectedAmplitude_.resize(iMEWL);
     toleranceAmplitude_.resize(iMEWL);
-    toleranceAmpRMS_.resize(iMEWL);
+    toleranceAmpRMSRatio_.resize(iMEWL);
     expectedTiming_.resize(iMEWL);
     toleranceTiming_.resize(iMEWL);
     toleranceTimRMS_.resize(iMEWL);
@@ -54,7 +54,7 @@ namespace ecaldqm {
 
       expectedAmplitude_[wlItr->second] = _workerParams.getUntrackedParameter<double>("expectedAmplitude" + ss.str());
       toleranceAmplitude_[wlItr->second] = _workerParams.getUntrackedParameter<double>("toleranceAmplitude" + ss.str());
-      toleranceAmpRMS_[wlItr->second] = _workerParams.getUntrackedParameter<double>("toleranceAmpRMS" + ss.str());
+      toleranceAmpRMSRatio_[wlItr->second] = _workerParams.getUntrackedParameter<double>("toleranceAmpRMSRatio" + ss.str());
       expectedTiming_[wlItr->second] = _workerParams.getUntrackedParameter<double>("expectedTiming" + ss.str());
       toleranceTiming_[wlItr->second] = _workerParams.getUntrackedParameter<double>("toleranceTiming" + ss.str());
       toleranceTimRMS_[wlItr->second] = _workerParams.getUntrackedParameter<double>("toleranceTimRMS" + ss.str());
@@ -68,41 +68,33 @@ namespace ecaldqm {
     unsigned wlPlots[] = {kQuality, kAmplitudeMean, kAmplitudeRMS, kTimingMean, kTimingRMS, kQualitySummary, kPNQualitySummary};
     for(unsigned iS(0); iS < sizeof(wlPlots) / sizeof(unsigned); ++iS){
       unsigned plot(wlPlots[iS]);
-      MESet* temp(MEs_[plot]);
-      MESetMulti* meSet(new MESetMulti(*temp, iMEWL));
+      MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
 
       for(map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr){
-        meSet->use(wlItr->second);
+        multi->use(wlItr->second);
 
         ss.str("");
         ss << wlItr->first;
         replacements["wl"] = ss.str();
 
-        meSet->formPath(replacements);
+        multi->formPath(replacements);
       }
-
-      MEs_[plot] = meSet;
-      delete temp;
     }
 
     unsigned wlSources[] = {kAmplitude, kTiming, kPNAmplitude};
     for(unsigned iS(0); iS < sizeof(wlSources) / sizeof(unsigned); ++iS){
       unsigned plot(wlSources[iS]);
-      MESet const* temp(sources_[plot]);
-      MESetMulti const* meSet(new MESetMulti(*temp, iMEWL));
+      MESetMulti const* multi(static_cast<MESetMulti const*>(sources_[plot]));
 
       for(map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr){
-        meSet->use(wlItr->second);
+        multi->use(wlItr->second);
 
         ss.str("");
         ss << wlItr->first;
         replacements["wl"] = ss.str();
 
-        meSet->formPath(replacements);
+        multi->formPath(replacements);
       }
-
-      sources_[plot] = meSet;
-      delete temp;
     }
   }
 
@@ -187,10 +179,10 @@ namespace ecaldqm {
         MEs_[kTimingMean]->fill(id, tMean);
         MEs_[kTimingRMS]->fill(id, tRms);
 
-        float deviation(abs(aMean - expectedAmplitude_[wlItr->second]));
-        if(isForward(id)) deviation *= forwardFactor_;
+        float intensity(aMean / expectedAmplitude_[wlItr->second]);
+        if(isForward(id)) intensity /= forwardFactor_;
 
-        if(deviation > toleranceAmplitude_[wlItr->second] || aRms > toleranceAmpRMS_[wlItr->second] ||
+        if(intensity < toleranceAmplitude_[wlItr->second] || aRms > aMean * toleranceAmpRMSRatio_[wlItr->second] ||
            abs(tMean - expectedTiming_[wlItr->second]) > toleranceTiming_[wlItr->second] || tRms > toleranceTimRMS_[wlItr->second])
           qItr->setBinContent(doMask ? kMBad : kBad);
         else

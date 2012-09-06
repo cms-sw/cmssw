@@ -41,21 +41,17 @@ namespace ecaldqm {
     unsigned wlPlots[] = {kAmplitudeSummary, kAmplitude, kOccupancy, kTiming, kShape, kAOverP, kPNAmplitude};
     for(unsigned iS(0); iS < sizeof(wlPlots) / sizeof(unsigned); ++iS){
       unsigned plot(wlPlots[iS]);
-      MESet* temp(MEs_[plot]);
-      MESetMulti* meSet(new MESetMulti(*temp, iMEWL));
+      MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
 
       for(map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr){
-        meSet->use(wlItr->second);
+        multi->use(wlItr->second);
 
         ss.str("");
         ss << wlItr->first;
         replacements["wl"] = ss.str();
 
-        meSet->formPath(replacements);
+        multi->formPath(replacements);
       }
-
-      MEs_[plot] = meSet;
-      delete temp;
     }
   }
 
@@ -67,13 +63,6 @@ namespace ecaldqm {
     _dependencies.push_back(Dependency(kPnDiodeDigi, kEBDigi, kEEDigi, kEcalRawData));
     _dependencies.push_back(Dependency(kEBLaserLedUncalibRecHit, kPnDiodeDigi, kEBDigi, kEcalRawData));
     _dependencies.push_back(Dependency(kEELaserLedUncalibRecHit, kPnDiodeDigi, kEEDigi, kEcalRawData));
-  }
-
-  void
-  LaserTask::beginEvent(const edm::Event &, const edm::EventSetup &)
-  {
-    pnAmp_.clear();
-    ++ievt_;
   }
 
   bool
@@ -92,6 +81,13 @@ namespace ecaldqm {
     }
 
     return enable;
+  }
+
+  void
+  LaserTask::beginEvent(const edm::Event &, const edm::EventSetup &)
+  {
+    pnAmp_.clear();
+    ++ievt_;
   }
 
   void
@@ -138,14 +134,16 @@ namespace ecaldqm {
 
       int iMax(-1);
       int max(0);
+      int min(4096);
       for (int i(0); i < 10; i++) {
         int adc(dataFrame.sample(i).adc());
         if(adc > max){
           max = adc;
           iMax = i;
         }
+        if(adc < min) min = adc;
       }
-      if(iMax >= 0)
+      if(iMax >= 0 && max - min > 10)
         maxpos[iDCC][iMax] += 1;
     }
 
@@ -153,6 +151,7 @@ namespace ecaldqm {
     for(unsigned iDCC(0); iDCC < BinService::nDCC; ++iDCC){
       if(nReadouts[iDCC] == 0) continue;
       int threshold(nReadouts[iDCC] / 3);
+      enable_[iDCC] = false;
       for(int i(0); i < 10; i++){
         if(maxpos[iDCC][i] > threshold){
           enable_[iDCC] = true;
@@ -229,6 +228,8 @@ namespace ecaldqm {
         iME = wlToME_[wavelength_[iDCC]];
         static_cast<MESetMulti*>(MEs_[kPNAmplitude])->use(iME);
       }
+
+      pnAmplitude_->Fill(iDCC * 10 + id.iPnId() - 0.5, max);
 
       MEs_[kPNAmplitude]->fill(id, max);
 

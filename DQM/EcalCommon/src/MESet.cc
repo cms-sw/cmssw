@@ -382,7 +382,7 @@ namespace ecaldqm
   MESet::const_iterator::up()
   {
     MESet const* meSet(bin_.getMESet());
-    if(!meSet || bin_.iBin < 1) return false;
+    if(!meSet || bin_.iME == unsigned(-1) || bin_.iBin < 1) return false;
 
     MonitorElement::Kind kind(meSet->getKind());
     if(kind != MonitorElement::DQM_KIND_TH2F && kind != MonitorElement::DQM_KIND_TPROFILE2D) return false;
@@ -400,7 +400,7 @@ namespace ecaldqm
   MESet::const_iterator::down()
   {
     MESet const* meSet(bin_.getMESet());
-    if(!meSet || bin_.iBin < 1) return false;
+    if(!meSet || bin_.iME == unsigned(-1) || bin_.iBin < 1) return false;
 
     MonitorElement::Kind kind(meSet->getKind());
     if(kind != MonitorElement::DQM_KIND_TH2F && kind != MonitorElement::DQM_KIND_TPROFILE2D) return false;
@@ -414,4 +414,39 @@ namespace ecaldqm
     return true;
   }
 
+  bool
+  MESet::const_iterator::left()
+  {
+    MESet const* meSet(bin_.getMESet());
+    if(!meSet || bin_.iME == unsigned(-1) || bin_.iBin < 1) return false;
+
+    MonitorElement::Kind kind(meSet->getKind());
+    if(kind != MonitorElement::DQM_KIND_TH2F && kind != MonitorElement::DQM_KIND_TPROFILE2D) return false;
+
+    MonitorElement const* me(meSet->getME(bin_.iME));
+
+    if(bin_.iBin % (me->getNbinsX() + 2) <= 1) return false;
+
+    bin_.iBin -= 1;
+
+    return true;
+  }
+
+  bool
+  MESet::const_iterator::right()
+  {
+    MESet const* meSet(bin_.getMESet());
+    if(!meSet || bin_.iME == unsigned(-1) || bin_.iBin < 1) return false;
+
+    MonitorElement::Kind kind(meSet->getKind());
+    if(kind != MonitorElement::DQM_KIND_TH2F && kind != MonitorElement::DQM_KIND_TPROFILE2D) return false;
+
+    MonitorElement const* me(meSet->getME(bin_.iME));
+
+    if(bin_.iBin % (me->getNbinsX() + 2) >= me->getNbinsX()) return false;
+
+    bin_.iBin += 1;
+
+    return true;
+  }
 }

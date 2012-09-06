@@ -59,95 +59,82 @@ namespace ecaldqm {
       pedPNGainToME_[*gainItr] = iMEPedPNGain++;
     }
 
-    MESetMulti const* meSet(0);
     stringstream ss;
     map<string, string> replacements;
 
     unsigned laserPlots[] = {kLaser, kLaserPN};
     for(unsigned iP(0); iP < sizeof(laserPlots) / sizeof(int); ++iP){
       unsigned plot(laserPlots[iP]);
-      meSet = new MESetMulti(*sources_[plot], iMELaserWL);
+      MESetMulti const* multi(static_cast<MESetMulti const*>(sources_[plot]));
       for(map<int, unsigned>::iterator wlItr(laserWlToME_.begin()); wlItr != laserWlToME_.end(); ++wlItr){
-        meSet->use(wlItr->second);
+        multi->use(wlItr->second);
 
         ss.str("");
         ss << wlItr->first;
         replacements["wl"] = ss.str();
         
-        meSet->formPath(replacements);
+        multi->formPath(replacements);
       }
-      delete sources_[plot];
-      sources_[plot] = meSet;
     }
 
     unsigned ledPlots[] = {kLed, kLedPN};
     for(unsigned iP(0); iP < sizeof(ledPlots) / sizeof(int); ++iP){
       unsigned plot(ledPlots[iP]);
-      meSet = new MESetMulti(*sources_[plot], iMELedWL);
+      MESetMulti const* multi(static_cast<MESetMulti const*>(sources_[plot]));
       for(map<int, unsigned>::iterator wlItr(ledWlToME_.begin()); wlItr != ledWlToME_.end(); ++wlItr){
-        meSet->use(wlItr->second);
+        multi->use(wlItr->second);
 
         ss.str("");
         ss << wlItr->first;
         replacements["wl"] = ss.str();
 
-        meSet->formPath(replacements);
+        multi->formPath(replacements);
       }
-      delete sources_[plot];
-      sources_[plot] = meSet;
     }
 
-    meSet = new MESetMulti(*sources_[kTestPulse], iMETPGain);
+    MESetMulti const* multi(static_cast<MESetMulti const*>(sources_[kTestPulse]));
     for(map<int, unsigned>::iterator gainItr(tpGainToME_.begin()); gainItr != tpGainToME_.end(); ++gainItr){
-      meSet->use(gainItr->second);
+      multi->use(gainItr->second);
 
       ss.str("");
       ss << gainItr->first;
       replacements["gain"] = ss.str();
 
-      meSet->formPath(replacements);
+      multi->formPath(replacements);
     }
-    delete sources_[kTestPulse];
-    sources_[kTestPulse] = meSet;
 
-    meSet = new MESetMulti(*sources_[kPedestal], iMEPedGain);
+    multi = static_cast<MESetMulti const*>(sources_[kPedestal]);
     for(map<int, unsigned>::iterator gainItr(pedGainToME_.begin()); gainItr != pedGainToME_.end(); ++gainItr){
-      meSet->use(gainItr->second);
+      multi->use(gainItr->second);
 
       ss.str("");
       ss << gainItr->first;
       replacements["gain"] = ss.str();
 
-      meSet->formPath(replacements);
+      multi->formPath(replacements);
     }
-    delete sources_[kPedestal];
-    sources_[kPedestal] = meSet;
 
-    meSet = new MESetMulti(*sources_[kTestPulsePN], iMETPPNGain);
+    multi = static_cast<MESetMulti const*>(sources_[kTestPulsePN]);
     for(map<int, unsigned>::iterator gainItr(tpPNGainToME_.begin()); gainItr != tpPNGainToME_.end(); ++gainItr){
-      meSet->use(gainItr->second);
+      multi->use(gainItr->second);
 
       ss.str("");
       ss << gainItr->first;
       replacements["pngain"] = ss.str();
 
-      meSet->formPath(replacements);
+      multi->formPath(replacements);
     }
-    delete sources_[kTestPulsePN];
-    sources_[kTestPulsePN] = meSet;
 
-    meSet = new MESetMulti(*sources_[kPedestalPN], iMEPedPNGain);
+    multi = static_cast<MESetMulti const*>(sources_[kPedestalPN]);
     for(map<int, unsigned>::iterator gainItr(pedPNGainToME_.begin()); gainItr != pedPNGainToME_.end(); ++gainItr){
-      meSet->use(gainItr->second);
+      multi->use(gainItr->second);
 
       ss.str("");
       ss << gainItr->first;
       replacements["pngain"] = ss.str();
 
-      meSet->formPath(replacements);
+      multi->formPath(replacements);
     }
-    delete sources_[kPedestalPN];
-    sources_[kPedestalPN] = meSet;
   }
 
   void

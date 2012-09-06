@@ -38,21 +38,17 @@ namespace ecaldqm {
     unsigned wlPlots[] = {kAmplitudeSummary, kAmplitude, kOccupancy, kTiming, kShape, kAOverP, kPNAmplitude};
     for(unsigned iS(0); iS < sizeof(wlPlots) / sizeof(unsigned); ++iS){
       unsigned plot(wlPlots[iS]);
-      MESet* temp(MEs_[plot]);
-      MESetMulti* meSet(new MESetMulti(*temp, iMEWL));
+      MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
 
       for(map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr){
-        meSet->use(wlItr->second);
+        multi->use(wlItr->second);
 
         ss.str("");
         ss << wlItr->first;
         replacements["wl"] = ss.str();
 
-        meSet->formPath(replacements);
+        multi->formPath(replacements);
       }
-
-      MEs_[plot] = meSet;
-      delete temp;
     }
   }
 
@@ -62,12 +58,6 @@ namespace ecaldqm {
     _dependencies.push_back(Dependency(kEEDigi, kEcalRawData));
     _dependencies.push_back(Dependency(kPnDiodeDigi, kEEDigi, kEcalRawData));
     _dependencies.push_back(Dependency(kEELaserLedUncalibRecHit, kPnDiodeDigi, kEEDigi, kEcalRawData));
-  }
-
-  void
-  LedTask::beginEvent(const edm::Event &, const edm::EventSetup &)
-  {
-    pnAmp_.clear();
   }
 
   bool
@@ -88,6 +78,12 @@ namespace ecaldqm {
     }
 
     return enable;
+  }
+
+  void
+  LedTask::beginEvent(const edm::Event &, const edm::EventSetup &)
+  {
+    pnAmp_.clear();
   }
 
   void
@@ -143,14 +139,16 @@ namespace ecaldqm {
 
       int iMax(-1);
       int max(0);
+      int min(4096);
       for (int i(0); i < 10; i++) {
         int adc(dataFrame.sample(i).adc());
         if(adc > max){
           max = adc;
           iMax = i;
         }
+        if(adc < min) min = adc;
       }
-      if(iMax >= 0)
+      if(iMax >= 0 && max - min > 10)
         maxpos[index][iMax] += 1;
     }
 
@@ -158,6 +156,7 @@ namespace ecaldqm {
     for(unsigned index(0); index < BinService::nEEDCC; ++index){
       if(nReadouts[index] == 0) continue;
       int threshold(nReadouts[index] / 3);
+      enable_[index] = false;
       for(int i(0); i < 10; i++){
         if(maxpos[index][i] > threshold){
           enable_[index] = true;
