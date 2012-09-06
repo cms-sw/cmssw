@@ -12,7 +12,7 @@ def addDefaultSUSYPAT(process,mcInfo=True,HLTMenu='HLT',jetMetCorrections=['L2Re
     loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,doType1MetCorrection,'PF')
     addTagInfos(process,jetMetCorrections)
     if not mcInfo:
-	removeMCDependence(process)
+        removeMCDependence(process)
     loadPAT(process,jetMetCorrections,extMatch)
     addJetMET(process,theJetNames,jetMetCorrections,mcVersion)
     # loadType1METSequence(process)   # defines process.Type1METSequence
@@ -168,30 +168,35 @@ def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,doT
     process.patJetCorrFactors.levels = jetMetCorrections 
     #-- PF2PAT config -------------------------------------------------------------
     from PhysicsTools.PatAlgos.tools.pfTools import usePF2PAT
-    usePF2PAT(process,runPF2PAT=True, jetAlgo='AK5',runOnMC=(mcInfo==1),postfix=postfix, jetCorrections=('AK5PFchs', jetMetCorrections),typeIMetCorrections=doType1MetCorrection)
+    usePF2PAT(process,runPF2PAT=True,
+        jetAlgo             = 'AK5',
+        runOnMC             = (mcInfo==1),
+        postfix             = postfix,
+        jetCorrections      = ('AK5PFchs', jetMetCorrections),
+        typeIMetCorrections = doType1MetCorrection)
 
     #process.patJetsPF.embedGenJetMatch = False
     #process.patJetsPF.embedPFCandidates = False
     #drop tracks 
-    process.patElectronsPF.embedTrack = True
-    process.patMuonsPF.embedTrack   = True
+    process.patElectronsPF.embedTrack   = True
+    process.patMuonsPF.embedTrack       = True
     process.electronMatchPF.maxDeltaR   = cms.double(0.2)
     process.electronMatchPF.maxDPtRel   = cms.double(999999.)
     process.electronMatchPF.checkCharge = False
-    process.muonMatchPF.maxDeltaR   = cms.double(0.2)
-    process.muonMatchPF.maxDPtRel   = cms.double(999999.)
-    process.muonMatchPF.checkCharge = False
+    process.muonMatchPF.maxDeltaR       = cms.double(0.2)
+    process.muonMatchPF.maxDPtRel       = cms.double(999999.)
+    process.muonMatchPF.checkCharge     = False
     if extMatch:
-        process.electronMatchPF.mcStatus = cms.vint32(1,5)
-        process.electronMatchPF.matched = "mergedTruth"
-        process.muonMatchPF.mcStatus = cms.vint32(1,5)
-        process.muonMatchPF.matched = "mergedTruth"
-        process.genParticlesForJets.src = "mergedTruth"
+        process.electronMatchPF.mcStatus        = cms.vint32(1,5)
+        process.electronMatchPF.matched         = "mergedTruth"
+        process.muonMatchPF.mcStatus            = cms.vint32(1,5)
+        process.muonMatchPF.matched             = "mergedTruth"
+        process.genParticlesForJets.src         = "mergedTruth"
         process.genParticlesForJetsNoMuNoNu.src = "mergedTruth"
-        process.genParticlesForJetsNoNu.src = "mergedTruth"
-        process.patJetPartonMatchPF.matched = "mergedTruth"
-        process.patJetPartonsPF.src = "mergedTruth"
-        process.photonMatchPF.matched = "mergedTruth"
+        process.genParticlesForJetsNoNu.src     = "mergedTruth"
+        process.patJetPartonMatchPF.matched     = "mergedTruth"
+        process.patJetPartonsPF.src             = "mergedTruth"
+        process.photonMatchPF.matched           = "mergedTruth"
         #process.tauGenJetsPF.GenParticles = "mergedTruth"
         #process.tauMatchPF.matched = "mergedTruth"
         
@@ -378,7 +383,13 @@ def loadPATTriggers(process,HLTMenu,theJetNames,electronMatches,muonMatches,tauM
 
 def loadType1METSequence(process):
     process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
+    ## Type 0?
+    # process.pfType1CorrectedMet.srcCHSSums = cms.VInputTag(cms.InputTag("pfchsMETcorr","type0"))
+    # process.pfType1CorrectedMet.applyType2Corrections = cms.bool(False)
+    # process.pfType1CorrectedMet.type0Rsoft = cms.double(0.6)
+    # process.pfType1CorrectedMet.applyType0Corrections = cms.bool(True)
     process.Type1METSequence = cms.Sequence(process.producePFMETCorrections)
+
 
 def addTypeIIMet(process) :
     # Add reco::MET with Type II correction 
@@ -426,12 +437,12 @@ def addSUSYJetCollection(process,jetMetCorrections,jets = 'IC5Calo',mcVersion=''
     else: raise ValueError, "Unknown jet algorithm: %s" % (jets)
     jetIdLabel = algorithm.lower()
     if type == 'Calo':
-	jetCollection = '%(collection)sCaloJets' % locals()
-	if not 'AK7' in algorithm:
-		doType1MET = True
+        jetCollection = '%(collection)sCaloJets' % locals()
+        if not 'AK7' in algorithm:
+            doType1MET = True
     elif type == 'PF':
-	jetCollection = '%(collection)sPFJets' % locals()
-	doJetID = False
+        jetCollection = '%(collection)sPFJets' % locals()
+        doJetID = False
     elif type == 'JPT':
         if 'IC' in algorithm: collectionJPT = algorithm.replace('IC','Icone')
         elif 'SC' in algorithm: collectionJPT = algorithm.replace('SC','Siscone')
@@ -439,9 +450,9 @@ def addSUSYJetCollection(process,jetMetCorrections,jets = 'IC5Calo',mcVersion=''
         else: raise ValueError, "Unknown jet algorithm: %s" % (jets)
         jetCollection = 'JetPlusTrackZSPCorJet%(collectionJPT)s' % locals()
     elif type == 'Track':
-	jetCollection = '%(collection)sTrackJets' % locals()
-    	jetCorrLabel = None
-	doJetID = False
+        jetCollection = '%(collection)sTrackJets' % locals()
+        jetCorrLabel = None
+        doJetID = False
     else: raise ValueError, "Unknown jet type: %s" % (jets)
     
     addJetCollection(process, cms.InputTag(jetCollection),
@@ -453,7 +464,7 @@ def addSUSYJetCollection(process,jetMetCorrections,jets = 'IC5Calo',mcVersion=''
                      doL1Cleaning     = True,
                      doL1Counters     = True,
                      doJetID          = doJetID,
-		             jetIdLabel       = jetIdLabel,
+                     jetIdLabel       = jetIdLabel,
                      genJetCollection = cms.InputTag('%(collection)sGenJets' % locals())
                      )
 
@@ -461,7 +472,7 @@ def addJetMET(process,theJetNames,jetMetCorrections,mcVersion):
     #-- Extra Jet/MET collections -------------------------------------------------
     # Add a few jet collections...
     for jetName in theJetNames:
-    	addSUSYJetCollection(process,jetMetCorrections,jetName,mcVersion)
+        addSUSYJetCollection(process,jetMetCorrections,jetName,mcVersion)
     
     #-- Tune contents of jet collections  -----------------------------------------
     theJetNames.append('')
@@ -499,7 +510,7 @@ def addJetMET(process,theJetNames,jetMetCorrections,mcVersion):
         process.patCandidateSummary.candidates.append(cms.InputTag('patJets'+jets))
         process.selectedPatCandidateSummary.candidates.append(cms.InputTag('selectedPatJets'+jets))
         process.cleanPatCandidateSummary.candidates.append(cms.InputTag('cleanPatJets'+jets))
-	
+    
 def removeMCDependence( process ):
     #-- Remove MC dependence ------------------------------------------------------
     from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
@@ -514,53 +525,53 @@ def loadSusyValidation(process):
     process.DQMStore = cms.Service("DQMStore")
     process.DQMStore.collateHistograms = cms.untracked.bool(True)
     process.options = cms.untracked.PSet(
- 	fileMode = cms.untracked.string('NOMERGE')
+        fileMode = cms.untracked.string('NOMERGE')
     )
 
 def getSUSY_pattuple_outputCommands( process ):
-	from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent, patExtraAodEventContent, patTriggerEventContent, patTriggerStandAloneEventContent, patEventContentTriggerMatch
-	keepList = []
-    	susyAddEventContent = [ # PAT Objects
-        #'keep *_triggerMatched*_*_*',         
-	# Keep PF2PAT output
-        'keep *_selectedPatMuonsPF_*_*',         
-        'keep *_selectedPatElectronsPF_*_*',         
-        'keep *_selectedPatTausPF_*_*',         
-        'keep *_selectedPatJetsPF_*_*',
-	#L1 trigger info         
-	'keep L1GlobalTriggerObjectMapRecord_*_*_*',
-        'keep L1GlobalTriggerReadoutRecord_*_*_*',
-        # Generator information
-        'keep recoGenJets_*GenJets*_*_*',
-        'keep recoGenMETs_*_*_*',
-	#Number of processed events
-        'keep edmMergeableCounter_eventCountProducer_*_*',
-	'keep recoRecoChargedRefCandidates_trackRefsForJets_*_*',
-	#'keep recoTrackJets_ak5TrackJets_*_*',
-	'keep *_electronMergedSeeds_*_*',
-	'keep *_Conversions_*_*',
-	'keep recoPFCandidates_particleFlow_*_*',
-        #'keep recoSuperClusters_corrected*_*_*',
-	#'keep recoSuperClusters_pfElectronTranslator_*_*',
-        #'keep *_gsfElectronCores_*_*',    #Keep electron core
-        #'keep *_photonCore_*_*',        #Keep electron core
-        'keep recoConversions_conversions_*_*',
-        'keep recoTracks_*onversions_*_*',
-        'keep HcalNoiseSummary_*_*_*', #Keep the one in RECO
-	'keep *BeamHaloSummary_*_*_*',
-	# Keep Gap Vertices for comparison
-        'keep *_offlinePrimaryVerticesGap_*_*',
-        'keep *_offlinePrimaryVerticesGapWithBS_*_*',
-	#DQM
-	'keep *_MEtoEDMConverter_*_PAT',
+    from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent, patExtraAodEventContent, patTriggerEventContent, patTriggerStandAloneEventContent, patEventContentTriggerMatch
+    keepList = []
+    susyAddEventContent = [ # PAT Objects
+    #'keep *_triggerMatched*_*_*',         
+    # Keep PF2PAT output
+    'keep *_selectedPatMuonsPF_*_*',         
+    'keep *_selectedPatElectronsPF_*_*',         
+    'keep *_selectedPatTausPF_*_*',         
+    'keep *_selectedPatJetsPF_*_*',
+    #L1 trigger info         
+    'keep L1GlobalTriggerObjectMapRecord_*_*_*',
+    'keep L1GlobalTriggerReadoutRecord_*_*_*',
+    # Generator information
+    'keep recoGenJets_*GenJets*_*_*',
+    'keep recoGenMETs_*_*_*',
+    #Number of processed events
+    'keep edmMergeableCounter_eventCountProducer_*_*',
+    'keep recoRecoChargedRefCandidates_trackRefsForJets_*_*',
+    #'keep recoTrackJets_ak5TrackJets_*_*',
+    'keep *_electronMergedSeeds_*_*',
+    'keep *_Conversions_*_*',
+    'keep recoPFCandidates_particleFlow_*_*',
+    #'keep recoSuperClusters_corrected*_*_*',
+    #'keep recoSuperClusters_pfElectronTranslator_*_*',
+    #'keep *_gsfElectronCores_*_*',    #Keep electron core
+    #'keep *_photonCore_*_*',        #Keep electron core
+    'keep recoConversions_conversions_*_*',
+    'keep recoTracks_*onversions_*_*',
+    'keep HcalNoiseSummary_*_*_*', #Keep the one in RECO
+    'keep *BeamHaloSummary_*_*_*',
+    # Keep Gap Vertices for comparison
+    'keep *_offlinePrimaryVerticesGap_*_*',
+    'keep *_offlinePrimaryVerticesGapWithBS_*_*',
+    #DQM
+    'keep *_MEtoEDMConverter_*_PAT',
     'drop recoTracks_generalTracks*_*_*',
-	'drop *_towerMaker_*_*',
-    # 'keep *_pfType1CorrectedMet*_*_*'
-        ] 
-	keepList.extend(patEventContent)
-	keepList.extend(patExtraAodEventContent)
-	keepList.extend(patTriggerEventContent)
-	keepList.extend(patEventContentTriggerMatch)
-	keepList.extend(susyAddEventContent)
-	return keepList
+    'drop *_towerMaker_*_*',
+    'keep *_pfType1CorrectedMet*_*_*',
+    ]
+    keepList.extend(patEventContent)
+    keepList.extend(patExtraAodEventContent)
+    keepList.extend(patTriggerEventContent)
+    keepList.extend(patEventContentTriggerMatch)
+    keepList.extend(susyAddEventContent)
+    return keepList
 
