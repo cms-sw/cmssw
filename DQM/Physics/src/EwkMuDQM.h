@@ -112,6 +112,15 @@ private:
   MonitorElement* leadingjet_eta_after_;
   MonitorElement* leadingjet_eta_afterZ_;
 
+  MonitorElement* ptPlus_before_;
+  MonitorElement* ptMinus_before_;
+  MonitorElement* ptDiffPM_before_;
+  MonitorElement* ptPlus_afterW_;
+  MonitorElement* ptMinus_afterW_;
+  MonitorElement* ptPlus_afterZ_;
+  MonitorElement* ptMinus_afterZ_;
+  MonitorElement* ptDiffPM_afterZ_;
+
   MonitorElement* met_afterZ_;
   MonitorElement* pt1_afterZ_;
   MonitorElement* eta1_afterZ_;
@@ -123,6 +132,10 @@ private:
   MonitorElement* dxy2_afterZ_;
   MonitorElement* goodewkmuon2_afterZ_;
   MonitorElement* iso2_afterZ_;  
+
+  // filled if there is a Z-candidate
+  MonitorElement* n_zselPt1thr_; // number of muons in the event with pt>pt1thr
+  MonitorElement* n_zselPt2thr_; // number of muons in the event with pt>pt2thr
 
   MonitorElement* ztrig_afterZ_;
   MonitorElement* dimuonmass_before_;

@@ -161,15 +161,10 @@ void EwkMuDQM::init_histograms() {
   acop_before_ = theDbe->book1D("ACOP_BEFORECUTS",chtitle,50,0.,M_PI);
   acop_after_ = theDbe->book1D("ACOP_AFTERWCUTS",chtitle,50,0.,M_PI);
 
-  /* Clearing space:
-     snprintf(chtitle, 255, "Z rejection: number of muons above %.2f GeV", ptThrForZ1_);
-     nz1_before_ = theDbe->book1D("NZ1_BEFORECUTS",chtitle,10,-0.5,9.5);
-     nz1_after_ = theDbe->book1D("NZ1_AFTERWCUTS",chtitle,10,-0.5,9.5);
-
-     snprintf(chtitle, 255, "Z rejection: number of muons above %.2f GeV", ptThrForZ2_);
-     nz2_before_ = theDbe->book1D("NZ2_BEFORECUTS",chtitle,10,-0.5,9.5);
-     nz2_after_ = theDbe->book1D("NZ2_AFTERWCUTS",chtitle,10,-0.5,9.5);
-  */
+  snprintf(chtitle, 255, "Z selection: muons above %.2f GeV", ptThrForZ1_);
+  n_zselPt1thr_ = theDbe->book1D("NZSELPT1THR",chtitle,10,-0.5,9.5);
+  snprintf(chtitle, 255, "Z selection: muons above %.2f GeV", ptThrForZ2_);
+  n_zselPt2thr_ = theDbe->book1D("NZSELPT2THR",chtitle,10,-0.5,9.5);
 
   snprintf(chtitle, 255, "Number of jets (%s) above %.2f GeV", jetTag_.label().data(), eJetMin_);
   njets_before_ = theDbe->book1D("NJETS_BEFORECUTS",chtitle,16,-0.5,15.5);
@@ -184,6 +179,16 @@ void EwkMuDQM::init_histograms() {
   leadingjet_eta_after_ = theDbe->book1D("LEADINGJET_ETA_AFTERWCUTS","Leading Jet pseudo-rapidity",50,-2.5,2.5);
   leadingjet_eta_afterZ_ = theDbe->book1D("LEADINGJET_ETA_AFTERZCUTS","Leading Jet pseudo-rapidity",50,-2.5,2.5);
 
+  /**\ For charge asymmetry studies */
+
+  ptPlus_before_ = theDbe->book1D("PTPLUS_BEFORE_CUTS","Muon+ transverse momentum before cuts [GeV]",100,0.,100.);
+  ptMinus_before_ = theDbe->book1D("PTMINUS_BEFORE_CUTS","Muon- transverse momentum before cuts [GeV]",100,0.,100.);
+  ptPlus_afterW_ = theDbe->book1D("PTPLUS_AFTERW_CUTS","Muon+ transverse momentum after W cuts [GeV]",100,0.,100.);
+  ptMinus_afterW_ = theDbe->book1D("PTMINUS_AFTERW_CUTS","Muon- transverse momentum after W cuts [GeV]",100,0.,100.);
+  ptPlus_afterZ_ = theDbe->book1D("PTPLUS_AFTERZ_CUTS","Muon+ transverse momentum after Z cuts [GeV]",100,0.,100.);
+  ptMinus_afterZ_ = theDbe->book1D("PTMINUS_AFTERZ_CUTS","Muon- transverse momentum after Z cuts [GeV]",100,0.,100.);
+  ptDiffPM_before_ = theDbe->book1D("PTDIFFPM_BEFORE_CUTS","pt(Muon+)-pt(Muon-) after Z cuts [GeV]",200,-100.,100.);
+  ptDiffPM_afterZ_ = theDbe->book1D("PTDIFFPM_AFTERZ_CUTS","pt(Muon+)-pt(Muon-) after Z cuts [GeV]",200,-100.,100.);
 
   /**\ For Z-boson events  */
 
@@ -284,6 +289,12 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
                  if (mu2.isGlobalMuon() && (mu.charge()*mu2.charge()==-1) ){
                          const math::XYZTLorentzVector ZRecoGlb (mu.px()+mu2.px(), mu.py()+mu2.py() , mu.pz()+mu2.pz(), mu.p()+mu2.p());
                          dimuonmass_before_->Fill(ZRecoGlb.mass());
+			 if (mu.charge()>0) {
+			   ptDiffPM_before_->Fill(mu.pt()-mu2.pt());
+			 }
+			 else {
+			   ptDiffPM_before_->Fill(mu2.pt()-mu.pt());
+			 }
                  }
             }
       }
@@ -291,9 +302,6 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 
       LogTrace("") << "> Z rejection: muons above " << ptThrForZ1_ << " [GeV]: " << nmuonsForZ1;
       LogTrace("") << "> Z rejection: muons above " << ptThrForZ2_ << " [GeV]: " << nmuonsForZ2;
-      /*nz1_before_->Fill(nmuonsForZ1);
-      nz2_before_->Fill(nmuonsForZ2);
-      */
 
       // MET
       Handle<View<MET> > metCollection;
@@ -439,8 +447,6 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
       bool zjets_hist_done = false;
       bool zfullsel_hist_done = false;
       bool met_hist_done = false;
-      //bool nz1_hist_done = false;
-      //bool nz2_hist_done = false;
       bool njets_hist_done = false;
       bool wfullsel_hist_done = false;
 
@@ -507,6 +513,13 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
             dxy_before_->Fill(dxy);
             muoncharge_before_->Fill(charge);
             goodewkmuon_before_->Fill(quality);
+
+	    // Charge asymmetry
+	    if (quality) {
+	      if (charge>0) ptPlus_before_->Fill(pt);
+	      if (charge<0) ptMinus_before_->Fill(pt);
+	    }
+
 
             // Isolation cuts
             double isovar = mu.isolationR03().sumPt;
@@ -582,31 +595,26 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
                         met_hist_done = true;
                   if (!muon_sel[8] || flags_passed==NFLAGS) 
                         acop_after_->Fill(acop);
-                  /* Clearing some space
-                  if (!muon_sel[9] || flags_passed==NFLAGS) 
-                        if (!nz1_hist_done) nz1_after_->Fill(nmuonsForZ1);
-                        nz1_hist_done = true;
-                  if (!muon_sel[9] || flags_passed==NFLAGS) 
-                        if (!nz2_hist_done) nz2_after_->Fill(nmuonsForZ2);
-                        nz2_hist_done = true;
-                  */
+		  // no action here for muon_sel[9]
                   if (!muon_sel[10] || flags_passed==NFLAGS) { 
                         if (!njets_hist_done) {
                                     njets_after_->Fill(njets);
                                     leadingjet_pt_after_->Fill(lead_jet_pt);
                                     leadingjet_eta_after_->Fill(lead_jet_eta);
                         }
-		  }
                         njets_hist_done = true;
+		  }
                   if( flags_passed==NFLAGS ) {
 		    if (!wfullsel_hist_done){
-		      npvs_after_->Fill(nvvertex);
-		      muoncharge_after_->Fill(charge);
+                        npvs_after_->Fill(nvvertex);
+                        muoncharge_after_->Fill(charge);
+			if (charge>0) ptPlus_afterW_->Fill(pt);
+			if (charge<0) ptMinus_afterW_->Fill(pt);
 		    }
 		    wfullsel_hist_done=true;    
                   } 
-		  
-            }
+	    }
+	    
 
             // The cases in which the event is rejected as a Z are considered independently:
             if ( muon4Z &&  !muon_sel[9]){
@@ -693,15 +701,28 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 					 if(!zfullsel_hist_done){
 					   npvs_afterZ_->Fill(nvvertex);
 					   muoncharge_afterZ_->Fill(charge);
+					   if (charge>0) {
+					     ptPlus_afterZ_->Fill(mu.pt());
+					     ptMinus_afterZ_->Fill(mu2.pt());
+					     ptDiffPM_afterZ_->Fill(mu.pt()-mu2.pt());
+					   }
+					   else {
+					     ptPlus_afterZ_->Fill(mu2.pt());
+					     ptMinus_afterZ_->Fill(mu.pt());
+					     ptDiffPM_afterZ_->Fill(mu2.pt()-mu.pt());
+					   }
 					 }
 					 zfullsel_hist_done=true;
 				       }
 			       }
-
 		   }
-
 	    }
+      }
 
+      if (zfullsel_hist_done) {
+	// here was a Z candidate
+	n_zselPt1thr_->Fill(nmuonsForZ1);
+	n_zselPt2thr_->Fill(nmuonsForZ2);
       }
 
       //nmuons_->Fill(number_of_muons);
