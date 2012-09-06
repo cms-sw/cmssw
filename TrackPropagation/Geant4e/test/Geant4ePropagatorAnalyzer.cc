@@ -6,6 +6,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 //- Timing
 #include "Utilities/Timing/interface/TimingReport.h"
@@ -133,13 +134,17 @@ protected:
   TH1F* fSLayerNegPhi;
   TH1F* fLayerNegPhi;
 
+  edm::InputTag G4VtxSrc_;
+  edm::InputTag G4TrkSrc_;
 };
 
 
 Geant4ePropagatorAnalyzer::Geant4ePropagatorAnalyzer(const edm::ParameterSet& iConfig):
   theRun(-1),
   theEvent(-1),
-  thePropagator(0) {
+  thePropagator(0),
+  G4VtxSrc_(iConfig.getParameter<edm::InputTag>("G4VtxSrc")),
+  G4TrkSrc_(iConfig.getParameter<edm::InputTag>("G4TrkSrc")) {
 
   //debug_ = iConfig.getParameter<bool>("debug");
   fStudyStation = iConfig.getParameter<int>("StudyStation");
@@ -361,7 +366,7 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
   ///////////////////////////////////////
   //Get the sim tracks & vertices 
   Handle<SimTrackContainer> simTracks;
-  iEvent.getByType<SimTrackContainer>(simTracks);
+  iEvent.getByLabel<SimTrackContainer>(G4TrkSrc_, simTracks);
   if (! simTracks.isValid() ){
     LogWarning("Geant4e") << "No tracks found" << std::endl;
     return;
@@ -369,7 +374,7 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
   LogDebug("Geant4e") << "G4e -- Got simTracks of size " << simTracks->size();
 
   Handle<SimVertexContainer> simVertices;
-  iEvent.getByType<SimVertexContainer>(simVertices);
+  iEvent.getByLabel<SimVertexContainer>(G4VtxSrc_, simVertices);
   if (! simVertices.isValid() ){
     LogWarning("Geant4e") << "No tracks found" << std::endl;
     return;
