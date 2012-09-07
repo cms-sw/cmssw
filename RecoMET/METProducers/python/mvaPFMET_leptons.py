@@ -44,7 +44,7 @@ isoelectrons = cms.EDFilter(
         )
 
 from RecoJets.Configuration.RecoPFJets_cff import kt6PFJets as dummy
-kt6PFJetsForRhoComputationVoronoi = dummy.clone(
+kt6PFJetsForRhoComputationVoronoiMet = dummy.clone(
         doRhoFastjet = True,
             voronoiRfact = 0.9
         )
@@ -67,7 +67,7 @@ requireDecayMode = cms.PSet(
 hpsPFTauDiscriminationByMVAIsolation = cms.EDProducer(
     "PFRecoTauDiscriminationByMVAIsolation",
             PFTauProducer = cms.InputTag('hpsPFTauProducer'),
-            rhoProducer = cms.InputTag('kt6PFJetsForRhoComputationVoronoi','rho'),
+            rhoProducer = cms.InputTag('kt6PFJetsForRhoComputationVoronoiMet','rho'),
             Prediscriminants = requireDecayMode.clone(),
             gbrfFilePath = cms.FileInPath('RecoTauTag/RecoTau/data/gbrfTauIso.root'),
             returnMVA = cms.bool(False),
@@ -91,7 +91,7 @@ isotaus = cms.EDFilter(
 isomuonseq     = cms.Sequence(isomuons)
 isoelectronseq = cms.Sequence(isoelectrons)
 isotauseq      = cms.Sequence(
-     kt6PFJetsForRhoComputationVoronoi*
+     kt6PFJetsForRhoComputationVoronoiMet*
      hpsPFTauDiscriminationByMVAIsolation*
      isotaus
     )
