@@ -495,7 +495,14 @@ FWFFLooper::endOfLoop(const edm::EventSetup&, unsigned int)
                                 e = m_scheduledChanges.end();
         i != e; ++i)
    {
-      moduleChanger()->changeModule(i->first, i->second);
+      try {
+         moduleChanger()->changeModule(i->first, i->second);
+      }
+      catch (cms::Exception const& e)
+      { 
+         fwLog(fwlog::kError) << "FWFFLooper::endOfLoop caught exception.\n";
+         std::cerr << e.what() << std::endl;
+      } 
    }
    m_scheduledChanges.clear();
    return kContinue;
