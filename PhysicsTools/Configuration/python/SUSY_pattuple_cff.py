@@ -8,8 +8,8 @@
 
 import FWCore.ParameterSet.Config as cms
 
-def addDefaultSUSYPAT(process,mcInfo=True,HLTMenu='HLT',jetMetCorrections=['L2Relative', 'L3Absolute'],mcVersion='',theJetNames = ['AK5PF'],doValidation=False,extMatch=False,doSusyTopProjection=False,doType1MetCorrection=True):
-    loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,doType1MetCorrection,'PF')
+def addDefaultSUSYPAT(process,mcInfo=True,HLTMenu='HLT',jetMetCorrections=['L2Relative', 'L3Absolute'],mcVersion='',theJetNames = ['AK5PF'],doValidation=False,extMatch=False,doSusyTopProjection=False,doType1MetCorrection=True,doType0MetCorrection=False):
+    loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,doType1MetCorrection,doType0MetCorrection,'PF')
     addTagInfos(process,jetMetCorrections)
     if not mcInfo:
         removeMCDependence(process)
@@ -161,7 +161,7 @@ def loadPAT(process,jetMetCorrections,extMatch):
         process.pfJets.doAreaFastjet = True
         process.pfJetsPF.doAreaFastjet = True
 
-def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,doType1MetCorrection,postfix):
+def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,doType1MetCorrection,doType0MetCorrection,postfix):
     #-- PAT standard config -------------------------------------------------------
     process.load("PhysicsTools.PatAlgos.patSequences_cff")
     #-- Jet corrections -----------------------------------------------------------
@@ -174,6 +174,13 @@ def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,doT
         postfix             = postfix,
         jetCorrections      = ('AK5PFchs', jetMetCorrections),
         typeIMetCorrections = doType1MetCorrection)
+
+    if doType0MetCorrection:
+        getattr(process,'patType1CorrectedPFMet'+postfix).srcType1Corrections = cms.VInputTag(
+            cms.InputTag("patPFJetMETtype1p2Corr"+postfix,"type1"),
+            cms.InputTag("patPFMETtype0Corr"+postfix)
+        )
+
 
     #process.patJetsPF.embedGenJetMatch = False
     #process.patJetsPF.embedPFCandidates = False
