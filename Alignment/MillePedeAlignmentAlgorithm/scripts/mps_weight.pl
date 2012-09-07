@@ -6,6 +6,7 @@
 # Options are:
 # -N name weight
 # -c
+# -l list all weights
 # Whenever -c is used, all weights are removed from mps.db
 # If neither the options -N nor -c are specified, then the first argument is interpreted as weight.
 # Consequently, the following list will be treated as a list of Mille jobs to which the weight is assigned.
@@ -35,6 +36,7 @@ my $firstnumber = 1;
 
 my $cleanall = 0;
 my $weight = 1.0;
+my $listwtx = 0;
 
 # parse the arguments
 while (@ARGV) {
@@ -57,6 +59,10 @@ while (@ARGV) {
        $weight = 1;
        $cleanall = 1;
      }
+   elsif($arg =~ /-l/g)
+     {
+       $listwtx = 1;
+     }
    else
      {
        if($firstnumber)
@@ -70,6 +76,25 @@ while (@ARGV) {
          }
      }
    }
+
+if($listwtx)
+  {
+    print "list of weights:\n\n";
+    print "job directory | name | weight\n";
+    for (my $i=0; $i<@JOBID; ++$i) {
+      unless($JOBDIR[$i] =~ /jobm/)
+        {
+           my $name = "undefined";
+           my $wtx = 1.0;
+           $name = $JOBSP3[$i] if(defined $JOBSP3[$i] && $JOBSP3[$i] ne "");
+           $wtx = $JOBSP2[$i] if(defined $JOBSP2[$i] && $JOBSP2[$i] ne "");
+           #print "$JOBDIR[$i]\t|\t$name\t|\t$wtx\n";
+           printf "%6s | %20s | %10.3f\n",$JOBDIR[$i],$name,$wtx;
+
+        }
+    }
+  }
+
 if($cleanall)
   {
     print "clean-up mps.db by removing all weights.\n";
