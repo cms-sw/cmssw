@@ -13,8 +13,11 @@
 
 #include "G4hMultipleScattering.hh"
 #include "G4eMultipleScattering.hh"
+#include "G4MuMultipleScattering.hh"
 #include "G4MscStepLimitType.hh"
 #include "CMSUrbanMscModel93.hh"
+#include "G4WentzelVIModel.hh"
+#include "G4CoulombScattering.hh"
 
 #include "G4eIonisation.hh"
 #include "G4eBremsstrahlung.hh"
@@ -181,10 +184,13 @@ void CMSEmStandardPhysicsLPM::ConstructProcess()
     } else if (particleName == "mu+" ||
                particleName == "mu-"    ) {
 
-      pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
+      G4MuMultipleScattering* mumsc = new G4MuMultipleScattering();
+      mumsc->AddEmModel(0, new G4WentzelVIModel());
+      pmanager->AddProcess(mumsc,                     -1, 1, 1);
       pmanager->AddProcess(new G4MuIonisation,        -1, 2, 2);
       pmanager->AddProcess(new G4MuBremsstrahlung,    -1,-3, 3);
       pmanager->AddProcess(new G4MuPairProduction,    -1,-4, 4);
+      pmanager->AddProcess(new G4CoulombScattering,   -1,-4, 5);
 
     } else if (particleName == "alpha" ||
                particleName == "He3" ||
@@ -241,6 +247,10 @@ void CMSEmStandardPhysicsLPM::ConstructProcess()
   //
   G4EmProcessOptions opt;
   opt.SetVerbose(verbose);
+
+  // muon scattering
+  opt.SetPolarAngleLimit(CLHEP::pi);
+
   // ApplyCuts
   //
   opt.SetApplyCuts(true);
