@@ -104,8 +104,8 @@ producePatPFMETCorrections = cms.Sequence(
    * selectedPatJetsForMETtype2Corr 
    * patPFJetMETtype1p2Corr
    * patPFJetMETtype2Corr
-   * type0PFMEtCorrection
-   * patPFMETtype0Corr
+   ##* type0PFMEtCorrection
+   ##* patPFMETtype0Corr
    * pfCandMETcorr 
    * patType1CorrectedPFMet
    * patType1p2CorrectedPFMet
