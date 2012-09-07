@@ -6,6 +6,3 @@
 @example_myparticle <use name="DataFormats/EgammaCandidates"/>
 @example_myparticle <use name "DataFormats/Candidate"/>
 <flags EDM_PLUGIN="1"/>
-<export>
-   <lib name="1"/>
-</export>
