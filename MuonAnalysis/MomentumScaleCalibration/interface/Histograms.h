@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2012/03/20 16:47:05 $
- *  $Revision: 1.34 $
+ *  $Date: 2012/05/07 10:03:38 $
+ *  $Revision: 1.35 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -243,17 +243,17 @@ class HParticle : public Histograms {
     hPt_(      new TH1F (name+"_Pt",      "transverse momentum", 100, 0, maxPt) ),
     hPtVsEta_( new TH2F (name+"_PtVsEta", "transverse momentum vs #eta", 100, 0, maxPt, 100, -3.0, 3.0) ),
    
-    hCurvVsEtaNeg_( new TProfile(name+"_CurvVsEtaNeg", "q/pT vs #eta neg.", 100, -3.0, 3., -1.,0.) ),
-    hCurvVsEtaPos_( new TProfile(name+"_CurvVsEtaPos", "q/pT vs #eta pos.", 100, -3.0, 3., 0., 1.) ),
-    hCurvVsPhiNeg_( new TProfile(name+"_CurvVsPhiNeg", "q/pT vs #phi neg.", 30, -3.2, 3.2, -1.,0.) ),
-    hCurvVsPhiPos_( new TProfile(name+"_CurvVsPhiPos", "q/pT vs #phi pos.", 30, -3.2, 3.2, 0., 1.) ),
+    hCurvVsEtaNeg_( new TProfile(name+"_CurvVsEtaNeg", "q/pT vs #eta neg.", 64, -3.2, 3.2, -1., 0.) ),
+    hCurvVsEtaPos_( new TProfile(name+"_CurvVsEtaPos", "q/pT vs #eta pos.", 64, -3.2, 3.2,  0., 1.) ),
+    hCurvVsPhiNeg_( new TProfile(name+"_CurvVsPhiNeg", "q/pT vs #phi neg.", 32, -3.2, 3.2, -1., 0.) ),
+    hCurvVsPhiPos_( new TProfile(name+"_CurvVsPhiPos", "q/pT vs #phi pos.", 32, -3.2, 3.2,  0., 1.) ),
 
-    hPtVsPhiNeg_( new TProfile(name+"_PtVsPhiNeg", "pT vs #phi neg.", 30, -3.2, 3.2, 0.,100) ),
-    hPtVsPhiPos_( new TProfile(name+"_PtVsPhiPos", "pT vs #phi pos.", 30, -3.2, 3.2, 0.,100) ),
+    hPtVsPhiNeg_( new TProfile(name+"_PtVsPhiNeg", "pT vs #phi neg.", 32, -3.2, 3.2, 0.,100) ),
+    hPtVsPhiPos_( new TProfile(name+"_PtVsPhiPos", "pT vs #phi pos.", 32, -3.2, 3.2, 0.,100) ),
 
     
-    hEta_(     new TH1F (name+"_Eta",     "pseudorapidity", 60, -3.0, 3.0) ),
-    hPhi_(     new TH1F (name+"_Phi",     "phi angle", 64, -3.2, 3.2) ),
+    hEta_(     new TH1F (name+"_Eta",     "pseudorapidity", 64, -3.2, 3.2) ),
+    hPhi_(     new TH1F (name+"_Phi",     "phi angle",      64, -3.2, 3.2) ),
     hMass_(    new TH1F (name+"_Mass",    "mass", 10000, minMass, maxMass) ),
     hNumber_( new TH1F (name+"_Number", "number", 20, -0.5, 19.5) )
   {}
@@ -270,17 +270,17 @@ class HParticle : public Histograms {
    
     hCurvVsEtaNeg_ = new TProfile(name+"_CurvVsEtaNeg", "q/pT vs #eta neg.", 100, -3.0, 3.0, -1. ,0.);
     hCurvVsEtaPos_ = new TProfile(name+"_CurvVsEtaPos", "q/pT vs #eta pos.", 100, -3.0, 3.0, 0., 1.);
-    hCurvVsPhiNeg_ = new TProfile(name+"_CurvVsPhiNeg", "q/pT vs #phi neg.", 30, -3.2, 3.2, -1. ,0.);
-    hCurvVsPhiPos_ = new TProfile(name+"_CurvVsPhiPos", "q/pT vs #phi pos.", 30, -3.2, 3.2, 0., 1.);
+    hCurvVsPhiNeg_ = new TProfile(name+"_CurvVsPhiNeg", "q/pT vs #phi neg.", 32, -3.2, 3.2, -1. ,0.);
+    hCurvVsPhiPos_ = new TProfile(name+"_CurvVsPhiPos", "q/pT vs #phi pos.", 32, -3.2, 3.2, 0., 1.);
 
-    hPtVsPhiNeg_ = new TProfile(name+"_PtVsPhiNeg", "pT vs #phi neg.", 30, -3.2, 3.2, 0.,100);
-    hPtVsPhiPos_ = new TProfile(name+"_PtVsPhiPos", "pT vs #phi pos.", 30, -3.2, 3.2, 0.,100);
+    hPtVsPhiNeg_ = new TProfile(name+"_PtVsPhiNeg", "pT vs #phi neg.", 32, -3.2, 3.2, 0.,100);
+    hPtVsPhiPos_ = new TProfile(name+"_PtVsPhiPos", "pT vs #phi pos.", 32, -3.2, 3.2, 0.,100);
 
 
     //hPtVSPhi_prof_ = new TProfile (name+"_PtVSPhi_prof", "pt vs phi angle",12, -3.2, 3.2, 0, 200);
 
-    hEta_ =     new TH1F (name+"_Eta", "pseudorapidity", 60, -3.0, 3.0);
-    hPhi_ =     new TH1F (name+"_Phi", "phi angle", 64, -3.2, 3.2);
+    hEta_ =     new TH1F (name+"_Eta", "pseudorapidity", 64, -3.2, 3.2);
+    hPhi_ =     new TH1F (name+"_Phi", "phi angle",      64, -3.2, 3.2);
     hMass_ =    new TH1F (name+"_Mass", "mass", 40000, minMass, maxMass);
     hNumber_ = new TH1F (name+"_Number", "number", 20, -0.5, 19.5);
   }
@@ -529,17 +529,17 @@ class HPartVSEta : public Histograms
   {
     name_ = name;
     hPtVSEta_ = new TH2F( name+"_PtVSEta", "transverse momentum vs pseudorapidity", 
-                          64, -3.0, 3.0, 200, 0, maxPt );
+                          32, -3.2, 3.2, 200, 0, maxPt );
     hMassVSEta_ = new TH2F( name+"_MassVSEta", "mass vs pseudorapidity", 
-                            64, -3.0, 3.0, 40, minMass, maxMass );
+                            32, -3.2, 3.2, 40, minMass, maxMass );
     // TD profile histograms
     // ---------------------
     hPtVSEta_prof_ = new TProfile( name+"_PtVSEta_prof", "mass vs pseudorapidity", 
-                                   12, -3, 3, 0, maxPt );
+                                   32, -3.2, 3.2, 0, maxPt );
     hMassVSEta_prof_ = new TProfile( name+"_MassVSEta_prof", "mass vs pseudorapidity", 
-                                     12, -3, 3, minMass, maxMass );
+                                     32, -3.2, 3.2, minMass, maxMass );
     hCurvVSEta_prof_ = new TProfile( name+"_CurvVSEta_prof", "curvature vs pseudorapidity", 
-                                     12, -3, 3, 0, 1. );
+                                     32, -3.2, 3.2, 0, 1. );
   }
 
   ~HPartVSEta() {
@@ -623,9 +623,9 @@ class HPartVSPhi : public Histograms
 
     // TD profile histograms
     hMassVSPhi_prof_ = new TProfile (name+"_MassVSPhi_prof", "mass vs phi angle", 
-                                     12, -3.2, 3.2, 70, 110);
+                                     16, -3.2, 3.2, 70, 110);
     hPtVSPhi_prof_ = new TProfile (name+"_PtVSPhi_prof", "pt vs phi angle", 
-                                   12, -3.2, 3.2, 0, 200);
+                                     16, -3.2, 3.2, 0, 200);
   }
 
   ~HPartVSPhi() {
@@ -799,29 +799,32 @@ class HMassVSPart : public Histograms
     // Kinematical variables
     // ---------------------
     hMassVSPt_       = new TH2F( name+"_MassVSPt", "resonance mass vs muon transverse momentum", 200, 0., maxPt, 6000, minMass, maxMass );
-    hMassVSEta_      = new TH2F( name+"_MassVSEta", "resonance mass vs muon pseudorapidity", 60, -6., 6., 6000, minMass, maxMass );
+
+    hMassVSEta_      = new TH2F( name+"_MassVSEta", "resonance mass vs muon pseudorapidity", 64, -6.4, 6.4, 6000, minMass, maxMass );
+    hMassVSEtaPlus_  = new TH2F( name+"_MassVSEtaPlus", "resonance mass vs muon+ pseudorapidity",  64, -6.4, 6.4,  6000, minMass, maxMass );
+    hMassVSEtaMinus_ = new TH2F( name+"_MassVSEtaMinus", "resonance mass vs muon- pseudorapidity", 64, -6.4, 6.4,  6000, minMass, maxMass );
+
+    hMassVSPhiPlus_  = new TH2F( name+"_MassVSPhiPlus", "resonance mass vs muon+ phi angle",  64, -3.2, 3.2, 6000, minMass, maxMass );
+    hMassVSPhiMinus_ = new TH2F( name+"_MassVSPhiMinus", "resonance mass vs muon- phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass );
+
     
     // J/Psi mass -----
 //     hMassVSEtaPhiPlus_      = new TH3F( name+"_MassVSEtaPhiPlus", "resonance mass vs muon+ phi/pseudorapidity",6, -3.2, 3.2, 20, -2.5, 2.5, 6000, minMass, maxMass );
 //     hMassVSEtaPhiMinus_      = new TH3F( name+"_MassVSEtaPhiMinus", "resonance mass vs muon- phi/pseudorapidity", 6, -3.2, 3.2, 20, -2.5, 2.5, 6000, minMass, maxMass );
  
     //Z mass -----------
-    hMassVSEtaPhiPlus_      = new TH3F( name+"_MassVSEtaPhiPlus",  "resonance mass vs muon+ phi/pseudorapidity", 12, -3.2, 3.2, 20, -2.4, 2.4, 300, minMass, maxMass );
-    hMassVSEtaPhiMinus_     = new TH3F( name+"_MassVSEtaPhiMinus", "resonance mass vs muon- phi/pseudorapidity", 12, -3.2, 3.2, 20, -2.4, 2.4, 300, minMass, maxMass );
+    hMassVSEtaPhiPlus_      = new TH3F( name+"_MassVSEtaPhiPlus",  "resonance mass vs muon+ phi/pseudorapidity", 16, -3.2, 3.2, 20, -2.4, 2.4, 300, minMass, maxMass );
+    hMassVSEtaPhiMinus_     = new TH3F( name+"_MassVSEtaPhiMinus", "resonance mass vs muon- phi/pseudorapidity", 16, -3.2, 3.2, 20, -2.4, 2.4, 300, minMass, maxMass );
 
     hMassVSCosThetaCS_      = new TH2F( name+"_MassVSCosThetaCS", "resonance mass vs cos(theta) (CS frame)", 40, -1., 1., 6000, minMass, maxMass );
     hMassVSPhiCS_           = new TH2F( name+"_MassVSPhiCS", "resonance mass vs phi (CS frame)", 64, -3.2, 3.2, 6000, minMass, maxMass );
 
-    hMassVSEtaPlus_       = new TH2F( name+"_MassVSEtaPlus", "resonance mass vs muon+ pseudorapidity",  64, -6.4, 6.4,  6000, minMass, maxMass );
-    hMassVSEtaMinus_      = new TH2F( name+"_MassVSEtaMinus", "resonance mass vs muon- pseudorapidity", 64, -6.4, 6.4,  6000, minMass, maxMass );
 
-    hMassVSPhiPlusPhiMinus_ = new TH3F( name+"_MassVSPhiPlusPhiMinus", "resonance mass vs muon+ phi/muon- phi", 6, -3.2, 3.2, 6, -3.2, 3.2, 6000, minMass, maxMass );
-    hMassVSEtaPlusEtaMinus_ = new TH3F( name+"_MassVSEtaPlusEtaMinus", "resonance mass vs muon+ eta/muon- eta",10, -2.4, 2.4,10, -2.4, 2.4, 6000, minMass, maxMass );
+    hMassVSPhiPlusPhiMinus_ = new TH3F( name+"_MassVSPhiPlusPhiMinus", "resonance mass vs muon+ phi/muon- phi",16, -3.2, 3.2,16, -3.2, 3.2, 6000, minMass, maxMass );
+    hMassVSEtaPlusEtaMinus_ = new TH3F( name+"_MassVSEtaPlusEtaMinus", "resonance mass vs muon+ eta/muon- eta",16, -3.2, 3.2,16, -3.2, 3.2, 6000, minMass, maxMass );
 
-    hMassVSPhiPlus_  = new TH2F( name+"_MassVSPhiPlus", "resonance mass vs muon+ phi angle",  64, -3.2, 3.2, 6000, minMass, maxMass );
-    hMassVSPhiMinus_ = new TH2F( name+"_MassVSPhiMinus", "resonance mass vs muon- phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass );
    
-    hMassVSEtaPlusMinusDiff_      = new TH2F( name+"_MassVSEtaPlusMinusDiff", "resonance mass vs delta pseudorapidity between mu+/mu-", 32, -4.4, 4.4, 6000, minMass, maxMass );
+    hMassVSEtaPlusMinusDiff_ = new TH2F( name+"_MassVSEtaPlusMinusDiff", "resonance mass vs delta pseudorapidity between mu+/mu-", 32, -4.4, 4.4, 6000, minMass, maxMass );
     hMassVSCosThetaCS_prof   = new TProfile (name+"_MassVScosTheta_prof", "resonance mass vs cosTheta", 40, -1., 1., 85., 95.);   
 
     //hMassVSPt_prof       = new TProfile (name+"_MassVSPt_prof", "resonance mass vs muon transverse momentum", 100, 0., 200., minMass, maxMass);
@@ -1062,7 +1065,7 @@ class HMassVSPartProfile : public Histograms
     // Kinematical variables
     // ---------------------
     hMassVSPt_       = new TProfile2D( name+"_MassVSPt", "resonance mass vs muon transverse momentum", 200, 0., maxPt, 6000, minMass, maxMass, 0., 100. );
-    hMassVSEta_      = new TProfile2D( name+"_MassVSEta", "resonance mass vs muon pseudorapidity", 60, -6., 6., 6000, minMass, maxMass, 0., 100. );
+    hMassVSEta_      = new TProfile2D( name+"_MassVSEta", "resonance mass vs muon pseudorapidity", 64, -6.4, 6.4, 6000, minMass, maxMass, 0., 100. );
     hMassVSPhiPlus_  = new TProfile2D( name+"_MassVSPhiPlus", "resonance mass vs muon+ phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass, 0., 100. );
     hMassVSPhiMinus_ = new TProfile2D( name+"_MassVSPhiMinus", "resonance mass vs muon- phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass, 0., 100. );
    }
@@ -1160,12 +1163,12 @@ class HResolutionVSPart : public Histograms
     hResoVSPt_Ovlap_ = new TH2F( name+"_ResoVSPt_Ovlap", "resolution VS pt overlap", 200, 0, maxPt, 200, yMinPt, yMaxPt );
     hResoVSEta_      = new TH2F( name+"_ResoVSEta", "resolution VS eta", 200, -3, 3, 200, yMinEta, yMaxEta );
     hResoVSTheta_    = new TH2F( name+"_ResoVSTheta", "resolution VS theta", 30, 0, TMath::Pi(), 200, yMinEta, yMaxEta );
-    hResoVSPhiPlus_  = new TH2F( name+"_ResoVSPhiPlus", "resolution VS phi mu+", 14, -3.2, 3.2, 200, -1, 1 );
-    hResoVSPhiMinus_ = new TH2F( name+"_ResoVSPhiMinus", "resolution VS phi mu-", 14, -3.2, 3.2, 200, -1, 1 );
+    hResoVSPhiPlus_  = new TH2F( name+"_ResoVSPhiPlus", "resolution VS phi mu+",  16, -3.2, 3.2, 200, -1, 1 );
+    hResoVSPhiMinus_ = new TH2F( name+"_ResoVSPhiMinus", "resolution VS phi mu-", 16, -3.2, 3.2, 200, -1, 1 );
     hAbsReso_        = new TH1F( name+"_AbsReso", "resolution", 100, 0, 1 );
     hAbsResoVSPt_    = new TH2F( name+"_AbsResoVSPt", "Abs resolution VS pt", 200, 0, maxPt, 100, 0, 1 );
-    hAbsResoVSEta_   = new TH2F( name+"_AbsResoVSEta", "Abs resolution VS eta", 60, -3, 3, 100, 0, 1 );
-    hAbsResoVSPhi_   = new TH2F( name+"_AbsResoVSPhi", "Abs resolution VS phi", 14, -3.2, 3.2, 100, 0, 1 );
+    hAbsResoVSEta_   = new TH2F( name+"_AbsResoVSEta", "Abs resolution VS eta", 64, -3.2, 3.2, 100, 0, 1 );
+    hAbsResoVSPhi_   = new TH2F( name+"_AbsResoVSPhi", "Abs resolution VS phi", 16, -3.2, 3.2, 100, 0, 1 );
     if( doProfiles_ ) {
       hResoVSPt_prof_    = new TProfile(name+"_ResoVSPt_prof", "resolution VS pt", 100, 0, maxPt, yMinPt, yMaxPt );
       hResoVSPt_Bar_prof_    = new TProfile(name+"_ResoVSPt_Bar_prof", "resolution VS pt Barrel", 100, 0, maxPt, yMinPt, yMaxPt );
@@ -1173,8 +1176,8 @@ class HResolutionVSPart : public Histograms
       hResoVSPt_Endc_20_prof_   = new TProfile(name+"_ResoVSPt_Endc_2.0_prof", "resolution VS pt Endcap (1.7<eta<2.0)", 100, 0, maxPt, yMinPt, yMaxPt );
       hResoVSPt_Endc_24_prof_   = new TProfile(name+"_ResoVSPt_Endc_2.4_prof", "resolution VS pt Endcap (2.0<eta<2.4)", 100, 0, maxPt, yMinPt, yMaxPt );
       hResoVSPt_Ovlap_prof_  = new TProfile(name+"_ResoVSPt_Ovlap_prof", "resolution VS pt Overlap", 100, 0, maxPt, yMinPt, yMaxPt );
-      hResoVSEta_prof_       = new TProfile(name+"_ResoVSEta_prof", "resolution VS eta", 100, -3.0, 3.0, yMinEta, yMaxEta );
-      hResoVSPhi_prof_       = new TProfile(name+"_ResoVSPhi_prof", "resolution VS phi", 14, -3.2, 3.2, -1, 1 );
+      hResoVSEta_prof_       = new TProfile(name+"_ResoVSEta_prof", "resolution VS eta", 200, -3.0, 3.0, yMinEta, yMaxEta );
+      hResoVSPhi_prof_       = new TProfile(name+"_ResoVSPhi_prof", "resolution VS phi", 16, -3.2, 3.2, -1, 1 );
     }
   }
   
@@ -1491,9 +1494,9 @@ class HFunctionResolution : public Histograms
     hResoVSPt_Ovlap_prof_ = new TProfile( name+"_ResoVSPt_Ovlap_prof", "resolution VS pt Overlap", totBinsX_, xMin_, xMax, yMin_, yMax);
     hResoVSEta_prof_      = new TProfile( name+"_ResoVSEta_prof", "resolution VS eta", totBinsY_, yMin_, yMax, 0, 1);
     //hResoVSTheta_prof_    = new TProfile( name+"_ResoVSTheta_prof", "resolution VS theta", 30, 0, TMath::Pi(), 0, 1);
-    hResoVSPhiPlus_prof_  = new TProfile( name+"_ResoVSPhiPlus_prof", "resolution VS phi mu+", 14, -3.2, 3.2, 0, 1);
-    hResoVSPhiMinus_prof_ = new TProfile( name+"_ResoVSPhiMinus_prof", "resolution VS phi mu-", 14, -3.2, 3.2, 0, 1);
-    hResoVSPhi_prof_      = new TProfile( name+"_ResoVSPhi_prof", "resolution VS phi", 14, -3.2, 3.2, -1, 1);
+    hResoVSPhiPlus_prof_  = new TProfile( name+"_ResoVSPhiPlus_prof", "resolution VS phi mu+", 16, -3.2, 3.2, 0, 1);
+    hResoVSPhiMinus_prof_ = new TProfile( name+"_ResoVSPhiMinus_prof", "resolution VS phi mu-", 16, -3.2, 3.2, 0, 1);
+    hResoVSPhi_prof_      = new TProfile( name+"_ResoVSPhi_prof", "resolution VS phi", 16, -3.2, 3.2, -1, 1);
   }
   ~HFunctionResolution() {
     delete hReso_;
