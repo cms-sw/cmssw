@@ -46,10 +46,10 @@ class fltrname : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
-      virtual bool beginRun(edm::Run&, edm::EventSetup const&);
-      virtual bool endRun(edm::Run&, edm::EventSetup const&);
-      virtual bool beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual bool endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+      //virtual bool beginRun(edm::Run&, edm::EventSetup const&);
+      //virtual bool endRun(edm::Run&, edm::EventSetup const&);
+      //virtual bool beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+      //virtual bool endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 
       // ----------member data ---------------------------
 };
@@ -114,33 +114,41 @@ fltrname::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
-bool 
+/*
+bool
 fltrname::beginRun(edm::Run&, edm::EventSetup const&)
 { 
   return true;
 }
-
+*/
+ 
 // ------------ method called when ending the processing of a run  ------------
-bool 
+/*
+bool
 fltrname::endRun(edm::Run&, edm::EventSetup const&)
 {
   return true;
 }
-
+*/
+ 
 // ------------ method called when starting to processes a luminosity block  ------------
-bool 
+/*
+bool
 fltrname::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
   return true;
 }
-
+*/
+ 
 // ------------ method called when ending the processing of a luminosity block  ------------
-bool 
+/*
+bool
 fltrname::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
   return true;
 }
-
+*/
+ 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 fltrname::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
