@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:50 CET 2011
-// $Id: FWPSetTableManager.h,v 1.8 2011/03/04 18:53:10 amraktad Exp $
+// $Id: FWPSetTableManager.h,v 1.9 2012/04/06 19:51:38 amraktad Exp $
 //
 
 // system include files
@@ -82,7 +82,7 @@ public:
       bool        childMatches;
       bool        editable;
 
-      edm::ParameterSet pset;
+      edm::ParameterSet *pset;
    };
 
    FWPSetTableManager();
@@ -126,6 +126,9 @@ protected:
           looper reloaded. 
       */
       bool              dirty;
+
+     edm::ParameterSet *orig_pset;
+     edm::ParameterSet *current_pset;
    };
 
    /** Datum for updating the path status information */
@@ -174,9 +177,9 @@ private:
    void setCellValueEditor(FWPSetCellEditor *editor);
 
    void handleEntry(const edm::Entry &entry,const std::string &key);
-   void handlePSetEntry(const edm::ParameterSetEntry& entry, const std::string& key);
-   void handleVPSetEntry(const edm::VParameterSetEntry& entry, const std::string& key);
-   void handlePSet(const edm::ParameterSet &ps);
+   void handlePSetEntry(edm::ParameterSetEntry& entry, const std::string& key);
+   void handleVPSetEntry(edm::VParameterSetEntry& entry, const std::string& key);
+   void handlePSet(edm::ParameterSet *psp);
 
    std::vector<PSetData>           m_entries;
    /** Index in m_entries where to find paths */

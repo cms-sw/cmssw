@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 20:44:59 CET 2011
-// $Id: FWPSetCellEditor.cc,v 1.2 2011/03/04 20:06:57 amraktad Exp $
+// $Id: FWPSetCellEditor.cc,v 1.3 2012/09/07 02:29:58 amraktad Exp $
 //
 #include <boost/algorithm/string.hpp>
 #include <sstream>
@@ -259,55 +259,55 @@ bool FWPSetCellEditor::apply(FWPSetTableManager::PSetData &data, FWPSetTableMana
    switch (data.type)
    {
       case 'I':
-         editNumericParameter<int32_t>(parent.pset, data.tracked, data.label, GetText());
+         editNumericParameter<int32_t>(*parent.pset, data.tracked, data.label, GetText());
          break;
        case 'B':
          editBoolParameter(parent.pset, data.tracked, data.label, GetText());
          break;
       case 'U':
-         editNumericParameter<uint32_t>(parent.pset, data.tracked, data.label, GetText());
+         editNumericParameter<uint32_t>(*parent.pset, data.tracked, data.label, GetText());
          break;
       case 'D':
-         editNumericParameter<double>(parent.pset, data.tracked, data.label, GetText());
+         editNumericParameter<double>(*parent.pset, data.tracked, data.label, GetText());
          break;
       case 'L':
-         editNumericParameter<long long>(parent.pset, data.tracked, data.label, GetText());
+         editNumericParameter<long long>(*parent.pset, data.tracked, data.label, GetText());
          break;
       case 'X':
-         editNumericParameter<unsigned long long>(parent.pset, data.tracked, data.label, GetText());
+         editNumericParameter<unsigned long long>(*parent.pset, data.tracked, data.label, GetText());
          break;
       case 'S':
-         editStringParameter(parent.pset, data.tracked, data.label, GetText());
+         editStringParameter(*parent.pset, data.tracked, data.label, GetText());
          break;
       case 'i':
-         editVectorParameter<int32_t>(parent.pset, data.tracked, data.label, GetText());
+         editVectorParameter<int32_t>(*parent.pset, data.tracked, data.label, GetText());
          break;
       case 'u':
-         editVectorParameter<uint32_t>(parent.pset, data.tracked, data.label, GetText());
+         editVectorParameter<uint32_t>(*parent.pset, data.tracked, data.label, GetText());
          break;
       case 'l':
-         editVectorParameter<long long>(parent.pset, data.tracked, data.label, GetText());
+         editVectorParameter<long long>(*parent.pset, data.tracked, data.label, GetText());
          break;
       case 'x':
-         editVectorParameter<unsigned long long>(parent.pset, data.tracked, data.label, GetText());
+         editVectorParameter<unsigned long long>(*parent.pset, data.tracked, data.label, GetText());
          break;
       case 'd':
-         editVectorParameter<double>(parent.pset, data.tracked, data.label, GetText());
+         editVectorParameter<double>(*parent.pset, data.tracked, data.label, GetText());
          break;
       case 's':
-         editVectorParameter<std::string>(parent.pset, data.tracked, data.label, GetText());
+         editVectorParameter<std::string>(*parent.pset, data.tracked, data.label, GetText());
          break; 
       case 't':
-         editInputTag(parent.pset, data.tracked, data.label, GetText());
+         editInputTag(*parent.pset, data.tracked, data.label, GetText());
          break;
       case 'g':
-         editESInputTag(parent.pset, data.tracked, data.label, GetText());
+         editESInputTag(*parent.pset, data.tracked, data.label, GetText());
          break;
       case 'v':
-         editVInputTag(parent.pset, data.tracked, data.label, GetText());
+         editVInputTag(*parent.pset, data.tracked, data.label, GetText());
          break;
       case 'F':
-         editFileInPath(parent.pset, data.tracked, data.label, GetText());
+         editFileInPath(*parent.pset, data.tracked, data.label, GetText());
          break;
       default:
          fwLog(fwlog::kError) << "unsupported parameter" << std::endl;

@@ -242,7 +242,7 @@ FWPathsPopup::scheduleReloadEvent()
          if (module.dirty == false)
             continue;
          FWPSetTableManager::PSetData &data = m_psTable->entries()[module.entry];
-         m_looper->requestChanges(data.label, data.pset);
+         m_looper->requestChanges(data.label, * module.current_pset);
       }
       m_hasChanges = true;
       m_apply->SetEnabled(false);
