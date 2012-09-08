@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:54 CET 2011
-// $Id: FWPSetTableManager.cc,v 1.16 2012/07/31 00:14:47 amraktad Exp $
+// $Id: FWPSetTableManager.cc,v 1.17 2012/09/08 04:47:56 matevz Exp $
 //
 
 #include <map>
@@ -159,6 +159,7 @@ void FWPSetTableManager::handleVPSetEntry(edm::VParameterSetEntry& entry, const 
       vdata.module = m_modules.size() - 1;
       vdata.path = m_paths.size() - 1;
       vdata.editable = false;
+      vdata.pset = &entry.vpset()[i];
       m_parentStack.push_back(m_entries.size());
       m_entries.push_back(vdata);
       handlePSet( & entry.vpset()[i]);
@@ -224,7 +225,7 @@ void FWPSetTableManager::handleEntry(const edm::Entry &entry,const std::string &
    data.parent = m_parentStack.back();
    data.module = m_modules.size() - 1;
    data.type = entry.typeCode();
-   if (data.label[0] == '@' || data.level > 2)
+   if (data.label[0] == '@')
       data.editable = false;
    else
       data.editable = true;
@@ -592,6 +593,7 @@ bool FWPSetTableManager::applyEditor()
    try
    {
       success = m_editor->apply(data, parent);
+
       if (success)
       {
          data.value = m_editor->GetText();
