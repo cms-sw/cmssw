@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 20:44:59 CET 2011
-// $Id: FWPSetCellEditor.cc,v 1.4 2012/09/08 04:47:56 matevz Exp $
+// $Id: FWPSetCellEditor.cc,v 1.5 2012/09/08 05:04:36 matevz Exp $
 //
 #include <boost/algorithm/string.hpp>
 #include <sstream>
@@ -264,7 +264,7 @@ bool FWPSetCellEditor::apply(FWPSetTableManager::PSetData &data, FWPSetTableMana
          editNumericParameter<int32_t>(*parent.pset, data.tracked, data.label, GetText());
          break;
        case 'B':
-         editBoolParameter(parent.pset, data.tracked, data.label, GetText());
+         editBoolParameter(*parent.pset, data.tracked, data.label, GetText());
          break;
       case 'U':
          editNumericParameter<uint32_t>(*parent.pset, data.tracked, data.label, GetText());
