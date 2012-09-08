@@ -1,7 +1,9 @@
 2012-09-03 Srecko Morovic <srecko.morovic@cern.ch>
 
+	* tag V02-05-22
 	* dataset and stream information for dataset counters
 	  now read from process pset and passed to the FUShmOutputModules
+	* proper resetting number of datasets in trigger report helper reset
 
 2012-09-02 Srecko Morovic <srecko.morovic@cern.ch>
 

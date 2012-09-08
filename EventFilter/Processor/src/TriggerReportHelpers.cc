@@ -125,6 +125,7 @@ void TriggerReportHelpers::formatReportTable(edm::TriggerReport &tr,
   //adjust number of trigger- and end-paths in static structure
   trp->trigPathsInMenu = tr.trigPathSummaries.size();
   trp->endPathsInMenu = tr.endPathSummaries.size();
+  trp->datasetsInMenu = 0;//known in beginRun
   ///
 
   l1pos_.resize(tr.trigPathSummaries.size()+tr.endPathSummaries.size(),-1);
@@ -415,9 +416,9 @@ void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr,
       }
     }
   //dataset statistics
+  unsigned int datasetIndex = 0;
   if (sor) {
     std::vector<edm::FUShmOutputModule *> & shmOutputsWithDatasets_ = sor->getShmOutputModulesWithDatasets();
-    unsigned int datasetIndex = 0;
     for (unsigned int i=0;i<shmOutputsWithDatasets_.size();i++)
     {
       std::vector<unsigned int> & outputCounters = shmOutputsWithDatasets_[i]->getDatasetCounts();
@@ -429,8 +430,8 @@ void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr,
       }
       shmOutputsWithDatasets_[i]->clearDatasetCounts();
     }
-    trp->datasetsInMenu=datasetIndex;
   }
+  trp->datasetsInMenu=datasetIndex;
 
   trp_ = tr;
   for(int i = 0; i < trp->endPathsInMenu; i++)
