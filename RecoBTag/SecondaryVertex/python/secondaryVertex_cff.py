@@ -5,6 +5,8 @@ from RecoBTau.JetTagComputer.jetTagRecord_cfi import *
 from RecoBTag.SecondaryVertex.secondaryVertexTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.simpleSecondaryVertex2TrkES_cfi import *
 from RecoBTag.SecondaryVertex.simpleSecondaryVertex3TrkES_cfi import *
+from RecoBTag.SecondaryVertex.doubleVertex2TrkES_cfi import *
+from RecoBTag.SecondaryVertex.doubleSecondaryVertexHighEffBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.simpleSecondaryVertexHighEffBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.simpleSecondaryVertexHighPurBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.combinedSecondaryVertexES_cfi import *

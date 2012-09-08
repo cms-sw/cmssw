@@ -16,17 +16,22 @@
 class SimpleSecondaryVertexComputer : public JetTagComputer {
     public:
 	SimpleSecondaryVertexComputer(const edm::ParameterSet &parameters) :
-		use2d(!parameters.getParameter<bool>("use3d")),
+	        use2d(!parameters.getParameter<bool>("use3d")),
 		useSig(parameters.getParameter<bool>("useSignificance")),
-		unBoost(parameters.getParameter<bool>("unBoost")),
-		minTracks(parameters.getParameter<unsigned int>("minTracks"))
-	{ uses("svTagInfos"); }
+	        unBoost(parameters.getParameter<bool>("unBoost")),
+	        minTracks(parameters.getParameter<unsigned int>("minTracks")),
+	        minVertices_(1)
+		  { 
+		    uses("svTagInfos"); 
+		    minVertices_    = parameters.existsAs<unsigned int>("minVertices") ?  parameters.getParameter<unsigned int>("minVertices") : 1 ;
+		  }
 
 	float discriminator(const TagInfoHelper &tagInfos) const
 	{
 		const reco::SecondaryVertexTagInfo &info =
 				tagInfos.get<reco::SecondaryVertexTagInfo>();
-		unsigned int idx = 0;
+		if(info.nVertices() < minVertices_) return -1;
+                unsigned int idx = 0;
 		while(idx < info.nVertices()) {
 			if (info.nVertexTracks(idx) >= minTracks)
 				break;
@@ -63,6 +68,7 @@ class SimpleSecondaryVertexComputer : public JetTagComputer {
 	bool		useSig;
 	bool		unBoost;
 	unsigned int	minTracks;
+	unsigned int    minVertices_;
 };
 
 #endif // RecoBTag_SecondaryVertex_SimpleSecondaryVertexComputer_h
