@@ -15,6 +15,10 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
+process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
+
+# Run on corrected jets
+process.ak5JetTracksAssociatorAtVertex.jets = cms.InputTag("ak5CaloJetsL1FastL2L3")
 
 process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
 process.load('RecoBTag/SecondaryVertex/bToCharmDecayVertexMerger_cfi')
@@ -25,7 +29,17 @@ process.load('RecoBTag/SecondaryVertex/bToCharmDecayVertexMerger_cfi')
 process.IVFAnalyzer = cms.EDAnalyzer('IVFAnalyzer')
 
 
-process.plots = cms.Path(process.inclusiveVertexing * process.inclusiveMergedVerticesFiltered * process.bToCharmDecayVertexMerged * process.IVFAnalyzer )
+process.plots = cms.Path(process.inclusiveVertexing *
+                         process.inclusiveMergedVerticesFiltered *
+                         process.bToCharmDecayVertexMerged *
+                         process.ak5CaloJetsL1FastL2L3 *
+                         process.ak5JetTracksAssociatorAtVertex *
+                         process.btagging *
+                         process.inclusiveSecondaryVertexFinderTagInfosFiltered *
+                         process.simpleInclusiveSecondaryVertexHighEffBJetTags *
+                         process.simpleInclusiveSecondaryVertexHighPurBJetTags *
+                         process.doubleSecondaryVertexHighEffBJetTags *
+                         process.IVFAnalyzer )
 
 
 

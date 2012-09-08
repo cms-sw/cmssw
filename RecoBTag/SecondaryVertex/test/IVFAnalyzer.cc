@@ -14,8 +14,9 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 #include "RecoBTag/SecondaryVertex/interface/SecondaryVertex.h"
-
+#include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
+#include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -48,25 +49,15 @@ IVFAnalyzer::IVFAnalyzer(const edm::ParameterSet& pSet){
 
 void IVFAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup){
 
+
   using namespace reco;
 
+  // some analysis on the inclusive vertices
+
   // get the IVF collection
-  edm::Handle<VertexCollection> plainIVF;
-  event.getByLabel("inclusiveMergedVerticesFiltered" , plainIVF);
 
  edm::Handle<VertexCollection> BtoCharmIVF;
  event.getByLabel("bToCharmDecayVertexMerged" , BtoCharmIVF);
-
- if(plainIVF->size() != BtoCharmIVF->size()) std::cout<<" **** DIFF FOUND **** " << std::endl;
-
-  std::cout<<"plain IVF vertices size = " << plainIVF->size() << "  :" << std::endl;
-  for(std::vector<reco::Vertex>::const_iterator sv = plainIVF->begin();
-      sv != plainIVF->end(); ++sv) {
- 
-    std::cout<<"  pos: x="<< (*sv).position().x()  << " y="<< (*sv).position().y() << " z=" << (*sv).position().z() <<" ntracks=" << (*sv).nTracks() 
-	     << " MASS = " << (*sv).p4().M() << " px="<< (*sv).p4().X() << " py="<<(*sv).p4().Y()<<" pz="<<(*sv).p4().Z()<< std::endl;
-  }
-  
 
 
   // get the IVF with B to charm merging
@@ -85,6 +76,29 @@ void IVFAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup)
   }
   
 
+  // ***************************************
+  // now access the double b-tagger prototype
+  edm::Handle<reco::JetTagCollection> bTagHandle;
+  event.getByLabel( "simpleInclusiveSecondaryVertexHighEffBJetTags", bTagHandle);
+  const reco::JetTagCollection & tagColl = *(bTagHandle.product());
+
+  edm::Handle<reco::JetTagCollection> doubleTagHandle;
+  event.getByLabel( "doubleSecondaryVertexHighEffBJetTags", doubleTagHandle);
+  const reco::JetTagCollection & doubleTagColl = *(doubleTagHandle.product());
+
+  for(reco::JetTagCollection::const_iterator it = tagColl.begin() ; it!=tagColl.end() ; ++it)
+  {
+    std::cout<<" simple SSV b-tag discriminator = " << it->second << std::endl;
+    if(it->second > -0.5) std::cout<<" **** THIS JET HAS ONE VERTEX ****"<<std::endl;
+  }
+
+
+  for(reco::JetTagCollection::const_iterator it = doubleTagColl.begin() ; it!=doubleTagColl.end() ; ++it)
+  {
+    std::cout<<" DOUBLE b-tag discriminator = " << it->second << std::endl;
+    if(it->second > -0.5) std::cout<<" **** THIS JET HAS TWO VERTICES AND IS DOUBLE TAGGED !!! ****"<<std::endl;
+  }
+ 
 }
 
 
