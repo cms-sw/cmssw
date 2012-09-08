@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 20:44:59 CET 2011
-// $Id: FWPSetCellEditor.cc,v 1.3 2012/09/07 02:29:58 amraktad Exp $
+// $Id: FWPSetCellEditor.cc,v 1.4 2012/09/08 04:47:56 matevz Exp $
 //
 #include <boost/algorithm/string.hpp>
 #include <sstream>
@@ -53,10 +53,12 @@ void editStringParameter(edm::ParameterSet &ps, bool tracked,
 
 //______________________________________________________________________________
 
-void editBoolParameter(edm::ParameterSet &ps, bool tracked,
-                         const std::string &label,
-                         const std::string &value)
+void editBoolParameter(edm::ParameterSet *psp, bool tracked,
+		       const std::string &label,
+		       const std::string &value)
 {
+  edm::ParameterSet &ps = *psp;
+
    bool x = false;
 
    if (boost::iequals(value, "true")) {
