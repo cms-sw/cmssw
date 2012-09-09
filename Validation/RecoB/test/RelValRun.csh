@@ -1,11 +1,13 @@
 #!/bin/tcsh
 
 cd TTbar_Startup
-cmsRun validation_cfg.py jets="ak5PFJEC" >& stttb.txt &
+cmsRun reco_validation_cfg.py >& stttb.txt &
 cd ../TTbar_Startup_PU
-cmsRun validation_cfg.py jets="ak5PFnoPU" >& puttb.txt &
+cmsRun reco_validation_cfg.py >& puttb.txt &
 cd ../TTbar_FastSim
-cmsRun validation_cfg.py jets="ak5PFJEC" >& fsttb.txt &
+cmsRun reco_validation_cfg.py >& fsttb.txt &
 cd ../QCD_Startup
-cmsRun validation_cfg.py jets="ak5PFJEC" >& stqcd.txt &
+cmsRun reco_validation_cfg.py >& stqcd.txt &
+cd ../DATA
+cmsRun reco_validation_cfg.py >& data.txt &
 cd ../
