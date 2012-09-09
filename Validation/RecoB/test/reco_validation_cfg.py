@@ -43,7 +43,6 @@ process.dqmSaver.saveAtJobEnd =cms.untracked.bool(True)
 process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
 
 process.PoolSource.fileNames = [
-       '/store/relval/CMSSW_6_0_0/RelValTTbar/DQM/PU_START60_V4-v1/0003/EC568D77-60F6-E111-B672-003048D2BA82.root',
-       '/store/relval/CMSSW_6_0_0/RelValTTbar/DQM/PU_START60_V4-v1/0003/BC1A15D0-DDF5-E111-A722-0030486780B4.root' 
+
 ]
 
