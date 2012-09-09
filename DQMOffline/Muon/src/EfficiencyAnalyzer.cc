@@ -155,14 +155,14 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
   // ==========================================================
   //Vertex information
   
+  edm::Handle<reco::VertexCollection> vertex;
+  iEvent.getByLabel(vertexTag, vertex);
+
   _numPV = 0;
   bool bPrimaryVertex = true;
   if(_doPVCheck){ 
     bPrimaryVertex = false;
-      
-    edm::Handle<reco::VertexCollection> vertex;
-    iEvent.getByLabel(vertexTag, vertex);
-
+         
     if (!vertex.isValid()) {
       LogTrace(metname) << "[EfficiencyAnalyzer] Could not find vertex collection" << std::endl;
       bPrimaryVertex = false;
@@ -198,24 +198,30 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
 
   reco::Vertex::Point posVtx;
   reco::Vertex::Error errVtx;
- 
+
   unsigned int theIndexOfThePrimaryVertex = 999.;
  
-  edm::Handle<reco::VertexCollection> vertex;
-  iEvent.getByLabel(vertexTag, vertex);
+  
+  if ( vertex.isValid() ){
 
-  for (unsigned int ind=0; ind<vertex->size(); ++ind) {
-    if ( (*vertex)[ind].isValid() && !((*vertex)[ind].isFake()) ) {
-      theIndexOfThePrimaryVertex = ind;
-      break;
+    for (unsigned int ind=0; ind<vertex->size(); ++ind) {
+    
+      if ( (*vertex)[ind].isValid() && !((*vertex)[ind].isFake()) ) {
+      
+	theIndexOfThePrimaryVertex = ind;
+	break;
+      }
     }
   }
+
   if (theIndexOfThePrimaryVertex<100) {
     posVtx = ((*vertex)[theIndexOfThePrimaryVertex]).position();
     errVtx = ((*vertex)[theIndexOfThePrimaryVertex]).error();
   }   else {
-    LogInfo("RecoMuonValidator") << "reco::PrimaryVertex not found, use BeamSpot position instead\n";
+
+    LogInfo("EfficiencyAnalyzer") << "reco::PrimaryVertex not found, use BeamSpot position instead\n";
   
+
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
     iEvent.getByLabel(bsTag,recoBeamSpotHandle);
     
@@ -225,7 +231,8 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
     errVtx(0,0) = bs.BeamWidthX();
     errVtx(1,1) = bs.BeamWidthY();
     errVtx(2,2) = bs.sigmaZ();
-  }
+  
+      }
   const reco::Vertex thePrimaryVertex(posVtx,errVtx);
 
   // ==========================================================

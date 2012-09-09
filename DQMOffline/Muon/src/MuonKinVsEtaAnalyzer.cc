@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/08/27 10:03:23 $
- *  $Revision: 1.6 $
+ *  $Date: 2012/08/27 11:46:51 $
+ *  $Revision: 1.7 $
  *  \author S. Goy Lopez, CIEMAT 
  */
 
@@ -156,12 +156,16 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::Handle<reco::VertexCollection> vertex;
   iEvent.getByLabel(vertexTag, vertex);
 
-  for (unsigned int ind=0; ind<vertex->size(); ++ind) {
-    if ( (*vertex)[ind].isValid() && !((*vertex)[ind].isFake()) ) {
-      theIndexOfThePrimaryVertex = ind;
-      break;
+  if (vertex.isValid()){
+
+    for (unsigned int ind=0; ind<vertex->size(); ++ind) {
+      if ( (*vertex)[ind].isValid() && !((*vertex)[ind].isFake()) ) {
+	theIndexOfThePrimaryVertex = ind;
+	break;
+      }
     }
   }
+
   if (theIndexOfThePrimaryVertex<100) {
     posVtx = ((*vertex)[theIndexOfThePrimaryVertex]).position();
     errVtx = ((*vertex)[theIndexOfThePrimaryVertex]).error();

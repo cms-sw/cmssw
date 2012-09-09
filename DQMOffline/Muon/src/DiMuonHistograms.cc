@@ -104,12 +104,14 @@ void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& 
   edm::Handle<reco::VertexCollection> vertex;
   iEvent.getByLabel(vertexTag, vertex);
 
+ if ( vertex.isValid() ){
   for (unsigned int ind=0; ind<vertex->size(); ++ind) {
     if ( (*vertex)[ind].isValid() && !((*vertex)[ind].isFake()) ) {
       theIndexOfThePrimaryVertex = ind;
       break;
     }
   }
+ }
   if (theIndexOfThePrimaryVertex<100) {
     posVtx = ((*vertex)[theIndexOfThePrimaryVertex]).position();
     errVtx = ((*vertex)[theIndexOfThePrimaryVertex]).error();
