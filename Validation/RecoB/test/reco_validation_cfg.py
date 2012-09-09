@@ -2,28 +2,21 @@
 
 #! /bin/env cmsRun
 
+#file used in the past to run on RECO files, now used for harvesting only on DQM files
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("validation")
+runOnMC = True
+
+process = cms.Process("harvest")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 #keep the logging output to a nice level
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.load("DQMServices.Core.DQM_cfg")
 
-# load the full reconstraction configuration, to make sure we're getting all needed dependencies
-process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load("Configuration.StandardSequences.Reconstruction_cff")
-
-process.load("PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi")  
-
-process.load("Validation.RecoB.bTagAnalysis_cfi")
-process.bTagValidation.jetMCSrc = 'AK5byValAlgo'
-process.bTagValidation.allHistograms = True 
-#process.bTagValidation.fastMC = True
+process.load("RecoBTag.Configuration.RecoBTag_cff")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -32,7 +25,15 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring()
 )
 
-process.plots = cms.Path(process.myPartons* process.AK5Flavour * process.btagging * process.bTagValidation * process.dqmSaver)
+process.load("DQMOffline.RecoB.dqmCollector_cff")
+if runOnMC:
+    process.dqmSeq = cms.Sequence(process.bTagCollectorSequenceMC * process.dqmSaver)
+else:
+    process.dqmSeq = cms.Sequence(process.bTagCollectorSequenceDATA * process.dqmSaver)
+
+process.load("DQMServices.Components.EDMtoMEConverter_cfi")
+process.plots = cms.Path(process.EDMtoMEConverter * process.dqmSeq)
+
 process.dqmEnv.subSystemFolder = 'BTAG'
 process.dqmSaver.producer = 'DQM'
 process.dqmSaver.workflow = '/POG/BTAG/BJET'
@@ -40,12 +41,9 @@ process.dqmSaver.convention = 'Offline'
 process.dqmSaver.saveByRun = cms.untracked.int32(-1)
 process.dqmSaver.saveAtJobEnd =cms.untracked.bool(True) 
 process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
+
 process.PoolSource.fileNames = [
-       '/store/relval/CMSSW_3_1_0_pre7/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0004/CAAA36CC-9841-DE11-A587-0019B9F730D2.root',
-       '/store/relval/CMSSW_3_1_0_pre7/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0004/B47CEC98-E641-DE11-9999-001D09F2437B.root',
-       '/store/relval/CMSSW_3_1_0_pre7/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0004/98E6DFEA-9941-DE11-B198-001D09F25438.root',
-       '/store/relval/CMSSW_3_1_0_pre7/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0004/74475B04-9B41-DE11-A6CB-001D09F24D8A.root',
-       '/store/relval/CMSSW_3_1_0_pre7/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0004/6A9F37C0-9B41-DE11-8334-001D09F28C1E.root',
-       '/store/relval/CMSSW_3_1_0_pre7/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0004/4CF9716F-9E41-DE11-A0BA-001D09F25438.root',
-       '/store/relval/CMSSW_3_1_0_pre7/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0004/18B38D57-9C41-DE11-9DD9-001D09F250AF.root' ]
+       '/store/relval/CMSSW_6_0_0/RelValTTbar/DQM/PU_START60_V4-v1/0003/EC568D77-60F6-E111-B672-003048D2BA82.root',
+       '/store/relval/CMSSW_6_0_0/RelValTTbar/DQM/PU_START60_V4-v1/0003/BC1A15D0-DDF5-E111-A722-0030486780B4.root' 
+]
 
