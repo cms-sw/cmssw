@@ -25,9 +25,13 @@ namespace reco {
       retTypeMap["int"] = intType;
       retTypeMap["unsigned int"] = uIntType;
       retTypeMap["short"] = shortType;
+      retTypeMap["short int"] = shortType;
       retTypeMap["unsigned short"] = uShortType;
+      retTypeMap["unsigned short int"] = uShortType;
       retTypeMap["long"] = longType;
+      retTypeMap["long int"] = longType;
       retTypeMap["unsigned long"] = uLongType;
+      retTypeMap["unsigned long int"] = uLongType;
       retTypeMap["size_t"] = uLongType;
       retTypeMap["char"] = charType;
       retTypeMap["unsigned char"] = uCharType;
