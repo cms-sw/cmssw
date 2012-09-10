@@ -40,7 +40,7 @@ process.HSCPHLTTriggerHtDeDx.HLTPaths = ["HLT_HT*_dEdx*"]
 process.HSCPHLTTriggerHtDeDxFilter = cms.Path(process.HSCPHLTTriggerHtDeDx   )
 
 #process.HSCPHLTTriggerMu
-if CMSSW4_2:
+if CMSSW4_2 or CMSSW4_4:
   #This needs to be done differently for 2011 data because HLT_Mu40 did not exist in trigger menu at beginning of run
   process.HSCPHLTTriggerMu = cms.EDFilter("HSCPHLTFilter",
      RemoveDuplicates = cms.bool(False),
@@ -61,7 +61,7 @@ process.HSCPHLTTriggerMetFilter = cms.Path(process.HSCPHLTTriggerMet   )
 
 process.HSCPHLTTriggerPFMet = process.HSCPHLTTriggerMuDeDx.clone()
 #Name change from 2011 to 2012
-if CMSSW4_2:
+if CMSSW4_2 or CMSSW4_4:
     process.HSCPHLTTriggerPFMet.HLTPaths = ["HLT_PFMHT150_*"]
 else:
     process.HSCPHLTTriggerPFMet.HLTPaths = ["HLT_PFMET150_*"]
@@ -71,7 +71,7 @@ process.HSCPHLTTriggerHt = process.HSCPHLTTriggerMuDeDx.clone()
 process.HSCPHLTTriggerHt.HLTPaths = ["HLT_HT650_*"]
 process.HSCPHLTTriggerHtFilter = cms.Path(process.HSCPHLTTriggerHt   )
 
-if CMSSW4_2:
+if CMSSW4_2 or CMSSW4_4:
    #Needs to be done separately as had lower threshold prescaled trigger in menu in 2011
    process.HSCPHLTTriggerL2Mu = cms.EDFilter("HSCPHLTFilter",
      RemoveDuplicates = cms.bool(False),

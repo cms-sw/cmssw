@@ -5,8 +5,8 @@ process = cms.Process("HSCPAnalysis")
 from SUSYBSMAnalysis.HSCP.HSCPVersion_cff import *
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-if CMSSW4_2:process.load("Configuration.StandardSequences.Geometry_cff")
-else:       process.load("Configuration.Geometry.GeometryIdeal_cff")
+if CMSSW4_2 or CMSSW4_4:process.load("Configuration.StandardSequences.Geometry_cff")
+else:                   process.load("Configuration.Geometry.GeometryIdeal_cff")
 
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -35,7 +35,7 @@ process.load("SUSYBSMAnalysis.HSCP.HSCParticleProducerFromSkim_cff")  #IF RUNNIN
 
 ######################################################################## INCREASING HSCP TRIGGER TRESHOLD FOR OLD DATA
 process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
-if CMSSW4_2:
+if CMSSW4_2 or CMSSW4_4:
    process.HSCPTrigger = cms.EDFilter("HSCPHLTFilter",
      RemoveDuplicates = cms.bool(False),
      TriggerProcess   = cms.string("HLT"),
@@ -66,7 +66,7 @@ process.GlobalTag.toGet = cms.VPSet(
             connect = cms.untracked.string("sqlite_file:Data7TeV_Deco_SiStripDeDxMip_3D_Rcd.db")),
 )
 
-if not CMSSW4_2:
+if not CMSSW4_2 and not CMSSW4_4:
    print ("WARNING: You are using Data7TeV_Deco_SiStripDeDxMip_3D_Rcd.db for dEdx computation... These constants are a priori not valid for 2012 samples\nThe constants need to be redone for 2012 samples")
 
 
@@ -75,7 +75,7 @@ process.nEventsBefSkim  = cms.EDProducer("EventCountProducer")
 process.nEventsBefEDM   = cms.EDProducer("EventCountProducer")
 ########################################################################
 
-if not CMSSW4_2:
+if not CMSSW4_2 and not CMSSW4_4:
    #bug fix in 52
    process.HSCParticleProducer.useBetaFromEcal = cms.bool(False)
 
@@ -168,8 +168,8 @@ if CMSSW4_2:
 
 #LOOK AT SD PASSED PATH IN ORDER to avoid as much as possible duplicated events (make the merging of .root file faster)
 #The module ak5PFJetsPt15 does not exist in CMSSW4
-if CMSSW4_2:  process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.nEventsBefEDM *                         process.HSCParticleProducerSeq)
-else:         process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.nEventsBefEDM * process.ak5PFJetsPt15 * process.HSCParticleProducerSeq)
+#if CMSSW4_2 or CMSSW4_4:  process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.nEventsBefEDM *                         process.HSCParticleProducerSeq)
+#else:         process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.nEventsBefEDM * process.ak5PFJetsPt15 * process.HSCParticleProducerSeq)
 
 #If you are not running from the HSCP skim you need to redo the skim
 #process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.exoticaHSCPSeq * process.nEventsBefEDM * process.ak5PFJetsPt15 * process.HSCParticleProducerSeq)
