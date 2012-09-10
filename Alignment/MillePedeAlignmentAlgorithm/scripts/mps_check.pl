@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.29 $ by $Author: jbehr $
-#     $Date: 2012/03/06 08:36:53 $
+#     $Revision: 1.30 $ by $Author: jbehr $
+#     $Date: 2012/05/15 10:35:27 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -53,6 +53,9 @@ for ($i=0; $i<@JOBID; ++$i) {
   $pedeLogWrnStr = "";
   $remark = "";
 
+  my $disabled = "";
+  $disabled = "DISABLED" if( $JOBSTATUS[$i] =~ /DISABLED/gi);
+  $JOBSTATUS[$i] =~ s/DISABLED//i;
   if (@JOBSTATUS[$i] eq "FETCH") {
 
     # open the STDOUT file
@@ -331,7 +334,7 @@ for ($i=0; $i<@JOBID; ++$i) {
     
     # update number of events
     @JOBNEVT[$i] = $nEvent;
-    @JOBSTATUS[$i] = $okStatus;
+    @JOBSTATUS[$i] = $disabled.$okStatus;
     # update CPU time
     @JOBRUNTIME[$i] = $cputime;
     # update host

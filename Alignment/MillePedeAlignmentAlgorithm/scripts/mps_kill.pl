@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     16-Jul-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.2 $
-#     $Date: 2008/04/17 16:38:47 $
+#     $Revision: 1.3 $
+#     $Date: 2009/01/07 18:26:00 $
 #
 #  Kill all jobs being processed by ZARAH,
 #  i.e. those pending, running or suspended.
@@ -66,12 +66,14 @@ read_db();
 if ($killAll == 1) {
   # loop over pending, running or suspended jobs
   for ($i=0; $i<@JOBID; ++$i) {
-    if (@JOBSTATUS[$i] eq "PEND"
-	or @JOBSTATUS[$i] eq "RUN"
-	or @JOBSTATUS[$i] eq "SUSP") {
+    if (@JOBSTATUS[$i] =~ /PEND/
+	or @JOBSTATUS[$i] =~ /RUN/
+	or @JOBSTATUS[$i] =~ /SUSP/) {
       system "bkill @JOBID[$i]";
       print "bkill @JOBID[$i]\n";
-      @JOBSTATUS[$i] = "FAIL";
+      my $disabled = "";
+      $disabled = "DISABLED" if( $JOBSTATUS[$i] =~ /DISABLED/gi);
+      @JOBSTATUS[$i] = $disabled."FAIL";
       @JOBHOST[$i] = "user kill";
     }
   }
@@ -79,16 +81,19 @@ if ($killAll == 1) {
 else {
   # only kill certain job numbers or states
   for ($i=0; $i<@JOBID; ++$i) {
-    if (@JOBSTATUS[$i] eq "PEND"
-	or @JOBSTATUS[$i] eq "RUN"
-	or @JOBSTATUS[$i] eq "SUSP") {
+    if (@JOBSTATUS[$i] =~ /PEND/
+	or @JOBSTATUS[$i] =~ /RUN/
+	or @JOBSTATUS[$i] =~ /SUSP/) {
+      my $disabled = "";
+      $disabled = "DISABLED" if( $JOBSTATUS[$i] =~ /DISABLED/gi);
+      $JOBSTATUS[$i] =~ s/DISABLED//gi;
       $stateText = "^@JOBSTATUS[$i]\$";
       $theNum = $i + 1;
       $jobText = "^$theNum\$";
       if ( ( (grep /$stateText/,@MODSTATES) > 0) || (grep /$jobText/,@MODJOBS) > 0) {
 	print "bkill @JOBID[$i]\n";
 	system "bkill @JOBID[$i]";
-	@JOBSTATUS[$i] = "FAIL";
+	@JOBSTATUS[$i] = $disabled."FAIL";
 	@JOBHOST[$i] = "user kill";
       }
     }
