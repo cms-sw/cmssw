@@ -6,8 +6,8 @@
  *  Set of functions that select among the different track refits
  *  based on the fit quality, in order to achieve optimal resolution.
  *
- *  $Date: 2011/11/01 16:00:31 $
- *  $Revision: 1.5 $
+ *  $Date: 2012/04/11 07:08:48 $
+ *  $Revision: 1.6 $
  *  \author Piotr Traczyk
  */
 
@@ -22,15 +22,17 @@ namespace muon {
 					     const reco::TrackRef& tpfmsTrack,
 					     const reco::TrackRef& pickyTrack,
 					     const double ptThreshold = 200.,
-					     const double tune1 = 4.,
-					     const double tune2 = 6.);
-  
+					     const double tune1 = 17.,
+					     const double tune2 = 40.,
+					     const double dptcut = 0.25);
+
   // Version for convenience. (NB: can be used with pat::Muon, even
   // with embedded tracks, equally conveniently!)
   inline reco::Muon::MuonTrackTypePair tevOptimized(const reco::Muon& muon,
 						    const double ptThreshold = 200.,
-						    const double tune1 = 4.,
-						    const double tune2 = 6.) {
+						    const double tune1 = 17.,
+						    const double tune2 = 40.,
+						    const double dptcut = 0.25) {
     return tevOptimized(muon.globalTrack(),
 			muon.innerTrack(),
 			muon.tpfmsTrack(),
@@ -56,8 +58,9 @@ namespace muon {
 						    const reco::TrackToTrackMap& tevMap2,
 						    const reco::TrackToTrackMap& tevMap3,
 						    const double ptThreshold = 200.,
-						    const double tune1 = 4.,
-						    const double tune2 = 6.) {
+						    const double tune1 = 17.,
+						    const double tune2 = 40.,
+						    const double dptcut = 0.25) {
     return tevOptimized(combinedTrack,
 			trackerTrack,
 			getTevRefitTrack(combinedTrack, tevMap2),
