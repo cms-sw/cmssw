@@ -134,8 +134,8 @@ maxEvents = -1 # reduce for testing
 ### Conditions
 
 # GlobalTags
-globalTagData = 'GR_R_52_V7D::All' # incl. Summer12 JEC and new b-tag SF
-globalTagMC   = 'START52_V9C::All' # incl. Summer12 JEC and new b-tag SF
+globalTagData = 'GR_R_52_V7E::All' # incl. Summer12 JEC and new b-tag SF
+globalTagMC   = 'START52_V9D::All' # incl. Summer12 JEC and new b-tag SF
 
 ### Output
 
