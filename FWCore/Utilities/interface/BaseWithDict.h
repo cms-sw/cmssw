@@ -25,6 +25,8 @@ namespace edm {
 
     TypeWithDict toType() const;
 
+    bool isPublic() const {return base_.IsPublic();}
+
   private:
 
     Reflex::Base base_;
