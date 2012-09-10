@@ -54,7 +54,7 @@ public:
   ///                                in arXiv:1006.2833 (default=false)
   /// Default values are taken from the original HepTopTagger.hh code.
   HEPTopTagger(double mass_drop_threshold=0.8, double max_subjet_mass=30.,
-               bool use_subjet_mass_cuts=true)
+               bool use_subjet_mass_cuts=false)
     : _mass_drop_threshold(mass_drop_threshold),
       _max_subjet_mass(max_subjet_mass),
       _use_subjet_mass_cuts(use_subjet_mass_cuts)
