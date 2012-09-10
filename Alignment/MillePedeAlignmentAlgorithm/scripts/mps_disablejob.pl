@@ -8,6 +8,7 @@ unshift(@INC, dirname($0)."/mpslib");
 }
 use Mpslib;
 use warnings;
+use POSIX;
 read_db();
 
 my @disabledjobs;
@@ -29,10 +30,58 @@ while (@ARGV) {
           print "colons were removed in configuration name because they are not allowed: $confname\n";
         }
     }
+   elsif ($arg eq "-h")
+     {
+       print 'mps_disablejob.pl [-h] [-N name] [jobids]
+Parameters/Options:
+-h 	     The help.
+-N name      Disable Mille jobs with name "name".
+jobids 	     A list of Mille job ids which should be disabled. Does not work together with option -N.
+
+The script mps_disablejob.pl can be used to disable several Mille jobs by using either their associated name or by their ids.
+
+#Examples:
+
+#first example:
+#create a new Pede job:
+% mps_setupm.pl
+# disable some Mille jobs:
+% mps_disablejob.pl -N ztomumu
+# submit the Pede job (works only if the "force" option is used):
+% mps_setup.pl -mf
+# enable everything
+% mps_enablejob.pl
+
+#second example:
+#create a new Pede job:
+% mps_setupm.pl
+# disable some Mille jobs
+% mps_disablejob.pl 3 5 6 77 4
+# submit the Pede job (works only if the "force" option is used):
+% mps_setup.pl -mf
+
+#third example:
+# disable a sequence of jobs
+% mps_disablejob.pl `seq 2 300`
+#create and submit new Pede job. Note if you want to omit the "force" option when the Pede job is submitted, you need to use the -a option for mps_setupm.pl.
+% mps_setupm.pl -a
+% mps_fire.pl -m
+% mps_enablejob.pl
+';
+      exit;
+     }
    else
      {
-       $count++;
-       push @disabledjobs, $arg;
+       if(isdigit $arg)
+         {
+           push @disabledjobs, $arg;
+           $count++;
+         }
+       else
+         {
+           print "only integer numbers are allowed for the job ids: $arg\n";
+           exit(-1);
+         }
      }
  }
 
@@ -41,14 +90,16 @@ if($confname ne "")
     print "Disable jobs: ${confname}.\n";
     for (my $i=0; $i<@JOBID; ++$i) {
       my $status = $JOBSTATUS[$i];
-      unless($JOBDIR[$i] =~ /jobm/)
+      if(defined $status)
         {
-          my $name = $JOBSP3[$i];
-          if($name eq $confname)
+          unless($JOBDIR[$i] =~ /jobm/)
             {
-               my $status = $JOBSTATUS[$i];
-               $JOBSTATUS[$i] = "DISABLED".$status;
-             }
+              my $name = $JOBSP3[$i];
+              if($name eq $confname )
+                {
+                  $JOBSTATUS[$i] = "DISABLED".$status unless ($status =~ /DISABLED/i);
+                }
+            }
         }
     }
   }
@@ -62,9 +113,12 @@ elsif($count==0)
         }
       else
         {
-          unless($JOBDIR[$i] =~ /jobm/)
+          if(defined $status)
             {
-              $JOBSTATUS[$i] = "DISABLED".$status;
+              unless($JOBDIR[$i] =~ /jobm/i)
+                {
+                  $JOBSTATUS[$i] = "DISABLED".$status;
+                }
             }
         }
     }
@@ -73,13 +127,23 @@ else
   {
     foreach my $j (@disabledjobs) {
       my $status = $JOBSTATUS[$j-1];
-      if($status =~ /DISABLED/)
+      if(defined $status)
         {
-          print "mps_disablejob.pl job $j is already disabled!\n";
+          unless($JOBDIR[$j-1] =~ /jobm/i)
+            {
+              if($status =~ /DISABLED/i)
+                {
+                  print "mps_disablejob.pl job $j is already disabled!\n";
+                }
+              else
+                {
+                  $JOBSTATUS[$j-1] = "DISABLED".$status;
+                }
+            }
         }
       else
         {
-          $JOBSTATUS[$j-1] = "DISABLED".$status;
+          print "job number ". ($j-1). " was not found.\n";
         }
     }
   }
