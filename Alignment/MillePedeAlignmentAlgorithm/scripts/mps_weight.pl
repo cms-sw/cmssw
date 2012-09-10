@@ -4,8 +4,9 @@
 
 # Usage:
 # Options are:
+# -h some help
 # -N name weight
-# -c
+# -c remove all weights
 # -l list all weights
 # Whenever -c is used, all weights are removed from mps.db
 # If neither the options -N nor -c are specified, then the first argument is interpreted as weight.
@@ -58,6 +59,33 @@ while (@ARGV) {
      {
        $weight = 1;
        $cleanall = 1;
+     }
+   elsif($arg =~ /-h/g)
+     {
+print 'Usage:
+mps_weight.pl [-c] [-h] [-N name] [weight] [jobids]
+Parameters:
+-h           This help
+-l 	     List all weights
+-c 	     Remove all weights from the data base
+-N name      Assign a weight to the dataset "name". See the option "mps_setup.pl -N".
+weight 	     The weight to be used
+jobids       A list of job ids to which the weight is assigned. This option is only used if neither -N nor the -c option is specified.
+
+The command mps_weight.pl can be used to associated weights to individual Mille binary files. Some examples are given below.
+
+# Examples:
+#
+# % mps_weight.pl -N ztomumu 5.7
+# Assign weight 5.7 to Mille jobs which are called "ztomumu" ("mps_setup.pl -N ztomumu ..." has to be used during job creation).
+#
+# % mps_weight.pl 6.7 3 4 102
+# Assign weight 6.7 to Mille binaries with numbers 3, 4, and 102, respectively.
+#
+# % mps_weight.pl -c
+# Remove all assigned weights.
+';
+      exit;
      }
    elsif($arg =~ /-l/g)
      {
