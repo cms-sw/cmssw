@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2011/10/31 17:11:20 $
- * $Revision: 1.76 $
+ * $Date: 2012/09/05 14:44:33 $
+ * $Revision: 1.80 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino), G. Cerminara (INFN Torino)
  *
  */
@@ -555,7 +555,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   MonitorElement* ROSError = 0;
   if(mode <= 2) ROSError = rosHistos["ROSError"][code.getROSID()];
 
-  if (! ROSError) {
+  if ( (mode<=2) && (!ROSError) ) {
     LogError("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask") <<
 	"Trying to access non existing ME at ROSID " << code.getROSID() <<
 	std::endl;
