@@ -246,7 +246,7 @@ HSCParticleProducer = cms.EDFilter("HSCParticleProducer",
 from RecoMuon.Configuration.RecoMuon_cff import *
 from RecoMuon.MuonSeedGenerator.ancientMuonSeed_cfi import *
 
-if CMSSW4_2:
+if CMSSW4_2 or CMSSW4_4:
     refittedStandAloneMuons = standAloneMuons.clone()
     refittedStandAloneMuons.STATrajBuilderParameters.DoRefit=True
 
