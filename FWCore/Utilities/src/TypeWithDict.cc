@@ -90,22 +90,6 @@ namespace {
     return bool(type_);
   }
 
-  bool
-  TypeWithDict::isComplete() const {
-    return bool(type_) && type_.IsComplete();
-  }
-
-  bool
-  TypeWithDict::hasProperty(std::string const& property) const {
-    return bool(type_) && type_.Properties().HasProperty(property);
-  }
-
-  std::string
-  TypeWithDict::propertyValueAsString(std::string const& property) const {
-    //assumes hasProperty returned true.
-    return type_.Properties().PropertyAsString(property);
-  }
-
   ObjectWithDict
   TypeWithDict::construct() const {
     return ObjectWithDict(type_.Construct());
@@ -130,6 +114,11 @@ namespace {
 
   TypeWithDict::operator bool() const {
     return bool(type_);
+  }
+
+  TypeWithDict
+  TypeWithDict::nestedType(char const* nestedName) const {
+    return TypeWithDict::byName(name() + "::" + nestedName);
   }
 
   MemberWithDict

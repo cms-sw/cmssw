@@ -78,10 +78,6 @@ namespace edm {
 
     bool hasDictionary() const;
 
-    bool isComplete() const;
-
-    bool hasProperty(std::string const& property) const;
-
     bool isClass() const {
       return type_.IsClass();
     }
@@ -106,6 +102,10 @@ namespace edm {
       return type_.IsReference();
     }
 
+    bool isStruct() const {
+      return type_.IsStruct();
+    }
+
     bool isTemplateInstance() const {
       return type_.IsTemplateInstance();
     }
@@ -118,14 +118,14 @@ namespace edm {
       return TypeWithDict(type_.FinalType());
     }
 
-    TypeWithDict toType() {
+    TypeWithDict toType() const {
       return TypeWithDict(type_.ToType());
     }
 
-    std::string propertyValueAsString(std::string const& property) const;
+    TypeWithDict nestedType(char const* name) const;
 
-    TypeWithDict subTypeAt(size_t index) const {
-      return TypeWithDict(type_.SubTypeAt(index));
+    TypeWithDict nestedType(std::string const& name) const {
+      return nestedType(name.c_str());
     }
 
     TypeWithDict templateArgumentAt(size_t index) const {
@@ -148,20 +148,12 @@ namespace edm {
       theFunction.Invoke(obj);
     }
 
-    std::string name(int mod = 0) const {
+    std::string name(int mod = Reflex::FINAL|Reflex::SCOPED) const {
       return type_.Name(mod);
     }
 
     void* id() const {
       return type_.Id();
-    }
-
-    void* allocate() const {
-      return type_.Allocate();
-    }
-
-    void deallocate(void* instance) const {
-      type_.Deallocate(instance);
     }
 
 #ifndef __GCCXML__
@@ -194,10 +186,17 @@ namespace edm {
       return type_.FunctionMemberSize();
     }
 
-   size_t subTypeSize() const {
-      return type_.SubTypeSize();
+    size_t size() const {
+      return type_.SizeOf();
     }
 
+    void* allocate() const {
+      return new char[size()];
+    }
+
+    void deallocate(void * obj) const {
+      delete [] static_cast<char *>(obj);
+    }
 
   private:
     friend class BaseWithDict;
