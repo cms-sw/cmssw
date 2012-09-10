@@ -59,7 +59,7 @@ void TestDictionaries::no_dictionary_is_invalid() {
 }
 
 void TestDictionaries::find_nested() {
-  edm::TypeID intvec(edm::TypeID::byName("std::vector<int>"));
+  edm::TypeWithDict intvec(edm::TypeID::byName("std::vector<int>"));
   CPPUNIT_ASSERT(intvec);
 
   edm::TypeID found_type;
@@ -74,7 +74,7 @@ void TestDictionaries::find_nested() {
 }
 
 void TestDictionaries::burrowing() {
-  edm::TypeID wrapper_type(typeid(edm::Wrapper<int>));
+  edm::TypeWithDict wrapper_type(typeid(edm::Wrapper<int>));
   CPPUNIT_ASSERT(wrapper_type);
   edm::TypeID wrapped_type;
   CPPUNIT_ASSERT(edm::find_nested_type_named("wrapped_type",
@@ -89,7 +89,7 @@ void TestDictionaries::burrowing() {
 }
 
 void TestDictionaries::burrowing_failure() {
-  edm::TypeID not_a_wrapper(edm::TypeID::byName("double"));
+  edm::TypeWithDict not_a_wrapper(edm::TypeID::byName("double"));
   CPPUNIT_ASSERT(not_a_wrapper);
   edm::TypeID no_such_wrapped_type;
   CPPUNIT_ASSERT(!no_such_wrapped_type);
@@ -100,7 +100,7 @@ void TestDictionaries::burrowing_failure() {
 }
 
 void TestDictionaries::wrapper_type() {
-  edm::TypeID wrapper_type(typeid(edm::Wrapper<int>));
+  edm::TypeWithDict wrapper_type(typeid(edm::Wrapper<int>));
   edm::TypeID wrapped_type;
   CPPUNIT_ASSERT(edm::wrapper_type_of(wrapper_type, wrapped_type));
   edm::TypeWithDict wrapped_Dict_type(wrapped_type.typeInfo());
@@ -109,7 +109,7 @@ void TestDictionaries::wrapper_type() {
 }
 
 void TestDictionaries::wrapper_type_failure() {
-  edm::TypeID not_a_wrapper(edm::TypeID::byName("double"));
+  edm::TypeWithDict not_a_wrapper(edm::TypeID::byName("double"));
   CPPUNIT_ASSERT(not_a_wrapper);
   edm::TypeID no_such_wrapped_type;
   CPPUNIT_ASSERT(!no_such_wrapped_type);
