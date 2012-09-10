@@ -9,7 +9,8 @@ namespace ecaldqm {
     DQWorkerTask(_workerParams, _commonParams, "LaserTask"),
     wlToME_(),
     pnAmp_(),
-    ievt_(0)
+    emptyLS_(0),
+    emptyLSLimit_(_workerParams.getUntrackedParameter<int>("emptyLSLimit"))
   {
     using namespace std;
 
@@ -53,6 +54,7 @@ namespace ecaldqm {
         multi->formPath(replacements);
       }
     }
+
   }
 
   void
@@ -84,10 +86,21 @@ namespace ecaldqm {
   }
 
   void
-  LaserTask::beginEvent(const edm::Event &, const edm::EventSetup &)
+  LaserTask::beginRun(edm::Run const&, edm::EventSetup const&)
+  {
+    emptyLS_ = 0;
+  }
+
+  void
+  LaserTask::beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &)
+  {
+    if(++emptyLS_ > emptyLSLimit_) emptyLS_ = -1;
+  }
+
+  void
+  LaserTask::beginEvent(const edm::Event &_evt, const edm::EventSetup &)
   {
     pnAmp_.clear();
-    ++ievt_;
   }
 
   void
@@ -143,25 +156,34 @@ namespace ecaldqm {
         }
         if(adc < min) min = adc;
       }
-      if(iMax >= 0 && max - min > 10)
+      if(iMax >= 0 && max - min > 3) // normal RMS of pedestal is ~2.5
         maxpos[iDCC][iMax] += 1;
     }
 
+    // signal existence check
     bool enable(false);
+    bool laserOnExpected(emptyLS_ >= 0);
+
     for(unsigned iDCC(0); iDCC < BinService::nDCC; ++iDCC){
-      if(nReadouts[iDCC] == 0) continue;
-      int threshold(nReadouts[iDCC] / 3);
-      enable_[iDCC] = false;
+      if(nReadouts[iDCC] == 0){
+        enable_[iDCC] = false;
+        continue;
+      }
+
+      int threshold(nReadouts[iDCC] / 2);
+      if(laserOnExpected) enable_[iDCC] = false;
+
       for(int i(0); i < 10; i++){
         if(maxpos[iDCC][i] > threshold){
-          enable_[iDCC] = true;
           enable = true;
+          enable_[iDCC] = true;
           break;
         }
       }
     }
 
-    if(!enable) return;
+    if(enable) emptyLS_ = 0;
+    else if(laserOnExpected) return;
 
     unsigned iME(-1);
     for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
@@ -209,7 +231,7 @@ namespace ecaldqm {
       const EcalPnDiodeDetId& id(digiItr->id());
 
       std::map<uint32_t, float>::iterator ampItr(pnAmp_.find(id.rawId()));
-      if(ampItr == pnAmp_.end()) continue;
+      //      if(ampItr == pnAmp_.end()) continue;
 
       unsigned iDCC(dccId(id) - 1);
 

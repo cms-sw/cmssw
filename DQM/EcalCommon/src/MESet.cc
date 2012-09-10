@@ -88,6 +88,8 @@ namespace ecaldqm
   void
   MESet::setAxisTitle(std::string const& _title, int _axis/* = 1*/)
   {
+    if(!active_) return;
+
     unsigned nME(mes_.size());
     for(unsigned iME(0); iME < nME; iME++)
       mes_[iME]->setAxisTitle(_title, _axis);
@@ -96,6 +98,8 @@ namespace ecaldqm
   void
   MESet::setBinLabel(unsigned _iME, int _bin, std::string const& _label, int _axis/* = 1*/)
   {
+    if(!active_) return;
+
     unsigned nME(mes_.size());
 
     if(_iME == unsigned(-1)){
@@ -112,12 +116,16 @@ namespace ecaldqm
   void
   MESet::reset(double _content/* = 0.*/, double _err/* = 0.*/, double _entries/* = 0.*/)
   {
+    if(!active_) return;
+
     resetAll(_content, _err, _entries);
   }
 
   void
   MESet::resetAll(double _content/* = 0.*/, double _err/* = 0.*/, double _entries/* = 0.*/)
   {
+    if(!active_) return;
+
     unsigned nME(mes_.size());
 
     if(kind_ == MonitorElement::DQM_KIND_REAL){

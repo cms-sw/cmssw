@@ -26,6 +26,10 @@ clusterTask = dict(
         Pi0 = dict(path = 'Clusters/DiCluster/ClusterTask dicluster mass Pi0', otype = 'None', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 0., 'high': 0.4, 'title': 'mass (GeV)'}),
         JPsi = dict(path = 'Clusters/DiCluster/ClusterTask dicluster mass JPsi', otype = 'None', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 2.9, 'high': 3.3, 'title': 'mass (GeV)'}),
         Z = dict(path = 'Clusters/DiCluster/ClusterTask dicluster mass Z0', otype = 'None', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 60., 'high': 120., 'title': 'mass (GeV)'}),
-        HighMass = dict(path = 'Clusters/DiCluster/ClusterTask dicluster mass high', otype = 'None', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 120., 'high': 3000., 'title': 'mass (GeV)'})
+        HighMass = dict(path = 'Clusters/DiCluster/ClusterTask dicluster mass high', otype = 'None', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 120., 'high': 3000., 'title': 'mass (GeV)'}),
+        TrendNBC = dict(path = 'Trend/ClusterTask number of basic clusters', otype = 'Ecal2P', btype = 'Trend', kind = 'TProfile'),
+        TrendBCSize = dict(path = 'Trend/ClusterTask size of basic clusters', otype = 'Ecal2P', btype = 'Trend', kind = 'TProfile'),
+        TrendNSC = dict(path = 'Trend/ClusterTask number of super clusters', otype = 'Ecal2P', btype = 'Trend', kind = 'TProfile'),
+        TrendSCSize = dict(path = 'Trend/ClusterTask size of super clusters', otype = 'Ecal2P', btype = 'Trend', kind = 'TProfile')
     )
 )

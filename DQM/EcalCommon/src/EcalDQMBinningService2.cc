@@ -3,6 +3,8 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
+
 #include <algorithm>
 
 #include "TMath.h"

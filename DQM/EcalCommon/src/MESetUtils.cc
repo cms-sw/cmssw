@@ -50,14 +50,21 @@ namespace ecaldqm
 
     MESet* set(0);
 
-    if(otype == BinService::nObjType)
+    if(btype == BinService::kTrend){
+      bool minutely(false);
+      bool cumulative(false);
+      if(_MEParam.existsAs<bool>("minutely", false))
+        minutely = _MEParam.getUntrackedParameter<bool>("minutely");
+      if(_MEParam.existsAs<bool>("cumulative", false))
+        cumulative = _MEParam.getUntrackedParameter<bool>("cumulative");
+      set  = new MESetTrend(fullPath, otype, btype, kind, minutely, cumulative, yaxis);
+    }
+    else if(otype == BinService::nObjType)
       set = new MESetNonObject(fullPath, otype, btype, kind, xaxis, yaxis, zaxis);
     else if(otype == BinService::kChannel)
       set = new MESetChannel(fullPath, otype, btype, kind);
     else if(btype == BinService::kProjEta || btype == BinService::kProjPhi)
       set = new MESetProjection(fullPath, otype, btype, kind, yaxis);
-    else if(btype == BinService::kTrend)
-      set = new MESetTrend(fullPath, otype, btype, kind, yaxis);
     else{
       unsigned logicalDimensions;
       switch(kind){

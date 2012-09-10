@@ -48,12 +48,18 @@ namespace ecaldqm{
     // needs to be declared in each derived class
     static void setMEOrdering(std::map<std::string, unsigned>&);
 
+    static time_t now;
+    static edm::RunNumber_t iRun;
+    static edm::LuminosityBlockNumber_t iLumi;
+    static edm::EventNumber_t iEvt;
+
   protected :
     void print_(std::string const&, int = 0) const;
 
     std::string name_;
     std::vector<MESet*> MEs_; // [nMESets]
     bool initialized_;
+    bool online_;
 
     int verbosity_;
   };

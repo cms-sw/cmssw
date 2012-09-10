@@ -29,6 +29,7 @@ namespace ecaldqm {
       kGainSwitch,
       kBlockSize,
       kTowerId,
+      kTrendNErrors,
       kFEDNonFatal,
       nMESets
     };

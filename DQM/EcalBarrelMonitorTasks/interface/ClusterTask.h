@@ -57,6 +57,10 @@ namespace ecaldqm {
       kJPsi, // h1f
       kZ, // h1f
       kHighMass, // h1f
+      kTrendNBC,
+      kTrendBCSize,
+      kTrendNSC,
+      kTrendSCSize,
       nMESets
     };
 

@@ -3,6 +3,7 @@
 
 #include "DQWorkerTask.h"
 
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
@@ -17,6 +18,7 @@ namespace ecaldqm {
 
     void analyze(const void*, Collections);
 
+    void runOnRawData(EcalRawDataCollection const&);
     void runOnDigis(const EcalDigiCollection&);
     void runOnPnDigis(const EcalPnDiodeDigiCollection&);
     void runOnUncalibRecHits(const EcalUncalibratedRecHitCollection&);
@@ -41,6 +43,9 @@ namespace ecaldqm {
 
   inline void TestPulseTask::analyze(const void* _p, Collections _collection){
     switch(_collection){
+    case kEcalRawData:
+      runOnRawData(*static_cast<EcalRawDataCollection const*>(_p));
+      break;
     case kEBDigi:
     case kEEDigi:
       runOnDigis(*static_cast<const EcalDigiCollection*>(_p));

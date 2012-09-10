@@ -1,5 +1,7 @@
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
+#include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
+
 namespace ecaldqm
 {
   EcalElectronicsMapping const* electronicsMap(0);

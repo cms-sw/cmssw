@@ -5,8 +5,7 @@
 namespace ecaldqm {
 
   SummaryClient::SummaryClient(edm::ParameterSet const&  _workerParams, edm::ParameterSet const& _commonParams) :
-    DQWorkerClient(_workerParams, _commonParams, "SummaryClient"),
-    online_(_workerParams.getUntrackedParameter<bool>("online"))
+    DQWorkerClient(_workerParams, _commonParams, "SummaryClient")
   {
   }
 
@@ -98,7 +97,6 @@ namespace ecaldqm {
           }
         }
       }
-
       for(int iz(-1); iz <= 1; iz += 2){
         for(int ix(1); ix < 20; ++ix){
           for(int iy(1); iy < 20; ++iy){
@@ -107,7 +105,10 @@ namespace ecaldqm {
             EcalScDetId scids[4];
             for(int dx(0); dx < 2; ++dx){
               for(int dy(0); dy < 2; ++dy){
-                if(!EcalScDetId::validDetId(ix + dx, iy + dy, iz)) continue;
+                if(!EcalScDetId::validDetId(ix + dx, iy + dy, iz)){
+                  scids[dx * 2 + dy] = EcalScDetId(0);
+                  continue;
+                }
                 scids[dx * 2 + dy] = EcalScDetId(ix + dx, iy + dy, iz);
                 std::vector<DetId> ids(scConstituents(scids[dx * 2 + dy]));
                 unsigned nIds(ids.size());
@@ -118,8 +119,11 @@ namespace ecaldqm {
             }
 
             if(nBad >= nChannels * 0.5){
-              for(unsigned iD(0); iD < 4; ++iD)
-                dccGood[dccId(scids[iD]) - 1] = 0.;
+              for(unsigned iD(0); iD < 4; ++iD){
+                EcalScDetId& scid(scids[iD]);
+                if(scid.null()) continue;
+                dccGood[dccId(scid) - 1] = 0.;
+              }
             }
           }
         }

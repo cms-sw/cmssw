@@ -67,10 +67,13 @@ namespace ecaldqm {
     }
 
     for(DetIdCollection::const_iterator idItr(_ids.begin()); idItr != _ids.end(); ++idItr){
-      if(MEs_[set]->isActive()) MEs_[set]->fill(*idItr);
-      if(MEs_[kFEDNonFatal]->isActive()) MEs_[kFEDNonFatal]->fill(*idItr);
-      if(MEs_[kByLumi]->isActive()) MEs_[kByLumi]->fill(*idItr);
-      if(MEs_[kTotal]->isActive()) MEs_[kTotal]->fill(*idItr);
+      MEs_[set]->fill(*idItr);
+      unsigned dccid(dccId(*idItr));
+      MEs_[kFEDNonFatal]->fill(dccid);
+      MEs_[kByLumi]->fill(dccid);
+      MEs_[kTotal]->fill(dccid);
+
+      if(online_) MEs_[kTrendNErrors]->fill(double(iLumi), 1.);
     }
   }
   
@@ -93,10 +96,18 @@ namespace ecaldqm {
     // 25 is not correct
 
     for(EcalElectronicsIdCollection::const_iterator idItr(_ids.begin()); idItr != _ids.end(); ++idItr){
-      if(MEs_[set]->isActive()) MEs_[set]->fill(*idItr, 25.);
-      if(MEs_[kFEDNonFatal]->isActive()) MEs_[kFEDNonFatal]->fill(*idItr, 25.);
-      if(MEs_[kByLumi]->isActive()) MEs_[kByLumi]->fill(*idItr, 25.);
-      if(MEs_[kTotal]->isActive()) MEs_[kTotal]->fill(*idItr, 25.);
+      MEs_[set]->fill(*idItr);
+      unsigned dccid(idItr->dccId());
+      double nCrystals(0.);
+      if(dccid <= kEEmHigh + 1 || dccid >= kEEpLow + 1)
+        nCrystals = getElectronicsMap()->dccTowerConstituents(dccid, idItr->towerId()).size();
+      else
+        nCrystals = 25.;
+      MEs_[kFEDNonFatal]->fill(dccid, nCrystals);
+      MEs_[kByLumi]->fill(dccid, nCrystals);
+      MEs_[kTotal]->fill(dccid, nCrystals);
+
+      if(online_) MEs_[kTrendNErrors]->fill(double(iLumi), nCrystals);
     }
   }
 
@@ -112,6 +123,7 @@ namespace ecaldqm {
     _nameToIndex["BlockSize"] = kBlockSize;
     _nameToIndex["TowerId"] = kTowerId;
     _nameToIndex["FEDNonFatal"] = kFEDNonFatal;
+    _nameToIndex["TrendNErrors"] = kTrendNErrors;
   }
 
   DEFINE_ECALDQM_WORKER(IntegrityTask);

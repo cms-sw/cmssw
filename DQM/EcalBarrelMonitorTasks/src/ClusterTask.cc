@@ -142,6 +142,7 @@ namespace ecaldqm {
       float size(bcItr->size());
 
       MEs_[kBCSize]->fill(id, size);
+      if(online_) MEs_[kTrendBCSize]->fill(id, double(iLumi), size);
 
       MEs_[kBCSizeMap]->fill(id, size);
       MEs_[kBCSizeMapProjEta]->fill(position.eta(), size);
@@ -166,10 +167,12 @@ namespace ecaldqm {
     }
 
     if(isBarrel){
-      MEs_[kBCNum]->fill((unsigned)BinService::kEB + 1, nBC[0] + nBC[1]);
+      MEs_[kBCNum]->fill(unsigned(BinService::kEB + 1), nBC[0] + nBC[1]);
+      if(online_) MEs_[kTrendNBC]->fill(unsigned(BinService::kEB + 1), double(iLumi), nBC[0] + nBC[1]);
     }else{
-      MEs_[kBCNum]->fill((unsigned)BinService::kEEm + 1, nBC[0]);
-      MEs_[kBCNum]->fill((unsigned)BinService::kEEp + 1, nBC[1]);
+      MEs_[kBCNum]->fill(unsigned(BinService::kEEm + 1), nBC[0]);
+      MEs_[kBCNum]->fill(unsigned(BinService::kEEp + 1), nBC[1]);
+      if(online_) MEs_[kTrendNBC]->fill(unsigned(BinService::kEE + 1), double(iLumi), nBC[0] + nBC[1]);
     }
 
     if(ievt_ % massCalcPrescale_ != 0) return;
@@ -255,6 +258,8 @@ namespace ecaldqm {
       MEs_[kSCNBCs]->fill(id, scItr->clustersSize());
       MEs_[kSCNcrystals]->fill(id, scItr->size());
 
+      if(online_) MEs_[kTrendSCSize]->fill(id, double(iLumi), scItr->size());
+
       if(!hits) continue;
       EcalRecHitCollection::const_iterator seedItr(hits->find(id));
       if(seedItr == hits->end()) continue;
@@ -284,10 +289,14 @@ namespace ecaldqm {
       }
     }
 
-    if(_collection == kEBSuperCluster)
-      MEs_[kSCNum]->fill((unsigned)BinService::kEB + 1, nSC);
-    else
-      MEs_[kSCNum]->fill((unsigned)BinService::kEE + 1, nSC);
+    if(_collection == kEBSuperCluster){
+      MEs_[kSCNum]->fill(unsigned(BinService::kEB + 1), nSC);
+      if(online_) MEs_[kTrendNSC]->fill(unsigned(BinService::kEB + 1), double(iLumi), nSC);
+    }
+    else{
+      MEs_[kSCNum]->fill(unsigned(BinService::kEE + 1), nSC);
+      if(online_) MEs_[kTrendNSC]->fill(unsigned(BinService::kEE + 1), double(iLumi), nSC);
+    }
 
     if(ievt_ % massCalcPrescale_ != 0) return;
 
@@ -333,6 +342,10 @@ namespace ecaldqm {
     _nameToIndex["JPsi"] = kJPsi;
     _nameToIndex["Z"] = kZ;
     _nameToIndex["HighMass"] = kHighMass;
+    _nameToIndex["TrendNBC"] = kTrendNBC;
+    _nameToIndex["TrendBCSize"] = kTrendBCSize;
+    _nameToIndex["TrendNSC"] = kTrendNSC;
+    _nameToIndex["TrendSCSize"] = kTrendSCSize;
   }
 
   DEFINE_ECALDQM_WORKER(ClusterTask);

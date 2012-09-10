@@ -7,7 +7,8 @@ integrityTask = dict(
         GainSwitch = dict(path = 'Integrity/GainSwitch/', otype = 'Channel', btype = 'Crystal', kind = 'TH1F'),
         BlockSize = dict(path = 'Integrity/BlockSize/', otype = 'Channel', btype = 'SuperCrystal', kind = 'TH1F'),
         TowerId = dict(path = 'Integrity/TowerId/', otype = 'Channel', btype = 'SuperCrystal', kind = 'TH1F'),
-        FEDNonFatal = dict(path = '%(hlttask)s/FEDNonFatal', otype = 'Ecal', btype = 'DCC', kind = 'TH1F')
+        FEDNonFatal = dict(path = '%(hlttask)s/FEDNonFatal', otype = 'Ecal', btype = 'DCC', kind = 'TH1F'),
+        TrendNErrors = dict(path = 'Trend/IntegrityTask number of integrity errors', otype = 'Ecal', btype = 'Trend', kind = 'TH1F')
     )
 )
 

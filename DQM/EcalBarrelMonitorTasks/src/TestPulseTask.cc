@@ -100,6 +100,23 @@ namespace ecaldqm {
   }
 
   void
+  TestPulseTask::runOnRawData(EcalRawDataCollection const& _rawData)
+  {
+    for(EcalRawDataCollection::const_iterator rItr(_rawData.begin()); rItr != _rawData.end(); ++rItr){
+      unsigned iDCC(rItr->id() - 1);
+
+      if(!enable_[iDCC]){
+        gain_[iDCC] = 0;
+        continue;
+      }
+      gain_[iDCC] = rItr->getMgpaGain();
+
+      if(gainToME_.find(gain_[iDCC]) == gainToME_.end())
+        enable_[iDCC] = false;
+    }
+  }
+
+  void
   TestPulseTask::runOnDigis(const EcalDigiCollection &_digis)
   {
     unsigned iME(-1);
@@ -109,30 +126,13 @@ namespace ecaldqm {
 
       int iDCC(dccId(id) - 1);
 
-      if(!enable_[iDCC]){
-        gain_[iDCC] = 0;
-        continue;
-      }
+      if(!enable_[iDCC]) continue;
 
       // EcalDataFrame is not a derived class of edm::DataFrame, but can take edm::DataFrame in the constructor
       EcalDataFrame dataFrame(*digiItr);
 
-      int gain(0);
-      switch(dataFrame.sample(0).gainId()){
-      case 1: gain = 12; break;
-      case 2: gain = 6; break;
-      case 3: gain = 1; break;
-      default: continue;
-      }
-
-      if(gainToME_.find(gain) == gainToME_.end()){
-        enable_[iDCC] = false;
-        gain_[iDCC] = 0;
-        continue;
-      }
-
-      if(iME != gainToME_[gain]){
-        iME = gainToME_[gain];
+      if(iME != gainToME_[gain_[iDCC]]){
+        iME = gainToME_[gain_[iDCC]];
         static_cast<MESetMulti*>(MEs_[kOccupancy])->use(iME);
         static_cast<MESetMulti*>(MEs_[kShape])->use(iME);
       }
@@ -141,8 +141,6 @@ namespace ecaldqm {
 
       for(int iSample(0); iSample < 10; iSample++)
 	MEs_[kShape]->fill(id, iSample + 0.5, float(dataFrame.sample(iSample).adc()));
-
-      gain_[iDCC] = gain;
     }
   }
 

@@ -13,7 +13,9 @@ presampleClient = dict(
         MeanDCC = dict(path = "Presample/Mean/PresampleClient DCC mean", otype = 'Ecal2P', btype = 'DCC', kind = 'TProfile', yaxis = {'nbins': 120, 'low': 170., 'high': 230.}),
         RMS = dict(path = "Presample/RMS/PresampleClient rms", otype = 'SM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 0., 'high': 10.}),
         RMSMap = dict(path = "Presample/RMSMap/PresampleClient rms", otype = 'Ecal2P', btype = 'Crystal', kind = 'TH2F'),
-        QualitySummary = dict(path = "Summary/PresampleClient presample quality", otype = 'Ecal2P', btype = 'Crystal', kind = 'TH2F')
+        QualitySummary = dict(path = "Summary/PresampleClient presample quality", otype = 'Ecal2P', btype = 'Crystal', kind = 'TH2F'),
+        TrendMean = dict(path = 'Trend/PresampleClient presample mean max - min', otype = 'Ecal2P', btype = 'Trend', kind = 'TProfile'),
+        TrendRMS = dict(path = 'Trend/PresampleClient presample rms max', otype = 'Ecal2P', btype = 'Trend', kind = 'TProfile')
     ),
     sources = dict(
         Pedestal = presampleTask['MEs']['Pedestal']

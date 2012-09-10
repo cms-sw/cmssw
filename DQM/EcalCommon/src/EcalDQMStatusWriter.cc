@@ -1,8 +1,8 @@
 /*
  * \file EcalDQMStatusWriter.cc
  *
- * $Date: 2010/08/09 15:12:33 $
- * $Revision: 1.18 $
+ * $Date: 2010/08/30 13:14:08 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -108,8 +108,7 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
 
   EcalDQMChannelStatus* status = new EcalDQMChannelStatus();
 
-  std::vector<EcalDQMStatusDictionary::codeDef> dictionary;
-  EcalDQMStatusDictionary::getDictionary( dictionary );
+  EcalDQMStatusDictionary::init();
 
   // barrel
   for ( int ism=1; ism<=36; ism++ ) {
@@ -211,12 +210,7 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
 #endif
 
         EBDetId id(jsm, ic, EBDetId::SMCRYSTALMODE);
-        uint32_t code = 0;
-        for ( unsigned int i=0; i<dictionary.size(); i++ ) {
-          if ( strcmp(token.c_str(), dictionary[i].desc) == 0 ) {
-            code = dictionary[i].code;
-          }
-        }
+        uint32_t code(EcalDQMStatusDictionary::getCode(token));
         if ( code == 0 ) {
           std::cout << " --> not found in the dictionary: " << token << std::endl;
           continue;
@@ -267,12 +261,7 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
         }
 
         EEDetId id(jx, jy, (ism>=1&&ism<=9)?-1:+1);
-        uint32_t code = 0;
-        for ( unsigned int i=0; i<dictionary.size(); i++ ) {
-          if ( strcmp(token.c_str(), dictionary[i].desc) == 0 ) {
-            code = dictionary[i].code;
-          }
-        }
+        uint32_t code(EcalDQMStatusDictionary::getCode(token));
         if ( code == 0 ) {
           std::cout << " --> not found in the dictionary: " << token << std::endl;
           continue;
@@ -314,8 +303,7 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
 
   EcalDQMTowerStatus* status = new EcalDQMTowerStatus();
 
-  std::vector<EcalDQMStatusDictionary::codeDef> dictionary;
-  EcalDQMStatusDictionary::getDictionary( dictionary );
+  EcalDQMStatusDictionary::init();
 
   // barrel
   for ( int ix=1; ix<=17; ix++ ) {
@@ -408,12 +396,7 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
           }
 
           EcalTrigTowerDetId id((sm<0)?-1:+1, EcalBarrel, iet, ipt);
-          uint32_t code = 0;
-          for ( unsigned int i=0; i<dictionary.size(); i++ ) {
-            if ( strcmp(token.c_str(), dictionary[i].desc) == 0 ) {
-              code = dictionary[i].code;
-            }
-          }
+          uint32_t code(EcalDQMStatusDictionary::getCode(token));
           if ( code == 0 ) {
             std::cout << " --> not found in the dictionary: " << token << std::endl;
             continue;
@@ -468,12 +451,7 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
           for ( unsigned int i=0; i<crystals->size(); i++ ) {
 
             EcalScDetId id = ((EEDetId) (*crystals)[i]).sc();
-            uint32_t code = 0;
-            for ( unsigned int i=0; i<dictionary.size(); i++ ) {
-              if ( strcmp(token.c_str(), dictionary[i].desc) == 0 ) {
-                code = dictionary[i].code;
-              }
-            }
+            uint32_t code(EcalDQMStatusDictionary::getCode(token));
             if ( code == 0 ) {
               std::cout << " --> not found in the dictionary: " << token << std::endl;
               continue;

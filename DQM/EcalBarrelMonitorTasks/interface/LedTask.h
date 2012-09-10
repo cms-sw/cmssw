@@ -18,6 +18,8 @@ namespace ecaldqm {
 
     bool filterRunType(const std::vector<short>&);
 
+    void beginRun(const edm::Run &, const edm::EventSetup &);
+    void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &);
     void beginEvent(const edm::Event &, const edm::EventSetup &);
 
     void analyze(const void*, Collections);
@@ -47,6 +49,9 @@ namespace ecaldqm {
     unsigned wavelength_[BinService::nEEDCC];
     unsigned rtHalf_[BinService::nEEDCC];
     std::map<unsigned, float> pnAmp_;
+
+    int emptyLS_;
+    int emptyLSLimit_;
   };
 
   inline void LedTask::analyze(const void* _p, Collections _collection){

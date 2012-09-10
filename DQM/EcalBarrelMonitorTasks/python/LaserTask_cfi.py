@@ -1,4 +1,5 @@
 laserTask = dict(
+    emptyLSLimit = 3,
     MEs = dict(
         AmplitudeSummary = dict(path = "Laser/Laser%(wl)s/LaserTask amplitude summary L%(wl)s", otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TProfile2D', multi = 4),
         Amplitude = dict(path = "Laser/Laser%(wl)s/Amplitude/LaserTask amplitude L%(wl)s", otype = 'SM', btype = 'Crystal', kind = 'TProfile2D', multi = 4),

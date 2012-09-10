@@ -18,6 +18,9 @@ occupancyTask = dict(
         TPDigiThr = dict(path = "Occupancy/TPDigiThres/OccupancyTask TP digi thres occupancy", otype = 'SM', btype = 'TriggerTower', kind = 'TH2F'),
         TPDigiThrProjEta = dict(path = "Occupancy/TPDigiThres/OccupancyTask TP digi thres occupancy", otype = 'Ecal3P', btype = 'ProjEta', kind = 'TH1F'),
         TPDigiThrProjPhi = dict(path = "Occupancy/TPDigiThres/OccupancyTask TP digi thres occupancy", otype = 'Ecal3P', btype = 'ProjPhi', kind = 'TH1F'),
-        TPDigiThrAll = dict(path = "Occupancy/TPDigiThres/OccupancyTask TP digi thres occupancy", otype = 'Ecal3P', btype = 'TriggerTower', kind = 'TH2F')
+        TPDigiThrAll = dict(path = "Occupancy/TPDigiThres/OccupancyTask TP digi thres occupancy", otype = 'Ecal3P', btype = 'TriggerTower', kind = 'TH2F'),
+        TrendNDigi = dict(path = "Trend/OccupancyTask number of digis", otype = 'Ecal2P', btype = 'Trend', kind = 'TProfile'),
+        TrendNRecHit = dict(path = 'Trend/OccupancyTask number of recHits', otype = 'Ecal2P', btype = 'Trend', kind = 'TProfile'),
+        TrendNTPDigi = dict(path = 'Trend/OccupancyTask number of filtered TP digis', otype = 'Ecal2P', btype = 'Trend', kind = 'TProfile')
     )
 )

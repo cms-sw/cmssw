@@ -8,7 +8,9 @@ namespace ecaldqm {
   LedTask::LedTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
     DQWorkerTask(_workerParams, _commonParams, "LedTask"),
     wlToME_(),
-    pnAmp_()
+    pnAmp_(),
+    emptyLS_(0),
+    emptyLSLimit_(_workerParams.getUntrackedParameter<int>("emptyLSLimit"))
   {
     using namespace std;
 
@@ -81,6 +83,18 @@ namespace ecaldqm {
   }
 
   void
+  LedTask::beginRun(const edm::Run &, const edm::EventSetup &)
+  {
+    emptyLS_ = 0;
+  }
+
+  void
+  LedTask::beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &)
+  {
+    if(++emptyLS_ > emptyLSLimit_) emptyLS_ = -1;
+  }
+
+  void
   LedTask::beginEvent(const edm::Event &, const edm::EventSetup &)
   {
     pnAmp_.clear();
@@ -148,25 +162,34 @@ namespace ecaldqm {
         }
         if(adc < min) min = adc;
       }
-      if(iMax >= 0 && max - min > 10)
+      if(iMax >= 0 && max - min > 3) // normal RMS of pedestal is ~2.5
         maxpos[index][iMax] += 1;
     }
 
+    // signal existence check
     bool enable(false);
+    bool ledOnExpected(emptyLS_ >= 0);
+
     for(unsigned index(0); index < BinService::nEEDCC; ++index){
-      if(nReadouts[index] == 0) continue;
-      int threshold(nReadouts[index] / 3);
-      enable_[index] = false;
+      if(nReadouts[index] == 0){
+        enable_[index] = false;
+        continue;
+      }
+
+      int threshold(nReadouts[index] / 2);
+      if(ledOnExpected) enable_[index] = false;
+
       for(int i(0); i < 10; i++){
         if(maxpos[index][i] > threshold){
-          enable_[index] = true;
           enable = true;
+          enable_[index] = true;
           break;
         }
       }
     }
 
-    if(!enable) return;
+    if(enable) emptyLS_ = 0;
+    else if(ledOnExpected) return;
 
     unsigned iME(-1);
     for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){

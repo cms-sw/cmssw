@@ -17,7 +17,7 @@ namespace ecaldqm {
 
     void analyze(const void*, Collections);
 
-    void runOnDigis(const EcalDigiCollection &);
+    void runOnDigis(const EcalDigiCollection &, Collections);
     void runOnTPDigis(const EcalTrigPrimDigiCollection &);
     void runOnRecHits(const EcalRecHitCollection &, Collections);
 
@@ -42,6 +42,9 @@ namespace ecaldqm {
       kTPDigiThrProjEta, // h1f
       kTPDigiThrProjPhi, // h1f
       kTPDigiThrAll,
+      kTrendNDigi,
+      kTrendNRecHit,
+      kTrendNTPDigi,
       nMESets
     };
 
@@ -57,7 +60,7 @@ namespace ecaldqm {
     switch(_collection){
     case kEBDigi:
     case kEEDigi:
-      runOnDigis(*static_cast<const EcalDigiCollection*>(_p));
+      runOnDigis(*static_cast<const EcalDigiCollection*>(_p), _collection);
       break;
     case kTrigPrimDigi:
       runOnTPDigis(*static_cast<const EcalTrigPrimDigiCollection*>(_p));

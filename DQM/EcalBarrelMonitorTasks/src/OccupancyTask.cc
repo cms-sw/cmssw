@@ -37,7 +37,7 @@ namespace ecaldqm {
   }
 
   void
-  OccupancyTask::runOnDigis(const EcalDigiCollection &_digis)
+  OccupancyTask::runOnDigis(const EcalDigiCollection &_digis, Collections _collection)
   {
     for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       DetId id(digiItr->id());
@@ -47,11 +47,21 @@ namespace ecaldqm {
       MEs_[kDigiAll]->fill(id);
       MEs_[kDigiDCC]->fill(id);
     }
+
+    if(online_){
+      if(_collection == kEBDigi)
+        MEs_[kTrendNDigi]->fill(unsigned(BinService::kEB + 1), double(iLumi), double(_digis.size()));
+      else
+        MEs_[kTrendNDigi]->fill(unsigned(BinService::kEE + 1), double(iLumi), double(_digis.size()));
+    }
   }
 
   void
   OccupancyTask::runOnTPDigis(const EcalTrigPrimDigiCollection &_digis)
   {
+    double nFilteredEB(0.);
+    double nFilteredEE(0.);
+
     for(EcalTrigPrimDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       EcalTrigTowerDetId const& id(digiItr->id());
 
@@ -64,7 +74,14 @@ namespace ecaldqm {
 	MEs_[kTPDigiThrProjEta]->fill(id);
 	MEs_[kTPDigiThrProjPhi]->fill(id);
 	MEs_[kTPDigiThrAll]->fill(id);
+        if(id.subDet() == EcalBarrel) nFilteredEB += 1.;
+        else nFilteredEE += 1.;
       }
+    }
+
+    if(online_){
+      MEs_[kTrendNTPDigi]->fill(unsigned(BinService::kEB + 1), double(iLumi), nFilteredEB);
+      MEs_[kTrendNTPDigi]->fill(unsigned(BinService::kEE + 1), double(iLumi), nFilteredEE);
     }
   }
 
@@ -88,10 +105,14 @@ namespace ecaldqm {
       }
     }
 
-    if(_collection == kEBRecHit)
-      MEs_[kRecHit1D]->fill(unsigned(BinService::kEB) + 1, float(_hits.size()));
-    else
-      MEs_[kRecHit1D]->fill(unsigned(BinService::kEE) + 1, float(_hits.size()));
+    if(_collection == kEBRecHit){
+      MEs_[kRecHit1D]->fill(unsigned(BinService::kEB) + 1, double(_hits.size()));
+      if(online_) MEs_[kTrendNRecHit]->fill(unsigned(BinService::kEB + 1), double(iLumi), double(_hits.size()));
+    }
+    else{
+      MEs_[kRecHit1D]->fill(unsigned(BinService::kEE) + 1, double(_hits.size()));
+      if(online_) MEs_[kTrendNRecHit]->fill(unsigned(BinService::kEE + 1), double(iLumi), double(_hits.size()));
+    }
   }
 
   /*static*/
@@ -115,6 +136,9 @@ namespace ecaldqm {
     _nameToIndex["TPDigiThrProjEta"] = kTPDigiThrProjEta;
     _nameToIndex["TPDigiThrProjPhi"] = kTPDigiThrProjPhi;
     _nameToIndex["TPDigiThrAll"] = kTPDigiThrAll;
+    _nameToIndex["TrendNDigi"] = kTrendNDigi;
+    _nameToIndex["TrendNRecHit"] = kTrendNRecHit;
+    _nameToIndex["TrendNTPDigi"] = kTrendNTPDigi;
   }
 
   DEFINE_ECALDQM_WORKER(OccupancyTask);

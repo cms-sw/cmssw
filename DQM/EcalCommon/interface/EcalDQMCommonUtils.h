@@ -12,11 +12,11 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
+#include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -64,6 +64,8 @@ namespace ecaldqm {
 
   std::vector<DetId> scConstituents(EcalScDetId const&);
 
+  EcalPnDiodeDetId pnForCrystal(DetId const&, char);
+
   std::string smName(unsigned);
 
   int zside(const DetId&);
@@ -80,8 +82,6 @@ namespace ecaldqm {
   bool isSingleChannelId(const DetId&);
   bool isEcalScDetId(const DetId&);
   bool isEndcapTTId(const DetId&);
-
-  EcalPnDiodeDetId pnForCrystal(DetId const&, char);
 
   unsigned nCrystals(unsigned);
   unsigned nSuperCrystals(unsigned);

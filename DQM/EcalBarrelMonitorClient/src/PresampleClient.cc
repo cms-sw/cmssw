@@ -43,6 +43,8 @@ namespace ecaldqm {
     MESet::iterator qEnd(MEs_[kQuality]->end());
 
     MESet::const_iterator pItr(sources_[kPedestal]);
+    double maxEB(0.), minEB(0.), maxEE(0.), minEE(0.);
+    double rmsMaxEB(0.), rmsMaxEE(0.);
     for(MESet::iterator qItr(MEs_[kQuality]->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
       pItr = qItr;
@@ -82,8 +84,25 @@ namespace ecaldqm {
         qItr->setBinContent(doMask ? kMGood : kGood);
         MEs_[kQualitySummary]->setBinContent(id, doMask ? kMGood : kGood);
       }
+
+      if(id.subdetId() == EcalBarrel){
+        if(mean > maxEB) maxEB = mean;
+        if(mean < minEB) minEB = mean;
+        if(rms > rmsMaxEB) rmsMaxEB = rms;
+      }
+      else{
+        if(mean > maxEE) maxEE = mean;
+        if(mean < minEE) minEE = mean;
+        if(rms > rmsMaxEE) rmsMaxEE = rms;
+      }
     }
 
+    if(online_){
+      MEs_[kTrendMean]->fill(unsigned(BinService::kEB + 1), double(iLumi), maxEB - minEB);
+      MEs_[kTrendMean]->fill(unsigned(BinService::kEE + 1), double(iLumi), maxEE - minEE);
+      MEs_[kTrendRMS]->fill(unsigned(BinService::kEB + 1), double(iLumi), rmsMaxEB);
+      MEs_[kTrendRMS]->fill(unsigned(BinService::kEE + 1), double(iLumi), rmsMaxEE);
+    }
   }
 
   /*static*/
@@ -96,6 +115,8 @@ namespace ecaldqm {
     _nameToIndex["RMS"] = kRMS;
     _nameToIndex["RMSMap"] = kRMSMap;
     _nameToIndex["QualitySummary"] = kQualitySummary;
+    _nameToIndex["TrendMean"] = kTrendMean;
+    _nameToIndex["TrendRMS"] = kTrendRMS;
 
     _nameToIndex["Pedestal"] = kPedestal;
   }

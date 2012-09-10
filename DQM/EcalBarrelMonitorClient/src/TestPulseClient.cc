@@ -2,6 +2,8 @@
 
 #include "DQM/EcalCommon/interface/MESetMulti.h"
 
+#include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
+
 #include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
 
 #include <iomanip>
@@ -243,7 +245,7 @@ namespace ecaldqm
 
           EcalPnDiodeDetId id(subdet, iDCC + 1, iPN + 1);
 
-          bool doMask(applyMask_(kPNQualitySummary, id));
+          bool doMask(applyMask_(kPNQualitySummary, id, mask));
 
           float amp(sources_[kPNAmplitude]->getBinContent(id));
           float entries(sources_[kPNAmplitude]->getBinEntries(id));

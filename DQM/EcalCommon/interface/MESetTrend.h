@@ -13,7 +13,7 @@ namespace ecaldqm
   class MESetTrend : public MESetEcal
   {
   public :
-    MESetTrend(std::string const&, BinService::ObjectType, BinService::BinningType, MonitorElement::Kind, BinService::AxisSpecs const* = 0);
+    MESetTrend(std::string const&, BinService::ObjectType, BinService::BinningType, MonitorElement::Kind, bool, bool, BinService::AxisSpecs const* = 0);
     MESetTrend(MESetTrend const&);
     ~MESetTrend();
 
@@ -33,18 +33,14 @@ namespace ecaldqm
     int findBin(unsigned, double, double _y = 0.) const;
     int findBin(double, double _y = 0.) const;
 
-    void setTimeZero(time_t _t0) { t0_ = _t0; }
-    time_t getTimeZero() const { return t0_; }
-    void setMinutely(bool _minutely) { minutely_ = _minutely; }
-    bool getMinutely() const { return minutely_; }
+    bool isMinutely() const { return minutely_; }
+    bool isCumulative() const { return currentBin_ > 0; }
 
   private:
-    bool shift_(time_t);
+    bool shift_(unsigned);
 
-    time_t t0_;
     bool minutely_;
-
-    time_t tLow_;
+    int currentBin_; // only used for cumulative case
   };
 }
 

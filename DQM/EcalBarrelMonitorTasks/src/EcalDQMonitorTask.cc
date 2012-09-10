@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <iomanip>
+#include <ctime>
 
 #include "DQM/EcalCommon/interface/MESet.h"
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
@@ -11,6 +12,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -98,6 +100,9 @@ EcalDQMonitorTask::fillDescriptions(edm::ConfigurationDescriptions &_descs)
 void
 EcalDQMonitorTask::beginRun(const edm::Run &_run, const edm::EventSetup &_es)
 {
+  DQWorker::iRun = _run.run();
+  DQWorker::now = time(0);
+
   // set up ecaldqm::electronicsMap in EcalDQMCommonUtils
   edm::ESHandle<EcalElectronicsMapping> elecMapHandle;
   _es.get<EcalMappingRcd>().get(elecMapHandle);
@@ -148,6 +153,9 @@ EcalDQMonitorTask::endRun(const edm::Run &_run, const edm::EventSetup &_es)
 void
 EcalDQMonitorTask::beginLuminosityBlock(const edm::LuminosityBlock &_lumi, const edm::EventSetup &_es)
 {
+  DQWorker::iLumi = _lumi.luminosityBlock();
+  DQWorker::now = time(0);
+
   for(std::vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
     DQWorkerTask* task(static_cast<DQWorkerTask*>(*wItr));
     if(task->isInitialized() && task->runsOn(kLumiSection)) task->beginLuminosityBlock(_lumi, _es);
@@ -169,6 +177,8 @@ EcalDQMonitorTask::analyze(const edm::Event &_evt, const edm::EventSetup &_es)
   using namespace std;
   using namespace ecaldqm;
 
+  DQWorker::iEvt = _evt.id().event();
+  DQWorker::now = time(0);
   ievt_++;
 
   edm::Handle<EcalRawDataCollection> dcchsHndl;

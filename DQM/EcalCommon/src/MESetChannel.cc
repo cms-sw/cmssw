@@ -2,6 +2,7 @@
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
+#include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
 
 #include <limits>
 #include <iomanip>

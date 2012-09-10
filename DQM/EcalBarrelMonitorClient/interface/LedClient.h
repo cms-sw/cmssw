@@ -46,7 +46,7 @@ namespace ecaldqm {
     std::vector<double> toleranceTimRMS_;
     std::vector<double> expectedPNAmplitude_;
     std::vector<double> tolerancePNAmp_;
-    std::vector<double> tolerancePNRMS_;
+    std::vector<double> tolerancePNRMSRatio_;
     float forwardFactor_;
   };
 

@@ -18,6 +18,8 @@ namespace ecaldqm {
 
     bool filterRunType(const std::vector<short>&);
 
+    void beginRun(const edm::Run &, const edm::EventSetup &);
+    void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &);
     void beginEvent(const edm::Event &, const edm::EventSetup &);
 
     void analyze(const void*, Collections);
@@ -48,7 +50,8 @@ namespace ecaldqm {
     unsigned rtHalf_[BinService::nDCC];
     std::map<uint32_t, float> pnAmp_;
 
-    unsigned ievt_;
+    int emptyLS_;
+    int emptyLSLimit_;
   };
 
   inline void LaserTask::analyze(const void* _p, Collections _collection){

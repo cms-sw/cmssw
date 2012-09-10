@@ -46,6 +46,7 @@ namespace ecaldqm {
       kDesyncTotal, // h1f
       kFEStatus, // h1f
       kFEByLumi, // h1f
+      kTrendNSyncErrors,
       kFEDEntries,
       kFEDFatal,
       nMESets

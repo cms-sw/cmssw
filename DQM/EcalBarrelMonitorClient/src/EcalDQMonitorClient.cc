@@ -3,6 +3,8 @@
 #include "../interface/DQWorkerClient.h"
 #include "../interface/EcalDQMClientUtils.h"
 
+#include <ctime>
+
 #include "DQM/EcalCommon/interface/MESet.h"
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
@@ -10,7 +12,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -33,6 +35,9 @@ EcalDQMonitorClient::EcalDQMonitorClient(const edm::ParameterSet &_ps) :
   for(std::vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr)
     if(!dynamic_cast<DQWorkerClient*>(*wItr))
       throw cms::Exception("InvalidConfiguration") << "Non-client DQWorker " << (*wItr)->getName() << " passed";
+
+  if(_ps.existsAs<std::string>("PNMaskFile", false))
+    ecaldqm::readPNMaskMap(_ps.getUntrackedParameter<std::string>("PNMaskFile"));
 }
 
 EcalDQMonitorClient::~EcalDQMonitorClient()
@@ -53,6 +58,9 @@ EcalDQMonitorClient::fillDescriptions(edm::ConfigurationDescriptions &_descs)
 void
 EcalDQMonitorClient::beginRun(const edm::Run &_run, const edm::EventSetup &_es)
 {
+  DQWorker::iRun = _run.run();
+  DQWorker::now = time(0);
+
   // set up ecaldqm::electronicsMap in EcalDQMCommonUtils
   edm::ESHandle<EcalElectronicsMapping> elecMapHandle;
   _es.get<EcalMappingRcd>().get(elecMapHandle);
@@ -99,6 +107,9 @@ EcalDQMonitorClient::endRun(const edm::Run &_run, const edm::EventSetup &_es)
 void
 EcalDQMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock &_lumi, const edm::EventSetup &_es)
 {
+  DQWorker::iLumi = _lumi.luminosityBlock();
+  DQWorker::now = time(0);
+
   for(std::vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr)
     (*wItr)->beginLuminosityBlock(_lumi, _es);
 

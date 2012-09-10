@@ -70,20 +70,16 @@ namespace ecaldqm {
   DQWorkerClient::initialize()
   {
     initialized_ = true;
-    for(std::vector<MESet const*>::iterator sItr(sources_.begin()); sItr != sources_.end(); ++sItr)
+    for(std::vector<MESet const*>::iterator sItr(sources_.begin()); sItr != sources_.end(); ++sItr){
+      if((*sItr)->getBinType() == BinService::kTrend && !online_) continue;
       initialized_ &= (*sItr)->retrieve();
+    }
   }
 
   bool
   DQWorkerClient::applyMask_(unsigned _iME, DetId const& _id, uint32_t _mask)
   {
     return applyMask(MEs_[_iME]->getBinType(), _id, _mask);
-  }
-
-  bool
-  DQWorkerClient::applyMask_(unsigned, EcalPnDiodeDetId const&)
-  {
-    return false;
   }
 
   void

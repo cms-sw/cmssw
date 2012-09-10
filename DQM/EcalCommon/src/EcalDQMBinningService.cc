@@ -11,6 +11,8 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
+#include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
+
 #include <utility>
 #include <iomanip>
 #include <sstream>

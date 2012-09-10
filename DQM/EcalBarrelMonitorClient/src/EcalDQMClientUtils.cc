@@ -1,22 +1,37 @@
 #include "../interface/EcalDQMClientUtils.h"
 
 #include <vector>
+#include <fstream>
 
 #include "DQM/EcalCommon/interface/MESet.h"
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
+#include "DQM/EcalCommon/interface/EcalDQMStatusDictionary.h"
 
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
 
 namespace ecaldqm {
 
   EcalDQMChannelStatus const* channelStatus(0);
   EcalDQMTowerStatus const* towerStatus(0);
+  std::map<uint32_t, uint32_t> pnMaskMap;
 
   bool
   applyMask(BinService::BinningType _btype, DetId const& _id, uint32_t _mask)
   {
     using namespace std;
+
+    int subdet(_id.subdetId());
+
+    if(subdet == EcalLaserPnDiode){
+      std::map<uint32_t, uint32_t>::const_iterator pnItr(pnMaskMap.find(_id.rawId()));
+      if(pnItr == pnMaskMap.end()) return false;
+      return (pnItr->second & _mask) != 0;
+    }
 
     bool doMask(false);
 
@@ -25,7 +40,7 @@ namespace ecaldqm {
     if(channelStatus && towerStatus){
       bool searchTower(_btype == BinService::kTriggerTower || _btype == BinService::kSuperCrystal);
 
-      switch(_id.subdetId()){
+      switch(subdet){
       case EcalBarrel:
 	if(searchTower){
 	  EcalTrigTowerDetId ttid(EBDetId(_id).tower());
@@ -133,5 +148,37 @@ namespace ecaldqm {
   {
     channelStatus = _chStatus;
     towerStatus = _towStatus;
+  }
+
+  void
+  readPNMaskMap(std::string const& _fileName)
+  {
+    std::ifstream maskFile(_fileName);
+    if(!maskFile.is_open())
+      throw cms::Exception("IOError") << "File " << _fileName << " not found";
+
+    EcalDQMStatusDictionary::init();
+
+    pnMaskMap.clear();
+
+    std::string line;
+    std::stringstream ss;
+    std::string key;
+    int dcc(0);
+    int ipn(0);
+    std::string type;
+    while(std::getline(maskFile, line), maskFile.good()){
+      ss.clear();
+      ss.str("");
+      ss << line;
+      ss >> key;
+      if(key != "PN") continue;
+      ss >> dcc >> ipn >> type;
+      int subdet(dcc - 1 <= kEEmHigh || dcc - 1 >= kEEpLow ? EcalEndcap : EcalBarrel);
+      EcalPnDiodeDetId pnid(subdet, dcc, ipn);
+      pnMaskMap[pnid.rawId()] |= EcalDQMStatusDictionary::getCode(type);
+    }
+
+    EcalDQMStatusDictionary::clear();
   }
 }

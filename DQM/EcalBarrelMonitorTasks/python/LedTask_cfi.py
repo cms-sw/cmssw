@@ -1,4 +1,5 @@
 ledTask = dict(
+    emptyLSLimit = 3,
     MEs = dict(
         AmplitudeSummary = dict(path = "Led/Led%(wl)s/LedTask amplitude summary L%(wl)s", otype = 'EE', btype = 'SuperCrystal', kind = 'TProfile2D', multi = 2),
         Amplitude = dict(path = "Led/Led%(wl)s/Amplitude/LedTask amplitude L%(wl)s", otype = 'EESM', btype = 'Crystal', kind = 'TProfile2D', multi = 2),

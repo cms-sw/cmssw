@@ -117,8 +117,8 @@ namespace ecaldqm {
   void
   RawDataTask::beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &)
   {
-    if(MEs_[kDesyncByLumi]->isActive()) MEs_[kDesyncByLumi]->reset();
-    if(MEs_[kFEByLumi]->isActive()) MEs_[kFEByLumi]->reset();
+    MEs_[kDesyncByLumi]->reset();
+    MEs_[kFEByLumi]->reset();
   }
 
   void
@@ -151,8 +151,10 @@ namespace ecaldqm {
  	const uint64_t* pData(reinterpret_cast<const uint64_t*>(fedData.data()));
  	bool crcError((pData[length - 1] >> 2) & 0x1);
 
-	if(crcError && MEs_[kFEDFatal]->isActive()) MEs_[kFEDFatal]->fill(iFED - 600);
-	if(crcError && MEs_[kCRC]->isActive()) MEs_[kCRC]->fill(iFED - 600);
+	if(crcError){
+          MEs_[kFEDFatal]->fill(iFED - 600);
+          MEs_[kCRC]->fill(iFED - 600);
+        }
       }
     }
   }
@@ -196,8 +198,8 @@ namespace ecaldqm {
       const vector<short> &feBxs(dcchItr->getFEBxs());
       const vector<short> &feL1s(dcchItr->getFELv1());
 
-      bool feDesync(false);
-      bool statusError(false);
+      double feDesync(0.);
+      double statusError(0.);
 
       for(unsigned iFE(0); iFE < feStatus.size(); iFE++){
 	if(!ccuExists(dccId, iFE + 1)) continue;
@@ -207,14 +209,14 @@ namespace ecaldqm {
 	if(status != BXDesync && status != L1ABXDesync){ // BX desync not detected in the DCC
 	  if(feBxs[iFE] != dccBX && feBxs[iFE] != -1 && dccBX != -1){
 	    MEs_[kBXFE]->fill(dccId, iFE + 0.5);
-	    feDesync = true;
+	    feDesync += 1.;
 	  }
 	}
 
 	if(status != L1ADesync && status != L1ABXDesync){
 	  if(feL1s[iFE] + feL1Offset_ != dccL1AShort && feL1s[iFE] != -1 && dccL1AShort != 0){
 	    MEs_[kL1AFE]->fill(dccId, iFE + 0.5);
-	    feDesync = true;
+	    feDesync += 1.;
 	  }
 	}
 
@@ -234,16 +236,20 @@ namespace ecaldqm {
 	case L1ABXDesync:
 	case HParity:
 	case VParity:
-	  statusError = true;
+	  statusError += 1.;
 	  break;
 	default:
 	  continue;
 	}
       }
 
-      if(feDesync) MEs_[kDesyncByLumi]->fill(dccId);
-      if(feDesync) MEs_[kDesyncTotal]->fill(dccId);
-      if(statusError) MEs_[kFEByLumi]->fill(dccId);
+      if(feDesync > 0.){
+        MEs_[kDesyncByLumi]->fill(dccId, feDesync);
+        MEs_[kDesyncTotal]->fill(dccId, feDesync);
+        if(online_) MEs_[kTrendNSyncErrors]->fill(double(iLumi), feDesync);
+      }
+      if(statusError > 0.)
+        MEs_[kFEByLumi]->fill(dccId, statusError);
 
       const vector<short> &tccBx(dcchItr->getTCCBx());
       const vector<short> &tccL1(dcchItr->getTCCLv1());
@@ -315,6 +321,7 @@ namespace ecaldqm {
     _nameToIndex["FEByLumi"] = kFEByLumi;
     _nameToIndex["FEDEntries"] = kFEDEntries;
     _nameToIndex["FEDFatal"] = kFEDFatal;
+    _nameToIndex["TrendNSyncErrors"] = kTrendNSyncErrors;
   }
 
   DEFINE_ECALDQM_WORKER(RawDataTask);

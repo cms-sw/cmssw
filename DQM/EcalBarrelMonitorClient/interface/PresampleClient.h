@@ -21,6 +21,8 @@ namespace ecaldqm {
       kRMS,
       kRMSMap,
       kQualitySummary,
+      kTrendMean,
+      kTrendRMS,
       nMESets
     };
 

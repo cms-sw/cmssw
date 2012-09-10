@@ -13,6 +13,7 @@
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
+#include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 

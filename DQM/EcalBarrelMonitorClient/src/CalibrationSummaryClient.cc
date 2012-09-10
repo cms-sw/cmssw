@@ -3,6 +3,8 @@
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "DQM/EcalCommon/interface/MESetMulti.h"
 
+#include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
+
 namespace ecaldqm {
 
   CalibrationSummaryClient::CalibrationSummaryClient(edm::ParameterSet const&  _workerParams, edm::ParameterSet const& _commonParams) :

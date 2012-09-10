@@ -33,9 +33,6 @@ namespace ecaldqm {
     };
 
     static void setMEOrdering(std::map<std::string, unsigned>&);
-
-  protected:
-    bool online_;
   };
 
 }

@@ -23,7 +23,7 @@ namespace ecaldqm {
     toleranceTimRMS_(0),
     expectedPNAmplitude_(0),
     tolerancePNAmp_(0),
-    tolerancePNRMS_(0),
+    tolerancePNRMSRatio_(0),
     forwardFactor_(_workerParams.getUntrackedParameter<double>("forwardFactor"))
   {
     using namespace std;
@@ -46,7 +46,7 @@ namespace ecaldqm {
     toleranceTimRMS_.resize(iMEWL);
     expectedPNAmplitude_.resize(iMEWL);
     tolerancePNAmp_.resize(iMEWL);
-    tolerancePNRMS_.resize(iMEWL);
+    tolerancePNRMSRatio_.resize(iMEWL);
 
     for(map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr){
       ss.str("");
@@ -60,7 +60,7 @@ namespace ecaldqm {
       toleranceTimRMS_[wlItr->second] = _workerParams.getUntrackedParameter<double>("toleranceTimRMS" + ss.str());
       expectedPNAmplitude_[wlItr->second] = _workerParams.getUntrackedParameter<double>("expectedPNAmplitude" + ss.str());
       tolerancePNAmp_[wlItr->second] = _workerParams.getUntrackedParameter<double>("tolerancePNAmp" + ss.str());
-      tolerancePNRMS_[wlItr->second] = _workerParams.getUntrackedParameter<double>("tolerancePNRMS" + ss.str());
+      tolerancePNRMSRatio_[wlItr->second] = _workerParams.getUntrackedParameter<double>("tolerancePNRMSRatio" + ss.str());
     }
 
     map<string, string> replacements;
@@ -201,7 +201,7 @@ namespace ecaldqm {
         for(unsigned iPN(0); iPN < 10; ++iPN){
           EcalPnDiodeDetId id(subdet, iDCC + 1, iPN + 1);
 
-          bool doMask(applyMask_(kPNQualitySummary, id));
+          bool doMask(applyMask_(kPNQualitySummary, id, mask));
 
           float pEntries(sources_[kPNAmplitude]->getBinEntries(id));
 
@@ -212,8 +212,9 @@ namespace ecaldqm {
 
           float pMean(sources_[kPNAmplitude]->getBinContent(id));
           float pRms(sources_[kPNAmplitude]->getBinError(id) * sqrt(pEntries));
+          float intensity(pMean / expectedPNAmplitude_[wlItr->second]);
 
-          if(abs(pMean - expectedPNAmplitude_[wlItr->second]) > tolerancePNAmp_[wlItr->second] || pRms > tolerancePNRMS_[wlItr->second])
+          if(intensity < tolerancePNAmp_[wlItr->second] || pRms > pMean * tolerancePNRMSRatio_[wlItr->second])
             MEs_[kPNQualitySummary]->setBinContent(id, doMask ? kMBad : kBad);
           else
             MEs_[kPNQualitySummary]->setBinContent(id, doMask ? kMGood : kGood);

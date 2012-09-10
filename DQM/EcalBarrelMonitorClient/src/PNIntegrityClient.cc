@@ -1,5 +1,9 @@
 #include "../interface/PNIntegrityClient.h"
 
+#include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
+
+#include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
+
 namespace ecaldqm
 {
   PNIntegrityClient::PNIntegrityClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
@@ -18,6 +22,11 @@ namespace ecaldqm
   void
   PNIntegrityClient::producePlots()
   {
+    uint32_t mask(0x1 << EcalDQMStatusHelper::TT_SIZE_ERROR |
+                  0x1 << EcalDQMStatusHelper::TT_ID_ERROR |
+                  0x1 << EcalDQMStatusHelper::CH_ID_ERROR |
+                  0x1 << EcalDQMStatusHelper::CH_GAIN_ZERO_ERROR);
+
     for(unsigned iDCC(0); iDCC < BinService::nDCC; ++iDCC){
       if(memDCCIndex(iDCC + 1) == unsigned(-1)) continue;
       for(unsigned iPN(0); iPN < 10; ++iPN){
@@ -27,7 +36,7 @@ namespace ecaldqm
 
         EcalPnDiodeDetId id(subdet, iDCC + 1, iPN + 1);
 
-        bool doMask(applyMask_(kQualitySummary, id));
+        bool doMask(applyMask_(kQualitySummary, id, mask));
 
         float entries(sources_[kOccupancy]->getBinContent(id));
 

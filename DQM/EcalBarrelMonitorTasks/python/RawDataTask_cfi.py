@@ -20,7 +20,8 @@ rawDataTask = dict(
         FEStatus = dict(path = "RawData/FEStatus/RawDataTask FE status", otype = 'SM', btype = 'SuperCrystal', kind = 'TH2F', yaxis = {'nbins': 16, 'low': 0., 'high': 16.}),
         FEByLumi = dict(path = "RawData/RawDataTask FE status errors by lumi", otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
         FEDEntries = dict(path = '%(hlttask)s/FEDEntries', otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
-        FEDFatal = dict(path = '%(hlttask)s/FEDFatal', otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F')
+        FEDFatal = dict(path = '%(hlttask)s/FEDFatal', otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
+        TrendNSyncErrors = dict(path = 'Trend/RawDataTask accumulated number of sync errors', otype = 'Ecal', btype ='Trend', kind = 'TH1F', cumulative = True)
     )
 )
 

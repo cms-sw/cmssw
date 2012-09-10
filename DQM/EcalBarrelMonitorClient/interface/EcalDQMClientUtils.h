@@ -15,6 +15,7 @@ namespace ecaldqm
   bool applyMask(BinService::BinningType, DetId const&, uint32_t);
 
   void setStatuses(EcalDQMChannelStatus const*, EcalDQMTowerStatus const*);
+  void readPNMaskMap(std::string const&);
 }
 
 #endif

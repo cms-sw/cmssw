@@ -31,7 +31,6 @@ namespace ecaldqm {
   protected:
     void source_(unsigned, std::string const&, unsigned, edm::ParameterSet const&);
     bool applyMask_(unsigned, DetId const&, uint32_t);
-    bool applyMask_(unsigned, EcalPnDiodeDetId const&);
     void towerAverage_(unsigned, unsigned, float);
 
     std::vector<MESet const*> sources_;
