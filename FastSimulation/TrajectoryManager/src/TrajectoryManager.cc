@@ -60,8 +60,8 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   myDecayEngine(0), 
   theGeomTracker(0),
   theGeomSearchTracker(0),
-  theLayerMap(56, static_cast<const DetLayer*>(0)), // reserve space for layers here
-  theNegLayerOffset(27),
+  theLayerMap(120, static_cast<const DetLayer*>(0)), // reserve space for layers here
+  theNegLayerOffset(51),
   //  myHistos(0),
   random(engine)
 

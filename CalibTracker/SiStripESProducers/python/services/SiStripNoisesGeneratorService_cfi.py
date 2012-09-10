@@ -43,7 +43,8 @@ SiStripNoisesGenerator = cms.Service("SiStripNoisesGenerator",
                                      MinPositiveNoise = cms.double(0.1)
                                      )
 
-from SimTracker.SiStripDigitizer.SiStripDigi_cfi import *
-SiStripNoisesGenerator.electronPerAdc=simSiStripDigis.electronPerAdcDec
+from SimGeneral.MixingModule.stripDigitizer_cfi import *
+#from SimTracker.SiStripDigitizer.SiStripDigi_cfi import *
+SiStripNoisesGenerator.electronPerAdc=stripDigitizer.electronPerAdcDec
 
 

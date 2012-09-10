@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.113 2012/07/06 23:33:29 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.111 2011/09/12 20:30:58 amraktad Exp $
 //
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -192,11 +192,7 @@ void CmsShowNavigator::setCurrentFile(FileQueue_i fi)
       
       fwLog(fwlog::kDebug) << "CmsShowNavigator::setCurrentFile [" << (*fi)->file()->GetName() << "] file idx in chain [" << cnt << "/" << m_files.size() -1 << "]" << std::endl;
    }
-   else
-   {
-      fwLog(fwlog::kInfo) << "Set current file to "<< (*fi)->file()->GetName() << ".\n";
-   }
-
+   
    m_currentFile = fi;
    fileChanged_.emit((*m_currentFile)->file());
 }
@@ -479,8 +475,7 @@ CmsShowNavigator::updateFileFilters()
    if (nSelected)
    {
       // go to the nearest selected event/file
-      bool changeCurrentEvent = !(*m_currentFile)->isEventSelected(m_currentEvent);
-      if (changeCurrentEvent)
+      if (!(*m_currentFile)->isEventSelected(m_currentEvent))
       {
          if (!nextSelectedEvent())
             previousSelectedEvent();
@@ -489,7 +484,7 @@ CmsShowNavigator::updateFileFilters()
       if (m_filterState == kWithdrawn)
          resumeFilter();
 
-      postFiltering_.emit(changeCurrentEvent);
+      postFiltering_.emit();
    }
    else
    {
@@ -909,7 +904,7 @@ CmsShowNavigator::setFrom(const FWConfiguration& iFrom)
       if  (m_filterState == kOn)
          updateFileFilters();
       else
-         postFiltering_.emit(true);
+         postFiltering_.emit();
    }
    // update CmsShowMainFrame checkBoxIcon and button text
    if (oldFilterState != m_filterState)

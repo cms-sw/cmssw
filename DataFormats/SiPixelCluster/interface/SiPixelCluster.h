@@ -28,7 +28,7 @@ class SiPixelCluster {
     Pixel() {} // for root
     Pixel(int pix_x, int pix_y, int pix_adc) :
       x(pix_x), y(pix_y), adc(pix_adc) {}
-    unsigned char  x;
+    unsigned short  x;
     unsigned short y;
     unsigned short adc;
   };
@@ -114,7 +114,7 @@ class SiPixelCluster {
 	} // Return total cluster charge.
 
 	inline int minPixelRow() const { return theMinPixelRow;} // The min x index.
-  inline int minPixelCol() const { return theMinPixelCol & 511;} // The min y index.
+  inline int minPixelCol() const { return theMinPixelCol;} // The min y index.
 	
   inline int maxPixelRow() const {
 		int maxRow = 0;
@@ -181,7 +181,7 @@ class SiPixelCluster {
       uint8_t  theMaxPixelRow; // Maximum pixel index in the x direction (top edge).
       uint16_t theMaxPixelCol; // Maximum pixel index in the y direction (right edge).
   */
-  uint8_t  theMinPixelRow; // Minimum pixel index in the x direction (low edge).
+  uint16_t  theMinPixelRow; // Minimum pixel index in the x direction (low edge).
   uint16_t theMinPixelCol; // Minimum pixel index in the y direction (left edge).
   // Need 9 bits for Col information. Use 1 bit for whether larger
   // cluster than 9x33. Other 6 bits for quality information.

@@ -69,12 +69,12 @@ L1TowerJetProducer::L1TowerJetProducer( const edm::ParameterSet & aConfig ):L1Ca
 				lDeltaRSquare = lDeltaSquare[x] + lDeltaSquare[y];
 				if( lDeltaRSquare <= lDeltaRSquareMax ){
 					mJetShapeMap.push_back( std::make_pair( x , y ) );
-					//std::cout << "#" << std::flush;
+					std::cout << "#" << std::flush;
 				}else{
-					//std::cout << "-" << std::flush;
+					std::cout << "-" << std::flush;
 				}
 			}
-			//std::cout << std::endl;
+			std::cout << std::endl;
 		}
 
 	}else{
@@ -108,12 +108,12 @@ void L1TowerJetProducer::algorithm( const int &aEta, const int &aPhi )
 	std::pair < int, int > lTowerEtaPhi = mCaloTriggerSetup->getTowerEtaPhi( lTowerIndex );
 
 
-	l1slhc::L1TowerJet lJet( mJetDiameter, mJetShape , mJetShapeMap.size() , lTowerEtaPhi.first , lTowerEtaPhi.second );
+	l1slhc::L1TowerJet lJet( mJetDiameter, mJetShape , lTowerEtaPhi.first , lTowerEtaPhi.second );
 
 	for ( std::vector< std::pair< int , int > >::const_iterator lJetShapeMapIt = mJetShapeMap.begin() ; lJetShapeMapIt != mJetShapeMap.end() ; ++lJetShapeMapIt )
 	{
 		int lPhi = aPhi+(lJetShapeMapIt->second);
-		if ( lPhi > mCaloTriggerSetup->phiMax(  ) ) lPhi -= 72; //mCaloTriggerSetup->phiMax(  );
+		if ( lPhi > mCaloTriggerSetup->phiMax(  ) ) lPhi -= mCaloTriggerSetup->phiMax(  );
 
 		l1slhc::L1CaloTowerCollection::const_iterator lTowerItr = fetch( aEta+(lJetShapeMapIt->first) , lPhi );
 		if ( lTowerItr != mInputCollection->end(  ) )

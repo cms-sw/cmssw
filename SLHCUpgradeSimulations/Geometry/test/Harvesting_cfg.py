@@ -40,8 +40,7 @@ process.source = cms.Source("PoolSource",
 # Additional output definition
 
 # Other statements
-#process.GlobalTag.globaltag = 'DESIGN_42_V10::All'
-process.GlobalTag.globaltag = 'MC_42_V10::All'
+process.GlobalTag.globaltag = 'DESIGN53_V3::All'
 
 # Path and EndPath definitions
 process.edmtome_step = cms.Path(process.EDMtoME)

@@ -223,7 +223,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/MuonCommonData/data/mb3.xml', 
         'Geometry/MuonCommonData/data/mb4.xml', 
         'Geometry/MuonCommonData/data/muonYoke.xml', 
-        'Geometry/MuonCommonData/data/mf.xml', 
+        'Geometry/MuonCommonData/data/mf.xml')+cms.vstring( 
         'Geometry/ForwardCommonData/data/forward.xml', 
 	'Geometry/ForwardCommonData/data/bundle/forwardshield.xml',
         'Geometry/ForwardCommonData/data/brmrotations.xml', 
@@ -256,6 +256,9 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml', 
         'Geometry/MuonSimData/data/muonProdCuts.xml',
         'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
+        'Geometry/ForwardCommonData/data/castor.xml',
+        'Geometry/ForwardSimData/data/castorsens.xml',
+        'Geometry/ForwardSimData/data/CastorProdCuts.xml',
         'Geometry/CMSCommonData/data/FieldParameters.xml'),
     rootNodeName = cms.string('cms:OCMS')
 )

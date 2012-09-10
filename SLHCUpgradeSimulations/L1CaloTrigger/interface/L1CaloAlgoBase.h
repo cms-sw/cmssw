@@ -36,8 +36,6 @@ public edm::EDProducer
 
 	virtual void algorithm( const int &, const int & ) = 0;
 
-	std::string sourceName() const;
-
   private:
 	void produce( edm::Event &, const edm::EventSetup & );
 
@@ -78,16 +76,7 @@ L1CaloAlgoBase< tInputCollection ,  tOutputCollection >::~L1CaloAlgoBase(  )
 {
 }
 
-template < typename tInputCollection ,  typename tOutputCollection >
-std::string L1CaloAlgoBase< tInputCollection ,  tOutputCollection >::sourceName() const
-{
-	if( mInputCollectionTag.instance().size() )
-	{
-		return std::string( mInputCollectionTag.label () + " - " + mInputCollectionTag.instance() );
-	}else{
-		return std::string( mInputCollectionTag.label () );
-	}
-}
+
 
 template < typename tInputCollection ,  typename tOutputCollection >
 typename tInputCollection::const_iterator L1CaloAlgoBase< tInputCollection ,  tOutputCollection >::fetch( const int &aEta, const int &aPhi ){

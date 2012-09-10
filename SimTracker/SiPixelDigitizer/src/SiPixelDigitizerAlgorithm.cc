@@ -141,6 +141,11 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   ClusterWidth(3.),     // Charge integration spread on the collection plane
 
   // get external parameters:
+  // To account for upgrade geometries do not assume the number 
+  // of layers or disks.
+  NumberOfBarrelLayers(conf.getParameter<int>("NumPixelBarrel")),
+  NumberOfEndcapDisks(conf.getParameter<int>("NumPixelEndcap")),
+
   // ADC calibration 1adc count(135e.
   // Corresponds to 2adc/kev, 270[e/kev]/135[e/adc](2[adc/kev]
   // Be carefull, this parameter is also used in SiPixelDet.cc to
@@ -151,6 +156,8 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   // ADC saturation value, 255(8bit adc.
   //theAdcFullScale(conf.getUntrackedParameter<int>("AdcFullScale",255)),
   theAdcFullScale(conf.getParameter<int>("AdcFullScale")),
+  theAdcFullScaleStack(conf.getParameter<int>("AdcFullScaleStack")),
+  theFirstStackLayer(conf.getParameter<int>("FirstStackLayer")),
 
   // Noise in electrons:
   // Pixel cell noise, relevant for generating noisy pixels
@@ -165,10 +172,12 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   // Pixel threshold in electron units.
   theThresholdInE_FPix(conf.getParameter<double>("ThresholdInElectrons_FPix")),
   theThresholdInE_BPix(conf.getParameter<double>("ThresholdInElectrons_BPix")),
+  theThresholdInE_BPix_L1(conf.getParameter<double>("ThresholdInElectrons_BPix_L1")),
 
   // Add threshold gaussian smearing:
   theThresholdSmearing_FPix(conf.getParameter<double>("ThresholdSmearing_FPix")),
   theThresholdSmearing_BPix(conf.getParameter<double>("ThresholdSmearing_BPix")),
+  theThresholdSmearing_BPix_L1(conf.getParameter<double>("ThresholdSmearing_BPix_L1")),
 
   // electrons to VCAL conversion needed in misscalibrate()
   electronsPerVCAL(conf.getParameter<double>("ElectronsPerVcal")),
@@ -227,13 +236,14 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   theNoiser(addNoise ? new GaussianTailNoiseGenerator(eng) : 0),
   calmap(doMissCalibrate ? initCal() : std::map<int,CalParameters,std::less<int> >()),
   theSiPixelGainCalibrationService_(use_ineff_from_db_ ? new SiPixelGainCalibrationOfflineSimService(conf) : 0),
-  pixelEfficiencies_(conf, thePixelLuminosity),
+  pixelEfficiencies_(conf, thePixelLuminosity,NumberOfBarrelLayers,NumberOfEndcapDisks),
   flatDistribution_((addNoise || thePixelLuminosity || fluctuateCharge || addThresholdSmearing) ? new CLHEP::RandFlat(eng, 0., 1.) : 0),
   gaussDistribution_((addNoise || thePixelLuminosity || fluctuateCharge || addThresholdSmearing) ? new CLHEP::RandGaussQ(eng, 0., theReadoutNoise) : 0),
   gaussDistributionVCALNoise_((addNoise || thePixelLuminosity || fluctuateCharge || addThresholdSmearing) ? new CLHEP::RandGaussQ(eng, 0., 1.) : 0),
   // Threshold smearing with gaussian distribution:
   smearedThreshold_FPix_(addThresholdSmearing ? new CLHEP::RandGaussQ(eng, theThresholdInE_FPix , theThresholdSmearing_FPix) : 0),
-  smearedThreshold_BPix_(addThresholdSmearing ? new CLHEP::RandGaussQ(eng, theThresholdInE_BPix , theThresholdSmearing_BPix) : 0)
+  smearedThreshold_BPix_(addThresholdSmearing ? new CLHEP::RandGaussQ(eng, theThresholdInE_BPix , theThresholdSmearing_BPix) : 0),
+  smearedThreshold_BPix_L1_(addThresholdSmearing ? new CLHEP::RandGaussQ(eng, theThresholdInE_BPix_L1 , theThresholdSmearing_BPix_L1) : 0)
 {
   LogInfo ("PixelDigitizer ") <<"SiPixelDigitizerAlgorithm constructed"
 			      <<"Configuration parameters:"
@@ -242,6 +252,8 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 			      << theThresholdInE_FPix
 			      << "threshold in electron BPix = "
 			      << theThresholdInE_BPix
+                              << "threshold in electron BPix Layer1 = "
+                              << theThresholdInE_BPix_L1
 			      <<" " << theElectronPerADC << " " << theAdcFullScale
 			      << " The delta cut-off is set to " << tMax
 			      << " pix-inefficiency "<<thePixelLuminosity;
@@ -345,24 +357,28 @@ SiPixelDigitizerAlgorithm::~SiPixelDigitizerAlgorithm() {
   LogDebug ("PixelDigitizer")<<"SiPixelDigitizerAlgorithm deleted";
 }
 
-SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::ParameterSet& conf, int thePixelLuminosity) {
+SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::ParameterSet& conf, int thePixelLuminosity, int NumberOfBarrelLayers, int NumberOfEndcapDisks) {
   //pixel inefficiency
- if (thePixelLuminosity==-20){
- 	  	     thePixelColEfficiency[0] = conf.getParameter<double>("thePixelColEfficiency_BPix1");
- 	  	     thePixelColEfficiency[1] = conf.getParameter<double>("thePixelColEfficiency_BPix2");
- 	  	     thePixelColEfficiency[2] = conf.getParameter<double>("thePixelColEfficiency_BPix3");
- 	  	     thePixelColEfficiency[3] = conf.getParameter<double>("thePixelColEfficiency_FPix1");
- 	  	     thePixelColEfficiency[4] = conf.getParameter<double>("thePixelColEfficiency_FPix2"); // Not used, but leave it in in case we want use it to later
- 	  	     std::cout<<"\nReading in custom Pixel efficiencies "<<thePixelColEfficiency[0]<<" , "<<thePixelColEfficiency[1]<<" , "
- 	  	                   <<thePixelColEfficiency[2]<<" , "<<thePixelColEfficiency[3]<<" , "<<thePixelColEfficiency[4]<<"\n";
- 	  	     if (thePixelColEfficiency[0]<=0.5) {std::cout <<"\n\nDid you mean to set the Pixel efficiency at "<<thePixelColEfficiency[0]
- 	  	                                                   <<", or did you mean for this to be the inefficiency?\n\n\n";}
+  int NumberOfTotLayers = NumberOfBarrelLayers + NumberOfEndcapDisks;
+  FPixIndex=NumberOfBarrelLayers;
+  if (thePixelLuminosity==-20){
+		     int i=0;
+ 	  	     thePixelColEfficiency[i++] = conf.getParameter<double>("thePixelColEfficiency_BPix1");
+ 	  	     thePixelColEfficiency[i++] = conf.getParameter<double>("thePixelColEfficiency_BPix2");
+ 	  	     thePixelColEfficiency[i++] = conf.getParameter<double>("thePixelColEfficiency_BPix3");
+		     // Only try to read in 4th barrel layer if there are 4 or more of them
+		     if (NumberOfBarrelLayers>=4){thePixelColEfficiency[i++] = conf.getParameter<double>("thePixelColEfficiency_BPix4");}
+ 	  	     thePixelColEfficiency[FPixIndex] = conf.getParameter<double>("thePixelColEfficiency_FPix1");
+ 	  	     thePixelColEfficiency[FPixIndex+1] = conf.getParameter<double>("thePixelColEfficiency_FPix2"); // Not used, but leave it in in case we want use it to later
+ 	  	     //std::cout<<"\nReading in custom Pixel efficiencies "<<thePixelColEfficiency[0]<<" , "<<thePixelColEfficiency[1]<<" , "
+ 	  	     //              <<thePixelColEfficiency[2]<<" , "<<thePixelColEfficiency[3]<<" , "<<thePixelColEfficiency[4]<<"\n";
+ 	  	     //if (thePixelColEfficiency[0]<=0.5) {std::cout <<"\n\nDid you mean to set the Pixel efficiency at "<<thePixelColEfficiency[0]
+ 	  	     //                                              <<", or did you mean for this to be the inefficiency?\n\n\n";}
  	  	     }
-  // the first 3 settings [0],[1],[2] are for the barrel pixels
-  // the next  3 settings [3],[4],[5] are for the endcaps (undecided how)
-
+  // the first "NumberOfBarrelLayers" settings [0],[1], ... are for the barrel pixels
+  // the next  "NumberOfEndcapDisks"  settings [NumberOfBarrelLayers+1],[NumberOfBarrelLayers+2], ... are for the endcaps (undecided how)
   if(thePixelLuminosity==-1) {  // No inefficiency, all 100% efficient
-    for (int i=0; i<6;i++) {
+    for (int i=0; i<NumberOfTotLayers;i++) {
       thePixelEfficiency[i]     = 1.;  // pixels = 100%
       thePixelColEfficiency[i]  = 1.;  // columns = 100%
       thePixelChipEfficiency[i] = 1.; // chips = 100%
@@ -372,8 +388,8 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
     // Usefull for very low rates (luminosity)
   } else if(thePixelLuminosity==0) { // static effciency
     // Default efficiencies
-    for (int i=0; i<6;i++) {
-      if(i<3) {  // For the barrel
+    for (int i=0; i<NumberOfTotLayers;i++) {
+      if(i<NumberOfBarrelLayers) {  // For the barrel
 	// Assume 1% inefficiency for single pixels,
 	// this is given by faulty bump-bonding and seus.
 	thePixelEfficiency[i]     = 1.-0.001;  // pixels = 99.9%
@@ -395,8 +411,8 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
     // Include also luminosity rate dependent inefficieny
   } else if(thePixelLuminosity>0) { // Include effciency
     // Default efficiencies
-    for (int i=0; i<6;i++) {
-      if(i<3) { // For the barrel
+    for (int i=0; i<NumberOfTotLayers;i++) {
+      if(i<NumberOfBarrelLayers) { // For the barrel
 	// Assume 1% inefficiency for single pixels,
 	// this is given by faulty bump-bonding and seus.
 	thePixelEfficiency[i]     = 1.-0.01;  // pixels = 99%
@@ -491,10 +507,19 @@ void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
 
   if(theNoiseInElectrons>0.){
     if(Sub_detid == PixelSubdetector::PixelBarrel){ // Barrel modules
+      int lay = PXBDetId(detID).layer();
       if(addThresholdSmearing) {
-	thePixelThresholdInE = smearedThreshold_BPix_->fire(); // gaussian smearing
+	if(lay==1) {
+	  thePixelThresholdInE = smearedThreshold_BPix_L1_->fire(); // gaussian smearing
+	} else {
+	  thePixelThresholdInE = smearedThreshold_BPix_->fire(); // gaussian smearing
+	}
       } else {
-	thePixelThresholdInE = theThresholdInE_BPix; // no smearing
+	if(lay==1) {
+	  thePixelThresholdInE = theThresholdInE_BPix_L1;
+	} else {
+	  thePixelThresholdInE = theThresholdInE_BPix; // no smearing
+	}
       }
     } else { // Forward disks modules
       if(addThresholdSmearing) {
@@ -1038,6 +1063,7 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
   LogDebug ("Pixel Digitizer") << " make digis "<<" "
 			       << " pixel threshold FPix" << theThresholdInE_FPix << " "
                                << " pixel threshold BPix" << theThresholdInE_BPix << " "
+                               << " pixel threshold BPix Layer1" << theThresholdInE_BPix_L1 << " "
 			       << " List pixels passing threshold ";
 #endif
 
@@ -1074,7 +1100,17 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
 	adc = int( signalInElectrons / theElectronPerADC ); // calibrate gain
       }
       adc = std::min(adc, theAdcFullScale); // Check maximum value
-
+// Calculate layerIndex
+     unsigned int Sub_detid=DetId(detID).subdetId();
+     if(Sub_detid == PixelSubdetector::PixelBarrel){ // Barrel modules
+       int lay = PXBDetId(detID).layer();
+       if (lay>=theFirstStackLayer) {
+         // Set to 1 if over the threshold
+         if (theAdcFullScaleStack==1) {adc=1;}
+         // Make it a linear fit to the full scale of the normal adc count.   Start new adc from 1 not zero.
+         if (theAdcFullScaleStack!=1&&theAdcFullScaleStack!=theAdcFullScale) {adc = int (1 + adc * (theAdcFullScaleStack-1)/float(theAdcFullScale) );}
+       }
+     }
 #ifdef TP_DEBUG
       LogDebug ("Pixel Digitizer")
 	<< (*i).first << " " << (*i).second << " " << signalInElectrons
@@ -1253,23 +1289,23 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     chipEfficiency   = eff.thePixelChipEfficiency[layerIndex-1];
 
     // This should never happen
-    if(numColumns>416)  LogWarning ("Pixel Geometry") <<" wrong columns in barrel "<<numColumns;
-    if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in barrel "<<numRows;
+    //if(numColumns>416)  LogWarning ("Pixel Geometry") <<" wrong columns in barrel "<<numColumns;
+    //if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in barrel "<<numRows;
 
   } else {                // forward disks
 
     // For endcaps take same for each endcap
-    pixelEfficiency  = eff.thePixelEfficiency[3];
-    columnEfficiency = eff.thePixelColEfficiency[3];
-    chipEfficiency   = eff.thePixelChipEfficiency[3];
+    pixelEfficiency  = eff.thePixelEfficiency[eff.FPixIndex];
+    columnEfficiency = eff.thePixelColEfficiency[eff.FPixIndex];
+    chipEfficiency   = eff.thePixelChipEfficiency[eff.FPixIndex];
 
     // Sometimes the forward pixels have wrong size,
     // this crashes the index conversion, so exit.
-    if(numColumns>260 || numRows>160) {
-      if(numColumns>260)  LogWarning ("Pixel Geometry") <<" wrong columns in endcaps "<<numColumns;
-      if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in endcaps "<<numRows;
-      return;
-    }
+    //if(numColumns>260 || numRows>160) {
+    //  if(numColumns>260)  LogWarning ("Pixel Geometry") <<" wrong columns in endcaps "<<numColumns;
+    //  if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in endcaps "<<numRows;
+    //  return;
+    //}
   } // if barrel/forward
 
 #ifdef TP_DEBUG
@@ -1580,6 +1616,7 @@ void SiPixelDigitizerAlgorithm::module_killing_conf(uint32_t detID) {
 }
 //****************************************************************************************************
 void SiPixelDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
+// Not SLHC safe for now
   if(!use_module_killing_)
     return;
   

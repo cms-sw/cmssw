@@ -85,6 +85,7 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
        // Get the module sizes.
        int nrows = topol.nrows();      // rows in x
        int ncols = topol.ncolumns();   // cols in y
+       int numROCX = topol.rocsX(), numROCY = topol.rocsY(), rowsPerROC=topol.rowsperroc();
        //std::cout << " ---> PIXEL DETID " << detid << " Cols " << ncols << " Rows " << nrows << std::endl;
 
        double meanPedWork = meanPed_;
@@ -99,7 +100,7 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
 	 rmsGainWork = rmsGainFPix_;
        }
        
-       PixelIndices pIndexConverter( ncols , nrows );
+       PixelIndices pIndexConverter( ncols , nrows, numROCX, numROCY );
 
        std::vector<char> theSiPixelGainCalibration;
 
@@ -168,7 +169,7 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
 //  	   ped  = 28.2;
 
            //if in the second row of rocs (i.e. a 2xN plaquette) add an offset (if desired) for testing
-           if (j >= 80) 
+           if (j >= rowsPerROC) 
            {
               ped += secondRocRowPedOffset_;
               gain += secondRocRowGainOffset_;
@@ -195,16 +196,16 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
 	   else if(isNoisy) // dead pixel
 	     //	     std::cout << "filling pixel as dead for detid " << detid <<", col " << i << ", row" << j <<  std::endl;
 	     SiPixelGainCalibration_->setNoisyPixel(theSiPixelGainCalibration);
-           if ((j + 1)  % 80 == 0) // fill the column average after ever ROC!
+           if ((j + 1)  % rowsPerROC == 0) // fill the column average after ever ROC!
            {
-              float averageGain      = totalGain/static_cast<float>(80);
+              float averageGain      = totalGain/static_cast<float>(rowsPerROC);
 	      
 	      if(generateColumns_){
 	        averageGain=gain;
 	      }
 	      
               //std::cout << "Filling gain " << averageGain << " for col: " << i << " row: " << j << std::endl;
-              SiPixelGainCalibration_->setDataGain( averageGain , 80, theSiPixelGainCalibration);
+              SiPixelGainCalibration_->setDataGain( averageGain , rowsPerROC, theSiPixelGainCalibration);
               totalGain = 0;
            }
 

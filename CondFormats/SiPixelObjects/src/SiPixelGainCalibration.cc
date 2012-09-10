@@ -36,7 +36,7 @@ SiPixelGainCalibration::SiPixelGainCalibration(float minPed, float maxPed, float
          << "[SiPixelGainCalibration::SiPixelGainCalibration] Dead flag was set to " << deadFlag_ << ", and it must be set less than or equal to 255";
 }
 
-bool SiPixelGainCalibration::put(const uint32_t& DetId, Range input, const int& nCols) {
+bool SiPixelGainCalibration::put(const uint32_t& DetId, Range input, const int& nCols, const int& ROCRows) {
   // put in SiPixelGainCalibration of DetId
 
   Registry::iterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiPixelGainCalibration::StrictWeakOrdering());
@@ -47,6 +47,7 @@ bool SiPixelGainCalibration::put(const uint32_t& DetId, Range input, const int& 
   DetRegistry detregistry;
   detregistry.detid=DetId;
   detregistry.ncols=nCols;
+  detregistry.rocrows=ROCRows;
   detregistry.ibegin=v_pedestals.size();
   detregistry.iend=v_pedestals.size()+sd;
   indexes.insert(p,detregistry);
@@ -55,13 +56,15 @@ bool SiPixelGainCalibration::put(const uint32_t& DetId, Range input, const int& 
   return true;
 }
 
-const int SiPixelGainCalibration::getNCols(const uint32_t& DetId) const {
+const int SiPixelGainCalibration::getNCols(const uint32_t& DetId, int *ROCRows) const {
   // get number of columns of DetId
   RegistryIterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiPixelGainCalibration::StrictWeakOrdering());
   if (p==indexes.end()|| p->detid!=DetId) 
     return 0;
   else
+    { if (ROCRows!=0) { *ROCRows=p->rocrows;}
     return p->ncols; 
+    }
 }
 
 const SiPixelGainCalibration::Range SiPixelGainCalibration::getRange(const uint32_t& DetId) const {
@@ -75,12 +78,14 @@ const SiPixelGainCalibration::Range SiPixelGainCalibration::getRange(const uint3
 }
 
 const std::pair<const SiPixelGainCalibration::Range, const int>
-SiPixelGainCalibration::getRangeAndNCols(const uint32_t& DetId) const {
+SiPixelGainCalibration::getRangeAndNCols(const uint32_t& DetId, int* ROCRows) const {
   RegistryIterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiPixelGainCalibration::StrictWeakOrdering());
   if (p==indexes.end()|| p->detid!=DetId) 
     return std::make_pair(SiPixelGainCalibration::Range(v_pedestals.end(),v_pedestals.end()), 0); 
   else 
+    { if (ROCRows!=0) { *ROCRows=p->rocrows;}
     return std::make_pair(SiPixelGainCalibration::Range(v_pedestals.begin()+p->ibegin,v_pedestals.begin()+p->iend), p->ncols);
+    }
 }
   
 
@@ -98,8 +103,8 @@ void SiPixelGainCalibration::setData(float ped, float gain, std::vector<char>& v
   float theEncodedGain=0;
   float theEncodedPed=0;
   if(!isDeadPixel && !isNoisyPixel){
-    theEncodedGain = encodeGain(gain);
-    theEncodedPed  = encodePed (ped);
+    theEncodedPed = encodeGain(gain);
+    theEncodedPed = encodePed (ped);
   }
 
   unsigned int ped_   = (static_cast<unsigned int>(theEncodedPed))  & 0xFF; 
@@ -121,7 +126,7 @@ void SiPixelGainCalibration::setData(float ped, float gain, std::vector<char>& v
   ::memcpy((void*)(&vped[vped.size()-2]),(void*)(&data),2);
 }
 
-float SiPixelGainCalibration::getPed(const int& col, const int& row, const Range& range, const int& nCols, bool& isDead, bool& isNoisy) const {
+float SiPixelGainCalibration::getPed(const int& col, const int& row, const Range& range, const int& nCols, bool& isDead, bool& isNoisy, const int& ROCRows) const {
 
   int nRows = (range.second-range.first)/2 / nCols;
   const DecodingStructure & s = (const DecodingStructure & ) *(range.first+(col*nRows + row)*2);
@@ -136,7 +141,7 @@ float SiPixelGainCalibration::getPed(const int& col, const int& row, const Range
   return decodePed(s.ped & 0xFF);  
 }
 
-float SiPixelGainCalibration::getGain(const int& col, const int& row, const Range& range, const int& nCols, bool& isDead, bool& isNoisy) const {
+float SiPixelGainCalibration::getGain(const int& col, const int& row, const Range& range, const int& nCols, bool& isDead, bool& isNoisy, const int& ROCRows) const {
 
   int nRows = (range.second-range.first)/2 / nCols;
   const DecodingStructure & s = (const DecodingStructure & ) *(range.first+(col*nRows + row)*2);

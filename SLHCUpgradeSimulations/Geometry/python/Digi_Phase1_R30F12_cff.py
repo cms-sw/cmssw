@@ -30,18 +30,19 @@ from SimGeneral.Configuration.SimGeneral_cff import *
 # Phase 1 Modifications
 #
 #from SimTracker.SiPixelDigitizer.PixelDigi_cfi import *
-simSiPixelDigis.MissCalibrate = False
-simSiPixelDigis.LorentzAngle_DB = False
-simSiPixelDigis.killModules = False
-simSiPixelDigis.useDB = False
-simSiPixelDigis.DeadModules_DB = False
-simSiPixelDigis.NumPixelBarrel = cms.int32(4)
-simSiPixelDigis.NumPixelEndcap = cms.int32(3)
-simSiPixelDigis.AddPixelInefficiency = -1
-simSiPixelDigis.ThresholdInElectrons_FPix = cms.double(2000.0)
-simSiPixelDigis.ThresholdInElectrons_BPix = cms.double(2000.0)
-simSiPixelDigis.ThresholdInElectrons_BPix_L1 = cms.double(2000.0)
+from SimGeneral.MixingModule.pixelDigitizer_cfi import *
+pixelDigitizer.MissCalibrate = False
+pixelDigitizer.LorentzAngle_DB = False
+pixelDigitizer.killModules = False
+pixelDigitizer.useDB = False
+pixelDigitizer.DeadModules_DB = False
+pixelDigitizer.NumPixelBarrel = cms.int32(4)
+pixelDigitizer.NumPixelEndcap = cms.int32(3)
+pixelDigitizer.AddPixelInefficiency = -1
+pixelDigitizer.ThresholdInElectrons_FPix = cms.double(2000.0)
+pixelDigitizer.ThresholdInElectrons_BPix = cms.double(2000.0)
+pixelDigitizer.ThresholdInElectrons_BPix_L1 = cms.double(2000.0)
 #
 doAllDigi = cms.Sequence(trDigi+calDigi+muonDigi)
 pdigi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*trackingParticles*addPileupInfo)
-pdigi.remove(simCastorDigis)
+#pdigi.remove(simCastorDigis)

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -ne 1 ]; then
-  echo "Usage: `basename ${0}` <AlgorithmName>"
+  echo "Usage: `basename $0` <AlgoritmName>"
 else
 	filename="plugins/${1}.cc"
 	

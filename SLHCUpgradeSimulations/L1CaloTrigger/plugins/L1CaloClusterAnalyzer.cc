@@ -13,7 +13,9 @@
 //
 // Original Author:  Isobel Ojalvo
 //         Created:  Mon Feb 13 05:35:01 CST 2012
-
+// $Id: L1CaloClusterAnalyzer.cc,v 1.1 2012/03/18 23:08:02 ojalvo Exp $
+//
+//
 
 #include "SLHCUpgradeSimulations/L1CaloTrigger/plugins/L1CaloClusterAnalyzer.h"
 
@@ -32,20 +34,13 @@ L1CaloClusterAnalyzer::L1CaloClusterAnalyzer(const edm::ParameterSet& iConfig):
   edm::Service<TFileService> fs;
   RRTree = fs->make<TTree>("RRTree","Tree containing RAW RECO info");
 
-  //RRTree->Branch("coneEnergy",&coneE);
+  RRTree->Branch("coneEnergy",&coneE);
   RRTree->Branch("L1Pt",&centralPt);
   RRTree->Branch("RecoPt",&RecoPt);
   RRTree->Branch("RecoMatch",&RecoMatch);
   RRTree->Branch("ClusterPtMatch",&ClusterPtMatch);
   RRTree->Branch("CentralIso",&CentralIso);
-  RRTree->Branch("TowerEnergy1",&TowerEnergy1);
-  RRTree->Branch("TowerEnergy2",&TowerEnergy2);
-  RRTree->Branch("TowerEnergy3",&TowerEnergy3);
-  RRTree->Branch("TowerEnergy4",&TowerEnergy4);
-  RRTree->Branch("Ring1E",&Ring1E);
-  RRTree->Branch("Ring2E",&Ring2E);
-  RRTree->Branch("Ring3E",&Ring3E);
-  RRTree->Branch("Ring4E",&Ring4E);
+  RRTree->Branch("TwoLeadTowerEnergy",&TwoLeadTowerEnergy);
   RRTree->Branch("ClusterEnergy",&ClusterEnergy);
 
 
@@ -70,13 +65,13 @@ L1CaloClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 {
    using namespace edm;
 
-   Handle<l1slhc::L1CaloClusterCollection> clusters;
+   Handle<l1slhc::L1CaloClusterCollection> clusters; //get collection
    iEvent.getByLabel(src_,clusters);
 
-  edm::Handle<reco::GsfElectronCollection> electrons;
-   
-   bool gotRecoE = iEvent.getByLabel(electrons_,electrons);   
-   
+   edm::Handle<reco::GsfElectronCollection> electrons; //get collection
+
+   bool gotRecoE = iEvent.getByLabel(electrons_,electrons); //get Label
+
    for(unsigned int j=0;j<clusters->size();++j)
      {
        if(clusters->at(j).isCentral() && clusters->at(j).isEGamma() ){
@@ -85,15 +80,7 @@ L1CaloClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 	 CentralIso = (float) (clusters->at(j).LeadTowerE())/(clusters->at(j).E());
 
-	 TowerEnergy1 = clusters->at(j).LeadTowerE();
-	 TowerEnergy2 = clusters->at(j).SecondTowerE();
-	 TowerEnergy3 = clusters->at(j).ThirdTowerE();
-	 TowerEnergy4 = clusters->at(j).FourthTowerE();
-	 Ring1E = clusters->at(j).Ring1E();
-	 Ring2E = clusters->at(j).Ring2E();
-	 Ring3E = clusters->at(j).Ring3E();
-	 Ring4E = clusters->at(j).Ring4E();
-
+	 TwoLeadTowerEnergy = clusters->at(j).LeadTowerE();
 	 ClusterEnergy = clusters->at(j).E();
 
 	 //printf("CentralIso: %f\n",CentralIso);
@@ -104,7 +91,7 @@ L1CaloClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	 RecoPt = 0;
 
 	 if(gotRecoE)
-
+	   //require good electrons!!
 	   for( unsigned int i =1; i<electrons->size() && !passID; ++i){
 	     if((electrons->at(i).dr04TkSumPt() + electrons->at(i).dr04EcalRecHitSumEt() + electrons->at(i).dr04HcalTowerSumEt())/(electrons->at(i).pt())<0.15)//
 	       if(electrons->at(i).isEB()||electrons->at(i).isEE())

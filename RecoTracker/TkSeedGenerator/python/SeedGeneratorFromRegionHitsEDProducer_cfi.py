@@ -11,6 +11,18 @@ seedGeneratorFromRegionHitsEDProducer = cms.EDProducer("SeedGeneratorFromRegionH
         SeedingLayers = cms.string(''),
         maxElement = cms.uint32(100000)
     ),
+    SeedMergerPSet = cms.PSet(
+        # layer list for the merger, as defined in (or modified from):
+        # RecoPixelVertexing/PixelTriplets/python/quadrupletseedmerging_cff.py
+        layerListName = cms.string( "PixelSeedMergerQuadruplets" ),
+        # merge triplets -> quadruplets if applicable?
+        mergeTriplets = cms.bool( True ),
+        # add remaining (non-merged) triplets to merged output quadruplets?
+        # (results in a "mixed" output)
+        addRemainingTriplets = cms.bool( False ),
+        # the builder
+        ttrhBuilderLabel = cms.string( "PixelTTRHBuilderWithoutAngle" )
+    ),
     SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('none')
     ),
@@ -28,9 +40,9 @@ seedGeneratorFromRegionHitsEDProducer = cms.EDProducer("SeedGeneratorFromRegionH
 ##add a protection for too many clusters in the event.
 ClusterCheckPSet = cms.PSet(
                  doClusterCheck = cms.bool(True),
-                 MaxNumberOfCosmicClusters = cms.uint32(150000),
+                 MaxNumberOfCosmicClusters = cms.uint32(50000),
                  ClusterCollectionLabel = cms.InputTag("siStripClusters"),
-                 MaxNumberOfPixelClusters = cms.uint32(20000),
+                 MaxNumberOfPixelClusters = cms.uint32(10000),
                  PixelClusterCollectionLabel = cms.InputTag("siPixelClusters")
                  ),
 )

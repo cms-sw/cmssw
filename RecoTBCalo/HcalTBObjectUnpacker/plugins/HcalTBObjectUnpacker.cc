@@ -9,7 +9,6 @@ using namespace std;
 #include "RecoTBCalo/HcalTBObjectUnpacker/plugins/HcalTBObjectUnpacker.h"
 #include "DataFormats/Common/interface/EDCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/Selector.h"
 #include <iostream>
 #include <fstream>
 
@@ -93,7 +92,6 @@ using namespace std;
   {
     // Step A: Get Inputs 
     edm::Handle<FEDRawDataCollection> rawraw;  
-    //    edm::ProcessNameSelector s("PROD"); // HACK!
     e.getByType(rawraw);           
 
     // Step B: Create empty output    

@@ -337,7 +337,8 @@ uint32_t HitPattern::getTrackerMonoStereo (uint32_t substr, uint32_t layer) cons
 int HitPattern::pixelBarrelLayersWithMeasurement() const {
   int count = 0;
   uint32_t substr = PixelSubdetector::PixelBarrel;
-  for (uint32_t layer=1; layer<=3; layer++) {
+  uint32_t NPixBarrel = 4;
+  for (uint32_t layer=1; layer<=NPixBarrel; layer++) {
     if (getTrackerLayerCase(substr, layer) == 0) count++;
   }
   return count;
@@ -346,7 +347,8 @@ int HitPattern::pixelBarrelLayersWithMeasurement() const {
 int HitPattern::pixelEndcapLayersWithMeasurement() const {
   int count = 0;
   uint32_t substr = PixelSubdetector::PixelEndcap;
-  for (uint32_t layer=1; layer<=2; layer++) {
+  uint32_t NPixForward = 3;
+  for (uint32_t layer=1; layer<=NPixForward; layer++) {
     if (getTrackerLayerCase(substr, layer) == 0) count++;
   }
   return count;
@@ -392,7 +394,8 @@ int HitPattern::stripTECLayersWithMeasurement() const {
 int HitPattern::pixelBarrelLayersWithoutMeasurement() const {
   int count = 0;
   uint32_t substr = PixelSubdetector::PixelBarrel;
-  for (uint32_t layer=1; layer<=3; layer++) {
+  uint32_t NPixBarrel = 4;
+  for (uint32_t layer=1; layer<=NPixBarrel; layer++) {
     if (getTrackerLayerCase(substr, layer) == 1) count++;
   }
   return count;
@@ -401,7 +404,8 @@ int HitPattern::pixelBarrelLayersWithoutMeasurement() const {
 int HitPattern::pixelEndcapLayersWithoutMeasurement() const {
   int count = 0;
   uint32_t substr = PixelSubdetector::PixelEndcap;
-  for (uint32_t layer=1; layer<=2; layer++) {
+  uint32_t NPixForward = 3;
+  for (uint32_t layer=1; layer<=NPixForward; layer++) {
     if (getTrackerLayerCase(substr, layer) == 1) count++;
   }
   return count;
@@ -447,7 +451,8 @@ int HitPattern::stripTECLayersWithoutMeasurement() const {
 int HitPattern::pixelBarrelLayersTotallyOffOrBad() const {
   int count = 0;
   uint32_t substr = PixelSubdetector::PixelBarrel;
-  for (uint32_t layer=1; layer<=3; layer++) {
+  uint32_t NPixBarrel = 4;
+  for (uint32_t layer=1; layer<=NPixBarrel; layer++) {
     if (getTrackerLayerCase(substr, layer) == 2) count++;
   }
   return count;
@@ -456,7 +461,8 @@ int HitPattern::pixelBarrelLayersTotallyOffOrBad() const {
 int HitPattern::pixelEndcapLayersTotallyOffOrBad() const {
   int count = 0;
   uint32_t substr = PixelSubdetector::PixelEndcap;
-  for (uint32_t layer=1; layer<=2; layer++) {
+  uint32_t NPixForward = 3;
+  for (uint32_t layer=1; layer<=NPixForward; layer++) {
     if (getTrackerLayerCase(substr, layer) == 2) count++;
   }
   return count;
@@ -502,7 +508,8 @@ int HitPattern::stripTECLayersTotallyOffOrBad() const {
 int HitPattern::pixelBarrelLayersNull() const {
   int count = 0;
   uint32_t substr = PixelSubdetector::PixelBarrel;
-  for (uint32_t layer=1; layer<=3; layer++) {
+  uint32_t NPixBarrel = 4;
+  for (uint32_t layer=1; layer<=NPixBarrel; layer++) {
     if (getTrackerLayerCase(substr, layer) == 999999) count++;
   }
   return count;
@@ -511,7 +518,8 @@ int HitPattern::pixelBarrelLayersNull() const {
 int HitPattern::pixelEndcapLayersNull() const {
   int count = 0;
   uint32_t substr = PixelSubdetector::PixelEndcap;
-  for (uint32_t layer=1; layer<=2; layer++) {
+  uint32_t NPixForward = 3;
+  for (uint32_t layer=1; layer<=NPixForward; layer++) {
     if (getTrackerLayerCase(substr, layer) == 999999) count++;
   }
   return count;

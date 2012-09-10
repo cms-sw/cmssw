@@ -25,17 +25,26 @@ public:
     theRecHits[2]=three;
   }
   
+  SeedingHitSet(ConstRecHitPointer const & one, ConstRecHitPointer const & two, 
+		ConstRecHitPointer const & three, ConstRecHitPointer const &four) 
+  {
+    theRecHits[0]=one;
+    theRecHits[1]=two;
+    theRecHits[2]=three;
+    theRecHits[3]=four;
+  }
+  
   ~SeedingHitSet(){}
   
   
-  unsigned int size() const { return theRecHits[2].get() ? 3 : 2; }
+  unsigned int size() const { return theRecHits[3].get() ? 4 : (theRecHits[2].get() ? 3 : 2); }
   
   ConstRecHitPointer const &  get(unsigned int i) const { return theRecHits[i]; }
   ConstRecHitPointer const & operator[](unsigned int i) const { return theRecHits[i]; }
   
   
 private:
-  ConstRecHitPointer theRecHits[3];
+  ConstRecHitPointer theRecHits[4];
 };
 
 

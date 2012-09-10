@@ -225,10 +225,11 @@ class SiPixelDigitizerAlgorithm  {
    * Internal use only.
    */
    struct PixelEfficiencies {
-     PixelEfficiencies(const edm::ParameterSet& conf, int pixelLuminosity);
-     float thePixelEfficiency[6];     // Single pixel effciency
-     float thePixelColEfficiency[6];  // Column effciency
-     float thePixelChipEfficiency[6]; // ROC efficiency
+     PixelEfficiencies(const edm::ParameterSet& conf, int pixelLuminosity, int NumberOfBarrelLayers, int NumberOfEndcapDisks);
+     float thePixelEfficiency[30];     // Single pixel effciency
+     float thePixelColEfficiency[30];  // Column effciency
+     float thePixelChipEfficiency[30]; // ROC efficiency
+     unsigned int FPixIndex;         // The Efficiency index for FPix Disks
    };
 
  private:
@@ -256,6 +257,9 @@ class SiPixelDigitizerAlgorithm  {
 
     // Variables 
     //external parameters 
+    const int NumberOfBarrelLayers;	// Default = 3 now upto 8
+    const int NumberOfEndcapDisks;  	// Default = 3
+
     // go from Geant energy GeV to number of electrons
     const float GeVperElectron; // 3.7E-09 
     
@@ -271,15 +275,19 @@ class SiPixelDigitizerAlgorithm  {
     //-- make_digis 
     const float theElectronPerADC;     // Gain, number of electrons per adc count.
     const int theAdcFullScale;         // Saturation count, 255=8bit.
+    const int theAdcFullScaleStack;    // Saturation count for stack layers, 1=1bit.
+    const int theFirstStackLayer;      // The first BPix layer to use theAdcFullScaleStack.
     const float theNoiseInElectrons;   // Noise (RMS) in units of electrons.
     const float theReadoutNoise;       // Noise of the readount chain in elec,
                                  //inludes DCOL-Amp,TBM-Amp, Alt, AOH,OptRec.
 
     const float theThresholdInE_FPix;  // Pixel threshold in electrons FPix.
     const float theThresholdInE_BPix;  // Pixel threshold in electrons BPix.
+    const float theThresholdInE_BPix_L1; // In case the BPix layer1 gets a different threshold
 
     const double theThresholdSmearing_FPix;
     const double theThresholdSmearing_BPix;
+    const double theThresholdSmearing_BPix_L1;
 
     const double electronsPerVCAL;          // for electrons - VCAL conversion
     const double electronsPerVCAL_Offset;   // in misscalibrate()
@@ -377,6 +385,8 @@ class SiPixelDigitizerAlgorithm  {
     // Threshold gaussian smearing:
     const std::unique_ptr<CLHEP::RandGaussQ> smearedThreshold_FPix_;
     const std::unique_ptr<CLHEP::RandGaussQ> smearedThreshold_BPix_;
+    const std::unique_ptr<CLHEP::RandGaussQ> smearedThreshold_BPix_L1_;
+
 };
 
 #endif

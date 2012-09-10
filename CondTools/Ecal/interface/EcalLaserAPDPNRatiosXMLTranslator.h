@@ -2,7 +2,7 @@
    Translates a EcalLaserAPDPNRatios record to XML
    and vice versa   
    \author Stefano Argiro'
-   \version $Id: EcalLaserAPDPNRatiosXMLTranslator.h,v 1.1 2009/10/20 13:48:05 argiro Exp $
+   \version $Id: EcalLaserAPDPNRatiosXMLTranslator.h,v 1.2 2009/06/30 14:40:11 argiro Exp $
    \date 29 Jul 2008
 */
 
@@ -15,15 +15,9 @@
 #include "CondTools/Ecal/interface/XercesString.h"
 #include <string>
 #include <xercesc/dom/DOMNode.hpp>
-#include <xercesc/dom/DOM.hpp>
-#include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
-#include <xercesc/util/XMLString.hpp>
-#include <xercesc/sax/SAXException.hpp>
-#include <xercesc/framework/LocalFileFormatTarget.hpp>
 
 static const char CVSId__EcalLaserAPDPNRatiosXMLTranslator[] = 
-"$Id: EcalLaserAPDPNRatiosXMLTranslator.h,v 1.1 2009/10/20 13:48:05 argiro Exp $";
+"$Id: EcalLaserAPDPNRatiosXMLTranslator.h,v 1.2 2009/06/30 14:40:11 argiro Exp $";
 
 
 
@@ -41,10 +35,8 @@ public:
 		       const EcalLaserAPDPNRatios& record);
 
   static std::string dumpXML(const EcalCondHeader& header,
-			     const EcalLaserAPDPNRatios& record);
+			     const EcalLaserAPDPNRatios& record);  
 
-  //  void WriteNodeWithTime(xercesc::DOMNode* node, const std::string& value, long int& time);
-  //  static void WriteNodeWithTime(xercesc::DOMNode* node);
 };
 
 

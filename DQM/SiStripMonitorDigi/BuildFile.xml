@@ -6,6 +6,4 @@
 <use   name="CalibTracker/Records"/>
 <use   name="DPGAnalysis/SiStripTools"/>
 <use   name="DQM/SiStripCommon"/>
-<use   name="DataFormats/L1GlobalTrigger"/>
-<use   name="CondFormats/RunInfo"/>
 <flags   EDM_PLUGIN="1"/>

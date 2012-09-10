@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.30 2012/07/13 15:32:52 threus Exp $
+// $Id: SiStripMonitorDigi.h,v 1.28 2011/10/27 09:30:13 fiori Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -18,8 +18,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
-#include "DQM/SiStripCommon/interface/APVShotFinder.h"
-#include "DQM/SiStripCommon/interface/APVShot.h"
+#include "DPGAnalysis/SiStripTools/interface/APVShotFinder.h"
+#include "DPGAnalysis/SiStripTools/interface/APVShot.h"
 
 class DQMStore;
 class SiStripDCSStatus;
@@ -36,6 +36,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
   virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
   virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+ 
 
   struct ModMEs{
 	
@@ -82,7 +83,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
 
   struct DigiFailureMEs{
     MonitorElement* SubDetTotDigiProfLS;
-    MonitorElement* SubDetDigiFailures2D;
+    MonitorElement* SubDetDigiFailures;
   };
 
  private:
@@ -180,8 +181,6 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
 
 
   int xLumiProf;
-  bool isStableBeams;
-  int nFEDConnected;
 
   bool Mod_On_;
 

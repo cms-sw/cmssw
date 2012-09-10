@@ -139,11 +139,11 @@ CaloTriggerAnalyzerOnDataTrees::analyze(const edm::Event& iEvent, const edm::Eve
 		    if(ROOT::Math::VectorUtil::DeltaR(electrons->at(i).p4(),j->p4())<DR_) {
 		      if (j->pt()>highPt){
 			secondPtf=highPt;
-			highPt = j->pt();
 			SLHCL1pt=j->pt();
 			SLHCL1eta=j->eta();
 			SLHCL1phi=j->phi();
-
+			//SLHCCentralTowerE = SLHCsrc->at(j).LeadTowerE();
+			//printf("SLHChighpt=%f\n",highPt);
 		      } 
 		      else if (j->pt()>secondPtf){
 			secondPtf=j->pt();
@@ -170,7 +170,6 @@ CaloTriggerAnalyzerOnDataTrees::analyze(const edm::Event& iEvent, const edm::Eve
 		      if (l->pt()>highPt)
 			{
 			  secondPtf = highPt;
-			  highPt=l->pt();
 			  LHCL1pt  = l->pt();
 			  LHCL1eta = l->eta();
 			  LHCL1phi = l->phi();
@@ -188,7 +187,6 @@ CaloTriggerAnalyzerOnDataTrees::analyze(const edm::Event& iEvent, const edm::Eve
 		      if (j->pt()>highPt)
 			{
 			  secondPtf = highPt;
-			  highPt = j->pt();
 			  LHCL1pt  = j->pt();
 			  LHCL1eta = j->eta();
 			  LHCL1phi = j->phi();

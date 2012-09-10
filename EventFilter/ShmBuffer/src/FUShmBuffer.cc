@@ -301,15 +301,12 @@ FUShmRawCell* FUShmBuffer::rawCellToWrite() {
 	unsigned int iCell = nextRawWriteIndex();
 	FUShmRawCell* cell = rawCell(iCell);
 	evt::State_t state = evtState(iCell);
-	if(!(state == evt::EMPTY)) {
-	  stringstream details;
-	  details << "state==evt::EMPTY assertion failed! Actual state is " << state << ", iCell = " << iCell;
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
-	lock();
-	setEvtState(iCell, evt::RAWWRITING,false);
-	setEvtDiscard(iCell, 1,false,false);
-	unlock();
+	stringstream details;
+	details << "state==evt::EMPTY assertion failed! Actual state is " << state
+			<< ", iCell = " << iCell;
+	XCEPT_ASSERT(state == evt::EMPTY, evf::Exception, details.str());
+	setEvtState(iCell, evt::RAWWRITING);
+	setEvtDiscard(iCell, 1);
 	return cell;
 }
 
@@ -319,16 +316,14 @@ FUShmRawCell* FUShmBuffer::rawCellToRead() {
 	unsigned int iCell = nextRawReadIndex();
 	FUShmRawCell* cell = rawCell(iCell);
 	evt::State_t state = evtState(iCell);
-	if(!(state == evt::RAWWRITTEN || state == evt::EMPTY || 
-	     state == evt::STOP || state == evt::LUMISECTION))
-	{
-	  stringstream details;
-	  details
-		<< "state==evt::RAWWRITTEN ||state==evt::EMPTY ||state==evt::STOP"
-                << "||state==evt::LUMISECTION assertion failed! Actual state is "
-		<< state << ", iCell = " << iCell;
-	  XCEPT_ASSERT(false,evf::Exception, details.str());
-	}
+	stringstream details;
+	details
+			<< "state==evt::RAWWRITTEN ||state==evt::EMPTY ||state==evt::STOP ||state==evt::LUMISECTION assertion failed! Actual state is "
+			<< state << ", iCell = " << iCell;
+	XCEPT_ASSERT(
+			state == evt::RAWWRITTEN || state == evt::EMPTY || state
+					== evt::STOP || state == evt::LUMISECTION, evf::Exception,
+			details.str());
 	if (state == evt::RAWWRITTEN) {
 		setEvtPrcId(iCell, getpid());
 		setEvtState(iCell, evt::RAWREADING);
@@ -356,14 +351,12 @@ FUShmDqmCell* FUShmBuffer::dqmCellToRead() {
 	unsigned int iCell = nextDqmReadIndex();
 	FUShmDqmCell* cell = dqmCell(iCell);
 	dqm::State_t state = dqmState(iCell);
-	
-	if(!(state == dqm::WRITTEN || state == dqm::EMPTY)) {
-	  stringstream details;
-	  details << "state==dqm::WRITTEN || state==dqm::EMPTY assertion failed! Actual state is "
-		  << state << ", iCell = " << iCell;
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
-
+	stringstream details;
+	details
+			<< "state==dqm::WRITTEN || state==dqm::EMPTY assertion failed! Actual state is "
+			<< state << ", iCell = " << iCell;
+	XCEPT_ASSERT(state == dqm::WRITTEN || state == dqm::EMPTY, evf::Exception,
+			details.str());
 	if (state == dqm::WRITTEN)
 		setDqmState(iCell, dqm::SENDING);
 	return cell;
@@ -374,16 +367,14 @@ FUShmRawCell* FUShmBuffer::rawCellToDiscard() {
 	waitRawDiscarded();
 	FUShmRawCell* cell = rawCell(rawDiscardIndex_);
 	evt::State_t state = evtState(cell->index());
-	if(!(state == evt::PROCESSED || state == evt::SENT || 
-	     state == evt::EMPTY || state == evt::STOP ||
-	     state == evt::USEDLS)) {
-	  stringstream details;
-	  details << "state==evt::PROCESSED || state==evt::SENT || "
-	          << "state==evt::EMPTY || state==evt::STOP || "
-		  << "state==evt::USEDLS assertion failed! Actual state is "
-		  << state << ", index = " << cell->index();
-	  XCEPT_ASSERT(false,evf::Exception,details.str());
-	}
+	stringstream details;
+	details
+			<< "state==evt::PROCESSED || state==evt::SENT || state==evt::EMPTY || state==evt::STOP || state==evt::USEDLS assertion failed! Actual state is "
+			<< state << ", index = " << cell->index();
+	XCEPT_ASSERT(
+			state == evt::PROCESSED || state == evt::SENT || state
+					== evt::EMPTY || state == evt::STOP || state == evt::USEDLS,
+			evf::Exception, details.str());
 	if (state != evt::EMPTY && state != evt::USEDLS && state != evt::STOP)
 		setEvtState(cell->index(), evt::DISCARDING);
 	return cell;
@@ -392,12 +383,10 @@ FUShmRawCell* FUShmBuffer::rawCellToDiscard() {
 //______________________________________________________________________________
 void FUShmBuffer::finishWritingRawCell(FUShmRawCell* cell) {
 	evt::State_t state = evtState(cell->index());
-	if(!(state == evt::RAWWRITING)) {
-	  stringstream details;
-	  details << "state==evt::RAWWRITING assertion failed! Actual state is "
-	  << state << ", index = " << cell->index();
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
+	stringstream details;
+	details << "state==evt::RAWWRITING assertion failed! Actual state is "
+			<< state << ", index = " << cell->index();
+	XCEPT_ASSERT(state == evt::RAWWRITING, evf::Exception, details.str());
 	setEvtState(cell->index(), evt::RAWWRITTEN);
 	setEvtNumber(cell->index(), cell->evtNumber());
 	postRawIndexToRead(cell->index());
@@ -409,12 +398,10 @@ void FUShmBuffer::finishWritingRawCell(FUShmRawCell* cell) {
 //______________________________________________________________________________
 void FUShmBuffer::finishReadingRawCell(FUShmRawCell* cell) {
 	evt::State_t state = evtState(cell->index());
-	if(!(state == evt::RAWREADING)) {
-	  stringstream details;
-	  details << "state==evt::RAWREADING assertion failed! Actual state is "
-		  << state << ", index = " << cell->index();
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
+	stringstream details;
+	details << "state==evt::RAWREADING assertion failed! Actual state is "
+			<< state << ", index = " << cell->index();
+	XCEPT_ASSERT(state == evt::RAWREADING, evf::Exception, details.str());
 	setEvtState(cell->index(), evt::RAWREAD);
 	setEvtState(cell->index(), evt::PROCESSING);
 	setEvtTimeStamp(cell->index(), time(0));
@@ -437,13 +424,12 @@ void FUShmBuffer::finishReadingRecoCell(FUShmRecoCell* cell) {
 //______________________________________________________________________________
 void FUShmBuffer::finishReadingDqmCell(FUShmDqmCell* cell) {
 	dqm::State_t state = dqmState(cell->index());
-	if(!(state == dqm::SENDING || state == dqm::EMPTY)) {
 	stringstream details;
-	details << "state==dqm::SENDING||state==dqm::EMPTY assertion failed! Actual state is "
-		<< state << ", index = " << cell->index();
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-
-	}
+	details
+			<< "state==dqm::SENDING||state==dqm::EMPTY assertion failed! Actual state is "
+			<< state << ", index = " << cell->index();
+	XCEPT_ASSERT(state == dqm::SENDING || state == dqm::EMPTY, evf::Exception,
+			details.str());
 	if (state == dqm::SENDING)
 		setDqmState(cell->index(), dqm::SENT);
 	if (segmentationMode_)
@@ -456,15 +442,14 @@ void FUShmBuffer::scheduleRawCellForDiscard(unsigned int iCell) {
 	if (rawCellReadyForDiscard(iCell)) {
 		rawDiscardIndex_ = iCell;
 		evt::State_t state = evtState(iCell);
-		if(!(state == evt::PROCESSING || state == evt::SENT ||
-		     state == evt::EMPTY || state == evt::STOP ||
-		     state == evt::LUMISECTION || state == evt::RECOWRITTEN)) {
-		  stringstream details;
-		  details << "state==evt::PROCESSING||state==evt::SENT||state==evt::EMPTY||"
-			  <<"state==evt::STOP||state==evt::LUMISECTION||state==evt::RECOWRITTEN assertion failed! Actual state is "
-			  << state << ", iCell = " << iCell;
-		  XCEPT_ASSERT( false,evf::Exception,details.str()); 
-		}
+		stringstream details;
+		details
+			<< "state==evt::PROCESSING||state==evt::SENT||state==evt::EMPTY||"
+			<<"state==evt::STOP||state==evt::LUMISECTION||state==evt::RECOWRITTEN assertion failed! Actual state is "
+			<< state << ", iCell = " << iCell;
+		XCEPT_ASSERT(  state == evt::PROCESSING || state == evt::SENT 
+				|| state == evt::EMPTY || state == evt::STOP
+				|| state == evt::LUMISECTION || state == evt::RECOWRITTEN, evf::Exception, details.str());
 		if (state == evt::PROCESSING)
 			setEvtState(iCell, evt::PROCESSED);
 		if (state == evt::LUMISECTION)
@@ -526,12 +511,12 @@ void FUShmBuffer::discardOrphanedRecoCell(unsigned int iCell) {
 //______________________________________________________________________________
 void FUShmBuffer::discardDqmCell(unsigned int iCell) {
 	dqm::State_t state = dqmState(iCell);
-	if(!(state == dqm::EMPTY || state == dqm::SENT)) {
-	  stringstream details;
-	  details << "state==dqm::EMPTY||state==dqm::SENT assertion failed! Actual state is "
-		  << state << ", iCell = " << iCell;
-	  XCEPT_ASSERT(false, evf::Exception,details.str());
-	}
+	stringstream details;
+	details
+			<< "state==dqm::EMPTY||state==dqm::SENT assertion failed! Actual state is "
+			<< state << ", iCell = " << iCell;
+	XCEPT_ASSERT(state == dqm::EMPTY || state == dqm::SENT, evf::Exception,
+			details.str());
 	setDqmState(iCell, dqm::DISCARDING);
 	FUShmDqmCell* cell = dqmCell(iCell);
 	cell->clear();
@@ -545,17 +530,21 @@ void FUShmBuffer::discardDqmCell(unsigned int iCell) {
 //______________________________________________________________________________
 void FUShmBuffer::releaseRawCell(FUShmRawCell* cell) {
 	evt::State_t state = evtState(cell->index());
-	if(!( state == evt::DISCARDING || state == evt::RAWWRITING ||
-              state== evt::EMPTY || state == evt::STOP ||
-	      /*||state==evt::LUMISECTION*/
-              state == evt::USEDLS)) {
-	  std::cout << "=================releaseRawCell state " << state << std::endl;
-	  stringstream details;
-	  details << "state==evt::DISCARDING||state==evt::RAWWRITING||"
-                  << "state==evt::EMPTY||state==evt::STOP||state==evt::USEDLS"
-                  << " assertion failed! Actual state is " << state << ", index = " << cell->index();
-	  XCEPT_ASSERT( false, evf::Exception, details.str());
-	}
+	if (!(state == evt::DISCARDING || state == evt::RAWWRITING || state
+			== evt::EMPTY || state == evt::STOP
+	//     ||state==evt::LUMISECTION
+			|| state == evt::USEDLS))
+		std::cout << "=================releaseRawCell state " << state
+				<< std::endl;
+	stringstream details;
+	details
+			<< "state==evt::DISCARDING||state==evt::RAWWRITING||state==evt::EMPTY||state==evt::STOP||state==evt::USEDLS assertion failed! Actual state is "
+			<< state << ", index = " << cell->index();
+	XCEPT_ASSERT(
+			state == evt::DISCARDING || state == evt::RAWWRITING || state
+					== evt::EMPTY || state == evt::STOP
+			/*||state==evt::LUMISECTION*/
+			|| state == evt::USEDLS, evf::Exception, details.str());
 	setEvtState(cell->index(), evt::EMPTY);
 	setEvtDiscard(cell->index(), 0);
 	setEvtNumber(cell->index(), 0xffffffff);
@@ -574,12 +563,10 @@ void FUShmBuffer::writeRawEmptyEvent() {
 	if (cell == 0)
 		return;
 	evt::State_t state = evtState(cell->index());
-	if(!(state == evt::RAWWRITING)) {
-	  stringstream details;
-	  details << "state==evt::RAWWRITING assertion failed! Actual state is "
-		  << state << ", index = " << cell->index();
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
+	stringstream details;
+	details << "state==evt::RAWWRITING assertion failed! Actual state is "
+			<< state << ", index = " << cell->index();
+	XCEPT_ASSERT(state == evt::RAWWRITING, evf::Exception, details.str());
 	setEvtState(cell->index(), evt::STOP);
 	cell->setEventTypeStopper();
 	postRawIndexToRead(cell->index());
@@ -595,12 +582,10 @@ void FUShmBuffer::writeRawLumiSectionEvent(unsigned int ls) {
 		return;
 	cell->setLumiSection(ls);
 	evt::State_t state = evtState(cell->index());
-	if (!(state == evt::RAWWRITING)) {
-	  stringstream details;
-	  details << "state==evt::RAWWRITING assertion failed! Actual state is "
-	          << state << ", index = " << cell->index();
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
+	stringstream details;
+	details << "state==evt::RAWWRITING assertion failed! Actual state is "
+			<< state << ", index = " << cell->index();
+	XCEPT_ASSERT(state == evt::RAWWRITING, evf::Exception, details.str());
         setEvtNumber(cell->index(),0xfffffffe);
 	setEvtState(cell->index(), evt::LUMISECTION);
 	cell->setEventTypeEol();
@@ -726,12 +711,9 @@ bool FUShmBuffer::writeRecoEventData(unsigned int runNumber,
 	unsigned int iCell = nextRecoWriteIndex();
 	FUShmRecoCell* cell = recoCell(iCell);
 	//evt::State_t state=evtState(rawCellIndex);
-	//XCEPT_ASSERT(state==evt::PROCESSING||state==evt::RECOWRITING||state==evt::SENT,
-	//evf::Exception, "state==evt::PROCESSING||state==evt::RECOWRITING||state==evt::SENT assertion failed!");
-	lock();
-	setEvtState(rawCellIndex, evt::RECOWRITING,false);
-	incEvtDiscard(rawCellIndex,false);
-	unlock();
+	//XCEPT_ASSERT(state==evt::PROCESSING||state==evt::RECOWRITING||state==evt::SENT, evf::Exception, "state==evt::PROCESSING||state==evt::RECOWRITING||state==evt::SENT assertion failed!");
+	setEvtState(rawCellIndex, evt::RECOWRITING);
+	incEvtDiscard(rawCellIndex);
 	cell->writeEventData(rawCellIndex, runNumber, evtNumber, outModId,
 			fuProcessId, fuGuid, data, dataSize);
 	setEvtState(rawCellIndex, evt::RECOWRITTEN);
@@ -744,7 +726,7 @@ bool FUShmBuffer::writeRecoEventData(unsigned int runNumber,
 
 //______________________________________________________________________________
 bool FUShmBuffer::writeErrorEventData(unsigned int runNumber,
-		unsigned int fuProcessId, unsigned int iRawCell,bool checkValue) {
+		unsigned int fuProcessId, unsigned int iRawCell, bool checkValue) {
 	FUShmRawCell *raw = rawCell(iRawCell);
 
 	unsigned int dataSize = sizeof(uint32_t) * (4 + 1024) + raw->eventSize();
@@ -799,10 +781,8 @@ bool FUShmBuffer::writeErrorEventData(unsigned int runNumber,
 	waitRecoWrite();
 	unsigned int iRecoCell = nextRecoWriteIndex();
 	FUShmRecoCell* reco = recoCell(iRecoCell);
-	lock();
-	setEvtState(iRawCell, evt::RECOWRITING,false);
-	setEvtDiscard(iRawCell, 1, true,false);
-	unlock();
+	setEvtState(iRawCell, evt::RECOWRITING);
+	setEvtDiscard(iRawCell, 1, checkValue);
 	reco->writeErrorEvent(iRawCell, runNumber, raw->evtNumber(), fuProcessId,
 			data, dataSize);
 	delete[] data;
@@ -831,12 +811,10 @@ bool FUShmBuffer::writeDqmEventData(unsigned int runNumber,
 	unsigned int iCell = nextDqmWriteIndex();
 	FUShmDqmCell* cell = dqmCell(iCell);
 	dqm::State_t state = dqmState(iCell);
-	if (!(state == dqm::EMPTY)) {
-	  stringstream details;
-	  details << "state==dqm::EMPTY assertion failed! Actual state is " << state
-		  << ", iCell = " << iCell;
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
+	stringstream details;
+	details << "state==dqm::EMPTY assertion failed! Actual state is " << state
+			<< ", iCell = " << iCell;
+	XCEPT_ASSERT(state == dqm::EMPTY, evf::Exception, details.str());
 	setDqmState(iCell, dqm::WRITING);
 	cell->writeData(runNumber, evtAtUpdate, folderId, fuProcessId, fuGuid,
 			data, dataSize);
@@ -1031,7 +1009,7 @@ FUShmBuffer* FUShmBuffer::getShmBuffer() {
 			nRawCells, nRecoCells, nDqmCells, rawCellSize, recoCellSize,
 			dqmCellSize);
 
-	cout << "FUShmBuffer::getShmBuffer(): shared memory buffer RETRIEVED. PID:" << getpid()
+	cout << "FUShmBuffer::getShmBuffer(): shared memory buffer RETRIEVED."
 			<< endl;
 	cout << "                             segmentationMode="
 			<< segmentationMode << endl;
@@ -1379,11 +1357,9 @@ unsigned int FUShmBuffer::indexForEvtPrcId(pid_t prcid) {
 
 //______________________________________________________________________________
 evt::State_t FUShmBuffer::evtState(unsigned int index) {
-	if (!(index < nRawCells_)) {
-	  stringstream details;
-	  details << "index<nRawCells_ assertion failed! Actual index is " << index;
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
+	stringstream details;
+	details << "index<nRawCells_ assertion failed! Actual index is " << index;
+	XCEPT_ASSERT(index < nRawCells_, evf::Exception, details.str());
 	evt::State_t *pstate = (evt::State_t*) ((unsigned long) this
 			+ evtStateOffset_);
 	pstate += index;
@@ -1392,11 +1368,9 @@ evt::State_t FUShmBuffer::evtState(unsigned int index) {
 
 //______________________________________________________________________________
 dqm::State_t FUShmBuffer::dqmState(unsigned int index) {
-	if (!(index < nDqmCells_)) {
-	  stringstream details;
-	  details << "index<nDqmCells_ assertion failed! Actual index is " << index;
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
+	stringstream details;
+	details << "index<nDqmCells_ assertion failed! Actual index is " << index;
+	XCEPT_ASSERT(index < nDqmCells_, evf::Exception, details.str());
 	dqm::State_t *pstate = (dqm::State_t*) ((unsigned long) this
 			+ dqmStateOffset_);
 	pstate += index;
@@ -1405,11 +1379,9 @@ dqm::State_t FUShmBuffer::dqmState(unsigned int index) {
 
 //______________________________________________________________________________
 unsigned int FUShmBuffer::evtNumber(unsigned int index) {
-	if (!(index < nRawCells_)) {
-	  stringstream details;
-	  details << "index<nRawCells_ assertion failed! Actual index is " << index;
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
+	stringstream details;
+	details << "index<nRawCells_ assertion failed! Actual index is " << index;
+	XCEPT_ASSERT(index < nRawCells_, evf::Exception, details.str());
 	unsigned int *pevt = (unsigned int*) ((unsigned long) this
 			+ evtNumberOffset_);
 	pevt += index;
@@ -1418,11 +1390,9 @@ unsigned int FUShmBuffer::evtNumber(unsigned int index) {
 
 //______________________________________________________________________________
 pid_t FUShmBuffer::evtPrcId(unsigned int index) {
-	if (!(index < nRawCells_)) {
-	  stringstream details;
-	  details << "index<nRawCells_ assertion failed! Actual index is " << index;
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
+	stringstream details;
+	details << "index<nRawCells_ assertion failed! Actual index is " << index;
+	XCEPT_ASSERT(index < nRawCells_, evf::Exception, details.str());
 	pid_t *prcid = (pid_t*) ((unsigned long) this + evtPrcIdOffset_);
 	prcid += index;
 	return *prcid;
@@ -1430,11 +1400,9 @@ pid_t FUShmBuffer::evtPrcId(unsigned int index) {
 
 //______________________________________________________________________________
 time_t FUShmBuffer::evtTimeStamp(unsigned int index) {
-	if (!(index < nRawCells_)) {
-	  stringstream details;
-	  details << "index<nRawCells_ assertion failed! Actual index is " << index;
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
+	stringstream details;
+	details << "index<nRawCells_ assertion failed! Actual index is " << index;
+	XCEPT_ASSERT(index < nRawCells_, evf::Exception, details.str());
 	time_t *ptstmp = (time_t*) ((unsigned long) this + evtTimeStampOffset_);
 	ptstmp += index;
 	return *ptstmp;
@@ -1442,41 +1410,33 @@ time_t FUShmBuffer::evtTimeStamp(unsigned int index) {
 
 //______________________________________________________________________________
 pid_t FUShmBuffer::clientPrcId(unsigned int index) {
-	if (!(index < nClientsMax_)) {
-	  stringstream details;
-	  details << "index<nClientsMax_ assertion failed! Actual index is " << index;
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
+	stringstream details;
+	details << "index<nClientsMax_ assertion failed! Actual index is " << index;
+	XCEPT_ASSERT(index < nClientsMax_, evf::Exception, details.str());
 	pid_t *prcid = (pid_t*) ((unsigned long) this + clientPrcIdOffset_);
 	prcid += index;
 	return *prcid;
 }
 
 //______________________________________________________________________________
-bool FUShmBuffer::setEvtState(unsigned int index, evt::State_t state, bool lockShm) {
-	if(!(index < nRawCells_)) {
-	  stringstream details;
-	  details << "index<nRawCells_ assertion failed! Actual index is " << index;
-	  //unlock here as it will skip external unlock
-	  if (!lockShm) unlock();
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
+bool FUShmBuffer::setEvtState(unsigned int index, evt::State_t state) {
+	stringstream details;
+	details << "index<nRawCells_ assertion failed! Actual index is " << index;
+	XCEPT_ASSERT(index < nRawCells_, evf::Exception, details.str());
 	evt::State_t *pstate = (evt::State_t*) ((unsigned long) this
 			+ evtStateOffset_);
 	pstate += index;
-	if (lockShm) lock();
+	lock();
 	*pstate = state;
-	if (lockShm) unlock();
+	unlock();
 	return true;
 }
 
 //______________________________________________________________________________
 bool FUShmBuffer::setDqmState(unsigned int index, dqm::State_t state) {
-	if(!(index < nDqmCells_)) {
-	  stringstream details;
-	  details << "index<nDqmCells_ assertion failed! Actual index is " << index;
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
+	stringstream details;
+	details << "index<nDqmCells_ assertion failed! Actual index is " << index;
+	XCEPT_ASSERT(index < nDqmCells_, evf::Exception, details.str());
 	dqm::State_t *pstate = (dqm::State_t*) ((unsigned long) this
 			+ dqmStateOffset_);
 	pstate += index;
@@ -1487,54 +1447,45 @@ bool FUShmBuffer::setDqmState(unsigned int index, dqm::State_t state) {
 }
 
 //______________________________________________________________________________
-bool FUShmBuffer::setEvtDiscard(unsigned int index, unsigned int discard, bool checkValue, bool lockShm) {
-	if(!(index < nRawCells_)) {
-	  stringstream details;
-	  details << "index<nRawCells_ assertion failed! Actual index is " << index;
-	  //unlock here as it will skip external unlock
-	  if (!lockShm) unlock();
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
+bool FUShmBuffer::setEvtDiscard(unsigned int index, unsigned int discard,
+		bool checkValue) {
+	stringstream details;
+	details << "index<nRawCells_ assertion failed! Actual index is " << index;
+	XCEPT_ASSERT(index < nRawCells_, evf::Exception, details.str());
 	unsigned int *pcount = (unsigned int*) ((unsigned long) this
 			+ evtDiscardOffset_);
 	pcount += index;
-	if (lockShm) lock();
+	lock();
 	if (checkValue) {
 		if (*pcount < discard)
 			*pcount = discard;
 	} else
 		*pcount = discard;
-	if (lockShm) unlock();
+	unlock();
 	return true;
 }
 
 //______________________________________________________________________________
-int FUShmBuffer::incEvtDiscard(unsigned int index, bool lockShm) {
+int FUShmBuffer::incEvtDiscard(unsigned int index) {
 	int result = 0;
-	if(!(index < nRawCells_)) {
-	  stringstream details;
-	  details << "index<nRawCells_ assertion failed! Actual index is " << index;
-	  //unlock here as it will skip external unlock
-	  if (!lockShm) unlock();
-	  XCEPT_ASSERT(false,evf::Exception,details.str());
-	}
+	stringstream details;
+	details << "index<nRawCells_ assertion failed! Actual index is " << index;
+	XCEPT_ASSERT(index < nRawCells_, evf::Exception, details.str());
 	unsigned int *pcount = (unsigned int*) ((unsigned long) this
 			+ evtDiscardOffset_);
 	pcount += index;
-	if (lockShm) lock();
+	lock();
 	(*pcount)++;
 	result = *pcount;
-	if (lockShm) unlock();
+	unlock();
 	return result;
 }
 
 //______________________________________________________________________________
 bool FUShmBuffer::setEvtNumber(unsigned int index, unsigned int evtNumber) {
-	if(!(index < nRawCells_)) {
-	  stringstream details;
-	  details << "index<nRawCells_ assertion failed! Actual index is " << index;
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
+	stringstream details;
+	details << "index<nRawCells_ assertion failed! Actual index is " << index;
+	XCEPT_ASSERT(index < nRawCells_, evf::Exception, details.str());
 	unsigned int *pevt = (unsigned int*) ((unsigned long) this
 			+ evtNumberOffset_);
 	pevt += index;
@@ -1546,11 +1497,9 @@ bool FUShmBuffer::setEvtNumber(unsigned int index, unsigned int evtNumber) {
 
 //______________________________________________________________________________
 bool FUShmBuffer::setEvtPrcId(unsigned int index, pid_t prcId) {
-	if(!(index < nRawCells_)) {
-	  stringstream details;
-	  details << "index<nRawCells_ assertion failed! Actual index is " << index;
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
+	stringstream details;
+	details << "index<nRawCells_ assertion failed! Actual index is " << index;
+	XCEPT_ASSERT(index < nRawCells_, evf::Exception, details.str());
 	pid_t* prcid = (pid_t*) ((unsigned long) this + evtPrcIdOffset_);
 	prcid += index;
 	lock();
@@ -1561,11 +1510,9 @@ bool FUShmBuffer::setEvtPrcId(unsigned int index, pid_t prcId) {
 
 //______________________________________________________________________________
 bool FUShmBuffer::setEvtTimeStamp(unsigned int index, time_t timeStamp) {
-	if(!(index < nRawCells_)) {
-	  stringstream details;
-	  details << "index<nRawCells_ assertion failed! Actual index is " << index;
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
+	stringstream details;
+	details << "index<nRawCells_ assertion failed! Actual index is " << index;
+	XCEPT_ASSERT(index < nRawCells_, evf::Exception, details.str());
 	time_t *ptstmp = (time_t*) ((unsigned long) this + evtTimeStampOffset_);
 	ptstmp += index;
 	lock();
@@ -1577,13 +1524,10 @@ bool FUShmBuffer::setEvtTimeStamp(unsigned int index, time_t timeStamp) {
 //______________________________________________________________________________
 bool FUShmBuffer::setClientPrcId(pid_t prcId) {
 	lock();
-	if(!(nClients_ < nClientsMax_)) {
-	  stringstream details;
-	  details << "nClients_<nClientsMax_ assertion failed! Actual nClients is "
-	          << nClients_ << " and nClientsMax is " << nClientsMax_;
-	  unlock();
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
+	stringstream details;
+	details << "nClients_<nClientsMax_ assertion failed! Actual nClients is "
+			<< nClients_ << " and nClientsMax is " << nClientsMax_;
+	XCEPT_ASSERT(nClients_ < nClientsMax_, evf::Exception, details.str());
 	pid_t *prcid = (pid_t*) ((unsigned long) this + clientPrcIdOffset_);
 	for (unsigned int i = 0; i < nClients_; i++) {
 		if ((*prcid) == prcId) {
@@ -1607,10 +1551,7 @@ bool FUShmBuffer::removeClientPrcId(pid_t prcId) {
 		prcid++;
 		iClient++;
 	}
-	if (iClient==nClients_) {
-		unlock();
-		return false;
-	}
+	if (iClient==nClients_) return false;
 	//stringstream details;
 	//details << "iClient!=nClients_ assertion failed! Actual iClient is "
 	//		<< iClient;
@@ -1699,21 +1640,16 @@ FUShmDqmCell* FUShmBuffer::dqmCell(unsigned int iCell) {
 
 //______________________________________________________________________________
 bool FUShmBuffer::rawCellReadyForDiscard(unsigned int index) {
-	if(!(index < nRawCells_)) {
-	  stringstream details;
-	  details << "index<nRawCells_ assertion failed! Actual index is " << index;
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
+	stringstream details;
+	details << "index<nRawCells_ assertion failed! Actual index is " << index;
+	XCEPT_ASSERT(index < nRawCells_, evf::Exception, details.str());
 	unsigned int *pcount = (unsigned int*) ((unsigned long) this
 			+ evtDiscardOffset_);
 	pcount += index;
 	lock();
-	if(!(*pcount > 0)) {
-	  stringstream details;
-	  details << "*pcount>0 assertion failed! Value at pcount is " << *pcount << " for cell index " << index;
-	  unlock();
-	  XCEPT_ASSERT(false, evf::Exception, details.str());
-	}
+	stringstream details2;
+	details2 << "*pcount>0 assertion failed! Value at pcount is " << *pcount << " for cell index " << index;
+	XCEPT_ASSERT(*pcount > 0, evf::Exception, details2.str());
 	--(*pcount);
 	bool result = (*pcount == 0);
 	unlock();
