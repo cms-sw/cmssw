@@ -291,6 +291,12 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       bool isNeutral = false;if(modelVector[k].find("GluinoN")!=string::npos || modelVector[k].find("StopN")!=string::npos)isNeutral = true;
       if(isNeutral) continue;//skip charged suppressed models
       fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(MuGraphs[k],  ThXSec[k], MuGraphs[k]->GetX()[0], MuGraphs[k]->GetX()[MuGraphs[k]->GetN()-1], 1, 0.00));
+   }   
+   fprintf(pFile,"-----------------------\n0%% MU+Only        \n-------------------------\n");
+   for(unsigned int k=0; k<modelVector.size(); k++){
+      bool isNeutral = false;if(modelVector[k].find("GluinoN")!=string::npos || modelVector[k].find("StopN")!=string::npos)isNeutral = true;
+      if(isNeutral) continue;//skip charged suppressed models
+      fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(MuOnlyGraphs[k],  ThXSec[k], MuOnlyGraphs[k]->GetX()[0], MuOnlyGraphs[k]->GetX()[MuOnlyGraphs[k]->GetN()-1], 1, 0.00));
    }
    fclose(pFile);
 
@@ -900,6 +906,8 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
    GetSampleDefinition(samples);
    CurrentSampleIndex        = JobIdToIndex(signal,samples); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  } 
 
+   //For muon only don't run on neutral samples as near zero efficiency can make jobs take very long time
+   if((signal.find("Gluino")!=string::npos || signal.find("Stop")!=string::npos) && signal.find("N")!=string::npos && TypeMode==3) return;
 
    //Load all input histograms
    TFile*InputFile     = new TFile((InputPattern + "Histos.root").c_str());
