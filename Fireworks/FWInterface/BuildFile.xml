@@ -5,6 +5,8 @@
 <use name="CondFormats/RunInfo"/>
 <use name="Fireworks/Core"/>
 <use name="Fireworks/Geometry"/>
+<use name="DataFormats/TrackReco"/>
+<use name="TrackingTools/TrajectoryState"/>
 <use name="rootcore"/>
 <use name="rootinteractive"/>
 <lib name="Geom"/>
