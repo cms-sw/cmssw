@@ -40,6 +40,7 @@ streamA_datasetCommissioning_selector.throw      = cms.bool(False)
 streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_Activity_Ecal_SC7_v13', 
     'HLT_BeamGas_HF_Beam1_v5', 
     'HLT_BeamGas_HF_Beam2_v5', 
+    'HLT_HcalUTCA_v1', 
     'HLT_IsoTrackHB_v14', 
     'HLT_IsoTrackHE_v15', 
     'HLT_L1SingleEG12_v6', 
@@ -625,12 +626,14 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetTauPlusX_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetTauPlusX_selector.l1tResults = cms.InputTag('')
 streamA_datasetTauPlusX_selector.throw      = cms.bool(False)
-streamA_datasetTauPlusX_selector.triggerConditions = cms.vstring('HLT_Ele22_eta2p1_WP90NoIso_LooseIsoPFTau20_v7', 
+streamA_datasetTauPlusX_selector.triggerConditions = cms.vstring('HLT_Ele13_eta2p1_WP90Rho_LooseIsoPFTau20_L1ETM36_v1', 
+    'HLT_Ele22_eta2p1_WP90NoIso_LooseIsoPFTau20_v7', 
     'HLT_Ele22_eta2p1_WP90Rho_LooseIsoPFTau20_v7', 
     'HLT_IsoMu15_eta2p1_L1ETM20_v7', 
     'HLT_IsoMu15_eta2p1_LooseIsoPFTau35_Trk20_Prong1_L1ETM20_v10', 
     'HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v7', 
     'HLT_IsoMu18_eta2p1_MediumIsoPFTau25_Trk1_eta2p1_v4', 
+    'HLT_IsoMu8_eta2p1_LooseIsoPFTau20_L1ETM26_v1', 
     'HLT_Mu15_eta2p1_L1ETM20_v5', 
     'HLT_Mu17_eta2p1_LooseIsoPFTau20_v7')
 
