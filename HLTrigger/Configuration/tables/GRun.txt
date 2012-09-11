@@ -266,7 +266,9 @@ HLT_IsoMu17_eta2p1_DiCentralPFNoPUJet30_PFNoPUHT350_PFMHT40_v*                  
 HLT_DiCentralPFNoPUJet50_PFMETORPFMETNoMu80_v*                                                  # sr #129069
 
 HLT_QuadJet50_v*                                                                                # sr #126304, sr #128195, sr129852
-HLT_QuadJet50_Jet20_v*                                                                          # sr #128195, sr129852
+#HLT_QuadJet50_Jet20_v*                                                                         # sr #128195, sr129852, removed by sr #131946
+
+HLT_QuadJet45_v*                                                                                # sr #131946
 
 HLT_DoubleMu8_Ele8_CaloIdT_TrkIdVL_v*                                                           # sr #127498
 

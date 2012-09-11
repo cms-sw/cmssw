@@ -266,7 +266,9 @@ HLT_IsoMu17_eta2p1_DiCentralPFNoPUJet30_PFNoPUHT350_PFMHT40_v*                  
 HLT_DiCentralPFNoPUJet50_PFMETORPFMETNoMu80_v*                                                  # sr #129069
 
 HLT_QuadJet50_v*                                                                                # sr #126304, sr #128195, sr129852
-HLT_QuadJet50_Jet20_v*                                                                          # sr #128195, sr129852
+#HLT_QuadJet50_Jet20_v*                                                                         # sr #128195, sr129852, removed by sr #131946
+
+HLT_QuadJet45_v*                                                                                # sr #131946
 
 HLT_DoubleMu8_Ele8_CaloIdT_TrkIdVL_v*                                                           # sr #127498
 
@@ -368,7 +370,7 @@ HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v*                                 
 HLT_Mu7_Track7_Jpsi_v*                                                                          #claimed by Higgs
 
 HLT_Dimuon7_PsiPrime_v*                                                                         # sr #128758
-HLT_Mu15_TkMu5_Onia_v*                                                                          # sr #130923
+HLT_Mu15_TkMu5_Onia_v*										# sr #130923
 
 #HLT_Mu18_eta2p1_LooseIsoPFTau20_v*                                                             # sr #126461, removed by sr #128206
 #HLT_IsoMu18_eta2p1_LooseIsoPFTau20_v*                                                          # sr #126461, removed by sr #128206
