@@ -452,8 +452,10 @@ namespace cms
 	      }
 	    }//end fi < fj
 	    statCount.overlap();
-	    statCount.dp(dphi);
-	    statCount.de(deta);
+	    if (at0[k1]&&at0[k2]) {
+	      statCount.dp(dphi);
+	      if (dz<1.f) statCount.de(deta);
+	    }
 	  }//end got a duplicate
 	  else {
 	    statCount.noOverlap();
