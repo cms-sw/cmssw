@@ -34,6 +34,7 @@ class HLTHcalLaserFilter : public edm::EDFilter {
   std::vector<int> CalibCountFilterValues_;
   std::vector<double> CalibChargeFilterValues_;
   double maxTotalCalibCharge_;
+  int  maxAllowedHFcalib_;
 };
 
 #endif //HLTHcalLaserFilter_h
