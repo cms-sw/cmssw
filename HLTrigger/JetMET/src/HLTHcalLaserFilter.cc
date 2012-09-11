@@ -78,7 +78,7 @@ bool HLTHcalLaserFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   // Track multiplicity and total charge for each fC threshold
   std::vector<int> CalibCount;
   std::vector<double> CalibCharge;
-  for (uint i=0;i<thresholdsfC_.size();++i)
+  for (unsigned int i=0;i<thresholdsfC_.size();++i)
     {
       CalibCount.push_back(0);
       CalibCharge.push_back(0);
@@ -117,17 +117,17 @@ bool HLTHcalLaserFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  
 	  // Compute total charge found in the provided subset of timeslices
 	  double sumCharge=0;
-	  uint NTS=timeSlices_.size();
+	  unsigned int NTS=timeSlices_.size();
 	  int digisize=(int)digi->size(); // gives value of largest time slice
 
-	  for (uint ts=0;ts<NTS;++ts) // loop over provided timeslices
+	  for (unsigned int ts=0;ts<NTS;++ts) // loop over provided timeslices
 	    {
 	      if (timeSlices_[ts]<0 || timeSlices_[ts]>digisize) continue;
 	      sumCharge+=adc2fC[digi->sample(timeSlices_[ts]).adc()&0xff];
 	    }
 
 	  // Check multiplicity and charge against filter settings for each charge threshold
-	  for (uint thresh=0;thresh<thresholdsfC_.size();++thresh)
+	  for (unsigned int thresh=0;thresh<thresholdsfC_.size();++thresh)
 	    {
 	      if (sumCharge > thresholdsfC_[thresh])
 		{
@@ -141,7 +141,7 @@ bool HLTHcalLaserFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 		      && CalibChargeFilterValues_[thresh]>=0) 
 		    return false;
 		} //if (sumCharge > thresholdsfC_[thresh])
-	    } //for (uint thresh=0;thresh<thresholdsfC_.size();++thresh)
+	    } //for (unsigned int thresh=0;thresh<thresholdsfC_.size();++thresh)
 
 	} // loop on calibration digis:  for (HcalCalibDigiCollection::...)
 
