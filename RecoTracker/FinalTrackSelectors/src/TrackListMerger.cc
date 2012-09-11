@@ -296,6 +296,7 @@ namespace cms
     float score[ngood];
     float phi[ngood];
     float eta[ngood];
+    float z0[ngood];
     bool at0[ngood];
     for ( unsigned int j=0; j<rSize; j++) {
       if (selected[j]==0) continue;
@@ -312,7 +313,8 @@ namespace cms
       pattern[i].fill(track->hitPattern());
       phi[i]=track->phi();
       eta[i]=track->eta();
-      at0[i] = std::abs(track->dxy())<2. && std::abs(track->dz())<5.;
+      z0[i] =track->dz();
+      at0[i] = std::abs(track->dxy())<1;
       rh1[i].reserve(validHits) ; // track->recHitsSize());
       auto compById = [](const TrackingRecHit* h1,const TrackingRecHit*h2) {return h1->rawId()< h2->rawId();};
       fh1[i] = &(**track->recHitsBegin());
@@ -375,6 +377,7 @@ namespace cms
           
 	  float deta = std::abs(eta[k1]-eta[k2]);
 	  float dphi = std::abs(Geom::Phi<float>(phi[k1]-phi[k2]));
+	  float dz = std::abs(z0[k1]-z0[k2]);
 
 	  /*
           if (at0[k1]&&at0[k2]) {
@@ -394,35 +397,35 @@ namespace cms
 	  //loop over rechits
 	  int noverlap=0;
 	  int firstoverlap=0;
-	  
+
+	  // exploit sorting
 	  unsigned int jh=0;
-	  for ( unsigned int ih=0; ih<nh1; ++ih ) {
+	  unsigned int ih=0;
+	  while (ih!=nh1 && jh!=nh2) {
 	    // break if not enough to go...
-	    if ( nprecut-noverlap+firstoverlap > int(nh1-ih)) break;
-	    const TrackingRecHit* it = rh1[k1][ih];
+	    //	    if ( nprecut-noverlap+firstoverlap > int(nh1-ih)) break;
+	    const TrackingRecHit*  it = rh1[k1][ih];
+	    const TrackingRecHit * jt = rh1[k2][jh];
 	    unsigned int id1 = (~3)&it->rawId();  // mask mono/stereo...
-	    // if unlikely(!it->isValid()) continue;
-	    // exploit sorting
-	    for ( ; jh<nh2; ++jh ) { 
-	      const TrackingRecHit *jt=rh1[k2][jh];
-	      // if unlikely(!jt->isValid() ) continue;
-	      if ( id1  > ( jt->rawId()&(~3) ) ) continue;  // VI:exploit sorting
-	      if ( id1  < ( jt->rawId()&(~3) ) ) break;  // VI: and mask mono/stereo...
+	    unsigned int id2 = (~3)&jt->rawId();  // mask mono/stereo...
+	    if (id1<id2) ++ih;
+	    else if (id2<id1) ++jh;
+	    else { 
 	      bool share=false;
 	      if unlikely(!use_sharesInput_){
-		float delta = std::abs ( it->localPosition().x()-jt->localPosition().x() ); 
-		share = (it->geographicalId()==jt->geographicalId())&&(delta<epsilon_);
-	      } else{
+		  float delta = std::abs ( it->localPosition().x()-jt->localPosition().x() ); 
+		  share = (it->geographicalId()==jt->geographicalId())&&(delta<epsilon_);
+		} else{
 		share =  it->sharesInput(jt,TrackingRecHit::some); 
 	      }
 	      if (share) {
 		noverlap++;
 		if ( allowFirstHitShare_ && ( ih == 0 ) && ( jh == 0 ) ) firstoverlap=1;  //ops!!!
-		jh++;
-		break;
-	      } // tracks share input
-	    } // rechits on second track  
-	  } //loop over ih (rechits on first track
+	      }
+	      ++jh; ++ih; 
+	    } // equal ids
+	    
+	  } //loop over ih & jh
 	  
 	  
 	  if ( (noverlap-firstoverlap) > (std::min(nhit1,nhit2)-firstoverlap)*shareFrac_ ) {
