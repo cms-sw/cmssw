@@ -133,7 +133,7 @@ void HltSusyExoPostProcessor::endRun(edm::Run const& run, edm::EventSetup const&
   LogDebug("HltSusyExoPostProcessor") << "Total number of events = " << nTotalBeforeCuts;
 
   //fill the eff histo
-  for(int i=0; i<nL1bins; i++) {
+  for(int i=0; i<nL1bins-1*mcFlag; i++) {
     value = (double) dqm->get(subDir_ + triggerBitsDir + "/L1Paths")->getBinContent(i+1) / (double) nTotalBeforeCuts;
     error = sqrt(value*(1-value)/(double)nTotalBeforeCuts);
      hL1EffBeforeCuts->setBinContent(i+1,value);
@@ -165,7 +165,7 @@ void HltSusyExoPostProcessor::endRun(edm::Run const& run, edm::EventSetup const&
     if(L1placement[i]!=-1)
       ++L1bins[L1placement[i]];
 
-  for(int i=0; i<nHltbins; i++) {
+  for(int i=0; i<nHltbins-1*mcFlag; i++) {
     value = (double)dqm->get(subDir_ + triggerBitsDir + "/HltPaths")->getBinContent(i+1) / (double)nTotalBeforeCuts;
     error = sqrt(value*(1-value)/(double)nTotalBeforeCuts);
     hHltEffBeforeCuts->setBinContent(i+1,value);
