@@ -75,6 +75,15 @@ workflows[4.56] = ['',['ZMuSkim2012B','RECOSKIM']]
 workflows[4.57] = ['',['ZElSkim2012B','RECOSKIM']]
 workflows[4.58] = ['',['WElSkim2012B','RECOSKIM']]
 
+workflows[4.61] = ['',['RunMinBias2012C','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.62] = ['',['RunMu2012C','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.63] = ['',['RunPhoton2012C','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.64] = ['',['RunEl2012C','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.65] = ['',['RunJet2012C','HLTD','RECODreHLT','HARVESTDreHLT']]
+workflows[4.66] = ['',['ZMuSkim2012C','RECOSKIM']]
+workflows[4.67] = ['',['ZElSkim2012C','RECOSKIM']]
+workflows[4.68] = ['',['WElSkim2012C','RECOSKIM']]
+
 
 workflows[40.51] = ['',['RunHI2010','REPACKHID','RECOHID11St3']]
 workflows[40.52] = ['',['RunHI2010','RECOHID10','RECOHIR10D11']]
