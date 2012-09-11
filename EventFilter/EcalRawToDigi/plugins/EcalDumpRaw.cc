@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: EcalDumpRaw.cc,v 1.9 2012/01/11 20:52:35 davidlt Exp $
+ * $Id: EcalDumpRaw.cc,v 1.10 2012/02/26 20:19:46 pgras Exp $
  *
  * Author: Ph Gras. CEA/IRFU - Saclay
  *
@@ -173,7 +173,9 @@ EcalDumpRaw::EcalDumpRaw(const edm::ParameterSet& ps):
   pulsePerRu_(ps.getUntrackedParameter<bool>("pulsePerRu", true)),
   pulsePerLmod_(ps.getUntrackedParameter<bool>("pulsePerLmod", true)),
   pulsePerLme_(ps.getUntrackedParameter<bool>("pulsePerLme", true)),
-  tccId_(0)
+  tccId_(0),
+  fedRawDataCollectionTag_(ps.getParameter<edm::InputTag>("fedRawDataCollectionTag")),
+  l1AcceptBunchCrossingCollectionTag_(ps.getParameter<edm::InputTag>("l1AcceptBunchCrossingCollectionTag"))
 {
   verbosity_= ps.getUntrackedParameter<int>("verbosity",1);
 
@@ -224,7 +226,7 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
   gettimeofday(&start, 0);
 
   edm::Handle<FEDRawDataCollection> rawdata;
-  event.getByType(rawdata);
+  event.getByLabel(fedRawDataCollectionTag_, rawdata);
 
   if(dump_ || l1aHistory_) cout << "\n======================================================================\n"
                                 << toNth(iEvent_)
@@ -235,9 +237,11 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
   
   if(l1aHistory_){
     edm::Handle<L1AcceptBunchCrossingCollection> l1aHist;
-    event.getByType(l1aHist);
-    if(!l1aHist.isValid() || l1aHist->size() == 0){
+    event.getByLabel(l1AcceptBunchCrossingCollectionTag_, l1aHist);
+    if(!l1aHist.isValid()) {
       cout << "L1A history not found.\n";
+    } else if (l1aHist->size() == 0) {
+      cout << "L1A history is empty.\n";
     } else{
       cout << "L1A history: \n";
       for(L1AcceptBunchCrossingCollection::const_iterator it = l1aHist->begin();
