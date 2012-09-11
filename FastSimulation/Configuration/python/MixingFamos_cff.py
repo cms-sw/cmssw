@@ -6,6 +6,9 @@ addPileupInfo.PileupMixingLabel = 'famosPileUp'
 addPileupInfo.simHitLabel = 'famosSimHits'
 
 famosMixing = cms.Sequence(
-            famosPileUp+
-            addPileupInfo
-            )
+    famosPileUp+
+    addPileupInfo
+)
+
+    
+
