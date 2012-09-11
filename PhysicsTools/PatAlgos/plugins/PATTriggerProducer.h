@@ -7,7 +7,7 @@
 // Package:    PatAlgos
 // Class:      pat::PATTriggerProducer
 //
-// $Id: PATTriggerProducer.h,v 1.17.4.1 2012/08/05 16:32:26 vadler Exp $
+// $Id: PATTriggerProducer.h,v 1.17.4.2 2012/09/11 22:21:47 vadler Exp $
 //
 /**
   \class    pat::PATTriggerProducer PATTriggerProducer.h "PhysicsTools/PatAlgos/plugins/PATTriggerProducer.h"
@@ -33,7 +33,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger
 
   \author   Volker Adler
-  \version  $Id: PATTriggerProducer.h,v 1.17.4.1 2012/08/05 16:32:26 vadler Exp $
+  \version  $Id: PATTriggerProducer.h,v 1.17.4.2 2012/09/11 22:21:47 vadler Exp $
 */
 
 
@@ -66,28 +66,30 @@ namespace pat {
       std::string nameProcess_;     // configuration
       bool        autoProcessName_;
       bool        onlyStandAlone_;  // configuration
+      bool        firstInRun_;
       // L1
-      L1GtUtils     l1GtUtils_;
-      bool          addL1Algos_;                        // configuration (optional with default)
-      edm::InputTag tagL1GlobalTriggerObjectMaps_;      // configuration (optional with default)
-      edm::InputTag tagL1ExtraMu_;                      // configuration (optional)
-      edm::InputTag tagL1ExtraNoIsoEG_;                 // configuration (optional)
-      edm::InputTag tagL1ExtraIsoEG_;                   // configuration (optional)
-      edm::InputTag tagL1ExtraCenJet_;                  // configuration (optional)
-      edm::InputTag tagL1ExtraForJet_;                  // configuration (optional)
-      edm::InputTag tagL1ExtraTauJet_;                  // configuration (optional)
-      edm::InputTag tagL1ExtraETM_;                     // configuration (optional)
-      edm::InputTag tagL1ExtraHTM_;                     // configuration (optional)
-      bool          autoProcessNameL1ExtraMu_;
-      bool          autoProcessNameL1ExtraNoIsoEG_;
-      bool          autoProcessNameL1ExtraIsoEG_;
-      bool          autoProcessNameL1ExtraCenJet_;
-      bool          autoProcessNameL1ExtraForJet_;
-      bool          autoProcessNameL1ExtraTauJet_;
-      bool          autoProcessNameL1ExtraETM_;
-      bool          autoProcessNameL1ExtraHTM_;
-      bool          mainBxOnly_;                        // configuration (optional with default)
-      bool          saveL1Refs_;                        // configuration (optional with default)
+      L1GtUtils           l1GtUtils_;
+      edm::ParameterSet * l1PSet_;
+      bool                addL1Algos_;                    // configuration (optional with default)
+      edm::InputTag       tagL1GlobalTriggerObjectMaps_;  // configuration (optional with default)
+      edm::InputTag       tagL1ExtraMu_;                  // configuration (optional)
+      edm::InputTag       tagL1ExtraNoIsoEG_;             // configuration (optional)
+      edm::InputTag       tagL1ExtraIsoEG_;               // configuration (optional)
+      edm::InputTag       tagL1ExtraCenJet_;              // configuration (optional)
+      edm::InputTag       tagL1ExtraForJet_;              // configuration (optional)
+      edm::InputTag       tagL1ExtraTauJet_;              // configuration (optional)
+      edm::InputTag       tagL1ExtraETM_;                 // configuration (optional)
+      edm::InputTag       tagL1ExtraHTM_;                 // configuration (optional)
+      bool                autoProcessNameL1ExtraMu_;
+      bool                autoProcessNameL1ExtraNoIsoEG_;
+      bool                autoProcessNameL1ExtraIsoEG_;
+      bool                autoProcessNameL1ExtraCenJet_;
+      bool                autoProcessNameL1ExtraForJet_;
+      bool                autoProcessNameL1ExtraTauJet_;
+      bool                autoProcessNameL1ExtraETM_;
+      bool                autoProcessNameL1ExtraHTM_;
+      bool                mainBxOnly_;                    // configuration (optional with default)
+      bool                saveL1Refs_;                    // configuration (optional with default)
       // HLT
       HLTConfigProvider         hltConfig_;
       bool                      hltConfigInit_;
@@ -97,8 +99,8 @@ namespace pat {
       std::string               labelHltPrescaleTable_; // configuration (optional)
       trigger::HLTPrescaleTable hltPrescaleTableRun_;
       trigger::HLTPrescaleTable hltPrescaleTableLumi_;
-      bool                       addPathModuleLabels_;   // configuration (optional with default)
-      std::vector< std::string > exludeCollections_; // configuration (optional)
+      bool                       addPathModuleLabels_;  // configuration (optional with default)
+      std::vector< std::string > exludeCollections_;    // configuration (optional)
 
       class ModuleLabelToPathAndFlags {
           public:

@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.34.4.1 2012/08/05 16:32:25 vadler Exp $
+// $Id: PATTriggerProducer.cc,v 1.34.4.2 2012/09/11 22:21:47 vadler Exp $
 //
 
 
@@ -48,6 +48,7 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   nameProcess_( iConfig.getParameter< std::string >( "processName" ) ),
   autoProcessName_( nameProcess_ == "*" ),
   onlyStandAlone_( iConfig.getParameter< bool >( "onlyStandAlone" ) ),
+  firstInRun_( true ),
   // L1 configuration parameters
   addL1Algos_( false ),
   tagL1GlobalTriggerObjectMaps_( "l1L1GtObjectMap" ),
@@ -168,6 +169,8 @@ void PATTriggerProducer::beginRun( Run & iRun, const EventSetup & iSetup )
 {
 
   // Initialize
+  firstInRun_    = true;
+  l1PSet_        = 0;
   hltConfigInit_ = false;
 
   // Initialize process name
@@ -200,12 +203,12 @@ void PATTriggerProducer::beginRun( Run & iRun, const EventSetup & iSetup )
   if ( tagTriggerResults_.process().empty() || tagTriggerResults_.process() == "*" ) {
     tagTriggerResults_ = InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), nameProcess_ );
   } else if ( tagTriggerEvent_.process() != nameProcess_ ) {
-    LogWarning( "triggerResultsTag" ) << "TriggerResults process name '" << tagTriggerResults_.process() << "' differs from HLT process name '" << nameProcess_ << "'";
+    LogWarning( "inputTags" ) << "TriggerResults process name '" << tagTriggerResults_.process() << "' differs from HLT process name '" << nameProcess_ << "'";
   }
   if ( tagTriggerEvent_.process().empty() || tagTriggerEvent_.process()   == "*" ) {
     tagTriggerEvent_ = InputTag( tagTriggerEvent_.label(), tagTriggerEvent_.instance(), nameProcess_ );
   } else if ( tagTriggerEvent_.process() != nameProcess_ ) {
-    LogWarning( "triggerEventTag" ) << "TriggerEvent process name '" << tagTriggerEvent_.process() << "' differs from HLT process name '" << nameProcess_ << "'";
+    LogWarning( "inputTags" ) << "TriggerEvent process name '" << tagTriggerEvent_.process() << "' differs from HLT process name '" << nameProcess_ << "'";
   }
   if ( autoProcessNameL1ExtraMu_ )      tagL1ExtraMu_      = InputTag( tagL1ExtraMu_.label()     , tagL1ExtraMu_.instance()     , nameProcess_ );
   if ( autoProcessNameL1ExtraNoIsoEG_ ) tagL1ExtraNoIsoEG_ = InputTag( tagL1ExtraNoIsoEG_.label(), tagL1ExtraNoIsoEG_.instance(), nameProcess_ );
@@ -219,9 +222,9 @@ void PATTriggerProducer::beginRun( Run & iRun, const EventSetup & iSetup )
   // Initialize HLTConfigProvider
   bool changed( true );
   if ( ! hltConfig_.init( iRun, iSetup, nameProcess_, changed ) ) {
-    LogError( "hltConfigExtraction" ) << "HLT config extraction error with process name '" << nameProcess_ << "'";
+    LogError( "hltConfig" ) << "HLT config extraction error with process name '" << nameProcess_ << "'";
   } else if ( hltConfig_.size() <= 0 ) {
-    LogError( "hltConfigSize" ) << "HLT config size error";
+    LogError( "hltConfig" ) << "HLT config size error";
   } else hltConfigInit_ = true;
 
   // Update mapping from filter names to path names
@@ -343,8 +346,10 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         }
       }
     } else if ( iEvent.isRealData() ) {
-      LogWarning( "hltPrescaleTable" ) << "No HLT prescale table found\n"
+      if ( ( labelHltPrescaleTable_.empty() && firstInRun_ ) || ! labelHltPrescaleTable_.empty() ) {
+        LogError( "hltPrescaleTable" ) << "No HLT prescale table found\n"
                                        << "Using default empty table with all prescales 1";
+      }
     }
 
     const unsigned sizePaths( hltConfig_.size() );
@@ -760,8 +765,21 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
       Handle< L1GlobalTriggerObjectMaps > handleL1GlobalTriggerObjectMaps;
       iEvent.getByLabel( tagL1GlobalTriggerObjectMaps_, handleL1GlobalTriggerObjectMaps );
       if( ! handleL1GlobalTriggerObjectMaps.isValid() ) {
-        LogWarning( "l1ObjectMap" ) << "L1GlobalTriggerObjectMaps product with InputTag '" << tagL1GlobalTriggerObjectMaps_.encode() << "' not in event\n"
+        LogError( "l1ObjectMap" ) << "L1GlobalTriggerObjectMaps product with InputTag '" << tagL1GlobalTriggerObjectMaps_.encode() << "' not in event\n"
                                     << "No L1 objects and GTL results available for physics algorithms";
+      }
+      handleL1GlobalTriggerObjectMaps->consistencyCheck();
+      if ( firstInRun_ ) {
+        l1PSet_ = ( ParameterSet* )( pset::Registry::instance()->getMapped(handleL1GlobalTriggerObjectMaps->namesParameterSetID()) );
+        if (l1PSet_ == 0) {
+          LogError( "l1ObjectMap" ) << "ParameterSet registry not available\n"
+                                    << "Skipping conditions for all L1 physics algorithm names in this run";
+        }
+      } else {
+        if (l1PSet_ == 0) {
+          LogInfo( "l1ObjectMap" ) << "ParameterSet registry not available\n"
+                                   << "Skipping conditions for all L1 physics algorithm names in this event";
+        }
       }
       // physics algorithms
       for ( CItAlgo iAlgo = l1GtAlgorithms.begin(); iAlgo != l1GtAlgorithms.end(); ++iAlgo ) {
@@ -815,18 +833,23 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         }
         triggerAlgo.setGtlResult( algorithmResult );
         // conditions in algorithm
-
-        edm::pset::Registry* psetRegistry = edm::pset::Registry::instance();
-        edm::ParameterSet const* pset = psetRegistry->getMapped(handleL1GlobalTriggerObjectMaps->namesParameterSetID());
-        if (pset == 0 || !pset->exists(algoName)) {
-          LogError( "l1ObjectMap" ) << "L1 physics algorithm names not available in ParameterSet registry\n"
-                                    << "Skipping conditions";
+        L1GlobalTriggerObjectMaps::ConditionsInAlgorithm conditions = handleL1GlobalTriggerObjectMaps->getConditionsInAlgorithm(bit);
+        if (l1PSet_ == 0) {
           triggerAlgos->push_back( triggerAlgo );
           continue;
         }
-
-        std::vector<std::string> conditionNames;
-        conditionNames = pset->getParameter<std::vector<std::string> >(algoName);
+        if (!l1PSet_->exists(algoName)) {
+          if ( firstInRun_ ) {
+            LogError( "l1ObjectMap" ) << "L1 physics algorithm name '" << algoName << "' not available in ParameterSet registry\n"
+                                      << "Skipping conditions for this algorithm in this run";
+          } else {
+            LogInfo( "l1ObjectMap" ) << "L1 physics algorithm name '" << algoName << "' not available in ParameterSet registry\n"
+                                     << "Skipping conditions for this algorithm in this event";
+          }
+          triggerAlgos->push_back( triggerAlgo );
+          continue;
+        }
+        std::vector<std::string> conditionNames( l1PSet_->getParameter<std::vector<std::string> >(algoName) );
 
         for ( unsigned iT = 0; iT < conditionNames.size(); ++iT ) {
           size_t key( triggerConditions->size() );
@@ -837,7 +860,11 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
             }
           }
           if ( key == triggerConditions->size() ) {
-            L1GlobalTriggerObjectMaps::ConditionsInAlgorithm conditions = handleL1GlobalTriggerObjectMaps->getConditionsInAlgorithm(bit);
+            if ( iT >= conditions.nConditions() ) {
+              LogError( "l1CondMap" ) << "More condition names from ParameterSet registry than the " << conditions.nConditions() << " conditions in L1GlobalTriggerObjectMaps\n"
+                                      << "Skipping condition " << conditionNames.at(iT) << " in algorithm " << algoName;
+              break;
+            }
             TriggerCondition triggerCond( conditionNames[iT], conditions.getConditionResult(iT) );
             if ( l1GtConditions.find( triggerCond.name() ) != l1GtConditions.end() ) {
               triggerCond.setCategory( l1GtConditions[ triggerCond.name() ]->condCategory() );
@@ -921,6 +948,8 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
 
   // Put (finally) stand-alone trigger objects to event
   iEvent.put( triggerObjectsStandAlone );
+
+  firstInRun_ = false;
 
 }
 
