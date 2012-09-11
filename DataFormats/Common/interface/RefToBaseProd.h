@@ -179,6 +179,10 @@ namespace edm {
       std::vector<void const*> pointers;
       helper_vector_ptr helpers;
       WrapperHolder it = product_.productGetter()->getIt(tId);
+      if(!it.isValid()) {
+        Exception::throwThis(errors::InvalidReference,
+                             "attempting to get view from an unavailable RefToBaseProd.");
+      }
       it.fillView(tId, pointers, helpers);
       product_.setProductPtr((new View<T>(pointers, helpers)));
     }
