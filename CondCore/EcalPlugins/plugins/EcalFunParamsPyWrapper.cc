@@ -43,7 +43,7 @@ namespace cond {
       ss << EcalClusterEnergyCorrectionXMLTranslator::dumpXML(header,object());
     else if(object().params().size() == 20)
       ss << EcalClusterCrackCorrXMLTranslator::dumpXML(header,object());
-    else if(object().params().size() == 11)
+    else if(object().params().size() == 11 || object().params().size() == 24)
       ss << EcalClusterLocalContCorrXMLTranslator::dumpXML(header,object());
     else if(object().params().size() == 208)
       ss << EcalClusterEnergyCorrectionObjectSpecificXMLTranslator::dumpXML(header,object());
