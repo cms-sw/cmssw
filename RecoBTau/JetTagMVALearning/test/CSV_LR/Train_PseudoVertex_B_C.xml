@@ -62,7 +62,7 @@
                         <group><box><range min="90" max="150"/><range/></box></group>
                         <group><box><range/><range min="-1.2" max="1.2"/></box></group>
                         <group><box><range/><range min="-2.1" max="2.1"/></box></group>
-                        
+                        <group><box><range/><range/></box></group>
                 </config>
                 <output>
                         <var name="category"/>
@@ -189,21 +189,21 @@
                 </input>
                 <config>
                         <bias_table><!--B_C-->
-                                <bias>2.02117</bias>
-				<bias>2.73574</bias>
-				<bias>3.04124</bias>
-				<bias>1.39427</bias>
-				<bias>1.60937</bias>
-				<bias>1.67324</bias>
-				<bias>1.12543</bias>
-				<bias>1.33962</bias>
-				<bias>1.35624</bias>
-				<bias>1.11452</bias>
-				<bias>1.07457</bias>
-				<bias>1.45962</bias>
-				<bias>1.03466</bias>
-				<bias>0.963433</bias>
-				<bias>1.01161</bias>
+<bias>2.68192</bias>
+<bias>3.52165</bias>
+<bias>3.93372</bias>
+<bias>1.49351</bias>
+<bias>1.79458</bias>
+<bias>1.80065</bias>
+<bias>1.18062</bias>
+<bias>1.34944</bias>
+<bias>1.65906</bias>
+<bias>1.11473</bias>
+<bias>1.12944</bias>
+<bias>1.33088</bias>
+<bias>1.0215</bias>
+<bias>0.941693</bias>
+<bias>0.988992</bias>
                         </bias_table><!--B_C-->
 			<category count="15"/>
 			<sigbkg lower="0" upper="1" size="100" smooth="3"/>
@@ -217,5 +217,6 @@
 		<var source="biaslkh2" name="biasdiscr2"/>
 	</output>
 </MVATrainer>
+
 
 

@@ -66,7 +66,7 @@
 			<group><box><range min="90" max="150"/><range/></box></group>
 			<group><box><range/><range min="-1.2" max="1.2"/></box></group>
 			<group><box><range/><range min="-2.1" max="2.1"/></box></group>
-			
+			<group><box><range/><range/></box></group>
 		</config>
 		<output>
 			<var name="category"/>
@@ -211,21 +211,21 @@
 		<config>
 			<general strict="false"/>
        <bias_table><!--B_DUSG-->
-        <bias>73.4032</bias>
-				<bias>53.6842</bias>
-				<bias>28.9836</bias>
-				<bias>40.4916</bias>
-				<bias>27.9614</bias>
-				<bias>19.4163</bias>
-				<bias>31.3001</bias>
-				<bias>21.0905</bias>
-				<bias>14.6575</bias>
-				<bias>25.5065</bias>
-				<bias>16.8402</bias>
-				<bias>11.7351</bias>
-				<bias>13.8672</bias>
-				<bias>8.56481</bias>
-				<bias>6.90638</bias>
+<bias>96.5156</bias>
+<bias>61.3339</bias>
+<bias>35.2754</bias>
+<bias>43.2362</bias>
+<bias>29.0747</bias>
+<bias>19.7429</bias>
+<bias>32.6876</bias>
+<bias>22.3204</bias>
+<bias>15.3301</bias>
+<bias>24.8373</bias>
+<bias>16.4807</bias>
+<bias>11.7144</bias>
+<bias>14.0845</bias>
+<bias>8.77361</bias>
+<bias>6.82609</bias>
        </bias_table><!--B_DUSG-->
 			<category count="15"/>
 			<sigbkg smooth="3"/>
@@ -366,21 +366,21 @@
 		<config>
 			<general strict="false"/>
        <bias_table><!--B_C-->
-        <bias>3.76366</bias>
-				<bias>4.18849</bias>
-				<bias>4.14512</bias>
-				<bias>3.20029</bias>
-				<bias>3.50683</bias>
-				<bias>3.90637</bias>
-				<bias>3.00289</bias>
-				<bias>3.17071</bias>
-				<bias>3.54318</bias>
-				<bias>2.8131</bias>
-				<bias>2.85764</bias>
-				<bias>3.07463</bias>
-				<bias>2.53865</bias>
-				<bias>2.47115</bias>
-				<bias>2.48927</bias>
+<bias>4.14228</bias>
+<bias>4.60684</bias>
+<bias>4.62942</bias>
+<bias>3.2694</bias>
+<bias>3.58343</bias>
+<bias>3.86204</bias>
+<bias>3.00886</bias>
+<bias>3.25509</bias>
+<bias>3.49604</bias>
+<bias>2.81767</bias>
+<bias>2.86255</bias>
+<bias>3.14994</bias>
+<bias>2.56136</bias>
+<bias>2.5106</bias>
+<bias>2.54221</bias>
        </bias_table><!--B_C-->
 			<category count="15"/>
 			<sigbkg smooth="3"/>
@@ -407,5 +407,6 @@
 	</output>
 
 </MVATrainer>
+
 
 
