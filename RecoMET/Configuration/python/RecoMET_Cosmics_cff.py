@@ -32,11 +32,6 @@ metrecoCosmics = cms.Sequence(
       metOptNoHF+
       calotoweroptmakerWithHO+
       metOptHO+metOptNoHFHO+
-      htMetSC5+
-      htMetSC7+
-      htMetKT4+
-      htMetKT6+
-      htMetIC5+
       muonMETValueMapProducer+
       corMetGlobalMuons+
       muonTCMETValueMapProducer+
@@ -55,11 +50,6 @@ metrecoCosmics_woBeamHaloId = cms.Sequence(
     metOptNoHF+
     calotoweroptmakerWithHO+
     metOptHO+metOptNoHFHO+
-    htMetSC5+
-    htMetSC7+
-    htMetKT4+
-    htMetKT6+
-    htMetIC5+
     muonMETValueMapProducer+
     corMetGlobalMuons+
     muonTCMETValueMapProducer+
@@ -77,11 +67,6 @@ metrecoCosmics_woHcalNoise = cms.Sequence(
     metOptNoHF+
     calotoweroptmakerWithHO+
     metOptHO+metOptNoHFHO+
-    htMetSC5+
-    htMetSC7+
-    htMetKT4+
-    htMetKT6+
-    htMetIC5+
     muonMETValueMapProducer+
     corMetGlobalMuons+
     muonTCMETValueMapProducer+
