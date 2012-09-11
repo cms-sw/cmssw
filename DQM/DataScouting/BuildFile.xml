@@ -3,6 +3,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/Math"/>
+<use name="DataFormats/METReco"/>
 <use name="DQMServices/Components"/>
 <use name="DQMServices/Core"/>
 
