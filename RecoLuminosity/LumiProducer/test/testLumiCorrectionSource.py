@@ -11,16 +11,20 @@ process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(-1)
 )
 
-process.DBService=cms.Service('DBService')
 process.source= cms.Source("PoolSource",
         processingMode=cms.untracked.string('RunsAndLumis'),        
         fileNames=cms.untracked.vstring(
-        'file:/data/cmsdata/200786/FC7E661B-C3E8-E111-A23E-003048D2BDD8.root')
+        #'file:/data/cmsdata/200786/FC7E661B-C3E8-E111-A23E-003048D2BDD8.root'
+        'file:testLumiProd-200786.root'
+        )
 )
+
 process.LumiCorrectionSource=cms.ESSource("LumiCorrectionSource",
-        connect=cms.string('frontier://LumiCalc/CMS_LUMI_PROD'),
-        normtag=cms.untracked.string('HFV2a'),
-        datatag=cms.untracked.string('v3')
+        authpath=cms.untracked.string('/afs/cern.ch/cms/lumi/DB'),
+        connect=cms.string('oracle://cms_orcon_adg/cms_lumi_prod')
+        #connect=cms.string('frontier://LumiCalc/CMS_LUMI_PROD'),
+        #normtag=cms.untracked.string('HFV2a')
+        #datatag=cms.untracked.string('v3')
 )
 process.prod = cms.EDAnalyzer("TestLumiCorrectionSource")
 

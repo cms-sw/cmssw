@@ -33,12 +33,14 @@ class LumiCorrectionSource: public edm::ESProducer , public edm::EventSetupRecor
                                const edm::IOVSyncValue&,
 			       edm::ValidityInterval& );
  private:
+  void reloadAuth();
   const std::string servletTranslation(const std::string& servlet) const;
   std::string x2s(const XMLCh* input)const;
   XMLCh* s2x(const std::string& input)const;
   std::string toParentString(const xercesc::DOMNode &nodeToConvert)const;
  private:
   std::string m_connectStr;
+  std::string m_authfilename;
   std::string m_datatag;
   std::string m_normtag;
   std::string m_siteconfpath;

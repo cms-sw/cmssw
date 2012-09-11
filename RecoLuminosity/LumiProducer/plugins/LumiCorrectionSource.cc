@@ -7,7 +7,7 @@
 Description: A essource/esproducer for lumi correction factor and run parameters needed to deduce the corrections
       Author: Zhen Xie
 */
-// $Id: LumiCorrectionSource.cc,v 1.12 2012/08/28 10:43:54 xiezhen Exp $
+// $Id: LumiCorrectionSource.cc,v 1.13 2012/08/28 14:46:56 xiezhen Exp $
 
 //#include <memory>
 //#include "boost/shared_ptr.hpp"
@@ -30,6 +30,10 @@ Description: A essource/esproducer for lumi correction factor and run parameters
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/Exception.h"
+#include "CoralKernel/Context.h"
+#include "RelationalAccess/IAuthenticationService.h"
+#include "RelationalAccess/ConnectionService.h"
+#include "CoralBase/Exception.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/AccessMode.h"
@@ -38,7 +42,8 @@ Description: A essource/esproducer for lumi correction factor and run parameters
 #include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
-#include "RecoLuminosity/LumiProducer/interface/DBService.h"
+#include "CoralKernel/IPropertyManager.h"
+#include "RelationalAccess/AuthenticationServiceException.h"
 #include "RecoLuminosity/LumiProducer/interface/Exception.h"
 #include "RecoLuminosity/LumiProducer/interface/ConstantDef.h"
 #include "RecoLuminosity/LumiProducer/interface/LumiCorrectionParam.h"
@@ -61,7 +66,7 @@ Description: A essource/esproducer for lumi correction factor and run parameters
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/util/XMLString.hpp>
-
+#include <boost/filesystem.hpp>
 #include "boost/filesystem/path.hpp"
 #include "boost/filesystem/operations.hpp"
 std::string 
@@ -180,6 +185,12 @@ LumiCorrectionSource::LumiCorrectionSource(const edm::ParameterSet& iConfig):m_c
     }
   }else{
     m_connectStr=connectStr;
+    std::string authpath=iConfig.getUntrackedParameter<std::string>("authpath","");
+    boost::filesystem::path boostAuthPath( authpath );
+    if(boost::filesystem::is_directory(boostAuthPath)){
+      boostAuthPath /= boost::filesystem::path("authentication.xml");      
+    }
+    m_authfilename = boostAuthPath.string();
   }
 }
 
@@ -217,15 +228,29 @@ LumiCorrectionSource::setIntervalFor(
   oValidity.setLast(iTime);
 }
 
+void 
+LumiCorrectionSource::reloadAuth(){
+  //std::cout<<"old authfile "<<coral::Context::instance().PropertyManager().property("AuthenticationFile")->get()<<std::endl;
+  coral::Context::instance().PropertyManager().property("AuthenticationFile")->set(m_authfilename);
+  coral::Context::instance().loadComponent("CORAL/Services/XMLAuthenticationService");
+}
+
 void
 LumiCorrectionSource::fillparamcache(unsigned int runnumber){
   m_paramcache.clear();
   m_paramcachedrun=runnumber;
-  edm::Service<lumi::service::DBService> mydbservice;
-  if( !mydbservice.isAvailable() ){
-    throw cms::Exception("Non existing service lumi::service::DBService");
+  coral::IHandle<coral::IAuthenticationService> authSvc=coral::Context::instance().query<coral::IAuthenticationService>();
+  if( authSvc.isValid() ){
+    try{
+      authSvc->credentials( m_connectStr );
+    }catch(const coral::UnknownConnectionException& er){
+      reloadAuth();
+    }
+  }else{
+    reloadAuth();
   }
-  coral::ISessionProxy* session=mydbservice->connectReadOnly(m_connectStr);
+  coral::ConnectionService* mydbservice=new coral::ConnectionService;
+  coral::ISessionProxy* session=mydbservice->connect(m_connectStr,coral::ReadOnly);
   coral::ITypeConverter& tconverter=session->typeConverter();
   tconverter.setCppTypeForSqlType(std::string("float"),std::string("FLOAT(63)"));
   tconverter.setCppTypeForSqlType(std::string("unsigned int"),std::string("NUMBER(10)"));
@@ -247,7 +272,8 @@ LumiCorrectionSource::fillparamcache(unsigned int runnumber){
       result->setNBX(0);
       m_paramcache.insert(std::make_pair(runnumber,result));
       session->transaction().commit();
-      mydbservice->disconnect(session);
+      delete session;
+      delete mydbservice;
       return;
     }
     
@@ -302,10 +328,12 @@ LumiCorrectionSource::fillparamcache(unsigned int runnumber){
     session->transaction().commit();
   }catch(const coral::Exception& er){
     session->transaction().rollback();
-    mydbservice->disconnect(session);
+    delete session;
+    delete mydbservice;
     throw cms::Exception("DatabaseError ")<<er.what();
   }
-  mydbservice->disconnect(session);
+  delete session;
+  delete mydbservice;
 }
 
 float 
