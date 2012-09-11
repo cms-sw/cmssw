@@ -32,8 +32,8 @@ setenv OLDPRERELEASE pre11
 setenv NEWPRERELEASE 
 
 if ( $STARTUP == True) then
-setenv OLDGLOBALTAG START60_V4_g495-v2
-setenv NEWGLOBALTAG START60_V4-v1
+setenv OLDGLOBALTAG PU_START60_V4_g495-v1
+setenv NEWGLOBALTAG PU_START60_V4-v1
 else 
 setenv OLDGLOBALTAG START53_V6-v1
 setenv NEWGLOBALTAG START53_V6-v1
@@ -62,7 +62,7 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 
 #Name of sample (affects output directory name and htmldescription only) 
 
-setenv PU False
+setenv PU True
 #setenv SAMPLE SingleGammaPt10
 #setenv SAMPLE SingleGammaPt35
 ##setenv SAMPLE SingleGammaFlatPt10_100
@@ -548,19 +548,24 @@ EOF
   setenv N `expr $N + 1`
 end
 
-
-
-
 foreach i (`cat scaledhistosForPhotons`)
   cat > temp$N.C <<EOF
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
+c$i->Divide(1,2);
+c$i->cd(1);
 //file_new->cd("DQMData/EgammaV/PhotonValidator/Photons");
 file_new->cd("$HISTOPATHNAME_Photons");
+int nBins = $i->GetNbinsX();
+float xMin=$i->GetBinLowEdge(1);
+float xMax=$i->GetBinLowEdge(nBins)+$i->GetBinWidth(nBins);
 Double_t mnew=$i->GetMaximum();
 Double_t nnew=$i->GetEntries();
 //file_old->cd("DQMData/EgammaV/PhotonValidator/Photons");
 file_old->cd("$HISTOPATHNAME_Photons");
+
+TH1F* hold=new  TH1F("hold"," ",nBins,xMin,xMax);
+hold=$i;
 Double_t mold=$i->GetMaximum();
 Double_t nold=$i->GetEntries();
 if ( $i==scEAll || $i==phoEAll ) {  
@@ -587,9 +592,33 @@ $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 //$i->SetLineWidth(1);
 $i->Scale(nold/nnew);
+TH1F* hnew=new  TH1F("hnew"," ",nBins,xMin,xMax);
+hnew=$i;
 $i->Draw("e1same");
+c$i->cd(2);
+TH1F* ratio=new  TH1F("ratio"," ",nBins,xMin,xMax);
+ratio->Divide(hnew,hold);
+for ( int i=1; i<=ratio->GetNbinsX(); i++ ) {
+float num=hnew->GetBinContent(i);
+float den=hold->GetBinContent(i);
+float dNum=hnew->GetBinError(i);
+float dDen=hold->GetBinError(i);
+float erro=0;
+if ( num!=0 && den!=0) {
+erro= ((1./den)*(1./den)*dNum*dNum) + ((num*num)/(den*den*den*den) * (dDen*dDen));
+erro=sqrt(erro);
+}
+ratio->SetBinError(i, erro);
+}
+ratio->SetStats(0);
+ratio->SetLineColor(1);
+ratio->SetLineWidth(2);
+ratio->Draw("e1");
+TLine *l = new TLine(0..,1.,xMax,1.);
+l->Draw(); 
 c$i->SaveAs("gifs/$i.gif");
-
+//TString gifName=TString("gifs/$i")+"_ratio.gif";
+//c$i->SaveAs(gifName);
 EOF
   setenv N `expr $N + 1`
 end

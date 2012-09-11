@@ -19,17 +19,17 @@
 setenv TYPE Photons
 setenv CMSSWver1 6_0_0
 setenv RELEASE 6_0_0
-setenv PRERELEASE pre10
+setenv PRERELEASE 
 
 setenv FULLGLOBALTAG START60_V4-v1
 setenv FASTGLOBALTAG START60_V4_FastSim-v1
 
-setenv RELEASE ${RELEASE}_${PRERELEASE}
-#setenv RELEASE ${RELEASE}
+#setenv RELEASE ${RELEASE}_${PRERELEASE}
+setenv RELEASE ${RELEASE}
 
 
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${PRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${PRERELEASE}/src/Validation/RecoEgamma/test
 
 
 #Name of sample (affects output directory name and htmldescription only) 
@@ -337,12 +337,25 @@ foreach i (`cat scaledhistosForPhotons`)
   cat > temp$N.C <<EOF
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
+c$i->Divide(1,2);
+c$i->cd(1);
+//file_new->cd("DQMData/EgammaV/PhotonValidator/Photons");
 file_new->cd("$HISTOPATHNAME_Photons");
+int nBins = $i->GetNbinsX();
+float xMin=$i->GetBinLowEdge(1);
+float xMax=$i->GetBinLowEdge(nBins)+$i->GetBinWidth(nBins);
 Double_t mnew=$i->GetMaximum();
 Double_t nnew=$i->GetEntries();
+//file_old->cd("DQMData/EgammaV/PhotonValidator/Photons");
 file_old->cd("$HISTOPATHNAME_Photons");
+
+TH1F* hold=new  TH1F("hold"," ",nBins,xMin,xMax);
+hold=$i;
 Double_t mold=$i->GetMaximum();
 Double_t nold=$i->GetEntries();
+if ( $i==scEAll || $i==phoEAll ) {  
+$i->GetYaxis()->SetRangeUser(0.,2000.);
+}
 $i->SetStats(0);
 $i->SetMinimum(0.);
 //if ( mnew > mold) 
@@ -354,6 +367,7 @@ $i->SetLineColor(kPink+8);
 $i->SetFillColor(kPink+8);
 //$i->SetLineWidth(3);
 $i->Draw();
+//file_new->cd("DQMData/EgammaV/PhotonValidator/Photons");
 file_new->cd("$HISTOPATHNAME_Photons");
 Double_t nnew=$i->GetEntries();
 $i->SetStats(0);
@@ -363,12 +377,39 @@ $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 //$i->SetLineWidth(1);
 $i->Scale(nold/nnew);
+TH1F* hnew=new  TH1F("hnew"," ",nBins,xMin,xMax);
+hnew=$i;
 $i->Draw("e1same");
+c$i->cd(2);
+TH1F* ratio=new  TH1F("ratio"," ",nBins,xMin,xMax);
+ratio->Divide(hnew,hold);
+for ( int i=1; i<=ratio->GetNbinsX(); i++ ) {
+float num=hnew->GetBinContent(i);
+float den=hold->GetBinContent(i);
+float dNum=hnew->GetBinError(i);
+float dDen=hold->GetBinError(i);
+float erro=0;
+if ( num!=0 && den!=0) {
+erro= ((1./den)*(1./den)*dNum*dNum) + ((num*num)/(den*den*den*den) * (dDen*dDen));
+erro=sqrt(erro);
+}
+ratio->SetBinError(i, erro);
+}
+ratio->SetStats(0);
+ratio->SetLineColor(1);
+ratio->SetLineWidth(2);
+ratio->Draw("e1");
+TLine *l = new TLine(0..,1.,xMax,1.);
+l->Draw(); 
 c$i->SaveAs("gifs/$i.gif");
-
+//TString gifName=TString("gifs/$i")+"_ratio.gif";
+//c$i->SaveAs(gifName);
 EOF
   setenv N `expr $N + 1`
 end
+
+
+
 
 
 foreach i (`cat scaledhistosForPhotonsLogScale`)
