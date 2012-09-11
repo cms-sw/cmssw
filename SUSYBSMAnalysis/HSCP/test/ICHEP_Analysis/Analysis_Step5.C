@@ -74,6 +74,11 @@ void Analysis_Step5()
    CheckPrediction(InputPattern, "", "Data11");
    CheckPrediction(InputPattern, "_Flip", "Data11");
 
+   InputPattern = "Results/Type5/";   CutIndex = 67; CutIndex_Flip=2;
+   SelectionPlot(InputPattern, CutIndex);
+   CutFlow(InputPattern);
+
+
      //This function has not yet been reviewed after july's update
 //   MakeExpLimitpLot("Results_1toys_lp/dedxASmi/combined/Eta15/PtMin35/Type0/EXCLUSION/Stop200.info","tmp1.png");
 }
@@ -691,7 +696,7 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
     }
 
     for(unsigned int s=0;s<samples.size();s++){
-       if (samples[s].Name!="Gluino300_f10" && samples[s].Name!="Gluino600_f10" && samples[s].Name!="Gluino800_f10" && samples[s].Name!="GMStau247" && samples[s].Name!="GMStau370" && samples[s].Name!="GMStau494") continue;
+       if (samples[s].Name!="Gluino300_f10" && samples[s].Name!="Gluino600_f10" && samples[s].Name!="Gluino800_f10" && samples[s].Name!="GMStau247" && samples[s].Name!="GMStau370" && samples[s].Name!="GMStau494" && samples[s].Name!="DY_M100_Q1o3" &&  samples[s].Name!="DY_M400_Q1o3" && samples[s].Name!="DY_M100_Q2o3" &&  samples[s].Name!="DY_M400_Q2o3") continue;
        stPlots_InitFromFile(InputFile, SignPlots[s],samples[s].Name);
        stPlots_Draw(SignPlots[s], InputPattern + "/Selection_" +  samples[s].Name, LegendTitle, CutIndex);
     }
@@ -705,13 +710,14 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
     }
 
     stPlots_DrawComparison(InputPattern + "/Selection_Comp_Data"  , LegendTitle, CutIndex, &Data12Plots, &Data11Plots, &MCTrPlots);
-    stPlots_DrawComparison(InputPattern + "/Selection_Comp_Gluino", LegendTitle, CutIndex, &Data12Plots, &MCTrPlots, &SignPlots[JobIdToIndex("Gluino300_f10",samples)], &SignPlots[JobIdToIndex("Gluino600_f10",samples)], &SignPlots[JobIdToIndex("Gluino800_f10",samples)]);
-    if(TypeMode==3) stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic"  , LegendTitle, CutIndex, &Data12Plots, &Cosmic12Plots, &SignPlots[JobIdToIndex("Gluino800_f10",samples)]);
+    if(TypeMode<=2) stPlots_DrawComparison(InputPattern + "/Selection_Comp_Gluino", LegendTitle, CutIndex, &Data12Plots, &MCTrPlots,     &SignPlots[JobIdToIndex("Gluino300_f10",samples)], &SignPlots[JobIdToIndex("Gluino600_f10",samples)], &SignPlots[JobIdToIndex("Gluino800_f10",samples)]);
+    if(TypeMode==3) stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic", LegendTitle, CutIndex, &Data12Plots, &Cosmic12Plots, &SignPlots[JobIdToIndex("Gluino800_f10",samples)]);
+    if(TypeMode==5) stPlots_DrawComparison(InputPattern + "/Selection_Comp_DY"    , LegendTitle, CutIndex, &Data12Plots,                 &SignPlots[JobIdToIndex("DY_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_M400_Q2o3",samples)]);
     stPlots_Clear(&Data12Plots);
     stPlots_Clear(&Data11Plots);
     stPlots_Clear(&MCTrPlots);
     for(unsigned int s=0;s<samples.size();s++){
-       if (samples[s].Name!="Gluino300_f10" && samples[s].Name!="Gluino600_f10" && samples[s].Name!="Gluino800_f10" && samples[s].Name!="GMStau247" && samples[s].Name!="GMStau370" && samples[s].Name!="GMStau494") continue;      
+       if (samples[s].Name!="Gluino300_f10" && samples[s].Name!="Gluino600_f10" && samples[s].Name!="Gluino800_f10" && samples[s].Name!="GMStau247" && samples[s].Name!="GMStau370" && samples[s].Name!="GMStau494" && samples[s].Name!="DY_M100_Q1o3" &&  samples[s].Name!="DY_M400_Q1o3" && samples[s].Name!="DY_M100_Q2o3" &&  samples[s].Name!="DY_M400_Q2o3") continue;
        stPlots_Clear(&SignPlots[s]);
     }
     InputFile->Close();
