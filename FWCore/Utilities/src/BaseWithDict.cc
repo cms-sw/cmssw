@@ -9,4 +9,14 @@ namespace edm {
   BaseWithDict::toType() const {
     return (TypeWithDict(base_.ToType()));
   }
+
+  std::string
+  BaseWithDict::name() const {
+    return base_.Name();
+  }
+
+  bool
+  BaseWithDict::isPublic() const {
+    return base_.IsPublic();
+  }
 }

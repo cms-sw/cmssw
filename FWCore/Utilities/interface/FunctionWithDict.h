@@ -22,7 +22,7 @@ namespace edm {
 
     explicit FunctionWithDict(Reflex::Member const& function) : function_(function) {}
 
-    std::string name() const {return function_.Name();}
+    std::string name() const;
 
     std::string typeName() const;
 
@@ -30,35 +30,21 @@ namespace edm {
 
     TypeWithDict typeOf() const;
 
-    bool isConst() const {
-      return function_.IsConst();
-    }
+    bool isConst() const;
 
-    bool isConstructor() const {
-      return function_.IsConstructor();
-    }
+    bool isConstructor() const;
 
-    bool isDestructor() const {
-      return function_.IsDestructor();
-    }
+    bool isDestructor() const;
 
-    bool isOperator() const {
-      return function_.IsOperator();
-    }
+    bool isOperator() const;
 
-    bool isPublic() const {
-      return function_.IsPublic();
-    }
+    bool isPublic() const;
 
-    bool isStatic() const {
-      return function_.IsStatic();
-    }
+    bool isStatic() const;
 
     TypeWithDict returnType() const;
 
-    size_t functionParameterSize(bool required = false) const {
-      return function_.FunctionParameterSize(required);
-    }
+    size_t functionParameterSize(bool required = false) const;
 
     void invoke(ObjectWithDict const& obj, ObjectWithDict* ret, std::vector<void*> const& values = std::vector<void*>()) const;
 
@@ -69,9 +55,7 @@ namespace edm {
     }
 
 #ifndef __GCCXML__
-    explicit operator bool() const {
-      return bool(function_);
-    }
+    explicit operator bool() const;
 #endif
 
   private:

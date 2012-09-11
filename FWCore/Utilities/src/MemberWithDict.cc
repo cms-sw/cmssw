@@ -12,6 +12,11 @@ namespace edm {
     return (ObjectWithDict(member_.Get()));
   }
 
+  std::string
+  MemberWithDict::name() const {
+    return member_.Name();
+  }
+
   ObjectWithDict
   MemberWithDict::get(ObjectWithDict const& obj) const {
     return (ObjectWithDict(member_.Get(obj.object_)));
@@ -26,4 +31,34 @@ namespace edm {
   MemberWithDict::declaringType() const {
     return (TypeWithDict(member_.DeclaringType()));
   }
+
+  bool
+  MemberWithDict::isConst() const {
+    return member_.IsConst();
+  }
+
+  bool
+  MemberWithDict::isPublic() const {
+    return member_.IsPublic();
+  }
+
+  bool
+  MemberWithDict::isStatic() const {
+    return member_.IsStatic();
+  }
+
+  bool
+  MemberWithDict::isTransient() const {
+    return member_.IsTransient();
+  }
+
+  size_t
+  MemberWithDict::offset() const {
+    return member_.Offset();
+  }
+
+  MemberWithDict::operator bool() const {
+    return bool(member_);
+  }
+
 }

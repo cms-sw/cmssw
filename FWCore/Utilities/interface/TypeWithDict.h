@@ -59,8 +59,7 @@ namespace edm {
     explicit TypeWithDict(T const& t) : type_(Reflex::Type::ByTypeInfo(typeid(t))) {
     }
 
-    TypeWithDict(TypeWithDict const& type, TypeModifiers modifiers) : type_(Reflex::Type(type.type_, modifiers)) {
-    }
+    TypeWithDict(TypeWithDict const& type, TypeModifiers modifiers);
 
     explicit TypeWithDict(Reflex::Type const& type);
 
@@ -78,49 +77,27 @@ namespace edm {
 
     bool hasDictionary() const;
 
-    bool isClass() const {
-      return type_.IsClass();
-    }
+    bool isClass() const;
 
-    bool isConst() const {
-      return type_.IsConst();
-    }
+    bool isConst() const;
 
-    bool isEnum() const {
-      return type_.IsEnum();
-    }
+    bool isEnum() const;
 
-    bool isFundamental() const {
-      return type_.IsFundamental();
-    }
+    bool isFundamental() const;
 
-    bool isPointer() const {
-      return type_.IsPointer();
-    }
+    bool isPointer() const;
 
-    bool isReference() const {
-      return type_.IsReference();
-    }
+    bool isReference() const;
 
-    bool isStruct() const {
-      return type_.IsStruct();
-    }
+    bool isStruct() const;
 
-    bool isTemplateInstance() const {
-      return type_.IsTemplateInstance();
-    }
+    bool isTemplateInstance() const;
 
-    bool isTypedef() const {
-      return type_.IsTypedef();
-    }
+    bool isTypedef() const;
 
-    TypeWithDict finalType() const {
-      return TypeWithDict(type_.FinalType());
-    }
+    TypeWithDict finalType() const;
 
-    TypeWithDict toType() const {
-      return TypeWithDict(type_.ToType());
-    }
+    TypeWithDict toType() const;
 
     TypeWithDict nestedType(char const* name) const;
 
@@ -128,17 +105,13 @@ namespace edm {
       return nestedType(name.c_str());
     }
 
-    TypeWithDict templateArgumentAt(size_t index) const {
-      return TypeWithDict(type_.TemplateArgumentAt(index));
-    }
+    TypeWithDict templateArgumentAt(size_t index) const;
 
     ObjectWithDict construct() const;
 
     ObjectWithDict construct(TypeWithDict const& type, std::vector<void *> const& args) const;
 
-    void destruct(void * address, bool dealloc = true) const {
-      type_.Destruct(address, dealloc);
-    }
+    void destruct(void * address, bool dealloc = true) const;
 
     void const* pointerToContainedType(void const* ptr, TypeWithDict const& containedType) const;
 
@@ -148,29 +121,17 @@ namespace edm {
       theFunction.Invoke(obj);
     }
 
-    std::string name(int mod = Reflex::FINAL|Reflex::SCOPED) const {
-      return type_.Name(mod);
-    }
+    std::string name(int mod = Reflex::FINAL|Reflex::SCOPED) const;
 
-    void* id() const {
-      return type_.Id();
-    }
+    void* id() const;
 
 #ifndef __GCCXML__
     explicit operator bool() const;
 #endif
     
-    bool operator<(TypeWithDict const& b) const { return typeInfo().before(b.typeInfo()); }
+    bool isEquivalentTo(TypeWithDict const& other) const;
 
-    bool operator==(TypeWithDict const& b) const {return typeInfo() == b.typeInfo();}
-
-    bool isEquivalentTo(TypeWithDict const& other) const {
-      return type_.IsEquivalentTo(other.type_);
-    }
-
-    std::type_info const& typeInfo() const {
-      return type_.TypeInfo();
-    }
+    std::type_info const& typeInfo() const;
 
     MemberWithDict dataMemberByName(std::string const& member) const;
 
@@ -178,17 +139,11 @@ namespace edm {
 
     FunctionWithDict functionMemberByName(std::string const& member, TypeWithDict const& signature, int mods, TypeMemberQuery memberQuery) const;
 
-    size_t dataMemberSize() const {
-      return type_.DataMemberSize();
-    }
+    size_t dataMemberSize() const;
 
-    size_t functionMemberSize() const {
-      return type_.FunctionMemberSize();
-    }
+    size_t functionMemberSize() const;
 
-    size_t size() const {
-      return type_.SizeOf();
-    }
+    size_t size() const;
 
     void* allocate() const {
       return new char[size()];
@@ -211,6 +166,14 @@ namespace edm {
     Reflex::Type type_;
   };
 
+  inline bool operator<(TypeWithDict const& a, TypeWithDict const& b) {
+    return a.typeInfo().before(b.typeInfo());
+  }
+
+  inline bool operator==(TypeWithDict const& a, TypeWithDict const& b) {
+    return a.typeInfo() == b.typeInfo();
+  }
+
   inline bool operator!=(TypeWithDict const& a, TypeWithDict const& b) {
     return !(a == b);
   }
@@ -226,14 +189,9 @@ namespace edm {
     static TypeTemplateWithDict
     byName(std::string const& templateName, int n);
 
-    bool operator==(TypeTemplateWithDict const& other) {
-      return typeTemplate_ == other.typeTemplate_;
-    }
+    std::string name(int mod = 0) const;
 
-    std::string name(int mod = 0) const {
-      return typeTemplate_.Name(mod);
-    }
-
+    bool operator==(TypeTemplateWithDict const& other) const;
 
 #ifndef __GCCXML__
     explicit operator bool() const;

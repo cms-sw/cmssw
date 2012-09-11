@@ -22,6 +22,9 @@ namespace edm {
   TypeWithDict::TypeWithDict(Reflex::Type const& type) : type_(type) {
   }
 
+  TypeWithDict::TypeWithDict(TypeWithDict const& type, TypeModifiers modifiers) : type_(Reflex::Type(type.type_, modifiers)) {
+  }
+
   void
   TypeWithDict::print(std::ostream& os) const {
     try {
@@ -136,6 +139,106 @@ namespace {
     return FunctionWithDict(type_.FunctionMemberByName(member, signature.type_, mods, static_cast<Reflex::EMEMBERQUERY>(memberQuery)));
   }
 
+  bool
+  TypeWithDict::isClass() const {
+    return type_.IsClass();
+  }
+
+  bool
+  TypeWithDict::isConst() const {
+    return type_.IsConst();
+  }
+
+  bool
+  TypeWithDict::isEnum() const {
+    return type_.IsEnum();
+  }
+
+  bool
+  TypeWithDict::isFundamental() const {
+    return type_.IsFundamental();
+  }
+
+  bool
+  TypeWithDict::isPointer() const {
+    return type_.IsPointer();
+  }
+
+  bool
+  TypeWithDict::isReference() const {
+    return type_.IsReference();
+  }
+
+  bool
+  TypeWithDict::isStruct() const {
+    return type_.IsStruct();
+  }
+
+  bool
+  TypeWithDict::isTemplateInstance() const {
+    return type_.IsTemplateInstance();
+  }
+
+  bool
+  TypeWithDict::isTypedef() const {
+    return type_.IsTypedef();
+  }
+
+  TypeWithDict
+  TypeWithDict::finalType() const {
+    return TypeWithDict(type_.FinalType());
+  }
+
+  TypeWithDict
+  TypeWithDict::toType() const {
+    return TypeWithDict(type_.ToType());
+  }
+
+  TypeWithDict
+  TypeWithDict::templateArgumentAt(size_t index) const {
+    return TypeWithDict(type_.TemplateArgumentAt(index));
+  }
+
+  void
+  TypeWithDict::destruct(void* address, bool dealloc) const {
+    type_.Destruct(address, dealloc);
+  }
+
+  std::string
+  TypeWithDict::name(int mod) const {
+    return type_.Name(mod);
+  }
+
+  void*
+  TypeWithDict::id() const {
+    return type_.Id();
+  }
+
+  bool
+  TypeWithDict::isEquivalentTo(TypeWithDict const& other) const {
+    return type_.IsEquivalentTo(other.type_);
+  }
+
+  std::type_info const&
+  TypeWithDict::typeInfo() const {
+    return type_.TypeInfo();
+  }
+
+  size_t
+  TypeWithDict::dataMemberSize() const {
+    return type_.DataMemberSize();
+  }
+
+  size_t
+  TypeWithDict::functionMemberSize() const {
+    return type_.FunctionMemberSize();
+  }
+
+  size_t
+  TypeWithDict::size() const {
+    return type_.SizeOf();
+  }
+
   TypeTemplateWithDict::TypeTemplateWithDict(TypeWithDict const& type) : typeTemplate_(type.type_.TemplateFamily()) {
   }
 
@@ -146,6 +249,16 @@ namespace {
   TypeTemplateWithDict::byName(std::string const& templateName, int n) {
     Reflex::TypeTemplate t = Reflex::TypeTemplate::ByName(templateName, n);
     return(bool(t) ? TypeTemplateWithDict(t) : TypeTemplateWithDict());
+  }
+
+  std::string
+  TypeTemplateWithDict::name(int mod) const {
+    return typeTemplate_.Name(mod);
+  }
+
+  bool
+  TypeTemplateWithDict::operator==(TypeTemplateWithDict const& other) const {
+    return typeTemplate_ == other.typeTemplate_;
   }
 
   TypeTemplateWithDict::operator bool() const {
@@ -204,4 +317,3 @@ namespace {
   }
 
 }
-

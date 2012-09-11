@@ -22,7 +22,7 @@ namespace edm {
 
     explicit MemberWithDict(Reflex::Member const& member) : member_(member) {}
 
-    std::string name() const {return member_.Name();}
+    std::string name() const;
 
     ObjectWithDict get() const;
 
@@ -32,30 +32,18 @@ namespace edm {
 
     TypeWithDict typeOf() const;
 
-    bool isConst() const {
-      return member_.IsConst();
-    }
+    bool isConst() const;
 
-    bool isPublic() const {
-      return member_.IsPublic();
-    }
+    bool isPublic() const;
 
-    bool isStatic() const {
-      return member_.IsStatic();
-    }
+    bool isStatic() const;
 
-    bool isTransient() const {
-      return member_.IsTransient();
-    }
+    bool isTransient() const;
 
-    size_t offset() const {
-      return member_.Offset();
-    }
+    size_t offset() const;
 
 #ifndef __GCCXML__
-    explicit operator bool() const {
-      return bool(member_);
-    }
+    explicit operator bool() const;
 #endif
 
   private:

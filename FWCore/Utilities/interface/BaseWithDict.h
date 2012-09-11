@@ -21,11 +21,11 @@ namespace edm {
 
     explicit BaseWithDict(Reflex::Base const& base) : base_(base) {}
 
-    std::string name() const {return base_.Name();}
+    std::string name() const;
 
     TypeWithDict toType() const;
 
-    bool isPublic() const {return base_.IsPublic();}
+    bool isPublic() const;
 
   private:
 
