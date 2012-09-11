@@ -464,7 +464,7 @@ streamA_datasetMultiJet1Parked_selector.triggerConditions = cms.vstring('HLT_DiJ
     'HLT_ExclDiJet35_HFAND_v4', 
     'HLT_ExclDiJet35_HFOR_v4', 
     'HLT_ExclDiJet80_HFAND_v4', 
-    'HLT_QuadJet50_Jet20_v4', 
+    'HLT_QuadJet45_v1', 
     'HLT_QuadJet50_v5', 
     'HLT_QuadJet60_DiJet20_v6', 
     'HLT_QuadJet70_v6', 
