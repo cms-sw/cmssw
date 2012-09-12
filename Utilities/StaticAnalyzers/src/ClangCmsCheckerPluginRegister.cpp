@@ -28,8 +28,6 @@ void clang_registerCheckers ( clang::ento::CheckerRegistry &registry)
 	registry.addChecker< clangcms::MutableMemberChecker>( "threadsafety.MutableMember", "Checks for members with the mutable keyword which might not be thread-safe" );
 	registry.addChecker< clangcms::GlobalStaticChecker>( "threadsafety.GlobalStatic", "Checks for global non-const statics which might not be thread-safe" );
 	registry.addChecker< clangcms::ClassCheckerRDecl>( "threadsafety.Class", "Reports classes " );
-//	registry.addChecker< clangcms::ClassCheckerMDecl>( "threadsafety.Class"", "Reports classes " );
-//	registry.addChecker< clangcms::ClassCheckerMCall>( "threadsafety.Class"", "Reports classes " );
 }
 
 extern "C"

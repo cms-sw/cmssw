@@ -19,89 +19,11 @@
 
 #include "ClassChecker.h"
 
+using namespace clang;
+using namespace clang::ento;
+using namespace llvm;
+
 namespace clangcms {
-
-void ClassCheckerMDecl::checkASTDecl(const clang::CXXMethodDecl *D,
-                    clang::ento::AnalysisManager &Mgr,
-                    clang::ento::BugReporter &BR) const
-{
-//	if ( D->getNameAsString() == "produce" 
-//		|| D->getNameAsString() == "beginRun" 
-//		|| D->getNameAsString() == "endRun" 
-//		|| D->getNameAsString() == "beginLuminosityBlock" 
-//		|| D->getNameAsString() == "endLuminosityBlock" )
-	{	    
-
-	    clang::ento::PathDiagnosticLocation PLoc =
-  	    clang::ento::PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
-	    if ( ! m_exception.reportGeneral( PLoc, BR ) ) return; 
-	    const clang::CXXRecordDecl* P= D->getParent(); 
-	    clang::SourceRange R = D->getSourceRange();
-	    std::string buf;
-	    llvm::raw_string_ostream os(buf);
-	    os << "Declaration of Method  ";
-	    D->printName(os);
-	    os <<" in Class " << *P <<" .\n";
-	    llvm::outs()<<os.str();	
-//	    if (  !m_exception.reportClass( PLoc, BR ) ) return; 
-//		BR.EmitBasicReport(D, "Class Checker CXXMethodDecl","ThreadSafety",os.str(), PLoc,R);
-		if (D->hasBody()){
-			clang::Stmt* S = D->getBody();
-			for (clang::Stmt::const_child_iterator
-				c = S->child_begin(), e=S->child_end();c !=e; ++c) {
-				if ( llvm::isa<clang::CXXMemberCallExpr>(*c) ) {
-					const clang::CXXMemberCallExpr * ce = llvm::cast<clang::CXXMemberCallExpr>(*c);
-					clang::CXXMethodDecl *D = ce->getMethodDecl();
-					const clang::CXXRecordDecl* P = ce->getRecordDecl();
-					clang::ento::PathDiagnosticLocation DLoc =                                                                                 
-                                               clang::ento::PathDiagnosticLocation::createBegin(ce->getDirectCallee(), BR.getSourceManager());
-  					clang::SourceRange R = ce->getCallee()->getSourceRange();
-    					std::string buf;
-	    				llvm::raw_string_ostream os(buf);
-					os<< "CXXMemberCallExpr "<< *ce->getDirectCallee();
-					os<<" MethodDecl "<<*D <<" RecordDecl " << *P << " .\n";
-					llvm::outs()<<os.str();
-//					if (  !m_exception.reportClass( DLoc, BR ) ) continue;
-//					BR.EmitBasicReport(ce->getCalleeDecl(),"Class Checker CXXMemberCallExpr in CXXMethodDecl","ThreadSafety",os.str(), DLoc,R);
-				
-					}
-				}
-			} 
-
-	} //Method Name check
-}
-
-
-
-void ClassCheckerMCall::checkPostStmt(const clang::CXXMemberCallExpr *CE,
-		clang::ento::CheckerContext &C) const 
-{	
-	
-	clang::CXXMethodDecl *D = CE->getMethodDecl();
-	const clang::CXXRecordDecl *P = CE->getRecordDecl();
-	if ( CE->getNumArgs() == 0) return;	
-	
-	if (clang::ento::ExplodedNode *errorNode = C.addTransition()) {
-		if (!BT)
-			BT.reset(new clang::ento::BugType("Class Checker CXXMemberCallExpr", "ThreadSafety"));
-	    	std::string buf;
-	    	llvm::raw_string_ostream os(buf);
-	    	os << "CXXMemberCallExpression"<< CE->getCalleeDecl()<<" MethodDecl "<< *D << " CXXRecordDecl " << *P <<".\n";
-		for ( clang::CallExpr::const_arg_iterator I=CE->arg_begin(), E=CE->arg_end(); I != E;++I)
-		{
-			os <<" Arg "<< *I <<" ";
-		}
-		os<<"\n"; 
- 		llvm::outs()<<os.str();
-		clang::ento::BugReport *R = new clang::ento::BugReport(*BT, os.str(), errorNode);
-		R->addRange(CE->getSourceRange());
-//	   	if ( !m_exception.reportConstCast( *R, C ) ) return;
-//		C.EmitReport(R);
-	}
-
-}
-
-
 
 class WalkAST : public clang::StmtVisitor<WalkAST> {
   clang::ento::BugReporter &BR;
@@ -138,6 +60,7 @@ public:
     : BR(br),
       AC(ac),
       visitingCallExpr(0) {}
+
   
   bool hasWork() const { return !WList.empty(); }
 
@@ -186,8 +109,9 @@ public:
   }
 
   // Stmt visitor methods.
+//  void VisitExpr(clang::Expr *E);
   void VisitCallExpr(clang::CallExpr *CE);
-  void VisitCXXMemberCallExpr(clang::CallExpr *CE);
+  void VisitCXXMemberCallExpr(clang::CXXMemberCallExpr *CE);
   void VisitStmt(clang::Stmt *S) { VisitChildren(S); }
   void VisitChildren(clang::Stmt *S);
   
@@ -210,13 +134,133 @@ void WalkAST::VisitCallExpr(clang::CallExpr *CE) {
   Enqueue(CE);
 }
 
-void WalkAST::VisitCXXMemberCallExpr(clang::CallExpr *CE) {
-  VisitChildren(CE);
+//void WalkAST::VisitExpr(clang::Expr *E) {
+//
+//  if (llvm::dyn_cast<clang::CXXThisExpr>(E)){
+//	llvm::errs()<<"CXXThisExpr\n\n";
+//	E->dump();
+//	llvm::errs()<<"\n\n";
+//	E->dumpPretty(AC->getASTContext());
+//	llvm::errs()<<"\n\n";
+//  }
   
-  ReportCall(CE);
+//}
 
-  Enqueue(CE);
+void WalkAST::VisitCXXMemberCallExpr(clang::CXXMemberCallExpr *CE) {
+
+
+clang::MemberExpr * ME = clang::dyn_cast<clang::MemberExpr>(CE->getCallee());
+clang::Expr * IOA = CE->getImplicitObjectArgument();
+clang::RecordDecl * RD = CE->getRecordDecl();
+clang::CXXMethodDecl * MD = CE->getMethodDecl();
+clang::RecordDecl * MRD = MD->getParent();
+clang::QualType MQT = MD->getThisType(AC->getASTContext());
+const clang::CXXRecordDecl * ACD = llvm::dyn_cast<clang::CXXRecordDecl>(AC->getDecl());
+
+
+//if (CE->HasSideEffects(AC->getASTContext())) 
+//if (ME->isBoundMemberFunction(AC->getASTContext())) 
+//if (!(CE->isRValue()))
+{
+		
+		llvm::errs()<<"\n Record Decl name\n";
+		ACD->printName(llvm::errs());
+		llvm::errs()<<"\n Method Decl name\n";
+		MD->printName(llvm::errs());
+		llvm::errs()<<"\n Qual Type MD this\n";
+		MQT.dump();
+		llvm::errs()<<"\n Parent Decl name\n";
+		RD->printName(llvm::errs());
+		llvm::errs()<<"\n Method Decl Parent Decl name\n";
+		MRD->printName(llvm::errs());
+		llvm::errs()<<"\n";
+		llvm::errs()<<"\n CXXMemberCallExpr \n";
+		CE->dumpPretty(AC->getASTContext());
+		llvm::errs()<<"\n Implicit Object Argument\n";
+		IOA->dumpPretty(AC->getASTContext());
+		llvm::errs()<<"\n Member Expr \n";
+		ME->dumpPretty(AC->getASTContext());
+		llvm::errs()<<"\n";
+
+
+			clang::Expr::LValueClassification LKind = ME->ClassifyLValue(AC->getASTContext());
+			clang::Expr::Classification Kind = ME->Classify(AC->getASTContext());
+			clang::ExprValueKind VKind = ME->getValueKind();
+			clang::ExprObjectKind OKind = ME->getObjectKind();
+			clang::QualType qual_exp = llvm::dyn_cast<clang::Expr>(ME)->getType();
+//			llvm::errs().changeColor(llvm::raw_ostream::Colors::RED);
+//			llvm::errs()<<"Classification "<<Kind.getKind()<<"\n\n";
+//			llvm::errs()<<"LValueClassification "<<clang::Expr::LValueClassification(LKind)<<"\n\n";
+//			llvm::errs()<<"Value Kind "<<clang::ExprValueKind(VKind)<<"\n\n";
+//			llvm::errs()<<"Object Kind "<<clang::ExprObjectKind(OKind)<<"\n\n";
+			llvm::errs()<<"\nQual Type CallExpr\n";
+			qual_exp->dump();
+			llvm::errs()<<"\n";
+			clang::QualType qual_ioa = llvm::dyn_cast<clang::Expr>(IOA)->getType();
+			llvm::errs()<<"\nQual Type CallExpr this\n";
+			qual_ioa->dump();
+			llvm::errs()<<"\n";
+//			llvm::errs().resetColor();
+		
+
+
+ 	for (clang::Stmt::child_range SubStmts = CE->children(); SubStmts; ++SubStmts){
+		if (const clang::Stmt *S = *SubStmts) 
+			if (llvm::dyn_cast<clang::Expr>(S)->getValueKind()>0)
+			{ 
+					clang::Expr::Classification Kind = 
+						llvm::dyn_cast<clang::Expr>(S)->Classify(AC->getASTContext());
+					clang::Expr::LValueClassification LKind = 
+						llvm::dyn_cast<clang::Expr>(S)->ClassifyLValue(AC->getASTContext());
+					clang::ExprValueKind VKind = 
+						llvm::dyn_cast<clang::Expr>(S)->getValueKind();
+					clang::ExprObjectKind OKind = 
+						llvm::dyn_cast<clang::Expr>(S)->getObjectKind();
+					clang::QualType qual_sub = 
+						llvm::dyn_cast<clang::Expr>(S)->getType();
+					llvm::errs()<<"\n Sub  Expr \n";
+					S->dumpPretty(AC->getASTContext());
+//					llvm::errs()<<"Classification "<<Kind.getKind()<<"\n\n";
+//					llvm::errs()<<"LValueClassification "<<clang::Expr::LValueClassification(LKind)<<"\n\n";
+//					llvm::errs()<<"Value Kind "<<clang::ExprValueKind(VKind)<<"\n\n";
+//					llvm::errs()<<"LValueClassification "<<clang::ExprObjectKind(OKind)<<"\n\n";
+					llvm::errs()<<"\nQual Type Sub Expr\n";
+					qual_sub->dump();
+					llvm::errs()<<"\n";
+			}
+	}
+	
+
+
+
+
+ 	for(int i=0, j=CE->getNumArgs(); i<j; i++) {
+		if ( const clang::Expr *E = CE->getArg(i))
+			{
+			clang::Expr::LValueClassification LKind = E->ClassifyLValue(AC->getASTContext());
+			clang::Expr::Classification Kind = E->Classify(AC->getASTContext());
+			clang::ExprValueKind VKind = E->getValueKind();
+			clang::ExprObjectKind OKind = E->getObjectKind();
+			clang::QualType qual_arg = llvm::dyn_cast<clang::Expr>(E)->getType();
+			llvm::errs()<<"\n Arg Expr \n";
+			CE->getArg(i)->dumpPretty(AC->getASTContext());
+//			llvm::errs()<<"Classification "<<Kind.getKind()<<"\n\n";
+//			llvm::errs()<<"LValueClassification "<<clang::Expr::LValueClassification(LKind)<<"\n\n";
+//			llvm::errs()<<"Value Kind "<<clang::ExprValueKind(VKind)<<"\n\n";
+//			llvm::errs()<<"Object Kind "<<clang::ExprObjectKind(OKind)<<"\n\n";
+			llvm::errs()<<"\nQual Type Arg\n";
+			qual_arg->dump();
+			llvm::errs()<<"\n";
+			}
+	} 
+
+  ReportCall(CE);
 }
+  VisitChildren(CE);
+  Enqueue(CE);
+
+}
+
 
 void WalkAST::ReportCall(const clang::CallExpr *CE) {
   llvm::SmallString<100> buf;
@@ -226,7 +270,6 @@ void WalkAST::ReportCall(const clang::CallExpr *CE) {
   os << "Call Path : ";
   // Name of current visiting CallExpr.
   os << *CE->getDirectCallee();
-
   // Name of the CallExpr whose body is current walking.
   if (visitingCallExpr)
     os << " <-- " << *visitingCallExpr->getDirectCallee();
@@ -238,7 +281,8 @@ void WalkAST::ReportCall(const clang::CallExpr *CE) {
     if (VisitedFunctions[FD] == PostVisited)
       os << " <-- " << *FD;
   }
-   os <<"\n";
+     os << "\n";
+
 // Names of args  
     clang::LangOptions LangOpts;
     LangOpts.CPlusPlus = true;
@@ -254,19 +298,15 @@ void WalkAST::ReportCall(const clang::CallExpr *CE) {
   os << "\n";
 
   clang::ento::PathDiagnosticLocation CELoc =
-    clang::ento::PathDiagnosticLocation::createBegin(CE->getDirectCallee(), BR.getSourceManager());
-  clang::SourceRange R = CE->getDirectCallee()->getSourceRange();
+    clang::ento::PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
+  clang::SourceRange R = CE->getCallee()->getSourceRange();
+  clang::SourceLocation L = CE->getExprLoc();
+  
 
-
- llvm::outs()<<os.str();
- 
+// llvm::errs()<<os.str();
   if (!m_exception.reportClass( CELoc, BR ) ) return;
-  		BR.EmitBasicReport(CE->getDirectCallee(),
-                      "Class Checker CallExpr in Class Method",
-                      "ThreadSafety",
-                       os.str(),CELoc,R);
-
- 
+  BR.EmitBasicReport(CE->getCalleeDecl(),"Class Checker CallExpr in Class Method","ThreadSafety",os.str(),CELoc,R);
+	 
 }
 
 void ClassCheckerRDecl::checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ento::AnalysisManager& mgr,
@@ -277,6 +317,23 @@ void ClassCheckerRDecl::checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ent
 	const clang::SourceManager &SM = BR.getSourceManager();
 	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( RD, SM );
 	if (  !m_exception.reportClass( DLoc, BR ) ) return;
+//	clang::LangOptions LangOpts;
+//	LangOpts.CPlusPlus = true;
+//	clang::PrintingPolicy Policy(LangOpts);
+//	std::string TypeS;
+//      llvm::raw_string_ostream s(TypeS);
+//	RD->print(s,Policy,0,0);
+//	llvm::outs() << s.str() <<"\n\n\n\n";
+//	RD->dump();
+ 
+// Check the constructors.
+//    for (clang::CXXRecordDecl::ctor_iterator I = RD->ctor_begin(), E = RD->ctor_end();
+//         I != E; ++I) {
+//        if (clang::Stmt *Body = I->getBody()) {
+//          walker.Visit(Body);
+//          walker.Execute();
+//        }
+//    }
 
 // Check the class methods (member methods).
 	for (clang::CXXRecordDecl::method_iterator
@@ -290,53 +347,29 @@ void ClassCheckerRDecl::checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ent
 				|| I->getNameAsString() == "endLuminosityBlock" )
 			{
 				const clang::CXXMethodDecl *  MD = &llvm::cast<const clang::CXXMethodDecl>(*I->getMostRecentDecl());
+				if (MD->isVirtualAsWritten()) continue;
 				clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( MD , SM );
 				clang::SourceRange R = MD->getSourceRange();
+				llvm::errs()<<"Parent CXXMethodDecl\n";
+				llvm::errs()<<RD->getNameAsString();
+				llvm::errs()<<"::";
+				llvm::errs()<<I->getNameAsString();
+				llvm::errs()<<"\n";
 				if (  !m_exception.reportClass( DLoc, BR ) ) continue;
-				std::string buf;
-	    			llvm::raw_string_ostream os(buf);
-  				os << "Method  " << (*I) << " in Class "<< *(I->getParent())<<". \n";
-				llvm::outs()<<os.str();
-				if ( !m_exception.reportClass( DLoc, BR ) ) continue; 
-				BR.EmitBasicReport( MD , "Class Checker MethodDecl","ThreadSafety",os.str(), DLoc,R);
-//				for (clang::CXXMethodDecl::method_iterator
-//					J=I->begin_overridden_methods(), F=I->end_overridden_methods(); J !=F; J++)
-//					{
-//					const clang::CXXMethodDecl * MD = (*J);
-//					clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( MD, SM );
-//					clang::SourceRange R = MD->getSourceRange();
-//					std::string buf;
-//	    				llvm::raw_string_ostream os(buf);
-//   					os << "Overridden Method  " << (**J) << " in Class "<< *((*J)->getParent()) <<". \n";
-//					llvm::outs()<<os.str();
-//					if (  !m_exception.reportClass( DLoc, BR ) ) continue;
-//					BR.EmitBasicReport( *J, "Class Checker Overridden MethodDecl","ThreadSafety",os.str(), DLoc,R);
-//					} /* end of overriden methods */
-			// visit the body of the method							   				
 				if ( I->hasBody() ){
 					clang::Stmt *Body = I->getBody();
+//	       				Body->printPretty(s, 0, Policy);
+//					Body->dump();
+//        				llvm::outs() << s.str();
 	       				walker.Visit(Body);
         				walker.Execute();
-        			}
+       				}
 			} /* end of Name check */
-    	}	/* end of methods loop */
+   	}	/* end of methods loop */
 
-//  		for (clang::CXXRecordDecl::field_iterator
-//		       	I = RD->field_begin(), E = RD->field_end(); I != E; ++I)  {
-//			const clang::FieldDecl * FD = &(*I);
-//			clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( FD, SM );
-//			clang::SourceRange R = FD->getSourceRange();
-//			if ( !m_exception.reportClass( DLoc, BR ) ) continue; 
-//	    		std::string buf;
-//	    		llvm::raw_string_ostream os(buf);
-// 			os << "Field  " << *FD << " in Class "<< *(I->getParent()) <<" .\n";
-//			llvm::outs()<<os.str();
-//			BR.EmitBasicReport(FD, "Class Checker FieldDecl","ThreadSafety",os.str(), DLoc,R);
-// 		}  /* end of field loop */
 
-	
+} //end of class
 
-}
 
 }
 

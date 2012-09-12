@@ -12,29 +12,6 @@
 #include "CmsException.h"
 
 namespace clangcms {
-class ClassCheckerMDecl : public clang::ento::Checker< clang::ento::check::ASTDecl< clang::CXXMethodDecl> > {
-  mutable clang::OwningPtr< clang::ento::BuiltinBug> BT;
-
-public:
-  void checkASTDecl(const clang::CXXMethodDecl *D,
-                      clang::ento::AnalysisManager &Mgr,
-                      clang::ento::BugReporter &BR) const;
-
-private:
-  CmsException m_exception;
-};  
-
-class ClassCheckerMCall : public clang::ento::Checker< clang::ento::check::PostStmt< clang::CXXMemberCallExpr> > {
-  mutable clang::OwningPtr<clang::ento::BugType> BT;
-
-public:
-  void checkPostStmt(const clang::CXXMemberCallExpr *CE,
-		clang::ento::CheckerContext &C) const;
-
-
-private:
-  CmsException m_exception;
-};
 
 class ClassCheckerRDecl : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
   mutable clang::OwningPtr< clang::ento::BugType> BT;
