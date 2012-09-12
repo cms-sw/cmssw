@@ -10,7 +10,6 @@ process.options.allowUnscheduled = cms.untracked.bool( True )
 # Load default PAT
 process.load( "PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff" )
 process.load( "PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff" )
-process.load( "PhysicsTools.PatAlgos.cleaningLayer1.cleanPatCandidates_cff" )
 
 
 ### Set up PAT trigger information
