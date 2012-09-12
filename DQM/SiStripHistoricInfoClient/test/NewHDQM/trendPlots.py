@@ -294,7 +294,7 @@ class TrendPlot:
         n = len(self.__x)
         if n != len(self.__y) or n != len(self.__yErrLow):
             raise StandardError, "The length of the x(%s), y(%s) and y error(%s,%s) lists does not match"%(len(self.__x), len(self.__y), len(self.__yErrLow), len(self.__yErrHigh))
-        result=TH1F(self.__title,self.__title,n,1,n)
+        result=TH1F(self.__title,self.__title,n,0.5,float(n)+0.5)
         axis = result.GetXaxis()
         for i in range (len(self.__x)):
             result.Fill(i+1,self.__y[i])
