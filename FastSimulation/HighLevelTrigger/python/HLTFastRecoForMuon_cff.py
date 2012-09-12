@@ -54,9 +54,6 @@ hltL3TrackCandidateFromL2NoVtx.SeedProducer = "hltL3TrajectorySeedNoVtx"
 
 # Seeds (just clone the hltMuTrackSeeds with a different InputVertexCollection, for now):
 
-# This is needed to maintain back compatibility with the "frozen" HLT menus
-# A better fix MUST be found, because hltJpsiTkPixelSeedFromL3Candidate CAN be used
-hltJpsiTkPixelSeedFromL3Candidate = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 
 # CKFTrackCandidateMaker
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
