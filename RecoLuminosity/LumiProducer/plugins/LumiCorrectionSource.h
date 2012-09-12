@@ -33,6 +33,7 @@ class LumiCorrectionSource: public edm::ESProducer , public edm::EventSetupRecor
                                const edm::IOVSyncValue&,
 			       edm::ValidityInterval& );
  private:
+  std::string translateFrontierConnect(const std::string& connectStr);
   void reloadAuth();
   const std::string servletTranslation(const std::string& servlet) const;
   std::string x2s(const XMLCh* input)const;
@@ -42,6 +43,7 @@ class LumiCorrectionSource: public edm::ESProducer , public edm::EventSetupRecor
   std::string m_connectStr;
   std::string m_authfilename;
   std::string m_datatag;
+  std::string m_globaltag;
   std::string m_normtag;
   std::string m_siteconfpath;
   std::map< unsigned int,boost::shared_ptr<LumiCorrectionParam> > m_paramcache;
@@ -52,6 +54,7 @@ class LumiCorrectionSource: public edm::ESProducer , public edm::EventSetupRecor
   const edm::IOVSyncValue* m_pcurrentTime;
  private:
   void fillparamcache(unsigned int runnumber);
+  void parseGlobaltagForLumi(coral::ISchema& schema,const std::string& globaltag);
   float fetchIntglumi(coral::ISchema& schema,unsigned int runnumber);
 };
 #endif

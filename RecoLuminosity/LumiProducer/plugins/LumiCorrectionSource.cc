@@ -7,7 +7,7 @@
 Description: A essource/esproducer for lumi correction factor and run parameters needed to deduce the corrections
       Author: Zhen Xie
 */
-// $Id: LumiCorrectionSource.cc,v 1.13 2012/08/28 14:46:56 xiezhen Exp $
+// $Id: LumiCorrectionSource.cc,v 1.14 2012/09/11 15:46:57 xiezhen Exp $
 
 //#include <memory>
 //#include "boost/shared_ptr.hpp"
@@ -22,9 +22,7 @@ Description: A essource/esproducer for lumi correction factor and run parameters
 #include "FWCore/Framework/interface/Run.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "FWCore/Framework/interface/IOVSyncValue.h"
-
 #include "CoralBase/Exception.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
@@ -146,43 +144,53 @@ LumiCorrectionSource::servletTranslation(const std::string& servlet) const{
   return realconnect;
 }
 
-LumiCorrectionSource::LumiCorrectionSource(const edm::ParameterSet& iConfig):m_connectStr(""),m_datatag(""),m_normtag(""),m_paramcachedrun(0),m_cachesize(0){
+std::string 
+LumiCorrectionSource::translateFrontierConnect(const std::string& connectStr){
+  std::string result;
+  const std::string fproto("frontier://");
+  std::string::size_type startservlet=fproto.length();
+  std::string::size_type endservlet=connectStr.find("(",startservlet);
+  if(endservlet==std::string::npos){
+    endservlet=connectStr.rfind('/',connectStr.length());
+  }
+  std::string servlet=connectStr.substr(startservlet,endservlet-startservlet);
+  if( (servlet !="")&& (servlet.find_first_of(":/)[]")==std::string::npos)){
+    if(servlet=="cms_conditions_data") servlet="";
+    if(m_siteconfpath.length()==0){
+      std::string url=(boost::filesystem::path("SITECONF")/boost::filesystem::path("local")/boost::filesystem::path("JobConfig")/boost::filesystem::path("site-local-config.xml")).string();
+      char * tmp = getenv ("CMS_PATH");
+      if(tmp){
+	m_siteconfpath = (boost::filesystem::path(tmp)/boost::filesystem::path(url)).string();
+      }
+    }else{
+      if(!boost::filesystem::exists(boost::filesystem::path(m_siteconfpath))){
+	throw cms::Exception("Non existing path ")<<m_siteconfpath;
+      }
+      m_siteconfpath = (boost::filesystem::path(m_siteconfpath)/boost::filesystem::path("site-local-config.xml")).string();
+    }
+    result=fproto+servletTranslation(servlet)+connectStr.substr(endservlet);
+  }
+  return result;
+}
+
+LumiCorrectionSource::LumiCorrectionSource(const edm::ParameterSet& iConfig):m_connectStr(""),m_authfilename(""),m_datatag(""),m_globaltag(""),m_normtag(""),m_paramcachedrun(0),m_cachesize(0){
   setWhatProduced(this,&LumiCorrectionSource::produceLumiCorrectionParam);
   findingRecord<LumiCorrectionParamRcd>();
   std::string connectStr=iConfig.getParameter<std::string>("connect");
+  std::string globaltag;
+  if(iConfig.exists("globaltag")){
+    m_globaltag=iConfig.getUntrackedParameter<std::string>("globaltag","");
+  }else{
+    m_normtag=iConfig.getUntrackedParameter<std::string>("normtag","");
+  }
   m_datatag=iConfig.getUntrackedParameter<std::string>("datatag","");
-  m_normtag=iConfig.getUntrackedParameter<std::string>("normtag","");
   m_cachesize=iConfig.getUntrackedParameter<unsigned int>("ncacheEntries",3);
+  m_siteconfpath=iConfig.getUntrackedParameter<std::string>("siteconfpath","");
   const std::string fproto("frontier://");
-  //test if need frontier servlet site-local translation  
   if(connectStr.substr(0,fproto.length())==fproto){
-    std::string::size_type startservlet=fproto.length();
-    std::string::size_type endservlet=connectStr.find("(",startservlet);
-    if(endservlet==std::string::npos){
-      endservlet=connectStr.rfind('/',connectStr.length());
-    }
-    std::string servlet=connectStr.substr(startservlet,endservlet-startservlet);
-    if( (servlet !="")&& (servlet.find_first_of(":/)[]")==std::string::npos)){
-      if(servlet=="cms_conditions_data") servlet="";
-      
-      std::string siteconfpath=iConfig.getUntrackedParameter<std::string>("siteconfpath","");
-      if(siteconfpath.length()==0){
-	std::string url=(boost::filesystem::path("SITECONF")/boost::filesystem::path("local")/boost::filesystem::path("JobConfig")/boost::filesystem::path("site-local-config.xml")).string();
-	char * tmp = getenv ("CMS_PATH");
-	if(tmp){
-	  m_siteconfpath = (boost::filesystem::path(tmp)/boost::filesystem::path(url)).string();
-	}
-      }else{
-	if(!boost::filesystem::exists(boost::filesystem::path(siteconfpath))){
-	  throw cms::Exception("Non existing path ")<<siteconfpath;
-	}
-	m_siteconfpath = (boost::filesystem::path(siteconfpath)/boost::filesystem::path("site-local-config.xml")).string();
-      }
-      //std::cout<<"servlet : "<<servlet<<std::endl;
-      m_connectStr=fproto+servletTranslation(servlet)+connectStr.substr(endservlet);
-    }else{
-      m_connectStr=connectStr;
-    }
+    m_connectStr=translateFrontierConnect(connectStr);
+  }else if(connectStr.substr(0,11)=="sqlite_file"){
+    m_connectStr=connectStr;
   }else{
     m_connectStr=connectStr;
     std::string authpath=iConfig.getUntrackedParameter<std::string>("authpath","");
@@ -239,17 +247,26 @@ void
 LumiCorrectionSource::fillparamcache(unsigned int runnumber){
   m_paramcache.clear();
   m_paramcachedrun=runnumber;
-  coral::IHandle<coral::IAuthenticationService> authSvc=coral::Context::instance().query<coral::IAuthenticationService>();
-  if( authSvc.isValid() ){
-    try{
-      authSvc->credentials( m_connectStr );
-    }catch(const coral::UnknownConnectionException& er){
+  if(!m_authfilename.empty()){
+    coral::IHandle<coral::IAuthenticationService> authSvc=coral::Context::instance().query<coral::IAuthenticationService>();
+    if( authSvc.isValid() ){
+      try{
+	authSvc->credentials( m_connectStr );
+      }catch(const coral::UnknownConnectionException& er){
+	reloadAuth();
+      }
+  }else{
       reloadAuth();
     }
-  }else{
-    reloadAuth();
   }
   coral::ConnectionService* mydbservice=new coral::ConnectionService;
+  if(!m_globaltag.empty()){
+    coral::ISessionProxy* gsession=mydbservice->connect(m_connectStr,coral::ReadOnly);
+    gsession->transaction().start(true);
+    parseGlobaltagForLumi(gsession->nominalSchema(),m_globaltag);
+    gsession->transaction().commit();
+    delete gsession;
+  }
   coral::ISessionProxy* session=mydbservice->connect(m_connectStr,coral::ReadOnly);
   coral::ITypeConverter& tconverter=session->typeConverter();
   tconverter.setCppTypeForSqlType(std::string("float"),std::string("FLOAT(63)"));
@@ -335,7 +352,39 @@ LumiCorrectionSource::fillparamcache(unsigned int runnumber){
   delete session;
   delete mydbservice;
 }
-
+void
+LumiCorrectionSource::parseGlobaltagForLumi(coral::ISchema& schema,const std::string& globaltag){
+  /**select i.pfn,i.tagname from TAGINVENTORY_TABLE i,TAGTREE_TABLE_GLOBALTAG v from i.tagid=v.tagid and i.recordname='LumiCorrectionParamRcd' **/
+  std::string tagtreetabname("TAGTREE_TABLE_");
+  tagtreetabname+=std::string(globaltag);
+  coral::IQuery* qHandle=schema.newQuery();
+  qHandle->addToTableList("TAGINVENTORY_TABLE","i");
+  qHandle->addToTableList(tagtreetabname,"v");
+  coral::AttributeList qResult;
+  qResult.extend("pfn",typeid(std::string));
+  qResult.extend("tagname",typeid(std::string));
+  std::string conditionStr("v.tagid=i.tagid and i.recordname=:recordname");
+  coral::AttributeList qCondition;
+  qCondition.extend("recordname",typeid(std::string));
+  qCondition["recordname"].data<std::string>()=std::string("LumiCorrectionParamRcd");
+  qHandle->setCondition(conditionStr,qCondition);
+  qHandle->addToOutputList("i.pfn");
+  qHandle->addToOutputList("i.tagname");
+  qHandle->defineOutput(qResult);
+  coral::ICursor& iCursor=qHandle->execute();
+  while( iCursor.next() ){
+    const coral::AttributeList& row=iCursor.currentRow();
+    std::string connectStr=row["pfn"].data<std::string>();
+    const std::string fproto("frontier://");
+    if(connectStr.substr(0,fproto.length())==fproto){
+      m_connectStr=translateFrontierConnect(connectStr);
+    }else{
+      m_connectStr=connectStr;
+    }
+    m_normtag=row["tagname"].data<std::string>();
+  }
+  delete qHandle;
+}
 float 
 LumiCorrectionSource::fetchIntglumi(coral::ISchema& schema,unsigned int runnumber){
   float result=0.;
