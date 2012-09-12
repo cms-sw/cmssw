@@ -644,7 +644,9 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetVBF1Parked_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetVBF1Parked_selector.l1tResults = cms.InputTag('')
 streamA_datasetVBF1Parked_selector.throw      = cms.bool(False)
-streamA_datasetVBF1Parked_selector.triggerConditions = cms.vstring('HLT_DiJet35_MJJ650_AllJets_DEta3p5_VBF_v5', 
+streamA_datasetVBF1Parked_selector.triggerConditions = cms.vstring('HLT_DiJet20_MJJ650_AllJets_DEta3p5_HT120_VBF_v1', 
+    'HLT_DiJet30_MJJ700_AllJets_DEta3p5_VBF_v1', 
+    'HLT_DiJet35_MJJ650_AllJets_DEta3p5_VBF_v5', 
     'HLT_DiJet35_MJJ700_AllJets_DEta3p5_VBF_v5', 
     'HLT_DiJet35_MJJ750_AllJets_DEta3p5_VBF_v5')
 

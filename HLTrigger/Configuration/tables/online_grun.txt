@@ -1,4 +1,4 @@
-# "online" menu
+# "GRun" menu
 HLT_Activity_Ecal_SC7_v*
 
 HLT_IsoMu15_eta2p1_L1ETM20_v*                                                                   # added in Feb 2012 5e33 menu (sr #126183)
@@ -284,6 +284,8 @@ HLT_Mu40_eta2p1_Track60_dEdx3p7_v*                                              
 HLT_MET80_Track50_dEdx3p6_v*                                                                    # sr #126412
 HLT_MET80_Track60_dEdx3p7_v*                                                                    # sr #126412
 HLT_MET80_v*                                                                                    # sr #126412
+HLT_MET80_HBHENoiseCleaned_v*                                                                   # sr #131856
+HLT_MET100_HBHENoiseCleaned_v*                                                                  # sr #131856
 #HLT_L1EG20_Track5_dEdx5p0_v*                                                                   # sr #126412, removed for cpu time
 #HLT_L1EG20_Track6_dEdx6p0_v*                                                                   # sr #126412, removed for cpu time
 #HLT_L1EG20_Track7_dEdx6p5_v*                                                                   # sr #126412, removed for cpu time
@@ -664,6 +666,9 @@ HLT_IsoMu20_WCandPt80_v*                                                        
 HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_v*                           # sr #128284, sr129852
 HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet50_40_30_v*                     # sr #128284
 
+HLT_DiJet20_MJJ650_AllJets_DEta3p5_HT120_VBF_v*                                                 # sr #131856
+HLT_DiJet30_MJJ700_AllJets_DEta3p5_VBF_v*                                                       # sr #131856
+
 HLT_DiJet35_MJJ650_AllJets_DEta3p5_VBF_v*                                                       # sr #127987
 HLT_DiJet35_MJJ700_AllJets_DEta3p5_VBF_v*                                                       # sr #127987
 HLT_DiJet35_MJJ750_AllJets_DEta3p5_VBF_v*                                                       # sr #127987
@@ -685,8 +690,8 @@ HLT_HcalNZS_v*                                                                  
 HLT_GlobalRunHPDNoise_v*
 HLT_L1Tech_HBHEHO_totalOR_v*
 HLT_L1Tech_HCAL_HF_single_channel_v*
-#HLT_L1Tech_CASTOR_HaloMuon_v*                                                                  # only in 'GRun' and 'cosmics', not in 'online'
-#HLT_L1Tech_DT_GlobalOR_v*                                                                      # only in 'GRun' and 'cosmics', not in 'online'
+#HLT_L1Tech_CASTOR_HaloMuon_v*                                                                   # only in 'GRun' and 'cosmics', not in 'online'
+#HLT_L1Tech_DT_GlobalOR_v*                                                                       # only in 'GRun' and 'cosmics', not in 'online'
 
 DST_HT250_v*                                                                                    # sr #128199
 DST_L1HTT_Or_L1MultiJet_v*                                                                      # sr #128199
@@ -731,7 +736,7 @@ DQM_FEDIntegrity_v*
 #DQM_HcalEmptyEvents_v*                                                                         # sr #129237 should only go in 7e33 v2.5 menu
 HLTriggerFirstPath
 HLTriggerFinalPath
-#HLTAnalyzerEndpath                                                                             # only in 'GRun', not in 'online'
+#HLTAnalyzerEndpath                                                                              # only in 'GRun', not in 'online'
 AOutput
 BOutput
 ALCAP0Output
@@ -740,7 +745,7 @@ ALCALUMIPIXELSOutput
 CalibrationOutput
 DQMOutput                                                                                       # reintroduced in the 7e33 v2 May 10th bugfix menu (sr #128571)
 EcalCalibrationOutput
-#ExpressForCosmicsOutput                                                                        # only in 'GRun' and 'cosmics', not in 'online'
+#ExpressForCosmicsOutput                                                                         # only in 'GRun' and 'cosmics', not in 'online'
 ExpressOutput
 HLTDQMOutput
 #HLTDQMResultsOutput										# Removed from the master since /dev/CMSSW_5_2_1/HLT/V435

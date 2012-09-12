@@ -284,6 +284,8 @@ HLT_Mu40_eta2p1_Track60_dEdx3p7_v*                                              
 HLT_MET80_Track50_dEdx3p6_v*                                                                    # sr #126412
 HLT_MET80_Track60_dEdx3p7_v*                                                                    # sr #126412
 HLT_MET80_v*                                                                                    # sr #126412
+HLT_MET80_HBHENoiseCleaned_v*                                                                   # sr #131856
+HLT_MET100_HBHENoiseCleaned_v*                                                                  # sr #131856
 #HLT_L1EG20_Track5_dEdx5p0_v*                                                                   # sr #126412, removed for cpu time
 #HLT_L1EG20_Track6_dEdx6p0_v*                                                                   # sr #126412, removed for cpu time
 #HLT_L1EG20_Track7_dEdx6p5_v*                                                                   # sr #126412, removed for cpu time
@@ -663,6 +665,9 @@ HLT_IsoMu20_WCandPt80_v*                                                        
 
 HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_v*                           # sr #128284, sr129852
 HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet50_40_30_v*                     # sr #128284
+
+HLT_DiJet20_MJJ650_AllJets_DEta3p5_HT120_VBF_v*                                                 # sr #131856
+HLT_DiJet30_MJJ700_AllJets_DEta3p5_VBF_v*                                                       # sr #131856
 
 HLT_DiJet35_MJJ650_AllJets_DEta3p5_VBF_v*                                                       # sr #127987
 HLT_DiJet35_MJJ700_AllJets_DEta3p5_VBF_v*                                                       # sr #127987
