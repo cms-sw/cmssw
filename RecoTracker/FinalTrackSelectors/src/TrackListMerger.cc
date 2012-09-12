@@ -409,6 +409,20 @@ namespace cms
 	  //loop over rechits
 	  int noverlap=0;
 	  int firstoverlap=0;
+	  // check first hit  (should use REAL first hit?)
+	  if unlikely(allowFirstHitShare_ && ids1[0]==( rh1[k2][0]->rawId()&(~3) ) ) {
+	      bool share=false;
+	      const TrackingRecHit*  it = rh1[k1][0];
+	      const TrackingRecHit*  jt = rh1[k2][0];
+	      if unlikely(!use_sharesInput_){
+		  float delta = std::abs ( it->localPosition().x()-jt->localPosition().x() ); 
+		  share = (it->geographicalId()==jt->geographicalId())&&(delta<epsilon_);
+		} else{
+		share =  it->sharesInput(jt,TrackingRecHit::some); 
+	      }
+	      if (share) firstoverlap=1; 
+	    }
+
 
 	  // exploit sorting
 	  unsigned int jh=0;
@@ -433,10 +447,7 @@ namespace cms
 		} else{
 		share =  it->sharesInput(jt,TrackingRecHit::some); 
 	      }
-	      if (share) {
-		noverlap++;
-		if ( allowFirstHitShare_ && ( ih == 0 ) && ( jh == 0 ) ) firstoverlap=1;  //ops!!!
-	      }
+	      if (share)  noverlap++;
 	      ++jh; ++ih; 
 	    } // equal ids
 	    
