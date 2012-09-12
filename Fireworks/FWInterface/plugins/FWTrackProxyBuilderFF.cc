@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrackProxyBuilderFF.cc,v 1.1 2012/09/11 20:10:24 amraktad Exp $
+// $Id: FWTrackProxyBuilderFF.cc,v 1.2 2012/09/12 06:30:42 amraktad Exp $
 //
 
 // system include files
@@ -115,7 +115,7 @@ FWTrackProxyBuilderFF::build(const FWEventItem* iItem, TEveElementList* product,
          buildTrack(it, comp);
    }
    
-   gEve->GetBrowser()->MapWindow();
+  // gEve->GetBrowser()->MapWindow();
 }
 
 void FWTrackProxyBuilderFF::buildTrack(TrajTrackAssociationCollection::const_iterator it, TEveCompound* comp)
