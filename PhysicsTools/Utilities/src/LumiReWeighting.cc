@@ -96,11 +96,11 @@ LumiReWeighting::LumiReWeighting( std::vector< float > MC_distr, std::vector< fl
 
   Int_t NBins = MC_distr.size();
 
-  MC_distr_ = boost::shared_ptr<TH1> ( new TH1F("MC_distr","MC dist",NBins,-0.5, float(NBins)-0.5) );
-  Data_distr_ = boost::shared_ptr<TH1> ( new TH1F("Data_distr","Data dist",NBins,-0.5, float(NBins)-0.5) );
+  MC_distr_ = boost::shared_ptr<TH1> ( new TH1F("MC_distr","MC dist",NBins,0.0, float(NBins)) );
+  Data_distr_ = boost::shared_ptr<TH1> ( new TH1F("Data_distr","Data dist",NBins, 0.0, float(NBins)) );
 
-  weights_ = boost::shared_ptr<TH1> ( new TH1F("luminumer","luminumer",NBins,-0.5, float(NBins)-0.5) );
-  TH1* den = new TH1F("lumidenom","lumidenom",NBins,-0.5, float(NBins)-0.5) ;
+  weights_ = boost::shared_ptr<TH1> ( new TH1F("luminumer","luminumer",NBins,0.0, float(NBins)) );
+  TH1* den = new TH1F("lumidenom","lumidenom",NBins,0.0, float(NBins)) ;
 
   for(int ibin = 1; ibin<NBins+1; ++ibin ) {
     weights_->SetBinContent(ibin, Lumi_distr[ibin-1]);
