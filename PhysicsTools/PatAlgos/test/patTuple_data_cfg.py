@@ -7,7 +7,10 @@ process.options.allowUnscheduled = cms.untracked.bool( True )
 ## Messaging
 #process.Tracer = cms.Service("Tracer")
 
-## Input
+## Conditions, In-/Output
+from HLTrigger.Configuration.AutoCondGlobalTag import AutoCondGlobalTag
+process.GlobalTag = AutoCondGlobalTag( process.GlobalTag, 'auto:com10' )
+
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesSingleMuRECO
 
 ## Processing
@@ -33,7 +36,7 @@ process.p = cms.Path(
 #  parameters:
 ## ------------------------------------------------------
 #
-process.GlobalTag.globaltag = 'GR_R_60_V6::All' ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
+#   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
 process.source.fileNames = filesSingleMuRECO
 #                                         ##
