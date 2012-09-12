@@ -150,9 +150,9 @@ void FastTimerService::postBeginJob() {
     m_cache_modules.push_back(& keyval.second);
 
   // associate to each path all the modules it contains
-  for (size_t i = 0; i < tns.getTrigPaths().size(); ++i)
+  for (uint32_t i = 0; i < tns.getTrigPaths().size(); ++i)
     fillPathMap( tns.getTrigPath(i), tns.getTrigPathModules(i) );
-  for (size_t i = 0; i < tns.getEndPaths().size(); ++i)
+  for (uint32_t i = 0; i < tns.getEndPaths().size(); ++i)
     fillPathMap( tns.getEndPath(i), tns.getEndPathModules(i) );
 
   if (m_enable_dqm)
@@ -191,17 +191,17 @@ void FastTimerService::postBeginJob() {
     m_dqm_all_endpaths  = m_dqms->book1D("all_endpaths", "EndPaths", pathbins, 0., m_dqm_pathtime_range)->getTH1F();
     m_dqm_all_endpaths  ->StatOverflows(true);
     // these are actually filled in the harvesting step - but that may happen in a separate step, which no longer has all the information about the endpaths
-    size_t size_p = tns.getTrigPaths().size();
-    size_t size_e = tns.getEndPaths().size();
-    size_t size = size_p + size_e;
+    uint32_t size_p = tns.getTrigPaths().size();
+    uint32_t size_e = tns.getEndPaths().size();
+    uint32_t size = size_p + size_e;
     TH1F * path_active_time = m_dqms->book1D("path_active_time", "Additional time spent in each path", size, -0.5, size-0.5)->getTH1F();
     TH1F * path_total_time  = m_dqms->book1D("path_total_time",  "Total time spent in each path",      size, -0.5, size-0.5)->getTH1F();
-    for (size_t i = 0; i < size_p; ++i) {
+    for (uint32_t i = 0; i < size_p; ++i) {
       std::string const & label = tns.getTrigPath(i);
       path_active_time->GetXaxis()->SetBinLabel(i + 1, label.c_str());
       path_total_time ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
     }
-    for (size_t i = 0; i < size_e; ++i) {
+    for (uint32_t i = 0; i < size_e; ++i) {
       std::string const & label = tns.getEndPath(i);
       path_active_time->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
       path_total_time ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
@@ -238,21 +238,21 @@ void FastTimerService::postBeginJob() {
           // book histograms for modules-in-paths statistics
 
           // find histograms X-axis labels
-          size_t id;
+          uint32_t id;
           std::vector<std::string> const & modules = ((id = tns.findTrigPath(pathname)) != tns.getTrigPaths().size()) ? tns.getTrigPathModules(id) :
                                                      ((id = tns.findEndPath(pathname))  != tns.getEndPaths().size())  ? tns.getEndPathModules(id)  :
                                                      std::vector<std::string>();
 
           static const char * dup = "(dup.)";
           std::vector<const char *> labels(modules.size(), nullptr);
-          for (size_t i = 0; i < modules.size(); ++i)
+          for (uint32_t i = 0; i < modules.size(); ++i)
             labels[i] = (pathinfo.modules[i]) ? modules[i].c_str() : dup;
           
           // book counter histograms
           if (m_enable_dqm_bypath_counters) {
             pathinfo.dqm_module_counter = m_dqms->book1D(pathname + "_module_counter", pathname + " module counter", modules.size(), -0.5, modules.size() - 0.5)->getTH1F();
             // find module labels
-            for (size_t i = 0; i < modules.size(); ++i) {
+            for (uint32_t i = 0; i < modules.size(); ++i) {
               pathinfo.dqm_module_counter->GetXaxis()->SetBinLabel( i+1, labels[i] );
             }
           }
@@ -261,7 +261,7 @@ void FastTimerService::postBeginJob() {
             pathinfo.dqm_module_active  = m_dqms->book1D(pathname + "_module_active",  pathname + " module active",  modules.size(), -0.5, modules.size() - 0.5)->getTH1F();
             pathinfo.dqm_module_total   = m_dqms->book1D(pathname + "_module_total",   pathname + " module total",   modules.size(), -0.5, modules.size() - 0.5)->getTH1F();
             // find module labels
-            for (size_t i = 0; i < modules.size(); ++i) {
+            for (uint32_t i = 0; i < modules.size(); ++i) {
               pathinfo.dqm_module_active ->GetXaxis()->SetBinLabel( i+1, labels[i] );
               pathinfo.dqm_module_total  ->GetXaxis()->SetBinLabel( i+1, labels[i] );
             }
@@ -545,8 +545,8 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
       // "overhead" will be active - current
       // "total"    will be active + the sum of the time spent in non-active modules
 
-      size_t last_run = status.index();     // index of the last module run in this path
-      for (size_t i = 0; i <= last_run; ++i) {
+      uint32_t last_run = status.index();     // index of the last module run in this path
+      for (uint32_t i = 0; i <= last_run; ++i) {
         ModuleInfo * module = pathinfo.modules[i];
 
         // fill counter histograms - also for duplicate modules, to properly extract rejection information
