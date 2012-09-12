@@ -132,8 +132,8 @@ def insertMuonSeededSteps(process,trackingSequence):
         fillIsolation = False,
         fillTrackerKink = False,
     )
-    process.outInSeedsFromStandaloneMuons.src = "earlyMuons"
-    process.inOutSeedsFromTrackerMuons.src = "earlyMuons"
+    process.muonSeededSeedsInOut.src = "earlyMuons"
+    process.muonSeededSeedsOutIn.src = "earlyMuons"
     process.generalTracks.selectedTrackQuals = cms.VInputTag()
     process.generalTracks.hasSelector        = cms.vint32(0,0,0)
     process.generalTracks.setsToMerge = cms.VPSet(cms.PSet(pQual = cms.bool(False), tLists = cms.vint32(0, 1,2)))
