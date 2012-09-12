@@ -81,7 +81,7 @@ class HLTProcess(object):
     "HLT_HcalUTCA_v*",
     
 # TODO: paths not supported by FastSim, but for which a recovery should be attempted
-    "HLT_Mu15_TkMu5_Onia_v*",
+
   
     )
 
@@ -940,9 +940,13 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltMuTrackJpsiCtfTracks" )
       self.options['modules'].append( "-hltMuTrackJpsiEffCkfTrackCandidates" )
       self.options['modules'].append( "-hltMuTrackJpsiEffCtfTracks" )
+# TO BE REMOVED WHEN FIXED FastSimulation/HighLevelTrigger/python/HLTFastRecoForMuon_cff.py
       self.options['modules'].append( "-hltJpsiTkPixelSeedFromL3Candidate" )
+# ---
       self.options['modules'].append( "-hltCkfTrackCandidatesJpsiTk" )
       self.options['modules'].append( "-hltCtfWithMaterialTracksJpsiTk" )
+      self.options['modules'].append( "-hltMuTrackCkfTrackCandidatesOnia" )
+      self.options['modules'].append( "-hltMuTrackCtfTracksOnia" )
       
       self.options['modules'].append( "-hltESRegionalEgammaRecHit" )
       self.options['modules'].append( "-hltEcalRegionalJetsFEDs" )
