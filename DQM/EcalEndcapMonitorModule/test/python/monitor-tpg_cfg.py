@@ -45,6 +45,7 @@ process.load("DQM.EcalEndcapMonitorClient.EcalEndcapMonitorClient_cfi")
 process.load("DQMServices.Core.DQM_cfg")
 
 process.ecalEBunpacker = cms.EDProducer("EcalDCCTB07UnpackingModule",
+    fedRawDataCollectionTag = cms.InputTag('rawDataCollector'),
     produceEBdigi = cms.untracked.bool(False),
     produceEEdigi = cms.untracked.bool(True),
 
