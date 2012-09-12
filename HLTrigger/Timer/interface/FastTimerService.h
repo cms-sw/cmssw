@@ -130,7 +130,7 @@ private:
     double                      time_active;        // per-event timer: time actually spent in this module
     double                      summary_active;
     TH1F *                      dqm_active;
-    bool                        has_just_run;       // flag sed to check if a module was active inside a particular path, or not
+    bool                        has_just_run;       // flag set to check if a module was active inside a particular path, or not
 
   public:
     ModuleInfo() :
