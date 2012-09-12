@@ -460,6 +460,10 @@ HLT_Photon90_CaloIdVL_v*                                                        
 
 HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v*               # sr #128416
 
+HLT_Photon30_R9Id90_CaloId_HE10_Iso40_EBOnly_Met25_HBHENoiseCleaned_v*				# sr #131957
+HLT_Photon30_R9Id90_CaloId_HE10_Iso40_EBOnly_v*							# sr #131957
+HLT_Photon30_v*											# sr #131957
+
 HLT_Mu13_Mu8_v*                                                                                 # sr #126489, sr #130299
 HLT_L1SingleMu12_v*                                                                             # sr #126489
 HLT_L1SingleMuOpen_v*                                                                           # sr #126489
