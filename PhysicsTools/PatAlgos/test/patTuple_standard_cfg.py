@@ -11,10 +11,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
-from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
-process.out.outputCommands = cms.untracked.vstring("drop *", *patEventContentNoCleaning)
-
-#process.options.allowUnscheduled = cms.untracked.bool(True)
+process.options.allowUnscheduled = cms.untracked.bool(True)
 process.Tracer = cms.Service("Tracer")
 process.p = cms.Path(
     process.selectedPatCandidates
@@ -31,7 +28,7 @@ process.p = cms.Path(
 #                                         ##
 #   process.source.fileNames = [          ##  (e.g. 'file:AOD.root')
 #     '/store/data/Run2012B/DoubleMu/AOD/PromptReco-v1/000/193/774/0CDC3936-889B-E111-9F82-001D09F25041.root'
-#    ]           
+#    ]
 #                                         ##
 process.maxEvents.input = 100
 #                                         ##
