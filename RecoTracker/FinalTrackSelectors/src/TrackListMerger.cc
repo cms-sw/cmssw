@@ -289,18 +289,11 @@ namespace cms
     //cache the id and rechits of valid hits
     typedef std::pair<unsigned int, const TrackingRecHit*> IHit;
     std::vector<IHit> rh1[ngood];  // an array of vectors!
-    const TrackingRecHit*  fh1[ngood];  // first hit...
+    //const TrackingRecHit*  fh1[ngood];  // first hit...
     unsigned char algo[ngood];
     float score[ngood];
 
-    /*
-    reco::PatternSet<23> pattern[ngood];
-    float phi[ngood];
-    float eta[ngood];
-    float z0[ngood];
-    bool at0[ngood];
-    */
-
+ 
     for ( unsigned int j=0; j<rSize; j++) {
       if (selected[j]==0) continue;
       int i = indexG[j];
@@ -314,21 +307,15 @@ namespace cms
       int lostHits=track->numberOfLostHits();
       score[i] = foundHitBonus_*validHits - lostHitPenalty_*lostHits - track->chi2();
 
-      /*
-      pattern[i].fill(track->hitPattern());
-      phi[i]=track->phi();
-      eta[i]=track->eta();
-      z0[i] =track->dz();
-      at0[i] = std::abs(track->dxy())<1.;
-      */
-
-      rh1[i].reserve(validHits) ; // track->recHitsSize());
-      //auto compById = [](const TrackingRecHit* h1,const TrackingRecHit*h2) {return h1->rawId()< h2->rawId();};
+ 
+      rh1[i].reserve(validHits) ; 
       auto compById = [](IHit const &  h1, IHit const & h2) {return h1.first < h2.first;};
-      fh1[i] = &(**track->recHitsBegin());
+      // fh1[i] = &(**track->recHitsBegin());
       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); ++it) { 
-	const TrackingRecHit* hit = &(**it);   // mask mono/stereo...
-	if likely(hit->isValid()) { rh1[i].emplace_back((~3)&hit->rawId(),hit); std::push_heap(rh1[i].begin(),rh1[i].end(),compById); }
+	const TrackingRecHit* hit = &(**it);  
+	unsigned int id = hit->rawId() ;
+	if(hit->geographicalId().subdetId()>2)  id &= (~3); // mask mono/stereo in strips...
+	if likely(hit->isValid()) { rh1[i].emplace_back(id,hit); std::push_heap(rh1[i].begin(),rh1[i].end(),compById); }
       }
       std::sort_heap(rh1[i].begin(),rh1[i].end(),compById);
     }
@@ -379,25 +366,15 @@ namespace cms
 	    newQualityMask =(maskT1 | maskT2); // take OR of trackQuality 
 	  }
 	  unsigned int nh2=rh1[k2].size();
-	  int nhit2 = nh2; // validHits[k2];
+	  int nhit2 = nh2; 
 
-	  // int nprecut = (std::min(nhit1,nhit2)-1)*shareFrac_;
 
-	  // do not bother if far apart and both poitning to the vertex... 
-	  // float deta = std::abs(eta[k1]-eta[k2]);
-	  // float dphi = std::abs(Geom::Phi<float>(phi[k1]-phi[k2]));
-	  //  float dz = std::abs(z0[k1]-z0[k2]);
-
-	  /*
-          if (at0[k1]&&at0[k2]) {
-	    if (deta>0.2f) continue;
-	    if (dphi>0.5f) continue; 
-          }
-	  */
-
-	  // do not even bother if not enough "pattern in common"	  
-	  // int ncomm = reco::commonHits(pattern[k1],pattern[k2]).size();
-	  // if (ncomm<nprecut) continue;
+	  auto share = use_sharesInput_ ? 
+	    [](const TrackingRecHit*  it,const TrackingRecHit*  jt, float)->bool { return it->sharesInput(jt,TrackingRecHit::some); } :
+	  [](const TrackingRecHit*  it,const TrackingRecHit*  jt, float eps)->bool {
+	    float delta = std::abs ( it->localPosition().x()-jt->localPosition().x() ); 
+	    return (it->geographicalId()==jt->geographicalId())&&(delta<eps);
+	  };
 
 	  statCount.start();
 
@@ -406,16 +383,9 @@ namespace cms
 	  int firstoverlap=0;
 	  // check first hit  (should use REAL first hit?)
 	  if unlikely(allowFirstHitShare_ && rh1[k1][0].first==rh1[k2][0].first ) {
-	      bool share=false;
 	      const TrackingRecHit*  it = rh1[k1][0].second;
 	      const TrackingRecHit*  jt = rh1[k2][0].second;
-	      if unlikely(!use_sharesInput_){
-		  float delta = std::abs ( it->localPosition().x()-jt->localPosition().x() ); 
-		  share = (it->geographicalId()==jt->geographicalId())&&(delta<epsilon_);
-		} else{
-		share =  it->sharesInput(jt,TrackingRecHit::some); 
-	      }
-	      if (share) firstoverlap=1; 
+	      if (share(it,jt,epsilon_)) firstoverlap=1; 
 	    }
 
 
@@ -430,18 +400,11 @@ namespace cms
 	    auto id2 = rh1[k2][jh].first; 
 	    if (id1<id2) ++ih;
 	    else if (id2<id1) ++jh;
-	    else { 
+	    else {
 	      const TrackingRecHit*  it = rh1[k1][ih].second;
 	      const TrackingRecHit*  jt = rh1[k2][jh].second;
-	      bool share=false;
-	      if unlikely(!use_sharesInput_){
-		  float delta = std::abs ( it->localPosition().x()-jt->localPosition().x() ); 
-		  share = (it->geographicalId()==jt->geographicalId())&&(delta<epsilon_);
-		} else{
-		share =  it->sharesInput(jt,TrackingRecHit::some); 
-	      }
-	      if (share)  noverlap++;
-	      ++jh; ++ih; 
+	      if (share(it,jt,epsilon_))  noverlap++;
+	      ++jh; ++ih;
 	    } // equal ids
 	    
 	  } //loop over ih & jh
