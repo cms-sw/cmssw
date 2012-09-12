@@ -34,7 +34,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #define LOGERROR(x) edm::LogError(x)
 #define LOGDEBUG(x) LogDebug(x)
-static int theVerboseLevel = 2;
+constexpr int theVerboseLevel = 2;
 #define ENDL " "
 #else
 #include "SiStripTemplateSplit.h"

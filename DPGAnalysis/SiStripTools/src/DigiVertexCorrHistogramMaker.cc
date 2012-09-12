@@ -14,7 +14,7 @@
 DigiVertexCorrHistogramMaker::DigiVertexCorrHistogramMaker():
   m_fhm(),
   m_runHisto(false),
-  m_hitname(), m_nbins(500), m_scalefact(), m_maxnvtx(60), m_binmax(), m_labels(), m_nmultvsnvtx(), m_nmultvsnvtxprof(), m_nmultvsnvtxvsbxprofrun(), m_subdirs() { }
+  m_hitname(), m_nbins(500), m_scalefact(), m_binmax(), m_labels(), m_nmultvsnvtx(), m_nmultvsnvtxprof(), m_nmultvsnvtxvsbxprofrun(), m_subdirs() { }
 
 DigiVertexCorrHistogramMaker::DigiVertexCorrHistogramMaker(const edm::ParameterSet& iConfig):
   m_fhm(),
@@ -22,7 +22,6 @@ DigiVertexCorrHistogramMaker::DigiVertexCorrHistogramMaker(const edm::ParameterS
   m_hitname(iConfig.getUntrackedParameter<std::string>("hitName","digi")),
   m_nbins(iConfig.getUntrackedParameter<int>("numberOfBins",500)),
   m_scalefact(iConfig.getUntrackedParameter<int>("scaleFactor",5)),
-  m_maxnvtx(iConfig.getUntrackedParameter<int>("maxNvtx",60)),
   m_labels(), m_nmultvsnvtx(), m_nmultvsnvtxprof(), m_subdirs()
 { 
 
@@ -68,7 +67,6 @@ void DigiVertexCorrHistogramMaker::book(const std::string dirname) {
   
   edm::LogInfo("NumberOfBins") << "Number of Bins: " << m_nbins;
   edm::LogInfo("ScaleFactors") << "y-axis range scale factor: " << m_scalefact;
-  edm::LogInfo("MaxNvtx") << "maximum number of vertices: " << m_maxnvtx;
   edm::LogInfo("BinMaxValue") << "Setting bin max values";
 
   for(std::map<unsigned int,std::string>::const_iterator lab=m_labels.begin();lab!=m_labels.end();lab++) {
@@ -98,17 +96,17 @@ void DigiVertexCorrHistogramMaker::book(const std::string dirname) {
     if(m_subdirs[i]) {
       sprintf(name,"n%sdigivsnvtx",slab.c_str());
       sprintf(title,"%s %s multiplicity vs Nvtx",slab.c_str(),m_hitname.c_str());
-      m_nmultvsnvtx[i] = m_subdirs[i]->make<TH2F>(name,title,m_maxnvtx,-0.5,m_maxnvtx-0.5,m_nbins,0.,(1+m_binmax[i]/(m_scalefact*m_nbins))*m_nbins);
+      m_nmultvsnvtx[i] = m_subdirs[i]->make<TH2F>(name,title,60,-0.5,59.5,m_nbins,0.,m_binmax[i]/(m_scalefact*m_nbins)*m_nbins);
       m_nmultvsnvtx[i]->GetXaxis()->SetTitle("Number of Vertices");    m_nmultvsnvtx[i]->GetYaxis()->SetTitle("Number of Hits");
       sprintf(name,"n%sdigivsnvtxprof",slab.c_str());
-      m_nmultvsnvtxprof[i] = m_subdirs[i]->make<TProfile>(name,title,m_maxnvtx,-0.5,m_maxnvtx-0.5);
+      m_nmultvsnvtxprof[i] = m_subdirs[i]->make<TProfile>(name,title,60,-0.5,59.5);
       m_nmultvsnvtxprof[i]->GetXaxis()->SetTitle("Number of Vertices");    m_nmultvsnvtxprof[i]->GetYaxis()->SetTitle("Number of Hits");
 
       if(m_runHisto) {
 	edm::LogInfo("RunHistos") << "Pseudo-booking run histos " << slab.c_str();
 	sprintf(name,"n%sdigivsnvtxvsbxprofrun",slab.c_str());
 	sprintf(title,"%s %s multiplicity vs Nvtx vs BX",slab.c_str(),m_hitname.c_str());
-	m_nmultvsnvtxvsbxprofrun[i] = m_fhm[i]->makeTProfile2D(name,title,3564,-0.5,3563.5,m_maxnvtx,-0.5,m_maxnvtx-0.5);
+	m_nmultvsnvtxvsbxprofrun[i] = m_fhm[i]->makeTProfile2D(name,title,3564,0.5,3563.5,60,-0.5,59.5);
       }
       
     }

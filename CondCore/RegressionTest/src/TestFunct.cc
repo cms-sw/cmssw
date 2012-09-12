@@ -2,8 +2,6 @@
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
 
-//typedef TestPayloadClass Payload;
-typedef RegressionTestPayload Payload;
 
 TestFunct::TestFunct() {}
 
@@ -43,7 +41,6 @@ bool TestFunct::Read (std::string mappingName)
 	cond::DbScopedTransaction trans(s);
 	cond::MetaData  metadata(s);
 	int refSeed =0;
-        bool ret = false;
 	try {
 		trans.start(true);
 		
@@ -61,22 +58,19 @@ bool TestFunct::Read (std::string mappingName)
 			refSeed=row[ "SEED" ].data<int>();
 		}
 		std::string readToken = metadata.getToken(mappingName);
-		boost::shared_ptr<Payload> readRef0 = s.getTypedObject<Payload>( readToken ); //v4	
+		boost::shared_ptr<TestPayloadClass> readRef0 = s.getTypedObject<TestPayloadClass>( readToken ); //v4	
 		std::cout << "Object with id="<<readToken<<" has been read"<<std::endl;
-		Payload tp = *readRef0;
-		Payload tp2(refSeed);
-		if(tp == tp2){
-		  ret = true;
-		} else {
-		  std::cout <<" read failed : seed "<<refSeed<<std::endl;
-		}
+		TestPayloadClass tp = *readRef0;
+		TestPayloadClass tp2(refSeed);
+		if(tp != tp2)
+			std::cout <<" read failed : seed "<<refSeed<<std::endl;
 		trans.commit();
 	} catch ( const cond::Exception& exc )
 	{
 		std::cout << "ERROR: "<<exc.what()<<std::endl;
-		return false;
+		return 1;
 	}
-	return ret;
+	return 0;
 }
 
 bool TestFunct::ReadWithIOV(std::string mappingName, 
@@ -85,7 +79,6 @@ bool TestFunct::ReadWithIOV(std::string mappingName,
 {
  	cond::DbScopedTransaction trans(s);
  	cond::MetaData  metadata(s);
-        bool ret = false;
  	try {
  		trans.start(true);
  		std::string iovToken = metadata.getToken(mappingName);
@@ -93,24 +86,21 @@ bool TestFunct::ReadWithIOV(std::string mappingName,
  		cond::IOVProxy::const_iterator iPayload = iov.find( validity );
  		if( iPayload == iov.end() ){
  		  std::cout << "ERROR: no payload found in IOV for run="<<validity<<std::endl;
- 		  return false;
+ 		  return 1;
  		}
- 		boost::shared_ptr<Payload> readRef0 = s.getTypedObject<Payload>( iPayload->token() ); //v4	
+ 		boost::shared_ptr<TestPayloadClass> readRef0 = s.getTypedObject<TestPayloadClass>( iPayload->token() ); //v4	
  		std::cout << "Object with id="<<iPayload->token()<<" has been read"<<std::endl;
- 		Payload tp = *readRef0;
- 		Payload tp2(seed);
- 		if(tp == tp2){
-		  ret = true;
-		} else {
+ 		TestPayloadClass tp = *readRef0;
+ 		TestPayloadClass tp2(seed);
+ 		if(tp != tp2)
  		  std::cout <<" read failed : seed="<<seed<<std::endl;
-		}
  		trans.commit();
  	} catch ( const cond::Exception& exc )
  	{
  		std::cout << "ERROR: "<<exc.what()<<std::endl;
- 		return false;
+ 		return 1;
  	}
- 	return ret;
+ 	return 0;
 }
 
 bool TestFunct::ReadAll()
@@ -118,41 +108,40 @@ bool TestFunct::ReadAll()
 	cond::DbScopedTransaction trans(s);
 	cond::MetaData  metadata(s);
 	std::vector<std::string> tokenList;
-	bool ret = true;
 	try {
 		trans.start(true);
 		metadata.listAllTags(tokenList);
 		for(unsigned int i=0; i<tokenList.size(); i++)
 		{
-		  if(!Read(tokenList[i])) ret = false;
+			Read(tokenList[i]);
 		}
 		trans.commit();
 	} 
 	catch ( const cond::Exception& exc )
 	{
 		std::cout << "ERROR: "<<exc.what()<<std::endl;
-		return false;
+		return 1;
 	}
-	return ret;
+	return 0;
 }
 bool TestFunct::Write (std::string mappingName, int payloadID)
 {
-        cond::DbScopedTransaction trans(s);
-	cond::MetaData  metadata(s);
-	std::string tok0("");
+		cond::DbScopedTransaction trans(s);
+	   cond::MetaData  metadata(s);
+	   std::string tok0("");
 	try 
 	{
 	    trans.start();
-	    coral::ITable& mytable=s.nominalSchema().tableHandle("TEST_METADATA");
-	    coral::AttributeList rowBuffer;
-	    coral::ITableDataEditor& dataEditor = mytable.dataEditor();
-	    dataEditor.rowBuffer( rowBuffer );
-	    rowBuffer["NAME"].data<std::string>()=mappingName;
-	    rowBuffer["SEED"].data<int>()=payloadID;
-	    rowBuffer["RUN"].data<int>()=-1;
-	    dataEditor.insertRow( rowBuffer );		
-	    s.createDatabase();
-	    boost::shared_ptr<Payload> myRef0(new Payload(payloadID)); //v4
+		coral::ITable& mytable=s.nominalSchema().tableHandle("TEST_METADATA");
+		coral::AttributeList rowBuffer;
+		coral::ITableDataEditor& dataEditor = mytable.dataEditor();
+		dataEditor.rowBuffer( rowBuffer );
+		rowBuffer["NAME"].data<std::string>()=mappingName;
+		rowBuffer["SEED"].data<int>()=payloadID;
+                rowBuffer["RUN"].data<int>()=-1;
+		dataEditor.insertRow( rowBuffer );		
+		s.createDatabase();
+		boost::shared_ptr<TestPayloadClass> myRef0(new TestPayloadClass(payloadID)); //v4
 	    tok0 = s.storeObject( myRef0.get(),"cont1"); //v4
 	    metadata.addMapping(mappingName, tok0);
 	    std::cout << "Stored object with id = "<<tok0<<std::endl;
@@ -160,9 +149,9 @@ bool TestFunct::Write (std::string mappingName, int payloadID)
 	} catch ( const cond::Exception& exc )
 	{
 		std::cout << "ERROR: "<<exc.what()<<std::endl;
-		return false;
+		return 1;
 	}
-	return true;
+	return 0;
 }
 
 bool TestFunct::WriteWithIOV(std::string mappingName, 
@@ -186,7 +175,7 @@ bool TestFunct::WriteWithIOV(std::string mappingName,
        dataEditor.insertRow( rowBuffer );		
      }
      s.createDatabase();
-     boost::shared_ptr<Payload> myRef0(new Payload(payloadID)); //v4
+     boost::shared_ptr<TestPayloadClass> myRef0(new TestPayloadClass(payloadID)); //v4
      std::string payloadTok = s.storeObject( myRef0.get(),"cont1"); 
      iov.create( cond::runnumber );
      iov.append( runValidity, payloadTok );
@@ -195,9 +184,9 @@ bool TestFunct::WriteWithIOV(std::string mappingName,
    } catch ( const cond::Exception& exc )
      {
        std::cout << "ERROR: "<<exc.what()<<std::endl;
-       return false;
+       return 1;
      }
-   return true;    
+   return 0;    
    
 }
 
@@ -224,9 +213,9 @@ bool TestFunct::CreateMetaTable ()
 		trans.commit();
 	}catch( const coral::TableAlreadyExistingException& er ){
 		std::cout<<"table alreay existing, not creating a new one"<<std::endl;
-		return false;
+		return 1;
 	}
-	return true;
+	return 0;
 }
 bool TestFunct::DropTables(std::string connStr)
 {
@@ -242,9 +231,9 @@ bool TestFunct::DropTables(std::string connStr)
 	catch ( const std::exception& exc )
 	{
 		std::cout <<" ERROR: "<<exc.what()<<std::endl;
-		return false;
+		return 1;
     }
-	return true;
+	return 0;
 }
 bool TestFunct::DropItem(std::string mappingName)
 {
@@ -260,8 +249,8 @@ bool TestFunct::DropItem(std::string mappingName)
 	catch ( const cond::Exception& exc )
 	{
 		std::cout << "ERROR: "<<exc.what()<<std::endl;
-		return false;
+		return 1;
 	}
 	
-	return true;
+	return 0;
 }

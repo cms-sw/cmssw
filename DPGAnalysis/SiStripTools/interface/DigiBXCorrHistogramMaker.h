@@ -167,11 +167,11 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int,s
     if(m_scalefact.size()>=1) {
       sprintf(title,"%s %s multiplicity vs BX separation",slab.c_str(),m_hitname.c_str());
       sprintf(name,"n%sdigivsdbx2D",slab.c_str());
-      m_ndigivsdbx2D[i] = subev.make<TH2F>(name,title,1000,-0.5,500000-0.5,m_nbins,0,(1+m_binmax[ui]/(m_scalefact[0]*m_nbins))*m_nbins);
+      m_ndigivsdbx2D[i] = subev.make<TH2F>(name,title,1000,-0.5,500000-0.5,m_nbins,0,m_binmax[ui]/(m_scalefact[0]*m_nbins)*m_nbins);
       sprintf(name,"n%sdigivsdbx2Dzoom2",slab.c_str());
-      m_ndigivsdbx2Dzoom2[i] = subev.make<TH2F>(name,title,1000,-0.5,50000-0.5,m_nbins,0,(1+m_binmax[ui]/(m_scalefact[0]*m_nbins))*m_nbins);
+      m_ndigivsdbx2Dzoom2[i] = subev.make<TH2F>(name,title,1000,-0.5,50000-0.5,m_nbins,0,m_binmax[ui]/(m_scalefact[0]*m_nbins)*m_nbins);
       sprintf(name,"n%sdigivsdbx2Dzoom",slab.c_str());
-      m_ndigivsdbx2Dzoom[i] = subev.make<TH2F>(name,title,1000,-0.5,999.5,m_nbins,0,(1+m_binmax[ui]/(m_scalefact[0]*m_nbins))*m_nbins);
+      m_ndigivsdbx2Dzoom[i] = subev.make<TH2F>(name,title,1000,-0.5,999.5,m_nbins,0,m_binmax[ui]/(m_scalefact[0]*m_nbins)*m_nbins);
 
       m_ndigivsdbx2D[i]->GetXaxis()->SetTitle("#DeltaBX"); m_ndigivsdbx2D[i]->GetYaxis()->SetTitle("Number of Hits"); 
       m_ndigivsdbx2Dzoom2[i]->GetXaxis()->SetTitle("#DeltaBX"); m_ndigivsdbx2Dzoom2[i]->GetYaxis()->SetTitle("Number of Hits"); 
@@ -211,7 +211,7 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int,s
 	
 	sprintf(name,"n%sdigivsdbxincycle2D",slab.c_str());
 	sprintf(title,"%s %s multiplicity vs BX separation w.r.t. cycle",slab.c_str(),m_hitname.c_str());
-	m_ndigivsdbxincycle2D[i] = subev.make<TH2F>(name,title,1000,-0.5,999.5,m_nbins,0.,(1+m_binmax[ui]/(m_scalefact[0]*m_nbins))*m_nbins);
+	m_ndigivsdbxincycle2D[i] = subev.make<TH2F>(name,title,1000,-0.5,999.5,m_nbins,0.,m_binmax[ui]/(m_scalefact[0]*m_nbins)*m_nbins);
 	m_ndigivsdbxincycle2D[i]->GetXaxis()->SetTitle("#DeltaBX w.r.t. cycle");   m_ndigivsdbxincycle2D[i]->GetYaxis()->SetTitle("Number of Hits"); 
 
 	if(m_dbx3Histo) {
@@ -224,7 +224,7 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int,s
 	  if(m_dbx3Histo3D) {
 	    sprintf(name,"n%sdigivsdbxincycle33D",slab.c_str());
 	    sprintf(title,"%s %s multiplicity vs Triplets BX separation w.r.t. cycle",slab.c_str(),m_hitname.c_str());
-	    m_ndigivsdbxincycle33D[i] = subev.make<TH3F>(name,title,2000,-0.5,1999.5,30,-0.5,2099.5,50,0.,(1+m_binmax[ui]/(m_scalefact[0]*50))*50);
+	    m_ndigivsdbxincycle33D[i] = subev.make<TH3F>(name,title,2000,-0.5,1999.5,30,-0.5,2099.5,50,0.,m_binmax[ui]/(m_scalefact[0]*50)*50);
 	    m_ndigivsdbxincycle33D[i]->GetXaxis()->SetTitle("#DeltaBX(n,n-1)");  
 	    m_ndigivsdbxincycle33D[i]->GetYaxis()->SetTitle("#DeltaBX(n,n-2)-#DeltaBX(n,n-1)");
 	  }
@@ -247,18 +247,18 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int,s
 
       if(m_scalefact.size()>=1) {
 	sprintf(name,"n%sdigivscycle",slab.c_str());
-	m_ndigivscycle[i] =subev.make<TH2F>(name,title,70,-0.5,69.5,m_nbins,0,(1+m_binmax[ui]/(m_scalefact[0]*m_nbins))*m_nbins);
+	m_ndigivscycle[i] =subev.make<TH2F>(name,title,70,-0.5,69.5,m_nbins,0,m_binmax[ui]/(m_scalefact[0]*m_nbins)*m_nbins);
 	m_ndigivscycle[i]->GetXaxis()->SetTitle("absolute BX mod(70)"); m_ndigivscycle[i]->GetYaxis()->SetTitle("Number of Hits");
       }
       if(m_scalefact.size()>=2) {
 	sprintf(name,"n%sdigivscyclezoom",slab.c_str());
-	m_ndigivscyclezoom[i] =subev.make<TH2F>(name,title,70,-0.5,69.5,m_nbins,0,(1+m_binmax[ui]/(m_scalefact[1]*m_nbins))*m_nbins);
+	m_ndigivscyclezoom[i] =subev.make<TH2F>(name,title,70,-0.5,69.5,m_nbins,0,m_binmax[ui]/(m_scalefact[1]*m_nbins)*m_nbins);
 	m_ndigivscyclezoom[i]->GetXaxis()->SetTitle("absolute BX mod(70)"); 
 	m_ndigivscyclezoom[i]->GetYaxis()->SetTitle("Number of Hits");
       }
       if(m_scalefact.size()>=3) {
 	sprintf(name,"n%sdigivscyclezoom2",slab.c_str());
-	m_ndigivscyclezoom2[i] =subev.make<TH2F>(name,title,70,-0.5,69.5,m_nbins,0,(1+m_binmax[ui]/(m_scalefact[2]*m_nbins))*m_nbins);
+	m_ndigivscyclezoom2[i] =subev.make<TH2F>(name,title,70,-0.5,69.5,m_nbins,0,m_binmax[ui]/(m_scalefact[2]*m_nbins)*m_nbins);
 	m_ndigivscyclezoom2[i]->GetXaxis()->SetTitle("absolute BX mod(70)"); 
 	m_ndigivscyclezoom2[i]->GetYaxis()->SetTitle("Number of Hits");
       }
@@ -280,7 +280,7 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int,s
     if(m_runHisto) {
       sprintf(name,"n%sdigivscycletime",slab.c_str());
       sprintf(title,"%s %s multiplicity vs BX mod(70) and Orbit",slab.c_str(),m_hitname.c_str());
-      m_ndigivscycletime[i] =  m_rhm.makeTProfile2D(name,title,70,-0.5,69.5,90,0.,90*262144);
+      m_ndigivscycletime[i] =  m_rhm.makeTProfile2D(name,title,70,-0.5,69.5,90,0.,90.*11223);
       //      m_ndigivscycletime[i]->GetXaxis()->SetTitle("Event 1 BX mod(70)"); m_ndigivscycletime[i]->GetYaxis()->SetTitle("time [Orb#]"); 
       //      m_ndigivscycletime[i]->SetBit(TH1::kCanRebin);
     }
@@ -296,17 +296,17 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int,s
     
     if(m_scalefact.size()>=1) {
       sprintf(name,"n%sdigivsbx2D",slab.c_str());
-      m_ndigivsbx2D[i] =subev.make<TH2F>(name,title,3564,-0.5,3563.5,m_nbins,0,(1+m_binmax[ui]/(m_scalefact[0]*m_nbins))*m_nbins);
+      m_ndigivsbx2D[i] =subev.make<TH2F>(name,title,3564,-0.5,3563.5,m_nbins,0,m_binmax[ui]/(m_scalefact[0]*m_nbins)*m_nbins);
       m_ndigivsbx2D[i]->GetXaxis()->SetTitle("BX#"); m_ndigivsbx2D[i]->GetYaxis()->SetTitle("Number of Hits");
     }
     if(m_scalefact.size()>=2) {
       sprintf(name,"n%sdigivsbx2Dzoom",slab.c_str());
-      m_ndigivsbx2Dzoom[i] =subev.make<TH2F>(name,title,3564,-0.5,3563.5,m_nbins,0,(1+m_binmax[ui]/(m_scalefact[1]*m_nbins))*m_nbins);
+      m_ndigivsbx2Dzoom[i] =subev.make<TH2F>(name,title,3564,-0.5,3563.5,m_nbins,0,m_binmax[ui]/(m_scalefact[1]*m_nbins)*m_nbins);
       m_ndigivsbx2Dzoom[i]->GetXaxis()->SetTitle("BX#"); m_ndigivsbx2Dzoom[i]->GetYaxis()->SetTitle("Number of Hits");
     }
     if(m_scalefact.size()>=3) {
       sprintf(name,"n%sdigivsbx2Dzoom2",slab.c_str());
-      m_ndigivsbx2Dzoom2[i] =subev.make<TH2F>(name,title,3564,-0.5,3563.5,m_nbins,0,(1+m_binmax[ui]/(m_scalefact[2]*m_nbins))*m_nbins);
+      m_ndigivsbx2Dzoom2[i] =subev.make<TH2F>(name,title,3564,-0.5,3563.5,m_nbins,0,m_binmax[ui]/(m_scalefact[2]*m_nbins)*m_nbins);
       m_ndigivsbx2Dzoom2[i]->GetXaxis()->SetTitle("BX#"); m_ndigivsbx2Dzoom2[i]->GetYaxis()->SetTitle("Number of Hits");
     }
 
@@ -347,81 +347,79 @@ void DigiBXCorrHistogramMaker<T>::fill(const T& he, const std::map<int,int>& ndi
 	    thephase = phase->getPhase(m_phasepart[ui]);
 	  }
 	}
+
+      long long tbx = he.absoluteBX();
+      if(thephase!=APVCyclePhaseCollection::nopartition &&
+	 thephase!=APVCyclePhaseCollection::multiphase &&
+	 thephase!=APVCyclePhaseCollection::invalid) tbx -= thephase;
+
+      if(m_nmeandigivscycle.find(i)!=m_nmeandigivscycle.end()) m_nmeandigivscycle[i]->Fill(tbx%70,digi->second);
+
+      if(m_ndigivscycle.find(i)!=m_ndigivscycle.end()) m_ndigivscycle[i]->Fill(tbx%70,digi->second);
+      if(m_ndigivscyclezoom.find(i)!=m_ndigivscyclezoom.end()) m_ndigivscyclezoom[i]->Fill(tbx%70,digi->second);
+      if(m_ndigivscyclezoom2.find(i)!=m_ndigivscyclezoom2.end()) m_ndigivscyclezoom2[i]->Fill(tbx%70,digi->second);
+      
+      if(m_runHisto) {
+	if(m_ndigivscycletime.find(i)!=m_ndigivscycletime.end()) {
+	  if(m_ndigivscycletime[i]!=0 && (*m_ndigivscycletime[i])!=0 ) (*m_ndigivscycletime[i])->Fill(tbx%70,(int)he._orbit,digi->second);
+	}
+      }
+
+      m_ndigivsbx[i]->Fill(he.bx(),digi->second);
+      if(m_ndigivsbx2D.find(i)!=m_ndigivsbx2D.end()) m_ndigivsbx2D[i]->Fill(he.bx(),digi->second);
+      if(m_ndigivsbx2Dzoom.find(i)!=m_ndigivsbx2Dzoom.end()) m_ndigivsbx2Dzoom[i]->Fill(he.bx(),digi->second);
+      if(m_ndigivsbx2Dzoom2.find(i)!=m_ndigivsbx2Dzoom2.end()) m_ndigivsbx2Dzoom2[i]->Fill(he.bx(),digi->second);
+      
+      
+      if(he.depth()>0) {
 	
-	long long tbx = he.absoluteBX();
+	long long dbx = he.deltaBX();
+	
+	m_ndigivsdbx[i]->Fill(dbx,digi->second);
+	m_ndigivsdbxzoom[i]->Fill(dbx,digi->second);
+	m_ndigivsdbxzoom2[i]->Fill(dbx,digi->second);
+	
+	if(m_ndigivsdbx2D.find(i)!=m_ndigivsdbx2D.end()) m_ndigivsdbx2D[i]->Fill(dbx,digi->second);
+	if(m_ndigivsdbx2Dzoom.find(i)!=m_ndigivsdbx2Dzoom.end()) m_ndigivsdbx2Dzoom[i]->Fill(dbx,digi->second);
+	if(m_ndigivsdbx2Dzoom2.find(i)!=m_ndigivsdbx2Dzoom2.end()) m_ndigivsdbx2Dzoom2[i]->Fill(dbx,digi->second);
+	
 	if(thephase!=APVCyclePhaseCollection::nopartition &&
 	   thephase!=APVCyclePhaseCollection::multiphase &&
 	   thephase!=APVCyclePhaseCollection::invalid) {
-	  
-	  tbx -= thephase;
-	  
-	  if(m_nmeandigivscycle.find(i)!=m_nmeandigivscycle.end()) m_nmeandigivscycle[i]->Fill(tbx%70,digi->second);
-	  
-	  if(m_ndigivscycle.find(i)!=m_ndigivscycle.end()) m_ndigivscycle[i]->Fill(tbx%70,digi->second);
-	  if(m_ndigivscyclezoom.find(i)!=m_ndigivscyclezoom.end()) m_ndigivscyclezoom[i]->Fill(tbx%70,digi->second);
-	  if(m_ndigivscyclezoom2.find(i)!=m_ndigivscyclezoom2.end()) m_ndigivscyclezoom2[i]->Fill(tbx%70,digi->second);
-	  
+	  long long dbxincycle = he.deltaBXinCycle(thephase);
+	  if(m_ndigivsdbxincycle2D.find(i)!=m_ndigivsdbxincycle2D.end()) m_ndigivsdbxincycle2D[i]->Fill(dbxincycle,digi->second);
+	  if(m_ndigivsdbxincycle.find(i)!=m_ndigivsdbxincycle.end()) m_ndigivsdbxincycle[i]->Fill(dbxincycle,digi->second);
 	}
+
+	long long prevtbx = he.absoluteBX(1);
+	if(thephase!=APVCyclePhaseCollection::nopartition &&
+	   thephase!=APVCyclePhaseCollection::multiphase &&
+	   thephase!=APVCyclePhaseCollection::invalid) prevtbx -= thephase;
+
 	
-	if(m_runHisto) {
-	  if(m_ndigivscycletime.find(i)!=m_ndigivscycletime.end()) {
-	    if(m_ndigivscycletime[i]!=0 && (*m_ndigivscycletime[i])!=0 ) (*m_ndigivscycletime[i])->Fill(tbx%70,(int)he._orbit,digi->second);
-	  }
-	}
+	if(m_ndigivscycledbx.find(i)!=m_ndigivscycledbx.end()) m_ndigivscycledbx[i]->Fill(prevtbx%70,dbx,digi->second);
+	if(m_ndigivscycle2dbx.find(i)!=m_ndigivscycle2dbx.end()) m_ndigivscycle2dbx[i]->Fill(tbx%70,dbx,digi->second);
 	
-	m_ndigivsbx[i]->Fill(he.bx(),digi->second);
-	if(m_ndigivsbx2D.find(i)!=m_ndigivsbx2D.end()) m_ndigivsbx2D[i]->Fill(he.bx(),digi->second);
-	if(m_ndigivsbx2Dzoom.find(i)!=m_ndigivsbx2Dzoom.end()) m_ndigivsbx2Dzoom[i]->Fill(he.bx(),digi->second);
-	if(m_ndigivsbx2Dzoom2.find(i)!=m_ndigivsbx2Dzoom2.end()) m_ndigivsbx2Dzoom2[i]->Fill(he.bx(),digi->second);
-	
-	
-	if(he.depth()>0) {
+	if(he.depth()>1) {
 	  
-	  long long dbx = he.deltaBX();
+	  long long dbx2 = he.deltaBX(2);
+	  m_ndigivsdbx3zoom[i]->Fill(dbx2,dbx,digi->second);
 	  
-	  m_ndigivsdbx[i]->Fill(dbx,digi->second);
-	  m_ndigivsdbxzoom[i]->Fill(dbx,digi->second);
-	  m_ndigivsdbxzoom2[i]->Fill(dbx,digi->second);
-	  
-	  if(m_ndigivsdbx2D.find(i)!=m_ndigivsdbx2D.end()) m_ndigivsdbx2D[i]->Fill(dbx,digi->second);
-	  if(m_ndigivsdbx2Dzoom.find(i)!=m_ndigivsdbx2Dzoom.end()) m_ndigivsdbx2Dzoom[i]->Fill(dbx,digi->second);
-	  if(m_ndigivsdbx2Dzoom2.find(i)!=m_ndigivsdbx2Dzoom2.end()) m_ndigivsdbx2Dzoom2[i]->Fill(dbx,digi->second);
-	  
-	  long long prevtbx = he.absoluteBX(1);
 	  if(thephase!=APVCyclePhaseCollection::nopartition &&
 	     thephase!=APVCyclePhaseCollection::multiphase &&
 	     thephase!=APVCyclePhaseCollection::invalid) {
-	    
 	    long long dbxincycle = he.deltaBXinCycle(thephase);
-	    if(m_ndigivsdbxincycle2D.find(i)!=m_ndigivsdbxincycle2D.end()) m_ndigivsdbxincycle2D[i]->Fill(dbxincycle,digi->second);
-	    if(m_ndigivsdbxincycle.find(i)!=m_ndigivsdbxincycle.end()) m_ndigivsdbxincycle[i]->Fill(dbxincycle,digi->second);
-	    
-	    prevtbx -= thephase;
-	    if(m_ndigivscycledbx.find(i)!=m_ndigivscycledbx.end()) m_ndigivscycledbx[i]->Fill(prevtbx%70,dbx,digi->second);
-	    if(m_ndigivscycle2dbx.find(i)!=m_ndigivscycle2dbx.end()) m_ndigivscycle2dbx[i]->Fill(tbx%70,dbx,digi->second);
-	    
-	  }
-	  
-	  if(he.depth()>1) {
-	    
-	    long long dbx2 = he.deltaBX(2);
-	    m_ndigivsdbx3zoom[i]->Fill(dbx2,dbx,digi->second);
-	    
-	    if(thephase!=APVCyclePhaseCollection::nopartition &&
-	       thephase!=APVCyclePhaseCollection::multiphase &&
-	       thephase!=APVCyclePhaseCollection::invalid) {
-	      long long dbxincycle = he.deltaBXinCycle(thephase);
-	      long long dbxincycle2 = he.deltaBXinCycle(2,thephase);
-	      if(m_dbx3Histo) {
-		if(m_ndigivsdbxincycle3.find(i)!=m_ndigivsdbxincycle3.end()) m_ndigivsdbxincycle3[i]->Fill(dbxincycle,dbxincycle2-dbxincycle,digi->second);
-		if(m_dbx3Histo3D) {
-		  if(m_ndigivsdbxincycle33D.find(i)!=m_ndigivsdbxincycle33D.end()) m_ndigivsdbxincycle33D[i]->Fill(dbxincycle,dbxincycle2-dbxincycle,digi->second);
-		}
+	    long long dbxincycle2 = he.deltaBXinCycle(2,thephase);
+	    if(m_dbx3Histo) {
+	      if(m_ndigivsdbxincycle3.find(i)!=m_ndigivsdbxincycle3.end()) m_ndigivsdbxincycle3[i]->Fill(dbxincycle,dbxincycle2-dbxincycle,digi->second);
+	      if(m_dbx3Histo3D) {
+		if(m_ndigivsdbxincycle33D.find(i)!=m_ndigivsdbxincycle33D.end()) m_ndigivsdbxincycle33D[i]->Fill(dbxincycle,dbxincycle2-dbxincycle,digi->second);
 	      }
 	    }
 	  }
 	}
-	
+      }
+      
     }
     else {
       edm::LogWarning("MissingKey") << " Key " << digi->first << " is missing ";

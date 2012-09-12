@@ -42,8 +42,6 @@
 
 #include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
 
-#include "DPGAnalysis/SiStripTools/interface/RunHistogramManager.h"
-
 //
 // class decleration
 //
@@ -66,16 +64,13 @@ class APVCyclePhaseMonitor : public edm::EDAnalyzer {
   const edm::InputTag _apvphasecollection;
   std::vector<std::string> _selectedparts;
   std::vector<std::string> _selectedvectorparts;
-  const unsigned int m_maxLS;
-  const unsigned int m_LSfrac;
-  RunHistogramManager m_rhm;
   std::map<std::string,TH1F*> _hphases;
-  std::map<std::string,TH1F**> _hselectedphases;
-  std::map<std::string,TH1F**> _hselectedphasesvector;
-  std::map<std::string,TH1F**> _hselectedphasessize;
+  std::map<std::string,TH1F*> _hselectedphases;
+  std::map<std::string,TH1F*> _hselectedphasesvector;
+  std::map<std::string,TH1F*> _hselectedphasessize;
   std::map<std::string,TProfile*> _hphasevsorbit;
-  std::map<std::string,TProfile**> _hselectedphasevsorbit;
-  std::map<std::string,TProfile**> _hselectedphasevectorvsorbit;
+  std::map<std::string,TProfile*> _hselectedphasevsorbit;
+  std::map<std::string,TProfile*> _hselectedphasevectorvsorbit;
   unsigned int _nevents;
 };
 
@@ -94,8 +89,6 @@ APVCyclePhaseMonitor::APVCyclePhaseMonitor(const edm::ParameterSet& iConfig):
   _apvphasecollection(iConfig.getParameter<edm::InputTag>("apvCyclePhaseCollection")),
   _selectedparts(iConfig.getUntrackedParameter<std::vector<std::string> >("selectedPartitions",std::vector<std::string>())),
   _selectedvectorparts(iConfig.getUntrackedParameter<std::vector<std::string> >("selectedVectorPartitions",std::vector<std::string>())),
-  m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin",125)),
-  m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction",16)),
   _hphases(),_hselectedphases(),_hselectedphasesvector(),_hselectedphasessize(),
   _hphasevsorbit(),_hselectedphasevsorbit(),_hselectedphasevectorvsorbit(),
   _nevents(0)
@@ -103,38 +96,6 @@ APVCyclePhaseMonitor::APVCyclePhaseMonitor(const edm::ParameterSet& iConfig):
    //now do what ever initialization is needed
 
   edm::LogInfo("UsedAPVCyclePhaseCollection") << " APVCyclePhaseCollection " << _apvphasecollection << " used";
-
-  for(std::vector<std::string>::const_iterator part=_selectedparts.begin();part!=_selectedparts.end();++part) {
-
-    char hname[300];
-    
-    sprintf(hname,"selected_phase_%s",part->c_str());
-    edm::LogInfo("SelectedTH1FBeingBooked") << "TH1F " << hname << " being booked" ;
-    _hselectedphases[*part] = m_rhm.makeTH1F(hname,hname,70,-0.5,69.5);
-    
-    sprintf(hname,"selected_phasevsorbit_%s",part->c_str());
-    edm::LogInfo("SelectedTProfileBeingBooked") << "TProfile " << hname << " being booked" ;
-    _hselectedphasevsorbit[*part] = m_rhm.makeTProfile(hname,hname,m_LSfrac*m_maxLS,0,m_maxLS*262144);
-  }
-
-  for(std::vector<std::string>::const_iterator part=_selectedvectorparts.begin();
-      part!=_selectedvectorparts.end();++part) {
-
-    char hname[300];
-    
-    sprintf(hname,"selected_phase_vector_%s",part->c_str());
-    edm::LogInfo("SelectedVectTH1FBeingBooked") << "TH1F " << hname << " being booked" ;
-    _hselectedphasesvector[*part] = m_rhm.makeTH1F(hname,hname,70,-0.5,69.5);
-    
-    sprintf(hname,"selected_phase_size_%s",part->c_str());
-    edm::LogInfo("SelectedVectSizeTH1FBeingBooked") << "TH1F " << hname << " being booked" ;
-    _hselectedphasessize[*part] = m_rhm.makeTH1F(hname,hname,10,-0.5,9.5);
-    
-    sprintf(hname,"selected_phasevectorvsorbit_%s",part->c_str());
-    edm::LogInfo("SelectedVectTProfileBeingBooked") << "TProfile " << hname << " being booked" ;
-    _hselectedphasevectorvsorbit[*part] = m_rhm.makeTProfile(hname,hname,m_LSfrac*m_maxLS,0,m_maxLS*262144);
-  }
-
 
 }
 
@@ -183,7 +144,7 @@ APVCyclePhaseMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
        sprintf(hname,"phasevsorbit_%s",phase->first.c_str());
        edm::LogInfo("TProfileBeingBooked") << "TProfile " << hname << " being booked" ;
-       _hphasevsorbit[phase->first] = subrun.make<TProfile>(hname,hname,m_LSfrac*m_maxLS,0,m_maxLS*262144);
+       _hphasevsorbit[phase->first] = subrun.make<TProfile>(hname,hname,1800,0.,1800*11223);
        _hphasevsorbit[phase->first]->SetBit(TH1::kCanRebin);
        _hphasevsorbit[phase->first]->GetXaxis()->SetTitle("time [orbit#]"); _hphasevsorbit[phase->first]->GetYaxis()->SetTitle("Phase");
        
@@ -195,11 +156,11 @@ APVCyclePhaseMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    // selected partitions
    
    for(std::vector<std::string>::const_iterator part=_selectedparts.begin();part!=_selectedparts.end();++part) {
-     if(_hselectedphases.find(*part)!=_hselectedphases.end() && _hselectedphases[*part] && *_hselectedphases[*part]) {
-       (*_hselectedphases[*part])->Fill(apvphases->getPhase(*part));
+     if(_hselectedphases.find(*part)!=_hselectedphases.end()) {
+       _hselectedphases[*part]->Fill(apvphases->getPhase(*part));
      }
-     if(_hselectedphasevsorbit.find(*part)!=_hselectedphasevsorbit.end() && _hselectedphasevsorbit[*part] && *_hselectedphasevsorbit[*part]) {
-       (*_hselectedphasevsorbit[*part])->Fill(iEvent.orbitNumber(),apvphases->getPhase(*part));
+     if(_hselectedphasevsorbit.find(*part)!=_hselectedphasevsorbit.end()) {
+       _hselectedphasevsorbit[*part]->Fill(iEvent.orbitNumber(),apvphases->getPhase(*part));
      }
    }
 
@@ -208,17 +169,16 @@ APVCyclePhaseMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
      const std::vector<int> phases = apvphases->getPhases(*part);
 
-      if(_hselectedphasessize.find(*part)!=_hselectedphasessize.end() && _hselectedphasessize[*part] && *_hselectedphasessize[*part]) {
-	(*_hselectedphasessize[*part])->Fill(phases.size());
+      if(_hselectedphasessize.find(*part)!=_hselectedphasessize.end()) {
+	_hselectedphasessize[*part]->Fill(phases.size());
       }
 
      for(std::vector<int>::const_iterator phase=phases.begin();phase!=phases.end();++phase) {
-       if(_hselectedphasesvector.find(*part)!=_hselectedphasesvector.end() && _hselectedphasesvector[*part] && *_hselectedphasesvector[*part]) {
-	 (*_hselectedphasesvector[*part])->Fill(*phase);
+       if(_hselectedphasesvector.find(*part)!=_hselectedphasesvector.end()) {
+	 _hselectedphasesvector[*part]->Fill(*phase);
        }
-       if(_hselectedphasevectorvsorbit.find(*part)!=_hselectedphasevectorvsorbit.end() && 
-	  _hselectedphasevectorvsorbit[*part] && *_hselectedphasevectorvsorbit[*part]) {
-	 (*_hselectedphasevectorvsorbit[*part])->Fill(iEvent.orbitNumber(),*phase);
+       if(_hselectedphasevectorvsorbit.find(*part)!=_hselectedphasevectorvsorbit.end()) {
+	 _hselectedphasevectorvsorbit[*part]->Fill(iEvent.orbitNumber(),*phase);
        }
      }
 
@@ -230,40 +190,60 @@ APVCyclePhaseMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup&)
 {
   
   _hphases.clear();
+  _hselectedphases.clear();
+  _hselectedphasesvector.clear();
+  _hselectedphasessize.clear();
   _hphasevsorbit.clear();
+  _hselectedphasevsorbit.clear();
+  _hselectedphasevectorvsorbit.clear();
 
-  m_rhm.beginRun(iRun);
+  edm::Service<TFileService> tfserv;
+
+  char dirname[300];
+  sprintf(dirname,"run_%d",iRun.run());
+  TFileDirectory subrun = tfserv->mkdir(dirname);
   
-  for(std::map<std::string,TH1F**>::const_iterator hist=_hselectedphases.begin();hist!=_hselectedphases.end();++hist) {
-    if(*(hist->second)) {
-      (*(hist->second))->GetXaxis()->SetTitle("BX mod 70"); (*(hist->second))->GetYaxis()->SetTitle("Events");
-    }
-  }
-  for(std::map<std::string,TProfile**>::const_iterator prof=_hselectedphasevsorbit.begin();prof!=_hselectedphasevsorbit.end();++prof) {
-    if(*(prof->second)) {
-      (*(prof->second))->SetBit(TH1::kCanRebin);
-      (*(prof->second))->GetXaxis()->SetTitle("time [orbit#]"); 
-      (*(prof->second))->GetYaxis()->SetTitle("Phase");
-    }
-  }
-  for(std::map<std::string,TH1F**>::const_iterator hist=_hselectedphasesvector.begin();hist!=_hselectedphasesvector.end();++hist) {
-    if(*(hist->second)) {
-      (*(hist->second))->GetXaxis()->SetTitle("BX mod 70"); (*(hist->second))->GetYaxis()->SetTitle("Events");
-    }
-  }
-  for(std::map<std::string,TH1F**>::const_iterator hist=_hselectedphasessize.begin();hist!=_hselectedphasessize.end();++hist) {
-    if(*(hist->second)) {
-      (*(hist->second))->GetXaxis()->SetTitle("Number of Phases"); (*(hist->second))->GetYaxis()->SetTitle("Events");
-    }
-  }
-  for(std::map<std::string,TProfile**>::const_iterator prof=_hselectedphasevectorvsorbit.begin();prof!=_hselectedphasevectorvsorbit.end();++prof) {
-    if(*(prof->second)) {
-      (*(prof->second))->SetBit(TH1::kCanRebin);
-      (*(prof->second))->GetXaxis()->SetTitle("time [orbit#]"); 
-      (*(prof->second))->GetYaxis()->SetTitle("Phase");
-    }
+  for(std::vector<std::string>::const_iterator part=_selectedparts.begin();part!=_selectedparts.end();++part) {
+
+    char hname[300];
+    
+    sprintf(hname,"selected_phase_%s",part->c_str());
+    edm::LogInfo("SelectedTH1FBeingBooked") << "TH1F " << hname << " being booked" ;
+    _hselectedphases[*part] = subrun.make<TH1F>(hname,hname,70,-0.5,69.5);
+    _hselectedphases[*part]->GetXaxis()->SetTitle("BX mod 70"); _hselectedphases[*part]->GetYaxis()->SetTitle("Events");
+    
+    sprintf(hname,"selected_phasevsorbit_%s",part->c_str());
+    edm::LogInfo("SelectedTProfileBeingBooked") << "TProfile " << hname << " being booked" ;
+    _hselectedphasevsorbit[*part] = subrun.make<TProfile>(hname,hname,1800,0.,1800*11223);
+    _hselectedphasevsorbit[*part]->SetBit(TH1::kCanRebin);
+    _hselectedphasevsorbit[*part]->GetXaxis()->SetTitle("time [orbit#]"); 
+    _hselectedphasevsorbit[*part]->GetYaxis()->SetTitle("Phase");
   }
 
+  for(std::vector<std::string>::const_iterator part=_selectedvectorparts.begin();
+      part!=_selectedvectorparts.end();++part) {
+
+    char hname[300];
+    
+    sprintf(hname,"selected_phase_vector_%s",part->c_str());
+    edm::LogInfo("SelectedVectTH1FBeingBooked") << "TH1F " << hname << " being booked" ;
+    _hselectedphasesvector[*part] = subrun.make<TH1F>(hname,hname,70,-0.5,69.5);
+    _hselectedphasesvector[*part]->GetXaxis()->SetTitle("BX mod 70"); 
+    _hselectedphasesvector[*part]->GetYaxis()->SetTitle("Events");
+    
+    sprintf(hname,"selected_phase_size_%s",part->c_str());
+    edm::LogInfo("SelectedVectSizeTH1FBeingBooked") << "TH1F " << hname << " being booked" ;
+    _hselectedphasessize[*part] = subrun.make<TH1F>(hname,hname,10,-0.5,9.5);
+    _hselectedphasessize[*part]->GetXaxis()->SetTitle("Number of Phases"); 
+    _hselectedphasessize[*part]->GetYaxis()->SetTitle("Events");
+    
+    sprintf(hname,"selected_phasevectorvsorbit_%s",part->c_str());
+    edm::LogInfo("SelectedVectTProfileBeingBooked") << "TProfile " << hname << " being booked" ;
+    _hselectedphasevectorvsorbit[*part] = subrun.make<TProfile>(hname,hname,1800,0.,1800*11223);
+    _hselectedphasevectorvsorbit[*part]->SetBit(TH1::kCanRebin);
+    _hselectedphasevectorvsorbit[*part]->GetXaxis()->SetTitle("time [orbit#]"); 
+    _hselectedphasevectorvsorbit[*part]->GetYaxis()->SetTitle("Phase");
+  }
 }
 
 void 

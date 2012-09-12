@@ -1,8 +1,8 @@
 /** \class MuonProducer
  *  See header file.
  *
- *  $Date: 2011/09/22 10:44:11 $
- *  $Revision: 1.14 $
+ *  $Date: 2011/11/22 18:01:13 $
+ *  $Revision: 1.15 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
@@ -107,30 +107,52 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
   
   theMuToMuMapName = theMuonsCollectionLabel.label()+"2"+theAlias+"sMap";
   produces<edm::ValueMap<reco::MuonRef> >(theMuToMuMapName);
+
+
+
   
   if(fillPFIsolation_){
-    edm::ParameterSet pfIsoPSet = pSet.getParameter<edm::ParameterSet>("PFIsolation");
-    thePFIsoHelper = new MuPFIsoHelper(pfIsoPSet);
-    edm::ParameterSet isoCfg03 = pfIsoPSet.getParameter<edm::ParameterSet>("isolationR03");
-    edm::ParameterSet isoCfg04 = pfIsoPSet.getParameter<edm::ParameterSet>("isolationR04");
-
-    theIsoPF03MapNames["chargedParticle"] = isoCfg03.getParameter<edm::InputTag>("chargedParticle");
-    theIsoPF03MapNames["chargedHadron"]   = isoCfg03.getParameter<edm::InputTag>("chargedHadron");
-    theIsoPF03MapNames["neutralHadron"]   = isoCfg03.getParameter<edm::InputTag>("neutralHadron");
-    theIsoPF03MapNames["photon"]          = isoCfg03.getParameter<edm::InputTag>("photon");
-    theIsoPF03MapNames["pu"]              = isoCfg03.getParameter<edm::InputTag>("pu");
-
-    theIsoPF04MapNames["chargedParticle"] = isoCfg04.getParameter<edm::InputTag>("chargedParticle");
-    theIsoPF04MapNames["chargedHadron"]   = isoCfg04.getParameter<edm::InputTag>("chargedHadron");
-    theIsoPF04MapNames["neutralHadron"]   = isoCfg04.getParameter<edm::InputTag>("neutralHadron");
-    theIsoPF04MapNames["photon"]          = isoCfg04.getParameter<edm::InputTag>("photon");
-    theIsoPF04MapNames["pu"]              = isoCfg04.getParameter<edm::InputTag>("pu");
     
-    for(std::map<std::string,edm::InputTag>::const_iterator map = theIsoPF03MapNames.begin(); map != theIsoPF03MapNames.end(); ++map)
-      produces<edm::ValueMap<double> >(labelOrInstance(map->second));
+    edm::ParameterSet pfIsoPSet = pSet.getParameter<edm::ParameterSet >("PFIsolation");
+
+    //Define a map between the isolation and the PSet for the PFHelper
+    std::map<std::string,edm::ParameterSet> psetMap;
+
+    //First declare what isolation you are going to read
+    std::vector<std::string> isolationLabels;
+    isolationLabels.push_back("pfIsolationR03");
+    isolationLabels.push_back("pfIsoMeanDRProfileR03");
+    isolationLabels.push_back("pfIsoSumDRProfileR03");
+    isolationLabels.push_back("pfIsolationR04");
+    isolationLabels.push_back("pfIsoMeanDRProfileR04");
+    isolationLabels.push_back("pfIsoSumDRProfileR04");
+
+    //Fill the label,pet map and initialize MuPFIsoHelper
+    for( std::vector<std::string>::const_iterator label = isolationLabels.begin();label != isolationLabels.end();++label)
+      psetMap[*label] =pfIsoPSet.getParameter<edm::ParameterSet >(*label); 
+    thePFIsoHelper = new MuPFIsoHelper(psetMap);
+
+    //Now loop on the mass read for each PSet the parameters and save them to the mapNames for later
+
+    for(std::map<std::string,edm::ParameterSet>::const_iterator map = psetMap.begin();map!= psetMap.end();++map) {
+      std::map<std::string,edm::InputTag> isoMap;
+      isoMap["chargedParticle"]              = map->second.getParameter<edm::InputTag>("chargedParticle");
+      isoMap["chargedHadron"]                = map->second.getParameter<edm::InputTag>("chargedHadron");
+      isoMap["neutralHadron"]                = map->second.getParameter<edm::InputTag>("neutralHadron");
+      isoMap["neutralHadronHighThreshold"]   = map->second.getParameter<edm::InputTag>("neutralHadronHighThreshold");
+      isoMap["photon"]                       = map->second.getParameter<edm::InputTag>("photon");
+      isoMap["photonHighThreshold"]          = map->second.getParameter<edm::InputTag>("photonHighThreshold");
+      isoMap["pu"]                           = map->second.getParameter<edm::InputTag>("pu");
+      pfIsoMapNames.push_back(isoMap);
+    }
+
+
+    for(unsigned int j=0;j<pfIsoMapNames.size();++j) {
+      for(std::map<std::string,edm::InputTag>::const_iterator map = pfIsoMapNames.at(j).begin(); map != pfIsoMapNames.at(j).end(); ++map)
+	produces<edm::ValueMap<double> >(labelOrInstance(map->second));
+
+    }
     
-    for(std::map<std::string,edm::InputTag>::const_iterator map = theIsoPF04MapNames.begin(); map != theIsoPF04MapNames.end(); ++map)
-      produces<edm::ValueMap<double> >(labelOrInstance(map->second));
   }
 }
 
@@ -200,21 +222,28 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
      event.getByLabel(theJetDepositName,jetIsoDepMap);
    }
 
-   std::map<std::string,edm::Handle<edm::ValueMap<double> > >  pfIso03Maps; 
-   std::map<std::string,std::vector<double> > pfIso03MapVals;
-   std::map<std::string,edm::Handle<edm::ValueMap<double> > >  pfIso04Maps; 
-   std::map<std::string,std::vector<double> > pfIso04MapVals;
+   
+
+   std::vector<std::map<std::string,edm::Handle<edm::ValueMap<double> > > > pfIsoMaps;
+   std::vector<std::map<std::string,std::vector<double> > > pfIsoMapVals;
 
    if(fillPFIsolation_){
-     for(std::map<std::string,edm::InputTag>::const_iterator map = theIsoPF03MapNames.begin(); map != theIsoPF03MapNames.end(); ++map){
-       event.getByLabel(map->second,pfIso03Maps[map->first]);
-       pfIso03MapVals[map->first].resize(nMuons);
-     }
-     for(std::map<std::string,edm::InputTag>::const_iterator map = theIsoPF04MapNames.begin(); map != theIsoPF04MapNames.end(); ++map){
-       event.getByLabel(map->second,pfIso04Maps[map->first]);
-       pfIso04MapVals[map->first].resize(nMuons);
-     }
+    for(unsigned int j=0;j<pfIsoMapNames.size();++j) {
+	std::map<std::string,std::vector<double> > mapVals;
+	std::map<std::string,edm::Handle<edm::ValueMap<double> > > maps;
+	for(std::map<std::string,edm::InputTag>::const_iterator map = pfIsoMapNames.at(j).begin(); map != pfIsoMapNames.at(j).end(); ++map) {
+	  edm::Handle<edm::ValueMap<double> > handleTmp;
+	  event.getByLabel(map->second,handleTmp);
+	  maps[map->first]=handleTmp;
+	  mapVals[map->first].resize(nMuons);
+	}
+	pfIsoMapVals.push_back(mapVals);
+	pfIsoMaps.push_back(maps);
+
+    }
    }
+
+
    
    std::vector<edm::Handle<edm::ValueMap<bool> > >  selectorMaps(fillSelectors_ ? theSelectorMapNames.size() : 0); 
    std::vector<std::vector<bool> > selectorMapResults(fillSelectors_ ? theSelectorMapNames.size() : 0);
@@ -279,12 +308,11 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
      fillMuonMap<reco::MuonRef>(event,inputMuonsOH, muonRefColl, theMuToMuMapName);
 
      if(fillPFIsolation_){
-       for(std::map<std::string,edm::InputTag>::const_iterator map = theIsoPF03MapNames.begin(); map != theIsoPF03MapNames.end(); ++map)
-	 fillMuonMap<double>(event, muonHandle, pfIso03MapVals[map->first], labelOrInstance(map->second));
-       for(std::map<std::string,edm::InputTag>::const_iterator map = theIsoPF04MapNames.begin(); map != theIsoPF04MapNames.end(); ++map)
-	 fillMuonMap<double>(event, muonHandle, pfIso04MapVals[map->first], labelOrInstance(map->second));
+       for(unsigned int j=0;j<pfIsoMapNames.size();++j) 
+	 for(std::map<std::string,edm::InputTag>::const_iterator map = pfIsoMapNames.at(j).begin(); map != pfIsoMapNames.at(j).end(); ++map) {
+	   fillMuonMap<double>(event, muonHandle, pfIsoMapVals.at(j)[map->first], labelOrInstance(map->second));
+	}
      }
-
      return;
    }
    
@@ -338,12 +366,13 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
      // Add PF isolation info
      if(fillPFIsolation_){
        thePFIsoHelper->embedPFIsolation(outMuon,muRef);
-       for(std::map<std::string,edm::InputTag>::const_iterator map = theIsoPF03MapNames.begin(); map != theIsoPF03MapNames.end(); ++map)
-	 pfIso03MapVals[map->first][i] = (*pfIso03Maps[map->first])[muRef];
-       for(std::map<std::string,edm::InputTag>::const_iterator map = theIsoPF04MapNames.begin(); map != theIsoPF04MapNames.end(); ++map)
-	 pfIso04MapVals[map->first][i] = (*pfIso04Maps[map->first])[muRef];
-     }
 
+       for(unsigned int j=0;j<pfIsoMapNames.size();++j) {
+	 for(std::map<std::string,edm::InputTag>::const_iterator map = pfIsoMapNames[j].begin(); map != pfIsoMapNames[j].end(); ++map){
+	   (pfIsoMapVals[j])[map->first][i] = (*pfIsoMaps[j][map->first])[muRef];
+	 }
+       }
+     }
      
      // Fill timing information   
      if(fillTimingInfo_){
@@ -378,7 +407,7 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
      outputMuons->push_back(outMuon); 
      ++i;
    }
-
+   
    dout << "Number of Muons in the new muon collection: " << outputMuons->size() << endl;
    edm::OrphanHandle<reco::MuonCollection> muonHandle = event.put(outputMuons);
 
@@ -397,10 +426,11 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
    }
    
    if(fillPFIsolation_){
-     for(std::map<std::string,edm::InputTag>::const_iterator map = theIsoPF03MapNames.begin(); map != theIsoPF03MapNames.end(); ++map)
-       fillMuonMap<double>(event, muonHandle, pfIso03MapVals[map->first], labelOrInstance(map->second));
-     for(std::map<std::string,edm::InputTag>::const_iterator map = theIsoPF04MapNames.begin(); map != theIsoPF04MapNames.end(); ++map)
-       fillMuonMap<double>(event, muonHandle, pfIso04MapVals[map->first], labelOrInstance(map->second));
+
+     for(unsigned int j=0;j<pfIsoMapNames.size();++j) {
+       for(std::map<std::string,edm::InputTag>::const_iterator map = pfIsoMapNames[j].begin(); map != pfIsoMapNames[j].end(); ++map) 
+	 fillMuonMap<double>(event, muonHandle, pfIsoMapVals[j][map->first], labelOrInstance(map->second));
+     }
    }   
 
    if(fillSelectors_){
@@ -419,9 +449,10 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 
    fillMuonMap<reco::MuonRef>(event,inputMuonsOH, muonRefColl, theMuToMuMapName);
    
-
-
+ 
 }
+
+
 
 template<typename TYPE>
 void MuonProducer::fillMuonMap(edm::Event& event,

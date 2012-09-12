@@ -46,27 +46,17 @@ process = customiseResetPrescalesAndMasks(process)
 
 # Input files
 if useRelValSample == True :
-    
     dataFiles = [
-       '/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V5-v1/0043/0ABED808-FE79-E111-A8CB-003048FFCBFC.root',
-       '/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V5-v1/0043/1ED8ACDC-FF79-E111-BEB8-0018F3D096C6.root',
-       '/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V5-v1/0043/38A7298B-FF79-E111-8E7D-003048FFD736.root',
-       '/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V5-v1/0043/48D6CA06-FE79-E111-8A08-001A92811716.root',
-       '/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V5-v1/0043/521004DD-FF79-E111-860D-003048679150.root',
-       '/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V5-v1/0043/52389B0B-FE79-E111-81E4-003048FFCBA4.root',
-       '/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V5-v1/0043/54738A02-FE79-E111-B495-0030486790B0.root',
-       '/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V5-v1/0043/5A921406-007A-E111-BFE5-003048FFD736.root',
-       '/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V5-v1/0043/5E86D805-FE79-E111-9EC4-003048FFD7A2.root',
-       '/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V5-v1/0043/66FCF29D-FF79-E111-9DCE-0018F3D096C6.root',
-       '/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V5-v1/0043/6C7BB304-FE79-E111-8FAC-001A92810AEE.root',
-       '/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V5-v1/0043/784AC1AB-FF79-E111-9C08-003048679150.root',
-       '/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V5-v1/0043/929ACBC3-FF79-E111-805A-003048FFD736.root',
-       '/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V5-v1/0043/A0D7350B-FE79-E111-8E0D-003048FFCC2C.root',
-       '/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V5-v1/0043/C268AF61-FD79-E111-AB3D-00261894397D.root',
-       '/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V5-v1/0043/D237D303-FE79-E111-B38B-001BFCDBD100.root',
-       '/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V5-v1/0043/D428BF06-FE79-E111-8445-003048678FEA.root',
-       '/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V5-v1/0043/EEB8C84A-FC79-E111-9BBB-002618943985.root' ]
-
+            '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/02B4D46B-BB51-E111-A789-003048678A76.root',
+            '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/0EAB51E9-BD51-E111-8C43-003048679228.root',
+            '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/16B22002-C251-E111-822B-002618FDA208.root',
+            '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/28C19137-C351-E111-80CD-003048FFCBF0.root',
+            '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/3034CA86-C051-E111-84F5-00304867D446.root',
+            '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/30850A05-C051-E111-9BA8-002618FDA262.root',
+            '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/3A0C39F6-BE51-E111-BEAE-0026189438E9.root',
+            '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/7ADEB285-C151-E111-888F-0018F3D0960C.root',
+            '/store/relval/CMSSW_5_2_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V1-v1/0033/A2810EE7-BB51-E111-9C4D-0026189438A0.root'
+       ]
 
 else :
     # run 143657
@@ -162,9 +152,8 @@ process.gtDigis.RecordLength = cms.vint32(3, 5)
 process.gtDigis.AlternativeNrBxBoardDaq = 0x101
 process.gtDigis.AlternativeNrBxBoardEvm = 0x2
 
-# switch on verbosity in L1 GT emulator
-#process.gtDigis.Verbosity = cms.untracked.int32(1)
-
+# verbosity on for emulator
+process.gtDigis.Verbosity = cms.untracked.int32(1)
 
 
 # Global Trigger report (emulator)
@@ -178,6 +167,9 @@ process.l1GtTrigReportEmul.PrintVerbosity = 10
 # - the pattern generator depends on the decision records produced by the GT emulator
 process.p = cms.Path(process.l1GtUnpack * process.l1GctHwDigis * process.gtDigis * process.l1GtPatternGenerator * process.l1GtTrigReportEmul)
 
+# switch on verbosity in L1 GT emulator
+process.gtDigis.Verbosity = cms.untracked.int32(1)
+
 # services
 # uncomment / comment messages with DEBUG mode to run in DEBUG mode
 process.MessageLogger = cms.Service("MessageLogger",
@@ -186,8 +178,8 @@ process.MessageLogger = cms.Service("MessageLogger",
          threshold = cms.untracked.string('DEBUG'), ## DEBUG mode 
 
          DEBUG = cms.untracked.PSet( 
-             #limit = cms.untracked.int32(-1)          ## DEBUG mode, all messages  
-             limit = cms.untracked.int32(0)          ## DEBUG mode, max 0 messages 
+             limit = cms.untracked.int32(-1)          ## DEBUG mode, all messages  
+             #limit = cms.untracked.int32(0)          ## DEBUG mode, max 10 messages 
          ),
          INFO = cms.untracked.PSet(
              limit = cms.untracked.int32(-1)

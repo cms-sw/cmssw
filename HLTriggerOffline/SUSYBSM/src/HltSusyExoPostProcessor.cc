@@ -133,68 +133,68 @@ void HltSusyExoPostProcessor::endRun(edm::Run const& run, edm::EventSetup const&
   LogDebug("HltSusyExoPostProcessor") << "Total number of events = " << nTotalBeforeCuts;
 
   //fill the eff histo
-  for(int i=0; i<nL1bins; i++) {
+  for(int i=0; i<nL1bins-1*mcFlag; i++) {
     value = (double) dqm->get(subDir_ + triggerBitsDir + "/L1Paths")->getBinContent(i+1) / (double) nTotalBeforeCuts;
     error = sqrt(value*(1-value)/(double)nTotalBeforeCuts);
      hL1EffBeforeCuts->setBinContent(i+1,value);
      hL1EffBeforeCuts->setBinEntries(i+1,1);
      hL1EffBeforeCuts->setBinError(i+1,error);
-    if(i!=nL1bins)
-      {
-	string triggername = ((TProfile*)hL1EffBeforeCuts->getTProfile())->GetXaxis()->GetBinLabel(i+1);
-	if( triggername.find(L1search6)==string::npos )
-	  {
-	    for(unsigned int j=0; j<sizeof(L1search)/sizeof(L1search[0])-2; ++j)
-	      {
-		if( triggername.find(L1search[j])!=string::npos || (j==3 && triggername.find(L1search3)!=string::npos) )
-		  {
-		    if(L1placement[i]==6)
-		      L1placement[i]=j;
-		    else if(L1placement[i]==2 && j==4)
-		      L1placement[i]=4;
-		    else
-		      L1placement[i]=5;
-		  }
-		else if(triggername.size()==0 || triggername.find("Total")!=string::npos)
-		  L1placement[i]=-1;
-	      }
-	  }
-      }
+     //if(i!=nL1bins)
+     // {
+     string triggername = ((TProfile*)hL1EffBeforeCuts->getTProfile())->GetXaxis()->GetBinLabel(i+1);
+     if( triggername.find(L1search6)==string::npos )
+       {
+	 for(unsigned int j=0; j<sizeof(L1search)/sizeof(L1search[0])-2; ++j)
+	   {
+	     if( triggername.find(L1search[j])!=string::npos || (j==3 && triggername.find(L1search3)!=string::npos) )
+	       {
+		 if(L1placement[i]==6)
+		   L1placement[i]=j;
+		 else if(L1placement[i]==2 && j==4)
+		   L1placement[i]=4;
+		 else
+		   L1placement[i]=5;
+	       }
+	     else if(triggername.size()==0 || triggername.find("Total")!=string::npos)
+	       L1placement[i]=-1;
+	   }
+       }
   }
+  
   for(unsigned int i=0; i<L1placement.size(); ++i) 
     if(L1placement[i]!=-1)
       ++L1bins[L1placement[i]];
 
-  for(int i=0; i<nHltbins; i++) {
+  for(int i=0; i<nHltbins-1*mcFlag; i++) {
     value = (double)dqm->get(subDir_ + triggerBitsDir + "/HltPaths")->getBinContent(i+1) / (double)nTotalBeforeCuts;
     error = sqrt(value*(1-value)/(double)nTotalBeforeCuts);
     hHltEffBeforeCuts->setBinContent(i+1,value);
     hHltEffBeforeCuts->setBinEntries(i+1,1);
     hHltEffBeforeCuts->setBinError(i+1,error);
-    if(i!=nHltbins)
+    // if(i!=nHltbins)
+    //  {
+    string triggername = ((TProfile*)hHltEffBeforeCuts->getTProfile())->GetXaxis()->GetBinLabel(i+1);
+    if( triggername.find(Hltsearch7_1)==string::npos && triggername.find(Hltsearch7_2)==string::npos )
       {
-	string triggername = ((TProfile*)hHltEffBeforeCuts->getTProfile())->GetXaxis()->GetBinLabel(i+1);
-	if( triggername.find(Hltsearch7_1)==string::npos && triggername.find(Hltsearch7_2)==string::npos )
+	for(unsigned int j=0; j<sizeof(Hltsearch)/sizeof(Hltsearch[0])-2; ++j)
 	  {
-	    for(unsigned int j=0; j<sizeof(Hltsearch)/sizeof(Hltsearch[0])-2; ++j)
+	    if( triggername.find(Hltsearch[j])!=string::npos || (j==4 && triggername.find(Hltsearch4)!=string::npos) || (j==5 && triggername.find(Hltsearch5)!=string::npos) )
 	      {
-		if( triggername.find(Hltsearch[j])!=string::npos || (j==4 && triggername.find(Hltsearch4)!=string::npos) || (j==5 && triggername.find(Hltsearch5)!=string::npos) )
-		  {
-		    if(Hltplacement[i]==7)
-		      Hltplacement[i]=j;
-		    else if( triggername.find(Hltsearch5)!=string::npos )
-		      Hltplacement[i]=5;
-		    else
-		      Hltplacement[i]=6;
-		  }
-		else if(triggername.size()==0 || triggername.find("Total")!=string::npos)
-		  Hltplacement[i]=-1;
+		if(Hltplacement[i]==7)
+		  Hltplacement[i]=j;
+		else if( triggername.find(Hltsearch5)!=string::npos )
+		  Hltplacement[i]=5;
+		else
+		  Hltplacement[i]=6;
 	      }
-	    if(Hltplacement[i]>=0 && Hltplacement[i]<=5 && (triggername.find(Hltsearch6_1)!=string::npos || (triggername.find(Hltsearch6_2)!=string::npos && Hltplacement[i]!=4) ))
-	      Hltplacement[i]=6;
+	    else if(triggername.size()==0 || triggername.find("Total")!=string::npos)
+	      Hltplacement[i]=-1;
 	  }
+	if(Hltplacement[i]>=0 && Hltplacement[i]<=5 && (triggername.find(Hltsearch6_1)!=string::npos || (triggername.find(Hltsearch6_2)!=string::npos && Hltplacement[i]!=4) ))
+	  Hltplacement[i]=6;
       }
   }
+  
   for(unsigned int i=0; i<Hltplacement.size(); ++i) 
     if(Hltplacement[i]!=-1)
       ++Hltbins[Hltplacement[i]];

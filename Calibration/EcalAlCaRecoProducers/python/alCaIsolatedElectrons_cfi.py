@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-alCaIsolatedElectrons = cms.EDProducer("AlCaECALRecHitReducer",
+alCaIsolatedElectrons = cms.EDProducer("AlCaElectronsProducer",
     electronLabel = cms.InputTag("gsfElectrons"),
     alcaEndcapHitCollection = cms.string('alcaEndcapHits'),
     phiSize = cms.int32(11),
