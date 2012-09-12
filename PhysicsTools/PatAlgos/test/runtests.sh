@@ -28,6 +28,8 @@ cmsRun ${LOCAL_TEST_DIR}/patTuple_topSelection_cfg.py || die 'Failure using patT
 
 cmsRun ${LOCAL_TEST_DIR}/patTuple_userData_cfg.py || die 'Failure using patTuple_userData_cfg.py' $?
 
+cmsRun ${LOCAL_TEST_DIR}/patTuple_data_cfg.py || die 'Failure using patTuple_data_cfg.py' $?
+
 # Not needed in IBs
 # cmsRun ${LOCAL_TEST_DIR}/patTuple_onlyElectrons_cfg.py || die 'Failure using patTuple_onlyElectrons_cfg.py' $?
 # cmsRun ${LOCAL_TEST_DIR}/patTuple_onlyJets_cfg.py || die 'Failure using patTuple_onlyJets_cfg.py' $?
