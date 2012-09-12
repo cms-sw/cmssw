@@ -10,9 +10,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: stenson $
-// $Date: 2012/02/19 20:21:34 $
-// $Revision: 1.6 $
+// $Author: innocent $
+// $Date: 2012/09/04 13:14:56 $
+// $Revision: 1.7 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -55,7 +55,6 @@ namespace cms
     reco::TrackExtraRefProd refTrkExtras;
     TrackingRecHitRefProd refTrkHits;
     edm::RefProd< std::vector<Trajectory> > refTrajs;
-    std::vector<reco::TrackRef> trackRefs;
     edm::RefProd< TrajectorySeedCollection > refTrajSeeds;
     
     bool copyExtras_;

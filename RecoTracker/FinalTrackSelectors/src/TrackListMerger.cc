@@ -485,8 +485,8 @@ namespace cms
     //  output selected tracks - if any
     //
     
-    trackRefs.resize(rSize);
-    std::vector<edm::RefToBase<TrajectorySeed> > seedsRefs(rSize);
+    reco::TrackRef trackRefs[rSize];
+    edm::RefToBase<TrajectorySeed> seedsRefs[rSize];
     
     unsigned int nToWrite=0;
     for ( unsigned int i=0; i<rSize; i++) 
