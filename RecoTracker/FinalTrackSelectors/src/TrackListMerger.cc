@@ -360,6 +360,12 @@ namespace cms
 	int nhit1 = nh1; // validHits[k1];
 	float score1 = score[k1];
 	
+	unsigned int ids1[nh1];
+	for (unsigned int ih=0; ih!=nh1; ++ih) {
+	  const TrackingRecHit * it = rh1[k1][ih];
+	   ids1[ih] = (~3)&it->rawId();  // mask mono/stereo...
+	}
+
 	// start at next collection
 	for ( unsigned int j=trackCollFirsts[collNum+1]; j<rSize; j++) {
 	  if (selected[j]==0) continue;
@@ -380,7 +386,7 @@ namespace cms
 	  unsigned int nh2=rh1[k2].size();
 	  int nhit2 = nh2; // validHits[k2];
 
-	  int nprecut = (std::min(nhit1,nhit2)-1)*shareFrac_;
+	  // int nprecut = (std::min(nhit1,nhit2)-1)*shareFrac_;
 
 	  // do not bother if far apart and both poitning to the vertex... 
 	  // float deta = std::abs(eta[k1]-eta[k2]);
@@ -411,13 +417,15 @@ namespace cms
 	    // break if not enough to go...
 	    // if ( nprecut-noverlap+firstoverlap > int(nh1-ih)) break;
 	    // if ( nprecut-noverlap+firstoverlap > int(nh2-jh)) break;
-	    const TrackingRecHit*  it = rh1[k1][ih];
+	    //const TrackingRecHit*  it = rh1[k1][ih];
 	    const TrackingRecHit * jt = rh1[k2][jh];
-	    unsigned int id1 = (~3)&it->rawId();  // mask mono/stereo...
+	    // unsigned int id1 = (~3)&it->rawId();  // mask mono/stereo...
 	    unsigned int id2 = (~3)&jt->rawId();  // mask mono/stereo...
+	    auto id1 = ids1[ih];
 	    if (id1<id2) ++ih;
 	    else if (id2<id1) ++jh;
 	    else { 
+	      const TrackingRecHit*  it = rh1[k1][ih];
 	      bool share=false;
 	      if unlikely(!use_sharesInput_){
 		  float delta = std::abs ( it->localPosition().x()-jt->localPosition().x() ); 
