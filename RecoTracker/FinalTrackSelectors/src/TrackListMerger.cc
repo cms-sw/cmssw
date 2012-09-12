@@ -286,12 +286,11 @@ namespace cms
     
     statCount.pre(ngood);    
 
-    //cache the rechits and valid hits
-    std::vector<const TrackingRecHit*> rh1[ngood];  // an array of vectors!
+    //cache the id and rechits of valid hits
+    typedef std::pair<unsigned int, const TrackingRecHit*> IHit;
+    std::vector<IHit> rh1[ngood];  // an array of vectors!
     const TrackingRecHit*  fh1[ngood];  // first hit...
     unsigned char algo[ngood];
-    // short int validHits[ngood];
-    // short int lostHits[ngood];
     float score[ngood];
 
     /*
@@ -324,11 +323,12 @@ namespace cms
       */
 
       rh1[i].reserve(validHits) ; // track->recHitsSize());
-      auto compById = [](const TrackingRecHit* h1,const TrackingRecHit*h2) {return h1->rawId()< h2->rawId();};
+      //auto compById = [](const TrackingRecHit* h1,const TrackingRecHit*h2) {return h1->rawId()< h2->rawId();};
+      auto compById = [](IHit const &  h1, IHit const & h2) {return h1.first < h2.first;};
       fh1[i] = &(**track->recHitsBegin());
       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); ++it) { 
-	const TrackingRecHit* hit = &(**it);
-	if likely(hit->isValid()) { rh1[i].push_back(hit); std::push_heap(rh1[i].begin(),rh1[i].end(),compById); }
+	const TrackingRecHit* hit = &(**it);   // mask mono/stereo...
+	if likely(hit->isValid()) { rh1[i].emplace_back((~3)&hit->rawId(),hit); std::push_heap(rh1[i].begin(),rh1[i].end(),compById); }
       }
       std::sort_heap(rh1[i].begin(),rh1[i].end(),compById);
     }
@@ -360,11 +360,6 @@ namespace cms
 	int nhit1 = nh1; // validHits[k1];
 	float score1 = score[k1];
 	
-	unsigned int ids1[nh1];
-	for (unsigned int ih=0; ih!=nh1; ++ih) {
-	  const TrackingRecHit * it = rh1[k1][ih];
-	   ids1[ih] = (~3)&it->rawId();  // mask mono/stereo...
-	}
 
 	// start at next collection
 	for ( unsigned int j=trackCollFirsts[collNum+1]; j<rSize; j++) {
@@ -410,10 +405,10 @@ namespace cms
 	  int noverlap=0;
 	  int firstoverlap=0;
 	  // check first hit  (should use REAL first hit?)
-	  if unlikely(allowFirstHitShare_ && ids1[0]==( rh1[k2][0]->rawId()&(~3) ) ) {
+	  if unlikely(allowFirstHitShare_ && rh1[k1][0].first==rh1[k2][0].first ) {
 	      bool share=false;
-	      const TrackingRecHit*  it = rh1[k1][0];
-	      const TrackingRecHit*  jt = rh1[k2][0];
+	      const TrackingRecHit*  it = rh1[k1][0].second;
+	      const TrackingRecHit*  jt = rh1[k2][0].second;
 	      if unlikely(!use_sharesInput_){
 		  float delta = std::abs ( it->localPosition().x()-jt->localPosition().x() ); 
 		  share = (it->geographicalId()==jt->geographicalId())&&(delta<epsilon_);
@@ -431,15 +426,13 @@ namespace cms
 	    // break if not enough to go...
 	    // if ( nprecut-noverlap+firstoverlap > int(nh1-ih)) break;
 	    // if ( nprecut-noverlap+firstoverlap > int(nh2-jh)) break;
-	    //const TrackingRecHit*  it = rh1[k1][ih];
-	    const TrackingRecHit * jt = rh1[k2][jh];
-	    // unsigned int id1 = (~3)&it->rawId();  // mask mono/stereo...
-	    unsigned int id2 = (~3)&jt->rawId();  // mask mono/stereo...
-	    auto id1 = ids1[ih];
+	    auto id1 = rh1[k1][ih].first; 
+	    auto id2 = rh1[k2][jh].first; 
 	    if (id1<id2) ++ih;
 	    else if (id2<id1) ++jh;
 	    else { 
-	      const TrackingRecHit*  it = rh1[k1][ih];
+	      const TrackingRecHit*  it = rh1[k1][ih].second;
+	      const TrackingRecHit*  jt = rh1[k2][jh].second;
 	      bool share=false;
 	      if unlikely(!use_sharesInput_){
 		  float delta = std::abs ( it->localPosition().x()-jt->localPosition().x() ); 
