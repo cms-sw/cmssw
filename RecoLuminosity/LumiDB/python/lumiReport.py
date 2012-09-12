@@ -322,7 +322,7 @@ def toScreenOverview(lumidata,resultlines,scalefactor,irunlsdict=None,noWarning=
                     existdata.append(cmslsnum)
             if irunlsdict and irunlsdict[run]:
                 if lumilsnum and lumilsnum in irunlsdict[run]:
-                    if perlsdata[5]:
+                    if perlsdata[5] is not None:
                         deliveredData.append(perlsdata[5])
                     if perlsdata[6]:
                         recordedData.append(perlsdata[6])
