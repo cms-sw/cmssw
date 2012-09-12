@@ -1,7 +1,7 @@
 /* \file EcalDCCTB07UnpackingModule.h
  *
- *  $Date: 2009/02/17 16:30:42 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/12/14 22:22:37 $
+ *  $Revision: 1.12 $
  *  \author Y. Maravin
  *  \author G. Franzoni
  *  \author G. Della Ricca
@@ -40,7 +40,8 @@
 #define TABLE_FED_ID 42
 #define MATACQ_FED_ID 43
 
-EcalDCCTB07UnpackingModule::EcalDCCTB07UnpackingModule(const edm::ParameterSet& pset){
+EcalDCCTB07UnpackingModule::EcalDCCTB07UnpackingModule(const edm::ParameterSet& pset) :
+  fedRawDataCollectionTag_(pset.getParameter<edm::InputTag>("fedRawDataCollectionTag")) {
 
   std::string tbName = pset.getUntrackedParameter<std::string >("tbName", std::string("h2") );
 
@@ -176,7 +177,7 @@ void EcalDCCTB07UnpackingModule::endJob(){
 void EcalDCCTB07UnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
 
   edm::Handle<FEDRawDataCollection> rawdata;
-  e.getByType(rawdata);
+  e.getByLabel(fedRawDataCollectionTag_, rawdata);
   
 
   // create the collection of Ecal Digis
