@@ -289,15 +289,19 @@ namespace cms
     //cache the rechits and valid hits
     std::vector<const TrackingRecHit*> rh1[ngood];  // an array of vectors!
     const TrackingRecHit*  fh1[ngood];  // first hit...
-    reco::PatternSet<23> pattern[ngood];
     unsigned char algo[ngood];
     // short int validHits[ngood];
     // short int lostHits[ngood];
     float score[ngood];
+
+    /*
+    reco::PatternSet<23> pattern[ngood];
     float phi[ngood];
     float eta[ngood];
     float z0[ngood];
     bool at0[ngood];
+    */
+
     for ( unsigned int j=0; j<rSize; j++) {
       if (selected[j]==0) continue;
       int i = indexG[j];
@@ -310,11 +314,15 @@ namespace cms
       int validHits=track->numberOfValidHits();
       int lostHits=track->numberOfLostHits();
       score[i] = foundHitBonus_*validHits - lostHitPenalty_*lostHits - track->chi2();
+
+      /*
       pattern[i].fill(track->hitPattern());
       phi[i]=track->phi();
       eta[i]=track->eta();
       z0[i] =track->dz();
-      at0[i] = std::abs(track->dxy())<1;
+      at0[i] = std::abs(track->dxy())<1.;
+      */
+
       rh1[i].reserve(validHits) ; // track->recHitsSize());
       auto compById = [](const TrackingRecHit* h1,const TrackingRecHit*h2) {return h1->rawId()< h2->rawId();};
       fh1[i] = &(**track->recHitsBegin());
@@ -372,12 +380,12 @@ namespace cms
 	  unsigned int nh2=rh1[k2].size();
 	  int nhit2 = nh2; // validHits[k2];
 
+	  int nprecut = (std::min(nhit1,nhit2)-1)*shareFrac_;
 
-	  // do not bother if far apart and both poitning to the vertex...
-          
-	  float deta = std::abs(eta[k1]-eta[k2]);
-	  float dphi = std::abs(Geom::Phi<float>(phi[k1]-phi[k2]));
-	  float dz = std::abs(z0[k1]-z0[k2]);
+	  // do not bother if far apart and both poitning to the vertex... 
+	  // float deta = std::abs(eta[k1]-eta[k2]);
+	  // float dphi = std::abs(Geom::Phi<float>(phi[k1]-phi[k2]));
+	  //  float dz = std::abs(z0[k1]-z0[k2]);
 
 	  /*
           if (at0[k1]&&at0[k2]) {
@@ -386,9 +394,7 @@ namespace cms
           }
 	  */
 
-	  int nprecut = (std::min(nhit1,nhit2)-1)*shareFrac_;
-	  // do not even bother if not enough "pattern in common"
-	  
+	  // do not even bother if not enough "pattern in common"	  
 	  // int ncomm = reco::commonHits(pattern[k1],pattern[k2]).size();
 	  // if (ncomm<nprecut) continue;
 
@@ -403,7 +409,8 @@ namespace cms
 	  unsigned int ih=0;
 	  while (ih!=nh1 && jh!=nh2) {
 	    // break if not enough to go...
-	    //	    if ( nprecut-noverlap+firstoverlap > int(nh1-ih)) break;
+	    // if ( nprecut-noverlap+firstoverlap > int(nh1-ih)) break;
+	    // if ( nprecut-noverlap+firstoverlap > int(nh2-jh)) break;
 	    const TrackingRecHit*  it = rh1[k1][ih];
 	    const TrackingRecHit * jt = rh1[k2][jh];
 	    unsigned int id1 = (~3)&it->rawId();  // mask mono/stereo...
@@ -452,10 +459,12 @@ namespace cms
 	      }
 	    }//end fi < fj
 	    statCount.overlap();
+	    /*
 	    if (at0[k1]&&at0[k2]) {
 	      statCount.dp(dphi);
 	      if (dz<1.f) statCount.de(deta);
 	    }
+	    */
 	  }//end got a duplicate
 	  else {
 	    statCount.noOverlap();
