@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronFakeAnalyzer.cc,v 1.31 2010/10/19 17:34:56 wmtan Exp $
+// $Id: GsfElectronFakeAnalyzer.cc,v 1.32 2011/03/04 14:43:15 chamont Exp $
 //
 //
 
@@ -49,9 +49,9 @@
 
 using namespace reco;
 
-GsfElectronFakeAnalyzer::GsfElectronFakeAnalyzer(const edm::ParameterSet& conf)
+GsfElectronFakeAnalyzer::GsfElectronFakeAnalyzer(const edm::ParameterSet& conf) :
+  beamSpot_(conf.getParameter<edm::InputTag>("beamSpot"))
 {
-
   outputFile_ = conf.getParameter<std::string>("outputFile");
   histfile_ = new TFile(outputFile_.c_str(),"RECREATE");
   electronCollection_=conf.getParameter<edm::InputTag>("electronCollection");
@@ -1244,7 +1244,7 @@ GsfElectronFakeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   // get the beamspot from the Event:
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByType(recoBeamSpotHandle);
+  iEvent.getByLabel(beamSpot_, recoBeamSpotHandle);
   const BeamSpot bs = *recoBeamSpotHandle;
 
   histNum_->Fill((*gsfElectrons).size());

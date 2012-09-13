@@ -23,6 +23,7 @@ from RecoEgamma.Examples.fakeAnalyzerStdBiningParameters_cff import *
 from RecoEgamma.Examples.fakeAnalyzerFineBiningParameters_cff import *
 
 process.gsfElectronFakeAnalysis = cms.EDAnalyzer("GsfElectronFakeAnalyzer",
+    beamSpot = cms.InputTag('offlineBeamSpot'),
     electronCollection = cms.InputTag("gsfElectrons"),
     matchingObjectCollection = cms.InputTag("iterativeCone5CaloJets"),
     readAOD = cms.bool(False),

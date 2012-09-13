@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: DQMAnalyzer.h,v 1.4 2010/02/26 18:47:24 wdd Exp $
+// $Id: DQMAnalyzer.h,v 1.5 2011/05/20 17:17:28 wmtan Exp $
 //
 //
 
@@ -25,6 +25,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class MagneticField;
 class TFile;
@@ -55,6 +56,7 @@ class DQMAnalyzer : public edm::EDAnalyzer
   std::string outputFile_;
   edm::InputTag electronCollection_;
   edm::InputTag matchingObjectCollection_;
+  edm::InputTag beamSpot_;
   std::string matchingCondition_;
   //std::string type_;
   bool readAOD_;

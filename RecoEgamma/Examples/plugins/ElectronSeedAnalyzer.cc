@@ -59,7 +59,8 @@
 using namespace std;
 using namespace reco;
 
-ElectronSeedAnalyzer::ElectronSeedAnalyzer(const edm::ParameterSet& conf)
+ElectronSeedAnalyzer::ElectronSeedAnalyzer(const edm::ParameterSet& conf) :
+  beamSpot_(conf.getParameter<edm::InputTag>("beamSpot"))
 {
   inputCollection_=conf.getParameter<edm::InputTag>("inputCollection") ;
   histfile_ = new TFile("electronpixelseeds.root","RECREATE");
@@ -199,7 +200,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
 
   // get beam spot
   edm::Handle<reco::BeamSpot> theBeamSpot;
-  e.getByType(theBeamSpot);
+  e.getByLabel(beamSpot_, theBeamSpot);
 
   // get seeds
 
