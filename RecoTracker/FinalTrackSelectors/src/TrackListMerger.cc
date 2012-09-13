@@ -396,15 +396,21 @@ namespace cms
 	    // break if not enough to go...
 	    // if ( nprecut-noverlap+firstoverlap > int(nh1-ih)) break;
 	    // if ( nprecut-noverlap+firstoverlap > int(nh2-jh)) break;
-	    auto id1 = rh1[k1][ih].first; 
-	    auto id2 = rh1[k2][jh].first; 
+	    auto const id1 = rh1[k1][ih].first; 
+	    auto const id2 = rh1[k2][jh].first; 
 	    if (id1<id2) ++ih;
 	    else if (id2<id1) ++jh;
 	    else {
-	      const TrackingRecHit*  it = rh1[k1][ih].second;
-	      const TrackingRecHit*  jt = rh1[k2][jh].second;
-	      if (share(it,jt,epsilon_))  noverlap++;
-	      ++jh; ++ih;
+	      // in case of split-hit do full conbinatorics
+	      auto li=ih; while(li!=nh1 && id1 == rh1[k1][++li].first); 
+	      auto lj=jh; while(lj!=nh2 && id2 == rh1[k2][++lj].first);
+	      for (auto ii=ih; ii!=li; ++ii)
+		for (auto jj=jh; jj!=lj; ++jj) {
+		  const TrackingRecHit*  it = rh1[k1][ii].second;
+		  const TrackingRecHit*  jt = rh1[k2][jj].second;
+		  if (share(it,jt,epsilon_))  noverlap++;
+		}
+	      jh=lj; ih=li;
 	    } // equal ids
 	    
 	  } //loop over ih & jh
