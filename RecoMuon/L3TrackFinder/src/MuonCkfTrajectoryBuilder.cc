@@ -126,8 +126,9 @@ void MuonCkfTrajectoryBuilder::collectMeasurement(const DetLayer* layer,
 
 
 void 
-MuonCkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj, 
-						  std::vector<TrajectoryMeasurement> & result) const
+MuonCkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
+						     const TempTrajectory& traj, 
+						     std::vector<TrajectoryMeasurement> & result) const
 {
   int invalidHits = 0;
 
@@ -140,7 +141,7 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj
      //what if there are no measurement on the Trajectory
 
       //set the currentState to be the one from the trajectory seed starting point
-      PTrajectoryStateOnDet ptod =traj.seed().startingState();
+      PTrajectoryStateOnDet ptod =seed.startingState();
       DetId id(ptod.detId());
       const GeomDet * g = theMeasurementTracker->geomTracker()->idToDet(id);
       const Surface * surface=&g->surface();

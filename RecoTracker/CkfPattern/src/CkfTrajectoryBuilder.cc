@@ -194,7 +194,7 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
     for (TempTrajectoryContainer::iterator traj=candidates.begin();
 	 traj!=candidates.end(); traj++) {
       std::vector<TM> meas;
-      findCompatibleMeasurements(*traj, meas);
+      findCompatibleMeasurements(*sharedSeed, *traj, meas);
 
       // --- method for debugging
       if(!analyzeMeasurementsDebugger(*traj,meas,
@@ -269,8 +269,9 @@ void CkfTrajectoryBuilder::updateTrajectory( TempTrajectory& traj,
 
 
 void 
-CkfTrajectoryBuilder::findCompatibleMeasurements(const TempTrajectory& traj, 
-						  std::vector<TrajectoryMeasurement> & result) const
+CkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
+						 const TempTrajectory& traj, 
+						 std::vector<TrajectoryMeasurement> & result) const
 {
   int invalidHits = 0;
   std::pair<TSOS,std::vector<const DetLayer*> > stateAndLayers = findStateAndLayers(traj);

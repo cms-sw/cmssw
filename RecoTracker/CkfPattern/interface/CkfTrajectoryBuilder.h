@@ -78,7 +78,7 @@ public:
 
 
  protected:
-  virtual void findCompatibleMeasurements(const TempTrajectory& traj, std::vector<TrajectoryMeasurement> & result) const;
+  virtual void findCompatibleMeasurements(const TrajectorySeed&seed, const TempTrajectory& traj, std::vector<TrajectoryMeasurement> & result) const;
 
   void limitedCandidates(const TrajectorySeed&seed, TempTrajectory& startingTraj, TrajectoryContainer& result) const;
   void limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, TempTrajectoryContainer &candidates, TrajectoryContainer& result) const;
