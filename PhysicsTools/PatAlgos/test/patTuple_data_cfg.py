@@ -16,8 +16,8 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load( "Configuration.Geometry.GeometryIdeal_cff" )
 process.load( "Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff" )
 process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff" )
-from HLTrigger.Configuration.AutoCondGlobalTag import AutoCondGlobalTag
-process.GlobalTag = AutoCondGlobalTag( process.GlobalTag, 'auto:com10' )
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag( process.GlobalTag, 'auto:com10' )
 
 ## Input
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesSingleMuRECO
