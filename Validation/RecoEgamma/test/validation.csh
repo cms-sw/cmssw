@@ -525,9 +525,16 @@ foreach i (`cat efficiencyForPhotons`)
 
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
+c$i->Divide(1,2);
+c$i->cd(1);
 //file_old->cd("DQMData/EgammaV/PhotonValidator/Efficiencies");
 file_old->cd("$HISTOPATHNAME_Efficiencies");
 $i->SetStats(0);
+int nBins = $i->GetNbinsX();
+float xMin=$i->GetBinLowEdge(1);
+float xMax=$i->GetBinLowEdge(nBins)+$i->GetBinWidth(nBins);
+TH1F* hold=new  TH1F("hold"," ",nBins,xMin,xMax);
+hold=$i;
 if ( $i==deadChVsEta ||  $i==deadChVsPhi ||  $i==deadChVsEt ) {
 $i->SetMinimum(0.);
 $i->SetMaximum(0.2);
@@ -543,18 +550,41 @@ $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
 $i->Draw();
-
 //file_new->cd("DQMData/EgammaV/PhotonValidator/Efficiencies");
 file_new->cd("$HISTOPATHNAME_Efficiencies");
 $i->SetStats(0);
 $i->SetMinimum(0.);
 $i->SetMaximum(1.1);
+TH1F* hnew=new  TH1F("hnew"," ",nBins,xMin,xMax);
+hnew=$i;
 $i->SetLineColor(kBlack);
 $i->SetMarkerColor(kBlack);
 $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
 $i->Draw("same");
+c$i->cd(2);
+TH1F* ratio=new  TH1F("ratio"," ",nBins,xMin,xMax);
+ratio->Divide(hnew,hold);
+for ( int i=1; i<=ratio->GetNbinsX(); i++ ) {
+float num=hnew->GetBinContent(i);
+float den=hold->GetBinContent(i);
+float dNum=hnew->GetBinError(i);
+float dDen=hold->GetBinError(i);
+float erro=0;
+if ( num!=0 && den!=0) {
+erro= ((1./den)*(1./den)*dNum*dNum) + ((num*num)/(den*den*den*den) * (dDen*dDen));
+erro=sqrt(erro);
+}
+ratio->SetBinError(i, erro);
+}
+ratio->SetLineColor(1);
+ratio->SetLineWidth(2);
+ratio->SetMinimum(0.);
+ratio->SetMaximum(2.);
+ratio->Draw("e");
+TLine *l = new TLine(0..,1.,xMax,1.);
+l->Draw(); 
 c$i->SaveAs("gifs/$i.gif");
 
 EOF
@@ -764,9 +794,16 @@ foreach i (`cat efficiencyForConvertedPhotons`)
   cat > temp$N.C <<EOF
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
+c$i->Divide(1,2);
+c$i->cd(1);
 //file_old->cd("DQMData/EgammaV/PhotonValidator/Efficiencies");
 file_old->cd("$HISTOPATHNAME_Efficiencies");
 $i->SetStats(0);
+int nBins = $i->GetNbinsX();
+float xMin=$i->GetBinLowEdge(1);
+float xMax=$i->GetBinLowEdge(nBins)+$i->GetBinWidth(nBins);
+TH1F* hold=new  TH1F("hold"," ",nBins,xMin,xMax);
+hold=$i;
 $i->SetMinimum(0.);
 $i->SetMaximum(1.);
 $i->SetLineColor(kPink+8);
@@ -777,6 +814,8 @@ $i->SetLineWidth(1);
 $i->Draw();
 //file_new->cd("DQMData/EgammaV/PhotonValidator/Efficiencies");
 file_new->cd("$HISTOPATHNAME_Efficiencies");
+TH1F* hnew=new  TH1F("hnew"," ",nBins,xMin,xMax);
+hnew=$i;
 $i->SetStats(0);
 $i->SetMinimum(0.);
 $i->SetMaximum(1.);
@@ -786,6 +825,29 @@ $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
 $i->Draw("same");
+TH1F* ratio=new  TH1F("ratio"," ",nBins,xMin,xMax);
+ratio->Divide(hnew,hold);
+for ( int i=1; i<=ratio->GetNbinsX(); i++ ) {
+float num=hnew->GetBinContent(i);
+float den=hold->GetBinContent(i);
+float dNum=hnew->GetBinError(i);
+float dDen=hold->GetBinError(i);
+float erro=0;
+if ( num!=0 && den!=0) {
+erro= ((1./den)*(1./den)*dNum*dNum) + ((num*num)/(den*den*den*den) * (dDen*dDen));
+erro=sqrt(erro);
+}
+ratio->SetBinError(i, erro);
+}
+ratio->SetStats(0);
+ratio->SetLineColor(1);
+ratio->SetLineWidth(2);
+ratio->SetMinimum(0.);
+ratio->SetMaximum(2.);
+c$i->cd(2);
+ratio->Draw("e");
+TLine *l = new TLine(xMin,1.,xMax,1.);
+l->Draw();
 c$i->SaveAs("gifs/$i.gif");
 
 EOF
