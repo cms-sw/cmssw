@@ -102,7 +102,7 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTraj
 TempTrajectory BaseCkfTrajectoryBuilder::
 createStartingTrajectory( const TrajectorySeed& seed) const
 {
-  TempTrajectory result( seed, seed.direction());
+  TempTrajectory result(seed.direction());
   if (  seed.direction() == alongMomentum) {
     theForwardPropagator = &(*thePropagatorAlong);
     theBackwardPropagator = &(*thePropagatorOpposite);
@@ -163,7 +163,8 @@ BaseCkfTrajectoryBuilder::addToResult (boost::shared_ptr<const TrajectorySeed> c
 {
   // quality check
   if ( !qualityFilter(tmptraj, inOut) )  return;
-  Trajectory traj = tmptraj.toTrajectory(seed);
+  Trajectory traj = tmptraj.toTrajectory();
+  traj.setSharedSeed(seed);
   // discard latest dummy measurements
   while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();
   LogDebug("CkfPattern")<<inOut<<"=inOut option. pushing a Trajectory with: "<<traj.foundHits()<<" found hits. "<<traj.lostHits()
@@ -204,12 +205,12 @@ BaseCkfTrajectoryBuilder::moveToResult (TempTrajectory&& traj,
 
 
 BaseCkfTrajectoryBuilder::StateAndLayers
-BaseCkfTrajectoryBuilder::findStateAndLayers(const TempTrajectory& traj) const
+BaseCkfTrajectoryBuilder::findStateAndLayers(const TrajectorySeed& seed, const TempTrajectory& traj) const
 {
   if (traj.empty())
     {
       //set the currentState to be the one from the trajectory seed starting point
-      PTrajectoryStateOnDet const & ptod = traj.seed().startingState();
+      PTrajectoryStateOnDet const & ptod = seed.startingState();
       DetId id(ptod.detId());
       const GeomDet * g = theMeasurementTracker->geomTracker()->idToDet(id);                    
       const Surface * surface=&g->surface();
@@ -225,6 +226,16 @@ BaseCkfTrajectoryBuilder::findStateAndLayers(const TempTrajectory& traj) const
       return StateAndLayers(currentState,traj.lastLayer()->nextLayers( *currentState.freeState(), traj.direction()) );
     }
 }
+
+BaseCkfTrajectoryBuilder::StateAndLayers
+BaseCkfTrajectoryBuilder::findStateAndLayers(const TempTrajectory& traj) const{
+  assert(!traj.empty());
+ 
+  TSOS const & currentState = traj.lastMeasurement().updatedState();
+  return StateAndLayers(currentState,traj.lastLayer()->nextLayers( *currentState.freeState(), traj.direction()) );
+}
+
+
 
 void BaseCkfTrajectoryBuilder::setEvent(const edm::Event& event) const
   {

@@ -121,6 +121,7 @@ public:
   void addToResult( TempTrajectory const& traj, TempTrajectoryContainer& result, bool inOut = false) const;    
   void moveToResult( TempTrajectory&& traj, TempTrajectoryContainer& result, bool inOut = false) const;    
 
+  StateAndLayers findStateAndLayers(const TrajectorySeed& seed, const TempTrajectory& traj) const;
   StateAndLayers findStateAndLayers(const TempTrajectory& traj) const;
 
  private:

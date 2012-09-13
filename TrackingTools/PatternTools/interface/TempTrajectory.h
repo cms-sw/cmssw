@@ -3,13 +3,11 @@
 
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
 #include <vector>
 #include <algorithm>
-#include <boost/shared_ptr.hpp>
 #include "TrackingTools/PatternTools/interface/bqueue.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -53,7 +51,6 @@ public:
    */
   
   TempTrajectory() : 
-    theSeed(0), 
     theChiSquared(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(anyDirection), theDirectionValidity(false), 
@@ -61,51 +58,12 @@ public:
   {}
   
   
-  /** Constructor of an empty trajectory with undefined direction.
-   *  The direction will be defined at the moment of the push of a second
-   *  measurement, from the relative radii of the first and second 
-   *  measurements.
-   */
-  
-  explicit TempTrajectory( const TrajectorySeed& seed) :
-  theSeed( &seed ),
-  theChiSquared(0),
-  theNumberOfFoundHits(0), theNumberOfLostHits(0),
-  theDirection(anyDirection), theDirectionValidity(false),
-  theValid(true),theNLoops(0),theDPhiCache(0) 
-  {}
-  
-  /** Constructor of an empty trajectory with defined direction.
-   *  No check is made in the push method that measurements are
-   *  added in the correct direction.
-   */
-  TempTrajectory( const TrajectorySeed& seed, PropagationDirection dir) : 
-    theSeed( &seed ),
-    theChiSquared(0), 
-    theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(dir), theDirectionValidity(true),
-    theValid(true),theNLoops(0),theDPhiCache(0)
-  {}
-  
-  /** Constructor of an empty trajectory with defined direction.
-   *  No check is made in the push method that measurements are
-   *  added in the correct direction.
-   */
-  TempTrajectory(const TrajectorySeed * seed, PropagationDirection dir) : 
-    theSeed( seed ),
-    theChiSquared(0), 
-    theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(dir), theDirectionValidity(true),
-    theValid(true),theNLoops(0),theDPhiCache(0)
-  {}
-  
-  
+ 
   /** Constructor of an empty trajectory with defined direction.
    *  No check is made in the push method that measurements are
    *  added in the correct direction.
    */
   explicit TempTrajectory(PropagationDirection dir) : 
-  theSeed(0),
   theChiSquared(0), 
   theNumberOfFoundHits(0), theNumberOfLostHits(0),
   theDirection(dir), theDirectionValidity(true),
@@ -117,7 +75,6 @@ public:
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
   
   TempTrajectory(TempTrajectory const & rh) : 
-    theSeed(rh.theSeed),
     theData(rh.theData),
     theChiSquared(rh.theChiSquared), 
     theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
@@ -131,7 +88,6 @@ public:
     DataContainer aData(rh.theData);
     using std::swap;
     swap(theData,aData);
-    theSeed = rh.theSeed;
     theChiSquared=rh.theChiSquared;
     theNumberOfFoundHits=rh.theNumberOfFoundHits;
     theNumberOfLostHits=rh.theNumberOfLostHits;
@@ -147,19 +103,16 @@ public:
   
 
   TempTrajectory(TempTrajectory && rh) noexcept :
-  theSeed(rh.theSeed),
     theData(std::move(rh.theData)),
     theChiSquared(rh.theChiSquared), 
     theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
     theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity),
     theValid(rh.theValid),
     theNLoops(rh.theNLoops),
-    theDPhiCache(rh.theDPhiCache)
-  {rh.theSeed=0;}
+    theDPhiCache(rh.theDPhiCache){}
 
   TempTrajectory & operator=(TempTrajectory && rh) noexcept {
     using std::swap;
-    theSeed=rh.theSeed;rh.theSeed=0; 
     swap(theData,rh.theData);
     theChiSquared=rh.theChiSquared;
     theNumberOfFoundHits=rh.theNumberOfFoundHits;
@@ -179,7 +132,7 @@ public:
 
 
   /// construct TempTrajectory from standard Trajectory
-  TempTrajectory( const Trajectory& traj);
+  explicit TempTrajectory( const Trajectory& traj);
 
   /// destruct a TempTrajectory 
   ~TempTrajectory() {}
@@ -308,9 +261,6 @@ public:
   /// Method to invalidate a trajectory. Useful during ambiguity resolution.
   void invalidate() { theValid = false;}
 
-  /// Access to the seed used to reconstruct the Trajectory
-  const TrajectorySeed & seed() const { return *theSeed;}
-
 
   /** Definition of inactive Det from the Trajectory point of view.
    */
@@ -324,10 +274,7 @@ public:
   }
 
   /// Convert to a standard Trajectory 
-  Trajectory toTrajectory(boost::shared_ptr<const TrajectorySeed> const & iseed) const;
-  Trajectory toTrajectory() const {
-    return  toTrajectory(boost::shared_ptr<const TrajectorySeed>());
-  }
+  Trajectory toTrajectory() const;
 
   /// Pops out all the invalid hits on the tail
   void popInvalidTail() ;
@@ -359,8 +306,6 @@ private:
 
 private:
 
-
-  TrajectorySeed const *  theSeed;  // better the seed not disappear while building a Trajectory!
   DataContainer theData;
 
   float theChiSquared;

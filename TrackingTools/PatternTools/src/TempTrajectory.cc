@@ -4,7 +4,6 @@
 
 
 TempTrajectory::TempTrajectory( const Trajectory& traj):
-  theSeed( traj.sharedSeed().get() ),
   theChiSquared(0),
   theNumberOfFoundHits(0), theNumberOfLostHits(0),
   theDirection(traj.direction()), theDirectionValidity(true),
@@ -124,9 +123,10 @@ bool TempTrajectory::lost( const TransientTrackingRecHit& hit)
   return hit.getType() == TrackingRecHit::missing;
 }
 
-Trajectory TempTrajectory::toTrajectory(boost::shared_ptr<const TrajectorySeed> const & iseed) const {
+Trajectory TempTrajectory::toTrajectory() const {
   assert(theDirectionValidity);
-  Trajectory traj(iseed, PropagationDirection(theDirection)); // copy seed
+  PropagationDirection p=PropagationDirection(theDirection);
+  Trajectory traj(p);
   traj.setNLoops(theNLoops);
 
   traj.reserve(theData.size());

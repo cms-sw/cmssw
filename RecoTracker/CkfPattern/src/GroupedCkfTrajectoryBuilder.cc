@@ -218,7 +218,7 @@ GroupedCkfTrajectoryBuilder::rebuildTrajectories(TempTrajectory const & starting
     if(traj->isValid()) work.push_back(TempTrajectory(*traj));
   }
 
-  rebuildSeedingRegion(startingTraj,work);
+  rebuildSeedingRegion(seed,startingTraj,work);
   final.reserve(work.size());
 
   // better the seed to be always the same... 
@@ -230,7 +230,7 @@ GroupedCkfTrajectoryBuilder::rebuildTrajectories(TempTrajectory const & starting
 
   for (TempTrajectoryContainer::iterator traj=work.begin();
        traj!=work.end(); ++traj) {
-    final.push_back(traj->toTrajectory(sharedSeed));
+    final.push_back(traj->toTrajectory()); final.back().setSharedSeed(sharedSeed);
   }
   
   result.swap(final);
@@ -275,7 +275,7 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
   boost::shared_ptr<const TrajectorySeed> pseed(new TrajectorySeed(seed));
   result.reserve(work_.size());
   for (TempTrajectoryContainer::const_iterator it = work_.begin(), ed = work_.end(); it != ed; ++it) {
-      result.push_back( it->toTrajectory(pseed) );
+    result.push_back( it->toTrajectory() ); result.back().setSharedSeed(pseed);
   }
 
   work_.clear(); 
@@ -776,7 +776,8 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
 
 
 void
-GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(TempTrajectory const & startingTraj,
+GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed&seed,
+						  TempTrajectory const & startingTraj,
 						  TempTrajectoryContainer& result) const
 {
   //
@@ -791,7 +792,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(TempTrajectory const & startin
   //
   KFTrajectoryFitter fitter(&(*theBackwardPropagator),&updator(),&estimator());
   //
-  TrajectorySeed::range rseedHits = startingTraj.seed().recHits();
+  TrajectorySeed::range rseedHits = seed.recHits();
   std::vector<const TrackingRecHit*> seedHits;
   //seedHits.insert(seedHits.end(), rseedHits.first, rseedHits.second);
   //for (TrajectorySeed::recHitContainer::const_iterator iter = rseedHits.first; iter != rseedHits.second; iter++){
@@ -833,7 +834,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(TempTrajectory const & startin
     // (better to drop it??)
     //
     int nRebuilt =
-      rebuildSeedingRegion (seedHits,reFitted,rebuiltTrajectories);
+      rebuildSeedingRegion (seed, seedHits,reFitted,rebuiltTrajectories);
 
     if ( nRebuilt==0 ) it->invalidate();  // won't use original in-out track
 
@@ -850,7 +851,8 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(TempTrajectory const & startin
 }
 
 int
-GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const std::vector<const TrackingRecHit*>& seedHits, 
+GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed&seed,
+						  const std::vector<const TrackingRecHit*>& seedHits, 
 						  TempTrajectory& candidate,
 						  TempTrajectoryContainer& result) const 
 {
@@ -934,7 +936,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const std::vector<const Tracki
     //
     // save & count result
     nrOfTrajectories++;
-    result.emplace_back(it->seed(),it->seed().direction());
+    result.emplace_back(seed.direction());
     TempTrajectory & reversedTrajectory = result.back();
     reversedTrajectory.setNLoops(it->nLoops());
     for (TempTrajectory::DataContainer::const_iterator im=newMeasurements.rbegin(), ed = newMeasurements.rend();
@@ -1053,7 +1055,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
 
 
   LogDebug("CkfPattern")<<"Obtained bwdFitted trajectory with measurement size " << bwdFitted.measurements().size();
-  TempTrajectory fitted(candidate.seed(), fwdTraj.direction());
+  TempTrajectory fitted(fwdTraj.direction());
   fitted.setNLoops(fwdTraj.nLoops());
   vector<TM> const & tmsbf = bwdFitted.measurements();
   int iDetLayer=0;

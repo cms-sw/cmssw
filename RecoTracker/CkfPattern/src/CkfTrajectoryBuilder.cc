@@ -158,7 +158,7 @@ TempTrajectory CkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed&see
   
   /// limitedCandidates( startingTraj, regionalCondition, result);
   /// FIXME: restore regionalCondition
-  limitedCandidates( startingTraj, result);
+  limitedCandidates(seed, startingTraj, result);
   
   return startingTraj;
 
@@ -171,27 +171,23 @@ TempTrajectory CkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed&see
 }
 
 void CkfTrajectoryBuilder::
-limitedCandidates( TempTrajectory& startingTraj,
+limitedCandidates(const TrajectorySeed&seed, TempTrajectory& startingTraj,
 		   TrajectoryContainer& result) const
 {
   TempTrajectoryContainer candidates;
   candidates.push_back( startingTraj);
-  limitedCandidates(candidates,result);
+  boost::shared_ptr<const TrajectorySeed>  sharedSeed(new TrajectorySeed(seed));
+  limitedCandidates(sharedSeed, candidates,result);
 }
 
 void CkfTrajectoryBuilder::
-limitedCandidates( TempTrajectoryContainer &candidates,
+limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, TempTrajectoryContainer &candidates,
 		   TrajectoryContainer& result) const
 {
   unsigned int nIter=1;
-  //  TempTrajectoryContainer candidates; // = TrajectoryContainer();
   TempTrajectoryContainer newCand; // = TrajectoryContainer();
-  //  candidates.push_back( startingTraj);
 
-  boost::shared_ptr<const TrajectorySeed>  sharedSeed;
-  if (!candidates.empty()) 
-    sharedSeed.reset(new TrajectorySeed(candidates.front().seed()));
-
+ 
   while ( !candidates.empty()) {
 
     newCand.clear();
@@ -273,7 +269,7 @@ void CkfTrajectoryBuilder::updateTrajectory( TempTrajectory& traj,
 
 
 void 
-CkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj, 
+CkfTrajectoryBuilder::findCompatibleMeasurements(const TempTrajectory& traj, 
 						  std::vector<TrajectoryMeasurement> & result) const
 {
   int invalidHits = 0;

@@ -318,6 +318,7 @@ public:
   void reverse() ;
 
   const boost::shared_ptr<const TrajectorySeed> & sharedSeed() const { return theSeed; }
+  void setSharedSeed(const boost::shared_ptr<const TrajectorySeed> & seed) { theSeed=seed;}
 
   /// accessor to the delta phi angle betweem the directions of the two measurements on the last 
   /// two layers crossed by the trajectory

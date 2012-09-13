@@ -133,12 +133,14 @@ private :
 				 TempTrajectoryContainer& result) const  dso_internal;
 
   /// try to find additional hits in seeding region
-  void rebuildSeedingRegion (TempTrajectory const& startingTraj,
+  void rebuildSeedingRegion (const TrajectorySeed&seed,
+			     TempTrajectory const& startingTraj,
 			     TempTrajectoryContainer& result) const  dso_internal;
 
    //** try to find additional hits in seeding region for a candidate
    //* (returns number of trajectories added) *
-  int rebuildSeedingRegion (const std::vector<const TrackingRecHit*>& seedHits,
+  int rebuildSeedingRegion (const TrajectorySeed&seed,
+			    const std::vector<const TrackingRecHit*>& seedHits,
 			    TempTrajectory& candidate,
 			    TempTrajectoryContainer& result) const  dso_internal;
 
