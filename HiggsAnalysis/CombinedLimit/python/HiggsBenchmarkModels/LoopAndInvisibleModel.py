@@ -20,7 +20,7 @@ class HiggsLoops(SMLikeHiggsModel):
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         self.modelBuilder.doVar("kgluon[1,0,2]")
-        self.modelBuilder.doVar("kgamma[1,0,2.5]")
+        self.modelBuilder.doVar("kgamma[1,0,3]")
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
@@ -44,14 +44,14 @@ class HiggsLoops(SMLikeHiggsModel):
 
         ## total witdh, normalized to the SM one
         self.modelBuilder.factory_('sum::loopGluonGamma_Gscal_OtherDecays(SM_BR_hbb, SM_BR_htt, SM_BR_hmm, SM_BR_hss, SM_BR_hzz, SM_BR_hww, SM_BR_hcc, SM_BR_htoptop)')
-        self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_gg("@0 * @1", kgamma, SM_BR_hgg)') 
-        self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_Zg("@0 * @1", kgamma, SM_BR_hZg)')
-        self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_gluglu("@0 * @1", kgluon, SM_BR_hgluglu)')
+        self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_gg("@0*@0* @1", kgamma, SM_BR_hgg)') 
+        self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_Zg("@0*@0* @1", kgamma, SM_BR_hZg)')
+        self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_gluglu("@0*@0* @1", kgluon, SM_BR_hgluglu)')
         self.modelBuilder.factory_('sum::loopGluonGamma_Gscal_tot(loopGluonGamma_Gscal_OtherDecays, loopGluonGamma_Gscal_gg, loopGluonGamma_Gscal_Zg, loopGluonGamma_Gscal_gluglu)')
 
         ## BRs, normalized to the SM ones: they scale as (partial/partial_SM)^2 / (total/total_SM)^2 
         self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hxx("1.0/@0",loopGluonGamma_Gscal_tot)')
-        self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hgg("@0/@1", kgamma, loopGluonGamma_Gscal_tot)')
+        self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hgg("@0*@0/@1", kgamma, loopGluonGamma_Gscal_tot)')
 
         # verbosity
         #self.modelBuilder.out.Print()
@@ -89,7 +89,7 @@ class HiggsLoopsInvisible(SMLikeHiggsModel):
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         self.modelBuilder.doVar("kgluon[1,0,2]")
-        self.modelBuilder.doVar("kgamma[1,0,2.5]")
+        self.modelBuilder.doVar("kgamma[1,0,3]")
         self.modelBuilder.doVar("BRInvUndet[0,0,1]")
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
@@ -114,14 +114,14 @@ class HiggsLoopsInvisible(SMLikeHiggsModel):
 
         ## total witdh, normalized to the SM one
         self.modelBuilder.factory_('sum::loopGluonGamma_Gscal_OtherDecays(SM_BR_hbb, SM_BR_htt, SM_BR_hmm, SM_BR_hss, SM_BR_hzz, SM_BR_hww, SM_BR_hcc, SM_BR_htoptop)')
-        self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_gg("@0 * @1", kgamma, SM_BR_hgg)') 
-        self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_Zg("@0 * @1", kgamma, SM_BR_hZg)')
-        self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_gluglu("@0 * @1", kgluon, SM_BR_hgluglu)')
+        self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_gg("@0*@0* @1", kgamma, SM_BR_hgg)') 
+        self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_Zg("@0*@0* @1", kgamma, SM_BR_hZg)')
+        self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_gluglu("@0*@0* @1", kgluon, SM_BR_hgluglu)')
         self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_tot("(@1+@2+@3+@4)/(1-@0)", BRInvUndet, loopGluonGamma_Gscal_OtherDecays, loopGluonGamma_Gscal_gg, loopGluonGamma_Gscal_Zg, loopGluonGamma_Gscal_gluglu)')
 
         ## BRs, normalized to the SM ones: they scale as (partial/partial_SM)^2 / (total/total_SM)^2 
         self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hxx("1.0/@0",loopGluonGamma_Gscal_tot)')
-        self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hgg("@0/@1", kgamma, loopGluonGamma_Gscal_tot)')
+        self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hgg("@0*@0/@1", kgamma, loopGluonGamma_Gscal_tot)')
 
         # verbosity
         #self.modelBuilder.out.Print()
