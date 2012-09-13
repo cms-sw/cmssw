@@ -89,12 +89,23 @@ void hadd(const char *filesSeparatedByKommaOrEmpty = "") {
     names = fileNames.Tokenize(","); // is already owner
   }
 
+  int iFilesUsed=0, iFilesSkipped=0;
+  const TString keyName = "TrackerOfflineValidationStandalone";
   TList *FileList = new TList();
   for (Int_t iFile = 0; iFile < names->GetEntriesFast(); ++iFile) {
     TFile *file = TFile::Open(names->At(iFile)->GetName());
     if (file) {
-      FileList->Add(file);
-      std::cout << names->At(iFile)->GetName() << std::endl;
+      // check if file is ok and contains data
+      if (file->FindKey(keyName)) {
+	FileList->Add(file);
+	std::cout << names->At(iFile)->GetName() << std::endl;
+	iFilesUsed++;
+      }
+      else {
+	std::cout << names->At(iFile)->GetName() 
+		  << " --- does not contain data, skipping file " << std::endl;
+	iFilesSkipped++;
+      }
     } else {
       cout << "File " << names->At(iFile)->GetName() << " does not exist!" << endl;
       delete names; names = 0;
@@ -107,11 +118,15 @@ void hadd(const char *filesSeparatedByKommaOrEmpty = "") {
   MergeRootfile( Target, FileList);
   std::cout << "Finished merging of histograms." << std::endl;
 
-  Target->cd("TrackerOfflineValidationStandalone");
+  Target->cd( keyName );
   TTree *tree = new TTree("TkOffVal","TkOffVal");
   RewriteTree(Target,tree);
   tree->Write();
-  std::cout<<"Written Tree, now saving hists..." << std::endl;
+  std::cout << std::endl;
+  std::cout << "Read " << iFilesUsed << " files, " << iFilesSkipped << " files skipped" << std::endl;
+  if (iFilesSkipped>0) 
+    std::cout << " (maybe because there was no data in those files?)" << std::endl;
+  std::cout << "Written Tree, now saving hists..." << std::endl;
 
   //  Target->SaveSelf(kTRUE);
   std::cout << "Closing file " << Target->GetName() << std::endl;
