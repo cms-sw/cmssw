@@ -272,6 +272,19 @@ cat > scaledhistosForPhotons <<EOF
   r2Endcap
   sigmaIetaIetaBarrel
   sigmaIetaIetaEndcap
+  hOverEAll
+  hOverEBarrel
+  hOverEEndcap
+  newhOverEAll
+  newhOverEBarrel
+  newhOverEEndcap
+  hcalTowerSumEtConeDR04Barrel
+  hcalTowerSumEtConeDR04Endcap
+  hcalTowerBcSumEtConeDR04Barrel
+  hcalTowerBcSumEtConeDR04Endcap
+  ecalRecHitSumEtConeDR04Barrel
+  ecalRecHitSumEtConeDR04Endcap
+
 
 EOF
 
