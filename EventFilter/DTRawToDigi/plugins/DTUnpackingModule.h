@@ -4,12 +4,13 @@
 /** \class DTUnpackingModule
  *  The unpacking module for DTs.
  *
- *  $Date: 2008/06/19 13:37:36 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/11/06 17:06:20 $
+ *  $Revision: 1.6 $
  * \author N. Amapane - S. Argiro' - M. Zanetti
  */
 
 #include <FWCore/Framework/interface/EDProducer.h>
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <iostream>
 
@@ -31,8 +32,6 @@ class DTUnpackingModule: public edm::EDProducer {
 
   DTUnpacker * unpacker;
 
-  /// get the FED payload by type?
-  bool fedbyType_;
   /// if not you need the label
   edm::InputTag inputLabel;
   /// do you want to use the standard DT FED ID's, i.e. [770-775]? (why the hell 6??)

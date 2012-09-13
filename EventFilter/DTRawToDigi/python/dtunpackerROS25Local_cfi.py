@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 #
 dtunpacker = cms.EDProducer("DTUnpackingModule",
     dataType = cms.string('ROS25'),
-    inputLabel = cms.InputTag('source'),
+    inputLabel = cms.InputTag('rawDataCollector'),
     fedbyType = cms.bool(False),
     useStandardFEDid = cms.bool(True),
     dqmOnly = cms.bool(False),                       

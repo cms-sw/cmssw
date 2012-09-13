@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/03/12 00:44:19 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/01/22 18:46:41 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi - INFN TO
  */
 
@@ -23,7 +23,8 @@ using namespace edm;
 
 FilterByLTC::FilterByLTC(const ParameterSet& pset) : 
   nEventsProcessed(0),
-  nEventsSelected(0)
+  nEventsSelected(0),
+  ltcTag_(pset.getParameter<edm::InputTag>("ltcTag"))
 {
   theTriggerSource = pset.getParameter<int>("triggerSource");
 }
@@ -38,7 +39,7 @@ bool FilterByLTC::filter(Event & event, const EventSetup& eventSetup){
   nEventsProcessed++;
 
   edm::Handle<LTCDigiCollection> ltcdigis;
-  event.getByType(ltcdigis);
+  event.getByLabel(ltcTag_, ltcdigis);
 
   bool DTtrig=false, CSCtrig=false, RPCtrig=false;
   for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++){
