@@ -573,11 +573,11 @@ $i->GetYaxis()->SetRangeUser(0.,2000.);
 }
 $i->SetStats(0);
 $i->SetMinimum(0.);
-//if ( mnew > mold) 
-// $i->SetMaximum(mnew+mnew*0.2);
-//else 
-//$i->SetMaximum(mold+mold*0.2);
-//$i->SetMaximum(mold+mold*0.2);
+if ( mnew > mold+sqrt(mold) )  { 
+$i->SetMaximum(mnew+2*sqrt(mnew)); 
+}  else { 
+$i->SetMaximum(mold+2*sqrt(mold)); 
+}
 $i->SetLineColor(kPink+8);
 $i->SetFillColor(kPink+8);
 //$i->SetLineWidth(3);
@@ -589,7 +589,7 @@ $i->SetStats(0);
 $i->SetLineColor(kBlack);
 $i->SetMarkerColor(kBlack);
 $i->SetMarkerStyle(20);
-$i->SetMarkerSize(1);
+$i->SetMarkerSize(0.8);
 //$i->SetLineWidth(1);
 $i->Scale(nold/nnew);
 TH1F* hnew=new  TH1F("hnew"," ",nBins,xMin,xMax);
@@ -613,7 +613,9 @@ ratio->SetBinError(i, erro);
 ratio->SetStats(0);
 ratio->SetLineColor(1);
 ratio->SetLineWidth(2);
-ratio->Draw("e1");
+ratio->SetMinimum(0.);
+ratio->SetMaximum(4.);
+ratio->Draw("e");
 TLine *l = new TLine(0..,1.,xMax,1.);
 l->Draw(); 
 c$i->SaveAs("gifs/$i.gif");
