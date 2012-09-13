@@ -40,8 +40,8 @@ struct HSCPTrackSelector {
     maxInnerTrackdEdx     = cfg.getParameter<double>( "InnerTrackdEdxLeftMax" );
     minMuonTrackdEdx      = cfg.getParameter<double>( "InnerMuondEdxRightMin" );
     maxMuonTrackdEdx      = cfg.getParameter<double>( "InnerMuondEdxLeftMax" );
-    mindEdxHitsInnerTrack = cfg.getParameter<unsigned int>( "dEdxMeasurementsMinForMuonTrack" );
-    mindEdxHitsMuonTrack  = cfg.getParameter<unsigned int>( "dEdxMeasurementsMinForInnerTrack" );
+    mindEdxHitsInnerTrack = cfg.getParameter<unsigned int>( "dEdxMeasurementsMinForInnerTrack" );
+    mindEdxHitsMuonTrack  = cfg.getParameter<unsigned int>( "dEdxMeasurementsMinForMuonTrack" );
   }
   
   const_iterator begin() const { return theSelectedTracks.begin(); }
