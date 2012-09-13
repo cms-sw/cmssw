@@ -1425,14 +1425,17 @@ float CompareLastFilledBin::runTest(const MonitorElement *me){
 
   //--------- do the quality test for 1D histo ---------------// 
   if (h1 != NULL) 
-  {   
+  { 
     lastBinX = h1->FindLastBinAbove(_average,1);
     lastBinVal = h1->GetBinContent(lastBinX);
+    if (h1->GetEntries() == 0 || lastBinVal < 0) return 1;
   } 
   else if (h2 != NULL) 
   {   
+    
     lastBinX = h2->FindLastBinAbove(_average,1);
     lastBinY = h2->FindLastBinAbove(_average,2);
+    if ( h2->GetEntries() == 0 || lastBinX < 0 || lastBinY < 0 )  return 1;
     lastBinVal = h2->GetBinContent(h2->GetBin(lastBinX,lastBinY));
   } else {
     if (verbose_ > 0) std::cout << "QTest:"<< getAlgoName() << " Histogram does not exist" << std::endl;
