@@ -17,7 +17,7 @@ process.load( "Configuration.Geometry.GeometryIdeal_cff" )
 process.load( "Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff" )
 process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff" )
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag( process.GlobalTag, 'auto:com10' )
+process.GlobalTag = GlobalTag( process.GlobalTag, 'auto:com10_7E33v4' )
 
 ## Input
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesSingleMuRECO
@@ -55,5 +55,5 @@ process.patMuons.addGenMatch      = False
 process.patPhotons.addGenMatch    = False
 process.patTaus.addGenMatch       = False
 process.patTaus.addGenJetMatch    = False
-process.patJetCorrFactors.levels += [ 'L2L3Residual' ]
+process.patJetCorrFactors.levels.append( 'L2L3Residual' )
 process.load( "PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff" )
