@@ -566,6 +566,7 @@ $i->Draw("same");
 c$i->cd(2);
 TH1F* ratio=new  TH1F("ratio"," ",nBins,xMin,xMax);
 ratio->Divide(hnew,hold);
+ratio->SetStats(0);
 for ( int i=1; i<=ratio->GetNbinsX(); i++ ) {
 float num=hnew->GetBinContent(i);
 float den=hold->GetBinContent(i);
