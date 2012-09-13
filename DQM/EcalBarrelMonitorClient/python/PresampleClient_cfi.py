@@ -1,6 +1,6 @@
-from DQM.EcalBarrelMonitorTasks.PresampleTask_cfi import presampleTask
+from DQM.EcalBarrelMonitorTasks.PresampleTask_cfi import ecalPresampleTask
 
-presampleClient = dict(
+ecalPresampleClient = dict(
     minChannelEntries = 3,
     minTowerEntries = 30,
     expectedMean = 200.,
@@ -18,7 +18,7 @@ presampleClient = dict(
         TrendRMS = dict(path = 'Trend/PresampleClient presample rms max', otype = 'Ecal2P', btype = 'Trend', kind = 'TProfile')
     ),
     sources = dict(
-        Pedestal = presampleTask['MEs']['Pedestal']
+        Pedestal = ecalPresampleTask['MEs']['Pedestal']
     )
 )
 

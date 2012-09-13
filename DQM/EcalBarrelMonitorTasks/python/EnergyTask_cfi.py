@@ -1,4 +1,4 @@
-energyTask = dict(
+ecalEnergyTask = dict(
     isPhysicsRun = True,
     threshS9 = 0.125,
     MEs = dict(

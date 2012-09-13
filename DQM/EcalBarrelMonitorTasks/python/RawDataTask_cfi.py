@@ -1,4 +1,4 @@
-rawDataTask = dict(
+ecalRawDataTask = dict(
     MEs = dict(
         EventTypePreCalib = dict(path = "RawData/RawDataTask event type BX lt 3490", otype = 'Ecal', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 25, 'low': 0., 'high': 25.}),
         EventTypeCalib = dict(path = "RawData/RawDataTask event type BX eq 3490", otype = 'Ecal', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 25, 'low': 0., 'high': 25.}),

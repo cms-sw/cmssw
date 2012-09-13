@@ -1,4 +1,4 @@
-occupancyTask = dict(
+ecalOccupancyTask = dict(
     recHitThreshold = 0.5,
     tpThreshold = 4.,
     MEs = dict(

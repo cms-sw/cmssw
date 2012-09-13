@@ -3,12 +3,12 @@ import FWCore.ParameterSet.Config as cms
 from DQM.EcalCommon.dqmpset import *
 from DQM.EcalCommon.CalibCommonParams_cfi import ecalCalibCommonParams
 
-from DQM.EcalBarrelMonitorClient.LaserClient_cfi import laserClient
-from DQM.EcalBarrelMonitorClient.LedClient_cfi import ledClient
-from DQM.EcalBarrelMonitorClient.TestPulseClient_cfi import testPulseClient
-from DQM.EcalBarrelMonitorClient.PedestalClient_cfi import pedestalClient
-from DQM.EcalBarrelMonitorClient.PNIntegrityClient_cfi import pnIntegrityClient
-from DQM.EcalBarrelMonitorClient.CalibrationSummaryClient_cfi import calibrationSummaryClient
+from DQM.EcalBarrelMonitorClient.LaserClient_cfi import ecalLaserClient
+from DQM.EcalBarrelMonitorClient.LedClient_cfi import ecalLedClient
+from DQM.EcalBarrelMonitorClient.TestPulseClient_cfi import ecalTestPulseClient
+from DQM.EcalBarrelMonitorClient.PedestalClient_cfi import ecalPedestalClient
+from DQM.EcalBarrelMonitorClient.PNIntegrityClient_cfi import ecalPnIntegrityClient
+from DQM.EcalBarrelMonitorClient.CalibrationSummaryClient_cfi import ecalCalibrationSummaryClient
 
 ecalCalibMonitorClient = cms.EDAnalyzer("EcalDQMonitorClient",
     moduleName = cms.untracked.string("EcalCalib Monitor Client"),
@@ -25,12 +25,12 @@ ecalCalibMonitorClient = cms.EDAnalyzer("EcalDQMonitorClient",
     # task parameters (included from indivitual cfis)
     workerParameters = dqmpset(
         dict(
-            LaserClient = laserClient,
-            LedClient = ledClient,
-            TestPulseClient = testPulseClient,
-#            PedestalClient = pedestalClient,
-            PNIntegrityClient = pnIntegrityClient,
-            CalibrationSummaryClient = calibrationSummaryClient,
+            LaserClient = ecalLaserClient,
+            LedClient = ecalLedClient,
+            TestPulseClient = ecalTestPulseClient,
+#            PedestalClient = ecalPedestalClient,
+            PNIntegrityClient = ecalPnIntegrityClient,
+            CalibrationSummaryClient = ecalCalibrationSummaryClient,
             common = ecalCalibCommonParams
         )
     ),

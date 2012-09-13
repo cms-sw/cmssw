@@ -1,4 +1,4 @@
-testPulseTask = dict(
+ecalTestPulseTask = dict(
     MEs = dict(
         Occupancy = dict(path = "Occupancy/TestPulseTask digi occupancy G%(gain)s", otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TH2F', multi = 3),
         Shape = dict(path = "TestPulse/Gain%(gain)s/Shape/TestPulseTask shape G%(gain)s", otype = 'SM', btype = 'SuperCrystal', kind = 'TProfile2D', yaxis = {'nbins': 10, 'low': 0., 'high': 10.}, multi = 3),

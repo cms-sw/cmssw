@@ -32,8 +32,10 @@ namespace ecaldqm {
     void source_(unsigned, std::string const&, unsigned, edm::ParameterSet const&);
     bool applyMask_(unsigned, DetId const&, uint32_t);
     void towerAverage_(unsigned, unsigned, float);
+    bool using_(unsigned _s) { return usedSources_ & (0x1 << _s); }
 
     std::vector<MESet const*> sources_;
+    uint32_t usedSources_;
   };
 
 }

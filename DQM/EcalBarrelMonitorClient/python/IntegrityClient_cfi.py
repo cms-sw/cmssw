@@ -1,18 +1,18 @@
-from DQM.EcalBarrelMonitorTasks.OccupancyTask_cfi import occupancyTask
-from DQM.EcalBarrelMonitorTasks.IntegrityTask_cfi import integrityTask
+from DQM.EcalBarrelMonitorTasks.OccupancyTask_cfi import ecalOccupancyTask
+from DQM.EcalBarrelMonitorTasks.IntegrityTask_cfi import ecalIntegrityTask
 
-integrityClient = dict(
+ecalIntegrityClient = dict(
     errFractionThreshold = 0.01,
     MEs = dict(
         Quality = dict(path = "Integrity/Quality/IntegrityClient data integrity quality", otype = 'SM', btype = 'Crystal', kind = 'TH2F'),
         QualitySummary = dict(path = "Summary/IntegrityClient data integrity quality", otype = 'Ecal2P', btype = 'Crystal', kind = 'TH2F')
     ),
     sources = dict(
-        Occupancy = occupancyTask['MEs']['Digi'],            
-        Gain = integrityTask['MEs']['Gain'],
-        ChId = integrityTask['MEs']['ChId'],
-        GainSwitch = integrityTask['MEs']['GainSwitch'],
-        TowerId = integrityTask['MEs']['TowerId'],
-        BlockSize = integrityTask['MEs']['BlockSize']
+        Occupancy = ecalOccupancyTask['MEs']['Digi'],            
+        Gain = ecalIntegrityTask['MEs']['Gain'],
+        ChId = ecalIntegrityTask['MEs']['ChId'],
+        GainSwitch = ecalIntegrityTask['MEs']['GainSwitch'],
+        TowerId = ecalIntegrityTask['MEs']['TowerId'],
+        BlockSize = ecalIntegrityTask['MEs']['BlockSize']
     )
 )

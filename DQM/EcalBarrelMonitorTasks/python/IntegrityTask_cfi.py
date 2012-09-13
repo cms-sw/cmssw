@@ -1,4 +1,4 @@
-integrityTask = dict(
+ecalIntegrityTask = dict(
     MEs = dict(
         ByLumi = dict(path = 'Integrity/IntegrityTask errors by lumi', otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),
         Total = dict(path = 'Integrity/IntegrityTask errors total', otype = 'Ecal2P', btype = 'DCC', kind = 'TH1F'),

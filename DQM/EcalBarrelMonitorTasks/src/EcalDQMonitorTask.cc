@@ -31,7 +31,7 @@ using namespace ecaldqm;
 
 EcalDQMonitorTask::EcalDQMonitorTask(const edm::ParameterSet &_ps) :
   EcalDQMonitor(_ps),
-  ievt_(0),
+  processedEvents_(0),
   schedule_(),
   enabled_(),
   taskTimes_(),
@@ -47,13 +47,13 @@ EcalDQMonitorTask::EcalDQMonitorTask(const edm::ParameterSet &_ps) :
   const edm::ParameterSet& collectionTags(_ps.getUntrackedParameterSet("collectionTags"));
 
   ecaldqm::DependencySet dependencies;
-
+  bool atLeastOne(false);
   for(unsigned iCol(0); iCol < nCollections; iCol++){
 
     collectionTags_[iCol] = edm::InputTag();
     taskLists_[iCol] = vector<DQWorkerTask*>();
 
-    bool use(iCol == kEcalRawData);
+    bool use(false);
 
     for(vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
       DQWorkerTask* task(static_cast<DQWorkerTask*>(*wItr));
@@ -68,8 +68,13 @@ EcalDQMonitorTask::EcalDQMonitorTask(const edm::ParameterSet &_ps) :
     if(use){
       collectionTags_[iCol] = collectionTags.getUntrackedParameter<edm::InputTag>(collectionName[iCol]);
       dependencies.push_back(ecaldqm::Dependency(Collections(iCol)));
+      atLeastOne = true;
     }
+  }
 
+  if(atLeastOne && collectionTags_[kEcalRawData] == edm::InputTag()){
+    collectionTags_[kEcalRawData] = collectionTags.getUntrackedParameter<edm::InputTag>(collectionName[kEcalRawData]);
+    dependencies.push_back(ecaldqm::Dependency(kEcalRawData));
   }
 
   formSchedule_(dependencies.formSequence());
@@ -122,7 +127,7 @@ EcalDQMonitorTask::beginRun(const edm::Run &_run, const edm::EventSetup &_es)
   if(verbosity_ > 0)
     std::cout << moduleName_ << ": Starting run " << _run.run() << std::endl;
 
-  ievt_ = 0;
+  processedEvents_ = 0;
   taskTimes_.clear();
 }
 
@@ -144,7 +149,7 @@ EcalDQMonitorTask::endRun(const edm::Run &_run, const edm::EventSetup &_es)
     ss << "____________________________________" << endl;
     for(std::vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
       DQWorker* worker(*wItr);
-      ss << setw(20) << setfill(' ') << worker->getName() << "|   " << (taskTimes_[static_cast<DQWorkerTask*>(worker)] / ievt_) << endl;
+      ss << setw(20) << setfill(' ') << worker->getName() << "|   " << (taskTimes_[static_cast<DQWorkerTask*>(worker)] / processedEvents_) << endl;
     }
     edm::LogInfo("EcalDQM") << ss.str();
   }
@@ -179,7 +184,9 @@ EcalDQMonitorTask::analyze(const edm::Event &_evt, const edm::EventSetup &_es)
 
   DQWorker::iEvt = _evt.id().event();
   DQWorker::now = time(0);
-  ievt_++;
+  processedEvents_++;
+
+  if(schedule_.size() == 0) return;
 
   edm::Handle<EcalRawDataCollection> dcchsHndl;
   if(!_evt.getByLabel(collectionTags_[kEcalRawData], dcchsHndl))

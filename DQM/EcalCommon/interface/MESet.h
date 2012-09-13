@@ -100,6 +100,7 @@ namespace ecaldqm
     bool isActive() const { return active_; }
     virtual MonitorElement const* getME(unsigned _iME) const { return (_iME < mes_.size() ? mes_[_iME] : 0); }
     virtual MonitorElement* getME(unsigned _iME) { return (_iME < mes_.size() ? mes_[_iME] : 0); }
+    void setLumiFlag();
 
     static MonitorElement::Kind translateKind(std::string const&);
 

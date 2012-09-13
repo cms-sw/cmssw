@@ -5,16 +5,16 @@ from DQM.EcalCommon.CommonParams_cfi import ecalCommonParams
 
 from DQM.EcalBarrelMonitorTasks.CollectionTags_cfi import ecalDQMCollectionTags
 
-from DQM.EcalBarrelMonitorTasks.ClusterTask_cfi import clusterTask
-from DQM.EcalBarrelMonitorTasks.EnergyTask_cfi import energyTask
-from DQM.EcalBarrelMonitorTasks.IntegrityTask_cfi import integrityTask
-from DQM.EcalBarrelMonitorTasks.OccupancyTask_cfi import occupancyTask
-from DQM.EcalBarrelMonitorTasks.RawDataTask_cfi import rawDataTask
-from DQM.EcalBarrelMonitorTasks.SelectiveReadoutTask_cfi import selectiveReadoutTask
-from DQM.EcalBarrelMonitorTasks.TimingTask_cfi import timingTask
-from DQM.EcalBarrelMonitorTasks.TrigPrimTask_cfi import trigPrimTask
-from DQM.EcalBarrelMonitorTasks.TowerStatusTask_cfi import towerStatusTask
-from DQM.EcalBarrelMonitorTasks.PresampleTask_cfi import presampleTask
+from DQM.EcalBarrelMonitorTasks.ClusterTask_cfi import ecalClusterTask
+from DQM.EcalBarrelMonitorTasks.EnergyTask_cfi import ecalEnergyTask
+from DQM.EcalBarrelMonitorTasks.IntegrityTask_cfi import ecalIntegrityTask
+from DQM.EcalBarrelMonitorTasks.OccupancyTask_cfi import ecalOccupancyTask
+from DQM.EcalBarrelMonitorTasks.RawDataTask_cfi import ecalRawDataTask
+from DQM.EcalBarrelMonitorTasks.SelectiveReadoutTask_cfi import ecalSelectiveReadoutTask
+from DQM.EcalBarrelMonitorTasks.TimingTask_cfi import ecalTimingTask
+from DQM.EcalBarrelMonitorTasks.TrigPrimTask_cfi import ecalTrigPrimTask
+from DQM.EcalBarrelMonitorTasks.TowerStatusTask_cfi import ecalTowerStatusTask
+from DQM.EcalBarrelMonitorTasks.PresampleTask_cfi import ecalPresampleTask
 
 ecalMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
     moduleName = cms.untracked.string("Ecal Monitor Source"),
@@ -35,16 +35,16 @@ ecalMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
     # task parameters (included from indivitual cfis)
     workerParameters = dqmpset(
         dict(
-            ClusterTask = clusterTask,
-            EnergyTask = energyTask,
-            IntegrityTask = integrityTask,
-            OccupancyTask = occupancyTask,
-            RawDataTask = rawDataTask,
-            SelectiveReadoutTask = selectiveReadoutTask,
-            TimingTask = timingTask,
-            TrigPrimTask = trigPrimTask,
-            TowerStatusTask = towerStatusTask,
-            PresampleTask = presampleTask,
+            ClusterTask = ecalClusterTask,
+            EnergyTask = ecalEnergyTask,
+            IntegrityTask = ecalIntegrityTask,
+            OccupancyTask = ecalOccupancyTask,
+            RawDataTask = ecalRawDataTask,
+            SelectiveReadoutTask = ecalSelectiveReadoutTask,
+            TimingTask = ecalTimingTask,
+            TrigPrimTask = ecalTrigPrimTask,
+            TowerStatusTask = ecalTowerStatusTask,
+            PresampleTask = ecalPresampleTask,
             common = ecalCommonParams
         )
     ),

@@ -1,4 +1,4 @@
-clusterTask = dict(
+ecalClusterTask = dict(
     massCalcPrescale = 1,
     MEs = dict(
         BCEMap = dict(path = 'Clusters/BasicClusters/ClusterTask BC energy', otype = 'Ecal3P', btype = 'SuperCrystal', kind = 'TProfile2D', zaxis = {'title': 'energy (GeV)'}),

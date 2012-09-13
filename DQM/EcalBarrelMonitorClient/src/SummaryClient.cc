@@ -7,6 +7,21 @@ namespace ecaldqm {
   SummaryClient::SummaryClient(edm::ParameterSet const&  _workerParams, edm::ParameterSet const& _commonParams) :
     DQWorkerClient(_workerParams, _commonParams, "SummaryClient")
   {
+    usedSources_ = 
+      (0x1 << kIntegrity) |
+      (0x1 << kIntegrityByLumi) |
+      (0x1 << kRawData) |
+      (0x1 << kDesyncByLumi) |
+      (0x1 << kFEByLumi);
+
+    std::vector<std::string> sourceList(_workerParams.getUntrackedParameter<std::vector<std::string> >("activeSources"));
+    for(unsigned iS(0); iS < sourceList.size(); ++iS){
+      std::string& sourceName(sourceList[iS]);
+      if(sourceName == "Presample") usedSources_ |= (0x1 << kPresample);
+      else if(sourceName == "Timing") usedSources_ |= (0x1 << kTiming);
+      else if(sourceName == "TriggerPrimitives") usedSources_ |= (0x1 << kTriggerPrimitives);
+      else if(sourceName == "HotCell") usedSources_ |= (0x1 << kHotCell);
+    }
   }
 
   void
@@ -29,13 +44,21 @@ namespace ecaldqm {
     std::vector<float> dccChannels(BinService::nDCC, 0.);
     std::vector<float> dccGood(BinService::nDCC, 0.);
 
+    std::vector<float> integrityByLumi(BinService::nDCC, 0.);
+    std::vector<float> rawDataByLumi(BinService::nDCC, 0.);
+    for(unsigned iDCC(0); iDCC < BinService::nDCC; ++iDCC){
+      integrityByLumi[iDCC] = sources_[kIntegrityByLumi]->getBinContent(iDCC + 1);
+      rawDataByLumi[iDCC] = sources_[kDesyncByLumi]->getBinContent(iDCC + 1) + sources_[kFEByLumi]->getBinContent(iDCC + 1);
+    }
+
     MESet::iterator qEnd(MEs_[kQualitySummary]->end());
     MESet::const_iterator iItr(sources_[kIntegrity]);
-    MESet::const_iterator pItr(sources_[kPresample]);
-    MESet::const_iterator hItr(sources_[kHotCell]);
+    MESet::const_iterator pItr(sources_[kPresample], using_(kPresample) ? 0 : -1, 0);
+    MESet::const_iterator hItr(sources_[kHotCell], using_(kHotCell) ? 0 : -1, 0);
     for(MESet::iterator qItr(MEs_[kQualitySummary]->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
       DetId id(qItr->getId());
+      unsigned iDCC(dccId(id) - 1);
 
       iItr = qItr;
 
@@ -49,11 +72,16 @@ namespace ecaldqm {
       pItr = qItr;
       hItr = qItr;
 
-      int presample(pItr->getBinContent());
-      int hotcell(hItr->getBinContent());
-      int timing(sources_[kTiming]->getBinContent(id));
+      int presample(using_(kPresample) ? pItr->getBinContent() : kUnknown);
+      int hotcell(using_(kHotCell) ? hItr->getBinContent() : kUnknown);
+      int timing(using_(kTiming) ? sources_[kTiming]->getBinContent(id) : kUnknown);
+      int trigprim(using_(kTriggerPrimitives) ? sources_[kTriggerPrimitives]->getBinContent(id) : kUnknown);
+
       int rawdata(sources_[kRawData]->getBinContent(id));
-      int trigprim(sources_[kTriggerPrimitives]->getBinContent(id));
+
+      // summary retains only problems during this LS
+      if(integrity == kBad && integrityByLumi[iDCC] == 0.) integrity = kGood;
+      if(rawdata == kBad && rawDataByLumi[iDCC] == 0.) rawdata = kGood;
 
       int status(kGood);
       if(integrity == kBad || presample == kBad || timing == kBad || rawdata == kBad || trigprim == kBad || hotcell == kBad)
@@ -63,8 +91,6 @@ namespace ecaldqm {
 
       qItr->setBinContent(status);
 
-      unsigned iDCC(dccId(id) - 1);
-
       if(status != kBad){
         dccGood[iDCC] += 1.;
         totalGood += 1.;
@@ -73,6 +99,7 @@ namespace ecaldqm {
       totalChannels += 1.;
     }
 
+    // search clusters of bad towers
     if(online_){
       for(int iz(-1); iz <= 1; iz += 2){
         for(int ieta(1); ieta < 17; ++ieta){
@@ -152,9 +179,12 @@ namespace ecaldqm {
     _nameToIndex["ReportSummary"] = kReportSummary;
 
     _nameToIndex["Integrity"] = kIntegrity;
+    _nameToIndex["IntegrityByLumi"] = kIntegrityByLumi;
     _nameToIndex["Presample"] = kPresample;
     _nameToIndex["Timing"] = kTiming;
     _nameToIndex["RawData"] = kRawData;
+    _nameToIndex["DesyncByLumi"] = kDesyncByLumi;
+    _nameToIndex["FEByLumi"] = kFEByLumi;
     _nameToIndex["TriggerPrimitives"] = kTriggerPrimitives;
     _nameToIndex["HotCell"] = kHotCell;
   }

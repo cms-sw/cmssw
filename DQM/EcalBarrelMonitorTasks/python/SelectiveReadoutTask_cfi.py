@@ -4,7 +4,7 @@ for i in range(11) :
 for i in range(11, 79) :
     dccSizeBinEdges.append(0.608 * (i - 10.))
 
-selectiveReadoutTask = dict(
+ecalSelectiveReadoutTask = dict(
     useCondDb = False,
     DCCZS1stSample = 2,
     ZSFIRWeights = [-0.374, -0.374, -0.3629, 0.2721, 0.4681, 0.3707],

@@ -2,6 +2,8 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 namespace ecaldqm {
 
@@ -15,10 +17,12 @@ namespace ecaldqm {
   {
     MEs_[kCertificationMap]->resetAll(-1.);
     MEs_[kCertificationMap]->reset(1.);
+    MEs_[kCertificationContents]->reset(1.);
+    MEs_[kCertification]->reset(1.);
   }
 
   void
-  CertificationClient::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+  CertificationClient::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
   {
     MEs_[kCertificationMap]->reset(1.);
     MEs_[kCertificationContents]->reset(1.);
@@ -28,7 +32,19 @@ namespace ecaldqm {
   void
   CertificationClient::producePlots()
   {
+    double meanValue(0.);
+    for(unsigned iDCC(0); iDCC < BinService::nDCC; ++iDCC){
+      double certValue(sources_[kDAQ]->getBinContent(iDCC + 1) *
+                       sources_[kDCS]->getBinContent(iDCC + 1) *
+                       sources_[kDQM]->getBinContent(iDCC + 1));
 
+      MEs_[kCertificationContents]->fill(iDCC + 1, certValue);
+      MEs_[kCertificationMap]->fill(iDCC + 1, certValue);
+
+      meanValue += certValue * nCrystals(iDCC + 1);
+    }
+
+    MEs_[kCertification]->fill(meanValue / EBDetId::kSizeForDenseIndexing + EEDetId::kSizeForDenseIndexing);
   }
 
   /*static*/
@@ -41,7 +57,7 @@ namespace ecaldqm {
 
     _nameToIndex["DAQ"] = kDAQ;
     _nameToIndex["DCS"] = kDCS;
-    _nameToIndex["Report"] = kReport;
+    _nameToIndex["DQM"] = kDQM;
   }
 
   DEFINE_ECALDQM_WORKER(CertificationClient);

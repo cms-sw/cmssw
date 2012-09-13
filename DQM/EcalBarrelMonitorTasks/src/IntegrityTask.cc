@@ -33,8 +33,12 @@ namespace ecaldqm {
   IntegrityTask::bookMEs()
   {
     if(hltTaskMode_ != 1){
-      for(unsigned iME(kByLumi); iME < kFEDNonFatal; iME++)
+      for(unsigned iME(0); iME < nMESets; iME++){
+        if(iME == kFEDNonFatal) continue;
+        if(iME == kTrendNErrors && !online_) continue;
 	MEs_[iME]->book();
+      }
+      MEs_[kByLumi]->setLumiFlag();
     }
     if(hltTaskMode_ != 0){
       MEs_[kFEDNonFatal]->book();
@@ -45,7 +49,7 @@ namespace ecaldqm {
   void
   IntegrityTask::beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &)
   {
-    if(MEs_[kByLumi]->isActive()) MEs_[kByLumi]->reset();
+    MEs_[kByLumi]->reset();
   }
 
   void

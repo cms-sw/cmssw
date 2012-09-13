@@ -39,14 +39,18 @@ namespace ecaldqm {
       MEs_[kDAQSummaryMap]->book();
       MEs_[kDAQContents]->book();
 
+      MEs_[kDAQSummary]->reset(1.);
       MEs_[kDAQSummaryMap]->resetAll(-1.);
+      MEs_[kDAQContents]->reset(1.);
     }
     if(doDCSInfo_){
       MEs_[kDCSSummary]->book();
       MEs_[kDCSSummaryMap]->book();
       MEs_[kDCSContents]->book();
 
+      MEs_[kDCSSummary]->reset(1.);
       MEs_[kDCSSummaryMap]->resetAll(-1.);
+      MEs_[kDCSContents]->reset(1.);
     }
 
     initialized_ = true;

@@ -11,8 +11,7 @@ namespace ecaldqm {
     ~CertificationClient() {}
 
     void beginRun(edm::Run const&, edm::EventSetup const&);
-
-    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
     void producePlots();
 
@@ -26,7 +25,7 @@ namespace ecaldqm {
     enum Sources {
       kDAQ,
       kDCS,
-      kReport,
+      kDQM,
       nSources
     };
 

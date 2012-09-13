@@ -2,7 +2,7 @@ etAxis = {'nbins': 128, 'low': 0., 'high': 256., 'title': 'TP Et'}
 indexAxis = {'nbins': 6, 'low': 0., 'high': 6., 'title': 'TP index'}
 bxAxis = {'nbins': 15, 'low': 0., 'high': 15., 'title': 'bunch crossing'}
 
-trigPrimTask = dict(
+ecalTrigPrimTask = dict(
     runOnEmul = True,
     HLTCaloPath = 'HLT_SingleJet*',
     HLTMuonPath = 'HLT_Mu5_v*',

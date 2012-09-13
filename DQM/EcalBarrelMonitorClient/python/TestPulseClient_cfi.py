@@ -1,6 +1,6 @@
-from DQM.EcalBarrelMonitorTasks.TestPulseTask_cfi import testPulseTask
+from DQM.EcalBarrelMonitorTasks.TestPulseTask_cfi import ecalTestPulseTask
 
-testPulseClient = dict(
+ecalTestPulseClient = dict(
     amplitudeThresholdG1 = 100.,
     amplitudeThresholdG6 = 100.,
     amplitudeThresholdG12 = 100.,
@@ -19,7 +19,7 @@ testPulseClient = dict(
         PNQualitySummary = dict(path = 'Summary/TestPulseClient PN quality G%(pngain)s', otype = 'MEM', btype = 'Crystal', kind = 'TH2F', multi = 2)
     ),
     sources = dict(
-        Amplitude = testPulseTask['MEs']['Amplitude'],
-        PNAmplitude = testPulseTask['MEs']['PNAmplitude']
+        Amplitude = ecalTestPulseTask['MEs']['Amplitude'],
+        PNAmplitude = ecalTestPulseTask['MEs']['PNAmplitude']
     )
 )

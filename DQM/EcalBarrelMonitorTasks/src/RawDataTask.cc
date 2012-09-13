@@ -46,8 +46,6 @@ namespace ecaldqm {
   void
   RawDataTask::bookMEs()
   {
-    DQWorker::bookMEs();
-
     if(hltTaskMode_ != 1){
       std::string eventTypes[nEventTypes];
       eventTypes[0] = "UNKNOWN";
@@ -95,8 +93,12 @@ namespace ecaldqm {
       statuses[VParity] = "VPARITY";
       statuses[ForcedZS] = "FORCEDZS";
 
-      for(unsigned iME(kEventTypePreCalib); iME < kFEByLumi; iME++)
+      for(unsigned iME(0); iME < nMESets; iME++){
+        if(iME == kFEDEntries || iME == kFEDFatal) continue;
+        if(iME == kTrendNSyncErrors && !online_) continue;
 	MEs_[iME]->book();
+      }
+      MEs_[kFEByLumi]->setLumiFlag();
 
       for(int i(1); i <= nEventTypes; i++){
 	MEs_[kEventTypePreCalib]->setBinLabel(0, i, eventTypes[i - 1], 1);

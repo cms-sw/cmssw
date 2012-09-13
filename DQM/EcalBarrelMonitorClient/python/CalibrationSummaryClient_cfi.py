@@ -1,10 +1,10 @@
-from DQM.EcalBarrelMonitorClient.PNIntegrityClient_cfi import pnIntegrityClient
-from DQM.EcalBarrelMonitorClient.LaserClient_cfi import laserClient
-from DQM.EcalBarrelMonitorClient.LedClient_cfi import ledClient
-from DQM.EcalBarrelMonitorClient.TestPulseClient_cfi import testPulseClient
-from DQM.EcalBarrelMonitorClient.PedestalClient_cfi import pedestalClient
+from DQM.EcalBarrelMonitorClient.PNIntegrityClient_cfi import ecalPnIntegrityClient
+from DQM.EcalBarrelMonitorClient.LaserClient_cfi import ecalLaserClient
+from DQM.EcalBarrelMonitorClient.LedClient_cfi import ecalLedClient
+from DQM.EcalBarrelMonitorClient.TestPulseClient_cfi import ecalTestPulseClient
+from DQM.EcalBarrelMonitorClient.PedestalClient_cfi import ecalPedestalClient
 
-calibrationSummaryClient = dict(
+ecalCalibrationSummaryClient = dict(
 #    laserWavelengths = [1, 2, 3, 4],
     laserWavelengths = [3],
 #    ledWavelengths = [1, 2],
@@ -19,15 +19,15 @@ calibrationSummaryClient = dict(
         PNQualitySummary = dict(path = 'Summary/CalibSummaryClient PN global quality', otype = 'MEM', btype = 'Crystal', kind = 'TH2F')
     ),
     sources = dict(
-        PNIntegrity = pnIntegrityClient['MEs']['QualitySummary'],
-        Laser = laserClient['MEs']['QualitySummary'],
-        LaserPN = laserClient['MEs']['PNQualitySummary'],
-        Led = ledClient['MEs']['QualitySummary'],
-        LedPN = ledClient['MEs']['PNQualitySummary'],
-        TestPulse = testPulseClient['MEs']['QualitySummary'],
-        TestPulsePN = testPulseClient['MEs']['PNQualitySummary'],
-        Pedestal = pedestalClient['MEs']['QualitySummary'],
-        PedestalPN = pedestalClient['MEs']['PNQualitySummary']
+        PNIntegrity = ecalPnIntegrityClient['MEs']['QualitySummary'],
+        Laser = ecalLaserClient['MEs']['QualitySummary'],
+        LaserPN = ecalLaserClient['MEs']['PNQualitySummary'],
+        Led = ecalLedClient['MEs']['QualitySummary'],
+        LedPN = ecalLedClient['MEs']['PNQualitySummary'],
+        TestPulse = ecalTestPulseClient['MEs']['QualitySummary'],
+        TestPulsePN = ecalTestPulseClient['MEs']['PNQualitySummary'],
+        Pedestal = ecalPedestalClient['MEs']['QualitySummary'],
+        PedestalPN = ecalPedestalClient['MEs']['PNQualitySummary']
     )
 )
     

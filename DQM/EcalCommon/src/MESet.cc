@@ -187,6 +187,15 @@ namespace ecaldqm
     name_ = name.Data();
   }
 
+  void
+  MESet::setLumiFlag()
+  {
+    if(!active_) return;
+
+    for(unsigned iME(0); iME < mes_.size(); ++iME)
+      if(mes_[iME]) mes_[iME]->setLumiFlag();
+  }
+
   /*static*/
   MonitorElement::Kind
   MESet::translateKind(std::string const& _kindName)
@@ -262,6 +271,7 @@ namespace ecaldqm
     if(!meSet_){
       iME = unsigned(-1);
       iBin = -1;
+      return;
     }
 
     if(iME == unsigned(-1)) return;

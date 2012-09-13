@@ -44,7 +44,7 @@ class EcalDQMonitorTask : public EcalDQMonitor {
 
   void formSchedule_(std::vector<ecaldqm::Collections> const&);
 
-  int ievt_;
+  int processedEvents_;
   // list of InputTags
   edm::InputTag collectionTags_[ecaldqm::nCollections];
   // schedule of collections to run

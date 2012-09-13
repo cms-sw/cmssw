@@ -1,6 +1,6 @@
-from DQM.EcalBarrelMonitorTasks.PedestalTask_cfi import pedestalTask
+from DQM.EcalBarrelMonitorTasks.PedestalTask_cfi import ecalPedestalTask
 
-pedestalClient = dict(
+ecalPedestalClient = dict(
     expectedMeanG1 = 200.,
     expectedMeanG6 = 200.,
     expectedMeanG12 = 200.,
@@ -25,7 +25,7 @@ pedestalClient = dict(
         PNQualitySummary = dict(path = 'Summary/PedestalClient PN quality G%(pngain)s', otype = 'MEM', btype = 'Crystal', kind = 'TH2F', multi = 2)
     ),
     sources = dict(
-        Pedestal = pedestalTask['MEs']['Pedestal'],
-        PNPedestal = pedestalTask['MEs']['PNPedestal']
+        Pedestal = ecalPedestalTask['MEs']['Pedestal'],
+        PNPedestal = ecalPedestalTask['MEs']['PNPedestal']
     )
 )

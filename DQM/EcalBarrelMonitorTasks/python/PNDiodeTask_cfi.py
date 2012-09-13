@@ -1,4 +1,4 @@
-pnDiodeTask = dict(
+ecalPnDiodeTask = dict(
     MEs = dict(
         MEMChId = dict(path = 'PN/Integrity/MEMChId/', otype = 'Channel', btype = 'Crystal', kind = 'TH1F'),
         MEMGain = dict(path = 'PN/Integrity/MEMGain/', otype = 'Channel', btype = 'Crystal', kind = 'TH1F'),

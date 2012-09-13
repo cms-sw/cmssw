@@ -13,7 +13,8 @@ namespace ecaldqm {
 
   DQWorkerClient::DQWorkerClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams, std::string const& _name) :
     DQWorker(_workerParams, _commonParams, _name),
-    sources_(0)
+    sources_(0),
+    usedSources_(0)
   {
     using namespace std;
 
@@ -44,7 +45,11 @@ namespace ecaldqm {
           throw cms::Exception("InvalidConfiguration") << "Cannot find ME index for " << sourceName;
 
         MESet const* meSet(createMESet(sourceParams.getUntrackedParameterSet(sourceName), binService, topDir));
-        if(meSet) sources_[nItr->second] = meSet;
+        if(meSet){
+          sources_[nItr->second] = meSet;
+          if(meSet->getBinType() != BinService::kTrend || online_)
+            usedSources_ |= (0x1 << nItr->second);
+        }
       }
     }
   }
@@ -70,9 +75,9 @@ namespace ecaldqm {
   DQWorkerClient::initialize()
   {
     initialized_ = true;
-    for(std::vector<MESet const*>::iterator sItr(sources_.begin()); sItr != sources_.end(); ++sItr){
-      if((*sItr)->getBinType() == BinService::kTrend && !online_) continue;
-      initialized_ &= (*sItr)->retrieve();
+    for(unsigned iS(0); iS < sources_.size(); ++iS){
+      if(!using_(iS)) continue;
+      initialized_ &= sources_[iS]->retrieve();
     }
   }
 

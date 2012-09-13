@@ -1,6 +1,6 @@
-from DQM.EcalBarrelMonitorTasks.SelectiveReadoutTask_cfi import selectiveReadoutTask
+from DQM.EcalBarrelMonitorTasks.SelectiveReadoutTask_cfi import ecalSelectiveReadoutTask
 
-selectiveReadoutClient = dict(
+ecalSelectiveReadoutClient = dict(
     MEs = dict(
         FRDropped = dict(path = "SelectiveReadout/SRClient FR flag drop rate", otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TH2F', zaxis = {'title': 'rate'}),
         ZSReadout = dict(path = "SelectiveReadout/SRClient ZS flag readout rate", otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TH2F', zaxis = {'title': 'rate'}),
@@ -9,12 +9,12 @@ selectiveReadoutClient = dict(
         ZS1 = dict(path = "SelectiveReadout/SRClient ZS1 flag rate", otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TH2F', zaxis = {'title': 'rate'})
     ),
     sources = dict(
-        FlagCounterMap = selectiveReadoutTask['MEs']['FlagCounterMap'],
-        RUForcedMap = selectiveReadoutTask['MEs']['RUForcedMap'],
-        FullReadoutMap = selectiveReadoutTask['MEs']['FullReadoutMap'],
-        ZS1Map = selectiveReadoutTask['MEs']['ZS1Map'],
-        ZSMap = selectiveReadoutTask['MEs']['ZSMap'],
-        ZSFullReadoutMap = selectiveReadoutTask['MEs']['ZSFullReadoutMap'],
-        FRDroppedMap = selectiveReadoutTask['MEs']['FRDroppedMap']
+        FlagCounterMap = ecalSelectiveReadoutTask['MEs']['FlagCounterMap'],
+        RUForcedMap = ecalSelectiveReadoutTask['MEs']['RUForcedMap'],
+        FullReadoutMap = ecalSelectiveReadoutTask['MEs']['FullReadoutMap'],
+        ZS1Map = ecalSelectiveReadoutTask['MEs']['ZS1Map'],
+        ZSMap = ecalSelectiveReadoutTask['MEs']['ZSMap'],
+        ZSFullReadoutMap = ecalSelectiveReadoutTask['MEs']['ZSFullReadoutMap'],
+        FRDroppedMap = ecalSelectiveReadoutTask['MEs']['FRDroppedMap']
     )
 )

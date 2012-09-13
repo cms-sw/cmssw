@@ -1,6 +1,6 @@
-from DQM.EcalBarrelMonitorTasks.OccupancyTask_cfi import occupancyTask
+from DQM.EcalBarrelMonitorTasks.OccupancyTask_cfi import ecalOccupancyTask
 
-occupancyClient = dict(
+ecalOccupancyClient = dict(
     minHits = 20,
     deviationThreshold = 100.0,
     MEs = dict(
@@ -10,9 +10,9 @@ occupancyClient = dict(
         QualitySummary = dict(path = "Summary/OccupancyClient hot cell quality", otype = 'Ecal2P', btype = 'Crystal', kind = 'TH2F')
     ),
     sources = dict(
-        Digi = occupancyTask['MEs']['Digi'],
-        RecHitThr = occupancyTask['MEs']['RecHitThr'],
-        TPDigiThr = occupancyTask['MEs']['TPDigiThr']
+        Digi = ecalOccupancyTask['MEs']['Digi'],
+        RecHitThr = ecalOccupancyTask['MEs']['RecHitThr'],
+        TPDigiThr = ecalOccupancyTask['MEs']['TPDigiThr']
     )
 )
 

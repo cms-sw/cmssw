@@ -2,7 +2,7 @@ EaxisEdges = []
 for i in range(50) :
     EaxisEdges.append(pow(10., -0.5 + 2.5 / 50. * i))
 
-timingTask = dict(
+ecalTimingTask = dict(
     energyThresholdEB = 1.,
     energyThresholdEE = 3.,
     MEs = dict(

@@ -1,6 +1,6 @@
-from DQM.EcalBarrelMonitorTasks.TimingTask_cfi import timingTask
+from DQM.EcalBarrelMonitorTasks.TimingTask_cfi import ecalTimingTask
 
-timingClient = dict(
+ecalTimingClient = dict(
     expectedMean = 0.,
     toleranceMean = 2.,
     toleranceMeanFwd = 3.,
@@ -22,7 +22,7 @@ timingClient = dict(
         QualitySummary = dict(path = "Summary/TimingClient timing quality", otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TH2F')
     ),
     sources = dict(
-        TimeAllMap = timingTask['MEs']['TimeAllMap'],
-        TimeMap = timingTask['MEs']['TimeMap']
+        TimeAllMap = ecalTimingTask['MEs']['TimeAllMap'],
+        TimeMap = ecalTimingTask['MEs']['TimeMap']
     )
 )

@@ -1,4 +1,4 @@
-towerStatusTask = dict(
+ecalTowerStatusTask = dict(
     doDAQInfo = True,
     doDCSInfo = True,
     MEs = dict(

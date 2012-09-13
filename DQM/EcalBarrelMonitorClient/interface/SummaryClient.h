@@ -24,9 +24,12 @@ namespace ecaldqm {
 
     enum Sources {
       kIntegrity,
+      kIntegrityByLumi,
       kPresample,
       kTiming,
       kRawData,
+      kDesyncByLumi,
+      kFEByLumi,
       kTriggerPrimitives,
       kHotCell,
       nSources

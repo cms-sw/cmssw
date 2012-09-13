@@ -1,12 +1,14 @@
-from DQM.EcalBarrelMonitorClient.IntegrityClient_cfi import integrityClient
-from DQM.EcalBarrelMonitorClient.PresampleClient_cfi import presampleClient
-from DQM.EcalBarrelMonitorClient.TimingClient_cfi import timingClient
-from DQM.EcalBarrelMonitorClient.RawDataClient_cfi import rawDataClient
-from DQM.EcalBarrelMonitorClient.TrigPrimClient_cfi import trigPrimClient
-from DQM.EcalBarrelMonitorClient.OccupancyClient_cfi import occupancyClient
+from DQM.EcalBarrelMonitorClient.IntegrityClient_cfi import ecalIntegrityClient
+from DQM.EcalBarrelMonitorClient.PresampleClient_cfi import ecalPresampleClient
+from DQM.EcalBarrelMonitorClient.TimingClient_cfi import ecalTimingClient
+from DQM.EcalBarrelMonitorClient.RawDataClient_cfi import ecalRawDataClient
+from DQM.EcalBarrelMonitorClient.TrigPrimClient_cfi import ecalTrigPrimClient
+from DQM.EcalBarrelMonitorClient.OccupancyClient_cfi import ecalOccupancyClient
+from DQM.EcalBarrelMonitorTasks.IntegrityTask_cfi import ecalIntegrityTask
+from DQM.EcalBarrelMonitorTasks.RawDataTask_cfi import ecalRawDataTask
 
-summaryClient = dict(
-    online = False,
+ecalSummaryClient = dict(
+    activeSources = ['Integrity', 'RawData', 'Presample', 'Timing'],
     MEs = dict(
         QualitySummary = dict(path = "Summary/SummaryClient global quality", otype = 'Ecal2P', btype = 'Crystal', kind = 'TH2F'),
         ReportSummaryMap = dict(path = "EventInfo/reportSummaryMap", otype = 'Ecal', btype = 'DCC', kind = 'TH2F'),
@@ -14,11 +16,14 @@ summaryClient = dict(
         ReportSummary = dict(path = "EventInfo/reportSummary", otype = 'Ecal', btype = 'Report', kind = 'REAL')
     ),
     sources = dict(
-        Integrity = integrityClient['MEs']['QualitySummary'],
-        Presample = presampleClient['MEs']['QualitySummary'],
-        Timing = timingClient['MEs']['QualitySummary'],
-        RawData = rawDataClient['MEs']['QualitySummary'],
-        TriggerPrimitives = trigPrimClient['MEs']['EmulQualitySummary'],
-        HotCell = occupancyClient['MEs']['QualitySummary']
+        Integrity = ecalIntegrityClient['MEs']['QualitySummary'],
+        IntegrityByLumi = ecalIntegrityTask['MEs']['ByLumi'],
+        Presample = ecalPresampleClient['MEs']['QualitySummary'],
+        Timing = ecalTimingClient['MEs']['QualitySummary'],
+        RawData = ecalRawDataClient['MEs']['QualitySummary'],
+        DesyncByLumi = ecalRawDataTask['MEs']['DesyncByLumi'],
+        FEByLumi = ecalRawDataTask['MEs']['FEByLumi'],
+        TriggerPrimitives = ecalTrigPrimClient['MEs']['EmulQualitySummary'],
+        HotCell = ecalOccupancyClient['MEs']['QualitySummary']
     )
 )

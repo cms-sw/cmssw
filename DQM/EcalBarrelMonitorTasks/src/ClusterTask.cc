@@ -177,6 +177,8 @@ namespace ecaldqm {
 
     if(ievt_ % massCalcPrescale_ != 0) return;
 
+    const double pi(3.14159265);
+
     for(vector<reco::BasicCluster const*>::iterator bcItr1(lowMassCands.begin()); bcItr1 != lowMassCands.end(); ++bcItr1){
       reco::BasicCluster const& bc1(**bcItr1);
       float energy1(bc1.energy());
@@ -197,8 +199,10 @@ namespace ecaldqm {
 
 	float epair(energy1 + energy2);
 	float pzpair(abs(pz1 + pz2));
+
+        float m2(epair * epair - pzpair * pzpair - ptpair * ptpair);
+        if(m2 < 0.) continue;
 	
-	if(epair < pzpair + 1.e-10) continue;
 	float eta(0.5 * log((epair + pzpair)/(epair - pzpair)));
 	float phi(atan2(px1 + px2, py1 + py2));
 
@@ -206,11 +210,13 @@ namespace ecaldqm {
 	for(reco::BasicClusterCollection::const_iterator bcItr(_bcs.begin()); bcItr != _bcs.end(); ++bcItr){
 	  float dEta(bcItr->eta() - eta);
 	  float dPhi(bcItr->phi() - phi);
+          if(dPhi > 2. * pi) dPhi -= 2. * pi;
+          else if(dPhi < -2. * pi) dPhi += 2. * pi;
 	  if(sqrt(dEta * dEta + dPhi * dPhi) < 0.2) iso += bcItr->energy() * sin(bcItr->position().theta());
 	}
 	if(iso > 0.5) continue;
 
-	float mass(sqrt(epair * epair - pzpair * pzpair - ptpair * ptpair));
+	float mass(sqrt(m2));
 	MEs_[kPi0]->fill(mass);
 	MEs_[kJPsi]->fill(mass);
       }
@@ -306,7 +312,9 @@ namespace ecaldqm {
     float px(leading->energy() * sin(leading->position().theta()) * cos(leading->phi()) + subLeading->energy() * sin(subLeading->position().theta()) * cos(subLeading->phi()));
     float py(leading->energy() * sin(leading->position().theta()) * sin(leading->phi()) + subLeading->energy() * sin(subLeading->position().theta()) * sin(subLeading->phi()));
     float pz(leading->energy() * cos(leading->position().theta()) + subLeading->energy() * cos(subLeading->position().theta()));
-    float mass(sqrt(e * e - px * px - py * py - pz * pz));
+    float m2(e * e - px * px - py * py - pz * pz);
+    if(m2 < 0.) return;
+    float mass(sqrt(m2));
     MEs_[kZ]->fill(mass);
     MEs_[kHighMass]->fill(mass);
 

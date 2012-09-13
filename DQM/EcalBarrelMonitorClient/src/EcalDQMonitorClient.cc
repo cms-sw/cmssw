@@ -29,8 +29,7 @@
 using namespace ecaldqm;
 
 EcalDQMonitorClient::EcalDQMonitorClient(const edm::ParameterSet &_ps) :
-  EcalDQMonitor(_ps),
-  lumiStatus_(-1)
+  EcalDQMonitor(_ps)
 {
   for(std::vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr)
     if(!dynamic_cast<DQWorkerClient*>(*wItr))
@@ -88,8 +87,6 @@ EcalDQMonitorClient::beginRun(const edm::Run &_run, const edm::EventSetup &_es)
     worker->beginRun(_run, _es);
   }
 
-  lumiStatus_ = -1;
-
   if(verbosity_ > 0)
     std::cout << moduleName_ << ": Starting run " << _run.run() << std::endl;
 }
@@ -97,8 +94,7 @@ EcalDQMonitorClient::beginRun(const edm::Run &_run, const edm::EventSetup &_es)
 void
 EcalDQMonitorClient::endRun(const edm::Run &_run, const edm::EventSetup &_es)
 {
-  if(lumiStatus_ == 0)
-    runWorkers();
+  runWorkers();
 
   for(std::vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr)
     (*wItr)->endRun(_run, _es);
@@ -112,19 +108,15 @@ EcalDQMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock &_lumi, con
 
   for(std::vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr)
     (*wItr)->beginLuminosityBlock(_lumi, _es);
-
-  lumiStatus_ = 0;
 }
 
 void
 EcalDQMonitorClient::endLuminosityBlock(const edm::LuminosityBlock &_lumi, const edm::EventSetup &_es)
 {
+  runWorkers();
+
   for(std::vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr)
     (*wItr)->endLuminosityBlock(_lumi, _es);
-
-  lumiStatus_ = 1;
-
-  runWorkers();
 }
 
 void

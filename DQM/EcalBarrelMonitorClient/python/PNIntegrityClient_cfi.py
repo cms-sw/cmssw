@@ -1,15 +1,15 @@
-from DQM.EcalBarrelMonitorTasks.PNDiodeTask_cfi import pnDiodeTask
+from DQM.EcalBarrelMonitorTasks.PNDiodeTask_cfi import ecalPnDiodeTask
 
-pnIntegrityClient = dict(
+ecalPnIntegrityClient = dict(
     errFractionThreshold = 0.01,
     MEs = dict(
         QualitySummary = dict(path = "Summary/PNIntegrityClient data integrity quality", otype = 'MEM', btype = 'Crystal', kind = 'TH2F')
     ),
     sources = dict(
-        Occupancy = pnDiodeTask['MEs']['Occupancy'],
-        MEMChId = pnDiodeTask['MEs']['MEMChId'],
-        MEMGain = pnDiodeTask['MEs']['MEMGain'],
-        MEMBlockSize = pnDiodeTask['MEs']['MEMBlockSize'],
-        MEMTowerId = pnDiodeTask['MEs']['MEMTowerId']
+        Occupancy = ecalPnDiodeTask['MEs']['Occupancy'],
+        MEMChId = ecalPnDiodeTask['MEs']['MEMChId'],
+        MEMGain = ecalPnDiodeTask['MEs']['MEMGain'],
+        MEMBlockSize = ecalPnDiodeTask['MEs']['MEMBlockSize'],
+        MEMTowerId = ecalPnDiodeTask['MEs']['MEMTowerId']
     )
 )

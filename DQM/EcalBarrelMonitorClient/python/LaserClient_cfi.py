@@ -1,6 +1,6 @@
-from DQM.EcalBarrelMonitorTasks.LaserTask_cfi import laserTask
+from DQM.EcalBarrelMonitorTasks.LaserTask_cfi import ecalLaserTask
 
-laserClient = dict(
+ecalLaserClient = dict(
     minChannelEntries = 3,
     expectedAmplitudeL1 = 1700.0,
     expectedAmplitudeL2 = 1300.0,
@@ -49,8 +49,8 @@ laserClient = dict(
         PNQualitySummary = dict(path = 'Summary/LaserClient PN quality L%(wl)s', otype = 'MEM', btype = 'Crystal', kind = 'TH2F', multi = 4)
     ),
     sources = dict(
-        Amplitude = laserTask['MEs']['Amplitude'],
-        Timing = laserTask['MEs']['Timing'],
-        PNAmplitude = laserTask['MEs']['PNAmplitude']
+        Amplitude = ecalLaserTask['MEs']['Amplitude'],
+        Timing = ecalLaserTask['MEs']['Timing'],
+        PNAmplitude = ecalLaserTask['MEs']['PNAmplitude']
     )
 )

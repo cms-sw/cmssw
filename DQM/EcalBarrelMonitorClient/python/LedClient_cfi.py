@@ -1,6 +1,6 @@
-from DQM.EcalBarrelMonitorTasks.LedTask_cfi import ledTask
+from DQM.EcalBarrelMonitorTasks.LedTask_cfi import ecalLedTask
 
-ledClient = dict(
+ecalLedClient = dict(
     minChannelEntries = 3,
     expectedAmplitudeL1 = 200.0,
     expectedAmplitudeL2 = 200.0,
@@ -31,8 +31,8 @@ ledClient = dict(
         PNQualitySummary = dict(path = 'Summary/LedClient PN quality L%(wl)s', otype = 'EEMEM', btype = 'Crystal', kind = 'TH2F', multi = 2)
     ),
     sources = dict(
-        Amplitude = ledTask['MEs']['Amplitude'],
-        Timing = ledTask['MEs']['Timing'],
-        PNAmplitude = ledTask['MEs']['PNAmplitude']
+        Amplitude = ecalLedTask['MEs']['Amplitude'],
+        Timing = ecalLedTask['MEs']['Timing'],
+        PNAmplitude = ecalLedTask['MEs']['PNAmplitude']
     )
 )
