@@ -24,6 +24,9 @@ pfPileUp.PFCandidates = 'particleFlow'
 pfNoPileUp.bottomCollection = 'particleFlow'
 pfPileUpIso.PFCandidates = 'particleFlow' 
 pfNoPileUpIso.bottomCollection='particleFlow'
+pfPileUpJME.PFCandidates = 'particleFlow' 
+pfNoPileUpJME.bottomCollection='particleFlow'
+
 
 PFBRECO = cms.Sequence(
     pfNoPileUpSequence +
