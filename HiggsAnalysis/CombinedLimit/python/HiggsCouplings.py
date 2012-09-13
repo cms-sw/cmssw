@@ -11,7 +11,9 @@ cVcF = CvCfHiggs()
 #cFxG = CfXgHiggs()
 
 # Models probing the Fermion sector
-from HiggsAnalysis.CombinedLimit.HiggsBenchmarkModels.FermionSectorModels import C5qlHiggs, C5udHiggs
+from HiggsAnalysis.CombinedLimit.HiggsBenchmarkModels.FermionSectorModels import C5qlHiggs, C5udHiggs, LambdaduHiggs, LambdalqHiggs
+lambdadu = LambdaduHiggs()
+lambdalq = LambdalqHiggs()
 c5ql = C5qlHiggs()
 c5ud = C5udHiggs()
 
@@ -22,4 +24,9 @@ cWZ       = CwzHiggs()
 cZW       = CzwHiggs() 
 rZW       = RzwHiggs()
 rWZ       = RwzHiggs()
+
+# Models probing the loops structure
+from HiggsAnalysis.CombinedLimit.HiggsBenchmarkModels.LoopAndInvisibleModel import HiggsLoops, HiggsLoopsInvisible
+higgsLoops  = HiggsLoops() 
+higgsLoopsInvisible  = HiggsLoopsInvisible() 
 
