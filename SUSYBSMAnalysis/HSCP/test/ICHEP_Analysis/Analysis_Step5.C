@@ -712,7 +712,7 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
     stPlots_DrawComparison(InputPattern + "/Selection_Comp_Data"  , LegendTitle, CutIndex, &Data12Plots, &Data11Plots, &MCTrPlots);
     if(TypeMode<=2) stPlots_DrawComparison(InputPattern + "/Selection_Comp_Gluino", LegendTitle, CutIndex, &Data12Plots, &MCTrPlots,     &SignPlots[JobIdToIndex("Gluino300_f10",samples)], &SignPlots[JobIdToIndex("Gluino600_f10",samples)], &SignPlots[JobIdToIndex("Gluino800_f10",samples)]);
     if(TypeMode==3) stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic", LegendTitle, CutIndex, &Data12Plots, &Cosmic12Plots, &SignPlots[JobIdToIndex("Gluino800_f10",samples)]);
-    if(TypeMode==5) stPlots_DrawComparison(InputPattern + "/Selection_Comp_DY"    , LegendTitle, CutIndex, &Data12Plots,                 &SignPlots[JobIdToIndex("DY_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_M400_Q2o3",samples)]);
+    if(TypeMode==5) stPlots_DrawComparison(InputPattern + "/Selection_Comp_DY"    , LegendTitle, CutIndex, &Data12Plots, &Data11Plots    &SignPlots[JobIdToIndex("DY_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_M400_Q2o3",samples)]);
     stPlots_Clear(&Data12Plots);
     stPlots_Clear(&Data11Plots);
     stPlots_Clear(&MCTrPlots);
