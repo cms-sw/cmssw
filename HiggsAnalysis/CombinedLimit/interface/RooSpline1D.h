@@ -18,7 +18,7 @@ END_HTML
 class RooSpline1D : public RooAbsReal {
 
    public:
-      RooSpline1D() {}
+      RooSpline1D() : interp_(0) {}
       RooSpline1D(const char *name, const char *title, RooAbsReal &xvar, unsigned int npoints, const double *xvals, const double *yvals, const char *algo="CSPLINE") ;
       RooSpline1D(const char *name, const char *title, RooAbsReal &xar, unsigned int npoints, const float *xvals, const float *yvals, const char *algo="CSPLINE") ;
       ~RooSpline1D() ;
