@@ -358,7 +358,7 @@ namespace edm {
         // We need to change the module label and process name.
         // Create helper.
         it->second.init();
-        daqProvenanceHelper_.reset(new DaqProvenanceHelper(it->second.typeID()));
+        daqProvenanceHelper_.reset(new DaqProvenanceHelper(it->second.unwrappedTypeID()));
         // Create the new branch description
         BranchDescription const& newBD = daqProvenanceHelper_->constBranchDescription_.me();
         // Save info from the old and new branch descriptions
