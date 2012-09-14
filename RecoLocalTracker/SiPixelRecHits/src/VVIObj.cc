@@ -30,8 +30,6 @@ namespace VVIObjDetails {
   double sinint(double x);    //! Private version of the sine integral
   double expint(double x);    //! Private version of the exponential integral
   
-  inline double f1(double x, double const * h_) { return h_[0]+h_[1]*std::log(h_[2]*x)-h_[3]*x;}
-  inline double f2(double x, double const * h_) { return h_[4]-x+h_[5]*(std::log(std::abs(x))+expint(x))-h_[6]*std::exp(-x);}
   template<typename F>
   int dzero(double a, double b, double& x0, 
 	    double& rv, double eps, int mxf, F func);
@@ -80,8 +78,8 @@ VVIObj::VVIObj(double kappa, double beta2, int mode) : mode_(mode) {
     if (kappa <= xq[lq]) break;
   }
   ul = lq - 6.5;
-  //	double (*fp2)(double) = reinterpret_cast<double(*)(double)>(&VVIObj::f2);
-  VVIObjDetails::dzero(ll, ul, u, rv, 1.e-5, 1000, boost::bind(&VVIObjDetails::f2, _1,h_));
+  auto f2 = [h_](double x) { return h_[4]-x+h_[5]*(std::log(std::abs(x))+VVIObjDetails::expint(x))-h_[6]*std::exp(-x);};
+  VVIObjDetails::dzero(ll, ul, u, rv, 1.e-5, 1000, f2);
   q = 1./u;
   t1_ = h4 * q - h5 - (beta2 * q + 1) * (log((fabs(u))) + VVIObjDetails::expint(u)) + exp(-u) * q;
   t_ = t1_ - t0_;
@@ -91,8 +89,8 @@ VVIObj::VVIObj(double kappa, double beta2, int mode) : mode_(mode) {
   h_[1] = beta2 * kappa;
   h_[2] = h6 * omega_;
   h_[3] = omega_ * 1.5707963250000001;
-  //	double (*fp1)(double) = reinterpret_cast<double(*)(double)>(&VVIObj::f1);
-  VVIObjDetails::dzero(5., 155., x0_, rv, 1.e-5, 1000, boost::bind(&VVIObjDetails::f1, _1,h_));
+  auto f1 = [h_](double x){ return h_[0]+h_[1]*std::log(h_[2]*x)-h_[3]*x;};
+  VVIObjDetails::dzero(5., 155., x0_, rv, 1.e-5, 1000, f1);
   n = x0_ + 1.;
   d = exp(kappa * (beta2 * (.57721566 - h5) + 1.)) * .31830988654751274;
   a_[n - 1] = 0.;
