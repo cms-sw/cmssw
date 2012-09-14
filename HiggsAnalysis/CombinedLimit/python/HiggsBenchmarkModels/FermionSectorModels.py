@@ -57,7 +57,7 @@ class LambdaduHiggs(SMLikeHiggsModel):
         ## total witdhs, normalized to the SM one
         self.modelBuilder.factory_('expr::lambdadu_Gscal_Vectors("@0*@0 * (@1+@2)", kV, SM_BR_hzz, SM_BR_hww)') 
         self.modelBuilder.factory_('expr::lambdadu_Gscal_up("@0*@0 * (@1+@2)", ku, SM_BR_hcc, SM_BR_htoptop)') 
-        self.modelBuilder.factory_('expr::lambdadu_Gscal_down("@0*@0 * (@1+@2+@3+@4)", ku, SM_BR_hbb, SM_BR_htt, SM_BR_hmm, SM_BR_hss)')
+        self.modelBuilder.factory_('expr::lambdadu_Gscal_down("@0*@0 * (@1+@2+@3+@4)", kd, SM_BR_hbb, SM_BR_htt, SM_BR_hmm, SM_BR_hss)')
         self.modelBuilder.factory_('expr::lambdadu_Gscal_gg("@0 * @1", Scaling_hgg, SM_BR_hgg)') 
         self.modelBuilder.factory_('expr::lambdadu_Gscal_Zg("@0 * @1", Scaling_hZg, SM_BR_hZg)')
         self.modelBuilder.factory_('expr::lambdadu_Gscal_gluglu("@0 * @1", Scaling_hgluglu, SM_BR_hgluglu)')
@@ -139,7 +139,7 @@ class LambdalqHiggs(SMLikeHiggsModel):
         ## total witdhs, normalized to the SM one
         self.modelBuilder.factory_('expr::lambdalq_Gscal_Vectors("@0*@0 * (@1+@2)", kV, SM_BR_hzz, SM_BR_hww)') 
         self.modelBuilder.factory_('expr::lambdalq_Gscal_quarks("@0*@0 * (@1+@2+@3+@4+@5)", kq, SM_BR_hcc, SM_BR_hbb, SM_BR_htoptop, SM_BR_hss, SM_BR_hgluglu)') 
-        self.modelBuilder.factory_('expr::lambdalq_Gscal_leptons("@0*@0 * (@1+@2)", kq, SM_BR_htt, SM_BR_hmm)')
+        self.modelBuilder.factory_('expr::lambdalq_Gscal_leptons("@0*@0 * (@1+@2)", kl, SM_BR_htt, SM_BR_hmm)')
         self.modelBuilder.factory_('expr::lambdalq_Gscal_gg("@0 * @1", Scaling_hgg, SM_BR_hgg)') 
         self.modelBuilder.factory_('expr::lambdalq_Gscal_Zg("@0 * @1", Scaling_hZg, SM_BR_hZg)')
         self.modelBuilder.factory_('sum::lambdalq_Gscal_tot(lambdalq_Gscal_Vectors, lambdalq_Gscal_quarks, lambdalq_Gscal_leptons, lambdalq_Gscal_gg, lambdalq_Gscal_Zg)')
