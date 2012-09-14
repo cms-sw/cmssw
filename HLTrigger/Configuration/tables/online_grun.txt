@@ -420,8 +420,12 @@ HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v*                                       
 HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v*                                                       # sr #127332
 HLT_IsoMu15_eta2p1_LooseIsoPFTau35_Trk20_Prong1_L1ETM20_v*                                      # sr #127332
 
-HLT_IsoMu8_eta2p1_LooseIsoPFTau20_L1ETM26_v*							# sr #131956
-HLT_Ele13_eta2p1_WP90Rho_LooseIsoPFTau20_L1ETM36_v*						# sr #131956
+HLT_IsoMu8_eta2p1_LooseIsoPFTau20_L1ETM26_v*                                                    # sr #131956
+HLT_IsoMu8_eta2p1_LooseIsoPFTau20_v*                                                            # sr #131956
+HLT_Mu8_eta2p1_LooseIsoPFTau20_L1ETM26_v*                                                       # sr #131956
+HLT_Ele13_eta2p1_WP90Rho_LooseIsoPFTau20_L1ETM36_v*                                             # sr #131956
+HLT_Ele13_eta2p1_WP90NoIso_LooseIsoPFTau20_L1ETM36_v*                                           # sr #131956
+HLT_Ele13_eta2p1_WP90Rho_LooseIsoPFTau20_v*                                                     # sr #131956
 
 #HLT_DoubleMediumIsoPFTau25_Trk5_eta2p1_Jet30_v*                                                # sr #127359, removed by sr #128205
 #HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_Prong1_v*                                               # sr #127359, removed by sr #129017
