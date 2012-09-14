@@ -43,7 +43,6 @@ namespace reco {
         << ", min #args = " << minArgs << ", max #args = " << maxArgs 
         << ", args = " << args.size() << std::endl;*/
     if (!args.empty()) {
-        assert(args.size() == mem.functionParameterSize());
         std::vector<AnyMethodArgument> tmpFixups;
         size_t i = 0;
         for (auto const& param : mem) { 
@@ -56,7 +55,9 @@ namespace reco {
             } else { 
                 return -1*parser::kWrongArgumentType;
             }
-            ++i;
+            if(++i == args.size()) {
+              break;
+            }
         }
         fixuppedArgs.swap(tmpFixups);
     }
