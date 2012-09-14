@@ -227,7 +227,7 @@ inline
 int sicif( float xx, float & si, float & ci ){
   const float MAXNUMF = 1.7014117331926442990585209174225846272e38;
   const float PIO2F = 1.5707963267948966192;
-  const float MACHEPF = 5.9604644775390625E-8;
+  // const float MACHEPF = 5.9604644775390625E-8;
   const float EUL = 0.57721566490153286061;
 
   float x, z, c, s, f, g;
@@ -253,7 +253,7 @@ int sicif( float xx, float & si, float & ci ){
   
   if( x > 1.0e9f )
     {
-      float su,cu; vdt::sincos::fast_sincosf(u,su,cu);
+      float su,cu; vdt::sincos::fast_sincosf(x,su,cu);
       si = PIO2F - cu/x;
       ci = su/x;
       return( 0 );
@@ -292,7 +292,7 @@ int sicif( float xx, float & si, float & ci ){
   
   
  asympt:
-  vdt::sincos::fast_sincosf(u,s,c);
+  vdt::sincos::fast_sincosf(x,s,c);
   z = 1.0f/(x*x);
   if( x < 8.0f )
     {
