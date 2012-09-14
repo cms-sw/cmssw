@@ -12,6 +12,7 @@ topElectronHLTOffDQMSource = cms.EDFilter("TopElectronHLTOfflineSource",
 	primaryVertexCollection = cms.InputTag("offlinePrimaryVertices"),
 	triggerJetFilterLabel =  cms.InputTag("hltL1sQuadJet15U","","HLT"),
 	triggerElectronFilterLabel =  cms.InputTag("hltL1sL1SingleEG1", "", "HLT"),
+        beamSpot = cms.InputTag('offlineBeamSpot'),
 	electronIdNames = cms.vstring(["eidRobustLoose"]),
 
 	electronMinEt = cms.double(0.),
