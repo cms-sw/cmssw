@@ -135,7 +135,7 @@ namespace edm {
 
       void operator()(edm::BranchDescription const& branchDescription) {
 
-         if (branchDescription.typeID() == edm::TypeID(typeid(T)) &&
+         if (branchDescription.unwrappedTypeID() == edm::TypeID(typeid(T)) &&
              branchDescription.branchType() == branchType_ &&
              matcher_(branchDescription)) {
 

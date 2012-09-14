@@ -218,7 +218,7 @@ namespace edm {
   Group::reallyCheckType(WrapperOwningHolder const& prod) const {
     // Check if the types match.
     TypeID typeID(prod.dynamicTypeInfo());
-    if(typeID != branchDescription().typeID()) {
+    if(typeID != branchDescription().unwrappedTypeID()) {
       // Types do not match.
       throw Exception(errors::EventCorruption)
           << "Product on branch " << branchDescription().branchName() << " is of wrong type.\n"
