@@ -57,12 +57,13 @@ VVIObjF::VVIObjF(float kappa, float beta2, int mode) : mode_(mode) {
   if(beta2 < 0.f) beta2 = 0.f;
   if(beta2 > 1.f) beta2 = 1.f;
   
-  h_[4] = 1.f - beta2*0.42278433999999998f + 7.6f/kappa;
+  float invKappa = 1.f/kappa;
+  h_[4] = 1.f - beta2*0.42278433999999998f + (7.6f*invKappa);
   h_[5] = beta2;
   h_[6] = 1.f - beta2;
-  h4 = -7.6f/kappa - (beta2 * .57721566f + 1.f);
+  h4 = - (7.6f*invKappa) - (beta2 * .57721566f + 1.f);
   h5 = vdt::fast_logf(kappa);
-  h6 = 1.f/kappa;
+  h6 = invKappa;
   t0_ = (h4 - h_[4]*h5 - (h_[4] + beta2)*(vdt::fast_logf(h_[4]) + VVIObjFDetails::expint(h_[4])) + vdt::fast_expf(-h_[4]))/h_[4];
   
   // Set up limits for the root search
@@ -76,7 +77,7 @@ VVIObjF::VVIObjF(float kappa, float beta2, int mode) : mode_(mode) {
   }
   ul = lq - 6.5f;
   auto f2 = [h_](float x) { return h_[4]-x+h_[5]*(vdt::fast_logf(std::abs(x))+VVIObjFDetails::expint(x))-h_[6]*vdt::fast_expf(-x);};
-  VVIObjFDetails::dzero(ll, ul, u, rv, 1.e-4f, 100, f2);
+  VVIObjFDetails::dzero(ll, ul, u, rv, 1.e-3f, 100, f2);
   q = 1./u;
   t1_ = h4 * q - h5 - (beta2 * q + 1.f) * (vdt::fast_logf((fabs(u))) + VVIObjFDetails::expint(u)) + vdt::fast_expf(-u) * q;
   t_ = t1_ - t0_;
@@ -87,7 +88,7 @@ VVIObjF::VVIObjF(float kappa, float beta2, int mode) : mode_(mode) {
   h_[2] = h6 * omega_;
   h_[3] = omega_ * 1.5707963250000001f;
   auto f1 = [h_](float x){ return h_[0]+h_[1]*vdt::fast_logf(h_[2]*x)-h_[3]*x;};
-  VVIObjFDetails::dzero(5., 155., x0_, rv, 1.e-4f, 100, f1);
+  VVIObjFDetails::dzero(5.f, 155.f, x0_, rv, 1.e-3f, 100, f1);
   n = x0_ + 1.;
   d = vdt::fast_expf(kappa * (beta2 * (.57721566f - h5) + 1.f)) * .31830988654751274f;
   a_[n - 1] = 0.;
