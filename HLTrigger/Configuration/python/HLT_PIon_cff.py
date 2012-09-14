@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_6/PIon/V29 (CMSSW_5_2_6_HLT3)
+# /dev/CMSSW_5_2_6/PIon/V30 (CMSSW_5_2_6_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V29')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V30')
 )
 
 streams = cms.PSet( 
@@ -193,6 +193,9 @@ AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProduc
   PropagationDirection = cms.string( "anyDirection" )
 )
 CaloTopologyBuilder = cms.ESProducer( "CaloTopologyBuilder" )
+CaloTowerConstituentsMapBuilder = cms.ESProducer( "CaloTowerConstituentsMapBuilder",
+  MapFile = cms.untracked.string( "Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz" )
+)
 CastorDbProducer = cms.ESProducer( "CastorDbProducer",
   appendToDataLabel = cms.string( "" )
 )
@@ -291,9 +294,6 @@ caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   nEta = cms.int32( 70 ),
   nPhi = cms.int32( 72 ),
   includeBadChambers = cms.bool( False )
-)
-caloTowerConstituentsMapBuilder = cms.ESProducer( "CaloTowerConstituentsMapBuilder",
-  MapFile = cms.untracked.string( "Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz" )
 )
 cosmicsNavigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
   ComponentName = cms.string( "CosmicNavigationSchool" )

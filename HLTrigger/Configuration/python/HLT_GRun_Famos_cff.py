@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/GRun/V29 (CMSSW_5_2_6_HLT3)
+# /dev/CMSSW_5_2_6/GRun/V30 (CMSSW_5_2_6_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/GRun/V29')
+  tableName = cms.string('/dev/CMSSW_5_2_6/GRun/V30')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -106,9 +106,6 @@ caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   nEta = cms.int32( 70 ),
   nPhi = cms.int32( 72 ),
   includeBadChambers = cms.bool( False )
-)
-caloTowerConstituentsMapBuilder = cms.ESProducer( "CaloTowerConstituentsMapBuilder",
-  MapFile = cms.untracked.string( "Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz" )
 )
 cosmicsNavigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
   ComponentName = cms.string( "CosmicNavigationSchool" )
