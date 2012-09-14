@@ -51,7 +51,6 @@ namespace lumi{
     };
     typedef std::map< unsigned int, std::string , std::less<unsigned int> > HltPathMap; //order by hltpathid
     typedef std::vector< std::map<unsigned int,HLTV32DB::hltinfo,std::less<unsigned int> > > HltResult;
-    
     void writeHltData(coral::ISessionProxy* lumisession,
 		      unsigned int irunnumber,
 		      const std::string& source,
@@ -68,36 +67,27 @@ namespace lumi{
                                HltPathMap& hltpathmap,
 			       unsigned int commitintv);
   };//cl HLTV32DB
-  
   //
   //implementation
   //
-  
   HLTV32DB::HLTV32DB(const std::string& dest):DataPipe(dest){}
   unsigned long long HLTV32DB::retrieveData( unsigned int runnumber){
     std::string confdbschema("CMS_HLT");
     std::string hltschema("CMS_RUNINFO");
+    std::string gtschema("CMS_GT_MON");
     std::string confdbpathtabname("PATHS");
     std::string triggerpathtabname("HLT_SUPERVISOR_TRIGGERPATHS");
-    std::string lstabname("HLT_SUPERVISOR_LUMISECTIONS_V3");
     std::string maptabname("HLT_SUPERVISOR_SCALAR_MAP_V2");
-
+    std::string gttabname("LUMI_SECTIONS");
     coral::ConnectionService* svc=new coral::ConnectionService;
     lumi::DBConfig dbconf(*svc);
     if(!m_authpath.empty()){
       dbconf.setAuthentication(m_authpath);
     }
-    
     /**retrieve hlt info with 3 queries from runinfo
-       1. select distinct ( PATHID ) from HLT_SUPERVISOR_TRIGGERPATHS where runnumber=158878;
-       2. retrieve hltpath map with n query from cms_hlt (n=number of pathids)
-          select name from cms_hlt.paths where pathid=:pathid
-       3. select min(lsnumber),max(lsnumber) from HLT_SUPERVISOR_LUMISECTIONS_V3 where runnumber=158878;
-       4. select tr.lsnumber,tr.pathid,tr.l1pass,tr.paccept,ls.psindex,sm.psvalue from hlt_supervisor_triggerpaths tr,hlt_supervisor_lumisections_v3 ls,hlt_supervisor_scalar_map_v2 sm where tr.runnumber=ls.runnumber and tr.lsnumber=ls.lsnumber and sm.runnumber=tr.runnumber and sm.pathid=tr.pathid and sm.psindex=ls.psindex and tr.runnumber=157805 order by tr.lsnumber;
+       1. select prescale_index,lumi_section from cms_gt_mon.lumi_sections where run_number=:runnum; => map{ls:psindex}
+       2. select name from cms_hlt.paths where pathid=:pathid
     **/
-    
-    //std::cout<<"m_source "<<m_source<<std::endl;
-    //std::cout<<"m_source "<<m_source<<std::endl;
     std::string::size_type cutpos=m_source.find(';');
     std::string dbsource=m_source;
     std::string csvsource("");
@@ -110,11 +100,51 @@ namespace lumi{
     coral::ITypeConverter& tpc=srcsession->typeConverter();
     tpc.setCppTypeForSqlType("unsigned int","NUMBER(11)");
     srcsession->transaction().start(true);
+    coral::ISchema& gtSchemaHandle=srcsession->schema(gtschema);
     coral::ISchema& hltSchemaHandle=srcsession->schema(hltschema);
     coral::ISchema& confdbSchemaHandle=srcsession->schema(confdbschema);
-    if( !hltSchemaHandle.existsTable(triggerpathtabname) || !hltSchemaHandle.existsTable(lstabname) || !hltSchemaHandle.existsTable(maptabname) ){
+    if( !hltSchemaHandle.existsTable(triggerpathtabname) || !hltSchemaHandle.existsTable(maptabname) ){
       throw lumi::Exception("missing hlt tables" ,"retrieveData","HLTV32DB");
     }
+    /** select prescale_index,lumi_section from cms_gt_mon.lumi_sections where run_number=:runnum; **/
+    //this is trg lumi section number
+    std::vector< std::pair<unsigned int,unsigned int> > psindexmap;
+    coral::AttributeList psindexVariableList;
+    psindexVariableList.extend("runnumber",typeid(unsigned int));
+    psindexVariableList["runnumber"].data<unsigned int>()=runnumber;
+    coral::IQuery* qPsindex=gtSchemaHandle.tableHandle(gttabname).newQuery();
+    coral::AttributeList psindexOutput;
+    psindexOutput.extend("PRESCALE_INDEX",typeid(unsigned int));
+    psindexOutput.extend("LUMI_SECTION",typeid(unsigned int));
+    qPsindex->addToOutputList("PRESCALE_INDEX");
+    qPsindex->addToOutputList("LUMI_SECTION");
+    qPsindex->setCondition("RUN_NUMBER=:runnumber",psindexVariableList);
+    qPsindex->defineOutput(psindexOutput);
+    coral::ICursor& psindexCursor=qPsindex->execute();
+    unsigned int lsmin=4294967295;
+    unsigned int lsmax=0;
+    while( psindexCursor.next() ){
+      if( !psindexCursor.currentRow()["PRESCALE_INDEX"].isNull() ){
+	unsigned int psindx=psindexCursor.currentRow()["PRESCALE_INDEX"].data<unsigned int>();
+	unsigned int pslsnum=psindexCursor.currentRow()["LUMI_SECTION"].data<unsigned int>();
+	if(pslsnum>lsmax){
+	  lsmax=pslsnum;
+	}
+	if(pslsnum<lsmin){
+	  lsmin=pslsnum;
+	}
+	psindexmap.push_back(std::make_pair(pslsnum,psindx));
+      }
+    }
+    delete qPsindex;
+    if(psindexmap.size()==0){
+      srcsession->transaction().commit();
+      delete srcsession;
+      throw lumi::Exception("no psindex data found","retrieveData","HLTV32DB");
+    }
+    
+    /** select distinct ( PATHID ) from HLT_SUPERVISOR_TRIGGERPATHS where runnumber=:runnumber;**/
+    /** initialize hltpathmap **/
     HltPathMap hltpathmap;
     coral::AttributeList bindVariableList;
     bindVariableList.extend("runnumber",typeid(unsigned int));
@@ -123,7 +153,7 @@ namespace lumi{
     coral::AttributeList hltpathid;
     hltpathid.extend("hltpathid",typeid(unsigned int));
     q1->addToOutputList("distinct PATHID","hltpathid");
-    q1->setCondition("RUNNUMBER =:runnumber",bindVariableList);
+    q1->setCondition("RUNNUMBER=:runnumber",bindVariableList);
     q1->defineOutput(hltpathid);
     coral::ICursor& c=q1->execute();
     unsigned int npc=0;
@@ -133,10 +163,12 @@ namespace lumi{
        hltpathmap.insert(std::make_pair(hid,""));
     }
     delete q1;
+    /** select name from cms_hlt.paths where pathid=:pathid **/
+    /** fill up hltpathmap **/
     HltPathMap::iterator mpit;
     HltPathMap::iterator mpitBeg=hltpathmap.begin();
     HltPathMap::iterator mpitEnd=hltpathmap.end();
-    for( mpit=mpitBeg;mpit!=mpitEnd;++mpit){
+    for( mpit=mpitBeg;mpit!=mpitEnd;++mpit){//loop over paths
       coral::IQuery* mq=confdbSchemaHandle.newQuery();
       coral::AttributeList mqbindVariableList;
       mqbindVariableList.extend("pathid",typeid(unsigned int));
@@ -151,46 +183,14 @@ namespace lumi{
       }
       delete mq;
     }
-    //for( mpit=mpitBeg;mpit!=mpitEnd;++mpit){
-    //  std::cout<<mpit->first<<" "<<mpit->second<<std::endl;
-    //}
-    unsigned int maxls=0;
-    unsigned int minls=0;
-    unsigned int nls=0;
-    coral::IQuery* nq=hltSchemaHandle.tableHandle(lstabname).newQuery();
-    coral::AttributeList nqbindVariableList;
-    coral::AttributeList nqout;
-    nqout.extend("minls",typeid(unsigned int));
-    nqout.extend("maxls",typeid(unsigned int));
-    nqbindVariableList.extend("runnumber",typeid(unsigned int));
-    nqbindVariableList["runnumber"].data<unsigned int>()=runnumber;
-    nq->addToOutputList("min(lsnumber)","minls");
-    nq->addToOutputList("max(lsnumber)","maxls");
-    nq->setCondition("RUNNUMBER =:runnumber",nqbindVariableList);    
-    nq->defineOutput(nqout);
-    coral::ICursor& nqcursor=nq->execute();
-    while( nqcursor.next() ){
-      if(!nqcursor.currentRow()["minls"].isNull()){
-	minls=nqcursor.currentRow()["minls"].data<unsigned int>();
-      }
-      if(!nqcursor.currentRow()["maxls"].isNull()){
-	maxls=nqcursor.currentRow()["maxls"].data<unsigned int>();
-      }
-    }
-    delete nq;
-    if(maxls==0 && minls==0){
-      std::cout<<"[WARNING] There's no hlt data"<<std::endl;
-      srcsession->transaction().commit();
-      delete srcsession;
-      return 0;
-    }
-    //std::cout<<"nls "<<nls<<std::endl; 
+    
+    /**initialize hltresult**/
     HltResult hltresult;
-    nls=maxls-minls+1;
-    std::cout<<"nls "<<nls<<std::endl;
+    unsigned int nls=lsmax-lsmin+1;
+    //std::cout<<"nls "<<nls<<std::endl;
     hltresult.reserve(nls);//
     //fix all size
-    for(unsigned int i=minls;i<=maxls;++i){
+    for(unsigned int i=lsmin;i<=lsmax;++i){
       if (i==0) continue; //skip ls=0
       std::map<unsigned int, HLTV32DB::hltinfo> allpaths;
       HltPathMap::iterator aIt;
@@ -207,50 +207,55 @@ namespace lumi{
       }
       hltresult.push_back(allpaths);
     }
-    //std::cout<<"book hltresult size "<<hltresult.size()<<std::endl;
-    coral::IQuery* jq=hltSchemaHandle.newQuery();
-    coral::AttributeList jqbindVariableList;
-    jqbindVariableList.extend("runnumber",typeid(unsigned int));
-    jqbindVariableList["runnumber"].data<unsigned int>()=runnumber;
-    coral::AttributeList jqoutput;
-    jqoutput.extend("lsnumber",typeid(unsigned int));
-    jqoutput.extend("pathid",typeid(unsigned int));
-    jqoutput.extend("l1pass",typeid(unsigned int));
-    jqoutput.extend("paccept",typeid(unsigned int));
-    jqoutput.extend("psvalue",typeid(unsigned int));
-    jq->addToTableList(triggerpathtabname,"tr");
-    jq->addToTableList(lstabname,"ls");
-    jq->addToTableList(maptabname,"sm");
-    jq->addToOutputList("tr.LSNUMBER","lsnumber");
-    jq->addToOutputList("tr.PATHID","pathid");
-    jq->addToOutputList("tr.L1PASS","l1pass");
-    jq->addToOutputList("tr.PACCEPT","paccept");
-    jq->addToOutputList("sm.PSVALUE","psvalue");
-    jq->setCondition("tr.RUNNUMBER=ls.RUNNUMBER AND tr.LSNUMBER=ls.LSNUMBER and sm.RUNNUMBER=tr.RUNNUMBER and sm.PATHID=tr.PATHID and sm.PSINDEX=ls.PSINDEX and tr.RUNNUMBER=:runnumber",jqbindVariableList);  
-    jq->defineOutput(jqoutput);
-    jq->addToOrderList("tr.LSNUMBER");
-    jq->setRowCacheSize(10692);
-    coral::ICursor& jqcursor=jq->execute();
+
     bool lscountfromzero=false;
-    while( jqcursor.next() ){
-      const coral::AttributeList& row=jqcursor.currentRow();
-      unsigned int currentLumiSection=row["lsnumber"].data<unsigned int>();
-      if (currentLumiSection==0){
-	lscountfromzero=true;
-      }else{
-	std::map<unsigned int,hltinfo>& allpathinfo=hltresult.at(currentLumiSection-1);
-	unsigned int pathid=row["pathid"].data<unsigned int>();
-	//std::cout<<"look for path id "<<pathid<<std::endl;
-	hltinfo& pathcontent=allpathinfo[pathid];
-	pathcontent.hltinput=row["l1pass"].data<unsigned int>();
-	pathcontent.hltaccept=row["paccept"].data<unsigned int>();
-	pathcontent.prescale=row["psvalue"].data<unsigned int>();
+
+    /**select t.l1pass,t.paccept,t.pathid,m.psvalue from cms_runinfo.hlt_supervisor_triggerpaths t, cms_runinfo.hlt_supervisor_scalar_map_v2 m where m.pathid=t.pathid and m.runnumber=t.runnumber and m.runnumber=:runnum and m.psindex=:0 and t.lsnumber=:ls **/
+    for( std::vector< std::pair<unsigned int,unsigned int> >::iterator it=psindexmap.begin();it!=psindexmap.end();++it ){
+      //loop over ls
+      unsigned int lsnum=it->first;
+      unsigned int psindex=it->second;
+      coral::AttributeList hltdataVariableList;
+      hltdataVariableList.extend("runnumber",typeid(unsigned int));
+      hltdataVariableList.extend("lsnum",typeid(unsigned int));
+      hltdataVariableList.extend("psindex",typeid(unsigned int));
+      hltdataVariableList["runnumber"].data<unsigned int>()=runnumber;
+      hltdataVariableList["lsnum"].data<unsigned int>()=lsnum;
+      hltdataVariableList["psindex"].data<unsigned int>()=psindex;
+      coral::IQuery* qHltData=hltSchemaHandle.newQuery();
+      qHltData->addToTableList(triggerpathtabname,"t");
+      qHltData->addToTableList(maptabname,"m");
+      coral::AttributeList hltdataOutput;
+      hltdataOutput.extend("l1pass",typeid(unsigned int));
+      hltdataOutput.extend("paccept",typeid(unsigned int));
+      hltdataOutput.extend("pathid",typeid(unsigned int));
+      hltdataOutput.extend("psvalue",typeid(unsigned int));
+
+      qHltData->addToOutputList("t.L1PASS","l1pass");
+      qHltData->addToOutputList("t.PACCEPT","paccept");
+      qHltData->addToOutputList("t.PATHID","pathid");
+      qHltData->addToOutputList("m.PSVALUE","psvalue");      
+      qHltData->setCondition("m.PATHID=t.PATHID and m.RUNNUMBER=t.RUNNUMBER and m.RUNNUMBER=:runnumber AND m.PSINDEX=:psindex AND t.LSNUMBER=:lsnum",hltdataVariableList);
+      qHltData->defineOutput(hltdataOutput);
+      coral::ICursor& hltdataCursor=qHltData->execute();
+      while( hltdataCursor.next() ){
+	const coral::AttributeList& row=hltdataCursor.currentRow();
+	if (lsnum==0){
+	  lscountfromzero=true;
+	  if(lscountfromzero) {
+	    std::cout<<"hlt ls count from 0 , we skip/dodge/parry it!"<<std::endl;
+	  }
+	}else{
+	  unsigned int pathid=row["pathid"].data<unsigned int>();
+	  std::map<unsigned int,hltinfo>& allpathinfo=hltresult.at(lsnum-1);
+	  hltinfo& pathcontent=allpathinfo[pathid];
+	  pathcontent.hltinput=row["l1pass"].data<unsigned int>();
+	  pathcontent.hltaccept=row["paccept"].data<unsigned int>();
+	  pathcontent.prescale=row["psvalue"].data<unsigned int>();
+	}
       }
+      delete qHltData;
     }
-    if(lscountfromzero) {
-      std::cout<<"hlt ls count from 0 , we skip/dodge/parry it!"<<std::endl;
-    }
-    delete jq;
     srcsession->transaction().commit();
     delete srcsession;
     //
@@ -283,16 +288,31 @@ namespace lumi{
 	  std::cout<<"done"<<std::endl;
        }
        std::cout<<"writing hlt data to new lshlt table"<<std::endl;
+       //std::cout<<"npath "<<npath<<std::endl;
+       /**for(HltResult::iterator hltIt=hltresult.begin();hltIt!=hltresult.end();++hltIt){
+	  std::map<unsigned int,HLTV32DB::hltinfo>::const_iterator pathIt;
+	  std::map<unsigned int,HLTV32DB::hltinfo>::const_iterator pathBeg=hltIt->begin();
+	  std::map<unsigned int,HLTV32DB::hltinfo>::const_iterator pathEnd=hltIt->end();
+	  for(pathIt=pathBeg;pathIt!=pathEnd;++pathIt){
+	  unsigned int cmslsnum = pathIt->second.cmsluminr;
+	  std::string pathname = pathIt->second.pathname;
+	  unsigned int inputcount = pathIt->second.hltinput;
+	  unsigned int acceptcount = pathIt->second.hltaccept;
+	  unsigned int prescale = pathIt->second.prescale;
+	  std::cout<<"cmslsnum "<<cmslsnum<<" pathname "<<pathname<<" inputcount "<<inputcount<<" acceptcount "<<acceptcount<<" prescale "<<prescale<<std::endl;
+	  }
+	  }
+       **/
        hltdataid=writeHltDataToSchema2(destsession,runnumber,dbsource,npath,hltresult.begin(),hltresult.end(), hltpathmap,COMMITLSINTERVAL);
        std::cout<<"done"<<std::endl;
        delete destsession;
        delete svc;
     }catch( const coral::Exception& er){
-       std::cout<<"database problem "<<er.what()<<std::endl;
-       destsession->transaction().rollback();
-       delete destsession;
-       delete svc;
-       throw er;
+      std::cout<<"database problem "<<er.what()<<std::endl;
+      destsession->transaction().rollback();
+      delete destsession;
+      delete svc;
+      throw er;
     }
     return hltdataid;
   }
