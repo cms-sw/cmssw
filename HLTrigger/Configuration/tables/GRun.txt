@@ -441,13 +441,13 @@ HLT_DiPFJet40_PFMETnoMu65_MJJ800VBF_AllJets_v*                                  
 HLT_DiPFJet40_PFMETnoMu65_MJJ600VBF_LeadingJets_v*                                              # sr #126471, sr #127434, removed L1FastJet from name
 
 HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v*                                               # sr #126475
-HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v*               # sr #126475
+#HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v*              # sr #126475, removed in sr #131928
 HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v*                                               # sr #126475
 HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v*                      # sr #126475
-HLT_Photon26_CaloId10_Iso50_Photon18_R9Id85_Mass60_v*                                           # sr #126475
-HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60_v*                                   # sr #126475
-HLT_Photon26_R9Id85_Photon18_CaloId10_Iso50_Mass60_v*                                           # sr #126475
-HLT_Photon26_R9Id85_Photon18_R9Id85_Mass60_v*                                                   # sr #126475
+#HLT_Photon26_CaloId10_Iso50_Photon18_R9Id85_Mass60_v*                                          # sr #126475, removed in sr #131928
+#HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60_v*                                  # sr #126475, removed in sr #131928
+#HLT_Photon26_R9Id85_Photon18_CaloId10_Iso50_Mass60_v*                                          # sr #126475, removed in sr #131928
+#HLT_Photon26_R9Id85_Photon18_R9Id85_Mass60_v*                                                  # sr #126475, removed in sr #131928
 HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v*                                                  # sr #126475
 HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v*                                          # sr #126475
 HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v*                                                  # sr #126475
@@ -462,6 +462,7 @@ HLT_Photon75_CaloIdVL_v*                                                        
 HLT_Photon90_CaloIdVL_v*                                                                        # sr #126475
 
 HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v*               # sr #128416
+HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon10_R9Id85_OR_CaloId10_Iso50_Mass80_v*		# sr #131928
 
 HLT_Photon30_R9Id90_CaloId_HE10_Iso40_EBOnly_Met25_HBHENoiseCleaned_v*				# sr #131957
 HLT_Photon30_R9Id90_CaloId_HE10_Iso40_EBOnly_v*							# sr #131957

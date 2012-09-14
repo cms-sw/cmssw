@@ -130,17 +130,13 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetDoublePhoton_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetDoublePhoton_selector.l1tResults = cms.InputTag('')
 streamA_datasetDoublePhoton_selector.throw      = cms.bool(False)
-streamA_datasetDoublePhoton_selector.triggerConditions = cms.vstring('HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60_v6', 
-    'HLT_Photon26_CaloId10_Iso50_Photon18_R9Id85_Mass60_v6', 
-    'HLT_Photon26_Photon18_v12', 
-    'HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v6', 
+streamA_datasetDoublePhoton_selector.triggerConditions = cms.vstring('HLT_Photon26_Photon18_v12', 
     'HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v2', 
     'HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v5', 
-    'HLT_Photon26_R9Id85_Photon18_CaloId10_Iso50_Mass60_v6', 
-    'HLT_Photon26_R9Id85_Photon18_R9Id85_Mass60_v4', 
     'HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v6', 
     'HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v6', 
     'HLT_Photon36_Photon22_v6', 
+    'HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon10_R9Id85_OR_CaloId10_Iso50_Mass80_v1', 
     'HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v6', 
     'HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_v5', 
     'HLT_Photon36_R9Id85_Photon22_CaloId10_Iso50_v6', 
