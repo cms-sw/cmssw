@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/GRun/V27 (CMSSW_5_2_6_HLT3)
+# /dev/CMSSW_5_2_6/GRun/V28 (CMSSW_5_2_6_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/GRun/V27')
+  tableName = cms.string('/dev/CMSSW_5_2_6/GRun/V28')
 )
 
 process.streams = cms.PSet( 
@@ -29101,7 +29101,7 @@ process.hltPreIsoMu15eta2p1LooseIsoPFTau35Trk20Prong1L1ETM20 = cms.EDFilter( "HL
 )
 process.hltL1sL1Mu7erETM26 = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_Mu7er_ETM26" ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu7er_ETM20" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),
@@ -29979,7 +29979,7 @@ process.hltOverlapFilterMu8LooseIsoPFTau20 = cms.EDFilter( "HLT2MuonPFTau",
 )
 process.hltL1sL1IsoEG12erETM36 = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_IsoEG12er_ETM36" ),
+    L1SeedsLogicalExpression = cms.string( "L1_IsoEG12er_ETM30" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),
