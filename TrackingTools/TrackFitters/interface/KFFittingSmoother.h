@@ -6,8 +6,8 @@
  *  This is necessary e.g. when the seed introduced a bias (by using
  *  a beam contraint etc.). Ported from ORCA
  *
- *  $Date: 2011/01/06 17:04:16 $
- *  $Revision: 1.16 $
+ *  $Date: 2012/09/01 11:08:33 $
+ *  $Revision: 1.17 $
  *  \author todorov, cerati
  */
 
@@ -76,8 +76,10 @@ private:
   bool breakTrajWith2ConsecutiveMissing;
   bool noInvalidHitsBeginEnd;
   
-
   TrajectoryStateWithArbitraryError   tsosWithError;
+  
+  /// Method to check that the trajectory has no NaN in the states and chi2
+  bool checkForNans(const Trajectory &theTraj) const;
   
 };
 

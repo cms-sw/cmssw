@@ -25,6 +25,21 @@ Trajectory KFFittingSmoother::fitOne(const Trajectory& t, fitType type) const {
   return smoothingStep(fitter()->fitOne(t,type));
 }
 
+bool KFFittingSmoother::checkForNans(const Trajectory & theTraj) const
+{
+  if (std::isnan(theTraj.chiSquared ())) return false;
+  const std::vector<TrajectoryMeasurement> & vtm = theTraj.measurements();
+  for (std::vector<TrajectoryMeasurement>::const_iterator tm=vtm.begin(); tm!=vtm.end();tm++) {
+    if (std::isnan(tm->estimate())) return false;
+    AlgebraicVector5 v = tm->updatedState ().localParameters ().vector();
+    for (int i=0;i<5;++i) if (std::isnan(v[i])) return false;
+    const AlgebraicSymMatrix55 & m = tm->updatedState ().curvilinearError ().matrix();
+    for (int i=0;i<5;++i) 
+      for (int j=0;j<(i+1);++j) if (std::isnan(m(i,j))) return false;
+  }
+  return true;
+}
+
 Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
 				  const RecHitContainer& hits, 
 				  const TrajectoryStateOnSurface& firstPredTsos,
@@ -94,6 +109,12 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
     //}
     //}
     
+    if (!checkForNans(smoothed)) {
+      edm::LogError("TrackNaN")<<"Track has NaN";
+      return Trajectory();
+    }
+
+
     if ( theEstimateCut > 0 || log_pixel_prob_cut > log_pixel_probability_lower_limit ) {
       if ( smoothed.foundHits() < theMinNumberOfHits ) {
 	if ( rejectTracksFlag ) {
