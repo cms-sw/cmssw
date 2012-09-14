@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.77 $
- *  $Date: 2011/09/06 13:46:08 $
- *  (last update by $Author: mussgill $)
+ *  $Revision: 1.78 $
+ *  $Date: 2012/08/10 09:01:11 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
@@ -245,6 +245,8 @@ bool MillePedeAlignmentAlgorithm::setParametersForRunRange(const RunRange &runra
 
     // Needed to shut up later warning from checkAliParams:
     theAlignmentParameterStore->resetParameters();
+    // To avoid that they keep values from previous IOV if no new one in pede result
+    this->buildUserVariables(theAlignables);
     
     if (!this->readFromPede(theConfig.getParameter<edm::ParameterSet>("pedeReader"), true, runrange)) {
       edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::setParametersForRunRange"
@@ -713,8 +715,19 @@ void MillePedeAlignmentAlgorithm::buildUserVariables(const std::vector<Alignable
       throw cms::Exception("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::buildUserVariables"
                                         << "No parameters for alignable";
     }
-    MillePedeVariables *userVars = new MillePedeVariables(params->size(), thePedeLabels->alignableLabel(*iAli));
-    params->setUserVariables(userVars);
+    MillePedeVariables *userVars = dynamic_cast<MillePedeVariables*>(params->userVariables()); 
+    if (userVars) { // Just re-use existing, keeping label and numHits:
+      for (unsigned int iPar = 0; iPar < userVars->size(); ++iPar) {
+	//	if (params->hierarchyLevel() > 0) {
+	//std::cout << params->hierarchyLevel() << "\nBefore: " << userVars->parameter()[iPar];
+	//	}
+	userVars->setAllDefault(iPar);
+	//std::cout << "\nAfter: " << userVars->parameter()[iPar] << std::endl;
+      }
+    } else { // Nothing yet or erase wrong type:
+      userVars = new MillePedeVariables(params->size(), thePedeLabels->alignableLabel(*iAli));
+      params->setUserVariables(userVars);
+    }
   }
 }
 
