@@ -2,12 +2,12 @@
 
 ----------------------------------------------------------------------*/
 #include <cassert>
+#include <map>
 #include <ostream>
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeDemangler.h"
-#include "Reflex/Type.h"
 #include "boost/thread/tss.hpp"
 
 namespace edm {
@@ -25,36 +25,18 @@ namespace {
   TypeID const nullTypeID;
 
   std::string typeToClassName(std::type_info const& iType) {
-    Reflex::Type t = Reflex::Type::ByTypeInfo(iType);
-    if (!bool(t)) {
-      std::string result;
-      try {
-        typeDemangle(iType.name(), result);
-      } catch (cms::Exception const& e) {
-        cms::Exception theError("Name Demangling Error");
-        theError << "TypeID::typeToClassName: can't demangle " << iType.name() << '\n';
-        theError.append(e);
-        throw theError;
-      }
-      return result;
+    std::string result;
+    try {
+      typeDemangle(iType.name(), result);
+    } catch (cms::Exception const& e) {
+      cms::Exception theError("Name Demangling Error");
+      theError << "TypeID::typeToClassName: can't demangle " << iType.name() << '\n';
+      theError.append(e);
+      throw theError;
     }
-    return t.Name(Reflex::SCOPED | Reflex::FINAL);
-  }
-
-  std::type_info const* classNameToType(std::string const& className) {
-    Reflex::Type t = Reflex::Type::ByName(className);
-    if (!bool(t)) {
-      return 0;
-    }
-    return &t.TypeInfo();
+    return result;
   }
 }
-
-  TypeID
-  TypeID::byName(std::string const& className) {
-    std::type_info const* t = classNameToType(className);
-    return(t != 0 ? TypeID(*t) : TypeID());
-  }
 
   std::string
   TypeID::className() const {
@@ -118,17 +100,6 @@ namespace {
       theName = theName.substr(idx);
     }
     return ret;
-  }
-
-  bool
-  TypeID::hasDictionary() const {
-    return bool(Reflex::Type::ByTypeInfo(typeInfo()));
-  }
-
-  bool
-  TypeID::isComplete() const {
-    Reflex::Type t = Reflex::Type::ByTypeInfo(typeInfo());
-    return bool(t) && t.IsComplete();
   }
 
   TypeID::operator bool() const {
