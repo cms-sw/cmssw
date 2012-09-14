@@ -77,6 +77,8 @@ namespace edm {
 
     bool hasDictionary() const;
 
+    bool isComplete() const;
+
     bool isClass() const;
 
     bool isConst() const;

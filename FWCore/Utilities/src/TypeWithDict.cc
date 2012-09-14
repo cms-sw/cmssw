@@ -93,6 +93,11 @@ namespace {
     return bool(type_);
   }
 
+  bool
+  TypeWithDict::isComplete() const {
+    return type_.IsComplete();
+  }
+
   ObjectWithDict
   TypeWithDict::construct() const {
     return ObjectWithDict(type_.Construct());

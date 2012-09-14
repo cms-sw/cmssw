@@ -3,7 +3,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/BaseWithDict.h"
 #include "FWCore/Utilities/interface/MemberWithDict.h"
-#include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
 #include "Api.h" // for G__ClassInfo
@@ -29,19 +29,6 @@ namespace edm {
   bool
   find_nested_type_named(std::string const& nested_type,
                          TypeWithDict const& typeToSearch,
-                         TypeID& found_type) {
-    // Look for a sub-type named 'nested_type'
-    TypeWithDict foundType = typeToSearch.nestedType(nested_type);
-    if(bool(foundType)) {
-      found_type = TypeID(foundType.finalType().typeInfo());
-      return true;
-    }
-    return false;
-  }
-
-  bool
-  find_nested_type_named(std::string const& nested_type,
-                         TypeWithDict const& typeToSearch,
                          TypeWithDict& found_type) {
     // Look for a sub-type named 'nested_type'
     TypeWithDict foundType = typeToSearch.nestedType(nested_type);
@@ -54,12 +41,11 @@ namespace edm {
 
   bool
   is_RefVector(TypeWithDict const& possibleRefVector,
-               TypeID& value_type) {
+               TypeWithDict& value_type) {
 
     static TypeTemplateWithDict ref_vector_template_id(TypeTemplateWithDict::byName("edm::RefVector", 3));
     static std::string member_type("member_type");
-    TypeWithDict possible_ref_vector(possibleRefVector.typeInfo());
-    TypeTemplateWithDict primary_template_id(possible_ref_vector);
+    TypeTemplateWithDict primary_template_id(possibleRefVector);
     if(primary_template_id == ref_vector_template_id) {
       return find_nested_type_named(member_type, possibleRefVector, value_type);
     }
@@ -68,13 +54,12 @@ namespace edm {
 
   bool
   is_PtrVector(TypeWithDict const& possibleRefVector,
-               TypeID& value_type) {
+               TypeWithDict& value_type) {
 
     static TypeTemplateWithDict ref_vector_template_id(TypeTemplateWithDict::byName("edm::PtrVector", 1));
     static std::string member_type("member_type");
     static std::string val_type("value_type");
-    TypeWithDict possible_ref_vector(possibleRefVector.typeInfo());
-    TypeTemplateWithDict primary_template_id(possible_ref_vector);
+    TypeTemplateWithDict primary_template_id(possibleRefVector);
     if(primary_template_id == ref_vector_template_id) {
       TypeWithDict ptrType;
       if(find_nested_type_named(val_type, possibleRefVector, ptrType)) {
@@ -86,12 +71,11 @@ namespace edm {
 
   bool
   is_RefToBaseVector(TypeWithDict const& possibleRefVector,
-                     TypeID& value_type) {
+                     TypeWithDict& value_type) {
 
     static TypeTemplateWithDict ref_vector_template_id(TypeTemplateWithDict::byName("edm::RefToBaseVector", 1));
     static std::string member_type("member_type");
-    TypeWithDict possible_ref_vector(possibleRefVector.typeInfo());
-    TypeTemplateWithDict primary_template_id(possible_ref_vector);
+    TypeTemplateWithDict primary_template_id(possibleRefVector);
     if(primary_template_id == ref_vector_template_id) {
       return find_nested_type_named(member_type, possibleRefVector, value_type);
     }
@@ -134,7 +118,7 @@ namespace edm {
       // To be safe, we do this recursively until we either get a null type
       // or the same type.
       TypeWithDict null;
-      for(TypeWithDict x (t.toType()); x != null && x != t; t = x, x = t.toType()) {}
+      for(TypeWithDict x(t.toType()); x != null && x != t; t = x, x = t.toType()) {}
 
       std::string name(t.name());
       boost::trim(name);
@@ -259,8 +243,8 @@ namespace edm {
     throwMissingDictionariesException();
   }
 
-  void public_base_classes(TypeID const& typeID,
-                           std::vector<TypeID>& baseTypes) {
+  void public_base_classes(TypeWithDict const& typeID,
+                           std::vector<TypeWithDict>& baseTypes) {
 
     TypeWithDict type(typeID.typeInfo());
     if(type.isClass() || type.isStruct()) {
@@ -272,7 +256,7 @@ namespace edm {
 
           TypeWithDict baseRflxType = base.toType();
           if(bool(baseRflxType)) {
-            TypeID baseType(baseRflxType.finalType().typeInfo()); 
+            TypeWithDict baseType(baseRflxType.finalType().typeInfo()); 
 
             // Check to make sure this base appears only once in the
             // inheritance heirarchy.
