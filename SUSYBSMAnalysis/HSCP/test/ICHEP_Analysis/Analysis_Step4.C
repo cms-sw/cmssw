@@ -111,7 +111,9 @@ void Analysis_Step4(std::string InputPattern)
           TH1D*  H_D_Cosmic=NULL;
           TH2D*  H_D_DzSidebands_Cosmic=NULL;
 	  if(TypeMode==3 && DirName.find("Data")!=string::npos) {
-	    string CosmicDir = DirName.replace(0, 4, "Cosmic");
+	    //Only 2012 sample has pure cosmic sample, as only ratio used can use 2012 sample to make 2011 cosmic prediction
+            string CosmicDir = "Cosmic12";
+	    //string CosmicDir = DirName.replace(0, 4, "Cosmic");
 	    H_D_DzSidebands_Cosmic = (TH2D*)GetObjectFromPath(InputFile, (CosmicDir + "/H_D_DzSidebands").c_str());
 	    H_D_Cosmic             = (TH1D*)GetObjectFromPath(InputFile, (CosmicDir + "/H_D" + Suffix).c_str());
 	  }
@@ -177,7 +179,7 @@ void Analysis_Step4(std::string InputPattern)
 	 double P_Cosmic=0;
 	 double Perr_Cosmic=0;
 
-         printf("%4i --> Pt>%7.2f  I>%6.2f  TOF>%+5.2f --> A=%6.2E B=%6.E C=%6.2E D=%6.2E E=%6.2E F=%6.2E G=%6.2E H=%6.2E",CutIndex,HCuts_Pt->GetBinContent(CutIndex+1), HCuts_I->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1),A, B, C, D, E, F, G, H );
+         printf("%4i --> Pt>%7.2f  I>%6.2f  TOF>%+5.2f --> A=%6.2E B=%6.2E C=%6.2E D=%6.2E E=%6.2E F=%6.2E G=%6.2E H=%6.2E",CutIndex,HCuts_Pt->GetBinContent(CutIndex+1), HCuts_I->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1),A, B, C, D, E, F, G, H );
 
          if(E>0){
 	   //Prediction in Pt-Is-TOF plane
@@ -206,8 +208,11 @@ void Analysis_Step4(std::string InputPattern)
 	   double D_Sideband = H_D_DzSidebands->GetBinContent(CutIndex+1, 5);
 	   double D_Cosmic = H_D_Cosmic->GetBinContent(CutIndex+1);
            double D_Sideband_Cosmic = H_D_DzSidebands_Cosmic->GetBinContent(CutIndex+1, 5);
-	   P_Cosmic = D_Sideband * D_Cosmic / D_Sideband_Cosmic;
-	   Perr_Cosmic = sqrt( (pow(D_Cosmic/D_Sideband_Cosmic,2)*D_Sideband) + (pow(D_Sideband/D_Sideband_Cosmic,2)*D_Cosmic) + (pow((D_Cosmic*(D_Sideband)/(D_Sideband_Cosmic*D_Sideband_Cosmic)),2)*D_Sideband_Cosmic) );
+	   if(D_Sideband_Cosmic>0) {
+	     P_Cosmic = D_Sideband * D_Cosmic / D_Sideband_Cosmic;
+	     Perr_Cosmic = sqrt( (pow(D_Cosmic/D_Sideband_Cosmic,2)*D_Sideband) + (pow(D_Sideband/D_Sideband_Cosmic,2)*D_Cosmic) + (pow((D_Cosmic*(D_Sideband)/(D_Sideband_Cosmic*D_Sideband_Cosmic)),2)*D_Sideband_Cosmic) );
+	   }
+
 	   P    = P_Coll + P_Cosmic;
 	   Perr = sqrt(Perr_Coll*Perr_Coll + Perr_Cosmic*Perr_Cosmic);
 	 }else if(G>0){
@@ -396,6 +401,9 @@ void Analysis_Step4(std::string InputPattern)
       if(TypeMode==3) {
 	H_P_Coll->Write();
         H_P_Cosmic->Write();
+	for(int i=0; i<PredBins; i++) {
+	  H_P_Binned[i]->Write();
+	}
       }
       //directory->Delete("H_P;1");
 
