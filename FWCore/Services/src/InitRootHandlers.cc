@@ -11,7 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 #include <sstream>
@@ -241,7 +241,7 @@ namespace edm {
       setStreamedProductStreamer();
 
       // Load the library containing dictionaries for std:: classes, if not already loaded.
-      if (!TypeID(typeid(std::vector<std::vector<unsigned int> >)).hasDictionary()) {
+      if (!TypeWithDict(typeid(std::vector<std::vector<unsigned int> >)).hasDictionary()) {
          edmplugin::PluginCapabilities::get()->load(dictionaryPlugInPrefix() + "std::vector<std::vector<unsigned int> >");
       }
     }

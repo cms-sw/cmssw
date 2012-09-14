@@ -27,7 +27,7 @@
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 #include "Cintex/Cintex.h"
 #include "TClass.h"
@@ -107,7 +107,7 @@ namespace edm {
           //give ROOT a name for the file we are loading
           RootLoadFileSentry sentry;
           if(edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix + classname)) {
-            TypeID t(TypeID::byName(classname));
+            TypeWithDict t(TypeWithDict::byName(classname));
             if(!t.isComplete()) {
               //would be nice to issue a warning here.  Not sure the remainder of this comment is correct.
               // this message happens too often (too many false positives) to be useful plus ROOT will complain about a missing dictionary
@@ -122,9 +122,9 @@ namespace edm {
               // Too many false positives on built-in types here.
               return false;
             }
-            TypeID t(TypeID::byName(name));
+            TypeWithDict t(TypeWithDict::byName(name));
             if (!bool(t)) {
-              TypeID t2(TypeID::byName(name));
+              TypeWithDict t2(TypeWithDict::byName(name));
               if (!bool(t2)) {
                 //would be nice to issue a warning here
                 return false;
@@ -263,7 +263,7 @@ namespace edm {
           if(specialsToLib[classNameForRoot(itSpecial->second)].size()) {
             //std::cout << "&&&&& found special case " << itSpecial->first << std::endl;
             std::string name = itSpecial->second;
-            TypeID t(TypeID::byName(name));
+            TypeWithDict t(TypeWithDict::byName(name));
 
             if(!bool(t) and
                 (not edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix + name))) {
@@ -271,7 +271,7 @@ namespace edm {
               continue;
             } else {
               //need to construct the Class ourselves
-              TypeID t(TypeID::byName(name));
+              TypeWithDict t(TypeWithDict::byName(name));
               if(!bool(t)) {
                 std::cout << "dictionary did not build " << name << std::endl;
                 continue;

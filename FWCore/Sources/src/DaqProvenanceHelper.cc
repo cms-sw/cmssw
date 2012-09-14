@@ -11,6 +11,7 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 namespace edm {
@@ -25,7 +26,7 @@ namespace edm {
                                                   , ""
                                                   , "DaqSource"
                                                   , ParameterSetID()
-                                                  , rawDataType
+                                                  , TypeWithDict(rawDataType.typeInfo())
                                                   , false))
         , dummyProvenance_(constBranchDescription_.branchID())
         , processParameterSet_()
