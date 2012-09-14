@@ -187,8 +187,12 @@ void VVIObjF::limits(float& xl, float& xu) const {
 } // limits
 
 
+#include "sicif.h"
 namespace VVIObjFDetails {
-
+  void sincosint(float x, float & sint, float & cint) {
+    sicif(x,sint,cint);
+  }
+  /*
   void sincosint(float x, float & sint, float & cint) {
     // Initialized data
     
@@ -292,6 +296,7 @@ namespace VVIObjFDetails {
     }
   }
 
+    */
 
 float expint(float x) {
   
@@ -429,7 +434,7 @@ float expint(float x) {
     xb = std::max(a,b);
     fa = func(xa);
     fb = func(xb);
-    if (fa * fb > 0.) {
+    if (fa * fb > 0.f) {
       rv = (xb - xa) * -2.f;
       x0 = 0.;
       return 1;
