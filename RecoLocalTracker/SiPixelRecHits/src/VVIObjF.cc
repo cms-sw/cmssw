@@ -10,7 +10,7 @@
 // V1.2 - remove inappriate initializers and add methods to return non-zero/normalized region
 // V2.0 - restructuring and speed improvements by V. Innocente
 //
-#define SI_PIXEL_TEMPLATE_STANDALONE
+
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 // put CMSSW location of SimpleHelix.h here
 #include "RecoLocalTracker/SiPixelRecHits/interface/VVIObjF.h"
@@ -25,8 +25,6 @@
 
 namespace VVIObjFDetails {
   void sincosint(float x, float & sint, float & cint);  //! Private version of the cosine and sine integral
-  float cosint(float x);    //! Private version of the cosine integral
-  float sinint(float x);    //! Private version of the sine integral
   float expint(float x);    //! Private version of the exponential integral
   
   template<typename F>
@@ -54,17 +52,17 @@ VVIObjF::VVIObjF(float kappa, float beta2, int mode) : mode_(mode) {
   
   // Make sure that the inputs are reasonable
   
-  if(kappa < 0.01) kappa = 0.01;
-  if(kappa > 10.) kappa = 10.;
-  if(beta2 < 0.) beta2 = 0.;
-  if(beta2 > 1.) beta2 = 1.;
+  if(kappa < 0.01f) kappa = 0.01f;
+  if(kappa > 10.f) kappa = 10.f;
+  if(beta2 < 0.f) beta2 = 0.f;
+  if(beta2 > 1.f) beta2 = 1.f;
   
-  h_[4] = 1. - beta2*0.42278433999999998f + 7.6/kappa;
+  h_[4] = 1.f - beta2*0.42278433999999998f + 7.6/kappa;
   h_[5] = beta2;
-  h_[6] = 1. - beta2;
-  h4 = -7.6/kappa - (beta2 * .57721566f + 1);
+  h_[6] = 1.f - beta2;
+  h4 = -7.6f/kappa - (beta2 * .57721566f + 1.f);
   h5 = vdt::fast_logf(kappa);
-  h6 = 1./kappa;
+  h6 = 1.f/kappa;
   t0_ = (h4 - h_[4]*h5 - (h_[4] + beta2)*(vdt::fast_logf(h_[4]) + VVIObjFDetails::expint(h_[4])) + vdt::fast_expf(-h_[4]))/h_[4];
   
   // Set up limits for the root search
@@ -72,15 +70,15 @@ VVIObjF::VVIObjF(float kappa, float beta2, int mode) : mode_(mode) {
   for (lp = 0; lp < 9; ++lp) {
     if (kappa >= xp[lp]) break;
   }
-  ll = -lp - 1.5;
+  ll = -float(lp) - 1.5f;
   for (lq = 0; lq < 7; ++lq) {
     if (kappa <= xq[lq]) break;
   }
-  ul = lq - 6.5;
+  ul = lq - 6.5f;
   auto f2 = [h_](float x) { return h_[4]-x+h_[5]*(vdt::fast_logf(std::abs(x))+VVIObjFDetails::expint(x))-h_[6]*vdt::fast_expf(-x);};
-  VVIObjFDetails::dzero(ll, ul, u, rv, 1.e-4, 100, f2);
+  VVIObjFDetails::dzero(ll, ul, u, rv, 1.e-4f, 100, f2);
   q = 1./u;
-  t1_ = h4 * q - h5 - (beta2 * q + 1) * (vdt::fast_logf((fabs(u))) + VVIObjFDetails::expint(u)) + vdt::fast_expf(-u) * q;
+  t1_ = h4 * q - h5 - (beta2 * q + 1.f) * (vdt::fast_logf((fabs(u))) + VVIObjFDetails::expint(u)) + vdt::fast_expf(-u) * q;
   t_ = t1_ - t0_;
   omega_ = 6.2831853000000004f/t_;
   h_[0] = kappa * (beta2 * .57721566f + 2.f) + 9.9166128600000008f;
@@ -89,7 +87,7 @@ VVIObjF::VVIObjF(float kappa, float beta2, int mode) : mode_(mode) {
   h_[2] = h6 * omega_;
   h_[3] = omega_ * 1.5707963250000001f;
   auto f1 = [h_](float x){ return h_[0]+h_[1]*vdt::fast_logf(h_[2]*x)-h_[3]*x;};
-  VVIObjFDetails::dzero(5., 155., x0_, rv, 1.e-5, 1000, f1);
+  VVIObjFDetails::dzero(5., 155., x0_, rv, 1.e-4f, 100, f1);
   n = x0_ + 1.;
   d = vdt::fast_expf(kappa * (beta2 * (.57721566f - h5) + 1.f)) * .31830988654751274f;
   a_[n - 1] = 0.;
@@ -189,158 +187,7 @@ void VVIObjF::limits(float& xl, float& xu) const {
 
 
 namespace VVIObjFDetails {
-  float cosint(float x) {
-    // Initialized data
-    
-    const float zero = 0.;
-    const float one = 1.;
-    const float two = 2.;
-    const float eight = 8.;
-    const float ce = .57721566490153;
-    const float c__[14] = { 1.9405491464836,.9413409132865,
-			     -.579845034293,.3091572011159,-.0916101792208,.0164437407515,
-			     -.0019713091952,1.692538851e-4,-1.09393296e-5,5.522386e-7,
-			     -2.23995e-8,7.465e-10,-2.08e-11,5e-13 };
-    const float p[23] = { .96074783975204,-.0371138962124,
-			   .00194143988899,-1.7165988425e-4,2.112637753e-5,-3.27163257e-6,
-			   6.0069212e-7,-1.2586794e-7,2.932563e-8,-7.45696e-9,2.04105e-9,
-			   -5.9502e-10,1.8323e-10,-5.921e-11,1.997e-11,-7e-12,2.54e-12,
-			   -9.5e-13,3.7e-13,-1.4e-13,6e-14,-2e-14,1e-14 };
-    const float q[20] = { .98604065696238,-.0134717382083,
-			   4.5329284117e-4,-3.067288652e-5,3.13199198e-6,-4.2110196e-7,
-			   6.907245e-8,-1.318321e-8,2.83697e-9,-6.7329e-10,1.734e-10,
-			   -4.787e-11,1.403e-11,-4.33e-12,1.4e-12,-4.7e-13,1.7e-13,-6e-14,
-			   2e-14,-1e-14 };
-    
-    // System generated locals
-    float d__1;
-    
-    // Local variables
-    float h__;
-    int i__;
-    float r__, y, b0, b1, b2, pp, qq, alfa;
-    
-    // If x==0, return same
-    
-    if (x == zero) {
-      return zero;
-    }
-    if (fabs(x) <= eight) {
-      y = x / eight;
-      // Computing 2nd power
-      d__1 = y;
-      h__ = two * (d__1 * d__1) - one;
-      alfa = -two * h__;
-      b1 = zero;
-      b2 = zero;
-      for (i__ = 13; i__ >= 0; --i__) {
-	b0 = c__[i__] - alfa * b1 - b2;
-	b2 = b1;
-	b1 = b0;
-      }
-      b1 = ce + vdt::fast_logf((fabs(x))) - b0 + h__ * b2;
-    } else {
-      r__ = one / x;
-      y = eight * r__;
-      // Computing 2nd power
-      d__1 = y;
-      h__ = two * (d__1 * d__1) - one;
-      alfa = -two * h__;
-      b1 = zero;
-      b2 = zero;
-      for (i__ = 22; i__ >= 0; --i__) {
-	b0 = p[i__] - alfa * b1 - b2;
-	b2 = b1;
-	b1 = b0;
-      }
-      pp = b0 - h__ * b2;
-      b1 = zero;
-      b2 = zero;
-      for (i__ = 19; i__ >= 0; --i__) {
-	b0 = q[i__] - alfa * b1 - b2;
-	b2 = b1;
-	b1 = b0;
-      }
-      qq = b0 - h__ * b2;
-      b1 = r__ * (qq * vdt::fast_sinf(x) - r__ * pp * vdt::fast_cosf(x));
-    }
-    return b1;
-  } // cosint
-  
-  float sinint(float x) {
-    // Initialized data
-    
-    const float zero = 0.;
-    const float one = 1.;
-    const float two = 2.;
-    const float eight = 8.;
-    const float pih = 1.5707963267949;
-    const float s[14] = { 1.9522209759531,-.6884042321257,
-			   .4551855132256,-.1804571236838,.0410422133759,-.0059586169556,
-			   6.001427414e-4,-4.44708329e-5,2.5300782e-6,-1.141308e-7,4.1858e-9,
-			   -1.273e-10,3.3e-12,-1e-13 };
-    const float p[23] = { .96074783975204,-.0371138962124,
-			   .00194143988899,-1.7165988425e-4,2.112637753e-5,-3.27163257e-6,
-			   6.0069212e-7,-1.2586794e-7,2.932563e-8,-7.45696e-9,2.04105e-9,
-			   -5.9502e-10,1.8323e-10,-5.921e-11,1.997e-11,-7e-12,2.54e-12,
-			   -9.5e-13,3.7e-13,-1.4e-13,6e-14,-2e-14,1e-14 };
-    const float q[20] = { .98604065696238,-.0134717382083,
-			   4.5329284117e-4,-3.067288652e-5,3.13199198e-6,-4.2110196e-7,
-			   6.907245e-8,-1.318321e-8,2.83697e-9,-6.7329e-10,1.734e-10,
-			   -4.787e-11,1.403e-11,-4.33e-12,1.4e-12,-4.7e-13,1.7e-13,-6e-14,
-			   2e-14,-1e-14 };
-    
-    // System generated locals
-    float d__1;
-    
-    // Local variables
-    float h__;
-    int i__;
-    float r__, y, b0, b1, b2, pp, qq, alfa;
-    
-    if (fabs(x) <= eight) {
-      y = x / eight;
-      d__1 = y;
-      h__ = two * (d__1 * d__1) - one;
-      alfa = -two * h__;
-      b1 = zero;
-      b2 = zero;
-      for (i__ = 13; i__ >= 0; --i__) {
-	b0 = s[i__] - alfa * b1 - b2;
-	b2 = b1;
-	b1 = b0;
-      }
-      b1 = y * (b0 - b2);
-    } else {
-      r__ = one / x;
-      y = eight * r__;
-      d__1 = y;
-      h__ = two * (d__1 * d__1) - one;
-      alfa = -two * h__;
-      b1 = zero;
-      b2 = zero;
-      for (i__ = 22; i__ >= 0; --i__) {
-	b0 = p[i__] - alfa * b1 - b2;
-	b2 = b1;
-	b1 = b0;
-      }
-      pp = b0 - h__ * b2;
-      b1 = zero;
-      b2 = zero;
-      for (i__ = 19; i__ >= 0; --i__) {
-	b0 = q[i__] - alfa * b1 - b2;
-	b2 = b1;
-	b1 = b0;
-      }
-      qq = b0 - h__ * b2;
-      d__1 = fabs(pih);
-      if(x < 0.) d__1 = -d__1;
-      b1 = d__1 - r__ * (r__ * pp * vdt::fast_sinf(x) + qq * vdt::fast_cosf(x));
-    }
-    
-    return b1;
-  } // sinint
-  
+
   void sincosint(float x, float & sint, float & cint) {
     // Initialized data
     
@@ -379,8 +226,8 @@ namespace VVIObjFDetails {
     int i__;
     float r__, y, b0, b1, b2, pp, qq, alfa;
     
-    sint=0; 
-    cint=0;
+    sint=0.f; 
+    cint=0.f;
     
     
     if (fabs(x) <= eight) {
@@ -434,12 +281,13 @@ namespace VVIObjFDetails {
 	b1 = b0;
       }
       qq = b0 - h__ * b2;
+      float s,c; vdt::sincos::fast_sincosf(x,s,c);
       // cos
-      cint = r__ * (qq * vdt::fast_sinf(x) - r__ * pp * vdt::fast_cosf(x));
+      cint = r__ * (qq * s - r__ * pp * c);
       // sin
       d__1 = pih;
-      if(x < 0.) d__1 = -d__1;
-      sint = d__1 - r__ * (r__ * pp * vdt::fast_sinf(x) + qq * vdt::fast_cosf(x));
+      if(x < 0.f) d__1 = -d__1;
+      sint = d__1 - r__ * (r__ * pp * s + qq * c);
     }
   }
 
