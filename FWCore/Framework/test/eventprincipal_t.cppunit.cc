@@ -29,6 +29,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include <cppunit/extensions/HelperMacros.h>
@@ -113,7 +114,7 @@ test_ep::fake_single_process_branch(std::string const& tag,
                                     std::string const& productInstanceName) {
   std::string moduleLabel = processName + "dummyMod";
   std::string moduleClass("DummyModule");
-  edm::TypeID dummyType(typeid(edmtest::DummyProduct));
+  edm::TypeWithDict dummyType(typeid(edmtest::DummyProduct));
   std::string productClassName = dummyType.userClassName();
   std::string friendlyProductClassName = dummyType.friendlyClassName();
   edm::ParameterSet modParams;

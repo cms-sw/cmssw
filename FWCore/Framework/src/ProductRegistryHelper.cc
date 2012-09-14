@@ -8,6 +8,7 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 namespace edm {
   ProductRegistryHelper::~ProductRegistryHelper() { }
@@ -24,7 +25,8 @@ namespace edm {
                                        bool iIsListener) {
     std::string const& prefix = dictionaryPlugInPrefix();
     for(TypeLabelList::const_iterator p = iBegin; p != iEnd; ++p) {
-      if(!p->typeID_.hasDictionary()) {
+      TypeWithDict type(p->typeID_.typeInfo());
+      if(!type.hasDictionary()) {
         //attempt to load
         edmplugin::PluginCapabilities::get()->tryToLoad(prefix + p->typeID_.userClassName());
       }
@@ -36,7 +38,7 @@ namespace edm {
                               p->productInstanceName_,
                               iDesc.moduleName(),
                               iDesc.parameterSetID(),
-                              p->typeID_);
+                              type);
       if (!p->branchAlias_.empty()) pdesc.branchAliases().insert(p->branchAlias_);
       iReg.addProduct(pdesc, iIsListener);
     }//for

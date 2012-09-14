@@ -22,7 +22,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
-#include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include <cppunit/extensions/HelperMacros.h>
@@ -103,7 +103,7 @@ void testEventGetRefBeforePut::getRefTest() {
   std::string productInstanceName("Rick");
 
   edmtest::IntProduct dp;
-  edm::TypeID dummytype(dp);
+  edm::TypeWithDict dummytype(dp);
   std::string className = dummytype.friendlyClassName();
 
   edm::ParameterSet dummyProcessPset;

@@ -31,6 +31,8 @@ Test program for edm::Event.
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 
@@ -157,7 +159,7 @@ testEvent::registerProduct(std::string const& tag,
   boost::shared_ptr<ProcessConfiguration> processX(new ProcessConfiguration(process));
   processConfigurations_.push_back(processX);
 
-  TypeID product_type(typeid(T));
+  TypeWithDict product_type(typeid(T));
 
   BranchDescription branch(InEvent,
                            moduleLabel,
@@ -231,7 +233,7 @@ testEvent::testEvent() :
 
   ProcessConfiguration process(processName, processParams.id(), getReleaseVersion(), getPassID());
 
-  TypeID product_type(typeid(prod_t));
+  TypeWithDict product_type(typeid(prod_t));
 
   boost::shared_ptr<ProcessConfiguration> processX(new ProcessConfiguration(process));
   processConfigurations_.push_back(processX);
