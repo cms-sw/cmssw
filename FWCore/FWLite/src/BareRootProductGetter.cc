@@ -15,7 +15,7 @@
 
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
 // system include files
@@ -164,7 +164,7 @@ BareRootProductGetter::createNewBuffer(edm::ProductID const& iID) const {
   }
   //find the class type
   std::string const fullName = edm::wrappedClassName(bdesc.className());
-  edm::TypeID classType(edm::TypeID::byName(fullName));
+  edm::TypeWithDict classType(edm::TypeWithDict::byName(fullName));
   if(!bool(classType)) {
     cms::Exception("MissingDictionary")
        << "could not find dictionary for type '" << fullName << "'"

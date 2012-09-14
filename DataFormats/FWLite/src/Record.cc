@@ -17,6 +17,7 @@
 #include "DataFormats/FWLite/interface/Record.h"
 #include "DataFormats/Provenance/interface/ESRecordAuxiliary.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "DataFormats/FWLite/interface/format_type_name.h"
 
 
@@ -161,7 +162,7 @@ Record::get(const edm::TypeID& iType,
    
    TBranch*& branch = m_branches[std::make_pair(iType,iLabel)];
    if(0==branch){
-      if(!iType.hasDictionary()){
+      if(!edm::TypeWithDict(iType.typeInfo()).hasDictionary()){
          returnValue = new cms::Exception("UnknownType");
          (*returnValue)<<"The type "
          <<iType.typeInfo().name()<<" was requested from Record "<<name()

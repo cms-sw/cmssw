@@ -346,8 +346,9 @@ namespace fwlite {
             }
 
             //Calculate the key from the branch description
-            edm::TypeID type(edm::TypeID::byName(edm::wrappedClassName(bDesc.fullClassName())));
-            assert(bool(type)) ;
+            edm::TypeWithDict typeWD(edm::TypeWithDict::byName(edm::wrappedClassName(bDesc.fullClassName())));
+            edm::TypeID type(typeWD.typeInfo());
+            assert(bool(type));
 
             //Only the product instance label may be empty
             char const* pIL = bDesc.productInstanceName().c_str();
