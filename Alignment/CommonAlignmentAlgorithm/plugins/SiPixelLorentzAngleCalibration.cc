@@ -8,7 +8,7 @@
 ///  \author    : Gero Flucke
 ///  date       : September 2012
 ///  $Revision: 1.1 $
-///  $Date: 2012/09/05 07:56:27 $
+///  $Date: 2012/09/05 11:50:22 $
 ///  (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationBase.h"
@@ -275,6 +275,11 @@ void SiPixelLorentzAngleCalibration::endOfJob()
   const SiPixelLorentzAngle *input = this->getLorentzAnglesInput(); // never NULL
   const std::string treeName(this->name() + '_');
   this->writeTree(input, (treeName + "input").c_str());
+  if (input->getLorentzAngles().empty()) {
+    edm::LogError("Alignment") << "@SUB=SiPixelLorentzAngleCalibration::endOfJob"
+			       << "Input Lorentz angle map is empty, skip writing output!";
+    return;
+  }
 
   for (unsigned int iIOV = 0; iIOV < this->numIovs(); ++iIOV) {
     cond::Time_t firstRunOfIOV = this->firstRunOfIOV(iIOV);
@@ -368,10 +373,10 @@ const SiPixelLorentzAngle* SiPixelLorentzAngleCalibration::getLorentzAnglesInput
   if (!siPixelLorentzAngleInput_) { // no files nor ran on events
     siPixelLorentzAngleInput_ = new SiPixelLorentzAngle;
     edm::LogError("NoInput") << "@SUB=SiPixelLorentzAngleCalibration::getLorentzAnglesInput"
-			     << "No input, create an empty one!";
+                             << "No input, create an empty one!";
   } else if (siPixelLorentzAngleInput_->getLorentzAngles().empty()) {
     edm::LogError("NoInput") << "@SUB=SiPixelLorentzAngleCalibration::getLorentzAnglesInput"
-			     << "Empty result!";
+                             << "Empty result!";
   }
 
   return siPixelLorentzAngleInput_;
@@ -458,8 +463,16 @@ void SiPixelLorentzAngleCalibration::writeTree(const SiPixelLorentzAngle *lorent
 SiPixelLorentzAngle* 
 SiPixelLorentzAngleCalibration::createFromTree(const char *fileName, const char *treeName) const
 {
+  // Check for file existence on your own to work around
+  // https://hypernews.cern.ch/HyperNews/CMS/get/swDevelopment/2715.html:
+  TFile* file = 0;
+  FILE* testFile = fopen(fileName,"r");
+  if (testFile) {
+    fclose(testFile);
+    file = TFile::Open(fileName, "READ");
+  } // else not existing, see error below
+
   TTree *tree = 0;
-  TFile* file = TFile::Open(fileName, "READ");
   if (file) file->GetObject(treeName, tree);
 
   SiPixelLorentzAngle *result = 0;
@@ -475,10 +488,10 @@ SiPixelLorentzAngleCalibration::createFromTree(const char *fileName, const char 
       tree->GetEntry(iEntry);
       result->putLorentzAngle(id, value);
     }
-  } else {
-    edm::LogError("Alignment") << "@SUB=SiPixelLorentzAngleCalibration::createFromTree"
-			       << "Could not get TTree '" << treeName << "' from file '"
-			       << fileName << "'.";
+  } else { // Warning only since could be parallel job on no events.
+    edm::LogWarning("Alignment") << "@SUB=SiPixelLorentzAngleCalibration::createFromTree"
+                                 << "Could not get TTree '" << treeName << "' from file '"
+                                 << fileName << (file ? "'." : "' (file does not exist).");
   }
 
   delete file; // tree will vanish with file

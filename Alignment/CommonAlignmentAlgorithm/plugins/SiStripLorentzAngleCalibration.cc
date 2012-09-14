@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : August 2012
-///  $Revision: 1.1 $
-///  $Date: 2012/09/05 07:56:27 $
+///  $Revision: 1.2 $
+///  $Date: 2012/09/05 08:52:41 $
 ///  (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationBase.h"
@@ -38,6 +38,7 @@
 // #include <iostream>
 #include <vector>
 #include <sstream>
+#include <cstdio>
 
 class SiStripLorentzAngleCalibration : public IntegratedCalibrationBase
 {
@@ -303,6 +304,13 @@ void SiStripLorentzAngleCalibration::endOfJob()
   const std::string treeName(this->name() + '_' + readoutModeName_ + '_');
   this->writeTree(input, (treeName + "input").c_str());
 
+  if (input->getLorentzAngles().empty()) {
+    edm::LogError("Alignment") << "@SUB=SiStripLorentzAngleCalibration::endOfJob"
+			       << "Input Lorentz angle map is empty ('"
+			       << readoutModeName_ << "' mode), skip writing output!";
+    return;
+  }
+
   for (unsigned int iIOV = 0; iIOV < this->numIovs(); ++iIOV) {
     cond::Time_t firstRunOfIOV = this->firstRunOfIOV(iIOV);
     SiStripLorentzAngle *output = new SiStripLorentzAngle;
@@ -482,8 +490,16 @@ void SiStripLorentzAngleCalibration::writeTree(const SiStripLorentzAngle *lorent
 SiStripLorentzAngle* 
 SiStripLorentzAngleCalibration::createFromTree(const char *fileName, const char *treeName) const
 {
+  // Check for file existence on your own to work around
+  // https://hypernews.cern.ch/HyperNews/CMS/get/swDevelopment/2715.html:
+  TFile* file = 0;
+  FILE* testFile = fopen(fileName,"r");
+  if (testFile) {
+    fclose(testFile);
+    file = TFile::Open(fileName, "READ");
+  } // else not existing, see error below
+
   TTree *tree = 0;
-  TFile* file = TFile::Open(fileName, "READ");
   if (file) file->GetObject(treeName, tree);
 
   SiStripLorentzAngle *result = 0;
@@ -499,10 +515,10 @@ SiStripLorentzAngleCalibration::createFromTree(const char *fileName, const char 
       tree->GetEntry(iEntry);
       result->putLorentzAngle(id, value);
     }
-  } else {
-    edm::LogError("Alignment") << "@SUB=SiStripLorentzAngleCalibration::createFromTree"
-			       << "Could not get TTree '" << treeName << "' from file '"
-			       << fileName << "'.";
+  } else { // Warning only since could be parallel job on no events.
+    edm::LogWarning("Alignment") << "@SUB=SiStripLorentzAngleCalibration::createFromTree"
+                                 << "Could not get TTree '" << treeName << "' from file '"
+                                 << fileName << (file ? "'." : "' (file does not exist).");
   }
 
   delete file; // tree will vanish with file
