@@ -41,7 +41,7 @@ double               IntegratedLuminosityBeforeTriggerChange = 409.91;
 #else
 double               SQRTS          = 8;
 int                  RunningPeriods = 1;
-double               IntegratedLuminosity = 8318;
+double               IntegratedLuminosity = 9911;
 double               IntegratedLuminosityBeforeTriggerChange = 0;
 #endif
 
@@ -63,7 +63,7 @@ std::string BaseDirectory = "undefined... Did you call InitBaseDirectory() ? -->
 double             PtHistoUpperBound   = 1200;
 double             MassHistoUpperBound = 2000;
 int		   MassNBins           = 200;
-double             IPbound             = 2;
+double             IPbound             = 5;
 
 // Thresholds for candidate preselection --> note that some of the followings can be replaced by Analysis_Step3 function arguments
 double             GlobalMaxEta     =   1.5;    // cut on inner tracker track eta
