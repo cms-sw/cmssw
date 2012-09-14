@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 vertexAnalysis = cms.EDAnalyzer("PrimaryVertexAnalyzer4PU",
+        beamSpot = cms.InputTag('offlineBeamSpot'),
         simG4 = cms.InputTag("g4SimHits"),
         outputFile = cms.untracked.string("pv.root"),
         verbose = cms.untracked.bool(True),

@@ -29,6 +29,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 //generator level
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -521,6 +522,6 @@ private:
   bool RECO_;
   double instBXLumi_;
   int nDigiPix_;
-
+  edm::InputTag beamSpot_;
 };
 
