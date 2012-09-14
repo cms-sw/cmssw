@@ -337,6 +337,34 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_DiCentralJetSum
     'HLT_PFMET150_v7', 
     'HLT_PFMET180_v7')
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMETParked_selector
+streamA_datasetMETParked_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetMETParked_selector.l1tResults = cms.InputTag('')
+streamA_datasetMETParked_selector.throw      = cms.bool(False)
+streamA_datasetMETParked_selector.triggerConditions = cms.vstring('HLT_DiCentralJetSumpT100_dPhi05_DiCentralPFJet60_25_PFMET100_HBHENoiseCleaned_v5', 
+    'HLT_DiCentralPFJet30_PFMET80_BTagCSV07_v5', 
+    'HLT_DiCentralPFJet30_PFMET80_v6', 
+    'HLT_DiCentralPFNoPUJet50_PFMETORPFMETNoMu80_v4', 
+    'HLT_DiPFJet40_PFMETnoMu65_MJJ600VBF_LeadingJets_v9', 
+    'HLT_DiPFJet40_PFMETnoMu65_MJJ800VBF_AllJets_v9', 
+    'HLT_L1ETM100_v2', 
+    'HLT_L1ETM30_v2', 
+    'HLT_L1ETM40_v2', 
+    'HLT_L1ETM70_v2', 
+    'HLT_MET100_HBHENoiseCleaned_v1', 
+    'HLT_MET120_HBHENoiseCleaned_v5', 
+    'HLT_MET120_v12', 
+    'HLT_MET200_HBHENoiseCleaned_v5', 
+    'HLT_MET200_v12', 
+    'HLT_MET300_HBHENoiseCleaned_v5', 
+    'HLT_MET300_v4', 
+    'HLT_MET400_HBHENoiseCleaned_v5', 
+    'HLT_MET400_v7', 
+    'HLT_MET80_Parked_v5', 
+    'HLT_MonoCentralPFJet80_PFMETnoMu105_NHEF0p95_v4', 
+    'HLT_PFMET150_v7', 
+    'HLT_PFMET180_v7')
+
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMinimumBias_selector
 streamA_datasetMinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMinimumBias_selector.l1tResults = cms.InputTag('')

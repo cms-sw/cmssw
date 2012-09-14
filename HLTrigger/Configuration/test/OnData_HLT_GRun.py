@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/GRun/V23 (CMSSW_5_2_6_HLT3)
+# /dev/CMSSW_5_2_6/GRun/V24 (CMSSW_5_2_6_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/GRun/V23')
+  tableName = cms.string('/dev/CMSSW_5_2_6/GRun/V24')
 )
 
 process.streams = cms.PSet( 
@@ -29,6 +29,7 @@ process.streams = cms.PSet(
     'JetMon',
     'LogMonitor',
     'MET',
+    'METParked',
     'MinimumBias',
     'MuEG',
     'MuHad',
@@ -317,6 +318,29 @@ process.datasets = cms.PSet(
     'HLT_MET300_v4',
     'HLT_MET400_HBHENoiseCleaned_v5',
     'HLT_MET400_v7',
+    'HLT_MonoCentralPFJet80_PFMETnoMu105_NHEF0p95_v4',
+    'HLT_PFMET150_v7',
+    'HLT_PFMET180_v7' ),
+  METParked = cms.vstring( 'HLT_DiCentralJetSumpT100_dPhi05_DiCentralPFJet60_25_PFMET100_HBHENoiseCleaned_v5',
+    'HLT_DiCentralPFJet30_PFMET80_BTagCSV07_v5',
+    'HLT_DiCentralPFJet30_PFMET80_v6',
+    'HLT_DiCentralPFNoPUJet50_PFMETORPFMETNoMu80_v4',
+    'HLT_DiPFJet40_PFMETnoMu65_MJJ600VBF_LeadingJets_v9',
+    'HLT_DiPFJet40_PFMETnoMu65_MJJ800VBF_AllJets_v9',
+    'HLT_L1ETM100_v2',
+    'HLT_L1ETM30_v2',
+    'HLT_L1ETM40_v2',
+    'HLT_L1ETM70_v2',
+    'HLT_MET100_HBHENoiseCleaned_v1',
+    'HLT_MET120_HBHENoiseCleaned_v5',
+    'HLT_MET120_v12',
+    'HLT_MET200_HBHENoiseCleaned_v5',
+    'HLT_MET200_v12',
+    'HLT_MET300_HBHENoiseCleaned_v5',
+    'HLT_MET300_v4',
+    'HLT_MET400_HBHENoiseCleaned_v5',
+    'HLT_MET400_v7',
+    'HLT_MET80_Parked_v5',
     'HLT_MonoCentralPFJet80_PFMETnoMu105_NHEF0p95_v4',
     'HLT_PFMET150_v7',
     'HLT_PFMET180_v7' ),
@@ -708,6 +732,7 @@ process.datasets = cms.PSet(
     'HLT_MET400_HBHENoiseCleaned_v5',
     'HLT_MET400_v7',
     'HLT_MET80_HBHENoiseCleaned_v1',
+    'HLT_MET80_Parked_v5',
     'HLT_MET80_Track50_dEdx3p6_v6',
     'HLT_MET80_Track60_dEdx3p7_v6',
     'HLT_MET80_v5',
@@ -1135,6 +1160,7 @@ process.datasets = cms.PSet(
     'HLT_MET400_HBHENoiseCleaned_v5',
     'HLT_MET400_v7',
     'HLT_MET80_HBHENoiseCleaned_v1',
+    'HLT_MET80_Parked_v5',
     'HLT_MET80_Track50_dEdx3p6_v6',
     'HLT_MET80_Track60_dEdx3p7_v6',
     'HLT_MET80_v5',
@@ -1161,8 +1187,8 @@ process.datasets = cms.PSet(
     'HLT_Mu17_eta2p1_CentralPFNoPUJet30_BTagIPIter_v4',
     'HLT_Mu17_eta2p1_LooseIsoPFTau20_v7',
     'HLT_Mu17_eta2p1_TriCentralPFNoPUJet45_35_25_v2',
-    'HLT_Mu17_v5',
-    'HLT_Mu22_Photon22_CaloIdL_v7')+cms.vstring( 'HLT_Mu22_TkMu22_v8',
+    'HLT_Mu17_v5')+cms.vstring( 'HLT_Mu22_Photon22_CaloIdL_v7',
+    'HLT_Mu22_TkMu22_v8',
     'HLT_Mu22_TkMu8_v8',
     'HLT_Mu24_CentralPFJet30_CentralPFJet25_v4',
     'HLT_Mu24_PFJet30_PFJet25_Deta3_CentralPFJet25_v4',
@@ -1284,6 +1310,8 @@ process.datasets = cms.PSet(
     'HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v6',
     'HLT_DoubleMu3p5_LowMass_Displaced_v6',
     'HLT_HT200_AlphaT0p57_v8',
+    'HLT_MET100_HBHENoiseCleaned_v1',
+    'HLT_MET80_Parked_v5',
     'HLT_Mu13_Mu8_v21',
     'HLT_Mu15_TkMu5_Onia_v1',
     'HLT_QuadJet45_v1',
@@ -13842,6 +13870,10 @@ process.hltPreDiPFJet80DiPFJet30BTagCSVd07d05 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltPreMET80 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
+process.hltPreMET80Parked = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -42060,13 +42092,15 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v10',
   'HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v10',
   'HLT_LooseIsoPFTau35_Trk20_Prong1_v10',
+  'HLT_MET100_HBHENoiseCleaned_v1',
   'HLT_MET120_HBHENoiseCleaned_v5',
-  'HLT_MET120_v12',
-  'HLT_MET200_HBHENoiseCleaned_v5')+cms.vstring( 'HLT_MET200_v12',
+  'HLT_MET120_v12')+cms.vstring( 'HLT_MET200_HBHENoiseCleaned_v5',
+  'HLT_MET200_v12',
   'HLT_MET300_HBHENoiseCleaned_v5',
   'HLT_MET300_v4',
   'HLT_MET400_HBHENoiseCleaned_v5',
   'HLT_MET400_v7',
+  'HLT_MET80_Parked_v5',
   'HLT_MET80_Track50_dEdx3p6_v6',
   'HLT_MET80_Track60_dEdx3p7_v6',
   'HLT_MET80_v5',
@@ -42255,6 +42289,8 @@ process.hltOutputB = cms.OutputModule( "PoolOutputModule",
   'HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v6',
   'HLT_DoubleMu3p5_LowMass_Displaced_v6',
   'HLT_HT200_AlphaT0p57_v8',
+  'HLT_MET100_HBHENoiseCleaned_v1',
+  'HLT_MET80_Parked_v5',
   'HLT_Mu13_Mu8_v21',
   'HLT_Mu15_TkMu5_Onia_v1',
   'HLT_QuadJet45_v1',
@@ -42568,6 +42604,7 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_MET400_HBHENoiseCleaned_v5',
   'HLT_MET400_v7',
   'HLT_MET80_HBHENoiseCleaned_v1',
+  'HLT_MET80_Parked_v5',
   'HLT_MET80_Track50_dEdx3p6_v6',
   'HLT_MET80_Track60_dEdx3p7_v6',
   'HLT_MET80_v5',
@@ -42594,8 +42631,8 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_Mu17_eta2p1_CentralPFNoPUJet30_BTagIPIter_v4',
   'HLT_Mu17_eta2p1_LooseIsoPFTau20_v7',
   'HLT_Mu17_eta2p1_TriCentralPFNoPUJet45_35_25_v2',
-  'HLT_Mu17_v5',
-  'HLT_Mu22_Photon22_CaloIdL_v7')+cms.vstring( 'HLT_Mu22_TkMu22_v8',
+  'HLT_Mu17_v5')+cms.vstring( 'HLT_Mu22_Photon22_CaloIdL_v7',
+  'HLT_Mu22_TkMu22_v8',
   'HLT_Mu22_TkMu8_v8',
   'HLT_Mu24_CentralPFJet30_CentralPFJet25_v4',
   'HLT_Mu24_PFJet30_PFJet25_Deta3_CentralPFJet25_v4',
@@ -43101,6 +43138,7 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_MET400_HBHENoiseCleaned_v5',
   'HLT_MET400_v7',
   'HLT_MET80_HBHENoiseCleaned_v1',
+  'HLT_MET80_Parked_v5',
   'HLT_MET80_Track50_dEdx3p6_v6',
   'HLT_MET80_Track60_dEdx3p7_v6',
   'HLT_MET80_v5',
@@ -43760,6 +43798,7 @@ process.HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d03_v5 = cms.Path( process.HLTBegin
 process.HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d05_v5 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleJetC56orL1DoubleJetC64 + process.hltPreDiPFJet80DiPFJet30BTagCSVd07d05d05 + process.HLTRecoJetSequenceAK5L1FastJetCorrected + process.hltQuadJet25HbbZbb + process.hltDiJet75HbbZbb + process.HLTFastPrimaryVertexSequence + process.hltFastPVPixelVertexSelector + process.HLTBtagCSVSequenceL3Hbb + process.hltSingleJetBLifetimeL3FilterHbbZbbCSV + process.hltTriJetBLifetimeL3FilterHbbZbbCSV05 + process.HLTPFL1FastL2L3ReconstructionSequence + process.hltDiPFJet80HbbZbb + process.hltQuadPFJet30HbbZbb + process.HLTEndSequence )
 process.HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05_v5 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleJetC56orL1DoubleJetC64 + process.hltPreDiPFJet80DiPFJet30BTagCSVd07d05 + process.HLTRecoJetSequenceAK5L1FastJetCorrected + process.hltQuadJet25HbbZbb + process.hltDiJet75HbbZbb + process.HLTFastPrimaryVertexSequence + process.hltFastPVPixelVertexSelector + process.HLTBtagCSVSequenceL3Hbb + process.hltSingleJetBLifetimeL3FilterHbbZbbCSV + process.hltDiJetBLifetimeL3FilterHbbZbbCSV + process.HLTPFL1FastL2L3ReconstructionSequence + process.hltDiPFJet80HbbZbb + process.hltQuadPFJet30HbbZbb + process.HLTEndSequence )
 process.HLT_MET80_v5 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM36ORETM40 + process.hltPreMET80 + process.HLTRecoMETSequence + process.hltMET80 + process.HLTEndSequence )
+process.HLT_MET80_Parked_v5 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM36ORETM40 + process.hltPreMET80Parked + process.HLTRecoMETSequence + process.hltMET80 + process.HLTEndSequence )
 process.HLT_MET80_HBHENoiseCleaned_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM36ORETM40ORETM50 + process.hltPreMET80HBHENoiseCleaned + process.HLTRecoMETSequence + process.hltMET80 + process.HLTHBHENoiseCleanerSequence + process.hltMetClean + process.hltMETClean40 + process.HLTEndSequence )
 process.HLT_MET80_Track50_dEdx3p6_v6 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM36ORETM40 + process.hltPreMET80Track50dEdx3p6 + process.HLTRecoMETSequence + process.hltMET80 + process.HLTPFReconstructionDEDXSequence + process.hltDeDxEstimatorProducer + process.hltDeDxFilter50DEDX3p6 + process.HLTEndSequence )
 process.HLT_MET80_Track60_dEdx3p7_v6 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM36ORETM40 + process.hltPreMET80Track60dEdx3p7 + process.HLTRecoMETSequence + process.hltMET80 + process.HLTPFReconstructionDEDXSequence + process.hltDeDxEstimatorProducer + process.hltDeDxFilter60DEDX3p7 + process.HLTEndSequence )
