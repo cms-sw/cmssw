@@ -27,8 +27,8 @@ namespace edm {
     parameterSetIDs_(),
     moduleNames_(),
     transient_(false),
-    type_(),
-    typeID_(),
+    wrappedType_(),
+    unwrappedType_(),
     wrapperInterfaceBase_(0),
     splitLevel_(),
     basketSize_() {
@@ -62,7 +62,7 @@ namespace edm {
                         std::string const& productInstanceName,
                         std::string const& moduleName,
                         ParameterSetID const& parameterSetID,
-                        TypeID const& theTypeID,
+                        TypeWithDict const& theTypeWithDict,
                         bool produced,
                         std::set<std::string> const& aliases) :
       branchType_(branchType),
@@ -79,7 +79,7 @@ namespace edm {
     onDemand() = false;
     transient_.moduleName_ = moduleName;
     transient_.parameterSetID_ = parameterSetID;
-    typeID() = theTypeID;
+    unwrappedType() = theTypeWithDict;
     init();
   }
 
@@ -102,7 +102,7 @@ namespace edm {
     onDemand() = aliasForBranch.onDemand();
     transient_.moduleName_ = aliasForBranch.moduleName();
     transient_.parameterSetID_ = aliasForBranch.parameterSetID();
-    typeID() = aliasForBranch.typeID();
+    unwrappedType() = aliasForBranch.unwrappedType();
     init();
   }
 
@@ -156,7 +156,7 @@ namespace edm {
 
   void
   BranchDescription::initFromDictionary() const {
-    if(bool(type())) {
+    if(bool(wrappedType())) {
       return;  // already initialized;
     }
 
@@ -165,21 +165,21 @@ namespace edm {
     wrappedName() = wrappedClassName(fullClassName());
 
     // unwrapped type.
-    typeID() = TypeID::byName(fullClassName());
-    if(!bool(typeID())) {
+    unwrappedType() = TypeWithDict::byName(fullClassName());
+    if(!bool(unwrappedType())) {
       splitLevel() = invalidSplitLevel;
       basketSize() = invalidBasketSize;
       transient() = false;
       return;
     }
 
-    type() = TypeID::byName(wrappedName());
-    if(!bool(type())) {
+    wrappedType() = TypeWithDict::byName(wrappedName());
+    if(!bool(wrappedType())) {
       splitLevel() = invalidSplitLevel;
       basketSize() = invalidBasketSize;
       return;
     }
-    Reflex::PropertyList wp = Reflex::Type::ByTypeInfo(type().typeInfo()).Properties();
+    Reflex::PropertyList wp = Reflex::Type::ByTypeInfo(wrappedType().typeInfo()).Properties();
     transient() = (wp.HasProperty("persistent") ? wp.PropertyAsString("persistent") == std::string("false") : false);
     if(transient()) {
       splitLevel() = invalidSplitLevel;

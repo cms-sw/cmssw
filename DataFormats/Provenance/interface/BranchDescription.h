@@ -14,6 +14,7 @@ This description also applies to every product instance on the branch.
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 #include <iosfwd>
 #include <map>
@@ -47,7 +48,7 @@ namespace edm {
                       std::string const& productInstanceName,
                       std::string const& moduleName,
                       ParameterSetID const& parameterSetID,
-                      TypeID const& theTypeID,
+                      TypeWithDict const& theTypeWithDict,
                       bool produced = true,
                       std::set<std::string> const& aliases = std::set<std::string>());
 
@@ -85,8 +86,10 @@ namespace edm {
     bool& dropped() const {return transient_.dropped_;}
     bool& onDemand() const {return transient_.onDemand_;}
     bool& transient() const {return transient_.transient_;}
-    TypeID& type() const {return transient_.type_;}
-    TypeID& typeID() const {return transient_.typeID_;}
+    TypeWithDict& wrappedType() const {return transient_.wrappedType_;}
+    TypeWithDict& unwrappedType() const {return transient_.unwrappedType_;}
+    TypeID wrappedTypeID() const {return TypeID(transient_.wrappedType_.typeInfo());}
+    TypeID unwrappedTypeID() const {return TypeID(transient_.unwrappedType_.typeInfo());}
     int& splitLevel() const {return transient_.splitLevel_;}
     int& basketSize() const {return transient_.basketSize_;}
 
@@ -160,11 +163,11 @@ namespace edm {
       // in the data dictionary
       bool transient_;
 
-      // A TypeID object for the wrapped object
-      TypeID type_;
+      // A TypeWithDict object for the wrapped object
+      TypeWithDict wrappedType_;
 
-      // A TypeID object for the unwrapped object
-      TypeID typeID_;
+      // A TypeWithDict object for the unwrapped object
+      TypeWithDict unwrappedType_;
 
       // A pointer to a polymorphic object to obtain typed Wrapper.
       mutable WrapperInterfaceBase* wrapperInterfaceBase_;
