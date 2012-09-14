@@ -172,28 +172,29 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 	  currTsos = updator()->update(predTsos, *preciseHit);
 	  //check for valid hits with no det (refitter with constraints)
 	  bool badState = (!currTsos.isValid())
-	    || (hit.geographicalId().det() == DetId::Tracker
-		&&
-		(std::abs(currTsos.localParameters().qbp())>100
-		 || std::abs(currTsos.localParameters().position().y()) > 1000
-		 || std::abs(currTsos.localParameters().position().x()) > 1000
-		 ) );
-	  if unlikely (badState){
+          || (hit.geographicalId().det() == DetId::Tracker
+              &&
+              (std::abs(currTsos.localParameters().qbp())>100
+               || std::abs(currTsos.localParameters().position().y()) > 1000
+               || std::abs(currTsos.localParameters().position().x()) > 1000
+               ) ) || std::isnan(currTsos.localParameters().qbp());
+	  if unlikely(badState){
 	    if (!currTsos.isValid()) edm::LogError("FailedUpdate")
-	      <<"updating with the hit failed. Not updating the trajectory with the hit";
+	     <<"updating with the hit failed. Not updating the trajectory with the hit";
+	    else if (std::isnan(currTsos.localParameters().qbp())) edm::LogError("TrajectoryNaN")<<"Trajectory has NaN";
 	    else LogTrace("FailedUpdate")<<"updated state is valid but pretty bad, skipping. currTsos "
-					 <<currTsos<<"\n predTsos "<<predTsos;
-	      myTraj.push(TM(predTsos, *ihit,0,theGeometry->idToLayer((*ihit)->geographicalId())  ));
-	      //There is a no-fail policy here. So, it's time to give up
-	      //Keep the traj with invalid TSOS so that it's clear what happened
-	      if( myTraj.foundHits() >= minHits_ ) {
-		LogDebug("TrackFitters") << " breaking trajectory" << "\n";
-		break;      
-	      } else {        
-		LogDebug("TrackFitters") << " killing trajectory" << "\n";       
-		return Trajectory();
-	      }
-	    } else{
+	    				 <<currTsos<<"\n predTsos "<<predTsos;
+	    myTraj.push(TM(predTsos, *ihit,0,theGeometry->idToLayer((*ihit)->geographicalId())  ));
+	    //There is a no-fail policy here. So, it's time to give up
+	    //Keep the traj with invalid TSOS so that it's clear what happened
+	    if( myTraj.foundHits() >= minHits_ ) {
+	      LogDebug("TrackFitters") << " breaking trajectory" << "\n";
+	      break;      
+	    } else {        
+	      LogDebug("TrackFitters") << " killing trajectory" << "\n";       
+	      return Trajectory();
+	    }
+	  } else{
 	    if (preciseHit->det()) myTraj.push(TM(predTsos, currTsos, preciseHit,
 						  estimator()->estimate(predTsos, *preciseHit).second,
 						  theGeometry->idToLayer(preciseHit->geographicalId())  ));
