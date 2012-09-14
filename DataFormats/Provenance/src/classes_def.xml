@@ -80,7 +80,8 @@
   <version ClassVersion="10" checksum="1486343707"/>
  </class>
  <class name="edm::BranchDescription::Transients" ClassVersion="0">
-  <field name="type_" transient="true"/>
+  <field name="wrappedType_" transient="true"/>
+  <field name="unwrappedType_" transient="true"/>
  </class>
  <class name="edm::ParameterSetBlob" ClassVersion="10">
   <version ClassVersion="10" checksum="474063030"/>
