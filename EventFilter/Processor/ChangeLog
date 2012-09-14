@@ -1,3 +1,8 @@
+2012-09-14 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-23
+	* removed exit on sStopping state while running
+
 2012-09-03 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V02-05-22

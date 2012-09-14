@@ -1764,7 +1764,7 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	  { 
 	    // after each monitoring cycle check if we are in inconsistent state and exit if configured to do so  
 	    //	    std::cout << getpid() << "receivingAndMonitor: trying to acquire stop lock " << std::endl;
-	    if(data->Ms == edm::event_processor::sStopping || data->Ms == edm::event_processor::sError) 
+	    if(data->Ms == edm::event_processor::sError) 
 	      { 
 		bool running = true;
 		int count = 0;
@@ -1777,9 +1777,7 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 		  if(running) {::sleep(1); count++;}
 		}
 	      }
-	    
 	  }
-	  //	  scalersUpdates_++;
 	  break;
 	}
       case MSQM_MESSAGE_TYPE_WEB:
@@ -2660,7 +2658,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.157 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.158 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
