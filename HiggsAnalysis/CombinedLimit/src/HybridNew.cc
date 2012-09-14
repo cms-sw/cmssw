@@ -43,6 +43,7 @@
 #include "../interface/ProfilingTools.h"
 
 using namespace RooStats;
+using namespace std;
 
 HybridNew::WorkingMode HybridNew::workingMode_ = MakeLimit;
 unsigned int HybridNew::nToys_ = 500;
@@ -901,6 +902,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
       }
   }
 
+#if ROOT_VERSION_CODE <  ROOT_VERSION(5,34,00)
   static const char * istr = "__HybridNew__importanceSamplingDensity";
   if(importanceSamplingNull_) {
     std::cerr << "ALERT: running with importance sampling not validated (and probably not working)." << std::endl;
@@ -931,6 +933,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     if (verbose > 2) importanceSnapshot.Print("V");
     hc->SetAltImportanceDensity(w->pdf(istr), &importanceSnapshot);
   }
+#endif
 
   return hc;
 }

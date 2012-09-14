@@ -1,7 +1,10 @@
+using namespace std;
+
 #include "../interface/RooScaleLOSM.h"
 
 const double RooScaleLOSM::mt_ = 172.50;
 const double RooScaleLOSM::mW_ = 80.398;
+
 
 RooScaleLOSM::RooScaleLOSM(const char *name, const char *title, RooAbsReal &mH):
   RooAbsReal(name, title),

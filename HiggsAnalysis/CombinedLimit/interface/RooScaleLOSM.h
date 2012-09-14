@@ -9,7 +9,7 @@
 #include "RooRealVar.h"
 #include "RooRealProxy.h"
 
-typedef complex<double> complexD;
+typedef std::complex<double> complexD;
 
 class RooScaleLOSM: public RooAbsReal
 {

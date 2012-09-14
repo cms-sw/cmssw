@@ -28,6 +28,7 @@ class THnSparse;
 #include "../interface/ProfilingTools.h"
 
 using namespace RooStats;
+using namespace std;
 
 std::string MarkovChainMC::proposalTypeName_ = "ortho";
 MarkovChainMC::ProposalType MarkovChainMC::proposalType_ = TestP;

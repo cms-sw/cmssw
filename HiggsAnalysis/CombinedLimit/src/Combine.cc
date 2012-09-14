@@ -55,6 +55,7 @@
 
 using namespace RooStats;
 using namespace RooFit;
+using namespace std;
 
 LimitAlgo * algo, * hintAlgo;
 

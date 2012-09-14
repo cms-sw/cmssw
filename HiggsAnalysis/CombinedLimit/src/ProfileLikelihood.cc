@@ -24,6 +24,7 @@
 #include <Math/MinimizerOptions.h>
 
 using namespace RooStats;
+using namespace std;
 
 std::string ProfileLikelihood::minimizerAlgo_ = "Minuit2";
 std::string ProfileLikelihood::minimizerAlgoForBF_ = "Minuit2,simplex";

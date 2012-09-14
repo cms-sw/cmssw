@@ -14,6 +14,8 @@
 #include <RooRandom.h>
 #include <../interface/ProfilingTools.h>
 
+using namespace std;
+
 ToyMCSamplerOpt::ToyMCSamplerOpt(RooStats::TestStatistic& ts, Int_t ntoys, RooAbsPdf *globalObsPdf, bool generateNuisances) :
     ToyMCSampler(ts, ntoys),
     globalObsPdf_(globalObsPdf),
@@ -457,11 +459,16 @@ RooAbsData* ToyMCSamplerOpt::GenerateToyData(RooArgSet& /*nullPOI*/, double& wei
 
    RooAbsData* data = NULL;
 
+
+#if ROOT_VERSION_CODE <  ROOT_VERSION(5,34,00)
+
    if(!fImportanceDensity) {
       // no Importance Sampling
       data = Generate(*fPdf, observables);
    }else{
+
       throw std::runtime_error("No importance sampling yet");
+
       // Importance Sampling
       RooArgSet* allVars = fPdf->getVariables();
       RooArgSet* allVars2 = fImportanceDensity->getVariables();
@@ -491,6 +498,10 @@ RooAbsData* ToyMCSamplerOpt::GenerateToyData(RooArgSet& /*nullPOI*/, double& wei
       delete allVars2;
       delete saveVars;
    }
+#else
+   // no Importance Sampling defined in ToyMCSampler of 5.34
+   data = Generate(*fPdf, observables);
+#endif   
 
    if (saveNuis.getSize()) { RooArgSet pars(*fNuisancePars); pars = saveNuis; }
    return data;

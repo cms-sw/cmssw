@@ -22,10 +22,13 @@ class TH1Keys : public TH1 {
        virtual Int_t    Fill(Double_t x) { return Fill(x,1.0); }
        virtual Int_t    Fill(Double_t x, Double_t w);
        virtual void     FillN(Int_t ntimes, const Double_t *x, const Double_t *w, Int_t stride=1);
-
+#if ROOT_VERSION_CODE <  ROOT_VERSION(5,34,00)
        virtual void     Add(const TH1 *h1, Double_t c1=1);
        virtual void     Add(const TH1 *h, const TH1 *h2, Double_t c1=1, Double_t c2=1) { dont("Add with two arguments"); } 
-
+#else
+       virtual Bool_t   Add(const TH1 *h1, Double_t c1=1);
+       virtual Bool_t   Add(const TH1 *h, const TH1 *h2, Double_t c1=1, Double_t c2=1) { dont("Add with two arguments"); return false;} 
+#endif
        virtual void     AddBinContent(Int_t bin) { AddBinContent(bin, 1.0); }
        virtual void     AddBinContent(Int_t bin, Double_t w) { dont("AddBinContent"); }
        virtual void     Copy(TObject &hnew) const { dont("Copy"); }

@@ -7,6 +7,10 @@
 
 #include <Math/MinimizerOptions.h>
 
+#include <iomanip>
+
+using namespace std;
+
 RooMinimizerOpt::RooMinimizerOpt(RooAbsReal& function) :
     RooMinimizer(function)
 {

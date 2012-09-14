@@ -30,6 +30,8 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 
+using namespace std;
+
 void utils::printRDH(RooAbsData *data) {
   std::vector<std::string> varnames, catnames;
   const RooArgSet *b0 = data->get();

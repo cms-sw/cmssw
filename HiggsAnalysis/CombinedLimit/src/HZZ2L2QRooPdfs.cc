@@ -10,6 +10,8 @@
 #include "RooRealConstant.h"
 
 using namespace RooFit;
+using namespace std; 
+
 ClassImp(RooCB)
 
   RooCB::RooCB(){}
