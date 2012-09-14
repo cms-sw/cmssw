@@ -44,13 +44,15 @@
 using namespace std;
 
 
-FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements (0), theTracker(0), theNavigation(0), theService(0), theEstimator(0),  theSigmaZ(0), theConfig (iConfig)
+FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements (0), theTracker(0), theNavigation(0), theService(0), theEstimator(0),  theSigmaZ(0), theConfig (iConfig),
+  beamSpot_(iConfig.getParameter<edm::InputTag>("beamSpot"))
 {
   theCategory = "FastSimulation|Muons||FastTSGFromPropagation";
 
 }
 
-FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service) : theTkLayerMeasurements (0), theTracker(0), theNavigation(0), theService(service),theUpdator(0), theEstimator(0), theSigmaZ(0), theConfig (iConfig)
+FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service) : theTkLayerMeasurements (0), theTracker(0), theNavigation(0), theService(service),theUpdator(0), theEstimator(0), theSigmaZ(0), theConfig (iConfig),
+  beamSpot_(iConfig.getParameter<edm::InputTag>("beamSpot"))
 {
   theCategory = "FastSimulation|Muons|FastTSGFromPropagation";
 }
@@ -352,7 +354,7 @@ void FastTSGFromPropagation::setEvent(const edm::Event& iEvent) {
 
   bool measTrackerChanged = false;
 
-  iEvent.getByType(theBeamSpot);
+  iEvent.getByLabel(beamSpot_, theBeamSpot);
   
   // retrieve the MC truth (SimTracks)
   iEvent.getByLabel(theSimTrackCollectionLabel, theSimTracks);

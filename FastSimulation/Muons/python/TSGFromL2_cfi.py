@@ -158,7 +158,8 @@ def makeOIHitSet():
           )
         )
       ),
-      ComponentName = cms.string( "FastTSGFromPropagation" ),       
+      ComponentName = cms.string( "FastTSGFromPropagation" ),
+      beamSpot = cms.InputTag('offlineBeamSpot'),
       Propagator = cms.string( "hltESPSmartPropagatorAnyOpposite" ),
       MaxChi2 = cms.double( 15.0 ),
       ResetMethod = cms.string("matrix"),
@@ -263,6 +264,7 @@ def l3seeds(tsg = "old"):
     elif( tsg == "OIHit" ):
         return cms.EDProducer("TSGFromL2Muon",
             tkSeedGenerator = cms.string('FastTSGFromPropagation'),
+            beamSpot = cms.InputTag('offlineBeamSpot'),
             TSGFromCombinedHits = cms.PSet(    ),
             ServiceParameters = cms.PSet(
                RPCLayers = cms.bool(True),

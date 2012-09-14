@@ -12,6 +12,7 @@
 
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
@@ -168,6 +169,7 @@ private:
   double theSigmaZ; 
 
   edm::ParameterSet theConfig;
+  edm::InputTag beamSpot_;
 
   edm::Handle<reco::BeamSpot> theBeamSpot;
   edm::Handle<edm::SimTrackContainer> theSimTracks;
