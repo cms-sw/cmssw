@@ -4,8 +4,8 @@
 /*
  * \file EELedTask.h
  *
- * $Date: 2012/07/02 19:39:29 $
- * $Revision: 1.15 $
+ * $Date: 2009/10/26 17:33:50 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -43,8 +43,6 @@ void beginRun(const edm::Run & r, const edm::EventSetup & c);
 
 /// EndRun
 void endRun(const edm::Run & r, const edm::EventSetup & c);
-
- void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&); 
 
 /// Reset
 void reset(void);
@@ -92,8 +90,6 @@ MonitorElement* mePnAmplMapG16L2_[18];
 MonitorElement* mePnPedMapG16L2_[18];
 
 bool init_;
-
- int nEmpty_;
 
 };
 

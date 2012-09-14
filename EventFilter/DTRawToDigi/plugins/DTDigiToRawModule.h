@@ -2,7 +2,8 @@
 #define EventFilter_DTDigiToRawModule_h
 
 
-#include <FWCore/Framework/interface/EDProducer.h>
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 
 
@@ -24,8 +25,7 @@ private:
   
   int dduID;
   bool debug;
-  bool digibyType;
-  std::string digicoll;
+  edm::InputTag digicoll;
   
   bool useStandardFEDid_;
   int minFEDid_;

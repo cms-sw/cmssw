@@ -83,9 +83,10 @@ namespace reco {
                 /* // Code to print out enum table 
                 if (dataType_.isEnum()) {
                     std::cerr << "Enum conversion: [" << dataType_.name() <<  "] => [" << type_.name() << "]" << std::endl;
-                    std::cerr << "Enum has " << dataType_.memberSize() << ", members." << std::endl;
-                    for (size_t i = 0; i < dataType_.memberSize(); ++i) {
-                        edm::MemberWithDict mem = dataType_.memberAt(i);
+                    std::cerr << "Enum has " << dataType_.dataMemberSize() << ", members." << std::endl;
+                    TypeDataMembers members(dataType_);
+                    for(auto const& member : members) {
+                        edm::MemberWithDict mem(member);
                         std::cerr << " member #"<<i<<", name = " << mem.name() << ", dataType_ = " << mem.typeOf().name() << std::endl; 
                     }
                 } // */
@@ -107,10 +108,10 @@ namespace reco {
             std::pair<AnyMethodArgument,int> operator()(const std::string &t) const { 
                 if (type_ == typeid(std::string)) { return std::pair<AnyMethodArgument,int>(t,0); }
                 if (dataType_.isEnum()) {
-                    if (dataType_.memberSize() == 0) {
+                    if (dataType_.dataMemberSize() == 0) {
                         throw parser::Exception(t.c_str()) << "Enumerator '" << dataType_.name() << "' has no keys.\nPerhaps the dictionary is missing?\n";
                     }
-                    edm::MemberWithDict value = dataType_.memberByName(t);
+                    edm::MemberWithDict value = dataType_.dataMemberByName(t);
                     //std::cerr << "Trying to convert '" << t << "'  to a value for enumerator '" << dataType_.name() << "'" << std::endl;
                     if (!value) // check for existing value
                         return std::pair<AnyMethodArgument,int>(t,-1);

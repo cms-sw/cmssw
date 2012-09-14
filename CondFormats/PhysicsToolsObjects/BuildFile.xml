@@ -3,7 +3,6 @@
 <use   name="CondFormats/Common"/>
 <use   name="boost"/>
 <use   name="sigcpp"/>
-<use   name="rootrflx"/>
 <use   name="root"/>
 <export>
   <lib   name="1"/>

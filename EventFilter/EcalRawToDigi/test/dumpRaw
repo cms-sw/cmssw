@@ -206,6 +206,7 @@ if [ X$prog = XDumpRaw ];then
 if [ X$l1aHist = XTrue ]; then
     cat >> "$TMPFILE" <<EOF
 process.load('EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi')
+process.scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 EOF
     cmssw_path="process.scalersRawToDigi*"
 else 

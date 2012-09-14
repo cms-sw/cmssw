@@ -1,12 +1,12 @@
 #ifndef CondCore_PoolDBOutputService_h
 #define CondCore_PoolDBOutputService_h
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/DBCommon/interface/Logger.h"
 #include "CondCore/DBCommon/interface/LogDBEntry.h"
 #include "CondCore/DBCommon/interface/TagInfo.h"
-#include "Reflex/Type.h"
 #include <string>
 #include <map>
 
@@ -36,9 +36,8 @@ namespace edm{
 namespace cond{
   
   inline std::string classNameForTypeId( const std::type_info& typeInfo ){
-    Reflex::Type reflexType = Reflex::Type::ByTypeInfo( typeInfo );
-    //FIXME: should become Reflex::SCOPED?
-    return reflexType.Name();
+    edm::TypeID type( typeInfo );
+    return type.className();
   }
   
   namespace service {

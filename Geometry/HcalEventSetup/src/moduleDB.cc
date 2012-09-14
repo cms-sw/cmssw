@@ -57,10 +57,20 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const type
 
     assert( dvec.size() == HcalGeometry::k_NumberOfShapes * HcalGeometry::k_NumberOfParametersPerShape ) ;
 
-    PtrType ptr ( new HcalGeometry( new HcalTopology((HcalTopology::Mode) StringToEnumValue<HcalTopology::Mode>(m_hcalTopoConsts.getParameter<std::string>("mode")),
-						     m_hcalTopoConsts.getParameter<int>("maxDepthHB"),
-						     m_hcalTopoConsts.getParameter<int>("maxDepthHE")) )) ;
+    HcalTopologyMode::Mode mode = HcalTopologyMode::LHC;
+    int maxDepthHB = 2;
+    int maxDepthHE = 3;
+    if( m_pSet.exists( "hcalTopologyConstants" ))
+    {
+	const edm::ParameterSet hcalTopoConsts( m_pSet.getParameter<edm::ParameterSet>( "hcalTopologyConstants" ));
+	StringToEnumParser<HcalTopologyMode::Mode> parser;
+	mode = (HcalTopologyMode::Mode) parser.parseString(hcalTopoConsts.getParameter<std::string>("mode"));
+	maxDepthHB = hcalTopoConsts.getParameter<int>("maxDepthHB");
+	maxDepthHE = hcalTopoConsts.getParameter<int>("maxDepthHE");
+    }
 
+    PtrType ptr ( new HcalGeometry( new HcalTopology( mode, maxDepthHB, maxDepthHE )));
+    
     ptr->fillDefaultNamedParameters() ;
 
     ptr->allocateCorners( HcalGeometry::k_NumberOfCellsForCorners ) ;

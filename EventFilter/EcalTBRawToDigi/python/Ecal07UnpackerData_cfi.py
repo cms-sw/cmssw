@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalEBunpacker = cms.EDProducer("EcalDCCTB07UnpackingModule",
+    fedRawDataCollectionTag = cms.InputTag('rawDataCollector'),
     ccuIDs = cms.untracked.vint32(1, 71, 80, 45),
     statusIDs = cms.untracked.vint32(1, 2, 3, 4),
     positionIDs = cms.untracked.vint32(6, 2, 5, 1),

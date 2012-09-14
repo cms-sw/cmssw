@@ -158,7 +158,8 @@ public:
   HcalDetDiagNoiseRMData rm[HcalFrontEndId::maxRmIndex];
 };
 
-HcalDetDiagNoiseMonitor::HcalDetDiagNoiseMonitor(const edm::ParameterSet& ps) 
+HcalDetDiagNoiseMonitor::HcalDetDiagNoiseMonitor(const edm::ParameterSet& ps) :
+  hcalTBTriggerDataTag_(ps.getParameter<edm::InputTag>("hcalTBTriggerDataTag"))
 {
   ievt_=0;
   run_number=-1;
@@ -298,7 +299,7 @@ void HcalDetDiagNoiseMonitor::analyze(const edm::Event& iEvent, const edm::Event
 
   // for local runs 
   edm::Handle<HcalTBTriggerData> trigger_data;
-  iEvent.getByType(trigger_data);
+  iEvent.getByLabel(hcalTBTriggerDataTag_, trigger_data);
   if(trigger_data.isValid()){
       if(trigger_data->triggerWord()>1000) isNoiseEvent=true;
       LocalRun=true;

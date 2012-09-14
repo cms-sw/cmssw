@@ -41,8 +41,6 @@ namespace edm {
   class Run;
   class RunPrincipal;
   class Schedule;
-  class Selector;
-  class SelectorBase;
   class TypeID;
   class UnscheduledHandler;
   class ViewBase;

@@ -1,5 +1,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
+#include "FWCore/Framework/interface/ProcessMatch.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalSourcePositionData.h"
@@ -11,17 +13,21 @@ namespace cms {
 
   /** \class HcalRecHitDump
       
-  $Date: 2010/02/25 00:30:00 $
-  $Revision: 1.11 $
+  $Date: 2011/08/17 21:33:39 $
+  $Revision: 1.12 $
   \author J. Mans - Minnesota
   */
   class HcalRecHitDump : public edm::EDAnalyzer {
   public:
     explicit HcalRecHitDump(edm::ParameterSet const& conf);
     virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+  private:
+    edm::GetterOfProducts<HcalSourcePositionData> getHcalSourcePositionData_;
   };
 
-  HcalRecHitDump::HcalRecHitDump(edm::ParameterSet const& conf) {
+  HcalRecHitDump::HcalRecHitDump(edm::ParameterSet const& conf) :
+    getHcalSourcePositionData_(edm::ProcessMatch("*"), this) {
+    callWhenNewProductsRegistered(getHcalSourcePositionData_);
   }
   
   template<typename COLL> void analyzeT(edm::Event const& e, const char * name=0) {
@@ -46,14 +52,11 @@ namespace cms {
     analyzeT<ZDCRecHitCollection>(e);
     analyzeT<CastorRecHitCollection>(e);
 
-    edm::Handle<HcalSourcePositionData> spd;
-    try {
-      e.getByType(spd);
+    std::vector<edm::Handle<HcalSourcePositionData> > handles;
+    getHcalSourcePositionData_.fillHandles(e, handles);
+    for (auto const& spd : handles){
       cout << *spd << std::endl;
-    } catch (...) {
-//      cout << "No Source Position Data" << endl;
     }
-
     cout << endl;    
   }
 }

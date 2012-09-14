@@ -97,8 +97,12 @@ uint16_t DCCDataUnpacker::getChannelValue(const int fed, const int ccu, const in
 uint16_t DCCDataUnpacker::getCCUValue(const int fed, const int ccu) const
 {
   // get list of crystals (DetId) which correspond to given CCU
+  // (return empty list for MEM channels [CCU > 68])
   const int dcc = electronicsMapper_->getSMId(fed);
-  const std::vector<DetId> xtals = electronicsMapper_->mapping()->dccTowerConstituents(dcc, ccu);
+  const std::vector<DetId> xtals =
+    (ccu <= 68) ?
+      electronicsMapper_->mapping()->dccTowerConstituents(dcc, ccu) :
+      std::vector<DetId>();
   
   // collect set of status codes of given CCU
   std::set<uint16_t> set;
@@ -111,6 +115,6 @@ uint16_t DCCDataUnpacker::getCCUValue(const int fed, const int ccu) const
   // then this status is treated as CCU status
   if (set.size() == 1) return *set.begin();
   
-  // if there are several statuses:
+  // if there are several or no statuses:
   return 0;
 }

@@ -34,18 +34,6 @@ namespace fwlite {
     //
 
     //
-    // DataGetterHelper takes ownership of the TTreeCache, so make use of it by
-    // the file exception safe
-    //
-    class withTCache {
-    public:
-        withTCache(TFile* file, TTreeCache* tc) : f_(file) { f_->SetCacheRead(tc); }
-        ~withTCache() { f_->SetCacheRead(0); }
-    private:
-        TFile* f_;
-    };
-
-    //
     // static data member definitions
     //
     typedef std::map<internal::DataKey, boost::shared_ptr<internal::Data> > DataMap;
@@ -63,7 +51,6 @@ namespace fwlite {
         branchMap_(branchMap),
         historyGetter_(historyGetter),
         getter_(getter),
-        tcache_(0),
         tcTrained_(false)
     {
         if(0==tree) {
@@ -71,12 +58,7 @@ namespace fwlite {
         }
         tree_ = tree;
         if (useCache) {
-            constexpr unsigned long long cacheSize = 20ULL*1024ULL*1024ULL;
-            tree_->SetCacheSize(cacheSize);
-            TFile* iFile(branchMap_->getFile());
-            tcache_.reset(dynamic_cast<TTreeCache*>(iFile->GetCacheRead()));
-            iFile->SetCacheRead(0);
-            //std::cout << "In const " << iFile << " " << tcache_ << " " << iFile->GetCacheRead() << std::endl;
+            tree_->SetCacheSize();
         }
     }
 
@@ -85,7 +67,7 @@ namespace fwlite {
     //    // do actual copying here;
     // }
 
-    DataGetterHelper::~DataGetterHelper() {    }
+    DataGetterHelper::~DataGetterHelper() {}
 
     //
     // assignment operators
@@ -130,6 +112,7 @@ namespace fwlite {
     {
         GetterOperate op(iGetter);
 
+#if 0
         //WORK AROUND FOR ROOT!!
         //Create a new instance so that we can clear any cache the object uses
         //this slows the code down
@@ -143,22 +126,23 @@ namespace fwlite {
         }
         obj.destruct();
         //END OF WORK AROUND
+#endif
 
-        if (0 == tcache_.get()) {
+        TTreeCache* tcache = dynamic_cast<TTreeCache*> (branchMap_->getFile()->GetCacheRead());
+
+        if (0 == tcache) {
             iData.branch_->GetEntry(index);
         } else {
             if (!tcTrained_) {
-                tcache_->SetLearnEntries(100);
-                tcache_->SetEntryRange(0, tree_->GetEntries());
+                tcache->SetLearnEntries(100);
+                tcache->SetEntryRange(0, tree_->GetEntries());
                 tcTrained_ = true;
             }
-            withTCache tcguard(branchMap_->getFile(), tcache_.get());
             tree_->LoadTree(index);
             iData.branch_->GetEntry(index);
        }
        iData.lastProduct_=index;
     }
-
 
     internal::Data&
     DataGetterHelper::getBranchDataFor(std::type_info const& iInfo,
@@ -350,9 +334,10 @@ namespace fwlite {
     edm::WrapperHolder
     DataGetterHelper::getByProductID(edm::ProductID const& iID, Long_t index) const
     {
-        typedef std::pair<edm::ProductID,edm::BranchListIndexes> IDPair;
-        IDPair theID = std::make_pair(iID, branchMap_->branchListIndexes());
+        typedef std::pair<edm::ProductID,edm::BranchListIndex> IDPair;
+        IDPair theID = std::make_pair(iID, branchMap_->branchListIndexes()[iID.processIndex()-1]);
         std::map<IDPair,boost::shared_ptr<internal::Data> >::const_iterator itFound = idToData_.find(theID);
+
         if(itFound == idToData_.end()) {
             edm::BranchDescription const& bDesc = branchMap_->productToBranch(iID);
 

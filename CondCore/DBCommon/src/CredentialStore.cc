@@ -119,30 +119,30 @@ const std::map< std::pair<std::string,std::string>, coral::AuthenticationCredent
   return m_data;
 }
 
-static const std::string SEQUENCE_TABLE_NAME("COND_CREDENTIAL_SEQUENCE");
+static std::string SEQUENCE_TABLE_NAME("COND_CREDENTIAL_SEQUENCE");
 
-static const std::string COND_AUTHENTICATION_TABLE("COND_AUTHENTICATION");
-static const std::string PRINCIPAL_ID_COL("P_ID");
-static const std::string PRINCIPAL_NAME_COL("P_NAME");
-static const std::string VERIFICATION_COL("CRED0");
-static const std::string PRINCIPAL_KEY_COL("CRED1");
-static const std::string ADMIN_KEY_COL("CRED2");
+static std::string COND_AUTHENTICATION_TABLE("COND_AUTHENTICATION");
+static std::string PRINCIPAL_ID_COL("P_ID");
+static std::string PRINCIPAL_NAME_COL("P_NAME");
+static std::string VERIFICATION_COL("CRED0");
+static std::string PRINCIPAL_KEY_COL("CRED1");
+static std::string ADMIN_KEY_COL("CRED2");
 
-static const std::string COND_AUTHORIZATION_TABLE("COND_AUTHORIZATION");
-static const std::string AUTH_ID_COL("AUTH_ID");
-static const std::string P_ID_COL("P_ID");
-static const std::string ROLE_COL("C_ROLE");
-static const std::string SCHEMA_COL("C_SCHEMA");
-static const std::string AUTH_KEY_COL("CRED3");
-static const std::string C_ID_COL("C_ID");
+static std::string COND_AUTHORIZATION_TABLE("COND_AUTHORIZATION");
+static std::string AUTH_ID_COL("AUTH_ID");
+static std::string P_ID_COL("P_ID");
+static std::string ROLE_COL("C_ROLE");
+static std::string SCHEMA_COL("C_SCHEMA");
+static std::string AUTH_KEY_COL("CRED3");
+static std::string C_ID_COL("C_ID");
 
-static const std::string COND_CREDENTIAL_TABLE("COND_CREDENTIAL");
-static const std::string CONNECTION_ID_COL("CONN_ID");
-static const std::string CONNECTION_LABEL_COL("CONN_LABEL");
-static const std::string USERNAME_COL("CRED4");
-static const std::string PASSWORD_COL("CRED5");
-static const std::string VERIFICATION_KEY_COL("CRED6");
-static const std::string CONNECTION_KEY_COL("CRED7");
+static std::string COND_CREDENTIAL_TABLE("COND_CREDENTIAL");
+static std::string CONNECTION_ID_COL("CONN_ID");
+static std::string CONNECTION_LABEL_COL("CONN_LABEL");
+static std::string USERNAME_COL("CRED4");
+static std::string PASSWORD_COL("CRED5");
+static std::string VERIFICATION_KEY_COL("CRED6");
+static std::string CONNECTION_KEY_COL("CRED7");
 
 const std::string DEFAULT_DATA_SOURCE("Cond_Default_Authentication");
 

@@ -56,6 +56,9 @@ muidTMOneStationAngLoose.selectionType = cms.string("TMOneStationAngLoose")
 muidTMOneStationAngTight = muonSelectionTypeValueMapProducer.clone()
 muidTMOneStationAngTight.selectionType = cms.string("TMOneStationAngTight")
 #
+muidRPCMuLoose = muonSelectionTypeValueMapProducer.clone()
+muidRPCMuLoose.selectionType = cms.string("RPCMuLoose")
+#
 muonSelectionTypeSequence = cms.Sequence(
     muidTrackerMuonArbitrated
     +muidAllArbitrated
@@ -74,4 +77,5 @@ muonSelectionTypeSequence = cms.Sequence(
     +muidTMLastStationAngLoose
     +muidTMLastStationAngTight
     +muidTMOneStationAngLoose
-    +muidTMOneStationAngTight)
+    +muidTMOneStationAngTight
+    +muidRPCMuLoose)

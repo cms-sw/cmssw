@@ -1,5 +1,5 @@
 /*
- * $Id: EcalDumpRaw.h,v 1.3 2010/10/15 15:29:40 pgras Exp $
+ * $Id: EcalDumpRaw.h,v 1.4 2012/01/11 20:52:35 davidlt Exp $
  *
  * Author: Ph Gras. CEA/IRFU - Saclay
  */
@@ -17,6 +17,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 /**
  * Utility to dump ECAL Raw data. Hexadecimal dump is accompagned with a side by
@@ -182,6 +183,8 @@ private:
   int tccId_;
   //tcc sequence number of currenlty parsed tower block of one DCC
   int iTcc_;
+  edm::InputTag fedRawDataCollectionTag_;
+  edm::InputTag l1AcceptBunchCrossingCollectionTag_;
 };
 
 #endif //ECALDUMPRAW_H not defined

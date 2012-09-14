@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
@@ -137,7 +138,7 @@ private:
     edm::ESWatcher<IdealGeometryRecord> idealGeomRcdWatcher_;
     edm::ESWatcher<IdealMagneticFieldRecord> idealMagRcdWatcher_;
 
-
+    edm::InputTag m_theLHCTlinkTag;
 };
 
 #endif

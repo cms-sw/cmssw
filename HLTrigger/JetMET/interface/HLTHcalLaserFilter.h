@@ -29,11 +29,12 @@ class HLTHcalLaserFilter : public edm::EDFilter {
  private:
   // parameters
   edm::InputTag hcalDigiCollection_;
+  std::vector<int> timeSlices_;
+  std::vector<double> thresholdsfC_;
+  std::vector<int> CalibCountFilterValues_;
+  std::vector<double> CalibChargeFilterValues_;
   double maxTotalCalibCharge_;
-  int maxCalibCountTS45_;
-  int maxCalibCountgt15TS45_;
-  double maxCalibChargeTS45_;
-  double maxCalibChargegt15TS45_;
+  int  maxAllowedHFcalib_;
 };
 
 #endif //HLTHcalLaserFilter_h

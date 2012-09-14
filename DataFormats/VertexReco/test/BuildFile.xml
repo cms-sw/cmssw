@@ -9,9 +9,6 @@
 <use   name="DataFormats/VertexReco"/>
 <use   name="rootcintex"/>
 <use   name="root"/>
-<library   file="VertexAnalyzer.cc" name="VertexAnalyzer">
-  <flags   EDM_PLUGIN="1"/>
-</library>
 <bin   name="testDataFormatsVertexReco" file="testVertex.cc,testRunner.cpp">
   <use   name="cppunit"/>
 </bin>

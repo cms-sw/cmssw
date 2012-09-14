@@ -117,7 +117,7 @@ from RecoEgamma.Examples.dataAnalyzerStdBiningParameters_cff import *
 from RecoEgamma.Examples.dataAnalyzerFineBiningParameters_cff import *
 
 process.DQMgsfElectronAnalysis = cms.EDAnalyzer("DQMAnalyzer",
-
+    beamSpot = cms.InputTag('offlineBeamSpot'),
     outputFile = cms.string('DQMtest.root'),
     electronCollection = cms.InputTag("gsfElectrons"),
     matchingObjectCollection = cms.InputTag("mergedSuperClusters"),

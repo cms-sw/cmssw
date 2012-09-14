@@ -1,11 +1,10 @@
 /*----------------------------------------------------------------------
 
 ----------------------------------------------------------------------*/
+#include <cassert>
 #include <ostream>
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeDemangler.h"
 #include "Reflex/Type.h"
@@ -28,22 +27,16 @@ namespace {
   std::string typeToClassName(std::type_info const& iType) {
     Reflex::Type t = Reflex::Type::ByTypeInfo(iType);
     if (!bool(t)) {
-#if GCC_PREREQUISITE(3,0,0)
-      // demangling supported for currently supported gcc compilers.
+      std::string result;
       try {
-        std::string result;
         typeDemangle(iType.name(), result);
-        return result;
       } catch (cms::Exception const& e) {
-        edm::Exception theError(errors::DictionaryNotFound,"NoMatch");
-        theError << "TypeID::typeToClassName: No dictionary for class " << iType.name() << '\n';
+        cms::Exception theError("Name Demangling Error");
+        theError << "TypeID::typeToClassName: can't demangle " << iType.name() << '\n';
         theError.append(e);
         throw theError;
       }
-#else
-      throw edm::Exception(errors::DictionaryNotFound,"NoMatch")
-       << "TypeID::className: No dictionary for class " << iType.name() << '\n';
-#endif
+      return result;
     }
     return t.Name(Reflex::SCOPED | Reflex::FINAL);
   }

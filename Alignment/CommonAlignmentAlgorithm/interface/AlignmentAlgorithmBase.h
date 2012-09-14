@@ -1,11 +1,11 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignmentAlgorithmBase_h
 #define Alignment_CommonAlignmentAlgorithm_AlignmentAlgorithmBase_h
 
-///
-/// Base class for the alignment algorithm
-///
-/// Any algorithm should derive from this class
-///
+//
+// Base class for the alignment algorithm
+//
+// Any algorithm should derive from this class
+//
 
 #include <vector>
 #include <utility>
@@ -14,7 +14,6 @@ class AlignableTracker;
 class AlignableMuon;
 class AlignableExtras;
 class AlignmentParameterStore;
-class IntegratedCalibrationBase;
 class Trajectory;
 // These data formats cannot be forward declared since they are typedef's,
 // so include the headers that define the typedef's
@@ -76,17 +75,11 @@ public:
                            AlignableMuon* muon,
                            AlignableExtras* extras,
                            AlignmentParameterStore* store ) = 0;
-  /// Pass integrated calibrations to algorithm, to be called after initialize(..).
-  /// (Calibrations' ownership is NOT passed to algorithm.)
-  /// Return whether feature is supported by algorithm, 
-  /// default implementation returns false.
-  virtual bool addCalibrations(const std::vector<IntegratedCalibrationBase*> &iCals){return false;}
-
    /// Call at start of loop
    /// Default implementation is dummy for non-iterative algorithms
   virtual void startNewLoop() {}
 
-  /// Call at end of each loop (must be implemented in derived class)
+  /// Call at end of job (must be implemented in derived class)
   virtual void terminate() = 0;
 
   /// Run the algorithm (must be implemented in derived class)

@@ -13,6 +13,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
 #include <algorithm>
@@ -296,10 +297,11 @@ namespace edm {
             // because there are known cases where the dictionary does
             // not exist and we do not need to support those cases.
             TypeID valueType;
-            if((is_RefVector(type, valueType) ||
-                is_PtrVector(type, valueType) ||
-                is_RefToBaseVector(type, valueType) ||
-                value_type_of(type, valueType))
+            TypeWithDict typeWithDict(type.typeInfo());
+            if((is_RefVector(typeWithDict, valueType) ||
+                is_PtrVector(typeWithDict, valueType) ||
+                is_RefToBaseVector(typeWithDict, valueType) ||
+                value_type_of(typeWithDict, valueType))
                 && bool(valueType)) {
   
               fillLookup(valueType, index, pBD, tempElementLookupMap);

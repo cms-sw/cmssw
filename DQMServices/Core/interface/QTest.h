@@ -27,8 +27,7 @@ class FlatOccupancy1d;			typedef FlatOccupancy1d RuleFlatOccupancy1d; typedef Fl
 class FixedFlatOccupancy1d;		typedef FixedFlatOccupancy1d RuleFixedFlatOccupancy1d; typedef FixedFlatOccupancy1d FixedFlatOccupancy1dROOT;
 class CSC01;				typedef CSC01 RuleCSC01; typedef CSC01 CSC01ROOT;
 class AllContentAlongDiagonal;		typedef AllContentAlongDiagonal RuleAllContentAlongDiagonal; typedef AllContentAlongDiagonal AllContentAlongDiagonalROOT;
-class CompareToMedian;                  typedef CompareToMedian CompareToMedianROOT;
-class CompareLastFilledBin;             typedef CompareLastFilledBin CompareLastFilledBinROOT;
+class CompareToMedian;                        typedef CompareToMedian CompareToMedianROOT;
 
 /** Base class for quality tests run on Monitoring Elements;
 
@@ -641,40 +640,6 @@ private :
 
   void reset(){binValues.clear();};
 
-};
-//======================== CompareLastFilledBin ====================//
-class CompareLastFilledBin : public SimpleTest
-{
-public:
-  //Initialize for TProfile, colRings
-  CompareLastFilledBin(const std::string &name) : SimpleTest(name,true){
-    this->_min = 0.0;
-    this->_max = 1.0;
-    this->_average = 0.0;
-    setAlgoName( getAlgoName() );
-  };
-
-  ~CompareLastFilledBin(){};
-
-  static std::string getAlgoName(void) { return "CompareLastFilledBin"; }
-
-  float runTest(const MonitorElement *me);
-  void setAverage(float average){_average = average;};
-  void setMin(float min){_min = min;};
-  void setMax(float max){_max = max;};
-
-
-protected :
-  void setMessage(void){
-    std::ostringstream message;
-    message << "Test " << qtname_ << " (" << algoName_
-            << "): Last Bin filled with desired value = " << prob_;
-    message_ = message.str();
-  }
-
-private :
-  float _min, _max;      //Test values
-  float _average;
 };
 
 //==================== AllContentAlongDiagonal   =========================//

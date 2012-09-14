@@ -31,6 +31,7 @@ public:
            const HBHEDigiCollection& hbheDigis,
            const HFDigiCollection& hfDigis,
            HcalTrigPrimDigiCollection& result,
+	   const HcalTrigTowerGeometry* trigTowerGeometry,
            float rctlsb);
 
   void runZS(HcalTrigPrimDigiCollection& tp);
@@ -74,7 +75,7 @@ public:
   // Member not initialzed
   //std::vector<HcalTrigTowerDetId> towerIds(const HcalDetId & id) const;
 
-  HcalTrigTowerGeometry theTrigTowerGeometry; // from event setup eventually?
+  const HcalTrigTowerGeometry * theTrigTowerGeometry;
 
   typedef std::map<HcalTrigTowerDetId, IntegerCaloSamples> SumMap;
   SumMap theSumMap;  

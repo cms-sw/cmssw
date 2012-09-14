@@ -34,6 +34,7 @@ TTbar_GenLepAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // Handle to the Leptons collections
   edm::Handle< edm::View<reco::Candidate> > leps;
   iEvent.getByLabel(leps_, leps);
+  if(!leps.isValid()) return;
 
   // loop Jet collection and fill histograms
   int nleps = 0;

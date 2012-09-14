@@ -9,7 +9,7 @@ MemberWithDict:  A holder for a class member
 
 #include <string>
 
-#include "Reflex//Member.h"
+#include "Reflex/Member.h"
 
 namespace edm {
 
@@ -22,9 +22,7 @@ namespace edm {
 
     explicit MemberWithDict(Reflex::Member const& member) : member_(member) {}
 
-    std::string name() const {return member_.Name();}
-
-    std::string typeName() const;
+    std::string name() const;
 
     ObjectWithDict get() const;
 
@@ -34,56 +32,18 @@ namespace edm {
 
     TypeWithDict typeOf() const;
 
-    bool isConst() const {
-      return member_.IsConst();
-    }
+    bool isConst() const;
 
-    bool isConstructor() const {
-      return member_.IsConstructor();
-    }
+    bool isPublic() const;
 
-    bool isDestructor() const {
-      return member_.IsDestructor();
-    }
+    bool isStatic() const;
 
-    bool isFunctionMember() const {
-      return member_.IsFunctionMember();
-    }
+    bool isTransient() const;
 
-    bool isOperator() const {
-      return member_.IsOperator();
-    }
-
-    bool isPublic() const {
-      return member_.IsPublic();
-    }
-
-    bool isStatic() const {
-      return member_.IsStatic();
-    }
-
-    bool isTransient() const {
-      return member_.IsTransient();
-    }
-
-    size_t functionParameterSize(bool required = false) const {
-      return member_.FunctionParameterSize(required);
-    }
-
-    size_t offset() const {
-      return member_.Offset();
-    }
-
-    void invoke(ObjectWithDict const& obj, ObjectWithDict* ret, std::vector<void*> const& values = std::vector<void*>()) const;
-
-    bool operator<(MemberWithDict const& other) const {
-      return member_ < other.member_;
-    }
+    size_t offset() const;
 
 #ifndef __GCCXML__
-    explicit operator bool() const {
-      return bool(member_);
-    }
+    explicit operator bool() const;
 #endif
 
   private:

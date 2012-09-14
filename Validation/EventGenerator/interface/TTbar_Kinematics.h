@@ -13,7 +13,7 @@
 //
 // Original Author:  Martijn Gosselink,,,
 //         Created:  Thu Jan 19 18:40:35 CET 2012
-// $Id: TTbar_Kinematics.h,v 1.1 2012/07/04 18:24:21 inugent Exp $
+// $Id: TTbar_Kinematics.h,v 1.2 2012/07/30 19:34:44 inugent Exp $
 //
 //
 // Added to: Validation/EventGenerator by Ian M. Nugent June 28, 2012
@@ -37,6 +37,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
@@ -77,6 +79,7 @@ class TTbar_Kinematics : public edm::EDAnalyzer {
       DQMStore *dbe;
 
       edm::InputTag hepmcCollection_;
+      edm::InputTag genEventInfoProductTag_;
 
 
       double weight ;

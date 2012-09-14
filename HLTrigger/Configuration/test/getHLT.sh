@@ -1,9 +1,9 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-MASTER="/dev/CMSSW_5_2_1/HLT"        # no explicit version, take te most recent
-TARGET="/dev/CMSSW_5_2_1/\$TABLE"    # no explicit version, take te most recent
-TABLES="GRun HIon"                   # $TABLE in the above variable will be expanded to these TABLES
+MASTER="/dev/CMSSW_5_2_6/HLT"        # no explicit version, take te most recent
+TARGET="/dev/CMSSW_5_2_6/\$TABLE"    # no explicit version, take te most recent
+TABLES="GRun HIon PIon"              # $TABLE in the above variable will be expanded to these TABLES
 
 # print extra messages ?
 VERBOSE=false
@@ -79,6 +79,9 @@ function getConfigForOnline() {
   elif [ "$NAME" == "HIon" ]; then
     hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:hltonline_HIon     > OnData_HLT_$NAME.py
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:starthi_HIon       > OnLine_HLT_$NAME.py
+  elif [ "$NAME" == "PIon" ]; then
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPP --globaltag auto:hltonline_GRun     > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPP --globaltag auto:startup_GRun       > OnLine_HLT_$NAME.py
   else
     hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME             --globaltag auto:hltonline     > OnData_HLT_$NAME.py
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME                                            > OnLine_HLT_$NAME.py
@@ -111,8 +114,10 @@ echo
 echo "Extracting full configurations"
 rm -f OnData_HLT_GRun_*.py
 rm -f OnData_HLT_HIon_*.py
+rm -f OnData_HLT_PIon_*.py
 rm -f OnLine_HLT_GRun_*.py
 rm -f OnLine_HLT_HIon_*.py
+rm -f OnLine_HLT_PIon_*.py
 for TABLE in $TABLES; do
   getConfigForOnline $(eval echo $TARGET) $TABLE
 done

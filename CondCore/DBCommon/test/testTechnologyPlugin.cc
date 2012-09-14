@@ -15,40 +15,39 @@ struct Connections {
 };
 
 int main(){
-  edmplugin::PluginManager::Config config;
-  edmplugin::PluginManager::configure(edmplugin::standard::config());
-  std::vector<edm::ParameterSet> psets;
-  edm::ParameterSet pSet;
-  pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
-  psets.push_back(pSet);
-  edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
-  edm::ServiceRegistry::Operate operate(services);
+  try {
+    edmplugin::PluginManager::Config config;
+    edmplugin::PluginManager::configure(edmplugin::standard::config());
+    std::vector<edm::ParameterSet> psets;
+    edm::ParameterSet pSet;
+    pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
+    psets.push_back(pSet);
+    edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
+    edm::ServiceRegistry::Operate operate(services);
   
-  std::cout<<"testing Connection Handler "<<std::endl;
+    std::cout<<"testing Connection Handler "<<std::endl;
   
-  cond::DbConnection conn;
-  conn.configure( cond::CmsDefaults );
-  conn.configuration().setAuthenticationPath("/afs/cern.ch/cms/DB/conddb");
-  conn.configure();
-  cond::DbSession session = conn.createSession();
+    cond::DbConnection conn;
+    conn.configure( cond::CmsDefaults );
+    conn.configuration().setAuthenticationPath("/afs/cern.ch/cms/DB/conddb");
+    conn.configuration().setMessageLevel( coral::Debug );
+    conn.configure();
+    cond::DbSession session = conn.createSession();
   
-  const Connections connects[] = {
-    {"sqlite_file:technologyPlugin.db", false},
-    {"oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS", true},
-    //{"sqlite_fip:CondCore/SQLiteData/data/technologyPlugin.db", true},
-    {"frontier://FrontierDev/CMS_COND_UNIT_TESTS", true}, 
-    {"frontier://cmsfrontier.cern.ch:8000/FrontierDev/CMS_COND_UNIT_TESTS", true}
-  };
-  for (int i=0; i<4; ++i) {
-    try {
+    const Connections connects[] = {
+      {"sqlite_file:technologyPlugin.db", false},
+      {"oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS", true},
+      //{"sqlite_fip:CondCore/SQLiteData/data/technologyPlugin.db", true},
+      {"frontier://FrontierDev/CMS_COND_UNIT_TESTS", true}, 
+      {"frontier://cmsfrontier.cern.ch:8000/FrontierDev/CMS_COND_UNIT_TESTS", true}
+    };
+    for (int i=0; i<4; ++i) {
       session.open(connects[i].conStr,connects[i].readOnly);
       std::cout << connects[i].conStr << " " <<  session.connectionString() << (connects[i].readOnly ? " in read mode": " in read-write mode") << std::endl;
-    } catch ( const cond::Exception & er) {
-      std::cout << "error " << er.what();
-    } catch ( const edm::Exception & er) {
-      std::cout << "error " << er.what();
-    } 
-  }
+    }
+  } catch ( const std::exception & er) {
+    std::cout << "Error: " << er.what()<<std::endl;
+  } 
   return 0;
 }
 

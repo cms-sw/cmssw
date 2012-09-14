@@ -15,23 +15,28 @@ the CMS event model.
 namespace edm {
 
   class TypeID;
+  class TypeWithDict;
   typedef std::set<std::string> StringSet;
 
   bool
   find_nested_type_named(std::string const& nested_type,
-			 TypeID const& type_to_search,
+			 TypeWithDict const& type_to_search,
 			 TypeID& found_type);
+  bool
+  find_nested_type_named(std::string const& nested_type,
+			 TypeWithDict const& type_to_search,
+			 TypeWithDict& found_type);
 
   inline
   bool
-  value_type_of(TypeID const& t, TypeID& found_type) {
+  value_type_of(TypeWithDict const& t, TypeID& found_type) {
     return find_nested_type_named("value_type", t, found_type);
   }
 
 
   inline
   bool
-  wrapper_type_of(TypeID const& possible_wrapper,
+  wrapper_type_of(TypeWithDict const& possible_wrapper,
 		  TypeID& found_wrapped_type) {
     return find_nested_type_named("wrapped_type",
 				  possible_wrapper,
@@ -39,14 +44,14 @@ namespace edm {
   }
 
   bool
-  is_RefVector(TypeID const& possible_ref_vector,
+  is_RefVector(TypeWithDict const& possible_ref_vector,
 	       TypeID& value_type);
 
   bool
-  is_PtrVector(TypeID const& possible_ref_vector,
+  is_PtrVector(TypeWithDict const& possible_ref_vector,
 	       TypeID& value_type);
   bool
-  is_RefToBaseVector(TypeID const& possible_ref_vector,
+  is_RefToBaseVector(TypeWithDict const& possible_ref_vector,
 		     TypeID& value_type);
 
   void checkDictionaries(std::string const& name, bool noComponents = false);

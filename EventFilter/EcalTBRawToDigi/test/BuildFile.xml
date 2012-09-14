@@ -13,6 +13,7 @@
   <flags   EDM_PLUGIN="1"/>
   <use   name="cppunit"/>
   <use   name="DataFormats/FEDRawData"/>
+  <use   name="FWCore/Utilities"/>
 </library>
 <library   file="stubs/EcalMatacqHist.cc" name="EcalMatacqHist">
   <flags   EDM_PLUGIN="1"/>

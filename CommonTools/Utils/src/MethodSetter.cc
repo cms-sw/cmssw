@@ -44,14 +44,14 @@ bool MethodSetter::push(const string & name, const vector<AnyMethodArgument> & a
   edm::TypeWithDict type = typeStack_.back();
   vector<AnyMethodArgument> fixups;
   int error;
-  pair<edm::MemberWithDict, bool> mem = reco::findMethod(type, name, args, fixups,begin,error);
+  pair<edm::FunctionWithDict, bool> mem = reco::findMethod(type, name, args, fixups,begin,error);
   if(mem.first) {
      edm::TypeWithDict retType = reco::returnType(mem.first);
      if(!retType) {
         throw Exception(begin)
      	<< "member \"" << mem.first.name() << "\" return type is invalid:\n" 
         << "  member type: \"" <<  mem.first.typeOf().name() << "\"\n"
-     	<< "  return type: \"" << mem.first.typeOf().returnType().name() << "\"\n";
+     	<< "  return type: \"" << mem.first.returnType().name() << "\"\n";
         
      }
      typeStack_.push_back(retType);

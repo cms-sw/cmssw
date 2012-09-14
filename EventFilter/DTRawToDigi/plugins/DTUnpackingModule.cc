@@ -1,11 +1,12 @@
 /** \file
  *
- *  $Date: 2010/02/12 15:51:33 $
- *  $Revision: 1.10 $
+ *  $Date: 2012/09/03 16:16:48 $
+ *  $Revision: 1.12 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  * FRC 060906
  */
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <FWCore/Framework/interface/Event.h>
 #include <DataFormats/Common/interface/Handle.h>
@@ -55,8 +56,7 @@ DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) : unpacker(0) 
     throw cms::Exception("InvalidParameter") << "DTUnpackingModule: dataType "
 					     << dataType << " is unknown";
   }
-  
-  fedbyType_ = ps.getParameter<bool>("fedbyType"); // default was: true
+
   inputLabel = ps.getParameter<InputTag>("inputLabel"); // default was: source
   useStandardFEDid_ = ps.getParameter<bool>("useStandardFEDid"); // default was: true
   minFEDid_ = ps.getUntrackedParameter<int>("minFEDid",770); // default: 770
@@ -77,11 +77,11 @@ DTUnpackingModule::~DTUnpackingModule(){
 void DTUnpackingModule::produce(Event & e, const EventSetup& context){
 
   Handle<FEDRawDataCollection> rawdata;
-  if (fedbyType_) {
-    e.getByType(rawdata);
-  }
-  else {
-    e.getByLabel(inputLabel, rawdata);
+  e.getByLabel(inputLabel, rawdata);
+
+  if(!rawdata.isValid()){
+    LogError("DTUnpackingModule::produce") << " unable to get raw data from the event" << endl;
+    return;
   }
 
   // Get the mapping from the setup

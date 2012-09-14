@@ -12,7 +12,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelTrackResidualSource.h,v 1.7 2010/06/09 01:16:03 merkelp Exp $
+// $Id: SiPixelTrackResidualSource.h,v 1.8 2010/12/13 14:17:40 merkelp Exp $
 //
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 
@@ -47,12 +47,14 @@ class SiPixelTrackResidualSource : public edm::EDAnalyzer {
     virtual void endJob(void);
     virtual void beginRun(const edm::Run& r, edm::EventSetup const& iSetup);
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
-
+    void triplets(double x1,double y1,double z1,double x2,double y2,double z2,double x3,double y3,double z3,
+                  double ptsig, double & dc,double & dz, double kap); 
   private: 
     edm::ParameterSet pSet_; 
     edm::InputTag src_; 
     edm::InputTag clustersrc_; 
     edm::InputTag tracksrc_; 
+    std::string ttrhbuilder_; 
     DQMStore* dbe_; 
 
     bool debug_; 
@@ -62,7 +64,7 @@ class SiPixelTrackResidualSource : public edm::EDAnalyzer {
     bool ladOn, layOn, phiOn;
     //forward:
     bool ringOn, bladeOn, diskOn; 
-
+    double ptminres_;
     bool firstRun;
     int NTotal;
     int NLowProb;

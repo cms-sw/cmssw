@@ -4,7 +4,7 @@ process = cms.Process("HLT")
 
 # Number of events to be generated
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(10)
 )
 
 # Include DQMStore, needed by the famosSimHits
@@ -55,7 +55,7 @@ from HLTrigger.Configuration.AutoCondGlobalTag import AutoCondGlobalTag
 process.GlobalTag = AutoCondGlobalTag(process.GlobalTag,'auto:startup_GRun')
 
 # L1 Emulator and HLT Setup
-process.load("FastSimulation.HighLevelTrigger.HLTSetup_cff")
+#process.load("FastSimulation.HighLevelTrigger.HLTSetup_cff")
 
 # Famos sequences
 process.load("FastSimulation.Configuration.FamosSequences_cff")

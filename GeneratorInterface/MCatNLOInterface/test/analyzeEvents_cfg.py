@@ -10,7 +10,9 @@ process.source = cms.Source("PoolSource",
 )
 
 process.myanalysis = cms.EDAnalyzer("ZeeAnalyzer",
-                                    OutputFilename = cms.untracked.string('Zee_histos.root')
+                                    OutputFilename = cms.untracked.string('Zee_histos.root'),
+                                    hepMCProductTag = cms.InputTag("generator"),
+                                    genEventInfoProductTag = cms.InputTag("generator")
 )
 
 process.p = cms.Path(process.myanalysis)

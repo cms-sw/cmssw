@@ -190,6 +190,10 @@ if __name__=='__main__':
                         dest='withoutTextoutput',
                         action='store_true',
                         help='not to write out text output file')
+    parser.add_argument('--without-png',
+                        dest='withoutpng',
+                        action='store_true',
+                        help='do not produce')
     parser.add_argument('--yscale',
                         dest='yscale',
                         action='store',
@@ -215,10 +219,6 @@ if __name__=='__main__':
                         dest='debug',
                         action='store_true',
                         help='debug')
-    parser.add_argument('--without-png',
-                        dest='withoutpng',
-                        action='store_true',
-                        help='do not produce')
     parser.add_argument('action',
                         choices=allowedActions,
                         help='type of plots')
@@ -266,7 +266,7 @@ if __name__=='__main__':
     #####################################
     irunlsdict={}#either from -i or from other selection options
     rruns=[]
-    reqTrg=True
+    reqTrg=False
     reqHlt=False
     if options.hltpath:
         reqHlt=True

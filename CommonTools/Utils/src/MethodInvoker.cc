@@ -9,24 +9,36 @@
 using namespace reco::parser;
 using namespace std;
 
-MethodInvoker::MethodInvoker(const edm::MemberWithDict & method, const vector<AnyMethodArgument> & ints) :
-  method_(method), ints_(ints), isFunction_(method.isFunctionMember())
+MethodInvoker::MethodInvoker(const edm::FunctionWithDict & method, const vector<AnyMethodArgument> & ints) :
+  method_(method), member_(), ints_(ints), isFunction_(true)
 { 
   setArgs();
-  /*std::cout << "Booking " << method_.name() 
-            << " from " << method_.declaringTy[e().name() 
+  /*std::cout << "Booking " << methodName() 
+            << " from " << method_.declaringType().name() 
+            << " with " << args_.size() << " arguments"
+            << " (were " << ints.size() << ")"
+            << std::endl;*/
+}
+
+MethodInvoker::MethodInvoker(const edm::MemberWithDict & member) :
+  method_(), member_(member), ints_(), isFunction_(false)
+{ 
+  setArgs();
+  /*std::cout << "Booking " << methodName() 
+            << " from " << member_.declaringType().name() 
             << " with " << args_.size() << " arguments"
             << " (were " << ints.size() << ")"
             << std::endl;*/
 }
 
 MethodInvoker::MethodInvoker(const MethodInvoker & other) :
-  method_(other.method_), ints_(other.ints_), isFunction_(other.isFunction_) {
+  method_(other.method_), member_(other.member_), ints_(other.ints_), isFunction_(other.isFunction_) {
   setArgs();
 }
 
 MethodInvoker & MethodInvoker::operator=(const MethodInvoker & other) {
   method_ = other.method_;
+  member_ = other.member_;
   ints_ = other.ints_;
   isFunction_ = other.isFunction_;
   setArgs();
@@ -39,29 +51,52 @@ void MethodInvoker::setArgs() {
   }
 }
 
+std::string
+MethodInvoker::methodName() const {
+  if(isFunction_) {
+     return method_.name();
+  }
+  return member_.name();
+}
+
+std::string
+MethodInvoker::returnTypeName() const {
+  if(isFunction_) {
+     return method_.typeOf().name(edm::TypeNameHandling::Qualified);
+  }
+  return member_.typeOf().name(edm::TypeNameHandling::Qualified);
+}
+
 edm::ObjectWithDict
 MethodInvoker::invoke(const edm::ObjectWithDict & o, edm::ObjectWithDict &retstore) const {
   edm::ObjectWithDict ret = retstore;
-  /*std::cout << "Invoking " << method_.name() 
-            << " from " << method_.declaringTy[e().name(edm::TypeNameHandling::Qualified) 
+  edm::TypeWithDict retType;
+  if(isFunction_) {
+     /*std::cout << "Invoking " << methodName() 
+            << " from " << method_.declaringType().name(edm::TypeNameHandling::Qualified) 
             << " on an instance of " << o.dynamicType().name(edm::TypeNameHandling::Qualified) 
             << " at " << o.address()
             << " with " << args_.size() << " arguments"
             << std::endl; */
-  edm::TypeWithDict retType;
-  if(isFunction_) {
      method_.invoke(o, &ret, args_);
-     retType = method_.typeOf().returnType(); // this is correct, it takes pointers and refs into account
+     retType = method_.returnType(); // this is correct, it takes pointers and refs into account
   } else {
-     ret = method_.get(o);
-     retType = method_.typeOf();
+     /*std::cout << "Invoking " << methodName() 
+            << " from " << member_.declaringType().name(edm::TypeNameHandling::Qualified) 
+            << " on an instance of " << o.dynamicType().name(edm::TypeNameHandling::Qualified) 
+            << " at " << o.address()
+            << " with " << args_.size() << " arguments"
+            << std::endl; */
+     ret = member_.get(o);
+     retType = member_.typeOf();
   }
   void * addr = ret.address(); 
-  //std::cout << "Stored result of " <<  method_.name() << " (type " << method_.typeOf().returnType().name(edm::TypeNameHandling::Qualified) << ") at " << addr << std::endl;
-  if(addr==0)
+  //std::cout << "Stored result of " <<  methodName() << " (type " << returnTypeName() << ") at " << addr << std::endl;
+  if(addr==0) {
     throw edm::Exception(edm::errors::InvalidReference)
-      << "method \"" << method_.name() << "\" called with " << args_.size() 
+      << "method \"" << methodName() << "\" called with " << args_.size() 
       << " arguments returned a null pointer ";   
+  }
   //std::cout << "Return type is " << retType.name(edm::TypeNameHandling::Qualified) << std::endl;
    
   if(retType.isPointer() || retType.isReference()) { // both need (void **)->(void *) conversion
@@ -74,11 +109,12 @@ MethodInvoker::invoke(const edm::ObjectWithDict & o, edm::ObjectWithDict &retsto
       ret = edm::ObjectWithDict(retType, *static_cast<void **>(addr));
       //std::cout << "Now type is " << retType.name(edm::TypeNameHandling::Qualified) << std::endl;
   }
-  if(!ret) 
+  if(!ret) {
      throw edm::Exception(edm::errors::Configuration)
-      << "method \"" << method_.name() 
+      << "method \"" << methodName()
       << "\" returned void invoked on object of type \"" 
       << o.typeOf().name(edm::TypeNameHandling::Qualified) << "\"\n";
+  }
   return ret;
 }
 
@@ -140,7 +176,15 @@ SingleInvoker::SingleInvoker(const edm::TypeWithDict &type,
     MethodSetter setter(invokers_, dummy, typeStack, dummy2, false);
     isRefGet_ = !setter.push(name, args, "LazyInvoker dynamic resolution", false);
     //std::cerr  << "SingleInvoker on type " <<  type.qualifiedName() << ", name " << name << (isRefGet_ ? " is just a ref.get " : " is real") << std::endl;
-    storageNeedsDestructor_ = ExpressionVar::makeStorage(storage_, invokers_.front().method());
+    //remove any typedefs if any. If we do not do this it appears that we get a memory leak
+    // because typedefs do not have 'destructors'
+    if(invokers_.front().isFunction()) {
+       edm::TypeWithDict retType = invokers_.front().method().returnType().finalType();
+       storageNeedsDestructor_ = ExpressionVar::makeStorage(storage_, retType);
+    } else {
+       storage_ = edm::ObjectWithDict();
+       storageNeedsDestructor_ = false;
+    }
     retType_ = reco::typeCode(typeStack[1]); // typeStack[0] = type of self, typeStack[1] = type of ret
 }
 
@@ -174,8 +218,8 @@ SingleInvoker::retToDouble(const edm::ObjectWithDict & o) const {
 void
 SingleInvoker::throwFailedConversion(const edm::ObjectWithDict & o) const {
     throw edm::Exception(edm::errors::Configuration)
-        << "member \"" << invokers_.back().method().name()
-        << "\" return type is \"" << invokers_.back().method().typeOf().name(edm::TypeNameHandling::Qualified)
+        << "member \"" << invokers_.back().methodName()
+        << "\" return type is \"" << invokers_.back().returnTypeName()
         << "\" retured a \"" << o.typeOf().name(edm::TypeNameHandling::Qualified)
         << "\" which is not convertible to double.";
 }

@@ -1,6 +1,7 @@
 #ifndef CommonTools_Utils_MethodInvoker_h
 #define CommonTools_Utils_MethodInvoker_h
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Utilities/interface/FunctionWithDict.h"
 #include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "CommonTools/Utils/src/AnyMethodArgument.h"
 #include "CommonTools/Utils/src/TypeCode.h"
@@ -13,8 +14,9 @@ namespace reco {
   namespace parser {
 
     struct MethodInvoker {
-      explicit MethodInvoker(const edm::MemberWithDict & method,
+      explicit MethodInvoker(const edm::FunctionWithDict & method,
 			     const std::vector<AnyMethodArgument>    & ints   = std::vector<AnyMethodArgument>() );
+      explicit MethodInvoker(const edm::MemberWithDict & member);
       MethodInvoker(const MethodInvoker &); 
 
       /// Invokes the method, putting the result in retval.
@@ -22,10 +24,15 @@ namespace reco {
       /// Caller code is responsible for allocating retstore before calling 'invoke', and of deallocating it afterwards
       edm::ObjectWithDict
       invoke(const edm::ObjectWithDict & o, edm::ObjectWithDict &retstore) const;
-      const edm::MemberWithDict & method() const { return method_; }
+      edm::FunctionWithDict const method() const {return method_;}
+      edm::MemberWithDict const member() const {return member_;}
       MethodInvoker & operator=(const MethodInvoker &);
+      bool isFunction() const {return isFunction_;}
+      std::string methodName() const;
+      std::string returnTypeName() const;
     private:
-      edm::MemberWithDict method_;
+      edm::FunctionWithDict method_;
+      edm::MemberWithDict member_;
       std::vector<AnyMethodArgument> ints_; // already fixed to the correct type
       std::vector<void*> args_;
       bool isFunction_;

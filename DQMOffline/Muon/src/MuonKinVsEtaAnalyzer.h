@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for muon reco track
  *
- *  $Date: 2011/07/14 13:27:43 $
- *  $Revision: 1.3 $
+ *  $Date: 2012/08/27 10:03:27 $
+ *  $Revision: 1.5 $
  *  \author S. Goy Lopez, CIEMAT
  */
 
@@ -34,7 +34,7 @@ class MuonKinVsEtaAnalyzer : public MuonAnalyzerBase {
   /// Destructor
   virtual ~MuonKinVsEtaAnalyzer();
 
-  /// Inizialize parameters for histo binning
+  /// Iniyeszialize parameters for histo binning
   void beginJob(DQMStore *dbe);
 
   /// Get the analysis
@@ -49,6 +49,11 @@ class MuonKinVsEtaAnalyzer : public MuonAnalyzerBase {
   std::string metname;
   // STA Label
   edm::InputTag theSTACollectionLabel;
+
+  //Vertex requirements
+  edm::InputTag  vertexTag;
+  edm::InputTag  bsTag;
+
 
   //histo binning parameters
   int pBin;
@@ -90,18 +95,24 @@ class MuonKinVsEtaAnalyzer : public MuonAnalyzerBase {
   std::vector<MonitorElement*> phiGlbTrack;
   std::vector<MonitorElement*> pGlbTrack;
   std::vector<MonitorElement*> ptGlbTrack;
+  std::vector<MonitorElement*> chi2GlbTrack;
+  std::vector<MonitorElement*> chi2probGlbTrack;
 
   // tracker muon
   std::vector<MonitorElement*> etaTrack;
   std::vector<MonitorElement*> phiTrack;
   std::vector<MonitorElement*> pTrack;
   std::vector<MonitorElement*> ptTrack;
+  std::vector<MonitorElement*> chi2Track;
+  std::vector<MonitorElement*> chi2probTrack;
 
   // sta muon
   std::vector<MonitorElement*> etaStaTrack;
   std::vector<MonitorElement*> phiStaTrack;
   std::vector<MonitorElement*> pStaTrack;
   std::vector<MonitorElement*> ptStaTrack;
+  std::vector<MonitorElement*> chi2StaTrack;
+  std::vector<MonitorElement*> chi2probStaTrack;
 
   // GMPT muon
   std::vector<MonitorElement*> etaTightTrack;
@@ -110,6 +121,30 @@ class MuonKinVsEtaAnalyzer : public MuonAnalyzerBase {
   std::vector<MonitorElement*> ptTightTrack;
   std::vector<MonitorElement*> chi2TightTrack;
   std::vector<MonitorElement*> chi2probTightTrack;
+
+  // Loose muon;
+  std::vector<MonitorElement*> etaLooseTrack;
+  std::vector<MonitorElement*> phiLooseTrack;
+  std::vector<MonitorElement*> pLooseTrack;
+  std::vector<MonitorElement*> ptLooseTrack;
+  std::vector<MonitorElement*> chi2LooseTrack;
+  std::vector<MonitorElement*> chi2probLooseTrack;
+
+  // Soft muon;
+  std::vector<MonitorElement*> etaSoftTrack;
+  std::vector<MonitorElement*> phiSoftTrack;
+  std::vector<MonitorElement*> pSoftTrack;
+  std::vector<MonitorElement*> ptSoftTrack;
+  std::vector<MonitorElement*> chi2SoftTrack;
+  std::vector<MonitorElement*> chi2probSoftTrack;
+
+ // HighPt muon;
+  std::vector<MonitorElement*> etaHighPtTrack;
+  std::vector<MonitorElement*> phiHighPtTrack;
+  std::vector<MonitorElement*> pHighPtTrack;
+  std::vector<MonitorElement*> ptHighPtTrack;
+  std::vector<MonitorElement*> chi2HighPtTrack;
+  std::vector<MonitorElement*> chi2probHighPtTrack;
 
 };
 #endif

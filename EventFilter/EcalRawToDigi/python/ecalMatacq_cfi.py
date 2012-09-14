@@ -32,7 +32,7 @@ ecalMatacq = cms.EDProducer("MatacqProducer",
   disabled = cms.bool(False),
 
   #Name of raw data collection the Matacq data must be merge to
-  inputRawCollection = cms.InputTag(''),
+  inputRawCollection = cms.InputTag('rawDataCollector'),
 
   # Switch for merging Matacq raw data with existing raw data
   # within the same collection. If disabled the new collection will 

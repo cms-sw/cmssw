@@ -19,7 +19,7 @@
    </code>
 
    \author Stefano Argiro
-   \version $Id: StringToEnumValue.h,v 1.3 2012/08/03 18:08:09 wmtan Exp $
+   \version $Id: StringToEnumValue.h,v 1.4 2012/08/03 21:01:53 wmtan Exp $
    \date 04 Mar 2011
 */
 
@@ -27,7 +27,7 @@ template <class MyType>
 int StringToEnumValue(const std::string & enumName){
   
   edm::TypeWithDict dataType(typeid(MyType));
-  edm::MemberWithDict member = dataType.memberByName(enumName);
+  edm::MemberWithDict member = dataType.dataMemberByName(enumName);
 
   if (!member) {
     std::ostringstream err;

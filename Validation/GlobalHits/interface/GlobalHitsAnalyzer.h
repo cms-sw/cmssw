@@ -5,8 +5,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2009/07/24 14:51:29 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/01/06 14:24:50 $
+ *  $Revision: 1.13 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -144,6 +145,9 @@ class GlobalHitsAnalyzer : public edm::EDAnalyzer
   MonitorElement *meGeantVtxRad[2];
   MonitorElement *meGeantVtxMulti;
   int nRawGenPart;  
+
+  edm::InputTag G4VtxSrc_;
+  edm::InputTag G4TrkSrc_;
 
   // Electromagnetic info
   // ECal info

@@ -5,8 +5,8 @@ import FWCore.ParameterSet.Config as cms
 # Configuration for Comissioning data
 dtunpacker = cms.EDProducer("DTUnpackingModule",
     dataType = cms.string('DDU'),
-    inputLabel = cms.InputTag('source'),
-    fedbyType = cms.bool(True),
+    inputLabel = cms.InputTag('rawDataCollector'),
+    fedbyType = cms.bool(False),
     useStandardFEDid = cms.untracked.bool(True),
     dqmOnly = cms.bool(False),                       
     readOutParameters = cms.PSet(

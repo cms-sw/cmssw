@@ -1,10 +1,10 @@
 #include "DataFormats/PatCandidates/interface/UserData.h"
 // Note: these two below are allowed in FWLite even if they come from FWCore
-#include <FWCore/Utilities/interface/TypeID.h>
-#include <FWCore/Utilities/interface/EDMException.h>
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 void pat::UserData::checkDictionaries(const std::type_info &type) {
-    edm::TypeID edmType(type);
+    edm::TypeWithDict edmType(type);
     if (!edmType.hasDictionary()) {
         int status = 0;
         char * demangled = abi::__cxa_demangle(type.name(),  0, 0, &status);

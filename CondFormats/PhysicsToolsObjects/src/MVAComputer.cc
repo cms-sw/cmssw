@@ -11,14 +11,14 @@
 //     for each possible sub-class and an index array from which the
 //     array of pointers can be reconstructed. In order to avoid having
 //     to handle each sub-class container by hand here, the generated
-//     reflex dictionary is used to find and read/write the std::vector<...>
+//     dictionary is used to find and read/write the std::vector<...>
 //     containers for the individual classes in the private data members.
 //     So changes can be solely done in the header files and does not leave
 //     a trail elsewhere.
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.cc,v 1.9 2009/01/15 20:42:28 saout Exp $
+// $Id: MVAComputer.cc,v 1.12 2012/08/28 22:29:49 wmtan Exp $
 //
 #include <functional>
 #include <algorithm>
@@ -29,9 +29,11 @@
 
 #include <boost/thread.hpp>
 
-#include <Reflex/Reflex.h>
-
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/FunctionWithDict.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
 
@@ -41,7 +43,8 @@ namespace Calibration {
 std::string VarProcessor::getInstanceName() const
 {
 	static const char prefix[] = "PhysicsTools::Calibration::";
-	std::string type = ROOT::Reflex::Tools::Demangle(typeid(*this));
+        edm::TypeID typeID(typeid(*this));
+	std::string type(typeID.className());
 	if (type.size() <= sizeof prefix - 1 ||
 	    type.substr(0, sizeof prefix - 1) != prefix)
 		throw cms::Exception("MVAComputerCalibration")
@@ -117,40 +120,39 @@ void MVAComputer::addProcessor(const VarProcessor *proc)
 {
 	cacheId = getNextMVAComputerCacheId();
 
-	ROOT::Reflex::Type baseType = ROOT::Reflex::GetType<VarProcessor>();
-	ROOT::Reflex::Type type =
-				ROOT::Reflex::Type::ByTypeInfo(typeid(*proc));
-	ROOT::Reflex::Type refType(type,
-				ROOT::Reflex::CONST & ROOT::Reflex::REFERENCE);
-	if (!type.Name().size())
+	edm::TypeWithDict baseType(typeid(VarProcessor));
+	edm::TypeWithDict type(typeid(*proc));
+	if (!bool(type))
 		throw cms::Exception("MVAComputerCalibration")
 			<< "Calibration class " << typeid(*proc).name()
-			<< " not registered with ROOT::Reflex."
+			<< " not registered with ROOT."
 			<< std::endl;
 
-	ROOT::Reflex::Object obj =
-		ROOT::Reflex::Object(baseType, const_cast<void*>(
-			static_cast<const void*>(proc))).CastObject(type);
+	edm::TypeWithDict refType(type, edm::TypeModifiers::ConstReference);
+
+        edm::ObjectWithDict baseObj(baseType, const_cast<void*>(static_cast<const void*>(proc)));
+        edm::ObjectWithDict obj(baseObj.castObject(type));
 
 	// find and call copy constructor
-	for(ROOT::Reflex::Member_Iterator iter = type.FunctionMember_Begin();
-	    iter != type.FunctionMember_End(); iter++) {
-		const ROOT::Reflex::Type &ctor = iter->TypeOf();
-		if (!iter->IsConstructor() ||
-		    ctor.FunctionParameterSize() != 1 ||
-		    ctor.FunctionParameterAt(0).Id() != refType.Id())
+        edm::TypeFunctionMembers members(type);
+        for(auto const& mem : members) {
+            edm::FunctionWithDict member(mem);
+		if (!member.isConstructor() ||
+		    member.functionParameterSize() != 1 ||
+		    edm::TypeWithDict(*member.begin()).id() != refType.id())
 			continue;
 
-		ROOT::Reflex::Object copy = type.Construct(ctor,
-			ROOT::Reflex::Tools::MakeVector<void*>(obj.Address()));
+		const edm::TypeWithDict &ctor = member.typeOf();
+                std::vector<void *> values(1, obj.address()); 
+		edm::ObjectWithDict copy(type.construct(ctor, values));
 
-		processors.push_back(static_cast<VarProcessor*>(copy.Address()));
+		processors.push_back(static_cast<VarProcessor*>(copy.address()));
 		return;
 	}
 
 	throw cms::Exception("MVAComputerCalibration")
 			<< "Calibration class " << typeid(*proc).name()
-			<< " has no copy ctor registered with ROOT::Reflex."
+			<< " has no copy ctor registered with ROOT."
 			<< std::endl;
 }
 

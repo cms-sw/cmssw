@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy,591 R-013,+41227674265,
 //         Created:  Wed Mar  3 12:14:16 CET 2010
-// $Id: HcalDetDiagLaserMonitor.cc,v 1.18 2011/06/30 07:37:20 dma Exp $
+// $Id: HcalDetDiagLaserMonitor.cc,v 1.20 2011/11/14 13:29:05 apresyan Exp $
 //
 //
 
@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -288,7 +289,8 @@ class HcalDetDiagLaserMonitor : public HcalBaseDQMonitor {
       edm::InputTag inputLabelDigi_;
       edm::InputTag calibDigiLabel_;
       edm::InputTag rawDataLabel_;
-  
+      edm::InputTag hcalTBTriggerDataTag_;
+
       void SaveReference();
       void SaveRaddamData();
       void LoadReference();
@@ -369,7 +371,9 @@ class HcalDetDiagLaserMonitor : public HcalBaseDQMonitor {
       std::map<unsigned int, int> KnownBadCells_;
 };
 
-HcalDetDiagLaserMonitor::HcalDetDiagLaserMonitor(const edm::ParameterSet& iConfig){
+HcalDetDiagLaserMonitor::HcalDetDiagLaserMonitor(const edm::ParameterSet& iConfig) :
+  hcalTBTriggerDataTag_(iConfig.getParameter<edm::InputTag>("hcalTBTriggerDataTag"))
+{
   ievt_=-1;
   emap=0;
   dataset_seq_number=1;
@@ -564,7 +568,7 @@ static int  lastHBHEorbit,lastHOorbit,lastHForbit,nChecksHBHE,nChecksHO,nChecksH
    meRUN_->Fill(iEvent.id().run());
    // for local runs 
    edm::Handle<HcalTBTriggerData> trigger_data;
-   iEvent.getByType(trigger_data);
+   iEvent.getByLabel(hcalTBTriggerDataTag_, trigger_data);
    if(trigger_data.isValid()){
        if(trigger_data->wasLaserTrigger()) LaserEvent=true;
        LocalRun=true;

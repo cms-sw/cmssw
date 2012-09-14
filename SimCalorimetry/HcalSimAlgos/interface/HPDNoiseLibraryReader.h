@@ -11,7 +11,7 @@
 //
 // Project: HPD noise library reader
 // Author: T.Yetkin University of Iowa, Feb. 7, 2008
-// $Id: HPDNoiseLibraryReader.h,v 1.2 2008/07/21 18:30:03 tyetkin Exp $
+// $Id: HPDNoiseLibraryReader.h,v 1.3 2008/09/19 17:03:50 tyetkin Exp $
 // --------------------------------------------------------
 
 #ifndef HcalSimAlgos_HPDNoiseLibraryReader_h
@@ -32,7 +32,6 @@
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/Utilities/interface/Exception.h"
 // Hcal Geometry
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 // HPD Noise Data Frame
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseReader.h"
@@ -94,8 +93,6 @@ class HPDNoiseLibraryReader{
     void shuffleData(int timeSliceId, float* &data);
   
   public: 
-    HcalTopology  theTopology;
-    
     //members
     std::vector<float> theDischargeNoiseRate;
     std::vector<float> theIonFeedbackFirstPeakRate;

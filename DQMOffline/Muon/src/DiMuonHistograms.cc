@@ -11,6 +11,11 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h" 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+
 
 using namespace edm;
 
@@ -47,7 +52,9 @@ void DiMuonHistograms::beginJob(DQMStore * dbe) {
   dbe->setCurrentFolder("Muons/DiMuonHistograms");  
 
   theMuonCollectionLabel = parameters.getParameter<edm::InputTag>("MuonCollection");
-  
+  bsTag  = parameters.getParameter<edm::InputTag>("bsLabel");
+  vertexTag  = parameters.getParameter<edm::InputTag>("vertexLabel");
+
   etaBin = parameters.getParameter<int>("etaBin");
   etaBBin = parameters.getParameter<int>("etaBBin");
   etaEBin = parameters.getParameter<int>("etaEBin");
@@ -84,6 +91,48 @@ void DiMuonHistograms::beginJob(DQMStore * dbe) {
   }
 }
 void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& iSetup) {
+
+
+  // ==========================================================
+  // Look for the Primary Vertex (and use the BeamSpot instead, if you can't find it):
+
+  reco::Vertex::Point posVtx;
+  reco::Vertex::Error errVtx;
+ 
+  unsigned int theIndexOfThePrimaryVertex = 999.;
+ 
+  edm::Handle<reco::VertexCollection> vertex;
+  iEvent.getByLabel(vertexTag, vertex);
+
+ if ( vertex.isValid() ){
+  for (unsigned int ind=0; ind<vertex->size(); ++ind) {
+    if ( (*vertex)[ind].isValid() && !((*vertex)[ind].isFake()) ) {
+      theIndexOfThePrimaryVertex = ind;
+      break;
+    }
+  }
+ }
+  if (theIndexOfThePrimaryVertex<100) {
+    posVtx = ((*vertex)[theIndexOfThePrimaryVertex]).position();
+    errVtx = ((*vertex)[theIndexOfThePrimaryVertex]).error();
+  }   else {
+    LogInfo("RecoMuonValidator") << "reco::PrimaryVertex not found, use BeamSpot position instead\n";
+  
+    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+    iEvent.getByLabel(bsTag,recoBeamSpotHandle);
+    
+    reco::BeamSpot bs = *recoBeamSpotHandle;
+    
+    posVtx = bs.position();
+    errVtx(0,0) = bs.BeamWidthX();
+    errVtx(1,1) = bs.BeamWidthY();
+    errVtx(2,2) = bs.sigmaZ();
+  }
+  const reco::Vertex thePrimaryVertex(posVtx,errVtx);
+  // ==========================================================
+
+
+
 
   LogTrace(metname)<<"[DiMuonHistograms] Analyze the mu in different eta regions";
   edm::Handle<reco::MuonCollection> muons;
@@ -133,25 +182,10 @@ void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& 
 	  }
 	}
 	// Also Tight-Tight Muon Selection
-	if (recoMu1->isGlobalMuon() && 
-	    recoMu1->isPFMuon()     && 
-	    recoMu1->combinedMuon()->normalizedChi2()<10. && 
-	    recoMu1->numberOfMatchedStations() > 1 &&
-	    recoMu1->combinedMuon()->hitPattern().numberOfValidMuonHits()>0 && 
-	    fabs(recoMu1->combinedMuon()->dxy(beamSpot.position()))<0.2  &&
-	    fabs(recoMu1->innerTrack()->dz(beamSpot.position())) < 0.5 &&
-	    recoMu1->combinedMuon()->hitPattern().numberOfValidPixelHits()>0 && 
-	    recoMu1->track()->hitPattern().trackerLayersWithMeasurement() > 5 &&
-	    recoMu2->isGlobalMuon() && 
-	    recoMu2->isPFMuon()     && 
-	    recoMu2->combinedMuon()->normalizedChi2()<10. && 
-	    recoMu2->numberOfMatchedStations() > 1 &&
-	    recoMu2->combinedMuon()->hitPattern().numberOfValidMuonHits()>0 && 
-	    fabs(recoMu2->combinedMuon()->dxy(beamSpot.position()))<0.2  &&
-	    fabs(recoMu2->innerTrack()->dz(beamSpot.position())) < 0.5  &&
-	    recoMu2->combinedMuon()->hitPattern().numberOfValidPixelHits()>0 && 
-	    recoMu2->track()->hitPattern().trackerLayersWithMeasurement() > 5) {
-	  
+
+	if ( muon::isTightMuon(*recoMu1, thePrimaryVertex)  && 
+	     muon::isTightMuon(*recoMu2, thePrimaryVertex) ) { 
+  	  
 	  LogTrace(metname)<<"[DiMuonHistograms] Tight-Tight pair"<<endl;
 	  for (unsigned int iEtaRegion=0; iEtaRegion<3; iEtaRegion++){
 	    if (iEtaRegion==0) {EtaCutMin= 0.;         EtaCutMax=2.4;       }
@@ -237,16 +271,12 @@ void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& 
 	    }
 	  }
 	}
-	
-	if (recoMu1->isTrackerMuon() && recoMu2->isTrackerMuon() &&
-	    recoMu1->innerTrack()->found() > 11 && recoMu2->innerTrack()->found() &&
-	    recoMu1->innerTrack()->chi2()/recoMu1->innerTrack()->ndof() < 4.0 && 
-	    recoMu2->innerTrack()->chi2()/recoMu2->innerTrack()->ndof() < 4.0 &&
-	    recoMu1->numberOfMatches() > 0 && recoMu2->numberOfMatches() > 0 && 
-	    recoMu1->innerTrack()->hitPattern().pixelLayersWithMeasurement() > 1 &&
-	    recoMu2->innerTrack()->hitPattern().pixelLayersWithMeasurement() > 1 &&
-	    fabs(recoMu1->innerTrack()->dxy()) < 3.0 && fabs(recoMu1->innerTrack()->dxy()) < 3.0 &&
-	    fabs(recoMu1->innerTrack()->dz()) < 15.0 && fabs(recoMu1->innerTrack()->dz()) < 15.0){
+
+
+	LogTrace(metname)<<"[DiMuonHistograms] Soft-Soft pair"<<endl;
+
+	if (muon::isSoftMuon(*recoMu1, thePrimaryVertex)  && 
+	    muon::isSoftMuon(*recoMu2, thePrimaryVertex) ) { 
 	  
 	  if (charge < 0) {
 	    InvMass = (Mu1+Mu2).M();

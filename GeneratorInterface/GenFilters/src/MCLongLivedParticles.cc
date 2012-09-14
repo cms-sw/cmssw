@@ -8,8 +8,8 @@ using namespace edm;
 using namespace std;
 
 
-MCLongLivedParticles::MCLongLivedParticles(const edm::ParameterSet& iConfig)
-{
+MCLongLivedParticles::MCLongLivedParticles(const edm::ParameterSet& iConfig) :
+  hepMCProductTag_(iConfig.getParameter<edm::InputTag>("hepMCProductTag")) {
    //here do whatever other initialization is needed
   theCut = iConfig.getUntrackedParameter<double>("LengCut",10.);
 }
@@ -32,7 +32,7 @@ bool MCLongLivedParticles::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   
   Handle<HepMCProduct> evt;
   
-  iEvent.getByType(evt);
+  iEvent.getByLabel(hepMCProductTag_, evt);
   
   bool pass = false;
   

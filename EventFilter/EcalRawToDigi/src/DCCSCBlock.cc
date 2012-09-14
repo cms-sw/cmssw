@@ -191,7 +191,7 @@ int DCCSCBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalID){
 
     if (! DCCDataUnpacker::silentMode_) {
       if (unpacker_->getChannelValue(mapper_->getActiveDCC(), towerId_, stripId, xtalId) != 10) {
-        edm::LogWarning("IncorrectBlock")
+        edm::LogWarning("IncorrectGain")
           << "Gain zero" << (isSaturation ? " with features of saturation" : "" ) << " was found in SC Block"
           << " (L1A " << event_->l1A() << " bx " << event_->bx() << " fed " << mapper_->getActiveDCC()
           << " tower " << towerId_ << " strip " << stripId << " xtal " << xtalId << ")";
@@ -231,7 +231,7 @@ int DCCSCBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalID){
     
     if (numGainWrong > 0) {
       if (! DCCDataUnpacker::silentMode_) {
-        edm::LogWarning("IncorrectBlock")
+        edm::LogWarning("IncorrectGain")
           << "A wrong gain transition switch was found for SC Block in strip " << stripId << " and xtal " << xtalId
           << " (L1A " << event_->l1A() << " bx " << event_->bx() << " fed " << mapper_->getActiveDCC() << " tower " << towerId_ << ")";
       }

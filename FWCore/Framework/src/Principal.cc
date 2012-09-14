@@ -7,7 +7,6 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
-#include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Framework/interface/ProductDeletedException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -358,26 +357,6 @@ namespace edm {
   }
 
   BasicHandle
-  Principal::getBySelector(TypeID const& productType,
-                           SelectorBase const& sel) const {
-    BasicHandle result;
-
-    int nFound = findGroup(productType,
-                           preg_->productLookup(),
-                           sel,
-                           result);
-
-    if(nFound == 0) {
-      boost::shared_ptr<cms::Exception> whyFailed = makeNotFoundException("getBySelector", productType);
-      return BasicHandle(whyFailed);
-    }
-    if(nFound > 1) {
-      throwMultiFoundException("getBySelector", nFound, productType);
-    }
-    return result;
-  }
-
-  BasicHandle
   Principal::getByLabel(TypeID const& productType,
                         std::string const& label,
                         std::string const& productInstanceName,
@@ -400,29 +379,18 @@ namespace edm {
     return BasicHandle(*result);
   }
 
-
-  void
-  Principal::getMany(TypeID const& productType,
-                     SelectorBase const& sel,
-                     BasicHandleVec& results) const {
-
-    findGroups(productType,
-               preg_->productLookup(),
-               sel,
-               results);
-
-    return;
-  }
-
   BasicHandle
   Principal::getByType(TypeID const& productType) const {
 
     BasicHandle result;
-    MatchAllSelector sel;
+    std::string emptyString;
 
     int nFound = findGroup(productType,
                            preg_->productLookup(),
-                           sel,
+                           false,
+                           emptyString,
+                           emptyString,
+                           emptyString,
                            result);
 
     if(nFound == 0) {
@@ -440,32 +408,31 @@ namespace edm {
   Principal::getManyByType(TypeID const& productType,
                            BasicHandleVec& results) const {
 
-    MatchAllSelector sel;
-
     findGroups(productType,
                preg_->productLookup(),
-               sel,
                results);
     return;
   }
 
   size_t
   Principal::getMatchingSequence(TypeID const& typeID,
-                                 SelectorBase const& selector,
+                                 std::string const& moduleLabel,
+                                 std::string const& productInstanceName,
+                                 std::string const& processName,
                                  BasicHandle& result) const {
 
-    // One new argument is the element lookup container
-    // Otherwise this just passes through the arguments to findGroup
     return findGroup(typeID,
                      preg_->elementLookup(),
-                     selector,
+                     true,
+                     moduleLabel,
+                     productInstanceName,
+                     processName,
                      result);
   }
 
   size_t
   Principal::findGroups(TypeID const& typeID,
                         TransientProductLookupMap const& typeLookup,
-                        SelectorBase const& selector,
                         BasicHandleVec& results) const {
     assert(results.empty());
 
@@ -484,35 +451,32 @@ namespace edm {
 
       ConstBranchDescription const& bd = *(it->branchDescription());
 
-      // Unless the selector is matching by module label, ignore aliases to avoid matching the same product multiple times.
-      if(bd.isAlias() && !selector.matchSelectorType(typeid(ModuleLabelSelector))) {
+      // Ignore aliases to avoid matching the same product multiple times.
+      if(bd.isAlias()) {
         continue;
       }
 
-      if(selector.match(bd)) {
+      //now see if the data is actually available
+      ConstGroupPtr const& group = getGroupByIndex(it->index(), false, false);
+      //NOTE sometimes 'group->productUnavailable()' is true if was already deleted
+      if(group && group->productWasDeleted()) {
+        throwProductDeletedException("findGroups",
+                                     typeID,
+                                     bd.moduleLabel(),
+                                     bd.productInstanceName(),
+                                     bd.processName());
+      }
 
-        //now see if the data is actually available
-        ConstGroupPtr const& group = getGroupByIndex(it->index(), false, false);
-        //NOTE sometimes 'group->productUnavailable()' is true if was already deleted
-        if(group && group->productWasDeleted()) {
-          throwProductDeletedException("findGroups",
-                                       typeID,
-                                       bd.moduleLabel(),
-                                       bd.productInstanceName(),
-                                       bd.processName());
-        }
+      // Skip product if not available.
+      if(group && !group->productUnavailable()) {
 
-        // Skip product if not available.
-        if(group && !group->productUnavailable()) {
-
-          this->resolveProduct(*group, true);
-          // If the product is a dummy filler, group will now be marked unavailable.
-          // Unscheduled execution can fail to produce the EDProduct so check
-          if(group->product() && !group->productUnavailable() && !group->onDemand()) {
-            // Found a good match, save it
-            BasicHandle bh(group->productData());
-            results.push_back(bh);
-          }
+        this->resolveProduct(*group, true);
+        // If the product is a dummy filler, group will now be marked unavailable.
+        // Unscheduled execution can fail to produce the EDProduct so check
+        if(group->product() && !group->productUnavailable() && !group->onDemand()) {
+          // Found a good match, save it
+          BasicHandle bh(group->productData());
+          results.push_back(bh);
         }
       }
     }
@@ -522,7 +486,10 @@ namespace edm {
   size_t
   Principal::findGroup(TypeID const& typeID,
                        TransientProductLookupMap const& typeLookup,
-                       SelectorBase const& selector,
+                       bool doMatching,
+                       std::string const& moduleLabel,
+                       std::string const& productInstanceName,
+                       std::string const& processName,
                        BasicHandle& result) const {
     assert(!result.isValid());
 
@@ -546,12 +513,15 @@ namespace edm {
 
       ConstBranchDescription const& bd = *(it->branchDescription());
 
-      // Unless the selector is matching by module label, ignore aliases to avoid matching the same product multiple times.
-      if(bd.isAlias() && !selector.matchSelectorType(typeid(ModuleLabelSelector))) {
+      // Unless matching by module label, ignore aliases to avoid matching the same product multiple times.
+      if(bd.isAlias() && !doMatching) {
         continue;
       }
 
-      if(selector.match(bd)) {
+      if ( !doMatching ||
+           ( moduleLabel == bd.moduleLabel() &&
+             productInstanceName == bd.productInstanceName() &&
+             (processName.empty() || processName == bd.processName()))) {
 
         //now see if the data is actually available
         ConstGroupPtr const& group = getGroupByIndex(it->index(), false, false);

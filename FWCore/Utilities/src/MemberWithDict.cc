@@ -7,13 +7,14 @@
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
 namespace edm {
-
-  std::string
-  MemberWithDict::typeName() const {return member_.TypeOf().Name();}
-
   ObjectWithDict
   MemberWithDict::get() const {
     return (ObjectWithDict(member_.Get()));
+  }
+
+  std::string
+  MemberWithDict::name() const {
+    return member_.Name();
   }
 
   ObjectWithDict
@@ -31,9 +32,33 @@ namespace edm {
     return (TypeWithDict(member_.DeclaringType()));
   }
 
-  void
-  MemberWithDict::invoke(ObjectWithDict const& obj, ObjectWithDict* ret, std::vector<void*> const& values) const {
-    member_.Invoke(obj.object_, &ret->object_, values);
+  bool
+  MemberWithDict::isConst() const {
+    return member_.IsConst();
+  }
+
+  bool
+  MemberWithDict::isPublic() const {
+    return member_.IsPublic();
+  }
+
+  bool
+  MemberWithDict::isStatic() const {
+    return member_.IsStatic();
+  }
+
+  bool
+  MemberWithDict::isTransient() const {
+    return member_.IsTransient();
+  }
+
+  size_t
+  MemberWithDict::offset() const {
+    return member_.Offset();
+  }
+
+  MemberWithDict::operator bool() const {
+    return bool(member_);
   }
 
 }

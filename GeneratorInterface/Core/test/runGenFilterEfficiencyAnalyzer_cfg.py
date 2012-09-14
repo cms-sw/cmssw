@@ -12,7 +12,9 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:gen.root')
 )
 
-process.dummy = cms.EDAnalyzer("GenFilterEfficiencyAnalyzer")
+process.dummy = cms.EDAnalyzer("GenFilterEfficiencyAnalyzer",
+                               genFilterInfoTag = cms.InputTag("genFilterEfficiencyProducer")
+)
 
 process.p = cms.Path(process.dummy)
 

@@ -13,11 +13,13 @@ rehash
 # gen sim input files for Monte-Carlo tests
 set InputGenSimGRun = /store/relval/CMSSW_5_2_3/RelValProdTTbar/GEN-SIM/START52_V5-v1/0043/D81488D7-0F7A-E111-8BDE-001A92811726.root
 set InputGenSimHIon = /store/relval/CMSSW_5_2_5_cand1/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM/PU_STARTHI52_V8-v1/0009/343F3DF7-7293-E111-8242-003048D2BBF0.root
+set InputGenSimPIon = /store/relval/CMSSW_5_2_3/RelValProdTTbar/GEN-SIM/START52_V5-v1/0043/D81488D7-0F7A-E111-8BDE-001A92811726.root
 #
 # lhc raw input files for Real-Data tests
 set InputLHCRawGRun = /store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root
 #et InputLHCRawGRun = /store/data/Run2011B/MinimumBias/RAW/v1/000/178/479/3E364D71-F4F5-E011-ABD2-001D09F29146.root
 set InputLHCRawHIon = /store/hidata/HIRun2011/HIHighPt/RAW/v1/000/182/838/F20AAF66-F71C-E111-9704-BCAEC532971D.root
+set InputLHCRawPIon = /store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root
 
 #
 # global tags to be used for PP and HIon running
@@ -83,7 +85,7 @@ foreach gtag ( STARTUP DATA )
     continue
   endif
 
-  foreach table ( GRun 5E33v4 7E33v2 7E33v3 7E33v4 HIon )
+  foreach table ( GRun PIon 5E33v4 7E33v2 7E33v3 7E33v4 HIon )
 
     set name = ${table}_${gtag}  
 
@@ -135,6 +137,14 @@ foreach gtag ( STARTUP DATA )
       set SCEN = HeavyIons
       set InputGenSim = $InputGenSimHIon
       set InputLHCRaw = $InputLHCRawHIon
+    else if ( $table == PIon ) then
+      set XL1T = $XL1TPP2
+      set XHLT = HLT:PIon
+      set GTAG = ${GTAGPP}_GRun
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimPIon
+      set InputLHCRaw = $InputLHCRawPIon
     else
       # unsupported
       continue
@@ -161,7 +171,7 @@ foreach gtag ( STARTUP DATA )
     echo "Creating DigiL1RawHLT $name"
     cmsDriver.py RelVal                --step=DIGI,L1,DIGI2RAW,$XHLT               --conditions=$GTAG --filein=$InputGenSim                        --custom_conditions=$XL1T  --fileout=RelVal_DigiL1RawHLT_$name.root --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW-HLT'  --eventcontent=FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  --scenario=$SCEN --python_filename=RelVal_DigiL1RawHLT_$name.py  --processName=$PNAME
 
-    if ( $table != HIon ) then
+    if ( ($table != HIon) && ($table != PIon) ) then
 
     echo
     echo "Creating FastSim $name"
@@ -183,6 +193,7 @@ foreach gtag ( STARTUP DATA )
     if ( $gtag == DATA ) then
 
     set RTAG = auto:com10_${table}
+    if ( $table == PIon ) set RTAG = auto:com10_GRun
 
     echo
     echo "Creating HLT+RECO $name"

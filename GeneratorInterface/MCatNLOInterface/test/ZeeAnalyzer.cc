@@ -7,7 +7,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: ZeeAnalyzer.cc,v 1.8 2009/03/26 20:17:15 fabstoec Exp $
+// $Id: ZeeAnalyzer.cc,v 1.9 2009/12/14 22:22:53 wmtan Exp $
 //
 //
 
@@ -22,7 +22,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "HepMC/WeightContainer.h"
@@ -66,11 +66,14 @@ class ZeeAnalyzer : public edm::EDAnalyzer {
   TH1D* softphi;
 
   double sumWeights;
-
+  edm::InputTag hepMCProductTag_;
+  edm::InputTag genEventInfoProductTag_;
 };
 
 
-ZeeAnalyzer::ZeeAnalyzer(const edm::ParameterSet& iConfig)
+ZeeAnalyzer::ZeeAnalyzer(const edm::ParameterSet& iConfig) :
+  hepMCProductTag_(iConfig.getParameter<edm::InputTag>("hepMCProductTag")),
+  genEventInfoProductTag_(iConfig.getParameter<edm::InputTag>("genEventInfoProductTag"))
 {
 
   outputFilename=iConfig.getUntrackedParameter<std::string>("OutputFilename","dummy.root");
@@ -103,11 +106,11 @@ void ZeeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
    // get HepMC::GenEvent ...
    Handle<HepMCProduct> evt_h;
-   iEvent.getByType(evt_h);
+   iEvent.getByLabel(hepMCProductTag_, evt_h);
    HepMC::GenEvent* evt = new  HepMC::GenEvent(*(evt_h->GetEvent()));
 
    Handle<GenEventInfoProduct> evt_info;
-   iEvent.getByType(evt_info);
+   iEvent.getByLabel(genEventInfoProductTag_, evt_info);
 
 
    double weight = evt_info->weight();

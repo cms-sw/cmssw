@@ -15,8 +15,6 @@
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
-
 #include <iostream>
 #include <string>
 #include <vector>
@@ -62,7 +60,6 @@ GeometricDetLoader::beginJob( edm::EventSetup const& es)
   std::vector<const GeometricDet*>::const_iterator egit = tc.end();
   int count=0;
   int lev = 1;
-  //  CmsTrackerStringToEnum ctste;
   for (; git!= egit; ++git) {  // one level below "tracker"
     putOne(*git, pgd, lev);
     std::vector<const GeometricDet*> inone = (*git)->components();
@@ -138,7 +135,6 @@ void GeometricDetLoader::putOne ( const GeometricDet* gd, PGeometricDet* pgd, in
 //   std::cout << "putting name: " << gd->name().name();
 //   std::cout << " gid: " << gd->geographicalID();
 //   std::cout << " type: " << gd->type() << std::endl;
-//  static CmsTrackerStringToEnum ctste;
 //  std::cout << "shape = " << gd->shape()<<"; name = "<<gd->name().name()<<"; parameter number = "<<gd->params().size()<<std::endl;
   PGeometricDet::Item item;
   DDTranslation tran = gd->translation();

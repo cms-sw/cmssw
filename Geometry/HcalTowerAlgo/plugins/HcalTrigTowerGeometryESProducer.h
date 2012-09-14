@@ -15,12 +15,12 @@ namespace edm {
 class HcalTrigTowerGeometryESProducer : public edm::ESProducer
 {
 public:
-  explicit HcalTrigTowerGeometryESProducer( const edm::ParameterSet & conf );
+  HcalTrigTowerGeometryESProducer( const edm::ParameterSet & conf );
   virtual ~HcalTrigTowerGeometryESProducer( void );
 
   boost::shared_ptr<HcalTrigTowerGeometry> produce( const CaloGeometryRecord & );
 
-  static void fillDescription( edm::ConfigurationDescriptions & descriptions );
+  static void fillDescriptions( edm::ConfigurationDescriptions & descriptions );
 
 private:
 

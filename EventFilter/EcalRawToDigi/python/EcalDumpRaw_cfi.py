@@ -31,9 +31,7 @@ dumpRaw = cms.EDAnalyzer("EcalDumpRaw",
                          filename = cms.untracked.string('dump.bin'),
 
                          # If non empty only listed events will be processed:
-                         eventList = cms.untracked.vuint32()
+                         eventList = cms.untracked.vuint32(),
+                         fedRawDataCollectionTag = cms.InputTag('rawDataCollector'),
+                         l1AcceptBunchCrossingCollectionTag = cms.InputTag('scalersRawToDigi')
                          )
-
-
-
-

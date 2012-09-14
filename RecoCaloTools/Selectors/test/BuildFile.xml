@@ -4,6 +4,7 @@
 <use   name="RecoCaloTools/MetaCollections"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
 <use   name="Geometry/Records"/>
 <use   name="Geometry/CaloGeometry"/>
 <library   file="TestCaloSelectors.cc" name="TestCaloSelectors">

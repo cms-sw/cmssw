@@ -347,8 +347,8 @@ FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
    float current = 18160.0f;
    try {
       edm::Handle<edm::ConditionsInRunBlock> runCond;
-      // bool res = iRun.getByType(runCond);
-      bool res = iRun.getByLabel("conditionsInEdm", runCond);
+      bool res = iRun.getByType(runCond);
+      //bool res = run.getByLabel("conditionsInEdm", runCond, "", "");
       if (res && runCond.isValid())
       {
          printf("Got current from conds in edm %f\n", runCond->BAvgCurrent);

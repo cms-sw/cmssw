@@ -6,7 +6,7 @@ from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
                               MuonServiceProxy,
                               OutputMEsInRootFile = cms.bool(False),
-                              trackSegmentsAnalysis = cms.PSet(
+                              trackSegmentsAnalysis = cms.PSet(    
     phiMin = cms.double(-3.2),
     ptBin = cms.int32(200),
     SegmentsTrackAssociatorParameters = cms.PSet(
@@ -115,6 +115,10 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
     ),
                               DoMuonKinVsEtaAnalysis = cms.untracked.bool(True),                           
                               muonKinVsEtaAnalysis = cms.PSet(
+
+    vertexLabel     = cms.InputTag("offlinePrimaryVertices"),
+    bsLabel         = cms.InputTag("offlineBeamSpot"),
+     
     pBin = cms.int32(100),
     pMin = cms.double(0.0),
     pMax = cms.double(100.0),
@@ -148,6 +152,9 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
                               DoMuonRecoOneHLT = cms.untracked.bool(True),                           
                               muonRecoOneHLTAnalysis = cms.PSet(
     MuonCollection = cms.InputTag("muons"),
+    vertexLabel     = cms.InputTag("offlinePrimaryVertices"),
+    bsLabel         = cms.InputTag("offlineBeamSpot"),
+    
     ptBin = cms.int32(50),
     ptMin = cms.double(0.0),
     ptMax = cms.double(100.0),
@@ -186,6 +193,10 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
                               DoDiMuonHistograms = cms.untracked.bool(True),
                               dimuonHistograms = cms.PSet(
     MuonCollection = cms.InputTag("muons"),
+    vertexLabel     = cms.InputTag("offlinePrimaryVertices"),
+    bsLabel         = cms.InputTag("offlineBeamSpot"),
+
+
     etaBin = cms.int32(400),
     etaBBin = cms.int32(400),
     etaEBin = cms.int32(200),
@@ -207,6 +218,7 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
 
     doPrimaryVertexCheck = cms.bool( True ),
     vertexLabel     = cms.InputTag("offlinePrimaryVertices"),
+    bsLabel         = cms.InputTag("offlineBeamSpot"),
 
     ptBin = cms.int32(10),
     ptMax = cms.double(100),

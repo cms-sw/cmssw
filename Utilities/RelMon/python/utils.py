@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: agimbuta $
-# $Date: 2012/07/25 09:28:46 $
-# $Revision: 1.9 $
+# $Date: 2012/07/17 14:28:23 $
+# $Revision: 1.4 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -114,7 +114,7 @@ class StatisticalTest(object):
 
   def get_rank(self):
     if not self.is_init:
-      if self.rank < 0:
+      if self.rank<0:
         type1=type(self.h1)
         type2=type(self.h2)
         if (type1 != type2):
@@ -517,14 +517,18 @@ def get_relval_max_version(files):
 
 def get_relval_cmssw_version(file):
     cmssw_release = re.findall('(CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?)-', file)
-    gr_r_version = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-([\w\d]*)_V\d*\w?(_[\w\d]*)?-v', file)
+    gr_r_version = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-([\w\d]*)_V\d*\w?(?:_[\w\d]*)?-v', file)
     if cmssw_release and gr_r_version:
         return (cmssw_release[0], gr_r_version[0])
 
 def get_relval_id(file):
     """Returns unique relval ID (dataset name) for a given file."""
     dataset_name = re.findall('R\d{9}__([\w\d]*)__CMSSW_', file)
-    return dataset_name[0]
+    run = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-[\w\d]*_V\d*\w?(?:_([\w\d]*))?-v\d*__', file)
+    if run[0]:
+        return (dataset_name[0], run[0])
+    else:
+        return (dataset_name[0], '_V\d*\w?-v\d*__')
 
 ##-------------------------  Make files pairs --------------------------
 def is_relvaldata(files):
@@ -534,13 +538,11 @@ def is_relvaldata(files):
 def make_files_pairs(files, verbose=True):
     ## Select functions to use
     if is_relvaldata(files):
-        is_relval_data = True
         get_cmssw_version = get_relvaldata_cmssw_version
         get_id = get_relvaldata_id
         get_max_version = get_relvaldata_max_version
         # print 'Pairing Data RelVal files.'
     else:
-        is_relval_data = False
         get_cmssw_version = get_relval_cmssw_version
         get_id = get_relval_id
         get_max_version = get_relval_max_version
@@ -561,10 +563,6 @@ def make_files_pairs(files, verbose=True):
         for version in versions_files:
             print '%s: %d files' % (str(version),  len(versions_files[version]))
 
-    if len(versions_files.keys()) <= 1:
-        print '\nFound too little versions, there is nothing to pair. Exiting...\n'
-        exit()
-
     ## Select two biggest groups.
     versions = versions_files.keys()
     sizes = [len(value) for value in versions_files.values()]
@@ -579,24 +577,16 @@ def make_files_pairs(files, verbose=True):
                 len(versions_files[v1]), str(v2), len(versions_files[v2]))
 
     ## Pairing two versions
-    print '\nGot pairs:'
     pairs = []
     for unique_id in set([get_id(file) for file in versions_files[v1]]):
-        if is_relval_data:
-            dataset_re = re.compile(unique_id[0]+'_')
-            run_re = re.compile(unique_id[1])
-            c1_files = [file for file in versions_files[v1] if dataset_re.search(file) and run_re.search(file)]
-            c2_files = [file for file in versions_files[v2] if dataset_re.search(file) and run_re.search(file)]
-        else:
-            dataset_re = re.compile(unique_id+'_')
-            c1_files = [file for file in versions_files[v1] if dataset_re.search(file)]
-            c2_files = [file for file in versions_files[v2] if dataset_re.search(file)]
-
+        dataset_re = re.compile(unique_id[0]+'_')
+        run = re.compile(unique_id[1])
+        c1_files = [file for file in versions_files[v1] if dataset_re.search(file) and run.search(file)]
+        c2_files = [file for file in versions_files[v2] if dataset_re.search(file) and run.search(file)]
         if len(c1_files) > 0 and len(c2_files) > 0:
             first_file = get_max_version(c1_files)
             second_file = get_max_version(c2_files)
-            print '%s\n%s\n' % (first_file, second_file)
             pairs.extend((first_file, second_file))
     if verbose:
-        print "Paired and got %d files.\n" % len(pairs)
+        print "\nPaired and got %d files.\n" % len(pairs)
     return pairs

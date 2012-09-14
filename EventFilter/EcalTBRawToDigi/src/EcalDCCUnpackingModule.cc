@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2009/02/17 16:30:42 $
- *  $Revision: 1.43 $
+ *  $Date: 2009/12/14 22:22:37 $
+ *  $Revision: 1.44 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -41,7 +41,8 @@
 #define TABLE_FED_ID 42
 #define MATACQ_FED_ID 43
 
-EcalDCCTBUnpackingModule::EcalDCCTBUnpackingModule(const edm::ParameterSet& pset){
+EcalDCCTBUnpackingModule::EcalDCCTBUnpackingModule(const edm::ParameterSet& pset) :
+  fedRawDataCollectionTag_(pset.getParameter<edm::InputTag>("fedRawDataCollectionTag")) {
 
   formatter_ = new EcalTBDaqFormatter();
   ecalSupervisorFormatter_ = new EcalSupervisorTBDataFormatter();
@@ -94,7 +95,7 @@ void EcalDCCTBUnpackingModule::endJob(){
 void EcalDCCTBUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
 
   edm::Handle<FEDRawDataCollection> rawdata;
-  e.getByType(rawdata);
+  e.getByLabel(fedRawDataCollectionTag_, rawdata);
   
 
   // create the collection of Ecal Digis

@@ -5,6 +5,7 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/VolumeBasedEngine"/>
 <use   name="MagneticField/Records"/>

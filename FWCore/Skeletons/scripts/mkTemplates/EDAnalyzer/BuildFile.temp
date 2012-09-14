@@ -4,6 +4,3 @@
 <flags EDM_PLUGIN="1"/>
 @example_track <use name="DataFormats/TrackReco"/>
 @example_histo <use name="CommonTools/UtilAlgos"/>
-<export>
-   <lib name="1"/>
-</export>

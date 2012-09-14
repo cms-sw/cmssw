@@ -25,7 +25,7 @@ import EventFilter.HcalRawToDigi.HcalRawToDigi_cfi
 hcalDigis = EventFilter.HcalRawToDigi.HcalRawToDigi_cfi.hcalDigis.clone()  
 hcalDigis.InputLabel = 'rawDataCollector'
 
-hcalDigiSequence = cms.Sequence(simHcalTriggerPrimitiveDigis*simHcalDigis*simHcalTTPDigis
+hcalDigisSequence = cms.Sequence(simHcalTriggerPrimitiveDigis*simHcalDigis*simHcalTTPDigis
                                 *simRctDigisHCAL
                                 *hcalRawData*rawDataCollector*hcalDigis)
 
@@ -36,5 +36,7 @@ from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_ho_cfi import *
 from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_hf_cfi import *
 from RecoLocalCalo.HcalRecProducers.HBHEIsolatedNoiseReflagger_cfi import *
 
-hcalDigisPlusRecHitsSequence = cms.Sequence(hcalDigiSequence*(hbheprereco+hfreco+horeco)*hbhereco)
+hcalRecHitSequence = cms.Sequence((hbheprereco+hfreco+horeco)*hbhereco)
+
+hcalDigisPlusRecHitsSequence = cms.Sequence(hcalDigisSequence*hcalRecHitSequence)
 

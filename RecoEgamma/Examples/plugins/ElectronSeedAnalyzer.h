@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedAnalyzer.h,v 1.4 2009/11/04 11:10:22 charlot Exp $
+// $Id: ElectronSeedAnalyzer.h,v 1.5 2011/05/20 17:17:28 wmtan Exp $
 //
 //
 
@@ -19,7 +19,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -83,6 +83,7 @@ class ElectronSeedAnalyzer : public edm::EDAnalyzer
   TH1I *histnbclus_;
 
   edm::InputTag inputCollection_;
+  edm::InputTag beamSpot_;
 //  std::vector<std::pair<const GeomDet*, TrajectoryStateOnSurface> >  mapTsos_;
 //  std::vector<std::pair<std::pair<const GeomDet*,GlobalPoint>,  TrajectoryStateOnSurface> >  mapTsos2_;
 

@@ -38,6 +38,8 @@ components provided by Geant4.
                              by CMSUrbanMscModel93 - keep calorimeter response unchanged
                              for CMSSW_5_X_Y and CMSSW_6_X_Y very similar
                              use ultra-relativistic gamma conversion model above 100 GeV
+                             use WentzelVI multiple scattering and CoulombScattring models
+                             for muons
 - CMSEmStandardPhysicsSync - standard EM physics equivalent to Option1 
                              + Synkrotron radiation active
 - CMSGlauberGribovXS       - obsolete alternative x-section for protons, 
@@ -56,15 +58,13 @@ components provided by Geant4.
 
 \subsection pluginai Plugins
 <!-- List the plugins that are provided for use in other packages (if any) -->
-QGSPCMS_FTFP_BERT_EML       - production Physics List for 2012
+QGSPCMS_FTFP_BERT_EML       - use CMSEmStandardPhysics95msc93 to keep HCAL response
+                              unchanged
 QGSPCMS_FTFP_BERT_EML95     - alternative  Physics List for 2012 providing better
                               EM shower shape, also kaon and hyperon x-sections
 QGSPCMS_FTFP_BERT_EML95msc92- alternative  Physics List for 2012 tests
-QGSPCMS_FTFP_BERT_EML95msc93- similar to the production Phyiscs List but keep 
-                              calorimeter response unchanged for CMSSW_5_X_Y and CMSSW_6_X_Y 
-QGSPCMS_FTFP_BERT_EML_New   - similar to the production Phyiscs List but keep 
-                              calorimeter response unchanged for CMSSW_5_X_Y and CMSSW_6_X_Y 
-                              used ultrarelativistic gamma conversion model above 100 GeV
+QGSPCMS_FTFP_BERT_EML95msc93- use CMSEmStandardPhysics95msc93 
+QGSPCMS_FTFP_BERT_EML_New   - use use CMSEmStandardPhysicsLPM
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->

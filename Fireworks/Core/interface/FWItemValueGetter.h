@@ -16,14 +16,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 30 16:14:58 EST 2008
-// $Id: FWItemValueGetter.h,v 1.6 2012/06/26 22:13:03 wmtan Exp $
+// $Id: FWItemValueGetter.h,v 1.7 2012/08/03 18:20:27 wmtan Exp $
 //
 
 #include <string>
 #include <vector>
 
 #include "Rtypes.h"
-#include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
 #include "CommonTools/Utils/src/SelectorPtr.h"

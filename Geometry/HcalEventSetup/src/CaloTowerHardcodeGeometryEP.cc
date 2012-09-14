@@ -13,12 +13,11 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloTowerHardcodeGeometryEP.cc,v 1.4 2011/09/27 12:06:26 yana Exp $
+// $Id: CaloTowerHardcodeGeometryEP.cc,v 1.5 2012/08/15 15:00:40 yana Exp $
 //
 //
 
 #include "Geometry/HcalEventSetup/src/CaloTowerHardcodeGeometryEP.h"
-#include "CommonTools/Utils/interface/StringToEnumValue.h"
 
 //
 // constants, enums and typedefs
@@ -32,7 +31,7 @@
 // constructors and destructor
 //
 CaloTowerHardcodeGeometryEP::CaloTowerHardcodeGeometryEP(const edm::ParameterSet& iConfig)
-    : m_hcalTopoConsts( iConfig.getParameter<edm::ParameterSet>( "hcalTopologyConstants" ))
+    : m_pSet( iConfig )
 {
    //the following line is needed to tell the framework what
    // data is being produced
@@ -57,11 +56,21 @@ CaloTowerHardcodeGeometryEP::~CaloTowerHardcodeGeometryEP()
 CaloTowerHardcodeGeometryEP::ReturnType
 CaloTowerHardcodeGeometryEP::produce(const CaloTowerGeometryRecord& /*iRecord*/)
 {
-   std::auto_ptr<CaloSubdetectorGeometry> pCaloSubdetectorGeometry(loader_->load( new HcalTopology((HcalTopology::Mode) StringToEnumValue<HcalTopology::Mode>(m_hcalTopoConsts.getParameter<std::string>("mode")),
-												   m_hcalTopoConsts.getParameter<int>("maxDepthHB"),
-												   m_hcalTopoConsts.getParameter<int>("maxDepthHE")))) ;
+  HcalTopologyMode::Mode mode = HcalTopologyMode::LHC;
+  int maxDepthHB = 2;
+  int maxDepthHE = 3;
+  if( m_pSet.exists( "hcalTopologyConstants" ))
+  {
+    const edm::ParameterSet hcalTopoConsts( m_pSet.getParameter<edm::ParameterSet>( "hcalTopologyConstants" ));
+    StringToEnumParser<HcalTopologyMode::Mode> parser;
+    mode = (HcalTopologyMode::Mode) parser.parseString(hcalTopoConsts.getParameter<std::string>("mode"));
+    maxDepthHB = hcalTopoConsts.getParameter<int>("maxDepthHB");
+    maxDepthHE = hcalTopoConsts.getParameter<int>("maxDepthHE");
+  }
+    
+  std::auto_ptr<CaloSubdetectorGeometry> pCaloSubdetectorGeometry( loader_->load( new HcalTopology( mode, maxDepthHB, maxDepthHE )));
 
-   return pCaloSubdetectorGeometry ;
+  return pCaloSubdetectorGeometry ;
 }
 
 

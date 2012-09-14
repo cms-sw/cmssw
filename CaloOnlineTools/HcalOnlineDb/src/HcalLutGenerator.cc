@@ -1,7 +1,6 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutGenerator.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CalibFormats/HcalObjects/interface/HcalTPGRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
@@ -19,11 +18,22 @@ using std::cout;
 using std::endl;
 
 HcalLutGenerator::HcalLutGenerator(const edm::ParameterSet& iConfig)
+  : m_mode(HcalTopologyMode::LHC),
+    m_maxDepthHB(2),
+    m_maxDepthHE(3)
 {
   std::cout << " --> HcalLutGenerator::HcalLutGenerator()" << std::endl;
   _tag                 = iConfig.getParameter<std::string>("tag");
   _lin_file            = iConfig.getParameter<std::string>("HO_master_file");
   _status_word_to_mask = iConfig.getParameter<uint32_t>("status_word_to_mask");
+  if( iConfig.exists( "hcalTopologyConstants" ))
+  {
+    const edm::ParameterSet hcalTopoConsts( iConfig.getParameter<edm::ParameterSet>( "hcalTopologyConstants" ));
+    StringToEnumParser<HcalTopologyMode::Mode> parser;
+    m_mode = (HcalTopologyMode::Mode) parser.parseString(hcalTopoConsts.getParameter<std::string>("mode"));
+    m_maxDepthHB = hcalTopoConsts.getParameter<int>("maxDepthHB");
+    m_maxDepthHE = hcalTopoConsts.getParameter<int>("maxDepthHE");
+  }
 }
 
 HcalLutGenerator::~HcalLutGenerator()
@@ -41,7 +51,7 @@ void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //
   edm::ESHandle<HcalTPGCoder> inputCoder;
   iSetup.get<HcalTPGRecord>().get(inputCoder);
-  HcalTopology theTopo;
+  HcalTopology theTopo(m_mode, m_maxDepthHB, m_maxDepthHE);
   HcalDetId did;
   //
   edm::ESHandle<CaloTPGTranscoder> outTranscoder;

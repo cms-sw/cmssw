@@ -193,6 +193,21 @@ void MuonIsolationDQM::InitStatics(){
   main_titles[40 ] = "Relative PF Isolation (Higher Pt threshold), #Delta R = 0.3";
   main_titles[41 ] = "Relative PF Isolation (Higher Pt threshold), #Delta R = 0.4";
 
+  main_titles[42 ] = "Sum DR Isolation Profile for Charged Hadron,  #Delta R = 0.4";
+
+  main_titles[43 ] = "Sum DR Isolation Profile for Neutral Hadron,  #Delta R = 0.4";
+  
+  main_titles[44 ] = "Sum DR Isolation Profile for Photon,  #Delta R = 0.4";
+ 
+  main_titles[45 ] = "Mean DR Isolation Profile for Charged Hadron,  #Delta R = 0.4";
+
+  main_titles[46 ] = "Mean DR Isolation Profile for Neutral Hadron,  #Delta R = 0.4";
+  
+  main_titles[47 ] = "Mean DR Isolation Profile for Photon,  #Delta R = 0.4";
+ 
+
+
+
 #ifdef DEBUG
   cout << "InitStatistics(): main titles 1D DONE " << endl;
 #endif
@@ -214,6 +229,7 @@ void MuonIsolationDQM::InitStatics(){
   main_titles_NVtxs[3] = "Sum PF Photon Et, #DeltaR = 0.4 ( 0 < N_{Vtx} < 15)";
   main_titles_NVtxs[4] = "Sum PF Photon Et, #DeltaR = 0.4 (15 < N_{Vtx} < 30)";
   main_titles_NVtxs[5] = "Sum PF Photon Et, #DeltaR = 0.4 (30 < N_{Vtx})";
+
 
 #ifdef DEBUG
   cout << "InitStatistics(): main titles 2D DONE " << endl;
@@ -263,11 +279,20 @@ void MuonIsolationDQM::InitStatics(){
   axis_titles[36] = "#Sigma PFPhoton p_{T}";
   axis_titles[37] = "#Sigma PFCharged p_{T}";
 
-
   axis_titles[38] = "(#Sigma PFCharged p_{T} + #Sigma PFNeutral p_{T} + #Sigma PFPhoton p_{T}) Mu p_{T}  (GeV)";
   axis_titles[39] = "(#Sigma PFCharged p_{T} + #Sigma PFNeutral p_{T} + #Sigma PFPhoton p_{T}) Mu p_{T}  (GeV)";
   axis_titles[40] = "(#Sigma PFCharged p_{T} + #Sigma PFNeutral p_{T} + #Sigma PFPhoton p_{T}) Mu p_{T}  (GeV)";
   axis_titles[41] = "(#Sigma PFCharged p_{T} + #Sigma PFNeutral p_{T} + #Sigma PFPhoton p_{T}) Mu p_{T}  (GeV)";
+
+  axis_titles[42] = "#Sigma DR PFCharged";
+  axis_titles[43] = "#Sigma DR PFNeutral";
+  axis_titles[44] = "#Sigma DR PFPhoton";
+
+  axis_titles[45] = "Mean DR PFCharged";
+  axis_titles[46] = "Mean DR PFNeutral";
+  axis_titles[47] = "Mean DR PFPhoton";
+
+
 
 
   axis_titles_NVtxs[0] = "#Sigma PFNeutral p_{T}";
@@ -330,6 +355,16 @@ void MuonIsolationDQM::InitStatics(){
 
   names[40] = "relPFIso_HT_R03";
   names[41] = "relPFIso_HT_R04";
+  
+  names[42] = "SumDR_PFCharged_R04";
+  names[43] = "SumDR_PFNeutral_R04";
+  names[44] = "SumDR_PFPhoton_R04";
+
+  names[45] = "MeanDR_PFCharged_R04";
+  names[46] = "MeanDR_PFNeutral_R04";
+  names[47] = "MeanDR_PFPhoton_R04";
+  
+
 
 #ifdef DEBUG
   cout << "InitStatistics(): names 1D DONE " << endl;
@@ -415,7 +450,14 @@ void MuonIsolationDQM::InitStatics(){
   param[40][0]= 50; param[40][1]=  0.0; param[40][2]= 1.0;
   param[41][0]= 50; param[41][1]=  0.0; param[41][2]= 1.0;
 
+  param[42][0]= 50; param[42][1]=  0.0; param[42][2]= 5;
+  param[43][0]= 50; param[43][1]=  0.0; param[43][2]= 5;
+  param[44][0]= 50; param[44][1]=  0.0; param[44][2]= 5;
 
+  param[45][0]= 50; param[45][1]=  0.0; param[45][2]= 0.4;
+  param[46][0]= 50; param[46][1]=  0.0; param[46][2]= 0.4;
+  param[47][0]= 50; param[47][1]=  0.0; param[47][2]= 0.4;
+  
 
   //--------------Is the variable continuous (i.e. non-integer)?-------------
   //---------(Log binning will only be used for continuous variables)--------
@@ -463,6 +505,13 @@ void MuonIsolationDQM::InitStatics(){
   isContinuous[39] = 1;
   isContinuous[40] = 1;
   isContinuous[41] = 1;
+  isContinuous[42] = 1;
+  isContinuous[43] = 1;
+  isContinuous[44] = 1;
+  isContinuous[45] = 1;
+  isContinuous[46] = 1;
+  isContinuous[47] = 1;
+ 
 
 #ifdef DEBUG
   cout << "InitStatistics(): DONE " << endl;
@@ -592,6 +641,14 @@ void MuonIsolationDQM::RecordData(MuonIterator muon){
   theData[40] = (theData[26] + theData[29] + theData[30]) / MuPt;
   theData[41] = (theData[32] + theData[35] + theData[36]) / MuPt;
   
+  theData[42] = muon->pfSumDRIsoProfileR04().sumChargedHadronPt;
+  theData[43] = muon->pfSumDRIsoProfileR04().sumNeutralHadronEt;
+  theData[44] = muon->pfSumDRIsoProfileR04().sumPhotonEt;
+  theData[45] = muon->pfMeanDRIsoProfileR04().sumChargedHadronPt;
+  theData[46] = muon->pfMeanDRIsoProfileR04().sumNeutralHadronEt;
+  theData[47] = muon->pfMeanDRIsoProfileR04().sumPhotonEt;
+  
+
   //--------------Filling the 2D Histos Data -------- //
   theData2D[0] = muon->isolationR03().sumPt; 
   theData2D[1] = muon->isolationR03().emEt;

@@ -12,12 +12,15 @@ persisted across invocations of the program.
 #include <iosfwd>
 #include <typeinfo>
 #include <string>
+#include <vector>
+#include "FWCore/Utilities/interface/FunctionWithDict.h"
 #include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "Reflex/TypeTemplate.h"
 
 namespace edm {
 
+  class FunctionWithDict;
   class MemberWithDict;
   class ObjectWithDict;
 
@@ -40,7 +43,9 @@ namespace edm {
 
   enum TypeModifiers {
      NoMod = 0,
-     Const = Reflex::CONST
+     Const = Reflex::CONST,
+     Reference = Reflex::REFERENCE,
+     ConstReference = Reflex::CONST|Reflex::REFERENCE
   };
 
   class TypeWithDict {
@@ -54,8 +59,9 @@ namespace edm {
     explicit TypeWithDict(T const& t) : type_(Reflex::Type::ByTypeInfo(typeid(t))) {
     }
 
-    TypeWithDict(TypeWithDict const& type, TypeModifiers modifiers) : type_(Reflex::Type(type.type_, modifiers)) {
-    }
+    TypeWithDict(TypeWithDict const& type, TypeModifiers modifiers);
+
+    explicit TypeWithDict(Reflex::Type const& type);
 
     static TypeWithDict
     byName(std::string const& className);
@@ -71,75 +77,41 @@ namespace edm {
 
     bool hasDictionary() const;
 
-    bool isComplete() const;
+    bool isClass() const;
 
-    bool hasProperty(std::string const& property) const;
+    bool isConst() const;
 
-    bool isClass() const {
-      return type_.IsClass();
+    bool isEnum() const;
+
+    bool isFundamental() const;
+
+    bool isPointer() const;
+
+    bool isReference() const;
+
+    bool isStruct() const;
+
+    bool isTemplateInstance() const;
+
+    bool isTypedef() const;
+
+    TypeWithDict finalType() const;
+
+    TypeWithDict toType() const;
+
+    TypeWithDict nestedType(char const* name) const;
+
+    TypeWithDict nestedType(std::string const& name) const {
+      return nestedType(name.c_str());
     }
 
-    bool isConst() const {
-      return type_.IsConst();
-    }
-
-    bool isEnum() const {
-      return type_.IsEnum();
-    }
-
-    bool isFundamental() const {
-      return type_.IsFundamental();
-    }
-
-    bool isPointer() const {
-      return type_.IsPointer();
-    }
-
-    bool isReference() const {
-      return type_.IsReference();
-    }
-
-    bool isTemplateInstance() const {
-      return type_.IsTemplateInstance();
-    }
-
-    bool isTypedef() const {
-      return type_.IsTypedef();
-    }
-
-    TypeWithDict finalType() const {
-      return TypeWithDict(type_.FinalType());
-    }
-
-    TypeWithDict returnType() const {
-      return TypeWithDict(type_.ReturnType());
-    }
-
-    TypeWithDict toType() {
-      return TypeWithDict(type_.ToType());
-    }
-
-    std::string propertyValueAsString(std::string const& property) const;
-
-    MemberWithDict dataMemberAt(size_t index) const;
-
-    TypeWithDict functionParameterAt(size_t index) const {
-      return TypeWithDict(type_.FunctionParameterAt(index));
-    }
-
-    TypeWithDict subTypeAt(size_t index) const {
-      return TypeWithDict(type_.SubTypeAt(index));
-    }
-
-    TypeWithDict templateArgumentAt(size_t index) const {
-      return TypeWithDict(type_.TemplateArgumentAt(index));
-    }
+    TypeWithDict templateArgumentAt(size_t index) const;
 
     ObjectWithDict construct() const;
 
-    void destruct(void * address, bool dealloc = true) const {
-      type_.Destruct(address, dealloc);
-    }
+    ObjectWithDict construct(TypeWithDict const& type, std::vector<void *> const& args) const;
+
+    void destruct(void * address, bool dealloc = true) const;
 
     void const* pointerToContainedType(void const* ptr, TypeWithDict const& containedType) const;
 
@@ -149,80 +121,57 @@ namespace edm {
       theFunction.Invoke(obj);
     }
 
-    std::string name(int mod = 0) const {
-      return type_.Name(mod);
-    }
+    std::string name(int mod = Reflex::FINAL|Reflex::SCOPED) const;
 
-    void* id() const {
-      return type_.Id();
-    }
-
-    void* allocate() const {
-      return type_.Allocate();
-    }
-
-    void deallocate(void* instance) const {
-      type_.Deallocate(instance);
-    }
+    void* id() const;
 
 #ifndef __GCCXML__
     explicit operator bool() const;
 #endif
     
-    bool operator<(TypeWithDict const& b) const { return type_ < b.type_; }
+    bool isEquivalentTo(TypeWithDict const& other) const;
 
-    bool operator==(TypeWithDict const& b) const {return type_ == b.type_;}
-
-    bool isEquivalentTo(TypeWithDict const& other) const {
-      return type_.IsEquivalentTo(other.type_);
-    }
-
-    std::type_info const& typeInfo() const {
-      return type_.TypeInfo();
-    }
-
-    MemberWithDict memberByName(std::string const& member) const;
+    std::type_info const& typeInfo() const;
 
     MemberWithDict dataMemberByName(std::string const& member) const;
 
-    MemberWithDict functionMemberByName(std::string const& member) const;
+    FunctionWithDict functionMemberByName(std::string const& member) const;
 
-    MemberWithDict functionMemberByName(std::string const& member, TypeWithDict const& signature, int mods, TypeMemberQuery memberQuery) const;
+    FunctionWithDict functionMemberByName(std::string const& member, TypeWithDict const& signature, int mods, TypeMemberQuery memberQuery) const;
 
-    size_t memberSize() const {
-      return type_.MemberSize();
+    size_t dataMemberSize() const;
+
+    size_t functionMemberSize() const;
+
+    size_t size() const;
+
+    void* allocate() const {
+      return new char[size()];
     }
 
-    size_t dataMemberSize() const {
-      return type_.DataMemberSize();
+    void deallocate(void * obj) const {
+      delete [] static_cast<char *>(obj);
     }
-
-    size_t functionMemberSize() const {
-      return type_.FunctionMemberSize();
-    }
-
-   size_t subTypeSize() const {
-      return type_.SubTypeSize();
-    }
-
 
   private:
     friend class BaseWithDict;
+    friend class FunctionWithDict;
     friend class MemberWithDict;
     friend class ObjectWithDict;
     friend class TypeBases;
-    friend class TypeMembers;
     friend class TypeDataMembers;
     friend class TypeFunctionMembers;
     friend class TypeTemplateWithDict;
 
-    explicit TypeWithDict(Reflex::Type const& type);
-
     Reflex::Type type_;
   };
 
-  inline bool operator>(TypeWithDict const& a, TypeWithDict const& b) {
-    return b < a;
+  inline bool operator<(TypeWithDict const& a, TypeWithDict const& b) {
+    return a.typeInfo().before(b.typeInfo());
+  }
+
+  inline bool operator==(TypeWithDict const& a, TypeWithDict const& b) {
+    return a.typeInfo() == b.typeInfo();
   }
 
   inline bool operator!=(TypeWithDict const& a, TypeWithDict const& b) {
@@ -240,19 +189,14 @@ namespace edm {
     static TypeTemplateWithDict
     byName(std::string const& templateName, int n);
 
-    bool operator==(TypeTemplateWithDict const& other) {
-      return typeTemplate_ == other.typeTemplate_;
-    }
+    std::string name(int mod = 0) const;
 
-    std::string name(int mod = 0) const {
-      return typeTemplate_.Name(mod);
-    }
-
+    bool operator==(TypeTemplateWithDict const& other) const;
 
 #ifndef __GCCXML__
     explicit operator bool() const;
 #endif
-    
+
   private:
     explicit TypeTemplateWithDict(Reflex::TypeTemplate const& typeTemplate);
     Reflex::TypeTemplate typeTemplate_;
@@ -264,15 +208,6 @@ namespace edm {
     Reflex::Base_Iterator begin() const;
     Reflex::Base_Iterator end() const;
     size_t size() const;
-  private:
-    Reflex::Type const& type_;
-  };
-
-  class TypeMembers {
-  public:
-    explicit TypeMembers(TypeWithDict const& type) : type_(type.type_) {}
-    Reflex::Member_Iterator begin() const;
-    Reflex::Member_Iterator end() const;
   private:
     Reflex::Type const& type_;
   };

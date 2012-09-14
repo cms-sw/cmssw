@@ -9,6 +9,7 @@
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
@@ -28,7 +29,8 @@ class EcalHexDumperModule: public edm::EDAnalyzer{
   
  public:
 
-  EcalHexDumperModule(const edm::ParameterSet& ps){  
+  EcalHexDumperModule(const edm::ParameterSet& ps) :
+    fedRawDataCollectionTag_(ps.getParameter<edm::InputTag>("fedRawDataCollectionTag")) {  
     verbosity_= ps.getUntrackedParameter<int>("verbosity",1);
     
     beg_fed_id_= ps.getUntrackedParameter<int>("beg_fed_id",0);
@@ -57,6 +59,8 @@ class EcalHexDumperModule: public edm::EDAnalyzer{
 
   void analyze( const edm::Event & e, const  edm::EventSetup& c);
 
+ private:
+  edm::InputTag fedRawDataCollectionTag_;
 };
 
 
@@ -68,7 +72,7 @@ void EcalHexDumperModule::analyze( const edm::Event & e, const  edm::EventSetup&
   
 
   edm::Handle<FEDRawDataCollection> rawdata;
-  e.getByType(rawdata);  
+  e.getByLabel(fedRawDataCollectionTag_, rawdata);  
 
   std::ofstream dumpFile (filename_.c_str(),std::ios::app );
   

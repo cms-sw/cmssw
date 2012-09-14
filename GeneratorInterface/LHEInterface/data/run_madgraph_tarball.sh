@@ -50,15 +50,10 @@ fi
 mkdir madevent; cd madevent
 
 # retrieve the wanted gridpack from the official repository 
-#wget --no-check-certificate http://cms-project-generators.web.cern.ch/cms-project-generators/${repo}/${name}_tarball.tar.gz 
 fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${repo}/${name}_tarball.tar.gz 
 
-#repo=/shome/bortigno/MadGraph/MG5_v1_3_27/WPlus1Jet
-#cp ${repo}/${name}_tarball.tar.gz ./ 
 
 #check the structure of the tarball
-
-
 tar xzf ${name}_tarball.tar.gz ; rm -f ${name}_tarball.tar.gz ;
 
 # force the f77 compiler to be the CMS defined one
@@ -80,17 +75,6 @@ sed -i -e "s#${run_card_nevents}.*.= nevents#${nevt}  = nevents#g" Cards/run_car
 new_run_card_nevents=`awk 'BEGIN{FS=" = nevents"}/nevents/{print $1}' Cards/run_card.dat`
 echo "new_run_card_nevents = ${new_run_card_nevents}"
 
-#Set the repository for additional needed files (It is modified to use "fn-fileget" instead of wget)
-#HTTP_DOWNLOAD="http://cms-project-generators.web.cern.ch/cms-project-generators/slc5_ia32_gcc434/madgraph/Tools"
-#wget --no-check-certificate  ${HTTP_DOWNLOAD}/mgPostProcv2.py
-#wget --no-check-certificate  ${HTTP_DOWNLOAD}/replace.pl
-
-HTTP_DOWNLOAD=slc5_ia32_gcc434/madgraph/Tools
-
-fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${HTTP_DOWNLOAD}/mgPostProcv2.py 
-mv mgPostProcv2.py bin/.
-fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${HTTP_DOWNLOAD}/replace.pl 
-mv replace.pl bin/.
 
 version=`cat MGMEVersion.txt | grep -c "1.4"`
 
@@ -151,56 +135,23 @@ fi
 # DECAY process
 if [ "${decay}" == true ] ; then
 
-#wget --no-check-certificate  ${HTTP_DOWNLOAD}/DECAY.tar.gz
-fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${HTTP_DOWNLOAD}/DECAY.tar.gz 
-tar -zxf DECAY.tar.gz
-
-#wget --no-check-certificate  ${HTTP_DOWNLOAD}/HELAS.tar.gz
-fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${HTTP_DOWNLOAD}/HELAS.tar.gz 
-tar -zxf HELAS.tar.gz
-#cd HELAS ; make clean ;make ; cd ..
-cd DECAY ; 
-sed -i 's/DATA WRITEOUT \/.TRUE./DATA WRITEOUT \/.FALSE./g' decay.f
-make clean ;make ; cd ..
-
-echo IS FILE IN A DECAY ABOVE DIR 
-ls $file.lhe
-
-file2=events
-mv ${file}.lhe ${file2}.lhe
-
-bm=`grep -c "# MB" ${file}.lhe`
-echo "%MSG-MG5 Running DECAY..."
-
-#changed this from 4.7 -> 4.8
-zero=0;
-if [ $bm -eq $zero ] ;then
-sed 's/  5 0.000000 # b : 0.0/  5  4.800000 # b/' ${file2}.lhe > ${file2}_in.lhe ; rm -f ${file2}.lhe
-fi
-
-if [ $bm -gt $zero ] ;then
-sed  's/5 0.000000e+00 # MB/5 4.800000e+00 # MB/g' ${file2}.lhe > ${file2}_in.lhe ; rm -f ${file2}.lhe
-fi
-
-#__________________________________________
-
-
-# DECAY process
-if [ "${decay}" == true ] ; then
     echo "%MSG-MG5 Running DECAY..."
+    bm=`grep -c "# MB" ${file}.lhe`
+    zero=0;
+    if [ $bm -eq $zero ] ;then
+      sed 's/  5 0.000000 # b : 0.0/  5  4.800000 # b/' ${file}.lhe > ${file}_in.lhe ; rm -f ${file}.lhe
+    fi
 
-cd DECAY
-	# if you want to do not-inclusive top-decays you have to modify the switch in the decay_1.in and decay_2.in
-	for (( i = 1; i <=2; i++)) ; do
-        if [ -f ../${file2}.lhe ] ; then
-           mv ../${file2}.lhe ../${file2}_in.lhe 
-        fi 
-		#madevent/bin/decay < decay_$i\.in
-		./decay < decay_$i\.in
-	done
-fi
-cd ..
-mv ${file2}.lhe ${file}.lhe
+    if [ $bm -gt $zero ] ;then
+      sed  's/5 0.000000e+00 # MB/5 4.800000e+00 # MB/g' ${file}.lhe > ${file}_in.lhe ; rm -f ${file}.lhe
+    fi
+    # if you want to do not-inclusive top-decays you have to modify the switch in the decay_1.in and decay_2.in
+    for (( i = 1; i <=2; i++)) ; do
+        if [ -f ${file}.lhe ] ; then
+           mv ${file}.lhe ${file}_in.lhe
+        fi
+        madevent/bin/decay < decay_$i\.in
+     done
 fi
 #__________________________________________
 # REPLACE process

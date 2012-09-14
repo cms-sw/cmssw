@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: DQMAnalyzer.cc,v 1.4 2010/02/26 18:47:24 wdd Exp $
+// $Id: DQMAnalyzer.cc,v 1.5 2010/10/19 17:34:56 wmtan Exp $
 //
 //
 
@@ -55,7 +55,8 @@
 using namespace reco;
 
 
-DQMAnalyzer::DQMAnalyzer(const edm::ParameterSet& conf)
+DQMAnalyzer::DQMAnalyzer(const edm::ParameterSet& conf) :
+  beamSpot_(conf.getParameter<edm::InputTag>("beamSpot"))
 {
 
   outputFile_ = conf.getParameter<std::string>("outputFile");
@@ -660,7 +661,7 @@ DQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::SuperClusterCollection> recoClusters;
   iEvent.getByLabel(matchingObjectCollection_,recoClusters);
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByType(recoBeamSpotHandle);
+  iEvent.getByLabel(beamSpot_, recoBeamSpotHandle);
   const reco::BeamSpot bs = *recoBeamSpotHandle;
   histNum_->Fill((*gsfElectrons).size());
 

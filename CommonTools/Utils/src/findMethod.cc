@@ -3,6 +3,7 @@
 #include "CommonTools/Utils/interface/Exception.h"
 #include "FWCore/Utilities/interface/BaseWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
+#include <cassert>
 
 using namespace std;
 using reco::parser::AnyMethodArgument;
@@ -19,7 +20,7 @@ static bool fatalErrorCondition(int iError)
    
 }
 namespace reco {
-  int checkMethod(const edm::MemberWithDict & mem, 
+  int checkMethod(const edm::FunctionWithDict & mem, 
                   const edm::TypeWithDict   & type,
                   const std::vector<AnyMethodArgument> &args, std::vector<AnyMethodArgument> &fixuppedArgs) {
     int casts = 0;
@@ -42,16 +43,20 @@ namespace reco {
         << ", min #args = " << minArgs << ", max #args = " << maxArgs 
         << ", args = " << args.size() << std::endl;*/
     if (!args.empty()) {
-        edm::TypeWithDict t = mem.typeOf();
         std::vector<AnyMethodArgument> tmpFixups;
-        for (size_t i = 0; i < args.size(); ++i) { 
-            std::pair<AnyMethodArgument,int> fixup = boost::apply_visitor( reco::parser::AnyMethodArgumentFixup(t.functionParameterAt(i)), args[i] );
-            //std::cerr << "\t ARG " << i << " type is " << t.functionParameterAt(i).name() << " conversion = " << fixup.second << std::endl; 
+        size_t i = 0;
+        for (auto const& param : mem) { 
+            edm::TypeWithDict parameter(param);
+            std::pair<AnyMethodArgument,int> fixup = boost::apply_visitor( reco::parser::AnyMethodArgumentFixup(parameter), args[i] );
+            //std::cerr << "\t ARG " << i << " type is " << parameter.name() << " conversion = " << fixup.second << std::endl; 
             if (fixup.second >= 0) { 
                 tmpFixups.push_back(fixup.first);
                 casts += fixup.second;
             } else { 
                 return -1*parser::kWrongArgumentType;
+            }
+            if(++i == args.size()) {
+              break;
             }
         }
         fixuppedArgs.swap(tmpFixups);
@@ -62,7 +67,13 @@ namespace reco {
     return casts;
   }
 
-  pair<edm::MemberWithDict, bool> findMethod(const edm::TypeWithDict & t, 
+  typedef pair<int,edm::FunctionWithDict> OK;
+  bool nCasts(OK const& a, OK const& b) {
+    return a.first < b.first;
+  }
+
+
+  pair<edm::FunctionWithDict, bool> findMethod(const edm::TypeWithDict & t, 
                                 const string & name, 
                                 const std::vector<AnyMethodArgument> &args, 
                                 std::vector<AnyMethodArgument> &fixuppedArgs,
@@ -76,15 +87,15 @@ namespace reco {
     while(type.isPointer() || type.isTypedef()) type = type.toType();
     type = edm::TypeWithDict(type, edm::TypeModifiers::NoMod); // strip const, volatile, c++ ref, ..
 
-    pair<edm::MemberWithDict, bool> mem; mem.second = false;
+    pair<edm::FunctionWithDict, bool> mem; mem.second = false;
 
     // suitable members and number of integer->real casts required to get them
-    vector<pair<int,edm::MemberWithDict> > oks;
+    vector<pair<int,edm::FunctionWithDict> > oks;
 
     // first look in base scope
     edm::TypeFunctionMembers functions(type);
     for(auto const& function : functions) {
-      edm::MemberWithDict m(function);
+      edm::FunctionWithDict m(function);
       if(m.name()==name) {
         int casts = checkMethod(m, type, args, fixuppedArgs);
         if (casts > -1) {
@@ -102,8 +113,8 @@ namespace reco {
     // found at least one method
     if (!oks.empty()) {
         if (oks.size() > 1) {
-            // sort by number of conversiosns needed
-            sort(oks.begin(), oks.end());
+            // sort by number of conversions needed
+            sort(oks.begin(), oks.end(), nCasts);
 
             if (oks[0].first == oks[1].first) { // two methods with same ambiguity
                 throw parser::Exception(iIterator)

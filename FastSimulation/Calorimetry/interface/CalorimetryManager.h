@@ -186,5 +186,8 @@ class CalorimetryManager{
   GflashPiKShowerProfile *thePiKProfile;
   GflashProtonShowerProfile *theProtonProfile;
   GflashAntiProtonShowerProfile *theAntiProtonProfile;
+
+  // Small utility
+  double gaussShootNoNegative(double e, double sigma);
 };
 #endif

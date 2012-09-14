@@ -100,7 +100,7 @@ private:
   //  std::string subDirName;
 
   //Histogram parameters
-  static const int NUM_VARS      = 42; // looking at R03 and R05.  Total of 48 histos.
+  static const int NUM_VARS      = 48; // looking at R03 and R05.  Total of 54 histos.
   static const int NUM_VARS_2D   = 10; // looking only at R03.  Total of 8 TH2F. 
   static const int NUM_VARS_NVTX = 6 ;
   

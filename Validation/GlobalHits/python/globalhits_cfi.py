@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 globalhits = cms.EDProducer("GlobalHitsProducer",
+    G4VtxSrc = cms.InputTag("g4SimHits"),
+    G4TrkSrc = cms.InputTag("g4SimHits"),
     MuonRpcSrc = cms.InputTag("g4SimHits","MuonRPCHits"),
     # 1 provides basic output
     # 2 provides output of the fill step + 1

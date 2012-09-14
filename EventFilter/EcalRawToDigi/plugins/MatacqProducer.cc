@@ -174,14 +174,10 @@ MatacqProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup){
 
 void
 MatacqProducer::addMatacqData(edm::Event& event){
+
   edm::Handle<FEDRawDataCollection> sourceColl;
-  if(inputRawCollection_.label().size() == 0
-     && inputRawCollection_.instance().size() == 0){
-    event.getByType(sourceColl);
-  } else{
-    event.getByLabel(inputRawCollection_, sourceColl);
-  }
-  
+  event.getByLabel(inputRawCollection_, sourceColl);
+
   std::auto_ptr<FEDRawDataCollection> rawColl;
   if(produceRaw_){
     if(mergeRaw_){
@@ -606,7 +602,8 @@ uint32_t MatacqProducer::getOrbitId(edm::Event& ev) const{
   //return ev.orbitNumber();
   //we have to deal with what we have in current CMSSW releases:
   edm::Handle<FEDRawDataCollection> rawdata;
-  if(!(ev.getByType(rawdata) && rawdata.isValid())){
+  ev.getByLabel(inputRawCollection_, rawdata);
+  if(!(rawdata.isValid())){
     throw cms::Exception("NotFound")
       << "No FED raw data collection found. ECAL raw data are "
       "required to retrieve the orbit ID";
@@ -646,7 +643,8 @@ uint32_t MatacqProducer::getOrbitId(edm::Event& ev) const{
  
 int MatacqProducer::getCalibTriggerType(edm::Event& ev) const{  
   edm::Handle<FEDRawDataCollection> rawdata;
-  if(!(ev.getByType(rawdata) && rawdata.isValid())){
+  ev.getByLabel(inputRawCollection_, rawdata);
+  if(!(rawdata.isValid())){
     throw cms::Exception("NotFound")
       << "No FED raw data collection found. ECAL raw data are "
       "required to retrieve the trigger type";

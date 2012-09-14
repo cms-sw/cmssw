@@ -14,6 +14,7 @@
 #include "DataFormats/Provenance/interface/Provenance.h"
 //#include "FWCore/Framework/interface/Provenance.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -133,6 +134,8 @@ class TrackerHitProducer : public edm::EDProducer
   edm::InputTag PxlBrlHighSrc_;
   edm::InputTag PxlFwdLowSrc_;
   edm::InputTag PxlFwdHighSrc_;
+  edm::InputTag G4VtxSrc_;
+  edm::InputTag G4TrkSrc_;
 
   edm::ParameterSet config_;
   // private statistics information

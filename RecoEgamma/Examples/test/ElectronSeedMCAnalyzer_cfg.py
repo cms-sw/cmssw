@@ -20,6 +20,7 @@ process.source = cms.Source ("PoolSource",
     )
 )
 process.electronSeedAnalysis = cms.EDAnalyzer("ElectronSeedAnalyzer",
+    beamSpot = cms.InputTag('offlineBeamSpot'),
     inputCollection = cms.InputTag("ecalDrivenElectronSeeds"),
 )
 

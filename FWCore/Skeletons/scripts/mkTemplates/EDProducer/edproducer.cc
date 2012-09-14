@@ -52,10 +52,10 @@ class prodname : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
-      virtual void beginRun(edm::Run&, edm::EventSetup const&);
-      virtual void endRun(edm::Run&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+      //virtual void beginRun(edm::Run&, edm::EventSetup const&);
+      //virtual void endRun(edm::Run&, edm::EventSetup const&);
+      //virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+      //virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 
       // ----------member data ---------------------------
 @example_myparticle       edm::InputTag muonTags_; 
@@ -186,29 +186,37 @@ prodname::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
-void 
+/*
+void
 prodname::beginRun(edm::Run&, edm::EventSetup const&)
 {
 }
-
+*/
+ 
 // ------------ method called when ending the processing of a run  ------------
-void 
+/*
+void
 prodname::endRun(edm::Run&, edm::EventSetup const&)
 {
 }
-
+*/
+ 
 // ------------ method called when starting to processes a luminosity block  ------------
-void 
+/*
+void
 prodname::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
-
+*/
+ 
 // ------------ method called when ending the processing of a luminosity block  ------------
-void 
+/*
+void
 prodname::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
-
+*/
+ 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 prodname::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

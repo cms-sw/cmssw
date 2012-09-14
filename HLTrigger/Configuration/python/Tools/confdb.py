@@ -78,8 +78,10 @@ class HLTProcess(object):
     "HLT_L1Tech_HBHEHO_totalOR_v*",
     "HLT_L1Tech_HCAL_HF_single_channel_v*",
     "HLT_L1TrackerCosmics_v*",
+    "HLT_HcalUTCA_v*",
     
 # TODO: paths not supported by FastSim, but for which a recovery should be attempted
+
   
     )
 
@@ -938,9 +940,10 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltMuTrackJpsiCtfTracks" )
       self.options['modules'].append( "-hltMuTrackJpsiEffCkfTrackCandidates" )
       self.options['modules'].append( "-hltMuTrackJpsiEffCtfTracks" )
-      self.options['modules'].append( "-hltJpsiTkPixelSeedFromL3Candidate" )
       self.options['modules'].append( "-hltCkfTrackCandidatesJpsiTk" )
       self.options['modules'].append( "-hltCtfWithMaterialTracksJpsiTk" )
+      self.options['modules'].append( "-hltMuTrackCkfTrackCandidatesOnia" )
+      self.options['modules'].append( "-hltMuTrackCtfTracksOnia" )
       
       self.options['modules'].append( "-hltESRegionalEgammaRecHit" )
       self.options['modules'].append( "-hltEcalRegionalJetsFEDs" )

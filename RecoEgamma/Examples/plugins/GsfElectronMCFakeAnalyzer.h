@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCFakeAnalyzer.h,v 1.2 2009/10/09 13:06:23 chamont Exp $
+// $Id: GsfElectronMCFakeAnalyzer.h,v 1.3 2011/05/20 17:17:28 wmtan Exp $
 //
 //
 
@@ -20,7 +20,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
@@ -50,6 +50,7 @@ class GsfElectronMCFakeAnalyzer : public edm::EDAnalyzer
 
     edm::InputTag electronCollection_;
     edm::InputTag matchingObjectCollection_;
+    edm::InputTag beamSpot_;
     bool readAOD_;
     std::string outputFile_;
 

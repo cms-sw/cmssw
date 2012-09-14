@@ -24,6 +24,7 @@ from RecoEgamma.Examples.dataAnalyzerStdBiningParameters_cff import *
 from RecoEgamma.Examples.dataAnalyzerFineBiningParameters_cff import *
 
 process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronDataAnalyzer",
+    beamSpot = cms.InputTag('offlineBeamSpot'),
     electronCollection = cms.InputTag("gsfElectrons"),
     readAOD = cms.bool(False),
     outputFile = cms.string('gsfElectronHistos_data_ZeeSummer09.root'),

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/03/28 22:59:43 $
- *  $Revision: 1.1 $
+ *  $Date: 2012/08/05 12:51:52 $
+ *  $Revision: 1.2 $
  *  \author:  Mia Tosi,40 3-B32,+41227671609 
  */
 
@@ -63,7 +63,7 @@ GetLumi::getRawValue(edm::LuminosityBlock const& lumiBlock,
   double lumi = -1.;
   double intDelLumi = -1.;
 
-  size_t LS = lumiBlock.luminosityBlockAuxiliary().luminosityBlock();
+  //  size_t LS = lumiBlock.luminosityBlockAuxiliary().luminosityBlock();
   // accumulate HF data at every LS as it is closed. 
   // note: lumi unit from DIPLumiSummary and Detail is microbarns
   edm::Handle<LumiSummary> lumiSummary_;

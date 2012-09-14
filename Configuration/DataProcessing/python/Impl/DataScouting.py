@@ -10,7 +10,7 @@ Really against OO principles, but pragmatism should prevale, I guess.
 import os
 import sys
 
-from Configuration.DataProcessing.Scenario import Scenario
+from Configuration.DataProcessing.Reco import Reco
 
 from Configuration.DataProcessing.Utils import stepALCAPRODUCER,addMonitoring,dictIO,dqmIOSource,harvestingMode,dqmSeq
 import FWCore.ParameterSet.Config as cms
@@ -20,7 +20,7 @@ from Configuration.PyReleaseValidation.ConfigBuilder import defaultOptions
 from Configuration.PyReleaseValidation.ConfigBuilder import installFilteredStream
 from Configuration.DataProcessing.RecoTLR import customisePrompt,customiseExpress
 
-class DataScouting(Scenario):
+class DataScouting(Reco):
     """
     _DataScouting_
 
@@ -39,7 +39,7 @@ class DataScouting(Scenario):
         I follow the structure of the package.
         """
         options = Options()
-        options.scenario = 'pp'
+        options.scenario = self.cbSc
         options.__dict__.update(defaultOptions.__dict__)
         options.step = 'DQM:DQM/DataScouting/dataScouting_cff.dataScoutingDQMSequence,ENDJOB'
         dictIO(options,args)        
@@ -56,6 +56,30 @@ class DataScouting(Scenario):
         
         return process        
 
+    def __getEmptyProcess(self):
+      return cms.Process('Empty')
+      
+
+    def expressProcessing(self, globalTag, **args):
+        """
+        _expressProcessing_
+
+        In this scheme this method does not make any sense, but I have to 
+        override the Reco one.
+
+        """       
+        return self.__getEmptyProcess()
+
+
+    def alcaSkim(self, skims, **args):
+        """
+        _alcaSkim_
+
+        Same as above
+
+        """
+        return self.__getEmptyProcess()
+
     def dqmHarvesting(self, datasetName, runNumber, globalTag, **args):
         """
         _dqmHarvesting_
@@ -64,7 +88,7 @@ class DataScouting(Scenario):
 
         """
         options = defaultOptions
-        options.scenario = 'pp'
+        options.scenario = self.cbSc
         options.step = "HARVESTING"+dqmSeq(args,':DQMOffline')
         options.name = "EDMtoMEConvert"
         options.conditions = globalTag
@@ -76,3 +100,14 @@ class DataScouting(Scenario):
 
         harvestingMode(process,datasetName,args,rANDl=False)
         return process
+
+
+    def alcaHarvesting(self, globalTag, datasetName, **args):
+        """
+        _alcaHarvesting_
+
+        Again the same thing.
+
+        """
+        return self.__getEmptyProcess()
+        

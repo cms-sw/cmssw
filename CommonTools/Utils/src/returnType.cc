@@ -5,15 +5,15 @@ using namespace std;
 using namespace reco::method;
 
 namespace reco {
-  edm::TypeWithDict returnType(const edm::MemberWithDict & mem) {
-    edm::TypeWithDict t = mem.typeOf().returnType();
+  edm::TypeWithDict returnType(const edm::FunctionWithDict & mem) {
+    edm::TypeWithDict t = mem.returnType();
     if(t) {
        while(t.isTypedef()) t = t.toType();
     }
     return t;
   }
 
-  TypeCode returnTypeCode(const edm::MemberWithDict & mem) {
+  TypeCode returnTypeCode(const edm::FunctionWithDict & mem) {
     return typeCode(returnType(mem));
   }
 
@@ -25,9 +25,13 @@ namespace reco {
       retTypeMap["int"] = intType;
       retTypeMap["unsigned int"] = uIntType;
       retTypeMap["short"] = shortType;
+      retTypeMap["short int"] = shortType;
       retTypeMap["unsigned short"] = uShortType;
+      retTypeMap["unsigned short int"] = uShortType;
       retTypeMap["long"] = longType;
+      retTypeMap["long int"] = longType;
       retTypeMap["unsigned long"] = uLongType;
+      retTypeMap["unsigned long int"] = uLongType;
       retTypeMap["size_t"] = uLongType;
       retTypeMap["char"] = charType;
       retTypeMap["unsigned char"] = uCharType;

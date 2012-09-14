@@ -23,6 +23,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
+
 class DiMuonHistograms : public MuonAnalyzerBase {
   
  public:
@@ -45,6 +46,8 @@ class DiMuonHistograms : public MuonAnalyzerBase {
   // STA Label
   edm::InputTag theSTACollectionLabel;
   edm::InputTag theMuonCollectionLabel;
+  edm::InputTag bsTag;
+  edm::InputTag vertexTag;
 
   //histo binning parameters
   int etaBin;

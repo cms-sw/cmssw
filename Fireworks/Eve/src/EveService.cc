@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Fri Jun 25 18:57:39 CEST 2010
-// $Id: EveService.cc,v 1.8 2012/04/21 01:04:37 amraktad Exp $
+// $Id: EveService.cc,v 1.7 2010/07/15 13:02:04 matevz Exp $
 //
 
 // system include files
@@ -194,7 +194,9 @@ void EveService::postBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
    try 
    {
       edm::Handle<edm::ConditionsInRunBlock> runCond;
-      bool res = iRun.getByLabel("conditionsInEdm", runCond);
+      bool res = iRun.getByType(runCond);
+  
+      //bool res = run.getByLabel("conditionsInEdm", runCond, "", "");
       if (res && runCond.isValid())
       {
          printf("Got current from conds in edm %f\n", runCond->BAvgCurrent);

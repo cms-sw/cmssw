@@ -6,21 +6,25 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include <iostream>
 
 class TestCaloSelectors : public edm::EDAnalyzer {
 public:
-  TestCaloSelectors(const edm::ParameterSet& ps) {
+  TestCaloSelectors(const edm::ParameterSet& ps) :
+    inputTag_(ps.getParameter<edm::InputTag>("inputTag")) {
   }
   virtual void analyze(const edm::Event& evt, const edm::EventSetup& es);
-
+private:
+  edm::InputTag inputTag_;
 };
 
 void TestCaloSelectors::analyze(const edm::Event& evt, const edm::EventSetup& c) {
   edm::Handle<HBHERecHitCollection> hbhe;
-  evt.getByType(hbhe);
+  evt.getByLabel(inputTag_, hbhe);
   HBHERecHitMetaCollection mhbhe(*hbhe);
   edm::ESHandle<CaloGeometry> pG;
   c.get<CaloGeometryRecord>().get(pG);

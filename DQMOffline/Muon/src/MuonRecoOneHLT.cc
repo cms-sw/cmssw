@@ -13,6 +13,13 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+
+
+
 #include <string>
 #include "TMath.h"
 using namespace std;
@@ -46,6 +53,9 @@ void MuonRecoOneHLT::beginJob(DQMStore * dbe) {
   dbe->setCurrentFolder("Muons/MuonRecoOneHLT");
   
   theMuonCollectionLabel = parameters.getParameter<edm::InputTag>("MuonCollection");
+  vertexTag  = parameters.getParameter<edm::InputTag>("vertexLabel");
+  bsTag  = parameters.getParameter<edm::InputTag>("bsLabel");
+
   
   muReco = dbe->book1D("Muon_Reco", "Muon Reconstructed Tracks", 6, 1, 7);
   muReco->setBinLabel(1,"glb+tk+sta"); 
@@ -132,6 +142,49 @@ void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 #ifdef DEBUG
   cout << "[MuonRecoOneHLT]  analyze "<< endl;
 #endif
+
+
+  // ==========================================================
+  // Look for the Primary Vertex (and use the BeamSpot instead, if you can't find it):
+
+  reco::Vertex::Point posVtx;
+  reco::Vertex::Error errVtx;
+ 
+  unsigned int theIndexOfThePrimaryVertex = 999.;
+ 
+  edm::Handle<reco::VertexCollection> vertex;
+  iEvent.getByLabel(vertexTag, vertex);
+
+  if ( vertex.isValid() ){
+  for (unsigned int ind=0; ind<vertex->size(); ++ind) {
+    if ( (*vertex)[ind].isValid() && !((*vertex)[ind].isFake()) ) {
+      theIndexOfThePrimaryVertex = ind;
+      break;
+    }
+  }
+  }
+  if (theIndexOfThePrimaryVertex<100) {
+    posVtx = ((*vertex)[theIndexOfThePrimaryVertex]).position();
+    errVtx = ((*vertex)[theIndexOfThePrimaryVertex]).error();
+  }   else {
+    LogInfo("RecoMuonValidator") << "reco::PrimaryVertex not found, use BeamSpot position instead\n";
+  
+    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+    iEvent.getByLabel(bsTag,recoBeamSpotHandle);
+    
+    reco::BeamSpot bs = *recoBeamSpotHandle;
+    
+    posVtx = bs.position();
+    errVtx(0,0) = bs.BeamWidthX();
+    errVtx(1,1) = bs.BeamWidthY();
+    errVtx(2,2) = bs.sigmaZ();
+  }
+  const reco::Vertex thePrimaryVertex(posVtx,errVtx);
+
+  // ==========================================================
+
+
+
   
   //  TEST FOR ONLY TAKE HIGHEST PT MUON
   edm::Handle<reco::MuonCollection> muons;
@@ -202,13 +255,7 @@ void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     ptGlbTrack[2]->Fill(recoStaGlbTrack->pt());
   }
   // Check if Muon is Tight
-  if (LeadingMuon[0].isGlobalMuon()  && 
-      LeadingMuon[0].isTrackerMuon() && 
-      LeadingMuon[0].combinedMuon()->normalizedChi2()<10.  && 
-      LeadingMuon[0].combinedMuon()->hitPattern().numberOfValidMuonHits()>0 && 
-      fabs(LeadingMuon[0].combinedMuon()->dxy(beamSpot.position()))<0.2  && 
-      LeadingMuon[0].combinedMuon()->hitPattern().numberOfValidPixelHits()>0 && 
-      LeadingMuon[0].numberOfMatches() > 1){
+  if (muon::isTightMuon(LeadingMuon[0], thePrimaryVertex) ) { 
     
     LogTrace(metname)<<"[MuonRecoOneHLT] The mu is tracker only - filling the histos";
     

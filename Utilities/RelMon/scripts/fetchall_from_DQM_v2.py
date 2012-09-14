@@ -30,10 +30,10 @@ from os.path import basename, isfile
 from optparse import OptionParser
 from urllib2 import build_opener, Request
 
-try:
-    from Utilities.RelMon.authentication import X509CertOpen
-except ImportError:
+if os.environ.has_key("RELMON_SA"):
     from authentication import X509CertOpen
+else:
+    from Utilities.RelMon.authentication import X509CertOpen
 
 
 def auth_wget(url, chunk_size=1048576):

@@ -5,9 +5,6 @@
 #undef HEP_SHORT_NAMES
 #endif
 
-// will percolate in CLHEP...
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 #include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Matrix/SymMatrix.h"

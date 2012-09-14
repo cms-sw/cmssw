@@ -1,16 +1,3 @@
-2012-08-15 Srecko Morovic <srecko.morovic@cern.ch>
-
-	* tag V02-05-19
-	* MessageService handling cleanup. Keeping auto_ptr in FU class,
-	  destroy before fork and recreate everywhere after fork.
-	  (to prevent occassional lockups in slaves)
-
-2012-07-20 Srecko Morovic <srecko.morovic@cern.ch>
-
-	* tag V02-05-18
-	* sending time elapsed from the last report to the iDie
-	* detach DQM from Shm before setting failed state
-
 2012-07-10 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V02-05-17

@@ -19,6 +19,7 @@ hcalDetDiagNoiseMonitor=cms.EDAnalyzer("HcalDetDiagNoiseMonitor",
                                        RawDataLabel           = cms.untracked.InputTag("rawDataCollector"),
                                        digiLabel              = cms.untracked.InputTag("hcalDigis"),
                         	       gtLabel                = cms.untracked.InputTag("l1GtUnpack"),
+                                       hcalTBTriggerDataTag   = cms.InputTag("tbunpack"),
                                        Overwrite              = cms.untracked.bool(True),
                                        # path to store datasets for current run
                                        OutputFilePath         = cms.untracked.string(""),

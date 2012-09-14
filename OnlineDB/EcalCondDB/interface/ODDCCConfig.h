@@ -45,17 +45,6 @@ class ODDCCConfig : public IODConfig {
   inline std::string getDCCWeightsMode() const { return m_wei; }
 
   void setParameters(std::map<std::string,std::string> my_keys_map);
-
-  inline void printout() { 
-    std::cout <<"DCC >>" << "SIZE " <<  getSize()<< std::endl;
-    std::cout <<"DCC >>" << "DCCConfigurationUrl " <<  getDCCConfigurationUrl() << std::endl;
-    std::cout <<"DCC >>" << "TestPatternFileUrl " <<  getTestPatternFileUrl()<< std::endl;
-    std::cout <<"DCC >>" << "NTestPatternsToLoad " <<  getNTestPatternsToLoad()<< std::endl;
-    std::cout <<"DCC >>" << "SMHalf " <<  getSMHalf()<< std::endl;
-    std::cout <<"DCC >>" << "DCCWeightsMode" <<  getDCCWeightsMode()<< std::endl;
-    
-  }
-
   
  private:
   void prepareWrite()  throw(std::runtime_error);
