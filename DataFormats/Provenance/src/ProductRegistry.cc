@@ -13,6 +13,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
@@ -238,11 +239,11 @@ namespace edm {
   }
 
   static void
-  fillLookup(TypeID const& type,
+  fillLookup(TypeWithDict const& type,
              ProductTransientIndex const& index,
              ConstBranchDescription const* branchDesc,
              TransientProductLookupMap::FillFromMap& oMap) {
-    oMap[std::make_pair(TypeInBranchType(type,
+    oMap[std::make_pair(TypeInBranchType(TypeID(type.typeInfo()),
                                          branchDesc->branchType()),
                                          branchDesc)] = index;
   }
@@ -281,8 +282,8 @@ namespace edm {
 
       //only do the following if the data is supposed to be available in the event
       if(desc.present()) {
-        TypeID type(TypeID::byName(desc.className()));
-        TypeID wrappedType(TypeID::byName(wrappedClassName(desc.className())));
+        TypeWithDict type(TypeWithDict::byName(desc.className()));
+        TypeWithDict wrappedType(TypeWithDict::byName(wrappedClassName(desc.className())));
         if(!bool(type) || !bool(wrappedType)) {
           missingDicts.insert(desc.className());
         } else {
@@ -296,21 +297,20 @@ namespace edm {
             // I do not throw an exception here if the check fails
             // because there are known cases where the dictionary does
             // not exist and we do not need to support those cases.
-            TypeID valueType;
-            TypeWithDict typeWithDict(type.typeInfo());
-            if((is_RefVector(typeWithDict, valueType) ||
-                is_PtrVector(typeWithDict, valueType) ||
-                is_RefToBaseVector(typeWithDict, valueType) ||
-                value_type_of(typeWithDict, valueType))
+            TypeWithDict valueType;
+            if((is_RefVector(type, valueType) ||
+                is_PtrVector(type, valueType) ||
+                is_RefToBaseVector(type, valueType) ||
+                value_type_of(type, valueType))
                 && bool(valueType)) {
   
               fillLookup(valueType, index, pBD, tempElementLookupMap);
   
               // Repeat this for all public base classes of the value_type
-              std::vector<TypeID> baseTypes;
+              std::vector<TypeWithDict> baseTypes;
               public_base_classes(valueType, baseTypes);
   
-              for(TypeID const& baseType : baseTypes) {
+              for(TypeWithDict const& baseType : baseTypes) {
                 fillLookup(baseType, index, pBD, tempElementLookupMap);
               }
             }
