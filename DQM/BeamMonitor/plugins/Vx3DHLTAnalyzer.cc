@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.102 2012/03/12 11:52:31 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.101 2011/08/03 12:48:47 dinardo Exp $
 
 
 #include "DQM/BeamMonitor/plugins/Vx3DHLTAnalyzer.h"
@@ -1186,7 +1186,7 @@ void Vx3DHLTAnalyzer::beginJob()
   reset("scratch");
   prescaleHistory      = 1;
   maxLumiIntegration   = 15;
-  minVxDoF             = 10.;
+  minVxDoF             = 4.;
   // For vertex fitter without track-weight: d.o.f. = 2*NTracks - 3
   // For vertex fitter with track-weight:    d.o.f. = sum_NTracks(2*track_weight) - 3
   internalDebug        = false;

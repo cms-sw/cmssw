@@ -8,8 +8,7 @@
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include "TrackingTools/MaterialEffects/interface/VolumeMaterialEffectsEstimator.h"
 
 class VolumeMaterialEffectsEstimate;
 class VolumeMediumProperties;

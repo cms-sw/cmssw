@@ -21,7 +21,7 @@
 
 /* Class BeamHaloPropagator Interface */
 
-class BeamHaloPropagator GCC11_FINAL : public Propagator {
+class BeamHaloPropagator : public Propagator {
 
   public:
 

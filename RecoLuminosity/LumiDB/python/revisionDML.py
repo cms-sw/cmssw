@@ -1,6 +1,8 @@
+############################################################
+# LumiDB Revision and Versioning API
 #
-# Revision DML API
-#
+# Author:      Zhen Xie
+############################################################
 
 import coral
 from RecoLuminosity.LumiDB import nameDealer,idDealer,dbUtil
@@ -474,6 +476,394 @@ def createBranch(schema,name,parentname,comment=''):
         return (revisionid,parentid,parentname)
     except:
         raise
+    
+################################################################
+# Data Tagging  API
+################################################################
+def createDataTag(schema,tagname,lumitype='HF'):
+    '''
+    insert into tags(tagname,tagid,creationtime) values()
+    output:
+        tagname,tagid,creationtime
+    '''
+    if lumitype not in ['HF','PIXEL']:
+        raise ValueError('unknown lumitype '+lumitype)
+    if lumitype=='HF':
+        tagstablename=nameDealer.tagsTableName()
+    else:
+        tagstablename=nameDealer.pixeltagsTableName()
+    try:
+        iddealer=idDealer.idDealer(schema)
+        tagid=iddealer.generateNextIDForTable( tagstablename )
+        db=dbUtil.dbUtil(schema)
+        tabrowDefDict={}
+        tabrowDefDict['TAGNAME']='string'
+        tabrowDefDict['TAGID']='unsigned long long'
+        tabrowDefDict['CREATIONTIME']='time stamp'
+        tabrowValueDict={}
+        tabrowValueDict['TAGNAME']=tagname
+        tabrowValueDict['TAGID']=tagid
+        creationtime=coral.TimeStamp()
+        tabrowValueDict['CREATIONTIME']=creationtime
+        db.insertOneRow(tagstablename,tabrowDefDict, tabrowValueDict )
+        return (tagname,tagid,creationtime)
+    except:
+        raise
+
+def currentDataTag(schema,lumitype='HF'):
+    '''
+    select tagid,tagname from tags
+    output:(tagid,tagname)
+    '''
+    if lumitype not in ['HF','PIXEL']:
+        raise ValueError('unknown lumitype '+lumitype)
+    if lumitype=='HF':
+        tagstablename=nameDealer.tagsTableName()
+    else:
+        tagstablename=nameDealer.pixeltagsTableName()
+    tagmap={}
+    try:
+        qHandle=schema.newQuery()
+        qHandle.addToTableList( tagstablename )
+        qHandle.addToOutputList('TAGID')
+        qHandle.addToOutputList('TAGNAME')
+        qResult=coral.AttributeList()
+        qResult.extend('TAGID','unsigned long long')
+        qResult.extend('TAGNAME','string')
+        qHandle.defineOutput(qResult)
+        cursor=qHandle.execute()
+        currenttagid=0
+        while cursor.next():
+            tagid=cursor.currentRow()['TAGID'].data()
+            tagname=cursor.currentRow()['TAGNAME'].data()
+            tagmap[tagid]=tagname
+        del qHandle
+        if len(tagmap)!=0:
+            currenttagid=max(tagmap.keys())
+        if currenttagid==0:
+            raise 'currentDataTag: no tag available'
+        return (currenttagid,tagmap[currenttagid])
+    except:
+        raise
+        
+def addRunToCurrentDataTag(schema,runnum,lumiid,trgid,hltid,lumitype='HF',comment=''):
+    '''
+    select tagid from tags
+    insert into tagruns(tagid,runnum,lumidataid,trgdataid,hltdataid,creationtime,comment) values(tagid,runnum,lumiid,trgid,hltid,creationtime,comment)
+    '''
+    if lumitype not in ['HF','PIXEL']:
+        raise ValueError('unknown lumitype '+lumitype)
+    if lumitype=='HF':
+        tagrunstablename=nameDealer.tagrunsTableName()
+    else:
+        tagrunstablename=nameDealer.pixeltagRunsTableName()
+    currenttagid=currentDataTag(schema,lumitype=lumitype)[0]
+    try:
+        db=dbUtil.dbUtil(schema)
+        tabrowDefDict={}
+        tabrowDefDict['TAGID']='unsigned long long'
+        tabrowDefDict['RUNNUM']='unsigned int'
+        tabrowDefDict['LUMIDATAID']='unsigned long long'
+        tabrowDefDict['TRGDATAID']='unsigned long long'
+        tabrowDefDict['HLTDATAID']='unsigned long long'
+        tabrowDefDict['CREATIONTIME']='time stamp'
+        tabrowDefDict['COMMENT']='string'
+        tabrowValueDict={}
+        tabrowValueDict['TAGID']=currenttagid
+        tabrowValueDict['RUNNUM']=runnum
+        tabrowValueDict['LUMIDATAID']=lumiid
+        tabrowValueDict['TRGDATAID']=trgid
+        tabrowValueDict['HLTDATAID']=hltid
+        tabrowValueDict['CREATIONTIME']=coral.TimeStamp()
+        tabrowValueDict['COMMENT']=comment
+        db.insertOneRow( tagrunstablename,tabrowDefDict, tabrowValueDict )
+    except:
+        raise
+
+def alldataTags(schema,lumitype='HF'):
+    '''
+    select tagname,tagid from tags,tagruns  
+        if number of tags==1->open tag
+        if tagid is max ->open tag
+        for closed tag:
+           max run=max(runnum) where tagid=:tagid
+           min run
+              select min(runnum) from tagruns where tagid<=:tagid
+        for open tag:
+           max run=None
+           min run
+              select min(runnum) from tagruns where tagid<=:tagid
+    output:
+       {tagid:(name,minrun,maxrun,creationtime)}
+    '''
+    if lumitype not in ['HF','PIXEL']:
+        raise ValueError('unknown lumitype '+lumitype)
+    if lumitype=='HF':
+        tagstablename=nameDealer.tagsTableName()
+        tagrunstablename=nameDealer.tagRunsTableName()
+    else:
+        tagstablename=nameDealer.pixeltagsTableName()
+        tagrunstablename=nameDealer.pixeltagRunsTableName()
+    tagmap={}#{tagid:[tagname,minrun,maxrun,creationtime]}
+    try:
+        qHandle=schema.newQuery()
+        qHandle.addToTableList( tagstablename )
+        qCondition=coral.AttributeList()
+        qHandle.addToOutputList('TAGNAME')
+        qHandle.addToOutputList('TAGID')
+        qHandle.addToOutputList("TO_CHAR(CREATIONTIME,\'MM/DD/YY HH24:MI:SS\')",'creationtime')
+        qResult=coral.AttributeList()        
+        qResult.extend('TAGNAME','string')
+        qResult.extend('TAGID','unsigned long long')
+        qResult.extend('creationtime','string')
+        qHandle.defineOutput(qResult)
+        cursor=qHandle.execute()
+        while cursor.next():
+            tagname=cursor.currentRow()['TAGNAME'].data()
+            tagid=cursor.currentRow()['TAGID'].data()
+            creationtime=cursor.currentRow()['creationtime'].data()
+            tagmap[tagid]=[tagname,0,0,creationtime]
+        del qHandle
+        
+        tagids=tagmap.keys()
+        allruns=set()
+        for tagid in tagids:
+            qConditionStr='TAGID<=:tagid'
+            qCondition=coral.AttributeList()
+            qCondition.extend('tagid','unsigned long long')
+            qCondition['tagid'].setData(tagid)
+            qHandle=schema.newQuery()
+            qHandle.addToTableList( tagrunstablename )
+            qResult=coral.AttributeList()
+            qResult.extend('RUNNUM','unsigned int')
+            qHandle.defineOutput(qResult)
+            qHandle.setCondition(qConditionStr,qCondition)
+            qHandle.addToOutputList('RUNNUM')
+            cursor=qHandle.execute()
+            while cursor.next():
+                rnum=cursor.currentRow()['RUNNUM'].data()
+                allruns.add(rnum)
+            minrun=0
+            maxrun=0
+            if len(allruns)!=0:
+                minrun=min(allruns)
+                maxrun=max(allruns)
+            tagmap[tagid][1]=minrun
+            if len(tagmap)>1 and tagid!=max(tagids):
+                tagmap[tagid][2]=maxrun   
+    except:
+        raise
+    return tagmap
+
+def dataIdsByTagName(schema,tagname,runlist=None,withcomment=False,lumitype='HF'):
+    '''
+    select tagid from tags where tagname=:tagname
+    input:
+        runlist: select run list, if None, all
+    output:
+        {run:(lumidataid,trgdataid,hltdataid,(creationtime,comment)}
+    '''
+    if lumitype not in ['HF','PIXEL']:
+        raise ValueError('unknown lumitype '+lumitype)
+    if lumitype=='HF':
+        tagstablename=nameDealer.tagsTableName()
+    else:
+        tagstablename=nameDealer.pixeltagsTableName()        
+    tagid=None
+    try:
+        qHandle=schema.newQuery()
+        qHandle.addToTableList( tagstablename )
+        qConditionStr='TAGNAME=:tagname'
+        qCondition=coral.AttributeList()
+        qCondition.extend('tagname','string')
+        qCondition['tagname'].setData(tagname)
+        qHandle.addToOutputList('TAGID')
+        qResult=coral.AttributeList()        
+        qResult.extend('TAGID','unsigned long long')
+        qHandle.defineOutput(qResult)
+        qHandle.setCondition(qConditionStr,qCondition)
+        cursor=qHandle.execute()
+        while cursor.next():
+            if not cursor.currentRow()['TAGID'].isNull():
+                tagid=cursor.currentRow()['TAGID'].data()
+        del qHandle
+    except:
+        raise
+    if tagid is None:
+        return {}
+    return dataIdsByTagId(schema,tagid,runlist=runlist,withcomment=withcomment,lumitype=lumitype)
+
+
+def dataTagInfo(schema,tagname,runlist=None,lumitype='HF'):
+    '''
+    select tagid from tags where tagname=:tagname
+    select runnum,comment from tagruns where tagid<=:tagid
+    input:
+        runlist: select run list, if None, all
+    output:
+       {tagid:(name,minrun,maxrun,creationtime)}
+    '''
+    if lumitype not in ['HF','PIXEL']:
+        raise ValueError('unknown lumitype '+lumitype)
+    if lumitype=='HF':
+        tagstablename=nameDealer.tagsTableName()
+        tagrunstablename=nameDealer.tagRunsTableName()
+    else:
+        tagstablename=nameDealer.pixeltagsTableName()
+        tagrunstablename=nameDealer.pixeltagRunsTableName()
+    tagmap={}#{tagid:[tagname,minrun,maxrun,creationtime]}
+    try:
+        qHandle=schema.newQuery()
+        qHandle.addToTableList( tagstablename )
+        qCondition=coral.AttributeList()
+        qHandle.addToOutputList('TAGNAME')
+        qHandle.addToOutputList('TAGID')
+        qHandle.addToOutputList("TO_CHAR(CREATIONTIME,\'MM/DD/YY HH24:MI:SS\')",'creationtime')
+        qResult=coral.AttributeList()        
+        qResult.extend('TAGNAME','string')
+        qResult.extend('TAGID','unsigned long long')
+        qResult.extend('creationtime','string')
+        qHandle.defineOutput(qResult)
+        cursor=qHandle.execute()
+        while cursor.next():
+            tagname=cursor.currentRow()['TAGNAME'].data()
+            tagid=cursor.currentRow()['TAGID'].data()
+            creationtime=cursor.currentRow()['creationtime'].data()
+            tagmap[tagid]=[tagname,0,0,creationtime]
+        del qHandle
+        
+        tagids=tagmap.keys()
+        allruns=set()
+        for tagid in tagids:
+            qConditionStr='TAGID<=:tagid'
+            qCondition=coral.AttributeList()
+            qCondition.extend('tagid','unsigned long long')
+            qCondition['tagid'].setData(tagid)
+            qHandle=schema.newQuery()
+            qHandle.addToTableList(tagrunstablename)
+            qResult=coral.AttributeList()
+            qResult.extend('RUNNUM','unsigned int')
+            qHandle.defineOutput(qResult)
+            qHandle.setCondition(qConditionStr,qCondition)
+            qHandle.addToOutputList('RUNNUM')
+            cursor=qHandle.execute()
+            while cursor.next():
+                rnum=cursor.currentRow()['RUNNUM'].data()
+                if runlist is not None and rnum not in runlist:
+                    continue
+                allruns.add(rnum)
+            minrun=0
+            maxrun=0
+            if len(allruns)!=0:
+                minrun=min(allruns)
+                maxrun=max(allruns)
+            tagmap[tagid][1]=minrun
+            if len(tagmap)>1 and tagid!=max(tagids):
+                tagmap[tagid][2]=maxrun   
+    except:
+        raise
+    return tagmap
+
+def dataIdsByTagId(schema,tagid,runlist=None,withcomment=False,lumitype='HF'):
+    '''
+    select runnum,lumidataid,trgdataid,hltdataid,comment from tagruns where TAGID<=:tagid;
+    input:
+        runlist: select run list, if None, all
+    output:
+        {run:(lumidataid,trgdataid,hltdataid,(creationtime,comment))}
+    '''
+    if lumitype not in ['HF','PIXEL']:
+        raise ValueError('unknown lumitype '+lumitype)
+    if lumitype=='HF':
+        tagrunstablename=nameDealer.tagRunsTableName()
+    else:
+        tagrunstablename=nameDealer.pixeltagRunsTableName()
+    result={}#{run:[lumiid,trgid,hltid,comment(optional)]} 
+    commentdict={}#{(lumiid,trgid,hltid):[ctimestr,comment]}
+    try:
+        qHandle=schema.newQuery()
+        qHandle.addToTableList(tagrunstablename)
+        qConditionStr='TAGID<=:tagid'
+        qCondition=coral.AttributeList()
+        qCondition.extend('tagid','unsigned long long')
+        qCondition['tagid'].setData(tagid)
+        qResult=coral.AttributeList()        
+        qResult.extend('RUNNUM','unsigned int')
+        qResult.extend('LUMIDATAID','unsigned long long')
+        qResult.extend('TRGDATAID','unsigned long long')
+        qResult.extend('HLTDATAID','unsigned long long')
+        if withcomment:
+            qResult.extend('COMMENT','string')
+            qResult.extend('creationtime','string')
+        qHandle.defineOutput(qResult)
+        qHandle.setCondition(qConditionStr,qCondition)
+        qHandle.addToOutputList('RUNNUM')
+        qHandle.addToOutputList('LUMIDATAID')
+        qHandle.addToOutputList('TRGDATAID')
+        qHandle.addToOutputList('HLTDATAID')
+        if withcomment:
+            qHandle.addToOutputList('COMMENT')
+            qHandle.addToOutputList("TO_CHAR(CREATIONTIME,\'MM/DD/YY HH24:MI:SS\')",'creationtime')
+        cursor=qHandle.execute()
+        while cursor.next():
+            runnum=cursor.currentRow()['RUNNUM'].data()
+            if runlist is not None and runnum not in runlist:
+                continue
+            lumidataid=0
+            if not cursor.currentRow()['LUMIDATAID'].isNull():
+                lumidataid=cursor.currentRow()['LUMIDATAID'].data()
+            trgdataid=0
+            if not cursor.currentRow()['TRGDATAID'].isNull():
+                trgdataid=cursor.currentRow()['TRGDATAID'].data()
+            hltdataid=0
+            if not cursor.currentRow()['HLTDATAID'].isNull():
+                hltdataid=cursor.currentRow()['HLTDATAID'].data()
+            if not result.has_key(runnum):
+                result[runnum]=[0,0,0]
+            if lumidataid>result[runnum][0]:
+                result[runnum][0]=lumidataid
+            if trgdataid>result[runnum][1]:
+                result[runnum][1]=trgdataid
+            if hltdataid>result[runnum][2]:
+                result[runnum][2]=hltdataid    
+            if withcomment:
+                comment=''
+                creationtime=''
+                if not cursor.currentRow()['creationtime'].isNull():
+                    creationtime=cursor.currentRow()['creationtime'].data()
+                if not cursor.currentRow()['COMMENT'].isNull():
+                    comment=cursor.currentRow()['COMMENT'].data()
+                commentdict[(lumidataid,trgdataid,hltdataid)]=(creationtime,comment)
+        del qHandle
+        if withcomment:
+            for run,resultentry in result.items():
+                lumiid=resultentry[0]
+                trgid=resultentry[1]
+                hltid=resultentry[2]
+                if commentdict.has_key((lumiid,trgid,hltid)):
+                    resultentry.append(commentdict[(lumiid,trgid,hltid)])
+                elif commentdict.has_key((lumiid,0,0)):
+                    resultentry.append(commentdict[(lumiid,0,0)])
+                elif commentdict.has_ley((0,trgid,0)):
+                    resultentry.append(commentdict[(0,trgid,0)])
+                elif commentdict.has_ley((0,0,hltid)):
+                    resultentry.append(commentdict[(0,0,hltid)])
+                else:
+                    resultentry.append(())
+                    
+    except:
+        raise
+    return result
+    
+def dataIdsByCurrentTag(schema,runlist=None,lumitype='HF'):
+    '''
+    dataIdsByTagId(schema,currenttagid,runlist)
+    output:
+       (currenttagname,{run:(lumidataid,trgdataid,hltdataid)})
+    '''
+    (currenttagid,currenttagname)=currentDataTag(schema)
+    result=dataIdsByTagId(schema,currenttagid,runlist=runlist,withcomment=False,lumitype=lumitype)
+    return (currenttagname,result)
 
 if __name__ == "__main__":
     import sessionManager

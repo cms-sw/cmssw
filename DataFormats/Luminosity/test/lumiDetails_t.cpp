@@ -27,11 +27,9 @@ void
 TestLumiDetails::testConstructor() {
   std::cout << "\nTesting LumiDetails\n";
   LumiDetails lumiDetails;
-
-  CPPUNIT_ASSERT(lumiDetails.lumiVersion() == std::string("-1"));
-  CPPUNIT_ASSERT(!lumiDetails.isValid());
+  
+  CPPUNIT_ASSERT(!lumiDetails.isValid());//so an empty detail array is not valid
   lumiDetails.setLumiVersion(std::string("v1"));
-  CPPUNIT_ASSERT(lumiDetails.isValid());
   CPPUNIT_ASSERT(lumiDetails.lumiVersion() == std::string("v1"));
 
   LumiDetails lumiDetails1(std::string("v2"));

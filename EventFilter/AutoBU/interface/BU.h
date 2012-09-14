@@ -209,6 +209,8 @@ namespace evf {
     xdata::Boolean                  replay_;
     xdata::Boolean                  crc_;
     xdata::Boolean                  overwriteEvtId_;
+    xdata::Boolean                  overwriteLsId_;
+    xdata::UnsignedInteger32        fakeLsUpdateSecs_;
     xdata::UnsignedInteger32        firstEvent_;
     xdata::UnsignedInteger32        queueSize_;
     xdata::UnsignedInteger32        eventBufferSize_;
@@ -219,6 +221,8 @@ namespace evf {
     xdata::Boolean                  useFixedFedSize_;
     xdata::UnsignedInteger32        monSleepSec_;
 
+    unsigned int                    fakeLs_;
+    timeval                         lastLsUpdate_;
     // gaussian aprameters for randpm fed size generation (log-normal)
     double                          gaussianMean_;
     double                          gaussianWidth_;

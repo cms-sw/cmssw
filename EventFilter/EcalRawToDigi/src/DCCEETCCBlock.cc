@@ -24,7 +24,7 @@ void DCCEETCCBlock::addTriggerPrimitivesToCollection(){
   bool processTPG2(true) ;
   unsigned int psInputCounter(0);
   
-  uint16_t * tccP_= reinterpret_cast< uint16_t * >(data_);
+  const uint16_t * tccP_= reinterpret_cast<const uint16_t * >(data_);
   
   
   int dccFOV =  event_->fov();
@@ -236,7 +236,7 @@ bool DCCEETCCBlock::checkTccIdAndNumbTTs(){
 
 unsigned int DCCEETCCBlock::getLength(){
 
-  uint64_t * temp = data_;
+  const uint64_t * temp = data_;
   temp++;
 
   ps_       = ( *temp>>TCC_PS_B ) & B_MASK;   

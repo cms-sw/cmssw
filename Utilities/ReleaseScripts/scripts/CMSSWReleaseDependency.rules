@@ -37,6 +37,7 @@ Validation/GlobalHits/.*               : geant4.*
 Validation/GlobalDigis/.*              : geant4.*
 SimRomanPot/SimFP420/.*                : geant4.*
 RecoRomanPot/RecoFP420/.*              : geant4.*
+SLHCUpgradeSimulations/Geometry/.*     : geant4core
 
 #oracle (direct)
 CalibTracker/SiStripLorentzAngle/.*     : oracle

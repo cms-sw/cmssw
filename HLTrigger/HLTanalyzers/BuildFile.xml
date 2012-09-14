@@ -53,6 +53,5 @@
 <use   name="RecoJets/JetProducers"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="DQMServices/Core"/>
-<use   name="JetMETCorrections/Modules"/>
 <use   name="rootcore"/>
 <flags   EDM_PLUGIN="1"/>
