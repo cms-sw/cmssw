@@ -18,8 +18,8 @@
 ///
 ///  \author    : Andreas Mussgiller
 ///  date       : December 2010
-///  $Revision: 1.7 $
-///  $Date: 2012/07/05 08:04:08 $
+///  $Revision: 1.8 $
+///  $Date: 2012/07/05 13:32:03 $
 ///  (last update by $Author: yana $)
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
@@ -107,9 +107,10 @@ public:
   }
   virtual void setSurfaceDeformation(const SurfaceDeformation * deformation);
 
-private:
   
   virtual const PixelTopology& specificTopology() const { return specificType().specificTopology(); }
+
+private:
 
   /// Internal method to get correction of the position from SurfaceDeformation,
   /// must not be called if 'theSurfaceDeformation' is a null pointer.
