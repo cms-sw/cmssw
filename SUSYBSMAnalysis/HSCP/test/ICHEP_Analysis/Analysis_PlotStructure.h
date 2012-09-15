@@ -174,6 +174,7 @@ struct stPlots {
    TH2F*  BS_PIm;          TH3F*  AS_PIm;
    TH2F*  BS_PtIs;         TH3F*  AS_PtIs;
    TH2F*  BS_PtIm;         TH3F*  AS_PtIm;
+   TH2F*  BS_PtTOF;
    TH2F*  BS_TOFIs;        TH3F*  AS_TOFIs;  
    TH2F*  BS_TOFIm;        TH3F*  AS_TOFIm;   
 
@@ -379,7 +380,7 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "Beta_SelectedI"   ; st.Beta_SelectedI   = new TH2F(Name.c_str(), Name.c_str(),NCuts,0,NCuts,   20, 0,  1);  st.Beta_SelectedI   ->Sumw2();
    Name = "Beta_SelectedT"   ; st.Beta_SelectedT   = new TH2F(Name.c_str(), Name.c_str(),NCuts,0,NCuts,   20, 0,  1);  st.Beta_SelectedT   ->Sumw2();
 
-   Name = "BS_V3D"  ; st.BS_V3D   = new TH1F(Name.c_str(), Name.c_str(),  20,  0,  5);                st.BS_V3D->Sumw2();
+   Name = "BS_V3D"  ; st.BS_V3D   = new TH1F(Name.c_str(), Name.c_str(),  150,  0,  IPbound);                st.BS_V3D->Sumw2();
    Name = "BS_Chi2" ; st.BS_Chi2  = new TH1F(Name.c_str(), Name.c_str(),  20,  0,  5);                st.BS_Chi2->Sumw2();
    Name = "BS_Qual" ; st.BS_Qual  = new TH1F(Name.c_str(), Name.c_str(),  20,  0, 20);                st.BS_Qual->Sumw2();
    Name = "BS_TNOH" ; st.BS_TNOH  = new TH1F(Name.c_str(), Name.c_str(),  50,  0,  40);                st.BS_TNOH->Sumw2();
@@ -460,6 +461,7 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_PIm"  ; st.BS_PIm   = new TH2F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound, 50, 0, dEdxM_UpLim);
    Name = "BS_PtIs" ; st.BS_PtIs  = new TH2F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound, 50, 0, dEdxS_UpLim);
    Name = "BS_PtIm" ; st.BS_PtIm  = new TH2F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound, 50, 0, dEdxM_UpLim);
+   Name = "BS_PtTOF" ; st.BS_PtTOF= new TH2F(Name.c_str(), Name.c_str(),                   100, 0, PtHistoUpperBound, 100, 0, 3);
    //   Name = "BS_TOFIs"; st.BS_TOFIs = new TH2F(Name.c_str(), Name.c_str(),                   100, 1, 5, 100, 0, dEdxS_UpLim);
    Name = "BS_TOFIs"; st.BS_TOFIs = new TH2F(Name.c_str(), Name.c_str(),                   125, 0, 5, 100, 0, dEdxS_UpLim);
    //   Name = "BS_TOFIm"; st.BS_TOFIm = new TH2F(Name.c_str(), Name.c_str(),                   100, 1, 5, 100, 0, dEdxM_UpLim);
@@ -755,6 +757,7 @@ bool stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName)
    st.AS_PtIs   = (TH3F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/AS_PtIs");
    st.BS_PtIm   = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_PtIm");
    st.AS_PtIm   = (TH3F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/AS_PtIm");
+   st.BS_PtTOF   = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_PtTOF");
    st.BS_TOFIs  = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOFIs");
    st.AS_TOFIs  = (TH3F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/AS_TOFIs");
    st.BS_TOFIm  = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOFIm");
@@ -966,6 +969,15 @@ void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, un
    DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,std::string("PIs_AS")+CutIndexStr, true);
    delete Histos[0];
+   delete c1;
+
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos[0] = (TH1*)st.BS_PtTOF;                  legend.push_back("Before Cut");
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "p_{T} (GeV/c)", "1/#beta", 0,0, 0,0, false);
+   c1->SetLogz(true);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"PtTOF_BS", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();

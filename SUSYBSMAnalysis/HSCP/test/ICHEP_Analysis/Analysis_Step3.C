@@ -410,18 +410,6 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
      fwlite::Handle< std::vector<reco::Track> > noVertexTrackCollHandle;
      noVertexTrackCollHandle.getByLabel(ev,"refittedStandAloneMuons", "");
 
-     //To be cleaned up when new EDM files created, different track names exist in different files
-     if(!noVertexTrackCollHandle.isValid()){
-       noVertexTrackCollHandle.getByLabel(ev,"RefitSAMuons", "");
-       if(!noVertexTrackCollHandle.isValid()){
-	 noVertexTrackCollHandle.getByLabel(ev,"RefitMTSAMuons", "");
-	 if(!noVertexTrackCollHandle.isValid()){
-	   //printf("No Vertex Track Collection Not Found\n");
-	   return false;
-	 }
-       }
-     }
-
      //Find closest NV track
      const std::vector<reco::Track>& noVertexTrackColl = *noVertexTrackCollHandle;
      reco::Track NVTrack;
@@ -508,7 +496,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    }
 
    //Now cut Eta separation
-   if(TypeMode==3 && fabs(minEta)<minSegEtaSep) return false;
+   //if(TypeMode==3 && fabs(minEta)<minSegEtaSep) return false;
    if(st){st->SegSep->Fill(0.0,Event_Weight);}
 
    if(st) {
@@ -554,6 +542,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
      }
    }
    //Cut on dz for TOF only analysis
+   if(TypeMode==3 && fabs(minEta)<minSegEtaSep) return false;
    if(TypeMode==3 && fabs(dz)>GlobalMaxDZ) return false;
 
    if(st){if(dedxSObj) st->BS_EtaIs->Fill(track->eta(),dedxSObj->dEdx(),Event_Weight);
@@ -574,6 +563,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 	    st->BS_TOF->Fill(tof->inverseBeta(),Event_Weight);
 	    if(dttof->nDof()>6) st->BS_TOF_DT->Fill(dttof->inverseBeta(),Event_Weight);
             if(csctof->nDof()>6) st->BS_TOF_CSC->Fill(csctof->inverseBeta(),Event_Weight);
+            st->BS_PtTOF->Fill(track->pt() ,tof->inverseBeta(),Event_Weight);
 	  }
           if(dedxSObj) {
 	    st->BS_PIs  ->Fill(track->p()  ,dedxSObj->dEdx(),Event_Weight);
@@ -933,6 +923,7 @@ void Analysis_Step3(char* SavePath)
          Event_Weight = 1.0;
          double SampleWeight = 1.0;
          double PUSystFactor;
+
          if(samples[s].Type>0){           
             //get PU reweighted total # MC events.
             double NMCevents=0;
@@ -944,7 +935,9 @@ void Analysis_Step3(char* SavePath)
             if(samples[s].Type==1)SampleWeight = GetSampleWeightMC(IntegratedLuminosity,FileName, samples[s].XSec, ev.size(), NMCevents);
             else                  SampleWeight = GetSampleWeight  (IntegratedLuminosity,IntegratedLuminosityBeforeTriggerChange,samples[s].XSec,NMCevents, period);
          }
+
 	 if(SampleWeight==0) continue; //If sample weight 0 don't run, happens Int Lumi before change = 0
+
          //Loop on the events
          printf("Progressing Bar                   :0%%       20%%       40%%       60%%       80%%       100%%\n");
          printf("Building Mass for %10s (%1i/%1i) :",samples[s].Name.c_str(),period+1,(samples[s].Type==2?RunningPeriods:1));
@@ -966,6 +959,7 @@ void Analysis_Step3(char* SavePath)
                if(!genCollHandle.isValid()){printf("GenParticle Collection NotFound\n");continue;}
                genColl = *genCollHandle;
                int NChargedHSCP=HowManyChargedHSCP(genColl);
+
 	       //if (NChargedHSCP > 2)   continue;   DONT THINK THIS IS NEEDED
 
                //skip event wich does not have the right number of charged HSCP --> DEPRECATED
@@ -978,7 +972,6 @@ void Analysis_Step3(char* SavePath)
                GetGenHSCPBeta(genColl,HSCPGenBeta1,HSCPGenBeta2,true);
                if(HSCPGenBeta1>=0)SamplePlots->Beta_GenCharged->Fill(HSCPGenBeta1, Event_Weight); if(HSCPGenBeta2>=0)SamplePlots->Beta_GenCharged->Fill(HSCPGenBeta2, Event_Weight);
             }
-
             //check if the event is passing trigger
             SamplePlots      ->TotalE  ->Fill(0.0,Event_Weight);  
             if(isMC)MCTrPlots->TotalE  ->Fill(0.0,Event_Weight);
@@ -1315,9 +1308,9 @@ void Analysis_Step3(char* SavePath)
       delete [] MaxMass_SystT;
       delete [] MaxMass_SystM;
       delete [] MaxMass_SystPU;
+
       stPlots_Clear(SamplePlots, true);
       if(isMC)stPlots_Clear(MCTrPlots, true);
-
    }// end of sample loop
    delete RNG;
 }
