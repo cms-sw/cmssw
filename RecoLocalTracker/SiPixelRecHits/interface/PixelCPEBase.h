@@ -189,7 +189,8 @@ public:
   // gavril : replace RectangularPixelTopology with PixelTopology
   //mutable const RectangularPixelTopology * theTopol;
   mutable const PixelTopology * theTopol;
-  
+  mutable const RectangularPixelTopology * theRecTopol;
+
   mutable Param const * theParam;
 
   mutable GeomDetType::SubDetector thePart;

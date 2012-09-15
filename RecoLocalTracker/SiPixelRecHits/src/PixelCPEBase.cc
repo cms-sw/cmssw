@@ -14,6 +14,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/ProxyPixelTopology.h"
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 
@@ -132,6 +133,12 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
   //= dynamic_cast<const RectangularPixelTopology*>( & (theDet->specificTopology()) );
 
   theTopol = &(theDet->specificTopology());
+  auto const proxyT = dynamic_cast<const ProxyPixelTopology*>(theTopol);
+  if (proxyT) theRecTopol = dynamic_cast<const RectangularPixelTopology*>(&(proxyT->specificTopology()));
+  else theRecTopol = dynamic_cast<const RectangularPixelTopology*>(theTopol);
+  assert(theRecTopol);
+
+
 
   //---- The geometrical description of one module/plaquette
   theNumOfRow = theTopol->nrows();      // rows in x
