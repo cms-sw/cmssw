@@ -148,7 +148,7 @@ class SiPixelCluster {
   }
 
   // infinite faster than above...
-  Pixel pixels(int i) const {
+  Pixel pixel(int i) const {
     return Pixel(theMinPixelRow + thePixelOffset[i*2],
 		 theMinPixelCol + thePixelOffset[i*2+1],
 		 thePixelADC[i]

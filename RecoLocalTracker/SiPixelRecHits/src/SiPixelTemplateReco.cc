@@ -63,7 +63,7 @@
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/VVIObj.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/VVIObjF.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #define LOGERROR(x) edm::LogError(x)
 #define LOGDEBUG(x) LogDebug(x)
@@ -978,7 +978,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 		beta2 = 1.;
 		if(use_VVIObj) {			
 //  VVIObj is a private port of CERNLIB VVIDIS
-		   VVIObj vvidist(kappa, beta2, 1);
+		   VVIObjF vvidist(kappa, beta2, 1);
 		   prvav = vvidist.fcn(xvav);			
 		} else {
 //  Use faster but less accurate TMath Vavilov distribution function
