@@ -100,56 +100,61 @@ class SiPixelCluster {
   // Return cluster dimension in the y direction.
   int sizeY() const {return maxPixelCol() - theMinPixelCol +1;}
 
-  // Detect clusters at the edge of the detector.
-  // NOTE: Moved to RectangularPixelTopology class
-  // bool edgeHitX() const;
-  // bool edgeHitY() const;
 
-	inline float charge() const {
-		float qm = 0.0;
-		int isize = thePixelADC.size();
-		for (int i=0; i<isize; ++i) 
-			qm += float(thePixelADC[i]);
-		return qm;
-	} // Return total cluster charge.
+  inline float charge() const {
+    float qm = 0.0;
+    int isize = thePixelADC.size();
+    for (int i=0; i<isize; ++i) 
+      qm += float(thePixelADC[i]);
+    return qm;
+  } // Return total cluster charge.
 
-	inline int minPixelRow() const { return theMinPixelRow;} // The min x index.
+  inline int minPixelRow() const { return theMinPixelRow;} // The min x index.
   inline int minPixelCol() const { return theMinPixelCol & 511;} // The min y index.
 	
   inline int maxPixelRow() const {
-		int maxRow = 0;
-		int isize  = thePixelADC.size();
-		for (int i=0; i<isize; ++i) {
-			int xsize  = thePixelOffset[i*2];
-			if (xsize > maxRow) maxRow = xsize;
-		}
-	return maxRow + theMinPixelRow; // The max x index.
-	}
-	
-	inline int maxPixelCol() const {
-		int maxCol = 0;
-		int isize = thePixelADC.size();
-		for (int i=0; i<isize; ++i) {
-			int ysize = thePixelOffset[i*2+1] ;
-			if (ysize > maxCol) maxCol = ysize;
-		}
-		return maxCol + theMinPixelCol; // The max y index.
-	}
+    int maxRow = 0;
+    int isize  = thePixelADC.size();
+    for (int i=0; i<isize; ++i) {
+      int xsize  = thePixelOffset[i*2];
+      if (xsize > maxRow) maxRow = xsize;
+    }
+    return maxRow + theMinPixelRow; // The max x index.
+  }
+  
+  inline int maxPixelCol() const {
+    int maxCol = 0;
+    int isize = thePixelADC.size();
+    for (int i=0; i<isize; ++i) {
+      int ysize = thePixelOffset[i*2+1] ;
+      if (ysize > maxCol) maxCol = ysize;
+    }
+    return maxCol + theMinPixelCol; // The max y index.
+  }
   
   const std::vector<uint8_t> & pixelOffset() const { return thePixelOffset;}
-	const std::vector<uint16_t> & pixelADC() const { return thePixelADC;}
+  const std::vector<uint16_t> & pixelADC() const { return thePixelADC;}
 
-	const std::vector<Pixel> pixels() const {
-		std::vector<Pixel> oldPixVector;
-		int isize = thePixelADC.size();
-                oldPixVector.reserve(isize); 
-		for(int i=0; i<isize; ++i) {
-			int x = theMinPixelRow + (thePixelOffset[i*2]  );
-			int y = theMinPixelCol + (thePixelOffset[i*2+1] );
-			oldPixVector.push_back(Pixel(x,y,thePixelADC[i]));
-		}
-		return oldPixVector;
-	}
+  const std::vector<Pixel> pixels() const {
+    std::vector<Pixel> oldPixVector;
+    int isize = thePixelADC.size();
+    oldPixVector.reserve(isize); 
+    for(int i=0; i<isize; ++i) {
+      int x = theMinPixelRow + (thePixelOffset[i*2]  );
+      int y = theMinPixelCol + (thePixelOffset[i*2+1] );
+      oldPixVector.push_back(Pixel(x,y,thePixelADC[i]));
+    }
+    return oldPixVector;
+  }
+
+  // infinite faster than above...
+  Pixel pixels(int i) const {
+    return Pixel(theMinPixelRow + thePixelOffset[i*2],
+		 theMinPixelCol + thePixelOffset[i*2+1],
+		 thePixelADC[i]
+		 );
+  }
+
   //--- Cloned fom Strips:
   
   /** The geographical ID of the corresponding DetUnit, 
@@ -157,10 +162,7 @@ class SiPixelCluster {
    *  frames etc.   */
   unsigned int geographicalId() const {return detId_;}
   
-  // &&& Decide if we still need these two:
-  // typedef vector<Digi::ChannelType>    ChannelContainer;
-  // ChannelContainer  channels() const;
-  
+ 
   // ggiurgiu@fnal.gov, 01/05/12 
   // Getters and setters for the newly added data members (err_x and err_y). See below. 
   void setSplitClusterErrorX( float errx ) { err_x = errx; }
@@ -175,12 +177,7 @@ class SiPixelCluster {
   std::vector<uint8_t>  thePixelOffset;
   std::vector<uint16_t> thePixelADC;
   
-  /*  float theSumX;  // Sum of charge weighted pixel positions.
-      float theSumY;
-      float theCharge;  // Total charge
-      uint8_t  theMaxPixelRow; // Maximum pixel index in the x direction (top edge).
-      uint16_t theMaxPixelCol; // Maximum pixel index in the y direction (right edge).
-  */
+
   uint8_t  theMinPixelRow; // Minimum pixel index in the x direction (low edge).
   uint16_t theMinPixelCol; // Minimum pixel index in the y direction (left edge).
   // Need 9 bits for Col information. Use 1 bit for whether larger
