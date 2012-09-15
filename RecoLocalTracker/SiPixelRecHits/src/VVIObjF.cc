@@ -91,7 +91,7 @@ VVIObjF::VVIObjF(float kappa, float beta2, int mode) : mode_(mode) {
   VVIObjFDetails::dzero(5.f, 155.f, x0_, rv, 1.e-3f, 100, f1);
   n = x0_ + 1.;
   d = vdt::fast_expf(kappa * (beta2 * (.57721566f - h5) + 1.f)) * .31830988654751274f;
-  a_[n - 1] = 0.;
+  a_[n - 1] = 0.f;
   if (mode_ == 0) {
     a_[n - 1] = omega_ * .31830988654751274f;
   }
@@ -141,12 +141,12 @@ float VVIObjF::fcn(float x) const {
 	
 	n = x0_;
 	if (x < t0_) {
-		f = 0.;
+		f = 0.f;
 	} else if (x <= t1_) {
 	  y = x - t0_;
 	  u = omega_ * y - 3.141592653589793f;
 	  float su,cu; vdt::sincos::fast_sincosf(u,su,cu);
-	  cof = cu * 2.;
+	  cof = cu * 2.f;
 	  a1 = 0.;
 	  a0 = a_[0];
 	  n1=n+1;
@@ -162,10 +162,10 @@ float VVIObjF::fcn(float x) const {
 	    b1 = b0;
 	    b0 = b_[k - 1] + cof * b1 - b2;
 	  }
-	  f = (a0 - a2) * .5 + b0 * su;
+	  f = (a0 - a2) * .5f + b0 * su;
 	  if (mode_ != 0) {f += y / t_;}
 	} else {
-	  f = 0.;
+	  f = 0.f;
 	  if (mode_ != 0) {f = 1.f;}
 	}
 	return f;
@@ -193,111 +193,7 @@ namespace VVIObjFDetails {
   void sincosint(float x, float & sint, float & cint) {
     sicif(x,sint,cint);
   }
-  /*
-  void sincosint(float x, float & sint, float & cint) {
-    // Initialized data
-    
-    const float zero = 0.;
-    const float one = 1.;
-    const float two = 2.;
-    const float eight = 8.;
-    const float ce = .57721566490153;
-    const float pih = 1.5707963267949;
-    const float s__[14] = { 1.9522209759531,-.6884042321257,
-			     .4551855132256,-.1804571236838,.0410422133759,-.0059586169556,
-			     6.001427414e-4,-4.44708329e-5,2.5300782e-6,-1.141308e-7,4.1858e-9,
-			     -1.273e-10,3.3e-12,-1e-13 };
-    
-    const float c__[14] = { 1.9405491464836,.9413409132865,
-			     -.579845034293,.3091572011159,-.0916101792208,.0164437407515,
-			     -.0019713091952,1.692538851e-4,-1.09393296e-5,5.522386e-7,
-			     -2.23995e-8,7.465e-10,-2.08e-11,5e-13 };
-    
-    const float p[23] = { .96074783975204,-.0371138962124,
-			   .00194143988899,-1.7165988425e-4,2.112637753e-5,-3.27163257e-6,
-			   6.0069212e-7,-1.2586794e-7,2.932563e-8,-7.45696e-9,2.04105e-9,
-			   -5.9502e-10,1.8323e-10,-5.921e-11,1.997e-11,-7e-12,2.54e-12,
-			   -9.5e-13,3.7e-13,-1.4e-13,6e-14,-2e-14,1e-14 };
-    const float q[20] = { .98604065696238,-.0134717382083,
-			   4.5329284117e-4,-3.067288652e-5,3.13199198e-6,-4.2110196e-7,
-			   6.907245e-8,-1.318321e-8,2.83697e-9,-6.7329e-10,1.734e-10,
-			   -4.787e-11,1.403e-11,-4.33e-12,1.4e-12,-4.7e-13,1.7e-13,-6e-14,
-			   2e-14,-1e-14 };
-    
-    // System generated locals
-    float d__1;
-    
-    // Local variables
-    float h__;
-    int i__;
-    float r__, y, b0, b1, b2, pp, qq, alfa;
-    
-    sint=0.f; 
-    cint=0.f;
-    
-    
-    if (fabs(x) <= eight) {
-      y = x / eight;
-      // Computing 2nd power
-      d__1 = y;
-      h__ = two * (d__1 * d__1) - one;
-      alfa = -two * h__;
-      
-      // cos
-      if (x!=0) {
-	b1 = zero;
-	b2 = zero;
-	for (i__ = 13; i__ >= 0; --i__) {
-	  b0 = c__[i__] - alfa * b1 - b2;
-	  b2 = b1;
-	  b1 = b0;
-	}
-	cint = ce + vdt::fast_logf((fabs(x))) - b0 + h__ * b2;
-      }
-      // sin
-      b1 = zero;
-      b2 = zero;
-      for (i__ = 13; i__ >= 0; --i__) {
-	b0 = s__[i__] - alfa * b1 - b2;
-	b2 = b1;
-	b1 = b0;
-      }
-      sint = y * (b0 - b2);
-      
-    } else {
-      r__ = one / x;
-      y = eight * r__;
-      // Computing 2nd power
-      d__1 = y;
-      h__ = two * (d__1 * d__1) - one;
-      alfa = -two * h__;
-      b1 = zero;
-      b2 = zero;
-      for (i__ = 22; i__ >= 0; --i__) {
-	b0 = p[i__] - alfa * b1 - b2;
-	b2 = b1;
-	b1 = b0;
-      }
-      pp = b0 - h__ * b2;
-      b1 = zero;
-      b2 = zero;
-      for (i__ = 19; i__ >= 0; --i__) {
-	b0 = q[i__] - alfa * b1 - b2;
-	b2 = b1;
-	b1 = b0;
-      }
-      qq = b0 - h__ * b2;
-      float s,c; vdt::sincos::fast_sincosf(x,s,c);
-      // cos
-      cint = r__ * (qq * s - r__ * pp * c);
-      // sin
-      d__1 = pih;
-      if(x < 0.f) d__1 = -d__1;
-      sint = d__1 - r__ * (r__ * pp * s + qq * c);
-    }
-  }
 
-    */
 
 float expint(float x) {
   
@@ -348,13 +244,12 @@ float expint(float x) {
 			 23.019255939133,24.378408879132,9.0416155694633,.99997957705159,
 			 4.656271079751e-7 };
   
-  /* Local variables */
+  // Local variables 
    float v, y, ap, bp, aq, dp, bq, dq;
   
   if (x <= xl[0]) {
     ap = a3[0] - x;
     for ( int i__ = 2; i__ <= 5; ++i__) {
-      /* L1: */
       ap = a3[i__ - 1] - x + b3[i__ - 1] / ap;
     }
     y = vdt::fast_expf(-x) / x * (one - (a3[5] + b3[5] / ap) / x);
@@ -420,6 +315,8 @@ float expint(float x) {
 } // expint
   
 
+
+
   template<typename F>
   int dzero(float a, float b, float& x0, 
 	    float& rv, float eps, int mxf, F func) {
@@ -437,14 +334,14 @@ float expint(float x) {
     fb = func(xb);
     if (fa * fb > 0.f) {
       rv = (xb - xa) * -2.f;
-      x0 = 0.;
+      x0 = 0.f;
       return 1;
     }
     mc = 0;
   L1:
-    x0 = (xa + xb) * .5f;
+    x0 = (xa + xb) * 0.5f;
     rv = x0 - xa;
-    ee = eps * (fabs(x0) + 1.f);
+    ee = eps * (std::abs(x0) + 1.f);
     if (rv <= ee) {
       rv = ee;
       ff = func(x0);
@@ -458,11 +355,11 @@ float expint(float x) {
     fx = func(x0);
     ++mc;
     if (mc > mxf) {
-      rv = (d__1 = xb - xa, fabs(d__1)) * -.5f;
+      rv = (d__1 = xb - xa, fabs(d__1)) * -0.5f;
       x0 = 0.;
       return 0;
     }
-    if (fx * fa > 0.) {
+    if (fx * fa > 0.f) {
       xa = x0;
       fa = fx;
     } else {
@@ -482,22 +379,23 @@ float expint(float x) {
     ca = u1 - u2;
     cb = (x1 + x2) * u2 - (x2 + x0) * u1;
     cc = (x1 - x0) * f1 - x1 * (ca * x1 + cb);
-    if (ca == 0.) {
-      if (cb == 0.) {goto L1;}
+    if (ca == 0.f) {
+      if (cb == 0.f) {goto L1;}
       x0 = -cc / cb;
     } else {
-      u3 = cb / (ca * 2);
+      u3 = cb / (ca * 2.f);
       u4 = u3 * u3 - cc / ca;
-      if (u4 < 0.) {goto L1;}
-      su4 = fabs(u4);
+      if (u4 < 0.f) {goto L1;}
+      su4 = std::abs(u4);
       if (x0 + u3 < 0.f) {su4 = -su4;}
       x0 = -u3 + su4;
     }
     if (x0 < xa || x0 > xb) {goto L1;}
     // Computing MIN
-    d__3 = (d__1 = x0 - x3, fabs(d__1)), d__4 = (d__2 = x0 - x2, fabs(d__2));
+    d__3 = (d__1 = x0 - x3, std::abs(d__1));
+    d__4 = (d__2 = x0 - x2, std::abs(d__2));
     rv = std::min(d__3,d__4);
-    ee = eps * (fabs(x0) + 1);
+    ee = eps * (std::abs(x0) + 1);
     if (rv > ee) {
       f1 = f2;
       x1 = x2;
@@ -506,12 +404,12 @@ float expint(float x) {
       goto L2;
     }
     fx = func(x0);
-    if (fx == 0.) {
+    if (fx == 0.f) {
       rv = ee;
       ff = func(x0);
       return 0;
     }
-    if (fx * fa < 0.) {
+    if (fx * fa < 0.f) {
       xx = x0 - ee;
       if (xx <= xa) {
 	rv = ee;
@@ -535,8 +433,8 @@ float expint(float x) {
     if (fx * ff > 0.f) {
       mc += 2;
       if (mc > mxf) {
-	rv = (d__1 = xb - xa, fabs(d__1)) * -.5f;
-	x0 = 0.;
+	rv = (d__1 = xb - xa, std::abs(d__1)) * -0.5f;
+	x0 = 0.f;
 	return 0;
       }
       f1 = f3;
