@@ -26,16 +26,10 @@
 //--- For the configuration:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//#define TP_OLD
-#ifdef TP_OLD
-#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
-#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
-#include "Geometry/Surface/interface/GloballyPositioned.h"
-#else  // new location
+
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
-#endif
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
@@ -43,7 +37,7 @@
 
 
 
-#include <ext/hash_map>
+#include <unordered_map>
 
 #include <iostream>
 
@@ -53,6 +47,18 @@ class MagneticField;
 class PixelCPEBase : public PixelClusterParameterEstimator 
 {
  public:
+  struct Param 
+  {
+    Param() : topology(nullptr), bz(0) {}
+    
+    // giurgiu@jhu.edu 12/09/2010: switch to PixelTopology
+    //RectangularPixelTopology const * topology;
+    PixelTopology const * topology;
+    float bz; // local Bz
+    LocalVector drift;
+  };
+
+public:
   // PixelCPEBase( const DetUnit& det );
   PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, 
 	       const SiPixelLorentzAngle * lorentzAngle = 0, const SiPixelCPEGenericErrorParm * genErrorParm = 0, 
@@ -137,7 +143,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   inline float probabilityXY() const {
     if ( probabilityX_ !=0 && probabilityY_ !=0 ) 
       {
-	return probabilityX_ * probabilityY_ * (1 - log(probabilityX_ * probabilityY_) ) ;
+	return probabilityX_ * probabilityY_ * (1.f - std::log(probabilityX_ * probabilityY_) ) ;
       }
     else 
       return 0;
@@ -184,6 +190,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   //mutable const RectangularPixelTopology * theTopol;
   mutable const PixelTopology * theTopol;
   
+  mutable Param const * theParam;
 
   mutable GeomDetType::SubDetector thePart;
   //mutable EtaCorrection theEtaFunc;
@@ -293,6 +300,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
 				    const GeomDetUnit    & det, 
 				    const LocalTrajectoryParameters & ltp) const;
   LocalVector driftDirection       ( GlobalVector bfield ) const ; //wrong sign
+  LocalVector driftDirection       ( LocalVector bfield ) const ; //wrong sign
   LocalVector driftDirectionCorrect( GlobalVector bfield ) const ;
   void computeLorentzShifts() const ;
 
@@ -308,24 +316,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   void yCharge(const std::vector<SiPixelCluster::Pixel>&, 
 	       const int&, const int&, float& q1, float& q2) const; 
 
-  // Temporary fix for older classes
-  //std::vector<float> 
-  //xCharge(const std::vector<SiPixelCluster::Pixel>& pixelsVec, 
-  //    const float& xmin, const float& xmax) const {
-  // return xCharge(pixelsVec, int(xmin), int(xmax)); 
-  //}
-  //std::vector<float> 
-  // yCharge(const std::vector<SiPixelCluster::Pixel>& pixelsVec, 
-  //    const float& xmin, const float& xmax) const {
-  // return yCharge(pixelsVec, int(xmin), int(xmax)); 
-  //}
-
-
-
-  //---------------------------------------------------------------------------
-  //  Various position corrections.
-  //---------------------------------------------------------------------------
-  //float geomCorrection()const;
 
   //--- The Lorentz shift correction
   virtual float lorentzShiftX() const;
@@ -336,23 +326,16 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   virtual float ypos( const SiPixelCluster& ) const = 0;
   
   
-  
- public:
-  struct Param 
-  {
-    Param() : topology(0), drift(0.0, 0.0, 0.0) {}
-    
-    // giurgiu@jhu.edu 12/09/2010: switch to PixelTopology
-    //RectangularPixelTopology const * topology;
-    PixelTopology const * topology;
+  LocalVector const & getDrift() const {return  driftDirection_ ;}
+ 
 
-    LocalVector drift;
-  };
-  
+ 
+  Param const & param() const;
+ 
  private:
-   typedef  __gnu_cxx::hash_map< unsigned int, Param> Params;
+  typedef  std::unordered_map< unsigned int, Param> Params;
   
-  Params m_Params;
+  mutable Params m_Params;
   
 
 

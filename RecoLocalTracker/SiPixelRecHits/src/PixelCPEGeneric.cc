@@ -133,11 +133,8 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
       */
       float qclus = cluster.charge();
       
-      GlobalVector bfield = magfield_->inTesla( theDet->surface().position() ); 
       
-      Frame detFrame( theDet->surface().position(), theDet->surface().rotation() );
-      LocalVector Bfield = detFrame.toLocal( bfield );
-      float locBz = Bfield.z();
+      float locBz = (*theParam).bz;
       //cout << "PixelCPEGeneric::localPosition(...) : locBz = " << locBz << endl;
       
       pixmx  = -999.9; // max pixel charge for truncation of 2-D cluster
@@ -492,8 +489,6 @@ collect_edge_charges(const SiPixelCluster& cluster,  //!< input, the cluster
   Q_f_X = Q_l_X = Q_m_X = 0.0;
   Q_f_Y = Q_l_Y = Q_m_Y = 0.0;
 
-  // Fetch the pixels vector from the cluster.
-  const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
 
   // Obtain boundaries in index units
   int xmin = cluster.minPixelRow();
@@ -501,38 +496,32 @@ collect_edge_charges(const SiPixelCluster& cluster,  //!< input, the cluster
   int ymin = cluster.minPixelCol();
   int ymax = cluster.maxPixelCol();
 
-//   // Obtain the cluster boundaries (note: in measurement units!)
-//   float xmin = cluster.minPixelRow()+0.5;
-//   float xmax = cluster.maxPixelRow()+0.5;  
-//   float ymin = cluster.minPixelCol()+0.5;
-//   float ymax = cluster.maxPixelCol()+0.5;
+
   
   // Iterate over the pixels.
-  int isize = pixelsVec.size();
+  int isize = cluster.size();
   
-  for (int i = 0;  i < isize; ++i) 
+  for (int i = 0;  i != isize; ++i) 
     {
-      float pix_adc = -999.9;
-
+      auto const & pixel = cluster.pixel(i); 
       // ggiurgiu@fnal.gov: add pixel charge truncation
+      float pix_adc = pixel.adc;
       if ( UseErrorsFromTemplates_ && TruncatePixelCharge_ ) 
-	pix_adc = min( (float)(pixelsVec[i].adc), pixmx );
-      else 
-	pix_adc = pixelsVec[i].adc;
+	pix_adc = std::min(pix_adc, pixmx );
 
       //
       // X projection
-      if      ( pixelsVec[i].x == xmin )       // need to match with tolerance!!! &&&
+      if      ( pixel.x == xmin )       // need to match with tolerance!!! &&&
 	Q_f_X += pix_adc;
-      else if ( pixelsVec[i].x == xmax ) 
+      else if ( pixel.x == xmax ) 
 	Q_l_X += pix_adc;
       else 
 	Q_m_X += pix_adc;
       //
       // Y projection
-      if      ( pixelsVec[i].y == ymin ) 
+      if      ( pixel.y == ymin ) 
 	Q_f_Y += pix_adc;
-      else if ( pixelsVec[i].y == ymax ) 
+      else if ( pixel.y == ymax ) 
 	Q_l_Y += pix_adc;
       else 
 	Q_m_Y += pix_adc;
