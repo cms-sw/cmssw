@@ -245,6 +245,7 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
   //--- Position, including the half lorentz shift
   if (theVerboseLevel > 20) 
     cout << "\t >>> Generic:: processing X" << endl;
+
   float xPos = 
     generic_position_formula( cluster.sizeX(),
 			      Q_f_X, Q_l_X, 
@@ -543,11 +544,9 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
   setTheDet( det, cluster );
 
   // The squared errors
-  float xerr_sq = -99999.9;
-  float yerr_sq = -99999.9;
+  float xerr_sq = -99999.9f;
+  float yerr_sq = -99999.9f;
 
-  int sizex = cluster.sizeX();
-  int sizey = cluster.sizeY();
    
   // Default errors are the maximum error used for edge clusters.
   /*
@@ -566,7 +565,7 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
   */
 
   // These are determined by looking at residuals for edge clusters
-  const float micronsToCm = 1.0e-4;
+  const float micronsToCm = 1.0e-4f;
   float xerr = EdgeClusterErrorX_ * micronsToCm;
   float yerr = EdgeClusterErrorY_ * micronsToCm;
   
@@ -575,6 +574,9 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
   int maxPixelRow = cluster.maxPixelRow();
   int minPixelCol = cluster.minPixelCol();
   int minPixelRow = cluster.minPixelRow();       
+  int sizex = maxPixelRow - minPixelRow+1;
+  int sizey = maxPixelCol - minPixelCol+1;
+
   bool edgex = ( theTopol->isItEdgePixelInX( minPixelRow ) ) || ( theTopol->isItEdgePixelInX( maxPixelRow ) );
   bool edgey = ( theTopol->isItEdgePixelInY( minPixelCol ) ) || ( theTopol->isItEdgePixelInY( maxPixelCol ) );
 
@@ -640,8 +642,8 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 	      int n_bigx = 0;
 	      int n_bigy = 0;
 	      
-	      int row_offset = cluster.minPixelRow();
-	      int col_offset = cluster.minPixelCol();
+	      int row_offset = minPixelRow;
+	      int col_offset = minPixelCol;
 	      
 	      for (int irow = 0; irow < 7; ++irow)
 		{
@@ -655,8 +657,8 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 		    ++n_bigy;
 		}
 	      
-	      xerr = (float)(sizex + n_bigx) * thePitchX / sqrt( 12.0 );
-	      yerr = (float)(sizey + n_bigy) * thePitchY / sqrt( 12.0 );
+	      xerr = (float)(sizex + n_bigx) * thePitchX / sqrt( 12.0f );
+	      yerr = (float)(sizey + n_bigy) * thePitchY / sqrt( 12.0f );
 	      
 	    } // if ( qbin == 0 && inflate_errors )
 	  else
@@ -709,7 +711,7 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 	  else 
 	    { 	 
 	      pair<float,float> errPair = 	 
-		genErrorsFromDB_->getError( genErrorParm_, thePart, cluster.sizeX(), cluster.sizeY(), 	 
+		genErrorsFromDB_->getError( genErrorParm_, thePart, sizex, sizey, 	 
 					    alpha_, beta_, bigInX, bigInY ); 
 	      if ( !edgex ) 
 		xerr = errPair.first; 	 
