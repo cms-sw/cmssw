@@ -253,8 +253,8 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 			      0.5*lorentzShiftInCmX_,   // 0.5 * lorentz shift in 
 			      cotalpha_,
 			      thePitchX,
-			      theTopol->isItBigPixelInX( cluster.minPixelRow() ),
-			      theTopol->isItBigPixelInX( cluster.maxPixelRow() ),
+			      theRecTopol->isItBigPixelInX( cluster.minPixelRow() ),
+			      theRecTopol->isItBigPixelInX( cluster.maxPixelRow() ),
 			      the_eff_charge_cut_lowX,
                               the_eff_charge_cut_highX,
                               the_size_cutX);           // cut for eff charge width &&&
@@ -269,8 +269,8 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 			      0.5*lorentzShiftInCmY_,   // 0.5 * lorentz shift in cm
 			      cotbeta_,
 			      thePitchY,   // 0.5 * lorentz shift (may be 0)
-			      theTopol->isItBigPixelInY( cluster.minPixelCol() ),
-			      theTopol->isItBigPixelInY( cluster.maxPixelCol() ),
+			      theRecTopol->isItBigPixelInY( cluster.minPixelCol() ),
+			      theRecTopol->isItBigPixelInY( cluster.maxPixelCol() ),
 			      the_eff_charge_cut_lowY,
                               the_eff_charge_cut_highY,
                               the_size_cutY);           // cut for eff charge width &&&
@@ -286,7 +286,7 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 	      << "\nERROR: cluster.maxPixelRow() != cluster.minPixelRow() although x-size = 1 !!!!! " << "\n\n";
 	  
 	  // Find if pixel is double (big). 
-	  bool bigInX = theTopol->isItBigPixelInX( cluster.maxPixelRow() );
+	  bool bigInX = theRecTopol->isItBigPixelInX( cluster.maxPixelRow() );
 	  
 	  if ( !bigInX ) 
 	    {
@@ -299,14 +299,11 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 	      xPos -= dx2;
 	    }
 	}
-      else if ( cluster.sizeX() > 1 )
+      else
 	{
 	  //cout << "Apply correction correction_deltax = " << deltax << " to xPos = " << xPos << endl;
 	  xPos -= deltax;
 	}
-      else
-	throw cms::Exception("PixelCPEGeneric::localPosition") 
-	  << "\nERROR: Unphysical cluster x-size = " <<  (int)cluster.sizeX() << "\n\n";
       
   if ( cluster.sizeY() == 1 )
     {
@@ -316,7 +313,7 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 	  << "\nERROR: cluster.maxPixelCol() != cluster.minPixelCol() although y-size = 1 !!!!! " << "\n\n";
       
       // Find if pixel is double (big). 
-      bool bigInY = theTopol->isItBigPixelInY( cluster.maxPixelCol() );
+      bool bigInY = theRecTopol->isItBigPixelInY( cluster.maxPixelCol() );
       
       if ( !bigInY ) 
 	{
@@ -329,16 +326,13 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 	  yPos -= dy2;
 	}
     }
-  else if ( cluster.sizeY() > 1 )
+  else 
     {
       //cout << "Apply correction deltay = " << deltay << " to yPos = " << yPos << endl;
       yPos -= deltay;
     }
-  else
-    throw cms::Exception("PixelCPEGeneric::localPosition") 
-      << "\nERROR: Unphysical cluster y-size = " << (int)cluster.sizeY() << "\n\n";
-
-	} // if ( IrradiationBiasCorrection_ )
+ 
+    } // if ( IrradiationBiasCorrection_ )
 	
   //--- Now put the two together
   LocalPoint pos_in_local( xPos, yPos );
@@ -577,12 +571,12 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
   int sizex = maxPixelRow - minPixelRow+1;
   int sizey = maxPixelCol - minPixelCol+1;
 
-  bool edgex = ( theTopol->isItEdgePixelInX( minPixelRow ) ) || ( theTopol->isItEdgePixelInX( maxPixelRow ) );
-  bool edgey = ( theTopol->isItEdgePixelInY( minPixelCol ) ) || ( theTopol->isItEdgePixelInY( maxPixelCol ) );
+  bool edgex = ( theRecTopol->isItEdgePixelInX( minPixelRow ) ) || ( theRecTopol->isItEdgePixelInX( maxPixelRow ) );
+  bool edgey = ( theRecTopol->isItEdgePixelInY( minPixelCol ) ) || ( theRecTopol->isItEdgePixelInY( maxPixelCol ) );
 
   // Find if cluster contains double (big) pixels. 
-  bool bigInX = theTopol->containsBigPixelInX( minPixelRow, maxPixelRow ); 	 
-  bool bigInY = theTopol->containsBigPixelInY( minPixelCol, maxPixelCol );
+  bool bigInX = theRecTopol->containsBigPixelInX( minPixelRow, maxPixelRow ); 	 
+  bool bigInY = theRecTopol->containsBigPixelInY( minPixelCol, maxPixelCol );
 
   if ( !with_track_angle && DoCosmics_ )
     {
@@ -647,13 +641,13 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 	      
 	      for (int irow = 0; irow < 7; ++irow)
 		{
-		  if ( theTopol->isItBigPixelInX( irow+row_offset ) )
+		  if ( theRecTopol->isItBigPixelInX( irow+row_offset ) )
 		    ++n_bigx;
 		}
 	      
 	      for (int icol = 0; icol < 21; ++icol) 
 		{
-		  if ( theTopol->isItBigPixelInY( icol+col_offset ) )
+		  if ( theRecTopol->isItBigPixelInY( icol+col_offset ) )
 		    ++n_bigy;
 		}
 	      
@@ -670,15 +664,13 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 		  if ( sizex == 1 )
 		    {
 		      if ( !bigInX ) 
-						xerr = sx1; 
+			xerr = sx1; 
 		      else           
-						xerr = sx2;
+			xerr = sx2;
 		    }
-		  else if ( sizex > 1 )
+		  else 
 		    xerr = sigmax;
-		  else
-		    throw cms::Exception("PixelCPEGeneric::localError") 
-		      << "\nERROR: Unphysical cluster x-size = " << sizex << "\n\n";
+		  
 		}
 	      
 	      if ( !edgey )
@@ -690,11 +682,9 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 		      else
 			yerr = sy2;
 		    }
-		  else if ( sizey > 1 )
-		    yerr = sigmay;
 		  else
-		    throw cms::Exception("PixelCPEGeneric::localError") 
-		      << "\nERROR: Unphysical cluster y-size = " << sizex << "\n\n";
+		    yerr = sigmay;
+		  
 		}
 	    } // if ( qbin == 0 && inflate_errors ) else
 

@@ -42,7 +42,7 @@
 #include <iostream>
 
 
-
+class RectangularPixelTopology;
 class MagneticField;
 class PixelCPEBase : public PixelClusterParameterEstimator 
 {

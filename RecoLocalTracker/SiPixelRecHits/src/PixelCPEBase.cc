@@ -189,8 +189,8 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
   maxInX = cluster.maxPixelRow();
   maxInY = cluster.maxPixelCol();
   
-  if(theTopol->isItEdgePixelInX(minInX) || theTopol->isItEdgePixelInX(maxInX) ||
-     theTopol->isItEdgePixelInY(minInY) || theTopol->isItEdgePixelInY(maxInY) )  {
+  if(theRecTopol->isItEdgePixelInX(minInX) || theRecTopol->isItEdgePixelInX(maxInX) ||
+     theRecTopol->isItEdgePixelInY(minInY) || theRecTopol->isItEdgePixelInY(maxInY) )  {
     isOnEdge_ = true;
   }
   else isOnEdge_ = false;
@@ -201,8 +201,8 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
     if(cluster.pixelADC()[i] == 0) hasBadPixels_ = true;
   }
   
-  if(theTopol->containsBigPixelInX(minInX,maxInX) ||
-     theTopol->containsBigPixelInY(minInY,maxInY) )  {
+  if(theRecTopol->containsBigPixelInX(minInX,maxInX) ||
+     theRecTopol->containsBigPixelInY(minInY,maxInY) )  {
     spansTwoROCs_ = true;
   }
   else spansTwoROCs_ = false;
