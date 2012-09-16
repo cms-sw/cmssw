@@ -36,6 +36,7 @@
 #include "DataFormats/METReco/interface/MVAMETDataFwd.h"
 #include "DataFormats/METReco/interface/MVAMEtData.h"
 #include "DataFormats/METReco/interface/MVAMEtDataFwd.h"
+#include "DataFormats/METReco/interface/PFMEtSignCovMatrix.h"
 #include "DataFormats/METReco/interface/AnomalousECALVariables.h"
 #include "DataFormats/METReco/interface/BoundaryInformation.h"
 
@@ -158,6 +159,11 @@ namespace {
     std::vector<metsig::SigInputObj> dummy63;
     edm::Wrapper<std::vector<metsig::SigInputObj> > dummy64;
 
+    PFMEtSignCovMatrix                             dummy65;
+    //edm::Wrapper<PFMEtSignCovMatrix>               dummy66;
+    //std::vector<PFMEtSignCovMatrix>                dummy67;
+    //edm::Wrapper<std::vector<PFMEtSignCovMatrix> > dummy68; 
+
     reco::JetInfo dummyJetInfo;
     reco::JetInfoCollection dummyJetInfoCollection;
     edm::Wrapper<reco::JetInfoCollection> dummyJetInfoCollectionWrapped;
@@ -176,5 +182,6 @@ namespace {
     edm::Wrapper<BoundaryInformation> dummyBE23;
     std::vector<BoundaryInformation> dummyBE24;
     edm::Wrapper< std::vector<BoundaryInformation> > dummyBE25;
+
   };
 }
