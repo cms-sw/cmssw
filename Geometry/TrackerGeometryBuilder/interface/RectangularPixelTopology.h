@@ -127,6 +127,7 @@ public:
       if( m_upgradeGeometry ) return false;
       else
       {
+	constexpr int bigYIndeces[]{0,51,52,103,104,155,156,207,208,259,260,311,312,363,364,415,416,511};
 	return *std::lower_bound(std::begin(bigYIndeces),std::end(bigYIndeces),iybin) == iybin;
      }
   }
@@ -182,8 +183,6 @@ public:
   }
 
 private:
-
-  static constexpr int bigYIndeces[]{0,51,52,103,104,155,156,207,208,259,260,311,312,363,364,415,416,511};
 
   float m_pitchx;
   float m_pitchy;

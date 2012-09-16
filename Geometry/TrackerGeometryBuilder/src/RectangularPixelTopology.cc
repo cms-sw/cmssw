@@ -298,6 +298,7 @@ RectangularPixelTopology::localY( const float mpy ) const
       }     
   }
   else {
+    constexpr int bigYIndeces[]{0,51,52,103,104,155,156,207,208,259,260,311,312,363,364,415,416,511};
     auto const j = std::lower_bound(std::begin(bigYIndeces),std::end(bigYIndeces),binoffy);
     if (*j==binoffy) local_pitchy  *= 2 ;
     binoffy += (j-bigYIndeces);
