@@ -88,11 +88,8 @@ void newCode(int & binoffy, int & pitchMul) {
   int offIndex[] = {0,51,52,103,104,155,156,207,208,259,260,311,312,363,364,415,416,511};
   pitchMul=1;
   auto const j = std::lower_bound(std::begin(offIndex),std::end(offIndex),binoffy);
-  int off = j-offIndex;
-  if (*j==binoffy) { 
-    pitchMul=2;
-  }
-  binoffy+=off;
+  if (*j==binoffy) pitchMul=2;
+  binoffy+= (j-offIndex);
 }
 
 #include<cstdio>
