@@ -65,9 +65,9 @@ void SiPixelCluster::add( const SiPixelCluster::PixelPos& pix, int adc) {
   
   if (pix.row() > maxPixelRow()) theMaxPixelRow=pix.row();
   
-  if (pix.row() > maxPixelCol()) {
-    assert((pix.row()-minCol)<127);
-    thePixelCol = ((pix.row()-minCol)<<9) | minCol;
+  if (pix.col() > maxPixelCol()) {
+    assert((pix.col()-minCol)<127);
+    thePixelCol = ((pix.col()-minCol)<<9) | minCol;
   }
 	
   thePixelADC.push_back( adc );
