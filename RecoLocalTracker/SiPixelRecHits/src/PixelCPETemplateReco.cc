@@ -253,13 +253,13 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
   // x directions (shorter), rows
   for (int irow = 0; irow < cluster_matrix_size_x; ++irow)
     {
-      xdouble[irow] = theTopol->isItBigPixelInX( irow+row_offset );
+      xdouble[irow] = theRecTopol->isItBigPixelInX( irow+row_offset );
     }
       
   // y directions (longer), columns
   for (int icol = 0; icol < cluster_matrix_size_y; ++icol) 
     {
-      ydouble[icol] = theTopol->isItBigPixelInY( icol+col_offset );
+      ydouble[icol] = theRecTopol->isItBigPixelInY( icol+col_offset );
     }
 
   // Output:
@@ -524,8 +524,8 @@ PixelCPETemplateReco::localError( const SiPixelCluster& cluster,
       int minPixelRow = cluster.minPixelRow();
       
       //--- Are we near either of the edges?
-      bool edgex = ( theTopol->isItEdgePixelInX( minPixelRow ) || theTopol->isItEdgePixelInX( maxPixelRow ) );
-      bool edgey = ( theTopol->isItEdgePixelInY( minPixelCol ) || theTopol->isItEdgePixelInY( maxPixelCol ) );
+      bool edgex = ( theRecTopol->isItEdgePixelInX( minPixelRow ) || theRecTopol->isItEdgePixelInX( maxPixelRow ) );
+      bool edgey = ( theRecTopol->isItEdgePixelInY( minPixelCol ) || theRecTopol->isItEdgePixelInY( maxPixelCol ) );
       
       if ( ierr !=0 ) 
 	{
