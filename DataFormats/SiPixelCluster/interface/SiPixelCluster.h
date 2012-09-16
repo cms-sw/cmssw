@@ -13,10 +13,12 @@
 //!  March 2007: Edge methods moved to RectangularPixelTopology class (V.Chiochia)
 //!  Feb 2008: Modify the Pixel class from float to shorts
 //!  May   2008: Offset based packing (D.Fehling / A. Rizzi)
+//!  Sep 2012: added Max back, removed detId (V.I.)
 //---------------------------------------------------------------------------
 
 #include <vector>
 #include "boost/cstdint.hpp"
+#include <cassert>
 
 class PixelDigi;
 
@@ -67,9 +69,7 @@ class SiPixelCluster {
    *  a DetID. The range is assumed to be non-empty.
    */
   
-  // &&& Decide the fate of the two strip-like constructors below:
-  SiPixelCluster() : detId_(0), err_x(-99999.9), err_y(-99999.9) {}  // needed by vector::push_back()!
-  // SiPixelCluster( unsigned int detid, const PixelDigiRange& range)
+  SiPixelCluster() : theMinPixelRow(0), theMaxPixelRow(0), thePixelCol(0), err_x(-99999.9), err_y(-99999.9) {}  // needed by many....
     
   SiPixelCluster( const PixelPos& pix, int adc);
   
@@ -77,28 +77,28 @@ class SiPixelCluster {
   
   // Analog linear average position (barycenter) 
   float x() const {
-		float qm = 0.0;
-		int isize = thePixelADC.size();
-		for (int i=0; i<isize; ++i)
-			qm += float(thePixelADC[i]) * (thePixelOffset[i*2] + theMinPixelRow + 0.5);
-		return qm/charge();
-			}
+    float qm = 0.0;
+    int isize = thePixelADC.size();
+    for (int i=0; i<isize; ++i)
+      qm += float(thePixelADC[i]) * (thePixelOffset[i*2] + minPixelRow() + 0.5);
+    return qm/charge();
+  }
   float y() const {
-		float qm = 0.0;
-		int isize = thePixelADC.size();
-		for (int i=0; i<isize; ++i)
-			qm += float(thePixelADC[i]) * (thePixelOffset[i*2+1]  + theMinPixelCol + 0.5);
-		return qm/charge();
-	}
+    float qm = 0.0;
+    int isize = thePixelADC.size();
+    for (int i=0; i<isize; ++i)
+      qm += float(thePixelADC[i]) * (thePixelOffset[i*2+1]  + minPixelCol() + 0.5);
+    return qm/charge();
+  }
 
   // Return number of pixels.
   int size() const { return thePixelADC.size();}
 
   // Return cluster dimension in the x direction.
-  int sizeX() const {return maxPixelRow() - theMinPixelRow +1;}
+  int sizeX() const {return maxPixelRow() - minPixelRow() +1;}
 
   // Return cluster dimension in the y direction.
-  int sizeY() const {return maxPixelCol() - theMinPixelCol +1;}
+  int sizeY() const {return int(thePixelCol >>9) +1;}
 
 
   inline float charge() const {
@@ -110,27 +110,10 @@ class SiPixelCluster {
   } // Return total cluster charge.
 
   inline int minPixelRow() const { return theMinPixelRow;} // The min x index.
-  inline int minPixelCol() const { return theMinPixelCol & 511;} // The min y index.
-	
-  inline int maxPixelRow() const {
-    int maxRow = 0;
-    int isize  = thePixelADC.size();
-    for (int i=0; i<isize; ++i) {
-      int xsize  = thePixelOffset[i*2];
-      if (xsize > maxRow) maxRow = xsize;
-    }
-    return maxRow + theMinPixelRow; // The max x index.
-  }
-  
-  inline int maxPixelCol() const {
-    int maxCol = 0;
-    int isize = thePixelADC.size();
-    for (int i=0; i<isize; ++i) {
-      int ysize = thePixelOffset[i*2+1] ;
-      if (ysize > maxCol) maxCol = ysize;
-    }
-    return maxCol + theMinPixelCol; // The max y index.
-  }
+  inline int maxPixelRow() const { return theMaxPixelRow;} // The max x index.
+  inline int minPixelCol() const { return thePixelCol & 511;} // The min y index.
+  inline int maxPixelCol() const { return minPixelCol() + (thePixelCol >>9);} // The max y index.
+
   
   const std::vector<uint8_t> & pixelOffset() const { return thePixelOffset;}
   const std::vector<uint16_t> & pixelADC() const { return thePixelADC;}
@@ -140,29 +123,43 @@ class SiPixelCluster {
     int isize = thePixelADC.size();
     oldPixVector.reserve(isize); 
     for(int i=0; i<isize; ++i) {
-      int x = theMinPixelRow + (thePixelOffset[i*2]  );
-      int y = theMinPixelCol + (thePixelOffset[i*2+1] );
-      oldPixVector.push_back(Pixel(x,y,thePixelADC[i]));
+      oldPixVector.push_back(pixel(i));
     }
     return oldPixVector;
   }
 
   // infinite faster than above...
   Pixel pixel(int i) const {
-    return Pixel(theMinPixelRow + thePixelOffset[i*2],
-		 theMinPixelCol + thePixelOffset[i*2+1],
+    return Pixel(minPixelRow() + thePixelOffset[i*2],
+		 minPixelCol() + thePixelOffset[i*2+1],
 		 thePixelADC[i]
 		 );
   }
 
-  //--- Cloned fom Strips:
+  /// mostly to be compatible for <610 
+  void verifyVersion() const {
+    if ( theMaxPixelRow==0 && thePixelCol<511)
+      const_cast<SiPixelCluster*>(this)->computeMax();
+  }
+
+  /// moslty to be compatible for <610 
+  void computeMax()  {
+    int maxRow = 0;
+    int maxCol = 0;
+    int isize  = thePixelADC.size();
+    for (int i=0; i!=isize; ++i) {
+      int xsize  = thePixelOffset[i*2];
+      if (xsize > maxRow) maxRow = xsize;
+      int ysize = thePixelOffset[i*2+1] ;
+      if (ysize > maxCol) maxCol = ysize;
+    }
+    // assume minimum is correct
+    theMaxPixelRow=maxRow+minPixelRow();
+    int minCol= minPixelCol();
+    assert(maxCol<127);
+    thePixelCol = (maxCol<<9) | minCol;
+  }
   
-  /** The geographical ID of the corresponding DetUnit, 
-   *  to be used for transformations to local and to global reference 
-   *  frames etc.   */
-  unsigned int geographicalId() const {return detId_;}
-  
- 
   // ggiurgiu@fnal.gov, 01/05/12 
   // Getters and setters for the newly added data members (err_x and err_y). See below. 
   void setSplitClusterErrorX( float errx ) { err_x = errx; }
@@ -172,16 +169,15 @@ class SiPixelCluster {
   
 
  private:
-  unsigned int         detId_;
   
   std::vector<uint8_t>  thePixelOffset;
   std::vector<uint16_t> thePixelADC;
   
 
   uint8_t  theMinPixelRow; // Minimum pixel index in the x direction (low edge).
-  uint16_t theMinPixelCol; // Minimum pixel index in the y direction (left edge).
-  // Need 9 bits for Col information. Use 1 bit for whether larger
-  // cluster than 9x33. Other 6 bits for quality information.
+  uint8_t  theMaxPixelRow; // Maximum pixel index in the x direction (low edge).
+  uint16_t thePixelCol; // Minimum and span pixel index in the y direction (left edge).
+  // Need 9 bits for Col information the other 7 used for span
 
   // ggiurgiu@fnal.gov, 01/05/12
   // Add cluster errors to be used by rechits from split clusters. 
@@ -196,13 +192,9 @@ class SiPixelCluster {
   
 };
 
-// Comparison operators
+// Comparison operators  (no clue...)
 inline bool operator<( const SiPixelCluster& one, const SiPixelCluster& other) {
-  if ( one.geographicalId() < other.geographicalId() ) {
-    return true;
-  } else if ( one.geographicalId() > other.geographicalId() ) {
-    return false;
-  } else if ( one.minPixelRow() < other.minPixelRow() ) {
+  if ( one.minPixelRow() < other.minPixelRow() ) {
     return true;
   } else if ( one.minPixelRow() > other.minPixelRow() ) {
     return false;
