@@ -109,7 +109,7 @@ public:
   }
 
   // Stmt visitor methods.
-  void VisitMemberExpr(clang::Expr *E);
+  //void VisitMemberExpr(clang::Expr *E);
   void VisitCallExpr(clang::CallExpr *CE);
   void VisitCXXMemberCallExpr(clang::CXXMemberCallExpr *CE);
   void VisitStmt(clang::Stmt *S) { VisitChildren(S); }
@@ -135,21 +135,21 @@ void WalkAST::VisitCallExpr(clang::CallExpr *CE) {
   Enqueue(CE);
 }
 
-void WalkAST::VisitMemberExpr(clang::Expr *E) {
+//void WalkAST::VisitMemberExpr(clang::Expr *E) {
 
-const clang::CXXRecordDecl * ACD = llvm::dyn_cast<clang::CXXRecordDecl>(AC->getDecl());
-clang::QualType qual = llvm::dyn_cast<clang::Expr>(E)->getType();
-clang::MemberExpr * ME = llvm::dyn_cast<clang::MemberExpr>(E);
-clang::ValueDecl * VD = ME->getMemberDecl();
-if (!(ME->isBoundMemberFunction(AC->getASTContext()))&&
-	ME->isImplicitAccess() &&
-	!(support::isConst(qual)) )
-{
+//const clang::CXXRecordDecl * ACD = llvm::dyn_cast<clang::CXXRecordDecl>(AC->getDecl());
+//clang::QualType qual = llvm::dyn_cast<clang::Expr>(E)->getType();
+//clang::MemberExpr * ME = llvm::dyn_cast<clang::MemberExpr>(E);
+//clang::ValueDecl * VD = ME->getMemberDecl();
+//if (!(ME->isBoundMemberFunction(AC->getASTContext()))&&
+//	ME->isImplicitAccess() &&
+//	!(support::isConst(qual)) )
+//{
 
-clang::FieldDecl * MD = llvm::dyn_cast<clang::FieldDecl>(VD);
-clang::CXXRecordDecl * MRD = llvm::dyn_cast<clang::CXXRecordDecl>(MD->getParent());
-if (MRD==ACD) 
-	{
+//clang::FieldDecl * MD = llvm::dyn_cast<clang::FieldDecl>(VD);
+//clang::CXXRecordDecl * MRD = llvm::dyn_cast<clang::CXXRecordDecl>(MD->getParent());
+//if (MRD==ACD) 
+//	{
 //	llvm::errs()<<"\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 //	llvm::errs()<<"\n CXXMemberExpr \n";
 //	ME->dumpPretty(AC->getASTContext());
@@ -169,10 +169,10 @@ if (MRD==ACD)
 //	llvm::errs()<<"\n";
 //
 //	llvm::errs()<<"\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-	}
-}
-VisitChildren(E);  
-}
+//	}
+//}
+//VisitChildren(E);  
+//}
 
 void WalkAST::VisitCXXMemberCallExpr(clang::CXXMemberCallExpr *CE) {
 
@@ -189,8 +189,10 @@ clang::QualType qual_ioa = llvm::dyn_cast<clang::Expr>(IOA)->getType();
 
 
 if ((ME->isImplicitAccess()))
-//if (!support::isConst(qual_ioa))
-//if (RD==ACD)
+if (!support::isConst(qual_ioa))
+if(!(qual_exp.getTypePtr()->isScalarType())&&
+	!(qual_exp.getTypePtr()->isObjectType()))
+//if(qual_exp.getTypePtr()->isPointerType()||qual_exp.getTypePtr()->isReferenceType())
 {
 		
 //llvm::errs()<<"\n-------------------------------------------------------------------------------------\n";
@@ -229,76 +231,76 @@ if ((ME->isImplicitAccess()))
 		
 
 
- 	for (clang::Stmt::child_range SubStmts = CE->children(); SubStmts; ++SubStmts){
-		if (const clang::Stmt *S = *SubStmts) 
-			{ 
-					clang::QualType qual_sub = 
-						llvm::dyn_cast<clang::Expr>(S)->getType();
-					if (!(support::isConst(qual_sub))&&
-						!(llvm::dyn_cast<clang::Expr>(S)->isRValue()))
+// 	for (clang::Stmt::child_range SubStmts = CE->children(); SubStmts; ++SubStmts){
+//		if (const clang::Stmt *S = *SubStmts) 
+//			{ 
+//					clang::QualType qual_sub = 
+//						llvm::dyn_cast<clang::Expr>(S)->getType();
+//					if (!(support::isConst(qual_sub))&&
+//						!(llvm::dyn_cast<clang::Expr>(S)->isRValue()))
 //						if(qual_arg.getTypePtr()->isPointerType()||
 //							qual_arg.getTypePtr()->isReferenceType())
-						if(!(qual_sub.getTypePtr()->isScalarType())&&
-							!(qual_sub.getTypePtr()->isObjectType()))
-						{					
-							llvm::errs()<<"\n CXXMemberCallExpr \n";
-							CE->dumpPretty(AC->getASTContext());
-							llvm::errs()<<"\n";
-							llvm::errs()<<"\n////////////////////\n";
-							llvm::errs()<<"\n Sub  Expr \n";
-							S->dumpPretty(AC->getASTContext());
-							llvm::errs()<<"\n";
-							llvm::errs()<<"\nQual Type Sub\n";
-							qual_sub->dump();
-							llvm::errs()<<"\n";
-							llvm::errs()<<"\n Record Decl name\n";
-							RD->printName(llvm::errs());
-							llvm::errs()<<"\n";
-							ACD->printName(llvm::errs());
-							llvm::errs()<<"\n";
-							llvm::errs()<<"\n////////////////////\n";
-						}
-			}
-	}
+//						if(!(qual_sub.getTypePtr()->isScalarType())&&
+//							!(qual_sub.getTypePtr()->isObjectType()))
+//						{					
+//							llvm::errs()<<"\n CXXMemberCallExpr \n";
+//							CE->dumpPretty(AC->getASTContext());
+//							llvm::errs()<<"\n";
+//							llvm::errs()<<"\n////////////////////\n";
+//							llvm::errs()<<"\n Sub  Expr \n";
+//							S->dumpPretty(AC->getASTContext());
+//							llvm::errs()<<"\n";
+//							llvm::errs()<<"\nQual Type Sub\n";
+//							qual_sub->dump();
+//							llvm::errs()<<"\n";
+//							llvm::errs()<<"\n Record Decl name\n";
+//							RD->printName(llvm::errs());
+//							llvm::errs()<<"\n";
+//							ACD->printName(llvm::errs());
+//							llvm::errs()<<"\n";
+//							llvm::errs()<<"\n////////////////////\n";
+//						}
+//			}
+//	}
 	
 
 
 
 
- 	for(int i=0, j=CE->getNumArgs(); i<j; i++) {
-		if ( const clang::Expr *E = CE->getArg(i))
-			{
-			clang::QualType qual_arg = llvm::dyn_cast<clang::Expr>(E)->getType();
-
-			if (!(support::isConst(qual_arg)) &&
-				!(llvm::dyn_cast<clang::Expr>(E)->isRValue()))
+// 	for(int i=0, j=CE->getNumArgs(); i<j; i++) {
+//		if ( const clang::Expr *E = CE->getArg(i))
+//			{
+//			clang::QualType qual_arg = llvm::dyn_cast<clang::Expr>(E)->getType();
+//
+//			if (!(support::isConst(qual_arg)) &&
+//				!(llvm::dyn_cast<clang::Expr>(E)->isRValue()))
 //				if(qual_arg.getTypePtr()->isPointerType()||qual_arg.getTypePtr()->isReferenceType())
-				if(!(qual_arg.getTypePtr()->isScalarType())&&
-					!(qual_arg.getTypePtr()->isObjectType()))
-				{
-					llvm::errs()<<"\n CXXMemberCallExpr \n";
-					CE->dumpPretty(AC->getASTContext());
-					llvm::errs()<<"\n";
-					llvm::errs()<<"\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-					llvm::errs()<<"\n Arg Expr \n";
-					CE->getArg(i)->dumpPretty(AC->getASTContext());
-					llvm::errs()<<"\n";
-					llvm::errs()<<"\nQual Type Arg\n";
-					qual_arg->dump();
-					llvm::errs()<<"\n";
-					llvm::errs()<<"\n Record Decl name\n";
-					RD->printName(llvm::errs());
-					llvm::errs()<<"\n";
-					ACD->printName(llvm::errs());
-					llvm::errs()<<"\n";
-					llvm::errs()<<"\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-					ReportCallArg(CE,E);
-				}
-				 
-			}
-	} 
+//				if(!(qual_arg.getTypePtr()->isScalarType())&&
+//					!(qual_arg.getTypePtr()->isObjectType()))
+//				{
+//					llvm::errs()<<"\n CXXMemberCallExpr \n";
+//					CE->dumpPretty(AC->getASTContext());
+//					llvm::errs()<<"\n";
+//					llvm::errs()<<"\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
+//					llvm::errs()<<"\n Arg Expr \n";
+//					CE->getArg(i)->dumpPretty(AC->getASTContext());
+//					llvm::errs()<<"\n";
+//					llvm::errs()<<"\nQual Type Arg\n";
+//					qual_arg->dump();
+//					llvm::errs()<<"\n";
+//					llvm::errs()<<"\n Record Decl name\n";
+//					RD->printName(llvm::errs());
+//					llvm::errs()<<"\n";
+//					ACD->printName(llvm::errs());
+//					llvm::errs()<<"\n";
+//					llvm::errs()<<"\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
+//					ReportCallArg(CE,E);
+//				}
+//				 
+//			}
+//	} 
 
-//  ReportCall(CE);
+ReportCall(CE);
 //llvm::errs()<<"\n-------------------------------------------------------------------------------------\n";
 }
 
@@ -405,11 +407,11 @@ bool first = true;
 		I = RD->method_begin(), E = RD->method_end(); I != E; ++I)  
 	{      
 
-			if ( I->getNameAsString() == "produce" 
-				|| I->getNameAsString() == "beginRun" 
-				|| I->getNameAsString() == "endRun" 
-				|| I->getNameAsString() == "beginLuminosityBlock" 
-				|| I->getNameAsString() == "endLuminosityBlock" )
+//			if ( I->getNameAsString() == "produce" 
+//				|| I->getNameAsString() == "beginRun" 
+//				|| I->getNameAsString() == "endRun" 
+//				|| I->getNameAsString() == "beginLuminosityBlock" 
+//				|| I->getNameAsString() == "endLuminosityBlock" )
 			{
 				const clang::CXXMethodDecl *  MD = &llvm::cast<const clang::CXXMethodDecl>(*I->getMostRecentDecl());
 				if (MD->isVirtualAsWritten()) continue;
