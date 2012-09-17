@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_6/HLT/V44 (CMSSW_5_2_6_HLT3)
+# /dev/CMSSW_5_2_6/HLT/V45 (CMSSW_5_2_6_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/HLT/V44')
+  tableName = cms.string('/dev/CMSSW_5_2_6/HLT/V45')
 )
 
 streams = cms.PSet( 
@@ -32676,7 +32676,7 @@ hltEGRegionalL1SingleEG12eta2p1 = cms.EDFilter( "HLTEgammaL1MatchFilterRegional"
     candIsolatedTag = cms.InputTag( "hltL1SeededRecoEcalCandidate" ),
     region_phi_size = cms.double( 1.044 ),
     region_eta_size = cms.double( 0.522 ),
-    L1SeedFilterTag = cms.InputTag( "hltL1sL1SingleEG12" ),
+    L1SeedFilterTag = cms.InputTag( "hltL1sL1SingleEG7" ),
     ncandcut = cms.int32( 1 ),
     doIsolated = cms.bool( False ),
     candNonIsolatedTag = cms.InputTag( "" ),
@@ -53299,7 +53299,7 @@ HLT_IsoMu8_eta2p1_LooseIsoPFTau20_v1 = cms.Path( HLTBeginSequence + hltL1sL1Sing
 HLT_Mu8_eta2p1_LooseIsoPFTau20_L1ETM26_v1 = cms.Path( HLTBeginSequence + hltL1sL1Mu7erETM26 + hltPreMu8eta2p1LooseIsoPFTau20L1ETM26 + hltL1fL1sMu7Eta2p1L1Filtered0 + HLTL2muonrecoSequence + hltL2fL1sMu7Eta2p1L1f0L2Filtered7Q + HLTL3muonrecoSequence + hltL3fL1sMu7Eta2p1L1f0L2f7QL3Filtered8Q + HLTRecoJetSequencePrePF + hltTauJet5 + HLTPFTriggerSequenceMuTau + HLTMu8LooseIsoPFTau20Sequence + HLTEndSequence )
 HLT_Ele13_eta2p1_WP90Rho_LooseIsoPFTau20_L1ETM36_v1 = cms.Path( HLTBeginSequence + hltL1sL1IsoEG12erETM36 + hltPreEle13eta2p1WP90RhoLooseIsoPFTau20L1ETM36 + HLTEle13WP90RhoSequence + HLTRecoJetSequencePrePF + hltTauJet5 + hltOverlapFilterIsoEle13CaloJet5 + HLTPFTriggerSequenceForTaus + HLTIsoEle13LooseIsoPFTauSequence + HLTEndSequence )
 HLT_Ele13_eta2p1_WP90NoIso_LooseIsoPFTau20_L1ETM36_v1 = cms.Path( HLTBeginSequence + hltL1sL1IsoEG12erETM36 + hltPreEle13eta2p1WP90NoIsoLooseIsoPFTau20L1ETM36 + HLTEle13WP90NoIsoSequence + HLTRecoJetSequencePrePF + hltTauJet5 + hltOverlapFilterEle13CaloJet5 + HLTPFTriggerSequenceForTaus + HLTEle13LooseIsoPFTauSequence + HLTEndSequence )
-HLT_Ele13_eta2p1_WP90Rho_LooseIsoPFTau20_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG12 + hltPreEle13eta2p1WP90RhoLooseIsoPFTau20 + HLTSingleEle13WP90RhoSequence + HLTRecoJetSequencePrePF + hltTauJet5 + hltOverlapFilterSingleEle13CaloJet5 + HLTPFTriggerSequenceForTaus + HLTSingleEle13LooseIsoPFTauSequence + HLTEndSequence )
+HLT_Ele13_eta2p1_WP90Rho_LooseIsoPFTau20_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG7 + hltPreEle13eta2p1WP90RhoLooseIsoPFTau20 + HLTSingleEle13WP90RhoSequence + HLTRecoJetSequencePrePF + hltTauJet5 + hltOverlapFilterSingleEle13CaloJet5 + HLTPFTriggerSequenceForTaus + HLTSingleEle13LooseIsoPFTauSequence + HLTEndSequence )
 HLT_DoubleLooseIsoPFTau45_Trk5_eta2p1_v10 = cms.Path( HLTBeginSequence + hltL1sDoubleTauJet44erorDoubleJetC64 + hltPreDoubleLooseIsoPFTau45Trk5eta2p1 + HLTL2TauJetsSequence + hltFilterL2EtCutDoublePFIsoTau45Trk5 + HLTPFL1FastL2L3ReconstructionSequence + HLTLooseIsoPFTauSequence + hltDoublePFTauIso45Track + hltPFTauTrackPt5Discriminator + hltSelectedPFTausTrackPt5 + hltDoublePFTau45Track5 + hltSelectedPFTausTrackPt5Isolation + hltDoublePFTau45Track5Isolation + hltSelectedPFTausTrackPt5IsolationProng4 + hltDoublePFTau45Track5IsolationProng4 + hltL1HLTDoublePFTau45Trk5JetsMatch + hltFilterDoublePFTau45Trk5LeadTrack5IsolationL1HLTMatched + hltDoublePFTau45Track5IsolationProng4Dz02 + HLTEndSequence )
 HLT_DoubleMediumIsoPFTau25_Trk5_eta2p1_Jet30_v11 = cms.Path( HLTBeginSequence + hltL1sDoubleTauJet44erorDoubleJetC64 + hltPreDoubleMediumIsoPFTau25Trk5eta2p1Jet30 + HLTL2TauJetsSequence + hltDoubleL2Tau25eta2p1 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltDoubleL2Jets30eta2p1 + hltTripleL2Jets30eta3 + HLTL2TauPixelIsolationSequence + hltL2DiTauIsoFilter + HLTPFL1FastL2L3ReconstructionSequence + HLTMediumIsoPFTauSequence + hltDoublePFTau25 + hltPFTauTrackPt5Discriminator + hltSelectedPFTausTrackPt5 + hltDoublePFTau25TrackPt5 + hltSelectedPFTausTrackPt5MediumIsolation + hltDoublePFTau25TrackPt5MediumIsolation + hltSelectedPFTausTrackPt5MediumIsolationProng4 + hltDoublePFTau25TrackPt5MediumIsolationProng4 + hltL1JetsHLTDoublePFTauTrackPt5MediumIsolationProng4Match + hltDoublePFTau25TrackPt5MediumIsolationProng4L1HLTMatched + hltDoublePFTau25TrackPt5MediumIsolationProng4Dz02 + HLTEndSequence )
 HLT_DoubleMediumIsoPFTau30_Trk5_eta2p1_Jet30_v7 = cms.Path( HLTBeginSequence + hltL1sDoubleTauJet44erorDoubleJetC64 + hltPreDoubleMediumIsoPFTau30Trk5eta2p1Jet30 + HLTL2TauJetsSequence + hltDoubleL2Tau30eta2p1 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltDoubleL2Jets30eta2p1 + hltTripleL2Jets30eta3 + HLTL2TauPixelIsolationSequence + hltL2DiTauIsoFilter + hltL2TauJetsIso + hltDoubleL2IsoTau30eta2p1 + HLTPFL1FastL2L3ReconstructionSequence + HLTMediumIsoPFTauSequence + hltDoublePFTau30 + hltPFTauTrackPt5Discriminator + hltSelectedPFTausTrackPt5 + hltDoublePFTau30TrackPt5 + hltSelectedPFTausTrackPt5MediumIsolation + hltDoublePFTau30TrackPt5MediumIsolation + hltSelectedPFTausTrackPt5MediumIsolationProng4 + hltDoublePFTau30TrackPt5MediumIsolationProng4 + hltL1JetsHLTDoublePFTauTrackPt5MediumIsolationProng4Match + hltDoublePFTau30TrackPt5MediumIsolationProng4L1HLTMatched + hltDoublePFTau30TrackPt5MediumIsolationProng4Dz02 + HLTEndSequence )

@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/GRun/V31 (CMSSW_5_2_6_HLT3)
+# /dev/CMSSW_5_2_6/GRun/V32 (CMSSW_5_2_6_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/GRun/V31')
+  tableName = cms.string('/dev/CMSSW_5_2_6/GRun/V32')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -23608,7 +23608,7 @@ hltEGRegionalL1SingleEG12eta2p1 = cms.EDFilter( "HLTEgammaL1MatchFilterRegional"
     candIsolatedTag = cms.InputTag( "hltL1SeededRecoEcalCandidate" ),
     region_phi_size = cms.double( 1.044 ),
     region_eta_size = cms.double( 0.522 ),
-    L1SeedFilterTag = cms.InputTag( "hltL1sL1SingleEG12" ),
+    L1SeedFilterTag = cms.InputTag( "hltL1sL1SingleEG7" ),
     ncandcut = cms.int32( 1 ),
     doIsolated = cms.bool( False ),
     candNonIsolatedTag = cms.InputTag( "" ),
@@ -34031,7 +34031,7 @@ HLT_IsoMu8_eta2p1_LooseIsoPFTau20_v1 = cms.Path( HLTBeginSequence + hltL1sL1Sing
 HLT_Mu8_eta2p1_LooseIsoPFTau20_L1ETM26_v1 = cms.Path( HLTBeginSequence + hltL1sL1Mu7erETM26 + hltPreMu8eta2p1LooseIsoPFTau20L1ETM26 + hltL1fL1sMu7Eta2p1L1Filtered0 + HLTL2muonrecoSequence + hltL2fL1sMu7Eta2p1L1f0L2Filtered7Q + HLTL3muonrecoSequence + hltL3fL1sMu7Eta2p1L1f0L2f7QL3Filtered8Q + HLTRecoJetSequencePrePF + hltTauJet5 + HLTPFTriggerSequenceMuTau + HLTMu8LooseIsoPFTau20Sequence + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_Ele13_eta2p1_WP90Rho_LooseIsoPFTau20_L1ETM36_v1 = cms.Path( HLTBeginSequence + hltL1sL1IsoEG12erETM36 + hltPreEle13eta2p1WP90RhoLooseIsoPFTau20L1ETM36 + HLTEle13WP90RhoSequence + HLTRecoJetSequencePrePF + hltTauJet5 + hltOverlapFilterIsoEle13CaloJet5 + HLTPFTriggerSequenceForTaus + HLTIsoEle13LooseIsoPFTauSequence + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_Ele13_eta2p1_WP90NoIso_LooseIsoPFTau20_L1ETM36_v1 = cms.Path( HLTBeginSequence + hltL1sL1IsoEG12erETM36 + hltPreEle13eta2p1WP90NoIsoLooseIsoPFTau20L1ETM36 + HLTEle13WP90NoIsoSequence + HLTRecoJetSequencePrePF + hltTauJet5 + hltOverlapFilterEle13CaloJet5 + HLTPFTriggerSequenceForTaus + HLTEle13LooseIsoPFTauSequence + cms.SequencePlaceholder( "HLTEndSequence" ) )
-HLT_Ele13_eta2p1_WP90Rho_LooseIsoPFTau20_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG12 + hltPreEle13eta2p1WP90RhoLooseIsoPFTau20 + HLTSingleEle13WP90RhoSequence + HLTRecoJetSequencePrePF + hltTauJet5 + hltOverlapFilterSingleEle13CaloJet5 + HLTPFTriggerSequenceForTaus + HLTSingleEle13LooseIsoPFTauSequence + cms.SequencePlaceholder( "HLTEndSequence" ) )
+HLT_Ele13_eta2p1_WP90Rho_LooseIsoPFTau20_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG7 + hltPreEle13eta2p1WP90RhoLooseIsoPFTau20 + HLTSingleEle13WP90RhoSequence + HLTRecoJetSequencePrePF + hltTauJet5 + hltOverlapFilterSingleEle13CaloJet5 + HLTPFTriggerSequenceForTaus + HLTSingleEle13LooseIsoPFTauSequence + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_Jet30_v5 = cms.Path( HLTBeginSequence + hltL1sDoubleTauJet44erorDoubleJetC64 + hltPreDoubleMediumIsoPFTau30Trk1eta2p1Jet30 + HLTL2TauJetsSequence + hltDoubleL2Tau30eta2p1 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltDoubleL2Jets30eta2p1 + hltTripleL2Jets30eta3 + HLTL2TauPixelIsolationSequence + hltL2DiTauIsoFilter + hltL2TauJetsIso + hltDoubleL2IsoTau30eta2p1 + HLTPFReconstructionSequenceForTaus + HLTMediumIsoPFTauSequence + hltDoublePFTau30 + hltMediumPFTauTrackPt1Discriminator + hltSelectedMediumPFTausTrackPt1 + hltDoublePFTau30TrackPt1 + hltSelectedPFTausTrackPt1MediumIsolation + hltDoublePFTau30TrackPt1MediumIsolation + hltSelectedPFTausTrackPt1MediumIsolationProng4 + hltDoublePFTau30TrackPt1MediumIsolationProng4 + hltL1JetsHLTDoublePFTauTrackPt1MediumIsolationProng4Match + hltDoublePFTau30TrackPt1MediumIsolationProng4L1HLTMatched + hltDoublePFTau30TrackPt1MediumIsolationProng4Dz02 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_v4 = cms.Path( HLTBeginSequence + hltL1sDoubleTauJet44erorDoubleJetC64 + hltPreDoubleMediumIsoPFTau30Trk1eta2p1 + HLTL2TauJetsSequence + hltDoubleL2Tau30eta2p1 + HLTL2TauPixelIsolationSequence + hltL2DiTauIsoFilter + hltL2TauJetsIso + hltDoubleL2IsoTau30eta2p1 + HLTPFReconstructionSequenceForTaus + HLTMediumIsoPFTauSequence + hltDoublePFTau30 + hltMediumPFTauTrackPt1Discriminator + hltSelectedMediumPFTausTrackPt1 + hltDoublePFTau30TrackPt1 + hltSelectedPFTausTrackPt1MediumIsolation + hltDoublePFTau30TrackPt1MediumIsolation + hltSelectedPFTausTrackPt1MediumIsolationProng4 + hltDoublePFTau30TrackPt1MediumIsolationProng4 + hltL1JetsHLTDoublePFTauTrackPt1MediumIsolationProng4Match + hltDoublePFTau30TrackPt1MediumIsolationProng4L1HLTMatched + hltDoublePFTau30TrackPt1MediumIsolationProng4Dz02 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Prong1_v4 = cms.Path( HLTBeginSequence + hltL1sDoubleTauJet44erorDoubleJetC64 + hltPreDoubleMediumIsoPFTau35Trk1eta2p1Prong1 + HLTL2TauJetsSequence + hltDoubleL2Tau35eta2p1 + HLTL2TauPixelIsolationSequence + hltL2DiTauIsoFilter + hltL2TauJetsIso + hltDoubleL2IsoTau35eta2p1 + HLTPFReconstructionSequenceForTaus + HLTMediumIsoPFTauSequence + hltDoublePFTau35 + hltMediumPFTauTrackPt1Discriminator + hltSelectedMediumPFTausTrackPt1 + hltDoublePFTau35TrackPt1 + hltSelectedPFTausTrackPt1MediumIsolation + hltDoublePFTau35TrackPt1MediumIsolation + hltSelectedPFTausTrackPt1MediumIsolationProng2 + hltDoublePFTau35TrackPt1MediumIsolationProng2 + hltL1JetsHLTDoublePFTauTrackPt1MediumIsolationProng2Match + hltDoublePFTau35TrackPt1MediumIsolationProng2L1HLTMatched + hltDoublePFTau35TrackPt1MediumIsolationProng2Dz02 + cms.SequencePlaceholder( "HLTEndSequence" ) )
