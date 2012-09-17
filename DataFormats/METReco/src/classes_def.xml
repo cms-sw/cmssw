@@ -21,9 +21,6 @@
   <class name="std::vector<metsig::SigInputObj>"/> 
   <class name="edm::Wrapper<std::vector<metsig::SigInputObj> >"/> 
 
-  <class name="PFMEtSignCovMatrix"/>
-  <class name="edm::Wrapper<PFMEtSignCovMatrix>"/> 
-
   <class name="reco::MVAMEtJetInfo" ClassVersion="12">
    <version ClassVersion="10" checksum="695030979"/>
    <version ClassVersion="11" checksum="2096949665"/>
