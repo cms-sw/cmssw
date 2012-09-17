@@ -18,7 +18,7 @@ dqmdeploy(){
     export http_proxy=http://cmsproxy.cms:3128/
 
     cd $guidir
-    $PWD/cfg/Deploy -R cmsweb@1203h -t MYDEV -s "prep sw post" $PWD dqmgui/bare
+    $PWD/deployment/Deploy -R cmsweb@1208d -t MYDEV -s "prep sw post" $PWD dqmgui/bare
 }
 
 ulimit -c 0
@@ -34,8 +34,8 @@ case "$1" in
 	$manage stop "I did read documentation"
 	;;
     update)
-	cd $srcdir/cfg
-	svn up
+	cd $srcdir/deployment
+	git pull
 	;;
     *)
 	echo "Usage: guiControl.sh (start|stop|update)"

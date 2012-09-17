@@ -85,35 +85,30 @@ class LayoutDir(LayoutObj):
         return LayoutDir(name, self._copyObjs(), self.addSerial_)
 
     def get(self, relPath):
-        parts = relPath.partition('/')
+        parts = relPath.split('/', 1)
         i = 0
-        while i < len(self.objs_):
-            x = self.objs_[i]
-            if x.name_ == parts[0]:
-                if parts[1] == '':
-                    return x
-                elif x.isA() == 'LayoutDir':
-                    ret = x.get(parts[2])
-                    if ret:
-                        return ret
-
-            i += 1
+        for obj in self.objs_:
+            if obj.name_ == parts[0]:
+                if len(parts) == 1:
+                    return obj
+                elif obj.isA() == 'LayoutDir':
+                    return obj.get(parts[1])
 
         return None
     
     def remove(self, relPath):
-        parts = relPath.partition('/')
+        parts = relPath.split('/', 1)
         i = 0
         while i < len(self.objs_):
-            x = self.objs_[i]
-            if x.name_ == parts[0]:
-                if parts[1] == '':
-                    self.objs_.remove(x)
+            obj = self.objs_[i]
+            if obj.name_ == parts[0]:
+                if len(parts) == 1:
+                    self.objs_.remove(obj)
                     i -= 1
-                elif x.isA() == 'LayoutDir':
-                    x.remove(parts[2])
-                    if len(x.objs_) == 0:
-                        self.objs_.remove(x)
+                elif obj.isA() == 'LayoutDir':
+                    obj.remove(parts[1])
+                    if len(obj.objs_) == 0:
+                        self.objs_.remove(obj)
                         i -= 1
 
             i += 1

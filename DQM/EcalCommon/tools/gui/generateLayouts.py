@@ -1,6 +1,6 @@
 from optparse import OptionParser
 import sys
-sys.path.append('/home/yiiyama/work/DQM/Maintenance530/python')
+sys.path.append('/data/ecalod-disk01/dqm-data/CMSSW_5_2_4_patch4/python')
 from dqmlayouts import *
 
 genLists = {
