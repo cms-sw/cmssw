@@ -50,15 +50,22 @@ namespace ecaldqm
   void
   MESetNonObject::book()
   {
-    dqmStore_->setCurrentFolder(dir_);
+    using namespace std;
 
-    mes_.clear();
+    clear();
+
+    if(path_.find('%') != string::npos)
+      throw_("book() called with incompletely formed path");
+
+    size_t slashPos(path_.find_last_of('/'));
+    string name(path_.substr(slashPos + 1));
+    dqmStore_->setCurrentFolder(path_.substr(0, slashPos));
 
     MonitorElement* me(0);
 
     switch(kind_) {
     case MonitorElement::DQM_KIND_REAL :
-      me = dqmStore_->bookFloat(name_);
+      me = dqmStore_->bookFloat(name);
       break;
 
     case MonitorElement::DQM_KIND_TH1F :
@@ -67,12 +74,12 @@ namespace ecaldqm
 	  throw_("No xaxis found for MESetNonObject");
 
 	if(!xaxis_->edges)
-	  me = dqmStore_->book1D(name_, name_, xaxis_->nbins, xaxis_->low, xaxis_->high);
+	  me = dqmStore_->book1D(name, name, xaxis_->nbins, xaxis_->low, xaxis_->high);
 	else{
 	  float* edges(new float[xaxis_->nbins + 1]);
 	  for(int i(0); i < xaxis_->nbins + 1; i++)
 	    edges[i] = xaxis_->edges[i];
-	  me = dqmStore_->book1D(name_, name_, xaxis_->nbins, edges);
+	  me = dqmStore_->book1D(name, name, xaxis_->nbins, edges);
 	  delete [] edges;
 	}
       }
@@ -85,17 +92,17 @@ namespace ecaldqm
 
 	double ylow, yhigh;
 	if(!yaxis_){
-	  ylow = -std::numeric_limits<double>::max();
-	  yhigh = std::numeric_limits<double>::max();
+	  ylow = -numeric_limits<double>::max();
+	  yhigh = numeric_limits<double>::max();
 	}
 	else{
 	  ylow = yaxis_->low;
 	  yhigh = yaxis_->high;
 	}
 	if(xaxis_->edges)
-	  me = dqmStore_->bookProfile(name_, name_, xaxis_->nbins, xaxis_->edges, ylow, yhigh, "");
+	  me = dqmStore_->bookProfile(name, name, xaxis_->nbins, xaxis_->edges, ylow, yhigh, "");
 	else
-	  me = dqmStore_->bookProfile(name_, name_, xaxis_->nbins, xaxis_->low, xaxis_->high, ylow, yhigh, "");
+	  me = dqmStore_->bookProfile(name, name, xaxis_->nbins, xaxis_->low, xaxis_->high, ylow, yhigh, "");
 
       }
       break;
@@ -106,7 +113,7 @@ namespace ecaldqm
 	  throw_("No x/yaxis found for MESetNonObject");
 
 	if(!xaxis_->edges || !yaxis_->edges)
-	  me = dqmStore_->book2D(name_, name_, xaxis_->nbins, xaxis_->low, xaxis_->high, yaxis_->nbins, yaxis_->low, yaxis_->high);
+	  me = dqmStore_->book2D(name, name, xaxis_->nbins, xaxis_->low, xaxis_->high, yaxis_->nbins, yaxis_->low, yaxis_->high);
 	else{
 	  float* xedges(new float[xaxis_->nbins + 1]);
 	  for(int i(0); i < xaxis_->nbins + 1; i++)
@@ -114,7 +121,7 @@ namespace ecaldqm
 	  float* yedges(new float[yaxis_->nbins + 1]);
 	  for(int i(0); i < yaxis_->nbins + 1; i++)
 	    yedges[i] = yaxis_->edges[i];
-	  me = dqmStore_->book2D(name_, name_, xaxis_->nbins, xedges, yaxis_->nbins, yedges);
+	  me = dqmStore_->book2D(name, name, xaxis_->nbins, xedges, yaxis_->nbins, yedges);
 	  delete [] xedges;
 	  delete [] yedges;
 	}
@@ -131,11 +138,11 @@ namespace ecaldqm
 	  high = zaxis_->high;
 	}
 	else{
-	  low = -std::numeric_limits<double>::max();
-	  high = std::numeric_limits<double>::max();
+	  low = -numeric_limits<double>::max();
+	  high = numeric_limits<double>::max();
 	}
 
-	me = dqmStore_->bookProfile2D(name_, name_, xaxis_->nbins, xaxis_->low, xaxis_->high, yaxis_->nbins, yaxis_->low, yaxis_->high, low, high, "");
+	me = dqmStore_->bookProfile2D(name, name, xaxis_->nbins, xaxis_->low, xaxis_->high, yaxis_->nbins, yaxis_->low, yaxis_->high, low, high, "");
       }
       break;
 
@@ -157,7 +164,7 @@ namespace ecaldqm
   {
     mes_.clear();
 
-    MonitorElement* me(dqmStore_->get(dir_ + "/" + name_));
+    MonitorElement* me(dqmStore_->get(path_));
     if(!me) return false;
 
     mes_.push_back(me);

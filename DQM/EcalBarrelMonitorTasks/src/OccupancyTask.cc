@@ -48,12 +48,9 @@ namespace ecaldqm {
       MEs_[kDigiDCC]->fill(id);
     }
 
-    if(online_){
-      if(_collection == kEBDigi)
-        MEs_[kTrendNDigi]->fill(unsigned(BinService::kEB + 1), double(iLumi), double(_digis.size()));
-      else
-        MEs_[kTrendNDigi]->fill(unsigned(BinService::kEE + 1), double(iLumi), double(_digis.size()));
-    }
+    unsigned iSubdet(_collection == kEBDigi ? BinService::kEB + 1 : BinService::kEE + 1);
+    MEs_[kDigi1D]->fill(iSubdet, double(_digis.size()));
+    if(online) MEs_[kTrendNDigi]->fill(iSubdet, double(iLumi), double(_digis.size()));
   }
 
   void
@@ -65,12 +62,11 @@ namespace ecaldqm {
     for(EcalTrigPrimDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       EcalTrigTowerDetId const& id(digiItr->id());
 
-      MEs_[kTPDigi]->fill(id);
       MEs_[kTPDigiProjEta]->fill(id);
       MEs_[kTPDigiProjPhi]->fill(id);
+      MEs_[kTPDigiAll]->fill(id);
 
       if(digiItr->compressedEt() > tpThreshold_){
-	MEs_[kTPDigiThr]->fill(id);
 	MEs_[kTPDigiThrProjEta]->fill(id);
 	MEs_[kTPDigiThrProjPhi]->fill(id);
 	MEs_[kTPDigiThrAll]->fill(id);
@@ -79,7 +75,7 @@ namespace ecaldqm {
       }
     }
 
-    if(online_){
+    if(online){
       MEs_[kTrendNTPDigi]->fill(unsigned(BinService::kEB + 1), double(iLumi), nFilteredEB);
       MEs_[kTrendNTPDigi]->fill(unsigned(BinService::kEE + 1), double(iLumi), nFilteredEE);
     }
@@ -89,30 +85,26 @@ namespace ecaldqm {
   OccupancyTask::runOnRecHits(const EcalRecHitCollection &_hits, Collections _collection)
   {
     uint32_t mask(~(0x1 << EcalRecHit::kGood));
+    double nFiltered(0.);
 
     for(EcalRecHitCollection::const_iterator hitItr(_hits.begin()); hitItr != _hits.end(); ++hitItr){
       DetId id(hitItr->id());
 
-//       MEs_[kRecHit]->fill(id);
-//       MEs_[kRecHitProjEta]->fill(id);
-//       MEs_[kRecHitProjPhi]->fill(id);
+      MEs_[kRecHitAll]->fill(id);
+      MEs_[kRecHitProjEta]->fill(id);
+      MEs_[kRecHitProjPhi]->fill(id);
 
       if(!hitItr->checkFlagMask(mask) && hitItr->energy() > recHitThreshold_){
-	MEs_[kRecHitThr]->fill(id);
 	MEs_[kRecHitThrProjEta]->fill(id);
 	MEs_[kRecHitThrProjPhi]->fill(id);
 	MEs_[kRecHitThrAll]->fill(id);
+        nFiltered += 1.;
       }
     }
 
-    if(_collection == kEBRecHit){
-      MEs_[kRecHit1D]->fill(unsigned(BinService::kEB) + 1, double(_hits.size()));
-      if(online_) MEs_[kTrendNRecHit]->fill(unsigned(BinService::kEB + 1), double(iLumi), double(_hits.size()));
-    }
-    else{
-      MEs_[kRecHit1D]->fill(unsigned(BinService::kEE) + 1, double(_hits.size()));
-      if(online_) MEs_[kTrendNRecHit]->fill(unsigned(BinService::kEE + 1), double(iLumi), double(_hits.size()));
-    }
+    unsigned iSubdet(_collection == kEBRecHit ? BinService::kEB + 1 : BinService::kEE + 1);
+    MEs_[kRecHitThr1D]->fill(iSubdet, nFiltered);
+    if(online) MEs_[kTrendNRecHitThr]->fill(iSubdet, double(iLumi), nFiltered);
   }
 
   /*static*/
@@ -124,20 +116,22 @@ namespace ecaldqm {
     _nameToIndex["DigiProjPhi"] = kDigiProjPhi;
     _nameToIndex["DigiAll"] = kDigiAll;
     _nameToIndex["DigiDCC"] = kDigiDCC;
-    _nameToIndex["RecHit1D"] = kRecHit1D;
-    _nameToIndex["RecHitThr"] = kRecHitThr;
+    _nameToIndex["Digi1D"] = kDigi1D;
+    _nameToIndex["RecHitAll"] = kRecHitAll;
+    _nameToIndex["RecHitProjEta"] = kRecHitProjEta;
+    _nameToIndex["RecHitProjPhi"] = kRecHitProjPhi;
     _nameToIndex["RecHitThrProjEta"] = kRecHitThrProjEta;
     _nameToIndex["RecHitThrProjPhi"] = kRecHitThrProjPhi;
     _nameToIndex["RecHitThrAll"] = kRecHitThrAll;
-    _nameToIndex["TPDigi"] = kTPDigi;
+    _nameToIndex["RecHitThr1D"] = kRecHitThr1D;
     _nameToIndex["TPDigiProjEta"] = kTPDigiProjEta;
     _nameToIndex["TPDigiProjPhi"] = kTPDigiProjPhi;
-    _nameToIndex["TPDigiThr"] = kTPDigiThr;
+    _nameToIndex["TPDigiAll"] = kTPDigiAll;
     _nameToIndex["TPDigiThrProjEta"] = kTPDigiThrProjEta;
     _nameToIndex["TPDigiThrProjPhi"] = kTPDigiThrProjPhi;
     _nameToIndex["TPDigiThrAll"] = kTPDigiThrAll;
     _nameToIndex["TrendNDigi"] = kTrendNDigi;
-    _nameToIndex["TrendNRecHit"] = kTrendNRecHit;
+    _nameToIndex["TrendNRecHitThr"] = kTrendNRecHitThr;
     _nameToIndex["TrendNTPDigi"] = kTrendNTPDigi;
   }
 

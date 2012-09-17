@@ -17,7 +17,6 @@ namespace ecaldqm {
     enum MESets {
       kQuality,
       kMean,
-      kMeanDCC,
       kRMS,
       kRMSMap,
       kQualitySummary,

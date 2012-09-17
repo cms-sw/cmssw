@@ -6,8 +6,7 @@ namespace ecaldqm {
 
   IntegrityTask::IntegrityTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
     DQWorkerTask(_workerParams, _commonParams, "IntegrityTask"),
-    hltTaskMode_(_commonParams.getUntrackedParameter<int>("hltTaskMode")),
-    hltTaskFolder_(_commonParams.getUntrackedParameter<std::string>("hltTaskFolder"))
+    hltTaskMode_(_commonParams.getUntrackedParameter<int>("hltTaskMode"))
   {
     collectionMask_ = 
       (0x1 << kLumiSection) |
@@ -16,17 +15,6 @@ namespace ecaldqm {
       (0x1 << kGainSwitchErrors) |
       (0x1 << kTowerIdErrors) |
       (0x1 << kBlockSizeErrors);
-
-    if(hltTaskMode_ != 0 && hltTaskFolder_.size() == 0)
-	throw cms::Exception("InvalidConfiguration") << "HLTTask mode needs a folder name";
-
-    if(hltTaskMode_ != 0){
-      std::string path;
-      std::map<std::string, std::string> replacements;
-      replacements["hlttask"] = hltTaskFolder_;
-
-      MEs_[kFEDNonFatal]->formPath(replacements);
-    }
   }
 
   void
@@ -35,7 +23,7 @@ namespace ecaldqm {
     if(hltTaskMode_ != 1){
       for(unsigned iME(0); iME < nMESets; iME++){
         if(iME == kFEDNonFatal) continue;
-        if(iME == kTrendNErrors && !online_) continue;
+        if(iME == kTrendNErrors && !online) continue;
 	MEs_[iME]->book();
       }
       MEs_[kByLumi]->setLumiFlag();
@@ -77,7 +65,7 @@ namespace ecaldqm {
       MEs_[kByLumi]->fill(dccid);
       MEs_[kTotal]->fill(dccid);
 
-      if(online_) MEs_[kTrendNErrors]->fill(double(iLumi), 1.);
+      if(online) MEs_[kTrendNErrors]->fill(double(iLumi), 1.);
     }
   }
   
@@ -111,7 +99,7 @@ namespace ecaldqm {
       MEs_[kByLumi]->fill(dccid, nCrystals);
       MEs_[kTotal]->fill(dccid, nCrystals);
 
-      if(online_) MEs_[kTrendNErrors]->fill(double(iLumi), nCrystals);
+      if(online) MEs_[kTrendNErrors]->fill(double(iLumi), nCrystals);
     }
   }
 

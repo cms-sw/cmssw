@@ -77,7 +77,7 @@ namespace ecaldqm
   MESetChannel::clear() const
   {
     MESet::clear();
-    dqmStore_->rmdir(dir_);
+    dqmStore_->rmdir(path_.substr(0, path_.find_last_of('/')));
     meTable_.clear();
   }
 
@@ -295,7 +295,7 @@ namespace ecaldqm
     if(_content == 0. && _entries == 0.){
       mes_.clear();
       meTable_.clear();
-      dqmStore_->rmdir(dir_);
+      dqmStore_->rmdir(path_);
       return;
     }
 
@@ -313,7 +313,7 @@ namespace ecaldqm
   {
     using namespace std;
 
-    vector<MonitorElement*> storeMEs(dqmStore_->getContents(dir_));
+    vector<MonitorElement*> storeMEs(dqmStore_->getContents(path_));
 
     unsigned nME(storeMEs.size());
     for(unsigned iME(0); iME < nME; iME++){
@@ -342,7 +342,7 @@ namespace ecaldqm
 
       std::string name(binService_->channelName(_rawId, btype_));
       std::string pwd(dqmStore_->pwd());
-      dqmStore_->setCurrentFolder(dir_);
+      dqmStore_->setCurrentFolder(path_);
 
       MonitorElement* me(0);
       if(kind_ == MonitorElement::DQM_KIND_TH1F)

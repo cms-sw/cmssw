@@ -23,6 +23,7 @@ class EcalDQMonitor : public edm::EDAnalyzer {
   std::string moduleName_;
   const bool mergeRuns_;
   const int verbosity_;
+  const bool online_;
   bool initialized_;
 };
 

@@ -35,5 +35,6 @@ ecalCalibMonitorClient = cms.EDAnalyzer("EcalDQMonitorClient",
         )
     ),
     PNMaskFile = cms.untracked.string("DQM/EcalBarrelMonitorClient/data/mask-PN.txt"),
-    verbosity = cms.untracked.int32(0)
+    verbosity = cms.untracked.int32(0),
+    online = cms.untracked.bool(True)
 )

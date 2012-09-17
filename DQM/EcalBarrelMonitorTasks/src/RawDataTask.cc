@@ -12,7 +12,6 @@ namespace ecaldqm {
   RawDataTask::RawDataTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
     DQWorkerTask(_workerParams, _commonParams, "RawDataTask"),
     hltTaskMode_(_commonParams.getUntrackedParameter<int>("hltTaskMode")),
-    hltTaskFolder_(_commonParams.getUntrackedParameter<std::string>("hltTaskFolder")),
     run_(0),
     l1A_(0),
     orbit_(0),
@@ -24,17 +23,6 @@ namespace ecaldqm {
       (0x1 << kLumiSection) |
       (0x1 << kSource) |
       (0x1 << kEcalRawData);
-
-    if(hltTaskMode_ != 0 && hltTaskFolder_.size() == 0)
-	throw cms::Exception("InvalidConfiguration") << "HLTTask mode needs a folder name";
-
-    if(hltTaskMode_ != 0){
-      std::map<std::string, std::string> replacements;
-      replacements["hlttask"] = hltTaskFolder_;
-
-      MEs_[kFEDEntries]->formPath(replacements);
-      MEs_[kFEDFatal]->formPath(replacements);
-    }
   }
 
   void
@@ -95,15 +83,15 @@ namespace ecaldqm {
 
       for(unsigned iME(0); iME < nMESets; iME++){
         if(iME == kFEDEntries || iME == kFEDFatal) continue;
-        if(iME == kTrendNSyncErrors && !online_) continue;
+        if(iME == kTrendNSyncErrors && !online) continue;
 	MEs_[iME]->book();
       }
       MEs_[kFEByLumi]->setLumiFlag();
 
       for(int i(1); i <= nEventTypes; i++){
-	MEs_[kEventTypePreCalib]->setBinLabel(0, i, eventTypes[i - 1], 1);
-	MEs_[kEventTypeCalib]->setBinLabel(0, i, eventTypes[i - 1], 1);
-	MEs_[kEventTypePostCalib]->setBinLabel(0, i, eventTypes[i - 1], 1);
+	MEs_[kEventTypePreCalib]->setBinLabel(-1, i, eventTypes[i - 1], 1);
+	MEs_[kEventTypeCalib]->setBinLabel(-1, i, eventTypes[i - 1], 1);
+	MEs_[kEventTypePostCalib]->setBinLabel(-1, i, eventTypes[i - 1], 1);
       }
 
       for(int i(1); i <= nFEFlags; i++)
@@ -248,7 +236,7 @@ namespace ecaldqm {
       if(feDesync > 0.){
         MEs_[kDesyncByLumi]->fill(dccId, feDesync);
         MEs_[kDesyncTotal]->fill(dccId, feDesync);
-        if(online_) MEs_[kTrendNSyncErrors]->fill(double(iLumi), feDesync);
+        if(online) MEs_[kTrendNSyncErrors]->fill(double(iLumi), feDesync);
       }
       if(statusError > 0.)
         MEs_[kFEByLumi]->fill(dccId, statusError);

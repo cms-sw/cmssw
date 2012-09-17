@@ -12,23 +12,31 @@ ecalPedstalMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
     moduleName = cms.untracked.string("EcalPedestal Monitor Source"),
     workers = cms.untracked.vstring("PedestalTask"),
     workerParameters = dqmpset(dict(PedestalTask = ecalPedestalTask, common = ecalCalibCommonParams)),
-    collectionTags = ecalDQMCollectionTags
+    collectionTags = ecalDQMCollectionTags,
+    online = cms.untracked.bool(True),
+    resetInterval = cms.untracked.double(2.)
 )
 ecalTestPulseMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
     moduleName = cms.untracked.string("EcalTestPulse Monitor Source"),
     workers = cms.untracked.vstring("TestPulseTask"),
     workerParameters = dqmpset(dict(TestPulseTask = ecalTestPulseTask, common = ecalCalibCommonParams)),
-    collectionTags = ecalDQMCollectionTags
+    collectionTags = ecalDQMCollectionTags,
+    online = cms.untracked.bool(True),
+    resetInterval = cms.untracked.double(2.)
 )
 ecalLaserLedMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
     moduleName = cms.untracked.string("EcalLaserLed Monitor Source"),
     workers = cms.untracked.vstring("LaserTask", "LedTask"),
     workerParameters = dqmpset(dict(LaserTask = ecalLaserTask, LedTask = ecalLedTask, common = ecalCalibCommonParams)),
-    collectionTags = ecalDQMCollectionTags
+    collectionTags = ecalDQMCollectionTags,
+    online = cms.untracked.bool(True),
+    resetInterval = cms.untracked.double(2.)
 )
 ecalPNDiodeMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
     moduleName = cms.untracked.string("EcalPNDiode Monitor Source"),
     workers = cms.untracked.vstring("PNDiodeTask"),
     workerParameters = dqmpset(dict(PNDiodeTask = ecalPnDiodeTask, common = ecalCalibCommonParams)),
-    collectionTags = ecalDQMCollectionTags
+    collectionTags = ecalDQMCollectionTags,
+    online = cms.untracked.bool(True),
+    resetInterval = cms.untracked.double(2.)
 )

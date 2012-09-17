@@ -34,7 +34,6 @@ namespace ecaldqm {
   PresampleClient::producePlots()
   {
     MEs_[kMean]->reset();
-    MEs_[kMeanDCC]->reset();
     MEs_[kRMS]->reset();
 
     uint32_t mask(1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR |
@@ -72,7 +71,6 @@ namespace ecaldqm {
       unsigned dccid(dccId(id));
 
       MEs_[kMean]->fill(dccid, mean);
-      MEs_[kMeanDCC]->fill(dccid, mean);
       MEs_[kRMS]->fill(dccid, rms);
       MEs_[kRMSMap]->setBinContent(id, rms);
 
@@ -97,7 +95,7 @@ namespace ecaldqm {
       }
     }
 
-    if(online_){
+    if(online){
       MEs_[kTrendMean]->fill(unsigned(BinService::kEB + 1), double(iLumi), maxEB - minEB);
       MEs_[kTrendMean]->fill(unsigned(BinService::kEE + 1), double(iLumi), maxEE - minEE);
       MEs_[kTrendRMS]->fill(unsigned(BinService::kEB + 1), double(iLumi), rmsMaxEB);
@@ -111,7 +109,6 @@ namespace ecaldqm {
   {
     _nameToIndex["Quality"] = kQuality;
     _nameToIndex["Mean"] = kMean;
-    _nameToIndex["MeanDCC"] = kMeanDCC;
     _nameToIndex["RMS"] = kRMS;
     _nameToIndex["RMSMap"] = kRMSMap;
     _nameToIndex["QualitySummary"] = kQualitySummary;

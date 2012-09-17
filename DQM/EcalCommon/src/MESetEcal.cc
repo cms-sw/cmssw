@@ -1,6 +1,7 @@
 #include "DQM/EcalCommon/interface/MESetEcal.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
+#include "DQM/EcalCommon/interface/MESetUtils.h"
 
 #include <limits>
 #include <sstream>
@@ -65,25 +66,26 @@ namespace ecaldqm
 
     clear();
 
-    dqmStore_->setCurrentFolder(dir_);
+    vector<string> mePaths(generatePaths());
 
-    if(btype_ == BinService::kReport && name_ == "")
-      name_ = dir_.substr(0, dir_.find_first_of('/'));
+    for(unsigned iME(0); iME < mePaths.size(); iME++){
+      string& path(mePaths[iME]);
+      if(path.find('%') != string::npos)
+        throw_("book() called with incompletely formed path");
 
-    std::vector<std::string> meNames(generateNames());
-
-    for(unsigned iME(0); iME < meNames.size(); iME++){
       BinService::ObjectType actualObject(binService_->getObject(otype_, iME));
 
       BinService::AxisSpecs xaxis, yaxis, zaxis;
 
-      if(logicalDimensions_ > 0){
+      bool isHistogram(logicalDimensions_ > 0);
+      bool isMap(logicalDimensions_ > 1);
+
+      if(isHistogram){
 
 	if(xaxis_){
 	  xaxis = *xaxis_;
 	}
 	else{ // uses preset
-	  bool isMap(logicalDimensions_ > 1);
 	  xaxis = binService_->getBinning(actualObject, btype_, isMap, 1, iME);
           if(isMap) yaxis = binService_->getBinning(actualObject, btype_, true, 2, iME);
 	}
@@ -92,23 +94,27 @@ namespace ecaldqm
 	  yaxis = *yaxis_;
 	}
         if(yaxis.high - yaxis.low < 1.e-10){
-          yaxis.low = -std::numeric_limits<double>::max();
-          yaxis.high = std::numeric_limits<double>::max();
+          yaxis.low = -numeric_limits<double>::max();
+          yaxis.high = numeric_limits<double>::max();
         }
 	if(zaxis_){
 	  zaxis = *zaxis_;
 	}
         if(zaxis.high - zaxis.low < 1.e-10){
-          zaxis.low = -std::numeric_limits<double>::max();
-          zaxis.high = std::numeric_limits<double>::max();
+          zaxis.low = -numeric_limits<double>::max();
+          zaxis.high = numeric_limits<double>::max();
         }
       }
+
+      size_t slashPos(path.find_last_of('/'));
+      string name(path.substr(slashPos + 1));
+      dqmStore_->setCurrentFolder(path.substr(0, slashPos));
 
       MonitorElement* me(0);
 
       switch(kind_) {
       case MonitorElement::DQM_KIND_REAL :
-	me = dqmStore_->bookFloat(meNames[iME]);
+	me = dqmStore_->bookFloat(name);
 
 	break;
 
@@ -117,20 +123,20 @@ namespace ecaldqm
 	  float* edges(new float[xaxis.nbins + 1]);
 	  for(int i(0); i < xaxis.nbins + 1; i++)
 	    edges[i] = xaxis.edges[i];
-	  me = dqmStore_->book1D(meNames[iME], meNames[iME], xaxis.nbins, edges);
+	  me = dqmStore_->book1D(name, name, xaxis.nbins, edges);
 	  delete [] edges;
 	}
 	else
-	  me = dqmStore_->book1D(meNames[iME], meNames[iME], xaxis.nbins, xaxis.low, xaxis.high);
+	  me = dqmStore_->book1D(name, name, xaxis.nbins, xaxis.low, xaxis.high);
 
 	break;
 
       case MonitorElement::DQM_KIND_TPROFILE :
 	if(xaxis.edges) {
-	  me = dqmStore_->bookProfile(meNames[iME], meNames[iME], xaxis.nbins, xaxis.edges, yaxis.low, yaxis.high, "");
+	  me = dqmStore_->bookProfile(name, name, xaxis.nbins, xaxis.edges, yaxis.low, yaxis.high, "");
 	}
 	else
-	  me = dqmStore_->bookProfile(meNames[iME], meNames[iME], xaxis.nbins, xaxis.low, xaxis.high, yaxis.low, yaxis.high, "");
+	  me = dqmStore_->bookProfile(name, name, xaxis.nbins, xaxis.low, xaxis.high, yaxis.low, yaxis.high, "");
 
 	break;
 
@@ -150,12 +156,12 @@ namespace ecaldqm
 		edges[iSpec][i] = low + (high - low) / nbins * i;
 	    }
 	  }
-	  me = dqmStore_->book2D(meNames[iME], meNames[iME], xaxis.nbins, edges[0], yaxis.nbins, edges[1]);
+	  me = dqmStore_->book2D(name, name, xaxis.nbins, edges[0], yaxis.nbins, edges[1]);
 	  for(int iSpec(0); iSpec < 2; iSpec++)
 	    delete [] edges[iSpec];
 	}
 	else
-	  me = dqmStore_->book2D(meNames[iME], meNames[iME], xaxis.nbins, xaxis.low, xaxis.high, yaxis.nbins, yaxis.low, yaxis.high);
+	  me = dqmStore_->book2D(name, name, xaxis.nbins, xaxis.low, xaxis.high, yaxis.nbins, yaxis.low, yaxis.high);
 
 	break;
 
@@ -166,7 +172,7 @@ namespace ecaldqm
 	}
 	if(xaxis.edges || yaxis.edges)
 	  throw_("Variable bin size for 2D profile not implemented");
-	me = dqmStore_->bookProfile2D(meNames[iME], meNames[iME], xaxis.nbins, xaxis.low, xaxis.high, yaxis.nbins, yaxis.low, yaxis.high, zaxis.low, zaxis.high, "");
+	me = dqmStore_->bookProfile2D(name, name, xaxis.nbins, xaxis.low, xaxis.high, yaxis.nbins, yaxis.low, yaxis.high, zaxis.low, zaxis.high, "");
 
 	break;
 
@@ -177,99 +183,20 @@ namespace ecaldqm
       if(!me)
 	throw_("ME could not be booked");
 
-      if(logicalDimensions_ > 0){
+      if(isHistogram){
 	me->setAxisTitle(xaxis.title, 1);
 	me->setAxisTitle(yaxis.title, 2);
-        if(logicalDimensions_ > 1) me->setAxisTitle(zaxis.title, 3);
-	// For plot tagging in RenderPlugin; default values are 1 for both
-        // Does this method work?
-	me->getTH1()->SetMarkerStyle(actualObject + 2);
-	me->getTH1()->SetMarkerStyle(btype_ + 2);
+        if(isMap) me->setAxisTitle(zaxis.title, 3);
+
+        // For plot tagging in RenderPlugin; default values are 1 for both
+        // bits 19 - 23 are free in TH1::fBits
+        // can only pack object + logical dimensions into 5 bits (4 bits for object, 1 bit for dim (1 -> dim >= 2))
+        me->getTH1()->SetBit(uint32_t(actualObject + 1) << 20);
+        if(isMap) me->getTH1()->SetBit(0x1 << 19);
       }
 
-      if(logicalDimensions_ == 1 && btype_ == BinService::kDCC){
-	if(actualObject == BinService::kEB){
-	  for(int iBin(1); iBin <= me->getNbinsX(); iBin++)
-	    me->setBinLabel(iBin, binService_->channelName(iBin + kEBmLow));
-	}
-	else if(actualObject == BinService::kEE){
-	  for(int iBin(1); iBin <= me->getNbinsX() / 2; iBin++){
-	    me->setBinLabel(iBin, binService_->channelName(iBin));
-	    me->setBinLabel(iBin + me->getNbinsX() / 2, binService_->channelName(iBin + 45));
-	  }
-	}
-	else if(actualObject == BinService::kEEm){
-	  for(int iBin(1); iBin <= me->getNbinsX(); iBin++)
-	    me->setBinLabel(iBin, binService_->channelName(iBin));
-	}
-	else if(actualObject == BinService::kEEp){
-	  for(int iBin(1); iBin <= me->getNbinsX(); iBin++)
-	    me->setBinLabel(iBin, binService_->channelName(iBin + 45));
-	}
-      }
-      else if(logicalDimensions_ == 1 && btype_ == BinService::kTriggerTower){
-        unsigned dccid(0);
-        if(actualObject == BinService::kSM && (iME <= kEEmHigh || iME >= kEEpLow)) dccid = iME + 1;
-        else if(actualObject == BinService::kEESM) dccid = iME <= kEEmHigh ? iME + 1 : iME + 37;
-
-        if(dccid > 0){
-          std::stringstream ss;
-          std::pair<unsigned, unsigned> inner(innerTCCs(iME + 1));
-          std::pair<unsigned, unsigned> outer(outerTCCs(iME + 1));
-          ss << "TCC" << inner.first << " TT1";
-          me->setBinLabel(1, ss.str());
-          ss.str("");
-          ss << "TCC" << inner.second << " TT1";
-          me->setBinLabel(25, ss.str());
-          ss.str("");
-          ss << "TCC" << outer.first << " TT1";
-          me->setBinLabel(49, ss.str());
-          ss.str("");
-          ss << "TCC" << outer.second << " TT1";
-          me->setBinLabel(65, ss.str());
-          int offset(0);
-          for(int iBin(4); iBin <= 80; iBin += 4){
-            if(iBin == 28) offset = 24;
-            else if(iBin == 52) offset = 48;
-            else if(iBin == 68) offset = 64;
-            ss.str("");
-            ss << iBin - offset;
-            me->setBinLabel(iBin, ss.str());
-          }
-        }
-      }
-      else if(logicalDimensions_ == 2 && btype_ == BinService::kCrystal){
-        if(actualObject == BinService::kMEM){
-          for(int iBin(1); iBin <= me->getNbinsX(); ++iBin)
-            me->setBinLabel(iBin, binService_->channelName(memDCCId(iBin - 1)));
-        }
-        if(actualObject == BinService::kEBMEM){
-          for(int iBin(1); iBin <= me->getNbinsX(); ++iBin)
-            me->setBinLabel(iBin, binService_->channelName(memDCCId(iBin - 5)));
-        }
-        if(actualObject == BinService::kEEMEM){
-          for(int iBin(1); iBin <= me->getNbinsX() / 2; ++iBin){
-            me->setBinLabel(iBin, binService_->channelName(memDCCId(iBin - 1)));
-            me->setBinLabel(iBin + me->getNbinsX() / 2, binService_->channelName(memDCCId(iBin + 39)));
-          }
-        }
-      }
-      else if(logicalDimensions_ == 2 && btype_ == BinService::kDCC){
-        if(actualObject == BinService::kEcal){
-          me->setBinLabel(1, "EE", 2);
-          me->setBinLabel(6, "EE", 2);
-          me->setBinLabel(3, "EB", 2);
-          me->setBinLabel(5, "EB", 2);
-        }
-      }
-      
       mes_.push_back(me);
     }
-
-    // To avoid the ambiguity between "content == 0 because the mean is 0" and "content == 0 because the entry is 0"
-    // RenderPlugin must be configured accordingly
-    if(kind_ == MonitorElement::DQM_KIND_TPROFILE2D && logicalDimensions_ == 2)
-      resetAll(std::numeric_limits<double>::max(), 0., -1.);
 
     active_ = true;
   }
@@ -279,11 +206,15 @@ namespace ecaldqm
   {
     clear();
 
-    std::vector<std::string> meNames(generateNames());
-    if(meNames.size() == 0) return false;
+    std::vector<std::string> mePaths(generatePaths());
+    if(mePaths.size() == 0) return false;
 
-    for(unsigned iME(0); iME < meNames.size(); iME++){
-      MonitorElement* me(dqmStore_->get(dir_ + "/" + meNames[iME]));
+    for(unsigned iME(0); iME < mePaths.size(); iME++){
+      std::string& path(mePaths[iME]);
+      if(path.find('%') != std::string::npos)
+        throw_("retrieve() called with incompletely formed path");
+
+      MonitorElement* me(dqmStore_->get(path));
       if(me) mes_.push_back(me);
       else{
 	clear();
@@ -576,56 +507,103 @@ namespace ecaldqm
   }
 
   std::vector<std::string>
-  MESetEcal::generateNames() const
+  MESetEcal::generatePaths() const
   {
     using namespace std;
 
-    std::vector<std::string> names(0);
+    vector<string> paths(0);
 
     unsigned nME(binService_->getNObjects(otype_));
+    map<string, string> replacements;
 
     for(unsigned iME(0); iME < nME; iME++) {
       BinService::ObjectType obj(binService_->getObject(otype_, iME));
 
-      string name(name_);
-      string spacer(" ");
-
-      if(btype_ == BinService::kProjEta) name += " eta";
-      else if(btype_ == BinService::kProjPhi) name += " phi";
-      else if(btype_ == BinService::kReport) spacer = "_";
+      string path(path_);
 
       switch(obj){
       case BinService::kEB:
       case BinService::kEBMEM:
-	name += spacer + "EB"; break;
+        replacements["subdet"] = "EcalBarrel";
+        replacements["prefix"] = "EB";
+        replacements["suffix"] = "";
+        break;
       case BinService::kEE:
       case BinService::kEEMEM:
-	name += spacer + "EE"; break;
+        replacements["subdet"] = "EcalEndcap";
+        replacements["prefix"] = "EE";
+        break;
       case BinService::kEEm:
-	name += spacer + "EE-"; break;
+        replacements["subdet"] = "EcalEndcap";
+        replacements["prefix"] = "EE";
+        replacements["suffix"] = " EE -";
+        break;
       case BinService::kEEp:
-	name += spacer + "EE+"; break;
+        replacements["subdet"] = "EcalEndcap";
+        replacements["prefix"] = "EE";
+        replacements["suffix"] = " EE +";
+        break;
       case BinService::kSM:
-	name += spacer + binService_->channelName(iME + 1); break;
+        if(iME <= kEEmHigh || iME >= kEEpLow){
+          replacements["subdet"] = "EcalEndcap";
+          replacements["prefix"] = "EE";
+        }
+        else{
+          replacements["subdet"] = "EcalBarrel";
+          replacements["prefix"] = "EB";
+        }
+	replacements["sm"] = binService_->channelName(iME + 1);
+        break;
       case BinService::kEBSM:
-	name += spacer + binService_->channelName(iME + 10); break;
+        replacements["subdet"] = "EcalBarrel";
+        replacements["prefix"] = "EB";
+	replacements["sm"] = binService_->channelName(iME + kEBmLow + 1);
+        break;
       case BinService::kEESM:
-	name += spacer + binService_->channelName(iME <= kEEmHigh ? iME + 1 : iME + 37); break;
+        replacements["subdet"] = "EcalEndcap";
+        replacements["prefix"] = "EE";
+	replacements["sm"] = binService_->channelName(iME <= kEEmHigh ? iME + 1 : iME + 37);
+        break;
       case BinService::kSMMEM:
-	//dccId(unsigned) skips DCCs without MEM
-	name += spacer + binService_->channelName(memDCCId(iME)); break;
+        {
+          unsigned iDCC(memDCCId(iME) - 1);
+          //dccId(unsigned) skips DCCs without MEM
+          if(iDCC <= kEEmHigh || iDCC >= kEEpLow){
+            replacements["subdet"] = "EcalEndcap";
+            replacements["prefix"] = "EE";
+          }
+          else{
+            replacements["subdet"] = "EcalBarrel";
+            replacements["prefix"] = "EB";
+          }
+          replacements["sm"] = binService_->channelName(iDCC + 1);
+        }
+        break;
       case BinService::kEBSMMEM:
-	name += spacer + binService_->channelName(memDCCId(iME + 9)); break;
+        {
+          unsigned iDCC(memDCCId(iME + kEBmLow) - 1);
+          replacements["subdet"] = "EcalBarrel";
+          replacements["prefix"] = "EB";
+          replacements["sm"] = binService_->channelName(iDCC + 1);
+        }
+        break;
       case BinService::kEESMMEM:
-	name += spacer + binService_->channelName(memDCCId(iME <= kEEmHigh ? iME : iME + 36)); break;
+        {
+          unsigned iDCC(memDCCId(iME <= kEEmHigh ? iME : iME + 36));
+          replacements["subdet"] = "EcalEndcap";
+          replacements["prefix"] = "EE";
+          replacements["sm"] = binService_->channelName(iDCC + 1);
+        }
       default:
 	break;
       }
 
-      names.push_back(name);
+      ecaldqm::formPath(path, replacements);
+
+      paths.push_back(path);
     }
 
-    return names;
+    return paths;
   }
 
 }

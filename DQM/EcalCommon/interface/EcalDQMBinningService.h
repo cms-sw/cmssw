@@ -41,6 +41,8 @@ class EcalDQMBinningService {
     kEEMEM,
     kEcal2P,
     kEcal3P,
+    kEE2P,
+    kMEM2P,
     kChannel,
     nObjType
   };
@@ -60,7 +62,6 @@ class EcalDQMBinningService {
   };
 
   enum Constants {
-    nPlotType = kEcal + 1,
     nPresetBinnings = kProjPhi + 1,
 
     nDCC = 54,
@@ -80,7 +81,6 @@ class EcalDQMBinningService {
     nEESMY = 40,
     nEESMXExt = 45, // for EE+-02&08
     nEESMBinsExt = nEESMXExt * nEESMY,
-
 
     nEBEtaBins = 34,
     nEEEtaBins = 20,
@@ -237,6 +237,10 @@ EcalDQMBinningService::getNObjects(ObjectType _otype) const
     return 2;
   case kEcal3P:
     return 3;
+  case kEE2P:
+    return 2;
+  case kMEM2P:
+    return 2;
   default:
     return 1;
   }
@@ -246,23 +250,35 @@ inline
 EcalDQMBinningService::ObjectType
 EcalDQMBinningService::getObject(ObjectType _otype, unsigned _iObj) const
 {
-  if(_otype == kEcal3P) {
+  switch(_otype){
+  case kEcal3P:
     switch(_iObj){
     case 0: return kEEm;
     case 1: return kEB;
     case 2: return kEEp;
     default: return nObjType;
     }
-  }
-  else if(_otype == kEcal2P){
+  case kEcal2P:
     switch(_iObj){
     case 0: return kEE;
     case 1: return kEB;
     default: return nObjType;
     }
-  }
-  else
+  case kEE2P:
+    switch(_iObj){
+    case 0: return kEEm;
+    case 1: return kEEp;
+    default: return nObjType;
+    }
+  case kMEM2P:
+    switch(_iObj){
+    case 0: return kEEMEM;
+    case 1: return kEBMEM;
+    default: return nObjType;
+    }
+  default:
     return _otype;
+  }
 }
 
 #endif

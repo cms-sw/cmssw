@@ -90,10 +90,7 @@ namespace ecaldqm
 
     virtual void formPath(std::map<std::string, std::string> const&) const;
 
-    virtual std::string const& getDir() const { return dir_; }
-    virtual void setDir(std::string const& _dir) { dir_ = _dir; }
-    virtual std::string const& getName() const { return name_; }
-    virtual void setName(std::string const& _name) { name_ = _name; }
+    virtual std::string const& getPath() const { return path_; }
     BinService::ObjectType getObjType() const { return otype_; }
     BinService::BinningType getBinType() const { return btype_; }
     MonitorElement::Kind getKind() const { return kind_; }
@@ -101,6 +98,8 @@ namespace ecaldqm
     virtual MonitorElement const* getME(unsigned _iME) const { return (_iME < mes_.size() ? mes_[_iME] : 0); }
     virtual MonitorElement* getME(unsigned _iME) { return (_iME < mes_.size() ? mes_[_iME] : 0); }
     void setLumiFlag();
+    void softReset();
+    void recoverStats();
 
     static MonitorElement::Kind translateKind(std::string const&);
 
@@ -120,7 +119,7 @@ namespace ecaldqm
 
     void throw_(std::string const& _message) const
     {
-      throw cms::Exception("EcalDQM") << dir_ << "/" << name_ << ": " << _message;
+      throw cms::Exception("EcalDQM") << path_ << ": " << _message;
     }
 
     static BinService const* binService_;
@@ -128,8 +127,7 @@ namespace ecaldqm
 
     mutable std::vector<MonitorElement*> mes_;
 
-    mutable std::string dir_;
-    mutable std::string name_;
+    mutable std::string path_;
     BinService::ObjectType otype_;
     BinService::BinningType btype_;
     MonitorElement::Kind kind_;

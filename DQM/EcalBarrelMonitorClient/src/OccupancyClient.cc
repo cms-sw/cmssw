@@ -58,7 +58,16 @@ namespace ecaldqm {
       float entries(dItr->getBinContent());
       float rhentries(rItr->getBinContent());
 
-      int ieta(getTrigTowerMap()->towerOf(dItr->getId()).ieta());
+      DetId id(dItr->getId());
+      int ieta(0);
+      if(id.subdetId() == EcalTriggerTower) // barrel
+        ieta = EcalTrigTowerDetId(id).ieta();
+      else{
+        std::vector<DetId> ids(scConstituents(EcalScDetId(id)));
+        if(ids.size() == 0) continue;
+        ieta = getTrigTowerMap()->towerOf(ids[0]).ieta();
+      }
+
       unsigned index(ieta < 0 ? ieta + 28 : ieta + 27);
 
       digiPhiRingMean.at(index) += entries;
@@ -82,7 +91,15 @@ namespace ecaldqm {
       float entries(dItr->getBinContent());
       float rhentries(rItr->getBinContent());
 
-      int ieta(getTrigTowerMap()->towerOf(dItr->getId()).ieta());
+      int ieta(0);
+      if(id.subdetId() == EcalTriggerTower) // barrel
+        ieta = EcalTrigTowerDetId(id).ieta();
+      else{
+        std::vector<DetId> ids(scConstituents(EcalScDetId(id)));
+        if(ids.size() == 0) continue;
+        ieta = getTrigTowerMap()->towerOf(ids[0]).ieta();
+      }
+
       unsigned index(ieta < 0 ? ieta + 28 : ieta + 27);
 
       int quality(doMask ? kMGood : kGood);

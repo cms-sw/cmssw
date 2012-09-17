@@ -6,7 +6,8 @@ namespace ecaldqm {
 
   DQWorkerTask::DQWorkerTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams, std::string const& _name) :
     DQWorker(_workerParams, _commonParams, _name),
-    collectionMask_(0)
+    collectionMask_(0),
+    resettable_(MEs_.size(), true)
   {
   }
 
@@ -20,6 +21,20 @@ namespace ecaldqm {
   DQWorkerTask::filterTrigger(const edm::TriggerResultsByName &)
   {
     return true;
+  }
+
+  void
+  DQWorkerTask::softReset()
+  {
+    for(unsigned iM(0); iM < resettable_.size(); ++iM)
+      if(resettable_[iM]) MEs_[iM]->softReset();
+  }
+
+  void
+  DQWorkerTask::recoverStats()
+  {
+    for(unsigned iM(0); iM < resettable_.size(); ++iM)
+      if(resettable_[iM]) MEs_[iM]->recoverStats();
   }
 
   void

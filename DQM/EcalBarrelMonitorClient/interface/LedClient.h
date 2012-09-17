@@ -19,7 +19,7 @@ namespace ecaldqm {
       kAmplitudeMean,
       kAmplitudeRMS,
       kTimingMean,
-      kTimingRMS,
+      kTimingRMSMap,
       kQualitySummary,
       kPNQualitySummary,
       nMESets

@@ -23,8 +23,8 @@ namespace ecaldqm {
     eeGeometry_(0),
     ebHits_(0),
     eeHits_(0),
-    ievt_(0),
-    massCalcPrescale_(_workerParams.getUntrackedParameter<int>("massCalcPrescale"))
+    ievt_(0)/*,
+    massCalcPrescale_(_workerParams.getUntrackedParameter<int>("massCalcPrescale"))*/
   {
     collectionMask_ = 
       (0x1 << kRun) |
@@ -35,8 +35,8 @@ namespace ecaldqm {
       (0x1 << kEBSuperCluster) |
       (0x1 << kEESuperCluster);
 
-    if(massCalcPrescale_ == 0)
-      throw cms::Exception("InvalidConfiguration") << "Mass calculation prescale is zero";
+//     if(massCalcPrescale_ == 0)
+//       throw cms::Exception("InvalidConfiguration") << "Mass calculation prescale is zero";
   }
 
   void
@@ -112,7 +112,7 @@ namespace ecaldqm {
     int nBC[] = {0, 0};
     bool isBarrel(_collection == kEBBasicCluster);
 
-    vector<reco::BasicCluster const*> lowMassCands;
+    //    vector<reco::BasicCluster const*> lowMassCands;
 
     for(reco::BasicClusterCollection::const_iterator bcItr(_bcs.begin()); bcItr != _bcs.end(); ++bcItr){
       const math::XYZPoint &position(bcItr->position());
@@ -142,7 +142,7 @@ namespace ecaldqm {
       float size(bcItr->size());
 
       MEs_[kBCSize]->fill(id, size);
-      if(online_) MEs_[kTrendBCSize]->fill(id, double(iLumi), size);
+      if(online) MEs_[kTrendBCSize]->fill(id, double(iLumi), size);
 
       MEs_[kBCSizeMap]->fill(id, size);
       MEs_[kBCSizeMapProjEta]->fill(position.eta(), size);
@@ -151,76 +151,76 @@ namespace ecaldqm {
       int zside(position.z() > 0 ? 1 : 0);
       nBC[zside]++;
 
-      if(ievt_ % massCalcPrescale_ != 0) continue;
+//       if(ievt_ % massCalcPrescale_ != 0) continue;
 
-      if(energy > 10.) continue;
+//       if(energy > 10.) continue;
 
-      EcalRecHitCollection::const_iterator hitItr(isBarrel ? ebHits_->find(id) : eeHits_->find(id));
-      if(hitItr == (isBarrel ? ebHits_->end() : eeHits_->end())) continue;
+//       EcalRecHitCollection::const_iterator hitItr(isBarrel ? ebHits_->find(id) : eeHits_->find(id));
+//       if(hitItr == (isBarrel ? ebHits_->end() : eeHits_->end())) continue;
 
-      // cuts here must be parametrized
-      if(hitItr->energy() < 0.5) continue;
+//       // cuts here must be parametrized
+//       if(hitItr->energy() < 0.5) continue;
 
-      if(hitItr->energy() / energy > 0.95) continue;
+//       if(hitItr->energy() / energy > 0.95) continue;
 
-      lowMassCands.push_back(&(*bcItr));
+//       lowMassCands.push_back(&(*bcItr));
     }
 
     if(isBarrel){
       MEs_[kBCNum]->fill(unsigned(BinService::kEB + 1), nBC[0] + nBC[1]);
-      if(online_) MEs_[kTrendNBC]->fill(unsigned(BinService::kEB + 1), double(iLumi), nBC[0] + nBC[1]);
+      if(online) MEs_[kTrendNBC]->fill(unsigned(BinService::kEB + 1), double(iLumi), nBC[0] + nBC[1]);
     }else{
       MEs_[kBCNum]->fill(unsigned(BinService::kEEm + 1), nBC[0]);
       MEs_[kBCNum]->fill(unsigned(BinService::kEEp + 1), nBC[1]);
-      if(online_) MEs_[kTrendNBC]->fill(unsigned(BinService::kEE + 1), double(iLumi), nBC[0] + nBC[1]);
+      if(online) MEs_[kTrendNBC]->fill(unsigned(BinService::kEE + 1), double(iLumi), nBC[0] + nBC[1]);
     }
 
-    if(ievt_ % massCalcPrescale_ != 0) return;
+//     if(ievt_ % massCalcPrescale_ != 0) return;
 
-    const double pi(3.14159265);
+//     const double pi(3.14159265);
 
-    for(vector<reco::BasicCluster const*>::iterator bcItr1(lowMassCands.begin()); bcItr1 != lowMassCands.end(); ++bcItr1){
-      reco::BasicCluster const& bc1(**bcItr1);
-      float energy1(bc1.energy());
-      float px1(energy1 * sin(bc1.position().theta()) * cos(bc1.phi()));
-      float py1(energy1 * sin(bc1.position().theta()) * sin(bc1.phi()));
-      float pz1(energy1 * cos(bc1.position().theta()));
+//     for(vector<reco::BasicCluster const*>::iterator bcItr1(lowMassCands.begin()); bcItr1 != lowMassCands.end(); ++bcItr1){
+//       reco::BasicCluster const& bc1(**bcItr1);
+//       float energy1(bc1.energy());
+//       float px1(energy1 * sin(bc1.position().theta()) * cos(bc1.phi()));
+//       float py1(energy1 * sin(bc1.position().theta()) * sin(bc1.phi()));
+//       float pz1(energy1 * cos(bc1.position().theta()));
 
-      for(vector<reco::BasicCluster const*>::iterator bcItr2(lowMassCands.begin()); bcItr2 != lowMassCands.end(); ++bcItr2){
-	if(*bcItr1 == *bcItr2) continue;
-	reco::BasicCluster const& bc2(**bcItr2);
-	float energy2(bc2.energy());
-	float px2(energy2 * sin(bc2.position().theta()) * cos(bc2.phi()));
-	float py2(energy2 * sin(bc2.position().theta()) * sin(bc2.phi()));
-	float pz2(energy2 * cos(bc2.position().theta()));
+//       for(vector<reco::BasicCluster const*>::iterator bcItr2(lowMassCands.begin()); bcItr2 != lowMassCands.end(); ++bcItr2){
+// 	if(*bcItr1 == *bcItr2) continue;
+// 	reco::BasicCluster const& bc2(**bcItr2);
+// 	float energy2(bc2.energy());
+// 	float px2(energy2 * sin(bc2.position().theta()) * cos(bc2.phi()));
+// 	float py2(energy2 * sin(bc2.position().theta()) * sin(bc2.phi()));
+// 	float pz2(energy2 * cos(bc2.position().theta()));
 
-	float ptpair(sqrt((px1 + px2) * (px1 + px2) + (py1 + py2) * (py1 + py2)));
-	if(ptpair < 2.5) continue;
+// 	float ptpair(sqrt((px1 + px2) * (px1 + px2) + (py1 + py2) * (py1 + py2)));
+// 	if(ptpair < 2.5) continue;
 
-	float epair(energy1 + energy2);
-	float pzpair(abs(pz1 + pz2));
+// 	float epair(energy1 + energy2);
+// 	float pzpair(abs(pz1 + pz2));
 
-        float m2(epair * epair - pzpair * pzpair - ptpair * ptpair);
-        if(m2 < 0.) continue;
+//         float m2(epair * epair - pzpair * pzpair - ptpair * ptpair);
+//         if(m2 < 0.) continue;
 	
-	float eta(0.5 * log((epair + pzpair)/(epair - pzpair)));
-	float phi(atan2(px1 + px2, py1 + py2));
+// 	float eta(0.5 * log((epair + pzpair)/(epair - pzpair)));
+// 	float phi(atan2(px1 + px2, py1 + py2));
 
-	float iso(0.);
-	for(reco::BasicClusterCollection::const_iterator bcItr(_bcs.begin()); bcItr != _bcs.end(); ++bcItr){
-	  float dEta(bcItr->eta() - eta);
-	  float dPhi(bcItr->phi() - phi);
-          if(dPhi > 2. * pi) dPhi -= 2. * pi;
-          else if(dPhi < -2. * pi) dPhi += 2. * pi;
-	  if(sqrt(dEta * dEta + dPhi * dPhi) < 0.2) iso += bcItr->energy() * sin(bcItr->position().theta());
-	}
-	if(iso > 0.5) continue;
+// 	float iso(0.);
+// 	for(reco::BasicClusterCollection::const_iterator bcItr(_bcs.begin()); bcItr != _bcs.end(); ++bcItr){
+// 	  float dEta(bcItr->eta() - eta);
+// 	  float dPhi(bcItr->phi() - phi);
+//           if(dPhi > 2. * pi) dPhi -= 2. * pi;
+//           else if(dPhi < -2. * pi) dPhi += 2. * pi;
+// 	  if(sqrt(dEta * dEta + dPhi * dPhi) < 0.2) iso += bcItr->energy() * sin(bcItr->position().theta());
+// 	}
+// 	if(iso > 0.5) continue;
 
-	float mass(sqrt(m2));
-	MEs_[kPi0]->fill(mass);
-	MEs_[kJPsi]->fill(mass);
-      }
-    }
+// 	float mass(sqrt(m2));
+// 	MEs_[kPi0]->fill(mass);
+// 	MEs_[kJPsi]->fill(mass);
+//       }
+//     }
   }
 
   void
@@ -238,8 +238,8 @@ namespace ecaldqm {
       isBarrel = false;
     }
 
-    reco::SuperCluster const* leading(0);
-    reco::SuperCluster const* subLeading(0);
+//     reco::SuperCluster const* leading(0);
+//     reco::SuperCluster const* subLeading(0);
 
     int nSC(0);
 
@@ -264,7 +264,7 @@ namespace ecaldqm {
       MEs_[kSCNBCs]->fill(id, scItr->clustersSize());
       MEs_[kSCNcrystals]->fill(id, scItr->size());
 
-      if(online_) MEs_[kTrendSCSize]->fill(id, double(iLumi), scItr->size());
+      if(online) MEs_[kTrendSCSize]->fill(id, double(iLumi), scItr->size());
 
       if(!hits) continue;
       EcalRecHitCollection::const_iterator seedItr(hits->find(id));
@@ -283,40 +283,40 @@ namespace ecaldqm {
 
       nSC++;
 
-      if(ievt_ % massCalcPrescale_ != 0) continue;
+//       if(ievt_ % massCalcPrescale_ != 0) continue;
 
-      float et(energy * sin(scItr->position().theta()));
-      if(!leading || et > leading->energy() * sin(leading->position().theta())){
-	subLeading = leading;
-	leading = &(*scItr);
-      }
-      else if(!subLeading || et > subLeading->energy() * sin(subLeading->position().theta())){
-	subLeading = &(*scItr);
-      }
+//       float et(energy * sin(scItr->position().theta()));
+//       if(!leading || et > leading->energy() * sin(leading->position().theta())){
+// 	subLeading = leading;
+// 	leading = &(*scItr);
+//       }
+//       else if(!subLeading || et > subLeading->energy() * sin(subLeading->position().theta())){
+// 	subLeading = &(*scItr);
+//       }
     }
 
     if(_collection == kEBSuperCluster){
       MEs_[kSCNum]->fill(unsigned(BinService::kEB + 1), nSC);
-      if(online_) MEs_[kTrendNSC]->fill(unsigned(BinService::kEB + 1), double(iLumi), nSC);
+      if(online) MEs_[kTrendNSC]->fill(unsigned(BinService::kEB + 1), double(iLumi), nSC);
     }
     else{
       MEs_[kSCNum]->fill(unsigned(BinService::kEE + 1), nSC);
-      if(online_) MEs_[kTrendNSC]->fill(unsigned(BinService::kEE + 1), double(iLumi), nSC);
+      if(online) MEs_[kTrendNSC]->fill(unsigned(BinService::kEE + 1), double(iLumi), nSC);
     }
 
-    if(ievt_ % massCalcPrescale_ != 0) return;
+//     if(ievt_ % massCalcPrescale_ != 0) return;
 
-    // implement isolation & cuts
-    if(!leading || !subLeading) return;
-    float e(leading->energy() + subLeading->energy());
-    float px(leading->energy() * sin(leading->position().theta()) * cos(leading->phi()) + subLeading->energy() * sin(subLeading->position().theta()) * cos(subLeading->phi()));
-    float py(leading->energy() * sin(leading->position().theta()) * sin(leading->phi()) + subLeading->energy() * sin(subLeading->position().theta()) * sin(subLeading->phi()));
-    float pz(leading->energy() * cos(leading->position().theta()) + subLeading->energy() * cos(subLeading->position().theta()));
-    float m2(e * e - px * px - py * py - pz * pz);
-    if(m2 < 0.) return;
-    float mass(sqrt(m2));
-    MEs_[kZ]->fill(mass);
-    MEs_[kHighMass]->fill(mass);
+//     // implement isolation & cuts
+//     if(!leading || !subLeading) return;
+//     float e(leading->energy() + subLeading->energy());
+//     float px(leading->energy() * sin(leading->position().theta()) * cos(leading->phi()) + subLeading->energy() * sin(subLeading->position().theta()) * cos(subLeading->phi()));
+//     float py(leading->energy() * sin(leading->position().theta()) * sin(leading->phi()) + subLeading->energy() * sin(subLeading->position().theta()) * sin(subLeading->phi()));
+//     float pz(leading->energy() * cos(leading->position().theta()) + subLeading->energy() * cos(subLeading->position().theta()));
+//     float m2(e * e - px * px - py * py - pz * pz);
+//     if(m2 < 0.) return;
+//     float mass(sqrt(m2));
+//     MEs_[kZ]->fill(mass);
+//     MEs_[kHighMass]->fill(mass);
 
   }
 
@@ -346,10 +346,10 @@ namespace ecaldqm {
     _nameToIndex["SCNBCs"] = kSCNBCs;
     _nameToIndex["SCNcrystals"] = kSCNcrystals;
     _nameToIndex["SCR9"] = kSCR9;
-    _nameToIndex["Pi0"] = kPi0;
-    _nameToIndex["JPsi"] = kJPsi;
-    _nameToIndex["Z"] = kZ;
-    _nameToIndex["HighMass"] = kHighMass;
+//     _nameToIndex["Pi0"] = kPi0;
+//     _nameToIndex["JPsi"] = kJPsi;
+//     _nameToIndex["Z"] = kZ;
+//     _nameToIndex["HighMass"] = kHighMass;
     _nameToIndex["TrendNBC"] = kTrendNBC;
     _nameToIndex["TrendBCSize"] = kTrendBCSize;
     _nameToIndex["TrendNSC"] = kTrendNSC;

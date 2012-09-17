@@ -14,9 +14,12 @@ EcalDQMonitor::EcalDQMonitor(const edm::ParameterSet &_ps) :
   moduleName_(_ps.getUntrackedParameter<std::string>("moduleName")),
   mergeRuns_(_ps.getUntrackedParameter<bool>("mergeRuns", false)),
   verbosity_(_ps.getUntrackedParameter<int>("verbosity", 0)),
+  online_(_ps.getUntrackedParameter<bool>("online", false)),
   initialized_(false)
 {
   using namespace std;
+
+  DQWorker::online = online_;
 
   vector<string> workerNames(_ps.getUntrackedParameter<vector<string> >("workers"));
   edm::ParameterSet const& allParams(_ps.getUntrackedParameterSet("workerParameters"));

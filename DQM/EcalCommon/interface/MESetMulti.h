@@ -74,9 +74,7 @@ namespace ecaldqm
 
     void formPath(std::map<std::string, std::string> const& _replacements) const { if(current_) current_->formPath(_replacements); }
 
-    void setDir(std::string const& _dir) { MESet::setDir(_dir); if(current_) current_->setDir(_dir); }
-    std::string const& getName() const { return current_ ? current_->getName() : name_; }
-    void setName(std::string const& _name) { if(current_) current_->setName(_name); }
+    std::string const& getPath() const { return current_ ? current_->getPath() : path_; }
     MonitorElement const* getME(unsigned _iME) const { return current_ ? current_->getME(_iME) : 0; }
     MonitorElement* getME(unsigned _iME) { return current_ ? current_->getME(_iME) : 0; }
 

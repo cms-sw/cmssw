@@ -27,23 +27,22 @@ namespace ecaldqm {
       kDigiProjPhi, // h1f
       kDigiAll,
       kDigiDCC,
-      //      kRecHit, // h2f
-      //      kRecHitProjEta, // h1f
-      //      kRecHitProjPhi, // h1f
-      kRecHit1D,
-      kRecHitThr, // h2f
+      kDigi1D,
+      kRecHitAll,
+      kRecHitProjEta,
+      kRecHitProjPhi,
       kRecHitThrProjEta, // h1f
       kRecHitThrProjPhi, // h1f
       kRecHitThrAll, // h1f
-      kTPDigi, // h2f
+      kRecHitThr1D,
       kTPDigiProjEta, // h1f
       kTPDigiProjPhi, // h1f
-      kTPDigiThr, // h2f
+      kTPDigiAll, // h2f
       kTPDigiThrProjEta, // h1f
       kTPDigiThrProjPhi, // h1f
       kTPDigiThrAll,
       kTrendNDigi,
-      kTrendNRecHit,
+      kTrendNRecHitThr,
       kTrendNTPDigi,
       nMESets
     };

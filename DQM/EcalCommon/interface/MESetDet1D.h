@@ -20,6 +20,8 @@ namespace ecaldqm
 
     MESet* clone() const;
 
+    void book();
+
     void fill(DetId const&, double _wy = 1., double _w = 1., double _unused = 0.);
     void fill(EcalElectronicsId const&, double _wy = 1., double _w = 1., double _unused = 0.);
     void fill(unsigned, double _wy = 1., double _w = 1., double _unused = 0.);

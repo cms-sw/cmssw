@@ -39,7 +39,7 @@ namespace ecaldqm {
     map<string, string> replacements;
     stringstream ss;
 
-    unsigned wlPlots[] = {kAmplitudeSummary, kAmplitude, kOccupancy, kTiming, kShape, kAOverP, kPNAmplitude};
+    unsigned wlPlots[] = {kAmplitude, kAmplitudeSummary, kTiming, kShape, kAOverP, kPNAmplitude};
     for(unsigned iS(0); iS < sizeof(wlPlots) / sizeof(unsigned); ++iS){
       unsigned plot(wlPlots[iS]);
       MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
@@ -136,6 +136,8 @@ namespace ecaldqm {
     for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       const DetId& id(digiItr->id());
 
+      MEs_[kOccupancy]->fill(id);
+
       unsigned iDCC(dccId(id) - 1);
 
       if(!enable_[iDCC]) continue;
@@ -198,11 +200,8 @@ namespace ecaldqm {
 
       if(iME != wlToME_[wavelength_[iDCC]]){
         iME = wlToME_[wavelength_[iDCC]];
-        static_cast<MESetMulti*>(MEs_[kOccupancy])->use(iME);
         static_cast<MESetMulti*>(MEs_[kShape])->use(iME);
       }
-
-      MEs_[kOccupancy]->fill(id);
 
       for(int iSample(0); iSample < 10; iSample++)
 	MEs_[kShape]->fill(id, iSample + 0.5, float(dataFrame.sample(iSample).adc()));
@@ -231,7 +230,7 @@ namespace ecaldqm {
       const EcalPnDiodeDetId& id(digiItr->id());
 
       std::map<uint32_t, float>::iterator ampItr(pnAmp_.find(id.rawId()));
-      //      if(ampItr == pnAmp_.end()) continue;
+      if(ampItr == pnAmp_.end()) continue;
 
       unsigned iDCC(dccId(id) - 1);
 
@@ -288,8 +287,8 @@ namespace ecaldqm {
       float amp(max((double)uhitItr->amplitude(), 0.));
       float jitter(max((double)uhitItr->jitter() + 5.0, 0.));
 
-      MEs_[kAmplitudeSummary]->fill(id, amp);
       MEs_[kAmplitude]->fill(id, amp);
+      MEs_[kAmplitudeSummary]->fill(id, amp);
       MEs_[kTiming]->fill(id, jitter);
 
       float aop(0.);
@@ -309,8 +308,8 @@ namespace ecaldqm {
   void
   LaserTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
   {
-    _nameToIndex["AmplitudeSummary"] = kAmplitudeSummary;
     _nameToIndex["Amplitude"] = kAmplitude;
+    _nameToIndex["AmplitudeSummary"] = kAmplitudeSummary;
     _nameToIndex["Occupancy"] = kOccupancy;
     _nameToIndex["Timing"] = kTiming;
     _nameToIndex["Shape"] = kShape;

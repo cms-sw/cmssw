@@ -1,5 +1,7 @@
 #include "../interface/PedestalTask.h"
 
+#include <iomanip>
+
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
@@ -42,7 +44,7 @@ namespace ecaldqm {
     map<string, string> replacements;
     stringstream ss;
 
-    unsigned apdPlots[] = {kOccupancy, kPedestal};
+    unsigned apdPlots[] = {kPedestal};
     for(unsigned iS(0); iS < sizeof(apdPlots) / sizeof(unsigned); ++iS){
       unsigned plot(apdPlots[iS]);
       MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
@@ -51,7 +53,7 @@ namespace ecaldqm {
         multi->use(gainItr->second);
 
         ss.str("");
-        ss << gainItr->first;
+        ss << std::setfill('0') << std::setw(2) << gainItr->first;
         replacements["gain"] = ss.str();
 
         multi->formPath(replacements);
@@ -67,7 +69,7 @@ namespace ecaldqm {
         multi->use(gainItr->second);
 
         ss.str("");
-        ss << gainItr->first;
+        ss << std::setfill('0') << std::setw(2) << gainItr->first;
         replacements["pngain"] = ss.str();
 
         multi->formPath(replacements);
@@ -120,7 +122,6 @@ namespace ecaldqm {
 
       if(iME != gainToME_[gain]){
         iME = gainToME_[gain];
-        static_cast<MESetMulti*>(MEs_[kOccupancy])->use(iME);
         static_cast<MESetMulti*>(MEs_[kPedestal])->use(iME);
       }
 

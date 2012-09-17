@@ -59,7 +59,7 @@ namespace ecaldqm
     int findBin(EcalElectronicsId const&, double, double = 0.) const;
     int findBin(unsigned, double, double = 0.) const;
 
-    std::vector<std::string> generateNames() const;
+    std::vector<std::string> generatePaths() const;
 
   protected :
     unsigned logicalDimensions_;

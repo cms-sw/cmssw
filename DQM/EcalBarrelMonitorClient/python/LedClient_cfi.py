@@ -22,13 +22,13 @@ ecalLedClient = dict(
     tolerancePNRMSRatioL2 = 0.3,
     forwardFactor = 0.5,
     MEs = dict(
-        AmplitudeMean = dict(path = "Led/Led%(wl)s/Amplitude/Mean/LedClient amplitude mean L%(wl)s", otype = 'EESM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 0., 'high': 400.}, multi = 2),
-        AmplitudeRMS = dict(path = "Led/Led%(wl)s/Amplitude/RMS/LedClient amplitude RMS L%(wl)s", otype = 'EESM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 0., 'high': 400.}, multi = 2),
-        TimingMean = dict(path = 'Led/Led%(wl)s/Timing/Mean/LedClient timing mean L%(wl)s', otype = 'EESM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 3.5, 'high': 5.5}, multi = 2),
-        TimingRMS = dict(path = 'Led/Led%(wl)s/Timing/RMS/LedClient timing RMS L%(wl)s', otype = 'EESM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 0., 'high': 0.5}, multi = 2),
-        Quality = dict(path = 'Led/Led%(wl)s/Quality/LedClient led quality L%(wl)s', otype = 'EESM', btype = 'Crystal', kind = 'TH2F', multi = 2),
-        QualitySummary = dict(path = 'Summary/LedClient led quality L%(wl)s', otype = 'EE', btype = 'SuperCrystal', kind = 'TH2F', multi = 2),
-        PNQualitySummary = dict(path = 'Summary/LedClient PN quality L%(wl)s', otype = 'EEMEM', btype = 'Crystal', kind = 'TH2F', multi = 2)
+        Quality = dict(path = 'EcalEndcap/EELedClient/EELDT led quality L%(wl)s %(sm)s', otype = 'EESM', btype = 'Crystal', kind = 'TH2F', multi = 2),
+        AmplitudeMean = dict(path = "EcalEndcap/EELedClient/EELDT amplitude L%(wl)s %(sm)s", otype = 'EESM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 0., 'high': 400.}, multi = 2),
+        AmplitudeRMS = dict(path = "EcalEndcap/EELedClient/EELDT amplitude RMS L%(wl)s", otype = 'EE', btype = 'Crystal', kind = 'TH2F', multi = 2),
+        TimingMean = dict(path = 'EcalEndcap/EELedClient/EELDT led timing L%(wl)s %(sm)s', otype = 'EESM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 3.5, 'high': 5.5}, multi = 2),
+        TimingRMSMap = dict(path = 'EcalEndcap/EELedClient/EELDT timing RMS L%(wl)s', otype = 'EE', btype = 'Crystal', kind = 'TH2F', multi = 2),
+        QualitySummary = dict(path = 'EcalEndcap/EESummaryClient/EELDT%(suffix)s led quality summary L%(wl)s', otype = 'EE2P', btype = 'SuperCrystal', kind = 'TH2F', multi = 2),
+        PNQualitySummary = dict(path = 'EcalEndcap/EESummaryClient/EELDT PN led quality summary L%(wl)s', otype = 'EEMEM', btype = 'Crystal', kind = 'TH2F', multi = 2)
     ),
     sources = dict(
         Amplitude = ecalLedTask['MEs']['Amplitude'],

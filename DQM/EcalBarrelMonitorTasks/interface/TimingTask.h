@@ -20,6 +20,7 @@ namespace ecaldqm {
 
     enum MESets {
       kTimeMap,
+      kTime1D,
       kTimeAmp,
       kTimeAll,
       kTimeAllMap,

@@ -49,7 +49,9 @@ ecalMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
         )
     ),
     collectionTags = ecalDQMCollectionTags,
-    allowMissingCollections = cms.untracked.bool(False),
+    allowMissingCollections = cms.untracked.bool(True),
     verbosity = cms.untracked.int32(0),
-    evaluateTime = cms.untracked.bool(False)
+    evaluateTime = cms.untracked.bool(False),
+    online = cms.untracked.bool(False),
+    resetInterval = cms.untracked.double(2.)
 )

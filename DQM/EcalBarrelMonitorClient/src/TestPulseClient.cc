@@ -42,7 +42,7 @@ namespace ecaldqm
 
     for(map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
       ss.str("");
-      ss << "G" << gainItr->first;
+      ss << "G" << setfill('0') << setw(2) << gainItr->first;
 
       amplitudeThreshold_[gainItr->second] = _workerParams.getUntrackedParameter<double>("amplitudeThreshold" + ss.str());
       toleranceRMS_[gainItr->second] = _workerParams.getUntrackedParameter<double>("toleranceRMS" + ss.str());
@@ -53,7 +53,7 @@ namespace ecaldqm
 
     for(map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr){
       ss.str("");
-      ss << "G" << gainItr->first;
+      ss << "G" << setfill('0') << setw(2) << gainItr->first;
 
       PNAmplitudeThreshold_[gainItr->second] = _workerParams.getUntrackedParameter<double>("PNAmplitudeThreshold" + ss.str());
       tolerancePNRMS_[gainItr->second] = _workerParams.getUntrackedParameter<double>("tolerancePNRMS" + ss.str());
@@ -70,14 +70,14 @@ namespace ecaldqm
         multi->use(gainItr->second);
 
         ss.str("");
-        ss << gainItr->first;
+        ss << setfill('0') << setw(2) << gainItr->first;
         replacements["gain"] = ss.str();
 
         multi->formPath(replacements);
       }
     }
 
-    unsigned pnPlots[] = {kPNAmplitudeRMS, kPNQualitySummary};
+    unsigned pnPlots[] = {kPNQualitySummary};
     for(unsigned iS(0); iS < sizeof(pnPlots) / sizeof(unsigned); ++iS){
       unsigned plot(pnPlots[iS]);
       MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
@@ -86,7 +86,7 @@ namespace ecaldqm
         multi->use(gainItr->second);
 
         ss.str("");
-        ss << gainItr->first;
+        ss << setfill('0') << setw(2) << gainItr->first;
         replacements["pngain"] = ss.str();
 
         multi->formPath(replacements);
@@ -102,7 +102,7 @@ namespace ecaldqm
         multi->use(gainItr->second);
 
         ss.str("");
-        ss << gainItr->first;
+        ss << setfill('0') << setw(2) << gainItr->first;
         replacements["gain"] = ss.str();
 
         multi->formPath(replacements);
@@ -118,7 +118,7 @@ namespace ecaldqm
         multi->use(gainItr->second);
 
         ss.str("");
-        ss << gainItr->first;
+        ss << setfill('0') << setw(2) << gainItr->first;
         replacements["pngain"] = ss.str();
 
         multi->formPath(replacements);
@@ -133,6 +133,7 @@ namespace ecaldqm
       static_cast<MESetMulti*>(MEs_[kQuality])->use(iME);
       static_cast<MESetMulti*>(MEs_[kQualitySummary])->use(iME);
 
+      MEs_[kAmplitudeRMS]->resetAll(-1.);
       MEs_[kQuality]->resetAll(-1.);
       MEs_[kQualitySummary]->resetAll(-1.);
 
@@ -201,7 +202,7 @@ namespace ecaldqm
         float amp(aItr->getBinContent());
         float rms(aItr->getBinError() * sqrt(entries));
 
-        MEs_[kAmplitudeRMS]->fill(id, rms);
+        MEs_[kAmplitudeRMS]->setBinContent(id, rms);
 
         if(amp < amplitudeThreshold_[gainItr->second] || rms > toleranceRMS_[gainItr->second])
           qItr->setBinContent(doMask ? kMBad : kBad);
@@ -214,11 +215,8 @@ namespace ecaldqm
 
     for(map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr){
       static_cast<MESetMulti*>(MEs_[kPNQualitySummary])->use(gainItr->second);
-      static_cast<MESetMulti*>(MEs_[kPNAmplitudeRMS])->use(gainItr->second);
 
       static_cast<MESetMulti const*>(sources_[kPNAmplitude])->use(gainItr->second);
-
-      MEs_[kPNAmplitudeRMS]->reset();
 
       uint32_t mask(0);
       switch(gainItr->first){
@@ -256,8 +254,6 @@ namespace ecaldqm
             continue;
           }
 
-          MEs_[kPNAmplitudeRMS]->fill(id, rms);
-
           if(amp < PNAmplitudeThreshold_[gainItr->second] || rms > tolerancePNRMS_[gainItr->second])
             MEs_[kPNQualitySummary]->setBinContent(id, doMask ? kMBad : kBad);
           else
@@ -273,7 +269,6 @@ namespace ecaldqm
   {
     _nameToIndex["Quality"] = kQuality;
     _nameToIndex["AmplitudeRMS"] = kAmplitudeRMS;
-    _nameToIndex["PNAmplitudeRMS"] = kPNAmplitudeRMS;
     _nameToIndex["QualitySummary"] = kQualitySummary;
     _nameToIndex["PNQualitySummary"] = kPNQualitySummary;
 

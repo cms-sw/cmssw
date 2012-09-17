@@ -53,10 +53,10 @@ namespace ecaldqm {
       kSCNBCs, // h1f
       kSCNcrystals, // h1f
       kSCR9, // h1f
-      kPi0, // h1f
-      kJPsi, // h1f
-      kZ, // h1f
-      kHighMass, // h1f
+/*       kPi0, // h1f */
+/*       kJPsi, // h1f */
+/*       kZ, // h1f */
+/*       kHighMass, // h1f */
       kTrendNBC,
       kTrendBCSize,
       kTrendNSC,
@@ -73,7 +73,7 @@ namespace ecaldqm {
     const CaloSubdetectorGeometry* eeGeometry_;
     const EcalRecHitCollection *ebHits_, *eeHits_;
     int ievt_;
-    int massCalcPrescale_;
+    //    int massCalcPrescale_;
   };
 
   inline void ClusterTask::analyze(const void* _p, Collections _collection){

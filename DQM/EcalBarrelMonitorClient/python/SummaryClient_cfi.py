@@ -10,10 +10,11 @@ from DQM.EcalBarrelMonitorTasks.RawDataTask_cfi import ecalRawDataTask
 ecalSummaryClient = dict(
     activeSources = ['Integrity', 'RawData', 'Presample', 'Timing'],
     MEs = dict(
-        QualitySummary = dict(path = "Summary/SummaryClient global quality", otype = 'Ecal2P', btype = 'Crystal', kind = 'TH2F'),
-        ReportSummaryMap = dict(path = "EventInfo/reportSummaryMap", otype = 'Ecal', btype = 'DCC', kind = 'TH2F'),
-        ReportSummaryContents = dict(path = "EventInfo/reportSummaryContents/", otype = 'SM', btype = 'Report', kind = 'REAL'),
-        ReportSummary = dict(path = "EventInfo/reportSummary", otype = 'Ecal', btype = 'Report', kind = 'REAL')
+        QualitySummary = dict(path = "%(subdet)s/%(prefix)sSummaryClient/%(prefix)s global summary%(suffix)s", otype = 'Ecal3P', btype = 'Crystal', kind = 'TH2F'),
+        ReportSummaryMap = dict(path = "Ecal/EventInfo/reportSummaryMap", otype = 'Ecal', btype = 'DCC', kind = 'TH2F'),
+        ReportSummaryContents = dict(path = "Ecal/EventInfo/reportSummaryContents/Ecal_%(sm)s", otype = 'SM', btype = 'Report', kind = 'REAL'),
+        ReportSummary = dict(path = "Ecal/EventInfo/reportSummary", otype = 'Ecal', btype = 'Report', kind = 'REAL'),
+        NBadFEDs = dict(path = "Ecal/Errors/Number of Bad Ecal FEDs", otype = 'None', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 1, 'low': 0., 'high': 1.})
     ),
     sources = dict(
         Integrity = ecalIntegrityClient['MEs']['QualitySummary'],

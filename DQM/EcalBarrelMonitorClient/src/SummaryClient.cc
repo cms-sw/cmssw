@@ -25,6 +25,18 @@ namespace ecaldqm {
   }
 
   void
+  SummaryClient::bookMEs()
+  {
+    for(unsigned iME(0); iME < MEs_.size(); iME++){
+      if(iME == kNBadFEDs && !online) continue;
+      if(MEs_[iME]){
+        if(MEs_[iME]->getBinType() == BinService::kTrend && !online) continue;
+        MEs_[iME]->book();
+      }
+    }
+  }
+
+  void
   SummaryClient::beginRun(const edm::Run &, const edm::EventSetup &)
   {
     MEs_[kQualitySummary]->resetAll(-1.);
@@ -54,7 +66,6 @@ namespace ecaldqm {
     MESet::iterator qEnd(MEs_[kQualitySummary]->end());
     MESet::const_iterator iItr(sources_[kIntegrity]);
     MESet::const_iterator pItr(sources_[kPresample], using_(kPresample) ? 0 : -1, 0);
-    MESet::const_iterator hItr(sources_[kHotCell], using_(kHotCell) ? 0 : -1, 0);
     for(MESet::iterator qItr(MEs_[kQualitySummary]->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
       DetId id(qItr->getId());
@@ -70,10 +81,9 @@ namespace ecaldqm {
       }
 
       pItr = qItr;
-      hItr = qItr;
 
       int presample(using_(kPresample) ? pItr->getBinContent() : kUnknown);
-      int hotcell(using_(kHotCell) ? hItr->getBinContent() : kUnknown);
+      int hotcell(using_(kHotCell) ? sources_[kHotCell]->getBinContent(id) : kUnknown);
       int timing(using_(kTiming) ? sources_[kTiming]->getBinContent(id) : kUnknown);
       int trigprim(using_(kTriggerPrimitives) ? sources_[kTriggerPrimitives]->getBinContent(id) : kUnknown);
 
@@ -100,7 +110,7 @@ namespace ecaldqm {
     }
 
     // search clusters of bad towers
-    if(online_){
+    if(online){
       for(int iz(-1); iz <= 1; iz += 2){
         for(int ieta(1); ieta < 17; ++ieta){
           for(int iphi(1); iphi <= 72; ++iphi){
@@ -157,6 +167,7 @@ namespace ecaldqm {
       }
     }
 
+    double nBad(0.);
     for(unsigned iDCC(0); iDCC < BinService::nDCC; ++iDCC){
       if(dccChannels[iDCC] < 1.) continue;
 
@@ -164,9 +175,13 @@ namespace ecaldqm {
       float frac(dccGood[iDCC] / dccChannels[iDCC]);
       MEs_[kReportSummaryMap]->setBinContent(dccid, frac);
       MEs_[kReportSummaryContents]->fill(dccid, frac);
+
+      if(frac < 0.5) nBad += 1.;
     }
 
     if(totalChannels > 0.) MEs_[kReportSummary]->fill(totalGood / totalChannels);
+
+    if(online) MEs_[kNBadFEDs]->setBinContent(1, nBad);
   }
 
   /*static*/
@@ -177,6 +192,7 @@ namespace ecaldqm {
     _nameToIndex["ReportSummaryMap"] = kReportSummaryMap;
     _nameToIndex["ReportSummaryContents"] = kReportSummaryContents;
     _nameToIndex["ReportSummary"] = kReportSummary;
+    _nameToIndex["NBadFEDs"] = kNBadFEDs;
 
     _nameToIndex["Integrity"] = kIntegrity;
     _nameToIndex["IntegrityByLumi"] = kIntegrityByLumi;

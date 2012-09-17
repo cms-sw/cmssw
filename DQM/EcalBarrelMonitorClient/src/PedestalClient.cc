@@ -1,5 +1,7 @@
 #include "../interface/PedestalClient.h"
 
+#include <iomanip>
+
 #include "DQM/EcalCommon/interface/MESetMulti.h"
 
 #include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
@@ -43,7 +45,7 @@ namespace ecaldqm
 
     for(map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
       ss.str("");
-      ss << "G" << gainItr->first;
+      ss << "G" << std::setfill('0') << std::setw(2) << gainItr->first;
 
       expectedMean_[gainItr->second] = _workerParams.getUntrackedParameter<double>("expectedMean" + ss.str());
       toleranceMean_[gainItr->second] = _workerParams.getUntrackedParameter<double>("toleranceMean" + ss.str());
@@ -56,7 +58,7 @@ namespace ecaldqm
 
     for(map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr){
       ss.str("");
-      ss << "G" << gainItr->first;
+      ss << "G" << std::setfill('0') << std::setw(2) << gainItr->first;
 
       expectedPNMean_[gainItr->second] = _workerParams.getUntrackedParameter<double>("expectedPNMean" + ss.str());
       tolerancePNMean_[gainItr->second] = _workerParams.getUntrackedParameter<double>("tolerancePNMean" + ss.str());
@@ -74,7 +76,7 @@ namespace ecaldqm
         multi->use(gainItr->second);
 
         ss.str("");
-        ss << gainItr->first;
+        ss << std::setfill('0') << std::setw(2) << gainItr->first;
         replacements["gain"] = ss.str();
 
         multi->formPath(replacements);
@@ -90,7 +92,7 @@ namespace ecaldqm
         multi->use(gainItr->second);
 
         ss.str("");
-        ss << gainItr->first;
+        ss << std::setfill('0') << std::setw(2) << gainItr->first;
         replacements["pngain"] = ss.str();
 
         multi->formPath(replacements);
@@ -106,7 +108,7 @@ namespace ecaldqm
         multi->use(gainItr->second);
 
         ss.str("");
-        ss << gainItr->first;
+        ss << std::setfill('0') << std::setw(2) << gainItr->first;
         replacements["gain"] = ss.str();
 
         multi->formPath(replacements);
@@ -122,7 +124,7 @@ namespace ecaldqm
         multi->use(gainItr->second);
 
         ss.str("");
-        ss << gainItr->first;
+        ss << std::setfill('0') << std::setw(2) << gainItr->first;
         replacements["pngain"] = ss.str();
 
         multi->formPath(replacements);

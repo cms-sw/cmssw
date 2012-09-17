@@ -58,6 +58,9 @@ class EcalDQMonitorTask : public EcalDQMonitor {
   bool evaluateTime_;
 
   bool allowMissingCollections_;
+
+  time_t lastResetTime_;
+  float resetInterval_;
 };
 
 #endif

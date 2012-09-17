@@ -18,12 +18,6 @@ namespace ecaldqm {
   {
     using namespace std;
 
-    string topDir;
-    if(_workerParams.existsAs<string>("topDirectory", false))
-      topDir = _workerParams.getUntrackedParameter<string>("topDirectory");
-    else
-      topDir = _commonParams.getUntrackedParameter<string>("topDirectory");
-
     if(_workerParams.existsAs<edm::ParameterSet>("sources", false)){
       BinService const* binService(&(*(edm::Service<EcalDQMBinningService>())));
       if(!binService)
@@ -44,10 +38,10 @@ namespace ecaldqm {
         if(nItr == nameToIndex.end())
           throw cms::Exception("InvalidConfiguration") << "Cannot find ME index for " << sourceName;
 
-        MESet const* meSet(createMESet(sourceParams.getUntrackedParameterSet(sourceName), binService, topDir));
+        MESet const* meSet(createMESet(sourceParams.getUntrackedParameterSet(sourceName), binService));
         if(meSet){
           sources_[nItr->second] = meSet;
-          if(meSet->getBinType() != BinService::kTrend || online_)
+          if(meSet->getBinType() != BinService::kTrend || online)
             usedSources_ |= (0x1 << nItr->second);
         }
       }

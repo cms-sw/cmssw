@@ -82,10 +82,12 @@ namespace ecaldqm {
 
     virtual void analyze(const void*, Collections){}
 
+    void softReset();
+    void recoverStats();
+
   protected:
     uint32_t collectionMask_;
-    // list of dependencies between collections
-    // first element depends on the second
+    std::vector<bool> resettable_;
   };
 
   inline

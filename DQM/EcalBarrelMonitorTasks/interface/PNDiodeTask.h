@@ -27,6 +27,7 @@ namespace ecaldqm {
       kMEMTowerId,
       kPedestal,
       kOccupancy,
+      kOccupancySummary,
       nMESets
     };
 

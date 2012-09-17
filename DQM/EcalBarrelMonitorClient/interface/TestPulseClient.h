@@ -17,7 +17,6 @@ namespace ecaldqm
     enum MESets {
       kQuality,
       kAmplitudeRMS,
-      kPNAmplitudeRMS,
       kQualitySummary,
       kPNQualitySummary,
       nMESets

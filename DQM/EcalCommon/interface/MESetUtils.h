@@ -10,7 +10,9 @@ namespace edm
 
 namespace ecaldqm
 {
-  MESet* createMESet(edm::ParameterSet const&, BinService const*, std::string = "", DQMStore* = 0);
+  MESet* createMESet(edm::ParameterSet const&, BinService const*);
+
+  void formPath(std::string&, std::map<std::string, std::string> const&);
 }
 
 #endif

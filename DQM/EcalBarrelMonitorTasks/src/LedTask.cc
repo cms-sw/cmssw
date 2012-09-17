@@ -37,7 +37,7 @@ namespace ecaldqm {
     map<string, string> replacements;
     stringstream ss;
 
-    unsigned wlPlots[] = {kAmplitudeSummary, kAmplitude, kOccupancy, kTiming, kShape, kAOverP, kPNAmplitude};
+    unsigned wlPlots[] = {kAmplitude, kAmplitudeSummary, kTiming, kShape, kAOverP, kPNAmplitude};
     for(unsigned iS(0); iS < sizeof(wlPlots) / sizeof(unsigned); ++iS){
       unsigned plot(wlPlots[iS]);
       MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
@@ -140,6 +140,8 @@ namespace ecaldqm {
     for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       const DetId& id(digiItr->id());
 
+      MEs_[kOccupancy]->fill(id);
+
       unsigned iDCC(dccId(id) - 1);
       if(iDCC >= kEBmLow && iDCC <= kEBpHigh) continue;
       unsigned index(iDCC <= kEEmHigh ? iDCC : iDCC - BinService::nEBDCC);
@@ -204,11 +206,8 @@ namespace ecaldqm {
 
       if(iME != wlToME_[wavelength_[index]]){
         iME = wlToME_[wavelength_[index]];
-        static_cast<MESetMulti*>(MEs_[kOccupancy])->use(iME);
         static_cast<MESetMulti*>(MEs_[kShape])->use(iME);
       }
-
-      MEs_[kOccupancy]->fill(id);
 
       // EcalDataFrame is not a derived class of edm::DataFrame, but can take edm::DataFrame in the constructor
       EcalDataFrame dataFrame(*digiItr);
@@ -291,8 +290,8 @@ namespace ecaldqm {
       float amp(max((double)uhitItr->amplitude(), 0.));
       float jitter(max((double)uhitItr->jitter() + 5.0, 0.));
 
-      MEs_[kAmplitudeSummary]->fill(id, amp);
       MEs_[kAmplitude]->fill(id, amp);
+      MEs_[kAmplitudeSummary]->fill(id, amp);
       MEs_[kTiming]->fill(id, jitter);
 
       float aop(0.);
@@ -312,8 +311,8 @@ namespace ecaldqm {
   void
   LedTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
   {
-    _nameToIndex["AmplitudeSummary"] = kAmplitudeSummary;
     _nameToIndex["Amplitude"] = kAmplitude;
+    _nameToIndex["AmplitudeSummary"] = kAmplitudeSummary;
     _nameToIndex["Occupancy"] = kOccupancy;
     _nameToIndex["Shape"] = kShape;
     _nameToIndex["Timing"] = kTiming;

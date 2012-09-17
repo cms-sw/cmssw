@@ -12,6 +12,13 @@ namespace ecaldqm {
   }
 
   void
+  SelectiveReadoutClient::beginRun(const edm::Run &, const edm::EventSetup &)
+  {
+    for(unsigned iME(0); iME < nMESets; ++iME)
+      MEs_[iME]->resetAll(-1.);
+  }
+
+  void
   SelectiveReadoutClient::producePlots()
   {
     using namespace std;
@@ -21,6 +28,9 @@ namespace ecaldqm {
     MEs_[kFR]->reset();
     MEs_[kRUForced]->reset();
     MEs_[kZS1]->reset();
+    MEs_[kHighInterest]->reset();
+    MEs_[kMedInterest]->reset();
+    MEs_[kLowInterest]->reset();
 
     MESet::const_iterator ruItr(sources_[kRUForcedMap]);
     MESet::const_iterator frItr(sources_[kFullReadoutMap]);
@@ -66,6 +76,22 @@ namespace ecaldqm {
         frdRateItr->setBinContent(frdItr->getBinContent() / nFullReadoutFlags);
 
     }
+
+    // iterator not supported for kTriggerTower binning yet
+    for(unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; ++iTT){
+      EcalTrigTowerDetId id(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
+
+      float nHigh(sources_[kHighIntMap]->getBinContent(id));
+      float nMed(sources_[kMedIntMap]->getBinContent(id));
+      float nLow(sources_[kLowIntMap]->getBinContent(id));
+      float total(nHigh + nMed + nLow);
+
+      if(total > 0.){
+        MEs_[kHighInterest]->setBinContent(id, nHigh / total);
+        MEs_[kMedInterest]->setBinContent(id, nMed / total);
+        MEs_[kLowInterest]->setBinContent(id, nLow / total);
+      }
+    }
   }
 
   /*static*/
@@ -77,6 +103,9 @@ namespace ecaldqm {
     _nameToIndex["FR"] = kFR;
     _nameToIndex["RUForced"] = kRUForced;
     _nameToIndex["ZS1"] = kZS1;
+    _nameToIndex["HighInterest"] = kHighInterest;
+    _nameToIndex["MedInterest"] = kMedInterest;
+    _nameToIndex["LowInterest"] = kLowInterest;
 
     _nameToIndex["FlagCounterMap"] = kFlagCounterMap;
     _nameToIndex["RUForcedMap"] = kRUForcedMap;
@@ -85,6 +114,9 @@ namespace ecaldqm {
     _nameToIndex["ZSMap"] = kZSMap;
     _nameToIndex["ZSFullReadoutMap"] = kZSFullReadoutMap;
     _nameToIndex["FRDroppedMap"] = kFRDroppedMap;
+    _nameToIndex["HighIntMap"] = kHighIntMap;
+    _nameToIndex["MedIntMap"] = kMedIntMap;
+    _nameToIndex["LowIntMap"] = kLowIntMap;
   }
 
   DEFINE_ECALDQM_WORKER(SelectiveReadoutClient);

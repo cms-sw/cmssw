@@ -272,6 +272,14 @@ namespace ecaldqm {
 
     for(unsigned iME(0); iME < mes_.size(); iME++){
       MonitorElement* me(mes_[iME]);
+
+      me->getTH1()->GetXaxis()->SetLimits(tLow, tHigh);
+
+      if((end - start) / step < 0){
+        me->Reset();
+        continue;
+      }
+
       me->setEntries(0.);
       double entries(0.);
 
@@ -390,7 +398,6 @@ namespace ecaldqm {
       }
 
       me->setEntries(entries);
-      me->getTH1()->GetXaxis()->SetLimits(tLow, tHigh);
     }
 
     return true;

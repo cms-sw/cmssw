@@ -1,6 +1,7 @@
 #include "../interface/TestPulseTask.h"
 
 #include <algorithm>
+#include <iomanip>
 
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -48,7 +49,7 @@ namespace ecaldqm {
     map<string, string> replacements;
     stringstream ss;
 
-    unsigned apdPlots[] = {kOccupancy, kShape, kAmplitude};
+    unsigned apdPlots[] = {kShape, kAmplitude};
     for(unsigned iS(0); iS < sizeof(apdPlots) / sizeof(unsigned); ++iS){
       unsigned plot(apdPlots[iS]);
       MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
@@ -57,7 +58,7 @@ namespace ecaldqm {
         multi->use(gainItr->second);
 
         ss.str("");
-        ss << gainItr->first;
+        ss << std::setfill('0') << std::setw(2) << gainItr->first;
         replacements["gain"] = ss.str();
 
         multi->formPath(replacements);
@@ -73,7 +74,7 @@ namespace ecaldqm {
         multi->use(gainItr->second);
 
         ss.str("");
-        ss << gainItr->first;
+        ss << std::setfill('0') << std::setw(2) << gainItr->first;
         replacements["pngain"] = ss.str();
 
         multi->formPath(replacements);
@@ -124,6 +125,8 @@ namespace ecaldqm {
     for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       DetId id(digiItr->id());
 
+      MEs_[kOccupancy]->fill(id);
+
       int iDCC(dccId(id) - 1);
 
       if(!enable_[iDCC]) continue;
@@ -133,11 +136,8 @@ namespace ecaldqm {
 
       if(iME != gainToME_[gain_[iDCC]]){
         iME = gainToME_[gain_[iDCC]];
-        static_cast<MESetMulti*>(MEs_[kOccupancy])->use(iME);
         static_cast<MESetMulti*>(MEs_[kShape])->use(iME);
       }
-
-      MEs_[kOccupancy]->fill(id);
 
       for(int iSample(0); iSample < 10; iSample++)
 	MEs_[kShape]->fill(id, iSample + 0.5, float(dataFrame.sample(iSample).adc()));

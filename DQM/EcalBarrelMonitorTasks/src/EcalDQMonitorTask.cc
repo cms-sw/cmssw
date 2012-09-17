@@ -36,7 +36,9 @@ EcalDQMonitorTask::EcalDQMonitorTask(const edm::ParameterSet &_ps) :
   enabled_(),
   taskTimes_(),
   evaluateTime_(_ps.getUntrackedParameter<bool>("evaluateTime", false)),
-  allowMissingCollections_(_ps.getUntrackedParameter<bool>("allowMissingCollections", false))
+  allowMissingCollections_(_ps.getUntrackedParameter<bool>("allowMissingCollections", false)),
+  lastResetTime_(0),
+  resetInterval_(0.)
 {
   using namespace std;
 
@@ -85,6 +87,8 @@ EcalDQMonitorTask::EcalDQMonitorTask(const edm::ParameterSet &_ps) :
       cout << collectionName[schedule_[iCol].second] << endl;
     cout << endl;
   }
+
+  if(online_) resetInterval_ = _ps.getUntrackedParameter<double>("resetInterval");
 }
 
 EcalDQMonitorTask::~EcalDQMonitorTask()
@@ -129,6 +133,8 @@ EcalDQMonitorTask::beginRun(const edm::Run &_run, const edm::EventSetup &_es)
 
   processedEvents_ = 0;
   taskTimes_.clear();
+
+  if(online_) lastResetTime_ = time(0);
 }
 
 void
@@ -138,6 +144,7 @@ EcalDQMonitorTask::endRun(const edm::Run &_run, const edm::EventSetup &_es)
 
   for(vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
     DQWorkerTask* task(static_cast<DQWorkerTask*>(*wItr));
+    if(online_) task->recoverStats();
     if(task->runsOn(kRun)) task->endRun(_run, _es);
   }
 
@@ -174,6 +181,14 @@ EcalDQMonitorTask::endLuminosityBlock(const edm::LuminosityBlock &_lumi, const e
     DQWorkerTask* task(static_cast<DQWorkerTask*>(*wItr));
     if(task->isInitialized() && task->runsOn(kLumiSection)) task->endLuminosityBlock(_lumi, _es);
   }
+
+  if(online_ && (time(0) - lastResetTime_) / 3600. > resetInterval_){
+    for(std::vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
+      DQWorkerTask* task(static_cast<DQWorkerTask*>(*wItr));
+      task->softReset();
+    }
+    lastResetTime_ = time(0);
+  }
 }
 
 void
@@ -185,6 +200,9 @@ EcalDQMonitorTask::analyze(const edm::Event &_evt, const edm::EventSetup &_es)
   DQWorker::iEvt = _evt.id().event();
   DQWorker::now = time(0);
   processedEvents_++;
+
+  if(verbosity_ > 2)
+    std::cout << "Run " << DQWorker::iRun << " Lumisection " << DQWorker::iLumi << " Event " << DQWorker::iEvt << ": processed " << processedEvents_ << std::endl;
 
   if(schedule_.size() == 0) return;
 
@@ -214,6 +232,7 @@ EcalDQMonitorTask::analyze(const edm::Event &_evt, const edm::EventSetup &_es)
 	task->bookMEs();
       }
 
+
       task->beginEvent(_evt, _es);
       atLeastOne = true;
     }
@@ -225,6 +244,7 @@ EcalDQMonitorTask::analyze(const edm::Event &_evt, const edm::EventSetup &_es)
 
   // run on collections
   for(unsigned iSch(0); iSch < schedule_.size(); iSch++){
+
     Processor processor(schedule_[iSch].first);
     (this->*processor)(_evt, schedule_[iSch].second);
   }
@@ -234,5 +254,4 @@ EcalDQMonitorTask::analyze(const edm::Event &_evt, const edm::EventSetup &_es)
     task = static_cast<DQWorkerTask*>(*wItr);
     if(enabled_[task]) task->endEvent(_evt, _es);
   }
-
 }

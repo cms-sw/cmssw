@@ -1,21 +1,18 @@
 #include "DQM/EcalCommon/interface/MESet.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
+#include "DQM/EcalCommon/interface/MESetUtils.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "TString.h"
-#include "TPRegexp.h"
 
 namespace ecaldqm
 {
   BinService const* MESet::binService_(0);
   DQMStore* MESet::dqmStore_(0);
 
-  MESet::MESet(std::string const& _fullPath, BinService::ObjectType _otype, BinService::BinningType _btype, MonitorElement::Kind _kind) :
+  MESet::MESet(std::string const& _path, BinService::ObjectType _otype, BinService::BinningType _btype, MonitorElement::Kind _kind) :
     mes_(0),
-    dir_(_fullPath.substr(0, _fullPath.find_last_of('/'))),
-    name_(_fullPath.substr(_fullPath.find_last_of('/') + 1)),
+    path_(_path),
     otype_(_otype),
     btype_(_btype),
     kind_(_kind),
@@ -33,9 +30,9 @@ namespace ecaldqm
 	throw cms::Exception("Service") << "DQMStore not found" << std::endl;
     }
 
-    if(dir_.find("/") == std::string::npos ||
-       (otype_ != BinService::kChannel && btype_ != BinService::kReport && name_.size() == 0))
-      throw_(_fullPath + " cannot be used for ME path name");
+    if(path_.size() == 0 || path_.find("/") == std::string::npos ||
+       (otype_ != BinService::kChannel && path_.find("/") == path_.size() - 1))
+      throw_(_path + " cannot be used for ME path name");
 
     switch(kind_){
     case MonitorElement::DQM_KIND_REAL:
@@ -51,8 +48,7 @@ namespace ecaldqm
 
   MESet::MESet(MESet const& _orig) :
     mes_(_orig.mes_),
-    dir_(_orig.dir_),
-    name_(_orig.name_),
+    path_(_orig.path_),
     otype_(_orig.otype_),
     btype_(_orig.btype_),
     kind_(_orig.kind_),
@@ -68,8 +64,7 @@ namespace ecaldqm
   MESet::operator=(MESet const& _rhs)
   {
     mes_ = _rhs.mes_;
-    dir_ = _rhs.dir_;
-    name_ = _rhs.name_;
+    path_ = _rhs.path_;
     otype_ = _rhs.otype_;
     btype_ = _rhs.btype_;
     kind_ = _rhs.kind_;
@@ -165,26 +160,11 @@ namespace ecaldqm
     }
   }
 
+
   void
   MESet::formPath(std::map<std::string, std::string> const& _replacements) const
   {
-    TString dir(dir_);
-    TString name(name_);
-
-    for(std::map<std::string, std::string>::const_iterator repItr(_replacements.begin()); repItr != _replacements.end(); ++repItr){
-
-      TString pattern("\\%\\(");
-      pattern += repItr->first;
-      pattern += "\\)s";
-
-      TPRegexp re(pattern);
-
-      re.Substitute(dir, repItr->second, "g");
-      re.Substitute(name, repItr->second, "g");
-    }
-
-    dir_ = dir.Data();
-    name_ = name.Data();
+    ecaldqm::formPath(path_, _replacements);
   }
 
   void
@@ -194,6 +174,24 @@ namespace ecaldqm
 
     for(unsigned iME(0); iME < mes_.size(); ++iME)
       if(mes_[iME]) mes_[iME]->setLumiFlag();
+  }
+
+  void
+  MESet::softReset()
+  {
+    if(!active_) return;
+
+    for(unsigned iME(0); iME < mes_.size(); ++iME)
+      dqmStore_->softReset(mes_[iME]);
+  }
+
+  void
+  MESet::recoverStats()
+  {
+    if(!active_) return;
+
+    for(unsigned iME(0); iME < mes_.size(); ++iME)
+      dqmStore_->disableSoftReset(mes_[iME]);
   }
 
   /*static*/
@@ -286,7 +284,7 @@ namespace ecaldqm
     MonitorElement const* me(meSet_->getME(iME));
 
     if(!me)
-      throw cms::Exception("InvalidOperation") << "ME " << iME << " does not exist for MESet " << meSet_->getName();
+      throw cms::Exception("InvalidOperation") << "ME " << iME << " does not exist for MESet " << meSet_->getPath();
 
     if(iBin == 1 && (kind == MonitorElement::DQM_KIND_TH2F || kind == MonitorElement::DQM_KIND_TPROFILE2D))
       iBin = me->getNbinsX() + 3;
@@ -303,7 +301,7 @@ namespace ecaldqm
       throw cms::Exception("IncompatibleAssignment")
         << "Iterator of otype " << _rhs.meSet_->getObjType() << " and btype " << _rhs.meSet_->getBinType()
         << " to otype " << meSet_->getObjType() << " and btype " << meSet_->getBinType()
-        << " (" << _rhs.meSet_->getName() << " to " << meSet_->getName() << ")";
+        << " (" << _rhs.meSet_->getPath() << " to " << meSet_->getPath() << ")";
 
     iME = _rhs.iME;
     iBin = _rhs.iBin;

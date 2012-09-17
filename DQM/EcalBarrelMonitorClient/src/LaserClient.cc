@@ -65,7 +65,7 @@ namespace ecaldqm {
 
     map<string, string> replacements;
 
-    unsigned wlPlots[] = {kQuality, kAmplitudeMean, kAmplitudeRMS, kTimingMean, kTimingRMS, kQualitySummary, kPNQualitySummary};
+    unsigned wlPlots[] = {kQuality, kAmplitudeMean, kAmplitudeRMS, kTimingMean, kTimingRMSMap, kTimingRMS, kQualitySummary, kPNQualitySummary};
     for(unsigned iS(0); iS < sizeof(wlPlots) / sizeof(unsigned); ++iS){
       unsigned plot(wlPlots[iS]);
       MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
@@ -106,6 +106,8 @@ namespace ecaldqm {
       static_cast<MESetMulti*>(MEs_[kQualitySummary])->use(iME);
       static_cast<MESetMulti*>(MEs_[kPNQualitySummary])->use(iME);
 
+      MEs_[kAmplitudeRMS]->resetAll(-1.);
+      MEs_[kTimingRMSMap]->resetAll(-1.);
       MEs_[kQuality]->resetAll(-1.);
       MEs_[kQualitySummary]->resetAll(-1.);
       MEs_[kPNQualitySummary]->resetAll(-1.);
@@ -130,6 +132,7 @@ namespace ecaldqm {
       static_cast<MESetMulti*>(MEs_[kAmplitudeMean])->use(wlItr->second);
       static_cast<MESetMulti*>(MEs_[kAmplitudeRMS])->use(wlItr->second);
       static_cast<MESetMulti*>(MEs_[kTimingMean])->use(wlItr->second);
+      static_cast<MESetMulti*>(MEs_[kTimingRMSMap])->use(wlItr->second);
       static_cast<MESetMulti*>(MEs_[kTimingRMS])->use(wlItr->second);
       static_cast<MESetMulti*>(MEs_[kPNQualitySummary])->use(wlItr->second);
 
@@ -140,6 +143,7 @@ namespace ecaldqm {
       MEs_[kAmplitudeMean]->reset();
       MEs_[kAmplitudeRMS]->reset();
       MEs_[kTimingMean]->reset();
+      MEs_[kTimingRMSMap]->reset();
       MEs_[kTimingRMS]->reset();
 
       MESet::iterator qEnd(MEs_[kQuality]->end());
@@ -165,7 +169,7 @@ namespace ecaldqm {
         float aRms(aItr->getBinError() * sqrt(aEntries));
 
         MEs_[kAmplitudeMean]->fill(id, aMean);
-        MEs_[kAmplitudeRMS]->fill(id, aRms);
+        MEs_[kAmplitudeRMS]->setBinContent(id, aRms);
 
         tItr = qItr;
 
@@ -178,6 +182,7 @@ namespace ecaldqm {
 
         MEs_[kTimingMean]->fill(id, tMean);
         MEs_[kTimingRMS]->fill(id, tRms);
+        MEs_[kTimingRMSMap]->setBinContent(id, tRms);
 
         float intensity(aMean / expectedAmplitude_[wlItr->second]);
         if(isForward(id)) intensity /= forwardFactor_;
@@ -232,6 +237,7 @@ namespace ecaldqm {
     _nameToIndex["AmplitudeRMS"] = kAmplitudeRMS;
     _nameToIndex["TimingMean"] = kTimingMean;
     _nameToIndex["TimingRMS"] = kTimingRMS;
+    _nameToIndex["TimingRMSMap"] = kTimingRMSMap;
     _nameToIndex["QualitySummary"] = kQualitySummary;
     _nameToIndex["PNQualitySummary"] = kPNQualitySummary;
 

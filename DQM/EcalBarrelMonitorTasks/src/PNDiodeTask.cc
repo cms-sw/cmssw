@@ -80,6 +80,7 @@ namespace ecaldqm {
       if(!enable_[dccId(id) - 1]) continue;
 
       MEs_[kOccupancy]->fill(id);
+      MEs_[kOccupancySummary]->fill(id);
 
       float mean(0.);
       bool gainSwitch(false);
@@ -109,6 +110,7 @@ namespace ecaldqm {
     _nameToIndex["MEMTowerId"] = kMEMTowerId;
     _nameToIndex["Pedestal"] = kPedestal;
     _nameToIndex["Occupancy"] = kOccupancy;
+    _nameToIndex["OccupancySummary"] = kOccupancySummary;
   }
 
   DEFINE_ECALDQM_WORKER(PNDiodeTask);

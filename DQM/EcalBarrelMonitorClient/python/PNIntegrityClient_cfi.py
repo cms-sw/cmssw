@@ -3,7 +3,7 @@ from DQM.EcalBarrelMonitorTasks.PNDiodeTask_cfi import ecalPnDiodeTask
 ecalPnIntegrityClient = dict(
     errFractionThreshold = 0.01,
     MEs = dict(
-        QualitySummary = dict(path = "Summary/PNIntegrityClient data integrity quality", otype = 'MEM', btype = 'Crystal', kind = 'TH2F')
+        QualitySummary = dict(path = "%(subdet)s/%(prefix)sSummaryClient/%(prefix)sIT PN integrity quality summary", otype = 'MEM2P', btype = 'Crystal', kind = 'TH2F')
     ),
     sources = dict(
         Occupancy = ecalPnDiodeTask['MEs']['Occupancy'],

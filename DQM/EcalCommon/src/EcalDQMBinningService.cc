@@ -354,6 +354,18 @@ EcalDQMBinningService::findPlot(ObjectType _otype, const DetId &_id) const
     else if(_id.subdetId() == EcalTriggerTower && !isEndcapTTId(_id)) return 1;
     else return 0;
 
+  case kEE2P:
+    if(zside(_id) > 0) return 1;
+    else return 0;
+
+  case kMEM2P:
+    if(_id.subdetId() == EcalLaserPnDiode){
+      unsigned iDCC(dccId(_id) - 1);
+      if(iDCC >= kEBmLow && iDCC <= kEBpHigh) return 1;
+      else return 0;
+    }
+    else return -1;
+
   default:
     return findPlot(_otype, dccId(_id));
   }
@@ -421,6 +433,26 @@ EcalDQMBinningService::findPlot(ObjectType _otype, unsigned _dcctccid, BinningTy
       else return 2;
     }
 
+  case kEE2P:
+    if(_btype == kDCC){
+      if(iSM >= kEEpLow) return 1;
+      else return 0;
+    }
+    else{
+      if(iSM >= kEEpTCCLow) return 1;
+      else return 0;
+    }
+
+  case kMEM2P:
+    if(_btype == kDCC){
+      if(iSM <= kEEmHigh || iSM >= kEEpLow) return 0;
+      else return 1;
+    }
+    else if(_btype == kTCC) return -1;
+    else{
+      if(iSM == kEB) return 1;
+      else return 0;
+    }
   default:
     return -1;
   }
@@ -732,6 +764,8 @@ EcalDQMBinningService::getObjectType(std::string const& _otypeName) const
   else if(_otypeName == "EEMEM") return kEEMEM;
   else if(_otypeName == "Ecal2P") return kEcal2P;
   else if(_otypeName == "Ecal3P") return kEcal3P;
+  else if(_otypeName == "EE2P") return kEE2P;
+  else if(_otypeName == "MEM2P") return kMEM2P;
   else if(_otypeName == "Channel") return kChannel;
   else if(_otypeName == "None") return nObjType;
 

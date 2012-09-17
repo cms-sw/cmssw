@@ -1,5 +1,7 @@
 #include "DQM/EcalCommon/interface/MESetDet2D.h"
 
+#include <limits>
+
 namespace ecaldqm
 {
 
@@ -28,6 +30,52 @@ namespace ecaldqm
   MESetDet2D::clone() const
   {
     return new MESetDet2D(*this);
+  }
+
+  void
+  MESetDet2D::book()
+  {
+    MESetEcal::book();
+
+    if(btype_ == BinService::kCrystal){
+      for(unsigned iME(0); iME < mes_.size(); iME++){
+        MonitorElement* me(mes_[iME]);
+
+        BinService::ObjectType actualObject(binService_->getObject(otype_, iME));
+        if(actualObject == BinService::kMEM){
+          for(int iBin(1); iBin <= me->getNbinsX(); ++iBin)
+            me->setBinLabel(iBin, binService_->channelName(memDCCId(iBin - 1)));
+        }
+        if(actualObject == BinService::kEBMEM){
+          for(int iBin(1); iBin <= me->getNbinsX(); ++iBin)
+            me->setBinLabel(iBin, binService_->channelName(memDCCId(iBin - 5)));
+        }
+        if(actualObject == BinService::kEEMEM){
+          for(int iBin(1); iBin <= me->getNbinsX() / 2; ++iBin){
+            me->setBinLabel(iBin, binService_->channelName(memDCCId(iBin - 1)));
+            me->setBinLabel(iBin + me->getNbinsX() / 2, binService_->channelName(memDCCId(iBin + 39)));
+          }
+        }
+      }
+    }
+    else if(btype_ == BinService::kDCC){
+      for(unsigned iME(0); iME < mes_.size(); iME++){
+        MonitorElement* me(mes_[iME]);
+
+        BinService::ObjectType actualObject(binService_->getObject(otype_, iME));
+        if(actualObject == BinService::kEcal){
+          me->setBinLabel(1, "EE", 2);
+          me->setBinLabel(6, "EE", 2);
+          me->setBinLabel(3, "EB", 2);
+          me->setBinLabel(5, "EB", 2);
+        }
+      }
+    }
+
+    // To avoid the ambiguity between "content == 0 because the mean is 0" and "content == 0 because the entry is 0"
+    // RenderPlugin must be configured accordingly
+    if(kind_ == MonitorElement::DQM_KIND_TPROFILE2D)
+      resetAll(std::numeric_limits<double>::max(), 0., -1.);
   }
 
   void

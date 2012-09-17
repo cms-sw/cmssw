@@ -10,6 +10,8 @@ namespace ecaldqm {
     SummaryClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~SummaryClient() {}
 
+    void bookMEs();
+
     void beginRun(const edm::Run &, const edm::EventSetup &);
 
     void producePlots();
@@ -19,6 +21,7 @@ namespace ecaldqm {
       kReportSummaryMap,
       kReportSummaryContents,
       kReportSummary,
+      kNBadFEDs,
       nMESets
     };
 

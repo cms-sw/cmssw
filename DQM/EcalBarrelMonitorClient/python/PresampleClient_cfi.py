@@ -8,14 +8,13 @@ ecalPresampleClient = dict(
     toleranceRMS = 3.,
     toleranceRMSFwd = 6.,
     MEs = dict(
-        Quality = dict(path = "Presample/Quality/PresampleClient presample quality", otype = 'SM', btype = 'Crystal', kind = 'TH2F'),
-        Mean = dict(path = "Presample/Mean/PresampleClient mean", otype = 'SM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 120, 'low': 170., 'high': 230.}),
-        MeanDCC = dict(path = "Presample/Mean/PresampleClient DCC mean", otype = 'Ecal2P', btype = 'DCC', kind = 'TProfile', yaxis = {'nbins': 120, 'low': 170., 'high': 230.}),
-        RMS = dict(path = "Presample/RMS/PresampleClient rms", otype = 'SM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 0., 'high': 10.}),
-        RMSMap = dict(path = "Presample/RMSMap/PresampleClient rms", otype = 'Ecal2P', btype = 'Crystal', kind = 'TH2F'),
-        QualitySummary = dict(path = "Summary/PresampleClient presample quality", otype = 'Ecal2P', btype = 'Crystal', kind = 'TH2F'),
-        TrendMean = dict(path = 'Trend/PresampleClient presample mean max - min', otype = 'Ecal2P', btype = 'Trend', kind = 'TProfile'),
-        TrendRMS = dict(path = 'Trend/PresampleClient presample rms max', otype = 'Ecal2P', btype = 'Trend', kind = 'TProfile')
+        Quality = dict(path = "%(subdet)s/%(prefix)sPedestalOnlineClient/%(prefix)sPOT pedestal quality G12 %(sm)s", otype = 'SM', btype = 'Crystal', kind = 'TH2F'),
+        Mean = dict(path = "%(subdet)s/%(prefix)sPedestalOnlineClient/%(prefix)sPOT pedestal mean G12 %(sm)s", otype = 'SM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 120, 'low': 170., 'high': 230.}),
+        RMS = dict(path = "%(subdet)s/%(prefix)sPedestalOnlineClient/%(prefix)sPOT pedestal rms G12 %(sm)s", otype = 'SM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 0., 'high': 10.}),
+        RMSMap = dict(path = "%(subdet)s/%(prefix)sSummaryClient/%(prefix)sPOT%(suffix)s pedestal G12 RMS map", otype = 'Ecal3P', btype = 'Crystal', kind = 'TH2F'),
+        QualitySummary = dict(path = "%(subdet)s/%(prefix)sSummaryClient/%(prefix)sPOT%(suffix)s pedestal quality summary G12", otype = 'Ecal3P', btype = 'Crystal', kind = 'TH2F'),
+        TrendMean = dict(path = 'Ecal/Trends/PresampleClient %(prefix)s pedestal mean max - min', otype = 'Ecal2P', btype = 'Trend', kind = 'TProfile'),
+        TrendRMS = dict(path = 'Ecal/Trends/PresampleClient %(prefix)s pedestal rms max', otype = 'Ecal2P', btype = 'Trend', kind = 'TProfile')
     ),
     sources = dict(
         Pedestal = ecalPresampleTask['MEs']['Pedestal']

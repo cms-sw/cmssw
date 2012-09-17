@@ -14,9 +14,10 @@ ecalCalibrationSummaryClient = dict(
     testPulseMGPAGainsPN = [16],
 #    pedestalMGPAGains = [1, 6, 12],
 #    pedestalMGPAGainsPN = [1, 16],
+    activeSources = ["Laser", "Led", "TestPulse"],
     MEs = dict(
-        QualitySummary = dict(path = 'Summary/CalibSummaryClient global quality', otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TH2F'),
-        PNQualitySummary = dict(path = 'Summary/CalibSummaryClient PN global quality', otype = 'MEM', btype = 'Crystal', kind = 'TH2F')
+        QualitySummary = dict(path = '%(subdet)s/%(prefix)sSummaryClient/%(prefix)s global calibration quality%(suffix)s', otype = 'Ecal3P', btype = 'SuperCrystal', kind = 'TH2F'),
+        PNQualitySummary = dict(path = '%(subdet)s/%(prefix)sSummaryClient/%(prefix)s PN global quality', otype = 'MEM2P', btype = 'Crystal', kind = 'TH2F')
     ),
     sources = dict(
         PNIntegrity = ecalPnIntegrityClient['MEs']['QualitySummary'],

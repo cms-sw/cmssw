@@ -33,6 +33,74 @@ namespace ecaldqm
   }
 
   void
+  MESetDet1D::book()
+  {
+    MESetEcal::book();
+
+    if(btype_ == BinService::kDCC){
+      for(unsigned iME(0); iME < mes_.size(); iME++){
+        MonitorElement* me(mes_[iME]);
+
+        BinService::ObjectType actualObject(binService_->getObject(otype_, iME));
+        if(actualObject == BinService::kEB){
+          for(int iBin(1); iBin <= me->getNbinsX(); iBin++)
+            me->setBinLabel(iBin, binService_->channelName(iBin + kEBmLow));
+        }
+        else if(actualObject == BinService::kEE){
+          for(int iBin(1); iBin <= me->getNbinsX() / 2; iBin++){
+            me->setBinLabel(iBin, binService_->channelName(iBin));
+            me->setBinLabel(iBin + me->getNbinsX() / 2, binService_->channelName(iBin + 45));
+          }
+        }
+        else if(actualObject == BinService::kEEm){
+          for(int iBin(1); iBin <= me->getNbinsX(); iBin++)
+            me->setBinLabel(iBin, binService_->channelName(iBin));
+        }
+        else if(actualObject == BinService::kEEp){
+          for(int iBin(1); iBin <= me->getNbinsX(); iBin++)
+            me->setBinLabel(iBin, binService_->channelName(iBin + 45));
+        }
+      }
+    }
+    else if(btype_ == BinService::kTriggerTower){
+      for(unsigned iME(0); iME < mes_.size(); iME++){
+        MonitorElement* me(mes_[iME]);
+
+        BinService::ObjectType actualObject(binService_->getObject(otype_, iME));
+        unsigned dccid(0);
+        if(actualObject == BinService::kSM && (iME <= kEEmHigh || iME >= kEEpLow)) dccid = iME + 1;
+        else if(actualObject == BinService::kEESM) dccid = iME <= kEEmHigh ? iME + 1 : iME + 37;
+
+        if(dccid > 0){
+          std::stringstream ss;
+          std::pair<unsigned, unsigned> inner(innerTCCs(iME + 1));
+          std::pair<unsigned, unsigned> outer(outerTCCs(iME + 1));
+          ss << "TCC" << inner.first << " TT1";
+          me->setBinLabel(1, ss.str());
+          ss.str("");
+          ss << "TCC" << inner.second << " TT1";
+          me->setBinLabel(25, ss.str());
+          ss.str("");
+          ss << "TCC" << outer.first << " TT1";
+          me->setBinLabel(49, ss.str());
+          ss.str("");
+          ss << "TCC" << outer.second << " TT1";
+          me->setBinLabel(65, ss.str());
+          int offset(0);
+          for(int iBin(4); iBin <= 80; iBin += 4){
+            if(iBin == 28) offset = 24;
+            else if(iBin == 52) offset = 48;
+            else if(iBin == 68) offset = 64;
+            ss.str("");
+            ss << iBin - offset;
+            me->setBinLabel(iBin, ss.str());
+          }
+        }
+      }
+    }
+  }
+
+  void
   MESetDet1D::fill(DetId const& _id, double _wy/* = 1.*/, double _w/* = 1.*/, double)
   {
     if(!active_) return;

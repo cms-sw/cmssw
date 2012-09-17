@@ -11,6 +11,7 @@
 namespace ecaldqm{
 
   std::map<std::string, std::map<std::string, unsigned> > DQWorker::meOrderingMaps;
+  bool DQWorker::online(false);
   time_t DQWorker::now(0);
   edm::RunNumber_t DQWorker::iRun(0);
   edm::LuminosityBlockNumber_t DQWorker::iLumi(0);
@@ -20,7 +21,6 @@ namespace ecaldqm{
     name_(_name),
     MEs_(0),
     initialized_(false),
-    online_(_commonParams.getUntrackedParameter<bool>("online")),
     verbosity_(0)
   {
     using namespace std;
@@ -28,12 +28,6 @@ namespace ecaldqm{
     map<string, map<string, unsigned> >::const_iterator mItr(meOrderingMaps.find(name_));
     if(mItr == meOrderingMaps.end())
       throw cms::Exception("InvalidConfiguration") << "Cannot find ME ordering for " << name_;
-
-    string topDir;
-    if(_workerParams.existsAs<string>("topDirectory", false))
-      topDir = _workerParams.getUntrackedParameter<string>("topDirectory");
-    else
-      topDir = _commonParams.getUntrackedParameter<string>("topDirectory");
 
     BinService const* binService(&(*(edm::Service<EcalDQMBinningService>())));
     if(!binService)
@@ -53,7 +47,7 @@ namespace ecaldqm{
       if(nItr == nameToIndex.end())
         throw cms::Exception("InvalidConfiguration") << "Cannot find ME index for " << MEName;
 
-      MESet* meSet(createMESet(MEParams.getUntrackedParameterSet(MEName), binService, topDir));
+      MESet* meSet(createMESet(MEParams.getUntrackedParameterSet(MEName), binService));
       if(meSet) MEs_[nItr->second] = meSet;
     }
   }
@@ -69,7 +63,7 @@ namespace ecaldqm{
   {
     for(unsigned iME(0); iME < MEs_.size(); iME++){
       if(MEs_[iME]){
-        if(MEs_[iME]->getBinType() == BinService::kTrend && !online_) continue;
+        if(MEs_[iME]->getBinType() == BinService::kTrend && !online) continue;
         MEs_[iME]->book();
       }
     }

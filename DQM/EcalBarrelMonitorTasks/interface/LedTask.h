@@ -30,8 +30,8 @@ namespace ecaldqm {
     void runOnUncalibRecHits(const EcalUncalibratedRecHitCollection&);
 
     enum MESets {
-      kAmplitudeSummary,
       kAmplitude,
+      kAmplitudeSummary,
       kOccupancy,
       kShape,
       kTiming,

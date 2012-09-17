@@ -10,6 +10,8 @@ namespace ecaldqm {
     SelectiveReadoutClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~SelectiveReadoutClient() {}
 
+    void beginRun(edm::Run const&, edm::EventSetup const&);
+
     void producePlots();
 
     enum MESets {
@@ -18,6 +20,9 @@ namespace ecaldqm {
       kFR,
       kRUForced,
       kZS1,
+      kHighInterest,
+      kMedInterest,
+      kLowInterest,
       nMESets
     };
 
@@ -29,6 +34,9 @@ namespace ecaldqm {
       kZSMap,
       kZSFullReadoutMap,
       kFRDroppedMap,
+      kHighIntMap,
+      kMedIntMap,
+      kLowIntMap,
       nSources
     };
 

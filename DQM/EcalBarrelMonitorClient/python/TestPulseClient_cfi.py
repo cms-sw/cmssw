@@ -12,11 +12,10 @@ ecalTestPulseClient = dict(
     tolerancePNRMSG1 = 20.,
     tolerancePNRMSG16 = 20.,
     MEs = dict(
-        Quality = dict(path = 'TestPulse/Gain%(gain)s/Quality/TestPulseClient testpulse quality G%(gain)s', otype = 'SM', btype = 'Crystal', kind = 'TH2F', multi = 3),
-        AmplitudeRMS = dict(path = "TestPulse/Gain%(gain)s/RMS/TestPulseClient rms G%(gain)s", otype = 'SM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 0., 'high': 10.}, multi = 3),
-        PNAmplitudeRMS = dict(path = 'PN/TestPulse/Gain%(pngain)s/RMS/TestPulseClient PN rms G%(pngain)s', otype = 'SMMEM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 0., 'high': 50.}, multi = 2),
-        QualitySummary = dict(path = 'Summary/TestPulseClient testpulse quality G%(gain)s', otype = 'Ecal2P', btype = 'SuperCrystal', kind = 'TH2F', multi = 3),
-        PNQualitySummary = dict(path = 'Summary/TestPulseClient PN quality G%(pngain)s', otype = 'MEM', btype = 'Crystal', kind = 'TH2F', multi = 2)
+        Quality = dict(path = '%(subdet)s/%(prefix)sTestPulseClient/%(prefix)sTPT test pulse quality G%(gain)s %(sm)s', otype = 'SM', btype = 'Crystal', kind = 'TH2F', multi = 3),
+        AmplitudeRMS = dict(path = "%(subdet)s/%(prefix)sTestPulseClient/%(prefix)sTPT test pulse rms G%(gain)s", otype = 'Ecal2P', btype = 'Crystal', kind = 'TH2F', zaxis = {'title': 'rms (ADC counts)'}, multi = 3),
+        QualitySummary = dict(path = '%(subdet)s/%(prefix)sSummaryClient/%(prefix)sTPT%(suffix)s test pulse quality G%(gain)s summary', otype = 'Ecal3P', btype = 'SuperCrystal', kind = 'TH2F', multi = 3),
+        PNQualitySummary = dict(path = '%(subdet)s/%(prefix)sSummaryClient/%(prefix)sTPT PN test pulse quality G%(pngain)s summary', otype = 'MEM2P', btype = 'Crystal', kind = 'TH2F', multi = 2)
     ),
     sources = dict(
         Amplitude = ecalTestPulseTask['MEs']['Amplitude'],

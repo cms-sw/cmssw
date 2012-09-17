@@ -20,6 +20,7 @@ ecalMonitorClient = cms.EDAnalyzer("EcalDQMonitorClient",
         "IntegrityClient",
         "OccupancyClient",
         "PresampleClient",
+        "TrigPrimClient",
         "RawDataClient",
         "TimingClient",
         "SummaryClient"
@@ -30,11 +31,14 @@ ecalMonitorClient = cms.EDAnalyzer("EcalDQMonitorClient",
             IntegrityClient = ecalIntegrityClient,
             OccupancyClient = ecalOccupancyClient,
             PresampleClient = ecalPresampleClient,
+            TrigPrimClient = ecalTrigPrimClient,
             RawDataClient = ecalRawDataClient,
             TimingClient = ecalTimingClient,
+            SelectiveReadoutClient = ecalSelectiveReadoutClient,
             SummaryClient = ecalSummaryClient,
             common = ecalCommonParams
         )
     ),
-    verbosity = cms.untracked.int32(0)
+    verbosity = cms.untracked.int32(0),
+    online = cms.untracked.bool(False)
 )

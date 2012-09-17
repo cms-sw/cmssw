@@ -241,7 +241,7 @@ EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
       for(unsigned iP(0); iP < meNames.size(); ++iP){
         std::string& meName(meNames[iP]);
         edm::ParameterSet const& meSetParam(meSetParams.getUntrackedParameterSet(meName));
-        ecaldqm::MESet const* meSet(ecaldqm::createMESet(meSetParam, binService, "", dqmStore));
+        ecaldqm::MESet const* meSet(ecaldqm::createMESet(meSetParam, binService));
         if(!meSet)
           throw cms::Exception("IOError") << "MonitorElement " << meName << " not found";
         meSets[iC][meName] = meSet;

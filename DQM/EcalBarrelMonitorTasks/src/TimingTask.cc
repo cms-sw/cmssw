@@ -54,6 +54,7 @@ namespace ecaldqm {
       if(energy > threshold){
 	MEs_[kTimeAll]->fill(id, time);
 	MEs_[kTimeMap]->fill(id, time);
+        MEs_[kTime1D]->fill(id, time);
 	MEs_[kTimeAllMap]->fill(id, time);
       }
     }
@@ -64,6 +65,7 @@ namespace ecaldqm {
   TimingTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
   {
     _nameToIndex["TimeMap"] = kTimeMap;
+    _nameToIndex["Time1D"] = kTime1D;
     _nameToIndex["TimeAmp"] = kTimeAmp;
     _nameToIndex["TimeAll"] = kTimeAll;
     _nameToIndex["TimeAllMap"] = kTimeAllMap;
