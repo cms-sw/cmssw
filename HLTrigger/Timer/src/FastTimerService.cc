@@ -45,28 +45,30 @@ typedef int clockid_t;
 
 FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::ActivityRegistry & registry) :
   // configuration
-  m_timer_id(                   config.getUntrackedParameter<bool>(       "useRealTimeClock",          true ) ? CLOCK_REALTIME : CLOCK_THREAD_CPUTIME_ID),
+  m_timer_id(                   config.getUntrackedParameter<bool>(        "useRealTimeClock",          true ) ? CLOCK_REALTIME : CLOCK_THREAD_CPUTIME_ID),
   m_is_cpu_bound(               false ),
-  m_enable_timing_paths(        config.getUntrackedParameter<bool>(       "enableTimingPaths",         true ) ),
-  m_enable_timing_modules(      config.getUntrackedParameter<bool>(       "enableTimingModules",       true ) ),
-  m_enable_timing_summary(      config.getUntrackedParameter<bool>(       "enableTimingSummary",       false) ),
-  m_skip_first_path(            config.getUntrackedParameter<bool>(       "skipFirstPath",             false) ),
+  m_enable_timing_paths(        config.getUntrackedParameter<bool>(        "enableTimingPaths",         true ) ),
+  m_enable_timing_modules(      config.getUntrackedParameter<bool>(        "enableTimingModules",       true ) ),
+  m_enable_timing_exclusive(    config.getUntrackedParameter<bool>(        "enableTimingExclusive",     false) ),
+  m_enable_timing_summary(      config.getUntrackedParameter<bool>(        "enableTimingSummary",       false) ),
+  m_skip_first_path(            config.getUntrackedParameter<bool>(        "skipFirstPath",             false) ),
   // dqm configuration
-  m_enable_dqm(                 config.getUntrackedParameter<bool>(       "enableDQM",                 true ) ),
-  m_enable_dqm_bypath_active(   config.getUntrackedParameter<bool>(       "enableDQMbyPathActive",     false) ),
-  m_enable_dqm_bypath_total(    config.getUntrackedParameter<bool>(       "enableDQMbyPathTotal",      true ) ),
-  m_enable_dqm_bypath_overhead( config.getUntrackedParameter<bool>(       "enableDQMbyPathOverhead",   false) ),
-  m_enable_dqm_bypath_details(  config.getUntrackedParameter<bool>(       "enableDQMbyPathDetails",    false) ),
-  m_enable_dqm_bypath_counters( config.getUntrackedParameter<bool>(       "enableDQMbyPathCounters",   true ) ),
-  m_enable_dqm_bymodule(        config.getUntrackedParameter<bool>(       "enableDQMbyModule",         false) ),
-  m_enable_dqm_bylumi(          config.getUntrackedParameter<bool>(       "enableDQMbyLumi",           false) ),
-  m_dqm_eventtime_range(        config.getUntrackedParameter<double>(     "dqmTimeRange",              1000.) ),    // ms
-  m_dqm_eventtime_resolution(   config.getUntrackedParameter<double>(     "dqmTimeResolution",            5.) ),    // ms
-  m_dqm_pathtime_range(         config.getUntrackedParameter<double>(     "dqmPathTimeRange",           100.) ),    // ms
-  m_dqm_pathtime_resolution(    config.getUntrackedParameter<double>(     "dqmPathTimeResolution",       0.5) ),    // ms
-  m_dqm_moduletime_range(       config.getUntrackedParameter<double>(     "dqmModuleTimeRange",          40.) ),    // ms
-  m_dqm_moduletime_resolution(  config.getUntrackedParameter<double>(     "dqmModuleTimeResolution",     0.2) ),    // ms
-  m_dqm_path(                   config.getUntrackedParameter<std::string>("dqmPath",      "HLT/TimerService") ),
+  m_enable_dqm(                  config.getUntrackedParameter<bool>(       "enableDQM",                 true ) ),
+  m_enable_dqm_bypath_active(    config.getUntrackedParameter<bool>(       "enableDQMbyPathActive",     false) ),
+  m_enable_dqm_bypath_total(     config.getUntrackedParameter<bool>(       "enableDQMbyPathTotal",      true ) ),
+  m_enable_dqm_bypath_overhead(  config.getUntrackedParameter<bool>(       "enableDQMbyPathOverhead",   false) ),
+  m_enable_dqm_bypath_details(   config.getUntrackedParameter<bool>(       "enableDQMbyPathDetails",    false) ),
+  m_enable_dqm_bypath_counters(  config.getUntrackedParameter<bool>(       "enableDQMbyPathCounters",   true ) ),
+  m_enable_dqm_bypath_exclusive( config.getUntrackedParameter<bool>(       "enableDQMbyPathExclusive",  false) ),
+  m_enable_dqm_bymodule(         config.getUntrackedParameter<bool>(       "enableDQMbyModule",         false) ),
+  m_enable_dqm_bylumi(           config.getUntrackedParameter<bool>(       "enableDQMbyLumi",           false) ),
+  m_dqm_eventtime_range(         config.getUntrackedParameter<double>(     "dqmTimeRange",              1000.) ),    // ms
+  m_dqm_eventtime_resolution(    config.getUntrackedParameter<double>(     "dqmTimeResolution",            5.) ),    // ms
+  m_dqm_pathtime_range(          config.getUntrackedParameter<double>(     "dqmPathTimeRange",           100.) ),    // ms
+  m_dqm_pathtime_resolution(     config.getUntrackedParameter<double>(     "dqmPathTimeResolution",       0.5) ),    // ms
+  m_dqm_moduletime_range(        config.getUntrackedParameter<double>(     "dqmModuleTimeRange",          40.) ),    // ms
+  m_dqm_moduletime_resolution(   config.getUntrackedParameter<double>(     "dqmModuleTimeResolution",     0.2) ),    // ms
+  m_dqm_path(                    config.getUntrackedParameter<std::string>("dqmPath",      "HLT/TimerService") ),
   // caching
   m_first_path(0),          // these are initialized at prePathBeginRun(),
   m_last_path(0),           // to make sure we cache the correct pointers
@@ -98,8 +100,9 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_cache_modules()
 {
   // enable timers if required by DQM plots
-  m_enable_timing_paths   = m_enable_timing_paths   or m_enable_dqm_bypath_active or m_enable_dqm_bypath_total or m_enable_dqm_bypath_overhead or m_enable_dqm_bypath_details or m_enable_dqm_bypath_counters;
-  m_enable_timing_modules = m_enable_timing_modules or m_enable_dqm_bymodule      or m_enable_dqm_bypath_total or m_enable_dqm_bypath_overhead or m_enable_dqm_bypath_details or m_enable_dqm_bypath_counters;
+  m_enable_timing_paths     = m_enable_timing_paths     or m_enable_dqm_bypath_active or m_enable_dqm_bypath_total or m_enable_dqm_bypath_overhead or m_enable_dqm_bypath_details or m_enable_dqm_bypath_counters or m_enable_dqm_bypath_exclusive;
+  m_enable_timing_modules   = m_enable_timing_modules   or m_enable_dqm_bymodule      or m_enable_dqm_bypath_total or m_enable_dqm_bypath_overhead or m_enable_dqm_bypath_details or m_enable_dqm_bypath_counters or m_enable_dqm_bypath_exclusive;
+  m_enable_timing_exclusive = m_enable_timing_exclusive or m_enable_dqm_bypath_exclusive;
 
   registry.watchPreModuleBeginJob( this, & FastTimerService::preModuleBeginJob );
   registry.watchPostBeginJob(      this, & FastTimerService::postBeginJob );
@@ -194,17 +197,34 @@ void FastTimerService::postBeginJob() {
     uint32_t size_p = tns.getTrigPaths().size();
     uint32_t size_e = tns.getEndPaths().size();
     uint32_t size = size_p + size_e;
-    TH1F * path_active_time = m_dqms->book1D("path_active_time", "Additional time spent in each path", size, -0.5, size-0.5)->getTH1F();
-    TH1F * path_total_time  = m_dqms->book1D("path_total_time",  "Total time spent in each path",      size, -0.5, size-0.5)->getTH1F();
+    TH1F * path_active_time     = 0;
+    TH1F * path_total_time      = 0;
+    TH1F * path_exclusive_time  = 0;
+
+    if (m_enable_dqm_bypath_active)
+      path_active_time     = m_dqms->book1D("path_active_time",    "Additional time spent in each path", size, -0.5, size-0.5)->getTH1F();
+    if (m_enable_dqm_bypath_total)
+      path_total_time      = m_dqms->book1D("path_total_time",     "Total time spent in each path",      size, -0.5, size-0.5)->getTH1F();
+    if (m_enable_dqm_bypath_exclusive)
+      path_exclusive_time  = m_dqms->book1D("path_exclusive_time", "Exclusive time spent in each path",  size, -0.5, size-0.5)->getTH1F();
+
     for (uint32_t i = 0; i < size_p; ++i) {
       std::string const & label = tns.getTrigPath(i);
-      path_active_time->GetXaxis()->SetBinLabel(i + 1, label.c_str());
-      path_total_time ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+      if (m_enable_dqm_bypath_active)
+        path_active_time    ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+      if (m_enable_dqm_bypath_total)
+        path_total_time     ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+      if (m_enable_dqm_bypath_exclusive)
+        path_exclusive_time ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
     }
     for (uint32_t i = 0; i < size_e; ++i) {
       std::string const & label = tns.getEndPath(i);
-      path_active_time->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
-      path_total_time ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+      if (m_enable_dqm_bypath_active)
+        path_active_time    ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+      if (m_enable_dqm_bypath_total)
+        path_total_time     ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+      if (m_enable_dqm_bypath_exclusive)
+        path_exclusive_time ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
     }
 
     if (m_enable_timing_paths) {
@@ -268,10 +288,16 @@ void FastTimerService::postBeginJob() {
           }
         }
 
+        // book exclusive path time histograms
+        if (m_enable_dqm_bypath_exclusive) {
+          pathinfo.dqm_exclusive = m_dqms->book1D(pathname + "_exclusive", pathname + " exclusive time", pathbins, 0., m_dqm_pathtime_range)->getTH1F();
+          pathinfo.dqm_exclusive ->StatOverflows(true);
+        }
+
       }
     }
-
-    if (m_enable_timing_modules and m_enable_dqm_bymodule) {
+   
+    if (m_enable_dqm_bymodule) {
       m_dqms->setCurrentFolder((m_dqm_path + "/Modules"));
       for (auto & keyval: m_modules) {
         std::string const & label  = keyval.first->moduleLabel();
@@ -420,18 +446,37 @@ void FastTimerService::preProcessEvent(edm::EventID const & id, edm::Timestamp c
   }
   for (ModuleInfo * module: m_cache_modules) {
     module->time_active     = 0.;
+    module->has_just_run    = false;
+    module->exclusive       = false;
   }
 }
 
 void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetup const & setup) {
   //edm::LogImportant("FastTimerService") << __func__ << "(...)";
 
+  if (m_enable_timing_exclusive) {
+    for (auto & keyval: m_paths) {
+      PathInfo & pathinfo = keyval.second;
+      float exclusive = pathinfo.time_overhead;
+
+      for (uint32_t i = 0; i <= pathinfo.last_run; ++i) {
+        ModuleInfo * module = pathinfo.modules[i];
+        if (module == 0)
+          // this is a module occurring more than once in the same path, skip it after the first occurrence
+          continue;
+        if (module->exclusive)
+          exclusive += module->time_active;
+      }    
+      pathinfo.dqm_exclusive->Fill(exclusive * 1000.);      // convert to ms
+    }
+  }
+
   // stop the per-event timer, and account event time
   stop(m_timer_event);
   m_event = delta(m_timer_event);
   m_summary_event += m_event;
   if (m_dqms)
-    m_dqm_event->Fill(m_event * 1000.);     // convert to ms
+    m_dqm_event->Fill(m_event * 1000.);                     // convert to ms
 }
 
 void FastTimerService::preSource() {
@@ -520,13 +565,16 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
 
   // time each (end)path
   stop(m_timer_path);
+
   double active = delta(m_timer_path);
 
   // if enabled, account each (end)path
   if (m_enable_timing_paths) {
+
     PathInfo & pathinfo = * m_current_path;
     pathinfo.time_active = active;
     pathinfo.summary_active += active;
+
     if (m_dqms and m_enable_dqm_bypath_active)
       pathinfo.dqm_active->Fill(active * 1000.);        // convert to ms
 
@@ -552,15 +600,18 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
         // fill counter histograms - also for duplicate modules, to properly extract rejection information
         if (m_enable_dqm_bypath_counters)
           pathinfo.dqm_module_counter->Fill(i);
-
+        
         if (module == 0)
           // this is a module occurring more than once in the same path, skip it after the first occurrence
           continue;
 
-        if (module->has_just_run)
+        if (module->has_just_run) {
           current += module->time_active;
-        else
+          module->exclusive = true;
+        } else {
           total   += module->time_active;
+          module->exclusive = false;
+        }
 
         // fill detailed timing histograms
         if (m_enable_dqm_bypath_details) {
@@ -570,6 +621,7 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
             // fill the active time only for module actually running in this path
             pathinfo.dqm_module_active->Fill(i, module->time_active);
         }
+
       }
 
       if (status.accept())
@@ -606,6 +658,7 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
       pathinfo.summary_postmodules  += post;
       pathinfo.summary_overhead     += overhead;
       pathinfo.summary_total        += total;
+      pathinfo.last_run              = last_run;
       if (m_dqms) {
         if (m_enable_dqm_bypath_overhead) {
           pathinfo.dqm_premodules  ->Fill(pre      * 1000.);      // convert to ms
@@ -671,6 +724,7 @@ void FastTimerService::postModule(edm::ModuleDescription const & module) {
     module.has_just_run    = true;
     module.time_active     = time;
     module.summary_active += time;
+
     if (m_dqms and m_enable_dqm_bymodule)
       module.dqm_active->Fill(time * 1000.);                    // convert to ms
   } else {

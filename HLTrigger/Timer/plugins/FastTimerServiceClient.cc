@@ -85,8 +85,10 @@ FastTimerServiceClient::endRun(edm::Run const & run, edm::EventSetup const & set
 
   // fill summary histograms with the average (total and active) time spent in each path
   dqm->setCurrentFolder(m_dqm_path);
-  TH1F * path_active = dqm->get(m_dqm_path + "/path_active_time")->getTH1F();
-  TH1F * path_total  = dqm->get(m_dqm_path + "/path_total_time")->getTH1F();
+  TH1F * path_active     = dqm->get(m_dqm_path + "/path_active_time")->getTH1F();
+  TH1F * path_total      = dqm->get(m_dqm_path + "/path_total_time")->getTH1F();
+  TH1F * path_exclusive  = dqm->get(m_dqm_path + "/path_exclusive_time")->getTH1F();
+
   size_t size = path_total->GetXaxis()->GetNbins();
   for (size_t i = 0; i < size; ++i) {
     // extract the list of Paths and EndPaths from the bin labels of "path_total_time"
@@ -95,6 +97,8 @@ FastTimerServiceClient::endRun(edm::Run const & run, edm::EventSetup const & set
       path_total ->Fill(i, me->getTH1F()->GetMean());
     if (( me = dqm->get(m_dqm_path + "/Paths/" + label + "_active") ))
       path_active->Fill(i, me->getTH1F()->GetMean());
+    if (( me = dqm->get(m_dqm_path + "/Paths/" + label + "_exclusive") ))
+      path_exclusive->Fill(i, me->getTH1F()->GetMean()); 
   }
 
   // for each path, fill histograms with

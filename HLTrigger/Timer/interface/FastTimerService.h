@@ -137,14 +137,16 @@ private:
     double                      time_active;        // per-event timer: time actually spent in this module
     double                      summary_active;
     TH1F *                      dqm_active;
-    bool                        has_just_run;       // flag sed to check if a module was active inside a particular path, or not
+    bool                        has_just_run;       // flag set to check if a module was active inside a particular path, or not
+    bool                        exclusive;          // flag set to check if a module has been run only once
 
   public:
     ModuleInfo() :
       time_active(0.),
       summary_active(0.),
       dqm_active(0),
-      has_just_run(false)
+      has_just_run(false),
+      exclusive(false)
     { }
 
     ~ModuleInfo() {
@@ -158,6 +160,7 @@ private:
       // the DAQ destroys and re-creates the DQM and DQMStore services at each reconfigure, so we don't need to clean them up
       dqm_active = 0;
       has_just_run = false;
+      exclusive = false;
     }
   };
 
@@ -175,7 +178,9 @@ private:
     double                      summary_postmodules;
     double                      summary_overhead;
     double                      summary_total;
+    uint32_t                    last_run;
     TH1F *                      dqm_active;
+    TH1F *                      dqm_exclusive;
     TH1F *                      dqm_premodules;
     TH1F *                      dqm_intermodules;
     TH1F *                      dqm_postmodules;
@@ -200,7 +205,9 @@ private:
       summary_postmodules(0.),
       summary_overhead(0.),
       summary_total(0.),
+      last_run(0),
       dqm_active(0),
+      dqm_exclusive(0),
       dqm_premodules(0),
       dqm_intermodules(0),
       dqm_postmodules(0),
@@ -230,9 +237,10 @@ private:
       summary_postmodules = 0.;
       summary_overhead = 0.;
       summary_total = 0.;
+      last_run = 0;
 
       // the DAQ destroys and re-creates the DQM and DQMStore services at each reconfigure, so we don't need to clean them up
-      dqm_active = 0;
+      dqm_active = 0; 
       dqm_premodules = 0;
       dqm_intermodules = 0;
       dqm_postmodules = 0;
@@ -252,6 +260,7 @@ private:
   bool                                          m_is_cpu_bound;         // if the process is not bound to a single CPU, per-thread or per-process measuerements may be unreliable
   bool                                          m_enable_timing_paths;
   bool                                          m_enable_timing_modules;
+  bool                                          m_enable_timing_exclusive;
   const bool                                    m_enable_timing_summary;
   const bool                                    m_skip_first_path;
 
@@ -262,6 +271,7 @@ private:
   const bool                                    m_enable_dqm_bypath_overhead;   // require per-path and per-module timers
   const bool                                    m_enable_dqm_bypath_details;    // require per-path and per-module timers
   const bool                                    m_enable_dqm_bypath_counters;
+  const bool                                    m_enable_dqm_bypath_exclusive;
   const bool                                    m_enable_dqm_bymodule;          // require per-module timers
   const bool                                    m_enable_dqm_bylumi;
   const double                                  m_dqm_eventtime_range;
