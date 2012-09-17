@@ -32,8 +32,6 @@
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
 #include "DataFormats/METReco/interface/SigInputObj.h"
-#include "DataFormats/METReco/interface/MVAMETData.h"
-#include "DataFormats/METReco/interface/MVAMETDataFwd.h"
 #include "DataFormats/METReco/interface/MVAMEtData.h"
 #include "DataFormats/METReco/interface/MVAMEtDataFwd.h"
 #include "DataFormats/METReco/interface/PFMEtSignCovMatrix.h"
