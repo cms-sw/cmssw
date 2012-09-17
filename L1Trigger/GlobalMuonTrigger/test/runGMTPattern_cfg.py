@@ -25,7 +25,8 @@ process.gmtPattern = cms.EDAnalyzer("L1MuGMTPattern",
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
  
-process.GlobalTag.globaltag = 'START42_V13::All'
+process.GlobalTag.globaltag = 'GR_P_V32::All'
+#process.GlobalTag.globaltag = 'START42_V13::All'
 #process.GlobalTag.globaltag = 'GR_R_42_V13::All'
 
 ######################
@@ -54,8 +55,9 @@ process.gmtDigis.SendMipIso = cms.untracked.bool(True)
 #process.L1MuGMTParameters.SubsystemMask = 0
 
 process.load('L1TriggerConfig.GMTConfigProducers.L1MuGMTParameters_cfi')
-process.L1MuGMTParameters.MergeMethodPtBrl=cms.string("byRank")
-process.L1MuGMTParameters.MergeMethodPtFwd=cms.string("byRank")
+process.L1MuGMTParameters.MergeMethodPtBrl=cms.string("byCombi")
+process.L1MuGMTParameters.MergeMethodPtFwd=cms.string("byCombi")
 process.L1MuGMTParameters.VersionSortRankEtaQLUT = cms.uint32(275)
+process.L1MuGMTParameters.VersionLUTs = cms.uint32(1)
 
 process.p = cms.Path(process.gmtDigis * process.gmtPattern)

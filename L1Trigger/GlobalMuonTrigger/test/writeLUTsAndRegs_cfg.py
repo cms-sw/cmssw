@@ -43,9 +43,10 @@ process.gmtDigis.RPCfCandidates = cms.InputTag("none", "")
 process.gmtDigis.Debug = cms.untracked.int32(9)
 
 process.load('L1TriggerConfig.GMTConfigProducers.L1MuGMTParameters_cfi')
-process.L1MuGMTParameters.MergeMethodPtBrl=cms.string("byRank")
-process.L1MuGMTParameters.MergeMethodPtFwd=cms.string("byRank")
+process.L1MuGMTParameters.MergeMethodPtBrl=cms.string("byCombi")
+process.L1MuGMTParameters.MergeMethodPtFwd=cms.string("byCombi")
 process.L1MuGMTParameters.VersionSortRankEtaQLUT = cms.uint32(275)
+process.L1MuGMTParameters.VersionLUTs = cms.uint32(1)
 
 # Tell the emulator to generate LUTs
 process.gmtDigis.WriteLUTsAndRegs = cms.untracked.bool(True)
