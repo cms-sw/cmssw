@@ -1,3 +1,4 @@
+// $Id: CorrMETData.h,v 1.5 2012/09/10 18:21:56 sakuma Exp $
 #include "DataFormats/METReco/interface/MET.h"
 #include "Math/Cartesian3D.h" 
 #include "Math/Polar3D.h" 
@@ -34,7 +35,6 @@
 #include "DataFormats/METReco/interface/SigInputObj.h"
 #include "DataFormats/METReco/interface/MVAMEtData.h"
 #include "DataFormats/METReco/interface/MVAMEtDataFwd.h"
-#include "DataFormats/METReco/interface/PFMEtSignCovMatrix.h"
 #include "DataFormats/METReco/interface/AnomalousECALVariables.h"
 #include "DataFormats/METReco/interface/BoundaryInformation.h"
 
@@ -157,9 +157,6 @@ namespace {
     std::vector<metsig::SigInputObj> dummy63;
     edm::Wrapper<std::vector<metsig::SigInputObj> > dummy64;
 
-    PFMEtSignCovMatrix dummy65;
-    edm::Wrapper<PFMEtSignCovMatrix> dummy66;
-
     reco::MVAMEtJetInfo dummyMVAMEtJetInfo;
     reco::MVAMEtJetInfoCollection dummyMVAMEtJetInfoCollection;
     edm::Wrapper<reco::MVAMEtJetInfoCollection> dummyMVAMEtJetInfoCollectionWrapped;
@@ -174,6 +171,5 @@ namespace {
     edm::Wrapper<BoundaryInformation> dummyBE23;
     std::vector<BoundaryInformation> dummyBE24;
     edm::Wrapper< std::vector<BoundaryInformation> > dummyBE25;
-
   };
 }
