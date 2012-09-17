@@ -332,9 +332,18 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   
   // get inputs and convert them to the fastjet format (fastjet::PeudoJet)
   edm::Handle<reco::CandidateView> inputsHandle;
-  iEvent.getByLabel(src_,inputsHandle);
-  for (size_t i = 0; i < inputsHandle->size(); ++i) {
-    inputs_.push_back(inputsHandle->ptrAt(i));
+  edm::Handle< std::vector<edm::FwdPtr<reco::Candidate> > > inputsHandleAsFwdPtr; 
+  
+  bool isView = iEvent.getByLabel(src_,inputsHandle);
+  if ( isView ) {
+    for (size_t i = 0; i < inputsHandle->size(); ++i) {
+      inputs_.push_back(inputsHandle->ptrAt(i));
+    }
+  } else {
+    iEvent.getByLabel(src_,inputsHandleAsFwdPtr);
+    for (size_t i = 0; i < inputsHandleAsFwdPtr->size(); ++i) {
+      inputs_.push_back( (*inputsHandleAsFwdPtr)[i].ptr() );
+    }    
   }
   LogDebug("VirtualJetProducer") << "Got inputs\n";
   
