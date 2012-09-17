@@ -99,7 +99,7 @@ class SiPixelCluster {
   int sizeX() const {return maxPixelRow() - minPixelRow() +1;}
 
   // Return cluster dimension in the y direction.
-  int sizeY() const {return int(thePixelCol >>9) +1;}
+  int sizeY() const {verifyVersion(); return colSpan() +1;}
 
 
   inline float charge() const {
