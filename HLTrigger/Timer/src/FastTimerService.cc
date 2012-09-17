@@ -26,6 +26,7 @@ typedef int clockid_t;
 // for forward compatibility with boost 1.47
 #define BOOST_FILESYSTEM_VERSION 3
 #include <boost/filesystem/path.hpp>
+#include <boost/format.hpp>
 
 // CMSSW headers
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -41,6 +42,15 @@ typedef int clockid_t;
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "HLTrigger/Timer/interface/FastTimerService.h"
 #include "HLTrigger/Timer/interface/CPUAffinity.h"
+
+
+// file-static methods to fill a vector of strings with "(dup.) (...)" entries
+static
+void fill_dups(std::vector<std::string> & dups, unsigned int size) {
+  dups.reserve(size);
+  for (unsigned int i = dups.size(); i < size; ++i)
+    dups.push_back( (boost::format("(dup.) (%d)") % i).str() );
+}
 
 
 FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::ActivityRegistry & registry) :
@@ -263,10 +273,13 @@ void FastTimerService::postBeginJob() {
                                                      ((id = tns.findEndPath(pathname))  != tns.getEndPaths().size())  ? tns.getEndPathModules(id)  :
                                                      std::vector<std::string>();
 
-          static const char * dup = "(dup.)";
+          static std::vector<std::string> dup;
+          if (modules.size() > dup.size())
+            fill_dups(dup, modules.size());
+
           std::vector<const char *> labels(modules.size(), nullptr);
           for (uint32_t i = 0; i < modules.size(); ++i)
-            labels[i] = (pathinfo.modules[i]) ? modules[i].c_str() : dup;
+            labels[i] = (pathinfo.modules[i]) ? modules[i].c_str() : dup[i].c_str();
           
           // book counter histograms
           if (m_enable_dqm_bypath_counters) {
