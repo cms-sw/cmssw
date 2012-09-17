@@ -8,11 +8,18 @@
 typedef int clockid_t;
 #endif
 
+/* Darwin system headers */
+#if defined(__APPLE__) || defined(__MACH__)
+#include <mach/clock.h>
+#include <mach/mach.h>
+#endif /* defined(__APPLE__) || defined(__MACH__) */
+
 // C++ headers
 #include <cmath>
 #include <string>
 #include <map>
 #include <tr1/unordered_map>
+#include <unistd.h>
 
 // CMSSW headers
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -130,7 +137,7 @@ private:
     double                      time_active;        // per-event timer: time actually spent in this module
     double                      summary_active;
     TH1F *                      dqm_active;
-    bool                        has_just_run;       // flag set to check if a module was active inside a particular path, or not
+    bool                        has_just_run;       // flag sed to check if a module was active inside a particular path, or not
 
   public:
     ModuleInfo() :
@@ -312,13 +319,20 @@ private:
 
   void gettime(struct timespec & stamp) const
   {
-#if defined __linux
+#if defined(_POSIX_TIMERS) && _POSIX_TIMERS >= 0
     clock_gettime(m_timer_id, & stamp);
-#elif defined __APPLE__ && defined __MACH__
-    // implement here an OS X version
 #else
-    // unsupported on any other platform
-#endif
+/* Special cases which do not support _POSIX_TIMERS. */
+#if defined(__APPLE__) || defined (__MACH__)
+    clock_serv_t cclock;
+    mach_timespec_t mts;
+    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+    clock_get_time(cclock, &mts);
+    mach_port_deallocate(mach_task_self(), cclock);
+    stamp.tv_sec = mts.tv_sec;
+    stamp.tv_nsec = mts.tv_nsec;
+#endif /* defined(__APPLE__) || defined (__MACH__) */
+#endif /* defined(_POSIX_TIMERS) && _POSIX_TIMERS >= 0 */
   }
 
   void start(std::pair<struct timespec, struct timespec> & times) const
