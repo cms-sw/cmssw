@@ -157,14 +157,8 @@ namespace {
     std::vector<metsig::SigInputObj> dummy63;
     edm::Wrapper<std::vector<metsig::SigInputObj> > dummy64;
 
-    PFMEtSignCovMatrix                             dummy65;
-    //edm::Wrapper<PFMEtSignCovMatrix>               dummy66;
-    //std::vector<PFMEtSignCovMatrix>                dummy67;
-    //edm::Wrapper<std::vector<PFMEtSignCovMatrix> > dummy68; 
-
-    reco::JetInfo dummyJetInfo;
-    reco::JetInfoCollection dummyJetInfoCollection;
-    edm::Wrapper<reco::JetInfoCollection> dummyJetInfoCollectionWrapped;
+    PFMEtSignCovMatrix dummy65;
+    edm::Wrapper<PFMEtSignCovMatrix> dummy66;
 
     reco::MVAMEtJetInfo dummyMVAMEtJetInfo;
     reco::MVAMEtJetInfoCollection dummyMVAMEtJetInfoCollection;
