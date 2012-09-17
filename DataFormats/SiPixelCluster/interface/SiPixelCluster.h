@@ -70,7 +70,7 @@ class SiPixelCluster {
    *  a DetID. The range is assumed to be non-empty.
    */
   
-  SiPixelCluster() : theMinPixelRow(0), theMaxPixelRow(0), thePixelCol(0), err_x(-99999.9), err_y(-99999.9) {}  // needed by many....
+  SiPixelCluster() : theMinPixelRow(255), theMaxPixelRow(0), thePixelCol(511), err_x(-99999.9), err_y(-99999.9) {}  // needed by many....
     
   SiPixelCluster( const PixelPos& pix, int adc);
   
