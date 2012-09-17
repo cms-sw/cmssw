@@ -4,8 +4,8 @@
 typedef SiPixelCluster::PixelPos PiPos;
 typedef SiPixelCluster::Pixel Pixel;
 
-template<int N>
-bool verify(PiPos const pos[N]) {
+// template<int N>
+bool verify(PiPos (const &pos)[]) {
 
   SiPixelCluster clus;
   for (auto p : pos)
