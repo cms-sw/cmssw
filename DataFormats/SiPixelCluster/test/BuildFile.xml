@@ -1,0 +1,2 @@
+<use name="DataFormats/SiPixelCluster" />
+<bin file="SiPixelCluster_t.cpp" />

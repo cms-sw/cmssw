@@ -14,7 +14,6 @@
 //!  \author Petar Maksimovic, JHU
 //---------------------------------------------------------------------------
 
-#include<cassert>
 
 SiPixelCluster::SiPixelCluster( const SiPixelCluster::PixelPos& pix, int adc) :
   theMinPixelRow( pix.row()),
@@ -50,28 +49,29 @@ void SiPixelCluster::add( const SiPixelCluster::PixelPos& pix, int adc) {
   }
   if (pix.col() < minCol) {
     minCol = pix.col();
-    thePixelCol = ((maxPixelCol()-minCol) <<9) | minCol;
     recalculate = true;
   }
+  
   if (recalculate) {
+    int maxCol = 0;
     int isize = thePixelADC.size();
     for (int i=0; i<isize; ++i) {
       int xoffset = thePixelOffset[i*2]  + ominRow - minRow;
       int yoffset = thePixelOffset[i*2+1]  + ominCol -minCol;
       thePixelOffset[i*2] = xoffset;
       thePixelOffset[i*2+1] = yoffset;
+      if (yoffset > maxCol) maxCol = yoffset; 
     }
+    packCol(minCol,maxCol);
   }
   
   if (pix.row() > maxPixelRow()) theMaxPixelRow=pix.row();
   
-  if (pix.col() > maxPixelCol()) {
-    assert((pix.col()-minCol)<127);
-    thePixelCol = ((pix.col()-minCol)<<9) | minCol;
-  }
+  if ( (!overflowCol()) && pix.col() > maxPixelCol())
+    packCol(minCol,pix.col()-minCol);
 	
   thePixelADC.push_back( adc );
-  thePixelOffset.push_back( (pix.row() - minPixelRow()) );
-  thePixelOffset.push_back( (pix.col() - minPixelCol()) );
+  thePixelOffset.push_back( pix.row() - minRow );
+  thePixelOffset.push_back( pix.col() - minCol );
 }
 

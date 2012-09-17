@@ -19,6 +19,7 @@
 #include <vector>
 #include "boost/cstdint.hpp"
 #include <cassert>
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class PixelDigi;
 
@@ -27,8 +28,8 @@ class SiPixelCluster {
   
   class Pixel {
   public:
-    Pixel() {} // for root
-    Pixel(int pix_x, int pix_y, int pix_adc) :
+    constexpr Pixel() : x(0), y(0), adc(0){} // for root
+    constexpr Pixel(int pix_x, int pix_y, int pix_adc) :
       x(pix_x), y(pix_y), adc(pix_adc) {}
     unsigned char  x;
     unsigned short y;
@@ -38,10 +39,10 @@ class SiPixelCluster {
   //--- Integer shift in x and y directions.
   class Shift {
   public:
-    Shift( int dx, int dy) : dx_(dx), dy_(dy) {}
-    Shift() : dx_(0), dy_(0) {}
-    int dx() const { return dx_;}
-    int dy() const { return dy_;}
+    constexpr Shift( int dx, int dy) : dx_(dx), dy_(dy) {}
+    constexpr Shift() : dx_(0), dy_(0) {}
+    constexpr int dx() const { return dx_;}
+    constexpr int dy() const { return dy_;}
   private:
     int dx_;
     int dy_;
@@ -50,11 +51,11 @@ class SiPixelCluster {
   //--- Position of a SiPixel
   class PixelPos {
   public:
-    PixelPos() : row_(0), col_(0) {}
-    PixelPos(int row, int col) : row_(row) , col_(col) {}
-    int row() const { return row_;}
-    int col() const { return col_;}
-    PixelPos operator+( const Shift& shift) {
+    constexpr PixelPos() : row_(0), col_(0) {}
+    constexpr PixelPos(int row, int col) : row_(row) , col_(col) {}
+    constexpr int row() const { return row_;}
+    constexpr int col() const { return col_;}
+    constexpr PixelPos operator+( const Shift& shift) {
       return PixelPos( row() + shift.dx(), col() + shift.dy());
     }
   private:
@@ -110,14 +111,15 @@ class SiPixelCluster {
   } // Return total cluster charge.
 
   inline int minPixelRow() const { return theMinPixelRow;} // The min x index.
-  inline int maxPixelRow() const { return theMaxPixelRow;} // The max x index.
+  inline int maxPixelRow() const { verifyVersion(); return theMaxPixelRow;} // The max x index.
   inline int minPixelCol() const { return thePixelCol & 511;} // The min y index.
-  inline int maxPixelCol() const { return minPixelCol() + (thePixelCol >>9);} // The max y index.
+  inline int maxPixelCol() const { verifyVersion(); return minPixelCol() + colSpan();} // The max y index.
 
   
   const std::vector<uint8_t> & pixelOffset() const { return thePixelOffset;}
   const std::vector<uint16_t> & pixelADC() const { return thePixelADC;}
 
+  // obsolete, use single pixel access below
   const std::vector<Pixel> pixels() const {
     std::vector<Pixel> oldPixVector;
     int isize = thePixelADC.size();
@@ -136,9 +138,33 @@ class SiPixelCluster {
 		 );
   }
 
+  int colSpan() const {
+    if unlikely(overflowCol()) return  computeColSpan();
+    return (thePixelCol >>9);
+  }
+
+  bool overflowCol() const {
+    return (thePixelCol >>9) == 127;
+  }
+
+  void packCol(unsigned int ymin, unsigned int yspan) {
+    yspan = std::min(yspan,(unsigned int)(127));
+    thePixelCol = (yspan<<9) | ymin;
+  }
+
+  int computeColSpan() const {
+    int maxCol = 0;
+    int isize  = thePixelADC.size();
+    for (int i=0; i!=isize; ++i) {
+      int ysize = thePixelOffset[i*2+1] ;
+      if (ysize > maxCol) maxCol = ysize;
+    }
+    return maxCol;
+  }
+
   /// mostly to be compatible for <610 
   void verifyVersion() const {
-    if ( theMaxPixelRow==0 && thePixelCol<511)
+    if unlikely( theMaxPixelRow==0 && thePixelCol<511)
       const_cast<SiPixelCluster*>(this)->computeMax();
   }
 
@@ -156,8 +182,7 @@ class SiPixelCluster {
     // assume minimum is correct
     theMaxPixelRow=maxRow+minPixelRow();
     int minCol= minPixelCol();
-    assert(maxCol<127);
-    thePixelCol = (maxCol<<9) | minCol;
+    packCol(minCol,maxCol);
   }
   
   // ggiurgiu@fnal.gov, 01/05/12 
