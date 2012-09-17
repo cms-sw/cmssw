@@ -290,10 +290,20 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) {
   // Check if we want a custom iso cone
   if (customIsoCone_ >= 0.) {
     DRFilter filter(pfTau->p4(), 0, customIsoCone_);
+    std::vector<PFCandidateRef> isoCharged_filter;
+    std::vector<PFCandidateRef> isoNeutral_filter;
     // Remove all the objects not in our iso cone
-    std::remove_if(isoCharged.begin(), isoCharged.end(), std::not1(filter));
-    std::remove_if(isoNeutral.begin(), isoNeutral.end(), std::not1(filter));
-    std::remove_if(isoPU.begin(), isoPU.end(), std::not1(filter));
+     BOOST_FOREACH(const PFCandidateRef& isoObject, isoCharged) {
+      if(filter(isoObject)) isoCharged_filter.push_back(isoObject);
+    }
+    BOOST_FOREACH(const PFCandidateRef& isoObject, isoNeutral) {
+      if(filter(isoObject)) isoNeutral_filter.push_back(isoObject);
+    }
+    isoCharged.clear();
+    isoCharged=isoCharged_filter;
+    isoNeutral.clear();
+    isoNeutral=isoNeutral_filter;
+
   }
 
   bool failsOccupancyCut     = false;
