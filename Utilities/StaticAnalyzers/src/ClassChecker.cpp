@@ -177,24 +177,26 @@ void WalkAST::VisitCallExpr(clang::CallExpr *CE) {
 void WalkAST::VisitCXXMemberCallExpr(clang::CXXMemberCallExpr *CE) {
 
 
-clang::MemberExpr * ME = clang::dyn_cast<clang::MemberExpr>(CE->getCallee());
+
+// check for non const reference or pointer passed as args
 clang::Expr * IOA = CE->getImplicitObjectArgument();
-clang::CXXRecordDecl * RD = llvm::dyn_cast<clang::CXXRecordDecl>(CE->getRecordDecl());
-clang::CXXMethodDecl * MD = CE->getMethodDecl();
-clang::CXXRecordDecl * MRD = llvm::dyn_cast<clang::CXXRecordDecl>(MD->getParent());
-clang::QualType MQT = MD->getThisType(AC->getASTContext());
-const clang::CXXRecordDecl * ACD = llvm::dyn_cast<clang::CXXRecordDecl>(AC->getDecl());
-clang::QualType qual_exp = llvm::dyn_cast<clang::Expr>(ME)->getType();
 clang::QualType qual_ioa = llvm::dyn_cast<clang::Expr>(IOA)->getType();
-
-
-if ((ME->isImplicitAccess()))
-if (!support::isConst(qual_ioa))
-if(!(qual_exp.getTypePtr()->isScalarType())&&
-	!(qual_exp.getTypePtr()->isObjectType()))
-//if(qual_exp.getTypePtr()->isPointerType()||qual_exp.getTypePtr()->isReferenceType())
+if (!support::isConst(qual_ioa) )
+if ( 	!qual_ioa.getTypePtr()->isScalarType())
+if (	!qual_ioa.getTypePtr()->isObjectType() )
 {
-		
+ReportCall(CE);
+}
+
+
+//clang::MemberExpr * ME = clang::dyn_cast<clang::MemberExpr>(CE->getCallee());
+//clang::CXXRecordDecl * RD = llvm::dyn_cast<clang::CXXRecordDecl>(CE->getRecordDecl());
+//clang::CXXMethodDecl * MD = CE->getMethodDecl();
+//clang::CXXRecordDecl * MRD = llvm::dyn_cast<clang::CXXRecordDecl>(MD->getParent());
+//clang::QualType MQT = MD->getThisType(AC->getASTContext());
+//const clang::CXXRecordDecl * ACD = llvm::dyn_cast<clang::CXXRecordDecl>(AC->getDecl());
+//clang::QualType qual_exp = llvm::dyn_cast<clang::Expr>(ME)->getType();
+
 //llvm::errs()<<"\n-------------------------------------------------------------------------------------\n";
 //		llvm::errs()<<"\n CXXMemberCallExpr \n";
 //		CE->dumpPretty(AC->getASTContext());
@@ -299,11 +301,9 @@ if(!(qual_exp.getTypePtr()->isScalarType())&&
 //				 
 //			}
 //	} 
-
-ReportCall(CE);
 //llvm::errs()<<"\n-------------------------------------------------------------------------------------\n";
-}
 
+}
 
   VisitChildren(CE);
   Enqueue(CE);
