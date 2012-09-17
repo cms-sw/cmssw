@@ -13,7 +13,7 @@
 //
 // Original Authors:  Kyle Story, Freya Blekman (Cornell University)
 //          Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignCaloSpecificAlgo.h,v 1.5 2012/06/09 18:27:46 sakuma Exp $
+// $Id: SignCaloSpecificAlgo.h,v 1.6 2012/06/09 21:37:02 sakuma Exp $
 //
 // 
 #ifndef METProducers_SignCaloMETAlgo_h
@@ -24,7 +24,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "RecoMET/METAlgorithms/interface/SigInputObj.h"
+#include "DataFormats/METReco/interface/SigInputObj.h"
 #include "TMatrixD.h"
 
 namespace metsig {
