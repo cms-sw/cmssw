@@ -40,7 +40,6 @@ streamA_datasetCommissioning_selector.throw      = cms.bool(False)
 streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_Activity_Ecal_SC7_v13', 
     'HLT_BeamGas_HF_Beam1_v5', 
     'HLT_BeamGas_HF_Beam2_v5', 
-    'HLT_HcalUTCA_v1', 
     'HLT_IsoTrackHB_v14', 
     'HLT_IsoTrackHE_v15', 
     'HLT_L1SingleEG12_v6', 
@@ -247,7 +246,8 @@ streamA_datasetHcalNZS_selector.hltResults = cms.InputTag('TriggerResults', '', 
 streamA_datasetHcalNZS_selector.l1tResults = cms.InputTag('')
 streamA_datasetHcalNZS_selector.throw      = cms.bool(False)
 streamA_datasetHcalNZS_selector.triggerConditions = cms.vstring('HLT_HcalNZS_v10', 
-    'HLT_HcalPhiSym_v11')
+    'HLT_HcalPhiSym_v11', 
+    'HLT_HcalUTCA_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetJetHT_selector
 streamA_datasetJetHT_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -530,6 +530,10 @@ streamA_datasetSingleElectron_selector.hltResults = cms.InputTag('TriggerResults
 streamA_datasetSingleElectron_selector.l1tResults = cms.InputTag('')
 streamA_datasetSingleElectron_selector.throw      = cms.bool(False)
 streamA_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele22_CaloIdL_CaloIsoVL_v6', 
+    'HLT_Ele24_WP80_CentralPFJet35_CentralPFJet25_PFMET20_v1', 
+    'HLT_Ele24_WP80_CentralPFJet35_CentralPFJet25_v1', 
+    'HLT_Ele24_WP80_PFJet30_PFJet25_Deta3_CentralPFJet30_v1', 
+    'HLT_Ele24_WP80_PFJet30_PFJet25_Deta3_v1', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v9', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_v8', 
     'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_DiCentralPFNoPUJet30_v2', 
@@ -543,10 +547,6 @@ streamA_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele2
     'HLT_Ele27_WP80_v11', 
     'HLT_Ele30_CaloIdVT_TrkIdT_v6', 
     'HLT_Ele32_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v11', 
-    'HLT_Ele32_WP80_CentralPFJet35_CentralPFJet25_PFMET20_v4', 
-    'HLT_Ele32_WP80_CentralPFJet35_CentralPFJet25_v4', 
-    'HLT_Ele32_WP80_PFJet30_PFJet25_Deta3_CentralPFJet30_v4', 
-    'HLT_Ele32_WP80_PFJet30_PFJet25_Deta3_v4', 
     'HLT_Ele80_CaloIdVT_GsfTrkIdT_v2', 
     'HLT_Ele90_CaloIdVT_GsfTrkIdT_v2')
 
@@ -559,12 +559,13 @@ streamA_datasetSingleMu_selector.triggerConditions = cms.vstring('HLT_IsoMu17_et
     'HLT_IsoMu17_eta2p1_DiCentralPFNoPUJet30_v4', 
     'HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet30_v4', 
     'HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet45_35_25_v2', 
+    'HLT_IsoMu18_CentralPFJet30_CentralPFJet25_PFMET20_v1', 
+    'HLT_IsoMu18_CentralPFJet30_CentralPFJet25_v1', 
+    'HLT_IsoMu18_PFJet30_PFJet25_Deta3_CentralPFJet25_v1', 
+    'HLT_IsoMu18_PFJet30_PFJet25_Deta3_v1', 
     'HLT_IsoMu20_WCandPt80_v4', 
     'HLT_IsoMu20_eta2p1_CentralPFJet80_v9', 
     'HLT_IsoMu20_eta2p1_v7', 
-    'HLT_IsoMu24_CentralPFJet30_CentralPFJet25_PFMET20_v4', 
-    'HLT_IsoMu24_CentralPFJet30_CentralPFJet25_v4', 
-    'HLT_IsoMu24_PFJet30_PFJet25_Deta3_CentralPFJet25_v4', 
     'HLT_IsoMu24_eta2p1_v15', 
     'HLT_IsoMu24_v17', 
     'HLT_IsoMu30_eta2p1_v15', 
@@ -588,8 +589,8 @@ streamA_datasetSingleMu_selector.triggerConditions = cms.vstring('HLT_IsoMu17_et
     'HLT_Mu15_eta2p1_v5', 
     'HLT_Mu17_eta2p1_CentralPFNoPUJet30_BTagIPIter_v4', 
     'HLT_Mu17_eta2p1_TriCentralPFNoPUJet45_35_25_v2', 
-    'HLT_Mu24_CentralPFJet30_CentralPFJet25_v4', 
-    'HLT_Mu24_PFJet30_PFJet25_Deta3_CentralPFJet25_v4', 
+    'HLT_Mu18_CentralPFJet30_CentralPFJet25_v1', 
+    'HLT_Mu18_PFJet30_PFJet25_Deta3_CentralPFJet25_v1', 
     'HLT_Mu24_eta2p1_v5', 
     'HLT_Mu24_v16', 
     'HLT_Mu30_eta2p1_v5', 
