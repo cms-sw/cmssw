@@ -87,7 +87,7 @@ if (env == 'CMSLive') or (env == 'PrivLive') or (env == 'LocalLive') :
     live = True
 
 if not p5 and not gtag :
-    optparser.error("Global tag must be given for non-P5 DQM cfg")
+    optparser.error("Global tag needed for non-P5 DQM cfg")
     exit
 
 if not live and not sourceFiles :
@@ -95,7 +95,7 @@ if not live and not sourceFiles :
     exit
 
 if doOutput and not live and not workflow :
-    optparser.error("Workflow needs to be given for offline DQM")
+    optparser.error("Workflow needed for offline DQM")
     exit
 
 if workflow and not re.match('[\/][a-zA-Z0-9_]+[\/][a-zA-Z0-9_]+[\/][a-zA-Z0-9_]+', workflow) :
@@ -505,9 +505,12 @@ customizations += '''
 if physics :
     customizations += '''
 process.ecalMonitorTask.online = True
+process.ecalMonitorClient.workers = ["ClusterTask", "EnergyTask", "IntegrityTask", "OccupancyTask", "RawDataTask", "TimingTask", "TrigPrimTask", "TowerStatusTask", "PresampleTask", "SelectiveReadoutTask"]
+process.ecalMonitorTask.workerParameters.common.hltTaskMode = 0
+process.ecalMonitorTask.workerParameters.TrigPrimTask.runOnEmul = True
+
 process.ecalMonitorClient.online = True
 process.ecalMonitorClient.workers = ["IntegrityClient", "OccupancyClient", "PresampleClient", "RawDataClient", "TimingClient", "SelectiveReadoutClient", "TrigPrimClient", "SummaryClient"]
-process.ecalMonitorTask.workerParameters.common.hltTaskMode = 0
 process.ecalMonitorClient.workerParameters.SummaryClient.activeSources = ["Integrity", "RawData", "Presample", "TriggerPrimitives", "Timing", "HotCell"]
 '''
 elif laser :
