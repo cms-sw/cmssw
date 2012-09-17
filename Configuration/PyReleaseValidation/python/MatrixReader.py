@@ -41,7 +41,8 @@ class MatrixReader(object):
                              'relval_pileup': 'PU-'  ,
                              'relval_generator': 'gen-'  ,
                              'relval_production': 'prod-'  ,
-                             'relval_ged': 'ged-'
+                             'relval_ged': 'ged-',
+                             'relval_upgrade':'upg-'
                              }
 
         self.files = ['relval_standard' ,
@@ -49,7 +50,8 @@ class MatrixReader(object):
                       'relval_pileup',
                       'relval_generator',
                       'relval_production',
-                      'relval_ged'
+                      'relval_ged',
+                      'relval_upgrade'
                       ]
 
         self.relvalModule = None
@@ -400,7 +402,10 @@ class MatrixReader(object):
             if self.what != 'all' and self.what not in matrixFile:
                 print "ignoring non-requested file",matrixFile
                 continue
-
+            if self.what == 'all' and 'upgrade' in matrixFile:
+                print "ignoring",matrixFile,"from default matrix"
+                continue
+            
             try:
                 self.readMatrix(matrixFile, useInput, refRel, fromScratch)
             except Exception, e:
