@@ -112,6 +112,7 @@ FastTimerServiceClient::fillSummaryPlots(void)
   // fill summary histograms with the average (active) time spent in each path
   if (( me = dqm->get(m_dqm_path + "/path_active_time") )) {
     paths = me->getTH1F();
+    paths->Reset();
     size  = paths->GetXaxis()->GetNbins();
     for (uint32_t i = 0; i < size; ++i) {
       // extract the list of Paths and EndPaths from the bin labels of "path_active_time"
@@ -123,6 +124,7 @@ FastTimerServiceClient::fillSummaryPlots(void)
   // fill summary histograms with the average (total) time spent in each path
   if (( me = dqm->get(m_dqm_path + "/path_total_time") )) {
     paths = me->getTH1F();
+    paths->Reset();
     size  = paths->GetXaxis()->GetNbins();
     for (uint32_t i = 0; i < size; ++i) {
       // extract the list of Paths and EndPaths from the bin labels of "path_total_time"
@@ -134,6 +136,7 @@ FastTimerServiceClient::fillSummaryPlots(void)
   // fill summary histograms with the average (exclusive) time spent in each path
   if (( me = dqm->get(m_dqm_path + "/path_exclusive_time") )) {
     paths = me->getTH1F();
+    paths->Reset();
     size  = paths->GetXaxis()->GetNbins();
     for (uint32_t i = 0; i < size; ++i) {
       // extract the list of Paths and EndPaths from the bin labels of "path_exclusive_time"
