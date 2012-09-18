@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.398 $"
+__version__ = "$Revision: 1.399 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1433,7 +1433,7 @@ class ConfigBuilder(object):
                 elif (shortname in skimlist):
                         self.addExtraStream(skim,skimstream)
                         #add a DQM eventcontent for this guy
-                        if self._options.datatier!="":
+			if self._options.datatier=='DQM':
                                 self.process.load(self.EVTCONTDefaultCFF)
                                 skimstreamDQM = cms.FilteredStream(
                                         responsible = skimstream.responsible,
@@ -1758,7 +1758,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.398 $"),
+                                            (version=cms.untracked.string("$Revision: 1.399 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
