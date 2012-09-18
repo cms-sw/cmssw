@@ -123,6 +123,9 @@ FastTimerServiceClient::fillSummaryPlots(void)
     size  = paths->GetXaxis()->GetNbins();
   }
 
+  if (paths == nullptr)
+    return;
+
   // for each path, fill histograms with
   //  - the average time spent in each module (total time spent in that module, averaged over all events)
   //  - the running time spent in each module (total time spent in that module, averaged over the events where that module actually ran)
