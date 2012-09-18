@@ -48,14 +48,19 @@ hiRegitMuPixelPairStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'hiRegitMuPix
 
 # building: feed the new-named seeds
 hiRegitMuPixelPairStepTrajectoryFilter =  RecoHI.HiTracking.hiRegitPixelPairStep_cff.hiRegitPixelPairStepTrajectoryFilter.clone(
-    ComponentName    = 'hiRegitMuPixelPairStepTrajectoryFilter'
+    ComponentName    = 'hiRegitMuPixelPairStepTrajectoryFilter',
     )
-hiRegitMuPixelPairStepTrajectoryFilter.filterPset.minPt = 0.8 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
+hiRegitMuPixelPairStepTrajectoryFilter.filterPset.minPt                = 0.8
+hiRegitMuPixelPairStepTrajectoryFilter.filterPset.minimumNumberOfHits  = 6
+hiRegitMuPixelPairStepTrajectoryFilter.filterPset.minHitsMinPt         = 4
+
+
 
 hiRegitMuPixelPairStepTrajectoryBuilder =  RecoHI.HiTracking.hiRegitPixelPairStep_cff.hiRegitPixelPairStepTrajectoryBuilder.clone(
     ComponentName        = 'hiRegitMuPixelPairStepTrajectoryBuilder',
     trajectoryFilterName = 'hiRegitMuPixelPairStepTrajectoryFilter',
     clustersToSkip       = cms.InputTag('hiRegitMuPixelPairStepClusters'),
+    minNrOfHitsForRebuild = 6 #change from default 4
 )
 
 # trackign candidate

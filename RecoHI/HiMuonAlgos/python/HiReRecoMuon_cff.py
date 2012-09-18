@@ -4,11 +4,11 @@ from RecoMuon.Configuration.RecoMuonPPonly_cff import *
 from RecoHI.HiMuonAlgos.hiMuonIterativeTk_cff import *
 
 # pretty much everything is as the pp sequence
-hiReMuTracks = 'hiGeneralAndRegitMuTracks' #'hiRegitMuGeneralTracks'
+hiReMuTracks = "hiGeneralAndRegitMuTracks" 
 
 # global muon track
 reglobalMuons = globalMuons.clone()
-reglobalMuons.TrackerCollectionLabel                                     = hiReMuTracks
+reglobalMuons.TrackerCollectionLabel =  hiReMuTracks
 
 # tevMuons tracks
 retevMuons    = tevMuons.clone()
@@ -27,6 +27,7 @@ remuons.inputCollectionLabels                   = [hiReMuTracks, 'reglobalMuons'
 remuons.globalTrackQualityInputTag              = cms.InputTag('reglbTrackQual')
 remuons.JetExtractorPSet.JetCollectionLabel     = cms.InputTag("iterativeConePu5CaloJets")
 remuons.TrackExtractorPSet.inputTrackCollection = hiReMuTracks
+remuons.minPt = cms.double(0.8)
 
 remuonEcalDetIds = muonEcalDetIds.clone()
 remuonEcalDetIds.inputCollection                = "remuons"

@@ -17,8 +17,9 @@ from RecoHI.HiTracking.hiRegitLowPtTripletStep_cff import *
 
 # remove previously used clusters
 hiRegitMuLowPtTripletStepClusters = RecoHI.HiTracking.hiRegitLowPtTripletStep_cff.hiRegitLowPtTripletStepClusters.clone(
-    trajectories     = cms.InputTag("hiRegitMuInitialStepTracks"),
-    overrideTrkQuals = cms.InputTag('hiRegitMuInitialStepSelector','hiRegitMuInitialStep'),
+    oldClusterRemovalInfo = cms.InputTag("hiRegitMuInitialStepClusters"),
+    trajectories          = cms.InputTag("hiRegitMuInitialStepTracks"),
+    overrideTrkQuals      = cms.InputTag('hiRegitMuInitialStepSelector','hiRegitMuInitialStep'),
 )
 
 # SEEDING LAYERS
@@ -33,9 +34,9 @@ hiRegitMuLowPtTripletStepSeeds     = RecoHI.HiTracking.hiRegitLowPtTripletStep_c
 hiRegitMuLowPtTripletStepSeeds.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromSTAMuonsBlock.clone()
 hiRegitMuLowPtTripletStepSeeds.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
 hiRegitMuLowPtTripletStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.EscapePt        = 0.9
-hiRegitMuLowPtTripletStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 0.5 # default = 0.2
+hiRegitMuLowPtTripletStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 1. # default = 0.2
 hiRegitMuLowPtTripletStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ_Region   = 1. # this give you the length 
-hiRegitMuLowPtTripletStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 20. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
+hiRegitMuLowPtTripletStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
 hiRegitMuLowPtTripletStepSeeds.OrderedHitsFactoryPSet.SeedingLayers                                  = 'hiRegitMuLowPtTripletStepSeedLayers'
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 hiRegitMuLowPtTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.ComponentName = 'LowPtClusterShapeSeedComparitor'

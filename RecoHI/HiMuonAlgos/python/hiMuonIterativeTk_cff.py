@@ -8,9 +8,10 @@ from RecoHI.HiMuonAlgos.HiRegitMuonMixedTripletStep_cff import *
 from RecoHI.HiMuonAlgos.HiRegitMuonPixelLessStep_cff import *
 from RecoHI.HiMuonAlgos.HiRegitMuonTobTecStep_cff import *
 
-from RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff import *
-hiRegitMuGeneralTracks = RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff.generalTracks.clone(
-    TrackProducers = (cms.InputTag('hiRegitMuInitialStepTracks'),
+import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
+hiGeneralAndRegitMuTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+    TrackProducers = (cms.InputTag('hiGlobalPrimTracks'),
+                      cms.InputTag('hiRegitMuInitialStepTracks'),
                       cms.InputTag('hiRegitMuLowPtTripletStepTracks'),
                       cms.InputTag('hiRegitMuPixelPairStepTracks'),
                       cms.InputTag('hiRegitMuDetachedTripletStepTracks'),
@@ -18,7 +19,8 @@ hiRegitMuGeneralTracks = RecoTracker.FinalTrackSelectors.MergeTrackCollections_c
                       cms.InputTag('hiRegitMuPixelLessStepTracks'),
                       cms.InputTag('hiRegitMuTobTecStepTracks')
                       ),
-    selectedTrackQuals = cms.VInputTag(cms.InputTag("hiRegitMuInitialStepSelector","hiRegitMuInitialStep"),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag("hiInitialStepSelector","hiInitialStep"),
+                                       cms.InputTag("hiRegitMuInitialStepSelector","hiRegitMuInitialStep"),
                                        cms.InputTag("hiRegitMuLowPtTripletStepSelector","hiRegitMuLowPtTripletStep"),
                                        cms.InputTag("hiRegitMuPixelPairStepSelector","hiRegitMuPixelPairStep"),
                                        cms.InputTag("hiRegitMuDetachedTripletStepSelector","hiRegitMuDetachedTripletStep"),
@@ -26,13 +28,18 @@ hiRegitMuGeneralTracks = RecoTracker.FinalTrackSelectors.MergeTrackCollections_c
                                        cms.InputTag("hiRegitMuPixelLessStepSelector","hiRegitMuPixelLessStep"),
                                        cms.InputTag("hiRegitMuTobTecStepSelector","hiRegitMuTobTecStep")
                                        ),
+    hasSelector=cms.vint32(1,1,1,1,1,1),
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6), pQual=cms.bool(True)),  # should this be False?
+                             ),
+    copyExtras = True,
+    makeReKeyedSeeds = cms.untracked.bool(False)
     )
 
-from RecoHI.HiTracking.MergeRegit_cff import *
-hiGeneralAndRegitMuTracks = RecoHI.HiTracking.MergeRegit_cff.hiGeneralAndRegitTracks.clone(
-    TrackProducer2 = 'hiRegitMuGeneralTracks'
-    )
-
+#from RecoHI.HiTracking.MergeRegit_cff import *
+#hiGeneralAndRegitMuTracks = RecoHI.HiTracking.MergeRegit_cff.hiGeneralAndRegitTracks.clone(
+#    TrackProducer1 = 'hiGlobalPrimTracks',
+#    TrackProducer2 = 'hiRegitMuTracks'
+#    )
 
 hiRegitMuTracking = cms.Sequence(hiRegitMuonInitialStep
                                  *hiRegitMuonLowPtTripletStep
@@ -41,7 +48,7 @@ hiRegitMuTracking = cms.Sequence(hiRegitMuonInitialStep
                                  *hiRegitMuonMixedTripletStep
                                  *hiRegitMuonPixelLessStep
                                  *hiRegitMuonTobTecStep
-                                 *hiRegitMuGeneralTracks
+                                 #*hiRegitMuTracks
                                  *hiGeneralAndRegitMuTracks
                                  )
 

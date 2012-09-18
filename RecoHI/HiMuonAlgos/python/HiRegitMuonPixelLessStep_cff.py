@@ -10,8 +10,8 @@ HiTrackingRegionFactoryFromSTAMuonsBlock.MuonSrc= cms.InputTag("standAloneMuons"
 HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.UseVertex      = True
 
 HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.UseFixedRegion = True
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Phi_fixed      = 0.3
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Eta_fixed      = 0.2
+HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Phi_fixed      = 0.2
+HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Eta_fixed      = 0.1
 
 ###################################
 from RecoTracker.IterativeTracking.PixelLessStep_cff import *
@@ -36,24 +36,26 @@ hiRegitMuPixelLessStepSeedLayers.TEC.skipClusters = cms.InputTag('hiRegitMuPixel
 hiRegitMuPixelLessStepSeeds     = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeeds.clone()
 hiRegitMuPixelLessStepSeeds.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromSTAMuonsBlock.clone()
 hiRegitMuPixelLessStepSeeds.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
-hiRegitMuPixelLessStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.EscapePt        = 1.0
-hiRegitMuPixelLessStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 2.0 # default = 0.2
-hiRegitMuPixelLessStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ_Region   = 2.0 # this give you the length 
-hiRegitMuPixelLessStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 20. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
+hiRegitMuPixelLessStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.EscapePt        = 2.0
+hiRegitMuPixelLessStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 0.2 # default = 0.2
+hiRegitMuPixelLessStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ_Region   = 0.2 # this give you the length 
+hiRegitMuPixelLessStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
 hiRegitMuPixelLessStepSeeds.OrderedHitsFactoryPSet.SeedingLayers                        = 'hiRegitMuPixelLessStepSeedLayers'
 
 
 # building: feed the new-named seeds
 hiRegitMuPixelLessStepTrajectoryFilter = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTrajectoryFilter.clone(
-    ComponentName        = 'hiRegitMuPixelLessStepTrajectoryFilter'
+    ComponentName        = 'hiRegitMuPixelLessStepTrajectoryFilter',
     )
-hiRegitMuPixelLessStepTrajectoryFilter.filterPset.minPt              = 0.9 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
-
+hiRegitMuPixelLessStepTrajectoryFilter.filterPset.minPt                = 1.7
+hiRegitMuPixelLessStepTrajectoryFilter.filterPset.minimumNumberOfHits  = 6
+hiRegitMuPixelLessStepTrajectoryFilter.filterPset.minHitsMinPt         = 4
 
 hiRegitMuPixelLessStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTrajectoryBuilder.clone(
     ComponentName        = 'hiRegitMuPixelLessStepTrajectoryBuilder',
     trajectoryFilterName = 'hiRegitMuPixelLessStepTrajectoryFilter',
-    clustersToSkip = cms.InputTag('hiRegitMuPixelLessStepClusters'),
+    clustersToSkip       = cms.InputTag('hiRegitMuPixelLessStepClusters'),
+    minNrOfHitsForRebuild = 6 #change from default 4
 )
 
 hiRegitMuPixelLessStepTrackCandidates        =  RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTrackCandidates.clone(

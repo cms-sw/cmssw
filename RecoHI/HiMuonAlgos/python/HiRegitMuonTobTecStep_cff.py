@@ -10,11 +10,11 @@ HiTrackingRegionFactoryFromSTAMuonsBlock.MuonSrc= cms.InputTag("standAloneMuons"
 HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.UseVertex      = True
 
 HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.UseFixedRegion = True
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Phi_fixed      = 0.3
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Eta_fixed      = 0.2
+HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Phi_fixed      = 0.2
+HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Eta_fixed      = 0.1
 
 ###################################
-from  RecoTracker.IterativeTracking.TobTecStep_cff import *
+from RecoTracker.IterativeTracking.TobTecStep_cff import *
 
 # remove previously used clusters
 hiRegitMuTobTecStepClusters = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepClusters.clone(
@@ -35,25 +35,28 @@ hiRegitMuTobTecStepSeedLayers.TEC.skipClusters = cms.InputTag('hiRegitMuTobTecSt
 hiRegitMuTobTecStepSeeds     = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeeds.clone()
 hiRegitMuTobTecStepSeeds.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromSTAMuonsBlock.clone()
 hiRegitMuTobTecStepSeeds.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
-hiRegitMuTobTecStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.EscapePt        = 1.0
-hiRegitMuTobTecStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 2.0 # default = 0.2
-hiRegitMuTobTecStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ_Region   = 2.0 # this give you the length 
-hiRegitMuTobTecStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 20. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
+hiRegitMuTobTecStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.EscapePt        = 2.0
+hiRegitMuTobTecStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 0.2 # default = 0.2
+hiRegitMuTobTecStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ_Region   = 0.2 # this give you the length 
+hiRegitMuTobTecStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
 hiRegitMuTobTecStepSeeds.OrderedHitsFactoryPSet.SeedingLayers                        = 'hiRegitMuTobTecStepSeedLayers'
+
 
 # building: feed the new-named seeds
 hiRegitMuTobTecStepInOutTrajectoryFilter = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepInOutTrajectoryFilter.clone(
-    ComponentName        = 'hiRegitMuTobTecStepInOutTrajectoryFilter'
+    ComponentName = 'hiRegitMuTobTecStepInOutTrajectoryFilter',
     )
-hiRegitMuTobTecStepInOutTrajectoryFilter.filterPset.minPt         = 0.9 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
-
+hiRegitMuTobTecStepInOutTrajectoryFilter.filterPset.minPt = 1.7
+hiRegitMuTobTecStepInOutTrajectoryFilter.filterPset.minimumNumberOfHits = 6
+hiRegitMuTobTecStepInOutTrajectoryFilter.filterPset.minHitsMinPt        = 4
 
 
 hiRegitMuTobTecStepTrajectoryFilter = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepTrajectoryFilter.clone(
-    ComponentName        = 'hiRegitMuTobTecStepTrajectoryFilter',
-    )
-hiRegitMuTobTecStepTrajectoryFilter.filterPset.minPt              = 0.9 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
-
+    ComponentName = 'hiRegitMuTobTecStepTrajectoryFilter',
+      )
+hiRegitMuTobTecStepTrajectoryFilter.filterPset.minPt               = 1.7
+hiRegitMuTobTecStepTrajectoryFilter.filterPset.minimumNumberOfHits = 6
+hiRegitMuTobTecStepTrajectoryFilter.filterPset.minHitsMinPt        = 4   
 
 hiRegitMuTobTecStepTrajectoryBuilder = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepTrajectoryBuilder.clone(
     ComponentName             = 'hiRegitMuTobTecStepTrajectoryBuilder',
