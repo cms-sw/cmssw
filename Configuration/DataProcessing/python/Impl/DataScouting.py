@@ -17,7 +17,6 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 from Configuration.PyReleaseValidation.ConfigBuilder import Options
 from Configuration.PyReleaseValidation.ConfigBuilder import defaultOptions
-from Configuration.PyReleaseValidation.ConfigBuilder import installFilteredStream
 from Configuration.DataProcessing.RecoTLR import customisePrompt,customiseExpress
 
 class DataScouting(Scenario):
