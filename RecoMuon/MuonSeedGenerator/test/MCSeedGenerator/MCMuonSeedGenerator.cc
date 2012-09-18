@@ -42,6 +42,7 @@ MCMuonSeedGenerator2::MCMuonSeedGenerator2(const edm::ParameterSet& parameterSet
   theDTSimHitLabel = parameterSet.getParameter<InputTag>("DTSimHit");
   theRPCSimHitLabel = parameterSet.getParameter<InputTag>("RPCSimHit");
   theSimTrackLabel = parameterSet.getParameter<InputTag>("SimTrack");
+  theSimVertexLabel = parameterSet.getParameter<InputTag>("SimVertex");
 
   // service parameters
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
@@ -89,7 +90,7 @@ void MCMuonSeedGenerator2::produce(edm::Event& event, const edm::EventSetup& set
   event.getByLabel(theSimTrackLabel.label(),simTracks);
 
   Handle<SimVertexContainer> simVertices;
-  event.getByType<SimVertexContainer>(simVertices);
+  event.getByLabel<SimVertexContainer>(theSimVertexLabel, simVertices);
 
 
 

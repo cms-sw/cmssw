@@ -8,8 +8,6 @@ mcMuonSeeds = cms.EDProducer("MCMuonSeedGenerator2",
                              DTSimHit = cms.InputTag("MuonDTHits","g4SimHits"),
                              RPCSimHit = cms.InputTag("MuonRPCHits","g4SimHits"),
                              SimTrack = cms.InputTag("g4SimHits"),
+                             SimVertex = cms.InputTag("g4SimHits"),
                              SeedType = cms.string("FromTracks")
                              )
-
-
-

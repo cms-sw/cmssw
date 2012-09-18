@@ -4,8 +4,8 @@
 /** \class MCMuonSeedGenerator
  *  No description available.
  *
- *  $Date: 2008/08/06 08:46:34 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/02/16 17:08:44 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -74,6 +74,7 @@ private:
   edm::InputTag theDTSimHitLabel; 
   edm::InputTag theRPCSimHitLabel;
   edm::InputTag theSimTrackLabel;
+  edm::InputTag theSimVertexLabel;
 
   SeedType theSeedType;
 
