@@ -55,7 +55,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   };
 
 public:
-  // PixelCPEBase( const DetUnit& det );
   PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, 
 	       const SiPixelLorentzAngle * lorentzAngle = 0, const SiPixelCPEGenericErrorParm * genErrorParm = 0, 
 	       const SiPixelTemplateDBObject * templateDBobject = 0);

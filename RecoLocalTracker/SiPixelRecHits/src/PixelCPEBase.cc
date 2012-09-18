@@ -44,12 +44,11 @@ const float degsPerRad = 57.29578;
 //-----------------------------------------------------------------------------
 PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, const SiPixelLorentzAngle * lorentzAngle, 
 			   const SiPixelCPEGenericErrorParm * genErrorParm, const SiPixelTemplateDBObject * templateDBobject)
-  : theDet(0), nRecHitsTotal_(0), nRecHitsUsedEdge_(0),
+  : theDet(nullptr), theTopol(nullptr), theRecTopol(nullptr), theParam(nullptr), nRecHitsTotal_(0), nRecHitsUsedEdge_(0),
     probabilityX_(0.0), probabilityY_(0.0),
     probabilityQ_(0.0), qBin_(0),
-    isOnEdge_(0), hasBadPixels_(0),
-    spansTwoROCs_(0),
-    hasFilledProb_(0),
+    isOnEdge_(false), hasBadPixels_(false),
+    spansTwoROCs_(false), hasFilledProb_(false),
     loc_trk_pred_(0.0, 0.0, 0.0, 0.0)
 {
   //--- Lorentz angle tangent per Tesla
