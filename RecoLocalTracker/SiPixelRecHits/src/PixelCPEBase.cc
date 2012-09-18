@@ -430,7 +430,7 @@ bool PixelCPEBase::isFlipped() const
 
 PixelCPEBase::Param const & PixelCPEBase::param() const {
   Param & p = m_Params[ theDet->geographicalId().rawId() ];
-  if unlikely ( p.bz<1.e10f  ) { 
+  if unlikely ( p.bz<-1.e10f  ) { 
       LocalVector Bfield = theDet->surface().toLocal(magfield_->inTesla(theDet->surface().position()));
       p.drift = driftDirection(Bfield );
       p.bz = Bfield.z();
