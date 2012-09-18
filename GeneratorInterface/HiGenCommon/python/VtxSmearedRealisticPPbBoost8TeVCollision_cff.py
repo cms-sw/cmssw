@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
+
 Realistic5TeVCollisionPPbBoostVtxSmearingParameters= cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(1100.0),
@@ -13,3 +14,8 @@ Realistic5TeVCollisionPPbBoostVtxSmearingParameters= cms.PSet(
     Z0 = cms.double(-0.259745),
     Beta=cms.double(-0.434)
 )
+
+VtxSmeared = cms.EDProducer("BetaBoostEvtVtxGenerator",
+    VtxSmearedCommon,
+    Realistic5TeVCollisionPPbBoostVtxSmearingParameters
+)                           
