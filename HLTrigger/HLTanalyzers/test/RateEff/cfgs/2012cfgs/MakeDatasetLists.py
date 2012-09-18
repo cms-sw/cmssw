@@ -5,11 +5,11 @@
 import os, string, sys, posix, tokenize, array, getopt
 
 def main(argv):
-    menufilename = "hltmenu_extractedhltmenu_2012_GRun_8e33_V32_8e33column.cfg"
+    menufilename = "hltmenu_extractedhltmenu_2012_online_8e33_v1p0_8e33column_NoParking.cfg"
     #    pdfilename = "PathsByPhysicsGroup_5E33_2012.list"
     #    versionedpdfilename = "Versioned_PathsByPhysicsGroup_5E33_2012.list"
     #    pdfilename = "Datasets_8E33_GRun_V32_2012.list"
-    versionedpdfilename = "Versioned_Datasets_8E33_GRun_V32_2012.list"
+    versionedpdfilename = "Versioned_Datasets_8E33_online_v1p0_2012_NoParking.list"
 
     #    pdfile = open(pdfilename)
     versionedpdfile = open(versionedpdfilename, 'w')
