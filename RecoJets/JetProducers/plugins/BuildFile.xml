@@ -9,5 +9,7 @@
   <use   name="Geometry/CaloGeometry"/>
   <use   name="Geometry/Records"/>
   <use   name="CommonTools/UtilAlgos"/>
+  <use   name="CondFormats/JetMETObjects"/>
+  <use   name="JetMETCorrections/Objects"/>
   <use   name="fastjet"/>
 </library>
