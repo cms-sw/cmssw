@@ -102,26 +102,6 @@ PixelCPETemplateReco::~PixelCPETemplateReco()
 }
 
 
-MeasurementPoint 
-PixelCPETemplateReco::measurementPosition(const SiPixelCluster& cluster, 
-					  const GeomDetUnit & det) const
-{
-  LocalPoint lp = localPosition(cluster,det);
-
-  // ggiurgiu@jhu.edu 12/09/2010 : trk angles needed to correct for bows/kinks
-  if ( with_track_angle )
-    return theTopol->measurementPosition(lp, Topology::LocalTrackAngles( loc_traj_param_.dxdz(), loc_traj_param_.dydz() ) );
-  else
-    {
-      edm::LogError("PixelCPETemplateReco") 
-	<< "@SUB = PixelCPETemplateReco::measurementPosition" 
-	<< "Should never be here. PixelCPETemplateReco should always be called with track angles. This is a bad error !!! ";
-      
-      return theTopol->measurementPosition( lp ); 
-    }
-
-}
-
 
 //------------------------------------------------------------------
 //  Public methods mandated by the base class.

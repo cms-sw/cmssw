@@ -95,21 +95,6 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
 }
 
 
-MeasurementPoint 
-PixelCPEGeneric::measurementPosition(const SiPixelCluster& cluster, 
-				     const GeomDetUnit & det) const
-{
-  LocalPoint lp = localPosition(cluster,det);
-
-  // ggiurgiu@jhu.edu 12/09/2010 : trk angles needed for bow/kink correction
-  if ( with_track_angle ) 
-    return theTopol->measurementPosition(lp, Topology::LocalTrackAngles( loc_traj_param_.dxdz(), loc_traj_param_.dydz() ) );
-  else
-    return theTopol->measurementPosition(lp);
-
-}
-
-
 
 //-----------------------------------------------------------------------------
 //! Hit position in the local frame (in cm).  Unlike other CPE's, this
@@ -280,10 +265,6 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
     {
       if ( cluster.sizeX() == 1 )
 	{
-	  // sanity chack
-	  if ( cluster.maxPixelRow() != cluster.minPixelRow() )
-	    throw cms::Exception("PixelCPEGeneric::localPosition") 
-	      << "\nERROR: cluster.maxPixelRow() != cluster.minPixelRow() although x-size = 1 !!!!! " << "\n\n";
 	  
 	  // Find if pixel is double (big). 
 	  bool bigInX = theRecTopol->isItBigPixelInX( cluster.maxPixelRow() );
@@ -307,10 +288,6 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
       
   if ( cluster.sizeY() == 1 )
     {
-      // sanity chack
-      if ( cluster.maxPixelCol() != cluster.minPixelCol() )
-	throw cms::Exception("PixelCPEGeneric::localPosition") 
-	  << "\nERROR: cluster.maxPixelCol() != cluster.minPixelCol() although y-size = 1 !!!!! " << "\n\n";
       
       // Find if pixel is double (big). 
       bool bigInY = theRecTopol->isItBigPixelInY( cluster.maxPixelCol() );

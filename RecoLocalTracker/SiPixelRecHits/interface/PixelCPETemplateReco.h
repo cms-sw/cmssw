@@ -45,10 +45,6 @@ class PixelCPETemplateReco : public PixelCPEBase
   
   // However, we do need to implement localError().
   LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const;
-  
-  MeasurementPoint measurementPosition ( const SiPixelCluster&, const GeomDetUnit & det) const;
-
-  // &&& Do we need to overload measurementError() ? 
 
  protected:
   //--- These functions are no longer needed, yet they are declared 

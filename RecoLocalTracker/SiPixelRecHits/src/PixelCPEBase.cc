@@ -132,35 +132,21 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
   //theTopol
   //= dynamic_cast<const RectangularPixelTopology*>( & (theDet->specificTopology()) );
 
-  theTopol = &(theDet->specificTopology());
-  auto const proxyT = dynamic_cast<const ProxyPixelTopology*>(theTopol);
-  if (proxyT) theRecTopol = dynamic_cast<const RectangularPixelTopology*>(&(proxyT->specificTopology()));
-  else theRecTopol = dynamic_cast<const RectangularPixelTopology*>(theTopol);
-  assert(theRecTopol);
+  auto topol = &(theDet->specificTopology());
+  if unlikely(topol!=theTopol) { // there is ONE topology!)
+    auto const proxyT = dynamic_cast<const ProxyPixelTopology*>(theTopol);
+    if (proxyT) theRecTopol = dynamic_cast<const RectangularPixelTopology*>(&(proxyT->specificTopology()));
+    else theRecTopol = dynamic_cast<const RectangularPixelTopology*>(theTopol);
+    assert(theRecTopol);
 
-
-
-  //---- The geometrical description of one module/plaquette
-  theNumOfRow = theTopol->nrows();      // rows in x
-  theNumOfCol = theTopol->ncolumns();   // cols in y
-  std::pair<float,float> pitchxy = theTopol->pitch();
-  thePitchX = pitchxy.first;            // pitch along x
-  thePitchY = pitchxy.second;           // pitch along y
-
-  //--- Find the offset
-  // ggiurgiu@jhu.edu 12/09/2010 : this piece is deprecated
-  //MeasurementPoint offset = 
-  //theTopol->measurementPosition( LocalPoint(0.0, 0.0), 
-  //			   Topology::LocalTrackAngles( LocalTrajectoryParameters::dxdz(), 
-  //						       LocalTrajectoryParameters::dydz() ) );  
-  //
-  //theOffsetX = offset.x();
-  //theOffsetY = offset.y();
-
-  //--- Find if the E field is flipped: i.e. whether it points
-  //--- from the beam, or towards the beam.  (The voltages are
-  //--- applied backwards on every other module in barrel and
-  //--- blade in forward.)
+    //---- The geometrical description of one module/plaquette
+    theNumOfRow = theRecTopol->nrows();      // rows in x
+    theNumOfCol = theRecTopol->ncolumns();   // cols in y
+    std::pair<float,float> pitchxy = theRecTopol->pitch();
+    thePitchX = pitchxy.first;            // pitch along x
+    thePitchY = pitchxy.second;           // pitch along y
+  }
+ 
   theSign = isFlipped() ? -1 : 1;
 
 
@@ -220,6 +206,125 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
 			       << " theLShiftX  = " << theLShiftX;
     }
   
+}
+
+
+//-----------------------------------------------------------------------------
+//  Compute alpha_ and beta_ from the LocalTrajectoryParameters.
+//  Note: should become const after both localParameters() become const.
+//-----------------------------------------------------------------------------
+void PixelCPEBase::
+computeAnglesFromTrajectory( const SiPixelCluster & cl,
+			     const GeomDetUnit    & det, 
+			     const LocalTrajectoryParameters & ltp) const
+{
+  loc_traj_param_ = ltp;
+
+  LocalVector localDir = ltp.momentum()/ltp.momentum().mag();
+  
+  // &&& Or, maybe we need to move to the local frame ???
+  //  LocalVector localDir( theDet->toLocal(theState.globalDirection()));
+  //thePart = theDet->type().part();
+  
+  float locx = localDir.x();
+  float locy = localDir.y();
+  float locz = localDir.z();
+
+  /*
+    // Danek's definition 
+    alpha_ = acos(locx/sqrt(locx*locx+locz*locz));
+    if ( isFlipped() )                    // &&& check for FPIX !!!
+    alpha_ = PI - alpha_ ;
+    beta_ = acos(locy/sqrt(locy*locy+locz*locz));
+  */
+
+  // &&& In the above, why not use atan2() ?
+  // ggiurgiu@fnal.gov, 01/24/09 :  Use it now.
+  alpha_ = atan2( locz, locx );
+  beta_  = atan2( locz, locy );
+
+  cotalpha_ = locx/locz;
+  cotbeta_  = locy/locz;
+
+  LocalPoint trk_lp = ltp.position();
+  trk_lp_x = trk_lp.x();
+  trk_lp_y = trk_lp.y();
+  
+  with_track_angle = true;
+
+
+  // ggiurgiu@jhu.edu 12/09/2010 : needed to correct for bows/kinks
+  AlgebraicVector5 vec_trk_parameters = ltp.mixedFormatVector();
+  //loc_trk_pred = &Topology::LocalTrackPred( vec_trk_parameters );
+  loc_trk_pred_ = Topology::LocalTrackPred( vec_trk_parameters );
+  
+}
+
+//-----------------------------------------------------------------------------
+//  Estimate theAlpha for barrel, based on the det position.
+//  &&& Needs to be consolidated from the above.
+//-----------------------------------------------------------------------------
+//float 
+//PixelCPEBase::estimatedAlphaForBarrel(float centerx) const
+//{
+//  float tanalpha = theSign * (centerx-theOffsetX) * thePitchX / theDetR;
+//  return PI/2.0 - atan(tanalpha);
+//}
+
+
+//-----------------------------------------------------------------------------
+//  The local position.
+// Should do correctly the big pixels.
+// who is using this version????
+//-----------------------------------------------------------------------------
+LocalPoint
+PixelCPEBase::localPosition( const SiPixelCluster& cluster, 
+			     const GeomDetUnit & det) const {
+  setTheDet( det, cluster );
+  
+  float lpx = xpos(cluster);
+  float lpy = ypos(cluster);
+  float lxshift = theLShiftX * thePitchX;  // shift in cm
+  float lyshift = theLShiftY * thePitchY;
+  LocalPoint cdfsfs(lpx-lxshift, lpy-lyshift);
+  return cdfsfs;
+}
+
+//-----------------------------------------------------------------------------
+//  Seems never used?
+//-----------------------------------------------------------------------------
+MeasurementPoint 
+PixelCPEBase::measurementPosition( const SiPixelCluster& cluster, 
+				   const GeomDetUnit & det) const {
+
+  LocalPoint lp = localPosition(cluster,det);
+
+  // ggiurgiu@jhu.edu 12/09/2010 : trk angles needed for bow/kink correction
+
+  if ( with_track_angle )
+    return theTopol->measurementPosition( lp, Topology::LocalTrackAngles( loc_traj_param_.dxdz(), loc_traj_param_.dydz() ) );
+  else 
+    return theTopol->measurementPosition( lp );
+
+}
+
+
+//-----------------------------------------------------------------------------
+//  Once we have the position, feed it to the topology to give us
+//  the error.  
+//  &&& APPARENTLY THIS METHOD IS NOT BEING USED ??? (Delete it?)
+//-----------------------------------------------------------------------------
+MeasurementError  
+PixelCPEBase::measurementError( const SiPixelCluster& cluster, const GeomDetUnit & det) const 
+{
+  LocalPoint lp( localPosition(cluster, det) );
+  LocalError le( localError(   cluster, det) );
+
+  // ggiurgiu@jhu.edu 12/09/2010 : trk angles needed for bow/kink correction
+  if ( with_track_angle )
+    return theTopol->measurementError( lp, le, Topology::LocalTrackAngles( loc_traj_param_.dxdz(), loc_traj_param_.dydz() ) );
+  else 
+    return theTopol->measurementError( lp, le );
 }
 
 //-----------------------------------------------------------------------------
@@ -299,121 +404,7 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
   with_track_angle = false;
 }
 
-//-----------------------------------------------------------------------------
-//  Compute alpha_ and beta_ from the LocalTrajectoryParameters.
-//  Note: should become const after both localParameters() become const.
-//-----------------------------------------------------------------------------
-void PixelCPEBase::
-computeAnglesFromTrajectory( const SiPixelCluster & cl,
-			     const GeomDetUnit    & det, 
-			     const LocalTrajectoryParameters & ltp) const
-{
-  loc_traj_param_ = ltp;
 
-  LocalVector localDir = ltp.momentum()/ltp.momentum().mag();
-  
-  // &&& Or, maybe we need to move to the local frame ???
-  //  LocalVector localDir( theDet->toLocal(theState.globalDirection()));
-  //thePart = theDet->type().part();
-  
-  float locx = localDir.x();
-  float locy = localDir.y();
-  float locz = localDir.z();
-
-  /*
-    // Danek's definition 
-    alpha_ = acos(locx/sqrt(locx*locx+locz*locz));
-    if ( isFlipped() )                    // &&& check for FPIX !!!
-    alpha_ = PI - alpha_ ;
-    beta_ = acos(locy/sqrt(locy*locy+locz*locz));
-  */
-
-  // &&& In the above, why not use atan2() ?
-  // ggiurgiu@fnal.gov, 01/24/09 :  Use it now.
-  alpha_ = atan2( locz, locx );
-  beta_  = atan2( locz, locy );
-
-  cotalpha_ = locx/locz;
-  cotbeta_  = locy/locz;
-
-  LocalPoint trk_lp = ltp.position();
-  trk_lp_x = trk_lp.x();
-  trk_lp_y = trk_lp.y();
-  
-  with_track_angle = true;
-
-
-  // ggiurgiu@jhu.edu 12/09/2010 : needed to correct for bows/kinks
-  AlgebraicVector5 vec_trk_parameters = ltp.mixedFormatVector();
-  //loc_trk_pred = &Topology::LocalTrackPred( vec_trk_parameters );
-  loc_trk_pred_ = Topology::LocalTrackPred( vec_trk_parameters );
-  
-}
-
-//-----------------------------------------------------------------------------
-//  Estimate theAlpha for barrel, based on the det position.
-//  &&& Needs to be consolidated from the above.
-//-----------------------------------------------------------------------------
-//float 
-//PixelCPEBase::estimatedAlphaForBarrel(float centerx) const
-//{
-//  float tanalpha = theSign * (centerx-theOffsetX) * thePitchX / theDetR;
-//  return PI/2.0 - atan(tanalpha);
-//}
-
-//-----------------------------------------------------------------------------
-//  The local position.
-// Should do correctly the big pixels.
-//-----------------------------------------------------------------------------
-LocalPoint
-PixelCPEBase::localPosition( const SiPixelCluster& cluster, 
-			     const GeomDetUnit & det) const {
-  setTheDet( det, cluster );
-  
-  float lpx = xpos(cluster);
-  float lpy = ypos(cluster);
-  float lxshift = theLShiftX * thePitchX;  // shift in cm
-  float lyshift = theLShiftY * thePitchY;
-  LocalPoint cdfsfs(lpx-lxshift, lpy-lyshift);
-  return cdfsfs;
-}
-
-//-----------------------------------------------------------------------------
-//  Seems never used?
-//-----------------------------------------------------------------------------
-MeasurementPoint 
-PixelCPEBase::measurementPosition( const SiPixelCluster& cluster, 
-				   const GeomDetUnit & det) const {
-
-  LocalPoint lp = localPosition(cluster,det);
-
-  // ggiurgiu@jhu.edu 12/09/2010 : trk angles needed for bow/kink correction
-
-  if ( with_track_angle )
-    return theTopol->measurementPosition( lp, Topology::LocalTrackAngles( loc_traj_param_.dxdz(), loc_traj_param_.dydz() ) );
-  else 
-    return theTopol->measurementPosition( lp );
-
-}
-
-
-//-----------------------------------------------------------------------------
-//  Once we have the position, feed it to the topology to give us
-//  the error.  
-//  &&& APPARENTLY THIS METHOD IS NOT BEING USED ??? (Delete it?)
-//-----------------------------------------------------------------------------
-MeasurementError  
-PixelCPEBase::measurementError( const SiPixelCluster& cluster, const GeomDetUnit & det) const 
-{
-  LocalPoint lp( localPosition(cluster, det) );
-  LocalError le( localError(   cluster, det) );
-
-  // ggiurgiu@jhu.edu 12/09/2010 : trk angles needed for bow/kink correction
-  if ( with_track_angle )
-    return theTopol->measurementError( lp, le, Topology::LocalTrackAngles( loc_traj_param_.dxdz(), loc_traj_param_.dydz() ) );
-  else 
-    return theTopol->measurementError( lp, le );
-}
 
 //-----------------------------------------------------------------------------
 // The isFlipped() is a silly way to determine which detectors are inverted.
@@ -439,8 +430,7 @@ bool PixelCPEBase::isFlipped() const
 
 PixelCPEBase::Param const & PixelCPEBase::param() const {
   Param & p = m_Params[ theDet->geographicalId().rawId() ];
-  if unlikely ( !p.topology ) { 
-      p.topology = &( theDet->specificTopology() );
+  if unlikely ( p.bz<1.e10f  ) { 
       LocalVector Bfield = theDet->surface().toLocal(magfield_->inTesla(theDet->surface().position()));
       p.drift = driftDirection(Bfield );
       p.bz = Bfield.z();

@@ -49,11 +49,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
  public:
   struct Param 
   {
-    Param() : topology(nullptr), bz(0) {}
-    
-    // giurgiu@jhu.edu 12/09/2010: switch to PixelTopology
-    //RectangularPixelTopology const * topology;
-    PixelTopology const * topology;
+    Param() : bz(-9e10f) {}
     float bz; // local Bz
     LocalVector drift;
   };
@@ -85,34 +81,34 @@ public:
   //--------------------------------------------------------------------------
   // In principle we could use the track too to obtain alpha and beta.
   //--------------------------------------------------------------------------
-  inline LocalValues localParameters( const SiPixelCluster & cl,
-				      const GeomDetUnit    & det, 
-				      const LocalTrajectoryParameters & ltp) const 
-    {
-      nRecHitsTotal_++ ;
-      setTheDet( det, cl );
-      computeAnglesFromTrajectory(cl, det, ltp);
-      
-      // localPosition( cl, det ) must be called before localError( cl, det ) !!!
-      LocalPoint lp = localPosition( cl, det ); 
-      LocalError le = localError( cl, det );        
-      
-      return std::make_pair( lp, le );
-    } 
+  LocalValues localParameters( const SiPixelCluster & cl,
+			       const GeomDetUnit    & det, 
+			       const LocalTrajectoryParameters & ltp) const 
+  {
+    nRecHitsTotal_++ ;
+    setTheDet( det, cl );
+    computeAnglesFromTrajectory(cl, det, ltp);
+    
+    // localPosition( cl, det ) must be called before localError( cl, det ) !!!
+    LocalPoint lp = localPosition( cl, det ); 
+    LocalError le = localError( cl, det );        
+    
+    return std::make_pair( lp, le );
+  } 
   
   //--------------------------------------------------------------------------
   // The third one, with the user-supplied alpha and beta
   //--------------------------------------------------------------------------
-  inline LocalValues localParameters( const SiPixelCluster & cl,
-				      const GeomDetUnit    & det, 
-				      float alpha, float beta) const 
-    {
-      nRecHitsTotal_++ ;
-      alpha_ = alpha;
-      beta_  = beta;
-      double HalfPi = 0.5*TMath::Pi();
-      cotalpha_ = tan(HalfPi - alpha_);
-      cotbeta_  = tan(HalfPi - beta_ );
+  LocalValues localParameters( const SiPixelCluster & cl,
+			       const GeomDetUnit    & det, 
+			       float alpha, float beta) const 
+  {
+    nRecHitsTotal_++ ;
+    alpha_ = alpha;
+    beta_  = beta;
+    double HalfPi = 0.5*TMath::Pi();
+    cotalpha_ = tan(HalfPi - alpha_);
+    cotbeta_  = tan(HalfPi - beta_ );
       setTheDet( det, cl );
       
       // localPosition( cl, det ) must be called before localError( cl, det ) !!!
@@ -120,8 +116,11 @@ public:
       LocalError le = localError( cl, det );        
       
       return std::make_pair( lp, le );
-    }
+  }
   
+  
+  void computeAnglesFromDetPosition(const SiPixelCluster & cl, 
+				    const GeomDetUnit    & det ) const;
   
   //--------------------------------------------------------------------------
   // Allow the magnetic field to be set/updated later.
@@ -283,9 +282,9 @@ public:
   //  Methods.
   //---------------------------------------------------------------------------
   void       setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster ) const ;
-  //
-  MeasurementPoint measurementPosition( const SiPixelCluster&, 
-					const GeomDetUnit & det) const ;
+
+  MeasurementPoint measurementPosition( const SiPixelCluster& cluster, 
+					const GeomDetUnit & det) const;
   MeasurementError measurementError   ( const SiPixelCluster&, 
 					const GeomDetUnit & det) const ;
 
@@ -293,10 +292,6 @@ public:
   //  Geometrical services to subclasses.
   //---------------------------------------------------------------------------
 
-  //--- Estimation of alpha_ and beta_
-  //float estimatedAlphaForBarrel(float centerx) const;
-  void computeAnglesFromDetPosition(const SiPixelCluster & cl, 
-				    const GeomDetUnit    & det ) const;
   void computeAnglesFromTrajectory (const SiPixelCluster & cl,
 				    const GeomDetUnit    & det, 
 				    const LocalTrajectoryParameters & ltp) const;
@@ -319,8 +314,8 @@ public:
 
 
   //--- The Lorentz shift correction
-  virtual float lorentzShiftX() const;
-  virtual float lorentzShiftY() const;
+  float lorentzShiftX() const;
+  float lorentzShiftY() const;
  
   //--- Position in X and Y
   virtual float xpos( const SiPixelCluster& ) const = 0;
