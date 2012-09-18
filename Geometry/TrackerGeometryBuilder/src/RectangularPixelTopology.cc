@@ -255,7 +255,7 @@ RectangularPixelTopology::localX( const float mpx ) const
     //  binoffx=binoffx+0;
     // } 
 #ifdef EDM_ML_DEBUG
-    else { // too small
+    else if (binoffx<0) { // too small
       LogDebug("RectangularPixelTopology") << " very bad, binx " << binoffx << "\n"
 					   << mpx << " " << binoffx << " "
 					   << fractionX << " " << local_pitchx << " " << m_xoffset;
