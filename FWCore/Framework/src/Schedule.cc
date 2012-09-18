@@ -138,7 +138,7 @@ namespace edm {
         //set placeholder for the branch, we will remove the nullptr if a
         // module actually wants the branch.
         for(auto const& branch:vBranchesToDeleteEarly) {
-          branchToReadingWorker.insert(make_pair(branch,nullptr));
+          branchToReadingWorker.insert(std::make_pair(branch, static_cast<Worker*>(nullptr)));
         }
       }
     }
