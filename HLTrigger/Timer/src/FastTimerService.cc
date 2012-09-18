@@ -205,6 +205,8 @@ void FastTimerService::postBeginJob() {
     int modulebins = (int) std::ceil(m_dqm_moduletime_range / m_dqm_moduletime_resolution);
 
     m_dqms->setCurrentFolder(m_dqm_path);
+
+    // event plots
     m_dqm_event         = m_dqms->book1D("event",        "Event",    eventbins, 0., m_dqm_eventtime_range)->getTH1F();
     m_dqm_event         ->StatOverflows(true);
     m_dqm_source        = m_dqms->book1D("source",       "Source",   pathbins,  0., m_dqm_pathtime_range)->getTH1F();
@@ -213,20 +215,14 @@ void FastTimerService::postBeginJob() {
     m_dqm_all_paths     ->StatOverflows(true);
     m_dqm_all_endpaths  = m_dqms->book1D("all_endpaths", "EndPaths", pathbins,  0., m_dqm_pathtime_range)->getTH1F();
     m_dqm_all_endpaths  ->StatOverflows(true);
-    // these are actually filled in the harvesting step - but that may happen in a separate step, which no longer has all the information about the endpaths
 
-    if (m_enable_dqm_bypath_active) {
-      m_dqm_paths_active_time     = m_dqms->bookProfile("paths_active_time",    "Additional time spent in each path", size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range)->getTProfile();
-      m_dqm_paths_active_time     ->StatOverflows(true);
-    }
-    if (m_enable_dqm_bypath_total) {
-      m_dqm_paths_total_time      = m_dqms->bookProfile("paths_total_time",     "Total time spent in each path",      size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range)->getTProfile();
-      m_dqm_paths_total_time      ->StatOverflows(true);
-    }
-    if (m_enable_dqm_bypath_exclusive) {
-      m_dqm_paths_exclusive_time  = m_dqms->bookProfile("paths_exclusive_time", "Exclusive time spent in each path",  size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range)->getTProfile();
-      m_dqm_paths_exclusive_time  ->StatOverflows(true);
-    }
+    // summary plots
+    m_dqm_paths_active_time     = m_dqms->bookProfile("paths_active_time",    "Additional time spent in each path", size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range)->getTProfile();
+    m_dqm_paths_active_time     ->StatOverflows(true);
+    m_dqm_paths_total_time      = m_dqms->bookProfile("paths_total_time",     "Total time spent in each path",      size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range)->getTProfile();
+    m_dqm_paths_total_time      ->StatOverflows(true);
+    m_dqm_paths_exclusive_time  = m_dqms->bookProfile("paths_exclusive_time", "Exclusive time spent in each path",  size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range)->getTProfile();
+    m_dqm_paths_exclusive_time  ->StatOverflows(true);
 
     for (uint32_t i = 0; i < size_p; ++i) {
       std::string const & label = tns.getTrigPath(i);
@@ -489,8 +485,10 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
           continue;
         if (module->is_exclusive)
           exclusive += module->time_active;
-      }    
-      pathinfo.dqm_exclusive->Fill(exclusive * 1000.);      // convert to ms
+      }
+      m_dqm_paths_exclusive_time->Fill(pathinfo.index, exclusive * 1000.);
+      if (m_enable_dqm_bypath_exclusive)
+        pathinfo.dqm_exclusive->Fill(exclusive * 1000.);      // convert to ms
     }
   }
 
@@ -598,8 +596,11 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
     pathinfo.time_active = active;
     pathinfo.summary_active += active;
 
-    if (m_dqms and m_enable_dqm_bypath_active)
-      pathinfo.dqm_active->Fill(active * 1000.);        // convert to ms
+    if (m_dqms) {
+      m_dqm_paths_active_time->Fill(pathinfo.index, active * 1000.);     // convert to ms
+      if (m_enable_dqm_bypath_active)
+        pathinfo.dqm_active->Fill(active * 1000.);                      // convert to ms
+    }
 
     // measure the time spent between the execution of the last module and the end of the path
     if (m_enable_timing_modules) {
@@ -689,6 +690,7 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
           pathinfo.dqm_postmodules ->Fill(post     * 1000.);      // convert to ms
           pathinfo.dqm_overhead    ->Fill(overhead * 1000.);      // convert to ms
         }
+        m_dqm_paths_total_time->Fill(pathinfo.index, total * 1000.);
         if (m_enable_dqm_bypath_total) {
           pathinfo.dqm_total       ->Fill(total    * 1000.);      // convert to ms
         }
