@@ -9,7 +9,7 @@ Scenario supporting RelVal GEN production
 import os
 import sys
 
-from Configuration.DataProcessing.Scenario import Scenario
+from Configuration.DataProcessing.Scenario import *
 import FWCore.ParameterSet.Config as cms
 
 class relvalgen(Scenario):

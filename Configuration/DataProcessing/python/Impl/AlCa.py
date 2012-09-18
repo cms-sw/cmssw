@@ -9,7 +9,7 @@ Scenario supporting proton collisions
 import os
 import sys
 
-from Configuration.DataProcessing.Scenario import Scenario
+from Configuration.DataProcessing.Scenario import *
 from Configuration.DataProcessing.Utils import stepALCAPRODUCER,dqmIOSource,harvestingMode,dictIO
 import FWCore.ParameterSet.Config as cms
 

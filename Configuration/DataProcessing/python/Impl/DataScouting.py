@@ -10,8 +10,7 @@ Really against OO principles, but pragmatism should prevale, I guess.
 import os
 import sys
 
-from Configuration.DataProcessing.Scenario import Scenario
-
+from Configuration.DataProcessing.Scenario import *
 from Configuration.DataProcessing.Utils import stepALCAPRODUCER,addMonitoring,dictIO,dqmIOSource,harvestingMode,dqmSeq
 import FWCore.ParameterSet.Config as cms
 from Configuration.DataProcessing.RecoTLR import customisePrompt,customiseExpress
