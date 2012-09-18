@@ -106,20 +106,20 @@ FastTimerServiceClient::fillSummaryPlots(void)
   // note: the following (identical) loops need to be kept separate, as any of these group of histograms might be missing
   // if any of them is filled, size will have the total number of paths, and "paths" can be used to extract the list of labels
   dqm->setCurrentFolder(m_dqm_path);
-  TH1F *   paths = nullptr;
-  uint32_t size  = 0;
+  TProfile const * paths = nullptr;
+  uint32_t         size  = 0;
 
   // extract the list of Paths and EndPaths from the summary plots
   if (( me = dqm->get(m_dqm_path + "/paths_active_time") )) {
-    paths = me->getTH1F();
+    paths = me->getTProfile();
     size  = paths->GetXaxis()->GetNbins();
   } else 
   if (( me = dqm->get(m_dqm_path + "/paths_total_time") )) {
-    paths = me->getTH1F();
+    paths = me->getTProfile();
     size  = paths->GetXaxis()->GetNbins();
   } else
   if (( me = dqm->get(m_dqm_path + "/paths_exclusive_time") )) {
-    paths = me->getTH1F();
+    paths = me->getTProfile();
     size  = paths->GetXaxis()->GetNbins();
   }
 
