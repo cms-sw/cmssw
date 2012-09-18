@@ -106,44 +106,21 @@ FastTimerServiceClient::fillSummaryPlots(void)
   // note: the following (identical) loops need to be kept separate, as any of these group of histograms might be missing
   // if any of them is filled, size will have the total number of paths, and "paths" can be used to extract the list of labels
   dqm->setCurrentFolder(m_dqm_path);
-  uint32_t size  = 0;
   TH1F *   paths = nullptr;
+  uint32_t size  = 0;
 
-  // fill summary histograms with the average (active) time spent in each path
-  if (( me = dqm->get(m_dqm_path + "/path_active_time") )) {
+  // extract the list of Paths and EndPaths from the summary plots
+  if (( me = dqm->get(m_dqm_path + "/paths_active_time") )) {
     paths = me->getTH1F();
-    paths->Reset();
     size  = paths->GetXaxis()->GetNbins();
-    for (uint32_t i = 0; i < size; ++i) {
-      // extract the list of Paths and EndPaths from the bin labels of "path_active_time"
-      std::string label = paths->GetXaxis()->GetBinLabel(i+1);   // bin count from 1 (bin 0 is underflow)
-      if (( me = dqm->get(m_dqm_path + "/Paths/" + label + "_active") ))
-        paths->Fill(i, me->getTH1F()->GetMean());
-    }
-  }
-  // fill summary histograms with the average (total) time spent in each path
-  if (( me = dqm->get(m_dqm_path + "/path_total_time") )) {
+  } else 
+  if (( me = dqm->get(m_dqm_path + "/paths_total_time") )) {
     paths = me->getTH1F();
-    paths->Reset();
     size  = paths->GetXaxis()->GetNbins();
-    for (uint32_t i = 0; i < size; ++i) {
-      // extract the list of Paths and EndPaths from the bin labels of "path_total_time"
-      std::string label = paths->GetXaxis()->GetBinLabel(i+1);   // bin count from 1 (bin 0 is underflow)
-      if (( me = dqm->get(m_dqm_path + "/Paths/" + label + "_total") ))
-        paths->Fill(i, me->getTH1F()->GetMean());
-    }
-  }
-  // fill summary histograms with the average (exclusive) time spent in each path
-  if (( me = dqm->get(m_dqm_path + "/path_exclusive_time") )) {
+  } else
+  if (( me = dqm->get(m_dqm_path + "/paths_exclusive_time") )) {
     paths = me->getTH1F();
-    paths->Reset();
     size  = paths->GetXaxis()->GetNbins();
-    for (uint32_t i = 0; i < size; ++i) {
-      // extract the list of Paths and EndPaths from the bin labels of "path_exclusive_time"
-      std::string label = paths->GetXaxis()->GetBinLabel(i+1);   // bin count from 1 (bin 0 is underflow)
-      if (( me = dqm->get(m_dqm_path + "/Paths/" + label + "_exclusive") ))
-        paths->Fill(i, me->getTH1F()->GetMean());
-    }
   }
 
   // for each path, fill histograms with
