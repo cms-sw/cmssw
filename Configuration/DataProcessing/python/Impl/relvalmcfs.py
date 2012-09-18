@@ -11,7 +11,6 @@ import sys
 
 from Configuration.DataProcessing.Scenario import Scenario
 import FWCore.ParameterSet.Config as cms
-from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder,Options,defaultOptions
 
 
 class relvalmcfs(Scenario):

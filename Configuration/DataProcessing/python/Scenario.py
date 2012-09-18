@@ -17,6 +17,10 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.DataProcessing.Merge import mergeProcess
 from Configuration.DataProcessing.Repack import repackProcess
 
+#central import, will be used by all daughter classes anyways
+from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder,Options,defaultOptions
+
+
 class Scenario(object):
     """
     _Scenario_

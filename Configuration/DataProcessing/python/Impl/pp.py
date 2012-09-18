@@ -11,7 +11,6 @@ import sys
 
 from Configuration.DataProcessing.Reco import Reco
 import FWCore.ParameterSet.Config as cms
-from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder,Options,defaultOptions
 from Configuration.DataProcessing.RecoTLR import customisePrompt,customiseExpress
 
 class pp(Reco):
