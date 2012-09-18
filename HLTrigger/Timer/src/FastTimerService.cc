@@ -217,11 +217,11 @@ void FastTimerService::postBeginJob() {
     m_dqm_all_endpaths  ->StatOverflows(true);
 
     // summary plots
-    m_dqm_paths_active_time     = m_dqms->bookProfile("paths_active_time",    "Additional time spent in each path", size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range)->getTProfile();
+    m_dqm_paths_active_time     = m_dqms->bookProfile("paths_active_time",    "Additional time spent in each path", size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range, " ")->getTProfile();
     m_dqm_paths_active_time     ->StatOverflows(true);
-    m_dqm_paths_total_time      = m_dqms->bookProfile("paths_total_time",     "Total time spent in each path",      size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range)->getTProfile();
+    m_dqm_paths_total_time      = m_dqms->bookProfile("paths_total_time",     "Total time spent in each path",      size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range, " ")->getTProfile();
     m_dqm_paths_total_time      ->StatOverflows(true);
-    m_dqm_paths_exclusive_time  = m_dqms->bookProfile("paths_exclusive_time", "Exclusive time spent in each path",  size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range)->getTProfile();
+    m_dqm_paths_exclusive_time  = m_dqms->bookProfile("paths_exclusive_time", "Exclusive time spent in each path",  size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range, " ")->getTProfile();
     m_dqm_paths_exclusive_time  ->StatOverflows(true);
 
     for (uint32_t i = 0; i < size_p; ++i) {
