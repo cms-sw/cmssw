@@ -127,7 +127,7 @@ class Scenario(object):
         raise NotImplementedError, msg
 
 
-    def skimming(self, skims, **options):
+    def skimming(self, skims, globalTag, **options):
         """
         _skimming_
 

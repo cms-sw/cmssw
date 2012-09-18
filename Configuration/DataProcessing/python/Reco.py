@@ -185,6 +185,25 @@ class Reco(Scenario):
         
         return process
 
+    def skimming(self, skims, globalTag,**options):
+        """
+        _skimming_
+
+        skimming method overload for the prompt skiming
+        
+        """
+        options = defaultOptions
+        options.scenario = self.cbSc if hasattr(self,'cbSc') else self.__class__.__name__
+        options.step = "SKIM:"+('+'.join(skims))
+        options.name = "SKIM"
+        options.conditions = globalTag
+        process = cms.Process("SKIM")
+        process.source = cms.Source("PoolSource")
+        configBuilder = ConfigBuilder(options, process = process)
+        configBuilder.prepare()
+
+        return process
+        
     """
     def repack(self, **args):
         options = defaultOptions
