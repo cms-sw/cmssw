@@ -17,7 +17,7 @@ void MuonIdTruthInfo::truthMatchMuon(const edm::Event& iEvent,
    // to the center of a chamber is extrapolated by a straight line
    
    edm::Handle<edm::SimTrackContainer> simTracks;
-   iEvent.getByType<edm::SimTrackContainer>(simTracks);
+   iEvent.getByLabel<edm::SimTrackContainer>("g4SimHits", "", simTracks);
    if (! simTracks.isValid() ) {
       LogTrace("MuonIdentification") <<"No tracks found";
       return;
