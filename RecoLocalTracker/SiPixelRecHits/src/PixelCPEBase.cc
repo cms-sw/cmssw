@@ -133,19 +133,20 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
 
   auto topol = &(theDet->specificTopology());
   if unlikely(topol!=theTopol) { // there is ONE topology!)
-    auto const proxyT = dynamic_cast<const ProxyPixelTopology*>(theTopol);
-    if (proxyT) theRecTopol = dynamic_cast<const RectangularPixelTopology*>(&(proxyT->specificTopology()));
-    else theRecTopol = dynamic_cast<const RectangularPixelTopology*>(theTopol);
-    assert(theRecTopol);
-
-    //---- The geometrical description of one module/plaquette
-    theNumOfRow = theRecTopol->nrows();      // rows in x
-    theNumOfCol = theRecTopol->ncolumns();   // cols in y
-    std::pair<float,float> pitchxy = theRecTopol->pitch();
-    thePitchX = pitchxy.first;            // pitch along x
-    thePitchY = pitchxy.second;           // pitch along y
-  }
- 
+      theTopol=topol;
+      auto const proxyT = dynamic_cast<const ProxyPixelTopology*>(theTopol);
+      if (proxyT) theRecTopol = dynamic_cast<const RectangularPixelTopology*>(&(proxyT->specificTopology()));
+      else theRecTopol = dynamic_cast<const RectangularPixelTopology*>(theTopol);
+      assert(theRecTopol);
+      
+      //---- The geometrical description of one module/plaquette
+      theNumOfRow = theRecTopol->nrows();      // rows in x
+      theNumOfCol = theRecTopol->ncolumns();   // cols in y
+      std::pair<float,float> pitchxy = theRecTopol->pitch();
+      thePitchX = pitchxy.first;            // pitch along x
+      thePitchY = pitchxy.second;           // pitch along y
+    }
+  
   theSign = isFlipped() ? -1 : 1;
 
 
