@@ -37,6 +37,9 @@ private:
   void endRun  (edm::Run const & run, edm::EventSetup const & setup);
   void beginLuminosityBlock(edm::LuminosityBlock const & lumi, edm::EventSetup const & setup);
   void endLuminosityBlock  (edm::LuminosityBlock const & lumi, edm::EventSetup const & setup);
+
+private:
+  void fillSummaryPlots();
 };
 
 FastTimerServiceClient::FastTimerServiceClient(edm::ParameterSet const & config) :
@@ -71,6 +74,23 @@ FastTimerServiceClient::beginRun(edm::Run const & run, edm::EventSetup const & s
 void
 FastTimerServiceClient::endRun(edm::Run const & run, edm::EventSetup const & setup)
 {
+  fillSummaryPlots();
+}
+
+void
+FastTimerServiceClient::beginLuminosityBlock(edm::LuminosityBlock const & lumi, edm::EventSetup const & setup)
+{
+}
+
+void
+FastTimerServiceClient::endLuminosityBlock(edm::LuminosityBlock const & lumi, edm::EventSetup const & setup)
+{
+  fillSummaryPlots();
+}
+
+void
+FastTimerServiceClient::fillSummaryPlots(void)
+{
   DQMStore * dqm = edm::Service<DQMStore>().operator->();
   if (dqm == 0)
     // cannot access the DQM store
@@ -83,22 +103,44 @@ FastTimerServiceClient::endRun(edm::Run const & run, edm::EventSetup const & set
     return;
   double events = me->getTH1F()->GetEntries();
 
-  // fill summary histograms with the average (total and active) time spent in each path
+  // note: the following (identical) loops need to be kept separate, as any of these group of histograms might be missing
+  // if any of them is filled, size will have the total number of paths, and "paths" can be used to extract the list of labels
   dqm->setCurrentFolder(m_dqm_path);
-  TH1F * path_active     = dqm->get(m_dqm_path + "/path_active_time")->getTH1F();
-  TH1F * path_total      = dqm->get(m_dqm_path + "/path_total_time")->getTH1F();
-  TH1F * path_exclusive  = dqm->get(m_dqm_path + "/path_exclusive_time")->getTH1F();
+  uint32_t size  = 0;
+  TH1F *   paths = nullptr;
 
-  uint32_t size = path_total->GetXaxis()->GetNbins();
-  for (uint32_t i = 0; i < size; ++i) {
-    // extract the list of Paths and EndPaths from the bin labels of "path_total_time"
-    std::string label = path_total->GetXaxis()->GetBinLabel(i+1);   // bin count from 1 (bin 0 is underflow)
-    if (( me = dqm->get(m_dqm_path + "/Paths/" + label + "_total") ))
-      path_total ->Fill(i, me->getTH1F()->GetMean());
-    if (( me = dqm->get(m_dqm_path + "/Paths/" + label + "_active") ))
-      path_active->Fill(i, me->getTH1F()->GetMean());
-    if (( me = dqm->get(m_dqm_path + "/Paths/" + label + "_exclusive") ))
-      path_exclusive->Fill(i, me->getTH1F()->GetMean()); 
+  // fill summary histograms with the average (active) time spent in each path
+  if (( me = dqm->get(m_dqm_path + "/path_active_time") )) {
+    paths = me->getTH1F();
+    size  = paths->GetXaxis()->GetNbins();
+    for (uint32_t i = 0; i < size; ++i) {
+      // extract the list of Paths and EndPaths from the bin labels of "path_active_time"
+      std::string label = paths->GetXaxis()->GetBinLabel(i+1);   // bin count from 1 (bin 0 is underflow)
+      if (( me = dqm->get(m_dqm_path + "/Paths/" + label + "_active") ))
+        paths->Fill(i, me->getTH1F()->GetMean());
+    }
+  }
+  // fill summary histograms with the average (total) time spent in each path
+  if (( me = dqm->get(m_dqm_path + "/path_total_time") )) {
+    paths = me->getTH1F();
+    size  = paths->GetXaxis()->GetNbins();
+    for (uint32_t i = 0; i < size; ++i) {
+      // extract the list of Paths and EndPaths from the bin labels of "path_total_time"
+      std::string label = paths->GetXaxis()->GetBinLabel(i+1);   // bin count from 1 (bin 0 is underflow)
+      if (( me = dqm->get(m_dqm_path + "/Paths/" + label + "_total") ))
+        paths->Fill(i, me->getTH1F()->GetMean());
+    }
+  }
+  // fill summary histograms with the average (exclusive) time spent in each path
+  if (( me = dqm->get(m_dqm_path + "/path_exclusive_time") )) {
+    paths = me->getTH1F();
+    size  = paths->GetXaxis()->GetNbins();
+    for (uint32_t i = 0; i < size; ++i) {
+      // extract the list of Paths and EndPaths from the bin labels of "path_exclusive_time"
+      std::string label = paths->GetXaxis()->GetBinLabel(i+1);   // bin count from 1 (bin 0 is underflow)
+      if (( me = dqm->get(m_dqm_path + "/Paths/" + label + "_exclusive") ))
+        paths->Fill(i, me->getTH1F()->GetMean());
+    }
   }
 
   // for each path, fill histograms with
@@ -107,8 +149,8 @@ FastTimerServiceClient::endRun(edm::Run const & run, edm::EventSetup const & set
   //  - the "efficiency" of each module (number of time a module succeded divided by the number of times the has run)
   dqm->setCurrentFolder(m_dqm_path + "/Paths");
   for (uint32_t p = 1; p <= size; ++p) {
-    // extract the list of Paths and EndPaths from the bin labels of "path_total_time"
-    std::string label = path_total->GetXaxis()->GetBinLabel(p);
+    // extract the list of Paths and EndPaths from the bin labels of one of the summary plots
+    std::string label = paths->GetXaxis()->GetBinLabel(p);
     MonitorElement * me_counter = dqm->get( m_dqm_path + "/Paths/" + label + "_module_counter" );
     MonitorElement * me_total   = dqm->get( m_dqm_path + "/Paths/" + label + "_module_total" );
     if (me_counter == 0 or me_total == 0)
@@ -116,8 +158,8 @@ FastTimerServiceClient::endRun(edm::Run const & run, edm::EventSetup const & set
     TH1F * counter = me_counter->getTH1F();
     TH1F * total   = me_total  ->getTH1F();
     uint32_t bins = counter->GetXaxis()->GetNbins();
-    double min  = counter->GetXaxis()->GetXmin();
-    double max  = counter->GetXaxis()->GetXmax();
+    double   min  = counter->GetXaxis()->GetXmin();
+    double   max  = counter->GetXaxis()->GetXmax();
     TH1F * average    = dqm->book1D(label + "_module_average",    label + " module average",    bins, min, max)->getTH1F();
     TH1F * running    = dqm->book1D(label + "_module_running",    label + " module running",    bins, min, max)->getTH1F();
     TH1F * efficiency = dqm->book1D(label + "_module_efficiency", label + " module efficiency", bins, min, max)->getTH1F();
@@ -126,27 +168,17 @@ FastTimerServiceClient::endRun(edm::Run const & run, edm::EventSetup const & set
       average   ->GetXaxis()->SetBinLabel(i, module);
       running   ->GetXaxis()->SetBinLabel(i, module);
       efficiency->GetXaxis()->SetBinLabel(i, module);
-      double x = total  ->GetBinContent(i);
+      double t = total  ->GetBinContent(i);
       double n = counter->GetBinContent(i);
       double p = counter->GetBinContent(i+1);
-      average   ->SetBinContent(i, x / events);
+      average   ->SetBinContent(i, t / events);
       if (n) {
-        running   ->SetBinContent(i, x / n);
+        running   ->SetBinContent(i, t / n);
         efficiency->SetBinContent(i, p / n);
       }
     }
   }
 
-}
-
-void
-FastTimerServiceClient::beginLuminosityBlock(edm::LuminosityBlock const & lumi, edm::EventSetup const & setup)
-{
-}
-
-void
-FastTimerServiceClient::endLuminosityBlock(edm::LuminosityBlock const & lumi, edm::EventSetup const & setup)
-{
 }
 
 void
