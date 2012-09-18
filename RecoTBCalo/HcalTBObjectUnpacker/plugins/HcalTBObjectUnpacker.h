@@ -20,6 +20,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBTriggerDataUnpacker.h"
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBSlowDataUnpacker.h"
@@ -48,6 +49,8 @@
     bool doRunData_, doTriggerData_, doEventPosition_, doTiming_, doSourcePos_,doBeamADC_;
 
     std::vector<std::vector<std::string> > calibLines_;
+    edm::InputTag fedRawDataCollectionTag_;
+
     void parseCalib();
 
   };
