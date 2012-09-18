@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/ProxyStripTopology.h"
 #include "boost/lexical_cast.hpp"
 #include "TProfile.h"
 
@@ -36,10 +37,18 @@ get_list_of_radial_topologies(const edm::Event&e, const edm::EventSetup& es) {
 				     470079661,//TEC r5
 				     470049476,//TEC r6
 				     470045428}; //TEC r7
-  for(unsigned i=0; i<10; i++) 
-    topos.push_back(
-	dynamic_cast<const RadialStripTopology*>(&dynamic_cast<const StripGeomDetUnit*>( theTrackerGeometry->idToDet( radial_detids[i] ) )->specificTopology())
-      );
+  for(unsigned i=0; i<10; i++) {
+    auto g = dynamic_cast<const StripGeomDetUnit*>(theTrackerGeometry->idToDet( radial_detids[i] ));
+    if (!g) std::cout << "no geom for " << radial_detids[i] << std::endl;
+    auto const topol = &g->specificTopology();
+    const RadialStripTopology* rt =0;	
+    auto const proxyT = dynamic_cast<const ProxyStripTopology*>(topol);
+    if (proxyT) rt = dynamic_cast<const RadialStripTopology*>(&(proxyT->specificTopology()));
+    else rt = dynamic_cast<const RadialStripTopology*>(topol);
+    if (!rt) std::cout << "no radial topology for " << radial_detids[i] << std::endl;
+    else
+    topos.push_back(rt);
+  }
   return topos;
 }
 
