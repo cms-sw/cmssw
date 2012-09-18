@@ -138,7 +138,7 @@ private:
     double                      summary_active;
     TH1F *                      dqm_active;
     bool                        has_just_run;       // flag set to check if a module was active inside a particular path, or not
-    bool                        exclusive;          // flag set to check if a module has been run only once
+    bool                        is_exclusive;       // flag set to check if a module has been run only once
 
   public:
     ModuleInfo() :
@@ -146,7 +146,7 @@ private:
       summary_active(0.),
       dqm_active(0),
       has_just_run(false),
-      exclusive(false)
+      is_exclusive(false)
     { }
 
     ~ModuleInfo() {
@@ -160,7 +160,7 @@ private:
       // the DAQ destroys and re-creates the DQM and DQMStore services at each reconfigure, so we don't need to clean them up
       dqm_active = 0;
       has_just_run = false;
-      exclusive = false;
+      is_exclusive = false;
     }
   };
 
@@ -179,6 +179,7 @@ private:
     double                      summary_overhead;
     double                      summary_total;
     uint32_t                    last_run;
+    uint32_t                    index;              // index of the Path or EndPath in the "schedule"
     TH1F *                      dqm_active;
     TH1F *                      dqm_exclusive;
     TH1F *                      dqm_premodules;
@@ -206,6 +207,7 @@ private:
       summary_overhead(0.),
       summary_total(0.),
       last_run(0),
+      index(0),
       dqm_active(0),
       dqm_exclusive(0),
       dqm_premodules(0),
@@ -238,6 +240,7 @@ private:
       summary_overhead = 0.;
       summary_total = 0.;
       last_run = 0;
+      index = 0;
 
       // the DAQ destroys and re-creates the DQM and DQMStore services at each reconfigure, so we don't need to clean them up
       dqm_active = 0; 

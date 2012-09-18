@@ -150,10 +150,17 @@ void FastTimerService::postBeginJob() {
     edm::LogError("FastTimerService") << "this process is NOT bound to a single CPU, the results of the FastTimerService may be undefined";
 
   edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
-  for (auto const & name: tns.getTrigPaths())
-    m_paths[name];
-  for (auto const & name: tns.getEndPaths())
-    m_paths[name];
+  uint32_t size_p = tns.getTrigPaths().size();
+  uint32_t size_e = tns.getEndPaths().size();
+  uint32_t size = size_p + size_e;
+  for (uint32_t i = 0; i < size_p; ++i) {
+    std::string const & label = tns.getTrigPath(i);
+    m_paths[label].index = i;
+  }
+  for (uint32_t i = 0; i < size_e; ++i) {
+    std::string const & label = tns.getEndPath(i);
+    m_paths[label].index = size_p + i;
+  }
 
   // cache all pathinfo objects
   m_cache_paths.reserve(m_paths.size());
@@ -207,12 +214,6 @@ void FastTimerService::postBeginJob() {
     m_dqm_all_endpaths  = m_dqms->book1D("all_endpaths", "EndPaths", pathbins,  0., m_dqm_pathtime_range)->getTH1F();
     m_dqm_all_endpaths  ->StatOverflows(true);
     // these are actually filled in the harvesting step - but that may happen in a separate step, which no longer has all the information about the endpaths
-    uint32_t size_p = tns.getTrigPaths().size();
-    uint32_t size_e = tns.getEndPaths().size();
-    uint32_t size = size_p + size_e;
-    m_dqm_paths_active_time     = 0;
-    m_dqm_paths_total_time      = 0;
-    m_dqm_paths_exclusive_time  = 0;
 
     if (m_enable_dqm_bypath_active) {
       m_dqm_paths_active_time     = m_dqms->bookProfile("paths_active_time",    "Additional time spent in each path", size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range)->getTProfile();
@@ -469,7 +470,7 @@ void FastTimerService::preProcessEvent(edm::EventID const & id, edm::Timestamp c
   for (ModuleInfo * module: m_cache_modules) {
     module->time_active     = 0.;
     module->has_just_run    = false;
-    module->exclusive       = false;
+    module->is_exclusive    = false;
   }
 }
 
@@ -486,7 +487,7 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
         if (module == 0)
           // this is a module occurring more than once in the same path, skip it after the first occurrence
           continue;
-        if (module->exclusive)
+        if (module->is_exclusive)
           exclusive += module->time_active;
       }    
       pathinfo.dqm_exclusive->Fill(exclusive * 1000.);      // convert to ms
@@ -629,10 +630,10 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
 
         if (module->has_just_run) {
           current += module->time_active;
-          module->exclusive = true;
+          module->is_exclusive = true;
         } else {
           total   += module->time_active;
-          module->exclusive = false;
+          module->is_exclusive = false;
         }
 
         // fill detailed timing histograms
