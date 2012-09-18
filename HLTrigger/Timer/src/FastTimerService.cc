@@ -102,6 +102,9 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_dqm_source(0),
   m_dqm_all_paths(0),
   m_dqm_all_endpaths(0),
+  m_dqm_paths_active_time(0),
+  m_dqm_paths_total_time(0),
+  m_dqm_paths_exclusive_time(0),
   // per-path and per-module accounting
   m_current_path(0),
   m_paths(),
@@ -197,44 +200,50 @@ void FastTimerService::postBeginJob() {
     m_dqms->setCurrentFolder(m_dqm_path);
     m_dqm_event         = m_dqms->book1D("event",        "Event",    eventbins, 0., m_dqm_eventtime_range)->getTH1F();
     m_dqm_event         ->StatOverflows(true);
-    m_dqm_source        = m_dqms->book1D("source",       "Source",   pathbins, 0., m_dqm_pathtime_range)->getTH1F();
+    m_dqm_source        = m_dqms->book1D("source",       "Source",   pathbins,  0., m_dqm_pathtime_range)->getTH1F();
     m_dqm_source        ->StatOverflows(true);
     m_dqm_all_paths     = m_dqms->book1D("all_paths",    "Paths",    eventbins, 0., m_dqm_eventtime_range)->getTH1F();
     m_dqm_all_paths     ->StatOverflows(true);
-    m_dqm_all_endpaths  = m_dqms->book1D("all_endpaths", "EndPaths", pathbins, 0., m_dqm_pathtime_range)->getTH1F();
+    m_dqm_all_endpaths  = m_dqms->book1D("all_endpaths", "EndPaths", pathbins,  0., m_dqm_pathtime_range)->getTH1F();
     m_dqm_all_endpaths  ->StatOverflows(true);
     // these are actually filled in the harvesting step - but that may happen in a separate step, which no longer has all the information about the endpaths
     uint32_t size_p = tns.getTrigPaths().size();
     uint32_t size_e = tns.getEndPaths().size();
     uint32_t size = size_p + size_e;
-    TH1F * path_active_time     = 0;
-    TH1F * path_total_time      = 0;
-    TH1F * path_exclusive_time  = 0;
+    m_dqm_paths_active_time     = 0;
+    m_dqm_paths_total_time      = 0;
+    m_dqm_paths_exclusive_time  = 0;
 
-    if (m_enable_dqm_bypath_active)
-      path_active_time     = m_dqms->book1D("path_active_time",    "Additional time spent in each path", size, -0.5, size-0.5)->getTH1F();
-    if (m_enable_dqm_bypath_total)
-      path_total_time      = m_dqms->book1D("path_total_time",     "Total time spent in each path",      size, -0.5, size-0.5)->getTH1F();
-    if (m_enable_dqm_bypath_exclusive)
-      path_exclusive_time  = m_dqms->book1D("path_exclusive_time", "Exclusive time spent in each path",  size, -0.5, size-0.5)->getTH1F();
+    if (m_enable_dqm_bypath_active) {
+      m_dqm_paths_active_time     = m_dqms->bookProfile("paths_active_time",    "Additional time spent in each path", size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range)->getTProfile();
+      m_dqm_paths_active_time     ->StatOverflows(true);
+    }
+    if (m_enable_dqm_bypath_total) {
+      m_dqm_paths_total_time      = m_dqms->bookProfile("paths_total_time",     "Total time spent in each path",      size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range)->getTProfile();
+      m_dqm_paths_total_time      ->StatOverflows(true);
+    }
+    if (m_enable_dqm_bypath_exclusive) {
+      m_dqm_paths_exclusive_time  = m_dqms->bookProfile("paths_exclusive_time", "Exclusive time spent in each path",  size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range)->getTProfile();
+      m_dqm_paths_exclusive_time  ->StatOverflows(true);
+    }
 
     for (uint32_t i = 0; i < size_p; ++i) {
       std::string const & label = tns.getTrigPath(i);
       if (m_enable_dqm_bypath_active)
-        path_active_time    ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+        m_dqm_paths_active_time    ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
       if (m_enable_dqm_bypath_total)
-        path_total_time     ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+        m_dqm_paths_total_time     ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
       if (m_enable_dqm_bypath_exclusive)
-        path_exclusive_time ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+        m_dqm_paths_exclusive_time ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
     }
     for (uint32_t i = 0; i < size_e; ++i) {
       std::string const & label = tns.getEndPath(i);
       if (m_enable_dqm_bypath_active)
-        path_active_time    ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+        m_dqm_paths_active_time    ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
       if (m_enable_dqm_bypath_total)
-        path_total_time     ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+        m_dqm_paths_total_time     ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
       if (m_enable_dqm_bypath_exclusive)
-        path_exclusive_time ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+        m_dqm_paths_exclusive_time ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
     }
 
     if (m_enable_timing_paths) {

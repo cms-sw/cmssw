@@ -308,6 +308,9 @@ private:
   TH1F *                                        m_dqm_source;
   TH1F *                                        m_dqm_all_paths;
   TH1F *                                        m_dqm_all_endpaths;
+  TProfile *                                    m_dqm_paths_active_time;
+  TProfile *                                    m_dqm_paths_total_time;
+  TProfile *                                    m_dqm_paths_exclusive_time;
 
   // per-path and per-module accounting
   PathInfo *                                    m_current_path;
