@@ -183,15 +183,15 @@ namespace lumi{
     coral::IQuery* Queryalgoview=gtmonschemaHandle.newQuery();
     Queryalgoview->addToTableList(algoviewname);
     coral::AttributeList qalgoOutput;
-    qalgoOutput.extend("count_bx",typeid(unsigned int));
-    qalgoOutput.extend("lumi_section",typeid(unsigned int));
-    qalgoOutput.extend("scaler_index",typeid(unsigned int));
-    Queryalgoview->addToOutputList("count_bx");
-    Queryalgoview->addToOutputList("lumi_section");
-    Queryalgoview->addToOutputList("scaler_index");
+    qalgoOutput.extend("COUNT_BX",typeid(unsigned int));
+    qalgoOutput.extend("LUMI_SECTION",typeid(unsigned int));
+    qalgoOutput.extend("SCALER_INDEX",typeid(unsigned int));
+    Queryalgoview->addToOutputList("COUNT_BX");
+    Queryalgoview->addToOutputList("LUMI_SECTION");
+    Queryalgoview->addToOutputList("SCALER_INDEX");
     Queryalgoview->setCondition("RUN_NUMBER=:runnumber",bindVariableList);
-    Queryalgoview->addToOrderList("lumi_section");
-    Queryalgoview->addToOrderList("scaler_index");
+    Queryalgoview->addToOrderList("LUMI_SECTION");
+    Queryalgoview->addToOrderList("SCALER_INDEX");
     Queryalgoview->defineOutput(qalgoOutput);
     coral::ICursor& c=Queryalgoview->execute();
     
@@ -199,9 +199,9 @@ namespace lumi{
     while( c.next() ){
       const coral::AttributeList& row = c.currentRow();     
       //row.toOutputStream( std::cout ) << std::endl;
-      unsigned int lsnr=row["lumi_section"].data<unsigned int>();
-      unsigned int count=row["count_bx"].data<unsigned int>();
-      unsigned int algobit=row["scaler_index"].data<unsigned int>();
+      unsigned int lsnr=row["LUMI_SECTION"].data<unsigned int>();
+      unsigned int count=row["COUNT_BX"].data<unsigned int>();
+      unsigned int algobit=row["SCALER_INDEX"].data<unsigned int>();
       mybitcount_algo.push_back(count);
       if(algobit==(lumi::N_TRGALGOBIT-1)){
 	++s;
@@ -232,24 +232,24 @@ namespace lumi{
     coral::IQuery* Querytechview=gtmonschemaHandle.newQuery();
     Querytechview->addToTableList(techviewname);
     coral::AttributeList qtechOutput;
-    qtechOutput.extend("count_bx",typeid(unsigned int));
-    qtechOutput.extend("lumi_section",typeid(unsigned int));
-    qtechOutput.extend("scaler_index",typeid(unsigned int));
-    Querytechview->addToOutputList("count_bx");
-    Querytechview->addToOutputList("lumi_section");
-    Querytechview->addToOutputList("scaler_index");
+    qtechOutput.extend("COUNT_BX",typeid(unsigned int));
+    qtechOutput.extend("LUMI_SECTION",typeid(unsigned int));
+    qtechOutput.extend("SCALER_INDEX",typeid(unsigned int));
+    Querytechview->addToOutputList("COUNT_BX");
+    Querytechview->addToOutputList("LUMI_SECTION");
+    Querytechview->addToOutputList("SCALER_INDEX");
     Querytechview->setCondition("RUN_NUMBER=:runnumber",bindVariableList);
-    Querytechview->addToOrderList("lumi_section");
-    Querytechview->addToOrderList("scaler_index");
+    Querytechview->addToOrderList("LUMI_SECTION");
+    Querytechview->addToOrderList("SCALER_INDEX");
     Querytechview->defineOutput(qtechOutput);
     coral::ICursor& techcursor=Querytechview->execute();    
     s=0;
     while( techcursor.next() ){
       const coral::AttributeList& row = techcursor.currentRow();     
       //row.toOutputStream( std::cout #include <stdexcept>) << std::endl;
-      unsigned int lsnr=row["lumi_section"].data<unsigned int>();
-      unsigned int count=row["count_bx"].data<unsigned int>();
-      unsigned int techbit=row["scaler_index"].data<unsigned int>();
+      unsigned int lsnr=row["LUMI_SECTION"].data<unsigned int>();
+      unsigned int count=row["COUNT_BX"].data<unsigned int>();
+      unsigned int techbit=row["SCALER_INDEX"].data<unsigned int>();
       mybitcount_tech.push_back(count);
       if(techbit==(lumi::N_TRGTECHBIT-1)){
 	++s;
@@ -280,19 +280,19 @@ namespace lumi{
     coral::IQuery* Querydeadview=gtmonschemaHandle.newQuery();
     Querydeadview->addToTableList(deadviewname);
     coral::AttributeList qdeadOutput;
-    qdeadOutput.extend("fraction",typeid(float));
-    qdeadOutput.extend("lumi_section",typeid(unsigned int));
-    qdeadOutput.extend("count_bx",typeid(unsigned int));
-    Querydeadview->addToOutputList("fraction");
-    Querydeadview->addToOutputList("lumi_section");
-    Querydeadview->addToOutputList("count_bx");
+    qdeadOutput.extend("FRACTION",typeid(float));
+    qdeadOutput.extend("LUMI_SECTION",typeid(unsigned int));
+    qdeadOutput.extend("COUNT_BX",typeid(unsigned int));
+    Querydeadview->addToOutputList("FRACTION");
+    Querydeadview->addToOutputList("LUMI_SECTION");
+    Querydeadview->addToOutputList("COUNT_BX");
     coral::AttributeList bindVariablesDead;
     bindVariablesDead.extend("runnumber",typeid(int));
     bindVariablesDead.extend("scalername",typeid(std::string));
     bindVariablesDead["runnumber"].data<int>()=runnumber;
     bindVariablesDead["scalername"].data<std::string>()=std::string("DeadtimeBeamActive");
     Querydeadview->setCondition("RUN_NUMBER=:runnumber AND SCALER_NAME=:scalername",bindVariablesDead);
-    Querydeadview->addToOrderList("lumi_section");
+    Querydeadview->addToOrderList("LUMI_SECTION");
     Querydeadview->defineOutput(qdeadOutput);
     coral::ICursor& deadcursor=Querydeadview->execute();
     s=0;
@@ -300,7 +300,7 @@ namespace lumi{
       const coral::AttributeList& row = deadcursor.currentRow();     
       //row.toOutputStream( std::cout ) << std::endl;
       ++s;
-      unsigned int lsnr=row["lumi_section"].data<unsigned int>();
+      unsigned int lsnr=row["LUMI_SECTION"].data<unsigned int>();
       float dfrac=1.0;
       unsigned int count=0;
       while(s!=lsnr){
@@ -310,8 +310,8 @@ namespace lumi{
 	deadtimeresult.push_back(count);
 	++s;
       }
-      if(!row["fraction"].isNull()){
-	dfrac=row["fraction"].data<float>(); //deadfraction is null from trigger means "undefined", but insert 1.0...
+      if(!row["FRACTION"].isNull()){
+	dfrac=row["FRACTION"].data<float>(); //deadfraction is null from trigger means "undefined", but insert 1.0...
       }else{
 	std::cout<<"DEADTIME fraction alert: undefined fraction , assume 100% , LS "<<lsnr<<std::endl;
       }
@@ -320,7 +320,7 @@ namespace lumi{
 	dfrac=1.0;
       }
       deadfracresult.push_back(dfrac);
-      count=row["count_bx"].data<unsigned int>();
+      count=row["COUNT_BX"].data<unsigned int>();
       deadtimeresult.push_back(count);
     }
     if(s==0){
@@ -439,10 +439,10 @@ namespace lumi{
     coral::IQuery* QueryName=gtschemaHandle.newQuery();
     QueryName->addToTableList(runalgoviewname);
     coral::AttributeList qAlgoNameOutput;
-    qAlgoNameOutput.extend("algo_index",typeid(unsigned int));
-    qAlgoNameOutput.extend("alias",typeid(std::string));
-    QueryName->addToOutputList("algo_index");
-    QueryName->addToOutputList("alias");
+    qAlgoNameOutput.extend("ALGO_INDEX",typeid(unsigned int));
+    qAlgoNameOutput.extend("ALIAS",typeid(std::string));
+    QueryName->addToOutputList("ALGO_INDEX");
+    QueryName->addToOutputList("ALIAS");
     QueryName->setCondition("runnumber =:runnumber",bindVariableList);
     //QueryName->addToOrderList("algo_index");
     QueryName->defineOutput(qAlgoNameOutput);
@@ -450,8 +450,8 @@ namespace lumi{
     while( algonamecursor.next() ){
       const coral::AttributeList& row = algonamecursor.currentRow();     
       //row.toOutputStream( std::cout ) << std::endl;
-      unsigned int algo_index=row["algo_index"].data<unsigned int>();
-      std::string algo_name=row["alias"].data<std::string>();
+      unsigned int algo_index=row["ALGO_INDEX"].data<unsigned int>();
+      std::string algo_name=row["ALIAS"].data<std::string>();
       triggernamemap.insert(std::make_pair(algo_index,algo_name));
     }
     delete QueryName;
@@ -463,19 +463,19 @@ namespace lumi{
     coral::IQuery* QueryTechName=gtschemaHandle.newQuery();
     QueryTechName->addToTableList(runtechviewname);
     coral::AttributeList qTechNameOutput;
-    qTechNameOutput.extend("techtrig_index",typeid(unsigned int));
-    qTechNameOutput.extend("name",typeid(std::string));
-    QueryTechName->addToOutputList("techtrig_index");
-    QueryTechName->addToOutputList("name");
-    QueryTechName->setCondition("runnumber =:runnumber",bindVariableList);
+    qTechNameOutput.extend("TECHTRIG_INDEX",typeid(unsigned int));
+    qTechNameOutput.extend("NAME",typeid(std::string));
+    QueryTechName->addToOutputList("TECHTRIG_INDEX");
+    QueryTechName->addToOutputList("NAME");
+    QueryTechName->setCondition("RUNNUMBER=:runnumber",bindVariableList);
     //QueryTechName->addToOrderList("techtrig_index");
     QueryTechName->defineOutput(qTechNameOutput);
     coral::ICursor& technamecursor=QueryTechName->execute();
     while( technamecursor.next() ){
       const coral::AttributeList& row = technamecursor.currentRow();     
       //row.toOutputStream( std::cout ) << std::endl;
-      unsigned int tech_index=row["techtrig_index"].data<unsigned int>();
-      std::string tech_name=row["name"].data<std::string>();
+      unsigned int tech_index=row["TECHTRIG_INDEX"].data<unsigned int>();
+      std::string tech_name=row["NAME"].data<std::string>();
       techtriggernamemap.insert(std::make_pair(tech_index,tech_name));
     }
     delete QueryTechName;
@@ -506,7 +506,7 @@ namespace lumi{
       PrescbindVariable.extend("prescaleindex",typeid(int));
       PrescbindVariable["runnumber"].data<int>()=runnumber;
       PrescbindVariable["prescaleindex"].data<int>()=*presIt;
-      QueryAlgoPresc->setCondition("runnr =:runnumber AND prescale_index =:prescaleindex",PrescbindVariable);
+      QueryAlgoPresc->setCondition("RUNNR=:runnumber AND PRESCALE_INDEX=:prescaleindex",PrescbindVariable);
       QueryAlgoPresc->defineOutput(qAlgoPrescOutput);
       coral::ICursor& algopresccursor=QueryAlgoPresc->execute();
       while( algopresccursor.next() ){
@@ -539,7 +539,7 @@ namespace lumi{
       TechPrescbindVariable.extend("prescaleindex",typeid(int));
       TechPrescbindVariable["runnumber"].data<int>()=runnumber;
       TechPrescbindVariable["prescaleindex"].data<int>()=*presIt;
-      QueryTechPresc->setCondition("runnr =:runnumber AND prescale_index =:prescaleindex",TechPrescbindVariable);
+      QueryTechPresc->setCondition("RUNNR=:runnumber AND PRESCALE_INDEX=:prescaleindex",TechPrescbindVariable);
       QueryTechPresc->defineOutput(qTechPrescOutput);
       coral::ICursor& techpresccursor=QueryTechPresc->execute();
       while( techpresccursor.next() ){
