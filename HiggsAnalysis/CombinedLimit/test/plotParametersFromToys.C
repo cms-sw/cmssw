@@ -50,7 +50,8 @@ RooStats::ModelConfig *mc_s;
 int npoints = 15;
 int nsigma  = 3;
 // Label size for Pull Summary
-double pullLabelSize = 0.03;
+double pullLabelSize = 0.028;
+int maxPullsPerPlot = 10;
 
 TGraph *graphLH(std::string nuisname, double err ,std::string whichfit){
 
@@ -71,7 +72,9 @@ TGraph *graphLH(std::string nuisname, double err ,std::string whichfit){
 
 	gr->SetTitle("");
 	gr->GetYaxis()->SetTitle("NLL - obs data");
-	gr->GetYaxis()->SetTitleOffset(1.2);
+	gr->GetYaxis()->SetTitleOffset(1.1);
+	gr->GetXaxis()->SetTitleSize(0.05);
+	gr->GetYaxis()->SetTitleSize(0.05);
 	gr->GetXaxis()->SetTitle(nuisname.c_str());
 	gr->SetLineColor(4);
 	gr->SetLineWidth(2);
@@ -135,7 +138,9 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 		double p_err  =0;
 
 		int nToysInTree = tree_->GetEntries();
-		if (doPull && findNuisancePre(name)){
+		// Find out if paramter is fitted value or constraint term
+		bool isFitted = findNuisancePre(name);
+		if (doPull && isFitted){
 			
 			p_mean = bfvals_[name].first;	// toy constrainits thrown about best fit to data
 			p_err  = prevals_[name].second; // uncertainties taken from card
@@ -163,7 +168,12 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 		bHf->SetLineColor(2);
 		bH->GetXaxis()->SetTitle(bH->GetTitle());
 		bH->GetYaxis()->SetTitle(Form("no toys (%d total)",nToysInTree));
-		bH->GetYaxis()->SetTitleOffset(1.32);
+		bH->GetYaxis()->SetTitleOffset(1.05);
+		bH->GetXaxis()->SetTitleOffset(0.9);
+		bH->GetYaxis()->SetTitleSize(0.05);
+		bH->GetXaxis()->SetTitleSize(0.05);
+		if (isFitted) {bH->GetXaxis()->SetTitle(Form("(%s-#theta_{B})/#sigma_{#theta}",name));}
+		else {bH->GetXaxis()->SetTitle(Form("%s",name));}
 		
 		bH->SetTitle("");	
 
@@ -175,25 +185,43 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 
 		c->Clear();
 		//TPad pad1("t1","",0.01,0.02,0.59,0.98);
-		TPad pad1("t1","",0.01,0.54,0.59,0.98);
+		// Pad 1 sizes depend on the parameter type ...
+		double pad1_x1,pad1_x2,pad1_y1,pad1_y2;
+		if ( !isFitted ) {
+			 pad1_x1 = 0.01; 
+			 pad1_x2 = 0.98; 
+			 pad1_y1 = 0.045; 
+			 pad1_y2 = 0.98; 
+		} else {
+			 pad1_x1 = 0.01; 
+			 pad1_x2 = 0.59; 
+			 pad1_y1 = 0.56; 
+			 pad1_y2 = 0.98; 
+		}
+		
+		TPad pad1("t1","",pad1_x1,pad1_y1,pad1_x2,pad1_y2);
 		TPad pad1a("t1a","",0.01,0.045,0.59,0.522);
 		TPad pad2("t2","",0.59,0.04,0.98,0.62);
 		TPad pad3("t3","",0.59,0.64,0.98,0.90);
 
 		pad1.SetNumber(1); pad2.SetNumber(2); pad3.SetNumber(3); pad1a.SetNumber(4);
-		pad1.Draw(); pad2.Draw();pad3.Draw();pad1a.Draw();
+
+		if ( isFitted ) {pad1a.Draw();pad2.Draw();pad3.Draw();}
+
+		pad1.Draw();
 		pad2.SetGrid(true);
 
-		c->cd(1); bH->Draw(); bHf->Draw("same");
 
-		TLatex *titletext = new TLatex();titletext->SetNDC();titletext->SetTextSize(0.04); titletext->DrawLatex(0.1,0.95,name);
+		TLatex *titletext = new TLatex();titletext->SetNDC();
+		titletext->SetTextSize(0.03);titletext->SetTextAlign(21); titletext->DrawLatex(0.49,0.95,name);
+		c->cd(1);
 		TLegend *legend = new TLegend(0.6,0.8,0.9,0.89);
 		legend->SetFillColor(0);
 		legend->AddEntry(bH,"All Toys","L");
 		legend->AddEntry(bHf,selectString.c_str(),"L");
 		legend->Draw();
 
-		if ( findNuisancePre(name) ){
+		if ( isFitted ){
 			c->cd(4); 
 			tree_->Draw(Form("%s:%s_In>>%s_%s_2d",name,name,name,tree_->GetName()),""); 
 			//TH2D *h2d_corr = (TH2D*)gROOT->FindObject(Form("%s_2d",name));
@@ -201,7 +229,16 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 			//h2d_corr->SetTitle("");
 			//h2d_corr->GetXaxis()->SetTitle(Form("%s_In",name));
 			//h2d_corr->GetYaxis()->SetTitle(Form("%s",name));
+			titletext->SetTextAlign(11);
+			titletext->SetTextSize(0.05);
+			titletext->DrawLatex(0.05,0.02,Form("%s_In",name));
+			titletext->SetTextAngle(90);
+			titletext->DrawLatex(0.04,0.06,Form("%s",name));
+			titletext->SetTextAngle(0);
 		}
+
+		
+		c->cd(1); bH->Draw(); bHf->Draw("same");
 
 		if (doPull && plotLH) {
 			c->cd(2); gr->Draw("ALP");
@@ -215,21 +252,21 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 			else  {tlatex->SetTextSize(0.12);gap=0.15;}
 
 			tlatex->SetTextColor(4);
-			tlatex->DrawLatex(0.15,0.79,Form("Mean    : %.3f #pm %.3f",bH->GetFunction("gaus")->GetParameter(1),bH->GetFunction("gaus")->GetParError(1)));
-			tlatex->DrawLatex(0.15,0.79-gap,Form("Sigma   : %.3f #pm %.3f",bH->GetFunction("gaus")->GetParameter(2),bH->GetFunction("gaus")->GetParError(2)));
+			tlatex->DrawLatex(0.15,0.82,Form("Mean    : %.3f #pm %.3f",bH->GetFunction("gaus")->GetParameter(1),bH->GetFunction("gaus")->GetParError(1)));
+			tlatex->DrawLatex(0.15,0.82-gap,Form("Sigma   : %.3f #pm %.3f",bH->GetFunction("gaus")->GetParameter(2),bH->GetFunction("gaus")->GetParError(2)));
 
 			if (fitPullf){ 
 				tlatex->SetTextColor(2);
-				tlatex->DrawLatex(0.15,0.57,Form("Mean    : %.3f #pm %.3f",bHf->GetFunction("gaus")->GetParameter(1),bHf->GetFunction("gaus")->GetParError(1)));
-				tlatex->DrawLatex(0.15,0.57-gap,Form("Sigma   : %.3f #pm %.3f",bHf->GetFunction("gaus")->GetParameter(2),bHf->GetFunction("gaus")->GetParError(2)));
+				tlatex->DrawLatex(0.15,0.60,Form("Mean    : %.3f #pm %.3f",bHf->GetFunction("gaus")->GetParameter(1),bHf->GetFunction("gaus")->GetParError(1)));
+				tlatex->DrawLatex(0.15,0.60-gap,Form("Sigma   : %.3f #pm %.3f",bHf->GetFunction("gaus")->GetParameter(2),bHf->GetFunction("gaus")->GetParError(2)));
 			}
 
 			tlatex->SetTextSize(0.12);
 			tlatex->SetTextColor(1);
 					
-			tlatex->DrawLatex(0.15,0.31,Form("Pre-fit : %.3f ",prevals_[name].first));
-			tlatex->DrawLatex(0.15,0.16,Form("Best-fit (B)  : %.3f ",p_mean));
-			tlatex->DrawLatex(0.15,0.01,Form("Best-fit (S+B): %.3f ",bfvals_sb_[name].first));
+			tlatex->DrawLatex(0.15,0.33,Form("Pre-fit #pm #sigma_{#theta}: %.3f #pm %.3f",prevals_[name].first, p_err));
+			tlatex->DrawLatex(0.15,0.18,Form("Best-fit (#theta_{B})  : %.3f ",p_mean));
+			tlatex->DrawLatex(0.15,0.03,Form("Best-fit (#theta_{S+B}): %.3f ",bfvals_sb_[name].first));
 			
 			pullSummaryMap[name]=std::make_pair<double,double>(bH->GetFunction("gaus")->GetParameter(1),bH->GetFunction("gaus")->GetParameter(2));
 			nPulls++;
@@ -237,6 +274,7 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 		}
 
 		c->SaveAs(Form("%s.pdf",treename.c_str()));
+		//c->SaveAs(Form("%s_%s.pdf",treename.c_str(),name));
 	}
 	
 	if (doPull && nPulls>0){
@@ -247,9 +285,10 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 	    std::map < const char*, std::pair <double,double> >::iterator pull_it = pullSummaryMap.begin();
 	    std::map < const char*, std::pair <double,double> >::iterator pull_end = pullSummaryMap.end();
 
+	    int pullPlots = 1;
 	    while (nRemainingPulls > 0){
 
-		int nThisPulls = min(15,nRemainingPulls);
+		int nThisPulls = min(maxPullsPerPlot,nRemainingPulls);
 
 		TH1F pullSummaryHist("pullSummary","",nThisPulls,0,nThisPulls);
 		for (int pi=1;pull_it!=pull_end && pi<=nThisPulls ;pull_it++,pi++){
@@ -262,6 +301,8 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 		pullSummaryHist.SetMarkerStyle(21);pullSummaryHist.SetMarkerSize(1.5);pullSummaryHist.SetMarkerColor(2);pullSummaryHist.SetLabelSize(pullLabelSize);
 		pullSummaryHist.GetYaxis()->SetRangeUser(-3,3);pullSummaryHist.GetYaxis()->SetTitle("pull summary (n#sigma)");pullSummaryHist.Draw("E1");
 		hc->SaveAs(Form("%s.pdf",treename.c_str()));
+	//	hc->SaveAs(Form("comb_pulls_%s_%d.pdf",treename.c_str(),pullPlots));
+		pullPlots++;
 	   }
 
 	    delete hc;
