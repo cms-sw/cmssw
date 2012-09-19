@@ -13,6 +13,7 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 namespace ecaldqm {
 
@@ -151,11 +152,11 @@ namespace ecaldqm {
   }
 
   void
-  readPNMaskMap(std::string const& _fileName)
+  readPNMaskMap(edm::FileInPath const& _fileName)
   {
-    std::ifstream maskFile(_fileName);
+    std::ifstream maskFile(_fileName.fullPath());
     if(!maskFile.is_open())
-      throw cms::Exception("IOError") << "File " << _fileName << " not found";
+      throw cms::Exception("IOError") << "File " << _fileName.fullPath() << " not found";
 
     EcalDQMStatusDictionary::init();
 

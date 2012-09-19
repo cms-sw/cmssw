@@ -7,6 +7,9 @@
 #include "CondFormats/EcalObjects/interface/EcalDQMTowerStatus.h"
 
 class DetId;
+namespace edm {
+  class FileInPath;
+}
 
 namespace ecaldqm
 {
@@ -15,7 +18,7 @@ namespace ecaldqm
   bool applyMask(BinService::BinningType, DetId const&, uint32_t);
 
   void setStatuses(EcalDQMChannelStatus const*, EcalDQMTowerStatus const*);
-  void readPNMaskMap(std::string const&);
+  void readPNMaskMap(edm::FileInPath const&);
 }
 
 #endif

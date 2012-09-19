@@ -17,6 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -35,8 +36,8 @@ EcalDQMonitorClient::EcalDQMonitorClient(const edm::ParameterSet &_ps) :
     if(!dynamic_cast<DQWorkerClient*>(*wItr))
       throw cms::Exception("InvalidConfiguration") << "Non-client DQWorker " << (*wItr)->getName() << " passed";
 
-  if(_ps.existsAs<std::string>("PNMaskFile", false))
-    ecaldqm::readPNMaskMap(_ps.getUntrackedParameter<std::string>("PNMaskFile"));
+  if(_ps.existsAs<edm::FileInPath>("PNMaskFile", false))
+    ecaldqm::readPNMaskMap(_ps.getUntrackedParameter<edm::FileInPath>("PNMaskFile"));
 }
 
 EcalDQMonitorClient::~EcalDQMonitorClient()
