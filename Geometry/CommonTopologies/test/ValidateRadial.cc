@@ -90,6 +90,9 @@ pass_frame_change_test(const RadialStripTopology* t, const float strip, const fl
   const MeasurementPoint newmp = t->measurementPosition(newlp);
   const MeasurementError newme = t->measurementError(newlp, newle);
 
+  maxerrU = std::max(maxerrU,std::(me.uu()-stripErr2)/stripErr2);
+  maxerrUV = std::max(maxerrUV,std::abs(me.uv());
+
   const bool pass1p = 
     fabs(strip - newstrip) < 0.001 &&
     fabs(strip - mp.x()) < 0.001 &&
