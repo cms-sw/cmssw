@@ -225,7 +225,7 @@ class RadialStripTopology : public StripTopology {
   /** 
    * y axis orientation, 1 means detector width increases with local y
    */
-  int yAxisOrientation() const { return theYAxisOrientation; }
+  float yAxisOrientation() const { return theYAxisOrientation; }
 
   /**
    * Offset in local y between midpoint of detector (strip plane) extent and local origin
@@ -246,7 +246,7 @@ class RadialStripTopology : public StripTopology {
   float theDetHeight;      // length of long symmetry axis = twice the apothem of the enclosing trapezoid
   float theCentreToIntersection;  // distance centre of detector face to intersection of edge strips (projected)
   float thePhiOfOneEdge;   // local 'phi' of one edge of plane of strips (I choose it negative!)
-  int   theYAxisOrientation; // 1 means y axis going from smaller to larger side, -1 means opposite direction
+  float   theYAxisOrientation; // 1 means y axis going from smaller to larger side, -1 means opposite direction
   float yCentre; // Non-zero if offset in local y between midpoint of detector (strip plane) extent and local origin.
 };
 

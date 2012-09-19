@@ -11,7 +11,8 @@
 ValidateRadial::ValidateRadial(const edm::ParameterSet& cfg) 
   : epsilon_(cfg.getParameter<double>("Epsilon")),
     file_(new TFile(cfg.getParameter<std::string>("FileName").c_str(),"RECREATE")),
-    printOut_(cfg.getParameter<bool>("PrintOut"))
+    printOut_(cfg.getParameter<bool>("PrintOut")),
+    posOnly_(cfg.getParameter<bool>("PosOnly"))
 {}
 
 void ValidateRadial::
@@ -89,21 +90,25 @@ pass_frame_change_test(const RadialStripTopology* t, const float strip, const fl
   const MeasurementPoint newmp = t->measurementPosition(newlp);
   const MeasurementError newme = t->measurementError(newlp, newle);
 
-  const bool pass1( fabs(strip - newstrip) < 0.001&&
-		    fabs(strip - mp.x()) < 0.001 &&
-		    fabs(mp.x() - newstrip) <0.001 && 
-		    fabs(me.uu()-stripErr2)/stripErr2 < epsilon_ &&
-		    fabs(me.uv()) < epsilon_ &&
-		    me.uu()>0 &&  me.vv()>0 );
-  const bool pass2( fabs(strip - newmp.x()) < 0.001 &&
-		    fabs(newme.uu()-stripErr2)/stripErr2 < epsilon_ &&
-		    fabs(newme.uv()) < epsilon_ &&
-		    newme.uu()>0 &&  newme.vv()>0 );
-  const bool pass = (secondOrder? pass2 : pass1);
-
-  if(printOut_ && !pass)
-    std::cout << "(" << strip << ", " << newstrip << ", " << mp.x() << ")\t"
-	      << "(" << stripErr2 << ", " << me.uu() << ")\t\t"
-	      << ( me.uv() ) << std::endl;
-  return pass;
+  const bool pass1p = 
+    fabs(strip - newstrip) < 0.001 &&
+    fabs(strip - mp.x()) < 0.001 &&
+    fabs(mp.x() - newstrip) <0.001;
+  const bool pass1e = (fabs(me.uu()-stripErr2)/stripErr2 < epsilon_) &&
+    ( fabs(me.uv()) < epsilon_) &&
+    me.uu()>0 &&  me.vv()>0 ;
+  const bool pass2p =  fabs(strip - newmp.x()) < 0.001;
+  const bool pass2e = 
+    (fabs(newme.uu()-stripErr2)/stripErr2 < epsilon_) &&
+    (fabs(newme.uv()) < epsilon_) &&
+    newme.uu()>0 &&  newme.vv()>0;
+  
+  const bool passp = (secondOrder? pass2p : pass1p);
+  const bool passe = (secondOrder? pass2e : pass1e);
+  
+  if(printOut_ && ( (!passp) || ( (!posOnly_)&&(!passe)) ) )
+     std::cout << "(" << strip << ", " << newstrip << ", " << mp.x() << ")\t"
+     << "(" << stripErr2 << ", " << me.uu() << ")\t\t"
+     << ( me.uv() ) << std::endl;
+  return passp&passe;
 }

@@ -22,6 +22,7 @@ class ValidateRadial : public edm::EDAnalyzer {
   const double epsilon_;
   TFile* file_;
   const bool printOut_;
+  const bool posOnly_;
 };
 
 #endif

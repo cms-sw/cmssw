@@ -61,8 +61,8 @@ LocalPoint RadialStripTopology::localPosition(const MeasurementPoint& mp) const 
 }
 
 MeasurementPoint RadialStripTopology::measurementPosition(const LocalPoint& lp) const {
-  const float // phi is [pi/2 - conventional local phi], use atan2(x,y) rather than atan2(y,x)
-    phi( yAxisOrientation() * std::atan2( lp.x(), yDistanceToIntersection( lp.y() ) ));
+  // phi is [pi/2 - conventional local phi], use atan2(x,y) rather than atan2(y,x)
+  const float phi = yAxisOrientation() * std::atan2( lp.x(), yDistanceToIntersection( lp.y() ) );
   return MeasurementPoint( yAxisOrientation()*( phi-phiOfOneEdge() ) / angularWidth(),
 			   ( lp.y() - yCentreOfStripPlane() )        / detHeight() );
 }

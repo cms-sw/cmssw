@@ -11,7 +11,9 @@ process.GlobalTag.globaltag = 'START60_V4::All'
 process.test = cms.EDAnalyzer('ValidateRadial',
                               Epsilon = cms.double(3e-1),
                               FileName = cms.string("failureLimits.root"),
-                              PrintOut = cms.bool(True))
+                              PrintOut = cms.bool(True),
+                              PosOnly  = cms.bool(True)
+                              )
 
 
 process.p1 = cms.Path(process.test)
