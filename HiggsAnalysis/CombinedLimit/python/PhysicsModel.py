@@ -260,8 +260,6 @@ class RvRfXSHiggs(SMLikeHiggsModel):
             else:
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass) 
             self.modelBuilder.doSet("POI",'RV,RF')
-        self.SMH = SMHiggsBuilder(self.modelBuilder)
-        self.setup()
 
     def getHiggsSignalYieldScale(self,production,decay, energy):
         if production in ['ggH', 'ttH']:
