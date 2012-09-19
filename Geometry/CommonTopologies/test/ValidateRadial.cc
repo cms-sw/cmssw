@@ -53,6 +53,8 @@ get_list_of_radial_topologies(const edm::Event&e, const edm::EventSetup& es) {
   return topos;
 }
 
+
+
 void ValidateRadial::
 test_topology(const RadialStripTopology* t, unsigned i) {
   TProfile prof(("se2limit1"+boost::lexical_cast<std::string>(i)).c_str(),
@@ -77,9 +79,13 @@ test_topology(const RadialStripTopology* t, unsigned i) {
   prof2.Write();
 }
 
+ValidateRadial::~ValidateRadial() {
+  std::cout <<"ValidateRadial max UU, max UV" << maxerrU << " " << maxerrUV << std::endl; 
+}
+
 
 bool ValidateRadial::
-pass_frame_change_test(const RadialStripTopology* t, const float strip, const float stripErr2, const bool secondOrder) {
+Pass_frame_change_test(const RadialStripTopology* t, const float strip, const float stripErr2, const bool secondOrder) {
   const LocalPoint lp = t->localPosition(strip);
   const LocalError le = t->localError(strip,stripErr2);
   const MeasurementPoint mp = t->measurementPosition(lp);
