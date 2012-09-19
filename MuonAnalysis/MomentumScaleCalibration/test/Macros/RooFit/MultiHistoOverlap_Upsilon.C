@@ -6,7 +6,6 @@
  #include "TLegend.h"
  #include "TCanvas.h"
  #include <fstream>
- #include <iostream>
  #include <string>
  #include <sstream> 
  #include "TCutG.h"
@@ -30,7 +29,7 @@
  cmsprel->SetTextAlign(12); // align left
  TString text = "CMS Preliminary 2012";
  cmsprel->AddText(0.01,0.5,text);  
- text2 = "#sqrt{s} = 8 TeV  Run2012A TkAlUpsilonMuMu |#eta_{#mu}|<2.4";               
+ TString text2 = "#sqrt{s} = 8 TeV  Run2012A TkAlUpsilonMuMu |#eta_{#mu}|<2.4";               
  cmsprel->AddText(0.4, 0.6, text2);
 
  TFile *file1  = new TFile("./BiasCheck.root");
