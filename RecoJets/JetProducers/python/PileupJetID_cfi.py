@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoJets.JetProducers.PileupJetIDParams_cfi import * 
 
-stdalgos_4x = cms.VPSet(simple,   full,   cutbased,PhilV1)
-stdalgos_5x = cms.VPSet(simple_5x,full_5x,cutbased,PhilV1)
+stdalgos_4x = cms.VPSet(full,   cutbased,PhilV1)
+stdalgos_5x = cms.VPSet(full_5x,cutbased,PhilV1)
 
-chsalgos_4x = cms.VPSet(simple,   full,   cutbased)
-chsalgos_5x = cms.VPSet(simple_5x_chs,full_5x_chs,cutbased)
+chsalgos_4x = cms.VPSet(full,   cutbased)
+chsalgos_5x = cms.VPSet(full_5x_chs,cutbased)
 chsalgos = chsalgos_5x
 
 import os
@@ -35,7 +35,7 @@ pileupJetIdProducer = cms.EDProducer('PileupJetIdProducer',
                          applyJec = cms.bool(False),
                          inputIsCorrected = cms.bool(True),                                     
                          residualsFromTxt = cms.bool(False),
-                         residualsTxt     = cms.FileInPath("CMGTools/External/data/dummy.txt"),
+                         residualsTxt     = cms.FileInPath(""),
 )
 
 pileupJetIdProducerChs = cms.EDProducer('PileupJetIdProducer',
@@ -51,7 +51,7 @@ pileupJetIdProducerChs = cms.EDProducer('PileupJetIdProducer',
                          applyJec = cms.bool(False),
                          inputIsCorrected = cms.bool(True),
                          residualsFromTxt = cms.bool(False),
-                         residualsTxt     = cms.FileInPath("CMGTools/External/data/dummy.txt"),
+                         residualsTxt     = cms.FileInPath(""),
 
 )
 
