@@ -71,6 +71,9 @@ JetMETHLTOfflineSource::JetMETHLTOfflineSource(const edm::ParameterSet& iConfig)
   pfJetsTag_           = iConfig.getParameter<edm::InputTag>("PFJetCollectionLabel");
   pfMETTag_            = iConfig.getParameter<edm::InputTag>("PFMETCollectionLabel");
   //pfmhtTag_       = iConfig.getParameter<edm::InputTag>("PFMHTCollectionLabel");
+  //
+  CaloJetCorService_   = iConfig.getParameter<std::string>("CaloJetCorService");
+  PFJetCorService_     = iConfig.getParameter<std::string>("PFJetCorService");
   //JetID
   jetID                = new reco::helper::JetIDHelper(iConfig.getParameter<ParameterSet>("JetIDParams"));
   _fEMF                = iConfig.getUntrackedParameter< double >("fEMF", 0.01);
@@ -150,7 +153,7 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   bool ValidJetColl_ = iEvent.getByLabel(caloJetsTag_,calojetColl_);
   if(!ValidJetColl_) return;
   calojet = *calojetColl_; 
-  //std::stable_sort( calojet.begin(), calojet.end(), PtSorter() );
+  //std::stable_sort( calojet.begin(), calojet.end(), PtSorter() ); 
   
   bool ValidPFJetColl_ = iEvent.getByLabel(pfJetsTag_,pfjetColl_);
   if(!ValidPFJetColl_) return;
@@ -159,14 +162,128 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   
   bool ValidMETColl_ = iEvent.getByLabel(caloMETTag_, calometColl_);
   if(!ValidMETColl_) return;
-
+  
   bool ValidPFMETColl_ = iEvent.getByLabel(pfMETTag_, pfmetColl_);
   if(!ValidPFMETColl_) return; 
   
   //---------- Event counting (DEBUG) ----------
   if(verbose_ && iEvent.id().event()%10000==0)
-    cout<<"Run = "<<iEvent.id().run()<<", LS = "<<iEvent.luminosityBlock()<<", Event = "<<iEvent.id().event()<<endl;
+    cout<<"Run = "<<iEvent.id().run()<<", LS = "<<iEvent.luminosityBlock()<<", Event = "<<iEvent.id().event()<<endl;  
   
+  //Define on-the-fly correction Jet
+  for(int i=0; i<2; i++){
+    CaloJetPx[i]   = 0.;
+    CaloJetPy[i]   = 0.;
+    CaloJetPt[i]   = 0.;
+    CaloJetEta[i]  = 0.;
+    CaloJetPhi[i]  = 0.;
+    CaloJetEMF[i]  = 0.;
+    CaloJetfHPD[i] = 0.;
+    CaloJetn90[i]  = 0.;
+    PFJetPx[i]     = 0.;
+    PFJetPy[i]     = 0.;
+    PFJetPt[i]     = 0.;
+    PFJetEta[i]    = 0.;
+    PFJetPhi[i]    = 0.;
+    PFJetNHEF[i]   = 0.;
+    PFJetCHEF[i]   = 0.;
+    PFJetNEMF[i]   = 0.;
+    PFJetCEMF[i]   = 0.;
+  }
+
+  //---------- CaloJet Correction (on-the-fly) ----------
+  const JetCorrector* calocorrector = JetCorrector::getJetCorrector(CaloJetCorService_,iSetup);
+  CaloJetCollection::const_iterator calojet_ = calojet.begin();
+  for(; calojet_ != calojet.end(); ++calojet_){
+    double scale = calocorrector->correction(*calojet_,iEvent, iSetup);	
+    jetID->calculate(iEvent, *calojet_);
+    
+    if(scale*calojet_->pt()>CaloJetPt[0]){
+      CaloJetPt[1]   = CaloJetPt[0]; 
+      CaloJetPx[1]   = CaloJetPx[0];
+      CaloJetPy[1]   = CaloJetPy[0];
+      CaloJetEta[1]  = CaloJetEta[0];
+      CaloJetPhi[1]  = CaloJetPhi[0];
+      CaloJetEMF[1]  = CaloJetEMF[0];
+      CaloJetfHPD[1] = CaloJetfHPD[0];
+      CaloJetn90[1]  = CaloJetn90[0];
+      //
+      CaloJetPt[0]   = scale*calojet_->pt();
+      CaloJetPx[0]   = scale*calojet_->px();
+      CaloJetPy[0]   = scale*calojet_->py();
+      CaloJetEta[0]  = calojet_->eta();
+      CaloJetPhi[0]  = calojet_->phi();
+      CaloJetEMF[0]  = calojet_->emEnergyFraction();
+      CaloJetfHPD[0] = jetID->fHPD();
+      CaloJetn90[0]  = jetID->n90Hits();
+    }
+    else if(scale*calojet_->pt()<CaloJetPt[0] && scale*calojet_->pt()>CaloJetPt[1] ){
+      CaloJetPt[1]   = scale*calojet_->pt();
+      CaloJetPx[1]   = scale*calojet_->px();
+      CaloJetPy[1]   = scale*calojet_->py();
+      CaloJetEta[1]  = calojet_->eta();
+      CaloJetPhi[1]  = calojet_->phi();
+      CaloJetEMF[1]  = calojet_->emEnergyFraction();
+      CaloJetfHPD[1] = jetID->fHPD();
+      CaloJetn90[1]  = jetID->n90Hits();
+    }
+    else{}
+  }
+  
+  //---------- PFJet Correction (on-the-fly) ----------
+  pfMHTx_All = 0.;
+  pfMHTy_All = 0.;
+  const JetCorrector* pfcorrector = JetCorrector::getJetCorrector(PFJetCorService_,iSetup);
+  PFJetCollection::const_iterator pfjet_ = pfjet.begin();
+  for(; pfjet_ != pfjet.end(); ++pfjet_){
+    double scale = pfcorrector->correction(*pfjet_,iEvent, iSetup);
+    pfMHTx_All = pfMHTx_All + scale*pfjet_->px();
+    pfMHTy_All = pfMHTy_All + scale*pfjet_->py();
+    if(scale*pfjet_->pt()>PFJetPt[0]){
+      PFJetPt[1]   = PFJetPt[0];
+      PFJetPx[1]   = PFJetPx[0];
+      PFJetPy[1]   = PFJetPy[0];
+      PFJetEta[1]  = PFJetEta[0];
+      PFJetPhi[1]  = PFJetPhi[0];
+      PFJetNHEF[1] = PFJetNHEF[0]; 
+      PFJetCHEF[1] = PFJetCHEF[0];
+      PFJetNEMF[1] = PFJetNEMF[0]; 
+      PFJetCEMF[1] = PFJetCEMF[0];
+      //
+      PFJetPt[0]   = scale*pfjet_->pt();
+      PFJetPx[0]   = scale*pfjet_->px();
+      PFJetPy[0]   = scale*pfjet_->py();
+      PFJetEta[0]  = pfjet_->eta();
+      PFJetPhi[0]  = pfjet_->phi();
+      PFJetNHEF[0] = pfjet_->neutralHadronEnergyFraction();
+      PFJetCHEF[0] = pfjet_->chargedHadronEnergyFraction();
+      PFJetNEMF[0] = pfjet_->neutralEmEnergyFraction();
+      PFJetCEMF[0] = pfjet_->chargedEmEnergyFraction();
+    }
+    else if(scale*pfjet_->pt()<PFJetPt[0] && scale*pfjet_->pt()>PFJetPt[1] ){
+      PFJetPt[1]   = scale*pfjet_->pt();
+      PFJetPx[1]   = scale*pfjet_->px();
+      PFJetPy[1]   = scale*pfjet_->py();
+      PFJetEta[1]  = pfjet_->eta();
+      PFJetPhi[1]  = pfjet_->phi(); 
+      PFJetNHEF[1] = pfjet_->neutralHadronEnergyFraction();
+      PFJetCHEF[1] = pfjet_->chargedHadronEnergyFraction();
+      PFJetNEMF[1] = pfjet_->neutralEmEnergyFraction();
+      PFJetCEMF[1] = pfjet_->chargedEmEnergyFraction();
+    }
+    else{}
+  }
+  
+  if(verbose_){
+    for(int i = 0; i<2; i++){
+      cout<<"CaloJet-0: "<<CaloJetPt[i]<<", Eta = "<<CaloJetEta[i]<<", Phi = "<<CaloJetPhi[i]<<endl;
+      cout<<"fHPD = "<<CaloJetfHPD[0]<<", n90 = "<<CaloJetn90[0]<<endl;
+    }
+    for(int i = 0; i<2; i++){
+      cout<<"PFJet-0: "<<PFJetPt[i]<<", Eta = "<<PFJetEta[i]<<", Phi = "<<PFJetPhi[i]<<endl;
+    }
+  }
+
   //---------- RUN ----------
   fillMEforMonTriggerSummary(iEvent, iSetup);
   if(plotAll_)                  fillMEforMonAllTrigger(iEvent, iSetup);
@@ -349,8 +466,8 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
     std::vector<double>hltPxVec;
     std::vector<double>hltPyVec;
     
-    //This will be used to find out punch throgh trigger 
-    bool fillL1HLT = false;  
+    //This will be used to find out punch through trigger 
+    //bool fillL1HLT = false;
       
     //L1 and HLT indices
     edm::InputTag l1Tag(v->getl1Path(),"",processname_);
@@ -426,7 +543,7 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 	  for(;kj != khlt.end(); ++kj){
 	    double hltTrigEta = -100.;
 	    double hltTrigPhi = -100.;
-	    fillL1HLT = true;
+	    //fillL1HLT = true;
 	    //MET Triggers
 	    if(v->getObjectType() == trigger::TriggerMET || (v->getObjectType() == trigger::TriggerTET)){
 	      v->getMEhisto_Pt_HLT()->Fill(toc[*kj].pt());
@@ -463,49 +580,40 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 		}
 		
 		//Calojet
-		//How to use scale:
-		//const JetCorrector* corrector   = JetCorrector::getJetCorrector(jetcorservice,iSetup);
-		//for(CaloJetCollection::const_iterator jet = calojet.begin(); jet != calojet.end(); ++jet){
-		//double scale = corrector->correction(*jet,iEvent, iSetup);
 		if(calojetColl_.isValid() 
 		   && (v->getObjectType() == trigger::TriggerJet)
 		   && (v->getPath().compare("PFJet") == 0)){
-		  CaloJetCollection::const_iterator jet = calojet.begin();
-		  for(; jet != calojet.end(); ++jet) {
-		    if(verbose_){ //cout<<"raw pt = "<< jet->pt() 
-		      cout << "Cor pt = " << jet->pt()
-			   << ", energy = " << jet->energy() 
-			   << ", eta = " << jet->eta() 
-			   << endl; 
-		    }
-		    if(deltaR(hltTrigEta, hltTrigPhi, jet->eta(), jet->phi()) < 0.4){
+		  //CaloJetCollection::const_iterator jet = calojet.begin();
+		  //for(; jet != calojet.end(); ++jet) {
+		  for(int iCalo=0; iCalo<2; iCalo++){
+		    if(deltaR(hltTrigEta, hltTrigPhi, CaloJetEta[iCalo], CaloJetPhi[iCalo]) < 0.4){
 		      jetsize++; 
 		      if(v->getTriggerType().compare("SingleJet_Trigger") == 0){
-			v->getMEhisto_Pt()->Fill(jet->pt());
-			if (isBarrel(jet->eta()))  v->getMEhisto_PtBarrel()->Fill(jet->pt());
-			if (isEndCap(jet->eta()))  v->getMEhisto_PtEndcap()->Fill(jet->pt());
-			if (isForward(jet->eta())) v->getMEhisto_PtForward()->Fill(jet->pt());
+			v->getMEhisto_Pt()->Fill(CaloJetPt[iCalo]);
+			if (isBarrel(CaloJetEta[iCalo]))  v->getMEhisto_PtBarrel()->Fill(CaloJetPt[iCalo]);
+			if (isEndCap(CaloJetEta[iCalo]))  v->getMEhisto_PtEndcap()->Fill(CaloJetPt[iCalo]);
+			if (isForward(CaloJetEta[iCalo])) v->getMEhisto_PtForward()->Fill(CaloJetPt[iCalo]);
 			//
-			v->getMEhisto_Eta()->Fill(jet->eta());
-			v->getMEhisto_Phi()->Fill(jet->phi());
-			v->getMEhisto_EtaPhi()->Fill(jet->eta(),jet->phi()); 
+			v->getMEhisto_Eta()->Fill(CaloJetEta[iCalo]);
+			v->getMEhisto_Phi()->Fill(CaloJetPhi[iCalo]);
+			v->getMEhisto_EtaPhi()->Fill(CaloJetEta[iCalo],CaloJetPhi[iCalo]); 
 			//
-			v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*kj].pt(),jet->pt());
-			v->getMEhisto_EtaCorrelation_HLTRecObj()->Fill(toc[*kj].eta(),jet->eta());
-			v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),jet->phi());
+			v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*kj].pt(),CaloJetPt[iCalo]);
+			v->getMEhisto_EtaCorrelation_HLTRecObj()->Fill(toc[*kj].eta(),CaloJetEta[iCalo]);
+			v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),CaloJetPhi[iCalo]);
 			//
-			v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].pt()-jet->pt())/(toc[*kj].pt()));
-			v->getMEhisto_EtaResolution_HLTRecObj()->Fill((toc[*kj].eta()-jet->eta())/(toc[*kj].eta()));
-			v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*kj].phi()-jet->phi())/(toc[*kj].phi()));
+			v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].pt()-CaloJetPt[iCalo])/(toc[*kj].pt()));
+			v->getMEhisto_EtaResolution_HLTRecObj()->Fill((toc[*kj].eta()-CaloJetEta[iCalo])/(toc[*kj].eta()));
+			v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*kj].phi()-CaloJetPhi[iCalo])/(toc[*kj].phi()));
 		      }
                       
 		      //-------------------------------------------------------    
 		      if((v->getTriggerType().compare("DiJet_Trigger") == 0)){
-			jetPhiVec.push_back(jet->phi());
-			jetPtVec.push_back(jet->pt());
-			jetEtaVec.push_back(jet->eta());         
-			jetPxVec.push_back(jet->px());
-			jetPyVec.push_back(jet->py()); 
+			jetPhiVec.push_back(CaloJetPhi[iCalo]);
+			jetPtVec.push_back(CaloJetPt[iCalo]);
+			jetEtaVec.push_back(CaloJetEta[iCalo]);         
+			jetPxVec.push_back(CaloJetPx[iCalo]);
+			jetPyVec.push_back(CaloJetPy[iCalo]); 
 			//
 			hltPhiVec.push_back(toc[*kj].phi());
 			hltPtVec.push_back(toc[*kj].pt());
@@ -518,49 +626,40 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 		}// valid calojet collection, with calojet trigger
 
 		//PFJet trigger
-		//How to use scale:
-		//const JetCorrector* pfcorrector = JetCorrector::getJetCorrector(pfjetcorservice,iSetup);
-		//for(PFJetCollection::const_iterator jet = pfjet.begin(); jet != pfjet.end(); ++jet){
-		//double scale = pfcorrector->correction(*jet,iEvent, iSetup);
 		if(pfjetColl_.isValid() 
 		   && (v->getObjectType() == trigger::TriggerJet)
 		   && (v->getPath().compare("PFJet") != 0)){
-		  PFJetCollection::const_iterator jet = pfjet.begin();
-		  for(; jet != pfjet.end(); ++jet){
-		    if(verbose_){ //cout<<"raw pt = "<< jet->pt() 
-		      cout << "Cor pt = " << jet->pt()
-			   << ", energy = " << jet->energy() 
-			   << ", eta = " << jet->eta() 
-			   << endl; 
-		    }
-		    if(deltaR(hltTrigEta, hltTrigPhi, jet->eta(), jet->phi()) < 0.4){
+		  //PFJetCollection::const_iterator jet = pfjet.begin();
+		  //for(; jet != pfjet.end(); ++jet){ 
+		  for(int iPF=0; iPF<2; iPF++){
+		    if(deltaR(hltTrigEta, hltTrigPhi, PFJetEta[iPF], PFJetPhi[iPF]) < 0.4){
 		      jetsize++;
 		      if(v->getTriggerType().compare("SingleJet_Trigger") == 0){
-			v->getMEhisto_Pt()->Fill(jet->pt());
-			if (isBarrel(jet->eta()))  v->getMEhisto_PtBarrel()->Fill(jet->pt());
-			if (isEndCap(jet->eta()))  v->getMEhisto_PtEndcap()->Fill(jet->pt());
-			if (isForward(jet->eta())) v->getMEhisto_PtForward()->Fill(jet->pt());
+			v->getMEhisto_Pt()->Fill(PFJetPt[iPF]);
+			if (isBarrel(PFJetEta[iPF]))  v->getMEhisto_PtBarrel()->Fill(PFJetPt[iPF]);
+			if (isEndCap(PFJetEta[iPF]))  v->getMEhisto_PtEndcap()->Fill(PFJetPt[iPF]);
+			if (isForward(PFJetEta[iPF])) v->getMEhisto_PtForward()->Fill(PFJetPt[iPF]);
 			//
-			v->getMEhisto_Eta()->Fill(jet->eta());
-			v->getMEhisto_Phi()->Fill(jet->phi());
-			v->getMEhisto_EtaPhi()->Fill(jet->eta(),jet->phi()); 
+			v->getMEhisto_Eta()->Fill(PFJetEta[iPF]);
+			v->getMEhisto_Phi()->Fill(PFJetPhi[iPF]);
+			v->getMEhisto_EtaPhi()->Fill(PFJetEta[iPF],PFJetPhi[iPF]); 
 			//
-			v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*kj].pt(),jet->pt());
-			v->getMEhisto_EtaCorrelation_HLTRecObj()->Fill(toc[*kj].eta(),jet->eta());
-			v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),jet->phi());
+			v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*kj].pt(),PFJetPt[iPF]);
+			v->getMEhisto_EtaCorrelation_HLTRecObj()->Fill(toc[*kj].eta(),PFJetEta[iPF]);
+			v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),PFJetPhi[iPF]);
 			//
-			v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].pt()-jet->pt())/(toc[*kj].pt()));
-			v->getMEhisto_EtaResolution_HLTRecObj()->Fill((toc[*kj].eta()-jet->eta())/(toc[*kj].eta()));
-			v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*kj].phi()-jet->phi())/(toc[*kj].phi()));
+			v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].pt()-PFJetPt[iPF])/(toc[*kj].pt()));
+			v->getMEhisto_EtaResolution_HLTRecObj()->Fill((toc[*kj].eta()-PFJetEta[iPF])/(toc[*kj].eta()));
+			v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*kj].phi()-PFJetPhi[iPF])/(toc[*kj].phi()));
                       }
 		      
 		      //-------------------------------------------------------    
 		      if((v->getTriggerType().compare("DiJet_Trigger") == 0)){
-			jetPhiVec.push_back(jet->phi());
-			jetPtVec.push_back(jet->pt());
-			jetEtaVec.push_back(jet->eta());         
-			jetPxVec.push_back(jet->px());
-			jetPyVec.push_back(jet->py()); 
+			jetPhiVec.push_back(PFJetPhi[iPF]);
+			jetPtVec.push_back(PFJetPt[iPF]);
+			jetEtaVec.push_back(PFJetEta[iPF]);         
+			jetPxVec.push_back(PFJetPx[iPF]);
+			jetPyVec.push_back(PFJetPy[iPF]); 
 			//
 			hltPhiVec.push_back(toc[*kj].phi());
 			hltPtVec.push_back(toc[*kj].pt());
@@ -570,7 +669,8 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 		      }
 		    }// matching jet  
 		  }//PFJet loop
-		}
+		}//valid pfjet collection, with pfjet trigger
+		//
 	      }// hlt matching with l1               
 	    }// jet trigger
 
@@ -629,59 +729,61 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
       v->getMEhisto_DeltaPhi_HLTObj()->Fill(HLTDelPhi);
     }
     
-    //-----------------------------------------------------      
-    if(v->getPath().find("L1") != std::string::npos && !fillL1HLT){
+    //-----------------------------------------------------
+    /*
+      if(v->getPath().find("L1") != std::string::npos && !fillL1HLT){
       if ( l1Index >= triggerObj_->sizeFilters() ) {
-	edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< l1Index << " of that name "<<l1Tag;
+      edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< l1Index << " of that name "<<l1Tag;
       }
       else {
-	//l1TrigBool = true;
-	const trigger::Keys & kl1 = triggerObj_->filterKeys(l1Index);
-	for( trigger::Keys::const_iterator ki = kl1.begin(); ki != kl1.end(); ++ki){
-	  double l1TrigEta = toc[*ki].eta();
-	  double l1TrigPhi = toc[*ki].phi();
-	  if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType().compare("SingleJet_Trigger") == 0) ){
-	    for(CaloJetCollection::const_iterator jet = calojet.begin(); jet != calojet.end(); ++jet ) {
-	      double jetEta = jet->eta();
-	      double jetPhi = jet->phi();
-	      if(deltaR(l1TrigEta, l1TrigPhi, jetEta, jetPhi) < 0.4){
-		jetsize++;
-		v->getMEhisto_Pt()->Fill(jet->pt());
-		if (isBarrel(jet->eta()))  v->getMEhisto_PtBarrel()->Fill(jet->pt());
-		if (isEndCap(jet->eta()))  v->getMEhisto_PtEndcap()->Fill(jet->pt());
-		if (isForward(jet->eta())) v->getMEhisto_PtForward()->Fill(jet->pt());
-		//
-		v->getMEhisto_Eta()->Fill(jet->eta());
-		v->getMEhisto_Phi()->Fill(jet->phi());
-		v->getMEhisto_EtaPhi()->Fill(jet->eta(),jet->phi()); 
-		//
-		v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*ki].pt(),jet->pt());
-		v->getMEhisto_EtaCorrelation_HLTRecObj()->Fill(toc[*ki].eta(),jet->eta());
-		v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*ki].phi(),jet->phi());
-		//
-		v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*ki].pt()-jet->pt())/(toc[*ki].pt()));
-		v->getMEhisto_EtaResolution_HLTRecObj()->Fill((toc[*ki].eta()-jet->eta())/(toc[*ki].eta()));
-		v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*ki].phi()-jet->phi())/(toc[*ki].phi()));
-	      }// matching jet
-              
-	    }// Jet Loop
-	    v->getMEhisto_N()->Fill(jetsize);
-	  }// valid Jet collection
-	  
-	  if(calometColl_.isValid() && ((v->getObjectType() == trigger::TriggerMET)|| (v->getObjectType() == trigger::TriggerTET))){
-	    const CaloMETCollection *calometcol = calometColl_.product();
-	    const CaloMET met = calometcol->front();
-	    v->getMEhisto_Pt()->Fill(met.pt()); 
-	    v->getMEhisto_Phi()->Fill(met.phi());
-            //
-	    v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*ki].pt(),met.pt());
-	    v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*ki].phi(),met.phi());
-	    v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*ki].pt()-met.pt())/(toc[*ki].pt()));
-	    v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*ki].phi()-met.phi())/(toc[*ki].phi()));
-	  }// valid MET Collection           
-	}// Loop over keys
+      //l1TrigBool = true;
+      const trigger::Keys & kl1 = triggerObj_->filterKeys(l1Index);
+      for( trigger::Keys::const_iterator ki = kl1.begin(); ki != kl1.end(); ++ki){
+      double l1TrigEta = toc[*ki].eta();
+      double l1TrigPhi = toc[*ki].phi();
+      if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType().compare("SingleJet_Trigger") == 0) ){
+      for(CaloJetCollection::const_iterator jet = calojet.begin(); jet != calojet.end(); ++jet ) {
+      double jetEta = jet->eta();
+      double jetPhi = jet->phi();
+      if(deltaR(l1TrigEta, l1TrigPhi, jetEta, jetPhi) < 0.4){
+      jetsize++;
+      v->getMEhisto_Pt()->Fill(jet->pt());
+      if (isBarrel(jet->eta()))  v->getMEhisto_PtBarrel()->Fill(jet->pt());
+      if (isEndCap(jet->eta()))  v->getMEhisto_PtEndcap()->Fill(jet->pt());
+      if (isForward(jet->eta())) v->getMEhisto_PtForward()->Fill(jet->pt());
+      //
+      v->getMEhisto_Eta()->Fill(jet->eta());
+      v->getMEhisto_Phi()->Fill(jet->phi());
+      v->getMEhisto_EtaPhi()->Fill(jet->eta(),jet->phi()); 
+      //
+      v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*ki].pt(),jet->pt());
+      v->getMEhisto_EtaCorrelation_HLTRecObj()->Fill(toc[*ki].eta(),jet->eta());
+      v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*ki].phi(),jet->phi());
+      //
+      v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*ki].pt()-jet->pt())/(toc[*ki].pt()));
+      v->getMEhisto_EtaResolution_HLTRecObj()->Fill((toc[*ki].eta()-jet->eta())/(toc[*ki].eta()));
+      v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*ki].phi()-jet->phi())/(toc[*ki].phi()));
+      }// matching jet
+      
+      }// Jet Loop
+      v->getMEhisto_N()->Fill(jetsize);
+      }// valid Jet collection
+      
+      if(calometColl_.isValid() && ((v->getObjectType() == trigger::TriggerMET)|| (v->getObjectType() == trigger::TriggerTET))){
+      const CaloMETCollection *calometcol = calometColl_.product();
+      const CaloMET met = calometcol->front();
+      v->getMEhisto_Pt()->Fill(met.pt()); 
+      v->getMEhisto_Phi()->Fill(met.phi());
+      //
+      v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*ki].pt(),met.pt());
+      v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*ki].phi(),met.phi());
+      v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*ki].pt()-met.pt())/(toc[*ki].pt()));
+      v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*ki].phi()-met.phi())/(toc[*ki].phi()));
+      }// valid MET Collection           
+      }// Loop over keys
       }// valid object
-    }// L1 is fired but not HLT       
+      }// L1 is fired but not HLT
+    */
   }
 }
 
@@ -826,48 +928,42 @@ JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & iEven
 		  v->getMEhisto_Eta_HLT()->Fill(toc[*kj].eta());
 		  v->getMEhisto_Phi_HLT()->Fill(toc[*kj].phi());
 		  v->getMEhisto_EtaPhi_HLT()->Fill(toc[*kj].eta(),toc[*kj].phi());
-		  
+
 		  //Calojet
-		  //How to use scale:
-		  //const JetCorrector* corrector   = JetCorrector::getJetCorrector(jetcorservice,iSetup);
-		  //for(CaloJetCollection::const_iterator jet = calojet.begin(); jet != calojet.end(); ++jet){
-		  //double scale = corrector->correction(*jet,iEvent, iSetup);
 		  if(calojetColl_.isValid() 
 		     && (v->getObjectType() == trigger::TriggerJet)
 		     && (v->getPath().compare("PFJet") == 0)){
-		    CaloJetCollection::const_iterator jet = calojet.begin();
-		    for(; jet != calojet.end(); ++jet) {
-		      if(verbose_){ //cout<<"raw pt = "<< jet->pt() 
-			cout << "Cor pt = " << jet->pt()
-			     << ", energy = " << jet->energy() 
-			     << ", eta = " << jet->eta() 
-			     << endl; 
-		      }
-		      if(deltaR(hltTrigEta, hltTrigPhi, jet->eta(), jet->phi()) < 0.4){
-			jetsize++;
-			v->getMEhisto_Pt()->Fill(jet->pt());
-			if (isBarrel(jet->eta()))  v->getMEhisto_PtBarrel()->Fill(jet->pt());
-			if (isEndCap(jet->eta()))  v->getMEhisto_PtEndcap()->Fill(jet->pt());
-			if (isForward(jet->eta())) v->getMEhisto_PtForward()->Fill(jet->pt());
-			v->getMEhisto_Eta()->Fill(jet->eta());
-			v->getMEhisto_Phi()->Fill(jet->phi());
-			v->getMEhisto_EtaPhi()->Fill(jet->eta(),jet->phi()); 
-			
-			v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*kj].pt(),jet->pt());
-			v->getMEhisto_EtaCorrelation_HLTRecObj()->Fill(toc[*kj].eta(),jet->eta());
-			v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),jet->phi());
-			
-			v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].pt()-jet->pt())/(toc[*kj].pt()));
-			v->getMEhisto_EtaResolution_HLTRecObj()->Fill((toc[*kj].eta()-jet->eta())/(toc[*kj].eta()));
-			v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*kj].phi()-jet->phi())/(toc[*kj].phi()));
+		    //CaloJetCollection::const_iterator jet = calojet.begin();
+		    //for(; jet != calojet.end(); ++jet) {
+		    for(int iCalo=0; iCalo<2; iCalo++){
+		      if(deltaR(hltTrigEta, hltTrigPhi, CaloJetEta[iCalo], CaloJetPhi[iCalo]) < 0.4){
+			jetsize++; 
+			if(v->getTriggerType().compare("SingleJet_Trigger") == 0){
+			  v->getMEhisto_Pt()->Fill(CaloJetPt[iCalo]);
+			  if (isBarrel(CaloJetEta[iCalo]))  v->getMEhisto_PtBarrel()->Fill(CaloJetPt[iCalo]);
+			  if (isEndCap(CaloJetEta[iCalo]))  v->getMEhisto_PtEndcap()->Fill(CaloJetPt[iCalo]);
+			  if (isForward(CaloJetEta[iCalo])) v->getMEhisto_PtForward()->Fill(CaloJetPt[iCalo]);
+			  //
+			  v->getMEhisto_Eta()->Fill(CaloJetEta[iCalo]);
+			  v->getMEhisto_Phi()->Fill(CaloJetPhi[iCalo]);
+			  v->getMEhisto_EtaPhi()->Fill(CaloJetEta[iCalo],CaloJetPhi[iCalo]); 
+			  //
+			  v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*kj].pt(),CaloJetPt[iCalo]);
+			  v->getMEhisto_EtaCorrelation_HLTRecObj()->Fill(toc[*kj].eta(),CaloJetEta[iCalo]);
+			  v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),CaloJetPhi[iCalo]);
+			  //
+			  v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].pt()-CaloJetPt[iCalo])/(toc[*kj].pt()));
+			  v->getMEhisto_EtaResolution_HLTRecObj()->Fill((toc[*kj].eta()-CaloJetEta[iCalo])/(toc[*kj].eta()));
+			  v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*kj].phi()-CaloJetPhi[iCalo])/(toc[*kj].phi()));
+			}
 			
 			//-------------------------------------------------------    
 			if((v->getTriggerType().compare("DiJet_Trigger") == 0)){
-			  jetPhiVec.push_back(jet->phi());
-			  jetPtVec.push_back(jet->pt());
-			  jetEtaVec.push_back(jet->eta());         
-			  jetPxVec.push_back(jet->px());
-			  jetPyVec.push_back(jet->py()); 
+			  jetPhiVec.push_back(CaloJetPhi[iCalo]);
+			  jetPtVec.push_back(CaloJetPt[iCalo]);
+			  jetEtaVec.push_back(CaloJetEta[iCalo]);         
+			  jetPxVec.push_back(CaloJetPx[iCalo]);
+			  jetPyVec.push_back(CaloJetPy[iCalo]); 
 			  //
 			  hltPhiVec.push_back(toc[*kj].phi());
 			  hltPtVec.push_back(toc[*kj].pt());
@@ -876,50 +972,44 @@ JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & iEven
 			  hltPyVec.push_back(toc[*kj].py());
 			}
 		      }// matching jet           
-		    }// Jet Loop
+		    }// CaloJet Loop
 		  }// valid calojet collection, with calojet trigger
 		  
 		  //PFJet trigger
-		  //How to use scale:
-		  //const JetCorrector* pfcorrector = JetCorrector::getJetCorrector(pfjetcorservice,iSetup);
-		  //for(PFJetCollection::const_iterator jet = pfjet.begin(); jet != pfjet.end(); ++jet){
-		  //double scale = pfcorrector->correction(*jet,iEvent, iSetup);
 		  if(pfjetColl_.isValid() 
 		     && (v->getObjectType() == trigger::TriggerJet)
 		     && (v->getPath().compare("PFJet") != 0)){
-		    PFJetCollection::const_iterator jet = pfjet.begin();
-		    for(; jet != pfjet.end(); ++jet){
-		      if(verbose_){ //cout<<"raw pt = "<< jet->pt() 
-			cout << "Cor pt = " << jet->pt()
-			     << ", energy = " << jet->energy() 
-			     << ", eta = " << jet->eta() 
-			     << endl; 
-		      }
-		      if(deltaR(hltTrigEta, hltTrigPhi, jet->eta(), jet->phi()) < 0.4){
+		    //PFJetCollection::const_iterator jet = pfjet.begin();
+		    //for(; jet != pfjet.end(); ++jet){ 
+		    for(int iPF=0; iPF<2; iPF++){
+		      if(deltaR(hltTrigEta, hltTrigPhi, PFJetEta[iPF], PFJetPhi[iPF]) < 0.4){
 			jetsize++;
-			v->getMEhisto_Pt()->Fill(jet->pt());
-			if (isBarrel(jet->eta()))  v->getMEhisto_PtBarrel()->Fill(jet->pt());
-			if (isEndCap(jet->eta()))  v->getMEhisto_PtEndcap()->Fill(jet->pt());
-			if (isForward(jet->eta())) v->getMEhisto_PtForward()->Fill(jet->pt());
-			v->getMEhisto_Eta()->Fill(jet->eta());
-			v->getMEhisto_Phi()->Fill(jet->phi());
-			v->getMEhisto_EtaPhi()->Fill(jet->eta(),jet->phi()); 
-			
-			v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*kj].pt(),jet->pt());
-			v->getMEhisto_EtaCorrelation_HLTRecObj()->Fill(toc[*kj].eta(),jet->eta());
-			v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),jet->phi());
-			
-			v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].pt()-jet->pt())/(toc[*kj].pt()));
-			v->getMEhisto_EtaResolution_HLTRecObj()->Fill((toc[*kj].eta()-jet->eta())/(toc[*kj].eta()));
-			v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*kj].phi()-jet->phi())/(toc[*kj].phi()));
+			if(v->getTriggerType().compare("SingleJet_Trigger") == 0){
+			  v->getMEhisto_Pt()->Fill(PFJetPt[iPF]);
+			  if (isBarrel(PFJetEta[iPF]))  v->getMEhisto_PtBarrel()->Fill(PFJetPt[iPF]);
+			  if (isEndCap(PFJetEta[iPF]))  v->getMEhisto_PtEndcap()->Fill(PFJetPt[iPF]);
+			  if (isForward(PFJetEta[iPF])) v->getMEhisto_PtForward()->Fill(PFJetPt[iPF]);
+			  //
+			  v->getMEhisto_Eta()->Fill(PFJetEta[iPF]);
+			  v->getMEhisto_Phi()->Fill(PFJetPhi[iPF]);
+			  v->getMEhisto_EtaPhi()->Fill(PFJetEta[iPF],PFJetPhi[iPF]); 
+			  //
+			  v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*kj].pt(),PFJetPt[iPF]);
+			  v->getMEhisto_EtaCorrelation_HLTRecObj()->Fill(toc[*kj].eta(),PFJetEta[iPF]);
+			  v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),PFJetPhi[iPF]);
+			  //
+			  v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].pt()-PFJetPt[iPF])/(toc[*kj].pt()));
+			  v->getMEhisto_EtaResolution_HLTRecObj()->Fill((toc[*kj].eta()-PFJetEta[iPF])/(toc[*kj].eta()));
+			  v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*kj].phi()-PFJetPhi[iPF])/(toc[*kj].phi()));
+			}
 			
 			//-------------------------------------------------------    
 			if((v->getTriggerType().compare("DiJet_Trigger") == 0)){
-			  jetPhiVec.push_back(jet->phi());
-			  jetPtVec.push_back(jet->pt());
-			  jetEtaVec.push_back(jet->eta());         
-			  jetPxVec.push_back(jet->px());
-			  jetPyVec.push_back(jet->py()); 
+			  jetPhiVec.push_back(PFJetPhi[iPF]);
+			  jetPtVec.push_back(PFJetPt[iPF]);
+			  jetEtaVec.push_back(PFJetEta[iPF]);         
+			  jetPxVec.push_back(PFJetPx[iPF]);
+			  jetPyVec.push_back(PFJetPy[iPF]); 
 			  //
 			  hltPhiVec.push_back(toc[*kj].phi());
 			  hltPtVec.push_back(toc[*kj].pt());
@@ -929,7 +1019,8 @@ JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(const Event & iEven
 			}
 		      }// matching jet  
 		    }//PFJet loop
-		  }
+		  }//valid pfjet collection, with pfjet trigger
+		  //
 		}// hlt matching with l1               
 	      }// jet trigger
 	      
@@ -1161,39 +1252,21 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
     
     //CaloJet paths   
     if(verbose_) std::cout << "fillMEforEffAllTrigger: CaloJet -------------------" << std::endl;
-    if(calojetColl_.isValid() 
-       && (v->getObjectType() == trigger::TriggerJet)){
+    if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
       //cout<<"   - CaloJet "<<endl;
       //&& (v->getPath().find("HLT_PFJet")==std::string::npos)
       //&& (v->getPath().find("HLT_DiPFJet")==std::string::npos)){
       bool jetIDbool = false;
+      double leadjpt  = CaloJetPt[0];  
+      double leadjeta = CaloJetEta[0];
+      double leadjphi = CaloJetPhi[0];
+      //double ljemf    = CaloJetEMF[0];
+      double ljfhpd   = CaloJetfHPD[0];
+      double ljn90    = CaloJetn90[0];
       if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && calojet.size()){ //this line stops the central jets
-	double leadjpt  = 0.0; 
-	double leadjeta = 0.0;
-	double leadjphi = 0.0;
-	double ljemf    = 0.0; 
-	double ljn90    = 0.0;
-	double ljfhpd   = 0.0;
-	CaloJetCollection::const_iterator jet = calojet.begin();
-	leadjpt  = jet->pt(); 
-	leadjeta = jet->eta(); 
-	leadjphi = jet->phi();
-	jetID->calculate(iEvent, *jet);
-	ljemf    = jet->emEnergyFraction();
-	ljfhpd   = jetID->fHPD();
-	ljn90    = jetID->n90Hits();
-	if(verbose_){
-	  cout<< "Leading CaloJet: Pt = " << leadjpt 
-	      << ", ljemf = " << ljemf 
-	      << ", fabs(leadjeta) = " <<  std::abs(leadjeta)  
-	      << ", ljfhpd = " << ljfhpd 
-	      << ", n90 = " << ljn90 
-	      << endl;
-	}
 	if( (ljfhpd < _fHPD) && (ljn90 > _n90Hits )){
 	  if(verbose_) cout<<"Passed CaloJet ID -------------------" << endl;
 	  jetIDbool = true;
-	  
 	  //Denominator fill
 	  v->getMEhisto_DenominatorPt()->Fill(leadjpt);
 	  if (isBarrel(leadjeta))  v->getMEhisto_DenominatorPtBarrel()->Fill(leadjpt);
@@ -1313,16 +1386,13 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
       }
       
       if(jetIDbool == true && (v->getTriggerType().compare("DiJet_Trigger") == 0) && calojet.size()>1){
-	CaloJetCollection::const_iterator jet  = calojet.begin();
-	CaloJetCollection::const_iterator jet2 = jet++;
-	jetID->calculate(iEvent, *jet2);
-	if(((jet2->emEnergyFraction()>_fEMF || std::abs(jet2->eta()) > _feta) 
-	    && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits)){
-	  v->getMEhisto_DenominatorPt()->Fill((jet->pt() + jet2->pt())/2.);
-	  v->getMEhisto_DenominatorEta()->Fill((jet->eta() + jet2->eta())/2.); 
+	if(((CaloJetEMF[1] > _fEMF || std::abs(CaloJetEta[1]) > _feta) && 
+	    CaloJetfHPD[0] < _fHPD && CaloJetn90[0] > _n90Hits)){
+	  v->getMEhisto_DenominatorPt()->Fill((CaloJetPt[0] + CaloJetPt[1])/2.);
+	  v->getMEhisto_DenominatorEta()->Fill((CaloJetEta[0] + CaloJetEta[1])/2.); 
 	  if(numpassed==true){
-	    v->getMEhisto_NumeratorPt()->Fill((jet->pt() + jet2->pt())/2.);
-	    v->getMEhisto_NumeratorEta()->Fill((jet->eta() + jet2->eta())/2.);
+	    v->getMEhisto_NumeratorPt()->Fill((CaloJetPt[0] + CaloJetPt[1])/2.);
+	    v->getMEhisto_NumeratorEta()->Fill((CaloJetEta[0] + CaloJetEta[1])/2.);
 	  }
 	}
       }
@@ -1330,54 +1400,30 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
     
     //PFJet paths
     if(verbose_) std::cout << "fillMEforEffAllTrigger: PFJet -------------------" << std::endl;
-    if(pfjetColl_.isValid() 
-       && (v->getObjectType() == trigger::TriggerJet)){
+    if(pfjetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
       //cout<<"   - PFJet "<<endl;
       //&& (v->getPath().find("HLT_PFJet")!=std::string::npos)
       //&& (v->getPath().find("HLT_DiPFJet")!=std::string::npos)){
       bool jetIDbool = false;
+      double leadjpt   = PFJetPt[0]; 
+      double leadjeta  = PFJetEta[0];
+      double leadjphi  = PFJetPhi[0];
+      double ljNHEF    = PFJetNHEF[0];
+      double ljCHEF    = PFJetCHEF[0];
+      double ljNEMF    = PFJetNEMF[0];
+      double ljCEMF    = PFJetCEMF[0];
+      //double sleadjpt  = PFJetPt[1];
+      //double sleadjeta = PFJetEta[1];
+      //double sleadjphi = PFJetPhi[1];
+      double sljNHEF   = PFJetNHEF[1];
+      double sljCHEF   = PFJetCHEF[1];
+      double sljNEMF   = PFJetNEMF[1];
+      double sljCEMF   = PFJetCEMF[1];
+      //
+      double pfMHTx    = pfMHTx_All;
+      double pfMHTy    = pfMHTy_All;
+      //
       if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && pfjet.size()){ //this line stops the central jets
-	double leadjpt  = 0.0; 
-	double leadjeta = 0.0;
-	double leadjphi = 0.0;
-	//double ljemf    = 0.0; 
-	//double ljn90    = 0.0;
-	//double ljfhpd   = 0.0;
-	double ljNHEF   = 0.0;
-	double ljCHEF   = 0.0;
-	double ljNEMF   = 0.0;
-	double ljCEMF   = 0.0;
-	//double sleadjpt  = 0.0; //still to add for dijets //shabnam
-	//double sleadjeta = 0.0;
-	//double sleadjphi = 0.0;
-	double pfMHTx   = 0.0;
-	double pfMHTy   = 0.0;
-	
-	for(PFJetCollection::const_iterator jet = pfjet.begin(); jet != pfjet.end(); ++jet ) {
-	  if(jet==pfjet.begin()){
-	    leadjpt  = jet->pt(); 
-	    leadjeta = jet->eta(); 
-	    leadjphi = jet->phi();
-	    ljNHEF   = jet->neutralHadronEnergyFraction();
-	    ljCHEF   = jet->chargedHadronEnergyFraction();
-	    ljNEMF   = jet->neutralEmEnergyFraction();
-	    ljCEMF   = jet->chargedEmEnergyFraction();
-	    //jetID->calculate(iEvent, *jet);
-	    //ljemf=jet->emEnergyFraction();
-	    //ljfhpd=jetID->fHPD();
-	    //ljn90=jetID->n90Hits();
-	    if(verbose_){
-	      cout<<"Leading PFJet: Pt = " << leadjpt   
-		  << ", Eta = " << leadjeta
-		  << ", NHEF = " << ljNHEF 
-		  << ", CHEF = " << ljCHEF
-		  << endl;
-	    }
-	  }
-	  //======get pfmht
-	  pfMHTx = pfMHTx + jet->px();
-	  pfMHTy = pfMHTy + jet->py();
-	}
 	
 	//======get pfmht
 	_pfMHT = sqrt(pfMHTx*pfMHTx + pfMHTy*pfMHTy);
@@ -1505,21 +1551,19 @@ JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::
 	}
       }
       if(jetIDbool == true && (v->getTriggerType().compare("DiJet_Trigger") == 0) && pfjet.size()>1){
-	PFJetCollection::const_iterator jet = pfjet.begin();
-	PFJetCollection::const_iterator jet2 = jet++;
-	if( jet2->neutralHadronEnergyFraction() >= _min_NHEF 
-	    && jet2->neutralHadronEnergyFraction() <= _max_NHEF
-	    && jet2->chargedHadronEnergyFraction() >= _min_CHEF 
-	    && jet2->chargedHadronEnergyFraction() <= _max_CHEF
-	    && jet2->neutralEmEnergyFraction() >= _min_NEMF 
-	    && jet2->neutralEmEnergyFraction() <= _max_NEMF
-	    && jet2->chargedEmEnergyFraction() >= _min_CEMF 
-	    && jet2->chargedEmEnergyFraction() <= _max_CEMF){
-	  v->getMEhisto_DenominatorPFPt()->Fill((jet->pt() + jet2->pt())/2.);
-	  v->getMEhisto_DenominatorPFEta()->Fill((jet->eta() + jet2->eta())/2.);
+	if( ljNHEF     >= _min_NHEF && ljNHEF  <= _max_NHEF
+	    && ljCHEF  >= _min_CHEF && ljCHEF  <= _max_CHEF
+	    && ljNEMF  >= _min_NEMF && ljNEMF  <= _max_NEMF
+	    && ljCEMF  >= _min_CEMF && ljCEMF  <= _max_CEMF 
+	    && sljNHEF >= _min_NHEF && sljNHEF <= _max_NHEF
+	    && sljCHEF >= _min_CHEF && sljCHEF <= _max_CHEF
+	    && sljNEMF >= _min_NEMF && sljNEMF <= _max_NEMF
+	    && sljCEMF >= _min_CEMF && sljCEMF <= _max_CEMF ){
+	  v->getMEhisto_DenominatorPFPt()->Fill((PFJetPt[0] + PFJetPt[1])/2.);
+	  v->getMEhisto_DenominatorPFEta()->Fill((PFJetEta[0] + PFJetEta[1])/2.);
 	  if(numpassed){
-	    v->getMEhisto_NumeratorPFPt()->Fill((jet->pt() + jet2->pt())/2.);
-	    v->getMEhisto_NumeratorPFEta()->Fill((jet->eta() + jet2->eta())/2.);
+	    v->getMEhisto_NumeratorPFPt()->Fill((PFJetPt[0] + PFJetPt[1])/2.);
+	    v->getMEhisto_NumeratorPFEta()->Fill((PFJetEta[0] + PFJetEta[1])/2.);
 	  }
 	}
       }
@@ -1722,29 +1766,13 @@ JetMETHLTOfflineSource::fillMEforEffWrtMuTrigger(const Event & iEvent, const edm
 	//&& (v->getPath().find("HLT_PFJet")==std::string::npos)
 	//&& (v->getPath().find("HLT_DiPFJet")==std::string::npos)){
 	bool jetIDbool = false;
-	if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && calojet.size()){ //this line stops the central jets
-	  double leadjpt  = 0.0; 
-	  double leadjeta = 0.0;
-	  double leadjphi = 0.0;
-	  double ljemf    = 0.0; 
-	  double ljn90    = 0.0;
-	  double ljfhpd   = 0.0;
-	  CaloJetCollection::const_iterator jet = calojet.begin();
-	  leadjpt  = jet->pt(); 
-	  leadjeta = jet->eta(); 
-	  leadjphi = jet->phi();
-	  jetID->calculate(iEvent, *jet);
-	  ljemf    = jet->emEnergyFraction();
-	  ljfhpd   = jetID->fHPD();
-	  ljn90    = jetID->n90Hits();
-	  if(verbose_){
-	    cout<< "Leading CaloJet: Pt = " << leadjpt 
-		<< ", ljemf = " << ljemf 
-		<< ", fabs(leadjeta) = " <<  std::abs(leadjeta)  
-		<< ", ljfhpd = " << ljfhpd 
-		<< ", n90 = " << ljn90 
-		<< endl;
-	  }
+	double leadjpt  = CaloJetPt[0];  
+	double leadjeta = CaloJetEta[0];
+	double leadjphi = CaloJetPhi[0];
+	//double ljemf    = CaloJetEMF[0];
+	double ljfhpd    = CaloJetfHPD[0];
+	double ljn90     = CaloJetn90[0];
+	if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && calojet.size()){ //this line stops the central jets  
 	  if( (ljfhpd < _fHPD) && (ljn90 > _n90Hits )){
 	    if(verbose_) cout<<"passed CaloJet ID -------------------" << endl;
 	    jetIDbool = true;
@@ -1867,17 +1895,14 @@ JetMETHLTOfflineSource::fillMEforEffWrtMuTrigger(const Event & iEvent, const edm
 	  }//CalojetID filter
 	}
 	
-	if(jetIDbool == true && (v->getTriggerType().compare("DiJet_Trigger") == 0) && calojet.size()>1){
-	  CaloJetCollection::const_iterator jet  = calojet.begin();
-	  CaloJetCollection::const_iterator jet2 = jet++;
-	  jetID->calculate(iEvent, *jet2);
-	  if(((jet2->emEnergyFraction()>_fEMF || std::abs(jet2->eta()) > _feta) 
-	      && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits)){
-	    v->getMEhisto_DenominatorPt()->Fill((jet->pt() + jet2->pt())/2.);
-	    v->getMEhisto_DenominatorEta()->Fill((jet->eta() + jet2->eta())/2.); 
+	if(jetIDbool == true && (v->getTriggerType().compare("DiJet_Trigger") == 0) && calojet.size()>1){	
+	  if(((CaloJetEMF[1] > _fEMF || std::abs(CaloJetEta[1]) > _feta) && 
+	      CaloJetfHPD[0] < _fHPD && CaloJetn90[0] > _n90Hits)){
+	    v->getMEhisto_DenominatorPt()->Fill((CaloJetPt[0] + CaloJetPt[1])/2.);
+	    v->getMEhisto_DenominatorEta()->Fill((CaloJetEta[0] + CaloJetEta[1])/2.); 
 	    if(numpassed==true){
-	      v->getMEhisto_NumeratorPt()->Fill((jet->pt() + jet2->pt())/2.);
-	      v->getMEhisto_NumeratorEta()->Fill((jet->eta() + jet2->eta())/2.);
+	      v->getMEhisto_NumeratorPt()->Fill((CaloJetPt[0] + CaloJetPt[1])/2.);
+	      v->getMEhisto_NumeratorEta()->Fill((CaloJetEta[0] + CaloJetEta[1])/2.);
 	    }
 	  }
 	}
@@ -1891,48 +1916,25 @@ JetMETHLTOfflineSource::fillMEforEffWrtMuTrigger(const Event & iEvent, const edm
 	//&& (v->getPath().find("HLT_PFJet")!=std::string::npos)
 	//&& (v->getPath().find("HLT_DiPFJet")!=std::string::npos)){
 	bool jetIDbool = false;
+	double leadjpt   = PFJetPt[0]; 
+	double leadjeta  = PFJetEta[0];
+	double leadjphi  = PFJetPhi[0];
+	double ljNHEF    = PFJetNHEF[0];
+	double ljCHEF    = PFJetCHEF[0];
+	double ljNEMF    = PFJetNEMF[0];
+	double ljCEMF    = PFJetCEMF[0];
+	//double sleadjpt  = PFJetPt[1];
+	//double sleadjeta = PFJetEta[1];
+	//double sleadjphi = PFJetPhi[1];
+	double sljNHEF   = PFJetNHEF[1];
+	double sljCHEF   = PFJetCHEF[1];
+	double sljNEMF   = PFJetNEMF[1];
+	double sljCEMF   = PFJetCEMF[1];
+	//
+	double pfMHTx    = pfMHTx_All;
+	double pfMHTy    = pfMHTy_All;
+	//
 	if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && pfjet.size()){ //this line stops the central jets
-	  double leadjpt  = 0.0; 
-	  double leadjeta = 0.0;
-	  double leadjphi = 0.0;
-	  //double ljemf    = 0.0; 
-	  //double ljn90    = 0.0;
-	  //double ljfhpd   = 0.0;
-	  double ljNHEF   = 0.0;
-	  double ljCHEF   = 0.0;
-	  double ljNEMF   = 0.0;
-	  double ljCEMF   = 0.0;
-	  //double sleadjpt  = 0.0; //still to add for dijets //shabnam
-	  //double sleadjeta = 0.0;
-	  //double sleadjphi = 0.0;
-	  double pfMHTx   = 0.0;
-	  double pfMHTy   = 0.0;
-	  
-	  for(PFJetCollection::const_iterator jet = pfjet.begin(); jet != pfjet.end(); ++jet ) {
-	    if(jet==pfjet.begin()){
-	      leadjpt  = jet->pt(); 
-	      leadjeta = jet->eta(); 
-	      leadjphi = jet->phi();
-	      ljNHEF   = jet->neutralHadronEnergyFraction();
-	      ljCHEF   = jet->chargedHadronEnergyFraction();
-	      ljNEMF   = jet->neutralEmEnergyFraction();
-	      ljCEMF   = jet->chargedEmEnergyFraction();
-	      //jetID->calculate(iEvent, *jet);
-	      //ljemf=jet->emEnergyFraction();
-	      //ljfhpd=jetID->fHPD();
-	      //ljn90=jetID->n90Hits();
-	      if(verbose_){
-		cout<<"Leading PFJet: Pt = " << leadjpt   
-		    << ", Eta = " << leadjeta
-		    << ", NHEF = " << ljNHEF 
-		    << ", CHEF = " << ljCHEF
-		    << endl;
-	      }
-	    }
-	    //======get pfmht
-	    pfMHTx = pfMHTx + jet->px();
-	    pfMHTy = pfMHTy + jet->py();
-	  }
 	  
 	  //======get pfmht
 	  _pfMHT = sqrt(pfMHTx*pfMHTx + pfMHTy*pfMHTy);
@@ -2059,22 +2061,20 @@ JetMETHLTOfflineSource::fillMEforEffWrtMuTrigger(const Event & iEvent, const edm
 	    }
 	  }
 	}
-	if(jetIDbool == true && (v->getTriggerType().compare("DiJet_Trigger") == 0) && pfjet.size()>1){
-	  PFJetCollection::const_iterator jet = pfjet.begin();
-	  PFJetCollection::const_iterator jet2 = jet++;
-	  if( jet2->neutralHadronEnergyFraction() >= _min_NHEF 
-	      && jet2->neutralHadronEnergyFraction() <= _max_NHEF
-	      && jet2->chargedHadronEnergyFraction() >= _min_CHEF 
-	      && jet2->chargedHadronEnergyFraction() <= _max_CHEF
-	      && jet2->neutralEmEnergyFraction() >= _min_NEMF 
-	      && jet2->neutralEmEnergyFraction() <= _max_NEMF
-	      && jet2->chargedEmEnergyFraction() >= _min_CEMF 
-	      && jet2->chargedEmEnergyFraction() <= _max_CEMF){
-	    v->getMEhisto_DenominatorPFPt()->Fill((jet->pt() + jet2->pt())/2.);
-	    v->getMEhisto_DenominatorPFEta()->Fill((jet->eta() + jet2->eta())/2.);
+	if(jetIDbool == true && (v->getTriggerType().compare("DiJet_Trigger") == 0) && pfjet.size()>1){	
+	  if( ljNHEF     >= _min_NHEF && ljNHEF  <= _max_NHEF
+	      && ljCHEF  >= _min_CHEF && ljCHEF  <= _max_CHEF
+	      && ljNEMF  >= _min_NEMF && ljNEMF  <= _max_NEMF
+	      && ljCEMF  >= _min_CEMF && ljCEMF  <= _max_CEMF 
+	      && sljNHEF >= _min_NHEF && sljNHEF <= _max_NHEF
+	      && sljCHEF >= _min_CHEF && sljCHEF <= _max_CHEF
+	      && sljNEMF >= _min_NEMF && sljNEMF <= _max_NEMF
+	      && sljCEMF >= _min_CEMF && sljCEMF <= _max_CEMF ){
+	    v->getMEhisto_DenominatorPFPt()->Fill((PFJetPt[0] + PFJetPt[1])/2.);
+	    v->getMEhisto_DenominatorPFEta()->Fill((PFJetEta[0] + PFJetEta[1])/2.);
 	    if(numpassed){
-	      v->getMEhisto_NumeratorPFPt()->Fill((jet->pt() + jet2->pt())/2.);
-	      v->getMEhisto_NumeratorPFEta()->Fill((jet->eta() + jet2->eta())/2.);
+	      v->getMEhisto_NumeratorPFPt()->Fill((PFJetPt[0] + PFJetPt[1])/2.);
+	      v->getMEhisto_NumeratorPFEta()->Fill((PFJetEta[0] + PFJetEta[1])/2.);
 	    }
 	  }
 	}
@@ -2282,29 +2282,13 @@ JetMETHLTOfflineSource::fillMEforEffWrtMBTrigger(const Event & iEvent, const edm
 	//&& (v->getPath().find("HLT_PFJet")==std::string::npos)
 	//&& (v->getPath().find("HLT_DiPFJet")==std::string::npos)){
 	bool jetIDbool = false;
+	double leadjpt  = CaloJetPt[0];  
+	double leadjeta = CaloJetEta[0];
+	double leadjphi = CaloJetPhi[0];
+	//double ljemf    = CaloJetEMF[0];
+	double ljfhpd    = CaloJetfHPD[0];
+	double ljn90     = CaloJetn90[0];
 	if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && calojet.size()){ //this line stops the central jets
-	  double leadjpt  = 0.0; 
-	  double leadjeta = 0.0;
-	  double leadjphi = 0.0;
-	  double ljemf    = 0.0; 
-	  double ljn90    = 0.0;
-	  double ljfhpd   = 0.0;
-	  CaloJetCollection::const_iterator jet = calojet.begin();
-	  leadjpt  = jet->pt(); 
-	  leadjeta = jet->eta(); 
-	  leadjphi = jet->phi();
-	  jetID->calculate(iEvent, *jet);
-	  ljemf    = jet->emEnergyFraction();
-	  ljfhpd   = jetID->fHPD();
-	  ljn90    = jetID->n90Hits();
-	  if(verbose_){
-	    cout<< "Leading CaloJet: Pt = " << leadjpt 
-		<< ", ljemf = " << ljemf 
-		<< ", fabs(leadjeta) = " <<  std::abs(leadjeta)  
-		<< ", ljfhpd = " << ljfhpd 
-		<< ", n90 = " << ljn90 
-		<< endl;
-	  }
 	  if( (ljfhpd < _fHPD) && (ljn90 > _n90Hits )){
 	    if(verbose_) cout<<"passed CaloJet ID -------------------" << endl;
 	    jetIDbool = true;
@@ -2428,16 +2412,13 @@ JetMETHLTOfflineSource::fillMEforEffWrtMBTrigger(const Event & iEvent, const edm
 	}
 	
 	if(jetIDbool == true && (v->getTriggerType().compare("DiJet_Trigger") == 0) && calojet.size()>1){
-	  CaloJetCollection::const_iterator jet  = calojet.begin();
-	  CaloJetCollection::const_iterator jet2 = jet++;
-	  jetID->calculate(iEvent, *jet2);
-	  if(((jet2->emEnergyFraction()>_fEMF || std::abs(jet2->eta()) > _feta) 
-	      && (jetID->fHPD()) < _fHPD && (jetID->n90Hits()) > _n90Hits)){
-	    v->getMEhisto_DenominatorPt()->Fill((jet->pt() + jet2->pt())/2.);
-	    v->getMEhisto_DenominatorEta()->Fill((jet->eta() + jet2->eta())/2.); 
+	  if(((CaloJetEMF[1] > _fEMF || std::abs(CaloJetEta[1]) > _feta) && 
+	      CaloJetfHPD[0] < _fHPD && CaloJetn90[0] > _n90Hits)){
+	    v->getMEhisto_DenominatorPt()->Fill((CaloJetPt[0] + CaloJetPt[1])/2.);
+	    v->getMEhisto_DenominatorEta()->Fill((CaloJetEta[0] + CaloJetEta[1])/2.); 
 	    if(numpassed==true){
-	      v->getMEhisto_NumeratorPt()->Fill((jet->pt() + jet2->pt())/2.);
-	      v->getMEhisto_NumeratorEta()->Fill((jet->eta() + jet2->eta())/2.);
+	      v->getMEhisto_NumeratorPt()->Fill((CaloJetPt[0] + CaloJetPt[1])/2.);
+	      v->getMEhisto_NumeratorEta()->Fill((CaloJetEta[0] + CaloJetEta[1])/2.);
 	    }
 	  }
 	}
@@ -2451,48 +2432,25 @@ JetMETHLTOfflineSource::fillMEforEffWrtMBTrigger(const Event & iEvent, const edm
 	//&& (v->getPath().find("HLT_PFJet")!=std::string::npos)
 	//&& (v->getPath().find("HLT_DiPFJet")!=std::string::npos)){
 	bool jetIDbool = false;
+	double leadjpt   = PFJetPt[0]; 
+	double leadjeta  = PFJetEta[0];
+	double leadjphi  = PFJetPhi[0];
+	double ljNHEF    = PFJetNHEF[0];
+	double ljCHEF    = PFJetCHEF[0];
+	double ljNEMF    = PFJetNEMF[0];
+	double ljCEMF    = PFJetCEMF[0];
+	//double sleadjpt  = PFJetPt[1];
+	//double sleadjeta = PFJetEta[1];
+	//double sleadjphi = PFJetPhi[1];
+	double sljNHEF   = PFJetNHEF[1];
+	double sljCHEF   = PFJetCHEF[1];
+	double sljNEMF   = PFJetNEMF[1];
+	double sljCEMF   = PFJetCEMF[1];
+	//
+	double pfMHTx    = pfMHTx_All;
+	double pfMHTy    = pfMHTy_All;
+	//
 	if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && pfjet.size()){ //this line stops the central jets
-	  double leadjpt  = 0.0; 
-	  double leadjeta = 0.0;
-	  double leadjphi = 0.0;
-	  //double ljemf    = 0.0; 
-	  //double ljn90    = 0.0;
-	  //double ljfhpd   = 0.0;
-	  double ljNHEF   = 0.0;
-	  double ljCHEF   = 0.0;
-	  double ljNEMF   = 0.0;
-	  double ljCEMF   = 0.0;
-	  //double sleadjpt  = 0.0; //still to add for dijets //shabnam
-	  //double sleadjeta = 0.0;
-	  //double sleadjphi = 0.0;
-	  double pfMHTx   = 0.0;
-	  double pfMHTy   = 0.0;
-	  
-	  for(PFJetCollection::const_iterator jet = pfjet.begin(); jet != pfjet.end(); ++jet ) {
-	    if(jet==pfjet.begin()){
-	      leadjpt  = jet->pt(); 
-	      leadjeta = jet->eta(); 
-	      leadjphi = jet->phi();
-	      ljNHEF   = jet->neutralHadronEnergyFraction();
-	      ljCHEF   = jet->chargedHadronEnergyFraction();
-	      ljNEMF   = jet->neutralEmEnergyFraction();
-	      ljCEMF   = jet->chargedEmEnergyFraction();
-	      //jetID->calculate(iEvent, *jet);
-	      //ljemf=jet->emEnergyFraction();
-	      //ljfhpd=jetID->fHPD();
-	      //ljn90=jetID->n90Hits();
-	      if(verbose_){
-		cout<<"Leading PFJet: Pt = " << leadjpt   
-		    << ", Eta = " << leadjeta
-		    << ", NHEF = " << ljNHEF 
-		    << ", CHEF = " << ljCHEF
-		    << endl;
-	      }
-	    }
-	    //======get pfmht
-	    pfMHTx = pfMHTx + jet->px();
-	    pfMHTy = pfMHTy + jet->py();
-	  }
 	  
 	  //======get pfmht
 	  _pfMHT = sqrt(pfMHTx*pfMHTx + pfMHTy*pfMHTy);
@@ -2619,22 +2577,20 @@ JetMETHLTOfflineSource::fillMEforEffWrtMBTrigger(const Event & iEvent, const edm
 	    }
 	  }
 	}
-	if(jetIDbool == true && (v->getTriggerType().compare("DiJet_Trigger") == 0) && pfjet.size()>1){
-	  PFJetCollection::const_iterator jet = pfjet.begin();
-	  PFJetCollection::const_iterator jet2 = jet++;
-	  if( jet2->neutralHadronEnergyFraction() >= _min_NHEF 
-	      && jet2->neutralHadronEnergyFraction() <= _max_NHEF
-	      && jet2->chargedHadronEnergyFraction() >= _min_CHEF 
-	      && jet2->chargedHadronEnergyFraction() <= _max_CHEF
-	      && jet2->neutralEmEnergyFraction() >= _min_NEMF 
-	      && jet2->neutralEmEnergyFraction() <= _max_NEMF
-	      && jet2->chargedEmEnergyFraction() >= _min_CEMF 
-	      && jet2->chargedEmEnergyFraction() <= _max_CEMF){
-	    v->getMEhisto_DenominatorPFPt()->Fill((jet->pt() + jet2->pt())/2.);
-	    v->getMEhisto_DenominatorPFEta()->Fill((jet->eta() + jet2->eta())/2.);
+	if(jetIDbool == true && (v->getTriggerType().compare("DiJet_Trigger") == 0) && pfjet.size()>1){ 
+	  if( ljNHEF     >= _min_NHEF && ljNHEF  <= _max_NHEF
+	      && ljCHEF  >= _min_CHEF && ljCHEF  <= _max_CHEF
+	      && ljNEMF  >= _min_NEMF && ljNEMF  <= _max_NEMF
+	      && ljCEMF  >= _min_CEMF && ljCEMF  <= _max_CEMF 
+	      && sljNHEF >= _min_NHEF && sljNHEF <= _max_NHEF
+	      && sljCHEF >= _min_CHEF && sljCHEF <= _max_CHEF
+	      && sljNEMF >= _min_NEMF && sljNEMF <= _max_NEMF
+	      && sljCEMF >= _min_CEMF && sljCEMF <= _max_CEMF ){
+	    v->getMEhisto_DenominatorPFPt()->Fill((PFJetPt[0] + PFJetPt[1])/2.);
+	    v->getMEhisto_DenominatorPFEta()->Fill((PFJetEta[0] + PFJetEta[1])/2.);
 	    if(numpassed){
-	      v->getMEhisto_NumeratorPFPt()->Fill((jet->pt() + jet2->pt())/2.);
-	      v->getMEhisto_NumeratorPFEta()->Fill((jet->eta() + jet2->eta())/2.);
+	      v->getMEhisto_NumeratorPFPt()->Fill((PFJetPt[0] + PFJetPt[1])/2.);
+	      v->getMEhisto_NumeratorPFEta()->Fill((PFJetEta[0] + PFJetEta[1])/2.);
 	    }
 	  }
 	}

@@ -147,16 +147,43 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
   edm::Handle<reco::PFJetCollection>   pfjetColl_;
   edm::Handle<reco::PFMETCollection>   pfmetColl_;
   
+  std::string CaloJetCorService_;
+  std::string PFJetCorService_;
+
   std::vector<std::string> pathFilter_;
   std::vector<std::string> pathRejectKeyword_;
   std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
   
-  reco::CaloJetCollection calojet; 
+  reco::CaloJetCollection calojet;
   reco::PFJetCollection pfjet;
   HLTConfigProvider hltConfig_;
   edm::Handle<edm::TriggerResults> triggerResults_;
   edm::TriggerNames triggerNames_; // TriggerNames class
   edm::Handle<trigger::TriggerEvent> triggerObj_;
+
+  double CaloJetPx[2];
+  double CaloJetPy[2];
+  double CaloJetPt[2];
+  double CaloJetEta[2];
+  double CaloJetPhi[2];	
+  double CaloJetEMF[2];
+  double CaloJetfHPD[2];
+  double CaloJetn90[2];
+
+  double PFJetPx[2];
+  double PFJetPy[2];
+  double PFJetPt[2];
+  double PFJetEta[2];
+  double PFJetPhi[2];
+  double PFJetNHEF[2];
+  double PFJetCHEF[2];
+  double PFJetNEMF[2];
+  double PFJetCEMF[2];
+
+  double pfMHTx_All;
+  double pfMHTy_All;
+  
+  
   // data across paths
   MonitorElement* scalersSelect;
   // helper class to store the data path

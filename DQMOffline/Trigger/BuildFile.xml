@@ -25,6 +25,7 @@
 <use   name="RecoJets/JetAssociationAlgorithms"/>
 <use   name="RecoJets/JetAlgorithms"/>
 <use   name="RecoJets/JetProducers"/>
+<use   name="JetMETCorrections/Objects"/>
 
 <use   name="root"/>
 <use   name="boost"/>

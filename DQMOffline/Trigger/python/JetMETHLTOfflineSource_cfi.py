@@ -25,8 +25,13 @@ jetMETHLTOfflineSource = cms.EDAnalyzer(
     #
     CaloMETCollectionLabel = cms.InputTag("met"),
     PFMETCollectionLabel   = cms.InputTag("pfMet"),
-    CaloJetCollectionLabel = cms.InputTag("ak5CaloJetsL1FastL2L3"),
-    PFJetCollectionLabel   = cms.InputTag("ak5PFJetsL1FastL2L3"),
+    #Use on-the-fly correction
+    #CaloJetCollectionLabel = cms.InputTag("ak5CaloJetsL1FastL2L3"),
+    #PFJetCollectionLabel   = cms.InputTag("ak5PFJetsL1FastL2L3"),
+    CaloJetCollectionLabel = cms.InputTag("ak5CaloJets"),
+    PFJetCollectionLabel   = cms.InputTag("ak5PFJets"),
+    CaloJetCorService      = cms.string("ak5CaloL1FastL2L3"),
+    PFJetCorService        = cms.string("ak5PFL1FastL2L3"),
     #
     fEMF       = cms.untracked.double(0.01),
     feta       = cms.untracked.double(2.6),
