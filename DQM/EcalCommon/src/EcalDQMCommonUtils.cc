@@ -278,7 +278,7 @@ namespace ecaldqm
   isForward(DetId const& _id)
   {
     if(_id.subdetId() != EcalEndcap || isEcalScDetId(_id)) return false;
-    return eta(EEDetId(_id)) > 2.2;
+    return std::abs(eta(EEDetId(_id))) > 2.2;
   }
 
   bool
