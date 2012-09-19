@@ -7,6 +7,7 @@
 
 #include "RecoTracker/TrackProducer/interface/GsfTrackProducerBase.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class GsfTrackRefitter : public GsfTrackProducerBase, public edm::EDProducer {
 public:
@@ -23,6 +24,7 @@ private:
 // 		    momentum, 
 		    vertex };
   Constraint constraint_;
+  edm::InputTag gsfTrackVtxConstraintTag_;
 };
 
 #endif

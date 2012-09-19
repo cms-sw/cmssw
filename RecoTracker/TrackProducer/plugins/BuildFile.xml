@@ -1,6 +1,7 @@
 <use   name="RecoTracker/TrackProducer"/>
 <use   name="RecoTracker/TkDetLayers"/>
 <use   name="TrackingTools/TransientTrack"/>
+<use   name="FWCore/Utilities"/>
 <library   file="*.cc" name="RecoTrackerTrackProducerPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

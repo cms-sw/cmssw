@@ -24,8 +24,10 @@ GsfTrackRefitter::GsfTrackRefitter(const edm::ParameterSet& iConfig):
 
   if (constraint_str == "") constraint_ = none;
 //   else if (constraint_str == "momentum") constraint_ = momentum;
-  else if (constraint_str == "vertex") constraint_ = vertex;
-  else {
+  else if (constraint_str == "vertex") {
+    constraint_ = vertex;
+    gsfTrackVtxConstraintTag_ = iConfig.getParameter<edm::InputTag>("gsfTrackVtxConstraintTag");
+  } else {
     edm::LogError("GsfTrackRefitter")<<"constraint: "<<constraint_str<<" not understood. Set it to 'momentum', 'vertex' or leave it empty";    
     throw cms::Exception("GsfTrackRefitter") << "unknown type of contraint! Set it to 'momentum', 'vertex' or leave it empty";    
   }
@@ -87,7 +89,7 @@ void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setu
   case vertex :
     {
       edm::Handle<GsfTrackVtxConstraintAssociationCollection> theTCollectionWithConstraint;
-      theEvent.getByType(theTCollectionWithConstraint);
+      theEvent.getByLabel(gsfTrackVtxConstraintTag_, theTCollectionWithConstraint);
       edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
       theEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
       bs = *recoBeamSpotHandle;      
