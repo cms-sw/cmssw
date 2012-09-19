@@ -79,11 +79,13 @@ public:
   void plotOutlierModules(const char *outputFileName="OutlierModules.ps",std::string plotVariable = "chi2PerDofX" ,float chi2_cut = 10,unsigned int minHits = 50);//method dumps selected modules into ps file
   void plotSubDetResiduals(bool plotNormHisto=false, unsigned int subDetId=7);//subDetector number :1.TPB, 2.TBE+, 3.TBE-, 4.TIB, 5.TID+, 6.TID-, 7.TOB, 8.TEC+ or 9.TEC-
   void plotDMR(const std::string& plotVar="medianX",Int_t minHits = 50, const std::string& options = "plain"); // plotVar=mean,meanX,meanY,median,rms etc., minHits=the minimum hits needed for module to appear in plot, options="plain" for regular DMR, "split" for inwards/outwards split, "layers" for layerwise DMR, "layer=N" for Nth layer, or combination of the previous (e.g. "split layers")
+  void plotSurfaceShapes(const std::string& options = "layers",const std::string& variable="");
+  // plotSurfaceShapes: options="split","layers"/"layer","subdet"
   void plotHitMaps();
   void setOutputDir( std::string dir );
   void setTreeBaseDir( std::string dir = "TrackerOfflineValidationStandalone");
   
-  TH1* addHists(const char *selection, const TString &residType = "xPrime", bool printModuleIds = false);//add hists fulfilling 'selection' on TTree; residType: xPrime,yPrime,xPrimeNorm,yPrimeNorm,x,y,xNorm; if (printModuleIds): cout DetIds
+  THStack* addHists(const char *selection, const TString &residType = "xPrime", bool printModuleIds = false);//add hists fulfilling 'selection' on TTree; residType: xPrime,yPrime,xPrimeNorm,yPrimeNorm,x,y,xNorm; if (printModuleIds): cout DetIds
   
 private : 
   TList getTreeList();
@@ -96,6 +98,7 @@ private :
   //void plot1DDetailsSubDet(TCanvas &c1, TList &treeList, std::string plot_Var1a,std::string plot_Var1b, std::string plot_Var2, Int_t minHits);
   //void plot1DDetailsBarrelLayer(TCanvas &c1, TList &treeList, std::string plot_Var1a,std::string plot_Var1b, Int_t minHits);
   //void plot1DDetailsDiskWheel(TCanvas &c1, TList &treelist, std::string plot_Var1a,std::string plot_Var1b, Int_t minHits);
+  void plotSS(const std::string& options = "layers",const std::string& variable="");
   void setHistStyle( TH1& hist,const char* titleX, const char* titleY, int color);
   void setTitleStyle( TNamed& h,const char* titleX, const char* titleY, int subDetId);
   void setNiceStyle();

@@ -27,6 +27,7 @@
 #include "TPaveStats.h"
 #include "TF1.h"
 #include "TRegexp.h"
+#include "TLatex.h"
 
 // This line works only if we have a CMSSW environment...
 #include "Alignment/OfflineValidation/interface/TkOffTreeVariables.h"
@@ -329,7 +330,175 @@ void PlotAlignmentValidation::setTreeBaseDir( std::string dir )
 }
 
 //------------------------------------------------------------------------------
-void  PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits, const std::string& options)
+void PlotAlignmentValidation::plotSurfaceShapes( const std::string& options, const std::string& residType )
+{
+  cout << "-------- plotSurfaceShapes called with " << options << endl;
+  if (options == "none")
+    return;
+  else if (options == "coarse"){
+    plotSS("subdet=1");
+    plotSS("subdet=2");
+    plotSS("subdet=3");
+    plotSS("subdet=4");
+    plotSS("subdet=5");
+    plotSS("subdet=6");
+  }
+  // else if (options == "fine") ...
+  else 
+    plotSS( options, residType );
+
+  return;
+}
+
+//------------------------------------------------------------------------------
+void PlotAlignmentValidation::plotSS( const std::string& options, const std::string& residType )
+{
+  if (residType == "") {
+    plotSS( options, "ResXvsXProfile");
+    plotSS( options, "ResXvsYProfile");
+    return;
+  }
+
+  int plotLayerN = 0;
+  int plotRingN  = 0;
+  //  bool plotPlain = false;
+  bool plotLayers = false;  // overrides plotLayerN
+  bool plotRings  = false;  // Todo: implement this?
+  bool plotSplits = false;
+  int plotSubDetN = 0;     // if zero, plot all
+
+  TRegexp layer_re("layer=[0-9]+");
+  Ssiz_t index, len;
+  if (options.find("split") != std::string::npos) { plotSplits = true; }
+  if (options.find("layers") != std::string::npos) { plotLayers = true; }
+  if ((index = layer_re.Index(options, &len)) != -1) {
+    if (plotLayers) {
+      std::cerr << "Warning: option 'layers' overrides 'layer=N'" << std::endl;
+    } else {
+      std::string substr = options.substr(index+6, len-6);
+      plotLayerN = atoi(substr.c_str());
+    }
+  }
+
+  TRegexp subdet_re("subdet=[1-6]+");
+  if ((index = subdet_re.Index(options, &len)) != -1) {
+    std::string substr = options.substr(index+7, len-7);
+    plotSubDetN = atoi(substr.c_str());
+  }
+
+  // If layers are plotted, these are the numbers of layers for each subdetector
+  static int numberOfLayers[6] = { 3, 2, 4, 3, 6, 9 };
+
+  setNiceStyle(); 
+  gStyle->SetOptStat(0);
+  
+  TCanvas c("canv", "canv", 600, 600);
+  setCanvasStyle( c );
+
+  // todo: title, min/max, nbins?
+
+  // Loop over detectors
+  for (int iSubDet=1; iSubDet<=6; ++iSubDet) {
+
+    // TEC requires special care since rings 1-4 and 5-7 are plotted separately
+    bool isTEC = (iSubDet==6);
+
+    // if subdet is specified, skip other subdets
+    if (plotSubDetN!=0 && iSubDet!=plotSubDetN)
+      continue;
+
+    // Skips plotting too high layers
+    if (plotLayerN > numberOfLayers[iSubDet-1]) {
+      continue;
+    }
+
+    int minlayer = plotLayers ? 1 : plotLayerN;
+    int maxlayer = plotLayers ? numberOfLayers[iSubDet-1] : plotLayerN;
+    
+    for (int layer = minlayer; layer <= maxlayer; layer++) {
+
+      // two plots for TEC, skip first 
+      for (int iTEC = 0; iTEC<2; iTEC++) {
+	if (!isTEC && iTEC==0) continue;
+	
+	char  selection[1000];
+	if (!isTEC){
+	  if (layer==0)
+	    sprintf(selection,"subDetId==%d",iSubDet); 
+	  else
+	    sprintf(selection,"subDetId==%d && layer == %d",iSubDet,layer); 
+	}
+	else{	  // TEC
+	  if (iTEC==0)  // rings 
+	    sprintf(selection,"subDetId==%d && ring <= 4",iSubDet); 
+	  else
+	    sprintf(selection,"subDetId==%d && ring > 4",iSubDet); 
+	}
+
+
+	// Title for plot and name for the file
+
+	TString subDetName;
+	switch (iSubDet) {
+	case 1: subDetName = "TPB"; break;
+	case 2: subDetName = "TPE"; break;
+	case 3: subDetName = "TIB"; break;
+	case 4: subDetName = "TID"; break;
+	case 5: subDetName = "TOB"; break;
+	case 6: subDetName = "TEC"; break;
+	}
+
+	TString myTitle = "Surface Shape, ";
+	myTitle += subDetName;
+	if (layer!=0) {
+	  myTitle += TString(", layer ");
+	  myTitle += Form("%d",layer); 
+	}
+	if (isTEC && iTEC==0)
+	  myTitle += TString(" R1-4");
+	if (isTEC && iTEC>0)
+	  myTitle += TString(" R5-7");
+
+	// Save plot to file
+	std::ostringstream plotName;
+	plotName << outputDir << "/SurfaceShape_" << subDetName << "_";
+	plotName << residType; 
+	if (layer!=0)
+	  plotName << "_" << "layer" << layer;
+	if (isTEC && iTEC==0)
+	  plotName << "_" << "R1-4";
+	if (isTEC && iTEC>0)
+	  plotName << "_" << "R5-7";
+	plotName << ".eps";
+
+	// Generate histograms with selection
+	THStack *hs = addHists(selection, residType);
+	if (!hs) continue; 
+	hs->SetTitle( myTitle ); 
+	hs->Draw("nostack PE");  
+
+	// Adjust Labels
+	TH1* firstHisto = (TH1*) hs->GetHists()->First();
+	TString xName = firstHisto->GetXaxis()->GetTitle();
+	TString yName = firstHisto->GetYaxis()->GetTitle();
+	hs->GetHistogram()->GetXaxis()->SetTitleColor( kBlack ); 
+	hs->GetHistogram()->GetXaxis()->SetTitle( xName ); 
+	hs->GetHistogram()->GetYaxis()->SetTitleColor( kBlack ); 
+	hs->GetHistogram()->GetYaxis()->SetTitle( yName ); 
+
+	// Save to file
+	c.Update(); 
+	c.Print(plotName.str().c_str());
+      }
+    }
+  }
+
+  return;
+}
+
+
+//------------------------------------------------------------------------------
+void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits, const std::string& options)
 {
 
   // Variable name should end with X or Y. If it doesn't, recursively calls plotDMR twice with
@@ -537,8 +706,8 @@ void  PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHit
 }
 
 //------------------------------------------------------------------------------
-TH1* PlotAlignmentValidation::addHists(const char *selection, const TString &residType,
-				       bool printModuleIds)
+THStack* PlotAlignmentValidation::addHists(const char *selection, const TString &residType,
+					   bool printModuleIds)
 {
   enum ResidType {
     xPrimeRes, yPrimeRes, xPrimeNormRes, yPrimeNormRes, xRes, yRes, xNormRes, /*yResNorm*/
@@ -563,86 +732,112 @@ TH1* PlotAlignmentValidation::addHists(const char *selection, const TString &res
     return 0;
   }
 
-  TFile *f = (*sourceList.begin())->getFile();
-  TTree *tree= (*sourceList.begin())->getTree();
-  if (!f || !tree) {
-    std::cout << "PlotAlignmentValidation::addHists: no tree or no file" << std::endl;
-    return 0;
-  }
+  cout << "PlotAlignmentValidation::addHists: using selection " << selection << endl;
+  THStack * retHistoStack = new THStack();
+  double legendY = 0.80;
+  TLegend * myLegend = new TLegend(0.17, legendY, 0.85, 0.88);
+  setLegendStyle( *myLegend );
+
+  for(std::vector<TkOfflineVariables*>::iterator itSourceFile = sourceList.begin();
+      itSourceFile != sourceList.end(); ++itSourceFile) {
+
+    //  TFile *f = (*sourceList.begin())->getFile();
+    TFile *f = (*itSourceFile)->getFile();
+    //  TTree *tree= (*sourceList.begin())->getTree();
+    TTree *tree= (*itSourceFile)->getTree();
+    int myLineColor = (*itSourceFile)->getLineColor();
+    int myLineStyle = (*itSourceFile)->getLineStyle();
+    TString myLegendName = (*itSourceFile)->getName();
+    if (!f || !tree) {
+      std::cout << "PlotAlignmentValidation::addHists: no tree or no file" << std::endl;
+      return 0;
+    }
+
+    // Todo: TLegend?
   
-  // first loop on tree to find out which entries (i.e. modules) fulfill the selection
-  // 'Entry$' gives the entry number in the tree
-  Long64_t nSel = tree->Draw("Entry$", selection, "goff");
-  if (nSel == -1) return 0; // error in selection
-  if (nSel == 0) {
-    std::cout << "PlotAlignmentValidation::addHists: no selected module." << std::endl;
-    return 0;
-  }
-  // copy entry numbers that fulfil the selection
-  const std::vector<double> selected(tree->GetV1(), tree->GetV1() + nSel);
-
-  TH1 *h = 0;       // becomes result
-  UInt_t nEmpty = 0;// selected, but empty hists
-  Long64_t nentries =  tree->GetEntriesFast();
-  std::vector<double>::const_iterator iterEnt = selected.begin();
-
-  // second loop on tree:
-  // for each selected entry get the hist from the file and merge
-  TkOffTreeVariables *treeMem = 0; // ROOT will initialise
-  tree->SetBranchAddress("TkOffTreeVariables", &treeMem);
-  for (Long64_t i = 0; i < nentries; i++){
-    if (i < *iterEnt - 0.1             // smaller index (with tolerance): skip
-	|| iterEnt == selected.end()) { // at the end: skip 
-      continue;
-    } else if (TMath::Abs(i - *iterEnt) < 0.11) {
-      ++iterEnt; // take this entry!
-    } else std::cout << "Must not happen: " << i << " " << *iterEnt << std::endl;
-
-    tree->GetEntry(i);
-    if (printModuleIds) {
-      std::cout << treeMem->moduleId << ": " << treeMem->entries << " entries" << std::endl;
+    // first loop on tree to find out which entries (i.e. modules) fulfill the selection
+    // 'Entry$' gives the entry number in the tree
+    Long64_t nSel = tree->Draw("Entry$", selection, "goff");
+    if (nSel == -1) return 0; // error in selection
+    if (nSel == 0) {
+      std::cout << "PlotAlignmentValidation::addHists: no selected module." << std::endl;
+      return 0;
     }
-    if (treeMem->entries <= 0) {  // little speed up: skip empty hists
-      ++nEmpty;
-      continue;
-    }
-    TString hName;
-    switch(rType) {
-    case xPrimeRes:     hName = treeMem->histNameX.c_str();          break;
-    case yPrimeRes:     hName = treeMem->histNameY.c_str();          break;
-    case xPrimeNormRes: hName = treeMem->histNameNormX.c_str();      break;
-    case yPrimeNormRes: hName = treeMem->histNameNormY.c_str();      break;
-    case xRes:          hName = treeMem->histNameLocalX.c_str();     break;
-    case yRes:          hName = treeMem->histNameLocalY.c_str();     break;
-    case xNormRes:      hName = treeMem->histNameNormLocalX.c_str(); break;
-      /*case yResNorm:      hName = treeMem->histNameNormLocalY.c_str(); break;*/
-    case ResXvsXProfile: hName = treeMem->profileNameResXvsX.c_str();    break;
-    case ResXvsYProfile: hName = treeMem->profileNameResXvsY.c_str();    break;
-    case ResYvsXProfile: hName = treeMem->profileNameResYvsX.c_str();    break;
-    case ResYvsYProfile: hName = treeMem->profileNameResYvsY.c_str();    break;
-   }
-    TKey *histKey = f->FindKeyAny(hName);
-    TH1 *newHist = (histKey ? static_cast<TH1*>(histKey->ReadObj()) : 0);
-    if (!newHist) {
-      std::cout << "Hist " << hName << " not found in file, break loop." << std::endl;
-      break;
-    }
-    if (!h) { // first hist: clone, but rename keeping only first part of name
-      TString name(newHist->GetName());
-      Ssiz_t pos_ = 0;
-      for (UInt_t i2 = 0; i2 < 3; ++i2) pos_ = name.Index("_", pos_+1);
-      name = name(0, pos_); // only up to three '_'
+    // copy entry numbers that fulfil the selection
+    const std::vector<double> selected(tree->GetV1(), tree->GetV1() + nSel);
+
+    TH1 *h = 0;       // becomes result
+    UInt_t nEmpty = 0;// selected, but empty hists
+    Long64_t nentries =  tree->GetEntriesFast();
+    std::vector<double>::const_iterator iterEnt = selected.begin();
+
+    // second loop on tree:
+    // for each selected entry get the hist from the file and merge
+    TkOffTreeVariables *treeMem = 0; // ROOT will initialise
+    tree->SetBranchAddress("TkOffTreeVariables", &treeMem);
+    for (Long64_t i = 0; i < nentries; i++){
+      if (i < *iterEnt - 0.1             // smaller index (with tolerance): skip
+	  || iterEnt == selected.end()) { // at the end: skip 
+	continue;
+      } else if (TMath::Abs(i - *iterEnt) < 0.11) {
+	++iterEnt; // take this entry!
+      } else std::cout << "Must not happen: " << i << " " << *iterEnt << std::endl;
+
+      tree->GetEntry(i);
+      if (printModuleIds) {
+	std::cout << treeMem->moduleId << ": " << treeMem->entries << " entries" << std::endl;
+      }
+      if (treeMem->entries <= 0) {  // little speed up: skip empty hists
+	++nEmpty;
+	continue;
+      }
+      TString hName;
+      switch(rType) {
+      case xPrimeRes:     hName = treeMem->histNameX.c_str();          break;
+      case yPrimeRes:     hName = treeMem->histNameY.c_str();          break;
+      case xPrimeNormRes: hName = treeMem->histNameNormX.c_str();      break;
+      case yPrimeNormRes: hName = treeMem->histNameNormY.c_str();      break;
+      case xRes:          hName = treeMem->histNameLocalX.c_str();     break;
+      case yRes:          hName = treeMem->histNameLocalY.c_str();     break;
+      case xNormRes:      hName = treeMem->histNameNormLocalX.c_str(); break;
+	/*case yResNorm:      hName = treeMem->histNameNormLocalY.c_str(); break;*/
+      case ResXvsXProfile: hName = treeMem->profileNameResXvsX.c_str();    break;
+      case ResXvsYProfile: hName = treeMem->profileNameResXvsY.c_str();    break;
+      case ResYvsXProfile: hName = treeMem->profileNameResYvsX.c_str();    break;
+      case ResYvsYProfile: hName = treeMem->profileNameResYvsY.c_str();    break;
+      }
+      TKey *histKey = f->FindKeyAny(hName);
+      TH1 *newHist = (histKey ? static_cast<TH1*>(histKey->ReadObj()) : 0);
+      if (!newHist) {
+	std::cout << "Hist " << hName << " not found in file, break loop." << std::endl;
+	break;
+      }
+      newHist->SetLineColor(myLineColor);
+      newHist->SetLineStyle(myLineStyle);
+      if (!h) { // first hist: clone, but rename keeping only first part of name
+	TString name(newHist->GetName());
+	Ssiz_t pos_ = 0;
+	for (UInt_t i2 = 0; i2 < 3; ++i2) pos_ = name.Index("_", pos_+1);
+	name = name(0, pos_); // only up to three '_'
 	h = static_cast<TH1*>(newHist->Clone("summed_"+name));
-	h->SetTitle(Form("%s: %lld modules", selection, nSel));
-    } else { // otherwise just add
-      h->Add(newHist);
+	//      TString myTitle = Form("%s: %lld modules", selection, nSel);
+	//	h->SetTitle( myTitle );
+      } else { // otherwise just add
+	h->Add(newHist);
+      }
+      delete newHist;
     }
-    delete newHist;
+
+    std::cout << "PlotAlignmentValidation::addHists" << "Result is merged from " << nSel-nEmpty
+	      << " modules, " << nEmpty << " hists were empty." << std::endl;
+
+    myLegend->AddEntry(myLegendName, myLegendName, "L");
+    
+    retHistoStack->Add(h);
   }
 
-  std::cout << "PlotAlignmentValidation::addHists" << "Result is merged from " << nSel-nEmpty
-	    << " modules, " << nEmpty << " hists were empty." << std::endl;
-  return h;
+  myLegend->Draw();
+  return retHistoStack;
 }
 
 //------------------------------------------------------------------------------
