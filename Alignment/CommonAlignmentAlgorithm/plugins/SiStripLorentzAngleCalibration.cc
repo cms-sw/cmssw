@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : August 2012
-///  $Revision: 1.2 $
-///  $Date: 2012/09/05 08:52:41 $
+///  $Revision: 1.3 $
+///  $Date: 2012/09/14 11:40:43 $
 ///  (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationBase.h"
@@ -341,7 +341,6 @@ void SiStripLorentzAngleCalibration::endOfJob()
       delete output;
     }
   } // end loop on IOVs
-
 }
 
 //======================================================================
@@ -388,7 +387,7 @@ const SiStripLorentzAngle* SiStripLorentzAngleCalibration::getLorentzAnglesInput
       siStripLorentzAngleInput_ = la;
     } else {
       // FIXME: about comparison of maps see comments in checkLorentzAngleInput
-      if (!la->getLorentzAngles().empty() && // single job might not have got events
+      if (la && !la->getLorentzAngles().empty() && // single job might not have got events
           la->getLorentzAngles() != siStripLorentzAngleInput_->getLorentzAngles()) {
         // Throw exception instead of error?
         edm::LogError("NoInput") << "@SUB=SiStripLorentzAngleCalibration::getLorentzAnglesInput"

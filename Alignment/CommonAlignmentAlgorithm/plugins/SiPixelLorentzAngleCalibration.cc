@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : September 2012
-///  $Revision: 1.1 $
-///  $Date: 2012/09/05 11:50:22 $
+///  $Revision: 1.2 $
+///  $Date: 2012/09/14 11:40:43 $
 ///  (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationBase.h"
@@ -358,7 +358,7 @@ const SiPixelLorentzAngle* SiPixelLorentzAngleCalibration::getLorentzAnglesInput
       siPixelLorentzAngleInput_ = la;
     } else {
       // FIXME: about comparison of maps see comments in checkLorentzAngleInput
-      if (!la->getLorentzAngles().empty() && // single job might not have got events
+      if (la && !la->getLorentzAngles().empty() && // single job might not have got events
           la->getLorentzAngles() != siPixelLorentzAngleInput_->getLorentzAngles()) {
         // Throw exception instead of error?
         edm::LogError("NoInput") << "@SUB=SiPixelLorentzAngleCalibration::getLorentzAnglesInput"
