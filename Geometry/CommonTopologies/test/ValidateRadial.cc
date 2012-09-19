@@ -57,6 +57,9 @@ get_list_of_radial_topologies(const edm::Event&e, const edm::EventSetup& es) {
 
 void ValidateRadial::
 test_topology(const RadialStripTopology* t, unsigned i) {
+
+  std::cout << *t << std::endl;
+
   TProfile prof(("se2limit1"+boost::lexical_cast<std::string>(i)).c_str(),
 		"Precision Limit of recoverable strip error (1st order);strip;strip error",
 		t->nstrips()/8,0,t->nstrips());
@@ -80,7 +83,7 @@ test_topology(const RadialStripTopology* t, unsigned i) {
 }
 
 ValidateRadial::~ValidateRadial() {
-  std::cout <<"ValidateRadial max UU, max UV" << maxerrU << " " << maxerrUV << std::endl; 
+  std::cout <<"ValidateRadial max UU, max UV " << maxerrU << " " << maxerrUV << std::endl; 
 }
 
 

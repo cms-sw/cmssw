@@ -11,7 +11,8 @@
 namespace {
 
   // valid for z < pi/8
-  inline atan0(float z) {
+  inline 
+  float atan0(float z) {
     float z2 = z * z;
     return
       ((( 8.05374449538e-2f * z2
@@ -65,7 +66,7 @@ float RadialStripTopology::xOfStrip(int strip, float y) const {
 float RadialStripTopology::strip(const LocalPoint& lp) const {
      // phi is measured from y axis --> sign of angle is sign of x * yAxisOrientation --> use atan2(x,y), not atan2(y,x)
   float y = yDistanceToIntersection( lp.y() );
-  const float phi =  std::copysign(atan0( std::abs(lp.x()/y) )) , lp.x() );
+  const float phi =  std::copysign(atan0(std::abs(lp.x()/y)) , lp.x() );
   const float aStrip = ( phi -  phiOfOneEdge() )/angularWidth();
   return  std::max(float(0), std::min( (float)nstrips(), aStrip ));
 }
@@ -83,7 +84,7 @@ LocalPoint RadialStripTopology::localPosition(const MeasurementPoint& mp) const 
 
 MeasurementPoint RadialStripTopology::measurementPosition(const LocalPoint& lp) const {
   // phi is [pi/2 - conventional local phi], use atan2(x,y) rather than atan2(y,x)
-  const float phi = std::copysign(atan0( std::abs(lp.x()/yDistanceToIntersection( lp.y() ) )) , lp.x() );
+  const float phi = std::copysign(atan0(std::abs( lp.x()/yDistanceToIntersection(lp.y()) )) , lp.x() );
   return MeasurementPoint( ( phi-phiOfOneEdge() ) / angularWidth(),
 			   ( lp.y() - yCentreOfStripPlane() )        / detHeight() );
 }
