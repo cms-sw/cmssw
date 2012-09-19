@@ -25,8 +25,8 @@ class ValidateRadial : public edm::EDAnalyzer {
   const bool printOut_;
   const bool posOnly_;
 
-  mutable double maxerrU=0.; 
-  mutable double maxerrUV=0.; 
+  mutable float maxerrU=0.; 
+  mutable float maxerrUV=0.; 
 };
 
 #endif
