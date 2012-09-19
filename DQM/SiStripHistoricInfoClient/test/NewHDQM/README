@@ -1,7 +1,13 @@
 How to run historic DQM
 
-1) Setup your grid environment
-(automatically done for cctrack)
+**Note for Developers** 
+For every run, historic DQM automatically caches the result from each defined query
+in the configuration file, so if you are testing, please be vigilant to remove the cache file as needed (.DQMCache)
+
+**General Instructions**
+
+1) Setup your grid environment (voms-proxy-init)
+(automatically done for cctrack on vocms01)
 
 2) Run trendPlots, like
 ./trendPlots.py -C cfg/trendPlotsDQM.ini -C cfg/trendPlotsExample.ini
