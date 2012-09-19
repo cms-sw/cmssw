@@ -112,13 +112,13 @@ private:
   MonitorElement* leadingjet_eta_after_;
   MonitorElement* leadingjet_eta_afterZ_;
 
-  MonitorElement* ptPlus_before_;
-  MonitorElement* ptMinus_before_;
+  //MonitorElement* ptPlus_before_;
+  //MonitorElement* ptMinus_before_;
   MonitorElement* ptDiffPM_before_;
-  MonitorElement* ptPlus_afterW_;
-  MonitorElement* ptMinus_afterW_;
-  MonitorElement* ptPlus_afterZ_;
-  MonitorElement* ptMinus_afterZ_;
+  //MonitorElement* ptPlus_afterW_;
+  //MonitorElement* ptMinus_afterW_;
+  //MonitorElement* ptPlus_afterZ_;
+  //MonitorElement* ptMinus_afterZ_;
   MonitorElement* ptDiffPM_afterZ_;
 
   MonitorElement* met_afterZ_;

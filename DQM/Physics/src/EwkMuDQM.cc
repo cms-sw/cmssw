@@ -181,12 +181,12 @@ void EwkMuDQM::init_histograms() {
 
   /**\ For charge asymmetry studies */
 
-  ptPlus_before_ = theDbe->book1D("PTPLUS_BEFORE_CUTS","Muon+ transverse momentum before cuts [GeV]",100,0.,100.);
-  ptMinus_before_ = theDbe->book1D("PTMINUS_BEFORE_CUTS","Muon- transverse momentum before cuts [GeV]",100,0.,100.);
-  ptPlus_afterW_ = theDbe->book1D("PTPLUS_AFTERW_CUTS","Muon+ transverse momentum after W cuts [GeV]",100,0.,100.);
-  ptMinus_afterW_ = theDbe->book1D("PTMINUS_AFTERW_CUTS","Muon- transverse momentum after W cuts [GeV]",100,0.,100.);
-  ptPlus_afterZ_ = theDbe->book1D("PTPLUS_AFTERZ_CUTS","Muon+ transverse momentum after Z cuts [GeV]",100,0.,100.);
-  ptMinus_afterZ_ = theDbe->book1D("PTMINUS_AFTERZ_CUTS","Muon- transverse momentum after Z cuts [GeV]",100,0.,100.);
+  //ptPlus_before_ = theDbe->book1D("PTPLUS_BEFORE_CUTS","Muon+ transverse momentum before cuts [GeV]",100,0.,100.);
+  //ptMinus_before_ = theDbe->book1D("PTMINUS_BEFORE_CUTS","Muon- transverse momentum before cuts [GeV]",100,0.,100.);
+  //ptPlus_afterW_ = theDbe->book1D("PTPLUS_AFTERW_CUTS","Muon+ transverse momentum after W cuts [GeV]",100,0.,100.);
+  //ptMinus_afterW_ = theDbe->book1D("PTMINUS_AFTERW_CUTS","Muon- transverse momentum after W cuts [GeV]",100,0.,100.);
+  //ptPlus_afterZ_ = theDbe->book1D("PTPLUS_AFTERZ_CUTS","Muon+ transverse momentum after Z cuts [GeV]",100,0.,100.);
+  //ptMinus_afterZ_ = theDbe->book1D("PTMINUS_AFTERZ_CUTS","Muon- transverse momentum after Z cuts [GeV]",100,0.,100.);
   ptDiffPM_before_ = theDbe->book1D("PTDIFFPM_BEFORE_CUTS","pt(Muon+)-pt(Muon-) after Z cuts [GeV]",200,-100.,100.);
   ptDiffPM_afterZ_ = theDbe->book1D("PTDIFFPM_AFTERZ_CUTS","pt(Muon+)-pt(Muon-) after Z cuts [GeV]",200,-100.,100.);
 
@@ -515,10 +515,10 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
             goodewkmuon_before_->Fill(quality);
 
 	    // Charge asymmetry
-	    if (quality) {
-	      if (charge>0) ptPlus_before_->Fill(pt);
-	      if (charge<0) ptMinus_before_->Fill(pt);
-	    }
+	    //if (quality) {
+	    //  if (charge>0) ptPlus_before_->Fill(pt);
+	    //  if (charge<0) ptMinus_before_->Fill(pt);
+	    //}
 
 
             // Isolation cuts
@@ -608,8 +608,8 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 		    if (!wfullsel_hist_done){
                         npvs_after_->Fill(nvvertex);
                         muoncharge_after_->Fill(charge);
-			if (charge>0) ptPlus_afterW_->Fill(pt);
-			if (charge<0) ptMinus_afterW_->Fill(pt);
+			//if (charge>0) ptPlus_afterW_->Fill(pt);
+			//if (charge<0) ptMinus_afterW_->Fill(pt);
 		    }
 		    wfullsel_hist_done=true;    
                   } 
@@ -702,13 +702,13 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 					   npvs_afterZ_->Fill(nvvertex);
 					   muoncharge_afterZ_->Fill(charge);
 					   if (charge>0) {
-					     ptPlus_afterZ_->Fill(mu.pt());
-					     ptMinus_afterZ_->Fill(mu2.pt());
+					     //ptPlus_afterZ_->Fill(mu.pt());
+					     //ptMinus_afterZ_->Fill(mu2.pt());
 					     ptDiffPM_afterZ_->Fill(mu.pt()-mu2.pt());
 					   }
 					   else {
-					     ptPlus_afterZ_->Fill(mu2.pt());
-					     ptMinus_afterZ_->Fill(mu.pt());
+					     //ptPlus_afterZ_->Fill(mu2.pt());
+					     //ptMinus_afterZ_->Fill(mu.pt());
 					     ptDiffPM_afterZ_->Fill(mu2.pt()-mu.pt());
 					   }
 					 }
