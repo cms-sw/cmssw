@@ -1,6 +1,7 @@
 <flags   EDM_PLUGIN="1"/>
 <use   name="root"/>
 <use   name="FWCore/Framework"/>
+<use   name="FWCore/Utilities"/>
 <use   name="DataFormats/HcalRecHit"/>
 <use   name="TBDataFormats/HcalTBObjects"/>
 

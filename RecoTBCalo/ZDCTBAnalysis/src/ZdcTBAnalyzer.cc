@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
@@ -35,9 +36,20 @@ private:
   bool wireChambersInfo;
   bool triggerInfo;
   ZdcTBAnalysis zdcTBAnalysis;
+
+  edm::InputTag zdcRecHitCollectionTag;
+  edm::InputTag hcalTBTriggerDataTag;
+  edm::InputTag hcalTBTimingTag;
+  edm::InputTag hcalTBBeamCountersTag;
+  edm::InputTag hcalTBEventPositionTag;
 };
 
-ZdcTBAnalyzer::ZdcTBAnalyzer(const edm::ParameterSet& iConfig)
+ZdcTBAnalyzer::ZdcTBAnalyzer(const edm::ParameterSet& iConfig) :
+  zdcRecHitCollectionTag(iConfig.getParameter<edm::InputTag>("zdcRecHitCollectionTag")),
+  hcalTBTriggerDataTag(iConfig.getParameter<edm::InputTag>("hcalTBTriggerDataTag")),
+  hcalTBTimingTag(iConfig.getParameter<edm::InputTag>("hcalTBTimingTag")),
+  hcalTBBeamCountersTag(iConfig.getParameter<edm::InputTag>("hcalTBBeamCountersTag")),
+  hcalTBEventPositionTag(iConfig.getParameter<edm::InputTag>("hcalTBEventPositionTag"))
 {
   std::cout<<"**************** ZdcTBAnalizer Start**************************"<<std::endl;
   edm::ParameterSet para = iConfig.getParameter<edm::ParameterSet>("ZdcTBAnalyzer");
@@ -59,22 +71,22 @@ void ZdcTBAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&){
   edm::Handle<HcalTBTiming> times;
   edm::Handle<HcalTBBeamCounters> bc;
   edm::Handle<HcalTBEventPosition> chpos;
-  
-  e.getByType(zdcRecHits);
+
+  e.getByLabel(zdcRecHitCollectionTag, zdcRecHits);
   if(triggerInfo){
-    e.getByType(triggers);
+    e.getByLabel(hcalTBTriggerDataTag, triggers);
     zdcTBAnalysis.analyze(*triggers);
   }
   if(beamDetectorsTDCInfo){
-    e.getByType(times);  // e.getByLabel("tbunpacker2",times);
+    e.getByLabel(hcalTBTimingTag, times);  // e.getByLabel("tbunpacker2",times);
     zdcTBAnalysis.analyze(*times);
   }
   if(beamDetectorsADCInfo){
-    e.getByType(bc);
+    e.getByLabel(hcalTBBeamCountersTag, bc);
      zdcTBAnalysis.analyze(*bc);
   }
   if(wireChambersInfo){
-    e.getByType(chpos);
+    e.getByLabel(hcalTBEventPositionTag, chpos);
     zdcTBAnalysis.analyze(*chpos);
   }     
   zdcTBAnalysis.analyze(*zdcRecHits);
