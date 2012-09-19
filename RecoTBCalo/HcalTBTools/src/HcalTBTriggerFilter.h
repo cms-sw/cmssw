@@ -5,11 +5,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 /** \class HcalTBTriggerFilter
     
-   $Date: 2006/08/17 17:28:23 $
-   $Revision: 1.5 $
+   $Date: 2007/03/08 23:09:15 $
+   $Revision: 1.1 $
    \author J. Mans - Minnesota
 */
 class HcalTBTriggerFilter : public edm::EDFilter {
@@ -24,7 +25,7 @@ private:
   bool allowLaser_;
   bool allowLED_;
   bool allowBeam_;
-  edm::InputTag label_;
+  edm::InputTag hcalTBTriggerDataTag_;
 };
 
 #endif

@@ -9,17 +9,14 @@ HcalTBTriggerFilter::HcalTBTriggerFilter(const edm::ParameterSet& ps) :
   allowLaser_(ps.getParameter<bool>("AllowLaser")),
   allowLED_(ps.getParameter<bool>("AllowLED")),
   allowBeam_(ps.getParameter<bool>("AllowBeam")),
-  label_(ps.getUntrackedParameter<edm::InputTag>("label",edm::InputTag()))
+  hcalTBTriggerDataTag_(ps.getParameter<edm::InputTag>("hcalTBTriggerDataTag"))
 {
 }
 
 bool HcalTBTriggerFilter::filter(edm::Event& e, edm::EventSetup const& c) {
-  edm::Handle<HcalTBTriggerData> h;
 
-  if (label_.label().length()<2) 
-    e.getByType(h);
-  else
-    e.getByLabel(label_,h);
+  edm::Handle<HcalTBTriggerData> h;
+  e.getByLabel(hcalTBTriggerDataTag_, h);
 
   bool allowed=false;
 

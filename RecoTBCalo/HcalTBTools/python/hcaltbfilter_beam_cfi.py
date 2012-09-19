@@ -6,7 +6,8 @@ hcaltbfilter_beam = cms.EDFilter("HcalTBTriggerFilter",
     AllowLaser = cms.bool(False),
     AllowPedestal = cms.bool(False),
     AllowBeam = cms.bool(True),
-    AllowPedestalInSpill = cms.bool(False)
+    AllowPedestalInSpill = cms.bool(False),
+    hcalTBTriggerDataTag = cms.InputTag("tbunpack")
 )
 
 
