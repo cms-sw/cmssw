@@ -16,6 +16,7 @@ GeometryConf={
     'ExtendedInflated10TIBFlange'             : 'ExtendedInflated10TIBFlange,ExtendedInflated10TIBFlangeReco',
     'ExtendedInflated10TIBTIDMargherita'      : 'ExtendedInflated10TIBTIDMargherita,ExtendedInflated10TIBTIDMargheritaReco',
     'ExtendedInflated10TIBTIDServiceCylinder' : 'ExtendedInflated10TIBTIDServiceCylinder,ExtendedInflated10TIBTIDServiceCylinderReco',
+    'ExtendedPhaseIBeamPipe' : 'ExtendedPhaseIBeamPipe:Reco',
     'All'         : 'Configuration.Geometry.GeometrySimAll_cff,Reco',
     'ECALHCAL'    : 'Configuration.Geometry.GeometrySimECALHCAL_cff,Configuration.Geometry.GeometryRecoECALHCAL_cff',
     'TrackerOnly' : 'Configuration.Geometry.GeometrySimTracker_cff,Configuration.Geometry.GeometryRecoTracker_cff',
