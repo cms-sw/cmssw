@@ -37,7 +37,7 @@ public:
 
     fitter.useChi2 = false;
     fitter.sigma2 = 1.;
-    fitter.fit(inputFileName, outputFileName, "gaussian", "uniform", 9.5, 9.1, 9.8, 0.3, 0.001, 2.);
+    fitter.fit(inputFileName, outputFileName, "gaussian", "exponential", 9.5, 9.1, 9.8, 0.3, 0.001, 2.);
 
     /*
     file_ = new TFile(outputFile, "READ");
