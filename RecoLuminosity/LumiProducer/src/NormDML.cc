@@ -8,6 +8,7 @@
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
 #include <algorithm>
 #include <map>
+#include <iostream>
 #include <sstream>
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
