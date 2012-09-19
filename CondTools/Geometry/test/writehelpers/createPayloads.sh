@@ -59,6 +59,9 @@ cmsRun geometryxmlwriter.py
 sed -i '{s/LiMin/LiMax/g}' geometryxmlwriter.py
 sed -i '{s/\/gelimin/\/gelimax/g}' geometryxmlwriter.py
 cmsRun geometryxmlwriter.py
+sed -i '{s/LiMax/PhaseIBeamPipe/g}' geometryxmlwriter.py
+sed -i '{s/\/gelimax/\/gepibp/g}' geometryxmlwriter.py
+cmsRun geometryxmlwriter.py
 
 # Read the one big XML file and output a record to the
 # database with the an identifying tag
@@ -91,6 +94,9 @@ sed -i '{s/\/gexmax/\/gelimin/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 sed -i '{s/LiMin/LiMax/g}' xmlgeometrywriter.py
 sed -i '{s/\/gelimin/\/gelimax/g}' xmlgeometrywriter.py
+cmsRun xmlgeometrywriter.py
+sed -i '{s/LiMax/PhaseIBeamPipe/g}' xmlgeometrywriter.py
+sed -i '{s/\/gelimax/\/gepibp/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 
 # All the database objects were written into one database
