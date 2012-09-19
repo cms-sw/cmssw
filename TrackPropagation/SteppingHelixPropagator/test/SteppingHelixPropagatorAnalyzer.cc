@@ -17,7 +17,7 @@
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.22 2010/10/03 17:23:11 elmer Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.23 2012/07/01 19:54:00 eulisse Exp $
 //
 //
 
@@ -37,6 +37,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
@@ -156,6 +157,8 @@ private:
   bool startFromPrevHit_;
 
   std::string g4SimName_;
+  edm::InputTag simTracksTag_;
+  edm::InputTag simVertexesTag_;
 };
 
 //
@@ -169,7 +172,9 @@ private:
 //
 // constructors and destructor
 //
-SteppingHelixPropagatorAnalyzer::SteppingHelixPropagatorAnalyzer(const edm::ParameterSet& iConfig)
+SteppingHelixPropagatorAnalyzer::SteppingHelixPropagatorAnalyzer(const edm::ParameterSet& iConfig) :
+  simTracksTag_(iConfig.getParameter<edm::InputTag>("simTracksTag")),
+  simVertexesTag_(iConfig.getParameter<edm::InputTag>("simVertexesTag"))
 {
   //now do what ever initialization is needed
 
@@ -273,7 +278,7 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   int pStatus = 0; //1 will be bad
 
   Handle<SimTrackContainer> simTracks;
-  iEvent.getByType<SimTrackContainer>(simTracks);
+  iEvent.getByLabel<SimTrackContainer>(simTracksTag_, simTracks);
   if (! simTracks.isValid() ){
     std::cout<<"No tracks found"<<std::endl;
     return;
@@ -283,7 +288,7 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   }
 
   Handle<SimVertexContainer> simVertices;
-  iEvent.getByType<SimVertexContainer>(simVertices);
+  iEvent.getByLabel<SimVertexContainer>(simVertexesTag_, simVertices);
   if (! simVertices.isValid() ){
     std::cout<<"No tracks found"<<std::endl;
     return;
