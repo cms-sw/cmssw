@@ -515,7 +515,8 @@ class OfflineValidation(GenericValidation):
             "DMROptions":"",
             "offlineModuleLevelHistsTransient":"False",
             "offlineModuleLevelProfiles":"False",
-            "OfflineTreeBaseDir":"TrackHitFilter"
+            "OfflineTreeBaseDir":"TrackHitFilter",
+            "SurfaceShapes":"none"
             }
         mandatories = [ "dataset", "maxevents"# , "globaltag"
                         , "trackcollection" ]
