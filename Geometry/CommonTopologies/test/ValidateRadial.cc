@@ -85,7 +85,7 @@ ValidateRadial::~ValidateRadial() {
 
 
 bool ValidateRadial::
-Pass_frame_change_test(const RadialStripTopology* t, const float strip, const float stripErr2, const bool secondOrder) {
+pass_frame_change_test(const RadialStripTopology* t, const float strip, const float stripErr2, const bool secondOrder) {
   const LocalPoint lp = t->localPosition(strip);
   const LocalError le = t->localError(strip,stripErr2);
   const MeasurementPoint mp = t->measurementPosition(lp);
