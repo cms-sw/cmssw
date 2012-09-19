@@ -443,7 +443,7 @@ namespace lumi{
     qAlgoNameOutput.extend("ALIAS",typeid(std::string));
     QueryName->addToOutputList("ALGO_INDEX");
     QueryName->addToOutputList("ALIAS");
-    QueryName->setCondition("runnumber =:runnumber",bindVariableList);
+    QueryName->setCondition("RUNNUMBER=:runnumber",bindVariableList);
     //QueryName->addToOrderList("algo_index");
     QueryName->defineOutput(qAlgoNameOutput);
     coral::ICursor& algonamecursor=QueryName->execute();

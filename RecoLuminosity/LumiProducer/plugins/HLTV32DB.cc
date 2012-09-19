@@ -152,7 +152,7 @@ namespace lumi{
     coral::IQuery* q1=hltSchemaHandle.tableHandle(triggerpathtabname).newQuery();
     coral::AttributeList hltpathid;
     hltpathid.extend("hltpathid",typeid(unsigned int));
-    q1->addToOutputList("distinct PATHID","hltpathid");
+    q1->addToOutputList("distinct(PATHID)","hltpathid");
     q1->setCondition("RUNNUMBER=:runnumber",bindVariableList);
     q1->defineOutput(hltpathid);
     coral::ICursor& c=q1->execute();
@@ -226,10 +226,10 @@ namespace lumi{
       qHltData->addToTableList(triggerpathtabname,"t");
       qHltData->addToTableList(maptabname,"m");
       coral::AttributeList hltdataOutput;
-      hltdataOutput.extend("l1pass",typeid(unsigned int));
-      hltdataOutput.extend("paccept",typeid(unsigned int));
-      hltdataOutput.extend("pathid",typeid(unsigned int));
-      hltdataOutput.extend("psvalue",typeid(unsigned int));
+      hltdataOutput.extend("L1PASS",typeid(unsigned int));
+      hltdataOutput.extend("PACCEPT",typeid(unsigned int));
+      hltdataOutput.extend("PATHID",typeid(unsigned int));
+      hltdataOutput.extend("PSVALUE",typeid(unsigned int));
 
       qHltData->addToOutputList("t.L1PASS","l1pass");
       qHltData->addToOutputList("t.PACCEPT","paccept");
@@ -246,12 +246,12 @@ namespace lumi{
 	    std::cout<<"hlt ls count from 0 , we skip/dodge/parry it!"<<std::endl;
 	  }
 	}else{
-	  unsigned int pathid=row["pathid"].data<unsigned int>();
+	  unsigned int pathid=row["PATHID"].data<unsigned int>();
 	  std::map<unsigned int,hltinfo>& allpathinfo=hltresult.at(lsnum-1);
 	  hltinfo& pathcontent=allpathinfo[pathid];
-	  pathcontent.hltinput=row["l1pass"].data<unsigned int>();
-	  pathcontent.hltaccept=row["paccept"].data<unsigned int>();
-	  pathcontent.prescale=row["psvalue"].data<unsigned int>();
+	  pathcontent.hltinput=row["L1PASS"].data<unsigned int>();
+	  pathcontent.hltaccept=row["PACCEPT"].data<unsigned int>();
+	  pathcontent.prescale=row["PSVALUE"].data<unsigned int>();
 	}
       }
       delete qHltData;
