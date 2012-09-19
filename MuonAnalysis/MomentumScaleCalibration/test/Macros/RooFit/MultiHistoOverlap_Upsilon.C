@@ -30,7 +30,7 @@
  cmsprel->SetTextAlign(12); // align left
  TString text = "CMS Preliminary 2012";
  cmsprel->AddText(0.01,0.5,text);  
- text2 = "#sqrt{s} = 8 TeV  Run2012A TkAlZMuMu |#eta_{#mu}|<2.4";               
+ text2 = "#sqrt{s} = 8 TeV  Run2012A TkAlUpsilonMuMu |#eta_{#mu}|<2.4";               
  cmsprel->AddText(0.4, 0.6, text2);
 
  TFile *file1  = new TFile("./BiasCheck.root");
@@ -68,7 +68,7 @@
  histo1->SetMarkerSize(1.5);
  histo1->GetXaxis()->SetTitle("positive muon #phi (rad) ");
  histo1->GetYaxis()->SetTitle("M_{#mu#mu} (GeV)");
- histo1->GetYaxis()->SetRangeUser(89.5,92.0);
+ histo1->GetYaxis()->SetRangeUser(9.42,9.48);
  histo1->GetXaxis()->SetRangeUser(-3.14,3.14);
  histo1->Draw();
  leg->AddEntry(histo1,"this validation","L");  
@@ -120,7 +120,7 @@
  histo1->SetMarkerSize(1.5); //r.c.
  histo1->GetXaxis()->SetTitle("negative muon #phi");
  histo1->GetYaxis()->SetTitle("M_{#mu#mu} (GeV)");
- histo1->GetYaxis()->SetRangeUser(89.5,92.0);
+ histo1->GetYaxis()->SetRangeUser(9.42,9.48);
  histo1->GetXaxis()->SetRangeUser(-3.14,3.14);
  histo1->Draw();
  //--- fit ----------------------------------------------
@@ -170,7 +170,7 @@
  histo1->SetMarkerSize(1.5); //r.c.
  histo1->GetXaxis()->SetTitle("positive muon #eta");
  histo1->GetYaxis()->SetTitle("M_{#mu#mu} (GeV)");
- histo1->GetYaxis()->SetRangeUser(89.5,92.0);
+ histo1->GetYaxis()->SetRangeUser(9.42,9.48);
  histo1->GetXaxis()->SetRangeUser(-2.6,2.6);
  histo1->Draw();
  //--- fit ----------------------------------------------
@@ -218,7 +218,7 @@
  histo1->SetMarkerSize(1.5);
  histo1->GetXaxis()->SetTitle("negative muon #eta"); 
  histo1->GetYaxis()->SetTitle("M_{#mu#mu} (GeV)");
- histo1->GetYaxis()->SetRangeUser(89.5,92.0);
+ histo1->GetYaxis()->SetRangeUser(9.42,9.48);
  histo1->GetXaxis()->SetRangeUser(-2.6,2.6);
  histo1->Draw();
  //--- fit ----------------------------------------------
@@ -266,7 +266,7 @@
  histo1->SetMarkerSize(1.5);
  histo1->GetXaxis()->SetTitle("#eta pos - #eta neg"); 
  histo1->GetYaxis()->SetTitle("M_{#mu#mu} (GeV)");
- histo1->GetYaxis()->SetRangeUser(89.5,92.0);
+ histo1->GetYaxis()->SetRangeUser(9.42,9.48);
  histo1->GetXaxis()->SetRangeUser(-3.2,3.2);
  histo1->Draw();
  //--- fit ----------------------------------------------
@@ -315,7 +315,7 @@
  histo1->SetMarkerSize(1.5);
  histo1->GetXaxis()->SetTitle("cos#theta_{CS}"); 
  histo1->GetYaxis()->SetTitle("M_{#mu#mu} (GeV)");
- histo1->GetYaxis()->SetRangeUser(89.5,92);
+ histo1->GetYaxis()->SetRangeUser(9.42,9.48);
  histo1->GetXaxis()->SetRangeUser(-1.1,1.1);
  histo1->Draw();
  //--- fit ----------------------------------------------
@@ -365,7 +365,7 @@
  histo1->SetMarkerSize(1.5);
  histo1->GetXaxis()->SetTitle("#phi_{CS}"); 
  histo1->GetYaxis()->SetTitle("M_{#mu#mu} (GeV)");
- histo1->GetYaxis()->SetRangeUser(89.5,92);
+ histo1->GetYaxis()->SetRangeUser(9.42,9.48);
  histo1->GetXaxis()->SetRangeUser(-3.14,3.14);
  histo1->Draw();
  //--- fit ----------------------------------------------
