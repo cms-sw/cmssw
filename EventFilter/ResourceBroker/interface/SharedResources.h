@@ -329,7 +329,7 @@ private:
 
 	// emergency stop protection against I2O access
 	sem_t accessToResourceStructureLock_;
-	bool allowAccessToResourceStructure_;
+	bool allowI2ODiscards_;
 
 	/*
 	 * FRIENDS

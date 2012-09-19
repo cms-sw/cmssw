@@ -35,13 +35,10 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
     timetype = cms.untracked.string('runnumber'),
-        # connect = cms.string('sqlite_file:MuScleFitScale_2011_Jpsi.db'),
-        connect = cms.string('sqlite_file:MuScleFitScale_MC_2011_Jpsi.db'),
-        # connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_31X_PHYSICSTOOLS'),
+    connect = cms.string('sqlite_file:dummyScale.db'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('MuScleFitDBobjectRcd'),
-        # tag = cms.string('MuScleFit_Scale_Jpsi_Data_2011_innerTrack')
-        tag = cms.string('MuScleFit_Scale_Jpsi_MC_Summer11_innerTrack')
+        tag = cms.string('MuScleFitScale_3_2_2')
     ))
 )
 

@@ -29,7 +29,6 @@ ecalBarrelMonitorDbClient = cms.EDAnalyzer("EcalBarrelMonitorDbClient",
     prefixME = cms.untracked.string('EcalBarrel'),
                                            subfolder = cms.untracked.string(''),
                                            produceReports = cms.untracked.bool(True),
-                                           reducedReports = cms.untracked.bool(False),
     enableCleanup = cms.untracked.bool(False),
     superModules = cms.untracked.vint32(1, 2, 3, 4, 5, 
         6, 7, 8, 9, 10, 
@@ -44,8 +43,6 @@ ecalBarrelMonitorDbClient = cms.EDAnalyzer("EcalBarrelMonitorDbClient",
     MGPAGainsPN = cms.untracked.vint32(1, 16),
     verbose = cms.untracked.bool(True),
     debug = cms.untracked.bool(False),
-    prescaleFactor = cms.untracked.int32(1),
-                                           timingNHitThreshold = cms.untracked.int32(5),
-                                           synchErrorThreshold = cms.untracked.int32(5)
+    prescaleFactor = cms.untracked.int32(1)
 )
 

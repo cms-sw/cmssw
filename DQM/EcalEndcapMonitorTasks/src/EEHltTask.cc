@@ -1,8 +1,8 @@
 /*
  * \file EEHltTask.cc
  *
- * $Date: 2011/08/30 09:28:42 $
- * $Revision: 1.17 $
+ * $Date: 2010/08/11 14:57:35 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */

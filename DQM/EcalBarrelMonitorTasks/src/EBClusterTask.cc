@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2011/08/30 09:30:32 $
- * $Revision: 1.92 $
+ * $Date: 2011/08/23 00:25:30 $
+ * $Revision: 1.91.4.1 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *

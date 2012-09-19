@@ -5,6 +5,7 @@
 // 
 /*
 
+
  Description: Muon Isolation DQM class
 
  Implementation: This code will accept a data set and generate plots of
@@ -18,9 +19,15 @@
  				*record IsoDeposit data
  		* transfer data to histograms, profile plots
  		* save histograms to a root file
+ 		
+ 	Easy-peasy.
+	
 */
-//#define DEBUG
- 
+//
+// Original Author:  "C. Jess Riedel", UC Santa Barbara
+//         Created:  Tue Jul 17 15:58:24 CDT 2007
+//
+
 //Class header file
 #include "DQMOffline/Muon/interface/MuonIsolationDQM.h"
 
@@ -43,32 +50,32 @@
 //Other included files
 #include "DataFormats/TrackReco/interface/Track.h"
 
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-
 //Using declarations
 using std::vector;
 using std::pair;
 using std::string;
 
-using namespace std;
+
+
 //
 //-----------------Constructors---------------------
 //
-MuonIsolationDQM::MuonIsolationDQM(const edm::ParameterSet& iConfig){
-#ifdef DEBUG
-  cout << " Initialise Constructor " << endl;
-#endif
+MuonIsolationDQM::MuonIsolationDQM(const edm::ParameterSet& iConfig)
+{
+  
+  //  rootfilename = iConfig.getUntrackedParameter<string>("rootfilename"); // comment out for inclusion
   requireSTAMuon = iConfig.getUntrackedParameter<bool>("requireSTAMuon");
   requireTRKMuon = iConfig.getUntrackedParameter<bool>("requireTRKMuon");
   requireGLBMuon = iConfig.getUntrackedParameter<bool>("requireGLBMuon");
   dirName = iConfig.getParameter<std::string>("directory");
+  //  subDirName = iConfig.getParameter<std::string>("@module_label");
+  
+  //  dirName += subDirName;
   
   //--------Initialize tags-------
-  Muon_Tag                 = iConfig.getUntrackedParameter<edm::InputTag>("Global_Muon_Label");
-  theVertexCollectionLabel = iConfig.getUntrackedParameter<edm::InputTag>("vertexLabel");
+  Muon_Tag = iConfig.getUntrackedParameter<edm::InputTag>("Global_Muon_Label");
   
-  //-------Initialize Counterse----------------
+  //-------Initialize counters----------------
   nEvents = 0;
   nSTAMuons = 0;   
   nTRKMuons = 0;
@@ -82,8 +89,16 @@ MuonIsolationDQM::MuonIsolationDQM(const edm::ParameterSet& iConfig){
   
   //------"allocate" space for the data vectors-------
   
-  h_1D.resize(NUM_VARS);
-  h_2D.resize(NUM_VARS_2D);
+  /*
+    h_1D        is a 2D vector with indices [var][muon#]
+    cd_plots    is a 2D vector with indices [var][muon#]  
+  */
+  //NOTE:the total number of muons and events is initially unknown, 
+  //	   so that dimension is not initialized. Hence, theMuonData
+  //     needs no resizing.
+  
+  h_1D.resize    (NUM_VARS);
+  /*  cd_plots.resize(NUM_VARS);  */
   
   dbe->cd();
 }
@@ -92,9 +107,7 @@ MuonIsolationDQM::MuonIsolationDQM(const edm::ParameterSet& iConfig){
 //----------Destructor-----------------
 //
 MuonIsolationDQM::~MuonIsolationDQM(){
-#ifdef DEBUG
-  cout << "Calling destructor" << endl;
-#endif
+  
   //Deallocate memory
   
 }
@@ -103,18 +116,16 @@ MuonIsolationDQM::~MuonIsolationDQM(){
 //------------Methods-----------------------
 //
 void MuonIsolationDQM::InitStatics(){
-#ifdef DEBUG
-  cout<< " InitStatistics() " << endl;
-#endif 
-  //-----------Initialize primitives-----------
+  
+  //-----------Initialize primatives-----------
   S_BIN_WIDTH = 1.0;//in GeV
   L_BIN_WIDTH = 2.0;//in GeV
   LOG_BINNING_ENABLED = 1;
   NUM_LOG_BINS = 15;
-  LOG_BINNING_RATIO = 1.1;
-  //ratio by which each bin is wider than the last for log binning
+  LOG_BINNING_RATIO = 1.1;//ratio by which each bin is wider than the last for log binning
   //i.e.  bin widths are (x), (r*x), (r^2*x), ..., (r^(nbins)*x)
-    
+  
+  
   //-------Initialize Titles---------
   title_sam = "";//"[Sample b-jet events] ";
   title_cone = "";//" [in R=0.3 IsoDeposit Cone]";
@@ -128,12 +139,7 @@ void MuonIsolationDQM::InitStatics(){
   names.resize(NUM_VARS);
   param.resize(NUM_VARS, vector<double>(3) );
   isContinuous.resize(NUM_VARS);
- 
-  titles_2D.resize(NUM_VARS_2D);
-  names_2D.resize(NUM_VARS_2D);
-#ifdef DEBUG
-  cout << "InitStatistics(): vectors resized " << endl;
-#endif
+  
   //-----Titles of the plots-----------
   main_titles[0 ] = "Total Tracker Momentum, #Delta R = 0.3";
   main_titles[1 ] = "Total EM Cal Energy, #Delta R = 0.3";
@@ -161,50 +167,6 @@ void MuonIsolationDQM::InitStatics(){
   main_titles[22] = "Average Momentum per Track, #Delta R = 0.5";
   main_titles[23] = "Weighted Energy, #Delta R = 0.5";
 
-
-  main_titles[24 ] = "Relative Detector-Based Isolation, #Delta R = 0.3";
-  main_titles[25 ] = "Relative Detector-Based Isolation, #Delta R = 0.5";
-
-  //-----Titles of the plots-----------
-  main_titles[26 ] = "Sum PF Charged Hadron Pt, #Delta R = 0.3";
-  main_titles[27 ] = "Sum PF Neutral Hadron Pt, #Delta R = 0.3";
-  main_titles[28 ] = "Sum PF Photon Et, #Delta R = 0.3";
-  main_titles[29 ] = "Sum PF Neutral Hadron Pt (Higher Pt threshold), #Delta R = 0.3";
-  main_titles[30 ] = "Sum PF Photon Et (Higher Pt threshold), #Delta R = 0.3";
-  main_titles[31 ] = "Sum PF Charged Particles Pt not from PV  (for Pu corrections), #Delta R = 0.3";
-
- //-----Titles of the plots-----------
-  main_titles[32 ] = "Sum PF Charged Hadron Pt, #Delta R = 0.4";
-  main_titles[33 ] = "Sum PF Neutral Hadron Pt, #Delta R = 0.4";
-  main_titles[34 ] = "Sum PF Photon Et, #Delta R = 0.4";
-  main_titles[35 ] = "Sum PF Neutral Hadron Pt (Higher Pt threshold), #Delta R = 0.4";
-  main_titles[36 ] = "Sum PF Photon Et (Higher Pt threshold), #Delta R = 0.4";
-  main_titles[37 ] = "Sum PF Charged Particles Pt not from PV  (for Pu corrections), #Delta R = 0.4";
- 
-  main_titles[38 ] = "Relative PF Isolation, #Delta R = 0.3";
-  main_titles[39 ] = "Relative PF Isolation, #Delta R = 0.4";
- 
-  main_titles[40 ] = "Relative PF Isolation (Higher Pt threshold), #Delta R = 0.3";
-  main_titles[41 ] = "Relative PF Isolation (Higher Pt threshold), #Delta R = 0.4";
-
-#ifdef DEBUG
-  cout << "InitStatistics(): main titles 1D DONE " << endl;
-#endif
-  titles_2D[0] = "Total Tracker Momentum, #Delta R = 0.3";
-  titles_2D[1] = "Total EM Cal Energy, #Delta R = 0.3";
-  titles_2D[2] = "Total Had Cal Energy, #Delta R = 0.3";
-  titles_2D[3] = "Total HO Cal Energy, #Delta R = 0.3";
-  titles_2D[4] = "Sum PF Charged Hadron Pt, #Delta R = 0.3";
-  titles_2D[5] = "Sum PF Neutral Hadron Pt, #Delta R = 0.3";
-  titles_2D[6] = "Sum PF Photon Et, #Delta R = 0.3";
-  titles_2D[7] = "Sum PF Charged Pt Not from PV, #Delta R = 0.3";
-  titles_2D[8] = "Relative Detector-Based Isolation, #Delta R = 0.3";
-  titles_2D[9] = "Relative PF Isolation, #Delta R = 0.3";
-
-#ifdef DEBUG
-  cout << "InitStatistics(): main titles 2D DONE " << endl;
-#endif
- 
   //------Titles on the X or Y axis------------
   axis_titles[0 ] = "#Sigma p_{T}   (GeV)";
   axis_titles[1 ] = "#Sigma E_{T}^{EM}   (GeV)";
@@ -232,33 +194,6 @@ void MuonIsolationDQM::InitStatics(){
   axis_titles[22] = "#Sigma p_{T} / N_{Tracks} (GeV)";
   axis_titles[23] = "(1.5) X #Sigma E_{T}^{EM} + #Sigma E_{T}^{Had}";
 
-  axis_titles[24] = "(#Sigma Tk p_{T} + #Sigma ECAL p_{T} + #Sigma HCAL p_{T})/ Mu p_{T}  (GeV)";
-  axis_titles[25] = "(#Sigma Tk p_{T} + #Sigma ECAL p_{T} + #Sigma HCAL p_{T})/ Mu p_{T}  (GeV)";
-
-  axis_titles[26] = "#Sigma PFCharged p_{T}";
-  axis_titles[27] = "#Sigma PFNeutral p_{T}";
-  axis_titles[28] = "#Sigma PFPhoton p_{T}";
-  axis_titles[29] = "#Sigma PFNeutral p_{T}";
-  axis_titles[30] = "#Sigma PFPhoton p_{T}";
-  axis_titles[31] = "#Sigma PFCharged p_{T}";
-
-  axis_titles[32] = "#Sigma PFCharged p_{T}";
-  axis_titles[33] = "#Sigma PFNeutral p_{T}";
-  axis_titles[34] = "#Sigma PFPhoton p_{T}";
-  axis_titles[35] = "#Sigma PFNeutral p_{T}";
-  axis_titles[36] = "#Sigma PFPhoton p_{T}";
-  axis_titles[37] = "#Sigma PFCharged p_{T}";
-
-
-  axis_titles[38] = "(#Sigma PFCharged p_{T} + #Sigma PFNeutral p_{T} + #Sigma PFPhoton p_{T}) Mu p_{T}  (GeV)";
-  axis_titles[39] = "(#Sigma PFCharged p_{T} + #Sigma PFNeutral p_{T} + #Sigma PFPhoton p_{T}) Mu p_{T}  (GeV)";
-  axis_titles[40] = "(#Sigma PFCharged p_{T} + #Sigma PFNeutral p_{T} + #Sigma PFPhoton p_{T}) Mu p_{T}  (GeV)";
-  axis_titles[41] = "(#Sigma PFCharged p_{T} + #Sigma PFNeutral p_{T} + #Sigma PFPhoton p_{T}) Mu p_{T}  (GeV)";
-  
-#ifdef DEBUG
-  cout << "InitStatistics(): main titles 1D DONE " << endl;
-#endif
-  
   //-----------Names given for the root file----------
   names[0 ] = "sumPt_R03";
   names[1 ] = "emEt_R03";
@@ -285,48 +220,6 @@ void MuonIsolationDQM::InitStatics(){
   names[21] = "hoVetoEt_R05";
   names[22] = "avgPt_R05";
   names[23] = "weightedEt_R05";
-
-  names[24] = "relDetIso_R03";
-  names[25] = "relDetIso_R05";
-
-  names[26] = "pfChargedPt_R03";
-  names[27] = "pfNeutralPt_R03";
-  names[28] = "pfPhotonPt_R03";
-  names[29] = "pfNeutralPt_HT_R03";
-  names[30] = "pfPhotonPt_HT_R03";
-  names[31] = "pfChargedPt_PU_R03";
-
-  names[32] = "pfChargedPt_R04";
-  names[33] = "pfNeutralPt_R04";
-  names[34] = "pfPhotonPt_R04";
-  names[35] = "pfNeutralPt_HT_R04";
-  names[36] = "pfPhotonPt_HT_R04";
-  names[37] = "pfChargedPt_PU_R04";
-
-  names[38] = "relPFIso_R03";
-  names[39] = "relPFIso_R04";
-
-  names[40] = "relPFIso_HT_R03";
-  names[41] = "relPFIso_HT_R04";
-
-#ifdef DEBUG
-  cout << "InitStatistics(): names 1D DONE " << endl;
-#endif
-
-  names_2D[0] = "SumPt_R03"         ;
-  names_2D[1] = "emEt_R03"          ;
-  names_2D[2] = "hadEt_R03"         ;
-  names_2D[3] = "hoEt_R03"          ;
-  names_2D[4] = "pfChargedPt_R03"   ;
-  names_2D[5] = "pfNeutralPt_R03"   ;
-  names_2D[6] = "pfPhotonPt_R03"    ;
-  names_2D[7] = "pfChargedPUPt_R03" ;
-  names_2D[8] = "relDetIso_R03"     ;
-  names_2D[9] = "relPFIso_R03"      ;
-  
-#ifdef DEBUG
-  cout << "InitStatistics(): names 2D DONE " << endl;
-#endif
 
   //----------Parameters for binning of histograms---------
   //param[var][0] is the number of bins
@@ -362,32 +255,6 @@ void MuonIsolationDQM::InitStatics(){
   param[22][0]= (int)( 15.0/S_BIN_WIDTH); param[22][1]=  0.0; param[22][2]= param[22][0]*S_BIN_WIDTH;
   param[23][0]= (int)( 20.0/S_BIN_WIDTH); param[23][1]=  0.0; param[23][2]= param[23][0]*S_BIN_WIDTH;
 
-  param[24][0]= 50; param[24][1]=  0.0; param[24][2]= 1.0;
-  param[25][0]= 50; param[25][1]=  0.0; param[25][2]= 1.0;
-
-
-  param[26 ][0]= (int)( 20.0/S_BIN_WIDTH); param[26 ][1]=  0.0; param[26 ][2]= param[26 ][0]*S_BIN_WIDTH;
-  param[27 ][0]= (int)( 20.0/S_BIN_WIDTH); param[27 ][1]=  0.0; param[27 ][2]= param[27 ][0]*S_BIN_WIDTH;
-  param[28 ][0]= (int)( 20.0/S_BIN_WIDTH); param[28 ][1]=  0.0; param[28 ][2]= param[28 ][0]*S_BIN_WIDTH;
-  param[29 ][0]= (int)( 20.0/S_BIN_WIDTH); param[29 ][1]=  0.0; param[29 ][2]= param[29 ][0]*S_BIN_WIDTH;
-  param[30 ][0]= (int)( 20.0/S_BIN_WIDTH); param[30 ][1]=  0.0; param[30 ][2]= param[30 ][0]*S_BIN_WIDTH;
-  param[31 ][0]= (int)( 20.0/S_BIN_WIDTH); param[31 ][1]=  0.0; param[31 ][2]= param[31 ][0]*S_BIN_WIDTH;
-
-  param[32 ][0]= (int)( 20.0/S_BIN_WIDTH); param[32 ][1]=  0.0; param[32 ][2]= param[32 ][0]*S_BIN_WIDTH;
-  param[33 ][0]= (int)( 20.0/S_BIN_WIDTH); param[33 ][1]=  0.0; param[33 ][2]= param[33 ][0]*S_BIN_WIDTH;
-  param[34 ][0]= (int)( 20.0/S_BIN_WIDTH); param[34 ][1]=  0.0; param[34 ][2]= param[34 ][0]*S_BIN_WIDTH;
-  param[35 ][0]= (int)( 20.0/S_BIN_WIDTH); param[35 ][1]=  0.0; param[35 ][2]= param[35 ][0]*S_BIN_WIDTH;
-  param[36 ][0]= (int)( 20.0/S_BIN_WIDTH); param[36 ][1]=  0.0; param[36 ][2]= param[36 ][0]*S_BIN_WIDTH;
-  param[37 ][0]= (int)( 20.0/S_BIN_WIDTH); param[37 ][1]=  0.0; param[37 ][2]= param[37 ][0]*S_BIN_WIDTH;
-
-  param[38][0]= 50; param[38][1]=  0.0; param[38][2]= 1.0;
-  param[39][0]= 50; param[39][1]=  0.0; param[39][2]= 1.0;
-
-  param[40][0]= 50; param[40][1]=  0.0; param[40][2]= 1.0;
-  param[41][0]= 50; param[41][1]=  0.0; param[41][2]= 1.0;
-
-
-
   //--------------Is the variable continuous (i.e. non-integer)?-------------
   //---------(Log binning will only be used for continuous variables)--------
   isContinuous[0 ] = 1;
@@ -416,28 +283,6 @@ void MuonIsolationDQM::InitStatics(){
   isContinuous[22] = 1;
   isContinuous[23] = 1;
 
-  isContinuous[24] = 1;
-  isContinuous[25] = 1;
-  isContinuous[26] = 1;
-  isContinuous[27] = 1;
-  isContinuous[28] = 1;
-  isContinuous[29] = 1;
-  isContinuous[30] = 1;
-  isContinuous[31] = 1;
-  isContinuous[32] = 1;
-  isContinuous[33] = 1;
-  isContinuous[34] = 1;
-  isContinuous[35] = 1;
-  isContinuous[36] = 1;
-  isContinuous[37] = 1;
-  isContinuous[38] = 1;
-  isContinuous[39] = 1;
-  isContinuous[40] = 1;
-  isContinuous[41] = 1;
-
-#ifdef DEBUG
-  cout << "InitStatistics(): DONE " << endl;
-#endif
 }
 
 
@@ -456,21 +301,6 @@ void MuonIsolationDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   theMuonData = muonsHandle->size();
   h_nMuons->Fill(theMuonData);
   
-  //Get Vertex Information
-  int _numPV = 0;
-  edm::Handle<reco::VertexCollection> vertexHandle;
-  iEvent.getByLabel(theVertexCollectionLabel, vertexHandle);
-
-  if (vertexHandle.isValid()){
-    reco::VertexCollection vertex = *(vertexHandle.product());
-    for (reco::VertexCollection::const_iterator v = vertex.begin(); v!=vertex.end(); ++v){
-      if (v->isFake())         continue;
-      if (v->ndof() < 4)       continue;
-      if (fabs(v->z()) > 24.0) continue;
-      ++_numPV;
-    }
-  }
-
   //Fill historgams concerning muon isolation 
   uint iMuon=0;
   dbe->setCurrentFolder(dirName.c_str());
@@ -479,17 +309,17 @@ void MuonIsolationDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (requireSTAMuon && muon->isStandAloneMuon()) {
       ++nSTAMuons;
       RecordData(muon);
-      FillHistos(_numPV);
+      FillHistos();
     }
     else if (requireTRKMuon && muon->isTrackerMuon()) {
       ++nTRKMuons;
       RecordData(muon);
-      FillHistos(_numPV);
+      FillHistos();
     }
     else if (requireGLBMuon && muon->isGlobalMuon()) {
       ++nGLBMuons;
       RecordData(muon);
-      FillHistos(_numPV);
+      FillHistos();
     }
   }
   dbe->cd();
@@ -498,10 +328,7 @@ void MuonIsolationDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 //---------------Record data for a signle muon's data---------------------
 void MuonIsolationDQM::RecordData(MuonIterator muon){
-#ifdef DEBUG
-  std::cout << "RecordData()" << endl;
-#endif 
-  float MuPt = muon->pt();
+  
   
   theData[0] = muon->isolationR03().sumPt;
   theData[1] = muon->isolationR03().emEt;
@@ -539,120 +366,121 @@ void MuonIsolationDQM::RecordData(MuonIterator muon){
 
   theData[23] = 1.5 * theData[13] + theData[14];
 
-  theData[24] = (theData[0]+theData[1]+theData[2]) / MuPt; 
-  theData[25] = (theData[12]+theData[13]+theData[14]) / MuPt; 
-
-  theData[26] = muon->pfIsolationR03().sumChargedHadronPt;
-  theData[27] = muon->pfIsolationR03().sumNeutralHadronEt;
-  theData[28] = muon->pfIsolationR03().sumPhotonEt; 
-  theData[29] = muon->pfIsolationR03().sumNeutralHadronEtHighThreshold;
-  theData[30] = muon->pfIsolationR03().sumPhotonEtHighThreshold; 
-  theData[31] = muon->pfIsolationR03().sumPUPt;
-  
-  theData[32] = muon->pfIsolationR04().sumChargedHadronPt;
-  theData[33] = muon->pfIsolationR04().sumNeutralHadronEt;
-  theData[34] = muon->pfIsolationR04().sumPhotonEt; 
-  theData[35] = muon->pfIsolationR04().sumNeutralHadronEtHighThreshold;
-  theData[36] = muon->pfIsolationR04().sumPhotonEtHighThreshold; 
-  theData[37] = muon->pfIsolationR04().sumPUPt;
-
-  theData[38] = (theData[26] + theData[27] + theData[28]) / MuPt;
-  theData[39] = (theData[32] + theData[33] + theData[34]) / MuPt;
-
-  theData[40] = (theData[26] + theData[29] + theData[30]) / MuPt;
-  theData[41] = (theData[32] + theData[35] + theData[36]) / MuPt;
-  
-  //--------------Filling the 2D Histos Data -------- //
-  theData2D[0] = muon->isolationR03().sumPt; 
-  theData2D[1] = muon->isolationR03().emEt;
-  theData2D[2] = muon->isolationR03().hadEt;
-  theData2D[3] = muon->isolationR03().hoEt;
-  
-  theData2D[4] = muon->pfIsolationR03().sumChargedHadronPt;
-  theData2D[5] = muon->pfIsolationR03().sumNeutralHadronEt;
-  theData2D[6] = muon->pfIsolationR03().sumPhotonEt;
-  theData2D[7] = muon->pfIsolationR03().sumPUPt;
-  
-  theData2D[8] = theData2D[0] + theData2D[1] + theData2D[2] + theData2D[3] / MuPt; //Det RelIso;
-  theData2D[9] = theData2D[4] + theData2D[5] + theData2D[6]                / MuPt; //PF  RelIso;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void MuonIsolationDQM::beginJob(void) {
+void 
+MuonIsolationDQM::beginJob(void)
+{
+  
   edm::LogInfo("Tutorial") << "\n#########################################\n\n"
 			   << "Lets get started! " 
 			   << "\n\n#########################################\n";
   dbe->setCurrentFolder(dirName.c_str());
   InitHistos();
   dbe->cd();
+  
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void MuonIsolationDQM::endJob() {
+void 
+MuonIsolationDQM::endJob() {
+  
   // check if ME still there (and not killed by MEtoEDM for memory saving)
-  if( dbe )    {
-    // check existence of first histo in the list
-    if (! dbe->get(dirName+"/nMuons")) return;
-  }
+  if( dbe )
+    {
+      // check existence of first histo in the list
+      if (! dbe->get(dirName+"/nMuons")) return;
+    }
   else
     return;
-  
+
   edm::LogInfo("Tutorial") << "\n#########################################\n\n"
 			   << "Total Number of Events: " << nEvents
 			   << "\n\n#########################################\n"
 			   << "\nInitializing Histograms...\n";
   
   edm::LogInfo("Tutorial") << "\nIntializing Finished.  Filling...\n";
-  //NormalizeHistos();
+  NormalizeHistos();
   edm::LogInfo("Tutorial") << "\nFilled.  Saving...\n";
   //  dbe->save(rootfilename); // comment out for incorporation
   edm::LogInfo("Tutorial") << "\nSaved.  Peace, homie, I'm out.\n";
+  
 }
+
 void MuonIsolationDQM::InitHistos(){
+  
   //---initialize number of muons histogram---
   h_nMuons = dbe->book1D("nMuons", title_sam + "Number of Muons", 20, 0., 20.);
   h_nMuons->setAxisTitle("Number of Muons",XAXIS);
   h_nMuons->setAxisTitle("Fraction of Events",YAXIS);
   
+  
   //---Initialize 1D Histograms---
   for(int var = 0; var < NUM_VARS; var++){
-    h_1D[var] = dbe->book1D(names[var], 
+    h_1D[var] = dbe->book1D(
+			    names[var], 
 			    title_sam + main_titles[var] + title_cone, 
 			    (int)param[var][0], 
 			    param[var][1], 
 			    param[var][2]
 			    );
+    /*    cd_plots[var] = dbe->book1D(
+	  names[var] + "_cd", 
+	  title_sam + title_cd + main_titles[var] + title_cone, 
+	  (int)param[var][0], 
+	  param[var][1], 
+	  param[var][2]
+	  );
+    */    
+
     h_1D[var]->setAxisTitle(axis_titles[var],XAXIS);
+    //    h_1D[var]->setAxisTitle("Fraction of Muons",YAXIS);
     GetTH1FromMonitorElement(h_1D[var])->Sumw2();
+    
+    /*    cd_plots[var]->setAxisTitle(axis_titles[var],XAXIS);
+	  cd_plots[var]->setAxisTitle("Fraction of Muons",YAXIS);
+	  GetTH1FromMonitorElement(cd_plots[var])->Sumw2();
+    */
+    
   }//Finish 1D
   
-  //----Initialize 2D Histograms
-  for (int var = 0; var<NUM_VARS_2D; var++){
-    h_2D[var] = dbe->bookProfile(names_2D[var] + "_VsPV", titles_2D[var] + " Vs PV", 50, 0.5, 50.5, 20, 0.0, 20.0);
-    
-    h_2D[var]->setAxisTitle("Number of PV",            XAXIS);
-    h_2D[var]->setAxisTitle(titles_2D[var] + " (GeV)" ,YAXIS);
-    h_2D[var]->getTH1()->Sumw2();
-  }
-
-  //-----Initialize PU profile
-  h_PU = dbe->book1D("NPV","Number of PV",50, 0.5, 50.5);
+  //avg pT not defined for zero tracks.
+  //MonitorElement is inflxible and won't let me change the
+  //number of bins!  I guess all I'm doing here is changing 
+  //range of the x axis when it is printed, not the actual
+  //bins that are filled
+  //  p_2D[4][9]->setAxisRange(0.5,15.5,XAXIS);
   
-  h_PU->setAxisTitle("Number of PV", XAXIS);
-  h_PU->getTH1()->Sumw2();
 }
 
 void MuonIsolationDQM::NormalizeHistos() {
   for(int var=0; var<NUM_VARS; var++){   
+    //turn cd_plots into CDF's
+    //underflow -> bin #0.  overflow -> bin #(nbins+1)
+    //0th bin doesn't need changed
+    
     double entries = GetTH1FromMonitorElement(h_1D[var])->GetEntries();
+    
+    /*    int n_max = int(param[var][0])+1;
+	  for(int n=1; n<=n_max; ++n){
+	  cd_plots[var]->setBinContent(n, cd_plots[var]->getBinContent(n) + cd_plots[var]->getBinContent(n-1)); //Integrate.
+	  }
+    */
+    //----normalize------
+    /*    if (requireCombinedMuon) {
+	  GetTH1FromMonitorElement(h_1D[var])->Scale(1./entries);
+	  GetTH1FromMonitorElement(cd_plots[var])->Scale(1./entries);
+	  }
+	  else {
+    */
     GetTH1FromMonitorElement(h_1D[var])->Scale(1./entries);
+    //    GetTH1FromMonitorElement(cd_plots[var])->Scale(1./entries);    
   }
 }
 
-void MuonIsolationDQM::FillHistos(int numPV){
-#ifdef DEBUG
-  cout << "FillHistos( "<< numPV <<" )"<< endl;
-#endif  
+void MuonIsolationDQM::FillHistos() {
+  
   int overFlowBin;
   double overFlow = 0;
   
@@ -668,15 +496,6 @@ void MuonIsolationDQM::FillHistos(int numPV){
     }
   }//Finish 1D
   
-  for (int var=0; var<NUM_VARS_2D; var++){
-    h_2D[var]->Fill(numPV,theData2D[var]);
-  }
-  
-  h_PU->Fill(numPV);
-#ifdef DEBUG
-  cout << "FillHistos( "<< numPV <<" ): DONE"<< endl;
-#endif
-
 }
 
 TH1* MuonIsolationDQM::GetTH1FromMonitorElement(MonitorElement* me) {

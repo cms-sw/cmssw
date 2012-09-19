@@ -57,6 +57,10 @@ private:
 
    TEveElement   *m_geomList;
 
+   int m_level;
+
+   bool m_MF;
+
    edm::ESWatcher<DisplayGeomRecord> m_geomWatcher;
 
    void remakeGeometry(const DisplayGeomRecord& dgRec);
@@ -69,7 +73,10 @@ DisplayGeom::DisplayGeom(const edm::ParameterSet& iConfig):
    m_eve(),
    m_geomList(0),
    m_geomWatcher(this, &DisplayGeom::remakeGeometry)
-{}
+{
+   m_level =  iConfig.getUntrackedParameter<int>( "level", 2);
+   m_MF    =  iConfig.getUntrackedParameter<int>( "MF", false);
+}
 
 
 DisplayGeom::~DisplayGeom()
@@ -123,7 +130,6 @@ DisplayGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       TEvePointSet* ps = new TEvePointSet();
       ps->SetOwnIds(kTRUE);
-
       for(Int_t i = 0; i< 100; i++)
       {
          ps->SetNextPoint(r.Uniform(-s,s), r.Uniform(-s,s), r.Uniform(-s,s));
@@ -166,7 +172,14 @@ void DisplayGeom::remakeGeometry(const DisplayGeomRecord& dgRec)
    // To have a full one, all detectors in one top-node:
    // make_node("/cms:World_1/cms:CMSE_1", 4, kTRUE);
 
-   make_node("/cms:World_1/cms:CMSE_1/tracker:Tracker_1", 1, kTRUE);
-   make_node("/cms:World_1/cms:CMSE_1/caloBase:CALO_1",   1, kTRUE);
-   make_node("/cms:World_1/cms:CMSE_1/muonBase:MUON_1",   1, kTRUE);
+   if (m_MF)
+   {
+      make_node("/cms:World_1", m_level, kTRUE);
+   }
+   else
+   {
+      make_node("/cms:World_1/cms:CMSE_1/tracker:Tracker_1", m_level, kTRUE);
+      make_node("/cms:World_1/cms:CMSE_1/caloBase:CALO_1",   m_level, kTRUE);
+      make_node("/cms:World_1/cms:CMSE_1/muonBase:MUON_1",   m_level, kTRUE);
+   }
 }

@@ -560,3 +560,9 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsPixelSelected(int detid){
 
   return  std::make_pair(isselected, enumVal);
 }
+
+ClusterSummary::ModuleSelection::ModuleSelection(std::string gs){
+  geosearch = gs;
+}
+
+ClusterSummary::ModuleSelection::~ModuleSelection() {}

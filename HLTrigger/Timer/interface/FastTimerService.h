@@ -119,6 +119,9 @@ private:
   void preModule(  edm::ModuleDescription const & );
   void postModule( edm::ModuleDescription const & );
 
+  // needed for the DAQ when reconfiguring between runs
+  void reset();
+
 private:
 
   struct ModuleInfo {
@@ -134,6 +137,19 @@ private:
       dqm_active(0),
       has_just_run(false)
     { }
+
+    ~ModuleInfo() {
+      reset();
+    }
+
+    // reset the timers and DQM plots
+    void reset() {
+      time_active = 0.;
+      summary_active = 0.;
+      // the DAQ destroys and re-creates the DQM and DQMStore services at each reconfigure, so we don't need to clean them up
+      dqm_active = 0;
+      has_just_run = false;
+    }
   };
 
   struct PathInfo {
@@ -203,6 +219,47 @@ private:
       dqm_module_active(0),
       dqm_module_total(0)
     { }
+
+    ~PathInfo() {
+      reset();
+    }
+
+    // reset the timers and DQM plots
+    void reset() {
+      modules.clear();
+      time_active = 0.;
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+      time_premodules = 0.;
+      time_intermodules = 0.;
+      time_postmodules = 0.;
+#else
+      time_overhead = 0.;
+#endif
+      time_total = 0.;
+      summary_active = 0.;
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+      summary_premodules = 0.;
+      summary_intermodules = 0.;
+      summary_postmodules = 0.;
+#else
+      summary_overhead = 0.;
+#endif
+      summary_total = 0.;
+
+      // the DAQ destroys and re-creates the DQM and DQMStore services at each reconfigure, so we don't need to clean them up
+      dqm_active = 0;
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+      dqm_premodules = 0;
+      dqm_intermodules = 0;
+      dqm_postmodules = 0;
+#else
+      dqm_overhead = 0;
+#endif
+      dqm_total = 0;
+      dqm_module_counter = 0;
+      dqm_module_active = 0;
+      dqm_module_total = 0;
+    }
   };
 
   template <typename T> class PathMap   : public std::tr1::unordered_map<std::string, T> {};
