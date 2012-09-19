@@ -231,6 +231,7 @@ void TkAlExtendedOfflineValidation()
   p.setOutputDir(".oO[workdir]Oo./ExtendedOfflineValidation_Images");
   p.setTreeBaseDir(".oO[OfflineTreeBaseDir]Oo.");
   p.plotDMR(".oO[DMRMethod]Oo.",.oO[DMRMinimum]Oo.,".oO[DMROptions]Oo.");
+  p.plotSurfaceShapes(".oO[SurfaceShapes]Oo.");
 }
 """
 
