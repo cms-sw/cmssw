@@ -340,7 +340,7 @@ namespace lumi{
     allpsidxQuery->addToTableList(lstablename);
     coral::AttributeList allpsidxOutput;
     allpsidxOutput.extend("psidx",typeid(int));
-    allpsidxQuery->addToOutputList("distinct PRESCALE_INDEX","psidx");
+    allpsidxQuery->addToOutputList("distinct(PRESCALE_INDEX)","psidx");
     coral::AttributeList bindVariablesAllpsidx;
     bindVariablesAllpsidx.extend("runnumber",typeid(int));
     bindVariablesAllpsidx["runnumber"].data<int>()=runnumber;
