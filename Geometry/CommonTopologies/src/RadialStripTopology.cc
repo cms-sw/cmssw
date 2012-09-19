@@ -13,6 +13,7 @@ namespace {
   // valid for z < pi/8
   inline 
   float atan0(float z) {
+    assert(z<0.39);
     float z2 = z * z;
     return
       ((( 8.05374449538e-2f * z2
@@ -34,6 +35,8 @@ RadialStripTopology::RadialStripTopology(int ns, float aw, float dh, float r, in
   thePhiOfOneEdge = -(0.5*theNumberOfStrips) * theAngularWidth; // always negative!
   
   assert(std::abs(thePhiOfOneEdge)<0.35); // < pi/8 (and some tollerance)
+
+  std::cout << "VI: work in progress :RadialStripTopology buggy" << std::endl;
 
   LogTrace("RadialStripTopology") << "RadialStripTopology: constructed with"
         << " strips = " << ns
