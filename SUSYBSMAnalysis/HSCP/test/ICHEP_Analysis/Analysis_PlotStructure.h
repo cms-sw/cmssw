@@ -704,8 +704,11 @@ bool stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName)
    st.BS_MTOF   = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_MTOF");
    st.BS_TIsol  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TIsol");
    st.BS_EIsol  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_EIsol");
+   st.BS_SumpTOverpT  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_SumpTOverpT");
    st.BS_dR_NVTrack  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_dR_NVTrack");
    st.BS_MatchedStations  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_MatchedStations");
+   st.BS_NVertex  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_NVertex");
+   st.BS_NVertex_NoEventWeight = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_NVertex_NoEventWeight");
    st.BS_PV  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_PV");
    st.BS_SegSep  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_SegSep");
    st.BS_SegMinPhiSep  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_SegMinPhiSep");
@@ -1260,7 +1263,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_TNOH->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#NOH", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.66, 0.40, 0.38, 0.065);
    c1->SetLogy(true);
    DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"NOH_BS", true);
@@ -1271,7 +1274,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
      Histos[i] = (TH1*)st[i]->BS_TNOHFraction->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Fraction of hits", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,LegendTitle,"P",0.49);
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P",0.62, 0.90, 0.38, 0.065);
    c1->SetLogy(true);
    DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"NOHFraction_BS", true);
@@ -1370,7 +1373,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_TIsol->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); } 
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Isolation: Track SumPt (GeV/c)", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.78, 0.90, 0.38, 0.065);
    c1->SetLogy(true);
    DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"IsolT_BS", true);
@@ -1381,7 +1384,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_EIsol->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Isolation: (Ecal + Hcal) Energy / p", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P",  0.80, 0.92, 0.38, 0.065);
    c1->SetLogy(true);
    DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"IsolE_BS", true);
@@ -1477,7 +1480,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      Histos[i] = (TH1*)st[i]->BS_PV->Clone(); Histos[i]->Rebin(1);  legend.push_back(lg[i]);  
      if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Primary Vertices", "arbitrary units", 0,0, 0.0001,2);
-   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.78, 0.90, 0.38, 0.065);
    c1->SetLogy(true);
    DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"PV_BS", true);
@@ -1685,4 +1688,28 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"TOF_FailDz_BS");
    delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   for(unsigned int i=0;i<st.size();i++){
+     Histos[i] = (TH1*)st[i]->BS_NVertex;  legend.push_back(lg[i]);   if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral());   }
+   sprintf(YAxisTitle,"Fraction of tracks/%0.0f vertex",Histos[0]->GetBinWidth(1));
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Number of reconstructed vertices", YAxisTitle, 0,0, 0,0.25);
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P",  0.78, 0.90, 0.38, 0.065);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"NVertex_BS");
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   for(unsigned int i=0;i<st.size();i++) {
+     Histos[i] = (TH1*)st[i]->BS_SumpTOverpT;   legend.push_back(lg[i]); if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral());    }
+   sprintf(YAxisTitle,"Fraction of tracks/%0.3f",Histos[0]->GetBinWidth(1));
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#sump_{T}/p_{T}",  YAxisTitle, 0,0, 0.00001,2.0);
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.78, 0.90, 0.38, 0.065);
+   c1->SetLogy(true);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"SumptOverpt_BS");
+   delete c1;
+
+
+
 }
