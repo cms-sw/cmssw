@@ -715,6 +715,9 @@ DST_L1HTT_Or_L1MultiJet_v*                                                      
 DST_Mu5_HT250_v*                                                                                # sr #128199
 DST_Ele8_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT250_v*                                            # sr #128199
 
+HLT_ZeroBias_Parked_v*										# sr #132298
+HLT_Physics_Parked_v*										# sr #132298
+
 HLT_ZeroBias_v*
 HLT_Physics_v*
 DST_Physics_v*
