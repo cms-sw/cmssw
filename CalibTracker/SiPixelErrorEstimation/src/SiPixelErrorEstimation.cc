@@ -1280,7 +1280,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  all_clust_minpixcol = clust->minPixelCol();
 	  all_clust_minpixrow = clust->minPixelRow();
 	  
-	  all_clust_geoid = clust->geographicalId();
+	  all_clust_geoid = 0;  // never set!
   
 	  all_simpx  = (*closest_simhit).momentumAtEntry().x();
 	  all_simpy  = (*closest_simhit).momentumAtEntry().y();
