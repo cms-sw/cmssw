@@ -181,7 +181,7 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
   }
   else isOnEdge_ = false;
   
-  // Bad Pixels have their charge set to 0 in the clusterizer
+  // Bad Pixels have their charge set to 0 in the clusterizer 
   hasBadPixels_ = false;
   for(unsigned int i=0; i<cluster.pixelADC().size(); ++i) {
     if(cluster.pixelADC()[i] == 0) hasBadPixels_ = true;
@@ -482,56 +482,7 @@ float PixelCPEBase::lorentzShiftY() const
 
 }
 
-//-----------------------------------------------------------------------------
-//  Sum the pixels in the first and the last row, and the total.  Returns
-//  a vector of three elements with q_first, q_last and q_total.
-//  &&& Really need a simpler & cleaner way, this is very confusing...
-//-----------------------------------------------------------------------------
-void PixelCPEBase::xCharge(const vector<SiPixelCluster::Pixel>& pixelsVec, 
-			   const int& imin, const int& imax,
-			   float& q1, float& q2) const {
-  //calculate charge in the first and last pixel in y
-  // and the total cluster charge
-  q1 = 0.0; 
-  q2 = 0.0;
-  float qm = 0.0;
-  int isize = pixelsVec.size();
-  for (int i=0;  i<isize; ++i) {
-    if ( (pixelsVec[i].x) == imin )
-      q1 += pixelsVec[i].adc;
-    else if ( (pixelsVec[i].x) == imax) 
-      q2 += float(pixelsVec[i].adc);
-    else 
-      qm += float(pixelsVec[i].adc);
-  }
-  return;
-} 
-//-----------------------------------------------------------------------------
-//  Sum the pixels in the first and the last column, and the total.  Returns
-//  a vector of three elements with q_first, q_last and q_total.
-//  &&& Really need a simpler & cleaner way, this is very confusing...
-//-----------------------------------------------------------------------------
-void PixelCPEBase::yCharge(const vector<SiPixelCluster::Pixel>& pixelsVec,
-			   const int& imin, const int& imax,
-			   float& q1, float& q2) const {
-  
-  //calculate charge in the first and last pixel in y
-  // and the inner cluster charge
-  q1 = 0;
-  q2 = 0;
-  float qm=0;
-  int isize = pixelsVec.size();
-  for (int i=0;  i<isize; ++i) {
-    if ( (pixelsVec[i].y) == imin) 
-      q1 += pixelsVec[i].adc;
-    else if ( (pixelsVec[i].y) == imax) 
-      q2 += pixelsVec[i].adc;
-    //else if (pixelsVec[i].y < ymax && pixelsVec[i].y > ymin ) 
-    else  
-      qm += float(pixelsVec[i].adc);
-  }
-  return;
-} 
+
 //-----------------------------------------------------------------------------
 //  Drift direction.
 //  Works OK for barrel and forward.

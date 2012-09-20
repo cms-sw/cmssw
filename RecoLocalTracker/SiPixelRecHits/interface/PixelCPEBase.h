@@ -305,12 +305,7 @@ public:
   //  Cluster-level services.
   //---------------------------------------------------------------------------
    
-  //--- Charge on the first, last  and  inner pixels on x and y 
-  void xCharge(const std::vector<SiPixelCluster::Pixel>&, 
-	       const int&, const int&, float& q1, float& q2) const; 
-  void yCharge(const std::vector<SiPixelCluster::Pixel>&, 
-	       const int&, const int&, float& q1, float& q2) const; 
-
+ 
 
   //--- The Lorentz shift correction
   float lorentzShiftX() const;
