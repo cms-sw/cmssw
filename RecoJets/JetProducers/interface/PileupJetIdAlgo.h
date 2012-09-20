@@ -19,7 +19,7 @@
 #include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
 
-#include "RecoJets/JetProducers/interface/PileupJetIdentifier.h"
+#include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
 
 // ----------------------------------------------------------------------------------------------------
 class PileupJetIdAlgo {

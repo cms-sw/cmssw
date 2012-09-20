@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Pasquale Musella,40 2-A12,+41227671706,
 //         Created:  Wed Apr 18 15:48:47 CEST 2012
-// $Id: PileupJetIdProducer.cc,v 1.10 2012/05/23 08:33:37 musella Exp $
+// $Id: PileupJetIdProducer.cc,v 1.1 2012/09/18 01:22:33 pharris Exp $
 //
 //
 
@@ -34,7 +34,7 @@ Implementation:
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoJets/JetProducers/interface/PileupJetIdentifier.h"
+#include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
 #include "RecoJets/JetProducers/interface/PileupJetIdAlgo.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
