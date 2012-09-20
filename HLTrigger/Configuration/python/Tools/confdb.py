@@ -286,11 +286,8 @@ if 'hltHfreco' in %(dict)s:
       # add global options
       self.addGlobalOptions()
 
-      # if requested or necessary, override the GlobalTag and connection strings
+      # if requested or necessary, override the GlobalTag and connection strings (incl. L1!)
       self.overrideGlobalTag()
-
-      # if requested, override the L1 self from the GlobalTag (using the same connect as the GlobalTag itself)
-      self.overrideL1Menu()
 
       # if requested, run (part of) the L1 emulator
       self.runL1Emulator()
@@ -473,11 +470,7 @@ if 'GlobalTag' in %%(dict)s:
         self.config.globaltag = globalTag['GRun']
 
     text += "    from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag\n"
-    text += "    %%(process)sGlobalTag = customiseGlobalTag(%%(process)sGlobalTag,'%(globaltag)s')\n"
-    self.data += text % self.config.__dict__
 
-
-  def overrideL1Menu(self):
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
     if self.config.l1.override:
       self.config.l1.record = 'L1GtTriggerMenuRcd'
@@ -485,8 +478,13 @@ if 'GlobalTag' in %%(dict)s:
       self.config.l1.tag    = self.config.l1.override
       if not self.config.l1.connect:
         self.config.l1.connect = '%(connect)s/CMS_COND_31X_L1T'
-      self.loadAdditionalConditions( 'override the L1 menu', self.config.l1.__dict__ )
+      self.config.l1cond = "'%(tag)s,%(record)s,%(connect)s'" % self.config.l1.__dict__
+    else:
+      self.config.l1cond = "None"
 
+    text += "    %%(process)sGlobalTag = customiseGlobalTag(%%(process)sGlobalTag,'%(globaltag)s',%(l1cond)s)\n"
+
+    self.data += text % self.config.__dict__
 
   def overrideL1MenuXml(self):
     # if requested, override the L1 menu from the GlobalTag (Xml file)
