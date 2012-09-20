@@ -1,29 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROPAGATORTEST")
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
-process.load("MagneticField.Engine.volumeBasedMagneticField_cfi")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-
-process.load("Geometry.DTGeometry.dtGeometry_cfi")
-
-process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
-
-process.load("Geometry.CSCGeometry.cscGeometry_cfi")
-
-process.load("Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi")
 
 process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi")
 
 process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")
+
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
+
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -41,9 +33,15 @@ process.propAna = cms.EDAnalyzer("SteppingHelixPropagatorAnalyzer",
     NtFile = cms.string('PropagatorDump.root'),
     testPCAPropagation = cms.bool(False),
     debug = cms.bool(False),
-    g4SimName = cms.string('g4SimHits')
+    g4SimName = cms.string('g4SimHits'),
+    simTracksTag = cms.InputTag('g4SimHits'),
+    simVertexesTag = cms.InputTag('g4SimHits')
 )
 
 process.p = cms.Path(process.propAna)
-process.PoolSource.fileNames = ['/store/relval/2008/4/28/RelVal-RelValSingleMuPt10-1209247429-IDEAL_V1-2nd/0001/04660E79-0115-DD11-A59B-001D09F290D8.root', '/store/relval/2008/4/28/RelVal-RelValSingleMuPt10-1209247429-IDEAL_V1-2nd/0001/5ECCCA2E-0615-DD11-8A55-000423D98800.root', '/store/relval/2008/4/28/RelVal-RelValSingleMuPt10-1209247429-IDEAL_V1-2nd/0001/D0E48A2F-0615-DD11-89AE-000423D94C68.root']
+process.PoolSource.fileNames = [
+    '/store/relval/CMSSW_6_0_0-START60_V4/RelValSingleMuPt10/GEN-SIM/v1/0000/6C269129-E1F2-E111-9FC6-001A92971BC8.root',
+    '/store/relval/CMSSW_6_0_0-START60_V4/RelValSingleMuPt10/GEN-SIM/v1/0000/5404C41C-E1F2-E111-9731-0026189438AD.root',
+    '/store/relval/CMSSW_6_0_0-START60_V4/RelValSingleMuPt10/GEN-SIM/v1/0000/36D70436-E1F2-E111-BB26-001A92810AA2.root',
+]
 
