@@ -46,6 +46,8 @@ if __name__ == '__main__':
     group_additional.add_option("--jobsFinishedThreshold", dest="jobsFinishedThreshold", type="float", default=100, help="percentage above or equal to which CRAB tasks will be considered completed")
 
     group_additional.add_option("--runOnGrid", action="store_true", dest="runOnGrid", default=False, help="workflow will be run on the Grid (instead of the CAF)")
+    group_additional.add_option("--ce_black_list", action="store", dest="ce_black_list", help="add sites to black list when run on Grid")
+    group_additional.add_option("--ce_white_list", action="store", dest="ce_white_list", help="add sites to white list when run on Grid")
     group_additional.add_option("--stageOutLocal", action="store_true", dest="stageOutLocal", default=True, help="output will be copied locally (if running on the Grid this will be the default)")
 
     # Splitting options
@@ -152,6 +154,8 @@ if __name__ == '__main__':
         config.scheduler = 'glite'
         config.stageOutCAF = False
         config.stageOutLocal = True
+        if hasattr(input,'ce_black_list') and input.ce_black_list is not None: config.ce_black_list = input.ce_black_list
+        if hasattr(input,'ce_white_list') and input.ce_white_list is not None: config.ce_white_list = input.ce_white_list
 
     config.useserver = input.useserver
     config.queueAtCAF = input.queueAtCAF

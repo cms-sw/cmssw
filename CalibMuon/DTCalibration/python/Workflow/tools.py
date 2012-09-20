@@ -259,6 +259,12 @@ def loadCrabDefault(crabCfg,config):
 
     if hasattr(config,'runOnGrid') and config.runOnGrid:
         crabCfg.remove_section('CAF')
+        if hasattr(config,'ce_black_list'):
+            if not crabCfg.has_section('GRID'): crabCfg.add_section('GRID')
+            crabCfg.set('GRID','ce_black_list', config.ce_black_list)
+        if hasattr(config,'ce_white_list'):
+            if not crabCfg.has_section('GRID'): crabCfg.add_section('GRID')
+            crabCfg.set('GRID','ce_white_list', config.ce_white_list)
     else:
         if not crabCfg.has_section('CAF'): crabCfg.add_section('CAF')
         crabCfg.set('CAF','queue',config.queueAtCAF) 
