@@ -1,5 +1,5 @@
 
-// $Id: LumiSummary.cc,v 1.25 2012/03/06 11:39:18 xiezhen Exp $
+// $Id: LumiSummary.cc,v 1.26 2012/04/17 14:53:33 xiezhen Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
@@ -8,7 +8,8 @@
 #include <iostream>
 float
 LumiSummary::avgInsDelLumi()const{ 
-  if(lumiversion_=="v2"){
+  size_t iIndex=lumiversion_.rfind("v");
+  if(iIndex != std::string::npos){//i.e. not "-1" and not "DIP", "-1" and "DIP" lumi are already corrected and unit conversion included in the raw data. 
     return avginsdellumi_*1000.0;
   }
   return avginsdellumi_;
