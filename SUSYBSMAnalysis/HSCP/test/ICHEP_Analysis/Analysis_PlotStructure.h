@@ -1178,7 +1178,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      for(unsigned int s=0;s<samples.size();s++){
         if(samples[s].Name==st[i]->Name){Index=s;break;}
      }
-     if(st[i]->Name=="MCTr"){lg.push_back("MC - SM");}
+     if(st[i]->Name=="MCTr"){lg.push_back("MC (SM)");}
      else if(st[i]->Name=="Data"){lg.push_back("Observed");}
      else if(Index==-1){lg.push_back(st[i]->Name);}else{lg.push_back(samples[Index].Legend);}
   }
