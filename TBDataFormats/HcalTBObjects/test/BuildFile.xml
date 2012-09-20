@@ -2,6 +2,7 @@
 <use   name="TBDataFormats/HcalTBObjects"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
 <library   file="HcalTBObjectDump.cc" name="HcalTBObjectDump">
   <flags   EDM_PLUGIN="1"/>
 </library>

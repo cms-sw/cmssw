@@ -36,7 +36,12 @@ process.dumpRaw = cms.EDAnalyzer( "DumpFEDRawDataProduct",
 
 process.m = cms.EDAnalyzer("HcalDigiDump")
 
-process.dump = cms.EDAnalyzer("HcalTBObjectDump")
+process.dump = cms.EDAnalyzer('HcalTBObjectDump',
+                              hcalTBTriggerDataTag = cms.InputTag('tbunpack'),
+                              hcalTBRunDataTag = cms.InputTag('tbunpack'),
+                              hcalTBEventPositionTag = cms.InputTag('tbunpack'),
+                              hcalTBTimingTag = cms.InputTag('tbunpack')
+)
 
 process.dumpECA = cms.EDAnalyzer("EventContentAnalyzer")
 
