@@ -356,6 +356,7 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
   // angles to provide here. Call the default localPosition (without track info)
   LocalPoint lp = theTopol->localPosition( MeasurementPoint(xcenter, ycenter) );
 
+
   // get the cluster position in global coordinates (cm)
   GlobalPoint gp = theDet->surface().toGlobal( lp );
   float gp_mod = sqrt( gp.x()*gp.x() + gp.y()*gp.y() + gp.z()*gp.z() );
@@ -393,6 +394,16 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
   float gv_dot_gvx = gv.x()*gvx.x() + gv.y()*gvx.y() + gv.z()*gvx.z();
   float gv_dot_gvy = gv.x()*gvy.x() + gv.y()*gvy.y() + gv.z()*gvy.z();
   float gv_dot_gvz = gv.x()*gvz.x() + gv.y()*gvz.y() + gv.z()*gvz.z();
+
+
+  /* all the above is equivalent to  
+     const Local3DPoint origin =   theDet->surface().toLocal(GlobalPoint(0,0,0)); // can be computed once...
+     auto xx = lp.x()-origin.x();
+     auto yy = lp.y()-origin.y();
+     auto zz = -origin.z();
+  *  normalization not required as only ratio used... 
+  */
+
 
   // calculate angles
   alpha_ = atan2( gv_dot_gvz, gv_dot_gvx );
