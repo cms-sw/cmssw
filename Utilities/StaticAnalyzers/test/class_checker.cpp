@@ -3,51 +3,75 @@ class Foo
 
 private:
 
-int Var;
+int Var_;
 
 public:
 
-Foo() {Var=0;}
+Foo(): Var_{0}{}
 void Bar1(int  x) {return;} //OK
 void Bar2(int &x) {return;} // cound be bad 
 void Bar3(int *x) {return;} // could be bad
 void Bar4(int const *x) {return;} //  OK
 void Bar5(int * const x) {return;} // could be bad
 void Bar6(int const &x) {return;} //OK
+void modifyMember() { Var_ = 5;}
+void Bar7() { modifyMember();} //bad
+void constCase() const { return;}
 
 };
 
 class Bar
 {
 private:
+Bar(): ci_{0},ipc_{&i_},ir_{i_},icr_{ci_}{}
+const int ci_;
+int i_;
+int const * icp_;
+int * ip_;
+int * const ipc_;
+int & ir_;
+int const & icr_;
 
-const int ci;
-int i;
-int const * icp;
-int * ip;
-int * const ipc;
-int & ir;
-int const & icr;
+void modifyMember() { i_ = 5;}
+void indirectModifyMember() { modifyMember();}
 
 void method1(int &x) {return;}
 
-void method2()
-{
-Foo foo;
-int I=0;
-foo.Bar1(i);
-foo.Bar1(ci);
-foo.Bar1(ir);
-foo.Bar1(icr);
-foo.Bar1(I);
-foo.Bar2(i);
-//foo.Bar2(ci);
-foo.Bar2(ir);
-//foo.Bar2(icr);
-foo.Bar2(I);
-method1(i);
-method1(I);
-}
+void method2() 
+	{
+	Foo foo;
+	int I=0;
+	foo.Bar1(i_);
+	foo.Bar1(ci_);
+	foo.Bar1(ir_);
+	foo.Bar1(icr_);
+	foo.Bar1(I);
+	foo.Bar2(i_);
+	foo.Bar2(ir_);
+	foo.Bar2(I);
+	foo.Bar6(i_);
+	foo.Bar6(ir_);
+	foo.Bar6(I);
+	method1(i_);
+	method1(I);
+	}
+
+void method3() const
+	{
+	Foo foo;
+	int I=0;
+	foo.Bar1(i_);
+	foo.Bar1(ci_);
+	foo.Bar1(ir_);
+	foo.Bar1(icr_);
+	foo.Bar1(I);
+	foo.Bar2(ir_);
+	foo.Bar2(I);
+	foo.Bar6(i_);
+	foo.Bar6(ir_);
+	foo.Bar6(I);
+	}
+
 
 };
 

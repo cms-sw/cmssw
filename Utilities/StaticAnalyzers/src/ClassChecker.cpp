@@ -4,7 +4,7 @@
 //
 // For each special function of a class (produce, beginrun, endrun, beginlumi, endlumi)
 //
-//	1) indentify member data being modified
+//	1) identify member data being modified
 //		built-in types reseting values
 //		calling non-const member function object if member data is an object
 //	2) for each non-const member functions of self called
@@ -115,7 +115,7 @@ public:
   void VisitChildren(clang::Stmt *S);
   
   void ReportCall(const clang::CallExpr *CE);
-  void ReportCallArg(const clang::CallExpr *CE, const clang::Expr *E);
+  void ReportCallArg(const clang::CallExpr *CE, const int i);
   void ReportCallParam(const clang::CXXMethodDecl * MD, const clang::ParmVarDecl *PVD); 
 };
 
@@ -144,18 +144,19 @@ clang::QualType qual_ioa = llvm::dyn_cast<clang::Expr>(IOA)->getType();
 clang::MemberExpr * ME = clang::dyn_cast<clang::MemberExpr>(CE->getCallee());
 clang::QualType qual_exp = llvm::dyn_cast<clang::Expr>(ME)->getType();
 
-clang::CXXRecordDecl * RD = llvm::dyn_cast<clang::CXXRecordDecl>(CE->getRecordDecl());
+//clang::CXXRecordDecl * RD = llvm::dyn_cast<clang::CXXRecordDecl>(CE->getRecordDecl());
 clang::CXXMethodDecl * MD = CE->getMethodDecl();
-clang::CXXRecordDecl * MRD = llvm::dyn_cast<clang::CXXRecordDecl>(MD->getParent());
+//clang::CXXRecordDecl * MRD = llvm::dyn_cast<clang::CXXRecordDecl>(MD->getParent());
 clang::QualType MQT = MD->getThisType(AC->getASTContext());
-const clang::CXXRecordDecl * ACD = llvm::dyn_cast<clang::CXXRecordDecl>(AC->getDecl());
+//const clang::CXXRecordDecl * ACD = llvm::dyn_cast<clang::CXXRecordDecl>(AC->getDecl());
                                                                                                                
-if (!(ME->isImplicitAccess()))
-if (!support::isConst(qual_ioa))
-if (!(MD->getAccess()==clang::AccessSpecifier::AS_public))
-	{
-	ReportCall(CE);
-	}
+//if (!(ME->isImplicitAccess()))
+//if (!support::isConst(qual_ioa))
+//if (!(MD->getAccess()==clang::AccessSpecifier::AS_public))
+//	{
+//	ReportCall(CE);
+//	}
+
 
 for(int i=0, j=CE->getNumArgs(); i<j; i++) {
 	if ( const clang::Expr *E = llvm::dyn_cast<clang::Expr>(CE->getArg(i)))
@@ -164,26 +165,45 @@ for(int i=0, j=CE->getNumArgs(); i<j; i++) {
 		if (const clang::MemberExpr *ME=llvm::dyn_cast<clang::MemberExpr>(E))
 		if (ME->isImplicitAccess())
 			{
-				ReportCallArg(CE,E);
-			}
-		}
-}
-
-//if (ME->isImplicitAccess())
-if (!support::isConst(qual_ioa))
-if (MD->getAccess()==clang::AccessSpecifier::AS_public)
-for(int i=0, j=MD->getNumParams();i<j;i++) {
-	if (clang::ParmVarDecl *PVD=llvm::dyn_cast<clang::ParmVarDecl>(MD->getParamDecl(i)))
-		{
+//			clang::ValueDecl * VD = llvm::dyn_cast<clang::ValueDecl>(ME->getMemberDecl());
+//			clang::QualType qual_decl = llvm::dyn_cast<clang::ValueDecl>(ME->getMemberDecl())->getType();
+			clang::ParmVarDecl *PVD=llvm::dyn_cast<clang::ParmVarDecl>(MD->getParamDecl(i));
 			clang::QualType QT = PVD->getOriginalType();
 			const clang::Type * T = QT.getTypePtr();
 			if (!support::isConst(QT))
 			if (T->isReferenceType())
 				{
-				ReportCallParam(MD,PVD);
+//				ME->dump();
+//				llvm::errs()<<"\n";
+//				VD->dump();
+//				llvm::errs()<<"\n";
+//				qual_decl.dump();
+//				llvm::errs()<<"\n";
+//				PVD->dump();
+//				llvm::errs()<<"\n";
+//				QT->dump();
+//				llvm::errs()<<"\n---------------------------------------\n";
+				ReportCallArg(CE,i);
 				}
+			}
 		}
 }
+
+//if (ME->isImplicitAccess())
+//if (!support::isConst(qual_ioa))
+//if (MD->getAccess()==clang::AccessSpecifier::AS_public)
+//for(int i=0, j=MD->getNumParams();i<j;i++) {
+//	if (clang::ParmVarDecl *PVD=llvm::dyn_cast<clang::ParmVarDecl>(MD->getParamDecl(i)))
+//	{
+//			clang::QualType QT = PVD->getOriginalType();
+//			const clang::Type * T = QT.getTypePtr();
+//			if (!support::isConst(QT))
+//			if (T->isReferenceType())
+//				{
+//				ReportCallParam(MD,PVD);
+//				}
+//	}
+//}
 
 
 
@@ -201,10 +221,10 @@ void WalkAST::ReportCall(const clang::CallExpr *CE) {
   os << "Call Expression ";
   // Name of current visiting CallExpr.
   os << *CE->getDirectCallee();
-  // Name of the CallExpr whose body is current walking.
-//  if (visitingCallExpr)
+// Name of the CallExpr whose body is current walking.
+//  if (visitingCallExpr) 
 //    os << " <-- " << *visitingCallExpr->getDirectCallee();
-  // Names of FunctionDecls in worklist with state PostVisited.
+// Names of FunctionDecls in worklist with state PostVisited.
 //  for (llvm::SmallVectorImpl<const clang::CallExpr *>::iterator I = WList.end(),
 //         E = WList.begin(); I != E; --I) {
 //    const clang::FunctionDecl *FD = (*(I-1))->getDirectCallee();
@@ -239,26 +259,32 @@ void WalkAST::ReportCall(const clang::CallExpr *CE) {
 	 
 }
 
-void WalkAST::ReportCallArg(const clang::CallExpr *CE,const clang::Expr *E) {
+void WalkAST::ReportCallArg(const clang::CallExpr *CE,const int i) {
+
   llvm::SmallString<100> buf;
   llvm::raw_svector_ostream os(buf);
   CmsException m_exception;
+  clang::CXXMethodDecl * MD = llvm::dyn_cast<clang::CXXMemberCallExpr>(CE)->getMethodDecl();
+  const clang::Expr *E = llvm::dyn_cast<clang::Expr>(CE->getArg(i));
+  clang::ParmVarDecl *PVD=llvm::dyn_cast<clang::ParmVarDecl>(MD->getParamDecl(i));
+  const clang::MemberExpr * ME = clang::dyn_cast<clang::MemberExpr>(CE->getCallee());
 
-  os << "Method call axpression :  ";
+  os << "Method call expression ";
   os << *CE->getDirectCallee();
-  os << " with ";
+  if (ME->isImplicitAccess()) 
+  	os << " is a member function acting on member data.\n";
+  else 
+  	os << " is a non-member function acting on member data.\n";
+  os << " Member data ";
   clang::LangOptions LangOpts;
   LangOpts.CPlusPlus = true;
   clang::PrintingPolicy Policy(LangOpts);
   std::string TypeS;
   llvm::raw_string_ostream s(TypeS);
   E->printPretty(s, 0, Policy);
-  os << "argument " << s.str() << " ";
-  const clang::MemberExpr * ME = clang::dyn_cast<clang::MemberExpr>(CE->getCallee());
-  if (ME->isImplicitAccess()) 
-  	os << "\nis a member function acting on member data.\n";
-  else 
-  	os << "\nis a non-member function acting on member data.\n";
+  os<< s.str() << " ";
+  os<< "is passed to a non-const reference parameter ";
+  PVD->printName(os);
 
   clang::ento::PathDiagnosticLocation ELoc =
    clang::ento::PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
