@@ -652,7 +652,7 @@ HLT_PixelTracks_Multiplicity90_v*                                               
 #HLT_Jet50_NoL1FastJet_v*                                                                       # sr #126817, removed by sr #129264
 HLT_Jet370_NoJetID_v*                                                                           # added in favor of HLT_Jet370
 HLT_DoubleJet20_ForwardBackward_v*                                                              # sr #126817
-HLT_DoublePhoton5_IsoVL_CEP_v*                                                                  # sr #126817
+#HLT_DoublePhoton5_IsoVL_CEP_v*                                                                 # sr #126817, removed by sr #132297
 HLT_Photon50_CaloIdVL_IsoL_v*                                                                   # sr #126817
 #HLT_SingleJetC5_v*                                                                             # sr #126817, removed by sr #129264
 HLT_ZeroBias_v*                                                                                 # sr #126817
