@@ -24,9 +24,9 @@ import FWCore.ParameterSet.Config as cms
 # *hltMonJetMET makes a log file, need to learn how to turn it off
 # *hltMonEleBits causes SegmentFaults in HARVESTING(step3) in inlcuded in step2
 
-import DQMServices.Components.DQMEnvironment_cfi
-dqmEnvHLTOnline = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
-dqmEnvHLTOnline.subSystemFolder = 'HLT'
+#import DQMServices.Components.DQMEnvironment_cfi
+#dqmEnvHLTOnline = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
+#dqmEnvHLTOnline.subSystemFolder = 'HLT'
 
 #onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonEleBits*hltMonMuBits*hltMonTauReco*hltMonBTagIPSource*hltMonBTagMuSource*dqmEnvHLTOnline)
 #onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonMuBits*dqmEnvHLTOnline)
@@ -54,6 +54,11 @@ from DQMOffline.Trigger.JetMETHLTOfflineAnalyzer_cff import *
 # Inclusive VBF
 from DQMOffline.Trigger.HLTInclusiveVBFSource_cfi import *
 
+import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
+TrackerCollisionTrackMonHLT = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
+TrackerCollisionTrackMonHLT.FolderName    = 'HLT/Tracking'
+TrackerCollisionTrackMonHLT.TrackProducer    = 'hltPixelTracks'
+
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 dqmEnvHLT.subSystemFolder = 'HLT'
@@ -71,6 +76,7 @@ offlineHLTSource = cms.Sequence(
     jetMETHLTOfflineAnalyzer *
     #TnPEfficiency *
     hltInclusiveVBFSource *
+    TrackerCollisionTrackMonHLT *
     dqmEnvHLT)
 
 #triggerOfflineDQMSource =  cms.Sequence(onlineHLTSource*offlineHLTSource)
