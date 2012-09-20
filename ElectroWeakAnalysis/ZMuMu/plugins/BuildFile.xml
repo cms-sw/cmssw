@@ -7,6 +7,7 @@
   <use   name="CommonTools/UtilAlgos"/>
   <use   name="DataFormats/MuonReco"/>
   <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/Utilities"/>
   <use   name="DataFormats/HepMCCandidate"/>
   <use   name="DataFormats/Candidate"/>
   <use   name="DataFormats/PatCandidates"/>

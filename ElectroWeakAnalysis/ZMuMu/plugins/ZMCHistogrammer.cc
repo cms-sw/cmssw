@@ -8,6 +8,7 @@ public:
 private:
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
   edm::InputTag  z_, gen_, match_;
+  edm::InputTag hepMCProductTag_;
   unsigned int nbinsMass_, nbinsPt_, nbinsAng_, nbinsMassRes_;
   double massMax_, ptMax_, angMax_, massResMax_;
   TH1F *h_nZ_, *h_mZ_, *h_ptZ_, *h_phiZ_, *h_thetaZ_, *h_etaZ_, *h_rapidityZ_;
@@ -45,7 +46,8 @@ using namespace edm;
 ZMCHistogrammer::ZMCHistogrammer(const ParameterSet& pset) :
   z_(pset.getParameter<InputTag>("z")),
   gen_(pset.getParameter<InputTag>("gen")), 
-  match_(pset.getParameter<InputTag>("match")), 
+  match_(pset.getParameter<InputTag>("match")),
+  hepMCProductTag_(pset.getParameter<InputTag>("hepMCProductTag")),
   nbinsMass_(pset.getUntrackedParameter<unsigned int>("nbinsMass")),
   nbinsPt_(pset.getUntrackedParameter<unsigned int>("nbinsPt")),
   nbinsAng_(pset.getUntrackedParameter<unsigned int>("nbinsAng")),
@@ -131,7 +133,7 @@ void ZMCHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& se
  
 // get HepMC::GenEvent ...
    Handle<HepMCProduct> evt_h;
-   event.getByType(evt_h);
+   event.getByLabel(hepMCProductTag_, evt_h);
    HepMC::GenEvent* evt = new  HepMC::GenEvent(*(evt_h->GetEvent()));
 
 
