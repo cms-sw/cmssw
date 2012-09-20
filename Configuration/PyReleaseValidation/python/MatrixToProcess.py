@@ -22,8 +22,8 @@ class MatrixToProcess:
         return self.configBuilders[key].process
 
     def load(self,wfNumber,step):
-        from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
-        from Configuration.PyReleaseValidation.cmsDriverOptions import OptionsFromCommand
+        from Configuration.Applications.ConfigBuilder import ConfigBuilder
+        from Configuration.Applications.cmsDriverOptions import OptionsFromCommand
         import copy
 
         if len(self.configBuilders)!=0 and self.strict:
