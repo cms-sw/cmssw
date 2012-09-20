@@ -14,6 +14,7 @@
 
 
 #include<vector>
+#include <cassert>
 
 namespace edm { namespace refhelper { template<typename T> struct FindForNewDetSetVector; } }
 
