@@ -128,9 +128,21 @@ bool HLTDisplacedmumuFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
           trackIt++;
           reco::TrackRef vertextkRef2 =  (*trackIt).castTo<reco::TrackRef>();
           
+	  // first find these two tracks in the muon collection
+	  reco::RecoChargedCandidateCollection::const_iterator cand1;
+	  reco::RecoChargedCandidateCollection::const_iterator cand2;	  
+
+	  int iFoundRefs = 0;
+	  for (reco::RecoChargedCandidateCollection::const_iterator cand=mucands->begin(); cand!=mucands->end(); cand++) {
+	    reco::TrackRef tkRef = cand->get<reco::TrackRef>();
+	    if(tkRef == vertextkRef1) {cand1 = cand; iFoundRefs++;}
+	    if(tkRef == vertextkRef2) {cand2 = cand; iFoundRefs++;}
+	  }
+	  if(iFoundRefs != 2) throw cms::Exception("BadLogic") << "HLTDisplacedmumuFilter: ERROR: the Jpsi vertex must have exactly two muons by definition."  << std::endl; 
+	  
           // calculate two-track transverse momentum
-          math::XYZVector pperp(vertextkRef1->px() + vertextkRef2->px(),
-        			  vertextkRef1->py() + vertextkRef2->py(),
+          math::XYZVector pperp(cand1->px() + cand2->px(),
+        			  cand1->py() + cand2->py(),
         			  0.);
           
         
@@ -161,18 +173,6 @@ bool HLTDisplacedmumuFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 	  triggered = true;
  
 	  // now add the muons that passed to the filter object
-	  
-	  reco::RecoChargedCandidateCollection::const_iterator cand1;
-	  reco::RecoChargedCandidateCollection::const_iterator cand2;	  
-
-	  // first find these two tracks in the muon collection
-	  int iFoundRefs = 0;
-	  for (reco::RecoChargedCandidateCollection::const_iterator cand=mucands->begin(); cand!=mucands->end(); cand++) {
-	    reco::TrackRef tkRef = cand->get<reco::TrackRef>();
-	    if(tkRef == vertextkRef1) {cand1 = cand; iFoundRefs++;}
-	    if(tkRef == vertextkRef2) {cand2 = cand; iFoundRefs++;}
-	  }
-	  if(iFoundRefs != 2) throw cms::Exception("BadLogic") << "HLTDisplacedmumuFilter: ERROR: the Jpsi vertex must have exactly two muons by definition."  << std::endl; 
 	  
 	  ref1=reco::RecoChargedCandidateRef( edm::Ref<reco::RecoChargedCandidateCollection> 	(mucands,distance(mucands->begin(), cand1)));
 	  filterobject->addObject(trigger::TriggerMuon,ref1);

@@ -1,105 +1,24 @@
 import FWCore.ParameterSet.Config as cms
 
-# L1 Trigger client DQM sequence
+#include "DQM/L1TMonitorClient/data/L1TDTTPGClient.cff"
+from DQM.L1TMonitorClient.L1TEventInfoClient_cff import *
+from DQM.L1TMonitorClient.L1TGMTClient_cff import *
+from DQM.L1TMonitorClient.L1TGTClient_cff import *
+from DQM.L1TMonitorClient.L1TGCTClient_cff import *
+from DQM.L1TMonitorClient.L1TRCTClient_cff import *
+from DQM.L1TMonitorClient.L1TDTTFClient_cff import *
+from DQM.L1TMonitorClient.L1TCSCTFClient_cff import * 
+ # out because looking for lots of ME which cannot be found!
+from DQM.L1TMonitorClient.L1TDEMONClient_cff import *
+from DQM.L1TMonitorClient.L1TRPCTFClient_cff import *
+#    # use include file for dqmEnv dqmSaver
+#       include "DQMServices/Components/test/dqm_onlineEnv.cfi"
+from DQMServices.Components.DQMEnvironment_cfi import *
 #
-# used by DQM GUI: DQM/Integration/python/test/l1t_dqm_sourceclient-*_cfg.py
-#
-# standard RawToDigi sequence must be run before the L1T module, labels 
-# from the standard sequence are used as default for the L1 DQM modules
-# any configuration change in the unpacking must be done in l1t_dqm_sourceclient-*_cfg.py
-#
-# see CVS for previous authors
-#
-# V.M. Ghete 2011-05-26 revised version of L1 Trigger client DQM
-#                       
-
-# DQM quality tests 
-from DQM.L1TMonitorClient.L1TriggerQualityTests_cff import *
-
-#
-# DQM client modules
+# END ################################################
 #
 
-# Bx Timing DQM client module- not available
-
-# LTC DQM client module- not available
-
-# ECAL TPG client DQM module
-# not run in L1T - do we need it? FIXME
-
-# HCAL TPG DQM module 
-# not run in L1T - do we need it? FIXME
-
-# RCT DQM client module - not available
-#from DQM.L1TMonitorClient.L1TRCTClient_cfi import *
-
-# GCT DQM client module 
-from DQM.L1TMonitorClient.L1TGCTClient_cfi import *
-
-# DTTPG DQM module 
-# not run in L1T - do we need it? FIXME
-
-# DTTF DQM client module 
-from DQM.L1TMonitorClient.L1TDTTFClient_cfi import *
-
-# CSCTPG DQM module 
-# not run in L1T - do we need it? FIXME
-
-# CSCTF DQM client module 
-from DQM.L1TMonitorClient.L1TCSCTFClient_cfi import * 
-
-# RPC DQM client module - non-standard name of the module
-from DQM.L1TMonitorClient.L1TRPCTFClient_cfi import *
-
-# GMT DQM module 
-from DQM.L1TMonitorClient.L1TGMTClient_cfi import *
-
-# GT DQM client module - not available 
-#from DQM.L1TMonitorClient.L1TGTClient_cfi import *
-
-# L1Extra DQM client module - not available 
-
-# L1 rates DQM client module - not available 
-
-# L1 synchronization DQM client module - not available 
-
-# L1 event info DQM client 
-from DQM.L1TMonitorClient.L1TEventInfoClient_cfi import *
-
-#
-# other, non pure-L1 stuff
-#
-
-# scaler modules (SM and SCAL) - it uses DQM.TrigXMonitorClient
-from DQM.TrigXMonitorClient.L1TScalersClient_cfi import *
-l1tsClient.dqmFolder = cms.untracked.string("L1T/L1Scalers_SM")
-
-
-
-#
-# define sequences 
-#
-
-# L1T monitor client sequence (system clients and quality tests)
-l1TriggerClients = cms.Sequence(
-                        l1tGctClient +
-                        l1tDttfClient +
-                        l1tCsctfClient + 
-                        l1tRpctfClient +
-                        l1tGmtClient +
-                        l1tEventInfoClient
-                        )
-
-l1tMonitorClient = cms.Sequence(
-                        l1TriggerQualityTests +
-                        l1TriggerClients
-                        )
-
-# sequence for L1 Trigger DQM client modules on EndPath 
-# FIXME clarify why needed on EndPath
-
-l1tMonitorClientEndPathSeq = cms.Sequence(
-                                l1tsClient
-                                )
-
+#l1tmonitorClient = cms.Path(l1tgmtseqClient*l1tcsctfseqClient*l1tdttpgseqClient*l1trpctfseqClient*l1tdemonseqClient*l1tGctseqClient*l1tEventInfoseqClient*dqmEnv*dqmSaver)
+l1tmonitorClient = cms.Path(l1tgmtseqClient*l1tgtseqClient*l1tcsctfseqClient*l1tdttfseqClient*l1trpctfseqClient*l1tdemonseqClient*l1tGctseqClient*l1tRctseqClient*l1tEventInfoseqClient*dqmEnv*dqmSaver)
+#l1tmonitorClient = cms.Path(l1tgmtClient*l1tcsctfClient*l1tdttpgClient*l1trpctfClient*l1tdemonseqClient*l1tGctClient*l1tEventInfoseqClient*dqmEnv*dqmSaver)
 

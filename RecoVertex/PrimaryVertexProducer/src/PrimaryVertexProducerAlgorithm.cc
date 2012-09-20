@@ -1,3 +1,4 @@
+///////////////   OBSOLETE ////////////////////
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexProducerAlgorithm.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/VertexHigherPtSquared.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

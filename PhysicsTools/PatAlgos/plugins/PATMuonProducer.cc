@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.43 2011/06/27 15:57:48 bellan Exp $
+// $Id: PATMuonProducer.cc,v 1.47 2012/01/19 02:50:19 tjkim Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -65,15 +65,10 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) : useUserDat
   embedPFCandidate_ = iConfig.getParameter<bool>( "embedPFCandidate" );
   pfMuonSrc_ = iConfig.getParameter<edm::InputTag>( "pfMuonSource" );
 
-  // TeV track refits
-  addTeVRefits_ = iConfig.getParameter<bool>("addTeVRefits");
-  if(addTeVRefits_){
-    pickySrc_ = iConfig.getParameter<edm::InputTag>("pickySrc");
-    tpfmsSrc_ = iConfig.getParameter<edm::InputTag>("tpfmsSrc");
-  }
   // embedding of tracks from TeV refit
   embedPickyMuon_ = iConfig.getParameter<bool>( "embedPickyMuon" );
   embedTpfmsMuon_ = iConfig.getParameter<bool>( "embedTpfmsMuon" );
+  embedDytMuon_   = iConfig.getParameter<bool>( "embedDytMuon" );
 
   // Monte Carlo matching
   addGenMatch_ = iConfig.getParameter<bool>( "addGenMatch" );
@@ -263,18 +258,11 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       if( embedPFCandidate_ ) aMuon.embedPFCandidate();
       fillMuon( aMuon, muonBaseRef, pfBaseRef, genMatches, deposits, isolationValues );
       patMuons->push_back(aMuon); 
-    } 
+    }
   }
   else {
     edm::Handle<edm::View<reco::Muon> > muons;
     iEvent.getByLabel(muonSrc_, muons);
-
-    // prepare the TeV refit track retrieval
-    edm::Handle<reco::TrackToTrackMap> pickyMap, tpfmsMap;
-    if (addTeVRefits_) {
-      iEvent.getByLabel(pickySrc_, pickyMap);
-      iEvent.getByLabel(tpfmsSrc_, tpfmsMap);
-    }
 
     // embedding of muon MET corrections
     edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > caloMETMuonCorrs;
@@ -298,27 +286,6 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       Muon aMuon(muonRef);
       fillMuon( aMuon, muonRef, muonBaseRef, genMatches, deposits, isolationValues);
 
-      // store the TeV refit track refs (only available for globalMuons)
-      if (addTeVRefits_ && itMuon->isGlobalMuon()) {
-	reco::TrackToTrackMap::const_iterator it;
-	const reco::TrackRef& globalTrack = itMuon->globalTrack();
-	
-	// If the getByLabel calls failed above (i.e. if the TeV refit
-	// maps/collections were not in the event), then the TrackRefs
-	// in the Muon object will remain null.
-	if (!pickyMap.failedToGet()) {
-	  it = pickyMap->find(globalTrack);
-	  if (it != pickyMap->end()) aMuon.setPickyMuon(it->val);
-	  if (embedPickyMuon_) aMuon.embedPickyMuon();
-	}
- 
-	if (!tpfmsMap.failedToGet()) {
-	  it = tpfmsMap->find(globalTrack);
-	  if (it != tpfmsMap->end()) aMuon.setTpfmsMuon(it->val);
-	  if (embedTpfmsMuon_) aMuon.embedTpfmsMuon();
-	}
-      }
-      
       // Isolation
       if (isolator_.enabled()) {
 	//reco::CandidatePtr mother =  ptrToMother->sourceCandidatePtr(0);
@@ -410,6 +377,16 @@ void PATMuonProducer::fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const r
   if (embedStandAloneMuon_) aMuon.embedStandAloneMuon();
   if (embedCombinedMuon_) aMuon.embedCombinedMuon();
 
+  // embed the TeV refit track refs (only available for globalMuons)
+  if (aMuon.isGlobalMuon()) {
+    if (embedPickyMuon_ && aMuon.isAValidMuonTrack(reco::Muon::Picky))
+      aMuon.embedPickyMuon();
+    if (embedTpfmsMuon_ && aMuon.isAValidMuonTrack(reco::Muon::TPFMS))
+      aMuon.embedTpfmsMuon();
+    if (embedDytMuon_ && aMuon.isAValidMuonTrack(reco::Muon::DYT))
+      aMuon.embedDytMuon();
+  }
+
   // store the match to the generated final state muons
   if (addGenMatch_) {
     for(size_t i = 0, n = genMatches.size(); i < n; ++i) {      
@@ -468,8 +445,9 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   iDesc.add<bool>("embedTrack", true)->setComment("embed external track");
   iDesc.add<bool>("embedStandAloneMuon", true)->setComment("embed external stand-alone muon");
   iDesc.add<bool>("embedCombinedMuon", false)->setComment("embed external combined muon");
-  iDesc.add<bool>("embedPickyMuon", false)->setComment("embed external picky muon");
-  iDesc.add<bool>("embedTpfmsMuon", false)->setComment("embed external tpfms muon");
+  iDesc.add<bool>("embedPickyMuon", false)->setComment("embed external picky track");
+  iDesc.add<bool>("embedTpfmsMuon", false)->setComment("embed external tpfms track");
+  iDesc.add<bool>("embedDytMuon", false)->setComment("embed external dyt track ");
 
   // embedding of MET muon corrections
   iDesc.add<bool>("embedCaloMETMuonCorrs", true)->setComment("whether to add MET muon correction for caloMET or not");
@@ -481,12 +459,6 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   iDesc.add<edm::InputTag>("pfMuonSource", edm::InputTag("pfMuons"))->setComment("particle flow input collection");
   iDesc.add<bool>("useParticleFlow", false)->setComment("whether to use particle flow or not");
   iDesc.add<bool>("embedPFCandidate", false)->setComment("embed external particle flow object");
-
-  // TeV refit 
-  iDesc.ifValue( edm::ParameterDescription<bool>("addTeVRefits", true, true),
-		 true >> (edm::ParameterDescription<edm::InputTag>("pickySrc", edm::InputTag(), true) and
-			  edm::ParameterDescription<edm::InputTag>("tpfmsSrc", edm::InputTag(), true)) 
-		 )->setComment("If TeV refits are added, their sources need to be specified");
 
   // MC matching configurables
   iDesc.add<bool>("addGenMatch", true)->setComment("add MC matching");
@@ -505,6 +477,8 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   isoDepositsPSet.addOptional<edm::InputTag>("hcal");
   isoDepositsPSet.addOptional<edm::InputTag>("particle");
   isoDepositsPSet.addOptional<edm::InputTag>("pfChargedHadrons");
+  isoDepositsPSet.addOptional<edm::InputTag>("pfChargedAll");
+  isoDepositsPSet.addOptional<edm::InputTag>("pfPUChargedHadrons");
   isoDepositsPSet.addOptional<edm::InputTag>("pfNeutralHadrons");
   isoDepositsPSet.addOptional<edm::InputTag>("pfPhotons");
   isoDepositsPSet.addOptional<std::vector<edm::InputTag> >("user");
@@ -517,6 +491,8 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   isolationValuesPSet.addOptional<edm::InputTag>("hcal");
   isolationValuesPSet.addOptional<edm::InputTag>("particle");
   isolationValuesPSet.addOptional<edm::InputTag>("pfChargedHadrons");
+  isolationValuesPSet.addOptional<edm::InputTag>("pfChargedAll");
+  isolationValuesPSet.addOptional<edm::InputTag>("pfPUChargedHadrons");
   isolationValuesPSet.addOptional<edm::InputTag>("pfNeutralHadrons");
   isolationValuesPSet.addOptional<edm::InputTag>("pfPhotons");
   iDesc.addOptional("isolationValues", isolationValuesPSet);
@@ -565,6 +541,12 @@ void PATMuonProducer::readIsolationLabels( const edm::ParameterSet & iConfig, co
     }
     if (depconf.exists("pfChargedHadrons"))  {
       labels.push_back(std::make_pair(pat::PfChargedHadronIso, depconf.getParameter<edm::InputTag>("pfChargedHadrons")));
+    }
+    if (depconf.exists("pfChargedAll"))  {
+      labels.push_back(std::make_pair(pat::PfChargedAllIso, depconf.getParameter<edm::InputTag>("pfChargedAll")));
+    } 
+    if (depconf.exists("pfPUChargedHadrons"))  {
+      labels.push_back(std::make_pair(pat::PfPUChargedHadronIso, depconf.getParameter<edm::InputTag>("pfPUChargedHadrons")));
     }
     if (depconf.exists("pfNeutralHadrons"))  {
       labels.push_back(std::make_pair(pat::PfNeutralHadronIso, depconf.getParameter<edm::InputTag>("pfNeutralHadrons")));

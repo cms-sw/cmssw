@@ -126,7 +126,7 @@
       <PARAM name="error">0.85</PARAM>
       <PARAM name="warning">0.95</PARAM>
       <PARAM name="xmin">0.0</PARAM>
-      <PARAM name="xmax">400.0</PARAM>
+      <PARAM name="xmax">2000.0</PARAM>
 </QTEST>
 <QTEST name="XrangeWithin:NumberOfRecHitsPerTrk" activate="true"> 
      <TYPE>ContentsXRange</TYPE> 
@@ -147,7 +147,7 @@
      <PARAM name="error">0.85</PARAM> 
      <PARAM name="warning">0.95</PARAM> 
      <PARAM name="xmin">0</PARAM> 
-     <PARAM name="xmax">10.0</PARAM> 
+     <PARAM name="xmax">100.0</PARAM> 
 </QTEST>
 <LINK name="*nBadChannelStatusBits">
   <TestName activate="true">MeanWithinExpectedRange:nBadChannelStatusBits</TestName>

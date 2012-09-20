@@ -99,6 +99,10 @@ def switchToCaloTau(process,
     applyPostfix(process, "patTaus" + patTauLabel, postfix).isoDeposits = cms.PSet()
     applyPostfix(process, "patTaus" + patTauLabel, postfix).userIsolation = cms.PSet()
 
+    ## no tau-jet energy corrections determined for CaloTaus yet
+    # applyPostfix(process, "patTauJetCorrFactors" + patTauLabel, postfix).src = caloTauLabel
+    applyPostfix(process, "patTaus" + patTauLabel, postfix).addTauJetCorrFactors = cms.bool(False)
+
     ## adapt cleanPatTaus
     if hasattr(process, "cleanPatTaus" + patTauLabel + postfix):
         getattr(process, "cleanPatTaus" + patTauLabel + postfix).preselection = \
@@ -117,6 +121,7 @@ def _switchToPFTau(process,
                    pfTauLabelNew,
                    pfTauType,
                    idSources,
+                   jecLevels, jecPayloadMapping,
                    patTauLabel = "",
                    postfix = ""):
     """internal auxiliary function to switch to **any** PFTau collection"""  
@@ -133,6 +138,13 @@ def _switchToPFTau(process,
     applyPostfix(process, "tauIsoDepositPFNeutralHadrons" + patTauLabel, postfix).ExtractorPSet.tauSource = pfTauLabelNew
     applyPostfix(process, "tauIsoDepositPFGammas" + patTauLabel, postfix).src = pfTauLabelNew
     applyPostfix(process, "tauIsoDepositPFGammas" + patTauLabel, postfix).ExtractorPSet.tauSource = pfTauLabelNew
+
+    #applyPostfix(process, "patTauJetCorrFactors" + patTauLabel, postfix).src = pfTauLabelNew
+    #if len(jecLevels) > 0:
+    #    applyPostfix(process, "patTaus" + patTauLabel, postfix).addTauJetCorrFactors = cms.bool(True)
+    #    applyPostfix(process, "patTauJetCorrFactors" + patTauLabel, postfix).parameters = jecPayloadMapping
+    #else:
+    #    applyPostfix(process, "patTaus" + patTauLabel, postfix).addTauJetCorrFactors = cms.bool(False)
     
     applyPostfix(process, "patTaus" + patTauLabel, postfix).tauSource = pfTauLabelNew
     applyPostfix(process, "patTaus" + patTauLabel, postfix).tauIDSources = _buildIDSourcePSet(pfTauType, idSources, postfix)
@@ -209,16 +221,45 @@ hpsTancTauIDSources = [
     ("againstMuonLoose", "DiscriminationByLooseMuonRejection"),
     ("againstMuonTight", "DiscriminationByTightMuonRejection") ]
 
+# use tau-jet energy corrections determined for HPS taus for all PFTaus
+from RecoTauTag.TauTagTools.tauDecayModes_cfi import *
+pfTauJECpayloadMapping = cms.VPSet(
+    cms.PSet(
+        payload    = cms.string('AK5tauHPSlooseCombDBcorrOneProng0Pi0'),                                            
+        decayModes = cms.vstring('%i' % tauToOneProng0PiZero)
+    ),
+    cms.PSet(
+        payload    = cms.string('AK5tauHPSlooseCombDBcorrOneProng1Pi0'),                                            
+        decayModes = cms.vstring('%i' % tauToOneProng1PiZero)
+    ),
+    cms.PSet(
+        payload    = cms.string('AK5tauHPSlooseCombDBcorrOneProng2Pi0'),                                            
+        decayModes = cms.vstring('%i' % tauToOneProng2PiZero)
+    ),
+    cms.PSet(
+        payload    = cms.string('AK5tauHPSlooseCombDBcorrThreeProng0Pi0'),                                            
+        decayModes = cms.vstring('%i' % tauToThreeProng0PiZero)
+    ),
+    cms.PSet(
+        payload    = cms.string('AK5tauHPSlooseCombDBcorr'),                                            
+        decayModes = cms.vstring('*')
+    )
+)
+
 # switch to PFTau collection produced for fixed dR = 0.07 signal cone size
 def switchToPFTauFixedCone(process,
                            pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
                            pfTauLabelNew = cms.InputTag('fixedConePFTauProducer'),
                            patTauLabel = "",
+                           jecLevels = [],
                            postfix = ""):
     fixedConeIDSources = copy.copy(classicTauIDSources)
     fixedConeIDSources.extend(classicPFTauIDSources)
 
+    fixedConeJECpayloadMapping = pfTauJECpayloadMapping
+
     _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'fixedConePFTau', fixedConeIDSources,
+                   jecLevels, fixedConeJECpayloadMapping,
                    patTauLabel = patTauLabel, postfix = postfix)
 
 # switch to PFTau collection produced for shrinking signal cone of size dR = 5.0/Et(PFTau)
@@ -226,13 +267,17 @@ def switchToPFTauShrinkingCone(process,
                                pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
                                pfTauLabelNew = cms.InputTag('shrinkingConePFTauProducer'),
                                patTauLabel = "",
+                               jecLevels = [],
                                postfix = ""):
     shrinkingIDSources = copy.copy(classicTauIDSources)
     shrinkingIDSources.extend(classicPFTauIDSources)
     # Only shrinkingCone has associated TaNC discriminators, so add them here
     shrinkingIDSources.extend(tancTauIDSources)
+
+    shrinkingConeJECpayloadMapping = pfTauJECpayloadMapping
     
     _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'shrinkingConePFTau', shrinkingIDSources,
+                   jecLevels, shrinkingConeJECpayloadMapping,
                    patTauLabel = patTauLabel, postfix = postfix)
 
 # switch to hadron-plus-strip(s) (HPS) PFTau collection
@@ -240,8 +285,13 @@ def switchToPFTauHPS(process,
                      pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
                      pfTauLabelNew = cms.InputTag('hpsPFTauProducer'),
                      patTauLabel = "",
+                     jecLevels = [],
                      postfix = ""):
+
+    hpsTauJECpayloadMapping = pfTauJECpayloadMapping
+    
     _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'hpsPFTau', hpsTauIDSources,
+                   jecLevels, hpsTauJECpayloadMapping,
                    patTauLabel = patTauLabel, postfix = postfix)
     
     ## adapt cleanPatTaus
@@ -255,8 +305,13 @@ def switchToPFTauHPSpTaNC(process,
                           pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
                           pfTauLabelNew = cms.InputTag('hpsTancTaus'),
                           patTauLabel = "",
+                          jecLevels = [],
                           postfix = ""):
+
+    hpsTancTauJECpayloadMapping = pfTauJECpayloadMapping
+    
     _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'hpsTancTaus', hpsTancTauIDSources,
+                   jecLevels, hpsTancTauJECpayloadMapping,
                    patTauLabel = patTauLabel, postfix = postfix)
     
     ## adapt cleanPatTaus
@@ -271,6 +326,7 @@ def switchToPFTauByType(process,
                         pfTauLabelNew = None,
                         pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
                         patTauLabel = "",
+                        jecLevels = [],
                         postfix = "" ):
     mapping = { 'shrinkingConePFTau' : switchToPFTauShrinkingCone,
                 'fixedConePFTau' : switchToPFTauFixedCone,
@@ -278,6 +334,7 @@ def switchToPFTauByType(process,
                 'caloRecoTau' : switchToCaloTau,
                 'hpsTancPFTau' : switchToPFTauHPSpTaNC }
     mapping[pfTauType](process, pfTauLabelOld = pfTauLabelOld, pfTauLabelNew = pfTauLabelNew,
+                       jecLevels = jecLevels, 
                        patTauLabel = patTauLabel, postfix = postfix)
 
 # switch to PFTau collection that was default in PAT production in CMSSW_3_1_x release series
@@ -304,6 +361,11 @@ class AddTauCollection(ConfigToolBase):
                           self._defaultValue, "label to indicate the type of constituents (either 'PFTau' or 'Tau')", str)
         self.addParameter(self._defaultParameters, 'doPFIsoDeposits',
                           True, "run sequence for computing particle-flow based IsoDeposits")
+        ##self.addParameter(self._defaultParameters, 'jetCorrLabel',
+        ##                  (pfTauJECpayloadMapping, ['L2Relative', 'L3Absolute']),
+        ##                  "payload and list of new jet correction labels", tuple, acceptNoneValue = True)
+        self.addParameter(self._defaultParameters, 'jetCorrLabel',
+                          None, "payload and list of new jet correction labels", tuple, acceptNoneValue = True)
         self.addParameter(self._defaultParameters, 'standardAlgo',
                           "shrinkingCone", "standard algorithm label of the collection from which the clones " \
                          + "for the new tau collection will be taken from " \
@@ -324,6 +386,7 @@ class AddTauCollection(ConfigToolBase):
                  algoLabel          = None,
                  typeLabel          = None,
                  doPFIsoDeposits    = None,
+                 jetCorrLabel       = None,
                  standardAlgo       = None,
                  standardType       = None):
 
@@ -335,6 +398,8 @@ class AddTauCollection(ConfigToolBase):
             typeLabel = self._defaultParameters['typeLabel'].value
         if doPFIsoDeposits is None:
             doPFIsoDeposits = self._defaultParameters['doPFIsoDeposits'].value
+        if jetCorrLabel is None:
+            jetCorrLabel = self._defaultParameters['jetCorrLabel'].value
         if standardAlgo is None:
             standardAlgo = self._defaultParameters['standardAlgo'].value
         if standardType is None:
@@ -344,6 +409,7 @@ class AddTauCollection(ConfigToolBase):
         self.setParameter('algoLabel', algoLabel)
         self.setParameter('typeLabel', typeLabel)
         self.setParameter('doPFIsoDeposits', doPFIsoDeposits)
+        self.setParameter('jetCorrLabel', jetCorrLabel)
         self.setParameter('standardAlgo', standardAlgo)
         self.setParameter('standardType', standardType)
    
@@ -354,6 +420,7 @@ class AddTauCollection(ConfigToolBase):
         algoLabel = self._parameters['algoLabel'].value
         typeLabel = self._parameters['typeLabel'].value
         doPFIsoDeposits = self._parameters['doPFIsoDeposits'].value
+        jetCorrLabel = self._parameters['jetCorrLabel'].value
         standardAlgo = self._parameters['standardAlgo'].value
         standardType = self._parameters['standardType'].value
 
@@ -435,6 +502,12 @@ class AddTauCollection(ConfigToolBase):
             addPFIsoDepositClone('tauIsoDepositPFNeutralHadrons', src = tauCollection)
             addPFIsoDepositClone('tauIsoDepositPFGammas', src = tauCollection)
 
+        #if jetCorrLabel:
+        #    addClone('patTauJetCorrFactors', src = tauCollection)
+        #    getattr(process,newLabel('patTauJetCorrFactors')).payload = jetCorrLabel[0]
+        #    getattr(process,newLabel('patTauJetCorrFactors')).levels = jetCorrLabel[1]
+        #    getattr(process, newLabel('patTaus')).tauJetCorrFactorsSource = cms.VInputTag(cms.InputTag(newLabel('patTauJetCorrFactors')))
+                
         ## fix label for input tag
         def fixInputTag(x): x.setModuleLabel(newLabel(x.moduleLabel))
 

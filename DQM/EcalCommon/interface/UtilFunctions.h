@@ -5,8 +5,8 @@
   \file UtilFunctions.h
   \brief Ecal Monitor Utility functions
   \author Dongwook Jang
-  \version $Revision: 1.2 $
-  \date $Date: 2010/08/06 12:28:07 $
+  \version $Revision: 1.4 $
+  \date $Date: 2011/08/05 10:34:43 $
 */
 
 #include <cmath>
@@ -20,6 +20,11 @@ class MonitorElement;
 
 namespace ecaldqm {
 
+  enum Directions {
+    kLeft,
+    kRight
+  };
+
   // functions implemented here are not universal in the sense that
   // the input variables are changed due to efficiency of memory usage.
 
@@ -29,13 +34,21 @@ namespace ecaldqm {
   void calcBins(int binWidth, int divisor, long int start_time, long int last_time, long int current_time,
 		long int & binDiff, long int & diff);
 
-  // shift bins in TProfile to the right
+  // shift bins in the given direction
 
-  void shift2Right(TProfile* p, int bins);
+  void shift(TH1 *h, Directions d, int bins);
 
-  // shift bins in TProfile to the left
+  // shift bins in histograms to the right
 
-  void shift2Left(TProfile* p, int bins);
+  void shift2Right(TH1* h, int bins);
+
+  // shift bins in histograms to the left
+
+  void shift2Left(TH1* h, int bins);
+
+  // shift axis of histograms keeping the bin contents
+
+  void shiftAxis(TH1 *h, Directions d, double shift);
 
   // get mean and rms of Y values from TProfile
 

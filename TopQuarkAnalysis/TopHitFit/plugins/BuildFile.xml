@@ -1,7 +1,0 @@
-<use   name="TopQuarkAnalysis/TopHitFit"/>
-<use   name="DataFormats/PatCandidates"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/Framework"/>
-<library   file="*.cc" name="TopQuarkAnalysisTopHitFitPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

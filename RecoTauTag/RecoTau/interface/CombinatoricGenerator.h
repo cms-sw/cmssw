@@ -7,6 +7,7 @@
 #include <vector>
 #include <set>
 #include <memory>
+#include <iostream>
 
 /*
  * CombinatoricGenerator
@@ -19,8 +20,8 @@
  *
  * vector<int> collection = [0, 1, 2, 3, 4, 5];
  *
- * typedef CombinatoricGenerator<std::vector<int> Generator; 
- * 
+ * typedef CombinatoricGenerator<std::vector<int> Generator;
+ *
  * // Select three element combinations of collection
  * Generator generator(collection.begin(), collection.end(), 3);
  *
@@ -47,7 +48,7 @@
 namespace reco { namespace tau {
 
 template <typename T>
-  class Combinatoric 
+  class Combinatoric
   {
     /* Combinatoric<T>
      *
@@ -56,7 +57,7 @@ template <typename T>
      * The values belonging to the current combination subset can be accessed with the iterators
      * combo_begin() and combo_end()
      *
-     * The values in the collection not in the subset can be accessed with 
+     * The values in the collection not in the subset can be accessed with
      * remainder_begin() and remainder_end()
      *
      */
@@ -74,15 +75,15 @@ template <typename T>
       public:
         IndexInSet(const indices_set& combo, bool negate):
           combo_(combo),negate_(negate){}
-        bool operator()(const index_type& index) const { 
-          return (negate_) ? !combo_.count(index) : combo_.count(index); 
-        } 
+        bool operator()(const index_type& index) const {
+          return (negate_) ? !combo_.count(index) : combo_.count(index);
+        }
       private:
         indices_set combo_;
         bool negate_;
     };
 
-    class ValueAccessor : public std::unary_function<index_type const&, const value_type&> 
+    class ValueAccessor : public std::unary_function<index_type const&, const value_type&>
     {
       /* Class to extract a value from a collection given the beginning of the collection
        * and the index into the colleciton */
@@ -98,17 +99,17 @@ template <typename T>
 
     public:
 
-    Combinatoric(const value_iter& begin, const indices_collection& indices, 
+    Combinatoric(const value_iter& begin, const indices_collection& indices,
         indices_collection combo, bool done):
       begin_(begin), combo_(combo.begin(), combo.end()),
-      comboSet_(combo.begin(), combo.end()), 
+      comboSet_(combo.begin(), combo.end()),
       indices_(indices),
       done_(done),
       valueAccessor_(begin), inChoice_(comboSet_, false),
       notInChoice_(comboSet_, true) {}
 
-    typedef typename boost::filter_iterator<IndexInSet, index_iter> ComboIter; 
-    typedef typename boost::transform_iterator<ValueAccessor, ComboIter> ValueIter; 
+    typedef typename boost::filter_iterator<IndexInSet, index_iter> ComboIter;
+    typedef typename boost::transform_iterator<ValueAccessor, ComboIter> ValueIter;
 
     /// The first element in the selected subset
     ValueIter combo_begin() const { return ValueIter(ComboIter(inChoice_, indices_.begin(), indices_.end()), valueAccessor_); }
@@ -134,12 +135,12 @@ template <typename T>
       // max value for index is (nElements-1) - (distance from end)
       // Examples:
       //    189 -> 289 (will be updated to 234)
-      //    179 -> 189 
+      //    179 -> 189
       //    123 -> 124
       size_t distanceFromEnd = 0;
       size_t nElements = indices_.size();
       indices_collection::reverse_iterator pos = newCombo.rbegin();
-      for(; pos != newCombo.rend(); ++pos, ++distanceFromEnd) 
+      for(; pos != newCombo.rend(); ++pos, ++distanceFromEnd)
       {
         // Check if we can update this element to the next value (without overflow)
         // If so, increment it it, then quit
@@ -157,8 +158,6 @@ template <typename T>
       //std::copy(newCombo.begin(), newCombo.end(), std::ostream_iterator<int>(std::cout, " "));
       //std::cout << std::endl;
 
-      // Everything after pos needs to be updated.  i.e. 159 -> 167
-      index_type next_pos_value = (*pos)+1;
       // forward_pos points to the element *after* pos
       indices_collection::iterator forward_pos = pos.base();
       // Only do the updates if we have not reached all the way to the beginning!
@@ -166,6 +165,9 @@ template <typename T>
       // with all values at nElements to flag that we are at the end
       bool done = true;
       if (forward_pos != newCombo.begin()) {
+        // Everything after pos needs to be updated.  i.e. 159 -> 167
+        index_type next_pos_value = (*pos)+1;
+        //std::cout << "next pos: " << next_pos_value << std::endl;
         done = false;
         for (; forward_pos != newCombo.end(); ++forward_pos, ++next_pos_value) {
           *forward_pos = next_pos_value;
@@ -224,8 +226,8 @@ template<typename T>
     }
 
     void increment() {
-      node_ = node_.next(); 
-    } 
+      node_ = node_.next();
+    }
 
     const Combinatoric<T>& dereference() const {
       return node_;
@@ -235,7 +237,7 @@ template<typename T>
 };
 
 template<typename T>
-  class CombinatoricGenerator 
+  class CombinatoricGenerator
   {
     /* CombinatoricGenerator
      *
@@ -268,24 +270,34 @@ template<typename T>
 
       size_t totalElements = end-begin;
 
-      indices_collection allIndices(totalElements);
-      for(size_t i=0; i < totalElements; ++i)
-      {
-        allIndices[i] = i;
+      if (choose <= totalElements) {
+        indices_collection allIndices(totalElements);
+        for(size_t i=0; i < totalElements; ++i)
+        {
+          allIndices[i] = i;
+        }
+
+        for(size_t i=0; i < choose; ++i)
+        {
+          initialCombo[i] = i;
+          // End conditions each is set at nElements
+          finalCombo[i] = totalElements;
+        }
+
+        beginning_ = CombIterPtr(new CombinatoricIterator<T>(Combinatoric<T>(
+                begin, allIndices, initialCombo, false)));
+
+        ending_ = CombIterPtr(new CombinatoricIterator<T>(Combinatoric<T>(
+                begin, allIndices, finalCombo, true)));
+      } else {
+        // We don't have enough in the collection to return [choose] items.
+        // Return an empty collection
+        beginning_ = CombIterPtr(new CombinatoricIterator<T>(Combinatoric<T>(
+                begin, indices_collection(), indices_collection(), true)));
+
+        ending_ = CombIterPtr(new CombinatoricIterator<T>(Combinatoric<T>(
+                begin, indices_collection(), indices_collection(), true)));
       }
-
-      for(size_t i=0; i < choose; ++i)
-      {
-        initialCombo[i] = i;
-        // End conditions each is set at nElements
-        finalCombo[i] = totalElements;
-      }
-
-      beginning_ = CombIterPtr(new CombinatoricIterator<T>(Combinatoric<T>(
-              begin, allIndices, initialCombo, false)));
-
-      ending_ = CombIterPtr(new CombinatoricIterator<T>(Combinatoric<T>(
-              begin, allIndices, finalCombo, true)));
     }
 
     CombinatoricIterator<T> begin() {
@@ -299,7 +311,7 @@ template<typename T>
     private:
     CombIterPtr beginning_;
     CombIterPtr ending_;
-  }; 
+  };
 
 } } // end namespace reco::tau
 #endif

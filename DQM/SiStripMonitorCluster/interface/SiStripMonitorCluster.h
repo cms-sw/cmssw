@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.36 2010/05/06 08:24:36 dutta Exp $
+// $Id: SiStripMonitorCluster.h,v 1.37 2011/05/22 17:40:21 borrell Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -87,6 +87,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   MonitorElement* GlobalApvCycleDBxTH2; 
   MonitorElement* GlobalCStripVsCpix;
   MonitorElement* PixVsStripMultiplicityRegions;
+  MonitorElement* GlobalMainDiagonalPosition;
   MonitorElement* StripNoise2Cycle;
   MonitorElement* StripNoise3Cycle;
 
@@ -148,6 +149,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   
   bool globalswitchstripnoise2apvcycle;
   bool globalswitchstripnoise3apvcycle;
+  bool globalswitchmaindiagonalposition;
 
   bool moduleswitchncluson;
   bool moduleswitchcluschargeon;

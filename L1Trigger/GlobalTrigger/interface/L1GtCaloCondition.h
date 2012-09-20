@@ -64,7 +64,7 @@ public:
 public:
 
     /// the core function to check if the condition matches
-    const bool evaluateCondition() const;
+     const bool evaluateCondition() const;
 
     /// print condition
      void print(std::ostream& myCout) const;
@@ -102,7 +102,7 @@ private:
 
     /// function to check a single object if it matches a condition
     const bool
-    checkObjectParameter(const int iCondition, const L1GctCand& cand) const;
+        checkObjectParameter(const int iCondition, const L1GctCand& cand) const;
 
 private:
 

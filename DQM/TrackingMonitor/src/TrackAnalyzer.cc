@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/12/16 09:31:34 $
- *  $Revision: 1.16 $
+ *  $Date: 2011/07/18 14:32:48 $
+ *  $Revision: 1.17 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -30,10 +30,14 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
     , doGeneralPropertiesPlots_ ( conf_.getParameter<bool>("doGeneralPropertiesPlots") )
     , doMeasurementStatePlots_( conf_.getParameter<bool>("doMeasurementStatePlots") )
     , doHitPropertiesPlots_ ( conf_.getParameter<bool>("doHitPropertiesPlots") )
+    , doRecHitVsPhiVsEtaPerTrack_ ( conf_.getParameter<bool>("doRecHitVsPhiVsEtaPerTrack") )
+    , doGoodTrackRecHitVsPhiVsEtaPerTrack_ ( conf_.getParameter<bool>("doGoodTrackRecHitVsPhiVsEtaPerTrack") )
     , NumberOfRecHitsPerTrack(NULL)
     , NumberOfRecHitsFoundPerTrack(NULL)
     , NumberOfRecHitsLostPerTrack(NULL)
     , NumberOfLayersPerTrack(NULL)
+    , NumberOfRecHitVsPhiVsEtaPerTrack(NULL)
+    , GoodTrackNumberOfRecHitVsPhiVsEtaPerTrack(NULL)
     , Chi2(NULL)
     , Chi2Prob(NULL)
     , Chi2oNDF(NULL)
@@ -212,6 +216,16 @@ void TrackAnalyzer::beginJob(DQMStore * dqmStore_)
       NumberOfLayersPerTrack->setAxisTitle("Number of Tracks", 2);
       
     }
+    if ( doRecHitVsPhiVsEtaPerTrack_ ){
+
+      dqmStore_->setCurrentFolder(MEFolderName+"/HitProperties");
+      
+      histname = "NumberOfRecHitVsPhiVsEtaPerTrack_";
+      NumberOfRecHitVsPhiVsEtaPerTrack = dqmStore_->bookProfile2D(histname+CatagoryName, histname+CatagoryName, 
+									   EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax, 0, 40., "");
+      NumberOfRecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
+      NumberOfRecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #phi ", 2);
+    }
 
 
     // book the General Property histograms
@@ -370,7 +384,18 @@ void TrackAnalyzer::beginJob(DQMStore * dqmStore_)
       GoodTrackNumberOfRecHitsPerTrack->setAxisTitle("Number of Tracks", 2);
       
     }
-    
+
+    if ( doGoodTrackRecHitVsPhiVsEtaPerTrack_ ){
+
+      dqmStore_->setCurrentFolder(MEFolderName+"/HitProperties");
+      
+      histname = "GoodTrackNumberOfRecHitVsPhiVsEtaPerTrack_";
+      GoodTrackNumberOfRecHitVsPhiVsEtaPerTrack = dqmStore_->bookProfile2D(histname+CatagoryName, histname+CatagoryName, 
+									   EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax, 0, 40., "");
+      GoodTrackNumberOfRecHitVsPhiVsEtaPerTrack->setAxisTitle("Good Track #eta ", 1);
+      GoodTrackNumberOfRecHitVsPhiVsEtaPerTrack->setAxisTitle("Good Track #phi ", 2);
+    }
+   
 }
 
 // -- Analyse
@@ -387,6 +412,9 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     // layters
     NumberOfLayersPerTrack->Fill(track.hitPattern().trackerLayersWithMeasurement());
   
+  }
+  if ( doRecHitVsPhiVsEtaPerTrack_ ){
+    NumberOfRecHitVsPhiVsEtaPerTrack->Fill(track.eta(),track.phi(),track.recHitsSize());    
   }
 
   if (doGeneralPropertiesPlots_ || doAllPlots_){
@@ -465,6 +493,12 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	GoodTrackNumberOfRecHitsPerTrack->Fill(track.recHitsSize());
       }
     }
+    if ( doGoodTrackRecHitVsPhiVsEtaPerTrack_  ) {
+      if ( track.quality(reco::TrackBase::highPurity) && track.pt() > 1. ) {
+	GoodTrackNumberOfRecHitVsPhiVsEtaPerTrack->Fill(track.eta(),track.phi(),track.recHitsSize());
+      }
+    }
+
 
 }
 

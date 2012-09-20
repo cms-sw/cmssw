@@ -30,12 +30,6 @@ class MatrixRunner(object):
 
         startDir = os.getcwd()
 
-    	# make sure we have a way to set the environment in the threads ...
-    	if not os.environ.has_key('CMS_PATH'):
-    	    cmsPath = '/afs/cern.ch/cms'
-    	    print "setting default for CMS_PATH to", cmsPath
-    	    os.environ['CMS_PATH'] = cmsPath
-
     	report=''    	
         if self.maxThreads == 0:
             print 'resetting to default number of threads'

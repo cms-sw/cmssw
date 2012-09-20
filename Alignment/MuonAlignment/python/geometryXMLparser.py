@@ -9,7 +9,7 @@
 #     bool survey = false               # important: survey must be false
 #     bool rawIds = false               # important: rawIds must be false
 #     bool eulerAngles = false
-#     int32 precision = 10
+#     int32 precision = 8
 # }
 
 def dtorder(a, b):
@@ -164,7 +164,7 @@ class MuonGeometry(xml.sax.handler.ContentHandler):
                 elif isinstance(c, CSCAlignable): self.csc[c.index()] = c
 
     # writing back to xml
-    def xml(self, stream=None, precision=10):
+    def xml(self, stream=None, precision=8):
       if precision == None: format = "%g"
       else: format = "%." + str(precision) + "f"
 

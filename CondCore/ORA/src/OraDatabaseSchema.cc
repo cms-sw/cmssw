@@ -143,7 +143,7 @@ ora::OraSequenceTable::add( const std::string& sequenceName ){
   coral::AttributeList::iterator iAttribute = insertData.begin();
   iAttribute->data< std::string >() = sequenceName;
   ++iAttribute;
-  iAttribute->data< int >() = 0;
+  iAttribute->data< int >() = -1;
   schema().tableHandle( tableName() ).dataEditor().insertRow( insertData );
   return true;
 }

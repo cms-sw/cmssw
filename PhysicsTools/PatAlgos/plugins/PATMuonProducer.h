@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.26 2010/05/12 12:34:43 rwolf Exp $
+// $Id: PATMuonProducer.h,v 1.27 2010/09/14 15:20:20 kukartse Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::Muon.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.26 2010/05/12 12:34:43 rwolf Exp $
+  \version  $Id: PATMuonProducer.h,v 1.27 2010/09/14 15:20:20 kukartse Exp $
 */
 
 #include <string>
@@ -97,16 +97,12 @@ namespace pat {
     bool embedTcMETMuonCorrs_;
     /// source of tcMET muon corrections
     edm::InputTag tcMETMuonCorrs_;
-    /// add TeV track refits for the muon
-    bool addTeVRefits_;
-    /// input tag for picky muon refit
-    edm::InputTag pickySrc_;
-    /// input tag for tpfms muon refit
-    edm::InputTag tpfmsSrc_;
     /// embed track from picky muon fit into the muon
     bool embedPickyMuon_;
     /// embed track from tpfms muon fit into the muon
     bool embedTpfmsMuon_;
+    /// embed track from DYT muon fit into the muon
+    bool embedDytMuon_;
     /// add generator match information    
     bool addGenMatch_;
     /// input tags for generator match information

@@ -50,7 +50,7 @@
         <PARAM name="MaxRel">5.</PARAM>
         <PARAM name="UseEmptyBins">0</PARAM>
         <PARAM name="MinAbs">0.</PARAM>
-        <PARAM name="MaxAbs">10.</PARAM> 
+        <PARAM name="MaxAbs">15.</PARAM> 
 	<PARAM name="error">0.30</PARAM>
         <PARAM name="warning">0.70</PARAM>
         <PARAM name="StatCut">100</PARAM>
@@ -61,7 +61,7 @@
         <PARAM name="MaxRel">5.</PARAM>
         <PARAM name="UseEmptyBins">0</PARAM>
         <PARAM name="MinAbs">0.</PARAM>
-        <PARAM name="MaxAbs">20.</PARAM>
+        <PARAM name="MaxAbs">25.</PARAM>
         <PARAM name="error">0.30</PARAM>
         <PARAM name="warning">0.70</PARAM>
         <PARAM name="StatCut">200</PARAM>

@@ -19,7 +19,7 @@ ConversionSeedFinder::ConversionSeedFinder(const edm::ParameterSet& config ):
 
   LogDebug("ConversionSeedFinder")  << " CTOR " << "\n";
 
-
+  theMeasurementTrackerName_=config.getParameter<std::string>("MeasurementTrackerName");
 }
 
 

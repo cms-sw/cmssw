@@ -132,8 +132,8 @@ PFPileUp::chargedHadronVertex( const Handle<VertexCollection>& vertices, const P
 
       // one of the tracks in the vertex is the same as 
       // the track considered in the function
-      float w = vtx.trackWeight(baseRef);
       if(baseRef == trackBaseRef ) {
+	float w = vtx.trackWeight(baseRef);
 	//select the vertex for which the track has the highest weight
 	if (w > bestweight){
 	  bestweight=w;

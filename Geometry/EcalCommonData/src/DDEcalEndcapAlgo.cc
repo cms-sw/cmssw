@@ -63,9 +63,7 @@ DDEcalEndcapAlgo::DDEcalEndcapAlgo() :
    m_PF45       ( 0 ) ,
    m_vecEESCLims (),
    m_iLength    ( 0 ) ,
-   m_iXYOff     ( 0 ) ,
-   m_cryZOff    ( 0 ) ,
-   m_zFront     ( 0 )
+   m_iXYOff     ( 0 ) 
 {
    edm::LogInfo("EcalGeom") << "DDEcalEndcapAlgo info: Creating an instance" ;
 }
@@ -133,10 +131,7 @@ void DDEcalEndcapAlgo::initialize(const DDNumericArguments      & nArgs,
 
    m_iXYOff  = nArgs["EEiXYOff" ] ;
 
-   m_cryZOff = nArgs["EECryZOff"] ;
-
-   m_zFront  = nArgs["EEzFront"] ;
-
+   
 //   edm::LogInfo("EcalGeom") << "DDEcalEndcapAlgo info: end initialize" ;
 }
 
@@ -198,8 +193,6 @@ DDEcalEndcapAlgo::execute( DDCompactView& cpv )
    m_cutParms = &eeCutBox.parameters() ;
 //**************************************************************
 
-   const double zFix ( m_zFront - 3172*mm ) ; // fix for changing z offset
-
 //** fill supercrystal front and rear center positions from xml input
    for( unsigned int iC ( 0 ) ; iC != (unsigned int) eenSCquad() ; ++iC )
    {
@@ -211,11 +204,11 @@ DDEcalEndcapAlgo::execute( DDCompactView& cpv )
 
       m_scrFCtr[ ix - 1 ][ iy - 1 ] = DDTranslation( eevecEESCCtrs()[ iOff + 2 ] ,
 						     eevecEESCCtrs()[ iOff + 4 ] ,
-						     eevecEESCCtrs()[ iOff + 6 ]  + zFix ) ;
+						     eevecEESCCtrs()[ iOff + 6 ]  ) ;
 
       m_scrRCtr[ ix - 1 ][ iy - 1 ] = DDTranslation( eevecEESCCtrs()[ iOff + 3 ] ,
 						     eevecEESCCtrs()[ iOff + 5 ] ,
-						     eevecEESCCtrs()[ iOff + 7 ] + zFix ) ;
+						     eevecEESCCtrs()[ iOff + 7 ]  ) ;
    }
 
 //** fill crystal front and rear center positions from xml input
@@ -512,7 +505,7 @@ DDEcalEndcapAlgo::EEPositionCRs( const DDName        pName,
 	       cpv.position( cryName(),
 			     pName,
 			     100*iSCType + 10*( icol - 1 ) + ( irow - 1 ),
-			     crystal.centrePos() - DDTranslation(0,0,m_cryZOff),
+			     crystal.centrePos(),
 			     myrot( rname.fullname(), crystal.rotation() ) ) ;
 	    }
 	 }

@@ -26,7 +26,8 @@ HitExtractorSTRP::HitExtractorSTRP( const DetLayer* detLayer,
     SeedingLayer::Side & side, int idLayer)
   : theLayer(detLayer), theSide(side), theIdLayer(idLayer),
     hasMatchedHits(false), hasRPhiHits(false), hasStereoHits(false),
-    hasRingSelector(false), theMinRing(1), theMaxRing(0), hasSimpleRphiHitsCleaner(true)
+    hasRingSelector(false), theMinRing(1), theMaxRing(0), hasSimpleRphiHitsCleaner(true),
+    lastId_(0)
 { }
 
 void HitExtractorSTRP::useRingSelector(int minRing, int maxRing) 
@@ -45,16 +46,14 @@ bool HitExtractorSTRP::ringRange(int ring) const
 
 bool HitExtractorSTRP::skipThis(const SiStripRecHit2D * hit,
 				edm::Handle<edmNew::DetSetVector<SiStripClusterRef> > & stripClusterRefs) const {
-  static DetId lastId=hit->geographicalId();
-  static edmNew::DetSetVector<SiStripClusterRef>::const_iterator f=stripClusterRefs->find(lastId.rawId());
-  if (hit->geographicalId()!=lastId){
-    lastId=hit->geographicalId();
-    f=stripClusterRefs->find(lastId.rawId());
+  if (hit->geographicalId()!=lastId_){
+    lastId_=hit->geographicalId();
+    f_=stripClusterRefs->find(lastId_.rawId());
   }  
-  if (f==stripClusterRefs->end()) return false;
+  if (f_==stripClusterRefs->end()) return false;
   if (!hit->isValid())  return false;
 
-  bool skipping=(find(f->begin(),f->end(),hit->cluster())!=f->end());
+  bool skipping=(find(f_->begin(),f_->end(),hit->cluster())!=f_->end());
   //if (skipping) LogDebug("HitExtractorSTRP")<<"skipping a hit on :"<<hit->geographicalId().rawId()<<" key: "<<hit->cluster().key();
   return skipping;
 }
@@ -99,27 +98,30 @@ bool HitExtractorSTRP::skipThis(TransientTrackingRecHit::ConstRecHitPointer & pt
 
 
 void HitExtractorSTRP::cleanedOfClusters( const edm::Event& ev, HitExtractor::Hits & hits,
-					  bool matched)const{
+					  bool matched,
+					  unsigned int cleanFrom)const{
   LogDebug("HitExtractorPIX")<<"getting: "<<hits.size()<<" in input.";
   edm::Handle<edmNew::DetSetVector<SiStripClusterRef> > stripClusterRefs;
   ev.getByLabel(theSkipClusters,stripClusterRefs);
+  lastId_=0;
+  f_=stripClusterRefs->end();
   HitExtractor::Hits newHits;
   unsigned int skipped=0;
   unsigned int projected=0;
   newHits.reserve(hits.size());
   TransientTrackingRecHit::ConstRecHitPointer replaceMe;
-  for (unsigned int iH=0;iH!=hits.size();++iH){
+  for (unsigned int iH=cleanFrom;iH<hits.size();++iH){
     replaceMe=hits[iH];
     if (matched && skipThis(hits[iH],stripClusterRefs,replaceMe)){
       LogDebug("HitExtractorSTRP")<<"skipping a matched hit on :"<<hits[iH]->hit()->geographicalId().rawId();
       skipped++;
       continue;
     }
-    if (!matched && skipThis((SiStripRecHit2D*) hits[iH]->hit(),stripClusterRefs)){
-      LogDebug("HitExtractorSTRP")<<"skipping a hit on :"<<hits[iH]->hit()->geographicalId().rawId()<<" key: ";
-      skipped++;
-      continue;
-    }
+    if (!matched && skipThis((const SiStripRecHit2D*) hits[iH]->hit(),stripClusterRefs)){
+	LogDebug("HitExtractorSTRP")<<"skipping a hit on :"<<hits[iH]->hit()->geographicalId().rawId()<<" key: ";
+	skipped++;
+	continue;
+      }
     if (replaceMe!=hits[iH]) projected++;
     newHits.push_back(replaceMe);
   }
@@ -132,6 +134,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
   HitExtractor::Hits result;
   TrackerLayerIdAccessor accessor;
   theSLayer=&sl;
+  unsigned int cleanFrom=0;
   //
   // TIB
   //
@@ -139,27 +142,31 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
     if (hasMatchedHits) {
       edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
       ev.getByLabel( theMatchedHits, matchedHits);
+      if (skipClusters) cleanFrom=result.size();
       range2SeedingHits( *matchedHits, result, accessor.stripTIBLayer(theIdLayer), sl, es); 
-      if (skipClusters) cleanedOfClusters(ev,result,true);
+      if (skipClusters) cleanedOfClusters(ev,result,true,cleanFrom);
     }
     if (hasRPhiHits) {
       edm::Handle<SiStripRecHit2DCollection> rphiHits;
       ev.getByLabel( theRPhiHits, rphiHits);
       if (hasMatchedHits){ 
 	if (!hasSimpleRphiHitsCleaner){ // this is a brutal "cleaning". Add something smarter in the future
+	  if (skipClusters) cleanFrom=result.size();
           range2SeedingHits( *rphiHits, result, accessor.stripTIBLayer(theIdLayer), sl, es); 
-	  if (skipClusters) cleanedOfClusters(ev,result,false);
+	  if (skipClusters) cleanedOfClusters(ev,result,false,cleanFrom);
 	}
       } else {
+	if (skipClusters) cleanFrom=result.size();
         range2SeedingHits( *rphiHits, result, accessor.stripTIBLayer(theIdLayer), sl, es); 
-	if (skipClusters) cleanedOfClusters(ev,result,false);
+	if (skipClusters) cleanedOfClusters(ev,result,false,cleanFrom);
       }
     }
     if (hasStereoHits) {
       edm::Handle<SiStripRecHit2DCollection> stereoHits;
       ev.getByLabel( theStereoHits, stereoHits);
+      if (skipClusters) cleanFrom=result.size();
       range2SeedingHits( *stereoHits, result, accessor.stripTIBLayer(theIdLayer), sl, es); 
-      if (skipClusters) cleanedOfClusters(ev,result,false);
+      if (skipClusters) cleanedOfClusters(ev,result,false,cleanFrom);
     }
   }
   
@@ -170,6 +177,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
       if (hasMatchedHits) {
           edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
           ev.getByLabel( theMatchedHits, matchedHits);
+	  if (skipClusters) cleanFrom=result.size();
           std::pair<DetId,DetIdTIDSameDiskComparator> getter = accessor.stripTIDDisk(theSide,theIdLayer);
           SiStripMatchedRecHit2DCollection::Range range = matchedHits->equal_range(getter.first, getter.second);
           for (SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
@@ -178,11 +186,12 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
 		result.push_back( sl.hitBuilder()->build(hit) ); 
               }
           }
-	  if (skipClusters) cleanedOfClusters(ev,result,true);
+	  if (skipClusters) cleanedOfClusters(ev,result,true,cleanFrom);
       }
       if (hasRPhiHits) {
           edm::Handle<SiStripRecHit2DCollection> rphiHits;
           ev.getByLabel( theRPhiHits, rphiHits);
+	  if (skipClusters) cleanFrom=result.size();
           std::pair<DetId,DetIdTIDSameDiskComparator> getter = accessor.stripTIDDisk(theSide,theIdLayer);
           SiStripRecHit2DCollection::Range range = rphiHits->equal_range(getter.first, getter.second);
           for (SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
@@ -192,11 +201,12 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
                   result.push_back( sl.hitBuilder()->build(hit) );
               }
           }
-	  if (skipClusters) cleanedOfClusters(ev,result,false);
+	  if (skipClusters) cleanedOfClusters(ev,result,false,cleanFrom);
       }
       if (hasStereoHits) {
           edm::Handle<SiStripRecHit2DCollection> stereoHits;
           ev.getByLabel( theStereoHits, stereoHits);
+	  if (skipClusters) cleanFrom=result.size();
           std::pair<DetId,DetIdTIDSameDiskComparator> getter = accessor.stripTIDDisk(theSide,theIdLayer);
           SiStripRecHit2DCollection::Range range = stereoHits->equal_range(getter.first, getter.second);
           for (SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
@@ -205,7 +215,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
                   result.push_back( sl.hitBuilder()->build(hit) );
               }
           }
-	  if (skipClusters) cleanedOfClusters(ev,result,false);
+	  if (skipClusters) cleanedOfClusters(ev,result,false,cleanFrom);
       }
   }
   //
@@ -215,27 +225,31 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
     if (hasMatchedHits) {
       edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
       ev.getByLabel( theMatchedHits, matchedHits);
+      if (skipClusters) cleanFrom=result.size();
       range2SeedingHits( *matchedHits, result, accessor.stripTOBLayer(theIdLayer), sl, es); 
-      if (skipClusters) cleanedOfClusters(ev,result,true);
+      if (skipClusters) cleanedOfClusters(ev,result,true,cleanFrom);
     }
     if (hasRPhiHits) {
       edm::Handle<SiStripRecHit2DCollection> rphiHits;
       ev.getByLabel( theRPhiHits, rphiHits);
       if (hasMatchedHits){ 
 	if (!hasSimpleRphiHitsCleaner){ // this is a brutal "cleaning". Add something smarter in the future
+	  if (skipClusters) cleanFrom=result.size();
           range2SeedingHits( *rphiHits, result, accessor.stripTOBLayer(theIdLayer), sl, es); 
-	  if (skipClusters) cleanedOfClusters(ev,result,false);
+	  if (skipClusters) cleanedOfClusters(ev,result,false,cleanFrom);
 	}
       } else {
+	if (skipClusters) cleanFrom=result.size();
         range2SeedingHits( *rphiHits, result, accessor.stripTOBLayer(theIdLayer), sl, es); 
-	if (skipClusters) cleanedOfClusters(ev,result,false);
+	if (skipClusters) cleanedOfClusters(ev,result,false,cleanFrom);
       }
     }
     if (hasStereoHits) {
       edm::Handle<SiStripRecHit2DCollection> stereoHits;
       ev.getByLabel( theStereoHits, stereoHits);
+      if (skipClusters) cleanFrom=result.size();
       range2SeedingHits( *stereoHits, result, accessor.stripTOBLayer(theIdLayer), sl, es); 
-      if (skipClusters) cleanedOfClusters(ev,result,false);
+      if (skipClusters) cleanedOfClusters(ev,result,false,cleanFrom);
     }
   }
 
@@ -246,6 +260,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
       if (hasMatchedHits) {
           edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
           ev.getByLabel( theMatchedHits, matchedHits);
+	  if (skipClusters) cleanFrom=result.size();
           std::pair<DetId,DetIdTECSameDiskComparator> getter = accessor.stripTECDisk(theSide,theIdLayer);
           SiStripMatchedRecHit2DCollection::Range range = matchedHits->equal_range(getter.first, getter.second);
           for (SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
@@ -254,11 +269,12 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
                   result.push_back(  sl.hitBuilder()->build(hit) );
               }
           }
-	  if (skipClusters) cleanedOfClusters(ev,result,true);
+	  if (skipClusters) cleanedOfClusters(ev,result,true,cleanFrom);
       }
       if (hasRPhiHits) {
           edm::Handle<SiStripRecHit2DCollection> rphiHits;
           ev.getByLabel( theRPhiHits, rphiHits);
+	  if (skipClusters) cleanFrom=result.size();
           std::pair<DetId,DetIdTECSameDiskComparator> getter = accessor.stripTECDisk(theSide,theIdLayer);
           SiStripRecHit2DCollection::Range range = rphiHits->equal_range(getter.first, getter.second);
           for (SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
@@ -268,12 +284,13 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
                   result.push_back( sl.hitBuilder()->build(hit) );
               }
           }
-	  if (skipClusters) cleanedOfClusters(ev,result,false);
+	  if (skipClusters) cleanedOfClusters(ev,result,false,cleanFrom);
 
       }
       if (hasStereoHits) {
           edm::Handle<SiStripRecHit2DCollection> stereoHits;
           ev.getByLabel( theStereoHits, stereoHits);
+	  if (skipClusters) cleanFrom=result.size();
           std::pair<DetId,DetIdTECSameDiskComparator> getter = accessor.stripTECDisk(theSide,theIdLayer);
           SiStripRecHit2DCollection::Range range = stereoHits->equal_range(getter.first, getter.second);
           for (SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
@@ -282,7 +299,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
                   result.push_back( sl.hitBuilder()->build(hit) );
               }
           }
-	  if (skipClusters) cleanedOfClusters(ev,result,false);
+	  if (skipClusters) cleanedOfClusters(ev,result,false,cleanFrom);
       }
   }
   LogDebug("HitExtractorSTRP")<<" giving: "<<result.size()<<" out";

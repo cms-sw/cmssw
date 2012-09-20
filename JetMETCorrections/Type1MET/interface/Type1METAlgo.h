@@ -19,7 +19,7 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
+//include "DataFormats/PatCandidates/interface/Jet.h"
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -38,27 +38,27 @@ class Type1METAlgo
  public:
   Type1METAlgo();
   virtual ~Type1METAlgo();
-  virtual void run(const reco::PFMETCollection&, 
-		   const JetCorrector&,
-		   const reco::PFJetCollection&, const reco::PFCandidateCollection&,
-		   double, double, double, double, double, bool, bool,
-                   const edm::View<reco::Muon>& ,
-                   const edm::ValueMap<reco::MuonMETCorrectionData>& ,
-		   reco::PFMETCollection *, edm::Event& iEvent, const edm::EventSetup& iSetup);
-  virtual void run(const reco::PFMETCollection&, 
-		   const JetCorrector&,
-		   const pat::JetCollection&, 
-		   double, double, double, double, double, bool, bool,
-                   const edm::View<reco::Muon>& ,
-                   const edm::ValueMap<reco::MuonMETCorrectionData>& ,
-		   reco::PFMETCollection *, edm::Event& iEvent, const edm::EventSetup& iSetup);
   virtual void run(const reco::CaloMETCollection&, 
+		   const JetCorrector&,
 		   const JetCorrector&,
 		   const reco::CaloJetCollection&, 
 		   double, double, double, double, double, bool, bool,
                    const edm::View<reco::Muon>& ,
                    const edm::ValueMap<reco::MuonMETCorrectionData>& ,
-		   reco::CaloMETCollection*, edm::Event& iEvent, const edm::EventSetup& iSetup);
+		   reco::CaloMETCollection*, edm::Event& iEvent, const edm::EventSetup& iSetup,
+		   const bool subtractL1Fast);
+  virtual void run(const reco::PFMETCollection&, 
+		   const JetCorrector&,
+		   const JetCorrector&,
+		   const reco::PFJetCollection&, const reco::PFCandidateCollection&,
+		   double, double, double, double, double, bool,
+		   reco::PFMETCollection *, edm::Event& iEvent, const edm::EventSetup& iSetup,
+		   const bool subtractL1Fast);
+//  virtual void run(const reco::PFMETCollection&, 
+//		   const JetCorrector&,
+//		   const pat::JetCollection&, 
+//		   double, double, double, double, double, bool,
+//		   reco::PFMETCollection *, edm::Event& iEvent, const edm::EventSetup& iSetup);
 };
 
 #endif // Type1METAlgo_h

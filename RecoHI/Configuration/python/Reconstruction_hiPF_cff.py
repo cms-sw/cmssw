@@ -3,32 +3,39 @@ import FWCore.ParameterSet.Config as cms
 # include  particle flow local reconstruction
 from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
 
-# avoid clustering in forward regions for dramatic timing improvement 
-particleFlowClusterPS.thresh_Pt_Seed_Endcap = cms.double(99999.)
-particleFlowClusterHFEM.thresh_Pt_Seed_Endcap = cms.double(99999.)
-particleFlowClusterHFHAD.thresh_Pt_Seed_Endcap = cms.double(99999.)
+from RecoParticleFlow.PFTracking.pfTrack_cfi import *
+pfTrack.UseQuality = cms.bool(True)
+pfTrack.TrackQuality = cms.string('highPurity')
+pfTrack.TkColList = cms.VInputTag("hiSelectedTracks")
+pfTrack.PrimaryVertexLabel = cms.InputTag("hiSelectedVertex")
+pfTrack.MuColl = cms.InputTag("muons")
 
-from RecoParticleFlow.PFTracking.pfTrack_cfi import *   
-pfTrack.UseQuality = cms.bool(True)     
-pfTrack.TrackQuality = cms.string('highPurity')   
-pfTrack.TkColList = cms.VInputTag("hiSelectedTracks")  
-pfTrack.GsfTracksInEvents = cms.bool(False)  
-
-# run a trimmed down PF sequence with heavy-ion vertex, no electrons, etc.
+# run a trimmed down PF sequence with heavy-ion vertex, no conversions, nucl int, etc.
 from RecoParticleFlow.Configuration.RecoParticleFlow_cff import *
 particleFlowBlock.useConvBremPFRecTracks = cms.bool(False)
-particleFlowBlock.usePFatHLT = cms.bool(True)
 particleFlowBlock.useIterTracking = cms.bool(False)
-particleFlowBlock.useNuclear = cms.bool(False)   
-particleFlow.vertexCollection = cms.InputTag("hiSelectedVertex")
-particleFlow.usePFElectrons = cms.bool(False)
-particleFlowReco.remove(particleFlowTrackWithDisplacedVertex)
-particleFlowReco.remove(pfElectronTranslatorSequence)
+particleFlowBlock.useNuclear = cms.bool(False)
+particleFlowBlock.useConversions = cms.bool(False)
 
-# define new high-level RECO sequence
-from RecoJets.Configuration.RecoPFJets_cff import *
-HiParticleFlowReco = cms.Sequence(particleFlowCluster
-                                  * pfTrack
-                                  * particleFlowReco
-                                  * recoPFJets)
+particleFlowTmp.vertexCollection = cms.InputTag("hiSelectedVertex")
+particleFlowTmp.usePFElectrons = cms.bool(True)
+particleFlowTmp.muons = cms.InputTag("muons")
+particleFlowTmp.usePFConversions = cms.bool(False)
 
+from RecoParticleFlow.PFTracking.pfTrackElec_cfi import *
+pfTrackElec.applyGsfTrackCleaning = cms.bool(True)
+pfTrackElec.PrimaryVertexLabel = cms.InputTag("hiSelectedVertex")
+
+electronsCiCLoose.verticesCollection = cms.InputTag("hiSelectedVertex")
+
+# local reco must run before electrons (RecoHI/HiEgammaAlgos), due to PF integration
+HiParticleFlowLocalReco = cms.Sequence(particleFlowCluster
+                                       * pfTrack
+                                       * pfTrackElec
+                                       )
+
+#PF Reco runs after electrons
+HiParticleFlowReco = cms.Sequence(pfGsfElectronCiCSelectionSequence
+                                  * particleFlowBlock
+                                  * particleFlowTmp
+                                  )

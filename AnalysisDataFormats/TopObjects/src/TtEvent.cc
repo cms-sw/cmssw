@@ -26,7 +26,6 @@ TtEvent::hypoClassKeyFromString(const std::string& label) const
       { "kKinFit",            kKinFit           },
       { "kKinSolution",       kKinSolution      },
       { "kWMassDeltaTopMass", kWMassDeltaTopMass},
-      { "kHitFit",            kHitFit           },
       { 0, (HypoClassKey)-1 }
    };
 

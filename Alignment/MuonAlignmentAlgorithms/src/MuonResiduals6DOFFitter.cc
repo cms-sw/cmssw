@@ -300,8 +300,8 @@ double MuonResiduals6DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
   TH1F *hist_dydz_raw = dir->make<TH1F>(name_dydz_raw.str().c_str(), "", 100, min_dydz, max_dydz);
   TH1F *hist_x_cut = dir->make<TH1F>(name_x_cut.str().c_str(), "", 100, min_x, max_x);
   TH1F *hist_y_cut = dir->make<TH1F>(name_y_cut.str().c_str(), "", 100, min_y, max_y);
-  TH2F *hist_alphax = dir->make<TH2F>(name_alphax.str().c_str(), "", 50, min_dxdz, max_dxdz, 50, -50., 50.);
-  TH2F *hist_alphay = dir->make<TH2F>(name_alphay.str().c_str(), "", 50, min_dydz, max_dydz, 50, -100., 100.);
+  TH2F *hist_alphax = dir->make<TH2F>(name_alphax.str().c_str(), "", 40, min_dxdz, max_dxdz, 40, -20., 20.);
+  TH2F *hist_alphay = dir->make<TH2F>(name_alphay.str().c_str(), "", 40, min_dydz, max_dydz, 40, -100., 100.);
   TProfile *hist_x_trackx = dir->make<TProfile>(name_x_trackx.str().c_str(), "", 100, min_trackx, max_trackx, min_x, max_x);
   TProfile *hist_y_trackx = dir->make<TProfile>(name_y_trackx.str().c_str(), "", 100, min_trackx, max_trackx, min_y, max_y);
   TProfile *hist_dxdz_trackx = dir->make<TProfile>(name_dxdz_trackx.str().c_str(), "", 100, min_trackx, max_trackx, min_dxdz, max_dxdz);

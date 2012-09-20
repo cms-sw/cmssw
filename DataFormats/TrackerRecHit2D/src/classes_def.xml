@@ -4,12 +4,10 @@
      <field name="err_" transient="true" />	 
    </class>	 
   <class name="GSSiTrackerRecHit2DLocalPos"/>
- 
-  <class name="OmniClusterRef" ClassVersion="10"/>
-  <class name="SiStripRecHit2D" ClassVersion="11">
+  <class name="SiStripRecHit2D" >
     <field name="sigmaPitch_" transient="true" />
   </class>
-  <class name="SiStripRecHit1D" ClassVersion="11">
+  <class name="SiStripRecHit1D" >
     <field name="sigmaPitch_" transient="true" />
     <field name="pos_" transient="true" />
     <field name="err_" transient="true" />

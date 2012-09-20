@@ -10,10 +10,10 @@ import string
 
 
 ### Reference release
-RefRelease='CMSSW_3_11_1_patch3'
+RefRelease='CMSSW_4_2_0_pre1'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_3_11_1_patch3'
+NewRelease='CMSSW_4_2_0_pre1'
 
 ### startup and ideal sample list
 
@@ -27,7 +27,7 @@ startupsamples= [
 #startupsamples= []
 
 ### This is the list of startup relvals (with PileUP)
-startupsamples= ['RelValTTbar_Tauola']
+# startupsamples= ['RelValTTbar_Tauola']
 
 
 ### This is the list of IDEAL-conditions relvals 
@@ -47,7 +47,7 @@ idealsamples= [
 ]
 
 ### the list can be empty if you want to skip the validation for all the samples
-idealsamples= []
+#idealsamples= []
 
 ### This is the list of IDEAL-conditions relvals (with PileUP
 # idealsamples= ['RelValZmumuJets_Pt_20_300_GEN']
@@ -66,21 +66,19 @@ StartupTag='START311_V1'
 RefIdealTag='MC_311_V1'
 RefStartupTag='START311_V1'
 ### PileUp: "PU" . No PileUp: "noPU"
-#PileUp='noPU'
-PileUp='PU'
+PileUp='noPU'
+#PileUp='PU'
 
 
 
 ### Track algorithm name and quality. Can be a list.
-Algos= ['ootb']
-#Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5','iter6']
-Qualities=['']
-#Qualities=['', 'highPurity']
+#Algos= ['ootb']
+Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5']
+#Qualities=['']
+Qualities=['', 'highPurity']
 
 ### Leave unchanged unless the track collection name changes
-#cuts='normalizedChi2 < 20 && hitPattern.pixelLayersWithMeasurement > 1'
-#cuts='normalizedChi2 < 20 && hitPattern.pixelLayersWithMeasurement > 1 && hitPattern.stripLayersWithMeasurement > 4'
-cuts=''
+Tracksname=''
 
 # Sequence. Possible values:
 #   -only_validation
@@ -94,9 +92,9 @@ cuts=''
 #   -comparison_only
 
 
-#Sequence='comparison_only'
+Sequence='comparison_only'
 #Sequence='harvesting'
-Sequence='only_validation'
+#Sequence='only_validation'
 
 
 
@@ -123,7 +121,7 @@ castorHarvestedFilesDirectory='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal
 
 
 ### Default Nevents
-defaultNevents ='1000'
+defaultNevents ='-1'
 
 ### Put here the number of event to be processed for specific samples (numbers must be strings) 
 ### if not specified is defaultNevents:
@@ -171,8 +169,8 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
     global Sequence, Version, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events, castorHarvestedFilesDirectory
     global cfg, macro, Tracksname
     print 'Tag: ' + GlobalTag
-    tracks_map = { 'ootb':'general_AssociatorByHitsRecoDenom','iter0':'cutsRecoZero_AssociatorByHitsRecoDenom','iter1':'cutsRecoFirst_AssociatorByHitsRecoDenom','iter2':'cutsRecoSecond_AssociatorByHitsRecoDenom','iter3':'cutsRecoThird_AssociatorByHitsRecoDenom','iter4':'cutsRecoFourth_AssociatorByHitsRecoDenom','iter5':'cutsRecoFifth_AssociatorByHitsRecoDenom','iter6':'cutsRecoSixth_AssociatorByHitsRecoDenom'}
-    tracks_map_hp = { 'ootb':'cutsRecoHp_AssociatorByHitsRecoDenom','iter0':'cutsRecoZeroHp_AssociatorByHitsRecoDenom','iter1':'cutsRecoFirstHp_AssociatorByHitsRecoDenom','iter2':'cutsRecoSecondHp_AssociatorByHitsRecoDenom','iter3':'cutsRecoThirdHp_AssociatorByHitsRecoDenom','iter4':'cutsRecoFourthHp_AssociatorByHitsRecoDenom','iter5':'cutsRecoFifthHp_AssociatorByHitsRecoDenom','iter6':'cutsRecoSixthHp_AssociatorByHitsRecoDenom'}
+    tracks_map = { 'ootb':'general_AssociatorByHitsRecoDenom','iter0':'cutsRecoZero_AssociatorByHitsRecoDenom','iter1':'cutsRecoFirst_AssociatorByHitsRecoDenom','iter2':'cutsRecoSecond_AssociatorByHitsRecoDenom','iter3':'cutsRecoThird_AssociatorByHitsRecoDenom','iter4':'cutsRecoFourth_AssociatorByHitsRecoDenom','iter5':'cutsRecoFifth_AssociatorByHitsRecoDenom'}
+    tracks_map_hp = { 'ootb':'cutsRecoHp_AssociatorByHitsRecoDenom','iter0':'cutsRecoZeroHp_AssociatorByHitsRecoDenom','iter1':'cutsRecoFirstHp_AssociatorByHitsRecoDenom','iter2':'cutsRecoSecondHp_AssociatorByHitsRecoDenom','iter3':'cutsRecoThirdHp_AssociatorByHitsRecoDenom','iter4':'cutsRecoFourthHp_AssociatorByHitsRecoDenom','iter5':'cutsRecoFifthHp_AssociatorByHitsRecoDenom'}
     if(trackalgorithm=='iter0' or trackalgorithm=='ootb'):
         mineff='0.5'
         maxeff='1.025'
@@ -187,33 +185,20 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
         maxfake='0.8'
     #build the New Selection name
     NewSelection=GlobalTag + '_' + PileUp
-    #if( trackquality !=''):
-    #    NewSelection+='_'+trackquality
-    #if(trackalgorithm!=''and not(trackalgorithm=='ootb' and trackquality !='')):
-    #    NewSelection+='_'+trackalgorithm
-    #if(trackquality =='') and (trackalgorithm==''):
-    #    if(Tracksname==''):
-    #        NewSelection+='_ootb'
-    #        Tracks='generalTracks'
-    #    else:
-    #       NewSelection+= Tracks
-    #if(Tracksname==''):
-    #    Tracks='cutsRecoTracks'
-    #else:
-    #    Tracks=Tracksname
-
-
     if( trackquality !=''):
         NewSelection+='_'+trackquality
-    if(trackalgorithm != 'ootb'):
+    if(trackalgorithm!=''and not(trackalgorithm=='ootb' and trackquality !='')):
         NewSelection+='_'+trackalgorithm
-    if(trackalgorithm == 'ootb' and trackquality == ''):
-        NewSelection+='_'+trackalgorithm
-    Tracks='selectedTracks'
-    if (not(trackalgorithm == 'ootb' and trackquality =='')):
-        Tracks = 'cutsRecoTracks'
-
-
+    if(trackquality =='') and (trackalgorithm==''):
+        if(Tracksname==''):
+            NewSelection+='_ootb'
+            Tracks='generalTracks'
+        else:
+           NewSelection+= Tracks
+    if(Tracksname==''):
+        Tracks='cutsRecoTracks'
+    else:
+        Tracks=Tracksname
     NewSelection+=NewSelectionLabel
     listofdatasets = open('listofdataset.txt' , 'w' )
     #loop on all the requested samples
@@ -315,15 +300,14 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                         thealgo='\''+thealgo+'\''
                     if(trackquality!=''):
                         thequality='\''+trackquality+'\''
-                    symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTag, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':thealgo, 'QUALITY':thequality, 'TRACKS':Tracks, 'CUTS':cuts}
+                    symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTag, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':thealgo, 'QUALITY':thequality, 'TRACKS':Tracks}
 
 
                     cfgFile = open(cfgFileName+'.py' , 'a' )
                     replace(symbol_map, templatecfgFile, cfgFile)
                     if(( (Sequence=="harvesting" or Sequence=="preproduction" or Sequence=="comparison_only") and os.path.isfile(harvestedfile) )==False):
                         # if the file is already harvested do not run the job again
-                        #cmdrun='cmsRun ' +cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
-                        cmdrun='cmsRun ' +cfgFileName+ '.py'
+                        cmdrun='cmsRun ' +cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
                         retcode=os.system(cmdrun)
                     else:
                         retcode=0

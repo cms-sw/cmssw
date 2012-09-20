@@ -2,6 +2,7 @@
 #define Alignment_TwoBodyDecay_TwoBodyDecay_h
 
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayParameters.h"
+#include "Alignment/TwoBodyDecay/interface/TwoBodyDecayVirtualMeasurement.h"
 
 /** /class TwoBodyDecay
  *
@@ -22,8 +23,10 @@ public:
   TwoBodyDecay( void ) :
     theDecayParameters(), theChi2( 0. ), theValidityFlag( false ) {}
 
-  TwoBodyDecay( TwoBodyDecayParameters param, double chi2, bool valid ) :
-    theDecayParameters( param ), theChi2( chi2 ), theValidityFlag( valid ) {}
+  TwoBodyDecay( const TwoBodyDecayParameters &param, double chi2, bool valid, 
+		const TwoBodyDecayVirtualMeasurement &vm ) :
+    theDecayParameters( param ), theChi2( chi2 ), theValidityFlag( valid ),
+    thePrimaryMass( vm.primaryMass() ), thePrimaryWidth( vm.primaryWidth() ) {}
 
   ~TwoBodyDecay( void ) {}
 
@@ -45,11 +48,16 @@ public:
   inline const bool isValid( void ) const { return theValidityFlag; }
   inline void setInvalid( void ) { theValidityFlag = false; }
 
+  inline const double primaryMass( void ) const { return thePrimaryMass; }
+  inline const double primaryWidth( void ) const { return thePrimaryWidth; }
+
  private:
 
   TwoBodyDecayParameters theDecayParameters;
   double theChi2;
   bool theValidityFlag;
+  double thePrimaryMass;
+  double thePrimaryWidth;
 
 };
 

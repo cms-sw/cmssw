@@ -7,4 +7,3 @@
 <use   name="CondCore/IOVService"/>
 <use   name="CondCore/MetaDataService"/>
 <bin file="HcalShapeIntegrator.cpp"/>
-<bin file="HcalPulseContainmentTest.cpp"/>

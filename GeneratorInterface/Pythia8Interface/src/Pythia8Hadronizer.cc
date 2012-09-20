@@ -470,16 +470,6 @@ void Pythia8Hadronizer::finalizeEvent()
   event()->set_signal_process_id(pythia->info.code());
   event()->set_event_scale(pythia->info.pTHat());	//FIXME
 
-  if (event()->alphaQED() <= 0)
-    event()->set_alphaQED( pythia->info.alphaEM() );
-  if (event()->alphaQCD() <= 0)
-    event()->set_alphaQCD( pythia->info.alphaS() );
-
-  HepMC::GenCrossSection xsec;
-  xsec.set_cross_section( pythia->info.sigmaGen() * 1e9,
-                          pythia->info.sigmaErr() * 1e9);
-  event()->set_cross_section(xsec);
-
   // Putting pdf info into the HepMC record
   // There is the overloaded pythia8 HepMCInterface method fill_next_event
   // that does this, but CMSSW GeneratorInterface does not fill HepMC
@@ -493,8 +483,7 @@ void Pythia8Hadronizer::finalizeEvent()
   if (id2 == 21) id2 = 0;
   double x1 = pythia->info.x1();
   double x2 = pythia->info.x2();
-  //double Q = pythia->info.QRen();
-  double Q = pythia->info.QFac();
+  double Q = pythia->info.QRen();
   double pdf1 = pythia->info.pdf1() / pythia->info.x1();
   double pdf2 = pythia->info.pdf2() / pythia->info.x2();
   event()->set_pdf_info(HepMC::PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2));

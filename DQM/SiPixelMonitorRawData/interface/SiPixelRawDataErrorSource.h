@@ -37,6 +37,7 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 
 
 #include "FWCore/Framework/interface/EDProducer.h"

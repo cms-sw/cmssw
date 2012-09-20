@@ -220,6 +220,13 @@ SiStripCalZeroBiasMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         globalswitchon = cms.bool(False)
         ),                                 
 
+    TH1MainDiagonalPosition= cms.PSet(
+        Nbinsx          = cms.int32(100),
+        xmin           = cms.double(0.),
+        xmax           = cms.double(2.),
+        globalswitchon = cms.bool(False)
+        ),                            
+
     TH1StripNoise2ApvCycle = cms.PSet(
         Nbinsx = cms.int32(70),
         xmin   = cms.double(-0.5),

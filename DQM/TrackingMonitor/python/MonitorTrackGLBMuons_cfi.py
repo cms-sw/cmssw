@@ -9,3 +9,7 @@ MonitorTrackGLBMuons.doBeamSpotPlots = False
 MonitorTrackGLBMuons.BSFolderName = 'Muons/globalCosmicMuons/BeamSpotParameters'
 MonitorTrackGLBMuons.doSeedParameterHistos = False
 MonitorTrackGLBMuons.doProfilesVsLS = False
+MonitorTrackGLBMuons.doAllPlots = False
+MonitorTrackGLBMuons.doGeneralPropertiesPlots = True
+MonitorTrackGLBMuons.doHitPropertiesPlots = True
+MonitorTrackGLBMuons.doTrackerSpecific = True

@@ -13,7 +13,7 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Fri Nov 17 10:52:42 CET 2006
-// $Id: SiStripFineDelayHit.cc,v 1.15 2011/04/11 14:22:01 lowette Exp $
+// $Id: SiStripFineDelayHit.cc,v 1.14 2010/02/20 20:59:02 wmtan Exp $
 //
 //
 
@@ -34,6 +34,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"

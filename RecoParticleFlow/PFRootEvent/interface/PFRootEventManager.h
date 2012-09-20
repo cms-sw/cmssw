@@ -788,6 +788,9 @@ class PFRootEventManager {
   /// comparison with pf CMSSW
   bool   doCompare_;
 
+  /// ECAL-track link optimization
+  bool useKDTreeTrackEcalLinker_;
+
   /// jets on/off
   bool   doJets_;
 

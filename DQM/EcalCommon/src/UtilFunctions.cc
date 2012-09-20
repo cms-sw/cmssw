@@ -3,7 +3,7 @@
   \brief Ecal Monitor Utility functions
   \author Dongwook Jang
   \version $Revision: 1.2 $
-  \date $Date: 2010/08/06 12:28:07 $
+  \date $Date: 2011/08/05 10:34:43 $
 */
 
 #include "DQM/EcalCommon/interface/UtilFunctions.h"
@@ -12,7 +12,9 @@
 
 #include "TH1F.h"
 #include "TProfile.h"
+#include "TH2.h"
 #include "TClass.h"
+#include "TAxis.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 
@@ -53,69 +55,121 @@ namespace ecaldqm {
 
   } // calcBins
 
+  void shift(TH1 *h, Directions d, int bins)
+  {
+    if(!bins || !h) return;
+    if(h->GetXaxis()->IsVariableBinSize()) return;
 
-
-  // shift bins in TProfile to the right
-
-  void shift2Right(TProfile* p, int bins){
-
-    // bins : how many bins need to be shifted
-
-    if(bins <= 0) return;
-
-    if(!p->GetSumw2()) p->Sumw2();
-    int nBins = p->GetXaxis()->GetNbins();
-
-    // by shifting n bin to the right, the number of entries are
-    // reduced by the number in n bins including the overflow bin.
-    double nentries = p->GetEntries();
-    for(int i=0; i<bins; i++) nentries -= p->GetBinEntries(i);
-    p->SetEntries(nentries);
-  
-    // the last bin goes to overflow
-    // each bin moves to the right
-
-    TArrayD* sumw2 = p->GetSumw2();
-
-    for(int i=nBins+1; i>bins; i--) {
-      // GetBinContent return binContent/binEntries
-      p->SetBinContent(i, p->GetBinContent(i-bins)*p->GetBinEntries(i-bins));
-      p->SetBinEntries(i,p->GetBinEntries(i-bins));
-      sumw2->SetAt(sumw2->GetAt(i-bins),i);
+    if(bins < 0){
+      bins = -bins;
+      d = d==kRight ? kLeft : kRight;
     }
-    
-  }
 
+    if(!h->GetSumw2()) h->Sumw2();
+    int nBins = h->GetXaxis()->GetNbins();
+    if(bins >= nBins){
+      h->Reset();
+      return;
+    }
 
-  // shift bins in TProfile to the left
-
-  void shift2Left(TProfile* p, int bins){
-
-    if(bins <= 0) return;
-
-    if(!p->GetSumw2()) p->Sumw2();
-    int nBins = p->GetXaxis()->GetNbins();
-
-    // by shifting n bin to the left, the number of entries are
-    // reduced by the number in n bins including the underflow bin.
-    double nentries = p->GetEntries();
-    for(int i=0; i<bins; i++) nentries -= p->GetBinEntries(i);
-    p->SetEntries(nentries);
-  
     // the first bin goes to underflow
     // each bin moves to the right
 
-    TArrayD* sumw2 = p->GetSumw2();
-
-    for(int i=0; i<=nBins+1-bins; i++) {
-      // GetBinContent return binContent/binEntries
-      p->SetBinContent(i, p->GetBinContent(i+bins)*p->GetBinEntries(i+bins));
-      p->SetBinEntries(i,p->GetBinEntries(i+bins));
-      sumw2->SetAt(sumw2->GetAt(i+bins),i);
+    int firstBin, bound, increment;
+    switch(d){
+    case kRight:
+      firstBin = nBins + 1;
+      bound = bins;
+      increment = -1;
+      break;
+    case kLeft:
+      firstBin = 0;
+      bound = nBins - bins + 1;
+      increment = 1;
+      break;
+    default:
+      return;
     }
+
+    int shift = increment * bins;
+
+    if( h->IsA() == TClass::GetClass("TProfile") ){
+
+      TProfile *p = static_cast<TProfile *>(h);
+
+      // by shifting n bin to the left, the number of entries are
+      // reduced by the number in n bins including the underflow bin.
+      double nentries = p->GetEntries();
+      for(int i = firstBin; i != firstBin + shift; i += increment) nentries -= p->GetBinEntries(i);
+      p->SetEntries(nentries);
+
+      TArrayD* sumw2 = p->GetSumw2();
+
+      for(int i = firstBin; i != bound; i += increment){
+	// GetBinContent returns binContent/binEntries
+	p->SetBinContent( i, p->GetBinContent( i+shift ) * p->GetBinEntries( i+shift ) );
+	p->SetBinEntries( i, p->GetBinEntries( i+shift ) );
+	sumw2->SetAt( sumw2->GetAt( i+shift ), i );
+      }
+
+    }else if( h->InheritsFrom("TH2") ){
+
+      TH2 *h2 = static_cast<TH2 *>(h);
+      int nBinsY = h2->GetYaxis()->GetNbins();
+
+      // assumes sum(binContent) == entries
+      double nentries = h2->GetEntries();
+      for(int i = firstBin; i != firstBin + shift; i += increment)
+	for(int j=0 ; j<=nBinsY+1 ; j++) nentries -= h2->GetBinContent(i,j);
+
+      h2->SetEntries(nentries);
+
+      for(int i = firstBin; i != bound; i += increment)
+	for(int j=0 ; j<=nBinsY+1 ; j++)
+	  h2->SetBinContent( i, j, h2->GetBinContent(i+shift, j) );
+
+    }else if( h->InheritsFrom("TH1") ){ // any other histogram class
+
+      // assumes sum(binContent) == entries
+      double nentries = h->GetEntries();
+      for(int i = firstBin; i != firstBin + shift; i += increment) nentries -= h->GetBinContent(i);
+
+      h->SetEntries(nentries);
+
+      for(int i = firstBin; i != bound; i += increment)
+	h->SetBinContent( i, h->GetBinContent(i+shift) );
+    }
+
 
   }
 
+  void shift2Right(TH1* h, int bins)
+  {
+    shift(h, kRight, bins);
+  }
+
+  void shift2Left(TH1* h, int bins)
+  {
+    shift(h, kLeft, bins);
+  }
+
+  // shift axis of histograms keeping the bin contents
+
+  void shiftAxis(TH1 *h, Directions d, double shift)
+  {
+    if( !h ) return;
+    TAxis *xax = h->GetXaxis();
+    if( h->GetXaxis()->IsVariableBinSize() ) return;
+
+    double xmax = xax->GetXmax();
+    double xmin = xax->GetXmin();
+    int nbins = xax->GetNbins();
+
+    if(d == kRight)
+      xax->Set(nbins, xmin - shift, xmax - shift);
+    else if(d == kLeft)
+      xax->Set(nbins, xmin + shift, xmax + shift);
+  }
 
   // get mean and rms of Y values from TProfile
 

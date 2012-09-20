@@ -4,15 +4,14 @@
    <field name="m_wrapper" persistency="loose_on_writing" />
    <field name="m_oid" persistency="loose_on_reading" />
  </class>
- <class name="cond::UpdateStamp">
-   <field name="m_scope" persistency="loose_on_reading" />
- </class>
+ <class name="cond::UpdateStamp"/>
  <class name="ora::QueryableVector<cond::IOVElement>"/>
  <class name="ora::PVector<cond::IOVElement>"/>
  <class name="std::vector<cond::IOVElement>"/>
  <class name="cond::IOVSequence" id="3F16F0A9-79D5-4881-CE0B-C301DD84A7F1" class_version="0">
   <field name="m_payloadClasses" persistency="loose_on_reading" />
   <field name="m_sorted" transient="true" />
+  <field name="m_scope" persistency="loose_on_reading" />
  </class>
 
 

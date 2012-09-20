@@ -8,7 +8,8 @@ HLT_L1SingleMu10_v*
 HLT_L1SingleEG5_v*
 HLT_L1SingleEG12_v*
 HLT_BeamGas_HF_v*
-HLT_BeamGas_BSC_v*
+HLT_BeamGas_HF_Beam1_v*
+HLT_BeamGas_HF_Beam2_v*
 HLT_BeamHalo_v*
 HLT_L1_PreCollisions_v*
 HLT_L1_Interbunch_BSC_v*
@@ -21,7 +22,7 @@ HLT_L1Tech_CASTOR_HaloMuon_v*
 HLT_L1Tech_DT_GlobalOR_v*
 HLT_ZeroBias_v*
 HLT_Physics_v*
-HLT_Physics_NanoDST_v*
+DST_Physics_v*
 HLT_DTCalibration_v*
 HLT_EcalCalibration_v*
 HLT_HcalCalibration_v*
@@ -41,7 +42,7 @@ AlCa_RPCMuonNoHits_v*
 AlCa_RPCMuonNormalisation_v*
 DQM_FEDIntegrity_v*
 HLTriggerFinalPath
-AOutput
+AForPPOutput
 ALCAP0Output
 ALCAPHISYMOutput
 CalibrationOutput

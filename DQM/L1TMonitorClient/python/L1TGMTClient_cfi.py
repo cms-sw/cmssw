@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tGmtClient = cms.EDAnalyzer("L1TGMTClient",
+l1tgmtClient = cms.EDAnalyzer("L1TGMTClient",
     input_dir = cms.untracked.string('L1T/L1TGMT'),
     prescaleLS = cms.untracked.int32(-1),
     monitorName = cms.untracked.string('L1T/L1TGMT'),

@@ -19,7 +19,7 @@ class TrackerValidationVariables
  
   struct AVHitStruct
   {
-  AVHitStruct() : resX(-999.), resY(-999.), resErrX(-999.), resErrY(-999.), resXprime(-999.), resXatTrkY(-999.), resXprimeErr(-999.),  
+  AVHitStruct() : resX(-999.), resY(-999.), resErrX(-999.), resErrY(-999.), resXprime(-999.), resXprimeErr(-999.), 
       resYprime(-999.), resYprimeErr(-999.), phi(-999.), eta(-999.),
      inside(false), localX(-999.), localY(-999.), localXnorm(-999.), localYnorm(-999.), localAlpha(-999.), localBeta(-999.),
       rawDetId(0) {}
@@ -28,7 +28,6 @@ class TrackerValidationVariables
     float resErrX;
     float resErrY;
     float resXprime;
-    float resXatTrkY;
     float resXprimeErr;
     float resYprime;
     float resYprimeErr;

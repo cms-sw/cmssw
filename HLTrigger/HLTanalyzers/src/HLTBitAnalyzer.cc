@@ -6,6 +6,8 @@
 
 #include "HLTrigger/HLTanalyzers/interface/HLTBitAnalyzer.h"
 #include "HLTMessages.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 typedef std::pair<const char *, const edm::InputTag *> MissingCollectionInfo;
   
@@ -49,7 +51,9 @@ HLTBitAnalyzer::HLTBitAnalyzer(edm::ParameterSet const& conf) {
 
   gctBitCounts_        = edm::InputTag( conf.getParameter<edm::InputTag>("l1GctHFBitCounts").label(), "" );
   gctRingSums_         = edm::InputTag( conf.getParameter<edm::InputTag>("l1GctHFRingSums").label(), "" );
-  
+
+	_UseTFileService = conf.getUntrackedParameter<bool>("UseTFileService",false);
+	
   m_file = 0;   // set to null
   errCnt = 0;
 
@@ -57,13 +61,16 @@ HLTBitAnalyzer::HLTBitAnalyzer(edm::ParameterSet const& conf) {
   edm::ParameterSet runParameters = conf.getParameter<edm::ParameterSet>("RunParameters");
   _HistName = runParameters.getUntrackedParameter<std::string>("HistogramFile", "test.root");
 
-  // open the tree file
-  m_file = new TFile(_HistName.c_str(), "RECREATE");
-  if (m_file)
-    m_file->cd();
-
-  // Initialize the tree
-  HltTree = new TTree("HltTree", "");
+  // open the tree file and initialize the tree
+  if(_UseTFileService){
+    edm::Service<TFileService> fs;
+    HltTree = fs->make<TTree>("HltTree", "");
+  }else{
+    m_file = new TFile(_HistName.c_str(), "RECREATE");
+    if (m_file)
+      m_file->cd();
+    HltTree = new TTree("HltTree", "");
+  }
 
   // Setup the different analysis
   hlt_analysis_.setup(conf, HltTree);
@@ -143,18 +150,19 @@ void HLTBitAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iS
 
 // "endJob" is an inherited method that you may implement to do post-EOF processing and produce final output.
 void HLTBitAnalyzer::endJob() {
-
-  if (m_file)
-    m_file->cd();
-  
-  HltTree->Write();
-  delete HltTree;
-  HltTree = 0;
-
-  if (m_file) {         // if there was a tree file...
-    m_file->Write();    // write out the branches
-    delete m_file;      // close and delete the file
-    m_file = 0;         // set to zero to clean up
-  }
-
+	
+	if(!_UseTFileService){
+		if (m_file)
+			m_file->cd();
+		
+		HltTree->Write();
+		delete HltTree;
+		HltTree = 0;
+		
+		if (m_file) {         // if there was a tree file...
+			m_file->Write();    // write out the branches
+			delete m_file;      // close and delete the file
+			m_file = 0;         // set to zero to clean up
+		}
+	}
 }

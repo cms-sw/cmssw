@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.101 2011/06/20 10:10:49 bjk Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.103 2011/09/13 12:13:16 bjk Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -2641,7 +2641,7 @@ bool FourVectorHLTOffline::isVBTFMuon(const reco::Muon& muon)
 }
 
  string FourVectorHLTOffline::removeVersions(std::string histVersion) {
-   for (int ii = 1; ii < 40; ii++) {
+   for (int ii = 100; ii > 0; ii--) {
      string ver = "_v";
      string version ="";
      stringstream ss;

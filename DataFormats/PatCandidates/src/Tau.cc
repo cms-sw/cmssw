@@ -1,5 +1,5 @@
 //
-// $Id: Tau.cc,v 1.18 2011/06/08 20:40:19 rwolf Exp $
+// $Id: Tau.cc,v 1.21 2011/09/29 16:34:57 veelken Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
@@ -11,41 +11,61 @@ using namespace pat;
 
 /// default constructor
 Tau::Tau() :
-    Lepton<reco::BaseTau>(),
-    embeddedIsolationTracks_(false),
-    embeddedLeadTrack_(false),
-    embeddedSignalTracks_(false)
+    Lepton<reco::BaseTau>()
+    ,embeddedIsolationTracks_(false)
+    ,isolationTracksTransientRefVectorFixed_(false)
+    ,embeddedLeadTrack_(false)
+    ,embeddedSignalTracks_(false)
+    ,signalTracksTransientRefVectorFixed_(false)
     ,embeddedLeadPFCand_(false)
     ,embeddedLeadPFChargedHadrCand_(false)
     ,embeddedLeadPFNeutralCand_(false)
     ,embeddedSignalPFCands_(false)
+    ,signalPFCandsRefVectorFixed_(false)
     ,embeddedSignalPFChargedHadrCands_(false)
+    ,signalPFChargedHadrCandsRefVectorFixed_(false)
     ,embeddedSignalPFNeutralHadrCands_(false)
+    ,signalPFNeutralHadrCandsRefVectorFixed_(false)
     ,embeddedSignalPFGammaCands_(false)
+    ,signalPFGammaCandsRefVectorFixed_(false)
     ,embeddedIsolationPFCands_(false)
+    ,isolationPFCandsRefVectorFixed_(false)
     ,embeddedIsolationPFChargedHadrCands_(false)
+    ,isolationPFChargedHadrCandsRefVectorFixed_(false)
     ,embeddedIsolationPFNeutralHadrCands_(false)
+    ,isolationPFNeutralHadrCandsRefVectorFixed_(false)
     ,embeddedIsolationPFGammaCands_(false)
+    ,isolationPFGammaCandsRefVectorFixed_(false)
 {
 }
 
 /// constructor from reco::BaseTau
 Tau::Tau(const reco::BaseTau & aTau) :
-    Lepton<reco::BaseTau>(aTau),
-    embeddedIsolationTracks_(false),
-    embeddedLeadTrack_(false),
-    embeddedSignalTracks_(false)
+    Lepton<reco::BaseTau>(aTau)
+    ,embeddedIsolationTracks_(false)
+    ,isolationTracksTransientRefVectorFixed_(false)
+    ,embeddedLeadTrack_(false)
+    ,embeddedSignalTracks_(false)
+    ,signalTracksTransientRefVectorFixed_(false)
     ,embeddedLeadPFCand_(false)
     ,embeddedLeadPFChargedHadrCand_(false)
     ,embeddedLeadPFNeutralCand_(false)
     ,embeddedSignalPFCands_(false)
+    ,signalPFCandsRefVectorFixed_(false)
     ,embeddedSignalPFChargedHadrCands_(false)
+    ,signalPFChargedHadrCandsRefVectorFixed_(false)
     ,embeddedSignalPFNeutralHadrCands_(false)
+    ,signalPFNeutralHadrCandsRefVectorFixed_(false)
     ,embeddedSignalPFGammaCands_(false)
+    ,signalPFGammaCandsRefVectorFixed_(false)
     ,embeddedIsolationPFCands_(false)
+    ,isolationPFCandsRefVectorFixed_(false)
     ,embeddedIsolationPFChargedHadrCands_(false)
+    ,isolationPFChargedHadrCandsRefVectorFixed_(false)
     ,embeddedIsolationPFNeutralHadrCands_(false)
+    ,isolationPFNeutralHadrCandsRefVectorFixed_(false)
     ,embeddedIsolationPFGammaCands_(false)
+    ,isolationPFGammaCandsRefVectorFixed_(false)
 {
     const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(&aTau);
     if (pfTau != 0) pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
@@ -55,21 +75,31 @@ Tau::Tau(const reco::BaseTau & aTau) :
 
 /// constructor from ref to reco::BaseTau
 Tau::Tau(const edm::RefToBase<reco::BaseTau> & aTauRef) :
-    Lepton<reco::BaseTau>(aTauRef),
-    embeddedIsolationTracks_(false),
-    embeddedLeadTrack_(false),
-    embeddedSignalTracks_(false)
+    Lepton<reco::BaseTau>(aTauRef)
+    ,embeddedIsolationTracks_(false)
+    ,isolationTracksTransientRefVectorFixed_(false)
+    ,embeddedLeadTrack_(false)
+    ,embeddedSignalTracks_(false)
+    ,signalTracksTransientRefVectorFixed_(false)
     ,embeddedLeadPFCand_(false)
     ,embeddedLeadPFChargedHadrCand_(false)
     ,embeddedLeadPFNeutralCand_(false)
     ,embeddedSignalPFCands_(false)
+    ,signalPFCandsRefVectorFixed_(false)
     ,embeddedSignalPFChargedHadrCands_(false)
+    ,signalPFChargedHadrCandsRefVectorFixed_(false)
     ,embeddedSignalPFNeutralHadrCands_(false)
+    ,signalPFNeutralHadrCandsRefVectorFixed_(false)
     ,embeddedSignalPFGammaCands_(false)
+    ,signalPFGammaCandsRefVectorFixed_(false)
     ,embeddedIsolationPFCands_(false)
+    ,isolationPFCandsRefVectorFixed_(false)
     ,embeddedIsolationPFChargedHadrCands_(false)
+    ,isolationPFChargedHadrCandsRefVectorFixed_(false)
     ,embeddedIsolationPFNeutralHadrCands_(false)
+    ,isolationPFNeutralHadrCandsRefVectorFixed_(false)
     ,embeddedIsolationPFGammaCands_(false)
+    ,isolationPFGammaCandsRefVectorFixed_(false)
 {
     const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(aTauRef.get());
     if (pfTau != 0) pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
@@ -79,21 +109,31 @@ Tau::Tau(const edm::RefToBase<reco::BaseTau> & aTauRef) :
 
 /// constructor from ref to reco::BaseTau
 Tau::Tau(const edm::Ptr<reco::BaseTau> & aTauRef) :
-    Lepton<reco::BaseTau>(aTauRef),
-    embeddedIsolationTracks_(false),
-    embeddedLeadTrack_(false),
-    embeddedSignalTracks_(false)
+    Lepton<reco::BaseTau>(aTauRef)
+    ,embeddedIsolationTracks_(false)
+    ,isolationTracksTransientRefVectorFixed_(false)
+    ,embeddedLeadTrack_(false)
+    ,embeddedSignalTracks_(false)
+    ,signalTracksTransientRefVectorFixed_(false)
     ,embeddedLeadPFCand_(false)
     ,embeddedLeadPFChargedHadrCand_(false)
     ,embeddedLeadPFNeutralCand_(false)
     ,embeddedSignalPFCands_(false)
+    ,signalPFCandsRefVectorFixed_(false)
     ,embeddedSignalPFChargedHadrCands_(false)
+    ,signalPFChargedHadrCandsRefVectorFixed_(false)
     ,embeddedSignalPFNeutralHadrCands_(false)
+    ,signalPFNeutralHadrCandsRefVectorFixed_(false)
     ,embeddedSignalPFGammaCands_(false)
+    ,signalPFGammaCandsRefVectorFixed_(false)
     ,embeddedIsolationPFCands_(false)
+    ,isolationPFCandsRefVectorFixed_(false)
     ,embeddedIsolationPFChargedHadrCands_(false)
+    ,isolationPFChargedHadrCandsRefVectorFixed_(false)
     ,embeddedIsolationPFNeutralHadrCands_(false)
+    ,isolationPFNeutralHadrCandsRefVectorFixed_(false)
     ,embeddedIsolationPFGammaCands_(false)
+    ,isolationPFGammaCandsRefVectorFixed_(false)
 {
     const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(aTauRef.get());
     if (pfTau != 0) pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
@@ -477,6 +517,10 @@ const reco::PFCandidateRefVector & Tau::signalPFGammaCands() const {
     return pfSpecific().selectedSignalPFGammaCands_;
 }
 
+const std::vector<reco::RecoTauPiZero> & Tau::signalPiZeroCandidates() const {
+  return pfSpecific().signalPiZeroCandidates_;
+}
+
 const reco::PFCandidateRefVector & Tau::isolationPFCands() const {
   if (embeddedIsolationPFCands_) {
     if (!isolationPFCandsRefVectorFixed_) {
@@ -536,3 +580,109 @@ const reco::PFCandidateRefVector & Tau::isolationPFGammaCands() const {
   } else
     return pfSpecific().selectedIsolationPFGammaCands_;
 }
+
+const std::vector<reco::RecoTauPiZero> & Tau::isolationPiZeroCandidates() const {
+  return pfSpecific().isolationPiZeroCandidates_;
+}
+
+/// ============= -Tau-jet Energy Correction methods ============
+/// (copied from DataFormats/PatCandidates/src/Jet.cc)
+
+// initialize the jet to a given JEC level during creation starting from Uncorrected
+void Tau::initializeJEC(unsigned int level, unsigned int set)
+{
+  currentJECSet(set);
+  currentJECLevel(level);
+  setP4(jec_[set].correction(level)*p4());
+}
+
+/// return true if this jet carries the jet correction factors of a different set, for systematic studies
+int Tau::jecSet(const std::string& set) const
+{
+  for ( std::vector<pat::TauJetCorrFactors>::const_iterator corrFactor = jec_.begin(); 
+	corrFactor != jec_.end(); ++corrFactor ) {
+    if ( corrFactor->jecSet() == set ) return corrFactor-jec_.begin(); 
+  }
+  return -1;
+}
+
+/// all available label-names of all sets of jet energy corrections
+const std::vector<std::string> Tau::availableJECSets() const
+{
+  std::vector<std::string> sets;
+  for ( std::vector<pat::TauJetCorrFactors>::const_iterator corrFactor = jec_.begin(); 
+	corrFactor != jec_.end(); ++corrFactor ) {
+    sets.push_back(corrFactor->jecSet());
+  }
+  return sets;
+}
+
+const std::vector<std::string> Tau::availableJECLevels(const int& set) const
+{
+  return set>=0 ? jec_.at(set).correctionLabels() : std::vector<std::string>();
+}
+
+/// correction factor to the given level for a specific set
+/// of correction factors, starting from the current level
+float Tau::jecFactor(const std::string& level, const std::string& set) const
+{
+  for ( unsigned int idx = 0; idx < jec_.size(); ++idx ) {
+    if ( set.empty() || jec_.at(idx).jecSet() == set ){
+      if ( jec_[idx].jecLevel(level) >= 0 ) 
+	return jecFactor(jec_[idx].jecLevel(level), idx);
+      else
+	throw cms::Exception("InvalidRequest") 
+	  << "This JEC level " << level << " does not exist. \n";
+    }
+  }
+  throw cms::Exception("InvalidRequest") 
+    << "This jet does not carry any jet energy correction factor information \n"
+    << "for a jet energy correction set with label " << set << "\n";
+}
+
+/// correction factor to the given level for a specific set
+/// of correction factors, starting from the current level
+float Tau::jecFactor(const unsigned int& level, const unsigned int& set) const
+{
+  if ( !jecSetsAvailable() )
+    throw cms::Exception("InvalidRequest") 
+      << "This jet does not carry any jet energy correction factor information \n";
+  if ( !jecSetAvailable(set) )
+    throw cms::Exception("InvalidRequest") 
+      << "This jet does not carry any jet energy correction factor information \n"
+      << "for a jet energy correction set with index " << set << "\n";
+  return jec_.at(set).correction(level)/jec_.at(currentJECSet_).correction(currentJECLevel_);
+}
+
+/// copy of the jet with correction factor to target step for
+/// the set of correction factors, which is currently in use
+Tau Tau::correctedTauJet(const std::string& level, const std::string& set) const
+{
+  // rescale p4 of the jet; the update of current values is
+  // done within the called jecFactor function
+  for ( unsigned int idx = 0; idx < jec_.size(); ++idx ) {
+    if ( set.empty() || jec_.at(idx).jecSet() == set ) {
+      if ( jec_[idx].jecLevel(level) >= 0 ) 
+	return correctedTauJet(jec_[idx].jecLevel(level), idx);
+      else
+	throw cms::Exception("InvalidRequest") 
+	  << "This JEC level " << level << " does not exist. \n";
+    }
+  }
+  throw cms::Exception("InvalidRequest") 
+    << "This JEC set " << set << " does not exist. \n";
+}
+
+/// copy of the jet with correction factor to target step for
+/// the set of correction factors, which is currently in use
+Tau Tau::correctedTauJet(const unsigned int& level, const unsigned int& set) const
+{
+  Tau correctedTauJet(*this);
+  //rescale p4 of the jet
+  correctedTauJet.setP4(jecFactor(level, set)*p4());
+  // update current level and set
+  correctedTauJet.currentJECSet(set); 
+  correctedTauJet.currentJECLevel(level); 
+  return correctedTauJet;
+}
+

@@ -20,15 +20,19 @@ TrackerCollisionTrackMon.BSFolderName          = cms.string('Tracking/BeamSpotPa
 TrackerCollisionTrackMon.MeasurementState      = cms.string('ImpactPoint')
 
 TrackerCollisionTrackMon.doTrackerSpecific     = cms.bool(True)
-TrackerCollisionTrackMon.doAllPlots            = cms.bool(True)
+TrackerCollisionTrackMon.doAllPlots            = cms.bool(False)
+TrackerCollisionTrackMon.doHitPropertiesPlots  = cms.bool(True)
+TrackerCollisionTrackMon.doGeneralPropertiesPlots  = cms.bool(True)
 TrackerCollisionTrackMon.doBeamSpotPlots       = cms.bool(True)
-TrackerCollisionTrackMon.doSeedParameterHistos = cms.bool(True)
+TrackerCollisionTrackMon.doSeedParameterHistos = cms.bool(False)
+TrackerCollisionTrackMon.doRecHitVsPhiVsEtaPerTrack = cms.bool(True)
+TrackerCollisionTrackMon.doGoodTrackRecHitVsPhiVsEtaPerTrack = cms.bool(True)
 
 TrackerCollisionTrackMon.doLumiAnalysis        = cms.bool(True)                       
 
-TrackerCollisionTrackMon.doSeedNumberHisto = cms.bool(True)
-TrackerCollisionTrackMon.doSeedETAHisto    = cms.bool(True)
-TrackerCollisionTrackMon.doSeedVsClusterHisto = cms.bool(True)
+TrackerCollisionTrackMon.doSeedNumberHisto = cms.bool(False)
+TrackerCollisionTrackMon.doSeedETAHisto    = cms.bool(False)
+TrackerCollisionTrackMon.doSeedVsClusterHisto = cms.bool(False)
 
 # Number of Tracks per Event
 TrackerCollisionTrackMon.TkSizeBin             = cms.int32(200)

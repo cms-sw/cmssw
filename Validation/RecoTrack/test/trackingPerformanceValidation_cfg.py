@@ -32,25 +32,15 @@ process.load("DQMServices.Components.EDMtoMEConverter_cff")
 process.load("Validation.Configuration.postValidation_cff")
 
 process.TrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
-<<<<<<< trackingPerformanceValidation_cfg.py
-process.TrackAssociatorByHits.Purity_SimToReco = cms.double(0.75)
-process.TrackAssociatorByHits.Cut_RecoToSim = cms.double(0.75)
-=======
 process.TrackAssociatorByHits.Purity_SimToReco = cms.double(0.75)
 process.TrackAssociatorByHits.Cut_RecoToSim = cms.double(0.75)
 
->>>>>>> 1.24
 
 ### configuration MultiTrackValidator ###
 process.multiTrackValidator.outputFile = 'val.SAMPLE.root'
 process.multiTrackValidator.runStandalone = True
 
-process.selectedTracks = cms.EDFilter("TrackSelectorForValidation",
-    src = cms.InputTag("generalTracks"),
-    cut = cms.string('CUTS')
-)
 
-process.cutsRecoTracks.src = "selectedTracks"
 process.cutsRecoTracks.algorithm = cms.vstring(ALGORITHM)
 process.cutsRecoTracks.quality = cms.vstring(QUALITY)
 
@@ -62,6 +52,10 @@ process.multiTrackValidator.nintpT = cms.int32(40)
 process.multiTrackValidator.skipHistoFit=cms.untracked.bool(False)
 
 process.multiTrackValidator.label = ['TRACKS']
+if (process.multiTrackValidator.label[0] == 'generalTracks'):
+    process.multiTrackValidator.UseAssociators = cms.bool(False)
+else:
+    process.multiTrackValidator.UseAssociators = cms.bool(True)
 ######
 
 
@@ -80,7 +74,6 @@ process.options = cms.untracked.PSet(
 process.digi2track = cms.Sequence(process.siPixelDigis*process.SiStripRawToDigis*
                                   process.trackerlocalreco*
                                   process.ckftracks*
-                                  process.selectedTracks*
                                   process.cutsRecoTracks*
                                   process.multiTrackValidator)
 #redo also tracking particles
@@ -88,13 +81,11 @@ process.digi2track_and_TP = cms.Sequence(process.mix*process.trackingParticles*
                                   process.siPixelDigis*process.SiStripRawToDigis*
                                   process.trackerlocalreco*
                                   process.ckftracks*
-                                  process.selectedTracks*
                                   process.cutsRecoTracks*
                                   process.multiTrackValidator)
 
 process.re_tracking = cms.Sequence(process.siPixelRecHits*process.siStripMatchedRecHits*
                                    process.ckftracks*
-                                   process.selectedTracks*
                                    process.cutsRecoTracks*
                                    process.multiTrackValidator
                                    )
@@ -102,21 +93,19 @@ process.re_tracking = cms.Sequence(process.siPixelRecHits*process.siStripMatched
 process.re_tracking_and_TP = cms.Sequence(process.mix*process.trackingParticles*
                                    process.siPixelRecHits*process.siStripMatchedRecHits*
                                    process.ckftracks*
-                                   process.selectedTracks*
                                    process.cutsRecoTracks*
                                    process.multiTrackValidator
                                    )
 
-if (process.multiTrackValidator.label[0] == 'selectedTracks'):
-    print "Running Sequence process.selectedTracks + process.multiTrackValidator"
-    process.only_validation = cms.Sequence(process.selectedTracks*process.multiTrackValidator)
+if (process.multiTrackValidator.label[0] == 'generalTracks'):
+    process.only_validation = cms.Sequence(process.multiTrackValidator)
 else:
-    process.only_validation = cms.Sequence(process.selectedTracks*process.cutsRecoTracks*process.multiTrackValidator)
+    process.only_validation = cms.Sequence(process.cutsRecoTracks*process.multiTrackValidator)
     
-if (process.multiTrackValidator.label[0] == 'selectedTracks'):
-    process.only_validation_and_TP = cms.Sequence(process.mix*process.trackingParticles*process.selectedTracks*process.multiTrackValidator)
+if (process.multiTrackValidator.label[0] == 'generalTracks'):
+    process.only_validation_and_TP = cms.Sequence(process.mix*process.trackingParticles*process.multiTrackValidator)
 else:
-    process.only_validation_and_TP = cms.Sequence(process.mix*process.trackingParticles*process.selectedTracks*process.cutsRecoTracks*
+    process.only_validation_and_TP = cms.Sequence(process.mix*process.trackingParticles*process.cutsRecoTracks*
                                                   process.multiTrackValidator)
 
 ### customized versoin of the OutputModule

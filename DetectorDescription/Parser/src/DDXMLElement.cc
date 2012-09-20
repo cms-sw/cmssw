@@ -6,6 +6,9 @@
  ***************************************************************************/
 
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
+#include "DetectorDescription/Parser/interface/DDLParser.h"
+
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
 #include <algorithm>
@@ -49,6 +52,7 @@ DDXMLElement::loadAttributes( const std::string& elemName,
   // adds attributes
   for (size_t i = 0; i < names.size(); ++i)
   {
+    //      tAttributes[ names[i] ] = values[i];
     tAttributes.insert(std::make_pair(names[i], values[i]));
   }
 
@@ -78,6 +82,7 @@ DDXMLElement::getAttribute( const std::string& name ) const
 const DDXMLAttribute&
 DDXMLElement::getAttributeSet( size_t aIndex ) const 
 {
+  //  if (aIndex < attributes_.size())
   return attributes_[aIndex];  
 }
 
@@ -104,8 +109,10 @@ DDXMLElement::getDDName( const std::string& defaultNS, const std::string& attnam
       rn = name.substr(foundColon+1);
 
     }
+    //    std::cout << "Name: " << rn << " Namespace: " << ns << std::endl;
     return DDName(rn, ns);
   }
+  //  std::cout << "no " << attname <<  " default namespace: " << defaultNS << " at index " << aIndex << std::endl;
   std::string msg = "DDXMLElement:getDDName failed.  It was asked to make ";
   msg += "a DDName using attribute: " + attname;
   msg += " in position: " + itostr(int(aIndex)) + ".  There are ";
@@ -113,6 +120,39 @@ DDXMLElement::getDDName( const std::string& defaultNS, const std::string& attnam
   throwError(msg);
   return DDName("justToCompile", "justToCompile"); // used to make sure it compiles
 } 
+
+// std::string DDXMLElement::getNameSpace(const std::string& defaultNS, const std::string& attname
+// 				  , size_t aIndex)
+// {
+//   std::cout << "DEPRECATED: PLEASE DO NOT USE getNameSpace ANYMORE!" << std::endl;
+//   std::string ns;
+//   const std::string & name = get(attname, aIndex);
+//   size_t foundColon= name.find(':');
+//   if (foundColon != std::string::npos)
+//     ns = name.substr(0,foundColon);
+//   else
+//     {
+//       ns = defaultNS;
+//     }
+//   return ns;
+// }
+
+// const std::string DDXMLElement::getName(const std::string& attname
+// 			     , size_t aIndex)
+// {
+//   std::cout << "DEPRECATED: PLEASE DO NOT USE getName ANYMORE!!" << std::endl;
+//   std::string rn;
+//   const std::string & name = get(attname, aIndex);
+//   size_t foundColon= name.find(':');
+//   if (foundColon != std::string::npos)
+//     rn = name.substr(foundColon+1);
+//   {
+//     rn = name;
+//   }
+//   return rn;
+// }
+
+
 
 // Returns a specific value from the aIndex set of attributes.
 const std::string &
@@ -186,6 +226,7 @@ void
 DDXMLElement::loadText( const std::string& inText )
 {
   text_.push_back(inText);
+  //  std::cout << "just put a std::string using loadText. size is now: " << text_.size() << std::endl;
 }
 
 void
@@ -319,7 +360,9 @@ void
 DDXMLElement::throwError( const std::string& keyMessage ) const 
 {
   std::string msg = keyMessage + "\n";
+  //    if (myElement_) {
   msg += " Element " + myElement_ +"\n";
-
+  //    }
+  //    msg += " File " + DDLParser::instance()->getCurrFileName() + ".\n";
   throw DDException(msg);
 }

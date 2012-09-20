@@ -184,6 +184,7 @@ muonsBeamHaloEndCapsOnly.fillIsolation = True
 muonsBeamHaloEndCapsOnly.fillGlobalTrackQuality = False
 muonsBeamHaloEndCapsOnly.TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5'
 muonsBeamHaloEndCapsOnly.CaloExtractorPSet.CenterConeOnCalIntersection = True
+muonsBeamHaloEndCapsOnly.fillGlobalTrackRefits = False
 
 # Sequences
 muonrecoBeamHaloEndCapsOnly = cms.Sequence(CosmicMuonSeedEndCapsOnly*cosmicMuonsEndCapsOnly*globalBeamHaloMuonEndCapslOnly*muonsBeamHaloEndCapsOnly)

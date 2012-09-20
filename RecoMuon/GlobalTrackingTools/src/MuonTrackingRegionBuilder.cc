@@ -3,8 +3,8 @@
  *
  *  Build a TrackingRegion around a standalone muon 
  *
- *  $Date: 2010/03/07 17:10:09 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/09/06 18:41:59 $
+ *  $Revision: 1.18 $
  *
  *  \author A. Everett - Purdue University
  *  \author A. Grelli -  Purdue University, Pavia University
@@ -145,7 +145,7 @@ MuonTrackingRegionBuilder::region(const reco::Track& staTrack) const {
     if ( vtxHandleFlag && !vertexCollection->empty() ) {
       // use the first vertex in the collection and assume it is the primary event vertex 
       reco::VertexCollection::const_iterator vtx = vertexCollection->begin();
-      vertexPos = GlobalPoint(0.0,0.0,vtx->z());
+      vertexPos = GlobalPoint(vtx->x(),vtx->y(),vtx->z());
       // delta Z from vertex error
       deltaZatVTX = vtx->zError() * theNsigmaDz;
     }
@@ -231,7 +231,7 @@ MuonTrackingRegionBuilder::region(const reco::Track& staTrack) const {
   float deltaZ = 0.0;
   // standard 15.9 is useVertex than region from vertexing
   if ( useVertex ) {
-    deltaZ = deltaZatVTX;
+    deltaZ = max(theHalfZ,deltaZatVTX);
   } else { 
     deltaZ = theHalfZ;
   }

@@ -202,7 +202,7 @@ for path_name in allPathNames:
     num_modules = total_eff_histo.GetNbinsX() - 2
 
     total = total_eff_histo.GetBinContent(num_modules)
-    num_gen_events = total_eff_histo.GetBinContent(num_modules + 1)
+    num_gen_events = total_eff_histo.GetBinContent(num_modules + 2)
 
     if num_gen_events == 0 and options.ignore_empty_paths:
         continue

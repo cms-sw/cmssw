@@ -42,7 +42,6 @@ class PFEnergyCalibration;
 class PFSCEnergyCalibration;
 class PFEnergyCalibrationHF;
 class PFElectronAlgo;
-class PFConversionAlgo;
 class PFPhotonAlgo;
 
 class PFAlgo {
@@ -372,7 +371,6 @@ class PFAlgo {
 
   bool usePFNuclearInteractions_;
   bool usePFConversions_;
-  PFConversionAlgo* pfConversion_;
   bool usePFDecays_;
 
   /// Maximal relative uncertainty on the tracks going to or incoming from the 

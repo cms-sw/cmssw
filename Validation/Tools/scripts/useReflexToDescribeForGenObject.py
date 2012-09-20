@@ -11,7 +11,7 @@ defsDict = {
     'int'    : '%-40s : form=%%%%8d     type=int',
     'float'  : '%-40s : form=%%%%7.2f   prec=',
     'str'    : '%-40s : form=%%%%20s    type=string',
-    'long'   : '%-40s : form=%%%%10d    type=long',
+    'long'   : '%-40s : form=%%%%10d    type=long',    
     }
 
 root2GOtypeDict = {
@@ -64,15 +64,7 @@ def getObjectList (objectName, base, verbose = False, memberData = False):
     """Get a list of interesting things from this object"""
     # The autoloader needs an object before it loads its dictionary.
     # So let's give it one.
-    try:
-        rootObjConstructor = getattr (ROOT, objectName)
-    except AttributeError as missingAttr:
-        if str(missingAttr) in ['double', 'int']:
-            print "Do not need to describe doubles or ints"
-            sys.exit(0)
-        else:
-            raise
-
+    rootObjConstructor = getattr (ROOT, objectName)
     obj = rootObjConstructor()
     alreadySeenFunction = set()
     etaFound, phiFound = False, False
@@ -81,7 +73,6 @@ def getObjectList (objectName, base, verbose = False, memberData = False):
     # Put the current class on the queue and start the while loop
     reflexList = [ ROOT.Reflex.Type.ByName (objectName) ]
     if verbose: print reflexList
-    # Uses while because reflixList is really a stack
     while reflexList:
         reflex = reflexList.pop (0) # get first element
         print "Looking at %s" % reflex.Name (0xffffffff)
@@ -115,7 +106,7 @@ def getObjectList (objectName, base, verbose = False, memberData = False):
             elif verbose:
                 print "     good"
             # only bother printout out lines where it is a const function
-            # and has no input parameters.
+            # and has no input parameters.            
             if funcMember.IsConst() and not funcMember.FunctionParameterSize():
                 retval.append( ("%s.%s()" % (base, name), goType))
                 alreadySeenFunction.add( name )
@@ -146,8 +137,8 @@ def genObjNameDef (line):
     name =  "_".join (words)
     name = nonAlphaRE.sub ('', name)
     return name, func
-
-
+    
+    
 def genObjectDef (mylist, tuple, alias, label, type, etaPhiFound):
     """Does something, but I can't remembrer what... """
     print "tuple %s alias %s label %s type %s" % (tuple, alias, label, type)
@@ -168,7 +159,7 @@ def genObjectDef (mylist, tuple, alias, label, type, etaPhiFound):
         genDef += "-equiv: eta,0.1 phi,0.1 index,100000\n";
     tupleDef = '[%s:%s:%s label=%s type=%s]\n' % \
                (genName, tuple, alias, label, type)
-
+    
     for variable in mylist:
         name, func = genObjNameDef (variable[0])
         typeInfo   = variable[1]
@@ -221,7 +212,7 @@ if __name__ == "__main__":
     ROOT.gROOT.SetBatch()
     # load the right libraries, etc.
     ROOT.gSystem.Load("libFWCoreFWLite")
-    ROOT.gSystem.Load("libDataFormatsFWLite")
+    ROOT.gSystem.Load("libDataFormatsFWLite")   
     ROOT.gSystem.Load("libReflexDict")
     ROOT.AutoLibraryLoader.enable()
     mylist, etaPhiFound = getObjectList (objectName, goName, options.verbose,

@@ -32,9 +32,18 @@ for appcount in 1 2 ; do
     if [[ $state == "Halted" ]] ; then
         echo ""
         echo "========================================"
-        echo "Connecting pt::atcp..."
+        echo "Configuring pt::atcp..."
         echo "========================================"
         ./sendSimpleCmdToApp ${app_host[$appcount]} ${app_port[$appcount]} ${app_name[$appcount]} 0 Configure
+    fi
+done
+for appcount in 1 2 ; do
+    state=`./paramGet.pl ${app_host[$appcount]} ${app_port[$appcount]} ${app_name[$appcount]} 0 stateName string`
+    if [[ $state == "Ready" ]] ; then
+        echo ""
+        echo "========================================"
+        echo "Enabling pt::atcp..."
+        echo "========================================"
         ./sendSimpleCmdToApp ${app_host[$appcount]} ${app_port[$appcount]} ${app_name[$appcount]} 0 Enable
     fi
 done

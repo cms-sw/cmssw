@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Mar 14 18:02:33 CDT 2008
-// $Id: MuonAlignmentOutputXML.cc,v 1.8 2010/05/14 21:07:59 pivarski Exp $
+// $Id: MuonAlignmentOutputXML.cc,v 1.7 2009/01/19 11:07:37 flucke Exp $
 //
 
 // system include files
@@ -118,8 +118,8 @@ void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::Even
       errors[cscError->rawId()] = cscError->matrix();
    }
 
-   align::Alignables barrels = alignableMuon->DTBarrel();
-   align::Alignables endcaps = alignableMuon->CSCEndcaps();
+   std::vector<Alignable*> barrels = alignableMuon->DTBarrel();
+   std::vector<Alignable*> endcaps = alignableMuon->CSCEndcaps();
 
    if (m_relativeto == 1) {
       edm::ESTransientHandle<DDCompactView> cpv;
@@ -138,14 +138,14 @@ void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::Even
 
       AlignableMuon ideal_alignableMuon(&(*dtGeometry), &(*boost_cscGeometry));
 
-      align::Alignables ideal_barrels = ideal_alignableMuon.DTBarrel();
-      align::Alignables ideal_endcaps = ideal_alignableMuon.CSCEndcaps();
+      std::vector<Alignable*> ideal_barrels = ideal_alignableMuon.DTBarrel();
+      std::vector<Alignable*> ideal_endcaps = ideal_alignableMuon.CSCEndcaps();
 
       writeComponents(barrels, ideal_barrels, errors, outputFile, true);
       writeComponents(endcaps, ideal_endcaps, errors, outputFile, false);
    }
    else {
-      align::Alignables empty1, empty2;
+      std::vector<Alignable*> empty1, empty2;
 
       writeComponents(barrels, empty1, errors, outputFile, true);
       writeComponents(endcaps, empty2, errors, outputFile, false);
@@ -154,10 +154,10 @@ void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::Even
    outputFile << "</MuonAlignment>" << std::endl;
 }
 
-void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables, align::Alignables &ideals,
+void MuonAlignmentOutputXML::writeComponents(std::vector<Alignable*> &alignables, std::vector<Alignable*> &ideals,
 					     std::map<align::ID, CLHEP::HepSymMatrix>& errors, std::ofstream &outputFile, bool DT) const {
-   align::Alignables::const_iterator ideal = ideals.begin();
-   for (align::Alignables::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
+   std::vector<Alignable*>::const_iterator ideal = ideals.begin();
+   for (std::vector<Alignable*>::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
       if (m_survey  &&  (*alignable)->survey() == NULL) {
 	 throw cms::Exception("Alignment") << "SurveyDets must all be defined when writing to XML" << std::endl;
       } // now I can assume it's okay everywhere
@@ -277,27 +277,6 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables, alig
 	    rot = rot * idealRotation.transposed();
 
 	    str_relativeto = std::string("ideal");
-
-            bool csc_debug=0;
-            if (csc_debug && !DT) {
-              CSCDetId id(rawId);
-              if(id.endcap()==1 && id.station()==1 && id.ring()==1 && id.chamber()==33 ){
-                std::cout<<" investigating "<<id<<std::endl<<(*alignable)->globalRotation()<<std::endl<<std::endl
-                         <<idealRotation.transposed()<<std::endl<<std::endl<<rot<<std::endl<<std::endl;
-                double phix = atan2(rot.yz(), rot.zz());
-                double phiy = asin(-rot.xz());
-                double phiz = atan2(rot.xy(), rot.xx());
-
-                std::cout << "phix=\"" << phix << "\" phiy=\"" << phiy << "\" phiz=\"" << phiz << std::endl;
-
-                align::EulerAngles eulerAngles = align::toAngles((*alignable)->globalRotation());
-                std::cout << "alpha=\"" << eulerAngles(1) << "\" beta=\"" << eulerAngles(2) << "\" gamma=\"" << eulerAngles(3) << std::endl;
-                eulerAngles = align::toAngles(idealRotation);
-                std::cout << "alpha=\"" << eulerAngles(1) << "\" beta=\"" << eulerAngles(2) << "\" gamma=\"" << eulerAngles(3) << std::endl;
-                eulerAngles = align::toAngles(rot);
-                std::cout << "alpha=\"" << eulerAngles(1) << "\" beta=\"" << eulerAngles(2) << "\" gamma=\"" << eulerAngles(3) << std::endl;
-              }
-            }
 	 }
 
 	 else if (m_relativeto == 2  &&  (*alignable)->mother() != NULL) {
@@ -355,14 +334,14 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables, alig
 
       // write superstructures before substructures: this is important because <setape> overwrites all substructures' APEs
       if (ideal != ideals.end()) {
-	 align::Alignables components = (*alignable)->components();
-	 align::Alignables ideal_components = (*ideal)->components();
+	 std::vector<Alignable*> components = (*alignable)->components();
+	 std::vector<Alignable*> ideal_components = (*ideal)->components();
 	 writeComponents(components, ideal_components, errors, outputFile, DT);
 	 ++ideal; // important for synchronization in the "for" loop!
       }
       else {
-	 align::Alignables components = (*alignable)->components();
-	 align::Alignables dummy;
+	 std::vector<Alignable*> components = (*alignable)->components();
+	 std::vector<Alignable*> dummy;
 	 writeComponents(components, dummy, errors, outputFile, DT);
       }
 

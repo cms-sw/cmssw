@@ -8,29 +8,29 @@ from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
 from RecoTracker.IterativeTracking.LowPtTripletStep_cff import *
 lowPtTripletStepClusters.pixelClusters = cms.InputTag('siClusterTranslator')
 lowPtTripletStepClusters.stripClusters = cms.InputTag('siClusterTranslator')
-lowPtTripletStepMeasurementTracker.StripCPE = cms.string('FastStripCPE')
-lowPtTripletStepMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
+#lowPtTripletStepMeasurementTracker.StripCPE = cms.string('FastStripCPE')
+#lowPtTripletStepMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
 
 #Second Step
 from RecoTracker.IterativeTracking.PixelPairStep_cff import *
-pixelPairStepMeasurementTracker.StripCPE = cms.string('FastStripCPE')
-pixelPairStepMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
+#pixelPairStepMeasurementTracker.StripCPE = cms.string('FastStripCPE')
+#pixelPairStepMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
 
 
 #Third Step
 from RecoTracker.IterativeTracking.DetachedTripletStep_cff import *
-detachedTripletStepMeasurementTracker.StripCPE = cms.string('FastStripCPE')
-detachedTripletStepMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
+#detachedTripletStepMeasurementTracker.StripCPE = cms.string('FastStripCPE')
+#detachedTripletStepMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
 
 #Fourth Step
 from RecoTracker.IterativeTracking.PixelLessStep_cff import *
-pixelLessStepMeasurementTracker.StripCPE = cms.string('FastStripCPE')
-pixelLessStepMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
+#pixelLessStepMeasurementTracker.StripCPE = cms.string('FastStripCPE')
+#pixelLessStepMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
 
 #Fifth Step
 from RecoTracker.IterativeTracking.TobTecStep_cff import *
-tobTecStepMeasurementTracker.StripCPE = cms.string('FastStripCPE')
-tobTecStepMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
+#tobTecStepMeasurementTracker.StripCPE = cms.string('FastStripCPE')
+#tobTecStepMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
 
 #Strips
 import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
@@ -77,5 +77,5 @@ detachedTripletStepSeeds.SeedComparitorPSet.ComponentName = 'none'
 
 siClusterTranslator = cms.EDProducer("SiClusterTranslator")
 
-translationAndTracking_wodEdx = cms.Sequence(siClusterTranslator*siPixelRecHits*siStripMatchedRecHits*iterTracking*trackCollectionMerging*newCombinedSeeds)
+translationAndTracking_wodEdx = cms.Sequence(siClusterTranslator*siPixelRecHits*siStripMatchedRecHits*ckftracks_wodEdX)
 translationAndTracking = cms.Sequence(siClusterTranslator*siPixelRecHits*siStripMatchedRecHits*ckftracks)

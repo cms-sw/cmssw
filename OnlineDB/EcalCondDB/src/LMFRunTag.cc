@@ -49,7 +49,7 @@ int LMFRunTag::getVersion() const {
 }
 
 std::string LMFRunTag::fetchIdSql(Statement *stmt) {
-  std::string sql = "SELECT tag_id FROM CMS_ECAL_LASER_COND.lmf_run_tag WHERE "
+  std::string sql = "SELECT tag_id FROM lmf_run_tag WHERE "
     "gen_tag    = :1 AND version = :2";
   stmt->setSQL(sql);
   stmt->setString(1, getGeneralTag());
@@ -59,8 +59,7 @@ std::string LMFRunTag::fetchIdSql(Statement *stmt) {
 
 std::string LMFRunTag::setByIDSql(Statement *stmt, int id) 
 {
-  std::string sql = "SELECT gen_tag, version FROM "
-    "CMS_ECAL_LASER_COND.lmf_run_tag "
+  std::string sql = "SELECT gen_tag, version FROM lmf_run_tag "
     "WHERE tag_id = :1";
   stmt->setSQL(sql);
   stmt->setInt(1, id);
@@ -79,7 +78,7 @@ LMFUnique * LMFRunTag::createObject() const {
 }
 
 std::string LMFRunTag::fetchAllSql(Statement *stmt) const {
-  std::string sql = "SELECT TAG_ID FROM CMS_ECAL_LASER_COND.LMF_RUN_TAG";
+  std::string sql = "SELECT TAG_ID FROM LMF_RUN_TAG";
   stmt->setSQL(sql);
   return sql;
 }

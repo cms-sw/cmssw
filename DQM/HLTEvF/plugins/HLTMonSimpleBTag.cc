@@ -1,4 +1,4 @@
-// $Id: HLTMonSimpleBTag.cc,v 1.3 2011/03/25 16:10:43 fblekman Exp $
+// $Id: HLTMonSimpleBTag.cc,v 1.2 2011/03/16 12:55:50 fblekman Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -188,7 +188,7 @@ HLTMonSimpleBTag::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
 	  for (trigger::Keys::const_iterator ki_b = k_b.begin(); ki_b !=k_b.end(); ++ki_b ) {
 	    // do cone match...
-	    if(reco::deltaR(toc[*ki].eta(),toc[*ki_b].phi(),toc[*ki].eta(),toc[*ki_b].phi())>dRTrigObjMatch_)
+	    if(reco::deltaR(toc[*ki].eta(),toc[*ki_b].eta(),toc[*ki].eta(),toc[*ki_b].eta())>dRTrigObjMatch_)
 	      continue;
 	    
 	    LogDebug("Parameters") << "matched pt, eta, phi = " 
