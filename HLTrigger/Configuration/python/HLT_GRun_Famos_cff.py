@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/GRun/V34 (CMSSW_5_2_6_HLT3)
+# /online/collisions/2012/8e33/v1.0/HLT/V4 (CMSSW_5_2_6_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/GRun/V34')
+  tableName = cms.string('/online/collisions/2012/8e33/v1.0/HLT/V4')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -34172,19 +34172,6 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Activity_Ecal_SC7_v13, HLT
 # Enable HF Noise filters in GRun menu
 if 'hltHfreco' in locals():
     hltHfreco.setNoiseFlags = cms.bool( True )
-
-# override the L1 menu from an Xml file
-l1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
-  TriggerMenuLuminosity = cms.string('startup'),
-  DefXmlFile = cms.string('L1Menu_Collisions2012_v3_L1T_Scales_20101224_Imp0_0x102b.xml'),
-  VmeXmlFile = cms.string('')
-)
-L1GtTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
-  recordName = cms.string('L1GtTriggerMenuRcd'),
-  iovIsRunNotTime = cms.bool(True),
-  firstValid = cms.vuint32(1)
-)
-es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml') 
 
 # CMSSW version specific customizations
 import os
