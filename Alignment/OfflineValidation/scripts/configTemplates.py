@@ -68,8 +68,7 @@ conditionsTemplate="""
 process.conditionsIn.oO[rcdName]Oo. = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
      connect = cms.string('.oO[connectString]Oo.'),
      toGet = cms.VPSet(cms.PSet(record = cms.string('.oO[rcdName]Oo.'),
-                               tag = cms.string('.oO[tagName]Oo.'),
-                               label = cms.untracked.string('.oO[labelName]Oo.')
+                               tag = cms.string('.oO[tagName]Oo.')
                                )
                       )
     )
