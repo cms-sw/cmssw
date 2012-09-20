@@ -18,9 +18,10 @@ namespace {
     void add(float t) { 
       ++natan;
       if (t>0.40f) ++nlarge;
+    }
     long long natan=0;
     long long nlarge=0;
-    }
+    
   };
 
   Stat stat;
