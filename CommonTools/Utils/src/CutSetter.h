@@ -7,11 +7,12 @@
  * \author original version: Chris Jones, Cornell, 
  *         adapted by Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
  */
 #include "CommonTools/Utils/src/SelectorPtr.h"
 #include "CommonTools/Utils/src/SelectorStack.h"
+#include <cassert>
 
 namespace reco {
   namespace parser {    
