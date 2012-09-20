@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : August 2012
-///  $Revision: 1.3 $
-///  $Date: 2012/09/14 11:40:43 $
+///  $Revision: 1.4 $
+///  $Date: 2012/09/19 14:11:49 $
 ///  (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationBase.h"
@@ -215,8 +215,9 @@ SiStripLorentzAngleCalibration::derivatives(std::vector<ValuesIndexPair> &outDer
         const GlobalVector bField(magneticField->inTesla(hit.det()->surface().position()));
         const LocalVector bFieldLocal(hit.det()->surface().toLocal(bField));
         const double dZ = hit.det()->surface().bounds().thickness(); // it is a float only...
-        // shift due to LA: dx = tan(LA) * dz = mobility * B_y * dz
-        const double xDerivative = bFieldLocal.y() * dZ; // parameter is mobility!
+        // shift due to LA: dx = tan(LA) * dz/2 = mobility * B_y * dz/2,
+        // '-' since we have derivative of the residual r = trk -hit
+        const double xDerivative = bFieldLocal.y() * dZ * -0.5; // parameter is mobility!
         if (xDerivative) { // If field is zero, this is zero: do not return it
           const Values derivs(xDerivative, 0.); // yDerivative = 0.
           outDerivInds.push_back(ValuesIndexPair(derivs, index));
