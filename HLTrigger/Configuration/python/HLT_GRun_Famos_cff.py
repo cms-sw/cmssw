@@ -1,11 +1,11 @@
-# /online/collisions/2012/8e33/v1.0/HLT/V1 (CMSSW_5_2_6_HLT3)
+# /online/collisions/2012/8e33/v1.0/HLT/V2 (CMSSW_5_2_6_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/8e33/v1.0/HLT/V1')
+  tableName = cms.string('/online/collisions/2012/8e33/v1.0/HLT/V2')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",

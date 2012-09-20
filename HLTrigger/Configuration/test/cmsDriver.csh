@@ -40,7 +40,7 @@ set NNHIRD = 25
 set XL1T    = "" # syntax: tag,record[,connect,label]
 set XL1TPP1 = "" # "L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T"
 set XL1TPP2 = "" # "L1GtTriggerMenu_L1Menu_Collisions2012_v2_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T"
-#set XL1TPP2 = "L1GtTriggerMenu_L1Menu_Collisions2012_v2_mc,L1GtTriggerMenuRcd,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v2/sqlFile/L1Menu_Collisions2012_v2_mc.db"
+set XL1TPP3 = "L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc,L1GtTriggerMenuRcd,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v3/sqlFile/L1Menu_Collisions2012_v3_mc.db"
 set XL1THI  = "" # "L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T"
 #set XL1THI = "L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc,L1GtTriggerMenuRcd,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_CollisionsHeavyIons2011_v0/sqlFile/L1Menu_CollisionsHeavyIons2011_v0_mc.db"
 
@@ -90,7 +90,7 @@ foreach gtag ( STARTUP DATA )
     set name = ${table}_${gtag}  
 
     if ( $table == GRun ) then
-      set XL1T = $XL1TPP2
+      set XL1T = $XL1TPP3
       set XHLT = HLT:GRun
       set GTAG = ${GTAGPP}_GRun
       set NN   = $NNPP
@@ -138,7 +138,7 @@ foreach gtag ( STARTUP DATA )
       set InputGenSim = $InputGenSimHIon
       set InputLHCRaw = $InputLHCRawHIon
     else if ( $table == PIon ) then
-      set XL1T = $XL1TPP2
+      set XL1T = $XL1TPP3
       set XHLT = HLT:PIon
       set GTAG = ${GTAGPP}_GRun
       set NN   = $NNPP
