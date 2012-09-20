@@ -13,6 +13,7 @@
 
 #include "DQMServices/Diagnostic/interface/HDQMInspector.h"
 #include <time.h>
+#include <cassert>
 #include "TGraphErrors.h"
 #include "TCanvas.h"
 #include "TString.h"
