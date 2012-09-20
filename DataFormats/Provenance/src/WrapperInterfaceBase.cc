@@ -4,6 +4,7 @@
 
 #include "DataFormats/Provenance/interface/WrapperInterfaceBase.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include <cassert>
 
 namespace edm {
   WrapperInterfaceBase::WrapperInterfaceBase() {}
