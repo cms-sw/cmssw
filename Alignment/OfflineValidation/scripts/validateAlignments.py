@@ -173,10 +173,10 @@ class Alignment:
                     raise StandardError, "'%s' is used with too few arguments. A connect_string and a tag are required!"%( option )
                 if len( conditionParameters ) < 3:
                     conditionParameters.append( "" )
-                self.conditions.append({"rcdName": rcdName,
-                                        "connectString": conditionParameters[0],
-                                        "tagName": conditionParameters[1],
-                                        "labelName": conditionParameters[2]})
+                self.conditions.append({"rcdName": rcdName.strip(),
+                                        "connectString": conditionParameters[0].strip(),
+                                        "tagName": conditionParameters[1].strip(),
+                                        "labelName": conditionParameters[2].strip()})
         if "TrackerAlignmentRcd" not in [ condition["rcdName"] \
                                       for condition in self.conditions ]:
             self.dbpath = config.get(section, "dbpath")
@@ -293,8 +293,14 @@ class Alignment:
             loadCond = ("\nimport CalibTracker.Configuration."
                         "Common.PoolDBESSource_cfi\n")
             for cond in self.conditions:
-                loadCond += replaceByMap( configTemplates.conditionsTemplate,
-                                          cond )
+                if not cond["labelName"] == "":
+                    temp = configTemplates.conditionsTemplate.replace(
+                        "tag = cms.string('.oO[tagName]Oo.')",
+                        ("tag = cms.string('.oO[tagName]Oo.'),"
+                         "\nlabel = cms.untracked.string('.oO[labelName]Oo.')"))
+                else:    
+                    temp = configTemplates.conditionsTemplate
+                loadCond += replaceByMap( temp, cond )
         else:
             loadCond = ""
         return loadCond
@@ -946,10 +952,13 @@ class ValidationJob:
         # self.validation.createCrabConfig()
         return None
 
+    def createJob(self):
+        self.__createJob( self.validation.jobmode, os.path.abspath( self.__commandLineOptions.Name) )
+
     def runJob( self ):
         # Check here for valid job mode: lxBatch, interactive (, crab)
         general = self.__config.getGeneral()
-        self.__createJob( self.validation.jobmode, os.path.abspath( self.__commandLineOptions.Name) )
+#         self.__createJob( self.validation.jobmode, os.path.abspath( self.__commandLineOptions.Name) )
         # Now run the job 
         log = ""
         for script in self.__scripts:
@@ -967,7 +976,7 @@ class ValidationJob:
                     "commands": self.validation.jobmode.split(",")[1],
                     "logDir": general["logdir"],
                     "jobName": name,
-                    "script": os.path.basename( script),
+                    "script": script,
                     "bsub": "/afs/cern.ch/cms/caf/scripts/cmsbsub"
                     }
             log+=getCommandOutput2("%(bsub)s %(commands)s -J %(jobName)s "
@@ -1033,7 +1042,7 @@ def createMergeScript( path, validations ):
 
     comparisonLists = {} # directory of lists containing the validations that are comparable
     for validation in validations:
-        for referenceName in validation.filesToCompare:    
+        for referenceName in validation.filesToCompare:
             validationName = "%s.%s"%(validation.__class__.__name__, referenceName)
             validationName = validationName.split(".%s"%GenericValidation.defaultReferenceName )[0]
             if validationName in comparisonLists:
@@ -1185,6 +1194,7 @@ def main(argv = None):
     
     jobs = [ ValidationJob( validation, config, options) \
                  for validation in config.items( "validation" ) ]
+    map( lambda job: job.createJob(), jobs )
     validations = [ job.getValidation() for job in jobs ]
 
     if general["parallelJobs"] == "1":
