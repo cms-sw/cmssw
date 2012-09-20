@@ -17,10 +17,9 @@
 
 SiPixelCluster::SiPixelCluster( const SiPixelCluster::PixelPos& pix, int adc) :
   theMinPixelRow( pix.row()),
-  theMaxPixelRow( pix.row()),
+  theRowSpan(0),
   thePixelCol(pix.col()),
-  
-  // ggiurgiu@fnal.gov, 01/05/12
+    // ggiurgiu@fnal.gov, 01/05/12
   // Initialize the split cluster errors to un-physical values.
   // The CPE will check these errors and if they are not un-physical, 
   // it will recognize the clusters as split and assign these (increased) 
@@ -35,14 +34,14 @@ SiPixelCluster::SiPixelCluster( const SiPixelCluster::PixelPos& pix, int adc) :
 }
 
 void SiPixelCluster::add( const SiPixelCluster::PixelPos& pix, int adc) {
-	
+  
   int ominRow = minPixelRow();
   int ominCol = minPixelCol();
   bool recalculate = false;
-
+  
   int minRow = ominRow;
   int minCol = ominCol;
-
+  
   if (pix.row() < minRow) {
     theMinPixelRow = minRow = pix.row();
     recalculate = true;
@@ -54,24 +53,27 @@ void SiPixelCluster::add( const SiPixelCluster::PixelPos& pix, int adc) {
   
   if (recalculate) {
     int maxCol = 0;
+    int maxRow = 0;
     int isize = thePixelADC.size();
     for (int i=0; i<isize; ++i) {
       int xoffset = thePixelOffset[i*2]  + ominRow - minRow;
       int yoffset = thePixelOffset[i*2+1]  + ominCol -minCol;
-      thePixelOffset[i*2] = xoffset;
-      thePixelOffset[i*2+1] = yoffset;
+      thePixelOffset[i*2] = std::min(127,xoffset);
+      thePixelOffset[i*2+1] = std::min(127,yoffset);
       if (yoffset > maxCol) maxCol = yoffset; 
+      if (xoffset > maxRow) maxRow = yoffset; 
     }
     packCol(minCol,maxCol);
+    theRowSpan = std::min(127,maxRow);
   }
   
-  if (pix.row() > maxPixelRow()) theMaxPixelRow=pix.row();
+  if ( (!overflowRow()) && pix.row() > maxPixelRow()) 
+    theRowSpan = std::min(127,pix.row()-minRow);
   
   if ( (!overflowCol()) && pix.col() > maxPixelCol())
     packCol(minCol,pix.col()-minCol);
-	
+  
   thePixelADC.push_back( adc );
-  thePixelOffset.push_back( pix.row() - minRow );
-  thePixelOffset.push_back( pix.col() - minCol );
+  thePixelOffset.push_back( std::min(127,pix.row() - minRow) );
+  thePixelOffset.push_back( std::min(127,pix.col() - minCol) );
 }
-

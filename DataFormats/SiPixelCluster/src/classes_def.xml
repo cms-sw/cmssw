@@ -3,7 +3,7 @@
    <field name="err_x" transient="true"/>
    <field name="err_y" transient="true"/>
    <version ClassVersion="10" checksum="2468063768"/>
-   <version ClassVersion="11" checksum="683001907"/>
+   <version ClassVersion="11" checksum="1473312403"/>
    <ioread sourceClass="SiPixelCluster" version="[1-10]" targetClass="SiPixelCluster" source="uint16_t theMinPixelCol" target="thePixelCol">
    <![CDATA[thePixelCol = onfile.theMinPixelCol;]]>
    </ioread>  

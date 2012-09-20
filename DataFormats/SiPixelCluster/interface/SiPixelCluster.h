@@ -14,6 +14,7 @@
 //!  Feb 2008: Modify the Pixel class from float to shorts
 //!  May   2008: Offset based packing (D.Fehling / A. Rizzi)
 //!  Sep 2012: added Max back, removed detId (V.I.)
+//!  sizeX and sizeY now clipped at 127
 //---------------------------------------------------------------------------
 
 #include <vector>
@@ -70,7 +71,7 @@ class SiPixelCluster {
    *  a DetID. The range is assumed to be non-empty.
    */
   
-  SiPixelCluster() : theMinPixelRow(255), theMaxPixelRow(0), thePixelCol(511), err_x(-99999.9), err_y(-99999.9) {}  // needed by many....
+  SiPixelCluster() : theMinPixelRow(255), theRowSpan(0), thePixelCol(511), err_x(-99999.9), err_y(-99999.9) {}  // needed by many....
     
   SiPixelCluster( const PixelPos& pix, int adc);
   
@@ -91,17 +92,17 @@ class SiPixelCluster {
       qm += float(thePixelADC[i]) * (thePixelOffset[i*2+1]  + minPixelCol() + 0.5);
     return qm/charge();
   }
-
+  
   // Return number of pixels.
   int size() const { return thePixelADC.size();}
-
+  
   // Return cluster dimension in the x direction.
-  int sizeX() const {return maxPixelRow() - minPixelRow() +1;}
-
+  int sizeX() const {verifyVersion(); return rowSpan() +1;}
+  
   // Return cluster dimension in the y direction.
   int sizeY() const {verifyVersion(); return colSpan() +1;}
-
-
+  
+  
   inline float charge() const {
     float qm = 0.0;
     int isize = thePixelADC.size();
@@ -111,7 +112,7 @@ class SiPixelCluster {
   } // Return total cluster charge.
 
   inline int minPixelRow() const { return theMinPixelRow;} // The min x index.
-  inline int maxPixelRow() const { verifyVersion(); return theMaxPixelRow;} // The max x index.
+  inline int maxPixelRow() const { verifyVersion(); return minPixelRow() + rowSpan();} // The max x index.
   inline int minPixelCol() const { return thePixelCol & 511;} // The min y index.
   inline int maxPixelCol() const { verifyVersion(); return minPixelCol() + colSpan();} // The max y index.
 
@@ -138,33 +139,27 @@ class SiPixelCluster {
 		 );
   }
 
-  int colSpan() const {
-    if unlikely(overflowCol()) return  computeColSpan();
-    return (thePixelCol >>9);
-  }
+  int colSpan() const {return (thePixelCol >>9); }
 
-  bool overflowCol() const {
-    return (thePixelCol >>9) == 127;
-  }
+  int rowSpan() const { return theRowSpan; }
+
+
+  bool overflowCol() const { return (thePixelCol >>9) == 127; }
+
+  bool overflowRow() const { return theRowSpan == 127; }
+
+  bool overflow() const { return  overflowCol() || overflowRow(); }
 
   void packCol(unsigned int ymin, unsigned int yspan) {
     yspan = std::min(yspan,(unsigned int)(127));
     thePixelCol = (yspan<<9) | ymin;
   }
 
-  int computeColSpan() const {
-    int maxCol = 0;
-    int isize  = thePixelADC.size();
-    for (int i=0; i!=isize; ++i) {
-      int ysize = thePixelOffset[i*2+1] ;
-      if (ysize > maxCol) maxCol = ysize;
-    }
-    return maxCol;
-  }
+ 
 
   /// mostly to be compatible for <610 
   void verifyVersion() const {
-    if unlikely( theMaxPixelRow==0 && thePixelCol<511)
+    if unlikely( theRowSpan==0 && thePixelCol<511)
       const_cast<SiPixelCluster*>(this)->computeMax();
   }
 
@@ -180,7 +175,7 @@ class SiPixelCluster {
       if (ysize > maxCol) maxCol = ysize;
     }
     // assume minimum is correct
-    theMaxPixelRow=maxRow+minPixelRow();
+    theRowSpan=maxRow;
     int minCol= minPixelCol();
     packCol(minCol,maxCol);
   }
@@ -200,7 +195,7 @@ class SiPixelCluster {
   
 
   uint8_t  theMinPixelRow; // Minimum pixel index in the x direction (low edge).
-  uint8_t  theMaxPixelRow; // Maximum pixel index in the x direction (low edge).
+  uint8_t  theRowSpan; // Maximum pixel index in the x direction (low edge).
   uint16_t thePixelCol; // Minimum and span pixel index in the y direction (left edge).
   // Need 9 bits for Col information the other 7 used for span
 
