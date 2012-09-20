@@ -19,27 +19,20 @@ hiGeneralAndRegitMuTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.
                       cms.InputTag('hiRegitMuPixelLessStepTracks'),
                       cms.InputTag('hiRegitMuTobTecStepTracks')
                       ),
-    selectedTrackQuals = cms.VInputTag(cms.InputTag("hiInitialStepSelector","hiInitialStep"),
-                                       cms.InputTag("hiRegitMuInitialStepSelector","hiRegitMuInitialStep"),
-                                       cms.InputTag("hiRegitMuLowPtTripletStepSelector","hiRegitMuLowPtTripletStep"),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag("hiInitialStepSelector","hiInitialStepLoose"),
+                                       cms.InputTag("hiRegitMuInitialStepSelector","hiRegitMuInitialStepLoose"),
+                                       cms.InputTag("hiRegitMuLowPtTripletStepSelector","hiRegitMuLowPtTripletStepLoose"),
                                        cms.InputTag("hiRegitMuPixelPairStepSelector","hiRegitMuPixelPairStep"),
                                        cms.InputTag("hiRegitMuDetachedTripletStepSelector","hiRegitMuDetachedTripletStep"),
                                        cms.InputTag("hiRegitMuMixedTripletStepSelector","hiRegitMuMixedTripletStep"),
                                        cms.InputTag("hiRegitMuPixelLessStepSelector","hiRegitMuPixelLessStep"),
                                        cms.InputTag("hiRegitMuTobTecStepSelector","hiRegitMuTobTecStep")
                                        ),
-    hasSelector=cms.vint32(1,1,1,1,1,1),
-    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6), pQual=cms.bool(True)),  # should this be False?
-                             ),
+    hasSelector=cms.vint32(1,1,1,1,1,1,1,1),
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6,7), pQual=cms.bool(True))),
     copyExtras = True,
     makeReKeyedSeeds = cms.untracked.bool(False)
     )
-
-#from RecoHI.HiTracking.MergeRegit_cff import *
-#hiGeneralAndRegitMuTracks = RecoHI.HiTracking.MergeRegit_cff.hiGeneralAndRegitTracks.clone(
-#    TrackProducer1 = 'hiGlobalPrimTracks',
-#    TrackProducer2 = 'hiRegitMuTracks'
-#    )
 
 hiRegitMuTracking = cms.Sequence(hiRegitMuonInitialStep
                                  *hiRegitMuonLowPtTripletStep
@@ -48,7 +41,6 @@ hiRegitMuTracking = cms.Sequence(hiRegitMuonInitialStep
                                  *hiRegitMuonMixedTripletStep
                                  *hiRegitMuonPixelLessStep
                                  *hiRegitMuonTobTecStep
-                                 #*hiRegitMuTracks
                                  *hiGeneralAndRegitMuTracks
                                  )
 
