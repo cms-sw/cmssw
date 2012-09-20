@@ -21,19 +21,27 @@ class CrabWatch(Thread):
 
     def run(self):
         exit = False
+        failed=0
         while not exit:
             #if checkStatus(self.project,80.0): break
-            status = crabStatus(self.project)
-            statusNew = convertStatus(status)
-            print "Relative percentage finished: %.0f%%" % statusNew['Finished']
-            print "Relative percentage failed  : %.0f%%" % statusNew['Failed']
-            print "Relative percentage running : %.0f%%" % statusNew['Running']
-            if statusNew['Failed'] > 50.0: raise RuntimeError,'Too many jobs have failed (%.0f%%).' % statusNew['Failed']
-            if statusNew['Finished'] >= self.threshold: break
-
-            self.lock.acquire()
-            if self.finish.isSet(): exit = True 
-            self.lock.release()
+            try:
+               status = crabStatus(self.project)
+            except CrabException:
+               failed+=1
+               print "Crab retrieve status failed (",failed,")"
+               if failed>10:
+                  raise 
+            else:
+               statusNew = convertStatus(status)
+               print "Relative percentage finished: %.0f%%" % statusNew['Finished']
+               print "Relative percentage failed  : %.0f%%" % statusNew['Failed']
+               print "Relative percentage running : %.0f%%" % statusNew['Running']
+               if statusNew['Failed'] > 50.0: raise RuntimeError,'Too many jobs have failed (%.0f%%).' % statusNew['Failed']
+               if statusNew['Finished'] >= self.threshold: break
+   
+               self.lock.acquire()
+               if self.finish.isSet(): exit = True 
+               self.lock.release()
  
             if not exit: time.sleep(180)
  
