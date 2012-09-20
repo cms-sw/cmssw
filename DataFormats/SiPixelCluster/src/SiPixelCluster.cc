@@ -61,7 +61,7 @@ void SiPixelCluster::add( const SiPixelCluster::PixelPos& pix, int adc) {
       thePixelOffset[i*2] = std::min(127,xoffset);
       thePixelOffset[i*2+1] = std::min(127,yoffset);
       if (yoffset > maxCol) maxCol = yoffset; 
-      if (xoffset > maxRow) maxRow = yoffset; 
+      if (xoffset > maxRow) maxRow = xoffset; 
     }
     packCol(minCol,maxCol);
     theRowSpan = std::min(127,maxRow);
