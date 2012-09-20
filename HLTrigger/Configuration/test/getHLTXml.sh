@@ -40,7 +40,7 @@ function getConfigForCVS() {
 
   # do not use any L1 override
   if [ "$NAME" == "GRun" ]; then
-    local L1Xml="L1Menu_Collisions2012_v2_L1T_Scales_20101224_Imp0_0x102a.xml"
+    local L1Xml="L1Menu_Collisions2012_v3_L1T_Scales_20101224_Imp0_0x102b.xml"
     hltGetConfiguration --cff --offline --mc   $CONFIG --type $NAME --l1Xml $L1Xml > HLT_${NAME}_cff.py
     hltGetConfiguration --cff --offline --data $CONFIG --type $NAME --l1Xml $L1Xml > HLT_${NAME}_data_cff.py
     hltGetConfiguration --fastsim              $CONFIG --type $NAME --l1Xml $L1Xml > HLT_${NAME}_Famos_cff.py
@@ -80,12 +80,12 @@ function getConfigForOnline() {
   local CONFIG="$1"
   local NAME="$2"
 # local L1T="tag[,connect]" - record is hardwired as L1GtTriggerMenuRcd
-# local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v1/sqlFile/L1Menu_Collisions2012_v1_mc.db"
-  local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc"
+  local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v3/sqlFile/L1Menu_Collisions2012_v3_mc.db"
+# local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2012_v2_mc"
 # local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_CollisionsHeavyIons2011_v0/sqlFile/L1Menu_CollisionsHeavyIons2011_v0_mc.db"
   local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc"
 
-  local L1Xml="L1Menu_Collisions2012_v2_L1T_Scales_20101224_Imp0_0x102a.xml"
+  local L1Xml="L1Menu_Collisions2012_v3_L1T_Scales_20101224_Imp0_0x102b.xml"
 
   log "    dumping full HLT for $NAME"
   # override L1 menus
