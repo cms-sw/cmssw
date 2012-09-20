@@ -7,20 +7,42 @@
 #include <algorithm>
 #include <cassert>
 
-
+#include<iostream>
 namespace {
+
+  struct Stat {
+    ~Stat() {
+      std::cout <<"atan0 calls tot/large" << natan << "/" << nlarge << std::endl; 
+    }
+
+    void add(float t) { 
+      ++natan;
+      if (t>0.40f) ++nlarge;
+    long long natan=0;
+    long long nlarge=0;
+    }
+  };
+
+  Stat stat;
 
   // valid for z < pi/8
   inline 
-  float atan0(float z) {
-    assert(z<0.39);
+  float atan0(float t) {
+    stat.add(t);
+    auto z=t;
+    if( t > 0.4142135623730950f ) // * tan pi/8 
+      {
+	z = (t-1.0f)/(t+1.0f);
+      }
     float z2 = z * z;
-    return
+    float ret=
       ((( 8.05374449538e-2f * z2
 	  - 1.38776856032E-1f) * z2
 	+ 1.99777106478E-1f) * z2
        - 3.33329491539E-1f) * z2 * z
       + z;
+    if( t > 0.4142135623730950f ) ret +=0.7853981633974483096f;
+    return ret;
   }
 
 }
