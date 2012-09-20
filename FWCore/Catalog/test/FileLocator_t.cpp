@@ -6,6 +6,7 @@
 
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
+#include <iostream>
 
 
 int main() {
