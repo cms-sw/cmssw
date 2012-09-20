@@ -852,7 +852,7 @@ class RunMEtUncertainties(ConfigToolBase):
             return
 
         if not hasattr(process, "pfMEtMVA"):
-            process.load("RecoMET.METProducers.mvaPFMET_cff")
+            process.load("JetMETCorrections.METPUSubtraction.mvaPFMET_cff")
 
         lastUncorrectedJetCollectionForPFMEtByMVA = 'ak5PFJets'
         lastCorrectedJetCollectionForPFMEtByMVA = 'calibratedAK5PFJetsForPFMEtMVA'
@@ -1167,12 +1167,7 @@ class RunMEtUncertainties(ConfigToolBase):
                 shiftBy = cms.double(+1.*varyByNsigmas)
             )
             metUncertaintySequence += process.correctedJetsEnUpForNoPileUpPFMEt           
-            process.puJetIdDataForNoPileUpMEtJetEnUp = process.puJetIdDataForNoPileUpMEt.clone(
-                jets = cms.InputTag('correctedJetsEnUpForNoPileUpPFMEt')
-            )
-            metUncertaintySequence += process.puJetIdDataForNoPileUpMEtJetEnUp
             process.puJetIdForNoPileUpMEtJetEnUp = process.puJetIdForNoPileUpMEt.clone(
-                jetids = cms.InputTag('puJetIdDataForNoPileUpMEtJetEnUp'),
                 jets = cms.InputTag('correctedJetsEnUpForNoPileUpPFMEt')
             )
             metUncertaintySequence += process.puJetIdForNoPileUpMEtJetEnUp
@@ -1196,12 +1191,7 @@ class RunMEtUncertainties(ConfigToolBase):
                 shiftBy = cms.double(-1.*varyByNsigmas)
             )
             metUncertaintySequence += process.correctedJetsEnDownForNoPileUpPFMEt            
-            process.puJetIdDataForNoPileUpMEtJetEnDown = process.puJetIdDataForNoPileUpMEt.clone(
-                jets = cms.InputTag('correctedJetsEnDownForNoPileUpPFMEt')
-            )
-            metUncertaintySequence += process.puJetIdDataForNoPileUpMEtJetEnDown
             process.puJetIdForNoPileUpMEtJetEnDown = process.puJetIdForNoPileUpMEt.clone(
-                jetids = cms.InputTag('puJetIdDataForNoPileUpMEtJetEnDown'),
                 jets = cms.InputTag('correctedJetsEnDownForNoPileUpPFMEt')
             )
             metUncertaintySequence += process.puJetIdForNoPileUpMEtJetEnDown
@@ -1231,12 +1221,7 @@ class RunMEtUncertainties(ConfigToolBase):
                     shiftBy = cms.double(+1.*varyByNsigmas)
                 )  
                 metUncertaintySequence += process.correctedJetsResDownForNoPileUpPFMEt
-                process.puJetIdDataForNoPileUpMEtJetResUp = process.puJetIdDataForNoPileUpMEt.clone(
-                    jets = cms.InputTag('correctedJetsResUpForNoPileUpPFMEt')
-                )
-                metUncertaintySequence += process.puJetIdDataForNoPileUpMEtJetResUp
                 process.puJetIdForNoPileUpMEtJetResUp = process.puJetIdForNoPileUpMEt.clone(
-                    jetids = cms.InputTag('puJetIdDataForNoPileUpMEtJetResUp'),
                     jets = cms.InputTag('correctedJetsResUpForNoPileUpPFMEt')
                 )
                 metUncertaintySequence += process.puJetIdForNoPileUpMEtJetResUp
@@ -1252,12 +1237,7 @@ class RunMEtUncertainties(ConfigToolBase):
                 metUncertaintySequence += process.noPileUpPFMEtJetResUp
                 self._addPATMEtProducer(process, metUncertaintySequence,
                                         'noPileUpPFMEtJetResUp', 'patPFMetNoPileUpJetResUp', collectionsToKeep)
-                process.puJetIdDataForNoPileUpMEtJetResDown = process.puJetIdDataForNoPileUpMEt.clone(
-                    jets = cms.InputTag('correctedJetsResDownForNoPileUpPFMEt')
-                )
-                metUncertaintySequence += process.puJetIdDataForNoPileUpMEtJetResDown
                 process.puJetIdForNoPileUpMEtJetResDown = process.puJetIdForNoPileUpMEt.clone(
-                    jetids = cms.InputTag('puJetIdDataForNoPileUpMEtJetResDown'),
                     jets = cms.InputTag('correctedJetsResDownForNoPileUpPFMEt')
                 )
                 metUncertaintySequence += process.puJetIdForNoPileUpMEtJetResDown
