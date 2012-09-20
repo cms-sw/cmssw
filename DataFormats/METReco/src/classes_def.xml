@@ -36,6 +36,11 @@
   <class name="reco::MVAMEtPFCandInfoCollection" />
   <class name="edm::Wrapper<reco::MVAMEtPFCandInfoCollection>" />
 
+  <!-- create disctionaries for MET covariance matrix 
+       computed by (PF)MET significance algorithm -->
+  <class name="PFMEtSignCovMatrix"/>
+  <class name="edm::Wrapper<PFMEtSignCovMatrix>"/>
+
   <class name="SpecificCaloMETData" ClassVersion="10">
    <version ClassVersion="10" checksum="3022746385"/>
   </class>
