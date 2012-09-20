@@ -12,7 +12,7 @@
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: GeneralHLTOffline.cc,v 1.6 2012/08/07 10:45:21 muell149 Exp $
+// $Id: GeneralHLTOffline.cc,v 1.7 2012/08/09 13:05:30 muell149 Exp $
 //
 //
 
@@ -49,9 +49,9 @@
 
 using namespace edm;
 using namespace trigger;
+using namespace std; 
 using std::vector;
 using std::string;
-
 
 class GeneralHLTOffline : public edm::EDAnalyzer {
    public:
@@ -70,7 +70,9 @@ class GeneralHLTOffline : public edm::EDAnalyzer {
       virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
       virtual void setupHltMatrix(std::string, int);
-   virtual void fillHltMatrix(std::string, std::string, double, double, bool);
+      virtual void fillHltMatrix(std::string, std::string, double, double, bool);
+      virtual string removeVersions(std::string);
+
 
       // ----------member data ---------------------------
 
@@ -86,6 +88,7 @@ class GeneralHLTOffline : public edm::EDAnalyzer {
   HLTConfigProvider hltConfig_;
   
   vector< vector<string> > PDsVectorPathsVector;
+  vector<string> AddedDatasets;
 
   MonitorElement * cppath;
 };
@@ -141,7 +144,10 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    using namespace edm;
    using std::string;
 
-   if (debugPrint) std::cout << "Inside analyze" << std::endl;
+
+   if (debugPrint) std::cout << "Inside analyze - run, block, event " << iEvent.id().run() << " , " << iEvent.id().luminosityBlock() << " , " << iEvent.id() << " , " << std::endl;
+
+		     //LuminosityBLock() << " , " << event() << std::endl;
 
     // Access Trigger Results
    edm::Handle<edm::TriggerResults> triggerResults;
@@ -167,6 +173,7 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   bool streamAfound = false;
   int i = 0;
+  
 
 
   for (vector<string>::iterator streamName = nameStreams.begin(); 
@@ -188,12 +195,13 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
        
        //     if (datasetNames[iPD] != "SingleMu" && datasetNames[iPD] != "SingleElectron" && datasetNames[iPD] != "Jet") continue;  
        
-       unsigned int keyTracker[1000]; // Array to eliminate double counts by tracking what Keys have already been fired
-       for(unsigned int irreproduceableIterator = 0; irreproduceableIterator < 1000; irreproduceableIterator++) {
-	 keyTracker[irreproduceableIterator] = 1001;
-       }
+       // unsigned int keyTracker[1000]; // Array to eliminate double counts by tracking what Keys have already been fired
+       // for(unsigned int irreproduceableIterator = 0; irreproduceableIterator < 1000; irreproduceableIterator++) {
+       // 	 keyTracker[irreproduceableIterator] = 1001;
+       // }
        // Loop over Paths in each PD
-       for (unsigned int iPath = 0; iPath < PDsVectorPathsVector[iPD].size(); iPath++) { //Andrew - where does PDsVectorPathsVector get defined?
+       bool first_count = true;
+       for (unsigned int iPath = 0; iPath < PDsVectorPathsVector[iPD].size(); iPath++) { 
 	 
 	 std::string pathName = PDsVectorPathsVector[iPD][iPath];
 	 
@@ -225,7 +233,8 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	     	     
 	     cppath->Fill(index,1);
 	     	     
-	     if (debugPrint) std::cout << "We fired path " << pathName << std::endl;
+	     if (debugPrint) std::cout << "Check Event " <<  iEvent.id() << " Run " << iEvent.id().run() 
+				       << " fired path " << pathName << std::endl;
 	     
 	     // look up module labels for this path
 	     
@@ -253,14 +262,19 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		   const Keys &keys = aodTriggerEvent->filterKeys( indexOfModuleInAodTriggerEvent );
 		   if (debugPrint) std::cout << "Got Keys for index " << indexOfModuleInAodTriggerEvent <<", size of keys is " << keys.size() << std::endl;
 		   if (keys.size()>=1000) edm::LogWarning("GeneralHLTOffline") << "WARNING!! size of keys is " << keys.size() 
-						                               << " for path " << pathName << " and module " << modulesThisPath[iModule]<< std::endl;
+									       << " for path " << pathName << " and module " << modulesThisPath[iModule]<< std::endl;
 
-		   for ( size_t iKey = 0; iKey < keys.size(); iKey++ ) {
-		     if( iKey>=1000 ) break;
-		     TriggerObject foundObject = objects[keys[iKey]];
-		     bool first_count = false;
+		   // There can be > 100 keys (3-vectors) for some modules with no ID filled
+		   // the first one has the highest value for single-object triggers
+		   // for multi-object triggers, seems reasonable to use the first one as well
+		   //  So loop here has been commented out
+		   //		   for ( size_t iKey = 0; iKey < keys.size(); iKey++ ) {
+		   
+		   if (keys.size() > 0) {
+		     TriggerObject foundObject = objects[keys[0]];
+
 		     
-		     if(keyTracker[iKey] != iKey) first_count = true;
+		     //		     if(keyTracker[iKey] != iKey) first_count = true;
 		     
 		     if (debugPrint || outputPrint) std::cout << "This object has id (pt, eta, phi) = "
 							      << " " << foundObject.id() << " " 
@@ -269,15 +283,26 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 							      << ", " << std::setw(10) << foundObject.phi()
 							      << "    for path = " << std::setw(20) << pathName
 							      << " module " << std::setw(40) << modulesThisPath[iModule]
-							      << " iKey " << iKey << std::endl;
-		     
+							      << std::endl;
+
+		     if (debugPrint) std::cout << "CHECK RUN " << iEvent.id().run() << " " << iEvent.id() << " " << pathName << " " 
+					       << modulesThisPath[iModule] << " " << datasetNames[iPD] << " "  
+					       << hltConfig_.moduleType(modulesThisPath[iModule]) << " " 
+					       << keys.size() << " " 
+					       << std::setprecision(4) << foundObject.pt() << " " 
+					       << foundObject.eta() << " " 
+					       << foundObject.phi() << std::endl;
+
+		     // first_count is to make sure that the top-level histograms of each dataset 
+		     // don't get filled more than once
 		     fillHltMatrix(datasetNames[iPD],pathName,foundObject.eta(),foundObject.phi(),first_count);
+		     first_count = false;
 		     
-		     keyTracker[iKey] = iKey;
+		     //		     keyTracker[iKey] = iKey;
 		     
-		   }// end for each key               
+		     //   }// end for each key               
+		   } // at least one key
 		 }// end if filter in aodTriggerEvent
-		 
 		 
 		 // OK, we found the last module. No need to look at the others.
 		 // get out of the loop
@@ -340,20 +365,19 @@ GeneralHLTOffline::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
 
   if (debugPrint) std::cout << "Inside beginRun" << std::endl;
-
-
+  
   bool changed = true;
   if (hltConfig_.init(iRun, iSetup, hltTag, changed)) {
     if(debugPrint)
-      if(debugPrint) std::cout << "HLT config with process name " 
+      std::cout << "HLT config with process name " 
                 << hltTag << " successfully extracted" << std::endl;
   } else {
-    if (debugPrint)
-      if (debugPrint) std::cout << "Warning, didn't find process HLT" << std::endl;
+    if (debugPrint) std::cout << "Warning, didn't find process HLT" << std::endl;
   }
 
-  if (debugPrint) std::cout << " About to access stream A content " << std::endl;
-
+  if (debugPrint) std::cout << " HLTConfig processName " << hltConfig_.processName()
+			    << " tableName " << hltConfig_.tableName() 
+			    << " size " << hltConfig_.size() << std::endl;
 
   //////////// Book a simple ME
 
@@ -376,33 +400,104 @@ GeneralHLTOffline::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
     i++;
   }
  
+
  
   if (streamAfound) {
     vector<string> datasetNames =  hltConfig_.streamContent("A");
   
-    if (debugPrint) std::cout << " Size of Stream A dataset " << datasetNames.size() << std::endl;
-
+    if (debugPrint) std::cout << "Number of Stream A datasets " << datasetNames.size() << std::endl;
+    
     for (unsigned int i=0;i<datasetNames.size();i++) {
       
       if (debugPrint) std::cout << "This is dataset " << datasetNames[i] <<std::endl;
       
       vector<string> datasetPaths = hltConfig_.datasetContent(datasetNames[i]);
-
+      
       if (debugPrint) std::cout << "datasetPaths.size() = " << datasetPaths.size() << std::endl;
       
-      PDsVectorPathsVector.push_back(datasetPaths);
+      // Should be fine here 
+      if (debugPrint) {
+	for (unsigned int iPath = 0;  
+	     iPath < datasetPaths.size(); iPath++) {
+	  std::cout << "Before setupHltMatrix -  MET dataset " << datasetPaths[iPath] << std::endl;
+	}
+      }
       
+      // Check if dataset has been added - if not add it
+      // need to loop through AddedDatasets and compare
+      bool foundDataset = false;
+      int datasetNum = -1;
+      for (unsigned int d = 0; d < AddedDatasets.size(); d++) {
+	if (AddedDatasets[d].compare(datasetNames[i]) == 0 ){
+	  foundDataset = true;
+	  datasetNum = d;
+	  if (debugPrint) std::cout << "Dataset " << datasetNames[i] << " found in AddedDatasets at position " << d << std::endl;
+	  break;
+	}
+      }
+
+      if (!foundDataset) {
+	if (debugPrint) std::cout << " Fill trigger paths for dataset " << datasetNames[i] << std::endl;
+	PDsVectorPathsVector.push_back(datasetPaths);
+	// store dataset pathname 
+	AddedDatasets.push_back(datasetNames[i]);
+      }
+      // This trigger path has already been added - 
+      //   this implies that this is a new run
+      //   What we want to do is check if there is a new trigger that was not in the original dataset
+      //    For a given dataset, loop over the stored list of triggers, and compare to the current list of triggers
+      //     If any of the triggers are missing, add them to the end of the appropriate dataset
+      else  {
+	if (debugPrint) std::cout << " Additional runs : Check for additional trigger paths per dataset " << std::endl;
+	  // Loop over correct path of PDsVectorPathsVector
+	  bool found = false;
+
+	  // Loop over triggers in the path
+	  for (unsigned int iTrig = 0; iTrig < datasetPaths.size(); iTrig++) {
+	    if (debugPrint) std::cout << "Looping over trigger list in dataset " <<  iTrig <<  "  " << datasetPaths[iTrig] << endl; 
+	      found = false;
+	    // Loop over triggers already on the list
+	    for (unsigned int od = 0; od < PDsVectorPathsVector[datasetNum].size(); od++) { 
+	      if (debugPrint) std::cout << "Looping over existing trigger list " <<  od <<  "  " << PDsVectorPathsVector[datasetNum][od] << endl; 
+	      // Compare, see if match is found
+	      if (removeVersions(datasetPaths[iTrig]).compare(removeVersions(PDsVectorPathsVector[datasetNum][od])) == 0) {
+		found = true;
+		if (debugPrint) std::cout << " FOUND " << datasetPaths[iTrig] << std::endl;
+		break;
+	      }
+	    }
+	  // If match is not found, add trigger to correct path of PDsVectorPathsVector
+	  if (!found)
+	    PDsVectorPathsVector[datasetNum].push_back(datasetPaths[iTrig]);
+	  if (debugPrint) std::cout << datasetPaths[iTrig] << "  NOT FOUND - so we added it to the correct dataset " << datasetNames[i] << std::endl;
+	  }
+      }      
+      
+      // Let's check this whole big structure
+      if (debugPrint) {
+	for (unsigned int is = 0; is < PDsVectorPathsVector.size(); is++) { 
+	  std::cout << "   PDsVectorPathsVector[" << is << "] is " << PDsVectorPathsVector[is].size() << std::endl;
+	  for (unsigned int ip = 0; ip < PDsVectorPathsVector[is].size(); ip++) { 
+	    std::cout << "    trigger " << ip << " path " << PDsVectorPathsVector[is][ip] << std::endl;
+	  }
+	}
+      }
+
       if (debugPrint) std::cout <<"Found PD: " << datasetNames[i]  << std::endl;     
       setupHltMatrix(datasetNames[i],i);   
 
     }// end of loop over dataset names
-  }
-}// end of beginRun
+  } // if stream A found
+
+}
+// end of beginRun
+
 
 
 // ------------ method called when ending the processing of a run  ------------
 void GeneralHLTOffline::endRun(edm::Run const&, edm::EventSetup const&)
 {
+  if (debugPrint) std::cout << " endRun called " << std::endl; 
 }
 
 
@@ -463,9 +558,12 @@ Double_t PhiMaxFine = 33.0*TMath::Pi()/32.0;
  // MonitorElement * ME_EtaVsPhi = dbe->book2D(h_name.c_str(),hist_EtaVsPhi);
  dbe->book2D(h_name.c_str(),hist_EtaVsPhi);
  // MonitorElement * ME_1dEta = dbe->book1D(h_name_1dEta.c_str(),hist_1dEta);
- dbe->book1D(h_name_1dEta.c_str(),hist_1dEta);
+ if (label != "MET" && label != "HT") 
+   dbe->book1D(h_name_1dEta.c_str(),hist_1dEta);
  // MonitorElement * ME_1dPhi = dbe->book1D(h_name_1dPhi.c_str(),hist_1dPhi);
- dbe->book1D(h_name_1dPhi.c_str(),hist_1dPhi);
+ if (label != "HT") {
+   dbe->book1D(h_name_1dPhi.c_str(),hist_1dPhi);
+ }
 
  ////charlieeeeeee
  std::string folderz;
@@ -477,10 +575,10 @@ Double_t PhiMaxFine = 33.0*TMath::Pi()/32.0;
  int sizez = PDsVectorPathsVector[iPD].size();
  TH1F * hist_mini_cppath = new TH1F(dnamez.c_str(),dtitlez.c_str(),sizez,0,sizez);//or iPath
  dbe->book1D(dnamez.c_str(),hist_mini_cppath);
- 
  unsigned int jPath;
- for (unsigned int iPath = 0; iPath < PDsVectorPathsVector[iPD].size(); iPath++) { //loop over triggers
-    pathName = PDsVectorPathsVector[iPD][iPath];
+  for (unsigned int iPath = 0; iPath < PDsVectorPathsVector[iPD].size(); iPath++) { 
+    pathName = removeVersions(PDsVectorPathsVector[iPD][iPath]);
+
     h_name_1dEtaPath = "HLT_"+pathName+"_1dEta";
     h_name_1dPhiPath = "HLT_"+pathName+"_1dPhi";
     h_title_1dEtaPath = pathName+" Occupancy Vs Eta";
@@ -506,10 +604,22 @@ Double_t PhiMaxFine = 33.0*TMath::Pi()/32.0;
  if (debugPrint) std::cout << "Success setupHltMatrix( " << label << " , " << iPD << " )" << std::cout;
 } //End setupHltMatrix
 
-
-
-
-
+string GeneralHLTOffline::removeVersions(std::string histVersion) {
+  for (int ii = 100; ii >= 0; ii--) {
+    string ver = "_v";
+    string version ="";
+    stringstream ss;
+    ss << ver << ii;
+    ss >> version;
+    
+    size_t pos = histVersion.find(version);
+    if (pos != std::string::npos)
+      histVersion.erase(pos,version.size());
+    
+  }
+  
+  return histVersion;
+}
 
 
 void GeneralHLTOffline::fillHltMatrix(std::string label, std::string path,double Eta, double Phi, bool first_count) {
@@ -536,40 +646,66 @@ if (label != "SingleMu" && label != "SingleElectron" && label != "Jet") {
  fullPathToME1dPhi = "HLT/GeneralHLTOffline/"+label+"/HLT_"+label+"_1dPhi";
  }
  
- fullPathToME1dEtaPath = "HLT/GeneralHLTOffline/"+label+"/Paths/HLT_"+path+"_1dEta";
- fullPathToME1dPhiPath = "HLT/GeneralHLTOffline/"+label+"/Paths/HLT_"+path+"_1dPhi";
+ fullPathToME1dEtaPath = "HLT/GeneralHLTOffline/"+label+"/Paths/HLT_"+removeVersions(path)+"_1dEta";
+ fullPathToME1dPhiPath = "HLT/GeneralHLTOffline/"+label+"/Paths/HLT_"+removeVersions(path)+"_1dPhi";
 
-  if (debugPrint) std::cout << "fullPathToME = " << std::endl;
-
-  MonitorElement * ME_2d = dbe->get(fullPathToME);
-  MonitorElement * ME_1dEta = dbe->get(fullPathToME1dEta);
-  MonitorElement * ME_1dPhi = dbe->get(fullPathToME1dPhi);  
-  MonitorElement * ME_1dEtaPath = dbe->get(fullPathToME1dEtaPath);
-  MonitorElement * ME_1dPhiPath = dbe->get(fullPathToME1dPhiPath);
+  // MonitorElement * ME_2d = dbe->get(fullPathToME);
+  // MonitorElement * ME_1dEta = dbe->get(fullPathToME1dEta);
+  // MonitorElement * ME_1dPhi = dbe->get(fullPathToME1dPhi);  
+  // MonitorElement * ME_1dEtaPath = dbe->get(fullPathToME1dEtaPath);
+  // MonitorElement * ME_1dPhiPath = dbe->get(fullPathToME1dPhiPath);
   MonitorElement * ME_mini_cppath = dbe->get(fullPathToCPP);
   
-  if (debugPrint) std::cout << "MonitorElement * " << std::endl;
-
-  TH2F * hist_2d = ME_2d->getTH2F();
-  TH1F * hist_1dEta = ME_1dEta->getTH1F();
-  TH1F * hist_1dPhi = ME_1dPhi->getTH1F();
-  TH1F * hist_1dEtaPath = ME_1dEtaPath->getTH1F();
-  TH1F * hist_1dPhiPath = ME_1dPhiPath->getTH1F();
+  // TH2F * hist_2d = ME_2d->getTH2F();
+  // TH1F * hist_1dEta = ME_1dEta->getTH1F();
+  // TH1F * hist_1dPhi = ME_1dPhi->getTH1F();
+  // TH1F * hist_1dEtaPath = ME_1dEtaPath->getTH1F();
+  // TH1F * hist_1dPhiPath = ME_1dPhiPath->getTH1F();
   TH1F * hist_mini_cppath = ME_mini_cppath->getTH1F();
-
-  if (debugPrint) std::cout << "TH2F *" << std::endl;
 
   //int i=2;
   //if (Eta>1.305 && Eta<1.872) i=0;
   //if (Eta<-1.305 && Eta>-1.872) i=0;
   //for (int ii=i; ii<3; ++ii) hist_2d->Fill(Eta,Phi); //Scales narrow bins in Barrel/Endcap border region
 
+  // fill top-level histograms
   if(first_count) {
-    hist_1dEta->Fill(Eta);
-    hist_1dPhi->Fill(Phi); 
-    hist_2d->Fill(Eta,Phi); }
-  hist_1dEtaPath->Fill(Eta); 
-  hist_1dPhiPath->Fill(Phi);
+    if (debugPrint)
+      std::cout << " label " << label << " fullPathToME1dPhi " << fullPathToME1dPhi << " path "  << path << " Phi " << Phi << " Eta " << Eta << std::endl;
+
+    if (label != "MET" && label != "HT") {
+      MonitorElement * ME_1dEta = dbe->get(fullPathToME1dEta);
+      TH1F * hist_1dEta = ME_1dEta->getTH1F();
+      hist_1dEta->Fill(Eta);
+    }
+    if (label != "HT") {
+      MonitorElement * ME_1dPhi = dbe->get(fullPathToME1dPhi);  
+      TH1F * hist_1dPhi = ME_1dPhi->getTH1F();
+      hist_1dPhi->Fill(Phi); 
+      if (debugPrint) std::cout << "  **FILLED** label " << label << " fullPathToME1dPhi " << fullPathToME1dPhi << " path "  << path << " Phi " << Phi << " Eta " << Eta << std::endl;
+    }
+    if (label != "MET" && label != "HT") {
+      MonitorElement * ME_2d = dbe->get(fullPathToME);
+      TH2F * hist_2d = ME_2d->getTH2F();
+      hist_2d->Fill(Eta,Phi); 
+    }
+  }  // end fill top-level histograms
+
+
+  if (label != "MET" && label != "HT") {
+    MonitorElement * ME_1dEtaPath = dbe->get(fullPathToME1dEtaPath);
+    TH1F * hist_1dEtaPath = ME_1dEtaPath->getTH1F();
+    hist_1dEtaPath->Fill(Eta); 
+  }
+  if (label != "HT") {
+    MonitorElement * ME_1dPhiPath = dbe->get(fullPathToME1dPhiPath);
+    TH1F * hist_1dPhiPath = ME_1dPhiPath->getTH1F();
+    hist_1dPhiPath->Fill(Phi);
+  }
+  
+  if (debugPrint)
+    if (label == "MET") 
+      std::cout << " MET Eta is " << Eta << std::endl;
   
   TAxis * axis = hist_mini_cppath->GetXaxis();
   int bin_num = axis->FindBin(path.c_str());
