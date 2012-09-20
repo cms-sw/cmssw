@@ -85,13 +85,7 @@ RectangularPixelTopology::pixel( const LocalPoint& p ) const
     iybin0 = (iybin%54); // 0-53
     numROC = iybin/54;  // 0-7
 
-    if( iybin0 > 53 )
-    {
-      LogDebug("RectangularPixelTopology") << " very bad, newbiny " << iybin0 << "\n"
-					   << py << " " << m_yoffset << " " << m_pitchy << " "
-					   << newybin << " " << iybin << " " << fractionY << " " << iybin0 << " "
-					   << numROC;
-    } else if (iybin0==53) {   // inside big pixel
+    if (iybin0==53) {   // inside big pixel
       iybin0=51;
       fractionY = (fractionY+1.)/2.;
     } else if (iybin0==52) {   // inside big pixel
@@ -105,12 +99,8 @@ RectangularPixelTopology::pixel( const LocalPoint& p ) const
     } else if (iybin0==0) {   // inside big pixel
       iybin0=0;
       fractionY = fractionY/2.;
-    } else {
-      LogDebug("RectangularPixelTopology") << " very bad, newbiny " << newybin << "\n"
-					   << py << " " << m_yoffset << " " << m_pitchy << " "
-					   << newybin << " " << iybin << " " << fractionY << " "
-					   << iybin0 << " " << numROC;
-    }
+    } 
+
     mpY = float(numROC*52. + iybin0) + fractionY;
   }
 
@@ -246,7 +236,6 @@ RectangularPixelTopology::localX( const float mpx ) const
     } else if (binoffx==80) {    // ROC 1
       binoffx=binoffx+1;
       local_pitchx *= 2;
-    
     } else if (binoffx==79) {      // ROC 0
       binoffx=binoffx+0;
       local_pitchx *= 2;    
@@ -254,12 +243,12 @@ RectangularPixelTopology::localX( const float mpx ) const
     // else if (binoffx>=0) {       // ROC 0
     //  binoffx=binoffx+0;
     // } 
+
 #ifdef EDM_ML_DEBUG
-    else if (binoffx<0) { // too small
+    if (binoffx<0) // too small
       LogDebug("RectangularPixelTopology") << " very bad, binx " << binoffx << "\n"
 					   << mpx << " " << binoffx << " "
 					   << fractionX << " " << local_pitchx << " " << m_xoffset;
-    }
 #endif
   }
   
