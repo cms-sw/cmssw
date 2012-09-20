@@ -16,6 +16,10 @@
 class IDataItem : public IDBObject {
 
  public:
+  IDataItem()
+  : m_writeStmt(0),
+    m_readStmt(0)
+  {}
 
   virtual std::string getTable() =0;
   
