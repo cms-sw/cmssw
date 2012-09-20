@@ -65,7 +65,8 @@ void DrawPreliminary(double SQRTS_, double Lumi, double X=0.40, double Y=0.995, 
       T->AddText(tmp);
    }
    if(Lumi>0 ){
-      sprintf(tmp,"CMS Preliminary   #sqrt{s} = %1.0f TeV   %1.1f fb ^{-1}",SQRTS_, Lumi*0.001);
+     sprintf(tmp,"CMS Preliminary   #sqrt{s} = %1.0f TeV   %1.1f fb ^{-1}",SQRTS_, Lumi*0.001);
+     //   sprintf(tmp,"CMS Preliminary  "); 
       T->AddText(tmp);
    }
    T->Draw("same");
