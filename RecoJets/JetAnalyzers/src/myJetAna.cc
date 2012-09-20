@@ -134,7 +134,8 @@ HPD HPDColl[144];
 
 myJetAna::myJetAna( const ParameterSet & cfg ) :
   CaloJetAlgorithm( cfg.getParameter<string>( "CaloJetAlgorithm" ) ), 
-  GenJetAlgorithm( cfg.getParameter<string>( "GenJetAlgorithm" ) )  
+  GenJetAlgorithm( cfg.getParameter<string>( "GenJetAlgorithm" ) ),
+  hcalNoiseSummaryTag_(cfg.getParameter<edm::InputTag>("hcalNoiseSummaryTag"))
 {
   theTriggerResultsLabel = cfg.getParameter<edm::InputTag>("TriggerResultsLabel");
 }
@@ -942,7 +943,7 @@ void myJetAna::beginJob( ) {
 // ************************
 // ************************
 void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
- 
+
   using namespace edm;
 
   bool Pass, Pass_HFTime, Pass_DiJet, Pass_BunchCrossing, Pass_Trigger, Pass_Vertex;
@@ -1986,7 +1987,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   // **************************
 
   edm::Handle<HcalNoiseSummary> summary_h;
-  evt.getByType(summary_h);
+  evt.getByLabel(hcalNoiseSummaryTag_, summary_h);
   if(!summary_h.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound) << " could not find HcalNoiseSummary.\n";
     //    return true;

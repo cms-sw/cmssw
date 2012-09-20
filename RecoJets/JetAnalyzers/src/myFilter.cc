@@ -80,7 +80,8 @@ typedef struct HPD_struct {
 
 
 myFilter::myFilter(const edm::ParameterSet& cfg) :
-  CaloJetAlgorithm( cfg.getParameter<string>( "CaloJetAlgorithm" ) )
+  CaloJetAlgorithm( cfg.getParameter<string>( "CaloJetAlgorithm" ) ),
+  hcalNoiseSummaryTag_(cfg.getParameter<edm::InputTag>("hcalNoiseSummaryTag"))
 {
   _nTotal      = 0;
   _nEvent      = 0;
@@ -323,7 +324,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   // get the Noise summary object
 
   edm::Handle<HcalNoiseSummary> summary_h;
-  evt.getByType(summary_h);
+  evt.getByLabel(hcalNoiseSummaryTag_, summary_h);
   if(!summary_h.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound) << " could not find HcalNoiseSummary.\n";
     //    return true;

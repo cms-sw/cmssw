@@ -21,6 +21,7 @@
 <use   name="JetMETCorrections/MCJet"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Utilities"/>
 <use   name="PhysicsTools/PatUtils"/>
 <use   name="PhysicsTools/PatAlgos"/>
 <use   name="CalibFormats/HcalObjects"/>

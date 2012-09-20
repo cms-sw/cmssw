@@ -5,6 +5,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 #include <string>
 
 class myFilter : public edm::EDFilter {
@@ -68,7 +70,7 @@ private:
 
   std::string CaloJetAlgorithm;
   edm::InputTag theTriggerResultsLabel;
-
+  edm::InputTag hcalNoiseSummaryTag_;
 };
 
 #endif

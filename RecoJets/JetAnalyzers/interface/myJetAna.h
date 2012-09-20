@@ -14,6 +14,7 @@
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -62,6 +63,7 @@ private:
   std::string CaloJetAlgorithm;
   std::string GenJetAlgorithm;
   edm::InputTag theTriggerResultsLabel;
+  edm::InputTag hcalNoiseSummaryTag_;
   std::string JetCorrectionService;
 
 
