@@ -1,13 +1,13 @@
 from DQM.EcalBarrelMonitorTasks.TestPulseTask_cfi import ecalTestPulseTask
 
 ecalTestPulseClient = dict(
-    amplitudeThresholdG1 = 100.,
-    amplitudeThresholdG6 = 100.,
+    amplitudeThresholdG01 = 100.,
+    amplitudeThresholdG06 = 100.,
     amplitudeThresholdG12 = 100.,
     toleranceRMSG1 = 10.,
     toleranceRMSG6 = 10.,
     toleranceRMSG12 = 10.,
-    PNAmplitudeThresholdG1 = 200. / 16.,
+    PNAmplitudeThresholdG01 = 200. / 16.,
     PNAmplitudeThresholdG16 = 200.,
     tolerancePNRMSG1 = 20.,
     tolerancePNRMSG16 = 20.,
