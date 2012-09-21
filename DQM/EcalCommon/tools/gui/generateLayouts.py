@@ -17,7 +17,7 @@ genLists = {
 optparser = OptionParser()
 optparser.add_option('-l', '--list', dest = 'list', help = 'LIST=(shift|ecal|overview|online|offline|relval|all)', metavar = 'LIST', default = 'all')
 optparser.add_option('-t', '--target-dir', dest = 'targetDir', help = '', metavar = '', default = '.')
-optparser.add_option('-s', '--source-dir', dest = 'sourceDir', help = '', metavar = '', default = '.')
+optparser.add_option('-s', '--source-dir', dest = 'sourceDir', help = '', metavar = '')
 
 (options, args) = optparser.parse_args()
 
