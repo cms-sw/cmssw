@@ -7,6 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
@@ -152,6 +153,8 @@ class QCDTrackAnalyzer : public edm::EDAnalyzer
    int ch;
 
    edm::View<reco::Track> oTrackCollection;
+
+   edm::InputTag hepMCProductTag_;
 };
 
 /*****************************************************************************/
@@ -162,6 +165,10 @@ QCDTrackAnalyzer::QCDTrackAnalyzer(const edm::ParameterSet& pset)
   allRecTracksArePrimary = pset.getParameter<bool>("allRecTracksArePrimary");
 
   histograms = new Histograms(pset);
+
+  if (hasSimInfo) {
+    hepMCProductTag_ = pset.getParameter<edm::InputTag>("hepMCProductTag");
+  }
 }
 
 /*****************************************************************************/
@@ -833,7 +840,7 @@ void QCDTrackAnalyzer::analyze
   if(hasSimInfo)
   {
   edm::Handle<edm::HepMCProduct> hepEv;
-  ev.getByType(hepEv);
+  ev.getByLabel(hepMCProductTag_, hepEv);
   proc = hepEv->GetEvent()->signal_process_id();
   LogTrace("MinBiasTracking") << " [TrackAnalyzer] process = " << proc;
 

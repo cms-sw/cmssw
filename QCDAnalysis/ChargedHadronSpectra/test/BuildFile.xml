@@ -2,6 +2,7 @@
 <use   name="root"/>
 <use   name="clhep"/>
 <use   name="FWCore/Framework"/>
+<use   name="FWCore/Utilities"/>
 <use   name="QCDAnalysis/ChargedHadronSpectra"/>
 <library   file="ParticleIdentifier.cc" name="ParticleIdentifier">
   <use   name="SimTracker/TrackerHitAssociation"/>
