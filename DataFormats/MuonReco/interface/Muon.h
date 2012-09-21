@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik, Riccardo Bellan, Michalis Bachtis
  *
- * \version $Id: Muon.h,v 1.73 2012/07/21 00:44:12 bachtis Exp $
+ * \version $Id: Muon.h,v 1.74 2012/08/21 21:28:00 mskim Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -193,7 +193,7 @@ namespace reco {
     /// given distance (in cm) of chamber edges 
     /// bit assignments are same as above
     int numberOfMatchedRPCLayers( ArbitrationType type = RPCHitAndTrackArbitration ) const;
-    unsigned int RPClayerMask( int rpcRegion = 1 ) const;
+    unsigned int RPClayerMask( ArbitrationType type = RPCHitAndTrackArbitration ) const;
     unsigned int stationGapMaskDistance( float distanceCut = 10. ) const;
     /// same as above for given number of sigmas
     unsigned int stationGapMaskPull( float sigmaCut = 3. ) const;
