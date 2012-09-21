@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.32 2012/06/26 22:13:04 wmtan Exp $
+// $Id: FWTableView.cc,v 1.33 2012/08/03 18:20:28 wmtan Exp $
 //
 
 // system include files
@@ -18,6 +18,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <cassert>
 
 #include "TClass.h"
 #include "TSystem.h"

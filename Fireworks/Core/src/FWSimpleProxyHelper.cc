@@ -8,11 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 15:13:22 EST 2008
-// $Id: FWSimpleProxyHelper.cc,v 1.4 2012/06/26 22:09:35 wmtan Exp $
+// $Id: FWSimpleProxyHelper.cc,v 1.5 2012/08/03 18:20:28 wmtan Exp $
 //
 
 // system include files
 #include <sstream>
+#include <cassert>
 
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"

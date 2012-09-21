@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.46 2012/06/26 22:13:03 wmtan Exp $
+// $Id: FWEventItemsManager.cc,v 1.47 2012/08/03 18:20:28 wmtan Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 #include "Fireworks/Core/interface/FWItemAccessorFactory.h"
 #include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
 #include "Fireworks/Core/interface/fwLog.h"
+#include <cassert>
 
 //
 // constants, enums and typedefs

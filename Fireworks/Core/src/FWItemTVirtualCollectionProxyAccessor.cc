@@ -8,10 +8,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 08:43:47 EDT 2008
-// $Id: FWItemTVirtualCollectionProxyAccessor.cc,v 1.8 2012/06/26 22:09:35 wmtan Exp $
+// $Id: FWItemTVirtualCollectionProxyAccessor.cc,v 1.9 2012/08/03 18:20:28 wmtan Exp $
 //
 
 // system include files
+#include <cassert>
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "TVirtualCollectionProxy.h"
