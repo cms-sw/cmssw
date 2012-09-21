@@ -1,6 +1,5 @@
 from optparse import OptionParser
 import sys
-sys.path.append('/data/ecalod-disk01/dqm-data/CMSSW_5_2_4_patch4/python')
 from dqmlayouts import *
 
 genLists = {
@@ -18,6 +17,7 @@ genLists = {
 optparser = OptionParser()
 optparser.add_option('-l', '--list', dest = 'list', help = 'LIST=(shift|ecal|overview|online|offline|relval|all)', metavar = 'LIST', default = 'all')
 optparser.add_option('-t', '--target-dir', dest = 'targetDir', help = '', metavar = '', default = '.')
+optparser.add_option('-s', '--source-dir', dest = 'sourceDir', help = '', metavar = '', default = '.')
 
 (options, args) = optparser.parse_args()
 
@@ -25,8 +25,15 @@ if options.list not in genLists:
     optparser.print_usage()
     exit
 
+if options.sourceDir == '':
+    optparser.print_usage()
+    exit
+
 genList = genLists[options.list]
 targetDir = options.targetDir
+sourceDir = options.sourceDir
+
+sys.path.append(sourceDir)
 
 #### BEGIN path definitions / utility functions ####
 

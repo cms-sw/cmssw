@@ -194,7 +194,10 @@ dqmModules += '''
 ### DQM COMMON MODULES ###
 
 process.load("DQMServices.Core.DQM_cfg")
+'''
 
+if physics :
+    dqmModules += '''
 process.dqmQTest = cms.EDAnalyzer("QualityTester",
   reportThreshold = cms.untracked.string("red"),
   prescaleFactor = cms.untracked.int32(1),
@@ -320,7 +323,7 @@ process.ecalRecoSequence = cms.Sequence(
 if physics :
     sequencePaths += '''
 process.ecalClusterSequence = cms.Sequence(
-    process.hybridClusteringSequence +
+    process.hybridClusteringSequence *
     process.multi5x5ClusteringSequence
 )
 process.ecalClusterSequence.remove(process.multi5x5SuperClustersWithPreshower)
@@ -384,10 +387,14 @@ sequencePaths += '''
 )
 
 process.dqmEndPath = cms.EndPath(
-    process.dqmEnv +
+    process.dqmEnv'''
+
+if physics :
+    sequencePaths += ''' *
     process.dqmQTest'''
+    
 if doOutput :
-    sequencePaths += ''' +
+    sequencePaths += ''' *
     process.dqmSaver'''
 
 sequencePaths += '''
@@ -604,7 +611,8 @@ if p5 :
     customizations += '''
  ## Run type specific ##
 '''
-    customizations += '''
+    if physics : 
+        customizations += '''
 if process.runType.getRunType() == process.runType.cosmic_run :
     process.dqmEndPath.remove(process.dqmQTest)
 elif process.runType.getRunType() == process.runType.hpu_run:

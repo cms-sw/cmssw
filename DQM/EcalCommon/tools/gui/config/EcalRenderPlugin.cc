@@ -1,4 +1,4 @@
-// $Id: EcalRenderPlugin.cc,v 1.6 2012/09/04 11:17:52 yiiyama Exp $
+// $Id: EcalRenderPlugin.cc,v 1.1 2012/09/17 11:53:29 yiiyama Exp $
 
 /*
   \file EcalRenderPlugin
@@ -6,8 +6,8 @@
   \author Y. Iiyama
   \author G. Della Ricca
   \author B. Gobbo
-  \version $Revision: 1.6 $
-  \date $Date: 2012/09/12 11:17:52 $
+  \version $Revision: 1.1 $
+  \date $Date: 2012/09/17 11:53:29 $
 */
 
 #include "DQM/DQMRenderPlugin.h"
@@ -26,8 +26,6 @@
 #include "TROOT.h"
 
 #include <vector>
-
-#include <iostream>
 
 class EcalRenderPlugin : public DQMRenderPlugin 
 {
