@@ -31,6 +31,7 @@
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
@@ -125,11 +126,15 @@ class TestIsoTracks : public edm::EDAnalyzer {
   vector<reco::Track> theTrack; 
    TrackDetectorAssociator trackAssociator_;
    TrackAssociatorParameters trackAssociatorParameters_;
+   edm::InputTag simTracksTag_;
+   edm::InputTag simVerticesTag_;
 };
 
 TestIsoTracks::TestIsoTracks(const edm::ParameterSet& iConfig): 
 					   mInputPVfCTF(iConfig.getParameter<edm::InputTag>("src3")),
-					   theRvert(iConfig.getParameter<double>("rvert"))
+					   theRvert(iConfig.getParameter<double>("rvert")),
+                                           simTracksTag_(iConfig.getParameter<edm::InputTag>("simTracksTag")),
+                                           simVerticesTag_(iConfig.getParameter<edm::InputTag>("simVerticesTag"))
 {
    m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","ctfWithMaterialTracks");
 	
@@ -168,10 +173,10 @@ void TestIsoTracks::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 
    // get list of tracks and their vertices
    Handle<SimTrackContainer> simTracks;
-   iEvent.getByType<SimTrackContainer>(simTracks);
+   iEvent.getByLabel<SimTrackContainer>(simTracksTag_, simTracks);
    
    Handle<SimVertexContainer> simVertices;
-   iEvent.getByType<SimVertexContainer>(simVertices);
+   iEvent.getByLabel<SimVertexContainer>(simVerticesTag_, simVertices);
    if (! simVertices.isValid() ) throw cms::Exception("FatalError") << "No vertices found\n";
 
    
