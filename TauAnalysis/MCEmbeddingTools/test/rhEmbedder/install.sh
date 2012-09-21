@@ -11,7 +11,6 @@ cd $targetDir
 addpkg RecoMuon/GlobalTrackFinder
 patch -p0 -i  MuonRecoPatch.patch
 
-exit
 addpkg TrackingTools/TrackAssociator
 patch -p0 -i DetAssoc.patch
 
