@@ -128,7 +128,7 @@ namespace ecaldqm {
                 for(unsigned iD(0); iD < nIds; ++iD)
                   if(int(MEs_[kQualitySummary]->getBinContent(ids[iD])) == kBad) nBad += 1;
                 if(nBad > towerBadFraction_ * nIds)
-                  badBits |= 0x1 << deta * 2 + dphi;
+                  badBits |= 0x1 << (deta * 2 + dphi);
               }
             }
 
@@ -158,7 +158,7 @@ namespace ecaldqm {
                 for(unsigned iD(0); iD < nIds; ++iD)
                   if(int(MEs_[kQualitySummary]->getBinContent(ids[iD])) == kBad) nBad += 1;
                 if(nBad > towerBadFraction_ * nIds)
-                  badBits |= 0x1 << dx * 2 + dy;
+                  badBits |= 0x1 << (dx * 2 + dy);
               }
             }
 
