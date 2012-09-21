@@ -4,6 +4,7 @@
 #include <cstring>
 #include <cctype>
 #include <string>
+#include <cassert>
 
 #ifdef _POSIX_C_SOURCE
 #	include <sys/time.h>
