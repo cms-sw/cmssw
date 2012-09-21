@@ -23,6 +23,13 @@ void
 EcalEGL::fillGeom( EcalEndcapGeometry*         geom ,
 		   const EcalEGL::ParmVec&     vv   ,
 		   const HepGeom::Transform3D& tr   ,
+		   const DetId&            id        );
+
+template <>
+void 
+EcalEGL::fillGeom( EcalEndcapGeometry*         geom ,
+		   const EcalEGL::ParmVec&     vv   ,
+		   const HepGeom::Transform3D& tr   ,
 		   const DetId&            id        )
 {
    std::vector<CCGFloat> pv ;

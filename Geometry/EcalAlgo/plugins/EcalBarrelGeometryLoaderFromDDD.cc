@@ -19,6 +19,13 @@ void
 EcalBGL::fillGeom( EcalBarrelGeometry*         geom ,
 		   const EcalBGL::ParmVec&     vv ,
 		   const HepGeom::Transform3D& tr ,
+		   const DetId&                id    );
+
+template <>
+void 
+EcalBGL::fillGeom( EcalBarrelGeometry*         geom ,
+		   const EcalBGL::ParmVec&     vv ,
+		   const HepGeom::Transform3D& tr ,
 		   const DetId&                id    )
 {
    std::vector<CCGFloat> pv ;

@@ -20,6 +20,13 @@ void
 EcalPGL::fillGeom( EcalPreshowerGeometry*      geom ,
 		   const EcalPGL::ParmVec&     pv ,
 		   const HepGeom::Transform3D& tr ,
+		   const DetId&                id     );
+
+template <>
+void 
+EcalPGL::fillGeom( EcalPreshowerGeometry*      geom ,
+		   const EcalPGL::ParmVec&     pv ,
+		   const HepGeom::Transform3D& tr ,
 		   const DetId&                id     )
 {
    std::vector<CCGFloat> vv ;
