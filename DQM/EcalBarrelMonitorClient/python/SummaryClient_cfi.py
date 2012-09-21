@@ -9,6 +9,8 @@ from DQM.EcalBarrelMonitorTasks.RawDataTask_cfi import ecalRawDataTask
 
 ecalSummaryClient = dict(
     activeSources = ['Integrity', 'RawData', 'Presample', 'Timing'],
+    towerBadFraction = 0.8,
+    fedBadFraction = 0.5,
     MEs = dict(
         QualitySummary = dict(path = "%(subdet)s/%(prefix)sSummaryClient/%(prefix)s global summary%(suffix)s", otype = 'Ecal3P', btype = 'Crystal', kind = 'TH2F'),
         ReportSummaryMap = dict(path = "Ecal/EventInfo/reportSummaryMap", otype = 'Ecal', btype = 'DCC', kind = 'TH2F'),

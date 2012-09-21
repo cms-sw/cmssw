@@ -48,7 +48,7 @@ namespace ecaldqm
         }
         if(actualObject == BinService::kEBMEM){
           for(int iBin(1); iBin <= me->getNbinsX(); ++iBin)
-            me->setBinLabel(iBin, binService_->channelName(memDCCId(iBin - 5)));
+            me->setBinLabel(iBin, binService_->channelName(iBin + kEBmLow));
         }
         if(actualObject == BinService::kEEMEM){
           for(int iBin(1); iBin <= me->getNbinsX() / 2; ++iBin){

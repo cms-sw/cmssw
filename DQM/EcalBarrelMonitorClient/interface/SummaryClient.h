@@ -39,6 +39,10 @@ namespace ecaldqm {
     };
 
     static void setMEOrdering(std::map<std::string, unsigned>&);
+
+  private:
+    float towerBadFraction_;
+    float fedBadFraction_;
   };
 
 }

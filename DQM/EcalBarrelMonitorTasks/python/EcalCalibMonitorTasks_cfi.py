@@ -8,7 +8,7 @@ from DQM.EcalBarrelMonitorTasks.LaserTask_cfi import ecalLaserTask
 from DQM.EcalBarrelMonitorTasks.LedTask_cfi import ecalLedTask
 from DQM.EcalBarrelMonitorTasks.PNDiodeTask_cfi import ecalPnDiodeTask
 
-ecalPedstalMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
+ecalPedestalMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
     moduleName = cms.untracked.string("EcalPedestal Monitor Source"),
     workers = cms.untracked.vstring("PedestalTask"),
     workerParameters = dqmpset(dict(PedestalTask = ecalPedestalTask, common = ecalCalibCommonParams)),

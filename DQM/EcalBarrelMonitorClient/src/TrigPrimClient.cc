@@ -9,7 +9,8 @@
 namespace ecaldqm {
 
   TrigPrimClient::TrigPrimClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
-    DQWorkerClient(_workerParams, _commonParams, "TrigPrimClient")
+    DQWorkerClient(_workerParams, _commonParams, "TrigPrimClient"),
+    errorFractionThreshold_(_workerParams.getUntrackedParameter<double>("errorFractionThreshold"))
   {
   }
 
@@ -59,7 +60,7 @@ namespace ecaldqm {
       if(nonsingleFraction > 0.)
 	MEs_[kNonSingleSummary]->setBinContent(ttid, nonsingleFraction);
 
-      if(sources_[kEtEmulError]->getBinContent(ttid) > 0.)
+      if(sources_[kEtEmulError]->getBinContent(ttid) / towerEntries > errorFractionThreshold_)
         MEs_[kEmulQualitySummary]->setBinContent(ttid, doMask ? kMBad : kBad);
       else
         MEs_[kEmulQualitySummary]->setBinContent(ttid, doMask ? kMGood : kGood);
