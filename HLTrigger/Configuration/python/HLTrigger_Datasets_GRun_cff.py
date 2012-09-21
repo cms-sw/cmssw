@@ -191,6 +191,12 @@ streamA_datasetForwardTriggers_selector.l1tResults = cms.InputTag('')
 streamA_datasetForwardTriggers_selector.throw      = cms.bool(False)
 streamA_datasetForwardTriggers_selector.triggerConditions = cms.vstring('HLT_L1Tech_CASTOR_HaloMuon_v4')
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHLTPhysicsParked_selector
+streamA_datasetHLTPhysicsParked_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetHLTPhysicsParked_selector.l1tResults = cms.InputTag('')
+streamA_datasetHLTPhysicsParked_selector.throw      = cms.bool(False)
+streamA_datasetHLTPhysicsParked_selector.triggerConditions = cms.vstring('HLT_Physics_Parked_v1')
+
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHTMHT_selector
 streamA_datasetHTMHT_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetHTMHT_selector.l1tResults = cms.InputTag('')
@@ -610,7 +616,25 @@ streamA_datasetSinglePhoton_selector.l1tResults = cms.InputTag('')
 streamA_datasetSinglePhoton_selector.throw      = cms.bool(False)
 streamA_datasetSinglePhoton_selector.triggerConditions = cms.vstring('HLT_DisplacedPhoton65EBOnly_CaloIdVL_IsoL_PFMET30_v4', 
     'HLT_DisplacedPhoton65_CaloIdVL_IsoL_PFMET25_v4', 
-    'HLT_DoublePhoton5_IsoVL_CEP_v16', 
+    'HLT_L1DoubleEG3_FwdVeto_v2', 
+    'HLT_Photon135_v7', 
+    'HLT_Photon150_v4', 
+    'HLT_Photon160_v4', 
+    'HLT_Photon20_CaloIdVL_IsoL_v16', 
+    'HLT_Photon20_CaloIdVL_v4', 
+    'HLT_Photon300_NoHE_v5', 
+    'HLT_Photon30_CaloIdVL_v14', 
+    'HLT_Photon50_CaloIdVL_IsoL_v17', 
+    'HLT_Photon50_CaloIdVL_v10', 
+    'HLT_Photon75_CaloIdVL_v13', 
+    'HLT_Photon90_CaloIdVL_v10')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetSinglePhotonParked_selector
+streamA_datasetSinglePhotonParked_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetSinglePhotonParked_selector.l1tResults = cms.InputTag('')
+streamA_datasetSinglePhotonParked_selector.throw      = cms.bool(False)
+streamA_datasetSinglePhotonParked_selector.triggerConditions = cms.vstring('HLT_DisplacedPhoton65EBOnly_CaloIdVL_IsoL_PFMET30_v4', 
+    'HLT_DisplacedPhoton65_CaloIdVL_IsoL_PFMET25_v4', 
     'HLT_L1DoubleEG3_FwdVeto_v2', 
     'HLT_Photon135_v7', 
     'HLT_Photon150_v4', 
@@ -678,4 +702,10 @@ streamA_datasetVBF1Parked_selector.triggerConditions = cms.vstring('HLT_DiJet20_
     'HLT_DiJet35_MJJ650_AllJets_DEta3p5_VBF_v5', 
     'HLT_DiJet35_MJJ700_AllJets_DEta3p5_VBF_v5', 
     'HLT_DiJet35_MJJ750_AllJets_DEta3p5_VBF_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetZeroBiasParked_selector
+streamA_datasetZeroBiasParked_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetZeroBiasParked_selector.l1tResults = cms.InputTag('')
+streamA_datasetZeroBiasParked_selector.throw      = cms.bool(False)
+streamA_datasetZeroBiasParked_selector.triggerConditions = cms.vstring('HLT_ZeroBias_Parked_v1')
 
