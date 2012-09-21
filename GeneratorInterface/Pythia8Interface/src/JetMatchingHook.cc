@@ -3,6 +3,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "HepMC/HEPEVT_Wrapper.h"
+#include <cassert>
 
 extern "C" {
 // this is patchup for Py6 common block because 
