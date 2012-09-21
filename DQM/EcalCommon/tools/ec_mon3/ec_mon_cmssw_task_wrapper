@@ -146,7 +146,7 @@ foreach my $datatype (@datatypes) {
 
     my $sourcelist = join(' ', @{$filelists{$datatype}});
 
-    my $task = "source $cmsenv; python $tooldir/ecalOldConfigBuilder.py -e PrivOffline -c $cfgtype -d $daq -w '$workflow' -f $cfgfile -s '$sourcelist' -g " . '"$globaltag"' . "; cd $workdir; time cmsRun $cfgfile runkey=$runkey";
+    my $task = "source $cmsenv; python $tooldir/ecalConfigBuilder.py -e PrivOffline -c $cfgtype -d $daq -w '$workflow' -f $cfgfile -s '$sourcelist' -g " . '"$globaltag"' . "; cd $workdir; time cmsRun $cfgfile runkey=$runkey";
 
     my $logdir = "$config{'ec_mon_master_rundir'}/dqm-data/logs";
     my $logfile = "$logdir/$loc.$num.$datatype.cmssw.log";
