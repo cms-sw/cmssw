@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //                   Zhen Xie
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.26 2012/02/29 13:52:13 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.27 2012/09/04 14:48:12 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -633,8 +633,12 @@ LumiProducer::fillLSCache(unsigned int luminum){
 	std::memmove(beam2intensity,beam2intensityBlob_StartAddress,beam2intensityBlob.size());
 	for(unsigned int i=0;i<bxindexBlob.size()/sizeof(short);++i){
 	  unsigned int idx=bxindex[i];
-	  lsdata.beam1intensity.at(idx)=beam1intensity[i];
-	  lsdata.beam2intensity.at(idx)=beam2intensity[i];
+	  if(beam1intensityBlob.size()>i){
+	    lsdata.beam1intensity.at(idx)=beam1intensity[i];
+	  }
+	  if(beam2intensityBlob.size()>i){
+	    lsdata.beam2intensity.at(idx)=beam2intensity[i];
+	  }
 	}
 	::free(bxindex);
 	::free(beam1intensity);
