@@ -12,16 +12,17 @@ namespace {
 
   struct Stat {
     ~Stat() {
-      std::cout <<"atan0 calls tot/large" << natan << "/" << nlarge << std::endl; 
+      std::cout <<"atan0 calls tot/large/over1: " << natan << "/" << nlarge <<"/" << over1 << std::endl; 
     }
 
     void add(float t) { 
       ++natan;
       if (t>0.40f) ++nlarge;
+      if (t>1.0) ++over1;
     }
     long long natan=0;
     long long nlarge=0;
-    
+    long long over1=0;    
   };
 
   Stat stat;
