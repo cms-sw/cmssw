@@ -147,8 +147,8 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             "jobmode":"interactive",
             "workdir":os.getcwd(),
             "datadir":os.getcwd(),
-            "logdir":os.getcwd(),
-            "parallelJobs":"1"
+            "logdir":os.getcwd()# ,
+#             "parallelJobs":"1"
             }
         general = self.getResultingSection( "general", defaultDict = defaults )
         return general
@@ -327,7 +327,7 @@ class GenericValidation:
         result = alignment.getRepMap()
         result.update( self.general )
         result.update({
-                "nJobs": self.general["parallelJobs"],
+#                 "nJobs": self.general["parallelJobs"],
                 "workdir": os.path.join(self.general["workdir"],self.randomWorkdirPart),
                 "datadir": self.general["datadir"],
                 "logdir": self.general["logdir"],
@@ -576,6 +576,7 @@ class OfflineValidation(GenericValidation):
             "offlineValidationMode": "Standalone",
             "offlineValidationFileOutput":
             configTemplates.offlineStandaloneFileOutputTemplate,
+            "nJobs": self.general["parallelJobs"],
             # Keep the following parameters for backward compatibility
             "TrackCollection": self.general["trackcollection"]# ,
             # "GlobalTag": self.general["globaltag"]
@@ -610,6 +611,17 @@ class OfflineValidation(GenericValidation):
 class OfflineValidationParallel(OfflineValidation):
     def __init__(self, valName, alignment,config):
         OfflineValidation.__init__(self, valName, alignment, config)
+        defaults = {
+            "parallelJobs":"1"
+            }
+        if not config.has_section( "offline:"+self.name ):
+            offline = config.getResultingSection( "general",
+                                                  defaultDict = defaults )
+        else:
+            offline = config.getResultingSection( "offline:"+self.name, 
+                                                  defaultDict = defaults )
+        self.general.update( offline )
+        self.__NJobs = self.general["parallelJobs"]
 
     def createConfiguration(self, path, configBaseName = "TkAlOfflineValidation" ):
         # if offline validation uses N parallel jobs, we create here N cfg files
@@ -921,7 +933,9 @@ class ValidationJob:
                 secondAlign = secondAlignName
             else:
                 secondAlign = Alignment( secondAlignName, config, secondRun )
-            validation = GeometryComparison( name, firstAlign, secondAlign, config )
+            validation = GeometryComparison( name, firstAlign, secondAlign,
+                                             config,
+                                             self.__commandLineOptions.getImages )
         elif valType == "offline":
             # validation = OfflineValidation( name, alignments, config, options )
             validation = OfflineValidation( name, 
@@ -982,7 +996,7 @@ class ValidationJob:
             log+=getCommandOutput2("%(bsub)s %(commands)s -J %(jobName)s "
                                    "-o %(logDir)s/%(jobName)s.stdout -e "
                                    "%(logDir)s/%(jobName)s.stderr %(script)s"%repMap)
-            return log
+        return log
 
     def getValidation( self ):
         return self.validation
@@ -1197,7 +1211,8 @@ def main(argv = None):
     map( lambda job: job.createJob(), jobs )
     validations = [ job.getValidation() for job in jobs ]
 
-    if general["parallelJobs"] == "1":
+#     if general["parallelJobs"] == "1":
+    if "OfflineValidationParallel" not in [val.__class__.__name__ for val in validations]:
         createMergeScript( outPath, validations )
     else:
         createParallelMergeScript( outPath, validations )
