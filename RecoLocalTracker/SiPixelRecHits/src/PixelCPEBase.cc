@@ -398,9 +398,9 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
 
   /* all the above is equivalent to  
      const Local3DPoint origin =   theDet->surface().toLocal(GlobalPoint(0,0,0)); // can be computed once...
-     auto xx = lp.x()-origin.x();
-     auto yy = lp.y()-origin.y();
-     auto zz = -origin.z();
+     auto gvx = lp.x()-origin.x();
+     auto gvy = lp.y()-origin.y();
+     auto gvz = -origin.z();
   *  normalization not required as only ratio used... 
   */
 
