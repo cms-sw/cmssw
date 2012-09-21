@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <iostream>
+#include <cassert>
 
 #if 0
 #include "TTreeCache.h"

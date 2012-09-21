@@ -10,6 +10,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <cassert>
 
 
 using boost::multi_index_container;
