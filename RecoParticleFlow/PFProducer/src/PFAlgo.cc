@@ -201,7 +201,7 @@ PFAlgo::setPFPhotonParameters(bool usePFPhotons,
 			    );
   return;
 }
-/*
+
 void PFAlgo::setPFPhotonRegWeights(
 		  const GBRForest *LCorrForest,
 		  const GBRForest *GCorrForest,
@@ -210,19 +210,7 @@ void PFAlgo::setPFPhotonRegWeights(
   if(usePFPhotons_) 
     pfpho_->setGBRForest(LCorrForest, GCorrForest, ResForest);
 } 
-*/
-void PFAlgo::setPFPhotonRegWeights(
-				   const GBRForest *LCorrForestEB,
-				   const GBRForest *LCorrForestEE,
-				   const GBRForest *GCorrForestBarrel,
-				   const GBRForest *GCorrForestEndcapHr9,
-				   const GBRForest *GCorrForestEndcapLr9,			     		   const GBRForest *PFEcalResolution
-				   ){
-  
-  pfpho_->setGBRForest(LCorrForestEB,LCorrForestEE,
-		       GCorrForestBarrel, GCorrForestEndcapHr9, 
-		       GCorrForestEndcapLr9, PFEcalResolution);
-}
+
 void 
 PFAlgo::setPFMuonAndFakeParameters(std::vector<double> muonHCAL,
 				   std::vector<double> muonECAL,
@@ -284,9 +272,6 @@ PFAlgo::setPFVertexParameters(bool useVertex,
   useVertices_ = useVertex;
   //Now find the primary vertex!
   bool primaryVertexFound = false;
-  int nVtx=primaryVertices.size();
-  if(usePFPhotons_)pfpho_->setnPU(nVtx);
-  
   for (unsigned short i=0 ;i<primaryVertices.size();++i)
     {
       if(primaryVertices[i].isValid()&&(!primaryVertices[i].isFake()))
@@ -482,7 +467,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
   std::vector<reco::PFCandidate> tempElectronCandidates;
   tempElectronCandidates.clear();
   if (usePFElectrons_) {
-    if (pfele_->isElectronValidCandidate(blockref,active, primaryVertex_ )){
+    if (pfele_->isElectronValidCandidate(blockref,active)){
       // if there is at least a valid candidate is get the vector of pfcandidates
       const std::vector<reco::PFCandidate> PFElectCandidates_(pfele_->getElectronCandidates());
       for ( std::vector<reco::PFCandidate>::const_iterator ec=PFElectCandidates_.begin();   ec != PFElectCandidates_.end(); ++ec )tempElectronCandidates.push_back(*ec);

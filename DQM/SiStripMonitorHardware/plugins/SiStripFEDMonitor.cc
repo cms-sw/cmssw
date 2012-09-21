@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.42 2011/07/13 16:22:47 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.43 2012/03/09 18:12:11 threus Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -48,6 +48,8 @@
 
 #include "DQM/SiStripMonitorHardware/interface/FEDHistograms.hh"
 #include "DQM/SiStripMonitorHardware/interface/FEDErrors.hh"
+
+#include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
 
 
 //
@@ -193,6 +195,15 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
   const FEDRawDataCollection& rawDataCollection = *rawDataCollectionHandle;
   
   fedErrors_.initialiseEvent();
+
+  //add the deltaBX value if the product exist
+
+  edm::Handle<EventWithHistory> he;
+  iEvent.getByLabel("consecutiveHEs",he);
+
+  if(he.isValid() && !he.failedToGet()) {
+    fedErrors_.fillEventProperties(he->deltaBX());
+  }
 
   //initialise map of fedId/bad channel number
   std::map<unsigned int,std::pair<unsigned short,unsigned short> > badChannelFraction;
@@ -380,7 +391,7 @@ void SiStripFEDMonitorPlugin::getMajority(const std::vector<std::pair<unsigned i
   
   //std::cout << " --- First element: addr = " << lMajAddr << " counter = " << lCounter << std::endl;
   unsigned int iele=0;
-  bool foundMaj = false;
+  //bool foundMaj = false;
   for ( ; lIter != aFeMajVec.end(); ++lIter,++iele) {
     //std::cout << " ---- Ele " << iele << " " << (*lIter).first << " " << (*lIter).second << " ref " << lMajAddr << std::endl;
     if ((*lIter).second == lMajAddr) {
@@ -392,8 +403,10 @@ void SiStripFEDMonitorPlugin::getMajority(const std::vector<std::pair<unsigned i
       if (lCounter > aMajorityCounter) {
 	//std::cout << " ------ >Majority: " << std::endl;
 	aMajorityCounter = lCounter;
-	lMajAddress = (*lIter).second;
-	foundMaj=true;
+	// AV bug here??
+	lMajAddress = lMajAddr;
+	//	lMajAddress = (*lIter).second;
+	//foundMaj=true;
       }
       lCounter = 0;
       lMajAddr = (*lIter).second;
@@ -401,13 +414,14 @@ void SiStripFEDMonitorPlugin::getMajority(const std::vector<std::pair<unsigned i
       --iele;
     }
   }
-  if (!foundMaj) {
+  // AV Bug here? The check has to be done regardless foundMaj == false or true 
+  //  if (!foundMaj) {
     if (lCounter > aMajorityCounter) {
       //std::cout << " ------ >Majority: " << std::endl;
       aMajorityCounter = lCounter;
       lMajAddress = lMajAddr;
     }
-  }
+    //  }
   //std::cout << " -- found majority value for " << aMajorityCounter << " elements out of " << aFeMajVec.size() << "." << std::endl;
   //get list of feds with address different from majority in partition:      
   lIter = aFeMajVec.begin();
@@ -418,6 +432,9 @@ void SiStripFEDMonitorPlugin::getMajority(const std::vector<std::pair<unsigned i
     }
     else {
       lIter += aMajorityCounter-1;
+      if(lIter >= aFeMajVec.end()) {
+	std::cout << "Here it is a bug: " << aMajorityCounter << " " << aFeMajVec.size() << " " << lIter - aFeMajVec.end() << std::endl;
+      }
     }
   }
   //std::cout << " -- Found " << lfedIds.size() << " elements not matching the majority." << std::endl;

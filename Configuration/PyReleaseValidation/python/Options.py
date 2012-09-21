@@ -22,6 +22,7 @@ expertSettings = optparse.OptionGroup(parser, '===============\n  Expert Options
 famosSettings = optparse.OptionGroup(parser, '===============\n  FastSimulation options', '')
 parser.add_option_group(expertSettings)
 
+threeValued=[]
 parser.add_option("-s", "--step",
                    help="The desired step. The possible values are: "+\
                         "GEN,SIM,DIGI,L1,DIGI2RAW,HLT,RAW2DIGI,RECO,POSTRECO,DQM,ALCA,VALIDATION,HARVESTING, NONE or ALL.",
@@ -121,7 +122,7 @@ expertSettings.add_option("--filtername",
                           dest="filtername")
 
 expertSettings.add_option("--geometry",
-                          help="What simulation geometry to use. Default="+defaultOptions.geometry+". Coma separated SimGeometry,RecoGeometry is supported.",
+                          help="What geometry to use. Default="+defaultOptions.geometry,
                           default=defaultOptions.geometry,
                           dest="geometry")
 
@@ -159,11 +160,17 @@ expertSettings.add_option("--dump_python",
                   default=False,                  
                   dest="dump_python")
 
+expertSettings.add_option("--dump_DSetName",
+                          help="Dump the primary datasetname.",
+                          action="store_true",
+                          default=False,
+                          dest="dump_dsetname_flag")
+
 expertSettings.add_option("--pileup",
                   help="What pileup config to use. Default="+defaultOptions.pileup,
                   default=defaultOptions.pileup,
                   dest="pileup")
-    
+
 expertSettings.add_option("--pileup_input",
                           help="define the pile up files to mix with",
                           default=None,
@@ -298,8 +305,8 @@ expertSettings.add_option("--donotDropOnInput",
 expertSettings.add_option("--restoreRNDSeeds",
                           help="restore the random number engine state",
                           default=False,
-                          action="store_true")
-
+                          )
+threeValued.append( ('--restoreRNDSeeds',True) )
 expertSettings.add_option("--slhc",
                           help="Specify the SLHC scenario version",
                           default=None,

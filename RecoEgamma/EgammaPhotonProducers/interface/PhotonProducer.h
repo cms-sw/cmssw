@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.44 2012/04/24 15:03:41 arun Exp $ 
- **  $Date: 2012/04/24 15:03:41 $ 
- **  $Revision: 1.44 $
+ **  $Id: PhotonProducer.h,v 1.40 2011/11/02 19:09:37 nancy Exp $ 
+ **  $Date: 2011/11/02 19:09:37 $ 
+ **  $Revision: 1.40 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -30,7 +30,6 @@
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonMIPHaloTagger.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
@@ -61,10 +60,13 @@ class PhotonProducer : public edm::EDProducer {
 			    //math::XYZPoint & vtx,
 			    reco::VertexCollection& pvVertices,
 			    reco::PhotonCollection & outputCollection,
-			    int& iSC,
-			    const EcalSeverityLevelAlgo * sevLv);
+			    int& iSC);
 
-  // std::string PhotonCoreCollection_;
+
+
+ 
+
+  //  std::string PhotonCoreCollection_;
   std::string PhotonCollection_;
   edm::InputTag photonCoreProducer_;
   edm::InputTag barrelEcalHits_;
@@ -74,15 +76,6 @@ class PhotonProducer : public edm::EDProducer {
 
   std::string conversionProducer_;
   std::string conversionCollection_;
-
-  //AA
-  //Flags and severities to be excluded from calculations
-  
-  std::vector<int> flagsexclEB_;
-  std::vector<int> flagsexclEE_;
-  std::vector<int> severitiesexclEB_;
-  std::vector<int> severitiesexclEE_;
-
 
   double hOverEConeSize_;
   double maxHOverE_;
@@ -100,9 +93,12 @@ class PhotonProducer : public edm::EDProducer {
 
   PositionCalc posCalculator_;
 
+
   edm::ESHandle<CaloGeometry> theCaloGeom_;
   edm::ESHandle<CaloTopology> theCaloTopo_;
  
+
+
   bool validPixelSeeds_;
   PhotonIsolationCalculator* thePhotonIsolationCalculator_;
 

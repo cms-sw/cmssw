@@ -16,8 +16,9 @@ public:
   DQMService(const edm::ParameterSet &pset, edm::ActivityRegistry &ar);
   ~DQMService(void);
    
-private:
+public:
   void flush(const edm::Event &, const edm::EventSetup &);
+private:
   void shutdown(void);
 
   DQMStore	*store_;
@@ -25,6 +26,8 @@ private:
   lat::Regexp	*filter_;
   double	lastFlush_;
   double	publishFrequency_;
+public:
+  void flushStandalone();
 };
 
 #endif // DQMSERVICES_CORE_DQM_SERVICE_H

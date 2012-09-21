@@ -14,11 +14,12 @@ class ElectronEnergyCorrector
     ElectronEnergyCorrector( EcalClusterFunctionBaseClass * crackCorrectionFunction )
      : crackCorrectionFunction_(crackCorrectionFunction) {}
 
-    void classBasedParameterizationEnergy( reco::GsfElectron &, const reco::BeamSpot & bs ) ;
-    void classBasedParameterizationUncertainty( reco::GsfElectron & ) ;
-    void simpleParameterizationUncertainty( reco::GsfElectron & ) ;
+    void correctEcalEnergy( reco::GsfElectron &, const reco::BeamSpot & bs ) ;
+    void correctEcalEnergyError( reco::GsfElectron & ) ;
 
   private:
+
+    //void computeNewEnergy( const reco::GsfElectron &, bool applyEcalEnergyCorrection = true ) ;
 
     double fEtaBarrelBad( double scEta ) const ;
     double fEtaBarrelGood( double scEta ) const ;

@@ -131,7 +131,10 @@ HLTDoubletDZ<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
        if (same_) {I=i1+1;}
        for (unsigned int i2=I; i2!=n2; i2++) {
 	 r2=coll2_[i2];
-	 const reco::Candidate& candidate2(*r2);
+	 if (r1->superCluster().isNonnull() && r2->superCluster().isNonnull()) {
+	   if (r1->superCluster() == r2->superCluster()) continue;
+	 }
+ 	 const reco::Candidate& candidate2(*r2);
 	 if ( reco::deltaR(candidate1, candidate2) < minDR_ ) continue;
 	 if ( std::abs(candidate1.vz()-candidate2.vz()) > maxDZ_ ) continue;
 	 n++;

@@ -10,7 +10,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TIBRing GCC11_FINAL : public GeometricSearchDetWithGroups{
+class TIBRing : public GeometricSearchDetWithGroups{
  public:
   TIBRing(std::vector<const GeomDet*>& theGeomDets);
   ~TIBRing();

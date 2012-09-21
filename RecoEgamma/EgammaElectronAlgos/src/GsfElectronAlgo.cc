@@ -66,7 +66,7 @@ struct GsfElectronAlgo::GeneralData
      const ElectronHcalHelper::Configuration & hcalCfg,
      const ElectronHcalHelper::Configuration & hcalCfgPflow,
      const IsolationConfiguration &,
-     const EcalRecHitsConfiguration &,
+     const SpikeConfiguration &,
      EcalClusterFunctionBaseClass * superClusterErrorFunction,
      EcalClusterFunctionBaseClass * crackCorrectionFunction ) ;
   ~GeneralData() ;
@@ -77,7 +77,7 @@ struct GsfElectronAlgo::GeneralData
   const CutsConfiguration cutsCfg ;
   const CutsConfiguration cutsCfgPflow ;
   const IsolationConfiguration isoCfg ;
-  const EcalRecHitsConfiguration recHitsCfg ;
+  const SpikeConfiguration spikeCfg ;
 
   // additional configuration and helpers
   ElectronHcalHelper * hcalHelper, * hcalHelperPflow ;
@@ -93,7 +93,7 @@ struct GsfElectronAlgo::GeneralData
    const ElectronHcalHelper::Configuration & hcalConfig,
    const ElectronHcalHelper::Configuration & hcalConfigPflow,
    const IsolationConfiguration & isoConfig,
-   const EcalRecHitsConfiguration & recHitsConfig,
+   const SpikeConfiguration & spikeConfig,
    EcalClusterFunctionBaseClass * superClusterErrorFunc,
    EcalClusterFunctionBaseClass * crackCorrectionFunc
  )
@@ -102,7 +102,7 @@ struct GsfElectronAlgo::GeneralData
    cutsCfg(cutsConfig),
    cutsCfgPflow(cutsConfigPflow),
    isoCfg(isoConfig),
-   recHitsCfg(recHitsConfig),
+   spikeCfg(spikeConfig),
    hcalHelper(new ElectronHcalHelper(hcalConfig)),
    hcalHelperPflow(new ElectronHcalHelper(hcalConfigPflow)),
    superClusterErrorFunction(superClusterErrorFunc),
@@ -128,14 +128,14 @@ struct GsfElectronAlgo::EventSetupData
    unsigned long long cacheIDTopo ;
    unsigned long long cacheIDTDGeom ;
    unsigned long long cacheIDMagField ;
-   //unsigned long long cacheChStatus ;
+   unsigned long long cacheChStatus ;
    unsigned long long cacheSevLevel ;
 
    edm::ESHandle<MagneticField> magField ;
    edm::ESHandle<CaloGeometry> caloGeom ;
    edm::ESHandle<CaloTopology> caloTopo ;
    edm::ESHandle<TrackerGeometry> trackerHandle ;
-   //edm::ESHandle<EcalChannelStatus> chStatus ;
+   edm::ESHandle<EcalChannelStatus> chStatus ;
    edm::ESHandle<EcalSeverityLevelAlgo> sevLevel;
 
    const MultiTrajectoryStateTransform * mtsTransform ;
@@ -144,7 +144,7 @@ struct GsfElectronAlgo::EventSetupData
 } ;
 
 GsfElectronAlgo::EventSetupData::EventSetupData()
- : cacheIDGeom(0), cacheIDTopo(0), cacheIDTDGeom(0), cacheIDMagField(0),/*cacheChStatus(0),*/
+ : cacheIDGeom(0), cacheIDTopo(0), cacheIDTDGeom(0), cacheIDMagField(0),cacheChStatus(0),
    cacheSevLevel(0), mtsTransform(0), constraintAtVtx(0), mtsMode(new MultiTrajectoryStateMode)
  {}
 
@@ -519,32 +519,19 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
 
   const CaloTopology * topology = eventSetupData_->caloTopo.product() ;
   const CaloGeometry * geometry = eventSetupData_->caloGeom.product() ;
-  const EcalRecHitCollection * recHits = 0 ;
-  std::vector<int> recHitFlagsToBeExcluded ;
-  std::vector<int> recHitSeverityToBeExcluded ;
-  const EcalSeverityLevelAlgo * severityLevelAlgo = eventSetupData_->sevLevel.product() ;
+  const EcalRecHitCollection * reducedRecHits = 0 ;
   if (detector==EcalBarrel)
-   {
-    recHits = eventData_->barrelRecHits.product() ;
-    recHitFlagsToBeExcluded = generalData_->recHitsCfg.recHitFlagsToBeExcludedBarrel ;
-    recHitSeverityToBeExcluded = generalData_->recHitsCfg.recHitSeverityToBeExcludedBarrel ;
-   }
+   { reducedRecHits = eventData_->barrelRecHits.product() ; }
   else
-   {
-    recHits = eventData_->endcapRecHits.product() ;
-    recHitFlagsToBeExcluded = generalData_->recHitsCfg.recHitFlagsToBeExcludedEndcaps ;
-    recHitSeverityToBeExcluded = generalData_->recHitsCfg.recHitSeverityToBeExcludedEndcaps ;
-   }
+   { reducedRecHits = eventData_->endcapRecHits.product() ; }
 
-  std::vector<float> covariances = EcalClusterTools::covariances(seedCluster,recHits,topology,geometry,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo) ;
-  std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo) ;
+  std::vector<float> covariances = EcalClusterTools::covariances(seedCluster,reducedRecHits,topology,geometry) ;
+  std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,reducedRecHits,topology) ;
   showerShape.sigmaEtaEta = sqrt(covariances[0]) ;
   showerShape.sigmaIetaIeta = sqrt(localCovariances[0]) ;
-  if (!isnan(localCovariances[2])) showerShape.sigmaIphiIphi = sqrt(localCovariances[2]) ;
-  showerShape.e1x5 = EcalClusterTools::e1x5(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo)  ;
-  showerShape.e2x5Max = EcalClusterTools::e2x5Max(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo)  ;
-  showerShape.e5x5 = EcalClusterTools::e5x5(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo) ;
-  showerShape.r9 = EcalClusterTools::e3x3(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo)/theClus->rawEnergy() ;
+  showerShape.e1x5 = EcalClusterTools::e1x5(seedCluster,reducedRecHits,topology)  ;
+  showerShape.e2x5Max = EcalClusterTools::e2x5Max(seedCluster,reducedRecHits,topology)  ;
+  showerShape.e5x5 = EcalClusterTools::e5x5(seedCluster,reducedRecHits,topology) ;
 
   if (pflow)
    {
@@ -577,11 +564,11 @@ GsfElectronAlgo::GsfElectronAlgo
    const ElectronHcalHelper::Configuration & hcalCfg,
    const ElectronHcalHelper::Configuration & hcalCfgPflow,
    const IsolationConfiguration & isoCfg,
-   const EcalRecHitsConfiguration & recHitsCfg,
+   const SpikeConfiguration & spikeCfg,
    EcalClusterFunctionBaseClass * superClusterErrorFunction,
    EcalClusterFunctionBaseClass * crackCorrectionFunction
  )
- : generalData_(new GeneralData(inputCfg,strategyCfg,cutsCfg,cutsCfgPflow,hcalCfg,hcalCfgPflow,isoCfg,recHitsCfg,superClusterErrorFunction,crackCorrectionFunction)),
+ : generalData_(new GeneralData(inputCfg,strategyCfg,cutsCfg,cutsCfgPflow,hcalCfg,hcalCfgPflow,isoCfg,spikeCfg,superClusterErrorFunction,crackCorrectionFunction)),
    eventSetupData_(new EventSetupData),
    eventData_(0), electronData_(0)
  {}
@@ -636,10 +623,10 @@ void GsfElectronAlgo::checkSetup( const edm::EventSetup & es )
   if (generalData_->crackCorrectionFunction)
    { generalData_->crackCorrectionFunction->init(es) ; }
 
-  //if(eventSetupData_->cacheChStatus!=es.get<EcalChannelStatusRcd>().cacheIdentifier()){
-  //  eventSetupData_->cacheChStatus=es.get<EcalChannelStatusRcd>().cacheIdentifier();
-  //  es.get<EcalChannelStatusRcd>().get(eventSetupData_->chStatus);
-  //}
+  if(eventSetupData_->cacheChStatus!=es.get<EcalChannelStatusRcd>().cacheIdentifier()){
+    eventSetupData_->cacheChStatus=es.get<EcalChannelStatusRcd>().cacheIdentifier();
+    es.get<EcalChannelStatusRcd>().get(eventSetupData_->chStatus);
+  }
 
   if(eventSetupData_->cacheSevLevel != es.get<EcalSeverityLevelAlgoRcd>().cacheIdentifier()){
     eventSetupData_->cacheSevLevel = es.get<EcalSeverityLevelAlgoRcd>().cacheIdentifier();
@@ -716,20 +703,20 @@ void GsfElectronAlgo::beginEvent( edm::Event & event )
   eventData_->ecalEndcapIsol04 = new EgammaRecHitIsolation(egIsoConeSizeOutLarge,egIsoConeSizeInEndcap,egIsoJurassicWidth,egIsoPtMinEndcap,egIsoEMinEndcap,eventSetupData_->caloGeom,eventData_->ecalEndcapHitsMeta,eventSetupData_->sevLevel.product(),DetId::Ecal);
   eventData_->ecalBarrelIsol03->setUseNumCrystals(generalData_->isoCfg.useNumCrystals);
   eventData_->ecalBarrelIsol03->setVetoClustered(generalData_->isoCfg.vetoClustered);
-  eventData_->ecalBarrelIsol03->doSeverityChecks(eventData_->barrelRecHits.product(),generalData_->recHitsCfg.recHitSeverityToBeExcludedBarrel);
-  eventData_->ecalBarrelIsol03->doFlagChecks(generalData_->recHitsCfg.recHitFlagsToBeExcludedBarrel);
+  //eventData_->ecalBarrelIsol03->doSpikeRemoval(eventData_->barrelRecHits.product(),eventSetupData_->chStatus.product(),generalData_->spikeCfg.severityLevelCut,generalData_->spikeCfg.severityRecHitThreshold,generalData_->spikeCfg.spikeId,generalData_->spikeCfg.spikeIdThreshold);
+  eventData_->ecalBarrelIsol03->doSpikeRemoval(eventData_->barrelRecHits.product(),eventSetupData_->chStatus.product(),generalData_->spikeCfg.severityLevelCut);
+  eventData_->ecalBarrelIsol03->doFlagChecks(generalData_->spikeCfg.recHitFlagsToBeExcluded);
   eventData_->ecalBarrelIsol04->setUseNumCrystals(generalData_->isoCfg.useNumCrystals);
   eventData_->ecalBarrelIsol04->setVetoClustered(generalData_->isoCfg.vetoClustered);
-  eventData_->ecalBarrelIsol04->doSeverityChecks(eventData_->barrelRecHits.product(),generalData_->recHitsCfg.recHitSeverityToBeExcludedBarrel);
-  eventData_->ecalBarrelIsol04->doFlagChecks(generalData_->recHitsCfg.recHitFlagsToBeExcludedBarrel);
+  //eventData_->ecalBarrelIsol04->doSpikeRemoval(eventData_->barrelRecHits.product(),eventSetupData_->chStatus.product(),generalData_->spikeCfg.severityLevelCut,generalData_->spikeCfg.severityRecHitThreshold,generalData_->spikeCfg.spikeId,generalData_->spikeCfg.spikeIdThreshold);
+  eventData_->ecalBarrelIsol04->doSpikeRemoval(eventData_->barrelRecHits.product(),eventSetupData_->chStatus.product(),generalData_->spikeCfg.severityLevelCut);
+  eventData_->ecalBarrelIsol04->doFlagChecks(generalData_->spikeCfg.recHitFlagsToBeExcluded);
   eventData_->ecalEndcapIsol03->setUseNumCrystals(generalData_->isoCfg.useNumCrystals);
   eventData_->ecalEndcapIsol03->setVetoClustered(generalData_->isoCfg.vetoClustered);
-  eventData_->ecalEndcapIsol03->doSeverityChecks(eventData_->endcapRecHits.product(),generalData_->recHitsCfg.recHitSeverityToBeExcludedEndcaps);
-  eventData_->ecalEndcapIsol03->doFlagChecks(generalData_->recHitsCfg.recHitFlagsToBeExcludedEndcaps);
+  eventData_->ecalEndcapIsol03->doFlagChecks(generalData_->spikeCfg.recHitFlagsToBeExcluded);
   eventData_->ecalEndcapIsol04->setUseNumCrystals(generalData_->isoCfg.useNumCrystals);
   eventData_->ecalEndcapIsol04->setVetoClustered(generalData_->isoCfg.vetoClustered);
-  eventData_->ecalEndcapIsol04->doSeverityChecks(eventData_->endcapRecHits.product(),generalData_->recHitsCfg.recHitSeverityToBeExcludedEndcaps);
-  eventData_->ecalEndcapIsol04->doFlagChecks(generalData_->recHitsCfg.recHitFlagsToBeExcludedEndcaps);
+  eventData_->ecalEndcapIsol04->doFlagChecks(generalData_->spikeCfg.recHitFlagsToBeExcluded);
  }
 
 void GsfElectronAlgo::endEvent()
@@ -874,7 +861,7 @@ void GsfElectronAlgo::addPflowInfo()
      }
 
     // Preselection
-    setPflowPreselectionFlag(*el) ;
+    setMvaPreselectionFlag(*el) ;
 
     // Shower Shape of pflow cluster
     if (!((*el)->pflowSuperCluster().isNull()))
@@ -883,7 +870,7 @@ void GsfElectronAlgo::addPflowInfo()
       calculateShowerShape((*el)->pflowSuperCluster(),true,pflowShowerShape) ;
       (*el)->setPfShowerShape(pflowShowerShape) ;
      }
-    else if ((*el)->passingPflowPreselection())
+    else if ((*el)->passingMvaPreselection())
      { edm::LogError("GsfElectronCoreProducer")<<"Preselected tracker driven GsfTrack with no associated pflow SuperCluster." ; }
 
     // PfBrem
@@ -905,7 +892,7 @@ void GsfElectronAlgo::addPflowInfo()
  }
 
 bool GsfElectronAlgo::isPreselected( GsfElectron * ele )
- { return (ele->passingCutBasedPreselection()||ele->passingPflowPreselection()) ; }
+ { return (ele->passingCutBasedPreselection()||ele->passingMvaPreselection()) ; }
 
 void GsfElectronAlgo::removeNotPreselectedElectrons()
  {
@@ -1006,35 +993,15 @@ void GsfElectronAlgo::setCutBasedPreselectionFlag( GsfElectron * ele, const reco
   ele->setPassCutBasedPreselection(true) ;
  }
 
-void GsfElectronAlgo::setPflowPreselectionFlag( GsfElectron * ele )
+void GsfElectronAlgo::setMvaPreselectionFlag( GsfElectron * ele )
  {
   ele->setPassMvaPreselection(false) ;
-
   if (ele->core()->ecalDrivenSeed())
-   { if (ele->mvaOutput().mva>=generalData_->cutsCfg.minMVA) ele->setPassMvaPreselection(true) ; }
+   { if (ele->mva()>=generalData_->cutsCfg.minMVA) ele->setPassMvaPreselection(true) ; }
   else
-   { if (ele->mvaOutput().mva>=generalData_->cutsCfgPflow.minMVA) ele->setPassMvaPreselection(true) ; }
-
+   { if (ele->mva()>=generalData_->cutsCfgPflow.minMVA) ele->setPassMvaPreselection(true) ; }
   if (ele->passingMvaPreselection())
-   { LogTrace("GsfElectronAlgo") << "Main mva criterion is satisfied" ; }
-
-  ele->setPassPflowPreselection(ele->passingMvaPreselection()) ;
-
-//  ele->setPassPflowPreselection(false) ;
-//  if (ele->core()->ecalDrivenSeed())
-//   {
-//    if ((ele->mvaOutput().mva>=generalData_->cutsCfg.minMVA) ||
-//        (ele->mvaOutput().mvaByPassForIsolated>=generalData_->cutsCfg.minMvaByPassForIsolated))
-//      ele->setPassPflowPreselection(true) ;
-//   }
-//  else
-//   {
-//    if ((ele->mvaOutput().mva>=generalData_->cutsCfgPflow.minMVA) ||
-//        (ele->mvaOutput().mvaByPassForIsolated>=generalData_->cutsCfgPflow.minMvaByPassForIsolated))
-//      ele->setPassPflowPreselection(true) ;
-//   }
-//  if (ele->passingPflowPreselection())
-//   { LogTrace("GsfElectronAlgo") << "Mva criteria are satisfied" ; }
+   { LogTrace("GsfElectronAlgo") << "Mva criterion is satisfied" ; }
  }
 
 void GsfElectronAlgo::createElectron()
@@ -1202,8 +1169,7 @@ void GsfElectronAlgo::createElectron()
      ( eleCharge,eleChargeInfo,electronData_->coreRef,
        tcMatching, tkExtra, ctfInfo,
        fiducialFlags,showerShape,
-       conversionVars ) ;
-  ele->setCorrectedEcalEnergyError(generalData_->superClusterErrorFunction->getValue(*(ele->superCluster()),0)) ;
+       conversionVars) ;
   ele->setP4(GsfElectron::P4_FROM_SUPER_CLUSTER,momentum,0,true) ;
 
 
@@ -1229,28 +1195,17 @@ void GsfElectronAlgo::createElectron()
   // classification and corrections
   //====================================================
 
-  // classification
-  ElectronClassification theClassifier ;
-  theClassifier.classify(*ele) ;
-
-  // ecal energy
+  ElectronClassification theClassifier;
+  theClassifier.classify(*ele);
   ElectronEnergyCorrector theEnCorrector(generalData_->crackCorrectionFunction) ;
-  if (ele->core()->ecalDrivenSeed())
-   {
-    if (generalData_->strategyCfg.ecalDrivenEcalEnergyFromClassBasedParameterization)
-     { theEnCorrector.classBasedParameterizationEnergy(*ele,*eventData_->beamspot) ; }
-    if (generalData_->strategyCfg.ecalDrivenEcalErrorFromClassBasedParameterization)
-     { theEnCorrector.classBasedParameterizationUncertainty(*ele) ; }
-   }
+  if (!generalData_->superClusterErrorFunction)
+   { theEnCorrector.correctEcalEnergyError(*ele) ; }
   else
-   {
-    if (generalData_->strategyCfg.pureTrackerDrivenEcalErrorFromSimpleParameterization)
-     { theEnCorrector.simpleParameterizationUncertainty(*ele) ; }
-   }
-
-  // momentum
+   { ele->setCorrectedEcalEnergyError(generalData_->superClusterErrorFunction->getValue(*(ele->superCluster()),0)) ; }
   if (ele->core()->ecalDrivenSeed())
    {
+    if (generalData_->strategyCfg.applyEcalEnergyCorrection)
+     { theEnCorrector.correctEcalEnergy(*ele,*eventData_->beamspot) ; }
     ElectronMomentumCorrector theMomCorrector;
     theMomCorrector.correct(*ele,electronData_->vtxTSOS);
    }

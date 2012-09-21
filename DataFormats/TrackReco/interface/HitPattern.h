@@ -172,10 +172,7 @@ namespace reco {
     void print (std::ostream &stream = std::cout) const;
 
     // set the pattern of the i-th hit
-    void set(const TrackingRecHit &hit, unsigned int i){setHitPattern(i, encode(hit,i));}
-    
-    // append a hit to the hit pattern
-    void appendHit(const TrackingRecHit & hit);
+    void set(const TrackingRecHit &, unsigned int i); 
 
     // get the pattern of the position-th hit
     uint32_t getHitPattern(int position) const; 
@@ -374,9 +371,6 @@ namespace reco {
 
     // detector side for tracker modules (mono/stereo)
     static uint32_t isStereo (DetId);
-
-    // encoder for pattern
-    uint32_t encode(const TrackingRecHit &,unsigned int);
   };
 
   // inline function

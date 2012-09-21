@@ -14,7 +14,7 @@
 //
 // Original Author:  Dave Evans
 //         Created:  Thu Apr 13 15:50:17 CEST 2006
-// $Id: EgammaSCCorrectionMaker.h,v 1.13 2011/11/15 10:36:53 argiro Exp $
+// $Id: EgammaSCCorrectionMaker.h,v 1.12 2011/07/18 18:05:40 argiro Exp $
 //
 //
 
@@ -43,7 +43,6 @@ class EgammaSCCorrectionMaker : public edm::EDProducer {
 
      EcalClusterFunctionBaseClass* energyCorrectionFunction_;
      EcalClusterFunctionBaseClass* crackCorrectionFunction_;
-     EcalClusterFunctionBaseClass* localContCorrectionFunction_;
 
 
      // pointer to the correction algo object
@@ -54,12 +53,7 @@ class EgammaSCCorrectionMaker : public edm::EDProducer {
      // vars for the correction algo
      bool applyEnergyCorrection_;
      bool applyCrackCorrection_;
-     bool applyLocalContCorrection_;
-
      std::string energyCorrectorName_;
-     std::string crackCorrectorName_;
-     std::string localContCorrectorName_;
-
      int modeEB_;
      int modeEE_;
 

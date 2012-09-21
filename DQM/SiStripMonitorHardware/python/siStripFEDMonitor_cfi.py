@@ -41,6 +41,7 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
   FETimeDiffTOBHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   FETimeDiffTECBHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   FETimeDiffTECFHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  FETimeDiffvsDBXHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(False) ),
   ApveAddressHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   FeMajAddressHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   #medians per APV for all channels, all events

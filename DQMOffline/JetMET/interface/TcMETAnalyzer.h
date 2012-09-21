@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2012/04/19 09:57:57 $
- *  $Revision: 1.7 $
+ *  $Date: 2012/04/20 14:37:07 $
+ *  $Revision: 1.8 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -32,7 +32,6 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
-#include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 
 #include "RecoJets/JetProducers/interface/JetIDHelper.h"
 
@@ -93,7 +92,7 @@ class TcMETAnalyzer : public TcMETAnalyzerBase {
 
   edm::InputTag theTcMETCollectionLabel;
   edm::InputTag HcalNoiseRBXCollectionTag;
-  edm::InputTag HcalNoiseSummaryTag;
+  edm::InputTag HBHENoiseFilterResultTag;
   edm::InputTag theJetCollectionLabel;
   edm::InputTag thePfJetCollectionLabel;
   edm::InputTag TcCandidatesTag;

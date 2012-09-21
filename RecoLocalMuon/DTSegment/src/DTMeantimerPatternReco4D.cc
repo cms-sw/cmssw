@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2008/12/03 12:52:22 $
- * $Revision: 1.3 $
+ * $Date: 2008/03/10 11:18:20 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -176,18 +176,8 @@ DTMeantimerPatternReco4D::reconstruct(){
           // Important!!
           DTSuperLayerId ZedSegSLId(zed->geographicalId().rawId());
 
-	  // Put the theta segment poistion in its 3D place.
-	  // note: (superPhi is in the CHAMBER local frame)
-	  const DTSuperLayer* zSL = theChamber->superLayer(ZedSegSLId);
-
-	  // FIXME: should rather extrapolate for Y!
-	  LocalPoint zPos(zed->localPosition().x(), 
-			 (zSL->toLocal(theChamber->toGlobal(superPhi->localPosition()))).y(),
-			 0.);
-
-          const LocalPoint posZInCh  = theChamber->toLocal( zSL->toGlobal(zPos));
-	  // FIXME: zed->localDirection() is in 2D. Should add the phi direction in the orthogonal plane as well!!
-          const LocalVector dirZInCh = theChamber->toLocal( zSL->toGlobal(zed->localDirection()));
+          const LocalPoint posZInCh  = theChamber->toLocal( theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localPosition() )) ;
+          const LocalVector dirZInCh = theChamber->toLocal( theChamber->superLayer(ZedSegSLId)->toGlobal(zed->localDirection() )) ;
 
           DTRecSegment4D* newSeg = new DTRecSegment4D(*superPhi,*zed,posZInCh,dirZInCh);
           //<<

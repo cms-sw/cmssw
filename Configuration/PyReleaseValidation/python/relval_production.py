@@ -10,7 +10,7 @@ workflows = Matrix()
 # the name of step1 will be used
 
 ## data production test
-workflows[1000] = [ '',['RunMinBias2011A','TIER0','SKIMD','HARVESTDfst2','ALCASPLIT']]
+workflows[1000] = [ '',['RunMinBias2011A','TIER0','SKIMD','HARVESTD','ALCASPLIT']]
 workflows[1001] = [ '',['RunMinBias2011A','TIER0EXP','ALCAEXP','ALCAHARVD']]
 workflows[1002]=['RRD',['RunMinBias2011A','RECOD']]#,'RECODFROMRAWRECO']]
 

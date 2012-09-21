@@ -16,7 +16,7 @@
 //#pragma link C++ class LASGlobalLoop+;
 #pragma link C++ class LASGlobalData<int>+;
 #pragma link C++ class LASGlobalData<float>+;
-#pragma link C++ class LASGlobalData<vector<float> >+;
+#pragma link C++ class LASGlobalData<std::vector<float> >+;
 #pragma link C++ class LASGlobalData<LASCoordinateSet>+;
 #pragma link C++ class LASGlobalData<LASModuleProfile>+;
 #pragma link C++ class LASGlobalData<std::pair<float, float> >+;

@@ -36,7 +36,13 @@ def OptionsFromCommandLine():
 
 def OptionsFromItems(items):
     import sys
-    from Configuration.PyReleaseValidation.Options import parser
+    from Configuration.PyReleaseValidation.Options import parser,threeValued
+    #three valued options
+    for (index,item) in enumerate(items):
+        for (opt,value) in threeValued:
+            if (str(item) in opt) and (index==len(items)-1 or items[index+1].startswith('-')):
+                items.insert(index+1,value)
+    
     (options,args) = parser.parse_args(items)
 
     if not options.conditions or options.conditions=="help":
@@ -70,6 +76,7 @@ def OptionsFromItems(items):
     # <type>_<energy>_<step>.root
     prec_step = {"NONE":"",
                  "ALL":"",
+                 "LHE":"",
                  "GEN":"",
                  "reGEN":"",
                  "SIM":"GEN",
@@ -138,7 +145,7 @@ def OptionsFromItems(items):
 
     filesuffix = {"LHE": "lhe", "EDM": "root", "MCDB": "", "DQM":"root"}[options.filetype]
 
-    if options.filein=="" and not (first_step in ("ALL","GEN","SIM_CHAIN")):
+    if options.filein=="" and not (first_step in ("ALL","GEN","LHE","SIM_CHAIN")):
         options.dirin="file:"+options.dirin.replace('file:','')
         options.filein=trimmedEvtType+"_"+prec_step[first_step]+"."+filesuffix
 

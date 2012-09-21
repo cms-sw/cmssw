@@ -1,6 +1,5 @@
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/XrdAdaptor/src/XrdFile.h"
 #include "XrdClient/XrdClientAdmin.hh"
 #include "XrdClient/XrdClientUrlSet.hh"
@@ -15,25 +14,8 @@ public:
 			 const std::string &path,
 			 int mode)
   {
-    // The important part here is not the cache size (which will get
-    // auto-adjusted), but the fact the cache is set to something non-zero.
-    // If we don't do this before creating the XrdFile object, caching will be
-    // completely disabled, resulting in poor performance.
-    EnvPutInt(NAME_READCACHESIZE, 20*1024*1024);
-
-    StorageFactory *f = StorageFactory::get();
-    StorageFactory::ReadHint readHint = f->readHint();
-    StorageFactory::CacheHint cacheHint = f->cacheHint();
-
-    if (readHint != StorageFactory::READ_HINT_UNBUFFERED
-        || cacheHint == StorageFactory::CACHE_HINT_STORAGE)
-      mode &= ~IOFlags::OpenUnbuffered;
-    else
-      mode |=  IOFlags::OpenUnbuffered;
-
     std::string fullpath(proto + ":" + path);
-    Storage *file = new XrdFile (fullpath, mode);
-    return f->wrapNonLocalFile(file, proto, std::string(), mode);
+    return new XrdFile (fullpath, mode);
   }
 
   virtual void stagein (const std::string &proto, const std::string &path)

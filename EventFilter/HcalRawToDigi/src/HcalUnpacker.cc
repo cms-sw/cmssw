@@ -42,8 +42,7 @@ namespace HcalUnpacker_impl {
 
   template <class DigiClass>
   const unsigned short* unpack_compact(const unsigned short* startPoint, const unsigned short* limit, DigiClass& digi, 
-				       int presamples, const HcalElectronicsId& eid, int startSample, int endSample, 
-				       int expectedTime, const HcalHTRData& hhd) {
+				       int presamples, const HcalElectronicsId& eid, int startSample, int endSample, int expectedTime, const HcalHTRData& hhd) {
     // set parameters
     digi.setPresamples(presamples);
     digi.setReadoutIds(eid);
@@ -67,37 +66,25 @@ namespace HcalUnpacker_impl {
     // what is my sample number?
     int ncurr=0,ntaken=0;
     const unsigned short* qie_work=startPoint;
-    // we branch here between normal (flavor=5) and error mode (flavor=6)
-    if (flavor==5) {
-      for (qie_work++; qie_work!=limit && !HcalHTRData::is_channel_header(*qie_work); qie_work++) {
-	int capidn=(isCapRotating)?((capid0+ncurr)%4):(capid0);
-	int capidn1=(isCapRotating)?((capid0+ncurr+1)%4):(capid0);
-	// two samples in one...
-	HcalQIESample s0((*qie_work)&0x7F,capidn,fiber,fiberchan,dataValid,fiberErr);
-	HcalQIESample s1(((*qie_work)>>8)&0x7F,capidn1,fiber,fiberchan,dataValid,fiberErr);
-	
-	if (ncurr>=startSample && ncurr<=endSample) {
-	  digi.setSample(ntaken,s0);
-	  ++ntaken;
-	}
-	ncurr++;
-	if (ncurr>=startSample && ncurr<=endSample) {
-	  digi.setSample(ntaken,s1);
-	  ++ntaken;
-	}
-	ncurr++;
+    for (qie_work++; qie_work!=limit && !HcalHTRData::is_channel_header(*qie_work); qie_work++) {
+      int capidn=(isCapRotating)?((capid0+ncurr)%4):(capid0);
+      int capidn1=(isCapRotating)?((capid0+ncurr+1)%4):(capid0);
+      // two samples in one...
+      HcalQIESample s0((*qie_work)&0x7F,capidn,fiber,fiberchan,dataValid,fiberErr);
+      HcalQIESample s1(((*qie_work)>>8)&0x7F,capidn1,fiber,fiberchan,dataValid,fiberErr);
+
+      if (ncurr>=startSample && ncurr<=endSample) {
+	digi.setSample(ntaken,s0);
+	++ntaken;
       }
-      digi.setSize(ntaken);
-    } else if (flavor==6) {
-      for (qie_work++; qie_work!=limit && !HcalHTRData::is_channel_header(*qie_work); qie_work++) {
-	if (ncurr>=startSample && ncurr<=endSample) {
-	  HcalQIESample sample((*qie_work)&0x7F,((*qie_work)>>8)&0x3,fiber,fiberchan,((*qie_work)>>10)&0x1,((*qie_work)>>11)&0x1);
-	  digi.setSample(ntaken,sample);
-	  ++ntaken;
-	}
-	ncurr++;
+      ncurr++;
+      if (ncurr>=startSample && ncurr<=endSample) {
+	digi.setSample(ntaken,s1);
+	++ntaken;
       }
+      ncurr++;
     }
+    digi.setSize(ntaken);
     return qie_work;
   }
 

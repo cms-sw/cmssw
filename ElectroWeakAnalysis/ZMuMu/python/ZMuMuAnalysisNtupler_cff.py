@@ -19,10 +19,6 @@ goodZToMuMuEdmNtuple = cms.EDProducer(
     quantity = cms.untracked.string("mass")
     ),
     cms.PSet(
-    tag = cms.untracked.string("cosTheta"), ## angle beetween the two muons....
-    quantity = cms.untracked.string("( daughter(0).px * daughter(1).px  + daughter(0).py * daughter(1).py + daughter(0).pz * daughter(1).pz)   / ( daughter(0).p()) / (daughter(1).p() )")
-    ),
-    cms.PSet(
     tag = cms.untracked.string("Pt"),
     quantity = cms.untracked.string("pt")
     ),
@@ -735,7 +731,6 @@ ntuplesOut = cms.OutputModule(
     outputCommands = cms.untracked.vstring(
     "drop *",
     "keep *_eventVtxInfoNtuple_*_*",
-    "keep *_eventNjetsAndMetInfoNtuple_*_*",
     "keep *_goodZToMuMuEdmNtupleLoose_*_*",
     "keep *_goodZToMuMuSameChargeEdmNtupleLoose_*_*",
     "keep *_goodZToMuMuOneStandAloneEdmNtupleLoose_*_*",

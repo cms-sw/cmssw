@@ -43,7 +43,8 @@
 #include <TMath.h>
 
 
-void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf, std::vector<int> flagsEB, std::vector<int> flagsEE, std::vector<int> severitiesEB, std::vector<int> severitiesEE) {
+void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
+
 
   trackInputTag_ = conf.getParameter<edm::InputTag>("trackProducer");
   beamSpotProducerTag_ = conf.getParameter<edm::InputTag>("beamSpotProducer");
@@ -57,7 +58,6 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf, std::vector
   //
   vetoClusteredEcalHits_ = conf.getParameter<bool>("vetoClustered");
   useNumCrystals_ = conf.getParameter<bool>("useNumCrystals");
-
   /// Isolation parameters for barrel and for two different cone sizes
   trkIsoBarrelRadiusA_.push_back(  conf.getParameter<double>("TrackConeOuterRadiusA_Barrel") );
   trkIsoBarrelRadiusA_.push_back(  conf.getParameter<double>("TrackConeInnerRadiusA_Barrel") ) ;
@@ -157,19 +157,38 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf, std::vector
   hcalIsoEndcapRadiusB_.push_back( conf.getParameter<double>("HcalDepth2TowerThreshEB_Endcap") );
 
   //Pick up the variables for the spike removal
-  flagsEB_      = flagsEB;
-  flagsEE_      = flagsEE;
-  severityExclEB_ = severitiesEB;
-  severityExclEE_ = severitiesEE;
+  severityLevelCut_        = conf.getParameter<int>("severityLevelCut");
+  //severityRecHitThreshold_ = conf.getParameter<double>("severityRecHitThreshold");
+  //spikeIdThreshold_        = conf.getParameter<double>("spikeIdThreshold");
+  
+  const std::vector<std::string> flagnames = 
+    conf.getParameter<std::vector<std::string> >("recHitFlagsToBeExcluded");
+  
+  v_chstatus_= StringToEnumValue<EcalRecHit::Flags>(flagnames);
+  
+
+  //Need to figure out which algo to use
+  //if(!conf.getParameter<std::string>("spikeIdString").compare("kE1OverE9") )   {
+  //  spId_ = EcalSeverityLevelAlgo::kE1OverE9;
+  //} else if(!conf.getParameter<std::string>("spikeIdString").compare("kSwissCross") ) {
+  //  spId_ = EcalSeverityLevelAlgo::kSwissCross;
+  //} else if(!conf.getParameter<std::string>("spikeIdString").compare("kSwissCrossBordersIncluded") ) {
+  //  spId_ = EcalSeverityLevelAlgo::kSwissCrossBordersIncluded;
+  //} else {
+  //  spId_ = EcalSeverityLevelAlgo::kSwissCrossBordersIncluded;
+  //   edm::LogWarning("PhotonIsolationCalculator|SpikeRemovalForIsolation")
+  //     << "Cannot find the requested method. kSwissCross set instead.";
+  //}
 }
 
 
 void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
-					  const edm::Event& e,
-					  const edm::EventSetup& es,
-					  reco::Photon::FiducialFlags& phofid, 
-					  reco::Photon::IsolationVariables& phoisolR1, 
-					  reco::Photon::IsolationVariables& phoisolR2) {
+				     const edm::Event& e,
+				     const edm::EventSetup& es,
+				     reco::Photon::FiducialFlags& phofid, 
+				     reco::Photon::IsolationVariables& phoisolR1, 
+				     reco::Photon::IsolationVariables& phoisolR2){
+
 
   //Get fiducial flags. This does not really belong here
   bool isEBPho     = false;
@@ -356,7 +375,6 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
 						 useNumCrystals_);
   phoisolR2.ecalRecHitSumEt = EcalRecHitIsoB;
 
-
   double HcalTowerIsoA = calculateHcalTowerIso(pho, e, es, photonHcalTowerConeOuterRadiusA_,
 					      photonHcalTowerConeInnerRadiusA_,
 					      photonHcalTowerThreshEA_, -1 );
@@ -386,8 +404,8 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
   //// Hcal depth2
 
   double HcalDepth2TowerIsoA = calculateHcalTowerIso(pho, e, es, photonHcalDepth2TowerConeOuterRadiusA_,
-						       photonHcalDepth2TowerConeInnerRadiusA_,
-						       photonHcalDepth2TowerThreshEA_, 2 );
+					      photonHcalDepth2TowerConeInnerRadiusA_,
+					      photonHcalDepth2TowerThreshEA_, 2 );
   phoisolR1.hcalDepth2TowerSumEt = HcalDepth2TowerIsoA;
 
 
@@ -397,39 +415,7 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
   phoisolR2.hcalDepth2TowerSumEt = HcalDepth2TowerIsoB;
 
 
-  // New Hcal isolation based on the new H/E definition (towers behind the BCs in the SC are used to evaluated H)
-  double HcalTowerBcIsoA = calculateHcalTowerIso(pho, e, es, photonHcalTowerConeOuterRadiusA_,
-						 photonHcalTowerThreshEA_, -1 );
-  phoisolR1.hcalTowerSumEtBc = HcalTowerBcIsoA;
 
-
-  double HcalTowerBcIsoB = calculateHcalTowerIso(pho, e, es, photonHcalTowerConeOuterRadiusB_,
-						 photonHcalTowerThreshEB_, -1 );
-  phoisolR2.hcalTowerSumEtBc = HcalTowerBcIsoB;
-
-  //// Hcal depth1
-
-  double HcalDepth1TowerBcIsoA = calculateHcalTowerIso(pho, e, es, photonHcalDepth1TowerConeOuterRadiusA_,
-						       photonHcalDepth1TowerThreshEA_, 1 );
-  phoisolR1.hcalDepth1TowerSumEtBc = HcalDepth1TowerBcIsoA;
-
-
-  double HcalDepth1TowerBcIsoB = calculateHcalTowerIso(pho, e, es, photonHcalDepth1TowerConeOuterRadiusB_,
-						       photonHcalDepth1TowerThreshEB_, 1 );
-  phoisolR2.hcalDepth1TowerSumEtBc = HcalDepth1TowerBcIsoB;
-
-
-
-  //// Hcal depth2
-
-  double HcalDepth2TowerBcIsoA = calculateHcalTowerIso(pho, e, es, photonHcalDepth2TowerConeOuterRadiusA_,
-						       photonHcalDepth2TowerThreshEA_, 2 );
-  phoisolR1.hcalDepth2TowerSumEtBc = HcalDepth2TowerBcIsoA;
-
-
-  double HcalDepth2TowerBcIsoB = calculateHcalTowerIso(pho, e, es, photonHcalDepth2TowerConeOuterRadiusB_,
-						       photonHcalDepth2TowerThreshEB_, 2 );
-  phoisolR2.hcalDepth2TowerSumEtBc = HcalDepth2TowerBcIsoB;
 
 
 
@@ -546,12 +532,17 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   
   edm::Handle<EcalRecHitCollection> ecalhitsCollEB;
   edm::Handle<EcalRecHitCollection> ecalhitsCollEE;
+
   iEvent.getByLabel(endcapecalCollection_, ecalhitsCollEE);
- 
+  
   iEvent.getByLabel(barrelecalCollection_, ecalhitsCollEB);
  
   const EcalRecHitCollection* rechitsCollectionEE_ = ecalhitsCollEE.product();
   const EcalRecHitCollection* rechitsCollectionEB_ = ecalhitsCollEB.product();
+
+  //Get the channel status from the db
+  edm::ESHandle<EcalChannelStatus> chStatus;
+  iSetup.get<EcalChannelStatusRcd>().get(chStatus);
 
   edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
   iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
@@ -578,8 +569,8 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
 
   phoIsoEB.setVetoClustered(vetoClusteredHits);
   phoIsoEB.setUseNumCrystals(useNumXtals);
-  phoIsoEB.doSeverityChecks(ecalhitsCollEB.product(), severityExclEB_);
-  phoIsoEB.doFlagChecks(flagsEB_);
+  phoIsoEB.doSpikeRemoval(ecalhitsCollEB.product(),chStatus.product(),severityLevelCut_);//,severityRecHitThreshold_,spId_,spikeIdThreshold_);
+  phoIsoEB.doFlagChecks(v_chstatus_);
   double ecalIsolEB = phoIsoEB.getEtSum(photon);
   
   EgammaRecHitIsolation phoIsoEE(RCone,
@@ -594,14 +585,15 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   
   phoIsoEE.setVetoClustered(vetoClusteredHits);
   phoIsoEE.setUseNumCrystals(useNumXtals);
-  phoIsoEE.doSeverityChecks(ecalhitsCollEE.product(), severityExclEE_); 
-  phoIsoEE.doFlagChecks(flagsEE_);
+  phoIsoEE.doFlagChecks(v_chstatus_);
 
   double ecalIsolEE = phoIsoEE.getEtSum(photon);
   //  delete phoIso;
   double ecalIsol = ecalIsolEB + ecalIsolEE;
   
   return ecalIsol;
+  
+
 }
 
 double PhotonIsolationCalculator::calculateHcalTowerIso(const reco::Photon* photon,
@@ -619,48 +611,17 @@ double PhotonIsolationCalculator::calculateHcalTowerIso(const reco::Photon* phot
   
   const CaloTowerCollection *toww = hcalhitsCollH.product();
 
-  double hcalIsol=0.;
+  double ecalIsol=0.;
   
   //std::cout << "before iso call" << std::endl;
   EgammaTowerIsolation phoIso(RCone,
                               RConeInner,
                               eMin,depth,
                               toww);
-  hcalIsol = phoIso.getTowerEtSum(photon);
+  ecalIsol = phoIso.getTowerEtSum(photon);
   //  delete phoIso;
   //std::cout << "after call" << std::endl;
-  return hcalIsol;
-  
-
-}
-
-
-
-double PhotonIsolationCalculator::calculateHcalTowerIso(const reco::Photon* photon,
-							const edm::Event& iEvent,
-							const edm::EventSetup& iSetup,
-							double RCone,
-							double eMin,
-							signed int depth )
-{
-
-  edm::Handle<CaloTowerCollection> hcalhitsCollH;
- 
-  iEvent.getByLabel(hcalCollection_, hcalhitsCollH);
-  
-  const CaloTowerCollection *toww = hcalhitsCollH.product();
-
-  double hcalIsol=0.;
-  
-  //std::cout << "before iso call" << std::endl;
-  EgammaTowerIsolation phoIso(RCone,
-			      0.,
-                              eMin,depth,
-                              toww);
-  hcalIsol = phoIso.getTowerEtSum(photon, &(photon->hcalTowersBehindClusters()) );
-  //  delete phoIso;
-  //std::cout << "after call" << std::endl;
-  return hcalIsol;
+  return ecalIsol;
   
 
 }

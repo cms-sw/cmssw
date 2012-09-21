@@ -65,48 +65,6 @@ def setupPFIso(process, leptonCollection, particleName, newpostfix='PFIso'):
 
     return ganew('std{lepton}Sequence'.format(lepton=particleName))
 
-def setupPFIsoPhoton(process, photonCollection, particleName, newpostfix='PFIso'):
-    '''Generic function to setup particle-based isolation for a given lepton collection.
-    Returns the isolation sequence.
-    You are responsible for adding it to your path.
-
-    leptonCollection could e.g. be "gsfElectrons" or "muons"
-    particleName must be either "Electron" or "Muon".
-    newpostfix can be specified to define several particle-flow isolation sequences
-    '''
-    phoshort = None
-    if particleName=='Photon':
-        phoshort='ph'
-    else:
-        raise ValueError('particleName should be equal to "Photon"')
-    
-    _loadPFBRECO(process)
-
-    postfix = ''
-    # ADD VETOES IN ENDCAPS!
-    fullpostfix = postfix+newpostfix
-    #fullpostfix = ''
-    ga = _getattrGenerator( process, postfix )
-    ganew = _getattrGenerator( process, fullpostfix )
-
-    photonSeq = cms.Sequence(
-        ga('pf{photon}IsolationSequence'.format(photon=particleName))  
-        )
-    setattr( process, 'std{photon}Sequence{postfix}'.format(photon=particleName,
-                                                   postfix=postfix), photonSeq)
-
-    photonSource = photonCollection
-    cloneProcessingSnippet(process,
-                           ga('std{photon}Sequence'.format(photon=particleName)),
-                           newpostfix)
-
-    ganew("{phoshort}PFIsoDepositCharged".format(phoshort=phoshort) ).src = photonSource
-    ganew("{phoshort}PFIsoDepositChargedAll".format(phoshort=phoshort)).src = photonSource
-    ganew("{phoshort}PFIsoDepositNeutral".format(phoshort=phoshort)).src = photonSource
-    ganew("{phoshort}PFIsoDepositGamma".format(phoshort=phoshort)).src = photonSource
-    ganew("{phoshort}PFIsoDepositPU".format(phoshort=phoshort)).src = photonSource
-
-    return ganew('std{photon}Sequence'.format(photon=particleName))
 
 
 def setupPFMuonIso(process, muonCollection, postfix='PFIso' ):
@@ -128,13 +86,5 @@ def setupPFElectronIso(process, electronCollection, postfix='PFIso' ):
     #    print 'Need a volunteer to implement that.'
     return setupPFIso( process, electronCollection, 'Electron', postfix)
 
-
-def setupPFPhotonIso(process, photonCollection, postfix='PFIso' ):
-    '''Set up particle-based isolation for the electrons in electronCollection.
-
-    Calls setupPFIsoPhoton.
-    '''
-    #    print 'WARNING!!! the vetoes are the ones defined for the PF e-s (no veto...).'
-    #    print 'Please make sure that your file with vetoes is up to date'
-    return setupPFIsoPhoton( process, photonCollection, 'Photon', postfix)
+    
 

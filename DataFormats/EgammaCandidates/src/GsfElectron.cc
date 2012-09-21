@@ -10,7 +10,6 @@ GsfElectronCoreRef GsfElectron::core() const { return core_ ; }
 void GsfElectron::init()
  {
   passCutBasedPreselection_ = false ;
-  passPflowPreselection_ = false ;
   passMvaPreslection_ = false ;
   ambiguous_ = true ;
   class_ = UNKNOWN ;
@@ -64,7 +63,6 @@ GsfElectron::GsfElectron
    mvaInput_(electron.mvaInput_),
    mvaOutput_(electron.mvaOutput_),
    passCutBasedPreselection_(electron.passCutBasedPreselection_),
-   passPflowPreselection_(electron.passPflowPreselection_),
    passMvaPreslection_(electron.passMvaPreslection_),
    ambiguous_(electron.ambiguous_),
    ambiguousGsfTracks_(electron.ambiguousGsfTracks_),
@@ -98,7 +96,6 @@ GsfElectron::GsfElectron
    mvaInput_(electron.mvaInput_),
    mvaOutput_(electron.mvaOutput_),
    passCutBasedPreselection_(electron.passCutBasedPreselection_),
-   passPflowPreselection_(electron.passPflowPreselection_),
    passMvaPreslection_(electron.passMvaPreslection_),
    ambiguous_(electron.ambiguous_),
    ambiguousGsfTracks_(ambiguousTracks),

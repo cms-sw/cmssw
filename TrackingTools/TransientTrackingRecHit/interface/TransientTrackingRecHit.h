@@ -9,8 +9,6 @@
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "DataFormats/GeometrySurface/interface/BlockWipedAllocator.h"
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 
 // make tis default
 #define TTRH_NOGE

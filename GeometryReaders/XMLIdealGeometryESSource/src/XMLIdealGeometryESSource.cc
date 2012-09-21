@@ -1,5 +1,6 @@
 #include "GeometryReaders/XMLIdealGeometryESSource/interface/XMLIdealGeometryESSource.h"
 
+#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -25,7 +26,7 @@ XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p):
                                                                                  geoConfig_(p)
 {
   if ( rootNodeName_ == "" || rootNodeName_ == "\\" ) {
-    throw cms::Exception("DDException") << "XMLIdealGeometryESSource must have a root node name.";
+    throw DDException ("XMLIdealGeometryESSource must have a root node name.");
   }
   
   if ( rootNodeName_ == "MagneticFieldVolumes:MAGF" ||  rootNodeName_ == "cmsMagneticField:MAGF") {
@@ -64,7 +65,7 @@ XMLIdealGeometryESSource::produce() {
   DDLParser parser(*returnValue); //* parser = DDLParser::instance();
   parser.getDDLSAX2FileHandler()->setUserNS(userNS_);
   int result2 = parser.parse(geoConfig_);
-  if (result2 != 0) throw cms::Exception("DDException") << "DDD-Parser: parsing failed!";
+  if (result2 != 0) throw DDException("DDD-Parser: parsing failed!");
 
   // after parsing the root node should be valid!
 

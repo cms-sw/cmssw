@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManagerBase.h,v 1.5 2012/04/30 19:59:36 amraktad Exp $
+// $Id: FWGeometryTableManagerBase.h,v 1.6 2012/05/02 04:48:50 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -158,11 +158,9 @@ public:
    virtual void setVisibility(NodeInfo&, bool );
    virtual void setVisibilityChld(NodeInfo&, bool);
    virtual void setDaughtersSelfVisibility(int selectedIdx, bool v);
-/*
+
    virtual bool getVisibilityChld(const NodeInfo& nodeInfo) const;
    virtual bool getVisibility (const NodeInfo& nodeInfo) const;
-  */ 
-   
 
    static  void getNNodesTotal(TGeoNode* geoNode, int& off);
 

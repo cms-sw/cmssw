@@ -16,7 +16,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel
 //         Created:  Thu Jun 23 01:25:00 CEST 2011
-// $Id: FWGeoTopNode.h,v 1.11 2012/04/30 19:59:36 amraktad Exp $
+// $Id: FWGeoTopNode.h,v 1.12 2012/05/04 00:21:43 amraktad Exp $
 //
 
 #ifndef __CINT__
@@ -64,7 +64,7 @@ public:
    virtual ~FWGeoTopNode(){}
 
    virtual void Paint(Option_t* option="");
-   FWGeoTopNodeGLScene    *fSceneJebo;
+   FWGeoTopNodeGLScene    *m_scene;
    
    virtual FWGeometryTableManagerBase* tableManager() { return 0; }
    virtual FWGeometryTableViewBase* browser() { return 0; }

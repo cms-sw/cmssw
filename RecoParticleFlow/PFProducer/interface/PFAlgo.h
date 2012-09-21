@@ -115,19 +115,11 @@ class PFAlgo {
 			     double sumPtTrackIsoSlopeForPhoton
 );  
 
-  // void setPFPhotonRegWeights(
-  //		     const GBRForest *LCorrForest,
-  //		     const GBRForest *GCorrForest,
-  //		     const GBRForest *ResForest
-			     
-  //		     ); 
   void setPFPhotonRegWeights(
-			     const GBRForest *LCorrForestEB,
-			     const GBRForest *LCorrForestEE,
-			     const GBRForest *GCorrForestBarrel,
-			     const GBRForest *GCorrForestEndcapHr9,
-			     const GBRForest *GCorrForestEndcapLr9,
-			     const GBRForest *PFEcalResolution
+			     const GBRForest *LCorrForest,
+			     const GBRForest *GCorrForest,
+			     const GBRForest *ResForest
+			     
 			     ); 
   void setPostHFCleaningParameters(bool postHFCleaning,
 				   double minHFCleaningPt,
