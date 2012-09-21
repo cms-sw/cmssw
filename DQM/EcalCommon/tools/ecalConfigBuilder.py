@@ -4,21 +4,23 @@ import re
 # get options
 optparser = OptionParser()
 optparser.add_option("-e", "--env", dest = "environment",
-                   help = "ENV=(CMSLive|PrivLive|PrivOffline|LocalLive|LocalOffline)", metavar = "ENV", default = "")
+    help = "ENV=(CMSLive|PrivLive|PrivOffline|LocalLive|LocalOffline)", metavar = "ENV", default = "")
 optparser.add_option("-c", "--config", dest = "config",
-                   help = "CONFIG=(Physics|Calibration|Laser)", metavar = "CONFIG")
+    help = "CONFIG=(Physics|Calibration|Laser)", metavar = "CONFIG")
 optparser.add_option("-d", "--daqtype", dest = "daqtype", default = "globalDAQ",
-                   help = "DAQ=(globalDAQ|localDAQ)", metavar = "DAQ")
+    help = "DAQ=(globalDAQ|localDAQ)", metavar = "DAQ")
 optparser.add_option("-f", "--file", dest = "filename", default = "",
-                   help = "write to FILE (optional)", metavar = "FILE")
+    help = "write to FILE (optional)", metavar = "FILE")
 optparser.add_option("-s", "--source", dest = "sourceFiles", default = "",
-                     help = "use FILELIST (space separated) as source", metavar = "FILELIST")
+    help = "use FILELIST (space separated) as source", metavar = "FILELIST")
 optparser.add_option("-g", "--gtag", dest = "gtag", default = "",
-                     help = "global tag", metavar = "TAG")
+    help = "global tag", metavar = "TAG")
 optparser.add_option("-w", "--workflow", dest = "workflow", default = "",
-                     help = "offline workflow", metavar = "WORKFLOW")
+    help = "offline workflow", metavar = "WORKFLOW")
 optparser.add_option("-r", "--rawdata", dest = "rawdata", default = "",
-                     help = "collection name", metavar = "RAWDATA")
+    help = "collection name", metavar = "RAWDATA")
+#optparser.add_option("-t", "--type", dest = "runtype", default = "",
+#    help = "ECAL run type", metavar = "RUNTYPE")
 
 (options, args) = optparser.parse_args()
 
@@ -40,6 +42,11 @@ daqtype = options.daqtype
 if daqtype not in set(['localDAQ', 'globalDAQ', 'miniDAQ']) :
     optparser.error("DAQ value " + daqtype + " not correct")
     exit
+
+#runtype = options.runtype
+#if runtype not '' and daqtype not 'localDAQ':
+#    optparser.error("Run type can only be set in localDAQ runs")
+#    exit
 
 filename = options.filename
 sourceFiles = re.sub(r'([^ ]+)[ ]?', r'    "file:\1",\n', options.sourceFiles)
@@ -187,7 +194,11 @@ else :
 process.load("DQM.EcalBarrelMonitorTasks.EcalCalibMonitorTasks_cfi")
 process.load("DQM.EcalBarrelMonitorClient.EcalCalibMonitorClient_cfi")
 '''        
-    
+
+if not physics and daqtype == 'localDAQ':
+    ecalDQM += '''
+process.ecalCalibMonitorClient.workers = ["LaserClient", "LedClient", "TestPulseClient", "PedestalClient", "PNIntegrityClient", "CalibrationSummaryClient"]
+'''
 
 dqmModules += '''
 
@@ -524,7 +535,18 @@ elif laser :
     if privEcal :
         customizations += '''
 process.ecalLaserMonitorClient.clientParameters.LightChecker.matacqPlotsDir = "/data/ecalod-disk01/dqm-data/laser"
-'''    
+'''
+
+if daqtype == 'localDAQ':
+    customizations += '''
+process.ecalPedestalMonitorTask.workerParameters.common.MGPAGains = [1, 6, 12]
+process.ecalPedestalMonitorTask.workerParameters.common.MGPAGainsPN = [1, 16]
+process.ecalTestPulseMonitorTask.workerParameters.common.MGPAGains = [1, 6, 12]
+process.ecalTestPulseMonitorTask.workerParameters.common.MGPAGainsPN = [1, 16]
+process.ecalPNDiodeMonitorTask.workerParameters.common.MGPAGainsPN = [1, 16]
+process.ecalCalibMonitorClient.workerParameters.common.MGPAGains = [1, 6, 12]
+process.ecalCalibMonitorClient.workerParameters.common.MGPAGainsPN = [1, 16]
+'''
 
 customizations += '''
  ## DQM common modules ##
@@ -564,7 +586,7 @@ process.dqmSaver.dirName = "/data/ecalod-disk01/dqm-data/online-DQM/data"
 '''
         else :
             customizations += '''
-process.dqmSaver.dirName = /data/ecalod-disk01/dqm-data/tmp
+process.dqmSaver.dirName = "/data/ecalod-disk01/dqm-data/tmp"
 '''
 
     if not live :
