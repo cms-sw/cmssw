@@ -35,6 +35,12 @@ public:
   virtual float strip( const LocalPoint& lp, const Topology::LocalTrackAngles &/*ltp*/ ) const {
     return strip(lp);
   }
+
+  // the number of strip span by the segment between the two points..
+  virtual float coveredStrips(const LocalPoint& lp1, const LocalPoint& lp2)  const {
+    return (measurementPosition(lp1)-measurementPosition(lp2)).x();
+  }  
+
   virtual float pitch() const = 0;
   virtual float localPitch( const LocalPoint& ) const = 0; 
 

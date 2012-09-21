@@ -11,8 +11,9 @@
 namespace {
 
   struct Stat {
+    Stat(const char * in) : name(in){};
     ~Stat() {
-      std::cout <<"atan0 calls tot/large/over1: " << natan << "/" << nlarge <<"/" << over1 << std::endl; 
+      std::cout << name << ": atan0 calls tot/large/over1: " << natan << "/" << nlarge <<"/" << over1 << std::endl; 
     }
 
     void add(float t) { 
@@ -20,22 +21,21 @@ namespace {
       if (t>0.40f) ++nlarge;
       if (t>1.0) ++over1;
     }
+    const char * name;
     long long natan=0;
     long long nlarge=0;
     long long over1=0;    
   };
 
-  Stat stat;
+  Stat statM("mpos");
+  Stat statS("span");
 
   // valid for z < pi/8
   inline 
   float atan0(float t) {
-    stat.add(t);
     auto z=t;
-    if( t > 0.4142135623730950f ) // * tan pi/8 
-      {
-	z = (t-1.0f)/(t+1.0f);
-      }
+    // if( t > 0.4142135623730950f ) // * tan pi/8 
+    // z = (t-1.0f)/(t+1.0f);
     float z2 = z * z;
     float ret=
       ((( 8.05374449538e-2f * z2
@@ -43,7 +43,7 @@ namespace {
 	+ 1.99777106478E-1f) * z2
        - 3.33329491539E-1f) * z2 * z
       + z;
-    if( t > 0.4142135623730950f ) ret +=0.7853981633974483096f;
+    // if( t > 0.4142135623730950f ) ret +=0.7853981633974483096f;
     return ret;
   }
 
@@ -57,7 +57,7 @@ RadialStripTopology::RadialStripTopology(int ns, float aw, float dh, float r, in
   // Angular offset of extreme edge of detector, so that angle is
   // zero for a strip lying along local y axis = long symmetry axis of plane of strips
   thePhiOfOneEdge = -(0.5*theNumberOfStrips) * theAngularWidth; // always negative!
-  
+  theTanOfOneEdge = std::tan(std::abs(thePhiOfOneEdge));
   assert(std::abs(thePhiOfOneEdge)<0.35); // < pi/8 (and some tollerance)
 
   std::cout << "VI: work in progress :RadialStripTopology buggy" << std::endl;
@@ -98,6 +98,18 @@ float RadialStripTopology::strip(const LocalPoint& lp) const {
   return  std::max(float(0), std::min( (float)nstrips(), aStrip ));
 }
 
+float RadialStripTopology::coveredStrips(const LocalPoint& lp1, const LocalPoint& lp2)  const {
+  // http://en.wikipedia.org/wiki/List_of_trigonometric_identities#Angle_sum_and_difference_identities
+  // atan(a)-atan(b) = atan( (a-b)/(1+a*b) )  
+  float t1 = lp1.x()/yDistanceToIntersection( lp1.y() );
+  float t2 = lp2.x()/yDistanceToIntersection( lp2.y() );
+  float t = (t1-t2)/(1.+t1*t2); float at = std::abs(t);
+  statS.add(at);
+  // clip???
+  return std::copysign( (at< theTanOfOneEdge )  ? atan0(at) : thePhiOfOneEdge, t )/angularWidth();
+  //   return (measurementPosition(lp1)-measurementPosition(lp2)).x();
+}  
+
 LocalPoint RadialStripTopology::localPosition(float strip) const {
   return LocalPoint( yAxisOrientation() * originToIntersection() * tan( stripAngle(strip) ), 0 );
 }
@@ -111,7 +123,10 @@ LocalPoint RadialStripTopology::localPosition(const MeasurementPoint& mp) const 
 
 MeasurementPoint RadialStripTopology::measurementPosition(const LocalPoint& lp) const {
   // phi is [pi/2 - conventional local phi], use atan2(x,y) rather than atan2(y,x)
-  const float phi = std::copysign(atan0(std::abs( lp.x()/yDistanceToIntersection(lp.y()) )) , lp.x() );
+  // clip
+  float t = std::abs( lp.x()/yDistanceToIntersection(lp.y()));
+  statM.add(t);
+  const float phi = std::copysign( (t< theTanOfOneEdge )  ? atan0(t) : thePhiOfOneEdge, lp.x() );
   return MeasurementPoint( ( phi-phiOfOneEdge() ) / angularWidth(),
 			   ( lp.y() - yCentreOfStripPlane() )        / detHeight() );
 }
