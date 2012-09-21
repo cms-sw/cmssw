@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Calibration/EcalAlCaRecoProducers/interface/AlCaElectronsProducer.h"
+//#include "Calibration/EcalAlCaRecoProducers/interface/AlCaElectronsProducer.h"
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"

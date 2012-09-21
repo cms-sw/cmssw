@@ -28,10 +28,11 @@ print_help() {
     echo "         -M  options    special HepMC2 options ( "${OPTHEPMC}" )" && \
     echo "         -l  version    request LHAPDF installation ( "${LHAPDF}", "${LVER}" )" && \
     echo "         -L  options    special LHAPDF options ( "${OPTLHAPDF}" )" && \
-    echo "         -P             link (softlink) LHAPDF sets ( "${LINKPDF}" )" && \
+    echo "         -P  name       automatically retrieve LHAPDF set ( "${PDFSET}" )" && \
+    echo "         -S             link (softlink) LHAPDF sets ( "${LINKPDF}" )" && \
     echo "                         or do a hardcopy if not set" && \
     echo "         -W  location   (web)location of SHERPA tarball ( "${SHERPAWEBLOCATION}" )" && \
-    echo "         -S  filename   file name of SHERPA tarball ( "${SHERPAFILE}" )" && \
+    echo "         -Y  filename   file name of SHERPA tarball ( "${SHERPAFILE}" )" && \
     echo "         -C  level      cleaning level of SHERPA installation ("${LVLCLEAN}" )" && \
     echo "                         -> 0: nothing, 1: +objects, 2: +sourcecode" && \
     echo "         -T             enable multithreading [V >= 1.1.0]" && \
@@ -68,6 +69,7 @@ HVER="2.05.00"             # HepMC2 version  to be installed
 OPTHEPMC=""                # special HepMC2 installation options
 LHAPDF="FALSE"             # install LHAPDF
 OPTLHAPDF=""               # special LHAPDF installation options
+PDFSET=""                  # name of PDFset to download
 LINKPDF="FALSE"            # link (softlink) LHAPDF sets
 LVER="5.6.0"               # LHAPDF version  to be installed
 FLAGS="FALSE"              # apply SHERPA compiler/'make' flags
@@ -86,7 +88,7 @@ FLGMCORE="FALSE"           # use multiple cores for compilation
 
 
 # get & evaluate options
-while getopts :v:d:m:l:p:F:W:S:C:M:L:fPTADIXZKh OPT
+while getopts :v:d:m:l:p:F:W:P:Y:C:M:L:fSTADIXZKh OPT
 do
   case $OPT in
   v) SHERPAVER=$OPTARG ;;
@@ -98,14 +100,15 @@ do
   M) OPTHEPMC=${OPTHEPMC}" "$OPTARG ;;
   l) LHAPDF=TRUE && LVER=$OPTARG ;;
   L) OPTLHAPDF=${OPTLHAPDF}" "$OPTARG ;;
-  P) LINKPDF=TRUE ;;
+  P) PDFSET=$PDFSET" "$OPTARG ;;
+  S) LINKPDF=TRUE ;;
   p) PATCHES=TRUE && PDIR=$OPTARG ;;
   T) SHCFLAGS=${SHCFLAGS}" --enable-multithread" &&
       SHMFLAGS=${SHMFLAGS}" --copt --enable-multithread" ;;
   A) SHCFLAGS=${SHCFLAGS}" --enable-analysis" &&
       SHMFLAGS=${SHMFLAGS}" --copt --enable-analysis" ;;
   W) SHERPAWEBLOCATION=$OPTARG ;;
-  S) SHERPAFILE=$OPTARG ;;
+  Y) SHERPAFILE=$OPTARG ;;
   C) LVLCLEAN=$OPTARG ;;
   D) FLGDEBUG=TRUE &&
       OPTHEPMC=${OPTHEPMC}" -D" && OPTLHAPDF=${OPTLHAPDF}" -D" ;;
@@ -193,6 +196,7 @@ echo "  -> HepMC2: '"${HEPMC}"', version '"${HVER}"'"
 echo "  ->   options: "${OPTHEPMC}
 echo "  -> LHAPDF: '"${LHAPDF}"', version '"${LVER}"'"
 echo "  ->   options: "${OPTLHAPDF}
+echo "  ->   PDFsets: "${PDFSET}
 echo "  -> link PDFsets: '"${LINKPDF}"'"
 
 
@@ -301,6 +305,9 @@ if [ "$LHAPDF" = "TRUE" ]; then
   if [ "${FLGMCORE}" = "TRUE" ]; then
     OPTLHAPDF=${OPTLHAPDF}" -Z"
   fi
+  for pdfs in $PDFSET; do
+    OPTLHAPDF=${OPTLHAPDF}" -P "${pdfs}
+  done
   if [ ! "$LHAPDFDIR" = "" ]; then
     echo " -> LHAPDF directory is: "${LHAPDFDIR}
     if [ ! -e ${LHAPDFDIR} ]; then

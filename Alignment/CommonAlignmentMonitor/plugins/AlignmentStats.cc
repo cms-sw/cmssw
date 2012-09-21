@@ -27,7 +27,7 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "Utilities/General/interface/ClassName.h"
 
-using namespace std;
+//using namespace edm;
 
 AlignmentStats::AlignmentStats(const edm::ParameterSet &iConfig) :
   src_(iConfig.getParameter<edm::InputTag>("src")),

@@ -155,7 +155,7 @@ private:
   template<typename C> 
   static const C* equalClusters(const C &c1, const C &c2) 
   { 
-    return nullptr; 
+    return false; 
   }
   
   // Find a rechit in a vector of ClusterWithTrack

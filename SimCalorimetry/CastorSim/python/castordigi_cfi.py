@@ -9,7 +9,7 @@ simCastorDigis = cms.EDProducer("CastorDigiProducer",
         samplingFactor = cms.double(16.75), ## pe/GeV
 
         doPhotoStatistics = cms.bool(True),
-        photoelectronsToAnalog = cms.double(4.009),
+        photoelectronsToAnalog = cms.double(4.24),
         simHitToPhotoelectrons = cms.double(1000.0),
         syncPhase = cms.bool(True),
         timePhase = cms.double(-4.0)

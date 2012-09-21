@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/03/29 17:21:05 $
- *  $Revision: 1.37 $
+ *  $Date: 2012/04/24 17:42:42 $
+ *  $Revision: 1.38 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -243,10 +243,12 @@ void TrackingMonitor::beginJob(void)
       NumberOfTracks_lumiFlag->setAxisTitle("Number of Tracks per Event", 1);
       NumberOfTracks_lumiFlag->setAxisTitle("Number of Events", 2);
 
-      histname = "NumberOfGoodTracks_lumiFlag_" + CategoryName;
-      NumberOfGoodTracks_lumiFlag = dqmStore_->book1D(histname, histname, TKNoBin, TKNoMin, TKNoMax);
-      NumberOfGoodTracks_lumiFlag->setAxisTitle("Number of Good Tracks per Event", 1);
-      NumberOfGoodTracks_lumiFlag->setAxisTitle("Number of Events", 2);
+      if ( doGoodTrackPlots_ ) {
+	histname = "NumberOfGoodTracks_lumiFlag_" + CategoryName;
+	NumberOfGoodTracks_lumiFlag = dqmStore_->book1D(histname, histname, TKNoBin, TKNoMin, TKNoMax);
+	NumberOfGoodTracks_lumiFlag->setAxisTitle("Number of Good Tracks per Event", 1);
+	NumberOfGoodTracks_lumiFlag->setAxisTitle("Number of Events", 2);
+      }
       
     }
 
@@ -539,7 +541,8 @@ void TrackingMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumi, con
 //    dqmStore_->softReset(FractionOfGoodTracks);
 //    theTrackAnalyzer->doSoftReset(dqmStore_);    
     if ( NumberOfTracks_lumiFlag       ) NumberOfTracks_lumiFlag       -> Reset();
-    if ( NumberOfGoodTracks_lumiFlag   ) NumberOfGoodTracks_lumiFlag   -> Reset();
+    if ( doGoodTrackPlots_ )
+      if ( NumberOfGoodTracks_lumiFlag   ) NumberOfGoodTracks_lumiFlag   -> Reset();
     theTrackAnalyzer->doReset(dqmStore_);    
   }
 }
@@ -632,7 +635,8 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 	if ( doLumiAnalysis ) {
 	  NumberOfTracks_lumiFlag       -> Fill(totalNumTracks);
-	  NumberOfGoodTracks_lumiFlag   -> Fill(totalNumHPPt1Tracks);
+	  if ( doGoodTrackPlots_ )
+	    NumberOfGoodTracks_lumiFlag   -> Fill(totalNumHPPt1Tracks);
 	}
 
 	if (doGeneralPropertiesPlots_ || doAllPlots){
