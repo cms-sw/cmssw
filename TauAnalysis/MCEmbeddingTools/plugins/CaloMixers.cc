@@ -15,7 +15,8 @@ typedef CaloRecHitMixer< EcalRecHit > EcalRHMixer;
 typedef CaloRecHitMixer< HBHERecHit > HBHERHMixer;
 typedef CaloRecHitMixer< HFRecHit >   HFRHMixer;
 typedef CaloRecHitMixer< HORecHit > HORHMixer;
-typedef CaloRecHitMixer< ZDCRecHit > ZDCRHMixer;
+#warning "ZDCRHMixer still needs to be done" 
+//typedef CaloRecHitMixer< ZDCRecHit > ZDCRHMixer;
 typedef CaloRecHitMixer< CastorRecHit > CastorRHMixer;
 
 
@@ -23,7 +24,7 @@ DEFINE_FWK_MODULE(EcalRHMixer);
 DEFINE_FWK_MODULE(HBHERHMixer);
 DEFINE_FWK_MODULE(HFRHMixer);
 DEFINE_FWK_MODULE(HORHMixer);
-DEFINE_FWK_MODULE(ZDCRHMixer);
+//DEFINE_FWK_MODULE(ZDCRHMixer);
 DEFINE_FWK_MODULE(CastorRHMixer);
 
 

@@ -4,8 +4,8 @@ import os
 
 def customise(process):
    
-  #inputProcess="HLT"  # some automagic check possible?
-  inputProcess="RECO"  # some automagic check possible?
+  inputProcess="HLT"  # some automagic check possible?
+  #inputProcess="RECO"  # some automagic check possible?
 
   print "Input process set to", inputProcess
   process._Process__name="EmbeddedRECO"
@@ -281,6 +281,9 @@ def customise(process):
 
   process.generalConversionTrackProducer.TrackProducer = cms.string('generalTracksORG')
 
+  # 5_3
+  process.uncleanedOnlyGeneralConversionTrackProducer.TrackProducer = cms.string('generalTracksORG')
+  #process.TCTau = cms.Sequence()
 
   process.gsfElectronsORG = process.gsfElectrons.clone()
   process.gsfElectrons = cms.EDProducer("GSFElectronsMixer",
@@ -310,7 +313,7 @@ def customise(process):
   clConfig = cms.PSet (
              depsPlus = cms.InputTag("anaDeposits", "plus" ),
              depsMinus = cms.InputTag("anaDeposits", "minus" ),
-             ZmumuCands = cms.InputTag("goldenZmumuCandidatesGe1IsoMuons")
+             ZmumuCands = cms.InputTag("goldenZmumuCandidatesGe2IsoMuons")
   ) 
 
   cleanerConfigTMVA = clConfig.clone()
