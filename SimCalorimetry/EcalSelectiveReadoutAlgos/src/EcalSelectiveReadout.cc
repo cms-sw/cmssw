@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-"
 /*
- * $Id: EcalSelectiveReadout.cc,v 1.16 2009/10/14 08:47:52 pgras Exp $
+ * $Id: EcalSelectiveReadout.cc,v 1.17 2009/10/26 10:41:26 pgras Exp $
  */
 
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
@@ -10,6 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string>
 #include <iomanip>
+#include <cassert>
 //#include <iostream> //for debugging
 
 using std::vector;
