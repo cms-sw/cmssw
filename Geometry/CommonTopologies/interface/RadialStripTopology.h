@@ -248,6 +248,7 @@ class RadialStripTopology : public StripTopology {
   int   theNumberOfStrips; // total no. of strips in plane of strips
   float theAngularWidth;   // angle subtended by each strip = phi pitch
   float theAWidthInverse;   // inverse of above
+  float theTanAW;          // its tangent  
   float theDetHeight;      // length of long symmetry axis = twice the apothem of the enclosing trapezoid
   float theCentreToIntersection;  // distance centre of detector face to intersection of edge strips (projected)
   float thePhiOfOneEdge;   // local 'phi' of one edge of plane of strips (I choose it negative!)

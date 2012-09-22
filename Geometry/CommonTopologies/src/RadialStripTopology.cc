@@ -58,7 +58,7 @@ namespace {
 }
 
 RadialStripTopology::RadialStripTopology(int ns, float aw, float dh, float r, int yAx, float yMid) :
-  theNumberOfStrips(ns), theAngularWidth(aw), theAWidthInverse(1.f/aw),
+  theNumberOfStrips(ns), theAngularWidth(aw), theAWidthInverse(1.f/aw),theTanAW(std::tan(aw)),
   theDetHeight(dh), theCentreToIntersection(r),
   theYAxisOrientation(yAx), yCentre( yMid) {   
   // Angular offset of extreme edge of detector, so that angle is
@@ -194,6 +194,14 @@ float RadialStripTopology::pitch() const {  throw Genexception("RadialStripTopol
 
  // The local pitch is the local x width of the strip at the local (x,y)
 float RadialStripTopology::localPitch(const LocalPoint& lp) const { 
+  // this should be ~ y*(tan(phi+aw)-tan(phi)) = -x + y*(tan(aw)+tan(phi))/(1.f-tan(aw)*tan(phi)) tan(phi)=x/y
+  float y =  yDistanceToIntersection( lp.y() );
+  float x = std::abs(lp.x());
+  return y*(y*theTanAW+x)/(y-theTanAW*x)-x;
+}
+ 
+/* old version
+float RadialStripTopology::localPitch(const LocalPoint& lp) const { 
   // this should be ~ y*(tan(phi+aw)-tan(phi)) = -tan(phi) + (tan(aw)+tan(phi))/(1.f-tan(aw)*tan(phi)) 
   const int istrip = std::min(nstrips(), static_cast<int>(strip(lp)) + 1); // which strip number
   float fangle = stripAngle(static_cast<float>(istrip) - 0.5); // angle of strip centre
@@ -210,7 +218,7 @@ float RadialStripTopology::localPitch(const LocalPoint& lp) const {
   return p;
 
 }
-    
+*/
 
 std::ostream & operator<<( std::ostream & os, const RadialStripTopology & rst ) {
   os  << "RadialStripTopology " << std::endl
