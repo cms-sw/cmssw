@@ -50,6 +50,10 @@ RectangularStripTopology::strip(const LocalPoint& lp) const {
   return aStrip;
 }
 
+float RadialStripTopology::coveredStrips(const LocalPoint& lp1, const LocalPoint& lp2)  const {
+  return (lp1.x()-lp2.x())/thePitch;
+}
+
 MeasurementPoint 
 RectangularStripTopology::measurementPosition(const LocalPoint& lp) const {
   return MeasurementPoint((lp.x()-theOffset)/thePitch,
