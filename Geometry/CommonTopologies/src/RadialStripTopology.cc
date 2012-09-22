@@ -60,7 +60,7 @@ RadialStripTopology::RadialStripTopology(int ns, float aw, float dh, float r, in
   theTanOfOneEdge = std::tan(std::abs(thePhiOfOneEdge));
   assert(std::abs(thePhiOfOneEdge)<0.35); // < pi/8 (and some tollerance)
 
-  std::cout << "VI: work in progress :RadialStripTopology buggy" << std::endl;
+  std::cout << "VI: work in progress :RadialStripTopology may be buggy" << std::endl;
 
   LogTrace("RadialStripTopology") << "RadialStripTopology: constructed with"
         << " strips = " << ns
@@ -105,6 +105,9 @@ float RadialStripTopology::coveredStrips(const LocalPoint& lp1, const LocalPoint
   float t2 = lp2.x()/yDistanceToIntersection( lp2.y() );
   float t = (t1-t2)/(1.+t1*t2); float at = std::abs(t);
   statS.add(at);
+  // std::cout << "atans " << std::copysign(atan0(at),t) 
+  //                      <<" "<< std::atan2(lp1.x(),yDistanceToIntersection(lp1.y()) ) 
+  //                             -std::atan2(lp2.x(),yDistanceToIntersection(lp2.y()) ) << std::endl;
   // clip???
   return std::copysign( (at< theTanOfOneEdge )  ? atan0(at) : thePhiOfOneEdge, t )/angularWidth();
   //   return (measurementPosition(lp1)-measurementPosition(lp2)).x();
