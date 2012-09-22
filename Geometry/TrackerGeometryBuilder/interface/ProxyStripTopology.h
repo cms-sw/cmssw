@@ -23,8 +23,8 @@
 ///
 ///  \author    : Andreas Mussgiller
 ///  date       : November 2010
-///  $Revision: 1.4 $
-///  $Date: 2012/04/26 17:28:55 $
+///  $Revision: 1.5 $
+///  $Date: 2012/09/19 15:47:48 $
 ///  (last update by $Author: innocent $)
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
@@ -73,6 +73,10 @@ public:
   virtual float strip( const LocalPoint& lp) const { return specificTopology().strip(lp);}
   /// conversion taking also the track state (LocalTrajectoryParameters)
   virtual float strip( const LocalPoint& lp, const Topology::LocalTrackAngles &dir ) const;
+
+  virtual float coveredStrips(const LocalPoint& lp1, const LocalPoint& lp2)  const {
+    return specificTopology().coveredStrips(lp1,lp2);
+  }
 
   virtual float pitch() const { return specificTopology().pitch(); }
   virtual float localPitch( const LocalPoint& lp) const { return specificTopology().localPitch(lp);}
