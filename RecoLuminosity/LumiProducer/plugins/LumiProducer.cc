@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //                   Zhen Xie
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.27 2012/09/04 14:48:12 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.28 2012/09/21 18:21:46 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -47,6 +47,8 @@ from the configuration file, the DB is not implemented yet)
 #include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoLuminosity/LumiProducer/interface/DBService.h"
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
@@ -631,12 +633,18 @@ LumiProducer::fillLSCache(unsigned int luminum){
 	std::memmove(bxindex,bxindex_StartAddress,bxindexBlob.size());
 	std::memmove(beam1intensity,beam1intensityBlob_StartAddress,beam1intensityBlob.size());
 	std::memmove(beam2intensity,beam2intensityBlob_StartAddress,beam2intensityBlob.size());
-	for(unsigned int i=0;i<bxindexBlob.size()/sizeof(short);++i){
+
+	unsigned int iMax = bxindexBlob.size()/sizeof(short);
+	unsigned int lsb1Max = lsdata.beam1intensity.size();
+	unsigned int lsb2Max = lsdata.beam2intensity.size();
+	unsigned int ib1Max = beam1intensityBlob.size()/sizeof(float);
+	unsigned int ib2Max = beam2intensityBlob.size()/sizeof(float);
+	for(unsigned int i=0;i<iMax;++i){
 	  unsigned int idx=bxindex[i];
-	  if(beam1intensityBlob.size()>i){
+	  if(ib1Max>i && lsb1Max>idx){
 	    lsdata.beam1intensity.at(idx)=beam1intensity[i];
 	  }
-	  if(beam2intensityBlob.size()>i){
+	  if(ib2Max>i && lsb2Max>idx){
 	    lsdata.beam2intensity.at(idx)=beam2intensity[i];
 	  }
 	}
