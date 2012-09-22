@@ -32,9 +32,9 @@ public:
   const TrackerGeometry & geom_;
   const MagneticField& magfield_ ;
   const SiStripLorentzAngle& LorentzAngleMap_;
-  std::vector<double> shift;
-  std::vector<double> xtalk1;
-  std::vector<double> xtalk2;
+  std::vector<float> shift;
+  std::vector<float> xtalk1;
+  std::vector<float> xtalk2;
 
   struct Param {
     Param() : topology(0) {}
