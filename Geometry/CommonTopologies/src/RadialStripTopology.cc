@@ -52,7 +52,8 @@ namespace {
   float atanClip(float t) {
     constexpr float tanPi8 = 0.4142135623730950;
     constexpr float pio8 = 3.141592653589793238/8;
-    return std::copysign( (t< tanPi8 )  ? atan0(std::abs(t)) : pio8, t );
+    float at = std::abs(t);
+    return std::copysign( (at< tanPi8 )  ? atan0(at) : pio8, t );
   }
 
 }
@@ -212,7 +213,7 @@ float RadialStripTopology::localPitch(const LocalPoint& lp) const {
   float theTanAW = std::tan(theAngularWidth);
   float y =  yDistanceToIntersection( lp.y() );
   float x = std::abs(lp.x());
-  float myP = (y*theTanAW+x)/(1.f-theTanAW*x/y)-x;
+  float myP = y*(y*theTanAW+x)/(y-theTanAW*x)-x; // (y*theTanAW+x)/(1.f-theTanAW*x/y)-x;
   std::cout << "localPitch " << p << " " << myP << std::endl;
 
   return p;
