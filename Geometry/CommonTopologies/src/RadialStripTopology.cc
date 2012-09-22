@@ -134,7 +134,7 @@ LocalPoint RadialStripTopology::localPosition(const MeasurementPoint& mp) const 
 MeasurementPoint RadialStripTopology::measurementPosition(const LocalPoint& lp) const {
   // phi is [pi/2 - conventional local phi], use atan2(x,y) rather than atan2(y,x)
   // clip   ( at pi/8 or detedge+tollerance?)
-  float t = std::abs( lp.x()/yDistanceToIntersection(lp.y()));
+  float t =  lp.x()/yDistanceToIntersection(lp.y());
   statM.add(t);
   const float phi = atanClip(t);
   return MeasurementPoint( ( phi-phiOfOneEdge() )*theAWidthInverse,
