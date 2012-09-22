@@ -17,9 +17,10 @@ namespace {
     }
 
     void add(float t) { 
+      auto at = std::abs(t);
       ++natan;
-      if (t>0.40f) ++nlarge;
-      if (t>1.0) ++over1;
+      if (at>0.40f) ++nlarge;
+      if (at>1.0) ++over1;
     }
     const char * name;
     long long natan=0;
@@ -47,11 +48,17 @@ namespace {
     return ret;
   }
 
+  inline 
+  float atanClip(float t) {
+    constexpr float tanPi8 = 0.4142135623730950;
+    constexpr float pio8 = 3.141592653589793238/8;
+    return std::copysign( (t< tanPi8 )  ? atan0(std::abs(t)) : pio8, t );
+  }
+
 }
 
-
 RadialStripTopology::RadialStripTopology(int ns, float aw, float dh, float r, int yAx, float yMid) :
-  theNumberOfStrips(ns), theAngularWidth(aw), 
+  theNumberOfStrips(ns), theAngularWidth(aw), theAWidthInverse(1.f/aw),
   theDetHeight(dh), theCentreToIntersection(r),
   theYAxisOrientation(yAx), yCentre( yMid) {   
   // Angular offset of extreme edge of detector, so that angle is
@@ -92,9 +99,8 @@ float RadialStripTopology::xOfStrip(int strip, float y) const {
 
 float RadialStripTopology::strip(const LocalPoint& lp) const {
      // phi is measured from y axis --> sign of angle is sign of x * yAxisOrientation --> use atan2(x,y), not atan2(y,x)
-  float y = yDistanceToIntersection( lp.y() );
-  const float phi =  std::copysign(atan0(std::abs(lp.x()/y)) , lp.x() );
-  const float aStrip = ( phi -  phiOfOneEdge() )/angularWidth();
+  const float phi =  atanClip(lp.x()/yDistanceToIntersection(lp.y()));
+  const float aStrip = ( phi -  phiOfOneEdge() )*theAWidthInverse;
   return  std::max(float(0), std::min( (float)nstrips(), aStrip ));
 }
 
@@ -103,18 +109,18 @@ float RadialStripTopology::coveredStrips(const LocalPoint& lp1, const LocalPoint
   // atan(a)-atan(b) = atan( (a-b)/(1+a*b) )  
   float t1 = lp1.x()/yDistanceToIntersection( lp1.y() );
   float t2 = lp2.x()/yDistanceToIntersection( lp2.y() );
-  float t = (t1-t2)/(1.+t1*t2); float at = std::abs(t);
-  statS.add(at);
+  float t = (t1-t2)/(1.+t1*t2); 
+  statS.add(t);
   // std::cout << "atans " << std::copysign(atan0(at),t) 
   //                      <<" "<< std::atan2(lp1.x(),yDistanceToIntersection(lp1.y()) ) 
   //                             -std::atan2(lp2.x(),yDistanceToIntersection(lp2.y()) ) << std::endl;
   // clip???
-  return std::copysign( (at< theTanOfOneEdge )  ? atan0(at) : thePhiOfOneEdge, t )/angularWidth();
+  return atanClip(t)*theAWidthInverse;
   //   return (measurementPosition(lp1)-measurementPosition(lp2)).x();
 }  
 
 LocalPoint RadialStripTopology::localPosition(float strip) const {
-  return LocalPoint( yAxisOrientation() * originToIntersection() * tan( stripAngle(strip) ), 0 );
+  return LocalPoint( yAxisOrientation() * originToIntersection() * std::tan( stripAngle(strip) ), 0 );
 }
 
 LocalPoint RadialStripTopology::localPosition(const MeasurementPoint& mp) const {
@@ -127,13 +133,10 @@ LocalPoint RadialStripTopology::localPosition(const MeasurementPoint& mp) const 
 MeasurementPoint RadialStripTopology::measurementPosition(const LocalPoint& lp) const {
   // phi is [pi/2 - conventional local phi], use atan2(x,y) rather than atan2(y,x)
   // clip   ( at pi/8 or detedge+tollerance?)
-  constexpr float tanPi8 = 0.4142135623730950;
-  constexpr float pio8 = 3.141592653589793238/8;
-  float const clip = tanPi8;  // theTanOfOneEdge
   float t = std::abs( lp.x()/yDistanceToIntersection(lp.y()));
   statM.add(t);
-  const float phi = std::copysign( (t< clip )  ? atan0(t) : pio8, lp.x() );
-  return MeasurementPoint( ( phi-phiOfOneEdge() ) / angularWidth(),
+  const float phi = atanClip(t);
+  return MeasurementPoint( ( phi-phiOfOneEdge() )*theAWidthInverse,
 			   ( lp.y() - yCentreOfStripPlane() )        / detHeight() );
 }
 
@@ -189,13 +192,23 @@ MeasurementError RadialStripTopology::measurementError(const LocalPoint& p,  con
  
 float RadialStripTopology::pitch() const {  throw Genexception("RadialStripTopology::pitch() called - makes no sense, use localPitch(.) instead."); return 0.;}
 
-float RadialStripTopology::localPitch(const LocalPoint& lp) const { 
  // The local pitch is the local x width of the strip at the local (x,y)
+float RadialStripTopology::localPitch(const LocalPoint& lp) const { 
+  // this should be ~ y*(tan(phi+aw)-tan(phi)) = -tan(phi) + (tan(aw)+tan(phi))/(1.f-tan(aw)*tan(phi)) 
   const int istrip = std::min(nstrips(), static_cast<int>(strip(lp)) + 1); // which strip number
-  const float fangle = stripAngle(static_cast<float>(istrip) - 0.5); // angle of strip centre
-  return
+  float fangle = stripAngle(static_cast<float>(istrip) - 0.5); // angle of strip centre
+  float p =
     yDistanceToIntersection( lp.y() ) * std::sin(angularWidth()) /
     std::pow( std::cos(fangle-0.5f*angularWidth()), 2.f);
+
+  float theTanAW = std::tan(theAngularWidth);
+  float y =  yDistanceToIntersection( lp.y() );
+  float x = std::abs(lp.x());
+  float myP = (y*theTanAW+x)/(1.f-theTanAW*x/y)-x;
+  std::cout << "localPitch " << p << " " << myP << std::endl;
+
+  return p;
+
 }
     
 
