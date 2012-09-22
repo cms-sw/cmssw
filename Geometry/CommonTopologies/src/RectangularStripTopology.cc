@@ -50,7 +50,8 @@ RectangularStripTopology::strip(const LocalPoint& lp) const {
   return aStrip;
 }
 
-float RadialStripTopology::coveredStrips(const LocalPoint& lp1, const LocalPoint& lp2)  const {
+float 
+RectangularStripTopology::coveredStrips(const LocalPoint& lp1, const LocalPoint& lp2)  const {
   return (lp1.x()-lp2.x())/thePitch;
 }
 
