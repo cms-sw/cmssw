@@ -118,6 +118,14 @@ tobTecStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTra
     cleanTrajectoryAfterInOut = True
 )
 
+from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits
+tobTecStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.clone(
+    ComponentName = cms.string('tobTecStepTrajectoryCleanerBySharedHits'),
+    fractionShared = cms.double(0.09),
+    allowSharedFirstHit = cms.bool(True)
+    )
+tobTecStepTrackCandidates.TrajectoryCleaner = 'tobTecStepTrajectoryCleanerBySharedHits'
+
 # TRACK FITTING AND SMOOTHING OPTIONS
 import TrackingTools.TrackFitters.RungeKuttaFitters_cff
 tobTecStepFitterSmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.KFFittingSmootherWithOutliersRejectionAndRK.clone(
@@ -210,10 +218,12 @@ tobTecStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mult
             minNumberLayers = 5,
             maxNumberLostLayers = 0,
             minNumber3DLayers = 2,
-            d0_par1 = ( 1.4, 4.0 ),
-            dz_par1 = ( 1.3, 4.0 ),
-            d0_par2 = ( 1.4, 4.0 ),
-            dz_par2 = ( 1.3, 4.0 )
+            max_minMissHitOutOrIn = 1,
+            max_lostHitFraction = 1.0,
+            d0_par1 = ( 1.2, 4.0 ),
+            dz_par1 = ( 1.1, 4.0 ),
+            d0_par2 = ( 1.2, 4.0 ),
+            dz_par2 = ( 1.1, 4.0 )
             ),
         ) #end of vpset
     ) #end of clone

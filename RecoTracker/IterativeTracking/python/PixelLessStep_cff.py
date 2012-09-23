@@ -55,8 +55,8 @@ import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 pixelLessStepSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
 pixelLessStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'pixelLessStepSeedLayers'
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.7
-pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
-pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 2.0
+pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 15.0
+pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 2.5
 
 pixelLessStepSeeds.SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
@@ -81,7 +81,7 @@ import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
 pixelLessStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('pixelLessStepChi2Est'),
     nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(16.0)
+    MaxChi2 = cms.double(9.0)
 )
 
 # TRACK BUILDING
@@ -106,9 +106,17 @@ pixelLessStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckf
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     #onlyPixelHitsForSeedCleaner = cms.bool(True),
-
     TrajectoryBuilder = 'pixelLessStepTrajectoryBuilder'
 )
+
+from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits
+pixelLessStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.clone(
+    ComponentName = cms.string('pixelLessStepTrajectoryCleanerBySharedHits'),
+    fractionShared = cms.double(0.11),
+    allowSharedFirstHit = cms.bool(True)
+    )
+pixelLessStepTrackCandidates.TrajectoryCleaner = 'pixelLessStepTrajectoryCleanerBySharedHits'
+
 
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
@@ -124,28 +132,28 @@ pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'pixelLessStepLoose',
-            chi2n_par = 0.5,
+            chi2n_par = 0.4,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 4,
             maxNumberLostLayers = 1,
             minNumber3DLayers = 3,
-            d0_par1 = ( 1.3, 4.0 ),
-            dz_par1 = ( 1.3, 4.0 ),
-            d0_par2 = ( 1.3, 4.0 ),
-            dz_par2 = ( 1.3, 4.0 )
+            d0_par1 = ( 1.2, 4.0 ),
+            dz_par1 = ( 1.2, 4.0 ),
+            d0_par2 = ( 1.2, 4.0 ),
+            dz_par2 = ( 1.2, 4.0 )
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'pixelLessStepTight',
             preFilterName = 'pixelLessStepLoose',
-            chi2n_par = 0.35,
+            chi2n_par = 0.3,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 4,
             maxNumberLostLayers = 0,
             minNumber3DLayers = 3,
-            d0_par1 = ( 1.1, 4.0 ),
-            dz_par1 = ( 1.1, 4.0 ),
-            d0_par2 = ( 1.1, 4.0 ),
-            dz_par2 = ( 1.1, 4.0 )
+            d0_par1 = ( 0.9, 4.0 ),
+            dz_par1 = ( 0.9, 4.0 ),
+            d0_par2 = ( 0.9, 4.0 ),
+            dz_par2 = ( 0.9, 4.0 )
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'pixelLessStep',
@@ -155,10 +163,12 @@ pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
             minNumberLayers = 4,
             maxNumberLostLayers = 0,
             minNumber3DLayers = 3,
-            d0_par1 = ( 0.9, 4.0 ),
-            dz_par1 = ( 0.9, 4.0 ),
-            d0_par2 = ( 0.9, 4.0 ),
-            dz_par2 = ( 0.9, 4.0 )
+            max_minMissHitOutOrIn = 2,
+            max_lostHitFraction = 1.0,
+            d0_par1 = ( 0.7, 4.0 ),
+            dz_par1 = ( 0.7, 4.0 ),
+            d0_par2 = ( 0.7, 4.0 ),
+            dz_par2 = ( 0.7, 4.0 )
             ),
         ) #end of vpset
     ) #end of clone
