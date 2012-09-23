@@ -10,8 +10,6 @@ namespace ecaldqm {
     LedClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~LedClient() {}
 
-    void beginRun(const edm::Run&, const edm::EventSetup&);
-
     void producePlots();
 
     enum MESets {

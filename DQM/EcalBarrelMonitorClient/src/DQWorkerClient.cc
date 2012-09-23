@@ -2,6 +2,7 @@
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "DQM/EcalCommon/interface/MESetChannel.h"
+#include "DQM/EcalCommon/interface/MESetMulti.h"
 #include "DQM/EcalCommon/interface/MESetUtils.h"
 
 #include "../interface/EcalDQMClientUtils.h"
@@ -14,7 +15,7 @@ namespace ecaldqm {
   DQWorkerClient::DQWorkerClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams, std::string const& _name) :
     DQWorker(_workerParams, _commonParams, _name),
     sources_(0),
-    usedSources_(0)
+    usedSources_()
   {
     using namespace std;
 
@@ -42,7 +43,7 @@ namespace ecaldqm {
         if(meSet){
           sources_[nItr->second] = meSet;
           if(meSet->getBinType() != BinService::kTrend || online)
-            usedSources_ |= (0x1 << nItr->second);
+            usedSources_.insert(nItr->second);
         }
       }
     }
@@ -52,8 +53,38 @@ namespace ecaldqm {
   DQWorkerClient::endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &)
   {
     for(std::vector<MESet const*>::iterator sItr(sources_.begin()); sItr != sources_.end(); ++sItr){
-      MESetChannel const* meset(dynamic_cast<MESetChannel const*>(*sItr));
-      if(meset) meset->checkDirectory();
+      MESetChannel const* channel(dynamic_cast<MESetChannel const*>(*sItr));
+      if(channel) channel->checkDirectory();
+    }
+  }
+
+  void
+  DQWorkerClient::bookSummaries()
+  {
+    for(std::set<unsigned>::iterator qItr(qualitySummaries_.begin()); qItr != qualitySummaries_.end(); ++qItr){
+      MESet* meset(MEs_[*qItr]);
+      meset->book();
+
+      MESetMulti* multi(dynamic_cast<MESetMulti*>(meset));
+      if(multi){
+        for(unsigned iS(0); iS < multi->getMultiplicity(); ++iS){
+          if(!multi->use(iS)) continue;
+          if(multi->getKind() == MonitorElement::DQM_KIND_TH2F){
+            multi->resetAll(-1.);
+            multi->reset(kUnknown);
+          }
+          else
+            multi->reset(-1.);
+        }
+      }
+      else{
+        if(meset->getKind() == MonitorElement::DQM_KIND_TH2F){
+          meset->resetAll(-1.);
+          meset->reset(kUnknown);
+        }
+        else
+          meset->reset(-1.);
+      }
     }
   }
 
@@ -73,6 +104,8 @@ namespace ecaldqm {
       if(!using_(iS)) continue;
       initialized_ &= sources_[iS]->retrieve();
     }
+
+    if(initialized_) bookMEs();
   }
 
   bool

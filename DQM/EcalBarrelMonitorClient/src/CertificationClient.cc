@@ -10,23 +10,9 @@ namespace ecaldqm {
   CertificationClient::CertificationClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
     DQWorkerClient(_workerParams, _commonParams, "CertificationClient")
   {
-  }
-
-  void
-  CertificationClient::beginRun(edm::Run const&, edm::EventSetup const&)
-  {
-    MEs_[kCertificationMap]->resetAll(-1.);
-    MEs_[kCertificationMap]->reset(1.);
-    MEs_[kCertificationContents]->reset(1.);
-    MEs_[kCertification]->reset(1.);
-  }
-
-  void
-  CertificationClient::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-  {
-    MEs_[kCertificationMap]->reset(1.);
-    MEs_[kCertificationContents]->reset(1.);
-    MEs_[kCertification]->reset(1.);
+    qualitySummaries_.insert(kCertificationMap);
+    qualitySummaries_.insert(kCertificationContents);
+    qualitySummaries_.insert(kCertification);
   }
 
   void
@@ -39,7 +25,7 @@ namespace ecaldqm {
                        sources_[kDQM]->getBinContent(iDCC + 1));
 
       MEs_[kCertificationContents]->fill(iDCC + 1, certValue);
-      MEs_[kCertificationMap]->fill(iDCC + 1, certValue);
+      MEs_[kCertificationMap]->setBinContent(iDCC + 1, certValue);
 
       meanValue += certValue * nCrystals(iDCC + 1);
     }

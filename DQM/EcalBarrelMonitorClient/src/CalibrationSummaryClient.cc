@@ -18,16 +18,28 @@ namespace ecaldqm {
   {
     using namespace std;
 
-    usedSources_ = 
-      (0x1 << kPNIntegrity);
+    usedSources_.clear();
+    use_(kPNIntegrity);
 
     vector<std::string> sourceList(_workerParams.getUntrackedParameter<std::vector<std::string> >("activeSources"));
     for(unsigned iS(0); iS < sourceList.size(); ++iS){
       std::string& sourceName(sourceList[iS]);
-      if(sourceName == "Laser") usedSources_ |= (0x1 << kLaser) | (0x1 << kLaserPN);
-      else if(sourceName == "Led") usedSources_ |= (0x1 << kLed) | (0x1 << kLedPN);
-      else if(sourceName == "TestPulse") usedSources_ |= (0x1 << kTestPulse) | (0x1 << kTestPulsePN);
-      else if(sourceName == "Pedestal") usedSources_ |= (0x1 << kPedestal) | (0x1 << kPedestalPN);
+      if(sourceName == "Laser"){
+        use_(kLaser);
+        use_(kLaserPN);
+      }
+      else if(sourceName == "Led"){
+        use_(kLed);
+        use_(kLedPN);
+      }
+      else if(sourceName == "TestPulse"){
+        use_(kTestPulse);
+        use_(kTestPulsePN);
+      }
+      else if(sourceName == "Pedestal"){
+        use_(kPedestal);
+        use_(kPedestalPN);
+      }
     }
 
     stringstream ss;
@@ -154,15 +166,9 @@ namespace ecaldqm {
         multi->formPath(replacements);
       }
     }
-  }
 
-  void
-  CalibrationSummaryClient::beginRun(const edm::Run &, const edm::EventSetup &)
-  {
-    MEs_[kQualitySummary]->resetAll(-1.);
-    MEs_[kQualitySummary]->reset(kGood);
-    MEs_[kPNQualitySummary]->resetAll(-1.);
-    MEs_[kPNQualitySummary]->reset(kGood);
+    qualitySummaries_.insert(kQualitySummary);
+    qualitySummaries_.insert(kPNQualitySummary);
   }
 
   void

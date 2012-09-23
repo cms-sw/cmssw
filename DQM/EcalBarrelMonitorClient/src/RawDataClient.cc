@@ -13,13 +13,7 @@ namespace ecaldqm {
     DQWorkerClient(_workerParams, _commonParams, "RawDataClient"),
     synchErrorThreshold_(_workerParams.getUntrackedParameter<int>("synchErrorThreshold"))
   {
-  }
-
-  void
-  RawDataClient::beginRun(const edm::Run &, const edm::EventSetup &)
-  {
-    MEs_[kQualitySummary]->resetAll(-1.);
-    MEs_[kQualitySummary]->reset(kUnknown);
+    qualitySummaries_.insert(kQualitySummary);
   }
 
   void

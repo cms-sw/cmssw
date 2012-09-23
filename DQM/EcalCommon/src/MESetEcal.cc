@@ -506,6 +506,12 @@ namespace ecaldqm
     return mes_[iME]->getTH1()->FindBin(_x, _y);
   }
 
+  bool
+  MESetEcal::isVariableBinning() const
+  {
+    return (xaxis_ && xaxis_->edges) || (yaxis_ && yaxis_->edges) || (zaxis_ && zaxis_->edges);
+  }
+
   std::vector<std::string>
   MESetEcal::generatePaths() const
   {

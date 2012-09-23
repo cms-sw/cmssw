@@ -95,6 +95,7 @@ namespace ecaldqm
     BinService::BinningType getBinType() const { return btype_; }
     MonitorElement::Kind getKind() const { return kind_; }
     bool isActive() const { return active_; }
+    virtual bool isVariableBinning() const { return false; }
     virtual MonitorElement const* getME(unsigned _iME) const { return (_iME < mes_.size() ? mes_[_iME] : 0); }
     virtual MonitorElement* getME(unsigned _iME) { return (_iME < mes_.size() ? mes_[_iME] : 0); }
     void setLumiFlag();

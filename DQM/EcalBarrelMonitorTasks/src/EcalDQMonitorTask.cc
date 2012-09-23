@@ -183,6 +183,7 @@ EcalDQMonitorTask::endLuminosityBlock(const edm::LuminosityBlock &_lumi, const e
   }
 
   if(online_ && (time(0) - lastResetTime_) / 3600. > resetInterval_){
+    if(verbosity_ > 0) std::cout << moduleName_ << ": Soft-resetting the histograms" << std::endl;
     for(std::vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
       DQWorkerTask* task(static_cast<DQWorkerTask*>(*wItr));
       task->softReset();

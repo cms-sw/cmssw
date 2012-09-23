@@ -277,8 +277,17 @@ namespace ecaldqm
   bool
   isForward(DetId const& _id)
   {
-    if(_id.subdetId() != EcalEndcap || isEcalScDetId(_id)) return false;
-    return std::abs(eta(EEDetId(_id))) > 2.2;
+    // the numbers here roughly corresponds to a cut at |eta| > 2.2
+    // cf hepwww.rl.ac.uk/CMSecal/Dee-layout.html
+    if(_id.subdetId() != EcalEndcap) return false;
+    if(isEcalScDetId(_id)){
+      EcalScDetId scid(_id);
+      return (scid.ix() - 10) * (scid.ix() - 10) + (scid.iy() - 10) * (scid.iy() - 10) < 25.;
+    }
+    else{
+      EEDetId eeid(_id);
+      return (eeid.ix() - 50) * (eeid.ix() - 50) + (eeid.iy() - 50) * (eeid.iy() - 50) < 625.;
+    }
   }
 
   bool

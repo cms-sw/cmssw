@@ -100,15 +100,19 @@ namespace ecaldqm
     active_ = false;
   }
 
-  void
+  bool
   MESetMulti::use(unsigned _iSet) const
   {
     if(_iSet >= sets_.size())
       throw_("MESetMulti index out of range");
 
-    if(!active_) // not activated yet
-      use_[_iSet] = true;
+    // use_ vector is frozen once activated
+    if(active_ && !use_[_iSet]) return false;
+
+    use_[_iSet] = true;
 
     current_ = sets_[_iSet];
+
+    return true;
   }
 }

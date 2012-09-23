@@ -64,7 +64,7 @@ namespace ecaldqm
         logicalDimensions = 2;
         break;
       default:
-        throw cms::Exception("InvalidCall") << "Histogram type " << kind << " not supported" << std::endl;
+        throw cms::Exception("InvalidConfiguration") << "Histogram type " << kind << " not supported" << std::endl;
       }
 
       // example case: Ecal/TriggerPrimitives/EmulMatching/TrigPrimTask matching index
@@ -73,7 +73,7 @@ namespace ecaldqm
       // for EventInfo summary contents
       if(btype == BinService::kReport){
         if(logicalDimensions != 0)
-          throw cms::Exception("InvalidCall") << "Report can only be a DQM_KIND_REAL" << std::endl;
+          throw cms::Exception("InvalidConfiguration") << "Report can only be a DQM_KIND_REAL" << std::endl;
       }
 
       if(btype == BinService::kUser)
@@ -91,6 +91,8 @@ namespace ecaldqm
       set = new MESetMulti(*tmp, _MEParam.getUntrackedParameter<int>("multi"));
       delete tmp;
     }
+
+    if(!set) throw cms::Exception("InvalidConfiguration") << "MESet " << path << " could not be initialized";
 
     return set;
   }

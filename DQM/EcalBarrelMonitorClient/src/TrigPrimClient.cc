@@ -12,13 +12,7 @@ namespace ecaldqm {
     DQWorkerClient(_workerParams, _commonParams, "TrigPrimClient"),
     errorFractionThreshold_(_workerParams.getUntrackedParameter<double>("errorFractionThreshold"))
   {
-  }
-
-  void
-  TrigPrimClient::beginRun(const edm::Run &, const edm::EventSetup &)
-  {
-    MEs_[kEmulQualitySummary]->resetAll(-1.);
-    MEs_[kEmulQualitySummary]->reset(kUnknown);
+    qualitySummaries_.insert(kEmulQualitySummary);
   }
 
   void

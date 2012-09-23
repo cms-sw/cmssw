@@ -10,13 +10,7 @@ namespace ecaldqm
     DQWorkerClient(_workerParams, _commonParams, "PNIntegrityClient"),
     errFractionThreshold_(_workerParams.getUntrackedParameter<double>("errFractionThreshold"))
   {
-  }
-
-  void
-  PNIntegrityClient::beginRun(edm::Run const&, edm::EventSetup const&)
-  {
-    MEs_[kQualitySummary]->resetAll(-1.);
-    MEs_[kQualitySummary]->reset(kUnknown);
+    qualitySummaries_.insert(kQualitySummary);
   }
 
   void

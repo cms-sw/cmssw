@@ -10,8 +10,6 @@ namespace ecaldqm {
     TimingClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~TimingClient() {}
 
-    void beginRun(const edm::Run &, const edm::EventSetup &);
-
     void producePlots();
 
     enum MESets {
@@ -43,7 +41,9 @@ namespace ecaldqm {
     float toleranceRMS_;
     float toleranceRMSFwd_;
     int minChannelEntries_;
+    int minChannelEntriesFwd_;
     int minTowerEntries_;
+    int minTowerEntriesFwd_;
     float tailPopulThreshold_;
   };
 

@@ -12,13 +12,6 @@ namespace ecaldqm {
   }
 
   void
-  SelectiveReadoutClient::beginRun(const edm::Run &, const edm::EventSetup &)
-  {
-    for(unsigned iME(0); iME < nMESets; ++iME)
-      MEs_[iME]->resetAll(-1.);
-  }
-
-  void
   SelectiveReadoutClient::producePlots()
   {
     using namespace std;

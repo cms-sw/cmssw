@@ -277,4 +277,10 @@ namespace ecaldqm
     else
       return 0;
   }
+
+  bool
+  MESetNonObject::isVariableBinning() const
+  {
+    return (xaxis_ && xaxis_->edges) || (yaxis_ && yaxis_->edges) || (zaxis_ && zaxis_->edges);
+  }
 }

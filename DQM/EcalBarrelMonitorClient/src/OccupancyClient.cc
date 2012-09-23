@@ -1,9 +1,6 @@
 #include "../interface/OccupancyClient.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
 #include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
@@ -14,23 +11,10 @@ namespace ecaldqm {
 
   OccupancyClient::OccupancyClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
     DQWorkerClient(_workerParams, _commonParams, "OccupancyClient"),
-    geometry_(0),
     minHits_(_workerParams.getUntrackedParameter<int>("minHits")),
     deviationThreshold_(_workerParams.getUntrackedParameter<double>("deviationThreshold"))
   {
-  }
-
-  void
-  OccupancyClient::beginRun(const edm::Run &, const edm::EventSetup &_es)
-  {
-    edm::ESHandle<CaloGeometry> geomHndl;
-    _es.get<CaloGeometryRecord>().get(geomHndl);
-    geometry_ = geomHndl.product();
-    if(!geometry_)
-      throw cms::Exception("EventSetup") << "CaloGeometry invalid";
-
-    MEs_[kQualitySummary]->resetAll(-1.);
-    MEs_[kQualitySummary]->reset(kUnknown);
+    qualitySummaries_.insert(kQualitySummary);
   }
 
   void

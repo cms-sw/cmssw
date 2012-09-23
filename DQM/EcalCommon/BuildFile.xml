@@ -15,6 +15,7 @@
 <use   name="CondFormats/EcalObjects"/>
 <use   name="DQMServices/Core"/>
 <use name="CalibCalorimetry/EcalLaserAnalyzer"/>
+<use name="OnlineDB/EcalCondDB"/>
 <use   name="rootcore"/>
 <export>
   <lib   name="1"/>

@@ -82,9 +82,9 @@ EcalDQMonitorClient::beginRun(const edm::Run &_run, const edm::EventSetup &_es)
   }
 
   for(std::vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
-    DQWorker* worker(*wItr);
-    if(verbosity_ > 1) std::cout << moduleName_ << ": Booking MEs for " << worker->getName() << std::endl;
-    worker->bookMEs();
+    DQWorkerClient* worker(static_cast<DQWorkerClient*>(*wItr));
+    if(verbosity_ > 1) std::cout << moduleName_ << ": Booking summary MEs for " << worker->getName() << std::endl;
+    worker->bookSummaries();
     worker->beginRun(_run, _es);
   }
 
@@ -124,7 +124,7 @@ void
 EcalDQMonitorClient::runWorkers()
 {
   if(verbosity_ > 0)
-    std::cout << "EcalDQMonitorClient: Starting worker modules.." << std::endl;
+    std::cout << moduleName_ << ": Starting worker modules.." << std::endl;
 
   for(std::vector<DQWorker*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
     DQWorker* worker(*wItr);

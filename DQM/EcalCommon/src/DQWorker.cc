@@ -64,6 +64,7 @@ namespace ecaldqm{
     for(unsigned iME(0); iME < MEs_.size(); iME++){
       if(MEs_[iME]){
         if(MEs_[iME]->getBinType() == BinService::kTrend && !online) continue;
+        if(MEs_[iME]->isActive()) continue;
         MEs_[iME]->book();
       }
     }

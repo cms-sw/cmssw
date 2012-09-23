@@ -10,8 +10,6 @@ namespace ecaldqm {
     CalibrationSummaryClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~CalibrationSummaryClient() {}
 
-    void beginRun(const edm::Run &, const edm::EventSetup &);
-
     void producePlots();
 
     enum MESets {

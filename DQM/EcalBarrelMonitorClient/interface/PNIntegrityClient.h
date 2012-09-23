@@ -10,8 +10,6 @@ namespace ecaldqm {
     PNIntegrityClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~PNIntegrityClient() {}
 
-    void beginRun(edm::Run const&, edm::EventSetup const&);
-
     void producePlots();
 
     enum MESets {

@@ -17,17 +17,8 @@ namespace ecaldqm {
     toleranceRMS_(_workerParams.getUntrackedParameter<double>("toleranceRMS")),
     toleranceRMSFwd_(_workerParams.getUntrackedParameter<double>("toleranceRMSFwd"))
   {
-  }
-
-  void
-  PresampleClient::beginRun(const edm::Run &, const edm::EventSetup &)
-  {
-    MEs_[kQuality]->resetAll(-1.);
-    MEs_[kRMSMap]->resetAll(-1.);
-    MEs_[kQualitySummary]->resetAll(-1.);
-
-    MEs_[kQuality]->reset(kUnknown);
-    MEs_[kQualitySummary]->reset(kUnknown);
+    qualitySummaries_.insert(kQuality);
+    qualitySummaries_.insert(kQualitySummary);
   }
 
   void

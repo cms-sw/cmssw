@@ -10,8 +10,6 @@ namespace ecaldqm
     PedestalClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~PedestalClient() {}
 
-    void beginRun(const edm::Run&, const edm::EventSetup&);
-
     void producePlots();
 
     enum MESets {

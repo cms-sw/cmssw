@@ -9,21 +9,26 @@ namespace ecaldqm {
     towerBadFraction_(_workerParams.getUntrackedParameter<double>("towerBadFraction")),
     fedBadFraction_(_workerParams.getUntrackedParameter<double>("fedBadFraction"))
   {
-    usedSources_ = 
-      (0x1 << kIntegrity) |
-      (0x1 << kIntegrityByLumi) |
-      (0x1 << kRawData) |
-      (0x1 << kDesyncByLumi) |
-      (0x1 << kFEByLumi);
+    usedSources_.clear();
+    use_(kIntegrity);
+    use_(kIntegrityByLumi);
+    use_(kRawData);
+    use_(kDesyncByLumi);
+    use_(kFEByLumi);
 
     std::vector<std::string> sourceList(_workerParams.getUntrackedParameter<std::vector<std::string> >("activeSources"));
     for(unsigned iS(0); iS < sourceList.size(); ++iS){
       std::string& sourceName(sourceList[iS]);
-      if(sourceName == "Presample") usedSources_ |= (0x1 << kPresample);
-      else if(sourceName == "Timing") usedSources_ |= (0x1 << kTiming);
-      else if(sourceName == "TriggerPrimitives") usedSources_ |= (0x1 << kTriggerPrimitives);
-      else if(sourceName == "HotCell") usedSources_ |= (0x1 << kHotCell);
+      if(sourceName == "Presample") use_(kPresample);
+      else if(sourceName == "Timing") use_(kTiming);
+      else if(sourceName == "TriggerPrimitives") use_(kTriggerPrimitives);
+      else if(sourceName == "HotCell") use_(kHotCell);
     }
+
+    qualitySummaries_.insert(kQualitySummary);
+    qualitySummaries_.insert(kReportSummaryMap);
+    qualitySummaries_.insert(kReportSummaryContents);
+    qualitySummaries_.insert(kReportSummary);
   }
 
   void
@@ -33,20 +38,9 @@ namespace ecaldqm {
       if(iME == kNBadFEDs && !online) continue;
       if(MEs_[iME]){
         if(MEs_[iME]->getBinType() == BinService::kTrend && !online) continue;
-        MEs_[iME]->book();
+        if(!MEs_[iME]->isActive()) MEs_[iME]->book();
       }
     }
-  }
-
-  void
-  SummaryClient::beginRun(const edm::Run &, const edm::EventSetup &)
-  {
-    MEs_[kQualitySummary]->resetAll(-1.);
-    MEs_[kQualitySummary]->reset(kUnknown);
-    MEs_[kReportSummaryMap]->resetAll(-1.);
-    MEs_[kReportSummaryMap]->reset(1.);
-    MEs_[kReportSummaryContents]->reset(1.);
-    MEs_[kReportSummary]->reset(1.);
   }
 
   void
@@ -64,6 +58,8 @@ namespace ecaldqm {
       integrityByLumi[iDCC] = sources_[kIntegrityByLumi]->getBinContent(iDCC + 1);
       rawDataByLumi[iDCC] = sources_[kDesyncByLumi]->getBinContent(iDCC + 1) + sources_[kFEByLumi]->getBinContent(iDCC + 1);
     }
+
+    std::map<uint32_t, int> badChannelsCount;
 
     MESet::iterator qEnd(MEs_[kQualitySummary]->end());
     MESet::const_iterator iItr(sources_[kIntegrity]);
@@ -103,7 +99,11 @@ namespace ecaldqm {
 
       qItr->setBinContent(status);
 
-      if(status != kBad){
+      if(status == kBad){
+        if(id.subdetId() == EcalBarrel) badChannelsCount[EBDetId(id).tower().rawId()] += 1;
+        if(id.subdetId() == EcalEndcap) badChannelsCount[EEDetId(id).sc().rawId()] += 1;
+      }
+      else{
         dccGood[iDCC] += 1.;
         totalGood += 1.;
       }
@@ -113,27 +113,27 @@ namespace ecaldqm {
 
     // search clusters of bad towers
     if(online){
-      for(int iz(-1); iz <= 1; iz += 2){
-        for(int ieta(1); ieta < 17; ++ieta){
+      for(int iz(-1); iz < 2; iz += 2){
+        for(int ieta(0); ieta < 17; ++ieta){
+          if(iz == 1 && ieta == 0) continue;
           for(int iphi(1); iphi <= 72; ++iphi){
             EcalTrigTowerDetId ttids[4];
             uint32_t badBits(0);
             for(int deta(0); deta < 2; ++deta){
+              int ttz(ieta == 0 && deta == 0 ? -1 : iz);
+              int tteta(ieta == 0 && deta == 0 ? 1 : ieta + deta);
               for(int dphi(0); dphi < 2; ++dphi){
                 int ttphi(iphi != 72 ? iphi + dphi : 1);
-                ttids[deta * 2 + dphi] = EcalTrigTowerDetId(iz, EcalBarrel, ieta + deta, ttphi);
-                std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttids[deta * 2 + dphi]));
-                unsigned nIds(ids.size());
-                unsigned nBad(0);
-                for(unsigned iD(0); iD < nIds; ++iD)
-                  if(int(MEs_[kQualitySummary]->getBinContent(ids[iD])) == kBad) nBad += 1;
-                if(nBad > towerBadFraction_ * nIds)
+                EcalTrigTowerDetId ttid(ttz, EcalBarrel, tteta, ttphi);
+                ttids[deta * 2 + dphi] = ttid;
+
+                if(badChannelsCount[ttid.rawId()] > towerBadFraction_ * 25.)
                   badBits |= 0x1 << (deta * 2 + dphi);
               }
             }
 
             // contiguous towers bad -> [(00)(11)] [(11)(00)] [(01)(01)] [(10)(10)] []=>eta ()=>phi
-            if((badBits & 0x3) != 0 || (badBits & 0xc) != 0 || (badBits & 0x5) != 0 || (badBits & 0xa) != 0){
+            if((badBits & 0x3) == 0x3 || (badBits & 0xc) == 0xc || (badBits & 0x5) == 0x5 || (badBits & 0xa) == 0xa){
               for(unsigned iD(0); iD < 4; ++iD)
                 dccGood[dccId(ttids[iD]) - 1] = 0.;
             }
@@ -151,19 +151,16 @@ namespace ecaldqm {
                   scids[dx * 2 + dy] = EcalScDetId(0);
                   continue;
                 }
-                scids[dx * 2 + dy] = EcalScDetId(ix + dx, iy + dy, iz);
-                std::vector<DetId> ids(scConstituents(scids[dx * 2 + dy]));
-                unsigned nIds(ids.size());
-                unsigned nBad(0);
-                for(unsigned iD(0); iD < nIds; ++iD)
-                  if(int(MEs_[kQualitySummary]->getBinContent(ids[iD])) == kBad) nBad += 1;
-                if(nBad > towerBadFraction_ * nIds)
+                EcalScDetId scid(ix + dx, iy + dy, iz);
+                scids[dx * 2 + dy] = scid;
+
+                if(badChannelsCount[scid.rawId()] > towerBadFraction_ * scConstituents(scid).size())
                   badBits |= 0x1 << (dx * 2 + dy);
               }
             }
 
             // contiguous towers bad -> [(00)(11)] [(11)(00)] [(01)(01)] [(10)(10)] []=>x ()=>y
-            if((badBits & 0x3) != 0 || (badBits & 0xc) != 0 || (badBits & 0x5) != 0 || (badBits & 0xa) != 0){
+            if((badBits & 0x3) == 0x3 || (badBits & 0xc) == 0xc || (badBits & 0x5) == 0x5 || (badBits & 0xa) == 0xa){
               for(unsigned iD(0); iD < 4; ++iD){
                 EcalScDetId& scid(scids[iD]);
                 if(scid.null()) continue;

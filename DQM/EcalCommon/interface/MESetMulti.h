@@ -74,11 +74,13 @@ namespace ecaldqm
 
     void formPath(std::map<std::string, std::string> const& _replacements) const { if(current_) current_->formPath(_replacements); }
 
+    bool isVariableBinning() const { return current_ ? current_->isVariableBinning() : false; }
+
     std::string const& getPath() const { return current_ ? current_->getPath() : path_; }
     MonitorElement const* getME(unsigned _iME) const { return current_ ? current_->getME(_iME) : 0; }
     MonitorElement* getME(unsigned _iME) { return current_ ? current_->getME(_iME) : 0; }
 
-    void use(unsigned) const;
+    bool use(unsigned) const;
     MESet* getCurrent() const { return current_; }
     unsigned getMultiplicity() const { return sets_.size(); }
 

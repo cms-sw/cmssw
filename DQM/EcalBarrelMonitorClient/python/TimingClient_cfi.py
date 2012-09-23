@@ -3,11 +3,13 @@ from DQM.EcalBarrelMonitorTasks.TimingTask_cfi import ecalTimingTask
 ecalTimingClient = dict(
     expectedMean = 0.,
     toleranceMean = 2.,
-    toleranceMeanFwd = 3.,
+    toleranceMeanFwd = 6.,
     toleranceRMS = 6.,
-    toleranceRMSFwd = 9.,
+    toleranceRMSFwd = 12.,
     minChannelEntries = 5,
+    minChannelEntriesFwd = 40,
     minTowerEntries = 20,
+    minTowerEntriesFwd = 160,
     tailPopulThreshold = 0.4,
     MEs = dict(
         Quality = dict(path = "%(subdet)s/%(prefix)sTimingClient/%(prefix)sTMT timing quality %(sm)s", otype = 'SM', btype = 'Crystal', kind = 'TH2F'),

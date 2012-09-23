@@ -10,15 +10,8 @@ namespace ecaldqm {
     DQWorkerClient(_workerParams, _commonParams, "IntegrityClient"),
     errFractionThreshold_(_workerParams.getUntrackedParameter<double>("errFractionThreshold"))
   {
-  }
-
-  void
-  IntegrityClient::beginRun(edm::Run const&, edm::EventSetup const&)
-  {
-    MEs_[kQuality]->resetAll(-1.);
-    MEs_[kQualitySummary]->resetAll(-1.);
-    MEs_[kQuality]->reset(kUnknown);
-    MEs_[kQualitySummary]->reset(kUnknown);
+    qualitySummaries_.insert(kQuality);
+    qualitySummaries_.insert(kQualitySummary);
   }
 
   void

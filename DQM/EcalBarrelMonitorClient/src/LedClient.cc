@@ -96,26 +96,10 @@ namespace ecaldqm {
         multi->formPath(replacements);
       }
     }
-  }
 
-  void
-  LedClient::beginRun(const edm::Run &, const edm::EventSetup &)
-  {
-    for(unsigned iME(0); iME < wlToME_.size(); ++iME){
-      static_cast<MESetMulti*>(MEs_[kQuality])->use(iME);
-      static_cast<MESetMulti*>(MEs_[kQualitySummary])->use(iME);
-      static_cast<MESetMulti*>(MEs_[kPNQualitySummary])->use(iME);
-
-      MEs_[kAmplitudeRMS]->resetAll(-1.);
-      MEs_[kTimingRMSMap]->resetAll(-1.);
-      MEs_[kQuality]->resetAll(-1.);
-      MEs_[kQualitySummary]->resetAll(-1.);
-      MEs_[kPNQualitySummary]->resetAll(-1.);
-
-      MEs_[kQuality]->reset(kUnknown);
-      MEs_[kQualitySummary]->reset(kUnknown);
-      MEs_[kPNQualitySummary]->reset(kUnknown);
-    }
+    qualitySummaries_.insert(kQuality);
+    qualitySummaries_.insert(kQualitySummary);
+    qualitySummaries_.insert(kPNQualitySummary);
   }
 
   void

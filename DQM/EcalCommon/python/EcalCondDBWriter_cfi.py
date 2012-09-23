@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 from DQM.EcalCommon.dqmpset import *
-from DQM.EcalBarrelMonitorClient.IntegrityClient_cfi import integrityClient
+from DQM.EcalBarrelMonitorClient.IntegrityClient_cfi import ecalIntegrityClient
 
-integrity = dqmpset(integrityClient)
+integrityClient = dqmpset(ecalIntegrityClient['MEs'])
 
 ecalCondDBWriter = cms.EDAnalyzer("EcalCondDBWriter",
     DBName = cms.untracked.string(""),
@@ -16,7 +16,7 @@ ecalCondDBWriter = cms.EDAnalyzer("EcalCondDBWriter",
     inputRootFiles = cms.untracked.vstring(),
     MESetParams = cms.untracked.PSet(
         Integrity = cms.untracked.PSet(
-            Quality = integrity.MEs.Quality
+            Quality = integrityClient.Quality
         ),
         Cosmic = cms.untracked.PSet(),
         Laser = cms.untracked.PSet(),
@@ -31,6 +31,7 @@ ecalCondDBWriter = cms.EDAnalyzer("EcalCondDBWriter",
         Led = cms.untracked.PSet(),
         RawData = cms.untracked.PSet(),
         Occupancy = cms.untracked.PSet()
-    )
+    ),
+    verbosity = cms.untracked.int32(0)
 )
     

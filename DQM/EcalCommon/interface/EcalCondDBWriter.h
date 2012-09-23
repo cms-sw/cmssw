@@ -103,6 +103,7 @@ class EcalCondDBWriter : public edm::EDAnalyzer {
   std::vector<std::string> inputRootFiles_;
   std::string clientNames_[nClients];
   edm::ParameterSet meSetParams_[nClients];
+  int verbosity_;
   bool executed_;
 };
 

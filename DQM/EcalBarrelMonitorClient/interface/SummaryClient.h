@@ -12,8 +12,6 @@ namespace ecaldqm {
 
     void bookMEs();
 
-    void beginRun(const edm::Run &, const edm::EventSetup &);
-
     void producePlots();
 
     enum MESets {

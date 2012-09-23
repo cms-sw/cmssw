@@ -13,9 +13,10 @@ namespace ecaldqm {
 
     void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &);
 
-    void initialize();
+    void bookSummaries();
 
     void reset();
+    void initialize();
 
     virtual void producePlots() = 0;
 
@@ -32,10 +33,12 @@ namespace ecaldqm {
     void source_(unsigned, std::string const&, unsigned, edm::ParameterSet const&);
     bool applyMask_(unsigned, DetId const&, uint32_t);
     void towerAverage_(unsigned, unsigned, float);
-    bool using_(unsigned _s) { return usedSources_ & (0x1 << _s); }
+    void use_(unsigned _s) { usedSources_.insert(_s); }
+    bool using_(unsigned _s) { return usedSources_.find(_s) != usedSources_.end(); }
 
     std::vector<MESet const*> sources_;
-    uint32_t usedSources_;
+    std::set<unsigned> usedSources_;
+    std::set<unsigned> qualitySummaries_;
   };
 
 }

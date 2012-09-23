@@ -59,6 +59,8 @@ namespace ecaldqm
     int findBin(EcalElectronicsId const&, double, double = 0.) const;
     int findBin(unsigned, double, double = 0.) const;
 
+    bool isVariableBinning() const;
+
     std::vector<std::string> generatePaths() const;
 
   protected :

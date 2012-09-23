@@ -10,8 +10,6 @@ namespace ecaldqm {
     PresampleClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~PresampleClient() {}
 
-    void beginRun(const edm::Run &, const edm::EventSetup &);
-
     void producePlots();
 
     enum MESets {

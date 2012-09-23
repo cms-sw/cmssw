@@ -10,8 +10,6 @@ namespace ecaldqm {
     TrigPrimClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~TrigPrimClient() {}
 
-    void beginRun(const edm::Run &, const edm::EventSetup &);
-
     void producePlots();
 
     enum MESets {

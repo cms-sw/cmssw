@@ -10,8 +10,6 @@ namespace ecaldqm
     TestPulseClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~TestPulseClient() {}
 
-    void beginRun(const edm::Run&, const edm::EventSetup&);
-
     void producePlots();
 
     enum MESets {

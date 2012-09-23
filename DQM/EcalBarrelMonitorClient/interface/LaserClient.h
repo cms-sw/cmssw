@@ -10,8 +10,6 @@ namespace ecaldqm {
     LaserClient(edm::ParameterSet const&, edm::ParameterSet const&);
     ~LaserClient() {}
 
-    void beginRun(const edm::Run&, const edm::EventSetup&);
-
     void producePlots();
 
     enum MESets {

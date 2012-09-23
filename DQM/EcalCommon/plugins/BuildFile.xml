@@ -9,8 +9,6 @@
 <library file="EcalDQMBinningService.cc" name="DQMEcalCommonEcalDQMBinningService">
    <flags EDM_PLUGIN="1"/>
 </library>
-
-<library file="EcalCondDBWriter.cc,EcalCondDBWriter2.cc" name="DQMEcalCommonEcalCondDBWriter">
-   <use name="OnlineDB/EcalCondDB"/>
+<library file="EcalCondDBWriter.cc" name="DQMEcalCommonEcalCondDBWriter">
    <flags EDM_PLUGIN="1"/>
 </library>

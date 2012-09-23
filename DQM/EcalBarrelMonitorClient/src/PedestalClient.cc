@@ -130,29 +130,10 @@ namespace ecaldqm
         multi->formPath(replacements);
       }
     }
-  }
 
-  void
-  PedestalClient::beginRun(edm::Run const&, edm::EventSetup const&)
-  {
-    for(unsigned iME(0); iME < gainToME_.size(); ++iME){
-      static_cast<MESetMulti*>(MEs_[kQuality])->use(iME);
-      static_cast<MESetMulti*>(MEs_[kQualitySummary])->use(iME);
-
-      MEs_[kQuality]->resetAll(-1.);
-      MEs_[kQualitySummary]->resetAll(-1.);
-
-      MEs_[kQuality]->reset(kUnknown);
-      MEs_[kQualitySummary]->reset(kUnknown);
-    }
-
-    for(unsigned iME(0); iME < pnGainToME_.size(); ++iME){
-      static_cast<MESetMulti*>(MEs_[kPNQualitySummary])->use(iME);
-
-      MEs_[kPNQualitySummary]->resetAll(-1.);
-
-      MEs_[kPNQualitySummary]->reset(kUnknown);
-    }
+    qualitySummaries_.insert(kQuality);
+    qualitySummaries_.insert(kQualitySummary);
+    qualitySummaries_.insert(kPNQualitySummary);
   }
 
   void

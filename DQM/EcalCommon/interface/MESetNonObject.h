@@ -35,6 +35,8 @@ namespace ecaldqm
 
     int findBin(double, double _y = 0.) const;
 
+    bool isVariableBinning() const;
+
   protected:
     BinService::AxisSpecs const* xaxis_;
     BinService::AxisSpecs const* yaxis_;

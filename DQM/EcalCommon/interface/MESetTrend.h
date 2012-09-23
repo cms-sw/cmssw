@@ -33,6 +33,8 @@ namespace ecaldqm
     int findBin(unsigned, double, double _y = 0.) const;
     int findBin(double, double _y = 0.) const;
 
+    bool isVariableBinning() const { return true; }
+
     bool isMinutely() const { return minutely_; }
     bool isCumulative() const { return currentBin_ > 0; }
 

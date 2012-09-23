@@ -39,18 +39,18 @@ namespace ecaldqm {
       MEs_[kDAQSummaryMap]->book();
       MEs_[kDAQContents]->book();
 
-      MEs_[kDAQSummary]->reset(1.);
+      MEs_[kDAQSummary]->reset(-1.);
       MEs_[kDAQSummaryMap]->resetAll(-1.);
-      MEs_[kDAQContents]->reset(1.);
+      MEs_[kDAQContents]->reset(-1.);
     }
     if(doDCSInfo_){
       MEs_[kDCSSummary]->book();
       MEs_[kDCSSummaryMap]->book();
       MEs_[kDCSContents]->book();
 
-      MEs_[kDCSSummary]->reset(1.);
+      MEs_[kDCSSummary]->reset(-1.);
       MEs_[kDCSSummaryMap]->resetAll(-1.);
-      MEs_[kDCSContents]->reset(1.);
+      MEs_[kDCSContents]->reset(-1.);
     }
 
     initialized_ = true;
@@ -64,26 +64,25 @@ namespace ecaldqm {
 
       edm::ESHandle<EcalDAQTowerStatus> daqHndl;
       _es.get<EcalDAQTowerStatusRcd>().get(daqHndl);
-      if (!daqHndl.isValid()){
+      if(daqHndl.isValid()){
+        for(unsigned id(0); id < EcalTrigTowerDetId::kEBTotalTowers; id++){
+          if(daqHndl->barrel(id).getStatusCode() != 0){
+            EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(id));
+            status[dccId(ttid) - 1] -= 25. / 1700.;
+          }
+        }
+        for(unsigned id(0); id < EcalScDetId::kSizeForDenseIndexing; id++){
+          if(daqHndl->endcap(id).getStatusCode() != 0){
+            EcalScDetId scid(EcalScDetId::unhashIndex(id));
+            unsigned dccid(dccId(scid));
+            status[dccid - 1] -= double(scConstituents(scid).size()) / nCrystals(dccid);
+          }
+        }
+
+        runOnTowerStatus(status, DAQInfo);
+      }
+      else
 	edm::LogWarning("EventSetup") << "EcalDAQTowerStatus record not valid";
-	return;
-      }
-
-      for(unsigned id(0); id < EcalTrigTowerDetId::kEBTotalTowers; id++){
-	if(daqHndl->barrel(id).getStatusCode() != 0){
-          EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(id));
-	  status[dccId(ttid) - 1] -= 25. / 1700.;
-	}
-      }
-      for(unsigned id(0); id < EcalScDetId::kSizeForDenseIndexing; id++){
-	if(daqHndl->endcap(id).getStatusCode() != 0){
-          EcalScDetId scid(EcalScDetId::unhashIndex(id));
-          unsigned dccid(dccId(scid));
-	  status[dccid - 1] -= double(scConstituents(scid).size()) / nCrystals(dccid);
-	}
-      }
-
-      runOnTowerStatus(status, DAQInfo);
     }
 
     if(doDCSInfo_){
@@ -91,26 +90,25 @@ namespace ecaldqm {
 
       edm::ESHandle<EcalDCSTowerStatus> dcsHndl;
       _es.get<EcalDCSTowerStatusRcd>().get(dcsHndl);
-      if (!dcsHndl.isValid()){
+      if(dcsHndl.isValid()){
+        for(unsigned id(0); id < EcalTrigTowerDetId::kEBTotalTowers; id++){
+          if(dcsHndl->barrel(id).getStatusCode() != 0){
+            EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(id));
+            status[dccId(ttid) - 1] -= 25. / 1700.;
+          }
+        }
+        for(unsigned id(0); id < EcalScDetId::kSizeForDenseIndexing; id++){
+          if(dcsHndl->endcap(id).getStatusCode() != 0){
+            EcalScDetId scid(EcalScDetId::unhashIndex(id));
+            unsigned dccid(dccId(scid));
+            status[dccid - 1] -= double(scConstituents(scid).size()) / nCrystals(dccid);
+          }
+        }
+        
+        runOnTowerStatus(status, DCSInfo);
+      }
+      else
 	edm::LogWarning("EventSetup") << "EcalDCSTowerStatus record not valid";
-	return;
-      }
-
-      for(unsigned id(0); id < EcalTrigTowerDetId::kEBTotalTowers; id++){
-	if(dcsHndl->barrel(id).getStatusCode() != 0){
-          EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(id));
-	  status[dccId(ttid) - 1] -= 25. / 1700.;
-	}
-      }
-      for(unsigned id(0); id < EcalScDetId::kSizeForDenseIndexing; id++){
-	if(dcsHndl->endcap(id).getStatusCode() != 0){
-          EcalScDetId scid(EcalScDetId::unhashIndex(id));
-          unsigned dccid(dccId(scid));
-	  status[dccid - 1] -= double(scConstituents(scid).size()) / nCrystals(dccid);
-	}
-      }
-
-      runOnTowerStatus(status, DCSInfo);
     }
   }
 

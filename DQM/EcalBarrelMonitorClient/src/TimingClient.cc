@@ -16,20 +16,13 @@ namespace ecaldqm {
     toleranceRMS_(_workerParams.getUntrackedParameter<double>("toleranceRMS")),
     toleranceRMSFwd_(_workerParams.getUntrackedParameter<double>("toleranceRMSFwd")),
     minChannelEntries_(_workerParams.getUntrackedParameter<int>("minChannelEntries")),
+    minChannelEntriesFwd_(_workerParams.getUntrackedParameter<int>("minChannelEntriesFwd")),
     minTowerEntries_(_workerParams.getUntrackedParameter<int>("minTowerEntries")),
+    minTowerEntriesFwd_(_workerParams.getUntrackedParameter<int>("minChannelEntriesFwd")),
     tailPopulThreshold_(_workerParams.getUntrackedParameter<double>("tailPopulThreshold"))
   {
-  }
-
-  void
-  TimingClient::beginRun(const edm::Run &, const edm::EventSetup &)
-  {
-    MEs_[kQuality]->resetAll(-1.);
-    MEs_[kRMSMap]->resetAll(-1.);
-    MEs_[kQualitySummary]->resetAll(-1.);
-
-    MEs_[kQuality]->reset(kUnknown);
-    MEs_[kQualitySummary]->reset(kUnknown);
+    qualitySummaries_.insert(kQuality);
+    qualitySummaries_.insert(kQualitySummary);
   }
 
   void
@@ -59,11 +52,21 @@ namespace ecaldqm {
 
       DetId id(qItr->getId());
 
+      int minChannelEntries(minChannelEntries_);
+      float meanThresh(toleranceMean_);
+      float rmsThresh(toleranceRMS_);
+
+      if(isForward(id)){
+        minChannelEntries = minChannelEntriesFwd_;
+        meanThresh = toleranceMeanFwd_;
+        rmsThresh = toleranceRMSFwd_;
+      }
+
       bool doMask(applyMask_(kQuality, id, mask));
 
       float entries(tItr->getBinEntries());
 
-      if(entries < minChannelEntries_){
+      if(entries < minChannelEntries){
         qItr->setBinContent(doMask ? kMUnknown : kUnknown);
         rItr->setBinContent(-1.);
         continue;
@@ -81,14 +84,6 @@ namespace ecaldqm {
 
       bool negative(false);
       float posTime(0.);
-
-      float meanThresh(toleranceMean_);
-      float rmsThresh(toleranceRMS_);
-
-      if(isForward(id)){
-        meanThresh = toleranceMeanFwd_;
-        rmsThresh = toleranceRMSFwd_;
-      }
 
       if(id.subdetId() == EcalBarrel){
         EBDetId ebid(id);
@@ -123,25 +118,25 @@ namespace ecaldqm {
 
       DetId tId(qsItr->getId());
 
-      // tower entries != sum(channel entries) because of the difference in timing cut at the source
-      float summaryEntries(sources_[kTimeAllMap]->getBinEntries(tId));
-
       std::vector<DetId> ids;
-
-      float meanThresh(toleranceMean_);
-      float rmsThresh(toleranceRMS_);
 
       if(tId.subdetId() == EcalTriggerTower)
         ids = getTrigTowerMap()->constituentsOf(EcalTrigTowerDetId(tId));
-      else{
-        EcalScDetId scid(tId);
-        ids = scConstituents(scid);
+      else
+        ids = scConstituents(EcalScDetId(tId));
 
-        if(ids.size() > 0 && isForward(ids[0])){
+      int minTowerEntries(minTowerEntries_);
+      float meanThresh(toleranceMean_);
+      float rmsThresh(toleranceRMS_);
+
+      if(isForward(tId)){
+        minTowerEntries = minTowerEntriesFwd_;
           meanThresh = toleranceMeanFwd_;
           rmsThresh = toleranceRMSFwd_;
-        }
       }
+
+      // tower entries != sum(channel entries) because of the difference in timing cut at the source
+      float summaryEntries(sources_[kTimeAllMap]->getBinEntries(tId));
 
       float towerEntries(0.);
       float towerMean(0.);
@@ -166,7 +161,7 @@ namespace ecaldqm {
       }
 
       double quality(doMask ? kMUnknown : kUnknown);
-      if(towerEntries / ids.size() > minTowerEntries_ / 25.){
+      if(towerEntries / ids.size() > minTowerEntries / 25.){
         if(summaryEntries < towerEntries * (1. - tailPopulThreshold_)) // large timing deviation
           quality = 0;
         else{
