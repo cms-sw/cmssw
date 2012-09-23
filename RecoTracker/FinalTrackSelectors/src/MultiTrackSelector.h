@@ -6,9 +6,9 @@
  * 
  * \author David Lange
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
- * $Id: MultiTrackSelector.h,v 1.5 2011/10/05 00:52:22 dlange Exp $
+ * $Id: MultiTrackSelector.h,v 1.6 2012/02/19 20:21:33 stenson Exp $
  *
  */
 
@@ -53,13 +53,13 @@ namespace reco { namespace modules {
 			 const reco::BeamSpot &vertexBeamSpot, 
 			 const reco::Track &tk, 
 			 const std::vector<Point> &points,
-			 std::vector<double> &vterr,
-			 std::vector<double> &vzerr);
+			 std::vector<float> &vterr,
+			 std::vector<float> &vzerr);
             void selectVertices ( unsigned int tsNum,
 				  const reco::VertexCollection &vtxs, 
 				  std::vector<Point> &points,
-				  std::vector<double> &vterr,
-				  std::vector<double> &vzerr);
+				  std::vector<float> &vterr,
+				  std::vector<float> &vzerr);
             /// source collection label
             edm::InputTag src_;
             edm::InputTag beamspot_;
@@ -100,7 +100,13 @@ namespace reco { namespace modules {
 	    // pterror and nvalid hits cuts
 	    std::vector<double> max_relpterr_;
 	    std::vector<uint32_t> min_nhits_;
-	    
+
+	    std::vector<int32_t> max_minMissHitOutOrIn_;
+	    std::vector<int32_t> max_lostHitFraction_;
+
+	    std::vector<double> min_eta_;
+	    std::vector<double> max_eta_;
+
 	    // Flag and absolute cuts if no PV passes the selection
 	    std::vector<double> max_d0NoPV_;
 	    std::vector<double> max_z0NoPV_;

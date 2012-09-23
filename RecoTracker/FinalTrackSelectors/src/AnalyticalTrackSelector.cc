@@ -35,6 +35,10 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     preFilter_.reserve(1);
     max_relpterr_.reserve(1);
     min_nhits_.reserve(1);
+    max_minMissHitOutOrIn_.reserve(1);
+    max_lostHitFraction_.reserve(1);
+    min_eta_.reserve(1);
+    max_eta_.reserve(1);
 
     src_ = cfg.getParameter<edm::InputTag>( "src" );
     beamspot_ = cfg.getParameter<edm::InputTag>( "beamspot" );
@@ -43,8 +47,6 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     vertices_ = useVertices_ ? cfg.getParameter<edm::InputTag>( "vertices" ) : edm::InputTag("NONE");
     copyExtras_ = cfg.getUntrackedParameter<bool>("copyExtras", false);
     copyTrajectories_ = cfg.getUntrackedParameter<bool>("copyTrajectories", false);
-    minEta_ = cfg.getParameter<double>("min_eta");
-    maxEta_ = cfg.getParameter<double>("max_eta");
     
     qualityToSet_.push_back( TrackBase::undefQuality );
     // parameters for vertex selection
@@ -72,6 +74,10 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     min_hits_bypass_.push_back(cfg.getParameter<uint32_t>("minHitsToBypassChecks"));
     max_relpterr_.push_back(cfg.getParameter<double>("max_relpterr"));
     min_nhits_.push_back(cfg.getParameter<uint32_t>("min_nhits"));
+    max_minMissHitOutOrIn_.push_back(cfg.getParameter<int32_t>("max_minMissHitsOutOrIn"));
+    max_lostHitFraction_.push_back(cfg.getParameter<int32_t>("max_lostHitFraction"));
+    min_eta_.push_back(cfg.getParameter<double>("min_eta"));
+    max_eta_.push_back(cfg.getParameter<double>("max_eta"));
 
     // Flag to apply absolute cuts if no PV passes the selection
     applyAbsCutsIfNoPV_.push_back(cfg.getParameter<bool>("applyAbsCutsIfNoPV"));
@@ -144,7 +150,7 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
   // Select good primary vertices for use in subsequent track selection
   edm::Handle<reco::VertexCollection> hVtx;
   std::vector<Point> points;
-  std::vector<double> vterr, vzerr;
+  std::vector<float> vterr, vzerr;
   if (useVertices_) {
       evt.getByLabel(vertices_, hVtx);
       selectVertices(0,*hVtx, points, vterr, vzerr);
@@ -174,7 +180,7 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
 
     LogTrace("TrackSelection") << "ready to check track with pt="<< trk.pt() ;
     
-    bool ok = trk.eta()>minEta_ && trk.eta()<maxEta_ && select(0,vertexBeamSpot, trk, points, vterr, vzerr);
+    bool ok = select(0,vertexBeamSpot, trk, points, vterr, vzerr);
     if (!ok) {
 
       LogTrace("TrackSelection") << "track with pt="<< trk.pt() << " NOT selected";

@@ -17,7 +17,7 @@ import FWCore.ParameterSet.Config as cms
 # cleans and merges ctf and rs Track lists and put new list back in Event
 
 trackListMerger = cms.EDProducer("TrackListMerger",
-    # minimum shared fraction to be called duplicate
+    # minimum shared fraction to be called duplicate for tracks between collections
     ShareFrac = cms.double(0.19),
     # best track chosen by chi2 modified by parameters below:
     FoundHitBonus = cms.double(5.0),
@@ -34,6 +34,8 @@ trackListMerger = cms.EDProducer("TrackListMerger",
     # always override these in the clone                             
     TrackProducers = cms.VInputTag(cms.InputTag(''),cms.InputTag('')),
     hasSelector = cms.vint32(0,0),
+    # minimum shared fraction to be called duplicate
+    indivShareFrac = cms.vdouble(1.0,1.0),
     selectedTrackQuals = cms.VInputTag(cms.InputTag(""),cms.InputTag("")),                             
     setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(False)),
                              cms.PSet( tLists=cms.vint32(2,3), pQual=cms.bool(True) ),

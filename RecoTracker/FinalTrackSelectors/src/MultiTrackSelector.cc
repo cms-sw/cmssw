@@ -2,6 +2,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+
+//#include "RecoTracker/DebugTools/interface/FixTrackHitPattern.h"
 #include <Math/DistFunc.h>
 #include "TMath.h"
 
@@ -41,6 +43,10 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
   preFilter_.reserve(trkSelectors.size());
   max_relpterr_.reserve(trkSelectors.size());
   min_nhits_.reserve(trkSelectors.size());
+  max_minMissHitOutOrIn_.reserve(trkSelectors.size());
+  max_lostHitFraction_.reserve(trkSelectors.size());
+  min_eta_.reserve(trkSelectors.size());
+  max_eta_.reserve(trkSelectors.size());
 
   for ( unsigned int i=0; i<trkSelectors.size(); i++) {
 
@@ -72,6 +78,10 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
     keepAllTracks_.push_back( trkSelectors[i].getParameter<bool>("keepAllTracks")); 
     max_relpterr_.push_back(trkSelectors[i].getParameter<double>("max_relpterr"));
     min_nhits_.push_back(trkSelectors[i].getParameter<uint32_t>("min_nhits"));
+    max_minMissHitOutOrIn_.push_back(trkSelectors[i].getParameter<int32_t>("max_minMissHitOutOrIn"));
+    max_lostHitFraction_.push_back(trkSelectors[i].getParameter<double>("max_lostHitFraction"));
+    min_eta_.push_back(trkSelectors[i].getParameter<double>("min_eta"));
+    max_eta_.push_back(trkSelectors[i].getParameter<double>("max_eta"));
 
   
     setQualityBit_.push_back( false );
@@ -149,8 +159,7 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
     edm::ValueMap<int>::Filler filler(*selTracksValueMap);
 
     std::vector<Point> points;
-    std::vector<double> vterr;
-    std::vector<double> vzerr;
+    std::vector<float> vterr, vzerr;
     if (useVertices_) selectVertices(i,*hVtx, points, vterr, vzerr);
 
     // Loop over tracks
@@ -214,8 +223,8 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
 				 const reco::BeamSpot &vertexBeamSpot, 
 				 const reco::Track &tk, 
 				 const std::vector<Point> &points,
-				 std::vector<double> &vterr,
-				 std::vector<double> &vzerr) {
+				 std::vector<float> &vterr,
+				 std::vector<float> &vzerr) {
   // Decide if the given track passes selection cuts.
 
   using namespace std; 
@@ -235,8 +244,8 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
   if (nlayersLost > max_lostLayers_[tsNum]) return false;
   LogTrace("TrackSelection") << "cuts on nlayers passed";
 
-  double chi2n =  tk.normalizedChi2();
-  double chi2n_no1Dmod = chi2n;
+  float chi2n =  tk.normalizedChi2();
+  float chi2n_no1Dmod = chi2n;
 
   int count1dhits = 0;
   for (trackingRecHit_iterator ith = tk.recHitsBegin(), edh = tk.recHitsEnd(); ith != edh; ++ith) {
@@ -246,9 +255,9 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
     }
   }
   if (count1dhits > 0) {
-    double chi2 = tk.chi2();
-    double ndof = tk.ndof();
-    chi2n = (chi2+count1dhits)/double(ndof+count1dhits);
+    float chi2 = tk.chi2();
+    float ndof = tk.ndof();
+    chi2n = (chi2+count1dhits)/float(ndof+count1dhits);
   }
   // For each 1D rechit, the chi^2 and ndof is increased by one.  This is a way of retaining approximately
   // the same normalized chi^2 distribution as with 2D rechits.
@@ -257,27 +266,35 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
   if (chi2n_no1Dmod > chi2n_no1Dmod_par_[tsNum]*nlayers) return false;
 
   // Get track parameters
-  double pt = tk.pt(), eta = tk.eta();
+  float pt = std::max(float(tk.pt()),0.000001f);
+  float eta = tk.eta();
+  if (eta<min_eta_[tsNum] || eta>max_eta_[tsNum]) return false;
 
   //cuts on relative error on pt and number of valid hits
-  double relpterr = tk.ptError()/max(pt,1e-9);
+  float relpterr = float(tk.ptError())/pt;
   uint32_t nhits = tk.numberOfValidHits();
   if(relpterr > max_relpterr_[tsNum]) return false;
   if(nhits < min_nhits_[tsNum]) return false;
 
+  int lostIn = tk.trackerExpectedHitsInner().numberOfLostTrackerHits();
+  int lostOut = tk.trackerExpectedHitsOuter().numberOfLostTrackerHits();
+  int minLost = std::min(lostIn,lostOut);
+  if (minLost > max_minMissHitOutOrIn_[tsNum]) return false;
+  float lostMidFrac = tk.numberOfLostHits() / (tk.numberOfValidHits() + tk.numberOfLostHits());
+  if (lostMidFrac > max_lostHitFraction_[tsNum]) return false;
 
   //other track parameters
-  double d0 = -tk.dxy(vertexBeamSpot.position()), d0E =  tk.d0Error(),
+  float d0 = -tk.dxy(vertexBeamSpot.position()), d0E =  tk.d0Error(),
     dz = tk.dz(vertexBeamSpot.position()), dzE =  tk.dzError();
 
   // parametrized d0 resolution for the track pt
-  double nomd0E = sqrt(res_par_[tsNum][0]*res_par_[tsNum][0]+(res_par_[tsNum][1]/max(pt,1e-9))*(res_par_[tsNum][1]/max(pt,1e-9)));
+  float nomd0E = sqrt(res_par_[tsNum][0]*res_par_[tsNum][0]+(res_par_[tsNum][1]/pt)*(res_par_[tsNum][1]/pt));
   // parametrized z0 resolution for the track pt and eta
-  double nomdzE = nomd0E*(std::cosh(eta));
+  float nomdzE = nomd0E*(std::cosh(eta));
 
-  double dzCut = min( pow(dz_par1_[tsNum][0]*nlayers,dz_par1_[tsNum][1])*nomdzE, 
+  float dzCut = min( pow(dz_par1_[tsNum][0]*nlayers,dz_par1_[tsNum][1])*nomdzE, 
 		      pow(dz_par2_[tsNum][0]*nlayers,dz_par2_[tsNum][1])*dzE );
-  double d0Cut = min( pow(d0_par1_[tsNum][0]*nlayers,d0_par1_[tsNum][1])*nomd0E, 
+  float d0Cut = min( pow(d0_par1_[tsNum][0]*nlayers,d0_par1_[tsNum][1])*nomd0E, 
 		      pow(d0_par2_[tsNum][0]*nlayers,d0_par2_[tsNum][1])*d0E );
 
 
@@ -296,11 +313,11 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
   for (std::vector<Point>::const_iterator point = points.begin(), end = points.end(); point != end; ++point) {
     LogTrace("TrackSelection") << "Test track w.r.t. vertex with z position " << point->z();
     if(primaryVertexZCompatibility && primaryVertexD0Compatibility) break;
-    double dzPV = tk.dz(*point); //re-evaluate the dz with respect to the vertex position
-    double d0PV = tk.dxy(*point); //re-evaluate the dxy with respect to the vertex position
+    float dzPV = tk.dz(*point); //re-evaluate the dz with respect to the vertex position
+    float d0PV = tk.dxy(*point); //re-evaluate the dxy with respect to the vertex position
     if(useVtxError_){
-       double dzErrPV = sqrt(dzE*dzE+vzerr[iv]*vzerr[iv]); // include vertex error in z
-       double d0ErrPV = sqrt(d0E*d0E+vterr[iv]*vterr[iv]); // include vertex error in xy
+       float dzErrPV = sqrt(dzE*dzE+vzerr[iv]*vzerr[iv]); // include vertex error in z
+       float d0ErrPV = sqrt(d0E*d0E+vterr[iv]*vterr[iv]); // include vertex error in xy
        iv++;
        if (abs(dzPV) < dz_par1_[tsNum][0]*pow(nlayers,dz_par1_[tsNum][1])*nomdzE &&
 	   abs(dzPV) < dz_par2_[tsNum][0]*pow(nlayers,dz_par2_[tsNum][1])*dzErrPV &&
@@ -341,8 +358,8 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
  void MultiTrackSelector::selectVertices(unsigned int tsNum, 
 					 const reco::VertexCollection &vtxs, 
 					 std::vector<Point> &points,
-					 std::vector<double> &vterr, 
-					 std::vector<double> &vzerr) {
+					 std::vector<float> &vterr, 
+					 std::vector<float> &vzerr) {
   // Select good primary vertices
   using namespace reco;
   int32_t toTake = vtxNumber_[tsNum]; 

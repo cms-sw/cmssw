@@ -11,8 +11,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: innocent $
-// $Date: 2012/09/04 13:14:56 $
-// $Revision: 1.7 $
+// $Date: 2012/09/12 13:56:29 $
+// $Revision: 1.8 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -68,6 +68,7 @@ namespace cms
     float shareFrac_;
     float foundHitBonus_;
     float lostHitPenalty_;
+    std::vector<double> indivShareFrac_;
 
     std::vector< std::vector< int> > listsToMerge_;
     std::vector<bool> promoteQuality_;

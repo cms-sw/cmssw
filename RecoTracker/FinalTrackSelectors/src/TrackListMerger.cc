@@ -118,6 +118,7 @@ namespace cms
     allowFirstHitShare_ = conf.getParameter<bool>("allowFirstHitShare");
     foundHitBonus_ = conf.getParameter<double>("FoundHitBonus");
     lostHitPenalty_ = conf.getParameter<double>("LostHitPenalty");
+    indivShareFrac_=conf.getParameter<std::vector<double> >("indivShareFrac");
     std::string qualityStr = conf.getParameter<std::string>("newQuality");
     
     if (qualityStr != "") {
@@ -138,11 +139,20 @@ namespace cms
     
     hasSelector_=conf.getParameter<std::vector<int> >("hasSelector");
     selectors_=conf.getParameter<std::vector<edm::InputTag> >("selectedTrackQuals");   
-    
+
+    unsigned int numTrkColl = trackProducers_.size();
+    if (numTrkColl != hasSelector_.size() || numTrkColl != selectors_.size()) {
+	throw cms::Exception("Inconsistent size") << "need same number of track collections and selectors";
+    }
+    for (unsigned int i = indivShareFrac_.size(); i < numTrkColl; i++) {
+      //      edm::LogWarning("TrackListMerger") << "No indivShareFrac for " << trackProducers_[i] <<". Using default value of 1";
+      indivShareFrac_.push_back(1.0);
+    }
+
     trkQualMod_=conf.getParameter<bool>("writeOnlyTrkQuals");
     if ( trkQualMod_) {
       bool ok=true;
-      for ( unsigned int i=1; i<trackProducers_.size(); i++) {
+      for ( unsigned int i=1; i<numTrkColl; i++) {
 	if (!(trackProducers_[i]==trackProducers_[0])) ok=false;
       }
       if ( !ok) {
@@ -331,11 +341,9 @@ namespace cms
       for ( unsigned int i=0; i<rSize; i++) saveSelected[i]=selected[i];
       
       //DL protect against 0 tracks? 
-      for ( unsigned int i=0; i<trackCollFirsts[collsSize-1]; i++) {
+      for ( unsigned int i=0; i<rSize-1; i++) {
 	if (selected[i]==0) continue;
 	unsigned int collNum=trackCollNum[i];
-	//nothing to do if this is the last collection
-	assert(collNum!=collsSize-1 );
 	
 	//check that this track is in one of the lists for this iteration
 	if (notActive[collNum]) continue;
@@ -346,14 +354,12 @@ namespace cms
 	
 	int nhit1 = nh1; // validHits[k1];
 	float score1 = score[k1];
-	
 
 	// start at next collection
-	for ( unsigned int j=trackCollFirsts[collNum+1]; j<rSize; j++) {
+	for ( unsigned int j=i+1; j<rSize; j++) {
 	  if (selected[j]==0) continue;
 	  unsigned int collNum2=trackCollNum[j];
-	  assert ( collNum != collNum2);
-	  
+	  if ( (collNum == collNum2) && indivShareFrac_[collNum] > 0.99) continue;
 	  //check that this track is in one of the lists for this iteration
 	  if (notActive[collNum2]) continue;
 
@@ -415,15 +421,17 @@ namespace cms
 	    
 	  } //loop over ih & jh
 	  
+	  bool dupfound = (collNum != collNum2) ? (noverlap-firstoverlap) > (std::min(nhit1,nhit2)-firstoverlap)*shareFrac_ : 
+	    (noverlap-firstoverlap) > (std::min(nhit1,nhit2)-firstoverlap)*indivShareFrac_[collNum];
 	  
-	  if ( (noverlap-firstoverlap) > (std::min(nhit1,nhit2)-firstoverlap)*shareFrac_ ) {
+	  if ( dupfound ) {
 	    float score2 = score[k2];
-	    constexpr float almostSame = 1.001f;
-	    if ( score1 > almostSame * score2 ) {
+	    constexpr float almostSame = 0.01f; // difference rather than ratio due to possible negative values for score
+	    if ( score1 - score2 > almostSame ) {
 	      selected[j]=0;
 	      selected[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
 	      trkUpdated[i]=true;
-	    } else if ( score2 > almostSame * score1 ) {
+	    } else if ( score2 - score1 > almostSame ) {
 	      selected[i]=0;
 	      selected[j]=10+newQualityMask;  // add 10 to avoid the case where mask = 1
 	      trkUpdated[j]=true;

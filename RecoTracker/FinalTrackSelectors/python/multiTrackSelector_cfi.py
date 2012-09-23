@@ -41,7 +41,14 @@ looseMTS = cms.PSet(
 
     # parameters for cutting on pterror/pt and number of valid hits
     max_relpterr = cms.double(9999.),
-    min_nhits = cms.uint32(0)
+    min_nhits = cms.uint32(0),
+
+    max_minMissHitOutOrIn = cms.int32(99),
+    max_lostHitFraction = cms.double(1.0),
+
+    # parameters for cutting on eta
+    min_eta = cms.double(0.),
+    max_eta = cms.double(9999.)
 
     ) # end of pset
 

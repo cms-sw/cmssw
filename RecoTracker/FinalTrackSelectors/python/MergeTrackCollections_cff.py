@@ -10,6 +10,7 @@ generalTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMer
                       cms.InputTag('pixelLessStepTracks'),
                       cms.InputTag('tobTecStepTracks')),
     hasSelector=cms.vint32(1,1,1,1,1,1,1),
+    indivShareFrac=cms.vdouble(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
     selectedTrackQuals = cms.VInputTag(cms.InputTag("initialStepSelector","initialStep"),
                                        cms.InputTag("lowPtTripletStepSelector","lowPtTripletStep"),
                                        cms.InputTag("pixelPairStepSelector","pixelPairStep"),
