@@ -7,17 +7,17 @@
 class DetGroupMerger {
 public:
 
-  static void orderAndMergeTwoLevels( const std::vector<DetGroup>& one,  
-				      const std::vector<DetGroup>& two,
+  static void orderAndMergeTwoLevels( std::vector<DetGroup>&& one,  
+				      std::vector<DetGroup>&& two,
 				      std::vector<DetGroup>& result,
 				      int firstIndex, 
 				      int firstCrossed);
   
-  static void mergeTwoLevels( const std::vector<DetGroup>& one,  
-			      const std::vector<DetGroup>& two,
+  static void mergeTwoLevels( std::vector<DetGroup>&& one,  
+			      std::vector<DetGroup>&& two,
 			      std::vector<DetGroup>& result);
   
-  static void addSameLevel( const std::vector<DetGroup>& gvec, std::vector<DetGroup>& result);
+  static void addSameLevel( std::vector<DetGroup>&& gvec, std::vector<DetGroup>& result);
   
   static void doubleIndexSize( std::vector<DetGroup>& vec);
   

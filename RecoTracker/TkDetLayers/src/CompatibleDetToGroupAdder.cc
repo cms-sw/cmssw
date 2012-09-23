@@ -17,7 +17,7 @@ bool CompatibleDetToGroupAdder::add( const GeometricSearchDet& det,
     if (tmp.empty()) return false;
     
     if (result.empty()) result.swap(tmp);
-    else                DetGroupMerger::addSameLevel( tmp, result);
+    else                DetGroupMerger::addSameLevel(std::move(tmp), result);
   }
   else {
     vector<GeometricSearchDet::DetWithState> compatDets;
@@ -32,7 +32,7 @@ bool CompatibleDetToGroupAdder::add( const GeometricSearchDet& det,
     result.front().reserve(result.front().size()+compatDets.size());
     for (vector<GeometricSearchDet::DetWithState>::const_iterator i=compatDets.begin();
 	 i!=compatDets.end(); i++)
-      result.front().push_back( *i);
+      result.front().push_back(std::move( *i));
   } 
     return true;
 }

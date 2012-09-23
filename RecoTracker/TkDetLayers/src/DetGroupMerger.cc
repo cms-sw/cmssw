@@ -5,8 +5,8 @@ using namespace std;
 
 
 void
-DetGroupMerger::orderAndMergeTwoLevels( const vector<DetGroup>& one,  
-					const vector<DetGroup>& two,
+DetGroupMerger::orderAndMergeTwoLevels( vector<DetGroup>&& one,  
+					vector<DetGroup>&& two,
 					std::vector<DetGroup>& result,
 					int firstIndex, 
 					int firstCrossed) {
@@ -14,45 +14,45 @@ DetGroupMerger::orderAndMergeTwoLevels( const vector<DetGroup>& one,
 
 
   if (one.empty()) {
-    result = two;
+    result = std::move(two);
     if (firstIndex == firstCrossed) incrementAndDoubleSize(result); 
     else                            doubleIndexSize(result);
   }
   else if (two.empty()) {
-    result = one;
+    result = std::move(one);
     if (firstIndex == firstCrossed) doubleIndexSize(result);
     else                            incrementAndDoubleSize(result);
   }
   else { // both are not empty
-    if (firstIndex == firstCrossed) mergeTwoLevels( one, two,result);
-    else                            mergeTwoLevels( two, one, result);
+    if (firstIndex == firstCrossed) mergeTwoLevels( std::move(one), std::move(two), result);
+    else                            mergeTwoLevels( std::move(two), std::move(one), result);
   }
 }
 
 
 void
-DetGroupMerger::mergeTwoLevels( const vector<DetGroup>& one,  const vector<DetGroup>& two, std::vector<DetGroup>& result) {
+DetGroupMerger::mergeTwoLevels( vector<DetGroup>&& one,  vector<DetGroup>&& two, std::vector<DetGroup>& result) {
 
   result.reserve( one.size() + two.size());
 
   int indSize1 = one.front().indexSize();
   int indSize2 = two.front().indexSize();
 
-  for (vector<DetGroup>::const_iterator i=one.begin(); i!=one.end(); i++) {
-    result.push_back(*i);
+  for (auto && dg : one) {
+    result.push_back(std::move(dg));
     result.back().setIndexSize(indSize1+indSize2);
   }
-  for (vector<DetGroup>::const_iterator j=two.begin(); j!=two.end(); j++) {
-    result.push_back(*j);
+  for (auto && dg : two) {
+    result.push_back(std::move(dg));
     result.back().incrementIndex(indSize1);
   }
 }
 
 void 
-DetGroupMerger::addSameLevel( const vector<DetGroup>& gvec, vector<DetGroup>& result) {
-  for (vector<DetGroup>::const_iterator ig=gvec.begin(); ig != gvec.end(); ig++) {
-    int gSize = ig->indexSize();
-    int index = ig->index(); // at which level it should be inserted
+DetGroupMerger::addSameLevel(vector<DetGroup>&& gvec, vector<DetGroup>& result) {
+  for (auto && ig : gvec) {
+    int gSize = ig.indexSize();
+    int index = ig.index(); // at which level it should be inserted
     bool found = false;
     for (vector<DetGroup>::iterator ires=result.begin(); ires!=result.end(); ires++) {
       int resSize = ires->indexSize();
@@ -63,18 +63,18 @@ DetGroupMerger::addSameLevel( const vector<DetGroup>& gvec, vector<DetGroup>& re
 
       int resIndex = ires->index();
       if (index == resIndex) {
-	ires->insert(ires->end(), ig->begin(), ig->end()); // insert in group with same index
+	ires->insert(ires->end(), ig.begin(), ig.end()); // insert in group with same index
 	found = true;
 	break;
       }
       else if (index < resIndex) {
 	// result has no group at index level yet
-	result.insert( ires, *ig); // insert a new group, invalidates the iterator ires
+	result.insert( ires, ig); // insert a new group, invalidates the iterator ires
 	found = true;
 	break;
       }
     } // end of loop over result groups
-    if (!found) result.insert( result.end(), *ig); // in case the ig index is bigger than any in result
+    if (!found) result.insert( result.end(), ig); // in case the ig index is bigger than any in result
   }
 }
 

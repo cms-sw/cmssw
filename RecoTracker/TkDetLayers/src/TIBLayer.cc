@@ -155,7 +155,7 @@ TIBLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 		   nextResult, true);
 
   int crossingSide = LayerCrossingSide().barrelSide( closestGel.trajectoryState(), prop);
-  DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result, 
+  DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result, 
 					  crossings.closestIndex(), crossingSide);
 }
 
