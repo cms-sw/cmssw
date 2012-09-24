@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 from DQM.EcalCommon.dqmpset import *
-from DQM.EcalBarrelMonitorTasks.OccupancyTask_cfi import ecalOccupancyTask
+from DQM.EcalBarrelMonitorTasks.EnergyTask_cfi import ecalEnergyTask
 from DQM.EcalBarrelMonitorTasks.IntegrityTask_cfi import ecalIntegrityTask
 from DQM.EcalBarrelMonitorTasks.LaserTask_cfi import ecalLaserTask
 from DQM.EcalBarrelMonitorTasks.LedTask_cfi import ecalLedTask
+from DQM.EcalBarrelMonitorTasks.OccupancyTask_cfi import ecalOccupancyTask
 from DQM.EcalBarrelMonitorTasks.PedestalTask_cfi import ecalPedestalTask
 from DQM.EcalBarrelMonitorTasks.PresampleTask_cfi import ecalPresampleTask
 from DQM.EcalBarrelMonitorTasks.PNDiodeTask_cfi import ecalPnDiodeTask
@@ -19,9 +20,10 @@ from DQM.EcalBarrelMonitorClient.PNIntegrityClient_cfi import ecalPnIntegrityCli
 from DQM.EcalBarrelMonitorClient.TestPulseClient_cfi import ecalTestPulseClient
 from DQM.EcalBarrelMonitorClient.TimingClient_cfi import ecalTimingClient
 
-occupancyTask = dqmpset(ecalOccupancyTask['MEs'])
+energyTask = dqmpset(ecalEnergyTask['MEs'])
 integrityTask = dqmpset(ecalIntegrityTask['MEs'])
 laserTask = dqmpset(ecalLaserTask['MEs'])
+occupancyTask = dqmpset(ecalOccupancyTask['MEs'])
 pedestalTask = dqmpset(ecalPedestalTask['MEs'])
 presampleTask = dqmpset(ecalPresampleTask['MEs'])
 pnDiodeTask = dqmpset(ecalPnDiodeTask['MEs'])
@@ -102,8 +104,14 @@ ecalCondDBWriter = cms.EDAnalyzer("EcalCondDBWriter",
             PNQuality = ledClient.PNQualitySummary,
             PNPedestal = pnDiodeTask.Pedestal
         ),
-        RawData = cms.untracked.PSet(),
-        Occupancy = cms.untracked.PSet()
+        Occupancy = cms.untracked.PSet(
+            Occupancy = occupancyTask.Digi,
+            Energy = energyTask.HitMap
+        ),
+        laserWavelengths = cms.untracked.vint32(1, 2, 3, 4),
+        ledWavelengths = cms.untracked.vint32(1, 2),
+        MGPAGains = cms.untracked.vint32(1, 6, 12),
+        MGPAGainsPN = cms.untracked.vint32(1, 16)
     ),
     verbosity = cms.untracked.int32(0)
 )
