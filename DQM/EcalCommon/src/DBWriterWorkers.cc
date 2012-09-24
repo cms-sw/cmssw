@@ -1023,7 +1023,7 @@ namespace ecaldqm {
       }
     }
 
-    string pnSources[] = {"PNAmplitude", "PNPedestal", "PNQuality"};
+    string pnSources[] = {"PNAmplitude", "PNQuality"};
     for(unsigned iS(0); iS < sizeof(pnSources) / sizeof(string); ++iS){
       string plot(pnSources[iS]);
       MESetMulti const* multi(static_cast<MESetMulti const*>(source_[plot]));
@@ -1204,8 +1204,9 @@ namespace ecaldqm {
           case 1:
             data.setADCMeanG1(mean);
             data.setADCRMSG1(rms);
-            data.setPedMeanG1(pedestalMean);
-            data.setPedRMSG1(pedestalRms);
+            // dynamic pedestal not measured for G1
+//             data.setPedMeanG1(pedestalMean);
+//             data.setPedRMSG1(pedestalRms);
             break;
           case 16:
             data.setADCMeanG16(mean);
