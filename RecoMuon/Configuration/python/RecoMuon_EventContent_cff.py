@@ -25,6 +25,8 @@ RecoMuonAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_muons_*_*',
                                            'keep *_*_muons_*',
                                            'drop *_muons_muons1stStep2muonsMap_*',
+                                           'drop recoIsoDepositedmValueMap_muons_*_*', #not really used
+                                           'drop doubleedmValueMap_muons_muPFIso*_*', #already inside the muon
                                            # Tracks known by the Muon obj
                                            'keep recoTracks_standAloneMuons_*_*', 
                                            'keep recoTrackExtras_standAloneMuons_*_*', 
