@@ -1,4 +1,4 @@
-// $Id: EcalRenderPlugin.cc,v 1.1 2012/09/17 11:53:29 yiiyama Exp $
+// $Id: EcalRenderPlugin.cc,v 1.2 2012/09/21 08:18:54 yiiyama Exp $
 
 /*
   \file EcalRenderPlugin
@@ -6,8 +6,8 @@
   \author Y. Iiyama
   \author G. Della Ricca
   \author B. Gobbo
-  \version $Revision: 1.1 $
-  \date $Date: 2012/09/17 11:53:29 $
+  \version $Revision: 1.2 $
+  \date $Date: 2012/09/21 08:18:54 $
 */
 
 #include "DQM/DQMRenderPlugin.h"
@@ -1052,7 +1052,7 @@ EcalRenderPlugin::preDrawByName(TCanvas* canvas, VisDQMObject const& dqmObject, 
 
     applyDefaults = false;
   }
-  else if(TPRegexp("E[BE]TimingTask/E[BE]TMT timing vs amplitude (|summary )E[BE]( [+-]|[+-][0-1][0-9])").MatchB(fullpath)){
+  else if(TPRegexp("E[BE]TimingTask/E[BE]TMT timing vs amplitude (summary(| EE [+-])|E[BE][+-][0-1][0-9])").MatchB(fullpath)){
     if(obj->GetMaximum() > 0.) gPad->SetLogz(true);
     gPad->SetLogx(true);
     gPad->SetGrid(false, false);
@@ -1110,7 +1110,7 @@ EcalRenderPlugin::postDrawByName(TCanvas* canvas, VisDQMObject const& dqmObject,
     if(timingAxis)
       timingAxis->Draw();
   }
-  else if(TPRegexp("E[BE]TimingTask/E[BE]TMT timing vs amplitude (|summary )E[BE]( [+-]|[+-][0-1][0-9])").MatchB(fullpath) ||
+  else if(TPRegexp("E[BE]TimingTask/E[BE]TMT timing vs amplitude (summary(| EE [+-])|E[BE][+-][0-1][0-9])").MatchB(fullpath) ||
           TPRegexp("E[BE]TimingTask/E[BE]TMT timing E[BE][+] vs E[BE][-]").MatchB(fullpath))
     applyDefaults = false;
   else if(!isNewStyle && TPRegexp("EBClusterTask/EBCLT BC (ET|energy|number|size) map").MatchB(fullpath)){

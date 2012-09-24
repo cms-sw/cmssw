@@ -184,21 +184,26 @@ ecalDQM += '''
 
 process.load("DQM.EcalCommon.EcalDQMBinningService_cfi")
 '''
-if physics :
+if physics:
     ecalDQM += '''
 process.load("DQM.EcalBarrelMonitorTasks.EcalMonitorTask_cfi")
 process.load("DQM.EcalBarrelMonitorClient.EcalMonitorClient_cfi")
 '''
-else :
+
+if calib :
     ecalDQM += '''
 process.load("DQM.EcalBarrelMonitorTasks.EcalCalibMonitorTasks_cfi")
 process.load("DQM.EcalBarrelMonitorClient.EcalCalibMonitorClient_cfi")
 '''        
+    if daqtype == 'localDAQ':
+        ecalDQM += '''
+process.load("DQM.EcalBarrelMonitorTasks.EcalMonitorTask_cfi")
 
-if not physics and daqtype == 'localDAQ':
-    ecalDQM += '''
-process.ecalCalibMonitorClient.workers = ["LaserClient", "LedClient", "TestPulseClient", "PedestalClient", "PNIntegrityClient", "CalibrationSummaryClient"]
+process.ecalMonitorTask.workers = ["IntegrityTask", "RawDataTask"]
+process.ecalCalibMonitorClient.workers = ["IntegrityClient", "RawDataClient", "LaserClient", "LedClient", "TestPulseClient", "PedestalClient", "PNIntegrityClient", "SummaryClient", "CalibrationSummaryClient"]
+process.ecalCalibMonitorClient.workers.SummaryClient.activeSources = ["Integrity", "RawData"]
 '''
+    #Need to comfigure the source for calib summary!!
 
 dqmModules += '''
 
@@ -348,7 +353,8 @@ process.ecalMonitorPath = cms.Path(
     process.ecalMonitorTask
 )
 '''
-elif calib :
+
+if calib :
     sequencePaths += '''
 process.ecalLaserLedPath = cms.Path(
     process.ecalPreRecoSequence *
@@ -356,6 +362,14 @@ process.ecalLaserLedPath = cms.Path(
     process.ecalRecoSequence *
     process.ecalLaserLedUncalibRecHit *
     process.ecalLaserLedMonitorTask *
+    process.ecalPNDiodeMonitorTask
+)
+process.ecalTestPulsePath = cms.Path(
+    process.ecalPreRecoSequence *
+    process.ecalTestPulseFilter *    
+    process.ecalRecoSequence *
+    process.ecalTestPulseUncalibRecHit *
+    process.ecalTestPulseMonitorTask *
     process.ecalPNDiodeMonitorTask
 )
 '''
@@ -367,30 +381,22 @@ process.ecalPedestalPath = cms.Path(
     process.ecalRecoSequence *
     process.ecalPedestalMonitorTask *
     process.ecalPNDiodeMonitorTask
-)    
-'''
-
-    sequencePaths += '''
-process.ecalTestPulsePath = cms.Path(
+)
+process.ecalMonitorPath = cms.Path(
     process.ecalPreRecoSequence *
-    process.ecalTestPulseFilter *    
-    process.ecalRecoSequence *
-    process.ecalTestPulseUncalibRecHit *
-    process.ecalTestPulseMonitorTask *
-    process.ecalPNDiodeMonitorTask
+    process.ecalMonitorTask
 )
 '''
 
-sequencePaths += '''
-process.ecalClientPath = cms.Path(
-    process.ecalPreRecoSequence *'''
 
+sequencePaths += '''
+process.ecalClientPath = cms.Path('''
 if physics :
     sequencePaths += '''
-    process.ecalPhysicsFilter *
     process.ecalMonitorClient'''        
 else :
     sequencePaths += '''
+    process.ecalPreRecoSequence *
     process.ecalCalibrationFilter *
     process.ecalCalibMonitorClient'''
 
@@ -417,17 +423,18 @@ if physics :
     sequencePaths += '''
     process.ecalMonitorPath,
     process.ecalClientPath,'''
-elif calib :
+
+if calib :
     sequencePaths += '''
-    process.ecalLaserLedPath,'''
+    process.ecalLaserLedPath,
+    process.ecalTestPulsePath,
+    process.ecalClientPath,'''
 
     if (daqtype == 'localDAQ') :
         sequencePaths += '''
-    process.ecalPedestalPath,'''
-
-    sequencePaths += '''
-    process.ecalTestPulsePath,
-    process.ecalClientPath,'''
+    process.ecalPedestalPath,
+    process.ecalMonitorPath,'''
+    
 elif laser :
     sequencePaths += '''
     process.ecalMonitorPath,'''
@@ -523,7 +530,7 @@ customizations += '''
 if physics :
     customizations += '''
 process.ecalMonitorTask.online = True
-process.ecalMonitorClient.workers = ["ClusterTask", "EnergyTask", "IntegrityTask", "OccupancyTask", "RawDataTask", "TimingTask", "TrigPrimTask", "TowerStatusTask", "PresampleTask", "SelectiveReadoutTask"]
+process.ecalMonitorTask.workers = ["ClusterTask", "EnergyTask", "IntegrityTask", "OccupancyTask", "RawDataTask", "TimingTask", "TrigPrimTask", "PresampleTask", "SelectiveReadoutTask"]
 process.ecalMonitorTask.workerParameters.common.hltTaskMode = 0
 process.ecalMonitorTask.workerParameters.TrigPrimTask.runOnEmul = True
 
@@ -637,6 +644,8 @@ if p5 :
         customizations += '''
 if process.runType.getRunType() == process.runType.cosmic_run :
     process.dqmEndPath.remove(process.dqmQTest)
+    process.ecalMonitorTask.workers = ["EnergyTask", "IntegrityTask", "OccupancyTask", "RawDataTask", "TrigPrimTask", "PresampleTask", "SelectiveReadoutTask"]
+    process.ecalMonitorClient.workers = ["IntegrityClient", "OccupancyClient", "PresampleClient", "RawDataClient", "SelectiveReadoutClient", "TrigPrimClient", "SummaryClient"]    
 elif process.runType.getRunType() == process.runType.hpu_run:
     process.source.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("*"))
 '''

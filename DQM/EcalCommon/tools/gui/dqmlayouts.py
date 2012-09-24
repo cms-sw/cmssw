@@ -113,6 +113,22 @@ class LayoutDir(LayoutObj):
 
             i += 1
 
+    def insert(self, name, obj):
+        index = 0
+        for x in self.objs_:
+            if x.name_ == name :
+                break
+            index += 1
+        if index == len(self.objs_):
+            raise NameError(name + ' is not in the list of objects')
+        
+        if type(obj) is ListType:
+            tmpList = self.objs_[0:index]
+            tmpList = tmpList + obj
+            self.objs_ = tmpList + self.objs_[index:len(self.objs_)]
+        else:
+            self.objs_.insert(index, obj)
+
     def append(self, obj):
         if type(obj) is ListType:
             self.objs_ = self.objs_ + obj
