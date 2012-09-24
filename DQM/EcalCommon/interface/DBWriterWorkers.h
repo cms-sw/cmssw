@@ -71,17 +71,19 @@ namespace ecaldqm {
     void setVerbosity(int _v) { verbosity_ = _v; }
 
     std::string const& getName() const { return name_; }
+    bool isActive() const { return active_; }
 
   protected:
     std::string const name_;
     std::set<std::string> runTypes_;
     PtrMap<std::string, MESet const> source_;
+    bool active_;
     int verbosity_;
   };
 
   class IntegrityWriter : public DBWriterWorker {
   public:
-    IntegrityWriter(edm::ParameterSet const&);
+    IntegrityWriter(edm::ParameterSet const& _ps) : DBWriterWorker("Integrity", _ps) {}
     ~IntegrityWriter() {}
 
     bool run(EcalCondDBInterface*, MonRunIOV&);
@@ -112,7 +114,7 @@ namespace ecaldqm {
 
   class PresampleWriter : public DBWriterWorker {
   public:
-    PresampleWriter(edm::ParameterSet const&);
+    PresampleWriter(edm::ParameterSet const& _ps) : DBWriterWorker("Presample", _ps) {}
     ~PresampleWriter() {}
 
     bool run(EcalCondDBInterface*, MonRunIOV&);
@@ -132,7 +134,7 @@ namespace ecaldqm {
 
   class TimingWriter : public DBWriterWorker {
   public:
-    TimingWriter(edm::ParameterSet const&);
+    TimingWriter(edm::ParameterSet const& _ps) : DBWriterWorker("Timing", _ps) {}
     ~TimingWriter() {}
 
     bool run(EcalCondDBInterface*, MonRunIOV&);
@@ -151,7 +153,7 @@ namespace ecaldqm {
 
   class OccupancyWriter : public DBWriterWorker {
   public:
-    OccupancyWriter(edm::ParameterSet const&);
+    OccupancyWriter(edm::ParameterSet const& _ps) : DBWriterWorker("Occupancy", _ps) {}
     ~OccupancyWriter() {}
 
     bool run(EcalCondDBInterface*, MonRunIOV&);

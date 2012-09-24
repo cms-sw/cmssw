@@ -273,7 +273,7 @@ EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
 
     if(verbosity_ > 1) std::cout << " " << workers_[iC]->getName() << std::endl;
 
-    if(workers_[iC]->run(db_, monIOV)) setBit(outcome, iC);
+    if(workers_[iC]->isActive() && workers_[iC]->run(db_, monIOV)) setBit(outcome, iC);
   }
 
   if(verbosity_ > 0) std::cout << " Done." << std::endl;

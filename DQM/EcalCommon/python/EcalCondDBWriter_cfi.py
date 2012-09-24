@@ -40,6 +40,18 @@ pnIntegrityClient = dqmpset(ecalPnIntegrityClient['MEs'])
 testPulseClient = dqmpset(ecalTestPulseClient['MEs'])
 timingClient = dqmpset(ecalTimingClient['MEs'])
 
+cosmic = "COSMIC"
+beam = "BEAM"
+mtcc = "MTCC"
+laser = "LASER"
+led = "LED"
+testpulse = "TESTPULSE"
+pedestal = "PEDESTAL"
+pedestalOffset = "PEDESTAL-OFFSET"
+physics = "PHYSICS"
+halo = "HALO"
+calib = "CALIB"
+
 ecalCondDBWriter = cms.EDAnalyzer("EcalCondDBWriter",
     DBName = cms.untracked.string(""),
     hostName = cms.untracked.string(""),
@@ -52,65 +64,89 @@ ecalCondDBWriter = cms.EDAnalyzer("EcalCondDBWriter",
     inputRootFiles = cms.untracked.vstring(),
     workerParams = cms.untracked.PSet(
         Integrity = cms.untracked.PSet(
-            Quality = integrityClient.Quality,
-            Digi = occupancyTask.Digi,
-            Gain = integrityTask.Gain,
-            ChId = integrityTask.ChId,
-            GainSwitch = integrityTask.GainSwitch,
-            TowerId = integrityTask.TowerId,
-            BlockSize = integrityTask.BlockSize,
-            L1AFE = rawDataTask.L1AFE,
-            BXFE = rawDataTask.BXFE,
-            MEMDigi = pnDiodeTask.Occupancy,
-            MEMChId = pnDiodeTask.MEMChId,
-            MEMGain = pnDiodeTask.MEMGain,
-            PNQuality = pnIntegrityClient.QualitySummary,
-            MEMTowerId = pnDiodeTask.MEMTowerId,
-            MEMBlockSize = pnDiodeTask.MEMBlockSize
+            runTypes = cms.untracked.vstring(cosmic, beam, mtcc, laser, testpulse, pedestal, pedestalOffset, led, physics),
+            source = cms.untracked.PSet(
+                Quality = integrityClient.Quality,
+                Digi = occupancyTask.Digi,
+                Gain = integrityTask.Gain,
+                ChId = integrityTask.ChId,
+                GainSwitch = integrityTask.GainSwitch,
+                TowerId = integrityTask.TowerId,
+                BlockSize = integrityTask.BlockSize,
+                L1AFE = rawDataTask.L1AFE,
+                BXFE = rawDataTask.BXFE,
+                MEMDigi = pnDiodeTask.Occupancy,
+                MEMChId = pnDiodeTask.MEMChId,
+                MEMGain = pnDiodeTask.MEMGain,
+                PNQuality = pnIntegrityClient.QualitySummary,
+                MEMTowerId = pnDiodeTask.MEMTowerId,
+                MEMBlockSize = pnDiodeTask.MEMBlockSize
+            )
         ),
         Laser = cms.untracked.PSet(
-            Amplitude = laserTask.Amplitude,
-            AOverP = laserTask.AOverP,
-            Timing = laserTask.Timing,
-            Quality = laserClient.Quality,
-            PNAmplitude = laserTask.PNAmplitude,
-            PNQuality = laserClient.PNQualitySummary,
-            PNPedestal = pnDiodeTask.Pedestal
+            runTypes = cms.untracked.vstring(cosmic, beam, mtcc, laser, physics),
+            source = cms.untracked.PSet(
+                Amplitude = laserTask.Amplitude,
+                AOverP = laserTask.AOverP,
+                Timing = laserTask.Timing,
+                Quality = laserClient.Quality,
+                PNAmplitude = laserTask.PNAmplitude,
+                PNQuality = laserClient.PNQualitySummary,
+                PNPedestal = pnDiodeTask.Pedestal
+            )
         ),
         Pedestal = cms.untracked.PSet(
-            Pedestal = pedestalTask.Pedestal,
-            Quality = pedestalClient.Quality,
-            PNPedestal = pedestalTask.PNPedestal,
-            PNQuality = pedestalClient.PNQualitySummary
+            runTypes = cms.untracked.vstring(pedestal),
+            source = cms.untracked.PSet(
+                Pedestal = pedestalTask.Pedestal,
+                Quality = pedestalClient.Quality,
+                PNPedestal = pedestalTask.PNPedestal,
+                PNQuality = pedestalClient.PNQualitySummary
+            )
         ),
         Presample = cms.untracked.PSet(
-            Pedestal = presampleTask.Pedestal,
-            Quality = presampleClient.Quality
+            runTypes = cms.untracked.vstring(cosmic, beam, mtcc, laser, testpulse, pedestal, led, physics),
+            source = cms.untracked.PSet(
+                Pedestal = presampleTask.Pedestal,
+                Quality = presampleClient.Quality
+            )
         ),
         TestPulse = cms.untracked.PSet(
-            Amplitude = testPulseTask.Amplitude,
-            Shape = testPulseTask.Shape,
-            Quality = testPulseClient.Quality,
-            PNAmplitude = testPulseTask.PNAmplitude,
-            PNPedestal = pnDiodeTask.Pedestal,
-            PNQuality = testPulseClient.PNQualitySummary
+            runTypes = cms.untracked.vstring(cosmic, beam, mtcc, testpulse, physics),
+            source = cms.untracked.PSet(
+                Amplitude = testPulseTask.Amplitude,
+                Shape = testPulseTask.Shape,
+                Quality = testPulseClient.Quality,
+                PNAmplitude = testPulseTask.PNAmplitude,
+                PNPedestal = pnDiodeTask.Pedestal,
+                PNQuality = testPulseClient.PNQualitySummary
+            )
         ),
         Timing = cms.untracked.PSet(
-            Timing = timingTask.TimeMap,
-            Quality = timingClient.Quality
+            runTypes = cms.untracked.vstring(beam, mtcc, physics),
+            source = cms.untracked.PSet(
+                Timing = timingTask.TimeMap,
+                Quality = timingClient.Quality
+            )
         ),
         Led = cms.untracked.PSet(
-            Amplitude = ledTask.Amplitude,
-            AOverP = ledTask.AOverP,
-            Timing = ledTask.Timing,
-            Quality = ledClient.Quality,
-            PNAmplitude = ledTask.PNAmplitude,
-            PNQuality = ledClient.PNQualitySummary,
-            PNPedestal = pnDiodeTask.Pedestal
+            runTypes = cms.untracked.vstring(cosmic, beam, mtcc, led, physics),
+            source = cms.untracked.PSet(
+                Amplitude = ledTask.Amplitude,
+                AOverP = ledTask.AOverP,
+                Timing = ledTask.Timing,
+                Quality = ledClient.Quality,
+                PNAmplitude = ledTask.PNAmplitude,
+                PNQuality = ledClient.PNQualitySummary,
+                PNPedestal = pnDiodeTask.Pedestal
+            )
         ),
         Occupancy = cms.untracked.PSet(
-            Occupancy = occupancyTask.Digi,
-            Energy = energyTask.HitMap
+            runTypes = cms.untracked.vstring(cosmic, beam, mtcc, laser, testpulse, pedestal, pedestalOffset, led, physics),
+            source = cms.untracked.PSet(
+                Occupancy = occupancyTask.Digi,
+                Energy = energyTask.HitMap
+            )
         ),
         laserWavelengths = cms.untracked.vint32(1, 2, 3, 4),
         ledWavelengths = cms.untracked.vint32(1, 2),

@@ -146,14 +146,20 @@ namespace ecaldqm {
   DBWriterWorker::DBWriterWorker(std::string const& _name, edm::ParameterSet const& _ps) :
     name_(_name),
     runTypes_(),
-    source_()
+    source_(),
+    active_(false)
   {
-    edm::ParameterSet const& meParams(_ps.getUntrackedParameterSet(name_));
+    edm::ParameterSet const& params(_ps.getUntrackedParameterSet(name_));
 
-    std::vector<std::string> meNames(meParams.getParameterNames());
+    std::vector<std::string> runTypes(params.getUntrackedParameter<std::vector<std::string> >("runTypes"));
+    for(unsigned iT(0); iT < runTypes.size(); ++iT)
+      runTypes_.insert(runTypes[iT]);
+
+    edm::ParameterSet const& sourceParams(params.getUntrackedParameterSet("source"));
+    std::vector<std::string> meNames(sourceParams.getParameterNames());
     for(unsigned iP(0); iP < meNames.size(); ++iP){
       std::string& meName(meNames[iP]);
-      edm::ParameterSet const& meParam(meParams.getUntrackedParameterSet(meName));
+      edm::ParameterSet const& meParam(sourceParams.getUntrackedParameterSet(meName));
       source_[meName] = ecaldqm::createMESet(meParam);
     }
   }
@@ -162,23 +168,14 @@ namespace ecaldqm {
   DBWriterWorker::retrieveSource()
   {
     for(PtrMap<std::string, MESet const>::iterator sItr(source_.begin()); sItr != source_.end(); ++sItr){
-      if(!sItr->second->retrieve())
-        throw cms::Exception("IOError") << name_ << ": MESet " << sItr->first << " not found";
+      if(!sItr->second->retrieve()){
+        std::cerr << name_ << ": MESet " << sItr->first << " not found";
+        active_ = false;
+        return;
+      }
     }
-  }
 
-  IntegrityWriter::IntegrityWriter(edm::ParameterSet const& _ps) :
-    DBWriterWorker("Integrity", _ps)
-  {
-    runTypes_.insert("COSMIC");
-    runTypes_.insert("BEAM");
-    runTypes_.insert("MTCC");
-    runTypes_.insert("LASER");
-    runTypes_.insert("TEST_PULSE");
-    runTypes_.insert("PEDESTAL");
-    runTypes_.insert("PEDESTAL-OFFSET");
-    runTypes_.insert("LED");
-    runTypes_.insert("PHYSICS");
+    active_ = true;
   }
  
   bool
@@ -394,15 +391,6 @@ namespace ecaldqm {
     DBWriterWorker("Laser", _ps)
   {
     using namespace std;
-
-    runTypes_.insert("COSMIC");
-    runTypes_.insert("BEAM");
-    runTypes_.insert("MTCC");
-    runTypes_.insert("LASER");
-    runTypes_.insert("TEST_PULSE");
-    runTypes_.insert("PEDESTAL");
-    runTypes_.insert("LED");
-    runTypes_.insert("PHYSICS");
 
     vector<int> laserWavelengths(_ps.getUntrackedParameter<vector<int> >("laserWavelengths"));
 
@@ -704,15 +692,6 @@ namespace ecaldqm {
   {
     using namespace std;
 
-    runTypes_.insert("COSMIC");
-    runTypes_.insert("BEAM");
-    runTypes_.insert("MTCC");
-    runTypes_.insert("LASER");
-    runTypes_.insert("TEST_PULSE");
-    runTypes_.insert("PEDESTAL");
-    runTypes_.insert("LED");
-    runTypes_.insert("PHYSICS");
-
     vector<int> MGPAGains(_ps.getUntrackedParameter<vector<int> >("MGPAGains"));
     vector<int> MGPAGainsPN(_ps.getUntrackedParameter<vector<int> >("MGPAGainsPN"));
 
@@ -911,19 +890,6 @@ namespace ecaldqm {
     return result;
   }
 
-  PresampleWriter::PresampleWriter(edm::ParameterSet const& _ps) :
-    DBWriterWorker("Presample", _ps)
-  {
-    runTypes_.insert("COSMIC");
-    runTypes_.insert("BEAM");
-    runTypes_.insert("MTCC");
-    runTypes_.insert("LASER");
-    runTypes_.insert("TEST_PULSE");
-    runTypes_.insert("PEDESTAL");
-    runTypes_.insert("LED");
-    runTypes_.insert("PHYSICS");
-  }
-
   bool
   PresampleWriter::run(EcalCondDBInterface* _db, MonRunIOV& _iov)
   {
@@ -979,15 +945,6 @@ namespace ecaldqm {
     DBWriterWorker("TestPulse", _ps)
   {
     using namespace std;
-
-    runTypes_.insert("COSMIC");
-    runTypes_.insert("BEAM");
-    runTypes_.insert("MTCC");
-    runTypes_.insert("LASER");
-    runTypes_.insert("TEST_PULSE");
-    runTypes_.insert("PEDESTAL");
-    runTypes_.insert("LED");
-    runTypes_.insert("PHYSICS");
 
     vector<int> MGPAGains(_ps.getUntrackedParameter<vector<int> >("MGPAGains"));
     vector<int> MGPAGainsPN(_ps.getUntrackedParameter<vector<int> >("MGPAGainsPN"));
@@ -1241,19 +1198,6 @@ namespace ecaldqm {
     return result;
   }
 
-  TimingWriter::TimingWriter(edm::ParameterSet const& _ps) :
-    DBWriterWorker("Timing", _ps)
-  {
-    runTypes_.insert("COSMIC");
-    runTypes_.insert("BEAM");
-    runTypes_.insert("MTCC");
-    runTypes_.insert("LASER");
-    runTypes_.insert("TEST_PULSE");
-    runTypes_.insert("PEDESTAL");
-    runTypes_.insert("LED");
-    runTypes_.insert("PHYSICS");
-  }
-
   bool
   TimingWriter::run(EcalCondDBInterface* _db, MonRunIOV& _iov)
   {
@@ -1309,15 +1253,6 @@ namespace ecaldqm {
     DBWriterWorker("Led", _ps)
   {
     using namespace std;
-
-    runTypes_.insert("COSMIC");
-    runTypes_.insert("BEAM");
-    runTypes_.insert("MTCC");
-    runTypes_.insert("LASER");
-    runTypes_.insert("TEST_PULSE");
-    runTypes_.insert("PEDESTAL");
-    runTypes_.insert("LED");
-    runTypes_.insert("PHYSICS");
 
     vector<int> ledWavelengths(_ps.getUntrackedParameter<vector<int> >("ledWavelengths"));
 
@@ -1536,20 +1471,6 @@ namespace ecaldqm {
     }
 
     return result;
-  }
-
-  OccupancyWriter::OccupancyWriter(edm::ParameterSet const& _ps) :
-    DBWriterWorker("Occupancy", _ps)
-  {
-    runTypes_.insert("COSMIC");
-    runTypes_.insert("BEAM");
-    runTypes_.insert("MTCC");
-    runTypes_.insert("LASER");
-    runTypes_.insert("TEST_PULSE");
-    runTypes_.insert("PEDESTAL");
-    runTypes_.insert("PEDESTAL-OFFSET");
-    runTypes_.insert("LED");
-    runTypes_.insert("PHYSICS");
   }
 
   bool
