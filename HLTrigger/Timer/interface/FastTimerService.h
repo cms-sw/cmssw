@@ -12,7 +12,7 @@ typedef int clockid_t;
 #if defined(__APPLE__) || defined(__MACH__)
 #include <mach/clock.h>
 #include <mach/mach.h>
-#endif /* defined(__APPLE__) || defined(__MACH__) */
+#endif // defined(__APPLE__) || defined(__MACH__)
 
 // C++ headers
 #include <cmath>
@@ -336,22 +336,23 @@ private:
   std::pair<struct timespec, struct timespec>   m_timer_module;         // track time spent in each module
   struct timespec                               m_timer_first_module;   // record the start of the first active module in a path, if any
 
+#if defined(__APPLE__) || defined (__MACH__)
+  clock_serv_t m_clock_port;
+#endif // defined(__APPLE__) || defined(__MACH__)
+
   void gettime(struct timespec & stamp) const
   {
 #if defined(_POSIX_TIMERS) && _POSIX_TIMERS >= 0
     clock_gettime(m_timer_id, & stamp);
 #else
-/* Special cases which do not support _POSIX_TIMERS. */
+// special cases which do not support _POSIX_TIMERS
 #if defined(__APPLE__) || defined (__MACH__)
-    clock_serv_t cclock;
-    mach_timespec_t mts;
-    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-    clock_get_time(cclock, &mts);
-    mach_port_deallocate(mach_task_self(), cclock);
-    stamp.tv_sec = mts.tv_sec;
-    stamp.tv_nsec = mts.tv_nsec;
-#endif /* defined(__APPLE__) || defined (__MACH__) */
-#endif /* defined(_POSIX_TIMERS) && _POSIX_TIMERS >= 0 */
+    mach_timespec_t timespec;
+    clock_get_time(m_clock_port, &timespec);
+    stamp.tv_sec  = timespec.tv_sec;
+    stamp.tv_nsec = timespec.tv_nsec;
+#endif // defined(__APPLE__) || defined(__MACH__)
+#endif // defined(_POSIX_TIMERS) && _POSIX_TIMERS >= 0
   }
 
   void start(std::pair<struct timespec, struct timespec> & times) const

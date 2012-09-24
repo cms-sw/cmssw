@@ -135,10 +135,17 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
     registry.watchPreModule(         this, & FastTimerService::preModule );
     registry.watchPostModule(        this, & FastTimerService::postModule );
   }
+
+#if defined(__APPLE__) || defined (__MACH__)
+  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &m_clock_port);
+#endif // defined(__APPLE__) || defined(__MACH__)
 }
 
 FastTimerService::~FastTimerService()
 {
+#if defined(__APPLE__) || defined (__MACH__)
+  mach_port_deallocate(mach_task_self(), m_clock_port);
+#endif // defined(__APPLE__) || defined(__MACH__)
 }
 
 void FastTimerService::postBeginJob() {
