@@ -37,7 +37,7 @@ void indirectModifyMember() { modifyMember();}
 
 void method1(int &x) {return;}
 
-void method2() 
+void produce() 
 	{
 	Foo foo;
 	int I=0;
@@ -52,8 +52,11 @@ void method2()
 	foo.Bar6(i_);
 	foo.Bar6(ir_);
 	foo.Bar6(I);
+	foo.Bar7();
 	method1(i_);
 	method1(I);
+	modifyMember();
+	indirectModifyMember();
 	}
 
 void method3() const
