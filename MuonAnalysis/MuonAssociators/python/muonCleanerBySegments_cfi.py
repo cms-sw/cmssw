@@ -32,3 +32,9 @@ cleanMuonsBySegments = cms.EDProducer("MuonCleanerBySegments",
     #                               "   )")      # <=== end of prefer PF Muons
 )
 
+cleanPatMuonsBySegments = cms.EDProducer("PATMuonCleanerBySegments", 
+    src = cms.InputTag("cleanPatMuons"),
+    preselection = cleanMuonsBySegments.preselection,
+    passthrough  = cleanMuonsBySegments.passthrough,
+    fractionOfSharedSegments = cleanMuonsBySegments.fractionOfSharedSegments,
+)
