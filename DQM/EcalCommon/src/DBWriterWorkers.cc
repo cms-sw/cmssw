@@ -1521,7 +1521,7 @@ namespace ecaldqm {
       eItr = oItr;
 
       int eEntries(eItr->getBinEntries());
-      float energy(eItr->getBinContent());
+      float energy(eEntries > 10 ? eItr->getBinContent() : -1.);
 
       MonOccupancyDat& data(occupancy[crystalID(oItr->getId())]);
       data.setEventsOverLowThreshold(entries);

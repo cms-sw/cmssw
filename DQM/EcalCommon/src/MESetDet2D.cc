@@ -422,8 +422,10 @@ namespace ecaldqm
     else{
       bin = binService_->findBin2D(obj, btype_, _id);
     }
-    
-    return mes_[iME]->getBinEntries(bin);
+
+    double entries(mes_[iME]->getBinEntries(bin));
+    if(entries < 0.) return 0.;
+    else return entries;
   }
   
   double
@@ -439,7 +441,9 @@ namespace ecaldqm
 
     int bin(binService_->findBin2D(obj, btype_, _id));
     
-    return mes_[iME]->getBinEntries(bin);
+    double entries(mes_[iME]->getBinEntries(bin));
+    if(entries < 0.) return 0.;
+    else return entries;
   }
 
   double
@@ -454,7 +458,9 @@ namespace ecaldqm
 
     int bin(binService_->findBin2D(obj, btype_, _dcctccid));
     
-    return mes_[iME]->getBinEntries(bin);
+    double entries(mes_[iME]->getBinEntries(bin));
+    if(entries < 0.) return 0.;
+    else return entries;
   }
 
   int
