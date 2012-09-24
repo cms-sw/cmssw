@@ -98,7 +98,7 @@ for i,x in enumerate(points):
     if options.diagnosticRun:
       what = "--expectSignal %g --preFitValue %g "%(x,x)
       script.write("./combine {wsp} -M MaxLikelihoodFit {opts} -m {mass} --toysFrequentist -v {v} -n {out} -s {seed} -t $n {what} \n".format(
-                wsp=workspace, opts=options.options, fork=options.fork, seed=seed, out=options.out, what=what, v=options.v,
+                wsp=workspace, opts=options.options, fork=options.fork, seed=seed, out=options.out+str(i), what=what, v=options.v,
                 toys=toys,mass=options.mass
               ))
     else:
