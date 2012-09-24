@@ -1,7 +1,7 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2009/02/20 17:46:26 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/12/28 23:16:05 $
+ *  $Revision: 1.2 $
  *  \author A. Campbell - DESY
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -105,7 +105,11 @@ void CastorCORData::unpack(unsigned char* daq_lengths, unsigned short* daq_sampl
   if (daq_lengths!=0) memset(daq_lengths,0,CHANNELS_PER_SPIGOT);
   if (tp_lengths!=0) memset(tp_lengths,0,1);
 
-  int tp_words_total, daq_words_total, headerLen, trailerLen, triggerLen;
+  int tp_words_total = 0;
+  int daq_words_total = 0;
+  int headerLen = 0;
+  int trailerLen = 0;
+  int triggerLen = 0;
   determineSectionLengths(tp_words_total,daq_words_total,headerLen,trailerLen,triggerLen);
 
   int wordPtr;
