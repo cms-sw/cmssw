@@ -47,7 +47,7 @@ looseMTS = cms.PSet(
     max_lostHitFraction = cms.double(1.0),
 
     # parameters for cutting on eta
-    min_eta = cms.double(0.),
+    min_eta = cms.double(-9999.),
     max_eta = cms.double(9999.)
 
     ) # end of pset
