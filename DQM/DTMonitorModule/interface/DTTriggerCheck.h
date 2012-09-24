@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -49,10 +50,9 @@ private:
 
   bool debug;
 
-  edm::ParameterSet parameters;
-
   MonitorElement* histo;
 
+  bool isLocalRun;
+  edm::InputTag ltcDigiCollectionTag;
 };
 #endif
-

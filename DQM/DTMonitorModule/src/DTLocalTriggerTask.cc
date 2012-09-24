@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2010/03/15 09:42:52 $
- * $Revision: 1.38 $
+ * $Date: 2011/11/12 09:18:42 $
+ * $Revision: 1.39 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -37,7 +37,13 @@
 using namespace edm;
 using namespace std;
 
-DTLocalTriggerTask::DTLocalTriggerTask(const edm::ParameterSet& ps) : trigGeomUtils(0) {
+DTLocalTriggerTask::DTLocalTriggerTask(const edm::ParameterSet& ps) :
+  trigGeomUtils(0),
+  isLocalRun(ps.getUntrackedParameter<bool>("localrun", true))
+ {
+  if (!isLocalRun) {
+    ltcDigiCollectionTag = ps.getParameter<edm::InputTag>("ltcDigiCollectionTag");
+  }
   
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: Constructor"<<endl;
 
@@ -1016,10 +1022,10 @@ void DTLocalTriggerTask::setQLabels(MonitorElement* me, short int iaxis){
 void DTLocalTriggerTask::triggerSource(const edm::Event& e) {
   
   
-  if ( !parameters.getUntrackedParameter<bool>("localrun", true) ){
+  if (!isLocalRun){
     
     Handle<LTCDigiCollection> ltcdigis;
-    e.getByType(ltcdigis);
+    e.getByLabel(ltcDigiCollectionTag, ltcdigis);
     
     for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++){
       
