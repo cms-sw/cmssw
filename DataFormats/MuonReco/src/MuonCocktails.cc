@@ -14,8 +14,7 @@ reco::Muon::MuonTrackTypePair  muon::tevOptimized(const reco::TrackRef& combined
 						  const double tune1,
 						  const double tune2,
 						  const double dptcut) {
-  
-  
+
   // Array for convenience below.
   const reco::Muon::MuonTrackTypePair refit[4] = { 
     make_pair(trackerTrack, reco::Muon::InnerTrack), 
@@ -34,7 +33,7 @@ reco::Muon::MuonTrackTypePair  muon::tevOptimized(const reco::TrackRef& combined
   for (unsigned int i = 0; i < 4; ++i) 
     if (refit[i].first.isNonnull()){ 
       valid[i] = true;
-      if (refit[i].first->numberOfValidHits() && refit[i].first->ptError()/refit[i].first->pt()<dptcut) 
+      if (refit[i].first->numberOfValidHits() && (refit[i].first->ptError()/refit[i].first->pt()<dptcut || dptcut<0)) 
 	prob[i] = muon::trackProbability(refit[i].first); 
     }
 
@@ -45,9 +44,17 @@ reco::Muon::MuonTrackTypePair  muon::tevOptimized(const reco::TrackRef& combined
   // If there's a problem with picky, make the default one of the
   // other tracks. Try TPFMS first, then global, then tracker-only.
   if (prob[3] == 0.) { 
-    if      (prob[0] > 0.) chosen = 0;
-    else if (prob[2] > 0.) chosen = 2;
-    else if (prob[1] > 0.) chosen = 1;
+
+    // split so that passing dptcut<0 recreates EXACTLY the old tuneP behavior
+    if (dptcut>0) {
+      if      (prob[0] > 0.) chosen = 0;
+      else if (prob[2] > 0.) chosen = 2;
+      else if (prob[1] > 0.) chosen = 1;
+    } else {
+      if      (prob[2] > 0.) chosen = 2;
+      else if (prob[1] > 0.) chosen = 1;
+      else if (prob[0] > 0.) chosen = 0;
+    }
   } 
   
   // Now the algorithm: switch from picky to tracker-only if the
