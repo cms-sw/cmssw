@@ -30,6 +30,7 @@ namespace ecaldqm {
     static void setMEOrdering(std::map<std::string, unsigned>&);
 
   private:
+    int minEntries_;
     float errorFractionThreshold_;
   };
 

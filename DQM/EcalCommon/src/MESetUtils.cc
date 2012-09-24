@@ -17,6 +17,9 @@
 
 namespace ecaldqm
 {
+
+  // this function does not need to take a binservice instance as argument once get.. functions static-ized
+
   MESet*
   createMESet(edm::ParameterSet const& _MEParam, BinService const* _binService)
   {

@@ -10,18 +10,25 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQM/EcalCommon/interface/MESetUtils.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
 
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
 
-#include "TFile.h"
 #include "TObjArray.h"
 #include "TPRegexp.h"
-#include "TObjString.h"
-#include "TKey.h"
-#include "TDirectory.h"
-#include "TClass.h"
+#include "TString.h"
+
+void
+setBit(int& _bitArray, unsigned _iBit)
+{
+  _bitArray |= (0x1 << _iBit);
+}
+
+bool
+getBit(int& _bitArray, unsigned _iBit)
+{
+  return (_bitArray & (0x1 << _iBit)) != 0;
+}
 
 EcalCondDBWriter::EcalCondDBWriter(edm::ParameterSet const& _ps) :
   db_(0),
@@ -29,28 +36,10 @@ EcalCondDBWriter::EcalCondDBWriter(edm::ParameterSet const& _ps) :
   location_(_ps.getUntrackedParameter<std::string>("location")),
   runType_(_ps.getUntrackedParameter<std::string>("runType")),
   inputRootFiles_(_ps.getUntrackedParameter<std::vector<std::string> >("inputRootFiles")),
+  workerParams_(_ps.getUntrackedParameterSet("workerParams")),
   verbosity_(_ps.getUntrackedParameter<int>("verbosity")),
   executed_(false)
 {
-  clientNames_[Integrity] = "Integrity";
-  clientNames_[Cosmic] = "Cosmic";
-  clientNames_[Laser] = "Laser";
-  clientNames_[Pedestal] = "Pedestal";
-  clientNames_[Presample] = "Presample";
-  clientNames_[TestPulse] = "TestPulse";
-  clientNames_[BeamCalo] = "BeamCalo";
-  clientNames_[BeamHodo] = "BeamHodo";
-  clientNames_[TriggerPrimitives] = "TriggerPrimitives";
-  clientNames_[Cluster] = "Cluster";
-  clientNames_[Timing] = "Timing";
-  clientNames_[Led] = "Led";
-  clientNames_[RawData] = "RawData";
-  clientNames_[Occupancy] = "Occupancy";
-
-  edm::ParameterSet const& MESetParams(_ps.getUntrackedParameterSet("MESetParams"));
-  for(unsigned iC(0); iC < nClients; ++iC)
-    meSetParams_[iC] = MESetParams.getUntrackedParameterSet(clientNames_[iC]);
-
   if(inputRootFiles_.size() == 0)
     throw cms::Exception("Configuration") << "No input ROOT file given";
 
@@ -61,6 +50,8 @@ EcalCondDBWriter::EcalCondDBWriter(edm::ParameterSet const& _ps) :
   std::string password(_ps.getUntrackedParameter<std::string>("password"));
 
   std::auto_ptr<EcalCondDBInterface> db(0);
+
+  if(verbosity_ > 0) std::cout << "Establishing DB connection" << std::endl;
 
   if(hostName == ""){
     try{
@@ -80,6 +71,26 @@ EcalCondDBWriter::EcalCondDBWriter(edm::ParameterSet const& _ps) :
   }
 
   db_ = db.release();
+
+  if(verbosity_ > 0) std::cout << " Done." << std::endl;
+
+  workers_[Integrity] = new ecaldqm::IntegrityWriter();
+  workers_[Cosmic] = 0;
+  workers_[Laser] = new ecaldqm::LaserWriter();
+  workers_[Pedestal] = new ecaldqm::PedestalWriter();
+  workers_[Presample] = new ecaldqm::PresampleWriter();
+  workers_[TestPulse] = new ecaldqm::TestPulseWriter();
+  workers_[BeamCalo] = 0;
+  workers_[BeamHodo] = 0;
+  workers_[TriggerPrimitives] = 0;
+  workers_[Cluster] = 0;
+  workers_[Timing] = new ecaldqm::TimingWriter();
+  workers_[Led] = new ecaldqm::LedWriter();
+  workers_[RawData] = new ecaldqm::RawDataWriter();
+  workers_[Occupancy] = new ecaldqm::OccupancyWriter();
+
+  for(unsigned iC(0); iC < nTasks; ++iC)
+    if(workers_[iC]) workers_[iC]->setVerbosity(verbosity_);
 }
 
 EcalCondDBWriter::~EcalCondDBWriter()
@@ -90,6 +101,9 @@ EcalCondDBWriter::~EcalCondDBWriter()
   catch(std::runtime_error& e){
     throw cms::Exception("DBError") << e.what();
   }
+
+  for(unsigned iC(0); iC < nTasks; ++iC)
+    delete workers_[iC];
 }
 
 void
@@ -114,7 +128,7 @@ EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
   if(runTypes.find(runType_) == runTypes.end())
     throw cms::Exception("Configuration") << "Run type " << runType_ << " not defined";
 
-  std::set<std::string> enabledRunTypes[nClients];
+  std::set<std::string> enabledRunTypes[nTasks];
 
   enabledRunTypes[Integrity] = runTypes;
   enabledRunTypes[Integrity].erase("HALO");
@@ -180,17 +194,18 @@ EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
 
   /////////////////////// INPUT INITIALIZATION /////////////////////////
 
+  if(verbosity_ > 0) std::cout << "Initializing DQMStore from input ROOT files" << std::endl;
+
   DQMStore* dqmStore(&(*edm::Service<DQMStore>()));
   if(!dqmStore)
     throw cms::Exception("Service") << "DQMStore not found" << std::endl;
-  BinService const* binService(&(*(edm::Service<EcalDQMBinningService>())));
-  if(!binService)
-    throw cms::Exception("Service") << "EcalDQMBinningService not found" << std::endl;
 
   int runNumber(0);
 
   for(unsigned iF(0); iF < inputRootFiles_.size(); ++iF){
     std::string& fileName(inputRootFiles_[iF]);
+
+    if(verbosity_ > 1) std::cout << " " << fileName << std::endl;
 
     TPRegexp pat("DQM_V[0-9]+_[0-9a-zA-Z]+_R([0-9]+).root");
     std::auto_ptr<TObjArray> matches(pat.MatchS(fileName.c_str()));
@@ -205,13 +220,14 @@ EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
     dqmStore->open(fileName, false, "", "", DQMStore::StripRunDirs);
   }
 
+  if(verbosity_ > 1) std::cout << " Searching event info" << std::endl;
+
   uint64_t timeStampInFile(0);
   unsigned processedEvents(0);
 
   dqmStore->cd();
   std::vector<std::string> dirs(dqmStore->getSubdirs());
   for(unsigned iD(0); iD < dirs.size(); ++iD){
-    std::cout << dirs[iD] << std::endl;
     if(!dqmStore->dirExists(dirs[iD] + "/EventInfo")) continue;
 
     MonitorElement* timeStampME(dqmStore->get(dirs[iD] + "/EventInfo/runStartTimeStamp"));
@@ -226,32 +242,39 @@ EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
     if(eventsME)
       processedEvents = eventsME->getIntValue();
 
-    if(timeStampInFile != 0 && processedEvents != 0)
+    if(timeStampInFile != 0 && processedEvents != 0){
+      if(verbosity_ > 1) std::cout << " Event info found; timestamp=" << timeStampInFile << " processedEvents=" << processedEvents << std::endl;
       break;
-  }
-
-  int taskList(0);
-  PtrMap<std::string, ecaldqm::MESet const> meSets[nClients];
-  for(unsigned iC(0); iC < nClients; ++iC){
-    if(enabledRunTypes[iC].find(runType_) != enabledRunTypes[iC].end()){
-      taskList |= (0x1 << iC);
-
-      edm::ParameterSet& meSetParams(meSetParams_[iC]);
-      std::vector<std::string> meNames(meSetParams.getParameterNames());
-      for(unsigned iP(0); iP < meNames.size(); ++iP){
-        std::string& meName(meNames[iP]);
-        edm::ParameterSet const& meSetParam(meSetParams.getUntrackedParameterSet(meName));
-        ecaldqm::MESet const* meSet(ecaldqm::createMESet(meSetParam, binService));
-        if(!meSet->retrieve())
-          throw cms::Exception("IOError") << "MESet " << meSet->getPath() << " not found";
-
-        meSets[iC][meName] = meSet;
-      }
     }
   }
 
+  if(verbosity_ > 0) std::cout << " Done." << std::endl;
+
+  //////////////////////// SOURCE INITIALIZATION //////////////////////////
+
+  BinService const* binService(&(*(edm::Service<EcalDQMBinningService>())));
+  if(!binService)
+    throw cms::Exception("Service") << "EcalDQMBinningService not found" << std::endl;
+
+  if(verbosity_ > 0) std::cout << "Setting up source MonitorElements for given run type " << runType_ << std::endl;
+
+  int taskList(0);
+  for(unsigned iC(0); iC < nTasks; ++iC){
+    if(enabledRunTypes[iC].find(runType_) == enabledRunTypes[iC].end()) continue;
+
+    if(!workers_[iC]) continue;
+
+    workers_[iC]->setup(workerParams_, binService);
+    workers_[iC]->retrieveSource();
+
+    setBit(taskList, iC);
+  }
+
+  if(verbosity_ > 0) std::cout << " Done." << std::endl;
 
   //////////////////////// DB INITIALIZATION //////////////////////////
+
+  if(verbosity_ > 0) std::cout << "Initializing DB entry" << std::endl;
 
   LocationDef locationDef;
   locationDef.setLocation(location_);
@@ -325,28 +348,24 @@ EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
     }
   }
 
+  if(verbosity_ > 0) std::cout << " Done." << std::endl;
 
   //////////////////////// DB WRITING //////////////////////////
 
+  if(verbosity_ > 0) std::cout << "Writing to DB" << std::endl;
+
   int outcome(0);
-  if(((taskList >> Integrity) & 0x1) && writeIntegrity(meSets[Integrity], monIOV))
-    outcome |= (0x1 << Integrity);
-  if(((taskList >> Laser) & 0x1) && writeLaser(meSets[Laser], monIOV))
-    outcome |= (0x1 << Laser);
-  if(((taskList >> Pedestal) & 0x1) && writePedestal(meSets[Pedestal], monIOV))
-    outcome |= (0x1 << Pedestal);
-  if(((taskList >> Presample) & 0x1) && writePresample(meSets[Presample], monIOV))
-    outcome |= (0x1 << Presample);
-  if(((taskList >> TestPulse) & 0x1) && writeTestPulse(meSets[TestPulse], monIOV))
-    outcome |= (0x1 << TestPulse);
-  if(((taskList >> Timing) & 0x1) && writeTiming(meSets[Timing], monIOV))
-    outcome |= (0x1 << Timing);
-  if(((taskList >> Led) & 0x1) && writeLed(meSets[Led], monIOV))
-    outcome |= (0x1 << Led);
-  if(((taskList >> RawData) & 0x1) && writeRawData(meSets[RawData], monIOV))
-    outcome |= (0x1 << RawData);
-  if(((taskList >> Occupancy) & 0x1) && writeOccupancy(meSets[Occupancy], monIOV))
-    outcome |= (0x1 << Occupancy);
+  for(unsigned iC(0); iC < nTasks; ++iC){
+    if(!getBit(taskList, iC)) continue;
+
+    if(verbosity_ > 1) std::cout << " " << workers_[iC]->getName() << std::endl;
+
+    if(workers_[iC]->run(db_, monIOV)) setBit(outcome, iC);
+  }
+
+  if(verbosity_ > 0) std::cout << " Done." << std::endl;
+
+  if(verbosity_ > 0) std::cout << "Registering the outcome of DB writing" << std::endl;
 
   std::map<EcalLogicID, MonRunDat> dataset;
   MonRunDat& ebDat(dataset[LogicID::getEcalLogicID("EB")]);
@@ -373,6 +392,8 @@ EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
   catch(std::runtime_error& e){
     throw cms::Exception("DBError") << e.what();
   }
+
+  if(verbosity_ > 0) std::cout << " Done." << std::endl;
 
   executed_ = true;
 }

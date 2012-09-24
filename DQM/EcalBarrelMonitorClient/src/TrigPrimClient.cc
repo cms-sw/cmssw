@@ -10,6 +10,7 @@ namespace ecaldqm {
 
   TrigPrimClient::TrigPrimClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
     DQWorkerClient(_workerParams, _commonParams, "TrigPrimClient"),
+    minEntries_(_workerParams.getUntrackedParameter<int>("minEntries")),
     errorFractionThreshold_(_workerParams.getUntrackedParameter<double>("errorFractionThreshold"))
   {
     qualitySummaries_.insert(kEmulQualitySummary);
@@ -44,7 +45,7 @@ namespace ecaldqm {
 
       MEs_[kTimingSummary]->setBinContent(ttid, tMax);
 
-      if(towerEntries < 1.){
+      if(towerEntries < minEntries_){
 	MEs_[kEmulQualitySummary]->setBinContent(ttid, doMask ? kMUnknown : kUnknown);
 	continue;
       }

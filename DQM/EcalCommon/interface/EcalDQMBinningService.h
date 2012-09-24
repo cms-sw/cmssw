@@ -10,8 +10,7 @@
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
-// Keeps a map between channel ids and DQM histogram bins
-// The map is booked ad-hoc
+// functions that do not use mappings should be made static
 
 namespace edm {
   class ParameterSet;

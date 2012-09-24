@@ -69,6 +69,8 @@ namespace ecaldqm
   bool
   MESetChannel::retrieve() const
   {
+    checkDirectory();
+
     active_ = true;
     return true;
   }
