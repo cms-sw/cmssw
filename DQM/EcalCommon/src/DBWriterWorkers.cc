@@ -1415,10 +1415,10 @@ namespace ecaldqm {
       for(unsigned iMD(0); iMD < memDCC.size(); ++iMD){
         unsigned iDCC(memDCC[iMD]);
 
-        int subdet(iDCC <= kEEmHigh || iDCC >= kEEpLow ? EcalEndcap : EcalBarrel);
+        if(iDCC >= kEBmLow && iDCC <= kEBpHigh) continue;
 
         for(unsigned iPN(1); iPN <= 10; ++iPN){
-          EcalPnDiodeDetId pnid(subdet, iDCC + 1, iPN);
+          EcalPnDiodeDetId pnid(EcalEndcap, iDCC + 1, iPN);
 
           float entries(pnME->getBinEntries(pnid));
           if(entries < 1.) continue;
