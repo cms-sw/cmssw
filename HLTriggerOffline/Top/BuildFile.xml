@@ -11,7 +11,6 @@
 <use   name="DataFormats/MuonReco"/>
 <use   name="DataFormats/EgammaCandidates"/>
 <use   name="DataFormats/EgammaReco"/>
-<use   name="FWCore/Framework"/>
 <use   name="DataFormats/RecoCandidate"/>
 <use   name="DataFormats/TauReco"/>
 <use   name="DataFormats/JetReco"/>
