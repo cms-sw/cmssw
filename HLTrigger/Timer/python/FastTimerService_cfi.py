@@ -17,11 +17,11 @@ FastTimerService = cms.Service( 'FastTimerService',
     enableDQMbyPathExclusive = cms.untracked.bool( False ),
     enableDQMbyModule        = cms.untracked.bool( False ),
     enableDQMbyLumi          = cms.untracked.bool( False ),
-    dqmTimeRange             = cms.untracked.double( 1000.  ),
-    dqmTimeResolution        = cms.untracked.double(    5.  ),
-    dqmPathTimeRange         = cms.untracked.double(  100.  ),
+    dqmTimeRange             = cms.untracked.double( 1000   ),
+    dqmTimeResolution        = cms.untracked.double(    5   ),
+    dqmPathTimeRange         = cms.untracked.double(  100   ),
     dqmPathTimeResolution    = cms.untracked.double(    0.5 ),
-    dqmModuleTimeRange       = cms.untracked.double(   40.  ),
+    dqmModuleTimeRange       = cms.untracked.double(   40   ),
     dqmModuleTimeResolution  = cms.untracked.double(    0.2 ),
-    dqmPath                  = cms.untracked.string( "HLT/TimerService" )
+    dqmPath                  = cms.untracked.string( 'HLT/TimerService' )
 )
