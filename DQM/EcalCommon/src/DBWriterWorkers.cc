@@ -381,7 +381,10 @@ namespace ecaldqm {
       }
     }
     catch(std::runtime_error& e){
-      throw cms::Exception("DBError") << e.what();
+      if(std::string(e.what()).find("unique constraint") != std::string::npos)
+        std::cerr << e.what() << std::endl;
+      else
+        throw cms::Exception("DBError") << e.what();
     }
 
     return result;
@@ -681,7 +684,10 @@ namespace ecaldqm {
         _db->insertDataArraySet(&l4PN, &_iov);
     }
     catch(std::runtime_error& e){
-      throw cms::Exception("DBError") << e.what();
+      if(std::string(e.what()).find("unique constraint") != std::string::npos)
+        std::cerr << e.what() << std::endl;
+      else
+        throw cms::Exception("DBError") << e.what();
     }
 
     return result;
@@ -884,7 +890,10 @@ namespace ecaldqm {
         _db->insertDataArraySet(&pnPedestals, &_iov);
     }
     catch(std::runtime_error& e){
-      throw cms::Exception("DBError") << e.what();
+      if(std::string(e.what()).find("unique constraint") != std::string::npos)
+        std::cerr << e.what() << std::endl;
+      else
+        throw cms::Exception("DBError") << e.what();
     }
 
     return result;
@@ -935,7 +944,10 @@ namespace ecaldqm {
         _db->insertDataArraySet(&pedestals, &_iov);
     }
     catch(std::runtime_error& e){
-      throw cms::Exception("DBError") << e.what();
+      if(std::string(e.what()).find("unique constraint") != std::string::npos)
+        std::cerr << e.what() << std::endl;
+      else
+        throw cms::Exception("DBError") << e.what();
     }
 
     return result;
@@ -1192,7 +1204,10 @@ namespace ecaldqm {
         _db->insertDataArraySet(&pnAmplitude, &_iov);
     }
     catch(std::runtime_error& e){
-      throw cms::Exception("DBError") << e.what();
+      if(std::string(e.what()).find("unique constraint") != std::string::npos)
+        std::cerr << e.what() << std::endl;
+      else
+        throw cms::Exception("DBError") << e.what();
     }
 
     return result;
@@ -1243,7 +1258,10 @@ namespace ecaldqm {
         _db->insertDataArraySet(&timing, &_iov);
     }
     catch(std::runtime_error& e){
-      throw cms::Exception("DBError") << e.what();
+      if(std::string(e.what()).find("unique constraint") != std::string::npos)
+        std::cerr << e.what() << std::endl;
+      else
+        throw cms::Exception("DBError") << e.what();
     }
 
     return result;
@@ -1467,7 +1485,10 @@ namespace ecaldqm {
         _db->insertDataArraySet(&l2PN, &_iov);
     }
     catch(std::runtime_error& e){
-      throw cms::Exception("DBError") << e.what();
+      if(std::string(e.what()).find("unique constraint") != std::string::npos)
+        std::cerr << e.what() << std::endl;
+      else
+        throw cms::Exception("DBError") << e.what();
     }
 
     return result;
@@ -1513,7 +1534,10 @@ namespace ecaldqm {
         _db->insertDataArraySet(&occupancy, &_iov);
     }
     catch(std::runtime_error& e){
-      throw cms::Exception("DBError") << e.what();
+      if(std::string(e.what()).find("unique constraint") != std::string::npos)
+        std::cerr << e.what() << std::endl;
+      else
+        throw cms::Exception("DBError") << e.what();
     }
 
     return true;
