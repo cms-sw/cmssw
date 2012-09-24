@@ -36,9 +36,10 @@ class EcalCondDBWriter : public edm::EDAnalyzer {
   };
 
   EcalCondDBInterface* db_;
-  std::string tagName_;
   std::string location_;
   std::string runType_;
+  std::string runGeneralTag_;
+  std::string monRunGeneralTag_;
   std::vector<std::string> inputRootFiles_;
   ecaldqm::DBWriterWorker* workers_[nTasks];
 

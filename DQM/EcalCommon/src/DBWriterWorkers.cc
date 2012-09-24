@@ -169,7 +169,7 @@ namespace ecaldqm {
   {
     for(PtrMap<std::string, MESet const>::iterator sItr(source_.begin()); sItr != source_.end(); ++sItr){
       if(!sItr->second->retrieve()){
-        std::cerr << name_ << ": MESet " << sItr->first << " not found";
+        std::cerr << name_ << ": MESet " << sItr->first << " not found" << std::endl;
         active_ = false;
         return;
       }

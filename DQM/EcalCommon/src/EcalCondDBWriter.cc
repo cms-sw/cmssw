@@ -32,9 +32,10 @@ getBit(int& _bitArray, unsigned _iBit)
 
 EcalCondDBWriter::EcalCondDBWriter(edm::ParameterSet const& _ps) :
   db_(0),
-  tagName_(_ps.getUntrackedParameter<std::string>("tagName")),
   location_(_ps.getUntrackedParameter<std::string>("location")),
   runType_(_ps.getUntrackedParameter<std::string>("runType")),
+  runGeneralTag_(_ps.getUntrackedParameter<std::string>("runGeneralTag")),
+  monRunGeneralTag_(_ps.getUntrackedParameter<std::string>("monRunGeneralTag")),
   inputRootFiles_(_ps.getUntrackedParameter<std::vector<std::string> >("inputRootFiles")),
   verbosity_(_ps.getUntrackedParameter<int>("verbosity")),
   executed_(false)
@@ -188,28 +189,25 @@ EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
 
   if(verbosity_ > 0) std::cout << "Initializing DB entry" << std::endl;
 
-  LocationDef locationDef;
-  locationDef.setLocation(location_);
-  RunTypeDef runTypeDef;
-  runTypeDef.setRunType(runType_);
-  RunTag runTag;
-  runTag.setLocationDef(locationDef);
-  runTag.setRunTypeDef(runTypeDef);
-  runTag.setGeneralTag(runType_);
-
   RunIOV runIOV;
-  bool runIOVDefined(false);
+  RunTag runTag;
   try{
     runIOV = db_->fetchRunIOV(location_, runNumber);
-    runIOVDefined = true;
+    runTag = runIOV.getRunTag();
   }
   catch(std::runtime_error& e){
     std::cerr << e.what() << std::endl;
-  }
 
-  if(!runIOVDefined){
     if(timeStampInFile == 0)
       throw cms::Exception("Initialization") << "Time stamp for the run could not be found";
+
+    LocationDef locationDef;
+    locationDef.setLocation(location_);
+    RunTypeDef runTypeDef;
+    runTypeDef.setRunType(runType_);
+    runTag.setLocationDef(locationDef);
+    runTag.setRunTypeDef(runTypeDef);
+    runTag.setGeneralTag(runGeneralTag_);
 
     runIOV.setRunStart(Tm(timeStampInFile));
     runIOV.setRunNumber(runNumber);
@@ -217,34 +215,31 @@ EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
 
     try{
       db_->insertRunIOV(&runIOV);
-      runIOV = db_->fetchRunIOV(location_, runNumber);
+      runIOV = db_->fetchRunIOV(&runTag, runNumber);
     }
     catch(std::runtime_error& e){
       throw cms::Exception("DBError") << e.what();
     }
   }
 
-  if(runType_ != runIOV.getRunTag().getRunTypeDef().getRunType())
-    throw cms::Exception("Configuration") << "Given run type " << runType_ << " does not match the run type in DB " << runIOV.getRunTag().getRunTypeDef().getRunType();
+  // No filtering - DAQ definitions change time to time..
+//   if(runType_ != runIOV.getRunTag().getRunTypeDef().getRunType())
+//     throw cms::Exception("Configuration") << "Given run type " << runType_ << " does not match the run type in DB " << runIOV.getRunTag().getRunTypeDef().getRunType();
 
   MonVersionDef versionDef;
-  versionDef.setMonitoringVersion("test01");
+  versionDef.setMonitoringVersion("test01"); // the only mon_ver in mon_version_def table as of September 2012
   MonRunTag monTag;
   monTag.setMonVersionDef(versionDef);
-  monTag.setGeneralTag(tagName_);
+  monTag.setGeneralTag(monRunGeneralTag_);
 
   MonRunIOV monIOV;
 
-  bool subRunIOVDefined(false);
   try{
     monIOV = db_->fetchMonRunIOV(&runTag, &monTag, runNumber, 1);
-    subRunIOVDefined = true;
   }
   catch(std::runtime_error& e){
     std::cerr << e.what() << std::endl;
-  }
 
-  if(!subRunIOVDefined){
     monIOV.setRunIOV(runIOV);
     monIOV.setSubRunNumber(1);
     monIOV.setSubRunStart(runIOV.getRunStart());

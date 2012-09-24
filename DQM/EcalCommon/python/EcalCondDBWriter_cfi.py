@@ -52,15 +52,19 @@ physics = "PHYSICS"
 halo = "HALO"
 calib = "CALIB"
 
+# run tags are only used if the DAQ failed to write the RunIOV
+# Otherwise existing IOV will be used
+
 ecalCondDBWriter = cms.EDAnalyzer("EcalCondDBWriter",
     DBName = cms.untracked.string(""),
     hostName = cms.untracked.string(""),
     hostPort = cms.untracked.int32(0),
     userName = cms.untracked.string(""),
     password = cms.untracked.string(""),
-    tagName = cms.untracked.string(""),
-    location = cms.untracked.string(""),
-    runType = cms.untracked.string(""),
+    location = cms.untracked.string(""), # tag for the run - where was the run taken?
+    runType = cms.untracked.string(""), # tag for the run - what is the purpose of the run? 
+    runGeneralTag = cms.untracked.string(""), # tag for the run - global or local?
+    monRunGeneralTag = cms.untracked.string(""), # identifies the process writing into DB
     inputRootFiles = cms.untracked.vstring(),
     workerParams = cms.untracked.PSet(
         Integrity = cms.untracked.PSet(
