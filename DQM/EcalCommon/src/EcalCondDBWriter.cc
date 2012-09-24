@@ -126,10 +126,10 @@ EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
 
     if(verbosity_ > 1) std::cout << " " << fileName << std::endl;
 
-    TPRegexp pat("DQM_V[0-9]+_[0-9a-zA-Z]+_R([0-9]+).root");
+    TPRegexp pat("DQM_V[0-9]+(?:|_[0-9a-zA-Z]+)_R([0-9]+)");
     std::auto_ptr<TObjArray> matches(pat.MatchS(fileName.c_str()));
     if(matches->GetEntries() == 0)
-      throw cms::Exception("Configuration") << "Input file " << fileName << " is not an online DQM output";
+      throw cms::Exception("Configuration") << "Input file " << fileName << " is not an DQM output";
 
     if(iF == 0)
       runNumber = TString(matches->At(1)->GetName()).Atoi();
