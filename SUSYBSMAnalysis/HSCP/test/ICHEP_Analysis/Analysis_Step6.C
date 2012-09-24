@@ -1371,8 +1371,10 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
 
    if(getXsection){
       //prepare and run the script that will run the external "combine" tool from the Higgs group
+      //If very low background range too small, set limit at 0.001.  Only affects scanning range not final limit
+      if(NPred<0.001) NPred=0.001;
       char rangeStr[255];sprintf(rangeStr," --rMin %f --rMax %f ", 0.0f, 2*(3*sqrt(NPred)/NSign) );
-      printf("%f/%f --> %s\n",result.NSign,result.NPred,rangeStr);
+      printf("%f/%f --> %s\n",NSign,NPred,rangeStr);
       string CodeToExecute = "cd /tmp/;";
       CodeToExecute += "combine -M Asymptotic        -n " + signal + " -m " + massStr + rangeStr + " shape_" + signal+".dat &> shape_" + signal + ".log;";   
       CodeToExecute += "cd $OLDPWD;cp /tmp/shape_" + signal + ".* " + InputPattern+"/"+SHAPESTRING+"EXCLUSION/." + ";";
@@ -1397,7 +1399,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
         }else if(TquantExp==0.500f){ result.XSec_Exp      = Tlimit/1000.0;
         }else if(TquantExp==0.840f){ result.XSec_ExpUp    = Tlimit/1000.0;
         }else if(TquantExp==0.975f){ result.XSec_Exp2Up   = Tlimit/1000.0;
-        }else if(TquantExp==-1    ){ result.XSec_Obs      = Tlimit/1000.0;
+        //}else if(TquantExp==-1    ){ result.XSec_Obs      = Tlimit/1000.0;
         }else{printf("Quantil %f unused by the analysis --> check the code\n", TquantExp);
         }
       }
