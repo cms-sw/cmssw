@@ -29,10 +29,6 @@ namespace ecaldqm{
     if(mItr == meOrderingMaps.end())
       throw cms::Exception("InvalidConfiguration") << "Cannot find ME ordering for " << name_;
 
-    BinService const* binService(&(*(edm::Service<EcalDQMBinningService>())));
-    if(!binService)
-      throw cms::Exception("Service") << "EcalDQMBinningService not found" << std::endl;
-
     edm::ParameterSet const& MEParams(_workerParams.getUntrackedParameterSet("MEs"));
     vector<string> const& MENames(MEParams.getParameterNames());
 
@@ -47,7 +43,7 @@ namespace ecaldqm{
       if(nItr == nameToIndex.end())
         throw cms::Exception("InvalidConfiguration") << "Cannot find ME index for " << MEName;
 
-      MESet* meSet(createMESet(MEParams.getUntrackedParameterSet(MEName), binService));
+      MESet* meSet(createMESet(MEParams.getUntrackedParameterSet(MEName)));
       if(meSet) MEs_[nItr->second] = meSet;
     }
   }

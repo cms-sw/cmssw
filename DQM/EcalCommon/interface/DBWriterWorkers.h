@@ -60,10 +60,9 @@ namespace ecaldqm {
 
   class DBWriterWorker {
   public:
-    DBWriterWorker(std::string const&);
+    DBWriterWorker(std::string const&, edm::ParameterSet const&);
     virtual ~DBWriterWorker() {}
 
-    virtual void setup(edm::ParameterSet const&, BinService const*);
     virtual void retrieveSource();
     virtual bool run(EcalCondDBInterface*, MonRunIOV&) = 0;
 
@@ -82,7 +81,7 @@ namespace ecaldqm {
 
   class IntegrityWriter : public DBWriterWorker {
   public:
-    IntegrityWriter();
+    IntegrityWriter(edm::ParameterSet const&);
     ~IntegrityWriter() {}
 
     bool run(EcalCondDBInterface*, MonRunIOV&);
@@ -90,10 +89,9 @@ namespace ecaldqm {
 
   class LaserWriter : public DBWriterWorker {
   public:
-    LaserWriter();
+    LaserWriter(edm::ParameterSet const&);
     ~LaserWriter() {}
 
-    void setup(edm::ParameterSet const&, BinService const*);
     bool run(EcalCondDBInterface*, MonRunIOV&);
 
   private:
@@ -102,10 +100,9 @@ namespace ecaldqm {
 
   class PedestalWriter : public DBWriterWorker {
   public:
-    PedestalWriter();
+    PedestalWriter(edm::ParameterSet const&);
     ~PedestalWriter() {}
 
-    void setup(edm::ParameterSet const&, BinService const*);
     bool run(EcalCondDBInterface*, MonRunIOV&);
 
   private:
@@ -115,7 +112,7 @@ namespace ecaldqm {
 
   class PresampleWriter : public DBWriterWorker {
   public:
-    PresampleWriter();
+    PresampleWriter(edm::ParameterSet const&);
     ~PresampleWriter() {}
 
     bool run(EcalCondDBInterface*, MonRunIOV&);
@@ -123,10 +120,9 @@ namespace ecaldqm {
 
   class TestPulseWriter : public DBWriterWorker {
   public:
-    TestPulseWriter();
+    TestPulseWriter(edm::ParameterSet const&);
     ~TestPulseWriter() {}
 
-    void setup(edm::ParameterSet const&, BinService const*);
     bool run(EcalCondDBInterface*, MonRunIOV&);
 
   private:
@@ -136,7 +132,7 @@ namespace ecaldqm {
 
   class TimingWriter : public DBWriterWorker {
   public:
-    TimingWriter();
+    TimingWriter(edm::ParameterSet const&);
     ~TimingWriter() {}
 
     bool run(EcalCondDBInterface*, MonRunIOV&);
@@ -144,27 +140,18 @@ namespace ecaldqm {
 
   class LedWriter : public DBWriterWorker {
   public:
-    LedWriter();
+    LedWriter(edm::ParameterSet const&);
     ~LedWriter() {}
 
-    void setup(edm::ParameterSet const&, BinService const*);
     bool run(EcalCondDBInterface*, MonRunIOV&);
 
   private:
     std::map<int, unsigned> wlToME_;
   };
 
-  class RawDataWriter : public DBWriterWorker {
-  public:
-    RawDataWriter();
-    ~RawDataWriter() {}
-
-    bool run(EcalCondDBInterface*, MonRunIOV&);
-  };
-
   class OccupancyWriter : public DBWriterWorker {
   public:
-    OccupancyWriter();
+    OccupancyWriter(edm::ParameterSet const&);
     ~OccupancyWriter() {}
 
     bool run(EcalCondDBInterface*, MonRunIOV&);

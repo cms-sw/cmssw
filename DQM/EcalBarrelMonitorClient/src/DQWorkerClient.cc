@@ -20,10 +20,6 @@ namespace ecaldqm {
     using namespace std;
 
     if(_workerParams.existsAs<edm::ParameterSet>("sources", false)){
-      BinService const* binService(&(*(edm::Service<EcalDQMBinningService>())));
-      if(!binService)
-        throw cms::Exception("Service") << "EcalDQMBinningService not found" << std::endl;
-
       edm::ParameterSet const& sourceParams(_workerParams.getUntrackedParameterSet("sources"));
       vector<string> const& sourceNames(sourceParams.getParameterNames());
 
@@ -39,7 +35,7 @@ namespace ecaldqm {
         if(nItr == nameToIndex.end())
           throw cms::Exception("InvalidConfiguration") << "Cannot find ME index for " << sourceName;
 
-        MESet const* meSet(createMESet(sourceParams.getUntrackedParameterSet(sourceName), binService));
+        MESet const* meSet(createMESet(sourceParams.getUntrackedParameterSet(sourceName)));
         if(meSet){
           sources_[nItr->second] = meSet;
           if(meSet->getBinType() != BinService::kTrend || online)

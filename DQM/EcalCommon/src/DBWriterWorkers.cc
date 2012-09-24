@@ -10,7 +10,6 @@
 #include "OnlineDB/EcalCondDB/interface/MonTTConsistencyDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonMemChConsistencyDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonMemTTConsistencyDat.h"
-
 #include "OnlineDB/EcalCondDB/interface/MonLaserBlueDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLaserGreenDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLaserIRedDat.h"
@@ -25,6 +24,18 @@
 #include "OnlineDB/EcalCondDB/interface/MonTimingLaserRedCrystalDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNPedDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTestPulseDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonPulseShapeDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonPNMGPADat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingCrystalDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonLed1Dat.h"
+#include "OnlineDB/EcalCondDB/interface/MonLed2Dat.h"
+#include "OnlineDB/EcalCondDB/interface/MonPNLed1Dat.h"
+#include "OnlineDB/EcalCondDB/interface/MonPNLed2Dat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingLed2CrystalDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingLed1CrystalDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -132,15 +143,10 @@ namespace ecaldqm {
     }
   }
 
-  DBWriterWorker::DBWriterWorker(std::string const& _name) :
+  DBWriterWorker::DBWriterWorker(std::string const& _name, edm::ParameterSet const& _ps) :
     name_(_name),
     runTypes_(),
     source_()
-  {
-  }
-
-  void
-  DBWriterWorker::setup(edm::ParameterSet const& _ps, BinService const* _binService)
   {
     edm::ParameterSet const& meParams(_ps.getUntrackedParameterSet(name_));
 
@@ -148,7 +154,7 @@ namespace ecaldqm {
     for(unsigned iP(0); iP < meNames.size(); ++iP){
       std::string& meName(meNames[iP]);
       edm::ParameterSet const& meParam(meParams.getUntrackedParameterSet(meName));
-      source_[meName] = ecaldqm::createMESet(meParam, _binService);
+      source_[meName] = ecaldqm::createMESet(meParam);
     }
   }
 
@@ -161,8 +167,8 @@ namespace ecaldqm {
     }
   }
 
-  IntegrityWriter::IntegrityWriter() :
-    DBWriterWorker("Integrity")
+  IntegrityWriter::IntegrityWriter(edm::ParameterSet const& _ps) :
+    DBWriterWorker("Integrity", _ps)
   {
     runTypes_.insert("COSMIC");
     runTypes_.insert("BEAM");
@@ -384,9 +390,11 @@ namespace ecaldqm {
     return result;
   }
 
-  LaserWriter::LaserWriter() :
-    DBWriterWorker("Laser")
+  LaserWriter::LaserWriter(edm::ParameterSet const& _ps) :
+    DBWriterWorker("Laser", _ps)
   {
+    using namespace std;
+
     runTypes_.insert("COSMIC");
     runTypes_.insert("BEAM");
     runTypes_.insert("MTCC");
@@ -395,14 +403,6 @@ namespace ecaldqm {
     runTypes_.insert("PEDESTAL");
     runTypes_.insert("LED");
     runTypes_.insert("PHYSICS");
-  }
-
-  void
-  LaserWriter::setup(edm::ParameterSet const& _ps, BinService const* _binService)
-  {
-    using namespace std;
-
-    DBWriterWorker::setup(_ps, _binService);
 
     vector<int> laserWavelengths(_ps.getUntrackedParameter<vector<int> >("laserWavelengths"));
 
@@ -415,7 +415,7 @@ namespace ecaldqm {
     map<string, string> replacements;
     stringstream ss;
 
-    string wlPlots[] = {"Amplitude", "AOverP", "Timing"};
+    string wlPlots[] = {"Amplitude", "AOverP", "Timing", "Quality", "PNAmplitude", "PNQuality"};
     for(unsigned iS(0); iS < sizeof(wlPlots) / sizeof(string); ++iS){
       string plot(wlPlots[iS]);
       MESetMulti const* multi(static_cast<MESetMulti const*>(source_[plot]));
@@ -699,9 +699,11 @@ namespace ecaldqm {
     return result;
   }
 
-  PedestalWriter::PedestalWriter() :
-    DBWriterWorker("Pedestal")
+  PedestalWriter::PedestalWriter(edm::ParameterSet const& _ps) :
+    DBWriterWorker("Pedestal", _ps)
   {
+    using namespace std;
+
     runTypes_.insert("COSMIC");
     runTypes_.insert("BEAM");
     runTypes_.insert("MTCC");
@@ -710,14 +712,6 @@ namespace ecaldqm {
     runTypes_.insert("PEDESTAL");
     runTypes_.insert("LED");
     runTypes_.insert("PHYSICS");
-  }
-
-  void
-  PedestalWriter::setup(edm::ParameterSet const& _ps, BinService const* _binService)
-  {
-    using namespace std;
-
-    DBWriterWorker::setup(_ps, _binService);
 
     vector<int> MGPAGains(_ps.getUntrackedParameter<vector<int> >("MGPAGains"));
     vector<int> MGPAGainsPN(_ps.getUntrackedParameter<vector<int> >("MGPAGainsPN"));
@@ -737,7 +731,7 @@ namespace ecaldqm {
     map<string, string> replacements;
     stringstream ss;
 
-    string apdSources[] = {"Pedestal"};
+    string apdSources[] = {"Pedestal", "Quality"};
     for(unsigned iS(0); iS < sizeof(apdSources) / sizeof(string); ++iS){
       string plot(apdSources[iS]);
       MESetMulti const* multi(static_cast<MESetMulti const*>(source_[plot]));
@@ -753,7 +747,7 @@ namespace ecaldqm {
       }
     }
 
-    string pnSources[] = {"PNPedestal"};
+    string pnSources[] = {"PNPedestal", "PNQuality"};
     for(unsigned iS(0); iS < sizeof(pnSources) / sizeof(string); ++iS){
       string plot(pnSources[iS]);
       MESetMulti const* multi(static_cast<MESetMulti const*>(source_[plot]));
@@ -888,7 +882,7 @@ namespace ecaldqm {
             data.setPedMeanG1(mean);
             data.setPedRMSG1(rms);
             break;
-          case 2:
+          case 16:
             data.setPedMeanG16(mean);
             data.setPedRMSG16(rms);
             break;
@@ -917,8 +911,8 @@ namespace ecaldqm {
     return result;
   }
 
-  PresampleWriter::PresampleWriter() :
-    DBWriterWorker("Presample")
+  PresampleWriter::PresampleWriter(edm::ParameterSet const& _ps) :
+    DBWriterWorker("Presample", _ps)
   {
     runTypes_.insert("COSMIC");
     runTypes_.insert("BEAM");
@@ -933,12 +927,59 @@ namespace ecaldqm {
   bool
   PresampleWriter::run(EcalCondDBInterface* _db, MonRunIOV& _iov)
   {
-    return true;
+    /*
+      uses
+      PresampleTask.Pedestal (h03)
+      PresampleClient.Quality (meg03)
+    */
+
+    bool result(true);
+
+    std::map<EcalLogicID, MonPedestalsOnlineDat> pedestals;
+
+    MESet const* pedestalME(source_["Pedestal"]);
+    MESet const* qualityME(source_["Quality"]);
+    if(!pedestalME || !qualityME)
+      throw cms::Exception("Configuration") << "Channel integrity MEs not found";
+
+    MESet::const_iterator pEnd(pedestalME->end());
+    MESet::const_iterator qItr(qualityME);
+    for(MESet::const_iterator pItr(pedestalME->beginChannel()); pItr != pEnd; pItr.toNextChannel()){
+      float entries(pItr->getBinEntries());
+      if(entries < 1.) continue;
+
+      qItr = pItr;
+
+      float mean(pItr->getBinContent());
+      float rms(pItr->getBinError() * std::sqrt(entries));
+
+      MonPedestalsOnlineDat& data(pedestals[crystalID(pItr->getId())]);
+      data.setADCMeanG12(mean);
+      data.setADCRMSG12(rms);
+
+      int channelStatus(qItr->getBinContent());
+      bool channelBad(channelStatus == kBad || channelStatus == kMBad);
+      data.setTaskStatus(channelBad);
+
+      result &= qualityOK(channelStatus);
+    }
+
+    try{
+      if(pedestals.size() > 0)
+        _db->insertDataArraySet(&pedestals, &_iov);
+    }
+    catch(std::runtime_error& e){
+      throw cms::Exception("DBError") << e.what();
+    }
+
+    return result;
   }
 
-  TestPulseWriter::TestPulseWriter() :
-    DBWriterWorker("TestPulse")
+  TestPulseWriter::TestPulseWriter(edm::ParameterSet const& _ps) :
+    DBWriterWorker("TestPulse", _ps)
   {
+    using namespace std;
+
     runTypes_.insert("COSMIC");
     runTypes_.insert("BEAM");
     runTypes_.insert("MTCC");
@@ -947,14 +988,6 @@ namespace ecaldqm {
     runTypes_.insert("PEDESTAL");
     runTypes_.insert("LED");
     runTypes_.insert("PHYSICS");
-  }
-
-  void
-  TestPulseWriter::setup(edm::ParameterSet const& _ps, BinService const* _binService)
-  {
-    using namespace std;
-
-    DBWriterWorker::setup(_ps, _binService);
 
     vector<int> MGPAGains(_ps.getUntrackedParameter<vector<int> >("MGPAGains"));
     vector<int> MGPAGainsPN(_ps.getUntrackedParameter<vector<int> >("MGPAGainsPN"));
@@ -974,7 +1007,7 @@ namespace ecaldqm {
     map<string, string> replacements;
     stringstream ss;
 
-    string apdSources[] = {"Amplitude"};
+    string apdSources[] = {"Amplitude", "Shape", "Quality"};
     for(unsigned iS(0); iS < sizeof(apdSources) / sizeof(string); ++iS){
       string plot(apdSources[iS]);
       MESetMulti const* multi(static_cast<MESetMulti const*>(source_[plot]));
@@ -990,7 +1023,7 @@ namespace ecaldqm {
       }
     }
 
-    string pnSources[] = {"PNAmplitude"};
+    string pnSources[] = {"PNAmplitude", "PNPedestal", "PNQuality"};
     for(unsigned iS(0); iS < sizeof(pnSources) / sizeof(string); ++iS){
       string plot(pnSources[iS]);
       MESetMulti const* multi(static_cast<MESetMulti const*>(source_[plot]));
@@ -1010,11 +1043,205 @@ namespace ecaldqm {
   bool
   TestPulseWriter::run(EcalCondDBInterface* _db, MonRunIOV& _iov)
   {
-    return true;
+    /*
+      uses
+      TestPulseTask.Amplitude (ha01, ha02, ha03)
+      TestPulseTask.Shape (me_hs01, me_hs02, me_hs03)
+      TestPulseTask.PNAmplitude (i01, i02)
+      PNDiodeTask.Pedestal (i03, i04)
+      TestPulseClient.Quality (meg01, meg02, meg03)
+      TestPulseClient.PNQualitySummary (meg04, meg05)
+    */
+
+    bool result(true);
+
+    std::map<EcalLogicID, MonTestPulseDat> amplitude;
+    std::map<EcalLogicID, MonPulseShapeDat> shape;
+    std::map<EcalLogicID, MonPNMGPADat> pnAmplitude;
+
+    MESet const* amplitudeME(source_["Amplitude"]);
+    MESet const* shapeME(source_["Shape"]);
+    MESet const* qualityME(source_["Quality"]);
+    if(!amplitudeME || !shapeME || !qualityME)
+      throw cms::Exception("Configuration") << "Channel integrity MEs not found";
+
+    MESet const* pnAmplitudeME(source_["PNAmplitude"]);
+    MESet const* pnPedestalME(source_["PNPedestal"]);
+    MESet const* pnQualityME(source_["PNQuality"]);
+    if(!pnAmplitudeME || !pnPedestalME || !pnQualityME)
+      throw cms::Exception("Configuration") << "Tower integrity MEs not found";
+
+    for(std::map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
+      int gain(gainItr->first);
+      int iM(gainItr->second);
+
+      static_cast<MESetMulti const*>(amplitudeME)->use(iM);
+      static_cast<MESetMulti const*>(shapeME)->use(iM);
+      static_cast<MESetMulti const*>(qualityME)->use(iM);
+
+      MESet::const_iterator aEnd(amplitudeME->end());
+      MESet::const_iterator qItr(qualityME);
+      for(MESet::const_iterator aItr(amplitudeME->beginChannel()); aItr != aEnd; aItr.toNextChannel()){
+        float entries(aItr->getBinEntries());
+        if(entries < 1.) continue;
+
+        qItr = aItr;
+
+        float mean(aItr->getBinContent());
+        float rms(aItr->getBinError() * std::sqrt(entries));
+
+        EcalLogicID logicID(crystalID(aItr->getId()));
+        if(amplitude.find(logicID) == amplitude.end()){
+          MonTestPulseDat& insertion(amplitude[logicID]);
+          insertion.setADCMeanG1(-1.);
+          insertion.setADCRMSG1(-1.);
+          insertion.setADCMeanG6(-1.);
+          insertion.setADCRMSG6(-1.);
+          insertion.setADCMeanG12(-1.);
+          insertion.setADCRMSG12(-1.);
+          insertion.setTaskStatus(false);
+        }
+
+        MonTestPulseDat& data(amplitude[logicID]);
+        switch(gain){
+        case 1:
+          data.setADCMeanG1(mean);
+          data.setADCRMSG1(rms);
+          break;
+        case 6:
+          data.setADCMeanG6(mean);
+          data.setADCRMSG6(rms);
+          break;
+        case 12:
+          data.setADCMeanG12(mean);
+          data.setADCRMSG12(rms);
+          break;
+        }
+
+        int channelStatus(qItr->getBinContent());
+        bool channelBad(channelStatus == kBad || channelStatus == kMBad);
+        if(channelBad)
+          data.setTaskStatus(true);
+
+        result &= qualityOK(channelStatus);
+      }
+
+      for(unsigned iSM(0); iSM < 54; ++iSM){
+        std::vector<float> samples(10, 0.);
+        std::vector<DetId> ids(getElectronicsMap()->dccConstituents(iSM + 1));
+        unsigned nId(ids.size());
+        unsigned nChannels(0);
+        EcalLogicID logicID;
+        for(unsigned iD(0); iD < nId; ++iD){
+          DetId& id(ids[iD]);
+
+          if(iD == 0) logicID = crystalID(id);
+
+          if(shapeME->getBinEntries(id, 1) < 1.) continue;
+
+          ++nChannels;
+
+          for(int i(0); i < 10; ++i)
+            samples[i] += shapeME->getBinContent(id, i + 1);
+        }
+
+        for(int i(0); i < 10; ++i)
+          samples[i] /= nChannels;
+
+        if(shape.find(logicID) == shape.end()){
+          MonPulseShapeDat& insertion(shape[logicID]);
+          std::vector<float> defval(10, -1.);
+          insertion.setSamples(defval, 1);
+          insertion.setSamples(defval, 6);
+          insertion.setSamples(defval, 12);
+        }
+
+        MonPulseShapeDat& data(shape[logicID]);
+        data.setSamples(samples, gain);
+      }
+    }
+
+    for(std::map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr){
+      int gain(gainItr->first);
+      int iM(gainItr->second);
+
+      static_cast<MESetMulti const*>(pnAmplitudeME)->use(iM);
+      static_cast<MESetMulti const*>(pnQualityME)->use(iM);
+
+      for(unsigned iMD(0); iMD < memDCC.size(); ++iMD){
+        unsigned iDCC(memDCC[iMD]);
+
+        int subdet(iDCC <= kEEmHigh || iDCC >= kEEpLow ? EcalEndcap : EcalBarrel);
+
+        for(unsigned iPN(1); iPN <= 10; ++iPN){
+          EcalPnDiodeDetId pnid(subdet, iDCC + 1, iPN);
+
+          float entries(pnAmplitudeME->getBinEntries(pnid));
+          if(entries < 1.) continue;
+
+          float mean(pnAmplitudeME->getBinContent(pnid));
+          float rms(pnAmplitudeME->getBinError(pnid) * std::sqrt(entries));
+          float pedestalEntries(pnPedestalME->getBinEntries(pnid));
+          float pedestalMean(pnPedestalME->getBinContent(pnid));
+          float pedestalRms(pnPedestalME->getBinError(pnid) * std::sqrt(pedestalEntries));
+
+          EcalLogicID logicID(lmPNID(pnid));
+          if(pnAmplitude.find(logicID) == pnAmplitude.end()){
+            MonPNMGPADat& insertion(pnAmplitude[logicID]);
+            insertion.setADCMeanG1(-1.);
+            insertion.setADCRMSG1(-1.);
+            insertion.setPedMeanG1(-1.);
+            insertion.setPedRMSG1(-1.);
+            insertion.setADCMeanG16(-1.);
+            insertion.setADCRMSG16(-1.);
+            insertion.setPedMeanG16(-1.);
+            insertion.setPedRMSG16(-1.);
+            insertion.setTaskStatus(false);
+          }
+
+          MonPNMGPADat& data(pnAmplitude[lmPNID(pnid)]);
+          switch(gain){
+          case 1:
+            data.setADCMeanG1(mean);
+            data.setADCRMSG1(rms);
+            data.setPedMeanG1(pedestalMean);
+            data.setPedRMSG1(pedestalRms);
+            break;
+          case 16:
+            data.setADCMeanG16(mean);
+            data.setADCRMSG16(rms);
+            data.setPedMeanG16(pedestalMean);
+            data.setPedRMSG16(pedestalRms);
+            break;
+          }
+
+          int channelStatus(pnQualityME->getBinContent(pnid));
+          bool channelBad(channelStatus == kBad || channelStatus == kMBad);
+          if(channelBad)
+            data.setTaskStatus(true);
+
+          result &= qualityOK(channelStatus);
+        }
+      }
+    }
+
+    try{
+      if(amplitude.size() > 0)
+        _db->insertDataArraySet(&amplitude, &_iov);
+      if(shape.size() > 0)
+        _db->insertDataSet(&shape, &_iov);
+      if(pnAmplitude.size() > 0)
+        _db->insertDataArraySet(&pnAmplitude, &_iov);
+    }
+    catch(std::runtime_error& e){
+      throw cms::Exception("DBError") << e.what();
+    }
+
+    return result;
   }
 
-  TimingWriter::TimingWriter() :
-    DBWriterWorker("Timing")
+  TimingWriter::TimingWriter(edm::ParameterSet const& _ps) :
+    DBWriterWorker("Timing", _ps)
   {
     runTypes_.insert("COSMIC");
     runTypes_.insert("BEAM");
@@ -1029,12 +1256,59 @@ namespace ecaldqm {
   bool
   TimingWriter::run(EcalCondDBInterface* _db, MonRunIOV& _iov)
   {
-    return true;
+    /*
+      uses
+      TimingTask.TimMap (h01)
+      TimingClient.Quality (meg01)
+    */
+
+    bool result(true);
+
+    std::map<EcalLogicID, MonTimingCrystalDat> timing;
+
+    MESet const* timingME(source_["Timing"]);
+    MESet const* qualityME(source_["Quality"]);
+    if(!timingME || !qualityME)
+      throw cms::Exception("Configuration") << "Channel integrity MEs not found";
+
+    MESet::const_iterator tEnd(timingME->end());
+    MESet::const_iterator qItr(qualityME);
+    for(MESet::const_iterator tItr(timingME->beginChannel()); tItr != tEnd; tItr.toNextChannel()){
+      float entries(tItr->getBinEntries());
+      if(entries < 1.) continue;
+
+      qItr = tItr;
+
+      float mean(tItr->getBinContent());
+      float rms(tItr->getBinError() * std::sqrt(entries));
+
+      MonTimingCrystalDat& data(timing[crystalID(tItr->getId())]);
+      data.setTimingMean(mean);
+      data.setTimingRMS(rms);
+
+      int channelStatus(qItr->getBinContent());
+      bool channelBad(channelStatus == kBad || channelStatus == kMBad);
+      data.setTaskStatus(channelBad);
+
+      result &= qualityOK(channelStatus);
+    }
+
+    try{
+      if(timing.size() > 0)
+        _db->insertDataArraySet(&timing, &_iov);
+    }
+    catch(std::runtime_error& e){
+      throw cms::Exception("DBError") << e.what();
+    }
+
+    return result;
   }
 
-  LedWriter::LedWriter() :
-    DBWriterWorker("Led")
+  LedWriter::LedWriter(edm::ParameterSet const& _ps) :
+    DBWriterWorker("Led", _ps)
   {
+    using namespace std;
+
     runTypes_.insert("COSMIC");
     runTypes_.insert("BEAM");
     runTypes_.insert("MTCC");
@@ -1043,14 +1317,6 @@ namespace ecaldqm {
     runTypes_.insert("PEDESTAL");
     runTypes_.insert("LED");
     runTypes_.insert("PHYSICS");
-  }
-
-  void
-  LedWriter::setup(edm::ParameterSet const& _ps, BinService const* _binService)
-  {
-    using namespace std;
-
-    DBWriterWorker::setup(_ps, _binService);
 
     vector<int> ledWavelengths(_ps.getUntrackedParameter<vector<int> >("ledWavelengths"));
 
@@ -1063,7 +1329,7 @@ namespace ecaldqm {
     map<string, string> replacements;
     stringstream ss;
 
-    string wlPlots[] = {"Amplitude", "AOverP", "Timing"};
+    string wlPlots[] = {"Amplitude", "AOverP", "Timing", "Quality", "PNAmplitude", "PNQuality"};
     for(unsigned iS(0); iS < sizeof(wlPlots) / sizeof(string); ++iS){
       string plot(wlPlots[iS]);
       MESetMulti const* multi(static_cast<MESetMulti const*>(source_[plot]));
@@ -1083,31 +1349,196 @@ namespace ecaldqm {
   bool
   LedWriter::run(EcalCondDBInterface* _db, MonRunIOV& _iov)
   {
-    return true;
+    /*
+      uses
+      LedTask.Amplitude (h01, h03)
+      LedTask.AOverP (h02, h04)
+      LedTask.Timing (h09, h10)
+      LedClient.Quality (meg01, meg02)
+      LedTask.PNAmplitude (i09, i10)
+      LedClient.PNQualitySummary (meg09, meg10)
+      PNDiodeTask.Pedestal (i13, i14)
+    */
+
+    bool result(true);
+
+    std::map<EcalLogicID, MonLed1Dat> l1Amp;
+    std::map<EcalLogicID, MonTimingLed1CrystalDat> l1Time;
+    std::map<EcalLogicID, MonPNLed1Dat> l1PN;
+    std::map<EcalLogicID, MonLed2Dat> l2Amp;
+    std::map<EcalLogicID, MonTimingLed2CrystalDat> l2Time;
+    std::map<EcalLogicID, MonPNLed2Dat> l2PN;
+
+    MESet const* ampME(source_["Amplitude"]);
+    MESet const* aopME(source_["AOverP"]);
+    MESet const* timeME(source_["Timing"]);
+    MESet const* qualityME(source_["Quality"]);
+    if(!ampME || !aopME || !timeME || !qualityME)
+      throw cms::Exception("Configuration") << "Led MEs not found";
+
+    MESet const* pnME(source_["PNAmplitude"]);
+    MESet const* pnQualityME(source_["PNQuality"]);
+    MESet const* pnPedestalME(source_["PNPedestal"]);
+    if(!pnME || !pnQualityME || !pnPedestalME)
+      throw cms::Exception("Configuration") << "Led PN MEs not found";
+
+    for(std::map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr){
+      int wl(wlItr->first);
+      unsigned iM(wlItr->second);
+
+      static_cast<MESetMulti const*>(ampME)->use(iM);
+      static_cast<MESetMulti const*>(aopME)->use(iM);
+      static_cast<MESetMulti const*>(timeME)->use(iM);
+      static_cast<MESetMulti const*>(qualityME)->use(iM);
+      static_cast<MESetMulti const*>(pnME)->use(iM);
+      static_cast<MESetMulti const*>(pnQualityME)->use(iM);
+
+      MESet::const_iterator aEnd(ampME->end());
+      MESet::const_iterator qItr(qualityME);
+      MESet::const_iterator oItr(aopME);
+      MESet::const_iterator tItr(timeME);
+      for(MESet::const_iterator aItr(ampME->beginChannel()); aItr != aEnd; aItr.toNextChannel()){
+        float aEntries(aItr->getBinEntries());
+        if(aEntries < 1.) continue;
+
+        qItr = aItr;
+        oItr = aItr;
+        tItr = aItr;
+
+        DetId id(aItr->getId());
+
+        float ampMean(aItr->getBinContent());
+        float ampRms(aItr->getBinError() * std::sqrt(aEntries));
+
+        float aopEntries(oItr->getBinEntries());
+        float aopMean(oItr->getBinContent());
+        float aopRms(oItr->getBinError() * std::sqrt(aopEntries));
+
+        float timeEntries(tItr->getBinEntries());
+        float timeMean(tItr->getBinContent());
+        float timeRms(tItr->getBinError() * std::sqrt(timeEntries));
+
+        int channelStatus(qItr->getBinContent());
+        bool channelBad(channelStatus == kBad || channelStatus == kMBad);
+
+        EcalLogicID logicID(crystalID(id));
+
+        switch(wl){
+        case 1:
+          {
+            MonLed1Dat& aData(l1Amp[logicID]);
+            aData.setVPTMean(ampMean);
+            aData.setVPTRMS(ampRms);
+            aData.setVPTOverPNMean(aopMean);
+            aData.setVPTOverPNRMS(aopRms);
+            aData.setTaskStatus(channelBad);
+ 
+            MonTimingLed1CrystalDat& tData(l1Time[logicID]);
+            tData.setTimingMean(timeMean);
+            tData.setTimingRMS(timeRms);
+            tData.setTaskStatus(channelBad);
+          }
+          break;
+        case 2:
+          {
+            MonLed2Dat& aData(l2Amp[logicID]);
+            aData.setVPTMean(ampMean);
+            aData.setVPTRMS(ampRms);
+            aData.setVPTOverPNMean(aopMean);
+            aData.setVPTOverPNRMS(aopRms);
+            aData.setTaskStatus(channelBad);
+ 
+            MonTimingLed2CrystalDat& tData(l2Time[logicID]);
+            tData.setTimingMean(timeMean);
+            tData.setTimingRMS(timeRms);
+            tData.setTaskStatus(channelBad);
+          }
+          break;
+        }
+        result &= qualityOK(channelStatus);
+      }
+
+      for(unsigned iMD(0); iMD < memDCC.size(); ++iMD){
+        unsigned iDCC(memDCC[iMD]);
+
+        int subdet(iDCC <= kEEmHigh || iDCC >= kEEpLow ? EcalEndcap : EcalBarrel);
+
+        for(unsigned iPN(1); iPN <= 10; ++iPN){
+          EcalPnDiodeDetId pnid(subdet, iDCC + 1, iPN);
+
+          float entries(pnME->getBinEntries(pnid));
+          if(entries < 1.) continue;
+
+          float mean(pnME->getBinContent(pnid));
+          float rms(pnME->getBinError(pnid) * std::sqrt(entries));
+
+          float pedestalEntries(pnPedestalME->getBinEntries(pnid));
+          float pedestalMean(pnPedestalME->getBinContent(pnid));
+          float pedestalRms(pnPedestalME->getBinError(pnid) * std::sqrt(pedestalEntries));
+
+          int channelStatus(pnQualityME->getBinContent(pnid));
+          bool channelBad(channelStatus == kBad || channelStatus == kMBad);
+
+          switch(wl){
+          case 1:
+            {
+              MonPNLed1Dat& data(l1PN[lmPNID(pnid)]);
+              data.setADCMeanG1(-1.);
+              data.setADCRMSG1(-1.);
+              data.setPedMeanG1(-1.);
+              data.setPedRMSG1(-1.);
+              data.setADCMeanG16(mean);
+              data.setADCRMSG16(rms);
+              data.setPedMeanG16(pedestalMean);
+              data.setPedRMSG16(pedestalRms);
+              data.setTaskStatus(channelBad);
+            }
+            break;
+          case 2:
+            {
+              MonPNLed2Dat& data(l2PN[lmPNID(pnid)]);
+              data.setADCMeanG1(-1.);
+              data.setADCRMSG1(-1.);
+              data.setPedMeanG1(-1.);
+              data.setPedRMSG1(-1.);
+              data.setADCMeanG16(mean);
+              data.setADCRMSG16(rms);
+              data.setPedMeanG16(pedestalMean);
+              data.setPedRMSG16(pedestalRms);
+              data.setTaskStatus(channelBad);
+            }
+            break;
+          }
+
+          result &= qualityOK(channelStatus);
+
+        }
+      }
+    }
+
+    try{
+      if(l1Amp.size() > 0)
+        _db->insertDataArraySet(&l1Amp, &_iov);
+      if(l1Time.size() > 0)
+        _db->insertDataArraySet(&l1Time, &_iov);
+      if(l1PN.size() > 0)
+        _db->insertDataArraySet(&l1PN, &_iov);
+      if(l2Amp.size() > 0)
+        _db->insertDataArraySet(&l2Amp, &_iov);
+      if(l2Time.size() > 0)
+        _db->insertDataArraySet(&l2Time, &_iov);
+      if(l2PN.size() > 0)
+        _db->insertDataArraySet(&l2PN, &_iov);
+    }
+    catch(std::runtime_error& e){
+      throw cms::Exception("DBError") << e.what();
+    }
+
+    return result;
   }
 
-  RawDataWriter::RawDataWriter() :
-    DBWriterWorker("RawData")
-  {
-    runTypes_.insert("COSMIC");
-    runTypes_.insert("BEAM");
-    runTypes_.insert("MTCC");
-    runTypes_.insert("LASER");
-    runTypes_.insert("TEST_PULSE");
-    runTypes_.insert("PEDESTAL");
-    runTypes_.insert("PEDESTAL-OFFSET");
-    runTypes_.insert("LED");
-    runTypes_.insert("PHYSICS");
-  }
-
-  bool
-  RawDataWriter::run(EcalCondDBInterface* _db, MonRunIOV& _iov)
-  {
-    return true;
-  }
-
-  OccupancyWriter::OccupancyWriter() :
-    DBWriterWorker("Occupancy")
+  OccupancyWriter::OccupancyWriter(edm::ParameterSet const& _ps) :
+    DBWriterWorker("Occupancy", _ps)
   {
     runTypes_.insert("COSMIC");
     runTypes_.insert("BEAM");
@@ -1123,7 +1554,46 @@ namespace ecaldqm {
   bool
   OccupancyWriter::run(EcalCondDBInterface* _db, MonRunIOV& _iov)
   {
+    /*
+      uses
+      OccupancyTask.Digi (i01)
+      EnergyTask.HitMap (i02)
+    */
+    std::map<EcalLogicID, MonOccupancyDat> occupancy;
+
+    MESet const* occupancyME(source_["Occupancy"]);
+    MESet const* energyME(source_["Energy"]);
+    if(!occupancyME || !energyME)
+      throw cms::Exception("Configuration") << "Channel integrity MEs not found";
+
+    MESet::const_iterator oEnd(occupancyME->end());
+    MESet::const_iterator eItr(energyME);
+    for(MESet::const_iterator oItr(occupancyME->beginChannel()); oItr != oEnd; oItr.toNextChannel()){
+
+      if(oItr->getME()->getTH1()->GetEntries() < 1000.) continue;
+
+      int entries(oItr->getBinContent());
+      if(entries < 10) continue;
+
+      eItr = oItr;
+
+      int eEntries(eItr->getBinEntries());
+      float energy(eItr->getBinContent());
+
+      MonOccupancyDat& data(occupancy[crystalID(oItr->getId())]);
+      data.setEventsOverLowThreshold(entries);
+      data.setEventsOverHighThreshold(eEntries);
+      data.setAvgEnergy(energy);
+    }
+
+    try{
+      if(occupancy.size() > 0)
+        _db->insertDataArraySet(&occupancy, &_iov);
+    }
+    catch(std::runtime_error& e){
+      throw cms::Exception("DBError") << e.what();
+    }
+
     return true;
   }
-
 }

@@ -458,6 +458,71 @@ EcalDQMBinningService::findPlot(ObjectType _otype, unsigned _dcctccid, BinningTy
   }
 }
 
+/*static*/
+EcalDQMBinningService::ObjectType
+EcalDQMBinningService::getObject(ObjectType _otype, unsigned _iObj)
+{
+  switch(_otype){
+  case kEcal3P:
+    switch(_iObj){
+    case 0: return kEEm;
+    case 1: return kEB;
+    case 2: return kEEp;
+    default: return nObjType;
+    }
+  case kEcal2P:
+    switch(_iObj){
+    case 0: return kEE;
+    case 1: return kEB;
+    default: return nObjType;
+    }
+  case kEE2P:
+    switch(_iObj){
+    case 0: return kEEm;
+    case 1: return kEEp;
+    default: return nObjType;
+    }
+  case kMEM2P:
+    switch(_iObj){
+    case 0: return kEEMEM;
+    case 1: return kEBMEM;
+    default: return nObjType;
+    }
+  default:
+    return _otype;
+  }
+}
+
+/*static*/
+unsigned
+EcalDQMBinningService::getNObjects(ObjectType _otype)
+{
+  switch(_otype){
+  case kSM:
+    return nDCC;
+  case kEBSM:
+    return nEBDCC;
+  case kEESM:
+    return nEEDCC;
+  case kSMMEM:
+    return nDCCMEM;
+  case kEBSMMEM:
+    return nEBDCC;
+  case kEESMMEM:
+    return nEEDCCMEM;
+  case kEcal2P:
+    return 2;
+  case kEcal3P:
+    return 3;
+  case kEE2P:
+    return 2;
+  case kMEM2P:
+    return 2;
+  default:
+    return 1;
+  }
+}
+
 bool
 EcalDQMBinningService::isValidIdBin(ObjectType _otype, BinningType _btype, unsigned _iME, int _bin) const
 {
@@ -504,6 +569,51 @@ EcalDQMBinningService::isValidIdBin(ObjectType _otype, BinningType _btype, unsig
   }
 
   return true;
+}
+
+/*static*/
+int
+EcalDQMBinningService::xlow(int _iSM)
+{
+  using namespace ecaldqm;
+
+  switch(_iSM){
+  case kEEm01: case kEEp01: return 15;
+  case kEEm02: case kEEp02: return 0;
+  case kEEm03: case kEEp03: return 0;
+  case kEEm04: case kEEp04: return 5;
+  case kEEm05: case kEEp05: return 30;
+  case kEEm06: case kEEp06: return 55;
+  case kEEm07: case kEEp07: return 60;
+  case kEEm08: case kEEp08: return 55;
+  case kEEm09: case kEEp09: return 45;
+  default: break;
+  }
+
+  if(_iSM >= kEBmLow && _iSM <= kEBpHigh) return 0;
+
+  return 0;
+}
+
+/*static*/
+int
+EcalDQMBinningService::ylow(int _iSM)
+{
+  using namespace ecaldqm;
+
+  switch(_iSM){
+  case kEEm01: case kEEp01: case kEEm09: case kEEp09: return 60;
+  case kEEm02: case kEEp02: case kEEm08: case kEEp08: return 50;
+  case kEEm03: case kEEp03: case kEEm07: case kEEp07: return 25;
+  case kEEm04: case kEEp04: case kEEm06: case kEEp06: return 5;
+  case kEEm05: case kEEp05: return 0;
+  default: break;
+  }
+
+  if(_iSM >= kEBmLow && _iSM <= kEBmHigh) return ((_iSM - kEBmLow) % 18) * 20;
+  if(_iSM >= kEBpLow && _iSM <= kEBpHigh) return (-1 - ((_iSM - kEBpLow) % 18)) * 20;
+
+  return 0;
 }
 
 std::string
@@ -721,8 +831,9 @@ EcalDQMBinningService::idFromBin(ObjectType _otype, BinningType _btype, unsigned
   return 0;
 }
 
+/*static*/
 EcalDQMBinningService::AxisSpecs const*
-EcalDQMBinningService::formAxis(edm::ParameterSet const& _axisParams) const
+EcalDQMBinningService::formAxis(edm::ParameterSet const& _axisParams)
 {
   AxisSpecs* axis(new AxisSpecs);
 
@@ -745,8 +856,9 @@ EcalDQMBinningService::formAxis(edm::ParameterSet const& _axisParams) const
   return axis;
 }
 
+/*static*/
 EcalDQMBinningService::ObjectType
-EcalDQMBinningService::getObjectType(std::string const& _otypeName) const
+EcalDQMBinningService::getObjectType(std::string const& _otypeName)
 {
   if(_otypeName == "EB") return kEB;
   else if(_otypeName == "EE") return kEE;
@@ -772,8 +884,9 @@ EcalDQMBinningService::getObjectType(std::string const& _otypeName) const
   throw cms::Exception("InvalidConfiguration") << "No object type " << _otypeName << " defined";
 }
 
+/*static*/
 EcalDQMBinningService::BinningType
-EcalDQMBinningService::getBinningType(std::string const& _btypeName) const
+EcalDQMBinningService::getBinningType(std::string const& _btypeName)
 {
   if(_btypeName == "Crystal") return kCrystal;
   else if(_btypeName == "TriggerTower") return kTriggerTower;

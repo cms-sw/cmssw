@@ -179,6 +179,11 @@ namespace ecaldqm
         if(meSet_ && iME != unsigned(-1)) return meSet_->getME(iME)->getBinEntries(iBin);
         else return 0.;
       }
+      MonitorElement const* getME() const
+      {
+        if(meSet_ && iME != unsigned(-1)) return meSet_->getME(iME);
+        else return 0;
+      }
       void setMESet(MESet const* _meSet) { meSet_ = _meSet; }
       MESet const* getMESet() const { return meSet_; }
     };
@@ -217,6 +222,11 @@ namespace ecaldqm
       void setBinEntries(double _entries)
       {
         if(meSet_ && iME != unsigned(-1)) meSet_->getME(iME)->setBinEntries(iBin, _entries);
+      }
+      MonitorElement* getME() const
+      {
+        if(meSet_ && iME != unsigned(-1)) return meSet_->getME(iME);
+        else return 0;
       }
       void setMESet(MESet* _meSet) { ConstBin::meSet_ = _meSet; meSet_ = _meSet; }
       MESet* getMESet() const { return meSet_; }

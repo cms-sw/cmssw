@@ -40,7 +40,6 @@ class EcalCondDBWriter : public edm::EDAnalyzer {
   std::string location_;
   std::string runType_;
   std::vector<std::string> inputRootFiles_;
-  edm::ParameterSet workerParams_;
   ecaldqm::DBWriterWorker* workers_[nTasks];
 
   int verbosity_;

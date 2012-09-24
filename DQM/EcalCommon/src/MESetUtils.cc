@@ -17,23 +17,20 @@
 
 namespace ecaldqm
 {
-
-  // this function does not need to take a binservice instance as argument once get.. functions static-ized
-
   MESet*
-  createMESet(edm::ParameterSet const& _MEParam, BinService const* _binService)
+  createMESet(edm::ParameterSet const& _MEParam)
   {
     std::string path(_MEParam.getUntrackedParameter<std::string>("path"));
-    BinService::ObjectType otype(_binService->getObjectType(_MEParam.getUntrackedParameter<std::string>("otype")));
-    BinService::BinningType btype(_binService->getBinningType(_MEParam.getUntrackedParameter<std::string>("btype")));
+    BinService::ObjectType otype(BinService::getObjectType(_MEParam.getUntrackedParameter<std::string>("otype")));
+    BinService::BinningType btype(BinService::getBinningType(_MEParam.getUntrackedParameter<std::string>("btype")));
     MonitorElement::Kind kind(MESet::translateKind(_MEParam.getUntrackedParameter<std::string>("kind")));
 
     BinService::AxisSpecs const* xaxis(0);
     BinService::AxisSpecs const* yaxis(0);
     BinService::AxisSpecs const* zaxis(0);
-    if(_MEParam.existsAs<edm::ParameterSet>("xaxis", false)) xaxis = _binService->formAxis(_MEParam.getUntrackedParameterSet("xaxis"));
-    if(_MEParam.existsAs<edm::ParameterSet>("yaxis", false)) yaxis = _binService->formAxis(_MEParam.getUntrackedParameterSet("yaxis"));
-    if(_MEParam.existsAs<edm::ParameterSet>("zaxis", false)) zaxis = _binService->formAxis(_MEParam.getUntrackedParameterSet("zaxis"));
+    if(_MEParam.existsAs<edm::ParameterSet>("xaxis", false)) xaxis = BinService::formAxis(_MEParam.getUntrackedParameterSet("xaxis"));
+    if(_MEParam.existsAs<edm::ParameterSet>("yaxis", false)) yaxis = BinService::formAxis(_MEParam.getUntrackedParameterSet("yaxis"));
+    if(_MEParam.existsAs<edm::ParameterSet>("zaxis", false)) zaxis = BinService::formAxis(_MEParam.getUntrackedParameterSet("zaxis"));
 
     MESet* set(0);
 

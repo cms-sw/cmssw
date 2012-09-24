@@ -36,7 +36,6 @@ EcalCondDBWriter::EcalCondDBWriter(edm::ParameterSet const& _ps) :
   location_(_ps.getUntrackedParameter<std::string>("location")),
   runType_(_ps.getUntrackedParameter<std::string>("runType")),
   inputRootFiles_(_ps.getUntrackedParameter<std::vector<std::string> >("inputRootFiles")),
-  workerParams_(_ps.getUntrackedParameterSet("workerParams")),
   verbosity_(_ps.getUntrackedParameter<int>("verbosity")),
   executed_(false)
 {
@@ -74,20 +73,22 @@ EcalCondDBWriter::EcalCondDBWriter(edm::ParameterSet const& _ps) :
 
   if(verbosity_ > 0) std::cout << " Done." << std::endl;
 
-  workers_[Integrity] = new ecaldqm::IntegrityWriter();
+  edm::ParameterSet const& workerParams(_ps.getUntrackedParameterSet("workerParams"));
+
+  workers_[Integrity] = new ecaldqm::IntegrityWriter(workerParams);
   workers_[Cosmic] = 0;
-  workers_[Laser] = new ecaldqm::LaserWriter();
-  workers_[Pedestal] = new ecaldqm::PedestalWriter();
-  workers_[Presample] = new ecaldqm::PresampleWriter();
-  workers_[TestPulse] = new ecaldqm::TestPulseWriter();
+  workers_[Laser] = new ecaldqm::LaserWriter(workerParams);
+  workers_[Pedestal] = new ecaldqm::PedestalWriter(workerParams);
+  workers_[Presample] = new ecaldqm::PresampleWriter(workerParams);
+  workers_[TestPulse] = new ecaldqm::TestPulseWriter(workerParams);
   workers_[BeamCalo] = 0;
   workers_[BeamHodo] = 0;
   workers_[TriggerPrimitives] = 0;
   workers_[Cluster] = 0;
-  workers_[Timing] = new ecaldqm::TimingWriter();
-  workers_[Led] = new ecaldqm::LedWriter();
-  workers_[RawData] = new ecaldqm::RawDataWriter();
-  workers_[Occupancy] = new ecaldqm::OccupancyWriter();
+  workers_[Timing] = new ecaldqm::TimingWriter(workerParams);
+  workers_[Led] = new ecaldqm::LedWriter(workerParams);
+  workers_[RawData] = 0;
+  workers_[Occupancy] = new ecaldqm::OccupancyWriter(workerParams);
 
   for(unsigned iC(0); iC < nTasks; ++iC)
     if(workers_[iC]) workers_[iC]->setVerbosity(verbosity_);
@@ -110,87 +111,6 @@ void
 EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
 {
   if(executed_) return;
-
-  std::set<std::string> runTypes;
-
-  runTypes.insert("COSMIC");
-  runTypes.insert("BEAM");
-  runTypes.insert("MTCC");
-  runTypes.insert("LASER");
-  runTypes.insert("TEST_PULSE");
-  runTypes.insert("PEDESTAL");
-  runTypes.insert("PEDESTAL-OFFSET");
-  runTypes.insert("LED");
-  runTypes.insert("PHYSICS");
-  runTypes.insert("HALO");
-  runTypes.insert("CALIB");
-
-  if(runTypes.find(runType_) == runTypes.end())
-    throw cms::Exception("Configuration") << "Run type " << runType_ << " not defined";
-
-  std::set<std::string> enabledRunTypes[nTasks];
-
-  enabledRunTypes[Integrity] = runTypes;
-  enabledRunTypes[Integrity].erase("HALO");
-  enabledRunTypes[Integrity].erase("CALIB");
-
-  enabledRunTypes[Cosmic] = runTypes;
-  enabledRunTypes[Cosmic].erase("BEAM");
-  enabledRunTypes[Cosmic].erase("PEDESTAL_OFFSET");
-  enabledRunTypes[Cosmic].erase("HALO");
-  enabledRunTypes[Cosmic].erase("CALIB");
-
-  enabledRunTypes[Laser] = runTypes;
-  enabledRunTypes[Laser].erase("PEDESTAL_OFFSET");
-  enabledRunTypes[Laser].erase("HALO");
-  enabledRunTypes[Laser].erase("CALIB");
-
-  enabledRunTypes[Pedestal] = runTypes;
-  enabledRunTypes[Pedestal].erase("PEDESTAL_OFFSET");
-  enabledRunTypes[Pedestal].erase("HALO");
-  enabledRunTypes[Pedestal].erase("CALIB");
-
-  enabledRunTypes[Presample] = runTypes;
-  enabledRunTypes[Presample].erase("PEDESTAL_OFFSET");
-  enabledRunTypes[Presample].erase("HALO");
-  enabledRunTypes[Presample].erase("CALIB");
-
-  enabledRunTypes[TestPulse] = runTypes;
-  enabledRunTypes[TestPulse].erase("PEDESTAL_OFFSET");
-  enabledRunTypes[TestPulse].erase("HALO");
-  enabledRunTypes[TestPulse].erase("CALIB");
-
-  enabledRunTypes[BeamCalo] = std::set<std::string>();
-
-  enabledRunTypes[BeamHodo] = std::set<std::string>();
-
-  enabledRunTypes[TriggerPrimitives] = runTypes;
-  enabledRunTypes[TriggerPrimitives].erase("PEDESTAL_OFFSET");
-  enabledRunTypes[TriggerPrimitives].erase("HALO");
-  enabledRunTypes[TriggerPrimitives].erase("CALIB");
-
-  enabledRunTypes[Cluster] = runTypes;
-  enabledRunTypes[Cluster].erase("PEDESTAL_OFFSET");
-  enabledRunTypes[Cluster].erase("HALO");
-  enabledRunTypes[Cluster].erase("CALIB");
-
-  enabledRunTypes[Timing] = runTypes;
-  enabledRunTypes[Timing].erase("PEDESTAL_OFFSET");
-  enabledRunTypes[Timing].erase("HALO");
-  enabledRunTypes[Timing].erase("CALIB");
-
-  enabledRunTypes[Led] = runTypes;
-  enabledRunTypes[Led].erase("PEDESTAL_OFFSET");
-  enabledRunTypes[Led].erase("HALO");
-  enabledRunTypes[Led].erase("CALIB");
-
-  enabledRunTypes[RawData] = runTypes;
-  enabledRunTypes[RawData].erase("HALO");
-  enabledRunTypes[RawData].erase("CALIB");
-
-  enabledRunTypes[Occupancy] = runTypes;
-  enabledRunTypes[Occupancy].erase("HALO");
-  enabledRunTypes[Occupancy].erase("CALIB");
 
   /////////////////////// INPUT INITIALIZATION /////////////////////////
 
@@ -252,19 +172,12 @@ EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
 
   //////////////////////// SOURCE INITIALIZATION //////////////////////////
 
-  BinService const* binService(&(*(edm::Service<EcalDQMBinningService>())));
-  if(!binService)
-    throw cms::Exception("Service") << "EcalDQMBinningService not found" << std::endl;
-
   if(verbosity_ > 0) std::cout << "Setting up source MonitorElements for given run type " << runType_ << std::endl;
 
   int taskList(0);
   for(unsigned iC(0); iC < nTasks; ++iC){
-    if(enabledRunTypes[iC].find(runType_) == enabledRunTypes[iC].end()) continue;
+    if(!workers_[iC] || !workers_[iC]->runsOn(runType_)) continue;
 
-    if(!workers_[iC]) continue;
-
-    workers_[iC]->setup(workerParams_, binService);
     workers_[iC]->retrieveSource();
 
     setBit(taskList, iC);
