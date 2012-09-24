@@ -1258,7 +1258,7 @@ namespace ecaldqm {
   {
     /*
       uses
-      TimingTask.TimMap (h01)
+      TimingTask.TimeMap (h01)
       TimingClient.Quality (meg01)
     */
 

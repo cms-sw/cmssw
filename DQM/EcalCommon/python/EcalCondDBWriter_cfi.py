@@ -93,7 +93,7 @@ ecalCondDBWriter = cms.EDAnalyzer("EcalCondDBWriter",
             PNQuality = testPulseClient.PNQualitySummary
         ),
         Timing = cms.untracked.PSet(
-            Timing = timingTask.Timing,
+            Timing = timingTask.TimeMap,
             Quality = timingClient.Quality
         ),
         Led = cms.untracked.PSet(
