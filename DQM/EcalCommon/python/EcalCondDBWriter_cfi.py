@@ -36,6 +36,7 @@ pedestalClient = dqmpset(ecalPedestalClient['MEs'])
 presampleClient = dqmpset(ecalPresampleClient['MEs'])
 pnIntegrityClient = dqmpset(ecalPnIntegrityClient['MEs'])
 testPulseClient = dqmpset(ecalTestPulseClient['MEs'])
+timingClient = dqmpset(ecalTimingClient['MEs'])
 
 ecalCondDBWriter = cms.EDAnalyzer("EcalCondDBWriter",
     DBName = cms.untracked.string(""),
