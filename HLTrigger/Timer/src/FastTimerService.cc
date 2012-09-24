@@ -32,6 +32,8 @@ typedef int clockid_t;
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/HLTPathStatus.h"
@@ -55,30 +57,30 @@ void fill_dups(std::vector<std::string> & dups, unsigned int size) {
 
 FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::ActivityRegistry & registry) :
   // configuration
-  m_timer_id(                   config.getUntrackedParameter<bool>(        "useRealTimeClock",          true ) ? CLOCK_REALTIME : CLOCK_THREAD_CPUTIME_ID),
+  m_timer_id(                   config.getUntrackedParameter<bool>(    "useRealTimeClock"         ) ? CLOCK_REALTIME : CLOCK_THREAD_CPUTIME_ID),
   m_is_cpu_bound(               false ),
-  m_enable_timing_paths(        config.getUntrackedParameter<bool>(        "enableTimingPaths",         true ) ),
-  m_enable_timing_modules(      config.getUntrackedParameter<bool>(        "enableTimingModules",       true ) ),
-  m_enable_timing_exclusive(    config.getUntrackedParameter<bool>(        "enableTimingExclusive",     false) ),
-  m_enable_timing_summary(      config.getUntrackedParameter<bool>(        "enableTimingSummary",       false) ),
-  m_skip_first_path(            config.getUntrackedParameter<bool>(        "skipFirstPath",             false) ),
+  m_enable_timing_paths(        config.getUntrackedParameter<bool>(    "enableTimingPaths"        ) ),
+  m_enable_timing_modules(      config.getUntrackedParameter<bool>(    "enableTimingModules"      ) ),
+  m_enable_timing_exclusive(    config.getUntrackedParameter<bool>(    "enableTimingExclusive"    ) ),
+  m_enable_timing_summary(      config.getUntrackedParameter<bool>(    "enableTimingSummary"      ) ),
+  m_skip_first_path(            config.getUntrackedParameter<bool>(    "skipFirstPath"            ) ),
   // dqm configuration
-  m_enable_dqm(                  config.getUntrackedParameter<bool>(       "enableDQM",                 true ) ),
-  m_enable_dqm_bypath_active(    config.getUntrackedParameter<bool>(       "enableDQMbyPathActive",     false) ),
-  m_enable_dqm_bypath_total(     config.getUntrackedParameter<bool>(       "enableDQMbyPathTotal",      true ) ),
-  m_enable_dqm_bypath_overhead(  config.getUntrackedParameter<bool>(       "enableDQMbyPathOverhead",   false) ),
-  m_enable_dqm_bypath_details(   config.getUntrackedParameter<bool>(       "enableDQMbyPathDetails",    false) ),
-  m_enable_dqm_bypath_counters(  config.getUntrackedParameter<bool>(       "enableDQMbyPathCounters",   true ) ),
-  m_enable_dqm_bypath_exclusive( config.getUntrackedParameter<bool>(       "enableDQMbyPathExclusive",  false) ),
-  m_enable_dqm_bymodule(         config.getUntrackedParameter<bool>(       "enableDQMbyModule",         false) ),
-  m_enable_dqm_bylumi(           config.getUntrackedParameter<bool>(       "enableDQMbyLumi",           false) ),
-  m_dqm_eventtime_range(         config.getUntrackedParameter<double>(     "dqmTimeRange",              1000.) ),    // ms
-  m_dqm_eventtime_resolution(    config.getUntrackedParameter<double>(     "dqmTimeResolution",            5.) ),    // ms
-  m_dqm_pathtime_range(          config.getUntrackedParameter<double>(     "dqmPathTimeRange",           100.) ),    // ms
-  m_dqm_pathtime_resolution(     config.getUntrackedParameter<double>(     "dqmPathTimeResolution",       0.5) ),    // ms
-  m_dqm_moduletime_range(        config.getUntrackedParameter<double>(     "dqmModuleTimeRange",          40.) ),    // ms
-  m_dqm_moduletime_resolution(   config.getUntrackedParameter<double>(     "dqmModuleTimeResolution",     0.2) ),    // ms
-  m_dqm_path(                    config.getUntrackedParameter<std::string>("dqmPath",      "HLT/TimerService") ),
+  m_enable_dqm(                  config.getUntrackedParameter<bool>(   "enableDQM"                ) ),
+  m_enable_dqm_bypath_active(    config.getUntrackedParameter<bool>(   "enableDQMbyPathActive"    ) ),
+  m_enable_dqm_bypath_total(     config.getUntrackedParameter<bool>(   "enableDQMbyPathTotal"     ) ),
+  m_enable_dqm_bypath_overhead(  config.getUntrackedParameter<bool>(   "enableDQMbyPathOverhead"  ) ),
+  m_enable_dqm_bypath_details(   config.getUntrackedParameter<bool>(   "enableDQMbyPathDetails"   ) ),
+  m_enable_dqm_bypath_counters(  config.getUntrackedParameter<bool>(   "enableDQMbyPathCounters"  ) ),
+  m_enable_dqm_bypath_exclusive( config.getUntrackedParameter<bool>(   "enableDQMbyPathExclusive" ) ),
+  m_enable_dqm_bymodule(         config.getUntrackedParameter<bool>(   "enableDQMbyModule"        ) ),
+  m_enable_dqm_bylumi(           config.getUntrackedParameter<bool>(   "enableDQMbyLumi"          ) ),
+  m_dqm_eventtime_range(         config.getUntrackedParameter<double>( "dqmTimeRange"             ) ),    // ms
+  m_dqm_eventtime_resolution(    config.getUntrackedParameter<double>( "dqmTimeResolution"        ) ),    // ms
+  m_dqm_pathtime_range(          config.getUntrackedParameter<double>( "dqmPathTimeRange"         ) ),    // ms
+  m_dqm_pathtime_resolution(     config.getUntrackedParameter<double>( "dqmPathTimeResolution"    ) ),    // ms
+  m_dqm_moduletime_range(        config.getUntrackedParameter<double>( "dqmModuleTimeRange"       ) ),    // ms
+  m_dqm_moduletime_resolution(   config.getUntrackedParameter<double>( "dqmModuleTimeResolution"  ) ),    // ms
+  m_dqm_path(                    config.getUntrackedParameter<std::string>("dqmPath" ) ),
   // caching
   m_first_path(0),          // these are initialized at prePathBeginRun(),
   m_last_path(0),           // to make sure we cache the correct pointers
@@ -879,3 +881,30 @@ double FastTimerService::queryEventTime() const {
   return m_event;
 }
 
+// describe the module's configuration
+void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<bool>(   "useRealTimeClock",         true);
+  desc.addUntracked<bool>(   "enableTimingPaths",        true);
+  desc.addUntracked<bool>(   "enableTimingModules",      true);
+  desc.addUntracked<bool>(   "enableTimingExclusive",    false);
+  desc.addUntracked<bool>(   "enableTimingSummary",      false);
+  desc.addUntracked<bool>(   "skipFirstPath",            false), 
+  desc.addUntracked<bool>(   "enableDQM",                true);
+  desc.addUntracked<bool>(   "enableDQMbyPathActive",    false);
+  desc.addUntracked<bool>(   "enableDQMbyPathTotal",     true);
+  desc.addUntracked<bool>(   "enableDQMbyPathOverhead",  false);
+  desc.addUntracked<bool>(   "enableDQMbyPathDetails",   false);
+  desc.addUntracked<bool>(   "enableDQMbyPathCounters",  true);
+  desc.addUntracked<bool>(   "enableDQMbyPathExclusive", false);
+  desc.addUntracked<bool>(   "enableDQMbyModule",        false);
+  desc.addUntracked<bool>(   "enableDQMbyLumi",          false);
+  desc.addUntracked<double>( "dqmTimeRange",             1000. );
+  desc.addUntracked<double>( "dqmTimeResolution",           5. );
+  desc.addUntracked<double>( "dqmPathTimeRange",          100. );
+  desc.addUntracked<double>( "dqmPathTimeResolution",       0.5);
+  desc.addUntracked<double>( "dqmModuleTimeRange",         40. );
+  desc.addUntracked<double>( "dqmModuleTimeResolution",     0.2);
+  desc.addUntracked<std::string>( "dqmPath",             "HLT/TimerService");
+  descriptions.add("FastTimerService", desc);
+}

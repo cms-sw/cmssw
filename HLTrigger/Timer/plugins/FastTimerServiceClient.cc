@@ -43,7 +43,7 @@ private:
 };
 
 FastTimerServiceClient::FastTimerServiceClient(edm::ParameterSet const & config) :
-  m_dqm_path( config.getUntrackedParameter<std::string>( "dqmPath", "TimerService") )
+  m_dqm_path( config.getUntrackedParameter<std::string>( "dqmPath" ) )
 {
 }
 
@@ -169,8 +169,8 @@ FastTimerServiceClient::fillDescriptions(edm::ConfigurationDescriptions & descri
   // The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.addUntracked<std::string>( "dqmPath", "HLT/TimerService");
+  descriptions.add("fastTimerServiceClient", desc);
 }
 
 //define this as a plug-in

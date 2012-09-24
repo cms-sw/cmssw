@@ -131,6 +131,9 @@ private:
   // needed for the DAQ when reconfiguring between runs
   void reset();
 
+public:
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
 private:
 
   struct ModuleInfo {
