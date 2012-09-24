@@ -139,10 +139,11 @@ ecalCondDBWriter = cms.EDAnalyzer("EcalCondDBWriter",
                 Amplitude = ledTask.Amplitude,
                 AOverP = ledTask.AOverP,
                 Timing = ledTask.Timing,
-                Quality = ledClient.Quality,
-                PNAmplitude = ledTask.PNAmplitude,
-                PNQuality = ledClient.PNQualitySummary,
-                PNPedestal = pnDiodeTask.Pedestal
+                Quality = ledClient.Quality
+# MON_PN_LED1_DAT and MON_PN_LED2_DAT do not exist in the DB as of September 2012                
+#                PNAmplitude = ledTask.PNAmplitude,
+#                PNQuality = ledClient.PNQualitySummary,
+#                PNPedestal = pnDiodeTask.Pedestal
             )
         ),
         Occupancy = cms.untracked.PSet(

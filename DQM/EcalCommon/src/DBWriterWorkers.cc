@@ -31,10 +31,10 @@
 #include "OnlineDB/EcalCondDB/interface/MonTimingCrystalDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLed1Dat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLed2Dat.h"
-#include "OnlineDB/EcalCondDB/interface/MonPNLed1Dat.h"
-#include "OnlineDB/EcalCondDB/interface/MonPNLed2Dat.h"
-#include "OnlineDB/EcalCondDB/interface/MonTimingLed2CrystalDat.h"
+// #include "OnlineDB/EcalCondDB/interface/MonPNLed1Dat.h"
+// #include "OnlineDB/EcalCondDB/interface/MonPNLed2Dat.h"
 #include "OnlineDB/EcalCondDB/interface/MonTimingLed1CrystalDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingLed2CrystalDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -1283,7 +1283,8 @@ namespace ecaldqm {
     map<string, string> replacements;
     stringstream ss;
 
-    string wlPlots[] = {"Amplitude", "AOverP", "Timing", "Quality", "PNAmplitude", "PNQuality"};
+//     string wlPlots[] = {"Amplitude", "AOverP", "Timing", "Quality", "PNAmplitude", "PNQuality"};
+    string wlPlots[] = {"Amplitude", "AOverP", "Timing", "Quality"};
     for(unsigned iS(0); iS < sizeof(wlPlots) / sizeof(string); ++iS){
       string plot(wlPlots[iS]);
       MESetMulti const* multi(static_cast<MESetMulti const*>(source_[plot]));
@@ -1310,18 +1311,18 @@ namespace ecaldqm {
       LedTask.Timing (h09, h10)
       LedClient.Quality (meg01, meg02)
       LedTask.PNAmplitude (i09, i10)
-      LedClient.PNQualitySummary (meg09, meg10)
-      PNDiodeTask.Pedestal (i13, i14)
+x      LedClient.PNQualitySummary (meg09, meg10)
+x      PNDiodeTask.Pedestal (i13, i14)
     */
 
     bool result(true);
 
     std::map<EcalLogicID, MonLed1Dat> l1Amp;
     std::map<EcalLogicID, MonTimingLed1CrystalDat> l1Time;
-    std::map<EcalLogicID, MonPNLed1Dat> l1PN;
+//     std::map<EcalLogicID, MonPNLed1Dat> l1PN;
     std::map<EcalLogicID, MonLed2Dat> l2Amp;
     std::map<EcalLogicID, MonTimingLed2CrystalDat> l2Time;
-    std::map<EcalLogicID, MonPNLed2Dat> l2PN;
+//     std::map<EcalLogicID, MonPNLed2Dat> l2PN;
 
     MESet const* ampME(source_["Amplitude"]);
     MESet const* aopME(source_["AOverP"]);
@@ -1330,11 +1331,11 @@ namespace ecaldqm {
     if(!ampME || !aopME || !timeME || !qualityME)
       throw cms::Exception("Configuration") << "Led MEs not found";
 
-    MESet const* pnME(source_["PNAmplitude"]);
-    MESet const* pnQualityME(source_["PNQuality"]);
-    MESet const* pnPedestalME(source_["PNPedestal"]);
-    if(!pnME || !pnQualityME || !pnPedestalME)
-      throw cms::Exception("Configuration") << "Led PN MEs not found";
+//     MESet const* pnME(source_["PNAmplitude"]);
+//     MESet const* pnQualityME(source_["PNQuality"]);
+//     MESet const* pnPedestalME(source_["PNPedestal"]);
+//     if(!pnME || !pnQualityME || !pnPedestalME)
+//       throw cms::Exception("Configuration") << "Led PN MEs not found";
 
     for(std::map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr){
       int wl(wlItr->first);
@@ -1344,8 +1345,8 @@ namespace ecaldqm {
       static_cast<MESetMulti const*>(aopME)->use(iM);
       static_cast<MESetMulti const*>(timeME)->use(iM);
       static_cast<MESetMulti const*>(qualityME)->use(iM);
-      static_cast<MESetMulti const*>(pnME)->use(iM);
-      static_cast<MESetMulti const*>(pnQualityME)->use(iM);
+//       static_cast<MESetMulti const*>(pnME)->use(iM);
+//       static_cast<MESetMulti const*>(pnQualityME)->use(iM);
 
       MESet::const_iterator aEnd(ampME->end());
       MESet::const_iterator qItr(qualityME);
@@ -1412,62 +1413,62 @@ namespace ecaldqm {
         result &= qualityOK(channelStatus);
       }
 
-      for(unsigned iMD(0); iMD < memDCC.size(); ++iMD){
-        unsigned iDCC(memDCC[iMD]);
+//       for(unsigned iMD(0); iMD < memDCC.size(); ++iMD){
+//         unsigned iDCC(memDCC[iMD]);
 
-        if(iDCC >= kEBmLow && iDCC <= kEBpHigh) continue;
+//         if(iDCC >= kEBmLow && iDCC <= kEBpHigh) continue;
 
-        for(unsigned iPN(1); iPN <= 10; ++iPN){
-          EcalPnDiodeDetId pnid(EcalEndcap, iDCC + 1, iPN);
+//         for(unsigned iPN(1); iPN <= 10; ++iPN){
+//           EcalPnDiodeDetId pnid(EcalEndcap, iDCC + 1, iPN);
 
-          float entries(pnME->getBinEntries(pnid));
-          if(entries < 1.) continue;
+//           float entries(pnME->getBinEntries(pnid));
+//           if(entries < 1.) continue;
 
-          float mean(pnME->getBinContent(pnid));
-          float rms(pnME->getBinError(pnid) * std::sqrt(entries));
+//           float mean(pnME->getBinContent(pnid));
+//           float rms(pnME->getBinError(pnid) * std::sqrt(entries));
 
-          float pedestalEntries(pnPedestalME->getBinEntries(pnid));
-          float pedestalMean(pnPedestalME->getBinContent(pnid));
-          float pedestalRms(pnPedestalME->getBinError(pnid) * std::sqrt(pedestalEntries));
+//           float pedestalEntries(pnPedestalME->getBinEntries(pnid));
+//           float pedestalMean(pnPedestalME->getBinContent(pnid));
+//           float pedestalRms(pnPedestalME->getBinError(pnid) * std::sqrt(pedestalEntries));
 
-          int channelStatus(pnQualityME->getBinContent(pnid));
-          bool channelBad(channelStatus == kBad || channelStatus == kMBad);
+//           int channelStatus(pnQualityME->getBinContent(pnid));
+//           bool channelBad(channelStatus == kBad || channelStatus == kMBad);
 
-          switch(wl){
-          case 1:
-            {
-              MonPNLed1Dat& data(l1PN[lmPNID(pnid)]);
-              data.setADCMeanG1(-1.);
-              data.setADCRMSG1(-1.);
-              data.setPedMeanG1(-1.);
-              data.setPedRMSG1(-1.);
-              data.setADCMeanG16(mean);
-              data.setADCRMSG16(rms);
-              data.setPedMeanG16(pedestalMean);
-              data.setPedRMSG16(pedestalRms);
-              data.setTaskStatus(channelBad);
-            }
-            break;
-          case 2:
-            {
-              MonPNLed2Dat& data(l2PN[lmPNID(pnid)]);
-              data.setADCMeanG1(-1.);
-              data.setADCRMSG1(-1.);
-              data.setPedMeanG1(-1.);
-              data.setPedRMSG1(-1.);
-              data.setADCMeanG16(mean);
-              data.setADCRMSG16(rms);
-              data.setPedMeanG16(pedestalMean);
-              data.setPedRMSG16(pedestalRms);
-              data.setTaskStatus(channelBad);
-            }
-            break;
-          }
+//           switch(wl){
+//           case 1:
+//             {
+//               MonPNLed1Dat& data(l1PN[lmPNID(pnid)]);
+//               data.setADCMeanG1(-1.);
+//               data.setADCRMSG1(-1.);
+//               data.setPedMeanG1(-1.);
+//               data.setPedRMSG1(-1.);
+//               data.setADCMeanG16(mean);
+//               data.setADCRMSG16(rms);
+//               data.setPedMeanG16(pedestalMean);
+//               data.setPedRMSG16(pedestalRms);
+//               data.setTaskStatus(channelBad);
+//             }
+//             break;
+//           case 2:
+//             {
+//               MonPNLed2Dat& data(l2PN[lmPNID(pnid)]);
+//               data.setADCMeanG1(-1.);
+//               data.setADCRMSG1(-1.);
+//               data.setPedMeanG1(-1.);
+//               data.setPedRMSG1(-1.);
+//               data.setADCMeanG16(mean);
+//               data.setADCRMSG16(rms);
+//               data.setPedMeanG16(pedestalMean);
+//               data.setPedRMSG16(pedestalRms);
+//               data.setTaskStatus(channelBad);
+//             }
+//             break;
+//           }
 
-          result &= qualityOK(channelStatus);
+//           result &= qualityOK(channelStatus);
 
-        }
-      }
+//         }
+//       }
     }
 
     try{
@@ -1475,14 +1476,14 @@ namespace ecaldqm {
         _db->insertDataArraySet(&l1Amp, &_iov);
       if(l1Time.size() > 0)
         _db->insertDataArraySet(&l1Time, &_iov);
-      if(l1PN.size() > 0)
-        _db->insertDataArraySet(&l1PN, &_iov);
+//       if(l1PN.size() > 0)
+//         _db->insertDataArraySet(&l1PN, &_iov);
       if(l2Amp.size() > 0)
         _db->insertDataArraySet(&l2Amp, &_iov);
       if(l2Time.size() > 0)
         _db->insertDataArraySet(&l2Time, &_iov);
-      if(l2PN.size() > 0)
-        _db->insertDataArraySet(&l2PN, &_iov);
+//       if(l2PN.size() > 0)
+//         _db->insertDataArraySet(&l2PN, &_iov);
     }
     catch(std::runtime_error& e){
       if(std::string(e.what()).find("unique constraint") != std::string::npos)
