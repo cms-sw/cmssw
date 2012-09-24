@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -36,6 +37,7 @@ class MonitorLTC : public edm::EDAnalyzer {
        MonitorElement * LTCTriggerDecision_all;
        //
        std::string HLTDirectory;
+       edm::InputTag ltcDigiCollectionTag_;
 };
 
 #endif
