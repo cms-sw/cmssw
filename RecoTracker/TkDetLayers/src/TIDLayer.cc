@@ -90,23 +90,40 @@ public:
   
 }
 
+//hopefully is never called!
+const std::vector<const GeometricSearchDet*>& TIDLayer::components() const{
+  static std::vector<const GeometricSearchDet*> crap;
+  for ( auto c: theComps) crap.push_back(c);
+  return crap;
+ }
 
 
+void
+TIDLayer::fillRingPars(int i) {
+  const BoundDisk& ringDisk = static_cast<const BoundDisk&>(theComps[i]->surface());
+  float ringMinZ = fabs( ringDisk.position().z()) - ringDisk.bounds().thickness()/2.;
+  float ringMaxZ = fabs( ringDisk.position().z()) + ringDisk.bounds().thickness()/2.; 
+  ringPars[i].thetaRingMin =  ringDisk.innerRadius()/ ringMaxZ;
+  ringPars[i].thetaRingMax =  ringDisk.outerRadius()/ ringMinZ;
+  ringPars[i].theRingR=( ringDisk.innerRadius() +
+			 ringDisk.outerRadius())/2.;
 
-TIDLayer::TIDLayer(vector<const TIDRing*>& rings):
-  theComps(rings.begin(),rings.end())
-{
+}
+
+
+TIDLayer::TIDLayer(vector<const TIDRing*>& rings) {
   //They should be already R-ordered. TO BE CHECKED!!
   //sort( theRings.begin(), theRings.end(), DetLessR());
+
+  if ( rings.size() != 3) throw DetLayerException("Number of rings in TID layer is not equal to 3 !!");
   setSurface( computeDisk( rings ) );
 
-  if ( theComps.size() != 3) throw DetLayerException("Number of rings in TID layer is not equal to 3 !!");
-
-  for(vector<const GeometricSearchDet*>::const_iterator it=theComps.begin();
-      it!=theComps.end();it++){  
+  for(int i=0; i!=3; ++i) {
+    theComps[i]=rings[i];
+    fillRingPars(i);
     theBasicComps.insert(theBasicComps.end(),	
-			 (**it).basicComponents().begin(),
-			 (**it).basicComponents().end());
+			 (*rings[i]).basicComponents().begin(),
+			 (*rings[i]).basicComponents().end());
   }
 
  
@@ -152,11 +169,7 @@ TIDLayer::computeDisk( const vector<const TIDRing*>& rings) const
 
 
 TIDLayer::~TIDLayer(){
-  vector<const GeometricSearchDet*>::const_iterator i;
-  for (i=theComps.begin(); i!=theComps.end(); i++) {
-    delete *i;
-  }
-
+  for (auto c : theComps) delete c;
 } 
 
   
@@ -289,14 +302,10 @@ int
 TIDLayer::findClosest(const GlobalPoint ringCrossing[3] ) const
 {
   int theBin = 0;
-  const BoundDisk & theFrontRing  = static_cast<const BoundDisk &>(theComps[0]->surface());
-  float initialR = 0.5*( theFrontRing.innerRadius() +
-			 theFrontRing.outerRadius());
+  float initialR =  ringPars[0].theRingR;
   float rDiff = fabs( ringCrossing[0].perp() - initialR);
   for (int i = 1; i < 3 ; i++){
-    const BoundDisk & theRing  = static_cast<const BoundDisk &>(theComps[i]->surface());
-    float ringR = 0.5*( theRing.innerRadius() + 
-			theRing.outerRadius());
+    float ringR =  ringPars[i].theRingR;
     float testDiff = fabs( ringCrossing[i].perp() - ringR);
     if ( testDiff<rDiff ) {
       rDiff = testDiff;
@@ -311,17 +320,12 @@ TIDLayer::findNextIndex(const GlobalPoint ringCrossing[3], int closest ) const
 {
 
   int firstIndexToCheck = (closest != 0)? 0 : 1; 
-  const BoundDisk & theFrontRing  = static_cast<const BoundDisk &>(theComps[firstIndexToCheck]->surface());
-  float initialR = ( theFrontRing.innerRadius() +
-		     theFrontRing.outerRadius())/2.;	     
-
+  float initialR =  ringPars[firstIndexToCheck].theRingR;	     
   float rDiff = fabs( ringCrossing[0].perp() - initialR);
   int theBin = firstIndexToCheck;
   for (int i = firstIndexToCheck+1; i < 3 ; i++){
     if ( i != closest) {
-      const BoundDisk & theRing  = static_cast<const BoundDisk &>(theComps[i]->surface());
-      float ringR = ( theRing.innerRadius() + 
-		      theRing.outerRadius())/2.;
+      float ringR =  ringPars[i].theRingR;
       float testDiff = fabs( ringCrossing[i].perp() - ringR);
       if ( testDiff<rDiff ) {
 	rDiff = testDiff;
@@ -339,19 +343,12 @@ TIDLayer::overlapInR( const TrajectoryStateOnSurface& tsos, int index, double ym
 {
   // assume "fixed theta window", i.e. margin in local y = r is changing linearly with z
   float tsRadius = tsos.globalPosition().perp();
-  float thetamin = ( max(0.,tsRadius-ymax))/(fabs(tsos.globalPosition().z())+10.); // add 10 cm contingency 
-  float thetamax = ( tsRadius + ymax)/(fabs(tsos.globalPosition().z())-10.);
+  float thetamin = ( max(0.,tsRadius-ymax))/(fabs(tsos.globalPosition().z())+10.f); // add 10 cm contingency 
+  float thetamax = ( tsRadius + ymax)/(fabs(tsos.globalPosition().z())-10.f);
   
-  // costanti dell'universo?
-  const BoundDisk& ringDisk = static_cast<const BoundDisk&>(theComps[index]->surface());
-  float ringMinZ = fabs( ringDisk.position().z()) - ringDisk.bounds().thickness()/2.;
-  float ringMaxZ = fabs( ringDisk.position().z()) + ringDisk.bounds().thickness()/2.; 
-  float thetaRingMin =  ringDisk.innerRadius()/ ringMaxZ;
-  float thetaRingMax =  ringDisk.outerRadius()/ ringMinZ;
-
   // do the theta regions overlap ?
 
-  return !( thetamin > thetaRingMax || thetaRingMin > thetamax);
+  return !( thetamin > ringPars[index].thetaRingMax || ringPars[index].thetaRingMin > thetamax);
 }
 
 

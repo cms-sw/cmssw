@@ -178,7 +178,7 @@ TIBRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   }
   
   // only loop over neighbors (other than closest and next) if window is BIG
-  if (window > 0.5*detWidth) {
+  if (window > 0.5f*detWidth) {
     searchNeighbors( tsos, prop, est, crossings, window, result);
   } 
 }

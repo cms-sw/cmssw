@@ -21,7 +21,7 @@ class TIDLayer GCC11_FINAL : public RingedForwardLayer, public GeometricSearchDe
   
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
   
-  virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
+  virtual const std::vector<const GeometricSearchDet*>& components() const;
 
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
@@ -53,12 +53,14 @@ class TIDLayer GCC11_FINAL : public RingedForwardLayer, public GeometricSearchDe
   			   const TrajectoryStateOnSurface& tsos, 
 			   const MeasurementEstimator& est) const;
   
-
+  void fillRingPars(int i);
 
  private:
-  std::vector<const GeometricSearchDet*> theComps;
-  std::vector<const GeomDet*> theBasicComps;
-  
+  std::vector<GeomDet const*> theBasicComps;
+  const TIDRing* theComps[3];
+  struct RingPar { float theRingR, thetaRingMin, thetaRingMax;};
+  RingPar ringPars[3];
+
 };
 
 

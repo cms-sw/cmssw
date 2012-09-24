@@ -301,7 +301,7 @@ CompositeTECPetal::overlap( const GlobalPoint& gpos, const GeometricSearchDet& g
 
   // assume "fixed theta window", i.e. margin in local y = r is changing linearly with z
   float tsRadius = gpos.perp();
-  float thetamin = ( max((float)0.,tsRadius-ymax))/(fabs(gpos.z())+10.); // add 10 cm contingency 
+  float thetamin =  std::max(0.f,tsRadius-ymax)/(fabs(gpos.z())+10.); // add 10 cm contingency 
   float thetamax = ( tsRadius + ymax)/(fabs(gpos.z())-10.);
 
   const BoundDiskSector& wedgeSector = static_cast<const BoundDiskSector&>( gsdet.surface());                   
