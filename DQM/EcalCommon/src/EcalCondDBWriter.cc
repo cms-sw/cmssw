@@ -52,21 +52,20 @@ EcalCondDBWriter::EcalCondDBWriter(edm::ParameterSet const& _ps) :
 
   if(verbosity_ > 0) std::cout << "Establishing DB connection" << std::endl;
 
-  if(hostName == ""){
-    try{
-      db = std::auto_ptr<EcalCondDBInterface>(new EcalCondDBInterface(DBName, userName, password));
-    }
-    catch(std::runtime_error& re){
-      throw cms::Exception("DBError") << re.what();
-    }
+  try{
+    db = std::auto_ptr<EcalCondDBInterface>(new EcalCondDBInterface(DBName, userName, password));
   }
-  else{
-    try{
-      db = std::auto_ptr<EcalCondDBInterface>(new EcalCondDBInterface(hostName, DBName, userName, password, hostPort));
+  catch(std::runtime_error& re){
+    if(hostName != ""){
+      try{
+        db = std::auto_ptr<EcalCondDBInterface>(new EcalCondDBInterface(hostName, DBName, userName, password, hostPort));
+      }
+      catch(std::runtime_error& re2){
+        throw cms::Exception("DBError") << re2.what();
+      }
     }
-    catch(std::runtime_error& re){
+    else
       throw cms::Exception("DBError") << re.what();
-    }
   }
 
   db_ = db.release();
