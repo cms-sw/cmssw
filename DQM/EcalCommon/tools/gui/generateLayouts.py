@@ -118,6 +118,8 @@ smMEMNamesEE = ["EE-02", "EE-03", "EE-07", "EE-08", "EE+02", "EE+03", "EE+07", "
 
 laserWavelengths = ['1', '2', '3']
 
+laserNames = ['Quantronics', 'Green', 'Photonics']
+
 ledWavelengths = ['1', '2']
 
 mgpaGains = ['12']
@@ -264,7 +266,7 @@ layouts['shift_ecal_layout'] = LayoutDir("00 Shift/Ecal", [
     ecal3P('Timing', timingClientPaths['QualitySummary'], "Timing alignment of the Ecal reconstructed hit."),
     ecal3P('TriggerPrimitives', trigPrimClientPaths['EmulQualitySummary'], "Trigger primitive quality determined by emulator matching."),    
 #    ecal3P('Hot Cells', occupancyClientPaths['QualitySummary'], "Phi-symmetry of the channel occupancy."),    
-    ecal3P('Laser', laserClientPaths['QualitySummary'], 'Quality of the main laser (laser 3)', rep = {'wl': '3'}),
+    ecal3P('Laser', laserClientPaths['QualitySummary'], 'Quality of the main laser (Photonics)', rep = {'wl': '3'}),
     ecal2P('Laser PN', laserClientPaths['PNQualitySummary'], 'Quality of the main laser signal on PN diodes', rep = {'wl': '3'}),
     ecal3P('Test Pulse', testPulseClientPaths['QualitySummary'], 'Quality of the test pulse injection', rep = {'gain': '12'}),
     ecal2P('Test Pulse PN', testPulseClientPaths['PNQualitySummary'], 'Quality of the test pulse injection on PN diodes', rep = {'pngain': '16'}),
@@ -313,7 +315,7 @@ layouts['ecal-layouts'].get('Overview').append([
     ecal3P('Timing', timingClientPaths['QualitySummary'], "Timing alignment of the Ecal reconstructed hit."),
     ecal3P('Trigger Primitives', trigPrimClientPaths['EmulQualitySummary'], "Trigger primitive quality determined by emulator matching."),
     ecal3P('Hot Cells', occupancyClientPaths['QualitySummary'], "Phi-symmetry of the channel occupancy."),
-    ecal3P('Laser', laserClientPaths['QualitySummary'], 'Quality of the main laser (laser 3)', rep = {'wl': '3'}),
+    ecal3P('Laser', laserClientPaths['QualitySummary'], 'Quality of the main laser (Photonics)', rep = {'wl': '3'}),
     ecal2P('Laser PN', laserClientPaths['PNQualitySummary'], 'Quality of the main laser signal on PN diodes', rep = {'wl': '3'}),
     ecal3P('Test Pulse', testPulseClientPaths['QualitySummary'], 'Quality of the test pulse injection', rep = {'gain': '12'}),
     ecal2P('Test Pulse PN', testPulseClientPaths['PNQualitySummary'], 'Quality of the test pulse injection on PN diodes', rep = {'pngain': '16'}),
@@ -352,7 +354,7 @@ layouts['ecal-layouts'].get("Occupancy").append([
     ecal3P('Super Cluster Seed', clusterTaskPaths['SCSeedOccupancy']),
     ecal2P('Super Cluster Multiplicity', clusterTaskPaths['SCNum']),                
     ecal3P('Single Crystal Cluster', clusterTaskPaths['SingleCrystalCluster']),
-    ecal3P('Laser3', laserTaskPaths['Occupancy'], rep = {'wl': '3'}),
+    ecal3P('Photonics Laser', laserTaskPaths['Occupancy'], rep = {'wl': '3'}),
     LayoutElem('Led', [
         [[ledTaskPaths['Occupancy'] % {'wl': '1', 'suffix': ' EE -'}], [ledTaskPaths['Occupancy'] % {'wl': '1', 'suffix': ' EE +'}]],
         [[ledTaskPaths['Occupancy'] % {'wl': '2', 'suffix': ' EE -'}], [ledTaskPaths['Occupancy'] % {'wl': '2', 'suffix': ' EE -'}]]
@@ -413,7 +415,7 @@ layouts['ecal-layouts'].get("Timing").append([
         LayoutDir('RMS', smSet('RMS', timingClientPaths['RMSMap'])),
         LayoutDir('Vs Amplitude', smSet('Time vs Amplitude', timingTaskPaths['TimeAmp']))
     ]),
-    LayoutDir('Laser Timing', smSet('Laser3 Timing', (laserTaskPaths['Timing'], {'wl': '3'})))
+    LayoutDir('Laser Timing', smSet('Photonics Laser Timing', (laserTaskPaths['Timing'], {'wl': '3'})))
 ])
 
 layouts['ecal-layouts'].get("Trigger Primitives").append([
@@ -445,13 +447,13 @@ layouts['ecal-layouts'].get("Selective Readout").append([
 ])
 
 layouts['ecal-layouts'].get("Laser").append([
-    ecal3P("Quality Summary L%(wl)s", laserClientPaths['QualitySummary'], rep = {'wl': laserWavelengths}),
-    ecal3P('Amplitude L%(wl)s', laserTaskPaths['AmplitudeSummary'], rep = {'wl': laserWavelengths}),
-    ecal2P('Amplitude RMS L%(wl)s', laserClientPaths['AmplitudeRMS'], rep = {'wl': laserWavelengths}),
+    ecal3P("Quality Summary L%(wl)s (%(lname)s)", laserClientPaths['QualitySummary'], rep = {'wl': laserWavelengths, 'lname': laserNames}),
+    ecal3P('Amplitude L%(wl)s (%(lname)s)', laserTaskPaths['AmplitudeSummary'], rep = {'wl': laserWavelengths, 'lname': laserNames}),
+    ecal2P('Amplitude RMS L%(wl)s (%(lname)s)', laserClientPaths['AmplitudeRMS'], rep = {'wl': laserWavelengths, 'lname': laserNames}),
     ecal3P('Occupancy', laserTaskPaths['Occupancy']),
-    ecal2P('Timing Spread L%(wl)s', laserClientPaths['TimingRMSMap'], rep = {'wl': laserWavelengths}),
-    ecal2P('PN Quality Summary L%(wl)s', laserClientPaths['PNQualitySummary'], rep = {'wl': laserWavelengths}),
-    LayoutDirSet('Laser%(wl)s', [
+    ecal2P('Timing Spread L%(wl)s (%(lname)s)', laserClientPaths['TimingRMSMap'], rep = {'wl': laserWavelengths, 'lname': laserNames}),
+    ecal2P('PN Quality Summary L%(wl)s (%(lname)s)', laserClientPaths['PNQualitySummary'], rep = {'wl': laserWavelengths, 'lname': laserNames}),
+    LayoutDirSet('Laser%(wl)s (%(lname)s)', [
         LayoutDir('Quality', smSet('Quality', laserClientPaths['Quality'])),
         LayoutDir('Amplitude', 
             smSet('Amplitude', laserTaskPaths['Amplitude']) +
@@ -464,7 +466,7 @@ layouts['ecal-layouts'].get("Laser").append([
         LayoutDir('APD Over PN', smSet('APD Over PN', laserTaskPaths['AOverP'])),
         LayoutDir('Shape', smSet('Shape', laserTaskPaths['Shape'])),
         LayoutDir('PNAmplitude', smMEMSet('Amplitude', laserTaskPaths['PNAmplitude'])),
-    ], {'wl': laserWavelengths}, addSerial = False)
+    ], {'wl': laserWavelengths, 'lname': laserNames}, addSerial = False)
 ])
 
 layouts['ecal-layouts'].get("Led").append([
@@ -571,23 +573,23 @@ superModuleSet = [
         [[trigPrimTaskPaths['MatchedIndex']]]
     ]),
     LayoutDir('Laser', [
-        LayoutElemSet('Quality L%(wl)s', [
+        LayoutElemSet('Quality L%(wl)s (%(lname)s)', [
             [[laserClientPaths['Quality']]]
-        ], {'wl': laserWavelengths}),
-        LayoutElemSet('Amplitude L%(wl)s', [
+        ], {'wl': laserWavelengths, 'lname': laserNames}),
+        LayoutElemSet('Amplitude L%(wl)s (%(lname)s)', [
             [[laserTaskPaths['Amplitude']]],
             [[laserClientPaths['AmplitudeMean']]]
-        ], {'wl': laserWavelengths}),
-        LayoutElemSet('Timing L%(wl)s', [
+        ], {'wl': laserWavelengths, 'lname': laserNames}),
+        LayoutElemSet('Timing L%(wl)s (%(lname)s)', [
             [[laserTaskPaths['Timing']]],
             [[laserClientPaths['TimingMean']], [laserClientPaths['TimingRMS']]]
-        ], {'wl': laserWavelengths}),
-        LayoutElemSet('APD Over PN L%(wl)s', [
+        ], {'wl': laserWavelengths, 'lname': laserNames}),
+        LayoutElemSet('APD Over PN L%(wl)s (%(lname)s)', [
             [[laserTaskPaths['AOverP']]]
-        ], {'wl': laserWavelengths}),
-        LayoutElemSet('Shape L%(wl)s', [
+        ], {'wl': laserWavelengths, 'lname': laserNames}),
+        LayoutElemSet('Shape L%(wl)s (%(lname)s)', [
             [[laserTaskPaths['Shape']]]
-        ], {'wl': laserWavelengths})
+        ], {'wl': laserWavelengths, 'lname': laserNames})
     ]),
     LayoutDir('Test Pulse', [
         LayoutElemSet('Quality G%(gain)s', [
@@ -648,42 +650,50 @@ layouts['ecal_T0_layouts'].remove('Overview/Test Pulse')
 layouts['ecal_T0_layouts'].remove('Overview/Test Pulse PN')
 layouts['ecal_T0_layouts'].remove('Overview/Led')
 layouts['ecal_T0_layouts'].remove('Overview/Error Trends')
-layouts['ecal_T0_layouts'].remove('Occupancy/Laser3')
+layouts['ecal_T0_layouts'].remove('Occupancy/Photonics Laser')
 layouts['ecal_T0_layouts'].remove('Occupancy/Led')
 layouts['ecal_T0_layouts'].remove('Occupancy/Test Pulse')
+layouts['ecal_T0_layouts'].remove('Timing/Laser Timing')
 layouts['ecal_T0_layouts'].remove('By SuperModule/%(sm)s/Laser')
 layouts['ecal_T0_layouts'].remove('By SuperModule/%(sm)s/Test Pulse')
 layouts['ecal_T0_layouts'].remove('By SuperModule/%(sm)s/Pedestal')
 layouts['ecal_T0_layouts'].remove('By SuperModule/%(sm)s/Led')
 
 layouts['ecalpriv-layouts'] = layouts['ecal-layouts'].clone()
+layouts['ecalpriv-layouts'].get('Test Pulse/Quality Summary G%(gain)s').setReplacement({'gain': [1, 6, 12]})
+layouts['ecalpriv-layouts'].get('Test Pulse/PN Quality Summary G%(pngain)s').setReplacement({'pngain': [1, 16]})
+layouts['ecalpriv-layouts'].get('Test Pulse/Gain%(gain)s').setReplacement({'gain': [1, 6, 12]})
+layouts['ecalpriv-layouts'].get('Test Pulse/PNGain%(pngain)s').setReplacement({'pngain': [1, 16]})
+layouts['ecalpriv-layouts'].get('By SuperModule/%(sm)s/Test Pulse/Quality G%(gain)s').setReplacement({'gain': [1, 6, 12]})
+layouts['ecalpriv-layouts'].get('By SuperModule/%(sm)s/Test Pulse/Amplitude G%(gain)s').setReplacement({'gain': [1, 6, 12]})
+layouts['ecalpriv-layouts'].get('By SuperModule/%(sm)s/Test Pulse/Shape G%(gain)s').setReplacement({'gain': [1, 6, 12]})
 layouts['ecalpriv-layouts'].insert("By SuperModule",
     LayoutDir("Pedestal", [
-        ecal3P('Quality Summary G%(gain)s', pedestalClientPaths['QualitySummary'], rep = {'gain': mgpaGains}),
-        ecal3P('Occupancy G%(gain)s', pedestalTaskPaths['Occupancy'], rep = {'gain': mgpaGains}),
-        ecal2P('PN Quality Summary G%(pngain)s', pedestalClientPaths['PNQualitySummary'], rep = {'pngain': pnMGPAGains}),
+        ecal3P('Quality Summary G%(gain)s', pedestalClientPaths['QualitySummary'], rep = {'gain': [1, 6, 12]}),
+        ecal3P('Occupancy G%(gain)s', pedestalTaskPaths['Occupancy'], rep = {'gain': [1, 6, 12]}),
+        ecal2P('PN Quality Summary G%(pngain)s', pedestalClientPaths['PNQualitySummary'], rep = {'pngain': [1, 16]}),
         LayoutDirSet('Gain%(gain)s', [
             LayoutDir('Quality', smSet('Quality', pedestalClientPaths['Quality'])),
             LayoutDir('Pedestal', 
                 smSet('Map', pedestalTaskPaths['Pedestal']) +
                 smSet('Distributions', pedestalClientPaths['Mean'], pedestalClientPaths['RMS'])
             )
-        ], {'gain': mgpaGains}, addSerial = False),
+        ], {'gain': [1, 6, 12]}, addSerial = False),
         LayoutDirSet('PNGain%(pngain)s', 
             smSet('Mean', pedestalTaskPaths['PNPedestal']) +
             smSet('RMS', pedestalClientPaths['PNRMS']),
-            {'pngain': pnMGPAGains}, addSerial = False)
+            {'pngain': [1, 16]}, addSerial = False)
     ])
 )
 layouts['ecalpriv-layouts'].get('By SuperModule/%(sm)s').append(
     LayoutDir('Pedestal', [
         LayoutElemSet('Quality G%(gain)s', [
             [[pedestalClientPaths['Quality']]]
-        ], {'gain': mgpaGains}),
+        ], {'gain': [1, 6, 12]}),
         LayoutElemSet('Pedestal G%(gain)s', [
             [[pedestalTaskPaths['Pedestal']]],
             [[pedestalClientPaths['Mean']], [pedestalClientPaths['RMS']]]
-        ], {'gain': mgpaGains})
+        ], {'gain': [1, 6, 12]})
     ])
 )
 

@@ -86,13 +86,12 @@ class LayoutDir(LayoutObj):
 
     def get(self, relPath):
         parts = relPath.split('/', 1)
-        i = 0
         for obj in self.objs_:
             if obj.name_ == parts[0]:
-                if len(parts) == 1:
-                    return obj
-                elif obj.isA() == 'LayoutDir':
+                if len(parts) == 2:
                     return obj.get(parts[1])
+                else:
+                    return obj
 
         return None
     
@@ -234,6 +233,9 @@ class LayoutSet(LayoutObj):
         if name == '':
             name = self.name_
         return LayoutSet(name, self.repLists_)
+
+    def setReplacement(self, rep):
+        self.repLists_ = rep
 
 # LayoutSet must be the first inheritance
 class LayoutDirSet(LayoutSet, LayoutDir):
