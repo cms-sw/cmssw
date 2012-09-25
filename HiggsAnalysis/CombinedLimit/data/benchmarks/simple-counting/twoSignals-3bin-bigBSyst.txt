@@ -1,0 +1,13 @@
+imax *
+jmax *
+kmax *
+---------------
+bin           Def   Alt     Ctrl
+observation   8     5       100
+---------------
+bin       Def   Def    Def    Alt   Alt    Alt   Ctrl   Ctrl   Ctrl
+process   S     S_ALT  B      S     S_ALT  B     S      S_ALT  B
+process   -1    0      1      -1    0      1     -1     0      1
+rate      5.    1.     4.     1.    4.     4.    0.01   0.01   100.
+dS  lnN   1.01  1.01   -      1.01  1.01   -     1.01   1.01   -  
+dB  lnN   -     -      2.0    -     -      2.0   -      -      2.0
