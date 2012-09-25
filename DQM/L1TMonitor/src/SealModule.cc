@@ -3,10 +3,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 
-
-#include <DQM/L1TMonitor/interface/L1TLTC.h>
-DEFINE_FWK_MODULE(L1TLTC);
-
 #include <DQM/L1TMonitor/interface/L1TFED.h>
 DEFINE_FWK_MODULE(L1TFED);
 

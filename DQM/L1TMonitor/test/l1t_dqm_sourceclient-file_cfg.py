@@ -203,8 +203,6 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 #
 #process.l1tMonitorOnline.remove(process.bxTiming)
 
-#process.l1tMonitorOnline.remove(process.l1tLtc)
-
 #process.l1tMonitorOnline.remove(process.l1Dttf)
 
 #process.l1tMonitorOnline.remove(process.l1tCsctf) 
