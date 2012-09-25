@@ -252,6 +252,9 @@ cc      SAVE /HPARNT/
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       common /para8/ idpert,npertd,idxsec
+
+      logical iwrite
+      data iwrite / .false. /
       SAVE   
 clin-5/2008 for perturbatively-produced hadrons (currently only deuterons):
 cms   OPEN (91, FILE = 'ana/deuteron_processes.dat', 
@@ -268,12 +271,14 @@ c     formed from partons inside ZPC (from string melting):
          if(NP.le.nattzp) return
          do 1001 I = nattzp+1, NP
             IF (ABS(PZAR(I)) .GE. PEAR(I)) THEN
+              if ( iwrite ) then
                PRINT *, ' IN ARINI1'
                PRINT *, 'ABS(PZ) .GE. EE for particle ', I
                PRINT *, ' FLAV = ', ITYPAR(I), ' PX = ', PXAR(I), 
      &              ' PY = ', PYAR(I)
                PRINT *, ' PZ = ', PZAR(I), ' EE = ', PEAR(I)
                PRINT *, ' XM = ', XMAR(I)
+               endif
                RAP = 1000000.0
                GOTO 50
             END IF
@@ -299,12 +304,14 @@ clin-3/2009 cleanup of program flow:
       else
          DO 1002 I = 1, NP
             IF (ABS(PZAR(I)) .GE. PEAR(I)) THEN
+              if ( iwrite ) then
                PRINT *, ' IN ARINI1'
                PRINT *, 'ABS(PZ) .GE. EE for particle ', I
                PRINT *, ' FLAV = ', ITYPAR(I), ' PX = ', PXAR(I), 
      &              ' PY = ', PYAR(I)
                PRINT *, ' PZ = ', PZAR(I), ' EE = ', PEAR(I)
                PRINT *, ' XM = ', XMAR(I)
+               endif
                RAP = 1000000.0
                GOTO 100
 c               STOP
@@ -2849,6 +2856,9 @@ cc      SAVE /ARPRC1/
      &     DY1PI0(50), DY1PR(50), DY1PB(50)
      &     ,DY1NEG(50), DY1CH(50), DE1NEG(50), DE1CH(50)
 cc      SAVE /ARANA1/
+
+      logical iwrite
+      data iwrite / .false. /
       SAVE   
 
 cbz3/17/99 end
@@ -2867,6 +2877,7 @@ c     2/24/03 leptons and photons:
 
             XMT = SQRT(PX ** 2 + PY ** 2 + XM ** 2)
             IF (ABS(PZ) .GE. EE) THEN
+              if ( iwrite ) then
                PRINT *, 'IN ARTAN1'
                PRINT *, 'PARTICLE ', I, ' RUN ', J, 'PREC ERR'
 cbzdbg2/16/99
@@ -2877,6 +2888,7 @@ cbzdbg2/15/99
 cbzdbg2/16/99
                PRINT *, ' XM = ', XM
 cbzdbg2/16/99end
+               endif
                GOTO 200
 c               STOP
 cbzdbg2/15/99end
@@ -3042,6 +3054,9 @@ cc      SAVE /ARPRC1/
      &     ,DY2NEG(50), DY2CH(50), DE2NEG(50), DE2CH(50)
 cbz3/17/99 end
 cc      SAVE /ARANA2/
+
+      logical iwrite
+      data iwrite / .false. /
       SAVE   
 
       DO 1002 J = 1, NUM
@@ -3059,6 +3074,7 @@ c     2/24/03 leptons and photons:
             eta = 0.5*alog((Ptot+pz+1e-5)/(ptot-pz+1e-5))
 
             IF (ABS(PZ) .GE. EE) THEN
+              if ( iwrite ) then
                PRINT *, 'IN ARTAN2'
                PRINT *, 'PARTICLE ', I, ' RUN ', J, 'PREC ERR'
 cbzdbg2/16/99
@@ -3069,6 +3085,7 @@ cbzdbg2/15/99
 cbzdbg2/16/99
                PRINT *, ' XM = ', XM
 cbzdbg2/16/99end
+               endif
                GOTO 200
 c               STOP
 cbzdbg2/15/99end
@@ -3444,8 +3461,12 @@ cc      SAVE /prec1/
 cc      SAVE /AREVT/
       COMMON /AROUT/ IOUT
 cc      SAVE /AROUT/
+
+      logical iwrite
+      data iwrite / .false. /
       SAVE   
       DATA IW/0/
+
       IF (isevt .EQ. IAEVT .AND. isrun .EQ. IARUN) THEN
          DO 1001 I = 1, 200
             DMYP1(I) = SMYP1(I)
@@ -3504,10 +3525,12 @@ c.....analysis
             PE = PJPE(I, J)
             PM = PJPM(I, J)
             IF (ABS(PZ) .GE. PE) THEN
+              if ( iwrite ) then
                PRINT *, ' IN HJANA1, PROJ STR ', I, ' PART ', J
                PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
                PRINT *, ' PZ = ', PZ, ' EE = ', PE
                PRINT *, ' XM = ', PM
+               endif
                GOTO 200
             END IF
             RAP = 0.5 * LOG((PE + PZ) / (PE - PZ))
@@ -3542,10 +3565,12 @@ c.....analysis
             PE = PJTE(I, J)
             PM = PJTM(I, J)
             IF (ABS(PZ) .GE. PE) THEN
+              if ( iwrite ) then
                PRINT *, ' IN HJANA1, TARG STR ', I, ' PART ', J
                PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
                PRINT *, ' PZ = ', PZ, ' EE = ', PE
                PRINT *, ' XM = ', PM
+               endif
                GOTO 400
             END IF
             RAP = 0.5 * LOG((PE + PZ) / (PE - PZ))
@@ -3580,10 +3605,12 @@ c.....analysis
             PE = PESG(I, J)
             PM = PMSG(I, J)
             IF (ABS(PZ) .GE. PE) THEN
+              if ( iwrite ) then
                PRINT *, ' IN HJANA1, INDP STR ', I, ' PART ', J
                PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
                PRINT *, ' PZ = ', PZ, ' EE = ', PE
                PRINT *, ' XM = ', PM
+               endif
                GOTO 600
             END IF
             RAP = 0.5 * LOG((PE + PZ) / (PE - PZ))
@@ -3648,10 +3675,12 @@ c         IF (IR .GT. 50) GOTO 601
          PE = sngl(E0(I))
          PM = sngl(XMASS0(I))
          IF (ABS(PZ) .GE. PE) THEN
+           if ( iwrite ) then
             PRINT *, ' IN HJANA1, GLUON ', I
             PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
             PRINT *, ' PZ = ', PZ, ' EE = ', PE
             PRINT *, ' XM = ', PM
+            endif
             GOTO 800
          END IF
          RAP = 0.5 * LOG((PE + PZ) / (PE - PZ))
@@ -3910,6 +3939,9 @@ cc      SAVE /anim/
      &     GYSGS(MAXSTR,3),GZSGS(MAXSTR,3),FTSGS(MAXSTR,3),
      &     K1SGS(MAXSTR,3),K2SGS(MAXSTR,3),NJSGS(MAXSTR)
 cc      SAVE /SOFT/
+
+      logical iwrite
+      data iwrite / .false. /
       SAVE   
       DATA IW/0/
 
@@ -3985,10 +4017,12 @@ c.....analysis
 cbzdbg2/16/99
 c            IF (ABS(PZ) .GE. PE) GOTO 200
             IF (ABS(PZ) .GE. PE) THEN
+              if ( iwrite ) then
                PRINT *, ' IN HJANA2, PROJ STR ', I, ' PART ', J
                PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
                PRINT *, ' PZ = ', PZ, ' EE = ', PE
                PRINT *, ' XM = ', PM
+               endif
                GOTO 200
             END IF
 cbzdbg2/16/99end
@@ -4026,10 +4060,12 @@ cbzdbg2/16/99end
 cbzdbg2/16/99
 c            IF (ABS(PZ) .GE. PE) GOTO 400
             IF (ABS(PZ) .GE. PE) THEN
+              if ( iwrite ) then
                PRINT *, ' IN HJANA2, TARG STR ', I, ' PART ', J
                PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
                PRINT *, ' PZ = ', PZ, ' EE = ', PE
                PRINT *, ' XM = ', PM
+               endif
                GOTO 400
             END IF
 cbzdbg2/16/99end
@@ -4087,10 +4123,12 @@ clin-4/25/01-end
 cbzdbg2/16/99
 c            IF (ABS(PZ) .GE. PE) GOTO 600
             IF (ABS(PZ) .GE. PE) THEN
+              if ( iwrite ) then
                PRINT *, ' IN HJANA2, INDP STR ', I, ' PART ', J
                PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
                PRINT *, ' PZ = ', PZ, ' EE = ', PE
                PRINT *, ' XM = ', PM
+               endif
                GOTO 600
             END IF
 cbzdbg2/16/99end
@@ -4182,10 +4220,12 @@ cbzdbg2/16/99
 c            IF (ABS(PZ) .GE. PE) GOTO 800
          
          IF (ABS(PZ) .GE. PE) THEN
+           if ( iwrite ) then
             PRINT *, ' IN HJANA2, GLUON ', I
             PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
             PRINT *, ' PZ = ', PZ, ' EE = ', PE
             PRINT *, ' XM = ', PM
+            endif
             GOTO 800
          END IF
          
@@ -4512,6 +4552,9 @@ cc      SAVE /ARPRC1/
 cc      SAVE /AROUT/
       COMMON/iflow/v2i,eti,xmulti,v2mi,s2mi,xmmult,v2bi,s2bi,xbmult
 cc      SAVE /iflow/
+
+      logical iwrite
+      data iwrite / .false. /
       SAVE   
       DATA IW/0/
 
@@ -4527,11 +4570,13 @@ cc      SAVE /iflow/
             XM = XM1(I, J)
             XMT = SQRT(PX ** 2 + PY ** 2 + XM ** 2)
             IF (ABS(PZ) .GE. EE) THEN
+              if ( iwrite) then
                PRINT *, 'IN HJANA3'
                PRINT *, ' PARTICLE ', I, ' RUN ', J, 'PREC ERR'
                PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
                PRINT *, ' PZ = ', PZ, ' EE = ', EE
                PRINT *, ' XM = ', XM
+               endif
                GOTO 200
             END IF
             DXMT = XMT - XM
@@ -4583,6 +4628,9 @@ cc      SAVE /ARPRC1/
 cc      SAVE /AROUT/
       COMMON /fflow/ v2f,etf,xmultf,v2fpi,xmulpi
 cc      SAVE /fflow/
+
+      logical iwrite
+      data iwrite / .false. /
       SAVE   
       DATA IW/0/
 
@@ -4598,11 +4646,13 @@ cc      SAVE /fflow/
             XM = XM1(I, J)
             XMT = SQRT(PX ** 2 + PY ** 2 + XM ** 2)
             IF (ABS(PZ) .GE. EE) THEN
+              if ( iwrite ) then
                PRINT *, 'IN HJANA4'
                PRINT *, ' PARTICLE ', I, ' RUN ', J, 'PREC ERR'
                PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
                PRINT *, ' PZ = ', PZ, ' EE = ', EE
                PRINT *, ' XM = ', XM
+               endif
                GOTO 200
             END IF
             DXMT = XMT - XM

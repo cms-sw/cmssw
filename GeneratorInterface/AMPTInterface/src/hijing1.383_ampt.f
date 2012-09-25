@@ -322,6 +322,10 @@ cc      SAVE /lastt/
         COMMON /AREVT/ IAEVT, IARUN, MISS
         common/phidcy/iphidcy,pttrig,ntrig,maxmiss
 cwei        DOUBLE PRECISION PATT
+
+        logical iwrite
+        data iwrite / .false. /
+
         SAVE   
 
 cgsfs      WRITE(*,*) "IN Hijing, FRAME=",FRAME
@@ -1788,8 +1792,10 @@ c                call lulist(1)
          write(6,*) 'violated:EATT,NATT,B=',EATT,NATT,bimp
          GO TO 50
         ENDIF
+        if ( iwrite ) then
         write(6,*) 'satisfied:EATT,NATT,B=',EATT,NATT,bimp
         write(6,*) ' '
+        endif
 
         RETURN
         END
