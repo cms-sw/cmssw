@@ -1,20 +1,20 @@
 
-// $Id: BetaBoostEvtVtxGenerator.cc,v 1.1 2012/06/08 22:19:46 yilmaz Exp $
+// $Id: BetaBoostEvtVtxGenerator.cc,v 1.2 2012/09/06 20:41:40 lixu Exp $
 /*
-________________________________________________________________________
+  ________________________________________________________________________
 
- BetaBoostEvtVtxGenerator
+  BetaBoostEvtVtxGenerator
 
- Smear vertex according to the Beta function on the transverse plane
- and a Gaussian on the z axis. It allows the beam to have a crossing
- angle (slopes dxdz and dydz).
+  Smear vertex according to the Beta function on the transverse plane
+  and a Gaussian on the z axis. It allows the beam to have a crossing
+  angle (slopes dxdz and dydz).
 
- Based on GaussEvtVtxGenerator
- implemented by Francisco Yumiceva (yumiceva@fnal.gov)
+  Based on GaussEvtVtxGenerator
+  implemented by Francisco Yumiceva (yumiceva@fnal.gov)
 
- FERMILAB
- 2006
-________________________________________________________________________
+  FERMILAB
+  2006
+  ________________________________________________________________________
 */
 
 //lingshan: add beta for z-axis boost
@@ -108,12 +108,15 @@ private:
 
   CLHEP::RandGaussQ*  fRandom ;
 
+  bool verbosity_;
+
 };
 
 
 BetaBoostEvtVtxGenerator::BetaBoostEvtVtxGenerator(const edm::ParameterSet & p ):
   fVertex(0), boost_(0), fTimeOffset(0), fEngine(0),
-  sourceLabel(p.getParameter<edm::InputTag>("src"))
+  sourceLabel(p.getParameter<edm::InputTag>("src")),
+  verbosity_(p.getUntrackedParameter<bool>("verbosity",false))
 { 
   
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -141,9 +144,9 @@ BetaBoostEvtVtxGenerator::BetaBoostEvtVtxGenerator(const edm::ParameterSet & p )
   fTimeOffset = p.getParameter<double>("TimeOffset")*ns*c_light; // HepMC time units are mm
   beta_=p.getParameter<double>("Beta"); 
   if (fSigmaZ <= 0) {
-	  throw cms::Exception("Configuration")
-		  << "Error in BetaBoostEvtVtxGenerator: "
-		  << "Illegal resolution in Z (SigmaZ is negative)";
+    throw cms::Exception("Configuration")
+      << "Error in BetaBoostEvtVtxGenerator: "
+      << "Illegal resolution in Z (SigmaZ is negative)";
   }
 
   produces<bool>(); 
@@ -166,111 +169,111 @@ CLHEP::HepRandomEngine& BetaBoostEvtVtxGenerator::getEngine(){
 HepMC::FourVector* BetaBoostEvtVtxGenerator::newVertex() {
 
 	
-	double X,Y,Z;
+  double X,Y,Z;
 	
-	double tmp_sigz = fRandom->fire(0., fSigmaZ);
-	Z = tmp_sigz + fZ0;
+  double tmp_sigz = fRandom->fire(0., fSigmaZ);
+  Z = tmp_sigz + fZ0;
 
-	double tmp_sigx = BetaFunction(Z,fZ0); 
-	// need sqrt(2) for beamspot width relative to single beam width
-	tmp_sigx /= sqrt(2.0);
-	X = fRandom->fire(0.,tmp_sigx) + fX0; // + Z*fdxdz ;
+  double tmp_sigx = BetaFunction(Z,fZ0); 
+  // need sqrt(2) for beamspot width relative to single beam width
+  tmp_sigx /= sqrt(2.0);
+  X = fRandom->fire(0.,tmp_sigx) + fX0; // + Z*fdxdz ;
 
-	double tmp_sigy = BetaFunction(Z,fZ0);
-	// need sqrt(2) for beamspot width relative to single beam width
-	tmp_sigy /= sqrt(2.0);
-	Y = fRandom->fire(0.,tmp_sigy) + fY0; // + Z*fdydz;
+  double tmp_sigy = BetaFunction(Z,fZ0);
+  // need sqrt(2) for beamspot width relative to single beam width
+  tmp_sigy /= sqrt(2.0);
+  Y = fRandom->fire(0.,tmp_sigy) + fY0; // + Z*fdydz;
 
-	double tmp_sigt = fRandom->fire(0., fSigmaZ);
-	double T = tmp_sigt + fTimeOffset; 
+  double tmp_sigt = fRandom->fire(0., fSigmaZ);
+  double T = tmp_sigt + fTimeOffset; 
 
-	if ( fVertex == 0 ) fVertex = new HepMC::FourVector();
-	fVertex->set(X,Y,Z,T);
+  if ( fVertex == 0 ) fVertex = new HepMC::FourVector();
+  fVertex->set(X,Y,Z,T);
 		
-	return fVertex;
+  return fVertex;
 }
 
 double BetaBoostEvtVtxGenerator::BetaFunction(double z, double z0)
 {
-	return sqrt(femittance*(fbetastar+(((z-z0)*(z-z0))/fbetastar)));
+  return sqrt(femittance*(fbetastar+(((z-z0)*(z-z0))/fbetastar)));
 
 }
 
 
 void BetaBoostEvtVtxGenerator::sigmaZ(double s) 
 { 
-	if (s>=0 ) {
-		fSigmaZ=s; 
-	}
-	else {
-		throw cms::Exception("LogicError")
-			<< "Error in BetaBoostEvtVtxGenerator::sigmaZ: "
-			<< "Illegal resolution in Z (negative)";
-	}
+  if (s>=0 ) {
+    fSigmaZ=s; 
+  }
+  else {
+    throw cms::Exception("LogicError")
+      << "Error in BetaBoostEvtVtxGenerator::sigmaZ: "
+      << "Illegal resolution in Z (negative)";
+  }
 }
 
 TMatrixD* BetaBoostEvtVtxGenerator::GetInvLorentzBoost() {
 
-	//alpha_ = 0;
-	//phi_ = 142.e-6;
-//	if (boost_ != 0 ) return boost_;
+  //alpha_ = 0;
+  //phi_ = 142.e-6;
+  //	if (boost_ != 0 ) return boost_;
 	
-	//boost_.ResizeTo(4,4);
-	//boost_ = new TMatrixD(4,4);
-	TMatrixD tmpboost(4,4);
-        TMatrixD tmpboostZ(4,4);
-        TMatrixD tmpboostXYZ(4,4);
+  //boost_.ResizeTo(4,4);
+  //boost_ = new TMatrixD(4,4);
+  TMatrixD tmpboost(4,4);
+  TMatrixD tmpboostZ(4,4);
+  TMatrixD tmpboostXYZ(4,4);
 
-	//if ( (alpha_ == 0) && (phi_==0) ) { boost_->Zero(); return boost_; }
+  //if ( (alpha_ == 0) && (phi_==0) ) { boost_->Zero(); return boost_; }
 	
-	// Lorentz boost to frame where the collision is head-on
-	// phi is the half crossing angle in the plane ZS
-	// alpha is the angle to the S axis from the X axis in the XY plane
+  // Lorentz boost to frame where the collision is head-on
+  // phi is the half crossing angle in the plane ZS
+  // alpha is the angle to the S axis from the X axis in the XY plane
 	
-	tmpboost(0,0) = 1./cos(phi_);
-	tmpboost(0,1) = - cos(alpha_)*sin(phi_);
-	tmpboost(0,2) = - tan(phi_)*sin(phi_);
-	tmpboost(0,3) = - sin(alpha_)*sin(phi_);
-	tmpboost(1,0) = - cos(alpha_)*tan(phi_);
-	tmpboost(1,1) = 1.;
-	tmpboost(1,2) = cos(alpha_)*tan(phi_);
-	tmpboost(1,3) = 0.;
-	tmpboost(2,0) = 0.;
-	tmpboost(2,1) = - cos(alpha_)*sin(phi_);
-	tmpboost(2,2) = cos(phi_);
-	tmpboost(2,3) = - sin(alpha_)*sin(phi_);
-	tmpboost(3,0) = - sin(alpha_)*tan(phi_);
-	tmpboost(3,1) = 0.;
-	tmpboost(3,2) = sin(alpha_)*tan(phi_);
-	tmpboost(3,3) = 1.;
-       //cout<<"beta "<<beta_;
-       double gama=1.0/sqrt(1-beta_*beta_);
-       tmpboostZ(0,0)=gama;
-       tmpboostZ(0,1)=0.;
-       tmpboostZ(0,2)=-1.0*beta_*gama;
-       tmpboostZ(0,3)=0.;
-       tmpboostZ(1,0)=0.;
-       tmpboostZ(1,1) = 1.;
-       tmpboostZ(1,2)=0.;
-       tmpboostZ(1,3)=0.;
-       tmpboostZ(2,0)=-1.0*beta_*gama;
-       tmpboostZ(2,1) = 0.;
-       tmpboostZ(2,2)=gama;
-       tmpboostZ(2,3) = 0.;
-       tmpboostZ(3,0)=0.;
-       tmpboostZ(3,1)=0.;
-       tmpboostZ(3,2)=0.;
-       tmpboostZ(3,3) = 1.;
+  tmpboost(0,0) = 1./cos(phi_);
+  tmpboost(0,1) = - cos(alpha_)*sin(phi_);
+  tmpboost(0,2) = - tan(phi_)*sin(phi_);
+  tmpboost(0,3) = - sin(alpha_)*sin(phi_);
+  tmpboost(1,0) = - cos(alpha_)*tan(phi_);
+  tmpboost(1,1) = 1.;
+  tmpboost(1,2) = cos(alpha_)*tan(phi_);
+  tmpboost(1,3) = 0.;
+  tmpboost(2,0) = 0.;
+  tmpboost(2,1) = - cos(alpha_)*sin(phi_);
+  tmpboost(2,2) = cos(phi_);
+  tmpboost(2,3) = - sin(alpha_)*sin(phi_);
+  tmpboost(3,0) = - sin(alpha_)*tan(phi_);
+  tmpboost(3,1) = 0.;
+  tmpboost(3,2) = sin(alpha_)*tan(phi_);
+  tmpboost(3,3) = 1.;
+  //cout<<"beta "<<beta_;
+  double gama=1.0/sqrt(1-beta_*beta_);
+  tmpboostZ(0,0)=gama;
+  tmpboostZ(0,1)=0.;
+  tmpboostZ(0,2)=-1.0*beta_*gama;
+  tmpboostZ(0,3)=0.;
+  tmpboostZ(1,0)=0.;
+  tmpboostZ(1,1) = 1.;
+  tmpboostZ(1,2)=0.;
+  tmpboostZ(1,3)=0.;
+  tmpboostZ(2,0)=-1.0*beta_*gama;
+  tmpboostZ(2,1) = 0.;
+  tmpboostZ(2,2)=gama;
+  tmpboostZ(2,3) = 0.;
+  tmpboostZ(3,0)=0.;
+  tmpboostZ(3,1)=0.;
+  tmpboostZ(3,2)=0.;
+  tmpboostZ(3,3) = 1.;
 
-       tmpboostXYZ=tmpboostZ*tmpboost;
-       tmpboostXYZ.Invert();
+  tmpboostXYZ=tmpboostZ*tmpboost;
+  tmpboostXYZ.Invert();
 
 
 
-       boost_ = new TMatrixD(tmpboostXYZ);
-       boost_->Print();
+  boost_ = new TMatrixD(tmpboostXYZ);
+  if ( verbosity_ ) { boost_->Print(); }
 	
-	return boost_;
+  return boost_;
 }
 
 void BetaBoostEvtVtxGenerator::produce( Event& evt, const EventSetup& )
@@ -286,11 +289,11 @@ void BetaBoostEvtVtxGenerator::produce( Event& evt, const EventSetup& )
  
   //HepMCEvt->LorentzBoost( 0., 142.e-6 );
   HepMCEvt->boostToLab( GetInvLorentzBoost(), "vertex" );
- HepMCEvt->boostToLab( GetInvLorentzBoost(), "momentum" );    
+  HepMCEvt->boostToLab( GetInvLorentzBoost(), "momentum" );    
   // OK, create a (pseudo)product and put in into edm::Event
   //
   auto_ptr<bool> NewProduct(new bool(true)) ;      
- evt.put( NewProduct ) ;       
+  evt.put( NewProduct ) ;       
   return ;
 }
 
