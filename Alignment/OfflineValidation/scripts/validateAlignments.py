@@ -893,6 +893,7 @@ class ValidationJob:
         valString = valString.split()
         self.__valType = valString[0]
         self.__valName = valString[1]
+        self.__commandLineOptions = options
         # workaround for intermediate parallel version
         if self.__valType == "offlineParallel":
             section = "offline" + ":" + self.__valName
@@ -905,7 +906,6 @@ class ValidationJob:
                                   %( self.__valName, self.__valType, section ))
         self.validation = self.__getValidation( self.__valType, self.__valName,
                                                 alignments, config, options )
-        self.__commandLineOptions = options
         self.__config = config
 
     def __getValidation( self, valType, name, alignments, config, options ):
