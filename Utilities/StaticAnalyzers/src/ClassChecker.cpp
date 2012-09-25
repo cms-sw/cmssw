@@ -28,9 +28,14 @@ namespace clangcms {
 class WalkAST : public clang::StmtVisitor<WalkAST> {
   clang::ento::BugReporter &BR;
   clang::AnalysisDeclContext *AC;
+  const clang::CXXRecordDecl &RUT;
 
   typedef const clang::CallExpr * WorkListUnit;
-  typedef clang::SmallVector<WorkListUnit, 20> DFSWorkList;
+  typedef clang::SmallVector<WorkListUnit, 50> DFSWorkList;
+
+  typedef const clang::Expr * ExprListUnit;
+  typedef clang::SmallVector<ExprListUnit, 50> ExprList;
+
 
   /// A vector representing the worklist which has a chain of CallExprs.
   DFSWorkList WList;
@@ -54,26 +59,22 @@ class WalkAST : public clang::StmtVisitor<WalkAST> {
   /// generating bug reports.  This is null while visiting the body of a
   /// constructor or destructor.
   const clang::CallExpr *visitingCallExpr;
+  const clang::Expr *visitingExpr;
   
 public:
-  WalkAST(clang::ento::BugReporter &br, clang::AnalysisDeclContext *ac)
+  WalkAST(clang::ento::BugReporter &br, clang::AnalysisDeclContext *ac,const clang::CXXRecordDecl &rut)
     : BR(br),
       AC(ac),
-      visitingCallExpr(0) {}
+      RUT(rut),
+      visitingCallExpr(0),
+      visitingExpr(0) {}
 
   
   bool hasWork() const { return !WList.empty(); }
 
-  /// This method adds a CallExpr to the worklist and marks the callee as
-  /// being PreVisited.
+  /// This method adds a CallExpr to the worklist 
   void Enqueue(WorkListUnit WLUnit) {
     const clang::FunctionDecl *FD = WLUnit->getDirectCallee();
-    if (!FD || !FD->getBody())
-      return;    
-    Kind &K = VisitedFunctions[FD];
-    if (K != NotVisited)
-      return;
-    K = PreVisited;
     WList.push_back(WLUnit);
   }
 
@@ -84,28 +85,11 @@ public:
   }
   
   void Execute() {
-    while (hasWork()) {
       WorkListUnit WLUnit = Dequeue();
       const clang::FunctionDecl *FD = WLUnit->getDirectCallee();
-      assert(FD && FD->getBody());
-
-      if (VisitedFunctions[FD] == PreVisited) {
-        // If the callee is PreVisited, walk its body.
-        // Visit the body.
-        llvm::SaveAndRestore<const clang::CallExpr *> SaveCall(visitingCallExpr, WLUnit);
-        Visit(FD->getBody());
-        
-        // Mark the function as being PostVisited to indicate we have
-        // scanned the body.
-        VisitedFunctions[FD] = PostVisited;
-        continue;
-      }
-
-      // Otherwise, the callee is PostVisited.
-      // Remove it from the worklist.
-      assert(VisitedFunctions[FD] == PostVisited);
+      llvm::SaveAndRestore<const clang::CallExpr *> SaveCall(visitingCallExpr, WLUnit);
+      if (FD && FD->getBody()) Visit(FD->getBody());
       WList.pop_back();
-    }
   }
 
   // Stmt visitor methods.
@@ -134,51 +118,61 @@ void WalkAST::VisitChildren(clang::Stmt *S) {
 void WalkAST::VisitMemberExpr(clang::MemberExpr *ME) {
 
 const clang::CXXMethodDecl * ACD = llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl());
-//if (ACD->isStatic()) return;
-clang::QualType qual_md=ACD->getThisType(AC->getASTContext());
 clang::Expr * E = ME->getBase();
 clang::QualType qual_base = E->getType();
 clang::ValueDecl * VD = ME->getMemberDecl();
+clang::QualType qual_vd = VD->getType();
+clang::QualType qual_md = ACD->getThisType(AC->getASTContext());
 if (!(ME->isBoundMemberFunction(AC->getASTContext())))
 	if (visitingCallExpr)
-//	if (ME->isImplicitAccess())
 	if (qual_base == qual_md) 
 	{
 	ReportMember(ME);
 //	llvm::errs()<<"\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 //	llvm::errs()<<"\n CXXMemberExpr \n";
 //	llvm::errs()<<"\n___________\n";           
-//	ME->dumpPretty(AC->getASTContext());
-//	llvm::errs()<<"\n____________\n";           
+//	ME->dump();
+//	llvm::errs()<<"\n___________\n";           
+//	qual_md->dump();
+//	llvm::errs()<<"\n___________\n";           
+//	qual_base->dump();
+//	llvm::errs()<<"\n___________\n";
+//		ACD->printName(llvm::errs());
+//		llvm::errs() << "\n";           
+//	 	for (llvm::SmallVectorImpl<const clang::CallExpr *>::iterator I = WList.begin(),
+//	      	E = WList.end(); I != E; ++I) {
+//		    	const clang::FunctionDecl *FD = (*(I))->getDirectCallee();
+//		    	assert(FD);
+//		    	if (VisitedFunctions[FD] == PostVisited) {
+//			FD->printName(llvm::errs());
+//		      	llvm::errs() << "\n" ;
+//		    }
+//		}
+//	llvm::errs()<<"\n___________\n";
 //	visitingCallExpr->getDirectCallee()->printName(llvm::errs());
-// 	for (llvm::SmallVectorImpl<const clang::CallExpr *>::iterator I = WList.end(),
-//     	E = WList.begin(); I != E; --I) {
-//	    	const clang::FunctionDecl *FD = (*(I-1))->getDirectCallee();
-//	    	assert(FD);
-//	    	if (VisitedFunctions[FD] == PostVisited) {
-//	      	llvm::errs() << " <--" ;
-//		FD->printName(llvm::errs());
-//	    }
-// 	}
 //	llvm::errs()<<"\n";
 //	llvm::errs()<<"\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 	}
 }
 
 void WalkAST::VisitCallExpr(clang::CallExpr *CE) {
-  VisitChildren(CE);
   Enqueue(CE);
+  Execute();
+  VisitChildren(CE);
 }
 
 
 void WalkAST::VisitCXXMemberCallExpr(clang::CXXMemberCallExpr *CE) {
 
 
+  Enqueue(CE);
+  Execute();
+  VisitChildren(CE);
 
-clang::Expr * IOA = CE->getImplicitObjectArgument();
-clang::QualType qual_ioa = llvm::dyn_cast<clang::Expr>(IOA)->getType();
-clang::MemberExpr * ME = clang::dyn_cast<clang::MemberExpr>(CE->getCallee());
-clang::QualType qual_exp = llvm::dyn_cast<clang::Expr>(ME)->getType();
+//clang::Expr * IOA = CE->getImplicitObjectArgument();
+//clang::QualType qual_ioa = llvm::dyn_cast<clang::Expr>(IOA)->getType();
+//clang::MemberExpr * ME = clang::dyn_cast<clang::MemberExpr>(CE->getCallee());
+//clang::QualType qual_exp = llvm::dyn_cast<clang::Expr>(ME)->getType();
 
 //clang::CXXRecordDecl * RD = llvm::dyn_cast<clang::CXXRecordDecl>(CE->getRecordDecl());
 clang::CXXMethodDecl * MD = CE->getMethodDecl();
@@ -186,10 +180,6 @@ clang::CXXMethodDecl * MD = CE->getMethodDecl();
 clang::QualType MQT = MD->getThisType(AC->getASTContext());
 //const clang::CXXRecordDecl * ACD = llvm::dyn_cast<clang::CXXRecordDecl>(AC->getDecl());
                                                                                                                
-//if ((ME->isImplicitAccess()))
-//	{
-//	ReportCall(CE);
-//	}
 
 
 for(int i=0, j=CE->getNumArgs(); i<j; i++) {
@@ -240,10 +230,19 @@ for(int i=0, j=CE->getNumArgs(); i<j; i++) {
 //}
 
 
-
-VisitChildren(CE);
-Enqueue(CE);
-
+//	llvm::errs()<<"\n--------------------------------------------------------------\n";
+//	llvm::errs()<<"\n------CXXMemberCallExpression---------------------------------\n";
+//	llvm::errs()<<"\n--------------------------------------------------------------\n";
+//	llvm::errs()<<"\n";
+//	CE->dump();
+//	llvm::errs()<<"\n";
+//	if (MD->hasBody()) {
+//		MD->getBody()->dump();
+//		Visit(MD->getBody());
+//		}
+//	llvm::errs()<<"\n";
+//	llvm::errs()<<"\n--------------------------------------------------------------\n";
+//	return;
 }
 
 void WalkAST::ReportMember(const clang::MemberExpr *ME) {
@@ -252,29 +251,24 @@ void WalkAST::ReportMember(const clang::MemberExpr *ME) {
 
   CmsException m_exception;
   clang::ValueDecl * VD = ME->getMemberDecl();
-  const clang::NamedDecl * ACD = llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl());
-  os << "Member function ";
-  ACD->printName(os);
-  os << " is indirectly accessing member data ";
-  VD->printName(os);
-  os << " in function ";
-  visitingCallExpr->getDirectCallee()->printName(os); 
- 	for (llvm::SmallVectorImpl<const clang::CallExpr *>::iterator I = WList.end(),
-      	E = WList.begin(); I != E; --I) {
-	    	const clang::FunctionDecl *FD = (*(I-1))->getDirectCallee();
-	    	assert(FD);
-	    	if (VisitedFunctions[FD] == PostVisited) {
-	      	os << " <--" ;
-		FD->printName(os);
-	    }
-	}
+	  os << " Member function is indirectly accessing member data ";
+	  VD->printName(os);
+	  os << " in  call stack\n";
+	  llvm::dyn_cast<clang::NamedDecl>(AC->getDecl())->printName(os);
+ 	  for (llvm::SmallVectorImpl<const clang::CallExpr *>::iterator I = WList.begin(),
+	      	E = WList.end(); I != E; I++) {
+		    	const clang::FunctionDecl *FD = (*(I))->getDirectCallee();
+		      	os << "-->" ;
+		    	assert(FD);
+			FD->printName(os);
+			}
+	
   clang::ento::PathDiagnosticLocation CELoc =
-    clang::ento::PathDiagnosticLocation::createBegin(ACD, BR.getSourceManager());
+    clang::ento::PathDiagnosticLocation::createBegin(*(WList.begin()), BR.getSourceManager(),AC);
   clang::SourceRange R = ME->getSourceRange();
 
   if (!m_exception.reportClass( CELoc, BR ) ) return;
-  BR.EmitBasicReport(ACD,"Class Checker : Member data indirect modify check","ThreadSafety",os.str(),CELoc);
-  
+  BR.EmitBasicReport(AC->getDecl(),"Class Checker : Member data indirect modify check","ThreadSafety",os.str(),CELoc,R);
 }
 
 void WalkAST::ReportCall(const clang::CallExpr *CE) {
@@ -361,7 +355,6 @@ void WalkAST::ReportCallParam(const clang::CXXMethodDecl * MD,const clang::ParmV
   os << " with parameter decl ";
   PVD->printName(os);
   os << " , a non const reference\n";
-
   clang::ento::PathDiagnosticLocation ELoc =
    clang::ento::PathDiagnosticLocation::createBegin(MD, BR.getSourceManager());
   clang::SourceRange R = PVD->getSourceRange();
@@ -416,7 +409,7 @@ void ClassCheckerRDecl::checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ent
 				if (MD->isVirtualAsWritten()) continue;
 				clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( MD , SM );
 				clang::SourceRange R = MD->getSourceRange();
-				clangcms::WalkAST walker(BR, mgr.getAnalysisDeclContext(MD));
+				clangcms::WalkAST walker(BR, mgr.getAnalysisDeclContext(MD),*RD);
 //				llvm::errs()<<"\n*****************************************************\n";
 //				llvm::errs()<<"\nVisited CXXMethodDecl\n";
 //				llvm::errs()<<RD->getNameAsString();
@@ -439,7 +432,7 @@ void ClassCheckerRDecl::checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ent
 //					Body->dumpAll();
 //	       				llvm::errs() << "\n\n+++++++++++++++++++++++++++++++++++++\n\n";
 	       				walker.Visit(Body);
-	       				walker.Execute();
+//	       				walker.Execute();
        				}
 			} /* end of Name check */
    	}	/* end of methods loop */

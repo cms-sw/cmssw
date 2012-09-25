@@ -14,9 +14,9 @@ void Bar3(int *x) {return;} // could be bad
 void Bar4(int const *x) {return;} //  OK
 void Bar5(int * const x) {return;} // could be bad
 void Bar6(int const &x) {return;} //OK
-void modifyMember() { Var_ = 5;}
-void Bar7() { modifyMember();} //bad
-void constCase() const { return;}
+void Bar7() { Var_ = 5;}
+void Bar8() { Bar7();} //bad
+void Bar9() const { return;}
 
 };
 
@@ -31,7 +31,7 @@ int * ip_;
 int * const ipc_;
 int & ir_;
 int const & icr_;
-
+public:
 void modifyMember() { i_ = 5;}
 void indirectModifyMember() { modifyMember();}
 
@@ -39,20 +39,21 @@ void method1(int &x) {return;}
 
 void produce() 
 	{
-	Foo foo;
+	Foo * foo;
 	int I=0;
-	foo.Bar1(i_);
-	foo.Bar1(ci_);
-	foo.Bar1(ir_);
-	foo.Bar1(icr_);
-	foo.Bar1(I);
-	foo.Bar2(i_);
-	foo.Bar2(ir_);
-	foo.Bar2(I);
-	foo.Bar6(i_);
-	foo.Bar6(ir_);
-	foo.Bar6(I);
-	foo.Bar7();
+	foo->Bar1(i_);
+	foo->Bar1(ci_);
+	foo->Bar1(ir_);
+	foo->Bar1(icr_);
+	foo->Bar1(I);
+	foo->Bar2(i_);
+	foo->Bar2(ir_);
+	foo->Bar2(I);
+	foo->Bar6(i_);
+	foo->Bar6(ir_);
+	foo->Bar6(I);
+	foo->Bar8();
+	foo->Bar7();
 	method1(i_);
 	method1(I);
 	modifyMember();
