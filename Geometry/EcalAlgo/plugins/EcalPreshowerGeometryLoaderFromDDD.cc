@@ -2,7 +2,6 @@
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 
-template class CaloGeometryLoader< EcalPreshowerGeometry > ;
 typedef CaloGeometryLoader< EcalPreshowerGeometry > EcalPGL ;
 
 template <>
@@ -14,6 +13,7 @@ EcalPGL::fillGeom( EcalPreshowerGeometry*      geom ,
 
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.icc"
 
+template class CaloGeometryLoader< EcalPreshowerGeometry > ;
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 typedef CaloCellGeometry::Pt3D     Pt3D     ;
 

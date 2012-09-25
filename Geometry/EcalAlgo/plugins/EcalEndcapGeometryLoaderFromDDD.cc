@@ -3,7 +3,6 @@
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 
-template class CaloGeometryLoader< EcalEndcapGeometry > ;
 typedef CaloGeometryLoader< EcalEndcapGeometry > EcalEGL ;
 
 template <>
@@ -19,6 +18,7 @@ EcalEGL::fillNamedParams( DDFilteredView      fv,
 
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.icc"
 
+template class CaloGeometryLoader< EcalEndcapGeometry > ;
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
 template <>
