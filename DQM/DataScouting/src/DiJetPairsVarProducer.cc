@@ -30,7 +30,10 @@ namespace{
 DiJetPairsVarProducer::DiJetPairsVarProducer(const edm::ParameterSet& iConfig) :
   inputJetTag_    (iConfig.getParameter<edm::InputTag>("inputJetTag")){
   
-  produces<std::vector<double> >();
+  produces<std::vector<double> >("jetPt");
+  produces<std::vector<double> >("dijetMass");
+  produces<std::vector<double> >("dijetSumPt");
+  produces<std::vector<double> >("dijetdRjj");
 
   LogDebug("") << "Inputs: "
 	       << inputJetTag_.encode() << " ";
@@ -84,7 +87,6 @@ DiJetPairsVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
      if (nGoodJets > 3){
        for (int i = 0; i < 3; ++i){
 	 for (int j = i+1; j < 4; ++j){
-	   std::cout << i << j << std::endl;
 	   double sumPt = myJets[i].Pt() + myJets[j].Pt();
 	   double mass  = (myJets[i] + myJets[j]).M();
 	   double dR    = sqrt(pow(myJets[i].Eta()-myJets[j].Eta(),2) +

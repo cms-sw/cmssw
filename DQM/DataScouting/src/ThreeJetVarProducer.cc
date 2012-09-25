@@ -30,7 +30,9 @@ namespace {
 ThreeJetVarProducer::ThreeJetVarProducer(const edm::ParameterSet& iConfig) :
   inputJetTag_    (iConfig.getParameter<edm::InputTag>("inputJetTag")){
   
-  produces<std::vector<double> >();
+  produces<std::vector<double> >("jetPt");
+  produces<std::vector<double> >("tripSumPt");
+  produces<std::vector<double> >("tripMass");
 
   LogDebug("") << "Inputs: "
 	       << inputJetTag_.encode() << " ";
