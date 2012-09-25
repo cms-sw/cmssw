@@ -38,6 +38,9 @@ class CompositeTECPetal GCC11_FINAL : public TECPetal{
 
 
  private:
+ struct WedgePar { float theR, thetaMin, thetaMax;};
+ 
+
   // private methods for the implementation of groupedCompatibleDets()
   SubLayerCrossings computeCrossings(const TrajectoryStateOnSurface& tsos,
 				     PropagationDirection propDir) const dso_internal;
@@ -59,7 +62,7 @@ class CompositeTECPetal GCC11_FINAL : public TECPetal{
 			bool checkClosest) const dso_internal;
 
   static
-  bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& rod, float window) dso_internal;
+  bool overlap( const GlobalPoint& gpos, const WedgePar& par, float window) dso_internal;
 
   static
   float computeWindowSize( const GeomDet* det, 
@@ -68,7 +71,9 @@ class CompositeTECPetal GCC11_FINAL : public TECPetal{
 
   int findBin( float R,int layer) const dso_internal;
   
-  GlobalPoint findPosition(int index,int diskSectorIndex) const  dso_internal;
+  WedgePar const &  findPar(int index,int diskSectorType) const  dso_internal {
+   return diskSectorType == 0 ? theFrontPars[index] : theBackPars[index];
+  }
 
   const std::vector<const GeometricSearchDet*>& subLayer( int ind) const  dso_internal {
     return (ind==0 ? theFrontComps : theBackComps);
@@ -83,6 +88,8 @@ class CompositeTECPetal GCC11_FINAL : public TECPetal{
 
   std::vector<float> theFrontBoundaries;
   std::vector<float> theBackBoundaries;
+  std::vector<WedgePar> theFrontPars;
+  std::vector<WedgePar> theBackPar;
 
   ReferenceCountingPointer<BoundDiskSector> theFrontSector;
   ReferenceCountingPointer<BoundDiskSector> theBackSector;  

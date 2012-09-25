@@ -37,7 +37,7 @@ namespace details {
     }
   };
 
-  void fillBoundaries(std::vector<const GeometricSearchDet*> const & dets,
+  void fillBoundaries(std::vector<const TECWedge*> const & dets,
 		      std::vector<float> & boundaries) {
     boundaries.resize(dets.size());
     std::transform(dets.begin(), dets.end(),  boundaries.begin(),
@@ -55,17 +55,31 @@ namespace details {
 }
 }
 
+CompositeTECPetal::fillPars(std::vector<const TECWedge*> const & dets,   std::vector<WedgePar> & pars) {
+  
+  
+  for (auto gsdet : dets) { 
+    const BoundDiskSector& wedgeSector = static_cast<const BoundDiskSector&>( gsdet->surface());                   
+    float wedgeMinZ = fabs( wedgeSector.position().z()) - 0.5*wedgeSector.bounds().thickness();
+    float wedgeMaxZ = fabs( wedgeSector.position().z()) + 0.5*wedgeSector.bounds().thickness(); 
+    float thetaWedgeMin =  wedgeSector.innerRadius()/ wedgeMaxZ;
+    float thetaWedgeMax =  wedgeSector.outerRadius()/ wedgeMinZ;
+    pars.push_back({gsdet->position().perp(),thetaWedgeMin,thetaWedgeMax});
+  }
+}
+
 CompositeTECPetal::CompositeTECPetal(vector<const TECWedge*>& innerWedges,
 				     vector<const TECWedge*>& outerWedges) : 
-  theFrontComps(innerWedges.begin(),innerWedges.end()), 
-  theBackComps(outerWedges.begin(),outerWedges.end())
+  theFrontComps(innerWedges), 
+  theBackComps(outerWedges)
 {
   theComps.assign(theFrontComps.begin(),theFrontComps.end());
   theComps.insert(theComps.end(),theBackComps.begin(),theBackComps.end());
 
   details::fillBoundaries( theFrontComps, theFrontBoundaries);
   details::fillBoundaries( theBackComps, theBackBoundaries);
-
+  fillPars(theFrontComps, theFrontPars);
+  fillPars(theBackComps, theBackPars);
 
   for(vector<const GeometricSearchDet*>::const_iterator it=theComps.begin();
       it!=theComps.end();it++){  
@@ -131,7 +145,7 @@ void
 CompositeTECPetal::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 					   const Propagator& prop,
 					   const MeasurementEstimator& est,
-			 std::vector<DetGroup> & result) const {
+					   std::vector<DetGroup> & result) const {
 
   vector<DetGroup> closestResult;
   SubLayerCrossings  crossings; 
@@ -191,7 +205,7 @@ CompositeTECPetal::computeCrossings(const TrajectoryStateOnSurface& startingStat
   
 
   int frontIndex = findBin(gFrontPoint.perp(),0);
-  float frontDist = fabs( findPosition(frontIndex,0).perp() - gFrontPoint.perp());
+  float frontDist = fabs( theFrontPars[frontIndex].theR - gFrontPoint.perp());
   SubLayerCrossing frontSLC( 0, frontIndex, gFrontPoint);
 
 
@@ -209,7 +223,7 @@ CompositeTECPetal::computeCrossings(const TrajectoryStateOnSurface& startingStat
     << gBackPoint.phi() << ")" ;
 
   int backIndex = findBin(gBackPoint.perp(),1);
-  float backDist = fabs( findPosition(backIndex,1).perp() - gBackPoint.perp());
+  float backDist = fabs( theBackPars[backIndex].theR - gBackPoint.perp());
   
   SubLayerCrossing backSLC( 1, backIndex, gBackPoint);
   
@@ -264,7 +278,7 @@ CompositeTECPetal::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   int posStartIndex = closestIndex+1;
 
   if (checkClosest) { // must decide if the closest is on the neg or pos side
-    if ( gCrossingPos.perp() < sLayer[closestIndex]->position().perp() ) {
+    if ( gCrossingPos.perp2() < sLayer[closestIndex]->position().perp2() ) {
       posStartIndex = closestIndex;
     }
     else {
@@ -280,39 +294,36 @@ CompositeTECPetal::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   for (int idet=negStartIndex; idet >= 0; idet--) {
     //if(idet<0 || idet>= theSize) {edm::LogInfo(TkDetLayers) << "===== error! gone out vector bounds.idet: " << idet ;exit;}
     const GeometricSearchDet & neighborWedge = *sLayer[idet];
-    if (!overlap( gCrossingPos, neighborWedge, window)) break;  // --- to check
+    WedgePar const &  findPar(idet, crossing.subLayerIndex());
+    if (!overlap( gCrossingPos, WedgePar, window)) break;  // --- to check
     if (!Adder::add( neighborWedge, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
   for (int idet=posStartIndex; idet <theSize; idet++) {
     //if(idet<0 || idet>= theSize) {edm::LogInfo(TkDetLayers) << "===== error! gone out vector bounds.idet: " << idet ;exit;}
     const GeometricSearchDet & neighborWedge = *sLayer[idet];
-    if (!overlap( gCrossingPos, neighborWedge, window)) break;  // ---- to check
+    WedgePar const &  findPar(idet, crossing.subLayerIndex());
+    if (!overlap( gCrossingPos, WedgePar, window)) break;  // ---- to check
     if (!Adder::add( neighborWedge, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
 }
 
 bool 
-CompositeTECPetal::overlap( const GlobalPoint& gpos, const GeometricSearchDet& gsdet, float ymax)
+CompositeTECPetal::overlap( const GlobalPoint& gpos, const WedgePar & wpar, float ymax)
 {
   // this method is just a duplication of overlapInR 
   // adapeted for groupedCompatibleDets() needs
 
   // assume "fixed theta window", i.e. margin in local y = r is changing linearly with z
   float tsRadius = gpos.perp();
-  float thetamin =  std::max(0.f,tsRadius-ymax)/(fabs(gpos.z())+10.); // add 10 cm contingency 
-  float thetamax = ( tsRadius + ymax)/(fabs(gpos.z())-10.);
+  float thetamin =  std::max(0.f,tsRadius-ymax)/(fabs(gpos.z())+10.f); // add 10 cm contingency 
+  float thetamax = ( tsRadius + ymax)/(fabs(gpos.z())-10.f);
 
-  const BoundDiskSector& wedgeSector = static_cast<const BoundDiskSector&>( gsdet.surface());                   
-  float wedgeMinZ = fabs( wedgeSector.position().z()) - 0.5*wedgeSector.bounds().thickness();
-  float wedgeMaxZ = fabs( wedgeSector.position().z()) + 0.5*wedgeSector.bounds().thickness(); 
-  float thetaWedgeMin =  wedgeSector.innerRadius()/ wedgeMaxZ;
-  float thetaWedgeMax =  wedgeSector.outerRadius()/ wedgeMinZ;
   
   // do the theta regions overlap ?
 
-  return  !( thetamin > thetaWedgeMax || thetaWedgeMin > thetamax);
+  return  !( thetamin > wpar.thetaMax || wpar.thetaMin > thetamax);
   
 } 
 
@@ -336,7 +347,7 @@ int CompositeTECPetal::findBin( float R, int diskSectorType) const
 
 
 
-GlobalPoint CompositeTECPetal::findPosition(int index,int diskSectorType) const 
+const  CompositeTECPetal::findPosition(int index,int diskSectorType) const 
 {
   vector<const GeometricSearchDet*> const & diskSector = diskSectorType == 0 ? theFrontComps : theBackComps; 
   return (diskSector[index])->position();
