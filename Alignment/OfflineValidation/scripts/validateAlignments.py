@@ -177,14 +177,17 @@ class Alignment:
                                         "connectString": conditionParameters[0].strip(),
                                         "tagName": conditionParameters[1].strip(),
                                         "labelName": conditionParameters[2].strip()})
-        if "TrackerAlignmentRcd" not in [ condition["rcdName"] \
-                                      for condition in self.conditions ]:
-            self.dbpath = config.get(section, "dbpath")
-            self.tag = config.get(section,"tag")
-            self.__testDbExist( self.dbpath )
-        else:
-            self.dbpath = ""
-            self.tag = ""
+        # removed backward compatibility
+        self.dbpath = ""
+        self.tag = ""
+#         if "TrackerAlignmentRcd" not in [ condition["rcdName"] \
+#                                       for condition in self.conditions ]:
+#             self.dbpath = config.get(section, "dbpath")
+#             self.tag = config.get(section,"tag")
+#             self.__testDbExist( self.dbpath )
+#         else:
+#             self.dbpath = ""
+#             self.tag = ""
 
         self.errordbpath = "frontier://FrontierProd/CMS_COND_31X_FROM21X"
         self.errortag = "TrackerIdealGeometryErrors210_mc"
@@ -267,12 +270,14 @@ class Alignment:
         """This function still exists only for backward compatibility to the
            old syntax for overriding the global tag conditions.
            """
-        if "TrackerAlignmentRcd" in [ condition["rcdName"] \
-                                      for condition in self.conditions ]:
-            return ""
-        else:
-            return replaceByMap( configTemplates.dbLoadTemplate,
-                                 self.getRepMap() )
+        # removed backward compatibility
+        return ""
+#         if "TrackerAlignmentRcd" in [ condition["rcdName"] \
+#                                       for condition in self.conditions ]:
+#             return ""
+#         else:
+#             return replaceByMap( configTemplates.dbLoadTemplate,
+#                                  self.getRepMap() )
 
     def getAPETemplate(self):
         """This function still exists only for backward compatibility to the
