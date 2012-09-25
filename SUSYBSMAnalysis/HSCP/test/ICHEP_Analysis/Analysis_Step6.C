@@ -938,7 +938,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
 
 
    //If Take the cuts From File --> Load the actual cut index
-   int OptimCutIndex = -1;  int OptimMassWindow;
+   int OptimCutIndex = -1;  //int OptimMassWindow;
    if(cutFromFile){
       FILE* pFile = fopen("Analysis_Cuts.txt","r");
       if(!pFile){printf("Can't open %s\n","Analysis_Cuts.txt"); return;}
@@ -946,7 +946,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
       while(true){
          char line[4096];  string Name_;  int TypeMode_; double cutPt_; double cutI_; double cutTOF_; int massWindow_;
          if(!fgets(line, 4096, pFile))break;
-         char* pch=strtok(line,","); int Arg=0; string tmp; int temp;
+         char* pch=strtok(line,","); int Arg=0; string tmp;
          while (pch!=NULL){
             switch(Arg){
                case  0: tmp = pch;  Name_     = tmp.substr(tmp.find("\"")+1,tmp.rfind("\"")-tmp.find("\"")-1); break;
@@ -968,7 +968,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
          double MinDistance = 10000;
          for(int CutIndex=0;CutIndex<HCuts_Pt->GetNbinsX();CutIndex++){
             double cutDistance = fabs(cutPt_ - HCuts_Pt ->GetBinContent(CutIndex+1)) + fabs(cutI_ - HCuts_I ->GetBinContent(CutIndex+1)) + fabs(cutTOF_ - HCuts_TOF ->GetBinContent(CutIndex+1));
-            if(cutDistance<MinDistance){MinDistance=cutDistance; OptimCutIndex=CutIndex;  OptimMassWindow=massWindow_;}
+            if(cutDistance<MinDistance){MinDistance=cutDistance; OptimCutIndex=CutIndex;  }//OptimMassWindow=massWindow_;}
          }
          printf("Closest cut index to the cuts provided: %i\n",OptimCutIndex);
       }
@@ -1052,14 +1052,14 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
     //}
 
       //no need to precompute the reach when not optimizing the cuts
-      if(OptimCutIndex<0){
+      //if(OptimCutIndex<0){
          //best significance --> is actually best reach
          if(TypeMode<=2){if(!runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU)){printf("runCombine did not converge\n"); continue;}
          }else          {if(!runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, H_D, H_P, H_S, H_S, H_S, H_S, H_S, H_S)){printf("runCombine did not converge\n"); continue;}
          }
-      }else{
-         result.XSec_5Sigma=0.0001;//Dummy number --> will be recomputed later on... but it must be >0
-      }
+	 //}else{
+         //result.XSec_5Sigma=0.0001;//Dummy number --> will be recomputed later on... but it must be >0
+	 //}
 
       //report the result for this point in the log file
       fprintf(pFile  ,"%10s: Testing CutIndex=%4i (Pt>%6.2f I>%6.3f TOF>%6.3f) %3.0f<M<inf Ndata=%+6.2E NPred=%6.3E+-%6.3E SignalEff=%6.3f ExpLimit=%6.3E (%6.3E) Reach=%6.3E",signal.c_str(),CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), MinRange,result.NData,result.NPred, result.NPredErr,result.Eff,result.XSec_Exp, result.XSec_Obs, result.XSec_5Sigma);fflush(stdout);
