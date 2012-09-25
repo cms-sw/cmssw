@@ -8,8 +8,8 @@ scoutingThreeJetVarAnalyzer = cms.EDAnalyzer("ThreeJetVarAnalyzer",
                                              jetPtCollectionTag    = cms.untracked.InputTag("scoutingThreeJetVariables","jetPt"),
                                              tripPtCollectionTag   = cms.untracked.InputTag("scoutingThreeJetVariables","tripSumPt"),
                                              tripMassCollectionTag = cms.untracked.InputTag("scoutingThreeJetVariables","tripMass"),
-                                             jetPtCut      = cms.double(30.0),
-                                             htCut         = cms.double(350.0),
+                                             jetPtCut      = cms.double(40.0),
+                                             htCut         = cms.double(250.0),
                                              delta         = cms.double(110.0)
                                              )
 

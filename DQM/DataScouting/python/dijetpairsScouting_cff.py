@@ -9,8 +9,8 @@ scoutingDiJetPairsVarAnalyzer = cms.EDAnalyzer("DiJetPairsVarAnalyzer",
                                              dijetMassCollectionTag = cms.untracked.InputTag("scoutingDiJetPairsVariables","dijetMass"),
                                              dijetPtCollectionTag   = cms.untracked.InputTag("scoutingDiJetPairsVariables","dijetSumPt"),
                                              dijetdRCollectionTag   = cms.untracked.InputTag("scoutingDiJetPairsVariables","dijetdRjj"),
-                                             jetPtCut      = cms.double(50.0),
-                                             htCut         = cms.double(300.0),
+                                             jetPtCut      = cms.double(40.0),
+                                             htCut         = cms.double(250.0),
                                              delta         = cms.double(25.0)
                                              )
 
