@@ -26,6 +26,7 @@ class DiJetPairsVarAnalyzer : public ScoutingAnalyzerBase
     MonitorElement * me_fourthJetPt;
     MonitorElement * me_Ht;
     MonitorElement * me_Njets;
+    MonitorElement * me_MassDiff;
     MonitorElement * me_AvgDiJetMass;
     MonitorElement * me_DeltavsAvgMass;
 

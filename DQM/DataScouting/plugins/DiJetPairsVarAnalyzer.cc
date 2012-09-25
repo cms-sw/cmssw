@@ -52,12 +52,12 @@ void DiJetPairsVarAnalyzer::analyze( const edm::Event & iEvent, const edm::Event
       double selDijetPt2  = 0.0;
       double selAvgDijetM = 0.0;
       bool passDelta      = false;
-      double selDeltaM    = 0.20;
+      double selDeltaM    = 0.80;
       for (int i = 0; i < 3; ++i){
 	int j = i +3;
 	double dijetdR1= dijetdRvar_handle->at(i);
 	double dijetdR2= dijetdRvar_handle->at(j);
-	if (dijetdR1 > 0.7 || dijetdR2 > 0.7) continue;
+	if (dijetdR1 < 0.7 || dijetdR2 < 0.7) continue;
 	double dijetM1 = dijetMassvar_handle->at(i);
 	double dijetM2 = dijetMassvar_handle->at(j);
 	double dijetPt1= dijetSumPtvar_handle->at(i);
@@ -76,7 +76,8 @@ void DiJetPairsVarAnalyzer::analyze( const edm::Event & iEvent, const edm::Event
 	selDeltaM   = deltaM/avgM;
       }
       //take best dijet pair and apply Delta cut for each jet:
-      if (selDeltaM < 0.175){
+      me_MassDiff->Fill(selDeltaM);
+      if (selDeltaM < 0.75){
 	//DD: Fill me_DeltavsAvgMass
 	double delta1 = selDijetPt1 - selAvgDijetM;
 	double delta2 = selDijetPt2 - selAvgDijetM;
@@ -113,6 +114,11 @@ void DiJetPairsVarAnalyzer::bookMEs(){
 				  16,0.,16.,
 				  "N_{JETS} / Event");
   //avg dijet mass distribution
+  me_MassDiff   = bookH1withSumw2("MassDiff",
+				      "Paired Dijet Fractional Mass Difference",
+				      100,-1.,1.,
+				      "Paired Dijet Fractional Mass Difference");
+  //avg dijet mass distribution
   me_AvgDiJetMass   = bookH1withSumw2("AvgDiJetMass",
 				      "Paired Dijet Average Mass",
 				      1500,0.,3000.,
@@ -120,8 +126,8 @@ void DiJetPairsVarAnalyzer::bookMEs(){
   //2D triplet pt vs triplet mass
   me_DeltavsAvgMass= bookH2withSumw2("DeltavsAvgMass",
 				     "#Delta vs Paired Dijet Average Mass",
-				     150,0.,3000.,
-				     200,-200.,200.,
+				     300,0.,3000.,
+				     80,-200.,200.,
 				     "#Delta = #Sum_{i=1,2}(P_{T})_{i} - m_{AVG} (GeV)",
 				     "Paired Dijet Average Mass (GeV)");
 }
