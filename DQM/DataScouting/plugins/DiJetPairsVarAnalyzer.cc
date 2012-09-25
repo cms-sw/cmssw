@@ -116,7 +116,7 @@ void DiJetPairsVarAnalyzer::bookMEs(){
   //avg dijet mass distribution
   me_MassDiff   = bookH1withSumw2("MassDiff",
 				      "Paired Dijet Fractional Mass Difference",
-				      100,-1.,1.,
+				      50,0.0,0.5,
 				      "Paired Dijet Fractional Mass Difference");
   //avg dijet mass distribution
   me_AvgDiJetMass   = bookH1withSumw2("AvgDiJetMass",
