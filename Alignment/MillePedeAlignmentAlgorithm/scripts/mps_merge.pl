@@ -2,8 +2,8 @@
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
 #
-#     $Revision: 1.25 $
-#     $Date: 2011/06/15 14:24:52 $
+#     $Revision: 1.26 $
+#     $Date: 2012/03/26 15:11:58 $
 #
 #  produce cfg file for merging run
 #
@@ -113,9 +113,21 @@ $saveAlignmentConstants = "from CondCore.DBCommon.CondDBSetup_cfi import *\n"
                         . "            record = cms.string('TrackerAlignmentErrorRcd'),\n"
                         . "            tag = cms.string('AlignmentErrors')\n"
                         . "        ),
- cms.PSet(
+        cms.PSet(
             record = cms.string('TrackerSurfaceDeformationRcd'),
             tag = cms.string('Deformations')
+        ),
+        cms.PSet(
+            record = cms.string('SiStripLorentzAngleRcd_peak'),
+            tag = cms.string('SiStripLorentzAngle_peak')
+        ),
+        cms.PSet(
+            record = cms.string('SiStripLorentzAngleRcd_deco'),
+            tag = cms.string('SiStripLorentzAngle_deco')
+        ),
+        cms.PSet(
+            record = cms.string('SiPixelLorentzAngleRcd'),
+            tag = cms.string('SiPixelLorentzAngle')
         )
 )\n"
                         . ")\n"
