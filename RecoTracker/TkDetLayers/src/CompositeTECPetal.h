@@ -81,10 +81,11 @@ class CompositeTECPetal GCC11_FINAL : public TECPetal{
 
 
  private:
-  std::vector<const GeometricSearchDet*> theComps;
-  std::vector<const GeometricSearchDet*> theFrontComps;
-  std::vector<const GeometricSearchDet*> theBackComps;
   std::vector<const GeomDet*> theBasicComps;
+  std::vector<const GeometricSearchDet*> theComps;
+
+  std::vector<const TECWedge*> theFrontComps;
+  std::vector<const TECWedge*> theBackComps;
 
   std::vector<float> theFrontBoundaries;
   std::vector<float> theBackBoundaries;
