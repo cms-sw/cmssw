@@ -4,7 +4,7 @@ autoCond = {
     # GlobalTag for MC production with realistic alignment and calibrations
     'startup'           :   'START61_V1::All',
     # GlobalTag for MC production of Heavy Ions events with realistic alignment and calibrations
-    'starthi'           :   'STARTHI61_V2::All',
+    'starthi'           :   'STARTHI61_V3::All',
     # GlobalTag for data reprocessing: this should always be the GR_R tag
     'com10'             : ( 'GR_R_60_V7::All',
                             # HLT particle flow jet energy corrections
@@ -64,7 +64,7 @@ autoCond = {
                             # L1 menu 2012 v3
                             'L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
                           ),
-    'starthi_HIon'      : ( 'STARTHI61_V2::All',
+    'starthi_HIon'      : ( 'STARTHI61_V3::All',
                             # L1 heavy ions menu 2011 v0
                             'L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
                           ),
