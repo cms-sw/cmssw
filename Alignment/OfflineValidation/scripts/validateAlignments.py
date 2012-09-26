@@ -547,8 +547,8 @@ class OfflineValidation(GenericValidation):
     
     def createConfiguration(self, path,
                             configBaseName = "TkAlOfflineValidation" ):
-        cfgName = "%s.%s_cfg.py"%( configBaseName,
-                                   self.alignmentToValidate.name )
+        cfgName = "%s.%s.%s_cfg.py"%( configBaseName, self.name,
+                                      self.alignmentToValidate.name )
         repMap = self.getRepMap()
           
         cfgs = {cfgName:replaceByMap( configTemplates.offlineTemplate, repMap)}
@@ -557,7 +557,8 @@ class OfflineValidation(GenericValidation):
         GenericValidation.createConfiguration(self, cfgs, path)
         
     def createScript(self, path, scriptBaseName = "TkAlOfflineValidation"):
-        scriptName = "%s.%s.sh"%(scriptBaseName, self.alignmentToValidate.name )
+        scriptName = "%s.%s.%s.sh"%( scriptBaseName, self.name,
+                                     self.alignmentToValidate.name )
         repMap = GenericValidation.getRepMap(self)
         repMap["CommandLine"]=""
         for cfg in self.configFiles:
@@ -573,9 +574,11 @@ class OfflineValidation(GenericValidation):
         repMap.update({
             "nEvents": self.general["maxevents"],
             "outputFile": replaceByMap( (".oO[workdir]Oo./AlignmentValidation_"
-                                         ".oO[name]Oo..root"), repMap ),
+                                         + self.name +
+                                         "_.oO[name]Oo..root"), repMap ),
             "resultFile": replaceByMap( (".oO[datadir]Oo./AlignmentValidation_"
-                                         ".oO[name]Oo..root"), repMap ),
+                                         + self.name +
+                                         "_.oO[name]Oo..root"), repMap ),
             "TrackSelectionTemplate": configTemplates.TrackSelectionTemplate,
             "LorentzAngleTemplate": configTemplates.LorentzAngleTemplate,
             "offlineValidationMode": "Standalone",
@@ -755,10 +758,14 @@ class MonteCarloValidation(GenericValidation):
         self.general.update( mcValidate )
 
     def createConfiguration(self, path ):
-        cfgName = "TkAlMcValidation.%s_cfg.py"%( self.alignmentToValidate.name )
+        cfgName = "TkAlMcValidation.%s.%s_cfg.py"%( self.name,
+                                                    self.alignmentToValidate.name )
         repMap = self.getRepMap()
         repMap.update({
-                "outputFile": replaceByMap( ".oO[workdir]Oo./McValidation_.oO[name]Oo..root", repMap )
+                "outputFile": replaceByMap( (".oO[workdir]Oo./McValidation_"
+                                             + self.name +
+                                             "_.oO[name]Oo..root"),
+                                            repMap )
                 })
         repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
         repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
@@ -767,7 +774,8 @@ class MonteCarloValidation(GenericValidation):
         GenericValidation.createConfiguration(self, cfgs, path)
 
     def createScript(self, path):
-        scriptName = "TkAlMcValidate.%s.sh"%( self.alignmentToValidate.name )
+        scriptName = "TkAlMcValidate.%s.%s.sh"%( self.name,
+                                                 self.alignmentToValidate.name )
         repMap = self.getRepMap()
         repMap["CommandLine"]=""
         for cfg in self.configFiles:
@@ -807,10 +815,14 @@ class TrackSplittingValidation(GenericValidation):
 
 
     def createConfiguration(self, path ):
-        cfgName = "TkAlTrackSplitting.%s_cfg.py"%( self.alignmentToValidate.name )
+        cfgName = "TkAlTrackSplitting.%s.%s_cfg.py"%( self.name,
+                                                      self.alignmentToValidate.name )
         repMap = self.getRepMap()
         repMap.update({
-                "outputFile": replaceByMap( ".oO[workdir]Oo./TrackSplitting_.oO[name]Oo..root", repMap )
+                "outputFile": replaceByMap( (".oO[workdir]Oo./TrackSplitting_"
+                                             + self.name +
+                                             "_.oO[name]Oo..root"),
+                                            repMap )
                 })
         repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
         repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
@@ -819,7 +831,8 @@ class TrackSplittingValidation(GenericValidation):
         GenericValidation.createConfiguration(self, cfgs, path)
 
     def createScript(self, path):
-        scriptName = "TkAlTrackSplitting.%s.sh"%( self.alignmentToValidate.name )
+        scriptName = "TkAlTrackSplitting.%s.%s.sh"%( self.name,
+                                                     self.alignmentToValidate.name )
         repMap = self.getRepMap()
         repMap["CommandLine"]=""
         for cfg in self.configFiles:
@@ -867,13 +880,15 @@ class ZMuMuValidation(GenericValidation):
             pass
     
     def createConfiguration(self, path, configBaseName = "TkAlZMuMuValidation" ):
-        cfgName = "%s.%s_cfg.py"%( configBaseName, self.alignmentToValidate.name )
+        cfgName = "%s.%s.%s_cfg.py"%( configBaseName, self.name,
+                                      self.alignmentToValidate.name )
         repMap = self.getRepMap()
         cfgs = {cfgName:replaceByMap( configTemplates.ZMuMuValidationTemplate, repMap)}
         GenericValidation.createConfiguration(self, cfgs, path)
         
     def createScript(self, path, scriptBaseName = "TkAlZMuMuValidation"):
-        scriptName = "%s.%s.sh"%(scriptBaseName, self.alignmentToValidate.name )
+        scriptName = "%s.%s.%s.sh"%(scriptBaseName, self.name,
+                                    self.alignmentToValidate.name )
         repMap = self.getRepMap()
         repMap["CommandLine"]=""
         for cfg in self.configFiles:
@@ -1004,9 +1019,9 @@ class ValidationJob:
                     "script": script,
                     "bsub": "/afs/cern.ch/cms/caf/scripts/cmsbsub"
                     }
-            log+=getCommandOutput2("%(bsub)s %(commands)s -J %(jobName)s "
-                                   "-o %(logDir)s/%(jobName)s.stdout -e "
-                                   "%(logDir)s/%(jobName)s.stderr %(script)s"%repMap)
+                log+=getCommandOutput2("%(bsub)s %(commands)s -J %(jobName)s "
+                                       "-o %(logDir)s/%(jobName)s.stdout -e "
+                                       "%(logDir)s/%(jobName)s.stderr %(script)s"%repMap)
         return log
 
     def getValidation( self ):
