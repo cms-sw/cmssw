@@ -34,6 +34,7 @@ int const & icr_;
 public:
 void modifyMember() { i_ = 5;}
 void indirectModifyMember() { modifyMember();}
+void recursiveCaller(int i) {if (i == 0) return; recursiveCaller(--i);}
 
 void method1(int &x) {return;}
 
@@ -58,6 +59,7 @@ void produce()
 	method1(I);
 	modifyMember();
 	indirectModifyMember();
+	recursiveCaller(1);
 	}
 
 void method3() const
