@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <cassert>
+
 using namespace std;
 
 #include <TString.h>
