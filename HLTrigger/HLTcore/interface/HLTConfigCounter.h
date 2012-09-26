@@ -7,12 +7,12 @@ class   HLTConfigCounter {
 
   HLTConfigCounter(): count_(0) {}
 
-    unsigned long increment() { count_++; return count_; }
-    unsigned long decrement() { count_--; return count_; }
+    long increment() { count_++; return count_; }
+    long decrement() { count_--; return count_; }
 
   private:
 
-    unsigned long count_;
+    long count_;
 
 };
 
