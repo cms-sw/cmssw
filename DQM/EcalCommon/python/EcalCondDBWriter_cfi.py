@@ -42,15 +42,13 @@ timingClient = dqmpset(ecalTimingClient['MEs'])
 
 cosmic = "COSMIC"
 beam = "BEAM"
-mtcc = "MTCC"
 laser = "LASER"
 led = "LED"
-testpulse = "TESTPULSE"
+testpulse = "TEST_PULSE"
 pedestal = "PEDESTAL"
 pedestalOffset = "PEDESTAL-OFFSET"
 physics = "PHYSICS"
 halo = "HALO"
-calib = "CALIB"
 
 # run tags are only used if the DAQ failed to write the RunIOV
 # Otherwise existing IOV will be used
@@ -68,7 +66,7 @@ ecalCondDBWriter = cms.EDAnalyzer("EcalCondDBWriter",
     inputRootFiles = cms.untracked.vstring(),
     workerParams = cms.untracked.PSet(
         Integrity = cms.untracked.PSet(
-            runTypes = cms.untracked.vstring(cosmic, beam, mtcc, laser, testpulse, pedestal, pedestalOffset, led, physics),
+            runTypes = cms.untracked.vstring(cosmic, beam, laser, testpulse, pedestal, pedestalOffset, led, physics),
             source = cms.untracked.PSet(
                 Quality = integrityClient.Quality,
                 Digi = occupancyTask.Digi,
@@ -88,7 +86,7 @@ ecalCondDBWriter = cms.EDAnalyzer("EcalCondDBWriter",
             )
         ),
         Laser = cms.untracked.PSet(
-            runTypes = cms.untracked.vstring(cosmic, beam, mtcc, laser, physics),
+            runTypes = cms.untracked.vstring(cosmic, beam, laser, physics),
             source = cms.untracked.PSet(
                 Amplitude = laserTask.Amplitude,
                 AOverP = laserTask.AOverP,
@@ -109,14 +107,14 @@ ecalCondDBWriter = cms.EDAnalyzer("EcalCondDBWriter",
             )
         ),
         Presample = cms.untracked.PSet(
-            runTypes = cms.untracked.vstring(cosmic, beam, mtcc, laser, testpulse, pedestal, led, physics),
+            runTypes = cms.untracked.vstring(cosmic, beam, laser, testpulse, pedestal, led, physics),
             source = cms.untracked.PSet(
                 Pedestal = presampleTask.Pedestal,
                 Quality = presampleClient.Quality
             )
         ),
         TestPulse = cms.untracked.PSet(
-            runTypes = cms.untracked.vstring(cosmic, beam, mtcc, testpulse, physics),
+            runTypes = cms.untracked.vstring(cosmic, beam, testpulse, physics),
             source = cms.untracked.PSet(
                 Amplitude = testPulseTask.Amplitude,
                 Shape = testPulseTask.Shape,
@@ -127,14 +125,14 @@ ecalCondDBWriter = cms.EDAnalyzer("EcalCondDBWriter",
             )
         ),
         Timing = cms.untracked.PSet(
-            runTypes = cms.untracked.vstring(beam, mtcc, physics),
+            runTypes = cms.untracked.vstring(beam, physics),
             source = cms.untracked.PSet(
                 Timing = timingTask.TimeMap,
                 Quality = timingClient.Quality
             )
         ),
         Led = cms.untracked.PSet(
-            runTypes = cms.untracked.vstring(cosmic, beam, mtcc, led, physics),
+            runTypes = cms.untracked.vstring(cosmic, beam, led, physics),
             source = cms.untracked.PSet(
                 Amplitude = ledTask.Amplitude,
                 AOverP = ledTask.AOverP,
@@ -147,7 +145,7 @@ ecalCondDBWriter = cms.EDAnalyzer("EcalCondDBWriter",
             )
         ),
         Occupancy = cms.untracked.PSet(
-            runTypes = cms.untracked.vstring(cosmic, beam, mtcc, laser, testpulse, pedestal, pedestalOffset, led, physics),
+            runTypes = cms.untracked.vstring(cosmic, beam, laser, testpulse, pedestal, pedestalOffset, led, physics),
             source = cms.untracked.PSet(
                 Occupancy = occupancyTask.Digi,
                 Energy = energyTask.HitMap

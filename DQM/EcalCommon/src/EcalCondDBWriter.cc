@@ -297,7 +297,10 @@ EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
     db_->insertDataSet(&dataset, &monIOV);
   }
   catch(std::runtime_error& e){
-    throw cms::Exception("DBError") << e.what();
+    if(std::string(e.what()).find("unique constraint") != std::string::npos)
+      std::cerr << e.what() << std::endl;
+    else
+      throw cms::Exception("DBError") << e.what();
   }
 
   if(verbosity_ > 0) std::cout << " Done." << std::endl;
