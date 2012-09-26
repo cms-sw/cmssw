@@ -65,6 +65,24 @@ namespace {
 	pars.push_back(apar);
       }
     }
+
+    inline    
+    bool overlap( const GlobalPoint& gpos, const CompositeTECPetal::WedgePar & wpar, float ymax)
+    {
+      // this method is just a duplication of overlapInR 
+      // adapeted for groupedCompatibleDets() needs
+      
+      // assume "fixed theta window", i.e. margin in local y = r is changing linearly with z
+      float tsRadius = gpos.perp();
+      float thetamin =  std::max(0.f,tsRadius-ymax)/(fabs(gpos.z())+10.f); // add 10 cm contingency 
+      float thetamax = ( tsRadius + ymax)/(fabs(gpos.z())-10.f);
+      
+  
+      // do the theta regions overlap ?
+      
+      return  !( thetamin > wpar.thetaMax || wpar.thetaMin > thetamax);
+      
+    } 
     
   }
 }
@@ -299,7 +317,7 @@ CompositeTECPetal::searchNeighbors( const TrajectoryStateOnSurface& tsos,
     //if(idet<0 || idet>= theSize) {edm::LogInfo(TkDetLayers) << "===== error! gone out vector bounds.idet: " << idet ;exit;}
     const GeometricSearchDet & neighborWedge = *sLayer[idet];
     WedgePar const & wpar = findPar(idet, crossing.subLayerIndex());
-    if (!overlap( gCrossingPos, wpar, window)) break;  // --- to check
+    if (!details::overlap( gCrossingPos, wpar, window)) break;  // --- to check
     if (!Adder::add( neighborWedge, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
@@ -307,29 +325,12 @@ CompositeTECPetal::searchNeighbors( const TrajectoryStateOnSurface& tsos,
     //if(idet<0 || idet>= theSize) {edm::LogInfo(TkDetLayers) << "===== error! gone out vector bounds.idet: " << idet ;exit;}
     const GeometricSearchDet & neighborWedge = *sLayer[idet];
     WedgePar const & wpar = findPar(idet, crossing.subLayerIndex());
-    if (!overlap( gCrossingPos, wpar, window)) break;  // ---- to check
+    if (!details::overlap( gCrossingPos, wpar, window)) break;  // ---- to check
     if (!Adder::add( neighborWedge, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
 }
 
-bool 
-CompositeTECPetal::overlap( const GlobalPoint& gpos, const WedgePar & wpar, float ymax)
-{
-  // this method is just a duplication of overlapInR 
-  // adapeted for groupedCompatibleDets() needs
-
-  // assume "fixed theta window", i.e. margin in local y = r is changing linearly with z
-  float tsRadius = gpos.perp();
-  float thetamin =  std::max(0.f,tsRadius-ymax)/(fabs(gpos.z())+10.f); // add 10 cm contingency 
-  float thetamax = ( tsRadius + ymax)/(fabs(gpos.z())-10.f);
-
-  
-  // do the theta regions overlap ?
-
-  return  !( thetamin > wpar.thetaMax || wpar.thetaMin > thetamax);
-  
-} 
 
 
 

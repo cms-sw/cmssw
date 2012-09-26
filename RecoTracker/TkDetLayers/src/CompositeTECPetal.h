@@ -62,8 +62,6 @@ class CompositeTECPetal GCC11_FINAL : public TECPetal{
 			std::vector<DetGroup>& result,
 			bool checkClosest) const dso_internal;
   
-  static
-    bool overlap( const GlobalPoint& gpos, const WedgePar& par, float window) dso_internal;
   
   static
     float computeWindowSize( const GeomDet* det, 
