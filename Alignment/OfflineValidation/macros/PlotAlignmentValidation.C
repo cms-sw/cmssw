@@ -473,7 +473,10 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
 
 	// Generate histograms with selection
 	THStack *hs = addHists(selection, residType);
-	if (!hs) continue; 
+	if (!hs || hs->GetHists()==0 || hs->GetHists()->GetSize()==0) {
+	  std::cout << "No histogram for " << subDetName << ", perhaps not enough data?" << std::endl; 
+	  continue; 
+	}
 	hs->SetTitle( myTitle ); 
 	hs->Draw("nostack PE");  
 
@@ -831,11 +834,12 @@ THStack* PlotAlignmentValidation::addHists(const char *selection, const TString 
     std::cout << "PlotAlignmentValidation::addHists" << "Result is merged from " << nSel-nEmpty
 	      << " modules, " << nEmpty << " hists were empty." << std::endl;
 
+    if (nSel-nEmpty == 0) continue;
+
     myLegend->AddEntry(myLegendName, myLegendName, "L");
     
     retHistoStack->Add(h);
   }
-
   myLegend->Draw();
   return retHistoStack;
 }
