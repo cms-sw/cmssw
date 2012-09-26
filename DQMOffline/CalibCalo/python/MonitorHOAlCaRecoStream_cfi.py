@@ -10,6 +10,6 @@ MonitorHOAlCaRecoStream = cms.EDAnalyzer("DQMHOAlCaRecoStream",
     lowedge =  cms.untracked.double(-2.0),
     highedge =  cms.untracked.double(10.0),
     nbins =  cms.untracked.int32(100),
-    saveToFile = cms.untracked.bool(False)                                     
+    saveToFile = cms.untracked.bool(False),
+    hoCalibVariableCollectionTag = cms.InputTag('hoCalibProducer', 'HOCalibVariableCollection')
 )
-

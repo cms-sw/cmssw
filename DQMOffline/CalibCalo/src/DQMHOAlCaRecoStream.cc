@@ -13,7 +13,7 @@
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Mon Mar  2 12:33:08 CET 2009
-// $Id: DQMHOAlCaRecoStream.cc,v 1.9 2010/04/07 13:05:45 kodolova Exp $
+// $Id: DQMHOAlCaRecoStream.cc,v 1.10 2010/10/15 22:44:31 wmtan Exp $
 //
 //
 
@@ -32,8 +32,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/HcalCalibObjects/interface/HOCalibVariables.h"
-
-#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -65,7 +63,9 @@ using namespace edm;
 //
 // constructors and destructor
 //
-DQMHOAlCaRecoStream::DQMHOAlCaRecoStream(const edm::ParameterSet& iConfig) {
+DQMHOAlCaRecoStream::DQMHOAlCaRecoStream(const edm::ParameterSet& iConfig) :
+  hoCalibVariableCollectionTag(iConfig.getParameter<edm::InputTag>("hoCalibVariableCollectionTag")) {
+
   //now do what ever initialization is needed
   
   theRootFileName = iConfig.getUntrackedParameter<string>("RootFileName","tmp.root");
@@ -104,7 +104,7 @@ DQMHOAlCaRecoStream::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<HOCalibVariableCollection>HOCalib;
   bool isCosMu = true;
   
-    iEvent.getByType(HOCalib); 
+  iEvent.getByLabel(hoCalibVariableCollectionTag, HOCalib); 
 
   if(!HOCalib.isValid()){
     LogDebug("") << "DQMHOAlCaRecoStream:: Error! can't get HOCalib product!" << std::endl;
