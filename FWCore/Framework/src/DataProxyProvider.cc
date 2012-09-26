@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include <cassert>
 
 namespace edm {
    namespace eventsetup {
