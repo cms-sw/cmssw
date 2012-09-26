@@ -1,0 +1,1 @@
+ scan-build -load-plugin ../../../../lib/slc5_amd64_gcc462/libUtilitiesStaticAnalyzers.so -enable-checker threadsafety make -k class_checker.o
