@@ -17,6 +17,8 @@ VtxSmeared = {
     'Flat':                          'IOMC.EventVertexGenerators.VtxSmearedFlat_cfi',                      
     'Gauss':                         'IOMC.EventVertexGenerators.VtxSmearedGauss_cfi',                     
     'Realistic7TeVCollision':        'IOMC.EventVertexGenerators.VtxSmearedRealistic7TeVCollision_cfi',    
+    'Realistic7TeVCollision2010B':   'IOMC.EventVertexGenerators.VtxSmearedRealistic7TeVCollision2010B_cfi',
+    'Realistic7TeVCollisionComm10':  'IOMC.EventVertexGenerators.VtxSmearedRealistic7TeVCollisionComm10_cfi',
     'Realistic900GeVCollision':      'IOMC.EventVertexGenerators.VtxSmearedRealistic900GeVCollision_cfi',  
     'Realistic8TeVCollision':        'IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi',    
     'Realistic8TeV2012Collision':    'IOMC.EventVertexGenerators.VtxSmearedRealistic8TeV2012Collision_cfi',    
