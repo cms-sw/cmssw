@@ -9,6 +9,7 @@
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -29,8 +30,7 @@ class RPCMon_SS_Dbx_Global : public edm::EDAnalyzer {
       std::string rootFileName_;
  DQMStore* dbe_;
  int   numberOfRings_;
+      edm::InputTag rpcDigiCollectionTag_;
 };
-
-
 
 #endif

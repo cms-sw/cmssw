@@ -27,7 +27,8 @@
 typedef std::map< std::pair<int,int>, int>::const_iterator IT;
 
 RPCMonitorRaw::RPCMonitorRaw(const edm::ParameterSet& cfg)
- : theConfig(cfg)
+  : theConfig(cfg),
+    rpcRawDataCountsTag_(cfg.getParameter<edm::InputTag>("rpcRawDataCountsTag"))
 {
   for (unsigned int i=0; i<10;i++) theWatchedErrorHistoPos[i]=0;
   std::vector<int> algos = cfg.getUntrackedParameter<std::vector<int> >("watchedErrors");
@@ -104,7 +105,7 @@ void RPCMonitorRaw::analyze(const  edm::Event& ev, const edm::EventSetup& es)
 {
 
   edm::Handle<RPCRawDataCounts> rawCounts;
-  ev.getByType( rawCounts);
+  ev.getByLabel(rpcRawDataCountsTag_, rawCounts);
   const RPCRawDataCounts & counts = *rawCounts.product(); 
 
   //

@@ -16,7 +16,8 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 
-RPCMon_SS_Dbx_Global::RPCMon_SS_Dbx_Global(const edm::ParameterSet& iConfig ){
+RPCMon_SS_Dbx_Global::RPCMon_SS_Dbx_Global(const edm::ParameterSet& iConfig ) :
+  rpcDigiCollectionTag_(iConfig.getParameter<edm::InputTag>("rpcDigiCollectionTag")) {
 
 
   edm::LogVerbatim ("rpcmonitorerror") << "[RPCMon_SS_Dbx_Global]: Constructor";
@@ -59,7 +60,7 @@ void RPCMon_SS_Dbx_Global::beginRun(const edm::Run& r, const edm::EventSetup& c)
 void RPCMon_SS_Dbx_Global::analyze(const edm::Event& iEvent, const edm::EventSetup&  iSetup) {
 
  edm::Handle<RPCDigiCollection> rpcDigis;
-  iEvent.getByType(rpcDigis);
+ iEvent.getByLabel(rpcDigiCollectionTag_, rpcDigis);
 
  edm::ESHandle<RPCGeometry> pDD;
  iSetup.get<MuonGeometryRecord>().get( pDD );

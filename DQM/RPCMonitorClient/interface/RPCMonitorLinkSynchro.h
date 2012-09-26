@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 
 #include "DQM/RPCMonitorClient/interface/RPCLinkSynchroStat.h"
@@ -40,6 +41,8 @@ protected:
   MonitorElement* me_topSpread;
   MonitorElement* me_notComplete[3];
 
+private:
+  edm::InputTag rpcRawSynchroProdItemTag_;
 };
 
 #endif

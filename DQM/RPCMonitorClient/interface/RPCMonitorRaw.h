@@ -44,8 +44,7 @@ private:
                                                           // to get index one has to subtract -1
                                                           // 0 is not selected error type 
                                                   
+  edm::InputTag rpcRawDataCountsTag_;
 };
 
 #endif
-
-
