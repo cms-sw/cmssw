@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/PIon/V36 (CMSSW_5_2_6_HLT3)
+# /dev/CMSSW_5_2_6/PIon/V37 (CMSSW_5_2_7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V36')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V37')
 )
 
 process.streams = cms.PSet( 
@@ -192,7 +192,8 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     RefreshAlways = cms.untracked.bool( False ),
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
     ReconnectEachRun = cms.untracked.bool( False ),
-    BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" )
+    BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
+    timetype = cms.string( "runnumber" )
 )
 process.HepPDTESSource = cms.ESSource( "HepPDTESSource",
     pdtFileName = cms.FileInPath( "SimGeneral/HepPDTESSource/data/pythiaparticle.tbl" )
@@ -2911,25 +2912,27 @@ process.sistripconn = cms.ESProducer( "SiStripConnectivity" )
 
 process.FastTimerService = cms.Service( "FastTimerService",
     dqmPath = cms.untracked.string( "HLT/TimerService" ),
-    skipFirstPath = cms.untracked.bool( False ),
     dqmModuleTimeRange = cms.untracked.double( 40.0 ),
-    enableDQMbyPathCounters = cms.untracked.bool( False ),
-    enableDQMbyLumi = cms.untracked.bool( False ),
-    dqmTimeResolution = cms.untracked.double( 5.0 ),
     enableTimingPaths = cms.untracked.bool( True ),
-    dqmModuleTimeResolution = cms.untracked.double( 0.2 ),
-    dqmPathTimeResolution = cms.untracked.double( 0.5 ),
-    useRealTimeClock = cms.untracked.bool( True ),
     enableTimingModules = cms.untracked.bool( True ),
-    dqmPathTimeRange = cms.untracked.double( 100.0 ),
     enableDQM = cms.untracked.bool( True ),
-    enableDQMbyPathDetails = cms.untracked.bool( False ),
-    dqmTimeRange = cms.untracked.double( 1000.0 ),
-    enableDQMbyPathOverhead = cms.untracked.bool( False ),
+    dqmTimeResolution = cms.untracked.double( 5.0 ),
     enableDQMbyModule = cms.untracked.bool( False ),
-    enableDQMbyPathActive = cms.untracked.bool( False ),
+    enableTimingExclusive = cms.untracked.bool( False ),
+    skipFirstPath = cms.untracked.bool( False ),
+    dqmPathTimeResolution = cms.untracked.double( 0.5 ),
+    dqmPathTimeRange = cms.untracked.double( 100.0 ),
+    dqmTimeRange = cms.untracked.double( 1000.0 ),
     enableTimingSummary = cms.untracked.bool( False ),
-    enableDQMbyPathTotal = cms.untracked.bool( True )
+    enableDQMbyPathTotal = cms.untracked.bool( True ),
+    useRealTimeClock = cms.untracked.bool( True ),
+    enableDQMbyPathExclusive = cms.untracked.bool( False ),
+    enableDQMbyLumi = cms.untracked.bool( False ),
+    dqmModuleTimeResolution = cms.untracked.double( 0.2 ),
+    enableDQMbyPathActive = cms.untracked.bool( False ),
+    enableDQMbyPathDetails = cms.untracked.bool( False ),
+    enableDQMbyPathOverhead = cms.untracked.bool( False ),
+    enableDQMbyPathCounters = cms.untracked.bool( False )
 )
 process.DQM = cms.Service( "DQM",
     publishFrequency = cms.untracked.double( 5.0 ),
