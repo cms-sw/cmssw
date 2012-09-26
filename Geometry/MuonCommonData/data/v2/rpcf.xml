@@ -35,9 +35,7 @@
        <Trd1 name="REG1" dz="16.05*cm " dy1="1*mm " dy2="1*mm " dx1="51.134*cm " dx2="56.794*cm " />
        <Trd1 name="REG2" dz="22.5*cm " dy1="1*mm " dy2="1*mm " dx1="43.023*cm " dx2="50.957*cm " />
        RE3/1 stage volumes -->
-  <!-- RE4 staged volumes
-       <Tubs name="RR4X" rMin="2.644*m  " rMax="6.99*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
-       RE4 staged volumes -->
+  <Tubs name="RR4X" rMin="2.644*m  " rMax="6.99*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
   <!-- RE4/1 staged volume
        <Tubs name="RT4H" rMin="2.644*m  " rMax="3.3*m  " dz="2*cm " startPhi="-13*deg" deltaPhi="26*deg"/>
        <Trd1 name="RFHX" dz="27.85*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="47.044*cm " dx2="56.847*cm " />
@@ -178,12 +176,14 @@
     <rMaterial name="materials:M_RPC_Gas"/>
   </LogicalPart>
       RE3/1 staged volumes -->
-  <!-- RE4 staged volumes
-  <LogicalPart name="RR4X" category="unspecified">
+  <LogicalPart name="RR4XP" category="unspecified">
     <rSolid name="RR4X"/>
     <rMaterial name="materials:ME_free_space"/>
   </LogicalPart>
-       RE4 staged volumes -->
+  <LogicalPart name="RR4XN" category="unspecified">
+    <rSolid name="RR4X"/>
+    <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
   <!-- RE4/1 staged volume
   <LogicalPart name="RT4H" category="unspecified">
     <rSolid name="RT4H"/>
@@ -250,24 +250,20 @@
   <PosPart copyNumber="1">
    <rParent name="rpcf:RFBX"/>
    <rChild name="rpcf:RHBX"/>
-   <rRotation name="rotations:000D"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHBX"/>
    <rChild name="rpcf:REB1"/>
-   <rRotation name="rotations:000D"/>
    <Translation x="0*fm " y="0*fm " z="65.2*cm "/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHBX"/>
    <rChild name="rpcf:REB2"/>
-   <rRotation name="rotations:000D"/>
    <Translation x="0*fm " y="0*fm " z="12.95*cm "/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHBX"/>
    <rChild name="rpcf:REB3"/>
-   <rRotation name="rotations:000D"/>
    <Translation x="0*fm " y="0*fm " z="-52.25*cm "/>
   </PosPart>
   <PosPart copyNumber="1">
@@ -291,24 +287,20 @@
   <PosPart copyNumber="1">
    <rParent name="rpcf:RFCX"/>
    <rChild name="rpcf:RHCX"/>
-   <rRotation name="rotations:000D"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHCX"/>
    <rChild name="rpcf:REC1"/>
-   <rRotation name="rotations:000D"/>
    <Translation x="0*fm " y="0*fm " z="66.95*cm "/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHCX"/>
    <rChild name="rpcf:REC2"/>
-   <rRotation name="rotations:000D"/>
    <Translation x="0*fm " y="0*fm " z="7.85*cm "/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHCX"/>
    <rChild name="rpcf:REC3"/>
-   <rRotation name="rotations:000D"/>
    <Translation x="0*fm " y="0*fm " z="-59.1*cm "/>
   </PosPart>
   <PosPart copyNumber="1">
@@ -326,24 +318,20 @@
   <PosPart copyNumber="1">
    <rParent name="rpcf:RFEX"/>
    <rChild name="rpcf:RHEX"/>
-   <rRotation name="rotations:000D"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHEX"/>
    <rChild name="rpcf:REE1"/>
-   <rRotation name="rotations:000D"/>
    <Translation x="0*fm " y="0*fm " z="51.9*cm "/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHEX"/>
    <rChild name="rpcf:REE2"/>
-   <rRotation name="rotations:000D"/>
    <Translation x="0*fm " y="0*fm " z="-6.9*cm "/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHEX"/>
    <rChild name="rpcf:REE3"/>
-   <rRotation name="rotations:000D"/>
    <Translation x="0*fm " y="0*fm " z="-58.8*cm "/>
   </PosPart>
   <PosPart copyNumber="1">
@@ -361,24 +349,20 @@
   <PosPart copyNumber="1">
    <rParent name="rpcf:RFFX"/>
    <rChild name="rpcf:RHFX"/>
-   <rRotation name="rotations:000D"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHFX"/>
    <rChild name="rpcf:REF1"/>
-   <rRotation name="rotations:000D"/>
    <Translation x="0*fm " y="0*fm " z="69.15*cm "/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHFX"/>
    <rChild name="rpcf:REF2"/>
-   <rRotation name="rotations:000D"/>
    <Translation x="0*fm " y="0*fm " z="4.25*cm "/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHFX"/>
    <rChild name="rpcf:REF3"/>
-   <rRotation name="rotations:000D"/>
    <Translation x="0*fm " y="0*fm " z="-64.9*cm "/>
   </PosPart>
   <PosPart copyNumber="1">
@@ -403,35 +387,32 @@
   <PosPart copyNumber="1">
    <rParent name="rpcf:RFGX"/>
    <rChild name="rpcf:RHGX"/>
-   <rRotation name="rotations:000D"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHGX"/>
    <rChild name="rpcf:REG1"/>
-   <rRotation name="rotations:000D"/>
    <Translation x="0*fm " y="0*fm " z="23*cm " />
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHGX"/>
    <rChild name="rpcf:REG2"/>
-   <rRotation name="rotations:000D"/>
    <Translation x="0*fm " y="0*fm " z="-16.55*cm " />
   </PosPart>
        RE3/1 staged volumes -->
   <!-- -->
-  <!-- RE4/1 staged volume
   <PosPart copyNumber="1">
    <rParent name="mf:ME4RingP"/>
-   <rChild name="rpcf:RR4X"/>
+   <rChild name="rpcf:RR4XP"/>
    <rRotation name="rotations:R005"/>
    <Translation x="0*fm " y="0*fm " z="29.175*cm " />
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="mf:ME4RingN"/>
-   <rChild name="rpcf:RR4X"/>
+   <rChild name="rpcf:RR4XN"/>
    <rRotation name="rotations:R005"/>
    <Translation x="0*fm " y="0*fm " z="29.175*cm " />
   </PosPart>
+  <!-- RE4/1 staged volume
   <PosPart copyNumber="1">
    <rParent name="rpcf:RT4H"/>
    <rChild name="rpcf:RFHX"/>
@@ -441,18 +422,15 @@
   <PosPart copyNumber="1">
    <rParent name="rpcf:RFHX"/>
    <rChild name="rpcf:RHHX"/>
-   <rRotation name="rotations:000D"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHHX"/>
    <rChild name="rpcf:REH1"/>
-   <rRotation name="rotations:000D"/>
    <Translation x="0*fm " y="0*fm " z="11.75*cm " />
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHHX"/>
    <rChild name="rpcf:REH2"/>
-   <rRotation name="rotations:000D"/>
    <Translation x="0*fm " y="0*fm " z="-16.55*cm " />
   </PosPart>
        RE4/1 staged volumes -->
@@ -548,9 +526,8 @@
     <Numeric name="zoffset"     value="2.2*cm"/>
 </Algorithm>
      RE3/1 staged volumes -->
-<!-- RE4 staged volumes 
 <Algorithm name="muon:DDMuonAngular">
-    <rParent name="rpcf:RR4X"/>
+    <rParent name="rpcf:RR4XP"/>
     <String name="ChildName" value="RTXU"/>
     <String name="RotNameSpace" value="rotations"/>
     <Numeric name="n" value="18"/>
@@ -561,7 +538,7 @@
     <Numeric name="zoffset"     value="-2.2*cm"/>
 </Algorithm>
 <Algorithm name="muon:DDMuonAngular">
-    <rParent name="rpcf:RR4X"/>
+    <rParent name="rpcf:RR4XP"/>
     <String name="ChildName" value="RTXU"/>
     <String name="RotNameSpace" value="rotations"/>
     <Numeric name="n" value="18"/>
@@ -571,7 +548,28 @@
     <Numeric name="startAngle"  value="15*deg"/>
     <Numeric name="zoffset"     value="2.2*cm"/>
 </Algorithm>
-     RE4 stage volumes -->
+<Algorithm name="muon:DDMuonAngular">
+    <rParent name="rpcf:RR4XN"/>
+    <String name="ChildName" value="RTXU"/>
+    <String name="RotNameSpace" value="rotations"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="1"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="stepAngle"   value="20*deg"/>
+    <Numeric name="startAngle"  value="5*deg"/>
+    <Numeric name="zoffset"     value="-2.2*cm"/>
+</Algorithm>
+<Algorithm name="muon:DDMuonAngular">
+    <rParent name="rpcf:RR4XN"/>
+    <String name="ChildName" value="RTXU"/>
+    <String name="RotNameSpace" value="rotations"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="2"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="stepAngle"   value="20*deg"/>
+    <Numeric name="startAngle"  value="15*deg"/>
+    <Numeric name="zoffset"     value="2.2*cm"/>
+</Algorithm>
 <!-- RE4/1 staged volume
 <Algorithm name="muon:DDMuonAngular">
     <rParent name="rpcf:RR4X"/>
