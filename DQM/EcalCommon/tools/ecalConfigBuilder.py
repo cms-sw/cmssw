@@ -86,7 +86,7 @@ if (env == 'LocalOffline') or (env == 'LocalLive') :
     local = True
 
 doOutput = True
-if (env == 'LocalLive') or (laser and privEcal) :
+if laser and privEcal :
     doOutput = False
 
 live = False
@@ -201,9 +201,14 @@ process.load("DQM.EcalBarrelMonitorTasks.EcalMonitorTask_cfi")
 
 process.ecalMonitorTask.workers = ["IntegrityTask", "RawDataTask"]
 process.ecalCalibMonitorClient.workers = ["IntegrityClient", "RawDataClient", "LaserClient", "LedClient", "TestPulseClient", "PedestalClient", "PNIntegrityClient", "SummaryClient", "CalibrationSummaryClient"]
-process.ecalCalibMonitorClient.workers.SummaryClient.activeSources = ["Integrity", "RawData"]
+process.ecalCalibMonitorClient.workerParameters.SummaryClient.activeSources = ["Integrity", "RawData"]
 '''
     #Need to comfigure the source for calib summary!!
+
+if Ecal and not live:
+    ecalDQM += '''
+process.load("Toolset.DQMTools.DQMFileLoader_cfi")
+'''
 
 dqmModules += '''
 
@@ -215,12 +220,12 @@ process.load("DQMServices.Core.DQM_cfg")
 if physics :
     dqmModules += '''
 process.dqmQTest = cms.EDAnalyzer("QualityTester",
-  reportThreshold = cms.untracked.string("red"),
-  prescaleFactor = cms.untracked.int32(1),
-  qtList = cms.untracked.FileInPath("DQM/EcalCommon/data/EcalQualityTests.xml"),
-  getQualityTestsFromFile = cms.untracked.bool(True),
-  qtestOnEndLumi = cms.untracked.bool(True),
-  qtestOnEndRun = cms.untracked.bool(True)
+    reportThreshold = cms.untracked.string("red"),
+    prescaleFactor = cms.untracked.int32(1),
+    qtList = cms.untracked.FileInPath("DQM/EcalCommon/data/EcalQualityTests.xml"),
+    getQualityTestsFromFile = cms.untracked.bool(True),
+    qtestOnEndLumi = cms.untracked.bool(True),
+    qtestOnEndRun = cms.untracked.bool(True)
 )
 '''
 
@@ -411,6 +416,10 @@ if physics :
     process.dqmQTest'''
     
 if doOutput :
+    if privEcal and live:
+        sequencePaths += ''' *
+    process.dqmFileLoader'''
+        
     sequencePaths += ''' *
     process.dqmSaver'''
 
@@ -555,6 +564,11 @@ process.ecalCalibMonitorClient.workerParameters.common.MGPAGains = [1, 6, 12]
 process.ecalCalibMonitorClient.workerParameters.common.MGPAGainsPN = [1, 16]
 '''
 
+if privEcal and not live:
+    customizations += '''
+process.dqmFileLoader.directory = "/data/ecalod-disk01/dqm-data/tmp"
+'''
+
 customizations += '''
  ## DQM common modules ##
 '''
@@ -645,7 +659,8 @@ if p5 :
 if process.runType.getRunType() == process.runType.cosmic_run :
     process.dqmEndPath.remove(process.dqmQTest)
     process.ecalMonitorTask.workers = ["EnergyTask", "IntegrityTask", "OccupancyTask", "RawDataTask", "TrigPrimTask", "PresampleTask", "SelectiveReadoutTask"]
-    process.ecalMonitorClient.workers = ["IntegrityClient", "OccupancyClient", "PresampleClient", "RawDataClient", "SelectiveReadoutClient", "TrigPrimClient", "SummaryClient"]    
+    process.ecalMonitorClient.workers = ["IntegrityClient", "OccupancyClient", "PresampleClient", "RawDataClient", "SelectiveReadoutClient", "TrigPrimClient", "SummaryClient"]
+    process.ecalMonitorClient.workerParameters.SummaryClient.activeSources = ["Integrity", "RawData", "Presample", "TriggerPrimitives", "HotCell"]
 elif process.runType.getRunType() == process.runType.hpu_run:
     process.source.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("*"))
 '''
