@@ -6,8 +6,6 @@
 
 #include <utility>
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 class Line;
 
 /** Abstract interface for the extrapolation of a helix to

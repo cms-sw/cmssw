@@ -26,7 +26,7 @@ void DCCEBSRPBlock::addSRFlagToCollection(){
   
   // Point to SR flags 
   data_++;
-  uint16_t * my16Bitp_ = reinterpret_cast<uint16_t *> (data_);
+  const uint16_t * my16Bitp_ = reinterpret_cast<const uint16_t *> (data_);
   
   unsigned int towersInPhi = EcalElectronicsMapper::kTowersInPhi;
 

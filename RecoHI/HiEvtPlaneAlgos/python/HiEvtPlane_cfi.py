@@ -12,8 +12,8 @@ hiEvtPlane = cms.EDProducer("EvtPlaneProducer",
                             maxet_ = cms.untracked.double(500.0),
                             minpt_ = cms.untracked.double(0.3),
                             maxpt_ = cms.untracked.double(2.6),
-                            minvtx_ = cms.untracked.double(-25.),
-                            maxvtx_ = cms.untracked.double(25.),
+                            minvtx_ = cms.untracked.double(-10.),
+                            maxvtx_ = cms.untracked.double(10.),
                             dzerr_ = cms.untracked.double(10.),
                             chi2_ = cms.untracked.double(40.)
                             )

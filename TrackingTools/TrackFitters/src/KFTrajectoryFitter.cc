@@ -171,8 +171,17 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 	LogTrace("TrackFitters") << "THE Precise HIT IS VALID: updating currTsos" << "\n";
 	currTsos = updator()->update(predTsos, *preciseHit);
 	//check for valid hits with no det (refitter with constraints)
-	if (!currTsos.isValid()){
-	  edm::LogError("FailedUpdate")<<"updating with the hit failed. Not updating the trajectory with the hit";
+        bool badState = (!currTsos.isValid())
+          || (hit.geographicalId().det() == DetId::Tracker
+              &&
+              (std::abs(currTsos.localParameters().qbp())>100
+               || std::abs(currTsos.localParameters().position().y()) > 1000
+               || std::abs(currTsos.localParameters().position().x()) > 1000
+               ) ) || std::isnan(currTsos.localParameters().qbp());
+        if (badState){
+	  if (!currTsos.isValid()) edm::LogError("FailedUpdate")<<"updating with the hit failed. Not updating the trajectory with the hit";
+	  else if (std::isnan(currTsos.localParameters().qbp())) edm::LogError("TrajectoryNaN")<<"Trajectory has NaN";
+	  else LogTrace("FailedUpdate")<<"updated state is valid but pretty bad, skipping. currTsos "<<currTsos<<"\n predTsos "<<predTsos;
 	  myTraj.push(TM(predTsos, *ihit,0,theGeometry->idToLayer((*ihit)->geographicalId())  ));
 	  //There is a no-fail policy here. So, it's time to give up
 	  //Keep the traj with invalid TSOS so that it's clear what happened

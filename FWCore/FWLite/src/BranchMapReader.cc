@@ -137,7 +137,9 @@ namespace fwlite {
       BranchMapReaderStrategyV1(TFile* file, int fileVersion);
       virtual bool updateFile(TFile* file);
       virtual bool updateMap();
+      virtual edm::BranchListIndexes const& branchListIndexes() const {return dummyBranchListIndexes_;}
     private:
+      edm::BranchListIndexes dummyBranchListIndexes_;
     };
 
     BranchMapReaderStrategyV1::BranchMapReaderStrategyV1(TFile* file, int fileVersion)
@@ -184,6 +186,9 @@ namespace fwlite {
     class BranchMapReaderStrategyV7 : public BranchMapReaderStrategyV1 {
     public:
       BranchMapReaderStrategyV7(TFile* file, int fileVersion);
+      virtual edm::BranchListIndexes const& branchListIndexes() const {return dummyBranchListIndexes_;}
+    private:
+      edm::BranchListIndexes dummyBranchListIndexes_;
     };
 
     BranchMapReaderStrategyV7::BranchMapReaderStrategyV7(TFile* file, int fileVersion)
@@ -199,10 +204,12 @@ namespace fwlite {
       virtual bool updateLuminosityBlock(Long_t luminosityBlockEntry);
       virtual bool updateRun(Long_t runEntry);
       virtual bool updateMap();
+      virtual edm::BranchListIndexes const& branchListIndexes() const {return dummyBranchListIndexes_;}
     private:
       TBranch* entryInfoBranch_;
       edm::EventEntryInfoVector  eventEntryInfoVector_;
       edm::EventEntryInfoVector* pEventEntryInfoVector_;
+      edm::BranchListIndexes dummyBranchListIndexes_;
     };
 
     BranchMapReaderStrategyV8::BranchMapReaderStrategyV8(TFile* file, int fileVersion)
@@ -298,6 +305,7 @@ namespace fwlite {
       virtual bool updateRun(Long_t runEntry);
       virtual bool updateMap();
       virtual edm::BranchID productToBranchID(edm::ProductID const& pid);
+      virtual edm::BranchListIndexes const& branchListIndexes() const {return history_.branchListIndexes();}
     private:
       std::auto_ptr<edm::BranchIDLists> branchIDLists_;
       TTree* eventHistoryTree_;
@@ -412,6 +420,7 @@ namespace fwlite {
       virtual bool updateRun(Long_t runEntry);
       virtual bool updateMap();
       virtual edm::BranchID productToBranchID(edm::ProductID const& pid);
+      virtual edm::BranchListIndexes const& branchListIndexes() const {return branchListIndexes_;}
     private:
       std::auto_ptr<edm::BranchIDLists> branchIDLists_;
       TTree* eventsTree_;

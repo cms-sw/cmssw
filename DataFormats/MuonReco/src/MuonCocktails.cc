@@ -30,12 +30,15 @@ reco::Muon::MuonTrackTypePair  muon::tevOptimized(const reco::TrackRef& combined
   // the track being not available, whether the (re)fit failed or it's
   // just not in the event, or if the (re)fit ended up with no valid
   // hits.
-  double prob[4] = {0.};
+  double prob[4] = {0.,0.,0.,0.};
+  bool valid[4] = {0,0,0,0};
   for (unsigned int i = 0; i < 4; ++i) 
-    if (refit[i].first.isNonnull() && refit[i].first->numberOfValidHits()) 
-      prob[i] = muon::trackProbability(refit[i].first); 
+    if (refit[i].first.isNonnull()){ 
+      valid[i] = true;
+      if (refit[i].first->numberOfValidHits()) 
+	prob[i] = muon::trackProbability(refit[i].first); 
+    }
 
-  //std::cout << "Probabilities: " << prob[0] << " " << prob[1] << " " << prob[2] << " " << prob[3] << std::endl;
   
   // Start with picky.
   int chosen = 3;
@@ -58,8 +61,13 @@ reco::Muon::MuonTrackTypePair  muon::tevOptimized(const reco::TrackRef& combined
   if (prob[2] > 0. && (prob[chosen] - prob[2]) > tune2)
     chosen = 2;
 
+  // Sanity checks 
+  if (chosen == 3 && !valid[3] ) chosen = 2;
+  if (chosen == 2 && !valid[2] ) chosen = 1;
+  if (chosen == 1 && !valid[1] ) chosen = 0; 
+
   // Done. If pT of the chosen track is below the threshold value, return the tracker track.
-  if (refit[chosen].first->pt() < ptThreshold) return make_pair(trackerTrack,reco::Muon::InnerTrack);    
+  if (valid[chosen] && refit[chosen].first->pt() < ptThreshold) return make_pair(trackerTrack,reco::Muon::InnerTrack);    
   
   // Return the chosen track (which can be the global track in
   // very rare cases).

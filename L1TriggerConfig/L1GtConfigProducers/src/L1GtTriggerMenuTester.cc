@@ -31,6 +31,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
+#include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
+
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 
@@ -49,11 +52,25 @@
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageDrop.h"
+
 // forward declarations
 
 // constructor(s)
-L1GtTriggerMenuTester::L1GtTriggerMenuTester(const edm::ParameterSet& parSet) {
+L1GtTriggerMenuTester::L1GtTriggerMenuTester(const edm::ParameterSet& parSet) :
+            m_overwriteHtmlFile(parSet.getParameter<bool> ("OverwriteHtmlFile")),
+            m_htmlFile(parSet.getParameter<std::string> ("HtmlFile")),
+            m_useHltMenu(parSet.getParameter<bool> ("UseHltMenu")),
+            m_hltProcessName(parSet.getParameter<std::string> ("HltProcessName")),
+            m_noThrowIncompatibleMenu(
+                    parSet.getParameter<bool> ("NoThrowIncompatibleMenu")),
+            m_printPfsRates(parSet.getParameter<bool> ("PrintPfsRates")),
+            m_indexPfSet(parSet.getParameter<int> ("IndexPfSet")),
+            m_numberAlgorithmTriggers(0), m_numberTechnicalTriggers(0) {
+
     // empty
+
 }
 
 // destructor
@@ -61,90 +78,466 @@ L1GtTriggerMenuTester::~L1GtTriggerMenuTester() {
     // empty
 }
 
+// begin job
+void L1GtTriggerMenuTester::beginJob() {
+
+}
+
+// begin run
+void L1GtTriggerMenuTester::beginRun(const edm::Run& iRun,
+        const edm::EventSetup& evSetup) {
+
+    // retrieve L1 trigger configuration
+    retrieveL1EventSetup(evSetup);
+
+    // print with various level of verbosity
+
+    // define an output stream to print into
+    // it can then be directed to whatever log level is desired
+    std::ostringstream myCout;
+
+    int printVerbosity = 0;
+    m_l1GtMenu->print(myCout, printVerbosity);
+    myCout << std::flush << std::endl;
+
+    printVerbosity = 1;
+    m_l1GtMenu->print(myCout, printVerbosity);
+    myCout << std::flush << std::endl;
+
+    printVerbosity = 2;
+    m_l1GtMenu->print(myCout, printVerbosity);
+    myCout << std::flush << std::endl;
+
+    // redirect myCout to edm::LogVerbatim TODO - parameter to choose the log
+    edm::LogVerbatim("L1GtTriggerMenuTester") << myCout.str() << std::endl;
+
+    // prepare L1 - HLT
+    if (m_useHltMenu) {
+        associateL1SeedsHltPath(iRun, evSetup);
+
+        if (m_noThrowIncompatibleMenu) {
+            edm::LogVerbatim("L1GtTriggerMenuTester")
+                    << "\n List of algorithm triggers used as L1 seeds but not in L1 menu"
+                    << std::endl;
+
+            for (std::vector<std::string>::const_iterator strIter =
+                    m_algoTriggerSeedNotInL1Menu.begin(); strIter
+                    != m_algoTriggerSeedNotInL1Menu.end(); ++strIter) {
+
+                edm::LogVerbatim("L1GtTriggerMenuTester") << "   "
+                        << (*strIter) << std::endl;
+            }
+
+        }
+    }
+
+    // print in wiki format
+    printWiki();
+
+}
+
+// begin luminosity block
+void L1GtTriggerMenuTester::beginLuminosityBlock(const edm::LuminosityBlock& iLumiBlock,
+        const edm::EventSetup& evSetup) {
+
+}
+
 // loop over events
 void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
         const edm::EventSetup& evSetup) {
 
-    edm::ESHandle< L1GtTriggerMenu> l1GtMenu;
-    evSetup.get< L1GtTriggerMenuRcd>().get(l1GtMenu);
-    (const_cast<L1GtTriggerMenu*>(l1GtMenu.product()))->buildGtConditionMap();
+    // empty
 
-    // print with various level of verbosities
+}
 
-    int printVerbosity = 0;
-    l1GtMenu->print(std::cout, printVerbosity);
-    std::cout << std::flush << std::endl;
+// end luminosity block
+void L1GtTriggerMenuTester::endLuminosityBlock(const edm::LuminosityBlock& iLumiBlock,
+        const edm::EventSetup& evSetup) {
 
-    printVerbosity = 1;
-    l1GtMenu->print(std::cout, printVerbosity);
-    std::cout << std::flush << std::endl;
+}
 
-    printVerbosity = 2;
-    l1GtMenu->print(std::cout, printVerbosity);
-    std::cout << std::flush << std::endl;
+// end run
+void L1GtTriggerMenuTester::endRun(const edm::Run&, const edm::EventSetup& evSetup) {
+
+}
+
+// end job
+void L1GtTriggerMenuTester::endJob() {
+
+}
+
+void L1GtTriggerMenuTester::retrieveL1EventSetup(const edm::EventSetup& evSetup) {
+
+    // get / update the stable parameters from the EventSetup
+
+    edm::ESHandle<L1GtStableParameters> l1GtStablePar;
+    evSetup.get<L1GtStableParametersRcd> ().get(l1GtStablePar);
+    m_l1GtStablePar = l1GtStablePar.product();
+
+    // number of algorithm triggers
+    m_numberAlgorithmTriggers = m_l1GtStablePar->gtNumberPhysTriggers();
+
+    // number of technical triggers
+    m_numberTechnicalTriggers = m_l1GtStablePar->gtNumberTechnicalTriggers();
+
+//    int maxNumberTrigger = std::max(m_numberAlgorithmTriggers,
+//            m_numberTechnicalTriggers);
+
+//    m_triggerMaskSet.reserve(maxNumberTrigger);
+//    m_prescaleFactorSet.reserve(maxNumberTrigger);
+
+    // get / update the prescale factors from the EventSetup
+
+
+    edm::ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
+    evSetup.get<L1GtPrescaleFactorsAlgoTrigRcd> ().get(l1GtPfAlgo);
+    m_l1GtPfAlgo = l1GtPfAlgo.product();
+
+    m_prescaleFactorsAlgoTrig = &(m_l1GtPfAlgo->gtPrescaleFactors());
+
+    edm::ESHandle<L1GtPrescaleFactors> l1GtPfTech;
+    evSetup.get<L1GtPrescaleFactorsTechTrigRcd> ().get(l1GtPfTech);
+    m_l1GtPfTech = l1GtPfTech.product();
+
+    m_prescaleFactorsTechTrig = &(m_l1GtPfTech->gtPrescaleFactors());
+
+    // get / update the trigger mask from the EventSetup
+
+    edm::ESHandle<L1GtTriggerMask> l1GtTmAlgo;
+    evSetup.get<L1GtTriggerMaskAlgoTrigRcd> ().get(l1GtTmAlgo);
+    m_l1GtTmAlgo = l1GtTmAlgo.product();
+
+    m_triggerMaskAlgoTrig = &(m_l1GtTmAlgo->gtTriggerMask());
+
+    edm::ESHandle<L1GtTriggerMask> l1GtTmTech;
+    evSetup.get<L1GtTriggerMaskTechTrigRcd> ().get(l1GtTmTech);
+    m_l1GtTmTech = l1GtTmTech.product();
+
+    m_triggerMaskTechTrig = &(m_l1GtTmTech->gtTriggerMask());
+
+    edm::ESHandle<L1GtTriggerMask> l1GtTmVetoAlgo;
+    evSetup.get<L1GtTriggerMaskVetoAlgoTrigRcd> ().get(l1GtTmVetoAlgo);
+    m_l1GtTmVetoAlgo = l1GtTmVetoAlgo.product();
+
+    m_triggerMaskVetoAlgoTrig = &(m_l1GtTmVetoAlgo->gtTriggerMask());
+
+    edm::ESHandle<L1GtTriggerMask> l1GtTmVetoTech;
+    evSetup.get<L1GtTriggerMaskVetoTechTrigRcd> ().get(l1GtTmVetoTech);
+    m_l1GtTmVetoTech = l1GtTmVetoTech.product();
+
+    m_triggerMaskVetoTechTrig = &(m_l1GtTmVetoTech->gtTriggerMask());
+
+    // get / update the trigger menu from the EventSetup
+
+    edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
+    evSetup.get<L1GtTriggerMenuRcd> ().get(l1GtMenu);
+    m_l1GtMenu = l1GtMenu.product();
+    (const_cast<L1GtTriggerMenu*> (m_l1GtMenu))->buildGtConditionMap();
+
+    m_algorithmMap = &(m_l1GtMenu->gtAlgorithmMap());
+    m_algorithmAliasMap = &(m_l1GtMenu->gtAlgorithmAliasMap());
+
+    m_technicalTriggerMap = &(m_l1GtMenu->gtTechnicalTriggerMap());
+
+}
+
+void L1GtTriggerMenuTester::associateL1SeedsHltPath(const edm::Run& iRun,
+        const edm::EventSetup& evSetup) {
+
+    bool hltChanged = true;
+
+    if (m_hltConfig.init(iRun, evSetup, m_hltProcessName, hltChanged)) {
+
+        // if init returns TRUE, initialization has succeeded!
+        if (hltChanged) {
+
+            // HLT configuration has actually changed wrt the previous run
+            m_hltTableName = m_hltConfig.tableName();
+
+            edm::LogVerbatim("L1GtTriggerMenuTester")
+                    << "\nHLT ConfDB menu name: \n   " << m_hltTableName
+                    << std::endl;
+
+            // loop over trigger paths, get the HLTLevel1GTSeed logical expression, and add the path to
+            // each L1 trigger
+
+            m_hltPathsForL1AlgorithmTrigger.resize(m_numberAlgorithmTriggers);
+            m_hltPathsForL1TechnicalTrigger.resize(m_numberTechnicalTriggers);
+
+            m_algoTriggerSeedNotInL1Menu.reserve(m_numberAlgorithmTriggers);
+            m_techTriggerSeedNotInL1Menu.reserve(m_numberTechnicalTriggers);
+
+            for (unsigned int iHlt = 0; iHlt < m_hltConfig.size(); ++iHlt) {
+
+                const std::string& hltPathName = m_hltConfig.triggerName(iHlt);
+
+                const std::vector<std::pair<bool, std::string> >& hltL1Seed =
+                        m_hltConfig.hltL1GTSeeds(hltPathName);
+
+                unsigned int numberHltL1GTSeeds = hltL1Seed.size();
+
+                edm::LogVerbatim("L1GtTriggerMenuTester") << "\nPath: "
+                        << hltPathName << " :    <== " << numberHltL1GTSeeds
+                        << " HLTLevel1GTSeed module(s)" << std::endl;
+
+                for (unsigned int iSeedModule = 0; iSeedModule
+                        < numberHltL1GTSeeds; ++iSeedModule) {
+
+                    // one needs a non-const logical expression... TODO check why
+                    std::string m_l1SeedsLogicalExpression =
+                            (hltL1Seed[iSeedModule]).second;
+
+                    edm::LogVerbatim("L1GtTriggerMenuTester") << "      '"
+                            << m_l1SeedsLogicalExpression << "'";
+
+                    // parse logical expression
+
+                    if (m_l1SeedsLogicalExpression != "L1GlobalDecision") {
+
+                        // check also the logical expression - add/remove spaces if needed
+                        L1GtLogicParser m_l1AlgoLogicParser = L1GtLogicParser(
+                                m_l1SeedsLogicalExpression);
+
+                        // list of required algorithms for seeding
+                        std::vector<L1GtLogicParser::OperandToken>
+                                m_l1AlgoSeeds =
+                                        m_l1AlgoLogicParser.expressionSeedsOperandList();
+                        size_t l1AlgoSeedsSize = m_l1AlgoSeeds.size();
+
+                        edm::LogVerbatim("L1GtTriggerMenuTester")
+                                << " :    <== " << l1AlgoSeedsSize
+                                << " L1 seeds" << std::endl;
+
+                        // for each algorithm trigger, check if it is in the L1 menu, get the bit number
+                        // and add path to the vector of strings for that bit number
+
+                        for (size_t i = 0; i < l1AlgoSeedsSize; ++i) {
+
+                            const std::string& trigNameOrAlias =
+                                    (m_l1AlgoSeeds[i]).tokenName;
+
+                            CItAlgo itAlgo = m_algorithmAliasMap->find(
+                                    trigNameOrAlias);
+                            if (itAlgo != m_algorithmAliasMap->end()) {
+
+                                int bitNr = (itAlgo->second).algoBitNumber();
+
+                                (m_hltPathsForL1AlgorithmTrigger.at(bitNr)).push_back(
+                                        hltPathName);
+
+                                edm::LogVerbatim("L1GtTriggerMenuTester")
+                                        << "         " << trigNameOrAlias
+                                        << " bit " << bitNr << std::endl;
+
+                            } else {
+
+                                if (m_noThrowIncompatibleMenu) {
+                                    edm::LogVerbatim("L1GtTriggerMenuTester")
+                                            << "         " << trigNameOrAlias
+                                            << " trigger not in L1 menu "
+                                            << m_l1GtMenu->gtTriggerMenuName()
+                                            << std::endl;
+
+                                    m_algoTriggerSeedNotInL1Menu.push_back(
+                                            trigNameOrAlias);
+
+                                } else {
+                                    throw cms::Exception("FailModule")
+                                            << "\nAlgorithm  "
+                                            << trigNameOrAlias
+                                            << ", requested as seed by a HLT path, not found in the L1 trigger menu\n   "
+                                            << m_l1GtMenu->gtTriggerMenuName()
+                                            << "\nIncompatible L1 and HLT menus.\n"
+                                            << std::endl;
+
+                                }
+                            }
+                        }
+
+                    }
+                }
+
+            }
+        }
+    } else {
+        // if init returns FALSE, initialization has NOT succeeded, which indicates a problem
+        // with the file and/or code and needs to be investigated!
+        edm::LogError("MyAnalyzer")
+                << " HLT config extraction failure with process name "
+                << m_hltProcessName;
+    }
+
+}
+
+// printing template for a trigger group
+void L1GtTriggerMenuTester::printTriggerGroup(const std::string& trigGroupName,
+        const std::map<std::string, const L1GtAlgorithm*>& trigGroup,
+        const bool compactPrint, const bool printPfsRates) {
+
+    // FIXME get values - either read from a specific L1 menu file, or from
+    std::string lumiVal1 = "5.0E33";
+    std::string lumiVal2 = "7.0E33";
+    std::string trigComment;
+
+    int trigPfVal1 = 0;
+    int trigPfVal2 = 0;
+
+    int trigRateVal1 = 0;
+    int trigRateVal2 = 0;
+
+    // cumulative list of L1 triggers not used as seed by HLT
+    std::vector < std::string > algoTriggerNotSeed;
+    algoTriggerNotSeed.reserve(m_numberAlgorithmTriggers);
+
+    std::vector < std::string > techTriggerNotSeed;
+    techTriggerNotSeed.reserve(m_numberTechnicalTriggers);
+
+    // force a page break before each group
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "<p style=\"page-break-before: always\">&nbsp;</p>";
+
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki") << "\n---++++ "
+            << trigGroupName << "\n" << std::endl;
+
+    if (compactPrint) {
+        edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+                << "|  *Trigger Name*  |  *Trigger Alias*  |  *Bit*  |  *Comments*  |"
+                << std::endl;
+
+    } else {
+
+        if (printPfsRates) {
+            edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+                    << "|  *Trigger Name*  |  *Trigger Alias*  |  *Bit*  |  *Luminosity*  ||||  *Seed for !HLT path(s)*  |  *Comments*  |"
+                    << std::endl;
+
+            edm::LogVerbatim("L1GtTriggerMenuTesterWiki") << "|^|^|^|  *"
+                    << lumiVal1 << "*  ||  *" << lumiVal2
+                    << "*  ||  **  |  **  |" << std::endl;
+
+            edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+                    << "|^|^|^|  *PF*  |  *Rate*  |  *PF*  |  *Rate*  |  ** |  **  |"
+                    << std::endl;
+
+        } else {
+
+            edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+                    << "|  *Trigger Name*  |  *Trigger Alias*  |  *Bit*  |  *Seed for !HLT path(s)*  |"
+                    << std::endl;
+        }
+
+    }
+
+    for (CItAlgoP itAlgo = trigGroup.begin(); itAlgo != trigGroup.end(); itAlgo++) {
+
+        const std::string& aName = (itAlgo->second)->algoName();
+        const std::string& aAlias = (itAlgo->second)->algoAlias();
+        const int& bitNumber = (itAlgo->second)->algoBitNumber();
+
+
+        // concatenate in a string, to simplify the next print instruction
+        std::string seedsHlt;
+        if (m_useHltMenu) {
+            const std::vector<std::string> & hltPaths =
+                    m_hltPathsForL1AlgorithmTrigger.at(bitNumber);
+
+            if (hltPaths.size() < 1) {
+                algoTriggerNotSeed.push_back(aAlias);
+                seedsHlt
+                        = "<font color = \"red\">Not used as seed by any !HLT path</font>";
+            } else {
+
+                for (std::vector<std::string>::const_iterator strIter =
+                        hltPaths.begin(); strIter != hltPaths.end(); ++strIter) {
+
+                    seedsHlt = seedsHlt + (*strIter) + "<BR>";
+                }
+            }
+
+        }
+
+        if (compactPrint) {
+            edm::LogVerbatim("L1GtTriggerMenuTesterWiki") << "|" << std::left
+                    << "[[" << (m_htmlFile + "#" + aName) << "][ " << aName
+                    << "]] " << "  |" << aAlias << "  |  " << bitNumber << "| |"
+                    << std::endl;
+
+        } else {
+
+            if (printPfsRates) {
+                edm::LogVerbatim("L1GtTriggerMenuTesterWiki") << "|"
+                        << std::left << "[[" << (m_htmlFile + "#" + aName)
+                        << "][ " << aName << "]] " << "  |" << aAlias
+                        << "  |  " << bitNumber << "|  "
+                        << ((trigPfVal1 != 0) ? trigPfVal1 : 0) << "  |  "
+                        << ((trigRateVal1 != 0) ? trigRateVal1 : 0) << "  |  "
+                        << ((trigPfVal2 != 0) ? trigPfVal2 : 0) << "  |  "
+                        << ((trigRateVal2 != 0) ? trigRateVal2 : 0) << "  |  "
+                        << seedsHlt << "  |  " << trigComment << "  |"
+                        << std::endl;
+
+            } else {
+
+                edm::LogVerbatim("L1GtTriggerMenuTesterWiki") << "|"
+                        << std::left << "[[" << (m_htmlFile + "#" + aName)
+                        << "][ " << aName << "]] " << "  |" << aAlias
+                        << "  |  " << bitNumber << "|" << seedsHlt << "  |  "
+                        << std::endl;
+            }
+
+        }
+
+    }
+
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki") << "\n" << trigGroupName
+            << ": " << (trigGroup.size()) << " bits defined." << std::endl;
+
+    if (m_useHltMenu && (!compactPrint)) {
+        edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+                << "\n Algorithm triggers from " << trigGroupName
+                << " not used as seeds by !HLT:" << std::endl;
+
+        if (algoTriggerNotSeed.size() != 0) {
+            for (std::vector<std::string>::const_iterator strIter =
+                    algoTriggerNotSeed.begin(); strIter
+                    != algoTriggerNotSeed.end(); ++strIter) {
+
+                edm::LogVerbatim("L1GtTriggerMenuTesterWiki") << "   * "
+                        << (*strIter) << std::endl;
+            }
+
+        } else {
+            edm::LogVerbatim("L1GtTriggerMenuTesterWiki") << "   * none"
+                    << std::endl;
+        }
+    }
+
+}
+
+/// printing in Wiki format
+void L1GtTriggerMenuTester::printWiki() {
 
     //
     // print menu, prescale factors and trigger mask in wiki format
     //
 
     // L1 GT prescale factors for algorithm triggers
-    edm::ESHandle< L1GtPrescaleFactors> l1GtPfAlgo;
-    evSetup.get< L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
 
-    int indexPfSet = 0; // FIXME
-
-    std::vector<int> prescaleFactorsAlgoTrig =
-        (l1GtPfAlgo->gtPrescaleFactors()).at(indexPfSet);
-
+    std::vector<int> prescaleFactorsAlgoTrig = m_prescaleFactorsAlgoTrig->at(
+            m_indexPfSet);
 
     // L1 GT prescale factors for technical triggers
-    edm::ESHandle< L1GtPrescaleFactors> l1GtPfTech;
-    evSetup.get< L1GtPrescaleFactorsTechTrigRcd>().get(l1GtPfTech);
 
-    std::vector<int> prescaleFactorsTechTrig =
-        (l1GtPfTech->gtPrescaleFactors()).at(indexPfSet);
-
-
-    // L1 GT trigger masks for algorithm triggers
-    edm::ESHandle< L1GtTriggerMask> l1GtTmAlgo;
-    evSetup.get< L1GtTriggerMaskAlgoTrigRcd>().get(l1GtTmAlgo);
-
-    std::vector<unsigned int> triggerMaskAlgoTrig = l1GtTmAlgo->gtTriggerMask();
-
-
-    // L1 GT trigger masks for technical triggers
-    edm::ESHandle< L1GtTriggerMask> l1GtTmTech;
-    evSetup.get< L1GtTriggerMaskTechTrigRcd>().get(l1GtTmTech);
-
-    std::vector<unsigned int> triggerMaskTechTrig = l1GtTmTech->gtTriggerMask();
-
-
-    // L1 GT trigger veto masks for algorithm triggers
-    edm::ESHandle< L1GtTriggerMask> l1GtTmVetoAlgo;
-    evSetup.get< L1GtTriggerMaskVetoAlgoTrigRcd>().get(l1GtTmVetoAlgo);
-
-    std::vector<unsigned int> triggerMaskVetoAlgoTrig = l1GtTmVetoAlgo->gtTriggerMask();
-
-
-    // L1 GT trigger veto masks for technical triggers
-    edm::ESHandle< L1GtTriggerMask> l1GtTmVetoTech;
-    evSetup.get< L1GtTriggerMaskVetoTechTrigRcd>().get(l1GtTmVetoTech);
-
-    std::vector<unsigned int> triggerMaskVetoTechTrig = l1GtTmVetoTech->gtTriggerMask();
-
-    // set the index of physics DAQ partition TODO EventSetup?
-    //int physicsDaqPartition = 0;
+    std::vector<int> prescaleFactorsTechTrig = m_prescaleFactorsTechTrig->at(
+            m_indexPfSet);
 
     // use another map <int, L1GtAlgorithm> to get the menu sorted after bit number
     // both algorithm and bit numbers are unique
     typedef std::map<int, const L1GtAlgorithm*>::const_iterator CItBit;
 
     //    algorithm triggers
-    const AlgorithmMap& algorithmMap = l1GtMenu->gtAlgorithmMap();
-
 
     std::map<int, const L1GtAlgorithm*> algoBitToAlgo;
-
 
     std::map<std::string, const L1GtAlgorithm*> jetAlgoTrig;
     std::map<std::string, const L1GtAlgorithm*> egammaAlgoTrig;
@@ -152,8 +545,6 @@ void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
     std::map<std::string, const L1GtAlgorithm*> muonAlgoTrig;
     std::map<std::string, const L1GtAlgorithm*> crossAlgoTrig;
     std::map<std::string, const L1GtAlgorithm*> bkgdAlgoTrig;
-
-    int algoTrigNumberTotal = 128; // FIXME take it from stable parameters
 
     int algoTrigNumber = 0;
     int freeAlgoTrigNumber = 0;
@@ -165,7 +556,8 @@ void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
     int crossAlgoTrigNumber = 0;
     int bkgdAlgoTrigNumber = 0;
 
-    for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
+    for (CItAlgo itAlgo = m_algorithmMap->begin(); itAlgo
+            != m_algorithmMap->end(); itAlgo++) {
 
         const int bitNumber = (itAlgo->second).algoBitNumber();
         const std::string& algName = (itAlgo->second).algoName();
@@ -176,11 +568,13 @@ void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
 
         // per category
 
-        const ConditionMap& conditionMap =
-                (l1GtMenu->gtConditionMap()).at((itAlgo->second).algoChipNumber());
+        const ConditionMap& conditionMap = (m_l1GtMenu->gtConditionMap()).at(
+                (itAlgo->second).algoChipNumber());
 
-        const std::vector<L1GtLogicParser::TokenRPN>& rpnVector = (itAlgo->second).algoRpnVector();
-        const L1GtLogicParser::OperationType condOperand = L1GtLogicParser::OP_OPERAND;
+        const std::vector<L1GtLogicParser::TokenRPN>& rpnVector =
+                (itAlgo->second).algoRpnVector();
+        const L1GtLogicParser::OperationType condOperand =
+                L1GtLogicParser::OP_OPERAND;
 
         std::list<L1GtObject> listObjects;
 
@@ -207,10 +601,11 @@ void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
                             objType.begin(); itObject != objType.end(); itObject++) {
                         listObjects.push_back(*itObject);
 
-                        std::cout << (*itObject) << std::endl;
+                        edm::LogVerbatim("L1GtTriggerMenuTester")
+                                << (*itObject) << std::endl;
                     }
 
-                    // FIXME
+                    // FIXME for XML parser, add GtExternal to objType correctly
                     if ((itCond->second)->condCategory() == CondExternal) {
                         listObjects.push_back(GtExternal);
                     }
@@ -243,98 +638,98 @@ void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
         bool crossGroup = false;
         bool bkgdGroup = false;
 
-        for (std::list<L1GtObject>::const_iterator itObj = listObjects.begin(); itObj != listObjects.end(); ++itObj) {
-
+        for (std::list<L1GtObject>::const_iterator itObj = listObjects.begin(); itObj
+                != listObjects.end(); ++itObj) {
 
             switch (*itObj) {
                 case Mu: {
                     muonGroup = true;
                 }
 
-                break;
+                    break;
                 case NoIsoEG: {
                     egammaGroup = true;
                 }
 
-                break;
+                    break;
                 case IsoEG: {
                     egammaGroup = true;
                 }
 
-                break;
+                    break;
                 case CenJet: {
                     jetGroup = true;
                 }
 
-                break;
+                    break;
                 case ForJet: {
                     jetGroup = true;
                 }
 
-                break;
+                    break;
                 case TauJet: {
                     jetGroup = true;
                 }
 
-                break;
+                    break;
                 case ETM: {
                     esumGroup = true;
 
                 }
 
-                break;
+                    break;
                 case ETT: {
                     esumGroup = true;
 
                 }
 
-                break;
+                    break;
                 case HTT: {
                     esumGroup = true;
 
                 }
 
-                break;
+                    break;
                 case HTM: {
                     esumGroup = true;
 
                 }
 
-                break;
+                    break;
                 case JetCounts: {
                     // do nothing - not available
                 }
 
-                break;
+                    break;
                 case HfBitCounts: {
                     bkgdGroup = true;
                 }
 
-                break;
+                    break;
                 case HfRingEtSums: {
                     bkgdGroup = true;
                 }
 
-                break;
+                    break;
                 case GtExternal: {
                     bkgdGroup = true;
                 }
 
-                break;
+                    break;
                 case TechTrig:
                 case Castor:
                 case BPTX:
                 default: {
                     // should not arrive here
 
-                    std::cout << "\n      Unknown object of type " << *itObj
-                    << std::endl;
+                    edm::LogVerbatim("L1GtTriggerMenuTester")
+                            << "\n      Unknown object of type " << *itObj
+                            << std::endl;
                 }
-                break;
+                    break;
             }
 
         }
-
 
         int sumGroup = jetGroup + egammaGroup + esumGroup + muonGroup
                 + crossGroup + bkgdGroup;
@@ -367,11 +762,12 @@ void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
 
         }
 
-        std::cout << algName << " sum: " << sumGroup << " size: " << listObjects.size() << std::endl;
+        edm::LogVerbatim("L1GtTriggerMenuTester") << algName << " sum: "
+                << sumGroup << " size: " << listObjects.size() << std::endl;
 
     }
 
-    freeAlgoTrigNumber = algoTrigNumberTotal - algoTrigNumber;
+    freeAlgoTrigNumber = m_numberAlgorithmTriggers - algoTrigNumber;
 
     jetAlgoTrigNumber = jetAlgoTrig.size();
     egammaAlgoTrigNumber = egammaAlgoTrig.size();
@@ -380,18 +776,14 @@ void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
     crossAlgoTrigNumber = crossAlgoTrig.size();
     bkgdAlgoTrigNumber = bkgdAlgoTrig.size();
 
-
-
     //    technical triggers
     std::map<int, const L1GtAlgorithm*> techBitToAlgo;
-    const AlgorithmMap& technicalTriggerMap = l1GtMenu->gtTechnicalTriggerMap();
-
-    int techTrigNumberTotal = 64; // FIXME take it from stable parameters
 
     int techTrigNumber = 0;
     int freeTechTrigNumber = 0;
 
-    for (CItAlgo itAlgo = technicalTriggerMap.begin(); itAlgo != technicalTriggerMap.end(); itAlgo++) {
+    for (CItAlgo itAlgo = m_technicalTriggerMap->begin(); itAlgo
+            != m_technicalTriggerMap->end(); itAlgo++) {
 
         int bitNumber = (itAlgo->second).algoBitNumber();
         techBitToAlgo[bitNumber] = &(itAlgo->second);
@@ -399,73 +791,119 @@ void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
         techTrigNumber++;
     }
 
-    freeTechTrigNumber = techTrigNumberTotal - techTrigNumber;
+    freeTechTrigNumber = m_numberTechnicalTriggers - techTrigNumber;
 
-    // name of the attached HTML file FIXME get it automatically from L1 Trigger Menu Implementation
-    //m_htmlFile =  "%ATTACHURL%/L1Menu_Collisions2011_v6_L1T_Scales_20101224_Imp0_0x1024.html";
-    //m_htmlFile =  "%ATTACHURL%/L1Menu_Collisions2012_v0_L1T_Scales_20101224_Imp0_0x1027.html";
-    m_htmlFile =  "%ATTACHURL%/L1Menu_Collisions2012_v1_L1T_Scales_20101224_Imp0_0x1028.html";
+    // name of the attached HTML file
+    if (!m_overwriteHtmlFile) {
+        std::string menuName = m_l1GtMenu->gtTriggerMenuImplementation();
 
+        // replace "/" with "_"
+        std::replace(menuName.begin(), menuName.end(), '/', '_');
+        m_htmlFile = "%ATTACHURL%/" + menuName + ".html";
+    } else {
+        m_htmlFile = "%ATTACHURL%/" + m_htmlFile;
+    }
 
     // header for printing algorithms
 
-    std::cout << "\n   ********** L1 Trigger Menu - printing   ********** \n\n"
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "\n   ********** L1 Trigger Menu - printing in wiki format  ********** \n\n"
             << "\n---+++ L1 menu identification\n"
-            << "\n|L1 Trigger Menu Interface: |!" << l1GtMenu->gtTriggerMenuInterface() << " |"
-            << "\n|L1 Trigger Menu Name: |!" << l1GtMenu->gtTriggerMenuName() << " |"
-            << "\n|L1 Trigger Menu Implementation: |!" << l1GtMenu->gtTriggerMenuImplementation() << " |"
-            << "\n|Associated L1 scale DB key: |!" << l1GtMenu->gtScaleDbKey() << " |" << "\n\n"
-            << std::flush << std::endl;
+            << "\n|L1 Trigger Menu Interface: |!"
+            << m_l1GtMenu->gtTriggerMenuInterface() << " |"
+            << "\n|L1 Trigger Menu Name: |!" << m_l1GtMenu->gtTriggerMenuName()
+            << " |" << "\n|L1 Trigger Menu Implementation: |!"
+            << m_l1GtMenu->gtTriggerMenuImplementation() << " |"
+            << "\n|Associated L1 scale DB key: |!"
+            << m_l1GtMenu->gtScaleDbKey() << " |" << "\n\n" << std::flush
+            << std::endl;
 
     // Overview page
-    std::cout << "\n---+++ Summary\n" << std::endl;
-    std::cout << "   * Number of algorithm triggers: " << algoTrigNumber << " defined, 128 possible." << std::endl;
-    std::cout << "   * Number of technical triggers: " << techTrigNumber << " defined,  64 possible.<BR><BR>" << std::endl;
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki") << "\n---+++ Summary\n"
+            << std::endl;
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "   * Number of algorithm triggers: " << algoTrigNumber
+            << " defined, 128 possible." << std::endl;
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "   * Number of technical triggers: " << techTrigNumber
+            << " defined,  64 possible.<BR><BR>" << std::endl;
 
-    std::cout << "   * Number of free bits for algorithm triggers: " << freeAlgoTrigNumber << std::endl;
-    std::cout << "   * Number of free bits for technical triggers: " << freeTechTrigNumber << "<BR>" << std::endl;
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "   * Number of free bits for algorithm triggers: "
+            << freeAlgoTrigNumber << std::endl;
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "   * Number of free bits for technical triggers: "
+            << freeTechTrigNumber << "<BR>" << std::endl;
 
-    std::cout << "\nNumber of algorithm triggers per trigger group\n" << std::endl;
-    std::cout << "    | *Trigger group* | *Number of bits used*|"<< std::endl;
-    std::cout << "    | Jet algorithm triggers: |  " << jetAlgoTrigNumber << "|"<< std::endl;
-    std::cout << "    | EGamma algorithm triggers: |  " << egammaAlgoTrigNumber << "|"<< std::endl;
-    std::cout << "    | Energy sum algorithm triggers: |  " << esumAlgoTrigNumber << "|"<< std::endl;
-    std::cout << "    | Muon algorithm triggers: |  " << muonAlgoTrigNumber << "|"<< std::endl;
-    std::cout << "    | Cross algorithm triggers: |  " << crossAlgoTrigNumber << "|"<< std::endl;
-    std::cout << "    | Background algorithm triggers: |  " << bkgdAlgoTrigNumber << "|"<< std::endl;
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "\nNumber of algorithm triggers per trigger group\n"
+            << std::endl;
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "    | *Trigger group* | *Number of bits used*|" << std::endl;
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "    | Jet algorithm triggers: |  " << jetAlgoTrigNumber << "|"
+            << std::endl;
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "    | EGamma algorithm triggers: |  " << egammaAlgoTrigNumber
+            << "|" << std::endl;
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "    | Energy sum algorithm triggers: |  " << esumAlgoTrigNumber
+            << "|" << std::endl;
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "    | Muon algorithm triggers: |  " << muonAlgoTrigNumber
+            << "|" << std::endl;
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "    | Cross algorithm triggers: |  " << crossAlgoTrigNumber
+            << "|" << std::endl;
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "    | Background algorithm triggers: |  " << bkgdAlgoTrigNumber
+            << "|" << std::endl;
 
     // force a page break
-    std::cout << "<p style=\"page-break-before: always\">&nbsp;</p>";
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "<p style=\"page-break-before: always\">&nbsp;</p>";
 
-    std::cout << "\n---+++ List of algorithm triggers sorted by trigger groups\n" << std::endl;
+    // compact print - without HLT path
+    bool compactPrint = true;
+
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "\n---+++ List of algorithm triggers sorted by trigger groups\n"
+            << std::endl;
 
     // Jet algorithm triggers
-    printTriggerGroup("Jet algorithm triggers", jetAlgoTrig);
+    printTriggerGroup("Jet algorithm triggers", jetAlgoTrig, compactPrint,
+            m_printPfsRates);
 
     // EGamma algorithm triggers
-    printTriggerGroup("EGamma algorithm triggers", egammaAlgoTrig);
+    printTriggerGroup("EGamma algorithm triggers", egammaAlgoTrig,
+            compactPrint, m_printPfsRates);
 
     // Energy sum algorithm triggers
-    printTriggerGroup("Energy sum algorithm triggers", esumAlgoTrig);
+    printTriggerGroup("Energy sum algorithm triggers", esumAlgoTrig,
+            compactPrint, m_printPfsRates);
 
     // Muon algorithm triggers
-    printTriggerGroup("Muon algorithm triggers", muonAlgoTrig);
+    printTriggerGroup("Muon algorithm triggers", muonAlgoTrig, compactPrint,
+            m_printPfsRates);
 
     // Cross algorithm triggers
-    printTriggerGroup("Cross algorithm triggers", crossAlgoTrig);
+    printTriggerGroup("Cross algorithm triggers", crossAlgoTrig, compactPrint,
+            m_printPfsRates);
 
     // Background algorithm triggers
-    printTriggerGroup("Background algorithm triggers", bkgdAlgoTrig);
-
+    printTriggerGroup("Background algorithm triggers", bkgdAlgoTrig,
+            compactPrint, m_printPfsRates);
 
     // force a page break
-    std::cout << "<p style=\"page-break-before: always\">&nbsp;</p>";
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "<p style=\"page-break-before: always\">&nbsp;</p>";
 
-    std::cout << "\n---+++ List of algorithm triggers sorted by bits\n" << std::endl;
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "\n---+++ List of algorithm triggers sorted by bits\n"
+            << std::endl;
 
-    std::cout
-    << "| *Algorithm* | *Alias* | *Bit number* |"
-    << std::endl;
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "| *Algorithm* | *Alias* | *Bit number* |" << std::endl;
 
     for (CItBit itBit = algoBitToAlgo.begin(); itBit != algoBitToAlgo.end(); itBit++) {
 
@@ -473,18 +911,19 @@ void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
         std::string aName = (itBit->second)->algoName();
         std::string aAlias = (itBit->second)->algoAlias();
 
-        std::cout
-        << "|" << std::left << aName << "  |" << aAlias << "  |  " << std::right << bitNumber
-        << " |"
-        << std::endl;
+        edm::LogVerbatim("L1GtTriggerMenuTesterWiki") << "|" << std::left
+                << aName << "  |" << aAlias << "  |  " << std::right
+                << bitNumber << " |" << std::endl;
     }
 
-
     // force a page break
-    std::cout << "<p style=\"page-break-before: always\">&nbsp;</p>";
-    std::cout << "\n---+++ List of technical triggers\n" << std::endl;
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "<p style=\"page-break-before: always\">&nbsp;</p>";
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "\n---+++ List of technical triggers\n" << std::endl;
 
-    std::cout << "| *Technical trigger* | *Bit number* |" << std::endl;
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "| *Technical trigger* | *Bit number* |" << std::endl;
 
     for (CItBit itBit = techBitToAlgo.begin(); itBit != techBitToAlgo.end(); itBit++) {
 
@@ -492,65 +931,56 @@ void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
         std::string aName = (itBit->second)->algoName();
         std::string aAlias = (itBit->second)->algoAlias();
 
-        std::cout << "|!" << std::left << aName << "  |  " << std::right
-                << bitNumber << " |" << std::endl;
+        edm::LogVerbatim("L1GtTriggerMenuTesterWiki") << "|!" << std::left
+                << aName << "  |  " << std::right << bitNumber << " |"
+                << std::endl;
     }
 
-}
+    // force a page break
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "<p style=\"page-break-before: always\">&nbsp;</p>";
 
+    // compact print false: with HLT path association, if the parameter m_useHltMenu is true
+    // otherwise, we have no association computed
 
-// printing template for a trigger group
-void L1GtTriggerMenuTester::printTriggerGroup(const std::string& trigGroupName,
-        const std::map<std::string, const L1GtAlgorithm*>& trigGroup) {
-
-
-    // force a page break before each group
-    std::cout << "<p style=\"page-break-before: always\">&nbsp;</p>";
-
-    // FIXME get values - either read from a specific L1 menu file, or from
-    std::string lumiVal1 = "5.0E33";
-    std::string lumiVal2 = "7.0E33";
-    std::string seedsHlt;
-    std::string trigComment;
-
-    int trigPfVal1 = 0;
-    int trigPfVal2 = 0;
-
-    int trigRateVal1 = 0;
-    int trigRateVal2 = 0;
-
-    std::cout << "\n---++++ " << trigGroupName << "\n" << std::endl;
-
-    std::cout
-            << "|  *Trigger Name*  |  *Trigger Alias*  |  *Bit*  |  *Luminosity*  ||||  *Seed for !HLT path(s)*  |  *Comments*  |"
-            << std::endl;
-
-    std::cout << "|^|^|^|  *" << lumiVal1 << "*  ||  *" << lumiVal2
-            << "*  ||  **  |  **  |" << std::endl;
-
-    std::cout << "|^|^|^|  *PF*  |  *Rate*  |  *PF*  |  *Rate*  |  ** |  **  |"
-            << std::endl;
-
-    for (CItAlgoP itAlgo = trigGroup.begin(); itAlgo != trigGroup.end(); itAlgo++) {
-
-        const std::string& aName = (itAlgo->second)->algoName();
-        const std::string& aAlias = (itAlgo->second)->algoAlias();
-        const int& bitNumber = (itAlgo->second)->algoBitNumber();
-
-        std::cout
-                << "|" << std::left << "[[" << (m_htmlFile + "#" + aName) << "][ " << aName << "]] " << "  |"
-                << aAlias << "  |  "
-                << bitNumber << "|  "
-                << ( (trigPfVal1 != 0) ? trigPfVal1 : 0) << "  |  "
-                << ( (trigRateVal1 != 0) ? trigRateVal1 : 0) << "  |  "
-                << ( (trigPfVal2 != 0) ? trigPfVal2 : 0) << "  |  "
-                << ( (trigRateVal2 != 0) ? trigRateVal2 : 0) << "  |  "
-                << seedsHlt << "  |  " << trigComment << "  |"<< std::endl;
+    if (m_useHltMenu) {
+        compactPrint = false;
+    } else {
+        return;
     }
 
-    std::cout << "\n" << trigGroupName << ": " << (trigGroup.size())
-            << " bits defined." << std::endl;
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "\n---+++ List of algorithm triggers sorted by trigger groups, including !HLT path association \n"
+            << std::endl;
+
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki")
+            << "\n The following !HLT menu was used to associate the !HLT path to the L1 algorithm triggers:\n    "
+            << std::endl;
+    edm::LogVerbatim("L1GtTriggerMenuTesterWiki") << m_hltTableName
+            << std::endl;
+
+    // Jet algorithm triggers
+    printTriggerGroup("Jet algorithm triggers", jetAlgoTrig, compactPrint,
+            m_printPfsRates);
+
+    // EGamma algorithm triggers
+    printTriggerGroup("EGamma algorithm triggers", egammaAlgoTrig,
+            compactPrint, m_printPfsRates);
+
+    // Energy sum algorithm triggers
+    printTriggerGroup("Energy sum algorithm triggers", esumAlgoTrig,
+            compactPrint, m_printPfsRates);
+
+    // Muon algorithm triggers
+    printTriggerGroup("Muon algorithm triggers", muonAlgoTrig, compactPrint,
+            m_printPfsRates);
+
+    // Cross algorithm triggers
+    printTriggerGroup("Cross algorithm triggers", crossAlgoTrig, compactPrint,
+            m_printPfsRates);
+
+    // Background algorithm triggers
+    printTriggerGroup("Background algorithm triggers", bkgdAlgoTrig,
+            compactPrint, m_printPfsRates);
 
 }
-
-

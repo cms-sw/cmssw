@@ -90,7 +90,7 @@ namespace fwlite {
             mutable std::vector<char const*> labels_;
             const edm::ProcessHistory& history() const;
 
-            mutable std::map<edm::ProductID,boost::shared_ptr<internal::Data> > idToData_;
+            mutable std::map<std::pair<edm::ProductID, edm::BranchListIndexes>,boost::shared_ptr<internal::Data> > idToData_;
             boost::shared_ptr<fwlite::HistoryGetterBase> historyGetter_;
             boost::shared_ptr<edm::EDProductGetter> getter_;
             mutable std::auto_ptr<TTreeCache> tcache_;

@@ -20,7 +20,8 @@ SiPixelTrackResidualSource_Cosmics = cms.EDAnalyzer("SiPixelTrackResidualSource"
     ringOn = cms.untracked.bool(True),
     bladeOn = cms.untracked.bool(True),
     diskOn = cms.untracked.bool(True),
-
+    PtMinRes = cms.untracked.double(4.0),
+                                                    
 # (SK) keep rstracks commented out in case of resurrection
 #    trajectoryInput = cms.InputTag('rsWithMaterialTracksP5')              
     trajectoryInput = cms.InputTag('ctfWithMaterialTracksP5')              

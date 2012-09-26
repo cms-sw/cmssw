@@ -27,62 +27,55 @@ l1CaloScales.L1CaloEmThresholds = cms.vdouble(
 
 # RCT Regions
 RCTConfigProducers.jetMETLSB = cms.double(0.25)
-l1CaloScales.L1CaloRegionEtScaleLSB = cms.double(0.5)
+l1CaloScales.L1CaloRegionEtScaleLSB = cms.double(0.25)
 
 # GCT jet finding params
 L1GctConfigProducers.JetFinderCentralJetSeed = cms.double(0.0)
 L1GctConfigProducers.JetFinderForwardJetSeed = cms.double(0.0)
-L1GctConfigProducers.RctRegionEtLSB = cms.double(0.5)
-L1GctConfigProducers.GctHtLSB = cms.double(0.5)
+L1GctConfigProducers.RctRegionEtLSB = cms.double(0.25)
+L1GctConfigProducers.GctHtLSB = cms.double(0.25)
 L1GctConfigProducers.TauIsoEtThreshold = cms.double(2.0)
-L1GctConfigProducers.HtJetEtThreshold = cms.double(10.)
-#L1GctConfigProducers.HtJetEtThreshold = cms.double(0.25)
-L1GctConfigProducers.MHtJetEtThreshold = cms.double(10.)
-#L1GctConfigProducers.MHtJetEtThreshold = cms.double(0.25)
+L1GctConfigProducers.HtJetEtThreshold = cms.double(0.25)
+L1GctConfigProducers.MHtJetEtThreshold = cms.double(0.25)
 
 # GCT jet corrections
 L1GctConfigProducers.CalibrationStyle = cms.string('PowerSeries')
 L1GctConfigProducers.PowerSeriesCoefficients = cms.PSet(
-           nonTauJetCalib0 = cms.vdouble( 0.0 ),
-                   nonTauJetCalib1 = cms.vdouble( 0.0 ),
-                   nonTauJetCalib2 = cms.vdouble( 0.0 ),
-                   nonTauJetCalib3 = cms.vdouble( 0.0 ),
-                   nonTauJetCalib4 = cms.vdouble( 0.0 ),
-                   nonTauJetCalib5 = cms.vdouble( 0.0 ),
-                   nonTauJetCalib6 = cms.vdouble( 0.0 ),
-                   nonTauJetCalib7 = cms.vdouble( 0.0 ),
-                   nonTauJetCalib8 = cms.vdouble( 0.0 ),
-                   nonTauJetCalib9 = cms.vdouble( 0.0 ),
-                   nonTauJetCalib10 = cms.vdouble( 0.0 ),
-                   tauJetCalib0 = cms.vdouble( 0.0 ),
-                   tauJetCalib1 = cms.vdouble( 0.0 ),
-                   tauJetCalib2 = cms.vdouble( 0.0 ),
-                   tauJetCalib3 = cms.vdouble( 0.0 ),
-                   tauJetCalib4 = cms.vdouble( 0.0 ),
-                   tauJetCalib5 = cms.vdouble( 0.0 ),
-                   tauJetCalib6 = cms.vdouble( 0.0 ),
-           )
-
-
-
+            nonTauJetCalib0 = cms.vdouble( 0.0 ),
+                    nonTauJetCalib1 = cms.vdouble( 0.0 ),
+                    nonTauJetCalib2 = cms.vdouble( 0.0 ),
+                    nonTauJetCalib3 = cms.vdouble( 0.0 ),
+                    nonTauJetCalib4 = cms.vdouble( 0.0 ),
+                    nonTauJetCalib5 = cms.vdouble( 0.0 ),
+                    nonTauJetCalib6 = cms.vdouble( 0.0 ),
+                    nonTauJetCalib7 = cms.vdouble( 0.0 ),
+                    nonTauJetCalib8 = cms.vdouble( 0.0 ),
+                    nonTauJetCalib9 = cms.vdouble( 0.0 ),
+                    nonTauJetCalib10 = cms.vdouble( 0.0 ),
+                    tauJetCalib0 = cms.vdouble( 0.0 ),
+                    tauJetCalib1 = cms.vdouble( 0.0 ),
+                    tauJetCalib2 = cms.vdouble( 0.0 ),
+                    tauJetCalib3 = cms.vdouble( 0.0 ),
+                    tauJetCalib4 = cms.vdouble( 0.0 ),
+                    tauJetCalib5 = cms.vdouble( 0.0 ),
+                    tauJetCalib6 = cms.vdouble( 0.0 ),
+            )
 
 # GCT jet output scale
 l1CaloScales.L1CaloJetThresholds = cms.vdouble(
-            0.0, 4.0, 8.0, 12.0, 16.0,
-                    20.0, 24.0, 28.0, 32.0, 36.0,
-                    40.0, 44.0, 48.0, 52.0, 56.0,
-                    60.0, 64.0, 68.0, 72.0, 76.0,
-                    80.0, 84.0, 88.0, 92.0, 96.0,
-                    100.0, 104.0, 108.0, 112.0, 116.0,
-                    120.0, 124.0, 128.0, 132.0, 136.0,
-                    140.0, 144.0, 148.0, 152.0, 156.0,
-                    160.0, 164.0, 168.0, 172.0, 176.0,
-                    180.0, 184.0, 188.0, 192.0, 196.0,
-                    200.0, 204.0, 208.0, 212.0, 216.0,
-                    220.0, 224.0, 228.0, 232.0, 236.0,
-                    240.0, 244.0, 248.0, 252.0)
-
-
+        0.0, 2.0, 4.0, 6.0, 8.0,
+            10.0, 12.0, 14.0, 16.0, 18.0,
+            20.0, 22.0, 24.0, 26.0, 28.0,
+            30.0, 32.0, 34.0, 36.0, 38.0,
+            40.0, 42.0, 44.0, 46.0, 48.0,
+            50.0, 52.0, 54.0, 56.0, 58.0,
+            60.0, 62.0, 64.0, 66.0, 68.0,
+            70.0, 72.0, 74.0, 76.0, 78.0,
+            80.0, 82.0, 84.0, 86.0, 88.0,
+            90.0, 92.0, 94.0, 96.0, 98.0,
+            100.0, 102.0, 104.0, 106.0, 108.0,
+            110.0, 112.0, 114.0, 116.0, 118.0,
+            120.0, 122.0, 124.0, 126.0)
 
 # GCT HF ring sum scale
 l1CaloScales.L1HfRingThresholds = cms.vdouble(0.0, 2.0, 3.0, 4.0, 6.0, 50., 200., 500.)

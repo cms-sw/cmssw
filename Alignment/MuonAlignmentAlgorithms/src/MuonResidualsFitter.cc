@@ -1,4 +1,4 @@
-// $Id: MuonResidualsFitter.cc,v 1.12 2011/10/12 23:44:11 khotilov Exp $
+// $Id: MuonResidualsFitter.cc,v 1.11 2011/04/15 21:48:21 khotilov Exp $
 
 #ifdef STANDALONE_FITTER
 #include "MuonResidualsFitter.h"
@@ -160,71 +160,6 @@ double MuonResidualsFitter_integrate_pureGaussian(double low, double high, doubl
 {
   static const double isqr2 = 1./sqrt(2.);
   return (erf((high + center) * isqr2 / sigma) - erf((low + center) * isqr2 / sigma)) * exp(0.5/sigma/sigma) * 0.5;
-}
-
-
-
-MuonResidualsFitter::MuonResidualsFitter(int residualsModel, int minHits, int useResiduals, bool weightAlignment) :
-  m_residualsModel(residualsModel)
-, m_minHits(minHits)
-, m_useResiduals(useResiduals)
-, m_weightAlignment(weightAlignment)
-, m_printLevel(0)
-, m_strategy(1)
-, m_cov(1)
-, m_loglikelihood(0.)
-{
-  if (m_residualsModel != kPureGaussian  &&  m_residualsModel != kPowerLawTails  &&
-      m_residualsModel != kROOTVoigt     &&  m_residualsModel != kGaussPowerTails && m_residualsModel != kPureGaussian2D)
-    throw cms::Exception("MuonResidualsFitter") << "unrecognized residualsModel";
-}
-
-
-MuonResidualsFitter::~MuonResidualsFitter()
-{
-  for (std::vector<double*>::const_iterator residual = residuals_begin();  residual != residuals_end();  ++residual) {
-    delete [] (*residual);
-  }
-}
-
-
-void MuonResidualsFitter::fix(int parNum, bool dofix)
-{
-  assert(0 <= parNum  &&  parNum < npar());
-  if (m_fixed.size() == 0) m_fixed.resize(npar(), false);
-  m_fixed[parNum] = dofix;
-}
-
-
-bool MuonResidualsFitter::fixed(int parNum)
-{
-  assert(0 <= parNum  &&  parNum < npar());
-  if (m_fixed.size() == 0) return false;
-  else return m_fixed[parNum];
-}
-
-
-void MuonResidualsFitter::fill(double *residual)
-{
-  m_residuals.push_back(residual);
-  m_residuals_ok.push_back(true);
-}
-
-
-double MuonResidualsFitter::covarianceElement(int parNum1, int parNum2)
-{
-  assert(0 <= parNum1  &&  parNum1 < npar());
-  assert(0 <= parNum2  &&  parNum2 < npar());
-  assert(m_cov.GetNcols() == npar()); // m_cov might have not yet been resized to account for proper #parameters
-  return m_cov(parNum2parIdx(parNum1),  parNum2parIdx(parNum2));
-}
-
-
-long MuonResidualsFitter::numsegments()
-{
-  long num = 0;
-  for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) num++;
-  return num;
 }
 
 

@@ -12,8 +12,7 @@ hcalDigiMonitor=cms.EDAnalyzer("HcalDigiMonitor",
                                skipOutOfOrderLS       = cms.untracked.bool(False),
                                NLumiBlocks            = cms.untracked.int32(4000),
                                makeDiagnostics        = cms.untracked.bool(False),
-                               FEDRawDataCollection = cms.untracked.InputTag("rawDataCollector"),
-
+                               
                                # Digi Monitor Info
                                digiLabel              = cms.untracked.InputTag("hcalDigis"),
                                # Shape thresh are sum of ADC counts above nominal pedestal of 3*10=30
@@ -32,9 +31,8 @@ hcalDigiMonitor=cms.EDAnalyzer("HcalDigiMonitor",
                                                                                     "HLT_ZeroBias"),
                                
                                # disable testing of HO ring 2
-                               excludeHORing2  = cms.untracked.bool(False),
+                               excludeHORing2  = cms.untracked.bool(True),
                                excludeHO1P02          = cms.untracked.bool(True),
-                               excludeBadQPLL         = cms.untracked.bool(True),
 
                                hfRechitLabel                = cms.untracked.InputTag("hfreco"),
 
