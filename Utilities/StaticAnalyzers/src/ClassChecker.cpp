@@ -74,7 +74,6 @@ public:
 
   /// This method adds a CallExpr to the worklist 
   void Enqueue(WorkListUnit WLUnit) {
-    const clang::FunctionDecl *FD = WLUnit->getDirectCallee();
     WList.push_back(WLUnit);
   }
 
@@ -86,6 +85,14 @@ public:
   
   void Execute() {
       WorkListUnit WLUnit = Dequeue();
+      if (WLUnit == visitingCallExpr) {
+		llvm::errs()<<"\nRecursive call to ";
+		WLUnit->getDirectCallee()->printName(llvm::errs());
+		llvm::errs()<<" , ";
+		WLUnit->dumpPretty(AC->getASTContext());
+		llvm::errs()<<"\n";
+		return;
+		}
       const clang::FunctionDecl *FD = WLUnit->getDirectCallee();
       llvm::SaveAndRestore<const clang::CallExpr *> SaveCall(visitingCallExpr, WLUnit);
       if (FD && FD->getBody()) Visit(FD->getBody());
