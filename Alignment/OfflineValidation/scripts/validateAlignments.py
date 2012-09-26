@@ -893,8 +893,14 @@ class ZMuMuValidation(GenericValidation):
 
 class ValidationJob:
     def __init__( self, validation, config, options ):
-        valString = validation[0]
-        alignments = validation[1]
+        if validation[1] == "":
+            # new intermediate syntax
+            valString = validation[0].split( "->" )[0]
+            alignments = validation[0].split( "->" )[1]
+        else:
+            # old syntax
+            valString = validation[0]
+            alignments = validation[1]
         valString = valString.split()
         self.__valType = valString[0]
         self.__valName = valString[1]
@@ -1210,7 +1216,7 @@ def main(argv = None):
     #save backup configuration file
     backupConfigFile = open( os.path.join( outPath, "usedConfiguration.ini" ) , "w"  )
     config.write( backupConfigFile )
-    
+
     jobs = [ ValidationJob( validation, config, options) \
                  for validation in config.items( "validation" ) ]
     map( lambda job: job.createJob(), jobs )
