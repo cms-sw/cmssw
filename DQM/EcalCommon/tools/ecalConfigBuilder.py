@@ -205,7 +205,7 @@ process.ecalCalibMonitorClient.workerParameters.SummaryClient.activeSources = ["
 '''
     #Need to comfigure the source for calib summary!!
 
-if Ecal and not live:
+if privEcal and not live:
     ecalDQM += '''
 process.load("Toolset.DQMTools.DQMFileLoader_cfi")
 '''
