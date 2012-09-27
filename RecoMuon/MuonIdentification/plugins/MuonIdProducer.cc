@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.69 2012/07/19 13:23:21 slava77 Exp $
+// $Id: MuonIdProducer.cc,v 1.70 2012/08/21 21:20:01 mskim Exp $
 //
 //
 
@@ -260,6 +260,8 @@ reco::Muon MuonIdProducer::makeMuon(edm::Event& iEvent, const edm::EventSetup& i
    reco::Muon aMuon( makeMuon( *(track.get()) ) );
 
    aMuon.setMuonTrack(type,track);
+   aMuon.setBestTrack(type);
+
    return aMuon;
 }
 
