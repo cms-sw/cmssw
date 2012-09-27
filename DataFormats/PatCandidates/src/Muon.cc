@@ -1,9 +1,10 @@
 //
-// $Id: Muon.cc,v 1.30 2011/09/21 03:40:18 tucker Exp $
+// $Id: Muon.cc,v 1.31 2012/08/22 15:02:52 bellan Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <limits>
@@ -391,4 +392,45 @@ double Muon::segmentCompatibility(reco::Muon::ArbitrationType arbitrationType) c
    return muon::segmentCompatibility(*this, arbitrationType);
 }
 
+// Selectors
+bool Muon::isTightMuon(const reco::Vertex&vtx) const {
+  return muon::isTightMuon(*this,vtx);
+}
+
+
+// Backport from version CMSSW_6_0_0 of DataFormats/MuonReco/*/MuonSelectors.*
+bool Muon::isLooseMuon() const{
+  return isPFMuon() && (isGlobalMuon() || isTrackerMuon());
+}
+
+// Backport from version CMSSW_6_0_0 of DataFormats/MuonReco/*/MuonSelectors.*
+bool Muon::isSoftMuon(const reco::Vertex& vtx) const{
+
+  bool muID = muon::isGoodMuon(*this,muon::TMOneStationTight);
+
+  if(!muID) return false;
+  
+  bool layers = innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
+    innerTrack()->hitPattern().pixelLayersWithMeasurement() > 1;
+
+  bool chi2 = innerTrack()->normalizedChi2() < 1.8;  
+  
+  bool ip = fabs(innerTrack()->dxy(vtx.position())) < 3. && fabs(innerTrack()->dz(vtx.position())) < 30.;
+  
+  return muID && layers && ip && chi2 ;
+}
+
+// Backport from version CMSSW_6_0_0 of DataFormats/MuonReco/*/MuonSelectors.*
+bool Muon::isHighPtMuon(const reco::Vertex& vtx) const{
+  bool muID =   isGlobalMuon() && globalTrack()->hitPattern().numberOfValidMuonHits() >0 && (numberOfMatchedStations() > 1);
+  if(!muID) return false;
+
+  bool hits = innerTrack()->hitPattern().trackerLayersWithMeasurement() > 8 &&
+    innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
+
+  bool ip = fabs(muonBestTrack()->dxy(vtx.position())) < 0.2 && fabs(bestTrack()->dz(vtx.position())) < 0.5;
+  
+  return muID && hits && ip;
+
+}
 
