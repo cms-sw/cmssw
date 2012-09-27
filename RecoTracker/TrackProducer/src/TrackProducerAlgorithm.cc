@@ -37,17 +37,20 @@ namespace {
     long long totGsfTrack=0;
     long long totFound=0;
     long long totLost=0;
+    long long totAlgo[7];
     void track(int l) {
       if (l>0) ++totLoop; else ++totTrack;
     }
     void hits(int f, int l) { totFound+=f; totLost+=l;} 
     void gsf() {++totGsfTrack;}
+    void algo(int a) { if (a>0 and a<7) ++totAlgo[a];}
 
 
     void print() const {
-      std::cout << "TrackProducer stat\nTrack/Loop/Gsf/FoundHits/LostHits "
-    		<<  totTrack <<'/'<< totLoop <<'/'<< totGsfTrack  <<'/'<< totFound  <<'/'<< totLost
-		<< std::endl;
+      std::cout << "TrackProducer stat\nTrack/Loop/Gsf/FoundHits/LostHits/algos "
+    		<<  totTrack <<'/'<< totLoop <<'/'<< totGsfTrack  <<'/'<< totFound  <<'/'<< totLost;
+      for (auto a : totAlgo) std::cout << '/'<< a;
+	std::cout  << std::endl;
     }
     StatCount() {}
     ~StatCount() { print();}
@@ -58,6 +61,7 @@ namespace {
     void track(int){}
     void hits(int, int){}
     void gsf(){}
+    void algo(int);
   };
 #endif
 
@@ -95,7 +99,8 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
   theTraj->setSeedRef(seedRef);
   
   statCount.hits(theTraj->foundHits(),theTraj->lostHits());
-  
+  statCount.algo(int(algo_));
+
   // TrajectoryStateOnSurface innertsos;
   // if (theTraj->direction() == alongMomentum) {
   //  innertsos = theTraj->firstMeasurement().updatedState();
