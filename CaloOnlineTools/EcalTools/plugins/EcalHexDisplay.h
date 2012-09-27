@@ -8,6 +8,7 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <DataFormats/Common/interface/Handle.h>
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
@@ -40,4 +41,6 @@ class EcalHexDisplay: public edm::EDAnalyzer {
 
     void analyze(const edm::Event & e, const  edm::EventSetup& c);
 
+  private:
+    edm::InputTag fedRawDataCollectionTag_;
 };

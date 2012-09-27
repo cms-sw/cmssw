@@ -14,7 +14,8 @@ EcalHexDisplay::EcalHexDisplay(const edm::ParameterSet& ps) :
     last_event_  (ps.getUntrackedParameter<int>("last_event",9999999)),
     event_ (0),
     writeDcc_ (ps.getUntrackedParameter<bool>("writeDCC",false)),
-    filename_ (ps.getUntrackedParameter<std::string>("filename","dump.bin"))
+    filename_ (ps.getUntrackedParameter<std::string>("filename","dump.bin")),
+    fedRawDataCollectionTag_(ps.getParameter<edm::InputTag>("fedRawDataCollectionTag"))
 {  
 }
 
@@ -25,7 +26,7 @@ void EcalHexDisplay::analyze( const edm::Event & e, const  edm::EventSetup& c){
   
 
   edm::Handle<FEDRawDataCollection> rawdata;
-  e.getByType(rawdata);  
+  e.getByLabel(fedRawDataCollectionTag_, rawdata);  
 
   std::ofstream dumpFile (filename_.c_str(),std::ios::app );
   
