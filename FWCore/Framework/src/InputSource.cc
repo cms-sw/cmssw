@@ -285,7 +285,7 @@ namespace edm {
 
   void
   InputSource::readAndCacheRun(bool merge, HistoryAppender& historyAppender) {
-    RunSourceSentry(*this);
+    RunSourceSentry sentry(*this);
     if (merge) {
       principalCache_->merge(runAuxiliary(), productRegistry_);
     } else {
@@ -307,7 +307,7 @@ namespace edm {
 
   void
   InputSource::readAndCacheLumi(bool merge, HistoryAppender& historyAppender) {
-    LumiSourceSentry(*this);
+    LumiSourceSentry sentry(*this);
     if (merge) {
       principalCache_->merge(luminosityBlockAuxiliary(), productRegistry_);
     } else {
