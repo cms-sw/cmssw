@@ -190,8 +190,8 @@ class MatrixInjector(object):
                                 break
 
             ## there is in fact only one acquisition era
-            if len(set(chainDict['AcquisitionEra'].values()))==1:
-                chainDict['AcquisitionEra'] = chainDict['AcquisitionEra'].values()[0]
+            ## until this is allowed, just make it a string   if len(set(chainDict['AcquisitionEra'].values()))==1:
+            chainDict['AcquisitionEra'] = chainDict['AcquisitionEra'].values()[0]
                 
             ## clean things up now
             for (i,t) in enumerate(chainDict['nowmTasklist']):
