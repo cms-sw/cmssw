@@ -8,6 +8,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "IORawData/HcalTBInputService/src/CDFRunInfo.h"
 
 class TFile;
@@ -19,8 +20,8 @@ class CDFEventInfo;
   *  
   * Writes HCAL-style ROOT files from the RawData block
   *
-  * $Date: 2006/01/02 21:59:03 $
-  * $Revision: 1.1 $
+  * $Date: 2007/03/07 19:02:18 $
+  * $Revision: 1.2 $
   * \author J. Mans - Minnesota
   */
 class HcalTBWriter : public edm::EDAnalyzer {
@@ -41,5 +42,6 @@ private:
   std::map<int,int> chunkMap_;
   CDFChunk* chunkList_[1024];
   int trigChunk_;
+  edm::InputTag fedRawDataCollectionTag_;
 };
 #endif
