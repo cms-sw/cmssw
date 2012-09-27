@@ -144,7 +144,7 @@ void * BlockWipedPoolAllocated::operator new(size_t s) {
   return (s_usePool) ? allocator(s).alloc() : ::operator new(s);
 }
 
-static void *  BlockWipedPoolAllocated::operator new(size_t s, void * p) {
+void *  BlockWipedPoolAllocated::operator new(size_t s, void * p) {
   return p;
 }
 
