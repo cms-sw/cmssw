@@ -37,13 +37,13 @@ namespace {
     long long totGsfTrack=0;
     long long totFound=0;
     long long totLost=0;
-    long long totAlgo[7];
+    long long totAlgo[12];
     void track(int l) {
       if (l>0) ++totLoop; else ++totTrack;
     }
     void hits(int f, int l) { totFound+=f; totLost+=l;} 
     void gsf() {++totGsfTrack;}
-    void algo(int a) { if (a>0 and a<7) ++totAlgo[a];}
+    void algo(int a) { if (a>=0 && a<12) ++totAlgo[a];}
 
 
     void print() const {
