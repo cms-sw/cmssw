@@ -66,11 +66,3 @@ EcalPGL::fillGeom( EcalPreshowerGeometry*      geom ,
 		  id );
 }
 
-template <>
-void 
-EcalPGL::fillNamedParams( DDFilteredView         /*fv*/   ,
-			  EcalPreshowerGeometry* /*geom*/  )
-{
-   // nothing yet for preshower
-}
-
