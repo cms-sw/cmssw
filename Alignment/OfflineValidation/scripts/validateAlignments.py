@@ -584,7 +584,6 @@ class OfflineValidation(GenericValidation):
             "offlineValidationMode": "Standalone",
             "offlineValidationFileOutput":
             configTemplates.offlineStandaloneFileOutputTemplate,
-            "nJobs": self.general["parallelJobs"],
             # Keep the following parameters for backward compatibility
             "TrackCollection": self.general["trackcollection"]# ,
             # "GlobalTag": self.general["globaltag"]
@@ -594,11 +593,6 @@ class OfflineValidation(GenericValidation):
         repMap["resultFile"] = os.path.expandvars( repMap["resultFile"] )
         repMap["resultFile"] = os.path.abspath( repMap["resultFile"] )
 
-        # In case maxevents==-1, set number of parallel jobs to 1
-        # since we cannot calculate number of events for each
-        # parallel job
-        if str(self.general["maxevents"]) == "-1":
-            repMap.update({ "nJobs": "1" })
         return repMap
 
     def appendToExtendedValidation( self, validationsSoFar = "" ):
@@ -688,6 +682,14 @@ class OfflineValidationParallel(OfflineValidation):
 
     def getRepMap(self, alignment = None):
         repMap = OfflineValidation.getRepMap(self, alignment) 
+        repMap.update({
+            "nJobs": self.general["parallelJobs"]
+            })
+        # In case maxevents==-1, set number of parallel jobs to 1
+        # since we cannot calculate number of events for each
+        # parallel job
+        if str(self.general["maxevents"]) == "-1":
+            repMap.update({ "nJobs": "1" })
         return repMap
 
     def appendToMergeParJobs( self, validationsSoFar = "" ):
