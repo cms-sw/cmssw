@@ -10,7 +10,6 @@
 <use   name="SimDataFormats/TrackingHit"/>
 <use   name="CommonTools/Utils"/>
 <use   name="CommonTools/UtilAlgos"/>
-<use   name="DQMServices/Core"/>
 
 <library   file="*Analyzer.cc" name="L1TriggerCSCTriggerPrimitivesAnalyzer">
 </library>
@@ -24,6 +23,7 @@
 </library>
 
 <library   file="CSCTriggerPrimitivesDQM.cc" name="CSCTriggerPrimitivesDQM">
+  <use   name="DQMServices/Core"/>
   <use   name="CondFormats/DataRecord"/>
   <use   name="Geometry/Records"/>
   <use   name="SimDataFormats/GeneratorProducts"/>
