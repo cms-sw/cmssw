@@ -28,7 +28,6 @@
 #include <deque>
 
 #include <sys/time.h>
-#include <math.h>
 
 #include "TFile.h"
 #include "TTree.h"
@@ -38,7 +37,9 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#define MODNAMES 25
+#define MODLZSIZE 25
+#define MODLZSIZELUMI 20
+#define MOD_OCC_THRESHOLD 5
 
 namespace evf {
 
@@ -147,28 +148,22 @@ namespace evf {
     //
     class lsStat;
     class commonLsStat;
-
+    
     void reset();
     void parseModuleLegenda(std::string);
     void parseModuleHisto(const char *, unsigned int);
     void parsePathLegenda(std::string);
-    void parseDatasetLegenda(std::string);
     void parsePathHisto(const unsigned char *, unsigned int);
     void initFramework();
     void deleteFramework();
     void initMonitorElements();
-    void initMonitorElementsStreams();
-    void initMonitorElementsDatasets();
     void fillDQMStatHist(unsigned int nbsIdx, unsigned int lsid);
     void fillDQMModFractionHist(unsigned int nbsIdx, unsigned int lsid, unsigned int nonIdle,
 		                 std::vector<std::pair<unsigned int, unsigned int>> offenders);
  
-    void updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * lst, commonLsStat * clst, bool roll);
-    void updateStreamHistos(unsigned int forls, commonLsStat *clst, commonLsStat *prevclst);
-    void updateDatasetHistos(unsigned int forls, commonLsStat *clst, commonLsStat *prevclst);
+    void updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat & lst, commonLsStat & clst, bool roll);
     void doFlush();
     void perLumiFileSaver(unsigned int lsid);
-    void perTimeFileSaver();
     //
     // member data
     //
@@ -181,10 +176,7 @@ namespace evf {
     xdata::String                   class_;
     xdata::UnsignedInteger32        instance_;
     xdata::String                   hostname_;
-
     xdata::UnsignedInteger32        runNumber_;
-    unsigned int                    lastRunNumberSet_;
-
     xdata::String                   dqmCollectorHost_;
     xdata::String                   dqmCollectorPort_;
     fmap                            fus_;
@@ -221,10 +213,6 @@ namespace evf {
     timeval                         lastModuleLegendaMessageTimeStamp_;
     timeval                         lastPathLegendaMessageTimeStamp_;
 
-    int                             nDatasetLegendaMessageReceived_;
-    int                             nDatasetLegendaMessageWithDataReceived_;
-    timeval                         lastDatasetLegendaMessageTimeStamp_;
-
     //DQM histogram statistics
     std::vector<unsigned int> epInstances;
     std::vector<unsigned int> epMax;
@@ -233,21 +221,16 @@ namespace evf {
     std::vector<float> machineWeight;
     std::vector<float> machineWeightInst;
 
-    std::vector<std::string > endPathNames_;
-    std::vector<std::string > datasetNames_;
-
     class commonLsStat {
       
       public:
       unsigned int ls_;
-      std::vector<float> rateVec_;
+      std::vector<unsigned int> rateVec_;
       std::vector<float> busyVec_;
       std::vector<float> busyCPUVec_;
       std::vector<float> busyVecTheor_;
       std::vector<float> busyCPUVecTheor_;
       std::vector<unsigned int> nbMachines;
-      std::vector<unsigned int> endPathCounts_; 
-      std::vector<unsigned int> datasetCounts_; 
       commonLsStat(unsigned int lsid,unsigned int classes) {
         for (size_t i=0;i<classes;i++) {
 	  rateVec_.push_back(0.);
@@ -259,8 +242,7 @@ namespace evf {
 	}
 	ls_=lsid;
       }
-
-      void setBusyForClass(unsigned int classIdx,float rate,float busy,float busyTheor, float busyCPU, float busyCPUTheor, unsigned int nMachineReports) {
+      void setBusyForClass(unsigned int classIdx,unsigned int rate,float busy,float busyTheor, float busyCPU, float busyCPUTheor, unsigned int nMachineReports) {
 	rateVec_[classIdx]=rate;
 	busyVec_[classIdx]=busy;
 	busyCPUVec_[classIdx]=busyCPU;
@@ -269,8 +251,8 @@ namespace evf {
 	nbMachines[classIdx]=nMachineReports;
       }
 
-      float getTotalRate() {
-	float totRate=0;
+      unsigned int getTotalRate() {
+	unsigned int totRate=0;
 	for (size_t i=0;i<rateVec_.size();i++) totRate+=rateVec_[i];
 	return totRate;
       } 
@@ -341,16 +323,12 @@ namespace evf {
       double fracWaitingAvg;
       double fracCPUBusy_;
       unsigned int nmodulenames_;
-      unsigned int sumDeltaTms_;
-      float avgDeltaT_;
-      float avgDeltaT2_;
       std::pair<unsigned int,unsigned int> *moduleSamplingSums;
 
       lsStat(unsigned int ls, unsigned int nbSubs,unsigned int maxreps,unsigned int nmodulenames):
-	ls_(ls),updated_(true),nbSubs_(nbSubs),
+	ls_(ls),updated_(false),nbSubs_(nbSubs),
 	nSampledNonIdle_(0),nSampledNonIdle2_(0),nSampledIdle_(0),nSampledIdle2_(0),
-	nProc_(0),nProc2_(0),nCPUBusy_(0),nReports_(0),nMaxReports_(maxreps),nmodulenames_(nmodulenames),
-	sumDeltaTms_(0),avgDeltaT_(23),avgDeltaT2_(0)
+	nProc_(0),nProc2_(0),nCPUBusy_(0),nReports_(0),nMaxReports_(maxreps),nmodulenames_(nmodulenames)
       {
         moduleSamplingSums = new std::pair<unsigned int,unsigned int>[nmodulenames_];
 	for (unsigned int i=0;i<nmodulenames_;i++) {
@@ -359,13 +337,7 @@ namespace evf {
 	}
       }
 
-      ~lsStat() {
-         delete moduleSamplingSums;
-      }
-
-      void update(unsigned int nSampledNonIdle,unsigned int nSampledIdle, 
-	          unsigned int nProc,unsigned int ncpubusy, unsigned int deltaTms)
-      {
+      void update(unsigned int nSampledNonIdle,unsigned int nSampledIdle, unsigned int nProc,unsigned int ncpubusy) {
 	nReports_++;
 	nSampledNonIdle_+=nSampledNonIdle;
 	nSampledNonIdle2_+=pow(nSampledNonIdle,2);
@@ -374,7 +346,6 @@ namespace evf {
 	nProc_+=nProc;
 	nProc2_+=pow(nProc,2);
 	nCPUBusy_+=ncpubusy;
-	sumDeltaTms_+=deltaTms;
 	updated_=true;
       }
 
@@ -391,38 +362,31 @@ namespace evf {
       void calcStat()
       {
 	if (!updated_) return;
-	if (nReports_) {
-	  float tinv = 0.001/nReports_;
-	  fracCPUBusy_=nCPUBusy_*tinv;
-	  avgDeltaT_ = avgDeltaT2_ = sumDeltaTms_*tinv;
-	  if (avgDeltaT_==0.) {
-	    avgDeltaT_=23.;//default value
-	    avgDeltaT2_=0;
-	  }
-	  rateAvg=nProc_ / avgDeltaT_;
-	  rateErr=sqrt(fabs(nProc2_ - pow(nProc_,2)))/avgDeltaT_;
-	}
+	rateAvg=nProc_ / 23.;
+	rateErr=sqrt(fabs(nProc2_ - pow(nProc_,2)))/23.;
+	if (rateAvg==0.) {rateErr=0.;evtTimeAvg=0.;evtTimeErr=0.;fracWaitingAvg=0;}
 	else {
-	  fracCPUBusy_=0.;
-	  rateAvg=0.;
-	  rateErr=0.;
-	  avgDeltaT_=23.;
-	}
-
-	evtTimeAvg=0.;evtTimeErr=0.;fracWaitingAvg=1.;
-	unsigned int sampled = nSampledNonIdle_+nSampledIdle_;
-	if (rateAvg!=0. && sampled) {
-	    float nAllInv = 1./sampled;
+	  if (nSampledNonIdle_+nSampledIdle_!=0) {
+	    float nAllInv = 1./(nSampledNonIdle_+nSampledIdle_);
 	    fracWaitingAvg= nSampledIdle_*nAllInv;
 	    double nSampledIdleErr2=fabs(nSampledIdle2_ - pow(nSampledIdle_,2));
 	    double nSampledNonIdleErr2=fabs(nSampledNonIdle2_ - pow(nSampledNonIdle_,2));
 	    double fracWaitingAvgErr= sqrt(
 			            (pow(nSampledIdle_,2)*nSampledNonIdleErr2
 				     + pow(nSampledNonIdle_,2)*nSampledIdleErr2))*pow(nAllInv,2);
-	    float rateAvgInv=1./rateAvg;
-	    evtTimeAvg=nbSubs_ * nReports_ * (1.-fracWaitingAvg)*rateAvgInv;
-	    evtTimeErr = nbSubs_ * nReports_ * sqrt(pow(fracWaitingAvg*rateErr*pow(rateAvgInv,2),2) + pow(fracWaitingAvgErr*rateAvgInv,2));
+	    if (rateAvg) {
+	      float rateAvgInv=1./rateAvg;
+	      evtTimeAvg=nbSubs_ * nReports_ * (1.-fracWaitingAvg)*rateAvgInv;
+	      evtTimeErr = nbSubs_ * nReports_ * sqrt(pow(fracWaitingAvg*rateErr*pow(rateAvgInv,2),2) + pow(fracWaitingAvgErr*rateAvgInv,2));
+	    }
+	    else {
+              evtTimeAvg=0;
+	      evtTimeErr=0;
+	    }
+	  }
 	}
+	if (nReports_) fracCPUBusy_=nCPUBusy_/(nReports_*1000.);
+	else fracCPUBusy_=0.;
 	updated_=false;
       }
 
@@ -479,48 +443,23 @@ namespace evf {
         return nReports_;
       }
 
-      float getDt() {
-	if (updated_) calcStat();
-        return avgDeltaT2_;
-      }
-
       std::vector<std::pair<unsigned int, unsigned int>> getOffendersVector() {
         std::vector<std::pair<unsigned int, unsigned int>> ret;
 	if (updated_) calcStat();
 	if (moduleSamplingSums) {
-	  //make a copy for sorting
-	  std::pair<unsigned int,unsigned int> *moduleSumsCopy = new std::pair<unsigned int,unsigned int>[nmodulenames_];
-	  memcpy(moduleSumsCopy,moduleSamplingSums,nmodulenames_*sizeof(std::pair<unsigned int,unsigned int>));
-
-	  std::qsort((void *)moduleSumsCopy, nmodulenames_,
+          std::qsort((void *)moduleSamplingSums, nmodulenames_,
 	             sizeof(std::pair<unsigned int,unsigned int>), modlistSortFunction);
-
 	  unsigned int count=0;
 	  unsigned int saveidx=0;
-	  while (saveidx < MODNAMES && count<nmodulenames_)
+	  while (saveidx < MODLZSIZE && count<nmodulenames_ && saveidx<MODLZSIZE)
 	  {
-            if (moduleSumsCopy[count].first==2) {count++;continue;}
-            ret.push_back(moduleSumsCopy[count]);
+            if (moduleSamplingSums[count].first==2) {count++;continue;}
+            ret.push_back(moduleSamplingSums[count]);
 	    saveidx++;
 	    count++;
 	  }
-	  delete moduleSumsCopy;
 	}
         return ret;
-      }
-
-      float getOffenderFracAt(unsigned int x) {
-        if (x<nmodulenames_) {
-	  if (updated_) calcStat();
-	  float total = nSampledNonIdle_+nSampledIdle_;
-	  if (total>0.) {
-	    for (size_t i=0;i<nmodulenames_;i++) {
-	      if (moduleSamplingSums[i].first==x)
-	      return moduleSamplingSums[i].second/total;
-	    }
-	  }
-	}
-	return 0.;
       }
     };
 
@@ -530,8 +469,6 @@ namespace evf {
     edm::ServiceToken               serviceToken_;
     edm::EventProcessor             *evtProcessor_;
     bool                            meInitialized_;
-    bool                            meInitializedStreams_;
-    bool                            meInitializedDatasets_;
     DQMService                      *dqmService_;
     DQMStore                        *dqmStore_;
     std::string                     configString_;
@@ -544,27 +481,16 @@ namespace evf {
     std::vector<MonitorElement*> meVecTime_;
     std::vector<MonitorElement*> meVecOffenders_;
     MonitorElement * rateSummary_;
-    MonitorElement * reportPeriodSummary_;
     MonitorElement * timingSummary_;
     MonitorElement * busySummary_;
     MonitorElement * busySummary2_;
-    MonitorElement * busySummaryUncorr1_;
-    MonitorElement * busySummaryUncorr2_;
     MonitorElement * fuReportsSummary_;
     MonitorElement * daqBusySummary_;
-    MonitorElement * daqBusySummary2_;
-    MonitorElement * busyModules_;
     unsigned int summaryLastLs_;
     std::vector<std::map<unsigned int, unsigned int> > occupancyNameMap;
     //1 queue per number of subProcesses (and one common)
-    std::deque<commonLsStat*> commonLsHistory;
-    std::deque<lsStat*> * lsHistory;
-
-    //endpath statistics
-    std::vector<MonitorElement *> endPathRates_;
-
-    //dataset statistics
-    std::vector<MonitorElement *> datasetRates_;
+    std::deque<commonLsStat> commonLsHistory;
+    std::deque<lsStat> *lsHistory;
 
     std::vector<unsigned int> currentLs_;
 
@@ -577,9 +503,6 @@ namespace evf {
     unsigned int savedForLs_;
     std::string fileBaseName_;
     bool writeDirectoryPresent_;
-
-    timeval * reportingStart_;
-    unsigned int lastSavedForTime_;
   }; // class iDie
 
   int modlistSortFunction( const void *a, const void *b)
@@ -593,9 +516,6 @@ namespace evf {
     return 1;
   }
 
-  float fround(float val, float mod) {
-    return val - fmod(val,mod);
-  }
 
 } // namespace evf
 

@@ -1,17 +1,18 @@
 #ifndef CertificationClient_H
 #define CertificationClient_H
 
-#include "DQWorkerClient.h"
+#include "DQM/EcalCommon/interface/DQWorkerClient.h"
 
 namespace ecaldqm {
 
   class CertificationClient : public DQWorkerClient {
   public:
-    CertificationClient(edm::ParameterSet const&, edm::ParameterSet const&);
+    CertificationClient(const edm::ParameterSet &, const edm::ParameterSet &);
     ~CertificationClient() {}
 
-    void beginRun(edm::Run const&, edm::EventSetup const&);
-    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+    void bookMEs();
+
+    void beginRun(const edm::Run &, const edm::EventSetup &);
 
     void producePlots();
 
@@ -19,17 +20,22 @@ namespace ecaldqm {
       kCertificationMap,
       kCertificationContents,
       kCertification,
+      kReportSummaryMap,
+      kReportSummaryContents,
+      kReportSummary,
       nMESets
     };
 
+    static void setMEData(std::vector<MEData>&);
+
     enum Sources {
-      kDAQ,
-      kDCS,
-      kDQM,
+      sIntegrity,
+      sFEStatus,
+      sDesync,
+      sDAQ,
+      sDCS,
       nSources
     };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
   };
 
 }

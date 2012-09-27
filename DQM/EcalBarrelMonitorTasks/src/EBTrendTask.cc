@@ -1,8 +1,8 @@
 /*
  * \file EBTrendTask.cc
  *
- * $Date: 2012/04/27 13:46:03 $
- * $Revision: 1.13 $
+ * $Date: 2011/08/30 09:30:33 $
+ * $Revision: 1.10 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -132,14 +132,6 @@ void EBTrendTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
-void
-EBTrendTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EBTrendTask")){
-	cleanup();
-	setup();
-  }
-}
 
 void EBTrendTask::reset(void) {
 

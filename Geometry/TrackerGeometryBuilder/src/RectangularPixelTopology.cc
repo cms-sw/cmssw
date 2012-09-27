@@ -85,7 +85,13 @@ RectangularPixelTopology::pixel( const LocalPoint& p ) const
     iybin0 = (iybin%54); // 0-53
     numROC = iybin/54;  // 0-7
 
-    if (iybin0==53) {   // inside big pixel
+    if( iybin0 > 53 )
+    {
+      LogDebug("RectangularPixelTopology") << " very bad, newbiny " << iybin0 << "\n"
+					   << py << " " << m_yoffset << " " << m_pitchy << " "
+					   << newybin << " " << iybin << " " << fractionY << " " << iybin0 << " "
+					   << numROC;
+    } else if (iybin0==53) {   // inside big pixel
       iybin0=51;
       fractionY = (fractionY+1.)/2.;
     } else if (iybin0==52) {   // inside big pixel
@@ -99,8 +105,12 @@ RectangularPixelTopology::pixel( const LocalPoint& p ) const
     } else if (iybin0==0) {   // inside big pixel
       iybin0=0;
       fractionY = fractionY/2.;
-    } 
-
+    } else {
+      LogDebug("RectangularPixelTopology") << " very bad, newbiny " << newybin << "\n"
+					   << py << " " << m_yoffset << " " << m_pitchy << " "
+					   << newybin << " " << iybin << " " << fractionY << " "
+					   << iybin0 << " " << numROC;
+    }
     mpY = float(numROC*52. + iybin0) + fractionY;
   }
 
@@ -217,7 +227,7 @@ float
 RectangularPixelTopology::localX( const float mpx ) const
 {
   int binoffx = int( mpx );        // truncate to int
-  float fractionX = mpx - float(binoffx); // find the fraction 
+  float fractionX = mpx - binoffx; // find the fraction 
   float local_pitchx = m_pitchx;   // defaultpitch
 
   if( m_upgradeGeometry ) 
@@ -235,21 +245,19 @@ RectangularPixelTopology::localX( const float mpx ) const
       binoffx=binoffx+2;
     } else if (binoffx==80) {    // ROC 1
       binoffx=binoffx+1;
-      local_pitchx *= 2;
+      local_pitchx = 2 * m_pitchx;
+    
     } else if (binoffx==79) {      // ROC 0
       binoffx=binoffx+0;
-      local_pitchx *= 2;    
-    } 
-    // else if (binoffx>=0) {       // ROC 0
-    //  binoffx=binoffx+0;
-    // } 
-
-#ifdef EDM_ML_DEBUG
-    if (binoffx<0) // too small
+      local_pitchx = 2 * m_pitchx;    
+    } else if (binoffx>=0) {       // ROC 0
+      binoffx=binoffx+0;
+    
+    } else { // too small
       LogDebug("RectangularPixelTopology") << " very bad, binx " << binoffx << "\n"
 					   << mpx << " " << binoffx << " "
 					   << fractionX << " " << local_pitchx << " " << m_xoffset;
-#endif
+    }
   }
   
   // The final position in local coordinates 
@@ -274,23 +282,102 @@ float
 RectangularPixelTopology::localY( const float mpy ) const
 {
   int binoffy = int( mpy );        // truncate to int
-  float fractionY = mpy - float(binoffy); // find the fraction 
+  float fractionY = mpy - binoffy; // find the fraction 
   float local_pitchy = m_pitchy;   // defaultpitch
 
   if( m_upgradeGeometry )
   {
     if( binoffy > m_ROCS_Y * m_COLS_PER_ROC )   // too large
-      {
-	LogDebug( "RectangularPixelTopology" ) << " very bad, biny " << binoffy << "\n"
-					       << mpy << " " << binoffy << " " << fractionY
-					       << " " << local_pitchy << " " << m_yoffset;
-      }     
+    {
+      LogDebug( "RectangularPixelTopology" ) << " very bad, biny " << binoffy << "\n"
+					     << mpy << " " << binoffy << " " << fractionY
+					     << " " << local_pitchy << " " << m_yoffset;
+    }     
   }
-  else {
-    constexpr int bigYIndeces[]{0,51,52,103,104,155,156,207,208,259,260,311,312,363,364,415,416,511};
-    auto const j = std::lower_bound(std::begin(bigYIndeces),std::end(bigYIndeces),binoffy);
-    if (*j==binoffy) local_pitchy  *= 2 ;
-    binoffy += (j-bigYIndeces);
+  else 
+  {
+    if (binoffy>416) {            // ROC 8, not real ROC
+      binoffy=binoffy+17;
+    } else if (binoffy==416) {    // ROC 8
+      binoffy=binoffy+16;
+      local_pitchy = 2 * m_pitchy;
+		
+    } else if (binoffy==415) {    // ROC 7, last big pixel
+      binoffy=binoffy+15;
+      local_pitchy = 2 * m_pitchy;
+    } else if (binoffy>364) {     // ROC 7
+      binoffy=binoffy+15;
+    } else if (binoffy==364) {    // ROC 7
+      binoffy=binoffy+14;
+      local_pitchy = 2 * m_pitchy;
+    
+    } else if (binoffy==363) {      // ROC 6
+      binoffy=binoffy+13;
+      local_pitchy = 2 * m_pitchy;    
+    } else if (binoffy>312) {       // ROC 6
+      binoffy=binoffy+13;
+    } else if (binoffy==312) {      // ROC 6
+      binoffy=binoffy+12;
+      local_pitchy = 2 * m_pitchy;
+    
+    } else if (binoffy==311) {      // ROC 5
+      binoffy=binoffy+11;
+      local_pitchy = 2 * m_pitchy;    
+    } else if (binoffy>260) {       // ROC 5
+      binoffy=binoffy+11;
+    } else if (binoffy==260) {      // ROC 5
+      binoffy=binoffy+10;
+      local_pitchy = 2 * m_pitchy;
+    
+    } else if (binoffy==259) {      // ROC 4
+      binoffy=binoffy+9;
+      local_pitchy = 2 * m_pitchy;    
+    } else if (binoffy>208) {       // ROC 4
+      binoffy=binoffy+9;
+    } else if (binoffy==208) {      // ROC 4
+      binoffy=binoffy+8;
+      local_pitchy = 2 * m_pitchy;
+    
+    } else if (binoffy==207) {      // ROC 3
+      binoffy=binoffy+7;
+      local_pitchy = 2 * m_pitchy;    
+    } else if (binoffy>156) {       // ROC 3
+      binoffy=binoffy+7;
+    } else if (binoffy==156) {      // ROC 3
+      binoffy=binoffy+6;
+      local_pitchy = 2 * m_pitchy;
+    
+    } else if (binoffy==155) {      // ROC 2
+      binoffy=binoffy+5;
+      local_pitchy = 2 * m_pitchy;    
+    } else if (binoffy>104) {       // ROC 2
+      binoffy=binoffy+5;
+    } else if (binoffy==104) {      // ROC 2
+      binoffy=binoffy+4;
+      local_pitchy = 2 * m_pitchy;
+    
+    } else if (binoffy==103) {      // ROC 1
+      binoffy=binoffy+3;
+      local_pitchy = 2 * m_pitchy;    
+    } else if (binoffy>52) {       // ROC 1
+      binoffy=binoffy+3;
+    } else if (binoffy==52) {      // ROC 1
+      binoffy=binoffy+2;
+      local_pitchy = 2 * m_pitchy;
+    
+    } else if (binoffy==51) {      // ROC 0
+      binoffy=binoffy+1;
+      local_pitchy = 2 * m_pitchy;    
+    } else if (binoffy>0) {        // ROC 0
+      binoffy=binoffy+1;
+    } else if (binoffy==0) {       // ROC 0
+      binoffy=binoffy+0;
+      local_pitchy = 2 * m_pitchy;
+    } else { // too small
+      LogDebug( "RectangularPixelTopology" ) << " very bad, biny " << binoffy << "\n"
+					     << mpy << " " << binoffy << " "
+					     << fractionY << " " << local_pitchy << " " << m_yoffset;
+    }
   }
   
   // The final position in local coordinates 
@@ -353,8 +440,6 @@ RectangularPixelTopology::measurementError( const LocalPoint& lp,
 			   le.yy()/float(pitchy*pitchy));
 }
 
-
-// why is different than Y????? (in any case it has just to check if 79 or 80 are in the range (bha!)
 bool
 RectangularPixelTopology::containsBigPixelInX( const int& ixmin, const int& ixmax ) const
 {
@@ -369,7 +454,6 @@ RectangularPixelTopology::containsBigPixelInX( const int& ixmin, const int& ixma
   return false;
 }
 
-// again, no need to loop...
 bool
 RectangularPixelTopology::containsBigPixelInY( const int& iymin, const int& iymax ) const
 {

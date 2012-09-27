@@ -10,6 +10,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include "FWCore/Framework/interface/Callback.h"
 #include "FWCore/Framework/interface/ESProducts.h"
+#include <cassert>
 
 namespace callbacktest {
    struct Data {

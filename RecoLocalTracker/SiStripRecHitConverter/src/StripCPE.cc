@@ -67,7 +67,7 @@ StripClusterParameterEstimator::LocalValues StripCPE::
 localParameters( const SiStripCluster& cluster, const GeomDetUnit& det) const {
   StripCPE::Param const & p = param(det);
   const float barycenter = cluster.barycenter();
-  const float fullProjection = p.coveredStrips( p.drift + LocalVector(0,0,-p.thickness), p.topology->localPosition(barycenter));
+  const float fullProjection = p.coveredStrips( p.drift + LocalVector(0,0,-p.thickness), LocalPoint(barycenter,0,0));
   const float strip = barycenter - 0.5f * (1-shift[p.moduleGeom]) * fullProjection;
 
   return std::make_pair( p.topology->localPosition(strip),

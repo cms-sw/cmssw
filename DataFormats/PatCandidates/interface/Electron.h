@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.40 2012/04/25 17:15:37 cbern Exp $
+// $Id: Electron.h,v 1.38 2012/04/14 02:06:05 tjkim Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.40 2012/04/25 17:15:37 cbern Exp $
+  \version  $Id: Electron.h,v 1.38 2012/04/14 02:06:05 tjkim Exp $
 */
 
 
@@ -104,13 +104,9 @@ namespace pat {
       // https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
       // https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCategoryBasedElectronID
       // Note: an exception is thrown if the specified ID is not available
-      float electronID(const std::string& name) const;
-      float electronID(const char* name) const { return electronID( std::string(name) );}
+      float electronID(const std::string & name) const;
       /// Returns true if a specific ID is available in this pat::Electron
-      bool isElectronIDAvailable(const std::string& name) const;
-      bool isElectronIDAvailable(const char* name) const {
-	return isElectronIDAvailable(std::string(name));
-      }
+      bool isElectronIDAvailable(const std::string & name) const;
       /// Returns all the electron IDs in the form of <name,value> pairs. The 'default' ID is the first in the list
       const std::vector<IdPair> &  electronIDs() const { return electronIDs_; }
       /// Store multiple electron ID values, discarding existing ones. The first one in the list becomes the 'default' electron id
@@ -127,9 +123,6 @@ namespace pat {
       float caloIso()  const { return ecalIso()+hcalIso(); }
 
       // ---- PF specific methods ----
-      bool isPF() const{ return isPF_; }
-      void setIsPF(bool hasPFCandidate) { isPF_ = hasPFCandidate ; }
-
       /// reference to the source PFCandidates; null if this has been built from a standard electron
       reco::PFCandidateRef pfCandidateRef() const;
       /// add a reference to the source IsolatedPFCandidate
@@ -204,7 +197,6 @@ namespace pat {
       std::vector<IdPair> electronIDs_;
 
       // ---- PF specific members ----
-      bool isPF_;
       /// true if the IsolatedPFCandidate is embedded
       bool embeddedPFCandidate_;
       /// A copy of the source IsolatedPFCandidate is stored in this vector if embeddedPFCandidate_ if True

@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2011/11/12 09:18:41 $
- * $Revision: 1.68 $
+ * $Date: 2011/11/23 14:23:15 $
+ * $Revision: 1.69 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -63,8 +63,13 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   defaultTmax = ps.getParameter<int>("defaultTmax");
   // Switch from static to dinamic histo booking
   doStaticBooking =  ps.getUntrackedParameter<bool>("staticBooking", true);
+
   // Switch for local/global runs
   isLocalRun = ps.getUntrackedParameter<bool>("localrun", true);
+  if (!isLocalRun) {
+    ltcDigiCollectionTag = ps.getParameter<edm::InputTag>("ltcDigiCollectionTag");
+  }
+
   // Setting for the reset of the ME after n (= ResetCycle) luminosity sections
   resetCycle = ps.getUntrackedParameter<int>("ResetCycle", 3);
   // Check the DB of noisy channels
@@ -484,7 +489,7 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
   event.getByLabel(dtDigiLabel, dtdigis);
 
   // LTC digis
-  if (!isLocalRun) event.getByType(ltcdigis);
+  if (!isLocalRun) event.getByLabel(ltcDigiCollectionTag, ltcdigis);
 
   // Status map (for noisy channels)
   ESHandle<DTStatusFlag> statusMap;

@@ -1,25 +1,32 @@
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
-
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
-
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
-#include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.icc"
-
-template class CaloGeometryLoader< EcalBarrelGeometry > ;
-
-//#include "DetectorDescription/Core/interface/DDInit.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 
 typedef CaloGeometryLoader< EcalBarrelGeometry > EcalBGL ;
 
+template <>
+void 
+EcalBGL::fillGeom( EcalBarrelGeometry*         geom,
+		   const EcalBGL::ParmVec&     vv,
+		   const HepGeom::Transform3D& tr,
+		   const DetId&                id );
+template <>
+void 
+EcalBGL::fillNamedParams( DDFilteredView      fv,
+			  EcalBarrelGeometry* geom );
+
+#include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.icc"
+
+template class CaloGeometryLoader< EcalBarrelGeometry > ;
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
 template <>
 void 
-EcalBGL::fillGeom( EcalBarrelGeometry*         geom ,
-		   const EcalBGL::ParmVec&     vv ,
-		   const HepGeom::Transform3D& tr ,
-		   const DetId&                id    )
+EcalBGL::fillGeom( EcalBarrelGeometry*         geom,
+		   const EcalBGL::ParmVec&     vv,
+		   const HepGeom::Transform3D& tr,
+		   const DetId&                id )
 {
    std::vector<CCGFloat> pv ;
    pv.reserve( vv.size() ) ;

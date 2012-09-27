@@ -17,7 +17,6 @@
 #include "FWEPWrapper.h"
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "FWCore/PluginManager/interface/PresenceFactory.h"
 
 #include "xdaq/Application.h"
 #include "xdaq/NamespaceURI.h"
@@ -288,7 +287,6 @@ namespace evf
 
     moduleweb::ForkInfoObj           *forkInfoObj_;
     pthread_mutex_t                  forkObjLock_;
-    bool                             restart_in_progress_;
     bool                             edm_init_done_;
 
     unsigned int                     crashesThisRun_;
@@ -300,10 +298,6 @@ namespace evf
 
     unsigned long long               idleProcStats_;
     unsigned long long               allProcStats_;
-    timeval                          lastProcReport_;
-
-    std::auto_ptr<edm::Presence>     messageServicePresence_;
-    xdata::Boolean                   datasetCounting_;
   };
 
   

@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.31 2012/07/19 13:21:14 threus Exp $
+// $Id: SiStripMonitorDigi.h,v 1.30 2012/07/13 15:32:52 threus Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -163,6 +163,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   bool subdetswitchapvcycleprofon;
   bool subdetswitchapvcycleth2on;
 
+  bool subdetswitchtotdigiproflson;
   bool subdetswitchtotdigifailureon;
 
   bool subdetswitchnapvshotson;
@@ -178,17 +179,9 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   bool globalswitchapvshotsApvon;
 
 
+  int xLumiProf;
   bool isStableBeams;
-  int ignoreFirstNLumisections_;
-  int integrateNLumisections_;
-  int SBDeclaredAt;
-  bool SBTransitionDone;
-  int nFedTIB;
-  int nFedTIDp;
-  int nFedTIDm;
-  int nFedTECp;
-  int nFedTECm;
-  int nFedTOB;
+  int nFEDConnected;
 
   bool Mod_On_;
 

@@ -5,8 +5,8 @@
 /*
  * \file DTAlbertoBenvenutiTask.h
  *
- * $Date: 2008/12/13 10:02:29 $
- * $Revision: 1.3 $
+ * $Date: 2010/01/05 10:14:40 $
+ * $Revision: 1.4 $
  * \author G. Mila - INFN Torino
  *
 */
@@ -19,8 +19,6 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
 #include <memory>
 #include <iostream>
@@ -75,8 +73,6 @@ private:
   float tTrig;
   float tTrigRMS;
   float kFactor;
-
-  edm::Handle<LTCDigiCollection> ltcdigis;
 
   edm::ParameterSet parameters;
 

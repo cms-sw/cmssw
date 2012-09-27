@@ -28,7 +28,7 @@
 //#include <iostream>
 #include "CoralBase/MessageStream.h"
 
-constexpr char XML_AUTHENTICATION_FILE[] = "authentication.xml";
+static std::string XML_AUTHENTICATION_FILE("authentication.xml");
 
 cond::XMLAuthenticationService::DataSourceEntry::DataSourceEntry( const std::string& serviceName,
                                                                   const std::string& connectionName ):

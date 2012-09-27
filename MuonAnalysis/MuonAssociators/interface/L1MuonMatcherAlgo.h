@@ -1,7 +1,7 @@
 #ifndef MuonAnalysis_MuonAssociators_interface_L1MuonMatcherAlgo_h
 #define MuonAnalysis_MuonAssociators_interface_L1MuonMatcherAlgo_h
 //
-// $Id: L1MuonMatcherAlgo.h,v 1.9 2011/04/27 23:13:21 gpetrucc Exp $
+// $Id: L1MuonMatcherAlgo.h,v 1.8 2010/07/01 07:40:52 gpetrucc Exp $
 //
 
 /**
@@ -9,7 +9,7 @@
   \brief    Matcher of reconstructed objects to L1 Muons 
             
   \author   Giovanni Petrucciani
-  \version  $Id: L1MuonMatcherAlgo.h,v 1.9 2011/04/27 23:13:21 gpetrucc Exp $
+  \version  $Id: L1MuonMatcherAlgo.h,v 1.8 2010/07/01 07:40:52 gpetrucc Exp $
 */
 
 
@@ -149,7 +149,7 @@ class L1MuonMatcherAlgo {
         double deltaR2_, deltaPhi_, deltaEta_;
 
         /// Sort by deltaPhi or deltaEta instead of deltaR
-        enum SortBy { SortByDeltaR, SortByDeltaPhi, SortByDeltaEta, SortByPt, SortByQuality };
+        enum SortBy { SortByDeltaR, SortByDeltaPhi, SortByDeltaEta, SortByPt };
         SortBy sortBy_;
 
         /// offset to be added to the L1 phi before the match
@@ -165,7 +165,6 @@ L1MuonMatcherAlgo::matchGeneric(TrajectoryStateOnSurface &propagated, const Coll
     double minDeltaEta = deltaEta_;
     double minDeltaR2  = deltaR2_;
     double minPt       = -1.0;
-    int    minQual     = -1;
     GlobalPoint pos = propagated.globalPosition();
     for (int i = 0, n = l1s.size(); i < n; ++i) {
         const obj &l1 = l1s[i];
@@ -174,9 +173,6 @@ L1MuonMatcherAlgo::matchGeneric(TrajectoryStateOnSurface &propagated, const Coll
             double thisDeltaEta = pos.eta() - l1.eta();
             double thisDeltaR2  = ::deltaR2(double(pos.eta()), double(pos.phi()), l1.eta(), l1.phi()+l1PhiOffset_);
             double thisPt       = l1.pt();
-            int    thisQual     = typeid(l1) == typeid(l1extra::L1MuonParticle) ? 
-                                        (dynamic_cast<const l1extra::L1MuonParticle&>(l1)).gmtMuonCand().quality() : 
-                                        0;
             if ((fabs(thisDeltaPhi) < deltaPhi_) && (fabs(thisDeltaEta) < deltaEta_) && (thisDeltaR2 < deltaR2_)) { // check all
                 bool betterMatch = (match == -1);
                 switch (sortBy_) {
@@ -184,7 +180,6 @@ L1MuonMatcherAlgo::matchGeneric(TrajectoryStateOnSurface &propagated, const Coll
                     case SortByDeltaEta: betterMatch = (fabs(thisDeltaEta) < fabs(minDeltaEta)); break;
                     case SortByDeltaPhi: betterMatch = (fabs(thisDeltaPhi) < fabs(minDeltaPhi)); break;
                     case SortByPt:       betterMatch = (thisPt             > minPt);             break;
-                    case SortByQuality:  betterMatch = (thisQual != minQual ?  (thisQual > minQual) : (thisPt > minPt)); break;
                 }
                 if (betterMatch) { // sort on one
                     match = i;
@@ -194,7 +189,6 @@ L1MuonMatcherAlgo::matchGeneric(TrajectoryStateOnSurface &propagated, const Coll
                     minDeltaEta = thisDeltaEta;
                     minDeltaPhi = thisDeltaPhi;
                     minPt       = thisPt;
-                    minQual     = thisQual;
                 }
             }
         }

@@ -17,11 +17,16 @@
 using namespace edm;
 using namespace std;
 
-DTTriggerCheck::DTTriggerCheck(const ParameterSet& pset){
+DTTriggerCheck::DTTriggerCheck(const ParameterSet& pset) :
+  isLocalRun(pset.getUntrackedParameter<bool>("localrun", true)) {
+
+  if (!isLocalRun) {
+    ltcDigiCollectionTag = pset.getParameter<edm::InputTag>("ltcDigiCollectionTag");
+  }
+
  theDbe = edm::Service<DQMStore>().operator->();
 
  debug = pset.getUntrackedParameter<bool>("debug",false);
-    parameters = pset;
 
   theDbe->setCurrentFolder("DT/DTTriggerTask");
   histo = theDbe->book1D("hNTriggerPerType",
@@ -49,9 +54,9 @@ void DTTriggerCheck::analyze(const Event& event, const EventSetup& setup) {
   
   //Get the trigger source from ltc digis
   edm::Handle<LTCDigiCollection> ltcdigis;
-  if ( !parameters.getUntrackedParameter<bool>("localrun", true) ) 
+  if (!isLocalRun)
     {
-      event.getByType(ltcdigis);
+      event.getByLabel(ltcDigiCollectionTag, ltcdigis);
       for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++){
 	if (((*ltc_it).HasTriggered(0)) || 
 	    ((*ltc_it).HasTriggered(1)) || 

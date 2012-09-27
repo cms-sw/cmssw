@@ -1,9 +1,5 @@
 /*
-  HLTInclusiveVBFSource
-  Phat Srimanobhas
-  To monitor VBF DataParking
 */
-
 #include "DQMOffline/Trigger/interface/HLTInclusiveVBFSource.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
@@ -357,10 +353,6 @@ HLTInclusiveVBFSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       if(debug_) cout<<"DEBUG-6: Match"<<endl;
       hlt_deltaetajet  = hlt_etajet1 - hlt_etajet2;
       hlt_deltaphijet  = reco::deltaPhi(hlt_phijet1,hlt_phijet2);
-      if(checkdR_crossOrder){
-	hlt_deltaetajet = (-1)*hlt_deltaetajet;
-	hlt_deltaphijet = reco::deltaPhi(hlt_phijet2,hlt_phijet1);
-      }
       hlt_invmassjet   = sqrt((hlt_ejet1  + hlt_ejet2)  * (hlt_ejet1  + hlt_ejet2)  - 
 			      (hlt_pxjet1 + hlt_pxjet2) * (hlt_pxjet1 + hlt_pxjet2) - 
 			      (hlt_pyjet1 + hlt_pyjet2) * (hlt_pyjet1 + hlt_pyjet2) - 

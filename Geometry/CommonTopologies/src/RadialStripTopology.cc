@@ -5,50 +5,6 @@
 #include <iostream>
 #include <cmath>
 #include <algorithm>
-#include <cassert>
-
-#include<iostream>
-namespace {
-
-  struct Stat {
-    ~Stat() {
-      std::cout <<"atan0 calls tot/large/over1: " << natan << "/" << nlarge <<"/" << over1 << std::endl; 
-    }
-
-    void add(float t) { 
-      ++natan;
-      if (t>0.40f) ++nlarge;
-      if (t>1.0) ++over1;
-    }
-    long long natan=0;
-    long long nlarge=0;
-    long long over1=0;    
-  };
-
-  Stat stat;
-
-  // valid for z < pi/8
-  inline 
-  float atan0(float t) {
-    stat.add(t);
-    auto z=t;
-    if( t > 0.4142135623730950f ) // * tan pi/8 
-      {
-	z = (t-1.0f)/(t+1.0f);
-      }
-    float z2 = z * z;
-    float ret=
-      ((( 8.05374449538e-2f * z2
-	  - 1.38776856032E-1f) * z2
-	+ 1.99777106478E-1f) * z2
-       - 3.33329491539E-1f) * z2 * z
-      + z;
-    if( t > 0.4142135623730950f ) ret +=0.7853981633974483096f;
-    return ret;
-  }
-
-}
-
 
 RadialStripTopology::RadialStripTopology(int ns, float aw, float dh, float r, int yAx, float yMid) :
   theNumberOfStrips(ns), theAngularWidth(aw), 
@@ -56,12 +12,8 @@ RadialStripTopology::RadialStripTopology(int ns, float aw, float dh, float r, in
   theYAxisOrientation(yAx), yCentre( yMid) {   
   // Angular offset of extreme edge of detector, so that angle is
   // zero for a strip lying along local y axis = long symmetry axis of plane of strips
-  thePhiOfOneEdge = -(0.5*theNumberOfStrips) * theAngularWidth; // always negative!
+  thePhiOfOneEdge = -(0.5*theNumberOfStrips) * theAngularWidth * yAx;
   
-  assert(std::abs(thePhiOfOneEdge)<0.35); // < pi/8 (and some tollerance)
-
-  std::cout << "VI: work in progress :RadialStripTopology buggy" << std::endl;
-
   LogTrace("RadialStripTopology") << "RadialStripTopology: constructed with"
         << " strips = " << ns
         << " width = " << aw << " rad "
@@ -77,7 +29,7 @@ int RadialStripTopology::channel(const LocalPoint& lp) const { return   std::min
 
 int RadialStripTopology::nearestStrip(const LocalPoint & lp) const {   return std::min( nstrips(), static_cast<int>( std::max(float(0), strip(lp)) ) + 1);}
 
-float RadialStripTopology::stripAngle(float strip) const { return   yAxisOrientation() * (phiOfOneEdge() +  strip * angularWidth()) ;}
+float RadialStripTopology::stripAngle(float strip) const { return   phiOfOneEdge() + yAxisOrientation() * strip * angularWidth() ;}
 
 float RadialStripTopology::yDistanceToIntersection( float y ) const { return   yAxisOrientation()*y + originToIntersection() ;}
 
@@ -91,10 +43,9 @@ float RadialStripTopology::xOfStrip(int strip, float y) const {
 }
 
 float RadialStripTopology::strip(const LocalPoint& lp) const {
-     // phi is measured from y axis --> sign of angle is sign of x * yAxisOrientation --> use atan2(x,y), not atan2(y,x)
-  float y = yDistanceToIntersection( lp.y() );
-  const float phi =  std::copysign(atan0(std::abs(lp.x()/y)) , lp.x() );
-  const float aStrip = ( phi -  phiOfOneEdge() )/angularWidth();
+  const float   // phi is measured from y axis --> sign of angle is sign of x * yAxisOrientation --> use atan2(x,y), not atan2(y,x)
+    phi( std::atan2( lp.x(), yDistanceToIntersection( lp.y() ) )),
+    aStrip( ( phi - yAxisOrientation() * phiOfOneEdge() )/angularWidth());
   return  std::max(float(0), std::min( (float)nstrips(), aStrip ));
 }
 
@@ -110,9 +61,9 @@ LocalPoint RadialStripTopology::localPosition(const MeasurementPoint& mp) const 
 }
 
 MeasurementPoint RadialStripTopology::measurementPosition(const LocalPoint& lp) const {
-  // phi is [pi/2 - conventional local phi], use atan2(x,y) rather than atan2(y,x)
-  const float phi = std::copysign(atan0(std::abs( lp.x()/yDistanceToIntersection(lp.y()) )) , lp.x() );
-  return MeasurementPoint( ( phi-phiOfOneEdge() ) / angularWidth(),
+  const float // phi is [pi/2 - conventional local phi], use atan2(x,y) rather than atan2(y,x)
+    phi( yAxisOrientation() * std::atan2( lp.x(), yDistanceToIntersection( lp.y() ) ));
+  return MeasurementPoint( yAxisOrientation()*( phi-phiOfOneEdge() ) / angularWidth(),
 			   ( lp.y() - yCentreOfStripPlane() )        / detHeight() );
 }
 

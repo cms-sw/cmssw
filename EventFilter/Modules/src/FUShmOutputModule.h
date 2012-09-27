@@ -6,14 +6,11 @@
      Header file shared memory to be used with FUShmOutputModule.
      See CMS EvF Storage Manager wiki page for further notes.
 
-   $Id: FUShmOutputModule.h,v 1.10 2012/09/02 15:04:26 smorovic Exp $
+   $Id: FUShmOutputModule.h,v 1.8.2.4 2012/04/30 14:38:29 smorovic Exp $
 */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Framework/interface/EventSelector.h"
 
-#include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -55,7 +52,7 @@ struct SM_SharedMemoryHandle
 
 namespace edm
 {
-  //class ParameterSetDescription;
+  class ParameterSetDescription;
   class FUShmOutputModule : public evf::OutputModule
   {
   public:
@@ -63,7 +60,6 @@ namespace edm
     FUShmOutputModule(edm::ParameterSet const& ps);
     ~FUShmOutputModule();
 
-    void insertStreamAndDatasetInfo(edm::ParameterSet & streams, edm::ParameterSet datasets/*std:std::string & moduleList*/);
     void doOutputHeader(InitMsgBuilder const& initMessage);
     void doOutputEvent(EventMsgBuilder const& eventMessage);
     unsigned int getCounts(){
@@ -71,24 +67,8 @@ namespace edm
     }
     void start();
     void stop();
-    static void fillDescription(ParameterSetDescription&);
-
-    void parseDatasets(InitMsgView const& initMessage);
-    void countEventForDatasets(EventMsgView const& eventMessage);
-    std::vector<std::string> getDatasetNames() {return selectedDatasetNames_;}
-    std::vector<unsigned int>& getDatasetCounts() {return datasetCounts_;}
-    void clearDatasetCounts() {
-	    for (unsigned int i=0;i<datasetCounts_.size();i++) datasetCounts_[i]=0;
-    }
-    std::string getStreamId() {return streamId_;}
-
-    //void writeLuminosityBlock(LuminosityBlockPrincipal const&);
-    void setPostponeInitMsg();
-    void sendPostponedStart();
-    void sendPostponedInitMsg();
-    void setNExpectedEPs(unsigned int EPs);
-    void unregisterFromShm();
-
+    // No parameters.
+    static void fillDescription(ParameterSetDescription&) {}
   private:
 
     evf::FUShmBuffer* shmBuffer_;
@@ -104,16 +84,14 @@ namespace edm
     bool postponeStart_;
     unsigned int nExpectedEPs_;
 
-    //dataset parsing
-    std::vector<unsigned int> datasetCounts_;
+  public:
+    //void writeLuminosityBlock(LuminosityBlockPrincipal const&);
+    void setPostponeInitMsg();
+    void sendPostponedStart();
+    void sendPostponedInitMsg();
+    void setNExpectedEPs(unsigned int EPs);
+    void unregisterFromShm();
 
-    unsigned int numDatasets_;
-    std::vector<std::string> selectedDatasetNames_;
-    std::vector<Strings> datasetPaths_; 
-    std::vector<std::pair<std::string,edm::EventSelector*>> dpEventSelectors_;
-    unsigned int totalPaths_;
-
-    std::string streamId_;
   };
 }
 

@@ -29,6 +29,9 @@
 // comparator template
 #include "L1Trigger/HardwareValidation/interface/DEcompare.h"
 
+// extra
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
 // db trigger/subsystem key access
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"	   
 //#include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"   
@@ -60,6 +63,15 @@ private:
       process(data.product(),emul.product(),sys, cid);
   }
 
+  // gt, fedraw, extra
+  bool compareCollections(edm::Handle<L1GlobalTriggerReadoutRecord>   data, 
+			  edm::Handle<L1GlobalTriggerReadoutRecord>   emul);
+  bool compareCollections(edm::Handle<L1GlobalTriggerEvmReadoutRecord>data, 
+			  edm::Handle<L1GlobalTriggerEvmReadoutRecord>emul);
+  bool compareCollections(edm::Handle<L1GlobalTriggerObjectMapRecord> data, 
+			  edm::Handle<L1GlobalTriggerObjectMapRecord> emul);
+  bool compareFedRawCollections(edm::Handle<FEDRawDataCollection>     data, 
+				edm::Handle<FEDRawDataCollection>     emul, int fedid);
   template <class T> bool CompareCollections(edm::Handle<T> data, edm::Handle<T> emul);
   template <class T> bool dumpCandidate(const T& dt, const T& em, std::ostream& s);
 
@@ -82,6 +94,9 @@ private:
   bool DEmatchEvt[dedefs::DEnsys]; 
   int DEncand[dedefs::DEnsys][2];
   L1DEDigiCollection m_dedigis;
+
+  int m_fedId;
+  edm::InputTag m_FEDsource[2];
 
 };
 

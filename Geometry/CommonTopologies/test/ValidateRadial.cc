@@ -4,15 +4,13 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/ProxyStripTopology.h"
 #include "boost/lexical_cast.hpp"
 #include "TProfile.h"
 
 ValidateRadial::ValidateRadial(const edm::ParameterSet& cfg) 
   : epsilon_(cfg.getParameter<double>("Epsilon")),
     file_(new TFile(cfg.getParameter<std::string>("FileName").c_str(),"RECREATE")),
-    printOut_(cfg.getParameter<bool>("PrintOut")),
-    posOnly_(cfg.getParameter<bool>("PosOnly"))
+    printOut_(cfg.getParameter<bool>("PrintOut"))
 {}
 
 void ValidateRadial::
@@ -38,28 +36,15 @@ get_list_of_radial_topologies(const edm::Event&e, const edm::EventSetup& es) {
 				     470079661,//TEC r5
 				     470049476,//TEC r6
 				     470045428}; //TEC r7
-  for(unsigned i=0; i<10; i++) {
-    auto g = dynamic_cast<const StripGeomDetUnit*>(theTrackerGeometry->idToDet( radial_detids[i] ));
-    if (!g) std::cout << "no geom for " << radial_detids[i] << std::endl;
-    auto const topol = &g->specificTopology();
-    const RadialStripTopology* rt =0;	
-    auto const proxyT = dynamic_cast<const ProxyStripTopology*>(topol);
-    if (proxyT) rt = dynamic_cast<const RadialStripTopology*>(&(proxyT->specificTopology()));
-    else rt = dynamic_cast<const RadialStripTopology*>(topol);
-    if (!rt) std::cout << "no radial topology for " << radial_detids[i] << std::endl;
-    else
-    topos.push_back(rt);
-  }
+  for(unsigned i=0; i<10; i++) 
+    topos.push_back(
+	dynamic_cast<const RadialStripTopology*>(&dynamic_cast<const StripGeomDetUnit*>( theTrackerGeometry->idToDet( radial_detids[i] ) )->specificTopology())
+      );
   return topos;
 }
 
-
-
 void ValidateRadial::
 test_topology(const RadialStripTopology* t, unsigned i) {
-
-  std::cout << *t << std::endl;
-
   TProfile prof(("se2limit1"+boost::lexical_cast<std::string>(i)).c_str(),
 		"Precision Limit of recoverable strip error (1st order);strip;strip error",
 		t->nstrips()/8,0,t->nstrips());
@@ -82,10 +67,6 @@ test_topology(const RadialStripTopology* t, unsigned i) {
   prof2.Write();
 }
 
-ValidateRadial::~ValidateRadial() {
-  std::cout <<"ValidateRadial max UU, max UV " << maxerrU << " " << maxerrUV << std::endl; 
-}
-
 
 bool ValidateRadial::
 pass_frame_change_test(const RadialStripTopology* t, const float strip, const float stripErr2, const bool secondOrder) {
@@ -99,28 +80,21 @@ pass_frame_change_test(const RadialStripTopology* t, const float strip, const fl
   const MeasurementPoint newmp = t->measurementPosition(newlp);
   const MeasurementError newme = t->measurementError(newlp, newle);
 
-  maxerrU = std::max(maxerrU,std::abs(me.uu()-stripErr2)/stripErr2);
-  maxerrUV = std::max(maxerrUV,std::abs(me.uv()));
+  const bool pass1( fabs(strip - newstrip) < 0.001&&
+		    fabs(strip - mp.x()) < 0.001 &&
+		    fabs(mp.x() - newstrip) <0.001 && 
+		    fabs(me.uu()-stripErr2)/stripErr2 < epsilon_ &&
+		    fabs(me.uv()) < epsilon_ &&
+		    me.uu()>0 &&  me.vv()>0 );
+  const bool pass2( fabs(strip - newmp.x()) < 0.001 &&
+		    fabs(newme.uu()-stripErr2)/stripErr2 < epsilon_ &&
+		    fabs(newme.uv()) < epsilon_ &&
+		    newme.uu()>0 &&  newme.vv()>0 );
+  const bool pass = (secondOrder? pass2 : pass1);
 
-  const bool pass1p = 
-    fabs(strip - newstrip) < 0.001 &&
-    fabs(strip - mp.x()) < 0.001 &&
-    fabs(mp.x() - newstrip) <0.001;
-  const bool pass1e = (fabs(me.uu()-stripErr2)/stripErr2 < epsilon_) &&
-    ( fabs(me.uv()) < epsilon_) &&
-    me.uu()>0 &&  me.vv()>0 ;
-  const bool pass2p =  fabs(strip - newmp.x()) < 0.001;
-  const bool pass2e = 
-    (fabs(newme.uu()-stripErr2)/stripErr2 < epsilon_) &&
-    (fabs(newme.uv()) < epsilon_) &&
-    newme.uu()>0 &&  newme.vv()>0;
-  
-  const bool passp = (secondOrder? pass2p : pass1p);
-  const bool passe = (secondOrder? pass2e : pass1e);
-  
-  if(printOut_ && ( (!passp) || ( (!posOnly_)&&(!passe)) ) )
-     std::cout << "(" << strip << ", " << newstrip << ", " << mp.x() << ")\t"
-     << "(" << stripErr2 << ", " << me.uu() << ")\t\t"
-     << ( me.uv() ) << std::endl;
-  return passp&passe;
+  if(printOut_ && !pass)
+    std::cout << "(" << strip << ", " << newstrip << ", " << mp.x() << ")\t"
+	      << "(" << stripErr2 << ", " << me.uu() << ")\t\t"
+	      << ( me.uv() ) << std::endl;
+  return pass;
 }

@@ -32,7 +32,6 @@ patMuons = cms.EDProducer("PATMuonProducer",
     ),
 
     # embedding objects
-    embedMuonBestTrack  = cms.bool(True),  ## embed in AOD externally stored muon best track
     embedTrack          = cms.bool(False), ## embed in AOD externally stored tracker track
     embedCombinedMuon   = cms.bool(True),  ## embed in AOD externally stored combined muon track
     embedStandAloneMuon = cms.bool(True),  ## embed in AOD externally stored standalone muon track

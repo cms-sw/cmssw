@@ -37,7 +37,7 @@ process.gmtDigis.BX_min_readout = -1
 process.gmtDigis.BX_max_readout = 1
 
 #process.L1MuGMTParameters.SubsystemMask = 0
-process.L1MuGMTParameters.MergeMethodPtBrl=cms.string("byCombi")
+process.L1MuGMTParameters.MergeMethodPtBrl=cms.string("byRank")
 process.L1MuGMTParameters.MergeMethodPtFwd=cms.string("byCombi")
 process.L1MuGMTParameters.VersionSortRankEtaQLUT = cms.uint32(275)
 process.L1MuGMTParameters.VersionLUTs = cms.uint32(1)

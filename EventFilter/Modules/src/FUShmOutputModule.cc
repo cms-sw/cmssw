@@ -4,11 +4,12 @@
      the resource broker to send to the Storage Manager.
      See the CMS EvF Storage Manager wiki page for further notes.
 
-   $Id: FUShmOutputModule.cc,v 1.16 2012/09/02 15:04:25 smorovic Exp $
+   $Id: FUShmOutputModule.cc,v 1.14.2.5 2012/04/22 17:58:09 smorovic Exp $
 */
 
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
 
+#include "IOPool/Streamer/interface/EventMessage.h"
 #include "EventFilter/Modules/src/FUShmOutputModule.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 
@@ -51,8 +52,6 @@ namespace edm
     , initBufSize_(0)
     , postponeStart_(false)
     , nExpectedEPs_(0)
-    , numDatasets_(0)
-    , streamId_()
   {
     FDEBUG(9) << "FUShmOutputModule: constructor" << endl;
     if(edm::Service<evf::ShmOutputModuleRegistry>())
@@ -69,7 +68,7 @@ namespace edm
       fuGuidValue_ = crc;
     }
   }
-
+  
   FUShmOutputModule::~FUShmOutputModule()
   {
     FDEBUG(9) << "FUShmOutputModule: FUShmOutputModule destructor" << endl;
@@ -77,46 +76,8 @@ namespace edm
     //shmdt(shmBuffer_);
   }
 
-  void FUShmOutputModule::insertStreamAndDatasetInfo(edm::ParameterSet & streams, edm::ParameterSet datasets/*std:std::string & moduleList*/)
-  {
-    try {
-      //compose dataset name string
-      if (name_.size() > std::string("hltOutput").size() && name_.find("hltOutput")!=std::string::npos)
-	streamId_=name_.substr(name_.find("hltOutput")+std::string("hltOutput").size());
-      else return;
-
-      //make local copy of dataset definitions
-
-      if (streamId_.size()) {
-	Strings streamDatasetList = streams.getParameter<Strings>(streamId_);
-	for (size_t i=0;i<streamDatasetList.size();i++) {
-	  selectedDatasetNames_.push_back(streamDatasetList[i]);
-	  Strings thisDatasetPaths = datasets.getParameter<Strings>(streamDatasetList[i]); 
-	  datasetPaths_.push_back(thisDatasetPaths);
-	  numDatasets_++;
-	}
-      }
-    }
-    catch (...) {
-      //not present:ignore
-      selectedDatasetNames_.clear();
-      datasetPaths_.clear();
-      numDatasets_=0;
-      streamId_=std::string();
-    }
-  }
-
-  void FUShmOutputModule::fillDescription(ParameterSetDescription& description)
-  {
-  }
-
-
   void FUShmOutputModule::doOutputHeader(InitMsgBuilder const& initMessage)
   {
-    unsigned char* buffer = (unsigned char*) initMessage.startAddress();
-    unsigned int size = initMessage.size();
-    InitMsgView dummymsg(buffer);
-    parseDatasets(dummymsg);
     //saving message for later if postpone is on
     if (postponeInitMsg_) {
       sentInitMsg_=false;
@@ -137,8 +98,11 @@ namespace edm
       << " No INIT is sent - this is probably fatal!";
     if(shmBuffer_)
     {
+      unsigned char* buffer = (unsigned char*) initMessage.startAddress();
+      unsigned int size = initMessage.size();
       FDEBUG(10) << "writing out INIT message with size = " << size << std::endl;
       // no method in InitMsgBuilder to get the output module id, recast
+      InitMsgView dummymsg(buffer);
       uint32 dmoduleId = dummymsg.outputModuleId();
 
       //bool ret = shmBuffer_->writeRecoInitMsg(dmoduleId, buffer, size);
@@ -200,7 +164,6 @@ namespace edm
       unsigned char* buffer = (unsigned char*) eventMessage.startAddress();
       unsigned int size = eventMessage.size();
       EventMsgView eventView(eventMessage.startAddress());
-      countEventForDatasets(eventView);
       unsigned int runid = eventView.run();
       unsigned int eventid = eventView.event();
       unsigned int outModId = eventView.outModId();
@@ -246,31 +209,4 @@ namespace edm
     }
   }
 
-  void FUShmOutputModule::parseDatasets(InitMsgView const& initMessage)
-  {
-     //reset counter
-     for (size_t i=0;i<datasetCounts_.size();i++) datasetCounts_[i]=0;
-     if (!numDatasets_) return;
-     if (dpEventSelectors_.size()) return;
-     Strings allPaths;
-     initMessage.hltTriggerNames(allPaths);
-     totalPaths_ = allPaths.size();
-     for (size_t i=0;i<numDatasets_;i++)
-     {
-       dpEventSelectors_.push_back(std::pair<std::string,edm::EventSelector*>(selectedDatasetNames_[i],new edm::EventSelector(datasetPaths_[i],allPaths))); 
-       datasetCounts_.push_back(0);
-     }
-  }
-
-  void FUShmOutputModule::countEventForDatasets(EventMsgView const& eventMessage)
-  {
-    if (!numDatasets_) return;
-    uint8 hlt_out[totalPaths_];
-    eventMessage.hltTriggerBits( hlt_out );
-    for (size_t i=0;i<numDatasets_;i++) {
-      if ( dpEventSelectors_[i].second->acceptEvent( hlt_out, totalPaths_)) {
-	datasetCounts_[i]++;
-      }
-    }
-  }
 }

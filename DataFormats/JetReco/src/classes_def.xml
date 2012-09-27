@@ -137,6 +137,7 @@
   <class name="reco::TrackJetFwdPtrVector"/>
   <class name="edm::Wrapper<reco::TrackJetFwdPtrVector>"/>
 
+
   <class name="reco::PFClusterJet" ClassVersion="10">
    <version ClassVersion="10" checksum="3410834730"/>
   </class>
@@ -155,11 +156,7 @@
   <class name="reco::PFClusterJetFwdPtrVector"/>
   <class name="edm::Wrapper<reco::PFClusterJetFwdPtrVector>"/>
 
-  <class name="StoredPileupJetIdentifier"/>
-  <class name="std::vector<StoredPileupJetIdentifier>"/>
-  <class name="edm::ValueMap<StoredPileupJetIdentifier>"/>
-  <class name="edm::Wrapper<edm::ValueMap<StoredPileupJetIdentifier> >"/>
-  
+
   <class pattern="edm::AssociationVector<*>">
     <field name="transientVector_" transient="true"/>
     <field name="fixed_" transient="true"/>

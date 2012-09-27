@@ -14,9 +14,9 @@
 #include<TString.h>
 #include<TPRegexp.h>
 
+using namespace std;
 using namespace edm;
 using namespace dqmTnP;
-using namespace std;
 
 
 typedef std::vector<std::string> vstring;
@@ -33,7 +33,7 @@ class DQMGenericTnPClient : public edm::EDAnalyzer{
     DQMStore * dqmStore;
     TFile * plots;
     vstring subDirs;
-    std::string myDQMrootFolder;
+    string myDQMrootFolder;
     bool verbose;
     const VParameterSet efficiencies;
     GaussianPlusLinearFitter *GPLfitter;
@@ -42,7 +42,7 @@ class DQMGenericTnPClient : public edm::EDAnalyzer{
 
 DQMGenericTnPClient::DQMGenericTnPClient(const edm::ParameterSet& pset):
   subDirs( pset.getUntrackedParameter<vstring>("subDirs", vstring()) ),
-  myDQMrootFolder( pset.getUntrackedParameter<std::string>("MyDQMrootFolder", "") ),
+  myDQMrootFolder( pset.getUntrackedParameter<string>("MyDQMrootFolder", "") ),
   verbose( pset.getUntrackedParameter<bool>("Verbose",false) ),
   efficiencies( pset.getUntrackedParameter<VParameterSet>("Efficiencies") )
 {
@@ -63,14 +63,14 @@ void DQMGenericTnPClient::endRun(const edm::Run &run, const edm::EventSetup &set
   }
   dqmStore->setCurrentFolder(myDQMrootFolder);
 
-  set<std::string> subDirSet;
+  set<string> subDirSet;
   
   if (myDQMrootFolder != "")
     subDirSet.insert(myDQMrootFolder);
   else {
     for(vstring::const_iterator iSubDir = subDirs.begin(); 
         iSubDir != subDirs.end(); ++iSubDir) {
-      std::string subDir = *iSubDir;
+      string subDir = *iSubDir;
       if ( subDir[subDir.size()-1] == '/' ) subDir.erase(subDir.size()-1);
       if ( TString(subDir).Contains(metacharacters) ) {
         const string::size_type shiftPos = subDir.rfind('/');

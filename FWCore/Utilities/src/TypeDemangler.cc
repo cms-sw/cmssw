@@ -1,4 +1,5 @@
 #include <cxxabi.h>
+#include <cctype>
 #include <string>
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -24,15 +25,6 @@
 ********************************************************************/
 namespace {
   void
-  noSpaceAfterComma(std::string& demangledName) {
-    char const* const commaSpace = ", ";
-    std::string::size_type index = std::string::npos;
-    while ((index = demangledName.find(commaSpace)) != std::string::npos) {
-      demangledName.erase(index + 1, 1);
-    } 
-  }
-
-  void
   removeParameter(std::string& demangledName, std::string const& toRemove) {
     std::string::size_type const asize = toRemove.size();
     char const* const delimiters = "<>";
@@ -56,6 +48,37 @@ namespace {
         ++inx;
       }
     } 
+  }
+
+  bool isAlnumOrUnderscore(char c) {
+    return c == '_' || std::isalnum(c);
+  }
+
+  void
+  replaceDelimitedString(std::string& demangledName, std::string const& from, std::string const& to) {
+    // from must not be a substring of to.
+    std::string::size_type length = from.size(); 
+    std::string::size_type pos = 0;
+    while((pos = demangledName.find(from, pos)) != std::string::npos) {
+      // replace 'from', unless preceded or followed by a letter, digit, or unsderscore.
+      if(pos != 0 && isAlnumOrUnderscore(demangledName[pos - 1])) {
+        ++pos;
+      } else if(pos + length < demangledName.size() && isAlnumOrUnderscore(demangledName[pos + length])) {
+        ++pos;
+      } else {
+        demangledName.replace(pos, length, to); 
+      }
+    }
+  } 
+
+  void
+  replaceString(std::string& demangledName, std::string const& from, std::string const& to) {
+    // from must not be a substring of to.
+    std::string::size_type length = from.size(); 
+    std::string::size_type pos = 0;
+    while((pos = demangledName.find(from, pos)) != std::string::npos) {
+       demangledName.replace(pos, length, to); 
+    }
   }
 
   void
@@ -92,14 +115,20 @@ namespace edm {
       throw cms::Exception("Demangling error") << " '" << name << "'\n";
     } 
     // We must use the same conventions used by REFLEX.
-    noSpaceAfterComma(demangledName);
+    // The order of these is important.
+    // No space after comma
+    replaceString(demangledName, ", ", ",");
     // Strip default allocator
     std::string const allocator(",std::allocator<");
     removeParameter(demangledName, allocator);
     // Strip default comparator
     std::string const comparator(",std::less<");
     removeParameter(demangledName, comparator);
+    // Replace 'std::string' with 'std::basic_string<char>'.
+    replaceDelimitedString(demangledName, "std::string", "std::basic_string<char>");
     // Put const qualifier before identifier.
     constBeforeIdentifier(demangledName);
+    // No two consecutive '>' 
+    replaceString(demangledName, ">>", "> >");
   }
 }

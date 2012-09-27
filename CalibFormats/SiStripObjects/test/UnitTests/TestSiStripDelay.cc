@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <iterator>
 #include <boost/foreach.hpp>
+#include <cassert>
 
 #define private public
 #define protected public

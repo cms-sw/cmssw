@@ -8,11 +8,10 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:54 CET 2011
-// $Id: FWPSetTableManager.cc,v 1.17 2012/09/08 04:47:56 matevz Exp $
+// $Id: FWPSetTableManager.cc,v 1.14 2011/03/07 13:13:51 amraktad Exp $
 //
 
 #include <map>
-#include <stdexcept>
 
 #include "Fireworks/FWInterface/src/FWPSetTableManager.h"
 #include "Fireworks/FWInterface/src/FWPSetCellEditor.h"
@@ -112,9 +111,9 @@ FWPSetTableManager::~FWPSetTableManager()
 //==============================================================================
 //==============================================================================
 
-void FWPSetTableManager::handlePSetEntry(edm::ParameterSetEntry& entry, const std::string& key)
+void FWPSetTableManager::handlePSetEntry(const edm::ParameterSetEntry& entry, const std::string& key)
 {
-   PSetData data;
+   FWPSetTableManager::PSetData data;
    data.label = key;
    data.tracked = entry.isTracked();
    data.level = m_parentStack.size();
@@ -122,16 +121,16 @@ void FWPSetTableManager::handlePSetEntry(edm::ParameterSetEntry& entry, const st
    data.type = 'P';
    data.module = m_modules.size() - 1;
    data.path = m_paths.size() - 1;
-   data.pset = & entry.pset();
+   data.pset = entry.pset();
    data.editable = false;
    m_parentStack.push_back(m_entries.size());
    m_entries.push_back(data);
 
-   handlePSet(data.pset);
+   handlePSet(entry.pset());
    m_parentStack.pop_back();
 }
 
-void FWPSetTableManager::handleVPSetEntry(edm::VParameterSetEntry& entry, const std::string& key)
+void FWPSetTableManager::handleVPSetEntry(const edm::VParameterSetEntry& entry, const std::string& key)                     
 {
    PSetData data;
    data.label = key;
@@ -151,7 +150,7 @@ void FWPSetTableManager::handleVPSetEntry(edm::VParameterSetEntry& entry, const 
    {
       ss.str("");
       ss << key << "[" << i << "]";
-      PSetData vdata;
+      FWPSetTableManager::PSetData vdata;
       vdata.label = ss.str();
       vdata.tracked = entry.isTracked();
       vdata.level = m_parentStack.size();
@@ -159,30 +158,27 @@ void FWPSetTableManager::handleVPSetEntry(edm::VParameterSetEntry& entry, const 
       vdata.module = m_modules.size() - 1;
       vdata.path = m_paths.size() - 1;
       vdata.editable = false;
-      vdata.pset = &entry.vpset()[i];
       m_parentStack.push_back(m_entries.size());
       m_entries.push_back(vdata);
-      handlePSet( & entry.vpset()[i]);
+      handlePSet(entry.vpset()[i]);
       m_parentStack.pop_back();
    }
    m_parentStack.pop_back();
 }
 
-void FWPSetTableManager::handlePSet(edm::ParameterSet *psp)
+void FWPSetTableManager::handlePSet(const edm::ParameterSet &ps)
 {
-   edm::ParameterSet &ps = * psp;
-
    typedef edm::ParameterSet::table::const_iterator TIterator;
    for (TIterator i = ps.tbl().begin(), e = ps.tbl().end(); i != e; ++i)
       handleEntry(i->second, i->first);
 
    typedef edm::ParameterSet::psettable::const_iterator PSIterator;
    for (PSIterator i = ps.psetTable().begin(), e = ps.psetTable().end(); i != e; ++i)
-      handlePSetEntry(const_cast<edm::ParameterSetEntry&>(i->second), i->first);
+      handlePSetEntry(i->second, i->first);
 
    typedef edm::ParameterSet::vpsettable::const_iterator VPSIterator;
    for (VPSIterator i = ps.vpsetTable().begin(), e = ps.vpsetTable().end(); i != e; ++i)
-      handleVPSetEntry(const_cast<edm::VParameterSetEntry&>(i->second), i->first);
+      handleVPSetEntry(i->second, i->first);
 }
     
 template <class T>
@@ -225,7 +221,7 @@ void FWPSetTableManager::handleEntry(const edm::Entry &entry,const std::string &
    data.parent = m_parentStack.back();
    data.module = m_modules.size() - 1;
    data.type = entry.typeCode();
-   if (data.label[0] == '@')
+   if (data.label[0] == '@' || data.level > 2)
       data.editable = false;
    else
       data.editable = true;
@@ -306,18 +302,14 @@ void FWPSetTableManager::handleEntry(const edm::Entry &entry,const std::string &
       }
       case 'p':
       {
-	 // Matevz ???
-	 throw std::runtime_error("FWPSetTableManager::handleEntryGet, entry type 'p' not expected.");
-	 // std::vector<edm::ParameterSet> psets = entry.getVPSet();
-	 // for (size_t psi = 0, pse = psets.size(); psi != pse; ++psi)
-	 //    handlePSet(psets[psi]);
+         std::vector<edm::ParameterSet> psets = entry.getVPSet();
+         for (size_t psi = 0, pse = psets.size(); psi != pse; ++psi)
+            handlePSet(psets[psi]);
          break;
       }
       case 'P':
-      {
-	 // Matevz ???
-	 throw std::runtime_error("FWPSetTableManager::handleEntry, entry type 'P not expected.");
-	 // handlePSet(entry.getPSet());
+      {    
+         handlePSet(entry.getPSet());
          break;
       }
       case 't':
@@ -469,9 +461,9 @@ void FWPSetTableManager::updateSchedule(const edm::ScheduleInfo *info)
          PSetData moduleEntry;
 
          const edm::ParameterSet* ps = info->parametersForModule(pathModules[mi]);
-
          const edm::ParameterSet::table& pst = ps->tbl();
          const edm::ParameterSet::table::const_iterator ti = pst.find("@module_edm_type");
+
          if (ti == pst.end())
             moduleEntry.value = "Unknown module name";
          else
@@ -482,19 +474,14 @@ void FWPSetTableManager::updateSchedule(const edm::ScheduleInfo *info)
          moduleEntry.level = m_parentStack.size();
          moduleEntry.module = mi;
          moduleEntry.path = i;
+         moduleEntry.pset = *ps;
          moduleEntry.editable = false;
-
          ModuleInfo moduleInfo;
          moduleInfo.path = m_paths.size() - 1;
          moduleInfo.entry = m_entries.size();
          moduleInfo.passed = false;
          moduleInfo.dirty = false;
-	 moduleInfo.orig_pset    = new edm::ParameterSet(*ps);
-	 moduleInfo.current_pset = new edm::ParameterSet(*ps);
          m_modules.push_back(moduleInfo);
-
-	 moduleEntry.pset = moduleInfo.current_pset;
-
          m_parentStack.push_back(m_entries.size());
          m_entries.push_back(moduleEntry);
          handlePSet(moduleEntry.pset);
@@ -593,20 +580,12 @@ bool FWPSetTableManager::applyEditor()
    try
    {
       success = m_editor->apply(data, parent);
-
       if (success)
       {
          data.value = m_editor->GetText();
          m_modules[data.module].dirty = true;
          setSelection(-1, -1, 0); 
          m_editor->UnmapWindow();
-	 // ???
-	 // copy current to orig
-      }
-      else
-      {
-	// ???
-	// set current from orig? reimport module ... hmmh, hard.
       }
    }
    catch(cms::Exception &e)
@@ -737,7 +716,7 @@ void FWPSetTableManager::setExpanded(int row)
 
 FWTableCellRendererBase* FWPSetTableManager::cellRenderer(int iSortedRowNumber, int iCol) const
 {
-   const static size_t maxSize = 512; // maximum string length
+   static size_t maxSize = 512; // maximum string length
 
    static TGGC boldGC(fireworks::boldGC()); 
    static TGGC italicGC(fireworks::italicGC()); 

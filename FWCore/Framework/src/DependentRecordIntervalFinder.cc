@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 30 19:37:22 EDT 2005
-// $Id: DependentRecordIntervalFinder.cc,v 1.12 2010/12/17 04:31:54 chrjones Exp $
+// $Id: DependentRecordIntervalFinder.cc,v 1.13 2010/12/17 19:33:53 chrjones Exp $
 //
 
 // system include files
@@ -16,6 +16,7 @@
 // user include files
 #include "FWCore/Framework/interface/DependentRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
+#include <cassert>
 
 //
 // constants, enums and typedefs

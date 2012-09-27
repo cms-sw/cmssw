@@ -1,16 +1,16 @@
 #ifndef TrigPrimClient_H
 #define TrigPrimClient_H
 
-#include "DQWorkerClient.h"
+#include "DQM/EcalCommon/interface/DQWorkerClient.h"
 
 namespace ecaldqm {
 
   class TrigPrimClient : public DQWorkerClient {
   public:
-    TrigPrimClient(edm::ParameterSet const&, edm::ParameterSet const&);
+    TrigPrimClient(const edm::ParameterSet &, const edm::ParameterSet &);
     ~TrigPrimClient() {}
 
-    void beginRun(const edm::Run &, const edm::EventSetup &);
+    void bookMEs();
 
     void producePlots();
 
@@ -22,17 +22,15 @@ namespace ecaldqm {
       nMESets
     };
 
+    static void setMEData(std::vector<MEData>&);
+
     enum Sources {
-      kEtRealMap,
-      kEtEmulError,
-      kMatchedIndex,
+      sEtRealMap,
+      sEtEmulError,
+      sTimingError,
+      sMatchedIndex,
       nSources
     };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
-  private:
-    float errorFractionThreshold_;
   };
 
 }

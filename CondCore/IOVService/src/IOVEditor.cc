@@ -82,12 +82,8 @@ namespace cond {
 	   it!=isecondTill; ++it)
 	if (diov.exist(it->sinceTime()))
 	  throw cond::Exception("IOVImportIterator::setUp Error: since time already exists");
-    } else if (dsince <= diov.iovs().back().sinceTime()) {
-      std::ostringstream errStr;
-      errStr << "IOVImportIterator::setUp Error: trying to append a since time " << dsince
-	     << " which is not larger than last since " << diov.iovs().back().sinceTime();
-      throw cond::Exception(errStr.str());
-    }
+    } else if (dsince <= diov.iovs().back().sinceTime())
+      throw cond::Exception("IOVImportIterator::setUp Error: since time out of range, below last since");
     
     m_lastSince = dsince;
     m_cursor = ifirstTill;
@@ -117,12 +113,8 @@ namespace cond {
     
     IOVSequence& diov = *m_destIov->data;
     if (!diov.iovs().empty()) { // do not waist time
-      if (dsince <= diov.iovs().back().sinceTime()) {
-	std::ostringstream errStr;
-	errStr << "IOVImportIterator::setUp Error: trying to append a since time " << dsince
-	       << " which is not larger than last since " << diov.iovs().back().sinceTime();
-	throw cond::Exception(errStr.str());
-      }
+      if (dsince <= diov.iovs().back().sinceTime())
+	throw cond::Exception("IOVImportIterator::setUp Error: since time out of range, below last since");
     }
 
     m_lastSince = dsince;
@@ -177,7 +169,7 @@ namespace cond {
     m_isLoaded(false),
     m_iov( new IOVProxyData( dbSess, token )){
   }
-
+  
   void IOVEditor::reload(){
     m_iov->refresh();
     m_isLoaded = true;
@@ -415,10 +407,7 @@ namespace cond {
       //range check in case 
       cond::Time_t lastValidSince=iov->iovs().back().sinceTime();
       if( sinceTime<= lastValidSince){
-	std::ostringstream errStr;
-	errStr << "IOVEditor::append Error: trying to append a since time " << lastValidSince
-	       << " which is not larger than last since";
-	reportError(errStr.str(), sinceTime);
+	reportError("IOVEditor::append Error: since time out of range: below last since",sinceTime);
       }
     }
 

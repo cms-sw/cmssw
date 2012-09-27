@@ -157,7 +157,6 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , rlimit_coresize_changed_(false)
   , crashesToDump_(2)
   , sigmon_sem_(0)
-  , datasetCounting_(true)
 {
   using namespace utils;
 
@@ -217,7 +216,6 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("slaveRestartDelaySecs",&slaveRestartDelaySecs_       );
   ispace->fireItemAvailable("iDieUrl",              &iDieUrl_                     );
   ispace->fireItemAvailable("crashesToDump"         ,&crashesToDump_              );
-  ispace->fireItemAvailable("datasetCounting"       ,&datasetCounting_            );
 
   // Add infospace listeners for exporting data values
   getApplicationInfoSpace()->addItemChangedListener("parameterSet",        this);
@@ -284,13 +282,12 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
 
   edm::AssertHandler ah;
 
-  //create Message Service thread and pass ownership to auto_ptr that we destroy before fork
   try{
     LOG4CPLUS_DEBUG(getApplicationLogger(),
 		    "Trying to create message service presence ");
     edm::PresenceFactory *pf = edm::PresenceFactory::get();
     if(pf != 0) {
-      messageServicePresence_= pf->makePresence("MessageServicePresence");
+      pf->makePresence("MessageServicePresence").release();
     }
     else {
       LOG4CPLUS_ERROR(getApplicationLogger(),
@@ -385,8 +382,7 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 // 	    << (hasModuleWebRegistry_.value_ ? 0x2 : 0) << " "
 // 	    << (hasPrescaleService_.value_ ? 0x1 : 0) <<std::endl;
   unsigned short smap 
-    = (datasetCounting_.value_ ? 0x20 : 0 )
-    + ((nbSubProcesses_.value_!=0) ? 0x10 : 0)
+    = ((nbSubProcesses_.value_!=0) ? 0x10 : 0)
     + (((instance_.value_%80)==0) ? 0x8 : 0) // have at least one legend per slice
     + (hasServiceWebRegistry_.value_ ? 0x4 : 0) 
     + (hasModuleWebRegistry_.value_ ? 0x2 : 0) 
@@ -434,17 +430,14 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 	      std::string slegenda = ((xdata::String*)legenda)->value_;
 	      ratestat_->sendLegenda(slegenda);
 	    }
-	    if (sorRef_) {
-	      xdata::String dsLegenda =  sorRef_->getDatasetNamesString();
-	      ratestat_->sendAuxLegenda(dsLegenda);
-	    }
+
 	  }
 	  catch(evf::Exception &e){
 	    LOG4CPLUS_INFO(getApplicationLogger(),"coud not send legenda"
-		<< e.what());
+			   << e.what());
 	  }
 	}
-
+	
 	fsm_.fireEvent("ConfigureDone",this);
 	LOG4CPLUS_INFO(getApplicationLogger(),"Finished configuring!");
 	localLog("-I- Configuration completed");
@@ -491,8 +484,7 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 // 	    << (hasModuleWebRegistry_.value_ ? 0x2 : 0) << " "
 // 	    << (hasPrescaleService_.value_ ? 0x1 : 0) <<std::endl;
   unsigned short smap 
-    = (datasetCounting_.value_ ? 0x20 : 0 )
-    + ((nbSubProcesses_.value_!=0) ? 0x10 : 0)
+    = ((nbSubProcesses_.value_!=0) ? 0x10 : 0)
     + (((instance_.value_%80)==0) ? 0x8 : 0) // have at least one legend per slice
     + (hasServiceWebRegistry_.value_ ? 0x4 : 0) 
     + (hasModuleWebRegistry_.value_ ? 0x2 : 0) 
@@ -535,10 +527,6 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 	  {
 	    std::string slegenda = ((xdata::String*)legenda)->value_;
 	    ratestat_->sendLegenda(slegenda);
-	  }
-	  if (sorRef_) {
-	    xdata::String dsLegenda =  sorRef_->getDatasetNamesString();
-	    ratestat_->sendAuxLegenda(dsLegenda);
 	  }
 	}
       catch(evf::Exception &e)
@@ -706,8 +694,7 @@ bool FUEventProcessor::doEndRunInEDM() {
     if (count<0) {
       std::ostringstream ost;
       if (!forkInfoObj_->receivedStop_)
-        ost << "Timeout waiting for Master edm::EventProcessor to go stopping state "
-	    << evtProcessor_->stateName(st) << ": input source did not receive stop signal!";
+        ost << "Timeout waiting for Master edm::EventProcessor to go stopping state "<<evtProcessor_->stateName(st) << ": input source did not receive stop signal!";
       else
         ost << "Timeout waiting for Master edm::EventProcessor to go stopping state "<<evtProcessor_->stateName(st);
       LOG4CPLUS_ERROR(getApplicationLogger(),ost.str());
@@ -1010,7 +997,7 @@ void FUEventProcessor::scalersWeb(xgi::Input  *in, xgi::Output *out)
   out->getHTTPResponseHeader().addHeader( "Content-Transfer-Encoding",
 					  "binary" );
   if(evtProcessor_ != 0){
-    out->write( (char*)(evtProcessor_.getPackedTriggerReportAsStruct()), sizeof(TriggerReportStatic));
+    out->write( (char*)(evtProcessor_.getPackedTriggerReportAsStruct()), sizeof(TriggerReportStatic) );
   }
 }
 
@@ -1196,20 +1183,26 @@ bool FUEventProcessor::receiving(toolbox::task::WorkLoop *)
 	  LOG4CPLUS_ERROR(getApplicationLogger(),"Failed to go to Stopping state in slave EP, pid "
 			                         << getpid() << " The state on Stop event was not consistent");
 	}
-
+	try{
+	  LOG4CPLUS_DEBUG(getApplicationLogger(),
+			  "Trying to create message service presence ");
+	  edm::PresenceFactory *pf = edm::PresenceFactory::get();
+	  if(pf != 0) {
+	    pf->makePresence("MessageServicePresence").release();
+	  }
+	  else {
+	    LOG4CPLUS_ERROR(getApplicationLogger(),
+			    "Unable to create message service presence ");
+	  }
+	} 
+	catch(...) {
+	  LOG4CPLUS_ERROR(getApplicationLogger(),"Unknown Exception");
+	}
 	try {
 	  stopClassic(); // call the normal sequence of stopping - as this is allowed to fail provisions must be made ...@@@EM
 	}
 	catch (...) {
-	  LOG4CPLUS_ERROR(getApplicationLogger(),"Slave EP 'receiving' workloop: exception " << getpid());
-	}
-
-        //destroy MessageService thread before exit	
-	try{
-	  messageServicePresence_.reset();
-	}
-	catch(...) {
-	  LOG4CPLUS_ERROR(getApplicationLogger(),"SLAVE:Unable to destroy MessageServicePresence. pid:" << getpid() );
+	  LOG4CPLUS_ERROR(getApplicationLogger(),"Slave EP " << getpid() << " stop failed. Process will now exit");
 	}
 
 	MsgBuf msg1(0,MSQS_MESSAGE_TYPE_STOP);
@@ -1222,9 +1215,7 @@ bool FUEventProcessor::receiving(toolbox::task::WorkLoop *)
     if(msg->mtype==MSQM_MESSAGE_TYPE_FSTOP)
       _exit(EXIT_SUCCESS);
   }
-  catch(evf::Exception &e){
-    LOG4CPLUS_ERROR(getApplicationLogger(),"Slave EP pid:" << getpid() << " receiving WorkLoop exception: "<<e.what());
-  }
+  catch(evf::Exception &e){}
   return true;
 }
 
@@ -1266,10 +1257,6 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 	    ost << " process terminated with signal " << WTERMSIG(sl);
 	  }
 	  else ost << " process stopped ";
-	  //report unexpected slave exit in stop
-	  //if (stopping && (WEXITSTATUS(sl)!=0 || WIFSIGNALED(sl)!=0)) {
-	  //  LOG4CPLUS_WARN(getApplicationLogger(),ost.str() << ", slave pid:"<<getpid());
-	  //}
 	  subs_[i].countdown()=slaveRestartDelaySecs_.value_;
 	  subs_[i].setReasonForFailed(ost.str());
 	  spMStates_[i] = evtProcessor_.notstarted_state_code();
@@ -1688,19 +1675,11 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
       idleProcStats_=allProcStats_=0;
 
       utils::procCpuStat(idleProcStats_,allProcStats_);
-      timeval oldtime=lastProcReport_;
-      gettimeofday(&lastProcReport_,0);
-
       if (allPSTmp!=0 && idleTmp!=0 && allProcStats_!=allPSTmp) {
 	cpustat_->setCPUStat(1000 - ((idleProcStats_-idleTmp)*1000)/(allProcStats_-allPSTmp));
-        int deltaTms=1000 * (lastProcReport_.tv_sec-oldtime.tv_sec)
-	            + (lastProcReport_.tv_usec-oldtime.tv_usec)/1000;
-	cpustat_->setElapsed(deltaTms);
+	//std::cout << " got proc/stat result of " << 1000-((idleProcStats_-idleTmp)*1000)/(allProcStats_-allPSTmp) << " of 1000 " << std::endl;
       }
-      else {
-	cpustat_->setCPUStat(0);
-        cpustat_->setElapsed(0);
-      }
+      else cpustat_->setCPUStat(0);
 
       TriggerReportStatic *trsp = evtProcessor_.getPackedTriggerReportAsStruct();
       cpustat_ ->setNproc(trsp->eventSummary.totalEvents);
@@ -1764,7 +1743,7 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	  { 
 	    // after each monitoring cycle check if we are in inconsistent state and exit if configured to do so  
 	    //	    std::cout << getpid() << "receivingAndMonitor: trying to acquire stop lock " << std::endl;
-	    if(data->Ms == edm::event_processor::sError) 
+	    if(data->Ms == edm::event_processor::sStopping || data->Ms == edm::event_processor::sError) 
 	      { 
 		bool running = true;
 		int count = 0;
@@ -1777,7 +1756,9 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 		  if(running) {::sleep(1); count++;}
 		}
 	      }
+	    
 	  }
+	  //	  scalersUpdates_++;
 	  break;
 	}
       case MSQM_MESSAGE_TYPE_WEB:
@@ -2033,30 +2014,20 @@ void FUEventProcessor::forkProcessesFromEDM() {
     localLog(reasonForFailedState_);
   }
 
-  std::string currentState = fsm_.stateName()->toString();
-
-  //destroy MessageServicePresence thread before fork
-  if (currentState!="stopping") {
-    try {
-      messageServicePresence_.reset();
-    }
-    catch (...) {
-      LOG4CPLUS_ERROR(getApplicationLogger(),"Unable to destroy MessageService thread before fork!");
-    }
-  }
-
-  if (currentState=="stopping") {
+  //fork loop
+  if (fsm_.stateName()->toString()=="stopping") {
     LOG4CPLUS_ERROR(getApplicationLogger(),"Can not fork subprocesses in state " << fsm_.stateName()->toString());
     forkParams->isMaster=1;
     forkInfoObj_->forkParams.slotId=-1;
     forkInfoObj_->forkParams.restart=0;
   }
-  //fork loop
   else for(unsigned int i=forkFrom; i<forkTo; i++)
   {
+
     int retval = subs_[i].forkNew();
     if(retval==0)
     {
+
       forkParams->isMaster=0;
       myProcess_ = &subs_[i];
       // dirty hack: delete/recreate global binary semaphore for later use in child
@@ -2068,19 +2039,21 @@ void FUEventProcessor::forkProcessesFromEDM() {
       if(retval != 0) perror("error");
       fsm_.disableRcmsStateNotification();
 
-      //recreate MessageLogger thread in slave after fork
       try{
+	LOG4CPLUS_DEBUG(getApplicationLogger(),
+	    "Trying to create message service presence ");
+	//release the presense factory in master
 	edm::PresenceFactory *pf = edm::PresenceFactory::get();
 	if(pf != 0) {
-	  messageServicePresence_ = pf->makePresence("MessageServicePresence");
+	  pf->makePresence("MessageServicePresence").release();
 	}
 	else {
 	  LOG4CPLUS_ERROR(getApplicationLogger(),
-	      "SLAVE: Unable to create message service presence. pid:"<<getpid());
+	      "Unable to create message service presence ");
 	}
       }
       catch(...) {
-        LOG4CPLUS_ERROR(getApplicationLogger(),"SLAVE: Unknown Exception in MessageServicePresence. pid:"<<getpid());
+        LOG4CPLUS_ERROR(getApplicationLogger(),"Unknown Exception in MessageServicePresence");
       }
 
       ML::MLlog4cplus::setAppl(this);
@@ -2183,35 +2156,17 @@ void FUEventProcessor::forkProcessesFromEDM() {
       return ;
     }
     else {
-
       forkParams->isMaster=1;
       forkInfoObj_->forkParams.slotId=-1;
+      forkInfoObj_->forkParams.restart=0;
       if (forkParams->restart) {
 	std::ostringstream ost1;
 	ost1 << "-I- New Process " << retval << " forked for slot " << forkParams->slotId;
 	localLog(ost1.str());
       }
-      forkInfoObj_->forkParams.restart=0;
       //start "crash" receiver workloop
     }
   }
-
-  //recreate MessageLogger thread after fork
-  try{
-    //release the presense factory in master
-    edm::PresenceFactory *pf = edm::PresenceFactory::get();
-    if(pf != 0) {
-      messageServicePresence_ = pf->makePresence("MessageServicePresence");
-    }
-    else {
-      LOG4CPLUS_ERROR(getApplicationLogger(),
-	  "Unable to recreate message service presence ");
-    }
-  }
-  catch(...) {
-    LOG4CPLUS_ERROR(getApplicationLogger(),"Unknown Exception in MessageServicePresence");
-  }
-  restart_in_progress_=false;
   edm_init_done_=true;
 }
 
@@ -2291,10 +2246,6 @@ bool FUEventProcessor::restartForkInEDM(unsigned int slotId) {
   sem_post(forkInfoObj_->control_sem_);
   forkInfoObj_->unlock();
   usleep(1000);
-  //sleep until fork is performed
-  int count=50;
-  restart_in_progress_=true;
-  while (restart_in_progress_ && count--) usleep(20000);
   return true;
 }
 
@@ -2327,6 +2278,8 @@ bool FUEventProcessor::enableMPEPSlave()
   try{
     //    evtProcessor_.makeServicesOnly();
     try{
+      LOG4CPLUS_DEBUG(getApplicationLogger(),
+		      "Trying to create message service presence ");
       edm::PresenceFactory *pf = edm::PresenceFactory::get();
       if(pf != 0) {
 	pf->makePresence("MessageServicePresence").release();
@@ -2370,40 +2323,32 @@ bool FUEventProcessor::stopClassic()
 	  reasonForFailedState_ = "EventProcessor stop timed out";
 	else
 	  reasonForFailedState_ = "EventProcessor did not receive STOP event";
+	fsm_.fireFailed(reasonForFailedState_,this);
+	localLog(reasonForFailedState_);
       }
+
+    if (failed) LOG4CPLUS_WARN(getApplicationLogger(),"STOP failed: try detaching from Shm");
+
+    //detaching from shared memory
+    if(hasShMem_) detachDqmFromShm();
+
+    if (failed) LOG4CPLUS_WARN(getApplicationLogger(),"STOP failed: detached from Shm");
   }
   catch (xcept::Exception &e) {
     failed=true;
-    reasonForFailedState_ = "Stopping FAILED: " + (std::string)e.what();
+    reasonForFailedState_ = "stopping FAILED: " + (std::string)e.what();
   }
   catch (edm::Exception &e) {
     failed=true;
-    reasonForFailedState_ = "Stopping FAILED: " + (std::string)e.what();
+    reasonForFailedState_ = "stopping FAILED: " + (std::string)e.what();
   }
   catch (...) {
     failed=true;
-    reasonForFailedState_= "Stopping FAILED: unknown exception";
-  }
-  try {
-    if (hasShMem_) {
-      detachDqmFromShm();
-      if (failed) 
-	LOG4CPLUS_WARN(getApplicationLogger(), 
-	    "In failed STOP - success detaching DQM from Shm. pid:" << getpid());
-    }
-  }
-  catch (cms::Exception & e) {
-    failed=true;
-    reasonForFailedState_= "Stopping FAILED: " + (std::string)e.what();
-  }
-  catch (...) {
-    failed=true;
-    reasonForFailedState_= "DQM detach failed: Unknown exception";
+    reasonForFailedState_= "STOP failed: unknown exception";
   }
 
   if (failed) {
-    LOG4CPLUS_FATAL(getApplicationLogger(),"STOP failed: "
-	<< reasonForFailedState_ << " (pid:" << getpid()<<")");
+    LOG4CPLUS_WARN(getApplicationLogger(),"STOP failed: return point of the stopping call reached. pid:" << getpid());
     localLog(reasonForFailedState_);
     fsm_.fireFailed(reasonForFailedState_,this);
   }
@@ -2658,7 +2603,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.158 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.150 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
@@ -2693,7 +2638,7 @@ void FUEventProcessor::handleSignalSlave(int sig, siginfo_t* info, void* c)
   //notify master
   sem_post(sigmon_sem_);
 
-  //sleep while master takes action
+  //sleep until master takes action
   sleep(2);
 
   //set up alarm if handler deadlocks on unsafe actions

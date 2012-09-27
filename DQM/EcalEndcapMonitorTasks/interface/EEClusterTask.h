@@ -4,8 +4,8 @@
 /*
  * \file EEClusterTask.h
  *
- * $Date: 2010/02/24 10:11:37 $
- * $Revision: 1.23 $
+ * $Date: 2009/12/11 19:18:28 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
  */
@@ -43,8 +43,6 @@ void beginRun(const edm::Run & r, const edm::EventSetup & c);
 
 /// EndRun
 void endRun(const edm::Run & r, const edm::EventSetup & c);
-
- void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
 /// Reset
 void reset(void);

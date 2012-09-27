@@ -15,6 +15,7 @@
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactoryManager.h"
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactory.h"
+#include <cassert>
 
 
 //

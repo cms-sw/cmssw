@@ -2,10 +2,10 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 
-float TrajectoryStateAccessor::inversePtError() const
+double TrajectoryStateAccessor::inversePtError() const
 {
   GlobalVector momentum = theFts.momentum();
-  AlgebraicSymMatrix55 const & errMatrix = theFts.curvilinearError().matrix();
+  AlgebraicSymMatrix55 errMatrix = theFts.curvilinearError().matrix();
   
   float ptRec2= momentum.perp2();
   float pzRec = momentum.z();

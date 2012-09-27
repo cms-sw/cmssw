@@ -22,8 +22,7 @@
 
 //using namespace egHLT;
 
-TopElectronHLTOfflineSource::TopElectronHLTOfflineSource(const edm::ParameterSet& conf) :
-  beamSpot_(conf.getParameter<edm::InputTag>("beamSpot")) {
+TopElectronHLTOfflineSource::TopElectronHLTOfflineSource(const edm::ParameterSet& conf){
 
 	dbe_ = edm::Service<DQMStore>().operator->();
 	
@@ -158,8 +157,8 @@ void TopElectronHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::E
 	else
 	{
 		edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-		if(!iEvent.getByLabel(beamSpot_, recoBeamSpotHandle) ||  !recoBeamSpotHandle.product()) return;
-
+		if(!iEvent.getByType(recoBeamSpotHandle) ||  !recoBeamSpotHandle.product()) return;
+		
 		vertexPoint = recoBeamSpotHandle->position();
 	}
 	

@@ -1,5 +1,5 @@
 //
-// $Id: Muon.cc,v 1.30 2011/09/21 03:40:18 tucker Exp $
+// $Id: Muon.cc,v 1.29 2011/06/08 20:40:19 rwolf Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -211,17 +211,6 @@ reco::CandidatePtr Muon::sourceCandidatePtr( size_type i ) const {
     return reco::CandidatePtr();
   }
 }
-
-/// embed the Track selected to be the best measurement of the muon parameters
-void Muon::embedMuonBestTrack() {
-  muonBestTrack_.clear();
-  if (reco::Muon::muonBestTrack().isNonnull()) {
-      muonBestTrack_.push_back(*reco::Muon::muonBestTrack());
-      embeddedMuonBestTrack_ = true;
-  }
-}
-
-
 
 /// embed the Track reconstructed in the tracker only
 void Muon::embedTrack() {

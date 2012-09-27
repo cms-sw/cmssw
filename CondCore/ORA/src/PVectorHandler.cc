@@ -99,9 +99,10 @@ ora::PVectorHandler::startElementIndex( const void* address ){
   return startElement;
 }
 
-size_t* ora::PVectorHandler::persistentSize( const void* address ){
-  void* persistentSizeAddress = static_cast<char*>(const_cast<void*>(address))+m_persistentSizeAttributeOffset;
-  return static_cast<size_t*>(persistentSizeAddress);
+size_t ora::PVectorHandler::persistentSize( const void* address ){
+  const void* persistentSizeAddress = static_cast<const char *>(address) + m_persistentSizeAttributeOffset;
+  size_t persistentSize = *static_cast<const size_t*>(persistentSizeAddress);
+  return persistentSize;
 }
 
 ora::IArrayIteratorHandler*

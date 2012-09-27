@@ -139,6 +139,7 @@ TMatrixD CovarianceMatrix::setupMatrix(const TLorentzVector& object, const Objec
 {
   TMatrixD CovM3 (3,3); CovM3.Zero();
   TMatrixD CovM4 (4,4); CovM4.Zero();
+  TMatrixD* CovM = &CovM3;
   const double pt  = object.Pt();
   const double eta = object.Eta();
   switch(objType) {
@@ -152,7 +153,8 @@ TMatrixD CovarianceMatrix::setupMatrix(const TLorentzVector& object, const Objec
 	CovM4(1,1) = pow(jetRes.b (pt, eta, res::HelperJet::kUds), 2);
 	CovM4(2,2) = pow(jetRes.c (pt, eta, res::HelperJet::kUds), 2);
 	CovM4(3,3) = pow(jetRes.d (pt, eta, res::HelperJet::kUds), 2);
-	return CovM4;
+	CovM = &CovM4;
+	break;
       case TopKinFitter::kEtEtaPhi : 
 	if(!binsUdsc_.size()){
 	  CovM3(0,0) = pow(jetRes.et (pt, eta, res::HelperJet::kUds), 2);
@@ -166,13 +168,15 @@ TMatrixD CovarianceMatrix::setupMatrix(const TLorentzVector& object, const Objec
 	  CovM3(1,1) = pow(getResolution(object, objType, "eta"), 2);
 	  CovM3(2,2) = pow(getResolution(object, objType, "phi"), 2);
 	}   
-	return CovM3;
+	CovM = &CovM3;
+	break;
       case TopKinFitter::kEtThetaPhi :
 	CovM3(0,0) = pow(jetRes.et   (pt, eta, res::HelperJet::kUds), 2);
 	CovM3(0,0)*= pow(getEtaDependentScaleFactor(object)         , 2);
 	CovM3(1,1) = pow(jetRes.theta(pt, eta, res::HelperJet::kUds), 2);
 	CovM3(2,2) = pow(jetRes.phi  (pt, eta, res::HelperJet::kUds), 2);
-	return CovM3;
+	CovM = &CovM3;
+	break; 
       }
     }
     break;
@@ -186,7 +190,8 @@ TMatrixD CovarianceMatrix::setupMatrix(const TLorentzVector& object, const Objec
 	CovM4(1,1) = pow(jetRes.b (pt, eta, res::HelperJet::kB), 2);
 	CovM4(2,2) = pow(jetRes.c (pt, eta, res::HelperJet::kB), 2);
 	CovM4(3,3) = pow(jetRes.d (pt, eta, res::HelperJet::kB), 2);
-	return CovM4;
+	CovM = &CovM4;
+	break;
       case TopKinFitter::kEtEtaPhi : 
 	if(!binsUdsc_.size()){
 	  CovM3(0,0) = pow(jetRes.et (pt, eta, res::HelperJet::kB), 2);
@@ -199,14 +204,16 @@ TMatrixD CovarianceMatrix::setupMatrix(const TLorentzVector& object, const Objec
 	  CovM3(0,0)*= pow(getEtaDependentScaleFactor(object)   , 2);
 	  CovM3(1,1) = pow(getResolution(object, objType, "eta"), 2); 
 	  CovM3(2,2) = pow(getResolution(object, objType, "phi"), 2);
-	}
-	return CovM3;
+	}   
+	CovM = &CovM3;
+	break;
       case TopKinFitter::kEtThetaPhi :
 	CovM3(0,0) = pow(jetRes.et   (pt, eta, res::HelperJet::kB), 2);
 	CovM3(0,0)*= pow(getEtaDependentScaleFactor(object)       , 2);
 	CovM3(1,1) = pow(jetRes.theta(pt, eta, res::HelperJet::kB), 2);
 	CovM3(2,2) = pow(jetRes.phi  (pt, eta, res::HelperJet::kB), 2);
-	return CovM3;
+	CovM = &CovM3;
+	break; 
       }
     }
     break;
@@ -219,7 +226,8 @@ TMatrixD CovarianceMatrix::setupMatrix(const TLorentzVector& object, const Objec
 	CovM3(0,0) = pow(muonRes.a (pt, eta), 2);
 	CovM3(1,1) = pow(muonRes.b (pt, eta), 2); 
 	CovM3(2,2) = pow(muonRes.c (pt, eta), 2);
-	return CovM3;
+	CovM = &CovM3;
+	break;
       case TopKinFitter::kEtEtaPhi :
 	if(!binsLep_.size()){
 	  CovM3(0,0) = pow(muonRes.et (pt, eta), 2);
@@ -231,12 +239,14 @@ TMatrixD CovarianceMatrix::setupMatrix(const TLorentzVector& object, const Objec
 	  CovM3(1,1) = pow(getResolution(object, objType, "eta"), 2);
 	  CovM3(2,2) = pow(getResolution(object, objType, "phi"), 2);
 	}
-	return CovM3;
+	CovM = &CovM3;
+	break;
       case TopKinFitter::kEtThetaPhi :
 	CovM3(0,0) = pow(muonRes.et   (pt, eta), 2);
 	CovM3(1,1) = pow(muonRes.theta(pt, eta), 2); 
 	CovM3(2,2) = pow(muonRes.phi  (pt, eta), 2);
-	return CovM3;
+	CovM = &CovM3;
+	break;
       }
     }
     break;
@@ -249,7 +259,8 @@ TMatrixD CovarianceMatrix::setupMatrix(const TLorentzVector& object, const Objec
 	CovM3(0,0) = pow(elecRes.a (pt, eta), 2);
 	CovM3(1,1) = pow(elecRes.b (pt, eta), 2); 
 	CovM3(2,2) = pow(elecRes.c (pt, eta), 2);
-	return CovM3;
+	CovM = &CovM3;
+	break;
       case TopKinFitter::kEtEtaPhi :
 	if(!binsLep_.size()){
 	  CovM3(0,0) = pow(elecRes.et (pt, eta), 2);
@@ -261,12 +272,14 @@ TMatrixD CovarianceMatrix::setupMatrix(const TLorentzVector& object, const Objec
 	  CovM3(1,1) = pow(getResolution(object, objType, "eta"), 2);
 	  CovM3(2,2) = pow(getResolution(object, objType, "phi"), 2);
 	}
-	return CovM3;
+	CovM = &CovM3;
+	break;
       case TopKinFitter::kEtThetaPhi :
 	CovM3(0,0) = pow(elecRes.et   (pt, eta), 2);
 	CovM3(1,1) = pow(elecRes.theta(pt, eta), 2); 
 	CovM3(2,2) = pow(elecRes.phi  (pt, eta), 2);
-	return CovM3;
+	CovM = &CovM3;
+	break;
       }
     }
     break;
@@ -279,7 +292,8 @@ TMatrixD CovarianceMatrix::setupMatrix(const TLorentzVector& object, const Objec
 	CovM3(0,0) = pow(metRes.a(pt), 2);
 	CovM3(1,1) = pow(metRes.b(pt), 2);
 	CovM3(2,2) = pow(metRes.c(pt), 2);
-	return CovM3;
+	CovM = &CovM3;
+	break;
       case TopKinFitter::kEtEtaPhi :
 	if(!binsMet_.size()){
 	  CovM3(0,0) = pow(metRes.et(pt) , 2);
@@ -291,18 +305,19 @@ TMatrixD CovarianceMatrix::setupMatrix(const TLorentzVector& object, const Objec
 	  CovM3(1,1) = pow(getResolution(object, objType, "eta"), 2);
 	  CovM3(2,2) = pow(getResolution(object, objType, "phi"), 2);
 	}
-	return CovM3;
+	CovM = &CovM3;
+	break;
       case TopKinFitter::kEtThetaPhi :
 	CovM3(0,0) = pow(metRes.et(pt) , 2);
 	CovM3(1,1) = pow(        9999. , 2);
 	CovM3(2,2) = pow(metRes.phi(pt), 2);
-	return CovM3;
+	CovM = &CovM3;
+	break;
       }
     }
     break;
   }
-  cms::Exception("Logic") << "Something went wrong while trying to setup a covariance matrix!\n";
-  return CovM4; //should never get here
+  return *CovM;
 }
 
 double CovarianceMatrix::getEtaDependentScaleFactor(const TLorentzVector& object)

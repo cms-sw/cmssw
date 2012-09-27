@@ -3,13 +3,14 @@
 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
+#include "FWCore/Utilities/interface/TypeDemangler.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 
 #include "cppunit/extensions/HelperMacros.h"
 
-#include <iostream>
 #include <typeinfo>
+#include <map>
 #include <vector>
 
 class TestDictionaries: public CppUnit::TestFixture {
@@ -23,6 +24,7 @@ class TestDictionaries: public CppUnit::TestFixture {
   CPPUNIT_TEST(wrapper_type_failure);
   CPPUNIT_TEST(primary_template_id);
   CPPUNIT_TEST(not_a_template_instance);
+  CPPUNIT_TEST(demangling);
   CPPUNIT_TEST_SUITE_END();
 
  public:
@@ -40,6 +42,7 @@ class TestDictionaries: public CppUnit::TestFixture {
   void wrapper_type_failure();
   void primary_template_id();
   void not_a_template_instance();
+  void demangling();
 
  private:
 };
@@ -139,5 +142,44 @@ void TestDictionaries::not_a_template_instance() {
   CPPUNIT_ASSERT(not_a_template);
   edm::TypeTemplateWithDict nonesuch(not_a_template);
   CPPUNIT_ASSERT(!nonesuch);
+}
+
+namespace {
+  template<typename T>
+  void checkIt() {
+    edm::TypeWithDict type(typeid(T));
+    // Test only if class has dictionary
+    if(bool(type)) {
+      std::string demangledName;
+      edm::typeDemangle(typeid(T).name(), demangledName); 
+      CPPUNIT_ASSERT(type.name() == demangledName);
+    }
+  }
+
+  template<typename T>
+  void checkDemangling() {
+    checkIt<std::vector<T> >();
+    checkIt<edm::Wrapper<T> >();
+    checkIt<edm::Wrapper<std::vector<T> > >();
+  }
+}
+
+void TestDictionaries::demangling() {
+  checkDemangling<int>();
+  checkDemangling<unsigned int>();
+  checkDemangling<unsigned long>();
+  checkDemangling<long>();
+  checkDemangling<unsigned long>();
+  checkDemangling<long long>();
+  checkDemangling<unsigned long long>();
+  checkDemangling<short>();
+  checkDemangling<unsigned short>();
+  checkDemangling<char>();
+  checkDemangling<unsigned char>();
+  checkDemangling<float>();
+  checkDemangling<double>();
+  checkDemangling<bool>();
+  checkDemangling<std::string>();
+  checkIt<std::string>();
 }
 
