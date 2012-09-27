@@ -9,6 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandPoissonQ.h"
@@ -17,15 +18,15 @@
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h" 
-#include<iostream>
 
+#include<iostream>
 
 CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap, 
                                  const CaloVShape * shape)
 : theAnalogSignalMap(),
   theParameterMap(parametersMap), 
   theShapes(0),  
-  theShape(shape),
+  theShape(shape),  
   theHitCorrection(0),
   thePECorrection(0),
   theHitFilter(0),
@@ -33,10 +34,7 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
   theRandPoisson(0),
   theMinBunch(-10), 
   theMaxBunch(10),
-  thePhaseShift_(1.)
-{
-}
-
+  thePhaseShift_(1.) {}
 
 CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
                                  const CaloShapes * shapes)
@@ -51,16 +49,46 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
   theRandPoisson(0),
   theMinBunch(-10),
   theMaxBunch(10),
-  thePhaseShift_(1.)
-{
-}
+  thePhaseShift_(1.) {}
 
-
-CaloHitResponse::~CaloHitResponse()
-{
+CaloHitResponse::~CaloHitResponse() {
   delete theRandPoisson;
 }
 
+void CaloHitResponse::initHBHEScale() {
+  changeScale = false;
+#ifdef ChangeHcalEnergyScale
+  for (int ij=0; ij<100; ij++) {
+    for (int jk=0; jk<72; jk++) {	
+      for (int kl=0; kl<4; kl++) {
+	hcal_en_scale[ij][jk][kl] = 1.0;
+      }
+    }
+  }
+#endif
+}
+
+void CaloHitResponse::setHBHEScale(std::string & fileIn) {
+  
+  ifstream infile(fileIn.c_str());
+  LogDebug("CaloHitResponse") << "Reading from " << fileIn;
+#ifdef ChangeHcalEnergyScale
+  if (!infile.is_open()) {
+    edm::LogError("CaloHitResponse") << "** ERROR: Can't open '" << fileIn << "' for the input file";
+  } else {
+    int     eta, phi, depth;
+    double  cFactor;
+    while(1) {
+      infile >> eta >> phi >> depth >> cFactor;
+      if (!infile.good()) break;
+      hcal_en_scale[eta][phi][depth] = cFactor;
+      //      LogDebug("CaloHitResponse") << "hcal_en_scale[" << eta << "][" << phi << "][" << depth << "] = " << hcal_en_scale[eta][phi][depth];
+    }
+    infile.close();
+  }
+  changeScale = true;
+#endif
+}
 
 void CaloHitResponse::setBunchRange(int minBunch, int maxBunch) {
   theMinBunch = minBunch;
@@ -68,8 +96,7 @@ void CaloHitResponse::setBunchRange(int minBunch, int maxBunch) {
 }
 
 
-void CaloHitResponse::setRandomEngine(CLHEP::HepRandomEngine & engine)
-{
+void CaloHitResponse::setRandomEngine(CLHEP::HepRandomEngine & engine) {
   theRandPoisson = new CLHEP::RandPoissonQ(engine);
 }
 
@@ -77,18 +104,14 @@ void CaloHitResponse::setRandomEngine(CLHEP::HepRandomEngine & engine)
 void CaloHitResponse::run(MixCollection<PCaloHit> & hits) {
 
   for(MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
-      hitItr != hits.end(); ++hitItr)
-  {
+      hitItr != hits.end(); ++hitItr) {
     if(withinBunchRange(hitItr.bunch())) {
       add(*hitItr);
-    }
-  } // loop over hits
+    } // loop over hits
+  }
 }
 
-
-void 
-CaloHitResponse::add( const PCaloHit& hit )
-{
+void CaloHitResponse::add( const PCaloHit& hit ) {
   // check the hit time makes sense
   if ( isnan(hit.time()) ) { return; }
 
@@ -138,14 +161,13 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & hit) const {
 
   DetId detId(hit.id());
   const CaloSimParameters & parameters = theParameterMap->simParameters(detId);
-
+  
   double signal = analogSignalAmplitude(detId, hit.energy(), parameters);
 
   double time = hit.time();
   if(theHitCorrection != 0) {
     time += theHitCorrection->delay(hit);
   }
-
   double jitter = hit.time() - timeOfFlight(detId);
 
   const CaloVShape * shape = theShape;
@@ -173,20 +195,36 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & hit) const {
 double CaloHitResponse::analogSignalAmplitude(const DetId & detId, float energy, const CaloSimParameters & parameters) const {
 
   if(!theRandPoisson)
-  {
-    edm::Service<edm::RandomNumberGenerator> rng;
-    if ( ! rng.isAvailable()) {
-      throw cms::Exception("Configuration")
-        << "CaloHitResponse requires the RandomNumberGeneratorService\n"
-        "which is not present in the configuration file.  You must add the service\n"
-        "in the configuration file or remove the modules that require it.";
+    {
+      edm::Service<edm::RandomNumberGenerator> rng;
+      if ( ! rng.isAvailable()) {
+	throw cms::Exception("Configuration")
+	  << "CaloHitResponse requires the RandomNumberGeneratorService\n"
+	  "which is not present in the configuration file.  You must add the service\n"
+	  "in the configuration file or remove the modules that require it.";
+      }
+      theRandPoisson = new CLHEP::RandPoissonQ(rng->getEngine());
     }
-    theRandPoisson = new CLHEP::RandPoissonQ(rng->getEngine());
-  }
-
+  
   // OK, the "energy" in the hit could be a real energy, deposited energy,
   // or pe count.  This factor converts to photoelectrons
-  double npe = energy * parameters.simHitToPhotoelectrons(detId);
+  //GMA Smeared in photon production it self  
+  double scl =1.0;
+#ifdef ChangeHcalEnergyScale
+  if (changeScale) {
+    if (detId.det()==DetId::Hcal ) { 
+      HcalDetId dId = HcalDetId(detId); 
+      if (dId.subdet()==HcalBarrel || dId.subdet()==HcalEndcap) { 
+	int ieta = dId.ieta()+50;
+	int iphi = dId.iphi()-1;
+	int idep = dId.depth()-1;
+	scl = hcal_en_scale[ieta][iphi][idep];
+	LogDebug("CaloHitResponse") << " ID " << dId << " Scale " << scl;
+      }
+    }
+  } 
+#endif
+  double npe = scl * energy * parameters.simHitToPhotoelectrons(detId);
   // do we need to doPoisson statistics for the photoelectrons?
   if(parameters.doPhotostatistics()) {
     npe = theRandPoisson->fire(npe);
@@ -200,10 +238,9 @@ CaloSamples * CaloHitResponse::findSignal(const DetId & detId) {
   CaloSamples * result = 0;
   AnalogSignalMap::iterator signalItr = theAnalogSignalMap.find(detId);
   if(signalItr == theAnalogSignalMap.end()) {
-     result = 0;
-  } 
-  else {
-     result = &(signalItr->second);
+    result = 0;
+  } else {
+    result = &(signalItr->second);
   }
   return result;
 }
