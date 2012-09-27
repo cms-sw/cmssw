@@ -86,11 +86,11 @@ public:
   void Execute() {
       WorkListUnit WLUnit = Dequeue();
       if (WLUnit == visitingCallExpr) {
-		llvm::errs()<<"\nRecursive call to ";
-		WLUnit->getDirectCallee()->printName(llvm::errs());
-		llvm::errs()<<" , ";
-		WLUnit->dumpPretty(AC->getASTContext());
-		llvm::errs()<<"\n";
+	//	llvm::errs()<<"\nRecursive call to ";
+	//	WLUnit->getDirectCallee()->printName(llvm::errs());
+	//	llvm::errs()<<" , ";
+	//	WLUnit->dumpPretty(AC->getASTContext());
+	//	llvm::errs()<<"\n";
 		return;
 		}
       const clang::FunctionDecl *FD = WLUnit->getDirectCallee();
@@ -176,17 +176,26 @@ void WalkAST::VisitCXXMemberCallExpr(clang::CXXMemberCallExpr *CE) {
   Execute();
   VisitChildren(CE);
 
-//clang::Expr * IOA = CE->getImplicitObjectArgument();
-//clang::QualType qual_ioa = llvm::dyn_cast<clang::Expr>(IOA)->getType();
-//clang::MemberExpr * ME = clang::dyn_cast<clang::MemberExpr>(CE->getCallee());
-//clang::QualType qual_exp = llvm::dyn_cast<clang::Expr>(ME)->getType();
+clang::Expr * IOA = CE->getImplicitObjectArgument();
+clang::QualType qual_ioa = llvm::dyn_cast<clang::Expr>(IOA)->getType();
+clang::MemberExpr * ME = clang::dyn_cast<clang::MemberExpr>(CE->getCallee());
+clang::CXXRecordDecl * RD = llvm::dyn_cast<clang::CXXRecordDecl>(CE->getRecordDecl());
+const clang::CXXMethodDecl * ACD = llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl());
+const clang::CXXRecordDecl * MRD = ACD->getParent();
 
-//clang::CXXRecordDecl * RD = llvm::dyn_cast<clang::CXXRecordDecl>(CE->getRecordDecl());
+if (!ME->isImplicitAccess())
+if (!support::isConst(qual_ioa))
+if (llvm::isa<clang::MemberExpr>(IOA)) 
+	{
+//	llvm::errs() <<"\n"<< RUT.getNameAsString()<<"\n" <<MRD->getNameAsString()<<"\n"<<RD->getNameAsString()<<"\n";
+	ReportCall(CE);
+	}
+
+
 clang::CXXMethodDecl * MD = CE->getMethodDecl();
-//clang::CXXRecordDecl * MRD = llvm::dyn_cast<clang::CXXRecordDecl>(MD->getParent());
-clang::QualType MQT = MD->getThisType(AC->getASTContext());
-//const clang::CXXRecordDecl * ACD = llvm::dyn_cast<clang::CXXRecordDecl>(AC->getDecl());
-                                                                                                               
+//clang::QualType MQT = MD->getThisType(AC->getASTContext());
+                                                                                                             
+
 
 
 for(int i=0, j=CE->getNumArgs(); i<j; i++) {
@@ -283,33 +292,31 @@ void WalkAST::ReportCall(const clang::CallExpr *CE) {
   llvm::raw_svector_ostream os(buf);
 
   CmsException m_exception;
-  os << "Call Expression ";
   // Name of current visiting CallExpr.
   os << *CE->getDirectCallee();
 // Name of the CallExpr whose body is current walking.
-  if (visitingCallExpr) 
-    os << " <-- " << *visitingCallExpr->getDirectCallee();
+//  if (visitingCallExpr) 
+//    os << " --> " << *visitingCallExpr->getDirectCallee();
 // Names of FunctionDecls in worklist with state PostVisited.
-  for (llvm::SmallVectorImpl<const clang::CallExpr *>::iterator I = WList.end(),
-         E = WList.begin(); I != E; --I) {
-	    const clang::FunctionDecl *FD = (*(I-1))->getDirectCallee();
+  for (llvm::SmallVectorImpl<const clang::CallExpr *>::iterator I = WList.begin(),
+         E = WList.end(); I != E; I++) {
+	    const clang::FunctionDecl *FD = (*(I))->getDirectCallee();
 	    assert(FD);
-	    if (VisitedFunctions[FD] == PostVisited)
-	      os << " <-- " << *FD;
+	      os << "-->"<<*FD;
   }
-     os << " is a function.\n";
+     os << " is a non-const member object function call.\n";
 
 // Names of args  
-    clang::LangOptions LangOpts;
-    LangOpts.CPlusPlus = true;
-    clang::PrintingPolicy Policy(LangOpts);
-    for(int i=0, j=CE->getNumArgs(); i<j; i++)
-	{
-	std::string TypeS;
-        llvm::raw_string_ostream s(TypeS);
-        CE->getArg(i)->printPretty(s, 0, Policy);
-        os << "arg: " << s.str() << " ";
-	}	
+//    clang::LangOptions LangOpts;
+//    LangOpts.CPlusPlus = true;
+//    clang::PrintingPolicy Policy(LangOpts);
+//    for(int i=0, j=CE->getNumArgs(); i<j; i++)
+//	{
+//	std::string TypeS;
+//        llvm::raw_string_ostream s(TypeS);
+//        CE->getArg(i)->printPretty(s, 0, Policy);
+//        os << "arg: " << s.str() << " ";
+//	}	
 
   os << "\n";
 
@@ -320,7 +327,7 @@ void WalkAST::ReportCall(const clang::CallExpr *CE) {
 
 // llvm::errs()<<os.str();
   if (!m_exception.reportClass( CELoc, BR ) ) return;
-  BR.EmitBasicReport(CE->getCalleeDecl(),"Class Checker : Method Call Expr check","ThreadSafety",os.str(),CELoc,R);
+  BR.EmitBasicReport(CE->getCalleeDecl(),"Class Checker : Member Object non-const function call check","ThreadSafety",os.str(),CELoc,R);
 	 
 }
 
@@ -349,7 +356,7 @@ void WalkAST::ReportCallArg(const clang::CallExpr *CE,const int i) {
   clang::SourceLocation L = E->getExprLoc();
 
   if (!m_exception.reportClass( ELoc, BR ) ) return;
-  BR.EmitBasicReport(CE->getCalleeDecl(),"Class Checker :  Method Call Expr Arg check","ThreadSafety",os.str(),ELoc,L);
+  BR.EmitBasicReport(CE->getCalleeDecl(),"Class Checker :  Member data passed to non-const reference check","ThreadSafety",os.str(),ELoc,L);
 
 }
 

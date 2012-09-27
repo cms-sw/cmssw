@@ -31,6 +31,7 @@ int * ip_;
 int * const ipc_;
 int & ir_;
 int const & icr_;
+Foo foo_;
 public:
 void modifyMember() { i_ = 5;}
 void indirectModifyMember() { modifyMember();}
@@ -55,6 +56,8 @@ void produce()
 	foo->Bar6(I);
 	foo->Bar8();
 	foo->Bar7();
+	foo_.Bar7(); //should fail member data (object) call non const functions 
+	foo_.Bar9(); //OK because const won't modify self
 	method1(i_);
 	method1(I);
 	modifyMember();
