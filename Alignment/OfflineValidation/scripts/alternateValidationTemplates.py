@@ -279,8 +279,8 @@ process.TrackerTrackHitFilter.usePixelQualityFlag = True #False
 
 #-- TrackProducer
 ## now we give the TrackCandidate coming out of the TrackerTrackHitFilter to the track producer
-import RecoTracker.TrackProducer.CosmicFinalFitWithMaterialP5_cff
-process.TrackCandidateFitter = RecoTracker.TrackProducer.CosmicFinalFitWithMaterialP5_cff.cosmictrackfinderCosmics.clone(
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff
+process.TrackCandidateFitter = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksCosmics.clone(
 src = 'TrackerTrackHitFilter',
      NavigationSchool = cms.string(''),
      TTRHBuilder = "WithAngleAndTemplate"
@@ -329,14 +329,6 @@ process.conditionsInTrackerAlignmentRcd = CalibTracker.Configuration.Common.Pool
 
 process.prefer_conditionsInTrackerAlignmentRcd = cms.ESPrefer("PoolDBESSource", "conditionsInTrackerAlignmentRcd")
 
-process.conditionsInSiPixelTemplateDBObjectRcd = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-          connect = cms.string('frontier://FrontierProd/CMS_COND_31X_PIXEL'),
-          toGet = cms.VPSet(cms.PSet(record = cms.string('SiPixelTemplateDBObjectRcd'),
-          tag = cms.string('SiPixelTemplateDBObject_38T_v4_mc')
-          )
-          )
-          )
-          
           
 .oO[LorentzAngleTemplate]Oo.
   
