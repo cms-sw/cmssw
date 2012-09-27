@@ -55,6 +55,7 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
 	 fTauolaInterface = TauolaInterface::getInstance();
 	 fTauolaInterface->setPSet( pset.getUntrackedParameter< ParameterSet >(curSet) );
 	 fPhotosInterface = new gen::PhotosInterface();
+	 fPhotosInterface->configureOnlyFor( 15 );
 	 fPhotosInterface->avoidTauLeptonicDecays();
       }
       else if ( curSet == "Photos" )
@@ -124,26 +125,16 @@ void ExternalDecayDriver::init( const edm::EventSetup& es )
    if ( fPhotosInterface )
    {
       fPhotosInterface->init();
-/*   will fix shortly, for future tauola++
+//   for tauola++ 
       if ( fPhotosInterface )
       {
          for ( unsigned int iss=0; iss<fPhotosInterface->specialSettings().size(); iss++ )
          {
-            fSpecialSettings.push_back( fPhotosInterface->specialSettings()[iss]; )
+            fSpecialSettings.push_back( fPhotosInterface->specialSettings()[iss] );
          }
       }
-*/
    }
    
-   // now do special settings
-
-   // This is TEMPORARY THING, until we switch to tauola++ !!!
-   
-   if ( fPhotosInterface )
-   {
-      fSpecialSettings.push_back( "QED-brem-off:all" );
-   }
-
 // this is specific to old tauola27 only, because it calls up photos automatically
 //
 //
