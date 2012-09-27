@@ -10,6 +10,10 @@ EcalPGL::fillGeom( EcalPreshowerGeometry*      geom ,
 		   const EcalPGL::ParmVec&     pv ,
 		   const HepGeom::Transform3D& tr ,
 		   const DetId&                id     );
+template <>
+void 
+EcalPGL::fillNamedParams( DDFilteredView         /*fv*/   ,
+			  EcalPreshowerGeometry* /*geom*/  );
 
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.icc"
 
@@ -64,5 +68,13 @@ EcalPGL::fillGeom( EcalPreshowerGeometry*      geom ,
    geom->newCell( refPoint, refPoint, refPoint,
 		  pP,
 		  id );
+}
+
+template <>
+void 
+EcalPGL::fillNamedParams( DDFilteredView         /*fv*/   ,
+			  EcalPreshowerGeometry* /*geom*/  )
+{
+   // nothing yet for preshower
 }
 
