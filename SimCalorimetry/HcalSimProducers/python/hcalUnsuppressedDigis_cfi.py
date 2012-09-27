@@ -30,7 +30,9 @@ hcalSimBlock = cms.PSet(
     doTimeSlew = cms.bool(True),
     doHFWindow = cms.bool(False),
     hitsProducer = cms.string('g4SimHits'),
-    injectTestHits = cms.bool(False)
+    injectTestHits = cms.bool(False),
+    ChangeResponse = cms.bool(True),
+    CorrFactorFile = cms.FileInPath("SimCalorimetry/HcalSimProducers/data/calor_corr01.txt")
 )
 
 #es_cholesky = cms.ESSource("PoolDBESSource",
