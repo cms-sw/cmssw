@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.37 2011/09/21 03:40:17 tucker Exp $
+// $Id: Muon.h,v 1.38 2012/08/22 15:02:51 bellan Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -17,7 +17,7 @@
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
 
-  \version  $Id: Muon.h,v 1.37 2011/09/21 03:40:17 tucker Exp $
+  \version  $Id: Muon.h,v 1.38 2012/08/22 15:02:51 bellan Exp $
 */
 
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -144,6 +144,13 @@ namespace pat {
       /// if muon id results are ever extracted from muon id value maps
       /// then the isMuonIDAvailable method will be defined
       //bool isMuonIDAvailable(const std::string& name) const;
+
+      /// Muon Selectors as specified in
+      /// https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMuonId
+      bool isTightMuon(const reco::Vertex&) const;
+      bool isLooseMuon() const;
+      bool isSoftMuon(const reco::Vertex&) const;
+      bool isHighPtMuon(const reco::Vertex&) const;
 
       // ---- overload of isolation functions ----
       /// Overload of pat::Lepton::trackIso(); returns the value of
