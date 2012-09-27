@@ -13,7 +13,7 @@ reco::Muon::MuonTrackTypePair  muon::tevOptimized(const reco::TrackRef& combined
 						  const double ptThreshold,
 						  const double tune1,
 						  const double tune2,
-						  const double dptcut) {
+						  double dptcut) {
 
   // Array for convenience below.
   const reco::Muon::MuonTrackTypePair refit[4] = { 
@@ -30,6 +30,17 @@ reco::Muon::MuonTrackTypePair  muon::tevOptimized(const reco::TrackRef& combined
   // hits.
   double prob[4] = {0.,0.,0.,0.};
   bool valid[4] = {0,0,0,0};
+
+  double dptmin = 1.;
+
+  if (dptcut>0) {  
+    for (unsigned int i = 0; i < 4; ++i)
+      if (refit[i].first.isNonnull())
+        if (refit[i].first->ptError()/refit[i].first->pt()<dptmin) dptmin = refit[i].first->ptError()/refit[i].first->pt();
+  
+    if (dptmin>dptcut) dptcut = dptmin+0.15;
+  }
+
   for (unsigned int i = 0; i < 4; ++i) 
     if (refit[i].first.isNonnull()){ 
       valid[i] = true;
