@@ -18,7 +18,18 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 if   CMSSW4_4: process.GlobalTag.globaltag = 'FT_R_44_V11::All'
 elif CMSSW4_2: process.GlobalTag.globaltag = 'GR_P_V14::All'
-else:          process.GlobalTag.globaltag = 'GR_P_V32::All'
+else:    
+               import FWCore.ParameterSet.VarParsing as VarParsing
+               options = VarParsing.VarParsing("analysis")
+               options.register("globalTag",
+                   "GR_P_V32::All", # default value
+                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                   VarParsing.VarParsing.varType.string,         # string, int, or float
+                   "Global tag to be used."
+               )   
+               # get and parse the command line arguments
+               options.parseArguments()
+               process.GlobalTag.globaltag = options.globalTag
 
 readFiles = cms.untracked.vstring()
 process.source = cms.Source("PoolSource",
