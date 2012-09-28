@@ -266,27 +266,6 @@ void OHltTree::Loop(
       }
 
       //////////////////////////////////////////////////////////////////
-      // Make efficiency curves
-      //////////////////////////////////////////////////////////////////
-      TString hlteffmode;
-      TString ohltobject;
-      hlteffmode="GEN";
-      //    hlteffmode="L1";
-      //    hlteffmode="RECO";
-      ohltobject="None";
-      if (cfg->pisPhysicsSample[procID]==1)
-         ohltobject="electron";
-      if (cfg->pisPhysicsSample[procID]==2)
-         ohltobject="muon";
-      if (cfg->pisPhysicsSample[procID]==3)
-         ohltobject="ele_mu";
-      if (cfg->pisPhysicsSample[procID]==4)
-         ohltobject="photon";
-      if (cfg->pisPhysicsSample[procID]==5)
-         ohltobject="pion";
-      PlotOHltEffCurves(cfg, hlteffmode, ohltobject, h1, h2, h3, h4);
-
-      //////////////////////////////////////////////////////////////////
       // Loop over trigger paths and do rate counting
       //////////////////////////////////////////////////////////////////
       for (int i = 0; i < nTrig; i++)

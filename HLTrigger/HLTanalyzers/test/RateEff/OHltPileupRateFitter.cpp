@@ -60,14 +60,10 @@ void OHltPileupRateFitter::fitForPileup(
       vector <double> vLumiErrors;
 
       for (int iLS=0; iLS<RunLSn; iLS++) {//looping over the entire set of data
-	double lumi = 0;
 	double rate = 0;
 	double rateerr = 0;
 	double lumierr = 0.0;
 
-	// Inst lumi
-	lumi = lumiMagicNumber * LumiPerLS[iLS];
-	
 	// Inst rate. Note here we've already applied the linear scale factor for the target lumi
 	// So cheat and uncorrect this back to the actual online rate before fitting 
 	rate = (double) (RatePerLS[iLS][iPath]) / (thecfg->lumiScaleFactor);
