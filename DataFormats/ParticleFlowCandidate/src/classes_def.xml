@@ -62,6 +62,7 @@
   <class name="reco::PFCandidateFwdPtr"/>
   <class name="std::vector<reco::PFCandidateFwdRef>"/>
   <class name="std::vector<reco::PFCandidateFwdPtr>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFCandidateFwdPtr> >"/>
 
   <class name="reco::PFCandidateElectronExtra" ClassVersion="10">
    <version ClassVersion="10" checksum="1297637479"/>

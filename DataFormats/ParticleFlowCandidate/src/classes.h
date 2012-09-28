@@ -68,6 +68,7 @@ namespace {
     reco::PFCandidateFwdPtr fbla3;     
     std::vector<reco::PFCandidateFwdRef> bla33f;     
     std::vector<reco::PFCandidateFwdPtr> bla33fv; 
+    edm::Wrapper<std::vector<reco::PFCandidateFwdPtr > > bla33fvw;
     
     reco::PFCandidateElectronExtraRef ex_r;
     reco::PFCandidateElectronExtraRefProd ex_rp;
@@ -78,6 +79,9 @@ namespace {
     reco::PFCandidatePhotonExtraRefProd ph_rp;
     //    reco::PFCandidatePhotonExtraRefVector ph_rv;
     edm::Wrapper<std::vector<reco::PFCandidatePhotonExtra> > ph_w1;
+
+
+
 
     edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Vertex> >,edm::RefProd<std::vector<reco::PFCandidate> > > pm0;
     edm::helpers::KeyVal<edm::Ref<std::vector<reco::Vertex>,reco::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::Vertex>,reco::Vertex> >,std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,float> > > pm1;
