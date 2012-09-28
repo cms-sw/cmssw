@@ -16,4 +16,19 @@ namespace reco {
   }
 }
 
+
+// Introducing a simpler way to use a string object selector outside of the 
+// heavily-templated infrastructure above. This simply translates the cfg
+// into the string that the functor expects. 
+namespace reco{
+    class PdgIdSelectorHandler : public PdgIdSelector  {
+    public:
+      explicit PdgIdSelectorHandler( const edm::ParameterSet & cfg ) :
+        PdgIdSelector(cfg.getParameter<std::vector<int> >("pdgId"))
+      {
+      }
+  };
+}
+
+
 #endif
