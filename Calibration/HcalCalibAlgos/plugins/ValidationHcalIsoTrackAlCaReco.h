@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory SAFRONOV, Sergey PETRUSHANKO
 //         Created:  Tue Oct  14 16:10:31 CEST 2008
-// $Id: ValidationHcalIsoTrackAlCaReco.h,v 1.1 2009/03/27 12:26:20 kodolova Exp $
+// $Id: ValidationHcalIsoTrackAlCaReco.h,v 1.2 2010/01/11 16:40:13 kodolova Exp $
 //
 //
 
@@ -53,6 +53,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
@@ -91,6 +92,7 @@ private:
   edm::InputTag hltFilterTag_;
   edm::InputTag arITrLabel_;
   edm::InputTag recoTrLabel_;
+  edm::InputTag simTracksTag_;
   double pThr_;
   double heLow_;
   double heUp_;

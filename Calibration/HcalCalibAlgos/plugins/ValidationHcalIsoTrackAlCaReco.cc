@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory SAFRONOV, Sergey PETRUSHANKO
 //         Created:  Tue Oct  14 16:10:31 CEST 2008
-// $Id: ValidationHcalIsoTrackAlCaReco.cc,v 1.2 2010/01/11 16:40:13 kodolova Exp $
+// $Id: ValidationHcalIsoTrackAlCaReco.cc,v 1.3 2010/01/22 19:34:19 argiro Exp $
 //
 //
 
@@ -128,8 +128,8 @@ std::pair<int,int> ValidationHcalIsoTrackAlCaReco::towerIndex(double eta, double
 }
 
 
-ValidationHcalIsoTrackAlCaReco::ValidationHcalIsoTrackAlCaReco(const edm::ParameterSet& iConfig)
-
+ValidationHcalIsoTrackAlCaReco::ValidationHcalIsoTrackAlCaReco(const edm::ParameterSet& iConfig) :
+  simTracksTag_(iConfig.getParameter<edm::InputTag>("simTracksTag"))
 {
   folderName_ = iConfig.getParameter<std::string>("folderName");
   saveToFile_=iConfig.getParameter<bool>("saveToFile");
@@ -208,7 +208,7 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
       trigEta.push_back(TObj.eta());
       trigPhi.push_back(TObj.phi());
     }
-  
+
   //general distributions
   for (reco::IsolatedPixelTrackCandidateCollection::const_iterator itr=recoIsoTracks->begin(); itr!=recoIsoTracks->end(); itr++)
     {
@@ -251,7 +251,7 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
    std::cout <<  std::endl << "  End / Start " << std::endl;
 
    edm::Handle<edm::SimTrackContainer> simTracks;
-   iEvent.getByType<edm::SimTrackContainer>(simTracks);
+   iEvent.getByLabel<edm::SimTrackContainer>(simTracksTag_, simTracks);
 
   for (reco::IsolatedPixelTrackCandidateCollection::const_iterator bll=recoIsoTracks->begin(); bll!=recoIsoTracks->end(); bll++)
     {         

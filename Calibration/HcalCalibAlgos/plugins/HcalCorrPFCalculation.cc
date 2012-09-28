@@ -1,4 +1,8 @@
-// $Id: HcalCorrPFCalculation.cc,v 1.27 2012/02/09 08:26:41 eulisse Exp $
+// $Id: HcalCorrPFCalculation.cc,v 1.28 2012/07/20 22:14:21 wdd Exp $
+
+
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
@@ -101,10 +105,16 @@ class HcalCorrPFCalculation : public edm::EDAnalyzer {
   Int_t nTracks;
   Float_t genEta,genPhi, trackEta[50],trackPhi[50], trackP[50] , delRmc[50];
 
+  edm::InputTag hbheRecHitCollectionTag_;
+  edm::InputTag hfRecHitCollectionTag_;
+  edm::InputTag hoRecHitCollectionTag_;
 };
 
 
-HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& iConfig) {
+HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& iConfig) :
+  hbheRecHitCollectionTag_(iConfig.getParameter<edm::InputTag>("hbheRecHitCollectionTag")),
+  hfRecHitCollectionTag_(iConfig.getParameter<edm::InputTag>("hfRecHitCollectionTag")),
+  hoRecHitCollectionTag_(iConfig.getParameter<edm::InputTag>("hoRecHitCollectionTag")) {
 
   //  outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
   
@@ -165,15 +175,15 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
   }
 
   edm::Handle<HBHERecHitCollection> hbhe;
-  ev.getByType(hbhe);
+  ev.getByLabel(hbheRecHitCollectionTag_, hbhe);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
   
   edm::Handle<HFRecHitCollection> hfcoll;
-  ev.getByType(hfcoll);
+  ev.getByLabel(hfRecHitCollectionTag_, hfcoll);
   const HFRecHitCollection Hithf = *(hfcoll.product());
     
   edm::Handle<HORecHitCollection> hocoll;
-  ev.getByType(hocoll);
+  ev.getByLabel(hoRecHitCollectionTag_, hocoll);
   const HORecHitCollection Hitho = *(hocoll.product());
   
   edm::Handle<EERecHitCollection> ecalEE;

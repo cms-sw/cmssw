@@ -19,7 +19,8 @@ outputRootFileName=cms.string("HcalIsoTrackAlCaRecoMon.root"),
 hltTriggerEventLabel=cms.InputTag('hltTriggerSummaryAOD'),
 hltL3FilterLabel=cms.InputTag('hltIsolPixelTrackFilter::HLT'),
 alcarecoIsoTracksLabel=cms.InputTag('IsoProd:HcalIsolatedTrackCollection'),
-recoTracksLabel=cms.InputTag('IsoProd:IsoTrackTracksCollection')
+recoTracksLabel=cms.InputTag('IsoProd:IsoTrackTracksCollection'),
+simTracksTag = cms.InputTag('g4SimHits')
 )
 
 #process.load("Calibration.HcalCalibAlgos.MonitorHcalIsoTrackAlCaReco_cfi")
