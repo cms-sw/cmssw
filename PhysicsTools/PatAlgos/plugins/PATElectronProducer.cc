@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.63 2012/09/05 00:06:52 tjkim Exp $
+// $Id: PATElectronProducer.cc,v 1.64 2012/09/05 13:56:10 rwolf Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
 
@@ -34,6 +34,10 @@
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+//#include "PhysicsTools/PatAlgos/interface/ShowerShapeHelper.h"
 
 #include <vector>
 #include <memory>
@@ -166,6 +170,14 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     addGenMatch_ = false;
     embedGenMatch_ = false;
   }
+
+  edm::ESHandle<CaloTopology> theCaloTopology;
+  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
+  ecalTopology_ = & (*theCaloTopology);
+
+  edm::ESHandle<CaloGeometry> theCaloGeometry;
+  iSetup.get<CaloGeometryRecord>().get(theCaloGeometry); 
+  caloGeometry_ = & (*theCaloGeometry);
 
   // Get the collection of electrons from the event
   edm::Handle<edm::View<reco::GsfElectron> > electrons;
@@ -382,7 +394,48 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
           sigmaIetaIphi = vCov[1];
           anElectron.setMvaVariables( r9, sigmaIphiIphi, sigmaIetaIphi, ip3d);
 
-          // set conversion veto selection
+	  // get list of EcalDetId within 5x5 around the seed 
+	  bool barrel= itElectron->isEB();
+	  DetId seed=itElectron->superCluster()->seed()->seed();
+	  std::vector<DetId> selectedCells = (barrel) ? ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalBarrel)->getWindow(seed,5,5):
+	    ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalEndcap)->getWindow(seed,5,5);          
+	  // add the DetId of the SC
+	  std::vector< std::pair<DetId, float> >::const_iterator it=itElectron->superCluster()->hitsAndFractions().begin();
+	  std::vector< std::pair<DetId, float> >::const_iterator itend=itElectron->superCluster()->hitsAndFractions().end();
+	  for( ; it!=itend ; ++it) {
+	    DetId id=it->first;
+	    // check if already saved
+	    std::vector<DetId>::const_iterator itcheck = find(selectedCells.begin(),selectedCells.end(),id);
+	    if ( itcheck == selectedCells.end()) {
+	      selectedCells.push_back(id);
+	    }
+	  }
+	  // Retrieve the corresponding RecHits
+
+	  edm::Handle< EcalRecHitCollection > rechitsH ;
+	  if(barrel) 
+	    iEvent.getByLabel(reducedBarrelRecHitCollection_,rechitsH);
+	  else
+	    iEvent.getByLabel(reducedEndcapRecHitCollection_,rechitsH);
+
+	  EcalRecHitCollection selectedRecHits;
+	  const EcalRecHitCollection *recHits = rechitsH.product();
+
+	  unsigned nSelectedCells = selectedCells.size();
+	  for (unsigned icell = 0 ; icell < nSelectedCells ; ++icell) {
+	   EcalRecHitCollection::const_iterator  it = recHits->find( selectedCells[icell] );
+	    if ( it != recHits->end() ) {
+	      selectedRecHits.push_back(*it);
+	    }
+	  }
+	  anElectron.embedRecHits(& selectedRecHits);
+
+	  // Test
+	  //	  ShowerShapeHelper ssh(&anElectron,anElectron.recHits(),ecalTopology_,caloGeometry_);
+	  //
+	  //	  std::cout << " E3x3 : " << ssh.e3x3() << std::endl;
+	    
+	    // set conversion veto selection
           bool passconversionveto = false;
           if( hConversions.isValid()){
             // this is recommended method

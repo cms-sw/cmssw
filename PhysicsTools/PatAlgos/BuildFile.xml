@@ -17,6 +17,8 @@
 <use   name="PhysicsTools/PatUtils"/>
 <use   name="PhysicsTools/Utilities"/>
 <use   name="PhysicsTools/IsolationAlgos"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="RecoEgamma/EgammaTools"/>
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>

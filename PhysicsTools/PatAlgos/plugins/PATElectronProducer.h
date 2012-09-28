@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.26.2.1 2012/07/09 16:40:54 tjkim Exp $
+// $Id: PATElectronProducer.h,v 1.27 2012/07/09 16:52:14 tjkim Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::GsfElectron.
 
   \author   Steven Lowette, James Lamb\
-  \version  $Id: PATElectronProducer.h,v 1.26.2.1 2012/07/09 16:40:54 tjkim Exp $
+  \version  $Id: PATElectronProducer.h,v 1.27 2012/07/09 16:52:14 tjkim Exp $
 */
 
 
@@ -37,9 +37,11 @@
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
-
+#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+
 
 #include <string>
 
@@ -156,7 +158,8 @@ namespace pat {
       bool useUserData_;
       pat::PATUserDataHelper<pat::Electron>      userDataHelper_;
 
-
+      const CaloTopology * ecalTopology_;
+      const CaloGeometry * caloGeometry_;
   };
 
 
