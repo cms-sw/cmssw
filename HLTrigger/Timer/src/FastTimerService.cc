@@ -306,8 +306,8 @@ void FastTimerService::postBeginJob() {
           }
           // book detailed timing histograms
           if (m_enable_dqm_bypath_details) {
-            pathinfo.dqm_module_active  = m_dqms->bookProfile(pathname + "_module_active",  pathname + " module active",  modules.size(), -0.5, modules.size() - 0.5, modulebins, 0., m_dqm_moduletime_range, " ")->getTProfile();
-            pathinfo.dqm_module_total   = m_dqms->bookProfile(pathname + "_module_total",   pathname + " module total",   modules.size(), -0.5, modules.size() - 0.5, modulebins, 0., m_dqm_moduletime_range, " ")->getTProfile();
+            pathinfo.dqm_module_active  = m_dqms->book1D(pathname + "_module_active",  pathname + " module active",  modules.size(), -0.5, modules.size() - 0.5)->getTH1F();
+            pathinfo.dqm_module_total   = m_dqms->book1D(pathname + "_module_total",   pathname + " module total",   modules.size(), -0.5, modules.size() - 0.5)->getTH1F();
             // find module labels
             for (uint32_t i = 0; i < modules.size(); ++i) {
               pathinfo.dqm_module_active ->GetXaxis()->SetBinLabel( i+1, labels[i] );
