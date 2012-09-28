@@ -82,7 +82,7 @@ void RazorVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
   bool isNoiseEvent = false;
   if( calomet_handle.isValid() && calomet_clean_handle.isValid() ){
     isNoiseEvent = fabs(calomet_handle->front().pt() - calomet_clean_handle->front().pt()) > 0.1;
-    std::cout << "isNoiseEvent: " << isNoiseEvent << std::endl;
+    //std::cout << "isNoiseEvent: " << isNoiseEvent << std::endl;
   }
 
 
