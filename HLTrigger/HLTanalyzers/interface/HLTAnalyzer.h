@@ -194,6 +194,8 @@ private:
   edm::InputTag VertexTagHLT_;
   edm::InputTag VertexTagOffline0_;
 
+  edm::InputTag pileupInfo_;
+
   int errCnt;
   static int errMax() { return 5; }
 

@@ -131,4 +131,6 @@ extern const char * kECALActivityR9;
 extern const char * kECALActivityR9ID; 
 extern const char * kECALActivityHoverEH;
 
+extern const char * kPileupInfo;
+
 #endif // HLTrigger_HLTanalyzers_HLTMessages_h

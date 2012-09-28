@@ -22,7 +22,8 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-'/store/data/Run2012C/LP_Jets1/RAW/v1/000/198/449/F0CDFC81-35C8-E111-8D6C-003048678110.root'
+'/store/data/Run2012C/MinimumBias/RAW-RECO/HLTPhysics-Tier1PromptSkim-v3/000/198/969/00000/C8575CDA-A8D1-E111-A17B-E0CB4E1A1193.root'
+#'/store/data/Run2012C/LP_Jets1/RAW/v1/000/198/449/F0CDFC81-35C8-E111-8D6C-003048678110.root'
     )
 )
 

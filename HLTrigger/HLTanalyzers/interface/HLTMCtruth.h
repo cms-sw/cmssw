@@ -15,6 +15,7 @@
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"  
 
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 
@@ -37,6 +38,7 @@ public:
 	       const double        & pthat,
 	       const edm::Handle<std::vector<SimTrack> > & simTracks,
 	       const edm::Handle<std::vector<SimVertex> > & simVertices,
+	       const edm::Handle<std::vector< PileupSummaryInfo > > & PupInfo, 
 	       TTree* tree);
 
 private:
@@ -45,6 +47,7 @@ private:
   float *mcvx, *mcvy, *mcvz, *mcpt, *mceta, *mcphi;
   int *mcpid, *mcstatus;
   int nmcpart,nmu3,nel3,nab,nbb,nwenu,nwmunu,nzee,nzmumu;
+  int npubx0;
   float pthatf;
   float ptEleMax,ptMuMax;
   // input variables
