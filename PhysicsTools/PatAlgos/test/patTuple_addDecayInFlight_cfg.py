@@ -1,6 +1,9 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
+# load the PAT config
+process.load("PhysicsTools.PatAlgos.patSequences_cff")
+
 ## switch to RECO input
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarGENSIMRECO
 process.source.fileNames = filesRelValProdTTbarGENSIMRECO

@@ -104,7 +104,7 @@ print process.out.outputCommands
 #                                         ##
 #   process.source.fileNames =  ...       ##  (e.g. 'file:AOD.root')
 #                                         ##
-process.maxEvents.input = 100
+process.maxEvents.input = 10
 #                                         ##
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #                                         ##

@@ -1,6 +1,9 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
+# load the PAT config
+process.load("PhysicsTools.PatAlgos.patSequences_cff")
+
 ## add track candidates
 from PhysicsTools.PatAlgos.tools.trackTools import *
 

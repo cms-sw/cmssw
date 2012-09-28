@@ -1,6 +1,9 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
+# load the PAT config
+process.load("PhysicsTools.PatAlgos.patSequences_cff")
+
 from PhysicsTools.PatAlgos.tools.pfTools import *
 usePFIso( process )
 
