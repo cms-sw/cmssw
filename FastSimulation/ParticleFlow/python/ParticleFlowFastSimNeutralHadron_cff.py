@@ -52,12 +52,13 @@ famosParticleFlowSequence = cms.Sequence(
     pfGsfElectronMVASelectionSequence+
     particleFlowBlock+
     particleFlowTmp+
+    particleFlowTmpPtrs+
     FSparticleFlow+
     pfElectronTranslatorSequence+
     pfPhotonTranslatorSequence
 )
 
-particleFlowLinks = cms.Sequence(particleFlow)
+particleFlowLinks = cms.Sequence(particleFlow+particleFlowPtrs)
 
 # PF Reco Jets and MET
 
