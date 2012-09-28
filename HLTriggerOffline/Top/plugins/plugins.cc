@@ -6,6 +6,6 @@
 #include "HLTriggerOffline/Top/interface/HLTEfficiencyCalculator.h"
 
 DEFINE_FWK_MODULE(TopValidation);
-DEFINE_FWK_MODULE(TopDiLeptonOfflineDQM);
-DEFINE_FWK_MODULE(TopSingleLeptonDQM);
+//DEFINE_FWK_MODULE(TopDiLeptonOfflineDQM);
+//DEFINE_FWK_MODULE(TopSingleLeptonDQM);
 DEFINE_FWK_MODULE(HLTEffCalculator);
