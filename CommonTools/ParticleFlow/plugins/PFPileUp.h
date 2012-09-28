@@ -34,6 +34,8 @@ produces the corresponding collection of PileUpCandidates.
 class PFPileUp : public edm::EDProducer {
  public:
 
+  typedef std::vector< edm::FwdPtr<reco::PFCandidate> >  PFCollection;
+
   explicit PFPileUp(const edm::ParameterSet&);
 
   ~PFPileUp();

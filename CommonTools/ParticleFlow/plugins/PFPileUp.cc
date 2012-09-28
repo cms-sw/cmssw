@@ -38,8 +38,9 @@ PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
   // Configure the algo
   pileUpAlgo_.setVerbose(verbose_);
   pileUpAlgo_.setCheckClosestZVertex(checkClosestZVertex_);
-
-  produces<reco::PFCandidateCollection>();
+  
+  //produces<reco::PFCandidateCollection>();
+  produces< PFCollection > ();
   
 }
 
@@ -61,17 +62,16 @@ void PFPileUp::produce(Event& iEvent,
    
   // get PFCandidates
 
-  auto_ptr< reco::PFCandidateCollection > 
-    pOutput( new reco::PFCandidateCollection ); 
+  auto_ptr< PFCollection > 
+    pOutput( new PFCollection ); 
   
   if(enable_) {
 
-    Handle<PFCandidateCollection> pfCandidates;
+    Handle<PFCollection> pfCandidates;
     iEvent.getByLabel( inputTagPFCandidates_, pfCandidates);
 
   
     // get vertices 
-
     Handle<VertexCollection> vertices;
     iEvent.getByLabel( inputTagVertices_, vertices);
     
