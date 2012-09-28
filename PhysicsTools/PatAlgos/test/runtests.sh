@@ -12,7 +12,7 @@ cmsRun ${LOCAL_TEST_DIR}/patTuple_data_cfg.py || die 'Failure using patTuple_dat
 
 # cmsRun ${LOCAL_TEST_DIR}/patTuple_PF2PATGsfElectrons_cfg.py || die 'Failure using patTuple_PATandPF2PAT_cfg.py' $?
 
-cmsRun ${LOCAL_TEST_DIR}/patTuple_pfIso_cfg.py || die 'Failure using patTuple_pfIso_cfg.py' $?
+# cmsRun ${LOCAL_TEST_DIR}/patTuple_pfIso_cfg.py || die 'Failure using patTuple_pfIso_cfg.py' $?
 
 cmsRun ${LOCAL_TEST_DIR}/patTuple_addDecayInFlight_cfg.py || die 'Failure using patTuple_addDecayInFlight_cfg.py' $?
 
@@ -40,4 +40,3 @@ cmsRun ${LOCAL_TEST_DIR}/patTuple_fastsim_cfg.py || die 'Failure using patTuple_
 # cmsRun ${LOCAL_TEST_DIR}/patTuple_onlyPhotons_cfg.py || die 'Failure using patTuple_onlyPhotons_cfg.py' $?
 # cmsRun ${LOCAL_TEST_DIR}/patTuple_onlyTaus_cfg.py || die 'Failure using patTuple_onlyTaus_cfg.py' $?
 # cmsRun ${LOCAL_TEST_DIR}/patTuple_factorisedTaginfo_cfg.py || die 'Failure using patTuple_factorisedTaginfo_cfg.py' $?
-# cmsRun ${LOCAL_TEST_DIR}/patTuple_pfIso_cfg.py || die 'Failure using patTuple_pfIso_cfg.py' $?
