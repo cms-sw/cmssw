@@ -6,5 +6,10 @@ from DQM.DataScouting.alphaTScouting_cff import *
 from DQM.DataScouting.threejetScouting_cff import *
 from DQM.DataScouting.dijetpairsScouting_cff import *
 
+# DQM Services
+dqmInfoDataScouting = cms.EDAnalyzer("DQMEventInfo",
+                                     subSystemFolder = cms.untracked.string('DataScouting')
+                                     )
+
 #this file contains the sequence for data scouting
-dataScoutingDQMSequence = cms.Sequence(scoutingRazorDQMSequence*scoutingDiJetDQMSequence*scoutingAlphaTDQMSequence*scoutingThreeJetDQMSequence*scoutingDiJetPairsDQMSequence)
+dataScoutingDQMSequence = cms.Sequence(dqmInfoDataScouting*scoutingRazorDQMSequence*scoutingDiJetDQMSequence*scoutingAlphaTDQMSequence*scoutingThreeJetDQMSequence*scoutingDiJetPairsDQMSequence)
