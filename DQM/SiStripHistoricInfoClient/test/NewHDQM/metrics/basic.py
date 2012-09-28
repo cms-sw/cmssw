@@ -259,6 +259,76 @@ class FractionInBinArray(BaseMetric):
         return ( num/den if den else 0,
                  sqrt(1/num + 1/den)*num/den if den and num else 0)    
 
+class MeanYRange(BaseMetric):
+    def __init__(self, ymin, ymax):
+        self.__ymin = float(ymin)
+        self.__ymax = float(ymax)
+        
+    def calculate(self, histo):
+        sum , count = 0 , 0
+        for i in range(self.__ymin,self.__ymax):
+            for j in range(0,histo.GetXaxis().GetNbins()+1):
+                sum+=histo.GetBinContent(j,i)
+                count+=1
+        if count==0:
+            return (0,0)
+        return (sum/count,0)
+
+class Mean2D(BaseMetric):
+    def calculate(self,histo):
+        sum, count = 0 , 0
+        for i in range(histo.GetXaxis().GetNbins()):
+            for j in range(histo.GetYaxis().GetNbins()):
+                sum+=histo.GetBinContent(i,j)
+                count+=1
+        if count==0:
+            return (0,0)
+        return (sum/count, 0)
+
+class MeanYForXBin(BaseMetric):
+    def __init__(self, xbin):
+        self.__xbin = int(xbin)
+
+    def calculate(self,histo):
+        sum,count = 0,0
+        for i in range(1,histo.GetYaxis().GetNbins()+1):
+            if histo.GetBinContent(self.__xbin,i) >= 0:
+                sum+=histo.GetBinContent(self.__xbin,i)
+            count+=1
+        if count == 0:
+            return (0,0)
+        return (sum/count, 0)
+        
+
+class MeanPosOnly(BaseMetric):
+    def calculate(self,histo):
+        sum,count = 0,0
+        for i in range(1,histo.GetXaxis().GetNbins()+1):
+            if histo.GetBinContent(i,1) >= 0:
+                sum += histo.GetBinContent(i,1)
+            count+=1
+        if count == 0:
+            return(0,0)
+        return (sum/count , 0)
+    
+class MeanXRange(BaseMetric):
+    def __init__(self, xmin, xmax):
+        self.__xmin = int(xmin)
+        self.__xmax = int(xmax)
+        
+    def calculate(self, histo):
+        sum,count = 0,0
+        for i in range(self.__xmin,self.__xmax):
+            for j in range(1,histo.GetYaxis().GetNbins()+1):
+                if histo.GetBinContent(i,j) >= 0:
+                    sum+=histo.GetBinContent(i,j)
+                count+=1
+        if count==0:
+            return (0,0)
+        return (sum/count,0)
+
+        
+                                       
 class Quantile(BaseMetric):
     def __init__(self,  frac = 0.95):
         self.__frac = float(frac)
