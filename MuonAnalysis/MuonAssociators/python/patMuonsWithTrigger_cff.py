@@ -206,7 +206,7 @@ def addDiMuonTriggers(process):
     print "[MuonAnalysis.MuonAssociators.patMuonsWithTrigger_cff] Di-muon triggers are already enabled by default"
 
 def addHLTL1Passthrough(process, embedder="patMuonsWithTrigger"):
-    process.patMuonsWithoutTrigger.replace(process.muonMatchHLTL3, process.muonMatchHLTL1 + process.muonMatchHLTL3)
+    process.patMuonsWithTriggerSequence.replace(process.muonMatchHLTL3, process.muonMatchHLTL1 + process.muonMatchHLTL3)
     getattr(process,embedder).matches += [ cms.InputTag('muonMatchHLTL1'), cms.InputTag('muonMatchHLTL1','propagatedReco') ]
 
 def useExtendedL1Match(process, patMuonProd="patMuonsWithoutTrigger", byWhat=["ByQ"]):
