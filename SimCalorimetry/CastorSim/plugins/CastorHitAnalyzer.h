@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimCalorimetry/CastorSim/src/CastorSimParameterMap.h"
 #include "SimCalorimetry/CastorSim/src/CastorHitFilter.h"
 #include <string>
@@ -28,6 +29,7 @@ private:
   CastorSimParameterMap simParameterMap_;
   CastorHitFilter castorFilter_;
   CaloHitAnalyzer castorAnalyzer_;
+  edm::InputTag castorRecHitCollectionTag_;
 };
 
 #endif

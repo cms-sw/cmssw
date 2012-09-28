@@ -8,16 +8,17 @@ CastorHitAnalyzer::CastorHitAnalyzer(edm::ParameterSet const& conf)
   : hitReadoutName_("CastorHits"),
   simParameterMap_(),
   castorFilter_(),
-  castorAnalyzer_("CASTOR", 1., &simParameterMap_, &castorFilter_)
+  castorAnalyzer_("CASTOR", 1., &simParameterMap_, &castorFilter_),
+  castorRecHitCollectionTag_(conf.getParameter<edm::InputTag>("castorRecHitCollectionTag"))
 {
 }
 
 
 namespace CastorHitAnalyzerImpl {
   template<class Collection>
-  void analyze(edm::Event const& e, CaloHitAnalyzer & analyzer) {
+  void analyze(edm::Event const& e, CaloHitAnalyzer & analyzer, edm::InputTag& tag) {
     edm::Handle<Collection> recHits;
-    e.getByType(recHits);
+    e.getByLabel(tag, recHits);
     if (!recHits.isValid()) {
       edm::LogError("CastorHitAnalyzer") << "Could not find Castor RecHitContainer ";
     } else {
@@ -37,7 +38,7 @@ e.getByLabel("mix", "g4SimHitsCastorFI", castorcf);
   // access to SimHits
 std::auto_ptr<MixCollection<PCaloHit> > hits(new MixCollection<PCaloHit>(castorcf.product()));
     castorAnalyzer_.fillHits(*hits);
-    CastorHitAnalyzerImpl::analyze<CastorRecHitCollection>(e, castorAnalyzer_);
+    CastorHitAnalyzerImpl::analyze<CastorRecHitCollection>(e, castorAnalyzer_, castorRecHitCollectionTag_);
   }
 
 
