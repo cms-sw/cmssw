@@ -649,10 +649,10 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
         // fill detailed timing histograms
         if (m_enable_dqm_bypath_details) {
           // fill the total time for all non-duplicate modules
-          pathinfo.dqm_module_total->Fill(i, module->time_active);
+          pathinfo.dqm_module_total->Fill(i, module->time_active * 1000.);      // convert to ms
           if (module->has_just_run)
             // fill the active time only for module actually running in this path
-            pathinfo.dqm_module_active->Fill(i, module->time_active);
+            pathinfo.dqm_module_active->Fill(i, module->time_active * 1000.);   // convert to ms
         }
 
       }
