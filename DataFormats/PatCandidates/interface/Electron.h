@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.40 2012/04/25 17:15:37 cbern Exp $
+// $Id: Electron.h,v 1.41 2012/08/30 00:19:27 tjkim Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.40 2012/04/25 17:15:37 cbern Exp $
+  \version  $Id: Electron.h,v 1.41 2012/08/30 00:19:27 tjkim Exp $
 */
 
 
@@ -24,9 +24,11 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
@@ -78,6 +80,8 @@ namespace pat {
       reco::TrackRef track() const;
       /// override the reco::GsfElectron::closestCtfTrackRef method, to access the internal storage of the track
       reco::TrackRef closestCtfTrackRef() const;
+      /// direct access to the seed cluster
+      reco::CaloClusterPtr seed() const; 
 
       using reco::RecoCandidate::track; // avoid hiding the base implementation
       /// method to store the electron's core internally
@@ -86,8 +90,12 @@ namespace pat {
       void embedGsfTrack();
       /// method to store the electron's SuperCluster internally
       void embedSuperCluster();
+      /// method to store the electron's seedcluster internally
+      void embedSeedCluster();
       /// method to store the electron's Track internally
       void embedTrack();
+      /// method to store the RecHits internally - can be called from the PATElectronProducer
+      void embedRecHits(const EcalRecHitCollection * rechits); 
 
       // ---- methods for electron ID ----
       /// Returns a specific electron ID associated to the pat::Electron given its name
@@ -173,6 +181,18 @@ namespace pat {
       /// set missing mva input variables
       void setMvaVariables( double r9, double sigmaIphiIphi, double sigmaIetaIphi, double ip3d );
 
+      const EcalRecHitCollection * recHits() const { return &recHits_;}
+
+      /// additional regression variables
+      /// regression1
+      double ecalRegressionEnergy() const { return ecalRegressionEnergy_;}
+      /// regression2
+      double ecalTrackRegressionEnergy() const { return ecalTrackRegressionEnergy_; }
+      /// set regression1
+      void setEcalRegressionEnergy(double val) { ecalRegressionEnergy_ = val; }
+      /// set regression2
+      void setEcalTrackRegressionEnergy(double val) { ecalTrackRegressionEnergy_ = val; }
+
       /// vertex fit combined with missing number of hits method
       bool passConversionVeto() const { return passConversionVeto_; }
       void setPassConversionVeto( bool flag ) { passConversionVeto_ = flag; }
@@ -198,6 +218,14 @@ namespace pat {
       bool embeddedTrack_;
       /// Place to store electron's track internally
       std::vector<reco::Track> track_;
+      /// True if seed cluster is stored internally
+      bool embeddedSeedCluster_;
+      /// Place to store electron's seed cluster internally
+      std::vector<reco::CaloCluster> seedCluster_;
+      /// True if RecHits stored internally
+      bool embeddedRecHits_;	
+      /// Place to store electron's RecHits internally (5x5 around seed+ all RecHits)
+      EcalRecHitCollection recHits_;
 
       // ---- electron ID's holder ----
       /// Electron IDs
@@ -229,6 +257,10 @@ namespace pat {
       double sigmaIphiIphi_;
       double sigmaIetaIphi_;
       double ip3d_;
+
+      /// output of regression
+      double ecalRegressionEnergy_;
+      double ecalTrackRegressionEnergy_;
 
       /// conversion veto
       bool passConversionVeto_;
