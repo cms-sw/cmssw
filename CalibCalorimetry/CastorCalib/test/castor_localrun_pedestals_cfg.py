@@ -109,9 +109,10 @@ process.es_pool = cms.ESSource(
 
 process.castorpedestalsanalysis = cms.EDAnalyzer("CastorPedestalsAnalysis",
     hiSaveFlag  = cms.untracked.bool( False ),
-	verboseflag = cms.untracked.bool( True ),
-        firstTS = cms.untracked.int32(0),
-         lastTS = cms.untracked.int32(9),
+    verboseflag = cms.untracked.bool( True ),
+    firstTS = cms.untracked.int32(0),
+    lastTS = cms.untracked.int32(9),
+    castorDigiCollectionTag = cms.InputTag('castorDigis')
 )
 
 
