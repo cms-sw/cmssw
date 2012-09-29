@@ -10,6 +10,7 @@
 #include<iostream>
 namespace {
 
+#ifdef MATH_STS
   struct Stat {
     Stat(const char * in) : name(in){};
     ~Stat() {
@@ -30,6 +31,8 @@ namespace {
 
   Stat statM("mpos");
   Stat statS("span");
+#endif
+
 
   // valid for z < pi/8
   inline 
@@ -68,7 +71,7 @@ RadialStripTopology::RadialStripTopology(int ns, float aw, float dh, float r, in
   theTanOfOneEdge = std::tan(std::abs(thePhiOfOneEdge));
   assert(std::abs(thePhiOfOneEdge)<0.35); // < pi/8 (and some tollerance)
 
-  std::cout << "VI: work in progress :RadialStripTopology may be buggy" << std::endl;
+  // std::cout << "VI: work in progress :RadialStripTopology may be buggy" << std::endl;
 
   LogTrace("RadialStripTopology") << "RadialStripTopology: constructed with"
         << " strips = " << ns
@@ -110,8 +113,10 @@ float RadialStripTopology::coveredStrips(const LocalPoint& lp1, const LocalPoint
   // atan(a)-atan(b) = atan( (a-b)/(1+a*b) )  
   float t1 = lp1.x()/yDistanceToIntersection( lp1.y() );
   float t2 = lp2.x()/yDistanceToIntersection( lp2.y() );
-  float t = (t1-t2)/(1.+t1*t2); 
+  float t = (t1-t2)/(1.+t1*t2);
+#ifdef MATH_STS
   statS.add(t);
+#endif
   // std::cout << "atans " << std::copysign(atan0(at),t) 
   //                      <<" "<< std::atan2(lp1.x(),yDistanceToIntersection(lp1.y()) ) 
   //                             -std::atan2(lp2.x(),yDistanceToIntersection(lp2.y()) ) << std::endl;
@@ -135,7 +140,9 @@ MeasurementPoint RadialStripTopology::measurementPosition(const LocalPoint& lp) 
   // phi is [pi/2 - conventional local phi], use atan2(x,y) rather than atan2(y,x)
   // clip   ( at pi/8 or detedge+tollerance?)
   float t =  lp.x()/yDistanceToIntersection(lp.y());
+#ifdef MATH_STS
   statM.add(t);
+#endif
   const float phi = atanClip(t);
   return MeasurementPoint( ( phi-phiOfOneEdge() )*theAWidthInverse,
 			   ( lp.y() - yCentreOfStripPlane() )        / detHeight() );
