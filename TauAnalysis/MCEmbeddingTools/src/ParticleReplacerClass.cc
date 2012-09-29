@@ -54,11 +54,16 @@ ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& pset, bool
 			break;
 		}
 		case 2:
-    {
-      LogInfo("Replacer") << "will transform mumu into taunu (as coming from a W boson)";
-      break;
-    }    
+		{
+			LogInfo("Replacer") << "will transform mumu into ee";
+			break;
+		}
 		case 3:
+		{
+			LogInfo("Replacer") << "will transform mumu into taunu (as coming from a W boson)";
+			break;
+		}
+		case 4:
 		{
 			LogInfo("Replacer") << "Will transform  mu-nu into tau-nu. No mass correction will be made.";
 			break;
@@ -221,59 +226,77 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
 			particles.push_back(tau2);			
 			break;
 		}
-    case 2: // mumu->taunu (W boson)
-    {
-      if (muons.size()!=2)
-      {
-        LogError("Replacer") << "the decay mode Z->tautau requires exactly two muons, aborting processing";
-        return std::auto_ptr<HepMC::GenEvent>(0);
-      }
+		case 2:	// mumu->ee
+		{
+			if (muons.size()!=2)
+			{
+				LogError("Replacer") << "the decay mode Z->tautau requires exactly two muons, aborting processing";
+				return std::auto_ptr<HepMC::GenEvent>(0);
+			}
 
-      targetParticleMass_  = 1.77690;
-      targetParticlePdgID_ = 15;
-      
-      reco::Muon muon1 = muons.at(0);
-      reco::Muon muon2 = muons.at(1);
-      reco::Particle tau1(muon1.charge(), muon1.p4(), muon1.vertex(), muon1.pdgId(), 0, true);
-      reco::Particle tau2(muon2.charge(), muon2.p4(), muon2.vertex(), muon2.pdgId(), 0, true);
-      transformMuMu2TauNu(&tau1, &tau2);
-      particles.push_back(tau1);
-      particles.push_back(tau2);                      
-      break;
-    }  
-    case 3: // mu-nu->tau-nu
-    {
-      if (muons.size()!=2)
-      {
-        LogError("Replacer") << "transformation mode mu-nu ->tau-nu - wrong input";
-        return std::auto_ptr<HepMC::GenEvent>(0);
-      }
+			targetParticleMass_  = 0.00051099893; // GeV
+			targetParticlePdgID_ = 11;
+			
+			reco::Muon muon1 = muons.at(0);
+			reco::Muon muon2 = muons.at(1);
+			reco::Particle el1(muon1.charge(), muon1.p4(), muon1.vertex(), muon1.pdgId(), 0, true);
+			reco::Particle el2(muon2.charge(), muon2.p4(), muon2.vertex(), muon2.pdgId(), 0, true);
+			transformMuMu2TauTau(&el1, &el2);
+			particles.push_back(el1);
+			particles.push_back(el2);
+			break;
+		}
+		case 3: // mumu->taunu (W boson)
+		{
+			if (muons.size()!=2)
+			{
+				LogError("Replacer") << "the decay mode Z->tautau requires exactly two muons, aborting processing";
+				return std::auto_ptr<HepMC::GenEvent>(0);
+			}
 
-      targetParticleMass_  = 1.77690;
-      targetParticlePdgID_ = 15;
-      int targetParticlePdgIDNu_ = 16;
-      
-      reco::Muon muon1 = muons.at(0);
-      reco::Muon::LorentzVector l(muon1.px(), muon1.py(), muon1.pz(), 
-                                sqrt(
-                                muon1.px()*muon1.px()+
-                                muon1.py()*muon1.py()+
-                                muon1.pz()*muon1.pz()+targetParticleMass_*targetParticleMass_));
+			targetParticleMass_  = 1.77690;
+			targetParticlePdgID_ = 15;
+			
+			reco::Muon muon1 = muons.at(0);
+			reco::Muon muon2 = muons.at(1);
+			reco::Particle tau1(muon1.charge(), muon1.p4(), muon1.vertex(), muon1.pdgId(), 0, true);
+			reco::Particle tau2(muon2.charge(), muon2.p4(), muon2.vertex(), muon2.pdgId(), 0, true);
+			transformMuMu2TauNu(&tau1, &tau2);
+			particles.push_back(tau1);
+			particles.push_back(tau2);											
+			break;
+		}	
+		case 4: // mu-nu->tau-nu
+		{
+			if (muons.size()!=2)
+			{
+				LogError("Replacer") << "transformation mode mu-nu ->tau-nu - wrong input";
+				return std::auto_ptr<HepMC::GenEvent>(0);
+			}
 
-      reco::Particle tau1(muon1.charge(), l, muon1.vertex(), targetParticlePdgID_*std::abs(muon1.pdgId())/muon1.pdgId() 
-                                , 0, true
-                         );
-      tau1.setStatus(1);
-      particles.push_back(tau1);
+			targetParticleMass_  = 1.77690;
+			targetParticlePdgID_ = 15;
+			int targetParticlePdgIDNu_ = 16;
+			
+			reco::Muon muon1 = muons.at(0);
+			reco::Muon::LorentzVector l(muon1.px(), muon1.py(), muon1.pz(),
+				sqrt(
+					muon1.px()*muon1.px() +
+					muon1.py()*muon1.py() +
+					muon1.pz()*muon1.pz() + 
+					targetParticleMass_*targetParticleMass_));
 
-      reco::Muon nu    = muons.at(1);
-      reco::Particle nutau( 0, nu.p4(), nu.vertex(), -targetParticlePdgIDNu_*std::abs(muon1.pdgId())/muon1.pdgId(), 0, true);
-      nutau.setStatus(1);
-      particles.push_back(nutau);
+			reco::Particle tau1(muon1.charge(), l, muon1.vertex(), targetParticlePdgID_*std::abs(muon1.pdgId())/muon1.pdgId(), 0, true);
+			tau1.setStatus(1);
+			particles.push_back(tau1);
+
+			reco::Muon nu		= muons.at(1);
+			reco::Particle nutau( 0, nu.p4(), nu.vertex(), -targetParticlePdgIDNu_*std::abs(muon1.pdgId())/muon1.pdgId(), 0, true);
+			nutau.setStatus(1);
+			particles.push_back(nutau);
  
-      break;
-    }  
-
+			break;
+		}	
 	}
 	
 	if (particles.size()==0)
