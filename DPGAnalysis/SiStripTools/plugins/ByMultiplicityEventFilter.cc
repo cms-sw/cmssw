@@ -61,6 +61,7 @@ class ByMultiplicityEventFilter : public edm::EDFilter {
 
   T m_multiplicities;
   StringCutObjectSelector<T> m_selector;
+  bool m_taggedMode, m_forcedValue;
 
 };
 
@@ -78,11 +79,14 @@ class ByMultiplicityEventFilter : public edm::EDFilter {
 template <class T>
 ByMultiplicityEventFilter<T>::ByMultiplicityEventFilter(const edm::ParameterSet& iConfig):
   m_multiplicities(iConfig.getParameter<edm::ParameterSet>("multiplicityConfig")),
-  m_selector(iConfig.getParameter<std::string>("cut"))
+  m_selector(iConfig.getParameter<std::string>("cut")),
+  m_taggedMode(iConfig.getUntrackedParameter<bool>("taggedMode", false)),
+  m_forcedValue(iConfig.getUntrackedParameter<bool>("forcedValue", true))
+
 
 {
    //now do what ever initialization is needed
-
+  produces<bool>();
 
 }
 
@@ -109,7 +113,11 @@ ByMultiplicityEventFilter<T>::filter(edm::Event& iEvent, const edm::EventSetup& 
 
    m_multiplicities.getEvent(iEvent,iSetup);
 
-   return(m_selector(m_multiplicities));
+   bool value = m_selector(m_multiplicities);
+   iEvent.put( std::auto_ptr<bool>(new bool(value)) );
+
+   if(m_taggedMode) return m_forcedValue;
+   return value;
 
 }
 
