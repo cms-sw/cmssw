@@ -11,6 +11,13 @@
 <bin   file="ProjectMatrix_t.cpp" name="DataFormatsProjectMatrix_t">
 </bin>
 <bin   file="FastMath_t.cpp" name="DataFormatsFastMath_t">
+  <flags CXXFLAGS="-Wno-error=format"/>
+</bin>
+<bin   file="testApproximations.cpp" name="testMathApproximations">
+  <flags CXXFLAGS="-Wno-error=format"/>
+</bin>
+<bin   file="testApproxMath.cpp" name="testMathApproxMath">
+  <flags CXXFLAGS="-Wno-error=format"/>
 </bin>
 <bin   file="SSEVec_t.cpp" name="DataFormatsSSEVec_t">
 </bin>
