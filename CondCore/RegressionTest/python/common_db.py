@@ -10,7 +10,7 @@ except ImportError, e:
 DATABASE = "cms_orcoff_prep"
 USERNAME = "CMS_COND_REGRESSION"
 #USERNAME = "CMS_COND_WEB"
-AUTH_PATH = "/afs/cern.ch/cms/DB/conddb/test/authentication.xml"
+AUTH_PATH = "/afs/cern.ch/cms/DB/conddb/test/"
 #end
 
 def extractLogin(login):
