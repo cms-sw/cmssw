@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.27 2012/07/09 16:52:14 tjkim Exp $
+// $Id: PATElectronProducer.h,v 1.28 2012/09/28 21:56:52 beaudett Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::GsfElectron.
 
   \author   Steven Lowette, James Lamb\
-  \version  $Id: PATElectronProducer.h,v 1.27 2012/07/09 16:52:14 tjkim Exp $
+  \version  $Id: PATElectronProducer.h,v 1.28 2012/09/28 21:56:52 beaudett Exp $
 */
 
 
@@ -72,9 +72,12 @@ namespace pat {
       bool          embedGsfElectronCore_;
       bool          embedGsfTrack_;
       bool          embedSuperCluster_;
+      bool          embedSeedCluster_;
       bool          embedTrack_;
       bool          addGenMatch_;
       bool          embedGenMatch_;
+      bool          embedRecHits_;
+      
       std::vector<edm::InputTag> genMatchSrc_;
 
       /// pflow specific
