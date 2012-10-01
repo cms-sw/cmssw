@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HBHEHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HOHitFilter.h"
@@ -44,6 +45,10 @@ private:
   HcalDigiStatistics hoDigiStatistics_;
   HcalDigiStatistics hfDigiStatistics_;
   HcalDigiStatistics zdcDigiStatistics_;
+
+  edm::InputTag hbheDigiCollectionTag_;
+  edm::InputTag hoDigiCollectionTag_;
+  edm::InputTag hfDigiCollectionTag_;
 };
 
 #endif

@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HBHEHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HOHitFilter.h"
@@ -37,8 +38,10 @@ private:
   CaloHitAnalyzer hoAnalyzer_;
   CaloHitAnalyzer hfAnalyzer_;
   CaloHitAnalyzer zdcAnalyzer_;
+
+  edm::InputTag hbheRecHitCollectionTag_;
+  edm::InputTag hoRecHitCollectionTag_;
+  edm::InputTag hfRecHitCollectionTag_;
 };
 
 #endif
-
-
