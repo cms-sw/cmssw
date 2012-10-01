@@ -15,6 +15,7 @@
 <use   name="TrackingTools/RoadSearchHitAccess"/>
 <use   name="TrackingTools/MaterialEffects"/>
 <use   name="TrackingTools/TrackFitters"/>
+<use   name="TrackPropagation/SteppingHelixPropagator"/>
 <export>
   <lib   name="1"/>
 </export>
