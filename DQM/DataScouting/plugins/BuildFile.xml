@@ -1,6 +1,9 @@
 <use name="DQM/DataScouting"/>
 <use name="DQMServices/Components"/>
 <use name="DQMServices/Core"/>
+<use name="DataFormats/TrackingRecHit"/>
+<use name="DataFormats/CSCRecHit"/>
+<use name="DataFormats/TrackReco"/>
 <library name="DQMDataScoutingPlugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
 </library>
