@@ -4,17 +4,17 @@ patMuons.addGenMatch = cms.bool(False)
 
 goodVertex = cms.EDFilter("VertexSelector",
 	src = cms.InputTag("offlinePrimaryVertices"),
-	cut = cms.string("(!isFake) & ndof > 3 & abs(z) < 15 & position.Rho < 2"),
+	cut = cms.string("(!isFake) & ndof >= 4 & abs(z) < 24 & position.Rho < 2"),
 	filter = cms.bool(True)
 )
 
 goodMuons = cms.EDFilter("PATMuonSelector",
 	src = cms.InputTag("patMuons"),
 	cut = cms.string(
-		'pt > 10 && abs(eta) < 2.5 && isGlobalMuon && isTrackerMuon '
-		' && innerTrack.hitPattern.numberOfValidTrackerHits > 9 & innerTrack.hitPattern.numberOfValidPixelHits > 0'
+		'pt > 10 && abs(eta) < 2.5 && isGlobalMuon && isPFMuon '
+		' && track.hitPattern.trackerLayersWithMeasurement > 5 & innerTrack.hitPattern.numberOfValidPixelHits > 0'
 		' && abs(dB) < 0.2 && globalTrack.normalizedChi2 < 10'
-		' && globalTrack.hitPattern.numberOfValidMuonHits > 0 && numberOfMatches > 1'
+		' && globalTrack.hitPattern.numberOfValidMuonHits > 0 && numberOfMatchedStations > 1'
 	),
 	filter = cms.bool(True)
 )
