@@ -35,6 +35,8 @@ class PFPileUp : public edm::EDProducer {
  public:
 
   typedef std::vector< edm::FwdPtr<reco::PFCandidate> >  PFCollection;
+  typedef edm::View<reco::PFCandidate>                   PFView;
+  typedef std::vector<reco::PFCandidate>                 PFCollectionByValue;
 
   explicit PFPileUp(const edm::ParameterSet&);
 

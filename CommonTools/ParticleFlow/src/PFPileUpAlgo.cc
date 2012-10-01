@@ -3,8 +3,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 void PFPileUpAlgo::process(const PFCollection & pfCandidates, 
-			   const reco::VertexCollection & vertices, 
-			   const edm::Handle<PFCollection> * handle)  {
+			   const reco::VertexCollection & vertices)  {
 
   pfCandidatesFromVtx_.clear();
   pfCandidatesFromPU_.clear();
@@ -27,16 +26,10 @@ void PFPileUpAlgo::process(const PFCollection & pfCandidates,
     // not pile-up
     if( ivertex == -1  || 
 	ivertex == 0 ) {
-      pfCandidatesFromVtx_.push_back( (**handle)[i] );
-      if(handle) {
-	//pfCandidatesFromVtx_.back().setSourceCandidatePtr( (**handle)[i].ptr() );
-      }
+      pfCandidatesFromVtx_.push_back( pfCandidates[i] );
     } else {
       // associated to a vertex
-      pfCandidatesFromPU_.push_back( (**handle)[i] );
-      if(handle) {
-	//pfCandidatesFromPU_.back().setSourceCandidatePtr( (**handle)[i].ptr() );
-      }
+      pfCandidatesFromPU_.push_back( pfCandidates[i] );
     }
   }
 }

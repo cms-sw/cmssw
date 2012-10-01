@@ -24,8 +24,7 @@ class PFPileUpAlgo {
 
   // the last parameter is needed if you want to use the sourceCandidatePtr
   void process(const PFCollection & pfCandidates, 
-	       const reco::VertexCollection & vertices, 
-	       const edm::Handle<PFCollection> * handle=0)  ;
+	       const reco::VertexCollection & vertices)  ;
 
   inline void setVerbose(bool verbose) { verbose_ = verbose; }
 
