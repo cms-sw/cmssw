@@ -506,6 +506,25 @@ hpsPFTauDiscriminationByMVA2VTight2ElectronRejection.mapping[7].cut = cms.double
 hpsPFTauDiscriminationByMVA2VTight2ElectronRejection.mapping[8].cut = cms.double(+0.98542428)
 hpsPFTauDiscriminationByMVA2VTight2ElectronRejection.mapping[9].cut = cms.double(+0.91691643)
 
+#Define new sequence that is using smaller number on hits cut
+
+
+hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits = hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr.clone()
+hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits = hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr.clone()
+hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits = hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr.clone()
+
+hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits.qualityCuts.isolationQualityCuts.minTrackHits = cms.uint32(3)
+hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits.qualityCuts.isolationQualityCuts.minTrackHits = cms.uint32(3)
+hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits.qualityCuts.isolationQualityCuts.minTrackHits = cms.uint32(3)
+
+hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr3Hits = cms.Sequence(
+    hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits*
+    hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits*
+    hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits
+            )
+
+
+
 # Define the HPS selection discriminator used in cleaning
 hpsSelectionDiscriminator.PFTauProducer = cms.InputTag("combinatoricRecoTaus")
 
@@ -559,6 +578,8 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr*
 
     hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr*
+    hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr3Hits*
+    
     hpsPFTauDiscriminationByLooseElectronRejection*
     hpsPFTauDiscriminationByMediumElectronRejection*
     hpsPFTauDiscriminationByTightElectronRejection*
