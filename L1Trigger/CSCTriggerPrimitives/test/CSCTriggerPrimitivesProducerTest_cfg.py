@@ -7,7 +7,7 @@ process = cms.Process("MuonCSCTriggerPrimitives")
 
 process.source = cms.Source("PoolSource",
 #    fileNames = cms.untracked.vstring("file:/data0/slava/test/muminus_pt50_CMSSW_3_9_0_pre1.root"),
-    fileNames = cms.untracked.vstring("file:muminus_pt50_CMSSW_5_2_3_p1.root")
+    fileNames = cms.untracked.vstring("file:muminus_pt50_CMSSW_6_1_0_pre2.root")
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -48,7 +48,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = 'DESIGN_31X_V8::All'
-process.GlobalTag.globaltag = 'MC_52_V8::All'
+process.GlobalTag.globaltag = 'MC_61_V1::All'
 
 # magnetic field (do I need it?)
 # ==============================
@@ -89,7 +89,7 @@ process.cscTriggerPrimitiveDigis.tmbParam.verbosity = 2
 process.out = cms.OutputModule("PoolOutputModule",
     # fileName = cms.untracked.string("lcts.root"),
     # fileName = cms.untracked.string("/data0/slava/test/lcts_muminus_pt50_emul_CMSSW_3_9_0_pre1.root"),
-    fileName = cms.untracked.string("lcts_muminus_pt50_emul_CMSSW_5_2_3_p1.root"),
+    fileName = cms.untracked.string("lcts_muminus_pt50_emul_CMSSW_6_1_0_pre2.root"),
     outputCommands = cms.untracked.vstring("keep *", 
         "drop *_DaqSource_*_*")
 )
