@@ -1,11 +1,11 @@
-# /online/collisions/2012/8e33/v1.1/HLT/V4 (CMSSW_5_2_7)
+# /online/collisions/2012/8e33/v1.1/HLT/V5 (CMSSW_5_2_7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/8e33/v1.1/HLT/V4')
+  tableName = cms.string('/online/collisions/2012/8e33/v1.1/HLT/V5')
 )
 
 process.streams = cms.PSet( 
@@ -43686,7 +43686,6 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v10',
   'HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v10',
   'HLT_LooseIsoPFTau35_Trk20_Prong1_v10',
-  'HLT_MET100_HBHENoiseCleaned_v1',
   'HLT_MET120_HBHENoiseCleaned_v5',
   'HLT_MET120_v12',
   'HLT_MET200_HBHENoiseCleaned_v5',
@@ -43696,7 +43695,6 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_MET400_HBHENoiseCleaned_v5',
   'HLT_MET400_v7',
   'HLT_MET80_HBHENoiseCleaned_v1',
-  'HLT_MET80_Parked_v5',
   'HLT_MET80_Track50_dEdx3p6_v6',
   'HLT_MET80_Track60_dEdx3p7_v6',
   'HLT_MET80_v5',
@@ -43705,9 +43703,9 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_Mu12_eta2p1_DiCentral_40_20_BTagIP3D1stTrack_v8',
   'HLT_Mu12_eta2p1_DiCentral_40_20_DiBTagIP3D1stTrack_v8',
   'HLT_Mu12_eta2p1_DiCentral_40_20_v8',
-  'HLT_Mu12_eta2p1_L1Mu10erJetC12WdEtaPhi1DiJetsC_v7')+cms.vstring( 'HLT_Mu12_v18',
-  'HLT_Mu14_Ele14_CaloIdT_TrkIdVL_Mass8_PFMET40_v8',
-  'HLT_Mu14_Ele14_CaloIdT_TrkIdVL_Mass8_PFMET50_v8',
+  'HLT_Mu12_eta2p1_L1Mu10erJetC12WdEtaPhi1DiJetsC_v7',
+  'HLT_Mu12_v18',
+  'HLT_Mu14_Ele14_CaloIdT_TrkIdVL_Mass8_PFMET40_v8')+cms.vstring( 'HLT_Mu14_Ele14_CaloIdT_TrkIdVL_Mass8_PFMET50_v8',
   'HLT_Mu15_eta2p1_DiCentral_20_v1',
   'HLT_Mu15_eta2p1_DiCentral_40_20_v1',
   'HLT_Mu15_eta2p1_L1ETM20_v5',
@@ -43787,9 +43785,6 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v5',
   'HLT_Photon300_NoHE_v5',
   'HLT_Photon30_CaloIdVL_v14',
-  'HLT_Photon30_R9Id90_CaloId_HE10_Iso40_EBOnly_Met25_HBHENoiseCleaned_v1',
-  'HLT_Photon30_R9Id90_CaloId_HE10_Iso40_EBOnly_v1',
-  'HLT_Photon30_v1',
   'HLT_Photon36_CaloId10_Iso50_Photon22_CaloId10_Iso50_v6',
   'HLT_Photon36_CaloId10_Iso50_Photon22_R9Id85_v6',
   'HLT_Photon36_Photon22_v6',
