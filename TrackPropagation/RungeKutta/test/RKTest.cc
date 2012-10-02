@@ -77,56 +77,70 @@ void RKTest::propagateInCentralVolume( const MagneticField* field) const
 
   for (float phi = -3.14; phi<3.14 ; phi+=0.5) {
     for (float costh = -0.99; costh<+0.99 ; costh+=0.3) {
-      cout << "And now trying costh, phi = " << costh << ", " << phi << endl;
-      
-      //Define starting position and momentum
+       //Define starting position and momentum
       float sinth = sqrt(1-costh*costh);
-      GlobalVector startingMomentum(5*sin(phi)*sinth,5*cos(phi)*sinth,5*costh);
-      GlobalPoint startingPosition(0,0,0);
-      //Define starting plane
-      PlaneBuilder pb;
-      Surface::RotationType rot = rotation( startingMomentum);
-      PlaneBuilder::ReturnType startingPlane = pb.plane( startingPosition, rot);
-      // Define end plane
-      float propDistance = 100; // 100 cm
-      GlobalPoint targetPos( (propDistance*startingMomentum.unit()).basicVector());
-      PlaneBuilder::ReturnType EndPlane = pb.plane( targetPos, rot);
-      // Define error matrix
-       ROOT::Math::SMatrixIdentity id;
-      AlgebraicSymMatrix55 C(id);
-      C *= 0.01;
-      CurvilinearTrajectoryError err(C);
-
-      TSOS startingStateP( GlobalTrajectoryParameters(startingPosition, 
-						      startingMomentum, 1, &TestField), 
-			   err, *startingPlane);
-
-      TSOS startingStateM( GlobalTrajectoryParameters(startingPosition, 
-						      startingMomentum, -1, &TestField), 
-			   err, *startingPlane);
-
-      try {
-	TSOS trackStateP = RKprop.propagate( startingStateP, *EndPlane);
-	cout << "Succesfully finished Positive track propagation  -------------- with RK: " << trackStateP.globalPosition() << endl;
-	TSOS trackStateP2 = ANprop.propagate( startingStateP, *EndPlane);
-	cout << "Succesfully finished Positive track propagation  -------------- with AN: " << trackStateP2.globalPosition() << endl;
-      } catch (MagVolumeOutsideValidity & duh){
-	cout << "MagVolumeOutsideValidity not properly caught!! Lost this track " << endl;
+      for (float p=0.5; p<12; p+=1.) {
+	GlobalVector startingMomentum(p*sin(phi)*sinth,p*cos(phi)*sinth,p*costh);
+	for (float z=-100.; z<100.;z+=10.) {
+	  GlobalPoint startingPosition(0,0,z);
+	  //Define starting plane
+	  PlaneBuilder pb;
+	  Surface::RotationType rot = rotation(startingMomentum);
+	  PlaneBuilder::ReturnType startingPlane = pb.plane( startingPosition, rot);
+	  // Define end plane
+	  for (float d=10.; d<150.;d+=10.) {
+	    cout << "And now trying costh, phi, p, z, dist = " 
+		 << costh << ", " << phi
+		 << ", " << p 
+		 << ", " << z
+		 << ", " << d << endl;
+      
+     
+	    float propDistance = d; // 100 cm
+	    GlobalPoint targetPos = startingPosition + propDistance*startingMomentum.unit();
+	    PlaneBuilder::ReturnType EndPlane = pb.plane( targetPos, rot);
+	    // Define error matrix
+	    ROOT::Math::SMatrixIdentity id;
+	    AlgebraicSymMatrix55 C(id);
+	    C *= 0.01;
+	    CurvilinearTrajectoryError err(C);
+	    
+	    TSOS startingStateP( GlobalTrajectoryParameters(startingPosition, 
+							    startingMomentum, 1, &TestField), 
+				 err, *startingPlane);
+	    
+	    TSOS startingStateM( GlobalTrajectoryParameters(startingPosition, 
+							    startingMomentum, -1, &TestField), 
+				 err, *startingPlane);
+	    
+	    try {
+	      TSOS trackStateP = RKprop.propagate( startingStateP, *EndPlane);
+	      if (trackStateP.isValid())
+		cout << "Succesfully finished Positive track propagation  -------------- with RK: " << trackStateP.globalPosition() << endl;
+	      TSOS trackStateP2 = ANprop.propagate( startingStateP, *EndPlane);
+	      if (trackStateP2.isValid())
+		cout << "Succesfully finished Positive track propagation  -------------- with AN: " << trackStateP2.globalPosition() << endl;
+	    } catch (MagVolumeOutsideValidity & duh){
+	      cout << "MagVolumeOutsideValidity not properly caught!! Lost this track " << endl;
+	    }
+	    
+	    try {
+	      TSOS trackStateM = RKprop.propagate( startingStateM, *EndPlane);
+	      if (trackStateM.isValid())
+		cout << "Succesfully finished Negative track propagation  -------------- with RK: " << trackStateM.globalPosition() << endl;
+	      TSOS trackStateM2 = ANprop.propagate( startingStateM, *EndPlane);
+	      if (trackStateM2.isValid())
+	      cout << "Succesfully finished Negative track propagation  -------------- with AN: " << trackStateM2.globalPosition() << endl;
+	    } catch (MagVolumeOutsideValidity & duh){
+	      cout <<  "MagVolumeOutsideValidity not properly caught!! Lost this track " << endl;
+	    }
+	  }
+	}
       }
-
-      try {
-	TSOS trackStateM = RKprop.propagate( startingStateM, *EndPlane);
-	cout << "Succesfully finished Negative track propagation  -------------- with RK: " << trackStateM.globalPosition() << endl;
-	TSOS trackStateM2 = ANprop.propagate( startingStateM, *EndPlane);
-	cout << "Succesfully finished Negative track propagation  -------------- with AN: " << trackStateM2.globalPosition() << endl;
-      } catch (MagVolumeOutsideValidity & duh){
-	cout <<  "MagVolumeOutsideValidity not properly caught!! Lost this track " << endl;
-      }
-    }
+    }     
   }
   cout << " Succesfully reached the END of this test !!!!!!!!!! " << endl;
 }
-
 
 Surface::RotationType RKTest::rotation( const GlobalVector& zDir) const
 {
@@ -135,7 +149,8 @@ Surface::RotationType RKTest::rotation( const GlobalVector& zDir) const
   GlobalVector xAxis = yAxis.cross( zAxis);
   return Surface::RotationType( xAxis, yAxis, zAxis);
 }
-
-
-DEFINE_FWK_MODULE(RKTest);
-
+    
+    
+    DEFINE_FWK_MODULE(RKTest);
+    
+    
