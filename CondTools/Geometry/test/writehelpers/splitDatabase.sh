@@ -7,6 +7,8 @@ cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:GeometryFileExtendedL
 cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:GeometryFileExtendedX0Min.db -D CondFormatsGeometryObjects  -t XMLFILE_Geometry_TagXX_ExtendedX0Min_mc -l sqlite_file:localpopconlog.db
 cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:GeometryFileExtendedX0Max.db -D CondFormatsGeometryObjects  -t XMLFILE_Geometry_TagXX_ExtendedX0Max_mc -l sqlite_file:localpopconlog.db
 cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:GeometryFileExtendedPhaseIBeamPipe.db -D CondFormatsGeometryObjects  -t XMLFILE_Geometry_TagXX_ExtendedPhaseIBeamPipe_mc -l sqlite_file:localpopconlog.db
+cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:GeometryFileExtendedPostLS1.db -D CondFormatsGeometryObjects  -t XMLFILE_Geometry_TagXX_ExtendedPostLS1_mc -l sqlite_file:localpopconlog.db
+cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:GeometryFileExtendedPostLS2.db -D CondFormatsGeometryObjects  -t XMLFILE_Geometry_TagXX_ExtendedPostLS2_mc -l sqlite_file:localpopconlog.db
 cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:TKRECO_Geometry.db -D CondFormatsGeometryObjects  -t TKRECO_Geometry_TagXX -l sqlite_file:localpopconlog.db
 cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:TKExtra_Geometry.db -D CondFormatsGeometryObjects  -t TKExtra_Geometry_TagXX -l sqlite_file:localpopconlog.db
 cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:EBRECO_Geometry.db -D CondFormatsGeometryObjects  -t EBRECO_Geometry_TagXX -l sqlite_file:localpopconlog.db
