@@ -34,13 +34,13 @@ OAEParametrizedMagneticField::inTesla(const GlobalPoint& gp) const {
 }
 
 namespace {
-  double ooh = 1./100;
+  constexpr float ooh = 1./100;
 }
 
 GlobalVector
 OAEParametrizedMagneticField::inTeslaUnchecked(const GlobalPoint& gp) const {
-  double x[3] = {gp.x()*ooh, gp.y()*ooh, gp.z()*ooh};
-  double B[3];
+  float x[3] = {gp.x()*ooh, gp.y()*ooh, gp.z()*ooh};
+  float B[3];
   theParam.getBxyz(x,B);
   return GlobalVector(B[0], B[1], B[2]);
 }
@@ -48,5 +48,5 @@ OAEParametrizedMagneticField::inTeslaUnchecked(const GlobalPoint& gp) const {
 
 bool
 OAEParametrizedMagneticField::isDefined(const GlobalPoint& gp) const {
-  return (gp.perp2()<(115.*115.) && fabs(gp.z())<280.);
+  return (gp.perp2()<(115.f*115.f) && fabs(gp.z())<280.f);
 }
