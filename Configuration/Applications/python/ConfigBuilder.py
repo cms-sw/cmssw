@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -208,6 +208,8 @@ class ConfigBuilder(object):
         self.additionalOutputs = {}
 
         self.productionFilterSequence = None
+	self.nextScheduleIsConditional=False
+	self.conditionalPaths=[]
 
     def profileOptions(self):
 	    """
@@ -251,6 +253,11 @@ class ConfigBuilder(object):
 		    profilerJobFormat = profilerFormat + "_EndOfJob.gz"
 
 	    return (profilerStart,profilerInterval,profilerFormat,profilerJobFormat)
+
+    def load(self,includeFile):
+        includeFile = includeFile.replace('/','.')
+        self.process.load(includeFile)
+        return sys.modules[includeFile]
 
     def loadAndRemember(self, includeFile):
         """helper routine to load am memorize imports"""
@@ -495,6 +502,8 @@ class ConfigBuilder(object):
 						  )
 			if not theSelectEvent and hasattr(self.process,'generation_step'):
 				output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
+			if not theSelectEvent and hasattr(self.process,'filtering_step'):
+				output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('filtering_step'))				
 			if theSelectEvent:
 				output.SelectEvents =cms.untracked.PSet(SelectEvents = cms.vstring(theSelectEvent))
 			
@@ -554,6 +563,8 @@ class ConfigBuilder(object):
                                           )
                 if hasattr(self.process,"generation_step"):
                         output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
+		if hasattr(self.process,"filtering_step"):
+                        output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('filtering_step'))
 
                 if streamType=='ALCARECO':
                         output.dataset.filterName = cms.untracked.string('StreamALCACombined')
@@ -1083,6 +1094,8 @@ class ConfigBuilder(object):
 	    else:
 		    #create as many path as many sequences
 		    if not '+' in seq:
+			    if self.nextScheduleIsConditional:
+				    self.conditionalPaths.append(prefix)
 			    setattr(self.process,prefix,getattr(cms,what)( getattr(self.process, seq) ))
 			    self.schedule.append(getattr(self.process,prefix))
 		    else:
@@ -1401,6 +1414,38 @@ class ConfigBuilder(object):
         self.loadDefaultOrSpecifiedCFF(sequence,self.L1RecoDefaultCFF)
 	self.scheduleSequence(sequence.split('.')[-1],'L1Reco_step')
         return
+
+    def prepare_FILTER(self, sequence = None):
+        ''' Enrich the schedule with a user defined filter sequence '''
+	## load the relevant part
+	filterConfig=self.load(sequence.split('.')[0])
+	filterSeq=sequence.split('.')[-1]
+	## print it in the configuration
+	class PrintAllModules(object):
+		def __init__(self):
+			self.inliner=''
+			pass
+		def enter(self,visitee):
+			try:
+				label=visitee.label()
+				##needs to be in reverse order
+				self.inliner=label+','+self.inliner
+			except:
+				pass
+		def leave(self,v): pass
+
+	expander=PrintAllModules()
+	getattr(self.process,filterSeq).visit( expander )
+	self._options.inlineObjets+=','+expander.inliner
+	self._options.inlineObjets+=','+filterSeq
+		
+	## put the filtering path in the schedule
+	self.scheduleSequence(filterSeq,'filtering_step')
+	self.nextScheduleIsConditional=True
+	## put it before all the other paths
+	self.productionFilterSequence = filterSeq 
+	
+	return
 
     def prepare_RECO(self, sequence = "reconstruction"):
         ''' Enrich the schedule with reconstruction '''
@@ -1757,7 +1802,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.2 $"),
+                                            (version=cms.untracked.string("$Revision: 1.3 $"),
                                              name=cms.untracked.string("Applications"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
@@ -1883,10 +1928,14 @@ class ConfigBuilder(object):
         if self.productionFilterSequence:
                 self.pythonCfgCode +='# filter all path with the production filter sequence\n'
                 self.pythonCfgCode +='for path in process.paths:\n'
+		if len(self.conditionalPaths):
+			self.pythonCfgCode +='\tif not path in %s: continue\n'%str(self.conditionalPaths)
                 self.pythonCfgCode +='\tgetattr(process,path)._seq = process.%s * getattr(process,path)._seq \n'%(self.productionFilterSequence,)
 		pfs = getattr(self.process,self.productionFilterSequence)
 		for path in self.process.paths:
+			if not path in self.conditionalPaths: continue
 			getattr(self.process,path)._seq = pfs * getattr(self.process,path)._seq
+			
 
         # dump customise fragment
 	self.pythonCfgCode += self.addCustomise()

@@ -75,6 +75,7 @@ def OptionsFromItems(items):
     # The default form of the files is:
     # <type>_<energy>_<step>.root
     prec_step = {"NONE":"",
+                 "FILTER":"",
                  "ALL":"",
                  "LHE":"",
                  "GEN":"",
