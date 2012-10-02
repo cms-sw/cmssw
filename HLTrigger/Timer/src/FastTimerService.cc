@@ -34,6 +34,8 @@ typedef int clockid_t;
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/HLTPathStatus.h"
@@ -80,6 +82,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_dqm_pathtime_resolution(     config.getUntrackedParameter<double>( "dqmPathTimeResolution"    ) ),    // ms
   m_dqm_moduletime_range(        config.getUntrackedParameter<double>( "dqmModuleTimeRange"       ) ),    // ms
   m_dqm_moduletime_resolution(   config.getUntrackedParameter<double>( "dqmModuleTimeResolution"  ) ),    // ms
+  m_dqm_lumi_range(              config.getUntrackedParameter<double>( "dqmLumiSectionsRange"     ) ),    // lumisections
   m_dqm_path(                    config.getUntrackedParameter<std::string>("dqmPath" ) ),
   // caching
   m_first_path(0),          // these are initialized at prePathBeginRun(),
@@ -107,6 +110,11 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_dqm_paths_active_time(0),
   m_dqm_paths_total_time(0),
   m_dqm_paths_exclusive_time(0),
+  // per-lumisection plots
+  m_dqm_bylumi_event(0),
+  m_dqm_bylumi_source(0),
+  m_dqm_bylumi_all_paths(0),
+  m_dqm_bylumi_all_endpaths(0),
   // per-path and per-module accounting
   m_current_path(0),
   m_paths(),
@@ -192,22 +200,6 @@ void FastTimerService::postBeginJob() {
     m_dqms = edm::Service<DQMStore>().operator->();
 
   if (m_dqms) {
-    if (m_enable_dqm_bylumi) {
-      // by-lumi plots use a different second-level directory:
-      //    TimerService   --> TimerService/EventInfo
-      //    HLT/Timer      --> HLT/EventInfo/Timer
-      // etc.
-
-      // assume the path to be relative, and to have at least an item
-      boost::filesystem::path dqm_path(m_dqm_path);
-      boost::filesystem::path::iterator item = dqm_path.begin();
-      boost::filesystem::path path = * item++;
-      path /= "EventInfo";
-      while (item != dqm_path.end())
-        path /= * item++;
-      m_dqm_path = path.generic_string();
-    }
-
     // book MonitorElement's
     int eventbins  = (int) std::ceil(m_dqm_eventtime_range  / m_dqm_eventtime_resolution);
     int pathbins   = (int) std::ceil(m_dqm_pathtime_range   / m_dqm_pathtime_resolution);
@@ -252,6 +244,19 @@ void FastTimerService::postBeginJob() {
         m_dqm_paths_exclusive_time ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
     }
 
+    // per-lumisection plots
+    if (m_enable_dqm_bylumi) {
+      m_dqm_bylumi_event        = m_dqms->bookProfile("", "", m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, eventbins, 0., m_dqm_eventtime_range, " ")->getTProfile();
+      m_dqm_bylumi_event        ->StatOverflows(true);
+      m_dqm_bylumi_source       = m_dqms->bookProfile("", "", m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, pathbins,  0., m_dqm_pathtime_range,  " ")->getTProfile();
+      m_dqm_bylumi_source       ->StatOverflows(true);
+      m_dqm_bylumi_all_paths    = m_dqms->bookProfile("", "", m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, eventbins, 0., m_dqm_eventtime_range, " ")->getTProfile();
+      m_dqm_bylumi_all_paths    ->StatOverflows(true);
+      m_dqm_bylumi_all_endpaths = m_dqms->bookProfile("", "", m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, pathbins,  0., m_dqm_pathtime_range,  " ")->getTProfile();
+      m_dqm_bylumi_all_endpaths ->StatOverflows(true);
+    }
+
+    // per-path and per-module accounting
     if (m_enable_timing_paths) {
       m_dqms->setCurrentFolder((m_dqm_path + "/Paths"));
       for (auto & keyval: m_paths) {
@@ -505,8 +510,17 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
   stop(m_timer_event);
   m_event = delta(m_timer_event);
   m_summary_event += m_event;
-  if (m_dqms)
+  if (m_dqms) {
     m_dqm_event->Fill(m_event * 1000.);                     // convert to ms
+
+    if (m_enable_dqm_bylumi) {
+      unsigned int lumi = event.getLuminosityBlock().luminosityBlock();
+      m_dqm_bylumi_event        ->Fill(lumi, m_event        * 1000.);       // convert to ms
+      m_dqm_bylumi_source       ->Fill(lumi, m_source       * 1000.);       // convert to ms
+      m_dqm_bylumi_all_paths    ->Fill(lumi, m_all_paths    * 1000.);       // convert to ms
+      m_dqm_bylumi_all_endpaths ->Fill(lumi, m_all_endpaths * 1000.);       // convert to ms
+    }
+  }
 }
 
 void FastTimerService::preSource() {
@@ -906,12 +920,13 @@ void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.addUntracked<bool>(   "enableDQMbyPathExclusive", false);
   desc.addUntracked<bool>(   "enableDQMbyModule",        false);
   desc.addUntracked<bool>(   "enableDQMbyLumi",          false);
-  desc.addUntracked<double>( "dqmTimeRange",             1000. );
-  desc.addUntracked<double>( "dqmTimeResolution",           5. );
-  desc.addUntracked<double>( "dqmPathTimeRange",          100. );
-  desc.addUntracked<double>( "dqmPathTimeResolution",       0.5);
-  desc.addUntracked<double>( "dqmModuleTimeRange",         40. );
-  desc.addUntracked<double>( "dqmModuleTimeResolution",     0.2);
+  desc.addUntracked<double>( "dqmTimeRange",             1000. );   // ms
+  desc.addUntracked<double>( "dqmTimeResolution",           5. );   // ms
+  desc.addUntracked<double>( "dqmPathTimeRange",          100. );   // ms
+  desc.addUntracked<double>( "dqmPathTimeResolution",       0.5);   // ms
+  desc.addUntracked<double>( "dqmModuleTimeRange",         40. );   // ms
+  desc.addUntracked<double>( "dqmModuleTimeResolution",     0.2);   // ms
+  desc.addUntracked<int>(    "dqmLumiSectionsRange",     2500 );    // ~ 16 hours
   desc.addUntracked<std::string>( "dqmPath",             "HLT/TimerService");
   descriptions.add("FastTimerService", desc);
 }

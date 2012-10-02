@@ -286,6 +286,7 @@ private:
   const double                                  m_dqm_pathtime_resolution;
   const double                                  m_dqm_moduletime_range;
   const double                                  m_dqm_moduletime_resolution;
+  const int                                     m_dqm_lumi_range;
   std::string                                   m_dqm_path;
 
   // job configuration and caching
@@ -317,6 +318,12 @@ private:
   TProfile *                                    m_dqm_paths_active_time;
   TProfile *                                    m_dqm_paths_total_time;
   TProfile *                                    m_dqm_paths_exclusive_time;
+
+  // per-lumisection plots
+  TProfile *                                    m_dqm_bylumi_event;
+  TProfile *                                    m_dqm_bylumi_source;
+  TProfile *                                    m_dqm_bylumi_all_paths;
+  TProfile *                                    m_dqm_bylumi_all_endpaths;
 
   // per-path and per-module accounting
   PathInfo *                                    m_current_path;
