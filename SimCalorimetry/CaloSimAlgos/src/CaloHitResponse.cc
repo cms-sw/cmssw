@@ -34,7 +34,8 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
   theRandPoisson(0),
   theMinBunch(-10), 
   theMaxBunch(10),
-  thePhaseShift_(1.) {}
+  thePhaseShift_(1.),
+  changeScale(false) {}
 
 CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
                                  const CaloShapes * shapes)
@@ -49,14 +50,14 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
   theRandPoisson(0),
   theMinBunch(-10),
   theMaxBunch(10),
-  thePhaseShift_(1.) {}
+  thePhaseShift_(1.),
+  changeScale(false) {}
 
 CaloHitResponse::~CaloHitResponse() {
   delete theRandPoisson;
 }
 
 void CaloHitResponse::initHBHEScale() {
-  changeScale = false;
 #ifdef ChangeHcalEnergyScale
   for (int ij=0; ij<100; ij++) {
     for (int jk=0; jk<72; jk++) {	
