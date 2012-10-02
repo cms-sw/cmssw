@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.65 2012/09/28 21:56:52 beaudett Exp $
+// $Id: PATElectronProducer.cc,v 1.66 2012/09/30 23:23:05 tjkim Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
 
@@ -37,7 +37,6 @@
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-//#include "PhysicsTools/PatAlgos/interface/ShowerShapeHelper.h"
 
 #include <vector>
 #include <memory>
@@ -176,10 +175,6 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   edm::ESHandle<CaloTopology> theCaloTopology;
   iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
   ecalTopology_ = & (*theCaloTopology);
-
-  edm::ESHandle<CaloGeometry> theCaloGeometry;
-  iSetup.get<CaloGeometryRecord>().get(theCaloGeometry); 
-  caloGeometry_ = & (*theCaloGeometry);
 
   // Get the collection of electrons from the event
   edm::Handle<edm::View<reco::GsfElectron> > electrons;
@@ -432,11 +427,6 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	  }
 	  if (embedRecHits_) anElectron.embedRecHits(& selectedRecHits);
          
-	  // Test
-	  //	  ShowerShapeHelper ssh(&anElectron,anElectron.recHits(),ecalTopology_,caloGeometry_);
-	  //
-	  //	  std::cout << " E3x3 : " << ssh.e3x3() << std::endl;
-	    
 	    // set conversion veto selection
           bool passconversionveto = false;
           if( hConversions.isValid()){
