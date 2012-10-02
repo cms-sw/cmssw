@@ -12,6 +12,7 @@
 
 // Framework
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 // Data Formats
 #include "FastSimDataFormats/External/interface/FastTrackerClusterCollection.h"
@@ -56,6 +57,7 @@ class SiClusterTranslator : public edm::EDProducer
   
   
   const TrackerGeometry* geometry;
+  edm::InputTag fastTrackerClusterCollectionTag_;
 };
 
 

@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 testanalyzer = cms.EDAnalyzer("GSRecHitValidation",
+                              matchedHitCollectionInputTag = cms.InputTag("siTrackerGaussianSmearingRecHits", "TrackerGSMatchedRecHits"),
+                              hitCollectionInputTag = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSRecHits"),
                               #TID
                               TID_Pos_x_AxisLim = cms.double(6.0),
                               TID_Pos_y_AxisLim = cms.double(10.0),

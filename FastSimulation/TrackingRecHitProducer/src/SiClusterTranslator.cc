@@ -53,7 +53,8 @@
 #include <memory>
 #include <string>
 
-SiClusterTranslator::SiClusterTranslator(edm::ParameterSet const& conf) 
+SiClusterTranslator::SiClusterTranslator(edm::ParameterSet const& conf) :
+  fastTrackerClusterCollectionTag_(conf.getParameter<edm::InputTag>("fastTrackerClusterCollectionTag"))
 {
   produces<edmNew::DetSetVector<SiStripCluster> >();
   produces<edmNew::DetSetVector<SiPixelCluster> >();
@@ -78,7 +79,7 @@ SiClusterTranslator::produce(edm::Event& e, const edm::EventSetup& es)
 {
   // Step A: Get Inputs (FastGSRecHit's)
   edm::Handle<FastTrackerClusterCollection> theFastClusters; 
-  e.getByType(theFastClusters);
+  e.getByLabel(fastTrackerClusterCollectionTag_, theFastClusters);
   
   edm::ESHandle<TrackerGeometry> tkgeom;
   es.get<TrackerDigiGeometryRecord>().get( tkgeom ); 

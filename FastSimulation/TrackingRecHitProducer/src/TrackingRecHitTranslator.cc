@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 //#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Data Formats
 #include "DataFormats/DetId/interface/DetId.h"
@@ -29,7 +30,8 @@
 #include <memory>
 #include <string>
 
-TrackingRecHitTranslator::TrackingRecHitTranslator(edm::ParameterSet const& conf) 
+TrackingRecHitTranslator::TrackingRecHitTranslator(edm::ParameterSet const& conf) :
+  hitCollectionInputTag_(conf.getParameter<edm::InputTag>("hitCollectionInputTag"))
 {
   produces<SiTrackerFullGSRecHit2DCollection>();
 }
@@ -51,7 +53,7 @@ void TrackingRecHitTranslator::produce(edm::Event& e, const edm::EventSetup& es)
 {
   // Step A: Get Inputs (FastGSRecHit's)
   edm::Handle<SiTrackerGSRecHit2DCollection> theFastRecHits; 
-  e.getByType(theFastRecHits);
+  e.getByLabel(hitCollectionInputTag_, theFastRecHits);
 
   // Step B: fill a temporary full RecHit collection from the fast RecHit collection
   SiTrackerGSRecHit2DCollection::const_iterator aHit = theFastRecHits->begin();

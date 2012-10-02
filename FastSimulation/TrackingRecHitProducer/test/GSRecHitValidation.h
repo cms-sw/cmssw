@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
@@ -98,6 +99,9 @@ class GSRecHitValidation : public edm::EDAnalyzer {
 
   int iEventCounter;
   TString outfilename;
+
+  edm::InputTag matchedHitCollectionInputTag_;
+  edm::InputTag hitCollectionInputTag_;
 };
 
 #endif

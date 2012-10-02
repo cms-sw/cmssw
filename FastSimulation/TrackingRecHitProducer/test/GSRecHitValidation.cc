@@ -33,7 +33,9 @@ using namespace edm;
 using namespace std;
     
 GSRecHitValidation::GSRecHitValidation(edm::ParameterSet const& conf) : 
-  conf_(conf) {
+  conf_(conf),
+  matchedHitCollectionInputTag_(conf.getParameter<edm::InputTag>("matchedHitCollectionInputTag")),
+  hitCollectionInputTag_(conf.getParameter<edm::InputTag>("hitCollectionInputTag")) {
   
   iEventCounter=0;
   
@@ -336,11 +338,11 @@ void GSRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup&
   
   //Get RecHits from the event
   edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSMatchedRecHits;
-  event.getByType(theGSMatchedRecHits);
+  event.getByLabel(matchedHitCollectionInputTag_, theGSMatchedRecHits);
 
   //Get RecHits from the event
   edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
-  event.getByType(theGSRecHits);
+  event.getByLabel(hitCollectionInputTag_, theGSRecHits);
   
   // stop with error if empty RecHit collection
   if(theGSMatchedRecHits->size() == 0) {
