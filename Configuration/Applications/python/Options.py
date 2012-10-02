@@ -60,6 +60,10 @@ parser.add_option("-n", "--number",
                   help="The number of events. The default is 1.",
                   default="1",
                   dest="number")
+parser.add_option("-o", "--number_out",
+                  help="The number of events in output. The default is not set",
+                  default=None,
+                  dest="number_out")
 
 parser.add_option("--mc",
                   help="Specify that simulation is to be processed (default = guess based on options",
