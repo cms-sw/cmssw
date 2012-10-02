@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.30 2012/04/25 17:15:38 cbern Exp $
+// $Id: Electron.cc,v 1.31 2012/09/28 21:57:42 beaudett Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -22,7 +22,11 @@ Electron::Electron() :
     ecalDrivenMomentum_(Candidate::LorentzVector(0.,0.,0.,0.)),
     cachedDB_(false),
     dB_(0.0),
-    edB_(0.0)
+    edB_(0.0),   
+    ecalRegressionEnergy_(0.0),
+    ecalTrackRegressionEnergy_(0.0),
+    ecalRegressionError_(0.0),
+    ecalTrackRegressionError_(0.0)
 {
   initImpactParameters();
 }

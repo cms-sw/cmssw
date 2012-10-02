@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.41 2012/08/30 00:19:27 tjkim Exp $
+// $Id: Electron.h,v 1.42 2012/09/28 21:57:42 beaudett Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.41 2012/08/30 00:19:27 tjkim Exp $
+  \version  $Id: Electron.h,v 1.42 2012/09/28 21:57:42 beaudett Exp $
 */
 
 
@@ -186,12 +186,14 @@ namespace pat {
       /// additional regression variables
       /// regression1
       double ecalRegressionEnergy() const { return ecalRegressionEnergy_;}
+      double ecalRegressionError() const { return ecalRegressionError_;}
       /// regression2
       double ecalTrackRegressionEnergy() const { return ecalTrackRegressionEnergy_; }
+      double ecalTrackRegressionError() const { return ecalTrackRegressionError_; }
       /// set regression1
-      void setEcalRegressionEnergy(double val) { ecalRegressionEnergy_ = val; }
+      void setEcalRegressionEnergy(double val, double err) { ecalRegressionEnergy_ = val; ecalRegressionError_ = err; }
       /// set regression2
-      void setEcalTrackRegressionEnergy(double val) { ecalTrackRegressionEnergy_ = val; }
+      void setEcalTrackRegressionEnergy(double val, double err) { ecalTrackRegressionEnergy_ = val; ecalTrackRegressionError_ = err; }
 
       /// vertex fit combined with missing number of hits method
       bool passConversionVeto() const { return passConversionVeto_; }
@@ -261,6 +263,8 @@ namespace pat {
       /// output of regression
       double ecalRegressionEnergy_;
       double ecalTrackRegressionEnergy_;
+      double ecalRegressionError_;
+      double ecalTrackRegressionError_;
 
       /// conversion veto
       bool passConversionVeto_;
