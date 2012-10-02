@@ -11,6 +11,7 @@ DATABASE = "cms_orcoff_prep"
 USERNAME = "CMS_COND_REGRESSION"
 #USERNAME = "CMS_COND_WEB"
 AUTH_PATH = "/afs/cern.ch/cms/DB/conddb/test/"
+AUTH_FILE = "authentication.xml"
 #end
 
 def extractLogin(login):
@@ -37,6 +38,7 @@ def createDBConnection():
 def getDBConnectionParams():
     os.environ['TNS_ADMIN'] = "/afs/cern.ch/project/oracle/admin"
     coralConnStr = "oracle://"+DATABASE+"/"+USERNAME+""
-    PASSWORD = getLogin(AUTH_PATH, coralConnStr)
+    authFilePath = os.path.join(AUTH_PATH,AUTH_FILE)
+    PASSWORD = getLogin(authFilePath, coralConnStr)
     return (coralConnStr,USERNAME,PASSWORD,AUTH_PATH)
 
