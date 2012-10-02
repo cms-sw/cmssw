@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-topSingleLeptonTriggerDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleLeptonTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -134,7 +134,7 @@ topSingleLeptonTriggerDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   )
 )
 
-topSingleMuonLooseTriggerDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleMuonLooseTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -308,7 +308,7 @@ topSingleMuonLooseTriggerDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ), 
   )
 )
-topSingleMuonMediumTriggerDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleMuonMediumTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -487,7 +487,7 @@ topSingleMuonMediumTriggerDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   )
 )
 
-topSingleElectronLooseTriggerDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleElectronLooseTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -664,7 +664,7 @@ topSingleElectronLooseTriggerDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   )
 )
 
-topSingleElectronMediumTriggerDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleElectronMediumTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
   ## ------------------------------------------------------
   ## SETUP
   ##
