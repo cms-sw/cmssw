@@ -19,15 +19,21 @@ EcalClusterLocal::EcalClusterLocal()
 EcalClusterLocal::~EcalClusterLocal()
 {}
 
-void EcalClusterLocal::localCoordsEB( const reco::CaloCluster &bclus, const edm::EventSetup &es, float &etacry, float &phicry, int &ieta, int &iphi, float &thetatilt, float &phitilt) const
+void EcalClusterLocal::localCoordsEB( const reco::BasicCluster &bclus, const edm::EventSetup &es, float &etacry, float &phicry, int &ieta, int &iphi, float &thetatilt, float &phitilt) const {
+  edm::ESHandle<CaloGeometry> pG;
+  es.get<CaloGeometryRecord>().get(pG); 
+  localCoordsEB( bclus, *pG, etacry, phicry, ieta, iphi, thetatilt, phitilt);
+}
+
+
+
+ 
+void EcalClusterLocal::localCoordsEB( const reco::BasicCluster &bclus, const CaloGeometry & caloGeometry,  float &etacry, float &phicry, int &ieta, int &iphi, float &thetatilt, float &phitilt) const
 {
   
   assert(bclus.hitsAndFractions().at(0).first.subdetId()==EcalBarrel);
   
-  edm::ESHandle<CaloGeometry> pG;
-  es.get<CaloGeometryRecord>().get(pG); 
-  
-  const CaloSubdetectorGeometry* geom=pG->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);//EcalBarrel = 1
+  const CaloSubdetectorGeometry* geom=caloGeometry.getSubdetectorGeometry(DetId::Ecal,EcalBarrel);//EcalBarrel = 1
   
   const math::XYZPoint position_ = bclus.position(); 
   double Theta = -position_.theta()+0.5*TMath::Pi();
@@ -39,9 +45,6 @@ void EcalClusterLocal::localCoordsEB( const reco::CaloCluster &bclus, const edm:
   const float X0 = 0.89; const float T0 = 7.4;
   double depth = X0 * (T0 + log(bclus.energy()));
   
-  //protection for negative or very low energy clusters
-  if (bclus.energy()<=0. || depth<0.) depth = 0.;
-
   //find max energy crystal
   std::vector< std::pair<DetId, float> > crystals_vector = bclus.hitsAndFractions();
   float drmin = 999.;
@@ -92,16 +95,20 @@ void EcalClusterLocal::localCoordsEB( const reco::CaloCluster &bclus, const edm:
 
 }
 
-void EcalClusterLocal::localCoordsEE( const reco::CaloCluster &bclus, const edm::EventSetup &es, float &xcry, float &ycry, int &ix, int &iy, float &thetatilt, float &phitilt) const
+void EcalClusterLocal::localCoordsEE( const reco::BasicCluster &bclus, const edm::EventSetup &es, float &xcry, float &ycry, int &ix, int &iy, float &thetatilt, float &phitilt) const
+{
+  edm::ESHandle<CaloGeometry> pG;
+  es.get<CaloGeometryRecord>().get(pG); 
+  localCoordsEE( bclus, *pG, xcry, ycry, ix, iy, thetatilt, phitilt);
+}
+
+void EcalClusterLocal::localCoordsEE( const reco::BasicCluster &bclus, const CaloGeometry & caloGeometry, float &xcry, float &ycry, int &ix, int &iy, float &thetatilt, float &phitilt) const
 {
     
   assert(bclus.hitsAndFractions().at(0).first.subdetId()==EcalEndcap);
   
-  edm::ESHandle<CaloGeometry> pG;
-  es.get<CaloGeometryRecord>().get(pG); 
+  const CaloSubdetectorGeometry* geom=caloGeometry.getSubdetectorGeometry(DetId::Ecal,EcalEndcap);//EcalBarrel = 1
   
-  const CaloSubdetectorGeometry* geom=pG->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);//EcalBarrel = 1
-
   const math::XYZPoint position_ = bclus.position(); 
   //double Theta = -position_.theta()+0.5*TMath::Pi();
   double Eta = position_.eta();
@@ -116,9 +123,6 @@ void EcalClusterLocal::localCoordsEE( const reco::CaloCluster &bclus, const edm:
   if (TMath::Abs(bclus.eta())<1.653) T0 = 3.1;
   
   double depth = X0 * (T0 + log(bclus.energy()));
-
-  //protection for negative or very low energy clusters
-  if (bclus.energy()<=0. || depth<0.) depth = 0.;
   
   //find max energy crystal
   std::vector< std::pair<DetId, float> > crystals_vector = bclus.hitsAndFractions();
@@ -153,7 +157,7 @@ void EcalClusterLocal::localCoordsEE( const reco::CaloCluster &bclus, const edm:
   phitilt = cpyr->getPhiAxis();
 
   GlobalPoint center_pos = cpyr->getPosition(depth);
-
+  
   double XCentr = center_pos.x();
   double XWidth = 2.59;
   xcry = (X-XCentr)/XWidth;
