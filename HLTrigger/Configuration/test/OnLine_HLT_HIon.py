@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/HIon/V38 (CMSSW_5_2_7)
+# /dev/CMSSW_5_2_6/HIon/V39 (CMSSW_5_2_7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/HIon/V38')
+  tableName = cms.string('/dev/CMSSW_5_2_6/HIon/V39')
 )
 
 process.streams = cms.PSet( 
@@ -334,7 +334,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     ),
     RefreshAlways = cms.untracked.bool( False ),
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
-    ReconnectEachRun = cms.untracked.bool( False ),
+    ReconnectEachRun = cms.untracked.bool( True ),
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
     timetype = cms.string( "runnumber" )
 )

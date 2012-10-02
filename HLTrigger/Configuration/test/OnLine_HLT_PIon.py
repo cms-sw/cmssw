@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/PIon/V38 (CMSSW_5_2_7)
+# /dev/CMSSW_5_2_6/PIon/V39 (CMSSW_5_2_7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V38')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V39')
 )
 
 process.streams = cms.PSet( 
@@ -191,7 +191,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     ),
     RefreshAlways = cms.untracked.bool( False ),
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
-    ReconnectEachRun = cms.untracked.bool( False ),
+    ReconnectEachRun = cms.untracked.bool( True ),
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
     timetype = cms.string( "runnumber" )
 )
@@ -8111,7 +8111,6 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_HcalPhiSym_v11',
   'HLT_PAL1ETM30_v1',
   'HLT_PAL1SingleEG5_v1',
-  'HLT_PAL1SingleJet16_v1',
   'HLT_PAL1SingleJet36_v1',
   'HLT_PAL1SingleMu12_v1',
   'HLT_PAL1SingleMuOpen_v1',
@@ -8120,9 +8119,7 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_PAMu8_v1',
   'HLT_PAPixelTracks_Multiplicity70_v1',
   'HLT_PARandom_v1',
-  'HLT_PASingleForJet15_v1',
   'HLT_PASingleForJet25_v1',
-  'HLT_PAZeroBiasPixel_DoubleTrack_v1',
   'HLT_PAZeroBiasPixel_SingleTrack_v1',
   'HLT_Physics_v5' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
