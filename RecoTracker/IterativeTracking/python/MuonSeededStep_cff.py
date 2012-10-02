@@ -94,7 +94,7 @@ muonSeededTrackCandidatesInOut = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.c
 )
 muonSeededTrackCandidatesOutIn = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag("muonSeededSeedsOutIn"),
-    TrajectoryBuilder = cms.string("muonSeededTrajectoryBuilderForInOut"),
+    TrajectoryBuilder = cms.string("muonSeededTrajectoryBuilderForOutIn"),
     TrajectoryCleaner = cms.string('muonSeededTrajectoryCleanerBySharedHits'),
     numHitsForSeedCleaner = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(False),
@@ -104,18 +104,115 @@ muonSeededTrackCandidatesOutIn = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.c
 import RecoTracker.TrackProducer.TrackProducer_cfi
 muonSeededTracksOutIn = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = cms.InputTag("muonSeededTrackCandidatesOutIn"),
+    AlgorithmName = cms.string('outInEcalSeededConv'),
     Fitter = cms.string("muonSeededFittingSmootherWithOutliersRejectionAndRK"),
 )
 muonSeededTracksInOut = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = cms.InputTag("muonSeededTrackCandidatesInOut"),
+    AlgorithmName = cms.string('inOutEcalSeededConv'),
     Fitter = cms.string("muonSeededFittingSmootherWithOutliersRejectionAndRK"),
 )
+
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+muonSeededTracksInOutSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+    src='muonSeededTracksInOut',
+    trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'muonSeededTracksInOutLoose',
+            chi2n_par = 0.5,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 4,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 1.3, 4.0 ),
+            dz_par1 = ( 1.3, 4.0 ),
+            d0_par2 = ( 1.3, 4.0 ),
+            dz_par2 = ( 1.3, 4.0 )
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'muonSeededTracksInOutTight',
+            preFilterName = 'muonSeededTracksInOutLoose',
+            chi2n_par = 0.35,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 4,
+            maxNumberLostLayers = 0,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 1.1, 4.0 ),
+            dz_par1 = ( 1.1, 4.0 ),
+            d0_par2 = ( 1.1, 4.0 ),
+            dz_par2 = ( 1.1, 4.0 )
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'muonSeededTracksInOutHighPurity',
+            preFilterName = 'muonSeededTracksInOutTight',
+            chi2n_par = 0.2,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 4,
+            maxNumberLostLayers = 0,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 0.9, 4.0 ),
+            dz_par1 = ( 0.9, 4.0 ),
+            d0_par2 = ( 0.9, 4.0 ),
+            dz_par2 = ( 0.9, 4.0 )
+            ),
+        ) #end of vpset
+    ) #end of clone
+
+muonSeededTracksOutInSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+    src='muonSeededTracksOutIn',
+    trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'muonSeededTracksOutInLoose',
+            chi2n_par = 0.5,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 4,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 1.3, 4.0 ),
+            dz_par1 = ( 1.3, 4.0 ),
+            d0_par2 = ( 1.3, 4.0 ),
+            dz_par2 = ( 1.3, 4.0 )
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'muonSeededTracksOutInTight',
+            preFilterName = 'muonSeededTracksOutInLoose',
+            chi2n_par = 0.35,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 4,
+            maxNumberLostLayers = 0,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 1.1, 4.0 ),
+            dz_par1 = ( 1.1, 4.0 ),
+            d0_par2 = ( 1.1, 4.0 ),
+            dz_par2 = ( 1.1, 4.0 )
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'muonSeededTracksOutInHighPurity',
+            preFilterName = 'muonSeededTracksOutInTight',
+            chi2n_par = 0.2,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 4,
+            maxNumberLostLayers = 0,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 0.9, 4.0 ),
+            dz_par1 = ( 0.9, 4.0 ),
+            d0_par2 = ( 0.9, 4.0 ),
+            dz_par2 = ( 0.9, 4.0 )
+            ),
+        ) #end of vpset
+    ) #end of clone
+
+
+
 
 muonSeededStep = cms.Sequence(
     muonSeededSeedsInOut + muonSeededTrackCandidatesInOut + muonSeededTracksInOut +
     muonSeededSeedsOutIn + muonSeededTrackCandidatesOutIn + muonSeededTracksOutIn 
 )
-
+muonSeededStepExtra = cms.Sequence(
+    muonSeededTracksInOutSelector +
+    muonSeededTracksOutInSelector
+)
 ###### TURN THIS STUFF ON ######
 def insertMuonSeededSteps(process,trackingSequence):
     process.earlyGeneralTracks = process.generalTracks.clone()
@@ -134,8 +231,12 @@ def insertMuonSeededSteps(process,trackingSequence):
     )
     process.muonSeededSeedsInOut.src = "earlyMuons"
     process.muonSeededSeedsOutIn.src = "earlyMuons"
-    process.generalTracks.selectedTrackQuals = cms.VInputTag()
-    process.generalTracks.hasSelector        = cms.vint32(0,0,0)
+    process.generalTracks.hasSelector        = cms.vint32(0,1,1)
+    process.generalTracks.selectedTrackQuals = cms.VInputTag(
+        cms.InputTag("muonSeededTracksInOutSelector","muonSeededTracksInOutHighPurity"), 
+        cms.InputTag("muonSeededTracksInOutSelector","muonSeededTracksInOutHighPurity"), 
+        cms.InputTag("muonSeededTracksOutInSelector","muonSeededTracksOutInHighPurity"), 
+    )
     process.generalTracks.setsToMerge = cms.VPSet(cms.PSet(pQual = cms.bool(False), tLists = cms.vint32(0, 1,2)))
     process.generalTracks.TrackProducers = cms.VInputTag(
         cms.InputTag("earlyGeneralTracks"), 
@@ -149,6 +250,7 @@ def insertMuonSeededSteps(process,trackingSequence):
         process.ancientMuonSeed+process.standAloneMuons +
         process.earlyMuons +
         process.muonSeededStep +
+        process.muonSeededStepExtra +
         process.generalTracks
     )
     trackingSequence.remove(process.ancientMuonSeed)
