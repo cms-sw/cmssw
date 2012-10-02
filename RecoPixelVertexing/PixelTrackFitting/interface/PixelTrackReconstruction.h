@@ -4,11 +4,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/TracksWithHits.h"
 
+
 class PixelFitter;
 class PixelTrackCleaner;
 class PixelTrackFilter;
 class OrderedHitsGenerator;
 class TrackingRegionProducer;
+class QuadrupletSeedMerger;
+
 namespace edm { class Event; class EventSetup; class Run; }
 
 class PixelTrackReconstruction {
@@ -25,11 +28,11 @@ public:
 private:
   edm::ParameterSet theConfig;
   const PixelFitter       * theFitter;
-        PixelTrackFilter  * theFilter;
-        PixelTrackCleaner * theCleaner;
-        OrderedHitsGenerator * theGenerator;
-        TrackingRegionProducer* theRegionProducer;
-
+  PixelTrackFilter  * theFilter;
+  PixelTrackCleaner * theCleaner;
+  OrderedHitsGenerator * theGenerator;
+  TrackingRegionProducer* theRegionProducer;
+  QuadrupletSeedMerger *theMerger_;
 };
 #endif
 
