@@ -48,7 +48,9 @@ process.testanalyzer = cms.EDAnalyzer("FastTrackAnalyzer",
     NumTracks_AxisLim = cms.int32(10),
     TEC_Erry_AxisLim = cms.double(0.1),
     TOB_Pos_AxisLim = cms.double(10.0),
-    SimHitList = cms.vstring('famosSimHitsTrackerHits')
+    SimHitList = cms.vstring('famosSimHitsTrackerHits'),
+    simVertexContainerTag = cms.InputTag('famosSimHits'),
+    siTrackerGSRecHit2DCollectionTag = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSRecHits")
 )
 
 process.p = cms.Path(process.testanalyzer)

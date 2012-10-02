@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
@@ -93,6 +94,9 @@ class FastTrackAnalyzer : public edm::EDAnalyzer {
   int iEventCounter;
   TString outfilename;
   std::string trackProducer;
+
+  edm::InputTag simVertexContainerTag;
+  edm::InputTag siTrackerGSRecHit2DCollectionTag;
 };
 
 #endif
