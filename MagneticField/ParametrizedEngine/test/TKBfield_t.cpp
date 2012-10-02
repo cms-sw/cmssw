@@ -1,4 +1,4 @@
-#include <MagneticField/ParametrizedEngine/src/TkBfield.h>
+#include <MagneticField/ParametrizedEngine/plugins/TkBfield.cc>
 #include <iostream>
 
 

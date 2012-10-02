@@ -7,6 +7,6 @@
   <use   name="root"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
-#<bin   file="TKBfield_t.cpp">
-#  <use   name="MagneticField/ParametrizedEngine"/>
-#</bin>
+<bin   file="TKBfield_t.cpp">
+  <use   name="FWCore/Framework"/>
+</bin>
