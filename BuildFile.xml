@@ -1,0 +1,13 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Utilities"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="RecoEgamma/EgammaTools"/>
+<use   name="DataFormats/Candidate"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/EgammaCandidates"/>
+<use   name="DataFormats/PatCandidates"/>
+<use   name="clhep"/>
+<export>
+  <lib   name="1"/>
+</export>
