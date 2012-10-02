@@ -104,6 +104,8 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
       
       bool legalVtx = false;
       
+      fSecVtxStore.clear();
+      
       HepMC::GenVertex* vtx = evt->barcode_to_vertex( -iv ) ;
       
       if ( vtx->particles_in_size() != 1 ) continue; // more complex than we need
