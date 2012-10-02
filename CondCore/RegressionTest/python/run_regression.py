@@ -302,6 +302,7 @@ def CmdUsage():
 	print "-F (--full) -t [test_label] -r [release] -a [arch] -p [path]: runs the full test. " 
 	print "-S (--self) -t [test_label] -r [release] -a [arch] -p [path]: runs the self test. " 
 	print "-R [ref_release] -A [ref_arch] -P [ref_path]  -t [test_label] -r [release] -a [arch] -p [path]: runs the test against the specified ref release. "
+	print "   optional flag -w: write the test result in the database. "
 	
 def CheckPath (release, arch, path):
 	if(os.path.exists(path)):
