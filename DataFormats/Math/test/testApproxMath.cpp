@@ -30,6 +30,7 @@ void printLim(PRINT printit) {
   printit(4*zero_threshold_ftz);
   printit(0);
   printit(1.);
+  printit(-1.);
   printit(inf_threshold);
   printit(inf_threshold+1);
   printit(inf_threshold-1);

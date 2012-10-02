@@ -38,6 +38,7 @@ Not sure it makes that much sense in the vector context.
 #include <cmath>
 #include <limits>
 #include <algorithm>
+#include <x86intrin.h>
 
 #ifndef APPROX_MATH_N
 #define APPROX_MATH_N
@@ -52,6 +53,20 @@ namespace approx_math {
     int32_t i32; /* Signed int */                
     float f;
   };
+
+#ifdef __SSE4_1__
+  inline float fpfloor(float x) {
+    return std::floor(x)
+  }
+#else
+  inline float fpfloor(float x) {
+    int32_t ret = x;
+    binary32 xx(x);
+    ret-=(xx.ui32>>31);  
+    return ret;
+  }
+#endif
+
 }
 #endif
 
@@ -151,7 +166,7 @@ inline float unsafe_expf_impl(float x) {
    
   float y = x;
   // This is doing round(x*inv_log2f) to the nearest integer
-  float z = std::floor((x*inv_log2f) +0.5f);
+  float z = fpfloor((x*inv_log2f) +0.5f);
   // Cody-and-Waite accurate range reduction. FMA-safe.
   y -= z*log2H;
   y -= z*log2L;
