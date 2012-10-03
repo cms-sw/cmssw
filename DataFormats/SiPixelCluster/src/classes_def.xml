@@ -1,15 +1,17 @@
 <lcgdict>
-  <class name="SiPixelCluster" ClassVersion="11">
+  <class name="SiPixelCluster" ClassVersion="12">
    <field name="err_x" transient="true"/>
    <field name="err_y" transient="true"/>
    <version ClassVersion="10" checksum="2468063768"/>
    <version ClassVersion="11" checksum="1473312403"/>
+   <version ClassVersion="12" checksum="1532844807"/>
    <ioread sourceClass="SiPixelCluster" version="[1-10]" targetClass="SiPixelCluster" source="uint16_t theMinPixelCol" target="thePixelCol">
    <![CDATA[thePixelCol = onfile.theMinPixelCol;]]>
    </ioread>  
   </class>
-  <class name="SiPixelCluster::Pixel" ClassVersion="10">
+  <class name="SiPixelCluster::Pixel" ClassVersion="11">
    <version ClassVersion="10" checksum="387573196"/>
+   <version ClassVersion="11" checksum="1898133768"/>
   </class>
   <class name="SiPixelCluster::Shift" ClassVersion="10">
    <version ClassVersion="10" checksum="4096847861"/>

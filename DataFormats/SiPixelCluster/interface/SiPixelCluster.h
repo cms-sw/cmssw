@@ -32,7 +32,7 @@ class SiPixelCluster {
     constexpr Pixel() : x(0), y(0), adc(0){} // for root
     constexpr Pixel(int pix_x, int pix_y, int pix_adc) :
       x(pix_x), y(pix_y), adc(pix_adc) {}
-    unsigned char  x;
+    unsigned short  x;
     unsigned short y;
     unsigned short adc;
   };
@@ -113,7 +113,7 @@ class SiPixelCluster {
 
   inline int minPixelRow() const { return theMinPixelRow;} // The min x index.
   inline int maxPixelRow() const { verifyVersion(); return minPixelRow() + rowSpan();} // The max x index.
-  inline int minPixelCol() const { return thePixelCol & 511;} // The min y index.
+  inline int minPixelCol() const { return thePixelCol;} // The min y index.
   inline int maxPixelCol() const { verifyVersion(); return minPixelCol() + colSpan();} // The max y index.
 
   
@@ -194,7 +194,7 @@ class SiPixelCluster {
   std::vector<uint16_t> thePixelADC;
   
 
-  uint8_t  theMinPixelRow; // Minimum pixel index in the x direction (low edge).
+  uint16_t  theMinPixelRow; // Minimum pixel index in the x direction (low edge).
   uint8_t  theRowSpan; // Maximum pixel index in the x direction (low edge).
   uint16_t thePixelCol; // Minimum and span pixel index in the y direction (left edge).
   // Need 9 bits for Col information the other 7 used for span
