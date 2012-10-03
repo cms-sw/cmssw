@@ -7,7 +7,7 @@
 
 /// Derivative calculation for the 6D cartesian case.
 
-class dso_internal CartesianLorentzForce : public RKDerivative<double,6> {
+class dso_internal CartesianLorentzForce GCC11_FINAL : public RKDerivative<double,6> {
 public:
 
     typedef RKDerivative< double,6>             Base;

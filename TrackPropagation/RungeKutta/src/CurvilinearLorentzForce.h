@@ -7,7 +7,7 @@
 class RKLocalFieldProvider;
 
 template <typename T, int N>
-class dso_internal CurvilinearLorentzForce : public RKDerivative<T,N> {
+class dso_internal CurvilinearLorentzForce GCC11_FINAL : public RKDerivative<T,N> {
 public:
 
     typedef RKDerivative<T,N>                   Base;

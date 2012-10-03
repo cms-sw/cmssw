@@ -4,6 +4,9 @@
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "RKSmallVector.h"
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
+
 /// Base class for derivative calculation. 
 
 template <typename T, int N>
