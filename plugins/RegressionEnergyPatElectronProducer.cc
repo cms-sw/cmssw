@@ -25,36 +25,38 @@ RegressionEnergyPatElectronProducer::RegressionEnergyPatElectronProducer( const 
 
   produces<ElectronCollection>();
 
-  inputPatElectrons = cfg.getParameter<edm::InputTag>("inputPatElectronsTag");
-  energyRegressionType = cfg.getParameter<uint32_t>("energyRegressionType");
-  regressionInputFile = cfg.getParameter<std::string>("regressionInputFile");
-  debug = cfg.getParameter<bool>("debug");
+  inputPatElectrons_ = cfg.getParameter<edm::InputTag>("inputPatElectronsTag");
+  rhoInputTag_ = cfg.getParameter<edm::InputTag>("rhoCollection");
+  verticesInputTag_ = cfg.getParameter<edm::InputTag>("vertexCollection");
+  energyRegressionType_ = cfg.getParameter<uint32_t>("energyRegressionType");
+  regressionInputFile_ = cfg.getParameter<std::string>("regressionInputFile");
+  debug_ = cfg.getUntrackedParameter<bool>("debug");
   geomInitialized_ = false;
 
   //****************************************************************************************
   //set up regression calculator
   //****************************************************************************************
-  regressionEvaluator = new ElectronEnergyRegressionEvaluate();
+  regressionEvaluator_ = new ElectronEnergyRegressionEvaluate();
 
   //set regression type
   ElectronEnergyRegressionEvaluate::ElectronEnergyRegressionType type = ElectronEnergyRegressionEvaluate::kNoTrkVar;
-  if (energyRegressionType == 1) type = ElectronEnergyRegressionEvaluate::kNoTrkVar;
-  else if (energyRegressionType == 2) type = ElectronEnergyRegressionEvaluate::kWithTrkVar;
+  if (energyRegressionType_ == 1) type = ElectronEnergyRegressionEvaluate::kNoTrkVar;
+  else if (energyRegressionType_ == 2) type = ElectronEnergyRegressionEvaluate::kWithTrkVar;
 
   //load weights and initialize
-  regressionEvaluator->initialize(regressionInputFile.c_str(),type);
+  regressionEvaluator_->initialize(regressionInputFile_.c_str(),type);
 
 }
  
 RegressionEnergyPatElectronProducer::~RegressionEnergyPatElectronProducer()
 {
-  delete regressionEvaluator;
+  delete regressionEvaluator_;
 }
 
 void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm::EventSetup & setup )
 {
 
-  assert(regressionEvaluator->isInitialized());
+  assert(regressionEvaluator_->isInitialized());
   if (!geomInitialized_) {
     edm::ESHandle<CaloTopology> theCaloTopology;
     setup.get<CaloTopologyRecord>().get(theCaloTopology);
@@ -71,7 +73,7 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
   //Get Number of Vertices
   //**************************************************************************
   Handle<reco::VertexCollection> hVertexProduct;
-  event.getByLabel(edm::InputTag("goodPrimaryVertices"),hVertexProduct);
+  event.getByLabel(verticesInputTag_,hVertexProduct);
   const reco::VertexCollection inVertices = *(hVertexProduct.product());  
 
   // loop through all vertices
@@ -93,11 +95,11 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
   //**************************************************************************
   double rho = 0;
   Handle<double> hRhoKt6PFJets;
-  event.getByLabel(edm::InputTag("kt6PFJets","rho"), hRhoKt6PFJets);
+  event.getByLabel(rhoInputTag_, hRhoKt6PFJets);
   rho = (*hRhoKt6PFJets);
 
   edm::Handle<edm::View<reco::Candidate> > oldElectrons ;
-  event.getByLabel(inputPatElectrons,oldElectrons) ;
+  event.getByLabel(inputPatElectrons_,oldElectrons) ;
 
   std::auto_ptr<ElectronCollection> electrons( new ElectronCollection ) ;
 
@@ -118,12 +120,7 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 
       SuperClusterHelper mySCHelper(&(*ele),ele->recHits(),ecalTopology_,caloGeometry_);
       
-      bool printDebug = debug;
-      if (printDebug) {
-	std::cout << "***********************************************************************\n";
-	std::cout << "Run Lumi Event: " << event.id().run() << " " << event.luminosityBlock() << " " << event.id().event() << "\n";
-	std::cout << "Pat Electron : " << ele->pt() << " " << ele->eta() << " " << ele->phi() << "\n";
-      }
+      bool printDebug = debug_;
 
       // apply regression energy
       Double_t FinalMomentum = 0;
@@ -131,8 +128,8 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
       Double_t RegressionMomentum = 0;
       Double_t RegressionMomentumError = 0;
 
-      if (energyRegressionType == 1) {
-	RegressionMomentum = regressionEvaluator->regressionValueNoTrkVar( mySCHelper.rawEnergy(),
+      if (energyRegressionType_ == 1) {
+	RegressionMomentum = regressionEvaluator_->regressionValueNoTrkVar( mySCHelper.rawEnergy(),
 									   mySCHelper.eta(),
 									   mySCHelper.phi(),
 									   mySCHelper.etaWidth(),
@@ -165,9 +162,9 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 									   mySCHelper.iphiSeed(),
 									   mySCHelper.etaCrySeed(),
 									   mySCHelper.phiCrySeed(),
-									   mySCHelper.preshowerEnergy(),
+									   mySCHelper.preshowerEnergyOverRaw(),
 									   printDebug);
-	RegressionMomentumError = regressionEvaluator->regressionUncertaintyNoTrkVar( 
+	RegressionMomentumError = regressionEvaluator_->regressionUncertaintyNoTrkVar( 
 										     mySCHelper.rawEnergy(),
 										     mySCHelper.eta(),
 										     mySCHelper.phi(),
@@ -201,16 +198,22 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 										     mySCHelper.iphiSeed(),
 										     mySCHelper.etaCrySeed(),
 										     mySCHelper.phiCrySeed(),
-										     mySCHelper.preshowerEnergy(),
+										     mySCHelper.preshowerEnergyOverRaw(),
 										     printDebug);
       
 	// PAT method
 	ele->setEcalRegressionEnergy(RegressionMomentum, RegressionMomentumError); 
-	// GsfElectron method -> should it be called ? 
-	//	ele->correctEcalEnergy(RegressionMomentum, RegressionMomentumError);
 
-      } else if (energyRegressionType == 2) {
-	RegressionMomentum = regressionEvaluator->regressionValueWithTrkVar(ele->p(),
+	if (printDebug) {
+	  std::cout << "***********************************************************************\n";
+	  std::cout << "Run Lumi Event: " << event.id().run() << " " << event.luminosityBlock() << " " << event.id().event() << "\n";
+	  std::cout << "Pat Electron : " << ele->pt() << " " << ele->eta() << " " << ele->phi() << " RegressionMomentum " ;
+	  std::cout << RegressionMomentum << " RegressionMomentumError " << RegressionMomentumError << "\n";
+	}
+	
+
+      } else if (energyRegressionType_ == 2) {
+	RegressionMomentum = regressionEvaluator_->regressionValueWithTrkVar(ele->p(),
 									    mySCHelper.rawEnergy(),
 									    mySCHelper.eta(),
 									    mySCHelper.phi(),
@@ -251,7 +254,7 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 									    mySCHelper.phiCrySeed(),
 									    mySCHelper.preshowerEnergy(),
 									    printDebug);
-	RegressionMomentumError = regressionEvaluator->regressionUncertaintyWithTrkVar(
+	RegressionMomentumError = regressionEvaluator_->regressionUncertaintyWithTrkVar(
 										       ele->p(),
 										       mySCHelper.rawEnergy(),
 										       mySCHelper.eta(),
@@ -306,7 +309,7 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 	ele->correctEcalEnergy(RegressionMomentum, RegressionMomentumError);
 	
       } else {
-	cout << "Error: RegressionType = " << energyRegressionType << " is not supported.\n";
+	cout << "Error: RegressionType = " << energyRegressionType_ << " is not supported.\n";
       }
     
 				    

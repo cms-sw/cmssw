@@ -22,11 +22,13 @@ class RegressionEnergyPatElectronProducer: public edm::EDProducer
 
  private:
 
-  edm::InputTag inputPatElectrons ;
-  uint32_t energyRegressionType ;
-  std::string regressionInputFile;
-  bool debug ;
-  ElectronEnergyRegressionEvaluate *regressionEvaluator;
+  edm::InputTag inputPatElectrons_ ;
+  edm::InputTag rhoInputTag_ ;
+  edm::InputTag verticesInputTag_ ;
+  uint32_t energyRegressionType_ ;
+  std::string regressionInputFile_;
+  bool debug_ ;
+  ElectronEnergyRegressionEvaluate *regressionEvaluator_;
   bool geomInitialized_;
   
   const CaloTopology * ecalTopology_;

@@ -27,6 +27,7 @@ class SuperClusterHelper {
   float hadronicOverEm() const {return theElectron_->hadronicOverEm();}
   float sigmaIetaIeta() const {return theElectron_->sigmaIetaIeta();}
   float preshowerEnergy() const {return theElectron_->superCluster()->preshowerEnergy();}
+  float preshowerEnergyOverRaw() const {return theElectron_->superCluster()->preshowerEnergy()/theElectron_->superCluster()->rawEnergy();}
   float e3x3()      const {return EcalClusterTools::e3x3(*seedCluster_,rechits_,topology_); }
   float e5x5()      const {return EcalClusterTools::e5x5(*seedCluster_,rechits_,topology_); }  
   float eMax()      const { return EcalClusterTools::eMax(*seedCluster_,rechits_); }

@@ -9,7 +9,7 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.GlobalTag.globaltag = 'START53_V10::All'
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(-1)
     )
 
 
