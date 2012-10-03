@@ -213,6 +213,8 @@ def trgForIds(schema,irunlsdict,dataidmap,trgbitname=None,trgbitnamepattern=None
         if trgdataid is None:
             result[run]=None
             continue        #if run non exist
+        if trgdataid==0:
+            continue
         trgdata=dataDML.trgLSById(schema,trgdataid,trgbitname=trgbitname,trgbitnamepattern=trgbitnamepattern,withL1Count=withL1Count,withPrescale=withPrescale)
     
         #(runnum,{cmslsnum:[deadtimecount(0),bitzerocount(1),bitzeroprescale(2),deadfrac(3),[(bitname,trgcount,prescale)](4)]})
