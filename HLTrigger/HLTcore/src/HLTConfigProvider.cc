@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/11/01 13:02:44 $
- *  $Revision: 1.65 $
+ *  $Date: 2012/09/26 15:39:07 $
+ *  $Revision: 1.66 $
  *
  *  \author Martin Grunewald
  *
@@ -39,13 +39,29 @@ HLTConfigProvider::HLTConfigProvider():
   hltConfigData_(s_dummyHLTConfigData()),
   l1GtUtils_(new L1GtUtils())
 {
-  HLTConfigDataRegistry::instance()->extra().increment();
+  //  HLTConfigDataRegistry::instance()->extra().increment();
 }
 
 HLTConfigProvider::~HLTConfigProvider() {
-  if (HLTConfigDataRegistry::instance()->extra().decrement()==0) {
-    HLTConfigDataRegistry::instance()->data().clear();
-  }
+  //  if (HLTConfigDataRegistry::instance()->extra().decrement()==0) {
+  //    HLTConfigDataRegistry::instance()->data().clear();
+  //  }
+}
+
+HLTConfigProvider::HLTConfigCounterSentry::HLTConfigCounterSentry() {
+  HLTConfigDataRegistry::instance()->extra().increment();
+}
+
+HLTConfigProvider::HLTConfigCounterSentry::HLTConfigCounterSentry(HLTConfigCounterSentry const&) {
+  HLTConfigDataRegistry::instance()->extra().increment();
+}
+
+HLTConfigProvider::HLTConfigCounterSentry::HLTConfigCounterSentry(HLTConfigCounterSentry &&) {
+  HLTConfigDataRegistry::instance()->extra().increment();
+}
+
+HLTConfigProvider::HLTConfigCounterSentry::~HLTConfigCounterSentry() {
+  HLTConfigDataRegistry::instance()->extra().decrement();
 }
 
 bool HLTConfigProvider::init(const edm::Run& iRun, 

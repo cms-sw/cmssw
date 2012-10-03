@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2012/03/21 12:08:38 $
- *  $Revision: 1.44 $
+ *  $Date: 2012/09/26 15:39:07 $
+ *  $Revision: 1.45 $
  *
  *  \author Martin Grunewald
  *
@@ -32,6 +32,15 @@
 //
 
 class HLTConfigProvider {
+
+ private:
+  struct HLTConfigCounterSentry {
+    HLTConfigCounterSentry();
+    HLTConfigCounterSentry(HLTConfigCounterSentry const&);
+    HLTConfigCounterSentry(HLTConfigCounterSentry&&); // only C++11
+    ~HLTConfigCounterSentry();
+  };
+  HLTConfigCounterSentry sentry_;
 
  public:
   /// c'tor
