@@ -286,7 +286,7 @@ private:
   const double                                  m_dqm_pathtime_resolution;
   const double                                  m_dqm_moduletime_range;
   const double                                  m_dqm_moduletime_resolution;
-  const int                                     m_dqm_lumi_range;
+  const uint32_t                                m_dqm_lumi_range;
   std::string                                   m_dqm_path;
 
   // job configuration and caching

@@ -82,7 +82,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_dqm_pathtime_resolution(     config.getUntrackedParameter<double>( "dqmPathTimeResolution"    ) ),    // ms
   m_dqm_moduletime_range(        config.getUntrackedParameter<double>( "dqmModuleTimeRange"       ) ),    // ms
   m_dqm_moduletime_resolution(   config.getUntrackedParameter<double>( "dqmModuleTimeResolution"  ) ),    // ms
-  m_dqm_lumi_range(              config.getUntrackedParameter<double>( "dqmLumiSectionsRange"     ) ),    // lumisections
+  m_dqm_lumi_range(              config.getUntrackedParameter<uint32_t>( "dqmLumiSectionsRange"   ) ),    // lumisections
   m_dqm_path(                    config.getUntrackedParameter<std::string>("dqmPath" ) ),
   // caching
   m_first_path(0),          // these are initialized at prePathBeginRun(),
@@ -926,7 +926,7 @@ void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.addUntracked<double>( "dqmPathTimeResolution",       0.5);   // ms
   desc.addUntracked<double>( "dqmModuleTimeRange",         40. );   // ms
   desc.addUntracked<double>( "dqmModuleTimeResolution",     0.2);   // ms
-  desc.addUntracked<int>(    "dqmLumiSectionsRange",     2500 );    // ~ 16 hours
+  desc.addUntracked<uint32_t>( "dqmLumiSectionsRange",    2500 );    // ~ 16 hours
   desc.addUntracked<std::string>( "dqmPath",             "HLT/TimerService");
   descriptions.add("FastTimerService", desc);
 }
