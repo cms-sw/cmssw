@@ -128,4 +128,39 @@ class TtSemiLepKinFitter : public TopKinFitter {
   bool constrainSumPt_;
 };
 
+template <class LeptonType>
+int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton<LeptonType>& lepton, const pat::MET& neutrino)
+{
+  if( jets.size()<4 )
+    throw edm::Exception( edm::errors::Configuration, "Cannot run the TtSemiLepKinFitter with less than 4 jets" );
+
+  // get jets in right order
+  const pat::Jet hadP = jets[TtSemiLepEvtPartons::LightQ   ];
+  const pat::Jet hadQ = jets[TtSemiLepEvtPartons::LightQBar];
+  const pat::Jet hadB = jets[TtSemiLepEvtPartons::HadB     ];
+  const pat::Jet lepB = jets[TtSemiLepEvtPartons::LepB     ];
+ 
+  // initialize particles
+  const TLorentzVector p4HadP( hadP.px(), hadP.py(), hadP.pz(), hadP.energy() );
+  const TLorentzVector p4HadQ( hadQ.px(), hadQ.py(), hadQ.pz(), hadQ.energy() );
+  const TLorentzVector p4HadB( hadB.px(), hadB.py(), hadB.pz(), hadB.energy() );
+  const TLorentzVector p4LepB( lepB.px(), lepB.py(), lepB.pz(), lepB.energy() );
+  const TLorentzVector p4Lepton  ( lepton.px(), lepton.py(), lepton.pz(), lepton.energy() );
+  const TLorentzVector p4Neutrino( neutrino.px(), neutrino.py(), 0, neutrino.et() );
+
+  // initialize covariance matrices
+  TMatrixD covHadP = covM_->setupMatrix(hadP, jetParam_);
+  TMatrixD covHadQ = covM_->setupMatrix(hadQ, jetParam_);
+  TMatrixD covHadB = covM_->setupMatrix(hadB, jetParam_, "bjets");
+  TMatrixD covLepB = covM_->setupMatrix(lepB, jetParam_, "bjets");
+  TMatrixD covLepton   = covM_->setupMatrix(lepton  , lepParam_);
+  TMatrixD covNeutrino = covM_->setupMatrix(neutrino, metParam_);
+
+  // now do the part that is fully independent of PAT features
+  return fit(p4HadP, p4HadQ, p4HadB, p4LepB, p4Lepton, p4Neutrino,
+	     covHadP, covHadQ, covHadB, covLepB, covLepton, covNeutrino,
+	     lepton.charge());
+}
+
+
 #endif
