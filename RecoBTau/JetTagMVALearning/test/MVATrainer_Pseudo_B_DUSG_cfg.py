@@ -13,7 +13,7 @@ process.combinedSVTrainer = cms.EDAnalyzer("JetTagMVATreeTrainer",
 	calibrationRecord	= cms.string("CombinedSVPseudoVertex"),
 	ignoreFlavours		= cms.vint32(0, 4),
 	signalFlavours		= cms.vint32(5, 7),
-	minimumTransverseMomentum = cms.double(10.0),
+	minimumTransverseMomentum = cms.double(15.0),
 	minimumPseudoRapidity	= cms.double(0),
 	maximumPseudoRapidity	= cms.double(2.5),
 
