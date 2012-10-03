@@ -95,7 +95,7 @@ void ESDaqInfoTask::beginJob(void) {
 	       int ip = (y>=40)? 1:2;
 	       int ix = (x<40)? x:x-40;
 	       int iy = (y<40)?  y:y-40;
-	       int ifed = (*es_mapping_).getFED( iz, ip, ix, iy);
+	       int ifed = (*es_mapping_).getFED( iz, ip, ix+1, iy+1);
 	       if(ifed == ESFedRangeMin_+i){
 		  ESOnFed_[i] = true;
 		  break;
