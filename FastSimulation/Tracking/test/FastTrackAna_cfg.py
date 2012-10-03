@@ -4,15 +4,26 @@ process = cms.Process("ana")
 # Keep the logging output to a nice level #
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.load("FastSimulation.Configuration.CommonInputsFake_cff")
+#process.load("FastSimulation.Configuration.CommonInputsFake_cff")
+process.load("FastSimulation.Configuration.CommonInputs_cff")
+process.load('FastSimulation.Configuration.Geometries_START_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
 process.load("FastSimulation.Configuration.FamosSequences_cff")
+
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:tracks_Gun_test.root')
+)
+# dirty fix:
+process.options = cms.untracked.PSet(
+    SkipEvent = cms.untracked.vstring('ProductNotFound')
 )
 
 process.testanalyzer = cms.EDAnalyzer("FastTrackAnalyzer",
