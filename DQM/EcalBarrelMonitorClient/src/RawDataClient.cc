@@ -11,7 +11,7 @@ namespace ecaldqm {
 
   RawDataClient::RawDataClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
     DQWorkerClient(_workerParams, _commonParams, "RawDataClient"),
-    synchErrorThreshold_(_workerParams.getUntrackedParameter<int>("synchErrorThreshold"))
+    synchErrThresholdFactor_(_workerParams.getUntrackedParameter<double>("synchErrThresholdFactor"))
   {
     qualitySummaries_.insert(kQualitySummary);
   }
@@ -24,7 +24,8 @@ namespace ecaldqm {
     std::vector<int> dccStatus(BinService::nDCC, 1);
 
     for(unsigned iDCC(0); iDCC < BinService::nDCC; ++iDCC){
-      if(sources_[kL1ADCC]->getBinContent(iDCC + 1) > synchErrorThreshold_)
+      double entries(sources_[kEntries]->getBinContent(iDCC + 1));
+      if(entries > 1. && sources_[kL1ADCC]->getBinContent(iDCC + 1) > synchErrThresholdFactor_ * std::log(entries) / std::log(10.))
         dccStatus[iDCC] = 0;
     }
 
@@ -66,6 +67,7 @@ namespace ecaldqm {
   {
     _nameToIndex["QualitySummary"] = kQualitySummary;
 
+    _nameToIndex["Entries"] = kEntries;
     _nameToIndex["L1ADCC"] = kL1ADCC;
     _nameToIndex["FEStatus"] = kFEStatus;
   }

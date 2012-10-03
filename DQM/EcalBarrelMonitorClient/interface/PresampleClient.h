@@ -32,12 +32,10 @@ namespace ecaldqm {
 
   protected:
     int minChannelEntries_;
-    int minTowerEntries_;
     float expectedMean_;
     float toleranceMean_;
     float toleranceRMS_;
     float toleranceRMSFwd_;
-    float noisyFracThreshold_;
   };
 
 }

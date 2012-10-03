@@ -136,7 +136,7 @@ namespace ecaldqm {
       const FEDRawData& fedData(_fedRaw.FEDData(iFED));
       unsigned length(fedData.size() / sizeof(uint64_t));
       if(length > 1){ // FED header is one 64 bit word
-	if(MEs_[kFEDEntries]->isActive()) MEs_[kFEDEntries]->fill(iFED - 600);
+	MEs_[kFEDEntries]->fill(iFED - 600);
 
  	const uint64_t* pData(reinterpret_cast<const uint64_t*>(fedData.data()));
  	bool crcError((pData[length - 1] >> 2) & 0x1);
@@ -293,6 +293,7 @@ namespace ecaldqm {
     _nameToIndex["EventTypePreCalib"] = kEventTypePreCalib;
     _nameToIndex["EventTypeCalib"] = kEventTypeCalib;
     _nameToIndex["EventTypePostCalib"] = kEventTypePostCalib;
+    _nameToIndex["Entries"] = kEntries;
     _nameToIndex["CRC"] = kCRC;
     _nameToIndex["RunNumber"] = kRunNumber;
     _nameToIndex["Orbit"] = kOrbit;

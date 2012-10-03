@@ -1,26 +1,171 @@
-etAxis = {'nbins': 128, 'low': 0., 'high': 256., 'title': 'TP Et'}
-indexAxis = {'nbins': 6, 'low': 0., 'high': 6., 'title': 'TP index'}
-bxAxis = {'nbins': 15, 'low': 0., 'high': 15., 'title': 'bunch crossing'}
+import FWCore.ParameterSet.Config as cms
 
-ecalTrigPrimTask = dict(
-    runOnEmul = False,
-    HLTCaloPath = 'HLT_SingleJet*',
-    HLTMuonPath = 'HLT_Mu5_v*',
-    MEs = dict(
-        EtReal = dict(path = "%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT Et spectrum Real Digis%(suffix)s", otype = 'Ecal3P', btype = 'User', kind = 'TH1F', xaxis = etAxis),
-        EtMaxEmul = dict(path = "%(subdet)s/%(prefix)sTriggerTowerTask/Emulated/%(prefix)sTTT Et spectrum Emulated Digis max%(suffix)s", otype = 'Ecal3P', btype = 'User', kind = 'TH1F', xaxis = etAxis),
-        EtRealMap = dict(path = "%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT Et map Real Digis %(sm)s", otype = 'SM', btype = 'TriggerTower', kind = 'TProfile2D', zaxis = etAxis),
-        EtSummary = dict(path = "%(subdet)s/%(prefix)sSummaryClient/%(prefix)sTTT%(suffix)s Et trigger tower summary", otype = 'Ecal3P', btype = 'TriggerTower', kind = 'TProfile2D', zaxis = etAxis),
-        MatchedIndex = dict(path = "%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT EmulMatch %(sm)s", otype = 'SM', btype = 'TriggerTower', kind = 'TH2F', yaxis = indexAxis),
-        EmulMaxIndex = dict(path = "%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT max TP matching index%(suffix)s", otype = 'Ecal3P', btype = 'User', kind = 'TH1F', xaxis = indexAxis),
-        EtVsBx = dict(path = "%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT Et vs bx Real Digis%(suffix)s", otype = 'Ecal3P', btype = 'User', kind = 'TProfile', xaxis = bxAxis, yaxis = {'title': 'TP Et'}),
-        OccVsBx = dict(path = "%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT TP occupancy vs bx Real Digis%(suffix)s", otype = 'Ecal3P', btype = 'User', kind = 'TProfile', xaxis = bxAxis),
-        HighIntMap = dict(path = "%(subdet)s/%(prefix)sSelectiveReadoutTask/Counters/%(prefix)sSRT tower high interest counter%(suffix)s", otype = 'Ecal3P', btype = 'TriggerTower', kind = 'TH2F'),
-        MedIntMap = dict(path = "%(subdet)s/%(prefix)sSelectiveReadoutTask/Counters/%(prefix)sSRT tower med interest counter%(suffix)s", otype = 'Ecal3P', btype = 'TriggerTower', kind = 'TH2F'),
-        LowIntMap = dict(path = "%(subdet)s/%(prefix)sSelectiveReadoutTask/Counters/%(prefix)sSRT tower low interest counter%(suffix)s", otype = 'Ecal3P', btype = 'TriggerTower', kind = 'TH2F'),
-        TTFlags = dict(path = "%(subdet)s/%(prefix)sSelectiveReadoutTask/%(prefix)sSRT TT Flags%(suffix)s", otype = 'Ecal3P', btype = 'DCC', kind = 'TH2F', yaxis = {'nbins': 8, 'low': 0., 'high': 8., 'title': 'TT flag'}),
-        TTFMismatch = dict(path = "Ecal/Errors/TriggerPrimitives/FlagMismatch/", otype = 'Channel', btype = 'TriggerTower', kind = 'TH1F'),
-        EtEmulError = dict(path = "Ecal/Errors/TriggerPrimitives/EtEmulation/", otype = 'Channel', btype = 'TriggerTower', kind = 'TH1F'),
-        FGEmulError = dict(path = "Ecal/Errors/TriggerPrimitives/FGBEmulation/", otype = 'Channel', btype = 'TriggerTower', kind = 'TH1F')
+ecalTrigPrimTask = cms.untracked.PSet(
+#    HLTMuonPath = cms.untracked.string('HLT_Mu5_v*'),
+#    HLTCaloPath = cms.untracked.string('HLT_SingleJet*'),
+    runOnEmul = cms.untracked.bool(False),
+    MEs = cms.untracked.PSet(
+        LowIntMap = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sSelectiveReadoutTask/Counters/%(prefix)sSRT tower low interest counter%(suffix)s'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('TriggerTower'),
+            description = cms.untracked.string('Tower occupancy of low interest flags.')
+        ),
+        FGEmulError = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/Errors/TriggerPrimitives/FGBEmulation/'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Channel'),
+            btype = cms.untracked.string('TriggerTower'),
+            description = cms.untracked.string('')
+        ),
+        EtMaxEmul = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/Emulated/%(prefix)sTTT Et spectrum Emulated Digis max%(suffix)s'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal3P'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(256.0),
+                nbins = cms.untracked.int32(128),
+                low = cms.untracked.double(0.0),
+                title = cms.untracked.string('TP Et')
+            ),
+            btype = cms.untracked.string('User'),
+            description = cms.untracked.string('Distribution of the maximum Et value within one emulated TP')
+        ),
+        OccVsBx = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT TP occupancy vs bx Real Digis%(suffix)s'),
+            kind = cms.untracked.string('TProfile'),
+            otype = cms.untracked.string('Ecal3P'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(15.0),
+                nbins = cms.untracked.int32(15),
+                low = cms.untracked.double(0.0),
+                title = cms.untracked.string('bunch crossing')
+            ),
+            btype = cms.untracked.string('User'),
+            description = cms.untracked.string('TP occupancy in different bunch crossing intervals.')
+        ),
+        HighIntMap = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sSelectiveReadoutTask/Counters/%(prefix)sSRT tower high interest counter%(suffix)s'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('TriggerTower'),
+            description = cms.untracked.string('Tower occupancy of high interest flags.')
+        ),
+        EtVsBx = cms.untracked.PSet(
+            kind = cms.untracked.string('TProfile'),
+            yaxis = cms.untracked.PSet(
+                title = cms.untracked.string('TP Et')
+            ),
+            otype = cms.untracked.string('Ecal3P'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(15.0),
+                nbins = cms.untracked.int32(15),
+                low = cms.untracked.double(0.0),
+                title = cms.untracked.string('bunch crossing')
+            ),
+            btype = cms.untracked.string('User'),
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT Et vs bx Real Digis%(suffix)s'),
+            description = cms.untracked.string('Mean TP Et in different bunch crossing intervals.')
+        ),
+        EtEmulError = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/Errors/TriggerPrimitives/EtEmulation/'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Channel'),
+            btype = cms.untracked.string('TriggerTower'),
+            description = cms.untracked.string('')
+        ),
+        MatchedIndex = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT EmulMatch %(sm)s'),
+            kind = cms.untracked.string('TH2F'),
+            yaxis = cms.untracked.PSet(
+                high = cms.untracked.double(6.0),
+                nbins = cms.untracked.int32(6),
+                low = cms.untracked.double(0.0),
+                title = cms.untracked.string('TP index')
+            ),
+            otype = cms.untracked.string('SM'),
+            btype = cms.untracked.string('TriggerTower'),
+            description = cms.untracked.string('Counter for TP "timing" (= index withing the emulated TP whose Et matched that of the real TP)')
+        ),
+        EmulMaxIndex = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT max TP matching index%(suffix)s'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal3P'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(6.0),
+                nbins = cms.untracked.int32(6),
+                low = cms.untracked.double(0.0),
+                title = cms.untracked.string('TP index')
+            ),
+            btype = cms.untracked.string('User'),
+            description = cms.untracked.string('Distribution of the index of emulated TP with the highest Et value.')
+        ),
+        MedIntMap = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sSelectiveReadoutTask/Counters/%(prefix)sSRT tower med interest counter%(suffix)s'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('TriggerTower'),
+            description = cms.untracked.string('Tower occupancy of medium interest flags.')
+        ),
+        TTFlags = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sSelectiveReadoutTask/%(prefix)sSRT TT Flags%(suffix)s'),
+            kind = cms.untracked.string('TH2F'),
+            yaxis = cms.untracked.PSet(
+                high = cms.untracked.double(8.0),
+                nbins = cms.untracked.int32(8),
+                low = cms.untracked.double(0.0),
+                title = cms.untracked.string('TT flag')
+            ),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('DCC'),
+            description = cms.untracked.string('Distribution of the trigger tower flags.')
+        ),
+        TTFMismatch = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/Errors/TriggerPrimitives/FlagMismatch/'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Channel'),
+            btype = cms.untracked.string('TriggerTower'),
+            description = cms.untracked.string('')
+        ),
+        EtSummary = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sSummaryClient/%(prefix)sTTT%(suffix)s Et trigger tower summary'),
+            kind = cms.untracked.string('TProfile2D'),
+            zaxis = cms.untracked.PSet(
+                high = cms.untracked.double(256.0),
+                nbins = cms.untracked.int32(128),
+                low = cms.untracked.double(0.0),
+                title = cms.untracked.string('TP Et')
+            ),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('TriggerTower'),
+            description = cms.untracked.string('2D distribution of the trigger primitive Et.')
+        ),
+        EtRealMap = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT Et map Real Digis %(sm)s'),
+            kind = cms.untracked.string('TProfile2D'),
+            zaxis = cms.untracked.PSet(
+                high = cms.untracked.double(256.0),
+                nbins = cms.untracked.int32(128),
+                low = cms.untracked.double(0.0),
+                title = cms.untracked.string('TP Et')
+            ),
+            otype = cms.untracked.string('SM'),
+            btype = cms.untracked.string('TriggerTower'),
+            description = cms.untracked.string('2D distribution of the trigger primitive Et.')
+        ),
+        EtReal = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT Et spectrum Real Digis%(suffix)s'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal3P'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(256.0),
+                nbins = cms.untracked.int32(128),
+                low = cms.untracked.double(0.0),
+                title = cms.untracked.string('TP Et')
+            ),
+            btype = cms.untracked.string('User'),
+            description = cms.untracked.string('Distribution of the trigger primitive Et.')
+        )
     )
 )

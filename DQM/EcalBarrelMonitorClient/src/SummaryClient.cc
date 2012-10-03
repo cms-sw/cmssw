@@ -118,7 +118,7 @@ namespace ecaldqm {
           if(iz == 1 && ieta == 0) continue;
           for(int iphi(1); iphi <= 72; ++iphi){
             EcalTrigTowerDetId ttids[4];
-            uint32_t badBits(0);
+            unsigned badTowers(0);
             for(int deta(0); deta < 2; ++deta){
               int ttz(ieta == 0 && deta == 0 ? -1 : iz);
               int tteta(ieta == 0 && deta == 0 ? 1 : ieta + deta);
@@ -128,12 +128,11 @@ namespace ecaldqm {
                 ttids[deta * 2 + dphi] = ttid;
 
                 if(badChannelsCount[ttid.rawId()] > towerBadFraction_ * 25.)
-                  badBits |= 0x1 << (deta * 2 + dphi);
+                  badTowers += 1;
               }
             }
 
-            // contiguous towers bad -> [(00)(11)] [(11)(00)] [(01)(01)] [(10)(10)] []=>eta ()=>phi
-            if((badBits & 0x3) == 0x3 || (badBits & 0xc) == 0xc || (badBits & 0x5) == 0x5 || (badBits & 0xa) == 0xa){
+            if(badTowers > 2){
               for(unsigned iD(0); iD < 4; ++iD)
                 dccGood[dccId(ttids[iD]) - 1] = 0.;
             }
@@ -144,7 +143,7 @@ namespace ecaldqm {
         for(int ix(1); ix < 20; ++ix){
           for(int iy(1); iy < 20; ++iy){
             EcalScDetId scids[4];
-            uint32_t badBits(0);
+            unsigned badTowers(0);
             for(int dx(0); dx < 2; ++dx){
               for(int dy(0); dy < 2; ++dy){
                 if(!EcalScDetId::validDetId(ix + dx, iy + dy, iz)){
@@ -155,12 +154,12 @@ namespace ecaldqm {
                 scids[dx * 2 + dy] = scid;
 
                 if(badChannelsCount[scid.rawId()] > towerBadFraction_ * scConstituents(scid).size())
-                  badBits |= 0x1 << (dx * 2 + dy);
+                  badTowers += 1;
               }
             }
 
             // contiguous towers bad -> [(00)(11)] [(11)(00)] [(01)(01)] [(10)(10)] []=>x ()=>y
-            if((badBits & 0x3) == 0x3 || (badBits & 0xc) == 0xc || (badBits & 0x5) == 0x5 || (badBits & 0xa) == 0xa){
+            if(badTowers > 2){
               for(unsigned iD(0); iD < 4; ++iD){
                 EcalScDetId& scid(scids[iD]);
                 if(scid.null()) continue;

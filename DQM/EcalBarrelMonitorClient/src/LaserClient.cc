@@ -16,14 +16,14 @@ namespace ecaldqm {
     wlToME_(),
     minChannelEntries_(_workerParams.getUntrackedParameter<int>("minChannelEntries")),
     expectedAmplitude_(0),
-    toleranceAmplitude_(0),
-    toleranceAmpRMSRatio_(0),
+    toleranceAmplitude_(_workerParams.getUntrackedParameter<double>("toleranceAmplitude")),
+    toleranceAmpRMSRatio_(_workerParams.getUntrackedParameter<double>("toleranceAmpRMSRatio")),
     expectedTiming_(0),
-    toleranceTiming_(0),
-    toleranceTimRMS_(0),
+    toleranceTiming_(_workerParams.getUntrackedParameter<double>("toleranceTiming")),
+    toleranceTimRMS_(_workerParams.getUntrackedParameter<double>("toleranceTimRMS")),
     expectedPNAmplitude_(0),
-    tolerancePNAmp_(0),
-    tolerancePNRMSRatio_(0),
+    tolerancePNAmp_(_workerParams.getUntrackedParameter<double>("tolerancePNAmp")),
+    tolerancePNRMSRatio_(_workerParams.getUntrackedParameter<double>("tolerancePNRMSRatio")),
     forwardFactor_(_workerParams.getUntrackedParameter<double>("forwardFactor"))
   {
     using namespace std;
@@ -36,34 +36,24 @@ namespace ecaldqm {
       wlToME_[*wlItr] = iMEWL++;
     }
 
-    stringstream ss;
-
     expectedAmplitude_.resize(iMEWL);
-    toleranceAmplitude_.resize(iMEWL);
-    toleranceAmpRMSRatio_.resize(iMEWL);
     expectedTiming_.resize(iMEWL);
-    toleranceTiming_.resize(iMEWL);
-    toleranceTimRMS_.resize(iMEWL);
     expectedPNAmplitude_.resize(iMEWL);
-    tolerancePNAmp_.resize(iMEWL);
-    tolerancePNRMSRatio_.resize(iMEWL);
+
+    std::vector<double> inExpectedAmplitude(_workerParams.getUntrackedParameter<std::vector<double> >("expectedAmplitude"));
+    std::vector<double> inExpectedTiming(_workerParams.getUntrackedParameter<std::vector<double> >("expectedTiming"));
+    std::vector<double> inExpectedPNAmplitude(_workerParams.getUntrackedParameter<std::vector<double> >("expectedPNAmplitude"));
 
     for(map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr){
-      ss.str("");
-      ss << "L" << wlItr->first;
-
-      expectedAmplitude_[wlItr->second] = _workerParams.getUntrackedParameter<double>("expectedAmplitude" + ss.str());
-      toleranceAmplitude_[wlItr->second] = _workerParams.getUntrackedParameter<double>("toleranceAmplitude" + ss.str());
-      toleranceAmpRMSRatio_[wlItr->second] = _workerParams.getUntrackedParameter<double>("toleranceAmpRMSRatio" + ss.str());
-      expectedTiming_[wlItr->second] = _workerParams.getUntrackedParameter<double>("expectedTiming" + ss.str());
-      toleranceTiming_[wlItr->second] = _workerParams.getUntrackedParameter<double>("toleranceTiming" + ss.str());
-      toleranceTimRMS_[wlItr->second] = _workerParams.getUntrackedParameter<double>("toleranceTimRMS" + ss.str());
-      expectedPNAmplitude_[wlItr->second] = _workerParams.getUntrackedParameter<double>("expectedPNAmplitude" + ss.str());
-      tolerancePNAmp_[wlItr->second] = _workerParams.getUntrackedParameter<double>("tolerancePNAmp" + ss.str());
-      tolerancePNRMSRatio_[wlItr->second] = _workerParams.getUntrackedParameter<double>("tolerancePNRMSRatio" + ss.str());
+      int iME(wlItr->second);
+      int iWL(wlItr->first - 1);
+      expectedAmplitude_[iME] = inExpectedAmplitude[iWL];
+      expectedTiming_[iME] = inExpectedTiming[iWL];
+      expectedPNAmplitude_[iME] = inExpectedPNAmplitude[iWL];
     }
 
     map<string, string> replacements;
+    stringstream ss;
 
     unsigned wlPlots[] = {kQuality, kAmplitudeMean, kAmplitudeRMS, kTimingMean, kTimingRMSMap, kTimingRMS, kQualitySummary, kPNQualitySummary};
     for(unsigned iS(0); iS < sizeof(wlPlots) / sizeof(unsigned); ++iS){
@@ -171,8 +161,8 @@ namespace ecaldqm {
         float intensity(aMean / expectedAmplitude_[wlItr->second]);
         if(isForward(id)) intensity /= forwardFactor_;
 
-        if(intensity < toleranceAmplitude_[wlItr->second] || aRms > aMean * toleranceAmpRMSRatio_[wlItr->second] ||
-           abs(tMean - expectedTiming_[wlItr->second]) > toleranceTiming_[wlItr->second] /*|| tRms > toleranceTimRMS_[wlItr->second]*/)
+        if(intensity < toleranceAmplitude_ || aRms > aMean * toleranceAmpRMSRatio_ ||
+           abs(tMean - expectedTiming_[wlItr->second]) > toleranceTiming_ /*|| tRms > toleranceTimRMS_*/)
           qItr->setBinContent(doMask ? kMBad : kBad);
         else
           qItr->setBinContent(doMask ? kMGood : kGood);
@@ -203,7 +193,7 @@ namespace ecaldqm {
           float pRms(sources_[kPNAmplitude]->getBinError(id) * sqrt(pEntries));
           float intensity(pMean / expectedPNAmplitude_[wlItr->second]);
 
-          if(intensity < tolerancePNAmp_[wlItr->second] || pRms > pMean * tolerancePNRMSRatio_[wlItr->second])
+          if(intensity < tolerancePNAmp_ || pRms > pMean * tolerancePNRMSRatio_)
             MEs_[kPNQualitySummary]->setBinContent(id, doMask ? kMBad : kBad);
           else
             MEs_[kPNQualitySummary]->setBinContent(id, doMask ? kMGood : kGood);

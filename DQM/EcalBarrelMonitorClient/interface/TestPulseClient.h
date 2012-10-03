@@ -32,6 +32,7 @@ namespace ecaldqm
     std::map<int, unsigned> gainToME_;
     std::map<int, unsigned> pnGainToME_;
 
+    int minChannelEntries_;
     std::vector<float> amplitudeThreshold_;
     std::vector<float> toleranceRMS_;
     std::vector<float> PNAmplitudeThreshold_;

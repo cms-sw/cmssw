@@ -13,6 +13,7 @@ namespace ecaldqm
 
   TestPulseClient::TestPulseClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
     DQWorkerClient(_workerParams, _commonParams, "TestPulseClient"),
+    minChannelEntries_(_workerParams.getUntrackedParameter<int>("minChannelEntries")),
     amplitudeThreshold_(0),
     toleranceRMS_(0),
     PNAmplitudeThreshold_(0),
@@ -35,31 +36,50 @@ namespace ecaldqm
       pnGainToME_[*gainItr] = iMEPNGain++;
     }
 
-    stringstream ss;
-
     amplitudeThreshold_.resize(iMEGain);
     toleranceRMS_.resize(iMEGain);
 
-    for(map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
-      ss.str("");
-      ss << "G" << setfill('0') << setw(2) << gainItr->first;
+    std::vector<double> inAmplitudeThreshold = _workerParams.getUntrackedParameter<std::vector<double> >("amplitudeThreshold");
+    std::vector<double> inToleranceRMS = _workerParams.getUntrackedParameter<std::vector<double> >("toleranceRMS");
 
-      amplitudeThreshold_[gainItr->second] = _workerParams.getUntrackedParameter<double>("amplitudeThreshold" + ss.str());
-      toleranceRMS_[gainItr->second] = _workerParams.getUntrackedParameter<double>("toleranceRMS" + ss.str());
+    for(map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
+      unsigned iME(gainItr->second);
+      unsigned iGain(0);
+      switch(gainItr->first){
+      case 1:
+        iGain = 0; break;
+      case 6:
+        iGain = 1; break;
+      case 12:
+        iGain = 2; break;
+      }
+
+      amplitudeThreshold_[iME] = inAmplitudeThreshold[iGain];
+      toleranceRMS_[iME] = inToleranceRMS[iGain];
     }
 
     PNAmplitudeThreshold_.resize(iMEPNGain);
     tolerancePNRMS_.resize(iMEPNGain);
 
-    for(map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr){
-      ss.str("");
-      ss << "G" << setfill('0') << setw(2) << gainItr->first;
+    std::vector<double> inPNAmplitudeThreshold = _workerParams.getUntrackedParameter<std::vector<double> >("PNAmplitudeThreshold");
+    std::vector<double> inTolerancePNRMS = _workerParams.getUntrackedParameter<std::vector<double> >("tolerancePNRMS");
 
-      PNAmplitudeThreshold_[gainItr->second] = _workerParams.getUntrackedParameter<double>("PNAmplitudeThreshold" + ss.str());
-      tolerancePNRMS_[gainItr->second] = _workerParams.getUntrackedParameter<double>("tolerancePNRMS" + ss.str());
+    for(map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr){
+      unsigned iME(gainItr->second);
+      unsigned iGain(0);
+      switch(gainItr->first){
+      case 1:
+        iGain = 0; break;
+      case 16:
+        iGain = 1; break;
+      }
+
+      PNAmplitudeThreshold_[iME] = inPNAmplitudeThreshold[iGain];
+      tolerancePNRMS_[iME] = inTolerancePNRMS[iGain];
     }
 
     map<string, string> replacements;
+    stringstream ss;
 
     unsigned apdPlots[] = {kQuality, kAmplitudeRMS, kQualitySummary};
     for(unsigned iS(0); iS < sizeof(apdPlots) / sizeof(unsigned); ++iS){
@@ -174,7 +194,7 @@ namespace ecaldqm
 
         float entries(aItr->getBinEntries());
 
-        if(entries < 1.){
+        if(entries < minChannelEntries_){
           qItr->setBinContent(doMask ? kMUnknown : kUnknown);
           continue;
         }
@@ -229,7 +249,7 @@ namespace ecaldqm
           float entries(sources_[kPNAmplitude]->getBinEntries(id));
           float rms(sources_[kPNAmplitude]->getBinError(id) * sqrt(entries));
 
-          if(entries < 1.){
+          if(entries < minChannelEntries_){
             MEs_[kPNQualitySummary]->setBinContent(id, doMask ? kMUnknown : kUnknown);
             continue;
           }

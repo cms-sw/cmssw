@@ -58,10 +58,10 @@ namespace ecaldqm {
 
     bool runOnEmul_;
 
-    std::string HLTCaloPath_;
-    std::string HLTMuonPath_;
-    bool HLTCaloBit_;
-    bool HLTMuonBit_;
+/*     std::string HLTCaloPath_; */
+/*     std::string HLTMuonPath_; */
+/*     bool HLTCaloBit_; */
+/*     bool HLTMuonBit_; */
 
     int bxBinEdges_[nBXBins + 1];
     double bxBin_;

@@ -18,6 +18,7 @@ namespace ecaldqm {
     };
 
     enum Sources {
+      kEntries,
       kL1ADCC,
       kFEStatus,
       nSources
@@ -26,7 +27,7 @@ namespace ecaldqm {
     static void setMEOrdering(std::map<std::string, unsigned>&);
 
   private:
-    int synchErrorThreshold_;
+    float synchErrThresholdFactor_;
   };
 
 }

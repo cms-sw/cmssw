@@ -34,11 +34,12 @@ namespace ecaldqm
     std::map<int, unsigned> gainToME_;
     std::map<int, unsigned> pnGainToME_;
 
-    std::vector<float> expectedMean_;
-    std::vector<float> toleranceMean_;
+    int minChannelEntries_;
+    float expectedMean_;
+    float toleranceMean_;
     std::vector<float> toleranceRMS_;
-    std::vector<float> expectedPNMean_;
-    std::vector<float> tolerancePNMean_;
+    float expectedPNMean_;
+    float tolerancePNMean_;
     std::vector<float> tolerancePNRMS_;
   };
 

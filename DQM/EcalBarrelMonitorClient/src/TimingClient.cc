@@ -10,7 +10,6 @@ namespace ecaldqm {
 
   TimingClient::TimingClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
     DQWorkerClient(_workerParams, _commonParams, "TimingClient"),
-    expectedMean_(_workerParams.getUntrackedParameter<double>("expectedMean")),
     toleranceMean_(_workerParams.getUntrackedParameter<double>("toleranceMean")),
     toleranceMeanFwd_(_workerParams.getUntrackedParameter<double>("toleranceMeanFwd")),
     toleranceRMS_(_workerParams.getUntrackedParameter<double>("toleranceRMS")),
@@ -106,7 +105,7 @@ namespace ecaldqm {
         MEs_[kFwdvBkwd]->fill(id, mean, posTime);
       }
 
-      if(abs(mean - expectedMean_) > meanThresh || rms > rmsThresh)
+      if(abs(mean) > meanThresh || rms > rmsThresh)
         qItr->setBinContent(doMask ? kMBad : kBad);
       else
         qItr->setBinContent(doMask ? kMGood : kGood);
@@ -170,7 +169,7 @@ namespace ecaldqm {
 
 	  float towerRMS(sqrt(towerMean2 - towerMean * towerMean));
 
-	  if(abs(towerMean - expectedMean_) > meanThresh || towerRMS > rmsThresh)
+	  if(abs(towerMean) > meanThresh || towerRMS > rmsThresh)
 	    quality = doMask ? kMBad : kBad;
           else
             quality = doMask ? kMGood : kGood;

@@ -11,7 +11,6 @@ namespace ecaldqm {
   PresampleClient::PresampleClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
     DQWorkerClient(_workerParams, _commonParams, "PresampleClient"),
     minChannelEntries_(_workerParams.getUntrackedParameter<int>("minChannelEntries")),
-    minTowerEntries_(_workerParams.getUntrackedParameter<int>("minTowerEntries")),
     expectedMean_(_workerParams.getUntrackedParameter<double>("expectedMean")),
     toleranceMean_(_workerParams.getUntrackedParameter<double>("toleranceMean")),
     toleranceRMS_(_workerParams.getUntrackedParameter<double>("toleranceRMS")),

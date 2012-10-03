@@ -1,18 +1,34 @@
+import FWCore.ParameterSet.Config as cms
+
 from DQM.EcalBarrelMonitorTasks.OccupancyTask_cfi import ecalOccupancyTask
 from DQM.EcalBarrelMonitorTasks.IntegrityTask_cfi import ecalIntegrityTask
 
-ecalIntegrityClient = dict(
-    errFractionThreshold = 0.01,
-    MEs = dict(
-        Quality = dict(path = "%(subdet)s/%(prefix)sIntegrityClient/%(prefix)sIT data integrity quality %(sm)s", otype = 'SM', btype = 'Crystal', kind = 'TH2F'),
-        QualitySummary = dict(path = "%(subdet)s/%(prefix)sSummaryClient/%(prefix)sIT%(suffix)s integrity quality summary", otype = 'Ecal3P', btype = 'Crystal', kind = 'TH2F')
+errFractionThreshold = 0.01
+
+ecalIntegrityClient = cms.untracked.PSet(
+    errFractionThreshold = cms.untracked.double(errFractionThreshold),
+    sources = cms.untracked.PSet(
+        Occupancy = ecalOccupancyTask.MEs.Digi,
+        BlockSize = ecalIntegrityTask.MEs.BlockSize,
+        Gain = ecalIntegrityTask.MEs.Gain,
+        GainSwitch = ecalIntegrityTask.MEs.GainSwitch,
+        ChId = ecalIntegrityTask.MEs.ChId,
+        TowerId = ecalIntegrityTask.MEs.TowerId,
     ),
-    sources = dict(
-        Occupancy = ecalOccupancyTask['MEs']['Digi'],            
-        Gain = ecalIntegrityTask['MEs']['Gain'],
-        ChId = ecalIntegrityTask['MEs']['ChId'],
-        GainSwitch = ecalIntegrityTask['MEs']['GainSwitch'],
-        TowerId = ecalIntegrityTask['MEs']['TowerId'],
-        BlockSize = ecalIntegrityTask['MEs']['BlockSize']
+    MEs = cms.untracked.PSet(
+        QualitySummary = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sSummaryClient/%(prefix)sIT%(suffix)s integrity quality summary'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('Crystal'),
+            description = cms.untracked.string('Summary of the data integrity. A channel is red if more than ' + str(100 * errFractionThreshold) + '% of its entries have integrity errors.')
+        ),
+        Quality = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sIntegrityClient/%(prefix)sIT data integrity quality %(sm)s'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('SM'),
+            btype = cms.untracked.string('Crystal'),
+            description = cms.untracked.string('Summary of the data integrity. A channel is red if more than ' + str(100 * errFractionThreshold) + '% of its entries have integrity errors.')            
+        )
     )
 )

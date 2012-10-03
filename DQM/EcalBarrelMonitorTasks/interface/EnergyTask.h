@@ -37,7 +37,7 @@ namespace ecaldqm {
   private:
     const CaloTopology *topology_;
     bool isPhysicsRun_;
-    float threshS9_;
+    //    float threshS9_;
   };
 
   inline void EnergyTask::analyze(const void* _p, Collections _collection){

@@ -13,11 +13,12 @@ namespace ecaldqm
 
   PedestalClient::PedestalClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
     DQWorkerClient(_workerParams, _commonParams, "PedestalClient"),
-    expectedMean_(0),
-    toleranceMean_(0),
+    minChannelEntries_(_workerParams.getUntrackedParameter<int>("minChannelEntries")),
+    expectedMean_(_workerParams.getUntrackedParameter<double>("expectedMean")),
+    toleranceMean_(_workerParams.getUntrackedParameter<double>("toleranceMean")),
     toleranceRMS_(0),
-    expectedPNMean_(0),
-    tolerancePNMean_(0),
+    expectedPNMean_(_workerParams.getUntrackedParameter<double>("expectedPNMean")),
+    tolerancePNMean_(_workerParams.getUntrackedParameter<double>("tolerancePNMean")),
     tolerancePNRMS_(0)
   {
     using namespace std;
@@ -37,35 +38,44 @@ namespace ecaldqm
       pnGainToME_[*gainItr] = iMEPNGain++;
     }
 
-    stringstream ss;
-
-    expectedMean_.resize(iMEGain);
-    toleranceMean_.resize(iMEGain);
     toleranceRMS_.resize(iMEGain);
 
-    for(map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
-      ss.str("");
-      ss << "G" << std::setfill('0') << std::setw(2) << gainItr->first;
+    std::vector<double> inToleranceRMS(_workerParams.getUntrackedParameter<std::vector<double> >("toleranceRMS"));
 
-      expectedMean_[gainItr->second] = _workerParams.getUntrackedParameter<double>("expectedMean" + ss.str());
-      toleranceMean_[gainItr->second] = _workerParams.getUntrackedParameter<double>("toleranceMean" + ss.str());
-      toleranceRMS_[gainItr->second] = _workerParams.getUntrackedParameter<double>("toleranceRMS" + ss.str());
+    for(map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
+      unsigned iME(gainItr->second);
+      unsigned iGain(0);
+      switch(gainItr->first){
+      case 1:
+        iGain = 0; break;
+      case 6:
+        iGain = 1; break;
+      case 12:
+        iGain = 2; break;
+      }
+
+      toleranceRMS_[iME] = inToleranceRMS[iGain];
     }
 
-    expectedPNMean_.resize(iMEPNGain);
-    tolerancePNMean_.resize(iMEPNGain);
     tolerancePNRMS_.resize(iMEPNGain);
 
-    for(map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr){
-      ss.str("");
-      ss << "G" << std::setfill('0') << std::setw(2) << gainItr->first;
+    std::vector<double> inTolerancePNRMS(_workerParams.getUntrackedParameter<std::vector<double> >("tolerancePNRMS"));
 
-      expectedPNMean_[gainItr->second] = _workerParams.getUntrackedParameter<double>("expectedPNMean" + ss.str());
-      tolerancePNMean_[gainItr->second] = _workerParams.getUntrackedParameter<double>("tolerancePNMean" + ss.str());
-      tolerancePNRMS_[gainItr->second] = _workerParams.getUntrackedParameter<double>("tolerancePNRMS" + ss.str());
+    for(map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr){
+      unsigned iME(gainItr->second);
+      unsigned iGain(0);
+      switch(gainItr->first){
+      case 1:
+        iGain = 0; break;
+      case 16:
+        iGain = 1; break;
+      }
+
+      tolerancePNRMS_[iME] = inTolerancePNRMS[iGain];
     }
 
     map<string, string> replacements;
+    stringstream ss;
 
     unsigned apdPlots[] = {kQuality, kMean, kRMS, kQualitySummary};
     for(unsigned iS(0); iS < sizeof(apdPlots) / sizeof(unsigned); ++iS){
@@ -182,7 +192,7 @@ namespace ecaldqm
 
         float entries(pItr->getBinEntries());
 
-        if(entries < 1.){
+        if(entries < minChannelEntries_){
           qItr->setBinContent(doMask ? kMUnknown : kUnknown);
           continue;
         }
@@ -193,7 +203,7 @@ namespace ecaldqm
         MEs_[kMean]->fill(id, mean);
         MEs_[kRMS]->fill(id, rms);
 
-        if(abs(mean - expectedMean_[gainItr->second]) > toleranceMean_[gainItr->second] || rms > toleranceRMS_[gainItr->second])
+        if(abs(mean - expectedMean_) > toleranceMean_ || rms > toleranceRMS_[gainItr->second])
           qItr->setBinContent(doMask ? kMBad : kBad);
         else
           qItr->setBinContent(doMask ? kMGood : kGood);
@@ -239,7 +249,7 @@ namespace ecaldqm
 
           float entries(sources_[kPNPedestal]->getBinEntries(id));
 
-          if(entries < 1.){
+          if(entries < minChannelEntries_){
             MEs_[kPNQualitySummary]->setBinContent(id, doMask ? kMUnknown : kUnknown);
             continue;
           }
@@ -249,7 +259,7 @@ namespace ecaldqm
 
           MEs_[kPNRMS]->fill(id, rms);
 
-          if(abs(mean - expectedPNMean_[gainItr->second]) > tolerancePNMean_[gainItr->second] || rms > tolerancePNRMS_[gainItr->second])
+          if(abs(mean - expectedPNMean_) > tolerancePNMean_ || rms > tolerancePNRMS_[gainItr->second])
             MEs_[kPNQualitySummary]->setBinContent(id, doMask ? kMBad : kBad);
           else
             MEs_[kPNQualitySummary]->setBinContent(id, doMask ? kMGood : kGood);

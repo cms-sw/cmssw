@@ -1,24 +1,58 @@
+import FWCore.ParameterSet.Config as cms
+
 from DQM.EcalBarrelMonitorTasks.TestPulseTask_cfi import ecalTestPulseTask
 
-ecalTestPulseClient = dict(
-    amplitudeThresholdG01 = 1200.,
-    amplitudeThresholdG06 = 600.,
-    amplitudeThresholdG12 = 100.,
-    toleranceRMSG01 = 160.,
-    toleranceRMSG06 = 80.,
-    toleranceRMSG12 = 10.,
-    PNAmplitudeThresholdG01 = 200. / 16.,
-    PNAmplitudeThresholdG16 = 200.,
-    tolerancePNRMSG01 = 20.,
-    tolerancePNRMSG16 = 20.,
-    MEs = dict(
-        Quality = dict(path = '%(subdet)s/%(prefix)sTestPulseClient/%(prefix)sTPT test pulse quality G%(gain)s %(sm)s', otype = 'SM', btype = 'Crystal', kind = 'TH2F', multi = 3),
-        AmplitudeRMS = dict(path = "%(subdet)s/%(prefix)sTestPulseClient/%(prefix)sTPT test pulse rms G%(gain)s", otype = 'Ecal2P', btype = 'Crystal', kind = 'TH2F', zaxis = {'title': 'rms (ADC counts)'}, multi = 3),
-        QualitySummary = dict(path = '%(subdet)s/%(prefix)sSummaryClient/%(prefix)sTPT%(suffix)s test pulse quality G%(gain)s summary', otype = 'Ecal3P', btype = 'SuperCrystal', kind = 'TH2F', multi = 3),
-        PNQualitySummary = dict(path = '%(subdet)s/%(prefix)sSummaryClient/%(prefix)sTPT PN test pulse quality G%(pngain)s summary', otype = 'MEM2P', btype = 'Crystal', kind = 'TH2F', multi = 2)
+minChannelEntries = 3
+amplitudeThreshold = [1200., 600., 100.]
+toleranceRMS = [160., 80., 10.]
+PNAmplitudeThreshold = [12.5, 200.]
+tolerancePNRMS = [20., 20.]
+
+ecalTestPulseClient = cms.untracked.PSet(
+    minChannelEntries = cms.untracked.int32(minChannelEntries),
+    amplitudeThreshold = cms.untracked.vdouble(amplitudeThreshold),
+    toleranceRMS = cms.untracked.vdouble(toleranceRMS),
+    PNAmplitudeThreshold = cms.untracked.vdouble(PNAmplitudeThreshold),
+    tolerancePNRMS = cms.untracked.vdouble(tolerancePNRMS),
+    sources = cms.untracked.PSet(
+        Amplitude = ecalTestPulseTask.MEs.Amplitude,
+        PNAmplitude = ecalTestPulseTask.MEs.PNAmplitude
     ),
-    sources = dict(
-        Amplitude = ecalTestPulseTask['MEs']['Amplitude'],
-        PNAmplitude = ecalTestPulseTask['MEs']['PNAmplitude']
+    MEs = cms.untracked.PSet(
+        PNQualitySummary = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sSummaryClient/%(prefix)sTPT PN test pulse quality G%(pngain)s summary'),
+            otype = cms.untracked.string('MEM2P'),
+            multi = cms.untracked.int32(2),
+            kind = cms.untracked.string('TH2F'),
+            btype = cms.untracked.string('Crystal'),
+            description = cms.untracked.string('Summary of test pulse data quality for PN diodes. A channel is red if mean amplitude is lower than the threshold, or RMS is greater than threshold. The mean and RMS thresholds are ' + ('%f, %f' % tuple(PNAmplitudeThreshold)) + ' and ' + ('%f, %f' % tuple(tolerancePNRMS)) + ' for gains 1 and 16 respectively. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
+        ),
+        QualitySummary = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sSummaryClient/%(prefix)sTPT%(suffix)s test pulse quality G%(gain)s summary'),
+            otype = cms.untracked.string('Ecal3P'),
+            multi = cms.untracked.int32(3),
+            kind = cms.untracked.string('TH2F'),
+            btype = cms.untracked.string('SuperCrystal'),
+            description = cms.untracked.string('Summary of test pulse data quality for crystals. A channel is red if mean amplitude is lower than the threshold, or RMS is greater than threshold. The mean and RMS thresholds are ' + ('%f, %f, %f' % tuple(amplitudeThreshold)) + ' and ' + ('%f, %f, %f' % tuple(toleranceRMS)) + ' for gains 1, 6, and 12 respectively. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
+        ),
+        Quality = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTestPulseClient/%(prefix)sTPT test pulse quality G%(gain)s %(sm)s'),
+            otype = cms.untracked.string('SM'),
+            multi = cms.untracked.int32(3),
+            kind = cms.untracked.string('TH2F'),
+            btype = cms.untracked.string('Crystal'),
+            description = cms.untracked.string('Summary of test pulse data quality for crystals. A channel is red if mean amplitude is lower than the threshold, or RMS is greater than threshold. The mean and RMS thresholds are ' + ('%f, %f, %f' % tuple(amplitudeThreshold)) + ' and ' + ('%f, %f, %f' % tuple(toleranceRMS)) + ' for gains 1, 6, and 12 respectively. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
+        ),
+        AmplitudeRMS = cms.untracked.PSet(
+            multi = cms.untracked.int32(3),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal2P'),
+            zaxis = cms.untracked.PSet(
+                title = cms.untracked.string('rms (ADC counts)')
+            ),
+            btype = cms.untracked.string('Crystal'),
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTestPulseClient/%(prefix)sTPT test pulse rms G%(gain)s'),
+            description = cms.untracked.string('2D distribution of the amplitude RMS. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
+        )
     )
 )

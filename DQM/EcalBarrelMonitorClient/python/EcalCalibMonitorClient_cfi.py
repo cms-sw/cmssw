@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.EcalCommon.dqmpset import *
 from DQM.EcalCommon.CalibCommonParams_cfi import ecalCalibCommonParams
 
 from DQM.EcalBarrelMonitorClient.IntegrityClient_cfi import ecalIntegrityClient
@@ -26,19 +25,17 @@ ecalCalibMonitorClient = cms.EDAnalyzer("EcalDQMonitorClient",
         "CalibrationSummaryClient"
     ),
     # task parameters (included from indivitual cfis)
-    workerParameters = dqmpset(
-        dict(
-            IntegrityClient = ecalIntegrityClient, #used in local DAQ
-            RawDataClient = ecalRawDataClient, #used in local DAQ
-            LaserClient = ecalLaserClient,
-            LedClient = ecalLedClient,
-            TestPulseClient = ecalTestPulseClient,
-            PedestalClient = ecalPedestalClient,
-            PNIntegrityClient = ecalPnIntegrityClient,
-            SummaryClient = ecalSummaryClient, #used in local DAQ
-            CalibrationSummaryClient = ecalCalibrationSummaryClient,
-            common = ecalCalibCommonParams
-        )
+    workerParameters = cms.untracked.PSet(
+        IntegrityClient = ecalIntegrityClient, #used in local DAQ
+        RawDataClient = ecalRawDataClient, #used in local DAQ
+        LaserClient = ecalLaserClient,
+        LedClient = ecalLedClient,
+        TestPulseClient = ecalTestPulseClient,
+        PedestalClient = ecalPedestalClient,
+        PNIntegrityClient = ecalPnIntegrityClient,
+        SummaryClient = ecalSummaryClient, #used in local DAQ
+        CalibrationSummaryClient = ecalCalibrationSummaryClient,
+        common = ecalCalibCommonParams
     ),
     PNMaskFile = cms.untracked.FileInPath("DQM/EcalBarrelMonitorClient/data/mask-PN.txt"),
     verbosity = cms.untracked.int32(0),

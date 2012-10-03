@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.EcalCommon.dqmpset import *
 from DQM.EcalCommon.CommonParams_cfi import ecalCommonParams
 
 from DQM.EcalBarrelMonitorClient.IntegrityClient_cfi import ecalIntegrityClient
@@ -25,18 +24,16 @@ ecalMonitorClient = cms.EDAnalyzer("EcalDQMonitorClient",
         "SummaryClient"
     ),
     # task parameters (included from indivitual cfis)
-    workerParameters = dqmpset(
-        dict(
-            IntegrityClient = ecalIntegrityClient,
-            OccupancyClient = ecalOccupancyClient,
-            PresampleClient = ecalPresampleClient,
-            TrigPrimClient = ecalTrigPrimClient,
-            RawDataClient = ecalRawDataClient,
-            TimingClient = ecalTimingClient,
-            SelectiveReadoutClient = ecalSelectiveReadoutClient,
-            SummaryClient = ecalSummaryClient,
-            common = ecalCommonParams
-        )
+    workerParameters = cms.untracked.PSet(
+        IntegrityClient = ecalIntegrityClient,
+        OccupancyClient = ecalOccupancyClient,
+        PresampleClient = ecalPresampleClient,
+        TrigPrimClient = ecalTrigPrimClient,
+        RawDataClient = ecalRawDataClient,
+        TimingClient = ecalTimingClient,
+        SelectiveReadoutClient = ecalSelectiveReadoutClient,
+        SummaryClient = ecalSummaryClient,
+        common = ecalCommonParams
     ),
     verbosity = cms.untracked.int32(0),
     online = cms.untracked.bool(False)

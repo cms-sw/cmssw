@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.EcalCommon.dqmpset import *
 from DQM.EcalCommon.CommonParams_cfi import ecalCommonParams
 
 from DQM.EcalBarrelMonitorTasks.CollectionTags_cfi import ecalDQMCollectionTags
@@ -32,20 +31,18 @@ ecalMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
         "PresampleTask"
     ),
     # task parameters (included from indivitual cfis)
-    workerParameters = dqmpset(
-        dict(
-            ClusterTask = ecalClusterTask,
-            EnergyTask = ecalEnergyTask,
-            IntegrityTask = ecalIntegrityTask,
-            OccupancyTask = ecalOccupancyTask,
-            RawDataTask = ecalRawDataTask,
-            SelectiveReadoutTask = ecalSelectiveReadoutTask,
-            TimingTask = ecalTimingTask,
-            TrigPrimTask = ecalTrigPrimTask,
-            TowerStatusTask = ecalTowerStatusTask,
-            PresampleTask = ecalPresampleTask,
-            common = ecalCommonParams
-        )
+    workerParameters =  cms.untracked.PSet(
+        ClusterTask = ecalClusterTask,
+        EnergyTask = ecalEnergyTask,
+        IntegrityTask = ecalIntegrityTask,
+        OccupancyTask = ecalOccupancyTask,
+        RawDataTask = ecalRawDataTask,
+        SelectiveReadoutTask = ecalSelectiveReadoutTask,
+        TimingTask = ecalTimingTask,
+        TrigPrimTask = ecalTrigPrimTask,
+        TowerStatusTask = ecalTowerStatusTask,
+        PresampleTask = ecalPresampleTask,
+        common = ecalCommonParams
     ),
     collectionTags = ecalDQMCollectionTags,
     allowMissingCollections = cms.untracked.bool(True),

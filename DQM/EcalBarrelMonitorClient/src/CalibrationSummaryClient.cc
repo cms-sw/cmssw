@@ -46,7 +46,7 @@ namespace ecaldqm {
     map<string, string> replacements;
 
     if(using_(kLaser)){
-      vector<int> laserWavelengths(_workerParams.getUntrackedParameter<vector<int> >("laserWavelengths", vector<int>()));
+      vector<int> laserWavelengths(_workerParams.getUntrackedParameter<vector<int> >("laserWavelengths"));
       unsigned iMELaserWL(0);
       for(vector<int>::iterator wlItr(laserWavelengths.begin()); wlItr != laserWavelengths.end(); ++wlItr){
         if(*wlItr <= 0 || *wlItr >= 5) throw cms::Exception("InvalidConfiguration") << "Laser Wavelength" << endl;
@@ -69,7 +69,7 @@ namespace ecaldqm {
     }
 
     if(using_(kLed)){
-      vector<int> ledWavelengths(_workerParams.getUntrackedParameter<vector<int> >("ledWavelengths", vector<int>()));
+      vector<int> ledWavelengths(_workerParams.getUntrackedParameter<vector<int> >("ledWavelengths"));
       unsigned iMELedWL(0);
       for(vector<int>::iterator wlItr(ledWavelengths.begin()); wlItr != ledWavelengths.end(); ++wlItr){
         if(*wlItr <= 0 || *wlItr >= 3) throw cms::Exception("InvalidConfiguration") << "Led Wavelength" << endl;
@@ -92,8 +92,8 @@ namespace ecaldqm {
     }
 
     if(using_(kTestPulse)){
-      vector<int> tpMGPAGains(_workerParams.getUntrackedParameter<vector<int> >("testPulseMGPAGains", vector<int>()));
-      vector<int> tpMGPAGainsPN(_workerParams.getUntrackedParameter<vector<int> >("testPulseMGPAGainsPN", vector<int>()));
+      vector<int> tpMGPAGains(_workerParams.getUntrackedParameter<vector<int> >("testPulseMGPAGains"));
+      vector<int> tpMGPAGainsPN(_workerParams.getUntrackedParameter<vector<int> >("testPulseMGPAGainsPN"));
       unsigned iMETPGain(0);
       for(vector<int>::iterator gainItr(tpMGPAGains.begin()); gainItr != tpMGPAGains.end(); ++gainItr){
         if(*gainItr != 1 && *gainItr != 6 && *gainItr != 12) throw cms::Exception("InvalidConfiguration") << "MGPA gain" << endl;
@@ -129,8 +129,8 @@ namespace ecaldqm {
     }
 
     if(using_(kPedestal)){
-      vector<int> pedMGPAGains(_workerParams.getUntrackedParameter<vector<int> >("pedestalMGPAGains", vector<int>()));
-      vector<int> pedMGPAGainsPN(_workerParams.getUntrackedParameter<vector<int> >("pedestalMGPAGainsPN", vector<int>()));
+      vector<int> pedMGPAGains(_workerParams.getUntrackedParameter<vector<int> >("pedestalMGPAGains"));
+      vector<int> pedMGPAGainsPN(_workerParams.getUntrackedParameter<vector<int> >("pedestalMGPAGainsPN"));
       unsigned iMEPedGain(0);
       for(vector<int>::iterator gainItr(pedMGPAGains.begin()); gainItr != pedMGPAGains.end(); ++gainItr){
         if(*gainItr != 1 && *gainItr != 6 && *gainItr != 12) throw cms::Exception("InvalidConfiguration") << "MGPA gain" << endl;

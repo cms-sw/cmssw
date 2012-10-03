@@ -12,10 +12,10 @@ namespace ecaldqm {
     DQWorkerTask(_workerParams, _commonParams, "TrigPrimTask"),
     realTps_(0),
     runOnEmul_(_workerParams.getUntrackedParameter<bool>("runOnEmul")),
-    HLTCaloPath_(_workerParams.getUntrackedParameter<std::string>("HLTCaloPath")),
-    HLTMuonPath_(_workerParams.getUntrackedParameter<std::string>("HLTMuonPath")),
-    HLTCaloBit_(false),
-    HLTMuonBit_(false),
+//     HLTCaloPath_(_workerParams.getUntrackedParameter<std::string>("HLTCaloPath")),
+//     HLTMuonPath_(_workerParams.getUntrackedParameter<std::string>("HLTMuonPath")),
+//     HLTCaloBit_(false),
+//     HLTMuonBit_(false),
     bxBin_(0.),
     towerReadouts_()
   {
@@ -86,8 +86,8 @@ namespace ecaldqm {
 
     realTps_ = 0;
 
-    HLTCaloBit_ = false;
-    HLTMuonBit_ = false;
+//     HLTCaloBit_ = false;
+//     HLTMuonBit_ = false;
 
     int* pBin(std::upper_bound(bxBinEdges_, bxBinEdges_ + nBXBins + 1, _evt.bunchCrossing()));
     bxBin_ = static_cast<int>(pBin - bxBinEdges_) - 0.5;

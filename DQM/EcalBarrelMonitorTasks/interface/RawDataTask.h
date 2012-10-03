@@ -29,6 +29,7 @@ namespace ecaldqm {
       kEventTypePreCalib, // h1f
       kEventTypeCalib, // h1f
       kEventTypePostCalib, // h1f
+      kEntries,
       kCRC, // h1f
       kRunNumber, // h1f
       kOrbit, // h1f

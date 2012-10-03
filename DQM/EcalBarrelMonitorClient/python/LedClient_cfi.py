@@ -1,38 +1,102 @@
+import FWCore.ParameterSet.Config as cms
+
 from DQM.EcalBarrelMonitorTasks.LedTask_cfi import ecalLedTask
 
-ecalLedClient = dict(
-    minChannelEntries = 3,
-    expectedAmplitudeL1 = 200.0,
-    expectedAmplitudeL2 = 200.0,
-    toleranceAmplitudeL1 = 0.1, # relative to expected amplitude
-    toleranceAmplitudeL2 = 0.1,
-    toleranceAmpRMSRatioL1 = 0.3, # relative to mean amplitude
-    toleranceAmpRMSRatioL2 = 0.3,
-    expectedTimingL1 = 4.2,
-    expectedTimingL2 = 4.2,
-    toleranceTimingL1 = 0.5,
-    toleranceTimingL2 = 0.5,
-    toleranceTimRMSL1 = 0.4,
-    toleranceTimRMSL2 = 0.4,
-    expectedPNAmplitudeL1 = 800.0,
-    expectedPNAmplitudeL2 = 800.0,
-    tolerancePNAmpL1 = 0.1,
-    tolerancePNAmpL2 = 0.1,
-    tolerancePNRMSRatioL1 = 0.3,
-    tolerancePNRMSRatioL2 = 0.3,
-    forwardFactor = 0.5,
-    MEs = dict(
-        Quality = dict(path = 'EcalEndcap/EELedClient/EELDT led quality L%(wl)s %(sm)s', otype = 'EESM', btype = 'Crystal', kind = 'TH2F', multi = 2),
-        AmplitudeMean = dict(path = "EcalEndcap/EELedClient/EELDT amplitude L%(wl)s %(sm)s", otype = 'EESM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 0., 'high': 400.}, multi = 2),
-        AmplitudeRMS = dict(path = "EcalEndcap/EELedClient/EELDT amplitude RMS L%(wl)s", otype = 'EE', btype = 'Crystal', kind = 'TH2F', multi = 2),
-        TimingMean = dict(path = 'EcalEndcap/EELedClient/EELDT led timing L%(wl)s %(sm)s', otype = 'EESM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 3.5, 'high': 5.5}, multi = 2),
-        TimingRMSMap = dict(path = 'EcalEndcap/EELedClient/EELDT timing RMS L%(wl)s', otype = 'EE', btype = 'Crystal', kind = 'TH2F', multi = 2),
-        QualitySummary = dict(path = 'EcalEndcap/EESummaryClient/EELDT%(suffix)s led quality summary L%(wl)s', otype = 'EE2P', btype = 'SuperCrystal', kind = 'TH2F', multi = 2),
-        PNQualitySummary = dict(path = 'EcalEndcap/EESummaryClient/EELDT PN led quality summary L%(wl)s', otype = 'EEMEM', btype = 'Crystal', kind = 'TH2F', multi = 2)
+forwardFactor = 0.5
+minChannelEntries = 3
+expectedAmplitude = [200., 200.]
+toleranceAmplitude = 0.1
+toleranceAmpRMSRatio = 0.3
+expectedTiming = [4.2, 4.2]
+toleranceTiming = 0.5
+toleranceTimRMS = 0.4
+expectedPNAmplitude = [800., 800.]
+tolerancePNAmp = 0.1
+tolerancePNRMSRatio = 0.3
+
+ecalLedClient = cms.untracked.PSet(
+    forwardFactor = cms.untracked.double(forwardFactor),
+    minChannelEntries = cms.untracked.int32(minChannelEntries),
+    expectedAmplitude = cms.untracked.vdouble(expectedAmplitude),
+    toleranceAmplitude = cms.untracked.double(toleranceAmplitude),
+    toleranceAmpRMSRatio = cms.untracked.double(toleranceAmpRMSRatio),
+    expectedPNAmplitude = cms.untracked.vdouble(expectedPNAmplitude),
+    tolerancePNAmp = cms.untracked.double(tolerancePNAmp),
+    tolerancePNRMSRatio = cms.untracked.double(tolerancePNRMSRatio),
+    expectedTiming = cms.untracked.vdouble(expectedTiming),
+    toleranceTiming = cms.untracked.double(toleranceTiming),    
+    toleranceTimRMS = cms.untracked.double(toleranceTimRMS),    
+    sources = cms.untracked.PSet(
+        Timing = ecalLedTask.MEs.Timing,
+        PNAmplitude = ecalLedTask.MEs.PNAmplitude,
+        Amplitude = ecalLedTask.MEs.Amplitude
     ),
-    sources = dict(
-        Amplitude = ecalLedTask['MEs']['Amplitude'],
-        Timing = ecalLedTask['MEs']['Timing'],
-        PNAmplitude = ecalLedTask['MEs']['PNAmplitude']
+    MEs = cms.untracked.PSet(
+        TimingMean = cms.untracked.PSet(
+            kind = cms.untracked.string('TH1F'),
+            multi = cms.untracked.int32(2),
+            otype = cms.untracked.string('EESM'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(5.5),
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(3.5)
+            ),
+            btype = cms.untracked.string('User'),
+            path = cms.untracked.string('EcalEndcap/EELedClient/EELDT led timing L%(wl)s %(sm)s'),
+            description = cms.untracked.string('Distribution of the timing in each crystal channel. Z scale is in LHC clocks. Channels with less than ' + str(minChannelEntries) + ' are not considered.')            
+        ),
+        PNQualitySummary = cms.untracked.PSet(
+            path = cms.untracked.string('EcalEndcap/EESummaryClient/EELDT PN led quality summary L%(wl)s'),
+            otype = cms.untracked.string('EEMEM'),
+            multi = cms.untracked.int32(2),
+            kind = cms.untracked.string('TH2F'),
+            btype = cms.untracked.string('Crystal'),
+            description = cms.untracked.string('Summary of the led data quality in the PN diodes. A channel is red if mean / expected < ' + str(tolerancePNAmp) + ' or RMS / expected > ' + str(tolerancePNRMSRatio) + '. Expected amplitudes are ' + ('%f, %f' % tuple(expectedPNAmplitude)) + ' for led 1 and 2 respectively. Channels with less than ' + str(minChannelEntries) + ' are not considered.')
+        ),
+        TimingRMSMap = cms.untracked.PSet(
+            path = cms.untracked.string('EcalEndcap/EELedClient/EELDT timing RMS L%(wl)s'),
+            otype = cms.untracked.string('EE'),
+            multi = cms.untracked.int32(2),
+            kind = cms.untracked.string('TH2F'),
+            btype = cms.untracked.string('Crystal'),
+            description = cms.untracked.string('2D distribution of the led timing RMS. Z scale is in LHC clocks. Channels with less than ' + str(minChannelEntries) + ' are not considered.')            
+        ),
+        AmplitudeMean = cms.untracked.PSet(
+            kind = cms.untracked.string('TH1F'),
+            multi = cms.untracked.int32(2),
+            otype = cms.untracked.string('EESM'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(400.0),
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0.0)
+            ),
+            btype = cms.untracked.string('User'),
+            path = cms.untracked.string('EcalEndcap/EELedClient/EELDT amplitude L%(wl)s %(sm)s'),
+            description = cms.untracked.string('Distribution of the mean amplitude seen in each crystal. Channels with less than ' + str(minChannelEntries) + ' are not considered.')            
+        ),
+        QualitySummary = cms.untracked.PSet(
+            path = cms.untracked.string('EcalEndcap/EESummaryClient/EELDT%(suffix)s led quality summary L%(wl)s'),
+            otype = cms.untracked.string('EE2P'),
+            multi = cms.untracked.int32(2),
+            kind = cms.untracked.string('TH2F'),
+            btype = cms.untracked.string('SuperCrystal'),
+            description = cms.untracked.string('Summary of the led data quality. A channel is red either if mean / expected < ' + str(toleranceAmplitude) + ', or if RMS / expected > ' + str(toleranceAmpRMSRatio) + ', or if mean timing is off from expected by ' + str(toleranceTiming) + '. Expected amplitudes and timings are ' + ('%f, %f' % tuple(expectedAmplitude)) + ' and ' + ('%f, %f' % tuple(expectedTiming)) + ' for leds 1 and 2 respectively. Channels with less than ' + str(minChannelEntries) + ' are not considered.')
+        ),
+        Quality = cms.untracked.PSet(
+            path = cms.untracked.string('EcalEndcap/EELedClient/EELDT led quality L%(wl)s %(sm)s'),
+            otype = cms.untracked.string('EESM'),
+            multi = cms.untracked.int32(2),
+            kind = cms.untracked.string('TH2F'),
+            btype = cms.untracked.string('Crystal'),
+            description = cms.untracked.string('Summary of the led data quality. A channel is red either if mean / expected < ' + str(toleranceAmplitude) + ', or if RMS / expected > ' + str(toleranceAmpRMSRatio) + ', or if mean timing is off from expected by ' + str(toleranceTiming) + '. Expected amplitudes and timings are ' + ('%f, %f' % tuple(expectedAmplitude)) + ' and ' + ('%f, %f' % tuple(expectedTiming)) + ' for leds 1 and 2 respectively. Channels with less than ' + str(minChannelEntries) + ' are not considered.')
+        ),
+        AmplitudeRMS = cms.untracked.PSet(
+            path = cms.untracked.string('EcalEndcap/EELedClient/EELDT amplitude RMS L%(wl)s'),
+            otype = cms.untracked.string('EE'),
+            multi = cms.untracked.int32(2),
+            kind = cms.untracked.string('TH2F'),
+            btype = cms.untracked.string('Crystal'),
+            description = cms.untracked.string('2D distribution of the amplitude RMS. Channels with less than ' + str(minChannelEntries) + ' are not considered.')            
+        )
     )
 )

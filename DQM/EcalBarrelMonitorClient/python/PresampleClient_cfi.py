@@ -1,23 +1,84 @@
+import FWCore.ParameterSet.Config as cms
+
 from DQM.EcalBarrelMonitorTasks.PresampleTask_cfi import ecalPresampleTask
 
-ecalPresampleClient = dict(
-    minChannelEntries = 6,
-    minTowerEntries = 30,
-    expectedMean = 200.,
-    toleranceMean = 25.,
-    toleranceRMS = 3.,
-    toleranceRMSFwd = 6.,
-    MEs = dict(
-        Quality = dict(path = "%(subdet)s/%(prefix)sPedestalOnlineClient/%(prefix)sPOT pedestal quality G12 %(sm)s", otype = 'SM', btype = 'Crystal', kind = 'TH2F'),
-        Mean = dict(path = "%(subdet)s/%(prefix)sPedestalOnlineClient/%(prefix)sPOT pedestal mean G12 %(sm)s", otype = 'SM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 120, 'low': 170., 'high': 230.}),
-        RMS = dict(path = "%(subdet)s/%(prefix)sPedestalOnlineClient/%(prefix)sPOT pedestal rms G12 %(sm)s", otype = 'SM', btype = 'User', kind = 'TH1F', xaxis = {'nbins': 100, 'low': 0., 'high': 10.}),
-        RMSMap = dict(path = "%(subdet)s/%(prefix)sSummaryClient/%(prefix)sPOT%(suffix)s pedestal G12 RMS map", otype = 'Ecal3P', btype = 'Crystal', kind = 'TH2F', zaxis = {'title': 'RMS'}),
-        QualitySummary = dict(path = "%(subdet)s/%(prefix)sSummaryClient/%(prefix)sPOT%(suffix)s pedestal quality summary G12", otype = 'Ecal3P', btype = 'Crystal', kind = 'TH2F'),
-        TrendMean = dict(path = 'Ecal/Trends/PresampleClient %(prefix)s pedestal mean max - min', otype = 'Ecal2P', btype = 'Trend', kind = 'TProfile'),
-        TrendRMS = dict(path = 'Ecal/Trends/PresampleClient %(prefix)s pedestal rms max', otype = 'Ecal2P', btype = 'Trend', kind = 'TProfile')
+minChannelEntries = 6
+expectedMean = 200.0
+toleranceMean = 25.0
+toleranceRMS = 3.0
+toleranceRMSFwd = 6.0
+
+ecalPresampleClient = cms.untracked.PSet(
+    minChannelEntries = cms.untracked.int32(minChannelEntries),
+    expectedMean = cms.untracked.double(expectedMean),
+    toleranceMean = cms.untracked.double(toleranceMean),
+    toleranceRMS = cms.untracked.double(toleranceRMS),
+    toleranceRMSFwd = cms.untracked.double(toleranceRMSFwd),
+    sources = cms.untracked.PSet(
+        Pedestal = ecalPresampleTask.MEs.Pedestal
     ),
-    sources = dict(
-        Pedestal = ecalPresampleTask['MEs']['Pedestal']
+    MEs = cms.untracked.PSet(
+        RMS = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sPedestalOnlineClient/%(prefix)sPOT pedestal rms G12 %(sm)s'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('SM'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(10.0),
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0.0)
+            ),
+            btype = cms.untracked.string('User'),
+            description = cms.untracked.string('Distribution of the presample RMS of each channel. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
+        ),
+        TrendRMS = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/Trends/PresampleClient %(prefix)s pedestal rms max'),
+            kind = cms.untracked.string('TProfile'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('Trend'),
+            description = cms.untracked.string('Trend of presample RMS averaged over all channels in EB / EE.')
+        ),
+        RMSMap = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sSummaryClient/%(prefix)sPOT%(suffix)s pedestal G12 RMS map'),
+            kind = cms.untracked.string('TH2F'),
+            zaxis = cms.untracked.PSet(
+                title = cms.untracked.string('RMS')
+            ),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('Crystal'),
+            description = cms.untracked.string('2D distribution of the presample RMS. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
+        ),
+        TrendMean = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/Trends/PresampleClient %(prefix)s pedestal mean max - min'),
+            kind = cms.untracked.string('TProfile'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('Trend'),
+            description = cms.untracked.string('Trend of presample spread in EB / EE. Y value indicates the difference between maximum and minimum presample mean values within the subdetector.')
+        ),
+        QualitySummary = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sSummaryClient/%(prefix)sPOT%(suffix)s pedestal quality summary G12'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('Crystal'),
+            description = cms.untracked.string('Summary of the presample data quality. A channel is red if presample mean is off by ' + str(toleranceMean) + ' from ' + str(expectedMean) + ' or RMS is greater than ' + str(toleranceRMS) + '. RMS threshold is ' + str(toleranceRMSFwd) + ' in the forward region (|eta| > 2.1). Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
+        ),
+        Quality = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sPedestalOnlineClient/%(prefix)sPOT pedestal quality G12 %(sm)s'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('SM'),
+            btype = cms.untracked.string('Crystal'),
+            description = cms.untracked.string('Summary of the presample data quality. A channel is red if presample mean is off by ' + str(toleranceMean) + ' from ' + str(expectedMean) + ' or RMS is greater than ' + str(toleranceRMS) + '. RMS threshold is ' + str(toleranceRMSFwd) + ' in the forward region (|eta| > 2.1). Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')            
+        ),
+        Mean = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sPedestalOnlineClient/%(prefix)sPOT pedestal mean G12 %(sm)s'),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('SM'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(230.0),
+                nbins = cms.untracked.int32(120),
+                low = cms.untracked.double(170.0)
+            ),
+            btype = cms.untracked.string('User'),
+            description = cms.untracked.string('1D distribution of the mean presample value in each crystal. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
+        )
     )
 )
-

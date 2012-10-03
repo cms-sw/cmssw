@@ -1,15 +1,35 @@
+import FWCore.ParameterSet.Config as cms
+
 from DQM.EcalBarrelMonitorTasks.TowerStatusTask_cfi import ecalTowerStatusTask
 from DQM.EcalBarrelMonitorClient.SummaryClient_cfi import ecalSummaryClient
 
-ecalCertificationClient = dict(
-    MEs = dict(
-        CertificationMap = dict(path = "Ecal/EventInfo/CertificationSummaryMap", otype = 'Ecal', btype = 'DCC', kind = 'TH2F'),
-        CertificationContents = dict(path = "Ecal/EventInfo/CertificationContents/Ecal_%(sm)s", otype  = 'SM', btype = 'Report', kind = 'REAL'),
-        Certification = dict(path = "Ecal/EventInfo/CertificationSummary", otype = 'Ecal', btype = 'Report', kind = 'REAL')
+ecalCertificationClient = cms.untracked.PSet(
+    sources = cms.untracked.PSet(
+        DQM = ecalSummaryClient.MEs.ReportSummaryContents,
+        DCS = ecalTowerStatusTask.MEs.DCSContents,
+        DAQ = ecalTowerStatusTask.MEs.DAQContents
     ),
-    sources = dict(
-        DAQ = ecalTowerStatusTask['MEs']['DAQContents'],
-        DCS = ecalTowerStatusTask['MEs']['DCSContents'],
-        DQM = ecalSummaryClient['MEs']['ReportSummaryContents']
+    MEs = cms.untracked.PSet(
+        CertificationMap = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/EventInfo/CertificationSummaryMap'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal'),
+            btype = cms.untracked.string('DCC'),
+            description = cms.untracked.string('')
+        ),
+        CertificationContents = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/EventInfo/CertificationContents/Ecal_%(sm)s'),
+            kind = cms.untracked.string('REAL'),
+            otype = cms.untracked.string('SM'),
+            btype = cms.untracked.string('Report'),
+            description = cms.untracked.string('')            
+        ),
+        Certification = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/EventInfo/CertificationSummary'),
+            kind = cms.untracked.string('REAL'),
+            otype = cms.untracked.string('Ecal'),
+            btype = cms.untracked.string('Report'),
+            description = cms.untracked.string('')            
+        )
     )
 )

@@ -11,8 +11,8 @@ namespace ecaldqm {
   EnergyTask::EnergyTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
     DQWorkerTask(_workerParams, _commonParams, "EnergyTask"),
     topology_(0),
-    isPhysicsRun_(_workerParams.getUntrackedParameter<bool>("isPhysicsRun")),
-    threshS9_(_workerParams.getUntrackedParameter<double>("threshS9"))
+    isPhysicsRun_(_workerParams.getUntrackedParameter<bool>("isPhysicsRun"))/*,
+                                                                              threshS9_(_workerParams.getUntrackedParameter<double>("threshS9"))*/
   {
     collectionMask_ = 
       (0x1 << kRun) |

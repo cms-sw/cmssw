@@ -35,7 +35,6 @@ namespace ecaldqm {
     static void setMEOrdering(std::map<std::string, unsigned>&);
 
   protected:
-    float expectedMean_;
     float toleranceMean_;
     float toleranceMeanFwd_;
     float toleranceRMS_;
