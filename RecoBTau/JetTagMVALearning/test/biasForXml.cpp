@@ -16,7 +16,7 @@ void calcEntries(string  flavour, string category, vector<float> & entries, stri
 
 int main(int argc, char **argv){
 
-	string dir = "./";
+	string dir = "/user/gvonsem/BTagServiceWork/MVA/testBtagVal_NewJuly2012/CMSSW_4_4_4/src/RecoBTau/JetTagMVALearning/test/MVA-Samples/merged_lighter";
 	string fix = "CombinedSV";
 
 	if(argc == 2 || argc == 3) dir = argv[1];
@@ -39,6 +39,17 @@ int main(int argc, char **argv){
 		}
 	}
 
+	//int count = 0;
+	//for(int j=0; j<3; j++){//loop on categories
+	//	for(int i =0; i<3; i++){//loop on flavours
+	//		cout << "for category " << cat[j] << " and jet flavour " << flavour[i] << " there are " << entries[count][0] << " entries"  << endl;
+	//		count++;
+	//	}
+	//}
+	//cout << "for jet flavour B there are " << entries[0][0]+entries[3][0]+entries[6][0] << " entries"  << endl;
+	//cout << "for jet flavour C there are " << entries[1][0]+entries[4][0]+entries[7][0] << " entries"  << endl;
+	//cout << "for jet flavour DUSG there are " << entries[2][0]+entries[5][0]+entries[8][0] << " entries"  << endl;
+
   ofstream myfile;
 	string filename = "";
 	for(int j=0; j<3; j++){//loop on categories	
@@ -47,6 +58,7 @@ int main(int argc, char **argv){
 			filename = cat[j]+"_B_"+flavour[k]+".txt";
   		myfile.open (filename.c_str());
  			for(int l = 0; l<15; l++ ){// loop on pt/eta bins defined in xml
+ 			//for(int l = 0; l<1; l++ ){// loop on pt/eta bins defined in xml
 				int index = j*3;
 				int indexb = k+j*3;
 				float bias = (float)((entries[index][l]/(entries[0][l]+entries[3][l]+entries[6][l]))/((entries[indexb][l]/(entries[k][l]+entries[k+3][l]+entries[k+6][l]))));
@@ -63,14 +75,17 @@ int main(int argc, char **argv){
 
 void calcEntries(string flavour, string  category,  vector<float> & entries, string dir, string fix){	
 	TFile * f = TFile::Open((dir+"/"+fix+category+"_"+flavour+".root").c_str());
-     
+  
+	cout << "opening file: " << (dir+"/"+fix+category+"_"+flavour+".root").c_str() << endl;
+	   
 	f->cd();
 	TTree * t =(TTree*)f->Get((fix+category).c_str());
 
 	//definition of pt and eta bins should be the same as in the Train*xml files!!!
-	entries.push_back(t->GetEntries("jetPt>15&&jetPt<40&&TMath::Abs(jetEta)<1.2"));
-	entries.push_back(t->GetEntries("jetPt>15&&jetPt<40&&TMath::Abs(jetEta)<2.1&&(!(TMath::Abs(jetEta)<1.2))"));
-	entries.push_back(t->GetEntries("jetPt>15&&jetPt<40&&(!(TMath::Abs(jetEta)<2.1))"));
+//	entries.push_back(t->GetEntries());
+	entries.push_back(t->GetEntries("jetPt>10&&jetPt<40&&TMath::Abs(jetEta)<1.2"));
+	entries.push_back(t->GetEntries("jetPt>10&&jetPt<40&&TMath::Abs(jetEta)<2.1&&(!(TMath::Abs(jetEta)<1.2))"));
+	entries.push_back(t->GetEntries("jetPt>10&&jetPt<40&&(!(TMath::Abs(jetEta)<2.1))"));
 	entries.push_back(t->GetEntries("jetPt>40&&jetPt<60&&TMath::Abs(jetEta)<1.2"));
 	entries.push_back(t->GetEntries("jetPt>40&&jetPt<60&&TMath::Abs(jetEta)<2.1&&(!(TMath::Abs(jetEta)<1.2))"));
 	entries.push_back(t->GetEntries("jetPt>40&&jetPt<60&&(!(TMath::Abs(jetEta)<2.1))"));
@@ -80,10 +95,12 @@ void calcEntries(string flavour, string  category,  vector<float> & entries, str
 	entries.push_back(t->GetEntries("jetPt>90&&jetPt<150&&TMath::Abs(jetEta)<1.2"));
 	entries.push_back(t->GetEntries("jetPt>90&&jetPt<150&&TMath::Abs(jetEta)<2.1&&(!(TMath::Abs(jetEta)<1.2))"));
 	entries.push_back(t->GetEntries("jetPt>90&&jetPt<150&&(!(TMath::Abs(jetEta)<2.1))"));
-	entries.push_back(t->GetEntries("jetPt>150&&jetPt<600&&TMath::Abs(jetEta)<1.2"));
-	entries.push_back(t->GetEntries("jetPt>150&&jetPt<600&&TMath::Abs(jetEta)<2.1&&(!(TMath::Abs(jetEta)<1.2))"));
-	entries.push_back(t->GetEntries("jetPt>150&&jetPt<600&&(!(TMath::Abs(jetEta)<2.1))"));
-    
+	entries.push_back(t->GetEntries("jetPt>150&&TMath::Abs(jetEta)<1.2"));
+	entries.push_back(t->GetEntries("jetPt>150&&TMath::Abs(jetEta)<2.1&&(!(TMath::Abs(jetEta)<1.2))"));
+	entries.push_back(t->GetEntries("jetPt>150&&(!(TMath::Abs(jetEta)<2.1))"));
+
+	cout << "jets have been put in pt and eta bins now" << endl;
+	    
 }
 
 
