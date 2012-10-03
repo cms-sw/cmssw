@@ -40,8 +40,7 @@ DQMOfflineCosmicsPrePOG = cms.Sequence( muonCosmicMonitors *
                                         egammaCosmicPhotonMonitors *
                                         l1TriggerDqmOffline * 
                                         triggerCosmicOfflineDQMSource
-# Temporarily taking out Physics sequence from Cosmics configuration                                        
-#                                        dqmPhysics
+                                        dqmPhysics
                                         )
 
 DQMOfflineCosmicsPOG = cms.Sequence( DQMOfflineCosmicsPrePOG *
