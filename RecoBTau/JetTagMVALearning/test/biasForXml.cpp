@@ -16,7 +16,7 @@ void calcEntries(string  flavour, string category, vector<float> & entries, stri
 
 int main(int argc, char **argv){
 
-	string dir = "/user/gvonsem/BTagServiceWork/MVA/testBtagVal_NewJuly2012/CMSSW_4_4_4/src/RecoBTau/JetTagMVALearning/test/MVA-Samples/merged_lighter";
+	string dir = "/user/pvmulder/NewEraOfDataAnalysis/BTagServiceWork/MVA-Samples-Gerrit/merged/";
 	string fix = "CombinedSV";
 
 	if(argc == 2 || argc == 3) dir = argv[1];
@@ -83,9 +83,9 @@ void calcEntries(string flavour, string  category,  vector<float> & entries, str
 
 	//definition of pt and eta bins should be the same as in the Train*xml files!!!
 //	entries.push_back(t->GetEntries());
-	entries.push_back(t->GetEntries("jetPt>10&&jetPt<40&&TMath::Abs(jetEta)<1.2"));
-	entries.push_back(t->GetEntries("jetPt>10&&jetPt<40&&TMath::Abs(jetEta)<2.1&&(!(TMath::Abs(jetEta)<1.2))"));
-	entries.push_back(t->GetEntries("jetPt>10&&jetPt<40&&(!(TMath::Abs(jetEta)<2.1))"));
+	entries.push_back(t->GetEntries("jetPt>15&&jetPt<40&&TMath::Abs(jetEta)<1.2"));
+	entries.push_back(t->GetEntries("jetPt>15&&jetPt<40&&TMath::Abs(jetEta)<2.1&&(!(TMath::Abs(jetEta)<1.2))"));
+	entries.push_back(t->GetEntries("jetPt>15&&jetPt<40&&(!(TMath::Abs(jetEta)<2.1))"));
 	entries.push_back(t->GetEntries("jetPt>40&&jetPt<60&&TMath::Abs(jetEta)<1.2"));
 	entries.push_back(t->GetEntries("jetPt>40&&jetPt<60&&TMath::Abs(jetEta)<2.1&&(!(TMath::Abs(jetEta)<1.2))"));
 	entries.push_back(t->GetEntries("jetPt>40&&jetPt<60&&(!(TMath::Abs(jetEta)<2.1))"));
@@ -95,9 +95,9 @@ void calcEntries(string flavour, string  category,  vector<float> & entries, str
 	entries.push_back(t->GetEntries("jetPt>90&&jetPt<150&&TMath::Abs(jetEta)<1.2"));
 	entries.push_back(t->GetEntries("jetPt>90&&jetPt<150&&TMath::Abs(jetEta)<2.1&&(!(TMath::Abs(jetEta)<1.2))"));
 	entries.push_back(t->GetEntries("jetPt>90&&jetPt<150&&(!(TMath::Abs(jetEta)<2.1))"));
-	entries.push_back(t->GetEntries("jetPt>150&&TMath::Abs(jetEta)<1.2"));
-	entries.push_back(t->GetEntries("jetPt>150&&TMath::Abs(jetEta)<2.1&&(!(TMath::Abs(jetEta)<1.2))"));
-	entries.push_back(t->GetEntries("jetPt>150&&(!(TMath::Abs(jetEta)<2.1))"));
+	entries.push_back(t->GetEntries("jetPt>150&&jetPt<600&&TMath::Abs(jetEta)<1.2"));
+	entries.push_back(t->GetEntries("jetPt>150&&jetPt<600&&TMath::Abs(jetEta)<2.1&&(!(TMath::Abs(jetEta)<1.2))"));
+	entries.push_back(t->GetEntries("jetPt>150&&jetPt<600&&(!(TMath::Abs(jetEta)<2.1))"));
 
 	cout << "jets have been put in pt and eta bins now" << endl;
 	    
