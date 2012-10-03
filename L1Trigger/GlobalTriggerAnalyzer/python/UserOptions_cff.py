@@ -26,7 +26,7 @@ useRelValSample = False
 #
 # comment/uncomment the next line to choose sample type 
 # (un-commented selects MC RelVal)
-useRelValSample=True
+#useRelValSample=True
 
 if useRelValSample == False :
     
@@ -37,8 +37,8 @@ if useRelValSample == False :
     
     # choose one sample identifier from the list of data samples 
     #
-    sampleIdentifier = '191833_AOD'
-
+    sampleIdentifier = '165633-CAFDQM'
+    #sampleIdentifier = '191833_RAW'
 
 else :
 

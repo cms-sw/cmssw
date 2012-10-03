@@ -146,7 +146,22 @@ l1GtAnalyzer = cms.EDAnalyzer("L1GtAnalyzer",
     #    analyzeL1GtUtilsMenuLite
     #    analyzeL1GtUtils
     #    analyzeTrigger
-    L1GtUtilsConfigureBeginRun = cms.bool(True)
+    L1GtUtilsConfigureBeginRun = cms.bool(True),
+    
+    # expression to test the L1GtUtils methods to retrieve L1 trigger decisions, 
+    #     prescale factors and masks for logical expressions
+    # first expression: aliases only; 
+    # second expression: names only;
+    # third expression: bit numbers; 
+    # fourth expression: non-existing algorithm trigger L1_NotInMenu in the logical expression
+    # fifth expression: non-existing technical trigger
+    # sixt expression: invalid syntax
+    L1GtUtilsLogicalExpression = cms.string("L1_SingleEG20 OR (L1_HTT150  OR L1_HTT175 OR L1_DoubleJetC56 OR L1_SingleJet128) AND L1_DoubleJetC36 AND (NOT L1_SingleJet36) AND L1_EG5_Jet36_deltaPhi1")
+    #L1GtUtilsLogicalExpression = cms.string("L1_SingleEG20 OR (L1_HTT150  OR L1_HTT175 OR L1_DoubleJetC56 OR L1_SingleJet128) AND L1_DoubleJet36_Central AND (NOT L1_SingleJet36) AND L1_EG5_Jet36_deltaPhi1")
+    # L1GtUtilsLogicalExpression = cms.string("8 OR 25")
+    # L1GtUtilsLogicalExpression = cms.string("(L1_HTT150  OR L1_HTT175 OR L1_DoubleJetC56 OR L1_SingleJet128) AND L1_NotInMenu")
+    # L1GtUtilsLogicalExpression = cms.string("(6 OR 40 OR 25) AND 65 AND (NOT 34)" )
+    # L1GtUtilsLogicalExpression = cms.string("(8 OR L1_HTT150 AND INVALID_KEYWORD 65 AND (NOT 34)" )
    
 )
 

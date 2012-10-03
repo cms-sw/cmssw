@@ -164,10 +164,16 @@ private:
 
     /// if true, configure (partially) L1GtUtils in beginRun using getL1GtRunCache
     bool m_l1GtUtilsConfigureBeginRun;
+    
+    /// expression to test the L1GtUtils methods to retrieve L1 trigger decisions, 
+    ///   prescale factors and masks for logical expressions
+    std::string m_l1GtUtilsLogicalExpression;
 
 private:
 
     L1GtUtils m_l1GtUtils;
+    L1GtUtils::LogicalExpressionL1Results m_logicalExpressionL1ResultsProv;
+    L1GtUtils::LogicalExpressionL1Results m_logicalExpressionL1Results;
 
 };
 

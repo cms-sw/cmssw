@@ -111,7 +111,10 @@ L1GtAnalyzer::L1GtAnalyzer(const edm::ParameterSet& parSet) :
             m_l1GtUtilsConfiguration(parSet.getParameter<unsigned int> ("L1GtUtilsConfiguration")),
             m_l1GtTmLInputTagProv(parSet.getParameter<bool> ("L1GtTmLInputTagProv")),
             m_l1GtRecordsInputTagProv(parSet.getParameter<bool> ("L1GtRecordsInputTagProv")),
-            m_l1GtUtilsConfigureBeginRun(parSet.getParameter<bool> ("L1GtUtilsConfigureBeginRun"))
+            m_l1GtUtilsConfigureBeginRun(parSet.getParameter<bool> ("L1GtUtilsConfigureBeginRun")), 
+            m_l1GtUtilsLogicalExpression(parSet.getParameter<std::string>("L1GtUtilsLogicalExpression")), 
+            m_logicalExpressionL1ResultsProv(m_l1GtUtilsLogicalExpression, m_l1GtUtils),
+            m_logicalExpressionL1Results(m_l1GtUtilsLogicalExpression, m_l1GtUtils, m_l1GtRecordInputTag, m_l1GtDaqReadoutRecordInputTag)
 
 {
 
@@ -140,7 +143,7 @@ L1GtAnalyzer::L1GtAnalyzer(const edm::ParameterSet& parSet) :
             << "\n   Configure L1GtUtils in beginRun(...): "
             << m_l1GtUtilsConfigureBeginRun
             << " \n" << std::endl;
-
+    
 }
 
 // destructor
@@ -211,6 +214,23 @@ void L1GtAnalyzer::beginRun(const edm::Run& iRun,
                     useL1GtTriggerMenuLite, m_l1GtTmLInputTag);
         }
 
+        // check if the parsing of the logical expression was successful
+
+        if (m_logicalExpressionL1ResultsProv.isValid()) {
+            m_logicalExpressionL1ResultsProv.logicalExpressionRunUpdate(iRun,
+                    evSetup);
+        } else {
+            // do whatever is necessary if parsing fails - the size of all vectors with L1 results is zero in this case
+            // a LogWarning message is written in L1GtUtils
+        }
+
+        if (m_logicalExpressionL1Results.isValid()) {
+            m_logicalExpressionL1Results.logicalExpressionRunUpdate(iRun,
+                    evSetup);
+        } else {
+            // do whatever is necessary if parsing fails - the size of all vectors with L1 results is zero in this case
+            // a LogWarning message is written in L1GtUtils
+        }
     }
 
 }
@@ -634,12 +654,68 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
     }
 
 
+    // results for logical expressions
 
+    // errorCodes must be called before any other method is used
+    const std::vector<std::pair<std::string, int> >& errorCodesProv =
+            m_logicalExpressionL1ResultsProv.errorCodes(iEvent);
 
+    const std::vector<L1GtLogicParser::OperandToken>& expL1TriggersProv =
+            m_logicalExpressionL1ResultsProv.expL1Triggers();
+
+    const std::vector<std::pair<std::string, bool> >& decisionsBeforeMaskProv =
+            m_logicalExpressionL1ResultsProv.decisionsBeforeMask();
+    const std::vector<std::pair<std::string, bool> >& decisionsAfterMaskProv =
+            m_logicalExpressionL1ResultsProv.decisionsAfterMask();
+    const std::vector<std::pair<std::string, int> >& prescaleFactorsProv =
+            m_logicalExpressionL1ResultsProv.prescaleFactors();
+    const std::vector<std::pair<std::string, int> >& triggerMasksProv =
+            m_logicalExpressionL1ResultsProv.triggerMasks();
+
+    myCoutStream << std::endl;
+    myCoutStream << "\nLogical expression\n  "
+            << m_l1GtUtilsLogicalExpression << std::endl;
+
+    for (size_t iTrig = 0; iTrig < errorCodesProv.size(); ++iTrig) {
+        if ((errorCodesProv[iTrig]).second != 0) {
+            myCoutStream
+                    << "\nError encountered when retrieving L1 results for trigger "
+                    << (errorCodesProv[iTrig]).first << " (bit number "
+                    << (expL1TriggersProv[iTrig]).tokenNumber << ")\n  for run "
+                    << iEvent.run() << ", luminosity block "
+                    << iEvent.luminosityBlock() << " with L1 menu \n  "
+                    << m_l1GtUtils.l1TriggerMenu() << "\n  Error code: "
+                    << (errorCodesProv[iTrig]).second << "\n" << std::endl;
+
+        } else {
+
+            myCoutStream << "\n" << (errorCodesProv[iTrig]).first
+                    << " - bit number " << (expL1TriggersProv[iTrig]).tokenNumber
+                    << std::endl;
+
+            myCoutStream << "    decision before mask = "
+                    << (decisionsBeforeMaskProv[iTrig]).second << std::endl;
+
+            myCoutStream << "    decision after mask  = "
+                    << (decisionsAfterMaskProv[iTrig]).second << std::endl;
+
+            myCoutStream << "    prescale factor      = "
+                    << (prescaleFactorsProv[iTrig]).second << std::endl;
+
+            myCoutStream << "    trigger mask         = "
+                    << (triggerMasksProv[iTrig]).second << std::endl;
+
+            myCoutStream << "    error code           = "
+                    << (errorCodesProv[iTrig]).second << std::endl;
+
+        }
+    }
 
     //
     // same methods as above, but with input tag given explicitly, allowing to select
     // the EDM products used to get the results
+    
+    
 
     myCoutStream
             << "\n******** Results found with input tags provided in the configuration file ******** \n"
@@ -852,6 +928,64 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
                 << "\n  Error code: " << iErrorCode << "\n" << std::endl;
     }
 
+
+    // results for logical expressions
+
+    // errorCodes must be called before any other method is used
+    const std::vector<std::pair<std::string, int> >& errorCodes =
+            m_logicalExpressionL1Results.errorCodes(iEvent);
+
+    const std::vector<L1GtLogicParser::OperandToken>& expL1Triggers =
+            m_logicalExpressionL1Results.expL1Triggers();
+
+
+    const std::vector<std::pair<std::string, bool> >& decisionsBeforeMask =
+            m_logicalExpressionL1Results.decisionsBeforeMask();
+    const std::vector<std::pair<std::string, bool> >& decisionsAfterMask =
+            m_logicalExpressionL1Results.decisionsAfterMask();
+    const std::vector<std::pair<std::string, int> >& prescaleFactors =
+            m_logicalExpressionL1Results.prescaleFactors();
+    const std::vector<std::pair<std::string, int> >& triggerMasks =
+            m_logicalExpressionL1Results.triggerMasks();
+
+    myCoutStream << std::endl;
+    myCoutStream << "\nLogical expression\n  "
+            << m_l1GtUtilsLogicalExpression << std::endl;
+
+    for (size_t iTrig = 0; iTrig < errorCodes.size(); ++iTrig) {
+        if ((errorCodes[iTrig]).second != 0) {
+            myCoutStream
+                    << "\nError encountered when retrieving L1 results for trigger "
+                    << (errorCodes[iTrig]).first << " (bit number "
+                    << (expL1Triggers[iTrig]).tokenNumber << ")\n  for run "
+                    << iEvent.run() << ", luminosity block "
+                    << iEvent.luminosityBlock() << " with L1 menu \n  "
+                    << m_l1GtUtils.l1TriggerMenu() << "\n  Error code: "
+                    << (errorCodes[iTrig]).second << "\n" << std::endl;
+
+        } else {
+
+            myCoutStream << "\n" << (errorCodes[iTrig]).first
+                    << " - bit number " << (expL1Triggers[iTrig]).tokenNumber
+                    << std::endl;
+
+            myCoutStream << "    decision before mask = "
+                    << (decisionsBeforeMask[iTrig]).second << std::endl;
+
+            myCoutStream << "    decision after mask  = "
+                    << (decisionsAfterMask[iTrig]).second << std::endl;
+
+            myCoutStream << "    prescale factor      = "
+                    << (prescaleFactors[iTrig]).second << std::endl;
+
+            myCoutStream << "    trigger mask         = "
+                    << (triggerMasks[iTrig]).second << std::endl;
+
+            myCoutStream << "    error code           = "
+                    << (errorCodes[iTrig]).second << std::endl;
+
+        }
+    }
 
 
     printOutput(myCoutStream);
@@ -1156,6 +1290,12 @@ void L1GtAnalyzer::analyzeTrigger(const edm::Event& iEvent,
 
     }
 
+    //FIXME remove
+    LogDebug("L1GtUtils") << validRecord << gtObjectMapRecordValid
+            << decisionBeforeMaskAlgTechTrig << decisionAfterMaskAlgTechTrig
+            << decisionAlgTechTrig << prescaleFactorAlgTechTrig
+            << triggerMaskAlgTechTrig << std::endl;
+    
     // get the RPN vector
 
 

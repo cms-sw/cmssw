@@ -53,9 +53,9 @@ process.l1GtAnalyzer.PrintOutput = 3
 #process.l1GtAnalyzer.analyzeDecisionReadoutRecordEnable = True
 #
 #process.l1GtAnalyzer.analyzeL1GtUtilsMenuLiteEnable = True
-#process.l1GtAnalyzer.analyzeL1GtUtilsEventSetupEnable = True
+process.l1GtAnalyzer.analyzeL1GtUtilsEventSetupEnable = True
 #process.l1GtAnalyzer.analyzeL1GtUtilsEnable = True
-process.l1GtAnalyzer.analyzeTriggerEnable = True
+#process.l1GtAnalyzer.analyzeTriggerEnable = True
 #
 #process.l1GtAnalyzer.analyzeObjectMapEnable = True
 #
