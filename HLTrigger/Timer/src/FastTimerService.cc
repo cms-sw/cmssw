@@ -208,13 +208,13 @@ void FastTimerService::postBeginJob() {
     m_dqms->setCurrentFolder(m_dqm_path);
 
     // event plots
-    m_dqm_event         = m_dqms->book1D("event",        "Event",    eventbins, 0., m_dqm_eventtime_range)->getTH1F();
+    m_dqm_event         = m_dqms->book1D("event",        "Event processing time",    eventbins, 0., m_dqm_eventtime_range)->getTH1F();
     m_dqm_event         ->StatOverflows(true);
-    m_dqm_source        = m_dqms->book1D("source",       "Source",   pathbins,  0., m_dqm_pathtime_range)->getTH1F();
+    m_dqm_source        = m_dqms->book1D("source",       "Source processing time",   pathbins,  0., m_dqm_pathtime_range)->getTH1F();
     m_dqm_source        ->StatOverflows(true);
-    m_dqm_all_paths     = m_dqms->book1D("all_paths",    "Paths",    eventbins, 0., m_dqm_eventtime_range)->getTH1F();
+    m_dqm_all_paths     = m_dqms->book1D("all_paths",    "Paths processing time",    eventbins, 0., m_dqm_eventtime_range)->getTH1F();
     m_dqm_all_paths     ->StatOverflows(true);
-    m_dqm_all_endpaths  = m_dqms->book1D("all_endpaths", "EndPaths", pathbins,  0., m_dqm_pathtime_range)->getTH1F();
+    m_dqm_all_endpaths  = m_dqms->book1D("all_endpaths", "EndPaths processing time", pathbins,  0., m_dqm_pathtime_range)->getTH1F();
     m_dqm_all_endpaths  ->StatOverflows(true);
 
     // summary plots
@@ -246,13 +246,13 @@ void FastTimerService::postBeginJob() {
 
     // per-lumisection plots
     if (m_enable_dqm_bylumi) {
-      m_dqm_bylumi_event        = m_dqms->bookProfile("", "", m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, eventbins, 0., m_dqm_eventtime_range, " ")->getTProfile();
+      m_dqm_bylumi_event        = m_dqms->bookProfile("event_bylumi",        "Event processing time, by Lumisection",    m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, eventbins, 0., m_dqm_eventtime_range, " ")->getTProfile();
       m_dqm_bylumi_event        ->StatOverflows(true);
-      m_dqm_bylumi_source       = m_dqms->bookProfile("", "", m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, pathbins,  0., m_dqm_pathtime_range,  " ")->getTProfile();
+      m_dqm_bylumi_source       = m_dqms->bookProfile("source_bylumi",       "Source processing time, by Lumisection",   m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, pathbins,  0., m_dqm_pathtime_range,  " ")->getTProfile();
       m_dqm_bylumi_source       ->StatOverflows(true);
-      m_dqm_bylumi_all_paths    = m_dqms->bookProfile("", "", m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, eventbins, 0., m_dqm_eventtime_range, " ")->getTProfile();
+      m_dqm_bylumi_all_paths    = m_dqms->bookProfile("all_paths_bylumi",    "Paths processing time, by Lumisection",    m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, eventbins, 0., m_dqm_eventtime_range, " ")->getTProfile();
       m_dqm_bylumi_all_paths    ->StatOverflows(true);
-      m_dqm_bylumi_all_endpaths = m_dqms->bookProfile("", "", m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, pathbins,  0., m_dqm_pathtime_range,  " ")->getTProfile();
+      m_dqm_bylumi_all_endpaths = m_dqms->bookProfile("all_endpaths_bylumi", "EndPaths processing time, by Lumisection", m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, pathbins,  0., m_dqm_pathtime_range,  " ")->getTProfile();
       m_dqm_bylumi_all_endpaths ->StatOverflows(true);
     }
 
