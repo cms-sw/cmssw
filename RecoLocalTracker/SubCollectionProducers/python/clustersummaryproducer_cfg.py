@@ -4,7 +4,7 @@ process = cms.Process("ClusterSummaryProducer")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 process.source = cms.Source("PoolSource",                            
                             fileNames = cms.untracked.vstring(
