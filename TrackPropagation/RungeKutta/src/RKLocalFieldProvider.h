@@ -18,14 +18,8 @@ public:
     typedef Frame::RotationType                  Rotation;
     typedef GlobalVector::BasicVectorType        Vector;
 
-    /// Global field access, result in global frame
-    //RKLocalFieldProvider();
-
-    /// Global field access, result transformed to frame 
-    //explicit RKLocalFieldProvider( const Frame& frame);
-
     /// Local field access to the MagVolume field, in the MagVolume frame
-    RKLocalFieldProvider( const MagVolume& vol);
+    explicit RKLocalFieldProvider( const MagVolume& vol);
 
     /// Local field access to the MagVolume field, transformed to the "frame" frame
     RKLocalFieldProvider( const MagVolume& vol, const Frame& frame);
@@ -46,14 +40,10 @@ public:
 
 private:
 
-    const MagVolume* theVolume;
+    const MagVolume & theVolume;
     const Frame&     theFrame;
     bool             transform_;
 
-    static Frame& globalFrame() {
-      static Frame gf( Position(0,0,0), Rotation());
-      return gf;
-    }
 
 };
 

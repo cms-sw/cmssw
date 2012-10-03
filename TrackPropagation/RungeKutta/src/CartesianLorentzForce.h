@@ -41,7 +41,7 @@ CartesianLorentzForce::operator()( Scalar z, const Vector& state) const
     CartesianStateAdaptor::Vector3D dpos = start.momentum().unit();
 
     /// Lorentz force in absence of electric field
-    CartesianStateAdaptor::Vector3D dmom = k*theCharge * dpos.cross( bfield);
+    CartesianStateAdaptor::Vector3D dmom = (k*theCharge) * dpos.cross( bfield);
 
     return CartesianStateAdaptor::rkstate( dpos, dmom);
 }
