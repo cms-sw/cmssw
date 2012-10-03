@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.66 2012/09/30 23:23:05 tjkim Exp $
+// $Id: PATElectronProducer.cc,v 1.67 2012/10/02 22:19:13 beaudett Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
 
@@ -397,8 +397,8 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	  std::vector<DetId> selectedCells = (barrel) ? ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalBarrel)->getWindow(seed,5,5):
 	    ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalEndcap)->getWindow(seed,5,5);          
 	  // add the DetId of the SC
-	  std::vector< std::pair<DetId, float> >::const_iterator it=itElectron->superCluster()->hitsAndFractions().begin();
-	  std::vector< std::pair<DetId, float> >::const_iterator itend=itElectron->superCluster()->hitsAndFractions().end();
+	  std::vector< std::pair<DetId, float> >::const_iterator it=itElectron->superCluster()->seed()->hitsAndFractions().begin();
+	  std::vector< std::pair<DetId, float> >::const_iterator itend=itElectron->superCluster()->seed()->hitsAndFractions().end();
 	  for( ; it!=itend ; ++it) {
 	    DetId id=it->first;
 	    // check if already saved
@@ -591,8 +591,8 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       std::vector<DetId> selectedCells = (barrel) ? ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalBarrel)->getWindow(seed,5,5):
 	ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalEndcap)->getWindow(seed,5,5);
       // add the DetId of the SC
-      std::vector< std::pair<DetId, float> >::const_iterator it=itElectron->superCluster()->hitsAndFractions().begin();
-      std::vector< std::pair<DetId, float> >::const_iterator itend=itElectron->superCluster()->hitsAndFractions().end();
+      std::vector< std::pair<DetId, float> >::const_iterator it=itElectron->superCluster()->seed()->hitsAndFractions().begin();
+      std::vector< std::pair<DetId, float> >::const_iterator itend=itElectron->superCluster()->seed()->hitsAndFractions().end();
       for( ; it!=itend ; ++it) {
 	DetId id=it->first;
 	// check if already saved
