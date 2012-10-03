@@ -1,13 +1,12 @@
 #ifndef RKCylindricalDistance_H
 #define RKCylindricalDistance_H
 
-#include "FWCore/Utilities/interface/Visibility.h"
 #include "RKDistance.h"
 #include "RKSmallVector.h"
 #include "CylindricalState.h"
 
 template <typename T, int N>
-class dso_internal RKCylindricalDistance : public RKDistance<T,N> {
+class dso_internal RKCylindricalDistance GCC11_FINAL : public RKDistance<T,N> {
 public:
  
   typedef T                                   Scalar;

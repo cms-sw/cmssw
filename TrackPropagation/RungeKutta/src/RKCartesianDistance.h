@@ -10,7 +10,7 @@
 
 /// Estimator of the distance between two state vectors, e.g. for convergence test
 
-class dso_internal RKCartesianDistance : public RKDistance<double,6> {
+class dso_internal RKCartesianDistance GCC11_FINAL : public RKDistance<double,6> {
 public:
  
   typedef double                                 Scalar;
