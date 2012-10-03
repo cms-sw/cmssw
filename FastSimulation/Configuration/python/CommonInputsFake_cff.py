@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from FastSimulation.Configuration.CommonInputs_cff.py import *
+from FastSimulation.Configuration.CommonInputs_cff import *
 
 # The muon digi calibration
 from CalibMuon.Configuration.DT_FakeConditions_cff import *
