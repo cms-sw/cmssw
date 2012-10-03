@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/09/26 15:39:07 $
- *  $Revision: 1.66 $
+ *  $Date: 2012/10/03 06:24:00 $
+ *  $Revision: 1.67 $
  *
  *  \author Martin Grunewald
  *
@@ -42,11 +42,11 @@ HLTConfigProvider::HLTConfigProvider():
   //  HLTConfigDataRegistry::instance()->extra().increment();
 }
 
-HLTConfigProvider::~HLTConfigProvider() {
-  //  if (HLTConfigDataRegistry::instance()->extra().decrement()==0) {
-  //    HLTConfigDataRegistry::instance()->data().clear();
-  //  }
-}
+//HLTConfigProvider::~HLTConfigProvider() {
+//  if (HLTConfigDataRegistry::instance()->extra().decrement()==0) {
+//    HLTConfigDataRegistry::instance()->data().clear();
+//  }
+//}
 
 HLTConfigProvider::HLTConfigCounterSentry::HLTConfigCounterSentry() {
   HLTConfigDataRegistry::instance()->extra().increment();
