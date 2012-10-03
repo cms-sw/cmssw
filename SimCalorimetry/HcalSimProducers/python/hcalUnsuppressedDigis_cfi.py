@@ -31,7 +31,7 @@ hcalSimBlock = cms.PSet(
     doHFWindow = cms.bool(False),
     hitsProducer = cms.string('g4SimHits'),
     injectTestHits = cms.bool(False),
-    ChangeResponse = cms.bool(True),
+    ChangeResponse = cms.bool(False),
     CorrFactorFile = cms.FileInPath("SimCalorimetry/HcalSimProducers/data/calor_corr01.txt")
 )
 
