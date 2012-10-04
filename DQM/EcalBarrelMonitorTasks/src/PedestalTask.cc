@@ -127,12 +127,9 @@ namespace ecaldqm {
 
       MEs_[kOccupancy]->fill(id);
 
-      float mean(0.);
       for(int iSample(0); iSample < 10; iSample++)
-	mean += dataFrame.sample(iSample).adc();
-      mean /= 10.;
-
-      MEs_[kPedestal]->fill(id, mean);
+	MEs_[kPedestal]->fill(id, dataFrame.sample(iSample).adc());
+      
     }
   }
 

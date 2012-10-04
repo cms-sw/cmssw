@@ -499,7 +499,7 @@ namespace ecaldqm
   {
     unsigned nME(binService_->getNObjects(otype_));
 
-    bool isProfile(kind_ == MonitorElement::DQM_KIND_TPROFILE || kind_ == MonitorElement::DQM_KIND_TPROFILE2D);
+    bool isProfile(kind_ == MonitorElement::DQM_KIND_TPROFILE2D);
 
     for(unsigned iME(0); iME < nME; iME++) {
       MonitorElement* me(mes_[iME]);
@@ -509,22 +509,23 @@ namespace ecaldqm
       int nbinsX(me->getTH1()->GetNbinsX());
       int nbinsY(me->getTH1()->GetNbinsY());
       for(int ix(1); ix <= nbinsX; ix++){
-        if(nbinsY == 1){
-          me->setBinContent(ix, _content);
-          me->setBinError(ix, _err);
-          if(isProfile) me->setBinEntries(ix, _entries);
-        }
-        else{
-          for(int iy(1); iy <= nbinsY; iy++){
-            int bin((nbinsX + 2) * iy + ix);
-            if(!binService_->isValidIdBin(obj, btype_, iME, bin)) continue;
-            me->setBinContent(bin, _content);
-            me->setBinError(bin, _err);
-            if(isProfile) me->setBinEntries(bin, _entries);
-          }
+        for(int iy(1); iy <= nbinsY; iy++){
+          int bin((nbinsX + 2) * iy + ix);
+          if(!binService_->isValidIdBin(obj, btype_, iME, bin)) continue;
+          me->setBinContent(bin, _content);
+          me->setBinError(bin, _err);
+          if(isProfile) me->setBinEntries(bin, _entries);
         }
       }
     }
+  }
+
+  void
+  MESetDet2D::softReset()
+  {
+    MESet::softReset();
+    if(kind_ == MonitorElement::DQM_KIND_TPROFILE2D)
+      resetAll(std::numeric_limits<double>::max(), 0., -1.);
   }
 
   void

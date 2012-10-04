@@ -51,7 +51,7 @@ ecalLedClient = cms.untracked.PSet(
             multi = cms.untracked.int32(2),
             kind = cms.untracked.string('TH2F'),
             btype = cms.untracked.string('Crystal'),
-            description = cms.untracked.string('Summary of the led data quality in the PN diodes. A channel is red if mean / expected < ' + str(tolerancePNAmp) + ' or RMS / expected > ' + str(tolerancePNRMSRatio) + '. Expected amplitudes are ' + ('%f, %f' % tuple(expectedPNAmplitude)) + ' for led 1 and 2 respectively. Channels with less than ' + str(minChannelEntries) + ' are not considered.')
+            description = cms.untracked.string('Summary of the led data quality in the PN diodes. A channel is red if mean / expected < ' + str(tolerancePNAmp) + ' or RMS / expected > ' + str(tolerancePNRMSRatio) + '. Expected amplitudes are ' + ('%.1f, %.1f' % tuple(expectedPNAmplitude)) + ' for led 1 and 2 respectively. Channels with less than ' + str(minChannelEntries) + ' are not considered.')
         ),
         TimingRMSMap = cms.untracked.PSet(
             path = cms.untracked.string('EcalEndcap/EELedClient/EELDT timing RMS L%(wl)s'),
@@ -80,7 +80,7 @@ ecalLedClient = cms.untracked.PSet(
             multi = cms.untracked.int32(2),
             kind = cms.untracked.string('TH2F'),
             btype = cms.untracked.string('SuperCrystal'),
-            description = cms.untracked.string('Summary of the led data quality. A channel is red either if mean / expected < ' + str(toleranceAmplitude) + ', or if RMS / expected > ' + str(toleranceAmpRMSRatio) + ', or if mean timing is off from expected by ' + str(toleranceTiming) + '. Expected amplitudes and timings are ' + ('%f, %f' % tuple(expectedAmplitude)) + ' and ' + ('%f, %f' % tuple(expectedTiming)) + ' for leds 1 and 2 respectively. Channels with less than ' + str(minChannelEntries) + ' are not considered.')
+            description = cms.untracked.string('Summary of the led data quality. A channel is red either if mean / expected < ' + str(toleranceAmplitude) + ', or if RMS / expected > ' + str(toleranceAmpRMSRatio) + ', or if mean timing is off from expected by ' + str(toleranceTiming) + '. Expected amplitudes and timings are ' + ('%.1f, %.1f' % tuple(expectedAmplitude)) + ' and ' + ('%.1f, %.1f' % tuple(expectedTiming)) + ' for leds 1 and 2 respectively. Channels with less than ' + str(minChannelEntries) + ' are not considered.')
         ),
         Quality = cms.untracked.PSet(
             path = cms.untracked.string('EcalEndcap/EELedClient/EELDT led quality L%(wl)s %(sm)s'),
@@ -88,7 +88,7 @@ ecalLedClient = cms.untracked.PSet(
             multi = cms.untracked.int32(2),
             kind = cms.untracked.string('TH2F'),
             btype = cms.untracked.string('Crystal'),
-            description = cms.untracked.string('Summary of the led data quality. A channel is red either if mean / expected < ' + str(toleranceAmplitude) + ', or if RMS / expected > ' + str(toleranceAmpRMSRatio) + ', or if mean timing is off from expected by ' + str(toleranceTiming) + '. Expected amplitudes and timings are ' + ('%f, %f' % tuple(expectedAmplitude)) + ' and ' + ('%f, %f' % tuple(expectedTiming)) + ' for leds 1 and 2 respectively. Channels with less than ' + str(minChannelEntries) + ' are not considered.')
+            description = cms.untracked.string('Summary of the led data quality. A channel is red either if mean / expected < ' + str(toleranceAmplitude) + ', or if RMS / expected > ' + str(toleranceAmpRMSRatio) + ', or if mean timing is off from expected by ' + str(toleranceTiming) + '. Expected amplitudes and timings are ' + ('%.1f, %.1f' % tuple(expectedAmplitude)) + ' and ' + ('%.1f, %.1f' % tuple(expectedTiming)) + ' for leds 1 and 2 respectively. Channels with less than ' + str(minChannelEntries) + ' are not considered.')
         ),
         AmplitudeRMS = cms.untracked.PSet(
             path = cms.untracked.string('EcalEndcap/EELedClient/EELDT amplitude RMS L%(wl)s'),

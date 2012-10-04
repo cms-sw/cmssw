@@ -55,7 +55,7 @@ ecalPedestalClient = cms.untracked.PSet(
             multi = cms.untracked.int32(2),
             kind = cms.untracked.string('TH2F'),
             btype = cms.untracked.string('Crystal'),
-            description = cms.untracked.string('Summary of the pedestal quality for PN diodes. A channel is red if the pedestal mean is off from ' + str(expectedPNMean) + ' by ' + str(tolerancePNMean) + ' or if the pedestal RMS is greater than threshold. RMS thresholds are ' + ('%f, %f' % tuple(tolerancePNRMS)) + ' for gains 1 and 16 respectively. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
+            description = cms.untracked.string('Summary of the pedestal quality for PN diodes. A channel is red if the pedestal mean is off from ' + str(expectedPNMean) + ' by ' + str(tolerancePNMean) + ' or if the pedestal RMS is greater than threshold. RMS thresholds are ' + ('%.1f, %.1f' % tuple(tolerancePNRMS)) + ' for gains 1 and 16 respectively. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
         ),
         QualitySummary = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sSummaryClient/%(prefix)sPT pedestal quality G%(gain)s summary'),
@@ -63,7 +63,7 @@ ecalPedestalClient = cms.untracked.PSet(
             multi = cms.untracked.int32(3),
             kind = cms.untracked.string('TH2F'),
             btype = cms.untracked.string('SuperCrystal'),
-            description = cms.untracked.string('Summary of the pedestal quality for crystals. A channel is red if the pedestal mean is off from ' + str(expectedMean) + ' by ' + str(toleranceMean) + ' or if the pedestal RMS is greater than threshold. RMS thresholds are ' + ('%f, %f, %f' % tuple(toleranceRMS)) + ' for gains 1, 6, and 12 respectively. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
+            description = cms.untracked.string('Summary of the pedestal quality for crystals. A channel is red if the pedestal mean is off from ' + str(expectedMean) + ' by ' + str(toleranceMean) + ' or if the pedestal RMS is greater than threshold. RMS thresholds are ' + ('%.1f, %.1f, %.1f' % tuple(toleranceRMS)) + ' for gains 1, 6, and 12 respectively. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
         ),
         Quality = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sPedestalClient/%(prefix)sPT pedestal quality G%(gain)s %(sm)s'),
@@ -71,7 +71,7 @@ ecalPedestalClient = cms.untracked.PSet(
             multi = cms.untracked.int32(3),
             kind = cms.untracked.string('TH2F'),
             btype = cms.untracked.string('Crystal'),
-            description = cms.untracked.string('Summary of the pedestal quality for crystals. A channel is red if the pedestal mean is off from ' + str(expectedMean) + ' by ' + str(toleranceMean) + ' or if the pedestal RMS is greater than threshold. RMS thresholds are ' + ('%f, %f, %f' % tuple(toleranceRMS)) + ' for gains 1, 6, and 12 respectively. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
+            description = cms.untracked.string('Summary of the pedestal quality for crystals. A channel is red if the pedestal mean is off from ' + str(expectedMean) + ' by ' + str(toleranceMean) + ' or if the pedestal RMS is greater than threshold. RMS thresholds are ' + ('%.1f, %.1f, %.1f' % tuple(toleranceRMS)) + ' for gains 1, 6, and 12 respectively. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
         ),
         Mean = cms.untracked.PSet(
             kind = cms.untracked.string('TH1F'),
@@ -84,7 +84,7 @@ ecalPedestalClient = cms.untracked.PSet(
             ),
             btype = cms.untracked.string('User'),
             path = cms.untracked.string('%(subdet)s/%(prefix)sPedestalClient/%(prefix)sPT pedestal mean G%(gain)s %(sm)s'),
-            descriptions = cms.untracked.string('Distribution of pedestal mean in each channel. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
+            description = cms.untracked.string('Distribution of pedestal mean in each channel. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
         )
     )
 )

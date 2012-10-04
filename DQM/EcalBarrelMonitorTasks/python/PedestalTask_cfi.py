@@ -21,7 +21,7 @@ ecalPedestalTask = cms.untracked.PSet(
         Occupancy = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT pedestal digi occupancy'),
             kind = cms.untracked.string('TH2F'),
-            otype = cms.untracked.string('Ecal2P'),
+            otype = cms.untracked.string('Ecal3P'),
             btype = cms.untracked.string('SuperCrystal'),
             description = cms.untracked.string('Channel occupancy in pedestal events.')
         )

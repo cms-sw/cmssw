@@ -89,7 +89,7 @@ ecalSelectiveReadoutTask = cms.untracked.PSet(
                 title = cms.untracked.string('event size (kB)')
             ),
             btype = cms.untracked.string('User'),
-            description = cms.untracked.string('Data size of low interest towers.')
+            description = cms.untracked.string('Total data size from all low interest towers.')
         ),
         RUForcedMap = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sSelectiveReadoutTask/Counters/%(prefix)sSRT RU with forced SR counter%(suffix)s'),
@@ -127,7 +127,7 @@ ecalSelectiveReadoutTask = cms.untracked.PSet(
                 title = cms.untracked.string('event size (kB)')
             ),
             btype = cms.untracked.string('User'),
-            description = cms.untracked.string('Data size from high interest towers.')
+            description = cms.untracked.string('Total data size from all high interest towers.')
         ),
         FlagCounterMap = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sSelectiveReadoutTask/Counters/%(prefix)sSRT tower flag counter%(suffix)s'),

@@ -98,9 +98,9 @@ namespace ecaldqm
     virtual bool isVariableBinning() const { return false; }
     virtual MonitorElement const* getME(unsigned _iME) const { return (_iME < mes_.size() ? mes_[_iME] : 0); }
     virtual MonitorElement* getME(unsigned _iME) { return (_iME < mes_.size() ? mes_[_iME] : 0); }
-    void setLumiFlag();
-    void softReset();
-    void recoverStats();
+    virtual void setLumiFlag();
+    virtual void softReset();
+    virtual void recoverStats();
 
     static MonitorElement::Kind translateKind(std::string const&);
 

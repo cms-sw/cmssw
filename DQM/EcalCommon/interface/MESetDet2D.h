@@ -54,6 +54,8 @@ namespace ecaldqm
 
     void reset(double _content = 0., double _err = 0., double _entries = 0.);
 
+    void softReset();
+
   protected:
     void fill_(unsigned, int, double);
     void fill_(unsigned, int, double, double);
