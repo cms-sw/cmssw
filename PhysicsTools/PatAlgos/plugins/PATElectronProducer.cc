@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.69 2012/10/03 23:30:03 beaudett Exp $
+// $Id: PATElectronProducer.cc,v 1.70 2012/10/04 01:01:39 beaudett Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
 
@@ -392,8 +392,8 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
           anElectron.setMvaVariables( r9, sigmaIphiIphi, sigmaIetaIphi, ip3d);
 
 	  // get list of EcalDetId within 5x5 around the seed 
-	  bool barrel= itElectron->isEB();
-	  DetId seed=itElectron->superCluster()->seed()->seed();
+	  bool barrel = itElectron->isEB();
+	  DetId seed = lazyTools.getMaximum(*(itElectron->superCluster()->seed())).first;
 	  std::vector<DetId> selectedCells = (barrel) ? ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalBarrel)->getWindow(seed,5,5):
 	    ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalEndcap)->getWindow(seed,5,5);          
 	  // add the DetId of the SC
@@ -588,10 +588,11 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
       // get list of EcalDetId within 5x5 around the seed 
       bool barrel= itElectron->isEB();
-      DetId seed=itElectron->superCluster()->seed()->seed();
+      DetId seed=lazyTools.getMaximum(*(itElectron->superCluster()->seed())).first;
       std::vector<DetId> selectedCells = (barrel) ? ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalBarrel)->getWindow(seed,5,5):
 	ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalEndcap)->getWindow(seed,5,5);
       // add the DetId of the SC
+
       std::vector< std::pair<DetId, float> >::const_iterator it=itElectron->superCluster()->hitsAndFractions().begin();
       std::vector< std::pair<DetId, float> >::const_iterator itend=itElectron->superCluster()->hitsAndFractions().end();
       for( ; it!=itend ; ++it) {
