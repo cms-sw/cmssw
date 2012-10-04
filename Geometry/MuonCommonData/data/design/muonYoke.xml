@@ -10,8 +10,8 @@
 		<Tubs name="YE2_a" rMin="0.9500*m" rMax="1.3600*m" dz="0.3600*m" startPhi="75*deg" deltaPhi="30*deg"/>
 		<PseudoTrap name="YE2_b" dx1="0.351968*m" dx2="1.86356*m" dy1="0.305*m" dy2="0.305*m" dz="2.82067*m" radius="-1.3600*m" atMinusZ="true"/>
 		<Tubs name="YE23" rMin="1.0400*m" rMax="1.3600*m" dz="0.2675*m" startPhi="75*deg" deltaPhi="30*deg"/>
-		<Tubs name="YE3_a" rMin="1.0400*m" rMax="1.5300*m" dz="0.185*m" startPhi="75*deg" deltaPhi="30*deg"/>
-		<PseudoTrap name="YE3_b" dx1="0.395967*m" dx2="1.86356*m" dy1="0.130*m" dy2="0.130*m" dz="2.73857*m" radius="-1.5300*m" atMinusZ="true"/>
+		<Tubs name="YE3_a" rMin="1.0400*m" rMax="1.5300*m" dz="0.175*m" startPhi="75*deg" deltaPhi="30*deg"/>
+		<PseudoTrap name="YE3_b" dx1="0.395967*m" dx2="1.86356*m" dy1="0.1015*m" dy2="0.1015*m" dz="2.73857*m" radius="-1.5300*m" atMinusZ="true"/>
 		<Tubs name="YE34" rMin="1.1300*m" rMax="1.5300*m" dz="0.2725*m" startPhi="75*deg" deltaPhi="30*deg"/>
 		<Tubs name="ShieldingME4" rMin="1.1300*m" rMax="2.5000*m" dz="0.0375*m" startPhi="75*deg" deltaPhi="30*deg"/>
 		<PseudoTrap name="YE4" dx1="0.647073*m" dx2="1.86356*m" dy1="0.0500*m" dy2="0.0500*m" dz="2.27000*m" radius="-2.5000*m" atMinusZ="true"/> 
@@ -1337,7 +1337,7 @@
 			<Numeric name="StartAngle" value="0*deg"/>
 			<Numeric name="RangeAngle" value="360*deg"/>
 			<Numeric name="Radius" value="4.21633*m"/>
-			<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 9.895*m </Vector>
+			<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 9.905*m </Vector>
 			<Vector name="RotateSolid" type="numeric" nEntries="6"> 90*deg, 0.*deg, 90*deg, 0.*deg, 0.*deg, 90*deg </Vector>
 		</Algorithm>
 		<Algorithm name="global:DDAngular">
