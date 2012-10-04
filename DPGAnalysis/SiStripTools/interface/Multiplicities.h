@@ -19,6 +19,26 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
+#include <string>
+
+class ClusterSummarySingleMultiplicity {
+
+ public:
+  ClusterSummarySingleMultiplicity();
+  ClusterSummarySingleMultiplicity(const edm::ParameterSet& iConfig);
+
+  void getEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  int mult() const;
+
+ private:
+  edm::InputTag m_collection;
+  int m_subdetenum;
+  std::string m_subdetvar;
+  int m_mult;
+    
+};
+
+
 
 template <class T>
 class SingleMultiplicity {
@@ -104,8 +124,8 @@ template <class T1, class T2>
     
  private:
     
-    SingleMultiplicity<T1> m_multiplicity1;
-    SingleMultiplicity<T2> m_multiplicity2;
+    T1 m_multiplicity1;
+    T2 m_multiplicity2;
     
   };
 
@@ -143,7 +163,9 @@ template<class T1, class T2>
 typedef SingleMultiplicity<edm::DetSetVector<SiStripDigi> > SingleSiStripDigiMultiplicity;
 typedef SingleMultiplicity<edmNew::DetSetVector<SiStripCluster> > SingleSiStripClusterMultiplicity;
 typedef SingleMultiplicity<edmNew::DetSetVector<SiPixelCluster> > SingleSiPixelClusterMultiplicity;
-typedef MultiplicityPair<edmNew::DetSetVector<SiPixelCluster>,edmNew::DetSetVector<SiStripCluster> > SiPixelClusterSiStripClusterMultiplicityPair; 
+typedef MultiplicityPair<SingleMultiplicity<edmNew::DetSetVector<SiPixelCluster> > ,SingleMultiplicity<edmNew::DetSetVector<SiStripCluster> > > 
+SiPixelClusterSiStripClusterMultiplicityPair; 
+typedef MultiplicityPair<ClusterSummarySingleMultiplicity,ClusterSummarySingleMultiplicity> ClusterSummaryMultiplicityPair; 
 
 
 #endif // DPGAnalysis_SiStripTools_Multiplicities_H

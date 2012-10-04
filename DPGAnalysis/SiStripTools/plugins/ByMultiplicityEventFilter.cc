@@ -41,6 +41,7 @@
 
 #include "DPGAnalysis/SiStripTools/interface/Multiplicities.h"
 
+
 //
 // class declaration
 //
@@ -147,8 +148,12 @@ typedef ByMultiplicityEventFilter<SingleSiStripDigiMultiplicity> BySiStripDigiMu
 typedef ByMultiplicityEventFilter<SingleSiStripClusterMultiplicity> BySiStripClusterMultiplicityEventFilter;
 typedef ByMultiplicityEventFilter<SingleSiPixelClusterMultiplicity> BySiPixelClusterMultiplicityEventFilter;
 typedef ByMultiplicityEventFilter<SiPixelClusterSiStripClusterMultiplicityPair> BySiPixelClusterVsSiStripClusterMultiplicityEventFilter;
+typedef ByMultiplicityEventFilter<ClusterSummarySingleMultiplicity> ByClusterSummarySingleMultiplicityEventFilter;
+typedef ByMultiplicityEventFilter<ClusterSummaryMultiplicityPair> ByClusterSummaryMultiplicityPairEventFilter;
 
 DEFINE_FWK_MODULE(BySiStripDigiMultiplicityEventFilter);
 DEFINE_FWK_MODULE(BySiStripClusterMultiplicityEventFilter);
 DEFINE_FWK_MODULE(BySiPixelClusterMultiplicityEventFilter);
 DEFINE_FWK_MODULE(BySiPixelClusterVsSiStripClusterMultiplicityEventFilter);
+DEFINE_FWK_MODULE(ByClusterSummarySingleMultiplicityEventFilter);
+DEFINE_FWK_MODULE(ByClusterSummaryMultiplicityPairEventFilter);
