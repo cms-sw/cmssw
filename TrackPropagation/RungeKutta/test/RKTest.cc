@@ -71,7 +71,7 @@ void RKTest::propagateInCentralVolume( const MagneticField* field) const
 
   //  RKTestPropagator RKprop ( &TestField, alongMomentum );
   //AnalyticalPropagator ANprop  ( &TestField, alongMomentum);
-  RKTestPropagator RKprop ( field, alongMomentum );
+  RKTestPropagator RKprop ( field, alongMomentum, 5.e-5);
   AnalyticalPropagator ANprop  ( field, alongMomentum);
 
 
