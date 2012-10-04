@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.68 2012/10/03 14:53:49 beaudett Exp $
+// $Id: PATElectronProducer.cc,v 1.69 2012/10/03 23:30:03 beaudett Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
 
@@ -425,6 +425,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	      selectedRecHits.push_back(*it);
 	    }
 	  }
+	  selectedRecHits.sort();
 	  if (embedRecHits_) anElectron.embedRecHits(& selectedRecHits);
          
 	    // set conversion veto selection
@@ -619,6 +620,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	  selectedRecHits.push_back(*it);
 	}
       }
+      selectedRecHits.sort();
       if (embedRecHits_) anElectron.embedRecHits(& selectedRecHits);
 
       // set conversion veto selection
