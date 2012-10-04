@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Segala
 //         Created:  Wed Feb 23 17:36:23 CST 2011
-// $Id: ClusterSummary.h,v 1.4 2012/05/14 09:11:37 eulisse Exp $
+// $Id: ClusterSummary.h,v 1.5 2012/10/03 13:29:02 msegala Exp $
 //
 //
 
@@ -177,7 +177,8 @@ class ClusterSummary {
 
   
   //Get value of any variable given location of the variable within userContent and the module number based on enum CMSTracker
-  double GetGenericVariable( int variableLocation, int module ) const { return genericVariables_[variableLocation][GetModuleLocation(module)]; }
+  double GetGenericVariable( int variableLocation, int module ) const { 
+    return GetModuleLocation(module) < 0  ? 0. : genericVariables_[variableLocation][GetModuleLocation(module)]; }
 
   //Get value of any variable given variable name and the module number based on enum CMSTracker
   double GetGenericVariable( std::string variableName, int module ) const { 
@@ -185,7 +186,7 @@ class ClusterSummary {
     int position = GetVariableLocation(variableName);
     int mposition = GetModuleLocation(module);
 
-    return genericVariables_[position][mposition];    
+    return mposition < 0 ? 0. : genericVariables_[position][mposition];    
   }
 
   //Get specific varibale for all modules using the variable name
@@ -202,7 +203,8 @@ class ClusterSummary {
   std::vector< std::vector<double> > GetGenericVariable() const { return genericVariables_; }  
 
   //Set the vector genericVariables_ based on the location of the variable within userContent and the module number based on enum CMSTracker
-  void SetGenericVariable( int variableLocation, int module, double value ) { genericVariablesTmp_[variableLocation][GetModuleLocation(module)] += value; } 
+  void SetGenericVariable( int variableLocation, int module, double value ) { 
+    if(GetModuleLocation(module) >=0) genericVariablesTmp_[variableLocation][GetModuleLocation(module)] += value; } 
 
   //Set the vector genericVariables_ given the variable name and the module number based on enum CMSTracker
   void SetGenericVariable( std::string variableName, int module, double value ) { 
@@ -220,7 +222,7 @@ class ClusterSummary {
     int position = GetVariableLocation(variableName);
     int mposition = GetModuleLocation(module);
 
-    genericVariablesTmp_[position][mposition] += value;    
+    if(mposition >=0) genericVariablesTmp_[position][mposition] += value;    
   } 
 
   //Prepair the final vector to be put into the producer. Remove any remaining 0's and copy the Tmp to the vector over to genericVariables_. Must be done at the end of each event.

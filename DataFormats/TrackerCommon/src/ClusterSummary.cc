@@ -1,4 +1,5 @@
 #include "DataFormats/TrackerCommon/interface/ClusterSummary.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 int ClusterSummary::GetModuleLocation ( int mod ) const {
 
@@ -20,7 +21,8 @@ int ClusterSummary::GetModuleLocation ( int mod ) const {
       mod_tmp /= 10;
     }
      
-    if ( mod_tmp < 5 ){     
+    if ( mod_tmp < 5 ){
+
       if ( mod == (*it) ) { 
 	placeInModsVector = cnt; 
 	break;
@@ -37,10 +39,10 @@ int ClusterSummary::GetModuleLocation ( int mod ) const {
   }
 
   if (placeInModsVector == -1){
-    std::ostringstream err;
-    err<<"No information for requested module "<<mod<<". Please check in the Provinence Infomation for proper modules.";
+
+    edm::LogWarning("NoModule") << "No information for requested module "<<mod<<". Please check in the Provinence Infomation for proper modules.";
       
-    throw cms::Exception( "Missing Module", err.str());
+    return -1;
 
   }
 
@@ -54,6 +56,19 @@ int ClusterSummary::GetVariableLocation ( std::string var ) const {
 
   int placeInUserVector = -1;
     
+  /*
+  int cnt = 0;
+  for(std::vector<std::string>::const_iterator it = userContent.begin(); it != userContent.end(); ++it) {
+
+    if ( var == (*it) ) { 
+      placeInUserVector = cnt; 
+      break;
+    }
+    else ++cnt;
+      
+  }
+  */
+
   if ( var == "cHits" )
     placeInUserVector = NMODULES;
   else if (var == "cSize" )
@@ -71,7 +86,7 @@ int ClusterSummary::GetVariableLocation ( std::string var ) const {
 
   if (placeInUserVector == -1){
     std::ostringstream err;
-    err<<"No information for requested var "<<var<<". Please check in the Provinence Infomation for proper variables.";
+    err<<"No information for requested var "<<var<<". Please check if you have chosen a proper variable.";
       
     throw cms::Exception( "Missing Variable", err.str());
   }
