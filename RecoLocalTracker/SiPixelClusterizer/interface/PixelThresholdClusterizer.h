@@ -103,6 +103,9 @@ class PixelThresholdClusterizer : public PixelClusterizerBase {
 );
   // Calibrate the ADC charge to electrons 
   int calibrate(int adc, int col, int row);
+  int   theStackADC_;          // The maximum ADC count for the stack layers
+  int   theFirstStack_;        // The index of the first stack layer
+
 
 };
 
