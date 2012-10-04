@@ -33,14 +33,6 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
 
-// Already defined in the base class
-//#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
-//#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
-//#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
-//#include "Geometry/Surface/interface/GloballyPositioned.h"
-//#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // The template header files
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
@@ -70,13 +62,7 @@ class PixelCPEGeneric : public PixelCPEBase
   
   // However, we do need to implement localError().
   LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const;
-  
-  MeasurementPoint measurementPosition ( const SiPixelCluster&, 
-					 const GeomDetUnit & det) const;
-/*   MeasurementError measurementError    ( const SiPixelCluster&,  */
-/* 					  const GeomDetUnit & det) const; */
-
-
+ 
  private:
   //--------------------------------------------------------------------
   //  Methods.
