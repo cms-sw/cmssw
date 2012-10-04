@@ -42,7 +42,8 @@ class MatrixReader(object):
                              'relval_generator': 'gen-'  ,
                              'relval_production': 'prod-'  ,
                              'relval_ged': 'ged-',
-                             'relval_upgrade':'upg-'
+                             'relval_upgrade':'upg-',
+                             'relval_identity':'id-'
                              }
 
         self.files = ['relval_standard' ,
@@ -51,7 +52,8 @@ class MatrixReader(object):
                       'relval_generator',
                       'relval_production',
                       'relval_ged',
-                      'relval_upgrade'
+                      'relval_upgrade',
+                      'relval_identity'                      
                       ]
 
         self.relvalModule = None
@@ -124,10 +126,19 @@ class MatrixReader(object):
         
         #change the origin of dataset on the fly
         if refRel:
-            self.relvalModule.changeRefRelease(
-                self.relvalModule.steps,
-                [(x,refRel) for x in self.relvalModule.baseDataSetRelease]
-                )
+            if ',' in refRel:
+                refRels=refRel.split(',')
+                if len(refRels)!=len(self.relvalModule.baseDataSetRelease):
+                    return
+                self.relvalModule.changeRefRelease(
+                    self.relvalModule.steps,
+                    zip(self.relvalModule.baseDataSetRelease,refRels)
+                    )
+            else:
+                self.relvalModule.changeRefRelease(
+                    self.relvalModule.steps,
+                    [(x,refRel) for x in self.relvalModule.baseDataSetRelease]
+                    )
             
 
         for num, wfInfo in self.relvalModule.workflows.items():
@@ -402,7 +413,7 @@ class MatrixReader(object):
             if self.what != 'all' and self.what not in matrixFile:
                 print "ignoring non-requested file",matrixFile
                 continue
-            if self.what == 'all' and 'upgrade' in matrixFile:
+            if self.what == 'all' and ('upgrade' in matrixFile):
                 print "ignoring",matrixFile,"from default matrix"
                 continue
             
