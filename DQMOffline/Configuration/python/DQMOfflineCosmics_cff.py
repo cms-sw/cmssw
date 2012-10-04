@@ -39,7 +39,7 @@ DQMOfflineCosmicsPrePOG = cms.Sequence( muonCosmicMonitors *
                                         jetMETDQMOfflineSourceCosmic *
                                         egammaCosmicPhotonMonitors *
                                         l1TriggerDqmOffline * 
-                                        triggerCosmicOfflineDQMSource
+                                        triggerCosmicOfflineDQMSource *
                                         dqmPhysics
                                         )
 
