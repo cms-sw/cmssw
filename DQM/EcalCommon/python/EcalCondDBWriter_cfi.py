@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from DQM.EcalCommon.dqmpset import *
+
 from DQM.EcalBarrelMonitorTasks.EnergyTask_cfi import ecalEnergyTask
 from DQM.EcalBarrelMonitorTasks.IntegrityTask_cfi import ecalIntegrityTask
 from DQM.EcalBarrelMonitorTasks.LaserTask_cfi import ecalLaserTask
@@ -20,25 +20,25 @@ from DQM.EcalBarrelMonitorClient.PNIntegrityClient_cfi import ecalPnIntegrityCli
 from DQM.EcalBarrelMonitorClient.TestPulseClient_cfi import ecalTestPulseClient
 from DQM.EcalBarrelMonitorClient.TimingClient_cfi import ecalTimingClient
 
-energyTask = dqmpset(ecalEnergyTask['MEs'])
-integrityTask = dqmpset(ecalIntegrityTask['MEs'])
-laserTask = dqmpset(ecalLaserTask['MEs'])
-ledTask = dqmpset(ecalLedTask['MEs'])
-occupancyTask = dqmpset(ecalOccupancyTask['MEs'])
-pedestalTask = dqmpset(ecalPedestalTask['MEs'])
-presampleTask = dqmpset(ecalPresampleTask['MEs'])
-pnDiodeTask = dqmpset(ecalPnDiodeTask['MEs'])
-rawDataTask = dqmpset(ecalRawDataTask['MEs'])
-testPulseTask = dqmpset(ecalTestPulseTask['MEs'])
-timingTask = dqmpset(ecalTimingTask['MEs'])
-integrityClient = dqmpset(ecalIntegrityClient['MEs'])
-laserClient = dqmpset(ecalLaserClient['MEs'])
-ledClient = dqmpset(ecalLedClient['MEs'])
-pedestalClient = dqmpset(ecalPedestalClient['MEs'])
-presampleClient = dqmpset(ecalPresampleClient['MEs'])
-pnIntegrityClient = dqmpset(ecalPnIntegrityClient['MEs'])
-testPulseClient = dqmpset(ecalTestPulseClient['MEs'])
-timingClient = dqmpset(ecalTimingClient['MEs'])
+energyTask = ecalEnergyTask.MEs
+integrityTask = ecalIntegrityTask.MEs
+laserTask = ecalLaserTask.MEs
+ledTask = ecalLedTask.MEs
+occupancyTask = ecalOccupancyTask.MEs
+pedestalTask = ecalPedestalTask.MEs
+presampleTask = ecalPresampleTask.MEs
+pnDiodeTask = ecalPnDiodeTask.MEs
+rawDataTask = ecalRawDataTask.MEs
+testPulseTask = ecalTestPulseTask.MEs
+timingTask = ecalTimingTask.MEs
+integrityClient = ecalIntegrityClient.MEs
+laserClient = ecalLaserClient.MEs
+ledClient = ecalLedClient.MEs
+pedestalClient = ecalPedestalClient.MEs
+presampleClient = ecalPresampleClient.MEs
+pnIntegrityClient = ecalPnIntegrityClient.MEs
+testPulseClient = ecalTestPulseClient.MEs
+timingClient = ecalTimingClient.MEs
 
 cosmic = "COSMIC"
 beam = "BEAM"
