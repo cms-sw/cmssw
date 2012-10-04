@@ -35,7 +35,7 @@ process.options = cms.untracked.PSet(
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
-process.MessageLogger.cout.threshold = cms.untracked.string("WARNING")
+process.MessageLogger.cout.threshold = cms.untracked.string("INFO")
 process.MessageLogger.cout.default = cms.untracked.PSet(
     limit = cms.untracked.int32(10000000)
     )
@@ -51,6 +51,8 @@ process.MessageLogger.cerr.default = cms.untracked.PSet(
 process.MessageLogger.cerr.FwkReport = cms.untracked.PSet(
     reportEvery = cms.untracked.int32(100000)
     )
+
+process.MessageLogger.debugModules = cms.untracked.vstring("clustsummmultprod","spclustermultprod","ssclustermultprod")
 
 #----Remove too verbose PrimaryVertexProducer
 
@@ -71,7 +73,7 @@ process.MessageLogger.suppressInfo.append("newTracksFromOtobV0")
 
 #------------------------------------------------------------------
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.source = cms.Source("PoolSource",
                     fileNames = cms.untracked.vstring(options.inputFiles),
@@ -98,6 +100,9 @@ if options.fromRAW == 1:
 process.load("DPGAnalysis.SiStripTools.sipixelclustermultiplicityprod_cfi")
 process.load("DPGAnalysis.SiStripTools.sistripclustermultiplicityprod_cfi")
 
+process.spclustermultprod.withClusterSize=cms.untracked.bool(True)
+process.ssclustermultprod.withClusterSize=cms.untracked.bool(True)
+
 process.spclustermultprodnew = process.spclustermultprod.clone(wantedSubDets = cms.VPSet(    
     cms.PSet(detSelection = cms.uint32(101),detLabel = cms.string("BPIX"),selection=cms.untracked.vstring("0x1e000000-0x12000000")),
     cms.PSet(detSelection = cms.uint32(102),detLabel = cms.string("FPIX"),selection=cms.untracked.vstring("0x1e000000-0x14000000")),
@@ -117,7 +122,23 @@ process.ssclustermultprodnew = process.ssclustermultprod.clone(wantedSubDets = c
     )
 )
 
-process.seqMultProd = cms.Sequence(process.spclustermultprod+process.ssclustermultprod+process.spclustermultprodnew+process.ssclustermultprodnew)
+process.load("DPGAnalysis.SiStripTools.clustersummarymultiplicityprod_cfi")
+
+process.clustsummmultprod.wantedSubDets = cms.VPSet(
+    cms.PSet(detSelection = cms.uint32(0),detLabel = cms.string("TK"), subDetEnum = cms.int32(0), subDetVariable = cms.string("cSize")),
+    cms.PSet(detSelection = cms.uint32(1),detLabel = cms.string("TIB"), subDetEnum = cms.int32(1), subDetVariable = cms.string("cSize")),
+    cms.PSet(detSelection = cms.uint32(2),detLabel = cms.string("TOB"), subDetEnum = cms.int32(2), subDetVariable = cms.string("cSize")),
+    cms.PSet(detSelection = cms.uint32(3),detLabel = cms.string("TID"), subDetEnum = cms.int32(3), subDetVariable = cms.string("cSize")),
+    cms.PSet(detSelection = cms.uint32(4),detLabel = cms.string("TEC"), subDetEnum = cms.int32(4), subDetVariable = cms.string("cSize")),
+    cms.PSet(detSelection = cms.uint32(1005),detLabel = cms.string("Pixel"), subDetEnum = cms.int32(5), subDetVariable = cms.string("pSize")),
+    cms.PSet(detSelection = cms.uint32(1006),detLabel = cms.string("FPIX"), subDetEnum = cms.int32(6), subDetVariable = cms.string("pSize")),
+    cms.PSet(detSelection = cms.uint32(1007),detLabel = cms.string("BPIX"), subDetEnum = cms.int32(7), subDetVariable = cms.string("pSize"))
+    )
+
+
+process.seqMultProd = cms.Sequence(process.spclustermultprod+process.ssclustermultprod
+                                   +process.spclustermultprodnew+process.ssclustermultprodnew
+                                   +process.clustsummmultprod)
 
 process.goodVertices = cms.EDFilter("VertexSelector",
    src = cms.InputTag("offlinePrimaryVertices"),
@@ -266,14 +287,62 @@ process.multiplicitycorr.correlationConfigurations = cms.VPSet(
             runHisto=cms.bool(False),runHistoBXProfile=cms.bool(False),runHistoBX=cms.bool(False),runHisto2D=cms.bool(False))
    )
 
+process.multcorrclustsumm = process.multiplicitycorr.clone()
+process.multcorrclustsumm.correlationConfigurations = cms.VPSet(
+   cms.PSet(yMultiplicityMap = cms.InputTag("spclustermultprod"),
+            yDetSelection = cms.uint32(0), yDetLabel = cms.string("Pixel"), yBins = cms.uint32(1000), yMax=cms.double(1000), 
+            xMultiplicityMap = cms.InputTag("clustsummmultprod"),
+            xDetSelection = cms.uint32(1005), xDetLabel = cms.string("Pixelcs"), xBins = cms.uint32(1000), xMax=cms.double(1000),
+            rBins = cms.uint32(200), scaleFactor = cms.untracked.double(1.),
+            runHisto=cms.bool(False),runHistoBXProfile=cms.bool(False),runHistoBX=cms.bool(False),runHisto2D=cms.bool(False)),
+   cms.PSet(xMultiplicityMap = cms.InputTag("spclustermultprodnew"),
+            xDetSelection = cms.uint32(101), xDetLabel = cms.string("BPIX"), xBins = cms.uint32(1000), xMax=cms.double(1000), 
+            yMultiplicityMap = cms.InputTag("clustsummmultprod"),
+            yDetSelection = cms.uint32(1007), yDetLabel = cms.string("BPIXcs"), yBins = cms.uint32(1000), yMax=cms.double(1000),
+            rBins = cms.uint32(200), scaleFactor = cms.untracked.double(1.),
+            runHisto=cms.bool(False),runHistoBXProfile=cms.bool(False),runHistoBX=cms.bool(False),runHisto2D=cms.bool(False)),
+   cms.PSet(xMultiplicityMap = cms.InputTag("spclustermultprodnew"),
+            xDetSelection = cms.uint32(102), xDetLabel = cms.string("FPIX"), xBins = cms.uint32(1000), xMax=cms.double(1000), 
+            yMultiplicityMap = cms.InputTag("clustsummmultprod"),
+            yDetSelection = cms.uint32(1006), yDetLabel = cms.string("FPIXcs"), yBins = cms.uint32(1000), yMax=cms.double(1000),
+            rBins = cms.uint32(200), scaleFactor = cms.untracked.double(1.),
+            runHisto=cms.bool(False),runHistoBXProfile=cms.bool(False),runHistoBX=cms.bool(False),runHisto2D=cms.bool(False)),
+   cms.PSet(xMultiplicityMap = cms.InputTag("ssclustermultprod"),
+            xDetSelection = cms.uint32(3), xDetLabel = cms.string("TIB"), xBins = cms.uint32(1000), xMax=cms.double(50000), 
+            yMultiplicityMap = cms.InputTag("clustsummmultprod"),
+            yDetSelection = cms.uint32(1), yDetLabel = cms.string("TIBcs"), yBins = cms.uint32(1000), yMax=cms.double(50000),
+            rBins = cms.uint32(200), scaleFactor = cms.untracked.double(1.),
+            runHisto=cms.bool(False),runHistoBXProfile=cms.bool(False),runHistoBX=cms.bool(False),runHisto2D=cms.bool(False)),
+   cms.PSet(xMultiplicityMap = cms.InputTag("ssclustermultprod"),
+            xDetSelection = cms.uint32(4), xDetLabel = cms.string("TID"), xBins = cms.uint32(1000), xMax=cms.double(50000), 
+            yMultiplicityMap = cms.InputTag("clustsummmultprod"),
+            yDetSelection = cms.uint32(3), yDetLabel = cms.string("TIDcs"), yBins = cms.uint32(1000), yMax=cms.double(50000),
+            rBins = cms.uint32(200), scaleFactor = cms.untracked.double(1.),
+            runHisto=cms.bool(False),runHistoBXProfile=cms.bool(False),runHistoBX=cms.bool(False),runHisto2D=cms.bool(False)),
+   cms.PSet(xMultiplicityMap = cms.InputTag("ssclustermultprod"),
+            xDetSelection = cms.uint32(5), xDetLabel = cms.string("TOB"), xBins = cms.uint32(1000), xMax=cms.double(50000), 
+            yMultiplicityMap = cms.InputTag("clustsummmultprod"),
+            yDetSelection = cms.uint32(2), yDetLabel = cms.string("TOBcs"), yBins = cms.uint32(1000), yMax=cms.double(50000),
+            rBins = cms.uint32(200), scaleFactor = cms.untracked.double(1.),
+            runHisto=cms.bool(False),runHistoBXProfile=cms.bool(False),runHistoBX=cms.bool(False),runHisto2D=cms.bool(False)),
+   cms.PSet(xMultiplicityMap = cms.InputTag("ssclustermultprod"),
+            xDetSelection = cms.uint32(6), xDetLabel = cms.string("TEC"), xBins = cms.uint32(1000), xMax=cms.double(50000), 
+            yMultiplicityMap = cms.InputTag("clustsummmultprod"),
+            yDetSelection = cms.uint32(4), yDetLabel = cms.string("TECcs"), yBins = cms.uint32(1000), yMax=cms.double(50000),
+            rBins = cms.uint32(200), scaleFactor = cms.untracked.double(1.),
+            runHisto=cms.bool(False),runHistoBXProfile=cms.bool(False),runHistoBX=cms.bool(False),runHisto2D=cms.bool(False))
+   )
+
+
+
 process.seqClusMultInvest = cms.Sequence(process.spclusmultinvestigator + process.ssclusmultinvestigator +
                                          process.spclusmultinvestigatornew + process.ssclusmultinvestigatornew
-                                         + process.multiplicitycorr) 
+                                         + process.multiplicitycorr + process.multcorrclustsumm) 
 
 
 
 process.p0 = cms.Path(
-    process.hltSelection +
+#    process.hltSelection +
     process.seqProducers +
     process.seqClusMultInvest)
 
