@@ -43,7 +43,7 @@ ecalTrigPrimTask = cms.untracked.PSet(
                 title = cms.untracked.string('bunch crossing')
             ),
             btype = cms.untracked.string('User'),
-            description = cms.untracked.string('TP occupancy in different bunch crossing intervals.')
+            description = cms.untracked.string('TP occupancy in different bunch crossing intervals. This plot is filled by data from physics data stream. It is normal to have very little entries in BX >= 3490.')
         ),
         HighIntMap = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sSelectiveReadoutTask/Counters/%(prefix)sSRT tower high interest counter%(suffix)s'),
@@ -66,7 +66,7 @@ ecalTrigPrimTask = cms.untracked.PSet(
             ),
             btype = cms.untracked.string('User'),
             path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT Et vs bx Real Digis%(suffix)s'),
-            description = cms.untracked.string('Mean TP Et in different bunch crossing intervals.')
+            description = cms.untracked.string('Mean TP Et in different bunch crossing intervals. This plot is filled by data from physics data stream. It is normal to have very little entries in BX >= 3490.')
         ),
         EtEmulError = cms.untracked.PSet(
             path = cms.untracked.string('Ecal/Errors/TriggerPrimitives/EtEmulation/'),

@@ -117,7 +117,7 @@ ecalRawDataTask = cms.untracked.PSet(
                 low = cms.untracked.double(0.0)
             ),
             btype = cms.untracked.string('User'),
-            description = cms.untracked.string('Event type recorded in the DCC for events in bunch crossing > 3490')
+            description = cms.untracked.string('Event type recorded in the DCC for events in bunch crossing > 3490.')
         ),
         L1ADCC = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sRawDataTask/%(prefix)sRDT L1A DCC errors'),
@@ -155,7 +155,7 @@ ecalRawDataTask = cms.untracked.PSet(
                 low = cms.untracked.double(0.0)
             ),
             btype = cms.untracked.string('User'),
-            description = cms.untracked.string('Event type recorded in the DCC for events in bunch crossing == 3490')
+            description = cms.untracked.string('Event type recorded in the DCC for events in bunch crossing == 3490. This plot is filled using data from the physics data stream during physics runs. It is normal to have very few entries in these cases.')
         ),
         Entries = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sRawDataTask/%(prefix)sRDT raw data entries'),
