@@ -1,3 +1,9 @@
+2012-10-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-10-01
+	* Fix linking in case that code is compiled w/o optimization
+	* Update the demoSystem documentation
+
 2012-06-08 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-10-00
