@@ -43,8 +43,7 @@ void SuperClusterHelper::computeLocalCovariances() {
     if (!isnan(vCov_[2])) spp_ = sqrt (vCov_[2]);
     
     if (theElectron_->sigmaIetaIeta()*spp_ > 0) {
-      std::cout << "Computing sep "<< vCov_[1] << std::endl;
-      sep_ = vCov_[1] / theElectron_->sigmaIetaIeta()*spp_;
+      sep_ = vCov_[1] / (theElectron_->sigmaIetaIeta() * spp_);
     } else if (vCov_[1] > 0) {
       sep_ = 1.0;
     } else {
@@ -60,7 +59,6 @@ float SuperClusterHelper::spp() {
 
 float SuperClusterHelper::sep() {
   computeLocalCovariances();
-  std::cout << " SEP " << sep_ << std::endl;
   return sep_;
 }
 
