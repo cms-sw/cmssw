@@ -118,8 +118,15 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
       ++ele ) 
     {     
 
-      SuperClusterHelper mySCHelper(&(*ele),ele->recHits(),ecalTopology_,caloGeometry_);
       
+      if (debug_) {
+	std::cout << "***********************************************************************\n";
+	std::cout << "Run Lumi Event: " << event.id().run() << " " << event.luminosityBlock() << " " << event.id().event() << "\n";
+	std::cout << "Pat Electron : " << ele->pt() << " " << ele->eta() << " " << ele->phi() << "\n";
+      }
+
+      SuperClusterHelper mySCHelper(&(*ele),ele->recHits(),ecalTopology_,caloGeometry_);
+
       bool printDebug = debug_;
 
       // apply regression energy
@@ -132,11 +139,11 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 	RegressionMomentum = regressionEvaluator_->regressionValueNoTrkVar( mySCHelper.rawEnergy(),
 									   mySCHelper.eta(),
 									   mySCHelper.phi(),
+									   mySCHelper.r9(),
 									   mySCHelper.etaWidth(),
 									   mySCHelper.phiWidth(),
 									   mySCHelper.clustersSize(),
 									   mySCHelper.hadronicOverEm(),
-									   mySCHelper.r9(),
 									   rho, 
 									   nvertices, 
 									   mySCHelper.seedEta(),
@@ -168,11 +175,11 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 										     mySCHelper.rawEnergy(),
 										     mySCHelper.eta(),
 										     mySCHelper.phi(),
+										     mySCHelper.r9(),
 										     mySCHelper.etaWidth(),
 										     mySCHelper.phiWidth(),
 										     mySCHelper.clustersSize(),
 										     mySCHelper.hadronicOverEm(),
-										     mySCHelper.r9(),
 										     rho, 
 										     nvertices, 
 										     mySCHelper.seedEta(),
@@ -204,12 +211,7 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 	// PAT method
 	ele->setEcalRegressionEnergy(RegressionMomentum, RegressionMomentumError); 
 
-	if (printDebug) {
-	  std::cout << "***********************************************************************\n";
-	  std::cout << "Run Lumi Event: " << event.id().run() << " " << event.luminosityBlock() << " " << event.id().event() << "\n";
-	  std::cout << "Pat Electron : " << ele->pt() << " " << ele->eta() << " " << ele->phi() << " RegressionMomentum " ;
-	  std::cout << RegressionMomentum << " RegressionMomentumError " << RegressionMomentumError << "\n";
-	}
+
 	
 
       } else if (energyRegressionType_ == 2) {
