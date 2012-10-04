@@ -606,6 +606,7 @@ namespace edm {
     numberOfForkedChildren_ = forking.getUntrackedParameter<int>("maxChildProcesses", 0);
     numberOfSequentialEventsPerChild_ = forking.getUntrackedParameter<unsigned int>("maxSequentialEventsPerChild", 1);
     setCpuAffinity_ = forking.getUntrackedParameter<bool>("setCpuAffinity", false);
+    continueAfterChildFailure_ = forking.getUntrackedParameter<bool>("continueAfterChildFailure",false);
     std::vector<ParameterSet> const& excluded = forking.getUntrackedParameterSetVector("eventSetupDataToExcludeFromPrefetching", std::vector<ParameterSet>());
     for(std::vector<ParameterSet>::const_iterator itPS = excluded.begin(), itPSEnd = excluded.end();
         itPS != itPSEnd;
@@ -836,6 +837,9 @@ namespace edm {
     volatile unsigned int num_children_done = 0;
     volatile int child_fail_exit_status = 0;
     volatile int child_fail_signal = 0;
+    
+    //NOTE: We setup the signal handler to run in the main thread which
+    // is also the same thread that then reads the above values
 
     extern "C" {
       void ep_sigchld(int, siginfo_t*, void*) {
@@ -1031,6 +1035,22 @@ namespace edm {
       return;
     }
 
+  }
+
+  
+  void EventProcessor::possiblyContinueAfterForkChildFailure() {
+    if(child_failed && continueAfterChildFailure_) {
+      if (child_fail_signal) {
+        LogSystem("ForkedChildFailed") << "child process ended abnormally with signal " << child_fail_signal;
+        child_fail_signal=0;
+      } else if (child_fail_exit_status) {
+        LogSystem("ForkedChildFailed") << "child process ended abnormally with exit code " << child_fail_exit_status;
+        child_fail_exit_status=0;
+      } else {
+        LogSystem("ForkedChildFailed") << "child process ended abnormally for unknown reason";
+      }
+      child_failed =false;
+    }
   }
 
   bool
@@ -1285,9 +1305,15 @@ namespace edm {
     MessageSenderToSource sender(childrenSockets, childrenPipes, numberOfSequentialEventsPerChild_);
     boost::thread senderThread(sender);
 
-    while(!too_many_fds && !shutdown_flag && !child_failed && (childrenIds.size() != num_children_done)) {
-      sigsuspend(&unblockingSigSet);
-      LogInfo("ForkingAwake") << "woke from sigwait" << std::endl;
+    if(not too_many_fds) {
+      //NOTE: a child could have failed before we got here and even after this call
+      // which is why the 'if' is conditional on continueAfterChildFailure_
+      possiblyContinueAfterForkChildFailure();
+      while(!shutdown_flag && (!child_failed or continueAfterChildFailure_) && (childrenIds.size() != num_children_done)) {
+        sigsuspend(&unblockingSigSet);
+        possiblyContinueAfterForkChildFailure();
+        LogInfo("ForkingAwake") << "woke from sigwait" << std::endl;
+      }
     }
     pthread_sigmask(SIG_SETMASK, &oldSigSet, NULL);
 
@@ -1313,7 +1339,7 @@ namespace edm {
     }
     // The senderThread will notice the pipes die off, one by one.  Once all children are gone, it will exit.
     senderThread.join();
-    if(child_failed) {
+    if(child_failed && !continueAfterChildFailure_) {
       if (child_fail_signal) {
         throw cms::Exception("ForkedChildFailed") << "child process ended abnormally with signal " << child_fail_signal;
       } else if (child_fail_exit_status) {
