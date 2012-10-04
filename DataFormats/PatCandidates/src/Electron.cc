@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.31 2012/09/28 21:57:42 beaudett Exp $
+// $Id: Electron.cc,v 1.32 2012/10/02 22:08:12 beaudett Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -26,7 +26,13 @@ Electron::Electron() :
     ecalRegressionEnergy_(0.0),
     ecalTrackRegressionEnergy_(0.0),
     ecalRegressionError_(0.0),
-    ecalTrackRegressionError_(0.0)
+    ecalTrackRegressionError_(0.0),
+    ecalScale_(-99999.),
+    ecalSmear_(-99999.),
+    ecalRegressionScale_(-99999.),
+    ecalRegressionSmear_(-99999.),
+    ecalTrackRegressionScale_(-99999.),
+    ecalTrackRegressionSmear_(-99999.)
 {
   initImpactParameters();
 }

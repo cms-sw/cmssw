@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.42 2012/09/28 21:57:42 beaudett Exp $
+// $Id: Electron.h,v 1.43 2012/10/02 22:08:12 beaudett Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.42 2012/09/28 21:57:42 beaudett Exp $
+  \version  $Id: Electron.h,v 1.43 2012/10/02 22:08:12 beaudett Exp $
 */
 
 
@@ -195,6 +195,21 @@ namespace pat {
       /// set regression2
       void setEcalTrackRegressionEnergy(double val, double err) { ecalTrackRegressionEnergy_ = val; ecalTrackRegressionError_ = err; }
 
+      /// set scale corrections / smearings
+      void setEcalScale(double val) { ecalScale_= val ;}               
+      void setEcalSmear(double val) { ecalSmear_= val;}                
+      void setEcalRegressionScale(double val) {	ecalRegressionScale_ = val ;}     
+      void setEcalRegressionSmear(double val) {	ecalRegressionSmear_ = val;}     
+      void setEcalTrackRegressionScale(double val) { ecalTrackRegressionScale_ = val;}
+      void setEcalTrackRegressionSmear(double val) { ecalTrackRegressionSmear_ = val;}
+
+      /// get scale corrections /smearings
+      double ecalScale() const  { return ecalScale_ ;}               
+      double ecalSmear() const  { return ecalSmear_;}                
+      double ecalRegressionScale() const  { return ecalRegressionScale_  ;}     
+      double ecalRegressionSmear() const  {	return ecalRegressionSmear_ ;}     
+      double ecalTrackRegressionScale() const  { return ecalTrackRegressionScale_ ;}
+      double ecalTrackRegressionSmear() const  { return ecalTrackRegressionSmear_ ;}
       /// vertex fit combined with missing number of hits method
       bool passConversionVeto() const { return passConversionVeto_; }
       void setPassConversionVeto( bool flag ) { passConversionVeto_ = flag; }
@@ -266,6 +281,17 @@ namespace pat {
       double ecalRegressionError_;
       double ecalTrackRegressionError_;
 
+      /// scale corrections and smearing applied or to be be applied. Initialized to -99999.
+      double ecalScale_;
+      double ecalSmear_;
+
+      double ecalRegressionScale_;
+      double ecalRegressionSmear_;
+
+      double ecalTrackRegressionScale_;
+      double ecalTrackRegressionSmear_;
+      
+      
       /// conversion veto
       bool passConversionVeto_;
 
