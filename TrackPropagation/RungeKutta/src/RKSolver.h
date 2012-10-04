@@ -28,7 +28,7 @@ public:
     virtual Vector operator()( Scalar startPar, const Vector& startState,
 			       Scalar step, const RKDerivative<T,N>& deriv,
 			       const RKDistance<T,N>& dist,
-			       Scalar eps) = 0;
+			       float eps) = 0;
 
 
 };

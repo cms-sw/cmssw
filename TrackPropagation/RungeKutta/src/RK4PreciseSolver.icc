@@ -9,7 +9,7 @@ typename RKSolver<T,N>::Vector
 RK4PreciseSolver<T,N>::operator()( Scalar startPar, const Vector& startState,
 				   Scalar step, const RKDerivative<T,N>& deriv,
 				   const RKDistance<T,N>& dist,
-				   Scalar eps)
+				   float eps)
 {
     const double Safety = 0.9;
     double remainigStep = step;
@@ -57,7 +57,7 @@ template <typename T, int N>
 std::pair< typename RKSolver<T,N>::Vector, T> 
 RK4PreciseSolver<T,N>::stepWithAccuracy( Scalar startPar, const Vector& startState,
 					 const RKDerivative<T,N>& deriv,
-					 const RKDistance<T,N>& dist, Scalar step)
+					 const RKDistance<T,N>& dist, float step)
 {
   const Scalar huge = 1.e5;
   const Scalar hugediff = 100.;
