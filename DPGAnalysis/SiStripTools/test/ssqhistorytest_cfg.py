@@ -73,14 +73,11 @@ process.MessageLogger.suppressWarning.append("consecutiveHEs")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
-                    fileNames = cms.untracked.vstring(),
+                    fileNames = cms.untracked.vstring(options.inputFiles),
 #                    skipBadFiles = cms.untracked.bool(True),
                     inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
                     )
 
-
-
-fileNames = cms.untracked.vstring('')
 
 process.load("DPGAnalysis.SiStripTools.sistripqualityhistory_cff")
 
@@ -91,6 +88,12 @@ process.ssqhistorystrips = process.ssqhistory.clone(granularityMode = cms.untrac
 process.load("DPGAnalysis.SiStripTools.fedbadmodulefilter_cfi")
 process.fedbadmodulefilter.badModThr = cms.uint32(0)
 process.fedbadmodulefilter.wantedHisto = cms.untracked.bool(True)
+
+process.load("DPGAnalysis.SiStripTools.sipixelqualityhistory_cfi")
+
+process.spqhistory.maxLSBeforeRebin = cms.untracked.uint32(100)
+process.spqhistory.startingLSFraction = cms.untracked.uint32(1)
+process.spqhistorymod = process.spqhistory.clone(granularityMode = cms.untracked.uint32(1))
 
 process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string('ssqhistorytest.root')
@@ -104,4 +107,4 @@ process.GlobalTag.globaltag = options.globalTag
 #
 
 
-process.p0 = cms.Path(process.ssqhistory+process.ssqhistorystrips + process.fedbadmodulefilter)
+process.p0 = cms.Path(process.ssqhistory+process.ssqhistorystrips + process.spqhistory+process.spqhistorymod + process.fedbadmodulefilter)
