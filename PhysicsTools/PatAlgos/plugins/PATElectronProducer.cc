@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.70 2012/10/04 01:01:39 beaudett Exp $
+// $Id: PATElectronProducer.cc,v 1.71 2012/10/04 12:37:17 beaudett Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
 
@@ -31,7 +31,7 @@
 
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
