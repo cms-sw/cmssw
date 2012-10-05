@@ -160,6 +160,8 @@ FastTimerServiceClient::fillSummaryPlots(void)
         efficiency->SetBinContent(i, p / n);
       }
     }
+    average->SetYTitle("processing time [ms]");
+    running->SetYTitle("processing time [ms]");
   }
 
 }
