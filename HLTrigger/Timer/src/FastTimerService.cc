@@ -210,20 +210,27 @@ void FastTimerService::postBeginJob() {
     // event plots
     m_dqm_event         = m_dqms->book1D("event",        "Event processing time",    eventbins, 0., m_dqm_eventtime_range)->getTH1F();
     m_dqm_event         ->StatOverflows(true);
+    m_dqm_event         ->SetYTitle("processing time [ms]");
     m_dqm_source        = m_dqms->book1D("source",       "Source processing time",   pathbins,  0., m_dqm_pathtime_range)->getTH1F();
     m_dqm_source        ->StatOverflows(true);
+    m_dqm_source        ->SetYTitle("processing time [ms]");
     m_dqm_all_paths     = m_dqms->book1D("all_paths",    "Paths processing time",    eventbins, 0., m_dqm_eventtime_range)->getTH1F();
     m_dqm_all_paths     ->StatOverflows(true);
+    m_dqm_all_paths     ->SetYTitle("processing time [ms]");
     m_dqm_all_endpaths  = m_dqms->book1D("all_endpaths", "EndPaths processing time", pathbins,  0., m_dqm_pathtime_range)->getTH1F();
     m_dqm_all_endpaths  ->StatOverflows(true);
+    m_dqm_all_endpaths  ->SetYTitle("processing time [ms]");
 
     // summary plots
     m_dqm_paths_active_time     = m_dqms->bookProfile("paths_active_time",    "Additional time spent in each path", size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range, " ")->getTProfile();
     m_dqm_paths_active_time     ->StatOverflows(true);
+    m_dqm_paths_active_time     ->SetYTitle("processing time [ms]");
     m_dqm_paths_total_time      = m_dqms->bookProfile("paths_total_time",     "Total time spent in each path",      size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range, " ")->getTProfile();
     m_dqm_paths_total_time      ->StatOverflows(true);
+    m_dqm_paths_total_time      ->SetYTitle("processing time [ms]");
     m_dqm_paths_exclusive_time  = m_dqms->bookProfile("paths_exclusive_time", "Exclusive time spent in each path",  size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range, " ")->getTProfile();
     m_dqm_paths_exclusive_time  ->StatOverflows(true);
+    m_dqm_paths_exclusive_time  ->SetYTitle("processing time [ms]");
 
     for (uint32_t i = 0; i < size_p; ++i) {
       std::string const & label = tns.getTrigPath(i);
@@ -248,12 +255,16 @@ void FastTimerService::postBeginJob() {
     if (m_enable_dqm_bylumi) {
       m_dqm_bylumi_event        = m_dqms->bookProfile("event_bylumi",        "Event processing time, by Lumisection",    m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, eventbins, 0., m_dqm_eventtime_range, " ")->getTProfile();
       m_dqm_bylumi_event        ->StatOverflows(true);
+      m_dqm_bylumi_event        ->SetYTitle("processing time [ms]");
       m_dqm_bylumi_source       = m_dqms->bookProfile("source_bylumi",       "Source processing time, by Lumisection",   m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, pathbins,  0., m_dqm_pathtime_range,  " ")->getTProfile();
       m_dqm_bylumi_source       ->StatOverflows(true);
+      m_dqm_bylumi_source       ->SetYTitle("processing time [ms]");
       m_dqm_bylumi_all_paths    = m_dqms->bookProfile("all_paths_bylumi",    "Paths processing time, by Lumisection",    m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, eventbins, 0., m_dqm_eventtime_range, " ")->getTProfile();
       m_dqm_bylumi_all_paths    ->StatOverflows(true);
+      m_dqm_bylumi_all_paths    ->SetYTitle("processing time [ms]");
       m_dqm_bylumi_all_endpaths = m_dqms->bookProfile("all_endpaths_bylumi", "EndPaths processing time, by Lumisection", m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, pathbins,  0., m_dqm_pathtime_range,  " ")->getTProfile();
       m_dqm_bylumi_all_endpaths ->StatOverflows(true);
+      m_dqm_bylumi_all_endpaths ->SetYTitle("processing time [ms]");
     }
 
     // per-path and per-module accounting
@@ -266,22 +277,28 @@ void FastTimerService::postBeginJob() {
         if (m_enable_dqm_bypath_active) {
           pathinfo.dqm_active       = m_dqms->book1D(pathname + "_active",       pathname + " active time",            pathbins, 0., m_dqm_pathtime_range)->getTH1F();
           pathinfo.dqm_active       ->StatOverflows(true);
+          pathinfo.dqm_active       ->SetYTitle("processing time [ms]");
         }
 
         if (m_enable_dqm_bypath_total) {
           pathinfo.dqm_total        = m_dqms->book1D(pathname + "_total",        pathname + " total time",             pathbins, 0., m_dqm_pathtime_range)->getTH1F();
           pathinfo.dqm_total        ->StatOverflows(true);
+          pathinfo.dqm_total        ->SetYTitle("processing time [ms]");
         }
 
         if (m_enable_dqm_bypath_overhead) {
           pathinfo.dqm_premodules   = m_dqms->book1D(pathname + "_premodules",   pathname + " pre-modules overhead",   modulebins, 0., m_dqm_moduletime_range)->getTH1F();
           pathinfo.dqm_premodules   ->StatOverflows(true);
+          pathinfo.dqm_premodules   ->SetYTitle("processing time [ms]");
           pathinfo.dqm_intermodules = m_dqms->book1D(pathname + "_intermodules", pathname + " inter-modules overhead", modulebins, 0., m_dqm_moduletime_range)->getTH1F();
           pathinfo.dqm_intermodules ->StatOverflows(true);
+          pathinfo.dqm_intermodules ->SetYTitle("processing time [ms]");
           pathinfo.dqm_postmodules  = m_dqms->book1D(pathname + "_postmodules",  pathname + " post-modules overhead",  modulebins, 0., m_dqm_moduletime_range)->getTH1F();
           pathinfo.dqm_postmodules  ->StatOverflows(true);
+          pathinfo.dqm_postmodules  ->SetYTitle("processing time [ms]");
           pathinfo.dqm_overhead     = m_dqms->book1D(pathname + "_overhead",     pathname + " overhead time",          modulebins, 0., m_dqm_moduletime_range)->getTH1F();
           pathinfo.dqm_overhead     ->StatOverflows(true);
+          pathinfo.dqm_overhead     ->SetYTitle("processing time [ms]");
         }
 
         if (m_enable_dqm_bypath_details or m_enable_dqm_bypath_counters) {
@@ -312,7 +329,9 @@ void FastTimerService::postBeginJob() {
           // book detailed timing histograms
           if (m_enable_dqm_bypath_details) {
             pathinfo.dqm_module_active  = m_dqms->book1D(pathname + "_module_active",  pathname + " module active",  modules.size(), -0.5, modules.size() - 0.5)->getTH1F();
+            pathinfo.dqm_module_active  ->SetYTitle("processing time [ms]");
             pathinfo.dqm_module_total   = m_dqms->book1D(pathname + "_module_total",   pathname + " module total",   modules.size(), -0.5, modules.size() - 0.5)->getTH1F();
+            pathinfo.dqm_module_total   ->SetYTitle("processing time [ms]");
             // find module labels
             for (uint32_t i = 0; i < modules.size(); ++i) {
               pathinfo.dqm_module_active ->GetXaxis()->SetBinLabel( i+1, labels[i] );
@@ -325,6 +344,7 @@ void FastTimerService::postBeginJob() {
         if (m_enable_dqm_bypath_exclusive) {
           pathinfo.dqm_exclusive = m_dqms->book1D(pathname + "_exclusive", pathname + " exclusive time", pathbins, 0., m_dqm_pathtime_range)->getTH1F();
           pathinfo.dqm_exclusive ->StatOverflows(true);
+          pathinfo.dqm_exclusive ->SetYTitle("processing time [ms]");
         }
 
       }
@@ -337,6 +357,7 @@ void FastTimerService::postBeginJob() {
         ModuleInfo        & module = keyval.second;
         module.dqm_active = m_dqms->book1D(label, label, modulebins, 0., m_dqm_moduletime_range)->getTH1F();
         module.dqm_active->StatOverflows(true);
+        module.dqm_active->SetYTitle("processing time [ms]");
       }
     }
 
