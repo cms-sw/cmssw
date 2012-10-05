@@ -37,6 +37,16 @@ private:
 
     std::cout << "Number of particles = " << nup_ << std::endl;
 
+    if ( evt->pdf() != NULL ) {
+      std::cout << "PDF scale = " << std::setw(14) << std::fixed << evt->pdf()->scalePDF << std::endl;  
+      std::cout << "PDF 1 : id = " << std::setw(14) << std::fixed << evt->pdf()->id.first 
+                << " x = " << std::setw(14) << std::fixed << evt->pdf()->x.first 
+                << " xPDF = " << std::setw(14) << std::fixed << evt->pdf()->xPDF.first << std::endl;  
+      std::cout << "PDF 2 : id = " << std::setw(14) << std::fixed << evt->pdf()->id.second 
+                << " x = " << std::setw(14) << std::fixed << evt->pdf()->x.second 
+                << " xPDF = " << std::setw(14) << std::fixed << evt->pdf()->xPDF.second << std::endl;  
+    }
+
     for ( unsigned int icount = 0 ; icount < (unsigned int)nup_; icount++ ) {
 
       std::cout << "# " << std::setw(14) << std::fixed << icount 
