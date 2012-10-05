@@ -26,16 +26,17 @@ class MyWatcher : public TStopwatch {
   double total;
 };
 #else
-class MyWatcher : {
+class MyWatcher {
  public:
   MyWatcher(const std::string) {}
   ~MyWatcher(){}
 
-  std::string start(bool r=true){}
-  std::string continu(){}
-  std::string reset(){}
-  std::string stop(){}
-   std::string lap() {}
+  std::string start(bool r=true){return name;}
+  std::string continu(){return name;}
+  std::string reset(){return name;}
+  std::string stop(){return name;}
+   std::string lap() {return name;}
+std::string name;
 };
 #endif
 
