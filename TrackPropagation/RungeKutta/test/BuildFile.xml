@@ -5,3 +5,4 @@
   <use   name="MagneticField/Engine"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
+<bin file="testFastPow.cpp" />

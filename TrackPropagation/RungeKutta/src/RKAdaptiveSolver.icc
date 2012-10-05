@@ -2,6 +2,23 @@
 #include <cmath>
 
 
+namespace RKDetails {
+  // From http://martin.ankerl.com/2012/01/25/optimized-approximative-pow-in-c-and-cpp/
+  // good at 10%
+  inline double fastPow(double a, double b) {
+    union {
+      double d;
+      int x[2];
+    } u = { a };
+    u.x[1] = (int)(b * (u.x[1] - 1072632447) + 1072632447);
+    u.x[0] = 0;
+    return u.d;
+  }
+
+
+
+}
+
 template <typename T, 
 	  template <typename,int> class StepWithPrec, 
 	  int N>
@@ -11,6 +28,7 @@ RKAdaptiveSolver<T,StepWithPrec,N>::operator()( Scalar startPar, const Vector& s
 						     const RKDistance<T,N>& dist,
 						     float eps)
 {
+  using namespace RKDetails;
   constexpr float Safety = 0.9;
   double remainigStep = step;
   double stepSize = step;   // attempt to solve in one step
@@ -24,8 +42,8 @@ RKAdaptiveSolver<T,StepWithPrec,N>::operator()( Scalar startPar, const Vector& s
   do {
     tryStep = stepWithAccuracy( currentPar, currentStart, deriv, dist, stepSize);
     float acc = tryStep.second;
-    assert(eps>0);
-    assert(acc>=0);
+    //assert(eps>0);
+    // assert(acc>=0);
     nsteps++;
     if (acc <eps) {
       if (std::abs(remainigStep - stepSize) < 0.5f*eps) {
@@ -38,8 +56,8 @@ RKAdaptiveSolver<T,StepWithPrec,N>::operator()( Scalar startPar, const Vector& s
 	// increase step size
 	// double factor =  std::min( Safety * pow( std::fabs(eps/tryStep.second),0.2), 4.); // gives division by 0 FPE
 	constexpr float cut = std::pow(4.f/Safety,5.f);
-	float factor =  (eps < cut*acc) ? Safety * std::pow(eps/acc,0.2f) : 4.f;      
-	// float factor =  (eps < cut*acc) ? Safety * std::sqrt(std::sqrt(eps/acc)) : 4.f;      
+	// float factor =  (eps < cut*acc) ? Safety * std::pow(eps/acc,0.2f) : 4.f;      
+	float factor =  (eps < cut*acc) ? Safety * fastPow(eps/acc,0.2) : 4.f;      
 	// stepSize = std::min( stepSize*factor, remainigStep);
 	double absSize =  std::min( std::abs(stepSize*factor), std::abs(remainigStep));
 	stepSize = std::copysign(absSize,stepSize);
@@ -53,7 +71,8 @@ RKAdaptiveSolver<T,StepWithPrec,N>::operator()( Scalar startPar, const Vector& s
       constexpr float cut =  Safety*Safety*Safety*Safety*100*100;
       float factor =
 	( cut*eps > acc) ?
-	Safety * std::sqrt(std::sqrt(eps/acc)) : 0.1f;
+	// Safety * std::sqrt(std::sqrt(eps/acc)) : 0.1f;
+ 	Safety * fastPow(eps/acc,0.25) : 0.1f;
       stepSize *= factor;
       // if (verbose()) std::cout << "Accuracy not yet reached: delta = " << tryStep.second
       //	 << ", step reduced by " << factor << " to " << stepSize << std::endl;
