@@ -6,6 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"

@@ -10,6 +10,7 @@
 <use   name="Geometry/Records"/>
 <use   name="EgammaAnalysis/ElectronTools"/>
 <use   name="EGamma/EGammaAnalysisTools"/>
+<use   name="RecoEcal/EgammaCoreTools"/>
 <library name="EgammaAnalysisElectronToolsPlugins" file="*.cc">
    <flags   EDM_PLUGIN="1"/>
 </library>
