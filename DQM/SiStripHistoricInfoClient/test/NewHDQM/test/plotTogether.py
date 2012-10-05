@@ -38,12 +38,12 @@ for plotsKey in searchTerms:
                 for line in f:
                     if '[' in line:
                         break
-                    if 'yMin' in line.split(' ')[0]:
+                    if 'yMin' in line.split('=')[0]:
                         scaling = true
-                        if float(line.split(' ')[2]) < float(yMin): yMin = float(line.split(' ')[2])
-                    if 'yMax' in line.split(' ')[0]:
+                        if float(line.split('=')[1]) < float(yMin): yMin = float(line.split('=')[1])
+                    if 'yMax' in line.split('=')[0]:
                         scaling = true
-                        if float(line.split(' ')[2]) > float(yMax): yMax = float(line.split(' ')[2])
+                        if float(line.split('=')[1]) > float(yMax): yMax = float(line.split('=')[1])
     #If there's no information in the config, set it to the max and min of the plots themselves.
     if not scaling:
         for b in plotsToDraw:
