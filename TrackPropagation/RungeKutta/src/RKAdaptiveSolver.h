@@ -4,6 +4,9 @@
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "RKSolver.h"
 
+// 
+// A Variable Order Runge-Kutta Method for Initial Value Problems with ...
+// www.elegio.it/mc2/rk/doc/p201-cash-karp.pdf
 template <typename T, 
 	  template <typename,int> class StepWithPrec, 
 	  int N>

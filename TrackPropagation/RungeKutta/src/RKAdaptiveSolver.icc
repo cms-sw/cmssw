@@ -37,9 +37,9 @@ RKAdaptiveSolver<T,StepWithPrec,N>::operator()( Scalar startPar, const Vector& s
 	currentPar += stepSize;
 	// increase step size
 	// double factor =  std::min( Safety * pow( std::fabs(eps/tryStep.second),0.2), 4.); // gives division by 0 FPE
-	constexpr float cut = std::pow(4.f/Safety,4.f);
-	// float factor =  (eps < cut*acc) ? Safety * std::pow(eps/acc,0.2f) : 4.f;      
-	float factor =  (eps < cut*acc) ? Safety * std::sqrt(std::sqrt(eps/acc)) : 4.f;      
+	constexpr float cut = std::pow(4.f/Safety,5.f);
+	float factor =  (eps < cut*acc) ? Safety * std::pow(eps/acc,0.2f) : 4.f;      
+	// float factor =  (eps < cut*acc) ? Safety * std::sqrt(std::sqrt(eps/acc)) : 4.f;      
 	// stepSize = std::min( stepSize*factor, remainigStep);
 	double absSize =  std::min( std::abs(stepSize*factor), std::abs(remainigStep));
 	stepSize = std::copysign(absSize,stepSize);
