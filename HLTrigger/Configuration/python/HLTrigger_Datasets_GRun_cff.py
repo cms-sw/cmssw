@@ -19,8 +19,10 @@ streamA_datasetBJetPlusX_selector.triggerConditions = cms.vstring('HLT_DiJet40Et
     'HLT_Jet80Eta1p7_Jet70Eta1p7_DiBTagIP3DFastPV_v7', 
     'HLT_L1DoubleJet36Central_v7', 
     'HLT_QuadJet75_55_35_20_BTagIP_VBF_v6', 
+    'HLT_QuadJet75_55_35_20_VBF_v1', 
     'HLT_QuadJet75_55_38_20_BTagIP_VBF_v6', 
     'HLT_QuadPFJet78_61_44_31_BTagCSV_VBF_v5', 
+    'HLT_QuadPFJet78_61_44_31_VBF_v1', 
     'HLT_QuadPFJet82_65_48_35_BTagCSV_VBF_v5')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetBTag_selector
