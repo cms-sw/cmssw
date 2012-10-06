@@ -80,7 +80,7 @@ class LambdaduHiggs(SMLikeHiggsModel):
             XSscal = "Scaling_ggH_"+energy
             if production == "qqH": XSscal = "Scaling_qqH_"+energy
             if production == "ttH": XSscal = "ku"
-            if production in ["WZ","ZH"]: XSscal = "kV"
+            if production in ["WH","ZH"]: XSscal = "kV"
             BRscal = "hgg"
             if decay in ["hbb", "htt"]: BRscal = "hdd"
             if decay in ["hww", "hzz"]: BRscal = "hvv"
@@ -159,7 +159,7 @@ class LambdalqHiggs(SMLikeHiggsModel):
         print name, production, decay, energy
         if self.modelBuilder.out.function(name) == None:
             XSscal = "kq"
-            if production in ["qqH", "WZ","ZH"]: XSscal = "kV"
+            if production in ["qqH", "WH","ZH"]: XSscal = "kV"
             BRscal = "hgg"
             if decay  == "hbb": BRscal = "hqq"
             if decay  == "htt": BRscal = "hll"
