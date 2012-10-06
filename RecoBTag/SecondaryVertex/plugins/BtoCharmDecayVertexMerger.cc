@@ -76,6 +76,9 @@ void BtoCharmDecayVertexMerger::produce(edm::Event &iEvent, const edm::EventSetu
   // PV
   edm::Handle<reco::VertexCollection> PVcoll;
   iEvent.getByLabel(primaryVertexCollection, PVcoll);
+
+  if(PVcoll->size()!=0) {
+
   const reco::VertexCollection pvc = *( PVcoll.product());
   pv = pvc[0];
 
@@ -113,6 +116,11 @@ void BtoCharmDecayVertexMerger::produce(edm::Event &iEvent, const edm::EventSetu
   for(std::vector<vertexProxy>::iterator it=vertexProxyColl.begin(); it!=vertexProxyColl.end(); it++) bvertices->push_back((*it).vert); 
   std::auto_ptr<VertexCollection> bvertColl(bvertices);
   iEvent.put(bvertColl);
+  }
+  else{
+    std::auto_ptr<VertexCollection> bvertCollEmpty(new VertexCollection);
+    iEvent.put(bvertCollEmpty);
+  }
 }
 
 

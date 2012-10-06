@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea RIZZI
 //         Created:  Mon Dec  7 18:02:10 CET 2009
-// $Id: BVertexFilter.cc,v 1.4 2010/02/28 20:10:01 wmtan Exp $
+// $Id: BVertexFilter.cc,v 1.1 2010/06/04 11:36:57 arizzi Exp $
 //
 //
 
@@ -78,25 +78,28 @@ BVertexFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
  iEvent.getByLabel(primaryVertexCollection,pvHandle);
  edm::Handle<reco::VertexCollection> svHandle; 
  iEvent.getByLabel(secondaryVertexCollection,svHandle);
- const reco::Vertex & primary = (*pvHandle.product())[0];
- const reco::VertexCollection & vertices = *svHandle.product();
  std::auto_ptr<reco::VertexCollection> recoVertices(new reco::VertexCollection);
+ if(pvHandle->size()!=0) {
+   const reco::Vertex & primary = (*pvHandle.product())[0];
+   const reco::VertexCollection & vertices = *svHandle.product();
 
- if(! primary.isFake()) 
- {
-   for(reco::VertexCollection::const_iterator it=vertices.begin() ; it!=vertices.end() ; ++it)
-    {
-          GlobalVector axis(0,0,0);
-          if(useVertexKinematicAsJetAxis) axis = GlobalVector(it->p4().X(),it->p4().Y(),it->p4().Z());
-          if(svFilter(primary,reco::SecondaryVertex(primary,*it,axis,true),axis))  {
-                count++;
-                recoVertices->push_back(*it);
+
+   if(! primary.isFake()) 
+     {
+       for(reco::VertexCollection::const_iterator it=vertices.begin() ; it!=vertices.end() ; ++it)
+	 {
+	   GlobalVector axis(0,0,0);
+	   if(useVertexKinematicAsJetAxis) axis = GlobalVector(it->p4().X(),it->p4().Y(),it->p4().Z());
+	   if(svFilter(primary,reco::SecondaryVertex(primary,*it,axis,true),axis))  {
+	     count++;
+	     recoVertices->push_back(*it);
            }
-   }
+	 }
+     }
  }
-   iEvent.put(recoVertices);
-
-   return(count >= minVertices);
+ iEvent.put(recoVertices);
+ 
+ return(count >= minVertices);
 }
 
 
