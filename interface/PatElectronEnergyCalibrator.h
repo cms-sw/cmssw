@@ -24,7 +24,7 @@ class ElectronEnergyCalibrator
  private:
 
   void computeNewEnergy( const pat::Electron &, float r9, int run) ;
-  void computeNewRegEnergy( const pat::Electron &, int run) ;
+  void computeNewRegEnergy( const pat::Electron &, float r9, int run) ;
   void computeEpCombination( pat::Electron & electron ) ;
 
   float newEnergy_ ;

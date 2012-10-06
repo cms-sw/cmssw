@@ -26,6 +26,7 @@ void ElectronEnergyCalibrator::correct
  ( pat::Electron & electron, const edm::Event& event, const edm::EventSetup& eventSetup)
 
  {
+		  float r9 = electron.r9();
 
   switch (applyCorrections_){
 
@@ -40,12 +41,19 @@ void ElectronEnergyCalibrator::correct
 		//Take the REGRESSION_1
 		//====================================================================================================
 		//====================================================================================================
+		//DEBUG BLOCK
+		//====================================================================================================
+                  if (debug_) std::cout << "[ElectronEnergCorrector] R9 " << r9 << std::endl;
+                  if (debug_) std::cout << "[ElectronEnergCorrector] BEFORE comb momentum " << electron.p4(reco::GsfElectron::P4_COMBINATION).t() << std::endl;
+                  if (debug_) std::cout << "[ElectronEnergCorrector] BEFORE comb momentum error " << electron.p4Error(reco::GsfElectron::P4_COMBINATION) << std::endl;
+		//====================================================================================================
 		//TAKE THE SCALE CORRECTIONS FROM SHERVIN
 		//====================================================================================================
-                         computeNewRegEnergy(electron, event.run()) ;
+                         computeNewRegEnergy(electron, r9, event.run()) ;
                          // apply E-p combination
                          computeEpCombination(electron) ;
                          electron.correctMomentum(newMomentum_,errorTrackMomentum_,finalMomentumError_);
+                  if (debug_) std::cout << "[ElectronEnergCorrector] AFTER Regression Energy, new comb momentum " << newEnergy_ << " " << electron.p4(reco::GsfElectron::P4_COMBINATION).t() << std::endl;
 	  break;
 	 case 2:
 		//====================================================================================================
@@ -56,7 +64,6 @@ void ElectronEnergyCalibrator::correct
 		//====================================================================================================
 		//Apply the default corrections
 		//====================================================================================================
-		  float r9 = electron.r9();
 		//====================================================================================================
 		//DEBUG BLOCK
 		//====================================================================================================
@@ -94,12 +101,23 @@ void ElectronEnergyCalibrator::correct
  }
 
 void ElectronEnergyCalibrator::computeNewRegEnergy
- ( const pat::Electron & electron, int run)
+ ( const pat::Electron & electron, float r9, int run)
 {
 
 		  newEnergy_ = electron.ecalRegressionEnergy();
 		  newEnergyError_ = electron.ecalRegressionError();
 		  float scale = 1.0;
+                  float dsigMC=0., corrMC=0.;
+
+   edm::Service<edm::RandomNumberGenerator> rng;
+   if ( ! rng.isAvailable()) {
+     throw cms::Exception("Configuration")
+       << "XXXXXXX requires the RandomNumberGeneratorService\n"
+          "which is not present in the configuration file.  You must add the service\n"
+          "in the configuration file or remove the modules that require it.";
+   }
+  
+
   if (!isMC_) {
 	  if (dataset_=="2012Jul13ReReco") {                     
       // values from https://twiki.cern.ch/twiki/bin/view/CMS/ECALELF	
@@ -264,8 +282,8 @@ void ElectronEnergyCalibrator::computeNewRegEnergy
   // correct energy error for MC and for data as error is obtained from (ideal) MC parametrisation
   if (updateEnergyError_)
    newEnergyError_ = sqrt(newEnergyError_*newEnergyError_ + dsigMC*dsigMC*newEnergy_*newEnergy_) ;
-  if (debug_) std::cout << "[ElectronEnergyCalibrator] ecalEnergy " << electron.ecalEnergy() << " recalibrated ecalEnergy " << newEnergy_ << std::endl;
-  if (debug_) std::cout << "[ElectronEnergyCalibrator] ecalEnergy error " << electron.ecalEnergyError() << " recalibrated ecalEnergy error " << newEnergyError_ << std::endl;
+  if (debug_) std::cout << "[ElectronEnergyCalibrator] standard ecalEnergy " << electron.ecalEnergy() << " recalibrated Regression Energy " << newEnergy_ << std::endl;
+  if (debug_) std::cout << "[ElectronEnergyCalibrator] standard ecalEnergy error " << electron.ecalEnergyError() << " recalibrated Regression Energy error " << newEnergyError_ << std::endl;
 
 }
 

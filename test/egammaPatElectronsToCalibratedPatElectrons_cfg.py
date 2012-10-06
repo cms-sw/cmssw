@@ -46,7 +46,7 @@ process.load("EgammaAnalysis.ElectronTools.calibratedPatElectrons_cfi")
 # dataset to correct
 #process.calibratedGsfElectrons.inputDataset = cms.string("Jan16ReReco")
 #process.calibratedGsfElectrons.inputDataset = cms.string("ReReco")
-process.calibratedPatElectrons.inputDataset = cms.string("Summer12_DR53X")
+process.calibratedPatElectrons.inputDataset = cms.string("Summer12_DR53X_HCP2012")
 #process.calibratedGsfElectrons.inputDataset = cms.string("Fall11")
 process.calibratedPatElectrons.isMC = cms.bool(True)
 process.calibratedPatElectrons.isAOD = cms.bool(True)
