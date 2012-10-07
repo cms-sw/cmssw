@@ -10,7 +10,11 @@ searchTerms = []
 file = TFile(sys.argv[1],"UPDATE")
 #Take in multiple arguments.
 for i in range(2,len(sys.argv)):
-    searchTerms.append(sys.argv[i])
+    if "_" in sys.argv[i]:
+        searchTerms.append(sys.argv[i])
+if len(searchTerms) == 0:
+    print "No valid request for overlaid plotting given"
+    print "Remember to include a '_' separated search term, with at least one '_'"
 #plotsToSum = sys.argv[2]
 #Initialise auto-y-scaling. This will become more complicated with generalisation.
 for plotsKey in searchTerms:
@@ -58,7 +62,7 @@ for plotsKey in searchTerms:
     yDif = yMax - yMin
     yMax = yMax + 0.5*yDif
     
-    print "Plotting: ", plotsToDraw
+    print "Overlaying the following plots: ", plotsToDraw
     #Plot barrel efficiencies
     C=TCanvas("C","C",600,600)
     C.cd()
@@ -88,8 +92,9 @@ for plotsKey in searchTerms:
     C.GetListOfPrimitives().FindObject(plotsToDraw[0]).SetTitle(plotsKey.replace("_"," "))    
     C.SetTitle(plotsKey)
     C.SetName(plotsKey)
-    print sys.argv[1]
-    print os.path.abspath(sys.argv[1])
     C.SaveAs(os.path.dirname(os.path.abspath(sys.argv[1])) + "/" + plotsKey + ".png")
-    C.SaveAs(os.path.dirname(os.path.abspath(sys.argv[1])) + "/" + plotsKey + ".root")
+    file.cd()
+    C.Write()
+    #C.SaveAs(os.path.dirname(os.path.abspath(sys.argv[1])) + "/" + plotsKey + ".root")
     C.Close()
+file.Close()
