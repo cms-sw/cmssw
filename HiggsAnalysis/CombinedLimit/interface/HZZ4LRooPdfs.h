@@ -591,6 +591,32 @@ private:
 	ClassDef(RooRelBWUFParam,2) // Your description goes here...                                                                                                    
 };
 
+//////////////////////////////////////////////
+
+class RooRelBWHighMass : public RooAbsPdf {
+public:
+	RooRelBWHighMass() {} ;
+	RooRelBWHighMass(const char *name, const char *title,
+					RooAbsReal& _m4l,
+					RooAbsReal& _mH,
+					RooAbsReal& _gamma);
+	RooRelBWHighMass(const RooRelBWHighMass& other, const char* name=0) ;
+	virtual TObject* clone(const char* newname) const { return new RooRelBWHighMass(*this,newname); }
+	inline virtual ~RooRelBWHighMass() { }
+	
+protected:
+	
+	RooRealProxy m4l ;
+	RooRealProxy mH ;
+	RooRealProxy gamma ;
+	
+	Double_t evaluate() const ;
+	
+private:
+	
+	ClassDef(RooRelBWHighMass,2) // Your description goes here...                                                                                                    
+};
+
 
 
 #endif

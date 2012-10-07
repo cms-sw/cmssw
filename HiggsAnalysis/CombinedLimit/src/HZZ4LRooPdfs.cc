@@ -3205,6 +3205,41 @@ Double_t RooRelBWUFParam::evaluate() const
 	//*/
 }
 
+/************RooRelBWHighMass*************/
+
+ClassImp(RooRelBWHighMass)
+
+
+RooRelBWHighMass::RooRelBWHighMass(const char *name, const char *title,
+					   RooAbsReal& _m4l,
+					   RooAbsReal& _mH,
+					   RooAbsReal& _gamma) :
+RooAbsPdf(name,title),
+m4l("m4l","m4l",this,_m4l),
+mH("mH","mH",this,_mH),
+gamma("gamma","gamma",this,_gamma)
+{
+}
+
+RooRelBWHighMass::RooRelBWHighMass(const RooRelBWHighMass& other, const char* name) :
+RooAbsPdf(other,name),
+m4l("m4l",this,other.m4l),
+mH("mH",this,other.mH),
+gamma("gamma",this,other.gamma)
+{
+}
+
+Double_t RooRelBWHighMass::evaluate() const
+{
+	using namespace RooFit;
+
+	Double_t pdf = m4l/( pow( pow(m4l,2) - pow(mH,2),2) + pow(m4l,2)*pow(gamma,2)  );
+	return pdf;
+}
+
+
+
+
 /***********************RooFourMuMassRes*************/
 
 ClassImp(RooFourMuMassRes)
