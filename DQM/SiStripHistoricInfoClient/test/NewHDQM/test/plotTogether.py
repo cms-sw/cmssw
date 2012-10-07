@@ -61,7 +61,8 @@ for plotsKey in searchTerms:
     #Making room for the legend
     yDif = yMax - yMin
     yMax = yMax + 0.5*yDif
-    
+
+    if len(plotsToDraw) < 1: continue
     print "Overlaying the following plots: ", plotsToDraw
     #Plot barrel efficiencies
     C=TCanvas("C","C",600,600)
