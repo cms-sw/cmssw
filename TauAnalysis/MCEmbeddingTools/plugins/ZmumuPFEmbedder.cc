@@ -1,223 +1,140 @@
-// -*- C++ -*-
-//
-// Package:    ZmumuPFEmbedder
-// Class:      ZmumuPFEmbedder
-// 
-/**\class ZmumuPFEmbedder ZmumuPFEmbedder.cc MyAna/ZmumuPFEmbedder/src/ZmumuPFEmbedder.cc
 
- Description: <one line class summary>
+/** \class ZmumuPFEmbedder
+ *
+ * Produce collections of PFCandidates and reco::Tracks
+ * from which the two muons reconstructed in selected Z --> mu+ mu- events are removed
+ * (later to be replaced by simulated tau decay products) 
+ * 
+ * \author Tomasz Maciej Frueboes
+ *
+ * \version $Revision: 1.8 $
+ *
+ * $Id: ZmumuPFEmbedder.cc,v 1.8 2012/02/13 17:33:04 veelken Exp $
+ *
+ */
 
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Tomasz Maciej Frueboes
-//         Created:  Wed Dec  9 16:14:56 CET 2009
-// $Id: ZmumuPFEmbedder.cc,v 1.11 2010/11/29 16:35:17 zeise Exp $
-//
-//
-
-
-// system include files
-#include <memory>
-
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/View.h"
-#include <DataFormats/RecoCandidate/interface/RecoCandidate.h>
-#include <DataFormats/Candidate/interface/CompositeRefCandidate.h>
-#include <DataFormats/MuonReco/interface/Muon.h>
+#include "FWCore/Framework/interface/Event.h"
 
-#include <DataFormats/ParticleFlowCandidate/interface/PFCandidate.h>
-#include <DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h>
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
-#include <DataFormats/Math/interface/deltaR.h>
-//
-// class decleration
-//
+#include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
-class ZmumuPFEmbedder : public edm::EDProducer {
-   public:
-      explicit ZmumuPFEmbedder(const edm::ParameterSet&);
-      ~ZmumuPFEmbedder();
+class ZmumuPFEmbedder : public edm::EDProducer 
+{
+ public:
+  explicit ZmumuPFEmbedder(const edm::ParameterSet&);
+  ~ZmumuPFEmbedder() {}
 
-   private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      void producePFCandColl(edm::Event&, const std::vector< reco::Particle::LorentzVector > * toBeAdded );
-      void produceTrackColl(edm::Event&, const std::vector< reco::Particle::LorentzVector > * toBeAdded );
-      virtual void endJob() ;
+ private:
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void producePFCandColl(edm::Event&, const std::vector<reco::Particle::LorentzVector>*);
+  void produceTrackColl(edm::Event&, const std::vector<reco::Particle::LorentzVector>*);
       
-      edm::InputTag _tracks;
-      edm::InputTag _selectedMuons;
-      bool _useCombinedCandidate;
-
-      // ----------member data ---------------------------
+  edm::InputTag _tracks;
+  edm::InputTag _selectedMuons;
+  bool _useCombinedCandidate;
 };
 
-//
-// constants, enums and typedefs
-//
-
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 ZmumuPFEmbedder::ZmumuPFEmbedder(const edm::ParameterSet& iConfig)
   : _tracks(iConfig.getParameter<edm::InputTag>("tracks")),
     _selectedMuons(iConfig.getParameter<edm::InputTag>("selectedMuons")),
     _useCombinedCandidate(iConfig.getUntrackedParameter<bool>("useCombinedCandidate", false))
 {
-
-   //register your products
-   // produces< std::vector< reco::Muon >  >("zMusExtracted"); // 
-   produces<reco::TrackCollection>("tracks");
-   produces< std::vector< reco::PFCandidate >  >("pfCands");
-
-   
+  produces<reco::TrackCollection>("tracks");
+  produces<reco::PFCandidateCollection>("pfCands");
 }
 
-ZmumuPFEmbedder::~ZmumuPFEmbedder()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
-
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void
 ZmumuPFEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   std::vector< reco::Particle::LorentzVector > toBeAdded;
+  std::vector<reco::Particle::LorentzVector> selMuonP4s;
    
-   if (_useCombinedCandidate)
-   {
-      edm::Handle< std::vector< reco::CompositeCandidate > > combCandidatesHandle;
-      if (iEvent.getByLabel(_selectedMuons, combCandidatesHandle) && combCandidatesHandle->size()>0)
-         for (size_t idx = 0; idx < combCandidatesHandle->at(0).numberOfDaughters(); ++idx)			// use only the first combined candidate
-            toBeAdded.push_back(combCandidatesHandle->at(0).daughter(idx)->p4());
-   }
-   else
-   {
-      edm::Handle< edm::View< reco::Muon > > selectedZMuonsHandle;
-      if (iEvent.getByLabel(_selectedMuons, selectedZMuonsHandle))
-        for (size_t idx = 0; idx < selectedZMuonsHandle->size(); ++idx)
-          toBeAdded.push_back(selectedZMuonsHandle->at(idx).p4());
-   }
-
-   if (toBeAdded.size() == 0)
-      return;
-
-   producePFCandColl(iEvent, &toBeAdded);
-   produceTrackColl(iEvent, &toBeAdded);
+  if ( _useCombinedCandidate ) {
+    edm::Handle<reco::CompositeCandidateCollection> muonPairsHandle;
+    if ( iEvent.getByLabel(_selectedMuons, muonPairsHandle) ) {
+      if ( muonPairsHandle->size() >= 1 ) {
+	const reco::CompositeCandidate& muonPair = muonPairsHandle->at(0); // TF: use only the first combined candidate
+	for ( size_t idx = 0; idx < muonPair.numberOfDaughters(); ++idx ) { 
+	  selMuonP4s.push_back(muonPair.daughter(idx)->p4());
+	}
+      }
+    }
+  } else {
+    edm::Handle<reco::MuonCollection> selectedMuonsHandle;
+    if ( iEvent.getByLabel(_selectedMuons, selectedMuonsHandle) ) {
+      for ( size_t idx = 0; idx < selectedMuonsHandle->size(); ++idx ) {
+	selMuonP4s.push_back(selectedMuonsHandle->at(idx).p4());
+      }
+    }
+  }
+  
+  if ( selMuonP4s.size() <= 2 ) return; // not selected Z --> mu+ mu- event: do nothing
+  
+  producePFCandColl(iEvent, &selMuonP4s);
+  produceTrackColl(iEvent, &selMuonP4s);
 }
 
-// produces clean PFCandidate collection w/o muon candidates.
-void ZmumuPFEmbedder::producePFCandColl(edm::Event & iEvent, const std::vector< reco::Particle::LorentzVector > * toBeAdded )
+void ZmumuPFEmbedder::producePFCandColl(edm::Event & iEvent, const std::vector<reco::Particle::LorentzVector>* selMuonP4s)
 {
-   edm::Handle<reco::PFCandidateCollection> pfIn;
-   iEvent.getByLabel("particleFlow",pfIn);
+//--- produce collection of PFCandidate excluding muons
 
-   //std::vector< reco::Muon > toBeAdded;
-   // TODO - check col size
-   //reco::Muon l1 = *(toBeAdded->begin());
-   //reco::Muon l2 = *(toBeAdded->rbegin());
+  edm::Handle<reco::PFCandidateCollection> pfCandidates;
+  iEvent.getByLabel("particleFlow", pfCandidates);
+
+  std::auto_ptr<reco::PFCandidateCollection> pfCandidates_woMuons(new reco::PFCandidateCollection());   
    
-   std::auto_ptr<std::vector< reco::PFCandidate > > newCol(new std::vector< reco::PFCandidate  > );   
-   
-   //get selected muons
-   // iterate over pfcandidates, make copy if its not a selected muon
-   reco::PFCandidateConstIterator it = pfIn->begin();
-   reco::PFCandidateConstIterator itE = pfIn->end();
+//--- iterate over list of reconstructed PFCandidates, 
+//    add PFCandidate to output collection in case it does not correspond to any selected muon
+  for ( reco::PFCandidateCollection::const_iterator pfCandidate = pfCandidates->begin();
+	pfCandidate != pfCandidates->end(); ++pfCandidate ) {
+    double dRmin = 1.e+3;
+    for ( std::vector<reco::Particle::LorentzVector>::const_iterator selMuonP4 = selMuonP4s->begin();
+	  selMuonP4 != selMuonP4s->end(); ++selMuonP4 ) {
+      double dR = reco::deltaR(pfCandidate->p4(), *selMuonP4);
+      if ( dR < dRmin ) dRmin = dR;
+    }
 
-   for (;it!=itE;++it) {
-     int pdg = std::abs( it->pdgId() );
-     double minDR = 10;
-     /* 
-     double dr1 = reco::deltaR( *it, l1); 
-     double dr2 = reco::deltaR( *it, l2); 
-     */
-     std::vector< reco::Particle::LorentzVector >::const_iterator itSelectedMu = toBeAdded->begin();
-     std::vector< reco::Particle::LorentzVector >::const_iterator itSelectedMuE = toBeAdded->end();
-     for (; itSelectedMu != itSelectedMuE; ++itSelectedMu ){
-       double dr = reco::deltaR( *it, *itSelectedMu);
-       if (dr < minDR)  minDR = dr;
-     }
-
-     //if ( pdg == 13 && (dr1 < 0.001 || dr2 < 0.002 ) ) { // it is a selected muon, do not copy
-     if ( pdg == 13 && (minDR < 0.001 ) ) { // it is a selected muon, do not copy
+    if ( dRmin < 1.e-3 ) continue; // it is a selected muon, do not copy
        
-       
-     } else {
-       newCol->push_back(*it);
-     }
-   }
+    pfCandidates_woMuons->push_back(*pfCandidate);
+  }
 
-   iEvent.put(newCol, "pfCands");
+  iEvent.put(pfCandidates_woMuons, "pfCands");
 }
 
-// produces clean track collection w/o muon tracks.
-void ZmumuPFEmbedder::produceTrackColl(edm::Event & iEvent, const std::vector< reco::Particle::LorentzVector > * toBeAdded )
+void ZmumuPFEmbedder::produceTrackColl(edm::Event & iEvent, const std::vector<reco::Particle::LorentzVector>* selMuonP4s)
 {
-   edm::Handle<reco::TrackCollection> tks;
-   iEvent.getByLabel( _tracks, tks);
+//--- produce collection of reco::Tracks excluding muons
 
-   std::auto_ptr< reco::TrackCollection  > newCol(new reco::TrackCollection );
+  edm::Handle<reco::TrackCollection> tracks;
+  iEvent.getByLabel(_tracks, tracks);
 
-   double epsilon = 0.00001;
-   unsigned int nMatched = 0;
-   
-   for ( reco::TrackCollection::const_iterator it = tks->begin() ; it != tks->end(); ++it) 
-   {
-     bool ok = true;
-     for ( std::vector< reco::Particle::LorentzVector >::const_iterator itTBA = toBeAdded->begin();
-                                                            itTBA != toBeAdded->end();
-                                                            ++itTBA)
-     {
-       double dr = reco::deltaR( *it, *itTBA);
-       //std::cout << "TTTT " << dr << std::endl;
-       if (dr < epsilon) {
-         ++ nMatched;
-         ok = false;
-       }
-     }
-     if (ok)  newCol->push_back(*it);  
-   }
-   if (nMatched!=toBeAdded->size() ) std::cout << "TTT ARGGGHGH " << nMatched << std::endl;
+  std::auto_ptr<reco::TrackCollection> tracks_woMuons(new reco::TrackCollection());
 
-   iEvent.put(newCol, "tracks");
-}
-// ------------ method called once each job just before starting event loop  ------------
-void 
-ZmumuPFEmbedder::beginJob()
-{
+  for ( reco::TrackCollection::const_iterator track = tracks->begin();
+	track != tracks->end(); ++track ) {
+    double dRmin = 1.e+3;
+    for ( std::vector<reco::Particle::LorentzVector>::const_iterator selMuonP4 = selMuonP4s->begin();
+	  selMuonP4 != selMuonP4s->end(); ++selMuonP4 ) {
+      double dR = reco::deltaR(track->eta(), track->phi(), selMuonP4->eta(), selMuonP4->phi());
+      if ( dR < dRmin ) dRmin = dR;
+    }
+
+    if ( dRmin < 1.e-4 ) continue; // it is a selected muon, do not copy
+  }
+
+  iEvent.put(tracks_woMuons, "tracks");
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-ZmumuPFEmbedder::endJob() {
-}
+#include "FWCore/Framework/interface/MakerMacros.h"
 
-//define this as a plug-in
 DEFINE_FWK_MODULE(ZmumuPFEmbedder);
