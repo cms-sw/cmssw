@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0notify.sh,v 1.6 2010/07/29 17:12:53 babar Exp $
+#$Id: t0notify.sh,v 1.7 2011/02/24 10:40:04 babar Exp $
 
 . /etc/init.d/functions
 
@@ -12,10 +12,25 @@ export SMT0_CONFIG=/nfshome0/smpro/configuration/db.conf
 #local run dir
 export SMT0_LOCAL_RUN_DIR=/nfshome0/smpro/t0inject
 
+# Tier0 config file
+export T0_CONFIG=/nfshome0/cmsprod/TransferTest/T0/Config/TransferSystem_Cessy.cfg
+
 if test -d "/opt/injectworker"; then
-    export SMT0_BASE_DIR=/opt/injectworker/inject
-    export SMT0_CONFIG=/opt/injectworker/.db.conf
-    export SMT0_LOCAL_RUN_DIR=/store/injectworker
+    SMT0_BASE_DIR=/opt/injectworker/inject
+    SMT0_CONFIG=/opt/injectworker/.db.conf
+    SMT0_LOCAL_RUN_DIR=/store/injectworker
+    T0_CONFIG=/opt/copymanager/TransferSystem_Cessy.cfg
+fi
+
+#
+# See if we are running local test system
+#
+if [ -d /opt/babar/injectworker ]; then
+    SMT0_BASE_DIR="/opt/babar/injectworker/inject"
+    SMT0_CONFIG=/opt/babar/injectworker/.db.conf
+    SMT0_LOCAL_RUN_DIR="/store/babar/injectworker"
+    T0_CONFIG=/opt/babar/copymanager/TransferSystem_Cessy.cfg
+    export PERL5LIB=$SMT0_BASE_DIR/perl_lib
 fi
 
 if [ ! -d $SMT0_BASE_DIR ]; then
@@ -29,13 +44,13 @@ SM_APP=NotifyWorker
 # main perl script
 SMT0_SCRIPT=$SMT0_BASE_DIR/$SM_APP.pl
 
+# directory to monitor
+SMT0_MONDIR=$SMT0_LOCAL_RUN_DIR/logs
+
 if [ ! -x $SMT0_SCRIPT ]; then
     echo "SM Tier0 script ($SMT0_SCRIPT)does not exist or is not executable"
     exit
 fi
-
-# directory to monitor
-SMT0_MONDIR=$SMT0_LOCAL_RUN_DIR/logs
 
 if [ ! -d $SMT0_MONDIR ]; then
     echo "SMT0_MONDIR ($SMT0_MONDIR) does not exist or is no directory"
@@ -58,12 +73,12 @@ start(){
     #
     # Setting up environment
     #
-    mkdir -p ${SMT0_LOCAL_RUN_DIR}/logs
-    mkdir -p ${SMT0_LOCAL_RUN_DIR}/done
-    mkdir -p ${SMT0_LOCAL_RUN_DIR}/workdir
+    mkdir -p $SMT0_LOCAL_RUN_DIR/logs
+    mkdir -p $SMT0_LOCAL_RUN_DIR/done
+    mkdir -p $SMT0_LOCAL_RUN_DIR/workdir
 
     ( # Double-fork
-        cd ${SMT0_LOCAL_RUN_DIR}/workdir
+        cd $SMT0_LOCAL_RUN_DIR/workdir
         rm -f $SM_APP-`hostname`.*
         exec > $SM_APP-`hostname`.$$
         exec 2>&1
@@ -74,15 +89,15 @@ start(){
 
 stop(){
     gracetime=15
-    pkill -15 -f -P 1 -u smpro $SMT0_SCRIPT
-    while pgrep -f -P 1 -u smpro $SMT0_SCRIPT > /dev/null && [ $gracetime -gt 0 ]; do
+    pkill -15 -f -P 1 -u $LOGNAME $SMT0_SCRIPT
+    while pgrep -f -P 1 -u $LOGNAME $SMT0_SCRIPT > /dev/null && [ $gracetime -gt 0 ]; do
         echo -n .
         let gracetime=$gracetime-1
         sleep 1
     done
     if [ $gracetime -eq 0 ]; then
         echo "$SM_APP did not terminate within 15 seconds, killing it!"
-        pkill -9 -f -P 1 -u smpro $SMT0_SCRIPT
+        pkill -9 -f -P 1 -u $LOGNAME $SMT0_SCRIPT
     fi
     if [ -f /tmp/.$SM_APP.lock ]; then
         echo 'Lockfile is still there!'
@@ -90,7 +105,7 @@ stop(){
 }
 
 status(){
-    pgrep -l -f -P 1 -u smpro $SMT0_SCRIPT
+    pgrep -l -f -P 1 -u $LOGNAME $SMT0_SCRIPT
 }
 
 cleanup(){

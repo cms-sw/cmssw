@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.87 2012/04/12 21:14:32 babar Exp $
+# $Id: InjectWorker.pl,v 1.88 2012/04/13 10:06:19 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -200,8 +200,8 @@ sub set_rotate_alarm {
     my ( $sec, $min, $hour ) = localtime;
     my $wakeme = time + 86400 + 1 - ( $sec + 60 * ( $min + 60 * $hour ) );
     $kernel->call( 'logger',
-        info => strftime( "Set alarm for %Y-%m-%d %H:%M:%S", localtime $wakeme )
-    );
+        info =>
+          strftime( "Set alarm for %Y-%m-%d %H:%M:%S", localtime $wakeme ) );
     $kernel->alarm( switch_file => $wakeme );
 }
 
@@ -239,7 +239,7 @@ sub start {
 # lockfile
 sub setup_lock {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
-    my $lockfile = "/tmp/." . basename( $0, '.pl' ) . ".lock";
+    my $lockfile = '.' . basename( $0, '.pl' ) . ".lock";
     if ( -e $lockfile ) {
         open my $fh, '<', $lockfile
           or die "Error: Lock \"$lockfile\" exists and is unreadable: $!";
@@ -596,11 +596,11 @@ sub update_db {
     my $stream = $args->{STREAM};
     return
       if defined $stream
-          and (
-                 $stream eq 'EcalCalibration'
-              or $stream =~ /_EcalNFS$/      #skip EcalCalibration
-              or $stream =~ /_NoTransfer$/
-          );                                 #skip if NoTransfer option is set
+      and (
+           $stream eq 'EcalCalibration'
+        or $stream =~ /_EcalNFS$/      #skip EcalCalibration
+        or $stream =~ /_NoTransfer$/
+      );                               #skip if NoTransfer option is set
 
     my $errflag = 0;
     my $rows    = $heap->{sths}->{$handler}->execute(@bind_params)
@@ -677,7 +677,7 @@ sub update_db {
                   qw( APPNAME APPVERSION RUNNUMBER LUMISECTION FILENAME
                   PATHNAME HOSTNAME DESTINATION SETUPLABEL
                   STREAM TYPE NEVENTS FILESIZE CHECKSUM
-                  HLTKEY INDEX STARTTIME STOPTIME )
+                  HLTKEY STARTTIME STOPTIME )
             )
         );
     }
@@ -754,9 +754,6 @@ sub close_file {
           )
     );
 
-    # Alias index for Tier0
-    $args->{INDEX} = $args->{INDFILE} if $args->{INDFILE};
-
     # Run the hook
     $kernel->yield( start_hook => $args );
 }
@@ -771,7 +768,7 @@ sub start_hook {
       qw( APPNAME APPVERSION RUNNUMBER LUMISECTION FILENAME
       PATHNAME HOSTNAME DESTINATION SETUPLABEL
       STREAM TYPE NEVENTS FILESIZE CHECKSUM INSTANCE
-      HLTKEY INDEX STARTTIME STOPTIME FILECOUNTER );
+      HLTKEY STARTTIME STOPTIME FILECOUNTER );
     unshift @args, $cmd;
     push @{ $heap->{task_list} }, \@args;
     $kernel->yield('next_hook');

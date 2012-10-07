@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: NotifyWorker.pl,v 1.8 2011/10/05 09:21:28 babar Exp $
+# $Id: NotifyWorker.pl,v 1.9 2012/04/13 10:06:19 babar Exp $
 # --
 # NotifyWoker.pl
 # Monitors a directory, and sends notifications to Tier0
@@ -15,10 +15,13 @@ use POE qw( Wheel::FollowTail Component::Log4perl );
 use POSIX qw( strftime );
 use File::Basename;
 use Getopt::Long;
+use YAML;
+use JSON qw( to_json );
+use T0::Logger::Sender;
 
 # check arguments
 unless ( $#ARGV == 2 ) {
-    die "Syntax: ./InjectWorker.pl inputpath logpath configfile";
+    die "Syntax: ./NotifyWorker.pl inputpath logpath configfile";
 }
 
 my ( $inpath, $logpath, $config ) = @ARGV;
@@ -43,6 +46,9 @@ my $offsetfile = $logpath . '/notify-offset.txt';
 my $heartbeat = 300;    # Print a heartbeat every 5 minutes
 my $savedelay = 300;    # Frequency to save offset file, in seconds
 my $log4perlConfig = '/opt/injectworker/inject/log4perl.conf';
+my $t0config      = $ENV{T0_CONFIG};         # XXX Should merge both configs
+my $notifySession = 'NotifyWorkerSession';   # Alias for the Client::TCP session
+my $reconnectBackOff = 3;                    # Time to wait before reconnecting
 
 # To rotate logfiles daily
 sub get_logfile {
@@ -57,6 +63,13 @@ POE::Component::Log4perl->spawn(
     ConfigFile => $log4perlConfig,
     GetLogfile => \&get_logfile,
 );
+
+# Create TCP client to send notifications to the Copy Manager
+$notifySession = T0::Logger::Sender->new(
+    Name    => $notifySession,
+    Config  => $t0config,
+    OnError => \&notify_OnError,
+)->{Name};
 
 # Start POE Session, which will do everything
 POE::Session->create(
@@ -78,6 +91,7 @@ POE::Session->create(
         switch_file      => \&switch_file,
         set_rotate_alarm => \&set_rotate_alarm,
         setup_lock       => \&setup_lock,
+        notify_success   => \&notify_success,
         sig_child        => \&sig_child,
         sig_abort        => \&sig_abort,
         _stop            => \&shutdown,
@@ -120,8 +134,8 @@ sub set_rotate_alarm {
     my ( $sec, $min, $hour ) = localtime;
     my $wakeme = time + 86400 + 1 - ( $sec + 60 * ( $min + 60 * $hour ) );
     $kernel->call( 'logger',
-        info => strftime( "Set alarm for %Y-%m-%d %H:%M:%S", localtime $wakeme )
-    );
+        info =>
+          strftime( "Set alarm for %Y-%m-%d %H:%M:%S", localtime $wakeme ) );
     $kernel->alarm( switch_file => $wakeme );
 }
 
@@ -158,7 +172,7 @@ sub start {
 # lockfile
 sub setup_lock {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
-    my $lockfile = "/tmp/." . basename( $0, '.pl' ) . ".lock";
+    my $lockfile = '.' . basename( $0, '.pl' ) . ".lock";
     if ( -e $lockfile ) {
         open my $fh, '<', $lockfile
           or die "Error: Lock \"$lockfile\" exists and is unreadable: $!";
@@ -191,19 +205,33 @@ sub setup_lock {
     $kernel->sig( QUIT => 'sig_abort' );
 }
 
+# This makes the bridge between the global default session, which parses the
+# logfiles, and the Client::TCP which communicates with the CopyManager
 sub notify_tier0 {
-    my ( $kernel, $heap, $args, $wheelID, $offset ) =
-      @_[ KERNEL, HEAP, ARG0 .. ARG2 ];
-    my $t0script = $ENV{'SM_NOTIFYSCRIPT'};
-    unless ( defined $t0script ) {
-        $t0script =
-          "/nfshome0/cmsprod/TransferTest/injection/sendNotification.sh";
-    }
-    my $notify = $t0script . ' ' . $args;
-    $kernel->post( 'logger', info => "Notifying Tier0: $notify" );
+    my ( $kernel, $session, $heap, $args, $wheelID, $offset ) =
+      @_[ KERNEL, SESSION, HEAP, ARG0 .. ARG2 ];
+    $args->{DAQFileClosed}    = 1;
+    $args->{T0FirstKnownTime} = time;
+    my $nodbupdate = delete $args->{nodbupdate};
+    $kernel->post( 'logger', info => "Notifying Tier0: " . to_json($args) );
+    $kernel->call( $notifySession, send => $args );
+    return if $nodbupdate;
+    $kernel->call(
+        $notifySession,
+        send => {
+            TransferStatus => '1',
+            STATUS         => 'new',
+            FILENAME       => $args->{FILENAME},
+        }
+    );
 
-    # XXX: Use a wheel, or even better, integrate the perl code here
-    system($notify );
+    # Should check something...
+    $kernel->yield( 'notify_success', $wheelID, $offset );
+}
+
+# Badly named, as we have no idea of the outcome (yet) XXX
+sub notify_success {
+    my ( $kernel, $heap, $wheelID, $offset ) = @_[ KERNEL, HEAP, ARG0 .. ARG1 ];
 
     # Update offset, file has been processed
     if ( defined $wheelID && defined $offset ) {
@@ -224,19 +252,32 @@ sub notify_tier0 {
     }
 }
 
+# This fonction is run on the Client::TCP session
+sub notify_OnError {
+    my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
+    $kernel->post( 'logger',
+        warning =>
+          "ERROR: could not connect to remote end, file not injected" );
+    $kernel->delay( reconnect => $reconnectBackOff );
+}
+
 # Parse lines like
-#[Some data] INFO closeFile.pl  --FILENAME Data.00133697.0135.Express.storageManager.00.0000.dat --FILECOUNTER 0 --NEVENTS 21 --FILESIZE 1508412 --STARTTIME 1271857503 --STOPTIME 1271857518 --STATUS closed --RUNNUMBER 133697 --LUMISECTION 135 --PATHNAME /store/global//02/closed/ --HOSTNAME srv-C2C06-12 --SETUPLABEL Data --STREAM Express --INSTANCE 0 --SAFETY 0 --APPVERSION CMSSW_3_5_4_onlpatch3_ONLINE --APPNAME CMSSW --TYPE streamer --DEBUGCLOSE 1 --CHECKSUM c8b5a624 --CHECKSUMIND 8912d364
+# [2012/10/04 18:20:04] INFO notifyTier0.pl --APPNAME=CMSSW --APPVERSION=CMSSW_3_2_1_onlpatch4_ONLINE --RUNNUMBER=64236 --LUMISECTION=1 --FILENAME=TransferTestWithSafety.00064236.1.A.storageManager.21.5.dat --PATHNAME=/store/babar/global/closed/ --HOSTNAME=dvsrv-C2F37-01 --DESTINATION=TransferTest --SETUPLABEL=TransferTestWithSafety --STREAM=A --TYPE=streamer --NEVENTS=4 --FILESIZE=503071 --CHECKSUM=c93da794 --HLTKEY=DumbDBTest --STARTTIME=1349367604 --STOPTIME=1349367604
 sub parse_line {
     my ( $kernel, $heap, $callback, $line, $wheelID, $offset ) =
       @_[ KERNEL, HEAP, ARG0 .. ARG3 ];
-    my @args = split / +/, $line;
-    my $kind = shift @args;
     return
       unless $line =~ s/^\[[^\]]*] INFO (?:closeFile|notifyTier0)\.pl //
-    ;    # Remove [date] INFO notifyTier0.pl
-    $line =~ s/(START|STOP)TIME/${1}_TIME/g;
-    $line =~ s/APP(VERSION|NAME)/APP_$1/g;
-    $kernel->yield( $callback => $line, $wheelID => $offset );
+      ;    # Remove [date] INFO notifyTier0.pl
+    my %args = map { /^--(.*)=(.*)$/ ? ( $1, $2 ) : $_ } split / +/, $line;
+
+    # Maintain compatibility
+    $args{START_TIME}  = delete $args{STARTTIME};
+    $args{STOP_TIME}   = delete $args{STOPTIME};
+    $args{APP_VERSION} = delete $args{APPVERSION};
+    $args{APP_NAME}    = delete $args{APPNAME};
+
+    $kernel->yield( $callback => \%args, $wheelID => $offset );
 }
 
 sub got_log_line {
@@ -397,9 +438,9 @@ sub handle_default {
     my ( $kernel, $event, $args ) = @_[ KERNEL, ARG0, ARG1 ];
     print STDERR "WARNING: Session "
       . $_[SESSION]->ID
-      . "caught unhandled event $event with (@$args).";
+      . " caught unhandled event $event with (@$args).";
     $kernel->post( 'logger',
             warning => "Session "
           . $_[SESSION]->ID
-          . " caught unhandled event $event with (@$args)." );
+          . " caught unhandled event $event with args (@$args)." );
 }

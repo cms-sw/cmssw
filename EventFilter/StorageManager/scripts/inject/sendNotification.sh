@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: sendNotification.sh,v 1.8 2008/11/06 21:02:07 loizides Exp $
+# $Id: sendNotification.sh,v 1.9 2010/02/11 17:17:50 babar Exp $
 
 # error dir and file
 errordir=/tmp
@@ -17,8 +17,7 @@ else
 fi
 
 # test if copyworker is running
-cpw=`ps ax | grep -i CopyWorker | grep -v grep`
-if test -z "$cpw"; then
+if ! pgrep -f CopyWorker >/dev/null; then
     echo "#Error: Copyworker is not running" >> $errorfile
     echo $0 $@ >> $errorfile
     exit 0;

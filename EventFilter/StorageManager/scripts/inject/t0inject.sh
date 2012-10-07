@@ -1,7 +1,10 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.24 2010/07/29 17:12:53 babar Exp $
+#$Id: t0inject.sh,v 1.25 2011/02/24 10:40:04 babar Exp $
 
 . /etc/init.d/functions
+
+# Application name
+SM_APP=InjectWorker
 
 # base dir for code
 export SMT0_BASE_DIR=/nfshome0/smpro/sm_scripts_cvs/inject
@@ -12,10 +15,35 @@ export SMT0_CONFIG=/nfshome0/smpro/configuration/db.conf
 #local run dir
 export SMT0_LOCAL_RUN_DIR=/nfshome0/smpro/t0inject
 
-if test -d "/opt/injectworker"; then
-    export SMT0_BASE_DIR=/opt/injectworker/inject
-    export SMT0_CONFIG=/opt/injectworker/.db.conf
-    export SMT0_LOCAL_RUN_DIR=/store/injectworker
+# directory to monitor
+SMT0_MONDIR=/store/global/log
+
+# Tier0 config file
+export T0_CONFIG=/nfshome0/cmsprod/TransferTest/T0/Config/TransferSystem_Cessy.cfg
+
+if [ -n "$SM_STORE" ]; then
+    SMT0_MONDIR=$SM_STORE/global/log
+fi
+
+if [ -d "/opt/injectworker" ]; then
+    SMT0_BASE_DIR=/opt/injectworker/inject
+    SMT0_CONFIG=/opt/injectworker/.db.conf
+    SMT0_LOCAL_RUN_DIR=/store/injectworker
+    T0_CONFIG=/opt/copymanager/TransferSystem_Cessy.cfg
+fi
+
+#
+# See if we are running local test system
+#
+if [ -d /opt/babar/injectworker ]; then
+    SMT0_BASE_DIR="/opt/babar/injectworker/inject"
+    SMT0_CONFIG=/opt/babar/injectworker/.db.conf
+    SMT0_LOCAL_RUN_DIR="/store/babar/injectworker"
+    SMT0_MONDIR=/store/babar/global/log
+    T0_CONFIG=/opt/babar/copymanager/TransferSystem_Cessy.cfg
+    PERL5LIB=$SMT0_BASE_DIR/perl_lib
+    SM_NORUNCONDDB=1
+    export PERL5LIB SM_NORUNCONDDB
 fi
 
 if [ ! -d $SMT0_BASE_DIR ]; then
@@ -23,22 +51,12 @@ if [ ! -d $SMT0_BASE_DIR ]; then
     exit
 fi
 
-# Application name
-SM_APP=InjectWorker
-
 # main perl script
 SMT0_SCRIPT=$SMT0_BASE_DIR/$SM_APP.pl
 
 if [ ! -x $SMT0_SCRIPT ]; then
     echo "SM Tier0 script ($SMT0_SCRIPT)does not exist or is not executable"
     exit
-fi
-
-# directory to monitor
-SMT0_MONDIR=/store/global/log
-
-if test -n "$SM_STORE"; then
-    SMT0_MONDIR=$SM_STORE/global/log
 fi
 
 if [ ! -d $SMT0_MONDIR ]; then
@@ -52,7 +70,6 @@ if [ ! -r $SMT0_CONFIG ]; then
 fi
 
 #exported variables
-export SM_NOTIFYSCRIPT=$SMT0_BASE_DIR/sendNotification.sh
 export SM_HOOKSCRIPT=$SMT0_BASE_DIR/sm_hookscript.pl
 
 #
@@ -62,12 +79,12 @@ start(){
     #
     # Setting up environment
     #
-    mkdir -p ${SMT0_LOCAL_RUN_DIR}/logs
-    mkdir -p ${SMT0_LOCAL_RUN_DIR}/done
-    mkdir -p ${SMT0_LOCAL_RUN_DIR}/workdir
+    mkdir -p $SMT0_LOCAL_RUN_DIR/logs
+    mkdir -p $SMT0_LOCAL_RUN_DIR/done
+    mkdir -p $SMT0_LOCAL_RUN_DIR/workdir
 
     ( # Double-fork
-        cd ${SMT0_LOCAL_RUN_DIR}/workdir
+        cd $SMT0_LOCAL_RUN_DIR/workdir
         rm -f $SM_APP-`hostname`.*
         exec > $SM_APP-`hostname`.$$
         exec 2>&1
@@ -79,15 +96,15 @@ start(){
 
 stop(){
     gracetime=15
-    pkill -15 -f -P 1 -u smpro $SMT0_SCRIPT
-    while pgrep -f -P 1 -u smpro $SMT0_SCRIPT > /dev/null && [ $gracetime -gt 0 ]; do
+    pkill -15 -f -P 1 -u $LOGNAME $SMT0_SCRIPT
+    while pgrep -f -P 1 -u $LOGNAME $SMT0_SCRIPT > /dev/null && [ $gracetime -gt 0 ]; do
         echo -n .
         let gracetime=$gracetime-1
         sleep 1
     done
     if [ $gracetime -eq 0 ]; then
         echo "$SM_APP did not terminate within 15 seconds, killing it!"
-        pkill -9 -f -P 1 -u smpro $SMT0_SCRIPT
+        pkill -9 -f -P 1 -u $LOGNAME $SMT0_SCRIPT
     fi
     if [ -f /tmp/.$SM_APP.lock ]; then
         echo 'Lockfile is still there!'
@@ -95,7 +112,7 @@ stop(){
 }
 
 status(){
-    pgrep -l -f -P 1 -u smpro $SMT0_SCRIPT
+    pgrep -l -f -P 1 -u $LOGNAME $SMT0_SCRIPT
 }
 
 cleanup(){
