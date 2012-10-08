@@ -2,6 +2,7 @@
 <use   name="DataFormats/MuonDetId"/>
 <bin   name="testMuonDetId" file="testDTDetIds.cc,testCSCDetId.cc,testRPCDetId.cc,testRPCCompDetId.cc,testCSCTriggerNumbering.cc,testMuonDetId.cpp">
   <use   name="cppunit"/>
+  <flags CXXFLAGS="-O2"/>
 </bin>
 <bin   name="testCSCDetId" file="testCSCDetId.cc,testMuonDetId.cpp">
   <use   name="cppunit"/>
