@@ -33,7 +33,7 @@ PFTauTagInfo PFRecoTauTagInfoAlgorithm::buildPFTauTagInfo(const PFJetRef& thePFJ
   PFCandidateRefVector thePFCands;
   const float jetPhi = (*thePFJet).phi();
   const float jetEta = (*thePFJet).eta();
-  auto dr2 = [jetPhi,jetEta](float phi, float eta) { return (eta-jetEta)*(eta-jetEta)* + (phi-jetPhi)*(phi-jetPhi);};
+  auto dr2 = [jetPhi,jetEta](float phi, float eta) { float dp=std::abs(phi-jetPhi); if (dp>float(M_PI)) dp-=float(2*M_PI);  return (eta-jetEta)*(eta-jetEta)* + dp*dp;};
   for (auto iPFCand : thePFCandsInEvent){
     float delta = dr2((*iPFCand).phi(),(*iPFCand).eta());
     if (delta < ChargedHadronsAssociationCone_*ChargedHadronsAssociationCone_)  thePFCands.push_back(iPFCand);
