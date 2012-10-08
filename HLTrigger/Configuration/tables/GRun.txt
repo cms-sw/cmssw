@@ -288,7 +288,7 @@ HLT_MET80_Track50_dEdx3p6_v*                                                    
 HLT_MET80_Track60_dEdx3p7_v*                                                                    # sr #126412
 HLT_MET80_v*                                                                                    # sr #126412
 HLT_MET80_Parked_v*                                                                             # sr #131856
-HLT_MET80_HBHENoiseCleaned_v*                                                                   # sr #131856
+#HLT_MET80_HBHENoiseCleaned_v*                                                                  # sr #131856, removed in sr #132797
 HLT_MET100_HBHENoiseCleaned_v*                                                                  # sr #131856
 #HLT_L1EG20_Track5_dEdx5p0_v*                                                                   # sr #126412, removed for cpu time
 #HLT_L1EG20_Track6_dEdx6p0_v*                                                                   # sr #126412, removed for cpu time
