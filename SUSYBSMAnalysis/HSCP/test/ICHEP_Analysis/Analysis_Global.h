@@ -41,7 +41,7 @@ double               IntegratedLuminosityBeforeTriggerChange = 409.91;
 #else
 double               SQRTS          = 8;
 int                  RunningPeriods = 1;
-double               IntegratedLuminosity = 9911;
+double               IntegratedLuminosity = 11564;
 double               IntegratedLuminosityBeforeTriggerChange = 0;
 #endif
 
