@@ -168,8 +168,8 @@ void ESDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
 		     int iz = (x<40)?  1:2;
 		     int ip = (y>=40)? 1:2;
 		     int ix = (x<40) ?  x:x-40;
-		     int iy = (x<40) ?  y:y-40;
-		     int ifed = es_mapping_->getFED(iz, ip, ix, iy);
+		     int iy = (y<40) ?  y:y-40;
+		     int ifed = es_mapping_->getFED(iz, ip, ix + 1, iy + 1);
 		     if( fedID==ifed ) meESDaqActiveMap_->setBinContent( x+1, y+1, 1.0 );
 		  }
 	       }
