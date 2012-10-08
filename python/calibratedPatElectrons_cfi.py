@@ -21,6 +21,8 @@ calibratedPatElectrons = cms.EDProducer("CalibratedPatElectronProducer",
     
     # set to True to get debugging printout   
     debug = cms.bool(False),
+ 
+    updateEnergyError = cms.bool(True)
 
     #set to 0 to not apply corrections
     #set to 1 to apply regression_1 corrections
