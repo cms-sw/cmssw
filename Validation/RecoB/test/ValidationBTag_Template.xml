@@ -331,7 +331,7 @@
 <superimposeItem name="REFREL_SAMPLE_Val_JP_effVsdisc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REFREL"/>
 </superimpose>
 
-        <graph name="VALREL_SAMPLE_Val_SSVHE_perf_all_new" title="VALREL SAMPLE SSV" SetLogy="true" SetGrid="true" XTitle="b-jet Efficiency" YTitle="non-b jet Efficiency   " Option="P">
+        <graph name="VALREL_SAMPLE_Val_SSVHE_perf_all_new" title="VALREL SAMPLE SSVHE" SetLogy="true" SetGrid="true" XTitle="b-jet Efficiency" YTitle="non-b jet Efficiency   " Option="P">
 <graphItem name="VALREL_SAMPLE_Val_SSVHE_effVsdisc_b" color="3" MarkerStyle="22" legend="b-jets_VALREL" flavour="5"/>
 <graphItem name="VALREL_SAMPLE_Val_SSVHE_effVsdisc_c" color="1" MarkerStyle="22" legend="c-jets_VALREL" flavour="4"/>
 <graphItem name="VALREL_SAMPLE_Val_SSVHE_effVsdisc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VALREL" flavour="1"/>
@@ -340,7 +340,7 @@
 <graphItem name="REFREL_SAMPLE_Val_SSVHE_effVsdisc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REFREL" flavour="1"/>
 </graph>
 
-        <superimpose name="VALREL_SAMPLE_Val_SSVHE_disc_all" title="VALREL SAMPLE SSV" SetLogy="false" SetGrid="true" Normalize="true" XTitle="Discriminant" YTitle="arbitrary units   " Option="P">
+        <superimpose name="VALREL_SAMPLE_Val_SSVHE_disc_all" title="VALREL SAMPLE SSVHE" SetLogy="false" SetGrid="true" Normalize="true" XTitle="Discriminant" YTitle="arbitrary units   " Option="P">
 <superimposeItem name="VALREL_SAMPLE_Val_SSVHE_disc_b" color="3" MarkerStyle="22" legend="b-jets_VALREL"/>
 <superimposeItem name="VALREL_SAMPLE_Val_SSVHE_disc_c" color="1" MarkerStyle="22" legend="c-jets_VALREL"/>
 <superimposeItem name="VALREL_SAMPLE_Val_SSVHE_disc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VALREL"/>
@@ -349,7 +349,7 @@
 <superimposeItem name="REFREL_SAMPLE_Val_SSVHE_disc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REFREL"/>
 </superimpose>
 
-        <superimpose name="VALREL_SAMPLE_Val_SSVHE_effVsdisc_all" title="VALREL SAMPLE SSV" SetLogy="true" SetGrid="true" XTitle="Discriminant" YTitle="Efficiency    ">
+        <superimpose name="VALREL_SAMPLE_Val_SSVHE_effVsdisc_all" title="VALREL SAMPLE SSVHE" SetLogy="true" SetGrid="true" XTitle="Discriminant" YTitle="Efficiency    ">
 <superimposeItem name="VALREL_SAMPLE_Val_SSVHE_effVsdisc_b" color="3" MarkerStyle="22" legend="b-jets_VALREL"/>
 <superimposeItem name="VALREL_SAMPLE_Val_SSVHE_effVsdisc_c" color="1" MarkerStyle="22" legend="c-jets_VALREL"/>
 <superimposeItem name="VALREL_SAMPLE_Val_SSVHE_effVsdisc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VALREL"/>
@@ -358,7 +358,7 @@
 <superimposeItem name="REFREL_SAMPLE_Val_SSVHE_effVsdisc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REFREL"/>
 </superimpose>
 
-        <graph name="VALREL_SAMPLE_Val_SSVHP_perf_all_new" title="VALREL SAMPLE SSV" SetLogy="true" SetGrid="true" XTitle="b-jet Efficiency" YTitle="non-b jet Efficiency   " Option="P">
+        <graph name="VALREL_SAMPLE_Val_SSVHP_perf_all_new" title="VALREL SAMPLE SSVHP" SetLogy="true" SetGrid="true" XTitle="b-jet Efficiency" YTitle="non-b jet Efficiency   " Option="P">
 <graphItem name="VALREL_SAMPLE_Val_SSVHP_effVsdisc_b" color="3" MarkerStyle="22" legend="b-jets_VALREL" flavour="5"/>
 <graphItem name="VALREL_SAMPLE_Val_SSVHP_effVsdisc_c" color="1" MarkerStyle="22" legend="c-jets_VALREL" flavour="4"/>
 <graphItem name="VALREL_SAMPLE_Val_SSVHP_effVsdisc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VALREL" flavour="1"/>
@@ -367,7 +367,7 @@
 <graphItem name="REFREL_SAMPLE_Val_SSVHP_effVsdisc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REFREL" flavour="1"/>
 </graph>
 
-        <superimpose name="VALREL_SAMPLE_Val_SSVHP_disc_all" title="VALREL SAMPLE SSV" SetLogy="false" SetGrid="true" Normalize="true" XTitle="Discriminant" YTitle="arbitrary units   " Option="P">
+        <superimpose name="VALREL_SAMPLE_Val_SSVHP_disc_all" title="VALREL SAMPLE SSVHP" SetLogy="false" SetGrid="true" Normalize="true" XTitle="Discriminant" YTitle="arbitrary units   " Option="P">
 <superimposeItem name="VALREL_SAMPLE_Val_SSVHP_disc_b" color="3" MarkerStyle="22" legend="b-jets_VALREL"/>
 <superimposeItem name="VALREL_SAMPLE_Val_SSVHP_disc_c" color="1" MarkerStyle="22" legend="c-jets_VALREL"/>
 <superimposeItem name="VALREL_SAMPLE_Val_SSVHP_disc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VALREL"/>
@@ -376,7 +376,7 @@
 <superimposeItem name="REFREL_SAMPLE_Val_SSVHP_disc_dusg" color="2" MarkerStyle="8" legend="dusg_jets_REFREL"/>
 </superimpose>
 
-        <superimpose name="VALREL_SAMPLE_Val_SSVHP_effVsdisc_all" title="VALREL SAMPLE SSV" SetLogy="true" SetGrid="true" XTitle="Discriminant" YTitle="Efficiency    ">
+        <superimpose name="VALREL_SAMPLE_Val_SSVHP_effVsdisc_all" title="VALREL SAMPLE SSVHP" SetLogy="true" SetGrid="true" XTitle="Discriminant" YTitle="Efficiency    ">
 <superimposeItem name="VALREL_SAMPLE_Val_SSVHP_effVsdisc_b" color="3" MarkerStyle="22" legend="b-jets_VALREL"/>
 <superimposeItem name="VALREL_SAMPLE_Val_SSVHP_effVsdisc_c" color="1" MarkerStyle="22" legend="c-jets_VALREL"/>
 <superimposeItem name="VALREL_SAMPLE_Val_SSVHP_effVsdisc_dusg" color="2" MarkerStyle="22" legend="dusg_jets_VALREL"/>
@@ -524,8 +524,8 @@
 <superimposeItem name="VALREL_SAMPLE_Val_TCHE_perf_c" color="1" MarkerStyle="8" legend="TCHE"/>
 <superimposeItem name="VALREL_SAMPLE_Val_TCHP_perf_c" color="2" MarkerStyle="8" legend="TCHP"/>
 <superimposeItem name="VALREL_SAMPLE_Val_JP_perf_c" color="3" MarkerStyle="8" legend="JP"/>
-<superimposeItem name="VALREL_SAMPLE_Val_SSVHE_perf_c" color="4" MarkerStyle="8" legend="SSV"/>
-<superimposeItem name="VALREL_SAMPLE_Val_SSVHP_perf_c" color="7" MarkerStyle="8" legend="SSV"/>
+<superimposeItem name="VALREL_SAMPLE_Val_SSVHE_perf_c" color="4" MarkerStyle="8" legend="SSVHE"/>
+<superimposeItem name="VALREL_SAMPLE_Val_SSVHP_perf_c" color="7" MarkerStyle="8" legend="SSVHP"/>
 <superimposeItem name="VALREL_SAMPLE_Val_CSV_perf_c" color="5" MarkerStyle="8" legend="CSV"/>
 <superimposeItem name="VALREL_SAMPLE_Val_CSVMVAB_perf_c" color="6" MarkerStyle="8" legend="CSVMVAB"/>
 
@@ -539,8 +539,8 @@
 <superimposeItem name="REFREL_SAMPLE_Val_TCHE_perf_c" color="1" MarkerStyle="8" legend="TCHE"/>
 <superimposeItem name="REFREL_SAMPLE_Val_TCHP_perf_c" color="2" MarkerStyle="8" legend="TCHP"/>
 <superimposeItem name="REFREL_SAMPLE_Val_JP_perf_c" color="3" MarkerStyle="8" legend="JP"/>
-<superimposeItem name="REFREL_SAMPLE_Val_SSVHE_perf_c" color="4" MarkerStyle="8" legend="SSV"/>
-<superimposeItem name="REFREL_SAMPLE_Val_SSVHP_perf_c" color="7" MarkerStyle="8" legend="SSV"/>
+<superimposeItem name="REFREL_SAMPLE_Val_SSVHE_perf_c" color="4" MarkerStyle="8" legend="SSVHE"/>
+<superimposeItem name="REFREL_SAMPLE_Val_SSVHP_perf_c" color="7" MarkerStyle="8" legend="SSVHP"/>
 <superimposeItem name="REFREL_SAMPLE_Val_CSV_perf_c" color="5" MarkerStyle="8" legend="CSV"/>
 <superimposeItem name="REFREL_SAMPLE_Val_CSVMVAB_perf_c" color="6" MarkerStyle="8" legend="CSVMVAB"/>
 
@@ -554,8 +554,8 @@
 <superimposeItem name="VALREL_SAMPLE_Val_TCHE_perf_dusg" color="1" MarkerStyle="8" legend="TCHE"/>
 <superimposeItem name="VALREL_SAMPLE_Val_TCHP_perf_dusg" color="2" MarkerStyle="8" legend="TCHP"/>
 <superimposeItem name="VALREL_SAMPLE_Val_JP_perf_dusg" color="3" MarkerStyle="8" legend="JP"/>
-<superimposeItem name="VALREL_SAMPLE_Val_SSVHE_perf_dusg" color="4" MarkerStyle="8" legend="SSV"/>
-<superimposeItem name="VALREL_SAMPLE_Val_SSVHP_perf_dusg" color="7" MarkerStyle="8" legend="SSV"/>
+<superimposeItem name="VALREL_SAMPLE_Val_SSVHE_perf_dusg" color="4" MarkerStyle="8" legend="SSVHE"/>
+<superimposeItem name="VALREL_SAMPLE_Val_SSVHP_perf_dusg" color="7" MarkerStyle="8" legend="SSVHP"/>
 <superimposeItem name="VALREL_SAMPLE_Val_CSV_perf_dusg" color="5" MarkerStyle="8" legend="CSV"/>
 <superimposeItem name="VALREL_SAMPLE_Val_CSVMVAB_perf_dusg" color="6" MarkerStyle="8" legend="CSVMVAB"/>
 
@@ -569,8 +569,8 @@
 <superimposeItem name="REFREL_SAMPLE_Val_TCHE_perf_dusg" color="1" MarkerStyle="8" legend="TCHE"/>
 <superimposeItem name="REFREL_SAMPLE_Val_TCHP_perf_dusg" color="2" MarkerStyle="8" legend="TCHP"/>
 <superimposeItem name="REFREL_SAMPLE_Val_JP_perf_dusg" color="3" MarkerStyle="8" legend="JP"/>
-<superimposeItem name="REFREL_SAMPLE_Val_SSVHE_perf_dusg" color="4" MarkerStyle="8" legend="SSV"/>
-<superimposeItem name="REFREL_SAMPLE_Val_SSVHP_perf_dusg" color="7" MarkerStyle="8" legend="SSV"/>
+<superimposeItem name="REFREL_SAMPLE_Val_SSVHE_perf_dusg" color="4" MarkerStyle="8" legend="SSVHE"/>
+<superimposeItem name="REFREL_SAMPLE_Val_SSVHP_perf_dusg" color="7" MarkerStyle="8" legend="SSVHP"/>
 <superimposeItem name="REFREL_SAMPLE_Val_CSV_perf_dusg" color="5" MarkerStyle="8" legend="CSV"/>
 <superimposeItem name="REFREL_SAMPLE_Val_CSVMVAB_perf_dusg" color="6" MarkerStyle="8" legend="CSVMVAB"/>
 
