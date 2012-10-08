@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0notify.sh,v 1.7 2011/02/24 10:40:04 babar Exp $
+#$Id: t0notify.sh,v 1.8 2012/10/07 21:56:25 babar Exp $
 
 . /etc/init.d/functions
 
@@ -30,9 +30,12 @@ if [ -d /opt/babar/injectworker ]; then
     SMT0_CONFIG=/opt/babar/injectworker/.db.conf
     SMT0_LOCAL_RUN_DIR="/store/babar/injectworker"
     T0_CONFIG=/opt/babar/copymanager/TransferSystem_Cessy.cfg
-    export PERL5LIB=$SMT0_BASE_DIR/perl_lib
 fi
 
+# For T0::Logger::Sender
+export PERL5LIB=$SMT0_BASE_DIR/perl_lib
+
+# Sanity check
 if [ ! -d $SMT0_BASE_DIR ]; then
     echo "SMT0_BASE_DIR ($SMT0_BASE_DIR) does not exist or is no directory"
     exit
