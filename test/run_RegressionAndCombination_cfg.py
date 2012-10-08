@@ -18,11 +18,8 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.load("EgammaAnalysis.ElectronTools.calibratedPatElectrons_cfi")
 
 # dataset to correct
-#process.calibratedGsfElectrons.inputDataset = cms.string("Jan16ReReco")
-#process.calibratedGsfElectrons.inputDataset = cms.string("ReReco")
-process.calibratedPatElectrons.inputDataset = cms.string("Summer12_DR53X")
-#process.calibratedGsfElectrons.inputDataset = cms.string("Fall11")
 process.calibratedPatElectrons.isMC = cms.bool(True)
+process.calibratedPatElectrons.inputDataset = cms.string("Summer12_DR53X_HCP2012")
 process.calibratedPatElectrons.updateEnergyError = cms.bool(True)
 process.calibratedPatElectrons.applyCorrections = cms.int32(1)
 process.calibratedPatElectrons.debug = cms.bool(True)
