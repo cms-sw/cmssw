@@ -95,6 +95,9 @@ class stAllInfo{
    }
 };
 
+
+string EXCLUSIONDIR = "EXCLUSION";
+
 //Background prediction rescale and uncertainty
 double RescaleFactor = 1.0;
 double RescaleError  = 0.1;
@@ -115,8 +118,9 @@ void makeDataCard(string outpath, string rootPath, string ChannelName, string Si
 void saveHistoForLimit(TH1* histo, string Name, string Id);
 void saveVariationHistoForLimit(TH1* histo, TH1* vardown, string Name, string variationName);
 void testShapeBasedAnalysis(string InputPattern, string signal);
-double computeSignificance(bool expected, string& signal, string massStr, float Strength);
+double computeSignificance(string datacard, bool expected, string& signal, string massStr, float Strength);
 bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, string& InputPattern, string& signal, unsigned int CutIndex, bool Shape, bool Temporary, stAllInfo& result, TH1* MassData, TH1* MassPred, TH1* MassSign, TH1* MassSignP, TH1* MassSignI, TH1* MassSignM, TH1* MassSignT, TH1* MassSignPU);
+bool Combine(string InputPattern, string signal);
 
 double MinRange = 0;
 double MaxRange = 1999;
@@ -143,9 +147,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
    if(MODE=="COMPILE")return;
 
-   string Data = "Data11";
-   if(Data=="Data11"){SQRTS=7.0;}else{SQRTS=8.0;}
-
+   string Data;
+   if(MODE.find("11")!=string::npos){Data = "Data11"; SQRTS=7.0; EXCLUSIONDIR+="11"; }
+   if(MODE.find("12")!=string::npos){Data = "Data12"; SQRTS=8.0; EXCLUSIONDIR+="12"; }
+   printf("EXCLUSIONDIR = %s\n",EXCLUSIONDIR.c_str());  
+ 
 
    //determine the list of models that are considered
    GetSampleDefinition(samples);
@@ -162,6 +168,20 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    }else if(MODE.find("OPTIMIZE")!=string::npos){
       Optimize(InputPattern, Data, signal, SHAPESTRING!="", false); //testShapeBasedAnalysis(InputPattern,signal);  //use the second part if you want to run shape based analyssi on optimal point form c&c      
       return;
+   }else if(MODE.find("COMBINE")!=string::npos){
+      string EXCLUSIONDIR_SAVE = EXCLUSIONDIR;
+      //2011 Limits
+      Data = "Data11"; SQRTS=7.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"11";
+      Optimize(InputPattern, Data, signal, SHAPESTRING!="", true);
+
+      //2012 Limits
+      Data = "Data12"; SQRTS=8.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"12";
+      Optimize(InputPattern, Data, signal, SHAPESTRING!="", true);
+
+      //Combined Limits
+      EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"COMB";  SQRTS=78.0;
+      Combine(InputPattern, signal);
+      return;
    }
    
    string TkPattern  = "Results/Type0/";
@@ -169,7 +189,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    string MuOnlyPattern  = "Results/Type3/";
    string QLPattern  = "Results/Type5/";
 
-   string outpath = string("Results/"+SHAPESTRING+"EXCLUSION/");
+
+   bool Combine = (MODE.find("COMB")!=string::npos);
+   if(Combine){EXCLUSIONDIR+="COMB"; SQRTS=78.0;}
+
+   string outpath = string("Results/"+SHAPESTRING+EXCLUSIONDIR+"/");
    MakeDirectories(outpath);
 
    //based on the modelMap
@@ -183,6 +207,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 //   DrawModelLimitWithBand(MuPattern);
    DrawModelLimitWithBand(MuOnlyPattern);
    DrawModelLimitWithBand(QLPattern);
+   
 
    //make plots of the observed limit for all signal model (and mass point) and save the result in a latex table
    TCanvas* c1;
@@ -258,16 +283,16 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    TGraph** ThXSec    = new TGraph*[modelVector.size()];
    TCutG ** ThXSecErr = new TCutG* [modelVector.size()];
    for(unsigned int k=0; k<modelVector.size(); k++){
-     if(modelVector[k].find("Gluino")!=string::npos){
+     if(!Combine && modelVector[k].find("Gluino")!=string::npos){
         ThXSec   [k] = new TGraph(sizeof(THXSEC7TeV_Gluino_Mass)/sizeof(double),THXSEC7TeV_Gluino_Mass,THXSEC7TeV_Gluino_Cen);
         ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr",sizeof(THXSEC7TeV_Gluino_Mass)/sizeof(double),THXSEC7TeV_Gluino_Mass,THXSEC7TeV_Gluino_Low,THXSEC7TeV_Gluino_High, PlotMinScale, PlotMaxScale);
-      }else if(modelVector[k].find("Stop"  )!=string::npos){
+      }else if(!Combine && modelVector[k].find("Stop"  )!=string::npos){
          ThXSec   [k] = new TGraph(sizeof(THXSEC7TeV_Stop_Mass)/sizeof(double),THXSEC7TeV_Stop_Mass,THXSEC7TeV_Stop_Cen);
          ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr",sizeof(THXSEC7TeV_Stop_Mass)/sizeof(double),THXSEC7TeV_Stop_Mass,THXSEC7TeV_Stop_Low,THXSEC7TeV_Stop_High, PlotMinScale, PlotMaxScale);
-      }else if(modelVector[k].find("GMStau"  )!=string::npos){
+      }else if(!Combine && modelVector[k].find("GMStau"  )!=string::npos){
          ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt); 
          ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC7TeV_GMStau_Mass)/sizeof(double),THXSEC7TeV_GMStau_Mass,THXSEC7TeV_GMStau_Low,THXSEC7TeV_GMStau_High, PlotMinScale, PlotMaxScale); 
-      }else if(modelVector[k].find("PPStau"  )!=string::npos){
+      }else if(!Combine && modelVector[k].find("PPStau"  )!=string::npos){
          ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);   
          ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC7TeV_PPStau_Mass)/sizeof(double),THXSEC7TeV_PPStau_Mass,THXSEC7TeV_PPStau_Low,THXSEC7TeV_PPStau_High, PlotMinScale, PlotMaxScale); 
       }else{
@@ -359,7 +384,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMu->Draw("same");
    MGMu->SetTitle("");
    MGMu->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
-   MGMu->GetYaxis()->SetTitle("#sigma (pb)");
+   MGMu->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
    MGMu->GetYaxis()->SetTitleOffset(1.70);
    MGMu->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGMu->GetXaxis()->SetRangeUser(50,1250);
@@ -422,7 +447,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGTk->Draw("same");
    MGTk->SetTitle("");
    MGTk->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
-   MGTk->GetYaxis()->SetTitle("#sigma (pb)");
+   MGTk->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
    MGTk->GetYaxis()->SetTitleOffset(1.70);
    MGTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGTk->GetXaxis()->SetRangeUser(50,1250);
@@ -459,7 +484,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGDCMu->Draw("same");
    MGDCMu->SetTitle("");
    MGDCMu->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
-   MGDCMu->GetYaxis()->SetTitle("#sigma (pb)");
+   MGDCMu->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
    MGDCMu->GetYaxis()->SetTitleOffset(1.70);
    MGDCMu->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGDCMu->GetXaxis()->SetRangeUser(50,1250);
@@ -506,7 +531,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGDCTk->Draw("same");
    MGDCTk->SetTitle("");
    MGDCTk->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
-   MGDCTk->GetYaxis()->SetTitle("#sigma (pb)");
+   MGDCTk->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
    MGDCTk->GetYaxis()->SetTitleOffset(1.70);
    MGDCTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGDCTk->GetXaxis()->SetRangeUser(50,1250);
@@ -526,7 +551,6 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    c1->SetLogy(true);
    SaveCanvas(c1, outpath, string("TkDCExclusionLog"));
    delete c1;
-
    return; 
 }
 
@@ -545,7 +569,7 @@ void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern){
       if(samples[s].Type!=2)continue;
       bool IsNeutral = (samples[s].ModelName().find("N")!=std::string::npos);
       if(!IsTkOnly && IsNeutral)continue;
-      stAllInfo tmp(InputPattern+"/"+SHAPESTRING+"EXCLUSION" + "/"+samples[s].Name+".txt");
+      stAllInfo tmp(InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR + "/"+samples[s].Name+".txt");
 
       double P       = tmp.Eff - tmp.Eff_SYSTP;
       double I       = tmp.Eff - tmp.Eff_SYSTI;
@@ -569,7 +593,7 @@ TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelN
    double* XSecExp  = new double   [modelSamples.size()];
    stAllInfo* Infos = new stAllInfo[modelSamples.size()];
    for(unsigned int i=0;i<modelSamples.size();i++){
-      Infos       [i]=stAllInfo(InputPattern+""+SHAPESTRING+"EXCLUSION/" + modelSamples[i].Name +".txt");
+      Infos       [i]=stAllInfo(InputPattern+""+SHAPESTRING+EXCLUSIONDIR+"/" + modelSamples[i].Name +".txt");
       Mass        [i]=Infos[i].Mass;
       XSecTh      [i]=Infos[i].XSec_Th;
       XSecObs     [i]=Infos[i].XSec_Obs;
@@ -646,7 +670,7 @@ void DrawModelLimitWithBand(string InputPattern){
       unsigned int N = modelMap[modelVector[k]].size();
       stAllInfo Infos;double Mass[N], XSecTh[N], XSecExp[N],XSecObs[N], XSecExpUp[N],XSecExpDown[N],XSecExp2Up[N],XSecExp2Down[N];
       for(unsigned int i=0;i<N;i++){
-         Infos = stAllInfo(InputPattern+""+SHAPESTRING+"EXCLUSION/" + modelMap[modelVector[k]][i].Name +".txt");
+         Infos = stAllInfo(InputPattern+""+SHAPESTRING+EXCLUSIONDIR+"/" + modelMap[modelVector[k]][i].Name +".txt");
          Mass        [i]=Infos.Mass;
          XSecTh      [i]=Infos.XSec_Th;
          XSecObs     [i]=Infos.XSec_Obs;
@@ -709,7 +733,7 @@ void DrawModelLimitWithBand(string InputPattern){
       LEG->Draw();
       c1->SetLogy(true);
 
-      SaveCanvas(c1,"Results/"+SHAPESTRING+"EXCLUSION/", string(prefix+ modelVector[k] + "ExclusionLog"));
+      SaveCanvas(c1,"Results/"+SHAPESTRING+EXCLUSIONDIR+"/", string(prefix+ modelVector[k] + "ExclusionLog"));
       delete c1;
    }
 }
@@ -768,7 +792,7 @@ void DrawRatioBands(string InputPattern)
       unsigned int N = modelMap[modelVector[k]].size();
       stAllInfo Infos;double Mass[N], XSecTh[N], XSecExp[N],XSecObs[N], XSecExpUp[N],XSecExpDown[N],XSecExp2Up[N],XSecExp2Down[N];
       for(unsigned int i=0;i<N;i++){
-         Infos = stAllInfo(InputPattern+""+SHAPESTRING+"EXCLUSION/" + modelMap[modelVector[k]][i].Name +".txt");
+         Infos = stAllInfo(InputPattern+""+SHAPESTRING+EXCLUSIONDIR+"/" + modelMap[modelVector[k]][i].Name +".txt");
          Mass        [i]=Infos.Mass;
          XSecTh      [i]=Infos.XSec_Th;
          XSecObs     [i]=Infos.XSec_Obs     /Infos.XSec_Exp;
@@ -891,7 +915,7 @@ void DrawRatioBands(string InputPattern)
    pt->SetFillColor(0);
    pt->Draw();
 
-   SaveCanvas(c1,"Results/"+SHAPESTRING+"EXCLUSION/", string(prefix+"LimitsRatio"));
+   SaveCanvas(c1,"Results/"+SHAPESTRING+EXCLUSIONDIR+"/", string(prefix+"LimitsRatio"));
    delete c1;
 }
 
@@ -1001,7 +1025,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
    }
 
    //prepare output directory and log file
-   string outpath = InputPattern + "/"+SHAPESTRING+"EXCLUSION/";
+   string outpath = InputPattern + "/"+SHAPESTRING+EXCLUSIONDIR+"/";
    MakeDirectories(outpath);
    FILE* pFile = fopen((outpath+"/"+signal+".info").c_str(),"w");
    if(!pFile)printf("Can't open file : %s\n",(outpath+"/"+signal+".info").c_str());
@@ -1104,17 +1128,17 @@ void makeDataCard(string outpath, string rootPath, string ChannelName, string Si
    fprintf(pFile, "process  0 1\n");
    fprintf(pFile, "rate    %f %f\n",Sign,Pred);
    fprintf(pFile, "-------------------------------\n");
-   fprintf(pFile, "%5s    %6s 1.022     1.0  \n","Lumi" , "lnN");
-   fprintf(pFile, "%5s    %6s -         %5.3f\n","systP", "lnN", PredRelErr);
-   fprintf(pFile, "%5s    %6s 1.07      -    \n","systS", "lnN");
+   fprintf(pFile, "%35s    %6s 1.022     1.0  \n","Lumi" , "lnN");
+   fprintf(pFile, "%35s    %6s -         %5.3f\n",(ChannelName+"systP").c_str(), "lnN", PredRelErr);
+   fprintf(pFile, "%35s    %6s 1.07      -    \n",(ChannelName+"systS").c_str(), "lnN");
    if(Shape){
-   fprintf(pFile, "%5s    %6s 1.000     -    \n","statS", "shapeN2");
-   fprintf(pFile, "%5s    %6s -         1    \n","statP", "shapeN2");
-   fprintf(pFile, "%5s    %6s 1.000     -    \n","mom"  , "shapeN2");
-   fprintf(pFile, "%5s    %6s 1.000     -    \n","ias"  , "shapeN2");
-   fprintf(pFile, "%5s    %6s 1.000     -    \n","ih"   , "shapeN2");
-   fprintf(pFile, "%5s    %6s 1.000     -    \n","tof"  , "shapeN2");
-   fprintf(pFile, "%5s    %6s 1.000     -    \n","pu"   , "shapeN2");
+   fprintf(pFile, "%35s    %6s 1.000     -    \n",(ChannelName+"statS").c_str(), "shapeN2");
+   fprintf(pFile, "%35s    %6s -         1    \n",(ChannelName+"statP").c_str(), "shapeN2");
+   fprintf(pFile, "%35s    %6s 1.000     -    \n","mom"  , "shapeN2");
+   fprintf(pFile, "%35s    %6s 1.000     -    \n","ias"  , "shapeN2");
+   fprintf(pFile, "%35s    %6s 1.000     -    \n","ih"   , "shapeN2");
+   fprintf(pFile, "%35s    %6s 1.000     -    \n","tof"  , "shapeN2");
+   fprintf(pFile, "%35s    %6s 1.000     -    \n","pu"   , "shapeN2");
    }
    fclose(pFile);
 }
@@ -1152,11 +1176,11 @@ void testShapeBasedAnalysis(string InputPattern, string signal){
    CurrentSampleIndex        = JobIdToIndex(signal, samples); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  }
    int s = CurrentSampleIndex;
 
-   string outpath = InputPattern + "/"+SHAPESTRING+"EXCLUSION/";
+   string outpath = InputPattern + "/"+SHAPESTRING+EXCLUSIONDIR+"/";
    MakeDirectories(outpath);
 
    //Get Optimal cut from cut&count optimization
-   stAllInfo result =  stAllInfo(InputPattern+"/EXCLUSION/"+signal+".txt");
+   stAllInfo result =  stAllInfo(InputPattern+"/"+EXCLUSIONDIR+"/"+signal+".txt");
 
    //load all intput histograms
    TFile* InputFile  = new TFile((InputPattern+"/Histos.root").c_str());
@@ -1197,26 +1221,28 @@ void testShapeBasedAnalysis(string InputPattern, string signal){
    runCombine(false, true, true, InputPattern, signal, result.Index, Shape, false, result, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU);
 
    //all done, save the results to file
-   result.Save(InputPattern+"/"+SHAPESTRING+"EXCLUSION/"+signal+".txt");
+   result.Save(InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/"+signal+".txt");
 }
 
 //compute the significance using a ProfileLikelihood (assuming datacard is already produced)
-double computeSignificance(bool expected, string& signal, string massStr, float Strength){
+double computeSignificance(string datacard, bool expected, string& signal, string massStr, float Strength){
    double toReturn = -1;
    char strengthStr[255]; sprintf(strengthStr,"--expectSignal=%f",Strength);
    string CodeToExecute = "cd /tmp/;";
-   if(expected)CodeToExecute += "combine -M ProfileLikelihood -n " + signal + " -m " + massStr + " --significance -t 100 " + strengthStr + " shape_" + signal+".dat &> shape_" + signal + ".log;";
-   else        CodeToExecute += "combine -M ProfileLikelihood -n " + signal + " -m " + massStr + " --significance                            shape_" + signal+".dat &> shape_" + signal + ".log;";
+   if(expected)CodeToExecute += "combine -M ProfileLikelihood -n " + signal + " -m " + massStr + " --significance -t 100 " + strengthStr + " " + datacard + " &> shape_" + signal + ".log;";
+   else        CodeToExecute += "combine -M ProfileLikelihood -n " + signal + " -m " + massStr + " --significance                            " + datacard + " &> shape_" + signal + ".log;";
    CodeToExecute += "cd $OLDPWD;";
    system(CodeToExecute.c_str());   
 
    char line[4096];
    FILE* sFile = fopen((string("/tmp/shape_")+signal + ".log").c_str(), "r");
    if(!sFile)std::cout<<"FILE NOT OPEN:"<< (string("/tmp/shape_")+signal + ".log").c_str() << endl;
-   int LineIndex=0; int GarbageI;      
+   int LineIndex=0; int GarbageI; double GarbageD;     
    while(fgets(line, 4096, sFile)){LineIndex++;       
      if(!expected && LineIndex==3){sscanf(line,"Significance: %lf",&toReturn);     break;}
-     if( expected && LineIndex==7){sscanf(line,"median expected limit: r < %lf @ 95%%CL (%i toyMC)",&toReturn,&GarbageI); break;}
+ //    if( expected && LineIndex==7){sscanf(line,"median expected limit: r < %lf @ 95%%CL (%i toyMC)",&toReturn,&GarbageI); break;}
+     if( expected && LineIndex==6){sscanf(line,"mean   expected limit: r < %lf +/- %lf @ 95%%CL (%i toyMC)",&toReturn, &GarbageD, &GarbageI); break;}
+
      continue;
    }fclose(sFile);
    return toReturn;
@@ -1294,10 +1320,12 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    result.NPred     = NPred;
    result.NPredErr  = NPredErr;
    result.NSign     = NSign;
-   NSign/=(result.XSec_Th*1000.0); //normalize xsection to 1fb
+//   NSign/=(result.XSec_Th*1000.0); //normalize xsection to 1fb
+   NSign/=(1000.0); //normalize xsection to 1fb
+
 
    //for shape based analysis we need to save all histograms into a root file
-   char CutIndexStr[255];sprintf(CutIndexStr, "CutIndex%03.0f",result.Index);
+   char CutIndexStr[255];sprintf(CutIndexStr, "SQRTS%02.0fCut%03.0f",SQRTS, result.Index);
    if(Shape){
       //prepare the histograms and variation
       //scale to 1fb xsection and to observed events instead of observed tracks
@@ -1346,22 +1374,24 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
 
    char massStr[255]; sprintf(massStr,"%.0f",result.Mass);
    if(getSignificance && Temporary){
-      double SignifValue=0.0;double Strength=5;  if(result.XSec_5Sigma>0 && result.XSec_5Sigma<1E50)Strength=result.XSec_5Sigma*1000.0;
+      if(NPred<0.001) NPred=0.001;
+      double SignifValue=0.0;double Strength=0.1*(3*sqrt(NPred)/NSign);  if(result.XSec_5Sigma>0 && result.XSec_5Sigma<1E50)Strength=result.XSec_5Sigma/result.XSec_Th;
+//      double SignifValue=0.0;double Strength=0.0005;  if(result.XSec_5Sigma>0 && result.XSec_5Sigma<1E50)Strength=result.XSec_5Sigma/result.XSec_Th;
       double previousXSec_5Sigma=result.XSec_5Sigma; result.XSec_5Sigma = -1;
       //find signal strength needed to get a 5sigma significance
       unsigned int l=0;
       for(l=0;l<10 && pointMayBeOptimal;l++){
-         SignifValue = computeSignificance(true, signal, massStr, Strength);
-         printf("SIGNAL STRENGTH = %f --> SIGNIFICANCE=%f\n",Strength,SignifValue);
+         SignifValue = computeSignificance(datacardPath, true, signal, massStr, Strength);
+         printf("SIGNAL STRENGTH = %E --> SIGNIFICANCE=%E\n",Strength,SignifValue);
          //we found the signal strength that lead to a significance close enough to the 5sigma to stop the loop 
          //OR we know that this point is not going to be a good one --> can do a coarse approximation since the begining
-         if(fabs(SignifValue-5)<0.75 || (fastOptimization && Strength/1000>=previousXSec_5Sigma && SignifValue<5)){
-            result.XSec_5Sigma  = Strength * (5/SignifValue) / 1000.0;//xsection in pb
+         if(fabs(SignifValue-5)<0.75 || (fastOptimization && Strength>=previousXSec_5Sigma && SignifValue<5)){
+            result.XSec_5Sigma  = Strength * (5/SignifValue) * (result.XSec_Th/1000.0);//xsection in pb
             break;
          }
 
          //Not yet at the right significance, change the strength to get close
-         if(isinf((float)SignifValue)){Strength/=10;                continue;} //strength is already way too high
+         if(isinf((float)SignifValue)){Strength/=5;                 continue;} //strength is already way too high
          if(SignifValue<=0           ){Strength*=10;                continue;} //strength is already way too low
          if(SignifValue>5            ){Strength*=std::max( 0.1,(4.95/SignifValue)); continue;} //5/significance could be use but converge faster with 4.9
          if(SignifValue<5            ){Strength*=std::min(10.0,(5.05/SignifValue)); continue;} //5/significance could be use, but it converges faster with 5.1
@@ -1377,7 +1407,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       printf("%f/%f --> %s\n",NSign,NPred,rangeStr);
       string CodeToExecute = "cd /tmp/;";
       CodeToExecute += "combine -M Asymptotic        -n " + signal + " -m " + massStr + rangeStr + " shape_" + signal+".dat &> shape_" + signal + ".log;";   
-      CodeToExecute += "cd $OLDPWD;cp /tmp/shape_" + signal + ".* " + InputPattern+"/"+SHAPESTRING+"EXCLUSION/." + ";";
+      CodeToExecute += "cd $OLDPWD;cp /tmp/shape_" + signal + ".* " + InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/." + ";";
       system(CodeToExecute.c_str());
 
       //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
@@ -1394,12 +1424,12 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
       for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
         tree->GetEntry(ientry);
-              if(TquantExp==0.025f){ result.XSec_Exp2Down = Tlimit/1000.0;
-        }else if(TquantExp==0.160f){ result.XSec_ExpDown  = Tlimit/1000.0;
-        }else if(TquantExp==0.500f){ result.XSec_Exp      = Tlimit/1000.0;
-        }else if(TquantExp==0.840f){ result.XSec_ExpUp    = Tlimit/1000.0;
-        }else if(TquantExp==0.975f){ result.XSec_Exp2Up   = Tlimit/1000.0;
-        //}else if(TquantExp==-1    ){ result.XSec_Obs      = Tlimit/1000.0;
+              if(TquantExp==0.025f){ result.XSec_Exp2Down = Tlimit*(result.XSec_Th/1000.0);
+        }else if(TquantExp==0.160f){ result.XSec_ExpDown  = Tlimit*(result.XSec_Th/1000.0);
+        }else if(TquantExp==0.500f){ result.XSec_Exp      = Tlimit*(result.XSec_Th/1000.0);
+        }else if(TquantExp==0.840f){ result.XSec_ExpUp    = Tlimit*(result.XSec_Th/1000.0);
+        }else if(TquantExp==0.975f){ result.XSec_Exp2Up   = Tlimit*(result.XSec_Th/1000.0);
+        }else if(TquantExp==-1    ){ result.XSec_Obs      = Tlimit*(result.XSec_Th/1000.0); //will be overwritten afterward
         }else{printf("Quantil %f unused by the analysis --> check the code\n", TquantExp);
         }
       }
@@ -1408,7 +1438,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       //RUN FULL HYBRID CLS LIMIT (just for observed limit so far, because it is very slow for expected limits --> should be updated --> FIXME)
       CodeToExecute = "cd /tmp/;";
       CodeToExecute += "combine -M HybridNew -n " + signal + " -m " + massStr + rangeStr + " shape_" + signal+".dat &> shape_" + signal + ".log;";
-      CodeToExecute += "cd $OLDPWD;cp /tmp/shape_" + signal + ".* " + InputPattern+"/"+SHAPESTRING+"EXCLUSION/." + ";";
+      CodeToExecute += "cd $OLDPWD;cp /tmp/shape_" + signal + ".* " + InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/." + ";";
       system(CodeToExecute.c_str());
 
       //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
@@ -1424,13 +1454,13 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
       for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
         tree->GetEntry(ientry);
-//              if(TquantExp==0.025f){ result.XSec_Exp2Down = Tlimit/1000.0;
-//        }else if(TquantExp==0.160f){ result.XSec_ExpDown  = Tlimit/1000.0;
-//        }else if(TquantExp==0.500f){ result.XSec_Exp      = Tlimit/1000.0;
-//        }else if(TquantExp==0.840f){ result.XSec_ExpUp    = Tlimit/1000.0;
-//        }else if(TquantExp==0.975f){ result.XSec_Exp2Up   = Tlimit/1000.0;
+//              if(TquantExp==0.025f){ result.XSec_Exp2Down = Tlimit*(result.XSec_Th/1000.0);
+//        }else if(TquantExp==0.160f){ result.XSec_ExpDown  = Tlimit*(result.XSec_Th/1000.0);
+//        }else if(TquantExp==0.500f){ result.XSec_Exp      = Tlimit*(result.XSec_Th/1000.0);
+//        }else if(TquantExp==0.840f){ result.XSec_ExpUp    = Tlimit*(result.XSec_Th/1000.0);
+//        }else if(TquantExp==0.975f){ result.XSec_Exp2Up   = Tlimit*(result.XSec_Th/1000.0);
 //        }else
-        if(TquantExp==-1    ){ result.XSec_Obs      = Tlimit/1000.0;
+        if(TquantExp==-1    ){ result.XSec_Obs      = Tlimit*(result.XSec_Th/1000.0);
         }else{printf("Quantil %f unused by the analysis --> check the code\n", TquantExp);
         }
       }
@@ -1438,7 +1468,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    }
 
    if(!Temporary && getSignificance){
-       result.Significance = computeSignificance(false, signal, massStr, 1.0);
+       result.Significance = computeSignificance(datacardPath, false, signal, massStr, 1.0);
    }
 
    //makePlots (only for shape based analysis)
@@ -1548,7 +1578,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       leg2->AddEntry(MassSignProjLRatio,"pu", "P");
       leg2->Draw();
 
-      SaveCanvas(c1, InputPattern+"/"+SHAPESTRING+"EXCLUSION/shape", signal, true);
+      SaveCanvas(c1, InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/shape", signal, true);
       delete leg2; delete leg; delete c1; delete MassPredSignProj;
       delete MassSignProjRatio; delete MassSignProjPRatio; delete MassSignProjIRatio; delete MassSignProjMRatio; delete MassSignProjTRatio; delete MassSignProjLRatio;
    }
@@ -1557,4 +1587,111 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    delete MassDataProj; delete MassPredProj; delete MassSignProj; delete MassSignProjP; delete MassSignProjI; delete MassSignProjM; delete MassSignProjT; delete MassSignProjPU;
    return true;
 }
+
+
+bool Combine(string InputPattern, string signal){
+   CurrentSampleIndex        = JobIdToIndex(signal, samples); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return false;  }
+   int s = CurrentSampleIndex;
+
+   string outpath = InputPattern + "/"+SHAPESTRING+EXCLUSIONDIR+"/";
+   MakeDirectories(outpath);
+
+   //Get Optimal cut from sample11
+   stAllInfo result11 =  stAllInfo(InputPattern+"/EXCLUSION11/"+signal+".txt");
+   //Get Optimal cut from sample12
+   stAllInfo result12 =  stAllInfo(InputPattern+"/EXCLUSION12/"+signal+".txt");
+
+   stAllInfo result = result12;
+   char massStr[255]; sprintf(massStr,"%.0f",result.Mass);
+
+
+   string CodeToExecute = "combineCards.py ";
+   CodeToExecute+="   " + InputPattern+"/EXCLUSION11/shape_"+signal+".dat ";
+   CodeToExecute+="   " + InputPattern+"/EXCLUSION12/shape_"+signal+".dat ";
+   CodeToExecute+=" > " + outpath+"shape_"+signal+".dat ";
+   system(CodeToExecute.c_str());   
+   printf("%s \n",CodeToExecute.c_str());
+
+   result.LInt  = result11.LInt  + result12.LInt ;
+   result.NSign = result11.NSign + result12.NSign;
+   result.NData = result11.NData + result12.NData;
+   result.NPred = result11.NPred + result12.NPred;
+   result.NPredErr = sqrt(pow(result11.NPredErr,2) + pow(result12.NPredErr,2));
+   result.XSec_Th = 1.0;
+   double NPred = result.NPred;
+   double NSign = result.NSign / 1000.0;
+
+
+   //ALL CODE BELOW IS A BIT DIFFERENT THAN THE ONE USED IN runCombined, BECAUSE HERE WE KEEP THE RESULTS ON LIMIT IN TERMS OF SIGNAL STRENGTH (r=SigmaObs/SigmaTH)
+   if(true){
+      //prepare and run the script that will run the external "combine" tool from the Higgs group
+      //If very low background range too small, set limit at 0.001.  Only affects scanning range not final limit
+      if(NPred<0.001) NPred=0.001;
+      char rangeStr[255];sprintf(rangeStr," --rMin %f --rMax %f ", 0.0f, 2*(3*sqrt(NPred)/NSign) );
+      printf("%f/%f --> %s\n",NSign,NPred,rangeStr);
+      string CodeToExecute = "cp " + outpath+"shape_"+signal+".dat /tmp/.;";
+      CodeToExecute += "cd /tmp/;";
+      CodeToExecute += "combine -M Asymptotic        -n " + signal + " -m " + massStr + rangeStr + " shape_" + signal+".dat &> shape_" + signal + ".log;";   
+      CodeToExecute += "cd $OLDPWD;cp /tmp/shape_" + signal + ".* " + InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/." + ";";
+      system(CodeToExecute.c_str());
+
+      //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
+      //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
+      TFile* file = TFile::Open((string("/tmp/")+"higgsCombine"+signal+".Asymptotic.mH"+massStr+".root").c_str());
+      if(!file || file->IsZombie())return false;
+      TTree* tree = (TTree*)file->Get("limit");
+      if(!tree)return false;
+      double Tmass, Tlimit, TlimitErr; float TquantExp;
+      tree->GetBranch("mh"              )->SetAddress(&Tmass    );
+      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+      tree->GetBranch("limitErr"        )->SetAddress(&TlimitErr);
+      tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
+      for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
+        tree->GetEntry(ientry);
+              if(TquantExp==0.025f){ result.XSec_Exp2Down = Tlimit/1000.0;
+        }else if(TquantExp==0.160f){ result.XSec_ExpDown  = Tlimit/1000.0;
+        }else if(TquantExp==0.500f){ result.XSec_Exp      = Tlimit/1000.0;
+        }else if(TquantExp==0.840f){ result.XSec_ExpUp    = Tlimit/1000.0;
+        }else if(TquantExp==0.975f){ result.XSec_Exp2Up   = Tlimit/1000.0;
+        }else if(TquantExp==-1    ){ result.XSec_Obs      = Tlimit/1000.0;
+        }else{printf("Quantil %f unused by the analysis --> check the code\n", TquantExp);
+        }
+      }
+      file->Close();
+/*
+      //RUN FULL HYBRID CLS LIMIT (just for observed limit so far, because it is very slow for expected limits --> should be updated --> FIXME)
+      CodeToExecute = "cd /tmp/;";
+      CodeToExecute += "combine -M HybridNew -n " + signal + " -m " + massStr + rangeStr + " shape_" + signal+".dat &> shape_" + signal + ".log;";
+      CodeToExecute += "cd $OLDPWD;cp /tmp/shape_" + signal + ".* " + InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/." + ";";
+      system(CodeToExecute.c_str());
+
+      //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
+      //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
+      file = TFile::Open((string("/tmp/")+"higgsCombine"+signal+".HybridNew.mH"+massStr+".root").c_str());
+      if(!file || file->IsZombie())return false;
+      tree = (TTree*)file->Get("limit");
+      if(!tree)return false;
+      tree->GetBranch("mh"              )->SetAddress(&Tmass    );
+      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+      tree->GetBranch("limitErr"        )->SetAddress(&TlimitErr);
+      tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
+      for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
+        tree->GetEntry(ientry);
+        if(TquantExp==-1    ){ result.XSec_Obs      = Tlimit/1000.0;
+        }else{printf("Quantil %f unused by the analysis --> check the code\n", TquantExp);
+        }
+      }
+      file->Close();*/
+   }
+
+
+
+   //all done, save the results to file
+   result.Save(InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/"+signal+".txt");
+}
+
+
+
 

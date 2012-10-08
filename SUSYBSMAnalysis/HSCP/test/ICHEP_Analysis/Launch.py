@@ -93,7 +93,7 @@ elif sys.argv[1]=='4':
            if(int(vals[1])!=2):continue
            for Type in AnalysesToRun:
               Path = "Results/Type"+str(Type)+"/"
-              LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"COMPUTELIMIT"', '"'+Path+'"', vals[2] ])
+              LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"COMBINE"', '"'+Path+'"', vals[2] ]) #compute 2011, 2012 and 2011+2012 in the same job
         f.close()
         LaunchOnCondor.SendCluster_Submit()
 

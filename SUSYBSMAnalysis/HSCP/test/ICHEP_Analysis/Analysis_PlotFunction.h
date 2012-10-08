@@ -60,12 +60,21 @@ void DrawPreliminary(double SQRTS_, double Lumi, double X=0.40, double Y=0.995, 
    T->SetFillColor(0);
    T->SetTextAlign(22);
    char tmp[2048];
+ 
+   char energy[128];
+   if(SQRTS_==78.0 || SQRTS_==87.0){
+      sprintf(energy, "#sqrt{s} = %1.0f+%1.0f TeV",7.0,8.0);
+   }else{
+      sprintf(energy, "#sqrt{s} = %1.0f TeV",SQRTS_);
+   }
+   
+
    if(Lumi<=0 ){
-      sprintf(tmp,"CMS Preliminary   #sqrt{s} = %1.0f TeV",SQRTS_);
+      sprintf(tmp,"CMS Preliminary   %s",energy);
       T->AddText(tmp);
    }
    if(Lumi>0 ){
-     sprintf(tmp,"CMS Preliminary   #sqrt{s} = %1.0f TeV   %1.1f fb ^{-1}",SQRTS_, Lumi*0.001);
+     sprintf(tmp,"CMS Preliminary   %s   %1.1f fb ^{-1}",energy, Lumi*0.001);
      //   sprintf(tmp,"CMS Preliminary  "); 
       T->AddText(tmp);
    }
