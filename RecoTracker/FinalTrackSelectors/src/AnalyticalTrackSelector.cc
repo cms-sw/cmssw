@@ -74,8 +74,8 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     min_hits_bypass_.push_back(cfg.getParameter<uint32_t>("minHitsToBypassChecks"));
     max_relpterr_.push_back(cfg.getParameter<double>("max_relpterr"));
     min_nhits_.push_back(cfg.getParameter<uint32_t>("min_nhits"));
-    max_minMissHitOutOrIn_.push_back(cfg.getParameter<int32_t>("max_minMissHitsOutOrIn"));
-    max_lostHitFraction_.push_back(cfg.getParameter<int32_t>("max_lostHitFraction"));
+    max_minMissHitOutOrIn_.push_back(cfg.getParameter<int32_t>("max_minMissHitOutOrIn"));
+    max_lostHitFraction_.push_back(cfg.getParameter<double>("max_lostHitFraction"));
     min_eta_.push_back(cfg.getParameter<double>("min_eta"));
     max_eta_.push_back(cfg.getParameter<double>("max_eta"));
 
