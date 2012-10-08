@@ -56,7 +56,7 @@ int ClusterSummary::GetVariableLocation ( std::string var ) const {
 
   int placeInUserVector = -1;
     
-  /*
+
   int cnt = 0;
   for(std::vector<std::string>::const_iterator it = userContent.begin(); it != userContent.end(); ++it) {
 
@@ -67,8 +67,9 @@ int ClusterSummary::GetVariableLocation ( std::string var ) const {
     else ++cnt;
       
   }
-  */
 
+
+  /*
   if ( var == "cHits" )
     placeInUserVector = NMODULES;
   else if (var == "cSize" )
@@ -83,7 +84,7 @@ int ClusterSummary::GetVariableLocation ( std::string var ) const {
     placeInUserVector = CLUSTERCHARGEPIXELS;
   else
     placeInUserVector = -1;
-
+  */
   if (placeInUserVector == -1){
     std::ostringstream err;
     err<<"No information for requested var "<<var<<". Please check if you have chosen a proper variable.";
