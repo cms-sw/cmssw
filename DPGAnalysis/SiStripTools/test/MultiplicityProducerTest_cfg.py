@@ -100,8 +100,8 @@ if options.fromRAW == 1:
 process.load("DPGAnalysis.SiStripTools.sipixelclustermultiplicityprod_cfi")
 process.load("DPGAnalysis.SiStripTools.sistripclustermultiplicityprod_cfi")
 
-process.spclustermultprod.withClusterSize=cms.untracked.bool(True)
-process.ssclustermultprod.withClusterSize=cms.untracked.bool(True)
+#process.spclustermultprod.withClusterSize=cms.untracked.bool(True)
+#process.ssclustermultprod.withClusterSize=cms.untracked.bool(True)
 
 process.spclustermultprodnew = process.spclustermultprod.clone(wantedSubDets = cms.VPSet(    
     cms.PSet(detSelection = cms.uint32(101),detLabel = cms.string("BPIX"),selection=cms.untracked.vstring("0x1e000000-0x12000000")),
@@ -125,14 +125,14 @@ process.ssclustermultprodnew = process.ssclustermultprod.clone(wantedSubDets = c
 process.load("DPGAnalysis.SiStripTools.clustersummarymultiplicityprod_cfi")
 
 process.clustsummmultprod.wantedSubDets = cms.VPSet(
-    cms.PSet(detSelection = cms.uint32(0),detLabel = cms.string("TK"), subDetEnum = cms.int32(0), subDetVariable = cms.string("cSize")),
-    cms.PSet(detSelection = cms.uint32(1),detLabel = cms.string("TIB"), subDetEnum = cms.int32(1), subDetVariable = cms.string("cSize")),
-    cms.PSet(detSelection = cms.uint32(2),detLabel = cms.string("TOB"), subDetEnum = cms.int32(2), subDetVariable = cms.string("cSize")),
-    cms.PSet(detSelection = cms.uint32(3),detLabel = cms.string("TID"), subDetEnum = cms.int32(3), subDetVariable = cms.string("cSize")),
-    cms.PSet(detSelection = cms.uint32(4),detLabel = cms.string("TEC"), subDetEnum = cms.int32(4), subDetVariable = cms.string("cSize")),
-    cms.PSet(detSelection = cms.uint32(1005),detLabel = cms.string("Pixel"), subDetEnum = cms.int32(5), subDetVariable = cms.string("pSize")),
-    cms.PSet(detSelection = cms.uint32(1006),detLabel = cms.string("FPIX"), subDetEnum = cms.int32(6), subDetVariable = cms.string("pSize")),
-    cms.PSet(detSelection = cms.uint32(1007),detLabel = cms.string("BPIX"), subDetEnum = cms.int32(7), subDetVariable = cms.string("pSize"))
+    cms.PSet(detSelection = cms.uint32(0),detLabel = cms.string("TK"), subDetEnum = cms.int32(0), subDetVariable = cms.string("cHits")),
+    cms.PSet(detSelection = cms.uint32(1),detLabel = cms.string("TIB"), subDetEnum = cms.int32(1), subDetVariable = cms.string("cHits")),
+    cms.PSet(detSelection = cms.uint32(2),detLabel = cms.string("TOB"), subDetEnum = cms.int32(2), subDetVariable = cms.string("cHits")),
+    cms.PSet(detSelection = cms.uint32(3),detLabel = cms.string("TID"), subDetEnum = cms.int32(3), subDetVariable = cms.string("cHits")),
+    cms.PSet(detSelection = cms.uint32(4),detLabel = cms.string("TEC"), subDetEnum = cms.int32(4), subDetVariable = cms.string("cHits")),
+    cms.PSet(detSelection = cms.uint32(1005),detLabel = cms.string("Pixel"), subDetEnum = cms.int32(5), subDetVariable = cms.string("pHits")),
+    cms.PSet(detSelection = cms.uint32(1006),detLabel = cms.string("FPIX"), subDetEnum = cms.int32(6), subDetVariable = cms.string("pHits")),
+    cms.PSet(detSelection = cms.uint32(1007),detLabel = cms.string("BPIX"), subDetEnum = cms.int32(7), subDetVariable = cms.string("pHits"))
     )
 
 
@@ -151,7 +151,7 @@ process.seqProducers = cms.Sequence(process.seqRECO + process.seqMultProd +proce
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import *
 process.hltSelection = triggerResultsFilter.clone(
-                                          triggerConditions = cms.vstring("HLT_ZeroBias*"),
+                                          triggerConditions = cms.vstring("HLT_ZeroBias_*"),
                                           hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
                                           l1tResults = cms.InputTag( "" ),
                                           throw = cms.bool(False)
