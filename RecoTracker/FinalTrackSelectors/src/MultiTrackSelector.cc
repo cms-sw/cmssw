@@ -78,11 +78,16 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
     keepAllTracks_.push_back( trkSelectors[i].getParameter<bool>("keepAllTracks")); 
     max_relpterr_.push_back(trkSelectors[i].getParameter<double>("max_relpterr"));
     min_nhits_.push_back(trkSelectors[i].getParameter<uint32_t>("min_nhits"));
-    max_minMissHitOutOrIn_.push_back(trkSelectors[i].getParameter<int32_t>("max_minMissHitOutOrIn"));
-    max_lostHitFraction_.push_back(trkSelectors[i].getParameter<double>("max_lostHitFraction"));
-    min_eta_.push_back(trkSelectors[i].getParameter<double>("min_eta"));
-    max_eta_.push_back(trkSelectors[i].getParameter<double>("max_eta"));
-
+    max_minMissHitOutOrIn_.push_back(
+	trkSelectors[i].existsAs<int32_t>("max_minMissHitOutOrIn") ? 
+	trkSelectors[i].getParameter<int32_t>("max_minMissHitOutOrIn") : 99);
+    max_lostHitFraction_.push_back(
+	trkSelectors[i].getParameter<double>("max_lostHitFraction") ?
+	trkSelectors[i].getParameter<double>("max_lostHitFraction") : 1.0);
+    min_eta_.push_back(trkSelectors[i].existsAs<double>("min_eta") ?
+	trkSelectors[i].getParameter<double>("min_eta"):-9999);
+    max_eta_.push_back(trkSelectors[i].existsAs<double>("max_eta") ?
+	trkSelectors[i].getParameter<double>("max_eta"):9999);
   
     setQualityBit_.push_back( false );
     std::string qualityStr = trkSelectors[i].getParameter<std::string>("qualityBit");
