@@ -74,8 +74,8 @@ process.source = cms.Source("PoolSource",
 process.load("DPGAnalysis.SiStripTools.sipixelclustermultiplicityprod_cfi")
 process.load("DPGAnalysis.SiStripTools.sistripclustermultiplicityprod_cfi")
 process.load("DPGAnalysis.SiStripTools.clustersummarymultiplicityprod_cfi")
-#process.seqMultProd = cms.Sequence(process.spclustermultprod+process.ssclustermultprod + process.clustsummmultprod)
-process.seqMultProd = cms.Sequence(process.clustsummmultprod)
+process.seqMultProd = cms.Sequence(process.spclustermultprod+process.ssclustermultprod + process.clustsummmultprod)
+#process.seqMultProd = cms.Sequence(process.clustsummmultprod)
 
 process.load("DPGAnalysis.SiStripTools.multiplicitycorr_cfi")
 #process.multiplicitycorr.correlationConfigurations = cms.VPSet(
@@ -168,20 +168,20 @@ process.pixelvsstripfiltertestnot2 = cms.Sequence(~process.clustsummpixelvsstrip
 
 process.seqProducers = cms.Sequence(process.seqMultProd)
 
-#process.pstripfiltertest1 = cms.Path(process.stripfiltertest1 + process.seqProducers + process.multiplicitycorrstripconsistencytest1)
-#process.pstripfiltertest2 = cms.Path(process.stripfiltertest2 + process.seqProducers + process.multiplicitycorrstripconsistencytest2)
-#process.ppixelfiltertest1 = cms.Path(process.pixelfiltertest1 + process.seqProducers + process.multiplicitycorrpixelconsistencytest1)
-#process.ppixelfiltertest2 = cms.Path(process.pixelfiltertest2 + process.seqProducers + process.multiplicitycorrpixelconsistencytest2)
+process.pstripfiltertest1 = cms.Path(process.stripfiltertest1 + process.seqProducers + process.multiplicitycorrstripconsistencytest1)
+process.pstripfiltertest2 = cms.Path(process.stripfiltertest2 + process.seqProducers + process.multiplicitycorrstripconsistencytest2)
+process.ppixelfiltertest1 = cms.Path(process.pixelfiltertest1 + process.seqProducers + process.multiplicitycorrpixelconsistencytest1)
+process.ppixelfiltertest2 = cms.Path(process.pixelfiltertest2 + process.seqProducers + process.multiplicitycorrpixelconsistencytest2)
 
-#process.pstripfiltertestnew1 = cms.Path(process.stripfiltertestnew1 + process.seqProducers + process.multiplicitycorrstripconsistencytestnew1)
-#process.pstripfiltertestnew2 = cms.Path(process.stripfiltertestnew2 + process.seqProducers + process.multiplicitycorrstripconsistencytestnew2)
-#process.ppixelfiltertestnew1 = cms.Path(process.pixelfiltertestnew1 + process.seqProducers + process.multiplicitycorrpixelconsistencytestnew1)
-#process.ppixelfiltertestnew2 = cms.Path(process.pixelfiltertestnew2 + process.seqProducers + process.multiplicitycorrpixelconsistencytestnew2)
+process.pstripfiltertestnew1 = cms.Path(process.stripfiltertestnew1 + process.seqProducers + process.multiplicitycorrstripconsistencytestnew1)
+process.pstripfiltertestnew2 = cms.Path(process.stripfiltertestnew2 + process.seqProducers + process.multiplicitycorrstripconsistencytestnew2)
+process.ppixelfiltertestnew1 = cms.Path(process.pixelfiltertestnew1 + process.seqProducers + process.multiplicitycorrpixelconsistencytestnew1)
+process.ppixelfiltertestnew2 = cms.Path(process.pixelfiltertestnew2 + process.seqProducers + process.multiplicitycorrpixelconsistencytestnew2)
 
-#process.ppixelstripfiltertest1 = cms.Path(process.pixelvsstripfiltertest1 + process.seqProducers + process.multiplicitycorrpixelstripconsistencytest1)
-#process.ppixelstripfiltertestnot1 = cms.Path(process.pixelvsstripfiltertestnot1 + process.seqProducers + process.multiplicitycorrpixelstripconsistencytestnot1)
-#process.ppixelstripfiltertest2 = cms.Path(process.pixelvsstripfiltertest2 + process.seqProducers + process.multiplicitycorrpixelstripconsistencytest2)
-#process.ppixelstripfiltertestnot2 = cms.Path(process.pixelvsstripfiltertestnot2 + process.seqProducers + process.multiplicitycorrpixelstripconsistencytestnot2)
+process.ppixelstripfiltertest1 = cms.Path(process.pixelvsstripfiltertest1 + process.seqProducers + process.multiplicitycorrpixelstripconsistencytest1)
+process.ppixelstripfiltertestnot1 = cms.Path(process.pixelvsstripfiltertestnot1 + process.seqProducers + process.multiplicitycorrpixelstripconsistencytestnot1)
+process.ppixelstripfiltertest2 = cms.Path(process.pixelvsstripfiltertest2 + process.seqProducers + process.multiplicitycorrpixelstripconsistencytest2)
+process.ppixelstripfiltertestnot2 = cms.Path(process.pixelvsstripfiltertestnot2 + process.seqProducers + process.multiplicitycorrpixelstripconsistencytestnot2)
 
 process.p0 = cms.Path(
    process.seqProducers +
@@ -205,7 +205,7 @@ process.GlobalTag.globaltag = options.globalTag
 
 
 process.TFileService = cms.Service('TFileService',
-                                   fileName = cms.string('ByMultiplicityFilterTestAOD.root')
+                                   fileName = cms.string('ByMultiplicityFilterTest.root')
                                    )
 
 #print process.dumpPython()

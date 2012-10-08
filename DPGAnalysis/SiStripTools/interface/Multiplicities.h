@@ -34,6 +34,7 @@ class ClusterSummarySingleMultiplicity {
   edm::InputTag m_collection;
   int m_subdetenum;
   std::string m_subdetvar;
+  std::vector<std::string> m_clustsummvar;
   int m_mult;
     
 };

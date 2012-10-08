@@ -55,6 +55,7 @@ private:
   std::map<unsigned int, std::string> m_subdets;
   std::map<unsigned int, int> m_subdetenums;
   std::map<unsigned int, std::string> m_subdetvars;
+  std::vector<std::string> m_clustsummvar;
 
 };
 
@@ -72,8 +73,15 @@ private:
 //
 FromClusterSummaryMultiplicityProducer::FromClusterSummaryMultiplicityProducer(const edm::ParameterSet& iConfig):
   m_collection(iConfig.getParameter<edm::InputTag>("clusterSummaryCollection")),
-  m_subdets(),m_subdetenums(),m_subdetvars()
+  m_subdets(),m_subdetenums(),m_subdetvars(),m_clustsummvar()
 {
+
+  m_clustsummvar.push_back("cHits");
+  m_clustsummvar.push_back("cSize");
+  m_clustsummvar.push_back("cCharge");
+  m_clustsummvar.push_back("pHits");
+  m_clustsummvar.push_back("pSize");
+  m_clustsummvar.push_back("pCharge");
 
   produces<std::map<unsigned int,int> >();
 
@@ -115,6 +123,8 @@ FromClusterSummaryMultiplicityProducer::produce(edm::Event& iEvent, const edm::E
   
   Handle<ClusterSummary> clustsumm;
   iEvent.getByLabel(m_collection,clustsumm);
+
+  clustsumm->SetUserContent(m_clustsummvar);
   
   for(std::map<unsigned int,std::string>::const_iterator sdet=m_subdets.begin();sdet!=m_subdets.end();++sdet) { (*mults)[sdet->first]=0; }
 
