@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+TTbarAnalyzeSpinCorr = cms.EDAnalyzer("TTbarSpinCorrHepMCAnalyzer")
+
 from GeneratorInterface.LHEInterface.lheCOMWeightProducer import *
 lheCOMWeightProducer.NewECMS = cms.double(8000)
 

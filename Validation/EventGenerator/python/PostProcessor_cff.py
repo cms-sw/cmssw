@@ -389,6 +389,18 @@ postProcessorTTbarValidation = cms.EDAnalyzer(
                                           )
     )
 
+postProcessorTTbarSpinCorr = cms.EDAnalyzer("DQMGenericClient",
+                                              subDirs = cms.untracked.vstring("Generator/TTbarSpinCorr*"),
+                                              efficiency = cms.vstring(""),
+                                              resolution = cms.vstring(""),
+                                              normalization = cms.untracked.vstring("TTbar_asym nEvt",
+                                                                                    "TTbar_deltaPhi nEvt",
+                                                                                    "TTbar_llpairM nEvt",
+                                                                                    "TTbar_llpairPt nEvt"
+                                                                                    )
+                                              )
+
+
 postProcessorHiggsValidation = cms.EDAnalyzer(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Generator/Higgs*"),
@@ -468,4 +480,4 @@ postProcessorHplusValidation = cms.EDAnalyzer(
     )
 
 
-EventGeneratorPostProcessor = cms.Sequence(postProcessorBasicHepMCValidation+postProcessorBasicGenParticleValidation+postProcessorMBUEandQCDValidation+postProcessorWValidation+postProcessorDrellYanValidation+postProcessorTauValidation+postProcessorTTbarValidation+postProcessorHiggsValidation+postProcessorHplusValidation)
+EventGeneratorPostProcessor = cms.Sequence(postProcessorBasicHepMCValidation+postProcessorBasicGenParticleValidation+postProcessorMBUEandQCDValidation+postProcessorWValidation+postProcessorDrellYanValidation+postProcessorTauValidation+postProcessorTTbarValidation+postProcessorTTbarSpinCorr+postProcessorHiggsValidation+postProcessorHplusValidation)
