@@ -115,7 +115,7 @@ void ParticleIdentifier::processEcalSimHits(const edm::Event& ev)
   ev.getByLabel("g4SimHits", "EcalHitsEB", ecalSimHits);
   
   edm::Handle<edm::SimTrackContainer>  simTracks;
-  ev.getByLabel<edm::SimTrackContainer>("g4SimHits", simTracks);
+  ev.getByType<edm::SimTrackContainer>(simTracks);
   
   for(edm::SimTrackContainer::const_iterator simTrack = simTracks->begin();
                                              simTrack!= simTracks->end();

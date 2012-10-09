@@ -57,7 +57,7 @@ private:
   inline float subTIP (float val) const
     {
       if (!theTIP2) return val;
-      float val2 = val * val;
+      double val2 = val * val;
       return val2 > theTIP2 ? std::sqrt(val2 - theTIP2) : 0.;
     }
 

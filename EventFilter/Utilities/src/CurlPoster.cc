@@ -49,12 +49,6 @@ namespace evf{
 	method = "legenda";
 	break;
       }
-    case legaux:
-      {
-	headers = curl_slist_append(headers, "Content-Type: text/plain");
-	method = "legendaAux";
-	break;
-      }
     case bin:
       {
 	headers = curl_slist_append(headers, "Content-Type: application/octet-stream");

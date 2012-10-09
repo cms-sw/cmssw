@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2012/07/30 19:04:00 $
- * $Revision: 1.226 $
+ * $Date: 2012/05/18 09:11:59 $
+ * $Revision: 1.223 $
  * \author G. Della Ricca
  *
 */
@@ -2170,10 +2170,7 @@ void EESummaryClient::analyze(void) {
                 // float emulErrorVal = h2->GetBinContent( ix, iy ) + h3->GetBinContent( ix, iy );
                 float emulErrorVal = h2->GetBinContent( ix, iy );
 
-                float errorThresh(0.01);
-                if((ix - 50) * (ix - 50) + (iy - 50) * (iy - 50) < 400.) errorThresh = 0.05;
-
-                if( emulErrorVal > errorThresh * ievt_ && hadNonZeroInterest ) xval = 0;
+                if( emulErrorVal > 0.01 * ievt_ && hadNonZeroInterest ) xval = 0;
 
               }
 
@@ -2285,15 +2282,8 @@ void EESummaryClient::analyze(void) {
 
  	      if( update01 ){
 
-                float rmsThresh(6.);
-                float meanThresh(3.);
-                if((ix - 50) * (ix - 50) + (iy - 50) * (iy - 50) < 400.){
-                  rmsThresh = 10.;
-                  meanThresh = 6.;
-                }
-
  		// quality BAD if mean large, rms large, or significantly more outliers (num: # events in +-20 ns time window)
- 		if( std::abs(mean01) > meanThresh || rms01 > rmsThresh || num > 1.4 * num01 ) xval = 0.;
+ 		if( std::abs(mean01) > 3. || rms01 > 6. || num > 1.4 * num01 ) xval = 0.;
 		else xval = 1.;
 
 	      }
@@ -3101,9 +3091,8 @@ void EESummaryClient::analyze(void) {
       // make the whole Dee red if more than 2 towers within a 2x2 matrix fails
 
       for(int iside(0); iside < 2; iside++){
-	for(int jy(1); jy < 20; jy++){
-	  for(int jx(1); jx < 20; jx++){
-            if(jy > 6 && jy < 14 && jx > 6 && jx < 14) continue;
+	for(int jy(1); jy <= 20; jy++){
+	  for(int jx(1); jx <= 20; jx++){
 	    int nErr(0);
 	    if(nValidChannelsSC[iside][jx - 1][jy - 1] > 0 && nGlobalErrorsSC[iside][jx - 1][jy - 1] == nValidChannelsSC[iside][jx - 1][jy - 1]) nErr += 1;
 	    if(nValidChannelsSC[iside][jx][jy - 1] > 0 && nGlobalErrorsSC[iside][jx][jy - 1] == nValidChannelsSC[iside][jx][jy - 1]) nErr += 1;

@@ -18,7 +18,8 @@
 
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
-MonitorLTC::MonitorLTC(const edm::ParameterSet& iConfig)
+MonitorLTC::MonitorLTC(const edm::ParameterSet& iConfig) :
+  ltcDigiCollectionTag_(iConfig.getParameter<edm::InputTag>("ltcDigiCollectionTag"))
 {
   HLTDirectory="HLTResults";
   dqmStore_  = edm::Service<DQMStore>().operator->();
@@ -48,7 +49,7 @@ void MonitorLTC::beginJob(){
 
 void MonitorLTC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  edm::Handle<LTCDigiCollection> ltcdigis; iEvent.getByType(ltcdigis);
+  edm::Handle<LTCDigiCollection> ltcdigis; iEvent.getByLabel(ltcDigiCollectionTag_, ltcdigis);
 //  unsigned int ltc_run;
 //  unsigned int ltc_event;
 //  unsigned int ltc_triggerNumber;

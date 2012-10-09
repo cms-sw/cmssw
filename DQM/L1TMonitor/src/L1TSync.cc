@@ -1,8 +1,8 @@
 /*
  * \file L1TSync.cc
  *
- * $Date: 2011/11/15 10:41:01 $
- * $Revision: 1.10 $
+ * $Date: 2011/10/28 13:24:49 $
+ * $Revision: 1.9 $
  * \author J. Pela, P. Musella
  *
  */
@@ -330,7 +330,9 @@ void L1TSync::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup 
       cout << "[L1TSync] None consecutive: doFractionInSync() - LAST=" 
            << m_currentLS << " CURRENT=" << lumiBlock.id().luminosityBlock() << endl;
     }
+
     doFractionInSync(true,false);    
+
   }
     
   // Updating current LS number
@@ -555,37 +557,20 @@ void L1TSync::getBeamConfOMDS(){
 
   if(conError == L1TOMDSHelper::NO_ERROR){
 
-    if(m_verbose){cout << "[L1TSync] Connected to DB with no error." << endl;}
-    
     int errorRetrive;
     m_beamConfig = myOMDSHelper.getBeamConfiguration(m_lhcFill,errorRetrive);
 
-    if(errorRetrive == L1TOMDSHelper::NO_ERROR){
-      if(m_verbose){
-	cout << "[L1TSync] Retriving LHC Bunch Structure: NO_ERROR" << endl;
-	cout << "[L1TSync] -> LHC Bunch Structure valid=" << m_beamConfig.m_valid << " nBunches=" << m_beamConfig.nCollidingBunches << endl;
-      }
-    }
-    else if(errorRetrive == L1TOMDSHelper::WARNING_DB_CONN_FAILED){
-      
-      if(m_verbose){cout << "[L1TSync] Retriving LHC Bunch Structure: WARNING_DB_CONN_FAILED" << endl;}
-      
+    if(conError == L1TOMDSHelper::WARNING_DB_CONN_FAILED){
       int eCount = m_ErrorMonitor->getTH1()->GetBinContent(WARNING_DB_INCORRECT_NBUNCHES);
       eCount++;
       m_ErrorMonitor->getTH1()->SetBinContent(WARNING_DB_INCORRECT_NBUNCHES,eCount);
     }
-    else if(errorRetrive == L1TOMDSHelper::WARNING_DB_QUERY_FAILED){
-      
-      if(m_verbose){cout << "[L1TSync] Retriving LHC Bunch Structure: WARNING_DB_QUERY_FAILED" << endl;}
-      
+    else if(conError == L1TOMDSHelper::WARNING_DB_QUERY_FAILED){
       int eCount = m_ErrorMonitor->getTH1()->GetBinContent(WARNING_DB_QUERY_FAILED);
       eCount++;
       m_ErrorMonitor->getTH1()->SetBinContent(WARNING_DB_QUERY_FAILED,eCount);
     }
     else{
-
-      if(m_verbose){cout << "[L1TSync] Retriving LHC Bunch Structure: UNKNOWN" << endl;}
-      
       int eCount = m_ErrorMonitor->getTH1()->GetBinContent(UNKNOWN);
       eCount++;
       m_ErrorMonitor->getTH1()->SetBinContent(UNKNOWN,eCount);
@@ -594,16 +579,10 @@ void L1TSync::getBeamConfOMDS(){
   }else{
 
     if(conError == L1TOMDSHelper::WARNING_DB_CONN_FAILED){
-      
-      if(m_verbose){cout << "[L1TSync] Connect to DB: WARNING_DB_CONN_FAILED" << endl;}
-       
       int eCount = m_ErrorMonitor->getTH1()->GetBinContent(WARNING_DB_CONN_FAILED);
       eCount++;
       m_ErrorMonitor->getTH1()->SetBinContent(WARNING_DB_CONN_FAILED,eCount);
     }else{
-      
-      if(m_verbose){cout << "[L1TSync] Connect to DB: UNKNOWN" << endl;}
-      
       int eCount = m_ErrorMonitor->getTH1()->GetBinContent(UNKNOWN);
       eCount++;
       m_ErrorMonitor->getTH1()->SetBinContent(UNKNOWN,eCount);

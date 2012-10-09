@@ -38,9 +38,7 @@ simSiPixelDigis.DeadModules_DB = False
 simSiPixelDigis.NumPixelBarrel = cms.int32(4)
 simSiPixelDigis.NumPixelEndcap = cms.int32(3)
 simSiPixelDigis.AddPixelInefficiency = -1
-simSiPixelDigis.ThresholdInElectrons_FPix = cms.double(2000.0)
-simSiPixelDigis.ThresholdInElectrons_BPix = cms.double(2000.0)
-simSiPixelDigis.ThresholdInElectrons_BPix_L1 = cms.double(2000.0)
+
 #
 # HCal Modifications
 #
@@ -76,7 +74,7 @@ HcalReLabel.RelabelRules = cms.untracked.PSet(
 
 #
 doAllDigi = cms.Sequence(trDigi+calDigi+muonDigi)
-pdigi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*trackingParticles*addPileupInfo)
+pdigi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*trackingParticles)
 pdigi.remove(simHcalTriggerPrimitiveDigis)
 pdigi.remove(simHcalTTPDigis)
 pdigi.remove(simCastorDigis)

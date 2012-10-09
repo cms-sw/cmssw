@@ -5,8 +5,8 @@
 
 namespace ecaldqm {
 
-  PresampleTask::PresampleTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
-    DQWorkerTask(_workerParams, _commonParams, "PresampleTask")
+  PresampleTask::PresampleTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
+    DQWorkerTask(_params, _paths, "PresampleTask")
   {
     collectionMask_ =
       (0x1 << kEBDigi) |
@@ -41,25 +41,18 @@ namespace ecaldqm {
       // EcalDataFrame is not a derived class of edm::DataFrame, but can take edm::DataFrame in the constructor
       EcalDataFrame dataFrame(*digiItr);
 
-      bool gainSwitch(false);
-      int iMax(-1);
-      int maxADC(0);
-      for(int iSample(0); iSample < 10; ++iSample){
-        int adc(dataFrame.sample(iSample).adc());
-        if(adc > maxADC){
-          iMax = iSample;
-          maxADC = adc;
-        }
-        if(iSample < 3 && dataFrame.sample(iSample).gainId() != 1){
-          gainSwitch = true;
-          break;
-        }
-      }
-      if(iMax != 5 || gainSwitch) continue;
-
       float mean(0.);
-      for(int iSample(0); iSample < 3; ++iSample)
+      bool gainSwitch(false);
+
+      for(int iSample(0); iSample < 3; iSample++){
+	if(dataFrame.sample(iSample).gainId() != 1){
+	  gainSwitch = true;
+	  break;
+	}
+
 	mean += dataFrame.sample(iSample).adc();
+      }
+      if(gainSwitch) continue;
 
       mean /= 3.;
 
@@ -69,9 +62,12 @@ namespace ecaldqm {
 
   /*static*/
   void
-  PresampleTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
+  PresampleTask::setMEData(std::vector<MEData>& _data)
   {
-    _nameToIndex["Pedestal"] = kPedestal;
+    BinService::AxisSpecs axis;
+    axis.low = 160.;
+    axis.high = 240.;
+    _data[kPedestal] = MEData("Pedestal", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TPROFILE2D, 0, 0, &axis);
   }
 
   DEFINE_ECALDQM_WORKER(PresampleTask);

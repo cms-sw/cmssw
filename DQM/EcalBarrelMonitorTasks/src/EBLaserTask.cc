@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2012/07/19 22:50:42 $
- * $Revision: 1.141 $
+ * $Date: 2012/04/20 06:20:34 $
+ * $Revision: 1.136.2.2 $
  * \author G. Della Ricca
  *
 */
@@ -41,8 +41,6 @@ EBLaserTask::EBLaserTask(const edm::ParameterSet& ps){
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
-
-  filterEmptyEvents_ = ps.getUntrackedParameter<bool>("filterEmptyEvents", true);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
@@ -120,22 +118,10 @@ void EBLaserTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if ( ! mergeRuns_ ) this->reset();
 
-  ievt_ = 0;
-  nEmpty_ = 0;
-
 }
 
 void EBLaserTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
-}
-
-void
-EBLaserTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EBLaserTask")){
-	cleanup();
-	setup();
-  }
 }
 
 void EBLaserTask::reset(void) {
@@ -737,42 +723,37 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       if ( rtHalf[ism-1] != Numbers::RtHalf(id) ) continue;
 
-      if(filterEmptyEvents_){
+      nReadouts++;
 
-        nReadouts++;
+      EBDataFrame dataframe = (*digiItr);
 
-        EBDataFrame dataframe = (*digiItr);
-
-        int iMax(-1);
-        float max(0.);
-        float min(4096.);
-        for (int i = 0; i < 10; i++) {
-          int adc = dataframe.sample(i).adc();
-          if(adc > max){
-            max = adc;
-            iMax = i;
-          }
-          if(adc < min)
-            min = adc;
-        }
-        if(iMax >= 0 && max - min > 20.)
-          maxpos[iMax] += 1;
+      int iMax(-1);
+      float max(0.);
+      float min(4096.);
+      for (int i = 0; i < 10; i++) {
+        int adc = dataframe.sample(i).adc();
+	if(adc > max){
+	  max = adc;
+	  iMax = i;
+	}
+	if(adc < min)
+	  min = adc;
       }
+      if(iMax >= 0 && max - min > 20.)
+	maxpos[iMax] += 1;
 
     }
 
-    if(filterEmptyEvents_){
-      int threshold(nReadouts / 2);
-      enable = false;
-      for(int i(0); i < 10; i++){
-        if(maxpos[i] > threshold){
-          enable = true;
-          break;
-        }
+    int threshold(nReadouts / 2);
+    enable = false;
+    for(int i(0); i < 10; i++){
+      if(maxpos[i] > threshold){
+	enable = true;
+	break;
       }
-
-      if(!enable && (ievt_ < 4000 || double(nEmpty_++) / double(ievt_) < 0.95)) return;
     }
+
+    if(!enable) return;
 
     int nebd = digis->size();
     LogDebug("EBLaserTask") << "event " << ievt_ << " digi collection size " << nebd;

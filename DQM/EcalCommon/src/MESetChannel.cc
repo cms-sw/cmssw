@@ -2,68 +2,19 @@
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
-#include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
 
-#include <limits>
-#include <iomanip>
+#include "FWCore/Utilities/interface/Exception.h"
 
 namespace ecaldqm
 {
-  const unsigned maxTableSize(100);
-
-  MESetChannel::MESetChannel(std::string const& _fullPath, BinService::ObjectType _otype, BinService::BinningType _btype, MonitorElement::Kind _kind) :
-    MESet(_fullPath, _otype, _btype, _kind),
+  MESetChannel::MESetChannel(std::string const& _fullpath, MEData const& _data, bool _readOnly/* = false*/) :
+    MESet(_fullpath, _data, _readOnly),
     meTable_()
-  {
-    switch(kind_){
-    case MonitorElement::DQM_KIND_TH1F:
-    case MonitorElement::DQM_KIND_TPROFILE:
-      break;
-    default:
-      throw_("Unsupported MonitorElement kind");
-    }
-
-    switch(btype_){
-    case BinService::kCrystal:
-    case BinService::kTriggerTower:
-    case BinService::kSuperCrystal:
-    case BinService::kTCC:
-    case BinService::kDCC:
-      break;
-    default:
-      throw_("MESetChannel configured with wrong binning type");
-    }
-  }
-
-  MESetChannel::MESetChannel(MESetChannel const& _orig) :
-    MESet(_orig),
-    meTable_(_orig.meTable_)
   {
   }
 
   MESetChannel::~MESetChannel()
   {
-  }
-
-  MESet&
-  MESetChannel::operator=(MESet const& _rhs)
-  {
-    MESetChannel const* pRhs(dynamic_cast<MESetChannel const*>(&_rhs));
-    if(pRhs) meTable_ = pRhs->meTable_;
-    return MESet::operator=(_rhs);
-  }
-
-  MESet*
-  MESetChannel::clone() const
-  {
-    return new MESetChannel(*this);
-  }
-
-  void
-  MESetChannel::book()
-  {
-    clear();
-    active_ = true;
   }
 
   bool
@@ -77,235 +28,115 @@ namespace ecaldqm
   MESetChannel::clear() const
   {
     MESet::clear();
-    dqmStore_->rmdir(path_.substr(0, path_.find_last_of('/')));
+    if(!readOnly_) dqmStore_->rmdir(dir_);
+    mes_.clear();
     meTable_.clear();
   }
 
   void
   MESetChannel::fill(DetId const& _id, double _w/* = 1.*/, double, double)
   {
-    if(!active_) return;
+    uint32_t rawId(getIndex_(_id));
 
-    unsigned iME(preparePlot_(getIndex_(_id)));
-    if(iME == unsigned(-1)) return;
-    checkME_(iME);
+    std::map<uint32_t, unsigned>::iterator tableItr(meTable_.find(rawId));
+    if(tableItr == meTable_.end()){
+      std::string name(binService_->channelName(rawId, data_->btype));
+      tableItr = append_(name, rawId);
+    }
+    if(tableItr == meTable_.end()) return;
 
-    mes_[iME]->Fill(0.5, _w);
+    mes_.at(tableItr->second)->Fill(0.5, _w);
   }
 
   void
   MESetChannel::fill(EcalElectronicsId const& _id, double _w/* = 1.*/, double, double)
   {
-    if(!active_) return;
+    uint32_t rawId(getIndex_(_id));
 
-    unsigned iME(preparePlot_(getIndex_(_id)));
-    if(iME == unsigned(-1)) return;
-    checkME_(iME);
+    std::map<uint32_t, unsigned>::iterator tableItr(meTable_.find(rawId));
+    if(tableItr == meTable_.end()){
+      std::string name(binService_->channelName(rawId, data_->btype));
+      tableItr = append_(name, rawId);
+    }
+    if(tableItr == meTable_.end()) return;
 
-    mes_[iME]->Fill(0.5, _w);
+    mes_.at(tableItr->second)->Fill(0.5, _w);
   }
 
   void
-  MESetChannel::fill(unsigned, double, double, double)
+  MESetChannel::setBinContent(DetId const& _id, double _content, double _err/* = 0.*/)
   {
-  }
+    uint32_t rawId(getIndex_(_id));
 
-  void
-  MESetChannel::setBinContent(DetId const& _id, double _content)
-  {
-    if(!active_) return;
+    std::map<uint32_t, unsigned>::iterator tableItr(meTable_.find(rawId));
+    if(tableItr == meTable_.end()){
+      std::string name(binService_->channelName(rawId, data_->btype));
+      tableItr = append_(name, rawId);
+    }
+    if(tableItr == meTable_.end()) return;
 
-    unsigned iME(preparePlot_(getIndex_(_id)));
-    if(iME == unsigned(-1)) return;
-    checkME_(iME);
-
-    mes_[iME]->setBinContent(1, _content);
+    mes_.at(tableItr->second)->setBinContent(1, _content);
+    mes_.at(tableItr->second)->setBinError(1, _err);
   }
    
   void
-  MESetChannel::setBinContent(EcalElectronicsId const& _id, double _content)
+  MESetChannel::setBinContent(EcalElectronicsId const& _id, double _content, double _err/* = 0.*/)
   {
-    if(!active_) return;
+    uint32_t rawId(getIndex_(_id));
 
-    unsigned iME(preparePlot_(getIndex_(_id)));
-    if(iME == unsigned(-1)) return;
-    checkME_(iME);
+    std::map<uint32_t, unsigned>::iterator tableItr(meTable_.find(rawId));
+    if(tableItr == meTable_.end()){
+      std::string name(binService_->channelName(rawId, data_->btype));
+      tableItr = append_(name, rawId);
+    }
+    if(tableItr == meTable_.end()) return;
 
-    mes_[iME]->setBinContent(1, _content);
-  }
-
-  void
-  MESetChannel::setBinContent(unsigned, double)
-  {
-  }
-
-  void
-  MESetChannel::setBinError(DetId const& _id, double _error)
-  {
-    if(!active_) return;
-
-    unsigned iME(preparePlot_(getIndex_(_id)));
-    if(iME == unsigned(-1)) return;
-    checkME_(iME);
-
-    mes_[iME]->setBinError(1, _error);
-  }
-   
-  void
-  MESetChannel::setBinError(EcalElectronicsId const& _id, double _error)
-  {
-    if(!active_) return;
-
-    unsigned iME(preparePlot_(getIndex_(_id)));
-    if(iME == unsigned(-1)) return;
-    checkME_(iME);
-
-    mes_[iME]->setBinError(1, _error);
-  }
-
-  void
-  MESetChannel::setBinError(unsigned, double)
-  {
-  }
-
-  void
-  MESetChannel::setBinEntries(DetId const& _id, double _entries)
-  {
-    if(!active_) return;
-
-    unsigned iME(preparePlot_(getIndex_(_id)));
-    if(iME == unsigned(-1)) return;
-    checkME_(iME);
-
-    mes_[iME]->setBinEntries(1, _entries);
-  }
-   
-  void
-  MESetChannel::setBinEntries(EcalElectronicsId const& _id, double _entries)
-  {
-    if(!active_) return;
-
-    unsigned iME(preparePlot_(getIndex_(_id)));
-    if(iME == unsigned(-1)) return;
-    checkME_(iME);
-
-    mes_[iME]->setBinEntries(1, _entries);
-  }
-
-  void
-  MESetChannel::setBinEntries(unsigned, double)
-  {
-  }
-
-  double
-  MESetChannel::getBinContent(DetId const& _id, int) const
-  {
-    if(!active_) return 0.;
-
-    unsigned iME(findPlot_(getIndex_(_id)));
-    if(iME == unsigned(-1)) return 0.;
-    checkME_(iME);
-
-    return mes_[iME]->getBinContent(1);
-  }
-
-  double
-  MESetChannel::getBinContent(EcalElectronicsId const& _id, int) const
-  {
-    if(!active_) return 0.;
-
-    unsigned iME(findPlot_(getIndex_(_id)));
-    if(iME == unsigned(-1)) return 0.;
-    checkME_(iME);
-
-    return mes_[iME]->getBinContent(1);
-  }
-
-  double
-  MESetChannel::getBinContent(unsigned, int) const
-  {
-    return 0.;
-  }
-
-  double
-  MESetChannel::getBinError(DetId const& _id, int) const
-  {
-    if(!active_) return 0.;
-
-    unsigned iME(findPlot_(getIndex_(_id)));
-    if(iME == unsigned(-1)) return 0.;
-    checkME_(iME);
-
-    return mes_[iME]->getBinError(1);
-  }
-
-  double
-  MESetChannel::getBinError(EcalElectronicsId const& _id, int) const
-  {
-    if(!active_) return 0.;
-
-    unsigned iME(findPlot_(getIndex_(_id)));
-    if(iME == unsigned(-1)) return 0.;
-    checkME_(iME);
-
-    return mes_[iME]->getBinError(1);
-  }
-
-  double
-  MESetChannel::getBinError(unsigned, int) const
-  {
-    return 0.;
-  }
-
-  double
-  MESetChannel::getBinEntries(DetId const& _id, int) const
-  {
-    if(!active_) return 0.;
-
-    unsigned iME(findPlot_(getIndex_(_id)));
-    if(iME == unsigned(-1)) return 0.;
-    checkME_(iME);
-
-    return mes_[iME]->getBinEntries(1);
-  }
-
-  double
-  MESetChannel::getBinEntries(EcalElectronicsId const& _id, int) const
-  {
-    if(!active_) return 0.;
-
-    unsigned iME(findPlot_(getIndex_(_id)));
-    if(iME == unsigned(-1)) return 0.;
-    checkME_(iME);
-
-    return mes_[iME]->getBinEntries(1);
-  }
-
-  double
-  MESetChannel::getBinEntries(unsigned, int) const
-  {
-    return 0.;
+    mes_.at(tableItr->second)->setBinContent(1, _content);
+    mes_.at(tableItr->second)->setBinError(1, _err);
   }
 
   void
   MESetChannel::reset(double _content/* = 0.*/, double _err/* = 0.*/, double _entries/* = 0.*/)
   {
-    if(!active_) return;
+    if(readOnly_) return;
 
     if(_content == 0. && _entries == 0.){
       mes_.clear();
       meTable_.clear();
-      dqmStore_->rmdir(path_);
+      dqmStore_->rmdir(dir_);
       return;
     }
 
-    unsigned nME(mes_.size());
-    for(unsigned iME(0); iME < nME; iME++){
+    for(unsigned iME(0); iME < mes_.size(); iME++){
       mes_[iME]->setBinContent(1, _content);
-      mes_[iME]->setBinError(1, _err);
-      if(kind_ == MonitorElement::DQM_KIND_TPROFILE)
+      mes_[iME]->setBinContent(1, _err);
+      if(data_->kind == MonitorElement::DQM_KIND_TPROFILE)
 	mes_[iME]->setBinEntries(1, _entries);
     }
+  }
+
+  double
+  MESetChannel::getBinContent(DetId const& _id, int) const
+  {
+    uint32_t rawId(getIndex_(_id));
+
+    std::map<uint32_t, unsigned>::const_iterator tableItr(meTable_.find(rawId));
+
+    if(tableItr == meTable_.end()) return 0.;
+
+    return mes_.at(tableItr->second)->getBinContent(1);
+  }
+
+  double
+  MESetChannel::getBinContent(EcalElectronicsId const& _id, int) const
+  {
+    uint32_t rawId(getIndex_(_id));
+
+    std::map<uint32_t, unsigned>::const_iterator tableItr(meTable_.find(rawId));
+
+    if(tableItr == meTable_.end()) return 0.;
+
+    return mes_.at(tableItr->second)->getBinContent(1);
   }
 
   void
@@ -313,155 +144,98 @@ namespace ecaldqm
   {
     using namespace std;
 
-    vector<MonitorElement*> storeMEs(dqmStore_->getContents(path_));
+    vector<MonitorElement*> storeMEs(dqmStore_->getContents(dir_));
+    for(vector<MonitorElement*>::iterator storeItr(storeMEs.begin()); storeItr != storeMEs.end(); ++storeItr){
+      if(find(mes_.begin(), mes_.end(), *storeItr) != mes_.end()) continue;
 
-    unsigned nME(storeMEs.size());
-    for(unsigned iME(0); iME < nME; iME++){
-      MonitorElement* me(storeMEs[iME]);
-      if(find(mes_.begin(), mes_.end(), me) != mes_.end()) continue;
-
-      uint32_t id(binService_->idFromName(me->getName()));
+      uint32_t id(binService_->idFromName((*storeItr)->getName()));
       if(id != 0){
-	mes_.push_back(me);
+	mes_.push_back(*storeItr);
 	meTable_[id] = mes_.size() - 1;
       }
     }
   }
 
-  unsigned
-  MESetChannel::preparePlot_(uint32_t _rawId) const
+  std::map<uint32_t, unsigned>::iterator
+  MESetChannel::append_(std::string const& _name, uint32_t _rawId)
   {
-    if(_rawId == 0) return -1;
+    std::string pwd(dqmStore_->pwd());
+    dqmStore_->setCurrentFolder(dir_);
 
-    std::map<uint32_t, unsigned>::iterator tableItr(meTable_.find(_rawId));
-    if(tableItr == meTable_.end()){
-      if(meTable_.size() == maxTableSize){
-        std::cout << "max table size" << std::endl;
-        return -1;
-      }
+    MonitorElement* me(dqmStore_->book1D(_name, _name, 1, 0., 1.));
 
-      std::string name(binService_->channelName(_rawId, btype_));
-      std::string pwd(dqmStore_->pwd());
-      dqmStore_->setCurrentFolder(path_);
+    dqmStore_->setCurrentFolder(pwd);
 
-      MonitorElement* me(0);
-      if(kind_ == MonitorElement::DQM_KIND_TH1F)
-        me = dqmStore_->book1D(name, name, 1, 0., 1.);
-      else
-        me = dqmStore_->bookProfile(name, name, 1, 0., 1., -std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+    if(!me) return meTable_.end();
 
-      dqmStore_->setCurrentFolder(pwd);
-
-      if(me){
-        mes_.push_back(me);
-        tableItr = meTable_.insert(std::pair<uint32_t, unsigned>(_rawId, mes_.size() - 1)).first;
-      }
-    }
-    if(tableItr == meTable_.end()){
-      std::cout << "insertion error" << std::endl;
-      return -1;
-    }
+    mes_.push_back(me);
+    std::pair<std::map<uint32_t, unsigned>::iterator, bool> ins(meTable_.insert(std::pair<uint32_t, unsigned>(_rawId, mes_.size() - 1)));
     
-    return tableItr->second;
-  }
-
-  unsigned
-  MESetChannel::findPlot_(uint32_t _rawId) const
-  {
-    if(_rawId == 0) return -1;
-
-    std::map<uint32_t, unsigned>::const_iterator tableItr(meTable_.find(_rawId));
-
-    if(tableItr == meTable_.end()) return -1;
-
-    return tableItr->second;
+    return ins.first;
   }
 
   uint32_t
   MESetChannel::getIndex_(DetId const& _id) const
   {
-    int subdet(_id.subdetId());
-
-    switch(btype_){
+    switch(data_->btype){
     case BinService::kCrystal:
-      if(isCrystalId(_id)) return getElectronicsMap()->getElectronicsId(_id).rawId();
-      else if(_id.subdetId() == EcalLaserPnDiode){
-        EcalPnDiodeDetId pnid(_id);
-        return EcalElectronicsId(pnid.iDCCId(), pnid.iPnId() < 6 ? 69 : 70, 1, (pnid.iPnId() - 1) % 5 + 1).rawId();
-      }
-      break;
-
+      return getElectronicsMap()->getElectronicsId(_id).rawId();
     case BinService::kTriggerTower:
-      if(subdet == EcalTriggerTower){
-        std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(EcalTrigTowerDetId(_id)));
-        if(ids.size() > 0){
-          EcalTriggerElectronicsId teid(getElectronicsMap()->getTriggerElectronicsId(ids[0]));
-          return EcalTriggerElectronicsId(teid.tccId(), teid.ttId(), 1, 1).rawId();
-        }
+      {
+	if(_id.subdetId() == EcalTriggerTower){
+	  EcalTrigTowerDetId ttid(_id);
+	  return EcalTriggerElectronicsId(getElectronicsMap()->TCCid(ttid), getElectronicsMap()->iTT(ttid), 1, 1).rawId();
+	}
+	else{
+	  EcalTriggerElectronicsId teid(getElectronicsMap()->getTriggerElectronicsId(_id));
+	  return EcalTriggerElectronicsId(teid.tccId(), teid.ttId(), 1, 1).rawId();
+	}
       }
-      else if(isCrystalId(_id)){
-        EcalTriggerElectronicsId teid(getElectronicsMap()->getTriggerElectronicsId(_id));
-        return EcalTriggerElectronicsId(teid.tccId(), teid.ttId(), 1, 1).rawId();
-      }
-      break;
-
     case BinService::kSuperCrystal:
-      if(isCrystalId(_id)){
-        EcalElectronicsId eid(getElectronicsMap()->getElectronicsId(_id));
-        return EcalElectronicsId(eid.dccId(), eid.towerId(), 1, 1).rawId();
+      {
+	EcalElectronicsId eid(getElectronicsMap()->getElectronicsId(_id));
+	return EcalElectronicsId(eid.dccId(), eid.towerId(), 1, 1).rawId();
       }
-      else if(isEcalScDetId(_id)){
-        std::pair<int, int> dccsc(getElectronicsMap()->getDCCandSC(EcalScDetId(_id)));
-        return EcalElectronicsId(dccsc.first, dccsc.second, 1, 1).rawId();
-      }
-      else if(subdet == EcalTriggerTower && !isEndcapTTId(_id)){
-        std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(EcalTrigTowerDetId(_id)));
-        if(ids.size() > 0){
-          EcalElectronicsId eid(getElectronicsMap()->getElectronicsId(ids[0]));
-          return EcalElectronicsId(eid.dccId(), eid.towerId(), 1, 1).rawId();
-        }
-      }
-      break;
-
     case BinService::kTCC:
-      return tccId(_id) + BinService::nDCC;
-
+      {
+	EcalTriggerElectronicsId teid(getElectronicsMap()->getTriggerElectronicsId(_id));
+	return BinService::nDCC + teid.tccId();
+      }
     case BinService::kDCC:
-      return dccId(_id);
-
+      {
+	EcalElectronicsId eid(getElectronicsMap()->getElectronicsId(_id));
+	return eid.dccId();
+      }
     default:
-      break;
+      throw cms::Exception("InvalidConfiguration") << "MESetChannel configured with bin type " << data_->btype;
+      return 0;
     }
-
-    return 0;
   }
 
   uint32_t
   MESetChannel::getIndex_(EcalElectronicsId const& _id) const
   {
-    switch(btype_){
+    switch(data_->btype){
     case BinService::kCrystal:
       return _id.rawId();
-
     case BinService::kTriggerTower:
       {
 	EcalTriggerElectronicsId teid(getElectronicsMap()->getTriggerElectronicsId(_id));
 	return EcalTriggerElectronicsId(teid.tccId(), teid.ttId(), 1, 1).rawId();
       }
-
     case BinService::kSuperCrystal:
       return EcalElectronicsId(_id.dccId(), _id.towerId(), 1, 1).rawId();
-
     case BinService::kTCC:
-      return tccId(_id) + BinService::nDCC;
-
+      {
+	EcalTriggerElectronicsId teid(getElectronicsMap()->getTriggerElectronicsId(_id));
+	return BinService::nDCC + teid.tccId();
+      }
     case BinService::kDCC:
       return _id.dccId();
-
     default:
-      break;
+      throw cms::Exception("InvalidConfiguration") << "MESetChannel configured with bin type " << data_->btype;
+      return 0;
     }
-
-    return 0;
   }
+
 }

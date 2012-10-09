@@ -11,7 +11,7 @@ namespace evf {
   {
   public:
 
-    enum mode{text,stack,leg,legaux,bin};  
+    enum mode{text,stack,leg,bin};  
 
     CurlPoster(const std::string& url) : url_(url), active_(true){
       buf_=(struct utsname*)new char[sizeof(struct utsname)];

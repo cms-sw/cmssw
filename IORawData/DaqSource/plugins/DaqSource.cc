@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2012/08/18 14:19:15 $
- *  $Revision: 1.61 $
+ *  $Date: 2012/07/07 10:33:56 $
+ *  $Revision: 1.58 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -416,13 +416,6 @@ namespace edm {
 	    thisEventLSid = evf::evtn::getlbn(gtpFedAddr);
 	    prescaleSetIndex_->value_  = (evf::evtn::getfdlpsc(gtpFedAddr) & 0xffff);
 	    evttype =  edm::EventAuxiliary::ExperimentType(evf::evtn::getevtyp(gtpFedAddr));
-	    if(luminosityBlockNumber_ > (thisEventLSid + 1))
-	    {
-	      //late event,throw fwk exception
-	      std::ostringstream excptmsg;
-	      excptmsg << "DaqSource::event with late LS (" << thisEventLSid + 1 << ")received.";
-              throw edm::Exception(errors::LogicError,excptmsg.str());
-	    }
 	    if(luminosityBlockNumber_ != (thisEventLSid + 1)){
 	      // we got here in a running process and some Ls might have been skipped so set the flag, 
 	      // increase by one, check and if appropriate set the flag then continue

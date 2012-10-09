@@ -7,8 +7,8 @@
  *  the xml configuration file parsed by QTestConfigurationParser.
  *
  * 
- *  $Date: 2010/03/14 13:07:53 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/03/13 16:47:56 $
+ *  $Revision: 1.10 $
  *  \author Ilaria Segoni
   */
 
@@ -88,9 +88,6 @@ class QTestConfigure{
   ///Creates CompareToMedian test
   void EnableCompareToMedianTest(std::string testName,
                            std::map<std::string,std::string> params,DQMStore * bei); 
-
-  ///Creates EnableCompareLastFilledBinTest test  
-  void EnableCompareLastFilledBinTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei);
 
  private:
   std::vector<std::string> testsConfigured;

@@ -25,10 +25,6 @@ public:
   
   virtual float strip(const LocalPoint&) const;
 
-  // the number of strip span by the segment between the two points..
-  virtual float coveredStrips(const LocalPoint& lp1, const LocalPoint& lp2)  const ; 
-
-
   virtual MeasurementPoint measurementPosition(const LocalPoint&) const;
     
   virtual MeasurementError 

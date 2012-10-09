@@ -89,6 +89,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <cassert>
 
 namespace edm {
 namespace service {

@@ -1,53 +1,70 @@
 #ifndef LaserClient_H
 #define LaserClient_H
 
-#include "DQWorkerClient.h"
+#include "DQM/EcalCommon/interface/DQWorkerClient.h"
+
+#include "DQM/EcalBarrelMonitorTasks/interface/LaserTask.h"
 
 namespace ecaldqm {
 
   class LaserClient : public DQWorkerClient {
   public:
-    LaserClient(edm::ParameterSet const&, edm::ParameterSet const&);
+    LaserClient(const edm::ParameterSet &, const edm::ParameterSet &);
     ~LaserClient() {}
+
+    void bookMEs();
+
+    void initialize();
+
+    void beginRun(const edm::Run&, const edm::EventSetup&);
 
     void producePlots();
 
+    enum Constants {
+      nWL = LaserTask::nWL,
+      nPNGain = LaserTask::nPNGain
+    };
+
     enum MESets {
       kQuality,
-      kAmplitudeMean,
-      kAmplitudeRMS,
-      kTimingMean,
-      kTimingRMSMap,
-      kTimingRMS,
-      kQualitySummary,
-      kPNQualitySummary,
-      nMESets
+      kAmplitudeMean = kQuality + nWL,
+      kAmplitudeRMS = kAmplitudeMean + nWL,
+      kTimingMean = kAmplitudeRMS + nWL,
+      kTimingRMS = kTimingMean + nWL,
+      kPNAmplitudeMean = kTimingRMS + nWL,
+      kPNAmplitudeRMS = kPNAmplitudeMean + nWL * nPNGain,
+      kQualitySummary = kPNAmplitudeRMS + nWL * nPNGain,
+      kPNQualitySummary = kQualitySummary + nWL,
+      nMESets = kPNQualitySummary + nWL
     };
+
+    static void setMEData(std::vector<MEData>&);
 
     enum Sources {
-      kAmplitude,
-      kTiming,
-      kPNAmplitude,
-      nSources
+      sAmplitude,
+      sTiming = sAmplitude + nWL,
+      sPNAmplitude = sTiming + nWL,
+      nSources = sPNAmplitude + nWL * nPNGain
     };
- 
-    static void setMEOrdering(std::map<std::string, unsigned>&);
 
   protected:
-    std::map<int, unsigned> wlToME_;
+    std::vector<int> laserWavelengths_;
+    std::vector<int> MGPAGainsPN_;
 
     int minChannelEntries_;
-    std::vector<float> expectedAmplitude_;
-    std::vector<float> toleranceAmplitude_;
-    std::vector<float> toleranceAmpRMSRatio_;
-    std::vector<float> expectedTiming_;
-    std::vector<float> toleranceTiming_;
-    std::vector<float> toleranceTimRMS_;
-    std::vector<float> expectedPNAmplitude_;
-    std::vector<float> tolerancePNAmp_;
-    std::vector<float> tolerancePNRMSRatio_;
-    float forwardFactor_;
+    std::vector<double> expectedAmplitude_;
+    std::vector<double> amplitudeThreshold_;
+    std::vector<double> amplitudeRMSThreshold_;
+    std::vector<double> expectedTiming_;
+    std::vector<double> timingThreshold_;
+    std::vector<double> timingRMSThreshold_;
+    std::vector<double> expectedPNAmplitude_;
+    std::vector<double> pnAmplitudeThreshold_;
+    std::vector<double> pnAmplitudeRMSThreshold_;
 
+    float towerThreshold_;
+
+    std::map<std::pair<unsigned, int>, float> ampCorrections_;
   };
 
 }

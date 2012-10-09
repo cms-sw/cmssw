@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for JPT Jets
  *
- *  $Date: 2012/03/23 18:24:43 $
- *  $Revision: 1.12 $
+ *  $Date: 2012/06/10 19:28:39 $
+ *  $Revision: 1.13 $
  *  \author N. Cripps - Imperial
  */
 
@@ -128,7 +128,10 @@ MonitorElement* theTrackDirectionJetDRHisto, MonitorElement* theTrackImpactPoint
   /// Fill the SoN hisotgram for hits on tracks
   void fillSiStripSoNForTracks(const reco::TrackRefVector& tracks);
   void fillSiStripHitSoN(const TrackingRecHit& hit);
-  void fillSiStripHitSoNForSingleHit(const SiStripRecHit2D& hit);
+
+  // J.Piedra, 2012/09/24
+  //  void fillSiStripHitSoNForSingleHit(const SiStripRecHit2D& hit);
+
   /// Utility function to calculate the fraction of track Pt in cone
   static double findPtFractionInCone(const reco::TrackRefVector& inConeTracks, const reco::TrackRefVector& outOfConeTracks);
   

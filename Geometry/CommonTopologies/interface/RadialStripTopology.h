@@ -96,10 +96,6 @@ class RadialStripTopology : public StripTopology {
    */
   virtual float strip(const LocalPoint&) const;
 
-  // the number of strip span by the segment between the two points..
-  virtual float coveredStrips(const LocalPoint& lp1, const LocalPoint& lp2)  const ; 
-
-
 
   /** 
    * BEWARE: calling pitch() throws an exception.<BR>
@@ -229,7 +225,7 @@ class RadialStripTopology : public StripTopology {
   /** 
    * y axis orientation, 1 means detector width increases with local y
    */
-  float yAxisOrientation() const { return theYAxisOrientation; }
+  int yAxisOrientation() const { return theYAxisOrientation; }
 
   /**
    * Offset in local y between midpoint of detector (strip plane) extent and local origin
@@ -247,13 +243,10 @@ class RadialStripTopology : public StripTopology {
 
   int   theNumberOfStrips; // total no. of strips in plane of strips
   float theAngularWidth;   // angle subtended by each strip = phi pitch
-  float theAWidthInverse;   // inverse of above
-  float theTanAW;          // its tangent  
   float theDetHeight;      // length of long symmetry axis = twice the apothem of the enclosing trapezoid
   float theCentreToIntersection;  // distance centre of detector face to intersection of edge strips (projected)
   float thePhiOfOneEdge;   // local 'phi' of one edge of plane of strips (I choose it negative!)
-  float theTanOfOneEdge;   // the positive tangent of the above...
-  float   theYAxisOrientation; // 1 means y axis going from smaller to larger side, -1 means opposite direction
+  int   theYAxisOrientation; // 1 means y axis going from smaller to larger side, -1 means opposite direction
   float yCentre; // Non-zero if offset in local y between midpoint of detector (strip plane) extent and local origin.
 };
 

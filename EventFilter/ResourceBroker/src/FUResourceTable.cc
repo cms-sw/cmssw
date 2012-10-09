@@ -970,7 +970,7 @@ void FUResourceTable::shutdownWatchdog(unsigned int timeout)
 		timeoutUs-=50000;
 		if (timeoutUs<=50000) {
 			LOG4CPLUS_ERROR(log_,"Timeout in shutdownClients, status:"<< std::hex << shutdownStatus_);
-			watchDogSetFailed_=true;
+			XCEPT_RAISE(evf::Exception, "Failed (timed out) shutdown of clients");
 			break;
 		}
 		if (timeoutUs<=1000000*timeout/2 && !warned) {
@@ -989,7 +989,6 @@ void FUResourceTable::shutDownClients() {
 
 	//start watchdog thread
 	watchDogEnd_=false;
-	watchDogSetFailed_=false;
         #ifdef linux
 	std::thread watch(&FUResourceTable::shutdownWatchdog,this,20);
         #endif
@@ -1053,7 +1052,7 @@ void FUResourceTable::shutDownClients() {
 						"no cell to write stop "
 								<< shmBuffer_->nbRawCellsToWrite()
 								<< " nClients " << nbClients());
-				if (checks > 15) {
+				if (checks > 10) {
 					string msg = "No Raw Cell to Write STOP messages";
 					XCEPT_RAISE(evf::Exception, msg);
 				}
@@ -1062,10 +1061,6 @@ void FUResourceTable::shutDownClients() {
 	                shutdownStatus_|=1<<3;
 
 		} catch (evf::Exception& e) {
-			watchDogEnd_=true;
-			#ifdef linux
-			watch.join();
-			#endif
 			rethrowShmBufferException(e,
 					"FUResourceTable:shutDownClients:nbRawCellsToWrite");
 		}
@@ -1079,10 +1074,6 @@ void FUResourceTable::shutDownClients() {
 				try {
 					state = shmBuffer_->evtState(i);
 				} catch (evf::Exception& e) {
-					watchDogEnd_=true;
-					#ifdef linux
-					watch.join();
-					#endif
 					rethrowShmBufferException(e,
 							"FUResourceTable:shutDownClients:evtState");
 				}
@@ -1095,10 +1086,6 @@ void FUResourceTable::shutDownClients() {
 						shmBuffer_->setEvtDiscard(i, 1, true);
 						shmBuffer_->scheduleRawCellForDiscardServerSide(i);
 					} catch (evf::Exception& e) {
-						watchDogEnd_=true;
-						#ifdef linux
-						watch.join();
-						#endif
 						rethrowShmBufferException(e,
 								"FUResourceTable:shutDownClients:scheduleRawCellForDiscardServerSide");
 					}
@@ -1107,10 +1094,6 @@ void FUResourceTable::shutDownClients() {
 			try {
 				shmBuffer_->scheduleRawEmptyCellForDiscard();
 			} catch (evf::Exception& e) {
-				watchDogEnd_=true;
-				#ifdef linux
-				watch.join();
-				#endif
 				rethrowShmBufferException(e,
 						"FUResourceTable:shutDownClients:scheduleRawEmptyCellForDiscard");
 			}
@@ -1121,10 +1104,6 @@ void FUResourceTable::shutDownClients() {
 			for (UInt_t i = 0; i < n; ++i)
 				shmBuffer_->writeRawEmptyEvent();
 		} catch (evf::Exception& e) {
-			watchDogEnd_=true;
-			#ifdef linux
-			watch.join();
-			#endif
 			rethrowShmBufferException(e,
 					"FUResourceTable:shutDownClients:writeRawEmptyEvent");
 		}
@@ -1133,8 +1112,6 @@ void FUResourceTable::shutDownClients() {
 	watchDogEnd_=true;
         #ifdef linux
 	watch.join();
-	if (watchDogSetFailed_)
-	  XCEPT_RAISE(evf::Exception, "Failed (timed out) shutdown of clients");
         #endif
 }
 

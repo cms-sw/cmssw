@@ -3,7 +3,16 @@ from FWCore.GuiBrowsers.ConfigToolBase import *
 from PhysicsTools.PatAlgos.tools.helpers import *
 from PhysicsTools.PatAlgos.patEventContent_cff import patTriggerL1RefsEventContent
 
-from PhysicsTools.PatAlgos.triggerLayer1.triggerMatcher_cfi import _defaultTriggerMatchers
+_defaultTriggerMatchers      = [ 'cleanMuonTriggerMatchHLTMu20'
+                               , 'cleanMuonTriggerMatchHLTDoubleMu6'
+                               , 'cleanPhotonTriggerMatchHLTPhoton26IsoVLPhoton18'
+                               , 'cleanElectronTriggerMatchHLTEle27CaloIdVTCaloIsoTTrkIdTTrkIsoT'
+                               , 'cleanTauTriggerMatchHLTDoubleIsoPFTau20Trk5'
+                               , 'cleanJetTriggerMatchHLTJet240'
+                               , 'metTriggerMatchHLTMET100'
+                               , 'cleanMuonTriggerMatchHLTMu17CentralJet30'
+                               , 'cleanJetTriggerMatchHLTMu17CentralJet30'
+                               ]
 _defaultTriggerProducer      = 'patTrigger'
 _defaultTriggerEventProducer = 'patTriggerEvent'
 _defaultSequence             = 'patDefaultSequence'
@@ -422,8 +431,7 @@ class SwitchOnTriggerMatching( ConfigToolBase ):
             print _longLine
         else:
             trigEvtProdMod.patTriggerMatches = cms.VInputTag()
-        for matcher in triggerMatchers:
-            trigEvtProdMod.patTriggerMatches.append( cms.InputTag( matcher ) )
+        trigEvtProdMod.patTriggerMatches += triggerMatchers
 
         # Add event content
         if outputModule is not '':
@@ -656,6 +664,11 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
         dictConfig = {}
         matchingOn = False
         for matcher in triggerMatchers:
+            trigMchMod = getattr( process, matcher )
+            if trigMchMod.src.value() in dictConfig:
+                dictConfig[ trigMchMod.src.value() ] += [ matcher ]
+            else:
+                dictConfig[ trigMchMod.src.value() ] = [ matcher ]
             if matcher not in _modulesInSequence( process, sequence ) and not matchingOn:
                 print '%s():'%( self._label )
                 print '    PAT trigger matching switched on automatically using'
@@ -663,11 +676,6 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
                 print _longLine
                 switchOnTriggerMatchingStandAlone( process, triggerMatchers, triggerProducer, sequence, hltProcess, '', postfix )
                 matchingOn = True
-            trigMchMod = getattr( process, matcher )
-            if trigMchMod.src.value() in dictConfig:
-                dictConfig[ trigMchMod.src.value() ] += [ matcher ]
-            else:
-                dictConfig[ trigMchMod.src.value() ] = [ matcher ]
 
         # Maintain configurations
         patTriggerEventContent = []
@@ -709,3 +717,114 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
             getattr( process, outputModule ).outputCommands = _addEventContent( getattr( process, outputModule ).outputCommands, patTriggerEventContent )
 
 switchOnTriggerMatchEmbedding = SwitchOnTriggerMatchEmbedding()
+
+
+class RemoveCleaningFromTriggerMatching( ConfigToolBase ):
+    """  Removes cleaning from already existing PAT trigger matching/embedding configuration
+    RemoveCleaningFromTriggerMatching( [cms.Process], outputModule = 'out' )
+    - [cms.Process]  : the 'cms.Process'
+    - sequence       : name of sequence to use;
+                       optional, default: 'patDefaultSequence'
+    - outputModule   : output module label;
+                       empty label indicates no output;
+                       optional, default: 'out'
+    Using None as any argument restores its default value.
+    """
+    _label             = 'removeCleaningFromTriggerMatching'
+    _defaultParameters = dicttypes.SortedKeysDict()
+
+    def __init__( self ):
+        ConfigToolBase.__init__( self )
+        self.addParameter( self._defaultParameters, 'sequence'    , _defaultSequence    , _defaultSequenceComment )
+        self.addParameter( self._defaultParameters, 'outputModule', _defaultOutputModule, _defaultOutputModuleComment )
+        self._parameters = copy.deepcopy( self._defaultParameters )
+        self._comment = ""
+
+    def getDefaultParameters( self ):
+        return self._defaultParameters
+
+    def __call__( self, process
+                , sequence     = None
+                , outputModule = None
+                ):
+        if sequence is None:
+            sequence = self._defaultParameters[ 'sequence' ].value
+        if outputModule is None:
+            outputModule = self._defaultParameters[ 'outputModule' ].value
+        self.setParameter( 'sequence'    , sequence )
+        self.setParameter( 'outputModule', outputModule )
+        self.apply( process )
+
+    def toolCode( self, process ):
+        sequence     = self._parameters[ 'sequence' ].value
+        outputModule = self._parameters[ 'outputModule' ].value
+
+        # Maintain configurations
+        listMatchers = [ 'PATTriggerMatcherDRLessByR'
+                       , 'PATTriggerMatcherDRDPtLessByR'
+                       , 'PATTriggerMatcherDRLessByPt'
+                       , 'PATTriggerMatcherDRDPtLessByPt'
+                       , 'PATTriggerMatcherDEtaLessByDR'
+                       , 'PATTriggerMatcherDEtaLessByDEta'
+                       ]
+        listEmbedders = [ 'PATTriggerMatchPhotonEmbedder'
+                        , 'PATTriggerMatchElectronEmbedder'
+                        , 'PATTriggerMatchMuonEmbedder'
+                        , 'PATTriggerMatchTauEmbedder'
+                        , 'PATTriggerMatchJetEmbedder'
+                        , 'PATTriggerMatchMETEmbedder'
+                        ]
+        modules = _modulesInSequence( process, sequence )
+        oldModules = []
+        oldSources = []
+        # input source labels
+        for module in modules:
+            if hasattr( process, module ):
+                trigMod = getattr( process, module )
+                if trigMod.type_() in listMatchers:
+                    if trigMod.src.value()[ : 8 ] == 'cleanPat':
+                        trigMod.src = trigMod.src.value().replace( 'cleanPat', 'selectedPat' )
+                        if trigMod.label()[ : 5 ] == 'clean':
+                            oldModules += [ trigMod.label() ]
+                            setattr( process, trigMod.label().replace( 'clean', 'selected' ), trigMod )
+                if trigMod.type_() in listEmbedders:
+                    if trigMod.src.value()[ : 8 ] == 'cleanPat':
+                        oldSources += [ trigMod.src.getModuleLabel() ]
+                        trigMod.src = trigMod.src.value().replace( 'cleanPat', 'selectedPat' )
+                        if trigMod.label()[ : 5 ] == 'clean':
+                            oldModules += [ trigMod.label() ]
+                            setattr( process, trigMod.label().replace( 'clean', 'selected' ), trigMod )
+        # matcher labels
+        for module in modules:
+            if hasattr( process, module ):
+                trigMod = getattr( process, module )
+                if trigMod.type_() == 'PATTriggerEventProducer':
+                    matchers = getattr( trigMod, 'patTriggerMatches' )
+                    matchers = self._renameMatchers( matchers, oldModules )
+                elif trigMod.type_() in listEmbedders:
+                    matchers = getattr( trigMod, 'matches' )
+                    matchers = self._renameMatchers( matchers, oldModules )
+
+        # Maintain event content
+        if outputModule is not '':
+            patTriggerEventContent = getattr( process, outputModule ).outputCommands
+            for statement in range( len( patTriggerEventContent ) ):
+                for module in oldModules:
+                    if module in patTriggerEventContent[ statement ]:
+                        patTriggerEventContent[ statement ] = patTriggerEventContent[ statement ].replace( 'clean', 'selected' )
+                for source in oldSources:
+                    if source in patTriggerEventContent[ statement ] and 'drop' in patTriggerEventContent[ statement ]:
+                        patTriggerEventContent[ statement ] = patTriggerEventContent[ statement ].replace( 'clean', 'selected' )
+        print '%s():'%( self._label )
+        print '    Input from cleaning has been switched to input from selection;'
+        print '    matcher and embedder modules have been renamed accordingly.'
+        print _longLine
+
+    def _renameMatchers( self, matchers, oldModules ):
+        for matcher in range( len( matchers ) ):
+            if matchers[ matcher ] in oldModules:
+                if matchers[ matcher ][ : 5 ] == 'clean':
+                     matchers[ matcher ] = matchers[ matcher ].replace( 'clean', 'selected' )
+        return matchers
+
+removeCleaningFromTriggerMatching = RemoveCleaningFromTriggerMatching()

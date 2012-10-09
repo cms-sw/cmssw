@@ -38,7 +38,7 @@ class EventPlotter : public edm::EDAnalyzer
     virtual void analyze (const edm::Event& ev, const edm::EventSetup& es);
 
   private:
-    // void printVZeros  (const edm::Event& ev, ofstream& file);
+    void printVZeros  (const edm::Event& ev, ofstream& file);
     void printVertices(const edm::Event& ev, ofstream& file);
     std::string trackProducer;
 
@@ -71,7 +71,6 @@ void EventPlotter::endJob()
 }
 
 /*****************************************************************************/
-/*
 void EventPlotter::printVZeros(const edm::Event& ev, ofstream& file)
 {
   edm::Handle<reco::VZeroCollection> vZeroHandle;
@@ -109,7 +108,7 @@ void EventPlotter::printVZeros(const edm::Event& ev, ofstream& file)
 
   file << "}]";
 }
-*/
+
 /*****************************************************************************/
 void EventPlotter::printVertices(const edm::Event& ev, ofstream& file)
 {

@@ -1,19 +1,32 @@
 #include "../interface/RawDataClient.h"
 
+#include "DQM/EcalBarrelMonitorTasks/interface/RawDataTask.h"
+
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "DQM/EcalCommon/interface/FEFlags.h"
-
-#include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
 
 #include <cmath>
 
 namespace ecaldqm {
 
-  RawDataClient::RawDataClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
-    DQWorkerClient(_workerParams, _commonParams, "RawDataClient"),
-    synchErrorThreshold_(_workerParams.getUntrackedParameter<int>("synchErrorThreshold"))
+  RawDataClient::RawDataClient(const edm::ParameterSet& _params, const edm::ParameterSet& _paths) :
+    DQWorkerClient(_params, _paths, "RawDataClient"),
+    synchErrorThreshold_(0)
   {
-    qualitySummaries_.insert(kQualitySummary);
+    edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
+    synchErrorThreshold_ = taskParams.getUntrackedParameter<int>("synchErrorThreshold");
+
+    edm::ParameterSet const& sources(_params.getUntrackedParameterSet("sources"));
+    source_(sL1ADCC, "RawDataTask", RawDataTask::kL1ADCC, sources);
+    source_(sFEStatus, "RawDataTask", RawDataTask::kFEStatus, sources);
+  }
+
+  void
+  RawDataClient::bookMEs()
+  {
+    DQWorker::bookMEs();
+
+    MEs_[kQualitySummary]->resetAll(-1.);
   }
 
   void
@@ -21,53 +34,49 @@ namespace ecaldqm {
   {
     uint32_t mask(1 << EcalDQMStatusHelper::STATUS_FLAG_ERROR);
 
-    std::vector<int> dccStatus(BinService::nDCC, 1);
+    for(unsigned dccid(1); dccid <= 54; dccid++){
 
-    for(unsigned iDCC(0); iDCC < BinService::nDCC; ++iDCC){
-      if(sources_[kL1ADCC]->getBinContent(iDCC + 1) > synchErrorThreshold_)
-        dccStatus[iDCC] = 0;
-    }
+      float l1aDesync(sources_[sL1ADCC]->getBinContent(dccid));
 
-    MESet::iterator meEnd(MEs_[kQualitySummary]->end());
-    for(MESet::iterator meItr(MEs_[kQualitySummary]->beginChannel()); meItr != meEnd; meItr.toNextChannel()){
+      float dccStatus(l1aDesync > synchErrorThreshold_ ? 0. : 1.);
 
-      DetId id(meItr->getId());
+      for(unsigned tower(1); tower <= getNSuperCrystals(dccid); tower++){
+	std::vector<DetId> ids(getElectronicsMap()->dccTowerConstituents(dccid, tower));
 
-      bool doMask(applyMask_(kQualitySummary, id, mask));
+	if(ids.size() == 0) continue;
 
-      unsigned dccid(dccId(id));
+	float towerStatus(dccStatus);
 
-      if(dccStatus[dccid - 1] == 0){
-        meItr->setBinContent(doMask ? kMUnknown : kUnknown);
-        continue;
+	if(towerStatus > 0.){ // if the DCC is good, look into individual FEs
+	  float towerEntries(0.);
+	  for(unsigned iS(0); iS < nFEFlags; iS++){
+	    float entries(sources_[sFEStatus]->getBinContent(ids[0], iS + 1));
+	    towerEntries += entries;
+	    if(entries > 0. &&
+	       iS != Enabled && iS != Disabled && iS != Suppressed &&
+	       iS != FIFOFull && iS != FIFOFullL1ADesync && iS != ForcedZS)
+	      towerStatus = 0.;
+	  }
+
+	  if(towerEntries < 1.) towerStatus = 2.;
+	}
+
+	if(dccid <= 9 || dccid >= 46){
+	  std::vector<EcalScDetId> scs(getElectronicsMap()->getEcalScDetId(dccid, tower));
+	  for(std::vector<EcalScDetId>::iterator scItr(scs.begin()); scItr != scs.end(); ++scItr)
+	    fillQuality_(kQualitySummary, *scItr, mask, towerStatus);
+	}
+	else
+	  fillQuality_(kQualitySummary, ids[0], mask, towerStatus);
       }
-
-      int towerStatus(doMask ? kMGood : kGood);
-      float towerEntries(0.);
-      for(unsigned iS(0); iS < nFEFlags; iS++){
-        float entries(sources_[kFEStatus]->getBinContent(id, iS + 1));
-        towerEntries += entries;
-        if(entries > 0. &&
-           iS != Enabled && iS != Disabled && iS != Suppressed &&
-           iS != FIFOFull && iS != FIFOFullL1ADesync && iS != ForcedZS)
-          towerStatus = doMask ? kMBad : kBad;
-      }
-
-      if(towerEntries < 1.) towerStatus = doMask ? kMUnknown : kUnknown;
-
-      meItr->setBinContent(towerStatus);
-
     }
   }
 
   /*static*/
   void
-  RawDataClient::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
+  RawDataClient::setMEData(std::vector<MEData>& _data)
   {
-    _nameToIndex["QualitySummary"] = kQualitySummary;
-
-    _nameToIndex["L1ADCC"] = kL1ADCC;
-    _nameToIndex["FEStatus"] = kFEStatus;
+    _data[kQualitySummary] = MEData("QualitySummary", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
   }
 
   DEFINE_ECALDQM_WORKER(RawDataClient);

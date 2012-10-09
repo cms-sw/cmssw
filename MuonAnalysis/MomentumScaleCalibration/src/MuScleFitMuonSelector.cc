@@ -143,22 +143,16 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<re
     }
     muons = fillMuonCollection(tracks); 
   }
-  else if( (muonType_<4 && muonType_>=0) || muonType_>=10 ) { // Muons (glb,sta,trk)
+  else if( (muonType_<4 && muonType_>0) || muonType_>=10 ) { // Muons (glb,sta,trk)
     std::vector<reco::Track> tracks;
     if( PATmuons_ == true ) {
       edm::Handle<pat::MuonCollection> allMuons;
       event.getByLabel( muonLabel_, allMuons );
-      if( muonType_ == 0 ) {
-	// Take directly the muon
-	muons = fillMuonCollection(*allMuons);
+      for( std::vector<pat::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
+	//std::cout<<"pat muon is global "<<muon->isGlobalMuon()<<std::endl;
+        takeSelectedMuonType(muon, tracks);
       }
-      else {
-	for( std::vector<pat::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
-	  //std::cout<<"pat muon is global "<<muon->isGlobalMuon()<<std::endl;
-	  takeSelectedMuonType(muon, tracks);
-	}
-	muons = fillMuonCollection(tracks);
-      }
+      muons = fillMuonCollection(tracks);
     }
     else {
       edm::Handle<reco::MuonCollection> allMuons;
@@ -241,7 +235,7 @@ void MuScleFitMuonSelector::selectGeneratedMuons(const edm::Handle<pat::Composit
 	// genPair.push_back(std::make_pair(genMu2.get()->p4(),genMu1.get()->p4()) );
 	genPair.push_back(GenMuonPair(genMu2.get()->p4(), genMu1.get()->p4(), motherId));
 
-      plotter->fillGen(const_cast <reco::GenParticleCollection*> (genPatParticles), true);
+      plotter->fillGen1(const_cast <reco::GenParticleCollection*> (genPatParticles), true);
 
       if (debug_>0) std::cout << "Found genParticles in PAT" << std::endl;
     }
@@ -282,13 +276,13 @@ void MuScleFitMuonSelector::selectGenSimMuons(const edm::Event & event,
   event.getByLabel( genParticlesName_, genParticles );
   if( evtMC.isValid() ) {
     genPair.push_back( findGenMuFromRes(evtMC.product()) );
-    plotter->fillGen(evtMC.product(), sherpa_);
+    plotter->fillGen2(evtMC.product(), sherpa_);
     ifHepMC = true;
     if (debug_>0) std::cout << "Found hepMC" << std::endl;
   }
   else if( genParticles.isValid() ) {
     genPair.push_back( findGenMuFromRes(genParticles.product()) );
-    plotter->fillGen(genParticles.product());
+    plotter->fillGen1(genParticles.product());
     if (debug_>0) std::cout << "Found genParticles" << std::endl;
   }
   else {

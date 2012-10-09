@@ -347,8 +347,8 @@ FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
    float current = 18160.0f;
    try {
       edm::Handle<edm::ConditionsInRunBlock> runCond;
-      // bool res = iRun.getByType(runCond);
-      bool res = iRun.getByLabel("conditionsInEdm", runCond);
+      bool res = iRun.getByType(runCond);
+      //bool res = run.getByLabel("conditionsInEdm", runCond, "", "");
       if (res && runCond.isValid())
       {
          printf("Got current from conds in edm %f\n", runCond->BAvgCurrent);
@@ -495,14 +495,7 @@ FWFFLooper::endOfLoop(const edm::EventSetup&, unsigned int)
                                 e = m_scheduledChanges.end();
         i != e; ++i)
    {
-      try {
-         moduleChanger()->changeModule(i->first, i->second);
-      }
-      catch (cms::Exception const& e)
-      { 
-         fwLog(fwlog::kError) << "FWFFLooper::endOfLoop caught exception.\n";
-         std::cerr << e.what() << std::endl;
-      } 
+      moduleChanger()->changeModule(i->first, i->second);
    }
    m_scheduledChanges.clear();
    return kContinue;

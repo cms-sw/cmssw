@@ -1,14 +1,16 @@
 #ifndef TimingClient_H
 #define TimingClient_H
 
-#include "DQWorkerClient.h"
+#include "DQM/EcalCommon/interface/DQWorkerClient.h"
 
 namespace ecaldqm {
 
   class TimingClient : public DQWorkerClient {
   public:
-    TimingClient(edm::ParameterSet const&, edm::ParameterSet const&);
+    TimingClient(const edm::ParameterSet &, const edm::ParameterSet &);
     ~TimingClient() {}
+
+    void bookMEs();
 
     void producePlots();
 
@@ -18,7 +20,7 @@ namespace ecaldqm {
       kMeanAll,
       kFwdBkwdDiff,
       kFwdvBkwd,
-      kRMSMap,
+      kRMS,
       kRMSAll,
       kProjEta,
       kProjPhi,
@@ -26,24 +28,20 @@ namespace ecaldqm {
       nMESets
     };
 
+    static void setMEData(std::vector<MEData>&);
+
     enum Sources {
-      kTimeAllMap,
-      kTimeMap,
+      sTimeAllMap,
+      sTimeMap,
       nSources
     };
 
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
   protected:
     float expectedMean_;
-    float toleranceMean_;
-    float toleranceMeanFwd_;
-    float toleranceRMS_;
-    float toleranceRMSFwd_;
+    float meanThreshold_;
+    float rmsThreshold_;
     int minChannelEntries_;
-    int minChannelEntriesFwd_;
     int minTowerEntries_;
-    int minTowerEntriesFwd_;
     float tailPopulThreshold_;
   };
 

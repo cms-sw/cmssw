@@ -14,7 +14,6 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/ProxyPixelTopology.h"
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 
@@ -44,17 +43,24 @@ const float degsPerRad = 57.29578;
 //-----------------------------------------------------------------------------
 PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, const SiPixelLorentzAngle * lorentzAngle, 
 			   const SiPixelCPEGenericErrorParm * genErrorParm, const SiPixelTemplateDBObject * templateDBobject)
-  : theDet(nullptr), theTopol(nullptr), theRecTopol(nullptr), theParam(nullptr), nRecHitsTotal_(0), nRecHitsUsedEdge_(0),
+  : theDet(0), nRecHitsTotal_(0), nRecHitsUsedEdge_(0),
     probabilityX_(0.0), probabilityY_(0.0),
     probabilityQ_(0.0), qBin_(0),
-    isOnEdge_(false), hasBadPixels_(false),
-    spansTwoROCs_(false), hasFilledProb_(false),
+    isOnEdge_(0), hasBadPixels_(0),
+    spansTwoROCs_(0),
+    hasFilledProb_(0),
     loc_trk_pred_(0.0, 0.0, 0.0, 0.0)
 {
   //--- Lorentz angle tangent per Tesla
+  //   theTanLorentzAnglePerTesla =
 
+  //     conf.getParameter<double>("TanLorentzAnglePerTesla");
   lorentzAngle_ = lorentzAngle;
- 
+  /*	if(!lorentzAngle_)
+    theTanLorentzAnglePerTesla =
+    conf.getParameter<double>("TanLorentzAnglePerTesla");
+  */
+  
   //--- Algorithm's verbosity
   theVerboseLevel = 
     conf.getUntrackedParameter<int>("VerboseLevel",0);
@@ -131,31 +137,30 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
   //theTopol
   //= dynamic_cast<const RectangularPixelTopology*>( & (theDet->specificTopology()) );
 
-  auto topol = &(theDet->specificTopology());
-  if unlikely(topol!=theTopol) { // there is ONE topology!)
-      theTopol=topol;
-      auto const proxyT = dynamic_cast<const ProxyPixelTopology*>(theTopol);
-      if (proxyT) theRecTopol = dynamic_cast<const RectangularPixelTopology*>(&(proxyT->specificTopology()));
-      else theRecTopol = dynamic_cast<const RectangularPixelTopology*>(theTopol);
-      assert(theRecTopol);
-      
-      //---- The geometrical description of one module/plaquette
-      theNumOfRow = theRecTopol->nrows();      // rows in x
-      theNumOfCol = theRecTopol->ncolumns();   // cols in y
-      std::pair<float,float> pitchxy = theRecTopol->pitch();
-      thePitchX = pitchxy.first;            // pitch along x
-      thePitchY = pitchxy.second;           // pitch along y
-    }
-  
+  theTopol = &(theDet->specificTopology());
+
+  //---- The geometrical description of one module/plaquette
+  theNumOfRow = theTopol->nrows();      // rows in x
+  theNumOfCol = theTopol->ncolumns();   // cols in y
+  std::pair<float,float> pitchxy = theTopol->pitch();
+  thePitchX = pitchxy.first;            // pitch along x
+  thePitchY = pitchxy.second;           // pitch along y
+
+  //--- Find the offset
+  // ggiurgiu@jhu.edu 12/09/2010 : this piece is deprecated
+  //MeasurementPoint offset = 
+  //theTopol->measurementPosition( LocalPoint(0.0, 0.0), 
+  //			   Topology::LocalTrackAngles( LocalTrajectoryParameters::dxdz(), 
+  //						       LocalTrajectoryParameters::dydz() ) );  
+  //
+  //theOffsetX = offset.x();
+  //theOffsetY = offset.y();
+
+  //--- Find if the E field is flipped: i.e. whether it points
+  //--- from the beam, or towards the beam.  (The voltages are
+  //--- applied backwards on every other module in barrel and
+  //--- blade in forward.)
   theSign = isFlipped() ? -1 : 1;
-
-
-  // will cache if not yest there (need some of the above)
-  theParam = &param();
-
-  // this "has wrong sign..."
-  driftDirection_ = (*theParam).drift;
- 
 
   //--- The Lorentz shift.
   theLShiftX = lorentzShiftX();
@@ -168,33 +173,33 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
     theLShiftY=0.;
   }
 
-  //--- Geometric Quality Information
-  int minInX,minInY,maxInX,maxInY=0;
-  minInX = cluster.minPixelRow();
-  minInY = cluster.minPixelCol();
-  maxInX = cluster.maxPixelRow();
-  maxInY = cluster.maxPixelCol();
-  
-  if(theRecTopol->isItEdgePixelInX(minInX) || theRecTopol->isItEdgePixelInX(maxInX) ||
-     theRecTopol->isItEdgePixelInY(minInY) || theRecTopol->isItEdgePixelInY(maxInY) )  {
-    isOnEdge_ = true;
-  }
-  else isOnEdge_ = false;
-  
-  // Bad Pixels have their charge set to 0 in the clusterizer 
-  hasBadPixels_ = false;
-  for(unsigned int i=0; i<cluster.pixelADC().size(); ++i) {
-    if(cluster.pixelADC()[i] == 0) hasBadPixels_ = true;
-  }
-  
-  if(theRecTopol->containsBigPixelInX(minInX,maxInX) ||
-     theRecTopol->containsBigPixelInY(minInY,maxInY) )  {
-    spansTwoROCs_ = true;
-  }
-  else spansTwoROCs_ = false;
-  
-  
-  if (theVerboseLevel > 1) 
+	//--- Geometric Quality Information
+	int minInX,minInY,maxInX,maxInY=0;
+	minInX = cluster.minPixelRow();
+	minInY = cluster.minPixelCol();
+	maxInX = cluster.maxPixelRow();
+	maxInY = cluster.maxPixelCol();
+
+	if(theTopol->isItEdgePixelInX(minInX) || theTopol->isItEdgePixelInX(maxInX) ||
+		 theTopol->isItEdgePixelInY(minInY) || theTopol->isItEdgePixelInY(maxInY) )  {
+		isOnEdge_ = true;
+	}
+	else isOnEdge_ = false;
+
+	// Bad Pixels have their charge set to 0 in the clusterizer
+	hasBadPixels_ = false;
+	for(unsigned int i=0; i<cluster.pixelADC().size(); ++i) {
+		if(cluster.pixelADC()[i] == 0) hasBadPixels_ = true;
+	}
+
+	if(theTopol->containsBigPixelInX(minInX,maxInX) ||
+		 theTopol->containsBigPixelInY(minInY,maxInY) )  {
+		spansTwoROCs_ = true;
+	}
+	else spansTwoROCs_ = false;
+	
+
+	if (theVerboseLevel > 1) 
     {
       LogDebug("PixelCPEBase") << "***** PIXEL LAYOUT *****" 
 			       << " thePart = " << thePart
@@ -205,9 +210,85 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
 	// << " theOffsetY = " << theOffsetY 
 			       << " theLShiftX  = " << theLShiftX;
     }
-  
+	
 }
 
+//-----------------------------------------------------------------------------
+//  Compute alpha_ and beta_ from the position of this DetUnit.
+//  &&& DOES NOT WORK FOR NOW. d.k. 6/06
+// The angles from dets are calculated internaly in the PixelCPEInitial class
+//-----------------------------------------------------------------------------
+// G. Giurgiu, 12/01/06 : implement the function
+void PixelCPEBase::
+computeAnglesFromDetPosition(const SiPixelCluster & cl, 
+			     const GeomDetUnit    & det ) const
+{
+  //--- This is a new det unit, so cache it
+  theDet = dynamic_cast<const PixelGeomDetUnit*>( &det );
+  if ( ! theDet ) 
+    {
+      throw cms::Exception("PixelCPEBase::computeAngleFromDetPosition")
+	<< " Wrong pointer to pixel detector !!!" << endl;
+    
+    }
+
+  // get cluster center of gravity (of charge)
+  float xcenter = cl.x();
+  float ycenter = cl.y();
+  
+  // get the cluster position in local coordinates (cm)
+
+  // ggiurgiu@jhu.edu 12/09/2010 : This function is called without track info, therefore there are no track 
+  // angles to provide here. Call the default localPosition (without track info)
+  LocalPoint lp = theTopol->localPosition( MeasurementPoint(xcenter, ycenter) );
+
+  // get the cluster position in global coordinates (cm)
+  GlobalPoint gp = theDet->surface().toGlobal( lp );
+  float gp_mod = sqrt( gp.x()*gp.x() + gp.y()*gp.y() + gp.z()*gp.z() );
+
+  // normalize
+  float gpx = gp.x()/gp_mod;
+  float gpy = gp.y()/gp_mod;
+  float gpz = gp.z()/gp_mod;
+
+  // make a global vector out of the global point; this vector will point from the 
+  // origin of the detector to the cluster
+  GlobalVector gv(gpx, gpy, gpz);
+
+  // make local unit vector along local X axis
+  const Local3DVector lvx(1.0, 0.0, 0.0);
+
+  // get the unit X vector in global coordinates/
+  GlobalVector gvx = theDet->surface().toGlobal( lvx );
+
+  // make local unit vector along local Y axis
+  const Local3DVector lvy(0.0, 1.0, 0.0);
+
+  // get the unit Y vector in global coordinates
+  GlobalVector gvy = theDet->surface().toGlobal( lvy );
+   
+  // make local unit vector along local Z axis
+  const Local3DVector lvz(0.0, 0.0, 1.0);
+
+  // get the unit Z vector in global coordinates
+  GlobalVector gvz = theDet->surface().toGlobal( lvz );
+    
+  // calculate the components of gv (the unit vector pointing to the cluster) 
+  // in the local coordinate system given by the basis {gvx, gvy, gvz}
+  // note that both gv and the basis {gvx, gvy, gvz} are given in global coordinates
+  float gv_dot_gvx = gv.x()*gvx.x() + gv.y()*gvx.y() + gv.z()*gvx.z();
+  float gv_dot_gvy = gv.x()*gvy.x() + gv.y()*gvy.y() + gv.z()*gvy.z();
+  float gv_dot_gvz = gv.x()*gvz.x() + gv.y()*gvz.y() + gv.z()*gvz.z();
+
+  // calculate angles
+  alpha_ = atan2( gv_dot_gvz, gv_dot_gvx );
+  beta_  = atan2( gv_dot_gvz, gv_dot_gvy );
+
+  cotalpha_ = gv_dot_gvx / gv_dot_gvz;
+  cotbeta_  = gv_dot_gvy / gv_dot_gvz;
+
+  with_track_angle = false;
+}
 
 //-----------------------------------------------------------------------------
 //  Compute alpha_ and beta_ from the LocalTrajectoryParameters.
@@ -271,11 +352,9 @@ computeAnglesFromTrajectory( const SiPixelCluster & cl,
 //  return PI/2.0 - atan(tanalpha);
 //}
 
-
 //-----------------------------------------------------------------------------
 //  The local position.
 // Should do correctly the big pixels.
-// who is using this version????
 //-----------------------------------------------------------------------------
 LocalPoint
 PixelCPEBase::localPosition( const SiPixelCluster& cluster, 
@@ -328,96 +407,6 @@ PixelCPEBase::measurementError( const SiPixelCluster& cluster, const GeomDetUnit
 }
 
 //-----------------------------------------------------------------------------
-//  Compute alpha_ and beta_ from the position of this DetUnit.
-//  &&& DOES NOT WORK FOR NOW. d.k. 6/06
-// The angles from dets are calculated internaly in the PixelCPEInitial class
-//-----------------------------------------------------------------------------
-// G. Giurgiu, 12/01/06 : implement the function
-void PixelCPEBase::
-computeAnglesFromDetPosition(const SiPixelCluster & cl, 
-			     const GeomDetUnit    & det ) const
-{
-  //--- This is a new det unit, so cache it
-  theDet = dynamic_cast<const PixelGeomDetUnit*>( &det );
-  if ( ! theDet ) 
-    {
-      throw cms::Exception("PixelCPEBase::computeAngleFromDetPosition")
-	<< " Wrong pointer to pixel detector !!!" << endl;
-    
-    }
-
-  // get cluster center of gravity (of charge)
-  float xcenter = cl.x();
-  float ycenter = cl.y();
-  
-  // get the cluster position in local coordinates (cm)
-
-  // ggiurgiu@jhu.edu 12/09/2010 : This function is called without track info, therefore there are no track 
-  // angles to provide here. Call the default localPosition (without track info)
-  LocalPoint lp = theTopol->localPosition( MeasurementPoint(xcenter, ycenter) );
-
-
-  // get the cluster position in global coordinates (cm)
-  GlobalPoint gp = theDet->surface().toGlobal( lp );
-  float gp_mod = sqrt( gp.x()*gp.x() + gp.y()*gp.y() + gp.z()*gp.z() );
-
-  // normalize
-  float gpx = gp.x()/gp_mod;
-  float gpy = gp.y()/gp_mod;
-  float gpz = gp.z()/gp_mod;
-
-  // make a global vector out of the global point; this vector will point from the 
-  // origin of the detector to the cluster
-  GlobalVector gv(gpx, gpy, gpz);
-
-  // make local unit vector along local X axis
-  const Local3DVector lvx(1.0, 0.0, 0.0);
-
-  // get the unit X vector in global coordinates/
-  GlobalVector gvx = theDet->surface().toGlobal( lvx );
-
-  // make local unit vector along local Y axis
-  const Local3DVector lvy(0.0, 1.0, 0.0);
-
-  // get the unit Y vector in global coordinates
-  GlobalVector gvy = theDet->surface().toGlobal( lvy );
-   
-  // make local unit vector along local Z axis
-  const Local3DVector lvz(0.0, 0.0, 1.0);
-
-  // get the unit Z vector in global coordinates
-  GlobalVector gvz = theDet->surface().toGlobal( lvz );
-    
-  // calculate the components of gv (the unit vector pointing to the cluster) 
-  // in the local coordinate system given by the basis {gvx, gvy, gvz}
-  // note that both gv and the basis {gvx, gvy, gvz} are given in global coordinates
-  float gv_dot_gvx = gv.x()*gvx.x() + gv.y()*gvx.y() + gv.z()*gvx.z();
-  float gv_dot_gvy = gv.x()*gvy.x() + gv.y()*gvy.y() + gv.z()*gvy.z();
-  float gv_dot_gvz = gv.x()*gvz.x() + gv.y()*gvz.y() + gv.z()*gvz.z();
-
-
-  /* all the above is equivalent to  
-     const Local3DPoint origin =   theDet->surface().toLocal(GlobalPoint(0,0,0)); // can be computed once...
-     auto gvx = lp.x()-origin.x();
-     auto gvy = lp.y()-origin.y();
-     auto gvz = -origin.z();
-  *  normalization not required as only ratio used... 
-  */
-
-
-  // calculate angles
-  alpha_ = atan2( gv_dot_gvz, gv_dot_gvx );
-  beta_  = atan2( gv_dot_gvz, gv_dot_gvy );
-
-  cotalpha_ = gv_dot_gvx / gv_dot_gvz;
-  cotbeta_  = gv_dot_gvy / gv_dot_gvz;
-
-  with_track_angle = false;
-}
-
-
-
-//-----------------------------------------------------------------------------
 // The isFlipped() is a silly way to determine which detectors are inverted.
 // In the barrel for every 2nd ladder the E field direction is in the
 // global r direction (points outside from the z axis), every other
@@ -432,23 +421,12 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
 bool PixelCPEBase::isFlipped() const 
 {
   // Check the relative position of the local +/- z in global coordinates.
-  float tmp1 = theDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp2();
-  float tmp2 = theDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp2();
+  float tmp1 = theDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
+  float tmp2 = theDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
   //cout << " 1: " << tmp1 << " 2: " << tmp2 << endl;
   if ( tmp2<tmp1 ) return true;
   else return false;    
 }
-
-PixelCPEBase::Param const & PixelCPEBase::param() const {
-  Param & p = m_Params[ theDet->geographicalId().rawId() ];
-  if unlikely ( p.bz<-1.e10f  ) { 
-      LocalVector Bfield = theDet->surface().toLocal(magfield_->inTesla(theDet->surface().position()));
-      p.drift = driftDirection(Bfield );
-      p.bz = Bfield.z();
-    }
-  return p;
-}
-
 
 //-----------------------------------------------------------------------------
 // HALF OF the Lorentz shift (so for the full shift multiply by 2), and
@@ -457,14 +435,42 @@ PixelCPEBase::Param const & PixelCPEBase::param() const {
 //-----------------------------------------------------------------------------
 float PixelCPEBase::lorentzShiftX() const 
 {
-  LocalVector dir = getDrift();
+  LocalVector dir;
+  Param & p = const_cast<PixelCPEBase*>(this)->m_Params[ theDet->geographicalId().rawId() ];
+  if ( p.topology ) 
+    {
+      //cout << "--------------- old ----------------------" << endl;
+      //cout << "p.topology = " << p.topology << endl;
+      dir = p.drift;
+      //cout << "same direction: dir = " << dir << endl;
+    }
+  else 
+    {
+      //cout << "--------------- new ----------------------" << endl;
+      //cout << "p.topology = " << p.topology << endl;
+      
+      // ggiurgiu@jhu.edu 12/09/2010 : no longer need to cast
+      //p.topology = (RectangularPixelTopology*)( & ( theDet->specificTopology() ) );          
+      p.topology = &( theDet->specificTopology() );   
 
+      p.drift = driftDirection(magfield_->inTesla(theDet->surface().position()) );
+      dir = p.drift;
+      //cout << "p.topology = " << p.topology << endl;
+      //cout << "new direction: dir = " << dir << endl;
+
+    }
+  //LocalVector dir = driftDirection(magfield_->inTesla(theDet->surface().position()) );
+  
   // max shift in cm 
   float xdrift = dir.x()/dir.z() * theThickness;  
   // express the shift in units of pitch, 
   // divide by 2 to get the average correction
-  float lshift = xdrift / (thePitchX*2.); 
-    
+  float lshift = xdrift / thePitchX / 2.; 
+  
+  //cout << "Lorentz Drift = " << lshift << endl;
+  //cout << "X Drift = " << dir.x() << endl;
+  //cout << "Z Drift = " << dir.z() << endl;
+  
   return lshift;  
   
 
@@ -472,17 +478,91 @@ float PixelCPEBase::lorentzShiftX() const
 
 float PixelCPEBase::lorentzShiftY() const 
 {
- 
-  LocalVector dir = getDrift();
+  
+  LocalVector dir;
+  
+  Param & p = const_cast<PixelCPEBase*>(this)->m_Params[ theDet->geographicalId().rawId() ];
+  if ( p.topology ) 
+    {
+      //cout << "--------------- old y ----------------------" << endl;
+      //cout << "p.topology y = " << p.topology << endl;
+      dir = p.drift;
+      //cout << "same direction y: dir = " << dir << endl;
+    }
+  else 
+    {
+      //cout << "--------------- new y ----------------------" << endl;
+      //cout << "p.topology y = " << p.topology << endl;
+      
+      //p.topology = (RectangularPixelTopology*)( & ( theDet->specificTopology() ) );    
+      p.topology = &( theDet->specificTopology() );
+
+      p.drift = driftDirection(magfield_->inTesla(theDet->surface().position()) );
+      dir = p.drift;
+      //cout << "p.topology y = " << p.topology << endl;
+      //cout << "new direction y: dir = " << dir << endl;
+
+    }
+
+  //LocalVector dir = driftDirection(magfield_->inTesla(theDet->surface().position()) );
   
   float ydrift = dir.y()/dir.z() * theThickness;
-  float lshift = ydrift / (thePitchY * 2.f);
+  float lshift = ydrift / thePitchY / 2.;
   return lshift; 
   
 
 }
 
-
+//-----------------------------------------------------------------------------
+//  Sum the pixels in the first and the last row, and the total.  Returns
+//  a vector of three elements with q_first, q_last and q_total.
+//  &&& Really need a simpler & cleaner way, this is very confusing...
+//-----------------------------------------------------------------------------
+void PixelCPEBase::xCharge(const vector<SiPixelCluster::Pixel>& pixelsVec, 
+			   const int& imin, const int& imax,
+			   float& q1, float& q2) const {
+  //calculate charge in the first and last pixel in y
+  // and the total cluster charge
+  q1 = 0.0; 
+  q2 = 0.0;
+  float qm = 0.0;
+  int isize = pixelsVec.size();
+  for (int i=0;  i<isize; ++i) {
+    if ( (pixelsVec[i].x) == imin )
+      q1 += pixelsVec[i].adc;
+    else if ( (pixelsVec[i].x) == imax) 
+      q2 += float(pixelsVec[i].adc);
+    else 
+      qm += float(pixelsVec[i].adc);
+  }
+  return;
+} 
+//-----------------------------------------------------------------------------
+//  Sum the pixels in the first and the last column, and the total.  Returns
+//  a vector of three elements with q_first, q_last and q_total.
+//  &&& Really need a simpler & cleaner way, this is very confusing...
+//-----------------------------------------------------------------------------
+void PixelCPEBase::yCharge(const vector<SiPixelCluster::Pixel>& pixelsVec,
+			   const int& imin, const int& imax,
+			   float& q1, float& q2) const {
+  
+  //calculate charge in the first and last pixel in y
+  // and the inner cluster charge
+  q1 = 0;
+  q2 = 0;
+  float qm=0;
+  int isize = pixelsVec.size();
+  for (int i=0;  i<isize; ++i) {
+    if ( (pixelsVec[i].y) == imin) 
+      q1 += pixelsVec[i].adc;
+    else if ( (pixelsVec[i].y) == imax) 
+      q2 += pixelsVec[i].adc;
+    //else if (pixelsVec[i].y < ymax && pixelsVec[i].y > ymin ) 
+    else  
+      qm += float(pixelsVec[i].adc);
+  }
+  return;
+} 
 //-----------------------------------------------------------------------------
 //  Drift direction.
 //  Works OK for barrel and forward.
@@ -496,43 +576,30 @@ float PixelCPEBase::lorentzShiftY() const
 LocalVector 
 PixelCPEBase::driftDirection( GlobalVector bfield ) const {
 
-  Frame detFrame(theDet->surface().position(), theDet->surface().rotation());
-  LocalVector Bfield = detFrame.toLocal(bfield);
-  return driftDirection(Bfield);
-  
-}
+	Frame detFrame(theDet->surface().position(), theDet->surface().rotation());
+	LocalVector Bfield = detFrame.toLocal(bfield);
 
-LocalVector 
-PixelCPEBase::driftDirection( LocalVector Bfield ) const {
-  
-  if(lorentzAngle_ == 0){
-    throw cms::Exception("invalidPointer") << "[PixelCPEBase::driftDirection] zero pointer to lorentz angle record ";
-  }
-  double langle = lorentzAngle_->getLorentzAngle(theDet->geographicalId().rawId());
-  float alpha2;
-  if (alpha2Order) {
-    alpha2 = langle*langle;
-  } else {
-    alpha2 = 0.0;
-  }
-  // &&& dir_x should have a "-" and dir_y a "+"
-  // **********************************************************************
-  // Our convention is the following:
-  // +x is defined by the direction of the Lorentz drift!
-  // +z is defined by the direction of E field (so electrons always go into -z!)
-  // +y is defined by +x and +z, and it turns out to be always opposite to the +B field.
-  // **********************************************************************
-  
-  float dir_x =  ( langle * Bfield.y() + alpha2* Bfield.z()* Bfield.x() );
-  float dir_y = -( langle * Bfield.x() - alpha2* Bfield.z()* Bfield.y() );
-  float dir_z = -( 1.f + alpha2* Bfield.z()*Bfield.z() );
-  double scale = 1.f/std::abs( dir_z );  // same as 1 + alpha2*Bfield.z()*Bfield.z()
-  LocalVector  dd(dir_x*scale, dir_y*scale, -1.f );  // last is -1 !
-  if ( theVerboseLevel > 9 ) 
-    LogDebug("PixelCPEBase") << " The drift direction in local coordinate is " 
-			     << dd   ;
+	if(lorentzAngle_ == 0){
+		throw cms::Exception("invalidPointer") << "[PixelCPEBase::driftDirection] zero pointer to lorentz angle record ";
+	}
+	double langle = lorentzAngle_->getLorentzAngle(theDet->geographicalId().rawId());
+	float alpha2;
+	if (alpha2Order) {
+		alpha2 = langle*langle;
+	} else {
+		alpha2 = 0.0;
+	}
+	// &&& dir_x should have a "-" and dir_y a "+"
+	float dir_x =  ( langle * Bfield.y() + alpha2* Bfield.z()* Bfield.x() );
+	float dir_y = -( langle * Bfield.x() - alpha2* Bfield.z()* Bfield.y() );
+	float dir_z = -( 1 + alpha2* Bfield.z()*Bfield.z() );
+	float scale = (1 + alpha2* Bfield.z()*Bfield.z() );
+	LocalVector theDriftDirection = LocalVector(dir_x/scale, dir_y/scale, dir_z/scale );
+	if ( theVerboseLevel > 9 ) 
+		LogDebug("PixelCPEBase") << " The drift direction in local coordinate is " 
+					<< theDriftDirection    ;
 	
-  return dd;
+	return theDriftDirection;
 }
 
 //-----------------------------------------------------------------------------
@@ -541,16 +608,45 @@ PixelCPEBase::driftDirection( LocalVector Bfield ) const {
 void
 PixelCPEBase::computeLorentzShifts() const 
 {
-  // this "has wrong sign..."  so "corrected below
-   driftDirection_ = getDrift();
- 
- // Max shift (at the other side of the sensor) in cm 
-  lorentzShiftInCmX_ = -driftDirection_.x()/driftDirection_.z() * theThickness;  // &&& redundant
+  Frame detFrame(theDet->surface().position(), theDet->surface().rotation());
+  GlobalVector global_Bfield = magfield_->inTesla( theDet->surface().position() );
+  LocalVector  Bfield        = detFrame.toLocal(global_Bfield);
+  if(lorentzAngle_ == 0){
+    	throw cms::Exception("invalidPointer") << "[PixelCPEBase::computeLorentzShifts] zero pointer to lorentz angle record ";
+	}
+  double langle = lorentzAngle_->getLorentzAngle(theDet->geographicalId().rawId());
+  double alpha2;
+  if ( alpha2Order) {
+    alpha2 = langle * langle;
+  }
+  else  {
+    alpha2 = 0.0;
+  }
+
+  // **********************************************************************
+  // Our convention is the following:
+  // +x is defined by the direction of the Lorentz drift!
+  // +z is defined by the direction of E field (so electrons always go into -z!)
+  // +y is defined by +x and +z, and it turns out to be always opposite to the +B field.
+  // **********************************************************************
+      
+  // Note correct signs for dir_x and dir_y!
+  double dir_x = -( langle * Bfield.y() + alpha2* Bfield.z()* Bfield.x() );
+  double dir_y =  ( langle * Bfield.x() - alpha2* Bfield.z()* Bfield.y() );
+  double dir_z = -( 1                                       + alpha2* Bfield.z()* Bfield.z() );
+
+  // &&& Why do we need to scale???
+  //double scale = (1 + alpha2* Bfield.z()*Bfield.z() );
+  double scale = fabs( dir_z );  // same as 1 + alpha2*Bfield.z()*Bfield.z()
+  driftDirection_ = LocalVector(dir_x/scale, dir_y/scale, dir_z/scale );  // last is -1 !
+
+  // Max shift (at the other side of the sensor) in cm 
+  lorentzShiftInCmX_ = driftDirection_.x()/driftDirection_.z() * theThickness;  // &&& redundant
   // Express the shift in units of pitch, 
   lorentzShiftX_ = lorentzShiftInCmX_ / thePitchX ; 
    
   // Max shift (at the other side of the sensor) in cm 
-  lorentzShiftInCmY_ = -driftDirection_.y()/driftDirection_.z() * theThickness;  // &&& redundant
+  lorentzShiftInCmY_ = driftDirection_.y()/driftDirection_.z() * theThickness;  // &&& redundant
   // Express the shift in units of pitch, 
   lorentzShiftY_ = lorentzShiftInCmY_ / thePitchY;
 
@@ -559,6 +655,8 @@ PixelCPEBase::computeLorentzShifts() const
     LogDebug("PixelCPEBase") << " The drift direction in local coordinate is " 
 			     << driftDirection_    ;
     
+//     cout << "Lorentz Drift (in cm) along X = " << lorentzShiftInCmX_ << endl;
+//     cout << "Lorentz Drift (in cm) along Y = " << lorentzShiftInCmY_ << endl;
   }
 }
 

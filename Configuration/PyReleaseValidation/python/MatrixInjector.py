@@ -52,17 +52,17 @@ class MatrixInjector(object):
             
         self.defaultChain={
             "RequestType" :   "TaskChain",                    #this is how we handle relvals
-            "AcquisitionEra": {},                             #Acq Era
+            "AcquisitionEra": None,            #Acq Era
             "Requestor": self.user,                           #Person responsible
             "Group": self.group,                              #group for the request
             "CMSSWVersion": os.getenv('CMSSW_VERSION'),       #CMSSW Version (used for all tasks in chain)
             "ScramArch": os.getenv('SCRAM_ARCH'),             #Scram Arch (used for all tasks in chain)
             "ProcessingVersion": self.version,                #Processing Version (used for all tasks in chain)
-            "GlobalTag": None,                                #Global Tag (overridden per task)
+            "GlobalTag": None,                                #Global Tag (used for all tasks)
             "CouchURL": self.couch,                           #URL of CouchDB containing Config Cache
             "CouchDBName": self.couchDB,                      #Name of Couch Database containing config cache
             #- Will contain all configs for all Tasks
-            "SiteWhitelist" : ["T2_CH_CERN", "T1_US_FNAL"],   #Site whitelist
+            "SiteWhitelist" : ["T1_CH_CERN", "T1_US_FNAL"],   #Site whitelist
             "TaskChain" : None,                                  #Define number of tasks in chain.
             "nowmTasklist" : [],  #a list of tasks as we put them in
             "unmergedLFNBase" : "/store/unmerged",
@@ -76,7 +76,6 @@ class MatrixInjector(object):
         self.defaultScratch={
             "TaskName" : None,                            #Task Name
             "ConfigCacheID" : None,                   #Generator Config id
-            "GlobalTag": None,
             "SplittingAlgorithm"  : "EventBased",             #Splitting Algorithm
             "SplittingArguments" : {"events_per_job" : None},  #Size of jobs in terms of splitting algorithm
             "RequestNumEvents" : None,                      #Total number of events to generate
@@ -87,7 +86,6 @@ class MatrixInjector(object):
         self.defaultInput={
             "TaskName" : "DigiHLT",                                      #Task Name
             "ConfigCacheID" : None,                                      #Processing Config id
-            "GlobalTag": None,
             "InputDataset" : None,                                       #Input Dataset to be processed
             "SplittingAlgorithm"  : "LumiBased",                        #Splitting Algorithm
             "SplittingArguments" : {"lumis_per_job" : 10},               #Size of jobs in terms of splitting algorithm
@@ -98,7 +96,6 @@ class MatrixInjector(object):
             "InputTask" : None,                                #Input Task Name (Task Name field of a previous Task entry)
             "InputFromOutputModule" : None,                    #OutputModule name in the input task that will provide files to process
             "ConfigCacheID" : None,                            #Processing Config id
-            "GlobalTag": None,
             "SplittingAlgorithm"  : "LumiBased",                        #Splitting Algorithm
             "SplittingArguments" : {"lumis_per_job" : 10},               #Size of jobs in terms of splitting algorithm
             "nowmIO": {}
@@ -161,10 +158,8 @@ class MatrixInjector(object):
                                 print "Failed to find",'%s/%s.io'%(dir,step),".The workflows were probably not run on cfg not created"
                                 return -15
                             chainDict['nowmTasklist'][-1]['ConfigCacheID']='%s/%s.py'%(dir,step)
-                            chainDict['nowmTasklist'][-1]['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT'] # copy to the proper parameter name
-                            chainDict['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT'] #set in general to the last one of the chain
-                            #chainDict['AcquisitionEra']=(chainDict['CMSSWVersion']+'-'+chainDict['GlobalTag']).replace('::All','')
-                            chainDict['AcquisitionEra'][step]=(chainDict['CMSSWVersion']+'-'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')
+                            chainDict['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT']
+                            chainDict['AcquisitionEra']=(chainDict['CMSSWVersion']+'-'+chainDict['GlobalTag']).replace('::All','')
                         index+=1
                         
             #wrap up for this one
@@ -188,12 +183,6 @@ class MatrixInjector(object):
                                 t_second['InputFromOutputModule'] = om
                                 #print 't_second',t_second
                                 break
-
-            ## there is in fact only one acquisition era
-            if len(set(chainDict['AcquisitionEra'].values()))==1:
-                chainDict['AcquisitionEra'] = chainDict['AcquisitionEra'].values()[0]
-                
-            ## clean things up now
             for (i,t) in enumerate(chainDict['nowmTasklist']):
                 t.pop('nowmIO')
                 chainDict['Task%d'%(i+1)]=t

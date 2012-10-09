@@ -14,7 +14,7 @@ l1tSync = cms.EDAnalyzer("L1TSync",
   pathCondDB = cms.string("/nfshome0/centraltspro/secure/"),                
 
   # Offline
-  #oracleDB   = cms.string("oracle://cms_orcon_adg/CMS_COND_31X_L1T")
+  #oracleDB   = cms.string("oracle://cms_orcoff_prod/CMS_COND_31X_L1T")
   #pathCondDB = cms.string("/afs/cern.ch/cms/DB/conddb"),                
 
   # Index for the prescale set to be used 
@@ -94,7 +94,7 @@ l1tSync = cms.EDAnalyzer("L1TSync",
         CertMinEvents   = cms.int32(20),
       ),
       HTM = cms.PSet(
-        monitor         = cms.bool(False),   
+        monitor         = cms.bool(True),   
         doAutoSelection = cms.bool(True),
         algo            = cms.string(""),
         CertMinEvents   = cms.int32(20),

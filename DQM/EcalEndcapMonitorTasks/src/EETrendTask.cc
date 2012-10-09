@@ -1,8 +1,8 @@
 /*
  * \file EETrendTask.cc
  *
- * $Date: 2012/04/27 13:46:16 $
- * $Revision: 1.16 $
+ * $Date: 2011/08/30 09:28:42 $
+ * $Revision: 1.13 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -134,14 +134,6 @@ void EETrendTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
-void
-EETrendTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EETrendTask")){
-	cleanup();
-	setup();
-  }
-}
 
 void EETrendTask::reset(void) {
 

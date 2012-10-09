@@ -12,18 +12,12 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 ## Modifications
 ## ---
 # general
-from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
-process.source.fileNames = pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_2_5_cand1'
-                                               , relVal        = 'RelValProdTTbar'
-                                               , globalTag     = 'START52_V9'
-                                               , dataTier      = 'AODSIM'
-                                               , maxVersions   = 1
-                                               , numberOfFiles = -1
-                                               )
-process.maxEvents.input     = -1 # reduce number of events for testing.
+process.maxEvents.input     = 1000 # reduce number of events for testing.
 process.options.wantSummary = False # to suppress the long output at the end of the job
 # specific
-process.selectedPatMuons.cut = 'isGlobalMuon && pt > 20. && abs(eta) < 2.1 && globalTrack.normalizedChi2 < 10. && track.hitPattern.trackerLayersWithMeasurement > 5 && globalTrack.hitPattern.numberOfValidMuonHits > 0 && abs(dB) < 0.2 && innerTrack.hitPattern.numberOfValidPixelHits > 0 && numberOfMatchedStations > 1 && (trackIso+caloIso)/pt<0.2'
+process.patJetCorrFactors.useRho = False
+process.patJets.addTagInfos      = False # to save space
+process.selectedPatMuons.cut     = 'isTrackerMuon=1 & isGlobalMuon=1 & innerTrack.numberOfValidHits>=11 & globalTrack.normalizedChi2<10.0  & globalTrack.hitPattern.numberOfValidMuonHits>0 & abs(dB)<0.02 & (trackIso+caloIso)/pt<0.05'
 
 ## ---
 ## Define the path
@@ -46,7 +40,7 @@ process.muonTriggerMatchHLTMuons = cms.EDProducer(
 , src     = cms.InputTag( 'cleanPatMuons' )
 , matched = cms.InputTag( 'patTrigger' )
   # selections of trigger objects
-, matchedCuts = cms.string( 'type( "TriggerMuon" ) && path( "HLT_IsoMu24_eta2p1_v*" )' )
+, matchedCuts = cms.string( 'type( "TriggerMuon" ) && path( "HLT_Mu24_v*", 1, 0 )' ) # input does not yet have the 'saveTags' parameter in HLT
   # selection of matches
 , maxDPtRel   = cms.double( 0.5 ) # no effect here
 , maxDeltaR   = cms.double( 0.5 )

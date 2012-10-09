@@ -1,31 +1,42 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.EcalCommon.dqmpset import *
-from DQM.EcalCommon.CommonParams_cfi import *
-
-from DQM.EcalBarrelMonitorTasks.TowerStatusTask_cfi import ecalTowerStatusTask
-
-from DQM.EcalCommon.EcalDQMBinningService_cfi import *
-
-ecalBarrelDaqInfoTask = cms.EDAnalyzer("EcalDQMonitorTask",
-    moduleName = cms.untracked.string("Ecal DAQ Info"),
-    mergeRuns = cms.untracked.bool(False),
-    # tasks to be turned on
-    workers = cms.untracked.vstring(
-        "TowerStatusTask"
-    ),
-    # task parameters (included from indivitual cfis)
-    workerParameters = dqmpset(
-        dict(
-            TowerStatusTask = ecalTowerStatusTask,
-            common = ecalCommonParams
-        )
-    ),
-    collectionTags = cms.untracked.PSet(),
-    allowMissingCollections = cms.untracked.bool(False),
-    verbosity = cms.untracked.int32(0),
-    evaluateTime = cms.untracked.bool(False)
+ecalBarrelDaqInfoTask = cms.EDAnalyzer("EBDaqInfoTask",
+    prefixME = cms.untracked.string('EcalBarrel'),
+    enableCleanup = cms.untracked.bool(False),
+    mergeRuns = cms.untracked.bool(False)
 )
 
-ecalBarrelDaqInfoTask.workerParameters.TowerStatusTask.doDAQInfo = True
-ecalBarrelDaqInfoTask.workerParameters.TowerStatusTask.doDCSInfo = False
+# from DQM.EcalCommon.dqmpset import *
+# from DQM.EcalCommon.CollectionTags_cfi import *
+# from DQM.EcalCommon.CommonParams_cfi import *
+
+# from DQM.EcalCommon.EcalDQMBinningService_cfi import *
+
+# import DQM.EcalBarrelMonitorTasks.TowerStatusTask_cfi as ecalTowerStatusTask
+
+# ecalMonitorTaskParams = dict(
+#     TowerStatusTask = ecalTowerStatusTask.towerStatusTask,
+#     Common = ecalCommonParams
+# )
+
+# ecalMonitorTaskPaths = dict(
+#     TowerStatusTask = ecalTowerStatusTask.towerStatusTaskPaths
+# )
+
+# ecalBarrelDaqInfoTask = cms.EDAnalyzer("EcalDQMonitorTask",
+#     moduleName = cms.untracked.string("Ecal DAQ Info"),
+#     # tasks to be turned on
+#     tasks = cms.untracked.vstring(
+#         "TowerStatusTask"
+#     ),
+#     # task parameters (included from indivitual cfis)
+#     taskParameters = dqmpset(ecalMonitorTaskParams),
+#     # ME paths for each task (included from inidividual cfis)
+#     mePaths = dqmpaths("Ecal", ecalMonitorTaskPaths),
+#     collectionTags = ecalDQMCollectionTags,
+#     allowMissingCollections = cms.untracked.bool(False),
+#     verbosity = cms.untracked.int32(0)
+# )
+
+# ecalBarrelDaqInfoTask.taskParameters.TowerStatusTask.doDAQInfo = True
+# ecalBarrelDaqInfoTask.taskParameters.TowerStatusTask.doDAQInfo = False

@@ -14,7 +14,6 @@ namespace evf{
     ~RateStat();
     void sendStat(const unsigned char *, size_t, unsigned int);
     void sendLegenda(const std::string &);
-    void sendAuxLegenda(const std::string &);
   private:
     std::string iDieUrl_;
     CurlPoster *poster_;

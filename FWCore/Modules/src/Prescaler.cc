@@ -41,8 +41,8 @@ namespace edm {
   void
   Prescaler::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
-    desc.add<int>("prescaleFactor");
-    desc.add<int>("prescaleOffset");
+    desc.add<int>("prescaleFactor")->setComment("Accept one event every N events");
+    desc.add<int>("prescaleOffset")->setComment("The first event to accept should be the Mth one. Choose 'prescaleFactor'=1 to accept the first event from the source.");
     descriptions.add("preScaler", desc);
   }
 }

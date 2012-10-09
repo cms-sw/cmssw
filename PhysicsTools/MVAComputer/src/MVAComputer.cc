@@ -127,7 +127,6 @@ void MVAComputer::setup(const Calibration::MVAComputer *calib)
 		InputVar var;
 		var.var = Variable(iter->name, config[i].mask);
 		var.index = i;
-                var.multiplicity = 0;
 		variables.insert(var);
 	}
 

@@ -7,6 +7,7 @@ Tracks2Vertex = cms.EDProducer('PF_PU_AssoMap',
           TrackCollection = cms.InputTag('generalTracks'),
 	   
 	  #Configuration for the reassociation of gamma conversion particles
+          GsfElectronCollection = cms.InputTag('gsfElectrons'),
 	  ConversionsCollection = cms.InputTag('allConversions'),
 	   
 	  #Configuration for the reassociation of particles from V0 decays
@@ -26,12 +27,6 @@ Tracks2Vertex = cms.EDProducer('PF_PU_AssoMap',
           VertexAssUseAbsDistance = cms.untracked.bool(False),			    
 	   	   
 	  #What to do if the dipl vertex coll can't be found
-          ignoreMissingCollection = cms.bool(True),		    
-	   	   
-	  #Set the pt cut for the tracks
-          TrackPtCut = cms.double(20.),
-          BeamSpotCompatibilityCut = cms.double(5.),
-          nTrackWeight = cms.double(0.01),
-          GetCleanedCollections = cms.untracked.bool(False),
-		  
+          ignoreMissingCollection = cms.bool(False),
 )
+

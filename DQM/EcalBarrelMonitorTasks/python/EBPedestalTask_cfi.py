@@ -4,9 +4,9 @@ ecalBarrelPedestalTask = cms.EDAnalyzer("EBPedestalTask",
     prefixME = cms.untracked.string('EcalBarrel'),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),    
-    EcalRawDataCollection = cms.InputTag("ecalDigis"),
-    EBDigiCollection = cms.InputTag("ecalDigis","ebDigis"),
-    EcalPnDiodeDigiCollection = cms.InputTag("ecalDigis"),
+    EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
+    EBDigiCollection = cms.InputTag("ecalEBunpacker","ebDigis"),
+    EcalPnDiodeDigiCollection = cms.InputTag("ecalEBunpacker"),
     MGPAGains = cms.untracked.vint32(1, 6, 12),
     MGPAGainsPN = cms.untracked.vint32(1, 16)
 )

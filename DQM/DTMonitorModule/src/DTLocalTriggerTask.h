@@ -4,8 +4,8 @@
 /*
  * \file DTLocalTriggerTask.h
  *
- * $Date: 2010/01/05 10:14:40 $
- * $Revision: 1.3 $
+ * $Date: 2010/03/15 09:42:52 $
+ * $Revision: 1.4 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -130,6 +131,9 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   std::map<int, std::map<std::string, MonitorElement*> > wheelHistos;
   
   MonitorElement* dcc_IDDataErrorPlot;
+
+  bool isLocalRun;
+  edm::InputTag ltcDigiCollectionTag;
 };
 
 #endif

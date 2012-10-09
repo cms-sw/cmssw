@@ -8,16 +8,28 @@
 
 namespace ecaldqm {
 
-  EnergyTask::EnergyTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
-    DQWorkerTask(_workerParams, _commonParams, "EnergyTask"),
+  EnergyTask::EnergyTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
+    DQWorkerTask(_params, _paths, "EnergyTask"),
     topology_(0),
-    isPhysicsRun_(_workerParams.getUntrackedParameter<bool>("isPhysicsRun")),
-    threshS9_(_workerParams.getUntrackedParameter<double>("threshS9"))
+    isPhysicsRun_(false),
+    threshS9_(0.)
   {
     collectionMask_ = 
       (0x1 << kRun) |
       (0x1 << kEBRecHit) |
       (0x1 << kEERecHit);
+
+    edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
+
+    isPhysicsRun_ = taskParams.getUntrackedParameter<bool>("isPhysicsRun");
+    threshS9_ = taskParams.getUntrackedParameter<double>("threshS9");
+
+    std::map<std::string, std::string> replacements;
+    if(!isPhysicsRun_) replacements["oot"] = " (outOfTime)";
+    else replacements["oot"] = "";
+
+    for(unsigned iME(0); iME < nMESets; iME++)
+      MEs_[iME]->name(replacements);
   }
 
   EnergyTask::~EnergyTask()
@@ -52,18 +64,15 @@ namespace ecaldqm {
   void 
   EnergyTask::runOnRecHits(const EcalRecHitCollection &_hits)
   {
-    uint32_t notGood(~(0x1 << EcalRecHit::kGood));
-    uint32_t neitherGoodNorOOT(~(0x1 << EcalRecHit::kGood |
-                                 0x1 << EcalRecHit::kOutOfTime));
+    uint32_t mask(~(0x1 << EcalRecHit::kGood));
 
     for(EcalRecHitCollection::const_iterator hitItr(_hits.begin()); hitItr != _hits.end(); ++hitItr){
 
-      if(isPhysicsRun_ && hitItr->checkFlagMask(notGood)) continue;
-      if(!isPhysicsRun_ && hitItr->checkFlagMask(neitherGoodNorOOT)) continue;
+      if(isPhysicsRun_ && hitItr->checkFlagMask(mask)) continue;
 
       float energy(isPhysicsRun_ ? hitItr->energy() : hitItr->outOfTimeEnergy());
 
-      if(energy < 0.) continue;
+      if ( energy < 0. ) energy = 0.0;
 
       DetId id(hitItr->id());
 
@@ -73,43 +82,52 @@ namespace ecaldqm {
       MEs_[kHitAll]->fill(id, energy);
 
       // look for the seeds
-//       float e3x3(energy);
-//       bool isSeed = true;
+      float e3x3(energy);
+      bool isSeed = true;
 
-//       EcalRecHitCollection::const_iterator neighborItr;
-//       float neighborE;
-//       std::vector<DetId> window(topology_->getWindow(id, 3, 3));
-//       for(std::vector<DetId>::iterator idItr(window.begin()); idItr != window.end(); ++idItr){
-// 	if((neighborItr = _hits.find(*idItr)) == _hits.end()) continue;
-//         if(isPhysicsRun_ && neighborItr->checkFlagMask(notGood)) continue;
-//         if(!isPhysicsRun_ && neighborItr->checkFlagMask(neitherGoodNorOOT)) continue;
-// 	neighborE = isPhysicsRun_ ? neighborItr->energy() : neighborItr->outOfTimeEnergy();
-// 	if(neighborE > energy){
-// 	  isSeed = false;
-// 	  break;
-// 	}
-// 	e3x3 += neighborE;
-//       }
+      EcalRecHitCollection::const_iterator neighborItr;
+      float neighborE;
+      std::vector<DetId> window(topology_->getWindow(id, 3, 3));
+      for(std::vector<DetId>::iterator idItr(window.begin()); idItr != window.end(); ++idItr){
+	if((neighborItr = _hits.find(*idItr)) == _hits.end()) continue;
+	if(isPhysicsRun_ && neighborItr->checkFlagMask(mask)) continue;
+	neighborE = isPhysicsRun_ ? neighborItr->energy() : neighborItr->outOfTimeEnergy();
+	if(neighborE > energy){
+	  isSeed = false;
+	  break;
+	}
+	e3x3 += neighborE;
+      }
 
-//       if(!isSeed) continue;
+      if(!isSeed) continue;
 
-//       if ( e3x3 >= threshS9_ )
-// 	MEs_[kMiniCluster]->fill(id, e3x3);
+      if ( e3x3 >= threshS9_ )
+	MEs_[kMiniCluster]->fill(id, e3x3);
 
     }
   }
 
   /*static*/
   void
-  EnergyTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
+  EnergyTask::setMEData(std::vector<MEData>& _data)
   {
-    _nameToIndex["HitMap"] = kHitMap; 
-    _nameToIndex["HitMapAll"] = kHitMapAll;
-    _nameToIndex["Hit"] = kHit; 
-    _nameToIndex["HitAll"] = kHitAll;
-    //    _nameToIndex["MiniCluster"] = kMiniCluster; 
+    BinService::AxisSpecs xaxis, zaxis;
+
+    zaxis.low = 0.;
+    zaxis.high = 10.;
+    _data[kHitMap] = MEData("HitMap", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TPROFILE2D, 0, 0, &zaxis);
+    _data[kHitMapAll] = MEData("HitMap", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D, 0, 0, &zaxis);
+
+    xaxis.nbins = 50;
+    xaxis.low = 0.;
+    xaxis.high = 20.;
+    _data[kHit] = MEData("Hit", BinService::kSM, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &xaxis);
+    _data[kHitAll] = MEData("Hit", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &xaxis);
+
+    _data[kMiniCluster] = MEData("MiniCluster", BinService::kSM, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &xaxis);
   }
 
   DEFINE_ECALDQM_WORKER(EnergyTask);
 }
+
 

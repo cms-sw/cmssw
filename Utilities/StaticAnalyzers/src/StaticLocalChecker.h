@@ -14,14 +14,17 @@
 #include "CmsException.h"
 
 
+using namespace clang;
+using namespace ento;
+
 namespace clangcms {
-class StaticLocalChecker : public clang::ento::Checker< clang::ento::check::ASTDecl< clang::VarDecl> > {
-  mutable clang::OwningPtr<clang::ento::BuiltinBug> BT;
+class StaticLocalChecker : public Checker< check::ASTDecl<VarDecl> > {
+  mutable OwningPtr<BuiltinBug> BT;
 
 public:
-  void checkASTDecl(const clang::VarDecl *D,
-                      clang::ento::AnalysisManager &Mgr,
-                      clang::ento::BugReporter &BR) const;
+  void checkASTDecl(const VarDecl *D,
+                      AnalysisManager &Mgr,
+                      BugReporter &BR) const;
 private:
   CmsException m_exception;
 };  

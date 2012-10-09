@@ -39,7 +39,6 @@
 #include "DataFormats/JetReco/interface/FFTBasicJetCollection.h"
 #include "DataFormats/JetReco/interface/FFTJetPileupSummary.h"
 #include "DataFormats/JetReco/interface/DiscretizedEnergyFlow.h"
-#include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/FwdRef.h" 
@@ -174,10 +173,6 @@ namespace {
     edm::reftobase::Holder<reco::Candidate, reco::PFClusterJetRef> rtb8;
     reco::JetTrackMatch<reco::PFClusterJetCollection> jtm8;
 
-    StoredPileupJetIdentifier spujetid;
-    std::vector<StoredPileupJetIdentifier> spujetidvec;
-    edm::ValueMap<StoredPileupJetIdentifier> spujetidvmap;
-    edm::Wrapper<edm::ValueMap<StoredPileupJetIdentifier> > spujetidvmapw;
 
     edm::reftobase::Holder<reco::Candidate,edm::RefToBase<reco::Jet> >  rtbb6;
 

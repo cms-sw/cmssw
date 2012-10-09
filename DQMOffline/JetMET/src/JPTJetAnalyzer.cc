@@ -589,46 +589,53 @@ void JPTJetAnalyzer::fillSiStripHitSoN(const TrackingRecHit& hit)
           (detId.subdetId() == SiStripDetId::TEC)
         )
      )) return;
+
+
+  // J.Piedra, 2012/09/24
   //try to determine the type of the hit
-  const TrackingRecHit* pHit = &hit;
-  const SiStripRecHit2D* pRecHit2D = dynamic_cast<const SiStripRecHit2D*>(pHit);
-  const SiStripMatchedRecHit2D* pMatchedRecHit2D = dynamic_cast<const SiStripMatchedRecHit2D*>(pHit);
-  const ProjectedSiStripRecHit2D* pProjctedRecHit2D = dynamic_cast<const ProjectedSiStripRecHit2D*>(pHit);
-  const InvalidTrackingRecHit* pInvalidHit = dynamic_cast<const InvalidTrackingRecHit*>(pHit);
-  //fill signal to noise for appropriate hit
-  if (pMatchedRecHit2D) {
-    fillSiStripHitSoNForSingleHit(pMatchedRecHit2D->monoHit());
-    fillSiStripHitSoNForSingleHit(pMatchedRecHit2D->stereoHit());
-  } else if (pProjctedRecHit2D) {
-    fillSiStripHitSoNForSingleHit(pProjctedRecHit2D->originalHit());
-  } else if (pRecHit2D) {
-    fillSiStripHitSoNForSingleHit(*pRecHit2D);
-  } else if (pInvalidHit) {
-    return;
-  } else {
-    edm::LogInfo(messageLoggerCatregory) << "Hit on det ID " << hit.geographicalId().rawId() << " cannot be converted to a strip hit";
-  }
+  //  const TrackingRecHit* pHit = &hit;
+  //  const SiStripRecHit2D* pRecHit2D = dynamic_cast<const SiStripRecHit2D*>(pHit);
+  //  const SiStripMatchedRecHit2D* pMatchedRecHit2D = dynamic_cast<const SiStripMatchedRecHit2D*>(pHit);
+  //  const ProjectedSiStripRecHit2D* pProjctedRecHit2D = dynamic_cast<const ProjectedSiStripRecHit2D*>(pHit);
+  //  const InvalidTrackingRecHit* pInvalidHit = dynamic_cast<const InvalidTrackingRecHit*>(pHit);
+
+  //  //fill signal to noise for appropriate hit
+  //  if (pMatchedRecHit2D) {
+  //    fillSiStripHitSoNForSingleHit(pMatchedRecHit2D->monoHit());
+  //    fillSiStripHitSoNForSingleHit(pMatchedRecHit2D->stereoHit());
+  //  } else if (pProjctedRecHit2D) {
+  //    fillSiStripHitSoNForSingleHit(pProjctedRecHit2D->originalHit());
+  //  } else if (pRecHit2D) {
+  //    fillSiStripHitSoNForSingleHit(*pRecHit2D);
+  //  } else if (pInvalidHit) {
+  //    return;
+  //  } else {
+  //    edm::LogInfo(messageLoggerCatregory) << "Hit on det ID " << hit.geographicalId().rawId() << " cannot be converted to a strip hit";
+  //  }
 }
 
-void JPTJetAnalyzer::fillSiStripHitSoNForSingleHit(const SiStripRecHit2D& hit)
-{
-  //get the cluster
-  const SiStripCluster* cluster = NULL;
-  const SiStripRecHit2D::ClusterRegionalRef& regionalClusterRef = hit.cluster_regional();
-  const SiStripRecHit2D::ClusterRef& normalClusterRef = hit.cluster();
-  if (regionalClusterRef.isNonnull()) {
-    cluster = &*regionalClusterRef;
-  } else if (normalClusterRef.isNonnull()) {
-    cluster = &*normalClusterRef;
-  } else {
-    edm::LogError(messageLoggerCatregory) << "Unable to get cluster from SiStripRecHit2D with det ID " << hit.geographicalId().rawId();
-    return;
-  }
-  //calculate signal to noise for cluster
-  //  const double sOverN = (*sOverNCalculator_)(*cluster,hit.geographicalId());
-  //fill histogram
-  /*  fillHistogram(TrackSiStripHitStoNHisto_,sOverN);  */
-}
+
+// J.Piedra, 2012/09/24
+// void JPTJetAnalyzer::fillSiStripHitSoNForSingleHit(const SiStripRecHit2D& hit)
+// {
+//   //get the cluster
+//   const SiStripCluster* cluster = NULL;
+//   const SiStripRecHit2D::ClusterRegionalRef& regionalClusterRef = hit.cluster_regional();
+//   const SiStripRecHit2D::ClusterRef& normalClusterRef = hit.cluster();
+//   if (regionalClusterRef.isNonnull()) {
+//     cluster = &*regionalClusterRef;
+//   } else if (normalClusterRef.isNonnull()) {
+//     cluster = &*normalClusterRef;
+//   } else {
+//     edm::LogError(messageLoggerCatregory) << "Unable to get cluster from SiStripRecHit2D with det ID " << hit.geographicalId().rawId();
+//     return;
+//   }
+//   //calculate signal to noise for cluster
+//   //  const double sOverN = (*sOverNCalculator_)(*cluster,hit.geographicalId());
+//   //fill histogram
+//   /*  fillHistogram(TrackSiStripHitStoNHisto_,sOverN);  */
+// }
+
 
 double JPTJetAnalyzer::findPtFractionInCone(const reco::TrackRefVector& inConeTracks, const reco::TrackRefVector& outOfConeTracks)
 {

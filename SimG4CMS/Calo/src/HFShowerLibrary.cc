@@ -40,6 +40,7 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
   std::string branchPre    = m_HS.getUntrackedParameter<std::string>("BranchPre","HFShowerPhotons_hfshowerlib_");
   std::string branchPost   = m_HS.getUntrackedParameter<std::string>("BranchPost","_R.obj");
   verbose                  = m_HS.getUntrackedParameter<bool>("Verbosity",false);
+  applyFidCut              = m_HS.getParameter<bool>("ApplyFiducialCut");
 
   if (pTreeName.find(".") == 0) pTreeName.erase(0,2);
   const char* nTree = pTreeName.c_str();
@@ -303,7 +304,8 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
       double r1    = G4UniformRand();
       double r2    = G4UniformRand();
       double r3    = -9999.;
-      if(backward) r3 = G4UniformRand();
+      if (backward)     r3    = G4UniformRand();
+      if (!applyFidCut) dfir += gpar[5];
 
 #ifdef DebugLog
       LogDebug("HFShower") << "HFShowerLibrary: rLimits " << rInside(r)

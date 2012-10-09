@@ -1,7 +1,7 @@
 #ifndef PedestalTask_H
 #define PedestalTask_H
 
-#include "DQWorkerTask.h"
+#include "DQM/EcalCommon/interface/DQWorkerTask.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
@@ -9,8 +9,10 @@ namespace ecaldqm {
 
   class PedestalTask : public DQWorkerTask {
   public:
-    PedestalTask(edm::ParameterSet const&, edm::ParameterSet const&);
-    ~PedestalTask() {}
+    PedestalTask(const edm::ParameterSet &, const edm::ParameterSet &);
+    ~PedestalTask();
+
+    void bookMEs();
 
     bool filterRunType(const std::vector<short>&);
 
@@ -19,18 +21,24 @@ namespace ecaldqm {
     void runOnDigis(const EcalDigiCollection&);
     void runOnPnDigis(const EcalPnDiodeDigiCollection&);
 
-    enum MESets {
-      kOccupancy, // h2f
-      kPedestal, // profile2d
-      kPNPedestal, // profile2d
-      nMESets
+    enum Constants {
+      nGain = 3,
+      nPNGain = 2
     };
 
-    static void setMEOrdering(std::map<std::string, unsigned>&);
+    enum MESets {
+      kOccupancy, // h2f
+      kPedestal = kOccupancy + nGain, // profile2d
+      kPNOccupancy = kPedestal + nGain,
+      kPNPedestal = kPNOccupancy + nPNGain, // profile2d
+      nMESets = kPNPedestal + nPNGain
+    };
+
+    static void setMEData(std::vector<MEData>&);
 
   protected:
-    std::map<int, unsigned> gainToME_;
-    std::map<int, unsigned> pnGainToME_;
+    std::vector<int> MGPAGains_;
+    std::vector<int> MGPAGainsPN_;
 
     bool enable_[BinService::nDCC];
   };

@@ -12,7 +12,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -127,6 +126,7 @@ class TopElectronHLTOfflineSource : public edm::EDAnalyzer
       // add vector of references to electron id's
       std::vector<std::string> eleIdNames_;
 
+
     };
 
   virtual void setupHistos(const std::vector<EleMEs>);
@@ -154,8 +154,7 @@ class TopElectronHLTOfflineSource : public edm::EDAnalyzer
   edm::InputTag triggerElectronFilterLabel_;
   edm::InputTag electronLabel_;
   edm::InputTag primaryVertexLabel_;
-  edm::InputTag beamSpot_;
-
+  
   edm::Handle<trigger::TriggerEvent> triggerEvent_;
   
   edm::Handle<reco::GsfElectronCollection> eleHandle_;

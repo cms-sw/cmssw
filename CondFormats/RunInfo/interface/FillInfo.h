@@ -25,42 +25,46 @@ class FillInfo {
   void setFill( unsigned short const & lhcFill, bool const & fromData = true );
   
   //getters
-  unsigned short const fillNumber() const;
+  unsigned short const & fillNumber() const;
   
-  bool const isData() const;
+  bool const & isData() const;
   
-  unsigned short const bunchesInBeam1() const;
+  unsigned short const & bunchesInBeam1() const;
   
-  unsigned short const bunchesInBeam2() const;
+  unsigned short const & bunchesInBeam2() const;
   
-  unsigned short const collidingBunches() const;
+  unsigned short const & collidingBunches() const;
   
-  unsigned short const targetBunches() const;
+  unsigned short const & targetBunches() const;
   
-  FillTypeId const fillType() const;
+  FillTypeId const & fillType() const;
   
-  ParticleTypeId const particleTypeForBeam1() const;
+  ParticleTypeId const & particleTypeForBeam1() const;
   
-  ParticleTypeId const particleTypeForBeam2() const;
+  ParticleTypeId const & particleTypeForBeam2() const;
   
-  float const crossingAngle() const;
+  float const & crossingAngle() const;
 
-  float const betaStar() const;
+  float const & betaStar() const;
   
-  float const intensityForBeam1() const;
+  float const & intensityForBeam1() const;
   
-  float const intensityForBeam2() const;
+  float const & intensityForBeam2() const;
   
-  float const energy() const;
+  float const & energy() const;
   
-  cond::Time_t const createTime() const;
+  cond::Time_t const & createTime() const;
   
-  cond::Time_t const beginTime() const;
+  cond::Time_t const & beginTime() const;
   
-  cond::Time_t const endTime() const;
+  cond::Time_t const & endTime() const;
   
   std::string const & injectionScheme() const;
-    
+  
+  std::bitset<bunchSlots+1> const & bunchBitsetForBeam1() const;
+  
+  std::bitset<bunchSlots+1> const & bunchBitsetForBeam2() const;
+  
   //returns a boolean, true if the bunch slot number is in the circulating bunch configuration
   bool isBunchInBeam1( size_t const & bunch ) const;
   
@@ -72,37 +76,41 @@ class FillInfo {
   std::vector<unsigned short> bunchConfigurationForBeam2() const;
   
   //setters
-  void setBunchesInBeam1( unsigned short const & bunches );
+  unsigned short & bunchesInBeam1();
   
-  void setBunchesInBeam2( unsigned short const & bunches );
+  unsigned short & bunchesInBeam2();
   
-  void setCollidingBunches( unsigned short const & collidingBunches );
+  unsigned short & collidingBunches();
   
-  void setTargetBunches( unsigned short const & targetBunches );
+  unsigned short & targetBunches();
   
-  void setFillType( FillTypeId const & fillType );
+  FillTypeId & fillType();
   
-  void setParticleTypeForBeam1( ParticleTypeId const & particleType );
+  ParticleTypeId & particleTypeForBeam1();
   
-  void setParticleTypeForBeam2( ParticleTypeId const & particleType );
+  ParticleTypeId & particleTypeForBeam2();
   
-  void setCrossingAngle( float const & angle );
+  float & crossingAngle();
   
-  void setBetaStar( float const & betaStar );
+  float & betaStar();
   
-  void setIntensityForBeam1( float const & intensity );
+  float & intensityForBeam1();
   
-  void setIntensityForBeam2( float const & intensity );
+  float & intensityForBeam2();
   
-  void setEnergy( float const & energy );
+  float & energy();
   
-  void setCreationTime( cond::Time_t const & createTime );
+  cond::Time_t & createTime();
   
-  void setBeginTime( cond::Time_t const & beginTime );
+  cond::Time_t & beginTime();
   
-  void setEndTime( cond::Time_t const & endTime );
+  cond::Time_t & endTime();
   
-  void setInjectionScheme( std::string const & injectionScheme );
+  std::string & injectionScheme();
+  
+  std::bitset<bunchSlots+1> & bunchBitsetForBeam1();
+  
+  std::bitset<bunchSlots+1> & bunchBitsetForBeam2();
   
   //sets all values in one go
   void setBeamInfo( unsigned short const & bunches1
@@ -126,15 +134,6 @@ class FillInfo {
   
   //dumping values on output stream
   void print(std::stringstream & ss) const;
-  
- protected:
-  std::bitset<bunchSlots+1> const & bunchBitsetForBeam1() const;
-  
-  std::bitset<bunchSlots+1> const & bunchBitsetForBeam2() const;
-  
-  void setBunchBitsetForBeam1( std::bitset<bunchSlots+1> const & bunchConfiguration );
-  
-  void setBunchBitsetForBeam2( std::bitset<bunchSlots+1> const & bunchConfiguration );
   
  private:
   bool m_isData;

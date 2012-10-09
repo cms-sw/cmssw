@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
 <ConstantsSection label="beampipe.xml" eval="true">
  <Constant name="BeampipeRin1"   value="2.1700*cm"/>
  <Constant name="BeampipeRin2"   value="2.4823*cm"/>
@@ -144,6 +145,7 @@
  <Constant name="BeampipeZ54"    value="18.8600*m"/>
  <Constant name="BeampipeZ55"    value="18.8750*m"/>
 </ConstantsSection>
+
 <SolidSection label="beampipe.xml">
  <Polycone name="BEAM" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[cms:Zmin]"        rMin="[cms:Rmin]" rMax="[cms:TrackBeamR1]"/>
@@ -183,22 +185,28 @@
   <ZSection z="[cms:ForwdBeamZ9]" rMin="[cms:Rmin]" rMax="[cms:ForwdBeamR8]"/>
   <ZSection z="[cms:HallZ]"       rMin="[cms:Rmin]" rMax="[cms:ForwdBeamR8]"/>
  </Polycone> 
- <Tubs name="BeamTube1" rMin="[cms:Rmin]" rMax="[BeampipeRout1]" dz="([BeampipeZ1]-[cms:Zmin])/2" startPhi="0*deg" deltaPhi="360*deg"/>
- <Tubs name="BeamVacuum1" rMin="[cms:Rmin]" rMax="[BeampipeRin1]" dz="([BeampipeZ1]-[cms:Zmin])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="BeamTube1"   rMin="[cms:Rmin]" rMax="[BeampipeRout1]"
+       dz="([BeampipeZ1]-[cms:Zmin])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="BeamVacuum1" rMin="[cms:Rmin]" rMax="[BeampipeRin1]" 
+       dz="([BeampipeZ1]-[cms:Zmin])/2" startPhi="0*deg" deltaPhi="360*deg"/>
  <Polycone name="BeamTube2" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[BeampipeZ1]"    rMin="[cms:Rmin]"      rMax="[BeampipeRout1]"/>
   <ZSection z="[BeampipeZ2]"    rMin="[cms:Rmin]"      rMax="[BeampipeRout2]"/>
   <ZSection z="[BeampipeZ2]"    rMin="[cms:Rmin]"      rMax="[BeampipeRout3]"/>
   <ZSection z="[BeampipeZ3]"    rMin="[cms:Rmin]"      rMax="[BeampipeRout4]"/>
  </Polycone> 
- <Cone name="BeamVacuum2" dz="([BeampipeZ3]-[BeampipeZ1])/2" rMin1="[cms:Rmin]" rMax1="[BeampipeRin1]" rMin2="[cms:Rmin]" rMax2="[BeampipeRin3]" startPhi="0*deg" deltaPhi="360*deg" />
+ <Cone name="BeamVacuum2"       dz="([BeampipeZ3]-[BeampipeZ1])/2" 
+       rMin1="[cms:Rmin]"       rMax1="[BeampipeRin1]" rMin2="[cms:Rmin]"
+       rMax2="[BeampipeRin3]"   startPhi="0*deg" deltaPhi="360*deg" />
  <Polycone name="BeamTube3" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[BeampipeZ3]"    rMin="[cms:Rmin]"      rMax="[BeampipeRout5]"/>
   <ZSection z="[BeampipeZ4]"    rMin="[cms:Rmin]"      rMax="[BeampipeRout6]"/>
   <ZSection z="[BeampipeZ4]"    rMin="[cms:Rmin]"      rMax="[BeampipeRout7]"/>
   <ZSection z="[BeampipeZ5]"    rMin="[cms:Rmin]"      rMax="[BeampipeRout7]"/>
  </Polycone> 
- <Cone name="BeamVacuum3" dz="([BeampipeZ5]-[BeampipeZ3])/2" rMin1="[cms:Rmin]" rMax1="[BeampipeRin3]" rMin2="[cms:Rmin]" rMax2="[BeampipeRin5]" startPhi="0*deg" deltaPhi="360*deg" />
+ <Cone name="BeamVacuum3"       dz="([BeampipeZ5]-[BeampipeZ3])/2" 
+       rMin1="[cms:Rmin]"       rMax1="[BeampipeRin3]" rMin2="[cms:Rmin]"
+       rMax2="[BeampipeRin5]"   startPhi="0*deg" deltaPhi="360*deg" />
  <Polycone name="BeamTube8" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[BeampipeZ17]"     rMin="[cms:Rmin]" rMax="[BeampipeRout14]" />
   <ZSection z="[BeampipeZ18]"     rMin="[cms:Rmin]" rMax="[BeampipeRout14]" />
@@ -223,7 +231,9 @@
   <ZSection z="[BeampipeZ20]"     rMin="[cms:Rmin]" rMax="[BeampipeRin10]"  />
   <ZSection z="[BeampipeZ22]"     rMin="[cms:Rmin]" rMax="[BeampipeRin11]"  />
  </Polycone> 
- <Tubs name="BeamBellow9" rMin="[BeampipeRin9]" rMax="[BeampipeRout17]" dz="([BeampipeZ20]-[BeampipeZ19])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="BeamBellow9" rMin="[BeampipeRin9]" rMax="[BeampipeRout17]" 
+       dz="([BeampipeZ20]-[BeampipeZ19])/2" 
+       startPhi="0*deg" deltaPhi="360*deg"/>
  <Polycone name="BeamTube10" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[BeampipeZ22]"     rMin="[cms:Rmin]" rMax="[BeampipeRout20]" />
   <ZSection z="[BeampipeZ23]"     rMin="[cms:Rmin]" rMax="[BeampipeRout21]" />
@@ -236,7 +246,9 @@
   <ZSection z="[BeampipeZ23]"     rMin="[cms:Rmin]" rMax="[BeampipeRin9]"   />
   <ZSection z="[BeampipeZ24]"     rMin="[cms:Rmin]" rMax="[BeampipeRin9]"   />
  </Polycone> 
- <Tubs name="BeamBellow10" rMin="[BeampipeRin9]" rMax="[BeampipeRout17]" dz="([BeampipeZ24]-[BeampipeZ23])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="BeamBellow10" rMin="[BeampipeRin9]" rMax="[BeampipeRout17]" 
+       dz="([BeampipeZ24]-[BeampipeZ23])/2" 
+       startPhi="0*deg" deltaPhi="360*deg"/>
  <Polycone name="BeamTube11" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[BeampipeZ24]"     rMin="[cms:Rmin]" rMax="[BeampipeRout22]" />
   <ZSection z="[BeampipeZ25]"     rMin="[cms:Rmin]" rMax="[BeampipeRout23]" />
@@ -277,9 +289,18 @@
   <ZSection z="[BeampipeZ33]"     rMin="[cms:Rmin]" rMax="[BeampipeRout35]" />
   <ZSection z="[BeampipeZ34]"     rMin="[cms:Rmin]" rMax="[BeampipeRout36]" />
  </Polycone> 
- <Cone name="BeamVacuum13" rMin1="[cms:Rmin]" rMax1="[BeampipeRin19]" rMin2="[cms:Rmin]" rMax2="[BeampipeRin20]" dz="([BeampipeZ34]-[cms:ForwdBeamZ1])/2" startPhi="0*deg" deltaPhi="360*deg"/>
- <Cone name="BeamTube14" rMin1="[cms:Rmin]" rMax1="[BeampipeRout36]" rMin2="[cms:Rmin]" rMax2="[BeampipeRout37]" dz="([cms:ForwdBeamZ2]-[BeampipeZ34])/2" startPhi="0*deg" deltaPhi="360*deg"/>
- <Cone name="BeamVacuum14" rMin1="[cms:Rmin]" rMax1="[BeampipeRin20]" rMin2="[cms:Rmin]" rMax2="[BeampipeRin21]" dz="([cms:ForwdBeamZ2]-[BeampipeZ34])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Cone name="BeamVacuum13" rMin1="[cms:Rmin]"     rMax1="[BeampipeRin19]" 
+                           rMin2="[cms:Rmin]"     rMax2="[BeampipeRin20]"
+       dz="([BeampipeZ34]-[cms:ForwdBeamZ1])/2" 
+       startPhi="0*deg" deltaPhi="360*deg"/>
+ <Cone name="BeamTube14"   rMin1="[cms:Rmin]"     rMax1="[BeampipeRout36]" 
+                           rMin2="[cms:Rmin]"     rMax2="[BeampipeRout37]"
+       dz="([cms:ForwdBeamZ2]-[BeampipeZ34])/2" 
+       startPhi="0*deg" deltaPhi="360*deg"/>
+ <Cone name="BeamVacuum14" rMin1="[cms:Rmin]"     rMax1="[BeampipeRin20]" 
+                           rMin2="[cms:Rmin]"     rMax2="[BeampipeRin21]"
+       dz="([cms:ForwdBeamZ2]-[BeampipeZ34])/2" 
+       startPhi="0*deg" deltaPhi="360*deg"/>
  <Polycone name="BeamTube15" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[cms:ForwdBeamZ2]" rMin="[cms:Rmin]" rMax="[BeampipeRout37]" />
   <ZSection z="[cms:ForwdBeamZ3]" rMin="[cms:Rmin]" rMax="[BeampipeRout38]" />
@@ -298,8 +319,14 @@
   <ZSection z="[BeampipeZ37]"     rMin="[cms:Rmin]" rMax="[BeampipeRin24]"  />
   <ZSection z="[cms:TotemBeamZ2]" rMin="[cms:Rmin]" rMax="[BeampipeRin24]"  />
  </Polycone> 
- <Cone name="BeamInsert15" rMin1="[cms:Rmin]" rMax1="[BeampipeRin21]" rMin2="[cms:Rmin]" rMax2="[BeampipeRout42]" dz="([cms:TotemBeamZ2]-[cms:ForwdBeamZ2])/2" startPhi="0*deg" deltaPhi="360*deg"/>
- <Cone name="BeamVacuum15" rMin1="[cms:Rmin]" rMax1="[BeampipeRin25]" rMin2="[cms:Rmin]" rMax2="[BeampipeRin26]" dz="([cms:TotemBeamZ2]-[cms:ForwdBeamZ2])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Cone name="BeamInsert15" rMin1="[cms:Rmin]"     rMax1="[BeampipeRin21]" 
+                           rMin2="[cms:Rmin]"     rMax2="[BeampipeRout42]"
+       dz="([cms:TotemBeamZ2]-[cms:ForwdBeamZ2])/2" 
+       startPhi="0*deg" deltaPhi="360*deg"/>
+ <Cone name="BeamVacuum15" rMin1="[cms:Rmin]"     rMax1="[BeampipeRin25]" 
+                           rMin2="[cms:Rmin]"     rMax2="[BeampipeRin26]"
+       dz="([cms:TotemBeamZ2]-[cms:ForwdBeamZ2])/2" 
+       startPhi="0*deg" deltaPhi="360*deg"/>
  <Polycone name="BeamTube16" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[cms:TotemBeamZ2]" rMin="[cms:Rmin]" rMax="[cms:TotemBeamR4]"/>
   <ZSection z="[cms:TotemBeamZ3]" rMin="[cms:Rmin]" rMax="[cms:TotemBeamR4]"/>
@@ -319,7 +346,9 @@
   <ZSection z="[BeampipeZ38]"     rMin="[cms:Rmin]" rMax="[BeampipeRin26]"  />
   <ZSection z="[cms:ForwdBeamZ4]" rMin="[cms:Rmin]" rMax="[BeampipeRin26]"  />
  </Polycone> 
- <Tubs name="BeamVacuum16" rMin="[cms:Rmin]" rMax="[BeampipeRin26]" dz="([cms:ForwdBeamZ4]-[cms:TotemBeamZ2])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="BeamVacuum16" rMin="[cms:Rmin]"      rMax="[BeampipeRin26]" 
+       dz="([cms:ForwdBeamZ4]-[cms:TotemBeamZ2])/2" 
+       startPhi="0*deg" deltaPhi="360*deg"/>
  <Polycone name="BeamTube17" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[cms:ForwdBeamZ4]" rMin="[cms:Rmin]" rMax="[BeampipeRout44]" />
   <ZSection z="[BeampipeZ39]"     rMin="[cms:Rmin]" rMax="[BeampipeRout45]" />
@@ -366,9 +395,15 @@
   <ZSection z="[BeampipeZ48]"      rMin="[cms:Rmin]" rMax="[BeampipeRout45]"/>
   <ZSection z="[BeampipeZ49]"      rMin="[cms:Rmin]" rMax="[BeampipeRout45]"/>
  </Polycone> 
- <Tubs name="BeamBellow18" rMin="[BeampipeRin30]" rMax="[cms:ForwdBeamR5]" dz="([BeampipeZ45]-[BeampipeZ44])/2" startPhi="0*deg" deltaPhi="360*deg"/>
- <Tubs name="BeamInsert18" rMin="[cms:Rmin]" rMax="[BeampipeRout45]" dz="([BeampipeZ49]-[BeampipeZ44])/2" startPhi="0*deg" deltaPhi="360*deg"/>
- <Tubs name="BeamVacuum18" rMin="[cms:Rmin]" rMax="[BeampipeRin32]" dz="([BeampipeZ49]-[BeampipeZ44])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="BeamBellow18" rMin="[BeampipeRin30]" rMax="[cms:ForwdBeamR5]" 
+       dz="([BeampipeZ45]-[BeampipeZ44])/2" 
+       startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="BeamInsert18" rMin="[cms:Rmin]"      rMax="[BeampipeRout45]" 
+       dz="([BeampipeZ49]-[BeampipeZ44])/2" 
+       startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="BeamVacuum18" rMin="[cms:Rmin]"      rMax="[BeampipeRin32]" 
+       dz="([BeampipeZ49]-[BeampipeZ44])/2" 
+       startPhi="0*deg" deltaPhi="360*deg"/>
  <Polycone name="BeamTube19" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[BeampipeZ49]"     rMin="[cms:Rmin]" rMax="[BeampipeRout45]" />
   <ZSection z="[cms:ForwdBeamZ5]" rMin="[cms:Rmin]" rMax="[BeampipeRout45]" />
@@ -398,8 +433,12 @@
   <ZSection z="[BeampipeZ51]"     rMin="[cms:Rmin]" rMax="[cms:ForwdBeamR7]"/>
   <ZSection z="[BeampipeZ52]"     rMin="[cms:Rmin]" rMax="[cms:ForwdBeamR7]"/>
  </Polycone> 
- <Tubs name="BeamVacuum21" rMin="[cms:Rmin]" rMax="[BeampipeRin34]" dz="([BeampipeZ52]-[cms:ForwdBeamZ8])/2" startPhi="0*deg" deltaPhi="360*deg"/>
- <Tubs name="BeamBellow21" rMin="[BeampipeRin34]" rMax="[cms:ForwdBeamR7]" dz="([BeampipeZ52]-[BeampipeZ51])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="BeamVacuum21" rMin="[cms:Rmin]"     rMax="[BeampipeRin34]" 
+       dz="([BeampipeZ52]-[cms:ForwdBeamZ8])/2" 
+       startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="BeamBellow21" rMin="[BeampipeRin34]" rMax="[cms:ForwdBeamR7]" 
+       dz="([BeampipeZ52]-[BeampipeZ51])/2" 
+       startPhi="0*deg" deltaPhi="360*deg"/>
  <Polycone name="BeamTube22" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[BeampipeZ52]"     rMin="[cms:Rmin]" rMax="[BeampipeRout52]" />
   <ZSection z="[BeampipeZ53]"     rMin="[cms:Rmin]" rMax="[BeampipeRout52]" />
@@ -416,8 +455,11 @@
   <ZSection z="[cms:ForwdBeamZ9]" rMin="[cms:Rmin]" rMax="[BeampipeRin35]"  />
   <ZSection z="[cms:HallZ]"       rMin="[cms:Rmin]" rMax="[BeampipeRin35]"  />
  </Polycone> 
- <Tubs name="BeamBellow22" rMin="[BeampipeRin34]" rMax="[cms:ForwdBeamR7]" dz="([BeampipeZ54]-[BeampipeZ53])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="BeamBellow22" rMin="[BeampipeRin34]" rMax="[cms:ForwdBeamR7]" 
+       dz="([BeampipeZ54]-[BeampipeZ53])/2" 
+       startPhi="0*deg" deltaPhi="360*deg"/>
 </SolidSection>
+
 <LogicalPartSection label="beampipe.xml">
  <LogicalPart name="BEAM" category="unspecified">
   <rSolid name="BEAM"/>
@@ -632,6 +674,7 @@
   <rMaterial name="materials:Steel-light"/>
  </LogicalPart>
 </LogicalPartSection>
+
 <PosPartSection label="beampipe.xml">
  <PosPart copyNumber="1">
    <rParent name="beampipe:BEAM"/>
@@ -893,4 +936,6 @@
   <Translation x="0*fm" y="0*fm" z="([BeampipeZ54]+[BeampipeZ53])/2" />
  </PosPart>
 </PosPartSection>
+
+
 </DDDefinition>

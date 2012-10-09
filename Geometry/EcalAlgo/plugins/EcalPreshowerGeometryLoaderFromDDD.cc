@@ -1,19 +1,8 @@
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
-
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
-#include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.icc"
-
-template class CaloGeometryLoader< EcalPreshowerGeometry > ;
-
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 
-#include <iostream>
-#include <vector>
-
 typedef CaloGeometryLoader< EcalPreshowerGeometry > EcalPGL ;
-
-typedef CaloCellGeometry::CCGFloat CCGFloat ;
-typedef CaloCellGeometry::Pt3D     Pt3D     ;
 
 template <>
 void 
@@ -21,6 +10,16 @@ EcalPGL::fillGeom( EcalPreshowerGeometry*      geom ,
 		   const EcalPGL::ParmVec&     pv ,
 		   const HepGeom::Transform3D& tr ,
 		   const DetId&                id     );
+template <>
+void 
+EcalPGL::fillNamedParams( DDFilteredView         /*fv*/   ,
+			  EcalPreshowerGeometry* /*geom*/  );
+
+#include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.icc"
+
+template class CaloGeometryLoader< EcalPreshowerGeometry > ;
+typedef CaloCellGeometry::CCGFloat CCGFloat ;
+typedef CaloCellGeometry::Pt3D     Pt3D     ;
 
 template <>
 void 

@@ -16,7 +16,7 @@ Usage:
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 22 18:01:21 CEST 2005
-// $Id: ConstProductRegistry.h,v 1.7 2008/12/18 04:49:01 wmtan Exp $
+// $Id: ConstProductRegistry.h,v 1.8 2010/10/08 17:55:04 wmtan Exp $
 //
 
 // system include files
@@ -62,7 +62,7 @@ namespace edm {
 					      iFunc);
     }
     template< class T, class TMethod>
-    void watchProductAdditions(T& iObj, TMethod iMethod)
+    void watchProductAdditions(T const& iObj, TMethod iMethod)
     {
       serviceregistry::connect_but_block_self(reg_->productAddedSignal_, 
 					      boost::bind(iMethod, iObj,_1));

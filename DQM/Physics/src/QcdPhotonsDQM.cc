@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/06/19 10:15:33 $
- *  $Revision: 1.30 $
+ *  $Date: 2012/01/11 13:53:29 $
+ *  $Revision: 1.29 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -305,17 +305,12 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
 
   // For finding spikes
-  // Aug 24, 2012,  A.Juodagalvis: 
-  //    these collections (EBReducedRecHits and EEReducedRecHits)
-  //    are not available in CMSSW_6_0_0_pre11. Thus I disabled
-  //    spike detection
-  /*
   Handle<EcalRecHitCollection> EBReducedRecHits;
   iEvent.getByLabel("reducedEcalRecHitsEB", EBReducedRecHits);
   Handle<EcalRecHitCollection> EEReducedRecHits;
   iEvent.getByLabel("reducedEcalRecHitsEE", EEReducedRecHits); 
   EcalClusterLazyTools lazyTool(iEvent, iSetup, InputTag("reducedEcalRecHitsEB"), InputTag("reducedEcalRecHitsEE") );
-  */
+  
 
   // Find the highest et "decent" photon
   float photon_et  = -9.0;
@@ -331,7 +326,6 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
     // stop looping over photons once we get to too low Et
     if ( recoPhoton->et() < theMinPhotonEt_ ) break;
 
-    /*
     //  Ignore ECAL Spikes
     const reco::CaloClusterPtr  seed = recoPhoton->superCluster()->seed();
     DetId id = lazyTool.getMaximum(*seed).first; // Cluster shape variables
@@ -352,7 +346,6 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
     bool isNotSpike = ((recoPhoton->isEB() && (severity!=3 && severity!=4 ) && (flags != 2) ) || recoPhoton->isEE());
     if (!isNotSpike) continue;  // move on to next photon
     // END of determining ECAL Spikes
-    */
 
     bool pho_current_passPhotonID = false;
     bool pho_current_isEB = recoPhoton->isEB();

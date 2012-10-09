@@ -1,8 +1,8 @@
  /** \file DQMOffline/Trigger/HLTMuonMatchAndPlot.cc
  *
- *  $Author: bjk $
- *  $Date: 2012/03/22 00:31:04 $
- *  $Revision: 1.32 $
+ *  $Author: rovere $
+ *  $Date: 2011/12/02 10:26:30 $
+ *  $Revision: 1.31 $
  */
 
 
@@ -10,8 +10,7 @@
 
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -21,7 +20,6 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include <iostream>
 
@@ -57,7 +55,7 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset,
   targetZ0Cut_(targetParams_.getUntrackedParameter<double>("z0Cut",0.)),
   targetD0Cut_(targetParams_.getUntrackedParameter<double>("d0Cut",0.)),
   probeMuonSelector_(probeParams_.getUntrackedParameter<string>("recoCuts", "")),
-  probeZ0Cut_(probeParams_.getUntrackedParameter<double>("z0Cut",0.)),
+  probeZ0Cut_(probeParams_.getUntrackedParameter<double>("z0Cut",0.)),                                                                                                                                                                                                        
   probeD0Cut_(probeParams_.getUntrackedParameter<double>("d0Cut",0.))
 {
 
@@ -81,7 +79,6 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset,
   TPRegexp levelRegexp("L[1-3]");
   size_t nModules = moduleLabels_.size();
   TObjArray * levelArray = levelRegexp.MatchS(moduleLabels_[nModules - 1]);
-  std::cout << moduleLabels_[nModules - 1] << std::endl;
   if (levelArray->GetEntriesFast() > 0) {
     triggerLevel_ = ((TObjString *)levelArray->At(0))->GetString();
   }
@@ -133,22 +130,20 @@ void HLTMuonMatchAndPlot::beginRun(const edm::Run& iRun,
     book1D("efficiencyD0_" + suffix, "d0", ";d0;");
     book1D("efficiencyZ0_" + suffix, "z0", ";z0;");
     book1D("efficiencyCharge_" + suffix, "charge", ";charge;");
-    book1D("efficiencyVertex_" + suffix, "NVertex", ";NVertex;");
-
     book2D("efficiencyPhiVsEta_" + suffix, "etaCoarse", "phiCoarse", 
            ";#eta;#phi");
 
     book1D("fakerateEta_" + suffix, "eta", ";#eta;");
-    book1D("fakerateVertex_" + suffix, "NVertex", ";NVertex;");
     book1D("fakeratePhi_" + suffix, "phi", ";#phi;");
     book1D("fakerateTurnOn_" + suffix, "pt", ";p_{T};");
 
-    book1D("massVsEtaZ_" + suffix, "etaCoarse", ";#eta");
-    book1D("massVsEtaJpsi_" + suffix, "etaCoarse", ";#eta");
-    book1D("massVsPtZ_" + suffix, "ptCoarse", ";p_{T}");
-    book1D("massVsPtJpsi_" + suffix, "ptCoarse", ";p_{T}");
-    book1D("massVsVertexZ_" + suffix, "NVertex", ";NVertex");
-    book1D("massVsVertexJpsi_" + suffix, "NVertex", ";NVertex");
+    // Charge Flip?
+ 
+    // Book histograms for tag and probe
+    if (probeParams_.exists("recoCuts")) {
+      book2D("massVsEtaZ_" + suffix, "zMass", "etaCoarse", ";m_{#mu#mu};#eta");
+      book2D("massVsEtaJpsi_" + suffix, "jpsiMass", "etaCoarse", ";m_{#mu#mu};#eta");
+    }
 
   }
   
@@ -171,24 +166,11 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
   // Get objects from the event.
   Handle<MuonCollection> allMuons;
   iEvent.getByLabel(inputTags_["recoMuon"], allMuons);
-
   Handle<BeamSpot> beamSpot;
   iEvent.getByLabel(inputTags_["beamSpot"], beamSpot);
-  
   Handle<TriggerEvent> triggerSummary;
   iEvent.getByLabel(inputTags_["triggerSummary"], triggerSummary);
   Handle<TriggerResults> triggerResults;
-
-  edm::Handle<VertexCollection> vertices;
-  iEvent.getByLabel("offlinePrimaryVertices", vertices);
-
-  //edm::Handle<GenParticleCollection> gen;
-  //iEvent.getByLabel("genParticles", gen);
-  //GenParticleCollection::const_iterator g_part;
-  //std::vector<const GenParticle *> gen_leptsp;
-  //std::vector<const GenParticle *> gen_momsp;
-
-
   if(!triggerSummary.isValid()) 
   {
     edm::LogError("HLTMuonMatchAndPlot")<<"Missing triggerSummary with label " << inputTags_["triggerSummary"] <<std::endl;
@@ -200,52 +182,6 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
     edm::LogError("HLTMuonMatchAndPlot")<<"Missing triggerResults with label " << inputTags_["triggerResults"] <<std::endl;
     return;
   }
-
-  /*
-  if(gen != 0) {
-    for(g_part = gen->begin(); g_part != gen->end(); g_part++){
-      if( abs(g_part->pdgId()) ==  13) {
-        if(!( g_part->status() ==1 || (g_part->status() ==2 && abs(g_part->pdgId())==5))) continue;
-        bool GenMomExists  (true);
-        bool GenGrMomExists(true);
-        if( g_part->pt() < 10.0 )  continue;
-        if( fabs(g_part->eta()) > 2.4 ) continue;
-        int gen_id= g_part->pdgId();
-        const GenParticle* gen_lept = &(*g_part);
-        // get mother of gen_lept
-        const GenParticle* gen_mom = static_cast<const GenParticle*> (gen_lept->mother());
-        if(gen_mom==NULL) GenMomExists=false;
-        int m_id=-999;
-        if(GenMomExists) m_id = gen_mom->pdgId();
-        if(m_id != gen_id || !GenMomExists);
-        else{
-          int id= m_id;
-          while(id == gen_id && GenMomExists){
-            gen_mom = static_cast<const GenParticle*> (gen_mom->mother());
-            if(gen_mom==NULL){
-              GenMomExists=false;
-            }
-            if(GenMomExists) id=gen_mom->pdgId();
-          }
-        }
-        if(GenMomExists) m_id = gen_mom->pdgId();
-        gen_leptsp.push_back(gen_lept);
-        gen_momsp.push_back(gen_mom);
-      }
-    }
-  }
-
-
-  std::vector<GenParticle> gen_lepts;
-  for(size_t i = 0; i < gen_leptsp.size(); i++) {
-    gen_lepts.push_back(*gen_leptsp[i]);
-  }
-
-
-  */
-
-
-
   // Throw out this event if it doesn't pass the required triggers.
   for (size_t i = 0; i < requiredTriggers_.size(); i++) {
     unsigned int triggerIndex = triggerResults->find(requiredTriggers_[i]);
@@ -272,9 +208,7 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
   vector<size_t> matches = matchByDeltaR(targetMuons, hltMuons, 
                                          plotCuts_[triggerLevel_ + "DeltaR"]);
 
-
   // Fill plots for matched muons.
-  bool pairalreadyconsidered = false;
   for (size_t i = 0; i < targetMuons.size(); i++) {
 
     Muon & muon = targetMuons[i];
@@ -315,48 +249,25 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
         if (track) {
           double d0 = track->dxy(beamSpot->position());
           double z0 = track->dz(beamSpot->position());
-          hists_["efficiencyVertex_" + suffix]->Fill(vertices->size());
           hists_["efficiencyPhi_" + suffix]->Fill(muon.phi());
           hists_["efficiencyD0_" + suffix]->Fill(d0);
           hists_["efficiencyZ0_" + suffix]->Fill(z0);
           hists_["efficiencyCharge_" + suffix]->Fill(muon.charge());
         }
       }
-    }
       
-    // Fill plots for tag and probe
-    // Muon cannot be a tag because doesn't match an hlt muon     
-    if(matches[i] >= targetMuons.size()) continue;
-    for (size_t k = 0; k < targetMuons.size(); k++) {
-      if(k == i) continue;
-      if(muon.pt() < 20.0) continue;
-      Muon & theProbe = targetMuons[k];
-      if (muon.charge() != theProbe.charge() && !pairalreadyconsidered) {
-        double mass = (muon.p4() + theProbe.p4()).M();
-        if(mass > 60 && mass < 120) {
-          hists_["massVsEtaZ_denom"]->Fill(theProbe.eta());
-          hists_["massVsPtZ_denom"]->Fill(theProbe.pt());
-          hists_["massVsVertexZ_denom"]->Fill(vertices->size());
-          if(matches[k] < targetMuons.size()) {
-            hists_["massVsEtaZ_numer"]->Fill(theProbe.eta());
-            hists_["massVsPtZ_numer"]->Fill(theProbe.pt());
-            hists_["massVsVertexZ_numer"]->Fill(vertices->size());
-          }  
-          pairalreadyconsidered = true;
-        }
-        if(mass > 1 && mass < 4) {
-          hists_["massVsEtaJpsi_denom"]->Fill(theProbe.eta());
-          hists_["massVsPtJpsi_denom"]->Fill(theProbe.pt());
-          hists_["massVsVertexJpsi_denom"]->Fill(vertices->size());
-          if(matches[k] < targetMuons.size()) {
-            hists_["massVsEtaJpsi_numer"]->Fill(theProbe.eta());
-            hists_["massVsPtJpsi_numer"]->Fill(theProbe.pt());
-            hists_["massVsVertexJpsi_numer"]->Fill(vertices->size());
-          }
-          pairalreadyconsidered = true;
+      // Fill plots for tag and probe
+      for (size_t k = 0; k < probeMuons.size(); k++) {
+        Muon & probe = targetMuons[k];
+        if (muon.charge() != probe.charge()) {
+          double mass = (muon.p4() + probe.p4()).M();
+          hists_["massVsEtaZ_" + suffix]->Fill(mass, muon.eta());
+          hists_["massVsEtaJpsi_" + suffix]->Fill(mass, muon.eta());
         }
       }
+
     } // End loop over denominator and numerator.
+
   } // End loop over targetMuons.
 
   // Plot fake rates (efficiency for HLT objects to not get matched to RECO).
@@ -369,7 +280,6 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
       string suffix = EFFICIENCY_SUFFIXES[j];
       // If match is found, then numerator plots should not get filled
       if (suffix == "numer" && ! isFake) continue;
-      hists_["fakerateVertex_" + suffix]->Fill(vertices->size());
       hists_["fakerateEta_" + suffix]->Fill(hltMuon.eta());
       hists_["fakeratePhi_" + suffix]->Fill(hltMuon.phi());
       hists_["fakerateTurnOn_" + suffix]->Fill(hltMuon.pt());

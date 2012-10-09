@@ -69,17 +69,6 @@ namespace cms{
       if ( conf.exists("maxSeedsBeforeCleaning") ) 
 	   maxSeedsBeforeCleaning_=conf.getParameter<unsigned int>("maxSeedsBeforeCleaning");
 
-  }
-
-  
-  // Virtual destructor needed.
-  CkfTrackCandidateMakerBase::~CkfTrackCandidateMakerBase() {
-    delete theInitialState;  
-    if (theSeedCleaner) delete theSeedCleaner;
-  }  
-
-  void CkfTrackCandidateMakerBase::beginRunBase (edm::Run & r, EventSetup const & es)
-  {
     std::string cleaner = conf_.getParameter<std::string>("RedundantSeedCleaner");
     if (cleaner == "SeedCleanerByHitPosition") {
         theSeedCleaner = new SeedCleanerByHitPosition();
@@ -98,6 +87,20 @@ namespace cms{
     } else {
         throw cms::Exception("RedundantSeedCleaner not found", cleaner);
     }
+
+
+  }
+
+  
+  // Virtual destructor needed.
+  CkfTrackCandidateMakerBase::~CkfTrackCandidateMakerBase() {
+    delete theInitialState;  
+    if (theSeedCleaner) delete theSeedCleaner;
+  }  
+
+  void CkfTrackCandidateMakerBase::beginRunBase (edm::Run & r, EventSetup const & es)
+  {
+    /* no op*/
   }
 
   void CkfTrackCandidateMakerBase::setEventSetup( const edm::EventSetup& es ) {

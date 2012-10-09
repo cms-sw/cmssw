@@ -21,7 +21,7 @@ goodMuons = cms.EDFilter("PATMuonSelector",
 
 goodMuonsPFIso = cms.EDFilter("PATMuonRefSelector",
 	src = cms.InputTag("goodMuons"),
-	cut = cms.string('pfIsolationR04().sumChargedHadronPt < 0.1*pt'),
+	cut = cms.string('(pfIsolationR04().sumChargedHadronPt - pfIsolationR04().sumPUPt)<0.1*pt'),
 	filter = cms.bool(False)
 )
 

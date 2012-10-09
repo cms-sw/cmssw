@@ -858,7 +858,7 @@ inline double cross(mathSSE::Vec2D a, mathSSE::Vec2D b) {
 #ifdef __SSE3__
 // consistent with AVX...
 inline mathSSE::Vec4D hadd(mathSSE::Vec4D a, mathSSE::Vec4D b) {
-  return  mathSSE::Vec4D(hadd(a.vec[0],b.vec[0]),hadd(a.vec[1],b.vec[1]) );
+    return  mathSSE::Vec4D(hadd(mathSSE::Vec2D(a.vec[0]),mathSSE::Vec2D(b.vec[0])),hadd(mathSSE::Vec2D(a.vec[1]),mathSSE::Vec2D(b.vec[1])) );
 }
 #endif
 

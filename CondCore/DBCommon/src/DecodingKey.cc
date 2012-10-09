@@ -10,8 +10,8 @@
 #include <pwd.h>
 #include <ctime>
 
-constexpr char ItemSeparator = ';';
-constexpr char LineSeparator = '!';
+static char ItemSeparator(';');
+static char LineSeparator('!');
 
 // character set same as base64, except for last two (missing are + and / ) 
 static const char* b64str =

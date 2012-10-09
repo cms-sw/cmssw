@@ -201,16 +201,20 @@ int Muon::numberOfMatchedRPCLayers( ArbitrationType type ) const
 {
    int layers(0);
 
-   unsigned int theRPCLayerMask = RPClayerMask(type);
-   // maximum ten layers because of 6 layers in barrel and 3 (4) layers in each endcap before (after) upscope
-   for(int it = 0; it < 10; ++it)
-     if (theRPCLayerMask & 1<<it)
-       ++layers;
+   // six (three) layers in barrel (each endcap)
+   for( int rpcRegion = 1; rpcRegion < 3; rpcRegion++ )
+   {
+      unsigned int theRPCLayerMask = RPClayerMask(rpcRegion);
+      int it_max = 6; if(rpcRegion==2) it_max = 3;
+      for(int it = 0; it < it_max; ++it)
+         if (theRPCLayerMask & 1<<it)
+	    ++layers;
+   }
 
    return layers;
 }
 
-unsigned int Muon::RPClayerMask( ArbitrationType type ) const
+unsigned int Muon::RPClayerMask( int rpcRegion ) const
 {
    unsigned int totMask(0);
    unsigned int curMask(0);
@@ -220,14 +224,17 @@ unsigned int Muon::RPClayerMask( ArbitrationType type ) const
       if(chamberMatch->rpcMatches.empty()) continue;
 	 
       RPCDetId rollId = chamberMatch->id.rawId();
-      const int region = rollId.region();
+      const int region    = rollId.region();
+      int rpcIndex = 1; if (region!=0) rpcIndex = 2;
+
+      if(!(rpcIndex==rpcRegion)) continue;
 
       const int layer  = rollId.layer();
       int rpcLayer = chamberMatch->station();
-      if (region==0) {
+      if (rpcIndex==1) {
 	 rpcLayer = chamberMatch->station()-1 + chamberMatch->station()*layer;
 	 if ((chamberMatch->station()==2 && layer==2) || (chamberMatch->station()==4 && layer==1)) rpcLayer -= 1;
-      } else rpcLayer += 6;
+      }
 	 
       for( std::vector<MuonRPCHitMatch>::const_iterator rpcMatch = chamberMatch->rpcMatches.begin();
 	    rpcMatch != chamberMatch->rpcMatches.end(); rpcMatch++ )

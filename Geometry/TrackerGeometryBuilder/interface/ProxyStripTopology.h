@@ -23,8 +23,8 @@
 ///
 ///  \author    : Andreas Mussgiller
 ///  date       : November 2010
-///  $Revision: 1.5 $
-///  $Date: 2012/09/19 15:47:48 $
+///  $Revision: 1.3 $
+///  $Date: 2012/04/18 09:47:32 $
 ///  (last update by $Author: innocent $)
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
@@ -74,10 +74,6 @@ public:
   /// conversion taking also the track state (LocalTrajectoryParameters)
   virtual float strip( const LocalPoint& lp, const Topology::LocalTrackAngles &dir ) const;
 
-  virtual float coveredStrips(const LocalPoint& lp1, const LocalPoint& lp2)  const {
-    return specificTopology().coveredStrips(lp1,lp2);
-  }
-
   virtual float pitch() const { return specificTopology().pitch(); }
   virtual float localPitch( const LocalPoint& lp) const { return specificTopology().localPitch(lp);}
   /// conversion taking also the angle from the track state (LocalTrajectoryParameters)
@@ -99,11 +95,9 @@ public:
   }
   virtual void setSurfaceDeformation(const SurfaceDeformation * deformation);
 
+private:
   
   virtual const StripTopology& specificTopology() const {return specificType().specificTopology();}
-
-private:
-
   /// Internal method to get correction of the position from SurfaceDeformation,
   /// must not be called if 'theSurfaceDeformation' is a null pointer.
   SurfaceDeformation::Local2DVector

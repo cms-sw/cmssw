@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/DataProxy.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include <cassert>
 //
 // constants, enums and typedefs
 //

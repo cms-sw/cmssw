@@ -1592,7 +1592,7 @@ namespace edm {
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
 
     {
-      boost::mutex::scoped_lock(me->stop_lock_);
+      boost::mutex::scoped_lock sl(me->stop_lock_);
       me->event_loop_id_ = pthread_self();
       me->id_set_ = true;
       me->starter_.notify_all();

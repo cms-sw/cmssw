@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg      3-Jul-2007
 #     A. Parenti, DESY Hamburg    21-Apr-2008
-#     $Revision: 1.26 $ by $Author: jbehr $
-#     $Date: 2011/09/22 13:48:11 $
+#     $Revision: 1.25 $ by $Author: jbehr $
+#     $Date: 2011/07/16 10:23:57 $
 #
 #  Submit jobs that are setup in local mps database
 #  
@@ -89,8 +89,8 @@ if ($fireMerge == 0) {
 
     $nSub = 0;
     for ($i = 0; $i < $nJobs; ++$i) {
-	if ($JOBSTATUS[$i] eq "SETUP") {
-          if ($nSub < $maxJobs) {
+	if (@JOBSTATUS[$i] eq "SETUP") {
+	    if ($nSub < $maxJobs) {
 		# for some reasons LSF wants script with full path
 		print "bsub -J $theJobName $resources $theJobData/@JOBDIR[$i]/theScript.sh\n";
 		$result = `bsub -J $theJobName $resources $theJobData/@JOBDIR[$i]/theScript.sh`;
@@ -98,14 +98,14 @@ if ($fireMerge == 0) {
 		chomp $result;
 		$nn = ($result =~ m/Job \<(\d+)\> is submitted/);
 		if ($nn eq 1) {
-                  # need standard format for job number
-                  @JOBSTATUS[$i] = "SUBTD";
-                  ## @JOBID[$i] = $1;
-                  @JOBID[$i] = sprintf "%07d",$1;
-                  ## print "jobid is @JOBID[$i]\n";
+		    # need standard format for job number
+		    @JOBSTATUS[$i] = "SUBTD";
+		    ## @JOBID[$i] = $1;
+		    @JOBID[$i] = sprintf "%07d",$1;
+		    ## print "jobid is @JOBID[$i]\n";
 		} else {
-                  $jid = $i + 1;
-                  print "Submission of $jid seems to have failed: $result\n";
+		    $jid = $i + 1;
+		    print "Submission of $jid seems to have failed: $result\n";
 		}
 		++$nSub;
 	    }
@@ -128,7 +128,7 @@ if ($fireMerge == 0) {
 # Allocate memory for pede job
     $resources = $resources." -R \"rusage[mem=".$pedeMem."]\"";
 
-    # check whether all other jobs are OK
+    # check whether all other jobs OK
     $mergeOK = 1;
     for ($i = 0; $i < $nJobs; ++$i) {
       if ($JOBSTATUS[$i] ne "OK") {
