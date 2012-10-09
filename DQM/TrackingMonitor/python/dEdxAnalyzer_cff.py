@@ -10,8 +10,10 @@ RefitterForDedxDQMDeDx.TrajectoryInEvent = True
 
 from RecoTracker.DeDx.dedxHarmonic2_cfi import *
 dedxDQMHarm2SP = dedxHarmonic2.clone()
-dedxDQMHarm2SP.tracks                     = cms.InputTag("RefitterForDedxDQMDeDx")
-dedxDQMHarm2SP.trajectoryTrackAssociation = cms.InputTag("RefitterForDedxDQMDeDx")
+#dedxDQMHarm2SP.tracks                     = cms.InputTag("RefitterForDedxDQMDeDx")
+#dedxDQMHarm2SP.trajectoryTrackAssociation = cms.InputTag("RefitterForDedxDQMDeDx")
+dedxDQMHarm2SP.tracks                     = cms.InputTag("generalTracks")
+dedxDQMHarm2SP.trajectoryTrackAssociation = cms.InputTag("generalTracks")
 dedxDQMHarm2SP.UseStrip = cms.bool(True)
 dedxDQMHarm2SP.UsePixel = cms.bool(True)
 
