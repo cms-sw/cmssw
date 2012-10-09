@@ -43,7 +43,7 @@ namespace magfieldparam {
   namespace bcylDetails{
     
     template<typename T>
-    inline void ffunkti(T u, T * __restrict__ ff) __attribute__((always_inline)) __attribute__ ((pure));
+    inline void ffunkti(T u, T * __restrict__ ff) __attribute__((always_inline));
     
     template<typename T>
     inline void ffunkti(T u, T * __restrict__ ff) {
