@@ -82,7 +82,7 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
 	trkSelectors[i].existsAs<int32_t>("max_minMissHitOutOrIn") ? 
 	trkSelectors[i].getParameter<int32_t>("max_minMissHitOutOrIn") : 99);
     max_lostHitFraction_.push_back(
-	trkSelectors[i].getParameter<double>("max_lostHitFraction") ?
+	trkSelectors[i].existsAs<double>("max_lostHitFraction") ?
 	trkSelectors[i].getParameter<double>("max_lostHitFraction") : 1.0);
     min_eta_.push_back(trkSelectors[i].existsAs<double>("min_eta") ?
 	trkSelectors[i].getParameter<double>("min_eta"):-9999);
