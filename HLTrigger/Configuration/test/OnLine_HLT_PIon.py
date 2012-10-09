@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/PIon/V41 (CMSSW_5_2_7)
+# /dev/CMSSW_5_2_6/PIon/V42 (CMSSW_5_2_7_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V41')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V42')
 )
 
 process.streams = cms.PSet( 
@@ -2927,7 +2927,7 @@ process.FastTimerService = cms.Service( "FastTimerService",
     enableDQMbyPathTotal = cms.untracked.bool( True ),
     useRealTimeClock = cms.untracked.bool( True ),
     enableDQMbyPathExclusive = cms.untracked.bool( False ),
-    enableDQMbyLumi = cms.untracked.bool( False ),
+    enableDQMbyLumi = cms.untracked.bool( True ),
     dqmModuleTimeResolution = cms.untracked.double( 0.2 ),
     enableDQMbyPathActive = cms.untracked.bool( False ),
     enableDQMbyPathDetails = cms.untracked.bool( False ),

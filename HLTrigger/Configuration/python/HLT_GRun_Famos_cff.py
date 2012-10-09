@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/GRun/V41 (CMSSW_5_2_7)
+# /dev/CMSSW_5_2_6/GRun/V42 (CMSSW_5_2_7_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/GRun/V41')
+  tableName = cms.string('/dev/CMSSW_5_2_6/GRun/V42')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -11741,6 +11741,7 @@ hltDiMuonGlb13Glb8DzFiltered0p2 = cms.EDFilter( "HLT2MuonMuonDZ",
     MinDR = cms.double( 0.0010 ),
     MaxDZ = cms.double( 0.2 ),
     inputTag1 = cms.InputTag( "hltL3pfL1DoubleMu10MuOpenOR3p5L1f0L2pf0L3PreFiltered8" ),
+    checkSC = cms.bool( False ),
     inputTag2 = cms.InputTag( "hltL3fL1DoubleMu10MuOpenOR3p5L1f0L2f10L3Filtered13" )
 )
 hltPreMu17Mu8 = cms.EDFilter( "HLTPrescaler",
@@ -11777,6 +11778,7 @@ hltDiMuonGlb17Glb8DzFiltered0p2 = cms.EDFilter( "HLT2MuonMuonDZ",
     MinDR = cms.double( 0.0010 ),
     MaxDZ = cms.double( 0.2 ),
     inputTag1 = cms.InputTag( "hltL3pfL1DoubleMu10MuOpenOR3p5L1f0L2pf0L3PreFiltered8" ),
+    checkSC = cms.bool( False ),
     inputTag2 = cms.InputTag( "hltL3fL1DoubleMu10MuOpenOR3p5L1f0L2f10L3Filtered17" )
 )
 hltPreMu17TkMu8 = cms.EDFilter( "HLTPrescaler",
@@ -12153,6 +12155,7 @@ hltDiMuonGlb17Trk8DzFiltered0p2 = cms.EDFilter( "HLT2MuonMuonDZ",
     MinDR = cms.double( -1.0 ),
     MaxDZ = cms.double( 0.2 ),
     inputTag1 = cms.InputTag( "hltDiMuonGlbFiltered17TrkFiltered8" ),
+    checkSC = cms.bool( False ),
     inputTag2 = cms.InputTag( "hltDiMuonGlbFiltered17TrkFiltered8" )
 )
 hltPreMu22TkMu8 = cms.EDFilter( "HLTPrescaler",
@@ -12204,6 +12207,7 @@ hltDiMuonGlb22Trk8DzFiltered0p2 = cms.EDFilter( "HLT2MuonMuonDZ",
     MinDR = cms.double( -1.0 ),
     MaxDZ = cms.double( 0.2 ),
     inputTag1 = cms.InputTag( "hltDiMuonGlbFiltered22TrkFiltered8" ),
+    checkSC = cms.bool( False ),
     inputTag2 = cms.InputTag( "hltDiMuonGlbFiltered22TrkFiltered8" )
 )
 hltPreMu22TkMu22 = cms.EDFilter( "HLTPrescaler",
@@ -12235,6 +12239,7 @@ hltDiMuonGlb22Trk22DzFiltered0p2 = cms.EDFilter( "HLT2MuonMuonDZ",
     MinDR = cms.double( -1.0 ),
     MaxDZ = cms.double( 0.2 ),
     inputTag1 = cms.InputTag( "hltDiMuonGlbFiltered22TrkFiltered22" ),
+    checkSC = cms.bool( False ),
     inputTag2 = cms.InputTag( "hltDiMuonGlbFiltered22TrkFiltered22" )
 )
 hltL1sL1TripleMu0ORTripleMu0HQ = cms.EDFilter( "HLTLevel1GTSeed",
@@ -17828,6 +17833,7 @@ hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoDZ = cms.EDFilter( "HLT2Electr
     MinDR = cms.double( -1.0 ),
     MaxDZ = cms.double( 0.2 ),
     inputTag1 = cms.InputTag( "hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoDoubleFilter" ),
+    checkSC = cms.bool( True ),
     inputTag2 = cms.InputTag( "hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoDoubleFilter" )
 )
 hltPreEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTEle8Mass50 = cms.EDFilter( "HLTPrescaler",
@@ -33650,8 +33656,8 @@ HLT_MET80_Parked_v5 = cms.Path( HLTBeginSequence + hltL1sL1ETM36ORETM40 + hltPre
 HLT_MET80_Track50_dEdx3p6_v6 = cms.Path( HLTBeginSequence + hltL1sL1ETM36ORETM40 + hltPreMET80Track50dEdx3p6 + HLTRecoMETSequence + hltMET80 + HLTPFReconstructionDEDXSequence + hltDeDxEstimatorProducer + hltDeDxFilter50DEDX3p6 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_MET80_Track60_dEdx3p7_v6 = cms.Path( HLTBeginSequence + hltL1sL1ETM36ORETM40 + hltPreMET80Track60dEdx3p7 + HLTRecoMETSequence + hltMET80 + HLTPFReconstructionDEDXSequence + hltDeDxEstimatorProducer + hltDeDxFilter60DEDX3p7 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_MET100_HBHENoiseCleaned_v1 = cms.Path( HLTBeginSequence + hltL1sL1ETM36ORETM40ORETM50 + hltPreMET100HBHENoiseCleaned + HLTRecoMETSequence + hltMET100 + HLTHBHENoiseCleanerSequence + hltMetClean + hltMETClean50 + cms.SequencePlaceholder( "HLTEndSequence" ) )
-HLT_MET120_v12 = cms.Path( HLTBeginSequence + hltL1sL1ETM36ORETM40 + hltPreMET120 + HLTRecoMETSequence + hltMET120 + cms.SequencePlaceholder( "HLTEndSequence" ) )
-HLT_MET120_HBHENoiseCleaned_v5 = cms.Path( HLTBeginSequence + hltL1sL1ETM36ORETM40 + hltPreMET120HBHENoiseCleaned + HLTRecoMETSequence + hltMET120 + HLTHBHENoiseCleanerSequence + hltMetClean + hltMETClean60 + cms.SequencePlaceholder( "HLTEndSequence" ) )
+HLT_MET120_v12 = cms.Path( HLTBeginSequence + hltL1sL1ETM36ORETM40ORETM50 + hltPreMET120 + HLTRecoMETSequence + hltMET120 + cms.SequencePlaceholder( "HLTEndSequence" ) )
+HLT_MET120_HBHENoiseCleaned_v5 = cms.Path( HLTBeginSequence + hltL1sL1ETM36ORETM40ORETM50 + hltPreMET120HBHENoiseCleaned + HLTRecoMETSequence + hltMET120 + HLTHBHENoiseCleanerSequence + hltMetClean + hltMETClean60 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_MET200_v12 = cms.Path( HLTBeginSequence + hltL1sL1ETM70 + hltPreMET200 + HLTRecoMETSequence + hltMET200 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_MET200_HBHENoiseCleaned_v5 = cms.Path( HLTBeginSequence + hltL1sL1ETM70 + hltPreMET200HBHENoiseCleaned + HLTRecoMETSequence + hltMET200 + HLTHBHENoiseCleanerSequence + hltMetClean + hltMETClean100 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_MET300_v4 = cms.Path( HLTBeginSequence + hltL1sL1ETM100 + hltPreMET300 + HLTRecoMETSequence + hltMET300 + cms.SequencePlaceholder( "HLTEndSequence" ) )
