@@ -40,6 +40,7 @@ laserSorter = cms.EDAnalyzer("LaserSorter",
   # * Recommanded value is: maximum time consecutively spent on a FED in the
   #   sequence (T_fed, = max event count * 10 ms) divided by the luminosity
   #   block duration (T_lb), divided by 2 and ceil-rounded: ceil(T_fed/(2*T_lb))
-  lumiBlockSpan = cms.int32(2)
+  lumiBlockSpan = cms.int32(2),
+  fedRawDataCollectionTag = cms.InputTag('rawDataCollector')
 )
 

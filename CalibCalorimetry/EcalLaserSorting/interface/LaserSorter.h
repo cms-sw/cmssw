@@ -1,5 +1,5 @@
 /*
- * $Id: LaserSorter.h,v 1.6 2012/06/14 09:46:44 eulisse Exp $
+ * $Id: LaserSorter.h,v 1.7 2012/06/14 10:12:31 eulisse Exp $
  */
 
 #ifndef EVENT_SELECT_H
@@ -13,6 +13,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
@@ -426,7 +427,9 @@ private:
    * </ul>
    */
   int lumiBlockSpan_;
-  
+
+  edm::InputTag fedRawDataCollectionTag_;
+
   /** FED ID associated to Matacq data
    */
   static const int matacqFedId_ = 655;
