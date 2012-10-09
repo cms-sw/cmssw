@@ -20,7 +20,7 @@
 		<Constant name="VcalPMTSep" value="42.0*mm"/>
 		<Constant name="VcalCathx" value="9.0*mm"/>
 		<Constant name="VcalCathy" value="9.0*mm"/>
-		<Constant name="VcalCathz" value="6.0*mm"/>
+		<Constant name="VcalCathz" value="0.6*mm"/>
 		<Constant name="halfAngHF" value="10*deg"/>
 		<Constant name="VcalEleR3" value="([VcalEleR2]*cos([halfAngHF]))"/>
 		<Constant name="dxLowEleBox" value="([VcalEleR1]*tan([halfAngHF]))"/>
