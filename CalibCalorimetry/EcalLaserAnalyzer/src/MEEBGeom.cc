@@ -217,109 +217,105 @@ MEEBGeom::globalCoord( int ism, int icr )
 int 
 MEEBGeom::lm_channel( EBTTLocalCoord iX, EBTTLocalCoord iY )
 {
-  string 
-    str_
-    (
+  static const int 
+    idx_[] = 
+    {
      // 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
-     "-01-02-02-02-02-04-04-04-04-06-06-06-06-08-08-08-08" // 3
-     "-01-02-02-02-02-04-04-04-04-06-06-06-06-08-08-08-08" // 2
-     "-01-03-03-03-03-05-05-05-05-07-07-07-07-09-09-09-09" // 1
-     "-01-03-03-03-03-05-05-05-05-07-07-07-07-09-09-09-09" // 0
+        1, 2, 2, 2, 2, 4, 4, 4, 4, 6, 6, 6, 6, 8, 8, 8, 8, // 3
+        1, 2, 2, 2, 2, 4, 4, 4, 4, 6, 6, 6, 6, 8, 8, 8, 8, // 2
+        1, 3, 3, 3, 3, 5, 5, 5, 5, 7, 7, 7, 7, 9, 9, 9, 9, // 1
+        1, 3, 3, 3, 3, 5, 5, 5, 5, 7, 7, 7, 7, 9, 9, 9, 9  // 0
      // 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
-     );
+     };
 
-  int iym, ixm, nc, il, ic, ii;
+  int iym, ixm, il, ic, ii;
   iym=4;
   ixm=17;
   int iX_ = iX+1;
   int iY_ = iY+1;
-  nc=3;		  
   il=iym-iY_;
-  ic=nc*(iX_-1);
-  ii=il*nc*ixm+ic;
-  if( str_.substr(ii,1).find("-")==string::npos ) return -1;
-  return atoi( str_.substr(ii+1,2).c_str() );
+  ic=iX_-1;
+  ii=il*ixm+ic;
+  if(ii < 0 || ii > (int)(sizeof(idx_)/sizeof(int))) { return -1; };
+  return idx_[ii];
 }
 
 int 
 MEEBGeom::tt_type( EBTTLocalCoord iX, EBTTLocalCoord iY )
 {
-  string 
-    str_
-    (
+  static const int 
+    idx_[] =
+    {
      // 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
-     "-01-01-01-02-02-01-01-02-02-01-01-02-02-01-01-02-02" // 3
-     "-01-01-01-02-02-01-01-02-02-01-01-02-02-01-01-02-02" // 2
-     "-01-01-01-02-02-01-01-02-02-01-01-02-02-01-01-02-02" // 1
-     "-01-01-01-02-02-01-01-02-02-01-01-02-02-01-01-02-02" // 0
+        1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 2, 2, // 3
+        1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 2, 2, // 2
+        1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 2, 2, // 1
+        1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 2, 2  // 0
      // 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
-     );
+     };
 
-  int iym, ixm, nc, il, ic, ii;
+  int iym, ixm, il, ic, ii;
   iym=4;
   ixm=17;
   int iX_ = iX+1;
   int iY_ = iY+1;
-  nc=3;		  
   il=iym-iY_;
-  ic=nc*(iX_-1);
-  ii=il*nc*ixm+ic;
-  if( str_.substr(ii,1).find("-")==string::npos ) return -1;
-  return atoi( str_.substr(ii+1,2).c_str() );
+  ic=iX_-1;
+  ii=il*ixm+ic;
+  if(ii < 0 || ii > (int)(sizeof(idx_)/sizeof(int))) { return -1; };
+  return idx_[ii];
 }
 
 int
 MEEBGeom::hv_channel( EBTTLocalCoord iX, EBTTLocalCoord iY )
 {
-  string 
-    str_
-    (
-     // 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
-     "-01-03-05-07-09-11-13-15-17-19-21-23-25-27-29-31-33" // 3
-     "-01-03-05-07-09-11-13-15-17-19-21-23-25-27-29-31-33" // 2
-     "-02-04-06-08-10-12-14-16-18-20-22-24-26-28-30-32-34" // 1
-     "-02-04-06-08-10-12-14-16-18-20-22-24-26-28-30-32-34" // 0
-     // 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
-     );
+  static const int 
+    idx_[] = 
+    {
+     // 0  1  2  3   4   5   6   7   8   9  10  11  12  13  14  15  16
+        1, 3, 5, 7,  9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, // 3
+        1, 3, 5, 7,  9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, // 2
+        2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, // 1
+        2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34  // 0
+     // 0  1  2  3   4   5   6   7   8   9  10  11  12  13  14  15  16
+     };
 
-  int iym, ixm, nc, il, ic, ii;
+  int iym, ixm, il, ic, ii;
   iym=4;
   ixm=17;
   int iX_ = iX+1;
   int iY_ = iY+1;
-  nc=3;		  
   il=iym-iY_;
-  ic=nc*(iX_-1);
-  ii=il*nc*ixm+ic;
-  if( str_.substr(ii,1).find("-")==string::npos ) return -1;
-  return atoi( str_.substr(ii+1,2).c_str() );
+  ic=iX_-1;
+  ii=il*ixm+ic;
+  if(ii < 0 || ii > (int)(sizeof(idx_)/sizeof(int))) { return -1; };
+  return idx_[ii];
 }
 
 int
 MEEBGeom::lv_channel( EBTTLocalCoord iX, EBTTLocalCoord iY )
 {
-  string 
-    str_
-    (
-     // 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
-     "-01-02-02-04-04-06-06-08-08-10-10-12-12-14-14-16-16" // 3
-     "-01-02-02-04-04-06-06-08-08-10-10-12-12-14-14-16-16" // 2
-     "-01-03-03-05-05-07-07-09-09-11-11-13-13-15-15-17-17" // 1
-     "-01-03-03-05-05-07-07-09-09-11-11-13-13-15-15-17-17" // 0
-     // 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
-     );
+  static const int
+    idx_[] =
+    {
+     // 0  1  2  3  4  5  6  7  8   9  10  11  12  13  14  15  16
+        1, 2, 2, 4, 4, 6, 6, 8, 8, 10, 10, 12, 12, 14, 14, 16, 16, // 3
+        1, 2, 2, 4, 4, 6, 6, 8, 8, 10, 10, 12, 12, 14, 14, 16, 16, // 2
+        1, 3, 3, 5, 5, 7, 7, 9, 9, 11, 11, 13, 13, 15, 15, 17, 17, // 1
+        1, 3, 3, 5, 5, 7, 7, 9, 9, 11, 11, 13, 13, 15, 15, 17, 17  // 0
+     // 0  1  2  3  4  5  6  7  8   9  10  11  12  13  14  15  16
+     };
 
-  int iym, ixm, nc, il, ic, ii;
+  int iym, ixm, il, ic, ii;
   iym=4;
   ixm=17;
   int iX_ = iX+1;
   int iY_ = iY+1;
-  nc=3;		  
   il=iym-iY_;
-  ic=nc*(iX_-1);
-  ii=il*nc*ixm+ic;
-  if( str_.substr(ii,1).find("-")==string::npos ) return -1;
-  return atoi( str_.substr(ii+1,2).c_str() );
+  ic=iX_-1;
+  ii=il*ixm+ic;
+  if(ii < 0 || ii > (int)(sizeof(idx_)/sizeof(int))) { return -1; };
+  return idx_[ii];
 }
 
 int 
