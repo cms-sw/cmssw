@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/07/25 22:59:43 $
- *  $Revision: 1.00 $
+ *  $Date: 2012/08/05 12:49:17 $
+ *  $Revision: 1.1 $
  *  \author Loic Quertenmont 
  */
 #include "DQM/TrackingMonitor/plugins/dEdxAnalyzer.h"
@@ -171,7 +171,8 @@ void dEdxAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
               if( track->pt() >= 5.0 && track->numberOfValidHits()>TrackHitMin){
                  dEdxMEsVector[i].ME_MipDeDx        ->Fill(dEdxColl[track].dEdx());
                  dEdxMEsVector[i].ME_MipDeDxNHits   ->Fill(dEdxColl[track].numberOfMeasurements());
-                 dEdxMEsVector[i].ME_MipDeDxNSatHits->Fill((1.0*dEdxColl[track].numberOfSaturatedMeasurements())/dEdxColl[track].numberOfMeasurements());
+		 if (dEdxColl[track].numberOfMeasurements()!=0)
+		   dEdxMEsVector[i].ME_MipDeDxNSatHits->Fill((1.0*dEdxColl[track].numberOfSaturatedMeasurements())/dEdxColl[track].numberOfMeasurements());
                  dEdxMEsVector[i].ME_MipDeDxMass    ->Fill(mass(track->p(), dEdxColl[track].dEdx()));
 
               //HighlyIonizing particles
