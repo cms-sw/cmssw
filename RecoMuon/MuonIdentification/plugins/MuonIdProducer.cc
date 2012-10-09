@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.70 2012/08/21 21:20:01 mskim Exp $
+// $Id: MuonIdProducer.cc,v 1.71 2012/09/27 11:06:07 bellan Exp $
 //
 //
 
@@ -832,12 +832,16 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    }
    if ( ! fillMatching_ && ! aMuon.isTrackerMuon() && ! aMuon.isRPCMuon() ) return;
    
+  edm::Handle<RPCRecHitCollection> rpcRecHits;
+  iEvent.getByLabel(edm::InputTag("rpcRecHits"), rpcRecHits);
+
    // fill muon match info
    std::vector<reco::MuonChamberMatch> muonChamberMatches;
    unsigned int nubmerOfMatchesAccordingToTrackAssociator = 0;
    for( std::vector<TAMuonChamberMatch>::const_iterator chamber=info.chambers.begin();
 	chamber!=info.chambers.end(); chamber++ )
      {
+       if  (chamber->id.subdetId() == 3 && rpcRecHits.isValid()  ) continue; // Skip RPC chambers, they are taken care of below)
 	reco::MuonChamberMatch matchedChamber;
 	
 	LocalError localError = chamber->tState.localError().positionError();
@@ -904,8 +908,6 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
      }
 
   // Fill RPC info
-  edm::Handle<RPCRecHitCollection> rpcRecHits;
-  iEvent.getByLabel(edm::InputTag("rpcRecHits"), rpcRecHits);
   if ( rpcRecHits.isValid() )
   {
 
