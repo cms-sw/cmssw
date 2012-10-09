@@ -7,9 +7,9 @@
  * 
  * \author Tomasz Maciej Frueboes
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.13 $
  *
- * $Id: ZmumuPFEmbedder.cc,v 1.8 2012/02/13 17:33:04 veelken Exp $
+ * $Id: ZmumuPFEmbedder.cc,v 1.13 2012/10/07 13:09:35 veelken Exp $
  *
  */
 
@@ -18,10 +18,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -39,56 +39,56 @@ class ZmumuPFEmbedder : public edm::EDProducer
   void producePFCandColl(edm::Event&, const std::vector<reco::Particle::LorentzVector>*);
   void produceTrackColl(edm::Event&, const std::vector<reco::Particle::LorentzVector>*);
       
-  edm::InputTag _tracks;
-  edm::InputTag _selectedMuons;
-  bool _useCombinedCandidate;
+  edm::InputTag srcTracks_;
+  edm::InputTag srcPFCandidates_;
+  edm::InputTag srcSelectedMuons_;
 };
 
-ZmumuPFEmbedder::ZmumuPFEmbedder(const edm::ParameterSet& iConfig)
-  : _tracks(iConfig.getParameter<edm::InputTag>("tracks")),
-    _selectedMuons(iConfig.getParameter<edm::InputTag>("selectedMuons")),
-    _useCombinedCandidate(iConfig.getUntrackedParameter<bool>("useCombinedCandidate", false))
+ZmumuPFEmbedder::ZmumuPFEmbedder(const edm::ParameterSet& cfg)
+  : srcTracks_(cfg.getParameter<edm::InputTag>("tracks")),
+    srcSelectedMuons_(cfg.getParameter<edm::InputTag>("selectedMuons"))
 {
   produces<reco::TrackCollection>("tracks");
   produces<reco::PFCandidateCollection>("pfCands");
 }
 
 void
-ZmumuPFEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+ZmumuPFEmbedder::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   std::vector<reco::Particle::LorentzVector> selMuonP4s;
    
-  if ( _useCombinedCandidate ) {
-    edm::Handle<reco::CompositeCandidateCollection> muonPairsHandle;
-    if ( iEvent.getByLabel(_selectedMuons, muonPairsHandle) ) {
-      if ( muonPairsHandle->size() >= 1 ) {
-	const reco::CompositeCandidate& muonPair = muonPairsHandle->at(0); // TF: use only the first combined candidate
-	for ( size_t idx = 0; idx < muonPair.numberOfDaughters(); ++idx ) { 
-	  selMuonP4s.push_back(muonPair.daughter(idx)->p4());
-	}
+  edm::Handle<reco::CompositeCandidateCollection> combCandidatesHandle;
+  if ( evt.getByLabel(srcSelectedMuons_, combCandidatesHandle) ) {
+    if ( combCandidatesHandle->size() >= 1 ) {
+      const reco::CompositeCandidate& combCandidate = combCandidatesHandle->at(0); // TF: use only the first combined candidate
+      for ( size_t idx = 0; idx < combCandidate.numberOfDaughters(); ++idx ) { 
+	selMuonP4s.push_back(combCandidate.daughter(idx)->p4());
       }
     }
   } else {
     edm::Handle<reco::MuonCollection> selectedMuonsHandle;
-    if ( iEvent.getByLabel(_selectedMuons, selectedMuonsHandle) ) {
+    if ( evt.getByLabel(srcSelectedMuons_, selectedMuonsHandle) ) {
       for ( size_t idx = 0; idx < selectedMuonsHandle->size(); ++idx ) {
 	selMuonP4s.push_back(selectedMuonsHandle->at(idx).p4());
       }
+    } else {
+      throw cms::Exception("Configuration") 
+	<< "Invalid input collection 'selectedMuons' = " << srcSelectedMuons_ << " !!\n";
     }
   }
   
   if ( selMuonP4s.size() <= 2 ) return; // not selected Z --> mu+ mu- event: do nothing
   
-  producePFCandColl(iEvent, &selMuonP4s);
-  produceTrackColl(iEvent, &selMuonP4s);
+  producePFCandColl(evt, &selMuonP4s);
+  produceTrackColl(evt, &selMuonP4s);
 }
 
-void ZmumuPFEmbedder::producePFCandColl(edm::Event & iEvent, const std::vector<reco::Particle::LorentzVector>* selMuonP4s)
+void ZmumuPFEmbedder::producePFCandColl(edm::Event& evt, const std::vector<reco::Particle::LorentzVector>* selMuonP4s)
 {
 //--- produce collection of PFCandidate excluding muons
 
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
-  iEvent.getByLabel("particleFlow", pfCandidates);
+  evt.getByLabel(srcPFCandidates_, pfCandidates);
 
   std::auto_ptr<reco::PFCandidateCollection> pfCandidates_woMuons(new reco::PFCandidateCollection());   
    
@@ -108,15 +108,15 @@ void ZmumuPFEmbedder::producePFCandColl(edm::Event & iEvent, const std::vector<r
     pfCandidates_woMuons->push_back(*pfCandidate);
   }
 
-  iEvent.put(pfCandidates_woMuons, "pfCands");
+  evt.put(pfCandidates_woMuons, "pfCands");
 }
 
-void ZmumuPFEmbedder::produceTrackColl(edm::Event & iEvent, const std::vector<reco::Particle::LorentzVector>* selMuonP4s)
+void ZmumuPFEmbedder::produceTrackColl(edm::Event& evt, const std::vector<reco::Particle::LorentzVector>* selMuonP4s)
 {
 //--- produce collection of reco::Tracks excluding muons
 
   edm::Handle<reco::TrackCollection> tracks;
-  iEvent.getByLabel(_tracks, tracks);
+  evt.getByLabel(srcTracks_, tracks);
 
   std::auto_ptr<reco::TrackCollection> tracks_woMuons(new reco::TrackCollection());
 
@@ -132,7 +132,7 @@ void ZmumuPFEmbedder::produceTrackColl(edm::Event & iEvent, const std::vector<re
     if ( dRmin < 1.e-4 ) continue; // it is a selected muon, do not copy
   }
 
-  iEvent.put(tracks_woMuons, "tracks");
+  evt.put(tracks_woMuons, "tracks");
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
