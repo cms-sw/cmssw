@@ -1,22 +1,17 @@
-// -*- C++ -*-
 #ifndef TauAnalysis_MCEmbeddingTools_ParticleReplacerFactory_h
 #define TauAnalysis_MCEmbeddingTools_ParticleReplacerFactory_h
 
-//
-// Package:    MCEmbeddingtools
-// Class:      ParticleReplacerFactory
-//
-/**\class ParticleReplacerFactory ParticleReplacerFactory.cc TauAnalysis/MCEmbeddingTools/src/ParticleReplacerFactory.cc
-
- Description: Factory class for creating particle replacer algorithm objects
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Matti Kortelainen
-//
-//
+/** \class ParticleReplacerFactory
+ *
+ * Create plugins producing HepMC::Event object of embedded event
+ * 
+ * \author Matti Kortelainen
+ *
+ * \version $Revision: 1.13 $
+ *
+ * $Id: ParticleReplacerFactory.cc,v 1.13 2012/10/07 13:09:35 veelken Exp $
+ *
+ */
 
 #include "TauAnalysis/MCEmbeddingTools/interface/ParticleReplacerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -25,9 +20,10 @@
 
 #include<boost/shared_ptr.hpp>
 
-class ParticleReplacerFactory {
-public:
-  static boost::shared_ptr<ParticleReplacerBase> create(const std::string& algo, const edm::ParameterSet& iConfig);
+class ParticleReplacerFactory 
+{
+ public:
+  static boost::shared_ptr<ParticleReplacerBase> create(const std::string&, const edm::ParameterSet&);
 };
 
 #endif

@@ -1,22 +1,17 @@
-// -*- C++ -*-
 #ifndef TauAnalysis_MCEmbeddingTools_ParticleReplacerParticleGun_h
 #define TauAnalysis_MCEmbeddingTools_ParticleReplacerParticleGun_h
 
-//
-// Package:    MCEmbeddingtools
-// Class:      ParticleReplacerBase
-//
-/**\class ParticleReplacerParticleGun ParticleReplacerParticleGun.cc TauAnalysis/MCEmbeddingTools/src/ParticleReplacerParticleGun.cc
-
- Description: Particle gun replacer algorithm
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Sami Lehti
-//
-//
+/** \class ParticleReplacerParticleGun
+ *
+ * Particle gun replacer algorithm
+ *
+ * \author Sami Lehti
+ *
+ * \version $Revision: 1.13 $
+ *
+ * $Id: ParticleReplacerParticleGun.h,v 1.13 2012/10/07 13:09:35 veelken Exp $
+ *
+ */
 
 #include "TauAnalysis/MCEmbeddingTools/interface/ParticleReplacerBase.h"
 
@@ -26,23 +21,22 @@
 #include<string>
 #include<vector>
 
-class ParticleReplacerParticleGun: public ParticleReplacerBase {
-public:
-  explicit ParticleReplacerParticleGun(const edm::ParameterSet&, bool);
-  virtual ~ParticleReplacerParticleGun();
+class ParticleReplacerParticleGun: public ParticleReplacerBase 
+{
+ public:
+  explicit ParticleReplacerParticleGun(const edm::ParameterSet&);
+  virtual ~ParticleReplacerParticleGun() {}
 
   virtual void beginJob();
   virtual void endJob();
 
-  std::auto_ptr<HepMC::GenEvent> produce(const reco::MuonCollection& muons, const reco::Vertex *pvtx=0, const HepMC::GenEvent *genEvt=0);
+  std::auto_ptr<HepMC::GenEvent> produce(const std::vector<reco::Particle>&, const reco::Vertex* = 0, const HepMC::GenEvent* = 0);
 
-protected:
-
-private:
-  void correctTauMass(const reco::MuonCollection& muons, std::vector<HepMC::FourVector>& corrected);
+ private:
+  void correctTauMass(const std::vector<reco::Particle>&, std::vector<HepMC::FourVector>&);
   void forceTauolaTauDecays();
-  void tauola_forParticleGun(int tau_idx, int pdg_id, const HepMC::FourVector& particle_momentum);
-  float tauHelicity(int pdg_id);
+  void tauola_forParticleGun(int, int, const HepMC::FourVector&);
+  float tauHelicity(int);
   float randomPolarization();
 
   //gen::TauolaInterface* tauola_;
@@ -59,9 +53,6 @@ private:
 
   float pol1_[4];
   float pol2_[4];
-
-  bool printout_;
-
 };
 
 #endif

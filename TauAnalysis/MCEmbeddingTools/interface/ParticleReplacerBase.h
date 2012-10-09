@@ -1,54 +1,47 @@
-// -*- C++ -*-
 #ifndef TauAnalysis_MCEmbeddingTools_ParticleReplacerBase_h
 #define TauAnalysis_MCEmbeddingTools_ParticleReplacerBase_h
 
-//
-// Package:    MCEmbeddingtools
-// Class:      ParticleReplacerBase
-//
-/**\class ParticleReplacerBase ParticleReplacerBase.cc TauAnalysis/MCEmbeddingTools/src/ParticleReplacerBase.cc
+/** \class ParticleReplacerBase
+ *
+ * Base class for particle replacer algorithms
+ *
+ * \author Matti Kortelainen
+ *
+ * \version $Revision: 1.13 $
+ *
+ * $Id: ParticleReplacerBase.h,v 1.13 2012/10/07 13:09:35 veelken Exp $
+ *
+ */
 
- Description: Base class for particle replacer algorithms
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Matti Kortelainen
-//
-//
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "HepMC/GenEvent.h"
 
-#include<memory>
+class ParticleReplacerBase 
+{
+ public:
+  explicit ParticleReplacerBase(const edm::ParameterSet&);
+  virtual ~ParticleReplacerBase() {}
 
-class ParticleReplacerBase {
-public:
-  explicit ParticleReplacerBase(const edm::ParameterSet& iConfig);
-  virtual ~ParticleReplacerBase();
+  virtual void beginJob() {}
+  virtual void beginRun(edm::Run& run, const edm::EventSetup& es) {}
+  virtual void endRun() {}
+  virtual void endJob() {}
 
-  virtual void beginJob();
-  virtual void beginRun(edm::Run& iRun, const edm::EventSetup& iSetup);
-  virtual void endRun();
-  virtual void endJob();
+  virtual std::auto_ptr<HepMC::GenEvent> produce(const std::vector<reco::Particle>&, const reco::Vertex* evtVtx = 0, const HepMC::GenEvent* genEvt = 0) = 0;
 
-  virtual std::auto_ptr<HepMC::GenEvent> produce(const reco::MuonCollection&, const reco::Vertex *pvtx=0, const HepMC::GenEvent *genEvt=0) = 0;
+  unsigned int tried_;
+  unsigned int passed_;
 
-  unsigned int tried;
-  unsigned int passed;
+ protected:
+  const double tauMass_;
 
-protected:
-
-  const double tauMass;
-private:
+  int verbosity_;
 };
-
 
 #endif
