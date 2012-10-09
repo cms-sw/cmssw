@@ -13,13 +13,13 @@ autoCond = {
                           ),
     # GlobalTag for running HLT on recent data: this should be the same as 'com10' until a compatible GR_H tag is available, 
     # then it should point to the GR_H tag and override the connection string and pfnPrefix for use offline
-    'hltonline'         : ( 'GR_R_60_V7::All',
+    'hltonline'         : ( 'GR_P_V42::All',
                             # HLT particle flow jet energy corrections
                             'JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc,JetCorrectionsRecord,frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS,AK5PFHLT',
                             'JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc,JetCorrectionsRecord,frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS,AK5PFchsHLT',
                           ),
     # GlobalTag for running HLT on 2011 data: same as 'hltonline', override the L1 menu with 2012 v3
-    'hltonline11'       : ( 'GR_R_60_V7::All',
+    'hltonline11'       : ( 'GR_P_V42::All',
                             # L1 menu 2012 v3
                             'L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
                             # HLT particle flow jet energy corrections
@@ -70,40 +70,40 @@ autoCond = {
                           ),
 
     # dedicated GlobalTags for running the frozen HLT menus on data
-    'hltonline_5E33v4'  : ( 'GR_R_60_V7::All',
+    'hltonline_5E33v4'  : ( 'GR_P_V42::All',
                             # L1 menu 2012 v0
                             'L1GtTriggerMenu_L1Menu_Collisions2012_v0_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
                           ),
-    'hltonline_7E33v2'  : ( 'GR_R_60_V7::All',
+    'hltonline_7E33v2'  : ( 'GR_P_V42::All',
                             # L1 menu 2012 v1
                             'L1GtTriggerMenu_L1Menu_Collisions2012_v1a_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
                           ),
-    'hltonline_7E33v3'  : ( 'GR_R_60_V7::All',
+    'hltonline_7E33v3'  : ( 'GR_P_V42::All',
                             # L1 menu 2012 v2
                             'L1GtTriggerMenu_L1Menu_Collisions2012_v2_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
                           ),
-    'hltonline_7E33v4'  : ( 'GR_R_60_V7::All',
+    'hltonline_7E33v4'  : ( 'GR_P_V42::All',
                             # L1 menu 2012 v2
                             'L1GtTriggerMenu_L1Menu_Collisions2012_v2_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
                             # HLT particle flow jet energy corrections
                             'JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc,JetCorrectionsRecord,frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS,AK5PFHLT',
                             'JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc,JetCorrectionsRecord,frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS,AK5PFchsHLT',
                           ),
-    'hltonline_8E33v1'    : ( 'GR_R_60_V7::All',
+    'hltonline_8E33v1'  : ( 'GR_P_V42::All',
                             # L1 menu 2012 v3
                             'L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
                             # HLT particle flow jet energy corrections
                             'JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc,JetCorrectionsRecord,frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS,AK5PFHLT',
                             'JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc,JetCorrectionsRecord,frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS,AK5PFchsHLT',
                           ),
-    'hltonline_GRun'    : ( 'GR_R_60_V7::All',
+    'hltonline_GRun'    : ( 'GR_P_V42::All',
                             # L1 menu 2012 v3
                             'L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
                             # HLT particle flow jet energy corrections
                             'JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc,JetCorrectionsRecord,frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS,AK5PFHLT',
                             'JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc,JetCorrectionsRecord,frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS,AK5PFchsHLT',
                           ),
-    'hltonline_HIon'    : ( 'GR_R_60_V7::All',
+    'hltonline_HIon'    : ( 'GR_P_V42::All',
                             # L1 heavy ions menu 2011 v0
                             'L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
                             # HLT particle flow jet energy corrections
