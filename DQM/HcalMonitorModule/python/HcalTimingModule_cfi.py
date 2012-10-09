@@ -12,5 +12,8 @@ hcalTimingMonitor = cms.EDAnalyzer("HcalTimingMonitorModule",
     GCTTriggerBit4  = cms.untracked.int32(19),
     GCTTriggerBit5  = cms.untracked.int32(47),
     CosmicsCorr     = cms.untracked.bool(True),
-    Debug           = cms.untracked.bool(True)
+    Debug           = cms.untracked.bool(True),
+    hbheDigiCollectionTag = cms.InputTag('hcalunpacker'),
+    hoDigiCollectionTag = cms.InputTag('hcalunpacker'),
+    hfDigiCollectionTag = cms.InputTag('hcalunpacker')
 )

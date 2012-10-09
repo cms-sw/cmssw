@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy
 //         Created:  Thu Mar 27 08:12:02 CET 2008
-// $Id: HcalTimingMonitorModule.cc,v 1.9 2010/04/04 15:49:24 temple Exp $
+// $Id: HcalTimingMonitorModule.cc,v 1.10 2010/04/04 16:00:38 temple Exp $
 //
 //
 
@@ -42,6 +42,7 @@ static const int TRIG_CSC=8;
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 // this is to retrieve HCAL digi's
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
@@ -196,9 +197,17 @@ class HcalTimingMonitorModule : public edm::EDAnalyzer {
     MonitorElement *HFTimeCSCm;
     
     std::string L1ADataLabel;
+
+    edm::InputTag hbheDigiCollectionTag_;
+    edm::InputTag hoDigiCollectionTag_;
+    edm::InputTag hfDigiCollectionTag_;
 };
 
-HcalTimingMonitorModule::HcalTimingMonitorModule(const edm::ParameterSet& iConfig){
+HcalTimingMonitorModule::HcalTimingMonitorModule(const edm::ParameterSet& iConfig) :
+   hbheDigiCollectionTag_(iConfig.getParameter<edm::InputTag>("hbheDigiCollectionTag")),
+   hoDigiCollectionTag_(iConfig.getParameter<edm::InputTag>("hoDigiCollectionTag")),
+   hfDigiCollectionTag_(iConfig.getParameter<edm::InputTag>("hfDigiCollectionTag")) {
+
   std::string str;   
    parameters_ = iConfig;
    dbe_ = edm::Service<DQMStore>().operator->();
@@ -411,7 +420,7 @@ int TRIGGER=0;
    /////////////////////////////////////////////////////////////////////////////////////////   
    if(counterEvt_<100){
      edm::Handle<HBHEDigiCollection> hbhe; 
-     iEvent.getByType(hbhe);
+     iEvent.getByLabel(hbheDigiCollectionTag_, hbhe);
      if (hbhe.isValid())
        {
 	 for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
@@ -423,7 +432,7 @@ int TRIGGER=0;
 	 } 
        }  
      edm::Handle<HODigiCollection> ho; 
-     iEvent.getByType(ho);
+     iEvent.getByLabel(hoDigiCollectionTag_, ho);
      if (ho.isValid())
      {
        for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
@@ -435,7 +444,7 @@ int TRIGGER=0;
      } // if
 
      edm::Handle<HFDigiCollection> hf;
-     iEvent.getByType(hf);
+     iEvent.getByLabel(hfDigiCollectionTag_, hf);
      if (hf.isValid())
        {
          for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
@@ -451,7 +460,7 @@ int TRIGGER=0;
       double data[10];
       
       edm::Handle<HBHEDigiCollection> hbhe; 
-      iEvent.getByType(hbhe);
+      iEvent.getByLabel(hbheDigiCollectionTag_, hbhe);
       if (hbhe.isValid())
 	{
 	  for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
@@ -491,7 +500,7 @@ int TRIGGER=0;
 	} // if (...)
 
       edm::Handle<HODigiCollection> ho; 
-      iEvent.getByType(ho);
+      iEvent.getByLabel(hoDigiCollectionTag_, ho);
       if (ho.isValid())
 	{
 	  for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
@@ -521,7 +530,7 @@ int TRIGGER=0;
 	}// if (ho)
 
       edm::Handle<HFDigiCollection> hf; 
-      iEvent.getByType(hf);
+      iEvent.getByLabel(hfDigiCollectionTag_, hf);
       if (hf.isValid())
 	{
 	  for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
