@@ -55,6 +55,26 @@ void ElectronEnergyCalibrator::correct
                          electron.correctMomentum(newMomentum_,errorTrackMomentum_,finalMomentumError_);
                   if (debug_) std::cout << "[ElectronEnergCorrector] AFTER Regression Energy, new comb momentum " << newEnergy_ << " " << electron.p4(reco::GsfElectron::P4_COMBINATION).t() << std::endl;
 	  break;
+	 case 10:
+	        //====================================================================================================
+		//Take the REGRESSION_1 WITHOUT SCALE CORRECTIONS
+		//====================================================================================================
+		//====================================================================================================
+		//DEBUG BLOCK
+		//====================================================================================================
+                  if (debug_) std::cout << "[ElectronEnergCorrector] R9 " << r9 << std::endl;
+                  if (debug_) std::cout << "[ElectronEnergCorrector] BEFORE comb momentum " << electron.p4(reco::GsfElectron::P4_COMBINATION).t() << std::endl;
+                  if (debug_) std::cout << "[ElectronEnergCorrector] BEFORE comb momentum error " << electron.p4Error(reco::GsfElectron::P4_COMBINATION) << std::endl;
+		//====================================================================================================
+		//TAKE THE SCALE CORRECTIONS FROM SHERVIN
+		//====================================================================================================
+                         // apply E-p combination
+			 newEnergy_ = electron.ecalRegressionEnergy();
+			 newEnergyError_ = electron.ecalRegressionError();
+                         computeEpCombination(electron) ;
+                         electron.correctMomentum(newMomentum_,errorTrackMomentum_,finalMomentumError_);
+                  if (debug_) std::cout << "[ElectronEnergCorrector] AFTER Regression Energy, new comb momentum " << newEnergy_ << " " << electron.p4(reco::GsfElectron::P4_COMBINATION).t() << std::endl;
+	  break;
 	 case 2:
 		//====================================================================================================
 		//Take the REGRESSION_2
