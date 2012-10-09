@@ -243,7 +243,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/ForwardCommonData/data/zdc.xml',
         'Geometry/ForwardCommonData/data/zdclumi.xml',
         'Geometry/ForwardCommonData/data/cmszdc.xml')+cms.vstring(
-        'Geometry/MuonCommonData/data/muonNumbering.xml',
+        'Geometry/MuonCommonData/data/v2/muonNumbering.xml',
         'SLHCUpgradeSimulations/Geometry/data/PhaseI/trackerStructureTopology.xml', 
         'SLHCUpgradeSimulations/Geometry/data/PhaseI/trackersens.xml', 
         'SLHCUpgradeSimulations/Geometry/data/PhaseI/trackerRecoMaterial.xml', 
