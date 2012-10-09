@@ -19,7 +19,7 @@ from SUSYBSMAnalysis.HSCP.HSCPVersion_cff import *
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(250) )
 
 if CMSSW4_2:  process.GlobalTag.globaltag = 'START42_V9::All'
-else:         process.GlobalTag.globaltag = 'GR_P_V32::All'
+else:         process.GlobalTag.globaltag = 'START53_V7A::All'
 
 
 readFiles = cms.untracked.vstring()
@@ -32,8 +32,7 @@ if CMSSW4_2:
              #'/store/mc/Summer11/HSCPstau_M-308_7TeV-pythia6/GEN-SIM-RECO/PU_S4_START42_V11-v1/0000/00FA95F3-48A1-E011-9EC4-003048F0E828.root'
              '/store/user/farrell3/NewEDMFileFormat/Gluino_7TeV_M800_BX1/HSCP_1_1_OHm.root'
         ])
-else:        readFiles.extend(['/store/data/Run2012A/SingleMu/RECO/PromptReco-v1/000/191/248/186722DA-5E88-E111-ADFF-003048D2C0F0.root'])
-
+else:   readFiles.extend(['/store/mc/Summer12_DR53X/DYToMuMu_M_20_TuneZ2star_8TeV_pythia6/GEN-SIM-RECO/PU_S10_START53_V7A-v1/0000/5AFDB121-F6E1-E111-83D9-0018F3D0960C.root'])
 
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
 
@@ -51,7 +50,7 @@ if CMSSW4_2:
 
 else:
    process.load('Configuration.Skimming.PDWG_EXOHSCP_cff')
-   process.HSCPTrigger.HLTPaths("*") #not apply any trigger filter for MC
+   process.HSCPTrigger.HLTPaths = ["*"] #not apply any trigger filter for MC
    process.HSCParticleProducer.useBetaFromEcal = cms.bool(False)
 
    #skim the jet collection to keep only 15GeV jets
