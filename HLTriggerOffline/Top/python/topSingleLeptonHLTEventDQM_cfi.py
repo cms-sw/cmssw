@@ -11,7 +11,7 @@ topSingleLeptonTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit 
     ## communication to TopCom!
-    directory = cms.string("Physics/Top/TopSingleLeptonTriggerDQM/"),
+    directory = cms.string("HLTriggerOffline/Top/TopSingleLeptonTriggerDQM/"),
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
@@ -145,7 +145,7 @@ topSingleMuonLooseTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit
     ## communication to TopCom!
-    directory = cms.string("Physics/Top/TopSingleMuonLooseTriggerDQM/"),
+    directory = cms.string("HLTriggerOffline/Top/TopSingleMuonLooseTriggerDQM/"),
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
@@ -319,7 +319,7 @@ topSingleMuonMediumTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit
     ## communication to TopCom!
-    directory = cms.string("Physics/Top/TopSingleMuonMediumTriggerDQM/"),
+    directory = cms.string("HLTriggerOffline/Top/TopSingleMuonMediumTriggerDQM/"),
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
@@ -498,7 +498,7 @@ topSingleElectronLooseTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit
     ## communication to TopCom!
-    directory = cms.string("Physics/Top/TopSingleElectronLooseTriggerDQM/"),
+    directory = cms.string("HLTriggerOffline/Top/TopSingleElectronLooseTriggerDQM/"),
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
@@ -675,7 +675,7 @@ topSingleElectronMediumTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit
     ## communication to TopCom!
-    directory = cms.string("Physics/Top/TopSingleElectronMediumTriggerDQM/"),
+    directory = cms.string("HLTriggerOffline/Top/TopSingleElectronMediumTriggerDQM/"),
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
