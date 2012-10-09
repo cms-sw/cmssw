@@ -35,7 +35,10 @@ namespace {
   bool verbose = false;
 }
 
-HFPreLightCal::HFPreLightCal (const edm::ParameterSet& fConfiguration) {
+HFPreLightCal::HFPreLightCal (const edm::ParameterSet& fConfiguration) :
+  hfDigiCollectionTag_(fConfiguration.getParameter<edm::InputTag>("hfDigiCollectionTag")),
+  hcalCalibDigiCollectionTag_(fConfiguration.getParameter<edm::InputTag>("hcalCalibDigiCollectionTag")) {
+
   //std::string histfile = fConfiguration.getUntrackedParameter<string>("rootFile");
   histfile = fConfiguration.getUntrackedParameter<string>("rootPreFile");
   textfile = fConfiguration.getUntrackedParameter<string>("textPreFile");
@@ -134,7 +137,7 @@ void HFPreLightCal::analyze(const edm::Event& fEvent, const edm::EventSetup& fSe
 
   // HF PIN-diodes
   edm::Handle<HcalCalibDigiCollection> calib;  
-  fEvent.getByType(calib);
+  fEvent.getByLabel(hcalCalibDigiCollectionTag_, calib);
   if (verbose) std::cout<<"Analysis-> total CAL digis= "<<calib->size()<<std::endl;
   /* COMMENTED OUT by J. Mans (7-28-2008) as major changes needed with new Calib DetId 
 
@@ -162,7 +165,7 @@ void HFPreLightCal::analyze(const edm::Event& fEvent, const edm::EventSetup& fSe
   */  
   // HF
   edm::Handle<HFDigiCollection> hf_digi;
-  fEvent.getByType(hf_digi);
+  fEvent.getByLabel(hfDigiCollectionTag_, hf_digi);
   if (verbose) std::cout<<"Analysis-> total HF digis= "<<hf_digi->size()<<std::endl;
 
   for (unsigned ihit = 0; ihit < hf_digi->size (); ++ihit) {

@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
@@ -105,6 +106,10 @@ class HcalPedestalWidthsValidation : public edm::EDAnalyzer
    HcalPedestalWidths* rawWidthsItem;
    HcalPedestals* rawPedsItemfc;
    HcalPedestalWidths* rawWidthsItemfc;
+
+   edm::InputTag hbheDigiCollectionTag_;
+   edm::InputTag hoDigiCollectionTag_;
+   edm::InputTag hfDigiCollectionTag_;
 };
 #endif
 

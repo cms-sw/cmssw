@@ -49,7 +49,12 @@ namespace {
   
 }
 
-HcalLedAnalyzer::HcalLedAnalyzer(const edm::ParameterSet& ps){
+HcalLedAnalyzer::HcalLedAnalyzer(const edm::ParameterSet& ps) :
+  hbheDigiCollectionTag_(ps.getParameter<edm::InputTag>("hbheDigiCollectionTag")),
+  hoDigiCollectionTag_(ps.getParameter<edm::InputTag>("hoDigiCollectionTag")),
+  hfDigiCollectionTag_(ps.getParameter<edm::InputTag>("hfDigiCollectionTag")),
+  hcalCalibDigiCollectionTag_ (ps.getParameter<edm::InputTag>("hcalCalibDigiCollectionTag")) {
+
   m_ledAnal = new HcalLedAnalysis(ps);
   m_ledAnal->LedSetup(ps.getUntrackedParameter<std::string>("outputFileHist", "HcalLedAnalyzer.root"));
 //  m_startSample = ps.getUntrackedParameter<int>("firstSample", 0);
@@ -94,12 +99,12 @@ void HcalLedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& eventS
   m_ievt++;
 
   ///get digis
-  edm::Handle<HBHEDigiCollection> hbhe; e.getByType(hbhe);
-  edm::Handle<HODigiCollection> ho;     e.getByType(ho);
-  edm::Handle<HFDigiCollection> hf;     e.getByType(hf);
+  edm::Handle<HBHEDigiCollection> hbhe; e.getByLabel(hbheDigiCollectionTag_, hbhe);
+  edm::Handle<HODigiCollection> ho;     e.getByLabel(hoDigiCollectionTag_, ho);
+  edm::Handle<HFDigiCollection> hf;     e.getByLabel(hfDigiCollectionTag_, hf);
 
   // get calib digis
-  edm::Handle<HcalCalibDigiCollection> calib;  e.getByType(calib);
+  edm::Handle<HcalCalibDigiCollection> calib;  e.getByLabel(hcalCalibDigiCollectionTag_, calib);
 
   // get testbeam specific laser info from the TDC.  This probably will not work
   // outside of the testbeam, but it should be easy to modify the Handle/getByType

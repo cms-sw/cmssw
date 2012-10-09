@@ -7,8 +7,11 @@
 #include <memory>
 #include "CalibCalorimetry/HcalStandardModules/interface/HcalPedestalMCWidths.h"
 
-HcalPedestalMCWidths::HcalPedestalMCWidths(const edm::ParameterSet& ps)
-{
+HcalPedestalMCWidths::HcalPedestalMCWidths(const edm::ParameterSet& ps) :
+   hbheDigiCollectionTag_(ps.getParameter<edm::InputTag>("hbheDigiCollectionTag")),
+   hoDigiCollectionTag_(ps.getParameter<edm::InputTag>("hoDigiCollectionTag")),
+   hfDigiCollectionTag_(ps.getParameter<edm::InputTag>("hfDigiCollectionTag")) {
+
    firsttime = true;
    histflag = ps.getUntrackedParameter<bool>("saveHists",true);
 }
@@ -102,9 +105,9 @@ HcalPedestalMCWidths::analyze(const edm::Event& e, const edm::EventSetup& iSetup
    using namespace edm;
    using namespace std;
 
-   edm::Handle<HBHEDigiCollection> hbhe;              e.getByType(hbhe);
-   edm::Handle<HODigiCollection> ho;                  e.getByType(ho);
-   edm::Handle<HFDigiCollection> hf;                  e.getByType(hf);
+   edm::Handle<HBHEDigiCollection> hbhe;              e.getByLabel(hbheDigiCollectionTag_, hbhe);
+   edm::Handle<HODigiCollection> ho;                  e.getByLabel(hoDigiCollectionTag_, ho);
+   edm::Handle<HFDigiCollection> hf;                  e.getByLabel(hfDigiCollectionTag_, hf);
    edm::ESHandle<HcalDbService> conditions;
    iSetup.get<HcalDbRecord>().get(conditions);
 

@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class TFile;
 class TH1F;
@@ -31,6 +32,8 @@ class HFPreLightCal : public edm::EDAnalyzer {
   TH1F *htsmax,*htspinmax;
   TH1F* htspin[8][3];
 
+  edm::InputTag hfDigiCollectionTag_;
+  edm::InputTag hcalCalibDigiCollectionTag_;
 };
 
 #endif

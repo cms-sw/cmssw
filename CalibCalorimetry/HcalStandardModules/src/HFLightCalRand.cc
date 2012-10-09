@@ -40,7 +40,10 @@ namespace {
   bool verbose = false;
 }
 
-HFLightCalRand::HFLightCalRand (const edm::ParameterSet& fConfiguration) {
+HFLightCalRand::HFLightCalRand (const edm::ParameterSet& fConfiguration) :
+  hfDigiCollectionTag_(fConfiguration.getParameter<edm::InputTag>("hfDigiCollectionTag")),
+  hcalCalibDigiCollectionTag_(fConfiguration.getParameter<edm::InputTag>("hcalCalibDigiCollectionTag")) {
+
   //std::string histfile = fConfiguration.getUntrackedParameter<string>("rootFile");
   histfile = fConfiguration.getUntrackedParameter<string>("rootFile");
   textfile = fConfiguration.getUntrackedParameter<string>("textFile");
@@ -384,7 +387,7 @@ void HFLightCalRand::analyze(const edm::Event& fEvent, const edm::EventSetup& fS
 
   // HF PIN-diodes
   edm::Handle<HcalCalibDigiCollection> calib;  
-  fEvent.getByType(calib);
+  fEvent.getByLabel(hcalCalibDigiCollectionTag_, calib);
   if (verbose) std::cout<<"Analysis-> total CAL digis= "<<calib->size()<<std::endl;
   /* COMMENTED OUT by J. Mans (7-28-2008) as major changes needed with new Calib DetId 
    re-commented out by R.Ofierzynski (11.Nov.2008) - to be able to provide a consistent code for CMSSW_3_0_0_pre3:
@@ -442,7 +445,7 @@ void HFLightCalRand::analyze(const edm::Event& fEvent, const edm::EventSetup& fS
   */  
   // HF
   edm::Handle<HFDigiCollection> hf_digi;
-  fEvent.getByType(hf_digi);
+  fEvent.getByLabel(hfDigiCollectionTag_, hf_digi);
   if (verbose) std::cout<<"Analysis-> total HF digis= "<<hf_digi->size()<<std::endl;
 
   for (unsigned ihit = 0; ihit < hf_digi->size (); ++ihit) {

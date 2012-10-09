@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalLedAnalysis.h"
@@ -53,6 +54,11 @@ private:
   std::string m_inputPedestals_source;
   std::string m_inputPedestals_tag;
   int m_inputPedestals_run;
+
+  edm::InputTag hbheDigiCollectionTag_;
+  edm::InputTag hoDigiCollectionTag_;
+  edm::InputTag hfDigiCollectionTag_;
+  edm::InputTag hcalCalibDigiCollectionTag_;
 };
 
 #endif

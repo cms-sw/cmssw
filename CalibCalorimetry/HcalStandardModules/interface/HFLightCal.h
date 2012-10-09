@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class TFile;
 class TH1F;
@@ -42,6 +43,8 @@ class HFLightCal : public edm::EDAnalyzer {
   TH1F* hpedpin[8][3];
   TH1F* htsmpin[8][3];
 
+  edm::InputTag hfDigiCollectionTag_;
+  edm::InputTag hcalCalibDigiCollectionTag_;
 };
 
 #endif

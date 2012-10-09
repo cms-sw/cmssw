@@ -4,8 +4,8 @@
 /*
  * \file HcalPedestalAnalyzer.h
  *
- * $Date: 2006/03/24 01:00:15 $
- * $Revision: 1.2 $
+ * $Date: 2009/12/17 21:09:32 $
+ * $Revision: 1.3 $
  * \author S. Stoynev / W. Fisher
  *
 */
@@ -17,6 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPedestalAnalysis.h"
@@ -85,6 +86,10 @@ private:
   std::string m_outputPedestalWidths_dest;
   std::string m_outputPedestalWidths_tag;
   int m_outputPedestalWidths_run;
+
+  edm::InputTag hbheDigiCollectionTag_;
+  edm::InputTag hoDigiCollectionTag_;
+  edm::InputTag hfDigiCollectionTag_;
 };
 
 #endif

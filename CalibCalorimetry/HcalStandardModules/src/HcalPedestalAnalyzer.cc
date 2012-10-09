@@ -13,8 +13,8 @@
 /*
  * \file HcalPedestalAnalyzer.cc
  * 
- * $Date: 2009/12/17 21:09:32 $
- * $Revision: 1.13 $
+ * $Date: 2010/02/25 00:28:13 $
+ * $Revision: 1.14 $
  * \author S Stoynev / W Fisher
  *
 */
@@ -102,7 +102,10 @@ namespace {
   }
 }
 
-HcalPedestalAnalyzer::HcalPedestalAnalyzer(const edm::ParameterSet& ps){
+HcalPedestalAnalyzer::HcalPedestalAnalyzer(const edm::ParameterSet& ps) :
+  hbheDigiCollectionTag_(ps.getParameter<edm::InputTag>("hbheDigiCollectionTag")),
+  hoDigiCollectionTag_(ps.getParameter<edm::InputTag>("hoDigiCollectionTag")),
+  hfDigiCollectionTag_(ps.getParameter<edm::InputTag>("hfDigiCollectionTag")) {
 
   m_pedAnal = new HcalPedestalAnalysis(ps);
   m_pedAnal->setup(ps.getUntrackedParameter<std::string>("outputFileHist", "HcalPedestalAnalyzer.root"));
@@ -196,9 +199,9 @@ void HcalPedestalAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& e
   m_ievt++;
 
   ///get digis
-  edm::Handle<HBHEDigiCollection> hbhe; e.getByType(hbhe);
-  edm::Handle<HODigiCollection> ho;     e.getByType(ho);
-  edm::Handle<HFDigiCollection> hf;     e.getByType(hf);
+  edm::Handle<HBHEDigiCollection> hbhe; e.getByLabel(hbheDigiCollectionTag_, hbhe);
+  edm::Handle<HODigiCollection> ho;     e.getByLabel(hoDigiCollectionTag_, ho);
+  edm::Handle<HFDigiCollection> hf;     e.getByLabel(hfDigiCollectionTag_, hf);
 
   // get conditions
   edm::ESHandle<HcalDbService> conditions;

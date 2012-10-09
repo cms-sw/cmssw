@@ -7,8 +7,11 @@
 #include <memory>
 #include "CalibCalorimetry/HcalStandardModules/interface/HcalPedestalWidthsValidation.h"
 
-HcalPedestalWidthsValidation::HcalPedestalWidthsValidation(const edm::ParameterSet& ps)
-{
+HcalPedestalWidthsValidation::HcalPedestalWidthsValidation(const edm::ParameterSet& ps) :
+   hbheDigiCollectionTag_(ps.getParameter<edm::InputTag>("hbheDigiCollectionTag")),
+   hoDigiCollectionTag_(ps.getParameter<edm::InputTag>("hoDigiCollectionTag")),
+   hfDigiCollectionTag_(ps.getParameter<edm::InputTag>("hfDigiCollectionTag")) {
+
    firstTS = ps.getUntrackedParameter<int>("firstTS", 0);
    lastTS = ps.getUntrackedParameter<int>("lastTS", 9);   
    firsttime = true;
@@ -201,10 +204,9 @@ HcalPedestalWidthsValidation::~HcalPedestalWidthsValidation()
 void
 HcalPedestalWidthsValidation::analyze(const edm::Event& e, const edm::EventSetup& iSetup)
 {
-
-   edm::Handle<HBHEDigiCollection> hbhe;              e.getByType(hbhe);
-   edm::Handle<HODigiCollection> ho;                  e.getByType(ho);
-   edm::Handle<HFDigiCollection> hf;                  e.getByType(hf);
+   edm::Handle<HBHEDigiCollection> hbhe;              e.getByLabel(hbheDigiCollectionTag_, hbhe);
+   edm::Handle<HODigiCollection> ho;                  e.getByLabel(hoDigiCollectionTag_, ho);
+   edm::Handle<HFDigiCollection> hf;                  e.getByLabel(hfDigiCollectionTag_, hf);
    edm::ESHandle<HcalDbService> conditions;
    iSetup.get<HcalDbRecord>().get(conditions);
 
