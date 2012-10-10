@@ -34,37 +34,16 @@ bool operator> ( JetWrapper& aA , JetWrapper& aB )
   if( aA.mJet == NULL ) return false;	//Jets that don't exist: require 128 or 64 spots
   if( aB.mJet == NULL ) return true;
 
-  if ( aA.mJet->E() > aB.mJet->E() ) return true;
-  if ( aA.mJet->E() < aB.mJet->E() ) return false;
+ if ( aA.mJet->E() > aB.mJet->E() ) return true;
+ if ( aA.mJet->E() < aB.mJet->E() ) return false;
 
 
-  //those aA and aB with the same energy are all that remain
-  if ( *(aA.mComparisonDirection) == phi ){
-          return (  abs( aA.mJet-> AsymPhi() ) <= abs( aB.mJet->AsymPhi() ) );
-  }else{
-          return ( abs( aA.mJet-> AsymEta() )  <= abs(  aB.mJet->AsymEta() ) );	
-  }	
-
-
-//   //try sorting by asymmetry first
-//   //Needs tweaking to get jet centre rather than top LH corner: this is done when calculate real jet eta, phi
-//   //want the lowest asymmetry at the top of the list
-//   if ( *(aA.mComparisonDirection) == phi ){
-// 
-//     if ( abs(aA.mJet->AsymPhi() ) < abs( aB.mJet->AsymPhi() ) ) return true; 
-//     if ( abs(aA.mJet->AsymPhi() ) > abs( aB.mJet->AsymPhi() ) ) return false;
-// 
-//   }else{
-// 
-//     if ( abs( aA.mJet->AsymEta() ) < abs( aB.mJet->AsymEta() ) ) return true; 
-//     if ( abs( aA.mJet->AsymEta() ) > abs( aB.mJet->AsymEta() ) ) return false;
-// 
-//   }
-// 
-//   //if have the same jet asymmetry sort by energy: those that remain have the same asym
-//   if ( aA.mJet->E() >= aB.mJet->E() ) return true;
-//   else return ( aA.mJet->E() < aB.mJet->E() ) ;
-
+ //those aA and aB with the same energy are all that remain
+ if ( *(aA.mComparisonDirection) == phi ){
+         return (  abs( aA.mJet-> AsymPhi() ) <= abs( aB.mJet->AsymPhi() ) );
+ }else{
+         return ( abs( aA.mJet-> AsymEta() )  <= abs(  aB.mJet->AsymEta() ) );	
+ }	
 
 
 }
@@ -118,7 +97,7 @@ L1TowerJetFilter1D::~L1TowerJetFilter1D(  )
 //{
 //}
 
-
+int ONE_IT(0);
 void L1TowerJetFilter1D::algorithm( const int &aEta, const int &aPhi )
 {
   if ( mComparisonDirection == phi && aPhi != mCaloTriggerSetup->phiMin() ) return;
@@ -158,13 +137,14 @@ void L1TowerJetFilter1D::algorithm( const int &aEta, const int &aPhi )
 // This system is used everywhere beyond this point
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
+//  if(ONE_IT==0){
 //  std::cout << "Sorting Jets produced by " << sourceName() << std::endl;  
-    for( std::vector<JetWrapper>::iterator lIt =lJetWrapperVector.begin(); lIt != lJetWrapperVector.end(); ++lIt){
-      if( (*lIt).mJet )	{
-        std::cout << "Before sort, (eta, phi) = " << (*lIt).mJet->iEta() << " " << (*lIt).mJet->iPhi() <<"  energy " << (*lIt).mJet->E() << " and asym in phi = " << (*lIt).mJet->AsymPhi() << " and asym in eta = " << (*lIt).mJet->AsymEta() <<std::endl;	
-      }
-    }
+//   for( std::vector<JetWrapper>::iterator lIt =lJetWrapperVector.begin(); lIt != lJetWrapperVector.end(); ++lIt){
+//     if( (*lIt).mJet )	{
+//       //  std::cout << "Before sort, (eta, phi) = " << (*lIt).mJet->iEta() << " " << (*lIt).mJet->iPhi() <<"  energy " << (*lIt).mJet->E() << " and asym = " << (*lIt).mJet->AsymPhi() <<std::endl;	
+//     }
+//   }
+//  }
 
   // sort jets around eta/phi by energy
   std::vector<JetWrapper>::iterator lStart( lJetWrapperVector.begin() );
@@ -191,7 +171,7 @@ void L1TowerJetFilter1D::algorithm( const int &aEta, const int &aPhi )
         }
 
         if( !lVetoed ){	//if jet not vetoed then add to collection and create vetoes around it
-          //std::cout << "PHI Added jet to the output collection = (" << (*lIt).mJet->iEta() << " , " << (*lIt).mJet->iPhi() <<"), energy = " << (*lIt).mJet->E() << " and asym = " << (*lIt).mJet->AsymPhi() <<std::endl;
+
           mOutputCollection->insert( (*lIt).mJet->iEta() , (*lIt).mJet->iPhi() , *((*lIt).mJet)  );
           lCounter++;
           for( int i = -lJetsize +1 ; i != lJetsize ; ++i ){
@@ -217,7 +197,7 @@ void L1TowerJetFilter1D::algorithm( const int &aEta, const int &aPhi )
         }
 
         if( !lVetoed ){	
-          //std::cout << "ETA Added jet to the output collection = (" << (*lIt).mJet->iEta() << " , " << (*lIt).mJet->iPhi() <<"), energy = " << (*lIt).mJet->E() << " and asym = " << (*lIt).mJet->AsymPhi() <<std::endl;
+
           mOutputCollection->insert( (*lIt).mJet->iEta() , (*lIt).mJet->iPhi() , *((*lIt).mJet)  );
           ++lCounter;
 
@@ -235,7 +215,7 @@ void L1TowerJetFilter1D::algorithm( const int &aEta, const int &aPhi )
   }
 
   
-
+  ++ONE_IT;
 }
 
 DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<L1TowerJetFilter1D>,"L1TowerJetFilter1D");
