@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/06/19 10:15:33 $
- *  $Revision: 1.30 $
+ *  $Date: 2012/08/24 15:34:32 $
+ *  $Revision: 1.31 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -76,6 +76,8 @@ QcdPhotonsDQM::QcdPhotonsDQM(const ParameterSet& parameters) {
   thePlotPhotonMaxEt_          = parameters.getParameter<double>("plotPhotonMaxEt");
   thePlotPhotonMaxEta_         = parameters.getParameter<double>("plotPhotonMaxEta");
   thePlotJetMaxEta_            = parameters.getParameter<double>("plotJetMaxEta");
+  theBarrelRecHitTag           = parameters.getParameter<InputTag>("barrelRecHitTag");
+  theEndcapRecHitTag           = parameters.getParameter<InputTag>("endcapRecHitTag");
   // just to initialize
   isValidHltConfig_ = false;
 
@@ -305,17 +307,12 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
 
   // For finding spikes
-  // Aug 24, 2012,  A.Juodagalvis: 
-  //    these collections (EBReducedRecHits and EEReducedRecHits)
-  //    are not available in CMSSW_6_0_0_pre11. Thus I disabled
-  //    spike detection
-  /*
   Handle<EcalRecHitCollection> EBReducedRecHits;
-  iEvent.getByLabel("reducedEcalRecHitsEB", EBReducedRecHits);
+  iEvent.getByLabel(theBarrelRecHitTag, EBReducedRecHits);
   Handle<EcalRecHitCollection> EEReducedRecHits;
-  iEvent.getByLabel("reducedEcalRecHitsEE", EEReducedRecHits); 
-  EcalClusterLazyTools lazyTool(iEvent, iSetup, InputTag("reducedEcalRecHitsEB"), InputTag("reducedEcalRecHitsEE") );
-  */
+  iEvent.getByLabel(theEndcapRecHitTag, EEReducedRecHits); 
+  EcalClusterLazyTools lazyTool(iEvent, iSetup, theBarrelRecHitTag, theEndcapRecHitTag);
+
 
   // Find the highest et "decent" photon
   float photon_et  = -9.0;

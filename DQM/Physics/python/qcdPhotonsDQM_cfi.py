@@ -17,5 +17,7 @@ qcdPhotonsDQM = cms.EDAnalyzer("QcdPhotonsDQM",
                 # Max Et on plots
                 plotPhotonMaxEt           = cms.double(200.0),
                 plotPhotonMaxEta          = cms.double(5.0),
-                plotJetMaxEta             = cms.double(5.0)
+                plotJetMaxEta             = cms.double(5.0),
+                barrelRecHitTag           = cms.InputTag("reducedEcalRecHitsEB"),
+                endcapRecHitTag           = cms.InputTag("reducedEcalRecHitsEE")
 )
