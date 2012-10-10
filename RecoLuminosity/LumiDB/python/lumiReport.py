@@ -23,7 +23,7 @@ def dumptocsv(fieldnames,result,filename):
         r.writeRow(fieldnames)
         r.writeRows(result)
         
-def toScreenHeader(commandname,datatagname,normtag,worktag,updatetag,lumitype):
+def toScreenHeader(commandname,datatagname,normtag,worktag,updatetag,lumitype,toFile=None):
     '''
     input:
        commandname: commandname
@@ -45,8 +45,16 @@ def toScreenHeader(commandname,datatagname,normtag,worktag,updatetag,lumitype):
     header+='* \n'
     header+='* update: '+updatetag+'\n'
     header+=''.join(['*']*80)+'\n'
-    sys.stdout.write(header)
-    
+    if not toFile:
+        sys.stdout.write(header)
+    else:
+        assert(toFile)
+        if toFile.upper()=='STDOUT':
+            r=sys.stdout
+        else:
+            r=open(toFile,'wb')
+        r.write(header)
+        
 def toScreenNormSummary(allnorms):
     '''
     list all known norms summary
