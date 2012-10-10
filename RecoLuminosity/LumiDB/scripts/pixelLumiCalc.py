@@ -119,6 +119,13 @@ if __name__ == '__main__':
                         default=None,
                         required=False,
                         help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
+    
+    parser.add_argument('--headerfile',dest='headerfile',action='store',
+                        default=None,
+                        required=False,
+                        help='write command header output to specified file'
+                       )
+    
     #################################################
     #switches
     #################################################
@@ -201,6 +208,7 @@ if __name__ == '__main__':
                                       authpath=options.authpath,
                                       siteconfpath=options.siteconfpath,
                                       debugON=options.debug)
+
     session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     ##############################################################
     # check run/ls list
@@ -226,8 +234,7 @@ if __name__ == '__main__':
             for run in runlist:
                 irunlsdict[run]=None
             rruns=irunlsdict.keys()
-    
-    GrunsummaryData=lumiCalcAPI.runsummaryMap(session.nominalSchema(),irunlsdict)
+
     ###############################################################
     # check datatag
     ###############################################################
@@ -258,13 +265,15 @@ if __name__ == '__main__':
             raise RuntimeError('[ERROR] cannot resolve norm/correction')
             sys.exit(12)
         normvalueDict=normDML.normValueById(session.nominalSchema(),normid) #{since:[corrector(0),{paramname:paramvalue}(1),amodetag(2),egev(3),comment(4)]}
-    lumiReport.toScreenHeader(thiscmmd,datatagname,normname,workingversion,updateversion,'PIXEL')
+    lumiReport.toScreenHeader(thiscmmd,datatagname,normname,workingversion,updateversion,'PIXEL',toFile=options.headerfile)
     session.transaction().commit()
     if not dataidmap:
         print '[INFO] No qualified data found, do nothing'
         sys.exit(13)
     
     session.transaction().start(True)
+
+    GrunsummaryData=lumiCalcAPI.runsummaryMap(session.nominalSchema(),irunlsdict)
     if options.action == 'overview':
        result=lumiCalcAPI.lumiForIds(session.nominalSchema(),irunlsdict,dataidmap,runsummaryMap=GrunsummaryData,beamstatusfilter=None,timeFilter=timeFilter,normmap=normvalueDict,lumitype='PIXEL')
        lumiReport.toScreenOverview(result,iresults,options.scalefactor,irunlsdict=irunlsdict,noWarning=options.nowarning,toFile=options.outputfile)
