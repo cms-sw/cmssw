@@ -92,7 +92,7 @@ void PlaybackRawDataProvider::analyze(const Event& iEvent,
   evtNumber_[writeIndex_]=iEvent.id().event();
 
   Handle<FEDRawDataCollection> pRawData;
-  iEvent.getByType(pRawData);
+  iEvent.getByLabel("rawDataCollector", pRawData);
   
   if (!pRawData.isValid()) {
     edm::LogError("InvalidHandle")<<"no raw data found!"<<endl;
