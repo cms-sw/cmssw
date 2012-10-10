@@ -6,6 +6,7 @@ EDMtoMEConverter = cms.EDAnalyzer("EDMtoMEConverter",
                                         # 1 provides basic output
     Frequency = cms.untracked.int32(50),
     convertOnEndLumi = cms.untracked.bool(True),
-    convertOnEndRun = cms.untracked.bool(True)
+    convertOnEndRun = cms.untracked.bool(True),
+    runInputTag = cms.InputTag('MEtoEDMConverter', 'MEtoEDMConverterRun'),
+    lumiInputTag = cms.InputTag('MEtoEDMConverter', 'MEtoEDMConverterLumi')
 )
-
