@@ -62,6 +62,14 @@ class ESDaqInfoTask: public edm::EDAnalyzer{
 
       bool ESOnFed_[56];
 
+      int getFEDNumber(const int x, const int y) {
+        int iz = (x < 40)  ? 1 : 2;
+        int ip = (y >= 40) ? 1 : 2;
+        int ix = (x < 40) ? x : x - 40;
+        int iy = (y < 40) ? y :y - 40;
+        return (*es_mapping_).getFED( iz, ip, ix + 1, iy + 1);
+      }
+  
 };
 
 #endif
