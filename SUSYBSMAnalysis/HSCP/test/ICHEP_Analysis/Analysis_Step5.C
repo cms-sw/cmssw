@@ -48,25 +48,25 @@ void Analysis_Step5()
    string InputPattern;				unsigned int CutIndex;     unsigned int CutIndex_Flip;
    std::vector<string> Legends;                 std::vector<string> Inputs;
 
-   InputPattern = "Results/Type0/";   CutIndex = 4; //set of cuts from the array, 0 means no cut
+   InputPattern = "Results/Type0/";   CutIndex = 84; //set of cuts from the array, 0 means no cut
    MassPrediction(InputPattern, CutIndex, "Mass");
    PredictionAndControlPlot(InputPattern, "Data11", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data12", CutIndex, CutIndex_Flip);
-   CutFlow(InputPattern);
+   CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex);
-   InputPattern = "Results/Type2/";   CutIndex = 16; CutIndex_Flip=2;
 
+   InputPattern = "Results/Type2/";   CutIndex = 905; CutIndex_Flip=16;
    MassPrediction(InputPattern, CutIndex, "Mass");
    MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip");
    PredictionAndControlPlot(InputPattern, "Data11", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data12", CutIndex, CutIndex_Flip);
-   CutFlow(InputPattern);
+   CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex);
    GetSystematicOnPrediction(InputPattern);
    CheckPrediction(InputPattern, "_Flip", "Data11");
    CheckPrediction(InputPattern, "_Flip", "Data12");
 
-   InputPattern = "Results/Type3/";   CutIndex = 94; CutIndex_Flip=2;
+   InputPattern = "Results/Type3/";   CutIndex = 125; CutIndex_Flip=58;
    PredictionAndControlPlot(InputPattern, "Data11", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data12", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
@@ -76,7 +76,6 @@ void Analysis_Step5()
    CheckPrediction(InputPattern, "_Flip", "Data12");
    CheckPrediction(InputPattern, "", "Data11");
    CheckPrediction(InputPattern, "_Flip", "Data11");
-
 
    InputPattern = "Results/Type5/";   CutIndex = 67; CutIndex_Flip=2;
    SelectionPlot(InputPattern, CutIndex);
@@ -95,8 +94,8 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    bool IsTkOnly = (InputPattern.find("Type0",0)<std::string::npos);
    double SystError     = 0.05;
 
-   string        SName="Gluino600_f10";  string SLeg="Gluino (M=600 GeV/#font[12]{c}^{2})";
-   if(!IsTkOnly){SName="GMStau156";         SLeg="Stau (M=156 GeV/#font[12]{c}^{2})";}
+   string        SName="Gluino_7TeV_M600_f10";  string SLeg="Gluino (M=600 GeV/#font[12]{c}^{2})";
+   if(!IsTkOnly){SName="GMStau_7TeV_M156";         SLeg="Stau (M=156 GeV/#font[12]{c}^{2})";}
 
    TH1D *Pred12=NULL, *Data12=NULL, *Pred11=NULL, *Data11=NULL, *MCPred=NULL, *MC=NULL, *Signal=NULL;
    TFile* InputFile = new TFile((InputPattern + "/Histos.root").c_str());
@@ -700,10 +699,11 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
     }
 
     for(unsigned int s=0;s<samples.size();s++){
-       if (samples[s].Name!="Gluino300_f10" && samples[s].Name!="Gluino600_f10" && samples[s].Name!="Gluino800_f10" && samples[s].Name!="GMStau247" && samples[s].Name!="GMStau370" && samples[s].Name!="GMStau494" && samples[s].Name!="DY_M100_Q1o3" &&  samples[s].Name!="DY_M400_Q1o3" && samples[s].Name!="DY_M100_Q2o3" &&  samples[s].Name!="DY_M400_Q2o3") continue;
+       if (samples[s].Name!="Gluino_7TeV_M300_f10" && samples[s].Name!="Gluino_7TeV_M600_f10" && samples[s].Name!="Gluino_7TeV_M800_f10" && samples[s].Name!="GMStau_7TeV_M247" && samples[s].Name!="GMStau_7TeV_M370" && samples[s].Name!="GMStau_7TeV_M494" && samples[s].Name!="DY_7TeV_M100_Q1o3" &&  samples[s].Name!="DY_7TeV_M400_Q1o3" && samples[s].Name!="DY_7TeV_M100_Q2o3" &&  samples[s].Name!="DY_7TeV_M400_Q2o3") continue;
        stPlots_InitFromFile(InputFile, SignPlots[s],samples[s].Name);
        stPlots_Draw(SignPlots[s], InputPattern + "/Selection_" +  samples[s].Name, LegendTitle, CutIndex);
     }
+
     stPlots_Draw(Data12Plots, InputPattern + "/Selection_Data12", LegendTitle, CutIndex);
     stPlots_Draw(Data11Plots, InputPattern + "/Selection_Data11", LegendTitle, CutIndex);
     stPlots_Draw(MCTrPlots  , InputPattern + "/Selection_MCTr"  , LegendTitle, CutIndex);
@@ -714,16 +714,16 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
     }
 
     stPlots_DrawComparison(InputPattern + "/Selection_Comp_Data"  , LegendTitle, CutIndex, &Data12Plots, &Data11Plots, &MCTrPlots);
-    if(TypeMode<=2) stPlots_DrawComparison(InputPattern + "/Selection_Comp_Gluino", LegendTitle, CutIndex, &Data12Plots, &MCTrPlots,     &SignPlots[JobIdToIndex("Gluino300_f10",samples)], &SignPlots[JobIdToIndex("Gluino600_f10",samples)], &SignPlots[JobIdToIndex("Gluino800_f10",samples)]);
-    if(TypeMode==3) stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic", LegendTitle, CutIndex, &Data12Plots, &Cosmic12Plots, &SignPlots[JobIdToIndex("Gluino800_f10",samples)]);
-    if(TypeMode==5) stPlots_DrawComparison(InputPattern + "/Selection_Comp_DY"    , LegendTitle, CutIndex, &Data12Plots, &Data11Plots,   &SignPlots[JobIdToIndex("DY_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_M400_Q2o3",samples)]);
+    if(TypeMode<=2) stPlots_DrawComparison(InputPattern + "/Selection_Comp_Gluino", LegendTitle, CutIndex, &Data12Plots, &MCTrPlots,     &SignPlots[JobIdToIndex("Gluino_7TeV_M300_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M600_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);
+    if(TypeMode==3) stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic", LegendTitle, CutIndex, &Data12Plots, &Data11Plots, &Cosmic12Plots, &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);
+    if(TypeMode==5) stPlots_DrawComparison(InputPattern + "/Selection_Comp_DY"    , LegendTitle, CutIndex, &Data12Plots, &Data11Plots,   &SignPlots[JobIdToIndex("DY_7TeV_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M400_Q2o3",samples)]);
 
     stPlots_Clear(&Data12Plots);
     stPlots_Clear(&Data11Plots);
     stPlots_Clear(&MCTrPlots);
 
     for(unsigned int s=0;s<samples.size();s++){
-       if (samples[s].Name!="Gluino300_f10" && samples[s].Name!="Gluino600_f10" && samples[s].Name!="Gluino800_f10" && samples[s].Name!="GMStau247" && samples[s].Name!="GMStau370" && samples[s].Name!="GMStau494" && samples[s].Name!="DY_M100_Q1o3" &&  samples[s].Name!="DY_M400_Q1o3" && samples[s].Name!="DY_M100_Q2o3" &&  samples[s].Name!="DY_M400_Q2o3") continue;
+       if (samples[s].Name!="Gluino_7TeV_300_f10" && samples[s].Name!="Gluino_7TeV_600_f10" && samples[s].Name!="Gluino_7TeV_800_f10" && samples[s].Name!="GMStau_7TeV_247" && samples[s].Name!="GMStau_7TeV_370" && samples[s].Name!="GMStau_7TeV_494" && samples[s].Name!="DY_7TeV_M100_Q1o3" &&  samples[s].Name!="DY_7TeV_M400_Q1o3" && samples[s].Name!="DY_7TeV_M100_Q2o3" &&  samples[s].Name!="DY_7TeV_M400_Q2o3") continue;
        stPlots_Clear(&SignPlots[s]);
     }
     InputFile->Close();
@@ -1883,7 +1883,7 @@ void CheckPrediction(string InputPattern, string HistoSuffix, string DataType){
     Histos[0] = Data[i];      legend.push_back("Obs");
     Histos[1] = Pred[i];    legend.push_back("Pred");
     DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta Cut", "Tracks", 0, 0, 0,0);
-    DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.5);
+    DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.3);
     c1->SetLogy(true);
     DrawPreliminary(SQRTS, IntegratedLuminosity);
 
@@ -1893,6 +1893,7 @@ void CheckPrediction(string InputPattern, string HistoSuffix, string DataType){
     else if(ICut>-1) sprintf(Title,"Pred%s_I%0.2f_",HistoSuffix.c_str(),ICut);
     SaveCanvas(c1,SavePath,Title + DataType);
     delete c1;
+    delete Histos[0]; delete Histos[1];
   }
 
   legend.clear();
