@@ -56,7 +56,7 @@ namespace approx_math {
 
 #ifdef __SSE4_1__
   inline float fpfloor(float x) {
-    return std::floor(x)
+    return std::floor(x);
   }
 #else
   inline float fpfloor(float x) {
