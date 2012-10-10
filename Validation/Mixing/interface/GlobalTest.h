@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: GlobalTest.h,v 1.4 2009/12/11 15:05:51 ebecheva Exp $
+// $Id: GlobalTest.h,v 1.5 2009/12/21 14:46:17 ebecheva Exp $
 //
 //
 
@@ -23,6 +23,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 //DQM services for histogram
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -64,5 +66,7 @@ private:
   const static int nrHistos=6;
   char * labels[nrHistos];
 
+  edm::InputTag cfTrackTag_;
+  edm::InputTag cfVertexTag_;
 };
 

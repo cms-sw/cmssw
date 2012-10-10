@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestSuite.cc,v 1.11 2009/01/28 16:33:57 ebecheva Exp $
+// $Id: TestSuite.cc,v 1.12 2009/12/21 14:46:56 ebecheva Exp $
 //
 //
 
@@ -38,7 +38,9 @@
 
 using namespace edm;
 
-TestSuite::TestSuite(const edm::ParameterSet& iConfig): filename_(iConfig.getParameter<std::string>("fileName")), bunchcr_(iConfig.getParameter<int>("BunchNr")), minbunch_(iConfig.getParameter<int>("minBunch")),maxbunch_(iConfig.getParameter<int>("maxBunch")),  dbe_(0)
+TestSuite::TestSuite(const edm::ParameterSet& iConfig): filename_(iConfig.getParameter<std::string>("fileName")), bunchcr_(iConfig.getParameter<int>("BunchNr")), minbunch_(iConfig.getParameter<int>("minBunch")),maxbunch_(iConfig.getParameter<int>("maxBunch")),  dbe_(0),
+  cfTrackTag_(iConfig.getParameter<edm::InputTag>("cfTrackTag")),
+  cfVertexTag_(iConfig.getParameter<edm::InputTag>("cfVertexTag"))
 {
   std::cout << "Constructed testSuite , bunchcr "<<bunchcr_<<" filename: "<<filename_<<std::endl;
 
@@ -81,8 +83,8 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::string subdetTracker("g4SimHitsTrackerHitsTECLowTof");
     std::string ecalsubdet("g4SimHitsEcalHitsEB");
     std::string hcalsubdet("g4SimHitsHcalHits");
-    iEvent.getByType(cf_track);
-    iEvent.getByType(cf_vertex);
+    iEvent.getByLabel(cfTrackTag_, cf_track);
+    iEvent.getByLabel(cfVertexTag_, cf_vertex);
     iEvent.getByLabel("mix",subdetTracker,cf_simhit);
     iEvent.getByLabel("mix",ecalsubdet,cf_calohitEcal);
     iEvent.getByLabel("mix",hcalsubdet,cf_calohitHcal);

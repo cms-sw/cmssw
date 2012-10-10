@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: GlobalTest.cc,v 1.9 2009/12/21 14:46:56 ebecheva Exp $
+// $Id: GlobalTest.cc,v 1.10 2011/01/10 09:22:24 fwyzard Exp $
 //
 //
 
@@ -46,7 +46,9 @@ using namespace edm;
 
 GlobalTest::GlobalTest(const edm::ParameterSet& iConfig):
 filename_(iConfig.getParameter<std::string>("fileName")),
-minbunch_(iConfig.getParameter<int>("minBunch")),maxbunch_(iConfig.getParameter<int>("maxBunch")), dbe_(0)
+minbunch_(iConfig.getParameter<int>("minBunch")),maxbunch_(iConfig.getParameter<int>("maxBunch")), dbe_(0),
+cfTrackTag_(iConfig.getParameter<edm::InputTag>("cfTrackTag")),
+cfVertexTag_(iConfig.getParameter<edm::InputTag>("cfVertexTag"))
 {
   std::cout << "Constructed GlobalTest, filename: "<<filename_<<" minbunch: "<<minbunch_<<", maxbunch: "<<maxbunch_<<std::endl;
 
@@ -137,8 +139,8 @@ GlobalTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<CrossingFrame<PCaloHit> > cf_calohitB;
     std::string ecalsubdetb("g4SimHitsEcalHitsEB");
     std::string ecalsubdete("g4SimHitsEcalHitsEE");
-    iEvent.getByType(cf_track);
-    iEvent.getByType(cf_vertex);
+    iEvent.getByLabel(cfTrackTag_, cf_track);
+    iEvent.getByLabel(cfVertexTag_, cf_vertex);
     iEvent.getByLabel("mix",ecalsubdetb,cf_calohitB);
     iEvent.getByLabel("mix",ecalsubdete,cf_calohitE);
 
