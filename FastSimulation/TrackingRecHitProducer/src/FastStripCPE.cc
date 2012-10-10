@@ -1,4 +1,4 @@
-#include "FastSimulation/TrackingRecHitProducer/interface/FastStripCPE.h"
+#include "FastStripCPE.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include <algorithm>
 #include<cmath>

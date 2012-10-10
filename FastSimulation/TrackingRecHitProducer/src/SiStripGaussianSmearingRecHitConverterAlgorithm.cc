@@ -8,7 +8,7 @@
 
 
 // SiStrip Gaussian Smearing
-#include "FastSimulation/TrackingRecHitProducer/interface/SiStripGaussianSmearingRecHitConverterAlgorithm.h"
+#include "SiStripGaussianSmearingRecHitConverterAlgorithm.h"
 
 // Famos
 #include "FastSimulation/Utilities/interface/RandomEngine.h"

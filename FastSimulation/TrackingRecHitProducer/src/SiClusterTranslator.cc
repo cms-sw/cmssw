@@ -8,7 +8,7 @@
  */
 
 // SiTracker Gaussian Smearing
-#include "FastSimulation/TrackingRecHitProducer/interface/SiClusterTranslator.h"
+#include "SiClusterTranslator.h"
 
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -24,8 +24,8 @@
 //CPEs
 #include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 #include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
-#include "FastSimulation/TrackingRecHitProducer/interface/FastPixelCPE.h"
-#include "FastSimulation/TrackingRecHitProducer/interface/FastStripCPE.h"
+#include "FastPixelCPE.h"
+#include "FastStripCPE.h"
 
 // Framework
 #include "FWCore/Framework/interface/Event.h"

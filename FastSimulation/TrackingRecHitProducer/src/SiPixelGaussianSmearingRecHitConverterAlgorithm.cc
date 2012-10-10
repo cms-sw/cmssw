@@ -11,7 +11,7 @@
  */
 
 // SiPixel Gaussian Smearing
-#include "FastSimulation/TrackingRecHitProducer/interface/SiPixelGaussianSmearingRecHitConverterAlgorithm.h"
+#include "SiPixelGaussianSmearingRecHitConverterAlgorithm.h"
 
 // Geometry
 //#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"

@@ -10,13 +10,13 @@
 #include "FastSimDataFormats/External/interface/FastTrackerCluster.h"
 
 // SiTracker Gaussian Smearing
-#include "FastSimulation/TrackingRecHitProducer/interface/SiTrackerGaussianSmearingRecHitConverter.h"
+#include "SiTrackerGaussianSmearingRecHitConverter.h"
 
 // SiPixel Gaussian Smearing
-#include "FastSimulation/TrackingRecHitProducer/interface/SiPixelGaussianSmearingRecHitConverterAlgorithm.h"
+#include "SiPixelGaussianSmearingRecHitConverterAlgorithm.h"
 
 // SiStripGaussianSmearing
-#include "FastSimulation/TrackingRecHitProducer/interface/SiStripGaussianSmearingRecHitConverterAlgorithm.h"
+#include "SiStripGaussianSmearingRecHitConverterAlgorithm.h"
 
 // Geometry and magnetic field
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -60,7 +60,7 @@
 // topology
 
 // the rec hit matcher
-#include "FastSimulation/TrackingRecHitProducer/interface/GSRecHitMatcher.h"
+#include "GSRecHitMatcher.h"
 
 // STL
 #include <memory>

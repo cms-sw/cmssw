@@ -8,7 +8,7 @@
 
 
 // SiTracker Gaussian Smearing
-#include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitTranslator.h"
+#include "TrackingRecHitTranslator.h"
 
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"

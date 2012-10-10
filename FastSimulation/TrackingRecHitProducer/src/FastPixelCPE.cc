@@ -1,4 +1,4 @@
-#include "FastSimulation/TrackingRecHitProducer/interface/FastPixelCPE.h"
+#include "FastPixelCPE.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
