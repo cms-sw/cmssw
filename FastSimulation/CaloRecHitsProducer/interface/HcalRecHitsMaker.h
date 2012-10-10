@@ -4,17 +4,12 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FastSimulation/Utilities/interface/GaussianTail.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include <map>
 #include <vector>
 
-//#include <boost/cstdint.hpp>
-
 class CaloGeometry;
 class RandomEngine;
-// class HcalTPGCoder;
 class HcalSimParameterMap;
 class HcalDbService;
 class HcalRespCorrs;
@@ -22,6 +17,7 @@ class HcalRespCorrs;
 namespace edm { 
   class Event;
   class EventSetup;
+  class ParameterSet;
 }
 
 class HcalRecHitsMaker
@@ -103,7 +99,6 @@ class HcalRecHitsMaker
 
   // the access to the response corection factors
   const HcalRespCorrs* myRespCorr;
-  const edm::ParameterSet m_pSet;
 };
 
 #endif
