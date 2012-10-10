@@ -25,15 +25,15 @@ setenv STARTUP True
 
 
 setenv CMSSWver1 6_0_0
-setenv CMSSWver2 6_0_0
+setenv CMSSWver2 6_1_0
 setenv OLDRELEASE 6_0_0
-setenv NEWRELEASE 6_0_0
-setenv OLDPRERELEASE pre11
-setenv NEWPRERELEASE 
+setenv NEWRELEASE 6_1_0
+setenv OLDPRERELEASE 
+setenv NEWPRERELEASE pre1
 
 if ( $STARTUP == True) then
-setenv OLDGLOBALTAG PU_START60_V4_g495-v1
-setenv NEWGLOBALTAG PU_START60_V4-v1
+setenv OLDGLOBALTAG START60_V4-v1
+setenv NEWGLOBALTAG START60_V4-v1
 else 
 setenv OLDGLOBALTAG START53_V6-v1
 setenv NEWGLOBALTAG START53_V6-v1
@@ -42,27 +42,27 @@ endif
 
 
 
-setenv OLDRELEASE ${OLDRELEASE}_${OLDPRERELEASE}
-#setenv OLDRELEASE ${OLDRELEASE}
-#setenv NEWRELEASE ${NEWRELEASE}_${NEWPRERELEASE}
-setenv NEWRELEASE ${NEWRELEASE}
+#setenv OLDRELEASE ${OLDRELEASE}_${OLDPRERELEASE}
+setenv OLDRELEASE ${OLDRELEASE}
+setenv NEWRELEASE ${NEWRELEASE}_${NEWPRERELEASE}
+#setenv NEWRELEASE ${NEWRELEASE}
 
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
 
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
 #Name of sample (affects output directory name and htmldescription only) 
 
-setenv PU True
+setenv PU False
 #setenv SAMPLE SingleGammaPt10
 #setenv SAMPLE SingleGammaPt35
 ##setenv SAMPLE SingleGammaFlatPt10_100
@@ -99,7 +99,7 @@ setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt10.r
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.root
 else if ( $RUNTYPE == Central ) then
 setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt10__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
-setenv NEWFILE ${WorkDir2}/DQM_V0002_R000000001__RelValSingleGammaPt10__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt10__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
 
 endif
 
@@ -153,7 +153,7 @@ setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_PhotonJets_Pt_10.
 else if ( $RUNTYPE == Central ) then
 
 setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValPhotonJets_Pt_10__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
-setenv NEWFILE ${WorkDir2}/DQM_V0002_R000000001__RelValPhotonJets_Pt_10__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValPhotonJets_Pt_10__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
 
 endif
 
@@ -584,7 +584,7 @@ ratio->SetLineWidth(2);
 ratio->SetMinimum(0.);
 ratio->SetMaximum(2.);
 ratio->Draw("e");
-TLine *l = new TLine(0..,1.,xMax,1.);
+TLine *l = new TLine(xMin,1.,xMax,1.);
 l->Draw(); 
 c$i->SaveAs("gifs/$i.gif");
 
@@ -660,7 +660,7 @@ ratio->SetLineWidth(2);
 ratio->SetMinimum(0.);
 ratio->SetMaximum(4.);
 ratio->Draw("e");
-TLine *l = new TLine(0..,1.,xMax,1.);
+TLine *l = new TLine(xMin,1.,xMax,1.);
 l->Draw(); 
 c$i->SaveAs("gifs/$i.gif");
 //TString gifName=TString("gifs/$i")+"_ratio.gif";
