@@ -391,10 +391,7 @@ process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..Tracks = 'TrackRef
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..trajectoryInput = 'TrackRefitter2'
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelHistsTransient = .oO[offlineModuleLevelHistsTransient]Oo.
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelProfiles = .oO[offlineModuleLevelProfiles]Oo.
-# Create the result file directly to datadir since should not use /tmp/
-# see https://cern.service-now.com/service-portal/article.do?n=KB0000484
-#.oO[offlineValidationFileOutput]Oo.
-process.TFileService.fileName = '.oO[datadir]Oo./AlignmentValidation_.oO[name]Oo._.oO[nIndex]Oo..root'
+.oO[offlineValidationFileOutput]Oo.
 
  ##
  ## PATH
@@ -410,20 +407,20 @@ process.offlineBeamSpot*process.HighPuritySelector*process.TrackRefitter1*proces
 ######################################################################
 ######################################################################
 mergeOfflineParallelResults="""
-if [ -e .oO[datadir]Oo./AlignmentValidation_.oO[name]Oo..root ] ; then
-    echo "Output file AlignmentValidation_.oO[name]Oo..root already exists, now generating plots."
+if [ -e .oO[datadir]Oo./AlignmentValidation_.oO[nameValidation]Oo._.oO[name]Oo..root ] ; then
+    echo "Output file AlignmentValidation_.oO[nameValidation]Oo._.oO[name]Oo..root already exists, now generating plots."
 else
     if [ .oO[nJobs]Oo. -eq 1 ] ; then
         echo "A single validation job was used, no merging of results."
-        cp .oO[datadir]Oo./AlignmentValidation_.oO[name]Oo._0.root .oO[datadir]Oo./AlignmentValidation_.oO[name]Oo..root
+        cp .oO[datadir]Oo./AlignmentValidation_.oO[nameValidation]Oo._.oO[name]Oo._0.root .oO[datadir]Oo./AlignmentValidation_.oO[nameValidation]Oo._.oO[name]Oo..root
     else
         echo "Merging results from parallel jobs with TkAlOfflineJobsMerge.C"
         root -x -b -q .oO[logdir]Oo./TkAlOfflineJobsMerge.C
-        mv /tmp/$USER/merge_output.root .oO[datadir]Oo./AlignmentValidation_.oO[name]Oo..root
-        ls -al .oO[datadir]Oo./AlignmentValidation_.oO[name]Oo.*.root > .oO[datadir]Oo./log_rootfilelist.txt
+        mv /tmp/$USER/merge_output.root .oO[datadir]Oo./AlignmentValidation_.oO[nameValidation]Oo._.oO[name]Oo..root
+        ls -al .oO[datadir]Oo./AlignmentValidation_.oO[nameValidation]Oo._.oO[name]Oo.*.root > .oO[datadir]Oo./log_.oO[nameValidation]Oo._.oO[name]Oo._rootfilelist.txt
     fi
 fi
-rm -f .oO[datadir]Oo./AlignmentValidation_.oO[name]Oo._*.root
+rm -f .oO[datadir]Oo./AlignmentValidation_.oO[nameValidation]Oo._.oO[name]Oo._*.root
 """
 
 
@@ -449,6 +446,11 @@ offlineStandaloneFileOutputTemplate = """
 process.TFileService.fileName = '.oO[outputFile]Oo.'
 """
 
+######################################################################
+######################################################################
+offlineParallelFileOutputTemplate = """
+process.TFileService.fileName = '.oO[outputFile]Oo.'
+"""
 
 ######################################################################
 ######################################################################
