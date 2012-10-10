@@ -270,7 +270,6 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
   GlobalPoint  posVec, posECAL;
   math::XYZTLorentzVector momVec;
   if (verbosity>0) std::cout << "event number " << iEvent.id().event() <<std::endl;
-
   if (useHepMC) {
     const HepMC::GenEvent *myGenEvent = hepmc->GetEvent();
     std::vector<spr::propagatedGenTrackID> trackIDs = spr::propagateCALO(myGenEvent, pdt, geo, bField, etaMax, false);
@@ -323,8 +322,21 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
 	  fillTrack (posVec, momVec, posECAL, 0, false, false);
 	} 
       }
-    } // loop over gen particles
-  } else { 
+    }
+
+    unsigned int indx;
+    HepMC::GenEvent::particle_const_iterator p;
+    for (p=myGenEvent->particles_begin(),indx=0; p!=myGenEvent->particles_end();
+	 ++p,++indx) {
+      int pdgId  = ((*p)->pdg_id());
+      int ix     = particleCode(pdgId);
+      if (ix >= 0) {
+	double  pp = (*p)->momentum().rho();
+	double eta = (*p)->momentum().eta();
+	h_pEta[ix]->Fill(pp,eta);
+      }
+    }
+  } else {  // loop over gen particles
     std::vector<spr::propagatedGenParticleID> trackIDs = spr::propagateCALO(genParticles, pdt, geo, bField, etaMax, (verbosity>0));
 
     for (unsigned int indx=0; indx<trackIDs.size(); ++indx) {
@@ -375,6 +387,19 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
 	} 
       }
     } // loop over gen particles
+
+    unsigned int indx;
+    reco::GenParticleCollection::const_iterator p;
+    for (p=genParticles->begin(),indx=0; p!=genParticles->end(); ++p,++indx) {
+      int pdgId  = (p->pdgId());
+      int ix     = particleCode(pdgId);
+      if (ix >= 0) {
+	double  pp = (p->momentum()).R();
+	double eta = (p->momentum()).Eta();
+	h_pEta[ix]->Fill(pp,eta);
+      }
+    }
+
   } 
 
   //t_nEvtProc->push_back(nEventProc);
@@ -640,7 +665,29 @@ void IsolatedGenParticles::BookHistograms(){
   h_NEventProc  = fs->make<TH1I>("h_NEventProc",  "h_NEventProc", 2, -0.5, 0.5);
   h_L1AlgoNames = fs->make<TH1I>("h_L1AlgoNames", "h_L1AlgoNames:Bin Labels", 128, -0.5, 127.5);  
 
-  TFileDirectory dir1     = fs->mkdir( "dPhidEta" );
+  double pBin[PBins+1] = {0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 20.0, 30.0, 40.0, 50.0,
+			  60.0, 70.0, 80.0, 90.0, 100.0, 150.0, 200.0, 250.0,
+			  300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0,
+			  650.0, 700.0, 750.0, 800.0, 850.0, 900.0, 950.0,
+			  1000.0};
+  double etaBin[EtaBins+1] = {-3.0, -2.9, -2.8, -2.7, -2.6, -2.5, -2.4, -2.3,
+			      -2.2, -2.1, -2.0, -1.9, -1.8, -1.7, -1.6, -1.5,
+			      -1.4, -1.3, -1.2, -1.1, -1.0, -0.9, -0.8, -0.7,
+			      -0.6, -0.5, -0.4, -0.3, -0.2, -0.1,  0.0,  0.1,
+  			       0.2,  0.3,  0.4,  0.5,  0.6,  0.7,  0.8,  0.9,
+  			       1.0,  1.1,  1.2,  1.3,  1.4,  1.5,  1.6,  1.7,
+  			       1.8,  1.9,  2.0,  2.1,  2.2,  2.3,  2.4,  2.5,
+			       2.6,  2.7,  2.8,  2.9,  3.0};
+  std::string particle[Particles] = {"electron", "positron", "#gamma", "#pi^+",
+				     "#pi^-", "K^+", "K^-", "p", "n", "pbar",
+				     "nbar", "K^0_L"};
+  TFileDirectory dir1     = fs->mkdir( "pEta" );
+  char name[20], title[50];
+  for (int i=0; i<Particles; ++i) {
+    sprintf (name, "pEta%d", i);
+    sprintf (title, "#eta vs momentum for %s", particle[i].c_str());
+    h_pEta[i] = dir1.make<TH2D>(name, title, PBins, pBin, EtaBins, etaBin);
+  }
 
   // build the tree
   tree = fs->make<TTree>("tree", "tree");
@@ -1284,6 +1331,18 @@ void IsolatedGenParticles::clearTreeVectors() {
   t_L1METPt           ->clear();
   t_L1METEta          ->clear();
   t_L1METPhi          ->clear();
+}
+
+int IsolatedGenParticles::particleCode(int pdgId) {
+ 
+ int partID[Particles]={11,-11,21,211,-211,321,-321,2212,2112,-2212,-2112,130};
+  int ix = -1;
+  for (int ik=0; ik<Particles; ++ik) {
+    if (pdgId == partID[ik]) {
+      ix = ik; break;
+    }
+  }
+  return ix;
 }
 
 //define this as a plug-in

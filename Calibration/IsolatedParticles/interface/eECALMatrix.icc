@@ -1,3 +1,4 @@
+#include "Calibration/IsolatedParticles/interface/DebugInfo.h"
 #include "Calibration/IsolatedParticles/interface/FindCaloHit.h"
 #include "Calibration/IsolatedParticles/interface/FindEtaPhi.h"
 #include<iostream>
@@ -13,19 +14,7 @@ namespace spr{
     if (debug) {
       std::cout << "Inside eECALmatrix " << 2*ieta+1 << "X" << 2*iphi+1
                 << " nXtals " << vdets.size() << std::endl;
-      for (unsigned int i=0; i<vdets.size(); ++i) {
-        std::cout << "Cell [" << i << "] 0x";
-        if (vdets[i].subdetId() == EcalBarrel) {
-	  EBDetId id = vdets[i];
-          std::cout << std::hex << vdets[i]() << std::dec << " " << id;
-        } else if (vdets[i].subdetId() == EcalEndcap) {
-          EEDetId id = vdets[i];
-          std::cout << std::hex << vdets[i]() << std::dec << " " << id;
-        } else {
-	  std::cout << std::hex << vdets[i]() << std::dec << " Unknown Type";
-        }	
-        std::cout << std::endl;
-      }
+      spr::debugEcalDets(0, vdets);
     }
 
     return spr::energyECAL(vdets, hitsEB,hitsEE, ebThr,eeThr, tMin,tMax,debug);
@@ -229,6 +218,66 @@ namespace spr{
     if (debug) 
       std::cout << "energyECALTower: Energy in the Tower = " << ener << std::endl;
     return ener;
+  }
+
+
+  template< typename T>
+  DetId hotCrystal(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, double tMin, double tMax, bool debug) {
+
+    std::vector<DetId> vdets; 
+    spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, vdets, false);
+
+    if (debug) {
+      std::cout << "Inside eECALmatrix " << 2*ieta+1 << "X" << 2*iphi+1
+                << " nXtals " << vdets.size() << std::endl;
+      spr::debugEcalDets(0, vdets);
+    }
+
+    DetId det = spr::hotCrystal(vdets, hitsEB,hitsEE, tMin,tMax,debug);
+    if (det == DetId(0)) det = detId;
+    return det;
+  }
+
+  template <typename T>
+  DetId hotCrystal(std::vector<DetId>& vdets, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, double tMin, double tMax, bool debug) {
+
+    DetId  det  = DetId(0);
+    double eMax = -99999.;
+    for (unsigned int i1=0; i1<vdets.size(); i1++) {
+      if (vdets[i1] != DetId(0)) {
+	std::vector< typename T::const_iterator> hit;
+        if (vdets[i1].subdetId()==EcalBarrel) {
+          spr::findHit(hitsEB,vdets[i1],hit,debug);
+        } else if (vdets[i1].subdetId()==EcalEndcap) {
+          spr::findHit(hitsEE,vdets[i1],hit,debug);
+        }
+        if (debug) std::cout << "Crystal 0x" <<std::hex << vdets[i1]() <<std::dec;
+        double ener=0;
+  	for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
+          double en=0, tt=0;
+          if (vdets[i1].subdetId()==EcalBarrel) {
+            if (hit[ihit] != hitsEB->end()) {
+	      en = hit[ihit]->energy();
+              tt = hit[ihit]->time();
+            }
+          } else if (vdets[i1].subdetId()==EcalEndcap) {
+            if (hit[ihit] != hitsEE->end()) {
+	      en = hit[ihit]->energy(); 
+              tt = hit[ihit]->time();
+            }
+          }
+          if (debug) std::cout << " " << ihit << " " << en << " " << tt;
+          if (tt > tMin && tt < tMax) ener += en;
+        }
+        if (debug) std::cout << "\n";
+        if (ener > eMax) {
+          det  = vdets[i1];
+	  eMax = ener;
+        }
+      }
+    }
+    if (debug) std::cout << "energyECAL: maxEnegy = " << eMax << std::endl;
+    return det;
   }
 }
 

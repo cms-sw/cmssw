@@ -43,10 +43,10 @@ namespace spr{
 
   // Energy in NxN crystal matrix
   template< typename T>
-    double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500,  bool debug=false);
+  double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500,  bool debug=false);
 
   template< typename T>
-    double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, const EcalTrigTowerConstituentsMap& ttMap, int ieta, int iphi, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500, bool debug=false);
+  double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, const EcalTrigTowerConstituentsMap& ttMap, int ieta, int iphi, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500, bool debug=false);
 
   template< typename T>
   double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ietaE, int ietaW, int iphiN, int iphiS, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500,bool debug=false);
@@ -69,6 +69,13 @@ namespace spr{
   // returns energy in the EB/EE tower 
   template <typename T>
   double energyECALTower(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const EcalTrigTowerConstituentsMap& ttMap, bool debug=false);
+
+  // Hot Crystal
+  template< typename T>
+  DetId hotCrystal(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, double tMin=-500, double tMax=500,  bool debug=false);
+
+  template< typename T>
+  DetId hotCrystal(std::vector<DetId>& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, double tMin=-500, double tMax=500,  bool debug=false);
 }
 
 #include "Calibration/IsolatedParticles/interface/eECALMatrix.icc"

@@ -46,7 +46,7 @@ private:
   double           pBins[NPBins+1], etaBins[NEtaBins+1];
 
   std::string      sourceLabel, g4Label, hitLabEB, hitLabEE;
-  int              verbose;
+  int              hotZone, verbose;
   bool             histos;
   TH1F             *histoR1[NPBins+1][NEtaBins+1], *histoR2[NPBins+1][NEtaBins+1];
   TH1F             *histoR3[NPBins+1][NEtaBins+1], *histoE1x1[NPBins+1][NEtaBins+1];

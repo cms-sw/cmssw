@@ -18,6 +18,7 @@ ElectronStudy::ElectronStudy(const edm::ParameterSet& ps) {
   g4Label = ps.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
   hitLabEB= ps.getUntrackedParameter<std::string>("EBCollection","EcalHitsEB");
   hitLabEE= ps.getUntrackedParameter<std::string>("EECollection","EcalHitsEE");
+  hotZone = ps.getUntrackedParameter<int>("HotZone",0);
   verbose = ps.getUntrackedParameter<int>("Verbosity",0);
   edm::LogInfo("ElectronStudy") << "Module Label: " << g4Label << "   Hits: "
 				<< hitLabEB << ", " << hitLabEE;
@@ -144,9 +145,11 @@ void ElectronStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	spr::propagatedTrackDirection trkD = spr::propagateCALO(thisTrk, SimTk, SimVtx, geo, bField, (verbose>1));
 	if (trkD.okECAL) {
 	  const DetId isoCell = trkD.detIdECAL;
-	  double e1x1 = spr::eECALmatrix(isoCell, caloHitEB, caloHitEE, geo, caloTopology, 0, 0, -100.0, -100.0,-500.0, 500.0, (verbose>2));
-	  double e3x3 = spr::eECALmatrix(isoCell, caloHitEB, caloHitEE, geo, caloTopology, 1, 1, -100.0, -100.0,-500.0, 500.0, (verbose>2));
-	  double e5x5 = spr::eECALmatrix(isoCell, caloHitEB, caloHitEE, geo, caloTopology, 2, 2, -100.0, -100.0,-500.0, 500.0, (verbose>2));
+	  DetId hotCell = isoCell;
+	  if (hotZone > 0) hotCell = spr::hotCrystal(isoCell, caloHitEB, caloHitEE, geo, caloTopology, hotZone, hotZone, -500.0, 500.0, (verbose>1));
+	  double e1x1 = spr::eECALmatrix(hotCell, caloHitEB, caloHitEE, geo, caloTopology, 0, 0, -100.0, -100.0,-500.0, 500.0, (verbose>2));
+	  double e3x3 = spr::eECALmatrix(hotCell, caloHitEB, caloHitEE, geo, caloTopology, 1, 1, -100.0, -100.0,-500.0, 500.0, (verbose>2));
+	  double e5x5 = spr::eECALmatrix(hotCell, caloHitEB, caloHitEE, geo, caloTopology, 2, 2, -100.0, -100.0,-500.0, 500.0, (verbose>2));
 	  double p    = simTrkItr->momentum().P();
 	  double eta  = std::abs(simTrkItr->momentum().eta());
 	  int etaBin=-1, momBin=-1;

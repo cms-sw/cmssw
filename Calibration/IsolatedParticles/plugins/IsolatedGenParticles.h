@@ -59,8 +59,8 @@
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TFile.h"
-#include "TH1F.h"
-#include "TH2F.h"
+#include "TH1I.h"
+#include "TH2D.h"
 #include "TProfile.h"
 #include "TDirectory.h"
 #include "TTree.h"
@@ -104,10 +104,12 @@ private:
   void fillIsolatedTrack(math::XYZTLorentzVector& momVec, GlobalPoint& posECAL, int pdgId);
   void BookHistograms();
   void clearTreeVectors();
+  int  particleCode(int);
 
   //static const int NPBins   = 21;
   static const int NPBins   = 3;
   static const int NEtaBins = 4;
+  static const int PBins=32, EtaBins=60, Particles=12;
   int    nEventProc;
   double genPartPBins[NPBins+1], genPartEtaBins[NEtaBins+1];
   double pSeed, ptMin, etaMax, pCutIsolate;
@@ -136,6 +138,7 @@ private:
 
   TH1I *h_L1AlgoNames;
   TH1I *h_NEventProc;
+  TH2D *h_pEta[Particles];
 
   TTree *tree;
 

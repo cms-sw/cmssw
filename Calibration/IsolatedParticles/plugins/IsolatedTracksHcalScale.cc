@@ -1,4 +1,5 @@
 
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "Calibration/IsolatedParticles/plugins/IsolatedTracksHcalScale.h"
 
@@ -178,39 +179,62 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
       GlobalPoint        gposHotCell(0.,0.,0.), gposHotCell2(0.,0.,0.);
       std::vector<DetId> coneRecHitDetIds, coneRecHitDetIds2;
       std::pair<double, bool> e11x11_20SigP, e15x15_20SigP;
-      double hCone = spr::eCone_hcal(geo, hbhe, trkDetItr->pointHCAL, trkDetItr->pointECAL,
-                                     a_coneR, trkDetItr->directionHCAL, nRecHitsCone,
-                                     coneRecHitDetIds, distFromHotCell,
-                                     ietaHotCell, iphiHotCell, gposHotCell);
-      double eHCALDR = spr::eCone_hcal(geo, hbhe, trkDetItr->pointHCAL, trkDetItr->pointECAL,
-                                     a_charIsoR, trkDetItr->directionHCAL, nRecHitsCone,
-                                     coneRecHitDetIds2, distFromHotCell2,
-                                     ietaHotCell2, iphiHotCell2, gposHotCell2);
+      double hCone = spr::eCone_hcal(geo, hbhe, trkDetItr->pointHCAL, 
+				     trkDetItr->pointECAL,
+                                     a_coneR, trkDetItr->directionHCAL, 
+				     nRecHitsCone, coneRecHitDetIds,
+				     distFromHotCell, ietaHotCell, iphiHotCell,
+				     gposHotCell, -1);
+      double hConeHB = spr::eCone_hcal(geo, hbhe, trkDetItr->pointHCAL, 
+				       trkDetItr->pointECAL,
+				       a_coneR, trkDetItr->directionHCAL, 
+				       nRecHitsCone, coneRecHitDetIds,
+				       distFromHotCell, ietaHotCell,
+				       iphiHotCell, gposHotCell,
+				       (int)(HcalBarrel));
+      double eHCALDR = spr::eCone_hcal(geo, hbhe, trkDetItr->pointHCAL, 
+				       trkDetItr->pointECAL, a_charIsoR, 
+				       trkDetItr->directionHCAL, nRecHitsCone,
+				       coneRecHitDetIds2, distFromHotCell2,
+				       ietaHotCell2, iphiHotCell2, gposHotCell2,
+				       -1);
+      double eHCALDRHB = spr::eCone_hcal(geo, hbhe, trkDetItr->pointHCAL, 
+					 trkDetItr->pointECAL, a_charIsoR, 
+					 trkDetItr->directionHCAL, nRecHitsCone,
+					 coneRecHitDetIds2, distFromHotCell2,
+					 ietaHotCell2, iphiHotCell2,
+					 gposHotCell2, (int)(HcalBarrel));
 
       double conehmaxNearP = spr::chargeIsolationCone(nTracks, trkCaloDirections, a_charIsoR, nNearTRKs, (myverbose>3));
 
-      double eMipDR  = spr::eCone_ecal(geo, barrelRecHitsHandle, endcapRecHitsHandle,
-				       trkDetItr->pointHCAL, trkDetItr->pointECAL,
-				       a_mipR, trkDetItr->directionECAL, nRH_eMipDR);
-      double eECALDR = spr::eCone_ecal(geo, barrelRecHitsHandle,  endcapRecHitsHandle,
-				       trkDetItr->pointHCAL, trkDetItr->pointECAL,
-				       a_neutIsoR, trkDetItr->directionECAL, nRH_eDR);
-      double eMipDR_1 = spr::eCone_ecal(geo, barrelRecHitsHandle, endcapRecHitsHandle,
-					trkDetItr->pointHCAL, trkDetItr->pointECAL,
-					a_mipR, trkDetItr->directionECAL, nRH_eMipDR,
-					0.030, 0.150);
-      double eECALDR_1= spr::eCone_ecal(geo, barrelRecHitsHandle,  endcapRecHitsHandle,
-				       trkDetItr->pointHCAL, trkDetItr->pointECAL,
-					a_neutIsoR, trkDetItr->directionECAL, nRH_eDR,
-					0.030, 0.150);
-      double eMipDR_2 = spr::eCone_ecal(geo, barrelRecHitsHandle, endcapRecHitsHandle,
-					trkDetItr->pointHCAL, trkDetItr->pointECAL,
-					a_mipR, trkDetItr->directionECAL, nRH_eMipDR,
-					0.060, 0.300);
-      double eECALDR_2= spr::eCone_ecal(geo, barrelRecHitsHandle,  endcapRecHitsHandle,
-				       trkDetItr->pointHCAL, trkDetItr->pointECAL,
-					a_neutIsoR, trkDetItr->directionECAL, nRH_eDR,
-					0.060, 0.300);
+      double eMipDR  = spr::eCone_ecal(geo, barrelRecHitsHandle, 
+				       endcapRecHitsHandle,trkDetItr->pointHCAL,
+				       trkDetItr->pointECAL, a_mipR, 
+				       trkDetItr->directionECAL, nRH_eMipDR);
+      double eECALDR = spr::eCone_ecal(geo, barrelRecHitsHandle,  
+				       endcapRecHitsHandle,trkDetItr->pointHCAL,
+				       trkDetItr->pointECAL, a_neutIsoR, 
+				       trkDetItr->directionECAL, nRH_eDR);
+      double eMipDR_1= spr::eCone_ecal(geo, barrelRecHitsHandle, 
+				       endcapRecHitsHandle,trkDetItr->pointHCAL,
+				       trkDetItr->pointECAL, a_mipR, 
+				       trkDetItr->directionECAL, nRH_eMipDR,
+				       0.030, 0.150);
+      double eECALDR_1=spr::eCone_ecal(geo, barrelRecHitsHandle,
+				       endcapRecHitsHandle,trkDetItr->pointHCAL,
+				       trkDetItr->pointECAL, a_neutIsoR,
+				       trkDetItr->directionECAL, nRH_eDR,
+				       0.030, 0.150);
+      double eMipDR_2= spr::eCone_ecal(geo, barrelRecHitsHandle,
+				       endcapRecHitsHandle,trkDetItr->pointHCAL,
+				       trkDetItr->pointECAL, a_mipR,
+				       trkDetItr->directionECAL, nRH_eMipDR,
+				       0.060, 0.300);
+      double eECALDR_2=spr::eCone_ecal(geo, barrelRecHitsHandle,
+				       endcapRecHitsHandle,trkDetItr->pointHCAL,
+				       trkDetItr->pointECAL, a_neutIsoR,
+				       trkDetItr->directionECAL, nRH_eDR,
+				       0.060, 0.300);
 
       HcalDetId closestCell = (HcalDetId)(trkDetItr->detIdHCAL);
 
@@ -238,6 +262,8 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
       t_eECALDR_1             ->push_back( eECALDR_1);
       t_eMipDR_2              ->push_back( eMipDR_2);
       t_eECALDR_2             ->push_back( eECALDR_2);
+      t_hConeHB               ->push_back( hConeHB);
+      t_eHCALDRHB             ->push_back( eHCALDRHB);
 
       if (myverbose > 0) {
 	std::cout << "Track p " << pTrack->p() << " pt " << pTrack->pt()
@@ -337,6 +363,8 @@ void IsolatedTracksHcalScale::beginJob() {
   t_eECALDR_1           = new std::vector<double>();
   t_eMipDR_2            = new std::vector<double>();
   t_eECALDR_2           = new std::vector<double>();
+  t_hConeHB             = new std::vector<double>();
+  t_eHCALDRHB           = new std::vector<double>();
 
   tree->Branch("t_trackP",            "vector<double>", &t_trackP           );
   tree->Branch("t_trackPt",           "vector<double>", &t_trackPt          );
@@ -355,6 +383,8 @@ void IsolatedTracksHcalScale::beginJob() {
   tree->Branch("t_eECALDR_1",         "vector<double>", &t_eECALDR_1        );
   tree->Branch("t_eMipDR_2",          "vector<double>", &t_eMipDR_2         );
   tree->Branch("t_eECALDR_2",         "vector<double>", &t_eECALDR_2        );
+  tree->Branch("t_hConeHB",           "vector<double>", &t_hConeHB          );
+  tree->Branch("t_eHCALDRHB",         "vector<double>", &t_eHCALDRHB        );
 
   if (doMC) {
     t_hsimInfoMatched    = new std::vector<double>();
@@ -415,6 +445,8 @@ void IsolatedTracksHcalScale::clearTreeVectors() {
   t_eECALDR_1         ->clear();
   t_eMipDR_2          ->clear();
   t_eECALDR_2         ->clear();
+  t_hConeHB           ->clear();
+  t_eHCALDRHB         ->clear();
 
   if (doMC) {
     t_hsimInfoMatched    ->clear();
