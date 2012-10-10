@@ -28,12 +28,17 @@ setenv CMSSWver1 6_1_0
 setenv CMSSWver2 6_1_0
 setenv OLDRELEASE 6_1_0
 setenv NEWRELEASE 6_1_0
+<<<<<<< validation.csh
+setenv OLDPRERELEASE pre2
+setenv NEWPRERELEASE pre3
+=======
 setenv OLDPRERELEASE pre1
 setenv NEWPRERELEASE pre2
+>>>>>>> 1.133
 
 if ( $STARTUP == True) then
 setenv OLDGLOBALTAG START60_V4-v1
-setenv NEWGLOBALTAG START60_V4-v1
+setenv NEWGLOBALTAG START61_V1-v1
 else 
 setenv OLDGLOBALTAG START53_V6-v1
 setenv NEWGLOBALTAG START53_V6-v1
