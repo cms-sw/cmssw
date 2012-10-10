@@ -11,7 +11,7 @@ process.load( "SimGeneral.HepPDTESSource.pythiapdt_cfi" )
 
 process.source = cms.Source( "PoolSource",
                              fileNames = cms.untracked.vstring(
-			     'file:/tmp/yarba/SL4/gcc345/TTbar_cfi_py_GEN.root'
+			     'file:MG_ZJetsLNu_tauola.root'
 			     )
                            )
 	      
@@ -19,7 +19,7 @@ process.source = cms.Source( "PoolSource",
 # will want it, to create output histogram file
 # 
 process.TFileService = cms.Service("TFileService",
-        fileName = cms.string("BasicGenTester_TTbar.root")
+        fileName = cms.string("BasicGenTester_MG_ZJetsLNu_tauola.root")
 )
 
 # the analyzer itself - empty parameter set 
