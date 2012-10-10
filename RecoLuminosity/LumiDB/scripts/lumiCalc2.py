@@ -189,7 +189,6 @@ if __name__ == '__main__':
                         help='debug'
                         )
     options=parser.parse_args()
-    
     if not options.runnumber and not options.inputfile and not options.fillnum and not options.begin:
         raise RuntimeError('at least one run selection argument in [-r,-f,-i,--begin] is required')
     reqrunmin=None
@@ -234,7 +233,7 @@ if __name__ == '__main__':
         cmsswWorkingBase=os.environ['CMSSW_BASE']
         if not cmsswWorkingBase:
             print 'Please check out RecoLuminosity/LumiDB from CVS,scram b,cmsenv'
-            sys.exit(0)
+            sys.exit(11)
         c=checkforupdate.checkforupdate()
         workingversion=c.runningVersion(cmsswWorkingBase,'lumiCalc2.py',isverbose=False)
         if workingversion:
@@ -310,13 +309,13 @@ if __name__ == '__main__':
             normid=normDML.normIdByName(session.nominalSchema(),normname)
         if not normid:
             raise RuntimeError('[ERROR] cannot resolve norm/correction')
-            sys.exit(-1)
+            sys.exit(12)
         normvalueDict=normDML.normValueById(session.nominalSchema(),normid) #{since:[corrector(0),{paramname:paramvalue}(1),amodetag(2),egev(3),comment(4)]}
     session.transaction().commit()
     lumiReport.toScreenHeader(thiscmmd,datatagname,normname,workingversion,updateversion,'HF')
     if not dataidmap:
         print '[INFO] No qualified data found, do nothing'
-        sys.exit(0)
+        sys.exit(13)
                 
     ##################
     # ls level       #
