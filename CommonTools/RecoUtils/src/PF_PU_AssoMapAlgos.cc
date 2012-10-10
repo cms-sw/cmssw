@@ -245,7 +245,7 @@ PF_PU_AssoMapAlgos::DoTrackAssociation(const TrackRef& trackref, const edm::Even
     	// Find the vertex with the highest track-to-vertex association weight 
     	VtxTrkQualAss = PF_PU_AssoMapAlgos::TrackWeightAssociation(trackref, vtxcollH);
 
-    	if ( VtxTrkQualAss.second.second >= 1.e-5 ) return VtxTrkQualAss;
+    	if ( VtxTrkQualAss.second.second == 0. ) return VtxTrkQualAss;
 
 	//Step 1/2: Check for BeamSpot comptibility
 	//If a track's vertex is compatible with the BeamSpot
@@ -276,27 +276,24 @@ PF_PU_AssoMapAlgos::DoTrackAssociation(const TrackRef& trackref, const edm::Even
 	  Conversion gamma;
           if ( PF_PU_AssoMapAlgos::ComesFromConversion(trackref, *cleanedConvCollP, &gamma) ){
   	    VtxTrkQualAss = PF_PU_AssoMapAlgos::FindConversionVertex(trackref, gamma, bFieldH, iSetup, beamspotH, vtxcollH, input_nTrack_);
+	    return VtxTrkQualAss;
           }
-
-      	  if ( VtxTrkQualAss.second.second == 2. ) return VtxTrkQualAss;
 
       	  // Test if the track comes from a Kshort or Lambda decay:
       	  // If so, reassociate the track to the vertex of the V0
 	  VertexCompositeCandidate V0;
 	  if ( PF_PU_AssoMapAlgos::ComesFromV0Decay(trackref, *cleanedKshortCollP, *cleanedLambdaCollP, &V0) ) {
             VtxTrkQualAss = PF_PU_AssoMapAlgos::FindV0Vertex(trackref, V0, bFieldH, iSetup, beamspotH, vtxcollH, input_nTrack_);	
+	    return VtxTrkQualAss;
 	  }
-
-      	  if ( VtxTrkQualAss.second.second == 2. ) return VtxTrkQualAss;
 
       	  // Test if the track comes from a nuclear interaction:
       	  // If so, reassociate the track to the vertex of the incoming particle 
 	  PFDisplacedVertex displVtx;
 	  if ( PF_PU_AssoMapAlgos::ComesFromNI(trackref, *cleanedNICollP, &displVtx) ){
 	    VtxTrkQualAss = PF_PU_AssoMapAlgos::FindNIVertex(trackref, displVtx, bFieldH, iSetup, beamspotH, vtxcollH, input_nTrack_);
+	    return VtxTrkQualAss;
 	  }
-
-      	  if ( VtxTrkQualAss.second.second == 2. ) return VtxTrkQualAss;
 
 	}
 
@@ -394,7 +391,15 @@ PF_PU_AssoMapAlgos::TrackWeightAssociation(const TrackRef&  trackRef, Handle<Ver
 
 	}
 
-  	return make_pair(bestvertexref,make_pair(trackRef,0.));
+	if ( bestweight>1.e-5 ){ 
+	  //found a vertex with a track weight
+	  //return weight == 0., so that all following steps won't be applied
+  	  return make_pair(bestvertexref,make_pair(trackRef,0.));
+	} else { 
+	  //found no vertex with a track weight
+	  //return weight == 1., so that secondary and final association will be applied
+  	  return make_pair(bestvertexref,make_pair(trackRef,1.));
+	}
 
 }
 
