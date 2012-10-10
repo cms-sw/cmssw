@@ -1,8 +1,0 @@
-<use   name="DataFormats/TrackReco"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="FastSimDataFormats/L1GlobalMuonTrigger"/>
-<use   name="RecoMuon/GlobalTrackingTools"/>
-<use   name="TrackingTools/DetLayers"/>
-<use   name="TrackingTools/PatternTools"/>
-<use   name="Utilities/General"/>
