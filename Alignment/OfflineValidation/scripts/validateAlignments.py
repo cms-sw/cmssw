@@ -641,14 +641,18 @@ class OfflineValidationParallel(OfflineValidation):
             if self.general["offlineModuleLevelHistsTransient"] == "True":
                 raise StandardError, "To be able to merge results when running parallel jobs, set offlineModuleLevelHistsTransient to false."
         for index in range(numberParallelJobs):
-            cfgName = "%s.%s_%s_cfg.py"%( configBaseName, self.alignmentToValidate.name, str(index) )
+            cfgName = "%s.%s.%s_%s_cfg.py"%( configBaseName, self.name, self.alignmentToValidate.name, str(index) )
             repMap = self.getRepMap()
             # in this parallel job, skip index*(maxEvents/nJobs) events from the beginning
             # (first index is zero, so no skipping for a single job)
             # and use _index_ in the name of the output file
             repMap.update({"nIndex": str(index)})
+            # Create the result file directly to datadir since should not use /tmp/
+            # see https://cern.service-now.com/service-portal/article.do?n=KB0000484
             repMap.update({
-                "outputFile": replaceByMap( ".oO[workdir]Oo./AlignmentValidation_.oO[name]Oo._.oO[nIndex]Oo..root", repMap )
+                "outputFile": replaceByMap( ".oO[datadir]Oo./AlignmentValidation_"
+                                            + self.name +
+                                            "_.oO[name]Oo._.oO[nIndex]Oo..root", repMap )
                 })
             repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
             repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
@@ -665,7 +669,7 @@ class OfflineValidationParallel(OfflineValidation):
         returnValue = []
         numJobs = int( self.general["parallelJobs"] )
         for index in range(numJobs):
-            scriptName = "%s.%s_%s.sh"%(scriptBaseName, self.alignmentToValidate.name, str(index) )
+            scriptName = "%s.%s.%s_%s.sh"%(scriptBaseName, self.name, self.alignmentToValidate.name, str(index) )
             repMap = GenericValidation.getRepMap(self)
             repMap["nIndex"]=""
             repMap["nIndex"]=str(index)
@@ -683,7 +687,10 @@ class OfflineValidationParallel(OfflineValidation):
     def getRepMap(self, alignment = None):
         repMap = OfflineValidation.getRepMap(self, alignment) 
         repMap.update({
-            "nJobs": self.general["parallelJobs"]
+            "nJobs": self.general["parallelJobs"],
+            "offlineValidationFileOutput":
+            configTemplates.offlineParallelFileOutputTemplate,
+            "nameValidation": self.name
             })
         # In case maxevents==-1, set number of parallel jobs to 1
         # since we cannot calculate number of events for each
