@@ -81,9 +81,9 @@ void BasicGenTester::beginJob()
                                          500, fPtMin, fPtMax );
   fPtNeuPartFinalState = fs->make<TH1D>( "PtNeuPartFinalState", "Pt of final state neutral particles", 
                                          500, fPtMin, fPtMax );
-  fEtaChgPartFinalState = fs->make<TH1D>( "EtaChgPartFinalState", "Pt of final state charged particles", 
+  fEtaChgPartFinalState = fs->make<TH1D>( "EtaChgPartFinalState", "Eta of final state charged particles", 
                                          100, -5.0, 5.0 );
-  fEtaNeuPartFinalState = fs->make<TH1D>( "EtaNeuPartFinalState", "Pt of final state neutral particles", 
+  fEtaNeuPartFinalState = fs->make<TH1D>( "EtaNeuPartFinalState", "Eta of final state neutral particles", 
                                          100, -5.0, 5.0 );
   return ;
   
