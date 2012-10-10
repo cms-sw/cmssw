@@ -17,19 +17,19 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 6_0_0
-setenv RELEASE 6_0_0
-setenv PRERELEASE 
+setenv CMSSWver1 6_1_0
+setenv RELEASE 6_1_0
+setenv PRERELEASE pre1
 
 setenv FULLGLOBALTAG START60_V4-v1
 setenv FASTGLOBALTAG START60_V4_FastSim-v1
 
-#setenv RELEASE ${RELEASE}_${PRERELEASE}
-setenv RELEASE ${RELEASE}
+setenv RELEASE ${RELEASE}_${PRERELEASE}
+#setenv RELEASE ${RELEASE}
 
 
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${PRERELEASE}/src/Validation/RecoEgamma/test
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${PRERELEASE}/src/Validation/RecoEgamma/test
 
 
 #Name of sample (affects output directory name and htmldescription only) 
@@ -398,8 +398,8 @@ ratio->SetBinError(i, erro);
 ratio->SetStats(0);
 ratio->SetLineColor(1);
 ratio->SetLineWidth(2);
-ratio->Draw("e1");
-TLine *l = new TLine(0..,1.,xMax,1.);
+ratio->Draw("e");
+TLine *l = new TLine(xMin,1.,xMax,1.);
 l->Draw(); 
 c$i->SaveAs("gifs/$i.gif");
 //TString gifName=TString("gifs/$i")+"_ratio.gif";
