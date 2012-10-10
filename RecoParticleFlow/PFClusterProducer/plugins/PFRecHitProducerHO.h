@@ -15,7 +15,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include "RecoParticleFlow/PFClusterProducer/plugins/PFRecHitProducer.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
@@ -30,7 +29,6 @@
 
 class CaloSubdetectorTopology;
 class CaloSubdetectorGeometry;
-//class HcalBarrelGeometry;
 class DetId;
 
 class PFRecHitProducerHO : public PFRecHitProducer {
@@ -113,10 +111,6 @@ void
 
   // Maximum allowed severity of HO rechits.  Hits above the given severity level will be rejected.  Default max value is 9 (the same as used for accepting hits in the default Hcal caloTowers)
   int HOMaxAllowedSev_;
-
-  HcalTopologyMode::Mode m_mode;
-  int m_maxDepthHB;
-  int m_maxDepthHE;
 };
 
 #endif

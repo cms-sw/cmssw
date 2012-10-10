@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloTowerHardcodeGeometryEP.cc,v 1.5 2012/08/15 15:00:40 yana Exp $
+// $Id: CaloTowerHardcodeGeometryEP.cc,v 1.6 2012/08/27 15:20:41 yana Exp $
 //
 //
 
@@ -31,7 +31,6 @@
 // constructors and destructor
 //
 CaloTowerHardcodeGeometryEP::CaloTowerHardcodeGeometryEP(const edm::ParameterSet& iConfig)
-    : m_pSet( iConfig )
 {
    //the following line is needed to tell the framework what
    // data is being produced
@@ -54,21 +53,12 @@ CaloTowerHardcodeGeometryEP::~CaloTowerHardcodeGeometryEP()
 
 // ------------ method called to produce the data  ------------
 CaloTowerHardcodeGeometryEP::ReturnType
-CaloTowerHardcodeGeometryEP::produce(const CaloTowerGeometryRecord& /*iRecord*/)
+CaloTowerHardcodeGeometryEP::produce(const CaloTowerGeometryRecord& iRecord)
 {
-  HcalTopologyMode::Mode mode = HcalTopologyMode::LHC;
-  int maxDepthHB = 2;
-  int maxDepthHE = 3;
-  if( m_pSet.exists( "hcalTopologyConstants" ))
-  {
-    const edm::ParameterSet hcalTopoConsts( m_pSet.getParameter<edm::ParameterSet>( "hcalTopologyConstants" ));
-    StringToEnumParser<HcalTopologyMode::Mode> parser;
-    mode = (HcalTopologyMode::Mode) parser.parseString(hcalTopoConsts.getParameter<std::string>("mode"));
-    maxDepthHB = hcalTopoConsts.getParameter<int>("maxDepthHB");
-    maxDepthHE = hcalTopoConsts.getParameter<int>("maxDepthHE");
-  }
-    
-  std::auto_ptr<CaloSubdetectorGeometry> pCaloSubdetectorGeometry( loader_->load( new HcalTopology( mode, maxDepthHB, maxDepthHE )));
+  edm::ESHandle<HcalTopology> hcalTopology;
+  iRecord.getRecord<IdealGeometryRecord>().get( hcalTopology );
+  
+  std::auto_ptr<CaloSubdetectorGeometry> pCaloSubdetectorGeometry( loader_->load( &*hcalTopology ));
 
   return pCaloSubdetectorGeometry ;
 }

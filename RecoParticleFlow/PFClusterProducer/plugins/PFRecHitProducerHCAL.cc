@@ -39,22 +39,9 @@ using namespace std;
 using namespace edm;
 
 PFRecHitProducerHCAL::PFRecHitProducerHCAL(const edm::ParameterSet& iConfig)
-  : PFRecHitProducer( iConfig ),
-    m_mode(HcalTopologyMode::LHC),
-    m_maxDepthHB(2),
-    m_maxDepthHE(3)
+  : PFRecHitProducer( iConfig )
 {
-  if( iConfig.exists( "hcalTopologyConstants" ))
-  {
-    const edm::ParameterSet hcalTopoConsts( iConfig.getParameter<edm::ParameterSet>( "hcalTopologyConstants" ));
-    StringToEnumParser<HcalTopologyMode::Mode> parser;
-    m_mode = (HcalTopologyMode::Mode) parser.parseString(hcalTopoConsts.getParameter<std::string>("mode"));
-    m_maxDepthHB = hcalTopoConsts.getParameter<int>("maxDepthHB");
-    m_maxDepthHE = hcalTopoConsts.getParameter<int>("maxDepthHE");
-  }
-
   // access to the collections of rechits 
-
   
   inputTagHcalRecHitsHBHE_ =
     iConfig.getParameter<InputTag>("hcalRecHitsHBHE");
@@ -974,7 +961,8 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
        
   
     // get the hcal topology
-    HcalTopology hcalTopology(m_mode, m_maxDepthHB, m_maxDepthHE);
+    edm::ESHandle<HcalTopology> hcalTopology;
+    iSetup.get<IdealGeometryRecord>().get( hcalTopology );
     
     // HCAL rechits 
     //    vector<edm::Handle<HBHERecHitCollection> > hcalHandles;  
@@ -1051,9 +1039,9 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
       for(unsigned i=0; i<rechits.size(); i++ ) {
 	
 	findRecHitNeighbours( rechits[i], idSortedRecHits, 
-			      hcalTopology, 
+			      *hcalTopology, 
 			      *hcalBarrelGeometry, 
-			      hcalTopology,
+			      *hcalTopology,
 			      *hcalEndcapGeometry);
       } // loop for navigation
     }  // endif hcal rechits were found
