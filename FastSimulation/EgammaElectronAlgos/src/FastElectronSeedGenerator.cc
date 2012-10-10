@@ -14,7 +14,7 @@
 // Original Author:  Patrick Janot
 //
 //
-#include "FastSimulation/EgammaElectronAlgos/interface/FastElectronSeedGenerator.h"
+#include "FastElectronSeedGenerator.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -23,8 +23,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FastSimulation/EgammaElectronAlgos/interface/FastPixelHitMatcher.h"
-#include "FastSimulation/EgammaElectronAlgos/interface/FastElectronSeedGenerator.h"
+#include "FastPixelHitMatcher.h"
+#include "FastElectronSeedGenerator.h"
 
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"

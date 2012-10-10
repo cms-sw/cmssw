@@ -15,7 +15,7 @@
 //
 //
 
-#include "FastSimulation/EgammaElectronAlgos/interface/FastPixelHitMatcher.h"
+#include "FastPixelHitMatcher.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
