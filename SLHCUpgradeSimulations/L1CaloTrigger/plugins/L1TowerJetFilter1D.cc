@@ -45,6 +45,28 @@ bool operator> ( JetWrapper& aA , JetWrapper& aB )
           return ( abs( aA.mJet-> AsymEta() )  <= abs(  aB.mJet->AsymEta() ) );	
   }	
 
+
+//   //try sorting by asymmetry first
+//   //Needs tweaking to get jet centre rather than top LH corner: this is done when calculate real jet eta, phi
+//   //want the lowest asymmetry at the top of the list
+//   if ( *(aA.mComparisonDirection) == phi ){
+// 
+//     if ( abs(aA.mJet->AsymPhi() ) < abs( aB.mJet->AsymPhi() ) ) return true; 
+//     if ( abs(aA.mJet->AsymPhi() ) > abs( aB.mJet->AsymPhi() ) ) return false;
+// 
+//   }else{
+// 
+//     if ( abs( aA.mJet->AsymEta() ) < abs( aB.mJet->AsymEta() ) ) return true; 
+//     if ( abs( aA.mJet->AsymEta() ) > abs( aB.mJet->AsymEta() ) ) return false;
+// 
+//   }
+// 
+//   //if have the same jet asymmetry sort by energy: those that remain have the same asym
+//   if ( aA.mJet->E() >= aB.mJet->E() ) return true;
+//   else return ( aA.mJet->E() < aB.mJet->E() ) ;
+
+
+
 }
 
 
@@ -138,7 +160,11 @@ void L1TowerJetFilter1D::algorithm( const int &aEta, const int &aPhi )
 
 
 //  std::cout << "Sorting Jets produced by " << sourceName() << std::endl;  
-
+    for( std::vector<JetWrapper>::iterator lIt =lJetWrapperVector.begin(); lIt != lJetWrapperVector.end(); ++lIt){
+      if( (*lIt).mJet )	{
+        std::cout << "Before sort, (eta, phi) = " << (*lIt).mJet->iEta() << " " << (*lIt).mJet->iPhi() <<"  energy " << (*lIt).mJet->E() << " and asym in phi = " << (*lIt).mJet->AsymPhi() << " and asym in eta = " << (*lIt).mJet->AsymEta() <<std::endl;	
+      }
+    }
 
   // sort jets around eta/phi by energy
   std::vector<JetWrapper>::iterator lStart( lJetWrapperVector.begin() );
