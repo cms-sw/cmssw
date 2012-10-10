@@ -11,7 +11,7 @@ process.source = cms.Source("DaqSource",
     )
 )
 
-process.dummyunpacker = cms.EDAnalyzer("DummyUnpackingModule")
+process.dummyunpacker = cms.EDAnalyzer("DummyUnpackingModule", fedRawDataCollectionTag = cms.InputTag('rawDataCollector'))
 
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('.rawdata.root')

@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2006/10/26 23:35:47 $
- * $Revision: 1.7 $
+ * $Date: 2008/01/29 21:45:27 $
+ * $Revision: 1.8 $
  * \author N. Amapane - S. Argiro'
  *
 */
@@ -14,6 +14,8 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
+#include "FWCore/Utilities/interface/InputTag.h"
+
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 #include <DataFormats/FEDRawData/interface/FEDHeader.h>
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
@@ -33,10 +35,14 @@ namespace test{
   
   private:
     unsigned int count_;
-  
+
+    edm::InputTag fedRawDataCollectionTag_;
+
   public:
 
-    DummyUnpackingModule(const ParameterSet& pset):count_(0){}
+    DummyUnpackingModule(const ParameterSet& pset):count_(0),
+      fedRawDataCollectionTag_(pset.getParameter<edm::InputTag>("fedRawDataCollectionTag")) {
+    }
  
     void analyze(const Event & e, const EventSetup& c){
       
@@ -49,7 +55,7 @@ namespace test{
       strftime(datestring, sizeof(datestring),"%c",&uptm);
       cout << "event date " <<  datestring << endl;
       Handle<FEDRawDataCollection> rawdata;
-      e.getByType(rawdata);
+      e.getByLabel(fedRawDataCollectionTag_, rawdata);
       for (int i = 0; i<FEDNumbering::lastFEDId(); i++){
 	const FEDRawData& data = rawdata->FEDData(i);
 	if(size_t size=data.size()) {

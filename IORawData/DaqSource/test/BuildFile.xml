@@ -2,6 +2,7 @@
   <flags   EDM_PLUGIN="1"/>
   <use   name="cppunit"/>
   <use   name="FWCore/Framework"/>
+  <use   name="FWCore/Utilities"/>
   <use   name="DataFormats/FEDRawData"/>
 </library>
 <library   file="SecondaryProducer.cc" name="RawDataPlayback">

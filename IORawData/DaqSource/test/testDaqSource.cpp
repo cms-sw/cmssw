@@ -1,7 +1,7 @@
 /* \file testDaqSource.cc
  *
- *  $Date: 2008/10/03 18:22:19 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/11/01 22:20:20 $
+ *  $Revision: 1.7 $
  *  \author S. Argiro, N. Amapane - CERN
  */
 
@@ -92,7 +92,7 @@ void testDaqSource::testReadFile(){
     "process = cms.Process('TESTReadFile')\n"
     "process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))\n"
     "process.source = cms.Source('DaqSource', readerPluginName = cms.untracked.string('DaqFileReader'), readerPset = cms.untracked.PSet(fileName = cms.string('" + testfileLocation + "rawdt.raw')))\n"
-    "process.dummyunpacker = cms.EDAnalyzer('DummyUnpackingModule')\n"
+    "process.dummyunpacker = cms.EDAnalyzer('DummyUnpackingModule', fedRawDataCollectionTag = cms.InputTag('rawDataCollector'))\n"
     "process.p = cms.Path(process.dummyunpacker)\n"
     "\n";
   
@@ -111,7 +111,7 @@ void testDaqSource::testReadFileWritePool(){
     "process = cms.Process('TESTReadFileWritePool')\n"
     "process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))\n"
     "process.source = cms.Source('DaqSource', readerPluginName = cms.untracked.string('DaqFileReader'), readerPset = cms.untracked.PSet(fileName = cms.string('" + testfileLocation + "rawdt.raw')))\n"
-    "process.dummyunpacker = cms.EDAnalyzer('DummyUnpackingModule')\n"
+    "process.dummyunpacker = cms.EDAnalyzer('DummyUnpackingModule', fedRawDataCollectionTag = cms.InputTag('rawDataCollector'))\n"
     "process.out = cms.OutputModule('PoolOutputModule', fileName = cms.untracked.string('" + testfileLocation + "rawdata.root'))\n"
     "process.p = cms.Path(process.dummyunpacker)\n"
     "process.ep = cms.EndPath(process.out)\n"
@@ -131,7 +131,7 @@ void testDaqSource::testReadPool(){
     "import FWCore.ParameterSet.Config as cms\n"
     "process = cms.Process('TESTReadPool')\n"
     "process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))\n"
-    "process.dummyunpacker = cms.EDAnalyzer('DummyUnpackingModule')\n"
+    "process.dummyunpacker = cms.EDAnalyzer('DummyUnpackingModule', fedRawDataCollectionTag = cms.InputTag('rawDataCollector'))\n"
     "process.p = cms.Path(process.dummyunpacker)\n"
     "process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring('file:" + testfileLocation + "rawdata.root'))\n"
     "\n";
@@ -153,7 +153,7 @@ void testDaqSource::testGenerate(){
     "process = cms.Process('TESTGenerate')\n"
     "process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))\n"
     "process.source = cms.Source('DaqSource', readerPluginName = cms.untracked.string('DaqFakeReader'), readerPset = cms.untracked.PSet( ))\n"
-    "process.dummyunpacker = cms.EDAnalyzer('DummyUnpackingModule')\n"
+    "process.dummyunpacker = cms.EDAnalyzer('DummyUnpackingModule', fedRawDataCollectionTag = cms.InputTag('rawDataCollector'))\n"
     "process.p = cms.Path(process.dummyunpacker)\n"
     "\n";
   
@@ -172,7 +172,7 @@ void testDaqSource::testGenerateWritePool(){
     "process = cms.Process('TESTGenerateWritePool')\n"
     "process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))\n"
     "process.source = cms.Source('DaqSource', readerPluginName = cms.untracked.string('DaqFakeReader'), readerPset = cms.untracked.PSet( ))\n"
-    "process.dummyunpacker = cms.EDAnalyzer('DummyUnpackingModule')\n"
+    "process.dummyunpacker = cms.EDAnalyzer('DummyUnpackingModule', fedRawDataCollectionTag = cms.InputTag('rawDataCollector'))\n"
     "process.out = cms.OutputModule('PoolOutputModule', fileName = cms.untracked.string('" + testfileLocation + "rawdata.root'))\n"
     "process.p = cms.Path(process.dummyunpacker)\n"
     "process.ep = cms.EndPath(process.out)\n"
