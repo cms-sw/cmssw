@@ -25,7 +25,7 @@ namespace reco {
 		       const VertexRef& vertexRef);
 
     /// destructor
-    virtual ~PileUpPFCandidate() {}
+    virtual ~PileUpPFCandidate();
 
     /// return a clone
     virtual PileUpPFCandidate * clone() const;

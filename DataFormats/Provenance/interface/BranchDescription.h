@@ -53,10 +53,6 @@ namespace edm {
                       bool produced = true,
                       std::set<std::string> const& aliases = std::set<std::string>());
 
-    BranchDescription(BranchDescription const& aliasForBranch,
-                      std::string const& moduleLabelAlias,
-                      std::string const& poruductInstanceAlias);
-
     ~BranchDescription() {}
 
     void init() const {
@@ -75,9 +71,6 @@ namespace edm {
     std::string const& moduleLabel() const {return moduleLabel_;}
     std::string const& processName() const {return processName_;}
     BranchID const& branchID() const {return branchID_;}
-    BranchID const& aliasForBranchID() const {return aliasForBranchID_;}
-    bool isAlias() const {return aliasForBranchID_.isValid() && produced();}
-    BranchID const& originalBranchID() const {return aliasForBranchID_.isValid() ? aliasForBranchID_ : branchID_;}
     std::string const& fullClassName() const {return fullClassName_;}
     std::string const& className() const {return fullClassName();}
     std::string const& friendlyClassName() const {return friendlyClassName_;}
@@ -209,11 +202,6 @@ namespace edm {
 
     // The branch ROOT alias(es), which are settable by the user.
     std::set<std::string> branchAliases_;
-
-    // If this branch *is* an EDAlias, this field is the BranchID
-    // of the branch for which this branch is an alias.
-    // If this branch is not an EDAlias, the normal case, this field is 0.
-    mutable BranchID aliasForBranchID_;
 
     mutable Transients transient_;
   };

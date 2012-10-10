@@ -138,7 +138,7 @@ namespace edm {
   std::auto_ptr<InitMsgBuilder>
   StreamerOutputModuleBase::serializeRegistry() {
 
-    serializer_.serializeRegistry(serialize_databuffer, *branchIDLists());
+    serializer_.serializeRegistry(serialize_databuffer);
 
     // resize bufs_ to reflect space used in serializer_ + header
     // I just added an overhead for header of 50000 for now

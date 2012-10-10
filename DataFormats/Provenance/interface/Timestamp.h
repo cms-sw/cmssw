@@ -32,6 +32,8 @@ class Timestamp {
       explicit Timestamp(TimeValue_t iValue);
       Timestamp();
 
+      virtual ~Timestamp();
+
       /// Time in seconds since January 1, 1970.
       unsigned int
       unixTime() const {

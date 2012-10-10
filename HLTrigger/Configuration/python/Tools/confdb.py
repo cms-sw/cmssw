@@ -36,6 +36,7 @@ class HLTProcess(object):
     "AlCa_LumiPixels_Random_v*",
     "AlCa_LumiPixels_ZeroBias_v*",
     "DQM_FEDIntegrity_v*",
+    "DQM_HcalEmptyEvents_v*",
     "HLT_Calibration_v*",
     "HLT_EcalCalibration_v*",
     "HLT_HcalCalibration_v*",
@@ -63,6 +64,8 @@ class HLTProcess(object):
     "HLT_L2Mu10_NoVertex_NoBPTX3BX_v*",
     "HLT_L2Mu20_NoVertex_NoBPTX3BX_v*",
     "HLT_L2Mu30_NoVertex_NoBPTX3BX_v*",
+    "HLT_L2Mu20_NoVertex_2Cha_NoBPTX3BX_NoHalo_v*",
+    "HLT_L2Mu30_NoVertex_2Cha_NoBPTX3BX_NoHalo_v*",
     "HLT_PixelTracks_Multiplicity70_v*",
     "HLT_PixelTracks_Multiplicity80_v*",
     "HLT_PixelTracks_Multiplicity90_v*",
@@ -74,9 +77,11 @@ class HLTProcess(object):
     "HLT_GlobalRunHPDNoise_v*",
     "HLT_L1Tech_HBHEHO_totalOR_v*",
     "HLT_L1Tech_HCAL_HF_single_channel_v*",
-    "HLT_L1TrackerCosmics_v",   
+    "HLT_L1TrackerCosmics_v*",
+    "HLT_HcalUTCA_v*",
     
 # TODO: paths not supported by FastSim, but for which a recovery should be attempted
+
   
     )
 
@@ -216,7 +221,7 @@ cmsswVersion = os.environ['CMSSW_VERSION']
     # manual override some parameters
     if self.config.type in ('GRun', ):
       self.data += """
-# En-able HF Noise filters in GRun menu
+# Enable HF Noise filters in GRun menu
 if 'hltHfreco' in %(dict)s:
     %(process)shltHfreco.setNoiseFlags = cms.bool( True )
 """
@@ -281,11 +286,8 @@ if 'hltHfreco' in %(dict)s:
       # add global options
       self.addGlobalOptions()
 
-      # if requested or necessary, override the GlobalTag and connection strings
+      # if requested or necessary, override the GlobalTag and connection strings (incl. L1!)
       self.overrideGlobalTag()
-
-      # if requested, override the L1 self from the GlobalTag (using the same connect as the GlobalTag itself)
-      self.overrideL1Menu()
 
       # if requested, run (part of) the L1 emulator
       self.runL1Emulator()
@@ -293,16 +295,26 @@ if 'hltHfreco' in %(dict)s:
       # request summary informations from the MessageLogger
       self.updateMessageLogger()
 
+      # load 5.2.x JECs, until they are in the GlobalTag
+#      self.loadAdditionalConditions('load 5.2.x JECs',
+#        {
+#          'record'  : 'JetCorrectionsRecord',
+#          'tag'     : 'JetCorrectorParametersCollection_AK5Calo_2012_V8_hlt_mc',
+#          'label'   : 'AK5CaloHLT',
+#          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
+#        }, {
+#          'record'  : 'JetCorrectionsRecord',
+#          'tag'     : 'JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc',
+#          'label'   : 'AK5PFHLT',
+#          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
+#        }, {
+#          'record'  : 'JetCorrectionsRecord',
+#          'tag'     : 'JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc',
+#          'label'   : 'AK5PFchsHLT',
+#          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
+#        }
+#      )
 
-#    # load 4.2.x JECs
-#    self.loadAdditionalConditions('load 4.2.x JECs',
-#      {
-#        'record'  : 'JetCorrectionsRecord',
-#        'tag'     : 'JetCorrectorParametersCollection_Jec11_V1_AK5Calo',
-#        'label'   : 'AK5Calo',
-#        'connect' : 'frontier://PromptProd/CMS_COND_31X_PHYSICSTOOLS'
-#      }
-#    )
 
   def addGlobalOptions(self):
     # add global options
@@ -342,10 +354,13 @@ if 'hltHfreco' in %(dict)s:
 
   def fixForMC(self):
     if not self.config.data:
-      pass # No longer needed!
-#      # override the raw data collection label
-#      self._fix_parameter(type = 'InputTag', value = 'source', replace = 'rawDataCollector')
-#      self._fix_parameter(type = 'string',   value = 'source', replace = 'rawDataCollector')
+      # customise the HLT menu for running on MC
+      if not self.config.fragment:
+        self.data += """
+# customise the HLT menu for running on MC
+from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
+process = customizeHLTforMC(process)
+"""
 
 
   def fixForFastSim(self):
@@ -454,21 +469,8 @@ if 'GlobalTag' in %%(dict)s:
       else:
         self.config.globaltag = globalTag['GRun']
 
-    # check if the GlobalTag is an autoCond or an explicit tag
-    if not self.config.globaltag:
-      # skip the cases with no override
-      pass
-    elif self.config.globaltag.startswith('auto:'):
-      self.config.menuGlobalTagAuto = self.config.globaltag[5:]
-      text += "    from Configuration.AlCa.autoCond import autoCond\n"
-      text += "    %%(process)sGlobalTag.globaltag = autoCond['%(menuGlobalTagAuto)s'].split(',')[0]\n"
-    else:
-      text += "    %%(process)sGlobalTag.globaltag = '%(globaltag)s'\n"
+    text += "    from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag\n"
 
-    self.data += text % self.config.__dict__
-
-
-  def overrideL1Menu(self):
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
     if self.config.l1.override:
       self.config.l1.record = 'L1GtTriggerMenuRcd'
@@ -476,8 +478,13 @@ if 'GlobalTag' in %%(dict)s:
       self.config.l1.tag    = self.config.l1.override
       if not self.config.l1.connect:
         self.config.l1.connect = '%(connect)s/CMS_COND_31X_L1T'
-      self.loadAdditionalConditions( 'override the L1 menu', self.config.l1.__dict__ )
+      self.config.l1cond = "'%(tag)s,%(record)s,%(connect)s'" % self.config.l1.__dict__
+    else:
+      self.config.l1cond = "None"
 
+    text += "    %%(process)sGlobalTag = customiseGlobalTag(%%(process)sGlobalTag,'%(globaltag)s',%(l1cond)s)\n"
+
+    self.data += text % self.config.__dict__
 
   def overrideL1MenuXml(self):
     # if requested, override the L1 menu from the GlobalTag (Xml file)
@@ -934,6 +941,8 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltJpsiTkPixelSeedFromL3Candidate" )
       self.options['modules'].append( "-hltCkfTrackCandidatesJpsiTk" )
       self.options['modules'].append( "-hltCtfWithMaterialTracksJpsiTk" )
+      self.options['modules'].append( "-hltMuTrackCkfTrackCandidatesOnia" )
+      self.options['modules'].append( "-hltMuTrackCtfTracksOnia" )
       
       self.options['modules'].append( "-hltESRegionalEgammaRecHit" )
       self.options['modules'].append( "-hltEcalRegionalJetsFEDs" )
@@ -1014,6 +1023,13 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltFastPixelTracks")
       self.options['modules'].append( "-hltFastPixelTracksRecover")
       
+      self.options['modules'].append( "-hltFastPrimaryVertexbbPhi")
+      self.options['modules'].append( "-hltPixelTracksFastPVbbPhi")
+      self.options['modules'].append( "-hltPixelTracksRecoverbbPhi" )
+      self.options['modules'].append( "-hltFastPixelHitsVertexVHbb" )
+      self.options['modules'].append( "-hltFastPixelTracksVHbb" )
+      self.options['modules'].append( "-hltFastPixelTracksRecoverVHbb" )
+
       self.options['modules'].append( "-hltFastPrimaryVertex")
       self.options['modules'].append( "-hltFastPVPixelTracks")
       self.options['modules'].append( "-hltFastPVPixelTracksRecover" )

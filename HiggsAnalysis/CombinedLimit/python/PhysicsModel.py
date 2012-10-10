@@ -115,7 +115,7 @@ class FloatingXSHiggs(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError, "Higgs mass range definition requires two extrema"
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrama for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
         # --- Signal Strength as only POI --- 
@@ -151,7 +151,55 @@ class FloatingXSHiggs(SMLikeHiggsModel):
         if production in [ "WH", "ZH", "VH" ]: return ("r_VH" if "VH" in self.modes else 1)
         raise RuntimeError, "Unknown production mode '%s'" % production
 
+class FloatingBRHiggs(SMLikeHiggsModel):
+    "Float independently ggH and qqH cross sections"
+    def __init__(self):
+        SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
+        self.modes = [ "hbb", "htt", "hgg", "hww", "hzz" ]
+        self.mHRange = []
+    def setPhysicsOptions(self,physOptions):
+        for po in physOptions:
+            if po.startswith("modes="): self.modes = po.replace("modes=","").split(",")
+            if po.startswith("higgsMassRange="):
+                self.mHRange = po.replace("higgsMassRange=","").split(",")
+                if len(self.mHRange) != 2:
+                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                elif float(self.mHRange[0]) >= float(self.mHRange[1]):
+                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+    def doParametersOfInterest(self):
+        """Create POI and other parameters, and define the POI set."""
+        # --- Signal Strength as only POI --- 
+        for m in self.modes: 
+            self.modelBuilder.doVar("r_%s[1,0,10]" % m);
+        poi = ",".join(["r_"+m for m in self.modes])
+        # --- Higgs Mass as other parameter ----
+        if self.modelBuilder.out.var("MH"):
+            if len(self.mHRange):
+                print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
+                self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
+                self.modelBuilder.out.var("MH").setConstant(False)
+                poi+=',MH'
+            else:
+                print 'MH will be assumed to be', self.options.mass
+                self.modelBuilder.out.var("MH").removeRange()
+                self.modelBuilder.out.var("MH").setVal(self.options.mass)
+        else:
+            if len(self.mHRange):
+                print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
+                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
+                poi+=',MH'
+            else:
+                print 'MH (not there before) will be assumed to be', self.options.mass
+                self.modelBuilder.doVar("MH[%g]" % self.options.mass)
+        self.modelBuilder.doSet("POI",poi)
+    def getHiggsSignalYieldScale(self,production,decay, energy):
+        if decay in self.modes: 
+            return "r_"+decay
+        elif decay not in [ "hbb", "htt", "hgg", "hww", "hzz" ]:
+            raise RuntimeError, "Unknown decay mode '%s'" % decay
+
 defaultModel = PhysicsModel()
 strictSMLikeHiggs = StrictSMLikeHiggsModel()
 floatingXSHiggs = FloatingXSHiggs()
+floatingBRHiggs = FloatingBRHiggs()
 floatingHiggsMass = FloatingHiggsMass()

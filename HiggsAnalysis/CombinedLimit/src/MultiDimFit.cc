@@ -66,7 +66,7 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
         algo_ = RandomPoints;
     } else if (algo == "contour2d") {
         algo_ = Contour2D;
-    } else throw std::invalid_argument("Unknown algorithm");
+    } else throw std::invalid_argument(std::string("Unknown algorithm: "+algo));
     fastScan_ = (vm.count("fastScan") > 0);
 }
 
@@ -191,7 +191,7 @@ void MultiDimFit::doSingles(RooFitResult &res)
 void MultiDimFit::doGrid(RooAbsReal &nll) 
 {
     unsigned int n = poi_.size();
-    if (poi_.size() > 2) throw std::logic_error("Not today");
+    if (poi_.size() > 2) throw std::logic_error("Don't know how to do a grid with more than 2 POIs.");
     double nll0 = nll.getVal();
 
     std::vector<double> p0(n), pmin(n), pmax(n);

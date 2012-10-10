@@ -92,7 +92,7 @@ namespace reco {
                  ParticleType particleId );
 
     /// destructor
-    virtual ~PFCandidate() {}
+    virtual ~PFCandidate();
 
     /// return a clone
     virtual PFCandidate * clone() const;

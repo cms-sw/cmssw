@@ -1,7 +1,13 @@
-2012-04-06  Srecko Morovic  <srecko.morovic@cern.ch>
-	* tag V01-00-04-02
-	* oops, previous tag contained slightly older version of the script,
-	fixed that now. script for the new AutoBU will go into MAIN branch
+2012-07-15 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-00-04-05
+	* revert accidental change of default overwriting event ID to true
+
+2012-07-15 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-00-04-04
+	* fix incorrect commit to the MAIN branch
+	* faking LS added to the OldAutoBU branch
 
 2012-04-06  Srecko Morovic  <srecko.morovic@cern.ch>
 	* tag V01-00-04

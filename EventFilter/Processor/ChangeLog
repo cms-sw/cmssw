@@ -1,3 +1,66 @@
+2012-08-15 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-19
+	* MessageService handling cleanup. Keeping auto_ptr in FU class,
+	  destroy before fork and recreate everywhere after fork.
+	  (to prevent occassional lockups in slaves)
+
+2012-07-20 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-18
+	* sending time elapsed from the last report to the iDie
+	* detach DQM from Shm before setting failed state
+
+2012-07-10 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-17
+	* improved logging of EP slave failures
+
+2012-07-01 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-16
+	* fixed closing /proc/stat
+
+2012-06-29 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-15
+	* retrieving /proc/stat cpu usage for iDie
+
+2012-06-29 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-14
+	* shared timeout between waiting for STOP event and stopping framework
+
+2012-06-20 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-13
+	* endJob executed before evtProcessor_ is destroyed
+	* moving again EnableDone after the fork of child processes
+
+2012-06-11 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-12
+	* temporarily have enabled early until FM support is there
+
+2012-06-08 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-11
+	* moving EnableDone after subprocesses are forked
+	* coredump protection enabled stopping
+	* longer stacktrace sent to logger (20 lines)
+	* try-catch for fsm transitions in slave EPs
+
+2012-05-24 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-10
+	* set up semaphore pointer to 0 in the beginning,
+	  to get it memory mapped properly
+
+2012-05-22 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-09
+	* #ifded linux for MMAP_ANONYMOUS (OS X fix)
+
 2012-05-16 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V02-05-08

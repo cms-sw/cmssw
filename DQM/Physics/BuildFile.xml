@@ -16,6 +16,4 @@
 <use   name="DataFormats/EcalRecHit"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/EcalObjects"/>
-<export>
-  <lib   name="1"/>
-</export>
+<flags   EDM_PLUGIN="1"/> 

@@ -12,6 +12,11 @@ void cond::IOVProxyData::refresh(){
   }
 }
 
+void cond::IOVProxyData::refresh( cond::DbSession& newSession ){
+  dbSession = newSession;
+  refresh();
+}
+
 std::pair<int,int> cond::IOVProxyData::range( cond::Time_t since, 
 					      cond::Time_t  till ){
   int low = -1;
@@ -111,7 +116,9 @@ cond::IOVElementProxy cond::IOVRange::back() const {
 }
 
 size_t cond::IOVRange::size() const {
-  return m_high-m_low+1;
+  size_t sz = 0;
+  if( m_high>=0 && m_low>=0 ) sz = m_high-m_low+1;
+  return sz;
 }
 
 cond::IOVProxy::IOVProxy() : 
@@ -151,6 +158,12 @@ void cond::IOVProxy::load( const std::string & token){
 bool cond::IOVProxy::refresh(){
   int oldsize = size();
   m_iov->refresh();
+  return oldsize<size();
+}
+
+bool cond::IOVProxy::refresh( cond::DbSession& newSession ){
+  int oldsize = size();
+  m_iov->refresh( newSession );
   return oldsize<size();
 }
 

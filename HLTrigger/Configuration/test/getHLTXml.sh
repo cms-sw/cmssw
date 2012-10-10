@@ -1,9 +1,9 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-MASTER="/dev/CMSSW_5_2_1/HLT"        # no explicit version, take te most recent
-TARGET="/dev/CMSSW_5_2_1/\$TABLE"    # no explicit version, take te most recent
-TABLES="GRun HIon"                   # $TABLE in the above variable will be expanded to these TABLES
+MASTER="/dev/CMSSW_5_2_6/HLT"        # no explicit version, take te most recent
+TARGET="/dev/CMSSW_5_2_6/\$TABLE"    # no explicit version, take te most recent
+TABLES="GRun HIon PIon"              # $TABLE in the above variable will be expanded to these TABLES
 
 # print extra messages ?
 VERBOSE=false
@@ -40,11 +40,15 @@ function getConfigForCVS() {
 
   # do not use any L1 override
   if [ "$NAME" == "GRun" ]; then
-    local L1Xml="L1Menu_Collisions2012_v0_L1T_Scales_20101224_Imp0_0x1027.xml"
+    local L1Xml="L1Menu_Collisions2012_v3_L1T_Scales_20101224_Imp0_0x102b.xml"
     hltGetConfiguration --cff --offline --mc   $CONFIG --type $NAME --l1Xml $L1Xml > HLT_${NAME}_cff.py
     hltGetConfiguration --cff --offline --data $CONFIG --type $NAME --l1Xml $L1Xml > HLT_${NAME}_data_cff.py
     hltGetConfiguration --fastsim              $CONFIG --type $NAME --l1Xml $L1Xml > HLT_${NAME}_Famos_cff.py
   elif [ "$NAME" == "HIon" ]; then
+    hltGetConfiguration --cff --offline --mc   $CONFIG --type $NAME                > HLT_${NAME}_cff.py
+    hltGetConfiguration --cff --offline --data $CONFIG --type $NAME                > HLT_${NAME}_data_cff.py
+    hltGetConfiguration --fastsim              $CONFIG --type $NAME                > HLT_${NAME}_Famos_cff.py
+  elif [ "$NAME" == "PIon" ]; then
     hltGetConfiguration --cff --offline --mc   $CONFIG --type $NAME                > HLT_${NAME}_cff.py
     hltGetConfiguration --cff --offline --data $CONFIG --type $NAME                > HLT_${NAME}_data_cff.py
     hltGetConfiguration --fastsim              $CONFIG --type $NAME                > HLT_${NAME}_Famos_cff.py
@@ -76,25 +80,27 @@ function getConfigForOnline() {
   local CONFIG="$1"
   local NAME="$2"
 # local L1T="tag[,connect]" - record is hardwired as L1GtTriggerMenuRcd
-# local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v1/sqlFile/L1Menu_Collisions2012_v1_mc.db"
-  local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc"
+  local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v3/sqlFile/L1Menu_Collisions2012_v3_mc.db"
+# local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2012_v2_mc"
 # local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_CollisionsHeavyIons2011_v0/sqlFile/L1Menu_CollisionsHeavyIons2011_v0_mc.db"
   local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc"
 
-  local L1Xml="L1Menu_Collisions2012_v0_L1T_Scales_20101224_Imp0_0x1027.xml"
-
+  local L1Xml="L1Menu_Collisions2012_v3_L1T_Scales_20101224_Imp0_0x102b.xml"
 
   log "    dumping full HLT for $NAME"
   # override L1 menus
   if [ "$NAME" == "GRun" ]; then
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1Xml $L1Xml --l1-emulator --globaltag auto:hltonline     > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1Xml $L1Xml --l1-emulator --globaltag auto:startup       > OnLine_HLT_$NAME.py 
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1Xml $L1Xml --l1-emulator --globaltag auto:hltonline_GRun     > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1Xml $L1Xml --l1-emulator --globaltag auto:startup_GRun       > OnLine_HLT_$NAME.py 
   elif [ "$NAME" == "HIon" ]; then
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI    --globaltag auto:hltonline     > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI    --globaltag auto:starthi       > OnLine_HLT_$NAME.py
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:hltonline_HIon     > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:starthi_HIon       > OnLine_HLT_$NAME.py
+  elif [ "$NAME" == "PIon" ]; then
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:hltonline_HIon     > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:starthi_HIon       > OnLine_HLT_$NAME.py
   else
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME                --globaltag auto:hltonline     > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME                                               > OnLine_HLT_$NAME.py
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME             --globaltag auto:hltonline     > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME                                            > OnLine_HLT_$NAME.py
   fi
 
   # do not use any L1 override
@@ -122,8 +128,12 @@ echo
 
 # for things now also in CMSSW CVS:
 echo "Extracting full configurations"
-rm -f OnData_HLT_*.py
-rm -f OnLine_HLT_*.py
+rm -f OnData_HLT_GRun_*.py
+rm -f OnData_HLT_HIon_*.py
+rm -f OnData_HLT_PIon_*.py
+rm -f OnLine_HLT_GRun_*.py
+rm -f OnLine_HLT_HIon_*.py
+rm -f OnLine_HLT_PIon_*.py
 for TABLE in $TABLES; do
   getConfigForOnline $(eval echo $TARGET) $TABLE
 done

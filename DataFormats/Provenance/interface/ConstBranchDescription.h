@@ -35,8 +35,6 @@ namespace edm {
     std::string const& moduleName() const {return ptr_->moduleName();}
     std::string const& processName() const {return ptr_->processName();}
     BranchID const& branchID() const {return ptr_->branchID();}
-    bool isAlias() const {return ptr_->isAlias();}
-    BranchID const& originalBranchID() const {return ptr_->originalBranchID();}
     std::string const& fullClassName() const {return ptr_->fullClassName();}
     std::string const& className() const {return ptr_->fullClassName();}
     std::string const& friendlyClassName() const {return ptr_->friendlyClassName();}

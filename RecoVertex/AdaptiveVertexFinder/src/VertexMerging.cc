@@ -1,8 +1,6 @@
 #include "RecoVertex/AdaptiveVertexFinder/interface/VertexMerging.h"
 
 
-
-
 VertexMerging::VertexMerging(const edm::ParameterSet &params) :
 	maxFraction(params.getParameter<double>("maxFraction")),
 	minSignificance(params.getParameter<double>("minSignificance"))
@@ -37,13 +35,13 @@ static double computeSharedTracks(const reco::Vertex &pv,
 
 
 reco::VertexCollection VertexMerging::mergeVertex(
-	VertexCollection & secondaryVertices){
+	reco::VertexCollection & secondaryVertices){
 
 
 
 	
         VertexDistance3D dist;
-	VertexCollection recoVertices;
+	reco::VertexCollection recoVertices;
 	for(std::vector<reco::Vertex>::const_iterator sv = secondaryVertices.begin();
 	    sv != secondaryVertices.end(); ++sv) {
           recoVertices.push_back(*sv);

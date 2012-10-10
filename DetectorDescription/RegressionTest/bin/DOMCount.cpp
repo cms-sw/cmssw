@@ -55,7 +55,7 @@
  */
 
 /*
- * $Id: DOMCount.cpp,v 1.7 2011/12/19 14:29:03 yana Exp $
+ * $Id: DOMCount.cpp,v 1.6 2011/09/29 08:54:51 yana Exp $
  */
 
 // ---------------------------------------------------------------------------
@@ -181,7 +181,7 @@ int main(int argC, char* argV[])
     bool                       errorOccurred = false;
     bool                       recognizeNEL = false;
     bool                       printOutEncounteredEles = false;
-    char                       localeStr[65]; // We need 64 + 1 characters if we use strstr(.., .., 64)
+    char                       localeStr[64];
     memset(localeStr, 0, sizeof localeStr);
 
     int argInd;

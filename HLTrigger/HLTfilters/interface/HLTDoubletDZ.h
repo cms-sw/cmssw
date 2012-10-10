@@ -38,6 +38,7 @@ class HLTDoubletDZ : public HLTFilter {
       double maxDZ_;              // number of pairs passing cuts required
       bool   same_;               // 1st and 2nd product are one and the same
       int    min_N_;              // number of pairs passing cuts required
+      bool   checkSC_;            // make sure SC constituents are different
 
       std:: string label_;        // module label
 

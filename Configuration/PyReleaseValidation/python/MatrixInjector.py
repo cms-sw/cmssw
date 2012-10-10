@@ -26,7 +26,7 @@ class MatrixInjector(object):
     def __init__(self,mode='init'):
         self.count=1040
         self.testMode=((mode!='submit') and (mode!='force'))
-        self.version ='v1'
+        self.version =1
 
         #wagemt stuff
         self.wmagent=os.getenv('WMAGENT_REQMGR')
@@ -36,9 +36,10 @@ class MatrixInjector(object):
         #couch stuff
         self.couch = 'https://'+self.wmagent+'/couchdb'
         self.couchDB = 'reqmgr_config_cache'
+        self.couchCache={} # so that we do not upload like crazy, and recyle cfgs
         self.user = os.getenv('USER')
         self.group = 'ppd'
-        self.label = 'RelValSet_'+os.getenv('CMSSW_VERSION').replace('-','')+'_'+self.version
+        self.label = 'RelValSet_'+os.getenv('CMSSW_VERSION').replace('-','')+'_v'+str(self.version)
 
 
         if not os.getenv('WMCORE_ROOT'):
@@ -51,27 +52,33 @@ class MatrixInjector(object):
             
         self.defaultChain={
             "RequestType" :   "TaskChain",                    #this is how we handle relvals
-            "AcquisitionEra": "ReleaseValidation",            #Acq Era
+            "AcquisitionEra": {},                             #Acq Era
             "Requestor": self.user,                           #Person responsible
             "Group": self.group,                              #group for the request
             "CMSSWVersion": os.getenv('CMSSW_VERSION'),       #CMSSW Version (used for all tasks in chain)
             "ScramArch": os.getenv('SCRAM_ARCH'),             #Scram Arch (used for all tasks in chain)
             "ProcessingVersion": self.version,                #Processing Version (used for all tasks in chain)
-            "GlobalTag": None,                                #Global Tag (used for all tasks)
+            "GlobalTag": None,                                #Global Tag (overridden per task)
             "CouchURL": self.couch,                           #URL of CouchDB containing Config Cache
             "CouchDBName": self.couchDB,                      #Name of Couch Database containing config cache
             #- Will contain all configs for all Tasks
-            "SiteWhitelist" : ["T1_CH_CERN", "T1_US_FNAL"],   #Site whitelist
+            "SiteWhitelist" : ["T2_CH_CERN", "T1_US_FNAL"],   #Site whitelist
             "TaskChain" : None,                                  #Define number of tasks in chain.
-            "nowmTasklist" : []  #a list of tasks as we put them in
+            "nowmTasklist" : [],  #a list of tasks as we put them in
+            "unmergedLFNBase" : "/store/unmerged",
+            "mergedLFNBase" : "/store/relval",
+            "dashboardActivity" : "relval",
+            "Memory" : 2000,
+            "SizePerEvent" : 1234,
+            "TimePerEvent" : 20
             }
 
         self.defaultScratch={
             "TaskName" : None,                            #Task Name
             "ConfigCacheID" : None,                   #Generator Config id
+            "GlobalTag": None,
             "SplittingAlgorithm"  : "EventBased",             #Splitting Algorithm
             "SplittingArguments" : {"events_per_job" : None},  #Size of jobs in terms of splitting algorithm
-            #"RequestSizeEvents" : 10000,                      #Total number of events to generate
             "RequestNumEvents" : None,                      #Total number of events to generate
             "Seeding" : "AutomaticSeeding",                          #Random seeding method
             "PrimaryDataset" : None,                          #Primary Dataset to be created
@@ -80,9 +87,8 @@ class MatrixInjector(object):
         self.defaultInput={
             "TaskName" : "DigiHLT",                                      #Task Name
             "ConfigCacheID" : None,                                      #Processing Config id
+            "GlobalTag": None,
             "InputDataset" : None,                                       #Input Dataset to be processed
-            #"SplittingAlgorithm"  : "FileBased",                        #Splitting Algorithm
-            #"SplittingArguments" : {"files_per_job" : 1},               #Size of jobs in terms of splitting algorithm
             "SplittingAlgorithm"  : "LumiBased",                        #Splitting Algorithm
             "SplittingArguments" : {"lumis_per_job" : 10},               #Size of jobs in terms of splitting algorithm
             "nowmIO": {}
@@ -92,8 +98,7 @@ class MatrixInjector(object):
             "InputTask" : None,                                #Input Task Name (Task Name field of a previous Task entry)
             "InputFromOutputModule" : None,                    #OutputModule name in the input task that will provide files to process
             "ConfigCacheID" : None,                            #Processing Config id
-            #"SplittingAlgorithm" : "FileBased",                #Splitting Algorithm
-            #"SplittingArguments" : {"files_per_job" : 1 },     #Size of jobs in terms of splitting algorithm
+            "GlobalTag": None,
             "SplittingAlgorithm"  : "LumiBased",                        #Splitting Algorithm
             "SplittingArguments" : {"lumis_per_job" : 10},               #Size of jobs in terms of splitting algorithm
             "nowmIO": {}
@@ -113,8 +118,9 @@ class MatrixInjector(object):
                 #s has the format (num, name, commands, stepList)
                 if x[0]==n:
                     #print "found",n,s[3]
-                    chainDict['RequestString']='RV'+s[1].split('+')[0]
+                    chainDict['RequestString']='RV'+chainDict['CMSSWVersion']+s[1].split('+')[0]
                     index=0
+                    splitForThisWf=None
                     for step in s[3]:
                         if 'INPUT' in step or (not isinstance(s[2][index],str)):
                             nextHasDSInput=s[2][index]
@@ -124,25 +130,29 @@ class MatrixInjector(object):
                             if (index==0):
                                 #first step and not input -> gen part
                                 chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultScratch))
-                                chainDict['nowmTasklist'][-1]['PrimaryDataset']='RelVal'+step
+                                chainDict['nowmTasklist'][-1]['PrimaryDataset']='RelVal'+s[1].split('+')[0]
                                 if not '--relval' in s[2][index]:
                                     print 'Impossible to create task from scratch'
                                     return -12
                                 else:
                                     arg=s[2][index].split()
                                     ns=map(int,arg[arg.index('--relval')+1].split(','))
-                                    chainDict['nowmTasklist'][-1]['RequestSizeEvents'] = ns[0]
+                                    chainDict['nowmTasklist'][-1]['RequestNumEvents'] = ns[0]
                                     chainDict['nowmTasklist'][-1]['SplittingArguments']['events_per_job'] = ns[1]
                             elif nextHasDSInput:
                                 chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultInput))
                                 chainDict['nowmTasklist'][-1]['InputDataset']=nextHasDSInput.dataSet
+                                splitForThisWf=nextHasDSInput.split
+                                chainDict['nowmTasklist'][-1]['SplittingArguments']['lumis_per_job']=splitForThisWf
                                 # get the run numbers or #events
                                 if len(nextHasDSInput.run):
                                     chainDict['nowmTasklist'][-1]['RunWhitelist']=nextHasDSInput.run
                                 nextHasDSInput=None
                             else:
                                 #not first step and no inputDS
-                                chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultTask))                                
+                                chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultTask))
+                                if splitForThisWf:
+                                    chainDict['nowmTasklist'][-1]['SplittingArguments']['lumis_per_job']=splitForThisWf
                             #print step
                             chainDict['nowmTasklist'][-1]['TaskName']=step
                             try:
@@ -151,7 +161,10 @@ class MatrixInjector(object):
                                 print "Failed to find",'%s/%s.io'%(dir,step),".The workflows were probably not run on cfg not created"
                                 return -15
                             chainDict['nowmTasklist'][-1]['ConfigCacheID']='%s/%s.py'%(dir,step)
-                            chainDict['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT']
+                            chainDict['nowmTasklist'][-1]['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT'] # copy to the proper parameter name
+                            chainDict['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT'] #set in general to the last one of the chain
+                            #chainDict['AcquisitionEra']=(chainDict['CMSSWVersion']+'-'+chainDict['GlobalTag']).replace('::All','')
+                            chainDict['AcquisitionEra'][step]=(chainDict['CMSSWVersion']+'-'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')
                         index+=1
                         
             #wrap up for this one
@@ -175,6 +188,12 @@ class MatrixInjector(object):
                                 t_second['InputFromOutputModule'] = om
                                 #print 't_second',t_second
                                 break
+
+            ## there is in fact only one acquisition era
+            ##if len(set(chainDict['AcquisitionEra'].values()))==1:
+            chainDict['AcquisitionEra'] = chainDict['AcquisitionEra'].values()[0]
+                
+            ## clean things up now
             for (i,t) in enumerate(chainDict['nowmTasklist']):
                 t.pop('nowmIO')
                 chainDict['Task%d'%(i+1)]=t
@@ -187,24 +206,32 @@ class MatrixInjector(object):
 
     def uploadConf(self,filePath,label,where):
         labelInCouch=self.label+'_'+label
+        cacheName=filePath.split('/')[-1]
         if self.testMode:
             self.count+=1
             print '\tFake upload to couch with label',labelInCouch
             return self.count
         else:
             try:
-                from wmcontrol2_newauth import upload_to_couch,loadConfig
+                from modules.wma import upload_to_couch
             except:
                 print '\n\tUnable to find wmcontrol modules. Please include it in your python path\n'
                 print '\n\t QUIT\n'
                 sys.exit(-16)
-            print "Loading",filePath,"to",where,"for",label
-            return upload_to_couch(filePath,
-                                   self.group,
-                                   self.user,
-                                   labelInCouch,
-                                   where
-                                   )
+            if cacheName in self.couchCache:
+                print "Not re-uploading",filePath,"to",where,"for",label
+                cacheId=self.couchCache[cacheName]
+            else:
+                print "Loading",filePath,"to",where,"for",label
+                cacheId=upload_to_couch(filePath,
+                                        labelInCouch,
+                                        self.user,
+                                        self.group,
+                                        test_mode=False,
+                                        url=where
+                                        )
+                self.couchCache[cacheName]=cacheId
+            return cacheId
     
     def upload(self):
         for (n,d) in self.chainDicts.items():
@@ -220,7 +247,8 @@ class MatrixInjector(object):
             
     def submit(self):
         try:
-            from wmcontrol2_newauth import makeRequest,approveRequest,random_sleep
+            from modules.wma import makeRequest,approveRequest
+            from wmcontrol import random_sleep
             print '\n\tFound wmcontrol\n'
         except:
             print '\n\tUnable to find wmcontrol modules. Please include it in your python path\n'
@@ -238,7 +266,7 @@ class MatrixInjector(object):
                 print "For eyes before submitting",n
                 print pprint.pprint(d)
                 print "Submitting",n,"..........."
-                workFlow=makeRequest(self.wmagent,d)
+                workFlow=makeRequest(self.wmagent,d,encodeDict=True)
                 approveRequest(self.wmagent,workFlow)
                 print "...........",n,"submitted"
                 random_sleep()

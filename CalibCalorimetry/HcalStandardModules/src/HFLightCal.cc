@@ -496,7 +496,6 @@ void HFLightCal::analyze(const edm::Event& fEvent, const edm::EventSetup& fSetup
     if (ieta>0) ieta = ieta-29;
     else ieta = 13-ieta-29;
 
-    for (int ii=0; ii<10; ii++) buf[ii]=0;
     maxADC=-99;
     for (int isample = 0; isample < frame.size(); ++isample) {
       int adc = frame[isample].adc();
@@ -521,7 +520,7 @@ void HFLightCal::analyze(const edm::Event& fEvent, const edm::EventSetup& fSetup
     }
 
     maxADC=-99;
-    for (int ii=0; ii<frame.size(); ii++) {
+    for (int ii=0; ii<10; ii++) {
       signal=buf[ii];
       if      (ii<2) signal -= (buf[ii+4]+buf[ii+8])/2.0;
       else if (ii<4) signal -= buf[ii+4];

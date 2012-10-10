@@ -22,6 +22,7 @@ options.libs = []
 options.verbose = 0
 options.poisson = 0
 options.nuisancesToExclude = []
+options.noJMax = True
 
 # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
 import sys

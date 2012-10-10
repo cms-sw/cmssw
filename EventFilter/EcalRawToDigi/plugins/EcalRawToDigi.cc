@@ -396,8 +396,8 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
 
   
     // get fed raw data and SM id
-    const FEDRawData & fedData = rawdata->FEDData(*i);
-    int length = fedData.size();
+    const FEDRawData& fedData = rawdata->FEDData(*i);
+    const size_t length = fedData.size();
 
     LogDebug("EcalRawToDigi") << "raw data length: " << length ;
     //if data size is not null interpret data
@@ -405,15 +405,14 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
       
       if(myMap_->setActiveDCC(*i)){
 
-        int smId = myMap_->getActiveSM();
+        const int smId = myMap_->getActiveSM();
         LogDebug("EcalRawToDigi") << "Getting FED = " << *i <<"(SM = "<<smId<<")"<<" data size is: " << length;
 
-        uint64_t * pData = (uint64_t *)(fedData.data());
-        theUnpacker_->unpack( pData, static_cast<unsigned int>(length),smId,*i);
+        const uint64_t* data = (uint64_t*) fedData.data();
+        theUnpacker_->unpack(data, length, smId, *i);
 
-	LogDebug("EcalRawToDigi")<<" in EE :"<<productDigisEE->size()
-				 <<" in EB :"<<productDigisEB->size();
-	
+        LogDebug("EcalRawToDigi") <<" in EE :"<<productDigisEE->size()
+                                  <<" in EB :"<<productDigisEB->size();
       }
     }
     

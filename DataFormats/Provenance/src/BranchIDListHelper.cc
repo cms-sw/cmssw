@@ -1,32 +1,37 @@
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 
+#include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
 namespace edm {
 
   BranchIDListHelper::BranchIDListHelper() :
-    branchIDLists_(),
     branchIDToIndexMap_(),
     branchListIndexMapper_() {}
 
   bool
-  BranchIDListHelper:: updateFromInput(BranchIDLists const& bidlists) {
+  BranchIDListHelper:: updateFromInput(BranchIDLists const& bidlists, std::string const& /*fileName*/) {
     bool unchanged = true;
-    branchListIndexMapper_.clear();
+    BranchIDListRegistry& breg = *BranchIDListRegistry::instance();
+    BranchIDListRegistry::collection_type& bdata = breg.data();
+    BranchIDToIndexMap& branchIDToIndexMap = breg.extra().branchIDToIndexMap_;
+    BranchListIndexMapper& branchListIndexMapper = breg.extra().branchListIndexMapper_;
+    branchListIndexMapper.clear();
     typedef BranchIDLists::const_iterator Iter;
+    typedef BranchIDListRegistry::const_iterator RegIter;
     for(Iter it = bidlists.begin(), itEnd = bidlists.end(); it != itEnd; ++it) {
       BranchListIndex oldBlix = it - bidlists.begin();
-      Iter j = find_in_all(branchIDLists_, *it);
-      BranchListIndex blix = j - branchIDLists_.begin();
-      if(j == branchIDLists_.end()) {
-        branchIDLists_.push_back(*it);
+      RegIter j = find_in_all(bdata, *it);
+      BranchListIndex blix = j - bdata.begin();
+      if(j == bdata.end()) {
+        breg.insertMapped(*it);
         for(BranchIDList::const_iterator i = it->begin(), iEnd = it->end(); i != iEnd; ++i) {
           ProductIndex pix = i - it->begin();
-          branchIDToIndexMap_.insert(std::make_pair(BranchID(*i), std::make_pair(blix, pix)));
+          branchIDToIndexMap.insert(std::make_pair(BranchID(*i), std::make_pair(blix, pix)));
         }
       }
-      branchListIndexMapper_.insert(std::make_pair(oldBlix, blix));
+      branchListIndexMapper.insert(std::make_pair(oldBlix, blix));
       if(oldBlix != blix) {
         unchanged = false;
       }
@@ -46,21 +51,33 @@ namespace edm {
         }
       }
     }
+    BranchIDListRegistry& breg = *BranchIDListRegistry::instance();
+    BranchIDToIndexMap& branchIDToIndexMap = breg.extra().branchIDToIndexMap_;
     if(!bidlist.empty()) {
-      BranchListIndex blix = branchIDLists_.size();
+      BranchListIndex blix = breg.data().size();
       preg.setProducedBranchListIndex(blix);
-      branchIDLists_.push_back(bidlist);
+      breg.insertMapped(bidlist);
       for(BranchIDList::const_iterator i = bidlist.begin(), iEnd = bidlist.end(); i != iEnd; ++i) {
         ProductIndex pix = i - bidlist.begin();
-        branchIDToIndexMap_.insert(std::make_pair(BranchID(*i), std::make_pair(blix, pix)));
+        branchIDToIndexMap.insert(std::make_pair(BranchID(*i), std::make_pair(blix, pix)));
       }
     }
   }
 
   void
   BranchIDListHelper::fixBranchListIndexes(BranchListIndexes& indexes) {
-    for(BranchListIndex& i : indexes) {
-      i = branchListIndexMapper_[i];
+    BranchIDListRegistry& breg = *BranchIDListRegistry::instance();
+    BranchListIndexMapper& branchListIndexMapper = breg.extra().branchListIndexMapper_;
+    for(BranchListIndexes::iterator i = indexes.begin(), e = indexes.end(); i != e; ++i) {
+      *i = branchListIndexMapper[*i];
     }
+  }
+
+  void
+  BranchIDListHelper::clearRegistries() {
+    BranchIDListRegistry& breg = *BranchIDListRegistry::instance();
+    breg.data().clear();
+    breg.extra().branchIDToIndexMap_.clear();
+    breg.extra().branchListIndexMapper_.clear();
   }
 }

@@ -7,7 +7,6 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
-#include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/MessageReceiverForSource.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
@@ -61,7 +60,7 @@ namespace edm {
                            new RootInputFileSequence(pset, *this, catalog(1), principalCache(), InputType::SecondaryFile)),
     secondaryRunPrincipal_(),
     secondaryLumiPrincipal_(),
-    secondaryEventPrincipal_(secondaryFileSequence_ ? new EventPrincipal(secondaryFileSequence_->fileProductRegistry(), secondaryFileSequence_->fileBranchIDListHelper(), processConfiguration()) : 0),
+    secondaryEventPrincipal_(secondaryFileSequence_ ? new EventPrincipal(secondaryFileSequence_->fileProductRegistry(), processConfiguration()) : 0),
     branchIDsToReplace_(),
     numberOfEventsBeforeBigSkip_(0) {
     if(secondaryFileSequence_) {

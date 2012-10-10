@@ -142,7 +142,7 @@ void testTkHistoMap::endJob(void)
     edm::Service<DQMStore>().operator->()->save("test.root");  
   
   tkhisto->saveAsCanvas("test.canvas.root","LEGO","RECREATE");
-  tkhistoBis->saveAsCanvas("test.canvas.root","LEGO","UPDATE");
+  tkhistoBis->saveAsCanvas("test.canvas.root","LEGO","RECREATE");
   tkhistoZ->saveAsCanvas("test.canvas.root","LEGO","UPDATE");
   tkhistoPhi->saveAsCanvas("test.canvas.root","LEGO","UPDATE");
   tkhistoR->saveAsCanvas("test.canvas.root","LEGO","UPDATE");
@@ -200,7 +200,7 @@ void testTkHistoMap::analyze(const edm::Event& iEvent,
     //siStripSubStructure.getTECDetectors(fullTkDetIdList,TkDetIdList,0,0,0);
   */
 
-  //tkhisto->fillFromAscii("test.txt");
+  tkhisto->fillFromAscii("test.txt");
   tkhistoBis->fillFromAscii("test2.txt");
 
   for(size_t i=0;i<TkDetIdList.size();++i){
@@ -210,7 +210,7 @@ void testTkHistoMap::analyze(const edm::Event& iEvent,
     
     value = TkDetIdList[i]%1000000;
     
-    tkhisto->fill(TkDetIdList[i],value);
+    //tkhisto->fill(TkDetIdList[i],value);
     //tkhistoBis->fill(TkDetIdList[i],value);
     tkhistoZ->fill(TkDetIdList[i],globalPos.z());
     tkhistoPhi->fill(TkDetIdList[i],globalPos.phi());

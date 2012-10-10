@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/ScheduleItems.h"
 
-#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/interface/CommonParams.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
@@ -17,15 +16,13 @@ namespace edm {
   ScheduleItems::ScheduleItems() :
       actReg_(new ActivityRegistry),
       preg_(new SignallingProductRegistry),
-      branchIDListHelper_(new BranchIDListHelper()),
       act_table_(),
       processConfiguration_() {
   }
 
-  ScheduleItems::ScheduleItems(ProductRegistry const& preg, BranchIDListHelper const& branchIDListHelper) :
+  ScheduleItems::ScheduleItems(ProductRegistry const& preg) :
       actReg_(new ActivityRegistry),
       preg_(new SignallingProductRegistry(preg)),
-      branchIDListHelper_(new BranchIDListHelper(branchIDListHelper)),
       act_table_(),
       processConfiguration_() {
     for(ProductRegistry::ProductList::iterator it = preg_->productListUpdator().begin(), itEnd = preg_->productListUpdator().end(); it != itEnd; ++it) {
@@ -103,7 +100,6 @@ namespace edm {
         new Schedule(parameterSet,
                      ServiceRegistry::instance().get<service::TriggerNamesService>(),
                      *preg_,
-                     *branchIDListHelper_,
                      *act_table_,
                      actReg_,
                      processConfiguration_,
@@ -115,7 +111,6 @@ namespace edm {
   ScheduleItems::clear() {
     actReg_.reset();
     preg_.reset();
-    branchIDListHelper_.reset();
     processConfiguration_.reset();
   }
 }

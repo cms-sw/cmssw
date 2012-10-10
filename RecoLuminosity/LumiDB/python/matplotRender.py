@@ -122,7 +122,7 @@ class matplotRender():
             if minRun and runnumber<minRun: continue
             if maxRun and runnumber>maxRun: continue
             for i,lab in enumerate(labels) :
-                v=float(r[-(len(labels)-i)])#the values to plot are always the last n fields
+                v=float(r[-(len(labels)-i)-1])#the values to plot are always the last n fields
                 rawdata.setdefault(lab,[]).append((runnumber,v))
         if not rawdata:
             print '[WARNING]: no data to plot , exit'
@@ -460,7 +460,7 @@ class matplotRender():
             if day < minTime.date().toordinal():continue
             if day > maxTime.date().toordinal():continue
             for i,lab in enumerate(labels):
-                v=float(r[-(len(labels)-i)])
+                v=float(r[-(len(labels)-i)-1])
                 rawdata.setdefault(lab,[]).append((day,begrunls,endrunls,v))
         if not rawdata:
             print '[WARNING]: no data, do nothing'
@@ -605,7 +605,7 @@ class matplotRender():
             if day < minTime.date().toordinal():continue
             if day > maxTime.date().toordinal():continue
             for i,lab in enumerate(labels):
-                v=float(r[-(len(labels)-i)])
+                v=float(r[-(len(labels)-i)-1])
                 rawdata.setdefault(lab,[]).append((day,runnumber,lsnum,v))
         if not rawdata:
             print '[WARNING]: no data, do nothing'
@@ -620,7 +620,8 @@ class matplotRender():
         MinDay=minTime.date().toordinal()
         MaxDay=maxTime.date().toordinal()
         fulldays=range(MinDay,MaxDay+1)
-        for label,yvalues in rawdata.items():
+        for label in rawdata.keys():
+            yvalues=rawdata[label]
             yvalues.sort()#sort by day
             alldays=[t[0] for t in yvalues]
             alldates=[str(datetime.date.fromordinal(t)) for t in alldays]
@@ -641,6 +642,7 @@ class matplotRender():
                         thisdaylumi=thisdaylumi/denomitor
                     ypoints[label].append(thisdaylumi)
             ymax[label]=max(lumivals)/denomitor
+            'ymax ',max(lumivals)
         xpoints=fulldays
         if textoutput:
             csvreport=csvReporter.csvReporter(textoutput)

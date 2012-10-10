@@ -511,7 +511,7 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
   if (associators[ww]=="TrackAssociatorByChi2"){
     h_assochi2.push_back( dbe_->book1D("assocChi2","track association #chi^{2}",1000000,0,100000) );
     h_assochi2_prob.push_back(dbe_->book1D("assocChi2_prob","probability of association #chi^{2}",100,0,1));
-  } else if (associators[ww]=="TrackAssociatorByHits"){
+  } else if (associators[ww]=="quickTrackAssociatorByHits"){
     h_assocFraction.push_back( dbe_->book1D("assocFraction","fraction of shared hits",200,0,2) );
     h_assocSharedHit.push_back(dbe_->book1D("assocSharedHit","number of shared hits",20,0,20));
   }

@@ -21,7 +21,7 @@
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/Core/interface/HadronizerFilter.h"
 #include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
-
+#include "GeneratorInterface/SherpaInterface/interface/SherpackFetcher.h"
 
 class SherpaHadronizer : public gen::BaseHadronizer {
 public:
@@ -41,11 +41,13 @@ public:
   
 private:
   
+  std::string SherpaProcess;
+  std::string SherpaChecksum;
   std::string SherpaPath;
   std::string SherpaPathPiece;
   std::string SherpaResultDir;
-  double default_weight;
-  edm::ParameterSet	SherpaParameter;
+  double SherpaDefaultWeight;
+  edm::ParameterSet	SherpaParameterSet;
   unsigned int	maxEventsToPrint;
   
   SHERPA::Sherpa Generator;
@@ -65,21 +67,37 @@ private:
 
 SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   BaseHadronizer(params),
-  SherpaPath(params.getUntrackedParameter<std::string>("Path","SherpaRun")),
-  SherpaPathPiece(params.getUntrackedParameter<std::string>("PathPiece","SherpaRun")),
-  SherpaResultDir(params.getUntrackedParameter<std::string>("ResultDir","Result")),
-  default_weight(params.getUntrackedParameter<double>("default_weight",1.)),
-  SherpaParameter(params.getParameter<edm::ParameterSet>("SherpaParameters")),
-  maxEventsToPrint(params.getUntrackedParameter<int>("maxEventsToPrint", 0))
+  SherpaParameterSet(params.getParameter<edm::ParameterSet>("SherpaParameters"))
 {
+  if (!params.exists("SherpaProcess")) SherpaProcess="";
+	else SherpaProcess=params.getParameter<std::string>("SherpaProcess");
+  if (!params.exists("SherpaPath")) SherpaPath="";
+    else SherpaPath=params.getParameter<std::string>("SherpaPath");
+  if (!params.exists("SherpaPathPiece")) SherpaPathPiece="";
+    else SherpaPathPiece=params.getParameter<std::string>("SherpaPathPiece");
+  if (!params.exists("SherpaResultDir")) SherpaResultDir="Result";
+    else SherpaResultDir=params.getParameter<std::string>("SherpaResultDir");
+  if (!params.exists("SherpaDefaultWeight")) SherpaDefaultWeight=1.;
+    else SherpaDefaultWeight=params.getParameter<double>("SherpaDefaultWeight");
+  if (!params.exists("maxEventsToPrint")) maxEventsToPrint=0;
+    else maxEventsToPrint=params.getParameter<int>("maxEventsToPrint");
 
+	
+  spf::SherpackFetcher Fetcher(params);
+  int retval=Fetcher.Fetch();	
+  if (retval != 0) {
+	std::cout << "SherpaHadronizer: Preparation of Sherpack failed ... " << std::endl;
+	std::cout << "SherpaHadronizer: Error code: " << retval << std::endl;
+	std::terminate();  
+	  
+  }	  
   // The ids (names) of parameter sets to be read (Analysis,Run) to create Analysis.dat, Run.dat
   //They are given as a vstring.  
-  std::vector<std::string> setNames = SherpaParameter.getParameter<std::vector<std::string> >("parameterSets");
+  std::vector<std::string> setNames = SherpaParameterSet.getParameter<std::vector<std::string> >("parameterSets");
   //Loop all set names...
   for ( unsigned i=0; i<setNames.size(); ++i ) {
     // ...and read the parameters for each set given in vstrings
-    std::vector<std::string> pars = SherpaParameter.getParameter<std::vector<std::string> >(setNames[i]);
+    std::vector<std::string> pars = SherpaParameterSet.getParameter<std::vector<std::string> >(setNames[i]);
     std::cout << "Write Sherpa parameter set " << setNames[i] <<" to "<<setNames[i]<<".dat "<<std::endl;
     std::string datfile =  SherpaPath + "/" + setNames[i] +".dat";
     std::ofstream os(datfile.c_str());  
@@ -183,7 +201,7 @@ bool SherpaHadronizer::generatePartonsAndHadronize()
     // whether we are producing unweighted events ("EVENT_GENERATION_MODE" == "1")
     if ( ATOOLS::ToType<int>( ATOOLS::rpa->gen.Variable("EVENT_GENERATION_MODE") ) == 1 ) {
       if (ef > 0.) {
-        weight = default_weight/ef;
+        weight = SherpaDefaultWeight/ef;
       } else {
         weight = -1234.;
       }

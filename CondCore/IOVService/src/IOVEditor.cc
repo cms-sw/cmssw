@@ -82,8 +82,12 @@ namespace cond {
 	   it!=isecondTill; ++it)
 	if (diov.exist(it->sinceTime()))
 	  throw cond::Exception("IOVImportIterator::setUp Error: since time already exists");
-    } else if (dsince <= diov.iovs().back().sinceTime())
-      throw cond::Exception("IOVImportIterator::setUp Error: since time out of range, below last since");
+    } else if (dsince <= diov.iovs().back().sinceTime()) {
+      std::ostringstream errStr;
+      errStr << "IOVImportIterator::setUp Error: trying to append a since time " << dsince
+	     << " which is not larger than last since " << diov.iovs().back().sinceTime();
+      throw cond::Exception(errStr.str());
+    }
     
     m_lastSince = dsince;
     m_cursor = ifirstTill;
@@ -113,8 +117,12 @@ namespace cond {
     
     IOVSequence& diov = *m_destIov->data;
     if (!diov.iovs().empty()) { // do not waist time
-      if (dsince <= diov.iovs().back().sinceTime())
-	throw cond::Exception("IOVImportIterator::setUp Error: since time out of range, below last since");
+      if (dsince <= diov.iovs().back().sinceTime()) {
+	std::ostringstream errStr;
+	errStr << "IOVImportIterator::setUp Error: trying to append a since time " << dsince
+	       << " which is not larger than last since " << diov.iovs().back().sinceTime();
+	throw cond::Exception(errStr.str());
+      }
     }
 
     m_lastSince = dsince;
@@ -407,7 +415,10 @@ namespace cond {
       //range check in case 
       cond::Time_t lastValidSince=iov->iovs().back().sinceTime();
       if( sinceTime<= lastValidSince){
-	reportError("IOVEditor::append Error: since time out of range: below last since",sinceTime);
+	std::ostringstream errStr;
+	errStr << "IOVEditor::append Error: trying to append a since time " << lastValidSince
+	       << " which is not larger than last since";
+	reportError(errStr.str(), sinceTime);
       }
     }
 

@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Components.DQMMessageLogger_cfi import *
 from DQMServices.Components.DQMDcsInfo_cfi import *
+from DQMServices.Components.DQMFastTimerService_cff import *
 
 from DQMOffline.Ecal.ecal_dqm_source_offline_cff import *
 from DQM.HcalMonitorModule.hcal_dqm_source_fileT0_cff import *
@@ -77,7 +78,6 @@ DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
                                  triggerOfflineDQMSource *
                                  alcaBeamMonitor *
                                  castorSources *
-                                 piZeroAnalysis *
                                  dqmPhysics *
                                  pvMonitor *
                                  produceDenoms *
@@ -91,7 +91,6 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  triggerOfflineDQMSource *
                                  alcaBeamMonitor *
                                  castorSources *
-                                 piZeroAnalysis *
                                  dqmPhysics *
                                  pvMonitor *
                                  produceDenoms *
@@ -108,4 +107,8 @@ DQMOfflineEcal = cms.Sequence( ecal_dqm_source_offline *
                                es_dqm_source_offline
                              )
 DQMOfflineJetMET = cms.Sequence( jetMETDQMOfflineSource )
+
+DQMOfflineEGamma = cms.Sequence(  photonAnalysis *
+                                  zmumugammaAnalysis *
+                                  piZeroAnalysis )
 

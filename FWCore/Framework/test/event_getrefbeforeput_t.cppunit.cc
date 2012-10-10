@@ -60,10 +60,10 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEventGetRefBeforePut);
 
 void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
 
+  edm::BranchIDListHelper::clearRegistries();
   std::auto_ptr<edm::ProductRegistry> preg(new edm::ProductRegistry);
   preg->setFrozen();
-  boost::shared_ptr<edm::BranchIDListHelper> branchIDListHelper(new edm::BranchIDListHelper());
-  branchIDListHelper->updateRegistries(*preg);
+  edm::BranchIDListHelper::updateRegistries(*preg);
   edm::EventID col(1L, 1L, 1L);
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;
@@ -74,7 +74,7 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, fakeTime, fakeTime));
   boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc, rp));
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
-  edm::EventPrincipal ep(pregc, branchIDListHelper, pc);
+  edm::EventPrincipal ep(pregc, pc);
   ep.fillEventPrincipal(eventAux, lbp);
   try {
      edm::ParameterSet pset;
@@ -97,6 +97,7 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
 }
 
 void testEventGetRefBeforePut::getRefTest() {
+  edm::BranchIDListHelper::clearRegistries();
   std::string processName = "PROD";
 
   std::string label("fred");
@@ -131,8 +132,7 @@ void testEventGetRefBeforePut::getRefTest() {
   std::auto_ptr<edm::ProductRegistry> preg(new edm::ProductRegistry);
   preg->addProduct(product);
   preg->setFrozen();
-  boost::shared_ptr<edm::BranchIDListHelper> branchIDListHelper(new edm::BranchIDListHelper());
-  branchIDListHelper->updateRegistries(*preg);
+  edm::BranchIDListHelper::updateRegistries(*preg);
   edm::EventID col(1L, 1L, 1L);
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;
@@ -144,7 +144,7 @@ void testEventGetRefBeforePut::getRefTest() {
   boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, fakeTime, fakeTime));
   boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc, rp));
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
-  edm::EventPrincipal ep(pregc, branchIDListHelper, pc);
+  edm::EventPrincipal ep(pregc, pc);
   ep.fillEventPrincipal(eventAux, lbp);
 
   edm::RefProd<edmtest::IntProduct> refToProd;

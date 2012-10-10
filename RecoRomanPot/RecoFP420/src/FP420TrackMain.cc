@@ -29,14 +29,14 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
   pn0_ = conf_.getParameter<int>("NumberFP420SPlanes");
   rn0_ = 7;
   xytype_ = conf_.getParameter<int>("NumberFP420SPTypes");
-  z420_           = conf_.getParameter<double>("zFP420");
-  zD2_            = conf_.getParameter<double>("zFP420D2");
-  zD3_            = conf_.getParameter<double>("zFP420D3");
+  z420_           = conf_.getParameter<double>("z420");
+  zD2_            = conf_.getParameter<double>("zD2");
+  zD3_            = conf_.getParameter<double>("zD3");
   dXX_ = conf_.getParameter<double>("dXXFP420");
   dYY_ = conf_.getParameter<double>("dYYFP420");
-  chiCutX_ = conf_.getParameter<double>("chiCutXFP420");
-  chiCutY_ = conf_.getParameter<double>("chiCutYFP420");
-
+  chiCutX_ = conf_.getParameter<double>("chiCutX420");
+  chiCutY_ = conf_.getParameter<double>("chiCutY420");
+  
   if (verbosity > 0) {
     std::cout << "FP420TrackMain constructor::" << std::endl;
     std::cout << "sn0=" << sn0_ << " pn0=" << pn0_ << " xytype=" << xytype_ << std::endl;
@@ -53,15 +53,10 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
   UseHalfPitchShiftInY_= true;
   UseHalfPitchShiftInYW_= true;
 
-  //  pitchX_= 0.050;
-  // pitchY_= 0.050;// 
-  //pitchXW_= 0.400;
-  //pitchYW_= 0.400;// 
-
-  pitchX_= 0.100;
-  pitchY_= 0.100;// 
-  pitchXW_= 0.150;
-  pitchYW_= 0.150;// 
+  pitchX_= 0.050;
+  pitchY_= 0.050;// 
+  pitchXW_= 0.400;
+  pitchYW_= 0.400;// 
 
   XsensorSize_=8.0;
   YsensorSize_=7.2;

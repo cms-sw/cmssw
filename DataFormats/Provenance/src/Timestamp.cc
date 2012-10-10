@@ -45,9 +45,9 @@ timeHigh_(invalidTimestamp().timeHigh_)
 //    // do actual copying here;
 // }
 
-// Timestamp::~Timestamp()
-// {
-// }
+Timestamp::~Timestamp()
+{
+}
 
 //
 // assignment operators

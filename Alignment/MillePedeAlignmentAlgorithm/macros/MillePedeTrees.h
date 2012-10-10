@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/08/08 21:55:48 $
+// last change    : $Date: 2011/06/29 20:36:10 $
 // by             : $Author: flucke $
 
 #ifndef MILLEPEDETREES_H
@@ -41,8 +41,7 @@ class MillePedeTrees
   // (un)set whether RPos should be signed like y, return old setting
   bool SetUseSignedR(bool use = true) {bool buf = fUseSignedR; fUseSignedR = use; return buf;}//true: radius gets sign of y
   bool SetBowsParameters(bool use = true) {bool buf = fBowsParameters; fBowsParameters = use; return buf;}//true: bows param. for pede
-  bool SetSurfDefDeltaBows(bool deltaBows) {const bool buf = fSurfDefDeltaBows; fSurfDefDeltaBows = deltaBows; return buf;} // take care: problems for false if drawing 1-sensor modules!
-  
+
   TString Phi(const TString &tree) const;
   TString OrgPos(const TString &pos) const; // pos x, y, z, r, phi,... on original position
 
@@ -197,6 +196,5 @@ class MillePedeTrees
   // special seetings
   bool fUseSignedR;  // if true, Rpos will have sign of y
   bool fBowsParameters; //true: pede parameter names and titles to 'bows', false: rigid body
-  bool fSurfDefDeltaBows; // true: SurfaceDeformation values as is, otherwise bowMean+Delta and bowMean-Delta
 };
 #endif

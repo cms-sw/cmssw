@@ -949,51 +949,6 @@ def makeCppPSet(module,cppPSetMaker):
             p.insertInto(cppPSetMaker,x)
     return cppPSetMaker
 
-class EDAlias(_ConfigureComponent,_Labelable):
-    def __init__(self,*arg,**kargs):
-        super(EDAlias,self).__init__()
-        self.__dict__['_EDAlias__parameterNames'] = []
-        self.__setParameters(kargs)
-
-    def parameterNames_(self):
-        """Returns the name of the parameters"""
-        return self.__parameterNames[:]
-
-    def __addParameter(self, name, value):
-        if not isinstance(value,_ParameterTypeBase):
-            self.__raiseBadSetAttr(name)
-        self.__dict__[name]=value
-        self.__parameterNames.append(name)
-
-    def __setParameters(self,parameters):
-        for name,value in parameters.iteritems():
-            self.__addParameter(name, value)
-
-    def _place(self,name,proc):
-        proc._placeAlias(name,self)
-
-    def nameInProcessDesc_(self, myname):
-        return myname;
-
-    def insertInto(self, parameterSet, myname):
-        newpset = parameterSet.newPSet()
-        newpset.addString(True, "@module_label", myname)
-        newpset.addString(True, "@module_type", type(self).__name__)
-        newpset.addString(True, "@module_edm_type", type(self).__name__)
-        for name in self.parameterNames_():
-            param = getattr(self,name)
-            param.insertInto(newpset, name)
-        parameterSet.addPSet(True, self.nameInProcessDesc_(myname), newpset)
-
-    def dumpPython(self, options=PrintOptions()):
-        resultList = ['cms.EDAlias(']
-        for name in self.parameterNames_():
-            param = self.__dict__[name]
-            options.indent()
-            resultList.append(options.indentation()+name+' = '+param.dumpPython(options))
-            options.unindent()
-        return '\n'.join(resultList)+'\n)'
-
 if __name__ == "__main__":
 
     import unittest
@@ -1174,8 +1129,6 @@ if __name__ == "__main__":
             self.assertRaises(TypeError, lambda : VPSet(3))
             self.assertRaises(TypeError, lambda : VPSet(int32(3)))
             self.assertRaises(SyntaxError, lambda : VPSet(foo=PSet()))
-        def testEDAlias(self):
-            aliasfoo2 = EDAlias(foo2 = VPSet(PSet(type = string("Foo2"))))
 
         def testFileInPath(self):
             f = FileInPath("FWCore/ParameterSet/python/Types.py")

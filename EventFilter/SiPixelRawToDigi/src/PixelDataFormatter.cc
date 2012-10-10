@@ -51,7 +51,7 @@ PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map)
   int s64 = sizeof(Word64);
   int s8  = sizeof(char);
   if ( s8 != 1 || s32 != 4*s8 || s64 != 2*s32) {
-     LogError("**PixelDataFormatter**")
+     LogError("UnexpectedSizes")
           <<" unexpected sizes: "
           <<"  size of char is: " << s8
           <<", size of Word32 is: " << s32
@@ -172,7 +172,7 @@ void PixelDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedRawDat
       const PixelDigi & digi = (*it);
       int status = digi2word( rawId, digi, words);
       if (status) {
-         LogError("PixelDataFormatter::formatData exception")
+         LogError("FormatDataException")
             <<" digi2word returns error #"<<status
             <<" Ndigis: "<<theDigiCounter << endl
             <<" detector: "<<rawId<< endl
@@ -281,7 +281,9 @@ int PixelDataFormatter::word2digi(const int fedId, const SiPixelFrameConverter* 
   // enable: process.siPixelDigis.UseQualityInfo = True
   // 20-10-2010 A.Y.
   if (useQuality&&badPixelInfo) {
-    CablingPathToDetUnit path = {fedId, cabling.link, cabling.roc};
+    CablingPathToDetUnit path = {static_cast<unsigned int>(fedId),
+                                 static_cast<unsigned int>(cabling.link),
+                                 static_cast<unsigned int>(cabling.roc)};
     const PixelROC * roc = theCablingTree->findItem(path);
     short rocInDet = (short) roc->idInDetUnit();
     bool badROC = badPixelInfo->IsRocBad(detIdx.rawId, rocInDet);

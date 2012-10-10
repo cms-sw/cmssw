@@ -12,6 +12,10 @@
 # include <list>
 # include <map>
 # include <set>
+# include <execinfo.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <cxxabi.h>
 
 namespace edm { class DQMHttpSource; class ParameterSet; class ActivityRegistry;}
 namespace lat { class Regexp; }
@@ -428,6 +432,8 @@ private:
 
   // --- Operations on MEs that are normally reset at end of monitoring cycle ---
   void				setAccumulate(MonitorElement *me, bool flag);
+
+  void print_trace(const std::string &dir, const std::string &name);
 
   // ----------------------- Unavailable ---------------------------------------
   DQMStore(const DQMStore&);

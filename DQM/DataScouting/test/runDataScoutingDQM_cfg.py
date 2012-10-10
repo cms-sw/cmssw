@@ -10,8 +10,14 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.GlobalTag.globaltag = 'GR_R_52_V7::All'
 
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr.default.limit = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/data/Run2012B/DataScouting/RAW/v1/000/194/535/16D13DD4-CBA2-E111-AE6F-001D09F24353.root',
+    fileNames = cms.untracked.vstring(#'/store/data/Run2012B/DataScouting/RAW/v1/000/194/535/16D13DD4-CBA2-E111-AE6F-001D09F24353.root',
                                       '/store/data/Run2012B/DataScouting/RAW/v1/000/194/533/FADCCE72-C5A2-E111-825D-003048D2BBF0.root',
                                       '/store/data/Run2012B/DataScouting/RAW/v1/000/194/533/EC8BE038-9DA2-E111-AEEC-00215AEDFD98.root',
                                       '/store/data/Run2012B/DataScouting/RAW/v1/000/194/533/E865F95C-B7A2-E111-9FFF-003048D2BC5C.root',
@@ -19,7 +25,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10000)
 )
 
 process.DQMoutput = cms.OutputModule("PoolOutputModule",
@@ -43,6 +49,4 @@ process.testmodule_step = cms.Path(process.dataScoutingDQMSequence)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
 process.schedule = cms.Schedule(process.testmodule_step,process.dqmsave_step,process.DQMoutput_step)
-
-
 

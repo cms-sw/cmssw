@@ -6180,6 +6180,9 @@ cc      SAVE /ana1/
 cc      SAVE /ana2/
         common /ana4/ fdetdy(24), fdndy(24), fdndpt(12)
 cc      SAVE /ana4/
+
+        logical iwrite
+        data iwrite / .false. /
         SAVE   
 
         do 1004 i = 1, ichkpt
@@ -6226,12 +6229,14 @@ c           et = sqrt(px(i) ** 2 + py(i) ** 2 + xmp ** 2)
  1004   continue
 
         do 1005 ian = 1, 12
+          if ( iwrite ) then
            if (dn(ian) .eq. 0d0 .or. dn1(ian) .eq. 0d0 .or.
      &        dn2(ian) .eq. 0d0) then
               print *, 'event=', ievt
               print *, 'dn(', ian, ')=', dn(ian), 'dn1(', ian,
      &           ')=', dn1(ian), 'dn2(', ian, ')=', dn2(ian)
            end if
+           endif
            detdy(ian) = detdy(ian) + det(ian)
            if (dn(ian) .ne. 0) then
               detdn(ian) = detdn(ian) + det(ian) / dn(ian)

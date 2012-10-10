@@ -15,12 +15,49 @@
 //---- Uncomment to enable Kahan's summation (if enabled at runtime with --X-rtd = ...
 // http://en.wikipedia.org/wiki/Kahan_summation_algorithm
 //#define ADDNLL_KAHAN_SUM
-//#define SIMNLL_KAHAN_SUM
 #include "../interface/ProfilingTools.h"
 
 //std::map<std::string,double> cacheutils::CachingAddNLL::offsets_;
 bool cacheutils::CachingSimNLL::noDeepLEE_ = false;
 bool cacheutils::CachingSimNLL::hasError_  = false;
+
+//#define DEBUG_TRACE_POINTS
+#ifdef DEBUG_TRACE_POINTS
+namespace { 
+    template<unsigned int>
+    void tracePoint(const RooAbsCollection &point) {
+        static const RooAbsCollection *lastPoint = 0;
+        static std::vector<double> values;
+        if (&point != lastPoint) {
+            std::cout << "Arrived in a completely new point. " << std::endl;
+            values.resize(point.getSize());
+            RooLinkedListIter iter = point.iterator();
+            for (RooAbsArg *a  = (RooAbsArg*)(iter.Next()); a != 0; a  = (RooAbsArg*)(iter.Next())) {
+                RooRealVar *rrv = dynamic_cast<RooRealVar *>(a); if (!rrv) continue;
+                values.push_back(rrv->getVal());
+            }
+            lastPoint = &point;
+        } else {
+            std::cout << "Moved: ";
+            RooLinkedListIter iter = point.iterator();
+            int i = 0;
+            for (RooAbsArg *a  = (RooAbsArg*)(iter.Next()); a != 0; a  = (RooAbsArg*)(iter.Next())) {
+                RooRealVar *rrv = dynamic_cast<RooRealVar *>(a); if (!rrv) continue;
+                if (values[i] != rrv->getVal()) std::cout << a->GetName() << " " << values[i] << " => " << rrv->getVal() << "    "; 
+                values[i++] = rrv->getVal();
+            }
+            std::cout << std::endl;
+        }
+    }
+}
+#define TRACE_POINT2(x,i)  ::tracePoint<i>(x);
+#define TRACE_POINT(x)  ::tracePoint<0>(x);
+#define TRACE_NLL(x)    std::cout << x << std::endl;
+#else
+#define TRACE_POINT2(x,i)
+#define TRACE_POINT(x) 
+#define TRACE_NLL(x) 
+#endif
 
 cacheutils::ArgSetChecker::ArgSetChecker(const RooAbsCollection &set) 
 {
@@ -193,6 +230,8 @@ cacheutils::CachingPdf::realFill_(const RooAbsData &data, std::vector<Double_t> 
         //*params = *data.get(i); // for non-smart handling of pointers
         *itv = pdf_->getVal(obs_);
         //std::cout << " at i = " << i << " pdf = " << *itv << std::endl;
+        TRACE_NLL("PDF value for " << pdf_->GetName() << " is " << *itv << " at this point.") 
+        TRACE_POINT2(*obs_,1)
     }
 }
 
@@ -333,9 +372,6 @@ cacheutils::CachingAddNLL::evaluate() const
     }
     // then get the final nll
     double ret = 0;
-    #ifdef ADDNLL_KAHAN_SUM
-    double compensation = 0;
-    #endif
     for ( its = bgs, itw = bgw ; its != eds ; ++its, ++itw ) {
         if (*itw == 0) continue;
         if (!isnormal(*its) || *its <= 0) {
@@ -371,6 +407,7 @@ cacheutils::CachingAddNLL::evaluate() const
     ret += expectedEvents - sumWeights_ * log(expectedEvents);
     ret += zeroPoint_;
     // std::cout << "     plus extended term: " << ret << std::endl;
+    TRACE_NLL("AddNLL for " << pdf_->GetName() << ": " << ret)
     return ret;
 }
 
@@ -448,15 +485,26 @@ cacheutils::CachingSimNLL::clone(const char *name) const
     return new cacheutils::CachingSimNLL(*this, name);
 }
 
+cacheutils::CachingSimNLL::~CachingSimNLL()
+{
+    for (std::vector<SimpleGaussianConstraint*>::iterator it = constrainPdfsFast_.begin(), ed = constrainPdfsFast_.end(); it != ed; ++it) {
+        delete *it;
+    }
+}
+
 void
 cacheutils::CachingSimNLL::setup_() 
 {
     // Allow runtime-flag to switch off logEvalErrors
     noDeepLEE_ = runtimedef::get("SIMNLL_NO_LEE");
 
-    RooAbsPdf *pdfclone = utils::fullClonePdf(pdfOriginal_, piecesForCloning_);
-    std::auto_ptr<RooArgSet> params(pdfclone->getParameters(*dataOriginal_));
-    params_.add(*params);
+    //RooAbsPdf *pdfclone = runtimedef::get("SIMNLL_CLONE") ? pdfOriginal_  : utils::fullClonePdf(pdfOriginal_, piecesForCloning_);
+    RooAbsPdf *pdfclone = pdfOriginal_; // never clone
+
+    //---- Instead of getting the parameters here, we get them from the individual constraint terms and single pdfs ----
+    //---- This seems to save memory.
+    //std::auto_ptr<RooArgSet> params(pdfclone->getParameters(*dataOriginal_));
+    //params_.add(*params);
 
     RooArgList constraints;
     factorizedPdf_.reset(dynamic_cast<RooSimultaneous *>(utils::factorizePdf(*dataOriginal_->get(), *pdfclone, constraints)));
@@ -464,15 +512,25 @@ cacheutils::CachingSimNLL::setup_()
     RooSimultaneous *simpdf = factorizedPdf_.get();
     constrainPdfs_.clear(); 
     if (constraints.getSize()) {
+        bool FastConstraints = runtimedef::get("SIMNLL_FASTGAUSS");
         //constrainPdfs_.push_back(new RooProdPdf("constraints","constraints", constraints));
         for (int i = 0, n = constraints.getSize(); i < n; ++i) {
-            constrainPdfs_.push_back(dynamic_cast<RooAbsPdf*>(constraints.at(i)));
-            constrainZeroPoints_.push_back(0);
+            RooAbsPdf *pdfi = dynamic_cast<RooAbsPdf*>(constraints.at(i));
+            if (FastConstraints && typeid(*pdfi) == typeid(RooGaussian)) {
+                constrainPdfsFast_.push_back(new SimpleGaussianConstraint(dynamic_cast<const RooGaussian&>(*pdfi)));
+                constrainZeroPointsFast_.push_back(0);
+            } else {
+                constrainPdfs_.push_back(pdfi);
+                constrainZeroPoints_.push_back(0);
+            }
             //std::cout << "Constraint pdf: " << constraints.at(i)->GetName() << std::endl;
+            std::auto_ptr<RooArgSet> params(pdfi->getParameters(*dataOriginal_));
+            params_.add(*params, false);
         }
     } else {
         std::cerr << "PDF didn't factorize!" << std::endl;
         std::cout << "Parameters: " << std::endl;
+        std::auto_ptr<RooArgSet> params(pdfclone->getParameters(*dataOriginal_));
         params->Print("V");
         std::cout << "Obs: " << std::endl;
         dataOriginal_->get()->Print("V");
@@ -496,6 +554,7 @@ cacheutils::CachingSimNLL::setup_()
             //std::cout << "   bin " << ib << " (label " << catClone->getLabel() << ") has pdf " << pdf->GetName() << " of type " << pdf->ClassName() << " and " << (data ? data->numEntries() : -1) << " dataset entries" << std::endl;
             if (data == 0) { throw std::logic_error("Error: no data"); }
             pdfs_[ib] = new CachingAddNLL(catClone->getLabel(), "", pdf, data);
+            params_.add(pdfs_[ib]->params(), /*silent=*/true); 
         } else { 
             pdfs_[ib] = 0; 
             //std::cout << "   bin " << ib << " (label " << catClone->getLabel() << ") has no pdf" << std::endl;
@@ -508,37 +567,20 @@ cacheutils::CachingSimNLL::setup_()
 Double_t 
 cacheutils::CachingSimNLL::evaluate() const 
 {
+    TRACE_POINT(params_)
 #ifdef DEBUG_CACHE
     PerfCounter::add("CachingSimNLL::evaluate called");
 #endif
     double ret = 0;
-    #ifdef SIMNLL_KAHAN_SUM
-    double compensation = 0;
-    #endif
     for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it) {
         if (*it != 0) {
             double nllval = (*it)->getVal();
             // what sanity check could I put here?
-            #ifdef SIMNLL_KAHAN_SUM
-            static bool do_kahan = runtimedef::get("SIMNLL_KAHAN_SUM");
-            if (do_kahan) {
-                double kahan_y = nllval - compensation;
-                double kahan_t = ret + kahan_y;
-                double kahan_d = (kahan_t - ret);
-                compensation = kahan_d - kahan_y;
-                ret  = kahan_t;
-            } else {
-                ret += nllval;
-            }
-            #else
             ret += nllval;
-            #endif
         }
     }
     if (!constrainPdfs_.empty()) {
-        #ifdef SIMNLL_KAHAN_SUM
-        compensation = 0;
-        #endif
+        /// ============= GENERIC CONSTRAINTS  =========
         std::vector<double>::const_iterator itz = constrainZeroPoints_.begin();
         for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it, ++itz) { 
             double pdfval = (*it)->getVal(nuis_);
@@ -546,20 +588,13 @@ cacheutils::CachingSimNLL::evaluate() const
                 if (!noDeepLEE_) logEvalError((std::string("Constraint pdf ")+(*it)->GetName()+" evaluated to zero, negative or error").c_str());
                 pdfval = 1e-9;
             }
-            #ifdef SIMNLL_KAHAN_SUM
-            static bool do_kahan = runtimedef::get("SIMNLL_KAHAN_SUM");
-            if (do_kahan) {
-                double kahan_y = -log(pdfval) - compensation;
-                double kahan_t = ret + kahan_y;
-                double kahan_d = (kahan_t - ret);
-                compensation = kahan_d - kahan_y;
-                ret  = kahan_t;
-            } else {
-                ret -= (log(pdfval) + *itz);
-            }
-            #else
             ret -= (log(pdfval) + *itz);
-            #endif
+        }
+        /// ============= FAST GAUSSIAN CONSTRAINTS  =========
+        itz = constrainZeroPointsFast_.begin();
+        for (std::vector<SimpleGaussianConstraint*>::const_iterator it = constrainPdfsFast_.begin(), ed = constrainPdfsFast_.end(); it != ed; ++it, ++itz) { 
+            double logpdfval = (*it)->getLogValFast();
+            ret -= (logpdfval + *itz);
         }
     }
 #ifdef TRACE_NLL_EVALS
@@ -567,6 +602,7 @@ cacheutils::CachingSimNLL::evaluate() const
     if (_trace_ % 10 == 0)  { putchar('.'); fflush(stdout); }
     //if (_trace_ % 250 == 0) { printf("               NLL % 10.4f after %10lu evals.\n", ret, _trace_); fflush(stdout); }
 #endif
+    TRACE_NLL("SimNLL for " << GetName() << ": " << ret)
     return ret;
 }
 
@@ -620,6 +656,11 @@ void cacheutils::CachingSimNLL::setZeroPoint() {
         double pdfval = (*it)->getVal(nuis_);
         if (isnormal(pdfval) || pdfval > 0) *itz = -log(pdfval);
     }
+    itz = constrainZeroPointsFast_.begin();
+    for (std::vector<SimpleGaussianConstraint*>::const_iterator it = constrainPdfsFast_.begin(), ed = constrainPdfsFast_.end(); it != ed; ++it, ++itz) {
+        double logpdfval = (*it)->getLogValFast();
+        *itz = -logpdfval;
+    }
     setValueDirty();
 }
 
@@ -628,6 +669,7 @@ void cacheutils::CachingSimNLL::clearZeroPoint() {
         if (*it != 0) (*it)->clearZeroPoint();
     }
     std::fill(constrainZeroPoints_.begin(), constrainZeroPoints_.end(), 0.0);
+    std::fill(constrainZeroPointsFast_.begin(), constrainZeroPointsFast_.end(), 0.0);
     setValueDirty();
 }
 

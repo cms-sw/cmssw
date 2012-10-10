@@ -28,8 +28,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2011/03/29 14:32:31 $ 
- **  $Revision: 1.41 $
+ **  $Date: 2012/05/25 16:47:30 $ 
+ **  $Revision: 1.2 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -247,6 +247,12 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* p_hOverEVsEta_[3];
   MonitorElement* h2_hOverEVsEt_[3];
   MonitorElement* p_hOverEVsEt_[3];
+  //
+  MonitorElement* h_newhOverE_[3][3];  
+  MonitorElement* p_newhOverEVsEta_[3];
+  MonitorElement* p_newhOverEVsEt_[3];
+
+
 
 
 
@@ -263,6 +269,10 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h2_hcalTowerSumEtConeDR04VsEt_[3];
   MonitorElement* p_hcalTowerSumEtConeDR04VsEt_[3];
   //
+  MonitorElement* h_hcalTowerBcSumEtConeDR04_[3][3];  
+  MonitorElement* p_hcalTowerBcSumEtConeDR04VsEta_[3];
+  MonitorElement* p_hcalTowerBcSumEtConeDR04VsEt_[3];
+  //
   MonitorElement* h_isoTrkSolidConeDR04_[3][3];  
   MonitorElement* h2_isoTrkSolidConeDR04VsEta_[3];
   MonitorElement* p_isoTrkSolidConeDR04VsEta_[3];
@@ -277,6 +287,8 @@ class PhotonValidator : public edm::EDAnalyzer
   //
 
   MonitorElement*  h_gamgamMass_[3][3];
+  MonitorElement*  h_gamgamMassRegr1_[3][3];
+  MonitorElement*  h_gamgamMassRegr2_[3][3];
 
   MonitorElement* h_phoE_[2][3];
   MonitorElement* h_phoEt_[2][3];
@@ -292,10 +304,23 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h2_sceResVsR9_[3];
   MonitorElement* p_sceResVsR9_[3];
 
-
   MonitorElement* h_phoEta_[2];
   MonitorElement* h_phoPhi_[2];
 
+  // Photon energies as derived from Regression1 (MIT) nd Regression2 (PF/Rishi)
+  MonitorElement* h_phoEResRegr1_[3][3];
+  MonitorElement* h_phoEResRegr2_[3][3];
+
+
+  // Information from Particle Flow
+  // Isolation
+  MonitorElement* h_chHadIso_[3]; 
+  MonitorElement* h_nHadIso_[3]; 
+  MonitorElement* h_phoIso_[3]; 
+  // Identification
+  MonitorElement* h_nCluOutsideMustache_[3]; 
+  MonitorElement* h_etOutsideMustache_[3]; 
+  MonitorElement* h_pfMva_[3];
 
 
   /// info per conversion

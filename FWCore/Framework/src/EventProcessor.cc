@@ -261,7 +261,6 @@ namespace edm {
   makeInput(ParameterSet& params,
             CommonParams const& common,
             ProductRegistry& preg,
-            boost::shared_ptr<BranchIDListHelper> branchIDListHelper,
             PrincipalCache& pCache,
             boost::shared_ptr<ActivityRegistry> areg,
             boost::shared_ptr<ProcessConfiguration> processConfiguration) {
@@ -310,7 +309,7 @@ namespace edm {
                          "source",
                          processConfiguration.get());
 
-    InputSourceDescription isdesc(md, preg, branchIDListHelper, pCache, areg, common.maxEventsInput_, common.maxLumisInput_);
+    InputSourceDescription isdesc(md, preg, pCache, areg, common.maxEventsInput_, common.maxLumisInput_);
     areg->preSourceConstructionSignal_(md);
     boost::shared_ptr<InputSource> input;
     try {
@@ -374,7 +373,6 @@ namespace edm {
     postProcessEventSignal_(),
     actReg_(),
     preg_(),
-    branchIDListHelper_(),
     serviceToken_(),
     input_(),
     espController_(new eventsetup::EventSetupsController),
@@ -428,7 +426,6 @@ namespace edm {
     postProcessEventSignal_(),
     actReg_(),
     preg_(),
-    branchIDListHelper_(),
     serviceToken_(),
     input_(),
     espController_(new eventsetup::EventSetupsController),
@@ -482,7 +479,6 @@ namespace edm {
     postProcessEventSignal_(),
     actReg_(),
     preg_(),
-    branchIDListHelper_(),
     serviceToken_(),
     input_(),
     espController_(new eventsetup::EventSetupsController),
@@ -532,7 +528,6 @@ namespace edm {
     postProcessEventSignal_(),
     actReg_(),
     preg_(),
-    branchIDListHelper_(),
     serviceToken_(),
     input_(),
     espController_(new eventsetup::EventSetupsController),
@@ -590,6 +585,9 @@ namespace edm {
                         serviceregistry::ServiceLegacy iLegacy) {
 
     //std::cerr << processDesc->dump() << std::endl;
+    // The BranchIDListRegistry and ProductIDListRegistry are indexed registries, and are singletons.
+    //  They must be cleared here because some processes run multiple EventProcessors in succession.
+    BranchIDListHelper::clearRegistries();
 
     boost::shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
     //std::cerr << parameterSet->dump() << std::endl;
@@ -641,7 +639,7 @@ namespace edm {
     }
 
     // initialize the input source
-    input_ = makeInput(*parameterSet, *common, *items.preg_, items.branchIDListHelper_, principalCache_, items.actReg_, items.processConfiguration_);
+    input_ = makeInput(*parameterSet, *common, *items.preg_, principalCache_, items.actReg_, items.processConfiguration_);
 
     // intialize the Schedule
     schedule_ = items.initSchedule(*parameterSet,subProcessParameterSet.get());
@@ -650,7 +648,6 @@ namespace edm {
     act_table_ = items.act_table_;
     actReg_ = items.actReg_;
     preg_ = items.preg_;
-    branchIDListHelper_ = items.branchIDListHelper_;
     processConfiguration_ = items.processConfiguration_;
 
     FDEBUG(2) << parameterSet << std::endl;
@@ -658,7 +655,7 @@ namespace edm {
 
     // initialize the subprocess, if there is one
     if(subProcessParameterSet) {
-      subProcess_.reset(new SubProcess(*subProcessParameterSet, *parameterSet, preg_, branchIDListHelper_, *espController_, *actReg_, token, serviceregistry::kConfigurationOverrides));
+      subProcess_.reset(new SubProcess(*subProcessParameterSet, *parameterSet, preg_, *espController_, *actReg_, token, serviceregistry::kConfigurationOverrides));
     }
     espController_->clearComponents();
   }
@@ -704,6 +701,7 @@ namespace edm {
     ParentageRegistry::instance()->data().clear();
     ProcessConfigurationRegistry::instance()->data().clear();
     ProcessHistoryRegistry::instance()->data().clear();
+    BranchIDListHelper::clearRegistries();
   }
 
   void
@@ -1667,7 +1665,7 @@ namespace edm {
   EventProcessor::runCommon(bool onlineStateTransitions, int numberOfEventsToProcess) {
 
     // Reusable event principal
-    boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_, branchIDListHelper_, *processConfiguration_, historyAppender_.get()));
+    boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_, *processConfiguration_, historyAppender_.get()));
     principalCache_.insert(ep);
 
     beginJob(); //make sure this was called

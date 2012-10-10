@@ -64,12 +64,12 @@ process.source = cms.Source("PoolSource",
 ))
 
 process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
 
 process.load("Validation.RecoTrack.cuts_cff")
 
 process.load("Validation.RecoTrack.TrackerSeedValidator_cff")
-#process.multiTrackValidator.associators = cms.vstring('TrackAssociatorByHits','TrackAssociatorByChi2')
+#process.multiTrackValidator.associators = cms.vstring('quickTrackAssociatorByHits','TrackAssociatorByChi2')
 #process.multiTrackValidator.UseAssociators = True
 #process.multiTrackValidator.label = ['cutsRecoTracks']
 #process.multiTrackValidator.label_tp_effic = cms.InputTag("cutsTPEffic")

@@ -322,6 +322,10 @@ cc      SAVE /lastt/
         COMMON /AREVT/ IAEVT, IARUN, MISS
         common/phidcy/iphidcy,pttrig,ntrig,maxmiss
 cwei        DOUBLE PRECISION PATT
+
+        logical iwrite
+        data iwrite / .false. /
+
         SAVE   
 
 cgsfs      WRITE(*,*) "IN Hijing, FRAME=",FRAME
@@ -690,7 +694,8 @@ C
         IF(IHPR2(8).GT.0 .AND.RNIP(JP,JT).LT.EXP(-TT)*
      &                (1.0-EXP(-TTS))) GO TO 160
 C                ********this is the probability for no jet production
-110        XR=-ALOG(EXP(-TT)+RANART(NSEED)*(1.0-EXP(-TT)))
+110        TMPEXP = EXP(-TT)
+           XR=-ALOG(TMPEXP+RANART(NSEED)*(1.0-TMPEXP))
 111        NJET=NJET+1
         XR=XR-ALOG(max(RANART(NSEED),1.0e-20))
         IF(XR.LT.TT) GO TO 111
@@ -1787,8 +1792,10 @@ c                call lulist(1)
          write(6,*) 'violated:EATT,NATT,B=',EATT,NATT,bimp
          GO TO 50
         ENDIF
+        if ( iwrite ) then
         write(6,*) 'satisfied:EATT,NATT,B=',EATT,NATT,bimp
         write(6,*) ' '
+        endif
 
         RETURN
         END
