@@ -8,7 +8,7 @@ PFCandAssoMap = cms.EDProducer('PFCand_AssoMap',
 		 
 	  #Step 0: If track-pt() is smaler the track will 
 	  #always be associated to the first vertex
-          TrackPtCut = cms.double(20.),
+          TrackPtCut = cms.double(1000.),
 	    
 	  #Set the BeamSpot
 	  BeamSpot = cms.InputTag('offlineBeamSpot'),
@@ -29,19 +29,19 @@ PFCandAssoMap = cms.EDProducer('PFCand_AssoMap',
 	   	   
 	  #Configuration to check if a secondary is compatible with the BeamSpot
 	  UseBeamSpotCompatibility = cms.untracked.bool(False), 
-          BeamSpotCompatibilityCut = cms.double(5.), 
+          BeamSpotCompatibilityCut = cms.double(3.), 
 		  
 	  #Configuration for the final association
 	  # 0 == always first vertex (default)
 	  # 1 == closest vertex in z/longitudinal distance
 	  # 2 == closest vertex in 3D
-          FinalAssociation = cms.untracked.int32(2),			    
+          FinalAssociation = cms.untracked.int32(1),			    
 	   	   
 	  #What to do if the dipl vertex coll can't be found
           ignoreMissingCollection = cms.bool(True),			    
 	   	   
 	  #Input for the search of the closest vertex
-          nTrackWeight = cms.double(0.01),
+          nTrackWeight = cms.double(0.001),
 		  
 )
 
