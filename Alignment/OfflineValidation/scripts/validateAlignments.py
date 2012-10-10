@@ -481,13 +481,15 @@ copyImages indicates wether plot*.eps files should be copied back from the farm
     def createScript(self, path):    
         repMap = self.getRepMap()    
         repMap["runComparisonScripts"] = ""
-        scriptName = replaceByMap("TkAlGeomCompare..oO[name]Oo..sh",repMap)
+        scriptName = replaceByMap( "TkAlGeomCompare.%s..oO[name]Oo..sh"%( self.name ),
+                                   repMap)
         for name in self.__compares:
             if  '"DetUnit"' in self.__compares[name][0].split(","):
                 repMap["runComparisonScripts"] += "root -b -q 'comparisonScript.C(\".oO[workdir]Oo./.oO[name]Oo..Comparison_common"+name+".root\",\".oO[workdir]Oo./\")'\n"
                 if  self.copyImages:
                    repMap["runComparisonScripts"] += "rfmkdir -p .oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images\n"
                    repMap["runComparisonScripts"] += "find .oO[workdir]Oo. -maxdepth 1 -name \"plot*.eps\" -print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images/\" \n"
+                   repMap["runComparisonScripts"] += "find .oO[workdir]Oo. -maxdepth 1 -name \"plot*.pdf\" -print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images/\" \n"
                    repMap["runComparisonScripts"] += "rfmkdir -p .oO[workdir]Oo./.oO[name]Oo.."+name+"_ArrowPlots\n"
                    repMap["runComparisonScripts"] += "root -b -q 'makeArrowPlots.C(\".oO[workdir]Oo./.oO[name]Oo..Comparison_common"+name+".root\",\".oO[workdir]Oo./.oO[name]Oo.."+name+"_ArrowPlots\")'\n"
                    repMap["runComparisonScripts"] += "rfmkdir -p .oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images/ArrowPlots\n"
@@ -915,6 +917,9 @@ class ZMuMuValidation(GenericValidation):
                 })
         return repMap
 
+# Needed for more than one geometry comparison for one alignment
+alignRandDict = {}
+
 class ValidationJob:
     def __init__( self, validation, config, options ):
         if validation[1] == "":
@@ -968,9 +973,19 @@ class ValidationJob:
                 secondAlign = secondAlignName
             else:
                 secondAlign = Alignment( secondAlignName, config, secondRun )
+            # check if alignment was already compared previously
+            try:
+                randomWorkdirPart = alignRandDict[firstAlignName]
+            except KeyError:
+                randomWorkdirPart = None
+                
             validation = GeometryComparison( name, firstAlign, secondAlign,
                                              config,
-                                             self.__commandLineOptions.getImages )
+                                             self.__commandLineOptions.getImages,
+                                             randomWorkdirPart )
+            alignRandDict[firstAlignName] = validation.randomWorkdirPart
+            if not secondAlignName == "IDEAL":
+                alignRandDict[secondAlignName] = validation.randomWorkdirPart
         elif valType == "offline":
             # validation = OfflineValidation( name, alignments, config, options )
             validation = OfflineValidation( name, 
