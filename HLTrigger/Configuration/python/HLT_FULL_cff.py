@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_6/HLT/V68 (CMSSW_5_2_7_HLT1)
+# /dev/CMSSW_5_2_6/HLT/V69 (CMSSW_5_2_7_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/HLT/V68')
+  tableName = cms.string('/dev/CMSSW_5_2_6/HLT/V69')
 )
 
 streams = cms.PSet( 
@@ -25106,13 +25106,16 @@ hltTowerMakerForHcal = cms.EDProducer( "CaloTowersCreator",
 )
 hltHcalTowerFilter = cms.EDFilter( "HLTHcalTowerFilter",
     saveTags = cms.bool( False ),
+    MinN_HFM = cms.int32( -1 ),
     MinE_HB = cms.double( 1.5 ),
     MaxN_HB = cms.int32( 2 ),
     inputTag = cms.InputTag( "hltTowerMakerForHcal" ),
     MaxN_HE = cms.int32( 2 ),
     MinE_HE = cms.double( 2.5 ),
     MinE_HF = cms.double( 9.0 ),
-    MaxN_HF = cms.int32( 8 )
+    MinN_HF = cms.int32( -1 ),
+    MaxN_HF = cms.int32( 8 ),
+    MinN_HFP = cms.int32( -1 )
 )
 hltL1sL1SingleEG5 = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
