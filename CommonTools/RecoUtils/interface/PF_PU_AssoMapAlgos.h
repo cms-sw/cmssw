@@ -69,7 +69,6 @@ class PF_PU_AssoMapAlgos{
   // private methods for internal usage
   
    //function to find the vertex with the highest TrackWeight for a certain track
-<<<<<<< PF_PU_AssoMapAlgos.h
    static VertexTrackQuality TrackWeightAssociation(const reco::TrackRef&, edm::Handle<reco::VertexCollection>);
 
    //function to calculate the deltaR between a vector and a vector connecting two points
@@ -77,12 +76,6 @@ class PF_PU_AssoMapAlgos{
  
    //function to associate the track to the closest vertex in z/longitudinal distance      
    static VertexTrackQuality AssociateClosestZ(reco::TrackRef, edm::Handle<reco::VertexCollection>, double tWeight = 0.);
-=======
-   static VertexTrackQuality TrackWeightAssociation(const reco::TrackRef&, edm::Handle<reco::VertexCollection>);
- 
-   //function to associate the track to the closest vertex in z/longitudinal distance      
-   static VertexTrackQuality AssociateClosestZ(reco::TrackRef, edm::Handle<reco::VertexCollection>, double tWeight = 0.);
->>>>>>> 1.4
 
    //function to find the closest vertex in 3D for a certain track
    static reco::VertexRef FindClosest3D(reco::TransientTrack, edm::Handle<reco::VertexCollection>, double tWeight = 0.);
@@ -128,7 +121,6 @@ class PF_PU_AssoMapAlgos{
                                           edm::ESHandle<MagneticField>, const edm::EventSetup&, 
  	 	                          edm::Handle<reco::BeamSpot>, edm::Handle<reco::VertexCollection>, double);
    
-<<<<<<< PF_PU_AssoMapAlgos.h
    //function to check if a secondary track is compatible with the BeamSpot
    static bool CheckBeamSpotCompability(reco::TransientTrack, double);
 
@@ -147,26 +139,6 @@ class PF_PU_AssoMapAlgos{
 
    bool input_doReassociation_;
    bool cleanedColls_;
-=======
-   //function to check if a secondary track is compatible with the BeamSpot
-   static bool CheckBeamSpotCompability(const math::XYZPoint, edm::Handle<reco::BeamSpot>, double);
-
-
-  // ----------member data ---------------------------
-
-   edm::InputTag input_VertexCollection_;
-   edm::Handle<reco::VertexCollection> vtxcollH;
-
-   double input_PtCut_;
-
-   edm::InputTag input_BeamSpot_;
-   edm::Handle<reco::BeamSpot> beamspotH;
-
-   edm::ESHandle<MagneticField> bFieldH;
-
-   bool input_doReassociation_;
-   bool cleanedColls_;
->>>>>>> 1.4
 
    edm::InputTag ConversionsCollection_;
    edm::Handle<reco::ConversionCollection> convCollH;
