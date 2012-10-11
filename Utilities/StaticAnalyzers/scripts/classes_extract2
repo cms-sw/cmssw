@@ -1,0 +1,17 @@
+#!/bin/bash
+eval `scram runtime -sh`
+
+	classes=`cmsglimpse TYPELOOKUP_DATA_REG | awk 'BEGIN{FS="TYPELOOKUP_DATA_REG\\\(|\\\)";OFS="\n";} {print $2}'| awk 'BEGIN{FS="::";OFS="\n";} {print $1, $2, $3, $4 , $5 , $6 , $7 , $8 , $9}' | awk 'BEGIN{FS="<|>";OFS="\n";} {print $1, $2, $3, $4, $5 ,$6, $7, $8, $9}' | tr " " "\n" | sort -u | grep ^[A-Z]`
+	echo $classes | tr " " "\n" >/tmp/classes2.txt
+	paths=`cmsglimpse -G TYPELOOKUP_DATA_REG  | awk 'BEGIN{FS="\"|<|>";OFS="\n";} /^#include/ {print $2}'| tr " " "\n"| sort -u`
+	echo $paths | tr " " "\n"  >/tmp/paths2.txt
+	pathtmp=""
+	for class in $classes;do
+		tmps=`cmsglimpse -F '.h$' -y -l -w -i $class `
+		for tmp in $tmps;do 
+			(grep -q $tmp /tmp/paths2.txt) && pathtmp=$tmp" "$pathtmp
+		done
+	done
+	echo  -e $pathtmp | tr " " "\n" | sort -u >/tmp/headers2.txt
+
+	
