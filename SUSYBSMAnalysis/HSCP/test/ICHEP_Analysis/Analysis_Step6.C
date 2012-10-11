@@ -103,7 +103,7 @@ double RescaleFactor = 1.0;
 double RescaleError  = 0.1;
 
 //final Plot y-axis range
-double PlotMinScale = 0.0005;
+double PlotMinScale = 0.0001;
 double PlotMaxScale = 3;
 
 void Optimize(string InputPattern, string Data, string signal, bool shape, bool cutFromFile);
@@ -1126,7 +1126,7 @@ void makeDataCard(string outpath, string rootPath, string ChannelName, string Si
    fprintf(pFile, "bin      %s %s\n",ChannelName.c_str(), ChannelName.c_str());
    fprintf(pFile, "process  %s pred\n",SignalName.c_str());
    fprintf(pFile, "process  0 1\n");
-   fprintf(pFile, "rate    %f %f\n",Sign,Pred);
+   fprintf(pFile, "rate    %f %f\n",Sign,std::max(1E-4, Pred) );  //if Pred<1E-4 we have troubles when merging datacards
    fprintf(pFile, "-------------------------------\n");
    fprintf(pFile, "%35s    %6s 1.022     1.0  \n","Lumi" , "lnN");
    fprintf(pFile, "%35s    %6s -         %5.3f\n",(ChannelName+"systP").c_str(), "lnN", PredRelErr);
