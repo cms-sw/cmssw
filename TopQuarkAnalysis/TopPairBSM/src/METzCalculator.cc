@@ -1,5 +1,5 @@
 
-#include "TopQuarkAnalysis/TopPairBSM/interface/METzCalculator.h"
+#include "METzCalculator.h"
 #include "TMath.h"
 
 /// constructor
