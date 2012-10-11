@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-pfIsolatedMuons  = cms.EDFilter(
+pfIsolatedMuonsClones  = cms.EDFilter(
     "IsolatedPFCandidateSelector",
     src = cms.InputTag("pfSelectedMuons"),
     isolationValueMapsCharged = cms.VInputTag(
@@ -27,4 +27,8 @@ pfIsolatedMuons  = cms.EDFilter(
     # default value for combined relative with DR={0.4,0.4,0.4}
     # and weight={1.,1.,1.}; optimised for Z->mu,mu
     isolationCut = cms.double(0.15) 
+    )
+
+pfIsolatedMuons = cms.EDProducer("PFCandidateFwdPtrProducer",
+                                 src = cms.InputTag("pfIsolatedMuonsClones")
     )

@@ -24,8 +24,6 @@ pfPileUp.PFCandidates = 'particleFlowPtrs'
 pfNoPileUp.bottomCollection = 'particleFlowPtrs'
 pfPileUpIso.PFCandidates = 'particleFlowPtrs' 
 pfNoPileUpIso.bottomCollection='particleFlowPtrs'
-pfPileUpJME.PFCandidates = 'particleFlowPtrs' 
-pfNoPileUpJME.bottomCollection='particleFlowPtrs'
 
 PFBRECO = cms.Sequence(
     pfNoPileUpSequence +
@@ -34,7 +32,8 @@ PFBRECO = cms.Sequence(
     pfMuonSequence + 
     pfNoMuon +
     pfElectronSequence +
-    pfNoElectron + 
+    pfNoElectron +
+    pfNoElectronClones+
     pfJetSequence +
     pfNoJet + 
     pfTauSequence +

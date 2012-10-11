@@ -3,8 +3,11 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "CommonTools/UtilAlgos/interface/PdgIdSelector.h"
+#include "CommonTools/ParticleFlow/interface/PFCandidateWithSrcPtrFactory.h"
 
-
-typedef edm::FwdPtrCollectionFilter< reco::PFCandidate, reco::StringCutObjectSelectorHandler<reco::PFCandidate,false> >  PFCandidateFwdPtrCollectionStringFilter;
-typedef edm::FwdPtrCollectionFilter< reco::PFCandidate, reco::PdgIdSelectorHandler >  PFCandidateFwdPtrCollectionPdgIdFilter;
+typedef edm::FwdPtrCollectionFilter< reco::PFCandidate, 
+                                     reco::StringCutObjectSelectorHandler<reco::PFCandidate,false>, 
+                                     reco::PFCandidateWithSrcPtrFactory >  PFCandidateFwdPtrCollectionStringFilter;
+typedef edm::FwdPtrCollectionFilter< reco::PFCandidate, reco::PdgIdSelectorHandler, 
+                                     reco::PFCandidateWithSrcPtrFactory >  PFCandidateFwdPtrCollectionPdgIdFilter;
 

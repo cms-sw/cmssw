@@ -7,4 +7,11 @@ pfAllElectrons = cms.EDFilter("PFCandidateFwdPtrCollectionPdgIdFilter",
 )
 
 
+pfAllElectronsClones = cms.EDProducer("PFCandidateProductFromFwdPtrProducer",
+                                  src = cms.InputTag("pfAllElectrons")
+                                  )
+
+
+
+
 

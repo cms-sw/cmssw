@@ -23,6 +23,8 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/OverlapChecker.h"  
 
+#include "DataFormats/Math/interface/deltaR.h"
+
 /**\class TopProjector 
 \brief 
 
@@ -33,7 +35,78 @@
 #include <iostream>
 
 
-template< class Top, class Bottom>
+/// This checks a slew of possible overlaps for FwdPtr<Candidate> and derivatives. 
+template < class Top, class Bottom>
+  class TopProjectorFwdPtrOverlap : public std::binary_function<edm::FwdPtr<Top>, edm::FwdPtr<Bottom>, bool > { 
+
+  public:
+    typedef edm::FwdPtr<Top> TopFwdPtr;
+    typedef edm::FwdPtr<Bottom> BottomFwdPtr;
+
+    explicit TopProjectorFwdPtrOverlap() {}
+    explicit TopProjectorFwdPtrOverlap(edm::ParameterSet const & ) {}
+
+    bool operator() ( TopFwdPtr const & top, BottomFwdPtr const & bottom ) const{
+      bool matched = 
+	(top.ptr().refCore() == bottom.ptr().refCore() && top.ptr().key() == bottom.ptr().key()) ||
+	(top.ptr().refCore() == bottom.backPtr().refCore() && top.ptr().key() == bottom.backPtr().key()) ||
+	(top.backPtr().refCore() == bottom.ptr().refCore() && top.backPtr().key() == bottom.ptr().key()) ||
+	(top.backPtr().refCore() == bottom.backPtr().refCore() && top.backPtr().key() == bottom.backPtr().key())
+	;
+      if ( !matched ) {
+	for ( unsigned isource = 0; isource < top->numberOfSourceCandidatePtrs(); ++isource ) {
+	  reco::CandidatePtr const & topSrcPtr = top->sourceCandidatePtr(isource);
+	  if ( (topSrcPtr.refCore() == bottom.ptr().refCore() && topSrcPtr.key() == bottom.ptr().key())|| 
+	       (topSrcPtr.refCore() == bottom.backPtr().refCore() && topSrcPtr.key() == bottom.backPtr().key())
+	       ) {
+	    matched = true;
+	    break;
+	  }
+	}
+      }
+      if ( !matched ) {
+	for ( unsigned isource = 0; isource < bottom->numberOfSourceCandidatePtrs(); ++isource ) {
+	  reco::CandidatePtr const & bottomSrcPtr = bottom->sourceCandidatePtr(isource);
+	  if ( (bottomSrcPtr.refCore() == top.ptr().refCore() && bottomSrcPtr.key() == top.ptr().key() )|| 
+	       (bottomSrcPtr.refCore() == top.backPtr().refCore() && bottomSrcPtr.key() == top.backPtr().key() )
+	       ) {
+	    matched = true;
+	    break;
+	  }
+	}
+      }
+
+      return matched;
+      
+    }
+ 
+};
+
+
+/// This checks matching based on delta R
+template < class Top, class Bottom>
+  class TopProjectorDeltaROverlap : public std::binary_function<edm::FwdPtr<Top>, edm::FwdPtr<Bottom>, bool > { 
+
+  public:
+    typedef edm::FwdPtr<Top> TopFwdPtr;
+    typedef edm::FwdPtr<Bottom> BottomFwdPtr;
+
+    explicit TopProjectorDeltaROverlap() {}
+    explicit TopProjectorDeltaROverlap(edm::ParameterSet const & config ) :
+    deltaR_( config.getParameter<double>("deltaR") )
+    {}
+
+    bool operator() ( TopFwdPtr const & top, BottomFwdPtr const & bottom ) const{
+      bool matched = reco::deltaR( top->p4(), bottom->p4() ) < deltaR_;
+      return matched;
+    }
+
+ protected :
+    double deltaR_;
+ 
+};
+
+template< class Top, class Bottom, class Matcher = TopProjectorFwdPtrOverlap<Top,Bottom> >
 class TopProjector : public edm::EDProducer {
 
  public:
@@ -62,8 +135,7 @@ class TopProjector : public edm::EDProducer {
 
  private:
 
-  /// This checks a slew of possible overlaps for FwdPtr<Candidate> and derivatives. 
-  bool match( TopFwdPtr const & top, BottomFwdPtr const & bottom ) const;
+  Matcher         match_;
 
   /// enable? if not, all candidates in the bottom collection are copied to the output collection
   bool            enable_;
@@ -84,8 +156,9 @@ class TopProjector : public edm::EDProducer {
 
 
 
-template< class Top, class Bottom>
-TopProjector< Top, Bottom >::TopProjector(const edm::ParameterSet& iConfig) : 
+template< class Top, class Bottom, class Matcher >
+TopProjector< Top, Bottom, Matcher>::TopProjector(const edm::ParameterSet& iConfig) : 
+  match_(iConfig),
   enable_(iConfig.getParameter<bool>("enable")) {
 
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose",false);
@@ -99,8 +172,8 @@ TopProjector< Top, Bottom >::TopProjector(const edm::ParameterSet& iConfig) :
 }
 
 
-template< class Top, class Bottom >
-void TopProjector< Top, Bottom >::produce(edm::Event& iEvent,
+template< class Top, class Bottom, class Matcher >
+void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
 					  const edm::EventSetup& iSetup) {
   
   if( verbose_)
@@ -172,7 +245,7 @@ void TopProjector< Top, Bottom >::produce(edm::Event& iEvent,
       // in the "top" collection. If that is found, it's masked.
       for ( unsigned j=0; j<tops->size(); j++ ) {
 	TopFwdPtr top = (*tops)[j];
-	if ( match(top,bottom) ) {
+	if ( match_(top,bottom) ) {
 	  masked = (*bottoms)[i];
 	  break; 
 	}
@@ -196,39 +269,5 @@ void TopProjector< Top, Bottom >::produce(edm::Event& iEvent,
   iEvent.put( pBottomFwdPtrOutput ); 
 }
 
-template<class Top, class Bottom>
-bool TopProjector<Top,Bottom>::match( TopFwdPtr const & top, BottomFwdPtr const & bottom ) const
-{
-  bool matched = 
-    (top.ptr().refCore() == bottom.ptr().refCore() && top.ptr().key() == bottom.ptr().key()) ||
-    (top.ptr().refCore() == bottom.backPtr().refCore() && top.ptr().key() == bottom.backPtr().key()) ||
-    (top.backPtr().refCore() == bottom.ptr().refCore() && top.backPtr().key() == bottom.ptr().key()) ||
-    (top.backPtr().refCore() == bottom.backPtr().refCore() && top.backPtr().key() == bottom.backPtr().key())
-    ;
-  if ( !matched ) {
-    for ( unsigned isource = 0; isource < top->numberOfSourceCandidatePtrs(); ++isource ) {
-      reco::CandidatePtr const & topSrcPtr = top->sourceCandidatePtr(isource);
-      if ( (topSrcPtr.refCore() == bottom.ptr().refCore() && topSrcPtr.key() == bottom.ptr().key())|| 
-	   (topSrcPtr.refCore() == bottom.backPtr().refCore() && topSrcPtr.key() == bottom.backPtr().key())
-	   ) {
-	matched = true;
-	break;
-      }
-    }
-  }
-  if ( !matched ) {
-    for ( unsigned isource = 0; isource < bottom->numberOfSourceCandidatePtrs(); ++isource ) {
-      reco::CandidatePtr const & bottomSrcPtr = bottom->sourceCandidatePtr(isource);
-      if ( (bottomSrcPtr.refCore() == top.ptr().refCore() && bottomSrcPtr.key() == top.ptr().key() )|| 
-	   (bottomSrcPtr.refCore() == top.backPtr().refCore() && bottomSrcPtr.key() == top.backPtr().key() )
-	   ) {
-	matched = true;
-	break;
-      }
-    }
-  }
-
-  return matched;
-}
 
 #endif

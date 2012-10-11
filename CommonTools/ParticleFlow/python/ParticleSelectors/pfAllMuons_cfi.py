@@ -6,5 +6,9 @@ pfAllMuons = cms.EDFilter("PFCandidateFwdPtrCollectionPdgIdFilter",
     makeClones = cms.bool(True)
 )
 
+pfAllMuonsClones = cms.EDProducer("PFCandidateProductFromFwdPtrProducer",
+                                  src = cms.InputTag("pfAllMuons")
+                                  )
+
 
 

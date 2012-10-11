@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 from RecoTauTag.TauTagTools.PFTauSelector_cfi  import pfTauSelector
 
-from CommonTools.ParticleFlow.pfJets_cff import pfJets
+#from CommonTools.ParticleFlow.pfJets_cff import pfJets
+from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
 
 ''' 
 
@@ -59,12 +60,13 @@ from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import *
 pfJetTracksAssociatorAtVertex = cms.EDProducer(
     "JetTracksAssociatorAtVertex",
     j2tParametersVX,
-    jets = cms.InputTag("pfJets")
+    #jets = cms.InputTag("pfJets")
+    jets = cms.InputTag("ak5PFJets")
     )
 pfTausProducerSansRefs.jetSrc = pfJetTracksAssociatorAtVertex.jets
 pfTausProducer.jetSrc = pfTausProducerSansRefs.jetSrc
 # is it correct collection w/o good leptons
-pfTausProducerSansRefs.builders[0].pfCandSrc = pfJets.src
+pfTausProducerSansRefs.builders[0].pfCandSrc = ak5PFJets.src
 pfTausProducer.builders[0].pfCandSrc = pfTausProducerSansRefs.builders[0].pfCandSrc
 
 pfTauPileUpVertices = cms.EDFilter(
@@ -85,7 +87,7 @@ pfJetsLegacyHPSPiZeros.jetSrc = pfJetTracksAssociatorAtVertex.jets
 
 pfTauPFJets08Region = recoTauAK5PFJets08Region.clone()
 pfTauPFJets08Region.src = pfJetTracksAssociatorAtVertex.jets
-pfTauPFJets08Region.pfSrc = pfJets.src
+pfTauPFJets08Region.pfSrc = ak5PFJets.src
 pfJetsPiZeros.jetRegionSrc = 'pfTauPFJets08Region'
 pfJetsLegacyTaNCPiZeros.jetRegionSrc = 'pfTauPFJets08Region'
 pfJetsLegacyHPSPiZeros.jetRegionSrc = 'pfTauPFJets08Region'
@@ -95,7 +97,7 @@ pfTausProducer.piZeroSrc = pfTausProducerSansRefs.piZeroSrc
 pfTausProducer.jetRegionSrc = pfTausProducerSansRefs.jetRegionSrc
 
 pfTauTagInfoProducer = pfRecoTauTagInfoProducer.clone()
-pfTauTagInfoProducer.PFCandidateProducer = pfJets.src
+pfTauTagInfoProducer.PFCandidateProducer = ak5PFJets.src
 pfTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVertex'
 
 pfTausProducerSansRefs.modifiers[1] = cms.PSet(
@@ -123,10 +125,16 @@ pfTaus.discriminators = cms.VPSet(
     cms.PSet( discriminator=cms.InputTag("pfTausDiscriminationByIsolation"),selectionCut=cms.double(0.5) )
     )
 
+
+pfTausPtrs = cms.EDProducer("PFTauFwdPtrProducer",
+                            src=cms.InputTag("pfTaus")
+                            )
+
 pfTauSequence = cms.Sequence(
     pfTausPreSequence +
     pfTausBaseSequence + 
-    pfTaus 
+    pfTaus +
+    pfTausPtrs 
     )
 
 
