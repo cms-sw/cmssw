@@ -46,27 +46,32 @@ namespace evf{
   void ShmOutputModuleRegistry::clear()
   {
      clm_.clear();
+     shmOutputsWithDatasets_.clear();
+     listOfDatasets_.clear();
   }
 
-  std::string ShmOutputModuleRegistry::getDatasetNamesString()
+  void ShmOutputModuleRegistry::updateDatasetInfo()
   {
     shmOutputsWithDatasets_.clear();
-    std::vector<std::string> listOfDatasets;
+    listOfDatasets_.clear();
     std::vector<edm::FUShmOutputModule *> outputs = getShmOutputModules();
     for (unsigned int i=0;i<outputs.size();i++) {
       edm::FUShmOutputModule * output = outputs[i];
       if (output->getStreamId().size()) {
 	std::vector<std::string> datasets  = output->getDatasetNames();
-	listOfDatasets.insert(listOfDatasets.end(),datasets.begin(),datasets.end());
+	listOfDatasets_.insert(listOfDatasets_.end(),datasets.begin(),datasets.end());
 	if (datasets.size())
 	  shmOutputsWithDatasets_.push_back(output);
       }
     }
+  }
+  std::string ShmOutputModuleRegistry::getDatasetCSV()
+  {
     std::string datasetNameString;
-    for (unsigned int i=0;i<listOfDatasets.size();i++) {
+    for (unsigned int i=0;i<listOfDatasets_.size();i++) {
       if (i)
         datasetNameString+=",";
-      datasetNameString+=listOfDatasets[i];
+      datasetNameString+=listOfDatasets_[i];
     }
     return datasetNameString;
   }
@@ -82,4 +87,5 @@ namespace evf{
       it++;
     }
   }
+
 } //end namespace evf

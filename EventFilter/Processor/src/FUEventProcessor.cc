@@ -426,21 +426,31 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 			       iDieUrl_.value_);
 	if(ratestat_) {delete ratestat_; ratestat_=0;}
 	ratestat_ = new RateStat(iDieUrl_.value_);
-	if(iDieStatisticsGathering_.value_){
-	  try{
+	if(iDieStatisticsGathering_.value_)
+	{
+	  try
+	  {
 	    cpustat_->sendLegenda(evtProcessor_.getmicromap());
 	    xdata::Serializable *legenda = scalersLegendaInfoSpace_->find("scalersLegenda");
-	    if(legenda !=0){
+	    if(legenda !=0)
+	    {
 	      std::string slegenda = ((xdata::String*)legenda)->value_;
 	      ratestat_->sendLegenda(slegenda);
 	    }
-	    if (sorRef_) {
-	      xdata::String dsLegenda =  sorRef_->getDatasetNamesString();
-	      ratestat_->sendAuxLegenda(dsLegenda);
+	    if (sorRef_ && datasetCounting_.value_)
+	    {
+	      xdata::String dsLegenda =  sorRef_->getDatasetCSV();
+	      if (dsLegenda.value_.size())
+	        ratestat_->sendAuxLegenda(dsLegenda);
 	    }
 	  }
-	  catch(evf::Exception &e){
+	  catch(evf::Exception &e)
+	  {
 	    LOG4CPLUS_INFO(getApplicationLogger(),"coud not send legenda"
+		<< e.what());
+	  }
+	  catch (xcept::Exception& e) {
+	    LOG4CPLUS_ERROR(getApplicationLogger(),"Failed to get or send legenda."
 		<< e.what());
 	  }
 	}
@@ -526,29 +536,32 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 			   iDieUrl_.value_);
     if(ratestat_) {delete ratestat_; ratestat_=0;}
     ratestat_ = new RateStat(iDieUrl_.value_);
-    if(iDieStatisticsGathering_.value_){
+    if(iDieStatisticsGathering_.value_)
+    {
       try
-	{
+      {
 	cpustat_->sendLegenda(evtProcessor_.getmicromap());
 	xdata::Serializable *legenda = scalersLegendaInfoSpace_->find("scalersLegenda");
 	if(legenda !=0)
-	  {
-	    std::string slegenda = ((xdata::String*)legenda)->value_;
-	    ratestat_->sendLegenda(slegenda);
-	  }
-	  if (sorRef_) {
-	    xdata::String dsLegenda =  sorRef_->getDatasetNamesString();
-	    ratestat_->sendAuxLegenda(dsLegenda);
-	  }
-	}
-      catch(evf::Exception &e)
 	{
-	  LOG4CPLUS_INFO(getApplicationLogger(),"could not send legenda"
-			 << e.what());
+	  std::string slegenda = ((xdata::String*)legenda)->value_;
+	  ratestat_->sendLegenda(slegenda);
 	}
+	if (sorRef_ && datasetCounting_.value_)
+	{
+	  xdata::String dsLegenda =  sorRef_->getDatasetCSV();
+	  if (dsLegenda.value_.size())
+	    ratestat_->sendAuxLegenda(dsLegenda);
+	}
+      }
+      catch(evf::Exception &e)
+      {
+	LOG4CPLUS_INFO(getApplicationLogger(),"could not send legenda"
+	    << e.what());
+      }
       catch (xcept::Exception& e) {
 	LOG4CPLUS_ERROR(getApplicationLogger(),"Failed to get or send legenda."
-			<< e.what());
+	    << e.what());
       }
     }
     epInitialized_ = true;
@@ -2658,7 +2671,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.158 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.159 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

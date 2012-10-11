@@ -94,6 +94,7 @@ iDie::iDie(xdaq::ApplicationStub *s)
   , topLevelFolder_("DAQ")
   , savedForLs_(0)
   , reportingStart_(0)
+  , dsMismatch(0)
 {
   // initialize application info
   url_     =
@@ -252,8 +253,9 @@ xoap::MessageReference iDie::fsmCallback(xoap::MessageReference msg)
     std::string state;
     if(commandName == "Configure") {dqmState_ = "Ready"; state = "Ready";}
     else if(commandName == "Enable") {dqmState_ = "Enabled"; state = "Enabled";}
-    else if(commandName == "Stop") {
+    else if(commandName == "Stop" || commandName == "Halt") {
       //remove histograms
+      std::cout << " Stopping/Halting iDie. command=" << commandName << " initialized=" << meInitialized_ << std::endl;
       if (meInitialized_) {
         dqmState_ = "Removed";
         usleep(10000);//propagating dqmState to caches
@@ -268,13 +270,15 @@ xoap::MessageReference iDie::fsmCallback(xoap::MessageReference msg)
         dqmStore_->removeContents();
         dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Datasets/");
         dqmStore_->removeContents();
+        dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
+        dqmStore_->removeContents();
         doFlush(); 
       }
       if (reportingStart_) delete reportingStart_;
       reportingStart_=0;
       state = "Ready";
     }
-    else if(commandName == "Halt") state = "Halted";
+    //else if(commandName == "Halt") state = "Halted";
     else state = "BOH";
 
     xoap::SOAPName    stateName     = envelope.createName("state",
@@ -756,9 +760,16 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
     if (currentLs_[nbsIdx]<lsid) {//new lumisection for this ep class
       if (currentLs_[nbsIdx]!=0) {
         if (lsHistory[nbsIdx].size()) {
-	  //push update for last lumi
-	  lsStat * lst = lsHistory[nbsIdx].back();
+	  
+	  //refresh run/lumi number and timestamp
+          runId_->Fill(runNumber_.value_);
+	  lumisecId_->Fill(currentLs_[nbsIdx]);
+	  struct timeval now;
+	  gettimeofday(&now, 0);
+	  eventTimeStamp_->Fill(  now.tv_sec + 1e-6*now.tv_usec );
 
+	  //do histogram updates for the lumi
+	  lsStat * lst = lsHistory[nbsIdx].back();
 	  fillDQMStatHist(nbsIdx,currentLs_[nbsIdx]);
 	  fillDQMModFractionHist(nbsIdx,currentLs_[nbsIdx],lst->getNSampledNonIdle(),
 	      lst->getOffendersVector());
@@ -861,16 +872,20 @@ void iDie::parsePathLegenda(std::string leg)
 void iDie::parseDatasetLegenda(std::string leg)
 {
   nDatasetLegendaMessageReceived_++;
+  datasetNames_.clear();
+  dsMismatch=0;
   if(leg=="")return;
   gettimeofday(&lastDatasetLegendaMessageTimeStamp_,0);
   nDatasetLegendaMessageWithDataReceived_++;
-  boost::char_separator<char> sep(",");
-  boost::tokenizer<boost::char_separator<char> > tokens(leg, sep);
-  datasetNames_.clear();
-  for (boost::tokenizer<boost::char_separator<char> >::iterator tok_iter = tokens.begin();
-       tok_iter != tokens.end(); ++tok_iter){
+  try {
+    boost::char_separator<char> sep(",");
+    boost::tokenizer<boost::char_separator<char> > tokens(leg, sep);
+    for (boost::tokenizer<boost::char_separator<char> >::iterator tok_iter = tokens.begin();
+	tok_iter != tokens.end(); ++tok_iter) {
       datasetNames_.push_back((*tok_iter));
+    }
   }
+  catch (...) {}
 }
 
 void iDie::parsePathHisto(const unsigned char *crp, unsigned int lsid)
@@ -919,6 +934,17 @@ void iDie::parsePathHisto(const unsigned char *crp, unsigned int lsid)
       }
     }
 
+  //mismatch in expected and reported dataset number
+  if (trppriv_->datasetsInMenu!=(int)datasetNames_.size())
+  {
+    dsMismatch++;
+    if  (!(dsMismatch%100) || dsMismatch<10) {
+      LOG4CPLUS_WARN(getApplicationLogger(),"mismatch in number of datasets! " 
+	  << trppriv_->datasetsInMenu << " in report, " << datasetNames_.size() 
+	  << " from legend! received legends:"<< nDatasetLegendaMessageWithDataReceived_);
+    }
+  }
+
   for( int i=0; i< trppriv_->datasetsInMenu; i++)
   {
     if (cst) {
@@ -930,6 +956,7 @@ void iDie::parsePathHisto(const unsigned char *crp, unsigned int lsid)
   r_.nproc = trppriv_->eventSummary.totalEvents;
   r_.nsub = trppriv_->nbExpected;
   r_.nrep = trppriv_->nbReporting;
+
 
   if(t_!=0 && f_!=0 && b2_==0){
 
@@ -1031,6 +1058,8 @@ void iDie::spotlight(xgi::Input *in,xgi::Output *out)
        << nModuleLegendaMessageWithDataReceived_ << "</td></tr>"      << std::endl;
   *out << "<tr><td>path legenda messages with data</td><td>" 
        << nPathLegendaMessageWithDataReceived_ << "</td></tr>"        << std::endl;
+  *out << "<tr><td>dataset legenda messages with data</td><td>" 
+       << nDatasetLegendaMessageWithDataReceived_ << "</td></tr>"        << std::endl;
   *out << "<tr><td>module histo messages received</td><td>" 
        << nModuleHistoMessageReceived_<< "</td></tr>"        << std::endl;
   *out << "<tr><td>path histo messages received</td><td>" 
@@ -1151,20 +1180,29 @@ void iDie::initMonitorElements()
   savedForLs_=0;
   summaryLastLs_ = 0;
   pastSavedFiles_.clear();
- 
+  
+  dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
+  runId_     = dqmStore_->bookInt("iRun");
+  runId_->Fill(-1);
+  lumisecId_ = dqmStore_->bookInt("iLumiSection");
+  lumisecId_->Fill(-1);
+  eventId_ = dqmStore_->bookInt("iEvent");
+  eventId_->Fill(-1);
+  eventTimeStamp_ = dqmStore_->bookFloat("eventTimeStamp");
+
   dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/");
   for (unsigned int i=0;i<nbSubsClasses;i++) {
     std::ostringstream str;
     str << nbSubsListInv[i];
     meVecRate_.push_back(dqmStore_->book1D("EVENT_RATE_"+TString(str.str().c_str()),
-		         "Average event rate for nodes with " + TString(str.str().c_str()) + " EP instances",
-		         4000,1.,4001));
+	  "Average event rate for nodes with " + TString(str.str().c_str()) + " EP instances",
+	  4000,1.,4001));
     meVecTime_.push_back(dqmStore_->book1D("EVENT_TIME_"+TString(str.str().c_str()),
-		         "Average event processing time for nodes with " + TString(str.str().c_str()) + " EP instances",
-		         4000,1.,4001));
+	  "Average event processing time for nodes with " + TString(str.str().c_str()) + " EP instances",
+	  4000,1.,4001));
     meVecOffenders_.push_back(dqmStore_->book2D("MODULE_FRACTION_"+TString(str.str().c_str()),
-			                        "Module processing time fraction_"+ TString(str.str().c_str()),
-		                                ROLL,1.,1.+ROLL,MODNAMES,0,MODNAMES));
+	  "Module processing time fraction_"+ TString(str.str().c_str()),
+	  ROLL,1.,1.+ROLL,MODNAMES,0,MODNAMES));
     //fill 1 in underrflow bin
     meVecOffenders_[i]->Fill(0,1);
     occupancyNameMap[i].clear();
@@ -1175,14 +1213,13 @@ void iDie::initMonitorElements()
   busySummary_ = dqmStore_->book2D("02_BUSY_SUMMARY","Busy fraction ",ROLL,0,ROLL,epInstances.size()+2,0,epInstances.size()+2);
   busySummary2_ = dqmStore_->book2D("03_BUSY_SUMMARY_PROCSTAT","Busy fraction from /proc/stat",ROLL,0,ROLL,epInstances.size()+2,0,epInstances.size()+2);
   busySummaryUncorr1_ = dqmStore_->book2D("04_BUSY_SUMMARY_UNCORR","Busy fraction (uncorrected)",
-		        ROLL,0,ROLL,epInstances.size()+2,0,epInstances.size()+2);
+      ROLL,0,ROLL,epInstances.size()+2,0,epInstances.size()+2);
   busySummaryUncorr2_ = dqmStore_->book2D("05_BUSY_SUMMARY_UNCORR_PROCSTAT","Busy fraction from /proc/stat(uncorrected)",
-		        ROLL,0,ROLL,epInstances.size()+2,0,epInstances.size()+2);
+      ROLL,0,ROLL,epInstances.size()+2,0,epInstances.size()+2);
   fuReportsSummary_ = dqmStore_->book2D("06_EP_REPORTS_SUMMARY","Number of reports received",ROLL,0,ROLL,epInstances.size()+1,0,epInstances.size()+1);
 
   //busyModules_  = dqmStore_->book2D("MODULES_BUSY",ROLL,1.,1.+ROLL,MODNAMES,0,MODNAMES);
   //everything goes into layouts folder
-  //dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
   std::ostringstream busySummaryTitle;
   busySummaryTitle << "DAQ HLT Farm busy (%) for run "<< runNumber_.value_;
   lastRunNumberSet_ = runNumber_.value_;

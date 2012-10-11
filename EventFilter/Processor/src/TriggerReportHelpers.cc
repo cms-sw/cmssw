@@ -320,7 +320,7 @@ void TriggerReportHelpers::printTriggerReport(edm::TriggerReport &tr)
 }
 
 void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr,
-					     ShmOutputModuleRegistry *sor)
+					     ShmOutputModuleRegistry *sor, bool countDatasets)
 {
   TriggerReportStatic *trp = (TriggerReportStatic *)cache_->mtext;
   trp->lumiSection = lumiSectionIndex_;
@@ -417,7 +417,7 @@ void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr,
     }
   //dataset statistics
   unsigned int datasetIndex = 0;
-  if (sor) {
+  if (sor && countDatasets) {
     std::vector<edm::FUShmOutputModule *> & shmOutputsWithDatasets_ = sor->getShmOutputModulesWithDatasets();
     for (unsigned int i=0;i<shmOutputsWithDatasets_.size();i++)
     {

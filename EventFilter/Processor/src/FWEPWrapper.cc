@@ -90,6 +90,7 @@ namespace evf{
     , waitingForLs_(false)
     , mwrRef_(nullptr)
     , sorRef_(nullptr)
+    , countDatasets_(false)
   {
     //list of variables for scalers flashlist
     names_.push_back("lumiSectionIndex");
@@ -194,7 +195,7 @@ namespace evf{
     hasServiceWebRegistry_ = serviceMap & 0x4;
     bool instanceZero = serviceMap & 0x8;
     hasSubProcesses = serviceMap & 0x10;
-    bool datasetCounting = (serviceMap&0x20)>0;
+    countDatasets_ = (serviceMap&0x20)>0;
     configString_ = configString;
     trh_.resetFormat(); //reset the report table even if HLT didn't change
     scalersUpdateCounter_ = 0;
@@ -320,15 +321,14 @@ namespace evf{
       LOG4CPLUS_INFO(log_,
 		     "exception when trying to get service ShmOutputModuleRegistry");
     }
-    sorRef_=sor;
-
     if(sor) sor->clear();
+    sorRef_=sor;
     //  if(swr) swr->clear(); // in case we are coming from stop we need to clear the swr
 
     //get and copy streams and datasets PSet from the framework configuration
     edm::ParameterSet streamsPSet;
     edm::ParameterSet datasetsPSet;
-    if (datasetCounting)
+    if (countDatasets_)
       try {
         streamsPSet =  pdesc->getProcessPSet()->getParameter<edm::ParameterSet>("streams");
         datasetsPSet =  pdesc->getProcessPSet()->getParameter<edm::ParameterSet>("datasets");
@@ -369,9 +369,10 @@ namespace evf{
       {
 	swr->publish(applicationInfoSpace_);
       }
-    if (sor && datasetCounting)
+    if (sor && countDatasets_)
       {
         sor->insertStreamAndDatasetInfo(streamsPSet,datasetsPSet);
+	sor->updateDatasetInfo();
       }
     // get the prescale service
     LOG4CPLUS_INFO(log_,
@@ -742,7 +743,7 @@ namespace evf{
     }
 
 
-    trh_.packTriggerReport(tr,sor);
+    trh_.packTriggerReport(tr,sor,countDatasets_);
     it->setField("triggerReport",trh_.getTableWithNames());
     //    std::cout << getpid() << " returning normally from gettriggerreport " << std::endl;
     return true;

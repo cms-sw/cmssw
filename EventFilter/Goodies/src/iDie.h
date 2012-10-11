@@ -185,6 +185,12 @@ namespace evf {
     xdata::UnsignedInteger32        runNumber_;
     unsigned int                    lastRunNumberSet_;
 
+    //run info
+    MonitorElement * runId_;
+    MonitorElement * lumisecId_;
+    MonitorElement * eventId_;
+    MonitorElement * eventTimeStamp_;
+
     xdata::String                   dqmCollectorHost_;
     xdata::String                   dqmCollectorPort_;
     fmap                            fus_;
@@ -580,6 +586,8 @@ namespace evf {
 
     timeval * reportingStart_;
     unsigned int lastSavedForTime_;
+
+    unsigned int dsMismatch;
   }; // class iDie
 
   int modlistSortFunction( const void *a, const void *b)

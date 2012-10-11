@@ -30,7 +30,8 @@ namespace evf
       void dumpRegistry();
       std::vector<edm::FUShmOutputModule *> getShmOutputModules();
 
-      std::string getDatasetNamesString();
+      void updateDatasetInfo();
+      std::string getDatasetCSV();
       std::vector<edm::FUShmOutputModule *> & getShmOutputModulesWithDatasets() {return shmOutputsWithDatasets_;}
       void insertStreamAndDatasetInfo(edm::ParameterSet & streams, edm::ParameterSet & datasets);
 
@@ -40,6 +41,7 @@ namespace evf
       void clear();
       dct clm_;
       std::vector<edm::FUShmOutputModule *> shmOutputsWithDatasets_;
+      std::vector<std::string> listOfDatasets_;
       friend class FWEPWrapper;
     };
 }
