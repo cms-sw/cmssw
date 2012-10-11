@@ -1,5 +1,5 @@
 #include "CommonTools/UtilAlgos/plugins/FwdPtrProducer.h"
-
+#include "CommonTools/ParticleFlow/interface/PFCandidateFwdPtrFactory.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -9,6 +9,6 @@
 
 
 
-typedef edm::FwdPtrProducer<reco::PFCandidate> PFCandidateFwdPtrProducer;
+typedef edm::FwdPtrProducer<reco::PFCandidate, reco::PFCandidateFwdPtrFactory> PFCandidateFwdPtrProducer;
 
 
