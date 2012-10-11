@@ -103,10 +103,10 @@ VVIObjF::VVIObjF(float kappa, float beta2, int mode) : mode_(mode) {
     x1 = h6 * x;
     VVIObjFDetails::sincosint(x1,c2,c1);
     c1 = vdt::fast_logf(x) - c1;
-    vdt::sincos::fast_sincosf(x1,c3,c4);
+    vdt::fast_sincosf(x1,c3,c4);
     xf1 = kappa * (beta2 * c1 - c4) - x * c2;
     xf2 = x * c1 + kappa * (c3 + beta2 * c2) + t0_ * x;
-    float s,c; vdt::sincos::fast_sincosf(xf2,s,c);
+    float s,c; vdt::fast_sincosf(xf2,s,c);
     if (mode_ == 0) {
       d1 = q * d * omega_ * vdt::fast_expf(xf1);
       a_[l - 1] = d1 * c;
@@ -145,7 +145,7 @@ float VVIObjF::fcn(float x) const {
 	} else if (x <= t1_) {
 	  y = x - t0_;
 	  u = omega_ * y - 3.141592653589793f;
-	  float su,cu; vdt::sincos::fast_sincosf(u,su,cu);
+	  float su,cu; vdt::fast_sincosf(u,su,cu);
 	  cof = cu * 2.f;
 	  a1 = 0.;
 	  a0 = a_[0];

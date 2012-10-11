@@ -253,7 +253,7 @@ int sicif( float xx, float & si, float & ci ){
   
   if( x > 1.0e9f )
     {
-      float su,cu; vdt::sincos::fast_sincosf(x,su,cu);
+      float su,cu; vdt::fast_sincosf(x,su,cu);
       si = PIO2F - cu/x;
       ci = su/x;
       return( 0 );
@@ -292,7 +292,7 @@ int sicif( float xx, float & si, float & ci ){
   
   
  asympt:
-  vdt::sincos::fast_sincosf(x,s,c);
+  vdt::fast_sincosf(x,s,c);
   z = 1.0f/(x*x);
   if( x < 8.0f )
     {
