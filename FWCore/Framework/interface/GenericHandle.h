@@ -87,7 +87,6 @@ public:
    prov_(prov) { 
       assert(prod_);
       assert(prov_);
-      assert(prov_->productID() != ProductID());
    }
    
       //~Handle();
