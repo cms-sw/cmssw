@@ -21,7 +21,7 @@ process.load("EgammaAnalysis.ElectronTools.calibratedPatElectrons_cfi")
 process.calibratedPatElectrons.isMC = cms.bool(True)
 process.calibratedPatElectrons.inputDataset = cms.string("Summer12_DR53X_HCP2012")
 process.calibratedPatElectrons.updateEnergyError = cms.bool(True)
-process.calibratedPatElectrons.applyCorrections = cms.int32(10)
+process.calibratedPatElectrons.applyCorrections = cms.int32(999)
 process.calibratedPatElectrons.debug = cms.bool(True)
 
 
@@ -32,7 +32,8 @@ process.maxEvents = cms.untracked.PSet(
 
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:../../../PhysicsTools/PatAlgos/test/patTuple_standard.root')
+    #fileNames = cms.untracked.vstring('file:../../../PhysicsTools/PatAlgos/test/patTuple_standard.root')
+    fileNames = cms.untracked.vstring('file:patTuple_standard.root')
     )
 
 

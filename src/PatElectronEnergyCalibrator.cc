@@ -296,13 +296,15 @@ void ElectronEnergyCalibrator::computeNewRegEnergy
     CLHEP::RandGaussQ gaussDistribution(rng->getEngine(), 1.,dsigMC);
     corrMC = gaussDistribution.fire();
     if (debug_) std::cout << "[ElectronEnergyCalibrator] unsmeared energy " << newEnergy_ << std::endl;
-    newEnergy_ = newEnergy_*corrMC;  
+    if (debug_) std::cout << "[ElectronEnergyCalibrator] smearing value " << dsigMC << std::endl;
+    if (debug_) {newEnergy_ = newEnergy_*(1+dsigMC);} else {newEnergy_ = newEnergy_*corrMC; } 
     if (debug_) std::cout << "[ElectronEnergyCalibrator] smeared energy " << newEnergy_ << std::endl;
   }  
   // correct energy error for MC and for data as error is obtained from (ideal) MC parametrisation
   if (updateEnergyError_)
    newEnergyError_ = sqrt(newEnergyError_*newEnergyError_ + dsigMC*dsigMC*newEnergy_*newEnergy_) ;
   if (debug_) std::cout << "[ElectronEnergyCalibrator] standard ecalEnergy " << electron.ecalEnergy() << " recalibrated Regression Energy " << newEnergy_ << std::endl;
+  if (debug_) std::cout << "[ElectronEnergyCalibrator] scale"<< scale << std::endl;
   if (debug_) std::cout << "[ElectronEnergyCalibrator] standard ecalEnergy error " << electron.ecalEnergyError() << " recalibrated Regression Energy error " << newEnergyError_ << std::endl;
 
 }
@@ -821,13 +823,15 @@ void ElectronEnergyCalibrator::computeNewEnergy
     CLHEP::RandGaussQ gaussDistribution(rng->getEngine(), 1.,dsigMC);
     corrMC = gaussDistribution.fire();
     if (debug_) std::cout << "[ElectronEnergyCalibrator] unsmeared energy " << scEnergy << std::endl;
-    newEnergy_ = scEnergy*corrMC;  
+    if (debug_) std::cout << "[ElectronEnergyCalibrator] smearing value " << dsigMC << std::endl;
+    if (debug_) {newEnergy_ = scEnergy*(1+dsigMC);} else {newEnergy_ = scEnergy*corrMC; } 
     if (debug_) std::cout << "[ElectronEnergyCalibrator] smeared energy " << newEnergy_ << std::endl;
   }  
   // correct energy error for MC and for data as error is obtained from (ideal) MC parametrisation
   if (updateEnergyError_)
    newEnergyError_ = sqrt(newEnergyError_*newEnergyError_ + dsigMC*dsigMC*newEnergy_*newEnergy_) ;
   if (debug_) std::cout << "[ElectronEnergyCalibrator] ecalEnergy " << electron.ecalEnergy() << " recalibrated ecalEnergy " << newEnergy_ << std::endl;
+  if (debug_) std::cout << "[ElectronEnergyCalibrator] scale"<< scale << std::endl;
   if (debug_) std::cout << "[ElectronEnergyCalibrator] ecalEnergy error " << electron.ecalEnergyError() << " recalibrated ecalEnergy error " << newEnergyError_ << std::endl;
 
  }
