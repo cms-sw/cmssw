@@ -19,11 +19,12 @@ def generateLumiRundata(filename,runsummaryData,runlist):
         result[run]=[filename,summary[1],summary[2]]
     return result
 
-def generateLumiLSdataForRun(lsdata,lumirundata):
+def generateLumiLSdataForRun(lsdata,lumirundata,beamsta):
     '''
     input:
       lsdata: [(cmslsnum,instlumi),...]
       lumirundata: [datasource,nominalegev,ncollidingbunches]
+      beamstatus {cmslsnum:beamstatus}
     output:
     i.e. bulkInsertLumiLSSummary expected input: {lumilsnum:[cmslsnum,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit]}
     '''
@@ -38,6 +39,8 @@ def generateLumiLSdataForRun(lsdata,lumirundata):
         instlumierror=0.0
         instlumiquality=0
         startorbit=(cmslsnum-1)*numorbit
+        if beamsta and beamsta.has_key(cmslsnum):
+            beamstatus=beamsta[cmslsnum]
         result[lumilsnum]=[cmslsnum,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit]
     return result
 
@@ -131,8 +134,10 @@ if __name__ == "__main__":
     print 'pixellumibranchid ',pixellumibranchid,' pixellumibranchparent ',pixellumibranchparent
     pixellumibranchinfo=(pixellumibranchid,'DATA')
     (pixel_tagid,pixel_tagname)=revisionDML.currentDataTag(session.nominalSchema(),lumitype='PIXEL')
-    (hf_tagid,hf_tagname)=revisionDML.currentDataTag(session.nominalSchema(),lumitype='HF')
+    (hf_tagid,hf_tagname)=revisionDML.currentDataTag(session.nominalSchema(),lumitype='HF')    
     hfdataidmap=revisionDML.dataIdsByTagId(session.nominalSchema(),hf_tagid,runlist,withcomment=False,lumitype='HF')
+    beamstatusdata=dataDML.beamstatusByIds(session.nominalSchema(),hfdataidmap)
+    #print 'beamstatusdata ',beamstatusdata
     lumirundata=dataDML.lumiRunByIds(session.nominalSchema(),hfdataidmap,lumitype='HF')
     #{runnum: (datasource(1),nominalegev(2),ncollidingbunches(3)}
     session.transaction().commit()
@@ -141,11 +146,15 @@ if __name__ == "__main__":
     for runnum,perrundata in parseresult.items():
         pixellumidataid=0
         session.transaction().start(False)
+        #session.transaction().start(True)
         hfdataidinfo=hfdataidmap[runnum]
         hflumidataid=hfdataidinfo[0]
         trgdataid=hfdataidinfo[1]
         hltdataid=hfdataidinfo[2]
-        alllumilsdata[runnum]=generateLumiLSdataForRun(perrundata,alllumirundata[runnum])
+        beamsta={}
+        if beamstatusdata.has_key(runnum):
+            beamsta=beamstatusdata[runnum]
+        alllumilsdata[runnum]=generateLumiLSdataForRun(perrundata,alllumirundata[runnum],beamsta)
         pixellumirundata=alllumirundata[runnum]
         (pixellumirevid,pixellumientryid,pixellumidataid)=dataDML.addLumiRunDataToBranch(session.nominalSchema(),runnum,pixellumirundata,pixellumibranchinfo,nameDealer.pixellumidataTableName())
         pixellumilsdata=alllumilsdata[runnum]
