@@ -27,7 +27,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 //#include "Geometry/CommonTopologies/RectangularPixelTopology.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 
 // STL
 #include <stack>
@@ -55,12 +54,7 @@ PixelThresholdClusterizer::PixelThresholdClusterizer
     conf_.getParameter<int>("VCaltoElectronGain");
   theOffset = 
     conf_.getParameter<int>("VCaltoElectronOffset");
-  if ( conf_.exists("AdcFullScaleStack") ) theStackADC_=conf_.getParameter<int>("AdcFullScaleStack");
-  else 
-    theStackADC_=255;
-  if ( conf_.exists("FirstStackLayer") ) theFirstStack_=conf_.getParameter<int>("FirstStackLayer");
-  else
-    theFirstStack_=5;
+  
   
   // Get the constants for the miss-calibration studies
   doMissCalibrate=conf_.getUntrackedParameter<bool>("MissCalibrate",true); 
@@ -209,9 +203,7 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
 int PixelThresholdClusterizer::calibrate(int adc, int col, int row) 
 {
   int electrons = 0;
-  int layer= 0;
-  if (DetId(detid_).subdetId()==1){ layer = PXBDetId(detid_).layer();}
-
+  
   if ( doMissCalibrate ) 
     {
       // do not perform calibration if pixel is dead!
@@ -260,17 +252,6 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
       const float gain = 135.; // 1 ADC = 135 electrons
       const float pedestal = 0.; //
       electrons = int(adc * gain + pedestal);
-      if (layer>=theFirstStack_) {
-	if (theStackADC_==1&&adc==1)
-	  {
-	    electrons = int(255*135); // Arbitrarily use overflow value.
-	  }
-	if (theStackADC_>1&&theStackADC_!=255&&adc>=1)
-	  {
-	    const float gain = 135.; // 1 ADC = 135 electrons
-	    electrons = int((adc-1) * gain * 255/float(theStackADC_-1));
-	  }
-      }
     }
   
   return electrons;
@@ -295,9 +276,8 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix,
   //The only difference between dead/noisy pixels and standard ones is that for dead/noisy pixels,
   //We consider the charge of the pixel to always be zero.
 
-  if ( doMissCalibrate &&
-       (theSiPixelGainCalibrationService_->isDead(detid_,pix.col(),pix.row()) || 
-	theSiPixelGainCalibrationService_->isNoisy(detid_,pix.col(),pix.row())) )
+  if ( theSiPixelGainCalibrationService_->isDead(detid_,pix.col(),pix.row()) || 
+       theSiPixelGainCalibrationService_->isNoisy(detid_,pix.col(),pix.row()) )
     {
       seed_adc = 0;
       theBuffer.set_adc(pix, 1);

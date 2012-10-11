@@ -16,12 +16,12 @@ public:
     virtual Vector operator()( Scalar startPar, const Vector& startState,
 			       Scalar step, const RKDerivative<T,N>& deriv,
 			       const RKDistance<T,N>& dist,
-			       float eps);
+			       Scalar eps);
 
     std::pair< Vector, T> 
     stepWithAccuracy( Scalar startPar, const Vector& startState,
 		      const RKDerivative<T,N>& deriv,
-		      const RKDistance<T,N>& dist, float step);
+		      const RKDistance<T,N>& dist, Scalar step);
 
 protected:
 

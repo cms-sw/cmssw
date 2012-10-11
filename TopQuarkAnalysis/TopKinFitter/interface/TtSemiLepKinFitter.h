@@ -9,6 +9,8 @@
 
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
+
 #include "TopQuarkAnalysis/TopKinFitter/interface/TopKinFitter.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/CovarianceMatrix.h"
 

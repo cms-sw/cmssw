@@ -1,3 +1,0 @@
-CCC_ANALYZER_VERBOSE=1
-CCC_ANALYZER_LOG=1
-scan-build -load-plugin ../../../../lib/slc6_amd64_gcc462/libUtilitiesStaticAnalyzers.so -enable-checker threadsafety make -k class_checker.o

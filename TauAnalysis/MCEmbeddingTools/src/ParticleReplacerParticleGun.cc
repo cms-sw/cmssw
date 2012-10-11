@@ -1,28 +1,24 @@
 #include "TauAnalysis/MCEmbeddingTools/interface/ParticleReplacerParticleGun.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "TauAnalysis/MCEmbeddingTools/interface/extraPythia.h"
 
-#include "DataFormats/Candidate/interface/Candidate.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "HepMC/PythiaWrapper.h"
 #include "HepMC/IO_HEPEVT.h"
 
-const double tauMass = 1.77690;
-
-ParticleReplacerParticleGun::ParticleReplacerParticleGun(const edm::ParameterSet& iConfig)
-  : ParticleReplacerBase(iConfig),
-    tauola_(iConfig.getParameter<edm::ParameterSet>("ExternalDecays").getParameter<edm::ParameterSet>("Tauola")),
-    pythia_(iConfig),
-    particleOrigin_(iConfig.getParameter<std::string>("particleOrigin")),
-    forceTauPolarization_(iConfig.getParameter<std::string>("forceTauPolarization")),
-    forceTauDecay_(iConfig.getParameter<std::string>("forceTauDecay")),
-    generatorMode_(iConfig.getParameter<std::string>("generatorMode")),
-    gunParticle_(iConfig.getParameter<int>("gunParticle")),
-    forceTauPlusHelicity_(iConfig.getParameter<int>("forceTauPlusHelicity")),
-    forceTauMinusHelicity_(iConfig.getParameter<int>("forceTauMinusHelicity"))
-{
+ParticleReplacerParticleGun::ParticleReplacerParticleGun(const edm::ParameterSet& iConfig, bool verbose):
+  ParticleReplacerBase(iConfig),
+  tauola_(iConfig.getParameter<edm::ParameterSet>("ExternalDecays").getParameter<edm::ParameterSet>("Tauola")),
+  //tauola_(gen::TauolaInterface::getInstance()),
+  pythia_(iConfig),
+  particleOrigin_(iConfig.getParameter<std::string>("particleOrigin")),
+  forceTauPolarization_(iConfig.getParameter<std::string>("forceTauPolarization")),
+  forceTauDecay_(iConfig.getParameter<std::string>("forceTauDecay")),
+  generatorMode_(iConfig.getParameter<std::string>("generatorMode")),
+  gunParticle_(iConfig.getParameter<int>("gunParticle")),
+  forceTauPlusHelicity_(iConfig.getParameter<int>("forceTauPlusHelicity")),
+  forceTauMinusHelicity_(iConfig.getParameter<int>("forceTauMinusHelicity")),
+  printout_(verbose) {
   //tauola_->setPSet(iConfig.getParameter<edm::ParameterSet>("ExternalDecays").getParameter<edm::ParameterSet>("Tauola"));
   srand(time(NULL)); // Should we use RandomNumberGenerator service?
 
@@ -48,8 +44,9 @@ ParticleReplacerParticleGun::ParticleReplacerParticleGun(const edm::ParameterSet
   throw cms::Exception("UnimplementedFeature") << "ParticleReplacerParticleGun is not usable yet." << std::endl;
 }
 
-void ParticleReplacerParticleGun::beginJob() 
-{
+ParticleReplacerParticleGun::~ParticleReplacerParticleGun() {}
+
+void ParticleReplacerParticleGun::beginJob() {
   gen::Pythia6Service::InstanceWrapper guard(&pythia_);
 
   pythia_.setGeneralParams();
@@ -61,8 +58,7 @@ void ParticleReplacerParticleGun::beginJob()
   }
 }
 
-void ParticleReplacerParticleGun::endJob() 
-{
+void ParticleReplacerParticleGun::endJob() {
   if(abs(gunParticle_) == 15) {
     /* FIXME
        call_tauola(1,1);
@@ -70,8 +66,7 @@ void ParticleReplacerParticleGun::endJob()
   }
 }
 
-std::auto_ptr<HepMC::GenEvent> ParticleReplacerParticleGun::produce(const std::vector<reco::Particle>& muons, const reco::Vertex* evtVtx, const HepMC::GenEvent* genEvt) 
-{
+std::auto_ptr<HepMC::GenEvent> ParticleReplacerParticleGun::produce(const reco::MuonCollection& muons, const reco::Vertex *pvtx, const HepMC::GenEvent *genEvt) {
   if(genEvt != 0)
     throw cms::Exception("UnimplementedFeature") << "ParticleReplacerParticleGun does NOT support merging at HepMC level" << std::endl;
 
@@ -89,7 +84,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerParticleGun::produce(const std::v
 
   // Let's not do a call_pyexec here because it's unnecessary
 
-  if(verbosity_) {
+  if(printout_) {
     std::cout << " /////////////////////  After py1ent, before pyhepc /////////////////////" << std::endl;
     call_pylist(3);
   }
@@ -97,7 +92,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerParticleGun::produce(const std::v
   // Vertex shift
   call_pyhepc(1); // pythia -> hepevt
 
-  if(verbosity_) {
+  if(printout_) {
     std::cout << " /////////////////////  After pyhepc, before vertex shift /////////////////////" << std::endl;
     HepMC::HEPEVT_Wrapper::print_hepevt();
   }
@@ -105,12 +100,12 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerParticleGun::produce(const std::v
   int nparticles = HepMC::HEPEVT_Wrapper::number_entries();
   HepMC::ThreeVector shift(0,0,0); 
   if(particleOrigin_ == "primaryVertex") {
-    if(!evtVtx)
+    if(!pvtx)
       throw cms::Exception("LogicError") << "Particle origin set to primaryVertex, but pvtx is null!" << std::endl;
 
-    shift.setX(evtVtx->x()*10); // cm -> mm
-    shift.setY(evtVtx->y()*10); // cm -> mm
-    shift.setZ(evtVtx->z()*10); // cm -> mm
+    shift.setX(pvtx->x()*10); // cm -> mm
+    shift.setY(pvtx->y()*10); // cm -> mm
+    shift.setZ(pvtx->z()*10); // cm -> mm
   }
   for(int i=1; i <= nparticles; ++i) {
     if(abs(HepMC::HEPEVT_Wrapper::id(i)) != abs(gunParticle_)) {
@@ -120,7 +115,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerParticleGun::produce(const std::v
     }
 
     if(particleOrigin_ == "muonReferencePoint") {
-      const reco::Particle& muon = muons[i-1];
+      const reco::Muon& muon = muons[i-1];
       shift.setX(muon.vx()*10); // cm -> mm
       shift.setY(muon.vy()*10); // cm -> mm
       shift.setZ(muon.vz()*10); // cm -> mm
@@ -133,7 +128,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerParticleGun::produce(const std::v
                                         HepMC::HEPEVT_Wrapper::t(i));
   }
 
-  if(verbosity_) {
+  if(printout_) {
     std::cout << " /////////////////////  After vertex shift, before pyhepc/tauola /////////////////////" << std::endl;
     HepMC::HEPEVT_Wrapper::print_hepevt();
   }
@@ -151,12 +146,12 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerParticleGun::produce(const std::v
       tauola_forParticleGun(i+1, gunParticle_*muons[i].charge(), muons_corrected[i]);
     }
 
-    if(verbosity_) {
+    if(printout_) {
       std::cout << " /////////////////////  After tauola, before pyhepc  /////////////////////" << std::endl;
       HepMC::HEPEVT_Wrapper::print_hepevt();
     }
     call_pyhepc(2); // hepevt->pythia
-    if(verbosity_) {
+    if(printout_) {
       std::cout << " /////////////////////  After pyhepc, before vertex fix  /////////////////////" << std::endl;
       call_pylist(3);
     }
@@ -167,7 +162,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerParticleGun::produce(const std::v
     tauola_.setDecayVertex(numGenParticles_beforeTAUOLA, numGenParticles_afterTAUOLA);
     */
 
-    if(verbosity_) {
+    if(printout_) {
       /* FIXME
       std::cout << "     numGenParticles_beforeTAUOLA " << numGenParticles_beforeTAUOLA << std::endl
                 << "     numGenParticles_afterTAUOLA  " << numGenParticles_afterTAUOLA << std::endl;
@@ -178,7 +173,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerParticleGun::produce(const std::v
   }
   else {
     call_pyhepc(2); // hepevt->pythia
-    if(verbosity_) {
+    if(printout_) {
       std::cout << " /////////////////////  After pyhepc, before pyexec  /////////////////////" << std::endl;
       call_pylist(3);
     }
@@ -186,7 +181,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerParticleGun::produce(const std::v
 
   call_pyexec(); // taus: decay pi0's etc; others: decay whatever
 
-  if(verbosity_) {
+  if(printout_) {
     std::cout << " /////////////////////  After pyexec, before pyhepc  /////////////////////" << std::endl;
     call_pylist(3);
   }
@@ -196,7 +191,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerParticleGun::produce(const std::v
   HepMC::IO_HEPEVT conv;
   evt = std::auto_ptr<HepMC::GenEvent>(new HepMC::GenEvent(*conv.read_next_event()));
 
-  if(verbosity_) {
+  if(printout_) {
     evt->print();
 
     std::cout << std::endl << "Vertices: " << std::endl;
@@ -222,12 +217,11 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerParticleGun::produce(const std::v
   return evt;
 }
 
-void ParticleReplacerParticleGun::correctTauMass(const std::vector<reco::Particle>& muons, std::vector<HepMC::FourVector>& corrected) 
-{
+void ParticleReplacerParticleGun::correctTauMass(const reco::MuonCollection& muons, std::vector<HepMC::FourVector>& corrected) {
   if(abs(gunParticle_) == 15) {
     // Correct energy for tau
-    for(std::vector<reco::Particle>::const_iterator iMuon = muons.begin(); iMuon != muons.end(); ++iMuon) {
-      const reco::Candidate::LorentzVector& vec = iMuon->p4();
+    for(reco::MuonCollection::const_iterator iMuon = muons.begin(); iMuon != muons.end(); ++iMuon) {
+      const reco::Muon::LorentzVector& vec = iMuon->p4();
 
       double E = sqrt(tauMass*tauMass + vec.x()*vec.x() + vec.y()*vec.y() + vec.z()*vec.z());
 
@@ -236,7 +230,7 @@ void ParticleReplacerParticleGun::correctTauMass(const std::vector<reco::Particl
   }
   else {
     // Just copy the LorentzVector
-    for(std::vector<reco::Particle>::const_iterator iMuon = muons.begin(); iMuon != muons.end(); ++iMuon) {
+    for(reco::MuonCollection::const_iterator iMuon = muons.begin(); iMuon != muons.end(); ++iMuon) {
       corrected.push_back(iMuon->p4());
     }
   }
@@ -291,8 +285,7 @@ void ParticleReplacerParticleGun::forceTauolaTauDecays() {
                                      << "Unknown value for forcing tau decays: " << forceTauDecay_ << std::endl;
 }
 
-void ParticleReplacerParticleGun::tauola_forParticleGun(int tau_idx, int pdg_id, const HepMC::FourVector& particle_momentum) 
-{
+void ParticleReplacerParticleGun::tauola_forParticleGun(int tau_idx, int pdg_id, const HepMC::FourVector& particle_momentum) {
   if(abs(pdg_id) != 15) {
     edm::LogError("MuonReplacement") << "[ParticleReplacerAlgoParticleGun::tauola_forParticleGuns] "
                                      << "Trying to decay something else than tau: pdg_id = " << pdg_id << std::endl;
@@ -306,11 +299,11 @@ void ParticleReplacerParticleGun::tauola_forParticleGun(int tau_idx, int pdg_id,
   // the index manually by ourselves. Fortunately, this seems to
   // be simple.
   /* FIXME
-  if(verbosity_)
+  if(printout_)
     std::cout << " Tauola taupos common block: np1 " << taupos.np1 << " np2 " << taupos.np2 << std::endl;
   taupos.np1 = tau_idx;
   taupos.np2 = tau_idx;
-  if(verbosity_)
+  if(printout_)
     std::cout << " Resetting taupos common block to: np1 " << taupos.np1 << " np2 " << taupos.np2 << std::endl;
   */
 
@@ -364,8 +357,7 @@ void ParticleReplacerParticleGun::tauola_forParticleGun(int tau_idx, int pdg_id,
   }
 }
 
-float ParticleReplacerParticleGun::tauHelicity(int pdg_id) 
-{
+float ParticleReplacerParticleGun::tauHelicity(int pdg_id) {
   /* tau polarization summary from Tauola source code:
      in all cases      W : pol1 = -1, pol2 = -1 (tau or neutrino)
      H+: pol1 = +1, pol2 = +1 (tau or neutrino)
@@ -412,8 +404,7 @@ float ParticleReplacerParticleGun::tauHelicity(int pdg_id)
   return 0;
 }
 
-float ParticleReplacerParticleGun::randomPolarization() 
-{
+float ParticleReplacerParticleGun::randomPolarization() {
   uint32_t randomNumber = rand();
   if(randomNumber%2 > 0.5) return 1; 
   return -1;

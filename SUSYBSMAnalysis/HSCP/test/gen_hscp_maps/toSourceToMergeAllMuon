@@ -1,4 +1,0 @@
-awk '{str = $1 ; getline < "RPC.dat" ; print str " " $1 > "Merged_RPC_RawId_Shifts.txt"}' RPCRawIds.txt
-awk '{str = $1 ; getline < "DT.dat" ; print str " " $1 > "Merged_DT_RawId_Shifts.txt"}' DTRawIds.txt
-awk '{str = $1 ; getline < "CSC.dat" ; print str " " $1 > "Merged_CSC_RawId_Shifts.txt"}' CSCRawIds.txt
-cat Merged_RPC_RawId_Shifts.txt Merged_DT_RawId_Shifts.txt Merged_CSC_RawId_Shifts.txt > Map_Muon_RawId_Shift.txt

@@ -1,18 +1,3 @@
-2012-09-03 Srecko Morovic <srecko.morovic@cern.ch>
-
-	* tag V00-08-17
-	* dataset and stream information provided by FUEventProcessor
-
-2012-09-02 Srecko Morovic <srecko.morovic@cern.ch>
-
-	* tag V00-08-16
-	* forgot to remove experimental module definition
-
-2012-09-02 Srecko Morovic <srecko.morovic@cern.ch>
-
-	* tag V00-08-15
-	* dataset counters in FUShmOutputModule
-
 2012-05-02 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V00-08-14

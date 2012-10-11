@@ -8,7 +8,7 @@ namespace spr{
 
   // Basic cone energy cluster for hcal simhits and hcal rechits
   template <typename T>
-  double eCone_hcal(const CaloGeometry* geo, edm::Handle<T>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax) {
+  double eCone_hcal(const CaloGeometry* geo, edm::Handle<T>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, int detOnly) {
     
     std::vector< typename T::const_iterator> hit = spr::findHitCone(geo, hits, hpoint1, point1, dR, trackMom);
     
@@ -16,20 +16,22 @@ namespace spr{
     double energySum = 0.0;
     std::set<int> uniqueIdset;
     for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
-      double eTower = spr::getEnergy(hit[ihit]);
-      double tt     = hit[ihit]->time();
       int    subdet = DetId(hit[ihit]->id()).subdetId();
-      bool   ok     = (eTower>hbThr);
-      if      (subdet == (int)(HcalEndcap))  ok = (eTower>heThr);
-      else if (subdet == (int)(HcalForward)) ok = (eTower>hfThr);
-      else if (subdet == (int)(HcalOuter))   ok = (eTower>hoThr);
-      if (ok && tt > tMin && tt < tMax) {
-        energySum += eTower;
-        int eta(-99); 
-        int phi(-99);
-        spr::getEtaPhi(hit[ihit], eta, phi);
-        int uniqueEtaPhiId = 100*eta+phi;
-        uniqueIdset.insert(uniqueEtaPhiId);
+      if (detOnly < 0 || subdet == detOnly) {
+        double eTower = spr::getEnergy(hit[ihit]);
+        double tt     = hit[ihit]->time();
+        bool   ok     = (eTower>hbThr);
+        if      (subdet == (int)(HcalEndcap))  ok = (eTower>heThr);
+        else if (subdet == (int)(HcalForward)) ok = (eTower>hfThr);
+        else if (subdet == (int)(HcalOuter))   ok = (eTower>hoThr);
+        if (ok && tt > tMin && tt < tMax) {
+          energySum += eTower;
+          int eta(-99); 
+          int phi(-99);
+          spr::getEtaPhi(hit[ihit], eta, phi);
+          int uniqueEtaPhiId = 100*eta+phi;
+          uniqueIdset.insert(uniqueEtaPhiId);
+        }
       }
     }
     nRecHits = uniqueIdset.size();
@@ -39,7 +41,7 @@ namespace spr{
   // Cone energy cluster for hcal simhits and hcal rechits
   // that returns vector of rechit IDs and hottest cell info
   template <typename T>
-  double eCone_hcal(const CaloGeometry* geo, edm::Handle<T>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits, std::vector<DetId>& coneRecHitDetIds, double& distFromHotCell, int& ietaHotCell, int& iphiHotCell, GlobalPoint& gposHotCell) {
+  double eCone_hcal(const CaloGeometry* geo, edm::Handle<T>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits, std::vector<DetId>& coneRecHitDetIds, double& distFromHotCell, int& ietaHotCell, int& iphiHotCell, GlobalPoint& gposHotCell, int detOnly) {
     
     std::vector< typename T::const_iterator> hit = spr::findHitCone(geo, hits, hpoint1, point1, dR, trackMom);
     
@@ -53,21 +55,24 @@ namespace spr{
     double energySum = 0.0;
     std::set<int> uniqueIdset;
     for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
-      // Sum energy getting hottest cell for later
-      double energy = spr::getEnergy(hit.at(ihit));
-      if (energy>energyMax) {
-	energyMax = energy;
-	hottestIndex = ihit;
+      int    subdet = DetId(hit[ihit]->id()).subdetId();
+      if (detOnly < 0 || subdet == detOnly) {
+        // Sum energy getting hottest cell for later
+        double energy = spr::getEnergy(hit.at(ihit));
+        if (energy>energyMax) {
+	  energyMax = energy;
+	  hottestIndex = ihit;
+        }
+        energySum += energy;
+        // Don't double count depth in rechit multiplicity
+        int eta(-99); 
+        int phi(-99);
+        spr::getEtaPhi(hit[ihit], eta, phi);
+        int uniqueEtaPhiId = 100*eta+phi;
+        uniqueIdset.insert(uniqueEtaPhiId);
+        // Get list of det ids
+        coneRecHitDetIds.push_back(hit[ihit]->id());
       }
-      energySum += energy;
-      // Don't double count depth in rechit multiplicity
-      int eta(-99); 
-      int phi(-99);
-      spr::getEtaPhi(hit[ihit], eta, phi);
-      int uniqueEtaPhiId = 100*eta+phi;
-      uniqueIdset.insert(uniqueEtaPhiId);
-      // Get list of det ids
-      coneRecHitDetIds.push_back(hit[ihit]->id());
     }
 
     // Get dist from center of cluster to hottest cell:
@@ -86,7 +91,7 @@ namespace spr{
   // that returns vector of rechit IDs and hottest cell info
   // AND info for making "hit maps"
   template <typename T>
-  double eCone_hcal(const CaloGeometry* geo, edm::Handle<T>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits, std::vector<int>& RH_ieta, std::vector<int>& RH_iphi, std::vector<double>& RH_ene, std::vector<DetId>& coneRecHitDetIds, double& distFromHotCell, int& ietaHotCell, int& iphiHotCell, GlobalPoint& gposHotCell) {
+  double eCone_hcal(const CaloGeometry* geo, edm::Handle<T>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits, std::vector<int>& RH_ieta, std::vector<int>& RH_iphi, std::vector<double>& RH_ene, std::vector<DetId>& coneRecHitDetIds, double& distFromHotCell, int& ietaHotCell, int& iphiHotCell, GlobalPoint& gposHotCell, int detOnly) {
 
     std::vector< typename T::const_iterator> hit = spr::findHitCone(geo, hits, hpoint1, point1, dR, trackMom);
     
@@ -100,24 +105,27 @@ namespace spr{
     double energySum = 0.0;
     std::set<int> uniqueIdset;
     for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
-      // Sum energy getting hottest cell for later
-      double energy = spr::getEnergy(hit.at(ihit));
-      if (energy>energyMax) {
-	energyMax = energy;
-	hottestIndex = ihit;
-      }
-      energySum += energy;
+      int    subdet = DetId(hit[ihit]->id()).subdetId();
+      if (detOnly < 0 || subdet == detOnly) {
+        // Sum energy getting hottest cell for later
+        double energy = spr::getEnergy(hit.at(ihit));
+        if (energy>energyMax) {
+	  energyMax = energy;
+	  hottestIndex = ihit;
+        }
+        energySum += energy;
 
-      // Get eta phi for counting unique cells
-      int eta(-99);
-      int phi(-99);
-      spr::getEtaPhi(hit[ihit], eta, phi);
-      // Put eta phi in vectors
-      spr::getEtaPhi(hit[ihit], RH_ieta, RH_iphi, RH_ene);
-      int uniqueEtaPhiId = 100*eta+phi;
-      uniqueIdset.insert(uniqueEtaPhiId);
-      // Get vector of detids.
-      coneRecHitDetIds.push_back(hit[ihit]->id());
+        // Get eta phi for counting unique cells
+        int eta(-99);
+        int phi(-99);
+        spr::getEtaPhi(hit[ihit], eta, phi);
+        // Put eta phi in vectors
+        spr::getEtaPhi(hit[ihit], RH_ieta, RH_iphi, RH_ene);
+        int uniqueEtaPhiId = 100*eta+phi;
+        uniqueIdset.insert(uniqueEtaPhiId);
+        // Get vector of detids.
+        coneRecHitDetIds.push_back(hit[ihit]->id());
+      }
     }
     nRecHits = uniqueIdset.size();
     // Get dist from center of cluster to hottest cell:

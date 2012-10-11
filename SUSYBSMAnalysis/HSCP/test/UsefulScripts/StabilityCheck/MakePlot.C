@@ -285,76 +285,76 @@ void MakePlot()
    TFile* InputFile = new TFile("pictures/Histos.root");
 
    TProfile* Any_PtProf                = (TProfile*)GetObjectFromPath(InputFile, "AnyPtProf");
-   TProfile* SingleMu_PtProf           = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterPtProf");
-   TProfile* PFMet_PtProf              = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMetDeDxFilterPtProf");
+   TProfile* SingleMu_PtProf           = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMuPtProf");
+   TProfile* PFMet_PtProf              = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetPtProf");
 
    TProfile* Any_dEdxProf              = (TProfile*)GetObjectFromPath(InputFile, "AnydEdxProf");
-   TProfile* SingleMu_dEdxProf         = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterdEdxProf");
-   TProfile* PFMet_dEdxProf            = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMetDeDxFilterdEdxProf");
+   TProfile* SingleMu_dEdxProf         = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMudEdxProf");
+   TProfile* PFMet_dEdxProf            = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetdEdxProf");
 
    TProfile* Any_dEdxMProf             = (TProfile*)GetObjectFromPath(InputFile, "AnydEdxMProf");
-   TProfile* SingleMu_dEdxMProf        = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterdEdxMProf");
-   TProfile* PFMet_dEdxMProf           = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMetDeDxFilterdEdxMProf");
+   TProfile* SingleMu_dEdxMProf        = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMudEdxMProf");
+   TProfile* PFMet_dEdxMProf           = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetdEdxMProf");
 
    TProfile* Any_dEdxMSProf             = (TProfile*)GetObjectFromPath(InputFile, "AnydEdxMSProf");
-   TProfile* SingleMu_dEdxMSProf        = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterdEdxMSProf");
-   TProfile* PFMet_dEdxMSProf           = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMetDeDxFilterdEdxMSProf");
+   TProfile* SingleMu_dEdxMSProf        = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMudEdxMSProf");
+   TProfile* PFMet_dEdxMSProf           = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetdEdxMSProf");
 
    TProfile* Any_dEdxMPProf             = (TProfile*)GetObjectFromPath(InputFile, "AnydEdxMPProf");
-   TProfile* SingleMu_dEdxMPProf        = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterdEdxMPProf");
-   TProfile* PFMet_dEdxMPProf           = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMetDeDxFilterdEdxMPProf");
+   TProfile* SingleMu_dEdxMPProf        = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMudEdxMPProf");
+   TProfile* PFMet_dEdxMPProf           = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetdEdxMPProf");
 
    TProfile* Any_dEdxMSCProf             = (TProfile*)GetObjectFromPath(InputFile, "AnydEdxMSCProf");
-   TProfile* SingleMu_dEdxMSCProf        = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterdEdxMSCProf");
-   TProfile* PFMet_dEdxMSCProf           = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMetDeDxFilterdEdxMSCProf");
+   TProfile* SingleMu_dEdxMSCProf        = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMudEdxMSCProf");
+   TProfile* PFMet_dEdxMSCProf           = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetdEdxMSCProf");
 
    TProfile* Any_dEdxMPCProf             = (TProfile*)GetObjectFromPath(InputFile, "AnydEdxMPCProf");
-   TProfile* SingleMu_dEdxMPCProf        = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterdEdxMPCProf");
-   TProfile* PFMet_dEdxMPCProf           = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMetDeDxFilterdEdxMPCProf");
+   TProfile* SingleMu_dEdxMPCProf        = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMudEdxMPCProf");
+   TProfile* PFMet_dEdxMPCProf           = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetdEdxMPCProf");
 
    TProfile* Any_dEdxMSFProf             = (TProfile*)GetObjectFromPath(InputFile, "AnydEdxMSFProf");
-   TProfile* SingleMu_dEdxMSFProf        = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterdEdxMSFProf");
-   TProfile* PFMet_dEdxMSFProf           = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMetDeDxFilterdEdxMSFProf");
+   TProfile* SingleMu_dEdxMSFProf        = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMudEdxMSFProf");
+   TProfile* PFMet_dEdxMSFProf           = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetdEdxMSFProf");
 
    TProfile* Any_dEdxMPFProf             = (TProfile*)GetObjectFromPath(InputFile, "AnydEdxMPFProf");
-   TProfile* SingleMu_dEdxMPFProf        = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterdEdxMPFProf");
-   TProfile* PFMet_dEdxMPFProf           = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMetDeDxFilterdEdxMPFProf");
+   TProfile* SingleMu_dEdxMPFProf        = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMudEdxMPFProf");
+   TProfile* PFMet_dEdxMPFProf           = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetdEdxMPFProf");
 
    TProfile* Any_TOFProf               = (TProfile*)GetObjectFromPath(InputFile, "AnyTOFProf");
-   TProfile* SingleMu_TOFProf          = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterTOFProf");
-   TProfile* PFMet_TOFProf             = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMetDeDxFilterTOFProf");
+   TProfile* SingleMu_TOFProf          = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMuTOFProf");
+   TProfile* PFMet_TOFProf             = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetTOFProf");
 
    TProfile* Any_TOFDTProf             = (TProfile*)GetObjectFromPath(InputFile, "AnyTOFDTProf");
-   TProfile* SingleMu_TOFDTProf        = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterTOFDTProf");
-   TProfile* PFMet_TOFDTProf           = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMetDeDxFilterTOFDTProf");
+   TProfile* SingleMu_TOFDTProf        = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMuTOFDTProf");
+   TProfile* PFMet_TOFDTProf           = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetTOFDTProf");
 
    TProfile* Any_TOFCSCProf            = (TProfile*)GetObjectFromPath(InputFile, "AnyTOFCSCProf");
-   TProfile* SingleMu_TOFCSCProf       = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterTOFCSCProf");
-   TProfile* PFMet_TOFCSCProf          = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMetDeDxFilterTOFCSCProf");
+   TProfile* SingleMu_TOFCSCProf       = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMuTOFCSCProf");
+   TProfile* PFMet_TOFCSCProf          = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetTOFCSCProf");
 
    TProfile* Any_VertexProf               = (TProfile*)GetObjectFromPath(InputFile, "AnyVertexProf");
-   TProfile* SingleMu_VertexProf          = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterVertexProf");
-   TProfile* PFMet_VertexProf             = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMetDeDxFilterVertexProf");
+   TProfile* SingleMu_VertexProf          = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMuVertexProf");
+   TProfile* PFMet_VertexProf             = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetVertexProf");
 
    TProfile* Any_VertexDTProf             = (TProfile*)GetObjectFromPath(InputFile, "AnyVertexDTProf");
-   TProfile* SingleMu_VertexDTProf        = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterVertexDTProf");
-   TProfile* PFMet_VertexDTProf           = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMetDeDxFilterVertexDTProf");
+   TProfile* SingleMu_VertexDTProf        = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMuVertexDTProf");
+   TProfile* PFMet_VertexDTProf           = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetVertexDTProf");
 
    TProfile* Any_VertexCSCProf            = (TProfile*)GetObjectFromPath(InputFile, "AnyVertexCSCProf");
-   TProfile* SingleMu_VertexCSCProf       = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterVertexCSCProf");
-   TProfile* PFMet_VertexCSCProf          = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMetDeDxFilterVertexCSCProf");
+   TProfile* SingleMu_VertexCSCProf       = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMuVertexCSCProf");
+   TProfile* PFMet_VertexCSCProf          = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetVertexCSCProf");
 
    TProfile* Any_HdEdx                 = (TProfile*)GetObjectFromPath(InputFile, "AnyHdEdx");
-   TProfile* SingleMu_HdEdx          = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterHdEdx");
-   TProfile* PFMet_HdEdx             = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMetDeDxFilterHdEdx");
+   TProfile* SingleMu_HdEdx          = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMuHdEdx");
+   TProfile* PFMet_HdEdx             = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetHdEdx");
 
    TProfile* Any_HPt                 = (TProfile*)GetObjectFromPath(InputFile, "AnyHPt");
-   TProfile* SingleMu_HPt          = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterHPt");
-   TProfile* PFMet_HPt             = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMetDeDxFilterHPt");
+   TProfile* SingleMu_HPt          = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMuHPt");
+   TProfile* PFMet_HPt             = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetHPt");
 
    TProfile* Any_HTOF                 = (TProfile*)GetObjectFromPath(InputFile, "AnyHTOF");
-   TProfile* SingleMu_HTOF          = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterHTOF");
-   TProfile* PFMet_HTOF             = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMetDeDxFilterHTOF");
+   TProfile* SingleMu_HTOF          = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMuHTOF");
+   TProfile* PFMet_HTOF             = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetHTOF");
 
    for(unsigned int i=0;i<SingleMu_PtProf->GetXaxis()->GetNbins();i++){
       if((i+3)%12==0)continue;
@@ -547,7 +547,7 @@ void MakePlot()
    //Histos[1] = SingleMu_TOFProf;                   legend.push_back("SingleMu40");
    //Histos[2] = PFMet_TOFProf;                      legend.push_back("PFMHT150");
    
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "1/#beta_{TOF}", 0,0, 0.85,1.15);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "1/#beta_{TOF}", 0,0, 0.95,1.05);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
    DrawPreliminary(IntegratedLuminosity);
@@ -559,7 +559,7 @@ void MakePlot()
    //Histos[1] = SingleMu_TOFDTProf;                   legend.push_back("SingleMu40");
    //Histos[2] = PFMet_TOFDTProf;                      legend.push_back("PFMHT150");
 
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "1/#beta_{TOF_DT}", 0,0, 0.85,1.15);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "1/#beta_{TOF_DT}", 0,0, 0.95,1.05);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
    DrawPreliminary(IntegratedLuminosity);
@@ -571,7 +571,7 @@ void MakePlot()
    //Histos[1] = SingleMu_TOFCSCProf;                   legend.push_back("SingleMu40");
    //Histos[2] = PFMet_TOFCSCProf;                      legend.push_back("PFMHT150");
 
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "1/#beta_{TOF_CSC}", 0,0, 0.85,1.15);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "1/#beta_{TOF_CSC}", 0,0, 0.95,1.05);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
    DrawPreliminary(IntegratedLuminosity);
@@ -583,7 +583,7 @@ void MakePlot()
    //Histos[1] = SingleMu_VertexProf;                   legend.push_back("SingleMu40");
    //Histos[2] = PFMet_VertexProf;                      legend.push_back("PFMHT150");
    
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "Vertex time [ns]", 0,0, -4,4);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "Vertex time [ns]", 0,0, -2,2);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
    DrawPreliminary(IntegratedLuminosity);
@@ -595,7 +595,7 @@ void MakePlot()
    //Histos[1] = SingleMu_VertexDTProf;                   legend.push_back("SingleMu40");
    //Histos[2] = PFMet_VertexDTProf;                      legend.push_back("PFMHT150");
 
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "Vertex Time DT [ns]", 0,0, -4,4);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "Vertex Time DT [ns]", 0,0, -2,2);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
    DrawPreliminary(IntegratedLuminosity);
@@ -607,7 +607,7 @@ void MakePlot()
    //Histos[1] = SingleMu_VertexCSCProf;                   legend.push_back("SingleMu40");
    //Histos[2] = PFMet_VertexCSCProf;                      legend.push_back("PFMHT150");
 
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "Vertex Time CSC [ns]", 0,0, -4,4);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "Vertex Time CSC [ns]", 0,0, -2,2);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
    DrawPreliminary(IntegratedLuminosity);

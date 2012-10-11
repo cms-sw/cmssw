@@ -26,10 +26,16 @@
 //--- For the configuration:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
+//#define TP_OLD
+#ifdef TP_OLD
+#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
+#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
+#include "Geometry/Surface/interface/GloballyPositioned.h"
+#else  // new location
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
+#endif
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
@@ -37,24 +43,17 @@
 
 
 
-#include <unordered_map>
+#include <ext/hash_map>
 
 #include <iostream>
 
 
-class RectangularPixelTopology;
+
 class MagneticField;
 class PixelCPEBase : public PixelClusterParameterEstimator 
 {
  public:
-  struct Param 
-  {
-    Param() : bz(-9e10f) {}
-    float bz; // local Bz
-    LocalVector drift;
-  };
-
-public:
+  // PixelCPEBase( const DetUnit& det );
   PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, 
 	       const SiPixelLorentzAngle * lorentzAngle = 0, const SiPixelCPEGenericErrorParm * genErrorParm = 0, 
 	       const SiPixelTemplateDBObject * templateDBobject = 0);
@@ -80,34 +79,34 @@ public:
   //--------------------------------------------------------------------------
   // In principle we could use the track too to obtain alpha and beta.
   //--------------------------------------------------------------------------
-  LocalValues localParameters( const SiPixelCluster & cl,
-			       const GeomDetUnit    & det, 
-			       const LocalTrajectoryParameters & ltp) const 
-  {
-    nRecHitsTotal_++ ;
-    setTheDet( det, cl );
-    computeAnglesFromTrajectory(cl, det, ltp);
-    
-    // localPosition( cl, det ) must be called before localError( cl, det ) !!!
-    LocalPoint lp = localPosition( cl, det ); 
-    LocalError le = localError( cl, det );        
-    
-    return std::make_pair( lp, le );
-  } 
+  inline LocalValues localParameters( const SiPixelCluster & cl,
+				      const GeomDetUnit    & det, 
+				      const LocalTrajectoryParameters & ltp) const 
+    {
+      nRecHitsTotal_++ ;
+      setTheDet( det, cl );
+      computeAnglesFromTrajectory(cl, det, ltp);
+      
+      // localPosition( cl, det ) must be called before localError( cl, det ) !!!
+      LocalPoint lp = localPosition( cl, det ); 
+      LocalError le = localError( cl, det );        
+      
+      return std::make_pair( lp, le );
+    } 
   
   //--------------------------------------------------------------------------
   // The third one, with the user-supplied alpha and beta
   //--------------------------------------------------------------------------
-  LocalValues localParameters( const SiPixelCluster & cl,
-			       const GeomDetUnit    & det, 
-			       float alpha, float beta) const 
-  {
-    nRecHitsTotal_++ ;
-    alpha_ = alpha;
-    beta_  = beta;
-    double HalfPi = 0.5*TMath::Pi();
-    cotalpha_ = tan(HalfPi - alpha_);
-    cotbeta_  = tan(HalfPi - beta_ );
+  inline LocalValues localParameters( const SiPixelCluster & cl,
+				      const GeomDetUnit    & det, 
+				      float alpha, float beta) const 
+    {
+      nRecHitsTotal_++ ;
+      alpha_ = alpha;
+      beta_  = beta;
+      double HalfPi = 0.5*TMath::Pi();
+      cotalpha_ = tan(HalfPi - alpha_);
+      cotbeta_  = tan(HalfPi - beta_ );
       setTheDet( det, cl );
       
       // localPosition( cl, det ) must be called before localError( cl, det ) !!!
@@ -115,11 +114,8 @@ public:
       LocalError le = localError( cl, det );        
       
       return std::make_pair( lp, le );
-  }
+    }
   
-  
-  void computeAnglesFromDetPosition(const SiPixelCluster & cl, 
-				    const GeomDetUnit    & det ) const;
   
   //--------------------------------------------------------------------------
   // Allow the magnetic field to be set/updated later.
@@ -141,7 +137,7 @@ public:
   inline float probabilityXY() const {
     if ( probabilityX_ !=0 && probabilityY_ !=0 ) 
       {
-	return probabilityX_ * probabilityY_ * (1.f - std::log(probabilityX_ * probabilityY_) ) ;
+	return probabilityX_ * probabilityY_ * (1 - log(probabilityX_ * probabilityY_) ) ;
       }
     else 
       return 0;
@@ -187,9 +183,7 @@ public:
   // gavril : replace RectangularPixelTopology with PixelTopology
   //mutable const RectangularPixelTopology * theTopol;
   mutable const PixelTopology * theTopol;
-  mutable const RectangularPixelTopology * theRecTopol;
-
-  mutable Param const * theParam;
+  
 
   mutable GeomDetType::SubDetector thePart;
   //mutable EtaCorrection theEtaFunc;
@@ -281,9 +275,9 @@ public:
   //  Methods.
   //---------------------------------------------------------------------------
   void       setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster ) const ;
-
-  MeasurementPoint measurementPosition( const SiPixelCluster& cluster, 
-					const GeomDetUnit & det) const;
+  //
+  MeasurementPoint measurementPosition( const SiPixelCluster&, 
+					const GeomDetUnit & det) const ;
   MeasurementError measurementError   ( const SiPixelCluster&, 
 					const GeomDetUnit & det) const ;
 
@@ -291,11 +285,14 @@ public:
   //  Geometrical services to subclasses.
   //---------------------------------------------------------------------------
 
+  //--- Estimation of alpha_ and beta_
+  //float estimatedAlphaForBarrel(float centerx) const;
+  void computeAnglesFromDetPosition(const SiPixelCluster & cl, 
+				    const GeomDetUnit    & det ) const;
   void computeAnglesFromTrajectory (const SiPixelCluster & cl,
 				    const GeomDetUnit    & det, 
 				    const LocalTrajectoryParameters & ltp) const;
   LocalVector driftDirection       ( GlobalVector bfield ) const ; //wrong sign
-  LocalVector driftDirection       ( LocalVector bfield ) const ; //wrong sign
   LocalVector driftDirectionCorrect( GlobalVector bfield ) const ;
   void computeLorentzShifts() const ;
 
@@ -305,27 +302,57 @@ public:
   //  Cluster-level services.
   //---------------------------------------------------------------------------
    
- 
+  //--- Charge on the first, last  and  inner pixels on x and y 
+  void xCharge(const std::vector<SiPixelCluster::Pixel>&, 
+	       const int&, const int&, float& q1, float& q2) const; 
+  void yCharge(const std::vector<SiPixelCluster::Pixel>&, 
+	       const int&, const int&, float& q1, float& q2) const; 
+
+  // Temporary fix for older classes
+  //std::vector<float> 
+  //xCharge(const std::vector<SiPixelCluster::Pixel>& pixelsVec, 
+  //    const float& xmin, const float& xmax) const {
+  // return xCharge(pixelsVec, int(xmin), int(xmax)); 
+  //}
+  //std::vector<float> 
+  // yCharge(const std::vector<SiPixelCluster::Pixel>& pixelsVec, 
+  //    const float& xmin, const float& xmax) const {
+  // return yCharge(pixelsVec, int(xmin), int(xmax)); 
+  //}
+
+
+
+  //---------------------------------------------------------------------------
+  //  Various position corrections.
+  //---------------------------------------------------------------------------
+  //float geomCorrection()const;
 
   //--- The Lorentz shift correction
-  float lorentzShiftX() const;
-  float lorentzShiftY() const;
+  virtual float lorentzShiftX() const;
+  virtual float lorentzShiftY() const;
  
   //--- Position in X and Y
   virtual float xpos( const SiPixelCluster& ) const = 0;
   virtual float ypos( const SiPixelCluster& ) const = 0;
   
   
-  LocalVector const & getDrift() const {return  driftDirection_ ;}
- 
-
- 
-  Param const & param() const;
- 
- private:
-  typedef  std::unordered_map< unsigned int, Param> Params;
   
-  mutable Params m_Params;
+ public:
+  struct Param 
+  {
+    Param() : topology(0), drift(0.0, 0.0, 0.0) {}
+    
+    // giurgiu@jhu.edu 12/09/2010: switch to PixelTopology
+    //RectangularPixelTopology const * topology;
+    PixelTopology const * topology;
+
+    LocalVector drift;
+  };
+  
+ private:
+   typedef  __gnu_cxx::hash_map< unsigned int, Param> Params;
+  
+  Params m_Params;
   
 
 

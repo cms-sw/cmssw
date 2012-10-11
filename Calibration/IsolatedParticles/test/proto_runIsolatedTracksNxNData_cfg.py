@@ -13,14 +13,8 @@ process.options = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",fileNames =cms.untracked.vstring(
-"/store/data/Run2010A/MinimumBias/RECO/Apr21ReReco-v1/0000/08275F4A-5270-E011-9DC3-003048635E02.root",
-"/store/data/Run2010A/MinimumBias/RECO/Apr21ReReco-v1/0000/08042520-0A6D-E011-AECB-00304866C674.root",
-"/store/data/Run2010A/MinimumBias/RECO/Apr21ReReco-v1/0000/06E42A32-0A6D-E011-87D0-003048673EBA.root",
-"/store/data/Run2010A/MinimumBias/RECO/Apr21ReReco-v1/0000/06BD5531-756D-E011-AF1D-003048674096.root",
-"/store/data/Run2010A/MinimumBias/RECO/Apr21ReReco-v1/0000/067F2E52-716F-E011-9738-0015170AD178.root",
-"/store/data/Run2010A/MinimumBias/RECO/Apr21ReReco-v1/0000/067E8544-086D-E011-8A80-001A6478A824.root",
-))
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500) )
+    "/store/data/Run2012A/MinimumBias/RECO/13Jul2012-v1/00000/06BDF16E-1ACF-E111-A543-00304867BED8.root"))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5) )
 
 ##################### digi-2-raw plus L1 emulation #########################
 
@@ -30,7 +24,7 @@ process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 
 #################### Conditions and L1 menu ################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR_R_42_V13::All' # used for Apr21 run2010A & run2010B
+process.GlobalTag.globaltag = 'FT_R_53_V6::All' 
 
 
 #################################################################################################
@@ -52,9 +46,7 @@ process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND NOT (36 OR 
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 process.myHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
 process.myHLT.HLTPaths = cms.vstring("HLT_MinBiasBSC","HLT_L1Tech_BSC_minBias")
-#process.myHLT.HLTPaths = cms.vstring("HLT_MinBiasBSC","HLT_L1_BscMinBiasOR_BptxPlusORMinus","HLT_L1Tech_BSC_minBias","HLT_L1_BPTX")
 process.myHLT.throw    = cms.bool(False)
-#process.myHLT.HLTPaths = cms.vstring("HLT_MinBiasBSC")
 
 # filter out scrapping events
 process.noScraping= cms.EDFilter("FilterOutScraping",

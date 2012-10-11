@@ -14,11 +14,9 @@ pixelDigitizer = cms.PSet(
     OffsetSmearing = cms.double(0.0),
     ThresholdInElectrons_FPix = cms.double(3000.0), 
     ThresholdInElectrons_BPix = cms.double(3500.0),
-    ThresholdInElectrons_BPix_L1 = cms.double(3500.0),
     AddThresholdSmearing = cms.bool(True),
     ThresholdSmearing_FPix = cms.double(210.0),
     ThresholdSmearing_BPix = cms.double(245.0),
-    ThresholdSmearing_BPix_L1 = cms.double(245.0),
     NoiseInElectrons = cms.double(175.0),
     MissCalibrate = cms.bool(True),
     FPix_SignalResponse_p0 = cms.double(0.0043),
@@ -34,8 +32,6 @@ pixelDigitizer = cms.PSet(
     ElectronPerAdc = cms.double(135.0),
     TofUpperCut = cms.double(12.5),
     AdcFullScale = cms.int32(255),
-    AdcFullScaleStack = cms.int32(255),
-    FirstStackLayer = cms.int32(5),
     TofLowerCut = cms.double(-12.5),
     TanLorentzAnglePerTesla_FPix = cms.double(0.106),
     TanLorentzAnglePerTesla_BPix = cms.double(0.106),
@@ -52,15 +48,6 @@ pixelDigitizer = cms.PSet(
 ##    killModules = cms.bool(False),
 ##    DeadModules_DB = cms.bool(False),
     killModules = cms.bool(True),
-    NumPixelBarrel = cms.int32(3),
-    NumPixelEndcap = cms.int32(2),
-    thePixelColEfficiency_BPix1 = cms.double(0.9762), # Only used when AddPixelInefficiency = cms.int32(-20)
-    thePixelColEfficiency_BPix2 = cms.double(0.9954),
-    thePixelColEfficiency_BPix3 = cms.double(0.9982),
-    thePixelColEfficiency_BPix4 = cms.double(0.9992),
-    thePixelColEfficiency_FPix1 = cms.double(0.9982),
-    #thePixelColEfficiency_FPix2 = cms.double(0.9982),
-    #thePixelColEfficiency_FPix2 = cms.double(0.9982),
 DeadModules = cms.VPSet(
  cms.PSet(Dead_detID = cms.int32(302055940), Module = cms.string("tbmB"))
 ,cms.PSet(Dead_detID = cms.int32(302059800), Module = cms.string("whole"))

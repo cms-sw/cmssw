@@ -763,11 +763,11 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     math::XYZVector photonPosition(photonX_,
 				   photonY_,
 				   photonZ_);
-    math::XYZVector photonPositionwrtVtx(
-					 photonX_- primaryVertex_->x(),
-					 photonY_-primaryVertex_->y(),
-					 photonZ_-primaryVertex_->z()
-					 );
+      math::XYZVector photonPositionwrtVtx(
+					   photonX_- primaryVertex_->x(),
+					   photonY_-primaryVertex_->y(),
+					   photonZ_-primaryVertex_->z()
+					   );
     math::XYZVector photonDirection=photonPositionwrtVtx.Unit();
     
     math::XYZTLorentzVector photonMomentum(photonEnergy_* photonDirection.X(),
@@ -796,6 +796,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     */
 
     reco::PFCandidate photonCand(0,photonMomentum, reco::PFCandidate::gamma);
+    
     photonCand.setPs1Energy(ps1TotEne);
     photonCand.setPs2Energy(ps2TotEne);
     photonCand.setEcalEnergy(RawEcalEne,photonEnergy_);
@@ -814,6 +815,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	  count++;
 	}
     }
+    //photonCand.setPositionAtECALEntrance(math::XYZPointF(photonMom_.position()));
     // set isvalid_ to TRUE since we've found at least one photon candidate
     isvalid_ = true;
     // push back the candidate into the collection ...
@@ -821,6 +823,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     for(std::vector<unsigned int>::const_iterator it = 
 	  AddFromElectron_.begin();
 	it != AddFromElectron_.end(); ++it)photonCand.addElementInBlock(blockRef,*it);
+    
     
     // ... and lock all elemts used
     for(std::vector<unsigned int>::const_iterator it = elemsToLock.begin();
@@ -865,18 +868,6 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 						 GCorr * photonEnergy_           );
       photonCand.setP4(photonCorrMomentum);
     }
-    
-    std::multimap<float, unsigned int>OrderedClust;
-    for(unsigned int i=0; i<PFClusters.size(); ++i){  
-      float et=PFClusters[i].energy()*sin(PFClusters[i].position().theta());
-      OrderedClust.insert(make_pair(et, i));
-    }
-    std::multimap<float, unsigned int>::reverse_iterator rit;
-    rit=OrderedClust.rbegin();
-    unsigned int highEindex=(*rit).second;
-    //store Position at ECAL Entrance as Position of Max Et PFCluster
-    photonCand.setPositionAtECALEntrance(math::XYZPointF(PFClusters[highEindex].position()));
-    
     //Mustache ID variables
     Mustache Must;
     Must.FillMustacheVar(PFClusters);

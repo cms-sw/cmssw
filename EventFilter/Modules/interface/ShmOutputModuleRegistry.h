@@ -1,11 +1,9 @@
 #ifndef EVF_SHMOUTPUTMODULE_REGISTRY_H
 #define EVF_SHMOUTPUTMODULE_REGISTRY_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <string>
 #include <map>
 #include <vector>
-
 
 namespace edm{
   class ParameterSet;
@@ -30,16 +28,11 @@ namespace evf
       void dumpRegistry();
       std::vector<edm::FUShmOutputModule *> getShmOutputModules();
 
-      std::string getDatasetNamesString();
-      std::vector<edm::FUShmOutputModule *> & getShmOutputModulesWithDatasets() {return shmOutputsWithDatasets_;}
-      void insertStreamAndDatasetInfo(edm::ParameterSet & streams, edm::ParameterSet & datasets);
-
     private:
       typedef std::map<std::string, OutputModule*> dct;
       typedef dct::iterator idct;
       void clear();
       dct clm_;
-      std::vector<edm::FUShmOutputModule *> shmOutputsWithDatasets_;
       friend class FWEPWrapper;
     };
 }

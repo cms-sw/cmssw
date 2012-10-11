@@ -57,13 +57,13 @@ class TrackAssociatorByHits : public TrackAssociatorBase {
   }  
 
   //seed
-  reco::RecoToSimCollectionSeed associateRecoToSim(const edm::Handle<edm::View<TrajectorySeed> >&, 
-						   const edm::Handle<TrackingParticleCollection>&, 
+  reco::RecoToSimCollectionSeed associateRecoToSim(edm::Handle<edm::View<TrajectorySeed> >&, 
+						   edm::Handle<TrackingParticleCollection>&, 
 						   const edm::Event * event = 0,
                                                    const edm::EventSetup * setup = 0) const;
   
-  reco::SimToRecoCollectionSeed associateSimToReco(const edm::Handle<edm::View<TrajectorySeed> >&, 
-						   const edm::Handle<TrackingParticleCollection>&, 
+  reco::SimToRecoCollectionSeed associateSimToReco(edm::Handle<edm::View<TrajectorySeed> >&, 
+						   edm::Handle<TrackingParticleCollection>&, 
 						   const edm::Event * event = 0,
                                                    const edm::EventSetup * setup = 0) const;
   template<typename iter>

@@ -6,7 +6,6 @@ from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
 from RecoJets.JetProducers.ak5PFJetsTrimmed_cfi import ak5PFJetsTrimmed
 from RecoJets.JetProducers.ak5PFJetsFiltered_cfi import ak5PFJetsFiltered, ak5PFJetsMassDropFiltered
 from RecoJets.JetProducers.ak5PFJetsPruned_cfi import ak5PFJetsPruned
-from CommonTools.ParticleFlow.pfNoPileUpJME_cff  import *
 from RecoJets.JetProducers.gk5PFJets_cfi import gk5PFJets
 from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
 from RecoJets.JetProducers.ca4PFJets_cfi import ca4PFJets
@@ -50,9 +49,6 @@ kt6PFJetsCentralNeutralTight = kt6PFJetsCentralNeutral.clone(
     inputEtMin = cms.double(1.0)
     )
 
-ak5PFJetsCHS = ak5PFJets.clone(
-    src = cms.InputTag("pfNoPileUpJME")
-    )
 
 recoPFJets   =cms.Sequence(kt4PFJets+kt6PFJets+
                            kt6PFJetsCentralChargedPileUp+
@@ -61,9 +57,7 @@ recoPFJets   =cms.Sequence(kt4PFJets+kt6PFJets+
                            fixedGridRhoAll+
                            fixedGridRhoFastjetAll+
                            iterativeCone5PFJets+
-                           ak5PFJets+ak7PFJets+
-                           pfNoPileUpJMESequence+
-                           ak5PFJetsCHS)
+                           ak5PFJets+ak7PFJets)
 
 recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
                            kt4PFJets+kt6PFJets+
@@ -77,6 +71,4 @@ recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
                            ak5PFJetsTrimmed+ak5PFJetsPruned+
                            ak5PFJetsFiltered+ak5PFJetsMassDropFiltered+
                            gk5PFJets+gk7PFJets+
-                           ca4PFJets+ca6PFJets+
-                           pfNoPileUpJMESequence+
-                           ak5PFJetsCHS)
+                           ca4PFJets+ca6PFJets)

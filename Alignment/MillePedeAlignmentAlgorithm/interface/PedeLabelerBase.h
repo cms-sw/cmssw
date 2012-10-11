@@ -7,8 +7,8 @@
  *
  *  Original author: Andreas Mussgiller, January 2011
  *
- *  $Date: 2011/02/18 17:08:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2011/02/16 12:52:46 $
+ *  $Revision: 1.1 $
  *  (last update by $Author: mussgill $)
  */
 
@@ -19,13 +19,10 @@
 
 #include "CondFormats/Common/interface/Time.h"
 
-#include <vector>
-
 class Alignable;
 class AlignableTracker;
 class AlignableMuon;
 class AlignableExtras;
-class IntegratedCalibrationBase;
 
 /***************************************
 ****************************************/
@@ -52,10 +49,9 @@ class PedeLabelerBase
   /// constructor from three Alignables (null pointers allowed )
   PedeLabelerBase(const TopLevelAlignables& alignables,
 		  const edm::ParameterSet & config);
+  /** non-virtual destructor: do not inherit from this class **/
   virtual ~PedeLabelerBase() {}
-  /// tell labeler to treat also integrated calibrations 
-  virtual void addCalibrations(const std::vector<IntegratedCalibrationBase*> &iCals);
-
+    
   /// uniqueId of Alignable, 0 if alignable not known
   /// between this ID and the next there is enough 'space' to add parameter
   /// numbers 0...nPar-1 to make unique IDs for the labels of active parameters
@@ -80,10 +76,6 @@ class PedeLabelerBase
   /// returns the number of instances for a given parameter
   virtual unsigned int numberOfParameterInstances(Alignable *alignable,
 						  int param=-1) const = 0;
-  /// returns the maximum number of instances for any parameter of an Alignable*
-  virtual unsigned int maxNumberOfParameterInstances() const = 0;
-  /// offset in labels between consecutive parameter instances of Alignable*s
-  unsigned int parameterInstanceOffset() const { return theParamInstanceOffset; }
 
   /// parameter number, 0 <= .. < theMaxNumParam, belonging to unique parameter label
   virtual unsigned int paramNumFromLabel(unsigned int paramLabel) const = 0;
@@ -95,37 +87,17 @@ class PedeLabelerBase
   /// las beam id from las beam or parameter label
   /// zero and error if not a valid las beam label
   virtual unsigned int lasBeamIdFromLabel(unsigned int label) const = 0;
-  /// calibration and its parameter number from label,
-  /// if label does not belong to any calibration return nullptr as pair.first
-  virtual std::pair<IntegratedCalibrationBase*, unsigned int>
-    calibrationParamFromLabel(unsigned int label) const;
-
   virtual const RunRange& runRangeFromLabel(unsigned int label) const {
     return theOpenRunRange;
   }
-  /// first free label not yet used (for hacks within millepede...)
-  /// valid only after last call to addCalibrations(..)
-  virtual unsigned int firstFreeLabel() const;
-
-  /// label for parameter 'paramNum' (counted from 0) of an integrated calibration
-  virtual unsigned int calibrationLabel(const IntegratedCalibrationBase* calib,
-                                        unsigned int paramNum) const;
-
+  
   static const unsigned int theMaxNumParam;
   static const unsigned int theParamInstanceOffset;
   static const unsigned int theMinLabel;
 
  protected:
-  /// first free label after everything about Alignables and LAS beams
-  /// (to be used for calibrations)
-  virtual unsigned int firstNonAlignableLabel() const;
 
   const RunRange theOpenRunRange;
-
- private:
-  /// pairs of calibrations and their first label
-  std::vector<std::pair<IntegratedCalibrationBase*, unsigned int> > theCalibrationLabels;
-
 };
 
 #endif

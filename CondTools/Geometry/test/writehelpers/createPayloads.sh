@@ -62,12 +62,6 @@ cmsRun geometryxmlwriter.py
 sed -i '{s/LiMax/PhaseIBeamPipe/g}' geometryxmlwriter.py
 sed -i '{s/\/gelimax/\/gepibp/g}' geometryxmlwriter.py
 cmsRun geometryxmlwriter.py
-sed -i '{s/PhaseIBeamPipe/PostLS1/g}' geometryxmlwriter.py
-sed -i '{s/\/gepibp/\/gepostls1/g}' geometryxmlwriter.py
-cmsRun geometryxmlwriter.py
-sed -i '{s/PostLS1/PostLS2/g}' geometryxmlwriter.py
-sed -i '{s/\/gepostls1/\/gepostls2/g}' geometryxmlwriter.py
-cmsRun geometryxmlwriter.py
 
 # Read the one big XML file and output a record to the
 # database with the an identifying tag
@@ -103,12 +97,6 @@ sed -i '{s/\/gelimin/\/gelimax/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 sed -i '{s/LiMax/PhaseIBeamPipe/g}' xmlgeometrywriter.py
 sed -i '{s/\/gelimax/\/gepibp/g}' xmlgeometrywriter.py
-cmsRun xmlgeometrywriter.py
-sed -i '{s/PhaseIBeamPipe/PostLS1/g}' xmlgeometrywriter.py
-sed -i '{s/\/gepibp/\/gepostls1/g}' xmlgeometrywriter.py
-cmsRun xmlgeometrywriter.py
-sed -i '{s/PostLS1/PostLS2/g}' xmlgeometrywriter.py
-sed -i '{s/\/gepostls1/\/gepostls2/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 
 # All the database objects were written into one database

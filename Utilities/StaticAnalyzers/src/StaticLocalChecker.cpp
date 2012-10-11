@@ -12,15 +12,15 @@
 namespace clangcms {
 
 
-void StaticLocalChecker::checkASTDecl(const clang::VarDecl *D,
-                    clang::ento::AnalysisManager &Mgr,
-                    clang::ento::BugReporter &BR) const
+void StaticLocalChecker::checkASTDecl(const VarDecl *D,
+                    AnalysisManager &Mgr,
+                    BugReporter &BR) const
 {
-	clang::QualType t =  D->getType();
+	QualType t =  D->getType();
 
 	if ( D->isStaticLocal() && ! support::isConst( t ) )
 	{
-	    clang::ento::PathDiagnosticLocation DLoc = clang::ento::PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
+		PathDiagnosticLocation DLoc = PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
 
 	    if ( ! m_exception.reportGlobalStaticForType( t, DLoc, BR ) )
 			return;

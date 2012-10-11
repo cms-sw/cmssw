@@ -72,12 +72,11 @@ public:
       m_yoffset = -(m_ncols + BIG_PIX_PER_ROC_Y*m_ncols/COLS_PER_ROC)/2. * 
 		  m_pitchy;
 
-      LogDebug("RectangularPixelTopology") << "nrows " << m_nrows << ", ncols " << m_ncols << ", pitchx "
-					   << m_pitchx << ", pitchy " << m_pitchy << ", xoffset "
-					   << m_xoffset << ", yoffset " << m_yoffset << ", BIG_PIX_PER_ROC_X "
-					   << BIG_PIX_PER_ROC_X << ", BIG_PIX_PER_ROC_Y " << BIG_PIX_PER_ROC_Y << ", ROWS_PER_ROC "
-					   << ROWS_PER_ROC << ", COLS_PER_ROC " << COLS_PER_ROC << ", ROCS_X " << ROCS_X << ", ROCS_Y " << ROCS_Y
-					   << "\nNROWS " << m_ROWS_PER_ROC * m_ROCS_X << ", NCOL " << m_COLS_PER_ROC * m_ROCS_Y;
+      LogDebug("RectangularPixelTopology") << m_nrows << " " << m_ncols << " "
+					   << m_pitchx << " " << m_pitchy << " "
+					   << m_xoffset << " " << m_yoffset << " "
+					   << BIG_PIX_PER_ROC_X << " " << BIG_PIX_PER_ROC_Y << " "
+					   << ROWS_PER_ROC << " " << COLS_PER_ROC;
     }
 
   // Topology interface, go from Masurement to Local corrdinates
@@ -129,10 +128,8 @@ public:
       else
       {
 	int iybin0 = iybin%52;
- 	return(( iybin0 == 0 ) || ( iybin0 == 51 ));
-	// constexpr int bigYIndeces[]{0,51,52,103,104,155,156,207,208,259,260,311,312,363,364,415,416,511};
-	// return *std::lower_bound(std::begin(bigYIndeces),std::end(bigYIndeces),iybin) == iybin;
-     }
+	return(( iybin0 == 0 ) || ( iybin0 == 51 ));
+      }
   }
   
   //-------------------------------------------------------------
@@ -162,11 +159,11 @@ public:
   }
   // Return number of rows
   virtual int nrows() const {
-    return ( m_nrows );
+    return ( m_upgradeGeometry ? ( m_ROWS_PER_ROC * m_ROCS_X ):( m_nrows ));
   }
   // Return number of cols
   virtual int ncolumns() const {
-    return ( m_ncols );
+    return ( m_upgradeGeometry ? ( m_COLS_PER_ROC * m_ROCS_Y ):( m_ncols ));
   }
   // mlw Return number of ROCS Y 	 
   virtual int rocsY() const { 	 
@@ -186,7 +183,6 @@ public:
   }
 
 private:
-
   float m_pitchx;
   float m_pitchy;
   float m_xoffset;

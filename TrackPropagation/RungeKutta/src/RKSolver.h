@@ -1,9 +1,7 @@
 #ifndef RKSolver_H
 #define RKSolver_H
 
-
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "RKSmallVector.h"
 #include "RKDerivative.h"
 #include "RKDistance.h"
@@ -28,7 +26,7 @@ public:
     virtual Vector operator()( Scalar startPar, const Vector& startState,
 			       Scalar step, const RKDerivative<T,N>& deriv,
 			       const RKDistance<T,N>& dist,
-			       float eps) = 0;
+			       Scalar eps) = 0;
 
 
 };

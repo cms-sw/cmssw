@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.38 2012/08/22 15:02:51 bellan Exp $
+// $Id: Muon.h,v 1.36 2011/06/08 20:40:18 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -17,7 +17,7 @@
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
 
-  \version  $Id: Muon.h,v 1.38 2012/08/22 15:02:51 bellan Exp $
+  \version  $Id: Muon.h,v 1.36 2011/06/08 20:40:18 rwolf Exp $
 */
 
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -80,9 +80,6 @@ namespace pat {
       reco::TrackRef combinedMuon() const;
       /// reference to Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon)
       reco::TrackRef globalTrack() const { return combinedMuon(); }
-
-      /// set reference to Track selected to be the best measurement of the muon parameters (reimplemented from reco::Muon)
-      void embedMuonBestTrack();
       /// set reference to Track reconstructed in the tracker only (reimplemented from reco::Muon)
       void embedTrack();
       /// set reference to Track reconstructed in the muon detector only (reimplemented from reco::Muon)
@@ -144,13 +141,6 @@ namespace pat {
       /// if muon id results are ever extracted from muon id value maps
       /// then the isMuonIDAvailable method will be defined
       //bool isMuonIDAvailable(const std::string& name) const;
-
-      /// Muon Selectors as specified in
-      /// https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMuonId
-      bool isTightMuon(const reco::Vertex&) const;
-      bool isLooseMuon() const;
-      bool isSoftMuon(const reco::Vertex&) const;
-      bool isHighPtMuon(const reco::Vertex&) const;
 
       // ---- overload of isolation functions ----
       /// Overload of pat::Lepton::trackIso(); returns the value of
@@ -228,11 +218,7 @@ namespace pat {
     protected:
 
       // ---- for content embedding ----
-
-      /// best muon track
-      bool embeddedMuonBestTrack_;
-      std::vector<reco::Track> muonBestTrack_;
-      /// track of inner track detector
+      /// tracker of inner track detector
       bool embeddedTrack_;
       std::vector<reco::Track> track_;
       /// track of muon system

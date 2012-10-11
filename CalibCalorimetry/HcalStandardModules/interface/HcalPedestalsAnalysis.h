@@ -1,5 +1,3 @@
-// $Id: HcalPedestalsAnalysis.h,v 1.12 2011/03/10 17:55:46 andrey Exp $
-
 #ifndef HcalPedestalsAnalysis_H
 #define HcalPedestalsAnalysis_H
 
@@ -77,7 +75,6 @@ class HcalPedestalsAnalysis : public edm::EDAnalyzer
    virtual ~HcalPedestalsAnalysis();
    //Analysis
    void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
-   virtual void endJob();
 
    private:
    //Container for data, 1 per channel
@@ -89,7 +86,6 @@ class HcalPedestalsAnalysis : public edm::EDAnalyzer
    int runnum;
    int firstTS;
    int lastTS;
-   int ievt;
    std::string ROOTfilename;
    std::string pedsADCfilename;
    std::string pedsfCfilename;

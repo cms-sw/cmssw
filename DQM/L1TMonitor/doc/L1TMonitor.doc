@@ -33,6 +33,7 @@
 - L1TGCT
 - L1TGMT
 - L1TGT
+- L1TLTC
 - L1TMenuHelper
 - L1TOMDSHelper
 - L1TRCT
@@ -58,6 +59,7 @@
 -  L1GtHwValidation
 - L1TRate
 - L1TSync
+- L1TLTC
 - L1TFED
 - L1TCSCTPG
 - L1TCSCTF

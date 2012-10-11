@@ -31,7 +31,6 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 //#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
@@ -333,18 +332,9 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   
   // get inputs and convert them to the fastjet format (fastjet::PeudoJet)
   edm::Handle<reco::CandidateView> inputsHandle;
-  edm::Handle< std::vector<edm::FwdPtr<reco::PFCandidate> > > pfinputsHandleAsFwdPtr; 
-  
-  bool isView = iEvent.getByLabel(src_,inputsHandle);
-  if ( isView ) {
-    for (size_t i = 0; i < inputsHandle->size(); ++i) {
-      inputs_.push_back(inputsHandle->ptrAt(i));
-    }
-  } else {
-    iEvent.getByLabel(src_,pfinputsHandleAsFwdPtr);
-    for (size_t i = 0; i < pfinputsHandleAsFwdPtr->size(); ++i) {
-      inputs_.push_back( (*pfinputsHandleAsFwdPtr)[i].backPtr() );
-    }    
+  iEvent.getByLabel(src_,inputsHandle);
+  for (size_t i = 0; i < inputsHandle->size(); ++i) {
+    inputs_.push_back(inputsHandle->ptrAt(i));
   }
   LogDebug("VirtualJetProducer") << "Got inputs\n";
   

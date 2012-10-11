@@ -13,31 +13,31 @@
  *
  *    Valid for r<1.15m and |z|<2.80m
  *
- *  \author V.Karimaki 080228, 080407
- *  new float version V.I. October 2012
+*  \author V.Karimaki 080228, 080407
  */
 
 
-#include "BCyl.h"
+#include <vector>
 #include <string>
 
-
 namespace magfieldparam {
-  class TkBfield {
+  class TkBfield 
+  {
   public:
 
     TkBfield (std::string T="3_8T");  
 
+    ~TkBfield() {}
 
     /// B out in cartesian
-    void getBxyz(float const  * __restrict__ x, float * __restrict__ Bxyz) const; 
+    void getBxyz(double const  * __restrict__ x, double * __restrict__ Bxyz) const; 
     /// B out in cylindrical
-    void getBrfz(float const  * __restrict__ x, float * __restrict__ Brfz) const;
+    void getBrfz(double const  * __restrict__ x, double * __restrict__ Brfz) const;
 
   private:
-
-    BCycl<float> bcyl;
-
+    double prm[9];
+    double ap2, hb0, hlova, ainv,coeff;
+    void Bcyl(double r, double z, double * __restrict__ Bw) const;
   };
 }
 

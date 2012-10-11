@@ -9,8 +9,7 @@ dEdxAnalyzer = cms.EDAnalyzer("dEdxAnalyzer",
        OutputFileName      = cms.string('MonitorTrack.root'),
        
        #input collections
-#       TracksForDeDx       = cms.string('RefitterForDedxDQMDeDx'),
-       TracksForDeDx       = cms.string('generalTracks'),
+       TracksForDeDx       = cms.string('RefitterForDedxDQMDeDx'),
        deDxProducers       = cms.vstring('dedxDQMHarm2SP', 'dedxDQMHarm2SO', 'dedxDQMHarm2PO'),
 
        #cuts on number of hits

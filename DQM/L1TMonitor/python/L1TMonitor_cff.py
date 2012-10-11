@@ -22,6 +22,10 @@ import FWCore.ParameterSet.Config as cms
 # Bx Timing DQM module
 from DQM.L1TMonitor.BxTiming_cfi import *
 
+# LTC DQM module - do these data exist, are they useful? 
+# FIXME
+from DQM.L1TMonitor.L1TLTC_cff import *
+
 # ECAL TPG DQM module
 # not run in L1T - do we need it? FIXME
 
@@ -60,9 +64,6 @@ from DQM.L1TMonitor.L1ExtraDQM_cff import *
 
 # L1 rates DQM module
 from DQM.L1TMonitor.L1TRate_cfi import *
-
-# L1 BPTX DQM module
-from DQM.L1TMonitor.L1TBPTX_cfi import *
 
 #
 # other, non pure-L1 stuff
@@ -106,13 +107,13 @@ l1ExtraDqmSeq = cms.Sequence(
 
 l1tMonitorOnline = cms.Sequence(
                           bxTiming +
+                          l1tLtc +
                           l1tDttf +
                           l1tCsctf + 
                           l1tRpctf +
                           l1tGmt +
                           l1tGt + 
                           l1ExtraDqmSeq +
-                          l1tBPTX +
                           l1tRate +
                           l1tRctSeq +
                           l1tGctSeq

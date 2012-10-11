@@ -119,6 +119,7 @@ l1TriggerDqmOfflineClient = cms.Sequence(
 #l1TriggerOnline.remove(l1tMonitorOnline)
 #
 l1tMonitorOnline.remove(bxTiming)
+l1tMonitorOnline.remove(l1tLtc)
 #l1tMonitorOnline.remove(l1tDttf)
 #l1tMonitorOnline.remove(l1tCsctf) 
 #l1tMonitorOnline.remove(l1tRpctf)
@@ -176,3 +177,5 @@ l1TriggerClients.remove(l1tTestsSummary)
 #l1EmulatorMonitorClient.remove(l1EmulatorQualityTests)
 l1EmulatorMonitorClient.remove(l1EmulatorErrorFlagClient)
 #l1EmulatorMonitorClient.remove(l1EmulatorEventInfoClient)
+                                  
+                                    

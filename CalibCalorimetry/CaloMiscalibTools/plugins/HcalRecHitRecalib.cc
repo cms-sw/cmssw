@@ -3,7 +3,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -16,6 +15,18 @@ HcalRecHitRecalib::HcalRecHitRecalib(const edm::ParameterSet& iConfig)
   hoLabel_ = iConfig.getParameter<edm::InputTag>("hoInput");
   hfLabel_ = iConfig.getParameter<edm::InputTag>("hfInput");
 
+  HcalTopologyMode::Mode mode = HcalTopologyMode::LHC;
+  int maxDepthHB = 2;
+  int maxDepthHE = 3;
+  if( iConfig.exists( "hcalTopologyConstants" ))
+  {
+    const edm::ParameterSet hcalTopoConsts = iConfig.getParameter<edm::ParameterSet>( "hcalTopologyConstants" );
+    StringToEnumParser<HcalTopologyMode::Mode> parser;
+    mode = (HcalTopologyMode::Mode) parser.parseString(hcalTopoConsts.getParameter<std::string>("mode"));
+    maxDepthHB = hcalTopoConsts.getParameter<int>("maxDepthHB");
+    maxDepthHE = hcalTopoConsts.getParameter<int>("maxDepthHE");
+  }
+  
 //   HBHEHitsProducer_ = iConfig.getParameter< std::string > ("HBHERecHitsProducer");
 //   HOHitsProducer_ = iConfig.getParameter< std::string > ("HERecHitsProducer");
 //   HFHitsProducer_ = iConfig.getParameter< std::string > ("HERecHitsProducer");
@@ -36,11 +47,20 @@ HcalRecHitRecalib::HcalRecHitRecalib(const edm::ParameterSet& iConfig)
   produces< HORecHitCollection >(RecalibHOHits_);
 
   // here read them from xml (particular to HCAL)
+  HcalTopology topology( mode, maxDepthHB, maxDepthHE );
+  
+  mapHcal_.prefillMap(topology);
 
   hcalfileinpath_=iConfig.getUntrackedParameter<std::string> ("fileNameHcal","");
   edm::FileInPath hcalfiletmp("CalibCalorimetry/CaloMiscalibTools/data/"+hcalfileinpath_);
 
   hcalfile_=hcalfiletmp.fullPath();
+
+
+  MiscalibReaderFromXMLHcal hcalreader_(mapHcal_);
+  if(!hcalfile_.empty()) hcalreader_.parseXMLMiscalibFile(hcalfile_);
+  mapHcal_.print();
+
 }
 
 
@@ -50,18 +70,6 @@ HcalRecHitRecalib::~HcalRecHitRecalib()
 
 }
 
-void
-HcalRecHitRecalib::beginRun(edm::Run&, edm::EventSetup const& iSetup)
-{
-  edm::ESHandle<HcalTopology> topology;
-  iSetup.get<IdealGeometryRecord>().get( topology );
-  
-  mapHcal_.prefillMap(*topology);
-
-  MiscalibReaderFromXMLHcal hcalreader_(mapHcal_);
-  if(!hcalfile_.empty()) hcalreader_.parseXMLMiscalibFile(hcalfile_);
-  mapHcal_.print();
-}
 
 // ------------ method called to produce the data  ------------
 void

@@ -42,7 +42,7 @@ class SiStripQualityDQM : public SiStripBaseCondObjDQM{
   void fillMEsForDet(ModMEs selModME_,uint32_t selDetId_);
   
   void fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds);
-  void fillMEsForLayer( /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_);
+  void fillMEsForLayer( std::map<uint32_t, ModMEs> selModMEsMap_, uint32_t selDetId_);
   void fillGrandSummaryMEs();
  	       
   

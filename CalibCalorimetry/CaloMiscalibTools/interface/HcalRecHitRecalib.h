@@ -15,8 +15,8 @@
 */
 //
 // Original Author:  Luca Malgeri
-//         Created:  $Date: 2007/09/11 13:46:29 $
-// $Id: HcalRecHitRecalib.h,v 1.4 2007/09/11 13:46:29 malgeri Exp $
+//         Created:  $Date: 2006/11/21 16:47:46 $
+// $Id: HcalRecHitRecalib.h,v 1.3 2006/11/21 16:47:46 malgeri Exp $
 //
 //
 
@@ -35,28 +35,40 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapHcal.h"
 
-class HcalRecHitRecalib : public edm::EDProducer
-{
-public:
-    explicit HcalRecHitRecalib(const edm::ParameterSet&);
-    ~HcalRecHitRecalib();
+//
+// class decleration
+//
 
-    virtual void beginRun(edm::Run&, edm::EventSetup const&);
-    virtual void produce(edm::Event &, const edm::EventSetup&);
+class HcalRecHitRecalib : public edm::EDProducer {
+   public:
+      explicit HcalRecHitRecalib(const edm::ParameterSet&);
+      ~HcalRecHitRecalib();
 
-private:
-    edm::InputTag hbheLabel_;
-    edm::InputTag hoLabel_;
-    edm::InputTag hfLabel_;
-    std::string RecalibHBHEHits_;
-    std::string RecalibHFHits_;
-    std::string RecalibHOHits_;
 
-    std::string hcalfile_;
-    std::string hcalfileinpath_;
+      virtual void produce(edm::Event &, const edm::EventSetup&);
 
-    CaloMiscalibMapHcal mapHcal_;
-    double refactor_;
-    double refactor_mean_;
+   private:
+      // ----------member data ---------------------------
+
+  //  edm::InputTag hbheLabel_,hoLabel_,hfLabel_;
+  //  std::string HBHEHitsProducer_;
+  //  std::string HFHitsProducer_;
+  //  std::string HOHitsProducer_;
+  //  std::string HBHEHits_;
+  //  std::string HFHits_;
+  //  std::string HOHits_;
+
+  edm::InputTag hbheLabel_,hoLabel_,hfLabel_;
+  std::string RecalibHBHEHits_;
+  std::string RecalibHFHits_;
+  std::string RecalibHOHits_;
+
+  std::string hcalfile_;
+  std::string hcalfileinpath_;
+
+  CaloMiscalibMapHcal mapHcal_;
+  double refactor_;
+  double refactor_mean_;
+
 };
 #endif

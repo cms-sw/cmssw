@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     06-Jul-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.6 $ by $Author: jbehr $
-#     $Date: 2011/06/15 14:24:52 $
+#     $Revision: 1.4 $ by $Author: flucke $
+#     $Date: 2009/06/24 10:27:32 $
 #
 #  Update local mps database with batch job status
 #  
@@ -22,15 +22,13 @@ read_db();
 my @FLAG = -1;
 my $submittedjobs = 0;
 for ($i=0; $i<@JOBID; ++$i) {
-  if (         $JOBSTATUS[$i] =~ /SETUP/i
-	       or $JOBSTATUS[$i] =~ /DONE/i
-	       or $JOBSTATUS[$i] =~ /FETCH/i
-	       or $JOBSTATUS[$i] =~ /OK/i
-	       or $JOBSTATUS[$i] =~ /ABEND/i
-	       or $JOBSTATUS[$i] =~ /FAIL/i
-     #          or $JOBSTATUS[$i] =~ /DISABLED/i
-     )
-    {
+  if (         $JOBSTATUS[$i] eq "SETUP"
+	       or $JOBSTATUS[$i] eq "DONE"
+	       or $JOBSTATUS[$i] eq "FETCH"
+	       or $JOBSTATUS[$i] eq "OK"
+	       or $JOBSTATUS[$i] eq "ABEND"
+	       or $JOBSTATUS[$i] eq "FAIL"
+               or $JOBSTATUS[$i] =~ /DISABLED/) {
     $FLAG[$i] = 1; # no need to care
   }
   else {
@@ -58,11 +56,9 @@ if ( $submittedjobs > 0) {
             $cputime = $1 if ($i =~ /TheCPUtimeusedis(\d+?)seconds/);
             print "out $status $jobid $cputime\n";
             my $theIndex = -1;
-            my $disabled = "";
             for (my $k=0; $k<@JOBID; ++$k) {
               if ($JOBID[$k] == $jobid) {
                 $theIndex = $k;
-                $disabled = "DISABLED" if ($JOBSTATUS[$k] =~ /DISABLED/i);
               }
               #print "For index $k check jobid $JOBID[$k] result $theIndex\n";
             }
@@ -72,7 +68,7 @@ if ( $submittedjobs > 0) {
             }
             next if($theIndex == -1);
             next if($FLAG[$theIndex] == 1);
-            $JOBSTATUS[$theIndex] = $disabled.$status;
+            $JOBSTATUS[$theIndex] = $status;
             if ($status eq "RUN" || $status eq "DONE") {
               if ($cputime>0) {
                 my $diff = $cputime - $JOBRUNTIME[$theIndex];
@@ -96,8 +92,6 @@ if ( $submittedjobs > 0) {
 my $theIndex = -1;
 for ($i=0; $i<@JOBID; ++$i) {
   $theIndex = $i;
-  my $disabled = "";
-  $disabled = "DISABLED" if ($JOBSTATUS[$i] =~ /DISABLED/i);
   print " DB job $JOBID[$i] flag $FLAG[$theIndex]\n";
   if ($FLAG[$theIndex] == 1) {
     next;
@@ -109,9 +103,9 @@ for ($i=0; $i<@JOBID; ++$i) {
   ##  print "LSFJOB\_$JOBID[$i] exists\n";
   if (-d $theBatchDirectory) {
     print "Directory $theBatchDirectory exists\n";
-    $JOBSTATUS[$theIndex] = $disabled."DONE";
+    $JOBSTATUS[$theIndex] = "DONE";
   } else {
-    if ($JOBSTATUS[$theIndex] =~ /RUN/i) {
+    if ($JOBSTATUS[$theIndex] eq "RUN") {
       print "WARNING: Job $theIndex in state RUN, neither found by bjobs nor find LSFJOB directory!\n";
       # FIXME: check if job not anymore in batch system
       # might set to FAIL - but probably $theBatchDirectory is just somewhere else...
@@ -123,11 +117,11 @@ for ($i=0; $i<@JOBID; ++$i) {
 # check for orphaned jobs
 for ($i=0; $i<@JOBID; ++$i) {
   unless ($FLAG[$i] eq 1) {
-    unless ($JOBSTATUS[$i] =~ /SETUP/i
-            or $JOBSTATUS[$i] =~ /DONE/i
-            or $JOBSTATUS[$i] =~ /FETCH/i
-            or $JOBSTATUS[$i] =~ /TIMEL/i
-            or $JOBSTATUS[$i] =~ /SUBTD/i) {
+    unless ($JOBSTATUS[$i] eq "SETUP" 
+            or $JOBSTATUS[$i] eq "DONE" 
+            or $JOBSTATUS[$i] eq "FETCH"
+            or $JOBSTATUS[$i] eq "TIMEL"
+            or $JOBSTATUS[$i] eq "SUBTD") {
       print "Funny entry index $i job $JOBID[$i] status $JOBSTATUS[$i]\n";
     }
   }

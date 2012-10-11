@@ -4,13 +4,12 @@
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "RKSolver.h"
 
-// 
-// A Variable Order Runge-Kutta Method for Initial Value Problems with ...
-// www.elegio.it/mc2/rk/doc/p201-cash-karp.pdf
+//#include "Utilities/UI/interface/SimpleConfigurable.h"
+
 template <typename T, 
 	  template <typename,int> class StepWithPrec, 
 	  int N>
-class dso_internal RKAdaptiveSolver GCC11_FINAL : public RKSolver<T,N> {
+class dso_internal RKAdaptiveSolver : public RKSolver<T,N> {
 public:
 
     typedef RKSolver<T,N>                       Base;
@@ -20,7 +19,19 @@ public:
     virtual Vector operator()( Scalar startPar, const Vector& startState,
 			       Scalar step, const RKDerivative<T,N>& deriv,
 			       const RKDistance<T,N>& dist,
-			       float eps);
+			       Scalar eps);
+
+    std::pair< Vector, T> 
+    stepWithAccuracy( Scalar startPar, const Vector& startState,
+		      const RKDerivative<T,N>& deriv,
+		      const RKDistance<T,N>& dist, Scalar step);
+
+protected:
+
+    bool verbose() const {
+      static bool verb = false; //SimpleConfigurable<bool>(false,"RKAdaptiveSolver:verbose").value();
+      return verb;
+    }
 
 };
 

@@ -11,20 +11,6 @@
 <bin   file="ProjectMatrix_t.cpp" name="DataFormatsProjectMatrix_t">
 </bin>
 <bin   file="FastMath_t.cpp" name="DataFormatsFastMath_t">
-  <flags CXXFLAGS="-std=gnu++11 -Wno-error=format -Wno-format"/>
-  <flags REM_CXXFLAGS="-Wformat -ansi"/>
-</bin>
-<bin   file="testApproximations.cpp" name="testMathApproximations">
-  <flags CXXFLAGS="-std=gnu++11 -Wno-error=format -Wno-format"/>
-  <flags REM_CXXFLAGS="-std=c++%"/>
-  <flags REM_CXXFLAGS="-Wformat"/>
-  <flags REM_CXXFLAGS="-ansi"/>
-</bin>
-<bin   file="testApproxMath.cpp" name="testMathApproxMath">
-  <flags CXXFLAGS="-std=gnu++11 -Wno-error=format -Wno-format"/>
-  <flags REM_CXXFLAGS="-std=c++%"/>
-  <flags REM_CXXFLAGS="-Wformat"/>
-  <flags REM_CXXFLAGS="-ansi"/>
 </bin>
 <bin   file="SSEVec_t.cpp" name="DataFormatsSSEVec_t">
 </bin>

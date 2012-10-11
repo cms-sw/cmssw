@@ -70,6 +70,9 @@ class PF_PU_AssoMapAlgos{
   
    //function to find the vertex with the highest TrackWeight for a certain track
    static VertexTrackQuality TrackWeightAssociation(const reco::TrackRef&, edm::Handle<reco::VertexCollection>);
+
+   //function to calculate the deltaR between a vector and a vector connecting two points
+   static double dR(math::XYZPoint, math::XYZVector, edm::Handle<reco::BeamSpot>);
  
    //function to associate the track to the closest vertex in z/longitudinal distance      
    static VertexTrackQuality AssociateClosestZ(reco::TrackRef, edm::Handle<reco::VertexCollection>, double tWeight = 0.);
@@ -119,7 +122,7 @@ class PF_PU_AssoMapAlgos{
  	 	                          edm::Handle<reco::BeamSpot>, edm::Handle<reco::VertexCollection>, double);
    
    //function to check if a secondary track is compatible with the BeamSpot
-   static bool CheckBeamSpotCompability(const math::XYZPoint, edm::Handle<reco::BeamSpot>, double);
+   static bool CheckBeamSpotCompability(reco::TransientTrack, double);
 
 
   // ----------member data ---------------------------

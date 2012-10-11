@@ -41,6 +41,9 @@ def customise(process):
     ### remove a slow module for cosmics
     #process.reconstruction_step.remove(process.regionalCosmicCkfTrackCandidates)
 
+#this line different
+    process.pdigi.remove(process.addPileupInfo)
+    
     if hasattr(process,'dqmoffline_step'):
         process.dqmoffline_step.remove(process.SiPixelTrackResidualSource)
         process.dqmoffline_step.remove(process.jetMETAnalyzer)

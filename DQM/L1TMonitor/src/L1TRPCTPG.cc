@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTPG.cc
  *
- * $Date: 2009/11/19 14:40:21 $
- * $Revision: 1.12 $
+ * $Date: 2008/08/21 06:59:52 $
+ * $Revision: 1.11 $
  * \author J. Berryhill
  *
  */
@@ -202,6 +202,19 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
      {
         if (!ECItr->empty()) { ++nRPCTrackEndcap; }
      }
+  }
+
+
+  
+  /// RecHits, perhaps to add later
+  if (0){
+  edm::Handle<RPCRecHitCollection> rpcHits;
+  e.getByType(rpcHits);
+     
+  if (!rpcHits.isValid()) {
+    edm::LogInfo("DataNotFound") << "can't find RPCRecHitCollection of any type" << endl;
+    return;
+  }  
   }
 
     int numberofDigi[3] = {0,0,0};

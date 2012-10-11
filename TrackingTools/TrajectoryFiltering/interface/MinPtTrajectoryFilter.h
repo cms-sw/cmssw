@@ -18,10 +18,10 @@
 class MinPtTrajectoryFilter : public TrajectoryFilter {
 public:
 
-  explicit MinPtTrajectoryFilter( double ptMin, float nSigma = 5.F, int nH=3): theInvPtMin(1./ptMin), theNSigma(nSigma), theMinHits(nH)  {}
+  explicit MinPtTrajectoryFilter( double ptMin, float nSigma = 5.F, int nH=3): thePtMin( ptMin), theNSigma(nSigma), theMinHits(nH)  {}
 
   explicit MinPtTrajectoryFilter( const edm::ParameterSet & pset) :
-    theInvPtMin(1./pset.getParameter<double>("minPt")),
+    thePtMin(pset.getParameter<double>("minPt")),
     theNSigma(pset.getParameter<double>("nSigmaMinPt")),
     theMinHits(pset.getParameter<int>("minHitsMinPt")){}
     
@@ -51,22 +51,22 @@ public:
     ftsMemory=fts;
 
     //if p_T is way too small: stop
-    float pT2 = fts.momentum().perp2();
-    if (pT2<(0.010*0.010)) {answerMemory=false; return false;}
+    double pT = fts.momentum().perp();
+    if (pT<0.010) {answerMemory=false; return false;}
     //if error is way too big: stop
-    float invError = TrajectoryStateAccessor(fts).inversePtError();
-    if (invError > 1.e10f) {answerMemory=false;return false;}
+    double invError = TrajectoryStateAccessor(fts).inversePtError();
+    if (invError > 1.e10) {answerMemory=false;return false;}
 
     //calculate the actual pT cut: 
-    if ( (1.f/sqrt(pT2) - theNSigma*invError) > theInvPtMin) {answerMemory=false; return false;}
+    if ((1/pT - theNSigma*invError) > 1/thePtMin) {answerMemory=false; return false;}
     //    first term if the max value of pT (pT+N*sigma(pT))
     //    second tern is the cut
 
     answerMemory=true; return true;
   }
 
-  float theInvPtMin;
-  float theNSigma;
+  double thePtMin;
+  double theNSigma;
   int theMinHits;
 
 };

@@ -8,7 +8,6 @@
 <use   name="DataFormats/L1Trigger"/>
 <use   name="DataFormats/METReco"/>
 <use   name="DataFormats/MuonReco"/>
-<use   name="DataFormats/PatCandidates"/>
 <use   name="DQMServices/Core"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>

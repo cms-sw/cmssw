@@ -306,8 +306,7 @@ SiStripDQMTier0 = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
     *SiStripMonitorTrackCommon*MonitorTrackResiduals
     # dEdx monitoring
-#    *RefitterForDedxDQMDeDx * dedxDQMHarm2SP * dedxDQMHarm2SO * dedxDQMHarm2PO * dEdxMonCommon
-     * dedxDQMHarm2SP * dedxDQMHarm2SO * dedxDQMHarm2PO * dEdxMonCommon    
+    *RefitterForDedxDQMDeDx * dedxDQMHarm2SP * dedxDQMHarm2SO * dedxDQMHarm2PO * dEdxMonCommon
 
 #    # temporary patch in order to have BXlumi
 #    * lumiProducer
@@ -323,8 +322,7 @@ SiStripDQMTier0Common = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX        
     *SiStripMonitorTrackCommon
     # dEdx monitoring
-#    *RefitterForDedxDQMDeDx * dedxDQMHarm2SP * dedxDQMHarm2SO * dedxDQMHarm2PO * dEdxMonCommon
-     * dedxDQMHarm2SP * dedxDQMHarm2SO * dedxDQMHarm2PO * dEdxMonCommon    
+    *RefitterForDedxDQMDeDx * dedxDQMHarm2SP * dedxDQMHarm2SO * dedxDQMHarm2PO * dEdxMonCommon
 
 #    # temporary patch in order to have BXlumi
 #    * lumiProducer
@@ -340,8 +338,7 @@ SiStripDQMTier0MinBias = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
     *SiStripMonitorTrackMB*MonitorTrackResiduals
     # dEdx monitoring
-#    *RefitterForDedxDQMDeDx * dedxDQMHarm2SP * dedxDQMHarm2SO * dedxDQMHarm2PO * dEdxMonMB
-     * dedxDQMHarm2SP * dedxDQMHarm2SO * dedxDQMHarm2PO * dEdxMonMB    
+    *RefitterForDedxDQMDeDx * dedxDQMHarm2SP * dedxDQMHarm2SO * dedxDQMHarm2PO * dEdxMonCommon
 
 #    * lumiProducer
 #    # temporary test in order to have the "goodPrimaryVertexCollection"

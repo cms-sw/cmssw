@@ -32,36 +32,31 @@
 namespace {
 #ifdef STAT_TSB
   struct StatCount {
-    long long totTrack=0;
-    long long totLoop=0;
-    long long totGsfTrack=0;
-    long long totFound=0;
-    long long totLost=0;
-    long long totAlgo[12];
+    long long totTrack;
+    long long totLoop;
+    long long totGsfTrack;
+    void zero() {
+      totTrack=totLoop=totGsfTrack=0;
+    }
     void track(int l) {
       if (l>0) ++totLoop; else ++totTrack;
     }
-    void hits(int f, int l) { totFound+=f; totLost+=l;} 
     void gsf() {++totGsfTrack;}
-    void algo(int a) { if (a>=0 && a<12) ++totAlgo[a];}
 
 
     void print() const {
-      std::cout << "TrackProducer stat\nTrack/Loop/Gsf/FoundHits/LostHits/algos "
-    		<<  totTrack <<'/'<< totLoop <<'/'<< totGsfTrack  <<'/'<< totFound  <<'/'<< totLost;
-      for (auto a : totAlgo) std::cout << '/'<< a;
-	std::cout  << std::endl;
+      std::cout << "TrackProducer stat\nTrack/Loop/Gsf "
+    		<<  totTrack <<'/'<< totLoop <<'/'<< totGsfTrack
+		<< std::endl;
     }
-    StatCount() {}
+    StatCount() { zero();}
     ~StatCount() { print();}
   };
 
 #else
   struct StatCount {
     void track(int){}
-    void hits(int, int){}
     void gsf(){}
-    void algo(int);
   };
 #endif
 
@@ -98,9 +93,6 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
   theTraj = new Trajectory(std::move(trajTmp));
   theTraj->setSeedRef(seedRef);
   
-  statCount.hits(theTraj->foundHits(),theTraj->lostHits());
-  statCount.algo(int(algo_));
-
   // TrajectoryStateOnSurface innertsos;
   // if (theTraj->direction() == alongMomentum) {
   //  innertsos = theTraj->firstMeasurement().updatedState();

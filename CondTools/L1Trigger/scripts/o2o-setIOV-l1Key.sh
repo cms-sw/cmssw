@@ -5,8 +5,7 @@
 nflag=0
 oflag=0
 pflag=0
-fflag=0
-while getopts 'nopfh' OPTION
+while getopts 'noph' OPTION
   do
   case $OPTION in
       n) nflag=1
@@ -15,13 +14,10 @@ while getopts 'nopfh' OPTION
           ;;
       p) pflag=1
 	  ;;
-      f) fflag=1
-	  ;;
       h) echo "Usage: [-n] runnum L1_KEY"
           echo "  -n: no RS"
           echo "  -o: overwrite RS keys"
           echo "  -p: centrally installed release, not on local machine"
-	  echo "  -f: force IOV update"
           exit
           ;;
   esac
@@ -33,10 +29,9 @@ run=$1
 l1Key=$2
 
 release=CMSSW_4_2_3_ONLINE
-version=012
+version=011
 
 echo "`date` : o2o-setIOV-l1Key-slc5.sh $run $l1Key" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
-echo "`uptime`" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 START=$(date +%s)
 
 if [ $# -lt 2 ]
@@ -64,7 +59,7 @@ if [ -f o2o-setIOV.lock ]
     then
     echo "$0 already running.  Aborting process."  | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
     echo "$0 already running.  Aborting process."  1>&2
-    tail -4 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
+    tail -3 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
     exit 50
 else
     touch o2o-setIOV.lock
@@ -76,7 +71,9 @@ trap "rm -f o2o-setIOV.lock; mv tmp.log tmp.log.save; exit" 1 2 3 4 5 6 7 8 9 10
 
 # run script; args are run key
 rm -f tmp.log
-echo "`date`" >& tmp.log
+echo "`date` : setting TSC IOVs" >& tmp.log
+tscKey=`$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh -t ${l1Key}`
+echo "`date` : parsed tscKey = ${tscKey}" >> tmp.log 2>&1
 
 # Check if o2o-tscKey.sh is running.  If so, wait 15 seconds to prevent simultaneous writing ot ORCON.
 if [ -f o2o-tscKey.lock ]
@@ -86,10 +83,8 @@ if [ -f o2o-tscKey.lock ]
     echo "Resuming process." >> tmp.log 2>&1
 fi
 
-if [ ${fflag} -eq 1 ]
-    then
-    forceUpdate="-f"
-fi
+$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-iov.sh -x ${centralRel} ${run} ${tscKey} >> tmp.log 2>&1
+o2ocode1=$?
 
 o2ocode2=0
 
@@ -101,17 +96,11 @@ fi
 if [ ${nflag} -eq 0 ]
     then
     echo "`date` : setting RS keys and IOVs" >> tmp.log 2>&1
-    $CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-rs-keysFromL1Key.sh -x ${overwrite} ${centralRel} ${forceUpdate} ${run} ${l1Key} >> tmp.log 2>&1
+    $CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-rs-keysFromL1Key.sh -x ${overwrite} ${centralRel} ${run} ${l1Key} >> tmp.log 2>&1
     o2ocode2=$?
 fi
 
-echo "`date` : setting TSC IOVs" >> tmp.log 2>&1
-tscKey=`$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh -t ${l1Key}`
-echo "`date` : parsed tscKey = ${tscKey}" >> tmp.log 2>&1
-$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-iov.sh -x ${centralRel} ${forceUpdate} ${run} ${tscKey} >> tmp.log 2>&1
-o2ocode1=$?
-
-tail -2 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
+tail -1 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
 
 # Filter CORAL debug output into different file, which gets deleted if no errors
 grep -E "CORAL.*Info|CORAL.*Debug" tmp.log >& /nfshome0/popcondev/L1Job/coraldebug-${run}.log

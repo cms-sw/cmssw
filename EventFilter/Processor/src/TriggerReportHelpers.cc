@@ -1,6 +1,5 @@
 #include "EventFilter/Utilities/interface/Exception.h"
 #include "EventFilter/Modules/interface/ShmOutputModuleRegistry.h"
-#include "EventFilter/Modules/src/FUShmOutputModule.h"
 
 #include "TriggerReportHelpers.h"
 #include "FWCore/Framework/interface/TriggerReport.h"
@@ -125,7 +124,6 @@ void TriggerReportHelpers::formatReportTable(edm::TriggerReport &tr,
   //adjust number of trigger- and end-paths in static structure
   trp->trigPathsInMenu = tr.trigPathSummaries.size();
   trp->endPathsInMenu = tr.endPathSummaries.size();
-  trp->datasetsInMenu = 0;//known in beginRun
   ///
 
   l1pos_.resize(tr.trigPathSummaries.size()+tr.endPathSummaries.size(),-1);
@@ -374,6 +372,7 @@ void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr,
       trp->trigPathSummaries[i].timesExcept = 
 	tr.trigPathSummaries[i].timesExcept - trp_.trigPathSummaries[i].timesExcept;
     }
+
   for(int i = 0; i < trp->endPathsInMenu; i++)
     {
       unsigned int j = i + trp->trigPathsInMenu;
@@ -415,24 +414,6 @@ void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr,
 	trp->endPathSummaries[i].timesPassedPs = trp->endPathSummaries[i].timesRun;
       }
     }
-  //dataset statistics
-  unsigned int datasetIndex = 0;
-  if (sor) {
-    std::vector<edm::FUShmOutputModule *> & shmOutputsWithDatasets_ = sor->getShmOutputModulesWithDatasets();
-    for (unsigned int i=0;i<shmOutputsWithDatasets_.size();i++)
-    {
-      std::vector<unsigned int> & outputCounters = shmOutputsWithDatasets_[i]->getDatasetCounts();
-      for (unsigned int j=0;j<outputCounters.size();j++)
-      {
-        if (j>=max_datasets) continue;
-        trp->datasetSummaries[datasetIndex].timesPassed=outputCounters[j];
-        datasetIndex++;
-      }
-      shmOutputsWithDatasets_[i]->clearDatasetCounts();
-    }
-  }
-  trp->datasetsInMenu=datasetIndex;
-
   trp_ = tr;
   for(int i = 0; i < trp->endPathsInMenu; i++)
     {
@@ -474,16 +455,6 @@ void TriggerReportHelpers::sumAndPackTriggerReport(MsgBuf &buf)
       std::ostringstream ost;
       ost << "trig endpath summary inconsistency " 
 	  << trs->endPathsInMenu << " vs. " << trp->endPathsInMenu;
-      std::cout << ost.str() << std::endl;
-      XCEPT_RAISE(evf::Exception,ost.str());
-    }
-  //init dataset sizes if 0
-  if (!trs->datasetsInMenu) trs->datasetsInMenu = trp->datasetsInMenu;
-  if(trs->datasetsInMenu != trp->datasetsInMenu)
-    {
-      std::ostringstream ost;
-      ost << "output module dataset summary inconsistency " 
-	  << trs->datasetsInMenu << " vs. " << trp->datasetsInMenu;
       std::cout << ost.str() << std::endl;
       XCEPT_RAISE(evf::Exception,ost.str());
     }

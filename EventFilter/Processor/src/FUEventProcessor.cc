@@ -157,7 +157,6 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , rlimit_coresize_changed_(false)
   , crashesToDump_(2)
   , sigmon_sem_(0)
-  , datasetCounting_(true)
 {
   using namespace utils;
 
@@ -217,7 +216,6 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("slaveRestartDelaySecs",&slaveRestartDelaySecs_       );
   ispace->fireItemAvailable("iDieUrl",              &iDieUrl_                     );
   ispace->fireItemAvailable("crashesToDump"         ,&crashesToDump_              );
-  ispace->fireItemAvailable("datasetCounting"       ,&datasetCounting_            );
 
   // Add infospace listeners for exporting data values
   getApplicationInfoSpace()->addItemChangedListener("parameterSet",        this);
@@ -385,8 +383,7 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 // 	    << (hasModuleWebRegistry_.value_ ? 0x2 : 0) << " "
 // 	    << (hasPrescaleService_.value_ ? 0x1 : 0) <<std::endl;
   unsigned short smap 
-    = (datasetCounting_.value_ ? 0x20 : 0 )
-    + ((nbSubProcesses_.value_!=0) ? 0x10 : 0)
+    = ((nbSubProcesses_.value_!=0) ? 0x10 : 0)
     + (((instance_.value_%80)==0) ? 0x8 : 0) // have at least one legend per slice
     + (hasServiceWebRegistry_.value_ ? 0x4 : 0) 
     + (hasModuleWebRegistry_.value_ ? 0x2 : 0) 
@@ -434,17 +431,14 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 	      std::string slegenda = ((xdata::String*)legenda)->value_;
 	      ratestat_->sendLegenda(slegenda);
 	    }
-	    if (sorRef_) {
-	      xdata::String dsLegenda =  sorRef_->getDatasetNamesString();
-	      ratestat_->sendAuxLegenda(dsLegenda);
-	    }
+
 	  }
 	  catch(evf::Exception &e){
 	    LOG4CPLUS_INFO(getApplicationLogger(),"coud not send legenda"
-		<< e.what());
+			   << e.what());
 	  }
 	}
-
+	
 	fsm_.fireEvent("ConfigureDone",this);
 	LOG4CPLUS_INFO(getApplicationLogger(),"Finished configuring!");
 	localLog("-I- Configuration completed");
@@ -491,8 +485,7 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 // 	    << (hasModuleWebRegistry_.value_ ? 0x2 : 0) << " "
 // 	    << (hasPrescaleService_.value_ ? 0x1 : 0) <<std::endl;
   unsigned short smap 
-    = (datasetCounting_.value_ ? 0x20 : 0 )
-    + ((nbSubProcesses_.value_!=0) ? 0x10 : 0)
+    = ((nbSubProcesses_.value_!=0) ? 0x10 : 0)
     + (((instance_.value_%80)==0) ? 0x8 : 0) // have at least one legend per slice
     + (hasServiceWebRegistry_.value_ ? 0x4 : 0) 
     + (hasModuleWebRegistry_.value_ ? 0x2 : 0) 
@@ -535,10 +528,6 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 	  {
 	    std::string slegenda = ((xdata::String*)legenda)->value_;
 	    ratestat_->sendLegenda(slegenda);
-	  }
-	  if (sorRef_) {
-	    xdata::String dsLegenda =  sorRef_->getDatasetNamesString();
-	    ratestat_->sendAuxLegenda(dsLegenda);
 	  }
 	}
       catch(evf::Exception &e)
@@ -1010,7 +999,7 @@ void FUEventProcessor::scalersWeb(xgi::Input  *in, xgi::Output *out)
   out->getHTTPResponseHeader().addHeader( "Content-Transfer-Encoding",
 					  "binary" );
   if(evtProcessor_ != 0){
-    out->write( (char*)(evtProcessor_.getPackedTriggerReportAsStruct()), sizeof(TriggerReportStatic));
+    out->write( (char*)(evtProcessor_.getPackedTriggerReportAsStruct()), sizeof(TriggerReportStatic) );
   }
 }
 
@@ -1764,7 +1753,7 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	  { 
 	    // after each monitoring cycle check if we are in inconsistent state and exit if configured to do so  
 	    //	    std::cout << getpid() << "receivingAndMonitor: trying to acquire stop lock " << std::endl;
-	    if(data->Ms == edm::event_processor::sError) 
+	    if(data->Ms == edm::event_processor::sStopping || data->Ms == edm::event_processor::sError) 
 	      { 
 		bool running = true;
 		int count = 0;
@@ -1777,7 +1766,9 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 		  if(running) {::sleep(1); count++;}
 		}
 	      }
+	    
 	  }
+	  //	  scalersUpdates_++;
 	  break;
 	}
       case MSQM_MESSAGE_TYPE_WEB:
@@ -2211,7 +2202,7 @@ void FUEventProcessor::forkProcessesFromEDM() {
   catch(...) {
     LOG4CPLUS_ERROR(getApplicationLogger(),"Unknown Exception in MessageServicePresence");
   }
-  restart_in_progress_=false;
+
   edm_init_done_=true;
 }
 
@@ -2291,10 +2282,6 @@ bool FUEventProcessor::restartForkInEDM(unsigned int slotId) {
   sem_post(forkInfoObj_->control_sem_);
   forkInfoObj_->unlock();
   usleep(1000);
-  //sleep until fork is performed
-  int count=50;
-  restart_in_progress_=true;
-  while (restart_in_progress_ && count--) usleep(20000);
   return true;
 }
 
@@ -2658,7 +2645,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.158 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.154 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

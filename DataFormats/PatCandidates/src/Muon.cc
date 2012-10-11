@@ -1,5 +1,5 @@
 //
-// $Id: Muon.cc,v 1.32 2012/09/27 09:15:34 bellan Exp $
+// $Id: Muon.cc,v 1.29 2011/06/08 20:40:19 rwolf Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -212,17 +212,6 @@ reco::CandidatePtr Muon::sourceCandidatePtr( size_type i ) const {
   }
 }
 
-/// embed the Track selected to be the best measurement of the muon parameters
-void Muon::embedMuonBestTrack() {
-  muonBestTrack_.clear();
-  if (reco::Muon::muonBestTrack().isNonnull()) {
-      muonBestTrack_.push_back(*reco::Muon::muonBestTrack());
-      embeddedMuonBestTrack_ = true;
-  }
-}
-
-
-
 /// embed the Track reconstructed in the tracker only
 void Muon::embedTrack() {
   track_.clear();
@@ -391,22 +380,4 @@ double Muon::segmentCompatibility(reco::Muon::ArbitrationType arbitrationType) c
    return muon::segmentCompatibility(*this, arbitrationType);
 }
 
-// Selectors
-bool Muon::isTightMuon(const reco::Vertex&vtx) const {
-  return muon::isTightMuon(*this, vtx);
-}
-
-bool Muon::isLooseMuon() const {
-  return muon::isLooseMuon(*this);
-
-}
-
-bool Muon::isSoftMuon(const reco::Vertex& vtx) const {
-  return muon::isSoftMuon(*this, vtx);
-}
-
-
-bool Muon::isHighPtMuon(const reco::Vertex& vtx) const{
-  return muon::isHighPtMuon(*this, vtx);
-}
 

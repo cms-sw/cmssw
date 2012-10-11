@@ -21,7 +21,7 @@ class HepRandomEngine;
 
 namespace gen {
 
-/* for old tauola27 
+/* for old tauola27 */
    class TauolaInterface
    {
       public:
@@ -50,16 +50,14 @@ namespace gen {
       //CLHEP::RandFlat*                         fRandomGenerator;
        
    };
-*/
+/* */
 
-/* this is the code for new Tauola++ */
+/* this is the code for new Tauola++ 
 
    extern "C" {
       void ranmar_( float *rvec, int *lenv );
       void rmarin_( int*, int*, int* );
    }
-
-   double TauolappInterface_RandGetter();
 
    class TauolaInterface
    {
@@ -81,17 +79,12 @@ namespace gen {
       private: 
       
       friend void gen::ranmar_( float *rvec, int *lenv );
-      friend double gen::TauolappInterface_RandGetter();      
+      
       // ctor
       TauolaInterface();
       
       // member function(s)
       float flat();
-      void decodeMDTAU( int );
-      void selectDecayByMDTAU();
-      int selectLeptonic();
-      int selectHadronic();
-      
       
       //
       CLHEP::HepRandomEngine*                  fRandomEngine;            
@@ -101,19 +94,11 @@ namespace gen {
       edm::ParameterSet*                       fPSet;
       bool                                     fIsInitialized;
       
-      int                                      fMDTAU;
-      bool                                     fSelectDecayByEvent;
-      std::vector<int>                         fLeptonModes;
-      std::vector<int>                         fHadronModes;
-      std::vector<double>                      fScaledLeptonBrRatios;
-      std::vector<double>                      fScaledHadronBrRatios;
-      
       static TauolaInterface*                  fInstance;
        
    };
 
-
-/* */
+*/
 
 }
 

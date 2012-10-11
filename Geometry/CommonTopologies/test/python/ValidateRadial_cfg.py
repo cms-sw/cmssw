@@ -6,14 +6,12 @@ process.load('FWCore/MessageService/MessageLogger_cfi')
 
 process.load('Configuration/StandardSequences/GeometryIdeal_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'START60_V4::All'
+process.GlobalTag.globaltag = 'MC_3XY_V24::All'
 
 process.test = cms.EDAnalyzer('ValidateRadial',
                               Epsilon = cms.double(3e-1),
                               FileName = cms.string("failureLimits.root"),
-                              PrintOut = cms.bool(True),
-                              PosOnly  = cms.bool(True)
-                              )
+                              PrintOut = cms.bool(False))
 
 
 process.p1 = cms.Path(process.test)

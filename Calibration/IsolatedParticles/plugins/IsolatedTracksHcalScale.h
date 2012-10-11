@@ -166,6 +166,7 @@ private:
   std::vector<double> *t_hCone,         *t_conehmaxNearP,  *t_eMipDR,        *t_eECALDR;
   std::vector<double> *t_e11x11_20Sig,  *t_e15x15_20Sig;
   std::vector<double> *t_eMipDR_1,      *t_eECALDR_1,      *t_eMipDR_2,      *t_eECALDR_2;
+  std::vector<double> *t_hConeHB,       *t_eHCALDRHB;
   std::vector<double> *t_hsimInfoMatched,  *t_hsimInfoRest,     *t_hsimInfoPhoton;
   std::vector<double> *t_hsimInfoNeutHad,  *t_hsimInfoCharHad,  *t_hsimInfoPdgMatched;
   std::vector<double> *t_hsimInfoTotal,    *t_hsim;

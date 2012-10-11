@@ -13,7 +13,7 @@
 //
 // Original Author:  Matthias Geisler
 //         Created:  Wed Apr 18 14:48:37 CEST 2012
-// $Id: PFCand_AssoMap.h,v 1.3 2012/06/06 09:06:29 mgeisler Exp $
+// $Id: PFCand_AssoMap.h,v 1.6 2012/10/10 11:43:31 mgeisler Exp $
 //
 //
 

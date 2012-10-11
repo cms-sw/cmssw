@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
- 
+
 # Coincidence of HF towers above threshold
 from HeavyIonsAnalysis.Configuration.hfCoincFilter_cff import *
- 
+
 # Selection of at least a two-track fitted vertex
 primaryVertexFilter = cms.EDFilter("VertexSelector",
     src = cms.InputTag("hiSelectedVertex"),
@@ -10,12 +10,6 @@ primaryVertexFilter = cms.EDFilter("VertexSelector",
     filter = cms.bool(True),   # otherwise it won't filter the events
 )
 
-PAprimaryVertexFilter = cms.EDFilter("VertexSelector",
-    src = cms.InputTag("offlinePrimaryVertices"),
-    cut = cms.string("!isFake && abs(z) <= 25 && position.Rho <= 2 && tracksSize >= 2"), 
-    filter = cms.bool(True),   # otherwise it won't filter the events
-)
- 
 # Cluster-shape filter re-run offline
 from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import *
 from HLTrigger.special.hltPixelClusterShapeFilter_cfi import *
@@ -34,8 +28,3 @@ collisionEventSelection = cms.Sequence(noBSChalo *
                                        primaryVertexFilter *
                                        siPixelRecHits *
                                        hltPixelClusterShapeFilter)
-
-PAcollisionEventSelection = cms.Sequence(hfCoincFilter *
-                                         PAprimaryVertexFilter *
-                                         siPixelRecHits *
-                                         hltPixelClusterShapeFilter)
