@@ -7,9 +7,9 @@ set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
 set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
 
 # set your llvm/clang paths here
-set (LLVM_SRC_DIR /scratch/gartung/llvm)
-set (LLVM_SRC_BUILD_DIR /scratch/gartung/build)
-set (LLVM_BIN_BUILD_DIR ${LLVM_SRC_BUILD_DIR}/Debug+Asserts)
+set (LLVM_SRC_DIR ../llvm)
+set (LLVM_SRC_BUILD_DIR ../build)
+set (LLVM_BIN_BUILD_DIR ${LLVM_SRC_BUILD_DIR}/Release+Asserts)
 
 
 # the rest should work automatically
@@ -33,7 +33,7 @@ add_definitions ( -DTHREAD_CHECKS_NO_REPORT_SYSTEM )
 set (CMAKE_CXX_COMPILER "${LLVM_BIN_BUILD_DIR}/bin/clang++")
 set (CMAKE_CC_COMPILER "${LLVM_BIN_BUILD_DIR}/bin/clang")
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fno-common -Woverloaded-virtual -Wcast-qual -fno-strict-aliasing -pedantic -Wno-long-long -Wall -W -Wno-unused-parameter -Wwrite-strings -fno-exceptions -fno-rtti")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-common -Woverloaded-virtual -Wcast-qual -fno-strict-aliasing -pedantic -Wno-long-long -Wall -W -Wno-unused-parameter -Wwrite-strings -fno-exceptions -fno-rtti")
 
 set (CMAKE_MODULE_LINKER_FLAGS "-Wl,-flat_namespace -Wl,-undefined -Wl,suppress")
 
@@ -122,7 +122,6 @@ set (USER_LIBS
 
 add_clang_plugin( ClangCms 
 	src/ClangCmsCheckerPluginRegister.cpp 
-	src/ClassChecker.cpp
 	src/CmsException.cpp
 	src/ConstCastChecker.cpp 
 	src/ConstCastAwayChecker.cpp
