@@ -6,7 +6,6 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 # setup 'standard' options
 options = VarParsing.VarParsing ('standard')
 options.register('runOnMC', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "decide if run on MC or data")
-
 # parsing command line arguments
 if( hasattr(sys, "argv") ):
   #options.parseArguments()
@@ -19,6 +18,7 @@ if( hasattr(sys, "argv") ):
       if(len(val)==2):
         print "Setting *", val[0], "* to:", val[1]
         setattr(options,val[0], val[1])
+
 
 process = cms.Process( 'PAT' )
 
@@ -131,8 +131,8 @@ maxEvents = -1 # reduce for testing
 ### Conditions
 
 # GlobalTags (w/o suffix '::All')
-globalTagData = 'GR_R_52_V7E::All' # incl. Summer12 JEC and new b-tag SF
-globalTagMC   = 'START52_V9D::All' # incl. Summer12 JEC and new b-tag SF
+globalTagData = 'GR_R_53_V13::All'
+globalTagMC   = 'START53_V11::All'
 
 ### Output
 
@@ -172,18 +172,19 @@ process.load( "TopQuarkAnalysis.Configuration.patRefSel_inputModule_cfi" )
 if useRelVals:
   from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
   if runOnMC:
-    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_2_5_cand1'
-                                     , relVal        = 'RelValTTbar'
-                                     , globalTag     = 'START52_V9'
-                                     , maxVersions   = 1
+    inputFiles = pickRelValInputFiles( cmsswVersion = 'CMSSW_5_3_4_cand1'
+                                     , dataTier     = 'AODSIM'
+                                     , relVal       = 'RelValProdTTbar'
+                                     , globalTag    = 'START53_V10'
+                                     , maxVersions  = 1
                                      )
   else:
     print 'running on *Jet* data stream (instead of MultiJet) as no better stream exists as RelVal'
-    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_2_5_cand1'
-                                     , relVal        = 'Jet'
-                                     , dataTier      = 'RECO'
-                                     , globalTag     = 'GR_R_52_V7_RelVal_jet2011B'
-                                     , maxVersions   = 1
+    inputFiles = pickRelValInputFiles( cmsswVersion = 'CMSSW_5_3_4_cand1'
+                                     , dataTier     = 'RECO'
+                                     , relVal       = 'Jet'
+                                     , globalTag    = 'GR_R_53_V12_RelVal_jet2012A'
+                                     , maxVersions  = 1
                                      )
 process.source.fileNames = inputFiles
 process.maxEvents.input  = maxEvents

@@ -12,6 +12,19 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('standard')
 options.register('runOnMC', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "decide if run on MC or data")
+# parsing command line arguments
+if( hasattr(sys, "argv") ):
+  #options.parseArguments()
+  if(len(sys.argv) > 1):
+    print "Parsing command line arguments:"
+  for args in sys.argv :
+    arg = args.split(',')
+    for val in arg:
+      val = val.split('=')
+      if(len(val)==2):
+        print "Setting *", val[0], "* to:", val[1]
+        setattr(options,val[0], val[1])
+
 
 process = cms.Process( 'PAT' )
 
@@ -26,6 +39,7 @@ process = cms.Process( 'PAT' )
 
 ### Data or MC?
 runOnMC = options.runOnMC
+print runOnMC
 
 ### Switch on/off selection steps
 
@@ -134,8 +148,8 @@ maxEvents = -1 # reduce for testing
 ### Conditions
 
 # GlobalTags
-globalTagData = 'GR_R_52_V7E::All' # incl. Summer12 JEC and new b-tag SF
-globalTagMC   = 'START52_V9D::All' # incl. Summer12 JEC and new b-tag SF
+globalTagData = 'GR_R_53_V13::All'
+globalTagMC   = 'START53_V11::All'
 
 ### Output
 
@@ -174,17 +188,18 @@ else:
 if useRelVals:
   from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
   if runOnMC:
-    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_2_5_cand1'
-                                     , relVal        = 'RelValTTbar'
-                                     , globalTag     = 'START52_V9'
-                                     , maxVersions   = 1
+    inputFiles = pickRelValInputFiles( cmsswVersion = 'CMSSW_5_3_4_cand1'
+                                     , dataTier     = 'AODSIM'
+                                     , relVal       = 'RelValProdTTbar'
+                                     , globalTag    = 'START53_V10'
+                                     , maxVersions  = 1
                                      )
   else:
-    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_2_5_cand1'
-                                     , relVal        = 'SingleMu'
-                                     , dataTier      = 'RECO'
-                                     , globalTag     = 'GR_R_52_V7_RelVal_mu2011B'
-                                     , maxVersions   = 1
+    inputFiles = pickRelValInputFiles( cmsswVersion = 'CMSSW_5_3_4_cand1'
+                                     , dataTier     = 'RECO'
+                                     , relVal       = 'SingleMu'
+                                     , globalTag    = 'GR_R_53_V12_RelVal_mu2012A'
+                                     , maxVersions  = 1
                                      )
 process.load( "TopQuarkAnalysis.Configuration.patRefSel_inputModule_cfi" )
 process.source.fileNames = inputFiles
