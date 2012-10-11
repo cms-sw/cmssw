@@ -5,6 +5,7 @@
 /**
   \class    edm::FwdPtrCollectionFilter FwdPtrCollectionFilter.h "CommonTools/UtilAlgos/interface/FwdPtrCollectionFilter.h"
   \brief    Selects a list of FwdPtr's to a product T (templated) that satisfy a method S(T) (templated). Can also handle input as View<T>. 
+            Can also have a factory class to create new instances of clones if desired. 
 
 
   \author   Salvatore Rappoccio
@@ -17,10 +18,12 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/FwdPtr.h"
+#include "CommonTools/UtilAlgos/interface/FwdPtrConversionFactory.h"
 #include <vector>
 
 namespace edm {
-  template < class T, class S > 
+
+  template < class T, class S, class H = ProductFromFwdPtrFactory<T> > 
   class FwdPtrCollectionFilter : public edm::EDFilter {
   public :
     explicit FwdPtrCollectionFilter() {}
@@ -65,8 +68,11 @@ namespace edm {
 		i = ibegin; i!= iend; ++i ) {
 	  if ( selector_( *i ) ) {
 	    pOutput->push_back( edm::FwdPtr<T>( hSrcAsView->ptrAt( i - ibegin ), hSrcAsView->ptrAt( i - ibegin ) ) );
-	    if ( makeClones_ ) 
-	      pClones->push_back( *i );
+	    if ( makeClones_ ) {
+	      H factory;	      
+	      T outclone = factory( pOutput->back() );
+	      pClones->push_back( outclone );
+	    }
 	  }
 	}
       } else {
@@ -75,8 +81,11 @@ namespace edm {
 		i = ibegin; i!= iend; ++i ) {
 	  if ( selector_( **i ) ) {
 	    pOutput->push_back( *i );
-	    if ( makeClones_ ) 
-	      pClones->push_back( **i );
+	    if ( makeClones_ ) {
+	      H factory;
+	      T outclone = factory( pOutput->back() );
+	      pClones->push_back( outclone );
+	    }
 	  }
 	}
 

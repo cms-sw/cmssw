@@ -17,10 +17,13 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/FwdPtr.h"
+#include "CommonTools/UtilAlgos/interface/FwdPtrConversionFactory.h"
 #include <vector>
 
 namespace edm {
-  template < class T > 
+
+
+  template < class T, class H = FwdPtrFromProductFactory<T> > 
   class FwdPtrProducer : public edm::EDProducer {
   public :
     explicit FwdPtrProducer( edm::ParameterSet const & params ) :
@@ -41,7 +44,9 @@ namespace edm {
       for ( typename edm::View<T>::const_iterator ibegin = hSrc->begin(),
 	      iend = hSrc->end(),
 	      i = ibegin; i!= iend; ++i ) {
-	pOutputFwdPtr->push_back( edm::FwdPtr<T>( hSrc->ptrAt( i - ibegin ), hSrc->ptrAt( i - ibegin ) ) );
+	H factory;
+	FwdPtr<T> ptr = factory( *hSrc, i - ibegin );
+	pOutputFwdPtr->push_back( ptr );
       }
       
       
