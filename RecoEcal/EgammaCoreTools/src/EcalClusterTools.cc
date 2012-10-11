@@ -17,7 +17,7 @@
 
 float EcalClusterTools::getFraction( const std::vector< std::pair<DetId, float> > &v_id, DetId id
 			  ){
-  float frac = 1.0;
+  float frac = 0.0;
   for ( size_t i = 0; i < v_id.size(); ++i ) {
     if(v_id[i].first.rawId()==id.rawId()){
       frac=v_id[i].second;
