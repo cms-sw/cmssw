@@ -61,7 +61,7 @@ namespace {
     void track(int){}
     void hits(int, int){}
     void gsf(){}
-    void algo(int);
+    void algo(int){}
   };
 #endif
 
