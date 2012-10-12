@@ -11,10 +11,10 @@ import copy
 
 
 ### Reference release
-RefRelease='CMSSW_6_0_0_pre8'
+RefRelease='CMSSW_6_1_0_pre2'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_6_0_0_pre10'
+NewRelease='CMSSW_6_1_0_pre3'
 
 ### sample list 
 
@@ -23,6 +23,7 @@ startupsamples= [
 'RelValMinBias',   ### list of samples to be validated for each pre-release  
 'RelValQCD_Pt_3000_3500',
 'RelValSingleElectronPt35', 
+'RelValSingleElectronPt10', 
 'RelValTTbar', 
 'RelValSingleMuPt10', 
 'RelValSingleMuPt100',
@@ -44,9 +45,9 @@ pileupfastsimstartupsamples = [
 Version='v1'
 
 # Global tags
-StartupTag='START60_V4'
+StartupTag='START61_V1'
 
-RefStartupTag='START60_V1'
+RefStartupTag='START60_V4'
 
 ### Track algorithm name and quality. Can be a list.
 Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5','iter6']
@@ -130,6 +131,10 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
         mineff='0.0'
         maxeff='0.5'
         maxfake='0.8'
+    elif(trackalgorithm=='iter2'):
+        mineff='0.0'
+        maxeff='0.25'
+        maxfake='0.8'
     elif(trackalgorithm=='iter5' or trackalgorithm=='iter6'):
         mineff='0.0'
         maxeff='1.0'
@@ -175,7 +180,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
                 if (sampleType == 'FullSim' and PileUp == 'PU') : harvestedfile='./DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-PU_' +GlobalTag + '-' + Version + '__DQM.root'
                 if (sampleType == 'FastSim' and PileUp == 'noPU') : harvestedfile = './DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-' +GlobalTag + '_FastSim-' + Version + '__GEN-SIM-DIGI-RECO.root'
                 if (sampleType == 'FastSim' and PileUp == 'PU') : 
-                    harvestedfile = './DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-PU_' +GlobalTag + '_FastSim_PU_2012_Startup_inTimeOnly-' + Version + '__GEN-SIM-DIGI-RECO.root'
+                    harvestedfile = './DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-PU_' +GlobalTag + '_FastSim-' + Version + '__GEN-SIM-DIGI-RECO.root'
 
             print 'Sample:  ', sample, sampleType, PileUp, trackquality, trackalgorithm, '\n'
 
@@ -186,7 +191,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
                 if (sampleType == 'FullSim' and PileUp == 'noPU'): cmd+=sample+'/'+NewRelease+'-'+GlobalTag+'*'+Version+'/GEN-SIM-RECO order by dataset.createdate "'
                 if (sampleType == 'FullSim' and PileUp == 'PU'):   cmd+=sample+'/'+NewRelease+'-PU_'+GlobalTag+'*'+Version+'/GEN-SIM-RECO order by dataset.createdate "'
                 if (sampleType == 'FastSim' and PileUp == 'noPU'): cmd+=sample+'/'+NewRelease+'-'+GlobalTag+'_FastSim-'+Version+'/GEN-SIM-DIGI-RECO order by dataset.createdate "'
-                if (sampleType == 'FastSim' and PileUp == 'PU'): cmd+=sample+'/'+NewRelease+'-PU_'+GlobalTag+'_FastSim_PU_2012_Startup_inTimeOnly-'+Version+'/GEN-SIM-DIGI-RECO order by dataset.createdate "'
+                if (sampleType == 'FastSim' and PileUp == 'PU'): cmd+=sample+'/'+NewRelease+'-PU_'+GlobalTag+'_FastSim-'+Version+'/GEN-SIM-DIGI-RECO order by dataset.createdate "'
                 cmd+='|grep '+sample+'|grep -v test|tail -1'
                 print cmd
                 #Check if a dataset is found
