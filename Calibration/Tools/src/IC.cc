@@ -1,4 +1,5 @@
 #include "Calibration/Tools/interface/IC.h"
+#include "Calibration/Tools/interface/DS.h"
 
 std::vector<DetId> IC::_detId;
 DRings IC::dr_;
@@ -163,7 +164,7 @@ void IC::reciprocal(const IC & a, IC & res)
                 float e = a.eic()[id];
                 if (!isValid(v, e)) continue;
                 res.ic().setValue(id, 1. / v);
-                res.eic().setValue(id, v / e / e);
+                res.eic().setValue(id, e / v / v);
         }
 }
 
@@ -753,7 +754,7 @@ void IC::dumpOutliers(const IC & a, float min, float max)
                 coord(id, &c);
 
                 if (va > max || va < min){
-                        fprintf(stdout, "%d %d %d %d %f %f", id.rawId(), c.ix_, c.iy_, c.iz_, va, a.eic()[id]);
+                        fprintf(stdout, "%d %d %d %d %f %f\n", id.rawId(), c.ix_, c.iy_, c.iz_, va, a.eic()[id]);
                 }
         }
 }

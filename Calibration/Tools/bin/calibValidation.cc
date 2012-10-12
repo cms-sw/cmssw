@@ -4,6 +4,7 @@
 //
 
 #include "Calibration/Tools/interface/IC.h"
+#include "Calibration/Tools/interface/DS.h"
 
 #include "TFile.h"
 #include "TPad.h"

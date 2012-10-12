@@ -11,6 +11,8 @@
         <class name="DSIsEndcapPlus"/>
         <class name="DSIsEndcapMinus"/>
         <class name="DSIsBarrel"/>
+        <class name="DSIsUncalib"/>
+        <class name="DSIsOutlier"/>
         <class name="DSHasChannelStatusEB"/>
         <class name="DSHasChannelStatusEE"/>
         <class name="DRings"/>

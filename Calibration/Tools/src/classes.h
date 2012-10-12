@@ -1,4 +1,5 @@
 #include "Calibration/Tools/interface/IC.h"
+#include "Calibration/Tools/interface/DS.h"
 #include "Calibration/Tools/interface/DRings.h"
 
 namespace {
@@ -16,6 +17,8 @@ namespace {
                 DSIsBarrel isBarrel;
                 DSHasChannelStatusEB chStEB;
                 DSHasChannelStatusEE chStEE;
+                DSIsUncalib isUncalib;
+                DSIsOutlier isOutlier;
                 DRings rings;
         };
 }
