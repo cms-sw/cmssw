@@ -95,7 +95,7 @@ EnergyLossUpdator::computeBetheBloch (const LocalVector& localP,
 
 
   std::cout << "pion new " <<  theDeltaP << " " << theDeltaCov(0,0) << std::endl;
-  oldComputeBetheBloch (localP, materialConstants, mass())
+  oldComputeBetheBloch (localP, materialConstants, mass());
 
 }
 //
