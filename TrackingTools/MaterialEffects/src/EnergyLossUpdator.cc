@@ -94,8 +94,8 @@ EnergyLossUpdator::computeBetheBloch (const LocalVector& localP,
   theDeltaCov(0,0) += sigp2;
 
 
-  std::cout << "pion new " <<  theDeltaP << " " << theDeltaCov(0,0) << std::endl;
-  oldComputeBetheBloch (localP, materialConstants, mass());
+  // std::cout << "pion new " <<  theDeltaP << " " << theDeltaCov(0,0) << std::endl;
+  // oldComputeBetheBloch (localP, materialConstants, mass());
 
 }
 //
@@ -144,8 +144,8 @@ EnergyLossUpdator::computeElectrons (const LocalVector& localP,
   }
 
 
-  std::cout << "electron new " <<  theDeltaP << " " << theDeltaCov(0,0) << std::endl;
-  oldComputeElectrons (localP, materialConstants, propDir);
+  // std::cout << "electron new " <<  theDeltaP << " " << theDeltaCov(0,0) << std::endl;
+  // oldComputeElectrons (localP, materialConstants, propDir);
 
 }
 
