@@ -13,7 +13,7 @@
 //
 // Original Author:  Jacob Ribnik
 //         Created:  Wed Apr 18 13:48:08 CDT 2007
-// $Id: MuonIdDQM.h,v 1.2 2009/03/25 09:09:02 jribnik Exp $
+// $Id: MuonIdDQM.h,v 1.3 2010/01/21 21:44:25 jribnik Exp $
 //
 //
 
@@ -79,6 +79,7 @@ class MuonIdDQM : public edm::EDAnalyzer {
       // trackerMuon == 0; globalMuon == 1
       MonitorElement* hNumChambers[4];
       MonitorElement* hNumMatches[4];
+      MonitorElement* hNumChambersNoRPC[4];
 
       // by station
       MonitorElement* hDTNumSegments[4][4];

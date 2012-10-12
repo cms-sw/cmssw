@@ -31,8 +31,9 @@ MuonIdDQM::beginJob()
       if (i == 2) dbe_->setCurrentFolder(baseFolder_+"/TrackerMuonsNotGlobalMuons");
       if (i == 3) dbe_->setCurrentFolder(baseFolder_+"/GlobalMuonsNotTrackerMuons");
 
-      hNumChambers[i] = dbe_->book1D("hNumChambers", "Number of Chambers", 11, -0.5, 10.5);
+      hNumChambers[i] = dbe_->book1D("hNumChambers", "Number of Chambers", 17, -0.5, 16.5);
       hNumMatches[i] = dbe_->book1D("hNumMatches", "Number of Matches", 11, -0.5, 10.5);
+      hNumChambersNoRPC[i] = dbe_->book1D("hNumChambersNoRPC", "Number of Chambers No RPC", 11, -0.5, 10.5);
 
       // by station
       for(int station = 0; station < 4; ++station)
@@ -140,6 +141,7 @@ MuonIdDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
          hNumChambers[i]->Fill(muon->numberOfChambers());
          hNumMatches[i]->Fill(muon->numberOfMatches(Muon::SegmentAndTrackArbitration));
+         hNumChambersNoRPC[i]->Fill(muon->numberOfChambersNoRPC());
 
          // by station
          for(int station = 0; station < 4; ++station)
