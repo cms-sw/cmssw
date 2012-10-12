@@ -13,6 +13,6 @@ root -l -b << EOF
    gSystem->Load("libDataFormatsHepMCCandidate.so");
    gSystem->Load("libPhysicsToolsUtilities.so");
    gSystem->Load("libdcap.so");
-   .x /uscms_data/d2/farrell3/WorkArea/14Aug2012/CMSSW_5_3_3/src/SUSYBSMAnalysis/HSCP/test/UsefulScripts/TriggerStudy/TriggerEfficiency.C++("ANALYSE")
+   .x /uscms_data/d2/farrell3/WorkArea/14Aug2012/CMSSW_5_3_3/src/SUSYBSMAnalysis/HSCP/test/UsefulScripts/TriggerStudy/TriggerEfficiency.C++("ANALYSE_13_to_13")
    .q
 EOF

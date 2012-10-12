@@ -81,18 +81,20 @@ bool PassingTrigger(const fwlite::ChainEvent& ev, const std::string& TriggerName
       unsigned int TrIndex_Unknown     = tr.size();
 
       if(TriggerName=="MET" || TriggerName=="ANY"){
-	if(TrIndex_Unknown != tr.triggerIndex("HLT_MET80_v1")) {
-	  if(tr.accept(tr.triggerIndex("HLT_MET80_v1"))){return true;}
-	}else if(TrIndex_Unknown != tr.triggerIndex("HLT_MET80_v2")) {
-	  if(tr.accept(tr.triggerIndex("HLT_MET80_v2"))){return true;}
-	}else if(TrIndex_Unknown != tr.triggerIndex("HLT_MET80_v3")) {
-	  if(tr.accept(tr.triggerIndex("HLT_MET80_v3"))){return true;}
-	}else if(TrIndex_Unknown != tr.triggerIndex("HLT_MET80_v4")) {
-	  if(tr.accept(tr.triggerIndex("HLT_MET80_v4"))){return true;}
-	}else if(TrIndex_Unknown != tr.triggerIndex("HLT_MET80_v5")) {
-	  if(tr.accept(tr.triggerIndex("HLT_MET80_v5"))){return true;}
-	}else if(TrIndex_Unknown != tr.triggerIndex("HLT_MET80_v6")) {
-	  if(tr.accept(tr.triggerIndex("HLT_MET80_v6"))){return true;}
+        if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMET150_v1")) {
+          if(tr.accept(tr.triggerIndex("HLT_PFMET150_v1"))){return true;}
+        }else if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMET150_v2")) {
+          if(tr.accept(tr.triggerIndex("HLT_PFMET150_v2"))){return true;}
+        }else if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMET150_v3")) {
+          if(tr.accept(tr.triggerIndex("HLT_PFMET150_v3"))){return true;}
+        }else if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMET150_v4")) {
+          if(tr.accept(tr.triggerIndex("HLT_PFMET150_v4"))){return true;}
+	}else if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMET150_v5")) {
+          if(tr.accept(tr.triggerIndex("HLT_PFMET150_v5"))){return true;}
+        }else if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMET150_v6")) {
+          if(tr.accept(tr.triggerIndex("HLT_PFMET150_v6"))){return true;}
+	}else if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMET150_v7")) {
+          if(tr.accept(tr.triggerIndex("HLT_PFMET150_v7"))){return true;}
 	}
       }
 
@@ -109,6 +111,8 @@ bool PassingTrigger(const fwlite::ChainEvent& ev, const std::string& TriggerName
         if(tr.accept(tr.triggerIndex("HLT_HT650_v5"))){return true;}
       }else if(TrIndex_Unknown != tr.triggerIndex("HLT_HT650_v6")) {
         if(tr.accept(tr.triggerIndex("HLT_HT650_v6"))){return true;}
+      }else if(TrIndex_Unknown != tr.triggerIndex("HLT_HT650_v7")) {
+        if(tr.accept(tr.triggerIndex("HLT_HT650_v7"))){return true;}
       }
       }
 
@@ -131,6 +135,10 @@ bool PassingTrigger(const fwlite::ChainEvent& ev, const std::string& TriggerName
 	if(tr.accept(tr.triggerIndex("HLT_Mu40_eta2p1_v8"))){return true;}
       }else if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu40_eta2p1_v9")) {
 	if(tr.accept(tr.triggerIndex("HLT_Mu40_eta2p1_v9"))){return true;}
+      }else if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu40_eta2p1_v10")) {
+        if(tr.accept(tr.triggerIndex("HLT_Mu40_eta2p1_v10"))){return true;}
+      }else if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu40_eta2p1_v11")) {
+        if(tr.accept(tr.triggerIndex("HLT_Mu40_eta2p1_v11"))){return true;}
       }
       }
 
@@ -169,7 +177,27 @@ void TriggerEfficiency(string MODE="COMPILE")
 {
    if(MODE=="COMPILE") return;
 
-   TFile* OutputHisto = new TFile("out.root","RECREATE");
+   // get all the samples and clean the list to keep only the one we want to run on... Also initialize the BaseDirectory
+   std::vector<stSample> samples;
+
+   InitBaseDirectory();
+   GetSampleDefinition(samples, "../../ICHEP_Analysis/Analysis_Samples.txt");
+   if(MODE.find("ANALYSE_")==0){
+      int sampleIdStart, sampleIdEnd; sscanf(MODE.c_str(),"ANALYSE_%d_to_%d",&sampleIdStart, &sampleIdEnd);
+      keepOnlyTheXtoYSamples(samples,sampleIdStart,sampleIdEnd);
+      printf("----------------------------------------------------------------------------------------------------------------------------------------------------\n");
+      printf("Run on the following samples:\n");
+      for(unsigned int s=0;s<samples.size();s++){samples[s].print();}
+      printf("----------------------------------------------------------------------------------------------------------------------------------------------------\n\n");
+   }else{
+      printf("You must select a MODE:\n");
+      printf("MODE='ANALYSE_X_to_Y'   : Will run the analysis on the samples with index in the range [X,Y]\n"); 
+      return;
+   }
+
+   system("mkdir pictures/");
+   TFile* OutputHisto = new TFile(("pictures/Efficiency_Histos_"+samples[0].Name+"_"+samples[0].FileName+".root").c_str(),"RECREATE");
+   //TFile* OutputHisto = new TFile("out.root","RECREATE");
 
    std::vector<string> triggers;
    triggers.push_back("Mu");
@@ -177,28 +205,28 @@ void TriggerEfficiency(string MODE="COMPILE")
    triggers.push_back("HT");
 
    TH1D* HDr[triggers.size()];
-   TH1D* MDeDx[triggers.size()];
-   TH1D* SDeDx[triggers.size()];
-   TH1D* MDeDxEff[triggers.size()];
-   TH1D* SDeDxEff[triggers.size()];
+   TH1D* MDeDxBot[triggers.size()];
+   TH1D* SDeDxBot[triggers.size()];
+   TH1D* MSDeDxBot[triggers.size()];
+   TH1D* MDeDxTop[triggers.size()];
+   TH1D* SDeDxTop[triggers.size()];
+   TH1D* MSDeDxTop[triggers.size()];
+   TProfile* MDeDxEff[triggers.size()];
+   TProfile* SDeDxEff[triggers.size()];
+   TProfile* MSDeDxEff[triggers.size()];
 
    for(unsigned int i=0;i<triggers.size();i++){
      HDr[i]  = new TH1D((triggers[i] + "Dr").c_str()  ,"Dr",100, 0, 2);
-     MDeDx[i]  = new TH1D((triggers[i] + "MDeDx").c_str()  ,"MDeDx",100, 3, 5);
-     SDeDx[i]  = new TH1D((triggers[i] + "SDeDx").c_str()  ,"SDeDx",100, 0, 1);
-     MDeDxEff[i]  = new TProfile((triggers[i] + "MDeDxEff").c_str()  ,"MDeDxEff",20, 3, 5);
-     SDeDxEff[i]  = new TProfile((triggers[i] + "SDeDxEff").c_str() ,"SDeDxEff",20, 0,1);
+     MDeDxBot[i]  = new TH1D((triggers[i] + "MDeDxBot").c_str()  ,"MDeDx",240, 0, 6);
+     SDeDxBot[i]  = new TH1D((triggers[i] + "SDeDxBot").c_str()  ,"SDeDx",240, 0, 1);
+     MSDeDxBot[i]  = new TH1D((triggers[i] + "MSDeDxBot").c_str()  ,"MSDeDx",240, 0, 6);
+     MDeDxTop[i]  = new TH1D((triggers[i] + "MDeDxTop").c_str()  ,"MDeDx",240, 0, 6);
+     SDeDxTop[i]  = new TH1D((triggers[i] + "SDeDxTop").c_str()  ,"SDeDx",240, 0, 1);
+     MSDeDxTop[i]  = new TH1D((triggers[i] + "MSDeDxTop").c_str()  ,"MSDeDx",240, 0, 6);
+     MDeDxEff[i]  = new TProfile((triggers[i] + "MDeDxEff").c_str()  ,"MDeDxEff",240, 0, 6);
+     SDeDxEff[i]  = new TProfile((triggers[i] + "SDeDxEff").c_str() ,"SDeDxEff",240, 0,1);
+     MSDeDxEff[i]  = new TProfile((triggers[i] + "MSDeDxEff").c_str()  ,"MSDeDxEff",240, 0, 6);
    }
-
-   std::vector<stSample> samples;
-   // get all the samples and clean the list to keep only the one we want to run on... Also initialize the BaseDirectory
-   InitBaseDirectory();
-   GetSampleDefinition(samples, "../../ICHEP_Analysis/Analysis_Samples.txt");
-   keepOnlySamplesOfNameX(samples,"Data12");
-   printf("----------------------------------------------------------------------------------------------------------------------------------------------------\n");
-   printf("Run on the following samples:\n");
-   for(unsigned int s=0;s<samples.size();s++){samples[s].print();}
-   printf("----------------------------------------------------------------------------------------------------------------------------------------------------\n\n");
 
    for(unsigned int s=0;s<samples.size();s++){
      std::vector<string> FileName;
@@ -229,9 +257,9 @@ void TriggerEfficiency(string MODE="COMPILE")
       dEdxMCollH.getByLabel(ev, "dedxHarm2");
       if(!dEdxMCollH.isValid()){printf("Invalid dEdx Mass collection\n");continue;}
 
-      //fwlite::Handle<DeDxDataValueMap> dEdxMSCollH;
-      //dEdxMSCollH.getByLabel(ev, "dedxNPHarm2");
-      //if(!dEdxMSCollH.isValid()){printf("Invalid dEdx Mass collection\n");continue;}
+      fwlite::Handle<DeDxDataValueMap> dEdxMSCollH;
+      dEdxMSCollH.getByLabel(ev, "dedxNPHarm2");
+      if(!dEdxMSCollH.isValid()){printf("Invalid dEdx Mass collection\n");continue;}
 
       //fwlite::Handle<DeDxDataValueMap> dEdxMNSTCollH;
       //dEdxMNSTCollH.getByLabel(ev, "dedxNSTHarm2");
@@ -261,7 +289,7 @@ void TriggerEfficiency(string MODE="COMPILE")
 
 	const DeDxData& dedxSObj  = dEdxSCollH->get(track.key());
 	const DeDxData& dedxMObj  = dEdxMCollH->get(track.key());
-	//const DeDxData& dedxMSObj  = dEdxMSCollH->get(track.key());
+	const DeDxData& dedxMSObj  = dEdxMSCollH->get(track.key());
 	//const DeDxData& dedxMNSTObj  = dEdxMNSTCollH->get(track.key());
 
         const reco::MuonTimeExtra* tof = NULL;
@@ -273,16 +301,22 @@ void TriggerEfficiency(string MODE="COMPILE")
 
 	 for(unsigned int i=0; i<triggers.size(); i++) {
 	   if(!PassingTrigger(ev, triggers[i])) continue;
-           MDeDx[i]->Fill(dedxMObj.dEdx());
-           SDeDx[i]->Fill(dedxSObj.dEdx());
+           MDeDxBot[i]->Fill(dedxMObj.dEdx());
+           SDeDxBot[i]->Fill(dedxSObj.dEdx());
+           MSDeDxBot[i]->Fill(dedxMSObj.dEdx());
 
 	   int match=0;
 	   double dR = HLTObjectDr(trEv, triggers[i], hscp);
 	   HDr[i]->Fill(dR);
 	   if(dR<0.3) match=1;
-
+	   if(match==1) {
+	     MDeDxTop[i]->Fill(dedxMObj.dEdx());
+	     SDeDxTop[i]->Fill(dedxSObj.dEdx());
+             MSDeDxTop[i]->Fill(dedxMSObj.dEdx());
+	   }
 	   MDeDxEff[i]->Fill(dedxMObj.dEdx(), match);
 	   SDeDxEff[i]->Fill(dedxSObj.dEdx(), match);
+           MSDeDxEff[i]->Fill(dedxMSObj.dEdx(), match);
 	 }
       }
    }printf("\n");
@@ -338,7 +372,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData& d
    const ValueMap<HSCPIsolation>& IsolationMap = *IsolationH.product();
 
    HSCPIsolation hscpIso = IsolationMap.get((size_t)track.key());
-    if(hscpIso.Get_TK_SumEt()>GlobalMaxTIsol)return false;
+   if(hscpIso.Get_TK_SumEt()>GlobalMaxTIsol)return false;
 
    double EoP = (hscpIso.Get_ECAL_Energy() + hscpIso.Get_HCAL_Energy())/track->p();
    if(EoP>GlobalMaxEIsol)return false;
