@@ -13,7 +13,7 @@
 //
 // Original Author:  Martijn Gosselink,,,
 //         Created:  Thu Jan 19 18:40:35 CET 2012
-// $Id: TTbarSpinCorrHepMCAnalyzer.cc,v 1.3 2012/10/08 00:13:01 mgosseli Exp $
+// $Id: TTbarSpinCorrHepMCAnalyzer.h,v 1.1 2012/10/09 17:26:39 inugent Exp $
 //
 //
 // Added to: Validation/EventGenerator by Ian M. Nugent Oct 9, 2012
@@ -35,6 +35,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
@@ -78,6 +79,5 @@ private:
   MonitorElement* _h_llpairPt ;
   MonitorElement* _h_llpairM  ;
 
+  edm::InputTag genEventInfoProductTag_;
 };
-
-

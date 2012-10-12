@@ -3,8 +3,8 @@
 //
 // constructors and destructor
 //
-TTbarSpinCorrHepMCAnalyzer::TTbarSpinCorrHepMCAnalyzer(const edm::ParameterSet& iConfig)
-
+TTbarSpinCorrHepMCAnalyzer::TTbarSpinCorrHepMCAnalyzer(const edm::ParameterSet& iConfig) :
+  genEventInfoProductTag_(iConfig.getParameter<edm::InputTag>("genEventInfoProductTag"))
 {
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
@@ -32,7 +32,7 @@ TTbarSpinCorrHepMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
 
   // --- the MC weights ---
   Handle<GenEventInfoProduct> evt_info;
-  iEvent.getByType(evt_info);
+  iEvent.getByLabel(genEventInfoProductTag_, evt_info);
   weight = evt_info->weight() ;
 
   // --- get genParticls ---
