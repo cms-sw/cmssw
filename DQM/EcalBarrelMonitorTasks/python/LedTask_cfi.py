@@ -55,7 +55,7 @@ ecalLedTask = cms.untracked.PSet(
             multi = cms.untracked.int32(2),
             kind = cms.untracked.string('TProfile2D'),
             btype = cms.untracked.string('Crystal'),
-            description = cms.untracked.string('2D distribution of the mean led timing. Z scale is in LHC clocks. Due to the difference in pulse shape between led and physics events, fit-based reconstruction is not 100% reliable in extracting the timing. In general, a channel is filled only when a led pulse was observed in it. When no led signal was observed for longer than ' + str(emptyLSLimit) + ' lumi sections, the channels start to get filled with 0 amplitude, causing the timing to spread randomly.')
+            description = cms.untracked.string('2D distribution of the mean led timing. Z scale is in LHC clocks. Due to the difference in pulse shape between led and physics events, fit-based reconstruction is not completely reliable in extracting the timing. In general, a channel is filled only when a led pulse was observed in it. When no led signal was observed for longer than ' + str(emptyLSLimit) + ' lumi sections, the channels start to get filled with 0 amplitude, causing the timing to spread randomly.')
         ),
         AmplitudeSummary = cms.untracked.PSet(
             path = cms.untracked.string('EcalEndcap/EELedTask/Led%(wl)s/EELDT amplitude map L%(wl)s%(suffix)s'),

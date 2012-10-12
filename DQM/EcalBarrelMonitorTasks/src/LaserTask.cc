@@ -172,7 +172,7 @@ namespace ecaldqm {
         continue;
       }
 
-      int threshold(nReadouts[iDCC] / 2);
+      int threshold(nReadouts[iDCC] / 3);
       if(laserOnExpected) enable_[iDCC] = false;
 
       for(int i(0); i < 10; i++){

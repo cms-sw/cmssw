@@ -4,11 +4,11 @@ from DQM.EcalBarrelMonitorTasks.LedTask_cfi import ecalLedTask
 
 forwardFactor = 0.5
 minChannelEntries = 3
-expectedAmplitude = [200., 20.]
+expectedAmplitude = [200., 10.]
 toleranceAmplitude = 0.1
 toleranceAmpRMSRatio = 0.5
 expectedTiming = [4.4, 4.5]
-toleranceTiming = 0.8
+toleranceTiming = 1.
 toleranceTimRMS = 25.
 expectedPNAmplitude = [800., 800.]
 tolerancePNAmp = 0.1

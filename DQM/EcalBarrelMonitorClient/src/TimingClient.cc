@@ -162,7 +162,7 @@ namespace ecaldqm {
       double quality(doMask ? kMUnknown : kUnknown);
       if(towerEntries / ids.size() > minTowerEntries / 25.){
         if(summaryEntries < towerEntries * (1. - tailPopulThreshold_)) // large timing deviation
-          quality = 0;
+          quality = doMask ? kMBad : kBad;
         else{
 	  towerMean /= towerEntries;
 	  towerMean2 /= towerEntries;

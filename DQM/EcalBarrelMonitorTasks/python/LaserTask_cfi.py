@@ -55,7 +55,7 @@ ecalLaserTask = cms.untracked.PSet(
             multi = cms.untracked.int32(4),
             kind = cms.untracked.string('TProfile2D'),
             btype = cms.untracked.string('Crystal'),
-            description = cms.untracked.string('2D distribution of the mean laser timing. Z scale is in LHC clocks. Due to the difference in pulse shape between laser and physics events, fit-based reconstruction is not 100% reliable in extracting the timing. In general, a channel is filled only when a laser pulse was observed in it. When no laser signal was observed for longer than ' + str(emptyLSLimit) + ' lumi sections, the channels start to get filled with 0 amplitude, causing the timing to spread randomly.')
+            description = cms.untracked.string('2D distribution of the mean laser timing. Z scale is in LHC clocks. Due to the difference in pulse shape between laser and physics events, fit-based reconstruction is not completely reliable in extracting the timing. In general, a channel is filled only when a laser pulse was observed in it. When no laser signal was observed for longer than ' + str(emptyLSLimit) + ' lumi sections, the channels start to get filled with 0 amplitude, causing the timing to spread randomly.')
         ),
         AmplitudeSummary = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sLaserTask/Laser%(wl)s/%(prefix)sLT amplitude map L%(wl)s%(suffix)s'),

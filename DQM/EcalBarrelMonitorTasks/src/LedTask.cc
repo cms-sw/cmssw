@@ -178,7 +178,7 @@ namespace ecaldqm {
         continue;
       }
 
-      int threshold(nReadouts[index] / 2);
+      int threshold(nReadouts[index] / 3);
       if(ledOnExpected) enable_[index] = false;
 
       for(int i(0); i < 10; i++){
