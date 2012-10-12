@@ -1,7 +1,7 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngle.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"                                                           
 
-// #include "vdtMath.h"
+#include "vdtMath.h"
 
 namespace {
   inline
@@ -9,12 +9,12 @@ namespace {
     if( (float(N)-uProj) > 3.5f )  
       return float(N*N)/12.f;
     else {
-      typedef double Float;
-      const Float P1=-0.339;
-      const Float P2=0.90;
-      const Float P3=0.279;
-      //      const float uerr = P1*uProj*vdt::fast_expf(-uProj*P2)+P3;
-      const Float uerr = P1*uProj*std::exp(-uProj*P2)+P3;
+      typedef float Float;
+      constexpr Float P1=-0.339;
+      constexpr Float P2=0.90;
+      constexpr Float P3=0.279;
+      const float uerr = P1*uProj*vdt::fast_expf(-uProj*P2)+P3;
+      // const Float uerr = P1*uProj*std::exp(-uProj*P2)+P3;
       return uerr*uerr;
     }
   }
