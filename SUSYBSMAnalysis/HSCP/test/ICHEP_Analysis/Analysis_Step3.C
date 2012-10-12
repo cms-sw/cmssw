@@ -312,6 +312,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 
    if(st){st->BS_TNOH->Fill(track->found(),Event_Weight);
           st->BS_TNOHFraction->Fill(track->validFraction(),Event_Weight);
+	  st->BS_TNOPH->Fill(track->hitPattern().numberOfValidPixelHits(),Event_Weight);
    }
 
    if(TypeMode!=3 && track->found()<GlobalMinNOH)return false;
@@ -1082,9 +1083,13 @@ void Analysis_Step3(char* SavePath)
                   bool   PRescale = true;
                   double IRescale = RNG->Gaus(0, 0.083)+0.015; // added to the Ias value
                   double MRescale = 1.036;
-                  double TRescale = -0.02; // added to the 1/beta value
-                  if(tof) if(csctof->nDof()==0) TRescale = -0.003;
-
+		  double TRescale;
+#ifdef ANALYSIS2011
+		  TRescale = -0.02; // added to the 1/beta value
+		  if(tof) if(csctof->nDof()==0) TRescale = -0.003;
+#else
+                  TRescale = -0.03; // added to the 1/beta value
+#endif
                   // compute systematic due to momentum scale
                   if(PassPreselection(hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   PRescale, 0, 0)){
 
@@ -1332,8 +1337,14 @@ void InitHistos(stPlots* st){
 // code needed for the evaluation of the systematics related to pt measurement
 double RescaledPt(const double& pt, const double& eta, const double& phi, const int& charge)
 {
-   double newInvPt = 1/pt+0.000236-0.000135*pow(eta,2)+charge*0.000282*TMath::Sin(phi-1.337);
-   return 1/newInvPt;
+  if(TypeMode!=3) {
+    double newInvPt = 1/pt+0.000236-0.000135*pow(eta,2)+charge*0.000282*TMath::Sin(phi-1.337);
+    return 1/newInvPt;
+  }
+  else {
+    double newInvPt = (1./pt)*1.1;
+    return 1/newInvPt;
+  }
 }
 
 double SegSep(const susybsm::HSCParticle& hscp, const fwlite::ChainEvent& ev, double& minPhi, double& minEta) {

@@ -104,6 +104,7 @@ struct stPlots {
    TH1F*  BS_Qual;
    TH1F*  BS_TNOH;
    TH1F*  BS_TNOHFraction;
+  TH1F*  BS_TNOPH;
    TH1F*  BS_Eta;
    TH1F*  BS_TNOM;
    TH1F*  BS_nDof;
@@ -385,6 +386,7 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_Qual" ; st.BS_Qual  = new TH1F(Name.c_str(), Name.c_str(),  20,  0, 20);                st.BS_Qual->Sumw2();
    Name = "BS_TNOH" ; st.BS_TNOH  = new TH1F(Name.c_str(), Name.c_str(),  50,  0,  40);                st.BS_TNOH->Sumw2();
    Name = "BS_TNOHFraction" ; st.BS_TNOHFraction  = new TH1F(Name.c_str(), Name.c_str(),  50,  0,  1);                st.BS_TNOHFraction->Sumw2();
+   Name = "BS_TNOPH" ; st.BS_TNOPH  = new TH1F(Name.c_str(), Name.c_str(),  16,  0,  8);                st.BS_TNOPH->Sumw2();
    Name = "BS_Eta" ; st.BS_Eta  = new TH1F(Name.c_str(), Name.c_str(),  50,  -2.6,  2.6);                st.BS_Eta->Sumw2();
    Name = "BS_TNOM" ; st.BS_TNOM  = new TH1F(Name.c_str(), Name.c_str(),  40,  0, 40);                st.BS_TNOM->Sumw2();
    Name = "BS_nDof" ; st.BS_nDof  = new TH1F(Name.c_str(), Name.c_str(),  20,  0, 40);                st.BS_nDof->Sumw2();
@@ -694,6 +696,7 @@ bool stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName)
    st.BS_Qual   = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Qual");
    st.BS_TNOH   = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TNOH");
    st.BS_TNOHFraction   = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TNOHFraction");
+   st.BS_TNOPH   = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TNOPH");
    st.BS_Eta    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Eta");
    st.BS_TNOM   = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TNOM");
    st.BS_nDof   = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_nDof");
@@ -829,6 +832,7 @@ void stPlots_Dump(stPlots& st, FILE* pFile, int CutIndex){
    fprintf(pFile,"HSCP Detection Efficiency Before Trigger                           Eff=%4.3E\n",st.TOF->GetBinContent(CutIndex+1) /(2*st.TotalE ->GetBinContent(1       )));
    fprintf(pFile,"HSCP Detection Efficiency After  Trigger                           Eff=%4.3E\n",st.TOF->GetBinContent(CutIndex+1) /(2*st.TotalTE->GetBinContent(1       )));
    fprintf(pFile,"#HSCPTrack per HSCPEvent (with at least one HSCPTrack)             Eff=%4.3E\n",st.TOF->GetBinContent(CutIndex+1) /(  st.HSCPE  ->GetBinContent(CutIndex+1)));
+   fprintf(pFile,"HSCP Event Efficiency                                              Eff=%4.3E\n",st.HSCPE->GetBinContent(CutIndex+1) /(  st.TotalE  ->GetBinContent(1)));
    fprintf(pFile,"\n\n");
 }
 
@@ -1283,6 +1287,17 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
+     Histos[i] = (TH1*)st[i]->BS_TNOPH->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#NOPH", "arbitrary units", 0,0, 0, 0);
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
+   c1->SetLogy(true);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"NOPH_BS", true);
+   for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   for(unsigned int i=0;i<st.size();i++){
      Histos[i] = (TH1*)st[i]->BS_Eta->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#eta", "arbitrary units", 0,0, 0,0);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
@@ -1603,10 +1618,12 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_Pt; legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    sprintf(YAxisTitle,"Fraction of tracks/%2.0f GeV/#font[12]{c}",Histos[0]->GetBinWidth(1));
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} (GeV/#font[12]{c})", YAxisTitle, 0,1250, 0.000000001, 1.2);
+   //DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} (GeV/#font[12]{c})", YAxisTitle, 0,1250, 0.000000001, 1.2);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} (GeV/#font[12]{c})", YAxisTitle, 0,1250, 0, 0);
    if(IsTkOnly) DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.45, 0.42, 0.26, 0.05);
    else DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.51, 0.39, 0.33, 0.05);
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} (GeV/#font[12]{c})", YAxisTitle, 0,1250, 0.000000001, 1.2, false, true);
+   //DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} (GeV/#font[12]{c})", YAxisTitle, 0,1250, 0.000000001, 1.2, false, true);
+
    c1->SetLogy(true);
    DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Pt_BS");
