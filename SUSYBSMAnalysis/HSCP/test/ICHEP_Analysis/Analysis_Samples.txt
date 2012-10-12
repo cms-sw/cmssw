@@ -50,6 +50,7 @@
 "CMSSW_4_4", 1, "MC_7TeV_ZZ"                       , "MC_7TeV_ZZ"                            , "MC - ZZ"                                                   , "S4"    ,     0, +4.2870000000E+00, 0, 0.000, 0.000, 0.000
 "CMSSW_4_4", 1, "MC_7TeV_WW"                       , "MC_7TeV_WW"                            , "MC - WW"                                                   , "S4"    ,     0, +2.7830000000E+01, 0, 0.000, 0.000, 0.000
 "CMSSW_4_4", 1, "MC_7TeV_WZ"                       , "MC_7TeV_WZ"                            , "MC - WZ"                                                   , "S4"    ,     0, +1.4700000000E+01, 0, 0.000, 0.000, 0.000
+"CMSSW_5", 1, "MC_8TeV_DYToMuMu"                   , "MC_8TeV_DYToMuMu"                      , "MC - DYToMuMu"                                               , "S3"    ,     0, +1.3000000000E+03, 0, 0.000, 0.000, 0.000
 "CMSSW_4_4", 2, "Gluino_7TeV_M300_f10"               , "Gluino_7TeV_M300"                      , "MC - #tilde{g} 300 GeV/#font[12]{c}^{2}"                   , "S4"    ,   300, +6.5800000000E+01, 1, 1.000, 1.000, 1.000
 "CMSSW_4_4", 2, "Gluino_7TeV_M400_f10"               , "Gluino_7TeV_M400"                      , "MC - #tilde{g} 400 GeV/#font[12]{c}^{2}"                   , "S4"    ,   400, +1.1200000000E+01, 1, 1.000, 1.000, 1.000
 "CMSSW_4_4", 2, "Gluino_7TeV_M500_f10"               , "Gluino_7TeV_M500"                      , "MC - #tilde{g} 500 GeV/#font[12]{c}^{2}"                   , "S4"    ,   500, +2.5200000000E+00, 1, 1.000, 1.000, 1.000
