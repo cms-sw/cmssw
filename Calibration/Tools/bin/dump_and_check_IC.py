@@ -56,8 +56,12 @@ rings = DRings()
 rings.setEERings("eerings.dat")
 
 ic = IC()
-IC.readTextFile(file, ic)
+#IC.readTextFile(file, ic)
 #IC.readXMLFile(file, ic)
+if (string.find(file, ".xml", len(file) - 4, len(file)) == -1):
+        IC.readTextFile(file, ic)
+else:
+        IC.readXMLFile(file, ic)
 ic.setRings(rings)
 
 if len(sys.argv) > 2:
