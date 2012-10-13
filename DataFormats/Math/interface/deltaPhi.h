@@ -54,6 +54,7 @@ namespace reco {
 
 }
 
+// lovely!  VI
 using reco::deltaPhi;
 
 template<typename T1, typename T2 = T1>

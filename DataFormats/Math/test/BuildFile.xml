@@ -34,6 +34,12 @@
 </bin>
 <bin   file="eta_t.cpp" name="DataFormatsEta_t">
 </bin>
+<bin   file="deltaR_t.cpp" name="DataFormatsDeltaR_t">
+  <flags CXXFLAGS="-std=gnu++11 -Wno-error=format -Wno-format"/>
+  <flags REM_CXXFLAGS="-std=c++%"/>
+  <flags REM_CXXFLAGS="-Wformat"/>
+  <flags REM_CXXFLAGS="-ansi"/>
+</bin>
 <bin   file="Similarity_t.cpp" name="DataFormatsSimilarity_t">
 </bin>
 <bin   file="Vdt_timings_t.cpp" name="DataFormatsVdt_timings_t">

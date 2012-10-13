@@ -20,14 +20,24 @@ namespace reco {
     return std::sqrt(deltaR2 (eta1, phi1, eta2, phi2));
   }
   
+
+  // assumption is that eta and phi are cached AND phi is computed using std::atan2
+  // type is the type of T1::phi();
   template<typename T1, typename T2>
-  inline double deltaR2(const T1 & t1, const T2 & t2) {
-    return deltaR2(t1.eta(), t1.phi(), t2.eta(), t2.phi());
+  inline auto  __attribute__((always_inline)) deltaR2(const T1 & t1, const T2 & t2) -> decltype(t1.phi()) {
+    typedef  decltype(t1.phi()) Float;
+    Float p1 = t1.phi(); 
+    Float p2 = t2.phi(); 
+    Float e1 = t1.eta(); 
+    Float e2 = t2.eta(); 
+    auto dp=std::abs(p1-p2); if (dp>Float(M_PI)) dp-=Float(2*M_PI);  
+    return (e1-e2)*(e1-e2) + dp*dp;
   } 
   
+  // do not use it
   template<typename T1, typename T2>
-  inline double deltaR(const T1 & t1, const T2 & t2) {
-    return deltaR(t1.eta(), t1.phi(), t2.eta(), t2.phi());
+  inline auto deltaR(const T1 & t1, const T2 & t2) -> decltype(t1.phi()) {
+    return std::sqrt(deltaR2(t1,t2));
   } 
 
   template <class T>
@@ -44,6 +54,7 @@ namespace reco {
 
 }
 
+// woderful!  VI
 using reco::deltaR2;
 using reco::deltaR;
 
