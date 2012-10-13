@@ -105,6 +105,7 @@ void GetInputFiles(stSample sample, std::string BaseDirectory_, std::vector<std:
 
    for(unsigned int f=0;f<fileNames.size();f++){  
       if(sample.Type>=2){ //MC Signal
+	//inputFiles.push_back("../BuildHSCParticles/Signals/Merge.root");
         if (period==0) inputFiles.push_back(BaseDirectory_ + fileNames[f] + "_BX0.root");
         if (period==1) inputFiles.push_back(BaseDirectory_ + fileNames[f] + "_BX1.root");
       }else{ //Data or MC Background
@@ -156,7 +157,7 @@ unsigned long GetInitialNumberOfMCEvent(const vector<string>& fileNames)
       size_t place=fileNames[f].find("dcache");
       if(place!=string::npos){
  	 string name=fileNames[f];
-         name.replace(place, 7, "dcap://cmsgridftp.fnal.gov:24125");
+         //name.replace(place, 7, "dcap://cmsgridftp.fnal.gov:24125");
          file = new TDCacheFile (name.c_str());
       }else{
          file = TFile::Open(fileNames[f].c_str());
@@ -225,7 +226,18 @@ double GetPUWeight(const fwlite::ChainEvent& ev, const std::string& pileup, doub
       }
       PUWeight_thisevent = LumiWeightsMC.weight( npv );
       PUSystFactor = PShift.ShiftWeight( npv );
+   }else if(pileup=="S10"){
+     for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+       int BX = PVI->getBunchCrossing();
+       if(BX == 0) {
+	 Tnpv = PVI->getTrueNumInteractions();
+	 continue;
+       }
+     }
+     PUWeight_thisevent = LumiWeights_.weight( Tnpv );
+     PUSystFactor = PShift.ShiftWeight( Tnpv );
    }
+
    return PUWeight_thisevent;
 }
 

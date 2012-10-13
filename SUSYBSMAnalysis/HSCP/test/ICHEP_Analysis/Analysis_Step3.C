@@ -93,10 +93,14 @@ std::map<std::string, stPlots> plotsMap;
 //for initializing PileupReweighting utility.
 const   float TrueDist2011_f[35] = {0.00285942, 0.0125603, 0.0299631, 0.051313, 0.0709713, 0.0847864, 0.0914627, 0.0919255, 0.0879994, 0.0814127, 0.0733995, 0.0647191, 0.0558327, 0.0470663, 0.0386988, 0.0309811, 0.0241175, 0.018241, 0.0133997, 0.00956071, 0.00662814, 0.00446735, 0.00292946, 0.00187057, 0.00116414, 0.000706805, 0.000419059, 0.000242856, 0.0001377, 7.64582e-05, 4.16101e-05, 2.22135e-05, 1.16416e-05, 5.9937e-06, 5.95542e-06};//from 2011 Full dataset
 
-const   float Pileup_MC[35]= {1.45346E-01, 6.42802E-02, 6.95255E-02, 6.96747E-02, 6.92955E-02, 6.84997E-02, 6.69528E-02, 6.45515E-02, 6.09865E-02, 5.63323E-02, 5.07322E-02, 4.44681E-02, 3.79205E-02, 3.15131E-02, 2.54220E-02, 2.00184E-02, 1.53776E-02, 1.15387E-02, 8.47608E-03, 6.08715E-03, 4.28255E-03, 2.97185E-03, 2.01918E-03, 1.34490E-03, 8.81587E-04, 5.69954E-04, 3.61493E-04, 2.28692E-04, 1.40791E-04, 8.44606E-05, 5.10204E-05, 3.07802E-05, 1.81401E-05, 1.00201E-05, 5.80004E-06};
+const   float Pileup_MC_2011[35]= {1.45346E-01, 6.42802E-02, 6.95255E-02, 6.96747E-02, 6.92955E-02, 6.84997E-02, 6.69528E-02, 6.45515E-02, 6.09865E-02, 5.63323E-02, 5.07322E-02, 4.44681E-02, 3.79205E-02, 3.15131E-02, 2.54220E-02, 2.00184E-02, 1.53776E-02, 1.15387E-02, 8.47608E-03, 6.08715E-03, 4.28255E-03, 2.97185E-03, 2.01918E-03, 1.34490E-03, 8.81587E-04, 5.69954E-04, 3.61493E-04, 2.28692E-04, 1.40791E-04, 8.44606E-05, 5.10204E-05, 3.07802E-05, 1.81401E-05, 1.00201E-05, 5.80004E-06};
+
+const   float Pileup_MC_Summer2012[60] = { 2.560E-06, 5.239E-06, 1.420E-05, 5.005E-05, 1.001E-04, 2.705E-04, 1.999E-03, 6.097E-03, 1.046E-02, 1.383E-02, 1.685E-02, 2.055E-02, 2.572E-02, 3.262E-02, 4.121E-02, 4.977E-02, 5.539E-02, 5.725E-02, 5.607E-02, 5.312E-02, 5.008E-02, 4.763E-02, 4.558E-02, 4.363E-02, 4.159E-02, 3.933E-02, 3.681E-02, 3.406E-02, 3.116E-02, 2.818E-02, 2.519E-02, 2.226E-02, 1.946E-02, 1.682E-02, 1.437E-02, 1.215E-02, 1.016E-02, 8.400E-03, 6.873E-03, 5.564E-03, 4.457E-03, 3.533E-03, 2.772E-03, 2.154E-03, 1.656E-03, 1.261E-03, 9.513E-04, 7.107E-04, 5.259E-04, 3.856E-04, 2.801E-04, 2.017E-04, 1.439E-04, 1.017E-04, 7.126E-05, 4.948E-05, 3.405E-05, 2.322E-05, 1.570E-05, 5.005E-06};
+
+const   float TrueDist2012_f[60] = {1.05858e-06 ,2.79007e-06 ,5.66022e-06 ,2.21761e-05 ,4.333e-05 ,0.00021475 ,0.00127484 ,0.00380513 ,0.00859346 ,0.0164099 ,0.0277558 ,0.0411688 ,0.0518905 ,0.0579633 ,0.0615463 ,0.0640369 ,0.0648159 ,0.0639443 ,0.0622142 ,0.0598481 ,0.0571089 ,0.0543368 ,0.0516781 ,0.0487896 ,0.0449614 ,0.0397967 ,0.0335265 ,0.0267498 ,0.0201118 ,0.0141912 ,0.00941021 ,0.00590948 ,0.00354911 ,0.00204957 ,0.00113529 ,0.000598229 ,0.00029732 ,0.000138844 ,6.11323e-05 ,2.5644e-05 ,1.04009e-05 ,4.139e-06 ,1.63291e-06 ,6.41399e-07 ,2.50663e-07 ,9.71641e-08 ,3.72356e-08 ,1.40768e-08 ,5.24657e-09 ,1.92946e-09 ,7.01358e-10 ,2.52448e-10 ,9.00753e-11 ,3.18556e-11 ,1.11511e-11 ,3.85524e-12 ,1.31312e-12 ,4.3963e-13 ,1.44422e-13 ,4.64971e-14};
 
 std::vector< float > BgLumiMC; //MC                                           
-std::vector< float > TrueDist2011;                                    
+std::vector< float > TrueDist;                                    
 edm::LumiReWeighting LumiWeightsMC;
 reweight::PoissonMeanShifter PShift(0.6);//0.6 for upshift, -0.6 for downshift
 
@@ -207,9 +211,14 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
    //   for (int CutIndex = 0; CutIndex < CutPt_Flip.size(); ++CutIndex) printf("%4.0i  %3.0f   %3.3f   %3.3f\n", CutIndex+1, CutPt_Flip[CutIndex], CutI_Flip[CutIndex],  CutTOF_Flip[CutIndex]);
 
    //initialize LumiReWeighting
-   for(int i=0; i<35; ++i) BgLumiMC.push_back(Pileup_MC[i]);
+#ifdef ANALYSIS2011
+   for(int i=0; i<35; ++i) BgLumiMC.push_back(Pileup_MC_Fall11[i]);
    for(int i=0; i<35; ++i) TrueDist2011.push_back(TrueDist2011_f[i]);
-   LumiWeightsMC = edm::LumiReWeighting(BgLumiMC, TrueDist2011);
+#else
+   for(int i=0; i<60; ++i) BgLumiMC.push_back(Pileup_MC_Summer2012[i]);
+   for(int i=0; i<60; ++i) TrueDist.push_back(TrueDist2012_f[i]);
+#endif
+   LumiWeightsMC = edm::LumiReWeighting(BgLumiMC, TrueDist);
 
    //make the directory structure corresponding to this analysis (depends on dEdx/TOF estimator being used, Eta/Pt cuts and Mode of the analysis)
    char Buffer[2048], Command[2048];
@@ -271,7 +280,17 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
 	 //Only for the TOF only analysis
 	 if(TypeMode==3) {
            if(tr.size()== tr.triggerIndex("HSCPHLTTriggerL2MuFilter")) return false;
-	   if(tr.accept(tr.triggerIndex("HSCPHLTTriggerL2MuFilter"))) return true;
+	   if(tr.accept(tr.triggerIndex("HSCPHLTTriggerL2MuFilter"))) {
+	     if(!isData) {
+	       //First 700 pb-1 taken with MET threshold at 65, for events with 55 < MET < 65 correct weight for luminosity actually taken
+	       fwlite::Handle< trigger::TriggerEvent > trEvHandle;
+	       trEvHandle.getByLabel(ev, "hltTriggerSummaryAOD");
+	       trigger::TriggerEvent trEv = *trEvHandle;
+	       if(!IncreasedTreshold(trEv, InputTag("hltPFMHT55Filter","","HLT"), 65, 99999., 1, false)) {
+		 Event_Weight = Event_Weight * (IntegratedLuminosity - IntegratedLuminosityHigherMETThreshold)/IntegratedLuminosity;}
+	     }
+	     return true;
+	   }
 	 }
 	 //Only accepted if looking for cosmic events
 	 if(isCosmic) {
@@ -370,6 +389,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    //This cut is no longer applied here but rather in the PassSelection part to use the region
    //with TOF<GlobalMinTOF as a background check
    //if(TypeMode>1 && tof->inverseBeta()+RescaleT<GlobalMinTOF)return false;
+   if(st)st->BS_TOFError->Fill(tof->inverseBetaErr(),Event_Weight);
    if((TypeMode>1  && TypeMode!=5) && tof->inverseBetaErr()>GlobalMaxTOFErr)return false;
    }
 
@@ -558,6 +578,13 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
           st->BS_Pt ->Fill(track->pt(),Event_Weight);
 	  if(fabs(track->eta())<DTRegion) st->BS_Pt_DT->Fill(track->pt(),Event_Weight);
 	  else st->BS_Pt_CSC->Fill(track->pt(),Event_Weight);
+
+          double RecoQoPt = track->charge()/track->pt();
+          if(!hscp.trackRef().isNull() && hscp.trackRef()->pt()>200) {
+            double InnerRecoQoPt = hscp.trackRef()->charge()/hscp.trackRef()->pt();
+            st->BS_InnerInvPtDiff->Fill((RecoQoPt-InnerRecoQoPt)/InnerRecoQoPt,Event_Weight);
+          }
+
           if(dedxSObj) st->BS_Is ->Fill(dedxSObj->dEdx(),Event_Weight);
           if(dedxSObj) st->BS_Im ->Fill(dedxMObj->dEdx(),Event_Weight);
           if(tof) {
@@ -574,6 +601,16 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 	  }
           if(tof && dedxSObj)st->BS_TOFIs->Fill(tof->inverseBeta(),dedxSObj->dEdx(),Event_Weight);
           if(tof && dedxSObj)st->BS_TOFIm->Fill(tof->inverseBeta(),dedxMObj->dEdx(),Event_Weight);
+
+	  //Muon only prediction binned depending on where in the detector the track is and how many muon stations it has
+	  //Binning not used for other analyses
+	  int bin=-1;
+	  if(TypeMode==3) {
+	    if(fabs(track->eta())<DTRegion) bin=muonStations(track->hitPattern())-2;
+	    else bin=muonStations(track->hitPattern())+1;
+	    st->BS_Pt_Binned[bin] ->Fill(track->pt(),Event_Weight);
+	    if(tof) st->BS_TOF_Binned[bin]->Fill(tof->inverseBeta(),Event_Weight);
+	  }
    }
    return true;
 }
@@ -705,30 +742,34 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
            PtLimits.push_back(120);
 	 }
 
+	    //Muon only prediction binned depending on where in the detector the track is and how many muon stations it has
+	    //Binning not used for other analyses
+	    int bin=-1;
+	    if(TypeMode==3) {
+	      if(fabs(track->eta())<DTRegion) bin=muonStations(track->hitPattern())-2;
+	      else bin=muonStations(track->hitPattern())+1;
+	    }
+
             if(track->pt()>PtLimits[0]){
                st->CtrlPt_S4_Is->Fill(Is, Event_Weight);
                st->CtrlPt_S4_Im->Fill(Ih, Event_Weight);
                if(tof)st->CtrlPt_S4_TOF->Fill(MuonTOF, Event_Weight);
-	       if(fabs(track->eta())<DTRegion) {if(tof)st->CtrlCen_Pt_S4_TOF->Fill(MuonTOF, Event_Weight);}
-	       else {if(tof)st->CtrlFor_Pt_S4_TOF->Fill(MuonTOF, Event_Weight);}
+               if(tof && bin>=0 && bin<MaxPredBins)st->CtrlPt_S4_TOF_Binned[bin]->Fill(MuonTOF, Event_Weight);
             }else if(track->pt()>PtLimits[1]){
                st->CtrlPt_S3_Is->Fill(Is, Event_Weight);
                st->CtrlPt_S3_Im->Fill(Ih, Event_Weight);
                if(tof)st->CtrlPt_S3_TOF->Fill(MuonTOF, Event_Weight);
-               if(fabs(track->eta())<DTRegion) {if(tof)st->CtrlCen_Pt_S3_TOF->Fill(MuonTOF, Event_Weight);}
-               else {if(tof)st->CtrlFor_Pt_S3_TOF->Fill(MuonTOF, Event_Weight);}
+               if(tof && bin>=0 && bin<MaxPredBins)st->CtrlPt_S3_TOF_Binned[bin]->Fill(MuonTOF, Event_Weight);
             }else if(track->pt()>PtLimits[2]){
                st->CtrlPt_S2_Is->Fill(Is, Event_Weight);
                st->CtrlPt_S2_Im->Fill(Ih, Event_Weight);
                if(tof)st->CtrlPt_S2_TOF->Fill(MuonTOF, Event_Weight);
-               if(fabs(track->eta())<DTRegion) {if(tof)st->CtrlCen_Pt_S2_TOF->Fill(MuonTOF, Event_Weight);}
-               else {if(tof)st->CtrlFor_Pt_S2_TOF->Fill(MuonTOF, Event_Weight);}
+               if(tof && bin>=0 && bin<MaxPredBins)st->CtrlPt_S2_TOF_Binned[bin]->Fill(MuonTOF, Event_Weight);
             }else{
                st->CtrlPt_S1_Is->Fill(Is, Event_Weight);
                st->CtrlPt_S1_Im->Fill(Ih, Event_Weight);
                if(tof)st->CtrlPt_S1_TOF->Fill(MuonTOF, Event_Weight);
-               if(fabs(track->eta())<DTRegion) {if(tof)st->CtrlCen_Pt_S1_TOF->Fill(MuonTOF, Event_Weight);}
-               else {if(tof)st->CtrlFor_Pt_S1_TOF->Fill(MuonTOF, Event_Weight);}
+               if(tof && bin>=0 && bin<MaxPredBins)st->CtrlPt_S1_TOF_Binned[bin]->Fill(MuonTOF, Event_Weight);
             }
 
             if(Is>0.2){           if(tof)st->CtrlIs_S4_TOF->Fill(MuonTOF, Event_Weight);
@@ -742,14 +783,6 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
             }else if(Ih>3.8){     if(tof)st->CtrlIm_S2_TOF->Fill(MuonTOF, Event_Weight);
             }else{                if(tof)st->CtrlIm_S1_TOF->Fill(MuonTOF, Event_Weight);
             }
-
-	    //Muon only prediction binned depending on where in the detector the track is and how many muon stations it has
-	    //Binning not used for other analyses
-	    int bin=-1;
-	    if(TypeMode==3) {
-	      if(fabs(track->eta())<DTRegion) bin=muonStations(track->hitPattern())-2;
-	      else bin=muonStations(track->hitPattern())+1;
-	    }
 
          for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
 	   if(MuonTOF<GlobalMinTOF) continue;
@@ -878,10 +911,12 @@ void Analysis_Step3(char* SavePath)
       stPlots* SamplePlots = &plotsMap[samples[s].Name];
       SamplePlots->IntLumi->Fill(0.0,IntegratedLuminosity);
 
+      string MCTrDirName = "MCTr_8TeV";
       if(isMC){
-         if(plotsMap.find("MCTr")==plotsMap.end()){plotsMap["MCTr"] = stPlots();}
-         stPlots_Init(HistoFile,plotsMap["MCTr"],"MCTr", CutPt.size(), false, false, CutPt_Flip.size());
-      }stPlots* MCTrPlots = &plotsMap["MCTr"];
+	if(samples[s].Name.find("7TeV")!=string::npos) MCTrDirName = "MCTr_7TeV";
+         if(plotsMap.find(MCTrDirName)==plotsMap.end()){plotsMap[MCTrDirName] = stPlots();}
+         stPlots_Init(HistoFile,plotsMap[MCTrDirName],MCTrDirName, CutPt.size(), false, false, CutPt_Flip.size());
+      }stPlots* MCTrPlots = &plotsMap[MCTrDirName];
 
       //Initialize plot container for pure cosmic sample
       //Cosmic sample is contained in data file so for TOF-Only search
@@ -909,7 +944,8 @@ void Analysis_Step3(char* SavePath)
       double* MaxMass_SystPU= new double[CutPt.size()];
 
       //do two loops through signal for samples with and without trigger changes.
-      for (int period=0; period<(samples[s].Type==2?RunningPeriods:1); period++){
+      for (int period=0; period<(samples[s].Type==2?2:1); period++){
+	//for (int period=0; period<(samples[s].Type==2?RunningPeriods:1); period++){
          //load the files corresponding to this sample
          std::vector<string> FileName;
 	 GetInputFiles(samples[s], BaseDirectory, FileName, period);

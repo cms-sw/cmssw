@@ -108,6 +108,7 @@ struct stPlots {
    TH1F*  BS_Eta;
    TH1F*  BS_TNOM;
    TH1F*  BS_nDof;
+   TH1F*  BS_TOFError;
    TH1F*  BS_Pterr;
    TH1F*  BS_MPt; 
    TH1F*  BS_MIs; 
@@ -132,6 +133,8 @@ struct stPlots {
    TH1F*  BS_SegMinEtaSep_FailDz;
    TH1F*  BS_SegMinEtaSep_PassDz;
    TH1F*  BS_Dz_FailSep;
+   TH1F*  BS_InnerInvPtDiff;
+
 
    TH1F*  BS_Pt_FailDz;
    TH1F*  BS_Pt_FailDz_DT;
@@ -143,6 +146,8 @@ struct stPlots {
    TH1F*  BS_Dz;
    TH1F*  BS_Dz_CSC;
    TH1F*  BS_Dz_DT;
+   TH1F*  BS_Pt_Binned[MaxPredBins];
+   TH1F*  BS_TOF_Binned[MaxPredBins]; 
 
    TH2F* AS_Eta_RegionA;
    TH2F* AS_Eta_RegionB;
@@ -274,15 +279,10 @@ struct stPlots {
   TH1D*  CtrlPt_S3_TOF;
   TH1D*  CtrlPt_S4_TOF;
 
-  TH1D*  CtrlCen_Pt_S1_TOF;
-  TH1D*  CtrlCen_Pt_S2_TOF;
-  TH1D*  CtrlCen_Pt_S3_TOF;
-  TH1D*  CtrlCen_Pt_S4_TOF;
-
-  TH1D*  CtrlFor_Pt_S1_TOF;
-  TH1D*  CtrlFor_Pt_S2_TOF;
-  TH1D*  CtrlFor_Pt_S3_TOF;
-  TH1D*  CtrlFor_Pt_S4_TOF;
+  TH1D* CtrlPt_S1_TOF_Binned[MaxPredBins];
+  TH1D* CtrlPt_S2_TOF_Binned[MaxPredBins];
+  TH1D* CtrlPt_S3_TOF_Binned[MaxPredBins];
+  TH1D* CtrlPt_S4_TOF_Binned[MaxPredBins];
 };
 
 // initialize all the plots but also the directory structure to save them in the file
@@ -390,6 +390,7 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_Eta" ; st.BS_Eta  = new TH1F(Name.c_str(), Name.c_str(),  50,  -2.6,  2.6);                st.BS_Eta->Sumw2();
    Name = "BS_TNOM" ; st.BS_TNOM  = new TH1F(Name.c_str(), Name.c_str(),  40,  0, 40);                st.BS_TNOM->Sumw2();
    Name = "BS_nDof" ; st.BS_nDof  = new TH1F(Name.c_str(), Name.c_str(),  20,  0, 40);                st.BS_nDof->Sumw2();
+   Name = "BS_TOFError" ; st.BS_TOFError  = new TH1F(Name.c_str(), Name.c_str(),  25,  0, 0.25);                st.BS_TOFError->Sumw2();
    Name = "BS_PtErr"; st.BS_Pterr = new TH1F(Name.c_str(), Name.c_str(),  40,  0,  1);                st.BS_Pterr->Sumw2();
    Name = "BS_MPt"  ; st.BS_MPt   = new TH1F(Name.c_str(), Name.c_str(),  50,  0, PtHistoUpperBound); st.BS_MPt->Sumw2();
    Name = "BS_MIs"  ; st.BS_MIs   = new TH1F(Name.c_str(), Name.c_str(),  50,  0, dEdxS_UpLim);       st.BS_MIs->Sumw2();
@@ -409,6 +410,7 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_TOF_CSC"  ; st.BS_TOF_CSC   = new TH1F(Name.c_str(), Name.c_str(),                   150, -1, 5);                 st.BS_TOF_CSC->Sumw2();
    Name = "BS_dR_NVTrack"  ; st.BS_dR_NVTrack = new TH1F(Name.c_str(), Name.c_str(), 40, 0, 1); st.BS_dR_NVTrack->Sumw2();
    Name = "BS_MatchedStations"  ; st.BS_MatchedStations= new TH1F(Name.c_str(), Name.c_str(),                   8, -0.5, 7.5); st.BS_MatchedStations->Sumw2();
+   Name = "BS_InnerInvPtDiff"  ; st.BS_InnerInvPtDiff = new TH1F(Name.c_str(), Name.c_str(),                   120, -4, 4); st.BS_InnerInvPtDiff->Sumw2();
 
    Name = "BS_NVertex";  st.BS_NVertex = new TH1F(Name.c_str(), Name.c_str(), 60, 0,  60);  st.BS_NVertex    ->Sumw2();
    Name = "BS_NVertex_NoEventWeight";    st.BS_NVertex_NoEventWeight = new TH1F(Name.c_str(), Name.c_str(), 60, 0, 60);     st.BS_NVertex_NoEventWeight    ->Sumw2();
@@ -436,6 +438,14 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_TOF_FailDz"; st.BS_TOF_FailDz = new TH1F(Name.c_str(), Name.c_str(),  150, -1, 5); st.BS_TOF_FailDz->Sumw2();
    Name = "BS_TOF_FailDz_DT"; st.BS_TOF_FailDz_DT = new TH1F(Name.c_str(), Name.c_str(),  150, -1, 5); st.BS_TOF_FailDz_DT->Sumw2();
    Name = "BS_TOF_FailDz_CSC"; st.BS_TOF_FailDz_CSC = new TH1F(Name.c_str(), Name.c_str(),  150, -1, 5); st.BS_TOF_FailDz_CSC->Sumw2();
+
+   //Initialize histograms for number of bins.  For everything but muon only PredBins=0 so no histograms created
+   for(int i=0; i<PredBins; i++) {
+     char Suffix[1024];
+     sprintf(Suffix,"_%i",i);
+     Name = "BS_Pt_Binned"; Name.append(Suffix); st.BS_Pt_Binned[i] = new TH1F(Name.c_str(), Name.c_str(), 50, 0, PtHistoUpperBound); st.BS_Pt_Binned[i]->Sumw2();
+     Name = "BS_TOF_Binned"; Name.append(Suffix); st.BS_TOF_Binned[i] = new TH1F(Name.c_str(), Name.c_str() ,150, -1, 5); st.BS_TOF_Binned[i]->Sumw2();
+   }
 
    Name = "AS_Eta_RegionA" ; st.AS_Eta_RegionA  = new TH2F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts,  50,  -2.6,  2.6);           st.AS_Eta_RegionA->Sumw2();
    Name = "AS_Eta_RegionB" ; st.AS_Eta_RegionB  = new TH2F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts,  50,  -2.6,  2.6);           st.AS_Eta_RegionB->Sumw2();
@@ -586,15 +596,14 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "CtrlPt_S3_TOF"; st.CtrlPt_S3_TOF = new TH1D(Name.c_str(), Name.c_str(),200,-2,7); st.CtrlPt_S3_TOF->Sumw2();
    Name = "CtrlPt_S4_TOF"; st.CtrlPt_S4_TOF = new TH1D(Name.c_str(), Name.c_str(),200,-2,7); st.CtrlPt_S4_TOF->Sumw2();
 
-   Name = "CtrlCen_Pt_S1_TOF"; st.CtrlCen_Pt_S1_TOF = new TH1D(Name.c_str(), Name.c_str(),200,-2,7); st.CtrlCen_Pt_S1_TOF->Sumw2();
-   Name = "CtrlCen_Pt_S2_TOF"; st.CtrlCen_Pt_S2_TOF = new TH1D(Name.c_str(), Name.c_str(),200,-2,7); st.CtrlCen_Pt_S2_TOF->Sumw2();
-   Name = "CtrlCen_Pt_S3_TOF"; st.CtrlCen_Pt_S3_TOF = new TH1D(Name.c_str(), Name.c_str(),200,-2,7); st.CtrlCen_Pt_S3_TOF->Sumw2();
-   Name = "CtrlCen_Pt_S4_TOF"; st.CtrlCen_Pt_S4_TOF = new TH1D(Name.c_str(), Name.c_str(),200,-2,7); st.CtrlCen_Pt_S4_TOF->Sumw2();
-
-   Name = "CtrlFor_Pt_S1_TOF"; st.CtrlFor_Pt_S1_TOF = new TH1D(Name.c_str(), Name.c_str(),200,-2,7); st.CtrlFor_Pt_S1_TOF->Sumw2();
-   Name = "CtrlFor_Pt_S2_TOF"; st.CtrlFor_Pt_S2_TOF = new TH1D(Name.c_str(), Name.c_str(),200,-2,7); st.CtrlFor_Pt_S2_TOF->Sumw2();
-   Name = "CtrlFor_Pt_S3_TOF"; st.CtrlFor_Pt_S3_TOF = new TH1D(Name.c_str(), Name.c_str(),200,-2,7); st.CtrlFor_Pt_S3_TOF->Sumw2();
-   Name = "CtrlFor_Pt_S4_TOF"; st.CtrlFor_Pt_S4_TOF = new TH1D(Name.c_str(), Name.c_str(),200,-2,7); st.CtrlFor_Pt_S4_TOF->Sumw2();
+   for(int i=0; i<PredBins; i++) {
+     char Suffix[1024];
+     sprintf(Suffix,"_%i",i);
+     Name = "CtrlPt_S1_TOF_Binned"; Name.append(Suffix); st.CtrlPt_S1_TOF_Binned[i] = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.CtrlPt_S1_TOF_Binned[i]->Sumw2();
+     Name = "CtrlPt_S2_TOF_Binned"; Name.append(Suffix); st.CtrlPt_S2_TOF_Binned[i] = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.CtrlPt_S2_TOF_Binned[i]->Sumw2();
+     Name = "CtrlPt_S3_TOF_Binned"; Name.append(Suffix); st.CtrlPt_S3_TOF_Binned[i] = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.CtrlPt_S3_TOF_Binned[i]->Sumw2();
+     Name = "CtrlPt_S4_TOF_Binned"; Name.append(Suffix); st.CtrlPt_S4_TOF_Binned[i] = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.CtrlPt_S4_TOF_Binned[i]->Sumw2();
+   }
    }
 
    st.Tree = new TTree("HscpCandidates", "HscpCandidates");
@@ -700,6 +709,7 @@ bool stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName)
    st.BS_Eta    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Eta");
    st.BS_TNOM   = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TNOM");
    st.BS_nDof   = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_nDof");
+   st.BS_TOFError   = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOFError");
    st.BS_Pterr  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_PtErr");
    st.BS_MPt    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_MPt");
    st.BS_MIm    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_MIm");
@@ -719,6 +729,7 @@ bool stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName)
    st.BS_SegMinEtaSep_FailDz  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_SegMinEtaSep_FailDz");
    st.BS_SegMinEtaSep_PassDz  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_SegMinEtaSep_PassDz");
    st.BS_Dz_FailSep  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Dz_FailSep");
+   st.BS_InnerInvPtDiff  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_InnerInvPtDiff");
 
    st.BS_Pt_FailDz  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_FailDz");
    st.BS_Pt_FailDz_DT  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_FailDz_DT");
@@ -1331,6 +1342,17 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
+     Histos[i] = (TH1*)st[i]->BS_TOFError->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta error", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
+   c1->SetLogy(true);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"TOFError_BS", true);
+   for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_Pterr->Clone();       legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} Err / p_{T}", "arbitrary units", 0,0, 0,0);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
@@ -1499,6 +1521,18 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    c1->SetLogy(true);
    DrawPreliminary(SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"PV_BS", true);
+   for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   for(unsigned int i=0;i<st.size();i++){
+     Histos[i] = (TH1*)st[i]->BS_InnerInvPtDiff->Clone(); Histos[i]->Rebin(4);  legend.push_back(lg[i]);
+     if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)); }
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Inner Inverse Pt Diff", "arbitrary units", -3,3, 0.0005,0.4);
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
+   c1->SetLogy(true);
+   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"InnerInvPtDiff_BS", false);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
 

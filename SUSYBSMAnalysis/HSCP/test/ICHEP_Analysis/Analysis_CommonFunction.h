@@ -461,5 +461,48 @@ class DuplicatesClass{
 };
  
 
+bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, double etaCut, int NObjectAboveThreshold, bool averageThreshold)
+{
+   unsigned int filterIndex = trEv.filterIndex(InputPath);
+   //if(filterIndex<trEv.sizeFilters())printf("SELECTED INDEX =%i --> %s    XXX   %s\n",filterIndex,trEv.filterTag(filterIndex).label().c_str(), trEv.filterTag(filterIndex).process().c_str());
 
+   if (filterIndex<trEv.sizeFilters()){
+      const trigger::Vids& VIDS(trEv.filterIds(filterIndex));
+      const trigger::Keys& KEYS(trEv.filterKeys(filterIndex));
+      const int nI(VIDS.size());
+      const int nK(KEYS.size());
+      assert(nI==nK);
+      const int n(std::max(nI,nK));
+      const trigger::TriggerObjectCollection& TOC(trEv.getObjects());
+
+
+      if(!averageThreshold){
+         int NObjectAboveThresholdObserved = 0;
+         for (int i=0; i!=n; ++i) {
+	   if(TOC[KEYS[i]].pt()> NewThreshold && fabs(TOC[KEYS[i]].eta())<etaCut) NObjectAboveThresholdObserved++;
+            //cout << "   " << i << " " << VIDS[i] << "/" << KEYS[i] << ": "<< TOC[KEYS[i]].id() << " " << TOC[KEYS[i]].pt() << " " << TOC[KEYS[i]].eta() << " " << TOC[KEYS[i]].phi() << " " << TOC[KEYS[i]].mass()<< endl;
+         }
+         if(NObjectAboveThresholdObserved>=NObjectAboveThreshold)return true;
+
+      }else{
+         std::vector<double> ObjPt;
+
+         for (int i=0; i!=n; ++i) {
+            ObjPt.push_back(TOC[KEYS[i]].pt());
+            //cout << "   " << i << " " << VIDS[i] << "/" << KEYS[i] << ": "<< TOC[KEYS[i]].id() << " " << TOC[KEYS[i]].pt() << " " << TOC[KEYS[i]].eta() << " " << TOC[KEYS[i]].phi() << " " << TOC[KEYS[i]].mass()<< endl;
+         }
+         if((int)(ObjPt.size())<NObjectAboveThreshold)return false;
+         std::sort(ObjPt.begin(), ObjPt.end());
+
+         double Average = 0;
+         for(int i=0; i<NObjectAboveThreshold;i++){
+            Average+= ObjPt[ObjPt.size()-1-i];
+         }Average/=NObjectAboveThreshold;
+         //cout << "AVERAGE = " << Average << endl;
+
+         if(Average>NewThreshold)return true;
+      }
+   }
+   return false;
+}
 
