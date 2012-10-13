@@ -10,16 +10,6 @@
 
 namespace reco {
 
-  inline double deltaR2(double eta1, double phi1, double eta2, double phi2) {
-    double deta = eta1 - eta2;
-    double dphi = deltaPhi(phi1, phi2);
-    return deta*deta + dphi*dphi;
-  }
-  
-  inline double deltaR(double eta1, double phi1, double eta2, double phi2) {
-    return std::sqrt(deltaR2 (eta1, phi1, eta2, phi2));
-  }
-  
 
   // assumption is that eta and phi are cached AND phi is computed using std::atan2
   // type is the type of T1::phi();
@@ -34,12 +24,14 @@ namespace reco {
     return (e1-e2)*(e1-e2) + dp*dp;
   } 
   
-  // do not use it
+  // do not use it: always cut in deltaR2!
   template<typename T1, typename T2>
   inline auto deltaR(const T1 & t1, const T2 & t2) -> decltype(t1.phi()) {
     return std::sqrt(deltaR2(t1,t2));
   } 
 
+
+  //prefer the above...
   template <class T>
   T deltaR2 (T eta1, T phi1, T eta2, T phi2) {
     T deta = eta1 - eta2;
@@ -47,8 +39,9 @@ namespace reco {
     return deta*deta + dphi*dphi;
   }
 
+  // to be avoided
   template <class T>
-    T deltaR (T eta1, T phi1, T eta2, T phi2) {
+  T deltaR (T eta1, T phi1, T eta2, T phi2) {
     return std::sqrt (deltaR2 (eta1, phi1, eta2, phi2));
   }
 
@@ -58,6 +51,7 @@ namespace reco {
 using reco::deltaR2;
 using reco::deltaR;
 
+// obsolete use lambdas (and cut in deltaR2!)
 template<typename T1, typename T2 = T1>
 struct DeltaR {
   double operator()( const T1 & t1, const T2 & t2 ) const {
