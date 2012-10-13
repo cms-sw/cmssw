@@ -22,6 +22,9 @@
 
 #include "DataFormats/Candidate/interface/Particle.h"
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
+
 class OverlapChecker;
 
 namespace reco {
@@ -79,9 +82,9 @@ namespace reco {
     /// transverse energy 
     virtual double et() const = 0;
     /// mass
-    virtual double mass() const = 0;
+    virtual float mass() const = 0;
     /// mass squared
-    virtual double massSqr() const = 0;
+    virtual float massSqr() const = 0;
     /// transverse mass
     virtual double mt() const = 0;
     /// transverse mass squared
@@ -93,13 +96,13 @@ namespace reco {
     /// z coordinate of momentum vector
     virtual double pz() const = 0;
     /// transverse momentum
-    virtual double pt() const = 0;
+    virtual float pt() const = 0;
     /// momentum azimuthal angle
-    virtual double phi() const = 0;
+    virtual float phi() const = 0;
     /// momentum polar angle
     virtual double theta() const = 0;
     /// momentum pseudorapidity
-    virtual double eta() const = 0;
+    virtual float eta() const = 0;
     /// rapidity
     virtual double rapidity() const = 0;
     /// rapidity

@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: LeafCandidate.h,v 1.23 2010/07/12 08:27:36 hegner Exp $
+ * \version $Id: LeafCandidate.h,v 1.24 2011/10/27 16:29:58 wmtan Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -39,30 +39,28 @@ namespace reco {
       cachePolarFixed_( false ), cacheCartesianFixed_( false ) { }
     // constructor from candidate                                                         
     explicit LeafCandidate( const Candidate & c) :
-      qx3_( c.charge()*3 ), pt_( c.p4().pt() ), eta_( c.p4().eta() ), phi_( c.p4().phi() )\
-      , mass_( c.p4().mass() ),
-      vertex_( c.vertex() ), pdgId_( c.pdgId() ), status_( c.status() ),
-      cachePolarFixed_( false ), cacheCartesianFixed_( false ) {}
-
+    qx3_( c.charge()*3 ), pt_( c.p4().pt() ), eta_( c.p4().eta() ), phi_( c.p4().phi() )
+    , mass_( c.p4().mass() ),
+    vertex_( c.vertex() ), pdgId_( c.pdgId() ), status_( c.status() ),
+    cachePolarFixed_( false ), cacheCartesianFixed_( false ) {}
+    
     /// constructor from values                                                           
-    LeafCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, \
-										      0, 0 ),
-		       int pdgId = 0, int status = 0, bool integerCharge = true ) :
+    LeafCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
+		   int pdgId = 0, int status = 0, bool integerCharge = true ) :
       qx3_( q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
       vertex_( vtx ), pdgId_( pdgId ), status_( status ),
       cachePolarFixed_( false ), cacheCartesianFixed_( false ) {
       if ( integerCharge ) qx3_ *= 3;
     }
     /// constructor from values                                                           
-    LeafCandidate( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point\
-		       ( 0, 0, 0 ),
-		       int pdgId = 0, int status = 0, bool integerCharge = true ) :
+    LeafCandidate( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
+		   int pdgId = 0, int status = 0, bool integerCharge = true ) :
       qx3_( q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
       vertex_( vtx ), pdgId_( pdgId ), status_( status ),
       cachePolarFixed_( false ), cacheCartesianFixed_( false ){
       if ( integerCharge ) qx3_ *= 3;
     }
-
+    
     /// destructor
     virtual ~LeafCandidate();
     /// first daughter const_iterator
@@ -97,56 +95,57 @@ namespace reco {
     }
 
     /// electric charge
-    virtual int charge() const { return qx3_ / 3; }
+    virtual int charge() const GCC11_FINAL { return qx3_ / 3; }
     /// set electric charge                                                               
-    virtual void setCharge( Charge q ) { qx3_ = q * 3; }
+    virtual void setCharge( Charge q ) GCC11_FINAL { qx3_ = q * 3; }
     /// electric charge                                                                   
-    virtual int threeCharge() const { return qx3_; }
+    virtual int threeCharge() const GCC11_FINAL { return qx3_; }
     /// set electric charge                                                               
-    virtual void setThreeCharge( Charge qx3 ) { qx3_ = qx3; }
+    virtual void setThreeCharge( Charge qx3 ) GCC11_FINAL { qx3_ = qx3; }
     /// four-momentum Lorentz vector                                                      
-    virtual const LorentzVector & p4() const { cacheCartesian(); return p4Cartesian_; }
+    virtual const LorentzVector & p4() const GCC11_FINAL { cacheCartesian(); return p4Cartesian_; }
     /// four-momentum Lorentz vector                                                      
-    virtual const PolarLorentzVector & polarP4() const { cachePolar(); return p4Polar_; }
+    virtual const PolarLorentzVector & polarP4() const GCC11_FINAL { cachePolar(); return p4Polar_; }
     /// spatial momentum vector                                                           
-    virtual Vector momentum() const { cacheCartesian(); return p4Cartesian_.Vect(); }
+    virtual Vector momentum() const GCC11_FINAL { cacheCartesian(); return p4Cartesian_.Vect(); }
     /// boost vector to boost a Lorentz vector                                            
     /// to the particle center of mass system                                             
-    virtual Vector boostToCM() const { cacheCartesian(); return p4Cartesian_.BoostToCM(); }
+    virtual Vector boostToCM() const GCC11_FINAL { cacheCartesian(); return p4Cartesian_.BoostToCM(); }
     /// magnitude of momentum vector                                                      
-    virtual double p() const { cacheCartesian(); return p4Cartesian_.P(); }
+    virtual double p() const GCC11_FINAL { cacheCartesian(); return p4Cartesian_.P(); }
     /// energy                                                                            
-    virtual double energy() const { cacheCartesian(); return p4Cartesian_.E(); }
+    virtual double energy() const GCC11_FINAL { cacheCartesian(); return p4Cartesian_.E(); }
     /// transverse energy                                                                 
-    virtual double et() const { cachePolar(); return p4Polar_.Et(); }
+    virtual double et() const GCC11_FINAL { cachePolar(); return p4Polar_.Et(); }
     /// mass                                                                              
-    virtual double mass() const { return mass_; }
+    virtual float mass() const GCC11_FINAL { return mass_; }
     /// mass squared                                                                      
-    virtual double massSqr() const { return mass_ * mass_; }
+    virtual float massSqr() const GCC11_FINAL { return mass_ * mass_; }
+
     /// transverse mass                                                                   
-    virtual double mt() const { cachePolar(); return p4Polar_.Mt(); }
+    virtual double mt() const GCC11_FINAL  { cachePolar(); return p4Polar_.Mt(); }
     /// transverse mass squared                                                           
-    virtual double mtSqr() const { cachePolar(); return p4Polar_.Mt2(); }
+    virtual double mtSqr() const GCC11_FINAL  { cachePolar(); return p4Polar_.Mt2(); }
     /// x coordinate of momentum vector                                                   
-    virtual double px() const { cacheCartesian(); return p4Cartesian_.Px(); }
+    virtual double px() const GCC11_FINAL  { cacheCartesian(); return p4Cartesian_.Px(); }
     /// y coordinate of momentum vector                                                   
-    virtual double py() const { cacheCartesian(); return p4Cartesian_.Py(); }
+    virtual double py() const GCC11_FINAL  { cacheCartesian(); return p4Cartesian_.Py(); }
     /// z coordinate of momentum vector                                                   
-    virtual double pz() const { cacheCartesian(); return p4Cartesian_.Pz(); }
+    virtual double pz() const GCC11_FINAL  { cacheCartesian(); return p4Cartesian_.Pz(); }
     /// transverse momentum                                                               
-    virtual double pt() const; 
+    virtual float pt() const GCC11_FINAL  { return pt_;}
     /// momentum azimuthal angle                                                          
-    virtual double phi() const { return phi_; }
+    virtual float phi() const GCC11_FINAL  { return phi_; }
     /// momentum polar angle                                                              
-    virtual double theta() const { cacheCartesian(); return p4Cartesian_.Theta(); }
+    virtual double theta() const GCC11_FINAL  { cacheCartesian(); return p4Cartesian_.Theta(); }
     /// momentum pseudorapidity                                                           
-    virtual double eta() const { return eta_; }
+    virtual float eta() const GCC11_FINAL  { return eta_; }
     /// rapidity                                                                          
-    virtual double rapidity() const { cachePolar(); return p4Polar_.Rapidity(); }
+    virtual double rapidity() const GCC11_FINAL  { cachePolar(); return p4Polar_.Rapidity(); }
     /// rapidity                                                                          
-    virtual double y() const { return rapidity(); }
+    virtual double y() const GCC11_FINAL  { return rapidity(); }
     /// set 4-momentum                                                                    
-    virtual void setP4( const LorentzVector & p4 ) {
+    virtual void setP4( const LorentzVector & p4 ) GCC11_FINAL  {
       p4Cartesian_ = p4;
       p4Polar_ = p4;
       pt_ = p4Polar_.pt();
@@ -157,7 +156,7 @@ namespace reco {
       cacheCartesianFixed_ = true;
     }
     /// set 4-momentum                                                                    
-    virtual void setP4( const PolarLorentzVector & p4 ) {
+    virtual void setP4( const PolarLorentzVector & p4 ) GCC11_FINAL  {
       p4Polar_ = p4;
       pt_ = p4Polar_.pt();
       eta_ = p4Polar_.eta();
@@ -167,11 +166,11 @@ namespace reco {
       cacheCartesianFixed_ = false;
     }
     /// set particle mass                                                                 
-    virtual void setMass( double m ) {
+    virtual void setMass( double m ) GCC11_FINAL  {
       mass_ = m;
       clearCache();
     }
-    virtual void setPz( double pz ) {
+    virtual void setPz( double pz ) GCC11_FINAL  {
       cacheCartesian();
       p4Cartesian_.SetPz(pz);
       p4Polar_ = p4Cartesian_;
@@ -181,37 +180,38 @@ namespace reco {
       mass_ = p4Polar_.mass();
     }
     /// vertex position                                                                   
-    virtual const Point & vertex() const { return vertex_; }
+    virtual const Point & vertex() const GCC11_FINAL  { return vertex_; }
     /// x coordinate of vertex position                                                   
-    virtual double vx() const { return vertex_.X(); }
+    virtual double vx() const GCC11_FINAL  { return vertex_.X(); }
     /// y coordinate of vertex position                                                   
-    virtual double vy() const { return vertex_.Y(); }
+    virtual double vy() const GCC11_FINAL  { return vertex_.Y(); }
     /// z coordinate of vertex position                                                   
-    virtual double vz() const { return vertex_.Z(); }
+    virtual double vz() const GCC11_FINAL  { return vertex_.Z(); }
     /// set vertex                                                                        
-    virtual void setVertex( const Point & vertex ) { vertex_ = vertex; }
+    virtual void setVertex( const Point & vertex ) GCC11_FINAL  { vertex_ = vertex; }
     /// PDG identifier                                                                    
-    virtual int pdgId() const { return pdgId_; }
+    virtual int pdgId() const GCC11_FINAL  { return pdgId_; }
     // set PDG identifier                                                                 
-    virtual void setPdgId( int pdgId ) { pdgId_ = pdgId; }
+    virtual void setPdgId( int pdgId ) GCC11_FINAL  { pdgId_ = pdgId; }
     /// status word                                                                       
-    virtual int status() const { return status_; }
+    virtual int status() const GCC11_FINAL  { return status_; }
     /// set status word                                                                   
-    virtual void setStatus( int status ) { status_ = status; }
+    virtual void setStatus( int status ) GCC11_FINAL  { status_ = status; }
     /// long lived flag                                                                   
     static const unsigned int longLivedTag;
     /// set long lived flag                                                               
-    virtual void setLongLived() { status_ |= longLivedTag; }
+    virtual void setLongLived() GCC11_FINAL  { status_ |= longLivedTag; }
     /// is long lived?                                                                    
-    virtual bool longLived() const { return status_ & longLivedTag; }
+    virtual bool longLived() const GCC11_FINAL  { return status_ & longLivedTag; }
     /// do mass constraint flag
     static const unsigned int massConstraintTag;
     /// set mass constraint flag
-    virtual void setMassConstraint() { status_ |= massConstraintTag;}
+    virtual void setMassConstraint() GCC11_FINAL  { status_ |= massConstraintTag;}
     /// do mass constraint?
-    virtual bool massConstraint() const { return status_ & massConstraintTag; }
+    virtual bool massConstraint() const GCC11_FINAL  { return status_ & massConstraintTag; }
+
     /// returns a clone of the Candidate object                                           
-    virtual LeafCandidate * clone() const {
+    virtual LeafCandidate * clone() const  {
       return new LeafCandidate( *this );
     }
 
@@ -229,7 +229,7 @@ namespace reco {
     /// (i, j)-th element of error matrix, i, j = 0, ... 2                                                             
     virtual double vertexCovariance(int i, int j) const;
     /// return SMatrix                                                                                                 
-    CovarianceMatrix vertexCovariance() const { CovarianceMatrix m; fillVertexCovariance(m); return m; }
+    CovarianceMatrix vertexCovariance() const GCC11_FINAL  { CovarianceMatrix m; fillVertexCovariance(m); return m; }
     /// fill SMatrix                                                                                                   
     virtual void fillVertexCovariance(CovarianceMatrix & v) const;
     /// returns true if this candidate has a reference to a master clone.                                              
@@ -247,50 +247,50 @@ namespace reco {
 
     /// cast master clone reference to a concrete type                                                                 
     template<typename Ref>
-      Ref masterRef() const { return masterClone().template castTo<Ref>(); }
+      Ref masterRef() const GCC11_FINAL  { return masterClone().template castTo<Ref>(); }
     /// get a component                                                                                                
 
-    template<typename T> T get() const {
+    template<typename T> T get() const GCC11_FINAL  {
       if ( hasMasterClone() ) return masterClone()->get<T>();
       else return reco::get<T>( * this );
     }
     /// get a component                                                                                                
-    template<typename T, typename Tag> T get() const {
+    template<typename T, typename Tag> T get() const GCC11_FINAL  {
       if ( hasMasterClone() ) return masterClone()->get<T, Tag>();
       else return reco::get<T, Tag>( * this );
     }
     /// get a component                                                                                                
-    template<typename T> T get( size_type i ) const {
+    template<typename T> T get( size_type i ) const GCC11_FINAL  {
       if ( hasMasterClone() ) return masterClone()->get<T>( i );
       else return reco::get<T>( * this, i );
     }
     /// get a component                                                                                                
-    template<typename T, typename Tag> T get( size_type i ) const {
+    template<typename T, typename Tag> T get( size_type i ) const GCC11_FINAL  {
       if ( hasMasterClone() ) return masterClone()->get<T, Tag>( i );
       else return reco::get<T, Tag>( * this, i );
     }
     /// number of components                                                                                           
-    template<typename T> size_type numberOf() const {
+    template<typename T> size_type numberOf() const GCC11_FINAL  {
       if ( hasMasterClone() ) return masterClone()->numberOf<T>();
       else return reco::numberOf<T>( * this );
     }
     /// number of components                                                                                           
-    template<typename T, typename Tag> size_type numberOf() const {
+    template<typename T, typename Tag> size_type numberOf() const GCC11_FINAL  {
       if ( hasMasterClone() ) return masterClone()->numberOf<T, Tag>();
       else return reco::numberOf<T, Tag>( * this );
     }
 
     template<typename S>
-      struct daughter_iterator {
+      struct daughter_iterator GCC11_FINAL  {
         typedef boost::filter_iterator<S, const_iterator> type;
       };
 
     template<typename S>
-      typename daughter_iterator<S>::type beginFilter( const S & s ) const {
+      typename daughter_iterator<S>::type beginFilter( const S & s ) const GCC11_FINAL  {
       return boost::make_filter_iterator(s, begin(), end());
     }
     template<typename S>
-      typename daughter_iterator<S>::type endFilter( const S & s ) const {
+      typename daughter_iterator<S>::type endFilter( const S & s ) const GCC11_FINAL  {
       return boost::make_filter_iterator(s, end(), end());
     }
 

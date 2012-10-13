@@ -1,4 +1,4 @@
-// $Id: LeafCandidate.cc,v 1.13 2009/03/28 19:52:21 hegner Exp $
+// $Id: LeafCandidate.cc,v 1.14 2009/06/30 11:07:10 elmer Exp $
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 using namespace reco;
@@ -123,6 +123,4 @@ bool LeafCandidate::isJet() const { return false; }
 const unsigned int reco::LeafCandidate::longLivedTag = 65536;
 
 const unsigned int reco::LeafCandidate::massConstraintTag = 131072;
-
-double LeafCandidate::pt() const { return pt_; }
 
