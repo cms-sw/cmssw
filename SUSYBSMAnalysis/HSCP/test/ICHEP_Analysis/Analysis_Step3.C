@@ -258,7 +258,7 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
       if(!tr.isValid())return false;
 
       #ifdef ANALYSIS2011
-      if(TypeMode<3 || TypeMode==5) {
+      if(TypeMode<3 || TypeMode>3) {
           if(tr.accept(tr.triggerIndex("HSCPHLTTriggerMuFilter")))return true;
           else if(tr.accept(tr.triggerIndex("HSCPHLTTriggerPFMetFilter"))){
              if(!isData) Event_Weight=Event_Weight*0.96;
@@ -267,15 +267,13 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
        }else if(TypeMode==3) {
            if(tr.size()== tr.triggerIndex("HSCPHLTTriggerL2MuFilter")) return false;
            if(tr.accept(tr.triggerIndex("HSCPHLTTriggerL2MuFilter"))) return true;
-       }else if(TypeMode==4) {
-           if(tr.accept(tr.triggerIndex("HSCPHLTTriggerMuFilter")))return true;
-
        }
       #else
 	 if(TypeMode!=3) {
-	   if(tr.accept("HSCPHLTTriggerMetDeDxFilter"))return true;
-	   if(tr.accept("HSCPHLTTriggerMuDeDxFilter"))return true;
+//	   if(tr.accept("HSCPHLTTriggerMetDeDxFilter"))return true;
+//	   if(tr.accept("HSCPHLTTriggerMuDeDxFilter"))return true;
 	   if(tr.accept("HSCPHLTTriggerMuFilter"))return true;
+           if(tr.accept("HSCPHLTTriggerPFMetFilter"))return true;
 	 }
 	 //Only for the TOF only analysis
 	 if(TypeMode==3) {
@@ -297,11 +295,6 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
            if(tr.size()== tr.triggerIndex("HSCPHLTTriggerCosmicFilter")) return false;
 	   if(tr.accept(tr.triggerIndex("HSCPHLTTriggerCosmicFilter"))) return true;
 	 }
-	 /*      if(TypeMode==4) {  // currently same as type0 and type2
-		 if(tr.accept("HSCPHLTTriggerMetDeDxFilter"))return true;
-		 if(tr.accept("HSCPHLTTriggerMuDeDxFilter"))return true;
-		 if(tr.accept("HSCPHLTTriggerMuFilter"))return true;
-		 }  */
       #endif
       return false;
 }

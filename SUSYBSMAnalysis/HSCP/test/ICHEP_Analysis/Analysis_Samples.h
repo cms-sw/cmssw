@@ -105,9 +105,12 @@ void GetInputFiles(stSample sample, std::string BaseDirectory_, std::vector<std:
 
    for(unsigned int f=0;f<fileNames.size();f++){  
       if(sample.Type>=2){ //MC Signal
-	//inputFiles.push_back("../BuildHSCParticles/Signals/Merge.root");
-        if (period==0) inputFiles.push_back(BaseDirectory_ + fileNames[f] + "_BX0.root");
-        if (period==1) inputFiles.push_back(BaseDirectory_ + fileNames[f] + "_BX1.root");
+        if(fileNames[f].find("7TeV")<string::npos){ //7TeV
+           if (period==0) inputFiles.push_back(BaseDirectory_ + fileNames[f] + "_BX0.root");
+           if (period==1) inputFiles.push_back(BaseDirectory_ + fileNames[f] + "_BX1.root");
+         }else{ //8TeV
+            inputFiles.push_back(BaseDirectory_ + fileNames[f] + ".root");
+         }
       }else{ //Data or MC Background
         inputFiles.push_back(BaseDirectory_ + fileNames[f] + ".root");
       }
@@ -206,7 +209,7 @@ double GetPUWeight(const fwlite::ChainEvent& ev, const std::string& pileup, doub
    if(!PupInfo.isValid()){printf("PileupSummaryInfo Collection NotFound\n");return 1.0;}
    double PUWeight_thisevent=1;
    std::vector<PileupSummaryInfo>::const_iterator PVI;
-   int npv = -1;
+   int npv = -1; float Tnpv = -1;
    if(pileup=="S4"){
       float sum_nvtx = 0;
       for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
@@ -234,7 +237,7 @@ double GetPUWeight(const fwlite::ChainEvent& ev, const std::string& pileup, doub
 	 continue;
        }
      }
-     PUWeight_thisevent = LumiWeights_.weight( Tnpv );
+     PUWeight_thisevent = LumiWeightsMC.weight( Tnpv );
      PUSystFactor = PShift.ShiftWeight( Tnpv );
    }
 

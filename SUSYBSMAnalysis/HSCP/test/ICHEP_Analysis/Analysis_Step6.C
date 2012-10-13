@@ -148,8 +148,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    if(MODE=="COMPILE")return;
 
    string Data;
-   if(MODE.find("11")!=string::npos){Data = "Data11"; SQRTS=7.0; EXCLUSIONDIR+="11"; }
-   if(MODE.find("12")!=string::npos){Data = "Data12"; SQRTS=8.0; EXCLUSIONDIR+="12"; }
+   if(MODE.find("11")!=string::npos){Data = "Data7TeV"; SQRTS=7.0; EXCLUSIONDIR+="11"; }
+   if(MODE.find("12")!=string::npos){Data = "Data8TeV"; SQRTS=8.0; EXCLUSIONDIR+="12"; }
    printf("EXCLUSIONDIR = %s\n",EXCLUSIONDIR.c_str());  
  
 
@@ -171,11 +171,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    }else if(MODE.find("COMBINE")!=string::npos){
       string EXCLUSIONDIR_SAVE = EXCLUSIONDIR;
       //2011 Limits
-      Data = "Data11"; SQRTS=7.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"11";
+      Data = "Data7TeV"; SQRTS=7.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"11";
       Optimize(InputPattern, Data, signal, SHAPESTRING!="", true);
 
       //2012 Limits
-      Data = "Data12"; SQRTS=8.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"12";
+      Data = "Data8TeV"; SQRTS=8.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"12";
       Optimize(InputPattern, Data, signal, SHAPESTRING!="", true);
 
       //Combined Limits
@@ -1184,9 +1184,9 @@ void testShapeBasedAnalysis(string InputPattern, string signal){
 
    //load all intput histograms
    TFile* InputFile  = new TFile((InputPattern+"/Histos.root").c_str());
-   TH1D*  H_Lumi     = (TH1D*)GetObjectFromPath(InputFile, "Data11/IntLumi");
-   TH2D*  MassData   = (TH2D*)GetObjectFromPath(InputFile, "Data11/Mass");
-   TH2D*  MassPred   = (TH2D*)GetObjectFromPath(InputFile, "Data11/Pred_Mass");
+   TH1D*  H_Lumi     = (TH1D*)GetObjectFromPath(InputFile, "Data7TeV/IntLumi");
+   TH2D*  MassData   = (TH2D*)GetObjectFromPath(InputFile, "Data7TeV/Mass");
+   TH2D*  MassPred   = (TH2D*)GetObjectFromPath(InputFile, "Data7TeV/Pred_Mass");
    TH2D*  MassSign   = (TH2D*)GetObjectFromPath(InputFile, samples[s].Name+"/Mass");
    TH2D*  MassSignP  = (TH2D*)GetObjectFromPath(InputFile, samples[s].Name+"/Mass_SystP");
    TH2D*  MassSignI  = (TH2D*)GetObjectFromPath(InputFile, samples[s].Name+"/Mass_SystI");

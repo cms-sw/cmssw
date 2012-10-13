@@ -24,7 +24,7 @@ void SignalMassPlot(string InputPattern, unsigned int CutIndex);
 void GetSystematicOnPrediction(string InputPattern);
 void MakeExpLimitpLot(string Input, string Output);
 void CosmicBackgroundSystematic(string InputPattern);
-void CheckPrediction(string InputPattern, string HistoSuffix="_Flip", string DataType="Data12");
+void CheckPrediction(string InputPattern, string HistoSuffix="_Flip", string DataType="Data8TeV");
 
 std::vector<stSample> samples;
 
@@ -50,32 +50,32 @@ void Analysis_Step5()
 
    InputPattern = "Results/Type0/";   CutIndex = 84; //set of cuts from the array, 0 means no cut
    MassPrediction(InputPattern, CutIndex, "Mass");
-   PredictionAndControlPlot(InputPattern, "Data11", CutIndex, CutIndex_Flip);
-   PredictionAndControlPlot(InputPattern, "Data12", CutIndex, CutIndex_Flip);
+   PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
+   PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex);
 
    InputPattern = "Results/Type2/";   CutIndex = 905; CutIndex_Flip=16;
    MassPrediction(InputPattern, CutIndex, "Mass");
    MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip");
-   PredictionAndControlPlot(InputPattern, "Data11", CutIndex, CutIndex_Flip);
-   PredictionAndControlPlot(InputPattern, "Data12", CutIndex, CutIndex_Flip);
+   PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
+   PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex);
    GetSystematicOnPrediction(InputPattern);
-   CheckPrediction(InputPattern, "_Flip", "Data11");
-   CheckPrediction(InputPattern, "_Flip", "Data12");
+   CheckPrediction(InputPattern, "_Flip", "Data7TeV");
+   CheckPrediction(InputPattern, "_Flip", "Data8TeV");
 
    InputPattern = "Results/Type3/";   CutIndex = 125; CutIndex_Flip=58;
-   PredictionAndControlPlot(InputPattern, "Data11", CutIndex, CutIndex_Flip);
-   PredictionAndControlPlot(InputPattern, "Data12", CutIndex, CutIndex_Flip);
+   PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
+   PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex);
    CosmicBackgroundSystematic(InputPattern);
-   CheckPrediction(InputPattern, "", "Data12");
-   CheckPrediction(InputPattern, "_Flip", "Data12");
-   CheckPrediction(InputPattern, "", "Data11");
-   CheckPrediction(InputPattern, "_Flip", "Data11");
+   CheckPrediction(InputPattern, "", "Data8TeV");
+   CheckPrediction(InputPattern, "_Flip", "Data8TeV");
+   CheckPrediction(InputPattern, "", "Data7TeV");
+   CheckPrediction(InputPattern, "_Flip", "Data7TeV");
 
    InputPattern = "Results/Type5/";   CutIndex = 67; CutIndex_Flip=2;
    SelectionPlot(InputPattern, CutIndex);
@@ -97,31 +97,31 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    string        SName="Gluino_7TeV_M600_f10";  string SLeg="Gluino (M=600 GeV/#font[12]{c}^{2})";
    if(!IsTkOnly){SName="GMStau_7TeV_M156";         SLeg="Stau (M=156 GeV/#font[12]{c}^{2})";}
 
-   TH1D *Pred12=NULL, *Data12=NULL, *Pred11=NULL, *Data11=NULL, *MCPred=NULL, *MC=NULL, *Signal=NULL;
+   TH1D *Pred12=NULL, *Data8TeV=NULL, *Pred11=NULL, *Data7TeV=NULL, *MCPred=NULL, *MC=NULL, *Signal=NULL;
    TFile* InputFile = new TFile((InputPattern + "/Histos.root").c_str());
    if(!InputFile || InputFile->IsZombie() || !InputFile->IsOpen() || InputFile->TestBit(TFile::kRecovered) )return;   
 
    //README: Comments or uncomment lines below in order to decide what you want to see on your plot
-   Pred12    = ((TH2D*)GetObjectFromPath(InputFile, string("Data12/Pred_") + HistoSuffix   ))->ProjectionY("TmpPredMass"   ,CutIndex+1,CutIndex+1,"o");
-   Data12    = ((TH2D*)GetObjectFromPath(InputFile, string("Data12/"     ) + HistoSuffix   ))->ProjectionY("TmpDataMass"   ,CutIndex+1,CutIndex+1,"o");
-   Pred11    = ((TH2D*)GetObjectFromPath(InputFile, string("Data11/Pred_") + HistoSuffix   ))->ProjectionY("TmpPred11Mass" ,CutIndex+1,CutIndex+1,"o");
-   Data11    = ((TH2D*)GetObjectFromPath(InputFile, string("Data11/"     ) + HistoSuffix   ))->ProjectionY("TmpData11Mass" ,CutIndex+1,CutIndex+1,"o");
+   Pred12    = ((TH2D*)GetObjectFromPath(InputFile, string("Data8TeV/Pred_") + HistoSuffix   ))->ProjectionY("TmpPredMass"   ,CutIndex+1,CutIndex+1,"o");
+   Data8TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data8TeV/"     ) + HistoSuffix   ))->ProjectionY("TmpDataMass"   ,CutIndex+1,CutIndex+1,"o");
+   Pred11    = ((TH2D*)GetObjectFromPath(InputFile, string("Data7TeV/Pred_") + HistoSuffix   ))->ProjectionY("TmpPred11Mass" ,CutIndex+1,CutIndex+1,"o");
+   Data7TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data7TeV/"     ) + HistoSuffix   ))->ProjectionY("TmpData7TeVMass" ,CutIndex+1,CutIndex+1,"o");
    //MCPred    = ((TH2D*)GetObjectFromPath(InputFile, string("MCTr/Pred_"  ) + HistoSuffix   ))->ProjectionY("TmpMCPred"     ,CutIndex+1,CutIndex+1,"o");
    //MC        = ((TH2D*)GetObjectFromPath(InputFile, string("MCTr/"       ) + HistoSuffix   ))->ProjectionY("TmpMCMass"     ,CutIndex+1,CutIndex+1,"o");
    Signal    = ((TH2D*)GetObjectFromPath(InputFile, string(SName+"/"     ) + HistoSuffix   ))->ProjectionY("TmpSignalMass" ,CutIndex+1,CutIndex+1,"o");
 
-   //rescale Data11 & MC samples to prediction of 2012 data
-   if(Data12 && Pred12){
-      if(Data11 && Pred11)Data11->Scale(Pred12->Integral()/Pred11->Integral());
+   //rescale Data7TeV & MC samples to prediction of 2012 data
+   if(Data8TeV && Pred12){
+      if(Data7TeV && Pred11)Data7TeV->Scale(Pred12->Integral()/Pred11->Integral());
       if(Pred11)          Pred11->Scale(Pred12->Integral()/Pred11->Integral());
       if(MC)              MC    ->Scale(Pred12->Integral()/MCPred->Integral());
       if(MCPred)          MCPred->Scale(Pred12->Integral()/MCPred->Integral());
    }
 
    //compute integral for few mass window
-   if(Data12 && Pred12){
+   if(Data8TeV && Pred12){
       for(double M=0;M<=1000;M+=200){
-         double D = Data12->Integral( Data12->GetXaxis()->FindBin(M),  Data12->GetXaxis()->FindBin(2000.0));
+         double D = Data8TeV->Integral( Data8TeV->GetXaxis()->FindBin(M),  Data8TeV->GetXaxis()->FindBin(2000.0));
          double P = Pred12->Integral( Pred12->GetXaxis()->FindBin(M),  Pred12->GetXaxis()->FindBin(2000.0));
          double Perr = 0; for(int i=Pred12->GetXaxis()->FindBin(M);i<Pred12->GetXaxis()->FindBin(2000.0);i++){ Perr += pow(Pred12->GetBinError(i),2); }  Perr = sqrt(Perr);
          printf("%4.0f<M<2000 --> Obs=%9.3f Data-Pred = %9.3f +- %8.3f(syst+stat) %9.3f (syst) %9.3f (stat)\n", M, D, P, sqrt(Perr*Perr + pow(P*(2*SystError),2)), P*(2*SystError), Perr);
@@ -130,9 +130,9 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
 
    //Rebin the histograms and find who is the highest
    double Max = 1.0; double Min=0.01;
-   if(Data12){Data12->Rebin(4);  Max=std::max(Max, Data12->GetMaximum());}
+   if(Data8TeV){Data8TeV->Rebin(4);  Max=std::max(Max, Data8TeV->GetMaximum());}
    if(Pred12){Pred12->Rebin(4);  Max=std::max(Max, Pred12->GetMaximum());}
-   if(Data11){Data11->Rebin(4);  Max=std::max(Max, Data11->GetMaximum());}
+   if(Data7TeV){Data7TeV->Rebin(4);  Max=std::max(Max, Data7TeV->GetMaximum());}
    if(Pred11){Pred11->Rebin(4);  Max=std::max(Max, Pred11->GetMaximum());}
    if(Signal){Signal->Rebin(4);  Max=std::max(Max, Signal->GetMaximum());}
    if(MC)    {MC    ->Rebin(4);  Max=std::max(Max, MC    ->GetMaximum());}
@@ -167,7 +167,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    std::vector<string> legend;
    TLegend* leg;
    TCanvas* c1 = new TCanvas("c1","c1,",600,600);
-   char YAxisLegend[1024]; sprintf(YAxisLegend,"Tracks / %2.0f GeV/#font[12]{c}^{2}",(Data12!=NULL?Data12:Data11)->GetXaxis()->GetBinWidth(1));
+   char YAxisLegend[1024]; sprintf(YAxisLegend,"Tracks / %2.0f GeV/#font[12]{c}^{2}",(Data8TeV!=NULL?Data8TeV:Data7TeV)->GetXaxis()->GetBinWidth(1));
 
    TH1D* frame = new TH1D("frame", "frame", 1,0,1400);
    frame->GetXaxis()->SetNdivisions(505);
@@ -232,14 +232,14 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       Pred11->Draw("same HIST P");
    }
 
-   if(Data11){
-      Data11->SetBinContent(Data11->GetNbinsX(), Data11->GetBinContent(Data11->GetNbinsX()) + Data11->GetBinContent(Data11->GetNbinsX()+1));
-      Data11->SetMarkerStyle(24);
-      Data11->SetMarkerColor(1);
-      Data11->SetMarkerSize(1.0);
-      Data11->SetLineColor(1);
-      Data11->SetFillColor(0);
-      Data11->Draw("E1 same");
+   if(Data7TeV){
+      Data7TeV->SetBinContent(Data7TeV->GetNbinsX(), Data7TeV->GetBinContent(Data7TeV->GetNbinsX()) + Data7TeV->GetBinContent(Data7TeV->GetNbinsX()+1));
+      Data7TeV->SetMarkerStyle(24);
+      Data7TeV->SetMarkerColor(1);
+      Data7TeV->SetMarkerSize(1.0);
+      Data7TeV->SetLineColor(1);
+      Data7TeV->SetFillColor(0);
+      Data7TeV->Draw("E1 same");
    }
 
    if(Pred12){
@@ -259,14 +259,14 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       Pred12->Draw("same HIST P");
    }
 
-   if(Data12){
-      Data12->SetBinContent(Data12->GetNbinsX(), Data12->GetBinContent(Data12->GetNbinsX()) + Data12->GetBinContent(Data12->GetNbinsX()+1));
-      Data12->SetMarkerStyle(20);
-      Data12->SetMarkerColor(1);
-      Data12->SetMarkerSize(1.0);
-      Data12->SetLineColor(1);
-      Data12->SetFillColor(0);
-      Data12->Draw("E1 same");
+   if(Data8TeV){
+      Data8TeV->SetBinContent(Data8TeV->GetNbinsX(), Data8TeV->GetBinContent(Data8TeV->GetNbinsX()) + Data8TeV->GetBinContent(Data8TeV->GetNbinsX()+1));
+      Data8TeV->SetMarkerStyle(20);
+      Data8TeV->SetMarkerColor(1);
+      Data8TeV->SetMarkerSize(1.0);
+      Data8TeV->SetLineColor(1);
+      Data8TeV->SetFillColor(0);
+      Data8TeV->Draw("E1 same");
    }
 
    //Fill the legend
@@ -275,17 +275,17 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    leg->SetHeader(LegendFromType(InputPattern).c_str());
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
-   if(Data12){leg->AddEntry(Data12, "Observed"        ,"P");}
+   if(Data8TeV){leg->AddEntry(Data8TeV, "Observed"        ,"P");}
    if(Pred12){TH1D* PredLeg12 = (TH1D*)Pred12->Clone("RescLeg12");
       PredLeg12->SetFillColor(Pred12Err->GetFillColor());
       PredLeg12->SetFillStyle(Pred12Err->GetFillStyle());
-      leg->AddEntry(PredLeg12, "Data12-based SM prediction"  ,"PF");
+      leg->AddEntry(PredLeg12, "Data8TeV-based SM prediction"  ,"PF");
    }
-   if(Data11){leg->AddEntry(Data11, "Observed (2011)"     ,"P");}
+   if(Data7TeV){leg->AddEntry(Data7TeV, "Observed (2011)"     ,"P");}
    if(Pred11){TH1D* PredLeg11 = (TH1D*)Pred11->Clone("RescLeg11");
       PredLeg11->SetFillColor(Pred11Err->GetFillColor());
       PredLeg11->SetFillStyle(Pred11Err->GetFillStyle());
-      leg->AddEntry(PredLeg11, "Data11-based SM prediction"  ,"PF");
+      leg->AddEntry(PredLeg11, "Data7TeV-based SM prediction"  ,"PF");
    }
    if(MC    ){leg->AddEntry(MC, "Simulation"     ,"LF");}
    if(MCPred){TH1D* MCPredLeg = (TH1D*) MCPred->Clone("RescMCLeg");
@@ -657,11 +657,11 @@ void CutFlow(string InputPattern, unsigned int CutIndex){
     FILE* pFile = fopen(Buffer,"w");
     stPlots plots;
 
-    if(stPlots_InitFromFile(InputFile, plots,"Data12")){
+    if(stPlots_InitFromFile(InputFile, plots,"Data8TeV")){
        stPlots_Dump(plots, pFile, CutIndex);
        stPlots_Clear(&plots);}
 
-    if(stPlots_InitFromFile(InputFile, plots,"Data11")){
+    if(stPlots_InitFromFile(InputFile, plots,"Data7TeV")){
        stPlots_Dump(plots, pFile, CutIndex);
        stPlots_Clear(&plots); 
     }
@@ -687,11 +687,11 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
     string LegendTitle = LegendFromType(InputPattern);;
 
     TFile* InputFile = new TFile((InputPattern + "Histos.root").c_str());
-    stPlots Data12Plots, Data11Plots, MCTrPlots, Cosmic11Plots, Cosmic12Plots, SignPlots[samples.size()];
+    stPlots Data8TeVPlots, Data7TeVPlots, MCTrPlots, Cosmic11Plots, Cosmic12Plots, SignPlots[samples.size()];
 
     TypeMode = TypeFromPattern(InputPattern);
-    stPlots_InitFromFile(InputFile, Data12Plots,"Data12");
-    stPlots_InitFromFile(InputFile, Data11Plots,"Data11");
+    stPlots_InitFromFile(InputFile, Data8TeVPlots,"Data8TeV");
+    stPlots_InitFromFile(InputFile, Data7TeVPlots,"Data7TeV");
     stPlots_InitFromFile(InputFile, MCTrPlots  ,"MCTr");   
     if(TypeMode==3) {
       stPlots_InitFromFile(InputFile, Cosmic12Plots,"Cosmic12");
@@ -704,8 +704,8 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
        stPlots_Draw(SignPlots[s], InputPattern + "/Selection_" +  samples[s].Name, LegendTitle, CutIndex);
     }
 
-    stPlots_Draw(Data12Plots, InputPattern + "/Selection_Data12", LegendTitle, CutIndex);
-    stPlots_Draw(Data11Plots, InputPattern + "/Selection_Data11", LegendTitle, CutIndex);
+    stPlots_Draw(Data8TeVPlots, InputPattern + "/Selection_Data8TeV", LegendTitle, CutIndex);
+    stPlots_Draw(Data7TeVPlots, InputPattern + "/Selection_Data7TeV", LegendTitle, CutIndex);
     stPlots_Draw(MCTrPlots  , InputPattern + "/Selection_MCTr"  , LegendTitle, CutIndex);
 
     if(TypeMode==3) {
@@ -713,13 +713,13 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
       //stPlots_Draw(Cosmic11Plots, InputPattern + "/Selection_Cosmic11", LegendTitle, CutIndex);
     }
 
-    stPlots_DrawComparison(InputPattern + "/Selection_Comp_Data"  , LegendTitle, CutIndex, &Data12Plots, &Data11Plots, &MCTrPlots);
-    if(TypeMode<=2) stPlots_DrawComparison(InputPattern + "/Selection_Comp_Gluino", LegendTitle, CutIndex, &Data12Plots, &MCTrPlots,     &SignPlots[JobIdToIndex("Gluino_7TeV_M300_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M600_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);
-    if(TypeMode==3) stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic", LegendTitle, CutIndex, &Data12Plots, &Data11Plots, &Cosmic12Plots, &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);
-    if(TypeMode==5) stPlots_DrawComparison(InputPattern + "/Selection_Comp_DY"    , LegendTitle, CutIndex, &Data12Plots, &Data11Plots,   &SignPlots[JobIdToIndex("DY_7TeV_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M400_Q2o3",samples)]);
+    stPlots_DrawComparison(InputPattern + "/Selection_Comp_Data"  , LegendTitle, CutIndex, &Data8TeVPlots, &Data7TeVPlots, &MCTrPlots);
+    if(TypeMode<=2) stPlots_DrawComparison(InputPattern + "/Selection_Comp_Gluino", LegendTitle, CutIndex, &Data8TeVPlots, &MCTrPlots,     &SignPlots[JobIdToIndex("Gluino_7TeV_M300_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M600_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);
+    if(TypeMode==3) stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic", LegendTitle, CutIndex, &Data8TeVPlots, &Data7TeVPlots, &Cosmic12Plots, &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);
+    if(TypeMode==5) stPlots_DrawComparison(InputPattern + "/Selection_Comp_DY"    , LegendTitle, CutIndex, &Data8TeVPlots, &Data7TeVPlots,   &SignPlots[JobIdToIndex("DY_7TeV_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M400_Q2o3",samples)]);
 
-    stPlots_Clear(&Data12Plots);
-    stPlots_Clear(&Data11Plots);
+    stPlots_Clear(&Data8TeVPlots);
+    stPlots_Clear(&Data7TeVPlots);
     stPlots_Clear(&MCTrPlots);
 
     for(unsigned int s=0;s<samples.size();s++){
@@ -739,15 +739,15 @@ void GetSystematicOnPrediction(string InputPattern){
    TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
    TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
    TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
-   TH1D*  H_A            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_A");
-   TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_B");
-   TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_C");
- //TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_D");
-   TH1D*  H_E            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_E");
-   TH1D*  H_F            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_F");
-   TH1D*  H_G            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_G");
-   TH1D*  H_H            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_H");
- //TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_P");
+   TH1D*  H_A            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_A");
+   TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_B");
+   TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_C");
+ //TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_D");
+   TH1D*  H_E            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_E");
+   TH1D*  H_F            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_F");
+   TH1D*  H_G            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_G");
+   TH1D*  H_H            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_H");
+ //TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_P");
 
    int    ArrN[6];  ArrN[0] = 0; ArrN[1] = 0; ArrN[2] = 0;  ArrN[3] = 0;  ArrN[4] = 0; ArrN[5] = 0;
    double ArrPred[5][6][20];  double ArrErr[5][6][20];  int ArrPredN[5][6];  for(unsigned int i=0;i<5;i++){for(unsigned int j=0;j<6;j++){ArrPredN[i][j]=0;}}
@@ -1662,10 +1662,10 @@ void CosmicBackgroundSystematic(string InputPattern){
   TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
   TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
 
-  TH2D* H_D_DzSidebands = ((TH2D*)GetObjectFromPath(InputFile, "Data12/H_D_DzSidebands"));
+  TH2D* H_D_DzSidebands = ((TH2D*)GetObjectFromPath(InputFile, "Data8TeV/H_D_DzSidebands"));
   TH2D* H_D_DzSidebands_Cosmic = (TH2D*)GetObjectFromPath(InputFile, "Cosmic12/H_D_DzSidebands");
   TH1D* H_D_Cosmic           = (TH1D*)GetObjectFromPath(InputFile, "Cosmic12/H_D");
-  //TH1D* H_D_Data             = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_D");
+  //TH1D* H_D_Data             = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_D");
 
   std::vector<int> Index;   std::vector<int> Plot;
   for(int CutIndex=0; CutIndex<HCuts_Pt->GetNbinsX(); CutIndex++) {
