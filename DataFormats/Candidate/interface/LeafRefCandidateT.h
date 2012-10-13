@@ -7,9 +7,8 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: LeafRefCandidateT.h,v 1.3 2012/07/16 07:06:57 eulisse Exp $
- *
  */
+
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "DataFormats/Candidate/interface/iterator_imp_specific.h"
@@ -238,20 +237,20 @@ namespace reco {
     /// has cache been set?                                                               
     mutable  edm::BoolCache cachePolarFixed_, cacheCartesianFixed_;
     /// set internal cache                                                                
-    inline void cachePolar() const GCC11_FINAL  {
+    inline void cachePolar() const {
       if ( cachePolarFixed_ ) return;
       p4Polar_ = PolarLorentzVector( ref_->pt(), ref_->eta(), ref_->phi(), mass_ );
       cachePolarFixed_ = true;
     }
     /// set internal cache                                                                
-    inline void cacheCartesian() const GCC11_FINAL  {
+    inline void cacheCartesian() const {
       if ( cacheCartesianFixed_ ) return;
       cachePolar();
       p4Cartesian_ = p4Polar_;
       cacheCartesianFixed_ = true;
     }
     /// clear internal cache                                                              
-    inline void clearCache() const GCC11_FINAL  {
+    inline void clearCache() const {
       cachePolarFixed_ = false;
       cacheCartesianFixed_ = false;
     }

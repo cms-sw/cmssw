@@ -6,7 +6,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: LeafCandidate.h,v 1.24 2011/10/27 16:29:58 wmtan Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -179,16 +178,17 @@ namespace reco {
       phi_ = p4Polar_.phi();
       mass_ = p4Polar_.mass();
     }
-    /// vertex position                                                                   
-    virtual const Point & vertex() const GCC11_FINAL  { return vertex_; }
+    /// vertex position                 (overwritten by PF...)                                                  
+    virtual const Point & vertex() const { return vertex_; }
     /// x coordinate of vertex position                                                   
-    virtual double vx() const GCC11_FINAL  { return vertex_.X(); }
+    virtual double vx() const  { return vertex_.X(); }
     /// y coordinate of vertex position                                                   
-    virtual double vy() const GCC11_FINAL  { return vertex_.Y(); }
+    virtual double vy() const  { return vertex_.Y(); }
     /// z coordinate of vertex position                                                   
-    virtual double vz() const GCC11_FINAL  { return vertex_.Z(); }
+    virtual double vz() const  { return vertex_.Z(); }
     /// set vertex                                                                        
-    virtual void setVertex( const Point & vertex ) GCC11_FINAL  { vertex_ = vertex; }
+    virtual void setVertex( const Point & vertex )   { vertex_ = vertex; }
+
     /// PDG identifier                                                                    
     virtual int pdgId() const GCC11_FINAL  { return pdgId_; }
     // set PDG identifier                                                                 
