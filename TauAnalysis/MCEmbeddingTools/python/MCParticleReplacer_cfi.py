@@ -9,7 +9,8 @@ generator = cms.EDProducer("MCParticleReplacer",
     primaryVertexLabel = cms.InputTag("dummy"),
     hepMcSrc           = cms.InputTag("generator"),
 
-    algorithm = cms.string("ParticleGun"), # "ParticleGun", "ZTauTau"
+    algorithm = cms.string("ParticleGun"), # "ParticleGun", "Ztautau"
+    pluginType = cms.string("ParticleReplacerParticleGun"), # "ParticleReplacerParticleGun", "ParticleReplacerZtautau"                       
     hepMcMode = cms.string("new"),         # "new" for new HepMCProduct with taus and decay products,
                                            # "replace" for replacing muons in the existing HepMCProcuct                           
     verbose = cms.bool(False),
@@ -36,7 +37,7 @@ generator = cms.EDProducer("MCParticleReplacer",
         )
     ),
 
-    ZTauTau = cms.PSet(
+    Ztautau = cms.PSet(
         TauolaOptions = cms.PSet(
             TauolaPolar,
             InputCards = cms.PSet(

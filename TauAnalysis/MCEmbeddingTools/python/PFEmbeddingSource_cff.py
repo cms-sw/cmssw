@@ -12,10 +12,11 @@ TauolaPolar = cms.PSet(
 )
 
 from TauAnalysis.MCEmbeddingTools.MCParticleReplacer_cfi import *
-generator.algorithm = "ZTauTau"
+generator.algorithm = "Ztautau"
+generator.pluginType = "ParticleReplacerZtautau"
 generator.src = cms.InputTag("") # CV: replaced in embeddingCustomizeAll.py
-generator.ZTauTau.TauolaOptions.InputCards.mdtau = cms.int32(0)
-generator.ZTauTau.minVisibleTransverseMomentum = cms.untracked.string("")
+generator.Ztautau.TauolaOptions.InputCards.mdtau = cms.int32(0)
+generator.Ztautau.minVisibleTransverseMomentum = cms.untracked.string("")
 
 filterEmptyEv = cms.EDFilter("EmptyEventsFilter",
   target = cms.untracked.int32(1),
