@@ -53,16 +53,16 @@ namespace reco {
 
 
   //prefer the above...
-  template <class T>
-  T deltaR2 (T eta1, T phi1, T eta2, T phi2) {
-    T deta = eta1 - eta2;
-    T dphi = deltaPhi (phi1, phi2);
+  template <class T1, class T2, class T3, class T4>
+  T1 deltaR2 (T1 eta1, T2 phi1, T3 eta2, T4 phi2) {
+    T1 deta = eta1 - eta2;
+    T1 dphi = deltaPhi (phi1, phi2);
     return deta*deta + dphi*dphi;
   }
 
   // to be avoided
-  template <class T>
-  T deltaR (T eta1, T phi1, T eta2, T phi2) {
+  template <class T1, class T2, class T3, class T4>
+  T1 deltaR (T1 eta1, T2 phi1, T3 eta2, T4 phi2) {
     return std::sqrt (deltaR2 (eta1, phi1, eta2, phi2));
   }
 
