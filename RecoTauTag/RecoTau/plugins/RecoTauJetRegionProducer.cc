@@ -91,12 +91,13 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt,
   // Keep track of the indices of the current jet and the old (original) jet
   // -1 indicats no match.
   std::vector<int> matchInfo(nOriginalJets, -1);
-
+  newJets->reserve(nJets);
   for (size_t ijet = 0; ijet < nJets; ++ijet) {
     // Get a ref to jet
     reco::PFJetRef jetRef = jets[ijet];
     // Make an initial copy.
-    reco::PFJet newJet(*jetRef);
+    newJets->emplace_back(*jetRef);
+    reco::PFJet & newJet = newJets->back();
     // Clear out all the constituents
     newJet.clearDaughters();
     // Build a DR cone filter about our jet
@@ -104,7 +105,6 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt,
     // Loop over all the PFCands
     for ( auto cand :  pfCands )
       if ( filter(cand) ) newJet.addDaughter(cand);
-    newJets->push_back(newJet);
     // Match the index of the jet we just made to the index into the original
     // collection.
     matchInfo[jetRef.key()] = ijet;
