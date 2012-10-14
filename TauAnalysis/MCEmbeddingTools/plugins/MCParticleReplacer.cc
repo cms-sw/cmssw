@@ -11,8 +11,6 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/View.h"
 
-#include "TauAnalysis/MCEmbeddingTools/interface/ParticleReplacerBase.h"
-
 // replacementMode =
 //	0 - remove Muons from existing HepMCProduct and implant taus (and tau decay products)
 //	1 - build new HepMCProduct only with taus (and tau decay products)
@@ -22,8 +20,10 @@ MCParticleReplacer::MCParticleReplacer(const edm::ParameterSet& cfg)
     hepMcMode_(stringToHepMcMode(cfg.getParameter<std::string>("hepMcMode"))),
     replacer_()
 {
-  std::string pluginType = cfg.getParameter<std::string>("algorithm");
-  replacer_ = ParticleReplacerPluginFactory::get()->create(pluginType, cfg);
+  std::string algorithm = cfg.getParameter<std::string>("algorithm");
+  edm::ParameterSet cfgAlgorithm = cfg.getParameter<edm::ParameterSet>(algorithm);
+  std::string pluginType = cfg.getParameter<std::string>("pluginType");
+  replacer_ = ParticleReplacerPluginFactory::get()->create(pluginType, cfgAlgorithm);
 
   verbosity_ = ( cfg.exists("verbosity") ) ?
     cfg.getParameter<int>("verbosity") : 0;
