@@ -179,8 +179,14 @@ class FloatingXSHiggs(SMLikeHiggsModel):
     "Float independently ggH and qqH cross sections"
     def __init__(self):
         SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
-        self.modes = [ "ggH", "qqH", "VH", "ttH" ]
-        self.mHRange = []
+        self.modes = [ "ggH", "qqH", "VH", "WH", "ZH", "ttH" ]
+        self.mHRange  = []
+        self.ggHRange = ['0', '4']
+        self.qqHRange = ['0','10']
+        self.VHRange  = ['0','20']
+        self.WHRange  = ['0','20']
+        self.ZHRange  = ['0','20']
+        self.ttHRange = ['0','20']
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
             if po.startswith("modes="): self.modes = po.replace("modes=","").split(",")
@@ -189,14 +195,52 @@ class FloatingXSHiggs(SMLikeHiggsModel):
                 if len(self.mHRange) != 2:
                     raise RuntimeError, "Higgs mass range definition requires two extrema"
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError, "Higgs mass range: Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+            if po.startswith("ggHRange="):
+                self.ggHRange = po.replace("ggHRange=","").split(":")
+                if len(self.ggHRange) != 2:
+                    raise RuntimeError, "ggH signal strength range requires minimal and maximal value"
+                elif float(self.ggHRange[0]) >= float(self.ggHRange[1]):
+                    raise RuntimeError, "minimal and maximal range swapped. Second value must be larger first one"
+            if po.startswith("qqHRange="):
+                self.qqHRange = po.replace("qqHRange=","").split(":")
+                if len(self.qqHRange) != 2:
+                    raise RuntimeError, "qqH signal strength range requires minimal and maximal value"
+                elif float(self.qqHRange[0]) >= float(self.qqHRange[1]):
+                    raise RuntimeError, "minimal and maximal range swapped. Second value must be larger first one"                
+            if po.startswith("VHRange="):
+                self.VHRange = po.replace("VHRange=","").split(":")
+                if len(self.VHRange) != 2:
+                    raise RuntimeError, "VH signal strength range requires minimal and maximal value"
+                elif float(self.VHRange[0]) >= float(self.VHRange[1]):
+                    raise RuntimeError, "minimal and maximal range swapped. Second value must be larger first one"
+            if po.startswith("WHRange="):
+                self.WHRange = po.replace("WHRange=","").split(":")
+                if len(self.WHRange) != 2:
+                    raise RuntimeError, "WH signal strength range requires minimal and maximal value"
+                elif float(self.WHRange[0]) >= float(self.WHRange[1]):
+                    raise RuntimeError, "minimal and maximal range swapped. Second value must be larger first one"
+            if po.startswith("ZHRange="):
+                self.ZHRange = po.replace("ZHRange=","").split(":")
+                if len(self.ZHRange) != 2:
+                    raise RuntimeError, "ZH signal strength range requires minimal and maximal value"
+                elif float(self.ZHRange[0]) >= float(self.ZHRange[1]):
+                    raise RuntimeError, "minimal and maximal range swapped. Second value must be larger first one"                
+            if po.startswith("ttHRange="):
+                self.ttHRange = po.replace("ttHRange=","").split(":")
+                if len(self.ttHRange) != 2:
+                    raise RuntimeError, "ttH signal strength range requires minimal and maximal value"
+                elif float(self.ttHRange[0]) >= float(self.ttHRange[1]):
+                    raise RuntimeError, "minimal and maximal range swapped. Second value must be larger first one"
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
-        # --- Signal Strength as only POI --- 
-        if "ggH" in self.modes: self.modelBuilder.doVar("r_ggH[1,0,4]");
-        if "qqH" in self.modes: self.modelBuilder.doVar("r_qqH[1,0,10]");
-        if "VH"  in self.modes: self.modelBuilder.doVar("r_VH[1,0,20]");
-        if "ttH" in self.modes: self.modelBuilder.doVar("r_ttH[1,0,20]");
+        # --- Signal Strength as only POI ---
+        if "ggH" in self.modes: self.modelBuilder.doVar("r_ggH[1,%s,%s]" % (self.ggHRange[0], self.ggHRange[1]))
+        if "qqH" in self.modes: self.modelBuilder.doVar("r_qqH[1,%s,%s]" % (self.qqHRange[0], self.qqHRange[1]))
+        if "VH"  in self.modes: self.modelBuilder.doVar("r_VH[1,%s,%s]"  % (self.VHRange [0], self.VHRange [1]))
+        if "WH"  in self.modes: self.modelBuilder.doVar("r_WH[1,%s,%s]"  % (self.WHRange [0], self.WHRange [1]))
+        if "ZH"  in self.modes: self.modelBuilder.doVar("r_ZH[1,%s,%s]"  % (self.ZHRange [0], self.ZHRange [1]))
+        if "ttH" in self.modes: self.modelBuilder.doVar("r_ttH[1,%s,%s]" % (self.ttHRange[0], self.ttHRange[1]))
         poi = ",".join(["r_"+m for m in self.modes])
         # --- Higgs Mass as other parameter ----
         if self.modelBuilder.out.var("MH"):
