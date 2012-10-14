@@ -64,14 +64,14 @@ bool MuonRadiationFilter::filter(edm::Event& evt, const edm::EventSetup& es)
   
   if ( selMuonP4s.size() == 0 ) return false; // not selected Z --> mu+ mu- event: reject event
 
-  edm::Handle<reco::PFCandidateCollection> pfCandidatesNoPU;
+  edm::Handle<PFCandidateView> pfCandidatesNoPU;
   evt.getByLabel(srcPFCandsNoPU_, pfCandidatesNoPU);
-  edm::Handle<reco::PFCandidateCollection> pfCandidatesPU;
+  edm::Handle<PFCandidateView> pfCandidatesPU;
   evt.getByLabel(srcPFCandsPU_, pfCandidatesPU);
 
   bool isMuonRadiation = false;
 
-  for ( reco::PFCandidateCollection::const_iterator pfCandidate = pfCandidatesNoPU->begin();
+  for ( PFCandidateView::const_iterator pfCandidate = pfCandidatesNoPU->begin();
 	pfCandidate != pfCandidatesNoPU->end(); ++pfCandidate ) {
     if ( pfCandidate->particleId() == reco::PFCandidate::gamma ) {
       double dRmin = 1.e+3;
@@ -109,13 +109,13 @@ bool MuonRadiationFilter::filter(edm::Event& evt, const edm::EventSetup& es)
   else return true;
 }
 
-void MuonRadiationFilter::compPFIso(const reco::Candidate::LorentzVector& photonP4, const reco::PFCandidateCollection& pfCandidates,
+void MuonRadiationFilter::compPFIso(const reco::Candidate::LorentzVector& photonP4, const PFCandidateView& pfCandidates,
 				    double& pfChargedCandIsoSum, double& pfGammaIsoSum, double& pfNeutralHadronIsoSum)
 {
   pfChargedCandIsoSum   = 0.;
   pfGammaIsoSum         = 0.;
   pfNeutralHadronIsoSum = 0.;
-  for ( reco::PFCandidateCollection::const_iterator pfCandidate = pfCandidates.begin();
+  for ( PFCandidateView::const_iterator pfCandidate = pfCandidates.begin();
 	pfCandidate != pfCandidates.end(); ++pfCandidate ) {
     double dR = deltaR(photonP4, pfCandidate->p4());
     if ( dR > dRvetoCone_ && dR < dRisoCone_ ) {

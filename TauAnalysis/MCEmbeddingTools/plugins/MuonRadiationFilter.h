@@ -9,9 +9,9 @@
  * \author Christian Veelken, LLR
  *        (based on python code developed by Mike Bachtis)
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.1 $
  *
- * $Id: MuonRadiationFilter.h,v 1.8 2012/02/13 17:33:04 veelken Exp $
+ * $Id: MuonRadiationFilter.h,v 1.1 2012/10/10 10:05:15 veelken Exp $
  *
  */
 
@@ -23,6 +23,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/Common/interface/View.h"
 
 class MuonRadiationFilter : public edm::EDFilter 
 {
@@ -33,7 +34,8 @@ class MuonRadiationFilter : public edm::EDFilter
  private:
   bool filter(edm::Event&, const edm::EventSetup&);
 
-  void compPFIso(const reco::Candidate::LorentzVector&, const reco::PFCandidateCollection&, double&, double&, double&);
+  typedef edm::View<reco::PFCandidate> PFCandidateView;
+  void compPFIso(const reco::Candidate::LorentzVector&, const PFCandidateView&, double&, double&, double&);
 
   edm::InputTag srcSelectedMuons_;
   edm::InputTag srcPFCandsNoPU_;
