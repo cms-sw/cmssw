@@ -100,11 +100,9 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt,
     reco::PFJet & newJet = newJets->back();
     // Clear out all the constituents
     newJet.clearDaughters();
-    // Build a DR cone filter about our jet
-    auto filter = [this, jetRef](PFCandPtr const & cand) { return reco::deltaR2(*jetRef,*cand)<(deltaR_*deltaR_);};
     // Loop over all the PFCands
     for ( auto cand :  pfCands )
-      if ( filter(cand) ) newJet.addDaughter(cand);
+      if ( reco::deltaR2(*jetRef,*cand)<(deltaR_*deltaR_) ) newJet.addDaughter(cand);
     // Match the index of the jet we just made to the index into the original
     // collection.
     matchInfo[jetRef.key()] = ijet;
