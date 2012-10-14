@@ -16,7 +16,7 @@
 
   <class name="reco::EcalIsolatedParticleCandidate" ClassVersion="11">
    <version ClassVersion="10" checksum="4174683084"/>
-   <version ClassVersion="11" checksum="2363574304"/>
+   <version ClassVersion="11" checksum="928263435"/>
   </class>
   <class name="reco::EcalIsolatedParticleCandidateCollection"/>
   <class name="reco::EcalIsolatedParticleCandidateRef"/>
