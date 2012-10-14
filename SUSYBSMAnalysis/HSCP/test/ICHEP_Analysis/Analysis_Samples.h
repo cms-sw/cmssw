@@ -125,7 +125,18 @@ void GetInputFiles(stSample sample, std::string BaseDirectory_, std::vector<std:
 int JobIdToIndex(string JobId, const std::vector<stSample>& samples){
    for(unsigned int s=0;s<samples.size();s++){
       if(samples[s].Name==JobId)return s;
-   }return -1;
+   }
+   return -1;
+
+   //if sample is not found, use the 7 or 8TeV sample instead...
+   //replace 7TeV by 8TeV or vice versa
+   if(     JobId.find("_7TeV")!=string::npos){JobId.replace(JobId.find("_7TeV"),5, "_8TeV");}
+   else if(JobId.find("_8TeV")!=string::npos){JobId.replace(JobId.find("_8TeV"),5, "_7TeV");}
+
+   for(unsigned int s=0;s<samples.size();s++){
+      if(samples[s].Name==JobId)return s;
+   }
+   return -1;
 }
 
 void keepOnlySamplesOfTypeX(std::vector<stSample>& samples, int TypeX){

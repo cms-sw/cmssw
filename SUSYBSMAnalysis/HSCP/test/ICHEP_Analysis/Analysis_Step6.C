@@ -148,8 +148,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    if(MODE=="COMPILE")return;
 
    string Data;
-   if(MODE.find("11")!=string::npos){Data = "Data7TeV"; SQRTS=7.0; EXCLUSIONDIR+="11"; }
-   if(MODE.find("12")!=string::npos){Data = "Data8TeV"; SQRTS=8.0; EXCLUSIONDIR+="12"; }
+   if(MODE.find("11")!=string::npos){Data = "Data7TeV"; SQRTS=7.0; EXCLUSIONDIR+="7TeV"; }
+   if(MODE.find("12")!=string::npos){Data = "Data8TeV"; SQRTS=8.0; EXCLUSIONDIR+="8TeV"; }
    printf("EXCLUSIONDIR = %s\n",EXCLUSIONDIR.c_str());  
  
 
@@ -170,6 +170,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       Optimize(InputPattern, Data, signal, SHAPESTRING!="", false); //testShapeBasedAnalysis(InputPattern,signal);  //use the second part if you want to run shape based analyssi on optimal point form c&c      
       return;
    }else if(MODE.find("COMBINE")!=string::npos){
+      printf("COMBINE!!!\n");
       if(signal.find("8TeV")!=string::npos)return;
 
       string EXCLUSIONDIR_SAVE = EXCLUSIONDIR;
@@ -179,8 +180,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
       //2012 Limits
       Data = "Data8TeV"; SQRTS=8.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"12";
-      string signal8TeV = signal.replace(signal.find("7TeV"),1, "8");
-      Optimize(InputPattern, Data, signal, SHAPESTRING!="", true);
+      string signal8TeV = signal.replace(signal.find("_7TeV"),5, "_8TeV");
+      Optimize(InputPattern, Data, signal8TeV, SHAPESTRING!="", true);
 
       //Combined Limits
       EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"COMB";  SQRTS=78.0;
@@ -1040,8 +1041,9 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
 
    //Identify the signal sample
    GetSampleDefinition(samples);
-   CurrentSampleIndex        = JobIdToIndex(signal,samples); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  } 
-
+   CurrentSampleIndex        = JobIdToIndex(signal,samples); 
+   if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  } 
+   
    //For muon only don't run on neutral samples as near zero efficiency can make jobs take very long time
    if((signal.find("Gluino")!=string::npos || signal.find("Stop")!=string::npos) && signal.find("N")!=string::npos && TypeMode==3) return;
 
@@ -1096,9 +1098,16 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
             pch=strtok(NULL,",");Arg++;
          }
          //printf("%s %i %f %f %f %i\n",Name_.c_str(), TypeMode_, cutPt_, cutI_, cutTOF_, massWindow_);
-
-         if(Name_!=signal      )continue; //Not reading the cut line for the right signal sample
          if(TypeMode_!=TypeMode)continue; //Not reading the cut line for the right TypeMode 
+
+         string signalNameWithoutEnergy = signal;
+         char str7TeV[]="_7TeV";
+         char str8TeV[]="_8TeV";
+         if(signalNameWithoutEnergy.find(str7TeV)!=string::npos)signalNameWithoutEnergy.erase(signalNameWithoutEnergy.find(str7TeV), string(str7TeV).length());
+         if(signalNameWithoutEnergy.find(str8TeV)!=string::npos)signalNameWithoutEnergy.erase(signalNameWithoutEnergy.find(str8TeV), string(str8TeV).length()); 
+
+         printf("%s vs %s\n",Name_.c_str(), signalNameWithoutEnergy.c_str());
+         if(Name_!=signalNameWithoutEnergy    )continue; //Not reading the cut line for the right signal sample
 
          //We are looking at the right sample --> Now loop over all cuts and identify the cut index of the optimal cut
          double MinDistance = 10000;
@@ -1107,8 +1116,10 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
             if(cutDistance<MinDistance){MinDistance=cutDistance; OptimCutIndex=CutIndex;  }//OptimMassWindow=massWindow_;}
          }
          printf("Closest cut index to the cuts provided: %i\n",OptimCutIndex);
+         break; 
       }
       fclose(pFile);
+      if(OptimCutIndex<0){printf("DID NOT FIND THE CUT TO USE FOR THIS SAMPLE %s\n",signal.c_str());return;}
    }
 
 
@@ -1417,6 +1428,8 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    double EffT        = NSignT  / (result.XSec_Th*result.LInt);
    double EffPU       = NSignPU / (result.XSec_Th*result.LInt);
    if(Eff==0)return false;
+   if(Eff<=1E-5)return false; // if Eff<0.001% -> limit will hardly converge and we are probably not interested by this point anyway
+
 
    //no way that this point is optimal
    bool pointMayBeOptimal = (fastOptimization && !getXsection && getSignificance && ((NPred-3*NPredErr)<=result.NPred || Eff>=result.Eff));
