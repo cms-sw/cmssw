@@ -59,8 +59,13 @@ class stSample{
    }
 
    std::string ModelName(){
-      char MassStr[255];sprintf(MassStr, "%.0f",Mass);
-      string toReturn=Name; toReturn.erase(toReturn.find(MassStr), string(MassStr).length());
+      char strMass[255];sprintf(strMass, "_M%.0f",Mass);
+      char str7TeV[]="_7TeV";
+      char str8TeV[]="_8TeV";
+      string toReturn=Name;
+      if(toReturn.find(strMass)!=string::npos)toReturn.erase(toReturn.find(strMass), string(strMass).length());
+      if(toReturn.find(str7TeV)!=string::npos)toReturn.erase(toReturn.find(str7TeV), string(str7TeV).length());
+      if(toReturn.find(str8TeV)!=string::npos)toReturn.erase(toReturn.find(str8TeV), string(str8TeV).length());
       return toReturn;
    }
 
@@ -284,11 +289,25 @@ double THXSEC7TeV_GMStau_Cen  [] = {1.3398,0.274591,0.0645953,0.0118093,0.003425
 double THXSEC7TeV_GMStau_Low  [] = {1.18163,0.242982,0.0581651,0.0109992,0.00324853,0.00093519,0.000335826,0.000134024,5.83501e-05};
 double THXSEC7TeV_GMStau_High [] = {1.48684,0.304386,0.0709262,0.012632,0.00358232,0.00102099,0.000366819,0.000147665,6.45963e-05};
 
+double THXSEC8TeV_GMStau_Mass [] = {100, 126, 156, 200, 247, 308, 370, 432, 494, 557 };
+double THXSEC8TeV_GMStau_Cen  [] = {2.2834, 0.495872, 0.120584, 0.0214979, 0.00575159, 0.00156062, 0.00056426, 0.000234305, 0.000105751, 5.07802e-05};
+double THXSEC8TeV_GMStau_Low  [] = {2.02025, 0.437789, 0.107208, 0.019625, 0.00540193, 0.00148344, 0.000535717, 0.000222165, 9.99954e-05, 4.79772e-05};
+double THXSEC8TeV_GMStau_High [] = {2.52494, 0.548973, 0.133042, 0.0233234, 0.00609887, 0.00162316, 0.000585186, 0.000243149, 0.000109999, 5.30139e-05};
+
+
 //LO PairProduced Stau@7TeV
 double THXSEC7TeV_PPStau_Mass [] = {100,126,156,200,247,308};
 double THXSEC7TeV_PPStau_Cen  [] = {0.038200,0.0161,0.007040,0.002470,0.001010,0.000353};
 double THXSEC7TeV_PPStau_Low  [] = {0.037076,0.0155927,0.0067891,0.00237277,0.00096927,0.000335308};
 double THXSEC7TeV_PPStau_High [] = {0.0391443,0.016527,0.00723151,0.00253477,0.00103844,0.000363699};
+
+
+double THXSEC8TeV_PPStau_Mass [] = {100, 126, 156, 200, 247, 308, 370, 432, 494, 557};
+double THXSEC8TeV_PPStau_Cen  [] = {0.047, 0.0202, 0.00902, 0.00327, 0.00137, 0.000503, 0.000208, 9.36e-05, 4.47e-05, 2.24e-05};
+double THXSEC8TeV_PPStau_Low  [] = {0.0456616, 0.0196246, 0.00873146, 0.00315596, 0.00130957, 0.000479108, 0.000197003, 8.85171e-05, 4.21191e-05, 2.10179e-05};
+double THXSEC8TeV_PPStau_High [] = {0.0481431, 0.0206482, 0.00924512, 0.00335015, 0.00140238, 0.000516666, 0.000214196, 9.66572e-05, 4.63125e-05, 2.32576e-05};
+
+
 
 #endif
 

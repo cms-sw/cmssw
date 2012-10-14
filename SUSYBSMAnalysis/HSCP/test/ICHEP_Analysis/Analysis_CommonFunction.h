@@ -461,6 +461,7 @@ class DuplicatesClass{
 };
  
 
+#ifdef FWLITE
 bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, double etaCut, int NObjectAboveThreshold, bool averageThreshold)
 {
    unsigned int filterIndex = trEv.filterIndex(InputPath);
@@ -505,4 +506,4 @@ bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& I
    }
    return false;
 }
-
+#endif

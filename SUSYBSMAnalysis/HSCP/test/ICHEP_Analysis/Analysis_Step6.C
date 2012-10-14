@@ -157,6 +157,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    GetSampleDefinition(samples);
    for(unsigned int s=0;s<samples.size();s++){
     if(samples[s].Type!=2)continue;
+    //printf("Name-->Model >>  %30s --> %s\n",samples[s].Name.c_str(), samples[s].ModelName().c_str());
     modelMap[samples[s].ModelName()].push_back(samples[s]);   
     if(modelMap[samples[s].ModelName()].size()==1)modelVector.push_back(samples[s].ModelName());
    }
@@ -169,6 +170,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       Optimize(InputPattern, Data, signal, SHAPESTRING!="", false); //testShapeBasedAnalysis(InputPattern,signal);  //use the second part if you want to run shape based analyssi on optimal point form c&c      
       return;
    }else if(MODE.find("COMBINE")!=string::npos){
+      if(signal.find("8TeV")!=string::npos)return;
+
       string EXCLUSIONDIR_SAVE = EXCLUSIONDIR;
       //2011 Limits
       Data = "Data7TeV"; SQRTS=7.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"11";
@@ -176,6 +179,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
       //2012 Limits
       Data = "Data8TeV"; SQRTS=8.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"12";
+      string signal8TeV = signal.replace(signal.find("7TeV"),1, "8");
       Optimize(InputPattern, Data, signal, SHAPESTRING!="", true);
 
       //Combined Limits
@@ -187,7 +191,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    string TkPattern  = "Results/Type0/";
    string MuPattern  = "Results/Type2/";
    string MuOnlyPattern  = "Results/Type3/";
-   string QLPattern  = "Results/Type5/";
+   string LQPattern  = "Results/Type5/";
 
 
    bool Combine = (MODE.find("COMB")!=string::npos);
@@ -200,19 +204,19 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    DrawRatioBands(TkPattern); 
 //   DrawRatioBands(MuPattern);
    DrawRatioBands(MuOnlyPattern); 
-   DrawRatioBands(QLPattern);
+   DrawRatioBands(LQPattern);
 
    //draw the cross section limit for all model
    DrawModelLimitWithBand(TkPattern);
 //   DrawModelLimitWithBand(MuPattern);
    DrawModelLimitWithBand(MuOnlyPattern);
-   DrawModelLimitWithBand(QLPattern);
+   DrawModelLimitWithBand(LQPattern);
    
 
    //make plots of the observed limit for all signal model (and mass point) and save the result in a latex table
    TCanvas* c1;
    double LInt;
-   FILE* pFile    = fopen((string("Analysis_Step6_Result") + ".txt").c_str(),"w");
+   FILE* pFile    = fopen((outpath+string("Analysis_Step6_Result") + ".txt").c_str(),"w");
    FILE* talkFile = fopen((outpath + "TalkPlots" + ".txt").c_str(),"w");
 
    fprintf(pFile   , "\\documentclass{article}\n");
@@ -245,6 +249,14 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       if(isNeutral) continue;//skip charged suppressed models
       MuGraphs[k] = MakePlot(pFile,talkFile,MuPattern,modelVector[k], 2, modelMap[modelVector[k]], LInt);
    }
+
+   TGraph** LQGraphs = new TGraph*[modelVector.size()];
+   for(unsigned int k=0; k<modelVector.size(); k++){
+      bool isFractional = false;if(modelVector[k].find("1o3")!=string::npos || modelVector[k].find("2o3")!=string::npos)isFractional = true;
+      if(!isFractional) continue;//skip q>=1 charged suppressed models
+      LQGraphs[k] = MakePlot(pFile,talkFile,LQPattern,modelVector[k], 2, modelMap[modelVector[k]], LInt);
+   }
+
 
    fprintf(pFile   ,"      \\end{tabular}\n\\end{table}\n\n");
    fprintf(pFile   ,"\\end{document}\n\n");
@@ -284,17 +296,37 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    TCutG ** ThXSecErr = new TCutG* [modelVector.size()];
    for(unsigned int k=0; k<modelVector.size(); k++){
      if(!Combine && modelVector[k].find("Gluino")!=string::npos){
-        ThXSec   [k] = new TGraph(sizeof(THXSEC7TeV_Gluino_Mass)/sizeof(double),THXSEC7TeV_Gluino_Mass,THXSEC7TeV_Gluino_Cen);
-        ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr",sizeof(THXSEC7TeV_Gluino_Mass)/sizeof(double),THXSEC7TeV_Gluino_Mass,THXSEC7TeV_Gluino_Low,THXSEC7TeV_Gluino_High, PlotMinScale, PlotMaxScale);
+         if(SQRTS==7){
+            ThXSec   [k] = new TGraph(sizeof(THXSEC7TeV_Gluino_Mass)/sizeof(double),THXSEC7TeV_Gluino_Mass,THXSEC7TeV_Gluino_Cen);
+            ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr",sizeof(THXSEC7TeV_Gluino_Mass)/sizeof(double),THXSEC7TeV_Gluino_Mass,THXSEC7TeV_Gluino_Low,THXSEC7TeV_Gluino_High, PlotMinScale, PlotMaxScale);
+         }else{
+            ThXSec   [k] = new TGraph(sizeof(THXSEC8TeV_Gluino_Mass)/sizeof(double),THXSEC8TeV_Gluino_Mass,THXSEC8TeV_Gluino_Cen);
+            ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr",sizeof(THXSEC8TeV_Gluino_Mass)/sizeof(double),THXSEC8TeV_Gluino_Mass,THXSEC8TeV_Gluino_Low,THXSEC8TeV_Gluino_High, PlotMinScale, PlotMaxScale);
+         }
       }else if(!Combine && modelVector[k].find("Stop"  )!=string::npos){
-         ThXSec   [k] = new TGraph(sizeof(THXSEC7TeV_Stop_Mass)/sizeof(double),THXSEC7TeV_Stop_Mass,THXSEC7TeV_Stop_Cen);
-         ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr",sizeof(THXSEC7TeV_Stop_Mass)/sizeof(double),THXSEC7TeV_Stop_Mass,THXSEC7TeV_Stop_Low,THXSEC7TeV_Stop_High, PlotMinScale, PlotMaxScale);
+         if(SQRTS==7){
+            ThXSec   [k] = new TGraph(sizeof(THXSEC7TeV_Stop_Mass)/sizeof(double),THXSEC7TeV_Stop_Mass,THXSEC7TeV_Stop_Cen);
+            ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr",sizeof(THXSEC7TeV_Stop_Mass)/sizeof(double),THXSEC7TeV_Stop_Mass,THXSEC7TeV_Stop_Low,THXSEC7TeV_Stop_High, PlotMinScale, PlotMaxScale);
+         }else{
+            ThXSec   [k] = new TGraph(sizeof(THXSEC8TeV_Stop_Mass)/sizeof(double),THXSEC8TeV_Stop_Mass,THXSEC8TeV_Stop_Cen);
+            ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr",sizeof(THXSEC8TeV_Stop_Mass)/sizeof(double),THXSEC8TeV_Stop_Mass,THXSEC8TeV_Stop_Low,THXSEC8TeV_Stop_High, PlotMinScale, PlotMaxScale);
+         }
       }else if(!Combine && modelVector[k].find("GMStau"  )!=string::npos){
-         ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt); 
-         ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC7TeV_GMStau_Mass)/sizeof(double),THXSEC7TeV_GMStau_Mass,THXSEC7TeV_GMStau_Low,THXSEC7TeV_GMStau_High, PlotMinScale, PlotMaxScale); 
+         if(SQRTS==7){
+            ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt); 
+            ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC7TeV_GMStau_Mass)/sizeof(double),THXSEC7TeV_GMStau_Mass,THXSEC7TeV_GMStau_Low,THXSEC7TeV_GMStau_High, PlotMinScale, PlotMaxScale); 
+         }else{
+            ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
+            ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC8TeV_GMStau_Mass)/sizeof(double),THXSEC8TeV_GMStau_Mass,THXSEC8TeV_GMStau_Low,THXSEC8TeV_GMStau_High, PlotMinScale, PlotMaxScale);
+         }
       }else if(!Combine && modelVector[k].find("PPStau"  )!=string::npos){
-         ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);   
-         ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC7TeV_PPStau_Mass)/sizeof(double),THXSEC7TeV_PPStau_Mass,THXSEC7TeV_PPStau_Low,THXSEC7TeV_PPStau_High, PlotMinScale, PlotMaxScale); 
+         if(SQRTS==7){
+            ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);   
+            ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC7TeV_PPStau_Mass)/sizeof(double),THXSEC7TeV_PPStau_Mass,THXSEC7TeV_PPStau_Low,THXSEC7TeV_PPStau_High, PlotMinScale, PlotMaxScale); 
+         }else{
+            ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
+            ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC8TeV_PPStau_Mass)/sizeof(double),THXSEC8TeV_PPStau_Mass,THXSEC8TeV_PPStau_Low,THXSEC8TeV_PPStau_High, PlotMinScale, PlotMaxScale);
+         }
       }else{
          ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
          double* XSecErrLow  = new double[ThXSec[k]->GetN()];
@@ -329,11 +361,13 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    // I don't like much this part because it is dependent of what is in Analysis_Samples.h in an hardcoded way   
    std::map<string, TGraph*> TkGraphMap;
    std::map<string, TGraph*> MuGraphMap;
+   std::map<string, TGraph*> LQGraphMap;
    std::map<string, TGraph*> ThGraphMap;
    std::map<string, TCutG* > ThErrorMap;
    for(unsigned int k=0; k<modelVector.size(); k++){
       TkGraphMap[modelVector[k]] = TkGraphs [k];
       MuGraphMap[modelVector[k]] = MuGraphs [k];
+      LQGraphMap[modelVector[k]] = LQGraphs [k];
       ThGraphMap[modelVector[k]] = ThXSec   [k];
       ThErrorMap[modelVector[k]] = ThXSecErr[k];
    }
@@ -363,6 +397,13 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    TkGraphMap["DCRho08HyperK"]->SetLineColor(4);  TkGraphMap["DCRho08HyperK"]->SetMarkerColor(4);   TkGraphMap["DCRho08HyperK"]->SetLineWidth(2);   TkGraphMap["DCRho08HyperK"]->SetLineStyle(1);  TkGraphMap["DCRho08HyperK"]->SetMarkerStyle(22);
    TkGraphMap["DCRho12HyperK"]->SetLineColor(2);  TkGraphMap["DCRho12HyperK"]->SetMarkerColor(2);   TkGraphMap["DCRho12HyperK"]->SetLineWidth(2);   TkGraphMap["DCRho12HyperK"]->SetLineStyle(1);  TkGraphMap["DCRho12HyperK"]->SetMarkerStyle(23);
    TkGraphMap["DCRho16HyperK"]->SetLineColor(1);  TkGraphMap["DCRho16HyperK"]->SetMarkerColor(1);   TkGraphMap["DCRho16HyperK"]->SetLineWidth(2);   TkGraphMap["DCRho16HyperK"]->SetLineStyle(1);  TkGraphMap["DCRho16HyperK"]->SetMarkerStyle(26);
+
+   ThGraphMap["DY_Q1o3"      ]->SetLineColor(41); ThGraphMap["DY_Q1o3"      ]->SetMarkerColor(41);  ThGraphMap["DY_Q1o3"      ]->SetLineWidth(1);   ThGraphMap["DY_Q1o3"      ]->SetLineStyle(9);  ThGraphMap["DY_Q1o3"      ]->SetMarkerStyle(1);
+   TkGraphMap["DY_Q1o3"      ]->SetLineColor(41); TkGraphMap["DY_Q1o3"      ]->SetMarkerColor(41);  TkGraphMap["DY_Q1o3"      ]->SetLineWidth(2);   TkGraphMap["DY_Q1o3"      ]->SetLineStyle(1);  TkGraphMap["DY_Q1o3"      ]->SetMarkerStyle(33);
+   LQGraphMap["DY_Q1o3"      ]->SetLineColor(41); LQGraphMap["DY_Q1o3"      ]->SetMarkerColor(41);  LQGraphMap["DY_Q1o3"      ]->SetLineWidth(2);   LQGraphMap["DY_Q1o3"      ]->SetLineStyle(1);  LQGraphMap["DY_Q1o3"      ]->SetMarkerStyle(33);
+   ThGraphMap["DY_Q2o3"      ]->SetLineColor(43); ThGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  ThGraphMap["DY_Q2o3"      ]->SetLineWidth(1);   ThGraphMap["DY_Q2o3"      ]->SetLineStyle(10); ThGraphMap["DY_Q2o3"      ]->SetMarkerStyle(1);
+   TkGraphMap["DY_Q2o3"      ]->SetLineColor(43); TkGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  TkGraphMap["DY_Q2o3"      ]->SetLineWidth(2);   TkGraphMap["DY_Q2o3"      ]->SetLineStyle(1);  TkGraphMap["DY_Q2o3"      ]->SetMarkerStyle(34);
+   LQGraphMap["DY_Q2o3"      ]->SetLineColor(43); LQGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  LQGraphMap["DY_Q2o3"      ]->SetLineWidth(2);   LQGraphMap["DY_Q2o3"      ]->SetLineStyle(1);  LQGraphMap["DY_Q2o3"      ]->SetMarkerStyle(34);
 
 
    c1 = new TCanvas("c1", "c1",600,600);
@@ -551,6 +592,77 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    c1->SetLogy(true);
    SaveCanvas(c1, outpath, string("TkDCExclusionLog"));
    delete c1;
+
+
+
+
+
+
+
+   /////////////////////////////// LQ Analysis
+
+   TLegend* LQLEGTh = new TLegend(0.15,0.7,0.48,0.9);
+   LQLEGTh->SetHeader("Theoretical Prediction");
+   LQLEGTh->SetFillColor(0);
+   LQLEGTh->SetFillStyle(0);
+   LQLEGTh->SetBorderSize(0);
+
+   TGraph* DYQ1o3ThLeg = (TGraph*) ThGraphMap["DY_Q1o3"        ]->Clone("DYQ1o3ThLeg");
+   DYQ1o3ThLeg->SetFillColor(ThErrorMap["DY_Q1o3"]->GetFillColor());
+   LQLEGTh->AddEntry(DYQ1o3ThLeg   ,"Q=1/3   (LO)" ,"LF");
+   TGraph* DYQ2o3ThLeg = (TGraph*) ThGraphMap["DY_Q2o3"        ]->Clone("DYQ2o3ThLeg");
+   DYQ2o3ThLeg->SetFillColor(ThErrorMap["DY_Q2o3"]->GetFillColor());
+   LQLEGTh->AddEntry(DYQ2o3ThLeg   ,"Q=2/3   (LO)" ,"LF");
+   LQLEGTh->Draw();
+   LEGMu->Draw();
+
+   c1 = new TCanvas("c1", "c1",600,600);
+   TMultiGraph* MGLQ = new TMultiGraph();
+   MGLQ->Add(ThGraphMap["DY_Q1o3"    ]     ,"L");
+   MGLQ->Add(ThGraphMap["DY_Q2o3"    ]     ,"L");
+   MGLQ->Add(LQGraphMap["DY_Q1o3"    ]     ,"LP");
+   MGLQ->Add(LQGraphMap["DY_Q2o3"    ]     ,"LP");
+   MGLQ->Draw("A");
+   ThErrorMap["DY_Q1o3"   ]->Draw("f");
+   ThErrorMap["DY_Q2o3"   ]->Draw("f");
+   MGLQ->Draw("same");
+   MGLQ->SetTitle("");
+   MGLQ->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
+   MGLQ->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
+   MGLQ->GetYaxis()->SetTitleOffset(1.70);
+   MGLQ->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
+   MGLQ->GetXaxis()->SetRangeUser(50,1250);
+   
+   DrawPreliminary(SQRTS, LInt);
+   
+   TLegend* LEGLQ = new TLegend(0.45,0.58,0.795,0.9);
+   LEGLQ->SetHeader("Q<1");
+   LEGLQ->SetFillColor(0); 
+   LEGLQ->SetFillStyle(0);
+   LEGLQ->SetBorderSize(0);
+   LEGLQ->AddEntry(TkGraphMap["DY_Q1o3"    ], "Q=1/3"            ,"LP");
+   LEGLQ->AddEntry(TkGraphMap["DY_Q2o3"    ], "Q=2/3"            ,"LP");
+   LQLEGTh->Draw();
+   LEGLQ->Draw();
+   c1->SetLogy(true);
+   SaveCanvas(c1, outpath, string("LQExclusionLog"));
+   delete c1;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
    return; 
 }
 
@@ -1590,8 +1702,8 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
 
 
 bool Combine(string InputPattern, string signal){
-   CurrentSampleIndex        = JobIdToIndex(signal, samples); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return false;  }
-   int s = CurrentSampleIndex;
+//   CurrentSampleIndex        = JobIdToIndex(signal, samples); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return false;  }
+//   int s = CurrentSampleIndex;
 
    string outpath = InputPattern + "/"+SHAPESTRING+EXCLUSIONDIR+"/";
    MakeDirectories(outpath);
@@ -1690,6 +1802,7 @@ bool Combine(string InputPattern, string signal){
 
    //all done, save the results to file
    result.Save(InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/"+signal+".txt");
+   return true;
 }
 
 
