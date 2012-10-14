@@ -15,7 +15,7 @@ namespace reco {
   // type is the type of T1::eta();
   template<typename T1, typename T2>
   inline auto  __attribute__((always_inline)) deltaR2(const T1 & t1, const T2 & t2) -> decltype(t1.eta()) {
-    typedef  decltype(t1.phi()) Float;
+    typedef  decltype(t1.eta()) Float;
     Float p1 = t1.phi(); 
     Float p2 = t2.phi(); 
     Float e1 = t1.eta(); 
