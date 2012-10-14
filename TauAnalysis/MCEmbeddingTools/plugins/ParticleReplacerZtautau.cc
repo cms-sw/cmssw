@@ -1,4 +1,4 @@
-#include "TauAnalysis/MCEmbeddingTools/interface/ParticleReplacerClass.h"
+#include "TauAnalysis/MCEmbeddingTools/plugins/ParticleReplacerZtautau.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -42,9 +42,9 @@ const double breitWignerWidthW = 2.141;
 const double nomMassZ          = 91.1876;
 const double breitWignerWidthZ = 2.4952;
 
-int ParticleReplacerClass::numInstances_ = 0;
+int ParticleReplacerZtautau::numInstances_ = 0;
 
-ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& cfg)
+ParticleReplacerZtautau::ParticleReplacerZtautau(const edm::ParameterSet& cfg)
   : ParticleReplacerBase(cfg),
     generatorMode_(cfg.getParameter<std::string>("generatorMode")),
     beamEnergy_(cfg.getParameter<double>("beamEnergy")),
@@ -156,10 +156,10 @@ namespace
   }
 }
 
-std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const std::vector<reco::Particle>& muons, const reco::Vertex* evtVtx, const HepMC::GenEvent* genEvt)
+std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vector<reco::Particle>& muons, const reco::Vertex* evtVtx, const HepMC::GenEvent* genEvt)
 {
   if ( evtVtx != 0 ) throw cms::Exception("Configuration") 
-    << "ParticleReplacerClass does NOT support using primary vertex as the origin for taus !!\n";
+    << "ParticleReplacerZtautau does NOT support using primary vertex as the origin for taus !!\n";
 
 //--- transform the muons to the desired gen. particles
   std::vector<reco::Particle> embedParticles;	
@@ -392,17 +392,17 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const std::vector<
   return passedEvt_output_ptr;
 }
 
-void ParticleReplacerClass::beginRun(edm::Run& run, const edm::EventSetup& es)
+void ParticleReplacerZtautau::beginRun(edm::Run& run, const edm::EventSetup& es)
 {
   if ( isFirstInstance_ ) tauola_.init(es);
 }
 
-void ParticleReplacerClass::endJob()
+void ParticleReplacerZtautau::endJob()
 {
   if ( isFirstInstance_ ) tauola_.statistics();
 }
 
-bool ParticleReplacerClass::testEvent(HepMC::GenEvent* genEvt)
+bool ParticleReplacerZtautau::testEvent(HepMC::GenEvent* genEvt)
 {
   if ( minVisPtCuts_.empty() ) return true; // no visible Pt cuts applied
 
@@ -492,7 +492,7 @@ bool ParticleReplacerClass::testEvent(HepMC::GenEvent* genEvt)
   return false;
 }
 
-void ParticleReplacerClass::cleanEvent(HepMC::GenEvent* genEvt, HepMC::GenVertex* genVtx)
+void ParticleReplacerZtautau::cleanEvent(HepMC::GenEvent* genEvt, HepMC::GenVertex* genVtx)
 {
   std::stack<HepMC::GenParticle*> genParticles_to_delete;
 	
@@ -531,7 +531,7 @@ void ParticleReplacerClass::cleanEvent(HepMC::GenEvent* genEvt, HepMC::GenVertex
   repairBarcodes(genEvt);
 }
 
-void ParticleReplacerClass::repairBarcodes(HepMC::GenEvent* genEvt)
+void ParticleReplacerZtautau::repairBarcodes(HepMC::GenEvent* genEvt)
 {
   int next_genVtx_barcode = 1;
   for ( HepMC::GenEvent::vertex_iterator genVtx = genEvt->vertices_begin();
@@ -550,7 +550,7 @@ void ParticleReplacerClass::repairBarcodes(HepMC::GenEvent* genEvt)
   }
 }
 
-void ParticleReplacerClass::transformMuMu2LepLep(reco::Particle* muon1, reco::Particle* muon2)
+void ParticleReplacerZtautau::transformMuMu2LepLep(reco::Particle* muon1, reco::Particle* muon2)
 {
 //--- transform a muon pair into an electron/tau pair,
 //    taking into account the difference between muon and electron/tau mass
@@ -612,7 +612,7 @@ void ParticleReplacerClass::transformMuMu2LepLep(reco::Particle* muon1, reco::Pa
   return;
 }
 
-void ParticleReplacerClass::transformMuMu2TauNu(reco::Particle* muon1, reco::Particle* muon2)
+void ParticleReplacerZtautau::transformMuMu2TauNu(reco::Particle* muon1, reco::Particle* muon2)
 {
 //--- transform a muon pair into tau + nu (replacing a Z by W boson)
 
@@ -676,3 +676,6 @@ void ParticleReplacerClass::transformMuMu2TauNu(reco::Particle* muon1, reco::Par
   return;
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_EDM_PLUGIN(ParticleReplacerPluginFactory, ParticleReplacerZtautau, "ParticleReplacerZtautau");

@@ -7,9 +7,9 @@
  *
  * \author Matti Kortelainen
  *
- * \version $Revision: 1.13 $
+ * \version $Revision: 1.5 $
  *
- * $Id: ParticleReplacerBase.h,v 1.13 2012/10/07 13:09:35 veelken Exp $
+ * $Id: ParticleReplacerBase.h,v 1.5 2012/10/09 09:00:03 veelken Exp $
  *
  */
 
@@ -43,5 +43,9 @@ class ParticleReplacerBase
 
   int verbosity_;
 };
+
+#include "FWCore/PluginManager/interface/PluginFactory.h"
+
+typedef edmplugin::PluginFactory<ParticleReplacerBase* (const edm::ParameterSet&)> ParticleReplacerPluginFactory;
 
 #endif

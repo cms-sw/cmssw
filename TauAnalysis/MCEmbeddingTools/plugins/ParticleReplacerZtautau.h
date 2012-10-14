@@ -1,7 +1,7 @@
-#ifndef TauAnalysis_MCEmbeddingTools_ParticleReplacerClass_h
-#define TauAnalysis_MCEmbeddingTools_ParticleReplacerClass_h
+#ifndef TauAnalysis_MCEmbeddingTools_ParticleReplacerZtautau_h
+#define TauAnalysis_MCEmbeddingTools_ParticleReplacerZtautau_h
 
-/** \class ParticleReplacerClass
+/** \class ParticleReplacerZtautau
  *
  * Auxiliary class to replace muons reconstructed in selected Z --> mu+ mu- events 
  * by generator level particles, which will be passed to detector simulation & reconstruction modules
@@ -16,9 +16,9 @@
  * 
  * \author Manuel Zeise 
  *
- * \version $Revision: 1.10 $
+ * \version $Revision: 1.11 $
  *
- * $Id: ParticleReplacerClass.h,v 1.10 2012/10/09 09:00:03 veelken Exp $
+ * $Id: ParticleReplacerZtautau.h,v 1.11 2012/10/14 12:22:48 veelken Exp $
  *
  */
 
@@ -33,11 +33,11 @@
 
 #include<string>
 
-class ParticleReplacerClass : public ParticleReplacerBase
+class ParticleReplacerZtautau : public ParticleReplacerBase
 {
  public:
-  explicit ParticleReplacerClass(const edm::ParameterSet&);
-  ~ParticleReplacerClass() {}
+  explicit ParticleReplacerZtautau(const edm::ParameterSet&);
+  ~ParticleReplacerZtautau() {}
 
   virtual std::auto_ptr<HepMC::GenEvent> produce(const std::vector<reco::Particle>&, const reco::Vertex* = 0, const HepMC::GenEvent* = 0);
   virtual void beginRun(edm::Run&, const edm::EventSetup&);
@@ -66,7 +66,7 @@ class ParticleReplacerClass : public ParticleReplacerBase
   //  4 - munu -> taunu
   unsigned int transformationMode_;
 
-  // keep track if this instance of ParticleReplacerClass is the first one.
+  // keep track if this instance of ParticleReplacerZtautau is the first one.
   // Needed to avoid multiple initializations of TAUOLA interface,
   // which makes TAUOLA crash.
   static int numInstances_;

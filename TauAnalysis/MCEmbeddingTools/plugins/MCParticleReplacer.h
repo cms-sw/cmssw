@@ -16,9 +16,9 @@
  * 
  * \author Manuel Zeise 
  *
- * \version $Revision: 1.13 $
+ * \version $Revision: 1.1 $
  *
- * $Id: MCParticleReplacer.cc,v 1.13 2012/10/07 13:09:35 veelken Exp $
+ * $Id: MCParticleReplacer.h,v 1.1 2012/10/09 09:00:24 veelken Exp $
  *
  */
 
@@ -51,7 +51,7 @@ class MCParticleReplacer : public edm::EDProducer
   edm::InputTag src_;
   edm::InputTag srcHepMC_;
   HepMcMode hepMcMode_;
-  boost::shared_ptr<ParticleReplacerBase> replacer_;
+  ParticleReplacerBase* replacer_;
 
   int verbosity_;
 };

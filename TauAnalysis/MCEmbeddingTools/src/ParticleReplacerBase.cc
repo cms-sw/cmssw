@@ -8,3 +8,7 @@ ParticleReplacerBase::ParticleReplacerBase(const edm::ParameterSet& cfg)
   verbosity_ = ( cfg.exists("verbosity") ) ?
     cfg.getParameter<int>("verbosity") : 0;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+EDM_REGISTER_PLUGINFACTORY(ParticleReplacerPluginFactory, "ParticleReplacerPluginFactory");
