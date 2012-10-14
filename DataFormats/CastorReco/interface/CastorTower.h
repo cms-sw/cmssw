@@ -6,7 +6,7 @@
  *
  * \author Hans Van Haevermaet, University of Antwerp
  *
- * \version $Id: CastorTower.h,v 1.4 2010/01/22 14:14:38 hvanhaev Exp $
+ * \version $Id: CastorTower.h,v 1.5 2010/07/03 19:11:59 hvanhaev Exp $
  *
  */
 #include <vector>
@@ -41,9 +41,6 @@ namespace reco {
 
     /// destructor
     virtual ~CastorTower();
-
-    /// tower energy
-    double energy() const { return energy_; }
 
     /// tower centroid position
     ROOT::Math::XYZPoint position() const { return position_; }
@@ -90,17 +87,11 @@ namespace reco {
     /// comparison <= operator
     bool operator < (const CastorTower& rhs) const { return (energy_< rhs.energy_); }
 
-    /// pseudorapidity of tower centroid
-    double eta() const { return position_.eta(); }
-
-    /// azimuthal angle of tower centroid
-    double phi() const { return position_.phi(); }
-
     /// x of tower centroid
-    double x() const { return position_.x(); }
+    double xPos() const { return position_.x(); }
 
     /// y of tower centroid
-    double y() const { return position_.y(); }
+    double yPos() const { return position_.y(); }
 
     /// rho of tower centroid
     double rho() const { return position_.rho(); }
