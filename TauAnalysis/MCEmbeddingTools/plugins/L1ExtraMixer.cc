@@ -28,8 +28,6 @@ L1ExtraMixer::~L1ExtraMixer()
 
 void L1ExtraMixer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-  std::cout << "<L1ExtraMixer::produce>:" << std::endl;
-  std::cout << " #plugins = " << plugins_.size() << std::endl;
   for ( std::vector<L1ExtraMixerPluginBase*>::iterator plugin = plugins_.begin();
 	plugin != plugins_.end(); ++plugin ) {
     (*plugin)->produce(evt, es);
