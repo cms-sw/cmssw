@@ -14,7 +14,7 @@
   </class>
   <class name="reco::SiStripElectron" ClassVersion="11">
    <version ClassVersion="10" checksum="371046486"/>
-   <version ClassVersion="11" checksum="371046486"/>
+   <version ClassVersion="11" checksum="2363574304"/>
   </class>
 
   <class name="reco::Photon::FiducialFlags" ClassVersion="10">
