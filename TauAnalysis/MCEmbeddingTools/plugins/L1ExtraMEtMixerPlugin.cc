@@ -8,8 +8,11 @@
 
 L1ExtraMEtMixerPlugin::L1ExtraMEtMixerPlugin(const edm::ParameterSet& cfg)
   : L1ExtraMixerPluginBase(cfg)
+{}
+
+void L1ExtraMEtMixerPlugin::registerProducts(edm::EDProducer& producer)
 {
-  produces<l1extra::L1EtMissParticleCollection>(instanceLabel_); 
+  producer.produces<l1extra::L1EtMissParticleCollection>(instanceLabel_); 
 }
 
 void L1ExtraMEtMixerPlugin::produce(edm::Event& evt, const edm::EventSetup& es)

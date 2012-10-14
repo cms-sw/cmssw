@@ -44,7 +44,10 @@ void
 MCParticleReplacer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   std::vector<reco::Particle> muons;
-	
+  //   
+  // NOTE: the following logic of finding "the" muon pair needs to be kept in synch
+  //       between ZmumuPFEmbedder and MCParticleReplacer modules
+  //
   edm::Handle<reco::CompositeCandidateCollection> combCandidatesHandle;
   if ( evt.getByLabel(src_, combCandidatesHandle) ) {
     if ( verbosity_ ) std::cout << "<MCParticleReplacer::produce>: #Zs = " << combCandidatesHandle->size() << std::endl;
@@ -54,7 +57,7 @@ MCParticleReplacer::produce(edm::Event& evt, const edm::EventSetup& es)
 	int charge = combCandidate.daughter(idx)->charge();
 	reco::Particle::LorentzVector p4 = combCandidate.daughter(idx)->p4();
 	reco::Particle::Point vtx = combCandidate.daughter(idx)->vertex();
-	muons.push_back(reco::Particle(charge, p4, vtx));
+	muons.push_back(reco::Particle(charge, p4, vtx, -15*charge, 0, true));
       }
     }
   } else {
@@ -66,7 +69,7 @@ MCParticleReplacer::produce(edm::Event& evt, const edm::EventSetup& es)
 	int charge = candsHandle->at(idx).charge();
 	reco::Particle::LorentzVector p4 = candsHandle->at(idx).p4();
 	reco::Particle::Point vtx = candsHandle->at(idx).vertex();
-	muons.push_back(reco::Particle(charge, p4, vtx));
+	muons.push_back(reco::Particle(charge, p4, vtx, -15*charge, 0, true));
       }
     } else {
       throw cms::Exception("Configuration") 

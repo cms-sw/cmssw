@@ -4,11 +4,19 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
+#include <TMath.h>
+
+const size_t maxNumL1ExtraObjects = 4;
+
 template <typename T>
 L1ExtraMixerPluginT<T>::L1ExtraMixerPluginT(const edm::ParameterSet& cfg)
-    : L1ExtraMixerPluginBase(cfg)
-{  
-  produces<l1ExtraCollection>(instanceLabel_); 
+  : L1ExtraMixerPluginBase(cfg)
+{}
+
+template <typename T>
+void L1ExtraMixerPluginT<T>::registerProducts(edm::EDProducer& producer)
+{
+  producer.produces<l1ExtraCollection>(instanceLabel_); 
 }
 
 namespace
@@ -32,16 +40,6 @@ void L1ExtraMixerPluginT<T>::produce(edm::Event& evt, const edm::EventSetup& es)
   edm::Handle<l1ExtraCollection> l1ExtraObjects2;
   evt.getByLabel(src2_, l1ExtraObjects2);
   
-  // CV: check that 'src1' and 'src2' collections contain the same number of objects
-  //    (needed to determine size of output collection)
-  if ( l1ExtraObjects1->size() != l1ExtraObjects2->size() ) {
-    throw cms::Exception("L1ExtraMixer::produce")
-      << " Mismatch in numbers of L1Extra objects stored in collections" 
-      << " 'src1' (" << src1_.label() << ":" << src1_.instance() << " = " << l1ExtraObjects1->size() << ") and" 
-      << " 'src2' (" << src2_.label() << ":" << src2_.instance() << " = " << l1ExtraObjects2->size() << ") !!\n";
-  }
-  size_t numObjects = l1ExtraObjects1->size();
-
   l1ExtraCollection l1ExtraObjects_sorted;
   l1ExtraObjects_sorted.insert(l1ExtraObjects_sorted.end(), l1ExtraObjects1->begin(), l1ExtraObjects1->end());
   l1ExtraObjects_sorted.insert(l1ExtraObjects_sorted.end(), l1ExtraObjects2->begin(), l1ExtraObjects2->end());
@@ -50,7 +48,8 @@ void L1ExtraMixerPluginT<T>::produce(edm::Event& evt, const edm::EventSetup& es)
 
   std::auto_ptr<l1ExtraCollection> l1ExtraObjects_output(new l1ExtraCollection());
 
-  for ( size_t iObject = 0; iObject < numObjects; ++iObject ) {
+  size_t numL1ExtraObjects = l1ExtraObjects_sorted.size();
+  for ( size_t iObject = 0; iObject < TMath::Min(numL1ExtraObjects, maxNumL1ExtraObjects); ++iObject ) {
     l1ExtraObjects_output->push_back(l1ExtraObjects_sorted.at(iObject));
   }
 

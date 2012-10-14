@@ -11,9 +11,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.1 $
  *
- * $Id: L1ExtraMixerT.h,v 1.8 2012/02/13 17:33:04 veelken Exp $
+ * $Id: L1ExtraMixerPluginT.h,v 1.1 2012/10/09 09:00:24 veelken Exp $
  *
  */
 
@@ -33,6 +33,8 @@ class L1ExtraMixerPluginT : public L1ExtraMixerPluginBase
  public:
   explicit L1ExtraMixerPluginT(const edm::ParameterSet&);
   ~L1ExtraMixerPluginT() {}
+
+  virtual void registerProducts(edm::EDProducer&);
 
   virtual void produce(edm::Event&, const edm::EventSetup&);
 

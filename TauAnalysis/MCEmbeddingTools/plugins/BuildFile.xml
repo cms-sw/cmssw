@@ -12,6 +12,7 @@
   <use   name="DataFormats/METObjects"/>
   <use   name="DataFormats/MuonReco"/>
   <use   name="CommonTools/UtilAlgos"/>
+  <use   name="CommonTools/Utils"/>
   <use   name="DataFormats/ParticleFlowCandidate"/>
   <use   name="DataFormats/EcalRecHit"/>
   <use   name="DataFormats/HcalRecHit"/>

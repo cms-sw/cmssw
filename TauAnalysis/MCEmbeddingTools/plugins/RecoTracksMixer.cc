@@ -1,148 +1,77 @@
-// -*- C++ -*-
-//
-// Package:    RecoTracksMixer
-// Class:      RecoTracksMixer
-//
-/**\class RecoTracksMixer RecoTracksMixer.cc TauAnalysis/RecoTracksMixer/src/RecoTracksMixer.cc
 
- Description: <one line class summary>
+/** \class RecoTracksMixer
+ *
+ * Merge collections of reco::Tracks and Trajectories 
+ * of original Z -> mumu events (after removing the reconstructed muons)
+ * and embedded tau decay products.
+ * 
+ * \author Tomasz Maciej Frueboes
+ *
+ * \version $Revision: 1.1 $
+ *
+ * $Id: RecoTracksMixer.h,v 1.1 2012/10/09 09:00:03 veelken Exp $
+ *
+ */
 
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Tomasz Maciej Frueboes
-//         Created:  Fri Apr  9 12:15:56 CEST 2010
-// $Id: RecoTracksMixer.cc,v 1.3 2010/11/08 16:03:27 friis Exp $
-//
-//
-
-
-// system include files
-#include <memory>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 
-//
-// class decleration
-//
+#include <vector>
 
-class RecoTracksMixer : public edm::EDProducer {
-   public:
-      explicit RecoTracksMixer(const edm::ParameterSet&);
-      ~RecoTracksMixer();
+class RecoTracksMixer : public edm::EDProducer 
+{
+ public:
+  explicit RecoTracksMixer(const edm::ParameterSet&);
+  ~RecoTracksMixer() {}
 
-   private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      edm::InputTag _tracks1;
-      edm::InputTag _tracks2;
+ private:
+  virtual void produce(edm::Event&, const edm::EventSetup&);
 
-      // ----------member data ---------------------------
+  edm::InputTag srcTracks1_;
+  edm::InputTag srcTracks2_;
+
+  typedef std::vector<Trajectory> TrajectoryCollection;
 };
 
-//
-// constants, enums and typedefs
-//
-
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-RecoTracksMixer::RecoTracksMixer(const edm::ParameterSet& iConfig) :
-  _tracks1(iConfig.getParameter< edm::InputTag > ("trackCol1")),
-  _tracks2(iConfig.getParameter< edm::InputTag > ("trackCol2"))
+RecoTracksMixer::RecoTracksMixer(const edm::ParameterSet& cfg) 
+  : srcTracks1_(cfg.getParameter<edm::InputTag>("trackCol1")),
+    srcTracks2_(cfg.getParameter<edm::InputTag>("trackCol2"))
 {
-
-   produces<reco::TrackCollection>();
-   produces< int >();
+  produces<reco::TrackCollection>();
+  produces<TrajectoryCollection>();
 }
 
-
-RecoTracksMixer::~RecoTracksMixer()
-{
-
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
-
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void
-RecoTracksMixer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+RecoTracksMixer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-   using namespace edm;
+  edm::Handle<reco::TrackCollection> tracks1;
+  evt.getByLabel(srcTracks1_, tracks1);
+  //edm::Handle<TrajectoryCollection> trajectories1;
+  //evt.getByLabel(srcTracks1_, trajectories1);
 
-   std::vector< edm::Handle<reco::TrackCollection> > cols;
-   edm::Handle<reco::TrackCollection> tks1;
-   iEvent.getByLabel( _tracks1, tks1);
+  edm::Handle<reco::TrackCollection> tracks2;
+  evt.getByLabel(srcTracks2_, tracks2);
+  //edm::Handle<TrajectoryCollection> trajectories2;
+  //evt.getByLabel(srcTracks2_, trajectories2);
 
-   edm::Handle<reco::TrackCollection> tks2;
-   iEvent.getByLabel( _tracks2, tks2);
+  std::auto_ptr<reco::TrackCollection> mixedTracks(new reco::TrackCollection());
+  mixedTracks->insert(mixedTracks->end(), tracks1->begin(), tracks1->end());
+  mixedTracks->insert(mixedTracks->end(), tracks2->begin(), tracks2->end());
 
-   cols.push_back(tks1);
-   cols.push_back(tks2);
+  //std::auto_ptr<TrajectoryCollection> mixedTrajectories(new TrajectoryCollection());
+  //mixedTrajactories->insert(mixedTrajectories->end(), trajectories1->begin(), trajectories1->end());
+  //mixedTrajactories->insert(mixedTrajectories->end(), trajectories2->begin(), trajectories2->end());
 
-   std::auto_ptr< reco::TrackCollection  > newCol(new reco::TrackCollection );
-
-   std::auto_ptr< int  > newColSize( new int );
-   *newColSize = tks1->size();
-   //std::cout << " XXXX " << *newColSize << std::endl;
-   iEvent.put(newColSize);
-
-   //std::cout << "##########################################\n";
-
-   std::vector< edm::Handle<reco::TrackCollection> >::iterator it = cols.begin();
-   for(;it != cols.end(); ++it)
-   {
-     //std::cout << " col " << i++ << std::endl;
-     for ( reco::TrackCollection::const_iterator itT = (*it)->begin() ; itT != (*it)->end(); ++itT)
-     {
-       /*
-       std::cout << " " << itT->vx()
-           << " " << itT->vy()
-           << " " << itT->vz()
-           << " " << itT->pt()
-           << std::endl;*/
-
-       newCol->push_back(*itT);
-     }
-
-   }
-
-   iEvent.put(newCol);
-
+  evt.put(mixedTracks);
+  //evt.put(mixedTrajactories);
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void
-RecoTracksMixer::beginJob()
-{
-}
+#include "FWCore/Framework/interface/MakerMacros.h"
 
-// ------------ method called once each job just after ending the event loop  ------------
-void
-RecoTracksMixer::endJob() {
-}
-
-//define this as a plug-in
 DEFINE_FWK_MODULE(RecoTracksMixer);
