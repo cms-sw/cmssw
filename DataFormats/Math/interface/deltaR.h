@@ -56,7 +56,7 @@ namespace reco {
   template <class T1, class T2, class T3, class T4>
   T1 deltaR2 (T1 eta1, T2 phi1, T3 eta2, T4 phi2) {
     T1 deta = eta1 - eta2;
-    T1 dphi = deltaPhi (phi1, phi2);
+    T1 dphi = std::abs(phi1-phi2); if (dphi>T1(M_PI)) dphi-=T1(2*M_PI);  
     return deta*deta + dphi*dphi;
   }
 
