@@ -68,16 +68,20 @@ def customise(process):
   except:
     pass
 
+  # disable L1GtTrigReport module
+  # (not used for anything yet, just prints error for every single event)
+  process.HLTAnalyzerEndpath.remove(process.hltL1GtTrigReport)
+  
   # apply configuration parameters
   print "Setting mdtau to ", process.customization_options.mdtau.value()
-  process.generator.ZTauTau.TauolaOptions.InputCards.mdtau = process.customization_options.mdtau 
+  process.generator.Ztautau.TauolaOptions.InputCards.mdtau = process.customization_options.mdtau 
   process.generator.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = process.customization_options.mdtau 
   
   print "Setting minVisibleTransverseMomentum to ", process.customization_options.minVisibleTransverseMomentum.value()
-  process.generator.ZTauTau.minVisibleTransverseMomentum = process.customization_options.minVisibleTransverseMomentum
+  process.generator.Ztautau.minVisibleTransverseMomentum = process.customization_options.minVisibleTransverseMomentum
 
   print "Setting transformationMode to ", process.customization_options.transformationMode.value()
-  process.generator.ZTauTau.transformationMode = process.customization_options.transformationMode
+  process.generator.Ztautau.transformationMode = process.customization_options.transformationMode
 
   if process.customization_options.overrideBeamSpot.value():
     bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v21_offline") # 42x data PR gt
@@ -255,19 +259,32 @@ def customise(process):
   if process.customization_options.applyZmumuSkim.value():
     print "Enabling Zmumu skim"
     process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
-
-    # we are allready selecting events from generation step, so following way is ok
     for path in process.paths:
       getattr(process,path)._seq = process.goldenZmumuSelectionSequence * getattr(process,path)._seq
-
     process.options = cms.untracked.PSet(
       wantSummary = cms.untracked.bool(True)
     )
   else:
     print "Zmumu skim not enabled"
-
     # CV: keep track of Z->mumu selection efficiency
     process.goldenZmumuFilterResult = cms.EDProducer("DummyBoolEventSelFlagProducer")
     process.goldenZmumuFilterEfficiencyPath = cms.Path(process.goldenZmumuSelectionSequence * process.goldenZmumuFilterResult)
 
+  process.load("TauAnalysis/MCEmbeddingTools/muonRadiationFilter_cfi")
+  process.muonRadiationFilter.srcSelectedMuons = process.customization_options.ZmumuCollection
+  if process.customization_options.applyMuonRadiationFilter:
+    print "Muon -> muon + photon radiation filter enabled"
+    # CV: add filter at the end of reconstruction path
+    #    (filter needs mixed 'pfPileUp' and 'pfNoPileUp' collections)
+    process.reconstruction_step += process.muonRadiationFilterSequence
+    process.options = cms.untracked.PSet(
+      wantSummary = cms.untracked.bool(True)
+    )  
+  else:
+    print "Muon -> muon + photon radiation filter not enabled"
+    # CV: keep track of which events pass/fail muon -> muon + photon radiation filter
+    process.muonRadiationFilterResult = cms.EDProducer("DummyBoolEventSelFlagProducer")
+    process.muonRadiationFilterEfficiencyPath = cms.Path(process.muonRadiationFilterSequence * process.muonRadiationFilterResult)
+    process.schedule += process.muonRadiationFilterEfficiencyPath
+    
   return(process)
