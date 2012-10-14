@@ -7,6 +7,7 @@
  */
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include <cmath>
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 namespace reco {
 
