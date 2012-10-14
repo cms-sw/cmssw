@@ -14,6 +14,10 @@ common_maximum_time = cms.PSet(
     MaxTrackTimes = cms.vdouble(2000.0,0.,0.)
 )
 
+common_UsePMT = cms.PSet(
+    UseR7600UPMT  = cms.bool(False)
+)
+
 g4SimHits = cms.EDProducer("OscarProducer",
     NonBeamEvent = cms.bool(False),
     G4EventManagerVerbosity = cms.untracked.int32(0),
@@ -225,6 +229,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         PutHistory = cms.bool(False)
     ),
     HFShower = cms.PSet(
+        common_UsePMT,
         ProbMax         = cms.double(1.0),
         CFibre          = cms.double(0.5),
         PEPerGeV        = cms.double(0.31),
@@ -256,6 +261,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         BranchPre       = cms.untracked.string('HFShowerPhotons_hfshowerlib_')
     ),
     HFShowerPMT = cms.PSet(
+        common_UsePMT,
         PEPerGeVPMT     = cms.double(1.0),
         RefIndex        = cms.double(1.52),
         Lambda1         = cms.double(280.0),
@@ -266,6 +272,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         CheckSurvive    = cms.bool(False)
     ),
     HFShowerStraightBundle = cms.PSet(
+        common_UsePMT,
         FactorBundle    = cms.double(1.0),
         RefIndex        = cms.double(1.459),
         Lambda1         = cms.double(280.0),
@@ -276,6 +283,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         CheckSurvive    = cms.bool(False)
     ),
     HFShowerConicalBundle = cms.PSet(
+        common_UsePMT,
         FactorBundle    = cms.double(1.0),
         RefIndex        = cms.double(1.459),
         Lambda1         = cms.double(280.0),
