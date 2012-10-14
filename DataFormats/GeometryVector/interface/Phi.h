@@ -37,6 +37,9 @@ namespace Geom {
     /// Explicit access to value in case implicit conversion not OK
     T value() const { return theValue;}
 
+    // so that template classes expecting phi() works! (deltaPhi)
+    T phi() const { return theValue;}
+
     /// Standard arithmetics 
     Phi& operator+=(const T& a) {theValue+=a; normalize(); return *this;}
     Phi& operator+=(const Phi& a) {return operator+=(a.value());}
@@ -129,6 +132,7 @@ namespace Geom {
 
 }
 
+/*
 // this a full mess wiht the above that is a mess in itself
 #include "DataFormats/Math/interface/deltaPhi.h"
 namespace reco {
@@ -154,6 +158,7 @@ namespace reco {
     return deltaPhi(static_cast<double>(phi1),static_cast<double>(phi2.value()) );
   }
 }
+*/
 
 #endif
 
