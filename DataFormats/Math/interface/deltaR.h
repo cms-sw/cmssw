@@ -12,9 +12,9 @@ namespace reco {
 
 #ifndef CMS_NOCXX11
   // assumption is that eta and phi are cached AND phi is computed using std::atan2
-  // type is the type of T1::phi();
+  // type is the type of T1::eta();
   template<typename T1, typename T2>
-  inline auto  __attribute__((always_inline)) deltaR2(const T1 & t1, const T2 & t2) -> decltype(t1.phi()) {
+  inline auto  __attribute__((always_inline)) deltaR2(const T1 & t1, const T2 & t2) -> decltype(t1.eta()) {
     typedef  decltype(t1.phi()) Float;
     Float p1 = t1.phi(); 
     Float p2 = t2.phi(); 
@@ -26,7 +26,7 @@ namespace reco {
   
   // do not use it: always cut in deltaR2!
   template<typename T1, typename T2>
-  inline auto deltaR(const T1 & t1, const T2 & t2) -> decltype(t1.phi()) {
+  inline auto deltaR(const T1 & t1, const T2 & t2) -> decltype(t1.eta()) {
     return std::sqrt(deltaR2(t1,t2));
   } 
 
