@@ -40,6 +40,8 @@ public:
   void                initRun(G4ParticleTable *);
   std::vector<Hit>    getHits(G4Step * aStep);
   std::vector<Hit>    getHits(G4Step * aStep, bool forLibrary);
+  std::vector<Hit>    getHits(G4Step * aStep, bool forLibraryProducer, double zoffset);
+
 
 private:    
 

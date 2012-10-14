@@ -62,11 +62,14 @@ void FiberSD::Initialize(G4HCofThisEvent * HCE) {
 
 G4bool FiberSD::ProcessHits(G4Step * aStep, G4TouchableHistory*) {
 
-  std::vector<HFShower::Hit> hits = theShower->getHits(aStep);
-
+  //std::vector<HFShower::Hit> hits = theShower->getHits(aStep);
+  double zoffset = 1000;
+  std::vector<HFShower::Hit> hits = theShower->getHits(aStep,true,zoffset);
+  
   if (hits.size() > 0) {
     std::vector<HFShowerPhoton> thePE;
     for (unsigned int i=0; i<hits.size(); i++) {
+      edm::LogInfo("FiberSim") << "hit position z " << hits[i].position.z();
       HFShowerPhoton pe = HFShowerPhoton(hits[i].position.x(), 
 					 hits[i].position.y(), 
 					 hits[i].position.z(), 
@@ -82,6 +85,7 @@ G4bool FiberSD::ProcessHits(G4Step * aStep, G4TouchableHistory*) {
     math::XYZPoint theHitPos(preStepPoint->GetPosition().x(),
 			     preStepPoint->GetPosition().y(),
 			     preStepPoint->GetPosition().z());
+    edm::LogInfo("FiberSim") << "presteppoint position z " << preStepPoint->GetPosition().z();
     
     FiberG4Hit *aHit = new FiberG4Hit(lv, detID, depth, trackID);
     aHit->setNpe(hits.size());
