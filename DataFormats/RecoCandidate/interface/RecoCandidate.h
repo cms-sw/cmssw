@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.26 2010/10/21 07:54:42 gpetrucc Exp $
+ * \version $Id: RecoCandidate.h,v 1.27 2011/11/01 17:22:43 slava77 Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -23,11 +23,8 @@ namespace reco {
     /// default constructor
     RecoCandidate() : LeafCandidate() { }
     /// constructor from values
-    RecoCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-		   int pdgId = 0, int status = 0 ) : 
-      LeafCandidate( q, p4, vtx, pdgId, status ) { }
-    /// constructor from values
-    RecoCandidate( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
+    template<typename P4>
+    RecoCandidate( Charge q, const P4 & p4, const Point & vtx = Point( 0, 0, 0 ),
 		   int pdgId = 0, int status = 0 ) : 
       LeafCandidate( q, p4, vtx, pdgId, status ) { }
     /// destructor
