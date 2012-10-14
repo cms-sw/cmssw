@@ -30,7 +30,7 @@ class RecoTauJetRegionProducer : public edm::EDProducer {
     ~RecoTauJetRegionProducer() {}
     void produce(edm::Event& evt, const edm::EventSetup& es);
   private:
-    double deltaR_;
+    float deltaR_;
     edm::InputTag inputJets_;
     edm::InputTag pfSrc_;
 };
@@ -100,18 +100,10 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt,
     // Clear out all the constituents
     newJet.clearDaughters();
     // Build a DR cone filter about our jet
-    reco::tau::cone::DeltaRPtrFilter<PFCandPtr>
-      filter(jetRef->p4(), 0, deltaR_);
-
+    auto filter = [this, jetRef](PFCandPtr const & cand) { return reco::deltaR2(*jetRef,*cand)<(deltaR_*deltaR_);};
     // Loop over all the PFCands
-    std::for_each(
-        // filtering those that don't pass our filter
-        boost::make_filter_iterator(filter,
-          pfCands.begin(), pfCands.end()),
-        boost::make_filter_iterator(filter,
-          pfCands.end(), pfCands.end()),
-        // For the ones that do, call newJet.addDaughter(..) on them
-        boost::bind(&reco::PFJet::addDaughter, boost::ref(newJet), _1));
+    for ( auto cand :  pfCands )
+      if ( filter(cand) ) newJet.addDaughter(cand);
     newJets->push_back(newJet);
     // Match the index of the jet we just made to the index into the original
     // collection.
