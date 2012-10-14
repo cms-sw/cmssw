@@ -16,9 +16,9 @@
  * 
  * \author Manuel Zeise 
  *
- * \version $Revision: 1.13 $
+ * \version $Revision: 1.10 $
  *
- * $Id: ParticleReplacerClass.cc,v 1.13 2012/10/07 13:09:35 veelken Exp $
+ * $Id: ParticleReplacerClass.h,v 1.10 2012/10/09 09:00:03 veelken Exp $
  *
  */
 
@@ -56,7 +56,7 @@ class ParticleReplacerClass : public ParticleReplacerBase
   void repairBarcodes(HepMC::GenEvent*);
 
   std::string generatorMode_;
-  double sqrtS_; // center-of-mass energy in GeV
+  double beamEnergy_; // proton beam energy in GeV
 
   // this variable defines the type of decay to simulate
   //  0 - mumu -> mumu 

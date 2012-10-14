@@ -47,7 +47,7 @@ int ParticleReplacerClass::numInstances_ = 0;
 ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& cfg)
   : ParticleReplacerBase(cfg),
     generatorMode_(cfg.getParameter<std::string>("generatorMode")),
-    sqrtS_(cfg.getParameter<double>("sqrtS")),
+    beamEnergy_(cfg.getParameter<double>("beamEnergy")),
     tauola_(cfg.getParameter<edm::ParameterSet>("TauolaOptions")),
     outTree_(0),
     maxNumberOfAttempts_(cfg.getUntrackedParameter<int>("maxNumberOfAttempts", 1000))
@@ -189,8 +189,8 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const std::vector<
     targetParticle2Mass_     = targetParticle1Mass_;
     targetParticle2AbsPdgID_ = targetParticle1AbsPdgID_;
     
-    reco::Particle muon1 = muons.at(0);
-    reco::Particle muon2 = muons.at(1);
+    const reco::Particle& muon1 = muons.at(0);
+    const reco::Particle& muon2 = muons.at(1);
     reco::Particle embedLepton1(muon1.charge(), muon1.p4(), muon1.vertex(), muon1.pdgId(), 0, true);
     reco::Particle embedLepton2(muon2.charge(), muon2.p4(), muon2.vertex(), muon2.pdgId(), 0, true);
     if ( targetParticle1AbsPdgID_ != 13 ) {
@@ -211,8 +211,8 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const std::vector<
     targetParticle2Mass_     = targetParticle1Mass_;
     targetParticle2AbsPdgID_ = targetParticle1AbsPdgID_;
 
-    reco::Particle muon1 = muons.at(0);
-    reco::Particle muon2 = muons.at(1);
+    const reco::Particle& muon1 = muons.at(0);
+    const reco::Particle& muon2 = muons.at(1);
     reco::Particle embedTau(muon1.charge(), muon1.p4(), muon1.vertex(), muon1.pdgId(), 0, true);
     reco::Particle embedNu(muon2.charge(), muon2.p4(), muon2.vertex(), muon2.pdgId(), 0, true);
     transformMuMu2TauNu(&embedTau, &embedNu);
@@ -231,13 +231,13 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const std::vector<
     targetParticle2Mass_     = 0.;
     targetParticle2AbsPdgID_ = 16; 
 			
-    reco::Particle muon = muons.at(0);
+    const reco::Particle& muon = muons.at(0);
     double embedLeptonEn = sqrt(square(muon.px()) + square(muon.py()) + square(muon.pz()) + square(targetParticle1Mass_));
     reco::Candidate::LorentzVector embedTauP4(muon.px(), muon.py(), muon.pz(), embedLeptonEn);
     reco::Particle embedTau(muon.charge(), embedTauP4, muon.vertex(), targetParticle1AbsPdgID_*muon.pdgId()/std::abs(muon.pdgId()), 0, true);
     embedTau.setStatus(1);
     embedParticles.push_back(embedTau);
-    reco::Particle nu = muons.at(1);
+    const reco::Particle& nu = muons.at(1);
     reco::Particle embedNu(0, nu.p4(), nu.vertex(), -targetParticle2AbsPdgID_*muon.pdgId()/std::abs(muon.pdgId()), 0, true);
     embedNu.setStatus(1);
     embedParticles.push_back(embedNu);
@@ -312,8 +312,8 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const std::vector<
     reco::Particle::Point ppCollisionPos = embedParticles.begin()->vertex();
 
     HepMC::GenVertex* ppCollisionVtx = new HepMC::GenVertex(HepMC::FourVector(ppCollisionPos.x()*10., ppCollisionPos.y()*10., ppCollisionPos.z()*10., 0.)); // convert from cm to mm
-    ppCollisionVtx->add_particle_in(new HepMC::GenParticle(HepMC::FourVector(0., 0.,  sqrtS_, sqrtS_), 2212, 3 ));
-    ppCollisionVtx->add_particle_in(new HepMC::GenParticle(HepMC::FourVector(0., 0., -sqrtS_, sqrtS_), 2212, 3 ));
+    ppCollisionVtx->add_particle_in(new HepMC::GenParticle(HepMC::FourVector(0., 0.,  beamEnergy_, beamEnergy_), 2212, 3 ));
+    ppCollisionVtx->add_particle_in(new HepMC::GenParticle(HepMC::FourVector(0., 0., -beamEnergy_, beamEnergy_), 2212, 3 ));
 
     HepMC::GenVertex* genMotherDecayVtx = new HepMC::GenVertex(HepMC::FourVector(ppCollisionPos.x()*10., ppCollisionPos.y()*10., ppCollisionPos.z()*10., 0.)); // Z decays immediately
     HepMC::GenParticle* genMother = new HepMC::GenParticle((HepMC::FourVector)genMotherP4, motherParticleID_, (generatorMode_ == "Pythia" ? 3 : 2), HepMC::Flow(), HepMC::Polarization(0,0));
@@ -554,19 +554,19 @@ void ParticleReplacerClass::transformMuMu2LepLep(reco::Particle* muon1, reco::Pa
 {
 //--- transform a muon pair into an electron/tau pair,
 //    taking into account the difference between muon and electron/tau mass
-	
+
   reco::Particle::LorentzVector muon1P4_lab = muon1->p4();
   reco::Particle::LorentzVector muon2P4_lab = muon2->p4();
   reco::Particle::LorentzVector zP4_lab = muon1P4_lab + muon2P4_lab;
 
   ROOT::Math::Boost boost_to_rf(zP4_lab.BoostToCM());
   ROOT::Math::Boost boost_to_lab(boost_to_rf.Inverse());
-	
+
   reco::Particle::LorentzVector zP4_rf = boost_to_rf(zP4_lab);
 
   reco::Particle::LorentzVector muon1P4_rf = boost_to_rf(muon1P4_lab);
   reco::Particle::LorentzVector muon2P4_rf = boost_to_rf(muon2P4_lab);
-	
+
   double muon1P_rf2 = square(muon1P4_rf.px()) + square(muon1P4_rf.py()) + square(muon1P4_rf.pz());
   double lep1Mass2 = square(targetParticle1Mass_);
   double lep1En_rf = 0.5*zP4_rf.E();
@@ -584,10 +584,10 @@ void ParticleReplacerClass::transformMuMu2LepLep(reco::Particle* muon1, reco::Pa
   float scaleFactor2 = sqrt(lep2P_rf2/muon2P_rf2);
   reco::Particle::LorentzVector lep2P4_rf = reco::Particle::LorentzVector(
     scaleFactor2*muon2P4_rf.px(), scaleFactor2*muon2P4_rf.py(), scaleFactor2*muon2P4_rf.pz(), lep2En_rf);
-  
+
   reco::Particle::LorentzVector lep1P4_lab = boost_to_lab(lep1P4_rf);
   reco::Particle::LorentzVector lep2P4_lab = boost_to_lab(lep2P4_rf);
-  
+
   // perform additional checks:
   // the following tests guarantee a deviation of less than 0.1% 
   // for the following values of the original muons and the embedded electrons/taus in terms of:
