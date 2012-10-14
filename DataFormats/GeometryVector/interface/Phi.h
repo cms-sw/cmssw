@@ -128,6 +128,33 @@ namespace Geom {
 
 
 }
+
+// this a full mess wiht the above that is a mess in itself
+#include "DataFormats/Math/interface/deltaPhi.h"
+namespace reco {
+  template <class T1,class T2>
+  inline double deltaPhi(const Geom::Phi<T1> phi1, const Geom::Phi<T2> phi2) {
+    return deltaPhi(static_cast<double>(phi1.value()), static_cast<double>(phi2.value()));
+  }
+ 
+  template <class T>
+  inline double deltaPhi(const Geom::Phi<T> phi1, double phi2) {
+    return deltaPhi(static_cast<double>(phi1.value()), phi2);
+  }
+  template <class T>
+  inline double deltaPhi(const Geom::Phi<T> phi1, float phi2) {
+    return deltaPhi(static_cast<double>(phi1.value()), static_cast<double>(phi2));
+  }
+  template <class T>
+  inline double deltaPhi(double phi1, const Geom::Phi<T>  phi2) {
+    return deltaPhi(phi1, static_cast<double>(phi2.value()) );
+  }
+  template <class T>
+  inline double deltaPhi(float phi1, const Geom::Phi<T>  phi2) {
+    return deltaPhi(static_cast<double>(phi1),static_cast<double>(phi2.value()) );
+  }
+}
+
 #endif
 
 
