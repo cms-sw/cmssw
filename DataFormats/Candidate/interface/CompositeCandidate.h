@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.28 2008/07/22 06:07:44 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.29 2008/12/05 12:15:18 hegner Exp $
  *
  */
 
@@ -28,16 +28,12 @@ namespace reco {
     /// default constructor
     CompositeCandidate(std::string name="") : LeafCandidate(), name_(name) { }
     /// constructor from values
-    CompositeCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
+    template<typename P4>
+    CompositeCandidate( Charge q, const P4 & p4, const Point & vtx = Point( 0, 0, 0 ),
 			int pdgId = 0, int status = 0, bool integerCharge = true,
 			std::string name="") :
       LeafCandidate( q, p4, vtx, pdgId, status, integerCharge ), name_(name) { }
-    /// constructor from values
-    CompositeCandidate( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-			int pdgId = 0, int status = 0, bool integerCharge = true,
-			std::string name="" ) :
-      LeafCandidate( q, p4, vtx, pdgId, status, integerCharge ), name_(name) { }
-    /// constructor from values
+   /// constructor from values
     explicit CompositeCandidate( const Candidate & p, const std::string& name="" );
     /// constructor from values
     explicit CompositeCandidate( const Candidate & p, const std::string& name, role_collection const & roles );

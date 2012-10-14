@@ -12,6 +12,8 @@
 
 #include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 
+#include "DataFormats/Math/interface/PtEtaPhiMass.h"
+
 namespace reco {
   
   class LeafCandidate : public Candidate {
@@ -43,7 +45,23 @@ namespace reco {
     vertex_( c.vertex() ), pdgId_( c.pdgId() ), status_( c.status() ),
     cachePolarFixed_( false ), cacheCartesianFixed_( false ) {}
     
-    /// constructor from values                                                           
+    /// constructor from Any values
+    template<typename P4>
+    LeafCandidate( Charge q, const P4 & p4, const Point & vtx = Point( 0, 0, 0 ),
+		   int pdgId = 0, int status = 0, bool integerCharge = true ) :
+      qx3_(integerCharge ? 3*q : q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
+      vertex_( vtx ), pdgId_( pdgId ), status_( status ),
+      cachePolarFixed_( false ), cacheCartesianFixed_( false ) {}
+
+
+    /// constructor from values  
+    LeafCandidate( Charge q, const PtEtaPhiMass & p4, const Point & vtx = Point( 0, 0, 0 ),
+		   int pdgId = 0, int status = 0, bool integerCharge = true ) :
+      qx3_(integerCharge ? 3*q : q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
+      vertex_( vtx ), pdgId_( pdgId ), status_( status ),
+      cachePolarFixed_( false ), cacheCartesianFixed_( false ) {}
+   
+    /// constructor from values  
     LeafCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 		   int pdgId = 0, int status = 0, bool integerCharge = true ) :
       qx3_( q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
