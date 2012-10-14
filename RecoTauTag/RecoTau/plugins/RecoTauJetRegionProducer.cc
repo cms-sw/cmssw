@@ -30,14 +30,14 @@ class RecoTauJetRegionProducer : public edm::EDProducer {
     ~RecoTauJetRegionProducer() {}
     void produce(edm::Event& evt, const edm::EventSetup& es);
   private:
-    float deltaR_;
+    float deltaR2_;
     edm::InputTag inputJets_;
     edm::InputTag pfSrc_;
 };
 
 RecoTauJetRegionProducer::RecoTauJetRegionProducer(
     const edm::ParameterSet& pset) {
-  deltaR_ = pset.getParameter<double>("deltaR");
+  deltaR2_ = pset.getParameter<double>("deltaR"); deltaR2_*=deltaR2_;
   inputJets_ = pset.getParameter<edm::InputTag>("src");
   pfSrc_ = pset.getParameter<edm::InputTag>("pfSrc");
   produces<reco::PFJetCollection>("jets");
@@ -102,7 +102,7 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt,
     newJet.clearDaughters();
     // Loop over all the PFCands
     for ( auto cand :  pfCands )
-      if ( reco::deltaR2(*jetRef,*cand)<(deltaR_*deltaR_) ) newJet.addDaughter(cand);
+      if ( reco::deltaR2(*jetRef,*cand)<deltaR2_ ) newJet.addDaughter(cand);
     // Match the index of the jet we just made to the index into the original
     // collection.
     matchInfo[jetRef.key()] = ijet;
