@@ -7,6 +7,8 @@ class CvCfHiggs(SMLikeHiggsModel):
     def __init__(self):
         SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.floatMass = False
+        self.cVRange = ['-2','2']
+        self.cFRange = ['-2','2']
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
             if po.startswith("higgsMassRange="):
@@ -17,11 +19,23 @@ class CvCfHiggs(SMLikeHiggsModel):
                     raise RuntimeError, "Higgs mass range definition requires two extrema."
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
                     raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first."
+            if po.startswith("cVRange="):
+                self.cVRange = po.replace("cVRange=","").split(":")
+                if len(self.cVRange) != 2:
+                    raise RuntimeError, "cV signal strength range requires minimal and maximal value"
+                elif float(self.cVRange[0]) >= float(self.cVRange[1]):
+                    raise RuntimeError, "minimal and maximal range swapped. Second value must be larger first one"
+            if po.startswith("cFRange="):
+                self.cFRange = po.replace("cFRange=","").split(":")
+                if len(self.cFRange) != 2:
+                    raise RuntimeError, "cF signal strength range requires minimal and maximal value"
+                elif float(self.cFRange[0]) >= float(self.cFRange[1]):
+                    raise RuntimeError, "minimal and maximal range swapped. Second value must be larger first one"
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         # --- Signal Strength as only POI --- 
-        self.modelBuilder.doVar("CV[1,0.0,1.5]")
-        self.modelBuilder.doVar("CF[1,-2,2]")
+        self.modelBuilder.doVar("CV[1,%s,%s]" % (self.cVRange[0], self.cVRange[1]))
+        self.modelBuilder.doVar("CF[1,%s,%s]" % (self.cVRange[0], self.cVRange[1]))
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
