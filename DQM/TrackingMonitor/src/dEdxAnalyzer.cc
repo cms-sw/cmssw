@@ -1,11 +1,11 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/08/05 12:49:17 $
- *  $Revision: 1.1 $
+ *  $Date: 2012/10/09 11:01:44 $
+ *  $Revision: 1.2 $
  *  \author Loic Quertenmont 
  */
-#include "DQM/TrackingMonitor/plugins/dEdxAnalyzer.h"
+#include "DQM/TrackingMonitor/interface/dEdxAnalyzer.h"
 
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "DataFormats/TrackReco/interface/Track.h"

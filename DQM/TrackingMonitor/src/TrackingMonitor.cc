@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/04/24 17:42:42 $
- *  $Revision: 1.38 $
+ *  $Date: 2012/08/05 12:52:42 $
+ *  $Revision: 1.39 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -22,7 +22,7 @@
 #include "DQM/TrackingMonitor/interface/TrackBuildingAnalyzer.h"
 #include "DQM/TrackingMonitor/interface/TrackAnalyzer.h"
 #include "DQM/TrackingMonitor/interface/VertexMonitor.h"
-#include "DQM/TrackingMonitor/plugins/TrackingMonitor.h"
+#include "DQM/TrackingMonitor/interface/TrackingMonitor.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 

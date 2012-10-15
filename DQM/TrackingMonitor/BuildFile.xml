@@ -10,6 +10,8 @@
 <use   name="TrackingTools/TransientTrackingRecHit"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="TrackingTools/DetLayers"/>
-<export>
-  <lib   name="1"/>
-</export>
+<use   name="DataFormats/MuonReco"/>
+<use   name="Geometry/RPCGeometry"/>
+<use   name="RecoTracker/TkNavigation"/>
+<use   name="RecoMuon/GlobalTrackingTools"/>
+<flags EDM_PLUGIN="1"/>

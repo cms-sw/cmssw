@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/27 10:38:10 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/08/06 20:24:23 $
+ *  $Revision: 1.10 $
  *  \author Jeremy Andrea
  */
 
@@ -16,7 +16,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQM/TrackingMonitor/plugins/TrackEfficiencyMonitor.h"
+#include "DQM/TrackingMonitor/interface/TrackEfficiencyMonitor.h"
 #include <string>
 
 // needed to compute the efficiency

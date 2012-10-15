@@ -26,11 +26,11 @@
 //
 // Original Author:  Mia Tosi,40 3-B32,+41227671609,
 //         Created:  Thu Mar  8 14:34:13 CET 2012
-// $Id: LogMessageMonitor.cc,v 1.2 2012/03/29 17:20:14 tosi Exp $
+// $Id: LogMessageMonitor.cc,v 1.3 2012/07/18 21:58:39 tosi Exp $
 //
 //
 
-#include "DQM/TrackingMonitor/plugins/LogMessageMonitor.h"
+#include "DQM/TrackingMonitor/interface/LogMessageMonitor.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
