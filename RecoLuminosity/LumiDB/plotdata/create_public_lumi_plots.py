@@ -465,7 +465,7 @@ if __name__ == "__main__":
     # NOTE: The above checking ensures that date_end is <= today, so
     # the below only assumes that we're never more than two days
     # behind on our luminosity numbers.
-    last_day_from_cache = date_end - datetime.timedelta(days=2)
+    last_day_from_cache = min(today - datetime.timedelta(days=2), date_end)
     if debug:
         print "Last day for which the cache will be used: %s" % \
               last_day_from_cache.isoformat()
