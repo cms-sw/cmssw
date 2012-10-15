@@ -9,5 +9,6 @@ for file in `cat /tmp/headers1.txt`;do grep -F $file /tmp/warning.txt ; done \
 | sort -u | sed 's/\/.*src\///' >/tmp/warning.headers1.txt
 for file in `cat /tmp/headers2.txt`;do grep -F $file /tmp/warning.txt ; done \
 | sort -u | sed 's/\/.*src\///' >/tmp/warning.headers2.txt
-cat /tmp/warning.headers1.txt /tmp/warning.headers2.txt | cut -d: -f1 \
+cat /tmp/warning.headers1.txt /tmp/warning.headers2.txt >/tmp/warnings.headers.txt
+cat /tmp/warnings.headers.txt| cut -d: -f1 \
 | sort -u >/tmp/warning.headers.txt
