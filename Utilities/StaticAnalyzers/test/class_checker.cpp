@@ -15,8 +15,8 @@ void func3(int *x) {return;} // could be bad
 void func4(int const *x) {return;} //  OK
 void func5(int * const x) {return;} // could be bad
 void func6(int const &x) {return;} //OK
-void nonconstfunc() { Var_ = 5;}
-void constfunc() const { return;}
+void nonConstFunc() { Var_ = 5;}
+void constFunc() const { return;}
 int * nonConstAccess() const {return PVar_;} //bad
 int const * constAccess() const {return PVar_;} //OK
 
@@ -58,16 +58,16 @@ void produce()
 	foo->func6(i_);
 	foo->func6(ir_);
 	foo->func6(I);
-	foo->nonconstfunc();
-	foo_.nonconstfunc(); //should fail member data (object) call non const functions 
-	foo_.constfunc(); //OK because const won't modify self
+	foo->nonConstFunc();
+	foo_.nonConstFunc(); //should fail member data (object) call non const functions 
+	foo_.constFunc(); //OK because const won't modify self
 	method1(i_);
 	method1(I);
 	modifyMember();
 	indirectModifyMember();
 	recursiveCaller(1);
-	PI=foo.nonConstAccess(); //should fail returns pointer to member data that is non const qualifies
-	CPI=foo.constAccess(); // OK because returns pointer to member data that is const qualified
+	PI=foo_.nonConstAccess(); //should fail returns pointer to member data that is non const qualifies
+	CPI=foo_.constAccess(); // OK because returns pointer to member data that is const qualified
 	}
 
 void method3() const
