@@ -5,7 +5,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DQM/SiStripMonitorClient/plugins/SiStripDaqInfo.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripDaqInfo.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 

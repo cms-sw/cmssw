@@ -6,7 +6,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "DQM/SiStripMonitorClient/plugins/SiStripDcsInfo.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripDcsInfo.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"

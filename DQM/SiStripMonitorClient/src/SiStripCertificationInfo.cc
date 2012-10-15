@@ -6,7 +6,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
-#include "DQM/SiStripMonitorClient/plugins/SiStripCertificationInfo.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripCertificationInfo.h"
 
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
