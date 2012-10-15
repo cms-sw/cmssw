@@ -57,13 +57,8 @@ namespace ecaldqm {
       }
       if(iMax != 5 || gainSwitch) continue;
 
-      float mean(0.);
       for(int iSample(0); iSample < 3; ++iSample)
-	mean += dataFrame.sample(iSample).adc();
-
-      mean /= 3.;
-
-      MEs_[kPedestal]->fill(id, mean);
+	MEs_[kPedestal]->fill(id, dataFrame.sample(iSample).adc());
     }
   }
 

@@ -18,7 +18,8 @@ ecalPedestalMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
     ),
     collectionTags = ecalDQMCollectionTags,
     online = cms.untracked.bool(True),
-    resetInterval = cms.untracked.double(2.)
+    resetInterval = cms.untracked.double(2.),
+    verbosity = cms.untracked.int32(0)
 )
 ecalTestPulseMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
     moduleName = cms.untracked.string("EcalTestPulse Monitor Source"),
@@ -29,7 +30,8 @@ ecalTestPulseMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
     ),
     collectionTags = ecalDQMCollectionTags,
     online = cms.untracked.bool(True),
-    resetInterval = cms.untracked.double(2.)
+    resetInterval = cms.untracked.double(2.),
+    verbosity = cms.untracked.int32(0)                                          
 )
 ecalLaserLedMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
     moduleName = cms.untracked.string("EcalLaserLed Monitor Source"),
@@ -41,7 +43,8 @@ ecalLaserLedMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
     ),
     collectionTags = ecalDQMCollectionTags,
     online = cms.untracked.bool(True),
-    resetInterval = cms.untracked.double(2.)
+    resetInterval = cms.untracked.double(2.),
+    verbosity = cms.untracked.int32(0)                                         
 )
 ecalPNDiodeMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
     moduleName = cms.untracked.string("EcalPNDiode Monitor Source"),
@@ -52,5 +55,6 @@ ecalPNDiodeMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
     ),
     collectionTags = ecalDQMCollectionTags,
     online = cms.untracked.bool(True),
-    resetInterval = cms.untracked.double(2.)
+    resetInterval = cms.untracked.double(2.),
+    verbosity = cms.untracked.int32(0)
 )
