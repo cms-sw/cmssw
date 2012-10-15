@@ -68,6 +68,7 @@ public:
 
   /// This method adds a CallExpr to the worklist 
   void Enqueue(WorkListUnit WLUnit) {
+    if (WLUnit == visitingCallExpr) return;
     WList.push_back(WLUnit);
   }
 
@@ -85,7 +86,7 @@ public:
 	//	llvm::errs()<<" , ";
 	//	WLUnit->dumpPretty(AC->getASTContext());
 	//	llvm::errs()<<"\n";
-      		WList.pop_back();
+      	//	WList.pop_back();
 		return;
 		}
       const clang::CXXMethodDecl *FD = WLUnit->getMethodDecl();
