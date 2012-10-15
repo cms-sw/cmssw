@@ -1,8 +1,16 @@
 #!/bin/bash
 eval `scram runtime -sh`
-	classes=`cmsglimpse -F classes_def.xml$ -G class | awk 'BEGIN{FS="<class name=\"|\"";} /class name/ { print $2 }' | awk 'BEGIN{FS="<|>";OFS = "\n";} {print $1, $2, $3, $4, $5, $6, $7, $8, $9}' | awk 'BEGIN{FS="&lt;|&gt;";OFS = "\n";} {print $1, $2, $3, $4, $5, $6, $7, $8, $9}' | awk 'BEGIN{FS=",";OFS="\n";} {print $1,$2,$3,$4,$5,$6,$7,$8,$9}'  |grep -v edm | grep -v std | awk 'BEGIN{FS="::";OFS="\n";} {print $2,$3,$4,$5,$6}' | grep -v \* | grep -E "[A-Z].*"| tr " " "\n" |sort -u `
+	classes=`cmsglimpse -F classes_def.xml$ -G class \
+	| awk 'BEGIN{FS="<class name=\"|\"";} /class name/ { print $2 }' \
+	| awk 'BEGIN{FS="<|>";OFS = "\n";} {print $1, $2, $3, $4, $5, $6, $7, $8, $9}' \
+	| awk 'BEGIN{FS="&lt;|&gt;";OFS = "\n";} {print $1, $2, $3, $4, $5, $6, $7, $8, $9}'\
+	| awk 'BEGIN{FS=",";OFS="\n";} {print $1,$2,$3,$4,$5,$6,$7,$8,$9}'\
+	| grep -v edm | grep -v std | awk 'BEGIN{FS="::";OFS="\n";} {print $2,$3,$4,$5,$6}' \
+	| grep -v \* | grep -E "[A-Z].*"| tr " " "\n" |sort -u `
 	echo $classes | tr " " "\n" >/tmp/classes1.txt
-	paths=`cmsglimpse -F classes.h$ -G include | awk 'BEGIN{FS="\"|<|>";OFS="\n";} /^\#include/ {print $2}'| grep -v "DataFormats/Common" | grep -v classes.h | tr " " "\n"| sort -u`
+	paths=`cmsglimpse -F classes.h$ -G include \
+	| awk 'BEGIN{FS="\"|<|>";OFS="\n";} /^\#include/ {print $2}'\
+	| grep -v "DataFormats/Common" | grep -v classes.h | tr " " "\n"| sort -u`
 	echo $paths | tr " " "\n"  >/tmp/paths1.txt
 	classes=`echo $classes | tr " " "\n" | sort -u`
 	pathtmp=""
