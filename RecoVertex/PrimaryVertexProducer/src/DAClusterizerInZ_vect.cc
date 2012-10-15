@@ -8,7 +8,7 @@
 #include <limits>
 #include <iomanip>
 
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
+#include "VDTMath.h"
 
 using namespace std;
 
@@ -838,5 +838,3 @@ vector<vector<reco::TransientTrack> > DAClusterizerInZ_vect::clusterize(
 
 }
 
-//__GXX_EXPERIMENTAL_CXX0X__
-#endif 

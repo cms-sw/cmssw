@@ -19,8 +19,6 @@
 
 #include "DataFormats/Math/interface/VDTMath.h"
 
-// this class uses the C++11 standard
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
 class DAClusterizerInZ_vect: public TrackClusterizerInZ {
 
 public:
@@ -216,8 +214,6 @@ private:
 	bool useTc_;
 };
 
-// #ifdef __GXX_EXPERIMENTAL_CXX0X__
-#endif
 
 //#ifndef DAClusterizerInZ_new_h
 #endif
