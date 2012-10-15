@@ -278,8 +278,8 @@ def SendCMSJobs(FarmDirectory, JobName, ConfigFile, InputFiles, NJobs, Argv):
 	SendCluster_Create(FarmDirectory, JobName)
 	NJobs = SendCluster_LoadInputFiles(InputFiles, NJobs)
 	for i in range(NJobs):
-        	LaunchOnCondor.SendCluster_Push  (["CMSSW", ConfigFile])
-	LaunchOnCondor.SendCluster_Submit()
+        	SendCluster_Push  (["CMSSW", ConfigFile])
+	SendCluster_Submit()
 
 
 
