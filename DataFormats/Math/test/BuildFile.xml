@@ -42,8 +42,3 @@
 </bin>
 <bin   file="Similarity_t.cpp" name="DataFormatsSimilarity_t">
 </bin>
-<bin   file="Vdt_timings_t.cpp" name="DataFormatsVdt_timings_t">
-  <flags CXXFLAGS="-fopenmp"/>
-</bin>
-<bin   file="Vdt_sanity_t.cpp" name="DataFormatsVdt_sanity_t">
-</bin>
