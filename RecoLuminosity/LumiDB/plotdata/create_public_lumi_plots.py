@@ -5,12 +5,12 @@
 ######################################################################
 
 # TODO TODO TODO
-# - Implement lumiCalc filtering on particle type!
-# - Implement configuration from file.
+# - Fix end of caching.
 # - Implement sorting of LumiDataBlocks.
 # - Assert there are no under-/overflows in the created histograms.
 # - Clean up output (debug vs. verbose).
 # - Implement option to plot all color schemes at once.
+# - Write and check-in some config files.
 # TODO TODO TODO end
 
 import sys
@@ -24,23 +24,17 @@ import math
 import argparse
 import ConfigParser
 
+import numpy as np
+from colorsys import hls_to_rgb, rgb_to_hls
+
 # Make sure ROOT does not eat the command line parameters. Has to be
 # before any other ROOT imports.
 from ROOT import PyConfig
 PyConfig.IgnoreCommandLineOptions = True
 
-from ROOT import kBlack, kWhite
 from ROOT import gSystem
 from ROOT import gROOT
-from ROOT import gStyle
-from ROOT import TCanvas
-from ROOT import TLegend
-from ROOT import TPaveLabel
-from ROOT import TPad
-from ROOT import TImage
 from ROOT import TH1F
-from ROOT import TColor
-from ROOT import TGaxis
 
 try:
     import debug_hook
@@ -184,14 +178,14 @@ class ColorScheme(object):
         #------------------------------
 
         # This is the light blue of the CMS logo.
-        ColorScheme.cmsBlue = TColor(ColorScheme.kCMSBlue, 0./255., 152./255., 212./255.)
+        ColorScheme.cms_blue = (0./255., 152./255., 212./255.)
 
         # This is the orange from the CMS logo.
-        ColorScheme.cmsOrange = TColor(ColorScheme.kCMSOrange, 241./255., 194./255., 40./255.)
+        ColorScheme.cms_orange = (241./255., 194./255., 40./255.)
 
         # Slightly darker versions of the above colors for the lines.
-        ColorScheme.cmsBlueD = TColor(ColorScheme.kCMSBlueD, 102./255., 153./255., 204./255.)
-        ColorScheme.cmsOrangeD = TColor(ColorScheme.kCMSOrangeD, 255./255., 153./255., 0./255.)
+        ColorScheme.cms_blue_dark = (102./255., 153./255., 204./255.)
+        ColorScheme.cms_orange_dark = (255./255., 153./255., 0./255.)
 
         #------------------------------
         # For color scheme 'Joe'.
@@ -200,11 +194,11 @@ class ColorScheme(object):
         # Several colors from the alternative CMS logo, with their
         # darker line variants.
 
-        ColorScheme.cmsRed = TColor(ColorScheme.kCMSRed, 208./255., 0./255., 37./255.)
-        ColorScheme.cmsYellow = TColor(ColorScheme.kCMSYellow, 255./255., 248./255., 0./255.)
-        ColorScheme.cmsPurple = TColor(ColorScheme.kCMSPurple, 125./255., 16./255., 123./255.)
-        ColorScheme.cmsGreen = TColor(ColorScheme.kCMSGreen, 60./255., 177./255., 110./255.)
-        ColorScheme.cmsOrange2 = TColor(ColorScheme.kCMSOrange2, 227./255., 136./255., 36./255.)
+        ColorScheme.cms_red = (208./255., 0./255., 37./255.)
+        ColorScheme.cms_yellow = (255./255., 248./255., 0./255.)
+        ColorScheme.cms_purple = (125./255., 16./255., 123./255.)
+        ColorScheme.cms_green = (60./255., 177./255., 110./255.)
+        ColorScheme.cms_orange2 = (227./255., 136./255., 36./255.)
 
         # End of InitColors().
 
@@ -213,32 +207,32 @@ class ColorScheme(object):
         self.name = name
 
         # Some defaults.
-        self.kFillColorDelivered = kBlack
-        self.kFillColorRecorded = kWhite
-        self.kFillColorPeak = kBlack
-        self.kLineColorDelivered = TColor.GetColorDark(self.kFillColorDelivered)
-        self.kLineColorRecorded = TColor.GetColorDark(self.kFillColorRecorded)
-        self.kLineColorPeak = TColor.GetColorDark(self.kFillColorPeak)
+        self.color_fill_del = "black"
+        self.color_fill_rec = "white"
+        self.color_fill_peak = "black"
+        self.color_line_del = DarkenColor(self.color_fill_del)
+        self.color_line_rec = DarkenColor(self.color_fill_rec)
+        self.color_line_peak = DarkenColor(self.color_fill_peak)
         self.logo_name = "cms_logo_1.png"
 
         tmp_name = self.name.lower()
         if tmp_name == "greg":
             # Color scheme 'Greg'.
-            self.kFillColorDelivered = ColorScheme.kCMSBlue
-            self.kFillColorRecorded = ColorScheme.kCMSOrange
-            self.kFillColorPeak = ColorScheme.kCMSOrange
-            self.kLineColorDelivered = TColor.GetColorDark(self.kFillColorDelivered)
-            self.kLineColorRecorded = TColor.GetColorDark(self.kFillColorRecorded)
-            self.kLineColorPeak = TColor.GetColorDark(self.kFillColorPeak)
+            self.color_fill_del = ColorScheme.cms_blue
+            self.color_fill_rec = ColorScheme.cms_orange
+            self.color_fill_peak = ColorScheme.cms_orange
+            self.color_line_del = DarkenColor(self.color_fill_del)
+            self.color_line_rec = DarkenColor(self.color_fill_rec)
+            self.color_line_peak = DarkenColor(self.color_fill_peak)
             self.logo_name = "cms_logo_2.png"
         elif tmp_name == "joe":
             # Color scheme 'Joe'.
-            self.kFillColorDelivered = ColorScheme.kCMSYellow
-            self.kFillColorRecorded = ColorScheme.kCMSRed
-            self.kFillColorPeak = ColorScheme.kCMSRed
-            self.kLineColorDelivered = TColor.GetColorDark(self.kFillColorDelivered)
-            self.kLineColorRecorded = TColor.GetColorDark(self.kFillColorRecorded)
-            self.kLineColorPeak = TColor.GetColorDark(self.kFillColorPeak)
+            self.color_fill_del = ColorScheme.cms_yellow
+            self.color_fill_rec = ColorScheme.cms_red
+            self.color_fill_peak = ColorScheme.cms_red
+            self.color_line_del = DarkenColor(self.color_fill_del)
+            self.color_line_rec = DarkenColor(self.color_fill_rec)
+            self.color_line_peak = DarkenColor(self.color_fill_peak)
             self.logo_name = "cms_logo_3.png"
         else:
             print >> sys.stderr, \
@@ -261,7 +255,9 @@ def CacheFilePath(day, cache_file_dir):
 def DarkenColor(color_in):
     """Takes a tuple (r, g, b) as input."""
 
-    tmp = rgb_to_hls(*color_in)
+    color_tmp = matplotlib.colors.colorConverter.to_rgb(color_in)
+
+    tmp = rgb_to_hls(*color_tmp)
     color_out = hls_to_rgb(tmp[0], .7 * tmp[1], tmp[2])
 
     # End of DarkenColor().
@@ -335,116 +331,6 @@ def LoadMatplotlib():
         print "Could not find matplotib"
 
     return matplotlib_loaded
-
-######################################################################
-
-def InitROOT():
-    print "Setting up ROOT style"
-    gSystem.Setenv("TZ","UTC");
-    gROOT.SetBatch(True)
-    gROOT.ProcessLine("gErrorIgnoreLevel = kWarning;")
-    gROOT.SetStyle("Plain")
-    gStyle.SetOptStat(0)
-    gStyle.SetTitleFillColor(0)
-    gStyle.SetTitleBorderSize(0)
-    gStyle.SetHistFillStyle(1001)
-    gStyle.SetHistFillColor(51)
-    gStyle.SetHistLineWidth(2)
-    gStyle.SetFrameFillColor(0)
-    gStyle.SetTitleW(0.65)
-    gStyle.SetTitleH(0.08)
-    gStyle.SetTitleX(0.5)
-    gStyle.SetTitleAlign(23)
-    gStyle.SetStatW(0.25)
-    gStyle.SetStatH(0.2)
-    gStyle.SetStatColor(0)
-    gStyle.SetEndErrorSize(0)
-    gStyle.SetPalette(1)
-    gStyle.SetPadTickX(1)
-    gStyle.SetPadTickY(1)
-    gStyle.SetPadBorderMode(0)
-    gStyle.SetPadColor(0)
-    gStyle.SetGridStyle(0)
-    gStyle.SetLegendBorderSize(0)
-    gStyle.SetLegendFillColor(0)
-    gStyle.SetFrameFillColor(0)
-    gStyle.SetFillStyle(4000)
-    # End of InitROOT().
-
-######################################################################
-
-def CreateCanvas():
-    canvas = TCanvas("canvas", "canvas", 10, 10, 1800, 1400)
-    # End of CreateCanvas().
-    return canvas
-
-######################################################################
-
-def CreateLegend(shift_x=0., shift_y=0.):
-    width = .5
-    height = .1
-    min_x = .2 + shift_x
-    max_x = min_x + width
-    min_y = .78 + shift_y
-    max_y = min_y + height
-    leg = TLegend(min_x, min_y, max_x, max_y)
-    leg.SetFillColor(0)
-    # End of CreateLegend().
-    return leg
-
-######################################################################
-
-def DrawLogo(canvas, logo_name):
-    logo = TImage.Open(logo_name)
-    aspectRatio = 1. * canvas.GetWh() / canvas.GetWw()
-    min_x = .1005
-    max_x = .2
-    max_y = .899
-    min_y = max_y - (max_x - min_x) / aspectRatio
-    p = TPad("p", "p", min_x, min_y, max_x, max_y)
-    p.SetMargin(.02, .01, .01, .02)
-    p.SetBorderSize(0)
-    p.SetFillColor(0)
-    canvas.cd()
-    p.Draw()
-    p.cd()
-    logo.Draw()
-    # End of DrawLogo().
-
-######################################################################
-
-def CreateDateLabel(canvas, start_time, end_time):
-    date_str = "Data included from "
-    date_str += start_time
-    date_str += " to "
-    date_str += end_time
-    date_str += " UTC"
-    x_offset = .4
-    y_lo = .82
-    height = .2
-    label = TPaveLabel(.5 - x_offset, y_lo,
-                       .5 + x_offset, y_lo + height,
-                       date_str, "NDC")
-    label.SetBorderSize(0)
-    label.SetFillColor(0)
-    # End of CreateDateLabel().
-    return label
-
-######################################################################
-
-def CreateDuplicateYAxis(canvas, ax_ori):
-    canvas.Update()
-    ax = TGaxis(canvas.GetUxmax(), canvas.GetUymin(),
-                canvas.GetUxmax(), canvas.GetUymax(),
-                canvas.GetUymin(), canvas.GetUymax(),
-                ax_ori.GetNdivisions(), "+L")
-    ax.SetLineColor(ax_ori.GetAxisColor())
-    ax.SetLabelColor(ax_ori.GetLabelColor())
-    ax.SetLabelFont(ax_ori.GetLabelFont())
-    ax.SetLabelOffset(ax_ori.GetLabelOffset())
-    ax.SetLabelSize(ax_ori.GetLabelSize())
-    # End of CreateDuplicateYAxis().
-    return ax
 
 ######################################################################
 
@@ -528,6 +414,7 @@ if __name__ == "__main__":
     particle_type_str = particle_type_strings[accel_mode]
 
     cms_energy = 2. * beam_energy
+    cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
 
     ##########
 
@@ -545,6 +432,12 @@ if __name__ == "__main__":
           lumicalc_flags
     print "Selecting data for beam energy %.0f GeV" % beam_energy
     print "Selecting data for accelerator mode '%s'" % accel_mode
+
+    ##########
+
+    if not LoadMatplotlib():
+        print >> sys.stderr, "ERROR Could not load Matplotlib"
+        sys.exit(1)
 
     ##########
 
@@ -574,7 +467,7 @@ if __name__ == "__main__":
     # behind on our luminosity numbers.
     last_day_from_cache = date_end - datetime.timedelta(days=2)
     if debug:
-        print "DEBUG Last day for which the cache will be used: %s" % \
+        print "Last day for which the cache will be used: %s" % \
               last_day_from_cache.isoformat()
 
     # First run lumiCalc. Once for each day to be included in the
@@ -646,20 +539,6 @@ if __name__ == "__main__":
 
     ##########
 
-    # WARNING: This is a bit of a trick. Trim off the front and tail
-    # ends without any delivered luminosity. Not sure this is really
-    # what we want.
-
-    # Trimming at the start.
-
-    # Find the first day with non-zero delivered luminosity.
-    # TODO TODO TODO
-
-    # Trimming at the end.
-    # TODO TODO TODO
-
-    ##########
-
     # Bunch lumiCalc data together into weeks.
     print "Combining lumiCalc data week-by-week"
     lumi_data_by_week = {}
@@ -716,22 +595,16 @@ if __name__ == "__main__":
     # And this is where the plotting starts.
     print "Drawing things..."
 
-    InitROOT()
     ColorScheme.InitColors()
-
-    # TODO TODO TODO
-    # Should really be moved somewhere else...
-
     color_scheme = ColorScheme(color_scheme_name)
-    kFillColorDelivered = color_scheme.kFillColorDelivered
-    kFillColorRecorded = color_scheme.kFillColorRecorded
-    kFillColorPeak = color_scheme.kFillColorPeak
-    kLineColorDelivered = color_scheme.kLineColorDelivered
-    kLineColorRecorded = color_scheme.kLineColorRecorded
-    kLineColorPeak = color_scheme.kLineColorPeak
+    color_fill_del = color_scheme.color_fill_del
+    color_fill_rec = color_scheme.color_fill_rec
+    color_fill_peak = color_scheme.color_fill_peak
+    color_line_del = color_scheme.color_line_del
+    color_line_rec = color_scheme.color_line_rec
+    color_line_peak = color_scheme.color_line_peak
     logo_name = color_scheme.logo_name
     file_suffix = color_scheme.file_suffix
-    # TODO TODO TODO end
 
     #------------------------------
     # Create the delivered-lumi-per-day plots, one for each year.
@@ -752,8 +625,6 @@ if __name__ == "__main__":
                  datetime.timedelta(seconds=12*60*60)
         day_hi = datetime.datetime.combine(max(tmp_dates), datetime.time()) + \
                  datetime.timedelta(seconds=12*60*60)
-#         bin_edge_lo = time.mktime(day_lo.timetuple())
-#         bin_edge_hi = time.mktime(day_hi.timetuple())
         bin_edge_lo = calendar.timegm(day_lo.utctimetuple())
         bin_edge_hi = calendar.timegm(day_hi.utctimetuple())
         h_lum_del = TH1F("h_lum_del", "h_lum_del", len(tmp_dates), bin_edge_lo, bin_edge_hi)
@@ -762,52 +633,9 @@ if __name__ == "__main__":
 
         # First the lumi-by-day plot.
         units = "pb^{-1}"
-
-        h_lum_del.SetLineColor(kLineColorDelivered)
-        h_lum_del.SetMarkerColor(kLineColorDelivered)
-        h_lum_del.SetFillColor(kFillColorDelivered)
-
-        h_lum_rec.SetLineColor(kLineColorRecorded)
-        h_lum_rec.SetMarkerColor(kLineColorRecorded)
-        h_lum_rec.SetFillColor(kFillColorRecorded)
-
-        h_lum_del.SetLineWidth(2)
-        h_lum_rec.SetLineWidth(2)
-
-        # Titles etc.
-
-        # Beam energy (since it's also used when calling lumiCalc) is
-        # defined in GeV, but we want TeV in the plot.
-        cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
-        title_per_day = "CMS Integrated Luminosity Per Day, " \
-                        "%s, %d, #sqrt{s} = %s;" \
-                        "Date;" \
-                        "Integrated Luminosity (%s/day)" % \
-                        (particle_type_str, year, cms_energy_str, units)
-        h_lum_del.SetTitle(title_per_day)
-        h_lum_del.GetXaxis().SetTimeDisplay(1)
-        h_lum_del.GetXaxis().SetTimeFormat("%d/%m")
-        h_lum_del.GetXaxis().SetTimeOffset(0, "gmt")
-        h_lum_del.GetXaxis().SetLabelOffset(0.01)
-        h_lum_del.GetYaxis().SetTitleOffset(1.2)
-        h_lum_del.GetXaxis().SetTitleFont(62)
-        h_lum_del.GetYaxis().SetTitleFont(62)
-        h_lum_del.GetXaxis().SetNdivisions(705)
-
-        h_lum_del_cum = h_lum_del.__class__(h_lum_del)
-        h_lum_rec_cum = h_lum_rec.__class__(h_lum_rec)
-
         for (bin_num, (day, lumi)) in enumerate(tmp_this_year):
             h_lum_del.SetBinContent(bin_num + 1, lumi.lum_del_tot(units))
             h_lum_rec.SetBinContent(bin_num + 1, lumi.lum_rec_tot(units))
-
-        units = "fb^{-1}"
-        title_per_day_cum = "CMS Integrated Luminosity, " \
-                            "%s, %d, #sqrt{s} = %s;" \
-                            "Date;" \
-                            "Integrated Luminosity (%s)" % \
-                            (particle_type_str, year, cms_energy_str, units)
-        h_lum_del_cum.SetTitle(title_per_day_cum)
 
         # Figure out the maximum delivered and recorded luminosities.
         max_del = 0.
@@ -820,143 +648,7 @@ if __name__ == "__main__":
             if tmp > max_rec:
                 max_rec = tmp
 
-        # Tweak the axes ranges a bit to create a bit more 'air.'
-        airSpace = .2
-        min_y = 0.
-        # Round to next multiple of ten.
-        tmp = (1. + airSpace) * max(max_del, max_rec)
-        max_y = math.ceil(tmp / 10.) * 10
-        canvas = CreateCanvas()
-        h_lum_del.Draw()
-        h_lum_rec.Draw("SAME")
-#         h_lum_del.GetYaxis().SetRangeUser(min_y, max_y)
-
-        # Add legend to the 'top left.'
-        units = "pb^{-1}"
-        legend = CreateLegend()
-        marginOld = legend.GetMargin()
-        legend.SetX2NDC(legend.GetX2NDC() + 1.01 * (legend.GetX2NDC() - legend.GetX1NDC()))
-        legend.SetMargin(marginOld / 1.01)
-        legend.AddEntry(h_lum_del,
-                        "LHC Delivered, max: %6.1f %s/day" % \
-                        (max_del, units),
-                        "F")
-        legend.AddEntry(h_lum_rec,
-                        "CMS Recorded, max: %6.1f %s/day" % \
-                        (max_rec, units),
-                        "F")
-        legend.Draw()
-
-        # Duplicate the vertical axis on the right-hand side.
-        ax_sec = CreateDuplicateYAxis(canvas, h_lum_del.GetYaxis())
-        ax_sec.Draw()
-
-        # Add a label specifying up until when data taken was included
-        # in this plot.
-        time_begin = min([i[1].time_begin() for i in tmp_this_year])
-        time_end = max([i[1].time_end() for i in tmp_this_year])
-        str_begin = time_begin.strftime(DATE_FMT_STR_OUT)
-        str_end = time_end.strftime(DATE_FMT_STR_OUT)
-        label = CreateDateLabel(canvas, str_begin, str_end)
-        label.Draw()
-
-        # Redraw the axes. This way the graphs don't lie on top of the
-        # axes any more.
-        canvas.RedrawAxis()
-
-        # Add the CMS logo in the top right corner. This has to be the
-        # last action so the logo sits on top of the axes.
-        DrawLogo(canvas, logo_name)
-
-        canvas.Print("int_lumi_per_day_%s_%d%s.png" % \
-                     (particle_type_str, year, file_suffix))
-
         ##########
-
-        cum_del = 0.
-        cum_rec = 0.
-        for bin in xrange(h_lum_del.GetNbinsX() + 1):
-            cum_del += h_lum_del.GetBinContent(bin)
-            h_lum_del_cum.SetBinContent(bin, cum_del)
-            cum_rec += h_lum_rec.GetBinContent(bin)
-            h_lum_rec_cum.SetBinContent(bin, cum_rec)
-        tot_del = 1.e-3 * cum_del
-        tot_rec = 1.e-3 * cum_rec
-
-        # Scale to reduce the vertical labels a bit.
-        scale_factor = 1.e-3
-        h_lum_del_cum.Scale(scale_factor)
-        h_lum_rec_cum.Scale(scale_factor)
-
-        # Tweak the axes ranges a bit to create a bit more 'air.'
-        airSpace = .2
-        min_y = 0.
-        # Round to next multiple of ten.
-        tmp = (1. + airSpace) * max(tot_del, tot_rec)
-        max_y = tmp#math.ceil(tmp / 10.) * 10
-        canvas.IsA().Destructor(canvas)
-        del canvas
-        canvas = CreateCanvas()
-        h_lum_del_cum.Draw()
-        h_lum_rec_cum.Draw("SAME")
-        h_lum_del_cum.GetYaxis().SetRangeUser(min_y, max_y)
-
-        # Add legend to the 'top left.'
-        units = "fb^{-1}"
-        legend = CreateLegend()
-        marginOld = legend.GetMargin()
-        legend.SetX2NDC(legend.GetX2NDC() + 1.01 * (legend.GetX2NDC() - legend.GetX1NDC()))
-        legend.SetMargin(marginOld / 1.01)
-        legend.AddEntry(h_lum_del,
-                        "LHC Delivered: %6.2f %s" % \
-                        (tot_del, units),
-                        "F")
-        legend.AddEntry(h_lum_rec,
-                        "CMS Recorded: %6.2f %s" % \
-                        (tot_rec, units),
-                        "F")
-        legend.Draw()
-
-        # Duplicate the vertical axis on the right-hand side.
-        ax_sec = CreateDuplicateYAxis(canvas, h_lum_del.GetYaxis())
-        ax_sec.Draw()
-
-        # Add a label specifying up until when data taken was included
-        # in this plot.
-        time_begin = min([i[1].time_begin() for i in tmp_this_year])
-        time_end = max([i[1].time_end() for i in tmp_this_year])
-        str_begin = time_begin.strftime(DATE_FMT_STR_OUT)
-        str_end = time_end.strftime(DATE_FMT_STR_OUT)
-        label = CreateDateLabel(canvas, str_begin, str_end)
-        label.Draw()
-
-        # Redraw the axes. This way the graphs don't lie on top of the
-        # axes any more.
-        canvas.RedrawAxis()
-
-        # Add the CMS logo in the top right corner. This has to be the
-        # last action so the logo sits on top of the axes.
-        DrawLogo(canvas, logo_name)
-
-        canvas.Print("int_lumi_cumulative_%s_%d%s.png" % \
-                     (particle_type_str, year, file_suffix))
-
-        ##########
-
-        # TODO TODO TODO
-        # - Move some of these up.
-        import numpy as np
-        from colorsys import hls_to_rgb, rgb_to_hls
-
-        # See if we can do the above in Matplotlib as well.
-        if not LoadMatplotlib():
-            print >> sys.stderr, "ERROR Could not load Matplotlib"
-            sys.exit(1)
-
-        color_del_fill = (255./255., 248./255., 0./255.)
-        color_rec_fill = (208./255., 0./255., 37./255.)
-        color_del_edge = DarkenColor(color_del_fill)
-        color_rec_edge = DarkenColor(color_rec_fill)
 
         fig = plt.figure()
         ax = fig.add_subplot(111)
@@ -984,12 +676,12 @@ if __name__ == "__main__":
         if sum(weights_del) > 0:
             ax.hist(bin_centers, bin_edges, weights=weights_del,
                     histtype="stepfilled",
-                    facecolor=color_del_fill, edgecolor=color_del_edge,
+                    facecolor=color_fill_del, edgecolor=color_line_del,
                     label="LHC Delivered, max: $%.1f$ $%s$/day" % \
                     (max_del, units))
             ax.hist(bin_centers, bin_edges, weights=weights_rec,
                     histtype="stepfilled",
-                    facecolor=color_rec_fill, edgecolor=color_rec_edge,
+                    facecolor=color_fill_rec, edgecolor=color_line_rec,
                 label="CMS Recorded, max: $%.1f$ $%s$/day" % \
                     (max_rec, units))
             ax.legend(loc="upper left", bbox_to_anchor=(0.1, 0., 1., 1.),
@@ -1022,7 +714,7 @@ if __name__ == "__main__":
             ax.set_xlim(time_begin, time_end)
         # BUG BUG BUG end
 
-        fig.savefig("int_lumi_per_day_%s_%d%s_test.png" % \
+        fig.savefig("int_lumi_per_day_%s_%d%s.png" % \
                     (particle_type_str, year, file_suffix))
 
         #----------
@@ -1040,12 +732,12 @@ if __name__ == "__main__":
         if sum(weights_del) > 0:
             ax.hist(bin_centers, bin_edges, weights=weights_del,
                     histtype="stepfilled", cumulative=True,
-                    facecolor=color_del_fill, edgecolor=color_del_edge,
+                    facecolor=color_fill_del, edgecolor=color_line_del,
                     label="LHC Delivered: $%.2f$ $%s$" % \
                     (tot_del, units))
             ax.hist(bin_centers, bin_edges, weights=weights_rec,
                     histtype="stepfilled", cumulative=True,
-                    facecolor=color_rec_fill, edgecolor=color_rec_edge,
+                    facecolor=color_fill_rec, edgecolor=color_line_rec,
                     label="CMS Recorded: $%.2f$ $%s$" % \
                     (tot_rec, units))
             ax.legend(loc="upper left", bbox_to_anchor=(0.1, 0., 1., 1.),
@@ -1071,7 +763,7 @@ if __name__ == "__main__":
             ax.set_xlim(time_begin, time_end)
         # BUG BUG BUG end
 
-        fig.savefig("int_lumi_cumulative_%s_%d%s_test.png" % \
+        fig.savefig("int_lumi_cumulative_%s_%d%s.png" % \
                     (particle_type_str, year, file_suffix))
 
         #----------
@@ -1082,7 +774,7 @@ if __name__ == "__main__":
         ##########
 
         # Elaborate cleanup to avoid trouble with ROOT...
-        for i in [h_lum_del, h_lum_rec, legend, canvas]:
+        for i in [h_lum_del, h_lum_rec]:
             i.IsA().Destructor(i)
             del i
 
