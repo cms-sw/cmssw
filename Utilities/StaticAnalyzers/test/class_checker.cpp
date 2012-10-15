@@ -66,8 +66,8 @@ void produce()
 	modifyMember();
 	indirectModifyMember();
 	recursiveCaller(1);
-	PI=foo.nonConstAccess();
-	CPI=foo.constAccess();
+	PI=foo.nonConstAccess(); //should fail returns pointer to member data that is non const qualifies
+	CPI=foo.constAccess(); // OK because returns pointer to member data that is const qualified
 	}
 
 void method3() const
