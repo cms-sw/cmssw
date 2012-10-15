@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2012/02/10 14:51:58 $
- *  $Revision: 1.15 $
+ *  $Date: 2012/10/15 11:29:01 $
+ *  $Revision: 1.16 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -508,16 +508,28 @@ void TauValidation::photons(const HepMC::GenParticle* tau, double weight, bool d
         if ( tau->end_vertex() ) {
 	      double photonFromTauPtSum = 0;
 	      bool photonFromTau = false;
-              HepMC::GenVertex::particle_iterator des;
-              for(des = tau->end_vertex()->particles_begin(HepMC::descendants);
-                  des!= tau->end_vertex()->particles_end(HepMC::descendants);++des ) {
-                        int pid = (*des)->pdg_id();
-			if(pid == 22) {
-				photonFromTauPtSum += (*des)->momentum().perp();
-				photonFromTau = true;
-			} 
-              }
-	      
+	      if(decayonly){
+		HepMC::GenVertex::particle_iterator des;
+		for(des = tau->end_vertex()->particles_begin(HepMC::descendants);
+		    des!= tau->end_vertex()->particles_end(HepMC::descendants);++des ) {
+		  int pid = (*des)->pdg_id();
+		  if(pid == 22) {
+		    photonFromTauPtSum += (*des)->momentum().perp();
+		    photonFromTau = true;
+		  } 
+		}
+	      }
+	      else{
+		HepMC::GenVertex::particle_iterator des;
+                for(des = tau->end_vertex()->particles_begin(HepMC::children);
+                    des!= tau->end_vertex()->particles_end(HepMC::children);++des ) {
+                  int pid = (*des)->pdg_id();
+                  if(pid == 22) {
+                    photonFromTauPtSum += (*des)->momentum().perp();
+                    photonFromTau = true;
+                  }
+                }
+	      }
 	      if(decayonly){TauPhotonsN->Fill(0.5,weight);}
 	      else{TauPhotonsBeforeDecay->Fill(0.5,weight);}
               //doesn't seems like it makes sense to use a weight below  
