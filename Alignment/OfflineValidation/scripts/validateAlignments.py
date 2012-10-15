@@ -454,12 +454,13 @@ copyImages indicates wether plot*.eps files should be copied back from the farm
     def createConfiguration(self, path ):
         # self.__compares
         repMap = self.getRepMap()
-        cfgs = {"TkAlCompareToNTuple.%s_cfg.py"%self.alignmentToValidate.name:
+        cfgs = { "TkAlCompareToNTuple.%s.%s_cfg.py"%(
+            self.alignmentToValidate.name, self.randomWorkdirPart ):
                 replaceByMap( configTemplates.intoNTuplesTemplate, repMap)}
         if not self.referenceAlignment == "IDEAL":
             referenceRepMap = self.getRepMap( self.referenceAlignment )
             cfgFileName = "TkAlCompareToNTuple.%s.%s_cfg.py"%(
-                self.referenceAlignment.name, self.randomWorkdirPart)
+                self.referenceAlignment.name, self.randomWorkdirPart )
             cfgs[ cfgFileName ] = replaceByMap( configTemplates.intoNTuplesTemplate, referenceRepMap)
 
         cfgSchedule = cfgs.keys()
