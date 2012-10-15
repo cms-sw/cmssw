@@ -25,7 +25,6 @@ namespace edm {
                        statemachine::EmptyRunLumiMode const& emptyRunLumiMode);
 
     virtual StatusCode runToCompletion(bool onlineStateTransitions);
-    virtual StatusCode runEventCount(int numberOfEventsToProcess);
 
     virtual void readFile();
     virtual void closeInputFile(bool cleaningUpAfterException);

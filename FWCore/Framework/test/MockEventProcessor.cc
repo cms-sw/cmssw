@@ -92,12 +92,6 @@ namespace edm {
     return epSuccess;
   }
 
-  // Not used, this one does nothing
-  edm::MockEventProcessor::StatusCode
-  MockEventProcessor::runEventCount(int /*numberOfEventsToProcess*/) {
-    return epSuccess;
-  }
-
   void MockEventProcessor::readFile() {
     output_ << " \treadFile\n";
   }
