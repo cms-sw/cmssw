@@ -8,7 +8,7 @@
 #include <limits>
 #include <iomanip>
 
-#include "VDTMath.h"
+#include "vdtMath.h"
 
 using namespace std;
 
@@ -52,17 +52,18 @@ inline double DAClusterizerInZ_vect::local_exp( double const& inp) const
 			if ( use_vdt_)
                           return vdt::fast_exp( inp );
 
-			return exp( inp );
+			return std::exp( inp );
 		}
 
 inline void DAClusterizerInZ_vect::local_exp_list( double* arg_inp, double* arg_out,const int arg_arr_size) const
 		{
 			if ( use_vdt_){
-//                                 std::cout << "I use vdt!\n";
-				vdt::fast_exp_vect(arg_inp, arg_out, arg_arr_size);
+//                          std::cout << "I use vdt!\n";
+                            for(int i=0; i!=arg_arr_size; ++i ) arg_out[i]=vdt::fast_exp(arg_inp[i]);
+		           // vdt::fast_expv(arg_arr_size, arg_inp, arg_out);
                         }
                         else
-                          vdt::std_exp_vect(  arg_inp, arg_out, arg_arr_size );
+                          for(int i=0; i!=arg_arr_size; ++i ) arg_out[i]=std::exp(arg_inp[i]);
 		}
 
 //todo: use r-value possibility of c++11 here

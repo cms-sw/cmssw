@@ -17,7 +17,6 @@
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 
-#include "DataFormats/Math/interface/VDTMath.h"
 
 class DAClusterizerInZ_vect: public TrackClusterizerInZ {
 
@@ -175,14 +174,12 @@ public:
 
 	std::vector<TransientVertex>
 	vertices(const std::vector<reco::TransientTrack> & tracks,
-			const int verbosity = 0) const
-			CMS_VECTORIZE ;
+			const int verbosity = 0) const ;
 
 	track_t	fill(const std::vector<reco::TransientTrack> & tracks) const;
 
 	double update(double beta, track_t & gtracks,
-			vertex_t & gvertices, bool useRho0, double & rho0) const
-			CMS_VECTORIZE ;
+			vertex_t & gvertices, bool useRho0, double & rho0) const;
 
 	void dump(const double beta, const vertex_t & y,
 			const track_t & tks, const int verbosity = 0) const;
