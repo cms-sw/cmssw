@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2011/12/29 10:53:10 $
- *  $Revision: 1.9 $
+ *  $Date: 2012/02/10 14:51:48 $
+ *  $Revision: 1.10 $
  *
  */
 
@@ -77,6 +77,7 @@ class TauValidation : public edm::EDAnalyzer
 	int tauDecayChannel(const HepMC::GenParticle*, double weight);
 	int findMother(const HepMC::GenParticle*);
 	int findTauDecayChannel(const HepMC::GenParticle*);
+	bool isLastTauinChain(const HepMC::GenParticle* tau);
 	void rtau(const HepMC::GenParticle*,int,int, double weight);
 	void spinEffects(const HepMC::GenParticle*,int,int, double weight);
 	void spinEffectsZ(const HepMC::GenParticle*, double weight);
@@ -84,7 +85,7 @@ class TauValidation : public edm::EDAnalyzer
 	double visibleTauEnergy(const HepMC::GenParticle*);
 	TLorentzVector leadingPionP4(const HepMC::GenParticle*);
 	TLorentzVector motherP4(const HepMC::GenParticle*);
-	void photons(const HepMC::GenParticle*, double weight);
+	void photons(const HepMC::GenParticle*, double weight, bool decayonly);
 
         WeightManager _wmanager;
 
@@ -100,9 +101,9 @@ class TauValidation : public edm::EDAnalyzer
 
         MonitorElement *nEvt;
   	MonitorElement *TauPt, *TauEta, *TauPhi, *TauProngs, *TauDecayChannels, *TauMothers, 
-                       *TauRtauW, *TauRtauHpm,
-                       *TauSpinEffectsW, *TauSpinEffectsHpm, *TauSpinEffectsZ,
-	               *TauPhotonsN,*TauPhotonsPt;
+	               *TauRtauW, *TauRtauHpm,
+	               *TauSpinEffectsW, *TauSpinEffectsHpm, *TauSpinEffectsZ,
+	               *TauPhotonsBeforeDecay,*TauPhotonsBeforeDecayPt,*TauPhotonsN,*TauPhotonsPt;
 	unsigned int NJAKID;
 	MonitorElement *JAKID;
 	std::vector<std::vector<MonitorElement *> > JAKInvMass;

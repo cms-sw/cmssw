@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2011/12/29 10:53:11 $
- *  $Revision: 1.14 $
+ *  $Date: 2012/02/10 14:51:58 $
+ *  $Revision: 1.15 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -83,12 +83,20 @@ void TauValidation::beginJob()
     TauSpinEffectsZ   = dbe->book1D("TauSpinEffectsZ","Mass of pi+ pi-", 22 ,0,1.1);
         TauSpinEffectsZ->setAxisTitle("M_{#pi^{+}#pi^{-}}");
 
-    TauPhotonsN        = dbe->book1D("TauPhotonsN","Photons radiating from tau", 2 ,0,2);
-	TauPhotonsN->setBinLabel(1,"Number of taus");
-	TauPhotonsN->setBinLabel(2,"Number of taus radiating photons");
-    TauPhotonsPt       = dbe->book1D("TauPhotonsPt","Photon pt radiating from tau", 2 ,0,2);
-	TauPhotonsPt->setBinLabel(1,"Sum of tau pt");
-	TauPhotonsPt->setBinLabel(2,"Sum of tau pt radiated by photons");
+    TauPhotonsN        = dbe->book1D("TauPhotonsN","Photons radiating from tau in decay", 2 ,0,2);
+    TauPhotonsN->setBinLabel(1,"Number of taus");
+    TauPhotonsN->setBinLabel(2,"Number of taus radiating photons in Decay");
+    TauPhotonsPt       = dbe->book1D("TauPhotonsPt","Photon pt radiating from tau in decay", 2 ,0,2);
+    TauPhotonsPt->setBinLabel(1,"Sum of tau pt");
+    TauPhotonsPt->setBinLabel(2,"Sum of tau pt radiated by photons");
+
+    
+    TauPhotonsBeforeDecay        = dbe->book1D("TauPhotonsBeforeDecay","Photons radiating from tau", 2 ,0,2);
+    TauPhotonsBeforeDecay->setBinLabel(1,"Number of taus");
+    TauPhotonsBeforeDecay->setBinLabel(2,"Number of taus radiating photons (Before Decay)");
+    TauPhotonsBeforeDecayPt       = dbe->book1D("TauPhotonsBeforeDecayPt","Photon pt radiating from tau (Before Decay)", 2 ,0,2);
+    TauPhotonsBeforeDecayPt->setBinLabel(1,"Sum of tau pt");
+    TauPhotonsBeforeDecayPt->setBinLabel(2,"Sum of tau pt radiated by photons");
 
 
     JAKID =dbe->book1D("JAKID","JAK ID",NJAKID+1,-0.5,NJAKID+0.5);
@@ -139,72 +147,75 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
   // find taus
   for(HepMC::GenEvent::particle_const_iterator iter = myGenEvent->particles_begin(); iter != myGenEvent->particles_end(); ++iter) {
     if(abs((*iter)->pdg_id())==15){
-      if(tauMother(*iter,weight)!=-1){ // exclude B, D and other non-signal decay modes
-	TauPt->Fill((*iter)->momentum().perp(),weight);
-	TauEta->Fill((*iter)->momentum().eta(),weight);
-	TauPhi->Fill((*iter)->momentum().phi(),weight);
-	int mother  = tauMother(*iter,weight);
-	int decaychannel = tauDecayChannel(*iter,weight);
-	tauProngs(*iter, weight);
-	rtau(*iter,mother,decaychannel,weight);
-	spinEffects(*iter,mother,decaychannel,weight);
-	photons(*iter,weight);
+      if(!isLastTauinChain(*iter)) photons(*iter,weight,false);
+      if(isLastTauinChain(*iter)){
+	if(tauMother(*iter,weight)!=-1){ // exclude B, D and other non-signal decay modes
+	  TauPt->Fill((*iter)->momentum().perp(),weight);
+	  TauEta->Fill((*iter)->momentum().eta(),weight);
+	  TauPhi->Fill((*iter)->momentum().phi(),weight);
+	  int mother  = tauMother(*iter,weight);
+	  int decaychannel = tauDecayChannel(*iter,weight);
+	  tauProngs(*iter, weight);
+	  rtau(*iter,mother,decaychannel,weight);
+	  spinEffects(*iter,mother,decaychannel,weight);
+	  photons(*iter,weight,true);
+	}
+	if(abs((*iter)->pdg_id())==23){
+	  spinEffectsZ(*iter,weight);
       }
-      if(abs((*iter)->pdg_id())==23){
-	spinEffectsZ(*iter,weight);
-      }
-      ///////////////////////////////////////////////
-      //Adding JAKID and Mass information
-      //
-      TauDecay_CMSSW TD;
-      unsigned int jak_id, TauBitMask;
-      TD.AnalyzeTau((*iter),jak_id,TauBitMask,false,false);
-      JAKID->Fill(jak_id,weight);
-      if(jak_id<=NJAKID){
-	int tcharge=(*iter)->pdg_id()/abs((*iter)->pdg_id());
-	std::vector<HepMC::GenParticle*> part=TD.Get_TauDecayProducts();
-	TLorentzVector LVQ(0,0,0,0);
-	TLorentzVector LVS12(0,0,0,0);
-	TLorentzVector LVS13(0,0,0,0);
-	TLorentzVector LVS23(0,0,0,0);
-	bool haspart1=false;
-	for(unsigned int i=0;i<part.size();i++){
-	  if(TD.isTauFinalStateParticle(part.at(i)->pdg_id()) &&
-	     abs(part.at(i)->pdg_id())!=PdtPdgMini::nu_e &&
+	///////////////////////////////////////////////
+	//Adding JAKID and Mass information
+	//
+	TauDecay_CMSSW TD;
+	unsigned int jak_id, TauBitMask;
+	TD.AnalyzeTau((*iter),jak_id,TauBitMask,false,false);
+	JAKID->Fill(jak_id,weight);
+	if(jak_id<=NJAKID){
+	  int tcharge=(*iter)->pdg_id()/abs((*iter)->pdg_id());
+	  std::vector<HepMC::GenParticle*> part=TD.Get_TauDecayProducts();
+	  TLorentzVector LVQ(0,0,0,0);
+	  TLorentzVector LVS12(0,0,0,0);
+	  TLorentzVector LVS13(0,0,0,0);
+	  TLorentzVector LVS23(0,0,0,0);
+	  bool haspart1=false;
+	  for(unsigned int i=0;i<part.size();i++){
+	    if(TD.isTauFinalStateParticle(part.at(i)->pdg_id()) &&
+	       abs(part.at(i)->pdg_id())!=PdtPdgMini::nu_e &&
 	     abs(part.at(i)->pdg_id())!=PdtPdgMini::nu_mu &&
-	     abs(part.at(i)->pdg_id())!=PdtPdgMini::nu_tau ){
-	    TLorentzVector LV(part.at(i)->momentum().px(),part.at(i)->momentum().py(),part.at(i)->momentum().pz(),part.at(i)->momentum().e());
-	    LVQ+=LV;
-	    if(jak_id==TauDecay::JAK_A1_3PI ||
-	       jak_id==TauDecay::JAK_KPIK ||
-	       jak_id==TauDecay::JAK_KPIPI
-	       ){
-	      if((tcharge==part.at(i)->pdg_id()/abs(part.at(i)->pdg_id()) && TD.nProng(TauBitMask)==3) || (jak_id==TauDecay::JAK_A1_3PI && TD.nProng(TauBitMask)==1 && abs(part.at(i)->pdg_id())==PdtPdgMini::pi_plus) ){
-		LVS13+=LV;
-		LVS23+=LV;
-	      }
-	      else{
-		LVS12+=LV;
-		if(!haspart1 && ((jak_id==TauDecay::JAK_A1_3PI)  || (jak_id!=TauDecay::JAK_A1_3PI && abs(part.at(i)->pdg_id())==PdtPdgMini::K_plus) )){
+	       abs(part.at(i)->pdg_id())!=PdtPdgMini::nu_tau ){
+	      TLorentzVector LV(part.at(i)->momentum().px(),part.at(i)->momentum().py(),part.at(i)->momentum().pz(),part.at(i)->momentum().e());
+	      LVQ+=LV;
+	      if(jak_id==TauDecay::JAK_A1_3PI ||
+		 jak_id==TauDecay::JAK_KPIK ||
+		 jak_id==TauDecay::JAK_KPIPI
+		 ){
+		if((tcharge==part.at(i)->pdg_id()/abs(part.at(i)->pdg_id()) && TD.nProng(TauBitMask)==3) || (jak_id==TauDecay::JAK_A1_3PI && TD.nProng(TauBitMask)==1 && abs(part.at(i)->pdg_id())==PdtPdgMini::pi_plus) ){
 		  LVS13+=LV;
-		  haspart1=true;
+		  LVS23+=LV;
 		}
 		else{
-		  LVS23+=LV;
+		  LVS12+=LV;
+		  if(!haspart1 && ((jak_id==TauDecay::JAK_A1_3PI)  || (jak_id!=TauDecay::JAK_A1_3PI && abs(part.at(i)->pdg_id())==PdtPdgMini::K_plus) )){
+		    LVS13+=LV;
+		    haspart1=true;
+		  }
+		  else{
+		    LVS23+=LV;
+		  }
 		}
 	      }
 	    }
 	  }
-	}
-	part.clear();
-	JAKInvMass.at(jak_id).at(0)->Fill(LVQ.M(),weight);
-	if(jak_id==TauDecay::JAK_A1_3PI ||
-	   jak_id==TauDecay::JAK_KPIK ||
-	   jak_id==TauDecay::JAK_KPIPI
-	   ){
-	  JAKInvMass.at(jak_id).at(1)->Fill(LVS13.M(),weight);
-	  JAKInvMass.at(jak_id).at(2)->Fill(LVS23.M(),weight);
-	  JAKInvMass.at(jak_id).at(3)->Fill(LVS12.M(),weight);
+	  part.clear();
+	  JAKInvMass.at(jak_id).at(0)->Fill(LVQ.M(),weight);
+	  if(jak_id==TauDecay::JAK_A1_3PI ||
+	     jak_id==TauDecay::JAK_KPIK ||
+	     jak_id==TauDecay::JAK_KPIPI
+	     ){
+	    JAKInvMass.at(jak_id).at(1)->Fill(LVS13.M(),weight);
+	    JAKInvMass.at(jak_id).at(2)->Fill(LVS23.M(),weight);
+	    JAKInvMass.at(jak_id).at(3)->Fill(LVS12.M(),weight);
+	  }
 	}
       }
     }
@@ -213,19 +224,29 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
 }//analyze
 
 int TauValidation::findMother(const HepMC::GenParticle* tau){
-        int mother_pid = 0;
-
-        if ( tau->production_vertex() ) {
-                HepMC::GenVertex::particle_iterator mother;
-                for (mother = tau->production_vertex()->particles_begin(HepMC::parents);
-                     mother!= tau->production_vertex()->particles_end(HepMC::parents); ++mother ) {
-                        mother_pid = (*mother)->pdg_id();
-			if(mother_pid == tau->pdg_id()) mother_pid = -1;//findMother(*mother);
-                        //std::cout << " parent " << mother_pid << std::endl;
-                }
-        }
-	return mother_pid;
+  int mother_pid = 0;
+  
+  if ( tau->production_vertex() ) {
+    HepMC::GenVertex::particle_iterator mother;
+    for (mother = tau->production_vertex()->particles_begin(HepMC::parents); mother!= tau->production_vertex()->particles_end(HepMC::parents); ++mother ) {
+      mother_pid = (*mother)->pdg_id();
+      if(mother_pid == tau->pdg_id()) return findMother(*mother); //mother_pid = -1; Make recursive to look for last tau in chain
+    }
+  }
+  return mother_pid;
 }
+
+bool TauValidation::isLastTauinChain(const HepMC::GenParticle* tau){
+  if ( tau->end_vertex() ) {
+    HepMC::GenVertex::particle_iterator dau;
+    for (dau = tau->end_vertex()->particles_begin(HepMC::children); dau!= tau->end_vertex()->particles_end(HepMC::children); dau++ ) {
+      int dau_pid = (*dau)->pdg_id();
+      if(dau_pid == tau->pdg_id()) return false;
+    }
+  }
+  return true;
+}
+
 
 int TauValidation::tauMother(const HepMC::GenParticle* tau, double weight){
 
@@ -482,7 +503,7 @@ double TauValidation::visibleTauEnergy(const HepMC::GenParticle* tau){
 	return p4.E();
 }
 
-void TauValidation::photons(const HepMC::GenParticle* tau, double weight){
+void TauValidation::photons(const HepMC::GenParticle* tau, double weight, bool decayonly){
 
         if ( tau->end_vertex() ) {
 	      double photonFromTauPtSum = 0;
@@ -497,13 +518,17 @@ void TauValidation::photons(const HepMC::GenParticle* tau, double weight){
 			} 
               }
 	      
-	      TauPhotonsN->Fill(0.5,weight);
+	      if(decayonly){TauPhotonsN->Fill(0.5,weight);}
+	      else{TauPhotonsBeforeDecay->Fill(0.5,weight);}
               //doesn't seems like it makes sense to use a weight below  
-	      TauPhotonsPt->Fill(0.5,tau->momentum().perp());
+	      if(decayonly){TauPhotonsPt->Fill(0.5,tau->momentum().perp());}
+	      else{TauPhotonsBeforeDecayPt->Fill(0.5,tau->momentum().perp());}
 	      if(photonFromTau) {
-		TauPhotonsN->Fill(1.5,weight);
+		if(decayonly){TauPhotonsN->Fill(1.5,weight);}
+		else{TauPhotonsBeforeDecay->Fill(1.5,weight);}
                 //doesn't seems like it makes sense to use a weight below  
-		TauPhotonsPt->Fill(1.5,photonFromTauPtSum);
+		if(decayonly){TauPhotonsPt->Fill(1.5,tau->momentum().perp());}
+		else{TauPhotonsBeforeDecayPt->Fill(1.5,tau->momentum().perp());}
 	      }
         }
 }
