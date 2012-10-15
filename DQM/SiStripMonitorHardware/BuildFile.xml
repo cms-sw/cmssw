@@ -14,6 +14,7 @@
 <use   name="EventFilter/SiStripRawToDigi"/>
 <use   name="DQM/SiStripCommon"/>
 <use   name="boost"/>
-<export>
-  <lib   name="1"/>
-</export>
+<use   name="CondFormats/DataRecord"/>
+<use   name="DPGAnalysis/SiStripTools"/>
+<use   name="CommonTools/TrackerMap"/>
+<flags EDM_PLUGIN="1"/>

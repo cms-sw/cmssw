@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDDataCheck.cc,v 1.17 2010/04/21 10:40:17 amagnan Exp $
+// $Id: SiStripFEDDataCheck.cc,v 1.18 2010/09/30 15:37:19 amagnan Exp $
 //
 //
 #include <memory>
