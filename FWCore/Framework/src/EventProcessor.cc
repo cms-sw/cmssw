@@ -1638,7 +1638,6 @@ namespace edm {
 
     StateSentry toerror(this);
 
-    int numberOfEventsToProcess = -1;
     StatusCode returnCode=epSuccess;
     std::auto_ptr<statemachine::Machine> machine;
     {
@@ -1662,8 +1661,6 @@ namespace edm {
         try {
           
           InputSource::ItemType itemType;
-          
-          int iEvents = 0;
           
           while(true) {
             
@@ -1720,13 +1717,6 @@ namespace edm {
             }
             else if(itemType == InputSource::IsEvent) {
               machine->process_event(statemachine::Event());
-              ++iEvents;
-              if(numberOfEventsToProcess > 0 && iEvents >= numberOfEventsToProcess) {
-                returnCode = epCountComplete;
-                changeState(mInputExhausted);
-                FDEBUG(1) << "Event count complete, pausing event loop\n";
-                break;
-              }
             }
             // This should be impossible
             else {
@@ -2008,7 +1998,7 @@ namespace edm {
     }
   }
 
-  void EventProcessor::beginLumi(ProcessHistoryID const& phid, int run, int lumi) {
+  void EventProcessor::beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) {
     LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(phid, run, lumi);
     input_->doBeginLumi(lumiPrincipal);
 
@@ -2037,7 +2027,7 @@ namespace edm {
     }
   }
 
-  void EventProcessor::endLumi(ProcessHistoryID const& phid, int run, int lumi, bool cleaningUpAfterException) {
+  void EventProcessor::endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException) {
     LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(phid, run, lumi);
     input_->doEndLumi(lumiPrincipal, cleaningUpAfterException);
     //NOTE: Using the max event number for the end of a lumi block is a bad idea
@@ -2084,13 +2074,13 @@ namespace edm {
     FDEBUG(1) << "\tdeleteRunFromCache " << run.runNumber() << "\n";
   }
 
-  void EventProcessor::writeLumi(ProcessHistoryID const& phid, int run, int lumi) {
+  void EventProcessor::writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) {
     schedule_->writeLumi(principalCache_.lumiPrincipal(phid, run, lumi));
     if(hasSubProcess()) subProcess_->writeLumi(phid, run, lumi);
     FDEBUG(1) << "\twriteLumi " << run << "/" << lumi << "\n";
   }
 
-  void EventProcessor::deleteLumiFromCache(ProcessHistoryID const& phid, int run, int lumi) {
+  void EventProcessor::deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) {
     principalCache_.deleteLumi(phid, run, lumi);
     if(hasSubProcess()) subProcess_->deleteLumiFromCache(phid, run, lumi);
     FDEBUG(1) << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
