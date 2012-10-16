@@ -655,7 +655,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
         r->setConstant(false); r->setMin(0); 
         if (workingMode_ == MakeSignificance || workingMode_ == MakeSignificanceTestStatistics) {
             r->setVal(0);
-            r->removeMax(); 
+            // r->removeMax(); // NO, this is done within the test statistics, and knowing the scale of the variable is useful
         }
       } else {
         r->setConstant(true);
@@ -688,11 +688,14 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     }
   }
 
-  std::auto_ptr<RooFitResult> fitMu, fitZero;
+  utils::CheapValueSnapshot fitMu, fitZero;
+  std::auto_ptr<RooArgSet> paramsToFit;
   if (fitNuisances_ && mc_s->GetNuisanceParameters() && withSystematics) {
     TStopwatch timer;
     bool isExt = mc_s->GetPdf()->canBeExtended();
     utils::setAllConstant(poi, true);
+    paramsToFit.reset(mc_s->GetPdf()->getParameters(data));
+    RooStats::RemoveConstantParameters(&*paramsToFit);
     /// Background-only fit. In 1D case, can use model_s with POI set to zero, but in nD must use model_b.
     RooAbsPdf *pdfB = mc_b->GetPdf();
     if (poi.getSize() == 1) {
@@ -701,17 +704,19 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     timer.Start();
     {
         CloseCoutSentry sentry(verbose < 3);
-        fitZero.reset(pdfB->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+        pdfB->fitTo(data, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters()));
+        fitZero.readFrom(*paramsToFit);
     }
-    if (verbose > 1) { std::cout << "Zero signal fit" << std::endl; fitZero->Print("V"); }
+    if (verbose > 1) { std::cout << "Zero signal fit" << std::endl; fitZero.Print("V"); }
     if (verbose > 1) { std::cout << "Fitting of the background hypothesis done in " << timer.RealTime() << " s" << std::endl; }
     poi.assignValueOnly(rVals);
     timer.Start();
     {
        CloseCoutSentry sentry(verbose < 3);
-       fitMu.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+       mc_s->GetPdf()->fitTo(data, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters()));
+       fitMu.readFrom(*paramsToFit);
     }
-    if (verbose > 1) { std::cout << "Reference signal fit" << std::endl; fitMu->Print("V"); }
+    if (verbose > 1) { std::cout << "Reference signal fit" << std::endl; fitMu.Print("V"); }
     if (verbose > 1) { std::cout << "Fitting of the signal-plus-background hypothesis done in " << timer.RealTime() << " s" << std::endl; }
   } else { fitNuisances_ = false; }
 
@@ -757,8 +762,8 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
         ((RooRealVar&)paramsZero[rVals.first()->GetName()]).setConstant(true);
     }
   }
-  if (fitNuisances_) params.add(fitMu->floatParsFinal());
-  if (fitNuisances_) paramsZero.addClone(fitZero->floatParsFinal());
+  if (fitNuisances_ && paramsToFit.get()) { params.add(*paramsToFit); fitMu.writeTo(params); }
+  if (fitNuisances_ && paramsToFit.get()) { paramsZero.addClone(*paramsToFit); fitZero.writeTo(paramsZero); }
   setup.modelConfig.SetSnapshot(params);
   setup.modelConfig_bonly.SetSnapshot(paramsZero);
   TString paramsSnapName  = TString::Format("%s_%s_snapshot", setup.modelConfig.GetName(), params.GetName());
