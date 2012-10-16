@@ -8,6 +8,9 @@ FamosCalorimetryBlock = cms.PSet(
         HSParameterBlock,
         HCALResponseBlock,
         ECAL = cms.PSet(
+            # See FastSimulation/CaloRecHitsProducer/python/CaloRecHits_cff.py 
+            Digitizer = cms.untracked.bool(False),
+
             # If set to true the simulation in ECAL would be done 1X0 by 1X0
             # this is slow but more adapted to detailed studies.
             # Otherwise roughty 5 steps are used.
