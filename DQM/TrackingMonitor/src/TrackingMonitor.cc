@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/08/05 12:52:42 $
- *  $Revision: 1.39 $
+ *  $Date: 2012/10/15 13:24:46 $
+ *  $Revision: 1.14 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -897,4 +897,3 @@ void TrackingMonitor::setNclus(const edm::Event& iEvent,std::vector<int> &arrayN
   }
     
 }
-DEFINE_FWK_MODULE(TrackingMonitor);

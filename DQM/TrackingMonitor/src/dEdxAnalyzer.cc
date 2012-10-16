@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/10/09 11:01:44 $
- *  $Revision: 1.2 $
+ *  $Date: 2012/10/15 13:24:46 $
+ *  $Revision: 1.1 $
  *  \author Loic Quertenmont 
  */
 #include "DQM/TrackingMonitor/interface/dEdxAnalyzer.h"
@@ -207,6 +207,3 @@ dEdxAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(dEdxAnalyzer);

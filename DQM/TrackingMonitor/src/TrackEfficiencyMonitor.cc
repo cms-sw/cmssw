@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/08/06 20:24:23 $
- *  $Revision: 1.10 $
+ *  $Date: 2012/10/15 13:24:46 $
+ *  $Revision: 1.1 $
  *  \author Jeremy Andrea
  */
 
@@ -741,6 +741,3 @@ std::pair<TrajectoryStateOnSurface,  const DetLayer*>  TrackEfficiencyMonitor::f
   delete theTmpPropagator;
   return blabla;
 }
-
-
-DEFINE_FWK_MODULE(TrackEfficiencyMonitor);

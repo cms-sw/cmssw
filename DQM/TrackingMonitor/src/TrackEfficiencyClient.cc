@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/05 17:07:51 $
- *  $Revision: 1.3 $
+ *  $Date: 2012/10/15 13:24:46 $
+ *  $Revision: 1.1 $
  *  \author Anne-Catherine Le Bihan
  */
 
@@ -225,6 +225,3 @@ void TrackEfficiencyClient::endLuminosityBlock(edm::LuminosityBlock const& lumiS
  }
  
 }
-
-
-DEFINE_FWK_MODULE(TrackEfficiencyClient);
