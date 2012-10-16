@@ -4,9 +4,12 @@
    <field name="err_y" transient="true"/>
    <version ClassVersion="10" checksum="2468063768"/>
    <version ClassVersion="11" checksum="1473312403"/>
-   <version ClassVersion="12" checksum="1532844807"/>
+   <version ClassVersion="12" checksum="2042538185"/>
    <ioread sourceClass="SiPixelCluster" version="[1-10]" targetClass="SiPixelCluster" source="uint16_t theMinPixelCol" target="thePixelCol">
    <![CDATA[thePixelCol = onfile.theMinPixelCol;]]>
+   </ioread>  
+   <ioread sourceClass="SiPixelCluster" version="[1-10]" targetClass="SiPixelCluster" source="uint16_t theMinPixelRow" target="thePixelRow">
+   <![CDATA[thePixelRow = onfile.theMinPixelRow;]]>
    </ioread>  
   </class>
   <class name="SiPixelCluster::Pixel" ClassVersion="11">

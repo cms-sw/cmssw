@@ -16,8 +16,7 @@
 
 
 SiPixelCluster::SiPixelCluster( const SiPixelCluster::PixelPos& pix, int adc) :
-  theMinPixelRow( pix.row()),
-  theRowSpan(0),
+  thePixelRow(pix.row()),
   thePixelCol(pix.col()),
     // ggiurgiu@fnal.gov, 01/05/12
   // Initialize the split cluster errors to un-physical values.
@@ -43,7 +42,7 @@ void SiPixelCluster::add( const SiPixelCluster::PixelPos& pix, int adc) {
   int minCol = ominCol;
   
   if (pix.row() < minRow) {
-    theMinPixelRow = minRow = pix.row();
+    minRow = pix.row();
     recalculate = true;
   }
   if (pix.col() < minCol) {
@@ -58,22 +57,22 @@ void SiPixelCluster::add( const SiPixelCluster::PixelPos& pix, int adc) {
     for (int i=0; i<isize; ++i) {
       int xoffset = thePixelOffset[i*2]  + ominRow - minRow;
       int yoffset = thePixelOffset[i*2+1]  + ominCol -minCol;
-      thePixelOffset[i*2] = std::min(127,xoffset);
-      thePixelOffset[i*2+1] = std::min(127,yoffset);
-      if (yoffset > maxCol) maxCol = yoffset; 
+      thePixelOffset[i*2] = std::min(63,xoffset);
+      thePixelOffset[i*2+1] = std::min(63,yoffset);
       if (xoffset > maxRow) maxRow = xoffset; 
+      if (yoffset > maxCol) maxCol = yoffset; 
     }
+    packRow(minRow,maxRow);
     packCol(minCol,maxCol);
-    theRowSpan = std::min(127,maxRow);
   }
   
   if ( (!overflowRow()) && pix.row() > maxPixelRow()) 
-    theRowSpan = std::min(127,pix.row()-minRow);
+    packRow(minRow,pix.row()-minRow);
   
   if ( (!overflowCol()) && pix.col() > maxPixelCol())
     packCol(minCol,pix.col()-minCol);
   
   thePixelADC.push_back( adc );
-  thePixelOffset.push_back( std::min(127,pix.row() - minRow) );
-  thePixelOffset.push_back( std::min(127,pix.col() - minCol) );
+  thePixelOffset.push_back( std::min(63,pix.row() - minRow) );
+  thePixelOffset.push_back( std::min(63,pix.col() - minCol) );
 }

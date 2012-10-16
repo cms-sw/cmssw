@@ -25,7 +25,7 @@
 class PixelDigi;
 
 class SiPixelCluster {
- public:
+public:
   
   class Pixel {
   public:
@@ -67,14 +67,40 @@ class SiPixelCluster {
   typedef std::vector<PixelDigi>::const_iterator   PixelDigiIter;
   typedef std::pair<PixelDigiIter,PixelDigiIter>   PixelDigiRange;
   
+  
+  static const unsigned int POSBITS=10;
+  static const unsigned int SPANBITS=6;
+  static const unsigned short MAXSPAN=63;
+  static const unsigned short MAXPOS=1023;
+  
+  
   /** Construct from a range of digis that form a cluster and from 
    *  a DetID. The range is assumed to be non-empty.
    */
   
-  SiPixelCluster() : theMinPixelRow(255), theRowSpan(0), thePixelCol(511), err_x(-99999.9), err_y(-99999.9) {}  // needed by many....
-    
-  SiPixelCluster( const PixelPos& pix, int adc);
+  SiPixelCluster() : thePixelRow(MAXPOS), thePixelCol(MAXPOS), err_x(-99999.9), err_y(-99999.9) {}  // needed by many....
   
+  SiPixelCluster(unsigned int isize, uint16_t const * adcs,
+		 unsigned short const * xpos,  unsigned short const * ypos, 
+		 unsigned short const  xmin,  unsigned short const  ymin) :   
+    thePixelOffset(2*isize), thePixelADC(adcs,adcs+isize), err_x(-99999.9), err_y(-99999.9) {
+    unsigned short maxCol = 0;
+    unsigned short maxRow = 0;
+    for (unsigned int i=0; i!=isize; ++i) {
+      unsigned short xoffset = xpos[i]-xmin;
+      unsigned short yoffset = ypos[i]-ymin;
+      thePixelOffset[i*2] = std::min(MAXSPAN,xoffset);
+      thePixelOffset[i*2+1] = std::min(MAXSPAN,yoffset);
+      if (xoffset > maxRow) maxRow = xoffset; 
+      if (yoffset > maxCol) maxCol = yoffset; 
+    }
+    packRow(xmin,maxRow);
+    packCol(ymin,maxCol);
+  }
+  
+  
+  // obsolete (only for regression tests)
+  SiPixelCluster( const PixelPos& pix, int adc);
   void add( const PixelPos& pix, int adc);
   
   // Analog linear average position (barycenter) 
@@ -82,14 +108,15 @@ class SiPixelCluster {
     float qm = 0.0;
     int isize = thePixelADC.size();
     for (int i=0; i<isize; ++i)
-      qm += float(thePixelADC[i]) * (thePixelOffset[i*2] + minPixelRow() + 0.5);
+      qm += float(thePixelADC[i]) * (thePixelOffset[i*2] + minPixelRow() + 0.5f);
     return qm/charge();
   }
+  
   float y() const {
     float qm = 0.0;
     int isize = thePixelADC.size();
     for (int i=0; i<isize; ++i)
-      qm += float(thePixelADC[i]) * (thePixelOffset[i*2+1]  + minPixelCol() + 0.5);
+      qm += float(thePixelADC[i]) * (thePixelOffset[i*2+1]  + minPixelCol() + 0.5f);
     return qm/charge();
   }
   
@@ -110,16 +137,16 @@ class SiPixelCluster {
       qm += float(thePixelADC[i]);
     return qm;
   } // Return total cluster charge.
-
-  inline int minPixelRow() const { return theMinPixelRow;} // The min x index.
+  
+  inline int minPixelRow() const { return thePixelRow&MAXPOS;} // The min x index.
   inline int maxPixelRow() const { verifyVersion(); return minPixelRow() + rowSpan();} // The max x index.
-  inline int minPixelCol() const { return thePixelCol;} // The min y index.
+  inline int minPixelCol() const { return thePixelCol&MAXPOS;} // The min y index.
   inline int maxPixelCol() const { verifyVersion(); return minPixelCol() + colSpan();} // The max y index.
-
+  
   
   const std::vector<uint8_t> & pixelOffset() const { return thePixelOffset;}
   const std::vector<uint16_t> & pixelADC() const { return thePixelADC;}
-
+  
   // obsolete, use single pixel access below
   const std::vector<Pixel> pixels() const {
     std::vector<Pixel> oldPixVector;
@@ -130,7 +157,7 @@ class SiPixelCluster {
     }
     return oldPixVector;
   }
-
+  
   // infinite faster than above...
   Pixel pixel(int i) const {
     return Pixel(minPixelRow() + thePixelOffset[i*2],
@@ -138,31 +165,43 @@ class SiPixelCluster {
 		 thePixelADC[i]
 		 );
   }
-
-  int colSpan() const {return (thePixelCol >>9); }
-
-  int rowSpan() const { return theRowSpan; }
-
-
-  bool overflowCol() const { return (thePixelCol >>9) == 127; }
-
-  bool overflowRow() const { return theRowSpan == 127; }
-
-  bool overflow() const { return  overflowCol() || overflowRow(); }
-
-  void packCol(unsigned int ymin, unsigned int yspan) {
-    yspan = std::min(yspan,(unsigned int)(127));
-    thePixelCol = (yspan<<9) | ymin;
+  
+private:
+  
+  static int span_(uint16_t packed) { return packed >> POSBITS;}
+  static int overflow_(uint16_t packed) { return span_(packed)==MAXSPAN;}
+  static uint16_t pack_(unsigned short zmin, unsigned  short zspan) {
+    zspan = std::min(zspan, MAXSPAN);
+    return (zspan<<POSBITS) | zmin;
   }
-
- 
-
+public:
+  
+  int colSpan() const {return span_(thePixelCol); }
+  
+  int rowSpan() const { return span_(thePixelRow); }
+  
+  
+  bool overflowCol() const { return overflow_(thePixelCol); }
+  
+  bool overflowRow() const { return overflow_(thePixelRow); }
+  
+  bool overflow() const { return  overflowCol() || overflowRow(); }
+  
+  void packCol(unsigned short ymin, unsigned short yspan) {
+    thePixelCol = pack_(ymin,yspan);
+  }
+  void packRow(unsigned short xmin, unsigned short xspan) {
+    thePixelRow = pack_(xmin,xspan);
+  }
+  
+  
+  
   /// mostly to be compatible for <610 
   void verifyVersion() const {
-    if unlikely( theRowSpan==0 && thePixelCol<511)
-      const_cast<SiPixelCluster*>(this)->computeMax();
+    if unlikely( thePixelRow<MAXPOS && thePixelCol<MAXPOS)
+		 const_cast<SiPixelCluster*>(this)->computeMax();
   }
-
+  
   /// moslty to be compatible for <610 
   void computeMax()  {
     int maxRow = 0;
@@ -175,9 +214,10 @@ class SiPixelCluster {
       if (ysize > maxCol) maxCol = ysize;
     }
     // assume minimum is correct
-    theRowSpan=maxRow;
     int minCol= minPixelCol();
     packCol(minCol,maxCol);
+    int minRow= minPixelRow();
+    packRow(minRow,maxRow);
   }
   
   // ggiurgiu@fnal.gov, 01/05/12 
@@ -187,18 +227,17 @@ class SiPixelCluster {
   float getSplitClusterErrorX() const { return err_x; }
   float getSplitClusterErrorY() const { return err_y; }
   
-
- private:
+  
+private:
   
   std::vector<uint8_t>  thePixelOffset;
   std::vector<uint16_t> thePixelADC;
   
-
-  uint16_t  theMinPixelRow; // Minimum pixel index in the x direction (low edge).
-  uint8_t  theRowSpan; // Maximum pixel index in the x direction (low edge).
+  
+  uint16_t thePixelRow; // Minimum and span pixel index in the x direction (low edge).
   uint16_t thePixelCol; // Minimum and span pixel index in the y direction (left edge).
-  // Need 9 bits for Col information the other 7 used for span
-
+  // Need 10 bits for Postion information. the other 6 used for span
+  
   // ggiurgiu@fnal.gov, 01/05/12
   // Add cluster errors to be used by rechits from split clusters. 
   // A rechit from a split cluster has larger errors than rechits from normal clusters. 
