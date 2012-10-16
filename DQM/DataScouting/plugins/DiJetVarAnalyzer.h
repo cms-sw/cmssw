@@ -43,7 +43,9 @@ class DiJetVarAnalyzer : public ScoutingAnalyzerBase
     // trigger conditions
     triggerExpression::Evaluator * HLTpathMain_;
     triggerExpression::Evaluator * HLTpathMonitor_;
-    
+    triggerExpression::Evaluator * L1pathMain_;
+    triggerExpression::Evaluator * L1pathMonitor_;
+   
     // cache some data from the Event for faster access by the trigger conditions
     triggerExpression::Data triggerConfiguration_;
     
@@ -84,6 +86,17 @@ class DiJetVarAnalyzer : public ScoutingAnalyzerBase
     MonitorElement * m_MjjWide_num_detaL2;
     MonitorElement * m_MjjWide_den;
     MonitorElement * m_MjjWide_num;
+
+    MonitorElement * m_MjjWide_denL1_NOdeta;
+    MonitorElement * m_MjjWide_numL1_NOdeta;
+    MonitorElement * m_MjjWide_denL1_detaL4;
+    MonitorElement * m_MjjWide_numL1_detaL4;
+    MonitorElement * m_MjjWide_denL1_detaL3;
+    MonitorElement * m_MjjWide_numL1_detaL3;
+    MonitorElement * m_MjjWide_denL1_detaL2;
+    MonitorElement * m_MjjWide_numL1_detaL2;
+    MonitorElement * m_MjjWide_denL1;
+    MonitorElement * m_MjjWide_numL1;
 
     MonitorElement * m_metCases;
     MonitorElement * m_metDiff;

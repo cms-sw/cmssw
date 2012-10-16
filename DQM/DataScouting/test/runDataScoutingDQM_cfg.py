@@ -17,11 +17,14 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(#'/store/data/Run2012B/DataScouting/RAW/v1/000/194/535/16D13DD4-CBA2-E111-AE6F-001D09F24353.root',
-                                      '/store/data/Run2012B/DataScouting/RAW/v1/000/194/533/FADCCE72-C5A2-E111-825D-003048D2BBF0.root',
-                                      '/store/data/Run2012B/DataScouting/RAW/v1/000/194/533/EC8BE038-9DA2-E111-AEEC-00215AEDFD98.root',
-                                      '/store/data/Run2012B/DataScouting/RAW/v1/000/194/533/E865F95C-B7A2-E111-9FFF-003048D2BC5C.root',
-                                      '/store/data/Run2012B/DataScouting/RAW/v1/000/194/533/E63A7608-99A2-E111-BAD9-001D09F290BF.root')
+## DataScouting PD                         
+   fileNames = cms.untracked.vstring(#'/store/data/Run2012B/DataScouting/RAW/v1/000/194/535/16D13DD4-CBA2-E111-AE6F-001D09F24353.root',
+                                     #'/store/data/Run2012B/DataScouting/RAW/v1/000/194/983/F6BFCB9C-98A6-E111-A475-003048D2BA82.root',
+                                     '/store/data/Run2012B/DataScouting/RAW/v1/000/194/533/FADCCE72-C5A2-E111-825D-003048D2BBF0.root',
+                                     '/store/data/Run2012B/DataScouting/RAW/v1/000/194/533/EC8BE038-9DA2-E111-AEEC-00215AEDFD98.root',
+                                     '/store/data/Run2012B/DataScouting/RAW/v1/000/194/533/E865F95C-B7A2-E111-9FFF-003048D2BC5C.root',
+                                     '/store/data/Run2012B/DataScouting/RAW/v1/000/194/533/E63A7608-99A2-E111-BAD9-001D09F290BF.root'
+                                     )
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -40,6 +43,11 @@ process.DQMoutput = cms.OutputModule("PoolOutputModule",
 #process.DQMoutput.outputCommands.append('keep *_*_*_*')
 
 process.dqmSaver.workflow = '/DataScouting/DQM/Test'
+#### UNCOMMENT IF YOU WANT A SINGLE OUTPUT FILE (SHOULD NOT BE USED FOR OFFICIAL DQM WORKFLOWS)
+#process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
+#process.dqmSaver.saveByRun = cms.untracked.int32(-1)
+#process.dqmSaver.forceRunNumber = cms.untracked.int32(999999)
+####
 process.dqmsave_step = cms.Path(process.dqmSaver)
 
 process.load('DQM.DataScouting.dataScouting_cff')
