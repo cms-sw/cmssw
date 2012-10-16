@@ -36,10 +36,14 @@ from RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi import *
 from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
 from FastSimulation.Calorimetry.Calorimetry_cff import *
 if(CaloMode==0):
+    FamosCalorimetryBlock.Calorimetry.ECAL.Digitizer = False
     FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = False
 if(CaloMode==1):
+    FamosCalorimetryBlock.Calorimetry.ECAL.Digitizer = True
     FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = False
 if(CaloMode==2):
+    FamosCalorimetryBlock.Calorimetry.ECAL.Digitizer = False
     FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
 if(CaloMode==3):
+    FamosCalorimetryBlock.Calorimetry.ECAL.Digitizer = True
     FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
