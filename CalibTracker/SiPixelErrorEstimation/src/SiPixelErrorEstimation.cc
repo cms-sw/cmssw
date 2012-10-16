@@ -446,7 +446,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  strip_simproc     = -9999999  ;
 
 
-	  int strip_subdet_id = -9999999;
+	  strip_subdet_id = -9999999;
  
 	  strip_tib_layer             = -9999999;
 	  strip_tib_module            = -9999999;
