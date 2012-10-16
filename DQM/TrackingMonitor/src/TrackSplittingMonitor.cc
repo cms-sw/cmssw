@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/10/15 13:24:46 $
- *  $Revision: 1.1 $
+ *  $Date: 2012/10/16 08:42:39 $
+ *  $Revision: 1.2 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -362,3 +362,5 @@ void TrackSplittingMonitor::endJob(void) {
     dqmStore_->save(outputFileName);
   }
 }
+
+DEFINE_FWK_MODULE(TrackSplittingMonitor);

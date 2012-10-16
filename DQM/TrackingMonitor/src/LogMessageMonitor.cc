@@ -26,7 +26,7 @@
 //
 // Original Author:  Mia Tosi,40 3-B32,+41227671609,
 //         Created:  Thu Mar  8 14:34:13 CET 2012
-// $Id: LogMessageMonitor.cc,v 1.1 2012/10/15 13:24:46 threus Exp $
+// $Id: LogMessageMonitor.cc,v 1.2 2012/10/16 08:42:58 threus Exp $
 //
 //
 
@@ -267,3 +267,5 @@ LogMessageMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
+
+DEFINE_FWK_MODULE(LogMessageMonitor);
