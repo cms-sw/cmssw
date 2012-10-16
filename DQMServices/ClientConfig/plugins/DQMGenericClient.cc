@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2012/02/12 16:19:29 $
- *  $Revision: 1.32 $
+ *  $Date: 2012/04/02 11:41:17 $
+ *  $Revision: 1.33 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -850,6 +850,7 @@ void DQMGenericClient::generic_eff (TH1* denom, TH1* numer, MonitorElement* effi
         
         efficiencyHist->setBinContent(globalBinNum, effVal);
         efficiencyHist->setBinError(globalBinNum, errVal);
+        efficiencyHist->setEfficiencyFlag();
       }
     }
   }
