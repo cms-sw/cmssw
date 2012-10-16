@@ -11,7 +11,7 @@
 		<PARAM name="xmin">0.0</PARAM>
 		<PARAM name="xmax">1.0</PARAM>
 		<PARAM name="warning">1.0</PARAM>
-		<PARAM name="error">1.0</PARAM>
+		<PARAM name="error">0.9999</PARAM>
 	</QTEST>
 
 
