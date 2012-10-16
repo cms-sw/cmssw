@@ -7,6 +7,19 @@ import sys
 import LaunchOnCondor
 import glob
 
+
+def skipSamples(type, name):
+   if(type==3):
+      if(name.find("Gluino")==-1 and name.find("Stop")==-1):return True;
+   elif(type==4):
+      if(name.find("DY")==-1 or (name.find("Q1")==-1 and name.find("Q2")==-1  and name.find("Q3")==-1 and name.find("Q4")==-1 and name.find("Q5")==-1)):return True;
+   elif(type==5):
+      if(name.find("DY")==-1 or (name.find("1o3")==-1 and name.find("2o3")==-1)):return True;
+   
+   return False
+   
+
+
 #the vector below contains the "TypeMode" of the analyses that should be run
 AnalysesToRun = [0,2,3,4,5]
 
@@ -39,11 +52,12 @@ elif sys.argv[1]=='0':
            vals=line.split(',')
            if((vals[0].replace('"','')) in CMSSW_VERSION):
               for Type in AnalysesToRun:
-                 if  (Type==0):LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 1.5])
-                 elif(Type==2):LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 1.5])
+                 if(skipSamples(Type, vals[2])==True):continue
+                 if  (Type==0):LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
+                 elif(Type==2):LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
                  elif(Type==3):LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 3, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 80, 2.1, 20, 20])
                  elif(Type==4):LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 4, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
-                 elif(Type==5):LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 5, '"dedxProd"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 1.5])
+                 elif(Type==5):LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 5, '"dedxProd"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
         f.close()
 	LaunchOnCondor.SendCluster_Submit()
 
@@ -75,6 +89,7 @@ elif sys.argv[1]=='3':
            vals=line.split(',')
            if(int(vals[1])!=2):continue
            for Type in AnalysesToRun:
+              if(skipSamples(Type, vals[2])==True):continue
               Path = "Results/Type"+str(Type)+"/"
               LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"OPTIMIZE"', '"'+Path+'"', vals[2] ])
         f.close()
@@ -92,6 +107,7 @@ elif sys.argv[1]=='4':
            vals=line.split(',')
            if(int(vals[1])!=2):continue
            for Type in AnalysesToRun:
+              if(skipSamples(Type, vals[2])==True):continue
               Path = "Results/Type"+str(Type)+"/"
               LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"COMBINE"', '"'+Path+'"', vals[2] ]) #compute 2011, 2012 and 2011+2012 in the same job
         f.close()
