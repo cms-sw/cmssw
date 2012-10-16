@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/11/01 19:43:21 $
- *  $Revision: 1.27 $
+ *  $Date: 2012/02/17 12:01:23 $
+ *  $Revision: 1.28 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -122,7 +122,6 @@ void MuonAnalyzer::beginJob(void) {
   if(theMuonKinVsEtaAnalyzerFlag)   theMuonKinVsEtaAnalyzer->beginJob(theDbe);
   if(theDiMuonHistogramsFlag)       theDiMuonHistograms->beginJob(theDbe);
   if(theMuonRecoOneHLTAnalyzerFlag) theMuonRecoOneHLTAnalyzer->beginJob(theDbe);
-  if(theDiMuonHistogramsFlag)       theDiMuonHistograms->beginJob(theDbe);
   if(theEfficiencyAnalyzerFlag)     theEfficiencyAnalyzer->beginJob(theDbe); 
 }
 void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
