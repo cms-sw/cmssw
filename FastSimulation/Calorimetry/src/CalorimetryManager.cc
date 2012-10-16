@@ -1037,7 +1037,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack){//,
 	energy *= correction;               // RESCALING 
 	energy *= hcorr;
 	
-	if(Digitizer_){
+	if(HcalDigitizer_){
 	  HcalDetId hdetid = HcalDetId(mapitr->first);
 	  if (hdetid.subdetId()== HcalBarrel || hdetid.subdetId()== HcalEndcap ) energy /= samplingHBHE_[hdetid.ietaAbs()-1]; //re-convert to GeV
 	  
@@ -1455,7 +1455,8 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
 
   unfoldedMode_ = fastCalo.getUntrackedParameter<bool>("UnfoldedMode",false);
 
-  Digitizer_    = HCALparameters.getUntrackedParameter<bool>("Digitizer",false);
+  EcalDigitizer_    = ECALparameters.getUntrackedParameter<bool>("Digitizer",false);
+  HcalDigitizer_    = HCALparameters.getUntrackedParameter<bool>("Digitizer",false);
   samplingHBHE_ = HCALparameters.getParameter< std::vector<double> >("samplingHBHE");
   samplingHF_   = HCALparameters.getParameter< std::vector<double> >("samplingHF");
   samplingHO_   = HCALparameters.getParameter< std::vector<double> >("samplingHO");
@@ -1573,7 +1574,7 @@ void CalorimetryManager::loadFromEcalBarrel(edm::PCaloHitContainer & c) const
   for(unsigned ic=0;ic<size;++ic){ 
     int hi = firedCellsEB_[ic];
     if(!unfoldedMode_){
-      if(Digitizer_) time = (myCalorimeter_->getEcalGeometry(1)->getGeometry(EBDetId::unhashIndex(hi))->getPosition().mag())/29.98;
+      if(EcalDigitizer_) time = (myCalorimeter_->getEcalGeometry(1)->getGeometry(EBDetId::unhashIndex(hi))->getPosition().mag())/29.98;
       else time = 0.;
       c.push_back(PCaloHit(EBDetId::unhashIndex(hi),EBMapping_[hi][0].second,time,0));
       //	  std::cout << "Adding " << hi << " " << EBDetId::unhashIndex(hi) << " " ;
@@ -1583,7 +1584,7 @@ void CalorimetryManager::loadFromEcalBarrel(edm::PCaloHitContainer & c) const
       unsigned npart=EBMapping_[hi].size();
       for(unsigned ip=0;ip<npart;++ip){
 	// get the time
-	if(Digitizer_) time = (myCalorimeter_->getEcalGeometry(1)->getGeometry(EBDetId::unhashIndex(hi))->getPosition().mag())/29.98;
+	if(EcalDigitizer_) time = (myCalorimeter_->getEcalGeometry(1)->getGeometry(EBDetId::unhashIndex(hi))->getPosition().mag())/29.98;
 	else time = 0.;
 	//	      std::cout << " Barrel " << time  << std::endl;
 	c.push_back(PCaloHit(EBDetId::unhashIndex(hi),EBMapping_[hi][ip].second,time,EBMapping_[hi][ip].first));
@@ -1620,14 +1621,14 @@ void CalorimetryManager::loadFromEcalEndcap(edm::PCaloHitContainer & c) const
   for(unsigned ic=0;ic<size;++ic){
     int hi=firedCellsEE_[ic];
     if(!unfoldedMode_) {
-      if(Digitizer_) time=(myCalorimeter_->getEcalGeometry(2)->getGeometry(EEDetId::unhashIndex(hi))->getPosition().mag())/29.98;
+      if(EcalDigitizer_) time=(myCalorimeter_->getEcalGeometry(2)->getGeometry(EEDetId::unhashIndex(hi))->getPosition().mag())/29.98;
       else time = 0.;
       c.push_back(PCaloHit(EEDetId::unhashIndex(hi),EEMapping_[hi][0].second,time,0));
     }
     else{
       unsigned npart=EEMapping_[hi].size();
       for(unsigned ip=0;ip<npart;++ip) {
-	if(Digitizer_) time=(myCalorimeter_->getEcalGeometry(2)->getGeometry(EEDetId::unhashIndex(hi))->getPosition().mag())/29.98;
+	if(EcalDigitizer_) time=(myCalorimeter_->getEcalGeometry(2)->getGeometry(EEDetId::unhashIndex(hi))->getPosition().mag())/29.98;
 	else time = 0.;	   
 	c.push_back(PCaloHit(EEDetId::unhashIndex(hi),EEMapping_[hi][ip].second,time,EEMapping_[hi][ip].first));
       }
@@ -1646,14 +1647,14 @@ void CalorimetryManager::loadFromHcal(edm::PCaloHitContainer & c) const
   for(unsigned ic=0;ic<size;++ic){
     int hi=firedCellsHCAL_[ic];
     if(!unfoldedMode_){
-      if(Digitizer_) time=(myCalorimeter_->getHcalGeometry()->getGeometry(theDetIds_[hi])->getPosition().mag())/29.98;
+      if(HcalDigitizer_) time=(myCalorimeter_->getHcalGeometry()->getGeometry(theDetIds_[hi])->getPosition().mag())/29.98;
       else time = 0.;
       c.push_back(PCaloHit(theDetIds_[hi],HMapping_[hi][0].second,time,0));
     }
     else{
       unsigned npart=HMapping_[hi].size();
       for(unsigned ip=0;ip<npart;++ip){
-	if(Digitizer_) time=(myCalorimeter_->getHcalGeometry()->getGeometry(theDetIds_[hi])->getPosition().mag())/29.98;
+	if(HcalDigitizer_) time=(myCalorimeter_->getHcalGeometry()->getGeometry(theDetIds_[hi])->getPosition().mag())/29.98;
 	else time = 0.;
 	c.push_back(PCaloHit(theDetIds_[hi],HMapping_[hi][ip].second, time, HMapping_[hi][ip].first));
       }
@@ -1661,19 +1662,7 @@ void CalorimetryManager::loadFromHcal(edm::PCaloHitContainer & c) const
     
     //      sum+=cellit->second;
   }
-  //  std::cout << " SUM : " << sum << std::endl;
-  //  std::cout << " Added " <<c.size() << " hits " <<std::endl;
   
-  // if(Digitizer_){
-  //     edm::PCaloHitContainer::iterator it=c.begin();
-  //     edm::PCaloHitContainer::iterator itend=c.end();
-  //     for(;it!=itend;++it){
-  //       HcalDetId myDetId(it->id());
-  //       if (myDetId.subdetId()== HcalBarrel) it->setTime(7.);
-  //       else if (myDetId.subdetId()== HcalEndcap) it->setTime(15.);
-  //       else if (myDetId.subdetId()== HcalForward)it->setTime(40.);
-  //       //  std::cout << "simhit # " << A <<"  energy = " << it->energy() << " from " << myDetId << ", "<< myDetId.subdetId() << "  time = " << it->time() << std::endl;
-  //     }
 }
 
 

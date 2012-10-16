@@ -124,7 +124,8 @@ class CalorimetryManager{
   bool unfoldedMode_;
  
   //Digitizer
-  bool Digitizer_;
+  bool EcalDigitizer_;
+  bool HcalDigitizer_;
   std::vector<double> samplingHBHE_;
   std::vector<double> samplingHF_;
   std::vector<double> samplingHO_;
