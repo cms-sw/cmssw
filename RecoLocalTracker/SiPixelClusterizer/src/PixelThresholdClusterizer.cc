@@ -276,6 +276,38 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
   return electrons;
 }
 
+
+namespace {
+
+  struct AccretionCluster {
+    typedef unsigned short UShort;
+    static constexpr UShort MAXSIZE = 256;
+    UShort adc[256];
+    UShort x[256];
+    UShort y[256];
+    UShort xmin=16000;
+    UShort ymin=16000;
+    unsigned int isize=0;
+    unsigned int curr=0;
+
+    // stack interface (unsafe ok for use below)
+    UShort top() const { return curr;}
+    void pop() { ++curr;}   
+    bool empty() { return curr==isize;}
+
+    bool add(SiPixelCluster::PixelPos const & p, UShort const iadc) {
+      if (isize==MAXSIZE) return false;
+      xmin=std::min(xmin,(unsigned short)(p.row()));
+      ymin=std::min(ymin,(unsigned short)(p.col()));
+      adc[isize]=iadc;
+      x[isize]=p.row();
+      y[isize++]=p.col();
+      return true;
+    }
+  };
+
+}
+
 //----------------------------------------------------------------------------
 //!  \brief The actual clustering algorithm: group the neighboring pixels around the seed.
 //----------------------------------------------------------------------------
@@ -286,7 +318,6 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix,
   
   //First we acquire the seeds for the clusters
   int seed_adc;
-  stack<SiPixelCluster::PixelPos, vector<SiPixelCluster::PixelPos> > pixel_stack;
   stack<SiPixelCluster::PixelPos, vector<SiPixelCluster::PixelPos> > dead_pixel_stack;
   
   //The individual modules have been loaded into a buffer.
@@ -308,26 +339,25 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix,
       theBuffer.set_adc( pix, 1);
     }
   
-  SiPixelCluster cluster( pix, seed_adc );
+  AccretionCluster acluster;
+  acluster.add(pix, seed_adc);
   
   //Here we search all pixels adjacent to all pixels in the cluster.
-  pixel_stack.push( pix);
   bool dead_flag = false;
-  while ( ! pixel_stack.empty()) 
+  while ( ! acluster.empty()) 
     {
       //This is the standard algorithm to find and add a pixel
-      SiPixelCluster::PixelPos curpix = pixel_stack.top(); pixel_stack.pop();
-      for ( int r = curpix.row()-1; r <= curpix.row()+1; ++r) 
+      auto curInd = acluster.top(); acluster.pop();
+      for ( auto r = acluster.x[curInd]-1; r <= acluster.x[curInd]+1; ++r) 
 	{
-	  for ( int c = curpix.col()-1; c <= curpix.col()+1; ++c) 
+	  for ( auto c = acluster.y[curInd]-1; c <= acluster.y[curInd]+1; ++c) 
 	    {
 	      if ( theBuffer(r,c) >= thePixelThreshold) 
 		{
 		  
 		  SiPixelCluster::PixelPos newpix(r,c);
-		  cluster.add( newpix, theBuffer(r,c));
+		  if (!acluster.add( newpix, theBuffer(r,c))) goto endClus;
 		  theBuffer.set_adc( newpix, 1);
-		  pixel_stack.push( newpix);
 		}
 	     
 
@@ -360,8 +390,9 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix,
 	    }
 	}
       
-    }
-  
+    }  // while accretion
+ endClus:
+  SiPixelCluster cluster(acluster.isize,acluster.adc, acluster.x,acluster.y, acluster.xmin,acluster.ymin);
   //Here we split the cluster, if the flag to do so is set and we have found a dead or noisy pixel.
   
   if (dead_flag && doSplitClusters) 
