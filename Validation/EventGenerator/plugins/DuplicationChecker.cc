@@ -2,8 +2,8 @@
  *  
  *  Class to monitor duplication of events
  *
- *  $Date: 2011/12/29 10:53:11 $
- *  $Revision: 1.2 $
+ *  $Date: 2012/08/24 21:47:06 $
+ *  $Revision: 1.3 $
  *
  */
  
@@ -45,8 +45,8 @@ void DuplicationChecker::analyze(const edm::Event& iEvent,const edm::EventSetup&
 {
     
   double bjorken = 0;
-  
-  double weight = _wmanager.weight(iEvent);
+ 
+  double weight = 1.;
 
   if (searchForLHE_) {
 
@@ -62,6 +62,8 @@ void DuplicationChecker::analyze(const edm::Event& iEvent,const edm::EventSetup&
     bjorken+=(pz1/(pz1+pz2));
   }
   else {
+    //change teh weight in this case
+    weight = _wmanager.weight(iEvent);
 
     edm::Handle<HepMCProduct> evt;
     iEvent.getByLabel(generatedCollection_, evt);
