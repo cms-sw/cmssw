@@ -9,18 +9,18 @@
 
 namespace statemachine {
   namespace {
-    int const INVALID_RUN_NUMBER = 0;
-    int const INVALID_LUMI = 0;
+    edm::RunNumber_t const INVALID_RUN_NUMBER = 0;
+    edm::LuminosityBlockNumber_t const INVALID_LUMI = 0;
     Run const INVALID_RUN(edm::ProcessHistoryID(), INVALID_RUN_NUMBER);
     HandleLumis::LumiID const InvalidLumiID = HandleLumis::LumiID(edm::ProcessHistoryID(), INVALID_RUN_NUMBER, INVALID_LUMI);
   }
 
-  Run::Run(edm::ProcessHistoryID const& phid, int runNumber) :
+  Run::Run(edm::ProcessHistoryID const& phid, edm::RunNumber_t runNumber) :
     processHistoryID_(phid),
     runNumber_(runNumber) {
   }
 
-  Lumi::Lumi(int id) : id_(id) {}
+  Lumi::Lumi(edm::LuminosityBlockNumber_t id) : id_(id) {}
 
   Machine::Machine(edm::IEventProcessor* ep,
                    FileMode fileMode,
@@ -360,7 +360,7 @@ namespace statemachine {
     return forward_event();
   }
 
-  HandleLumis::LumiID::LumiID(edm::ProcessHistoryID const& phid, int run, int lumi) :
+  HandleLumis::LumiID::LumiID(edm::ProcessHistoryID const& phid, edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi) :
     processHistoryID_(phid),
     run_(run),
     lumi_(lumi) {

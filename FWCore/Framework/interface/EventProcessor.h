@@ -9,6 +9,8 @@ configured in the user's main() function, and is set running.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/IEventProcessor.h"
@@ -259,15 +261,15 @@ namespace edm {
     virtual void beginRun(statemachine::Run const& run);
     virtual void endRun(statemachine::Run const& run, bool cleaningUpAfterException);
 
-    virtual void beginLumi(ProcessHistoryID const& phid, int run, int lumi);
-    virtual void endLumi(ProcessHistoryID const& phid, int run, int lumi, bool cleaningUpAfterException);
+    virtual void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
+    virtual void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException);
 
     virtual statemachine::Run readAndCacheRun(bool merge);
     virtual int readAndCacheLumi(bool merge);
     virtual void writeRun(statemachine::Run const& run);
     virtual void deleteRunFromCache(statemachine::Run const& run);
-    virtual void writeLumi(ProcessHistoryID const& phid, int run, int lumi);
-    virtual void deleteLumiFromCache(ProcessHistoryID const& phid, int run, int lumi);
+    virtual void writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
+    virtual void deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
 
     virtual void readAndProcessEvent();
     virtual bool shouldWeStop() const;

@@ -2,7 +2,7 @@
 #define Framework_EPStates_h
 
 /*
-$Id: EPStates.h,v 1.10 2010/08/05 16:05:49 wdd Exp $
+$Id: EPStates.h,v 1.11 2012/03/21 16:09:44 wdd Exp $
 
 The state machine that controls the processing of runs, luminosity
 blocks, events, and loops is implemented using the boost statechart
@@ -13,6 +13,8 @@ Original Authors: W. David Dagenhart, Marc Paterno
 */
 
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 
 #include "boost/statechart/event.hpp"
 #include "boost/statechart/state_machine.hpp"
@@ -43,9 +45,9 @@ namespace statemachine {
 
   class Run : public sc::event<Run> {
   public:
-    Run(edm::ProcessHistoryID const& phid, int runNumber);
+    Run(edm::ProcessHistoryID const& phid, edm::RunNumber_t runNumber);
     edm::ProcessHistoryID const& processHistoryID() const { return processHistoryID_; }
-    int runNumber() const { return runNumber_; }
+    edm::RunNumber_t runNumber() const { return runNumber_; }
 
     bool operator==(Run const& rh) const {
       return (runNumber_ == rh.runNumber()) &&
@@ -59,15 +61,15 @@ namespace statemachine {
 
   private:
     edm::ProcessHistoryID processHistoryID_;
-    int runNumber_;
+    edm::RunNumber_t runNumber_;
   };
 
   class Lumi : public sc::event<Lumi> {
   public:
-    Lumi(int id);
-    int id() const { return id_; }
+    Lumi(edm::LuminosityBlockNumber_t id);
+    edm::LuminosityBlockNumber_t id() const { return id_; }
   private:
-    int id_;
+    edm::LuminosityBlockNumber_t id_;
   };
 
   // It is slightly confusing that this one refers to 
@@ -315,15 +317,15 @@ namespace statemachine {
   public:
     class LumiID {
     public:
-      LumiID(edm::ProcessHistoryID const& phid, int run, int lumi);
+      LumiID(edm::ProcessHistoryID const& phid, edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi);
       edm::ProcessHistoryID const& processHistoryID() const { return processHistoryID_; }
-      int run() const { return run_; }
-      int lumi() const { return lumi_; }
+      edm::RunNumber_t run() const { return run_; }
+      edm::LuminosityBlockNumber_t lumi() const { return lumi_; }
 
     private:
       edm::ProcessHistoryID processHistoryID_;
-      int run_;
-      int lumi_;
+      edm::RunNumber_t run_;
+      edm::LuminosityBlockNumber_t lumi_;
     };
     HandleLumis(my_context ctx);
     void exit();

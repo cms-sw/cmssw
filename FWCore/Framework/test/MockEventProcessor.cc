@@ -158,11 +158,11 @@ namespace edm {
     output_ << "\tendRun " << run.runNumber() << "\n";
   }
 
-  void MockEventProcessor::beginLumi(ProcessHistoryID const&, int run, int lumi) {
+  void MockEventProcessor::beginLumi(ProcessHistoryID const&, RunNumber_t run, LuminosityBlockNumber_t lumi) {
     output_ << "\tbeginLumi " << run << "/" << lumi << "\n";
   }
 
-  void MockEventProcessor::endLumi(ProcessHistoryID const&, int run, int lumi, bool /*cleaningUpAfterException*/) {
+  void MockEventProcessor::endLumi(ProcessHistoryID const&, RunNumber_t run, LuminosityBlockNumber_t lumi, bool /*cleaningUpAfterException*/) {
     output_ << "\tendLumi " << run << "/" << lumi << "\n";
   }
 
@@ -184,11 +184,11 @@ namespace edm {
     output_ << "\tdeleteRunFromCache " << run.runNumber() << "\n";
   }
 
-  void MockEventProcessor::writeLumi(ProcessHistoryID const&, int run, int lumi) {
+  void MockEventProcessor::writeLumi(ProcessHistoryID const&, RunNumber_t run, LuminosityBlockNumber_t lumi) {
     output_ << "\twriteLumi " << run << "/" << lumi << "\n";
   }
 
-  void MockEventProcessor::deleteLumiFromCache(ProcessHistoryID const&, int run, int lumi) {
+  void MockEventProcessor::deleteLumiFromCache(ProcessHistoryID const&, RunNumber_t run, LuminosityBlockNumber_t lumi) {
     output_ << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
   }
 
