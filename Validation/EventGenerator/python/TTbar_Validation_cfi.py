@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 TTbarAnalyzeSpinCorr = cms.EDAnalyzer("TTbarSpinCorrHepMCAnalyzer",
-                                      genEventInfoProductTag = cms.InputTag("generator")
+                                      genEventInfoProductTag = cms.InputTag("generator"),
+                                      genParticlesTag = cms.InputTag("genParticles")
                                       )
 
 from GeneratorInterface.LHEInterface.lheCOMWeightProducer import *

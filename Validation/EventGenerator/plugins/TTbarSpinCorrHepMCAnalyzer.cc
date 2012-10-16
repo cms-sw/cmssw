@@ -4,7 +4,8 @@
 // constructors and destructor
 //
 TTbarSpinCorrHepMCAnalyzer::TTbarSpinCorrHepMCAnalyzer(const edm::ParameterSet& iConfig) :
-  genEventInfoProductTag_(iConfig.getParameter<edm::InputTag>("genEventInfoProductTag"))
+  genEventInfoProductTag_(iConfig.getParameter<edm::InputTag>("genEventInfoProductTag")),
+  genParticlesTag_(iConfig.getParameter<edm::InputTag>("genParticlesTag"))
 {
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
@@ -35,9 +36,9 @@ TTbarSpinCorrHepMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
   iEvent.getByLabel(genEventInfoProductTag_, evt_info);
   weight = evt_info->weight() ;
 
-  // --- get genParticls ---
+  // --- get genParticles ---
   Handle<reco::GenParticleCollection> genParticles;
-  iEvent.getByLabel("genParticles", genParticles);   
+  iEvent.getByLabel(genParticlesTag_, genParticles);   
 
   const reco::GenParticle * _lepton   (0) ;
   const reco::GenParticle * _leptonBar(0) ;

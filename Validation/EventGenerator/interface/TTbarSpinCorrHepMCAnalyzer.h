@@ -13,7 +13,7 @@
 //
 // Original Author:  Martijn Gosselink,,,
 //         Created:  Thu Jan 19 18:40:35 CET 2012
-// $Id: TTbarSpinCorrHepMCAnalyzer.h,v 1.1 2012/10/09 17:26:39 inugent Exp $
+// $Id: TTbarSpinCorrHepMCAnalyzer.h,v 1.2 2012/10/12 15:15:20 wdd Exp $
 //
 //
 // Added to: Validation/EventGenerator by Ian M. Nugent Oct 9, 2012
@@ -79,5 +79,5 @@ private:
   MonitorElement* _h_llpairPt ;
   MonitorElement* _h_llpairM  ;
 
-  edm::InputTag genEventInfoProductTag_;
+  edm::InputTag genEventInfoProductTag_,genParticlesTag_;
 };
