@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/27 10:38:10 $
- *  $Revision: 1.5 $
+ *  $Date: 2012/10/15 13:24:46 $
+ *  $Revision: 1.1 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -19,7 +19,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/TrackingMonitor/interface/TrackAnalyzer.h"
-#include "DQM/TrackingMonitor/plugins/TrackSplittingMonitor.h"
+#include "DQM/TrackingMonitor/interface/TrackSplittingMonitor.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
@@ -362,5 +362,3 @@ void TrackSplittingMonitor::endJob(void) {
     dqmStore_->save(outputFileName);
   }
 }
-
-DEFINE_FWK_MODULE(TrackSplittingMonitor);
