@@ -15,7 +15,6 @@
   <use   name="FWCore/ServiceRegistry"/>
   <use   name="FWCore/Utilities"/>
   <use   name="FastSimDataFormats/L1GlobalMuonTrigger"/>
-  <use   name="FastSimulation/Muons"/>
   <use   name="FastSimulation/Tracking"/>
   <use   name="FastSimulation/Utilities"/>
   <use   name="Geometry/RPCGeometry"/>
