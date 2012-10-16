@@ -5,15 +5,15 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: MonitorAlCaHcalPhisym_cfi.py,v 1.5 2009/11/16 12:31:38 kodolova Exp $
+# $Id: MonitorAlCaHcalPhisym_cfi.py,v 1.6 2012/07/25 11:52:24 safronov Exp $
 #
 # \author Stefano Argiro
 #
 HcalPhiSymMon = cms.EDAnalyzer("DQMHcalPhiSymAlCaReco",
     # product to monitor
-    hbheInputMB = cms.InputTag("hbheprereco"),
-    hoInputMB = cms.InputTag("horeco"),
-    hfInputMB = cms.InputTag("hfreco"),
+    hbheInputMB = cms.InputTag("hbherecoMB"),
+    hoInputMB = cms.InputTag("horecoMB"),
+    hfInputMB = cms.InputTag("hfrecoMBspecial"),
     hbheInputNoise = cms.InputTag("hbherecoNoise"),
     hoInputNoise = cms.InputTag("horecoNoise"),
     hfInputNoise = cms.InputTag("hfrecoNoise"),
