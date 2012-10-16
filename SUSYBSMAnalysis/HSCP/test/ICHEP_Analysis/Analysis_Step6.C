@@ -120,7 +120,7 @@ void saveVariationHistoForLimit(TH1* histo, TH1* vardown, string Name, string va
 void testShapeBasedAnalysis(string InputPattern, string signal);
 double computeSignificance(string datacard, bool expected, string& signal, string massStr, float Strength);
 bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, string& InputPattern, string& signal, unsigned int CutIndex, bool Shape, bool Temporary, stAllInfo& result, TH1* MassData, TH1* MassPred, TH1* MassSign, TH1* MassSignP, TH1* MassSignI, TH1* MassSignM, TH1* MassSignT, TH1* MassSignPU);
-bool Combine(string InputPattern, string signal);
+bool Combine(string InputPattern, string signal7, string signal8);
 
 double MinRange = 0;
 double MaxRange = 1999;
@@ -148,20 +148,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    if(MODE=="COMPILE")return;
 
    string Data;
-   if(MODE.find("11")!=string::npos){Data = "Data7TeV"; SQRTS=7.0; EXCLUSIONDIR+="7TeV"; }
-   if(MODE.find("12")!=string::npos){Data = "Data8TeV"; SQRTS=8.0; EXCLUSIONDIR+="8TeV"; }
+   if(MODE.find("7TeV")!=string::npos){Data = "Data7TeV"; SQRTS=7.0; EXCLUSIONDIR+="7TeV"; }
+   if(MODE.find("8TeV")!=string::npos){Data = "Data8TeV"; SQRTS=8.0; EXCLUSIONDIR+="8TeV"; }
    printf("EXCLUSIONDIR = %s\n",EXCLUSIONDIR.c_str());  
  
-
-   //determine the list of models that are considered
-   GetSampleDefinition(samples);
-   for(unsigned int s=0;s<samples.size();s++){
-    if(samples[s].Type!=2)continue;
-    //printf("Name-->Model >>  %30s --> %s\n",samples[s].Name.c_str(), samples[s].ModelName().c_str());
-    modelMap[samples[s].ModelName()].push_back(samples[s]);   
-    if(modelMap[samples[s].ModelName()].size()==1)modelVector.push_back(samples[s].ModelName());
-   }
-
    if(MODE.find("SHAPE")!=string::npos){SHAPESTRING="SHAPE";}else{SHAPESTRING="";}
    if(MODE.find("COMPUTELIMIT")!=string::npos){
       Optimize(InputPattern, Data, signal, SHAPESTRING!="", true);
@@ -175,25 +165,24 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
       string EXCLUSIONDIR_SAVE = EXCLUSIONDIR;
       //2011 Limits
-      Data = "Data7TeV"; SQRTS=7.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"11";
+      Data = "Data7TeV"; SQRTS=7.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"7TeV";
       Optimize(InputPattern, Data, signal, SHAPESTRING!="", true);
 
       //2012 Limits
-      Data = "Data8TeV"; SQRTS=8.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"12";
-      string signal8TeV = signal.replace(signal.find("_7TeV"),5, "_8TeV");
+      Data = "Data8TeV"; SQRTS=8.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"8TeV";
+      string signal8TeV = signal; signal8TeV = signal8TeV.replace(signal8TeV.find("_7TeV"),5, "_8TeV");
       Optimize(InputPattern, Data, signal8TeV, SHAPESTRING!="", true);
 
       //Combined Limits
       EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"COMB";  SQRTS=78.0;
-      Combine(InputPattern, signal);
+      Combine(InputPattern, signal, signal8TeV);
       return;
    }
    
    string TkPattern  = "Results/Type0/";
    string MuPattern  = "Results/Type2/";
-   string MuOnlyPattern  = "Results/Type3/";
+   string MOPattern  = "Results/Type3/";
    string LQPattern  = "Results/Type5/";
-
 
    bool Combine = (MODE.find("COMB")!=string::npos);
    if(Combine){EXCLUSIONDIR+="COMB"; SQRTS=78.0;}
@@ -201,22 +190,42 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    string outpath = string("Results/"+SHAPESTRING+EXCLUSIONDIR+"/");
    MakeDirectories(outpath);
 
+printf("SQRTS = %f\n",SQRTS);
+
+   //determine the list of models that are considered
+   GetSampleDefinition(samples);
+   for(unsigned int s=0;s<samples.size();s++){
+    if(samples[s].Type!=2)continue;
+    //printf("Name-->Model >>  %30s --> %s\n",samples[s].Name.c_str(), samples[s].ModelName().c_str());
+
+    if(SQRTS== 7.0  && samples[s].Name.find("_7TeV")==string::npos){continue;}
+    if(SQRTS== 8.0  && samples[s].Name.find("_8TeV")==string::npos){continue;}
+    if(SQRTS==78.0){if(samples[s].Name.find("_7TeV")==string::npos){continue;}else{samples[s].Name.replace(samples[s].Name.find("_7TeV"),5, ""); } }
+
+    modelMap[samples[s].ModelName()].push_back(samples[s]);   
+    if(modelMap[samples[s].ModelName()].size()==1)modelVector.push_back(samples[s].ModelName());
+   }
+
+
+
+
+
    //based on the modelMap
    DrawRatioBands(TkPattern); 
 //   DrawRatioBands(MuPattern);
-   DrawRatioBands(MuOnlyPattern); 
+   DrawRatioBands(MOPattern); 
    DrawRatioBands(LQPattern);
 
    //draw the cross section limit for all model
    DrawModelLimitWithBand(TkPattern);
 //   DrawModelLimitWithBand(MuPattern);
-   DrawModelLimitWithBand(MuOnlyPattern);
+   DrawModelLimitWithBand(MOPattern);
    DrawModelLimitWithBand(LQPattern);
    
 
    //make plots of the observed limit for all signal model (and mass point) and save the result in a latex table
    TCanvas* c1;
-   double LInt;
+   double LInt = 0;
    FILE* pFile    = fopen((outpath+string("Analysis_Step6_Result") + ".txt").c_str(),"w");
    FILE* talkFile = fopen((outpath + "TalkPlots" + ".txt").c_str(),"w");
 
@@ -278,7 +287,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    for(unsigned int k=0; k<modelVector.size(); k++){
      bool isNeutral = false;if(modelVector[k].find("GluinoN")!=string::npos || modelVector[k].find("StopN")!=string::npos)isNeutral = true;
      if(isNeutral) continue;//skip charged suppressed models                                                                                                                      
-     MuOnlyGraphs[k] = MakePlot(pFile,talkFile,MuOnlyPattern,modelVector[k], 2, modelMap[modelVector[k]], LInt);
+     MuOnlyGraphs[k] = MakePlot(pFile,talkFile,MOPattern,modelVector[k], 2, modelMap[modelVector[k]], LInt);
    }
 
    fprintf(pFile   ,"      \\end{tabular}\n\\end{table}\n\n");
@@ -290,7 +299,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    //print a table with all uncertainty on signal efficiency
    CheckSignalUncertainty(pFile,talkFile,TkPattern);
    CheckSignalUncertainty(pFile,talkFile,MuPattern);
-   CheckSignalUncertainty(pFile,talkFile,MuOnlyPattern);
+   CheckSignalUncertainty(pFile,talkFile,MOPattern);
 
    //Get Theoretical xsection and error bands
    TGraph** ThXSec    = new TGraph*[modelVector.size()];
@@ -329,7 +338,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC8TeV_PPStau_Mass)/sizeof(double),THXSEC8TeV_PPStau_Mass,THXSEC8TeV_PPStau_Low,THXSEC8TeV_PPStau_High, PlotMinScale, PlotMaxScale);
          }
       }else{
-         ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
+         ThXSec   [k] = MakePlot(NULL, NULL, LQPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
          double* XSecErrLow  = new double[ThXSec[k]->GetN()];
          double* XSecErrHigh = new double[ThXSec[k]->GetN()];
          //assume 15% error on xsection
@@ -356,6 +365,13 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       if(isNeutral) continue;//skip charged suppressed models
       fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(MuOnlyGraphs[k],  ThXSec[k], MuOnlyGraphs[k]->GetX()[0], MuOnlyGraphs[k]->GetX()[MuOnlyGraphs[k]->GetN()-1], 1, 0.00));
    }
+   fprintf(pFile,"-----------------------\n0%% Q<1+Only        \n-------------------------\n");
+   for(unsigned int k=0; k<modelVector.size(); k++){
+      bool isFractional = false;if(modelVector[k].find("1o3")!=string::npos || modelVector[k].find("2o3")!=string::npos)isFractional = true;
+      if(!isFractional) continue;//skip non fractional charge models
+      fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(LQGraphs[k],  ThXSec[k], LQGraphs[k]->GetX()[0], LQGraphs[k]->GetX()[LQGraphs[k]->GetN()-1], 1, 0.00));
+   }
+
    fclose(pFile);
 
    //Make the final plot with all curves in it
@@ -711,7 +727,7 @@ TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelN
       XSecTh      [i]=Infos[i].XSec_Th;
       XSecObs     [i]=Infos[i].XSec_Obs;
       XSecExp     [i]=Infos[i].XSec_Exp;
-      LInt           =Infos[i].LInt;
+      LInt           =std::max(LInt, Infos[i].LInt);
    }
    
    if(XSectionType>0){
@@ -792,7 +808,7 @@ void DrawModelLimitWithBand(string InputPattern){
          XSecExpDown [i]=Infos.XSec_ExpDown;
          XSecExp2Up  [i]=Infos.XSec_Exp2Up;
          XSecExp2Down[i]=Infos.XSec_Exp2Down;
-         LInt           =Infos.LInt;
+         LInt           =std::max(LInt, Infos.LInt);
       }
 
       TGraph* graphtheory  = new TGraph(N,Mass,XSecTh);
@@ -914,7 +930,7 @@ void DrawRatioBands(string InputPattern)
          XSecExpDown [i]=Infos.XSec_ExpDown /Infos.XSec_Exp;
          XSecExp2Up  [i]=Infos.XSec_Exp2Up  /Infos.XSec_Exp;
          XSecExp2Down[i]=Infos.XSec_Exp2Down/Infos.XSec_Exp;
-         LInt           =Infos.LInt;
+         LInt           =std::max(LInt, Infos.LInt);
       }
 
       TGraph* graphtheory  = new TGraph(N,Mass,XSecTh);
@@ -1106,7 +1122,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
          if(signalNameWithoutEnergy.find(str7TeV)!=string::npos)signalNameWithoutEnergy.erase(signalNameWithoutEnergy.find(str7TeV), string(str7TeV).length());
          if(signalNameWithoutEnergy.find(str8TeV)!=string::npos)signalNameWithoutEnergy.erase(signalNameWithoutEnergy.find(str8TeV), string(str8TeV).length()); 
 
-         printf("%s vs %s\n",Name_.c_str(), signalNameWithoutEnergy.c_str());
+         //printf("%s vs %s\n",Name_.c_str(), signalNameWithoutEnergy.c_str());
          if(Name_!=signalNameWithoutEnergy    )continue; //Not reading the cut line for the right signal sample
 
          //We are looking at the right sample --> Now loop over all cuts and identify the cut index of the optimal cut
@@ -1212,7 +1228,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
       fprintf(pFile  ,"%10s: Testing CutIndex=%4i (Pt>%6.2f I>%6.3f TOF>%6.3f) %3.0f<M<inf Ndata=%+6.2E NPred=%6.3E+-%6.3E SignalEff=%6.3f ExpLimit=%6.3E (%6.3E) Reach=%6.3E",signal.c_str(),CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), MinRange,result.NData,result.NPred, result.NPredErr,result.Eff,result.XSec_Exp, result.XSec_Obs, result.XSec_5Sigma);fflush(stdout);
       fprintf(stdout ,"%10s: Testing CutIndex=%4i (Pt>%6.2f I>%6.3f TOF>%6.3f) %3.0f<M<inf Ndata=%+6.2E NPred=%6.3E+-%6.3E SignalEff=%6.3f ExpLimit=%6.3E (%6.3E) Reach=%6.3E",signal.c_str(),CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), MinRange,result.NData,result.NPred, result.NPredErr,result.Eff,result.XSec_Exp, result.XSec_Obs, result.XSec_5Sigma);fflush(stdout);
 //      if(result.XSec_Exp<toReturn.XSec_Exp){
-      if(result.XSec_5Sigma>0 && result.XSec_5Sigma<toReturn.XSec_5Sigma){
+      if(OptimCutIndex>=0 || (result.XSec_5Sigma>0 && result.XSec_5Sigma<toReturn.XSec_5Sigma)){
          toReturn=result;
          fprintf(pFile  ," BestSelection\n");fflush(stdout);
          fprintf(stdout ," BestSelection\n");fflush(stdout);
@@ -1415,10 +1431,15 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       NSignPU     = MassSignPU->GetBinContent(CutIndex+1) / signalsMeanHSCPPerEvent;
    }
 
+std::cout << "TESTA\n";
    //skip pathological selection point
    if(isnan((float)NPred))return false;
+std::cout << "TESTB\n";
    if(NPred<=0){return false;} //Is <=0 only when prediction failed or is not meaningful (i.e. WP=(0,0,0) )
+std::cout << "TESTC\n";
+
    if(!Shape && NPred>1000){return false;}  //When NPred is too big, expected limits just take an infinite time! 
+std::cout << "TESTD\n";
 
    //compute all efficiencies (not really needed anymore, but it's nice to look at these numbers afterward)
    double Eff         = NSign   / (result.XSec_Th*result.LInt);
@@ -1428,8 +1449,8 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    double EffT        = NSignT  / (result.XSec_Th*result.LInt);
    double EffPU       = NSignPU / (result.XSec_Th*result.LInt);
    if(Eff==0)return false;
-   if(Eff<=1E-5)return false; // if Eff<0.001% -> limit will hardly converge and we are probably not interested by this point anyway
-
+//   if(Eff<=1E-5)return false; // if Eff<0.001% -> limit will hardly converge and we are probably not interested by this point anyway
+std::cout << "TESTE\n";
 
    //no way that this point is optimal
    bool pointMayBeOptimal = (fastOptimization && !getXsection && getSignificance && ((NPred-3*NPredErr)<=result.NPred || Eff>=result.Eff));
@@ -1447,7 +1468,6 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    result.NSign     = NSign;
 //   NSign/=(result.XSec_Th*1000.0); //normalize xsection to 1fb
    NSign/=(1000.0); //normalize xsection to 1fb
-
 
    //for shape based analysis we need to save all histograms into a root file
    char CutIndexStr[255];sprintf(CutIndexStr, "SQRTS%02.0fCut%03.0f",SQRTS, result.Index);
@@ -1500,14 +1520,20 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    char massStr[255]; sprintf(massStr,"%.0f",result.Mass);
    if(getSignificance && Temporary){
       if(NPred<0.001) NPred=0.001;
-      double SignifValue=0.0;double Strength=0.1*(3*sqrt(NPred)/NSign);  if(result.XSec_5Sigma>0 && result.XSec_5Sigma<1E50)Strength=result.XSec_5Sigma/result.XSec_Th;
+      double SignifValue=0.0; double PrevSignifValue=0; double Strength=0.1*(3*sqrt(NPred)/NSign);  if(result.XSec_5Sigma>0 && result.XSec_5Sigma<1E50)Strength=result.XSec_5Sigma/result.XSec_Th;
 //      double SignifValue=0.0;double Strength=0.0005;  if(result.XSec_5Sigma>0 && result.XSec_5Sigma<1E50)Strength=result.XSec_5Sigma/result.XSec_Th;
       double previousXSec_5Sigma=result.XSec_5Sigma; result.XSec_5Sigma = -1;
       //find signal strength needed to get a 5sigma significance
       unsigned int l=0;
+      double CountDecrease=0;
       for(l=0;l<10 && pointMayBeOptimal;l++){
+         PrevSignifValue = SignifValue;
          SignifValue = computeSignificance(datacardPath, true, signal, massStr, Strength);
          printf("SIGNAL STRENGTH = %E --> SIGNIFICANCE=%E\n",Strength,SignifValue);
+
+         if(SignifValue<=PrevSignifValue || SignifValue<=0){CountDecrease++;}else{CountDecrease=0;}
+         if(CountDecrease>=2){result.XSec_5Sigma  = 1E49; break;}
+
          //we found the signal strength that lead to a significance close enough to the 5sigma to stop the loop 
          //OR we know that this point is not going to be a good one --> can do a coarse approximation since the begining
          if(fabs(SignifValue-5)<0.75 || (fastOptimization && Strength>=previousXSec_5Sigma && SignifValue<5)){
@@ -1524,12 +1550,15 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       }
    }
 
+cout<< "start limit\n";
+
    if(getXsection){
       //prepare and run the script that will run the external "combine" tool from the Higgs group
       //If very low background range too small, set limit at 0.001.  Only affects scanning range not final limit
       if(NPred<0.001) NPred=0.001;
       char rangeStr[255];sprintf(rangeStr," --rMin %f --rMax %f ", 0.0f, 2*(3*sqrt(NPred)/NSign) );
       printf("%f/%f --> %s\n",NSign,NPred,rangeStr);
+cout << rangeStr << endl;
       string CodeToExecute = "cd /tmp/;";
       CodeToExecute += "combine -M Asymptotic        -n " + signal + " -m " + massStr + rangeStr + " shape_" + signal+".dat &> shape_" + signal + ".log;";   
       CodeToExecute += "cd $OLDPWD;cp /tmp/shape_" + signal + ".* " + InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/." + ";";
@@ -1592,9 +1621,12 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       file->Close();
    }
 
+cout << "end limit\n";
+
    if(!Temporary && getSignificance){
        result.Significance = computeSignificance(datacardPath, false, signal, massStr, 1.0);
    }
+
 
    //makePlots (only for shape based analysis)
    if(Shape && !Temporary){ 
@@ -1714,7 +1746,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
 }
 
 
-bool Combine(string InputPattern, string signal){
+bool Combine(string InputPattern, string signal7, string signal8){
 //   CurrentSampleIndex        = JobIdToIndex(signal, samples); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return false;  }
 //   int s = CurrentSampleIndex;
 
@@ -1722,17 +1754,20 @@ bool Combine(string InputPattern, string signal){
    MakeDirectories(outpath);
 
    //Get Optimal cut from sample11
-   stAllInfo result11 =  stAllInfo(InputPattern+"/EXCLUSION11/"+signal+".txt");
+   stAllInfo result11 =  stAllInfo(InputPattern+"/EXCLUSION7TeV/"+signal7+".txt");
    //Get Optimal cut from sample12
-   stAllInfo result12 =  stAllInfo(InputPattern+"/EXCLUSION12/"+signal+".txt");
+   stAllInfo result12 =  stAllInfo(InputPattern+"/EXCLUSION8TeV/"+signal8+".txt");
 
    stAllInfo result = result12;
    char massStr[255]; sprintf(massStr,"%.0f",result.Mass);
 
+   string signal = signal7;
+   if(signal.find("_7TeV")!=string::npos){signal.replace(signal.find("_7TeV"),5, "");}
+
 
    string CodeToExecute = "combineCards.py ";
-   CodeToExecute+="   " + InputPattern+"/EXCLUSION11/shape_"+signal+".dat ";
-   CodeToExecute+="   " + InputPattern+"/EXCLUSION12/shape_"+signal+".dat ";
+   CodeToExecute+="   " + InputPattern+"/EXCLUSION7TeV/shape_"+signal7+".dat ";
+   CodeToExecute+="   " + InputPattern+"/EXCLUSION8TeV/shape_"+signal8+".dat ";
    CodeToExecute+=" > " + outpath+"shape_"+signal+".dat ";
    system(CodeToExecute.c_str());   
    printf("%s \n",CodeToExecute.c_str());

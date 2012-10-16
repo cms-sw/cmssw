@@ -37,6 +37,7 @@ using namespace std;
 
 void Analysis_Step4(std::string InputPattern)
 {
+   if(InputPattern=="COMPILE")return;
 
    setTDRStyle();
    gStyle->SetPadTopMargin   (0.06);
