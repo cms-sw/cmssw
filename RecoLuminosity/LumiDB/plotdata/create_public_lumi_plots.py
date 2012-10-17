@@ -7,12 +7,9 @@
 # TODO TODO TODO
 # - Implement sorting of LumiDataBlocks.
 # - Assert there are no under-/overflows in the created histograms.
-# - Clean up output (debug vs. verbose).
 # - Write and check-in some config files.
 # - Turn the Matplotlib imports into normal imports, protected by
 #   catching an ImportError.
-# - Check week totals.
-# - Sort out the fontproperties business.
 # TODO TODO TODO end
 
 import sys
@@ -466,11 +463,15 @@ if __name__ == "__main__":
     years = xrange(year_begin, year_end + 1)
     weeks = []
     day_cur = date_begin
-    while day_cur < date_end:
+    while day_cur <= date_end:
         year = day_cur.isocalendar()[0]
         week = day_cur.isocalendar()[1]
         weeks.append((year, week))
         day_cur += datetime.timedelta(days=7)
+    if num_days <= 7:
+        year = date_end.isocalendar()[0]
+        week = date_end.isocalendar()[1]
+        weeks.append((year, week))
 
     # Figure out the last day we want to read back from the cache.
     # NOTE: The above checking ensures that date_end is <= today, so
