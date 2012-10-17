@@ -4,11 +4,6 @@
 ## File: create_public_lumi_plots.py
 ######################################################################
 
-# TODO TODO TODO
-# - Implement sorting of LumiDataBlocks(?).
-# - Write and check-in some config files.
-# TODO TODO TODO end
-
 import sys
 import os
 import commands
@@ -692,8 +687,10 @@ if __name__ == "__main__":
                         label="Max. inst. lumi.: $%.2f$ $\mathrm{%s}$" % \
                         (max_inst, units))
 
-                ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.),
-                          frameon=False)
+                tmp_leg = ax.legend(loc="upper left",
+                                    bbox_to_anchor=(0.025, 0., 1., .97),
+                                    frameon=False)
+                tmp_leg.legendHandles[0].set_visible(False)
 
                 # Set titles and labels.
                 fig.suptitle(r"CMS Peak Luminosity Per Day, " \
@@ -736,7 +733,7 @@ if __name__ == "__main__":
                         facecolor=color_fill_rec, edgecolor=color_line_rec,
                     label="CMS Recorded, max: $%.1f$ $\mathrm{%s}$/day" % \
                         (max_rec, units))
-                ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.),
+                ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
                           frameon=False)
 
                 # Set titles and labels.
@@ -782,7 +779,7 @@ if __name__ == "__main__":
                         facecolor=color_fill_rec, edgecolor=color_line_rec,
                         label="CMS Recorded: $%.2f$ $\mathrm{%s}$" % \
                         (tot_rec, units))
-                ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.),
+                ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
                           frameon=False)
 
                 # Set titles and labels.
