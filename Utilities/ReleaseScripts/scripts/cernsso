@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.6
 
 from ctypes import *
 from optparse import OptionParser
@@ -82,10 +82,20 @@ CERN_SSO_CURL_ADFS_SIGNIN = "wa=wsignin1.0"
 
 def fetch_cookie(url, debug=False, verbose=False, cookie=None, libc=None, libcurl=None): 
   # Select C and cURL libraries
-  libc_path = _find_libc() if libc is None else libc
-  libcurl_path = _find_libcurl() if libcurl is None else libcurl
+  if libc:
+    libc_path = libc
+  else:
+    libc_path = _find_libc()
 
-  cookie_path = cookie if cookie is not None else "{0}.cookie".format("".join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7)))
+  if libcurl:
+    libcurl_path = libcurl
+  else:
+    libcurl_path = _find_libcurl()
+
+  if cookie:
+    cookie_path = "{0}.cookie".format("".join(random.choice(string.ascii_uppercase + string.digits) for _ in range(7)))
+  else:
+    cookie_path = cookie
 
   if verbose:
     sys.stderr.write("libc selected: {0}\n".format(libc_path))
@@ -193,8 +203,8 @@ def fetch_cookie(url, debug=False, verbose=False, cookie=None, libc=None, libcur
   # Step 3
   post_body = ""
   c_url_sp = ""
-  with open(fn_writedata) as dataout:
-    content = dataout.readline()
+  f = open(fn_writedata,'r')
+  for content in f.readlines():
     if content.find(CERN_SSO_CURL_AUTHERR) != -1:
       sys.stderr.write("error: IDP authentication failed.\n")
       sys.exit(1)
@@ -208,7 +218,8 @@ def fetch_cookie(url, debug=False, verbose=False, cookie=None, libc=None, libcur
     h = HTMLParser.HTMLParser()
     for pair in re.finditer("input type=\"hidden\" name=\"(.+?)\" value=\"(.+?)\"", content, re.I | re.M):
       post_body += "&{0}={1}".format(pair.group(1), urllib2.quote(h.unescape(pair.group(2))))
-      
+  f.close()
+    
   # Step 4
   if verbose:
     sys.stderr.write("requesting... {0}\n".format(urllib2.unquote(c_url_sp)))
@@ -251,8 +262,9 @@ def fetch_cookie(url, debug=False, verbose=False, cookie=None, libc=None, libcur
 
 def _get_platform():
   if sys.platform.startswith("linux"):
-    with open("/etc/redhat-release") as verfile:
-      if verfile.readline().find("Scientific Linux CERN") != -1:
+    f = open("/etc/redhat-release",'r')
+    for content in f.readlines():
+      if content and content.find("Scientific Linux CERN") != -1:
         return "linux-cern"
     return "linux-unknown"
   elif sys.platform.startswith("darwin"):
@@ -289,7 +301,7 @@ if __name__ == "__main__":
 
   (options, args) = parser.parse_args()
   if len(args) != 1:
-    sys.stderr.write("error: A single argumnet required, an URL.\n")
+    sys.stderr.write("error: A single argument required, an URL.\n")
     sys.exit(1)
 
   fetch_cookie(url=args[0], debug=options.debug, verbose=options.verbose, cookie=options.cookie_filename, libc=options.libc_path, libcurl=options.libcurl_path)
