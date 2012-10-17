@@ -5,11 +5,8 @@
 ######################################################################
 
 # TODO TODO TODO
-# - Implement sorting of LumiDataBlocks.
-# - Assert there are no under-/overflows in the created histograms.
+# - Implement sorting of LumiDataBlocks(?).
 # - Write and check-in some config files.
-# - Turn the Matplotlib imports into normal imports, protected by
-#   catching an ImportError.
 # TODO TODO TODO end
 
 import sys
