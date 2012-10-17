@@ -4,6 +4,7 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Math/interface/invertPosDefMatrix.h"
 
 #include <algorithm>
 
@@ -101,8 +102,7 @@ KalmanVertexUpdator<N>::positionUpdate (const VertexState & oldVertex,
   //vertex information
 //   AlgebraicSymMatrix33 oldVertexWeight = oldVertex.weight().matrix_new();
   AlgebraicSymMatrixMM s = ROOT::Math::SimilarityT(b,trackParametersWeight);
-  error = ! s.Invert(); 
-  if(error != 0) {
+  if (!invertPosDefMatrix(s))   {
     edm::LogWarning("KalmanVertexUpdator") << "S matrix inversion failed. An invalid vertex will be returned.";
     return VertexState();
   }
@@ -113,14 +113,14 @@ KalmanVertexUpdator<N>::positionUpdate (const VertexState & oldVertex,
 // Getting the new covariance matrix of the vertex.
 
   AlgebraicSymMatrix33 newVertexWeight =  oldVertex.weight().matrix_new()
-	+ weight * sign * ROOT::Math::SimilarityT(a,gB);
+    + (weight * sign) * ROOT::Math::SimilarityT(a,gB);
   //  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
   //    << "weight matrix" << newVertexWeight << "\n";
 
 
-  AlgebraicVector3 newSwr =
-                oldVertex.weightTimesPosition() + weight * sign * ROOT::Math::Transpose(a) * gB *
-                ( linearizedTrack->predictedStateParameters() - linearizedTrack->constantTerm());
+  AlgebraicVector3 newSwr = oldVertex.weightTimesPosition() 
+    + (weight * sign) * ( (ROOT::Math::Transpose(a) * gB) *
+			  ( linearizedTrack->predictedStateParameters() - linearizedTrack->constantTerm()) );
   //  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
   //    << "weighttimespos" << newSwr << "\n";
 
@@ -164,21 +164,19 @@ std::pair <bool, double>  KalmanVertexUpdator<N>::chi2Increment(const VertexStat
   }
 
   AlgebraicSymMatrixMM s = ROOT::Math::SimilarityT(b,trackParametersWeight);
-  error = ! s.Invert();
-  if(error!=0) {
+  if (!invertPosDefMatrix(s)) {
     edm::LogWarning("KalmanVertexUpdator") << "S matrix inversion failed. An invalid vertex will be returned.";
     return std::pair <bool, double> (false, -1.);
   }
 
   const AlgebraicVectorN & theResidual = linearizedTrack->constantTerm();
-  AlgebraicVectorM newTrackMomentumP =  s * ROOT::Math::Transpose(b) * trackParametersWeight *
-    (trackParameters - theResidual - a*newVertexPositionV);
+  AlgebraicVectorN vv = trackParameters - theResidual - a*newVertexPositionV;
+  AlgebraicVectorM newTrackMomentumP =  s * ROOT::Math::Transpose(b) * trackParametersWeight * vv;
 
 
 //   AlgebraicVectorN rtp = ( theResidual +  a * newVertexPositionV + b * newTrackMomentumP);
 
-  AlgebraicVectorN parameterResiduals = trackParameters -
-	( theResidual +  a * newVertexPositionV + b * newTrackMomentumP);
+  AlgebraicVectorN parameterResiduals = vv  + b * newTrackMomentumP;
   linearizedTrack->checkParameters(parameterResiduals);
 
   double chi2 = weight * ROOT::Math::Similarity(parameterResiduals, trackParametersWeight);
