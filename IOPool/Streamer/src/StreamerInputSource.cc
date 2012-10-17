@@ -49,18 +49,10 @@ namespace edm {
   StreamerInputSource::StreamerInputSource(
                     ParameterSet const& pset,
                     InputSourceDescription const& desc):
-    InputSource(pset, desc),
-    // The default value for the following parameter get defined in at least one derived class
-    // where it has a different default value.
-    inputFileTransitionsEachEvent_(
-      pset.getUntrackedParameter<bool>("inputFileTransitionsEachEvent", false)),
-    newRun_(true),
-    newLumi_(true),
-    eventCached_(false),
+    RawInputSource(pset, desc),
     tc_(getTClass(typeid(SendEvent))),
     dest_(init_size),
     xbuf_(TBuffer::kRead, init_size),
-    runEndingFlag_(false),
     productGetter_() {
   }
 
@@ -121,68 +113,6 @@ namespace edm {
         FDEBUG(6) << "BuildReadData: " << real_name << std::endl;
         doBuildRealData(real_name);
     }
-  }
-
-  boost::shared_ptr<RunAuxiliary>
-  StreamerInputSource::readRunAuxiliary_() {
-    assert(newRun_);
-    assert(runAuxiliary());
-    newRun_ = false;
-    return runAuxiliary();
-  }
-
-  boost::shared_ptr<LuminosityBlockAuxiliary>
-  StreamerInputSource::readLuminosityBlockAuxiliary_() {
-    assert(!newRun_);
-    assert(newLumi_);
-    assert(luminosityBlockAuxiliary());
-    newLumi_ = false;
-    return luminosityBlockAuxiliary();
-  }
-
-  EventPrincipal*
-  StreamerInputSource::readEvent_() {
-    assert(!newRun_);
-    assert(!newLumi_);
-    assert(eventCached_);
-    eventCached_ = false;
-    eventPrincipalCache()->setLuminosityBlockPrincipal(luminosityBlockPrincipal());
-    return eventPrincipalCache();
-  }
-
-  InputSource::ItemType
-  StreamerInputSource::getNextItemType() {
-    if (runEndingFlag_) {
-      return IsStop;
-    }
-    if(newRun_ && runAuxiliary()) {
-      return IsRun;
-    }
-    if(newLumi_ && luminosityBlockAuxiliary()) {
-      return IsLumi;
-    }
-    if (eventCached_) {
-      return IsEvent;
-    }
-    if (inputFileTransitionsEachEvent_) {
-      resetRunAuxiliary();
-      resetLuminosityBlockAuxiliary();
-    }
-    read();
-    if (!eventCached_) {
-      return IsStop;
-    } else {
-      runEndingFlag_ = false;
-      if (inputFileTransitionsEachEvent_) {
-        return IsFile;
-      }
-    }
-    if(newRun_) {
-      return IsRun;
-    } else if(newLumi_) {
-      return IsLumi;
-    }
-    return IsEvent;
   }
 
   /**
@@ -324,7 +254,6 @@ namespace edm {
 
     FDEBUG(5) << "Got event: " << sd->aux().id() << " " << sd->products().size() << std::endl;
     if(runAuxiliary().get() == 0 || runAuxiliary()->run() != sd->aux().run()) {
-      newRun_ = newLumi_ = true;
       RunAuxiliary* runAuxiliary = new RunAuxiliary(sd->aux().run(), sd->aux().time(), Timestamp::invalidTimestamp());
       runAuxiliary->setProcessHistoryID(sd->processHistory().id());
       setRunAuxiliary(runAuxiliary);
@@ -335,7 +264,6 @@ namespace edm {
         new LuminosityBlockAuxiliary(runAuxiliary()->run(), eventView.lumi(), sd->aux().time(), Timestamp::invalidTimestamp());
       luminosityBlockAuxiliary->setProcessHistoryID(sd->processHistory().id());
       setLuminosityBlockAuxiliary(luminosityBlockAuxiliary);
-      newLumi_ = true;
     }
 
     boost::shared_ptr<EventSelectionIDVector> ids(new EventSelectionIDVector(sd->eventSelectionIDs()));
@@ -343,7 +271,7 @@ namespace edm {
     branchIDListHelper()->fixBranchListIndexes(*indexes);
     eventPrincipalCache()->fillEventPrincipal(sd->aux(), boost::shared_ptr<LuminosityBlockPrincipal>(), ids, indexes);
     productGetter_.setEventPrincipal(eventPrincipalCache());
-    eventCached_ = true;
+    setEventCached();
 
     // no process name list handling
 
@@ -428,10 +356,8 @@ namespace edm {
      // so an enable command will work
      resetLuminosityBlockAuxiliary();
      resetRunAuxiliary();
-     newRun_ = newLumi_ = true;
-     assert(!eventCached_);
+     assert(!eventCached());
      reset();
-     runEndingFlag_ = false;
   }
 
   void StreamerInputSource::setRun(RunNumber_t) {
@@ -459,8 +385,6 @@ namespace edm {
 
   void
   StreamerInputSource::fillDescription(ParameterSetDescription& desc) {
-    // The default value for "inputFileTransitionsEachEvent" gets defined in the derived class
-    // as it depends on the derived class. So, we cannot redefine it here.
-    InputSource::fillDescription(desc);
+    RawInputSource::fillDescription(desc);
   }
 }
