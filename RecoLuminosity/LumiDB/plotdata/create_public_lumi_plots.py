@@ -88,7 +88,13 @@ class LumiDataBlock(object):
         "nb^{-1}" : 1.e-9,
         "ub^{-1}" : 1.e-6,
         "mb^{-1}" : 1.e-3,
-        "b^{-1}" : 1.
+        "b^{-1}" : 1.,
+        "Hz/fb" : 1.e-15,
+        "Hz/pb" : 1.e-12,
+        "Hz/nb" : 1.e-9,
+        "Hz/ub" : 1.e-6,
+        "Hz/mb" : 1.e-3,
+        "Hz/b" : 1.
         }
 
     def __init__(self, data_point=None):
@@ -123,8 +129,10 @@ class LumiDataBlock(object):
         # End of lum_rec_tot().
         return res
 
-    def max_inst_lum(self, units="b^{-1}"):
-        res = max([i.lum_del for i in self.data_points])
+    def max_inst_lum(self, units="Hz/b"):
+        res = 0.
+        if len(self.data_points):
+            res = max([i.lum_del for i in self.data_points])
         res /= NUM_SEC_IN_LS
         res *= LumiDataBlock.scale_factors[units]
         # End of max_inst_lum().
@@ -634,18 +642,18 @@ if __name__ == "__main__":
         #----------
 
         # Build the histograms.
-        units = "pb^{-1}"
         bin_edges = np.linspace(matplotlib.dates.date2num(day_lo),
                                 matplotlib.dates.date2num(day_hi),
                                 len(tmp_dates) + 1)
         bin_centers = [.5 * (i + j) for (i, j) \
                        in zip(bin_edges[:-1], bin_edges[1:])]
+        # Delivered and recorded luminosity integrated per day.
+        units = "pb^{-1}"
         weights_del = [i[1].lum_del_tot(units) for i in tmp_this_year]
         weights_rec = [i[1].lum_rec_tot(units) for i in tmp_this_year]
-
-        # Figure out the maximum delivered and recorded luminosities.
-        max_del = max(weights_del)
-        max_rec = max(weights_rec)
+        # Maximum instantaneous delivered luminosity per day.
+        units = "Hz/nb"
+        weights_del_inst = [i[1].max_inst_lum(units) for i in tmp_this_year]
 
         #----------
 
@@ -664,11 +672,57 @@ if __name__ == "__main__":
             logo_name = color_scheme.logo_name
             file_suffix = color_scheme.file_suffix
 
+            fig = plt.figure()
+
             #----------
 
-            # First the lumi-by-day plot.
-            fig = plt.figure()
+            fig.clear()
             ax = fig.add_subplot(111)
+
+            units = "Hz/nb"
+
+            # Figure out the maximum instantaneous luminosity.
+            max_inst = max(weights_del_inst)
+
+            if sum(weights_del) > 0:
+
+                ax.hist(bin_centers, bin_edges, weights=weights_del_inst,
+                        histtype="stepfilled",
+                        facecolor=color_fill_peak, edgecolor=color_line_peak,
+                        label="Max. inst. lumi.: $%.2f$ $\mathrm{%s}$" % \
+                        (max_inst, units))
+
+                ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.),
+                          frameon=False)
+
+                # Set titles and labels.
+                fig.suptitle(r"CMS Peak Luminosity Per Day, " \
+                             "%s, %d, $\mathbf{\sqrt{s} = %.0f}$ TeV" % \
+                             (particle_type_str, year, 1.e-3 * cms_energy),
+                             fontproperties=FONT_PROPS_SUPTITLE)
+                ax.set_title("Data included from %s to %s UTC" % \
+                             (str_begin, str_end),
+                             fontproperties=FONT_PROPS_TITLE)
+                ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
+                ax.set_ylabel(r"Peak Delivered Luminosity ($\mathrm{%s}$)" % units,
+                              fontproperties=FONT_PROPS_AX_TITLE)
+
+                TweakPlot(fig, ax, (time_begin, time_end), True)
+
+            fig.savefig("peak_lumi_per_day_%s_%d%s.png" % \
+                        (particle_type_str, year, file_suffix))
+
+            #----------
+
+            # The lumi-by-day plot.
+            fig.clear()
+            ax = fig.add_subplot(111)
+
+            units = "pb^{-1}"
+
+            # Figure out the maximum delivered and recorded luminosities.
+            max_del = max(weights_del)
+            max_rec = max(weights_rec)
 
             if sum(weights_del) > 0:
 
