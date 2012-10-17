@@ -52,10 +52,10 @@ namespace edm {
 
   EventPrincipal*
   RawInputSource::makeEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, Timestamp const& tstamp) {
-    if(!runAuxiliary()) {
+    if(!runAuxiliary() || runAuxiliary()->run() != run) {
       setRunAuxiliary(new RunAuxiliary(run, tstamp, Timestamp::invalidTimestamp()));
     }
-    if(!luminosityBlockAuxiliary()) {
+    if(!luminosityBlockAuxiliary() || luminosityBlockAuxiliary()->luminosityBlock() != lumi) {
       setLuminosityBlockAuxiliary(new LuminosityBlockAuxiliary(run, lumi, tstamp, Timestamp::invalidTimestamp()));
     }
     EventSourceSentry sentry(*this);
