@@ -5,8 +5,8 @@
  *  An input service for raw data. 
  *  The actual source can be the real DAQ, a file, a random generator, etc.
  *
- *  $Date: 2012/04/17 14:39:30 $
- *  $Revision: 1.20.2.1 $
+ *  $Date: 2012/05/02 14:48:04 $
+ *  $Revision: 1.21 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -75,9 +75,6 @@ namespace edm {
     DaqProvenanceHelper daqProvenanceHelper_;
     ProcessHistoryID phid_;
     bool noMoreEvents_;
-    bool newRun_;
-    bool newLumi_;
-    bool eventCached_;
     bool alignLsToLast_;
     
     pthread_mutex_t mutex_;

@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2012/08/18 14:19:15 $
- *  $Revision: 1.61 $
+ *  $Date: 2012/08/18 14:22:13 $
+ *  $Revision: 1.62 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -67,9 +67,6 @@ namespace edm {
     , luminosityBlockNumber_(LuminosityBlockID::firstValidLuminosityBlock().luminosityBlock())
     , daqProvenanceHelper_(TypeID(typeid(FEDRawDataCollection)))
     , noMoreEvents_(false)
-    , newRun_(true)
-    , newLumi_(true)
-    , eventCached_(false)
     , alignLsToLast_(false)
     , is_(0)
     , mis_(0)
@@ -136,7 +133,7 @@ namespace edm {
     if (forkInfo_) {
       while (!immediateStop) {
 	//queue new run to Framework (causes EP beginRun to be executed)
-	if (newRun_) {
+	if (newRun()) {
 	  beginRunTiming_=true;
 	  gettimeofday(&tvStat_, NULL);
 	  return 2;
@@ -179,7 +176,7 @@ namespace edm {
 	    //got unblocked due to next run
 	    if (forkInfo_->forkParams.isMaster==-1) {
 	            forkInfo_->unlock();
-		    continue; // check here for newRun_?
+		    continue; // check here for newRun()?
             }
 	    //check if asked to stop
 	    immediateStop=forkInfo_->stopCondition;
@@ -220,7 +217,7 @@ namespace edm {
     }
 
     //get initial time before beginRun (used with old forking)
-    if (!forkInfo_ && newRun_) {
+    if (!forkInfo_ && newRun()) {
       beginRunTiming_=true;
       gettimeofday(&tvStat_, NULL);
     }
@@ -235,7 +232,7 @@ namespace edm {
       pthread_mutex_unlock(&mutex_);
       return IsStop;
     }
-    if (newRun_) {
+    if (newRun()) {
       return IsRun;
     }
 
@@ -252,7 +249,7 @@ namespace edm {
       beginRunTiming_=false;
     }
 
-    if (newLumi_ && luminosityBlockAuxiliary()) {
+    if (newLumi() && luminosityBlockAuxiliary()) {
       //      std::cout << "newLumi & lumiblock valid " << std::endl;
       return IsLumi;
     }
@@ -264,8 +261,8 @@ namespace edm {
       luminosityBlockNumber_++;
       //       std::cout << getpid() << "alignLsToLast signaled and incremented " 
       // 		<< luminosityBlockNumber_ << " eventcached " 
-      // 		<< eventCached_ << std::endl;
-      newLumi_ = true;
+      // 		<< eventCached() << std::endl;
+      setNewLumi();
       lumiSectionIndex_->value_ = luminosityBlockNumber_;
       resetLuminosityBlockAuxiliary();
       if(luminosityBlockNumber_ == thisEventLSid+1) 
@@ -281,7 +278,7 @@ namespace edm {
       }
       return IsLumi;
     }
-    if (eventCached_) {
+    if (eventCached()) {
       //      std::cout << "read event already cached " << std::endl;
       return IsEvent;
     }
@@ -329,7 +326,7 @@ namespace edm {
 // 	      std::cout << getpid() << "eol::recover ls::for " << (-1)*retval << std::endl;
 	      signalWaitingThreadAndBlock();
 	      luminosityBlockNumber_++;
-	      newLumi_ = true;
+	      setNewLumi();
 	      lumiSectionIndex_->value_ = luminosityBlockNumber_;
 	      resetLuminosityBlockAuxiliary();
 	      thisEventLSid = nextLsFromSignal - 1;
@@ -340,7 +337,7 @@ namespace edm {
 	    else{
 	      //	      std::cout << getpid() << "eol::realign ls::for " << (-1)*retval << std::endl;
 	      luminosityBlockNumber_ = nextLsFromSignal;
-	      newLumi_ = true;
+	      setNewLumi();
 	      lumiSectionIndex_->value_ = luminosityBlockNumber_;
 	      resetLuminosityBlockAuxiliary();
 	    }
@@ -357,7 +354,7 @@ namespace edm {
               thisEventLSid=nextLsFromSignal-1;//set new LS
 	      signalWaitingThreadAndBlock();
 	      luminosityBlockNumber_++;
-	      newLumi_ = true;
+	      setNewLumi();
 	      lumiSectionIndex_->value_ = luminosityBlockNumber_;
 	      alignLsToLast_ = true;
 
@@ -401,7 +398,7 @@ namespace edm {
 	    signalWaitingThreadAndBlock();
 	  luminosityBlockNumber_ = nextFakeLs;
 	  thisEventLSid = nextFakeLs-1;
-	  newLumi_ = true;
+	  setNewLumi();
 	  lumiSectionIndex_->value_ = luminosityBlockNumber_;
 	  resetLuminosityBlockAuxiliary();
 	  if(keepUsingPsidFromTrigger_ && 
@@ -430,7 +427,7 @@ namespace edm {
 		//		std::cout << getpid() << "eve::recover ls::for " << thisEventLSid << std::endl;
 		signalWaitingThreadAndBlock();
 		luminosityBlockNumber_++;
-		newLumi_ = true;
+		setNewLumi();
 		lumiSectionIndex_->value_ = luminosityBlockNumber_;
 		resetLuminosityBlockAuxiliary();
 		if(luminosityBlockNumber_ != thisEventLSid+1) alignLsToLast_ = true;
@@ -439,7 +436,7 @@ namespace edm {
 	      else{ // we got here because the process was restarted. just realign the ls id and proceed with this event
 		//		std::cout << getpid() << "eve::realign ls::for " << thisEventLSid << std::endl;
 		luminosityBlockNumber_ = thisEventLSid + 1;
-		newLumi_ = true;
+		setNewLumi();
 		lumiSectionIndex_->value_ = luminosityBlockNumber_;
 		resetLuminosityBlockAuxiliary();
 		lsToBeRecovered_->value_ = true;
@@ -455,7 +452,7 @@ namespace edm {
 	      if(luminosityBlockNumber_ == thisEventLSid)
 		signalWaitingThreadAndBlock();
 	      luminosityBlockNumber_ = thisEventLSid + 1;
-	      newLumi_ = true;
+	      setNewLumi();
 	      lumiSectionIndex_->value_ = luminosityBlockNumber_;
 	      resetLuminosityBlockAuxiliary();
 	    }
@@ -478,7 +475,7 @@ namespace edm {
     //    std::cout << "lumiblockaux = " << luminosityBlockAuxiliary() << std::endl;
     // If there is no luminosity block principal, make one.
     if (!luminosityBlockAuxiliary() || luminosityBlockAuxiliary()->luminosityBlock() != luminosityBlockNumber_) {
-      newLumi_ = true;
+      setNewLumi();
       setLuminosityBlockAuxiliary(new LuminosityBlockAuxiliary(
 	runNumber_, luminosityBlockNumber_, timestamp(), Timestamp::invalidTimestamp()));
       luminosityBlockAuxiliary()->setProcessHistoryID(phid_);
@@ -489,7 +486,7 @@ namespace edm {
     if(retval<0){
       //      std::cout << getpid() << " returning from getnextitem because retval < 0 - IsLumi "
       //		<< IsLumi << std::endl;
-      if(newLumi_) return IsLumi; else return getNextItemType();
+      if(newLumi()) return IsLumi; else return getNextItemType();
     }
 
     // make a brand new event principal
@@ -503,7 +500,7 @@ namespace edm {
 			    orbitNumber);
     eventAux.setProcessHistoryID(phid_);
     eventPrincipalCache()->fillEventPrincipal(eventAux, boost::shared_ptr<LuminosityBlockPrincipal>());
-    eventCached_ = true;
+    setEventCached();
     
     // have fedCollection managed by a std::auto_ptr<>
     std::auto_ptr<FEDRawDataCollection> bare_product(fedCollection);
@@ -518,7 +515,7 @@ namespace edm {
     // The commit is needed to complete the "put" transaction.
     e.commit_();
 */
-    if (newLumi_) {
+    if (newLumi()) {
       return IsLumi;
     }
     return IsEvent;
@@ -526,9 +523,9 @@ namespace edm {
 
   void
   DaqSource::setRun(RunNumber_t r) {
-    assert(!eventCached_);
+    assert(!eventCached());
     reset();
-    newRun_ = newLumi_ = true;
+    setNewRun();
     runNumber_ = r;
     if (reader_) reader_->setRunNumber(runNumber_);
     noMoreEvents_ = false;
@@ -537,9 +534,9 @@ namespace edm {
 
   boost::shared_ptr<RunAuxiliary>
   DaqSource::readRunAuxiliary_() {
-    assert(newRun_);
+    assert(newRun());
     assert(!noMoreEvents_);
-    newRun_ = false;
+    resetNewRun();
     boost::shared_ptr<RunAuxiliary> ra(new RunAuxiliary(runNumber_, timestamp(), Timestamp::invalidTimestamp()));
     ra->setProcessHistoryID(phid_);
     return ra;
@@ -547,28 +544,28 @@ namespace edm {
 
   boost::shared_ptr<LuminosityBlockAuxiliary>
   DaqSource::readLuminosityBlockAuxiliary_() {
-    assert(!newRun_);
-    assert(newLumi_);
+    assert(!newRun());
+    assert(newLumi());
     assert(!noMoreEvents_);
     assert(luminosityBlockAuxiliary());
-    //assert(eventCached_); //the event may or may not be cached - rely on 
+    //assert(eventCached()); //the event may or may not be cached - rely on 
     // the call to getNextItemType to detect that.
-    newLumi_ = false;
+    resetNewLumi();
     return luminosityBlockAuxiliary();
   }
 
   EventPrincipal*
   DaqSource::readEvent_() {
     //    std::cout << "assert not newRun " << std::endl;
-    assert(!newRun_);
+    assert(!newRun());
     //    std::cout << "assert not newLumi " << std::endl;
-    assert(!newLumi_);
+    assert(!newLumi());
     //    std::cout << "assert not noMoreEvents " << std::endl;
     assert(!noMoreEvents_);
     //    std::cout << "assert eventCached " << std::endl;
-    assert(eventCached_);
+    assert(eventCached());
     //    std::cout << "asserts done " << std::endl;
-    eventCached_ = false;
+    resetEventCached();
     eventPrincipalCache()->setLuminosityBlockPrincipal(luminosityBlockPrincipal());
     return eventPrincipalCache();
   }
