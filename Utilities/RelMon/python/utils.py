@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: agimbuta $
-# $Date: 2012/07/25 09:28:46 $
-# $Revision: 1.9 $
+# $Date: 2012/07/25 16:33:52 $
+# $Revision: 1.10 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -158,7 +158,7 @@ class StatisticalTest(object):
     if self.get_rank()<0:
       status=NULL
       logger(0,"+++ Test %s FAILED: rank is %s and threshold is %s ==> %s" %(self.name, self.rank, self.threshold, status))  
-    elif self.get_rank()<=self.threshold:
+    elif self.get_rank() < self.threshold:
       status=FAIL
     logger(0,"+++ Test %s: rank is %s and threshold is %s ==> %s" %(self.name, self.rank, self.threshold, status))
     return status
