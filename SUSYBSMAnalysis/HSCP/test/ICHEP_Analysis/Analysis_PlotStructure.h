@@ -1193,8 +1193,8 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      for(unsigned int s=0;s<samples.size();s++){
         if(samples[s].Name==st[i]->Name){Index=s;break;}
      }
-     if(st[i]->Name=="MCTr"){lg.push_back("MC (SM)");}
-     else if(st[i]->Name=="Data"){lg.push_back("Observed");}
+     if(st[i]->Name.find("MCTr")!=string::npos()){lg.push_back("MC (SM)");}
+     else if(st[i]->Name.find("Data")!=string::npos()){lg.push_back("Observed");}
      else if(Index==-1){lg.push_back(st[i]->Name);}else{lg.push_back(samples[Index].Legend);}
   }
    
@@ -1245,7 +1245,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_V3D->Clone();      legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral());   }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "V3D (cm)", "Fraction of tracks", 0,0, 1E-3,2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"V3D_BS", true);
@@ -1256,7 +1256,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_Chi2->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#chi^{2}/ndof", "Fraction of tracks", 0,0, 1E-3,2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Chi2_BS", true);
@@ -1267,7 +1267,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_Qual->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "quality", "Fraction of tracks", 0,0, 1E-3,2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Quality_BS", true);
@@ -1278,7 +1278,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_TNOH->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#NOH", "Fraction of tracks", 0,0, 1E-3,2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"NOH_BS", true);
@@ -1289,8 +1289,8 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
      Histos[i] = (TH1*)st[i]->BS_TNOHFraction->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Fraction of hits", "Fraction of tracks", 0,0, 1E-3,2);
-//   DrawLegend((TObject**)Histos,legend,"","P",0.62, 0.90, 0.38, 0.065);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+//   DrawLegend((TObject**)Histos,legend,"","P",0.62, 0.90, 0.38, 0.05);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"NOHFraction_BS", true);
@@ -1301,7 +1301,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
      Histos[i] = (TH1*)st[i]->BS_TNOPH->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#NOPH", "Fraction of tracks", 0,0, 1E-3,2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"NOPH_BS", true);
@@ -1312,7 +1312,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
      Histos[i] = (TH1*)st[i]->BS_Eta->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#eta", "Fraction of tracks", 0,0, 1E-3,2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    //c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Eta_BS", true);
@@ -1323,7 +1323,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_TNOM->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#NOM", "Fraction of tracks", 0,0, 1E-3,2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"NOM_BS", true);
@@ -1334,7 +1334,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_nDof->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "TOF_{nDof}", "Fraction of tracks", 0,0, 1E-3,2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"nDof_BS", true);
@@ -1345,7 +1345,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
      Histos[i] = (TH1*)st[i]->BS_TOFError->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta error", "Fraction of tracks", 0,0, 1E-3,2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"TOFError_BS", true);
@@ -1356,7 +1356,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_Pterr->Clone();       legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} Err / p_{T}", "Fraction of tracks", 0,0, 1E-3,2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Pterr_BS", true);
@@ -1367,7 +1367,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_MPt->Clone();         legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} (GeV/c)", "Fraction of tracks", 0,1250, 1E-6,1);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"MPt_BS", true);
@@ -1389,7 +1389,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_MIm->Clone();         legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxM_Legend.c_str(), "Fraction of tracks", 0,20, 1E-6,1);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"MIm_BS", true);
@@ -1400,7 +1400,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_MTOF->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "Fraction of tracks", -2,5, 1E-6,1);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"MTOF_BS", true);
@@ -1411,7 +1411,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_TIsol->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); } 
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Isolation: Track SumPt (GeV/c)", "Fraction of tracks", 0,0, 1E-3,2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"IsolT_BS", true);
@@ -1422,7 +1422,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_EIsol->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Isolation: (Ecal + Hcal) Energy / p", "Fraction of tracks", 0,0, 1E-3,2);
-   DrawLegend((TObject**)Histos,legend,"","P",  0.80, 0.92, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P",  0.80, 0.92, 0.38, 0.05);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"IsolE_BS", true);
@@ -1434,7 +1434,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      Histos[i] = (TH1*)st[i]->BS_dR_NVTrack->Clone(); Histos[i]->Rebin(1);  legend.push_back(lg[i]);  
      if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "dR", "Fraction of tracks", 0,0.4, 1E-3,2, false, false, true, false);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"dR_NVTrack_BS", true);
@@ -1446,7 +1446,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      Histos[i] = (TH1*)st[i]->BS_SegSep->Clone();  legend.push_back(lg[i]);  Histos[i]->Rebin(1);  
      if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "dR to opp side segment", "Fraction of tracks", 0,2.5, 1E-3,2, false, false, true, false);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"SegSep_BS", true);
@@ -1458,7 +1458,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      Histos[i] = (TH1*)st[i]->BS_SegMinPhiSep->Clone();  legend.push_back(lg[i]);  Histos[i]->Rebin(1);
      if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "dPhi to opp side segment", "Fraction of tracks", 0,0, 1E-3,2, false, false, true, false);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"SegMinPhiSep_BS", true);
@@ -1470,7 +1470,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      Histos[i] = (TH1*)st[i]->BS_SegMinEtaSep->Clone();  legend.push_back(lg[i]);  Histos[i]->Rebin(1);
      if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "dEta to opp side segment", "Fraction of tracks", 0,0, 1E-3,2, false, false, true, false);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"SegMinEtaSep_BS", true);
@@ -1482,7 +1482,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      Histos[i] = (TH1*)st[i]->BS_SegMinEtaSep_FailDz->Clone();  legend.push_back(lg[i]);  Histos[i]->Rebin(1);  
      if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "dR to opp side segment", "Fraction of tracks", -0.5,0.5, 1E-3,2, false, false, true, false);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"SegMinEtaSep_FailDz_BS", true);
@@ -1494,7 +1494,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      Histos[i] = (TH1*)st[i]->BS_SegMinEtaSep_PassDz->Clone();  legend.push_back(lg[i]);  Histos[i]->Rebin(1);  
      if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1));}
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "dEta to opp side segment", "Fraction of tracks", -0.5,0.5, 1E-3,2, false, false, true, false);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"SegMinEtaSep_PassDz_BS", true);
@@ -1506,7 +1506,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      Histos[i] = (TH1*)st[i]->BS_MatchedStations->Clone(); legend.push_back(lg[i]);  
      if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Muon stations", "Fraction of tracks", 0,5, 1E-3,2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"MatchedStations_BS", true);
@@ -1518,7 +1518,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      Histos[i] = (TH1*)st[i]->BS_PV->Clone(); Histos[i]->Rebin(1);  legend.push_back(lg[i]);  
      if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Primary Vertices", "Fraction of tracks", 0,0, 1E-3,2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"PV_BS", true);
@@ -1530,7 +1530,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      Histos[i] = (TH1*)st[i]->BS_InnerInvPtDiff->Clone(); Histos[i]->Rebin(4);  legend.push_back(lg[i]);
      if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Inner Inverse Pt Diff", "Fraction of tracks", -3,3, 1E-3,2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"InnerInvPtDiff_BS", false);
@@ -1556,7 +1556,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    }
    sprintf(YAxisTitle,"Fraction of tracks/%2.0f [cm]",Histos[0]->GetBinWidth(1));
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Dxy (cm)", YAxisTitle, 0, 0, 1E-3,2, false, false, true, true);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Dxy_BS", false);
@@ -1570,7 +1570,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    }
    sprintf(YAxisTitle,"Fraction of tracks/%2.0f [cm]",Histos[0]->GetBinWidth(1));
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Dz (cm)", YAxisTitle, 0, 0, 1E-3,2, false, false, true, true);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Dz_BS", false);
@@ -1610,7 +1610,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    Histos[i] = (TH1*)st[i]->BS_Is; legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    sprintf(YAxisTitle,"Fraction of tracks/%0.2f",Histos[0]->GetBinWidth(1));
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend.c_str(), YAxisTitle, 0,0, 1E-6,2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend.c_str(), YAxisTitle, 0,1, 1E-6,2, false, true);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
@@ -1621,7 +1621,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_Im; legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxM_Legend.c_str(), "Fraction of tracks", 0,20, 1E-6,2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Im_BS");
@@ -1642,7 +1642,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
      Histos[i] = (TH1*)st[i]->AS_Im->ProjectionY((st[i]->Name+"BB").c_str(),CutIndex+1,CutIndex+1); legend.push_back(lg[i]); if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral());}
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxM_Legend.c_str(), "Fraction of tracks", 0,20, 1E-6,2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,std::string("Im_AS")+CutIndexStr);
@@ -1669,7 +1669,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      Histos[i] = (TH1*)st[i]->BS_Pt_FailDz; legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    sprintf(YAxisTitle,"Fraction of tracks/%2.0f GeV/#font[12]{c}",Histos[0]->GetBinWidth(1));
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} (GeV/#font[12]{c})", YAxisTitle, 0,1250, 1E-6, 2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Pt_FailDz_BS");
@@ -1679,7 +1679,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->AS_Pt->ProjectionY((st[i]->Name+"CC").c_str(),CutIndex+1,CutIndex+1); legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} (GeV/c)", "Fraction of tracks", 0,1250, 1E-6,2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,std::string("Pt_AS")+CutIndexStr);
@@ -1691,7 +1691,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    Histos[i] = (TH1*)st[i]->BS_TOF; legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    sprintf(YAxisTitle,"Fraction of tracks/%0.2f",Histos[0]->GetBinWidth(1));
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", YAxisTitle, 0, 4, 1E-6, 2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);//,0.35);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);//,0.35);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"TOF_BS");
@@ -1713,7 +1713,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    Histos[i] = (TH1*)st[i]->BS_TOF_CSC; legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    sprintf(YAxisTitle,"Fraction of tracks/%0.2f",Histos[0]->GetBinWidth(1));
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", YAxisTitle, -1, 4, 1E-6, 2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);//,0.35);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);//,0.35);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"TOF_CSC_BS");
@@ -1723,7 +1723,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->AS_TOF->ProjectionY((st[i]->Name+"DD").c_str(),CutIndex+1,CutIndex+1); legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "Fraction of tracks", 1,4, 1E-6,2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);//, 0.35);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);//, 0.35);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,std::string("TOF_AS")+CutIndexStr);
@@ -1735,7 +1735,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      Histos[i] = (TH1*)st[i]->BS_TOF_FailDz; legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    sprintf(YAxisTitle,"Fraction of tracks/%0.2f",Histos[0]->GetBinWidth(1));
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", YAxisTitle, 0, 4, 1E-6, 2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);//,0.35);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);//,0.35);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"TOF_FailDz_BS");
@@ -1746,7 +1746,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      Histos[i] = (TH1*)st[i]->BS_NVertex;  legend.push_back(lg[i]);   if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral());   }
    sprintf(YAxisTitle,"Fraction of tracks/%0.0f vertex",Histos[0]->GetBinWidth(1));
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Number of reconstructed vertices", YAxisTitle, 0,0, 1E-3,2);
-   DrawLegend((TObject**)Histos,legend,"","P",  0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P",  0.78, 0.92, 0.38, 0.045);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"NVertex_BS");
    delete c1;
@@ -1756,7 +1756,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      Histos[i] = (TH1*)st[i]->BS_SumpTOverpT;   legend.push_back(lg[i]); if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral());    }
    sprintf(YAxisTitle,"Fraction of tracks/%0.3f",Histos[0]->GetBinWidth(1));
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#sump_{T}/p_{T}",  YAxisTitle, 0,0, 1E-3, 2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.90, 0.38, 0.065);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"SumptOverpt_BS");

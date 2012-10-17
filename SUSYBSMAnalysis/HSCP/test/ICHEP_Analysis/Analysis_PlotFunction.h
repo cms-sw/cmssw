@@ -57,6 +57,8 @@ void SaveCanvas(TCanvas* c, std::string path, std::string name, bool OnlyPPNG=fa
 // function that add the TPaveText on the current canvas with the "CMS Preliminary...." on top of the Histograms
 void DrawPreliminary(string Text, double SQRTS_, double Lumi, double X=0.15, double Y=0.995, double W=0.82, double H=0.945){
    TPaveText* T = new TPaveText(X,Y,W,H, "NDC");
+   T->SetTextFont(43);  //give the font size in pixel (instead of fraction)
+   T->SetTextSize(15);  //font size
    T->SetFillColor(0);
    T->SetTextAlign(22);
    char tmp[2048];
@@ -101,7 +103,9 @@ void DrawLegend (TObject** Histos, std::vector<std::string> legend, std::string 
       leg = new TLegend(X,Y,X-W,Y - N*H);
       leg->SetFillStyle(0);
       leg->SetBorderSize(0);
-      //leg->SetTextAlign(32);
+      leg->SetTextFont(43); //give the font size in pixel (instead of fraction)
+      leg->SetTextSize(15); //font size
+//      leg->SetTextAlign(11);
       if(Title!="")leg->SetHeader(Title.c_str());
 
       if(Style_=="DataMC"){
