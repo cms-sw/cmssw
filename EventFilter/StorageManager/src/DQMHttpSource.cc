@@ -1,4 +1,4 @@
-// $Id: DQMHttpSource.cc,v 1.27 2011/07/04 10:21:53 mommsen Exp $
+// $Id: DQMHttpSource.cc,v 1.28 2011/07/05 12:06:04 mommsen Exp $
 /// @file: DQMHttpSource.cc
 
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -31,33 +31,39 @@ namespace edm
   {}
 
 
-  std::auto_ptr<Event> DQMHttpSource::readOneEvent()
+  EventPrincipal* DQMHttpSource::read()
   {
     initializeDQMStore();
     stor::CurlInterface::Content data;
 
     dqmEventServerProxy_.getOneEvent(data);
-    if ( data.empty() ) return std::auto_ptr<edm::Event>();
+    if ( data.empty() ) return nullptr;
 
     HeaderView hdrView(&data[0]);
     if (hdrView.code() == Header::DONE)
-      return std::auto_ptr<edm::Event>();
+      return nullptr;
 
     const DQMEventMsgView dqmEventMsgView(&data[0]);
     addEventToDQMBackend(dqmStore_, dqmEventMsgView, true);
 
-    // make a fake event containing no data but the evId and runId from DQMEvent
+    // make a fake event principal containing no data but the evId and runId from DQMEvent
     // and the time stamp from the event at update
-    std::auto_ptr<Event> e = makeEvent(
-      dqmEventMsgView.runNumber(),
-      dqmEventMsgView.lumiSection(),
-      dqmEventMsgView.eventNumberAtUpdate(),
-      dqmEventMsgView.timeStamp()
-    );
+    RunNumber_t run = dqmEventMsgView.runNumber();
+    LuminosityBlockNumber_t lumi = dqmEventMsgView.lumiSection();
+    Timestamp const& tstamp = dqmEventMsgView.timeStamp();
 
-    return e;
+    if(!runAuxiliary()) {
+      setRunAuxiliary(new RunAuxiliary(run, tstamp, Timestamp::invalidTimestamp()));
+    }
+    if(!luminosityBlockAuxiliary()) {
+      setLuminosityBlockAuxiliary(new LuminosityBlockAuxiliary(run, lumi, tstamp, Timestamp::invalidTimestamp()));
+    }
+    EventSourceSentry sentry(*this);
+    EventAuxiliary aux(EventID(run, lumi, dqmEventMsgView.eventNumberAtUpdate()), processGUID(), tstamp, true, EventAuxiliary::PhysicsTrigger);
+    eventPrincipalCache()->fillEventPrincipal(aux, boost::shared_ptr<LuminosityBlockPrincipal>());
+
+    return eventPrincipalCache();
   }
-  
   
   void DQMHttpSource::addEventToDQMBackend
   (
