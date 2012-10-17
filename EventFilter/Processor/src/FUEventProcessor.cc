@@ -740,7 +740,8 @@ bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
     if (forkInEDM_.value_) {
             //only in new forking for now
             sem_post(sigmon_sem_);
-	    doEndRunInEDM();
+	    if (!doEndRunInEDM())
+	      return false;
     }
   }
   vulture_->stop();
@@ -767,7 +768,9 @@ bool FUEventProcessor::halting(toolbox::task::WorkLoop* wl)
     stopSlavesAndAcknowledge();
     if (forkInEDM_.value_) {
             sem_post(sigmon_sem_);
-	    doEndRunInEDM();
+	    if (!doEndRunInEDM())
+	      return false;
+
     }
   }
   try{
@@ -2671,7 +2674,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.159 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.160 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
