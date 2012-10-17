@@ -48,7 +48,7 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
   
   SetPropagationDirection setDir(*thePropagator,aSeed.direction());
 
-#ifdef EDM_LM_DEBUG
+#ifdef EDM_ML_DEBUG
   LogDebug("TrackFitters")
     <<" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
     <<" KFTrajectoryFitter::fit starting with " << hits.size() <<" HITS";
@@ -80,7 +80,7 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
       continue;
     }
 
-#ifdef EDM_LM_DEBUG
+#ifdef EDM_ML_DEBUG
     if (hit.isValid()) {
       LogTrace("TrackFitters")
 	<< " ----------------- HIT #" << hitcounter << " (VALID)-----------------------\n"
