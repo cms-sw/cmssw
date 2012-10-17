@@ -919,7 +919,7 @@ void Analysis_Step3(char* SavePath)
       //need a new set of plots for these events
       string CosmicName="";
       if(isData && TypeMode==3) {
-	if(samples[s].Name.find("12")!=string::npos) CosmicName="Cosmic8TeV";
+	if(samples[s].Name.find("8TeV")!=string::npos) CosmicName="Cosmic8TeV";
 	else CosmicName="Cosmic7TeV";
 	if(plotsMap.find(CosmicName)==plotsMap.end()){plotsMap[CosmicName] = stPlots();}
 	stPlots_Init(HistoFile,plotsMap[CosmicName],CosmicName, CutPt.size(), false, false, CutPt_Flip.size());
