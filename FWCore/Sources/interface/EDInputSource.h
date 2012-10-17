@@ -35,9 +35,6 @@ namespace edm {
     static void fillDescription(ParameterSetDescription& desc);
 
   private:
-    virtual void setRun(RunNumber_t);
-    virtual void setLumi(LuminosityBlockNumber_t lb);
-
     InputFileCatalog catalog_;
     InputFileCatalog secondaryCatalog_;
   };

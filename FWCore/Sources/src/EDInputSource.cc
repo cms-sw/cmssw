@@ -30,20 +30,6 @@ namespace edm {
   }
 
   void
-  EDInputSource::setRun(RunNumber_t) {
-      LogWarning("IllegalCall")
-        << "EDInputSource::setRun()\n"
-        << "Run number cannot be modified for an EDInputSource\n";
-  }
-
-  void
-  EDInputSource::setLumi(LuminosityBlockNumber_t) {
-      LogWarning("IllegalCall")
-        << "EDInputSource::setLumi()\n"
-        << "Luminosity Block ID cannot be modified for an EDInputSource\n";
-  }
-
-  void
   EDInputSource::fillDescription(ParameterSetDescription & desc) {
     std::vector<std::string> defaultStrings;
     desc.addUntracked<std::vector<std::string> >("fileNames")
