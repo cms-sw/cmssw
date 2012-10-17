@@ -113,7 +113,7 @@ void Analysis_Step4(std::string InputPattern)
           TH2D*  H_D_DzSidebands_Cosmic=NULL;
 	  if(TypeMode==3 && DirName.find("Data")!=string::npos) {
 	    //Only 2012 sample has pure cosmic sample, as only ratio used can use 2012 sample to make 2011 cosmic prediction
-            string CosmicDir = "Cosmic12";
+            string CosmicDir = "Cosmic8TeV";
 	    //string CosmicDir = DirName.replace(0, 4, "Cosmic");
 	    H_D_DzSidebands_Cosmic = (TH2D*)GetObjectFromPath(InputFile, (CosmicDir + "/H_D_DzSidebands").c_str());
 	    H_D_Cosmic             = (TH1D*)GetObjectFromPath(InputFile, (CosmicDir + "/H_D" + Suffix).c_str());
@@ -206,12 +206,14 @@ void Analysis_Step4(std::string InputPattern)
 	   //Predict the number of cosmics passing all cuts as number passing in dz sideband times the ratio of tracks in the sideeband
 	   //vs number in central region as determined by pure cosmic sample
 	   //Multile sidebands are made to check for background consistency, the fifth one is used for the actual prediction
+	   if(DirName.find("Data")!=string::npos) {
 	   double D_Sideband = H_D_DzSidebands->GetBinContent(CutIndex+1, 5);
 	   double D_Cosmic = H_D_Cosmic->GetBinContent(CutIndex+1);
            double D_Sideband_Cosmic = H_D_DzSidebands_Cosmic->GetBinContent(CutIndex+1, 5);
 	   if(D_Sideband_Cosmic>0) {
 	     P_Cosmic = D_Sideband * D_Cosmic / D_Sideband_Cosmic;
 	     Perr_Cosmic = sqrt( (pow(D_Cosmic/D_Sideband_Cosmic,2)*D_Sideband) + (pow(D_Sideband/D_Sideband_Cosmic,2)*D_Cosmic) + (pow((D_Cosmic*(D_Sideband)/(D_Sideband_Cosmic*D_Sideband_Cosmic)),2)*D_Sideband_Cosmic) );
+	   }
 	   }
 
 	   P    = P_Coll + P_Cosmic;
@@ -232,6 +234,7 @@ void Analysis_Step4(std::string InputPattern)
          H_P->SetBinError  (CutIndex+1,Perr);
 
          if(P==0 || isnan((float)P)) {printf("\n"); continue;} //Skip this CutIndex --> No Prediction possible
+
          printf(" --> D=%6.2E vs Pred = %6.2E +- %6.2E (%6.2E%%)\n", D, P,  Perr, 100.0*Perr/P );
          if(TypeMode>2)continue; //Need to compute mass predicted distribution ONLY for TkOnly and TkTOF
 
