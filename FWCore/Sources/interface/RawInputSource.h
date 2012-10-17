@@ -4,8 +4,6 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#include <memory>
-
 #include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -22,6 +20,7 @@ namespace edm {
     static void fillDescription(ParameterSetDescription& description);
 
   protected:
+    EventPrincipal* makeEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, Timestamp const& tstamp);
     virtual EventPrincipal* read() = 0;
     void setInputFileTransitionsEachEvent() {inputFileTransitionsEachEvent_ = true;}
 

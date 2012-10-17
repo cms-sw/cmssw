@@ -1,4 +1,4 @@
-// $Id: DQMHttpSource.cc,v 1.28 2011/07/05 12:06:04 mommsen Exp $
+// $Id: DQMHttpSource.cc,v 1.29 2012/10/17 02:03:00 wmtan Exp $
 /// @file: DQMHttpSource.cc
 
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -48,22 +48,16 @@ namespace edm
 
     // make a fake event principal containing no data but the evId and runId from DQMEvent
     // and the time stamp from the event at update
-    RunNumber_t run = dqmEventMsgView.runNumber();
-    LuminosityBlockNumber_t lumi = dqmEventMsgView.lumiSection();
-    Timestamp const& tstamp = dqmEventMsgView.timeStamp();
+    EventPrincipal* e = makeEvent(
+      dqmEventMsgView.runNumber(),
+      dqmEventMsgView.lumiSection(),
+      dqmEventMsgView.eventNumberAtUpdate(),
+      dqmEventMsgView.timeStamp()
+    );
 
-    if(!runAuxiliary()) {
-      setRunAuxiliary(new RunAuxiliary(run, tstamp, Timestamp::invalidTimestamp()));
-    }
-    if(!luminosityBlockAuxiliary()) {
-      setLuminosityBlockAuxiliary(new LuminosityBlockAuxiliary(run, lumi, tstamp, Timestamp::invalidTimestamp()));
-    }
-    EventSourceSentry sentry(*this);
-    EventAuxiliary aux(EventID(run, lumi, dqmEventMsgView.eventNumberAtUpdate()), processGUID(), tstamp, true, EventAuxiliary::PhysicsTrigger);
-    eventPrincipalCache()->fillEventPrincipal(aux, boost::shared_ptr<LuminosityBlockPrincipal>());
-
-    return eventPrincipalCache();
+    return e;
   }
+
   
   void DQMHttpSource::addEventToDQMBackend
   (

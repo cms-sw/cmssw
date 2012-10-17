@@ -7,7 +7,6 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -48,6 +47,21 @@ namespace edm {
     assert(eventCached());
     resetEventCached();
     eventPrincipalCache()->setLuminosityBlockPrincipal(luminosityBlockPrincipal());
+    return eventPrincipalCache();
+  }
+
+  EventPrincipal*
+  RawInputSource::makeEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, Timestamp const& tstamp) {
+    if(!runAuxiliary()) {
+      setRunAuxiliary(new RunAuxiliary(run, tstamp, Timestamp::invalidTimestamp()));
+    }
+    if(!luminosityBlockAuxiliary()) {
+      setLuminosityBlockAuxiliary(new LuminosityBlockAuxiliary(run, lumi, tstamp, Timestamp::invalidTimestamp()));
+    }
+    EventSourceSentry sentry(*this);
+    EventAuxiliary aux(EventID(run, lumi, event), processGUID(), tstamp, true, EventAuxiliary::PhysicsTrigger);
+    eventPrincipalCache()->fillEventPrincipal(aux, boost::shared_ptr<LuminosityBlockPrincipal>());
+    setEventCached();
     return eventPrincipalCache();
   }
 
