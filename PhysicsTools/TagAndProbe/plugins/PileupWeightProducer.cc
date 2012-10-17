@@ -11,8 +11,6 @@
      [Notes on implementation]
 */
 //
-// Original Author:  Ricardo Vasquez Sierra,6 R-025,+41227672274,
-//         Created:  Mon Nov 21 15:05:26 CET 2011
 //
 //
 
@@ -28,9 +26,12 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "PhysicsTools/Utilities/interface/Lumi3DReWeighting.h"
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
 #include <vector>
+
+#include "TFile.h"
+#include "TH1F.h"
+
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
 
 //
 // class declaration
@@ -48,19 +49,13 @@ class PileupWeightProducer : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
-      virtual void beginRun(edm::Run&, edm::EventSetup const&);
-      virtual void endRun(edm::Run&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+   // ----------member data ---------------------------
+   std::string pileupData_;
+   TH1F* h_pileupData_;
+   TFile* dataFile_;
+   TH1F* h_pileupMC_;
+   TH1F* h_pileupRatio_;
 
-      // ----------member data ---------------------------
-
-  bool firsttime_;
-  std::string pileupMC_;
-  std::string pileupData_;
-  edm::Lumi3DReWeighting LumiWeightsNominal_;
-  edm::Lumi3DReWeighting LumiWeightsUp_;
-  edm::Lumi3DReWeighting LumiWeightsDown_;
 };
 
 //
@@ -77,51 +72,101 @@ class PileupWeightProducer : public edm::EDProducer {
 //
 PileupWeightProducer::PileupWeightProducer(const edm::ParameterSet& iConfig)
 {
-//   firsttime_= iConfig.existsAs<bool>("FirstTime") ? iConfig.getParameter<bool>("FirstTime") : true ;
-//   pileupMC_ = iConfig.existsAs<std::string>("PileupMCFile") ? iConfig.getParameter<std::string>("PileupMCFile") : "PUMC_dist.root" ;
-//   pileupData_ = iConfig.existsAs<std::string>("PileupDataFile") ? iConfig.getParameter<std::string>("PileupDataFile") : "PUData_dist.root" ;
+  double Summer2012[60] = {
+    //Pile Up For S10
+    2.560E-06,
+    5.239E-06,
+    1.420E-05,
+    5.005E-05,
+    1.001E-04,
+    2.705E-04,
+    1.999E-03,
+    6.097E-03,
+    1.046E-02,
+    1.383E-02,
+    1.685E-02,
+    2.055E-02,
+    2.572E-02,
+    3.262E-02,
+    4.121E-02,
+    4.977E-02,
+    5.539E-02,
+    5.725E-02,
+    5.607E-02,
+    5.312E-02,
+    5.008E-02,
+    4.763E-02,
+    4.558E-02,
+    4.363E-02,
+    4.159E-02,
+    3.933E-02,
+    3.681E-02,
+    3.406E-02,
+    3.116E-02,
+    2.818E-02,
+    2.519E-02,
+    2.226E-02,
+    1.946E-02,
+    1.682E-02,
+    1.437E-02,
+    1.215E-02,
+    1.016E-02,
+    8.400E-03,
+    6.873E-03,
+    5.564E-03,
+    4.457E-03,
+    3.533E-03,
+    2.772E-03,
+    2.154E-03,
+    1.656E-03,
+    1.261E-03,
+    9.513E-04,
+    7.107E-04,
+    5.259E-04,
+    3.856E-04,
+    2.801E-04,
+    2.017E-04,
+    1.439E-04,
+    1.017E-04,
+    7.126E-05,
+    4.948E-05,
+    3.405E-05,
+    2.322E-05,
+    1.570E-05,
+    5.005E-06
+  };   
 
-  firsttime_ =  iConfig.getUntrackedParameter<bool>("FirstTime");
-  pileupMC_ =  iConfig.getUntrackedParameter<std::string>("PileupMCFile");
+  
   pileupData_ = iConfig.getUntrackedParameter<std::string>("PileupDataFile");
-
+  TFile* dataFile_ = new TFile(pileupData_.c_str(), "READ");
+  h_pileupData_ = new TH1F(  *(static_cast<TH1F*>(dataFile_->Get( "pileup" )->Clone() )) );
+  
+  h_pileupMC_ = new TH1F("pileupMC","Generated pileup distribution (i.e., MC)",60,0.,60);
+  for (int i=1;i<=60;i++)  {
+    h_pileupMC_->SetBinContent(i,Summer2012[i-1]);
+  }
+  
+  h_pileupData_->Scale( 1.0/ h_pileupData_->Integral() );
+  h_pileupMC_->Scale( 1.0/ h_pileupMC_->Integral() );
+  h_pileupRatio_ = new TH1F( *(h_pileupData_)) ;
+  h_pileupRatio_->Divide(h_pileupMC_);
+  
   //register your products
   
   produces<std::vector<float> >( "pileupWeights" ).setBranchAlias( "pileupWeights" );
-  
-  
 
-  if ( firsttime_ )
-    {
-      std::cout<< " Initializing with the following files MC: " << pileupMC_ << " data: " << pileupData_ << std::endl;
-      LumiWeightsNominal_.weight3D_set( pileupMC_, pileupData_, "pileup", "pileup");
-      LumiWeightsUp_.weight3D_set( pileupMC_, pileupData_, "pileup", "pileup");
-      LumiWeightsDown_.weight3D_set( pileupMC_, pileupData_, "pileup", "pileup");
-
-      LumiWeightsNominal_.weight3D_init(1.0);
-      LumiWeightsUp_.weight3D_init(1.08);
-      LumiWeightsDown_.weight3D_init(0.92);
-    }
-  else 
-    {
-      std::cout<< " Initializing with Weight3D.root " << std::endl; 
-      LumiWeightsNominal_.weight3D_init("Weight3D.root");
-      LumiWeightsUp_.weight3D_init("Weight3DscaleUp.root");
-      LumiWeightsDown_.weight3D_init("Weight3DscaleDown.root");
-    }
-
-
-
-  
 }
 
 
 PileupWeightProducer::~PileupWeightProducer()
 {
- 
    // do anything here that needs to be done at destruction time
    // (e.g. close files, deallocate resources etc.)
-
+  delete h_pileupData_;
+  delete h_pileupMC_;
+  delete h_pileupRatio_;
+//   dataFile_ -> Close();
+//   delete dataFile_;
 }
 
 // ------------ method called to produce the data  ------------
@@ -131,18 +176,25 @@ PileupWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    using namespace edm;
    std::auto_ptr<std::vector<float> > pileupWeights( new std::vector<float> );
-
-   edm::EventBase* iEventB = dynamic_cast<edm::EventBase*>(&iEvent);
-   double nominalWeight3D = LumiWeightsNominal_.weight3D( (*iEventB) );
-   double weight3DUp = LumiWeightsUp_.weight3D( (*iEventB) );
-   double weight3DDown = LumiWeightsDown_.weight3D( (*iEventB) );
-
-   pileupWeights->push_back( nominalWeight3D );
-   pileupWeights->push_back( weight3DUp );
-   pileupWeights->push_back( weight3DDown );
+   
+   // MC Pileup Summary Info
+   float mcPUtrueInteractions = 0;
+   const edm::InputTag PileupSrc("addPileupInfo");
+   edm::Handle<std::vector< PileupSummaryInfo > >  PupInfo;
+   iEvent.getByLabel(PileupSrc, PupInfo);
+   std::vector<PileupSummaryInfo>::const_iterator PVI;
+   int ctid = 0;
+   for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+     if (ctid>2) break;
+     if(PVI->getBunchCrossing() == 0) mcPUtrueInteractions = PVI->getTrueNumInteractions();
+     ctid++;
+   }
+   
+   float nominalWeight = h_pileupRatio_->GetBinContent(int(mcPUtrueInteractions+0.01)+1); 
+   pileupWeights->push_back( nominalWeight );
 
    iEvent.put(pileupWeights, "pileupWeights");
-   
+
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -154,30 +206,6 @@ PileupWeightProducer::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 PileupWeightProducer::endJob() {
-}
-
-// ------------ method called when starting to processes a run  ------------
-void 
-PileupWeightProducer::beginRun(edm::Run&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a run  ------------
-void 
-PileupWeightProducer::endRun(edm::Run&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void 
-PileupWeightProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void 
-PileupWeightProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
