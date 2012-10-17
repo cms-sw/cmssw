@@ -31,9 +31,6 @@ namespace edm {
     zerothEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1) - 1),
     eventID_(pset.getUntrackedParameter<unsigned int>("firstRun", 1), pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1), zerothEvent_),
     origEventID_(eventID_),
-    newRun_(true),
-    newLumi_(true),
-    eventCached_(false),
     lumiSet_(false),
     eventSet_(false),
     isRealData_(realData),
@@ -53,7 +50,7 @@ namespace edm {
   boost::shared_ptr<RunAuxiliary>
   ConfigurableInputSource::readRunAuxiliary_() {
     Timestamp ts = Timestamp(presentTime_);
-    newRun_ = false;
+    resetNewRun();
     return boost::shared_ptr<RunAuxiliary>(new RunAuxiliary(eventID_.run(), ts, Timestamp::invalidTimestamp()));
   }
 
@@ -61,14 +58,14 @@ namespace edm {
   ConfigurableInputSource::readLuminosityBlockAuxiliary_() {
     if (processingMode() == Runs) return boost::shared_ptr<LuminosityBlockAuxiliary>();
     Timestamp ts = Timestamp(presentTime_);
-    newLumi_ = false;
+    resetNewLumi();
     return boost::shared_ptr<LuminosityBlockAuxiliary>(new LuminosityBlockAuxiliary(eventID_.run(), eventID_.luminosityBlock(), ts, Timestamp::invalidTimestamp()));
   }
 
   EventPrincipal *
   ConfigurableInputSource::readEvent_() {
-    assert(eventCached_ || processingMode() != RunsLumisAndEvents);
-    eventCached_ = false;
+    assert(eventCached() || processingMode() != RunsLumisAndEvents);
+    resetEventCached();
     return eventPrincipalCache();
   }
 
@@ -80,11 +77,11 @@ namespace edm {
     eventPrincipalCache()->fillEventPrincipal(aux, luminosityBlockPrincipal());
     Event e(*eventPrincipalCache(), moduleDescription());
     if (!produce(e)) {
-      eventCached_ = false;
+      resetEventCached();
       return;
     }
     e.commit_();
-    eventCached_ = true;
+    setEventCached();
   }
 
   void
@@ -107,7 +104,8 @@ namespace edm {
       eventID_ = EventID(r, origEventID_.luminosityBlock(), zerothEvent_);
       numberEventsInThisRun_ = 0;
       numberEventsInThisLumi_ = 0;
-      newRun_ = newLumi_ = true;
+      setNewRun();
+      setNewLumi();
     }
   }
 
@@ -137,7 +135,7 @@ namespace edm {
     if (lb != eventID_.luminosityBlock()) {
       eventID_.setLuminosityBlockNumber(lb);
       numberEventsInThisLumi_ = 0;
-      newLumi_ = true;
+      setNewLumi();
     }
     lumiSet_ = true;
   }
@@ -171,22 +169,23 @@ namespace edm {
       decreaseRemainingEventsBy(numberToSkip);
       numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices() + 1;
     }
-    newRun_ = newLumi_ = true;
+    setNewRun();
+    setNewLumi();
   }
     
   InputSource::ItemType 
   ConfigurableInputSource::getNextItemType() {
-    if (newRun_) {
+    if (newRun()) {
       if (eventID_.run() == RunNumber_t()) {
-        eventCached_ = false;
+        resetEventCached();
         return IsStop;
       }
       return IsRun;
     }
-    if (newLumi_) {
+    if (newLumi()) {
       return IsLumi;
     }
-    if(eventCached_) {
+    if(eventCached()) {
       return IsEvent;
     }
     EventID oldEventID = eventID_;
@@ -197,7 +196,7 @@ namespace edm {
       eventSet_ = true;
     }
     if (eventID_.run() == RunNumber_t()) {
-      eventCached_ = false;
+      resetEventCached();
       return IsStop;
     }
     if (oldEventID.run() != eventID_.run()) {
@@ -207,19 +206,20 @@ namespace edm {
       if (!lumiSet_) {
 	eventID_.setLuminosityBlockNumber(origEventID_.luminosityBlock());
       }
-      newRun_ = newLumi_ = true;
+      setNewRun();
+      setNewLumi();
       return IsRun;
     }
       // Same Run
     if (oldLumi != eventID_.luminosityBlock()) {
       // New Lumi
-      newLumi_ = true;
+      setNewLumi();
       if (processingMode() != Runs) {
         return IsLumi;
       }
     }
     reallyReadEvent();
-    if(!eventCached_) {
+    if(!eventCached()) {
       return IsStop;
     }
     eventSet_ = false;

@@ -298,13 +298,21 @@ namespace edm {
 
     ProductRegistry& productRegistryUpdate() const {return const_cast<ProductRegistry&>(*productRegistry_);}
     ItemType state() const{return state_;}
-    void setRunAuxiliary(RunAuxiliary* rp) {runAuxiliary_.reset(rp);}
-    void setLuminosityBlockAuxiliary(LuminosityBlockAuxiliary* lbp) {lumiAuxiliary_.reset(lbp);}
-    void resetRunAuxiliary() const {
-      runAuxiliary_.reset();
+    void setRunAuxiliary(RunAuxiliary* rp) {
+      runAuxiliary_.reset(rp);
+      newRun_ = newLumi_ = true;
     }
-    void resetLuminosityBlockAuxiliary() const {
+    void setLuminosityBlockAuxiliary(LuminosityBlockAuxiliary* lbp) {
+      lumiAuxiliary_.reset(lbp);
+      newLumi_ = true;
+    }
+    void resetRunAuxiliary(bool isNewRun = true) const {
+      runAuxiliary_.reset();
+      newRun_ = newLumi_ = isNewRun;
+    }
+    void resetLuminosityBlockAuxiliary(bool isNewLumi = true) const {
       lumiAuxiliary_.reset();
+      newLumi_ = isNewLumi;
     }
     void reset() const {
       resetLuminosityBlockAuxiliary();
@@ -317,6 +325,15 @@ namespace edm {
     PrincipalCache& principalCache() {return *principalCache_;}
     boost::shared_ptr<LuminosityBlockPrincipal> const luminosityBlockPrincipal() const;
     boost::shared_ptr<RunPrincipal> const runPrincipal() const;
+    bool newRun() const {return newRun_;}
+    void setNewRun() {newRun_ = true;}
+    void resetNewRun() {newRun_ = false;}
+    bool newLumi() const {return newLumi_;}
+    void setNewLumi() {newLumi_ = true;}
+    void resetNewLumi() {newLumi_ = false;}
+    bool eventCached() const {return eventCached_;}
+    void setEventCached() {eventCached_ = true;}
+    void resetEventCached() {eventCached_ = false;}
 
     ///Called by inheriting classes when running multicore when the receiver has told them to
     /// skip some events.
@@ -350,7 +367,7 @@ namespace edm {
     virtual void beginJob();
     virtual void endJob();
     virtual void preForkReleaseResources();
-     virtual void postForkReacquireResources(boost::shared_ptr<multicore::MessageReceiverForSource>);
+    virtual void postForkReacquireResources(boost::shared_ptr<multicore::MessageReceiverForSource>);
     virtual bool randomAccess_() const;
     virtual ProcessingController::ForwardState forwardState_() const;
     virtual ProcessingController::ReverseState reverseState_() const;
@@ -371,6 +388,9 @@ namespace edm {
     bool const primary_;
     std::string processGUID_;
     Timestamp time_;
+    mutable bool newRun_;
+    mutable bool newLumi_;
+    bool eventCached_;
     mutable bool doneReadAhead_;
     mutable ItemType state_;
     mutable boost::shared_ptr<RunAuxiliary> runAuxiliary_;

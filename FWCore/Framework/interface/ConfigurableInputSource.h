@@ -76,9 +76,6 @@ namespace edm {
     unsigned int const zerothEvent_;
     EventID eventID_;
     EventID origEventID_;
-    bool newRun_;
-    bool newLumi_;
-    bool eventCached_;
     bool lumiSet_;
     bool eventSet_;
     bool isRealData_;
