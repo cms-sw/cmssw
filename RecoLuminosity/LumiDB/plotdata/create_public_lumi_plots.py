@@ -34,6 +34,7 @@ from matplotlib import pyplot as plt
 from matplotlib._png import read_png
 from matplotlib.offsetbox import OffsetImage
 from matplotlib.offsetbox import AnnotationBbox
+from matplotlib.font_manager import FontProperties
 
 try:
     import debug_hook
@@ -50,14 +51,10 @@ DATE_FMT_STR_AXES = "%-d %b"
 DATE_FMT_STR_CFG = "%Y-%m-%d"
 NUM_SEC_IN_LS = 2**18 / 11246.
 
-# BUG BUG BUG
-# Working on fonts...
-from matplotlib.font_manager import FontProperties
-font_props_suptitle = FontProperties(size="x-large", weight="bold")
-font_props_title = FontProperties(size="medium", weight="bold")
-font_props_ax_title = FontProperties(size="large", weight="bold")
-font_props_tick_label = FontProperties(size="medium", weight="bold")
-# BUG BUG BUG end
+FONT_PROPS_SUPTITLE = FontProperties(size="x-large", weight="bold")
+FONT_PROPS_TITLE = FontProperties(size="medium", weight="bold")
+FONT_PROPS_AX_TITLE = FontProperties(size="large", weight="bold")
+FONT_PROPS_TICK_LABEL = FontProperties(size="medium", weight="bold")
 
 ######################################################################
 
@@ -294,7 +291,6 @@ def GetXLocator(ax):
     """Pick a DateLocator based on the range of the x-axis."""
     (x_lo, x_hi) = ax.get_xlim()
     num_days = x_hi - x_lo
-    print "DEBUG num_days = %d" % num_days
     min_num_ticks = min(num_days, 5)
     locator = matplotlib.dates.AutoDateLocator(minticks=min_num_ticks,
                                                maxticks=None)
@@ -331,7 +327,7 @@ def TweakPlot(fig, ax, (time_begin, time_end),
     for ax_tmp in fig.axes:
         for sub_ax in [ax_tmp.xaxis, ax_tmp.yaxis]:
             for label in sub_ax.get_ticklabels():
-                label.set_font_properties(font_props_tick_label)
+                label.set_font_properties(FONT_PROPS_TICK_LABEL)
 
     time_lo = datetime.datetime.combine(time_begin.date(), datetime.time()) - \
               datetime.timedelta(days=.5)
@@ -378,7 +374,7 @@ if __name__ == "__main__":
     # Where to store cache files containing the lumiCalc output.
     cache_file_dir = cfg_parser.get("general", "cache_dir")
     # Flag to turn on verbose output.
-    debug = cfg_parser.get("general", "verbose")
+    verbose = cfg_parser.get("general", "verbose")
 
     # Some details on how to invoke lumiCalc.
     lumicalc_script = cfg_parser.get("general", "lumicalc_script")
@@ -481,7 +477,7 @@ if __name__ == "__main__":
     # the below only assumes that we're never more than two days
     # behind on our luminosity numbers.
     last_day_from_cache = min(today - datetime.timedelta(days=2), date_end)
-    if debug:
+    if verbose:
         print "Last day for which the cache will be used: %s" % \
               last_day_from_cache.isoformat()
 
@@ -497,7 +493,7 @@ if __name__ == "__main__":
             date_end_str = (day + datetime.timedelta(days=1)).strftime(DATE_FMT_STR_LUMICALC)
             cmd = "%s --begin '%s' --end '%s' -o %s" % \
                   (lumicalc_cmd, date_begin_str, date_end_str, cache_file_path)
-            if debug:
+            if verbose:
                 print "    running lumicalc as '%s'" % cmd
             (status, output) = commands.getstatusoutput(cmd)
             if status != 0:
@@ -509,7 +505,7 @@ if __name__ == "__main__":
                     # script runs. To avoid this we just write a dummy
                     # cache file for such days.
                     if output.find("[INFO] No qualified data found, do nothing") > -1:
-                        if debug:
+                        if verbose:
                             print "No lumi data for %s, " \
                                   "writing dummy cache file to avoid re-querying the DB" % \
                                   day.isoformat()
@@ -520,7 +516,7 @@ if __name__ == "__main__":
                           "ERROR Problem running lumiCalc: %s" % output
                     sys.exit(1)
         else:
-            if debug:
+            if verbose:
                 print "    cache file for %s exists" % day.isoformat()
 
     # Now read back all lumiCalc results.
@@ -534,7 +530,7 @@ if __name__ == "__main__":
             in_file = open(cache_file_path)
             lines = in_file.readlines()
             if not len(lines):
-                if debug:
+                if verbose:
                     print "    skipping empty file for %s" % day.isoformat()
             else:
                 # DEBUG DEBUG DEBUG
@@ -695,13 +691,13 @@ if __name__ == "__main__":
                 fig.suptitle(r"CMS Integrated Luminosity Per Day, " \
                              "%s, %d, $\mathbf{\sqrt{s} = %.0f}$ TeV" % \
                              (particle_type_str, year, 1.e-3 * cms_energy),
-                             fontproperties=font_props_suptitle)
+                             fontproperties=FONT_PROPS_SUPTITLE)
                 ax.set_title("Data included from %s to %s UTC" % \
                              (str_begin, str_end),
-                             fontproperties=font_props_title)
-                ax.set_xlabel(r"Date (UTC)", fontproperties=font_props_ax_title)
+                             fontproperties=FONT_PROPS_TITLE)
+                ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
                 ax.set_ylabel(r"Integrated Luminosity ($\mathrm{%s}$/day)" % units,
-                              fontproperties=font_props_ax_title)
+                              fontproperties=FONT_PROPS_AX_TITLE)
 
                 TweakPlot(fig, ax, (time_begin, time_end), True)
 
@@ -741,13 +737,13 @@ if __name__ == "__main__":
                 fig.suptitle(r"CMS Integrated Luminosity, " \
                              r"%s, %d, $\mathbf{\sqrt{s} = %.0f}$ TeV" % \
                              (particle_type_str, year, 1.e-3 * cms_energy),
-                             fontproperties=font_props_suptitle)
+                             fontproperties=FONT_PROPS_SUPTITLE)
                 ax.set_title("Data included from %s to %s UTC" % \
                              (str_begin, str_end),
-                             fontproperties=font_props_title)
-                ax.set_xlabel(r"Date (UTC)", fontproperties=font_props_ax_title)
+                             fontproperties=FONT_PROPS_TITLE)
+                ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
                 ax.set_ylabel(r"Total Integrated Luminosity ($\mathbf{\mathrm{%s}}$)" % units,
-                              fontproperties=font_props_ax_title)
+                              fontproperties=FONT_PROPS_AX_TITLE)
 
                 TweakPlot(fig, ax, (time_begin, time_end))
 
