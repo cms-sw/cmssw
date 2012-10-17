@@ -243,7 +243,7 @@ def CacheFilePath(cache_file_dir, day=None):
     cache_file_path = os.path.abspath(cache_file_dir)
     if day:
         cache_file_name = "lumicalc_cache_%s.csv" % day.isoformat()
-        cache_file_path = os.path.join(cache_file_dir, cache_file_name)
+        cache_file_path = os.path.join(cache_file_path, cache_file_name)
     return cache_file_path
 
 ######################################################################
