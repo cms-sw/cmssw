@@ -68,12 +68,12 @@ double             IPbound             = 5;
 
 // Thresholds for candidate preselection --> note that some of the followings can be replaced by Analysis_Step3 function arguments
 double             GlobalMaxEta     =   1.5;    // cut on inner tracker track eta
-double             GlobalMaxV3D     =   0.50;   // cut on 3D distance (cm) to closest vertex
-double             GlobalMaxDZ      =   2.00;   // cut on 1D distance (cm) to closest vertex in "Z" direction
-double             GlobalMaxDXY     =   2.00;   // cut on 2D distance (cm) to closest vertex in "R" direction
+double             GlobalMaxV3D     =   10;//0.50;   // cut on 3D distance (cm) to closest vertex
+double             GlobalMaxDZ      =   0.50;   // cut on 1D distance (cm) to closest vertex in "Z" direction
+double             GlobalMaxDXY     =   0.50;   // cut on 2D distance (cm) to closest vertex in "R" direction
 double             GlobalMaxChi2    =   5.0;    // cut on Track maximal Chi2/NDF
 int                GlobalMinQual    =   2;      // cut on track quality (2 meaning HighPurity tracks)
-unsigned int       GlobalMinNOH     =   11;     // cut on number of (valid) track pixel+strip hits 
+unsigned int       GlobalMinNOH     =   8;      // cut on number of (valid) track pixel+strip hits 
 int                GlobalMinNOPH    =   2;      // cut on number of (valid) track pixel hits 
 double             GlobalMinFOVH    =   0.8;    // cut on fraction of valid track hits
 unsigned int       GlobalMinNOM     =   6;      // cut on number of dEdx hits (generally equal to #strip+#pixel-#ClusterCleaned hits, but this depend on estimator used)
@@ -83,8 +83,8 @@ double             GlobalMinNDOFCSC =   6;      // cut on number of CSC DegreeOf
 double             GlobalMaxTOFErr  =   0.07;   // cut on error on muon TOF measurement
 double             GlobalMaxPterr   =   0.25;   // cut on error on track pT measurement 
 double             GlobalMaxTIsol   =  50;      // cut on tracker isolation (SumPt)
-double             GlobalMaxRelTIsol   =  0.10; // cut on relative tracker isolation (SumPt/Pt)
-double             GlobalMaxEIsol   =   0.30;   // cut on calorimeter isolation (E/P)
+double             GlobalMaxRelTIsol   =  9999999; // cut on relative tracker isolation (SumPt/Pt)
+double             GlobalMaxEIsol   =  0.30;   // cut on calorimeter isolation (E/P)
 double             GlobalMinPt      =  45.00;   // cut on pT    at PRE-SELECTION
 double             GlobalMinIs      =   0.0;    // cut on dEdxS at PRE-SELECTION (dEdxS is generally a  discriminator)
 double             GlobalMinIm      =   3.0;    // cut on dEdxM at PRE-SELECTION (dEdxM is generally an estimator    )

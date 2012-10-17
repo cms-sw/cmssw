@@ -58,9 +58,14 @@ void Analysis_Step5()
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex);
-/*
-   InputPattern = "Results/Type2/";   CutIndex = 905; CutIndex_Flip=16;
-   MassPrediction(InputPattern, CutIndex, "Mass");
+
+return;
+
+   InputPattern = "Results/Type2/";   CutIndex = 16; CutIndexTight = 905; CutIndex_Flip=16;
+   MassPrediction(InputPattern, CutIndex,      "Mass", "8TeV_Loose");
+   MassPrediction(InputPattern, CutIndex,      "Mass", "7TeV_Loose");
+   MassPrediction(InputPattern, CutIndexTight, "Mass", "8TeV_Tight");
+   MassPrediction(InputPattern, CutIndexTight, "Mass", "7TeV_Tight");
    MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip");
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
@@ -69,7 +74,7 @@ void Analysis_Step5()
    GetSystematicOnPrediction(InputPattern);
    CheckPrediction(InputPattern, "_Flip", "Data7TeV");
    CheckPrediction(InputPattern, "_Flip", "Data8TeV");
-
+/*
    InputPattern = "Results/Type3/";   CutIndex = 125; CutIndex_Flip=58;
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
@@ -80,11 +85,11 @@ void Analysis_Step5()
    CheckPrediction(InputPattern, "_Flip", "Data8TeV");
    CheckPrediction(InputPattern, "", "Data7TeV");
    CheckPrediction(InputPattern, "_Flip", "Data7TeV");
-
+*/
    InputPattern = "Results/Type5/";   CutIndex = 67; CutIndex_Flip=2;
    SelectionPlot(InputPattern, CutIndex);
    CutFlow(InputPattern);
-*/
+
      //This function has not yet been reviewed after july's update
 //   MakeExpLimitpLot("Results_1toys_lp/dedxASmi/combined/Eta15/PtMin35/Type0/EXCLUSION/Stop200.info","tmp1.png");
 }
@@ -699,9 +704,11 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
 
     stPlots_DrawComparison(InputPattern + "/Selection_Comp_Data"  , LegendTitle, CutIndex, &Data8TeVPlots, &Data7TeVPlots, &MCTr8TeVPlots, &MCTr7TeVPlots);
 
-    if(TypeMode<=2) stPlots_DrawComparison(InputPattern + "/Selection_Comp_Gluino", LegendTitle, CutIndex, &Data8TeVPlots, &MCTr8TeVPlots,     &SignPlots[JobIdToIndex("Gluino_7TeV_M300_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M600_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);
+    if(TypeMode<=2) stPlots_DrawComparison(InputPattern + "/Selection_Comp_7TeV_Gluino", LegendTitle, CutIndex, &Data7TeVPlots, &MCTr7TeVPlots,     &SignPlots[JobIdToIndex("Gluino_7TeV_M300_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M600_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);
+    if(TypeMode<=2) stPlots_DrawComparison(InputPattern + "/Selection_Comp_8TeV_Gluino", LegendTitle, CutIndex, &Data8TeVPlots, &MCTr8TeVPlots,     &SignPlots[JobIdToIndex("Gluino_7TeV_M300_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M600_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);
     if(TypeMode==3) stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic", LegendTitle, CutIndex, &Data8TeVPlots, &Data7TeVPlots, &Cosmic8TeVPlots, &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);
-    if(TypeMode==5) stPlots_DrawComparison(InputPattern + "/Selection_Comp_DY"    , LegendTitle, CutIndex, &Data8TeVPlots, &Data7TeVPlots,   &SignPlots[JobIdToIndex("DY_7TeV_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M400_Q2o3",samples)]);
+    if(TypeMode==5) stPlots_DrawComparison(InputPattern + "/Selection_Comp_7TeV_DY"    , LegendTitle, CutIndex, &Data7TeVPlots, &MCTr7TeVPlots,   &SignPlots[JobIdToIndex("DY_7TeV_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M600_Q2o3",samples)]);
+    if(TypeMode==5) stPlots_DrawComparison(InputPattern + "/Selection_Comp_7TeV_DY"    , LegendTitle, CutIndex, &Data8TeVPlots, &MCTr8TeVPlots,   &SignPlots[JobIdToIndex("DY_8TeV_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M600_Q2o3",samples)]);
 
     stPlots_Clear(&Data8TeVPlots);
     stPlots_Clear(&Data7TeVPlots);

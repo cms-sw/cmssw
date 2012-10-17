@@ -89,7 +89,7 @@ void DrawLegend (TObject** Histos, std::vector<std::string> legend, std::string 
    if(legend[0]!=""){
       TLegend* leg;
       leg = new TLegend(X,Y,X-W,Y - N*H);
-      leg->SetFillColor(0);
+      leg->SetFillStyle(0);
       leg->SetBorderSize(0);
       //leg->SetTextAlign(32);
       if(Title!="")leg->SetHeader(Title.c_str());

@@ -147,13 +147,12 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
      IntegratedLuminosityBeforeTriggerChange = 0;
      IntegratedLuminosity = 4100;
 #endif
-   }//   else if(TypeMode==4){GlobalMaxTIsol = -1;
-    //     GlobalMaxEIsol = -1;
-    //   }
-   else if(TypeMode==5){
+   }else if(TypeMode==4){GlobalMaxTIsol = -1;
+         GlobalMaxTIsol   =  999999;      // cut on tracker isolation (SumPt)
+         GlobalMaxRelTIsol   =  0.10; // cut on relative tracker isolation (SumPt/Pt)
+         GlobalMaxEIsol   =  999999;   // cut on calorimeter isolation (E/P)
+   } else if(TypeMode==5){
      GlobalMinIm   = 2.8; //is actually dEdx max at skim level (reverse logic for type5)
-     GlobalMinNOH  = 6;
-     GlobalMinNOM  = 5;  
      GlobalMinNDOF = 0; //tkOnly analysis --> comment these 2 lines to use only global muon tracks
      GlobalMinTOF  = 0;
    }
@@ -170,6 +169,7 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
       }}
    }else if(TypeMode==2){
       for(double Pt =GlobalMinPt+5 ; Pt <120;  Pt+=5){
+      if(Pt>80 && ((int)Pt)%10!=0)continue;
       for(double I  =GlobalMinIs +0.025; I  <0.40;  I+=0.025){
       for(double TOF=GlobalMinTOF+0.025; TOF<1.35;TOF+=0.025){
 	   CutPt .push_back(Pt);   CutI  .push_back(I);  CutTOF.push_back(TOF);
@@ -467,17 +467,20 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 
      HSCPIsolation hscpIso = IsolationMap.get((size_t)track.key());
      if(st){st->BS_TIsol ->Fill(hscpIso.Get_TK_SumEt(),Event_Weight);}
-     if(TypeMode!=4){       if(hscpIso.Get_TK_SumEt()>GlobalMaxTIsol)return false;     }
+//     if(TypeMode!=4){       if(hscpIso.Get_TK_SumEt()>GlobalMaxTIsol)return false;     }
+      if(hscpIso.Get_TK_SumEt()>GlobalMaxTIsol)return false;
      if(st){st->TIsol   ->Fill(0.0,Event_Weight);}
 
      double EoP = (hscpIso.Get_ECAL_Energy() + hscpIso.Get_HCAL_Energy())/track->p();
      if(st){st->BS_EIsol ->Fill(EoP,Event_Weight);}
-     if(TypeMode!=4){       if(EoP>GlobalMaxEIsol)return false;     }
+//     if(TypeMode!=4){       if(EoP>GlobalMaxEIsol)return false;     }
+     if(EoP>GlobalMaxEIsol)return false;
      if(st){st->EIsol   ->Fill(0.0,Event_Weight);}
      
      // relative tracker isolation
      if (st) {  st->BS_SumpTOverpT->Fill(hscpIso.Get_TK_SumEt()/track->pt(), Event_Weight); }
-     if(TypeMode==4) { if(hscpIso.Get_TK_SumEt()/track->pt()>GlobalMaxRelTIsol)return false;   }
+//     if(TypeMode==4) { if(hscpIso.Get_TK_SumEt()/track->pt()>GlobalMaxRelTIsol)return false;   }
+     if(hscpIso.Get_TK_SumEt()/track->pt()>GlobalMaxRelTIsol)return false;
      if (st) {  st->SumpTOverpT   ->Fill(0.0,Event_Weight);} 
    }
 
@@ -916,8 +919,8 @@ void Analysis_Step3(char* SavePath)
       //need a new set of plots for these events
       string CosmicName="";
       if(isData && TypeMode==3) {
-	if(samples[s].Name.find("8TeV")!=string::npos) CosmicName="Cosmic8TeV";
-	else CosmicName="Cosmic7TeV";
+	if(samples[s].Name.find("12")!=string::npos) CosmicName="Cosmic12";
+	else CosmicName="Cosmic11";
 	if(plotsMap.find(CosmicName)==plotsMap.end()){plotsMap[CosmicName] = stPlots();}
 	stPlots_Init(HistoFile,plotsMap[CosmicName],CosmicName, CutPt.size(), false, false, CutPt_Flip.size());
       }
