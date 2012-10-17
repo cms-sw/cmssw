@@ -14,7 +14,7 @@ using namespace std;
 
 /////////////////////////// FUNCTION DECLARATION /////////////////////////////
 
-void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuffix="Mass");
+void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuffix="Mass", string Data="Data8TeV");
 void PredictionAndControlPlot(string InputPattern, string Data, unsigned int CutIndex, unsigned int CutIndex_Flip);
 void CutFlow(string InputPattern, unsigned int CutIndex=0);
 void SelectionPlot (string InputPattern, unsigned int CutIndex);
@@ -45,16 +45,20 @@ void Analysis_Step5()
 
    GetSampleDefinition(samples);
 
-   string InputPattern;				unsigned int CutIndex;     unsigned int CutIndex_Flip;
+
+   string InputPattern;				unsigned int CutIndex;     unsigned int CutIndex_Flip;  unsigned int CutIndexTight;
    std::vector<string> Legends;                 std::vector<string> Inputs;
 
-   InputPattern = "Results/Type0/";   CutIndex = 84; //set of cuts from the array, 0 means no cut
-   MassPrediction(InputPattern, CutIndex, "Mass");
+   InputPattern = "Results/Type0/";   CutIndex = 4; CutIndexTight = 84; //set of cuts from the array, 0 means no cut
+   MassPrediction(InputPattern, CutIndex,      "Mass", "8TeV_Loose");
+   MassPrediction(InputPattern, CutIndex,      "Mass", "7TeV_Loose");
+   MassPrediction(InputPattern, CutIndexTight, "Mass", "8TeV_Tight");
+   MassPrediction(InputPattern, CutIndexTight, "Mass", "7TeV_Tight");
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex);
-
+/*
    InputPattern = "Results/Type2/";   CutIndex = 905; CutIndex_Flip=16;
    MassPrediction(InputPattern, CutIndex, "Mass");
    MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip");
@@ -80,7 +84,7 @@ void Analysis_Step5()
    InputPattern = "Results/Type5/";   CutIndex = 67; CutIndex_Flip=2;
    SelectionPlot(InputPattern, CutIndex);
    CutFlow(InputPattern);
-
+*/
      //This function has not yet been reviewed after july's update
 //   MakeExpLimitpLot("Results_1toys_lp/dedxASmi/combined/Eta15/PtMin35/Type0/EXCLUSION/Stop200.info","tmp1.png");
 }
@@ -89,41 +93,57 @@ void Analysis_Step5()
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 // General code for validation plots and final paper plots production 
 
+
 // Make the plot of the mass distibution: Observed, data-driven prediciton and signal expectation
-void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuffix){
+void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuffix, string DataName){
    bool IsTkOnly = (InputPattern.find("Type0",0)<std::string::npos);
    double SystError     = 0.05;
 
-   string        SName="Gluino_7TeV_M600_f10";  string SLeg="Gluino (M=600 GeV/#font[12]{c}^{2})";
-   if(!IsTkOnly){SName="GMStau_7TeV_M156";         SLeg="Stau (M=156 GeV/#font[12]{c}^{2})";}
-
-   TH1D *Pred12=NULL, *Data8TeV=NULL, *Pred11=NULL, *Data7TeV=NULL, *MCPred=NULL, *MC=NULL, *Signal=NULL;
+   TH1D *Pred8TeV=NULL, *Data8TeV=NULL, *Pred7TeV=NULL, *Data7TeV=NULL, *MCPred=NULL, *MC=NULL, *Signal=NULL;
    TFile* InputFile = new TFile((InputPattern + "/Histos.root").c_str());
    if(!InputFile || InputFile->IsZombie() || !InputFile->IsOpen() || InputFile->TestBit(TFile::kRecovered) )return;   
 
+   string SName,SLeg;
+
    //README: Comments or uncomment lines below in order to decide what you want to see on your plot
-   Pred12    = ((TH2D*)GetObjectFromPath(InputFile, string("Data8TeV/Pred_") + HistoSuffix   ))->ProjectionY("TmpPredMass"   ,CutIndex+1,CutIndex+1,"o");
-   Data8TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data8TeV/"     ) + HistoSuffix   ))->ProjectionY("TmpDataMass"   ,CutIndex+1,CutIndex+1,"o");
-   Pred11    = ((TH2D*)GetObjectFromPath(InputFile, string("Data7TeV/Pred_") + HistoSuffix   ))->ProjectionY("TmpPred11Mass" ,CutIndex+1,CutIndex+1,"o");
-   Data7TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data7TeV/"     ) + HistoSuffix   ))->ProjectionY("TmpData7TeVMass" ,CutIndex+1,CutIndex+1,"o");
-   //MCPred    = ((TH2D*)GetObjectFromPath(InputFile, string("MCTr/Pred_"  ) + HistoSuffix   ))->ProjectionY("TmpMCPred"     ,CutIndex+1,CutIndex+1,"o");
-   //MC        = ((TH2D*)GetObjectFromPath(InputFile, string("MCTr/"       ) + HistoSuffix   ))->ProjectionY("TmpMCMass"     ,CutIndex+1,CutIndex+1,"o");
-   Signal    = ((TH2D*)GetObjectFromPath(InputFile, string(SName+"/"     ) + HistoSuffix   ))->ProjectionY("TmpSignalMass" ,CutIndex+1,CutIndex+1,"o");
+   if(DataName.find("8TeV")!=string::npos){
+                    SName="Gluino_7TeV_M600_f10";     SLeg="Gluino (M=600 GeV/#font[12]{c}^{2})";
+      if(!IsTkOnly){SName="GMStau_7TeV_M156";         SLeg="Stau (M=156 GeV/#font[12]{c}^{2})";}
+
+      Pred8TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data8TeV/Pred_") + HistoSuffix   ))->ProjectionY("TmpPredMass"   ,CutIndex+1,CutIndex+1,"o");
+      Data8TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data8TeV/"     ) + HistoSuffix   ))->ProjectionY("TmpDataMass"   ,CutIndex+1,CutIndex+1,"o");
+//    Pred7TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data7TeV/Pred_") + HistoSuffix   ))->ProjectionY("TmpPred7TeVMass" ,CutIndex+1,CutIndex+1,"o");
+//    Data7TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data7TeV/"     ) + HistoSuffix   ))->ProjectionY("TmpData7TeVMass" ,CutIndex+1,CutIndex+1,"o");
+      MCPred    = ((TH2D*)GetObjectFromPath(InputFile, string("MCTr_8TeV/Pred_"  ) + HistoSuffix   ))->ProjectionY("TmpMCPred"     ,CutIndex+1,CutIndex+1,"o");
+      MC        = ((TH2D*)GetObjectFromPath(InputFile, string("MCTr_8TeV/"       ) + HistoSuffix   ))->ProjectionY("TmpMCMass"     ,CutIndex+1,CutIndex+1,"o");
+      Signal    = ((TH2D*)GetObjectFromPath(InputFile, string(SName+"/"     ) + HistoSuffix   ))->ProjectionY("TmpSignalMass" ,CutIndex+1,CutIndex+1,"o");
+   }else{
+                    SName="Gluino_7TeV_M600_f10";     SLeg="Gluino (M=600 GeV/#font[12]{c}^{2})";
+      if(!IsTkOnly){SName="GMStau_7TeV_M156";         SLeg="Stau (M=156 GeV/#font[12]{c}^{2})";}
+
+      Pred8TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data7TeV/Pred_") + HistoSuffix   ))->ProjectionY("TmpPredMass"   ,CutIndex+1,CutIndex+1,"o");
+      Data8TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data7TeV/"     ) + HistoSuffix   ))->ProjectionY("TmpDataMass"   ,CutIndex+1,CutIndex+1,"o");
+//    Pred7TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data7TeV/Pred_") + HistoSuffix   ))->ProjectionY("TmpPred7TeVMass" ,CutIndex+1,CutIndex+1,"o");
+//    Data7TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data7TeV/"     ) + HistoSuffix   ))->ProjectionY("TmpData7TeVMass" ,CutIndex+1,CutIndex+1,"o");
+      MCPred    = ((TH2D*)GetObjectFromPath(InputFile, string("MCTr_7TeV/Pred_"  ) + HistoSuffix   ))->ProjectionY("TmpMCPred"     ,CutIndex+1,CutIndex+1,"o");
+      MC        = ((TH2D*)GetObjectFromPath(InputFile, string("MCTr_7TeV/"       ) + HistoSuffix   ))->ProjectionY("TmpMCMass"     ,CutIndex+1,CutIndex+1,"o");
+      Signal    = ((TH2D*)GetObjectFromPath(InputFile, string(SName+"/"     ) + HistoSuffix   ))->ProjectionY("TmpSignalMass" ,CutIndex+1,CutIndex+1,"o");
+   }
 
    //rescale Data7TeV & MC samples to prediction of 2012 data
-   if(Data8TeV && Pred12){
-      if(Data7TeV && Pred11)Data7TeV->Scale(Pred12->Integral()/Pred11->Integral());
-      if(Pred11)          Pred11->Scale(Pred12->Integral()/Pred11->Integral());
-      if(MC)              MC    ->Scale(Pred12->Integral()/MCPred->Integral());
-      if(MCPred)          MCPred->Scale(Pred12->Integral()/MCPred->Integral());
+   if(Data8TeV && Pred8TeV){
+      if(Data7TeV && Pred7TeV)Data7TeV->Scale(Pred8TeV->Integral()/Pred7TeV->Integral());
+      if(Pred7TeV)          Pred7TeV->Scale(Pred8TeV->Integral()/Pred7TeV->Integral());
+      if(MC)              MC    ->Scale(Pred8TeV->Integral()/MCPred->Integral());
+      if(MCPred)          MCPred->Scale(Pred8TeV->Integral()/MCPred->Integral());
    }
 
    //compute integral for few mass window
-   if(Data8TeV && Pred12){
+   if(Data8TeV && Pred8TeV){
       for(double M=0;M<=1000;M+=200){
          double D = Data8TeV->Integral( Data8TeV->GetXaxis()->FindBin(M),  Data8TeV->GetXaxis()->FindBin(2000.0));
-         double P = Pred12->Integral( Pred12->GetXaxis()->FindBin(M),  Pred12->GetXaxis()->FindBin(2000.0));
-         double Perr = 0; for(int i=Pred12->GetXaxis()->FindBin(M);i<Pred12->GetXaxis()->FindBin(2000.0);i++){ Perr += pow(Pred12->GetBinError(i),2); }  Perr = sqrt(Perr);
+         double P = Pred8TeV->Integral( Pred8TeV->GetXaxis()->FindBin(M),  Pred8TeV->GetXaxis()->FindBin(2000.0));
+         double Perr = 0; for(int i=Pred8TeV->GetXaxis()->FindBin(M);i<Pred8TeV->GetXaxis()->FindBin(2000.0);i++){ Perr += pow(Pred8TeV->GetBinError(i),2); }  Perr = sqrt(Perr);
          printf("%4.0f<M<2000 --> Obs=%9.3f Data-Pred = %9.3f +- %8.3f(syst+stat) %9.3f (syst) %9.3f (stat)\n", M, D, P, sqrt(Perr*Perr + pow(P*(2*SystError),2)), P*(2*SystError), Perr);
       }
    }
@@ -131,30 +151,30 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    //Rebin the histograms and find who is the highest
    double Max = 1.0; double Min=0.01;
    if(Data8TeV){Data8TeV->Rebin(4);  Max=std::max(Max, Data8TeV->GetMaximum());}
-   if(Pred12){Pred12->Rebin(4);  Max=std::max(Max, Pred12->GetMaximum());}
+   if(Pred8TeV){Pred8TeV->Rebin(4);  Max=std::max(Max, Pred8TeV->GetMaximum());}
    if(Data7TeV){Data7TeV->Rebin(4);  Max=std::max(Max, Data7TeV->GetMaximum());}
-   if(Pred11){Pred11->Rebin(4);  Max=std::max(Max, Pred11->GetMaximum());}
+   if(Pred7TeV){Pred7TeV->Rebin(4);  Max=std::max(Max, Pred7TeV->GetMaximum());}
    if(Signal){Signal->Rebin(4);  Max=std::max(Max, Signal->GetMaximum());}
    if(MC)    {MC    ->Rebin(4);  Max=std::max(Max, MC    ->GetMaximum());}
    if(MCPred){MCPred->Rebin(4);  Max=std::max(Max, MCPred->GetMaximum());}
-   Max*=2;
+   Max*=2.5;
 
    //compute error bands associated to the predictions
-   TH1D *Pred12Err=NULL, *Pred11Err=NULL, *PredMCErr=NULL;
-   if(Pred12)Pred12Err = (TH1D*) Pred12->Clone("Pred12Err");
-   if(Pred11)Pred11Err = (TH1D*) Pred11->Clone("Pred11Err");
+   TH1D *Pred8TeVErr=NULL, *Pred7TeVErr=NULL, *PredMCErr=NULL;
+   if(Pred8TeV)Pred8TeVErr = (TH1D*) Pred8TeV->Clone("Pred8TeVErr");
+   if(Pred7TeV)Pred7TeVErr = (TH1D*) Pred7TeV->Clone("Pred7TeVErr");
    if(MCPred)PredMCErr = (TH1D*) MCPred->Clone("PredMCErr");
 
-   if(Pred12){for(unsigned int i=0;i<(unsigned int)Pred12->GetNbinsX();i++){
-      double error = sqrt(pow(Pred12Err->GetBinError(i),2) + pow(Pred12Err->GetBinContent(i)*2*SystError,2));
-      Pred12Err->SetBinError(i,error);       
-      if(Pred12Err->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)Pred12Err->GetNbinsX();j++)Pred12Err->SetBinContent(j,0);}
+   if(Pred8TeV){for(unsigned int i=0;i<(unsigned int)Pred8TeV->GetNbinsX();i++){
+      double error = sqrt(pow(Pred8TeVErr->GetBinError(i),2) + pow(Pred8TeVErr->GetBinContent(i)*2*SystError,2));
+      Pred8TeVErr->SetBinError(i,error);       
+      if(Pred8TeVErr->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)Pred8TeVErr->GetNbinsX();j++)Pred8TeVErr->SetBinContent(j,0);}
    }}
 
-   if(Pred11){for(unsigned int i=0;i<(unsigned int)Pred11->GetNbinsX();i++){
-      double error = sqrt(pow(Pred11Err->GetBinError(i),2) + pow(Pred11Err->GetBinContent(i)*2*SystError,2));
-      Pred11Err->SetBinError(i,error);
-      if(Pred11Err->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)Pred11Err->GetNbinsX();j++)Pred11Err->SetBinContent(j,0);}      
+   if(Pred7TeV){for(unsigned int i=0;i<(unsigned int)Pred7TeV->GetNbinsX();i++){
+      double error = sqrt(pow(Pred7TeVErr->GetBinError(i),2) + pow(Pred7TeVErr->GetBinContent(i)*2*SystError,2));
+      Pred7TeVErr->SetBinError(i,error);
+      if(Pred7TeVErr->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)Pred7TeVErr->GetNbinsX();j++)Pred7TeVErr->SetBinContent(j,0);}      
    }}
 
    if(MCPred){for(unsigned int i=0;i<(unsigned int)MCPred->GetNbinsX();i++){
@@ -185,12 +205,13 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       Signal->SetMarkerStyle(21);
       Signal->SetMarkerColor(8);
       Signal->SetMarkerSize(1.5);
-      Signal->SetLineColor(8);
+      Signal->SetLineColor(1);
       Signal->SetFillColor(8);
       Signal->Draw("same HIST");
    }
 
    if(MCPred){
+//      PredMCErr->SetLineStyle(0);
       PredMCErr->SetLineColor(9);
       PredMCErr->SetFillColor(9);
       PredMCErr->SetFillStyle(1001);
@@ -215,21 +236,21 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       MC->Draw("same HIST E1");
    }
 
-   if(Pred11){
-      Pred11Err->SetLineColor(7);
-      Pred11Err->SetFillColor(7);
-      Pred11Err->SetFillStyle(1001);
-      Pred11Err->SetMarkerStyle(22);
-      Pred11Err->SetMarkerColor(7);
-      Pred11Err->SetMarkerSize(1.0);
-      Pred11Err->Draw("same E5");
+   if(Pred7TeV){
+      Pred7TeVErr->SetLineColor(7);
+      Pred7TeVErr->SetFillColor(7);
+      Pred7TeVErr->SetFillStyle(1001);
+      Pred7TeVErr->SetMarkerStyle(22);
+      Pred7TeVErr->SetMarkerColor(7);
+      Pred7TeVErr->SetMarkerSize(1.0);
+      Pred7TeVErr->Draw("same E5");
 
-      Pred11->SetMarkerStyle(26);
-      Pred11->SetMarkerColor(2);
-      Pred11->SetMarkerSize(1.5);
-      Pred11->SetLineColor(2);
-      Pred11->SetFillColor(0);
-      Pred11->Draw("same HIST P");
+      Pred7TeV->SetMarkerStyle(26);
+      Pred7TeV->SetMarkerColor(2);
+      Pred7TeV->SetMarkerSize(1.5);
+      Pred7TeV->SetLineColor(2);
+      Pred7TeV->SetFillColor(0);
+      Pred7TeV->Draw("same HIST P");
    }
 
    if(Data7TeV){
@@ -242,21 +263,21 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       Data7TeV->Draw("E1 same");
    }
 
-   if(Pred12){
-      Pred12Err->SetLineColor(5);
-      Pred12Err->SetFillColor(5);
-      Pred12Err->SetFillStyle(1001);
-      Pred12Err->SetMarkerStyle(22);
-      Pred12Err->SetMarkerColor(5);
-      Pred12Err->SetMarkerSize(1.0);
-      Pred12Err->Draw("same E5");
+   if(Pred8TeV){
+      Pred8TeVErr->SetLineColor(5);
+      Pred8TeVErr->SetFillColor(5);
+      Pred8TeVErr->SetFillStyle(1001);
+      Pred8TeVErr->SetMarkerStyle(22);
+      Pred8TeVErr->SetMarkerColor(5);
+      Pred8TeVErr->SetMarkerSize(1.0);
+      Pred8TeVErr->Draw("same E5");
 
-      Pred12->SetMarkerStyle(22);
-      Pred12->SetMarkerColor(2);
-      Pred12->SetMarkerSize(1.5);
-      Pred12->SetLineColor(2);
-      Pred12->SetFillColor(0);
-      Pred12->Draw("same HIST P");
+      Pred8TeV->SetMarkerStyle(22);
+      Pred8TeV->SetMarkerColor(2);
+      Pred8TeV->SetMarkerSize(1.5);
+      Pred8TeV->SetLineColor(2);
+      Pred8TeV->SetFillColor(0);
+      Pred8TeV->Draw("same HIST P");
    }
 
    if(Data8TeV){
@@ -273,19 +294,19 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    if(IsTkOnly) leg = new TLegend(0.82,0.93,0.25,0.66);
    else         leg = new TLegend(0.79,0.93,0.25,0.66);
    leg->SetHeader(LegendFromType(InputPattern).c_str());
-   leg->SetFillColor(0);
+   leg->SetFillStyle(0);
    leg->SetBorderSize(0);
    if(Data8TeV){leg->AddEntry(Data8TeV, "Observed"        ,"P");}
-   if(Pred12){TH1D* PredLeg12 = (TH1D*)Pred12->Clone("RescLeg12");
-      PredLeg12->SetFillColor(Pred12Err->GetFillColor());
-      PredLeg12->SetFillStyle(Pred12Err->GetFillStyle());
-      leg->AddEntry(PredLeg12, "Data8TeV-based SM prediction"  ,"PF");
+   if(Pred8TeV){TH1D* PredLeg8TeV = (TH1D*)Pred8TeV->Clone("RescLeg12");
+      PredLeg8TeV->SetFillColor(Pred8TeVErr->GetFillColor());
+      PredLeg8TeV->SetFillStyle(Pred8TeVErr->GetFillStyle());
+      leg->AddEntry(PredLeg8TeV, "Data8TeV-based SM prediction"  ,"PF");
    }
    if(Data7TeV){leg->AddEntry(Data7TeV, "Observed (2011)"     ,"P");}
-   if(Pred11){TH1D* PredLeg11 = (TH1D*)Pred11->Clone("RescLeg11");
-      PredLeg11->SetFillColor(Pred11Err->GetFillColor());
-      PredLeg11->SetFillStyle(Pred11Err->GetFillStyle());
-      leg->AddEntry(PredLeg11, "Data7TeV-based SM prediction"  ,"PF");
+   if(Pred7TeV){TH1D* PredLeg7TeV = (TH1D*)Pred7TeV->Clone("RescLeg11");
+      PredLeg7TeV->SetFillColor(Pred7TeVErr->GetFillColor());
+      PredLeg7TeV->SetFillStyle(Pred7TeVErr->GetFillStyle());
+      leg->AddEntry(PredLeg7TeV, "Data7TeV-based SM prediction"  ,"PF");
    }
    if(MC    ){leg->AddEntry(MC, "Simulation"     ,"LF");}
    if(MCPred){TH1D* MCPredLeg = (TH1D*) MCPred->Clone("RescMCLeg");
@@ -299,11 +320,12 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    //add CMS label and save
    DrawPreliminary(SQRTS, IntegratedLuminosity);
    c1->SetLogy(true);
-   SaveCanvas(c1, InputPattern, string("Rescale_") + HistoSuffix);
+   SaveCanvas(c1, InputPattern, string("Rescale_") + HistoSuffix + "_" + DataName);
+
+
    delete c1;
    InputFile->Close();
 }
-
 
 // make some control plots to show that ABCD method can be used
 void PredictionAndControlPlot(string InputPattern, string Data, unsigned int CutIndex, unsigned int CutIndex_Flip){
